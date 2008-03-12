@@ -131,7 +131,7 @@ class Scrape
     indentation = eat(/ +/)
     while not scan(/(?=\])/)
       a.push scrape_thing
-      eat(/\n/)
+      eat(/,?\n/)
       eat(/ */) == indentation or scan(/(?=\])/) or raise "assert: maybe a bug #{@scanner.pos}"
     end
     eat(/\]/)
@@ -178,7 +178,7 @@ class BuildIR
     tag = nil
     if h['_rakudo_type'] == 'match'
       h.delete '_rakudo_type'
-      tag = 'match'
+      tag = "#{name}___match"
     else
       ks = h.keys.sort
       tag = "#{name}___#{ks.join('__')}"
@@ -262,10 +262,23 @@ class BuildIR
 end
 
 END
-
 sub ir_nodes {
     my $base = <<'END';
   class Base
+    def to_term(obj=:x969867924)
+      obj = self if obj == :x969867924
+      if not obj
+        'nil'
+      elsif obj.is_a? Array
+        '['+obj.map{|e|to_term(e)}.join(',')+']'
+      elsif obj.is_a? String
+           "'"+obj+"'"
+      elsif obj.is_a? Symbol #XXX not a great idea
+           ":"+obj.to_s+""
+      else
+        obj.node_name+'('+obj.field_values.map{|v| to_term(v) }.join(',') + ')'
+      end
+    end
   end
   class Val_Base < Base
   end
@@ -276,27 +289,29 @@ sub ir_nodes {
 END
     my $nodes = "";
     for my $node (@ir_nodes) {
-	my $name = $node->name;
-	my $base = 'Base';
-	$base = "${1}_Base" if $name =~ /([^_]+)_/;
-	my(@symbols,@params,@attribs);
-	for my $field ($node->fields) {
-	    my $fname = $field->identifier;
-	    push(@symbols,':'.$fname);
-	    push(@attribs,'@'.$fname);
-	    push(@params,$fname);
-	}
-	my $symbols = join(",",@symbols);
-	my $params = join(",",@params);
-	my $attribs = join(",",@attribs);
-	my $init = $attribs eq '' ? "" : "$attribs = $params";
-	$nodes .= <<"END"
+        my $name = $node->name;
+        my $base = 'Base';
+        $base = "${1}_Base" if $name =~ /([^_]+)_/;
+        my(@symbols,@params,@attribs);
+        for my $field ($node->fields) {
+            my $fname = $field->identifier;
+            push(@symbols,':'.$fname);
+            push(@attribs,'@'.$fname);
+            push(@params,$fname);
+        }
+        my $symbols = join(",",@symbols);
+        my $params = join(",",@params);
+        my $attribs = join(",",@attribs);
+        my $init = $attribs eq '' ? "" : "$attribs = $params";
+        $nodes .= <<"END"
   class $name < $base
     attr_accessor $symbols
     def initialize($params)
       $init
     end
     def emit(emitter); emitter.emit_$name(self) end
+    def node_name; '$name' end
+    def field_values; [$attribs] end
   end
 END
     }
@@ -307,14 +322,17 @@ $nodes
 # Constructors
 def self.Apply_from__ident__semilist(i,sl); Apply.new(i,sl) end
 def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) end
+def self.Decl_from__declarator__scoped(d,s); Decl.new(d,nil,s) end
 def self.Do_from__statementlist(sl); Do.new(sl) end
-def self.Name_from__ident(i); Name.new(i) end
-def self.PackageDeclarator_from__block__name__sym(b,n,k); PackageDeclarator.new(k,n,b) end
+#def self.Name_from__ident(i); Name.new(i) end
+def self.PackageDeclarator_from__block__name__sym(b,n,k); PackageDeclarator.new(k,n[0],b) end
 def self.Val_Int_from__empty(s); Val_Int.new(s) end
 def self.Var_from__empty(s); Var.new(nil,nil,s,nil) end
+def self.Var_from__name__sigil__twigil(n,s,t); Var.new(s,t[0],n[0],nil) end
+def self.Var_from__name__sigil(n,s); Var.new(s,nil,n,nil) end
 def self.VirtualRoutineDeclarator_from__method_def__sym(m,k)
   if k == 'method'
-    Method.new(Name_from__ident(m['ident']),m['multisig'],m['block'])
+    Method.new(m['ident'][0],m['multisig'],m['block'])
   else raise "Routine type is unimplemented: #{k}\n"
   end
 end
@@ -326,21 +344,37 @@ sub emit_p5 {
     <<'END';
 class EmitSimpleP5
   def emit(ir)
-    ir.emit(self)
+    if ir.is_a? String
+      ir
+    else
+      ir.emit(self)
+    end
   end
   def emit_Apply(n); n.code.emit(self)+'('+n.arguments.map{|e|e.emit(self)}.join(',')+')' end
   def emit_CompUnit(n); n.body.emit(self) end
+  def emit_Decl(n)
+    if n.decl == 'has'
+      "has '#{n.var.name}' => (is => 'rw');\n"
+    else
+      raise "Unimplemented: decl: #{n.decl}\n"
+    end
+  end
   def emit_Do(n); n.block.map{|statement| statement.emit(self)+";\n"}.join("") end
   def emit_Method(n)
-    ('sub '+n.name.emit(self)+" {\n"+
+    ('sub '+n.name+" {\n"+
+     '  my $self = shift;'+"\n"+
      n.block.emit(self)+
      "}\n")
   end
-  def emit_Name(n); n.ident.map{|v| v.emit(self)}.join('::') end
-  def emit_PackageDeclarator(n); '{package '+n.name.emit(self)+";\n"+n.block.emit(self)+"}\n" end
+  #def emit_Name(n); n.ident.map{|v| v.emit(self)}.join('::') end
+  def emit_PackageDeclarator(n); '{package '+n.name+";\nuse Moose;\n"+n.block.emit(self)+"}\n" end
   def emit_Val_Int(n); n.int end
   def emit_Var(n)
-    (n.sigil || '')+n.name
+    if n.twigil == '.'
+      '$self->'+emit(n.name)
+    else
+      (n.sigil || '')+emit(n.name)
+    end
   end
   def method_missing(m,*a,&b)
     STDERR.print "# WARNING: Can't #{m}: FAKING IT.\n"
@@ -376,6 +410,7 @@ end
     build = BuildIR.new('rakudo_ast.data')
     dump = parse(nil,p6_code)
     print dump
+    File.open('deleteme_dump','w'){|f|f.print dump}
     tree = Scrape.new.scrape(dump)
     p tree
     ast = build.tag_tree(tree)
@@ -383,6 +418,7 @@ end
     print build.tag_report
     ir = build.ir_from(ast)
     p ir
+    print "\n",ir.to_term,"\n"
     p5 = EmitSimpleP5.new.emit(ir)
     print "\n----\n"
     print p5

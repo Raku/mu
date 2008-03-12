@@ -12,13 +12,13 @@ value___number | pass
 
 EXPR___expr | pass
 expr___noun__type | pass0
-ident___empty | Var
+ident___empty | pass
 noun___subcall | pass
 semilist___EXPR | pass
 subcall___ident__semilist | Apply
 
 block___statement_block | pass
-name___ident | Name
+name___ident | pass
 noun___package_declarator | pass
 package_declarator___block__name__sym | PackageDeclarator
 statementlist___empty | []
@@ -29,3 +29,20 @@ multisig___signature | pass
 noun___routine_declarator | pass
 routine_declarator___method_def__sym | VirtualRoutineDeclarator
 signature___empty | :none
+
+declarator___empty | pass
+noun___scope_declarator | pass
+scope_declarator___declarator__scoped | Decl
+scoped___variable_decl | pass
+sigil___empty | pass
+twigil___empty | pass
+variable___name__sigil__twigil | Var
+variable_decl___variable | pass
+
+noun___variable | pass
+variable___name__sigil | Var
+
+0___noun__top__type | pass0
+1___noun__type | pass0
+expr___match | ExprOp
+top___arity__assoc__expect__match__name__precclose__precedence__syncat | ignore

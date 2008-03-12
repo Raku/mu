@@ -86,7 +86,7 @@ class Scrape
     indentation = eat(/ +/)
     while not scan(/(?=\])/)
       a.push scrape_thing
-      eat(/\n/)
+      eat(/,?\n/)
       eat(/ */) == indentation or scan(/(?=\])/) or raise "assert: maybe a bug #{@scanner.pos}"
     end
     eat(/\]/)
@@ -133,7 +133,7 @@ class BuildIR
     tag = nil
     if h['_rakudo_type'] == 'match'
       h.delete '_rakudo_type'
-      tag = 'match'
+      tag = "#{name}___match"
     else
       ks = h.keys.sort
       tag = "#{name}___#{ks.join('__')}"
@@ -218,6 +218,20 @@ end
 
 module BadIR
   class Base
+    def to_term(obj=:x969867924)
+      obj = self if obj == :x969867924
+      if not obj
+        'nil'
+      elsif obj.is_a? Array
+        '['+obj.map{|e|to_term(e)}.join(',')+']'
+      elsif obj.is_a? String
+           "'"+obj+"'"
+      elsif obj.is_a? Symbol #XXX not a great idea
+           ":"+obj.to_s+""
+      else
+        obj.node_name+'('+obj.field_values.map{|v| to_term(v) }.join(',') + ')'
+      end
+    end
   end
   class Val_Base < Base
   end
@@ -232,13 +246,8 @@ module BadIR
       @kind,@name,@block = kind,name,block
     end
     def emit(emitter); emitter.emit_PackageDeclarator(self) end
-  end
-  class Name < Base
-    attr_accessor :ident
-    def initialize(ident)
-      @ident = ident
-    end
-    def emit(emitter); emitter.emit_Name(self) end
+    def node_name; 'PackageDeclarator' end
+    def field_values; [@kind,@name,@block] end
   end
   class CompUnit < Base
     attr_accessor :unit_type,:name,:traits,:attributes,:methods,:body
@@ -246,6 +255,8 @@ module BadIR
       @unit_type,@name,@traits,@attributes,@methods,@body = unit_type,name,traits,attributes,methods,body
     end
     def emit(emitter); emitter.emit_CompUnit(self) end
+    def node_name; 'CompUnit' end
+    def field_values; [@unit_type,@name,@traits,@attributes,@methods,@body] end
   end
   class Val_Int < Val_Base
     attr_accessor :int
@@ -253,6 +264,8 @@ module BadIR
       @int = int
     end
     def emit(emitter); emitter.emit_Val_Int(self) end
+    def node_name; 'Val_Int' end
+    def field_values; [@int] end
   end
   class Val_Bit < Val_Base
     attr_accessor :bit
@@ -260,6 +273,8 @@ module BadIR
       @bit = bit
     end
     def emit(emitter); emitter.emit_Val_Bit(self) end
+    def node_name; 'Val_Bit' end
+    def field_values; [@bit] end
   end
   class Val_Num < Val_Base
     attr_accessor :num
@@ -267,6 +282,8 @@ module BadIR
       @num = num
     end
     def emit(emitter); emitter.emit_Val_Num(self) end
+    def node_name; 'Val_Num' end
+    def field_values; [@num] end
   end
   class Val_Buf < Val_Base
     attr_accessor :buf
@@ -274,6 +291,8 @@ module BadIR
       @buf = buf
     end
     def emit(emitter); emitter.emit_Val_Buf(self) end
+    def node_name; 'Val_Buf' end
+    def field_values; [@buf] end
   end
   class Val_Char < Val_Base
     attr_accessor :char
@@ -281,6 +300,8 @@ module BadIR
       @char = char
     end
     def emit(emitter); emitter.emit_Val_Char(self) end
+    def node_name; 'Val_Char' end
+    def field_values; [@char] end
   end
   class Val_Undef < Val_Base
     attr_accessor 
@@ -288,6 +309,8 @@ module BadIR
       
     end
     def emit(emitter); emitter.emit_Val_Undef(self) end
+    def node_name; 'Val_Undef' end
+    def field_values; [] end
   end
   class Val_Object < Val_Base
     attr_accessor :clazz,:fields
@@ -295,6 +318,8 @@ module BadIR
       @clazz,@fields = clazz,fields
     end
     def emit(emitter); emitter.emit_Val_Object(self) end
+    def node_name; 'Val_Object' end
+    def field_values; [@clazz,@fields] end
   end
   class Lit_Seq < Lit_Base
     attr_accessor :seq
@@ -302,6 +327,8 @@ module BadIR
       @seq = seq
     end
     def emit(emitter); emitter.emit_Lit_Seq(self) end
+    def node_name; 'Lit_Seq' end
+    def field_values; [@seq] end
   end
   class Lit_Array < Lit_Base
     attr_accessor :array
@@ -309,6 +336,8 @@ module BadIR
       @array = array
     end
     def emit(emitter); emitter.emit_Lit_Array(self) end
+    def node_name; 'Lit_Array' end
+    def field_values; [@array] end
   end
   class Lit_Hash < Lit_Base
     attr_accessor :hash
@@ -316,6 +345,8 @@ module BadIR
       @hash = hash
     end
     def emit(emitter); emitter.emit_Lit_Hash(self) end
+    def node_name; 'Lit_Hash' end
+    def field_values; [@hash] end
   end
   class Lit_Pair < Lit_Base
     attr_accessor :key,:value
@@ -323,6 +354,8 @@ module BadIR
       @key,@value = key,value
     end
     def emit(emitter); emitter.emit_Lit_Pair(self) end
+    def node_name; 'Lit_Pair' end
+    def field_values; [@key,@value] end
   end
   class Lit_SigArgument < Lit_Base
     attr_accessor :key,:value,:type,:has_default,:is_named_only,:is_optional,:is_slurpy,:is_multidimensional,:is_rw,:is_copy
@@ -330,6 +363,8 @@ module BadIR
       @key,@value,@type,@has_default,@is_named_only,@is_optional,@is_slurpy,@is_multidimensional,@is_rw,@is_copy = key,value,type,has_default,is_named_only,is_optional,is_slurpy,is_multidimensional,is_rw,is_copy
     end
     def emit(emitter); emitter.emit_Lit_SigArgument(self) end
+    def node_name; 'Lit_SigArgument' end
+    def field_values; [@key,@value,@type,@has_default,@is_named_only,@is_optional,@is_slurpy,@is_multidimensional,@is_rw,@is_copy] end
   end
   class Lit_NamedArgument < Lit_Base
     attr_accessor :key,:value
@@ -337,6 +372,8 @@ module BadIR
       @key,@value = key,value
     end
     def emit(emitter); emitter.emit_Lit_NamedArgument(self) end
+    def node_name; 'Lit_NamedArgument' end
+    def field_values; [@key,@value] end
   end
   class Lit_Code < Lit_Base
     attr_accessor :pad,:state,:sig,:body,:catch
@@ -344,6 +381,8 @@ module BadIR
       @pad,@state,@sig,@body,@catch = pad,state,sig,body,catch
     end
     def emit(emitter); emitter.emit_Lit_Code(self) end
+    def node_name; 'Lit_Code' end
+    def field_values; [@pad,@state,@sig,@body,@catch] end
   end
   class Lit_Object < Lit_Base
     attr_accessor :clazz,:fields
@@ -351,6 +390,8 @@ module BadIR
       @clazz,@fields = clazz,fields
     end
     def emit(emitter); emitter.emit_Lit_Object(self) end
+    def node_name; 'Lit_Object' end
+    def field_values; [@clazz,@fields] end
   end
   class Var < Base
     attr_accessor :sigil,:twigil,:name,:namespace
@@ -358,6 +399,8 @@ module BadIR
       @sigil,@twigil,@name,@namespace = sigil,twigil,name,namespace
     end
     def emit(emitter); emitter.emit_Var(self) end
+    def node_name; 'Var' end
+    def field_values; [@sigil,@twigil,@name,@namespace] end
   end
   class Bind < Base
     attr_accessor :parameters,:arguments
@@ -365,6 +408,8 @@ module BadIR
       @parameters,@arguments = parameters,arguments
     end
     def emit(emitter); emitter.emit_Bind(self) end
+    def node_name; 'Bind' end
+    def field_values; [@parameters,@arguments] end
   end
   class Assign < Base
     attr_accessor :parameters,:arguments
@@ -372,6 +417,8 @@ module BadIR
       @parameters,@arguments = parameters,arguments
     end
     def emit(emitter); emitter.emit_Assign(self) end
+    def node_name; 'Assign' end
+    def field_values; [@parameters,@arguments] end
   end
   class Proto < Base
     attr_accessor :name
@@ -379,6 +426,8 @@ module BadIR
       @name = name
     end
     def emit(emitter); emitter.emit_Proto(self) end
+    def node_name; 'Proto' end
+    def field_values; [@name] end
   end
   class Call < Base
     attr_accessor :invocant,:hyper,:method,:arguments
@@ -386,6 +435,8 @@ module BadIR
       @invocant,@hyper,@method,@arguments = invocant,hyper,method,arguments
     end
     def emit(emitter); emitter.emit_Call(self) end
+    def node_name; 'Call' end
+    def field_values; [@invocant,@hyper,@method,@arguments] end
   end
   class Apply < Base
     attr_accessor :code,:arguments
@@ -393,6 +444,8 @@ module BadIR
       @code,@arguments = code,arguments
     end
     def emit(emitter); emitter.emit_Apply(self) end
+    def node_name; 'Apply' end
+    def field_values; [@code,@arguments] end
   end
   class Return < Base
     attr_accessor :result
@@ -400,6 +453,8 @@ module BadIR
       @result = result
     end
     def emit(emitter); emitter.emit_Return(self) end
+    def node_name; 'Return' end
+    def field_values; [@result] end
   end
   class If < Base
     attr_accessor :cond,:body,:otherwise
@@ -407,6 +462,8 @@ module BadIR
       @cond,@body,@otherwise = cond,body,otherwise
     end
     def emit(emitter); emitter.emit_If(self) end
+    def node_name; 'If' end
+    def field_values; [@cond,@body,@otherwise] end
   end
   class While < Base
     attr_accessor :cond,:body
@@ -414,6 +471,8 @@ module BadIR
       @cond,@body = cond,body
     end
     def emit(emitter); emitter.emit_While(self) end
+    def node_name; 'While' end
+    def field_values; [@cond,@body] end
   end
   class Decl < Base
     attr_accessor :decl,:type,:var
@@ -421,6 +480,8 @@ module BadIR
       @decl,@type,@var = decl,type,var
     end
     def emit(emitter); emitter.emit_Decl(self) end
+    def node_name; 'Decl' end
+    def field_values; [@decl,@type,@var] end
   end
   class Sig < Base
     attr_accessor :invocant,:positional
@@ -428,6 +489,8 @@ module BadIR
       @invocant,@positional = invocant,positional
     end
     def emit(emitter); emitter.emit_Sig(self) end
+    def node_name; 'Sig' end
+    def field_values; [@invocant,@positional] end
   end
   class Lit_Capture < Lit_Base
     attr_accessor :invocant,:array,:hash
@@ -435,6 +498,8 @@ module BadIR
       @invocant,@array,@hash = invocant,array,hash
     end
     def emit(emitter); emitter.emit_Lit_Capture(self) end
+    def node_name; 'Lit_Capture' end
+    def field_values; [@invocant,@array,@hash] end
   end
   class Lit_Subset < Lit_Base
     attr_accessor :name,:base_class,:block
@@ -442,6 +507,8 @@ module BadIR
       @name,@base_class,@block = name,base_class,block
     end
     def emit(emitter); emitter.emit_Lit_Subset(self) end
+    def node_name; 'Lit_Subset' end
+    def field_values; [@name,@base_class,@block] end
   end
   class Method < Base
     attr_accessor :name,:sig,:block
@@ -449,6 +516,8 @@ module BadIR
       @name,@sig,@block = name,sig,block
     end
     def emit(emitter); emitter.emit_Method(self) end
+    def node_name; 'Method' end
+    def field_values; [@name,@sig,@block] end
   end
   class Sub < Base
     attr_accessor :name,:sig,:block
@@ -456,6 +525,8 @@ module BadIR
       @name,@sig,@block = name,sig,block
     end
     def emit(emitter); emitter.emit_Sub(self) end
+    def node_name; 'Sub' end
+    def field_values; [@name,@sig,@block] end
   end
   class Macro < Base
     attr_accessor :name,:sig,:block
@@ -463,6 +534,8 @@ module BadIR
       @name,@sig,@block = name,sig,block
     end
     def emit(emitter); emitter.emit_Macro(self) end
+    def node_name; 'Macro' end
+    def field_values; [@name,@sig,@block] end
   end
   class Coro < Base
     attr_accessor :name,:sig,:block
@@ -470,6 +543,8 @@ module BadIR
       @name,@sig,@block = name,sig,block
     end
     def emit(emitter); emitter.emit_Coro(self) end
+    def node_name; 'Coro' end
+    def field_values; [@name,@sig,@block] end
   end
   class P5Token < Base
     attr_accessor :regex
@@ -477,6 +552,8 @@ module BadIR
       @regex = regex
     end
     def emit(emitter); emitter.emit_P5Token(self) end
+    def node_name; 'P5Token' end
+    def field_values; [@regex] end
   end
   class Token < Base
     attr_accessor :name,:regex,:sym
@@ -484,6 +561,8 @@ module BadIR
       @name,@regex,@sym = name,regex,sym
     end
     def emit(emitter); emitter.emit_Token(self) end
+    def node_name; 'Token' end
+    def field_values; [@name,@regex,@sym] end
   end
   class Do < Base
     attr_accessor :block
@@ -491,6 +570,8 @@ module BadIR
       @block = block
     end
     def emit(emitter); emitter.emit_Do(self) end
+    def node_name; 'Do' end
+    def field_values; [@block] end
   end
   class Begin < Base
     attr_accessor :block
@@ -498,6 +579,8 @@ module BadIR
       @block = block
     end
     def emit(emitter); emitter.emit_Begin(self) end
+    def node_name; 'Begin' end
+    def field_values; [@block] end
   end
   class Use < Base
     attr_accessor :mod,:perl5
@@ -505,6 +588,8 @@ module BadIR
       @mod,@perl5 = mod,perl5
     end
     def emit(emitter); emitter.emit_Use(self) end
+    def node_name; 'Use' end
+    def field_values; [@mod,@perl5] end
   end
   class Rule < Base
     attr_accessor 
@@ -512,6 +597,8 @@ module BadIR
       
     end
     def emit(emitter); emitter.emit_Rule(self) end
+    def node_name; 'Rule' end
+    def field_values; [] end
   end
   class Rule_Quantifier < Rule_Base
     attr_accessor :term,:quant,:greedy,:ws1,:ws2,:ws3
@@ -519,6 +606,8 @@ module BadIR
       @term,@quant,@greedy,@ws1,@ws2,@ws3 = term,quant,greedy,ws1,ws2,ws3
     end
     def emit(emitter); emitter.emit_Rule_Quantifier(self) end
+    def node_name; 'Rule_Quantifier' end
+    def field_values; [@term,@quant,@greedy,@ws1,@ws2,@ws3] end
   end
   class Rule_Or < Rule_Base
     attr_accessor :terms
@@ -526,6 +615,8 @@ module BadIR
       @terms = terms
     end
     def emit(emitter); emitter.emit_Rule_Or(self) end
+    def node_name; 'Rule_Or' end
+    def field_values; [@terms] end
   end
   class Rule_Concat < Rule_Base
     attr_accessor :concat
@@ -533,6 +624,8 @@ module BadIR
       @concat = concat
     end
     def emit(emitter); emitter.emit_Rule_Concat(self) end
+    def node_name; 'Rule_Concat' end
+    def field_values; [@concat] end
   end
   class Rule_Subrule < Rule_Base
     attr_accessor :metasyntax,:ident,:capture_to_array
@@ -540,6 +633,8 @@ module BadIR
       @metasyntax,@ident,@capture_to_array = metasyntax,ident,capture_to_array
     end
     def emit(emitter); emitter.emit_Rule_Subrule(self) end
+    def node_name; 'Rule_Subrule' end
+    def field_values; [@metasyntax,@ident,@capture_to_array] end
   end
   class Rule_SubruleNoCapture < Rule_Base
     attr_accessor :metasyntax
@@ -547,6 +642,8 @@ module BadIR
       @metasyntax = metasyntax
     end
     def emit(emitter); emitter.emit_Rule_SubruleNoCapture(self) end
+    def node_name; 'Rule_SubruleNoCapture' end
+    def field_values; [@metasyntax] end
   end
   class Rule_Var < Rule_Base
     attr_accessor :sigil,:twigil,:name
@@ -554,6 +651,8 @@ module BadIR
       @sigil,@twigil,@name = sigil,twigil,name
     end
     def emit(emitter); emitter.emit_Rule_Var(self) end
+    def node_name; 'Rule_Var' end
+    def field_values; [@sigil,@twigil,@name] end
   end
   class Rule_Constant < Rule_Base
     attr_accessor :constant
@@ -561,6 +660,8 @@ module BadIR
       @constant = constant
     end
     def emit(emitter); emitter.emit_Rule_Constant(self) end
+    def node_name; 'Rule_Constant' end
+    def field_values; [@constant] end
   end
   class Rule_Dot < Rule_Base
     attr_accessor 
@@ -568,6 +669,8 @@ module BadIR
       
     end
     def emit(emitter); emitter.emit_Rule_Dot(self) end
+    def node_name; 'Rule_Dot' end
+    def field_values; [] end
   end
   class Rule_SpecialChar < Rule_Base
     attr_accessor :char
@@ -575,6 +678,8 @@ module BadIR
       @char = char
     end
     def emit(emitter); emitter.emit_Rule_SpecialChar(self) end
+    def node_name; 'Rule_SpecialChar' end
+    def field_values; [@char] end
   end
   class Rule_Block < Rule_Base
     attr_accessor :closure
@@ -582,6 +687,8 @@ module BadIR
       @closure = closure
     end
     def emit(emitter); emitter.emit_Rule_Block(self) end
+    def node_name; 'Rule_Block' end
+    def field_values; [@closure] end
   end
   class Rule_InterpolateVar < Rule_Base
     attr_accessor :var
@@ -589,6 +696,8 @@ module BadIR
       @var = var
     end
     def emit(emitter); emitter.emit_Rule_InterpolateVar(self) end
+    def node_name; 'Rule_InterpolateVar' end
+    def field_values; [@var] end
   end
   class Rule_NamedCapture < Rule_Base
     attr_accessor :rule,:ident,:capture_to_array
@@ -596,6 +705,8 @@ module BadIR
       @rule,@ident,@capture_to_array = rule,ident,capture_to_array
     end
     def emit(emitter); emitter.emit_Rule_NamedCapture(self) end
+    def node_name; 'Rule_NamedCapture' end
+    def field_values; [@rule,@ident,@capture_to_array] end
   end
   class Rule_Before < Rule_Base
     attr_accessor :rule,:assertion_modifier,:capture_to_array
@@ -603,6 +714,8 @@ module BadIR
       @rule,@assertion_modifier,@capture_to_array = rule,assertion_modifier,capture_to_array
     end
     def emit(emitter); emitter.emit_Rule_Before(self) end
+    def node_name; 'Rule_Before' end
+    def field_values; [@rule,@assertion_modifier,@capture_to_array] end
   end
   class Rule_After < Rule_Base
     attr_accessor :rule,:assertion_modifier,:capture_to_array
@@ -610,6 +723,8 @@ module BadIR
       @rule,@assertion_modifier,@capture_to_array = rule,assertion_modifier,capture_to_array
     end
     def emit(emitter); emitter.emit_Rule_After(self) end
+    def node_name; 'Rule_After' end
+    def field_values; [@rule,@assertion_modifier,@capture_to_array] end
   end
   class Rule_NegateCharClass < Rule_Base
     attr_accessor :chars
@@ -617,6 +732,8 @@ module BadIR
       @chars = chars
     end
     def emit(emitter); emitter.emit_Rule_NegateCharClass(self) end
+    def node_name; 'Rule_NegateCharClass' end
+    def field_values; [@chars] end
   end
   class Rule_CharClass < Rule_Base
     attr_accessor :chars
@@ -624,6 +741,8 @@ module BadIR
       @chars = chars
     end
     def emit(emitter); emitter.emit_Rule_CharClass(self) end
+    def node_name; 'Rule_CharClass' end
+    def field_values; [@chars] end
   end
   class Rule_Capture < Rule_Base
     attr_accessor :rule,:position,:capture_to_array
@@ -631,19 +750,24 @@ module BadIR
       @rule,@position,@capture_to_array = rule,position,capture_to_array
     end
     def emit(emitter); emitter.emit_Rule_Capture(self) end
+    def node_name; 'Rule_Capture' end
+    def field_values; [@rule,@position,@capture_to_array] end
   end
 
 # Constructors
 def self.Apply_from__ident__semilist(i,sl); Apply.new(i,sl) end
 def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) end
+def self.Decl_from__declarator__scoped(d,s); Decl.new(d,nil,s) end
 def self.Do_from__statementlist(sl); Do.new(sl) end
-def self.Name_from__ident(i); Name.new(i) end
-def self.PackageDeclarator_from__block__name__sym(b,n,k); PackageDeclarator.new(k,n,b) end
+#def self.Name_from__ident(i); Name.new(i) end
+def self.PackageDeclarator_from__block__name__sym(b,n,k); PackageDeclarator.new(k,n[0],b) end
 def self.Val_Int_from__empty(s); Val_Int.new(s) end
 def self.Var_from__empty(s); Var.new(nil,nil,s,nil) end
+def self.Var_from__name__sigil__twigil(n,s,t); Var.new(s,t[0],n[0],nil) end
+def self.Var_from__name__sigil(n,s); Var.new(s,nil,n,nil) end
 def self.VirtualRoutineDeclarator_from__method_def__sym(m,k)
   if k == 'method'
-    Method.new(Name_from__ident(m['ident']),m['multisig'],m['block'])
+    Method.new(m['ident'][0],m['multisig'],m['block'])
   else raise "Routine type is unimplemented: #{k}
 "
   end
@@ -651,21 +775,37 @@ end
 end
 class EmitSimpleP5
   def emit(ir)
-    ir.emit(self)
+    if ir.is_a? String
+      ir
+    else
+      ir.emit(self)
+    end
   end
   def emit_Apply(n); n.code.emit(self)+'('+n.arguments.map{|e|e.emit(self)}.join(',')+')' end
   def emit_CompUnit(n); n.body.emit(self) end
+  def emit_Decl(n)
+    if n.decl == 'has'
+      "has '#{n.var.name}' => (is => 'rw');\n"
+    else
+      raise "Unimplemented: decl: #{n.decl}\n"
+    end
+  end
   def emit_Do(n); n.block.map{|statement| statement.emit(self)+";\n"}.join("") end
   def emit_Method(n)
-    ('sub '+n.name.emit(self)+" {\n"+
+    ('sub '+n.name+" {\n"+
+     '  my $self = shift;'+"\n"+
      n.block.emit(self)+
      "}\n")
   end
-  def emit_Name(n); n.ident.map{|v| v.emit(self)}.join('::') end
-  def emit_PackageDeclarator(n); '{package '+n.name.emit(self)+";\n"+n.block.emit(self)+"}\n" end
+  #def emit_Name(n); n.ident.map{|v| v.emit(self)}.join('::') end
+  def emit_PackageDeclarator(n); '{package '+n.name+";\nuse Moose;\n"+n.block.emit(self)+"}\n" end
   def emit_Val_Int(n); n.int end
   def emit_Var(n)
-    (n.sigil || '')+n.name
+    if n.twigil == '.'
+      '$self->'+emit(n.name)
+    else
+      (n.sigil || '')+emit(n.name)
+    end
   end
   def method_missing(m,*a,&b)
     STDERR.print "# WARNING: Can't #{m}: FAKING IT.\n"
@@ -697,6 +837,7 @@ end
     build = BuildIR.new('rakudo_ast.data')
     dump = parse(nil,p6_code)
     print dump
+    File.open('deleteme_dump','w'){|f|f.print dump}
     tree = Scrape.new.scrape(dump)
     p tree
     ast = build.tag_tree(tree)
@@ -704,6 +845,7 @@ end
     print build.tag_report
     ir = build.ir_from(ast)
     p ir
+    print "\n",ir.to_term,"\n"
     p5 = EmitSimpleP5.new.emit(ir)
     print "\n----\n"
     print p5
