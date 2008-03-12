@@ -14,7 +14,7 @@ typedef struct smop_slime_capturize_struct {
   int* positional;
   int n_named;
   int* named;
-  int target
+  int target;
 } smop_slime_capturize_struct;
 
 static SMOP__Object* capturize_message(SMOP__Object* interpreter,

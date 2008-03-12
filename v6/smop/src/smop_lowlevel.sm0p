@@ -223,6 +223,20 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
   }
 }
 
+SMOP__Object* smop_lowlevel_generic_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
+  if ((SMOP__Object*)responder != obj) {
+    smop_lowlevel_refcnt_inc(interpreter, responder, obj);
+  }
+  return obj;
+}
+
+SMOP__Object* smop_lowlevel_generic_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
+  if ((SMOP__Object*)responder != obj) {
+    smop_lowlevel_refcnt_dec(interpreter, responder, obj);
+  }
+  return obj;
+}
+
 void smop_lowlevel_rdlock(SMOP__Object* value) {
   assert(pthread_rwlock_rdlock(((SMOP_LOWLEVEL_INTERNAL*)value->data)->rwlock) == 0);
 }

@@ -67,32 +67,11 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
   }
   return SMOP__NATIVE__bool_false;
 }
-
-static SMOP__Object* smop_s1p_scalar_reference(SMOP__Object* interpreter,
-                                               SMOP__ResponderInterface* responder,
-                                               SMOP__Object* value) {
-  if (SMOP__S1P__Scalar != value) {
-    return smop_lowlevel_refcnt_inc(interpreter,responder,value);
-  } else {
-    return value;
-  }
-}
-
-static SMOP__Object* smop_s1p_scalar_release(SMOP__Object* interpreter,
-                                             SMOP__ResponderInterface* responder,
-                                             SMOP__Object* value) {
-  if (SMOP__S1P__Scalar != value) {
-    return smop_lowlevel_refcnt_dec(interpreter,responder,value);
-  } else {
-    return value;
-  }
-}
-
 void smop_s1p_scalar_init() {
   SMOP__S1P__Scalar = malloc(sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->MESSAGE = smop_s1p_scalar_message;
-  ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->REFERENCE = smop_s1p_scalar_reference;
-  ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->RELEASE = smop_s1p_scalar_release;
+  ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->RELEASE = smop_lowlevel_generic_release;
   ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->id = "S1P Scalar";
 }
 

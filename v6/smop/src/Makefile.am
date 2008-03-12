@@ -11,5 +11,6 @@ libsmop_la_SOURCES = smop_lowlevel.sm0p idconst.c						\
 	native_bool.c native_capture.c native_int.c	native_uint.c			\
 	smop.c smop_internal.h smop_interpreter.c							\
     smop_slime_capturize.c smop_slime_currentframe.c smop_slime_frame.c	\
-    smop_slime_node.c p6opaque.c lowlevel_method.c smop_s1p_scalar.c
+    smop_slime_node.c p6opaque.c lowlevel_method.c smop_s1p_scalar.c\
+    smop_s1p_array.c
 

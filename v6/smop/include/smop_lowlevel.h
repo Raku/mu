@@ -78,6 +78,8 @@ goto ___INTERPRETER___: q:sm0p {
  * doesn't call this code.
  */
 extern SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value);
+extern SMOP__Object* smop_lowlevel_generic_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj);
+extern SMOP__Object* smop_lowlevel_generic_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj); 
 
 /* This functions synchronizes the access to this value. It should be
  * called whenever some pointer in the low-level details (some

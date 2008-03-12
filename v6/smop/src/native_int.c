@@ -18,26 +18,13 @@ static SMOP__Object* int_message(SMOP__Object* interpreter,
   return SMOP__NATIVE__bool_false;
 }
 
-static SMOP__Object* int_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if ((SMOP__Object*)responder != obj) {
-    smop_lowlevel_refcnt_inc(interpreter, responder, obj);
-  }
-  return obj;
-}
-
-static SMOP__Object* int_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if ((SMOP__Object*)responder != obj) {
-    smop_lowlevel_refcnt_dec(interpreter, responder, obj);
-  }
-  return obj;
-}
 
 void smop_native_int_init() {
   SMOP__NATIVE__int = calloc(1,sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->MESSAGE = int_message;
-  ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->REFERENCE = int_reference;
-  ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->RELEASE = int_release;
-  ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->id = "Native int\0";
+  ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__NATIVE__int)->id = "Native int";
 }
 
 void smop_native_int_destr() {
