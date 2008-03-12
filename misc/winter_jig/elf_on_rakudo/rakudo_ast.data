@@ -32,7 +32,7 @@ scope_declarator___declarator__scoped | Decl
 scoped___variable_decl | pass
 semilist___EXPR | pass
 sigil___empty | pass
-signature___empty | :none
+signature___empty | []
 statement_block___statementlist | Block
 statement___expr | pass
 statementlist___empty | []
@@ -49,3 +49,18 @@ variable___name__sigil__twigil | Var
 variable___name__sigil | Var
 
 
+0___0__parameter | pass1
+0___empty | pass #XXX what is this?  inside 0___0__parameter.  "sub f($x){}"
+named___empty | pass
+param_var___ident__sigil | Var
+parameter___named__param_var__quant | VirtualParameter
+quant___empty | pass
+signature___0 | pass # an array of parameters
+
+quote___quote_expression | pass
+quote_concat___quote_term | pass
+quote_expression___quote_concat | Quote
+quote_literal___empty | pass
+quote_term___quote_literal | pass
+quote_term___variable | pass
+value___quote | pass

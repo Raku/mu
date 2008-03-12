@@ -3,6 +3,7 @@
 # It may also run that freshly generated code.
 
 # Issues
+#  handling of escapes in quote literals is ad hoc - I'm unclear on rakudo's spec.
 #  distinction between dump's Grammar nodes and nodes which are explicity Hash is lost.
 #   what were the Hash's again?
 #  should avoid using class methods, to simplify p6.
@@ -240,8 +241,8 @@ class BuildIR
       if act == 'pass'
         STDERR.print "# Warning: passing only first field of #{tag}\n" if fields.size > 1
         ret = ir_from(tree[fields[0]])
-      elsif act == 'pass0'
-        ret = ir_from(tree[fields[0]])
+      elsif act =~ /^pass(\d)$/
+        ret = ir_from(tree[fields[$1.to_i]])
       elsif act == 'unimplemented'
         raise "Unimplemented ast tag: #{tag}\n"
       elsif act == 'unprocessed'
@@ -330,15 +331,22 @@ def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) 
 def self.Decl_from__declarator__scoped(d,s); Decl.new(d,nil,s) end
 #def self.Name_from__ident(i); Name.new(i) end
 def self.PackageDeclarator_from__block__name__sym(b,n,k); PackageDeclarator.new(k,n[0],b) end
+def self.Quote_from__quote_concat(qc); Quote.new(qc[0]) end
 def self.Val_Int_from__empty(s); Val_Int.new(s) end
 def self.Var_from__empty(s); Var.new(nil,nil,s,nil) end
+def self.Var_from__ident__sigil(i,s); Var.new(s,nil,i,nil) end
 def self.Var_from__name__sigil__twigil(n,s,t); Var.new(s,t[0],n[0],nil) end
 def self.Var_from__name__sigil(n,s); Var.new(s,nil,n[0],nil) end
+def self.VirtualParameter_from__named__param_var__quant(n,p,q)
+  raise "unsupported: #{n}" if n != ""
+  raise "unsupported: #{q}" if q != ""
+  Lit_SigArgument.new(p,nil,nil,nil,nil,nil,nil,nil,nil,nil)
+end
 def self.VirtualRoutineDeclarator_from__method_def__sym(r,k)
   if k == 'method'
-    Method.new(r['ident'][0],r['multisig'],r['block'])
+    Method.new(r['ident'][0],r['multisig'][0],r['block'])
   elsif k == 'sub'
-    Sub.new(r['ident'][0],r['multisig'],r['block'])
+    Sub.new(r['ident'][0],r['multisig'][0],r['block'])
   else raise "Routine type is unimplemented: #{k}\n"
   end
 end
@@ -392,16 +400,28 @@ class EmitSimpleP5
       raise "Unimplemented: decl: #{n.decl}\n"
     end
   end
+  def emit_Lit_SigArgument(n); n.key.emit(self) end
   def emit_Method(n)
+    init = 'my('+n.sig.map{|e|e.emit(self)}.join(",")+")=@_;\n"
+    init = '' if(init =~ /my\(\)/);
     ('sub '+n.name+" {\n"+
      '  my $self = shift;'+"\n"+
+     init+
      n.block.emit(self)+
      "}\n")
   end
   #def emit_Name(n); n.ident.map{|v| v.emit(self)}.join('::') end
   def emit_PackageDeclarator(n); '{package '+n.name+";\nuse Moose;\n"+n.block.emit(self)+"}\n" end
+  def emit_Quote(n)
+    n.concat.map{|q|
+      q.is_a?(String) ? ('"'+emit(q).gsub(/([$@%&])/){|m|'\\'+m}+'"') : q.emit(self)
+    }.join('.')
+  end
   def emit_Sub(n)
+    init = 'my('+n.sig.map{|e|e.emit(self)}.join(",")+")=@_;\n"
+    init = '' if(init =~ /my\(\)/);
     ('sub '+n.name+" {\n"+
+     init+
      n.block.emit(self)+
      "}\n")
   end
