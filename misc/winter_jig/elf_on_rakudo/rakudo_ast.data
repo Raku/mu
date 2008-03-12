@@ -64,3 +64,12 @@ quote_literal___empty | pass
 quote_term___quote_literal | pass
 quote_term___variable | pass
 value___quote | pass
+
+expr___noun__postfix__top__type | Call
+expr___noun__postfix__type | Call
+methodop___ident__semilist | unprocessed # Handled by expr___noun__postfix__top__type
+postfix___methodop | pass
+semilist___empty | []
+
+noun___methodop | Call
+noun___empty | pass

@@ -190,7 +190,7 @@ class BuildIR
     end
     if not act
       STDERR.print "# Warning: Faking tag #{tag} in #{tree}\n"
-      ret = nil
+      ret = :faking
     else
       fields = tree['_fields'].split(/\s+/)
       if act == 'pass'
@@ -780,6 +780,9 @@ def self.Apply_from__0__1__top__type(z,o,top,typ); Apply.new(typ,[z,o]) end
 def self.Apply_from__ident__semilist(i,sl); Apply.new(i,sl) end
 def self.Apply_from__circumfix__op(c,op); Apply.new('circumfix:'+op,c['statementlist']) end
 def self.Block_from__statementlist(sl); Block.new(sl) end
+def self.Call_from__noun__postfix__top__type(n,pf,to,ty); Call_from__noun__postfix__type(n,pf,ty) end
+def self.Call_from__noun__postfix__type(n,pf,ty); Call.new(n,nil,pf[0]['ident'],pf[0]['semilist']) end
+def self.Call_from__methodop(mo); Call.new('self',nil,mo['ident'],mo['semilist']) end
 def self.CompUnit_from__statement_block(b); CompUnit.new(nil,nil,nil,nil,nil,b) end
 def self.Decl_from__declarator__scoped(d,s); Decl.new(d,nil,s) end
 #def self.Name_from__ident(i); Name.new(i) end
@@ -839,6 +842,14 @@ class EmitSimpleP5
     end
   end
   def emit_Block(n); n.statements.map{|statement| statement.emit(self)+";\n"}.join("") end
+  def emit_Call(n)
+    inv = n.invocant
+    if inv == 'self'
+      inv = '$self'
+    else
+      inv = inv.emit(self)
+    end
+    inv+'->'+emit(n.method)+'('+n.arguments.map{|a|emit(a)}.join(',')+')' end
   def emit_CompUnit(n); n.body.emit(self) end
   def emit_Decl(n)
     if n.decl == 'has'

@@ -21,7 +21,7 @@ class BuildIR {
   # ...
 }
 
-package BadIR {
+module BadIR {
   class Base {
   }
   class Val_Base is Base {
@@ -31,6 +31,37 @@ package BadIR {
   class Rule_Base is Base {
   }
 
+  class PackageDeclarator is Base {
+    has $.kind;
+    has $.name;
+    has $.block;
+    
+    method new($kind,$name,$block) {
+      $.kind = $kind;
+      $.name = $name;
+      $.block = $block;
+      
+    }
+    method emit($emitter) { $emitter.emit_PackageDeclarator(self) }
+  }
+  class Block is Base {
+    has $.statements;
+    
+    method new($statements) {
+      $.statements = $statements;
+      
+    }
+    method emit($emitter) { $emitter.emit_Block(self) }
+  }
+  class Quote is Base {
+    has $.concat;
+    
+    method new($concat) {
+      $.concat = $concat;
+      
+    }
+    method emit($emitter) { $emitter.emit_Quote(self) }
+  }
   class CompUnit is Base {
     has $.unit_type;
     has $.name;
@@ -374,10 +405,12 @@ package BadIR {
   }
   class Method is Base {
     has $.name;
+    has $.sig;
     has $.block;
     
-    method new($name,$block) {
+    method new($name,$sig,$block) {
       $.name = $name;
+      $.sig = $sig;
       $.block = $block;
       
     }
@@ -385,10 +418,12 @@ package BadIR {
   }
   class Sub is Base {
     has $.name;
+    has $.sig;
     has $.block;
     
-    method new($name,$block) {
+    method new($name,$sig,$block) {
       $.name = $name;
+      $.sig = $sig;
       $.block = $block;
       
     }
@@ -396,10 +431,12 @@ package BadIR {
   }
   class Macro is Base {
     has $.name;
+    has $.sig;
     has $.block;
     
-    method new($name,$block) {
+    method new($name,$sig,$block) {
       $.name = $name;
+      $.sig = $sig;
       $.block = $block;
       
     }
@@ -407,10 +444,12 @@ package BadIR {
   }
   class Coro is Base {
     has $.name;
+    has $.sig;
     has $.block;
     
-    method new($name,$block) {
+    method new($name,$sig,$block) {
       $.name = $name;
+      $.sig = $sig;
       $.block = $block;
       
     }

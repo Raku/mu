@@ -100,7 +100,7 @@ END
 END
     }
     <<"END";
-package BadIR {
+module BadIR {
 $base
 $nodes
 # Constructors
