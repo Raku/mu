@@ -2,7 +2,7 @@
 #include <smop.h>
 #include <smop_lowlevel.h>
 
-SMOP__Object* SMOP__LOWLEVEL__array;
+SMOP__Object* SMOP__LOWLEVEL__Array;
 
 typedef struct smop_s1p_array_struct {
   SMOP__Object__BASE
@@ -21,15 +21,15 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
 
 
 void smop_s1p_array_init() {
-  SMOP__LOWLEVEL__array = calloc(1,sizeof(SMOP__ResponderInterface));
-  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__array)->MESSAGE = smop_s1p_array_message;
-  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__array)->REFERENCE = smop_lowlevel_generic_reference;
-  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__array)->RELEASE = smop_lowlevel_generic_release;
-  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__array)->id = "Lowlevel array";
+  SMOP__LOWLEVEL__Array = calloc(1,sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Array)->MESSAGE = smop_s1p_array_message;
+  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Array)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Array)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Array)->id = "Lowlevel array";
 }
 
 void smop_s1p_array_destr() {
-  free(SMOP__LOWLEVEL__array);
+  free(SMOP__LOWLEVEL__Array);
 }
 
 
