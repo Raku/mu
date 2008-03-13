@@ -69,7 +69,7 @@ class Perl < Grammar
     end
     #R XXX I'm unsure what make() (in expect_term, and elsewhwere) should be doing.
     def make(m,overwrite)
-        defaults.each{|k,v| m[k] = v }
+        overwrite.each{|k,v| m[k] = v }
     end
 
     #R things like "class Term does PrecOp[|%term] {}" are folded into
@@ -652,7 +652,7 @@ class Perl < Grammar
     def_token_full :circumfix,:term,'{ }',/(?=\{|->|<->)/,%q{ pblock }
 
     def variable_decl
-        (var = variable and ( xXXX[:sigil] = var[:sigil] ) and
+        (var = variable and # ( xXXX[:sigil] = var[:sigil] ) and
          quesTOK{
              %w{ @ % }.member?(var[:sigil]) and
              wsp and
@@ -732,11 +732,21 @@ class Perl < Grammar
     end
     
     def variable
+        b = pos
         (special_variable or
-         let_pos{ si = sigil and (tw = twigil;true) and
-             ((si == '&' and (sln = sublongname or return false;sln)) or desigilname) and
-             ((tw == '.' and unsp? and before(/\(/) and postcircumfix) or
-              null)} or
+         let_pos{
+             sln=dsl=pc=nil
+             (si = sigil and (tw = twigil;true) and
+              ((si == '&' and (sln = sublongname or return false;sln)) or
+               dsl= desigilname) and
+              ((tw == '.' and unsp? and before(/\(/) and pc= postcircumfix) or
+               null)) and
+             (h={:sigil=>si,:twigil=>tw};
+              _hkv(h,:sublongname,sln)
+              _hkv(h,:desigilname,dsl)
+              _hkv(h,:postcircumfix,pc)
+             _match_from(b,h,:variable))
+         } or
          let_pos{ sigil and scan(/\d+/) } or
          # Note: $() can also parse as contextualizer in an expression; should have same effect
          let_pos{ sigil and before(/[<\(]/) and postcircumfix } or
@@ -1356,9 +1366,17 @@ class Perl < Grammar
         $env_vars.scope_enter(:zone)
         $env_vars[:zone] = 'posreq'
         v = rul{
-            parsep = starRULE{ parameter and wsp and (scan(/,|:|;;|;/) or before(/-->|\)|\{/)) }
+            b = pos; ft=nil
+            parsep = starRULE{
+                p= parameter and wsp and
+                (scan(/,|:|;;|;/) or before(/-->|\)|\{/)) and
+                p
+            }
             wsp
-            parsep and quesRULE{ scan(/-->/) and wsp and fulltypename }
+            parsep and quesRULE{ scan(/-->/) and wsp and ft= fulltypename } and
+            (h={:parsep=>parsep};
+             _hkv(h,:fulltypename,ft)
+             _match_from(b,h,:signature))
         }
         $env_vars.scope_leave
         v
@@ -1493,7 +1511,10 @@ class Perl < Grammar
     #R assorted cautionary panics left out
 
     ## assignment
+    #R xXXX This is very wrong, but I'm unclear on what's supposed to be going on here.
     def_tokens_rest :infix,false,%w{ = },%q{ xXXX[:sigil] == '$' ? make(xXXX,Hitem_assignment) : make(xXXX,Hlist_assignment) }
+    #R# def_tokens_rest :infix,false,%w{ = },%q{ self[:sigil] == '$' ? make(self,Hitem_assignment) : make(self,Hlist_assignment) }
+    #R# def_tokens_rest :infix,false,%w{ = },%q{ m=_match_from(start,{},:'=') }
 
     def_tokens_simple :infix,:item_assignment,%w{ := ::= }
     # XXX need to do something to turn subcall into method call here...

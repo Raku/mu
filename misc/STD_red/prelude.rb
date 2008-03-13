@@ -35,7 +35,7 @@ class Grammar
     v
   end
   def rul(&blk)
-    let_pos{ wsp and blk.call() and wsp }
+    let_pos{ wsp and v= blk.call() and wsp and v }
   end
     
 

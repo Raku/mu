@@ -74,9 +74,19 @@ end
 
 
 class Match
-  def [](k); @hash[k] end
+  def [](k)
+    #raise "Invalid Match hash key: #{k}\n#{self}\n" if not @hash.key?(k)
+    @hash[k]
+  end
   def []=(k,v); @hash[k] = v; end
   def key?(k); @hash.key? k; end
+  def method_missing(m,*a,&b)
+    if @hash.key?(m)
+      @hash[m]
+    else
+      super
+    end
+  end
 
   def perl; inspect; end #R XXX hack
   def prepare_for_yaml_dump
