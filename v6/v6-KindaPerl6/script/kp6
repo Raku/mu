@@ -553,8 +553,13 @@ for (@COMPILER::CHECK) {
 #
 # End of main program
 #
+my $total = 0;
 while (my ($key,$value) = each %prof_info) {
     warn "$key took $value\n";
+    $total += $value;
+}
+if ($total) {
+    warn "total spent time categorized $total\n";
 }
 
 exit(0);
