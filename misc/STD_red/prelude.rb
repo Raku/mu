@@ -373,6 +373,9 @@ class EnvVars
     @stack.each{|e| return e if e.key? k}
     nil
   end
+  def defined?(k)
+    _find_defining_env(k) ? true : false
+  end
   def [](k)
     e = _find_defining_env(k)
     return nil if not e

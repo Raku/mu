@@ -165,7 +165,7 @@ class Perl < Grammar
         scan(/[\r\n\f]/) and (moreinput;true)
     end
     def moreinput
-        send($env_vars[:moreinput]) if $env_vars.key?(:moreinput);
+        send($env_vars[:moreinput]) if $env_vars.defined?(:moreinput);
     end
 
     def unv
@@ -397,7 +397,7 @@ class Perl < Grammar
              (precircum_= prefix_circumfix_meta_operator)
              ) and
             (prepost_= starTOK{ prefix_postfix_meta_operator }) and
-            ws and
+            false and #R wsp and #XXX causes regressions.  why?
             (prec = (prefix_||precircum_)[:prec];
              h={:pres=>prec};
              _hkv(h,:prefix,prefix_);
@@ -1556,6 +1556,7 @@ false #R
     def item(h);raise "what does item do?";end
     def _EXPR(*args); let_pos{ _EXPR_raw(*args) }; end
     def _EXPR_raw(seenS=false, preclimH=nil, stopS=nil, *fateA) #R Args reordered!
+        noisy = false #R added
         hereS_workaround = self
 
         preclimH ||= HLOOSEST
@@ -1581,14 +1582,14 @@ false #R
             hereS = tA[0];
         end
         push termstackA, hereS;
-        say "In EXPR, at ", hereS_workaround.pos;
+        say "In EXPR, at ", hereS_workaround.pos if noisy;
 
         reduce = lambda {
-            say "entering reduce, termstack == ", termstackA.length, " opstack == ", opstackA.length;
+            say "entering reduce, termstack == ", termstackA.length, " opstack == ", opstackA.length if noisy;
             my opS = pop(opstackA);
             case opS[:assoc] 
             when 'chain' 
-                say "reducing chain";
+                say "reducing chain" if noisy;
                 chainA = []
                 push chainA, pop(termstackA);
                 push chainA, opS;
@@ -1601,7 +1602,7 @@ false #R
                 opS[:top][:chain] = reverse chainA;
                 push termstackA, opS[:top];
             when 'list' 
-                say "reducing list";
+                say "reducing list" if noisy;
                 listA = []
                 push listA, pop(termstackA);
                 while not opstackA.empty? 
@@ -1613,9 +1614,9 @@ false #R
                 opS[:top][:list] = reverse listA;
                 push termstackA, opS[:top];
             else
-                say "reducing";
+                say "reducing" if noisy;
                 listA = []
-                say termstackA.length;
+                say termstackA.length if noisy;
 
                 #opS[:top][:right] = pop termstackA;
                 #opS[:top][:left] = pop termstackA;
@@ -1630,7 +1631,7 @@ false #R
         }
 
         while true 
-            say "In while true, at ", hereS_workaround.pos;
+            say "In while true, at ", hereS_workaround.pos if noisy;
 
             wsp #R added
 
@@ -1648,7 +1649,7 @@ false #R
             if not infixS;  hereS_workaround.panic("Can't have two terms in a row"); end
 
             if not $env_vars[:thisopH].key?(:prec) 
-                say "No prec case in thisop!";
+                say "No prec case in thisop!" if noisy;
                 $env_vars[:thisopH] = Hterminator;
             end
             thisprecS = $env_vars[:thisopH][:prec];
@@ -1686,7 +1687,7 @@ false #R
             my tA = [hereS_workaround.expect_term()];
             hereS = tA[0];
             push termstackA, hereS;
-            say "after push: ", termstackA.length;
+            say "after push: ", termstackA.length if noisy;
         end
         reduce.call() while termstackA.length > 1;
         termstackA.length == 1 or hereS_workaround.panic("Internal operator parser error, termstack == #{termstackA.length}");
