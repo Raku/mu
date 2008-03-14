@@ -418,12 +418,14 @@ for (@COMPILER::CHECK) {
     # under the p5 backend
     if ( $opt{output} ) {
         if ( $opt{perltidy} && ( $opt{B} eq 'perl5' || $opt{C} eq 'perl5' || $opt{B} eq 'perl5v6' || $opt{C} eq 'perl5v6') ) {
-            Perl::Tidy::perltidy(
-                source      => \$out,
-                destination => $output,
-                perltidyrc  => $opt{perltidyrc},
-                argv        => '',
-            );
+            profile perltidy => sub {
+                Perl::Tidy::perltidy(
+                    source      => \$out,
+                    destination => $output,
+                    perltidyrc  => $opt{perltidyrc},
+                    argv        => '',
+                );
+            }
         }
         else {
             $output->print($out);
@@ -439,12 +441,14 @@ for (@COMPILER::CHECK) {
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
-                Perl::Tidy::perltidy(
-                    source      => \$out,
-                    destination => $output,
-                    perltidyrc  => $opt{perltidyrc},
-                    argv        => '',
-                );
+                profile perltidy => sub {
+                    Perl::Tidy::perltidy(
+                        source      => \$out,
+                        destination => $output,
+                        perltidyrc  => $opt{perltidyrc},
+                        argv        => '',
+                    );
+                }
             }
             else {
                 print $output $out;
@@ -458,12 +462,14 @@ for (@COMPILER::CHECK) {
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
-                Perl::Tidy::perltidy(
-                    source      => \$out,
-                    destination => $output,
-                    perltidyrc  => $opt{perltidyrc},
-                    argv        => '',
-                );
+                profile perltidy => sub {
+                    Perl::Tidy::perltidy(
+                        source      => \$out,
+                        destination => $output,
+                        perltidyrc  => $opt{perltidyrc},
+                        argv        => '',
+                    );
+                };
             }
             else {
                 print $output $out;
@@ -476,12 +482,14 @@ for (@COMPILER::CHECK) {
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
-                Perl::Tidy::perltidy(
-                    source      => \$out,
-                    destination => $output,
-                    perltidyrc  => $opt{perltidyrc},
-                    argv        => '',
-                );
+                profile perltidy => sub {
+                    Perl::Tidy::perltidy(
+                        source      => \$out,
+                        destination => $output,
+                        perltidyrc  => $opt{perltidyrc},
+                        argv        => '',
+                    );
+                }
             }
             else {
                 print $output $out;
@@ -524,6 +532,7 @@ for (@COMPILER::CHECK) {
         }
         elsif ( $opt{C} ) {
             if ( 0 && $opt{perltidy} ) {
+                #XXX perltidying ruby?? 
                 Perl::Tidy::perltidy(
                     source      => \$out,
                     destination => $output,

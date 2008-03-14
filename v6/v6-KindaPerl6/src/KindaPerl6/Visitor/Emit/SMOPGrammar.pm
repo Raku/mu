@@ -75,6 +75,11 @@ class Rule::Before {
         'printf("Rule::Before stub")';
     }
 }
+class P5Token {
+    method emit_c {
+        '/*P5Token' ~ $.regex ~ '*/';
+    }
+}
 
 
 =begin

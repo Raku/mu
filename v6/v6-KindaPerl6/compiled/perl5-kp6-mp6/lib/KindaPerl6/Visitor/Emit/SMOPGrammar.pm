@@ -151,4 +151,14 @@ sub emit_c {
     'printf("Rule::Before stub")';
 }
 
+package P5Token;
+sub new { shift; bless {@_}, "P5Token" }
+
+sub emit_c {
+    my $self   = shift;
+    my $List__ = \@_;
+    do { [] };
+    ( '/*P5Token' . ( $self->{regex} . '*/' ) );
+}
+
 1;
