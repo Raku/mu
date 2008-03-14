@@ -1,57 +1,99 @@
 #!/usr/bin/perl
-use Test::Simple;
 use strict;
 use warnings;
-my $input = "1 + 2 * 3 + 4 == 5 + 6 == 7 + 8 * 9";
-sub parse_primary {
-    $input =~ /\s*/gc;
-    return $1 if $input =~ /(\d+)/gc;
-}
-sub say {
-    print @_,"\n";
-}
 {
-    my $lookahead;
-    sub lookahead_token {
-        if ($lookahead) {
-            $lookahead;
-        } else {
-            $lookahead = next_token();
-        }
-    }
-    sub next_token {
-        if ($lookahead) {
-            #print "lookahead = $lookahead\n";
-            my $tmp = $lookahead;
-            $lookahead = undef;
-            return $tmp;
-        } else {
-            $input =~ /\s*/gc;
-            return $1 if $input =~ /(\S+)/gc;
-            return 'end';
-        }
-    }
+package OPP;
+sub parse_expression {
+    my ($self,$input) = shift;
+    $self->parse_expression_1($self->parse_primary($input),0);
 }
-my %assoc = ('=='=>'right');
-my %prec = ('=='=>1,'+'=>2,'*'=>3);
 sub parse_expression_1 {
-    my ($lhs,$min_precedence) = @_;
-    #print "parse_expression_1($lhs,$min_precedence)\n";
-    while (lookahead_token() ne 'end' && $prec{lookahead_token()} >= $min_precedence) {
-        my $op = next_token();
-        die "undefined precedence of operator $op" unless $prec{$op};
-        #print "op: $op\n";
-        my $rhs = parse_primary();
-        while (lookahead_token() ne 'end' && ($prec{lookahead_token()} > $prec{$op} || ($prec{lookahead_token()} == $prec{$op} && $assoc{lookahead_token()} && $assoc{lookahead_token()} eq 'right'))) {
-            $rhs = parse_expression_1($rhs,$prec{lookahead_token()});
+    my ($self,$lhs,$min_precedence) = @_;
+    #print $self->lookahead,"prec:",$self->prec($self->lookahead),"\n";
+    while ($self->lookahead ne 'end' && $self->prec($self->lookahead) >= $min_precedence) {
+        my $op = $self->next_token;
+        my $rhs = $self->parse_primary;
+        while ($self->lookahead ne 'end' && ($self->prec($self->lookahead) > $self->prec($op) || ($self->prec($self->lookahead) == $self->prec($op) && $self->assoc($self->lookahead) eq 'right'))) {
+            $rhs = $self->parse_expression_1($rhs,$self->prec($self->lookahead));
         }
         $lhs = "($lhs $op $rhs)";
     }
     return $lhs;
 }
-my $expr = parse_expression_1(parse_primary(),0);
-say $expr;
-print if $@;
+sub lookahead {
+    my $self = shift;
+    if ($self->{lookahead}) {
+        $self->{lookahead};
+    } else {
+        $self->{lookahead} = $self->parse_op;
+    }
+}
+sub next_token {
+    my $self = shift;
+    if ($self->{lookahead}) {
+        my $tmp = $self->{lookahead};
+        $self->{lookahead} = undef;
+        return $tmp;
+    } else {
+        $self->parse_op;
+    }
+}
+}
+
+{
+package OPP::Perl5;
+our @ISA;
+push(@ISA,'OPP');
+sub new {
+    my $self = shift;
+    bless({},$self);
+}
+sub parse_primary {
+    my $self = shift;
+    $self->{str} =~ /\G\s*/gc;
+    print pos($self->{str}),"\n";
+    return $1 if $self->{str} =~ /\G(\d+)/gc;
+}
+sub parse_op {
+    my $self = shift;
+    $self->{str} =~ /\G\s*/gc;
+    return $1 if $self->{str} =~ /\G(\S+)/gc;
+    return 'end';
+}
+sub ok {
+    my ($self,$input) = @_;
+    $self->{str} = $input;
+    pos($self->{str}) = 0;
+    my $output = $self->parse_expression;
+    print "input:$input output:$output\n";
+    if (eval($output) == eval($input)) {
+        print "ok\n";
+    } else {
+        print "not ok\n";
+    }
+}
+my %prec = ('=='=>1,'+'=>2,'*'=>3,'/'=>3);
+sub prec {
+    my ($self,$op) = @_;
+    die "undefined precedence of operator $op" unless $prec{$op};
+    return $prec{$op};
+}
+my %assoc;
+sub assoc {
+    my ($self,$op) = @_;
+    return $assoc{$op} || 'left';
+}
+}
+
+sub say {
+    print @_,"\n";
+}
+
+my $opp = OPP::Perl5->new();
+#$opp->ok("8 / 2 * 4");
+$opp->ok("1 + 2 + 3");
+#$opp->ok("1 + 2 * 3 + 4 == 5 + 6 == 7 + 8 * 9");
+
 
 __END__
 pseudo-code of the algorithm taken from http://en.wikipedia.org/wiki/Operator-precedence_parser
