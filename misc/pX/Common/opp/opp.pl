@@ -51,7 +51,6 @@ sub new {
 sub parse_primary {
     my $self = shift;
     $self->{str} =~ /\G\s*/gc;
-    print pos($self->{str}),"\n";
     return $1 if $self->{str} =~ /\G(\d+)/gc;
 }
 sub parse_op {
@@ -63,9 +62,9 @@ sub parse_op {
 sub ok {
     my ($self,$input) = @_;
     $self->{str} = $input;
-    pos($self->{str}) = 0;
+    $self->{lookahead} = '';
     my $output = $self->parse_expression;
-    print "input:$input output:$output\n";
+    #print "input:$input output:$output\n";
     if (eval($output) == eval($input)) {
         print "ok\n";
     } else {
@@ -90,7 +89,7 @@ sub say {
 }
 
 my $opp = OPP::Perl5->new();
-#$opp->ok("8 / 2 * 4");
+$opp->ok("8 / 2 * 4");
 $opp->ok("1 + 2 + 3");
 #$opp->ok("1 + 2 * 3 + 4 == 5 + 6 == 7 + 8 * 9");
 
