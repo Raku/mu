@@ -1371,7 +1371,6 @@ single-character context specifiers such as + for numbers and ~ for strings:
     @x[f()]   =  g();       # list context for f() and g()
     @x[f()]   = +g();       # list context for f(), scalar context for g()
     @x[+f()]  =  g();       # scalar context for f(), list context for g()
-                            # -- see S03 for "SIMPLE" lvalues
 
     @x[f()]   =  @y[g()];   # list context for f() and g()
     @x[f()]   = +@y[g()];   # list context for f() and g()
