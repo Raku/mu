@@ -315,9 +315,10 @@ sub emit_yaml {
     eval("require YAML::Syck;") or die $!;
     local $YAML::Syck::ImplicitTyping = 1;
     local $YAML::Syck::ImplicitUnicode = 1;
-    binmode(STDOUT, ":utf8");
-    print STDOUT YAML::Syck::Dump($node);
-    "\n";
+    #binmode(STDOUT, ":utf8");
+    #print STDOUT
+    YAML::Syck::Dump($node);
+    #"\n";
 }
 
 1;

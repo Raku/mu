@@ -178,6 +178,10 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     # profiling support
     'profile' => \$opt{profile},
 
+    'remote' => \$opt{remote},
+    'port=i' => \$opt{port},
+    'host=s' => \$opt{host},
+
 ) or help();
 require Time::HiRes if $opt{profile};
 
@@ -199,35 +203,83 @@ help( verbose => 1, exitval => 0 )
 version( exitval => 0 )
     if $opt{version};
 
-# turn on or off perltidy if it is available
-eval { require Perl::Tidy };
-if ($@) {
-    $opt{perltidy} = 0;
-}
-else {
-    $^W = 0;    # perltidy globally turns on warnings, do NOT turn this on
-                # unless you want to see a lot of complaints.
+my @visitor_sequence;
+my @visitors;
+my %visitor_args = ( secure => $opt{secure} );
+{
 
-    if ( $opt{perltidy} && !$opt{perltidyrc} ) {
+    # Manual visitor sequence specified on the command line
+    push @visitor_sequence, split /[\s,]/, $opt{do} if $opt{do};
 
-        # Perl::Tidy's documentation is being updated to note that it has a ENV option
-        if ( $ENV{PERLTIDY} ) {    # I recommend you use YOUR full path
-            $opt{perltidyrc} = $ENV{PERLTIDY};
-        }
-        else {
-            $opt{perltidyrc} = 'util/perltidyrc';
-        }
-
-        die "No perltidyrc file is available for use" unless -e $opt{perltidyrc};
-
-        if ( $opt{perltidyrc} eq '/dev/null' ) {
-            $opt{perltidy} = 0;
-            delete $opt{perltidyrc};
-
-            warn "You have turned off perltidy - please do not commit these files to the respository";
-        }
+    if ( grep { $_ eq 'perl6' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::Perl6 )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl6';
     }
+    elsif ( grep { $_ eq 'nqp' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::Nqp )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Nqp';
+    }
+    elsif ( grep { $_ eq 'ast' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::AstPerl )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstPerl';
+    }
+    elsif ( grep { $_ eq 'ast-yaml' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::AstYaml )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstYaml';
+    }
+    elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 )    # ShortCircuit
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5';
+    }
+    elsif ( grep { $_ eq 'parrot' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Emit::Parrot )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Parrot';
+    }
+    elsif ( grep { $_ =~ /^cl/ } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( Global Emit::Lisp )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Lisp';
+    }
+    elsif ( grep { $_ eq 'perl5rx' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw(  MetaClass  Global Emit::Perl5Regex )                     # RegexCapture ShortCircuit
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
+    }
+    elsif ( grep { $_ eq 'perl5v6' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( MetaClass Emit::Perl5V6 );
+    }
+    elsif ( grep { $_ eq 'ruby' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( ExtractRuleBlock Token Emit::Ruby )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Ruby';
+    }
+    elsif ( grep { $_ eq 'mp6' } @opt{qw(C B)} ) {
+        push @visitor_sequence, qw( ExtractRuleBlock Token Emit::MiniPerl6Like )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::MiniPerl6Like';
+    }
+    elsif ( !@visitor_sequence ) {
+
+        # this is the default sequence
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 );    # ShortCircuit
+    }
+
+    push @visitor_sequence, 'Emit::AstPerl'
+        unless $visitor_sequence[-1] =~ /^Emit/;
 }
+if ($opt{remote}) {
+    help() unless $opt{port};
+    $opt{host} ||= 'localhost';
+    require Net::EasyTCP;
+    my $client = new Net::EasyTCP(
+                mode            =>      "client",
+                host            =>      $opt{host},
+                port            =>      $opt{port},
+        )
+        || die "ERROR CREATING CLIENT: $@\n";
+    $client->send([[@visitor_sequence],load_source()]) || die "ERROR SENDING: $@\n";
+    my $reply = $client->receive() || die "ERROR RECEIVING: $@\n";
+    output($reply);
+    print_prof_info();
+    exit;
+}
+
 
 #
 # Get the required runtime files for the backend we're using
@@ -286,75 +338,15 @@ profile "loading modules" => sub {
 # Construct the visitor sequence from the command line options
 #
 
-my @visitor_sequence;
-my @visitors;
-{
-    my %visitor_args = ( secure => $opt{secure} );
 
-    # Manual visitor sequence specified on the command line
-    push @visitor_sequence, split /[\s,]/, $opt{do} if $opt{do};
-
-    if ( grep { $_ eq 'perl6' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( Emit::Perl6 )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl6';
+profile "loading visitors" => sub {
+    for (@visitor_sequence) {
+        my $module_name = 'KindaPerl6::Visitor::' . $_;
+        eval "require $module_name";
+        die "Can't load $_ plugin: $@" if $@;
+        push @visitors, $module_name->new( visitor_args => \%visitor_args );
     }
-    elsif ( grep { $_ eq 'nqp' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( Emit::Nqp )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Nqp';
-    }
-    elsif ( grep { $_ eq 'ast' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( Emit::AstPerl )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstPerl';
-    }
-    elsif ( grep { $_ eq 'ast-yaml' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( Emit::AstYaml )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::AstYaml';
-    }
-    elsif ( grep { $_ eq 'perl5' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 )    # ShortCircuit
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5';
-    }
-    elsif ( grep { $_ eq 'parrot' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( Emit::Parrot )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Parrot';
-    }
-    elsif ( grep { $_ =~ /^cl/ } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( Global Emit::Lisp )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Lisp';
-    }
-    elsif ( grep { $_ eq 'perl5rx' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw(  MetaClass  Global Emit::Perl5Regex )                     # RegexCapture ShortCircuit
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Perl5Regex';
-    }
-    elsif ( grep { $_ eq 'perl5v6' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( MetaClass Emit::Perl5V6 );
-    }
-    elsif ( grep { $_ eq 'ruby' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( ExtractRuleBlock Token Emit::Ruby )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::Ruby';
-    }
-    elsif ( grep { $_ eq 'mp6' } @opt{qw(C B)} ) {
-        push @visitor_sequence, qw( ExtractRuleBlock Token Emit::MiniPerl6Like )
-            unless @visitor_sequence && $visitor_sequence[-1] eq 'Emit::MiniPerl6Like';
-    }
-    elsif ( !@visitor_sequence ) {
-
-        # this is the default sequence
-        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global Emit::Perl5 );    # ShortCircuit
-    }
-
-    push @visitor_sequence, 'Emit::AstPerl'
-        unless $visitor_sequence[-1] =~ /^Emit/;
-
-    profile "loading visitors" => sub {
-        for (@visitor_sequence) {
-            my $module_name = 'KindaPerl6::Visitor::' . $_;
-            eval "require $module_name";
-            die "Can't load $_ plugin: $@" if $@;
-            push @visitors, $module_name->new( visitor_args => \%visitor_args );
-        }
-    };
-}
+};
 
 #
 # Get the Perl 6 source
@@ -399,9 +391,11 @@ for (@COMPILER::CHECK) {
     shift @COMPILER::PAD;
 }
 
+output($out);
 # We have source to print out, do so, but consider the backends
 # We also the execute any code here.
-{
+sub output {
+    my ($out) = @_;
     no warnings 'uninitialized';
 
     # did the user want us to output the file?
@@ -418,14 +412,7 @@ for (@COMPILER::CHECK) {
     # under the p5 backend
     if ( $opt{output} ) {
         if ( $opt{perltidy} && ( $opt{B} eq 'perl5' || $opt{C} eq 'perl5' || $opt{B} eq 'perl5v6' || $opt{C} eq 'perl5v6') ) {
-            profile perltidy => sub {
-                Perl::Tidy::perltidy(
-                    source      => \$out,
-                    destination => $output,
-                    perltidyrc  => $opt{perltidyrc},
-                    argv        => '',
-                );
-            }
+            perltidy(\$out,$output);
         }
         else {
             $output->print($out);
@@ -441,14 +428,7 @@ for (@COMPILER::CHECK) {
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
-                profile perltidy => sub {
-                    Perl::Tidy::perltidy(
-                        source      => \$out,
-                        destination => $output,
-                        perltidyrc  => $opt{perltidyrc},
-                        argv        => '',
-                    );
-                }
+                perltidy(\$out,$output);
             }
             else {
                 print $output $out;
@@ -462,14 +442,7 @@ for (@COMPILER::CHECK) {
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
-                profile perltidy => sub {
-                    Perl::Tidy::perltidy(
-                        source      => \$out,
-                        destination => $output,
-                        perltidyrc  => $opt{perltidyrc},
-                        argv        => '',
-                    );
-                };
+                perltidy(\$out,$output);
             }
             else {
                 print $output $out;
@@ -482,14 +455,7 @@ for (@COMPILER::CHECK) {
         }
         elsif ( $opt{C} ) {
             if ( $opt{perltidy} ) {
-                profile perltidy => sub {
-                    Perl::Tidy::perltidy(
-                        source      => \$out,
-                        destination => $output,
-                        perltidyrc  => $opt{perltidyrc},
-                        argv        => '',
-                    );
-                }
+                perltidy(\$out,$output);
             }
             else {
                 print $output $out;
@@ -533,12 +499,7 @@ for (@COMPILER::CHECK) {
         elsif ( $opt{C} ) {
             if ( 0 && $opt{perltidy} ) {
                 #XXX perltidying ruby?? 
-                Perl::Tidy::perltidy(
-                    source      => \$out,
-                    destination => $output,
-                    perltidyrc  => $opt{perltidyrc},
-                    argv        => '',
-                );
+                #perltidy(\$out,$output);
             }
             else {
                 print $output $out;
@@ -553,14 +514,17 @@ for (@COMPILER::CHECK) {
 #
 # End of main program
 #
-my $total = 0;
-while (my ($key,$value) = each %prof_info) {
-    warn "$key took $value\n";
-    $total += $value;
+sub print_prof_info {
+    my $total = 0;
+    while (my ($key,$value) = each %prof_info) {
+        warn "$key took $value\n";
+        $total += $value;
+    }
+    if ($total) {
+        warn "total spent time categorized $total\n";
+    }
 }
-if ($total) {
-    warn "total spent time categorized $total\n";
-}
+print_prof_info();
 
 exit(0);
 
@@ -696,6 +660,49 @@ HELP
 sub version {
     printf "kp6 %s\n", $KindaPerl6::VERSION;
     exit 0;
+}
+sub perltidy {
+    my ($out,$output) = @_;
+    return $$out unless $opt{perltidy};
+    profile "setting up perltidy" => sub {
+        eval { require Perl::Tidy };
+        if ($@) {
+            $opt{perltidy} = 0;
+        }
+        else {
+            $^W = 0;    # perltidy globally turns on warnings, do NOT turn this on
+                        # unless you want to see a lot of complaints.
+        
+            if ( $opt{perltidy} && !$opt{perltidyrc} ) {
+        
+                # Perl::Tidy's documentation is being updated to note that it has a ENV option
+                if ( $ENV{PERLTIDY} ) {    # I recommend you use YOUR full path
+                    $opt{perltidyrc} = $ENV{PERLTIDY};
+                }
+                else {
+                    $opt{perltidyrc} = 'util/perltidyrc';
+                }
+        
+                die "No perltidyrc file is available for use" unless -e $opt{perltidyrc};
+        
+                if ( $opt{perltidyrc} eq '/dev/null' ) {
+                    $opt{perltidy} = 0;
+                    delete $opt{perltidyrc};
+        
+                    warn "You have turned off perltidy - please do not commit these files to the respository";
+                }
+            }
+        }
+    };
+    return $$out unless $opt{perltidy};
+    profile perltidy=>sub {
+        Perl::Tidy::perltidy(
+            source      => $out,
+            destination => $output,
+            perltidyrc  => $opt{perltidyrc},
+            argv        => '',
+        );
+    };
 }
 
 __END__

@@ -1,0 +1,271 @@
+#!/usr/bin/env perl
+package kp6;
+use strict;
+
+use Digest       ();
+use Getopt::Long ();
+use File::Spec::Functions qw(catdir);
+use English;
+use IO::File;
+use IO::Handle;
+
+my %opt;
+my %prof_info;
+sub profile {
+    my ($tag,$closure) = @_;
+    return scalar $closure->(@_) unless $opt{profile};
+
+    my $start = Time::HiRes::time();
+    my $val = $closure->();
+    my $end = Time::HiRes::time();
+    warn "$tag took ",$end-$start,"\n" if $opt{profile};
+    $prof_info{$tag} += ($end-$start);
+    return $val;
+}
+
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
+
+    # help
+    'h|help' => \$opt{help},
+
+    # what version are we using
+    'v|version' => \$opt{version},
+
+    # profiling support
+    'profile' => \$opt{profile},
+
+    # port to listen on
+    'port=i' => \$opt{port},
+
+) or help();
+help() unless $opt{port};
+require Time::HiRes if $opt{profile};
+
+#
+# Deal with --help, --version
+#
+
+help( verbose => 1, exitval => 0 )
+    if $opt{help};
+
+# Display version if requested
+version( exitval => 0 )
+    if $opt{version};
+
+#
+# Get the required runtime files for the backend we're using
+#
+
+sub runtime_dir {
+    return "compiled/perl5-kp6-mp6/lib";
+}
+
+sub install_dir {
+    return "compiled/perl5-kp6-kp6" if $opt{runtime} eq "kp6";
+    return "compiled/perl5-kp6-mp6" if $opt{runtime} eq "mp6";
+}
+
+my $lib;
+profile "loading modules" => sub {
+    if ( -d ( my $dir = runtime_dir() ) ) {
+        unshift @INC, $dir;
+    }
+
+    require KindaPerl6;
+
+    $Main::_V6_COMPILER_NAME    = 'KindaPerl6';
+    $Main::_V6_COMPILER_VERSION = $KindaPerl6::VERSION;
+
+    if ( -d ( my $dir = runtime_dir() ) ) {
+
+        # If we're in the kp6 directory use the lib-kp6-* libs there so
+        # the developers do not have to 'make all install' for every little
+        # change.
+        unshift @INC, $dir;
+        $lib = $dir;
+    }
+    else {
+        my $path = $INC{"KindaPerl6.pm"};
+        my ($kp_path) = $path =~ m/(.*)\.pm$/;
+        my $runtime_dir     = catdir( $kp_path,     install_dir() );
+        my $runtime_dir_lib = catdir( $runtime_dir, "lib" );
+        my $runtime_dir_mod = catdir( $runtime_dir, "mod" );
+
+        unshift @INC, $runtime_dir_lib;
+        $lib = $runtime_dir_lib;
+    }
+
+    require KindaPerl6::Runtime::Perl5::Runtime;
+    require KindaPerl6::Traverse;
+    require KindaPerl6::Grammar::Regex;
+
+    if ( $opt{runtime} eq 'kp6' ) {
+        $ENV{KP6_TARGET_RUNTIME} = 'KindaPerl6::Runtime::Perl5::KP6Runtime';
+    }
+};
+
+
+use Net::EasyTCP;
+my $server = new Net::EasyTCP(
+        mode            =>      "server",
+        port            =>      8869,
+)
+|| die "ERROR CREATING SERVER: $@\n";
+
+$server->setcallback(
+        data            =>      \&gotdata,
+        connect         =>      \&connected,
+        disconnect      =>      \&disconnected,
+)
+|| die "ERROR SETTING CALLBACKS: $@\n";
+
+$server->start() || die "ERROR STARTING SERVER: $@\n";
+sub connected {
+}
+sub disconnected {
+}
+sub gotdata {
+    my $start = Time::HiRes::time() if $opt{profile};
+
+    my $client = shift;
+    my $data = $client->data;
+    my $source = $data->[1];
+    warn "got $source";
+    
+    my @visitor_sequence;
+    my @visitors;
+
+    @visitor_sequence = @{$data->[0]};
+
+    profile "loading visitors" => sub {
+        for (@visitor_sequence) {
+            my $module_name = 'KindaPerl6::Visitor::' . $_;
+            eval "require $module_name";
+            die "Can't load $_ plugin: $@" if $@;
+            push @visitors, $module_name->new( );
+        }
+    };
+
+    $COMPILER::source_md5 = Digest->new("MD5")->add($source)->hexdigest;
+    
+    #
+    # Good to go, pass the source through the selected visitors
+    #
+    
+    my $pos = 0;
+    my $out;
+    while ( $pos < length($source) ) {
+        my $p = profile parsing => sub {KindaPerl6::Grammar->comp_unit( $source, $pos )} ;
+    
+        my $ast = $$p;
+    
+        unless ( ref $ast && $ast->isa("CompUnit") ) {
+    
+            # Compilation failed, show the user where
+            die report_error( \$source, $pos );
+        }
+        for (@visitors) {
+            $ast = profile ref $_ => sub {$ast->emit($_)};
+        }
+        $out .= $ast;
+        $pos = $p->to;
+    }
+    
+    # emit CHECK blocks
+    for (@COMPILER::CHECK) {
+        my ( $ast, $pad ) = @$_;
+        unshift @COMPILER::PAD, $pad;
+        my $ast = COMPILER::begin_block($ast);
+        for (@visitors) {
+            $ast = profile ref $_ => sub {$ast->emit($_)};
+        }
+        $out .= $ast;
+        shift @COMPILER::PAD;
+    }
+    $client->send($out);
+
+    warn "(start=$start) serving request took ",(Time::HiRes::time()-$start),"\n" if $opt{profile};
+}
+
+
+#
+# End of main program
+#
+#my $total = 0;
+#while (my ($key,$value) = each %prof_info) {
+#    warn "$key took $value\n";
+#    $total += $value;
+#}
+#if ($total) {
+#    warn "total spent time categorized $total\n";
+#}
+
+exit(0);
+
+#
+# Utility functions
+#
+
+# Eat that File::Slurp!
+sub slurp {
+    do {
+        local ( @ARGV, $/ ) = $_[0];
+        scalar <>;
+    };
+}
+
+# Helper sub to show the user where the parser bailed out.
+sub report_error {
+    my ( $source, $pos ) = @_;
+
+    # Is this the first line? We'll have to special case if it is
+    my $first_line = 0;
+
+    # So we died, find out what line we were on
+    my $source_uptohere = substr $$source, 0, $pos;
+
+    # Find how many lines we've been through
+    my $lines = ( $source_uptohere =~ tr/\n// ) + 1;
+
+    # The column is distance from the last newline to $pos :)
+    my $last_n_pos = rindex $source_uptohere, "\n";
+
+    if ( $last_n_pos == -1 ) {
+
+        # No previous newline, this is the first line
+        $first_line = 1;
+        $last_n_pos = 0;
+    }
+
+    my $column = $pos - $last_n_pos;
+
+    # Print out the offending newline
+    my $next_n_pos  = index $$source, "\n", $last_n_pos + 1;
+    my $line_length = $next_n_pos - $last_n_pos;
+    my $line        = substr $$source, $last_n_pos, $line_length;
+
+    # print out an arrow pointing to the column
+    my $whitespace = ' ' x $column;
+
+    return "syntax error at position $pos, line $lines column $column:" . ( $first_line ? "\n" : "" ) . $line . "\n" . $whitespace . "^ HERE\n";
+}
+
+
+sub help {
+    print <<'HELP';
+Usage: kp6d [switches] [--] [programfile] [arguments]
+  --port          port to run on (required)
+
+  -h or --help    give this message
+See kp6 documentation for details
+HELP
+    exit 0;
+}
+
+sub version {
+    printf "kp6 %s\n", $KindaPerl6::VERSION;
+    exit 0;
+}
+
+__END__
+
