@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 3 Jan 2008
+  Last Modified: 17 Mar 2008
   Number: 9
-  Version: 23
+  Version: 24
 
 =head1 Overview
 
@@ -960,12 +960,12 @@ rather than
     one(one($a,$b),$c)
 
 Some contexts, such as boolean contexts, have special rules for dealing
-with junctions.  In any scalar context not expecting a junction of
+with junctions.  In any item context not expecting a junction of
 values, a junction produces automatic parallelization of the algorithm.
 In particular, if a junction is used as an argument to any routine
 (operator, closure, method, etc.), and the scalar parameter you
 are attempting to bind the argument to is inconsistent with the
-Junction type, that routine is "autothreaded", meaning the routine
+C<Junction> type, that routine is "autothreaded", meaning the routine
 will be called automatically as many times as necessary to process
 the individual scalar elements of the junction in parallel.
 
@@ -1143,7 +1143,7 @@ it.
 The default hash iterator is a property called C<.iterator> that can be
 user replaced.  When the hash itself needs an iterator for C<.pairs>,
 C<.keys>, C<.values>, or C<.kv>, it calls C<%hash.iterator()> to
-start one.  In scalar context, C<.iterator> returns an iterator object.
+start one.  In item context, C<.iterator> returns an iterator object.
 In list context, it returns a lazy list fed by the iterator.  It must
 be possible for a hash to be in more than one iterator at a time,
 as long as the iterator state is stored in a lazy list.

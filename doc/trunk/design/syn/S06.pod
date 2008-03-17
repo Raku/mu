@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 7 Feb 2008
+  Last Modified: 17 Mar 2008
   Number: 6
-  Version: 93
+  Version: 94
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -458,7 +458,7 @@ or implicitly within a C<Capture> object (which are themselves immutable).
 Also, C<$ro> may not be returned from an lvalue subroutine or method.
 
 Parameters may be required or optional. They may be passed by position,
-or by name. Individual parameters may confer a scalar or list context
+or by name. Individual parameters may confer an item or list context
 on their corresponding arguments, but unlike in Perl 5, this is decided
 lazily at parameter binding time.
 
@@ -593,7 +593,7 @@ list, with a colon (rather than a comma) immediately after it:
     method get_name ($self:) {...}
     method set_name ($_: $newname) {...}
 
-The corresponding argument (the invocant) is evaluated in scalar context
+The corresponding argument (the invocant) is evaluated in item context
 and is passed as the left operand of the method call operator:
 
     print $obj.get_name();
@@ -659,7 +659,7 @@ though that's already the default for positional parameters:
 
     sub numcmp ($x!, $y!) { return $x <=> $y }
 
-The corresponding arguments are evaluated in scalar context and may be
+The corresponding arguments are evaluated in item context and may be
 passed positionally or by name. To pass an argument by name,
 specify it as a pair: C<< I<parameter_name> => I<argument_value> >>.
 
@@ -700,7 +700,7 @@ preceding parameters:
     sub xml_tag ($tag, $endtag = matching_tag($tag) ) {...}
 
 Arguments that correspond to optional parameters are evaluated in
-scalar context. They can be omitted, passed positionally, or passed by
+item context. They can be omitted, passed positionally, or passed by
 name:
 
     my_substr("foobar");            # $from is 0, $len is infinite
@@ -745,7 +745,7 @@ Or equivalently:
 
     sub globalize (:g(:$global)) {...}
 
-Arguments that correspond to named parameters are evaluated in scalar
+Arguments that correspond to named parameters are evaluated in item
 context. They can only be passed by name, so it doesn't matter what
 order you pass them in:
 
@@ -796,7 +796,7 @@ marked by a C<*> before the parameter:
     sub duplicate($n, *%flag, *@data) {...}
 
 Named arguments are bound to the slurpy hash (C<*%flag>
-in the above example). Such arguments are evaluated in scalar context.
+in the above example). Such arguments are evaluated in item context.
 Any remaining variadic arguments at the end of the argument list
 are bound to the slurpy array (C<*@data> above) and are evaluated
 in list context.
@@ -1939,7 +1939,7 @@ were the argument to a C<return> list operator (with whitespace):
     sub f { (:x<1>) } # always just one positional Pair object 
 
 On the caller's end, the C<Capture> is interpolated into any new argument list
-much like an array would be, that is, as a scalar in scalar context, and as a
+much like an array would be, that is, as an item in item context, and as a
 list in list context.  This is the default behavior, but the
 caller may use C<< prefix:<|> >> to inline the returned values as part of the
 new argument list.  The caller may also bind the returned C<Capture> directly.
@@ -2117,7 +2117,7 @@ As with normal function signatures, you can test the result of C<want> with a
 smart match (C<~~>) or a C<when>:
 
    given want {
-        when :($)       {...}   # called in scalar context
+        when :($)       {...}   # called in item context
         when :(*@)      {...}   # called in list context
         when :($ is rw) {...}   # expected to return an lvalue
         when :($,$)     {...}   # expected to return two values
@@ -2126,7 +2126,7 @@ smart match (C<~~>) or a C<when>:
 
 Or use its shorthand methods to reduce line noise:
 
-    if    want.item      {...}  # called in non-lvalue scalar context
+    if    want.item      {...}  # called in non-lvalue item context
     elsif want.list      {...}  # called in list context
     elsif want.void      {...}  # called in void context
     elsif want.rw        {...}  # expected to return an lvalue

@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 20 Feb 2008
+   Last Modified: 17 Mar 2008
    Number: 5
-   Version: 73
+   Version: 74
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -410,8 +410,8 @@ So are closures: C<:nth({.is_fibonacci})>
 
 With the new C<:ov> (C<:overlap>) modifier, the current regex will
 match at all possible character positions (including overlapping)
-and return all matches in a list context, or a disjunction of matches
-in a scalar context.  The first match at any position is returned.
+and return all matches in list context, or a disjunction of matches
+in item context.  The first match at any position is returned.
 The matches are guaranteed to be returned in left-to-right order with
 respect to the starting positions.
 
@@ -425,7 +425,7 @@ respect to the starting positions.
 
 With the new C<:ex> (C<:exhaustive>) modifier, the current regex will
 match every possible way (including overlapping) and return all matches
-in a list context, or a disjunction of matches in a scalar context.
+in a list context, or a disjunction of matches in item context.
 The matches are guaranteed to be returned in left-to-right order with
 respect to the starting positions.  The order within each starting
 position is not guaranteed and may depend on the nature of both the
@@ -845,7 +845,7 @@ how to handle them (more on that below).
 
 =item *
 
-The default way in which the engine handles a scalar is to match it
+The default way in which the engine handles a string scalar is to match it
 as a C<< '...' >> literal (i.e. it does not treat the interpolated string
 as a subpattern).  In other words, a Perl 6:
 
@@ -1639,9 +1639,10 @@ like C<grep>:
          }
      }
 
-Using C<{...}> or C</.../> in the scalar context of the first argument
-causes it to produce a C<Code> or C<Regex> object, which the switch
-statement then selects upon.
+When you call C<my_grep>, the first argument is bound in item context,
+so passing C<{...}> or C</.../> produces a C<Code> or C<Regex> object,
+which the switch statement then selects upon.  (Normal C<grep> just
+lets a smartmatch operator do all the work.)
 
 =item *
 

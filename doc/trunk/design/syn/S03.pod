@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 15 Feb 2008
+  Last Modified: 17 Mar 2008
   Number: 3
-  Version: 132
+  Version: 133
 
 =head1 Overview
 
@@ -655,13 +655,18 @@ C<< prefix:<=> >>, iterate iterator
 Unary C<=> reads lines from a filehandle or filename, or
 iterates an iterator, or in general causes a scalar to explode its guts
 when it would otherwise not.  How it does that is context sensitive.
-For instance, C<=$iterator> is item/list sensitive and will
+For instance, C<=$iterator> is item/list context sensitive and will
 produce one value in item context but many values in list context.
-(Use C<@$iterator> to force a fetch of all the values even in item
-context, and C<$$iterator> to force a fetch of a single value even
-in list context.)  On the other hand, C<=$capture> interpolates all
+The production of values is abstract here, so a lazy list merely
+remembers that it should iterate the iterator to completion upon
+demand.  Use an eager list to force completion.
+
+Use C<@$iterator> to produce a list all the values even in item
+context, and C<$$iterator> to produce a single value even
+in list context.  On the other hand, C<=$capture> produces all
 parts of the capture that makes sense in the current list context,
-depending on what controls that list context.
+depending on what controls that list context.  [Conjecture: the
+previous sentence is non-sensical.]
 
 =back
 
@@ -1516,6 +1521,29 @@ of some sort.  We even call some of them pseudo-assignments, but they're
 all a bit pseudo insofar as we have to figure out whether the left side
 is a list or a scalar destination.
 
+In any case, list assignment is defined to be arbitrarily lazy,
+insofar is it basically does the obvious copying as long as there
+are scalar destinations on the left or already-computed values on
+the right.  However, many list lvalues end with an array destination
+(where assignment directly to an array can be considered a degenerate
+case).  When copying into an array destination, the list assignment
+continues to copy in known values immediately, but suspends when it
+hits an actively iterating iterator (but not one merely passed as an
+object within the list).  The array location on the left is then set
+as an extensible array, with the remainder of the list on the right
+as the producer of its remaining values.
+
+(Note that when we say that an iterator in list context suspends,
+it is not required to suspend immediately.  When the scheduler is
+running an iterator, it may choose to precompute values in batches if
+it thinks that approach will increase throughput.  This is likely to
+be the case on single-core architectures with heavy context switching,
+and may very well be the case even on manycore CPU architectures when
+there are more iterators than cores, such that cores may still have
+to do context switching.)
+
+Assignment to a hash is not lazy.
+
 =item *
 
 C<< infix:<:> >>, the invocant marker
@@ -2166,7 +2194,7 @@ item assignment interpretation:
 
 If a function is contextually sensitive and you wish to return a scalar
 value, you must use C<item> (or C<$> or C<+> or C<~>) if you wish to
-force scalar context for either the subscript or the right side:
+force item context for either the subscript or the right side:
 
     @a[foo()] = bar();           # foo() and bar() called in list context
     @a[item foo()] = item bar(); # foo() and bar() called in item context

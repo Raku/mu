@@ -12,7 +12,7 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 15 Mar 2008
+  Last Modified: 17 Mar 2008
   Number: 2
   Version: 130
 
@@ -1317,8 +1317,11 @@ Attribute variables are declared with C<has>, though.
 
 Sigils are now invariant.  C<$> always means a scalar variable, C<@>
 an array variable, and C<%> a hash variable, even when subscripting.
-Variables such as C<@array> and C<%hash> in scalar context simply
-return themselves as C<Array> and C<Hash> objects.
+In item context, variables such as C<@array> and C<%hash> simply
+return themselves as C<Array> and C<Hash> objects. (Item context was
+formerly known as scalar context, but we now reserve the "scalar"
+notion for talking about variables rather than contexts, much as
+arrays are disassociated from list context.)
 
 =item *
 
@@ -1364,35 +1367,39 @@ the sigil.
 The context in which a subscript is evaluated is no longer controlled
 by the sigil either.  Subscripts are always evaluated in list context.
 
-If you need to force inner context to scalar, we now have convenient
+If you need to force inner context to item (scalar), we now have convenient
 single-character context specifiers such as + for numbers and ~ for strings:
 
-    $x        =  g();       # scalar context and g()
+    $x        =  g();       # item context for g()
     @x[f()]   =  g();       # list context for f() and g()
-    @x[f()]   = +g();       # list context for f(), scalar context for g()
-    @x[+f()]  =  g();       # scalar context for f(), list context for g()
+    @x[f()]   = +g();       # list context for f(), numeric item context for g()
+    @x[+f()]  =  g();       # numeric item context for f(), list context for g()
 
     @x[f()]   =  @y[g()];   # list context for f() and g()
     @x[f()]   = +@y[g()];   # list context for f() and g()
-    @x[+f()]  =  @y[g()];   # scalar context for f(), list context for g()
-    @x[f()]   =  @y[+g()];  # list context for f(), scalar context for g()
+    @x[+f()]  =  @y[g()];   # numeric item context for f(), list context for g()
+    @x[f()]   =  @y[+g()];  # list context for f(), numeric item context for g()
 
-Sigils used as list prefix operators may also be used to force context:
+    %x{~f()}  =  %y{g()};   # string item context for f(), list context for g()
+    %x{f()}   =  %y{~g()};  # list context for f(), string item context for g()
 
-    @x = $ g();         # scalar context for g()
-    $x = @ g();         # list context for g()
-    $x = % g();         # list context for g() (and coercion to hash)
+Sigils used either as functions or as list prefix operators also
+force context, so these also work:
 
-These may also be used in functional form:
+    @x[$(g())]         # item context for g()
+    @x[$ g()]          # item context for g()
+    %x{$(g())}         # item context for g()
+    %x{$ g()}          # item context for g()
 
-    @x = $(g());         # scalar context for g()
-    $x = @(g());         # list context for g()
-    $x = %(g());         # list context for g() (and coercion to hash)
+But note that these don't do the same thing:
+
+    @x[$g()]           # call function in $g
+    %x{$g()}           # call function in $g
 
 =item *
 
 There is a need to distinguish list assignment from list binding.
-List assignment works exactly as it does in Perl 5, copying the
+List assignment works much like it does in Perl 5, copying the
 values.  There's a new C<:=> binding operator that lets you bind
 names to Array and Hash objects without copying, in the same way
 as subroutine arguments are bound to formal parameters.  See S06
@@ -1429,7 +1436,7 @@ When cast into an array, you can access all the positional arguments; into a
 hash, all named arguments; into a scalar, its invocant.
 
 All prefix sigil operators accept one positional argument, evaluated in
-scalar context as a rvalue.  They can interpolate in strings if called with
+item context as a rvalue.  They can interpolate in strings if called with
 parentheses.  The special syntax form C<$()> translates into C<$( $/ )> 
 to operate on the current match object; the same applies to C<@()> and C<%()>.
 
@@ -1454,7 +1461,7 @@ Signature objects bound to type variables (as in the example above) may
 be used within other signatures to apply additional type constraints.
 When applied to a C<Capture> argument, the signature allows you to
 take the types of the capture's arguments from C<MySig>, but declare
-the (untyped) variable names yourself via an addition signature
+the (untyped) variable names yourself via an additional signature
 in parentheses:
 
     sub foo (Num Dog|Cat $numdog, MySig $a ($i,$j,$k,$mousestatus)) {...}
@@ -2186,7 +2193,7 @@ which is the same as:
 
     @a = 1, 'x', 'y', 2;
 
-In scalar context, though, the implied parentheses are not removed, so
+In item context, though, the implied parentheses are not removed, so
 
     $a = < a b >;
 
@@ -2211,7 +2218,7 @@ still act like a scalar value.  These are all the same:
     $a = 'a';
 
 And if bound to a scalar parameter, no list is constructed.
-To force a single value to become a list object in scalar context,
+To force a single value to become a list object in item context,
 you should use C<< ['a'] >> for clarity as well as correctness.
 
 Much like the relationship between single quotes and double quotes, single
@@ -2560,7 +2567,7 @@ both the sigil and parentheses:
 
     print "The results are &baz().\n"
 
-The function is called in scalar context.  (If it returns a list anyway,
+The function is called in item context.  (If it returns a list anyway,
 that list is interpolated as if it were an array in string context.)
 
 =item *
@@ -2572,7 +2579,7 @@ ending in brackets:
     print "The attribute is $obj.attr().\n"
     print "The attribute is $obj.attr<Jan>.\n"
 
-The method is called in scalar context.  (If it returns a list,
+The method is called in item context.  (If it returns a list,
 that list is interpolated as if it were an array.)
 
 It is allowed to have a cascade of argumentless methods as long as
@@ -2597,8 +2604,8 @@ it doesn't introduce a bracketed dereferencer.
 
 A bare closure also interpolates in double-quotish context.  It may
 not be followed by any dereferencers, since you can always put them
-inside the closure.  The expression inside is evaluated in scalar
-(string) context.  You can force list context on the expression using
+inside the closure.  The expression inside is evaluated in string item
+context.  You can force list context on the expression using
 the C<list> operator if necessary.
 
 The following means the same as the previous example.
@@ -3117,11 +3124,11 @@ such as a system that sorts "delta" after "gamma".
 
 =item *
 
-Perl still has the three main contexts: void, scalar, and list.
+Perl still has the three main contexts: void, item (scalar), and list.
 
 =item *
 
-In addition to undifferentiated scalars, we also have these scalar contexts:
+In addition to undifferentiated items, we also have these item contexts:
 
     Context     Type    OOtype  Operator
     -------     ----    ------  --------
@@ -3183,13 +3190,13 @@ flatten the list on demand, but not before.
 =item *
 
 There is a "C<list>" operator which imposes a list context on
-its arguments even if C<list> itself occurs in a scalar context.
-In list context, it flattens lazily.  In a scalar context, it returns
+its arguments even if C<list> itself occurs in a item context.
+In list context, it flattens lazily.  In an item context, it returns
 the resulting list as a single C<List> object.  (So the C<list> operator
 really does exactly the same thing as putting a list in parentheses with
 at least one comma.  But it's more readable in some situations.)
 
-To force a non-flattening scalar context, use the "C<item>" operator.
+To force a non-flattening item context, use the "C<item>" operator.
 
 =item *
 
@@ -3227,9 +3234,22 @@ then evaluated lazily.
 =item *
 
 To force non-lazy list flattening, use the C<eager> list operator.
-Don't use it on an infinite generator unless you have a machine with
-infinite memory, and are willing to wait a long time.  It may also
-be applied to a scalar iterator to force immediate iteration to completion.
+Don't use it on an infinite list unless you have a machine with
+infinite memory, and are willing to wait a long time.  To expand an
+interator object to completion, iterate it with C<< prefix:<=> >>
+inside an eager list:
+
+    @lines = eager =$filehandle;    # read all remaining lines
+
+By contrast,
+
+    @lines = =$filehandle;
+
+makes no guarantee about how many lines ahead the iterator has read.
+Iterators appending to a list are allowed to process in batches, even
+when stored within an array.  The array knows that it is extensible,
+and calls the iterator as it needs more elements.  (Counting the elements
+in the array will also force eager completion.)
 
 =item *
 
@@ -3256,18 +3276,18 @@ themselves in any event, which may or may not be lazily flattened.
 However, function calls in the argument list can't know their eventual
 context because the method hasn't been dispatched yet, so we don't
 know which signature to check against.  As in Perl 5, list context
-is assumed unless you explicitly qualify the argument with a scalar
+is assumed unless you explicitly qualify the argument with an item
 context operator.
 
 =item *
 
 The C<< => >> operator now constructs C<Pair> objects rather than merely
-functioning as a comma.  Both sides are in scalar context.
+functioning as a comma.  Both sides are in item context.
 
 =item *
 
 The C<< .. >> operator now constructs C<Range> objects rather than merely
-functioning as an operator.  Both sides are in scalar context.
+functioning as an operator.  Both sides are in item context.
 
 =item *
 
