@@ -50,8 +50,8 @@ use Regexp::Common;
 binmode(STDOUT, ":utf8");
 binmode(STDERR, ":utf8");
 sub print_usage_and_exit {
-    print STDERR "Usage: $0 REPORT-DIRECTORY [INPUT-FILE]\n";
-    exit(2);
+  print STDERR "Usage: $0 REPORT-DIRECTORY [INPUT-FILE]\n";
+  exit(2);
 }
 print_usage_and_exit if not @ARGV or not -d $ARGV[0];
 my $dir = $ARGV[0]; $dir =~ s/\/$//;
@@ -61,246 +61,311 @@ my $std = join("",<F>); close(F);
 local $_ = $std;
 
 sub spew {
-    my($fn,$s)=@_;
-    open(F,">$dir/$fn") or die;
-    binmode(F, ":utf8");
-    print F $s;
-    close(F);
+  my($fn,$s)=@_;
+  open(F,">$dir/$fn") or die;
+  binmode(F, ":utf8");
+  print F $s;
+  close(F);
 }
 
 sub remove_clutter {
-    s/^ *\#.*\n//mg;
-    s/ \# .*//mg;
-    s/(?<=\s)\#\'//g;
-    #s/^=begin\s+(.*?\S)\s*\n(?:.|\n)*?^=end\s+\1\s*\n//mg;
-    # no, eg, =begin perlhints <-> matched by =end perlhints .
-    s/^=begin\s+(\S+).*\n(?:.|\n)*?^=end\s+\1.*\n//mg;
-    
-    # grammar Perl:ver<6.0.0.alpha>:auth<http://perl.org>;
-    s/^grammar.*//m;
-    # BEGIN { say "compiling STD" }
-    s/^BEGIN { say.*//m;
-    
-    # say "Starting...";   to end-of-file
-    s/^say .*//ms;
-    
-    while(s/\n *\n/\n/g){}
-    s/^\n+//;
+  s/^ *\#.*\n//mg;
+  s/ \# .*//mg;
+  s/(?<=\s)\#\'//g;
+  #s/^=begin\s+(.*?\S)\s*\n(?:.|\n)*?^=end\s+\1\s*\n//mg;
+  # no, eg, =begin perlhints <-> matched by =end perlhints .
+  s/^=begin\s+(\S+).*\n(?:.|\n)*?^=end\s+\1.*\n//mg;
+  
+  # grammar Perl:ver<6.0.0.alpha>:auth<http://perl.org>;
+  s/^grammar.*//m;
+  # BEGIN { say "compiling STD" }
+  s/^BEGIN { say.*//m;
+  
+  # say "Starting...";   to end-of-file
+  s/^say .*//ms;
+  
+  while(s/\n *\n/\n/g){}
+  s/^\n+//;
 }
 sub quote {
-    my($s)=@_;
-    $s =~ s/\\/\\\\/g;
-    $s =~ s/\'/\\\'/g;
-    $s;
+  my($s)=@_;
+  $s =~ s/\\/\\\\/g;
+  $s =~ s/\'/\\\'/g;
+  $s;
 }
 sub replace_sym {
-    my($sym,$s)=@_;
-    $sym = quote($sym);
-    $s =~ s/<sym>/'$sym'/g; # these '' are for the rx literal.
-    $s;
+  my($sym,$s)=@_;
+  $sym = quote($sym);
+  $s =~ s/<sym>/'$sym'/g; # these '' are for the rx literal.
+  $s;
 }
 sub strip_oneliners { # bad idea - ws is significant.
-    my($s)=@_;
-    return $s if $s =~ /\n/;
-    $s =~ s/^\s+//;
-    $s =~ s/\s+$//;
-    return $s;
+  my($s)=@_;
+  return $s if $s =~ /\n/;
+  $s =~ s/^\s+//;
+  $s =~ s/\s+$//;
+  return $s;
 }
 sub remove_solo_whatever {
-    my($s)=@_;
-    my $tmp = $s; $tmp =~ s/{\*\}//; $s = $tmp if $tmp !~ /{\*\}/;
-    return $s;
+  my($s)=@_;
+  my $tmp = $s; $tmp =~ s/{\*\}//; $s = $tmp if $tmp !~ /{\*\}/;
+  return $s;
 }
 sub extract {
-    local $_ = $_;
-    my $braces = "{([^\n]*?|.*?^)}"; #/sm
-    my $out = "";
-    my($data,$rest,$both) = ("","","");
-    my @data_list;
-    my @patterns;
+  local $_ = $_;
+  my $braces = "{([^\n]*?|.*?^)}"; #/sm
+  my $out = "";
+  my($data,$rest,$both) = ("","","");
+  my @data_list;
+  my @patterns;
+
+  # Resist bitrot
+  my %extractors=map{($_,1)} qw(
+    cls1 cls2 const methodsub
+    proto_empty proto_endsym_nofat proto_endsym proto_defeq
+    stmt1 stmt2 stmt_mod stmt_prefix
+    category
+    rul_sym rul_plain
+  );
+  my %used = map{($_,undef)} keys(%extractors);
+
+  my $do_extraction = sub {
     while (1) {
-	if(/\A(class (\w+) +does PrecOp\[\|%(.*?)\] *{} *\n)/) {
-	    my($all,$name,$prec)=($1,$2,$3);
-	    die "assert" if lc($name) ne $prec;
-	    $out .= "class_does_PrecOp('$prec');\n";
-	    $_ = substr($_,length($all));
-	}
-	elsif(/\A(class (\w+) +does QLang +{(.*?)^} *\n)/sm) {
-	    my($all,$name,$block)=($1,$2,$3);
-	    $block = quote($block);
-	    $out .= "class_does_QLang('$name','$block');\n";
-	    $_ = substr($_,length($all));
-	}
-	elsif(/\A(constant \%(\w+) += {\s*(.*?\S) *}; *\n)/) {
-	    my($all,$name,$prec)=($1,$2,$3);
-	    $prec =~ s/ +/ /g;
-	    $prec =~ s/:(prec|assoc)<(.*?)>,?/$2/g;
-	    $out .= "constant_prec('$name','$prec');\n";
-	    $_ = substr($_,length($all));
-	}
-	elsif(/\A((multi )?(method|sub) +(\w+) *\(([^\)]*?)\)[ \n]*{(.*?)^} *\n)/sm) {
-	    my($all,$multi,$methsub,$name,$args,$block)=($1,($2||""),$3,$4,$5,$6);
-	    $multi = 'multi_' if $multi;
-	    $args = quote($args);
-	    $block = quote($block);
-	    $out .= "grammar_$multi$methsub('$name','$args','$block');\n";
-	    $_ = substr($_,length($all));
-	}
-	elsif(/\A(proto token (\w+) { } *\n)/) {
-	    $out .= "proto_token_simple('$2');\n";
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A(proto (token|rule) +(\w+) \(:\$endsym is context = \/( >> <nofat> )\/\) { } *\n)/) {
-	    push(@patterns,$4);
-	    $out .= "proto_endsym_nofat_angle_$2('$3');\n";
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A(proto token (\w+) is defequiv\(%(\w+)\) { } *\n)/) {
-	    $out .= "proto_token_defequiv('$2','$3');\n";
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A(proto (token|rule) +(\w+) \(:\$endsym is context = \/([^\/]+?)\/\) { } *\n)/) {
-	    push(@patterns,$4);
-	    $out .= "proto_endsym_other_${2}('$3','$4');\n";
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A(rule statement_control:(\w+) +{( <sym> <block> {\*} )}.*\n)/) {
-	    push(@patterns,$3);
-	    $out .= "rule_statement_control_block('$2');\n";
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A(rule statement_control:(\w+) +{ *\n(.*?\n)} *\n)/s) {
-	    my($all,$name,$pat)=($1,$2,$3);
-	    push(@patterns,$pat);
-	    $pat = quote(replace_sym($name,$pat));
-	    $out .= "rule_statement_control('$name','$pat');\n";
-	    $_ = substr($_,length($all));
-	}
-	elsif(/\A(rule statement_mod_(cond|loop):(\w+) +{( <sym> <modifier_expr> {\*} )}.*\n)/) {
-	    push(@patterns,$4);
-	    $out .= "rule_statement_mod_$2('$3');\n";
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A(token category:(\w+) +{( <sym> )} *\n)/) {
-	    push(@patterns,$3);
-	    $out .= "token_category('$2');\n";
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A((token|rule) ([a-z_]+):(?:sym. *(\S+?(?: \S+)?) *[»>}\]\"\']|(\w+))(?: *\( *--> *(\w+) *\))?[ \n]*$braces(?: *#= ([^\n]+))? *\n(?=\w|\z))/sm) {
-	    my($all,$tr,$cat,$sym,$sym2,$type,$pat,$callit)=($1,$2,$3,$4,$5,($6||""),$7,($8||""));
-	    push(@patterns,$pat);
-	    $sym = $sym2 if not defined($sym);
-	    $pat = remove_solo_whatever($pat);
-	    $pat = '' if $pat =~ /^\s*<sym>\s*$/;
-	    $pat = '' if $pat =~ /^\s*\'\Q$sym\E\'\s*$/;
-	    $callit = '' if $callit eq $sym;
-	    $pat = quote(replace_sym($sym,$pat));
-	    $type = lc $type;
-	    $out .= "${tr}_op('$cat','$sym','$type','$pat','$callit');\n";
-	    $_ = substr($_,length($all));
-	}
-	elsif(/\A((token|rule|regex) (\w+)(?: *\(([^\)]*)\))? *$braces *\n)/sm) {
-	    my($all,$tr,$name,$args,$pat)=($1,$2,$3,$4,$5);
-	    push(@patterns,$pat);
-	    $pat = remove_solo_whatever($pat);
-	    $pat = quote(replace_sym($name,$pat));
-	    if(defined $args) {
-		$out .= "${tr}_pattern_with_args('$name','$args','$pat');\n";
-	    }else{
-		$out .= "${tr}_pattern('$name','$pat');\n";
-	    }
-	    $_ = substr($_,length($all));
-	}
-	elsif(/\A(rule statement_prefix:(\w+) +{( <sym> <statement> {\*} )}.*\n)/) {
-	    push(@patterns,$3);
-	    $out .= "rule_statement_prefix('$2');\n";
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A(.*\n)/) {
-	    $rest .= $1;
-	    $both .= $1;
-	    $_ = substr($_,length($1));
-	}
-	elsif(/\A\z/) {
-	    last;
-	}
-	else {
-	    die "ERROR: match failed.  File doesnt end in newline?\n$_";
-	}
-	if($out =~ /^(?!\A)\w/m) {
-	    die "BUG: a regex overshot, matching:\n$out";
-	}
-	$data .= $out;
-	$both .= $out;
-	push(@data_list,$out);
-	$out = "";
+      if(undef) {}
+      # constant
+      elsif(/\A(constant \%(\w+) += {\s*(.*?\S) *}; *\n)/) {
+        my($all,$name,$prec)=($1,$2,$3);  $used{const}=1;
+        $prec =~ s/ +/ /g;
+        $prec =~ s/:(prec|assoc)<(.*?)>,?/$2/g;
+        $out .= "constant_prec('$name','$prec');\n";
+        $_ = substr($_,length($all));
+      }
+      # category
+      elsif(/\A(token category:(\w+) +{( <sym> )} *\n)/) {
+        push(@patterns,$3);  $used{category}=1;
+        $out .= "token_category('$2');\n";
+        $_ = substr($_,length($1));
+      }
+      # proto
+      elsif(/\A(proto token (\w+) { } *\n)/) {  $used{proto_empty}=1;
+        $out .= "proto_token_simple('$2');\n";
+        $_ = substr($_,length($1));
+      }
+      elsif(/\A(proto (token|rule) +(\w+) \(:\$endsym is context = '(nofat)'\) { } *\n)/) {
+        push(@patterns,$4);  $used{proto_endsym_nofat}=1;
+        $out .= "proto_endsym_nofat_angle_$2('$3');\n";
+        $_ = substr($_,length($1));
+      }
+      elsif(/\A(proto token (\w+) is defequiv\(%(\w+)\) { } *\n)/) {
+        $out .= "proto_token_defequiv('$2','$3');\n";  $used{proto_defeq}=1;
+        $_ = substr($_,length($1));
+      }
+      elsif(/\A(proto (token|rule) +(\w+) \(:\$endsym is context = '(\w+)'\) { } *\n)/) {
+        push(@patterns,$4);  $used{proto_endsym}=1;
+        $out .= "proto_endsym_other_${2}('$3','$4');\n";
+        $_ = substr($_,length($1));
+      }
+      # class
+      elsif(/\A(class (\w+) +does PrecOp\[\|%(.*?)\] *{} *\n)/) {
+        my($all,$name,$prec)=($1,$2,$3);  $used{cls1}=1;
+        die "assert" if lc($name) ne $prec;
+        $out .= "class_does_PrecOp('$prec');\n";
+        $_ = substr($_,length($all));
+      }
+      elsif(/\A(class (\w+) +does QLang +{(.*?)^} *\n)/sm) {
+        my($all,$name,$block)=($1,$2,$3);  $used{cls2}=1;
+        $block = quote($block);
+        $out .= "class_does_QLang('$name','$block');\n";
+        $_ = substr($_,length($all));
+      }
+      # method and sub
+      elsif(/\A((multi )?(method|sub) +(\w+) *\(([^\)]*?)\)[ \n]*{(.*?)^} *\n)/sm) {
+        my($all,$multi,$methsub,$name,$args,$block)=($1,($2||""),$3,$4,$5,$6);  $used{methodsub}=1;
+        $multi = 'multi_' if $multi;
+        $args = quote($args);
+        $block = quote($block);
+        $out .= "grammar_$multi$methsub('$name','$args','$block');\n";
+        $_ = substr($_,length($all));
+      }
+      # statement
+      elsif(/\A(rule statement_control:(\w+) +{(<sym> <block> {\*} )}.*\n)/) {
+        push(@patterns,$3);  $used{stmt1}=1;
+        $out .= "rule_statement_control_block('$2');\n";
+        $_ = substr($_,length($1));
+      }
+      elsif(/\A(rule statement_control:(\w+) +{\\ *\n(.*?\n)} *\n)/s) {
+        my($all,$name,$pat)=($1,$2,$3);  $used{stmt2}=1;
+        push(@patterns,$pat);
+        $pat = quote(replace_sym($name,$pat));
+        $out .= "rule_statement_control('$name','$pat');\n";
+        $_ = substr($_,length($all));
+      }
+      elsif(/\A(rule statement_mod_(cond|loop):(\w+) +{(<sym> <modifier_expr> {\*} )}.*\n)/) {
+        push(@patterns,$4);  $used{stmt_mod}=1;
+        $out .= "rule_statement_mod_$2('$3');\n";
+        $_ = substr($_,length($1));
+      }
+      elsif(/\A(token statement_prefix:(\w+) +{( <sym> <statement> {\*} )}.*\n)/) {
+        push(@patterns,$3);  $used{stmt_prefix}=1;
+        $out .= "token_statement_prefix('$2');\n";
+        $_ = substr($_,length($1));
+      }
+      # rul foo:sym
+      elsif(
+        /\A((token|rule)[ ]
+            ([a-z_]+):
+            (?:sym.[ ]* (\S+? (?:[ ]\S+)?) [ ]*[»>}\]\"\']
+             |(\w+))
+            (?:[ ]*\((?:[ ]*-->[ ]*(\w+)[ ]*)?\))?
+            [ \n]*
+            $braces
+            (?:[ ]*\#=[ ]([^\n]+))?
+            [ ]*\n
+            (?=\w|\z))
+            /smx)
+    {
+        my($all,$tr,$cat,$sym,$sym2,$type,$pat,$callit)=($1,$2,$3,$4,$5,($6||""),$7,($8||""));  $used{rul_sym}=1;
+        push(@patterns,$pat);
+        $sym = $sym2 if not defined($sym);
+        $pat = remove_solo_whatever($pat);
+        $pat = '' if $pat =~ /^\s*<sym>\s*$/;
+        $pat = '' if $pat =~ /^\s*\'\Q$sym\E\'\s*$/;
+        $callit = '' if $callit eq $sym;
+        $pat = quote(replace_sym($sym,$pat));
+        $type = lc $type;
+        $out .= "${tr}_op('$cat','$sym','$type','$pat','$callit');\n";
+        $_ = substr($_,length($all));
+      }
+      # rul foo
+      elsif(/\A((token|rule|regex) (\w+)(?: *\(([^\)]*)\))? *$braces *\n)/sm) {
+        my($all,$tr,$name,$args,$pat)=($1,$2,$3,$4,$5);  $used{rul_plain}=1;
+        push(@patterns,$pat);
+        $pat = remove_solo_whatever($pat);
+        $pat = quote(replace_sym($name,$pat));
+        if(defined $args) {
+          $out .= "${tr}_pattern_with_args('$name','$args','$pat');\n";
+        }else{
+          $out .= "${tr}_pattern('$name','$pat');\n";
+        }
+        $_ = substr($_,length($all));
+      }
+      # interior lines
+      elsif(/\A(.*\n)/) {
+        $rest .= $1;
+        $both .= $1;
+        $_ = substr($_,length($1));
+      }
+      # done
+      elsif(/\A\z/) {
+        last;
+      }
+      else {
+        die "ERROR: match failed.  File doesnt end in newline?\n$_";
+      }
+      if($out =~ /^(?!\A)\w/m) {
+        die "BUG: a regex overshot, matching:\n$out";
+      }
+      $data .= $out;
+      $both .= $out;
+      push(@data_list,$out);
+      $out = "";
     }
-    spew("item-both.pm",$both);
-    spew("item-data.pm",$data);
-    spew("item-rest.pm",$rest);
+  };
 
-    my @sorted = sort { my $atop = $a=~/^(.+)/;my $btop = $b=~/^(.*)/; $a cmp $b } @data_list;
-    spew("item-data-sorted.pm",join("",@sorted));
+  my $wrestle_with_Regex = sub {
+    my($body)=@_;
+    $body =~ s/^    //mg;
+    s/^(token )(ws|stdstopper) /${1}regex__$2 /mg;
+    $body;
+  };
+  s/^grammar Regex is Perl { *\n(.*?)^}/$wrestle_with_Regex->($1)/mse
+      or die "Couldn't find Regex to wrestle with it.";
 
-    open(F,"|grep '^\\w'|sort>$dir/item-summary") or die;
-    binmode(F, ":utf8");
-    print F $both;
-    close(F);
+  $do_extraction->();
 
-    pattern_analysis(\@patterns);
+  # Resist bitrot
+  my $problem = "";
+  for my $k (keys(%used)) {
+    $problem .= "An undeclared extractor $k was reported used.  Bug.\n"
+        if(!$extractors{$k});
+    $problem .= "Extractor $k was not used.  The STD.pm format must have changed.\n"
+        if(!$used{$k});
+  }
+  print STDERR $problem;
+  #die "Aborting.\n" if $problem;
+
+  spew("items-all.pm",$both);
+  spew("items-data.pm",$data);
+  spew("items-nondata.pm",$rest);
+
+  my @sorted = sort {
+    my $atop = $a=~/^(.+)/;my $btop = $b=~/^(.*)/; $a cmp $b } @data_list;
+  spew("items-data-sorted.pm",join("",@sorted));
+
+  open(F,"|grep '^\\w'|sort>$dir/items-summary") or die;
+  binmode(F, ":utf8");
+  print F $both;
+  close(F);
+
+  pattern_analysis(\@patterns);
 }
 sub pattern_analysis {
-    my($patterns)=@_;
-    my $pats = join("", map{/\n\z/?$_:"$_\n"} @$patterns);
-    local $_ = $pats;
-    s/ +/ /g;
-    s/\n /\n/g;
-    my @code;
-    my $re = $RE{balanced}{-parens=>'{}()<>[]'};
-    while(s/(?:(?<=\s)|(?<=^))(\{(?!(?:\.\.\.|\*)\})$re})/{...}/ms) {
-	my $code = $1;
-	$code =~ s/\n/  /g;
-	push(@code,$code."\n");
-    }
-    while(/^\s*(:my.*)/mgc) {
-	push(@code,$1."\n");
-    }
+  my($patterns)=@_;
+  my $pats = join("", map{/\n\z/?$_:"$_\n"} @$patterns);
+  local $_ = $pats;
+  s/ +/ /g;
+  s/\n /\n/g;
+  my @code;
+  my $re = $RE{balanced}{-parens=>'{}()<>[]'};
+  while(s/(?:(?<=\s)|(?<=^))(\{(?!(?:\.\.\.|\*)\})$re})/{...}/ms) {
+    my $code = $1;
+    $code =~ s/\n/  /g;
+    push(@code,$code."\n");
+  }
+  while(/^\s*(:my.*)/mgc) {
+    push(@code,$1."\n");
+  }
 
-    my $preserve_spaces = sub {my($s)=@_;$s=~s/ /\014/g;$s};
-    s/(:my.+)/$preserve_spaces->($1)/eg;
-    s/((?<!\')#.+)/$preserve_spaces->($1)/eg;
+  my $preserve_spaces = sub {my($s)=@_;$s=~s/ /\014/g;$s};
+  s/(:my.+)/$preserve_spaces->($1)/eg;
+  s/((?<!\')#.+)/$preserve_spaces->($1)/eg;
 
-    $re = $RE{delimited}{-delim=>'"'};
-    #s/(?<=\s)($re)/$preserve_spaces->($1)/eg;
-    $re = $RE{delimited}{-delim=>"'"};
-    #s/(?<=\s)($re)/$preserve_spaces->($1)/eg;
-    $re = $RE{delimited}{-delim=>'/'};
-    #s/(?<=\s)($re)/$preserve_spaces->($1)/eg;
-    $re = $RE{balanced}{-parens=>'<>'};
-    s/(?<=\s)($re)/$preserve_spaces->($1)/eg;
+  $re = $RE{delimited}{-delim=>'"'};
+  #s/(?<=\s)($re)/$preserve_spaces->($1)/eg;
+  $re = $RE{delimited}{-delim=>"'"};
+  #s/(?<=\s)($re)/$preserve_spaces->($1)/eg;
+  $re = $RE{delimited}{-delim=>'/'};
+  #s/(?<=\s)($re)/$preserve_spaces->($1)/eg;
+  $re = $RE{balanced}{-parens=>'<>'};
+  s/(?<=\s)($re)/$preserve_spaces->($1)/eg;
 
-    s/ /\n/g;
-    s/\014/ /g;
-    s/\n+/\n/g; s/\A\n//;
-    my $elements = $_;
+  s/ /\n/g;
+  s/\014/ /g;
+  s/\n+/\n/g; s/\A\n//;
+  my $elements = $_;
 
-    spew("pattern-dump",$pats);
-    spew("pattern-elements",$elements);
-    do {
-	my $elems = $elements;
-	local $_ = $elems;
-	s/^#= .+/#= xxx/mg;
-	$elems = $_;
-	my @e = map{"$_\n"} split(/\n/,$elems);
-	my %u = map{($_,1)} @e;
-	my $uniq = join("",sort keys %u);
-	spew("pattern-elements-unique",$uniq);
-    };
-    spew("pattern-code",join("",@code));
+  spew("pattern-dump",$pats);
+  spew("pattern-elements",$elements);
+  do {
+    my $elems = $elements;
+    local $_ = $elems;
+    s/^#= .+/#= xxx/mg;
+    $elems = $_;
+    my @e = map{"$_\n"} split(/\n/,$elems);
+    my %u = map{($_,1)} @e;
+    my $uniq = join("",sort keys %u);
+    spew("pattern-elements-unique",$uniq);
+  };
+  spew("pattern-code",join("",@code));
 }
 
 spew("file_0.pm",$_);
 remove_clutter;
-spew("file_2.pm",$_);
-system("cd $dir; diff -u file_0.pm file_2.pm > file_1.pm");
+spew("file_1.pm",$_);
+system("cd $dir; diff -u file_0.pm file_1.pm > file_1.diff");
 extract;
+
+#; Local Variables:
+#; perl-indent-level: 2
+#; End:
+#; vim: shiftwidth=2:
