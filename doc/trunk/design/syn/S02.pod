@@ -3236,7 +3236,7 @@ then evaluated lazily.
 To force non-lazy list flattening, use the C<eager> list operator.
 Don't use it on an infinite list unless you have a machine with
 infinite memory, and are willing to wait a long time.  To expand an
-interator object to completion, iterate it with C<< prefix:<=> >>
+iterator object to completion, iterate it with C<< prefix:<=> >>
 inside an eager list:
 
     @lines = eager =$filehandle;    # read all remaining lines

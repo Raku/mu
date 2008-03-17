@@ -1522,7 +1522,7 @@ all a bit pseudo insofar as we have to figure out whether the left side
 is a list or a scalar destination.
 
 In any case, list assignment is defined to be arbitrarily lazy,
-insofar is it basically does the obvious copying as long as there
+insofar as it basically does the obvious copying as long as there
 are scalar destinations on the left or already-computed values on
 the right.  However, many list lvalues end with an array destination
 (where assignment directly to an array can be considered a degenerate
@@ -1530,8 +1530,11 @@ case).  When copying into an array destination, the list assignment
 continues to copy in known values immediately, but suspends when it
 hits an actively iterating iterator (but not one merely passed as an
 object within the list).  The array location on the left is then set
-as an extensible array, with the remainder of the list on the right
-as the producer of its remaining values.
+up as a self-extending array, with the remainder of the list on the
+right as the "specs" for its remaining values, to be reified on
+demand.  Hence it is legal to say:
+
+    @natural = 0..*;
 
 (Note that when we say that an iterator in list context suspends,
 it is not required to suspend immediately.  When the scheduler is
@@ -1540,9 +1543,41 @@ it thinks that approach will increase throughput.  This is likely to
 be the case on single-core architectures with heavy context switching,
 and may very well be the case even on manycore CPU architectures when
 there are more iterators than cores, such that cores may still have
-to do context switching.)
+to do context switching.  In any case, this is all more-or-less
+transparent to the user because in the abstract the list is all
+there, even if it hasn't been entirely computed yet.)
 
-Assignment to a hash is not lazy.
+Though elements may be reified into an array on demand, they act
+like ordinary array elements both before and after reification, as
+far as the user is concerned. These elements may be written to if
+the underlying container type supports it:
+
+    @unnatural = 0..*;
+    @unnatural[42] = "Life, the Universe, and Everything";
+
+Note that, unlike assignment, binding replaces the container,
+so the following fails because a range object cannot be subscripted:
+
+    @natural := 0..*;     # bind a Range object
+    @natural[42] = "Life, the Universe, and Everything";  # FAILS
+
+but this succeeds:
+
+    @unnatural := [0..*]; # bind an Array object
+    @unnatural[42] = "Life, the Universe, and Everything"; # ok
+
+It is erroneous to make use of any side effects of reification, such
+as movement of a file pointer, since different implementations may
+have different batch semantics, and in any case the unreified part
+of the list already "belongs" to the array.
+
+When a self-extending array is asked for its count of elements, it
+is allowed to return C<+Inf> without blowing up if it can determine
+by inspection that its unreified parts contain any infinite lists.
+If it cannot determine this, it is allowed for it to use all your
+memory, and then some.  C<:)>
+
+Assignment to a hash is not lazy (probably).
 
 =item *
 
