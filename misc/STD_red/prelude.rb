@@ -22,7 +22,7 @@ class Grammar
     @scanner = StringScanner.new(orig)
     @str = orig
     @eat_cache = {}
-    @ws_from = @ws_to = 0
+    @ws_from = @ws_to = false
   end
   def pos; @scanner.pos; end
   def fail_at(n); @scanner.pos = n; false; end
@@ -50,7 +50,11 @@ class Grammar
     _match_from(b,nil,rule)
   end
 
-  def _line_and_indent_of_offset(off); lines = @str.slice(0,off).split(/\n/); [lines.length,lines[-1].length]; end
+  def _line_and_indent_of_offset(off)
+    lines = @str.slice(0,off).split(/\n/)
+    sz = lines.length
+    [sz,sz == 0 ? 0 : lines[-1].length]
+  end
   def panic(msg)
     line_num,char_in_line = _line_and_indent_of_offset(pos)
     raise "panic at #{line_num}:#{char_in_line} (#{pos}): #{msg}"
@@ -259,7 +263,7 @@ class Grammar
     syms.each{|sym| _def_token(category, sym, nil, precedence) }
   end
   def self.def_rules_rest(category, left_syms, rest_code)
-    def_tokens_rest(category, false, left_syms, rest_code)
+    def_tokens_rest(category, false, left_syms, 'wsp; '+rest_code)
   end
   def self.def_tokens_rest(category, precedence, left_syms, common_rest_code)
     left_syms.each{|sym|

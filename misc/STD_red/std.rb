@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby1.9
 # A ruby transliteration of src/perl6/STD.pm
 # See README.
 #
@@ -17,6 +17,8 @@
 #
 
 require 'prelude'
+
+$have_lookbehind = RUBY_VERSION =~ /^(1\.9|2\.)/
 
 class Perl < Grammar
     attr_accessor :ws_from, :ws_to
@@ -152,7 +154,12 @@ class Perl < Grammar
     #R ws, renamed wsp to make life easier.
     def wsp
         pos == ws_to and return true
-        after(/\w/) and before(/\w/) and return false
+        #R# after(/\w/) and before(/\w/) and return false
+        if not $have_lookbehind
+            after(/\w/) and scan(/(?=\w)/) and return false
+        else
+            scan(/(?<=\w)(?=\w)/) and return false
+        end
         ws_from = pos
         starTOK{ unsp || let_pos{ vws and heredoc} || unv }
         ws_to = pos
@@ -172,8 +179,9 @@ class Perl < Grammar
         let_pos{
             scan(/[ \t]+/) or
             (after(/^|\n/) and (pod_comment or
-                                 (scan(/\#/) and ((bracketed and panic("Can't use embedded comments in column 1")) or
-                                                        scan(/.*/)) ))) or
+                                 (scan(/\#/) and
+                                  ((bracketed and panic("Can't use embedded comments in column 1")) or
+                                   scan(/.*/)) ))) or
             (scan(/\#/) and (bracketed or scan(/.*/)))
         }
     end
@@ -652,6 +660,8 @@ class Perl < Grammar
     def_token_full :circumfix,:term,'{ }',/(?=\{|->|<->)/,%q{ pblock }
 
     def variable_decl
+        b = pos
+        e1=e2=nil
         (var = variable and # ( xXXX[:sigil] = var[:sigil] ) and
          quesTOK{
              %w{ @ % }.member?(var[:sigil]) and
@@ -659,25 +669,41 @@ class Perl < Grammar
              before(/[\<\(\[\{]/) and
              postcircumfix
          } and
-         starTOK{trait} and
+         t= starTOK{trait} and
          wsp and
+         #R XXX only first value is captured.
+         #R QUESTION spec rx would seem to not interleave the = and .= ?
          quesTOK{
-             ((scan(/\=/) and wsp and _EXPR(nil,var[:sigil] == '$' ? Hitem_assignment : Hlist_prefix)) or
-              (scan(/\.\=/) and wsp and _EXPR(nil,Hitem_assignment)))
-         })
+             ((scan(/\=/) and wsp and e1=_EXPR(nil,var[:sigil] == '$' ? Hitem_assignment : Hlist_prefix)) or
+              (scan(/\.\=/) and wsp and e2=_EXPR(nil,Hitem_assignment)))
+         }) and
+         (h={};
+          _hkv(h,:variable,var)
+          _hkv(h,:default_value,e1) #R XXX speculative name
+          _hkv(h,:default_call,e2) #R XXX speculative name
+          _hkv(h,:traits,t)
+          _match_from(b,h,:variable_decl))
     end
 
     def scoped #rule
         regex_declarator or package_declarator or
             #R XXX not backtracking properly - don't know if it needs to yet
-            (let_pos{ starRULE{typename} and 
-                 ( variable_decl or
-                   (scan(/\(/) and signature and scan(/\)/) and starRULE{trait})
+            b=pos
+            ts=v=nil
+            (let_pos{
+                 ts= starRULE{typename} and 
+                 ( v= variable_decl or
+                   (scan(/\(/) and signature and scan(/\)/) and starRULE{trait}) or
                    plurality_declarator or
                    routine_declarator or
-                   type_declarator) })
+                   type_declarator)
+             }) and
+            (h={};
+             _hkv(h,:typename,ts)
+             _hkv(h,:variable_decl,v)
+             _match_from(b,h,:scoped))
     end
-    def_tokens_rest :scope_declarator,false,%w{ my our state constant has },%q{ scoped }
+    def_tokens_rest :scope_declarator,false,%w{ my our state constant has },%q{b=pos; s=scoped and _match_from(b,{:scoped=>s},:<sym>) }
     def_tokens_rest :package_declarator,false,%w{ class grammar module role package },%q{b=pos; pd=package_def and _match_from(b,{:package_def=>pd},:<sym>) } #end;end
     def_tokens_rest :package_declarator,false,%w{ require },%q{ module_name and (_EXPR;true) }
     def_tokens_rest :package_declarator,false,%w{ trusts },%q{ module_name }
@@ -795,9 +821,14 @@ class Perl < Grammar
     def value; quote || number || version || fulltypename; end
 
     def typename
-        let_pos{ n = name and is_type(n.to_s) and 
+        b=pos
+        let_pos{ n = name and is_type(n.str) and 
             # parametric type?
-            unsp? and quesTOK{ before(/\[/) and postcircumfix }
+            unsp? and
+            quesTOK{ before(/\[/) and postcircumfix } and
+            (h={};
+             _hkv(h,:name,n)
+             _match_from(b,h,:typename))
         }
     end
 
@@ -959,19 +990,22 @@ class Perl < Grammar
         end
         attr_accessor :escapes
         def initialize_escapes(*a)
-            super(*a)
+            # super(*a)
             @escapes = []
-            @escapes.push('\\') if @option[:b]
-            @escapes.push('$') if @option[:s]
-            @escapes.push('@') if @option[:a]
-            @escapes.push('%') if @option[:h]
-            @escapes.push('&') if @option[:f]
-            @escapes.push('{') if @option[:c]
+            if @option
+                @escapes.push('\\') if @option[:b]
+                @escapes.push('$') if @option[:s]
+                @escapes.push('@') if @option[:a]
+                @escapes.push('%') if @option[:h]
+                @escapes.push('&') if @option[:f]
+                @escapes.push('{') if @option[:c]
+            end
         end
+        def escset; @escapes end
         def self.create(pedigree)
             q = QLang.new(nil,nil,nil,nil)
             base = pedigree.shift
-            eval("init_root_of_#{base}")
+            eval("q.init_root_of_#{base}")
             pedigree.each{|mod|
                 ma = mod.match(/^:(!)?(\w+)$/) or raise "bug"
                 all,neg,name = ma.to_a
@@ -1177,17 +1211,20 @@ class Perl < Grammar
     def peek_brackets ()
         b = pos
         if scan(/(?=\s)/)
+            return false #R XXX added workaround
             panic("Whitespace not allowed as delimiter");
         # XXX not defined yet
         #    <?before <+isPe> > {
         #        self.panic("Use a closing delimiter for an opener is reserved");
         #    }
-        elsif start = scan(/(.)\1*/) #R XXX huh?
-            char = s.match(/(.)\1*/)[1]
+        elsif strt = scan(/(.)\1*/) #R XXX huh?
+            char = strt.match(/(.)\1*/)[1]
+            return false if not Open2close[char] #R XXX added workaround
+            #R XXX QUESTION without a more selective check, <bracketed> fails below.
             #R perhaps R should panic() rather than die().
             rightbrack = Open2close[char] or raise "No matching close delimiter";
-            stop = rightbrack * start.length;
-            return start, stop;
+            stop = rightbrack * strt.length;
+            return strt, stop;
         else
             raise "assert fail: can't get here"
         end
@@ -1234,6 +1271,7 @@ class Perl < Grammar
     def q_balanced (lang, start, stop, esc=nil)
         esc ||=  lang.escset
         b = pos
+        start or return false
         scan(start) or return false
         while not before(stop)
             triple = /#{stop}#{stop}#{stop}/
@@ -1308,14 +1346,33 @@ class Perl < Grammar
     end
 
     def multisig
-        rul{ scan(/:?\(/) and wsp and signature and wsp and starRULE{ scan(/\|/) and wsp and scan(/:?\(/) and wsp and signature and wsp and scan(/\)/) } }
+        rul{
+            scan(/:?\(/) and wsp and
+            s= signature and wsp and
+            scan(/\)/) and wsp and
+            starRULE{
+                scan(/\|/) and wsp and
+                scan(/:?\(/) and wsp and
+                signature and wsp and scan(/\)/)
+            } and
+            s
+        }
     end
 
     def routine_def
-        rul{ quesRULE{ident} and wsp and 
-            quesRULE{multisig} and wsp and
-            starRULE{trait} and wsp and
-            block }
+        rul{
+            b=pos
+            i= quesRULE{ident} and wsp and 
+            s= quesRULE{multisig} and wsp and
+            t= starRULE{trait} and wsp and
+            k= block and
+            (h={};
+             _hkv(h,:ident,i)
+             _hkv(h,:multisig,s)
+             _hkv(h,:trait,t)
+             _hkv(h,:block,k)
+             _match_from(b,h,:routine_def))
+        }
     end
 
     def method_def
@@ -1345,8 +1402,9 @@ class Perl < Grammar
         rul{ trait_verb or trait_auxiliary }
     end
 
-    def_rules_rest :trait_verb,%w{ is },%q{ ident and ws_dot and (postcircumfix;true) }
-    def_rules_rest :trait_verb,%w{ will },%q{ ident and ws_dot and block }
+    def_rules_rest :trait_verb,%w{ is },%q{b=pos; i=ident and (pc=postcircumfix;true) and
+      (h={:ident=>i};_hkv(h,:postcircumfix,pc);_match_from(b,h,:is)) }
+    def_rules_rest :trait_verb,%w{ will },%q{ ident and wsp and block }
     def_rules_rest :trait_verb,%w{ of returns },%q{ fulltypename }
     def_rules_rest :trait_verb,%w{ handles },%q{ _EXPR }
 
@@ -1396,35 +1454,52 @@ class Perl < Grammar
 
     def param_var
         let_pos{
-            (sigil and (twigil;true) and
+            b=pos
+            si=tw=id=nil
+            (si=sigil and (tw=twigil;true) and
              (# Is it a longname declaration?
-              (let_pos{ xXXX[:sigil] == '&' and ident } and
+              (let_pos{ si.str == '&' and id=ident } and
                (ident_=sublongname or return false;ident_)) or
               # Is it a shaped array or hash declaration?
-              (let_pos{ (xXXX[:sigil] == '@' or xXXX[:sigil] == '%')  and
+              (let_pos{ (si.str == '@' or si.str == '%')  and
                    (ident;true) and wsp and before(/[\<\(\[\{]/) and
                    postcircumfix }) or
               # ordinary parameter name
-              (ident) or
+              (id=ident) or
               # bare sigil?          
-              (null))) }
+              (null))) and
+            (h={};
+             _hkv(h,:sigil,si)
+             _hkv(h,:twigil,tw)
+             _hkv(h,:ident,id)
+             _match_from(b,h,:param_var))
+        }
     end
 
     def parameter
         quantS = nil
-        v = (starTOK{ type_constraint } and 
-             (let_pos{ quantchar_ = scan(/\*/) and pv = param_var and slurp_=[quantchar_,pv] and quantS = '*' } or
-              ((let_pos{ quantchar_ = scan(/:/) and
-                    (let_pos{ name_ = ident and scan(/\(/) and param_var and scan(/\)/) } or
-                     let_pos{ pv = param_var and name_ = pv[:ident] }) and
+        v = (
+             b=pos
+             pv=nil
+             starTOK{ type_constraint } and 
+             (let_pos{
+                  quantchar_ = scan(/\*/) and pv = param_var and
+                  slurp_=[quantchar_,pv] and quantS = '*'
+              } or
+              ((let_pos{
+                    quantchar_= scan(/:/) and
+                    (let_pos{ name_= ident and scan(/\(/) and param_var and scan(/\)/) } or
+                     let_pos{ pv= param_var and name_ = pv[:ident] }) and
                     quantS = '*' and
                     named_ = true #R ...
                 } or
-                let_pos{ param_var and quantS = '!' }) and
-               quanchar_ = scan(/[\?!]/) and quantS = quantchar_ )) and
-             quantSTAR{ trait } and
-             quantSTAR{ post_constraint } and
-             quesTOK{
+                let_pos{
+                    pv= param_var and quantS = '!'
+                }) and
+               quesTOK{ quanchar_ = scan(/[\?!]/) and quantS = quantchar_ })) and
+               starTOK{ trait } and
+               starTOK{ post_constraint } and
+               quesTOK{
                  (default_value and
                   (case quantchar_
                    when '!'
@@ -1435,8 +1510,11 @@ class Perl < Grammar
                        raise 'bug?'
                    end
                    quantS = '?'))
-             })
-        return v if not v
+             } and
+             (h={};
+              _hkv(h,:param_var,pv)
+              _match_from(b,h,:parameter)
+              )) or return false
         # enforce zone constraints
         case quantS
         when '!'
@@ -1446,7 +1524,8 @@ class Perl < Grammar
             when :var
                 panic("Can't use required parameter in variadic zone")
             else
-                raise 'bug?'
+                STDERR.print "Ignoring alleged zone violation.\n";
+                #raise 'bug?' #R XXX
             end
         when '?'
             case $env_vars[:zone]
@@ -1511,10 +1590,9 @@ class Perl < Grammar
     #R assorted cautionary panics left out
 
     ## assignment
-    #R xXXX This is very wrong, but I'm unclear on what's supposed to be going on here.
-    def_tokens_rest :infix,false,%w{ = },%q{ xXXX[:sigil] == '$' ? make(xXXX,Hitem_assignment) : make(xXXX,Hlist_assignment) }
-    #R# def_tokens_rest :infix,false,%w{ = },%q{ self[:sigil] == '$' ? make(self,Hitem_assignment) : make(self,Hlist_assignment) }
-    #R# def_tokens_rest :infix,false,%w{ = },%q{ m=_match_from(start,{},:'=') }
+    #R XXX Ignore list_assignment for now.
+    def_tokens_simple :infix,:item_assignment,%w{ = }
+    #R# def_tokens_rest :infix,false,%w{ = },%q{ xXXX[:sigil] == '$' ? make(xXXX,Hitem_assignment) : make(xXXX,Hlist_assignment) }
 
     def_tokens_simple :infix,:item_assignment,%w{ := ::= }
     # XXX need to do something to turn subcall into method call here...
@@ -1853,12 +1931,12 @@ class Perl
     Scalar Array Hash KeyHash KeySet KeyBag Buf IO Routine Sub Method
     Submethod Macro Regex Match Package Module Class Role Grammar Any Object }
     HTypenames = Hash[ *Typenames.map{|n|[n,1]}.flatten ]
-    def is_type(name); HTypenames[name]; end
-
+    def is_type(name); HTypenames.key?(name) end
 
     #def heredoc; false; end
     def method_missing(method, *args)
-        print "FAKING #{method}\n"
+        #print "FAKING #{method}\n"
+        print "FAKING #{method} for #{caller.slice(0,1)}\n"
         false
     end
 end
