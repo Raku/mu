@@ -18,8 +18,6 @@
 
 require 'prelude'
 
-$have_lookbehind = RUBY_VERSION =~ /^(1\.9|2\.)/
-
 class Perl < Grammar
     attr_accessor :ws_from, :ws_to
 
@@ -151,15 +149,19 @@ class Perl < Grammar
         (not before{ scan(/»/) and scan(/[ \t]*/) and (unsp;true) and scan(/=>/) } and
          not before(/\w/))
     end
+
+
+    if RUBY_VERSION =~ /^(1\.9|2\.)/ # have look-behind
+        eval %q{ def wsp__after_and_before_ws; scan(/(?<=\w)(?=\w)/) end }
+    else
+        eval %q{ def wsp__after_and_before_ws; scan(/(?=\w)/) and after(/\w/)  end }
+    end
+
     #R ws, renamed wsp to make life easier.
     def wsp
         pos == ws_to and return true
         #R# after(/\w/) and before(/\w/) and return false
-        if not $have_lookbehind
-            after(/\w/) and scan(/(?=\w)/) and return false
-        else
-            scan(/(?<=\w)(?=\w)/) and return false
-        end
+        wsp__after_and_before_ws and return false
         ws_from = pos
         starTOK{ unsp || let_pos{ vws and heredoc} || unv }
         ws_to = pos
