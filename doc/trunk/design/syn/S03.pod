@@ -661,7 +661,7 @@ The production of values is abstract here, so a lazy list merely
 remembers that it should iterate the iterator to completion upon
 demand.  Use an eager list to force completion.
 
-Use C<@$iterator> to produce a list all the values even in item
+Use C<@$iterator> to produce a list of all the values even in item
 context, and C<$$iterator> to produce a single value even
 in list context.  On the other hand, C<=$capture> produces all
 parts of the capture that makes sense in the current list context,
@@ -1574,7 +1574,7 @@ of the list already "belongs" to the array.
 When a self-extending array is asked for its count of elements, it
 is allowed to return C<+Inf> without blowing up if it can determine
 by inspection that its unreified parts contain any infinite lists.
-If it cannot determine this, it is allowed for it to use all your
+If it cannot determine this, it is allowed to use all your
 memory, and then some.  C<:)>
 
 Assignment to a hash is not lazy (probably).
