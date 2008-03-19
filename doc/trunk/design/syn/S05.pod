@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 17 Mar 2008
+   Last Modified: 19 Mar 2008
    Number: 5
-   Version: 74
+   Version: 75
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1145,32 +1145,6 @@ instance.
 
 =item *
 
-The special named assertions include:
-
-     / <?before pattern> /    # lookahead
-     / <?after pattern> /     # lookbehind
-
-     / <?same> /              # true between two identical characters
-
-     / <.ws> /                # match "whitespace":
-                              #   \s+ if it's between two \w characters,
-                              #   \s* otherwise
-
-     / <?at($pos)> /          # match only at a particular StrPos
-                              # short for <?{ .pos === $pos }>
-                              # (considered declarative until $pos changes)
-
-The C<after> assertion implements lookbehind by reversing the syntax
-tree and looking for things in the opposite order going to the left.
-It is illegal to do lookbehind on a pattern that cannot be reversed.
-
-Note: the effect of a forward-scanning lookbehind at the top level
-can be achieved with:
-
-    / .*? prestuff <( mainpat )> /
-
-=item *
-
 A leading C<.> causes a named assertion not to capture what it matches (see
 L<Subrule captures>. For example:
 
@@ -1225,7 +1199,8 @@ and a closure may do whatever it likes.)
 This assertion is not automatically captured.
 
 As with bare hash, the longest key matches according to the venerable
-I<longest-token rule>.
+I<longest-token rule>.  [Conjecture: <%foo> may not be supported in 6.0, or
+may be retargeted to matching an abbreviation table.]
 
 =item *
 
@@ -1365,6 +1340,90 @@ any named capture:
     <alpha>     # match a letter and capture to $alpha (eventually $<alpha>)
     <.alpha>    # match a letter, don't capture
     <?alpha>    # match null before a letter, don't capture
+
+The special named assertions include:
+
+     / <?before pattern> /    # lookahead
+     / <?after pattern> /     # lookbehind
+
+     / <?same> /              # true between two identical characters
+
+     / <.ws> /                # match "whitespace":
+                              #   \s+ if it's between two \w characters,
+                              #   \s* otherwise
+
+     / <?at($pos)> /          # match only at a particular StrPos
+                              # short for <?{ .pos === $pos }>
+                              # (considered declarative until $pos changes)
+
+The C<after> assertion implements lookbehind by reversing the syntax
+tree and looking for things in the opposite order going to the left.
+It is illegal to do lookbehind on a pattern that cannot be reversed.
+
+Note: the effect of a forward-scanning lookbehind at the top level
+can be achieved with:
+
+    / .*? prestuff <( mainpat )> /
+
+=item *
+
+A leading C<*> indicates that the following pattern allows a
+partial match.  It always succeeds after matching as many characters
+as possible.  (It is not zero-width unless 0 characters match.)
+For instance, to match a number of abbreviations, you might write
+any of:
+
+    s/ ^ G<*n|enesis>   $ /gen/  or
+    s/ ^ Ex<*odos>      $ /ex/   or
+    s/ ^ L<*v|eviticus> $ /lev/  or
+    s/ ^ N<*m|umbers>   $ /num/  or
+    s/ ^ D<*t|euronomy> $ /deut/ or
+    ...
+
+    / (<* <foo bar baz> >) /
+
+    / <short=*@abbrev> / and return %long{$<short>} || $<short>;
+
+The pattern is restricted to declarative forms that can be rewritten
+as nested optional character matches.  Sequence information
+may not be discarded while making all following characters optional.
+That is, it is not sufficient to rewrite:
+
+    <*xyz>
+
+as:
+
+    x? y? z?            # bad, would allow xz
+
+Instead, it must be implemented as:
+
+    [x [y z?]?]?        # allow only x, xy, xyz (and '')
+
+Explicit quantifiers are allowed on single characters, so this:
+
+    <* a b+ c | ax*>
+
+is rewritten as something like:
+
+    [a [b+]? c?]? | [a x*]?
+
+In the latter example we're assuming the DFA token matcher is going to
+give us the longest match regardless.  It's also possible that quantified
+multichar sequences can be recursively remapped:
+
+    <* 'ab'+>     # match a, ab, ababa, etc. (but not aab!)
+    ==> [ 'ab'* <*ab> ]
+    ==> [ 'ab'* [a b?]? ]
+
+[Conjecture: depending on how fancy we get, we might (or might not)
+be able to autodetect ambiguities in C<< <*@abbrev> >> and refuse to
+generate ambiguous abbreviations (although exact match of a shorter
+abbrev should always be allowed even if it's the prefix of a longer
+abbreviation).  If it is not possible, then the user will have to
+check for ambiguities after the match. Note also that the array
+form is assuming the array doesn't change often.  If it does, the
+longest-token matcher has to be recalculated, which could get
+expensive.]
 
 =item *
 
