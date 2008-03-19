@@ -420,6 +420,7 @@ class Perl < Grammar
     def expect_term
         b = pos
         v = let_pos{
+            b = pos
             pre_=adv=nil
             (noun_= noun or
              (pre_= plusTOK{ pre } and noun_= noun)) and
@@ -429,7 +430,14 @@ class Perl < Grammar
             (adv_= adverbs;true) and
             # now push ops over the noun according to precedence.
             #R { make $¢.nounphrase(:noun($<noun>), :pre(@<pre>), :post(@<post>)) }
-            nounphrase(noun_,(pre_||[]),post_)
+            np= nounphrase(noun_,(pre_||[]),post_) and
+            (h={};
+             _hkv(h,:noun,noun_)
+             _hkv(h,:pre,pre_)
+             _hkv(h,:post,post_)
+             _hkv(h,:adverbs,adv_)
+             _hkv(h,:nounphrase,np)
+             _match_from(b,h,:expect_term))
         }
     end
 
@@ -556,8 +564,11 @@ class Perl < Grammar
             (pos != ws_to or ws_to == ws_from) and
             ((scan(/\\(?=\.)/)) or unsp?) and 
             starTOK{
-                quesTOK{scan(/\./) and unsp?} and
-                p= postfix_prefix_meta_operator and (ppmo.push p;true) and unsp?
+                let_pos{
+                    quesTOK{scan(/\./) and unsp?} and
+                    op= postfix_prefix_meta_operator and (ppmo.push op;true) and
+                    unsp?
+                }
             } and
             (d= dotty or postop_= postop) and
             (h={};
@@ -565,7 +576,7 @@ class Perl < Grammar
              _hkv(h,:dotty,d)
              _hkv(h,:postop,postop_)
              _hkv(h,:prec,postop_[:prec]) if postop_
-             p _match_from(b,h,:post))
+             _match_from(b,h,:post))
         }
     end
 
@@ -848,9 +859,14 @@ class Perl < Grammar
     end
 
     def fulltypename #R regex XXX
-        typename and
+        b = pos
+        tn= typename and
             #R# quesRX{ wsp and scan(/of/) and wsp and fulltypename }
-            quesRULE{ scan(/of/) and wsp and fulltypename }
+            rest= quesRULE{ scan(/of/) and wsp and fulltypename } and
+            (a=[tn]
+             a += rest[0][:typename] if not rest.empty?
+             h={:typename=>a};
+             _match_from(b,h,:fulltypename))
     end
 
     def number; dec_number || integer || rad_number; end
@@ -1581,8 +1597,9 @@ class Perl < Grammar
     def_tokens_rest :circumfix,:term,%w{ < },%q{let_pos{ t = anglewords('>') and scan(/>/) and t }}
     def_tokens_rest :circumfix,:term,%w{ << },%q{let_pos{ t = shellwords('>>') and scan(/>>/) and t }}
     def_tokens_rest :circumfix,:term,%w{ « },%q{let_pos{ t = shellwords('»') and scan(/»/) and t }}
-    def_tokens_simple :infix,:methodcall,%w{ . }
-    def_tokens_simple :postfix,:methodcall,%w{ -> }
+    #R# these . and -> are <obs>.  I'm not sure why they were translated.
+    #R def_tokens_simple :infix,:methodcall,%w{ . }
+    #R def_tokens_simple :postfix,:methodcall,%w{ -> }
     def_tokens_simple :postfix,:autoincrement,%w{ ++ -- i }
     def_tokens_simple :prefix,:autoincrement,%w{ ++ -- }
     def_tokens_simple :infix,:exponentiation,%w{ ** }
