@@ -57,7 +57,7 @@ class Grammar
   end
   def panic(msg)
     line_num,char_in_line = _line_and_indent_of_offset(pos)
-    raise "panic at #{line_num}:#{char_in_line} (#{pos}): #{msg}"
+    raise "panic at line:col #{line_num}:#{char_in_line} (#{pos}): #{msg}"
   end
 
   def null; true; end

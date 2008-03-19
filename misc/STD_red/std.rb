@@ -549,12 +549,14 @@ class Perl < Grammar
     #R YYY sync scan has reached here.
 
     def post
-        # last whitespace didn't end here (or was zero width)
-        (pos != ws_to or ws_to == ws_from) and
+        let_pos{
+            # last whitespace didn't end here (or was zero width)
+            (pos != ws_to or ws_to == ws_from) and
             (scan(/\\(?=\.)/)) or
             unsp? and 
             starTOK{quesTOK{scan(/\./) and unsp?} and postfix_prefix_meta_operator and unsp?} and
             (dotty or postop_ = postop) and (xXXX[:prec] = postop_[:prec]) #R XXX ?
+        }
     end
 
     #R XXX TODO I currently don't understand the [LIST] issue.  And dont support it.
@@ -611,12 +613,12 @@ class Perl < Grammar
 
     def_tokens_rest :infix_postfix_meta_operator,:item_assignment,%w{ = },%q{ lex1(:assignment) and (($env_vars[:thisop][:prec] > item_assignmentH[:prec]) or panic("Can't make assignment op of operator looser than assignment")) and ((not $env_vars[:thisop][:assoc] == :chain) or panic("Can't make assignment op of boolean operator")) and ((not $env_vars[:thisop][:assoc] == :non) or panic("Can't make assignment op of non-associative operator")) }
     
-    def_tokens_rest :postcircumfix,:methodcall,%w{ ( },%q{ semilist and scan(/\)/) }
-    def_tokens_rest :postcircumfix,:methodcall,%w{ [ },%q{ semilist and scan(/\]/) }
-    def_tokens_rest :postcircumfix,:methodcall,%w{ \{ },%q{ semilist and scan(/\}/) }
-    def_tokens_rest :postcircumfix,:methodcall,%w{ < },%q{ anglewords('>') and scan(/>/) }
-    def_tokens_rest :postcircumfix,:methodcall,%w{ << },%q{ shellwords('>>') and scan(/>>/) }
-    def_tokens_rest :postcircumfix,:methodcall,%w{ « },%q{ shellwords('»') and scan(/»/) }
+    def_tokens_rest :postcircumfix,:methodcall,%w{ ( },%q{ sl=semilist and scan(/\)/) and sl }
+    def_tokens_rest :postcircumfix,:methodcall,%w{ [ },%q{ sl=semilist and scan(/\]/) and sl }
+    def_tokens_rest :postcircumfix,:methodcall,%w{ \{ },%q{ sl=semilist and scan(/\}/) and sl }
+    def_tokens_rest :postcircumfix,:methodcall,%w{ < },%q{ w=anglewords('>') and scan(/>/) and w }
+    def_tokens_rest :postcircumfix,:methodcall,%w{ << },%q{ w=shellwords('>>') and scan(/>>/) and w }
+    def_tokens_rest :postcircumfix,:methodcall,%w{ « },%q{ w=shellwords('»') and scan(/»/) and w }
     
     def postop
         #R We pass though, and so don't have to set $<prec>.
@@ -651,7 +653,8 @@ class Perl < Grammar
     end
 
     def anglewords(stop)
-        wsp and starTOK{ (not before(/#{stop}/)) and scan(/./) } # XXX need to split
+        #wsp and starTOK{ (not before(/#{stop}/)) and scan(/./) } # XXX need to split
+        wsp and scan(/(?:(?!#{stop}).)*/) #R# Modified, to get str, not array of char.
     end
 
     def shellwords(stop)
@@ -836,7 +839,8 @@ class Perl < Grammar
 
     def fulltypename #R regex XXX
         typename and
-            quesRX{ wsp and scan(/of/) and wsp and fulltypename }
+            #R# quesRX{ wsp and scan(/of/) and wsp and fulltypename }
+            quesRULE{ scan(/of/) and wsp and fulltypename }
     end
 
     def number; dec_number || integer || rad_number; end
@@ -1933,7 +1937,10 @@ class Perl
     Scalar Array Hash KeyHash KeySet KeyBag Buf IO Routine Sub Method
     Submethod Macro Regex Match Package Module Class Role Grammar Any Object }
     HTypenames = Hash[ *Typenames.map{|n|[n,1]}.flatten ]
-    def is_type(name); HTypenames.key?(name) end
+    #R XXX NONSPEC - added 'starts with a capital letter' test.
+    #R Which probably breaks something.
+    #R# def is_type(name); HTypenames.key?(name) end
+    def is_type(name); HTypenames.key?(name) or name =~ /^[A-Z]/ end
 
     #def heredoc; false; end
     def method_missing(method, *args)
