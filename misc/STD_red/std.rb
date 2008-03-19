@@ -188,7 +188,7 @@ class Perl < Grammar
         }
     end
 
-    def ident; scan(/[[:alpha:]]\w*/); end
+    def ident; scan(/[[:alpha:]_]\w*/); end
     
     def pod_comment
         after(/^|\n/) and scan(/=/) and unsp? and
@@ -226,7 +226,7 @@ class Perl < Grammar
     def pblock
         b = pos
         l=s=nil
-        tokQUES{ l= _lambda and s= signature }; bl= block or return false
+        quesTOK{ l= _lambda and s= signature }; bl= block or return false
         h={:block=>bl};_hkv(h,:lambda,l);_hkv(h,:signature,s)
         _match_from(b,h,:pblock)
     end
@@ -437,7 +437,7 @@ class Perl < Grammar
         nounphrase = nounS
         preS = preA.pop
         postS = postA.shift
-        while pre or post
+        while preS or postS
             oldterm = nounphrase
             if preS
                 if postS and postS[:prec] > preS[:prec]
@@ -550,12 +550,22 @@ class Perl < Grammar
 
     def post
         let_pos{
+            b=pos
+            d=postop_=nil;ppmo=[]
             # last whitespace didn't end here (or was zero width)
             (pos != ws_to or ws_to == ws_from) and
-            (scan(/\\(?=\.)/)) or
-            unsp? and 
-            starTOK{quesTOK{scan(/\./) and unsp?} and postfix_prefix_meta_operator and unsp?} and
-            (dotty or postop_ = postop) and (xXXX[:prec] = postop_[:prec]) #R XXX ?
+            ((scan(/\\(?=\.)/)) or unsp?) and 
+            starTOK{
+                quesTOK{scan(/\./) and unsp?} and
+                p= postfix_prefix_meta_operator and (ppmo.push p;true) and unsp?
+            } and
+            (d= dotty or postop_= postop) and
+            (h={};
+             _hkv(h,:postfix_prefix_meta_operator,ppmo)
+             _hkv(h,:dotty,d)
+             _hkv(h,:postop,postop_)
+             _hkv(h,:prec,postop_[:prec]) if postop_
+             p _match_from(b,h,:post))
         }
     end
 
