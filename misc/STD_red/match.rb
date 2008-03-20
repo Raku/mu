@@ -90,7 +90,7 @@ class Match
 
   def perl; inspect; end #R XXX hack
   def prepare_for_yaml_dump
-    if instance_variables.include?('@on_str')
+    if instance_variables.include?(:@on_str)
       @str = str
       remove_instance_variable(:@on_str)
     end

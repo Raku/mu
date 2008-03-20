@@ -3,6 +3,6 @@
 use strict;
 use warnings;
 
-system("(cd elf_a_src/; cat head.pl main.pl) > ./elf_a") == 0 or die $!;
+system("(cd elf_a_src/; cat head.pl Match.pm main.pl) > ./elf_a") == 0 or die $!;
 
 exec("./elf_a",@ARGV);

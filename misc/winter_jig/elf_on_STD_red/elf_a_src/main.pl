@@ -1,5 +1,7 @@
-
+#line 1 main.pl
 { package Program;
+  use YAML::Syck;
+
   sub new {
     my($cls)=@_;
     bless {},$cls;
@@ -33,8 +35,13 @@ Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
         $self->print_usage_and_exit();
       }
     }
-    my $dump = $self->parse(undef,$p6_code);
-    print $dump;
+    my $yaml = $self->parse(undef,$p6_code);
+    print $yaml;
+    my $tree = YAML::Syck::Load($yaml);
+    if(!$tree) {
+      exit(1);
+    }
+    print $tree->match_describe,"\n";
   }
   sub parse {
     my($self,$p6_file,$p6_code)=@_;
@@ -58,7 +65,7 @@ Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
       $file = $fname;
     }
     my $cmd = "$std_red -q --yaml $file";
-    my $yaml = `$cmd` or die $!;
+    my $yaml = `$cmd` or die "Parse failed. $!\n";
     $yaml;
   }
 }
