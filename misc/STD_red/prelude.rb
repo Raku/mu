@@ -214,13 +214,13 @@ class Grammar
       end
       case k
       when 'nofat' # / >> <nofat> /
-        print "# caveat: #{category} endsym nofat unimplemented\n"
+        print "# caveat: #{category} endsym nofat unimplemented\n" if not $quiet
       when 'nofat_space' # / \s+ <nofat> /
-        print "# caveat: #{category} endsym nofat_space unimplemented\n"
+        print "# caveat: #{category} endsym nofat_space unimplemented\n" if not $quiet
       when 'unspacey' # / <.unsp>? /
-        print "# caveat: #{category} endsym unspacey unimplemented\n"
+        print "# caveat: #{category} endsym unspacey unimplemented\n" if not $quiet
       when 'endsym'
-        print "# caveat: #{category} endsym unimplemented\n"
+        print "# caveat: #{category} endsym unimplemented\n" if not $quiet
       else
         p category, k
         raise "bug"
@@ -291,7 +291,7 @@ class Grammar
     begin
       eval code
     rescue Exception
-      STDERR.print code,"\n"
+      STDERR.print code,"\n" if not $quiet
       raise
     end
     rest = rest_method_name.to_sym
@@ -305,7 +305,9 @@ class Grammar
     (eval "@@__precedences_for_#{category}_symbols__")[sym] = precedence
   end
   def self._def_category_member(category,name,leading_re,rest)
-    if (eval "@@matcher_for_#{category}").declared?(name); print "# WARNING: #{category}:#{name} redefined.\n"; end
+    if (eval "@@matcher_for_#{category}").declared?(name)
+      print "# WARNING: #{category}:#{name} redefined.\n" if not $quiet
+    end
     (eval "@@matcher_for_#{category}").declare(name,leading_re,rest)
   end
 end

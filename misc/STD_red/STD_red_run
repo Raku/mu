@@ -1,13 +1,11 @@
 #!/usr/bin/env ruby1.9
 require "yaml"
 
-require 'std'
-
 def print_usage_and_exit(msg=nil,code=2)
   msg += "\n\n" if msg
   msg ||= ""
   STDERR.print <<END
-#{msg}#{$0} [--yaml] [ --start=RULE ] [ FILENAME | -e CODE ]
+#{msg}#{$0} [-q] [--yaml] [ --start=RULE ] [ FILENAME | -e CODE ]
 
 END
   exit(code)
@@ -15,7 +13,7 @@ end
 
 def main
   start = '_UNIT'
-  yaml = false
+  quiet = yaml = false
   code = nil
   if ARGV.empty?
     print "\nRun #{$0} --help  to get help.\n";
@@ -24,6 +22,10 @@ def main
   end
   if ARGV.size == 1 and ARGV[0] == '--help'
     print_usage_and_exit(nil,0)
+  end
+  if ARGV[0] == '-q'
+    ARGV.shift
+    quiet = true
   end
   if ARGV[0] == '--yaml'
     ARGV.shift
@@ -44,14 +46,19 @@ def main
     print_usage_and_exit
   end
 
+  $quiet = quiet
+  require 'std'
+  
   pn = Perl.new(code)
-  if not pn.method(start.to_sym)
-    print_usage_and_exit("Unknown start rule: #{start}")
-  end
   tree = pn.send(start.to_sym)
   if yaml
     tree.prepare_for_yaml_dump if tree
-    print YAML::dump(tree),"\n"
+    yml = YAML::dump(tree)+"\n"
+    p5yml = yml
+    p5yml.gsub!(/^(\s*):/,'\1')
+    p5yml.gsub!(/^(\s*rule: ):/,'\1')
+    p5yml.gsub!(/ !ruby\/object:Match/,' !!perl/hash:Match')
+    print p5yml
   else
     p tree
   end

@@ -63,7 +63,7 @@ class Perl < Grammar
                 $env_vars[:thisopH][:assoc] = m[:assoc];
             end
         else
-            STDERR.print("The $env_vars[:thisopH] non-spec check was used.\n")
+            STDERR.print("The $env_vars[:thisopH] non-spec check was used.\n") if not $quiet
         end
         return m;
     end
@@ -436,7 +436,7 @@ class Perl < Grammar
              _hkv(h,:pre,pre_)
              _hkv(h,:post,post_)
              _hkv(h,:adverbs,adv_)
-             _hkv(h,:nounphrase,np)
+             _hkv(h,:nounphrase_,np) #R XXX very nonspec
              _match_from(b,h,:expect_term))
         }
     end
@@ -636,7 +636,7 @@ class Perl < Grammar
     
     def_tokens_rest :postcircumfix,:methodcall,%w{ ( },%q{ sl=semilist and scan(/\)/) and sl }
     def_tokens_rest :postcircumfix,:methodcall,%w{ [ },%q{ sl=semilist and scan(/\]/) and sl }
-    def_tokens_rest :postcircumfix,:methodcall,%w{ \{ },%q{ sl=semilist and scan(/\}/) and sl }
+    def_tokens_rest :postcircumfix,:methodcall,%w{ \{ },%q[ sl=semilist and scan(/\}/) and sl ]
     def_tokens_rest :postcircumfix,:methodcall,%w{ < },%q{ w=anglewords('>') and scan(/>/) and w }
     def_tokens_rest :postcircumfix,:methodcall,%w{ << },%q{ w=shellwords('>>') and scan(/>>/) and w }
     def_tokens_rest :postcircumfix,:methodcall,%w{ « },%q{ w=shellwords('»') and scan(/»/) and w }
@@ -1556,7 +1556,7 @@ class Perl < Grammar
             when :var
                 panic("Can't use required parameter in variadic zone")
             else
-                STDERR.print "Ignoring alleged zone violation.\n";
+                STDERR.print "Ignoring alleged zone violation.\n" if not $quiet
                 #raise 'bug?' #R XXX
             end
         when '?'
