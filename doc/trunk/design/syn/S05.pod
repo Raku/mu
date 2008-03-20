@@ -16,7 +16,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 19 Mar 2008
    Number: 5
-   Version: 75
+   Version: 76
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -190,7 +190,7 @@ The C<:i> (or C<:ignorecase>) modifier causes case distinctions to be
 ignored in its lexical scope, but not in its dynamic scope.  That is,
 subrules always use their own case settings.
 
-The C<:ii> variant may be used on a substitution to change the
+The C<:ii> (or C<:samecase>) variant may be used on a substitution to change the
 substituted string to the same case pattern as the matched string.
 
 If the pattern is matched without the C<:sigspace> modifier, case
@@ -237,7 +237,7 @@ of determining the truth of the assertion; the actual text matched
 includes all ignored characters, including any that follow the final
 base character.
 
-The C<:bb> variant may be used on a substitution to change the
+The C<:bb> (or C<:samebase>) variant may be used on a substitution to change the
 substituted string to the same accent pattern as the matched string.
 Accent info is carried across on a character by character basis.  If
 the right string is longer than the left one, the remaining characters
@@ -326,11 +326,41 @@ C<< <.ws> >> matches in the current grammar. The correspondence
 between sigspace and whitespace is primarily metaphorical, which is
 why the correspondence is both useful and (potentially) confusing.
 
+The C<:ss> (or C<:samespace>) variant may be used on substitutions to
+do smart space mapping.  For each sigspace-induced call to C<< <ws> >>
+on the left, the matched whitespace is copied over to the corresponding
+slot on the right, as represented by a single whitespace character
+in the replacement string wherever space replacement is desired.
+If there are more whitespace slots on the right than the left, those
+righthand characters remain themselves.  If there are not enough
+whitespace slots on the right to map all the available whitespace
+slots from the match, the algorithm tries to minimize information
+loss by randomly splicing "common" whitespace characters out of the
+list of whitespace.  From least valuable to most, the pecking order is:
+
+    spaces
+    tabs
+    all other horizontal whitespace, including Unicode
+    newlines (including crlf as a unit)
+    all other vertical whitespace, including Unicode
+
+The primary intent of these rules is to minimize format disruption
+when substitution happens across line boundaries and such.  There is,
+of course, no guarantee that the result will exactly what a human would
+do.
+
 The C<:s> modifier is considered sufficiently important that
 match variants are defined for them:
 
     mm/match some words/                        # same as m:sigspace
-    ss/match some words/replace those words/    # same as s:sigspace
+    ss/match some words/replace those words/    # same as s:samespace
+
+Note that C<ss///> is defined in terms of C<:ss>, so:
+
+    $_ = "a b\nc\td";
+    ss/b c d/x y z/;
+
+ends up with a value of "C<a x\ny\tz>".
 
 =item *
 
