@@ -47,6 +47,7 @@ def main
   end
 
   $quiet = quiet
+  $:.push(File.dirname($0))
   require 'std'
   
   pn = Perl.new(code)
