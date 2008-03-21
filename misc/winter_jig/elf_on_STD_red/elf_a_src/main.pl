@@ -41,7 +41,7 @@ Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
     if(!$tree) {
       exit(1);
     }
-    print $tree->match_describe,"\n";
+    print $tree->match_describe(1),"\n";
   }
   sub parse {
     my($self,$p6_file,$p6_code)=@_;

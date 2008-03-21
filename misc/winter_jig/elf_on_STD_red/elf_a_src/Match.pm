@@ -1,4 +1,6 @@
 #line 1 Match.pm
+# This code was originally taken from yet_another_regex_engine/Regexp_ModuleA.pm,
+# r20138.
 { package Match;
   sub new {
     my($cls)=@_;
@@ -23,11 +25,19 @@
   sub match_boolean { shift->{bool} }
   sub match_value { undef }
   sub match_describe {
-    my($o,$verbose_p)=@_;
-    my $vp = $verbose_p;
+    my($o,$verbosity)=@_;
+    my $vp = $verbosity;
     my $os = $o->match_string;
-    $os = $o->match__indent_except_top($os) if $os =~ /\n/;
-    my $s = $verbose_p ? $o->match__describe_name_as : "";
+    if($verbosity > 1) {
+      $os = $o->match__indent_except_top($os) if $os =~ /\n/;
+    } else {
+      $os =~ s/\n/\\n/g;
+      $os =~ s/\t/\\t/g;
+      if(length($os) > 60) {
+        $os = substr($os,0,30).' ... '.substr($os,-30);
+      }
+    }
+    my $s = $o->match__describe_name_as($verbosity);
     $s .= "<".($o->match_boolean?"1":"0").",\"$os\",[";
     for my $v (@{$o->match_array}) {
       my $vs = "";
@@ -70,9 +80,11 @@
   sub match__indent {my($o,$s)=@_; $s =~ s/^(?!\Z)/  /mg; $s}
   sub match__indent_except_top {my($o,$s)=@_; $s =~ s/^(?<!\A)(?!\Z)/  /mg; $s}
   sub match__describe_name_as {
-    my($o)=@_;
-    my $s = overload::StrVal($o);
-    $s .= "{".$$o->{RULE}."}" if defined $$o->{RULE};
+    my($o,$verbosity)=@_;
+    return "" if not $verbosity;
+    my $s = "";
+    $s .= $o->{rule} if defined $o->{rule};
+    $s = overload::StrVal($o).'{'.$s.'}' if $verbosity > 1;
     $s;
   }
 }
