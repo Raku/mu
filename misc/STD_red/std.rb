@@ -283,6 +283,7 @@ class Perl < Grammar
         $env_vars[:endstmt] = -1;
         (label_ = control_ = expr_ = mod_loop_ = mod_cond_ =
          loopx_ = condx_ = mod_condloop_ = modexpr_ = nil)
+        wsp
         b = pos
         label_= starTOK{ label }
         ((control_= statement_control) or
@@ -327,7 +328,7 @@ class Perl < Grammar
     def_rules_rest :statement_control,%w{ use no },%q{
       e=nil
       wsp;
-      mn = module_name and wsp and (e=_EXPR and wsp;true) and eat_terminator and
+      mn = module_name and wsp and (e=_EXPR and wsp;true) and
       (h={:module_name=>mn};_hkv(h,:EXPR,e);_match_from(start,h,:<sym>))
     }
     def_rules_rest :statement_control,%w{ if }, %q{
@@ -421,7 +422,7 @@ class Perl < Grammar
         b = pos
         v = let_pos{
             b = pos
-            pre_=adv=nil
+            pre_=adv=np=nil
             (noun_= noun or
              (pre_= plusTOK{ pre } and noun_= noun)) and
             # also queue up any postfixes, since adverbs could change things
@@ -430,7 +431,7 @@ class Perl < Grammar
             (adv_= adverbs;true) and
             # now push ops over the noun according to precedence.
             #R { make $¢.nounphrase(:noun($<noun>), :pre(@<pre>), :post(@<post>)) }
-            np= nounphrase(noun_,(pre_||[]),post_) and
+            #R np= nounphrase(noun_,(pre_||[]),post_) and
             (h={};
              _hkv(h,:noun,noun_)
              _hkv(h,:pre,pre_)
@@ -486,7 +487,7 @@ class Perl < Grammar
             b = pos
             (key = ident and
              scan(/[ \t]*/) and
-             scan(/\=>/) and
+             scan(/\=>/) and wsp and
              val = _EXPR(nil,Hitem_assignment)) and
             _match_from(b,{:key=>key,:val=>val},:fatarrow)
         }
@@ -668,6 +669,7 @@ class Perl < Grammar
     def arglist
         $env_vars.scope_enter(:endargs)
         $env_vars[:endargs] = false #R ??? XXX "0" or "false"?
+        wsp and
         v = _EXPR(nil,Hlist_prefix)
         $env_vars.scope_leave
         v
@@ -959,25 +961,26 @@ class Perl < Grammar
 
     def self.def_quote(name,args)
         left_sym, = name.split(/\s+/)
-        def_token_full :quote,false,name,Regexp.new(Regexp.quote(left_sym))," qutoesnabber(#{args})"
+        def_token_full :quote,false,name,Regexp.new(Regexp.quote(left_sym))," quotesnabber(#{args})"
     end
-    def_quote "' '"  ,%q{':q'}
-    def_quote '" "'  ,%q{':qq'}
-    def_quote '« »'  ,%q{':qq',':ww'}
-    def_quote '<< >>',%q{':qq',':ww'}
-    def_quote '< >'  ,%q{':q',':w'}
-    def_quote '/ /'  ,%q{':regex'}
+    #R# XXX NONSPEC last "close" argument to quotesnabber is non-spec.
+    def_quote "' '"  ,%q{':q',"'"}
+    def_quote '" "'  ,%q{':qq','"'}
+    def_quote '« »'  ,%q{':qq',':ww','»'}
+    def_quote '<< >>',%q{':qq',':ww','>>'}
+    def_quote '< >'  ,%q{':q',':w','>'}
+    def_quote '/ /'  ,%q{':regex','/'}
 
     # handle composite forms like qww
-    def_tokens_rest :quote,false,%w{ qq q },%q{ qm = quote_mod and quotesnabber(':<sym>',qm) }
+    def_tokens_rest :quote,false,%w{ qq q },%q{ nofat and  qm = quote_mod and quotesnabber(':<sym>',qm) }
 
     def_tokens_simple :quote_mod,false,%w{ w ww x to s a h f c b }
 
-    def_tokens_rest :quote,false,%w{ rx m },%q{ quotesnabber(':regex') }
-    def_tokens_rest :quote,false,%w{ mm },%q{ quotesnabber(':regex', ':s') }
-    def_tokens_rest :quote,false,%w{ s },%q{ pat=quotesnabber(':regex') and finish_subst(pat) }
-    def_tokens_rest :quote,false,%w{ ss },%q{ pat=quotesnabber(':regex', ':s') and finish_subst(pat) }
-    def_tokens_rest :quote,false,%w{ tr },%q{ pat=quotesnabber(':trans') and finish_subst(pat) }
+    def_tokens_rest :quote,false,%w{ rx m },%q{ nofat and quotesnabber(':regex') }
+    def_tokens_rest :quote,false,%w{ mm },%q{ nofat and quotesnabber(':regex', ':s') }
+    def_tokens_rest :quote,false,%w{ s },%q{ nofat and pat=quotesnabber(':regex') and finish_subst(pat) }
+    def_tokens_rest :quote,false,%w{ ss },%q{ nofat and pat=quotesnabber(':regex', ':s') and finish_subst(pat) }
+    def_tokens_rest :quote,false,%w{ tr },%q{ nofat and pat=quotesnabber(':trans') and finish_subst(pat) }
 
     def finish_subst(pat)
         $env_vars.scope_enter(:thisop)
@@ -1139,16 +1142,54 @@ class Perl < Grammar
         end
     end
 
+    #R# This is a hack version of quotesnabber.
+    def quotesnabber(kind,*a)
+        b1 = pos #R off by one
+        close = a.pop
+        word = a[0]
+        if close == "'"
+            s= scan(/(?:[^\'\\]|\\.)*\'/) or panic("Error in quotesnabber")
+            s.slice!(-1,1)
+            _match_from(b1-1,{:text=>s},:q)
+        elsif close == '"'
+            s= scan(/(?:[^\"\\]|\\.)*\"/) or panic("Error in quotesnabber")
+            s.slice!(-1,1)
+            _match_from(b1-1,{:text=>s},:qq)
+        elsif kind == ':regex'
+            close == '/' or raise "bug"
+            s= scan(/(?:[^\/\\]|\\.)*\//) or panic("Error in quotesnabber")
+            s.slice!(-1,1)
+            _match_from(b1-1,{:text=>s},:regex)
+        elsif close == '>'
+            s= scan(/(?:[^\>\\]|\\.)*\>/) or panic("Error in quotesnabber")
+            s.slice!(-1,1)
+            _match_from(b1-1,{:text=>s},:q_w)
+        elsif kind == ':qq' and word == ':ww'
+            if close == '>>'
+                s= scan(/(?:[^\>\\]|\\.|>(?!\>))*>>/) or panic("Error in quotesnabber")
+                s.slice!(-2,2)
+                _match_from(b1-1,{:text=>s},:qq_ww)
+            elsif close == '»'
+                s= scan(/(?:[^\»\\]|\\.)*»/) or panic("Error in quotesnabber")
+                s.slice!(-1,1)
+                _match_from(b1-1,{:text=>s},:qq_ww)
+            else; raise "bug"
+            end
+        else
+            p kind, close
+            raise "bug: #{kind} #{close}"
+        end
+    end
 
 
-    def quotesnabber (*qA)
+    def quotesnabber__non_fake(*qA)
         $env_vars.scope_enter(:delim)
         $env_vars[:delim] = '' 
         v = ((not before(/\w/)) and nofat and #R XX? ::
          wsp and
          starTOK{ q = quotepair and qA.push(q) and wsp } and
          # Dispatch to current lang's subparser.
-         ( lang = qlang('Q',qA) and false ) #R XXX I don't understand this yet.
+         ( lang = qlang('Q',*qA) and false ) #R XXX I don't understand this yet.
          # {{
          # my $lang = qlang('Q', @q);
          # $<delimited> := $lang.parser.($lang);  # XXX probably wrong
@@ -1642,7 +1683,15 @@ class Perl < Grammar
 
     # unrecognized identifiers are assumed to be post-declared listops.
     # (XXX for cheating purposes this rule must be the last term: rule)
-    def_tokens_rest :term,:list_prefix,[""],%q{ s=ident and (let_pos{ scan(/\s/) and nofat and a=arglist } or nofat) }
+    def_tokens_rest :term,:list_prefix,[""],%q{
+      b = pos
+      a=nil
+      s=ident and (let_pos{ nofat_space and a=arglist } or nofat) and
+      #R# XXX ident's spec'ed name is <sym>, but that would cause us problems.
+      (h={:ident=>s};
+       _hkv(h,:arglist,a)
+       _match_from(b,h,:listop))
+    }
        
     def_tokens_simple :infix,:loose_and,%w{ and andthen }
     def_tokens_simple :infix,:loose_or,%w{ or xor orelse }
