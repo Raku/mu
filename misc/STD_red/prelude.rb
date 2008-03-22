@@ -55,9 +55,21 @@ class Grammar
     sz = lines.length
     [sz,sz == 0 ? 0 : lines[-1].length]
   end
+  def _picture_of_offset(off)
+    bot = off - 30;  bot = 0 if bot < 0
+    below = @str.slice(bot,off-bot)
+    above = @str.slice(off,30)
+    below = below.gsub(/\t/,'\t').gsub(/\n/,'\n')
+    above = above.gsub(/\t/,'\t').gsub(/\n/,'\n')
+    prefix = "WHERE:"
+    prefix1 = " "
+    indent = below.size > 0 ? prefix1+(" " * (below.size-1)) : ""
+    prefix+prefix1+below+above+"\n"+prefix+indent+"/\\<-- HERE\n"
+  end
   def panic(msg)
     line_num,char_in_line = _line_and_indent_of_offset(pos)
-    raise "panic at line:col #{line_num}:#{char_in_line} (#{pos}): #{msg}"
+    picture = _picture_of_offset(pos)
+    raise "panic at line:col #{line_num}:#{char_in_line} (#{pos}): #{msg}\n#{picture}"
   end
 
   def null; true; end
