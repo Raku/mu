@@ -1,4 +1,4 @@
-#line 1 main.pl
+#line 2 main.pl
 { package Program;
   use YAML::Syck;
 
@@ -42,6 +42,10 @@ Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
       exit(1);
     }
     print $tree->match_describe(1),"\n";
+    my $ir = IRBuild->make_ir_from_Match_tree($tree);
+    print YAML::Syck::Dump($ir);
+    my $p5 = IR->emit_p5_for($ir);
+    print "\n",$p5,"\n\n";
   }
   sub parse {
     my($self,$p6_file,$p6_code)=@_;

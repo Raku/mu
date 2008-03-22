@@ -3,7 +3,7 @@
 #line 3 head.pl
 use strict;
 use warnings;
-#line 1 Match.pm
+#line 2 Match.pm
 # This code was originally taken from yet_another_regex_engine/Regexp_ModuleA.pm,
 # r20138.
 { package Match;
@@ -31,6 +31,7 @@ use warnings;
   sub match_value { undef }
   sub match_describe {
     my($o,$verbosity)=@_;
+    $verbosity ||= 0;
     my $vp = $verbosity;
     my $os = $o->match_string;
     if($verbosity > 1) {
@@ -93,717 +94,900 @@ use warnings;
     $s;
   }
 }
-#line 1 ir_nodes.pl
+#line 2 ir_nodes.pl
 # Warning: This file is mechanically written.  Your changes will be overwritten.
-{ package PackageDeclarator;
-  sub new {
-    my($cls,$match,$kind,$name,$block)=@_;
-    my %h = {};
-    @h{'match','kind','name','block'}=($match,$kind,$name,$block);
-    bless \%h,$cls;
-  }
-  sub match { shift->{match} }
-  sub field_names { qw{ kind name block } }
-  sub field_values { my($self)=@_; @$self{'kind','name','block'} }
-
+{ package IR::All;
 }
-{ package Block;
+{ package IR::CompUnit;
+  @IR::CompUnit::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$statements)=@_;
-    my %h = {};
-    @h{'match','statements'}=($match,$statements);
+    my($cls,$zmatch,$statements)=@_;
+    my %h;
+    @h{'zmatch','statements'}=($zmatch,$statements);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'CompUnit' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ statements } }
   sub field_values { my($self)=@_; @$self{'statements'} }
-
 }
-{ package Quote;
+{ package IR::Val_Int;
+  @IR::Val_Int::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$concat)=@_;
-    my %h = {};
-    @h{'match','concat'}=($match,$concat);
+    my($cls,$zmatch,$text)=@_;
+    my %h;
+    @h{'zmatch','text'}=($zmatch,$text);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Val_Int' }
+  sub match { shift->{zmatch} }
+  sub field_names { qw{ text } }
+  sub field_values { my($self)=@_; @$self{'text'} }
+}
+{ package IR::PackageDeclarator;
+  @IR::PackageDeclarator::ISA = qw( IR::All );
+  sub new {
+    my($cls,$zmatch,$kind,$name,$block)=@_;
+    my %h;
+    @h{'zmatch','kind','name','block'}=($zmatch,$kind,$name,$block);
+    bless \%h,$cls;
+  }
+  sub node_name { 'PackageDeclarator' }
+  sub match { shift->{zmatch} }
+  sub field_names { qw{ kind name block } }
+  sub field_values { my($self)=@_; @$self{'kind','name','block'} }
+}
+{ package IR::Block;
+  @IR::Block::ISA = qw( IR::All );
+  sub new {
+    my($cls,$zmatch,$statements)=@_;
+    my %h;
+    @h{'zmatch','statements'}=($zmatch,$statements);
+    bless \%h,$cls;
+  }
+  sub node_name { 'Block' }
+  sub match { shift->{zmatch} }
+  sub field_names { qw{ statements } }
+  sub field_values { my($self)=@_; @$self{'statements'} }
+}
+{ package IR::Quote;
+  @IR::Quote::ISA = qw( IR::All );
+  sub new {
+    my($cls,$zmatch,$concat)=@_;
+    my %h;
+    @h{'zmatch','concat'}=($zmatch,$concat);
+    bless \%h,$cls;
+  }
+  sub node_name { 'Quote' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ concat } }
   sub field_values { my($self)=@_; @$self{'concat'} }
-
 }
-{ package CompUnit;
+{ package IR::Val_Bit;
+  @IR::Val_Bit::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$unit_type,$name,$traits,$attributes,$methods,$body)=@_;
-    my %h = {};
-    @h{'match','unit_type','name','traits','attributes','methods','body'}=($match,$unit_type,$name,$traits,$attributes,$methods,$body);
+    my($cls,$zmatch,$bit)=@_;
+    my %h;
+    @h{'zmatch','bit'}=($zmatch,$bit);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
-  sub field_names { qw{ unit_type name traits attributes methods body } }
-  sub field_values { my($self)=@_; @$self{'unit_type','name','traits','attributes','methods','body'} }
-
-}
-{ package Val_Int;
-  sub new {
-    my($cls,$match,$int)=@_;
-    my %h = {};
-    @h{'match','int'}=($match,$int);
-    bless \%h,$cls;
-  }
-  sub match { shift->{match} }
-  sub field_names { qw{ int } }
-  sub field_values { my($self)=@_; @$self{'int'} }
-
-}
-{ package Val_Bit;
-  sub new {
-    my($cls,$match,$bit)=@_;
-    my %h = {};
-    @h{'match','bit'}=($match,$bit);
-    bless \%h,$cls;
-  }
-  sub match { shift->{match} }
+  sub node_name { 'Val_Bit' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ bit } }
   sub field_values { my($self)=@_; @$self{'bit'} }
-
 }
-{ package Val_Num;
+{ package IR::Val_Num;
+  @IR::Val_Num::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$num)=@_;
-    my %h = {};
-    @h{'match','num'}=($match,$num);
+    my($cls,$zmatch,$num)=@_;
+    my %h;
+    @h{'zmatch','num'}=($zmatch,$num);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Val_Num' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ num } }
   sub field_values { my($self)=@_; @$self{'num'} }
-
 }
-{ package Val_Buf;
+{ package IR::Val_Buf;
+  @IR::Val_Buf::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$buf)=@_;
-    my %h = {};
-    @h{'match','buf'}=($match,$buf);
+    my($cls,$zmatch,$buf)=@_;
+    my %h;
+    @h{'zmatch','buf'}=($zmatch,$buf);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Val_Buf' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ buf } }
   sub field_values { my($self)=@_; @$self{'buf'} }
-
 }
-{ package Val_Char;
+{ package IR::Val_Char;
+  @IR::Val_Char::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$char)=@_;
-    my %h = {};
-    @h{'match','char'}=($match,$char);
+    my($cls,$zmatch,$char)=@_;
+    my %h;
+    @h{'zmatch','char'}=($zmatch,$char);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Val_Char' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ char } }
   sub field_values { my($self)=@_; @$self{'char'} }
-
 }
-{ package Val_Undef;
+{ package IR::Val_Undef;
+  @IR::Val_Undef::ISA = qw( IR::All );
   sub new {
-    my($cls,$match)=@_;
-    my %h = {};
-    $h{'match'}=($match);
+    my($cls,$zmatch)=@_;
+    my %h;
+    $h{'zmatch'}=($zmatch);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Val_Undef' }
+  sub match { shift->{zmatch} }
   sub field_names { return () }
   sub field_values { my($self)=@_; return () }
-
 }
-{ package Val_Object;
+{ package IR::Val_Object;
+  @IR::Val_Object::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$clazz,$fields)=@_;
-    my %h = {};
-    @h{'match','clazz','fields'}=($match,$clazz,$fields);
+    my($cls,$zmatch,$clazz,$fields)=@_;
+    my %h;
+    @h{'zmatch','clazz','fields'}=($zmatch,$clazz,$fields);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Val_Object' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ clazz fields } }
   sub field_values { my($self)=@_; @$self{'clazz','fields'} }
-
 }
-{ package Lit_Seq;
+{ package IR::Lit_Seq;
+  @IR::Lit_Seq::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$seq)=@_;
-    my %h = {};
-    @h{'match','seq'}=($match,$seq);
+    my($cls,$zmatch,$seq)=@_;
+    my %h;
+    @h{'zmatch','seq'}=($zmatch,$seq);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_Seq' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ seq } }
   sub field_values { my($self)=@_; @$self{'seq'} }
-
 }
-{ package Lit_Array;
+{ package IR::Lit_Array;
+  @IR::Lit_Array::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$array)=@_;
-    my %h = {};
-    @h{'match','array'}=($match,$array);
+    my($cls,$zmatch,$array)=@_;
+    my %h;
+    @h{'zmatch','array'}=($zmatch,$array);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_Array' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ array } }
   sub field_values { my($self)=@_; @$self{'array'} }
-
 }
-{ package Lit_Hash;
+{ package IR::Lit_Hash;
+  @IR::Lit_Hash::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$hash)=@_;
-    my %h = {};
-    @h{'match','hash'}=($match,$hash);
+    my($cls,$zmatch,$hash)=@_;
+    my %h;
+    @h{'zmatch','hash'}=($zmatch,$hash);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_Hash' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ hash } }
   sub field_values { my($self)=@_; @$self{'hash'} }
-
 }
-{ package Lit_Pair;
+{ package IR::Lit_Pair;
+  @IR::Lit_Pair::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$key,$value)=@_;
-    my %h = {};
-    @h{'match','key','value'}=($match,$key,$value);
+    my($cls,$zmatch,$key,$value)=@_;
+    my %h;
+    @h{'zmatch','key','value'}=($zmatch,$key,$value);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_Pair' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ key value } }
   sub field_values { my($self)=@_; @$self{'key','value'} }
-
 }
-{ package Lit_SigArgument;
+{ package IR::Lit_SigArgument;
+  @IR::Lit_SigArgument::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$key,$value,$type,$has_default,$is_named_only,$is_optional,$is_slurpy,$is_multidimensional,$is_rw,$is_copy)=@_;
-    my %h = {};
-    @h{'match','key','value','type','has_default','is_named_only','is_optional','is_slurpy','is_multidimensional','is_rw','is_copy'}=($match,$key,$value,$type,$has_default,$is_named_only,$is_optional,$is_slurpy,$is_multidimensional,$is_rw,$is_copy);
+    my($cls,$zmatch,$key,$value,$type,$has_default,$is_named_only,$is_optional,$is_slurpy,$is_multidimensional,$is_rw,$is_copy)=@_;
+    my %h;
+    @h{'zmatch','key','value','type','has_default','is_named_only','is_optional','is_slurpy','is_multidimensional','is_rw','is_copy'}=($zmatch,$key,$value,$type,$has_default,$is_named_only,$is_optional,$is_slurpy,$is_multidimensional,$is_rw,$is_copy);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_SigArgument' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ key value type has_default is_named_only is_optional is_slurpy is_multidimensional is_rw is_copy } }
   sub field_values { my($self)=@_; @$self{'key','value','type','has_default','is_named_only','is_optional','is_slurpy','is_multidimensional','is_rw','is_copy'} }
-
 }
-{ package Lit_NamedArgument;
+{ package IR::Lit_NamedArgument;
+  @IR::Lit_NamedArgument::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$key,$value)=@_;
-    my %h = {};
-    @h{'match','key','value'}=($match,$key,$value);
+    my($cls,$zmatch,$key,$value)=@_;
+    my %h;
+    @h{'zmatch','key','value'}=($zmatch,$key,$value);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_NamedArgument' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ key value } }
   sub field_values { my($self)=@_; @$self{'key','value'} }
-
 }
-{ package Lit_Code;
+{ package IR::Lit_Code;
+  @IR::Lit_Code::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$pad,$state,$sig,$body,$catch)=@_;
-    my %h = {};
-    @h{'match','pad','state','sig','body','catch'}=($match,$pad,$state,$sig,$body,$catch);
+    my($cls,$zmatch,$pad,$state,$sig,$body,$catch)=@_;
+    my %h;
+    @h{'zmatch','pad','state','sig','body','catch'}=($zmatch,$pad,$state,$sig,$body,$catch);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_Code' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ pad state sig body catch } }
   sub field_values { my($self)=@_; @$self{'pad','state','sig','body','catch'} }
-
 }
-{ package Lit_Object;
+{ package IR::Lit_Object;
+  @IR::Lit_Object::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$clazz,$fields)=@_;
-    my %h = {};
-    @h{'match','clazz','fields'}=($match,$clazz,$fields);
+    my($cls,$zmatch,$clazz,$fields)=@_;
+    my %h;
+    @h{'zmatch','clazz','fields'}=($zmatch,$clazz,$fields);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_Object' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ clazz fields } }
   sub field_values { my($self)=@_; @$self{'clazz','fields'} }
-
 }
-{ package Var;
+{ package IR::Var;
+  @IR::Var::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$sigil,$twigil,$name,$namespace)=@_;
-    my %h = {};
-    @h{'match','sigil','twigil','name','namespace'}=($match,$sigil,$twigil,$name,$namespace);
+    my($cls,$zmatch,$sigil,$twigil,$name,$namespace)=@_;
+    my %h;
+    @h{'zmatch','sigil','twigil','name','namespace'}=($zmatch,$sigil,$twigil,$name,$namespace);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Var' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ sigil twigil name namespace } }
   sub field_values { my($self)=@_; @$self{'sigil','twigil','name','namespace'} }
-
 }
-{ package Bind;
+{ package IR::Bind;
+  @IR::Bind::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$parameters,$arguments)=@_;
-    my %h = {};
-    @h{'match','parameters','arguments'}=($match,$parameters,$arguments);
+    my($cls,$zmatch,$parameters,$arguments)=@_;
+    my %h;
+    @h{'zmatch','parameters','arguments'}=($zmatch,$parameters,$arguments);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Bind' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ parameters arguments } }
   sub field_values { my($self)=@_; @$self{'parameters','arguments'} }
-
 }
-{ package Assign;
+{ package IR::Assign;
+  @IR::Assign::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$parameters,$arguments)=@_;
-    my %h = {};
-    @h{'match','parameters','arguments'}=($match,$parameters,$arguments);
+    my($cls,$zmatch,$parameters,$arguments)=@_;
+    my %h;
+    @h{'zmatch','parameters','arguments'}=($zmatch,$parameters,$arguments);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Assign' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ parameters arguments } }
   sub field_values { my($self)=@_; @$self{'parameters','arguments'} }
-
 }
-{ package Proto;
+{ package IR::Proto;
+  @IR::Proto::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$name)=@_;
-    my %h = {};
-    @h{'match','name'}=($match,$name);
+    my($cls,$zmatch,$name)=@_;
+    my %h;
+    @h{'zmatch','name'}=($zmatch,$name);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Proto' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ name } }
   sub field_values { my($self)=@_; @$self{'name'} }
-
 }
-{ package Call;
+{ package IR::Call;
+  @IR::Call::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$invocant,$hyper,$method,$arguments)=@_;
-    my %h = {};
-    @h{'match','invocant','hyper','method','arguments'}=($match,$invocant,$hyper,$method,$arguments);
+    my($cls,$zmatch,$invocant,$hyper,$method,$arguments)=@_;
+    my %h;
+    @h{'zmatch','invocant','hyper','method','arguments'}=($zmatch,$invocant,$hyper,$method,$arguments);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Call' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ invocant hyper method arguments } }
   sub field_values { my($self)=@_; @$self{'invocant','hyper','method','arguments'} }
-
 }
-{ package Apply;
+{ package IR::Apply;
+  @IR::Apply::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$code,$arguments)=@_;
-    my %h = {};
-    @h{'match','code','arguments'}=($match,$code,$arguments);
+    my($cls,$zmatch,$code,$arguments)=@_;
+    my %h;
+    @h{'zmatch','code','arguments'}=($zmatch,$code,$arguments);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Apply' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ code arguments } }
   sub field_values { my($self)=@_; @$self{'code','arguments'} }
-
 }
-{ package Return;
+{ package IR::Return;
+  @IR::Return::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$result)=@_;
-    my %h = {};
-    @h{'match','result'}=($match,$result);
+    my($cls,$zmatch,$result)=@_;
+    my %h;
+    @h{'zmatch','result'}=($zmatch,$result);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Return' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ result } }
   sub field_values { my($self)=@_; @$self{'result'} }
-
 }
-{ package If;
+{ package IR::If;
+  @IR::If::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$cond,$body,$otherwise)=@_;
-    my %h = {};
-    @h{'match','cond','body','otherwise'}=($match,$cond,$body,$otherwise);
+    my($cls,$zmatch,$cond,$body,$otherwise)=@_;
+    my %h;
+    @h{'zmatch','cond','body','otherwise'}=($zmatch,$cond,$body,$otherwise);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'If' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ cond body otherwise } }
   sub field_values { my($self)=@_; @$self{'cond','body','otherwise'} }
-
 }
-{ package While;
+{ package IR::While;
+  @IR::While::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$cond,$body)=@_;
-    my %h = {};
-    @h{'match','cond','body'}=($match,$cond,$body);
+    my($cls,$zmatch,$cond,$body)=@_;
+    my %h;
+    @h{'zmatch','cond','body'}=($zmatch,$cond,$body);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'While' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ cond body } }
   sub field_values { my($self)=@_; @$self{'cond','body'} }
-
 }
-{ package Decl;
+{ package IR::Decl;
+  @IR::Decl::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$decl,$type,$var)=@_;
-    my %h = {};
-    @h{'match','decl','type','var'}=($match,$decl,$type,$var);
+    my($cls,$zmatch,$decl,$type,$var)=@_;
+    my %h;
+    @h{'zmatch','decl','type','var'}=($zmatch,$decl,$type,$var);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Decl' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ decl type var } }
   sub field_values { my($self)=@_; @$self{'decl','type','var'} }
-
 }
-{ package Sig;
+{ package IR::Sig;
+  @IR::Sig::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$invocant,$positional)=@_;
-    my %h = {};
-    @h{'match','invocant','positional'}=($match,$invocant,$positional);
+    my($cls,$zmatch,$invocant,$positional)=@_;
+    my %h;
+    @h{'zmatch','invocant','positional'}=($zmatch,$invocant,$positional);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Sig' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ invocant positional } }
   sub field_values { my($self)=@_; @$self{'invocant','positional'} }
-
 }
-{ package Lit_Capture;
+{ package IR::Lit_Capture;
+  @IR::Lit_Capture::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$invocant,$array,$hash)=@_;
-    my %h = {};
-    @h{'match','invocant','array','hash'}=($match,$invocant,$array,$hash);
+    my($cls,$zmatch,$invocant,$array,$hash)=@_;
+    my %h;
+    @h{'zmatch','invocant','array','hash'}=($zmatch,$invocant,$array,$hash);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_Capture' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ invocant array hash } }
   sub field_values { my($self)=@_; @$self{'invocant','array','hash'} }
-
 }
-{ package Lit_Subset;
+{ package IR::Lit_Subset;
+  @IR::Lit_Subset::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$name,$base_class,$block)=@_;
-    my %h = {};
-    @h{'match','name','base_class','block'}=($match,$name,$base_class,$block);
+    my($cls,$zmatch,$name,$base_class,$block)=@_;
+    my %h;
+    @h{'zmatch','name','base_class','block'}=($zmatch,$name,$base_class,$block);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Lit_Subset' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ name base_class block } }
   sub field_values { my($self)=@_; @$self{'name','base_class','block'} }
-
 }
-{ package Method;
+{ package IR::Method;
+  @IR::Method::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$name,$sig,$block)=@_;
-    my %h = {};
-    @h{'match','name','sig','block'}=($match,$name,$sig,$block);
+    my($cls,$zmatch,$name,$sig,$block)=@_;
+    my %h;
+    @h{'zmatch','name','sig','block'}=($zmatch,$name,$sig,$block);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Method' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ name sig block } }
   sub field_values { my($self)=@_; @$self{'name','sig','block'} }
-
 }
-{ package Sub;
+{ package IR::Sub;
+  @IR::Sub::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$name,$sig,$block)=@_;
-    my %h = {};
-    @h{'match','name','sig','block'}=($match,$name,$sig,$block);
+    my($cls,$zmatch,$name,$sig,$block)=@_;
+    my %h;
+    @h{'zmatch','name','sig','block'}=($zmatch,$name,$sig,$block);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Sub' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ name sig block } }
   sub field_values { my($self)=@_; @$self{'name','sig','block'} }
-
 }
-{ package Macro;
+{ package IR::Macro;
+  @IR::Macro::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$name,$sig,$block)=@_;
-    my %h = {};
-    @h{'match','name','sig','block'}=($match,$name,$sig,$block);
+    my($cls,$zmatch,$name,$sig,$block)=@_;
+    my %h;
+    @h{'zmatch','name','sig','block'}=($zmatch,$name,$sig,$block);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Macro' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ name sig block } }
   sub field_values { my($self)=@_; @$self{'name','sig','block'} }
-
 }
-{ package Coro;
+{ package IR::Coro;
+  @IR::Coro::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$name,$sig,$block)=@_;
-    my %h = {};
-    @h{'match','name','sig','block'}=($match,$name,$sig,$block);
+    my($cls,$zmatch,$name,$sig,$block)=@_;
+    my %h;
+    @h{'zmatch','name','sig','block'}=($zmatch,$name,$sig,$block);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Coro' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ name sig block } }
   sub field_values { my($self)=@_; @$self{'name','sig','block'} }
-
 }
-{ package P5Token;
+{ package IR::P5Token;
+  @IR::P5Token::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$regex)=@_;
-    my %h = {};
-    @h{'match','regex'}=($match,$regex);
+    my($cls,$zmatch,$regex)=@_;
+    my %h;
+    @h{'zmatch','regex'}=($zmatch,$regex);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'P5Token' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ regex } }
   sub field_values { my($self)=@_; @$self{'regex'} }
-
 }
-{ package Token;
+{ package IR::Token;
+  @IR::Token::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$name,$regex,$sym)=@_;
-    my %h = {};
-    @h{'match','name','regex','sym'}=($match,$name,$regex,$sym);
+    my($cls,$zmatch,$name,$regex,$sym)=@_;
+    my %h;
+    @h{'zmatch','name','regex','sym'}=($zmatch,$name,$regex,$sym);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Token' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ name regex sym } }
   sub field_values { my($self)=@_; @$self{'name','regex','sym'} }
-
 }
-{ package Do;
+{ package IR::Do;
+  @IR::Do::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$block)=@_;
-    my %h = {};
-    @h{'match','block'}=($match,$block);
+    my($cls,$zmatch,$block)=@_;
+    my %h;
+    @h{'zmatch','block'}=($zmatch,$block);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Do' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ block } }
   sub field_values { my($self)=@_; @$self{'block'} }
-
 }
-{ package Begin;
+{ package IR::Begin;
+  @IR::Begin::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$block)=@_;
-    my %h = {};
-    @h{'match','block'}=($match,$block);
+    my($cls,$zmatch,$block)=@_;
+    my %h;
+    @h{'zmatch','block'}=($zmatch,$block);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Begin' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ block } }
   sub field_values { my($self)=@_; @$self{'block'} }
-
 }
-{ package Use;
+{ package IR::Use;
+  @IR::Use::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$mod,$perl5)=@_;
-    my %h = {};
-    @h{'match','mod','perl5'}=($match,$mod,$perl5);
+    my($cls,$zmatch,$mod,$perl5)=@_;
+    my %h;
+    @h{'zmatch','mod','perl5'}=($zmatch,$mod,$perl5);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Use' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ mod perl5 } }
   sub field_values { my($self)=@_; @$self{'mod','perl5'} }
-
 }
-{ package Rule;
+{ package IR::Rule;
+  @IR::Rule::ISA = qw( IR::All );
   sub new {
-    my($cls,$match)=@_;
-    my %h = {};
-    $h{'match'}=($match);
+    my($cls,$zmatch)=@_;
+    my %h;
+    $h{'zmatch'}=($zmatch);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule' }
+  sub match { shift->{zmatch} }
   sub field_names { return () }
   sub field_values { my($self)=@_; return () }
-
 }
-{ package Rule_Quantifier;
+{ package IR::Rule_Quantifier;
+  @IR::Rule_Quantifier::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$term,$quant,$greedy,$ws1,$ws2,$ws3)=@_;
-    my %h = {};
-    @h{'match','term','quant','greedy','ws1','ws2','ws3'}=($match,$term,$quant,$greedy,$ws1,$ws2,$ws3);
+    my($cls,$zmatch,$term,$quant,$greedy,$ws1,$ws2,$ws3)=@_;
+    my %h;
+    @h{'zmatch','term','quant','greedy','ws1','ws2','ws3'}=($zmatch,$term,$quant,$greedy,$ws1,$ws2,$ws3);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Quantifier' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ term quant greedy ws1 ws2 ws3 } }
   sub field_values { my($self)=@_; @$self{'term','quant','greedy','ws1','ws2','ws3'} }
-
 }
-{ package Rule_Or;
+{ package IR::Rule_Or;
+  @IR::Rule_Or::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$terms)=@_;
-    my %h = {};
-    @h{'match','terms'}=($match,$terms);
+    my($cls,$zmatch,$terms)=@_;
+    my %h;
+    @h{'zmatch','terms'}=($zmatch,$terms);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Or' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ terms } }
   sub field_values { my($self)=@_; @$self{'terms'} }
-
 }
-{ package Rule_Concat;
+{ package IR::Rule_Concat;
+  @IR::Rule_Concat::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$concat)=@_;
-    my %h = {};
-    @h{'match','concat'}=($match,$concat);
+    my($cls,$zmatch,$concat)=@_;
+    my %h;
+    @h{'zmatch','concat'}=($zmatch,$concat);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Concat' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ concat } }
   sub field_values { my($self)=@_; @$self{'concat'} }
-
 }
-{ package Rule_Subrule;
+{ package IR::Rule_Subrule;
+  @IR::Rule_Subrule::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$metasyntax,$ident,$capture_to_array)=@_;
-    my %h = {};
-    @h{'match','metasyntax','ident','capture_to_array'}=($match,$metasyntax,$ident,$capture_to_array);
+    my($cls,$zmatch,$metasyntax,$ident,$capture_to_array)=@_;
+    my %h;
+    @h{'zmatch','metasyntax','ident','capture_to_array'}=($zmatch,$metasyntax,$ident,$capture_to_array);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Subrule' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ metasyntax ident capture_to_array } }
   sub field_values { my($self)=@_; @$self{'metasyntax','ident','capture_to_array'} }
-
 }
-{ package Rule_SubruleNoCapture;
+{ package IR::Rule_SubruleNoCapture;
+  @IR::Rule_SubruleNoCapture::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$metasyntax)=@_;
-    my %h = {};
-    @h{'match','metasyntax'}=($match,$metasyntax);
+    my($cls,$zmatch,$metasyntax)=@_;
+    my %h;
+    @h{'zmatch','metasyntax'}=($zmatch,$metasyntax);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_SubruleNoCapture' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ metasyntax } }
   sub field_values { my($self)=@_; @$self{'metasyntax'} }
-
 }
-{ package Rule_Var;
+{ package IR::Rule_Var;
+  @IR::Rule_Var::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$sigil,$twigil,$name)=@_;
-    my %h = {};
-    @h{'match','sigil','twigil','name'}=($match,$sigil,$twigil,$name);
+    my($cls,$zmatch,$sigil,$twigil,$name)=@_;
+    my %h;
+    @h{'zmatch','sigil','twigil','name'}=($zmatch,$sigil,$twigil,$name);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Var' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ sigil twigil name } }
   sub field_values { my($self)=@_; @$self{'sigil','twigil','name'} }
-
 }
-{ package Rule_Constant;
+{ package IR::Rule_Constant;
+  @IR::Rule_Constant::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$constant)=@_;
-    my %h = {};
-    @h{'match','constant'}=($match,$constant);
+    my($cls,$zmatch,$constant)=@_;
+    my %h;
+    @h{'zmatch','constant'}=($zmatch,$constant);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Constant' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ constant } }
   sub field_values { my($self)=@_; @$self{'constant'} }
-
 }
-{ package Rule_Dot;
+{ package IR::Rule_Dot;
+  @IR::Rule_Dot::ISA = qw( IR::All );
   sub new {
-    my($cls,$match)=@_;
-    my %h = {};
-    $h{'match'}=($match);
+    my($cls,$zmatch)=@_;
+    my %h;
+    $h{'zmatch'}=($zmatch);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Dot' }
+  sub match { shift->{zmatch} }
   sub field_names { return () }
   sub field_values { my($self)=@_; return () }
-
 }
-{ package Rule_SpecialChar;
+{ package IR::Rule_SpecialChar;
+  @IR::Rule_SpecialChar::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$char)=@_;
-    my %h = {};
-    @h{'match','char'}=($match,$char);
+    my($cls,$zmatch,$char)=@_;
+    my %h;
+    @h{'zmatch','char'}=($zmatch,$char);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_SpecialChar' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ char } }
   sub field_values { my($self)=@_; @$self{'char'} }
-
 }
-{ package Rule_Block;
+{ package IR::Rule_Block;
+  @IR::Rule_Block::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$closure)=@_;
-    my %h = {};
-    @h{'match','closure'}=($match,$closure);
+    my($cls,$zmatch,$closure)=@_;
+    my %h;
+    @h{'zmatch','closure'}=($zmatch,$closure);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Block' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ closure } }
   sub field_values { my($self)=@_; @$self{'closure'} }
-
 }
-{ package Rule_InterpolateVar;
+{ package IR::Rule_InterpolateVar;
+  @IR::Rule_InterpolateVar::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$var)=@_;
-    my %h = {};
-    @h{'match','var'}=($match,$var);
+    my($cls,$zmatch,$var)=@_;
+    my %h;
+    @h{'zmatch','var'}=($zmatch,$var);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_InterpolateVar' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ var } }
   sub field_values { my($self)=@_; @$self{'var'} }
-
 }
-{ package Rule_NamedCapture;
+{ package IR::Rule_NamedCapture;
+  @IR::Rule_NamedCapture::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$rule,$ident,$capture_to_array)=@_;
-    my %h = {};
-    @h{'match','rule','ident','capture_to_array'}=($match,$rule,$ident,$capture_to_array);
+    my($cls,$zmatch,$rule,$ident,$capture_to_array)=@_;
+    my %h;
+    @h{'zmatch','rule','ident','capture_to_array'}=($zmatch,$rule,$ident,$capture_to_array);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_NamedCapture' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ rule ident capture_to_array } }
   sub field_values { my($self)=@_; @$self{'rule','ident','capture_to_array'} }
-
 }
-{ package Rule_Before;
+{ package IR::Rule_Before;
+  @IR::Rule_Before::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$rule,$assertion_modifier,$capture_to_array)=@_;
-    my %h = {};
-    @h{'match','rule','assertion_modifier','capture_to_array'}=($match,$rule,$assertion_modifier,$capture_to_array);
+    my($cls,$zmatch,$rule,$assertion_modifier,$capture_to_array)=@_;
+    my %h;
+    @h{'zmatch','rule','assertion_modifier','capture_to_array'}=($zmatch,$rule,$assertion_modifier,$capture_to_array);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Before' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ rule assertion_modifier capture_to_array } }
   sub field_values { my($self)=@_; @$self{'rule','assertion_modifier','capture_to_array'} }
-
 }
-{ package Rule_After;
+{ package IR::Rule_After;
+  @IR::Rule_After::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$rule,$assertion_modifier,$capture_to_array)=@_;
-    my %h = {};
-    @h{'match','rule','assertion_modifier','capture_to_array'}=($match,$rule,$assertion_modifier,$capture_to_array);
+    my($cls,$zmatch,$rule,$assertion_modifier,$capture_to_array)=@_;
+    my %h;
+    @h{'zmatch','rule','assertion_modifier','capture_to_array'}=($zmatch,$rule,$assertion_modifier,$capture_to_array);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_After' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ rule assertion_modifier capture_to_array } }
   sub field_values { my($self)=@_; @$self{'rule','assertion_modifier','capture_to_array'} }
-
 }
-{ package Rule_NegateCharClass;
+{ package IR::Rule_NegateCharClass;
+  @IR::Rule_NegateCharClass::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$chars)=@_;
-    my %h = {};
-    @h{'match','chars'}=($match,$chars);
+    my($cls,$zmatch,$chars)=@_;
+    my %h;
+    @h{'zmatch','chars'}=($zmatch,$chars);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_NegateCharClass' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ chars } }
   sub field_values { my($self)=@_; @$self{'chars'} }
-
 }
-{ package Rule_CharClass;
+{ package IR::Rule_CharClass;
+  @IR::Rule_CharClass::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$chars)=@_;
-    my %h = {};
-    @h{'match','chars'}=($match,$chars);
+    my($cls,$zmatch,$chars)=@_;
+    my %h;
+    @h{'zmatch','chars'}=($zmatch,$chars);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_CharClass' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ chars } }
   sub field_values { my($self)=@_; @$self{'chars'} }
-
 }
-{ package Rule_Capture;
+{ package IR::Rule_Capture;
+  @IR::Rule_Capture::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$rule,$position,$capture_to_array)=@_;
-    my %h = {};
-    @h{'match','rule','position','capture_to_array'}=($match,$rule,$position,$capture_to_array);
+    my($cls,$zmatch,$rule,$position,$capture_to_array)=@_;
+    my %h;
+    @h{'zmatch','rule','position','capture_to_array'}=($zmatch,$rule,$position,$capture_to_array);
     bless \%h,$cls;
   }
-  sub match { shift->{match} }
+  sub node_name { 'Rule_Capture' }
+  sub match { shift->{zmatch} }
   sub field_names { qw{ rule position capture_to_array } }
   sub field_values { my($self)=@_; @$self{'rule','position','capture_to_array'} }
-
 }
-#line 1 main.pl
+#line 2 ir_build.pl
+{ package IRBuild;
+  sub make_ir_from_Match_tree {
+    my($this,$tree)=@_;
+    if(not ref($tree)) {
+      $tree;
+    } else {
+      my $ref = ref($tree);
+      if($ref eq 'Match') {
+        my $m = $tree;
+        my $rule = $m->{rule};
+        if(not $rule) {die "Bug.  Found an unlabeled Match:\n$m->match_describe";}
+        my $constructor = $IRBuild::constructors{$rule};
+        if($constructor) {
+          #print STDERR "Calling constructor for $rule with @{[$m->match_describe]}.\n";
+          $constructor->($m);
+        } else {
+          die "Unknown rule: $rule\nDon't know how to build an IR from it.\n";
+        }
+      }
+      elsif($ref eq 'ARRAY') {
+        [map{$this->make_ir_from_Match_tree($_)} @$tree]
+      }
+      elsif($ref eq 'HASH') {
+        my %h;
+        for my $k (keys %$tree) {
+          my $v = $tree->{$k};
+          $h{$k} = $this->make_ir_from_Match_tree($v);
+        }
+        \%h;
+      }
+      else {
+        die "bug? $ref $tree";
+      }
+    }
+  }
+  sub ir {
+    my($tree)=@_;
+    IRBuild->make_ir_from_Match_tree($tree);
+  }
+}
+#line 2 ir_constructors.pl
+# Warning: This file is mechanically written.  Your changes will be overwritten.
+{ package IRBuild;
+  $IRBuild::constructors{comp_unit} = sub {
+    my($m)=@_;
+    IR::CompUnit->new($m,ir($m->{hash}{statementlist}));
+  };
+  $IRBuild::constructors{statement} = sub {
+    my($m)=@_;
+        my @keys = map{$_ eq "zmatch" ? () : ($_)} keys %{$m->{hash}};
+    die("Unexpectedly more than 1 field - dont know which to choose\n".
+        $m->match_describe."\n") if(@keys > 1);
+    my $one = ir($m->{hash}{$keys[0]});
+$one;
+  };
+  $IRBuild::constructors{expect_term} = sub {
+    my($m)=@_;
+    ir($m->{hash}{noun});
+  };
+  $IRBuild::constructors{integer} = sub {
+    my($m)=@_;
+    IR::Val_Int->new($m,($m->match_string));
+  };
+  $IRBuild::constructors{subcall} = sub {
+    my($m)=@_;
+    IR::Apply->new($m,ir($m->{hash}{subshortname}),ir($m->{hash}{semilist}));
+  };
+  $IRBuild::constructors{name} = sub {
+    my($m)=@_;
+    ir($m->{hash}{ident});
+  };
+}
+#line 2 emit_p5.pl
+# Warning: This file is mechanically written.  Your changes will be overwritten.
+{ package IR;
+  sub emit_p5_for {
+    my($this,$tree)=@_;
+    if(not ref($tree)) {
+      $tree;
+    } else {
+      my $ref = ref($tree);
+      if($ref eq 'ARRAY') {
+        [map{$this->emit_p5_for($_)} @$tree]
+      }
+      elsif($ref eq 'HASH') {
+        my %h;
+        for my $k (keys %$tree) {
+          my $v = $tree->{$k};
+          $h{$k} = $this->emit_p5_for($v);
+        }
+        \%h;
+      }
+      else {
+        $tree->emit_p5
+      }
+    }
+  }
+}
+{ package IR::All;
+  sub emit_p5 {
+    my $name = $_[0]->node_name;
+    print STDERR "ERROR: emit_p5 is not defined for $name.\n";
+    "***<$name>***";
+  }
+}
+{ package IR::CompUnit; sub emit_p5 {
+    my($n)=@_;
+    join(";\n",@{IR->emit_p5_for($n->{statements})})
+  }
+}
+{ package IR::Val_Int; sub emit_p5 {
+    my($n)=@_;
+    IR->emit_p5_for($n->{text})
+  }
+}
+{ package IR::Apply; sub emit_p5 {
+    my($n)=@_;
+    IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
+
+  }
+}
+#line 2 main.pl
 { package Program;
   use YAML::Syck;
 
@@ -847,6 +1031,10 @@ Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
       exit(1);
     }
     print $tree->match_describe(1),"\n";
+    my $ir = IRBuild->make_ir_from_Match_tree($tree);
+    print YAML::Syck::Dump($ir);
+    my $p5 = IR->emit_p5_for($ir);
+    print "\n",$p5,"\n\n";
   }
   sub parse {
     my($self,$p6_file,$p6_code)=@_;

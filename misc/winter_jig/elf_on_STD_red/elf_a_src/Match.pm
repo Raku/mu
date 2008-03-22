@@ -1,4 +1,4 @@
-#line 1 Match.pm
+#line 2 Match.pm
 # This code was originally taken from yet_another_regex_engine/Regexp_ModuleA.pm,
 # r20138.
 { package Match;
@@ -26,6 +26,7 @@
   sub match_value { undef }
   sub match_describe {
     my($o,$verbosity)=@_;
+    $verbosity ||= 0;
     my $vp = $verbosity;
     my $os = $o->match_string;
     if($verbosity > 1) {
