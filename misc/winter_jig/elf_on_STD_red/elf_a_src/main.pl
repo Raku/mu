@@ -43,7 +43,8 @@ Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
     }
     print $tree->match_describe(1),"\n";
     my $ir = IRBuild->make_ir_from_Match_tree($tree);
-    print YAML::Syck::Dump($ir);
+    print "\n";
+    print $ir->describe,"\n" if $ir;
     my $p5 = IR->emit_p5_for($ir);
     print "\n",$p5,"\n\n";
   }
