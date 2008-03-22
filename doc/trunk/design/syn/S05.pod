@@ -1403,11 +1403,11 @@ as possible.  (It is not zero-width unless 0 characters match.)
 For instance, to match a number of abbreviations, you might write
 any of:
 
-    s/ ^ G<*n|enesis>   $ /gen/  or
-    s/ ^ Ex<*odos>      $ /ex/   or
-    s/ ^ L<*v|eviticus> $ /lev/  or
-    s/ ^ N<*m|umbers>   $ /num/  or
-    s/ ^ D<*t|euronomy> $ /deut/ or
+    s/ ^ G<*n|enesis>     $ /gen/  or
+    s/ ^ Ex<*odus>        $ /ex/   or
+    s/ ^ L<*v|eviticus>   $ /lev/  or
+    s/ ^ N<*m|umbers>     $ /num/  or
+    s/ ^ D<*t|euteronomy> $ /deut/ or
     ...
 
     / (<* <foo bar baz> >) /
