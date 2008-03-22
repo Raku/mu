@@ -1227,7 +1227,9 @@ $one;
 }
 { package IR::CompUnit; sub emit_p5 {
     my($n)=@_;
-    join(";\n",@{IR->emit_p5_for($n->{statements})})
+    'package Main;
+use Perl6::Say;
+'.join(";\n",@{IR->emit_p5_for($n->{statements})})
   }
 }
 { package IR::Val_Int; sub emit_p5 {
@@ -1251,7 +1253,7 @@ $one;
   }
   sub print_usage_and_exit {
     my $usage = "
-Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
+Usage: [-v] [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
 
 ";
     print STDERR $usage;
@@ -1260,9 +1262,12 @@ Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
   sub main {
     my($self,$argv)=@_;
     $self->print_usage_and_exit() if !@$argv;
-    my($p6_code,$output_file,$compile);
+    my($p6_code,$output_file,$compile,$verbose);
     while(my $arg = shift(@$argv)) {
-      if($arg eq '-c') {
+      if($arg eq '-v') {
+        $verbose = 1;
+      }
+      elsif($arg eq '-c') {
         $compile = 1;
       }
       elsif($arg eq '-o') {
@@ -1279,17 +1284,31 @@ Usage: [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
       }
     }
     my $yaml = $self->parse(undef,$p6_code);
-    print $yaml;
+    print $yaml if $verbose;
     my $tree = YAML::Syck::Load($yaml);
     if(!$tree) {
       exit(1);
     }
-    print $tree->match_describe(1),"\n";
+    print $tree->match_describe(1),"\n" if $verbose;
     my $ir = IRBuild->make_ir_from_Match_tree($tree);
-    print "\n";
-    print $ir->describe,"\n" if $ir;
+    print "\n",$ir->describe,"\n" if $verbose;
     my $p5 = IR->emit_p5_for($ir);
-    print "\n",$p5,"\n\n";
+    print "\n",$p5,"\n\n" if $verbose;
+    if($compile) {
+      if(not $output_file) {
+        print $p5,"\n";
+      } else {
+        open(F,">$output_file") or die $!;
+        print F $p5,"\n"; close F;
+      }
+    } else {
+      my $code = $p5;
+      eval($code);
+      if($@) {
+        #XXX... provide $code.
+        die $@;
+      }
+    }
   }
   sub parse {
     my($self,$p6_file,$p6_code)=@_;

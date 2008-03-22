@@ -33,7 +33,9 @@
 }
 { package IR::CompUnit; sub emit_p5 {
     my($n)=@_;
-    join(";\n",@{IR->emit_p5_for($n->{statements})})
+    'package Main;
+use Perl6::Say;
+'.join(";\n",@{IR->emit_p5_for($n->{statements})})
   }
 }
 { package IR::Val_Int; sub emit_p5 {
