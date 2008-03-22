@@ -17,10 +17,13 @@ sub text2file {
 sub load_paragraphs {
   my($file)=@_;
   my $text = `cat $file`;
-  $text =~ s/^\s*#.*\n//mg;
-  $text =~ s/\s*#.*//g;
+  $text =~ s/\A\s*#.*\n//mg;
+  $text =~ s/[ ]*#.*//g;
+#  print $text;
   $text =~ s/^([ \t]*\n)*//;
-  split(/\n\n/,$text);
+  @x = split(/\n\n+/,$text);
+#  print join("\n---\n",@x);
+  @x;
 }
 
 1;

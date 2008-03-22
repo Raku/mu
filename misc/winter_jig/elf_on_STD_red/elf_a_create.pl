@@ -103,7 +103,7 @@ sub write_ast_handlers {
   END
 
   for my $para (@paragraphs) {
-    $para =~ /^(\w+)\n(.*)/s or die "bug";
+    $para =~ /^([\w:]+)\n(.*)/s or die "bug";
     my($name,$body)=($1,$2);
 
     $body =~ s/(\$m(?:<\w+>)+)/ir($1)/g;
@@ -121,7 +121,7 @@ sub write_ast_handlers {
     }
 
     $code .= unindent(<<"    END","    ");
-      \$IRBuild::constructors{$name} = sub {
+      \$IRBuild::constructors{'$name'} = sub {
         my(\$m)=\@_;
       $body;
       };

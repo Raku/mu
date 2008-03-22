@@ -1163,11 +1163,11 @@ use warnings;
 #line 2 ast_handlers.pl
 # Warning: This file is mechanically written.  Your changes will be overwritten.
 { package IRBuild;
-    $IRBuild::constructors{comp_unit} = sub {
+    $IRBuild::constructors{'comp_unit'} = sub {
       my($m)=@_;
     IR::CompUnit->new($m,ir($m->{hash}{statementlist}));
     };
-    $IRBuild::constructors{statement} = sub {
+    $IRBuild::constructors{'statement'} = sub {
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
@@ -1175,21 +1175,70 @@ die("Unexpectedly more than 1 field - dont know which to choose\n".
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
-    $IRBuild::constructors{expect_term} = sub {
+    $IRBuild::constructors{'expect_term'} = sub {
       my($m)=@_;
     ir($m->{hash}{noun});
     };
-    $IRBuild::constructors{integer} = sub {
+    $IRBuild::constructors{'integer'} = sub {
       my($m)=@_;
     IR::Val_Int->new($m,($m->match_string));
     };
-    $IRBuild::constructors{subcall} = sub {
+    $IRBuild::constructors{'subcall'} = sub {
       my($m)=@_;
     IR::Apply->new($m,ir($m->{hash}{subshortname}),ir($m->{hash}{semilist}));
     };
-    $IRBuild::constructors{name} = sub {
+    $IRBuild::constructors{'name'} = sub {
       my($m)=@_;
     ir($m->{hash}{ident});
+    };
+    $IRBuild::constructors{'statement_control:use'} = sub {
+      my($m)=@_;
+    IR::Use->new($m,ir($m->{hash}{module_name}));
+    };
+    $IRBuild::constructors{'module_name:depreciated'} = sub {
+      my($m)=@_;
+    ($m->match_string);
+    };
+    $IRBuild::constructors{'term:listop'} = sub {
+      my($m)=@_;
+    IR::Apply->new($m,ir($m->{hash}{ident}),[ir($m->{hash}{arglist})]);
+    };
+    $IRBuild::constructors{'quote:q'} = sub {
+      my($m)=@_;
+    IR::Val_Buf->new($m,ir($m->{hash}{text}));
+    };
+    $IRBuild::constructors{'quote:qq'} = sub {
+      my($m)=@_;
+    IR::Val_Buf->new($m,ir($m->{hash}{text}));
+    };
+    $IRBuild::constructors{'infix'} = sub {
+      my($m)=@_;
+    IR::Apply->new($m,"infix:".($m->match_string),[ir($m->{hash}{left}),ir($m->{hash}{right})]);
+    };
+    $IRBuild::constructors{'statement_control:if'} = sub {
+      my($m)=@_;
+    IR::If->new($m,[ir($m->{hash}{if_expr}),ir($m->{hash}{if_block}),@{ir($m->{hash}{elsif})}],ir($m->{hash}{else}));
+    };
+    $IRBuild::constructors{'if__else'} = sub {
+      my($m)=@_;
+      my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
+die("Unexpectedly more than 1 field - dont know which to choose\n".
+    $m->match_describe."\n") if(@keys > 1);
+my $one = ir($m->{hash}{$keys[0]});
+$one;
+    };
+    $IRBuild::constructors{'pblock'} = sub {
+      my($m)=@_;
+      my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
+die("Unexpectedly more than 1 field - dont know which to choose\n".
+    $m->match_describe."\n") if(@keys > 1);
+my $one = ir($m->{hash}{$keys[0]});
+$one;
+    };
+    $IRBuild::constructors{'block'} = sub {
+      my($m)=@_;
+    IR::Block->new($m,ir($m->{hash}{statementlist}))
+;
     };
 }
 #line 2 emit_p5.pl
@@ -1239,7 +1288,35 @@ use Perl6::Say;
 }
 { package IR::Apply; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
+    if(IR->emit_p5_for($n->{code}) =~ /^infix:(.+)$/) {
+  my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
+  my $op = $1;
+  if($op eq '~'){ "($l . $r)" }
+  else { "($l $op $r)" }
+}
+else {
+  IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
+}
+  }
+}
+{ package IR::Use; sub emit_p5 {
+    my($n)=@_;
+    ""
+  }
+}
+{ package IR::Val_Buf; sub emit_p5 {
+    my($n)=@_;
+    "'".IR->emit_p5_for($n->{buf})."'"
+  }
+}
+{ package IR::If; sub emit_p5 {
+    my($n)=@_;
+    'if('.IR->emit_p5_for($n->{cond}).")\n".IR->emit_p5_for($n->{body}).IR->emit_p5_for($n->{otherwise})
+  }
+}
+{ package IR::Block; sub emit_p5 {
+    my($n)=@_;
+    '{'.join(";\n",IR->emit_p5_for($n->{statements})).'}'
 
   }
 }

@@ -45,7 +45,35 @@ use Perl6::Say;
 }
 { package IR::Apply; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
+    if(IR->emit_p5_for($n->{code}) =~ /^infix:(.+)$/) {
+  my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
+  my $op = $1;
+  if($op eq '~'){ "($l . $r)" }
+  else { "($l $op $r)" }
+}
+else {
+  IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
+}
+  }
+}
+{ package IR::Use; sub emit_p5 {
+    my($n)=@_;
+    ""
+  }
+}
+{ package IR::Val_Buf; sub emit_p5 {
+    my($n)=@_;
+    "'".IR->emit_p5_for($n->{buf})."'"
+  }
+}
+{ package IR::If; sub emit_p5 {
+    my($n)=@_;
+    'if('.IR->emit_p5_for($n->{cond}).")\n".IR->emit_p5_for($n->{body}).IR->emit_p5_for($n->{otherwise})
+  }
+}
+{ package IR::Block; sub emit_p5 {
+    my($n)=@_;
+    '{'.join(";\n",IR->emit_p5_for($n->{statements})).'}'
 
   }
 }
