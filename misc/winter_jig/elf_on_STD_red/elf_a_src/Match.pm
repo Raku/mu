@@ -28,6 +28,31 @@
     my($o,$verbosity)=@_;
     $verbosity ||= 0;
     my $vp = $verbosity;
+
+    my $describe_thing;
+    $describe_thing = sub {
+      my($x)=@_;
+      my $ref = ref($x);
+      if(!$ref) { $x }
+      elsif(UNIVERSAL::can($x,'match_describe')) {
+        $x->match_describe($verbosity);
+      } elsif($ref eq 'ARRAY') {
+        "[\n".$o->match__indent(join(",\n",map{
+          $describe_thing->($_)
+          }@$x))."\n]";
+      } elsif($ref eq 'HASH') {
+        my $s = "";
+        for my $k (keys %$x) {
+          my $v = $x->{$k};
+          my $vs = $describe_thing->($v);
+          $s .= "\n  $k => " .$o->match__indent_except_top($vs).",";
+        }
+        $s .= "\n " if %$x;
+        "{$s}";
+      }
+      else { die "bug: $ref" }
+    };
+
     my $os = $o->match_string;
     if($verbosity > 1) {
       $os = $o->match__indent_except_top($os) if $os =~ /\n/;
@@ -41,30 +66,14 @@
     my $s = $o->match__describe_name_as($verbosity);
     $s .= "<".($o->match_boolean?"1":"0").",\"$os\",[";
     for my $v (@{$o->match_array}) {
-      my $vs = "";
-      if(ref($v) eq 'ARRAY') {
-        $vs = "[\n".$o->match__indent(join(",\n",map{
-          $_->match_describe($vp)
-          }@$v))."\n]";
-      } else {
-        $vs = $v->match_describe($vp);
-      }
+      my $vs = $describe_thing->($v);
       $s .= "\n".$o->match__indent($vs).",";
     }
     $s .= "\n " if @{$o->match_array};
     $s .= "],{";
     for my $k (keys(%{$o->match_hash})) {
       my $v = $o->match_hash->{$k};
-      my $vs = "";
-      if(ref($v) eq 'ARRAY') {
-        $vs = "[\n".$o->match__indent(join(",\n",map{
-          $_->match_describe($vp)
-          }@$v))."\n]";
-      } elsif(!ref($v)) {
-        $vs = $v;
-      } else {
-        $vs = $v->match_describe($vp);
-      }
+      my $vs = $describe_thing->($v);
       $s .= "\n  $k => " .$o->match__indent_except_top($vs).",";
     }
     $s .= "\n " if %{$o->match_hash};

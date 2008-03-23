@@ -15,7 +15,25 @@ $one;
     };
     $IRBuild::constructors{'expect_term'} = sub {
       my($m)=@_;
-    ir($m->{hash}{noun});
+    my $base = ir($m->{hash}{noun});
+for my $post (@{$m->{hash}{post}||[]}) {
+my $dotty = $post->{hash}{dotty};
+if($dotty) {
+  $base = IR::Call->new($m,$base,undef,ir($dotty->{hash}{ident}),ir($dotty->{hash}{semilist}));
+}
+else {
+  die "AST expect_term hander doesnt know what to do with: \n";
+}
+}
+$base;
+    };
+    $IRBuild::constructors{'post'} = sub {
+      my($m)=@_;
+    $m;
+    };
+    $IRBuild::constructors{'dotty:methodop'} = sub {
+      my($m)=@_;
+    $m;
     };
     $IRBuild::constructors{'term:expect_term'} = sub {
       my($m)=@_;
@@ -122,7 +140,35 @@ $one;
     };
     $IRBuild::constructors{'block'} = sub {
       my($m)=@_;
-    IR::Block->new($m,ir($m->{hash}{statementlist}))
+    IR::Block->new($m,ir($m->{hash}{statementlist}));
+    };
+    $IRBuild::constructors{'routine_declarator:routine_def'} = sub {
+      my($m)=@_;
+    IR::Sub->new($m,ir($m->{hash}{ident})->[0],ir($m->{hash}{multisig})->[0],ir($m->{hash}{block}));
+    };
+    $IRBuild::constructors{'signature'} = sub {
+      my($m)=@_;
+    IR::Sig->new($m,undef,ir($m->{hash}{parsep}));
+    };
+    $IRBuild::constructors{'parameter'} = sub {
+      my($m)=@_;
+    IR::Lit_SigArgument->new($m,ir($m->{hash}{param_var}));
+    };
+    $IRBuild::constructors{'param_var'} = sub {
+      my($m)=@_;
+    IR::Var->new($m,ir($m->{hash}{sigil}),ir($m->{hash}{twigil}),ir($m->{hash}{ident}));
+    };
+    $IRBuild::constructors{'package_declarator:class'} = sub {
+      my($m)=@_;
+    IR::PackageDeclarator->new($m,'class',ir($m->{hash}{package_def}->{hash}{module_name})->[0],ir($m->{hash}{package_def}->{hash}{block}));
+    };
+    $IRBuild::constructors{'fulltypename'} = sub {
+      my($m)=@_;
+    join("::",@{ir($m->{hash}{typename})});
+    };
+    $IRBuild::constructors{'typename'} = sub {
+      my($m)=@_;
+    ir($m->{hash}{name})
 ;
     };
 }

@@ -2,10 +2,18 @@
 #line 5 elf_a_src/prelude.pl
 package Main;
 use Perl6::Say;
+our @ARGS = @ARGV;
 
 #line 2 emitted_p5
 package Main;
 use Data::Dumper;
-say('hi!\\n')
+
+{ package Program;
+use Moose;
+use Perl6::Say;
+{sub main{{say('hi!\\n')}}}
+}
+;
+Program->new()->main(@ARGV)
 ;
 

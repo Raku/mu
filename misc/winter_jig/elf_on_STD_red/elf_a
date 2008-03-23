@@ -33,6 +33,31 @@ use warnings;
     my($o,$verbosity)=@_;
     $verbosity ||= 0;
     my $vp = $verbosity;
+
+    my $describe_thing;
+    $describe_thing = sub {
+      my($x)=@_;
+      my $ref = ref($x);
+      if(!$ref) { $x }
+      elsif(UNIVERSAL::can($x,'match_describe')) {
+        $x->match_describe($verbosity);
+      } elsif($ref eq 'ARRAY') {
+        "[\n".$o->match__indent(join(",\n",map{
+          $describe_thing->($_)
+          }@$x))."\n]";
+      } elsif($ref eq 'HASH') {
+        my $s = "";
+        for my $k (keys %$x) {
+          my $v = $x->{$k};
+          my $vs = $describe_thing->($v);
+          $s .= "\n  $k => " .$o->match__indent_except_top($vs).",";
+        }
+        $s .= "\n " if %$x;
+        "{$s}";
+      }
+      else { die "bug: $ref" }
+    };
+
     my $os = $o->match_string;
     if($verbosity > 1) {
       $os = $o->match__indent_except_top($os) if $os =~ /\n/;
@@ -46,30 +71,14 @@ use warnings;
     my $s = $o->match__describe_name_as($verbosity);
     $s .= "<".($o->match_boolean?"1":"0").",\"$os\",[";
     for my $v (@{$o->match_array}) {
-      my $vs = "";
-      if(ref($v) eq 'ARRAY') {
-        $vs = "[\n".$o->match__indent(join(",\n",map{
-          $_->match_describe($vp)
-          }@$v))."\n]";
-      } else {
-        $vs = $v->match_describe($vp);
-      }
+      my $vs = $describe_thing->($v);
       $s .= "\n".$o->match__indent($vs).",";
     }
     $s .= "\n " if @{$o->match_array};
     $s .= "],{";
     for my $k (keys(%{$o->match_hash})) {
       my $v = $o->match_hash->{$k};
-      my $vs = "";
-      if(ref($v) eq 'ARRAY') {
-        $vs = "[\n".$o->match__indent(join(",\n",map{
-          $_->match_describe($vp)
-          }@$v))."\n]";
-      } elsif(!ref($v)) {
-        $vs = $v;
-      } else {
-        $vs = $v->match_describe($vp);
-      }
+      my $vs = $describe_thing->($v);
       $s .= "\n  $k => " .$o->match__indent_except_top($vs).",";
     }
     $s .= "\n " if %{$o->match_hash};
@@ -104,11 +113,10 @@ use warnings;
     if($ref) {
       if(UNIVERSAL::can($x,'describe')) {
         $x->describe
-
       } elsif($ref eq 'ARRAY') {
         '['.join(",",map{$this->describe_anything($_)} @$x).']'
       } else {
-        die "bug";
+        die "bug: $ref";
       }
     } else {
       local $Data::Dumper::Terse = 1;
@@ -1177,7 +1185,25 @@ $one;
     };
     $IRBuild::constructors{'expect_term'} = sub {
       my($m)=@_;
-    ir($m->{hash}{noun});
+    my $base = ir($m->{hash}{noun});
+for my $post (@{$m->{hash}{post}||[]}) {
+my $dotty = $post->{hash}{dotty};
+if($dotty) {
+  $base = IR::Call->new($m,$base,undef,ir($dotty->{hash}{ident}),ir($dotty->{hash}{semilist}));
+}
+else {
+  die "AST expect_term hander doesnt know what to do with: \n";
+}
+}
+$base;
+    };
+    $IRBuild::constructors{'post'} = sub {
+      my($m)=@_;
+    $m;
+    };
+    $IRBuild::constructors{'dotty:methodop'} = sub {
+      my($m)=@_;
+    $m;
     };
     $IRBuild::constructors{'term:expect_term'} = sub {
       my($m)=@_;
@@ -1284,7 +1310,35 @@ $one;
     };
     $IRBuild::constructors{'block'} = sub {
       my($m)=@_;
-    IR::Block->new($m,ir($m->{hash}{statementlist}))
+    IR::Block->new($m,ir($m->{hash}{statementlist}));
+    };
+    $IRBuild::constructors{'routine_declarator:routine_def'} = sub {
+      my($m)=@_;
+    IR::Sub->new($m,ir($m->{hash}{ident})->[0],ir($m->{hash}{multisig})->[0],ir($m->{hash}{block}));
+    };
+    $IRBuild::constructors{'signature'} = sub {
+      my($m)=@_;
+    IR::Sig->new($m,undef,ir($m->{hash}{parsep}));
+    };
+    $IRBuild::constructors{'parameter'} = sub {
+      my($m)=@_;
+    IR::Lit_SigArgument->new($m,ir($m->{hash}{param_var}));
+    };
+    $IRBuild::constructors{'param_var'} = sub {
+      my($m)=@_;
+    IR::Var->new($m,ir($m->{hash}{sigil}),ir($m->{hash}{twigil}),ir($m->{hash}{ident}));
+    };
+    $IRBuild::constructors{'package_declarator:class'} = sub {
+      my($m)=@_;
+    IR::PackageDeclarator->new($m,'class',ir($m->{hash}{package_def}->{hash}{module_name})->[0],ir($m->{hash}{package_def}->{hash}{block}));
+    };
+    $IRBuild::constructors{'fulltypename'} = sub {
+      my($m)=@_;
+    join("::",@{ir($m->{hash}{typename})});
+    };
+    $IRBuild::constructors{'typename'} = sub {
+      my($m)=@_;
+    ir($m->{hash}{name})
 ;
     };
 }
@@ -1389,6 +1443,39 @@ $s;
 { package IR::Block; sub emit_p5 {
     my($n)=@_;
     '{'.join(";\n",@{IR->emit_p5_for($n->{statements})}).'}'
+  }
+}
+{ package IR::Sub; sub emit_p5 {
+    my($n)=@_;
+    'sub '.IR->emit_p5_for($n->{name}).'{'.IR->emit_p5_for($n->{sig}).IR->emit_p5_for($n->{block}).'}'
+  }
+}
+{ package IR::Sig; sub emit_p5 {
+    my($n)=@_;
+    my @a = @{IR->emit_p5_for($n->{positional})};
+if(!@a) { "" }
+else {
+  'my('.join(",",@{IR->emit_p5_for($n->{positional})}).')=@_;'."\n";
+}
+  }
+}
+{ package IR::Lit_SigArgument; sub emit_p5 {
+    my($n)=@_;
+    IR->emit_p5_for($n->{key})
+  }
+}
+{ package IR::PackageDeclarator; sub emit_p5 {
+    my($n)=@_;
+    ("\n{ package ".IR->emit_p5_for($n->{name}).";\n".
+ "use Moose;\n".
+ "use Perl6::Say;\n".
+ IR->emit_p5_for($n->{block}).
+ "\n}\n");
+  }
+}
+{ package IR::Call; sub emit_p5 {
+    my($n)=@_;
+    IR->emit_p5_for($n->{invocant}).'->'.IR->emit_p5_for($n->{method}).'('.join(",",@{IR->emit_p5_for($n->{arguments})||[]}).')'
 
   }
 }
@@ -1398,6 +1485,7 @@ sub Program::prelude {
   return "#line ".(__LINE__+1)." elf_a_src/prelude.pl\n".<<'END';
 package Main;
 use Perl6::Say;
+our @ARGS = @ARGV;
 END
 }
 #line 2 main.pl

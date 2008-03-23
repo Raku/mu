@@ -1,6 +1,8 @@
 
-say "hi!\n";
 
-#class Program {
-#};
-#Program.new().main(@*ARGV);
+class Program {
+  sub main () {
+    say "hi!\n";
+  }
+};
+Program.new().main(@*ARGV);

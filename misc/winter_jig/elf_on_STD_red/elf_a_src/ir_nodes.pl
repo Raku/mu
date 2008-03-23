@@ -8,11 +8,10 @@
     if($ref) {
       if(UNIVERSAL::can($x,'describe')) {
         $x->describe
-
       } elsif($ref eq 'ARRAY') {
         '['.join(",",map{$this->describe_anything($_)} @$x).']'
       } else {
-        die "bug";
+        die "bug: $ref";
       }
     } else {
       local $Data::Dumper::Terse = 1;

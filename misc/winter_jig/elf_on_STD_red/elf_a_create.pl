@@ -38,11 +38,10 @@ sub write_ir_nodes {
         if($ref) {
           if(UNIVERSAL::can($x,'describe')) {
             $x->describe
-
           } elsif($ref eq 'ARRAY') {
             '['.join(",",map{$this->describe_anything($_)} @$x).']'
           } else {
-            die "bug";
+            die "bug: $ref";
           }
         } else {
           local $Data::Dumper::Terse = 1;
@@ -105,9 +104,11 @@ sub write_ast_handlers {
     { package IRBuild;
   END
 
+  my %seen;
   for my $para (@paragraphs) {
     $para =~ /^([\w:]+)\n(.*)/s or die "bug";
     my($name,$body)=($1,$2);
+    die "Saw an AST handler for '$name' twice!\n" if $seen{$name}++;
 
     $body =~ s/(\$m(?:<\w+>)+)/ir($1)/g;
     $body =~ s/<(\w+)>/->{hash}{$1}/g;
