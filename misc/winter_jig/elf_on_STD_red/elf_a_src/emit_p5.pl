@@ -63,7 +63,12 @@ elsif(IR->emit_p5_for($n->{code}) =~ /^circumfix:(.+)/) {
   }
 }
 else {
-  IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
+  my $f = IR->emit_p5_for($n->{code});
+  if($f =~ /^\$\w+$/) {
+     $f.'->('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
+  }else{
+     '::'.$f.'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
+  }
 }
   }
 }
@@ -98,7 +103,7 @@ $s;
 }
 { package IR::Block; sub emit_p5 {
     my($n)=@_;
-    '{'.join(";\n",@{IR->emit_p5_for($n->{statements})}).'}'
+    ''.join(";\n",@{IR->emit_p5_for($n->{statements})}).''
   }
 }
 { package IR::Sub; sub emit_p5 {

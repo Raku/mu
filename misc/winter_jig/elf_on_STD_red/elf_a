@@ -1314,7 +1314,9 @@ $one;
     };
     $IRBuild::constructors{'routine_declarator:routine_def'} = sub {
       my($m)=@_;
-    IR::Sub->new($m,ir($m->{hash}{ident})->[0],ir($m->{hash}{multisig})->[0],ir($m->{hash}{block}));
+    my $ident = ir($m->{hash}{ident}) ? ir($m->{hash}{ident})->[0] : "";
+my $sig = ir($m->{hash}{multisig}) ? ir($m->{hash}{multisig})->[0] : IR::Sig->new($m,undef,[]);
+IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'routine_declarator:method_def'} = sub {
       my($m)=@_;
@@ -1411,7 +1413,12 @@ elsif(IR->emit_p5_for($n->{code}) =~ /^circumfix:(.+)/) {
   }
 }
 else {
-  IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
+  my $f = IR->emit_p5_for($n->{code});
+  if($f =~ /^\$\w+$/) {
+     $f.'->('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
+  }else{
+     '::'.$f.'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
+  }
 }
   }
 }
@@ -1446,7 +1453,7 @@ $s;
 }
 { package IR::Block; sub emit_p5 {
     my($n)=@_;
-    '{'.join(";\n",@{IR->emit_p5_for($n->{statements})}).'}'
+    ''.join(";\n",@{IR->emit_p5_for($n->{statements})}).''
   }
 }
 { package IR::Sub; sub emit_p5 {
@@ -1492,7 +1499,7 @@ else {
 sub Program::prelude {
   #XXX only Main is prelude'ed.
   return "#line ".(__LINE__+1)." elf_a_src/prelude.pl\n".<<'END';
-package Main;
+package main;
 use Perl6::Say;
 our @ARGS = @ARGV;
 END

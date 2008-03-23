@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #line 5 elf_a_src/prelude.pl
-package Main;
+package main;
 use Perl6::Say;
 our @ARGS = @ARGV;
 
@@ -11,7 +11,7 @@ use Data::Dumper;
 { package Program;
 use Moose;
 use Perl6::Say;
-{sub main{my $self=shift;{say('hi!\\n')}}}
+sub main{my $self=shift;::say('hi!\\n')}
 }
 ;
 Program->new()->main(@ARGV)

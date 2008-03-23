@@ -144,7 +144,9 @@ $one;
     };
     $IRBuild::constructors{'routine_declarator:routine_def'} = sub {
       my($m)=@_;
-    IR::Sub->new($m,ir($m->{hash}{ident})->[0],ir($m->{hash}{multisig})->[0],ir($m->{hash}{block}));
+    my $ident = ir($m->{hash}{ident}) ? ir($m->{hash}{ident})->[0] : "";
+my $sig = ir($m->{hash}{multisig}) ? ir($m->{hash}{multisig})->[0] : IR::Sig->new($m,undef,[]);
+IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'routine_declarator:method_def'} = sub {
       my($m)=@_;
