@@ -344,7 +344,8 @@ class CategoryMatcher
     @member_index.key? name
   end
   def longest_token_match(gram,scanr)
-    @member_cache ||= @member_index.values
+    @member_cache ||= @member_index.values.sort{|a,b|
+      b.leading_re.to_s.length <=> a.leading_re.to_s.length}
     b0 = b1 = scanr.pos
     if @is_rule_category
       gram.wsp or return false
