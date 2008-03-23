@@ -33,8 +33,9 @@
 }
 { package IR::CompUnit; sub emit_p5 {
     my($n)=@_;
-    'package Main;
-use Perl6::Say; use Data::Dumper;
+    "\x23".'line 2 emitted_p5
+package Main;
+use Data::Dumper;
 '.join(";\n",@{IR->emit_p5_for($n->{statements})})
   }
 }

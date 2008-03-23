@@ -14,7 +14,7 @@ sub main {
   my $files = join(" ",qw(
     head.pl Match.pm
     ir_nodes.pl ast_to_ir.pl ast_handlers.pl
-    emit_p5.pl main.pl ));
+    emit_p5.pl prelude.pl main.pl ));
   my $cmd = "(cd elf_a_src/; cat $files) > ./elf_a";
   system($cmd) == 0 or die $!;
 
