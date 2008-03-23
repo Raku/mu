@@ -17,7 +17,7 @@
     bless $o,$cls;
   }
   sub from { shift->{from} }
-  sub to { shift->{from} }
+  sub to { shift->{to} }
 
   sub match_string { shift->{str} }
   sub match_array { shift->{array}||[] }

@@ -17,7 +17,7 @@ sub text2file {
 sub load_paragraphs {
   my($file)=@_;
   my $text = `cat $file`;
-  $text =~ s/\A\s*#.*\n//mg;
+  $text =~ s/^\s*#.*\n//mg;
   $text =~ s/[ ]*#.*//g;
 #  print $text;
   $text =~ s/^([ \t]*\n)*//;

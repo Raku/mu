@@ -79,6 +79,7 @@ default Run code.
     if(!$tree) {
       exit(1);
     }
+    #print Data::Dumper::Dumper($tree);
     print $tree->match_describe(1),"\n" if $verbose;
     my $ir = IRBuild->make_ir_from_Match_tree($tree);
     print "\n",$ir->describe,"\n" if $verbose;

@@ -22,7 +22,7 @@ use warnings;
     bless $o,$cls;
   }
   sub from { shift->{from} }
-  sub to { shift->{from} }
+  sub to { shift->{to} }
 
   sub match_string { shift->{str} }
   sub match_array { shift->{array}||[] }
@@ -1411,6 +1411,7 @@ use Data::Dumper;
     my($n)=@_;
     if(IR->emit_p5_for($n->{code}) =~ /^infix:(.+)$/) {
   my $op = $1;
+  $op = '=' if $op eq 'str';
   my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
   if($op eq '~'){ "($l . $r)" }
   elsif($op eq ','){ "$l, $r" }
@@ -1613,6 +1614,7 @@ default Run code.
     if(!$tree) {
       exit(1);
     }
+    #print Data::Dumper::Dumper($tree);
     print $tree->match_describe(1),"\n" if $verbose;
     my $ir = IRBuild->make_ir_from_Match_tree($tree);
     print "\n",$ir->describe,"\n" if $verbose;

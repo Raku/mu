@@ -48,6 +48,7 @@ use Data::Dumper;
     my($n)=@_;
     if(IR->emit_p5_for($n->{code}) =~ /^infix:(.+)$/) {
   my $op = $1;
+  $op = '=' if $op eq 'str';
   my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
   if($op eq '~'){ "($l . $r)" }
   elsif($op eq ','){ "$l, $r" }
