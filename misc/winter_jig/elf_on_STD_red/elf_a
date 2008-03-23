@@ -1185,25 +1185,30 @@ $one;
     };
     $IRBuild::constructors{'expect_term'} = sub {
       my($m)=@_;
-    my $base = ir($m->{hash}{noun});
+    local $blackboard::expect_term_base = ir($m->{hash}{noun});
 for my $post (@{$m->{hash}{post}||[]}) {
-my $dotty = $post->{hash}{dotty};
-if($dotty) {
-  $base = IR::Call->new($m,$base,undef,ir($dotty->{hash}{ident}),ir($dotty->{hash}{semilist}));
+$blackboard::expect_term_base = ir($post)
 }
-else {
-  die "AST expect_term hander doesnt know what to do with: \n";
-}
-}
-$base;
+$blackboard::expect_term_base;
     };
     $IRBuild::constructors{'post'} = sub {
       my($m)=@_;
-    $m;
+      my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
+die("Unexpectedly more than 1 field - dont know which to choose\n".
+    $m->match_describe."\n") if(@keys > 1);
+my $one = ir($m->{hash}{$keys[0]});
+$one;
     };
     $IRBuild::constructors{'dotty:methodop'} = sub {
       my($m)=@_;
-    $m;
+    IR::Call->new($m,$blackboard::expect_term_base,undef,ir($m->{hash}{ident}),ir($m->{hash}{semilist}));
+    };
+    $IRBuild::constructors{'dotty:postcircumfix'} = sub {
+      my($m)=@_;
+    my $s = ($m->match_string);
+my $name = substr($s,0,1).' '.substr($s,-1,1);
+my $ident = "postcircumfix:".$name;
+IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge_name}));
     };
     $IRBuild::constructors{'term:expect_term'} = sub {
       my($m)=@_;
@@ -1484,15 +1489,22 @@ else {
     my($n)=@_;
     ("\n{ package ".IR->emit_p5_for($n->{name}).";\n".
  "use Moose;\n".
- "use Perl6::Say;\n".
+ "use Moose::Autobox; use autobox::Core;\n".
  IR->emit_p5_for($n->{block}).
  "\n}\n");
   }
 }
 { package IR::Call; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{invocant}).'->'.IR->emit_p5_for($n->{method}).'('.join(",",@{IR->emit_p5_for($n->{arguments})||[]}).')'
-
+    my $method = IR->emit_p5_for($n->{method});
+if($method =~ 'postcircumfix:(.*)') {
+  my $op = $1;
+  my $arg = join(",",@{IR->emit_p5_for($n->{arguments})||[]});
+  $op =~ s/ /$arg/;
+  IR->emit_p5_for($n->{invocant}).'->'.$op;
+} else {
+  IR->emit_p5_for($n->{invocant}).'->'.IR->emit_p5_for($n->{method}).'('.join(",",@{IR->emit_p5_for($n->{arguments})||[]}).')'
+}
   }
 }
 #line 2 prelude.pl
@@ -1501,6 +1513,9 @@ sub Program::prelude {
   return "#line ".(__LINE__+1)." elf_a_src/prelude.pl\n".<<'END';
 package main;
 use Perl6::Say;
+use Moose::Autobox;
+use autobox::Core;
+
 our @ARGS = @ARGV;
 END
 }

@@ -134,14 +134,21 @@ else {
     my($n)=@_;
     ("\n{ package ".IR->emit_p5_for($n->{name}).";\n".
  "use Moose;\n".
- "use Perl6::Say;\n".
+ "use Moose::Autobox; use autobox::Core;\n".
  IR->emit_p5_for($n->{block}).
  "\n}\n");
   }
 }
 { package IR::Call; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{invocant}).'->'.IR->emit_p5_for($n->{method}).'('.join(",",@{IR->emit_p5_for($n->{arguments})||[]}).')'
-
+    my $method = IR->emit_p5_for($n->{method});
+if($method =~ 'postcircumfix:(.*)') {
+  my $op = $1;
+  my $arg = join(",",@{IR->emit_p5_for($n->{arguments})||[]});
+  $op =~ s/ /$arg/;
+  IR->emit_p5_for($n->{invocant}).'->'.$op;
+} else {
+  IR->emit_p5_for($n->{invocant}).'->'.IR->emit_p5_for($n->{method}).'('.join(",",@{IR->emit_p5_for($n->{arguments})||[]}).')'
+}
   }
 }

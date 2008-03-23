@@ -15,25 +15,30 @@ $one;
     };
     $IRBuild::constructors{'expect_term'} = sub {
       my($m)=@_;
-    my $base = ir($m->{hash}{noun});
+    local $blackboard::expect_term_base = ir($m->{hash}{noun});
 for my $post (@{$m->{hash}{post}||[]}) {
-my $dotty = $post->{hash}{dotty};
-if($dotty) {
-  $base = IR::Call->new($m,$base,undef,ir($dotty->{hash}{ident}),ir($dotty->{hash}{semilist}));
+$blackboard::expect_term_base = ir($post)
 }
-else {
-  die "AST expect_term hander doesnt know what to do with: \n";
-}
-}
-$base;
+$blackboard::expect_term_base;
     };
     $IRBuild::constructors{'post'} = sub {
       my($m)=@_;
-    $m;
+      my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
+die("Unexpectedly more than 1 field - dont know which to choose\n".
+    $m->match_describe."\n") if(@keys > 1);
+my $one = ir($m->{hash}{$keys[0]});
+$one;
     };
     $IRBuild::constructors{'dotty:methodop'} = sub {
       my($m)=@_;
-    $m;
+    IR::Call->new($m,$blackboard::expect_term_base,undef,ir($m->{hash}{ident}),ir($m->{hash}{semilist}));
+    };
+    $IRBuild::constructors{'dotty:postcircumfix'} = sub {
+      my($m)=@_;
+    my $s = ($m->match_string);
+my $name = substr($s,0,1).' '.substr($s,-1,1);
+my $ident = "postcircumfix:".$name;
+IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge_name}));
     };
     $IRBuild::constructors{'term:expect_term'} = sub {
       my($m)=@_;
