@@ -179,7 +179,15 @@ IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'typename'} = sub {
       my($m)=@_;
-    ir($m->{hash}{name})
+    ir($m->{hash}{name});
+    };
+    $IRBuild::constructors{'circumfix:pblock'} = sub {
+      my($m)=@_;
+    if(not ir($m->{hash}{lambda}) and not ir($m->{hash}{signature})) {
+IR::Lit_Hash->new($m,ir($m->{hash}{block}->{hash}{statementlist}))
+} else {
+die "AST handler circumfix:pblock partially unimplemented";
+}
 ;
     };
 }

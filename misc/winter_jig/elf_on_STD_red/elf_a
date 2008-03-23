@@ -1349,7 +1349,15 @@ IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'typename'} = sub {
       my($m)=@_;
-    ir($m->{hash}{name})
+    ir($m->{hash}{name});
+    };
+    $IRBuild::constructors{'circumfix:pblock'} = sub {
+      my($m)=@_;
+    if(not ir($m->{hash}{lambda}) and not ir($m->{hash}{signature})) {
+IR::Lit_Hash->new($m,ir($m->{hash}{block}->{hash}{statementlist}))
+} else {
+die "AST handler circumfix:pblock partially unimplemented";
+}
 ;
     };
 }
@@ -1505,6 +1513,11 @@ if($method =~ 'postcircumfix:(.*)') {
 } else {
   IR->emit_p5_for($n->{invocant}).'->'.IR->emit_p5_for($n->{method}).'('.join(",",@{IR->emit_p5_for($n->{arguments})||[]}).')'
 }
+  }
+}
+{ package IR::Lit_Hash; sub emit_p5 {
+    my($n)=@_;
+    '{'.join(",",@{IR->emit_p5_for($n->{hash})}).'}'
   }
 }
 #line 2 prelude.pl

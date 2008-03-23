@@ -152,3 +152,8 @@ if($method =~ 'postcircumfix:(.*)') {
 }
   }
 }
+{ package IR::Lit_Hash; sub emit_p5 {
+    my($n)=@_;
+    '{'.join(",",@{IR->emit_p5_for($n->{hash})}).'}'
+  }
+}
