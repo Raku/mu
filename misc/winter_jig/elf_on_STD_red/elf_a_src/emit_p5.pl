@@ -34,7 +34,7 @@
 { package IR::CompUnit; sub emit_p5 {
     my($n)=@_;
     'package Main;
-use Perl6::Say;
+use Perl6::Say; use Data::Dumper;
 '.join(";\n",@{IR->emit_p5_for($n->{statements})})
   }
 }
@@ -49,13 +49,17 @@ use Perl6::Say;
   my $op = $1;
   my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
   if($op eq '~'){ "($l . $r)" }
+  elsif($op eq ','){ "$l, $r" }
   else { "($l $op $r)" }
 }
 elsif(IR->emit_p5_for($n->{code}) =~ /^circumfix:(.+)/) {
   my $op = $1;
   my($arg)=@{IR->emit_p5_for($n->{arguments})};
-  $op =~ s/ /$arg/;
-  $op  
+  if(undef) {
+  } else {
+    $op =~ s/ /$arg/;
+    $op  
+  }
 }
 else {
   IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
@@ -64,7 +68,7 @@ else {
 }
 { package IR::Decl; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var})
+    IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
   }
 }
 { package IR::Use; sub emit_p5 {
@@ -74,7 +78,9 @@ else {
 }
 { package IR::Val_Buf; sub emit_p5 {
     my($n)=@_;
-    "'".IR->emit_p5_for($n->{buf})."'"
+    local $Data::Dumper::Terse = 1;
+my $s = Data::Dumper::Dumper(IR->emit_p5_for($n->{buf})); chomp($s);
+$s;
   }
 }
 { package IR::Var; sub emit_p5 {
@@ -84,12 +90,14 @@ else {
 }
 { package IR::If; sub emit_p5 {
     my($n)=@_;
-    'if('.IR->emit_p5_for($n->{cond}).")\n".IR->emit_p5_for($n->{body}).IR->emit_p5_for($n->{otherwise})
+    ('if('.IR->emit_p5_for($n->{test}).")\n".IR->emit_p5_for($n->{body})."\n"
+.join("",map{'elsif('.$_->[0].")\n".$_->[1]."\n"} @{IR->emit_p5_for($n->{elsif})})
+.(IR->emit_p5_for($n->{else}) ?  "else\n".IR->emit_p5_for($n->{else})->[0] : ""))
   }
 }
 { package IR::Block; sub emit_p5 {
     my($n)=@_;
-    '{'.join(";\n",IR->emit_p5_for($n->{statements})).'}'
+    '{'.join(";\n",@{IR->emit_p5_for($n->{statements})}).'}'
 
   }
 }

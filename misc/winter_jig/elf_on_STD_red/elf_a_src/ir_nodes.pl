@@ -465,35 +465,35 @@
 { package IR::If;
   @IR::If::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$cond,$body,$otherwise)=@_;
+    my($cls,$match,$test,$body,$elsif,$else)=@_;
     my %h;
-    @h{'match','cond','body','otherwise'}=($match,$cond,$body,$otherwise);
+    @h{'match','test','body','elsif','else'}=($match,$test,$body,$elsif,$else);
     bless \%h,$cls;
   }
   sub node_name { 'If' }
   sub match { shift->{match} }
-  sub field_names { qw{ cond body otherwise } }
-  sub field_values { my($self)=@_; @$self{'cond','body','otherwise'} }
+  sub field_names { qw{ test body elsif else } }
+  sub field_values { my($self)=@_; @$self{'test','body','elsif','else'} }
   sub describe {
     my($self)=@_;
-    "If(".join(",",map{$self->describe_anything($_)}@$self{'cond','body','otherwise'}).")"
+    "If(".join(",",map{$self->describe_anything($_)}@$self{'test','body','elsif','else'}).")"
   }
 }
 { package IR::While;
   @IR::While::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$cond,$body)=@_;
+    my($cls,$match,$test,$body)=@_;
     my %h;
-    @h{'match','cond','body'}=($match,$cond,$body);
+    @h{'match','test','body'}=($match,$test,$body);
     bless \%h,$cls;
   }
   sub node_name { 'While' }
   sub match { shift->{match} }
-  sub field_names { qw{ cond body } }
-  sub field_values { my($self)=@_; @$self{'cond','body'} }
+  sub field_names { qw{ test body } }
+  sub field_values { my($self)=@_; @$self{'test','body'} }
   sub describe {
     my($self)=@_;
-    "While(".join(",",map{$self->describe_anything($_)}@$self{'cond','body'}).")"
+    "While(".join(",",map{$self->describe_anything($_)}@$self{'test','body'}).")"
   }
 }
 { package IR::Decl;

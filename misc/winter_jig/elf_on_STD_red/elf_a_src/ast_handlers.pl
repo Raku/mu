@@ -41,6 +41,10 @@ $one;
       my($m)=@_;
     ($m->match_string);
     };
+    $IRBuild::constructors{'module_name:normal'} = sub {
+      my($m)=@_;
+    ($m->match_string);
+    };
     $IRBuild::constructors{'term:listop'} = sub {
       my($m)=@_;
     IR::Apply->new($m,ir($m->{hash}{ident}),[ir($m->{hash}{arglist})]);
@@ -94,7 +98,11 @@ IR::Apply->new($m,"circumfix:".$name,ir($m->{hash}{kludge_name}));
     };
     $IRBuild::constructors{'statement_control:if'} = sub {
       my($m)=@_;
-    IR::If->new($m,[ir($m->{hash}{if_expr}),ir($m->{hash}{if_block}),@{ir($m->{hash}{elsif})}],ir($m->{hash}{else}));
+    IR::If->new($m,ir($m->{hash}{if_expr}),ir($m->{hash}{if_block}),ir($m->{hash}{elsif}),ir($m->{hash}{else}));
+    };
+    $IRBuild::constructors{'elsif'} = sub {
+      my($m)=@_;
+    [ir($m->{hash}{elsif_expr}),ir($m->{hash}{elsif_block})];
     };
     $IRBuild::constructors{'if__else'} = sub {
       my($m)=@_;
