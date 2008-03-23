@@ -1449,17 +1449,38 @@ class Perl < Grammar
     end
 
     def method_def
-        rul{ (let_pos{ident and wsp and quesRULE{multisig}} or
+        rul{
+            b=pos
+            i=s=nil
+            (let_pos{i= ident and wsp and s= quesRULE{multisig}} or
               let_pos{before{sigil and scan(/\.[\[\{\(]/)} and sigil and postcircumfix }) and wsp and
-            starRULE{trait} and wsp and
-            block }
+            t= starRULE{trait} and wsp and
+            k= block and
+            (h={};
+             _hkv(h,:ident,i)
+             _hkv(h,:multisig,s)
+             _hkv(h,:trait,t)
+             _hkv(h,:block,k)
+             _match_from(b,h,:method_def))
+        }
     end
 
+    #R# untested
     def regex_def
-        rul{ quesRULE{ident} and wsp and
-            starRULE{trait} and wsp and
-            quesRULE{ scan(/:?\(/) and wsp and signature and wsp and scan(/\)/) } and wsp and
-            regex_block }
+        rul{
+            b=pos
+            s=[]
+            i= quesRULE{ident} and wsp and
+            t= starRULE{trait} and wsp and
+            quesRULE{ scan(/:?\(/) and wsp and si= signature and si.push(si) and wsp and scan(/\)/) } and wsp and
+            k= regex_block and
+            (h={};
+             _hkv(h,:ident,i)
+             _hkv(h,:signature,s)
+             _hkv(h,:trait,t)
+             _hkv(h,:regex_block,k)
+             _match_from(b,h,:regex_def))
+        }
     end
 
     # XXX redundant with routine_def?

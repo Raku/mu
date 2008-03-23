@@ -106,6 +106,11 @@ $s;
     'sub '.IR->emit_p5_for($n->{name}).'{'.IR->emit_p5_for($n->{sig}).IR->emit_p5_for($n->{block}).'}'
   }
 }
+{ package IR::Method; sub emit_p5 {
+    my($n)=@_;
+    'sub '.IR->emit_p5_for($n->{name}).'{my $self=shift;'.IR->emit_p5_for($n->{sig}).IR->emit_p5_for($n->{block}).'}'
+  }
+}
 { package IR::Sig; sub emit_p5 {
     my($n)=@_;
     my @a = @{IR->emit_p5_for($n->{positional})};

@@ -146,6 +146,10 @@ $one;
       my($m)=@_;
     IR::Sub->new($m,ir($m->{hash}{ident})->[0],ir($m->{hash}{multisig})->[0],ir($m->{hash}{block}));
     };
+    $IRBuild::constructors{'routine_declarator:method_def'} = sub {
+      my($m)=@_;
+    IR::Method->new($m,ir($m->{hash}{ident}),ir($m->{hash}{multisig})->[0],ir($m->{hash}{block}));
+    };
     $IRBuild::constructors{'signature'} = sub {
       my($m)=@_;
     IR::Sig->new($m,undef,ir($m->{hash}{parsep}));

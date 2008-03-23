@@ -1,7 +1,7 @@
 
 
 class Program {
-  sub main () {
+  method main () {
     say "hi!\n";
   }
 };

@@ -1316,6 +1316,10 @@ $one;
       my($m)=@_;
     IR::Sub->new($m,ir($m->{hash}{ident})->[0],ir($m->{hash}{multisig})->[0],ir($m->{hash}{block}));
     };
+    $IRBuild::constructors{'routine_declarator:method_def'} = sub {
+      my($m)=@_;
+    IR::Method->new($m,ir($m->{hash}{ident}),ir($m->{hash}{multisig})->[0],ir($m->{hash}{block}));
+    };
     $IRBuild::constructors{'signature'} = sub {
       my($m)=@_;
     IR::Sig->new($m,undef,ir($m->{hash}{parsep}));
@@ -1448,6 +1452,11 @@ $s;
 { package IR::Sub; sub emit_p5 {
     my($n)=@_;
     'sub '.IR->emit_p5_for($n->{name}).'{'.IR->emit_p5_for($n->{sig}).IR->emit_p5_for($n->{block}).'}'
+  }
+}
+{ package IR::Method; sub emit_p5 {
+    my($n)=@_;
+    'sub '.IR->emit_p5_for($n->{name}).'{my $self=shift;'.IR->emit_p5_for($n->{sig}).IR->emit_p5_for($n->{block}).'}'
   }
 }
 { package IR::Sig; sub emit_p5 {
