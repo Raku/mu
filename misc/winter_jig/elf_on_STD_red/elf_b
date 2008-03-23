@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+#line 5 elf_a_src/prelude.pl
+package Main;
+use Perl6::Say;
+
+#line 2 emitted_p5
+package Main;
+use Data::Dumper;
+say('hi!\\n')
+;
+

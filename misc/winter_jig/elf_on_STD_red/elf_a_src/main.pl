@@ -54,6 +54,7 @@ default Run code.
     my $prelude = "";
     $prelude = $self->prelude if $include_prelude || !$dont_run;
     $p5_code = $prelude."\n".$p5_code;
+    $p5_code = "#!/usr/bin/perl -w\n".$p5_code;
     if($dont_run) {
       if(not $output_file) {
         print $p5_code,"\n";

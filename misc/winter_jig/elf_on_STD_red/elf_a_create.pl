@@ -18,6 +18,9 @@ sub main {
   my $cmd = "(cd elf_a_src/; cat $files) > ./elf_a";
   system($cmd) == 0 or die $!;
 
+  if(@ARGV && $ARGV[0] eq '--create-only') {
+    exit(0);
+  }
   exec("./elf_a",@ARGV);
   die "Exec failed $!";
 }
