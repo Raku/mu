@@ -82,7 +82,9 @@ IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge
     };
     $IRBuild::constructors{'infix'} = sub {
       my($m)=@_;
-    IR::Apply->new($m,"infix:".($m->match_string),[ir($m->{hash}{left}),ir($m->{hash}{right})]);
+    my $op = ($m->match_string);
+$op = '=' if $op eq 'str';
+IR::Apply->new($m,"infix:".$op,[ir($m->{hash}{left}),ir($m->{hash}{right})]);
     };
     $IRBuild::constructors{'scope_declarator:my'} = sub {
       my($m)=@_;
