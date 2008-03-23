@@ -499,18 +499,18 @@
 { package IR::Decl;
   @IR::Decl::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$decl,$type,$var)=@_;
+    my($cls,$match,$decl,$type,$var,$default)=@_;
     my %h;
-    @h{'match','decl','type','var'}=($match,$decl,$type,$var);
+    @h{'match','decl','type','var','default'}=($match,$decl,$type,$var,$default);
     bless \%h,$cls;
   }
   sub node_name { 'Decl' }
   sub match { shift->{match} }
-  sub field_names { qw{ decl type var } }
-  sub field_values { my($self)=@_; @$self{'decl','type','var'} }
+  sub field_names { qw{ decl type var default } }
+  sub field_values { my($self)=@_; @$self{'decl','type','var','default'} }
   sub describe {
     my($self)=@_;
-    "Decl(".join(",",map{$self->describe_anything($_)}@$self{'decl','type','var'}).")"
+    "Decl(".join(",",map{$self->describe_anything($_)}@$self{'decl','type','var','default'}).")"
   }
 }
 { package IR::Sig;

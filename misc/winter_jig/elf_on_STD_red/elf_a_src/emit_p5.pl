@@ -46,14 +46,25 @@ use Perl6::Say;
 { package IR::Apply; sub emit_p5 {
     my($n)=@_;
     if(IR->emit_p5_for($n->{code}) =~ /^infix:(.+)$/) {
-  my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
   my $op = $1;
+  my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
   if($op eq '~'){ "($l . $r)" }
   else { "($l $op $r)" }
+}
+elsif(IR->emit_p5_for($n->{code}) =~ /^circumfix:(.+)/) {
+  my $op = $1;
+  my($arg)=@{IR->emit_p5_for($n->{arguments})};
+  $op =~ s/ /$arg/;
+  $op  
 }
 else {
   IR->emit_p5_for($n->{code}).'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')'
 }
+  }
+}
+{ package IR::Decl; sub emit_p5 {
+    my($n)=@_;
+    IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var})
   }
 }
 { package IR::Use; sub emit_p5 {
@@ -64,6 +75,11 @@ else {
 { package IR::Val_Buf; sub emit_p5 {
     my($n)=@_;
     "'".IR->emit_p5_for($n->{buf})."'"
+  }
+}
+{ package IR::Var; sub emit_p5 {
+    my($n)=@_;
+    IR->emit_p5_for($n->{sigil}).IR->emit_p5_for($n->{name})
   }
 }
 { package IR::If; sub emit_p5 {

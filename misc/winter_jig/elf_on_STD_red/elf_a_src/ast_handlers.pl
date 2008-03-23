@@ -17,6 +17,10 @@ $one;
       my($m)=@_;
     ir($m->{hash}{noun});
     };
+    $IRBuild::constructors{'term:expect_term'} = sub {
+      my($m)=@_;
+    ir($m->{hash}{noun});
+    };
     $IRBuild::constructors{'integer'} = sub {
       my($m)=@_;
     IR::Val_Int->new($m,($m->match_string));
@@ -52,6 +56,41 @@ $one;
     $IRBuild::constructors{'infix'} = sub {
       my($m)=@_;
     IR::Apply->new($m,"infix:".($m->match_string),[ir($m->{hash}{left}),ir($m->{hash}{right})]);
+    };
+    $IRBuild::constructors{'scope_declarator:my'} = sub {
+      my($m)=@_;
+    my $vd = ir($m->{hash}{scoped});
+IR::Decl->new($m,'my',undef,$vd->[0],$vd->[1]);
+    };
+    $IRBuild::constructors{'scoped'} = sub {
+      my($m)=@_;
+      my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
+die("Unexpectedly more than 1 field - dont know which to choose\n".
+    $m->match_describe."\n") if(@keys > 1);
+my $one = ir($m->{hash}{$keys[0]});
+$one;
+    };
+    $IRBuild::constructors{'variable_decl'} = sub {
+      my($m)=@_;
+    [ir($m->{hash}{variable}),ir($m->{hash}{default_value})];
+    };
+    $IRBuild::constructors{'variable'} = sub {
+      my($m)=@_;
+    IR::Var->new($m,ir($m->{hash}{sigil}),ir($m->{hash}{twigil}),ir($m->{hash}{desigilname}));
+    };
+    $IRBuild::constructors{'sigil'} = sub {
+      my($m)=@_;
+    ($m->match_string);
+    };
+    $IRBuild::constructors{'twigil'} = sub {
+      my($m)=@_;
+    ($m->match_string);
+    };
+    $IRBuild::constructors{'circumfix'} = sub {
+      my($m)=@_;
+    my $s = ($m->match_string);
+my $name = substr($s,0,1).' '.substr($s,-1,1);
+IR::Apply->new($m,"circumfix:".$name,ir($m->{hash}{kludge_name}));
     };
     $IRBuild::constructors{'statement_control:if'} = sub {
       my($m)=@_;
