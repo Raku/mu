@@ -13,7 +13,7 @@ end
 
 def main
   start = '_UNIT'
-  quiet = yaml = false
+  quiet = yaml = dump5 = dump6 = false
   code = nil
   if ARGV.empty?
     print "\nRun #{$0} --help  to get help.\n";
@@ -30,6 +30,14 @@ def main
   if ARGV[0] == '--yaml'
     ARGV.shift
     yaml = true
+  end
+  if ARGV[0] == '--dump5'
+    ARGV.shift
+    dump5 = true
+  end
+  if ARGV[0] == '--dump6'
+    ARGV.shift
+    dump6 = true
   end
   if m = ARGV[0].match(/--start=(\w+)/)
     ARGV.shift
@@ -50,18 +58,33 @@ def main
   $:.push(File.dirname($0))
   require 'std'
   
+  kibitz = false
   pn = Perl.new(code)
-  tree = pn.send(start.to_sym)
-  if yaml
+  tree=nil
+  STDERR.print "parsing...\n" if kibitz
+  begin 
+    tree = pn.send(start.to_sym)
+  rescue Interrupt
+    exit(1)
+  end
+  if dump5
+    print tree.to_fastdump5
+  elsif dump6
+    print tree.to_fastdump6
+  elsif yaml
     tree.prepare_for_yaml_dump if tree
+    STDERR.print "yaml dumping...\n" if kibitz
     yml = YAML::dump(tree)+"\n"
+    STDERR.print "yaml gsub'ing...\n" if kibitz
     p5yml = yml
     p5yml.gsub!(/^(\s*):/,'\1')
     p5yml.gsub!(/^(\s*rule: ):/,'\1')
     p5yml.gsub!(/ !ruby\/object:Match/,' !!perl/hash:Match')
+    STDERR.print "done.\n" if kibitz
     print p5yml
   else
-    p tree
+    STDERR.print "describing...\n" if kibitz
+    print tree.match_describe
   end
 end
 main

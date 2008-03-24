@@ -69,7 +69,7 @@ class Match
   def as_b; @bool end; def as_s; str end; def as_a; [] end; def as_h; @hash end
   def match_beg; @from end; def match_end; @to end
   def match_describe_name; "#{super}:#{rule ? rule : 'nil'}" end
-  def inspect; match_describe end
+  #def inspect; match_describe end
 end
 
 
@@ -90,10 +90,9 @@ class Match
 
   def perl; inspect; end #R XXX hack
   def prepare_for_yaml_dump
-    if instance_variables.include?(:@on_str)
-      @str = str
-      remove_instance_variable(:@on_str)
-    end
+    @str = str
+    #remove_instance_variable(:@str)
+    remove_instance_variable(:@on_str)
     scrub = proc{|x|
       if x.respond_to?(:prepare_for_yaml_dump)
         x.prepare_for_yaml_dump
@@ -110,3 +109,60 @@ class Match
   end
 end
 
+
+class Array
+  def to_fastdump5; '['+map{|e| e.to_fastdump5}.join(",")+']'; end
+  def to_fastdump6; '['+map{|e| e.to_fastdump6}.join(",")+']'; end
+end
+class Hash
+  def to_fastdump5; '{'+map{|k,v| k+' => '+v.to_fastdump5}.join(",")+'}' end
+  def to_fastdump6; '{'+map{|k,v| k+' , '+v.to_fastdump6}.join(",")+'}' end
+end
+class String
+  def to_fastdump5; inspect end
+  def to_fastdump6; inspect end
+end
+class Symbol
+  def to_fastdump5; to_s.inspect end
+  def to_fastdump6; to_s.inspect end
+end
+class FalseClass
+  def to_fastdump5; '0' end
+  def to_fastdump6; 'false' end
+end
+class Fixnum
+  def to_fastdump5; inspect end
+  def to_fastdump6; inspect end
+end
+class Match
+  def to_fastdump5
+    b = as_b ? '1' : '0'
+    s = "'"+str.gsub(/([\\'])/){|w|"\\#{w}"}+"'"
+    #a = as_a.map{|e| "\n"+e.to_fastdump5+"," }.join("")
+    #a += "\n" if a != ""
+    h = as_h.map{|k,v|
+      vs = v.to_fastdump5
+      "\n  #{k} => #{vs},"
+    }.join("")
+    h += "\n" if h != ""
+    f = match_beg
+    t = match_end
+    r = @rule.to_s.inspect
+    "match(#{r},#{s},#{f},#{t},{#{h}})"
+  end
+  def to_fastdump6
+    b = as_b ? '1' : '0'
+    s = "'"+str.gsub(/([\\'])/){|w|"\\#{w}"}+"'"
+    #a = as_a.map{|e| "\n"+e.to_fastdump6+"," }.join("")
+    #a += "\n" if a != ""
+    h = as_h.map{|k,v|
+      vs = v.to_fastdump6
+      "\n  #{k} => #{vs},"
+    }.join("")
+    h += "\n" if h != ""
+    f = match_beg
+    t = match_end
+    r = @rule.to_s.inspect
+    "match(#{r},#{s},#{f},#{t},{#{h}})"
+  end
+end
