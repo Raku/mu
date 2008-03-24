@@ -70,6 +70,7 @@ class Match
   def match_beg; @from end; def match_end; @to end
   def match_describe_name; "#{super}:#{rule ? rule : 'nil'}" end
   #def inspect; match_describe end
+  #def inspect; STDERR.print "inspection refused - yaml debugging test\n" end
 end
 
 

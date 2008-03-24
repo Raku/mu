@@ -10,6 +10,12 @@ EXAMPLE
 
 NOTES
 
+STD_red_run is currently much faster in ruby 1.9 than 1.8.
+If you compile large things, you probably want to make sure its #! line finds 1.9.
+Either by having 1.9's "ruby" first in your PATH, or by editing the #! line.
+
+--yaml won't work under ruby 1.9 without a patch applied to 1.9's yaml.rb.
+ *** But --yaml isn't being used now, so this is no longer needed.
 Error ruby/1.9.0/yaml.rb:391:in `hash': can't convert Hash into Integer (TypeError)
 ruby 1.9.0 yaml has a bug.  On some of Match objects, (eg, --yaml -e '3'),
 .hash fails with : can't convert Hash into Integer (TypeError).
@@ -27,6 +33,7 @@ PATCH_START
              end
          out.emit( oid, &e )
 PATCH_END
+
 
 Regex reminders
   given { <a>+ <b>+ }
