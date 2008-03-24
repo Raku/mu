@@ -15,7 +15,7 @@
           #print STDERR "Calling constructor for $rule with @{[$m->match_describe]}.\n";
           $constructor->($m);
         } else {
-          die "Unknown rule: $rule\nDon't know how to build an IR from it.\n";
+          die "Unknown rule: $rule\nIt needs to be added to ast_handlers.\n";
         }
       }
       elsif($ref eq 'ARRAY') {

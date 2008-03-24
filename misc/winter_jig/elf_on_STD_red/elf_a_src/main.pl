@@ -73,9 +73,12 @@ default Run code.
   }
   sub compile {
     my($self,$p6_code,$verbose)=@_;
-    my $yaml = $self->parse(undef,$p6_code);
-    print $yaml if $verbose;
-    my $tree = YAML::Syck::Load($yaml);
+    #my $yaml = $self->parse(undef,$p6_code);
+    #print $yaml if $verbose;
+    #my $tree = YAML::Syck::Load($yaml);
+    my $dump5 = $self->parse(undef,$p6_code);
+    print $dump5 if $verbose;
+    my $tree = eval('package Fastdump;'.$dump5);
     if(!$tree) {
       exit(1);
     }
@@ -108,9 +111,13 @@ default Run code.
       close($fh);
       $file = $fname;
     }
-    my $cmd = "$std_red -q --yaml $file";
-    my $yaml = `$cmd` or die "Parse failed. $!\n";
-    $yaml;
+    my $cmd = "$std_red -q --dump5 $file";
+    my $out = `$cmd` or die "Parse failed. $!\n";
+    $out;
   }
 }
 Program->new()->main(\@ARGV);
+
+{ package Fastdump;
+  sub match {my($r,$s,$f,$t,$h)=@_;Match->new_set($r,$s,$f,$t,$h)}
+}

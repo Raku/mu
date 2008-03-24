@@ -5,4 +5,4 @@ class Program {
     say "hi!\n";
   }
 };
-Program.new().main(@*ARGV);
+Program.new().main(@*ARGS);

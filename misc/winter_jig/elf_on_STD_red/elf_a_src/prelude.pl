@@ -7,6 +7,6 @@ use Perl6::Say;
 use Moose::Autobox;
 use autobox::Core;
 
-our @ARGS = @ARGV;
+our $a_ARGS = [@ARGV];
 END
 }

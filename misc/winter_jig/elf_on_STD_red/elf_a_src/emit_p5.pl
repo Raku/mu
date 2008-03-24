@@ -55,7 +55,7 @@ use Data::Dumper;
 }
 elsif(IR->emit_p5_for($n->{code}) =~ /^circumfix:(.+)/) {
   my $op = $1;
-  my($arg)=@{IR->emit_p5_for($n->{arguments})};
+  my($arg)=join(",",@{IR->emit_p5_for($n->{arguments})||[]});
   if(undef) {
   } else {
     $op =~ s/ /$arg/;
@@ -66,6 +66,8 @@ else {
   my $f = IR->emit_p5_for($n->{code});
   if($f =~ /^\$\w+$/) {
      $f.'->('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
+  }elsif($f eq 'self') {
+    '$self'
   }else{
      '::'.$f.'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
   }
@@ -74,7 +76,17 @@ else {
 }
 { package IR::Decl; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
+    if(IR->emit_p5_for($n->{decl}) eq 'has') {
+  my $default = IR->emit_p5_for($n->{default});
+  if(defined $default) {
+    $default = ", default => $default"
+  } else {
+    $default = ""
+  }
+  "has '".IR->emit_p5_for($n->{var}->{name})."' => (is => 'rw'$default);"
+} else {
+  IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
+}
   }
 }
 { package IR::Use; sub emit_p5 {
@@ -91,7 +103,19 @@ $s;
 }
 { package IR::Var; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{sigil}).IR->emit_p5_for($n->{name})
+    my $s = IR->emit_p5_for($n->{sigil});
+my $t = IR->emit_p5_for($n->{twigil})||'';
+my $env = '';
+$env = 'e' if $t eq '^';
+my $pre = '';
+$pre = 'a_' if $s eq '@';
+$pre = 'h_' if $s eq '%';
+my $name = $env.$pre.IR->emit_p5_for($n->{name});
+if($t eq '.') {
+  '$self->'.$name
+}else{
+  '$'.$name
+}
   }
 }
 { package IR::If; sub emit_p5 {
@@ -135,8 +159,19 @@ else {
     ("\n{ package ".IR->emit_p5_for($n->{name}).";\n".
  "use Moose;\n".
  "use Moose::Autobox; use autobox::Core;\n".
+ join("\n",@{IR->emit_p5_for($n->{traits})||[]}).
  IR->emit_p5_for($n->{block}).
  "\n}\n");
+  }
+}
+{ package IR::Trait; sub emit_p5 {
+    my($n)=@_;
+    if(IR->emit_p5_for($n->{verb}) eq 'is') {
+  "extends '".IR->emit_p5_for($n->{expr})."';"
+} else {
+  print STDERR "ERROR: Emitting p5 for Trait verb ".IR->emit_p5_for($n->{verb})." has not been implemented.\n";
+  "***Trait***"
+}
   }
 }
 { package IR::Call; sub emit_p5 {
@@ -154,6 +189,6 @@ if($method =~ 'postcircumfix:(.*)') {
 }
 { package IR::Lit_Hash; sub emit_p5 {
     my($n)=@_;
-    '{'.join(",",@{IR->emit_p5_for($n->{hash})}).'}'
+    '{'.join(",",@{IR->emit_p5_for($n->{hash})||[]}).'}'
   }
 }

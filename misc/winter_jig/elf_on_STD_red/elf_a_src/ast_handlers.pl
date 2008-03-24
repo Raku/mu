@@ -44,6 +44,14 @@ IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge
       my($m)=@_;
     ir($m->{hash}{noun});
     };
+    $IRBuild::constructors{'term'} = sub {
+      my($m)=@_;
+    if(($m->match_string) eq 'self') {
+IR::Apply->new($m,'self',[])
+} else {
+die "AST term partially unimplemented.\n";
+};
+    };
     $IRBuild::constructors{'integer'} = sub {
       my($m)=@_;
     IR::Val_Int->new($m,($m->match_string));
@@ -78,7 +86,10 @@ IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge
     };
     $IRBuild::constructors{'quote:qq'} = sub {
       my($m)=@_;
-    IR::Val_Buf->new($m,ir($m->{hash}{text}));
+    my $s = ir($m->{hash}{text});
+$s =~ s/(?<!\\)\\n/\n/g;
+$s =~ s/(?<!\\)\\t/\t/g;
+IR::Val_Buf->new($m,$s);
     };
     $IRBuild::constructors{'infix'} = sub {
       my($m)=@_;
@@ -90,6 +101,11 @@ IR::Apply->new($m,"infix:".$op,[ir($m->{hash}{left}),ir($m->{hash}{right})]);
       my($m)=@_;
     my $vd = ir($m->{hash}{scoped});
 IR::Decl->new($m,'my',undef,$vd->[0],$vd->[1]);
+    };
+    $IRBuild::constructors{'scope_declarator:has'} = sub {
+      my($m)=@_;
+    my $vd = ir($m->{hash}{scoped});
+IR::Decl->new($m,'has',undef,$vd->[0],$vd->[1]);
     };
     $IRBuild::constructors{'scoped'} = sub {
       my($m)=@_;
@@ -173,7 +189,22 @@ IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'package_declarator:class'} = sub {
       my($m)=@_;
-    IR::PackageDeclarator->new($m,'class',ir($m->{hash}{package_def}->{hash}{module_name})->[0],ir($m->{hash}{package_def}->{hash}{block}));
+    local $blackboard::package_declarator = 'class';
+ir($m->{hash}{package_def});
+    };
+    $IRBuild::constructors{'package_declarator:module'} = sub {
+      my($m)=@_;
+    local $blackboard::package_declarator = 'module';
+ir($m->{hash}{package_def});
+    };
+    $IRBuild::constructors{'package_declarator:package'} = sub {
+      my($m)=@_;
+    local $blackboard::package_declarator = 'package';
+ir($m->{hash}{package_def});
+    };
+    $IRBuild::constructors{'package_def'} = sub {
+      my($m)=@_;
+    IR::PackageDeclarator->new($m,$blackboard::package_declarator,ir($m->{hash}{module_name})->[0],ir($m->{hash}{traits}),ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'fulltypename'} = sub {
       my($m)=@_;
@@ -182,6 +213,10 @@ IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     $IRBuild::constructors{'typename'} = sub {
       my($m)=@_;
     ir($m->{hash}{name});
+    };
+    $IRBuild::constructors{'trait_verb:is'} = sub {
+      my($m)=@_;
+    IR::Trait->new($m,'is',ir($m->{hash}{ident}));
     };
     $IRBuild::constructors{'circumfix:pblock'} = sub {
       my($m)=@_;

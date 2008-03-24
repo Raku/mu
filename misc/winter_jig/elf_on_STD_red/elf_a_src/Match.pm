@@ -2,12 +2,23 @@
 # This code was originally taken from yet_another_regex_engine/Regexp_ModuleA.pm,
 # r20138.
 { package Match;
+  sub new_set {
+    my($cls,$r,$s,$f,$t,$h)=@_;
+    bless {
+      bool => 1,
+      rule => $r,
+      str => $s,
+      from => $f,
+      to => $t,
+      hash => $h,
+      array => [],
+    },$cls;
+  }
   sub new {
     my($cls)=@_;
     my $h = {
       from    => undef,
       to      => undef,
-      result  => undef,
       bool => 1,
       str  => "",
       array   => [],

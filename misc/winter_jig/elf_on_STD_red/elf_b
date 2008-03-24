@@ -2,18 +2,1214 @@
 #line 5 elf_a_src/prelude.pl
 package main;
 use Perl6::Say;
-our @ARGS = @ARGV;
+use Moose::Autobox;
+use autobox::Core;
 
+our $a_ARGS = [@ARGV];
+
+#line 2 emitted_p5
+package Main;
+use Data::Dumper;
+
+{ package IR0;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+
+{ package Base;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+
+}
+;
+
+{ package Val_Base;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';
+}
+;
+
+{ package Lit_Base;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';
+}
+;
+
+{ package Rule_Base;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';
+}
+;
+
+{ package CompUnit;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'statements' => (is => 'rw');;
+sub new{my $self=shift;my($match,$statements)=@_;
+($self->match = $match);
+($self->statements = $statements)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_CompUnit($self)};
+sub node_name{my $self=shift;'CompUnit'};
+sub field_names{my $self=shift;['statements']};
+sub field_values{my $self=shift;[$self->statements]};
+sub describe{my $self=shift;((('CompUnit(' . $self->describe_anything($self->statements)) . ',') . ')')}
+}
+;
+
+{ package Val_Int;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Val_Base';has 'match' => (is => 'rw');;
+has 'text' => (is => 'rw');;
+sub new{my $self=shift;my($match,$text)=@_;
+($self->match = $match);
+($self->text = $text)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Val_Int($self)};
+sub node_name{my $self=shift;'Val_Int'};
+sub field_names{my $self=shift;['text']};
+sub field_values{my $self=shift;[$self->text]};
+sub describe{my $self=shift;((('Val_Int(' . $self->describe_anything($self->text)) . ',') . ')')}
+}
+;
+
+{ package PackageDeclarator;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'kind' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+has 'traits' => (is => 'rw');;
+has 'block' => (is => 'rw');;
+sub new{my $self=shift;my($match,$kind,$name,$traits,$block)=@_;
+($self->match = $match);
+($self->kind = $kind);
+($self->name = $name);
+($self->traits = $traits);
+($self->block = $block)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_PackageDeclarator($self)};
+sub node_name{my $self=shift;'PackageDeclarator'};
+sub field_names{my $self=shift;['kind', 'name', 'traits', 'block']};
+sub field_values{my $self=shift;[$self->kind, $self->name, $self->traits, $self->block]};
+sub describe{my $self=shift;((((((((('PackageDeclarator(' . $self->describe_anything($self->kind)) . ',') . $self->describe_anything($self->name)) . ',') . $self->describe_anything($self->traits)) . ',') . $self->describe_anything($self->block)) . ',') . ')')}
+}
+;
+
+{ package Trait;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'verb' => (is => 'rw');;
+has 'expr' => (is => 'rw');;
+sub new{my $self=shift;my($match,$verb,$expr)=@_;
+($self->match = $match);
+($self->verb = $verb);
+($self->expr = $expr)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Trait($self)};
+sub node_name{my $self=shift;'Trait'};
+sub field_names{my $self=shift;['verb', 'expr']};
+sub field_values{my $self=shift;[$self->verb, $self->expr]};
+sub describe{my $self=shift;((((('Trait(' . $self->describe_anything($self->verb)) . ',') . $self->describe_anything($self->expr)) . ',') . ')')}
+}
+;
+
+{ package Block;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'statements' => (is => 'rw');;
+sub new{my $self=shift;my($match,$statements)=@_;
+($self->match = $match);
+($self->statements = $statements)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Block($self)};
+sub node_name{my $self=shift;'Block'};
+sub field_names{my $self=shift;['statements']};
+sub field_values{my $self=shift;[$self->statements]};
+sub describe{my $self=shift;((('Block(' . $self->describe_anything($self->statements)) . ',') . ')')}
+}
+;
+
+{ package Quote;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'concat' => (is => 'rw');;
+sub new{my $self=shift;my($match,$concat)=@_;
+($self->match = $match);
+($self->concat = $concat)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Quote($self)};
+sub node_name{my $self=shift;'Quote'};
+sub field_names{my $self=shift;['concat']};
+sub field_values{my $self=shift;[$self->concat]};
+sub describe{my $self=shift;((('Quote(' . $self->describe_anything($self->concat)) . ',') . ')')}
+}
+;
+
+{ package Val_Bit;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Val_Base';has 'match' => (is => 'rw');;
+has 'bit' => (is => 'rw');;
+sub new{my $self=shift;my($match,$bit)=@_;
+($self->match = $match);
+($self->bit = $bit)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Val_Bit($self)};
+sub node_name{my $self=shift;'Val_Bit'};
+sub field_names{my $self=shift;['bit']};
+sub field_values{my $self=shift;[$self->bit]};
+sub describe{my $self=shift;((('Val_Bit(' . $self->describe_anything($self->bit)) . ',') . ')')}
+}
+;
+
+{ package Val_Num;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Val_Base';has 'match' => (is => 'rw');;
+has 'num' => (is => 'rw');;
+sub new{my $self=shift;my($match,$num)=@_;
+($self->match = $match);
+($self->num = $num)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Val_Num($self)};
+sub node_name{my $self=shift;'Val_Num'};
+sub field_names{my $self=shift;['num']};
+sub field_values{my $self=shift;[$self->num]};
+sub describe{my $self=shift;((('Val_Num(' . $self->describe_anything($self->num)) . ',') . ')')}
+}
+;
+
+{ package Val_Buf;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Val_Base';has 'match' => (is => 'rw');;
+has 'buf' => (is => 'rw');;
+sub new{my $self=shift;my($match,$buf)=@_;
+($self->match = $match);
+($self->buf = $buf)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Val_Buf($self)};
+sub node_name{my $self=shift;'Val_Buf'};
+sub field_names{my $self=shift;['buf']};
+sub field_values{my $self=shift;[$self->buf]};
+sub describe{my $self=shift;((('Val_Buf(' . $self->describe_anything($self->buf)) . ',') . ')')}
+}
+;
+
+{ package Val_Char;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Val_Base';has 'match' => (is => 'rw');;
+has 'char' => (is => 'rw');;
+sub new{my $self=shift;my($match,$char)=@_;
+($self->match = $match);
+($self->char = $char)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Val_Char($self)};
+sub node_name{my $self=shift;'Val_Char'};
+sub field_names{my $self=shift;['char']};
+sub field_values{my $self=shift;[$self->char]};
+sub describe{my $self=shift;((('Val_Char(' . $self->describe_anything($self->char)) . ',') . ')')}
+}
+;
+
+{ package Val_Undef;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Val_Base';has 'match' => (is => 'rw');;
+sub new{my $self=shift;my($match)=@_;
+($self->match = $match)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Val_Undef($self)};
+sub node_name{my $self=shift;'Val_Undef'};
+sub field_names{my $self=shift;[]};
+sub field_values{my $self=shift;[]};
+sub describe{my $self=shift;('Val_Undef(' . ')')}
+}
+;
+
+{ package Val_Object;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Val_Base';has 'match' => (is => 'rw');;
+has 'clazz' => (is => 'rw');;
+has 'fields' => (is => 'rw');;
+sub new{my $self=shift;my($match,$clazz,$fields)=@_;
+($self->match = $match);
+($self->clazz = $clazz);
+($self->fields = $fields)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Val_Object($self)};
+sub node_name{my $self=shift;'Val_Object'};
+sub field_names{my $self=shift;['clazz', 'fields']};
+sub field_values{my $self=shift;[$self->clazz, $self->fields]};
+sub describe{my $self=shift;((((('Val_Object(' . $self->describe_anything($self->clazz)) . ',') . $self->describe_anything($self->fields)) . ',') . ')')}
+}
+;
+
+{ package Lit_Seq;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'seq' => (is => 'rw');;
+sub new{my $self=shift;my($match,$seq)=@_;
+($self->match = $match);
+($self->seq = $seq)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_Seq($self)};
+sub node_name{my $self=shift;'Lit_Seq'};
+sub field_names{my $self=shift;['seq']};
+sub field_values{my $self=shift;[$self->seq]};
+sub describe{my $self=shift;((('Lit_Seq(' . $self->describe_anything($self->seq)) . ',') . ')')}
+}
+;
+
+{ package Lit_Array;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'array' => (is => 'rw');;
+sub new{my $self=shift;my($match,$array)=@_;
+($self->match = $match);
+($self->array = $array)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_Array($self)};
+sub node_name{my $self=shift;'Lit_Array'};
+sub field_names{my $self=shift;['array']};
+sub field_values{my $self=shift;[$self->array]};
+sub describe{my $self=shift;((('Lit_Array(' . $self->describe_anything($self->array)) . ',') . ')')}
+}
+;
+
+{ package Lit_Hash;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'hash' => (is => 'rw');;
+sub new{my $self=shift;my($match,$hash)=@_;
+($self->match = $match);
+($self->hash = $hash)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_Hash($self)};
+sub node_name{my $self=shift;'Lit_Hash'};
+sub field_names{my $self=shift;['hash']};
+sub field_values{my $self=shift;[$self->hash]};
+sub describe{my $self=shift;((('Lit_Hash(' . $self->describe_anything($self->hash)) . ',') . ')')}
+}
+;
+
+{ package Lit_Pair;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'key' => (is => 'rw');;
+has 'value' => (is => 'rw');;
+sub new{my $self=shift;my($match,$key,$value)=@_;
+($self->match = $match);
+($self->key = $key);
+($self->value = $value)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_Pair($self)};
+sub node_name{my $self=shift;'Lit_Pair'};
+sub field_names{my $self=shift;['key', 'value']};
+sub field_values{my $self=shift;[$self->key, $self->value]};
+sub describe{my $self=shift;((((('Lit_Pair(' . $self->describe_anything($self->key)) . ',') . $self->describe_anything($self->value)) . ',') . ')')}
+}
+;
+
+{ package Lit_SigArgument;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'key' => (is => 'rw');;
+has 'value' => (is => 'rw');;
+has 'type' => (is => 'rw');;
+has 'has_default' => (is => 'rw');;
+has 'is_named_only' => (is => 'rw');;
+has 'is_optional' => (is => 'rw');;
+has 'is_slurpy' => (is => 'rw');;
+has 'is_multidimensional' => (is => 'rw');;
+has 'is_rw' => (is => 'rw');;
+has 'is_copy' => (is => 'rw');;
+sub new{my $self=shift;my($match,$key,$value,$type,$has_default,$is_named_only,$is_optional,$is_slurpy,$is_multidimensional,$is_rw,$is_copy)=@_;
+($self->match = $match);
+($self->key = $key);
+($self->value = $value);
+($self->type = $type);
+($self->has_default = $has_default);
+($self->is_named_only = $is_named_only);
+($self->is_optional = $is_optional);
+($self->is_slurpy = $is_slurpy);
+($self->is_multidimensional = $is_multidimensional);
+($self->is_rw = $is_rw);
+($self->is_copy = $is_copy)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_SigArgument($self)};
+sub node_name{my $self=shift;'Lit_SigArgument'};
+sub field_names{my $self=shift;['key', 'value', 'type', 'has_default', 'is_named_only', 'is_optional', 'is_slurpy', 'is_multidimensional', 'is_rw', 'is_copy']};
+sub field_values{my $self=shift;[$self->key, $self->value, $self->type, $self->has_default, $self->is_named_only, $self->is_optional, $self->is_slurpy, $self->is_multidimensional, $self->is_rw, $self->is_copy]};
+sub describe{my $self=shift;((((((((((((((((((((('Lit_SigArgument(' . $self->describe_anything($self->key)) . ',') . $self->describe_anything($self->value)) . ',') . $self->describe_anything($self->type)) . ',') . $self->describe_anything($self->has_default)) . ',') . $self->describe_anything($self->is_named_only)) . ',') . $self->describe_anything($self->is_optional)) . ',') . $self->describe_anything($self->is_slurpy)) . ',') . $self->describe_anything($self->is_multidimensional)) . ',') . $self->describe_anything($self->is_rw)) . ',') . $self->describe_anything($self->is_copy)) . ',') . ')')}
+}
+;
+
+{ package Lit_NamedArgument;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'key' => (is => 'rw');;
+has 'value' => (is => 'rw');;
+sub new{my $self=shift;my($match,$key,$value)=@_;
+($self->match = $match);
+($self->key = $key);
+($self->value = $value)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_NamedArgument($self)};
+sub node_name{my $self=shift;'Lit_NamedArgument'};
+sub field_names{my $self=shift;['key', 'value']};
+sub field_values{my $self=shift;[$self->key, $self->value]};
+sub describe{my $self=shift;((((('Lit_NamedArgument(' . $self->describe_anything($self->key)) . ',') . $self->describe_anything($self->value)) . ',') . ')')}
+}
+;
+
+{ package Lit_Code;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'pad' => (is => 'rw');;
+has 'state' => (is => 'rw');;
+has 'sig' => (is => 'rw');;
+has 'body' => (is => 'rw');;
+has 'catch' => (is => 'rw');;
+sub new{my $self=shift;my($match,$pad,$state,$sig,$body,$catch)=@_;
+($self->match = $match);
+($self->pad = $pad);
+($self->state = $state);
+($self->sig = $sig);
+($self->body = $body);
+($self->catch = $catch)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_Code($self)};
+sub node_name{my $self=shift;'Lit_Code'};
+sub field_names{my $self=shift;['pad', 'state', 'sig', 'body', 'catch']};
+sub field_values{my $self=shift;[$self->pad, $self->state, $self->sig, $self->body, $self->catch]};
+sub describe{my $self=shift;((((((((((('Lit_Code(' . $self->describe_anything($self->pad)) . ',') . $self->describe_anything($self->state)) . ',') . $self->describe_anything($self->sig)) . ',') . $self->describe_anything($self->body)) . ',') . $self->describe_anything($self->catch)) . ',') . ')')}
+}
+;
+
+{ package Lit_Object;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'clazz' => (is => 'rw');;
+has 'fields' => (is => 'rw');;
+sub new{my $self=shift;my($match,$clazz,$fields)=@_;
+($self->match = $match);
+($self->clazz = $clazz);
+($self->fields = $fields)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_Object($self)};
+sub node_name{my $self=shift;'Lit_Object'};
+sub field_names{my $self=shift;['clazz', 'fields']};
+sub field_values{my $self=shift;[$self->clazz, $self->fields]};
+sub describe{my $self=shift;((((('Lit_Object(' . $self->describe_anything($self->clazz)) . ',') . $self->describe_anything($self->fields)) . ',') . ')')}
+}
+;
+
+{ package Var;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'sigil' => (is => 'rw');;
+has 'twigil' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+has 'namespace' => (is => 'rw');;
+sub new{my $self=shift;my($match,$sigil,$twigil,$name,$namespace)=@_;
+($self->match = $match);
+($self->sigil = $sigil);
+($self->twigil = $twigil);
+($self->name = $name);
+($self->namespace = $namespace)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Var($self)};
+sub node_name{my $self=shift;'Var'};
+sub field_names{my $self=shift;['sigil', 'twigil', 'name', 'namespace']};
+sub field_values{my $self=shift;[$self->sigil, $self->twigil, $self->name, $self->namespace]};
+sub describe{my $self=shift;((((((((('Var(' . $self->describe_anything($self->sigil)) . ',') . $self->describe_anything($self->twigil)) . ',') . $self->describe_anything($self->name)) . ',') . $self->describe_anything($self->namespace)) . ',') . ')')}
+}
+;
+
+{ package Bind;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'parameters' => (is => 'rw');;
+has 'arguments' => (is => 'rw');;
+sub new{my $self=shift;my($match,$parameters,$arguments)=@_;
+($self->match = $match);
+($self->parameters = $parameters);
+($self->arguments = $arguments)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Bind($self)};
+sub node_name{my $self=shift;'Bind'};
+sub field_names{my $self=shift;['parameters', 'arguments']};
+sub field_values{my $self=shift;[$self->parameters, $self->arguments]};
+sub describe{my $self=shift;((((('Bind(' . $self->describe_anything($self->parameters)) . ',') . $self->describe_anything($self->arguments)) . ',') . ')')}
+}
+;
+
+{ package Assign;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'parameters' => (is => 'rw');;
+has 'arguments' => (is => 'rw');;
+sub new{my $self=shift;my($match,$parameters,$arguments)=@_;
+($self->match = $match);
+($self->parameters = $parameters);
+($self->arguments = $arguments)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Assign($self)};
+sub node_name{my $self=shift;'Assign'};
+sub field_names{my $self=shift;['parameters', 'arguments']};
+sub field_values{my $self=shift;[$self->parameters, $self->arguments]};
+sub describe{my $self=shift;((((('Assign(' . $self->describe_anything($self->parameters)) . ',') . $self->describe_anything($self->arguments)) . ',') . ')')}
+}
+;
+
+{ package Proto;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+sub new{my $self=shift;my($match,$name)=@_;
+($self->match = $match);
+($self->name = $name)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Proto($self)};
+sub node_name{my $self=shift;'Proto'};
+sub field_names{my $self=shift;['name']};
+sub field_values{my $self=shift;[$self->name]};
+sub describe{my $self=shift;((('Proto(' . $self->describe_anything($self->name)) . ',') . ')')}
+}
+;
+
+{ package Call;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'invocant' => (is => 'rw');;
+has 'hyper' => (is => 'rw');;
+has 'method' => (is => 'rw');;
+has 'arguments' => (is => 'rw');;
+sub new{my $self=shift;my($match,$invocant,$hyper,$method,$arguments)=@_;
+($self->match = $match);
+($self->invocant = $invocant);
+($self->hyper = $hyper);
+($self->method = $method);
+($self->arguments = $arguments)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Call($self)};
+sub node_name{my $self=shift;'Call'};
+sub field_names{my $self=shift;['invocant', 'hyper', 'method', 'arguments']};
+sub field_values{my $self=shift;[$self->invocant, $self->hyper, $self->method, $self->arguments]};
+sub describe{my $self=shift;((((((((('Call(' . $self->describe_anything($self->invocant)) . ',') . $self->describe_anything($self->hyper)) . ',') . $self->describe_anything($self->method)) . ',') . $self->describe_anything($self->arguments)) . ',') . ')')}
+}
+;
+
+{ package Apply;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'code' => (is => 'rw');;
+has 'arguments' => (is => 'rw');;
+sub new{my $self=shift;my($match,$code,$arguments)=@_;
+($self->match = $match);
+($self->code = $code);
+($self->arguments = $arguments)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Apply($self)};
+sub node_name{my $self=shift;'Apply'};
+sub field_names{my $self=shift;['code', 'arguments']};
+sub field_values{my $self=shift;[$self->code, $self->arguments]};
+sub describe{my $self=shift;((((('Apply(' . $self->describe_anything($self->code)) . ',') . $self->describe_anything($self->arguments)) . ',') . ')')}
+}
+;
+
+{ package Return;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'result' => (is => 'rw');;
+sub new{my $self=shift;my($match,$result)=@_;
+($self->match = $match);
+($self->result = $result)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Return($self)};
+sub node_name{my $self=shift;'Return'};
+sub field_names{my $self=shift;['result']};
+sub field_values{my $self=shift;[$self->result]};
+sub describe{my $self=shift;((('Return(' . $self->describe_anything($self->result)) . ',') . ')')}
+}
+;
+
+{ package If;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'test' => (is => 'rw');;
+has 'body' => (is => 'rw');;
+has 'elsif' => (is => 'rw');;
+has 'else' => (is => 'rw');;
+sub new{my $self=shift;my($match,$test,$body,$elsif,$else)=@_;
+($self->match = $match);
+($self->test = $test);
+($self->body = $body);
+($self->elsif = $elsif);
+($self->else = $else)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_If($self)};
+sub node_name{my $self=shift;'If'};
+sub field_names{my $self=shift;['test', 'body', 'elsif', 'else']};
+sub field_values{my $self=shift;[$self->test, $self->body, $self->elsif, $self->else]};
+sub describe{my $self=shift;((((((((('If(' . $self->describe_anything($self->test)) . ',') . $self->describe_anything($self->body)) . ',') . $self->describe_anything($self->elsif)) . ',') . $self->describe_anything($self->else)) . ',') . ')')}
+}
+;
+
+{ package While;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'test' => (is => 'rw');;
+has 'body' => (is => 'rw');;
+sub new{my $self=shift;my($match,$test,$body)=@_;
+($self->match = $match);
+($self->test = $test);
+($self->body = $body)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_While($self)};
+sub node_name{my $self=shift;'While'};
+sub field_names{my $self=shift;['test', 'body']};
+sub field_values{my $self=shift;[$self->test, $self->body]};
+sub describe{my $self=shift;((((('While(' . $self->describe_anything($self->test)) . ',') . $self->describe_anything($self->body)) . ',') . ')')}
+}
+;
+
+{ package Decl;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'decl' => (is => 'rw');;
+has 'type' => (is => 'rw');;
+has 'var' => (is => 'rw');;
+has 'default' => (is => 'rw');;
+sub new{my $self=shift;my($match,$decl,$type,$var,$default)=@_;
+($self->match = $match);
+($self->decl = $decl);
+($self->type = $type);
+($self->var = $var);
+($self->default = $default)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Decl($self)};
+sub node_name{my $self=shift;'Decl'};
+sub field_names{my $self=shift;['decl', 'type', 'var', 'default']};
+sub field_values{my $self=shift;[$self->decl, $self->type, $self->var, $self->default]};
+sub describe{my $self=shift;((((((((('Decl(' . $self->describe_anything($self->decl)) . ',') . $self->describe_anything($self->type)) . ',') . $self->describe_anything($self->var)) . ',') . $self->describe_anything($self->default)) . ',') . ')')}
+}
+;
+
+{ package Sig;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'invocant' => (is => 'rw');;
+has 'positional' => (is => 'rw');;
+sub new{my $self=shift;my($match,$invocant,$positional)=@_;
+($self->match = $match);
+($self->invocant = $invocant);
+($self->positional = $positional)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Sig($self)};
+sub node_name{my $self=shift;'Sig'};
+sub field_names{my $self=shift;['invocant', 'positional']};
+sub field_values{my $self=shift;[$self->invocant, $self->positional]};
+sub describe{my $self=shift;((((('Sig(' . $self->describe_anything($self->invocant)) . ',') . $self->describe_anything($self->positional)) . ',') . ')')}
+}
+;
+
+{ package Lit_Capture;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'invocant' => (is => 'rw');;
+has 'array' => (is => 'rw');;
+has 'hash' => (is => 'rw');;
+sub new{my $self=shift;my($match,$invocant,$array,$hash)=@_;
+($self->match = $match);
+($self->invocant = $invocant);
+($self->array = $array);
+($self->hash = $hash)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_Capture($self)};
+sub node_name{my $self=shift;'Lit_Capture'};
+sub field_names{my $self=shift;['invocant', 'array', 'hash']};
+sub field_values{my $self=shift;[$self->invocant, $self->array, $self->hash]};
+sub describe{my $self=shift;((((((('Lit_Capture(' . $self->describe_anything($self->invocant)) . ',') . $self->describe_anything($self->array)) . ',') . $self->describe_anything($self->hash)) . ',') . ')')}
+}
+;
+
+{ package Lit_Subset;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Lit_Base';has 'match' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+has 'base_class' => (is => 'rw');;
+has 'block' => (is => 'rw');;
+sub new{my $self=shift;my($match,$name,$base_class,$block)=@_;
+($self->match = $match);
+($self->name = $name);
+($self->base_class = $base_class);
+($self->block = $block)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Lit_Subset($self)};
+sub node_name{my $self=shift;'Lit_Subset'};
+sub field_names{my $self=shift;['name', 'base_class', 'block']};
+sub field_values{my $self=shift;[$self->name, $self->base_class, $self->block]};
+sub describe{my $self=shift;((((((('Lit_Subset(' . $self->describe_anything($self->name)) . ',') . $self->describe_anything($self->base_class)) . ',') . $self->describe_anything($self->block)) . ',') . ')')}
+}
+;
+
+{ package Method;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+has 'sig' => (is => 'rw');;
+has 'block' => (is => 'rw');;
+sub new{my $self=shift;my($match,$name,$sig,$block)=@_;
+($self->match = $match);
+($self->name = $name);
+($self->sig = $sig);
+($self->block = $block)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Method($self)};
+sub node_name{my $self=shift;'Method'};
+sub field_names{my $self=shift;['name', 'sig', 'block']};
+sub field_values{my $self=shift;[$self->name, $self->sig, $self->block]};
+sub describe{my $self=shift;((((((('Method(' . $self->describe_anything($self->name)) . ',') . $self->describe_anything($self->sig)) . ',') . $self->describe_anything($self->block)) . ',') . ')')}
+}
+;
+
+{ package Sub;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+has 'sig' => (is => 'rw');;
+has 'block' => (is => 'rw');;
+sub new{my $self=shift;my($match,$name,$sig,$block)=@_;
+($self->match = $match);
+($self->name = $name);
+($self->sig = $sig);
+($self->block = $block)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Sub($self)};
+sub node_name{my $self=shift;'Sub'};
+sub field_names{my $self=shift;['name', 'sig', 'block']};
+sub field_values{my $self=shift;[$self->name, $self->sig, $self->block]};
+sub describe{my $self=shift;((((((('Sub(' . $self->describe_anything($self->name)) . ',') . $self->describe_anything($self->sig)) . ',') . $self->describe_anything($self->block)) . ',') . ')')}
+}
+;
+
+{ package Macro;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+has 'sig' => (is => 'rw');;
+has 'block' => (is => 'rw');;
+sub new{my $self=shift;my($match,$name,$sig,$block)=@_;
+($self->match = $match);
+($self->name = $name);
+($self->sig = $sig);
+($self->block = $block)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Macro($self)};
+sub node_name{my $self=shift;'Macro'};
+sub field_names{my $self=shift;['name', 'sig', 'block']};
+sub field_values{my $self=shift;[$self->name, $self->sig, $self->block]};
+sub describe{my $self=shift;((((((('Macro(' . $self->describe_anything($self->name)) . ',') . $self->describe_anything($self->sig)) . ',') . $self->describe_anything($self->block)) . ',') . ')')}
+}
+;
+
+{ package Coro;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+has 'sig' => (is => 'rw');;
+has 'block' => (is => 'rw');;
+sub new{my $self=shift;my($match,$name,$sig,$block)=@_;
+($self->match = $match);
+($self->name = $name);
+($self->sig = $sig);
+($self->block = $block)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Coro($self)};
+sub node_name{my $self=shift;'Coro'};
+sub field_names{my $self=shift;['name', 'sig', 'block']};
+sub field_values{my $self=shift;[$self->name, $self->sig, $self->block]};
+sub describe{my $self=shift;((((((('Coro(' . $self->describe_anything($self->name)) . ',') . $self->describe_anything($self->sig)) . ',') . $self->describe_anything($self->block)) . ',') . ')')}
+}
+;
+
+{ package P5Token;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'regex' => (is => 'rw');;
+sub new{my $self=shift;my($match,$regex)=@_;
+($self->match = $match);
+($self->regex = $regex)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_P5Token($self)};
+sub node_name{my $self=shift;'P5Token'};
+sub field_names{my $self=shift;['regex']};
+sub field_values{my $self=shift;[$self->regex]};
+sub describe{my $self=shift;((('P5Token(' . $self->describe_anything($self->regex)) . ',') . ')')}
+}
+;
+
+{ package Token;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+has 'regex' => (is => 'rw');;
+has 'sym' => (is => 'rw');;
+sub new{my $self=shift;my($match,$name,$regex,$sym)=@_;
+($self->match = $match);
+($self->name = $name);
+($self->regex = $regex);
+($self->sym = $sym)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Token($self)};
+sub node_name{my $self=shift;'Token'};
+sub field_names{my $self=shift;['name', 'regex', 'sym']};
+sub field_values{my $self=shift;[$self->name, $self->regex, $self->sym]};
+sub describe{my $self=shift;((((((('Token(' . $self->describe_anything($self->name)) . ',') . $self->describe_anything($self->regex)) . ',') . $self->describe_anything($self->sym)) . ',') . ')')}
+}
+;
+
+{ package Do;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'block' => (is => 'rw');;
+sub new{my $self=shift;my($match,$block)=@_;
+($self->match = $match);
+($self->block = $block)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Do($self)};
+sub node_name{my $self=shift;'Do'};
+sub field_names{my $self=shift;['block']};
+sub field_values{my $self=shift;[$self->block]};
+sub describe{my $self=shift;((('Do(' . $self->describe_anything($self->block)) . ',') . ')')}
+}
+;
+
+{ package Begin;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'block' => (is => 'rw');;
+sub new{my $self=shift;my($match,$block)=@_;
+($self->match = $match);
+($self->block = $block)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Begin($self)};
+sub node_name{my $self=shift;'Begin'};
+sub field_names{my $self=shift;['block']};
+sub field_values{my $self=shift;[$self->block]};
+sub describe{my $self=shift;((('Begin(' . $self->describe_anything($self->block)) . ',') . ')')}
+}
+;
+
+{ package Use;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'mod' => (is => 'rw');;
+has 'perl5' => (is => 'rw');;
+sub new{my $self=shift;my($match,$mod,$perl5)=@_;
+($self->match = $match);
+($self->mod = $mod);
+($self->perl5 = $perl5)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Use($self)};
+sub node_name{my $self=shift;'Use'};
+sub field_names{my $self=shift;['mod', 'perl5']};
+sub field_values{my $self=shift;[$self->mod, $self->perl5]};
+sub describe{my $self=shift;((((('Use(' . $self->describe_anything($self->mod)) . ',') . $self->describe_anything($self->perl5)) . ',') . ')')}
+}
+;
+
+{ package Rule;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+sub new{my $self=shift;my($match)=@_;
+($self->match = $match)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule($self)};
+sub node_name{my $self=shift;'Rule'};
+sub field_names{my $self=shift;[]};
+sub field_values{my $self=shift;[]};
+sub describe{my $self=shift;('Rule(' . ')')}
+}
+;
+
+{ package Rule_Quantifier;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'term' => (is => 'rw');;
+has 'quant' => (is => 'rw');;
+has 'greedy' => (is => 'rw');;
+has 'ws1' => (is => 'rw');;
+has 'ws2' => (is => 'rw');;
+has 'ws3' => (is => 'rw');;
+sub new{my $self=shift;my($match,$term,$quant,$greedy,$ws1,$ws2,$ws3)=@_;
+($self->match = $match);
+($self->term = $term);
+($self->quant = $quant);
+($self->greedy = $greedy);
+($self->ws1 = $ws1);
+($self->ws2 = $ws2);
+($self->ws3 = $ws3)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Quantifier($self)};
+sub node_name{my $self=shift;'Rule_Quantifier'};
+sub field_names{my $self=shift;['term', 'quant', 'greedy', 'ws1', 'ws2', 'ws3']};
+sub field_values{my $self=shift;[$self->term, $self->quant, $self->greedy, $self->ws1, $self->ws2, $self->ws3]};
+sub describe{my $self=shift;((((((((((((('Rule_Quantifier(' . $self->describe_anything($self->term)) . ',') . $self->describe_anything($self->quant)) . ',') . $self->describe_anything($self->greedy)) . ',') . $self->describe_anything($self->ws1)) . ',') . $self->describe_anything($self->ws2)) . ',') . $self->describe_anything($self->ws3)) . ',') . ')')}
+}
+;
+
+{ package Rule_Or;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'terms' => (is => 'rw');;
+sub new{my $self=shift;my($match,$terms)=@_;
+($self->match = $match);
+($self->terms = $terms)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Or($self)};
+sub node_name{my $self=shift;'Rule_Or'};
+sub field_names{my $self=shift;['terms']};
+sub field_values{my $self=shift;[$self->terms]};
+sub describe{my $self=shift;((('Rule_Or(' . $self->describe_anything($self->terms)) . ',') . ')')}
+}
+;
+
+{ package Rule_Concat;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'concat' => (is => 'rw');;
+sub new{my $self=shift;my($match,$concat)=@_;
+($self->match = $match);
+($self->concat = $concat)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Concat($self)};
+sub node_name{my $self=shift;'Rule_Concat'};
+sub field_names{my $self=shift;['concat']};
+sub field_values{my $self=shift;[$self->concat]};
+sub describe{my $self=shift;((('Rule_Concat(' . $self->describe_anything($self->concat)) . ',') . ')')}
+}
+;
+
+{ package Rule_Subrule;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'metasyntax' => (is => 'rw');;
+has 'ident' => (is => 'rw');;
+has 'capture_to_array' => (is => 'rw');;
+sub new{my $self=shift;my($match,$metasyntax,$ident,$capture_to_array)=@_;
+($self->match = $match);
+($self->metasyntax = $metasyntax);
+($self->ident = $ident);
+($self->capture_to_array = $capture_to_array)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Subrule($self)};
+sub node_name{my $self=shift;'Rule_Subrule'};
+sub field_names{my $self=shift;['metasyntax', 'ident', 'capture_to_array']};
+sub field_values{my $self=shift;[$self->metasyntax, $self->ident, $self->capture_to_array]};
+sub describe{my $self=shift;((((((('Rule_Subrule(' . $self->describe_anything($self->metasyntax)) . ',') . $self->describe_anything($self->ident)) . ',') . $self->describe_anything($self->capture_to_array)) . ',') . ')')}
+}
+;
+
+{ package Rule_SubruleNoCapture;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'metasyntax' => (is => 'rw');;
+sub new{my $self=shift;my($match,$metasyntax)=@_;
+($self->match = $match);
+($self->metasyntax = $metasyntax)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_SubruleNoCapture($self)};
+sub node_name{my $self=shift;'Rule_SubruleNoCapture'};
+sub field_names{my $self=shift;['metasyntax']};
+sub field_values{my $self=shift;[$self->metasyntax]};
+sub describe{my $self=shift;((('Rule_SubruleNoCapture(' . $self->describe_anything($self->metasyntax)) . ',') . ')')}
+}
+;
+
+{ package Rule_Var;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'sigil' => (is => 'rw');;
+has 'twigil' => (is => 'rw');;
+has 'name' => (is => 'rw');;
+sub new{my $self=shift;my($match,$sigil,$twigil,$name)=@_;
+($self->match = $match);
+($self->sigil = $sigil);
+($self->twigil = $twigil);
+($self->name = $name)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Var($self)};
+sub node_name{my $self=shift;'Rule_Var'};
+sub field_names{my $self=shift;['sigil', 'twigil', 'name']};
+sub field_values{my $self=shift;[$self->sigil, $self->twigil, $self->name]};
+sub describe{my $self=shift;((((((('Rule_Var(' . $self->describe_anything($self->sigil)) . ',') . $self->describe_anything($self->twigil)) . ',') . $self->describe_anything($self->name)) . ',') . ')')}
+}
+;
+
+{ package Rule_Constant;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'constant' => (is => 'rw');;
+sub new{my $self=shift;my($match,$constant)=@_;
+($self->match = $match);
+($self->constant = $constant)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Constant($self)};
+sub node_name{my $self=shift;'Rule_Constant'};
+sub field_names{my $self=shift;['constant']};
+sub field_values{my $self=shift;[$self->constant]};
+sub describe{my $self=shift;((('Rule_Constant(' . $self->describe_anything($self->constant)) . ',') . ')')}
+}
+;
+
+{ package Rule_Dot;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+sub new{my $self=shift;my($match)=@_;
+($self->match = $match)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Dot($self)};
+sub node_name{my $self=shift;'Rule_Dot'};
+sub field_names{my $self=shift;[]};
+sub field_values{my $self=shift;[]};
+sub describe{my $self=shift;('Rule_Dot(' . ')')}
+}
+;
+
+{ package Rule_SpecialChar;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'char' => (is => 'rw');;
+sub new{my $self=shift;my($match,$char)=@_;
+($self->match = $match);
+($self->char = $char)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_SpecialChar($self)};
+sub node_name{my $self=shift;'Rule_SpecialChar'};
+sub field_names{my $self=shift;['char']};
+sub field_values{my $self=shift;[$self->char]};
+sub describe{my $self=shift;((('Rule_SpecialChar(' . $self->describe_anything($self->char)) . ',') . ')')}
+}
+;
+
+{ package Rule_Block;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'closure' => (is => 'rw');;
+sub new{my $self=shift;my($match,$closure)=@_;
+($self->match = $match);
+($self->closure = $closure)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Block($self)};
+sub node_name{my $self=shift;'Rule_Block'};
+sub field_names{my $self=shift;['closure']};
+sub field_values{my $self=shift;[$self->closure]};
+sub describe{my $self=shift;((('Rule_Block(' . $self->describe_anything($self->closure)) . ',') . ')')}
+}
+;
+
+{ package Rule_InterpolateVar;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'var' => (is => 'rw');;
+sub new{my $self=shift;my($match,$var)=@_;
+($self->match = $match);
+($self->var = $var)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_InterpolateVar($self)};
+sub node_name{my $self=shift;'Rule_InterpolateVar'};
+sub field_names{my $self=shift;['var']};
+sub field_values{my $self=shift;[$self->var]};
+sub describe{my $self=shift;((('Rule_InterpolateVar(' . $self->describe_anything($self->var)) . ',') . ')')}
+}
+;
+
+{ package Rule_NamedCapture;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'rule' => (is => 'rw');;
+has 'ident' => (is => 'rw');;
+has 'capture_to_array' => (is => 'rw');;
+sub new{my $self=shift;my($match,$rule,$ident,$capture_to_array)=@_;
+($self->match = $match);
+($self->rule = $rule);
+($self->ident = $ident);
+($self->capture_to_array = $capture_to_array)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_NamedCapture($self)};
+sub node_name{my $self=shift;'Rule_NamedCapture'};
+sub field_names{my $self=shift;['rule', 'ident', 'capture_to_array']};
+sub field_values{my $self=shift;[$self->rule, $self->ident, $self->capture_to_array]};
+sub describe{my $self=shift;((((((('Rule_NamedCapture(' . $self->describe_anything($self->rule)) . ',') . $self->describe_anything($self->ident)) . ',') . $self->describe_anything($self->capture_to_array)) . ',') . ')')}
+}
+;
+
+{ package Rule_Before;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'rule' => (is => 'rw');;
+has 'assertion_modifier' => (is => 'rw');;
+has 'capture_to_array' => (is => 'rw');;
+sub new{my $self=shift;my($match,$rule,$assertion_modifier,$capture_to_array)=@_;
+($self->match = $match);
+($self->rule = $rule);
+($self->assertion_modifier = $assertion_modifier);
+($self->capture_to_array = $capture_to_array)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Before($self)};
+sub node_name{my $self=shift;'Rule_Before'};
+sub field_names{my $self=shift;['rule', 'assertion_modifier', 'capture_to_array']};
+sub field_values{my $self=shift;[$self->rule, $self->assertion_modifier, $self->capture_to_array]};
+sub describe{my $self=shift;((((((('Rule_Before(' . $self->describe_anything($self->rule)) . ',') . $self->describe_anything($self->assertion_modifier)) . ',') . $self->describe_anything($self->capture_to_array)) . ',') . ')')}
+}
+;
+
+{ package Rule_After;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'rule' => (is => 'rw');;
+has 'assertion_modifier' => (is => 'rw');;
+has 'capture_to_array' => (is => 'rw');;
+sub new{my $self=shift;my($match,$rule,$assertion_modifier,$capture_to_array)=@_;
+($self->match = $match);
+($self->rule = $rule);
+($self->assertion_modifier = $assertion_modifier);
+($self->capture_to_array = $capture_to_array)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_After($self)};
+sub node_name{my $self=shift;'Rule_After'};
+sub field_names{my $self=shift;['rule', 'assertion_modifier', 'capture_to_array']};
+sub field_values{my $self=shift;[$self->rule, $self->assertion_modifier, $self->capture_to_array]};
+sub describe{my $self=shift;((((((('Rule_After(' . $self->describe_anything($self->rule)) . ',') . $self->describe_anything($self->assertion_modifier)) . ',') . $self->describe_anything($self->capture_to_array)) . ',') . ')')}
+}
+;
+
+{ package Rule_NegateCharClass;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'chars' => (is => 'rw');;
+sub new{my $self=shift;my($match,$chars)=@_;
+($self->match = $match);
+($self->chars = $chars)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_NegateCharClass($self)};
+sub node_name{my $self=shift;'Rule_NegateCharClass'};
+sub field_names{my $self=shift;['chars']};
+sub field_values{my $self=shift;[$self->chars]};
+sub describe{my $self=shift;((('Rule_NegateCharClass(' . $self->describe_anything($self->chars)) . ',') . ')')}
+}
+;
+
+{ package Rule_CharClass;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'chars' => (is => 'rw');;
+sub new{my $self=shift;my($match,$chars)=@_;
+($self->match = $match);
+($self->chars = $chars)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_CharClass($self)};
+sub node_name{my $self=shift;'Rule_CharClass'};
+sub field_names{my $self=shift;['chars']};
+sub field_values{my $self=shift;[$self->chars]};
+sub describe{my $self=shift;((('Rule_CharClass(' . $self->describe_anything($self->chars)) . ',') . ')')}
+}
+;
+
+{ package Rule_Capture;
+use Moose;
+use Moose::Autobox; use autobox::Core;
+extends 'Rule_Base';has 'match' => (is => 'rw');;
+has 'rule' => (is => 'rw');;
+has 'position' => (is => 'rw');;
+has 'capture_to_array' => (is => 'rw');;
+sub new{my $self=shift;my($match,$rule,$position,$capture_to_array)=@_;
+($self->match = $match);
+($self->rule = $rule);
+($self->position = $position);
+($self->capture_to_array = $capture_to_array)};
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Rule_Capture($self)};
+sub node_name{my $self=shift;'Rule_Capture'};
+sub field_names{my $self=shift;['rule', 'position', 'capture_to_array']};
+sub field_values{my $self=shift;[$self->rule, $self->position, $self->capture_to_array]};
+sub describe{my $self=shift;((((((('Rule_Capture(' . $self->describe_anything($self->rule)) . ',') . $self->describe_anything($self->position)) . ',') . $self->describe_anything($self->capture_to_array)) . ',') . ')')}
+}
+
+}
+
+;
 #line 2 emitted_p5
 package Main;
 use Data::Dumper;
 
 { package Program;
 use Moose;
-use Perl6::Say;
-sub main{my $self=shift;::say('hi!\\n')}
+use Moose::Autobox; use autobox::Core;
+sub main{my $self=shift;::say('hi!
+')}
 }
 ;
-Program->new()->main(@ARGV)
+Program->new()->main($a_ARGS)
 ;
 

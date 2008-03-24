@@ -56,18 +56,35 @@
 { package IR::PackageDeclarator;
   @IR::PackageDeclarator::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$kind,$name,$block)=@_;
+    my($cls,$match,$kind,$name,$traits,$block)=@_;
     my %h;
-    @h{'match','kind','name','block'}=($match,$kind,$name,$block);
+    @h{'match','kind','name','traits','block'}=($match,$kind,$name,$traits,$block);
     bless \%h,$cls;
   }
   sub node_name { 'PackageDeclarator' }
   sub match { shift->{match} }
-  sub field_names { qw{ kind name block } }
-  sub field_values { my($self)=@_; @$self{'kind','name','block'} }
+  sub field_names { qw{ kind name traits block } }
+  sub field_values { my($self)=@_; @$self{'kind','name','traits','block'} }
   sub describe {
     my($self)=@_;
-    "PackageDeclarator(".join(",",map{$self->describe_anything($_)}@$self{'kind','name','block'}).")"
+    "PackageDeclarator(".join(",",map{$self->describe_anything($_)}@$self{'kind','name','traits','block'}).")"
+  }
+}
+{ package IR::Trait;
+  @IR::Trait::ISA = qw( IR::All );
+  sub new {
+    my($cls,$match,$verb,$expr)=@_;
+    my %h;
+    @h{'match','verb','expr'}=($match,$verb,$expr);
+    bless \%h,$cls;
+  }
+  sub node_name { 'Trait' }
+  sub match { shift->{match} }
+  sub field_names { qw{ verb expr } }
+  sub field_values { my($self)=@_; @$self{'verb','expr'} }
+  sub describe {
+    my($self)=@_;
+    "Trait(".join(",",map{$self->describe_anything($_)}@$self{'verb','expr'}).")"
   }
 }
 { package IR::Block;

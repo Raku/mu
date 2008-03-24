@@ -7,12 +7,23 @@ use warnings;
 # This code was originally taken from yet_another_regex_engine/Regexp_ModuleA.pm,
 # r20138.
 { package Match;
+  sub new_set {
+    my($cls,$r,$s,$f,$t,$h)=@_;
+    bless {
+      bool => 1,
+      rule => $r,
+      str => $s,
+      from => $f,
+      to => $t,
+      hash => $h,
+      array => [],
+    },$cls;
+  }
   sub new {
     my($cls)=@_;
     my $h = {
       from    => undef,
       to      => undef,
-      result  => undef,
       bool => 1,
       str  => "",
       array   => [],
@@ -161,18 +172,35 @@ use warnings;
 { package IR::PackageDeclarator;
   @IR::PackageDeclarator::ISA = qw( IR::All );
   sub new {
-    my($cls,$match,$kind,$name,$block)=@_;
+    my($cls,$match,$kind,$name,$traits,$block)=@_;
     my %h;
-    @h{'match','kind','name','block'}=($match,$kind,$name,$block);
+    @h{'match','kind','name','traits','block'}=($match,$kind,$name,$traits,$block);
     bless \%h,$cls;
   }
   sub node_name { 'PackageDeclarator' }
   sub match { shift->{match} }
-  sub field_names { qw{ kind name block } }
-  sub field_values { my($self)=@_; @$self{'kind','name','block'} }
+  sub field_names { qw{ kind name traits block } }
+  sub field_values { my($self)=@_; @$self{'kind','name','traits','block'} }
   sub describe {
     my($self)=@_;
-    "PackageDeclarator(".join(",",map{$self->describe_anything($_)}@$self{'kind','name','block'}).")"
+    "PackageDeclarator(".join(",",map{$self->describe_anything($_)}@$self{'kind','name','traits','block'}).")"
+  }
+}
+{ package IR::Trait;
+  @IR::Trait::ISA = qw( IR::All );
+  sub new {
+    my($cls,$match,$verb,$expr)=@_;
+    my %h;
+    @h{'match','verb','expr'}=($match,$verb,$expr);
+    bless \%h,$cls;
+  }
+  sub node_name { 'Trait' }
+  sub match { shift->{match} }
+  sub field_names { qw{ verb expr } }
+  sub field_values { my($self)=@_; @$self{'verb','expr'} }
+  sub describe {
+    my($self)=@_;
+    "Trait(".join(",",map{$self->describe_anything($_)}@$self{'verb','expr'}).")"
   }
 }
 { package IR::Block;
@@ -1144,7 +1172,7 @@ use warnings;
           #print STDERR "Calling constructor for $rule with @{[$m->match_describe]}.\n";
           $constructor->($m);
         } else {
-          die "Unknown rule: $rule\nDon't know how to build an IR from it.\n";
+          die "Unknown rule: $rule\nIt needs to be added to ast_handlers.\n";
         }
       }
       elsif($ref eq 'ARRAY') {
@@ -1214,6 +1242,14 @@ IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge
       my($m)=@_;
     ir($m->{hash}{noun});
     };
+    $IRBuild::constructors{'term'} = sub {
+      my($m)=@_;
+    if(($m->match_string) eq 'self') {
+IR::Apply->new($m,'self',[])
+} else {
+die "AST term partially unimplemented.\n";
+};
+    };
     $IRBuild::constructors{'integer'} = sub {
       my($m)=@_;
     IR::Val_Int->new($m,($m->match_string));
@@ -1248,7 +1284,10 @@ IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge
     };
     $IRBuild::constructors{'quote:qq'} = sub {
       my($m)=@_;
-    IR::Val_Buf->new($m,ir($m->{hash}{text}));
+    my $s = ir($m->{hash}{text});
+$s =~ s/(?<!\\)\\n/\n/g;
+$s =~ s/(?<!\\)\\t/\t/g;
+IR::Val_Buf->new($m,$s);
     };
     $IRBuild::constructors{'infix'} = sub {
       my($m)=@_;
@@ -1260,6 +1299,11 @@ IR::Apply->new($m,"infix:".$op,[ir($m->{hash}{left}),ir($m->{hash}{right})]);
       my($m)=@_;
     my $vd = ir($m->{hash}{scoped});
 IR::Decl->new($m,'my',undef,$vd->[0],$vd->[1]);
+    };
+    $IRBuild::constructors{'scope_declarator:has'} = sub {
+      my($m)=@_;
+    my $vd = ir($m->{hash}{scoped});
+IR::Decl->new($m,'has',undef,$vd->[0],$vd->[1]);
     };
     $IRBuild::constructors{'scoped'} = sub {
       my($m)=@_;
@@ -1343,7 +1387,22 @@ IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'package_declarator:class'} = sub {
       my($m)=@_;
-    IR::PackageDeclarator->new($m,'class',ir($m->{hash}{package_def}->{hash}{module_name})->[0],ir($m->{hash}{package_def}->{hash}{block}));
+    local $blackboard::package_declarator = 'class';
+ir($m->{hash}{package_def});
+    };
+    $IRBuild::constructors{'package_declarator:module'} = sub {
+      my($m)=@_;
+    local $blackboard::package_declarator = 'module';
+ir($m->{hash}{package_def});
+    };
+    $IRBuild::constructors{'package_declarator:package'} = sub {
+      my($m)=@_;
+    local $blackboard::package_declarator = 'package';
+ir($m->{hash}{package_def});
+    };
+    $IRBuild::constructors{'package_def'} = sub {
+      my($m)=@_;
+    IR::PackageDeclarator->new($m,$blackboard::package_declarator,ir($m->{hash}{module_name})->[0],ir($m->{hash}{traits}),ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'fulltypename'} = sub {
       my($m)=@_;
@@ -1352,6 +1411,10 @@ IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     $IRBuild::constructors{'typename'} = sub {
       my($m)=@_;
     ir($m->{hash}{name});
+    };
+    $IRBuild::constructors{'trait_verb:is'} = sub {
+      my($m)=@_;
+    IR::Trait->new($m,'is',ir($m->{hash}{ident}));
     };
     $IRBuild::constructors{'circumfix:pblock'} = sub {
       my($m)=@_;
@@ -1420,7 +1483,7 @@ use Data::Dumper;
 }
 elsif(IR->emit_p5_for($n->{code}) =~ /^circumfix:(.+)/) {
   my $op = $1;
-  my($arg)=@{IR->emit_p5_for($n->{arguments})};
+  my($arg)=join(",",@{IR->emit_p5_for($n->{arguments})||[]});
   if(undef) {
   } else {
     $op =~ s/ /$arg/;
@@ -1431,6 +1494,8 @@ else {
   my $f = IR->emit_p5_for($n->{code});
   if($f =~ /^\$\w+$/) {
      $f.'->('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
+  }elsif($f eq 'self') {
+    '$self'
   }else{
      '::'.$f.'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
   }
@@ -1439,7 +1504,17 @@ else {
 }
 { package IR::Decl; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
+    if(IR->emit_p5_for($n->{decl}) eq 'has') {
+  my $default = IR->emit_p5_for($n->{default});
+  if(defined $default) {
+    $default = ", default => $default"
+  } else {
+    $default = ""
+  }
+  "has '".IR->emit_p5_for($n->{var}->{name})."' => (is => 'rw'$default);"
+} else {
+  IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
+}
   }
 }
 { package IR::Use; sub emit_p5 {
@@ -1456,7 +1531,19 @@ $s;
 }
 { package IR::Var; sub emit_p5 {
     my($n)=@_;
-    IR->emit_p5_for($n->{sigil}).IR->emit_p5_for($n->{name})
+    my $s = IR->emit_p5_for($n->{sigil});
+my $t = IR->emit_p5_for($n->{twigil})||'';
+my $env = '';
+$env = 'e' if $t eq '^';
+my $pre = '';
+$pre = 'a_' if $s eq '@';
+$pre = 'h_' if $s eq '%';
+my $name = $env.$pre.IR->emit_p5_for($n->{name});
+if($t eq '.') {
+  '$self->'.$name
+}else{
+  '$'.$name
+}
   }
 }
 { package IR::If; sub emit_p5 {
@@ -1500,8 +1587,19 @@ else {
     ("\n{ package ".IR->emit_p5_for($n->{name}).";\n".
  "use Moose;\n".
  "use Moose::Autobox; use autobox::Core;\n".
+ join("\n",@{IR->emit_p5_for($n->{traits})||[]}).
  IR->emit_p5_for($n->{block}).
  "\n}\n");
+  }
+}
+{ package IR::Trait; sub emit_p5 {
+    my($n)=@_;
+    if(IR->emit_p5_for($n->{verb}) eq 'is') {
+  "extends '".IR->emit_p5_for($n->{expr})."';"
+} else {
+  print STDERR "ERROR: Emitting p5 for Trait verb ".IR->emit_p5_for($n->{verb})." has not been implemented.\n";
+  "***Trait***"
+}
   }
 }
 { package IR::Call; sub emit_p5 {
@@ -1519,7 +1617,7 @@ if($method =~ 'postcircumfix:(.*)') {
 }
 { package IR::Lit_Hash; sub emit_p5 {
     my($n)=@_;
-    '{'.join(",",@{IR->emit_p5_for($n->{hash})}).'}'
+    '{'.join(",",@{IR->emit_p5_for($n->{hash})||[]}).'}'
   }
 }
 #line 2 prelude.pl
@@ -1531,7 +1629,7 @@ use Perl6::Say;
 use Moose::Autobox;
 use autobox::Core;
 
-our @ARGS = @ARGV;
+our $a_ARGS = [@ARGV];
 END
 }
 #line 2 main.pl
@@ -1609,9 +1707,12 @@ default Run code.
   }
   sub compile {
     my($self,$p6_code,$verbose)=@_;
-    my $yaml = $self->parse(undef,$p6_code);
-    print $yaml if $verbose;
-    my $tree = YAML::Syck::Load($yaml);
+    #my $yaml = $self->parse(undef,$p6_code);
+    #print $yaml if $verbose;
+    #my $tree = YAML::Syck::Load($yaml);
+    my $dump5 = $self->parse(undef,$p6_code);
+    print $dump5 if $verbose;
+    my $tree = eval('package Fastdump;'.$dump5);
     if(!$tree) {
       exit(1);
     }
@@ -1644,9 +1745,13 @@ default Run code.
       close($fh);
       $file = $fname;
     }
-    my $cmd = "$std_red -q --yaml $file";
-    my $yaml = `$cmd` or die "Parse failed. $!\n";
-    $yaml;
+    my $cmd = "$std_red -q --dump5 $file";
+    my $out = `$cmd` or die "Parse failed. $!\n";
+    $out;
   }
 }
 Program->new()->main(\@ARGV);
+
+{ package Fastdump;
+  sub match {my($r,$s,$f,$t,$h)=@_;Match->new_set($r,$s,$f,$t,$h)}
+}
