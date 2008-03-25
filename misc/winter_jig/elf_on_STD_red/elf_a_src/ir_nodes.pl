@@ -223,6 +223,23 @@
     "Val_Object(".join(",",map{$self->describe_anything($_)}@$self{'clazz','fields'}).")"
   }
 }
+{ package IR::Val_Rx;
+  @IR::Val_Rx::ISA = qw( IR::All );
+  sub new {
+    my($cls,$match,$pat)=@_;
+    my %h;
+    @h{'match','pat'}=($match,$pat);
+    bless \%h,$cls;
+  }
+  sub node_name { 'Val_Rx' }
+  sub match { shift->{match} }
+  sub field_names { qw{ pat } }
+  sub field_values { my($self)=@_; @$self{'pat'} }
+  sub describe {
+    my($self)=@_;
+    "Val_Rx(".join(",",map{$self->describe_anything($_)}@$self{'pat'}).")"
+  }
+}
 { package IR::Lit_Seq;
   @IR::Lit_Seq::ISA = qw( IR::All );
   sub new {

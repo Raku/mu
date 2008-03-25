@@ -101,6 +101,11 @@ my $s = Data::Dumper::Dumper(IR->emit_p5_for($n->{buf})); chomp($s);
 $s;
   }
 }
+{ package IR::Val_Rx; sub emit_p5 {
+    my($n)=@_;
+    'qr/'.IR->emit_p5_for($n->{pat}).'/'
+  }
+}
 { package IR::Var; sub emit_p5 {
     my($n)=@_;
     my $s = IR->emit_p5_for($n->{sigil});

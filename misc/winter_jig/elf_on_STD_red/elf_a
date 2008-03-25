@@ -339,6 +339,23 @@ use warnings;
     "Val_Object(".join(",",map{$self->describe_anything($_)}@$self{'clazz','fields'}).")"
   }
 }
+{ package IR::Val_Rx;
+  @IR::Val_Rx::ISA = qw( IR::All );
+  sub new {
+    my($cls,$match,$pat)=@_;
+    my %h;
+    @h{'match','pat'}=($match,$pat);
+    bless \%h,$cls;
+  }
+  sub node_name { 'Val_Rx' }
+  sub match { shift->{match} }
+  sub field_names { qw{ pat } }
+  sub field_values { my($self)=@_; @$self{'pat'} }
+  sub describe {
+    my($self)=@_;
+    "Val_Rx(".join(",",map{$self->describe_anything($_)}@$self{'pat'}).")"
+  }
+}
 { package IR::Lit_Seq;
   @IR::Lit_Seq::ISA = qw( IR::All );
   sub new {
@@ -1238,17 +1255,20 @@ $blackboard::expect_term_base;
     };
     $IRBuild::constructors{'post'} = sub {
       my($m)=@_;
-      my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
-die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
-my $one = ir($m->{hash}{$keys[0]});
-$one;
+    ir($m->{hash}{dotty}) or ir($m->{hash}{postop});
     };
     $IRBuild::constructors{'dotty:methodop'} = sub {
       my($m)=@_;
     IR::Call->new($m,$blackboard::expect_term_base,undef,ir($m->{hash}{ident}),ir($m->{hash}{semilist}));
     };
     $IRBuild::constructors{'dotty:postcircumfix'} = sub {
+      my($m)=@_;
+    my $s = ($m->match_string);
+my $name = substr($s,0,1).' '.substr($s,-1,1);
+my $ident = "postcircumfix:".$name;
+IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge_name}));
+    };
+    $IRBuild::constructors{'postcircumfix'} = sub {
       my($m)=@_;
     my $s = ($m->match_string);
 my $name = substr($s,0,1).' '.substr($s,-1,1);
@@ -1305,6 +1325,11 @@ die "AST term partially unimplemented.\n";
 $s =~ s/(?<!\\)\\n/\n/g;
 $s =~ s/(?<!\\)\\t/\t/g;
 IR::Val_Buf->new($m,$s);
+    };
+    $IRBuild::constructors{'quote:regex'} = sub {
+      my($m)=@_;
+    my $s = ir($m->{hash}{text});
+IR::Val_Rx->new($m,$s);
     };
     $IRBuild::constructors{'infix'} = sub {
       my($m)=@_;
@@ -1554,6 +1579,11 @@ my $s = Data::Dumper::Dumper(IR->emit_p5_for($n->{buf})); chomp($s);
 $s;
   }
 }
+{ package IR::Val_Rx; sub emit_p5 {
+    my($n)=@_;
+    'qr/'.IR->emit_p5_for($n->{pat}).'/'
+  }
+}
 { package IR::Var; sub emit_p5 {
     my($n)=@_;
     my $s = IR->emit_p5_for($n->{sigil});
@@ -1668,10 +1698,17 @@ our $a_ARGS = [@ARGV];
 use Carp;
 sub slurp{my($file)=@_; `cat $file`;}
 sub unslurp{my($text,$file)=@_; open(F,">$file") or die $!; print F $text; close F;}
+sub file_exists{-e $_[0]}
 sub system{system(@_)}
 sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
 sub ::die{croak @_}
 sub ::exit{exit(@_)}
+
+package SCALAR;
+sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
+sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
+
+package main;
 END
 }
 #line 2 main.pl

@@ -9,10 +9,17 @@ our $a_ARGS = [@ARGV];
 use Carp;
 sub slurp{my($file)=@_; `cat $file`;}
 sub unslurp{my($text,$file)=@_; open(F,">$file") or die $!; print F $text; close F;}
+sub file_exists{-e $_[0]}
 sub system{system(@_)}
 sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
 sub ::die{croak @_}
 sub ::exit{exit(@_)}
+
+package SCALAR;
+sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
+sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
+
+package main;
 
 #line 2 emitted_p5
 package Main;
@@ -33,7 +40,7 @@ sub match_describe{my $self=shift;my $s = ((((((($self->rule . '<') . $self->fro
 for($self->hash->keys()->flatten){
 my $k = $_;
 my $v = $self->hash->{$k};
-my $vs = $v;
+my $vs = $v->match_describe();
 ($s = ((((($s . '
   ') . $k) . ' => ') . $self->indent_except_top($vs)) . ','))
 };
@@ -42,8 +49,28 @@ if($self->hash->keys()->elems()) {
 '))
 };
 ($s = ($s . '}>'))};
+sub indent{my $self=shift;my($s)=@_;
+$s->re_gsub(qr/(?m:^(?!\Z))/, '  ')};
 sub indent_except_top{my $self=shift;my($s)=@_;
-'*unimplemented*'}
+$s->re_gsub(qr/(?m:^(?<!\A)(?!\Z))/, '  ')}
+}
+;
+
+{ package ARRAY;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+sub match_describe{my $self=shift;((('[
+' . Match->indent($self->map(sub {my($e)=@_;
+$e->match_describe()})->join(',
+'))) . '
+]'))}
+}
+;
+
+{ package SCALAR;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+sub match_describe{my $self=shift;(('\'' . $self) . '\'')}
 }
 
 ;
@@ -252,6 +279,20 @@ sub node_name{my $self=shift;'Val_Object'};
 sub field_names{my $self=shift;['clazz', 'fields']};
 sub field_values{my $self=shift;[$self->clazz, $self->fields]};
 sub describe{my $self=shift;((((('Val_Object(' . $self->describe_anything($self->clazz)) . ',') . $self->describe_anything($self->fields)) . ',') . ')')}
+}
+;
+
+{ package Val_Rx;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+extends 'Val_Base';has 'match' => (is => 'rw');;
+has 'pat' => (is => 'rw');;
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_Val_Rx($self)};
+sub node_name{my $self=shift;'Val_Rx'};
+sub field_names{my $self=shift;['pat']};
+sub field_values{my $self=shift;[$self->pat]};
+sub describe{my $self=shift;((('Val_Rx(' . $self->describe_anything($self->pat)) . ',') . ')')}
 }
 ;
 
@@ -1027,6 +1068,8 @@ while($args->elems()) {
 my $arg = $args->shift();
 if(($arg eq '-e')) {
 ($p6_code = $args->shift())
+}elsif(::file_exists($arg)) {
+($p6_code = ::slurp($arg))
 }else {
 $self->print_usage_and_die()
 }

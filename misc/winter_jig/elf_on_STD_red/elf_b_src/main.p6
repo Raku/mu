@@ -15,6 +15,9 @@ class Program {
       if $arg eq '-e' {
         $p6_code = $args.shift;
       }
+      elsif file_exists($arg) {
+        $p6_code = slurp($arg)
+      }
       else {
         self.print_usage_and_die;
       }

@@ -23,17 +23,20 @@ $blackboard::expect_term_base;
     };
     $IRBuild::constructors{'post'} = sub {
       my($m)=@_;
-      my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
-die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
-my $one = ir($m->{hash}{$keys[0]});
-$one;
+    ir($m->{hash}{dotty}) or ir($m->{hash}{postop});
     };
     $IRBuild::constructors{'dotty:methodop'} = sub {
       my($m)=@_;
     IR::Call->new($m,$blackboard::expect_term_base,undef,ir($m->{hash}{ident}),ir($m->{hash}{semilist}));
     };
     $IRBuild::constructors{'dotty:postcircumfix'} = sub {
+      my($m)=@_;
+    my $s = ($m->match_string);
+my $name = substr($s,0,1).' '.substr($s,-1,1);
+my $ident = "postcircumfix:".$name;
+IR::Call->new($m,$blackboard::expect_term_base,undef,$ident,ir($m->{hash}{kludge_name}));
+    };
+    $IRBuild::constructors{'postcircumfix'} = sub {
       my($m)=@_;
     my $s = ($m->match_string);
 my $name = substr($s,0,1).' '.substr($s,-1,1);
@@ -90,6 +93,11 @@ die "AST term partially unimplemented.\n";
 $s =~ s/(?<!\\)\\n/\n/g;
 $s =~ s/(?<!\\)\\t/\t/g;
 IR::Val_Buf->new($m,$s);
+    };
+    $IRBuild::constructors{'quote:regex'} = sub {
+      my($m)=@_;
+    my $s = ir($m->{hash}{text});
+IR::Val_Rx->new($m,$s);
     };
     $IRBuild::constructors{'infix'} = sub {
       my($m)=@_;
