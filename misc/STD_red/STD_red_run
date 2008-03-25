@@ -1,90 +1,124 @@
 #!/usr/bin/env ruby
 require "yaml"
 
-def print_usage_and_exit(msg=nil,code=2)
-  msg += "\n\n" if msg
-  msg ||= ""
-  STDERR.print <<END
+class STDRedRun
+  def print_usage_and_exit(msg=nil,code=2)
+    msg += "\n\n" if msg
+    msg ||= ""
+    STDERR.print <<END
 #{msg}#{$0} [-q] [--yaml] [ --start=RULE ] [ FILENAME | -e CODE ]
 
+If the environment variable STD_RED_CACHEDIR is set, output will be
+saved there, and used in preference to reparsing, when the same code
+is seen again.  -e CODE is not cached.  And when std.rb is changed,
+previous cache entries are ignored.
+
 END
-  exit(code)
-end
-
-def main
-  start = '_UNIT'
-  quiet = yaml = dump5 = dump6 = false
-  code = nil
-  if ARGV.empty?
-    print "\nRun #{$0} --help  to get help.\n";
-    Repl.new.parser_rule
-    exit(0)
-  end
-  if ARGV.size == 1 and ARGV[0] == '--help'
-    print_usage_and_exit(nil,0)
-  end
-  if ARGV[0] == '-q'
-    ARGV.shift
-    quiet = true
-  end
-  if ARGV[0] == '--yaml'
-    ARGV.shift
-    yaml = true
-  end
-  if ARGV[0] == '--dump5'
-    ARGV.shift
-    dump5 = true
-  end
-  if ARGV[0] == '--dump6'
-    ARGV.shift
-    dump6 = true
-  end
-  if m = ARGV[0].match(/--start=(\w+)/)
-    ARGV.shift
-    start = m[1]
-  end
-  if ARGV[0] == '-e'
-    ARGV.shift
-    code = ARGV.shift
-  elsif not ARGV.empty?
-    filename = ARGV.shift
-    print_usage_and_exit("File #{filename} doesn't exist.") if not File.exists?(filename)
-    code = File.open(filename,'r'){|f|f.read}
-  else
-    print_usage_and_exit
+    exit(code)
   end
 
-  $quiet = quiet
-  $:.push(File.dirname($0))
-  require 'std'
-  
-  kibitz = false
-  pn = Perl.new(code)
-  tree=nil
-  STDERR.print "parsing...\n" if kibitz
-  begin 
-    tree = pn.send(start.to_sym)
-  rescue Interrupt
-    exit(1)
+  def main
+    start = '_UNIT'
+    quiet = yaml = dump5 = dump6 = false
+    code = nil
+    if ARGV.empty?
+      print "\nRun #{$0} --help  to get help.\n";
+      Repl.new.parser_rule
+      exit(0)
+    end
+    if ARGV.size == 1 and ARGV[0] == '--help'
+      print_usage_and_exit(nil,0)
+    end
+    if ARGV[0] == '-q'
+      ARGV.shift
+      quiet = true
+    end
+    if ARGV[0] == '--yaml'
+      ARGV.shift
+      yaml = true
+    end
+    if ARGV[0] == '--dump5'
+      ARGV.shift
+      dump5 = true
+    end
+    if ARGV[0] == '--dump6'
+      ARGV.shift
+      dump6 = true
+    end
+    if m = ARGV[0].match(/--start=(\w+)/)
+      ARGV.shift
+      start = m[1]
+    end
+    if ARGV[0] == '-e'
+      ARGV.shift
+      code = ARGV.shift
+    elsif not ARGV.empty?
+      filename = ARGV.shift
+      print_usage_and_exit("File #{filename} doesn't exist.") if not File.exists?(filename)
+      code = File.open(filename,'r'){|f|f.read}
+    else
+      print_usage_and_exit
+    end
+    
+    $quiet = quiet
+    $:.push(File.dirname($0))
+    require 'std'
+    
+    output = cached_output_for(code, yaml ? 'yaml' : dump5 ? 'dump5' : nil)
+    if output; print output; exit end
+
+    kibitz = false
+    pn = Perl.new(code)
+    tree=nil
+    STDERR.print "parsing...\n" if kibitz
+    begin 
+      tree = pn.send(start.to_sym)
+    rescue Interrupt
+      exit(1)
+    end
+    if dump5
+      print out(tree.to_fastdump5)
+    elsif dump6
+      print out(tree.to_fastdump6)
+    elsif yaml
+      tree.prepare_for_yaml_dump if tree
+      STDERR.print "yaml dumping...\n" if kibitz
+      yml = YAML::dump(tree)+"\n"
+      STDERR.print "yaml gsub'ing...\n" if kibitz
+      p5yml = yml
+      p5yml.gsub!(/^(\s*):/,'\1')
+      p5yml.gsub!(/^(\s*rule: ):/,'\1')
+      p5yml.gsub!(/ !ruby\/object:Match/,' !!perl/hash:Match')
+      STDERR.print "done.\n" if kibitz
+      print out(p5yml)
+    else
+      STDERR.print "describing...\n" if kibitz
+      print tree.match_describe
+    end
   end
-  if dump5
-    print tree.to_fastdump5
-  elsif dump6
-    print tree.to_fastdump6
-  elsif yaml
-    tree.prepare_for_yaml_dump if tree
-    STDERR.print "yaml dumping...\n" if kibitz
-    yml = YAML::dump(tree)+"\n"
-    STDERR.print "yaml gsub'ing...\n" if kibitz
-    p5yml = yml
-    p5yml.gsub!(/^(\s*):/,'\1')
-    p5yml.gsub!(/^(\s*rule: ):/,'\1')
-    p5yml.gsub!(/ !ruby\/object:Match/,' !!perl/hash:Match')
-    STDERR.print "done.\n" if kibitz
-    print p5yml
-  else
-    STDERR.print "describing...\n" if kibitz
-    print tree.match_describe
+
+  def cached_output_for(code,format)
+    cachedir = ENV['STD_RED_CACHEDIR']
+    return nil if not cachedir or not format
+    input = code+format
+    require 'digest/md5'
+    std_file = File.dirname($0)+"/std.rb"
+    std_code = File.open(std_file,"r"){|f|f.read}
+    std_sig = Digest::MD5.hexdigest(std_code)
+    input_sig = Digest::MD5.hexdigest(input)
+    @cache_file = cachedir+'/parse_'+std_sig.slice(0,8)+'_'+input_sig.slice(0,32)
+    if File.exists? @cache_file
+      File.open(@cache_file,"r"){|f|f.read}
+    else
+      nil
+    end
   end
+  def out(output)
+    File.open(@cache_file,"w"){|f|f.print output} if @cache_file
+    output
+  end
+
 end
-main
+STDRedRun.new.main
+
+
