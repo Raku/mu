@@ -628,6 +628,23 @@ use warnings;
     "While(".join(",",map{$self->describe_anything($_)}@$self{'test','body'}).")"
   }
 }
+{ package IR::For;
+  @IR::For::ISA = qw( IR::All );
+  sub new {
+    my($cls,$match,$expr,$body)=@_;
+    my %h;
+    @h{'match','expr','body'}=($match,$expr,$body);
+    bless \%h,$cls;
+  }
+  sub node_name { 'For' }
+  sub match { shift->{match} }
+  sub field_names { qw{ expr body } }
+  sub field_values { my($self)=@_; @$self{'expr','body'} }
+  sub describe {
+    my($self)=@_;
+    "For(".join(",",map{$self->describe_anything($_)}@$self{'expr','body'}).")"
+  }
+}
 { package IR::Decl;
   @IR::Decl::ISA = qw( IR::All );
   sub new {
@@ -1335,6 +1352,14 @@ $one;
 my $name = substr($s,0,1).' '.substr($s,-1,1);
 IR::Apply->new($m,"circumfix:".$name,ir($m->{hash}{kludge_name}));
     };
+    $IRBuild::constructors{'statement_control:for'} = sub {
+      my($m)=@_;
+    IR::For->new($m,ir($m->{hash}{expr}),ir($m->{hash}{block}));
+    };
+    $IRBuild::constructors{'statement_control:while'} = sub {
+      my($m)=@_;
+    IR::While->new($m,ir($m->{hash}{expr}),ir($m->{hash}{block}));
+    };
     $IRBuild::constructors{'statement_control:if'} = sub {
       my($m)=@_;
     IR::If->new($m,ir($m->{hash}{if_expr}),ir($m->{hash}{if_block}),ir($m->{hash}{elsif}),ir($m->{hash}{else}));
@@ -1546,11 +1571,21 @@ if($t eq '.') {
 }
   }
 }
+{ package IR::For; sub emit_p5 {
+    my($n)=@_;
+    'for('.IR->emit_p5_for($n->{expr})."->flatten){\n".IR->emit_p5_for($n->{body})."\n}"
+  }
+}
 { package IR::If; sub emit_p5 {
     my($n)=@_;
-    ('if('.IR->emit_p5_for($n->{test}).")\n".IR->emit_p5_for($n->{body})."\n"
-.join("",map{'elsif('.$_->[0].")\n".$_->[1]."\n"} @{IR->emit_p5_for($n->{elsif})})
-.(IR->emit_p5_for($n->{else}) ?  "else\n".IR->emit_p5_for($n->{else})->[0] : ""))
+    ('if('.IR->emit_p5_for($n->{test}).") {\n".IR->emit_p5_for($n->{body})."\n}"
+.join("",map{'elsif('.$_->[0].") {\n".$_->[1]."\n}"} @{IR->emit_p5_for($n->{elsif})})
+.(IR->emit_p5_for($n->{else}) ?  "else {\n".IR->emit_p5_for($n->{else})->[0]."\n}" : ""))
+  }
+}
+{ package IR::While; sub emit_p5 {
+    my($n)=@_;
+    'while('.IR->emit_p5_for($n->{test}).") {\n".IR->emit_p5_for($n->{body})."\n}"
   }
 }
 { package IR::Block; sub emit_p5 {
@@ -1586,7 +1621,7 @@ else {
     my($n)=@_;
     ("\n{ package ".IR->emit_p5_for($n->{name}).";\n".
  "use Moose;\n".
- "use Moose::Autobox; use autobox::Core;\n".
+ "use Moose::Autobox; use autobox; use autobox::Core;\n".
  join("\n",@{IR->emit_p5_for($n->{traits})||[]}).
  IR->emit_p5_for($n->{block}).
  "\n}\n");
@@ -1626,10 +1661,17 @@ sub Program::prelude {
   return "#line ".(__LINE__+1)." elf_a_src/prelude.pl\n".<<'END';
 package main;
 use Perl6::Say;
-use Moose::Autobox;
-use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 
 our $a_ARGS = [@ARGV];
+
+use Carp;
+sub slurp{my($file)=@_; `cat $file`;}
+sub unslurp{my($text,$file)=@_; open(F,">$file") or die $!; print F $text; close F;}
+sub system{system(@_)}
+sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+sub ::die{croak @_}
+sub ::exit{exit(@_)}
 END
 }
 #line 2 main.pl
@@ -1642,11 +1684,12 @@ END
   }
   sub print_usage_and_exit {
     my $usage = "
-Usage: [-v] [-c|-x] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
+Usage: [-v] [-c|-x|-xe] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
 
 default Run code.
  -c     Compile code.
  -x     Compile code, and include prelude, creating an executable.
+ -xe    Compile code, and include prelude, and run it.
 
 ";
     print STDERR $usage;
@@ -1655,18 +1698,23 @@ default Run code.
   sub main {
     my($self,$argv)=@_;
     $self->print_usage_and_exit() if !@$argv;
-    my($output_file,$dont_run,$include_prelude,$verbose);
+    my($output_file,$dont_eval,$run_externally,$include_prelude,$verbose);
     my $p5_code = "";
     while(my $arg = shift(@$argv)) {
       if($arg eq '-v') {
         $verbose = 1;
       }
       elsif($arg eq '-c') {
-        $dont_run = 1;
+        $dont_eval = 1;
       }
       elsif($arg eq '-x') {
-        $dont_run = 1;
+        $dont_eval = 1;
         $include_prelude = 1;
+      }
+      elsif($arg eq '-xe') {
+        $dont_eval = 1;
+        $include_prelude = 1;
+        $run_externally = 1;
       }
       elsif($arg eq '-o') {
         $output_file = shift(@$argv) || $self->print_usage_and_exit();
@@ -1681,27 +1729,41 @@ default Run code.
         $p5_code .= $self->compile($p6_code,$verbose);
         $p5_code .= "\n;\n";
       }
+      elsif($arg eq '--') {
+        last;
+      }
       else {
         $self->print_usage_and_exit();
       }
     }
     my $prelude = "";
-    $prelude = $self->prelude if $include_prelude || !$dont_run;
+    $prelude = $self->prelude if $include_prelude || !$dont_eval;
     $p5_code = $prelude."\n".$p5_code;
     $p5_code = "#!/usr/bin/perl -w\n".$p5_code;
-    if($dont_run) {
+    if(!$dont_eval) {
+      eval($p5_code);
+      if($@) {
+        #XXX... provide $code.
+        die $@;
+      }
+    }
+    elsif($run_externally) {
+      if(not $output_file) {
+        use File::Temp qw/ tempfile /;
+        my($fh,$fname) = tempfile();
+        close $fh;
+        $output_file = $fname;
+      }
+      open(F,">$output_file") or die $!;
+      print F $p5_code; close F;
+      exec("perl",$output_file,@ARGV);
+    }
+    else {
       if(not $output_file) {
         print $p5_code,"\n";
       } else {
         open(F,">$output_file") or die $!;
         print F $p5_code,"\n"; close F;
-      }
-    }
-    else {
-      eval($p5_code);
-      if($@) {
-        #XXX... provide $code.
-        die $@;
       }
     }
   }

@@ -118,11 +118,21 @@ if($t eq '.') {
 }
   }
 }
+{ package IR::For; sub emit_p5 {
+    my($n)=@_;
+    'for('.IR->emit_p5_for($n->{expr})."->flatten){\n".IR->emit_p5_for($n->{body})."\n}"
+  }
+}
 { package IR::If; sub emit_p5 {
     my($n)=@_;
-    ('if('.IR->emit_p5_for($n->{test}).")\n".IR->emit_p5_for($n->{body})."\n"
-.join("",map{'elsif('.$_->[0].")\n".$_->[1]."\n"} @{IR->emit_p5_for($n->{elsif})})
-.(IR->emit_p5_for($n->{else}) ?  "else\n".IR->emit_p5_for($n->{else})->[0] : ""))
+    ('if('.IR->emit_p5_for($n->{test}).") {\n".IR->emit_p5_for($n->{body})."\n}"
+.join("",map{'elsif('.$_->[0].") {\n".$_->[1]."\n}"} @{IR->emit_p5_for($n->{elsif})})
+.(IR->emit_p5_for($n->{else}) ?  "else {\n".IR->emit_p5_for($n->{else})->[0]."\n}" : ""))
+  }
+}
+{ package IR::While; sub emit_p5 {
+    my($n)=@_;
+    'while('.IR->emit_p5_for($n->{test}).") {\n".IR->emit_p5_for($n->{body})."\n}"
   }
 }
 { package IR::Block; sub emit_p5 {
@@ -158,7 +168,7 @@ else {
     my($n)=@_;
     ("\n{ package ".IR->emit_p5_for($n->{name}).";\n".
  "use Moose;\n".
- "use Moose::Autobox; use autobox::Core;\n".
+ "use Moose::Autobox; use autobox; use autobox::Core;\n".
  join("\n",@{IR->emit_p5_for($n->{traits})||[]}).
  IR->emit_p5_for($n->{block}).
  "\n}\n");

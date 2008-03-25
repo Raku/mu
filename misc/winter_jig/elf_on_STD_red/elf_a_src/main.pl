@@ -8,11 +8,12 @@
   }
   sub print_usage_and_exit {
     my $usage = "
-Usage: [-v] [-c|-x] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
+Usage: [-v] [-c|-x|-xe] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
 
 default Run code.
  -c     Compile code.
  -x     Compile code, and include prelude, creating an executable.
+ -xe    Compile code, and include prelude, and run it.
 
 ";
     print STDERR $usage;
@@ -21,18 +22,23 @@ default Run code.
   sub main {
     my($self,$argv)=@_;
     $self->print_usage_and_exit() if !@$argv;
-    my($output_file,$dont_run,$include_prelude,$verbose);
+    my($output_file,$dont_eval,$run_externally,$include_prelude,$verbose);
     my $p5_code = "";
     while(my $arg = shift(@$argv)) {
       if($arg eq '-v') {
         $verbose = 1;
       }
       elsif($arg eq '-c') {
-        $dont_run = 1;
+        $dont_eval = 1;
       }
       elsif($arg eq '-x') {
-        $dont_run = 1;
+        $dont_eval = 1;
         $include_prelude = 1;
+      }
+      elsif($arg eq '-xe') {
+        $dont_eval = 1;
+        $include_prelude = 1;
+        $run_externally = 1;
       }
       elsif($arg eq '-o') {
         $output_file = shift(@$argv) || $self->print_usage_and_exit();
@@ -47,27 +53,41 @@ default Run code.
         $p5_code .= $self->compile($p6_code,$verbose);
         $p5_code .= "\n;\n";
       }
+      elsif($arg eq '--') {
+        last;
+      }
       else {
         $self->print_usage_and_exit();
       }
     }
     my $prelude = "";
-    $prelude = $self->prelude if $include_prelude || !$dont_run;
+    $prelude = $self->prelude if $include_prelude || !$dont_eval;
     $p5_code = $prelude."\n".$p5_code;
     $p5_code = "#!/usr/bin/perl -w\n".$p5_code;
-    if($dont_run) {
+    if(!$dont_eval) {
+      eval($p5_code);
+      if($@) {
+        #XXX... provide $code.
+        die $@;
+      }
+    }
+    elsif($run_externally) {
+      if(not $output_file) {
+        use File::Temp qw/ tempfile /;
+        my($fh,$fname) = tempfile();
+        close $fh;
+        $output_file = $fname;
+      }
+      open(F,">$output_file") or die $!;
+      print F $p5_code; close F;
+      exec("perl",$output_file,@ARGV);
+    }
+    else {
       if(not $output_file) {
         print $p5_code,"\n";
       } else {
         open(F,">$output_file") or die $!;
         print F $p5_code,"\n"; close F;
-      }
-    }
-    else {
-      eval($p5_code);
-      if($@) {
-        #XXX... provide $code.
-        die $@;
       }
     }
   }

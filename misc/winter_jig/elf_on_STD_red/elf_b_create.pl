@@ -12,6 +12,7 @@ sub main {
 #  write_emit_p5();
 
   my $files = join(" ",map{"elf_b_src/$_"}qw(
+    Match.pm
     ir_nodes.p6
     main.p6 ));
   system("./elf_a_create.pl --create-only") == 0 or die "elf_a_create failed\n";

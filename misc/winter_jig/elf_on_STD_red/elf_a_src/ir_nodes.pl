@@ -512,6 +512,23 @@
     "While(".join(",",map{$self->describe_anything($_)}@$self{'test','body'}).")"
   }
 }
+{ package IR::For;
+  @IR::For::ISA = qw( IR::All );
+  sub new {
+    my($cls,$match,$expr,$body)=@_;
+    my %h;
+    @h{'match','expr','body'}=($match,$expr,$body);
+    bless \%h,$cls;
+  }
+  sub node_name { 'For' }
+  sub match { shift->{match} }
+  sub field_names { qw{ expr body } }
+  sub field_values { my($self)=@_; @$self{'expr','body'} }
+  sub describe {
+    my($self)=@_;
+    "For(".join(",",map{$self->describe_anything($_)}@$self{'expr','body'}).")"
+  }
+}
 { package IR::Decl;
   @IR::Decl::ISA = qw( IR::All );
   sub new {

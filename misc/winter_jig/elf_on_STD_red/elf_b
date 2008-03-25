@@ -2,50 +2,90 @@
 #line 5 elf_a_src/prelude.pl
 package main;
 use Perl6::Say;
-use Moose::Autobox;
-use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 
 our $a_ARGS = [@ARGV];
 
+use Carp;
+sub slurp{my($file)=@_; `cat $file`;}
+sub unslurp{my($text,$file)=@_; open(F,">$file") or die $!; print F $text; close F;}
+sub system{system(@_)}
+sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+sub ::die{croak @_}
+sub ::exit{exit(@_)}
+
+#line 2 emitted_p5
+package Main;
+use Data::Dumper;
+
+{ package Match;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+has 'rule' => (is => 'rw');;
+has 'str' => (is => 'rw');;
+has 'from' => (is => 'rw');;
+has 'to' => (is => 'rw');;
+has 'hash' => (is => 'rw');;
+sub make{my $self=shift;my($r,$s,$f,$t,$h)=@_;
+my $init = {'rule', $r, 'str', $s, 'from', $f, 'to', $t, 'hash', $h};
+$self->new($init)};
+sub match_describe{my $self=shift;my $s = ((((((($self->rule . '<') . $self->from) . ',') . $self->to) . ',\'') . $self->str) . '\',{');
+for($self->hash->keys()->flatten){
+my $k = $_;
+my $v = $self->hash->{$k};
+my $vs = $v;
+($s = ((((($s . '
+  ') . $k) . ' => ') . $self->indent_except_top($vs)) . ','))
+};
+if($self->hash->keys()->elems()) {
+($s = ($s . '
+'))
+};
+($s = ($s . '}>'))};
+sub indent_except_top{my $self=shift;my($s)=@_;
+'*unimplemented*'}
+}
+
+;
 #line 2 emitted_p5
 package Main;
 use Data::Dumper;
 
 { package IR0;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 
 { package Base;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 
 }
 ;
 
 { package Val_Base;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';
 }
 ;
 
 { package Lit_Base;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';
 }
 ;
 
 { package Rule_Base;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';
 }
 ;
 
 { package CompUnit;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -59,7 +99,7 @@ sub describe{my $self=shift;((('CompUnit(' . $self->describe_anything($self->sta
 
 { package Val_Int;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Val_Base';has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -73,7 +113,7 @@ sub describe{my $self=shift;((('Val_Int(' . $self->describe_anything($self->text
 
 { package PackageDeclarator;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'name' => (is => 'rw');;
@@ -90,7 +130,7 @@ sub describe{my $self=shift;((((((((('PackageDeclarator(' . $self->describe_anyt
 
 { package Trait;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'verb' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
@@ -105,7 +145,7 @@ sub describe{my $self=shift;((((('Trait(' . $self->describe_anything($self->verb
 
 { package Block;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -119,7 +159,7 @@ sub describe{my $self=shift;((('Block(' . $self->describe_anything($self->statem
 
 { package Quote;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'concat' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -133,7 +173,7 @@ sub describe{my $self=shift;((('Quote(' . $self->describe_anything($self->concat
 
 { package Val_Bit;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Val_Base';has 'match' => (is => 'rw');;
 has 'bit' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -147,7 +187,7 @@ sub describe{my $self=shift;((('Val_Bit(' . $self->describe_anything($self->bit)
 
 { package Val_Num;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Val_Base';has 'match' => (is => 'rw');;
 has 'num' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -161,7 +201,7 @@ sub describe{my $self=shift;((('Val_Num(' . $self->describe_anything($self->num)
 
 { package Val_Buf;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Val_Base';has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -175,7 +215,7 @@ sub describe{my $self=shift;((('Val_Buf(' . $self->describe_anything($self->buf)
 
 { package Val_Char;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Val_Base';has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -189,7 +229,7 @@ sub describe{my $self=shift;((('Val_Char(' . $self->describe_anything($self->cha
 
 { package Val_Undef;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Val_Base';has 'match' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
 $emitter->emit_Val_Undef($self)};
@@ -202,7 +242,7 @@ sub describe{my $self=shift;('Val_Undef(' . ')')}
 
 { package Val_Object;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Val_Base';has 'match' => (is => 'rw');;
 has 'clazz' => (is => 'rw');;
 has 'fields' => (is => 'rw');;
@@ -217,7 +257,7 @@ sub describe{my $self=shift;((((('Val_Object(' . $self->describe_anything($self-
 
 { package Lit_Seq;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'seq' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -231,7 +271,7 @@ sub describe{my $self=shift;((('Lit_Seq(' . $self->describe_anything($self->seq)
 
 { package Lit_Array;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -245,7 +285,7 @@ sub describe{my $self=shift;((('Lit_Array(' . $self->describe_anything($self->ar
 
 { package Lit_Hash;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -259,7 +299,7 @@ sub describe{my $self=shift;((('Lit_Hash(' . $self->describe_anything($self->has
 
 { package Lit_Pair;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -274,7 +314,7 @@ sub describe{my $self=shift;((((('Lit_Pair(' . $self->describe_anything($self->k
 
 { package Lit_SigArgument;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -297,7 +337,7 @@ sub describe{my $self=shift;((((((((((((((((((((('Lit_SigArgument(' . $self->des
 
 { package Lit_NamedArgument;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -312,7 +352,7 @@ sub describe{my $self=shift;((((('Lit_NamedArgument(' . $self->describe_anything
 
 { package Lit_Code;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'pad' => (is => 'rw');;
 has 'state' => (is => 'rw');;
@@ -330,7 +370,7 @@ sub describe{my $self=shift;((((((((((('Lit_Code(' . $self->describe_anything($s
 
 { package Lit_Object;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'clazz' => (is => 'rw');;
 has 'fields' => (is => 'rw');;
@@ -345,7 +385,7 @@ sub describe{my $self=shift;((((('Lit_Object(' . $self->describe_anything($self-
 
 { package Var;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
@@ -362,7 +402,7 @@ sub describe{my $self=shift;((((((((('Var(' . $self->describe_anything($self->si
 
 { package Bind;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
@@ -377,7 +417,7 @@ sub describe{my $self=shift;((((('Bind(' . $self->describe_anything($self->param
 
 { package Assign;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
@@ -392,7 +432,7 @@ sub describe{my $self=shift;((((('Assign(' . $self->describe_anything($self->par
 
 { package Proto;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -406,7 +446,7 @@ sub describe{my $self=shift;((('Proto(' . $self->describe_anything($self->name))
 
 { package Call;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'hyper' => (is => 'rw');;
@@ -423,7 +463,7 @@ sub describe{my $self=shift;((((((((('Call(' . $self->describe_anything($self->i
 
 { package Apply;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'code' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
@@ -438,7 +478,7 @@ sub describe{my $self=shift;((((('Apply(' . $self->describe_anything($self->code
 
 { package Return;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'result' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -452,7 +492,7 @@ sub describe{my $self=shift;((('Return(' . $self->describe_anything($self->resul
 
 { package If;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'test' => (is => 'rw');;
 has 'body' => (is => 'rw');;
@@ -469,7 +509,7 @@ sub describe{my $self=shift;((((((((('If(' . $self->describe_anything($self->tes
 
 { package While;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'test' => (is => 'rw');;
 has 'body' => (is => 'rw');;
@@ -482,9 +522,24 @@ sub describe{my $self=shift;((((('While(' . $self->describe_anything($self->test
 }
 ;
 
+{ package For;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+extends 'Base';has 'match' => (is => 'rw');;
+has 'expr' => (is => 'rw');;
+has 'body' => (is => 'rw');;
+sub emit{my $self=shift;my($emitter)=@_;
+$emitter->emit_For($self)};
+sub node_name{my $self=shift;'For'};
+sub field_names{my $self=shift;['expr', 'body']};
+sub field_values{my $self=shift;[$self->expr, $self->body]};
+sub describe{my $self=shift;((((('For(' . $self->describe_anything($self->expr)) . ',') . $self->describe_anything($self->body)) . ',') . ')')}
+}
+;
+
 { package Decl;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'decl' => (is => 'rw');;
 has 'type' => (is => 'rw');;
@@ -501,7 +556,7 @@ sub describe{my $self=shift;((((((((('Decl(' . $self->describe_anything($self->d
 
 { package Sig;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'positional' => (is => 'rw');;
@@ -516,7 +571,7 @@ sub describe{my $self=shift;((((('Sig(' . $self->describe_anything($self->invoca
 
 { package Lit_Capture;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'array' => (is => 'rw');;
@@ -532,7 +587,7 @@ sub describe{my $self=shift;((((((('Lit_Capture(' . $self->describe_anything($se
 
 { package Lit_Subset;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Lit_Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'base_class' => (is => 'rw');;
@@ -548,7 +603,7 @@ sub describe{my $self=shift;((((((('Lit_Subset(' . $self->describe_anything($sel
 
 { package Method;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'sig' => (is => 'rw');;
@@ -564,7 +619,7 @@ sub describe{my $self=shift;((((((('Method(' . $self->describe_anything($self->n
 
 { package Sub;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'sig' => (is => 'rw');;
@@ -580,7 +635,7 @@ sub describe{my $self=shift;((((((('Sub(' . $self->describe_anything($self->name
 
 { package Macro;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'sig' => (is => 'rw');;
@@ -596,7 +651,7 @@ sub describe{my $self=shift;((((((('Macro(' . $self->describe_anything($self->na
 
 { package Coro;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'sig' => (is => 'rw');;
@@ -612,7 +667,7 @@ sub describe{my $self=shift;((((((('Coro(' . $self->describe_anything($self->nam
 
 { package P5Token;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'regex' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -626,7 +681,7 @@ sub describe{my $self=shift;((('P5Token(' . $self->describe_anything($self->rege
 
 { package Token;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'regex' => (is => 'rw');;
@@ -642,7 +697,7 @@ sub describe{my $self=shift;((((((('Token(' . $self->describe_anything($self->na
 
 { package Do;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -656,7 +711,7 @@ sub describe{my $self=shift;((('Do(' . $self->describe_anything($self->block)) .
 
 { package Begin;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -670,7 +725,7 @@ sub describe{my $self=shift;((('Begin(' . $self->describe_anything($self->block)
 
 { package Use;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 has 'mod' => (is => 'rw');;
 has 'perl5' => (is => 'rw');;
@@ -685,7 +740,7 @@ sub describe{my $self=shift;((((('Use(' . $self->describe_anything($self->mod)) 
 
 { package Rule;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Base';has 'match' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
 $emitter->emit_Rule($self)};
@@ -698,7 +753,7 @@ sub describe{my $self=shift;('Rule(' . ')')}
 
 { package Rule_Quantifier;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'term' => (is => 'rw');;
 has 'quant' => (is => 'rw');;
@@ -717,7 +772,7 @@ sub describe{my $self=shift;((((((((((((('Rule_Quantifier(' . $self->describe_an
 
 { package Rule_Or;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'terms' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -731,7 +786,7 @@ sub describe{my $self=shift;((('Rule_Or(' . $self->describe_anything($self->term
 
 { package Rule_Concat;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'concat' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -745,7 +800,7 @@ sub describe{my $self=shift;((('Rule_Concat(' . $self->describe_anything($self->
 
 { package Rule_Subrule;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'metasyntax' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
@@ -761,7 +816,7 @@ sub describe{my $self=shift;((((((('Rule_Subrule(' . $self->describe_anything($s
 
 { package Rule_SubruleNoCapture;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'metasyntax' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -775,7 +830,7 @@ sub describe{my $self=shift;((('Rule_SubruleNoCapture(' . $self->describe_anythi
 
 { package Rule_Var;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
@@ -791,7 +846,7 @@ sub describe{my $self=shift;((((((('Rule_Var(' . $self->describe_anything($self-
 
 { package Rule_Constant;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'constant' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -805,7 +860,7 @@ sub describe{my $self=shift;((('Rule_Constant(' . $self->describe_anything($self
 
 { package Rule_Dot;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
 $emitter->emit_Rule_Dot($self)};
@@ -818,7 +873,7 @@ sub describe{my $self=shift;('Rule_Dot(' . ')')}
 
 { package Rule_SpecialChar;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -832,7 +887,7 @@ sub describe{my $self=shift;((('Rule_SpecialChar(' . $self->describe_anything($s
 
 { package Rule_Block;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'closure' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -846,7 +901,7 @@ sub describe{my $self=shift;((('Rule_Block(' . $self->describe_anything($self->c
 
 { package Rule_InterpolateVar;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'var' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -860,7 +915,7 @@ sub describe{my $self=shift;((('Rule_InterpolateVar(' . $self->describe_anything
 
 { package Rule_NamedCapture;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'rule' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
@@ -876,7 +931,7 @@ sub describe{my $self=shift;((((((('Rule_NamedCapture(' . $self->describe_anythi
 
 { package Rule_Before;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'rule' => (is => 'rw');;
 has 'assertion_modifier' => (is => 'rw');;
@@ -892,7 +947,7 @@ sub describe{my $self=shift;((((((('Rule_Before(' . $self->describe_anything($se
 
 { package Rule_After;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'rule' => (is => 'rw');;
 has 'assertion_modifier' => (is => 'rw');;
@@ -908,7 +963,7 @@ sub describe{my $self=shift;((((((('Rule_After(' . $self->describe_anything($sel
 
 { package Rule_NegateCharClass;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'chars' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -922,7 +977,7 @@ sub describe{my $self=shift;((('Rule_NegateCharClass(' . $self->describe_anythin
 
 { package Rule_CharClass;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'chars' => (is => 'rw');;
 sub emit{my $self=shift;my($emitter)=@_;
@@ -936,7 +991,7 @@ sub describe{my $self=shift;((('Rule_CharClass(' . $self->describe_anything($sel
 
 { package Rule_Capture;
 use Moose;
-use Moose::Autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core;
 extends 'Rule_Base';has 'match' => (is => 'rw');;
 has 'rule' => (is => 'rw');;
 has 'position' => (is => 'rw');;
@@ -958,11 +1013,42 @@ use Data::Dumper;
 
 { package Program;
 use Moose;
-use Moose::Autobox; use autobox::Core;
-sub main{my $self=shift;::say('hi!
-')}
+use Moose::Autobox; use autobox; use autobox::Core;
+sub print_usage_and_die{my $self=shift;::say('
+elf_b [-e P6_CODE]
+');
+::exit(2)};
+sub main{my $self=shift;my($args)=@_;
+if(($args->elems() == 0)) {
+$self->print_usage_and_die()
+};
+my $p6_code;
+while($args->elems()) {
+my $arg = $args->shift();
+if(($arg eq '-e')) {
+($p6_code = $args->shift())
+}else {
+$self->print_usage_and_die()
+}
+};
+::unslurp($p6_code, 'deleteme.p6');
+my $parser = '../../STD_red/STD_red_run';
+my $cmd = ($parser . ' -q --dump5 deleteme.p6 > deleteme.dump');
+((::system($cmd) == 0) or ::die('Parse failed.
+'));
+my $dump5 = ::slurp('deleteme.dump');
+my $tree = ::eval_perl5(('package Fastdump;' . $dump5));
+::say($tree->match_describe())}
 }
 ;
-Program->new()->main($a_ARGS)
+Program->new()->main($a_ARGS);
+
+{ package Fastdump;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+sub match{my($r,$s,$f,$t,$h)=@_;
+Match->make($r, $s, $f, $t, $h)}
+}
+
 ;
 

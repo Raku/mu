@@ -137,6 +137,14 @@ $one;
 my $name = substr($s,0,1).' '.substr($s,-1,1);
 IR::Apply->new($m,"circumfix:".$name,ir($m->{hash}{kludge_name}));
     };
+    $IRBuild::constructors{'statement_control:for'} = sub {
+      my($m)=@_;
+    IR::For->new($m,ir($m->{hash}{expr}),ir($m->{hash}{block}));
+    };
+    $IRBuild::constructors{'statement_control:while'} = sub {
+      my($m)=@_;
+    IR::While->new($m,ir($m->{hash}{expr}),ir($m->{hash}{block}));
+    };
     $IRBuild::constructors{'statement_control:if'} = sub {
       my($m)=@_;
     IR::If->new($m,ir($m->{hash}{if_expr}),ir($m->{hash}{if_block}),ir($m->{hash}{elsif}),ir($m->{hash}{else}));
