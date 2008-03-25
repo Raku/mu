@@ -61,9 +61,6 @@ sub write_ir_nodes {
     $code .= unindent(<<"    END",'  ');
       class $name is $base {
         $has
-        method new($params) {
-          $init
-        };
         method emit(\$emitter) { \$emitter.emit_$name(self) };
         method node_name() { '$name' };
         method field_names() { [$field_names] };
