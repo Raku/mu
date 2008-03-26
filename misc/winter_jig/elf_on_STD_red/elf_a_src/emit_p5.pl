@@ -51,6 +51,13 @@ use Data::Dumper;
   my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
   if($op eq '~'){ "($l . $r)" }
   elsif($op eq ','){ "$l, $r" }
+  elsif($op eq '=') {
+    my $t = $n->{arguments}[0]{twigil};
+    if($t && $t eq '.') {
+$l.'('.$r.')'
+    }
+    else { "($l $op $r)" }
+  }
   else { "($l $op $r)" }
 }
 elsif(IR->emit_p5_for($n->{code}) =~ /^circumfix:(.+)/) {
@@ -84,7 +91,12 @@ else {
     $default = ""
   }
   "has '".IR->emit_p5_for($n->{var}->{name})."' => (is => 'rw'$default);"
-} else {
+}
+elsif(IR->emit_p5_for($n->{var}->{twigil}) eq '^') {
+  "use vars '".IR->emit_p5_for($n->{var})."';".
+  'local'.' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
+}
+else {
   IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
 }
   }
@@ -113,6 +125,7 @@ my $t = IR->emit_p5_for($n->{twigil})||'';
 my $env = '';
 $env = 'e' if $t eq '^';
 my $pre = '';
+$pre = 's_' if $s eq '$' && $env eq 'e';
 $pre = 'a_' if $s eq '@';
 $pre = 'h_' if $s eq '%';
 my $name = $env.$pre.IR->emit_p5_for($n->{name});

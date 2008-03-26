@@ -1248,8 +1248,8 @@ $one;
     $IRBuild::constructors{'expect_term'} = sub {
       my($m)=@_;
     local $blackboard::expect_term_base = ir($m->{hash}{noun});
-for my $post (@{$m->{hash}{post}||[]}) {
-$blackboard::expect_term_base = ir($post)
+for (@{(($m->{hash}{post}||[]))}) {
+$blackboard::expect_term_base = ir($_)
 }
 $blackboard::expect_term_base;
     };
@@ -1297,7 +1297,7 @@ die "AST term partially unimplemented.\n";
     };
     $IRBuild::constructors{'name'} = sub {
       my($m)=@_;
-    ir($m->{hash}{ident});
+    ($m->match_string);
     };
     $IRBuild::constructors{'statement_control:use'} = sub {
       my($m)=@_;
@@ -1334,7 +1334,7 @@ IR::Val_Rx->new($m,$s);
     $IRBuild::constructors{'infix'} = sub {
       my($m)=@_;
     my $op = ($m->match_string);
-$op = '=' if $op eq 'str';
+if($op eq 'str') { $op = '=' };
 IR::Apply->new($m,"infix:".$op,[ir($m->{hash}{left}),ir($m->{hash}{right})]);
     };
     $IRBuild::constructors{'scope_declarator:my'} = sub {
@@ -1346,6 +1346,11 @@ IR::Decl->new($m,'my',undef,$vd->[0],$vd->[1]);
       my($m)=@_;
     my $vd = ir($m->{hash}{scoped});
 IR::Decl->new($m,'has',undef,$vd->[0],$vd->[1]);
+    };
+    $IRBuild::constructors{'scope_declarator:our'} = sub {
+      my($m)=@_;
+    my $vd = ir($m->{hash}{scoped});
+IR::Decl->new($m,'our',undef,$vd->[0],$vd->[1]);
     };
     $IRBuild::constructors{'scoped'} = sub {
       my($m)=@_;
@@ -1415,8 +1420,10 @@ $one;
     };
     $IRBuild::constructors{'routine_declarator:routine_def'} = sub {
       my($m)=@_;
-    my $ident = ir($m->{hash}{ident}) ? ir($m->{hash}{ident})->[0] : "";
-my $sig = ir($m->{hash}{multisig}) ? ir($m->{hash}{multisig})->[0] : IR::Sig->new($m,undef,[]);
+    my $ident = "";
+if(ir($m->{hash}{ident})) { $ident = ir($m->{hash}{ident})->[0] };
+my $sig = IR::Sig->new($m,undef,[]);
+if(ir($m->{hash}{multisig})) { $sig = ir($m->{hash}{multisig})->[0] };
 IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'routine_declarator:method_def'} = sub {
@@ -1456,11 +1463,11 @@ ir($m->{hash}{package_def});
     };
     $IRBuild::constructors{'fulltypename'} = sub {
       my($m)=@_;
-    join("::",@{ir($m->{hash}{typename})});
+    join("::",@{((ir($m->{hash}{typename})))});
     };
     $IRBuild::constructors{'typename'} = sub {
       my($m)=@_;
-    ir($m->{hash}{name});
+    ($m->match_string);
     };
     $IRBuild::constructors{'trait_verb:is'} = sub {
       my($m)=@_;
@@ -1529,6 +1536,13 @@ use Data::Dumper;
   my($l,$r)=@{IR->emit_p5_for($n->{arguments})};
   if($op eq '~'){ "($l . $r)" }
   elsif($op eq ','){ "$l, $r" }
+  elsif($op eq '=') {
+    my $t = $n->{arguments}[0]{twigil};
+    if($t && $t eq '.') {
+$l.'('.$r.')'
+    }
+    else { "($l $op $r)" }
+  }
   else { "($l $op $r)" }
 }
 elsif(IR->emit_p5_for($n->{code}) =~ /^circumfix:(.+)/) {
@@ -1562,7 +1576,12 @@ else {
     $default = ""
   }
   "has '".IR->emit_p5_for($n->{var}->{name})."' => (is => 'rw'$default);"
-} else {
+}
+elsif(IR->emit_p5_for($n->{var}->{twigil}) eq '^') {
+  "use vars '".IR->emit_p5_for($n->{var})."';".
+  'local'.' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
+}
+else {
   IR->emit_p5_for($n->{decl}).' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
 }
   }
@@ -1591,6 +1610,7 @@ my $t = IR->emit_p5_for($n->{twigil})||'';
 my $env = '';
 $env = 'e' if $t eq '^';
 my $pre = '';
+$pre = 's_' if $s eq '$' && $env eq 'e';
 $pre = 'a_' if $s eq '@';
 $pre = 'h_' if $s eq '%';
 my $name = $env.$pre.IR->emit_p5_for($n->{name});
@@ -1813,7 +1833,7 @@ default Run code.
     print $dump5 if $verbose;
     my $tree = eval('package Fastdump;'.$dump5);
     if(!$tree) {
-      exit(1);
+      die "Flawed dump: $@";
     }
     #print Data::Dumper::Dumper($tree);
     print $tree->match_describe(1),"\n" if $verbose;

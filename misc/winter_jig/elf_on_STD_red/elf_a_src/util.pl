@@ -2,7 +2,7 @@
 sub unindent {
   my($s,$leave_indent)=@_;
   $leave_indent ||= "";
-  $s =~ /^(\s*)$leave_indent/;
+  $s =~ /^( *)$leave_indent/;
   my $indent = $1;
   $s =~ s/^$indent//mg;
   $s;

@@ -16,8 +16,8 @@ $one;
     $IRBuild::constructors{'expect_term'} = sub {
       my($m)=@_;
     local $blackboard::expect_term_base = ir($m->{hash}{noun});
-for my $post (@{$m->{hash}{post}||[]}) {
-$blackboard::expect_term_base = ir($post)
+for (@{(($m->{hash}{post}||[]))}) {
+$blackboard::expect_term_base = ir($_)
 }
 $blackboard::expect_term_base;
     };
@@ -65,7 +65,7 @@ die "AST term partially unimplemented.\n";
     };
     $IRBuild::constructors{'name'} = sub {
       my($m)=@_;
-    ir($m->{hash}{ident});
+    ($m->match_string);
     };
     $IRBuild::constructors{'statement_control:use'} = sub {
       my($m)=@_;
@@ -102,7 +102,7 @@ IR::Val_Rx->new($m,$s);
     $IRBuild::constructors{'infix'} = sub {
       my($m)=@_;
     my $op = ($m->match_string);
-$op = '=' if $op eq 'str';
+if($op eq 'str') { $op = '=' };
 IR::Apply->new($m,"infix:".$op,[ir($m->{hash}{left}),ir($m->{hash}{right})]);
     };
     $IRBuild::constructors{'scope_declarator:my'} = sub {
@@ -114,6 +114,11 @@ IR::Decl->new($m,'my',undef,$vd->[0],$vd->[1]);
       my($m)=@_;
     my $vd = ir($m->{hash}{scoped});
 IR::Decl->new($m,'has',undef,$vd->[0],$vd->[1]);
+    };
+    $IRBuild::constructors{'scope_declarator:our'} = sub {
+      my($m)=@_;
+    my $vd = ir($m->{hash}{scoped});
+IR::Decl->new($m,'our',undef,$vd->[0],$vd->[1]);
     };
     $IRBuild::constructors{'scoped'} = sub {
       my($m)=@_;
@@ -183,8 +188,10 @@ $one;
     };
     $IRBuild::constructors{'routine_declarator:routine_def'} = sub {
       my($m)=@_;
-    my $ident = ir($m->{hash}{ident}) ? ir($m->{hash}{ident})->[0] : "";
-my $sig = ir($m->{hash}{multisig}) ? ir($m->{hash}{multisig})->[0] : IR::Sig->new($m,undef,[]);
+    my $ident = "";
+if(ir($m->{hash}{ident})) { $ident = ir($m->{hash}{ident})->[0] };
+my $sig = IR::Sig->new($m,undef,[]);
+if(ir($m->{hash}{multisig})) { $sig = ir($m->{hash}{multisig})->[0] };
 IR::Sub->new($m,$ident,$sig,ir($m->{hash}{block}));
     };
     $IRBuild::constructors{'routine_declarator:method_def'} = sub {
@@ -224,11 +231,11 @@ ir($m->{hash}{package_def});
     };
     $IRBuild::constructors{'fulltypename'} = sub {
       my($m)=@_;
-    join("::",@{ir($m->{hash}{typename})});
+    join("::",@{((ir($m->{hash}{typename})))});
     };
     $IRBuild::constructors{'typename'} = sub {
       my($m)=@_;
-    ir($m->{hash}{name});
+    ($m->match_string);
     };
     $IRBuild::constructors{'trait_verb:is'} = sub {
       my($m)=@_;

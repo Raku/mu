@@ -100,7 +100,7 @@ default Run code.
     print $dump5 if $verbose;
     my $tree = eval('package Fastdump;'.$dump5);
     if(!$tree) {
-      exit(1);
+      die "Flawed dump: $@";
     }
     #print Data::Dumper::Dumper($tree);
     print $tree->match_describe(1),"\n" if $verbose;

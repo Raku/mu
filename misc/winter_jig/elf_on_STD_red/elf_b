@@ -78,6 +78,255 @@ sub match_describe{my $self=shift;(('\'' . $self) . '\'')}
 package Main;
 use Data::Dumper;
 
+{ package IRBuild;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+has 'constructors' => (is => 'rw');;
+($main::irbuilder = IRBuild->new());
+sub add_constructor{my $self=shift;my($k,$constructor)=@_;
+if($self->constructors) {
+
+}else {
+my $h = {};
+$self->constructors($h)
+};
+($self->constructors->{$k} = $constructor)};
+sub make_ir_from_Match_tree{my $self=shift;my($m)=@_;
+my $rule = $m->rule();
+my $constructor = $self->constructors->{$rule};
+if(($constructor)) {
+$constructor->($m)
+}else {
+::die('Unknown rule: rule
+It needs to be added to ast_handlers.
+')
+}}
+}
+;
+
+{ package Match;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+sub make_ir_from_Match_tree{my $self=shift;$main::irbuilder->make_ir_from_Match_tree($self)}
+}
+;
+
+{ package ARRAY;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+sub make_ir_from_Match_tree{my $self=shift;$self->map(sub {my($e)=@_;
+$e->make_ir_from_Match_tree()})}
+}
+;
+
+{ package SCALAR;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+sub make_ir_from_Match_tree{my $self=shift;$self}
+}
+;
+sub irbuild_ir{my($x)=@_;
+$x->make_ir_from_Match_tree()}
+;
+#line 2 emitted_p5
+package Main;
+use Data::Dumper;
+
+{ package IRBuild;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core;
+$main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
+IR::CompUnit->new($m, ::irbuild_ir($m->{'hash'}->{'statementlist'}))});
+$main::irbuilder->add_constructor('statement', sub {my($m)=@_;
+my $key;
+for($m->{'hash'}->keys()->flatten()->flatten){
+if(($_ ne 'match')) {
+if($key) {
+::die('Unexpectedly more than 1 field - dont know which to choose
+')
+};
+($key = $_)
+}
+};
+my $one = ::irbuild_ir($m->{::hash()}->{$key});
+$one});
+$main::irbuilder->add_constructor('expect_term', sub {my($m)=@_;
+::local(($blackboard::expect_term_base = ::irbuild_ir($m->{'hash'}->{'noun'})));
+for((((($m - 0) > {::hash()}->{::post()}) || []->flatten()))->flatten){
+($blackboard::expect_term_base = ::ir($_))
+};
+$blackboard::expect_term_base});
+$main::irbuilder->add_constructor('post', sub {my($m)=@_;
+(::irbuild_ir($m->{'hash'}->{'dotty'}) or ::irbuild_ir($m->{'hash'}->{'postop'}))});
+$main::irbuilder->add_constructor('dotty:methodop', sub {my($m)=@_;
+IR::Call->new($m, $blackboard::expect_term_base, ::undef(), ::irbuild_ir($m->{'hash'}->{'ident'}), ::irbuild_ir($m->{'hash'}->{'semilist'}))});
+$main::irbuilder->add_constructor('dotty:postcircumfix', sub {my($m)=@_;
+my $s = ($m->match_string());
+my $name = ((::substr($s, 0, 1) . ' ') . ::substr($s, (0 - 1), 1));
+my $ident = ('postcircumfix:' . $name);
+IR::Call->new($m, $blackboard::expect_term_base, ::undef(), $ident, ::irbuild_ir($m->{'hash'}->{'kludge_name'}))});
+$main::irbuilder->add_constructor('postcircumfix', sub {my($m)=@_;
+my $s = ($m->match_string());
+my $name = ((::substr($s, 0, 1) . ' ') . ::substr($s, (0 - 1), 1));
+my $ident = ('postcircumfix:' . $name);
+IR::Call->new($m, $blackboard::expect_term_base, ::undef(), $ident, ::irbuild_ir($m->{'hash'}->{'kludge_name'}))});
+$main::irbuilder->add_constructor('term:expect_term', sub {my($m)=@_;
+::irbuild_ir($m->{'hash'}->{'noun'})});
+$main::irbuilder->add_constructor('term', sub {my($m)=@_;
+if(((($m->match_string()) eq 'self'))) {
+IR::Apply->new($m, 'self', [])
+}else {
+::die('AST term partially unimplemented.
+')
+}});
+$main::irbuilder->add_constructor('integer', sub {my($m)=@_;
+IR::Val_Int->new($m, ($m->match_string()))});
+$main::irbuilder->add_constructor('subcall', sub {my($m)=@_;
+IR::Apply->new($m, ::irbuild_ir($m->{'hash'}->{'subshortname'}), ::irbuild_ir($m->{'hash'}->{'semilist'}))});
+$main::irbuilder->add_constructor('name', sub {my($m)=@_;
+($m->match_string())});
+$main::irbuilder->add_constructor('statement_control:use', sub {my($m)=@_;
+IR::Use->new($m, ::irbuild_ir($m->{'hash'}->{'module_name'}))});
+$main::irbuilder->add_constructor('module_name:depreciated', sub {my($m)=@_;
+($m->match_string())});
+$main::irbuilder->add_constructor('module_name:normal', sub {my($m)=@_;
+($m->match_string())});
+$main::irbuilder->add_constructor('term:listop', sub {my($m)=@_;
+IR::Apply->new($m, ::irbuild_ir($m->{'hash'}->{'ident'}), [::irbuild_ir($m->{'hash'}->{'arglist'})])});
+$main::irbuilder->add_constructor('quote:q', sub {my($m)=@_;
+IR::Val_Buf->new($m, ::irbuild_ir($m->{'hash'}->{'text'}))});
+$main::irbuilder->add_constructor('quote:qq', sub {my($m)=@_;
+my $s = ::irbuild_ir($m->{'hash'}->{'text'});
+$s->re_gsub(qr/(?<!\\)\\n/, '\\n');
+$s->re_gsub(qr/(?<!\\)\\t/, '\\t');
+IR::Val_Buf->new($m, $s)});
+$main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
+my $s = ::irbuild_ir($m->{'hash'}->{'text'});
+IR::Val_Rx->new($m, $s)});
+$main::irbuilder->add_constructor('infix', sub {my($m)=@_;
+my $op = ($m->match_string());
+if((($op eq 'str'))) {
+($op = '=')
+};
+IR::Apply->new($m, ('infix:' . $op), [::irbuild_ir($m->{'hash'}->{'left'}), ::irbuild_ir($m->{'hash'}->{'right'})])});
+$main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
+my $vd = ::irbuild_ir($m->{'hash'}->{'scoped'});
+IR::Decl->new($m, 'my', ::undef(), (($vd - 0) > [0]), (($vd - 0) > [1]))});
+$main::irbuilder->add_constructor('scope_declarator:has', sub {my($m)=@_;
+my $vd = ::irbuild_ir($m->{'hash'}->{'scoped'});
+IR::Decl->new($m, 'has', ::undef(), (($vd - 0) > [0]), (($vd - 0) > [1]))});
+$main::irbuilder->add_constructor('scope_declarator:our', sub {my($m)=@_;
+my $vd = ::irbuild_ir($m->{'hash'}->{'scoped'});
+IR::Decl->new($m, 'our', ::undef(), (($vd - 0) > [0]), (($vd - 0) > [1]))});
+$main::irbuilder->add_constructor('scoped', sub {my($m)=@_;
+my $key;
+for($m->{'hash'}->keys()->flatten()->flatten){
+if(($_ ne 'match')) {
+if($key) {
+::die('Unexpectedly more than 1 field - dont know which to choose
+')
+};
+($key = $_)
+}
+};
+my $one = ::irbuild_ir($m->{::hash()}->{$key});
+$one});
+$main::irbuilder->add_constructor('variable_decl', sub {my($m)=@_;
+[::irbuild_ir($m->{'hash'}->{'variable'}), ::irbuild_ir($m->{'hash'}->{'default_value'})]});
+$main::irbuilder->add_constructor('variable', sub {my($m)=@_;
+IR::Var->new($m, ::irbuild_ir($m->{'hash'}->{'sigil'}), ::irbuild_ir($m->{'hash'}->{'twigil'}), ::irbuild_ir($m->{'hash'}->{'desigilname'}))});
+$main::irbuilder->add_constructor('sigil', sub {my($m)=@_;
+($m->match_string())});
+$main::irbuilder->add_constructor('twigil', sub {my($m)=@_;
+($m->match_string())});
+$main::irbuilder->add_constructor('circumfix', sub {my($m)=@_;
+my $s = ($m->match_string());
+my $name = ((::substr($s, 0, 1) . ' ') . ::substr($s, (0 - 1), 1));
+IR::Apply->new($m, ('circumfix:' . $name), ::irbuild_ir($m->{'hash'}->{'kludge_name'}))});
+$main::irbuilder->add_constructor('statement_control:for', sub {my($m)=@_;
+IR::For->new($m, ::irbuild_ir($m->{'hash'}->{'expr'}), ::irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('statement_control:while', sub {my($m)=@_;
+IR::While->new($m, ::irbuild_ir($m->{'hash'}->{'expr'}), ::irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('statement_control:if', sub {my($m)=@_;
+IR::If->new($m, ::irbuild_ir($m->{'hash'}->{'if_expr'}), ::irbuild_ir($m->{'hash'}->{'if_block'}), ::irbuild_ir($m->{'hash'}->{'elsif'}), ::irbuild_ir($m->{'hash'}->{'else'}))});
+$main::irbuilder->add_constructor('elsif', sub {my($m)=@_;
+[::irbuild_ir($m->{'hash'}->{'elsif_expr'}), ::irbuild_ir($m->{'hash'}->{'elsif_block'})]});
+$main::irbuilder->add_constructor('if__else', sub {my($m)=@_;
+my $key;
+for($m->{'hash'}->keys()->flatten()->flatten){
+if(($_ ne 'match')) {
+if($key) {
+::die('Unexpectedly more than 1 field - dont know which to choose
+')
+};
+($key = $_)
+}
+};
+my $one = ::irbuild_ir($m->{::hash()}->{$key});
+$one});
+$main::irbuilder->add_constructor('pblock', sub {my($m)=@_;
+my $key;
+for($m->{'hash'}->keys()->flatten()->flatten){
+if(($_ ne 'match')) {
+if($key) {
+::die('Unexpectedly more than 1 field - dont know which to choose
+')
+};
+($key = $_)
+}
+};
+my $one = ::irbuild_ir($m->{::hash()}->{$key});
+$one});
+$main::irbuilder->add_constructor('block', sub {my($m)=@_;
+IR::Block->new($m, ::irbuild_ir($m->{'hash'}->{'statementlist'}))});
+$main::irbuilder->add_constructor('routine_declarator:routine_def', sub {my($m)=@_;
+my $ident = '';
+if((::irbuild_ir($m->{'hash'}->{'ident'}))) {
+($ident = ((::irbuild_ir($m->{'hash'}->{'ident'}) - 0) > [0]))
+};
+my $sig = IR::Sig->new($m, ::undef(), []);
+if((::irbuild_ir($m->{'hash'}->{'multisig'}))) {
+($sig = ((::irbuild_ir($m->{'hash'}->{'multisig'}) - 0) > [0]))
+};
+IR::Sub->new($m, $ident, $sig, ::irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('routine_declarator:method_def', sub {my($m)=@_;
+IR::Method->new($m, ::irbuild_ir($m->{'hash'}->{'ident'}), ((::irbuild_ir($m->{'hash'}->{'multisig'}) - 0) > [0]), ::irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('signature', sub {my($m)=@_;
+IR::Sig->new($m, ::undef(), ::irbuild_ir($m->{'hash'}->{'parsep'}))});
+$main::irbuilder->add_constructor('parameter', sub {my($m)=@_;
+IR::Lit_SigArgument->new($m, ::irbuild_ir($m->{'hash'}->{'param_var'}))});
+$main::irbuilder->add_constructor('param_var', sub {my($m)=@_;
+IR::Var->new($m, ::irbuild_ir($m->{'hash'}->{'sigil'}), ::irbuild_ir($m->{'hash'}->{'twigil'}), ::irbuild_ir($m->{'hash'}->{'ident'}))});
+$main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
+::local(($blackboard::package_declarator = 'class'));
+::irbuild_ir($m->{'hash'}->{'package_def'})});
+$main::irbuilder->add_constructor('package_declarator:module', sub {my($m)=@_;
+::local(($blackboard::package_declarator = 'module'));
+::irbuild_ir($m->{'hash'}->{'package_def'})});
+$main::irbuilder->add_constructor('package_declarator:package', sub {my($m)=@_;
+::local(($blackboard::package_declarator = 'package'));
+::irbuild_ir($m->{'hash'}->{'package_def'})});
+$main::irbuilder->add_constructor('package_def', sub {my($m)=@_;
+IR::PackageDeclarator->new($m, $blackboard::package_declarator, ((::irbuild_ir($m->{'hash'}->{'module_name'}) - 0) > [0]), ::irbuild_ir($m->{'hash'}->{'traits'}), ::irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('fulltypename', sub {my($m)=@_;
+::join('::', ::irbuild_ir($m->{'hash'}->{'typename'})->flatten())});
+$main::irbuilder->add_constructor('typename', sub {my($m)=@_;
+($m->match_string())});
+$main::irbuilder->add_constructor('trait_verb:is', sub {my($m)=@_;
+IR::Trait->new($m, 'is', ::irbuild_ir($m->{'hash'}->{'ident'}))});
+$main::irbuilder->add_constructor('circumfix:pblock', sub {my($m)=@_;
+if((::not((::irbuild_ir($m->{'hash'}->{'lambda'}) and ::not(::irbuild_ir($m->{'hash'}->{'signature'})))))) {
+IR::Lit_Hash->new($m, ::irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))
+}else {
+::die('AST handler circumfix:pblock partially unimplemented')
+}})
+}
+
+;
+#line 2 emitted_p5
+package Main;
+use Data::Dumper;
+
 { package IR0;
 use Moose;
 use Moose::Autobox; use autobox; use autobox::Core;
