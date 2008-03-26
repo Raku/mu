@@ -327,7 +327,7 @@ class Perl < Grammar
     #R XXX   STD.pm suggests they not have it?
     def_rules_rest :statement_control,%w{ use no },%q{
       e=nil
-      wsp;
+      nofat_space and
       mn = module_name and wsp and (e=_EXPR and wsp;true) and
       (h={:module_name=>mn};_hkv(h,:EXPR,e);_match_from(start,h,:<sym>))
     }
@@ -1156,7 +1156,7 @@ class Perl < Grammar
             s.slice!(-1,1)
             _match_from(b1-1,{:text=>s},:qq)
         elsif kind == ':regex'
-            close == '/' or raise "bug"
+            close == '/' or panic("STD_red bug")
             s= scan(/(?:[^\/\\]|\\.)*\//) or panic("Error in quotesnabber")
             s.slice!(-1,1)
             _match_from(b1-1,{:text=>s},:regex)

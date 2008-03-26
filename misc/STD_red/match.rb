@@ -120,8 +120,8 @@ class Hash
   def to_fastdump6; '{'+map{|k,v| k+' , '+v.to_fastdump6}.join(",")+'}' end
 end
 class String
-  def to_fastdump5; inspect end
-  def to_fastdump6; inspect end
+  def to_fastdump5; inspect.gsub(/([$@%])/,'\\\1') end
+  def to_fastdump6; to_fastdump5 end
 end
 class Symbol
   def to_fastdump5; to_s.inspect end
