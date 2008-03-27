@@ -9,7 +9,7 @@ sub main {
   IRNodesRef->load_ir_node_config("./elf_a_src/ir_nodes.config");
   write_ir_nodes();
   write_ast_handlers();
-#  write_emit_p5();
+  write_emit_p5();
 
   my $files = join(" ",map{"elf_b_src/$_"}qw(
     Match.pm
@@ -165,3 +165,54 @@ sub write_ast_handlers {
   END
   text2file($code,$file);
 }
+
+sub write_emit_p5 {
+  my $file = "./elf_b_src/emit_p5.pl";
+  my @paragraphs = load_paragraphs("./elf_b_src/emit_p5.config");
+
+  my $code = "#line 2 emit_p5.pl\n".unindent(<<'  END');
+    # Warning: This file is mechanically written.  Your changes will be overwritten.
+    class ARRAY {
+      method emit_p5() {
+        self->map(sub($e){$e->emit_p5})
+      };
+    };
+    class SCALAR {
+      method emit_p5() {
+        self ~ ""
+      };
+    };
+    class UNDEF {
+      method emit_p5() {
+        undef
+      };
+    };
+    class IR0::Base {
+      method emit_p5() {
+        my $name = self.node_name;
+        say "ERROR: emit_p5 is not defined for "~$name~".\n";
+        "***<"~$name~">***";
+      };
+    };
+  END
+
+  for my $para (@paragraphs) {
+    $para =~ /^(\w+)\n(.*)/s or die "bug";
+    my($name,$body)=($1,$2);
+    die "Unknown IR node in emit config: $name\n" if !IRNodesRef->node_named($name);
+    $code .= unindent(<<"    END");
+      class IR0::$name {
+        method emit_p5() {
+          my \$n = self;
+          $body
+        };
+      };
+    END
+  }
+  text2file($code,$file);
+}
+
+#; Local Variables:
+#; perl-indent-level: 2
+#; End:
+#; vim: shiftwidth=2:
