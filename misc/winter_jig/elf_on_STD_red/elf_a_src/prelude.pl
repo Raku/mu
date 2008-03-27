@@ -4,9 +4,11 @@ sub Program::prelude {
   return "#line ".(__LINE__+1)." elf_a_src/prelude.pl\n".<<'END';
 package main;
 use Perl6::Say;
-use Moose::Autobox; use autobox; use autobox::Core;
+use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 
 our $a_ARGS = [@ARGV];
+
+sub ::undef{undef}
 
 use Carp;
 sub slurp{my($file)=@_; `cat $file`;}
@@ -16,6 +18,7 @@ sub system{system(@_)}
 sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
 sub ::die{croak @_}
 sub ::exit{exit(@_)}
+sub ::defined{defined($_[0])}
 
 package SCALAR;
 sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}

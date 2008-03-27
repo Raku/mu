@@ -31,7 +31,9 @@ class Program {
     #say $dump5;
     my $tree = eval_perl5("package Fastdump;"~$dump5);
     say $tree.match_describe;
-    #my $ir = $tree.make_ir_from_Match_tree();
+    my $ir = $tree.make_ir_from_Match_tree();
+    #say eval_perl5('sub{use Data::Dumper; Data::Dumper::Dumper($_[0])}').($ir);
+    say $ir.ir0_describe;
   };
 };
 Program.new().main(@*ARGS);

@@ -14,7 +14,10 @@ class Match {
     for $.hash.keys {
       my $k = $_;
       my $v = $.hash{$k};
-      my $vs = $v.match_describe;
+      my $vs = 'undef';
+      if defined($v) {
+        $vs = $v.match_describe;
+      }
       $s = $s ~ "\n  "~$k~" => "~self.indent_except_top($vs)~",";
     }
     if $.hash.keys.elems {$s = $s ~ "\n"}
@@ -25,6 +28,9 @@ class Match {
   };
   method indent_except_top($s) {
     $s.re_gsub(/(?m:^(?<!\A)(?!\Z))/,'  ')
+  };
+  method match_string() {
+    $.str
   };
 };
 class ARRAY {

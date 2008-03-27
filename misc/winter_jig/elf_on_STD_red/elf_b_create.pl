@@ -34,6 +34,21 @@ sub write_ir_nodes {
   my $file = "./elf_b_src/ir_nodes.p6";
   my $code = "#line 2 ir_nodes.p6\n".unindent(<<'  END');
     # Warning: This file is mechanically written.  Your changes will be overwritten.
+    package ARRAY {
+      method ir0_describe() {
+        '[' ~ self.map(sub($e){$e.ir0_describe}).join(",") ~ ']'
+      };
+    };
+    package SCALAR {
+      method ir0_describe() {
+        self ~ ""
+      };
+    };
+    package UNDEF {
+      method ir0_describe() {
+        'undef'
+      };
+    };
     package IR0 {
       class Base {
       };
@@ -43,7 +58,6 @@ sub write_ir_nodes {
       };
       class Rule_Base is Base {
       };
-      # describe_anything
   END
 
   for my $node (IRNodesRef->nodes) {
@@ -54,22 +68,20 @@ sub write_ir_nodes {
     $base = "${1}_Base" if $name =~ /([^_]+)_/;
     my $has = join("",map{"has \$.$_;\n        "} @all);
     my $params = join(',',map{"\$$_"}@all);
-    my $init = "";
-    for my $param (@all) {
-      $init .= "\$.$param = \$$param;\n          ";
-    }
+    my $init = join(', ',map{"'$_', \$$_"} @all);
     my $field_names = join(',',map{"'$_'"}@fields);
     my $field_values = join(',',map{'$.'.$_}@fields);
 
     $code .= unindent(<<"    END",'  ');
       class $name is $base {
         $has
+        method newp($params) { self.new($init) };
         method emit(\$emitter) { \$emitter.emit_$name(self) };
         method node_name() { '$name' };
         method field_names() { [$field_names] };
         method field_values() { [$field_values] };
-        method describe() {
-          @{["'".$name."('~".join("~','~",(map{'self.describe_anything($.'.$_.')'}@fields),"')'")]}
+        method ir0_describe() {
+          @{["'".$name."('~".join("','~",(map{'$.'.$_.'.ir0_describe~'}@fields))."')'"]}
         };
       };
     END
@@ -89,27 +101,47 @@ sub write_ast_handlers {
     package IRBuild {
   END
 
+  #my $to_named_args = sub {
+  #  my($nodename,$args)=@_;
+  #  my $node = IRNodesRef->node_named($nodename) or die "bug $nodename";
+  #  my @argl = split(/,/,$args);
+  #  my $code = "";
+  #  my @fields = $node->field_names;
+  #  my @pairs;
+  #  for my $field (@fields) {push(@pairs,"'$field',".shift(@argl))}
+  #  my $s = join(', ',@pairs);
+  #  $s = ', '.$s if @pairs;
+  #  $s;
+  #};
+
   my %seen;
   for my $para (@paragraphs) {
     $para =~ /^([\w:]+)\n(.*)/s or die "bug";
     my($name,$body)=($1,$2);
     die "Saw an AST handler for '$name' twice!\n" if $seen{$name}++;
 
+    #$body =~ s/([A-Z]\w+)\.new\(([^\)]*)\)/"IR0::$1.new('match',\$m".$to_named_args->($2).')'/eg;
+
+    $body =~ s/\blocal \$/my \$^/g;
+    $body =~ s/\$((black|white)board::)/\$^$1/g;
+    $body =~ s/for \(\@\{\(\((.*?)\)\)\}/for \($1/g;
     $body =~ s/\@\{\(\((.*?)\)\)\}/$1.flatten/g;
     $body =~ s/([\'\"])\./$1~/g;
     $body =~ s/\.([\'\"])/~$1/g;
     $body =~ s{\s*=~\s*s/((?:[^\\\/]|\\.)*)/((?:[^\\\/]|\\.)*)/g;}{.re_gsub(/$1/,'$2');}g;
     $body =~ s/^(\s*if)\(/$1 \(/g;
+    $body =~ s/->\{/\.\{/g;
+    $body =~ s/->\[/\.\[/g;
 
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;
     $body =~ s/<(\w+)>/.{'hash'}{'$1'}/g;
-    $body =~ s/([A-Z]\w+)\.new\(/IR::$1.new(\$m,/g;
+    $body =~ s/([A-Z]\w+)\.new\(/IR0::$1.newp(\$m,/g;
     $body =~ s/\*text\*/(\$m.match_string)/g;
     if($body =~ /\*1\*/) {
       $body =~ s/\*1\*/\$one/g;
       $body = unindent(<<'      END',"  ").$body;
         my $key;
-        for $m.{'hash'}.keys.flatten {
+        for $m.{'hash'}.keys {
           if $_ ne 'match' {
             if $key {
               die("Unexpectedly more than 1 field - dont know which to choose\n")
@@ -117,7 +149,7 @@ sub write_ast_handlers {
             $key = $_;
           }
         }
-        my $one = irbuild_ir($m.{hash}{$key});
+        my $one = irbuild_ir($m.{'hash'}{$key});
       END
     }
 

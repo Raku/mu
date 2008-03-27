@@ -34,6 +34,12 @@ class SCALAR {
     self
   }
 };
+class UNDEF {
+  method make_ir_from_Match_tree() {
+    self
+  }
+};
+
 sub irbuild_ir ($x) {
   $x.make_ir_from_Match_tree()
 }

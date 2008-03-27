@@ -33,8 +33,9 @@
 }
 { package IR::CompUnit; sub emit_p5 {
     my($n)=@_;
-    "\x23".'line 2 emitted_p5
-package Main;
+    local $whiteboard::in_package = [];
+"\x23".'line 2 emitted_p5_'.int(rand(10000)).'
+package main;
 use Data::Dumper;
 '.join(";\n",@{IR->emit_p5_for($n->{statements})})
   }
@@ -93,7 +94,9 @@ else {
   "has '".IR->emit_p5_for($n->{var}->{name})."' => (is => 'rw'$default);"
 }
 elsif(IR->emit_p5_for($n->{var}->{twigil}) eq '^') {
-  "use vars '".IR->emit_p5_for($n->{var})."';".
+  my $name = IR->emit_p5_for($n->{var});
+  $name =~ s/^(.)::/$1/;
+  "{package main; use vars '".$name."'};".
   'local'.' '.IR->emit_p5_for($n->{var}).(IR->emit_p5_for($n->{default}) ? ' = '.IR->emit_p5_for($n->{default}) : '')
 }
 else {
@@ -131,6 +134,9 @@ $pre = 'h_' if $s eq '%';
 my $name = $env.$pre.IR->emit_p5_for($n->{name});
 if($t eq '.') {
   '$self->'.$name
+}elsif($t eq '^') {
+  $name =~ s/::/__/g;
+  '$'.'::'.$name
 }else{
   '$'.$name
 }
@@ -165,7 +171,7 @@ if($t eq '.') {
 }
 { package IR::Method; sub emit_p5 {
     my($n)=@_;
-    'sub '.IR->emit_p5_for($n->{name}).'{my $self=shift;'.IR->emit_p5_for($n->{sig}).IR->emit_p5_for($n->{block}).'}'
+    'sub '.IR->emit_p5_for($n->{name}).'{my $self=CORE::shift;'.IR->emit_p5_for($n->{sig}).IR->emit_p5_for($n->{block}).'}'
   }
 }
 { package IR::Sig; sub emit_p5 {
@@ -184,9 +190,11 @@ else {
 }
 { package IR::PackageDeclarator; sub emit_p5 {
     my($n)=@_;
-    ("\n{ package ".IR->emit_p5_for($n->{name}).";\n".
+    local $whiteboard::in_package = [@{(($whiteboard::in_package))},IR->emit_p5_for($n->{name})];
+my $name = join('::',@{(($whiteboard::in_package))});
+("\n{ package ".$name.";\n".
  "use Moose;\n".
- "use Moose::Autobox; use autobox; use autobox::Core;\n".
+ "use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';\n".
  join("\n",@{IR->emit_p5_for($n->{traits})||[]}).
  IR->emit_p5_for($n->{block}).
  "\n}\n");
@@ -195,7 +203,8 @@ else {
 { package IR::Trait; sub emit_p5 {
     my($n)=@_;
     if(IR->emit_p5_for($n->{verb}) eq 'is') {
-  "extends '".IR->emit_p5_for($n->{expr})."';"
+  my $name = join('::',splice(@{(($whiteboard::in_package))},0,-1),IR->emit_p5_for($n->{expr}));
+  "extends '".$name."';"
 } else {
   print STDERR "ERROR: Emitting p5 for Trait verb ".IR->emit_p5_for($n->{verb})." has not been implemented.\n";
   "***Trait***"

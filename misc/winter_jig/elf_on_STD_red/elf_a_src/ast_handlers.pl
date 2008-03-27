@@ -16,7 +16,8 @@ $one;
     $IRBuild::constructors{'expect_term'} = sub {
       my($m)=@_;
     local $blackboard::expect_term_base = ir($m->{hash}{noun});
-for (@{(($m->{hash}{post}||[]))}) {
+my $post = $m->{'hash'}{'post'} || [];
+for (@{(($post))}) {
 $blackboard::expect_term_base = ir($_)
 }
 $blackboard::expect_term_base;
@@ -81,7 +82,12 @@ die "AST term partially unimplemented.\n";
     };
     $IRBuild::constructors{'term:listop'} = sub {
       my($m)=@_;
-    IR::Apply->new($m,ir($m->{hash}{ident}),[ir($m->{hash}{arglist})]);
+    my $not_really_an_arglist = ir($m->{hash}{arglist});
+if(ir($m->{hash}{arglist})) {
+IR::Apply->new($m,ir($m->{hash}{ident}),[$not_really_an_arglist])
+} else {
+IR::Apply->new($m,ir($m->{hash}{ident}),[])
+};
     };
     $IRBuild::constructors{'quote:q'} = sub {
       my($m)=@_;
