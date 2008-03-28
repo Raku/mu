@@ -269,7 +269,7 @@ so to return a value from this iteration of the current block you can say:
 
     &?BLOCK.next($retval);
 
-[Conjecuture: a bare C<next($retval)> function could be taught to do
+[Conjecture: a bare C<next($retval)> function could be taught to do
 the same, as long as C<$retval> isn't a loop label.  Presumably multiple
 dispatch could sort this out.]
 
