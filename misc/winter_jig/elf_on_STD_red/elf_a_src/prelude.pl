@@ -24,10 +24,20 @@ sub ::die{croak @_}
 sub ::exit{exit(@_)}
 sub ::defined{defined($_[0])}
 sub ::substr ($$$){substr($_[0],$_[1],$_[2])}
+sub ::not ($){not $_[0]}
+sub ::exec{exec(@_)}
+
+# because the p5->p6 massage of ast_handlers isnt massaging join.
+sub ::join{join(CORE::shift,@_)}
+# end
 
 { package SCALAR;
 sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
 sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
+}
+
+{ package ARRAY;
+sub splice { my $a = CORE::shift; [splice(@{$a},$_[0],$_[1])] }
 }
 
 package main;

@@ -1,37 +1,48 @@
 #!/usr/bin/perl -w
-#line 5 elf_a_src/prelude.pl
+
 package main;
 use Perl6::Say;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 
 our $a_ARGS = [@ARGV];
 
 {package UNDEF;}
-{package UNDEF; sub ref{'UNDEF'}}
-{package UNIVERSAL; sub ref{ref($_[0]) || 'SCALAR'} }
+{package UNDEF; sub ref{"UNDEF"}}
+{package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
 
 sub ::undef{undef}
 
 use Carp;
 sub slurp{my($file)=@_; `cat $file`;}
-sub unslurp{my($text,$file)=@_; open(F,">$file") or die $!; print F $text; close F;}
+sub unslurp{
+  my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
 sub file_exists{-e $_[0]}
-sub system{system(@_)}
+sub system{CORE::system(@_)}
 sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
 sub ::die{croak @_}
-sub ::exit{exit(@_)}
-sub ::defined{defined($_[0])}
-sub ::substr ($$$){substr($_[0],$_[1],$_[2])}
+sub ::exit{CORE::exit(@_)}
+sub ::defined{CORE::defined($_[0])}
+sub ::substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
+sub ::not ($){CORE::not $_[0]}
+sub ::exec{CORE::exec(@_)}
+
+
+# because the p5->p6 massage of ast_handlers isnt massaging join.
+sub ::join{CORE::join(CORE::shift,@_)}
+# end
 
 { package SCALAR;
 sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
 sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
 
+{ package ARRAY;
+sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
+}
+
 package main;
 
-#line 2 emitted_p5_8287
-package main;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use Data::Dumper;
 
 { package Match;
@@ -87,8 +98,7 @@ sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
 }
 
 ;
-#line 2 emitted_p5_4032
-package main;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use Data::Dumper;
 
 { package IRBuild;
@@ -148,8 +158,7 @@ sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()}
 ;
-#line 2 emitted_p5_4911
-package main;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use Data::Dumper;
 
 { package IRBuild;
@@ -171,7 +180,7 @@ if($key) {
 my $one = ::irbuild_ir($m->{'hash'}->{$key});
 $one});
 $main::irbuilder->add_constructor('expect_term', sub {my($m)=@_;
-{package main; use vars '$es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = ::irbuild_ir($m->{'hash'}->{'noun'});
+{package main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = ::irbuild_ir($m->{'hash'}->{'noun'});
 my $post = ($m->{'hash'}->{'post'} || []);
 for(($post)->flatten){
 ($::es_blackboard__expect_term_base = ::irbuild_ir($_))
@@ -228,8 +237,9 @@ $main::irbuilder->add_constructor('quote:q', sub {my($m)=@_;
 IR0::Val_Buf->newp($m, ::irbuild_ir($m->{'hash'}->{'text'}))});
 $main::irbuilder->add_constructor('quote:qq', sub {my($m)=@_;
 my $s = ::irbuild_ir($m->{'hash'}->{'text'});
-$s->re_gsub(qr/(?<!\\)\\n/, '\\n');
-$s->re_gsub(qr/(?<!\\)\\t/, '\\t');
+$s->re_gsub(qr/(?<!\\)\\n/, '
+');
+$s->re_gsub(qr/(?<!\\)\\t/, '	');
 IR0::Val_Buf->newp($m, $s)});
 $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
 my $s = ::irbuild_ir($m->{'hash'}->{'text'});
@@ -329,13 +339,13 @@ IR0::Lit_SigArgument->newp($m, ::irbuild_ir($m->{'hash'}->{'param_var'}))});
 $main::irbuilder->add_constructor('param_var', sub {my($m)=@_;
 IR0::Var->newp($m, ::irbuild_ir($m->{'hash'}->{'sigil'}), ::irbuild_ir($m->{'hash'}->{'twigil'}), ::irbuild_ir($m->{'hash'}->{'ident'}))});
 $main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
-{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
+{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
 ::irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:module', sub {my($m)=@_;
-{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
+{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
 ::irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:package', sub {my($m)=@_;
-{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
+{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
 ::irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_def', sub {my($m)=@_;
 IR0::PackageDeclarator->newp($m, $::es_blackboard__package_declarator, ::irbuild_ir($m->{'hash'}->{'module_name'})->[0], ::irbuild_ir($m->{'hash'}->{'traits'}), ::irbuild_ir($m->{'hash'}->{'block'}))});
@@ -354,8 +364,7 @@ IR0::Lit_Hash->newp($m, ::irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statem
 }
 
 ;
-#line 2 emitted_p5_3058
-package main;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use Data::Dumper;
 
 { package ARRAY;
@@ -1474,8 +1483,7 @@ sub ir0_describe{my $self=CORE::shift;(((((('Rule_Capture(' . $self->rule->ir0_d
 }
 
 ;
-#line 2 emitted_p5_6095
-package main;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use Data::Dumper;
 
 { package SimpleEmit5;
@@ -1494,7 +1502,7 @@ $self->e($ae)})
 $x->callback($self)
 }};
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
-{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
+{package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
 ((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 ' . 'use Data::Dumper;
 ') . $self->e($n->{'statements'})->join(';
@@ -1503,7 +1511,7 @@ sub cb__Val_Int{my $self=CORE::shift;my($n)=@_;
 $self->e($n->{'text'})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 if(($n->{'code'} =~ qr/^infix:(.+)$/)) {
-my $op = 1;
+my $op = $1;
 my $a = $self->e($n->{'arguments'});
 my $l = $a->[0];
 my $r = $a->[1];
@@ -1522,17 +1530,21 @@ if((($t && ($t eq '.')))) {
 (((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')
 }
 }elsif((($self->e($n->{'code'}) =~ qr/^circumfix:(.+)/))) {
-my $op = 1;
+my $op = $1;
 my $arg = $self->e(($n->{'arguments'} || []))->join(',');
-$op->re_gsub(' ', '$arg')
+$op->re_gsub(' ', $arg)
 }else {
 my $f = $self->e($n->{'code'});
 if((($f =~ qr/^\$\w+$/))) {
 ((($f . '->(') . $self->e($n->{'arguments'})->join(',')) . ')')
 }elsif((($f eq 'self'))) {
 '$self'
-}else {
+}elsif((($f eq 'last'))) {
+'last'
+}elsif((($f =~ qr/^\w/))) {
 (((('::' . $f) . '(') . $self->e($n->{'arguments'})->join(',')) . ')')
+}else {
+((($f . '(') . $self->e($n->{'arguments'})->join(',')) . ')')
 }
 }};
 sub cb__Decl{my $self=CORE::shift;my($n)=@_;
@@ -1560,7 +1572,8 @@ $name->re_gsub('^(.)::', '$1');
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
 ''};
 sub cb__Val_Buf{my $self=CORE::shift;my($n)=@_;
-my $s = ::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'})->chomp();
+my $s = ::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'});
+$s->chomp();
 $s};
 sub cb__Val_Rx{my $self=CORE::shift;my($n)=@_;
 (('qr/' . $n->{'pat'}) . '/')};
@@ -1582,10 +1595,10 @@ if(($s eq '%')) {
 ($pre = 'h_')
 };
 my $name = (($env . $pre) . $self->e($n->{'name'}));
-if((($t eq '~'))) {
+if((($t eq '.'))) {
 ('$self->' . $name)
 }elsif((($t eq '^'))) {
-$name->gsub('::', '__');
+$name->re_gsub('::', '__');
 (('$' . '::') . $name)
 }else {
 ('$' . $name)
@@ -1628,7 +1641,7 @@ if((($n->{'positional'}->elems() == 0))) {
 sub cb__Lit_SigArgument{my $self=CORE::shift;my($n)=@_;
 $self->e($n->{'key'})};
 sub cb__PackageDeclarator{my $self=CORE::shift;my($n)=@_;
-{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
+{package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
 my $name = $::es_whiteboard__in_package->join('::');
 (((((((('
 { package ' . $name) . ';
@@ -1652,9 +1665,9 @@ my $method = $self->e($n->{'method'});
 if((($method =~ 'postcircumfix:< >'))) {
 (((($self->e($n->{'invocant'}) . '->') . '{\'') . $n->{'arguments'}) . '\'}')
 }elsif((($method =~ 'postcircumfix:(.*)'))) {
-my $op = 1;
+my $op = $1;
 my $arg = $self->e(($n->{'arguments'} || []))->join(',');
-$op->re_gsub(' ', '$arg');
+$op->re_gsub(' ', $arg);
 (($self->e($n->{'invocant'}) . '->') . $op)
 }else {
 ((((($self->e($n->{'invocant'}) . '->') . $self->e($n->{'method'})) . '(') . $self->e(($n->{'arguments'} || []))->join(',')) . ')')
@@ -1664,32 +1677,146 @@ sub cb__Lit_Hash{my $self=CORE::shift;my($n)=@_;
 }
 
 ;
-#line 2 emitted_p5_2918
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+use Data::Dumper;
+
+{ package Program;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub prelude{my $self=CORE::shift;'
 package main;
+use Perl6::Say;
+use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+
+our $a_ARGS = [@ARGV];
+
+{package UNDEF;}
+{package UNDEF; sub ref{"UNDEF"}}
+{package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
+
+sub ::undef{undef}
+
+use Carp;
+sub slurp{my($file)=@_; `cat $file`;}
+sub unslurp{
+  my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
+sub file_exists{-e $_[0]}
+sub system{CORE::system(@_)}
+sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+sub ::die{croak @_}
+sub ::exit{CORE::exit(@_)}
+sub ::defined{CORE::defined($_[0])}
+sub ::substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
+sub ::not ($){CORE::not $_[0]}
+sub ::exec{CORE::exec(@_)}
+
+
+# because the p5->p6 massage of ast_handlers isnt massaging join.
+sub ::join{CORE::join(CORE::shift,@_)}
+# end
+
+{ package SCALAR;
+sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
+sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
+}
+
+{ package ARRAY;
+sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
+}
+
+package main;
+'}
+}
+
+;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use Data::Dumper;
 
 { package Program;
 use Moose;
 use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub print_usage_and_die{my $self=CORE::shift;::say('
-elf_b [-e P6_CODE]
+Usage: [-v] [-c|-x|-xe] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
+
+default Run code.
+ -c     Compile code.
+ -x     Compile code, and include prelude, creating an executable.
+ -xe    Compile code, and include prelude, and run it.
+
 ');
 ::exit(2)};
 sub main{my $self=CORE::shift;my($args)=@_;
 if(($args->elems() == 0)) {
 $self->print_usage_and_die()
 };
+my $output_file;
+my $dont_eval;
+my $run_externally;
+my $include_prelude;
+my $verbose;
 my $p6_code;
+my $p5_code;
 while($args->elems()) {
 my $arg = $args->shift();
-if(($arg eq '-e')) {
-($p6_code = $args->shift())
+if(($arg eq '-v')) {
+($verbose = 1)
+}elsif(($arg eq '-c')) {
+($dont_eval = 1)
+}elsif(($arg eq '-x')) {
+($dont_eval = 1);
+($include_prelude = 1)
+}elsif(($arg eq '-xe')) {
+($dont_eval = 1);
+($include_prelude = 1);
+($run_externally = 1)
+}elsif(($arg eq '-o')) {
+($output_file = ($args->shift() || $self->print_usage_and_die()))
+}elsif(($arg eq '-e')) {
+($p6_code = ($args->shift() || $self->print_usage_and_die()));
+($p5_code = ($p5_code . $self->compile($p6_code, $verbose)));
+($p5_code = ($p5_code . '
+;
+'))
 }elsif(::file_exists($arg)) {
-($p6_code = ::slurp($arg))
+($p6_code = ::slurp($arg));
+($p5_code = ($p5_code . $self->compile($p6_code, $verbose)));
+($p5_code = ($p5_code . '
+;
+'))
+}elsif(($arg eq '--')) {
+last
 }else {
 $self->print_usage_and_die()
 }
 };
+my $prelude = '';
+if(($include_prelude || ::not($dont_eval))) {
+($prelude = $self->prelude())
+};
+($p5_code = (($prelude . '
+') . $p5_code));
+($p5_code = ('#!/usr/bin/perl -w
+' . $p5_code));
+if((::not($dont_eval))) {
+::eval_perl5($p5_code)
+}elsif(($run_externally)) {
+($p5_code = ($p5_code . '
+'));
+if((::not($output_file))) {
+($output_file = 'deleteme_exe')
+};
+::unslurp($p5_code, $output_file);
+::exec('perl', $output_file, $args)
+}else {
+if((::not($output_file))) {
+::say($p5_code)
+}else {
+($p5_code = ($p5_code . '
+'));
+::unslurp($p5_code, $output_file)
+}
+}};
+sub compile{my $self=CORE::shift;my($p6_code,$verbose)=@_;
 ::unslurp($p6_code, 'deleteme.p6');
 my $parser = '../../STD_red/STD_red_run';
 my $cmd = ($parser . ' -q --format=p5a deleteme.p6 > deleteme.dump');
@@ -1697,10 +1824,18 @@ my $cmd = ($parser . ' -q --format=p5a deleteme.p6 > deleteme.dump');
 '));
 my $dump5 = ::slurp('deleteme.dump');
 my $tree = ::eval_perl5(('package Fastdump;' . $dump5));
-::say($tree->match_describe());
+if($verbose) {
+::say($tree->match_describe())
+};
 my $ir = $tree->make_ir_from_Match_tree();
-::say($ir->ir0_describe());
-::say($ir->callback(SimpleEmit5->new()))}
+if($verbose) {
+::say($ir->ir0_describe())
+};
+my $p5 = $ir->callback(SimpleEmit5->new());
+if($verbose) {
+::say($p5)
+};
+$p5}
 }
 ;
 Program->new()->main($a_ARGS);

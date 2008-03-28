@@ -1580,8 +1580,12 @@ else {
      $f.'->('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
   }elsif($f eq 'self') {
     '$self'
-  }else{
+  }elsif($f eq 'last') {
+    'last'
+  }elsif($f =~ /^\w/) {
      '::'.$f.'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
+  }else{
+     $f.'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
   }
 }
   }
@@ -1762,10 +1766,20 @@ sub ::die{croak @_}
 sub ::exit{exit(@_)}
 sub ::defined{defined($_[0])}
 sub ::substr ($$$){substr($_[0],$_[1],$_[2])}
+sub ::not ($){not $_[0]}
+sub ::exec{exec(@_)}
+
+# because the p5->p6 massage of ast_handlers isnt massaging join.
+sub ::join{join(CORE::shift,@_)}
+# end
 
 { package SCALAR;
 sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
 sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
+}
+
+{ package ARRAY;
+sub splice { my $a = CORE::shift; [splice(@{$a},$_[0],$_[1])] }
 }
 
 package main;
@@ -1853,10 +1867,10 @@ default Run code.
       }
       open(F,">$output_file") or die $!;
       print F $p5_code; close F;
-      exec("perl",$output_file,@ARGV);
+      exec("perl",$output_file,@$argv);
     }
     else {
-      if(not $output_file) {
+      if(not($output_file)) {
         print $p5_code,"\n";
       } else {
         open(F,">$output_file") or die $!;

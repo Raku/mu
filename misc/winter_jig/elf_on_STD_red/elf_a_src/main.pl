@@ -80,10 +80,10 @@ default Run code.
       }
       open(F,">$output_file") or die $!;
       print F $p5_code; close F;
-      exec("perl",$output_file,@ARGV);
+      exec("perl",$output_file,@$argv);
     }
     else {
-      if(not $output_file) {
+      if(not($output_file)) {
         print $p5_code,"\n";
       } else {
         open(F,">$output_file") or die $!;

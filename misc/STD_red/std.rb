@@ -801,7 +801,11 @@ class Perl < Grammar
               _hkv(h,:postcircumfix,pc)
              _match_from(b,h,:variable))
          } or
-         let_pos{ sigil and scan(/\d+/) } or
+         let_pos{ si= sigil and d= scan(/\d+/) and
+             (h={:sigil=>si};
+              _hkv(h,:desigilname,d) #R XXX non-spec
+             _match_from(b,h,:variable))
+         } or
          # Note: $() can also parse as contextualizer in an expression; should have same effect
          let_pos{ sigil and before(/[<\(]/) and postcircumfix } or
          # Note: any ::() are handled within <name>, and subscript must be final part.

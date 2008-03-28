@@ -76,8 +76,12 @@ else {
      $f.'->('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
   }elsif($f eq 'self') {
     '$self'
-  }else{
+  }elsif($f eq 'last') {
+    'last'
+  }elsif($f =~ /^\w/) {
      '::'.$f.'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
+  }else{
+     $f.'('.join(",",@{IR->emit_p5_for($n->{arguments})}).')';
   }
 }
   }

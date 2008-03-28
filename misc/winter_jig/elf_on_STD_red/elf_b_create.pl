@@ -5,10 +5,39 @@ use warnings;
 require 'elf_a_src/ir_nodes_ref.pl';
 require 'elf_a_src/util.pl';
 
+sub exe {
+  my($cmd,$msg)=@_;
+  $msg ||= "system('$cmd') failed: ";
+  print STDERR $cmd,"\n";
+  system($cmd) == 0 or die $msg.$!."\n";
+}
+
 sub main {
   IRNodesRef->load_ir_node_config("./elf_a_src/ir_nodes.config");
   write_ir_nodes();
   write_ast_handlers();
+
+  my $output = "./elf_b";
+  my $compiler = "./elf_a";
+  if(@ARGV && $ARGV[0] =~ /^--compiler=(.+)$/) {
+    shift(@ARGV);
+    $compiler = $1;
+  }
+  if(@ARGV && $ARGV[0] eq '-o') {
+    shift(@ARGV);
+    $output = shift(@ARGV) || die "what output file?";
+  }
+  if(@ARGV && $ARGV[0] eq '--check-bootstrap') {
+    print STDERR ("\nYou might want to define STD_RED_CACHEDIR".
+                  "for faster compilation.\n\n") if(!$ENV{STD_RED_CACHEDIR});
+    exe("./elf_a_create.pl --create-only");
+    exe("./elf_b_create.pl --create-only");
+    exe("./elf_b_create.pl --compiler=./elf_b -o ./elf_b2");
+    exe("./elf_b_create.pl --compiler=./elf_b2 -o ./elf_b3");
+    exe("diff ./elf_b2 ./elf_b3");
+    exe("./elf_b3 -xe -e 'say 3'");
+    exit(0);
+  }
 
   my $files = join(" ",map{"elf_b_src/$_"}qw(
     Match.pm
@@ -16,16 +45,19 @@ sub main {
     ast_handlers.pl
     ir_nodes.p6
     emit_p5.p6
+    prelude.p6
     main.p6 ));
-  system("./elf_a_create.pl --create-only") == 0 or die "elf_a_create failed\n";
-  my $cmd = "./elf_a -x -o ./elf_b $files";
+  if($compiler =~ /\/elf_a$/) {
+    system("./elf_a_create.pl --create-only") == 0 or die "elf_a_create failed\n";
+  }
+  my $cmd = "$compiler -x -o $output $files";
   print $cmd,"\n";
-  system($cmd) == 0 or die "Failed to build ./elf_b\n";
+  system($cmd) == 0 or die "Failed to build $output\n";
 
   if(@ARGV && $ARGV[0] eq '--create-only') {
     exit(0);
   }
-  exec("./elf_b",@ARGV);
+  exec($output,@ARGV);
   die "Exec failed $!";
 }
 main();
@@ -128,7 +160,7 @@ sub write_ast_handlers {
     $body =~ s/\@\{\(\((.*?)\)\)\}/$1.flatten/g;
     $body =~ s/([\'\"])\./$1~/g;
     $body =~ s/\.([\'\"])/~$1/g;
-    $body =~ s{\s*=~\s*s/((?:[^\\\/]|\\.)*)/((?:[^\\\/]|\\.)*)/g;}{.re_gsub(/$1/,'$2');}g;
+    $body =~ s{\s*=~\s*s/((?:[^\\\/]|\\.)*)/((?:[^\\\/]|\\.)*)/g;}{.re_gsub(/$1/,"$2");}g;
     $body =~ s/^(\s*if)\(/$1 \(/g;
     $body =~ s/->\{/\.\{/g;
     $body =~ s/->\[/\.\[/g;

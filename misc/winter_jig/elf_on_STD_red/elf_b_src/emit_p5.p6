@@ -36,7 +36,7 @@ class SimpleEmit5 {
     elsif($.e($n<code>) =~ /^circumfix:(.+)/) {
       my $op = $1;
       my $arg = $.e($n<arguments>||[]).join(",");
-      $op.re_gsub(' ','$arg');
+      $op.re_gsub(' ',$arg);
     }
     else {
       my $f = $.e($n<code>);
@@ -44,8 +44,12 @@ class SimpleEmit5 {
          $f~'->('~$.e($n<arguments>).join(",")~')';
       }elsif($f eq 'self') {
         '$self'
-      }else{
+      }elsif($f eq 'last') {
+        'last'
+      }elsif($f =~ /^\w/) {
          '::'~$f~'('~$.e($n<arguments>).join(",")~')';
+      }else{
+         $f~'('~$.e($n<arguments>).join(",")~')';
       }
     }
   };
@@ -76,7 +80,8 @@ class SimpleEmit5 {
     ""
   };
   method cb__Val_Buf ($n) {
-    my $s = eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}').($n<buf>).chomp;
+    my $s = eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}').($n<buf>);
+    $s.chomp;
     $s;
   };
   method cb__Val_Rx ($n) {
@@ -93,10 +98,10 @@ class SimpleEmit5 {
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
     my $name = $env~$pre~$.e($n<name>);
-    if($t eq '~') {
+    if($t eq '.') {
       '$self->'~$name
     }elsif($t eq '^') {
-      $name.gsub('::','__');
+      $name.re_gsub('::','__');
       '$'~'::'~$name
     }else{
       '$'~$name
@@ -160,7 +165,7 @@ class SimpleEmit5 {
     elsif($method =~ 'postcircumfix:(.*)') {
       my $op = $1;
       my $arg = $.e($n<arguments>||[]).join(",");
-      $op.re_gsub(' ','$arg');
+      $op.re_gsub(' ',$arg);
       $.e($n<invocant>)~'->'~$op;
     } else {
       $.e($n<invocant>)~'->'~$.e($n<method>)~'('~$.e($n<arguments>||[]).join(",")~')'
