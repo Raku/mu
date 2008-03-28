@@ -6,6 +6,10 @@ use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF'
 
 our $a_ARGS = [@ARGV];
 
+{package UNDEF;}
+{package UNDEF; sub ref{'UNDEF'}}
+{package UNIVERSAL; sub ref{ref($_[0]) || 'SCALAR'} }
+
 sub ::undef{undef}
 
 use Carp;
@@ -24,7 +28,7 @@ sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 
 package main;
 
-#line 2 emitted_p5_9208
+#line 2 emitted_p5_5330
 package main;
 use Data::Dumper;
 
@@ -81,7 +85,7 @@ sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
 }
 
 ;
-#line 2 emitted_p5_6935
+#line 2 emitted_p5_5612
 package main;
 use Data::Dumper;
 
@@ -142,7 +146,7 @@ sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()}
 ;
-#line 2 emitted_p5_3675
+#line 2 emitted_p5_718
 package main;
 use Data::Dumper;
 
@@ -197,7 +201,12 @@ IR0::Apply->newp($m, 'self', [])
 $main::irbuilder->add_constructor('integer', sub {my($m)=@_;
 IR0::Val_Int->newp($m, ($m->match_string()))});
 $main::irbuilder->add_constructor('subcall', sub {my($m)=@_;
-IR0::Apply->newp($m, ::irbuild_ir($m->{'hash'}->{'subshortname'}), ::irbuild_ir($m->{'hash'}->{'semilist'}))});
+my $t = ::irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'twigil'});
+if((($t && ($t eq '~')))) {
+IR0::Call->newp($m, IR0::Apply->newp($m, 'self', []), ::undef(), ::irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'desigilname'}->{'hash'}->{'ident'}), ::irbuild_ir($m->{'hash'}->{'semilist'}))
+}else {
+IR0::Apply->newp($m, ::irbuild_ir($m->{'hash'}->{'subshortname'}), ::irbuild_ir($m->{'hash'}->{'semilist'}))
+}});
 $main::irbuilder->add_constructor('name', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('statement_control:use', sub {my($m)=@_;
@@ -343,7 +352,7 @@ IR0::Lit_Hash->newp($m, ::irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statem
 }
 
 ;
-#line 2 emitted_p5_6920
+#line 2 emitted_p5_4033
 package main;
 use Data::Dumper;
 
@@ -408,8 +417,8 @@ extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
 $self->new('match', $match, 'statements', $statements)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_CompUnit($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__CompUnit($self)};
 sub node_name{my $self=CORE::shift;'CompUnit'};
 sub field_names{my $self=CORE::shift;['statements']};
 sub field_values{my $self=CORE::shift;[$self->statements]};
@@ -424,8 +433,8 @@ extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$text)=@_;
 $self->new('match', $match, 'text', $text)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Val_Int($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Val_Int($self)};
 sub node_name{my $self=CORE::shift;'Val_Int'};
 sub field_names{my $self=CORE::shift;['text']};
 sub field_values{my $self=CORE::shift;[$self->text]};
@@ -443,8 +452,8 @@ has 'traits' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$kind,$name,$traits,$block)=@_;
 $self->new('match', $match, 'kind', $kind, 'name', $name, 'traits', $traits, 'block', $block)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_PackageDeclarator($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__PackageDeclarator($self)};
 sub node_name{my $self=CORE::shift;'PackageDeclarator'};
 sub field_names{my $self=CORE::shift;['kind', 'name', 'traits', 'block']};
 sub field_values{my $self=CORE::shift;[$self->kind, $self->name, $self->traits, $self->block]};
@@ -460,8 +469,8 @@ has 'verb' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$verb,$expr)=@_;
 $self->new('match', $match, 'verb', $verb, 'expr', $expr)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Trait($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Trait($self)};
 sub node_name{my $self=CORE::shift;'Trait'};
 sub field_names{my $self=CORE::shift;['verb', 'expr']};
 sub field_values{my $self=CORE::shift;[$self->verb, $self->expr]};
@@ -476,8 +485,8 @@ extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
 $self->new('match', $match, 'statements', $statements)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Block($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Block($self)};
 sub node_name{my $self=CORE::shift;'Block'};
 sub field_names{my $self=CORE::shift;['statements']};
 sub field_values{my $self=CORE::shift;[$self->statements]};
@@ -492,8 +501,8 @@ extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'concat' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$concat)=@_;
 $self->new('match', $match, 'concat', $concat)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Quote($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Quote($self)};
 sub node_name{my $self=CORE::shift;'Quote'};
 sub field_names{my $self=CORE::shift;['concat']};
 sub field_values{my $self=CORE::shift;[$self->concat]};
@@ -508,8 +517,8 @@ extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'bit' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$bit)=@_;
 $self->new('match', $match, 'bit', $bit)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Val_Bit($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Val_Bit($self)};
 sub node_name{my $self=CORE::shift;'Val_Bit'};
 sub field_names{my $self=CORE::shift;['bit']};
 sub field_values{my $self=CORE::shift;[$self->bit]};
@@ -524,8 +533,8 @@ extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'num' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$num)=@_;
 $self->new('match', $match, 'num', $num)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Val_Num($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Val_Num($self)};
 sub node_name{my $self=CORE::shift;'Val_Num'};
 sub field_names{my $self=CORE::shift;['num']};
 sub field_values{my $self=CORE::shift;[$self->num]};
@@ -540,8 +549,8 @@ extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$buf)=@_;
 $self->new('match', $match, 'buf', $buf)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Val_Buf($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Val_Buf($self)};
 sub node_name{my $self=CORE::shift;'Val_Buf'};
 sub field_names{my $self=CORE::shift;['buf']};
 sub field_values{my $self=CORE::shift;[$self->buf]};
@@ -556,8 +565,8 @@ extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$char)=@_;
 $self->new('match', $match, 'char', $char)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Val_Char($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Val_Char($self)};
 sub node_name{my $self=CORE::shift;'Val_Char'};
 sub field_names{my $self=CORE::shift;['char']};
 sub field_values{my $self=CORE::shift;[$self->char]};
@@ -571,8 +580,8 @@ use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF'
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Val_Undef($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Val_Undef($self)};
 sub node_name{my $self=CORE::shift;'Val_Undef'};
 sub field_names{my $self=CORE::shift;[]};
 sub field_values{my $self=CORE::shift;[]};
@@ -588,8 +597,8 @@ has 'clazz' => (is => 'rw');;
 has 'fields' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$clazz,$fields)=@_;
 $self->new('match', $match, 'clazz', $clazz, 'fields', $fields)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Val_Object($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Val_Object($self)};
 sub node_name{my $self=CORE::shift;'Val_Object'};
 sub field_names{my $self=CORE::shift;['clazz', 'fields']};
 sub field_values{my $self=CORE::shift;[$self->clazz, $self->fields]};
@@ -604,8 +613,8 @@ extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'pat' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pat)=@_;
 $self->new('match', $match, 'pat', $pat)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Val_Rx($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Val_Rx($self)};
 sub node_name{my $self=CORE::shift;'Val_Rx'};
 sub field_names{my $self=CORE::shift;['pat']};
 sub field_values{my $self=CORE::shift;[$self->pat]};
@@ -620,8 +629,8 @@ extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'seq' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$seq)=@_;
 $self->new('match', $match, 'seq', $seq)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_Seq($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_Seq($self)};
 sub node_name{my $self=CORE::shift;'Lit_Seq'};
 sub field_names{my $self=CORE::shift;['seq']};
 sub field_values{my $self=CORE::shift;[$self->seq]};
@@ -636,8 +645,8 @@ extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$array)=@_;
 $self->new('match', $match, 'array', $array)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_Array($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_Array($self)};
 sub node_name{my $self=CORE::shift;'Lit_Array'};
 sub field_names{my $self=CORE::shift;['array']};
 sub field_values{my $self=CORE::shift;[$self->array]};
@@ -652,8 +661,8 @@ extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$hash)=@_;
 $self->new('match', $match, 'hash', $hash)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_Hash($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_Hash($self)};
 sub node_name{my $self=CORE::shift;'Lit_Hash'};
 sub field_names{my $self=CORE::shift;['hash']};
 sub field_values{my $self=CORE::shift;[$self->hash]};
@@ -669,8 +678,8 @@ has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$key,$value)=@_;
 $self->new('match', $match, 'key', $key, 'value', $value)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_Pair($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_Pair($self)};
 sub node_name{my $self=CORE::shift;'Lit_Pair'};
 sub field_names{my $self=CORE::shift;['key', 'value']};
 sub field_values{my $self=CORE::shift;[$self->key, $self->value]};
@@ -694,8 +703,8 @@ has 'is_rw' => (is => 'rw');;
 has 'is_copy' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$key,$value,$type,$has_default,$is_named_only,$is_optional,$is_slurpy,$is_multidimensional,$is_rw,$is_copy)=@_;
 $self->new('match', $match, 'key', $key, 'value', $value, 'type', $type, 'has_default', $has_default, 'is_named_only', $is_named_only, 'is_optional', $is_optional, 'is_slurpy', $is_slurpy, 'is_multidimensional', $is_multidimensional, 'is_rw', $is_rw, 'is_copy', $is_copy)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_SigArgument($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_SigArgument($self)};
 sub node_name{my $self=CORE::shift;'Lit_SigArgument'};
 sub field_names{my $self=CORE::shift;['key', 'value', 'type', 'has_default', 'is_named_only', 'is_optional', 'is_slurpy', 'is_multidimensional', 'is_rw', 'is_copy']};
 sub field_values{my $self=CORE::shift;[$self->key, $self->value, $self->type, $self->has_default, $self->is_named_only, $self->is_optional, $self->is_slurpy, $self->is_multidimensional, $self->is_rw, $self->is_copy]};
@@ -711,8 +720,8 @@ has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$key,$value)=@_;
 $self->new('match', $match, 'key', $key, 'value', $value)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_NamedArgument($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_NamedArgument($self)};
 sub node_name{my $self=CORE::shift;'Lit_NamedArgument'};
 sub field_names{my $self=CORE::shift;['key', 'value']};
 sub field_values{my $self=CORE::shift;[$self->key, $self->value]};
@@ -731,8 +740,8 @@ has 'body' => (is => 'rw');;
 has 'catch' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pad,$state,$sig,$body,$catch)=@_;
 $self->new('match', $match, 'pad', $pad, 'state', $state, 'sig', $sig, 'body', $body, 'catch', $catch)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_Code($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_Code($self)};
 sub node_name{my $self=CORE::shift;'Lit_Code'};
 sub field_names{my $self=CORE::shift;['pad', 'state', 'sig', 'body', 'catch']};
 sub field_values{my $self=CORE::shift;[$self->pad, $self->state, $self->sig, $self->body, $self->catch]};
@@ -748,8 +757,8 @@ has 'clazz' => (is => 'rw');;
 has 'fields' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$clazz,$fields)=@_;
 $self->new('match', $match, 'clazz', $clazz, 'fields', $fields)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_Object($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_Object($self)};
 sub node_name{my $self=CORE::shift;'Lit_Object'};
 sub field_names{my $self=CORE::shift;['clazz', 'fields']};
 sub field_values{my $self=CORE::shift;[$self->clazz, $self->fields]};
@@ -767,8 +776,8 @@ has 'name' => (is => 'rw');;
 has 'namespace' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name,$namespace)=@_;
 $self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name, 'namespace', $namespace)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Var($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Var($self)};
 sub node_name{my $self=CORE::shift;'Var'};
 sub field_names{my $self=CORE::shift;['sigil', 'twigil', 'name', 'namespace']};
 sub field_values{my $self=CORE::shift;[$self->sigil, $self->twigil, $self->name, $self->namespace]};
@@ -784,8 +793,8 @@ has 'parameters' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$parameters,$arguments)=@_;
 $self->new('match', $match, 'parameters', $parameters, 'arguments', $arguments)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Bind($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Bind($self)};
 sub node_name{my $self=CORE::shift;'Bind'};
 sub field_names{my $self=CORE::shift;['parameters', 'arguments']};
 sub field_values{my $self=CORE::shift;[$self->parameters, $self->arguments]};
@@ -801,8 +810,8 @@ has 'parameters' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$parameters,$arguments)=@_;
 $self->new('match', $match, 'parameters', $parameters, 'arguments', $arguments)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Assign($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Assign($self)};
 sub node_name{my $self=CORE::shift;'Assign'};
 sub field_names{my $self=CORE::shift;['parameters', 'arguments']};
 sub field_values{my $self=CORE::shift;[$self->parameters, $self->arguments]};
@@ -817,8 +826,8 @@ extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name)=@_;
 $self->new('match', $match, 'name', $name)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Proto($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Proto($self)};
 sub node_name{my $self=CORE::shift;'Proto'};
 sub field_names{my $self=CORE::shift;['name']};
 sub field_values{my $self=CORE::shift;[$self->name]};
@@ -836,8 +845,8 @@ has 'method' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$invocant,$hyper,$method,$arguments)=@_;
 $self->new('match', $match, 'invocant', $invocant, 'hyper', $hyper, 'method', $method, 'arguments', $arguments)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Call($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Call($self)};
 sub node_name{my $self=CORE::shift;'Call'};
 sub field_names{my $self=CORE::shift;['invocant', 'hyper', 'method', 'arguments']};
 sub field_values{my $self=CORE::shift;[$self->invocant, $self->hyper, $self->method, $self->arguments]};
@@ -853,8 +862,8 @@ has 'code' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$code,$arguments)=@_;
 $self->new('match', $match, 'code', $code, 'arguments', $arguments)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Apply($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Apply($self)};
 sub node_name{my $self=CORE::shift;'Apply'};
 sub field_names{my $self=CORE::shift;['code', 'arguments']};
 sub field_values{my $self=CORE::shift;[$self->code, $self->arguments]};
@@ -869,8 +878,8 @@ extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'result' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$result)=@_;
 $self->new('match', $match, 'result', $result)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Return($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Return($self)};
 sub node_name{my $self=CORE::shift;'Return'};
 sub field_names{my $self=CORE::shift;['result']};
 sub field_values{my $self=CORE::shift;[$self->result]};
@@ -888,8 +897,8 @@ has 'elsif' => (is => 'rw');;
 has 'else' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$test,$body,$elsif,$else)=@_;
 $self->new('match', $match, 'test', $test, 'body', $body, 'elsif', $elsif, 'else', $else)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_If($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__If($self)};
 sub node_name{my $self=CORE::shift;'If'};
 sub field_names{my $self=CORE::shift;['test', 'body', 'elsif', 'else']};
 sub field_values{my $self=CORE::shift;[$self->test, $self->body, $self->elsif, $self->else]};
@@ -905,8 +914,8 @@ has 'test' => (is => 'rw');;
 has 'body' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$test,$body)=@_;
 $self->new('match', $match, 'test', $test, 'body', $body)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_While($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__While($self)};
 sub node_name{my $self=CORE::shift;'While'};
 sub field_names{my $self=CORE::shift;['test', 'body']};
 sub field_values{my $self=CORE::shift;[$self->test, $self->body]};
@@ -922,8 +931,8 @@ has 'expr' => (is => 'rw');;
 has 'body' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$expr,$body)=@_;
 $self->new('match', $match, 'expr', $expr, 'body', $body)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_For($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__For($self)};
 sub node_name{my $self=CORE::shift;'For'};
 sub field_names{my $self=CORE::shift;['expr', 'body']};
 sub field_values{my $self=CORE::shift;[$self->expr, $self->body]};
@@ -941,8 +950,8 @@ has 'var' => (is => 'rw');;
 has 'default' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$decl,$type,$var,$default)=@_;
 $self->new('match', $match, 'decl', $decl, 'type', $type, 'var', $var, 'default', $default)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Decl($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Decl($self)};
 sub node_name{my $self=CORE::shift;'Decl'};
 sub field_names{my $self=CORE::shift;['decl', 'type', 'var', 'default']};
 sub field_values{my $self=CORE::shift;[$self->decl, $self->type, $self->var, $self->default]};
@@ -958,8 +967,8 @@ has 'invocant' => (is => 'rw');;
 has 'positional' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$invocant,$positional)=@_;
 $self->new('match', $match, 'invocant', $invocant, 'positional', $positional)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Sig($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Sig($self)};
 sub node_name{my $self=CORE::shift;'Sig'};
 sub field_names{my $self=CORE::shift;['invocant', 'positional']};
 sub field_values{my $self=CORE::shift;[$self->invocant, $self->positional]};
@@ -976,8 +985,8 @@ has 'array' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$invocant,$array,$hash)=@_;
 $self->new('match', $match, 'invocant', $invocant, 'array', $array, 'hash', $hash)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_Capture($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_Capture($self)};
 sub node_name{my $self=CORE::shift;'Lit_Capture'};
 sub field_names{my $self=CORE::shift;['invocant', 'array', 'hash']};
 sub field_values{my $self=CORE::shift;[$self->invocant, $self->array, $self->hash]};
@@ -994,8 +1003,8 @@ has 'base_class' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name,$base_class,$block)=@_;
 $self->new('match', $match, 'name', $name, 'base_class', $base_class, 'block', $block)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Lit_Subset($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Lit_Subset($self)};
 sub node_name{my $self=CORE::shift;'Lit_Subset'};
 sub field_names{my $self=CORE::shift;['name', 'base_class', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->base_class, $self->block]};
@@ -1012,8 +1021,8 @@ has 'sig' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name,$sig,$block)=@_;
 $self->new('match', $match, 'name', $name, 'sig', $sig, 'block', $block)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Method($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Method($self)};
 sub node_name{my $self=CORE::shift;'Method'};
 sub field_names{my $self=CORE::shift;['name', 'sig', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->sig, $self->block]};
@@ -1030,8 +1039,8 @@ has 'sig' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name,$sig,$block)=@_;
 $self->new('match', $match, 'name', $name, 'sig', $sig, 'block', $block)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Sub($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Sub($self)};
 sub node_name{my $self=CORE::shift;'Sub'};
 sub field_names{my $self=CORE::shift;['name', 'sig', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->sig, $self->block]};
@@ -1048,8 +1057,8 @@ has 'sig' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name,$sig,$block)=@_;
 $self->new('match', $match, 'name', $name, 'sig', $sig, 'block', $block)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Macro($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Macro($self)};
 sub node_name{my $self=CORE::shift;'Macro'};
 sub field_names{my $self=CORE::shift;['name', 'sig', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->sig, $self->block]};
@@ -1066,8 +1075,8 @@ has 'sig' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name,$sig,$block)=@_;
 $self->new('match', $match, 'name', $name, 'sig', $sig, 'block', $block)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Coro($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Coro($self)};
 sub node_name{my $self=CORE::shift;'Coro'};
 sub field_names{my $self=CORE::shift;['name', 'sig', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->sig, $self->block]};
@@ -1082,8 +1091,8 @@ extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'regex' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$regex)=@_;
 $self->new('match', $match, 'regex', $regex)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_P5Token($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__P5Token($self)};
 sub node_name{my $self=CORE::shift;'P5Token'};
 sub field_names{my $self=CORE::shift;['regex']};
 sub field_values{my $self=CORE::shift;[$self->regex]};
@@ -1100,8 +1109,8 @@ has 'regex' => (is => 'rw');;
 has 'sym' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name,$regex,$sym)=@_;
 $self->new('match', $match, 'name', $name, 'regex', $regex, 'sym', $sym)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Token($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Token($self)};
 sub node_name{my $self=CORE::shift;'Token'};
 sub field_names{my $self=CORE::shift;['name', 'regex', 'sym']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->regex, $self->sym]};
@@ -1116,8 +1125,8 @@ extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$block)=@_;
 $self->new('match', $match, 'block', $block)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Do($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Do($self)};
 sub node_name{my $self=CORE::shift;'Do'};
 sub field_names{my $self=CORE::shift;['block']};
 sub field_values{my $self=CORE::shift;[$self->block]};
@@ -1132,8 +1141,8 @@ extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$block)=@_;
 $self->new('match', $match, 'block', $block)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Begin($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Begin($self)};
 sub node_name{my $self=CORE::shift;'Begin'};
 sub field_names{my $self=CORE::shift;['block']};
 sub field_values{my $self=CORE::shift;[$self->block]};
@@ -1149,8 +1158,8 @@ has 'mod' => (is => 'rw');;
 has 'perl5' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$mod,$perl5)=@_;
 $self->new('match', $match, 'mod', $mod, 'perl5', $perl5)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Use($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Use($self)};
 sub node_name{my $self=CORE::shift;'Use'};
 sub field_names{my $self=CORE::shift;['mod', 'perl5']};
 sub field_values{my $self=CORE::shift;[$self->mod, $self->perl5]};
@@ -1164,8 +1173,8 @@ use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF'
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule($self)};
 sub node_name{my $self=CORE::shift;'Rule'};
 sub field_names{my $self=CORE::shift;[]};
 sub field_values{my $self=CORE::shift;[]};
@@ -1185,8 +1194,8 @@ has 'ws2' => (is => 'rw');;
 has 'ws3' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$term,$quant,$greedy,$ws1,$ws2,$ws3)=@_;
 $self->new('match', $match, 'term', $term, 'quant', $quant, 'greedy', $greedy, 'ws1', $ws1, 'ws2', $ws2, 'ws3', $ws3)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Quantifier($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Quantifier($self)};
 sub node_name{my $self=CORE::shift;'Rule_Quantifier'};
 sub field_names{my $self=CORE::shift;['term', 'quant', 'greedy', 'ws1', 'ws2', 'ws3']};
 sub field_values{my $self=CORE::shift;[$self->term, $self->quant, $self->greedy, $self->ws1, $self->ws2, $self->ws3]};
@@ -1201,8 +1210,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'terms' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$terms)=@_;
 $self->new('match', $match, 'terms', $terms)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Or($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Or($self)};
 sub node_name{my $self=CORE::shift;'Rule_Or'};
 sub field_names{my $self=CORE::shift;['terms']};
 sub field_values{my $self=CORE::shift;[$self->terms]};
@@ -1217,8 +1226,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'concat' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$concat)=@_;
 $self->new('match', $match, 'concat', $concat)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Concat($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Concat($self)};
 sub node_name{my $self=CORE::shift;'Rule_Concat'};
 sub field_names{my $self=CORE::shift;['concat']};
 sub field_values{my $self=CORE::shift;[$self->concat]};
@@ -1235,8 +1244,8 @@ has 'ident' => (is => 'rw');;
 has 'capture_to_array' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$metasyntax,$ident,$capture_to_array)=@_;
 $self->new('match', $match, 'metasyntax', $metasyntax, 'ident', $ident, 'capture_to_array', $capture_to_array)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Subrule($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Subrule($self)};
 sub node_name{my $self=CORE::shift;'Rule_Subrule'};
 sub field_names{my $self=CORE::shift;['metasyntax', 'ident', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->metasyntax, $self->ident, $self->capture_to_array]};
@@ -1251,8 +1260,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'metasyntax' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$metasyntax)=@_;
 $self->new('match', $match, 'metasyntax', $metasyntax)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_SubruleNoCapture($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_SubruleNoCapture($self)};
 sub node_name{my $self=CORE::shift;'Rule_SubruleNoCapture'};
 sub field_names{my $self=CORE::shift;['metasyntax']};
 sub field_values{my $self=CORE::shift;[$self->metasyntax]};
@@ -1269,8 +1278,8 @@ has 'twigil' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 $self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Var($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Var($self)};
 sub node_name{my $self=CORE::shift;'Rule_Var'};
 sub field_names{my $self=CORE::shift;['sigil', 'twigil', 'name']};
 sub field_values{my $self=CORE::shift;[$self->sigil, $self->twigil, $self->name]};
@@ -1285,8 +1294,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'constant' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$constant)=@_;
 $self->new('match', $match, 'constant', $constant)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Constant($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Constant($self)};
 sub node_name{my $self=CORE::shift;'Rule_Constant'};
 sub field_names{my $self=CORE::shift;['constant']};
 sub field_values{my $self=CORE::shift;[$self->constant]};
@@ -1300,8 +1309,8 @@ use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF'
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Dot($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Dot($self)};
 sub node_name{my $self=CORE::shift;'Rule_Dot'};
 sub field_names{my $self=CORE::shift;[]};
 sub field_values{my $self=CORE::shift;[]};
@@ -1316,8 +1325,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$char)=@_;
 $self->new('match', $match, 'char', $char)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_SpecialChar($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_SpecialChar($self)};
 sub node_name{my $self=CORE::shift;'Rule_SpecialChar'};
 sub field_names{my $self=CORE::shift;['char']};
 sub field_values{my $self=CORE::shift;[$self->char]};
@@ -1332,8 +1341,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'closure' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$closure)=@_;
 $self->new('match', $match, 'closure', $closure)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Block($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Block($self)};
 sub node_name{my $self=CORE::shift;'Rule_Block'};
 sub field_names{my $self=CORE::shift;['closure']};
 sub field_values{my $self=CORE::shift;[$self->closure]};
@@ -1348,8 +1357,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'var' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$var)=@_;
 $self->new('match', $match, 'var', $var)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_InterpolateVar($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_InterpolateVar($self)};
 sub node_name{my $self=CORE::shift;'Rule_InterpolateVar'};
 sub field_names{my $self=CORE::shift;['var']};
 sub field_values{my $self=CORE::shift;[$self->var]};
@@ -1366,8 +1375,8 @@ has 'ident' => (is => 'rw');;
 has 'capture_to_array' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$rule,$ident,$capture_to_array)=@_;
 $self->new('match', $match, 'rule', $rule, 'ident', $ident, 'capture_to_array', $capture_to_array)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_NamedCapture($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_NamedCapture($self)};
 sub node_name{my $self=CORE::shift;'Rule_NamedCapture'};
 sub field_names{my $self=CORE::shift;['rule', 'ident', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->rule, $self->ident, $self->capture_to_array]};
@@ -1384,8 +1393,8 @@ has 'assertion_modifier' => (is => 'rw');;
 has 'capture_to_array' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$rule,$assertion_modifier,$capture_to_array)=@_;
 $self->new('match', $match, 'rule', $rule, 'assertion_modifier', $assertion_modifier, 'capture_to_array', $capture_to_array)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Before($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Before($self)};
 sub node_name{my $self=CORE::shift;'Rule_Before'};
 sub field_names{my $self=CORE::shift;['rule', 'assertion_modifier', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->rule, $self->assertion_modifier, $self->capture_to_array]};
@@ -1402,8 +1411,8 @@ has 'assertion_modifier' => (is => 'rw');;
 has 'capture_to_array' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$rule,$assertion_modifier,$capture_to_array)=@_;
 $self->new('match', $match, 'rule', $rule, 'assertion_modifier', $assertion_modifier, 'capture_to_array', $capture_to_array)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_After($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_After($self)};
 sub node_name{my $self=CORE::shift;'Rule_After'};
 sub field_names{my $self=CORE::shift;['rule', 'assertion_modifier', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->rule, $self->assertion_modifier, $self->capture_to_array]};
@@ -1418,8 +1427,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'chars' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$chars)=@_;
 $self->new('match', $match, 'chars', $chars)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_NegateCharClass($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_NegateCharClass($self)};
 sub node_name{my $self=CORE::shift;'Rule_NegateCharClass'};
 sub field_names{my $self=CORE::shift;['chars']};
 sub field_values{my $self=CORE::shift;[$self->chars]};
@@ -1434,8 +1443,8 @@ extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'chars' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$chars)=@_;
 $self->new('match', $match, 'chars', $chars)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_CharClass($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_CharClass($self)};
 sub node_name{my $self=CORE::shift;'Rule_CharClass'};
 sub field_names{my $self=CORE::shift;['chars']};
 sub field_values{my $self=CORE::shift;[$self->chars]};
@@ -1452,8 +1461,8 @@ has 'position' => (is => 'rw');;
 has 'capture_to_array' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$rule,$position,$capture_to_array)=@_;
 $self->new('match', $match, 'rule', $rule, 'position', $position, 'capture_to_array', $capture_to_array)};
-sub emit{my $self=CORE::shift;my($emitter)=@_;
-$emitter->emit_Rule_Capture($self)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Rule_Capture($self)};
 sub node_name{my $self=CORE::shift;'Rule_Capture'};
 sub field_names{my $self=CORE::shift;['rule', 'position', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->rule, $self->position, $self->capture_to_array]};
@@ -1463,7 +1472,195 @@ sub ir0_describe{my $self=CORE::shift;(((((('Rule_Capture(' . $self->rule->ir0_d
 }
 
 ;
-#line 2 emitted_p5_1946
+#line 2 emitted_p5_5417
+package main;
+use Data::Dumper;
+
+{ package SimpleEmit5;
+use Moose;
+use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub e{my $self=CORE::shift;my($x)=@_;
+my $ref = $x->ref();
+if(($ref eq 'UNDEF')) {
+$x
+}elsif(($ref eq 'SCALAR')) {
+$x
+}elsif(($ref eq 'ARRAY')) {
+$x->map(sub {my($ae)=@_;
+$self->e($ae)})
+}else {
+$x->callback($self)
+}};
+sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
+{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
+((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+' . 'use Data::Dumper;
+') . $self->e($n->{'statements'})->join(';
+')))};
+sub cb__Val_Int{my $self=CORE::shift;my($n)=@_;
+$self->e($n->{'text'})};
+sub cb__Apply{my $self=CORE::shift;my($n)=@_;
+if(($n->{'code'} =~ qr/^infix:(.+)$/)) {
+my $op = 1;
+my $a = $self->e($n->{'arguments'});
+my $l = $a->[0];
+my $r = $a->[1];
+if((($op eq '~'))) {
+(((('(' . $l) . ' . ') . $r) . ')')
+}elsif((($op eq ','))) {
+(($l . ', ') . $r)
+}elsif((($op eq '='))) {
+my $t = $self->e($n->{'arguments'}->[0]->{'twigil'});
+if((($t && ($t eq '.')))) {
+((($l . '(') . $r) . ')')
+}else {
+(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')
+}
+}else {
+(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')
+}
+}elsif((($self->e($n->{'code'}) =~ qr/^circumfix:(.+)/))) {
+my $op = 1;
+my $arg = $self->e(($n->{'arguments'} || []))->join(',');
+$op->re_gsub(' ', '$arg')
+}else {
+my $f = $self->e($n->{'code'});
+if((($f =~ qr/^\$\w+$/))) {
+((($f . '->(') . $self->e($n->{'arguments'})->join(',')) . ')')
+}elsif((($f eq 'self'))) {
+'$self'
+}else {
+(((('::' . $f) . '(') . $self->e($n->{'arguments'})->join(',')) . ')')
+}
+}};
+sub cb__Decl{my $self=CORE::shift;my($n)=@_;
+if((($n->{'decl'} eq 'has'))) {
+my $default = $self->e($n->{'default'});
+if((::defined($default))) {
+($default = (', default => ' . $default))
+}else {
+($default = '')
+};
+(((('has \'' . $self->e($n->{'var'}->{'name'})) . '\' => (is => \'rw\'') . $default) . ');')
+}else {
+my $default = '';
+if($n->{'default'}) {
+($default = (' = ' . $self->e($n->{'default'})))
+};
+if((($n->{'var'}->{'twigil'} eq '^'))) {
+my $name = $self->e($n->{'var'});
+$name->re_gsub('^(.)::', '$1');
+((((((('{package main; use vars \'' . $name) . '\'};') . 'local') . ' ') . $self->e($n->{'var'})) . $default))
+}else {
+((($n->{'decl'} . ' ') . $self->e($n->{'var'})) . $default)
+}
+}};
+sub cb__Use{my $self=CORE::shift;my($n)=@_;
+''};
+sub cb__Val_Buf{my $self=CORE::shift;my($n)=@_;
+my $s = ::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'})->chomp();
+$s};
+sub cb__Val_Rx{my $self=CORE::shift;my($n)=@_;
+(('qr/' . $n->{'pat'}) . '/')};
+sub cb__Var{my $self=CORE::shift;my($n)=@_;
+my $s = $n->{'sigil'};
+my $t = ($n->{'twigil'} || '');
+my $env = '';
+my $pre = '';
+if(($t eq '^')) {
+($env = 'e')
+};
+if((($s eq '$') && ($env eq 'e'))) {
+($pre = 's_')
+};
+if(($s eq '@')) {
+($pre = 'a_')
+};
+if(($s eq '%')) {
+($pre = 'h_')
+};
+my $name = (($env . $pre) . $self->e($n->{'name'}));
+if((($t eq '~'))) {
+('$self->' . $name)
+}elsif((($t eq '^'))) {
+$name->gsub('::', '__');
+(('$' . '::') . $name)
+}else {
+('$' . $name)
+}};
+sub cb__For{my $self=CORE::shift;my($n)=@_;
+(((('for(' . $self->e($n->{'expr'})) . '->flatten){
+') . $self->e($n->{'body'})) . '
+}')};
+sub cb__If{my $self=CORE::shift;my($n)=@_;
+my $els = '';
+if($n->{'else'}) {
+($els = (('else {
+' . $self->e($n->{'else'})->[0]) . '
+}'))
+};
+((((((('if(' . $self->e($n->{'test'})) . ') {
+') . $self->e($n->{'body'})) . '
+}') . $self->e($n->{'elsif'})->map(sub {my($e)=@_;
+(((('elsif(' . $e->[0]) . ') {
+') . $e->[1]) . '
+}')})->join('')) . $els))};
+sub cb__While{my $self=CORE::shift;my($n)=@_;
+(((('while(' . $self->e($n->{'test'})) . ') {
+') . $self->e($n->{'body'})) . '
+}')};
+sub cb__Block{my $self=CORE::shift;my($n)=@_;
+(('' . $self->e($n->{'statements'})->join(';
+')) . '')};
+sub cb__Sub{my $self=CORE::shift;my($n)=@_;
+((((('sub ' . $self->e($n->{'name'})) . '{') . $self->e($n->{'sig'})) . $self->e($n->{'block'})) . '}')};
+sub cb__Method{my $self=CORE::shift;my($n)=@_;
+((((('sub ' . $self->e($n->{'name'})) . '{my $self=CORE::shift;') . $self->e($n->{'sig'})) . $self->e($n->{'block'})) . '}')};
+sub cb__Sig{my $self=CORE::shift;my($n)=@_;
+if((($n->{'positional'}->elems() == 0))) {
+''
+}else {
+((('my(' . $self->e($n->{'positional'})->join(',')) . ')=@_;') . '
+')
+}};
+sub cb__Lit_SigArgument{my $self=CORE::shift;my($n)=@_;
+$self->e($n->{'key'})};
+sub cb__PackageDeclarator{my $self=CORE::shift;my($n)=@_;
+{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
+my $name = $::es_whiteboard__in_package->join('::');
+(((((((('
+{ package ' . $name) . ';
+') . 'use Moose;
+') . 'use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => \'UNDEF\';
+') . $self->e(($n->{'traits'} || []))->join('
+')) . $self->e($n->{'block'})) . '
+}
+'))};
+sub cb__Trait{my $self=CORE::shift;my($n)=@_;
+if((($n->{'verb'} eq 'is'))) {
+my $name = (($::es_whiteboard__in_package->splice(0, (0 - 1))->join('::') . '::') . $self->e($n->{'expr'}));
+(('extends \'' . $name) . '\';')
+}else {
+::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
+'));
+'***Trait***'
+}};
+sub cb__Call{my $self=CORE::shift;my($n)=@_;
+my $method = $self->e($n->{'method'});
+if((($method =~ 'postcircumfix:(.*)'))) {
+my $op = 1;
+my $arg = $self->e(($n->{'arguments'} || []))->join(',');
+$op->re_gsub(' ', '$arg');
+(($self->e($n->{'invocant'}) . '->') . $op)
+}else {
+((((($self->e($n->{'invocant'}) . '->') . $self->e($n->{'method'})) . '(') . $self->e(($n->{'arguments'} || []))->join(',')) . ')')
+}};
+sub cb__Lit_Hash{my $self=CORE::shift;my($n)=@_;
+(('{' . $self->e(($n->{'hash'} || []))->join(',')) . '}')}
+}
+
+;
+#line 2 emitted_p5_4514
 package main;
 use Data::Dumper;
 
@@ -1491,14 +1688,15 @@ $self->print_usage_and_die()
 };
 ::unslurp($p6_code, 'deleteme.p6');
 my $parser = '../../STD_red/STD_red_run';
-my $cmd = ($parser . ' -q --dump5 deleteme.p6 > deleteme.dump');
+my $cmd = ($parser . ' -q --format=p5a deleteme.p6 > deleteme.dump');
 ((::system($cmd) == 0) or ::die('Parse failed.
 '));
 my $dump5 = ::slurp('deleteme.dump');
 my $tree = ::eval_perl5(('package Fastdump;' . $dump5));
 ::say($tree->match_describe());
 my $ir = $tree->make_ir_from_Match_tree();
-::say($ir->ir0_describe())}
+::say($ir->ir0_describe());
+::say($ir->callback(SimpleEmit5->new()))}
 }
 ;
 Program->new()->main($a_ARGS);

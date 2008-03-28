@@ -1241,7 +1241,9 @@ use warnings;
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
+    $m->match_describe(1)."\n") if(@keys > 1);
+die("Unexpectedly less than 1 field\n".
+    $m->match_describe(1)."\n") if(@keys < 1);
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
@@ -1367,7 +1369,9 @@ IR::Decl->new($m,'our',undef,$vd->[0],$vd->[1]);
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
+    $m->match_describe(1)."\n") if(@keys > 1);
+die("Unexpectedly less than 1 field\n".
+    $m->match_describe(1)."\n") if(@keys < 1);
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
@@ -1413,7 +1417,9 @@ IR::Apply->new($m,"circumfix:".$name,ir($m->{hash}{kludge_name}));
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
+    $m->match_describe(1)."\n") if(@keys > 1);
+die("Unexpectedly less than 1 field\n".
+    $m->match_describe(1)."\n") if(@keys < 1);
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
@@ -1421,7 +1427,9 @@ $one;
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
+    $m->match_describe(1)."\n") if(@keys > 1);
+die("Unexpectedly less than 1 field\n".
+    $m->match_describe(1)."\n") if(@keys < 1);
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
@@ -1710,7 +1718,10 @@ my $name = join('::',@{(($whiteboard::in_package))});
 { package IR::Call; sub emit_p5 {
     my($n)=@_;
     my $method = IR->emit_p5_for($n->{method});
-if($method =~ 'postcircumfix:(.*)') {
+if($method =~ 'postcircumfix:< >') {
+  IR->emit_p5_for($n->{invocant}).'->'."{'".IR->emit_p5_for($n->{arguments})."'}";
+}
+elsif($method =~ 'postcircumfix:(.*)') {
   my $op = $1;
   my $arg = join(",",@{IR->emit_p5_for($n->{arguments})||[]});
   $op =~ s/ /$arg/;
@@ -1734,6 +1745,10 @@ use Perl6::Say;
 use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 
 our $a_ARGS = [@ARGV];
+
+{package UNDEF;}
+{package UNDEF; sub ref{'UNDEF'}}
+{package UNIVERSAL; sub ref{ref($_[0]) || 'SCALAR'} }
 
 sub ::undef{undef}
 
@@ -1887,7 +1902,7 @@ default Run code.
       close($fh);
       $file = $fname;
     }
-    my $cmd = "$std_red -q --dump5 $file";
+    my $cmd = "$std_red -q --format=p5a $file";
     my $out = `$cmd` or die "Parse failed. $!\n";
     $out;
   }

@@ -214,7 +214,10 @@ my $name = join('::',@{(($whiteboard::in_package))});
 { package IR::Call; sub emit_p5 {
     my($n)=@_;
     my $method = IR->emit_p5_for($n->{method});
-if($method =~ 'postcircumfix:(.*)') {
+if($method =~ 'postcircumfix:< >') {
+  IR->emit_p5_for($n->{invocant}).'->'."{'".IR->emit_p5_for($n->{arguments})."'}";
+}
+elsif($method =~ 'postcircumfix:(.*)') {
   my $op = $1;
   my $arg = join(",",@{IR->emit_p5_for($n->{arguments})||[]});
   $op =~ s/ /$arg/;

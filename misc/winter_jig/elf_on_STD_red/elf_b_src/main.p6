@@ -25,7 +25,7 @@ class Program {
     #say $p6_code;
     unslurp($p6_code,"deleteme.p6");
     my $parser = "../../STD_red/STD_red_run";
-    my $cmd = $parser ~ " -q --dump5 deleteme.p6 > deleteme.dump";
+    my $cmd = $parser ~ " -q --format=p5a deleteme.p6 > deleteme.dump";
     system($cmd) == 0 or die("Parse failed.\n");
     my $dump5 = slurp("deleteme.dump");
     #say $dump5;
@@ -34,6 +34,7 @@ class Program {
     my $ir = $tree.make_ir_from_Match_tree();
     #say eval_perl5('sub{use Data::Dumper; Data::Dumper::Dumper($_[0])}').($ir);
     say $ir.ir0_describe;
+    say $ir.callback(SimpleEmit5.new)
   };
 };
 Program.new().main(@*ARGS);

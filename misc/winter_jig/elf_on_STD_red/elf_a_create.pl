@@ -119,7 +119,9 @@ sub write_ast_handlers {
       $body = unindent(<<'      END',"  ").$body;
         my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
         die("Unexpectedly more than 1 field - dont know which to choose\n".
-            $m->match_describe."\n") if(@keys > 1);
+            $m->match_describe(1)."\n") if(@keys > 1);
+        die("Unexpectedly less than 1 field\n".
+            $m->match_describe(1)."\n") if(@keys < 1);
         my $one = ir($m->{hash}{$keys[0]});
       END
     }

@@ -6,12 +6,16 @@ class STDRedRun
     msg += "\n\n" if msg
     msg ||= ""
     STDERR.print <<END
-#{msg}#{$0} [-q] [--yaml] [ --start=RULE ] [ FILENAME | -e CODE ]
+#{msg}#{$0} [-q] [--format=FORMAT] [ --start=RULE ] [ FILENAME | -e CODE ]
 
 If the environment variable STD_RED_CACHEDIR is set, output will be
 saved there, and used in preference to reparsing, when the same code
 is seen again.  -e CODE is not cached.  And when std.rb is changed,
 previous cache entries are ignored.
+
+FORMAT
+ yaml
+ p5a
 
 END
     exit(code)
@@ -19,7 +23,7 @@ END
 
   def main
     start = '_UNIT'
-    quiet = yaml = dump5 = dump6 = false
+    quiet = format = false
     code = nil
     if ARGV.empty?
       print "\nRun #{$0} --help  to get help.\n";
@@ -33,17 +37,9 @@ END
       ARGV.shift
       quiet = true
     end
-    if ARGV[0] == '--yaml'
+    if m = ARGV[0].match(/--format=(\w+)/)
       ARGV.shift
-      yaml = true
-    end
-    if ARGV[0] == '--dump5'
-      ARGV.shift
-      dump5 = true
-    end
-    if ARGV[0] == '--dump6'
-      ARGV.shift
-      dump6 = true
+      format = m[1]
     end
     if m = ARGV[0].match(/--start=(\w+)/)
       ARGV.shift
@@ -64,7 +60,7 @@ END
     $:.push(File.dirname($0))
     require 'std'
     
-    output = cached_output_for(code, yaml ? 'yaml' : dump5 ? 'dump5' : nil)
+    output = cached_output_for(code, format ? format : nil)
     if output; print output; exit end
 
     kibitz = false
@@ -76,11 +72,12 @@ END
     rescue Interrupt
       exit(1)
     end
-    if dump5
-      print out(tree.to_fastdump5)
-    elsif dump6
-      print out(tree.to_fastdump6)
-    elsif yaml
+    if not format
+      STDERR.print "describing...\n" if kibitz
+      print tree.match_describe
+    elsif format == 'p5a'
+      print out(tree.to_dump0)
+    elsif format == 'yaml'
       tree.prepare_for_yaml_dump if tree
       STDERR.print "yaml dumping...\n" if kibitz
       yml = YAML::dump(tree)+"\n"
@@ -92,8 +89,8 @@ END
       STDERR.print "done.\n" if kibitz
       print out(p5yml)
     else
-      STDERR.print "describing...\n" if kibitz
-      print tree.match_describe
+      STDERR.print "Unknown format: #{format}\n"
+      print_usage_and_exit
     end
   end
 

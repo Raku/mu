@@ -131,7 +131,7 @@ default Run code.
       close($fh);
       $file = $fname;
     }
-    my $cmd = "$std_red -q --dump5 $file";
+    my $cmd = "$std_red -q --format=p5a $file";
     my $out = `$cmd` or die "Parse failed. $!\n";
     $out;
   }

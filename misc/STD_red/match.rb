@@ -112,52 +112,31 @@ end
 
 
 class Array
-  def to_fastdump5; '['+map{|e| e.to_fastdump5}.join(",")+']'; end
-  def to_fastdump6; '['+map{|e| e.to_fastdump6}.join(",")+']'; end
+  def to_dump0; '['+map{|e| e.to_dump0}.join(",")+']'; end
 end
 class Hash
-  def to_fastdump5; '{'+map{|k,v| k+' => '+v.to_fastdump5}.join(",")+'}' end
-  def to_fastdump6; '{'+map{|k,v| k+' , '+v.to_fastdump6}.join(",")+'}' end
+  def to_dump0; '{'+map{|k,v| k+' => '+v.to_dump0}.join(",")+'}' end
 end
 class String
-  def to_fastdump5; inspect.gsub(/([$@%])/){|m|'\\'+m[0]} end
-  def to_fastdump6; to_fastdump5 end
+  def to_dump0; inspect.gsub(/([$@%])/){|m|'\\'+m[0]} end
 end
 class Symbol
-  def to_fastdump5; to_s.inspect end
-  def to_fastdump6; to_s.inspect end
+  def to_dump0; to_s.inspect end
 end
 class FalseClass
-  def to_fastdump5; '0' end
-  def to_fastdump6; 'false' end
+  def to_dump0; '0' end
 end
 class Fixnum
-  def to_fastdump5; inspect end
-  def to_fastdump6; inspect end
+  def to_dump0; inspect end
 end
 class Match
-  def to_fastdump5
+  def to_dump0
     b = as_b ? '1' : '0'
     s = "'"+str.gsub(/([\\'])/){|w|"\\#{w}"}+"'"
-    #a = as_a.map{|e| "\n"+e.to_fastdump5+"," }.join("")
+    #a = as_a.map{|e| "\n"+e.to_dump0+"," }.join("")
     #a += "\n" if a != ""
     h = as_h.map{|k,v|
-      vs = v.to_fastdump5
-      "\n  #{k} => #{vs},"
-    }.join("")
-    h += "\n" if h != ""
-    f = match_beg
-    t = match_end
-    r = @rule.to_s.inspect
-    "match(#{r},#{s},#{f},#{t},{#{h}})"
-  end
-  def to_fastdump6
-    b = as_b ? '1' : '0'
-    s = "'"+str.gsub(/([\\'])/){|w|"\\#{w}"}+"'"
-    #a = as_a.map{|e| "\n"+e.to_fastdump6+"," }.join("")
-    #a += "\n" if a != ""
-    h = as_h.map{|k,v|
-      vs = v.to_fastdump6
+      vs = v.to_dump0
       "\n  #{k} => #{vs},"
     }.join("")
     h += "\n" if h != ""

@@ -8,6 +8,10 @@ use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF'
 
 our $a_ARGS = [@ARGV];
 
+{package UNDEF;}
+{package UNDEF; sub ref{'UNDEF'}}
+{package UNIVERSAL; sub ref{ref($_[0]) || 'SCALAR'} }
+
 sub ::undef{undef}
 
 use Carp;

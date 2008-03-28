@@ -9,7 +9,9 @@
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
+    $m->match_describe(1)."\n") if(@keys > 1);
+die("Unexpectedly less than 1 field\n".
+    $m->match_describe(1)."\n") if(@keys < 1);
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
@@ -135,7 +137,9 @@ IR::Decl->new($m,'our',undef,$vd->[0],$vd->[1]);
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
+    $m->match_describe(1)."\n") if(@keys > 1);
+die("Unexpectedly less than 1 field\n".
+    $m->match_describe(1)."\n") if(@keys < 1);
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
@@ -181,7 +185,9 @@ IR::Apply->new($m,"circumfix:".$name,ir($m->{hash}{kludge_name}));
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
+    $m->match_describe(1)."\n") if(@keys > 1);
+die("Unexpectedly less than 1 field\n".
+    $m->match_describe(1)."\n") if(@keys < 1);
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
@@ -189,7 +195,9 @@ $one;
       my($m)=@_;
       my @keys = map{$_ eq "match" ? () : ($_)} keys %{$m->{hash}};
 die("Unexpectedly more than 1 field - dont know which to choose\n".
-    $m->match_describe."\n") if(@keys > 1);
+    $m->match_describe(1)."\n") if(@keys > 1);
+die("Unexpectedly less than 1 field\n".
+    $m->match_describe(1)."\n") if(@keys < 1);
 my $one = ir($m->{hash}{$keys[0]});
 $one;
     };
