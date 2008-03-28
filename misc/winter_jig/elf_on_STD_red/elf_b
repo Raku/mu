@@ -21,14 +21,16 @@ sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
 sub ::die{croak @_}
 sub ::exit{exit(@_)}
 sub ::defined{defined($_[0])}
+sub ::substr ($$$){substr($_[0],$_[1],$_[2])}
 
-package SCALAR;
+{ package SCALAR;
 sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
 sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
+}
 
 package main;
 
-#line 2 emitted_p5_5330
+#line 2 emitted_p5_8287
 package main;
 use Data::Dumper;
 
@@ -85,7 +87,7 @@ sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
 }
 
 ;
-#line 2 emitted_p5_5612
+#line 2 emitted_p5_4032
 package main;
 use Data::Dumper;
 
@@ -146,7 +148,7 @@ sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()}
 ;
-#line 2 emitted_p5_718
+#line 2 emitted_p5_4911
 package main;
 use Data::Dumper;
 
@@ -172,7 +174,7 @@ $main::irbuilder->add_constructor('expect_term', sub {my($m)=@_;
 {package main; use vars '$es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = ::irbuild_ir($m->{'hash'}->{'noun'});
 my $post = ($m->{'hash'}->{'post'} || []);
 for(($post)->flatten){
-($::es_blackboard__expect_term_base = ::ir($_))
+($::es_blackboard__expect_term_base = ::irbuild_ir($_))
 };
 $::es_blackboard__expect_term_base});
 $main::irbuilder->add_constructor('post', sub {my($m)=@_;
@@ -352,7 +354,7 @@ IR0::Lit_Hash->newp($m, ::irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statem
 }
 
 ;
-#line 2 emitted_p5_4033
+#line 2 emitted_p5_3058
 package main;
 use Data::Dumper;
 
@@ -1472,7 +1474,7 @@ sub ir0_describe{my $self=CORE::shift;(((((('Rule_Capture(' . $self->rule->ir0_d
 }
 
 ;
-#line 2 emitted_p5_5417
+#line 2 emitted_p5_6095
 package main;
 use Data::Dumper;
 
@@ -1647,7 +1649,9 @@ my $name = (($::es_whiteboard__in_package->splice(0, (0 - 1))->join('::') . '::'
 }};
 sub cb__Call{my $self=CORE::shift;my($n)=@_;
 my $method = $self->e($n->{'method'});
-if((($method =~ 'postcircumfix:(.*)'))) {
+if((($method =~ 'postcircumfix:< >'))) {
+(((($self->e($n->{'invocant'}) . '->') . '{\'') . $n->{'arguments'}) . '\'}')
+}elsif((($method =~ 'postcircumfix:(.*)'))) {
 my $op = 1;
 my $arg = $self->e(($n->{'arguments'} || []))->join(',');
 $op->re_gsub(' ', '$arg');
@@ -1660,7 +1664,7 @@ sub cb__Lit_Hash{my $self=CORE::shift;my($n)=@_;
 }
 
 ;
-#line 2 emitted_p5_4514
+#line 2 emitted_p5_2918
 package main;
 use Data::Dumper;
 

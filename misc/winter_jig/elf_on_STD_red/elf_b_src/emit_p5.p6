@@ -154,7 +154,10 @@ class SimpleEmit5 {
   };
   method cb__Call ($n) {
     my $method = $.e($n<method>);
-    if($method =~ 'postcircumfix:(.*)') {
+    if($method =~ 'postcircumfix:< >') {
+      $.e($n<invocant>)~'->'~"{'"~$n<arguments>~"'}";
+    }
+    elsif($method =~ 'postcircumfix:(.*)') {
       my $op = $1;
       my $arg = $.e($n<arguments>||[]).join(",");
       $op.re_gsub(' ','$arg');

@@ -1761,10 +1761,12 @@ sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
 sub ::die{croak @_}
 sub ::exit{exit(@_)}
 sub ::defined{defined($_[0])}
+sub ::substr ($$$){substr($_[0],$_[1],$_[2])}
 
-package SCALAR;
+{ package SCALAR;
 sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
 sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
+}
 
 package main;
 END

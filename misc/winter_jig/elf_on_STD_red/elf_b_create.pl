@@ -133,6 +133,7 @@ sub write_ast_handlers {
     $body =~ s/->\{/\.\{/g;
     $body =~ s/->\[/\.\[/g;
 
+    $body =~ s/\bir\(/irbuild_ir\(/g;
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;
     $body =~ s/<(\w+)>/.{'hash'}{'$1'}/g;
     $body =~ s/([A-Z]\w+)\.new\(/IR0::$1.newp(\$m,/g;
