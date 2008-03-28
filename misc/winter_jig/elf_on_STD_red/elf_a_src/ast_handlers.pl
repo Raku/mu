@@ -62,7 +62,12 @@ die "AST term partially unimplemented.\n";
     };
     $IRBuild::constructors{'subcall'} = sub {
       my($m)=@_;
-    IR::Apply->new($m,ir($m->{hash}{subshortname}),ir($m->{hash}{semilist}));
+    my $t = ir($m->{hash}{subshortname}->{hash}{twigil});
+if($t && $t eq '.') {
+IR::Call->new($m,IR::Apply->new($m,'self',[]),undef,ir($m->{hash}{subshortname}->{hash}{desigilname}->{hash}{ident}),ir($m->{hash}{semilist}))
+} else {
+IR::Apply->new($m,ir($m->{hash}{subshortname}),ir($m->{hash}{semilist}))
+};
     };
     $IRBuild::constructors{'name'} = sub {
       my($m)=@_;
