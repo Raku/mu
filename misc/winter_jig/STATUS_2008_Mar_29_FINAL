@@ -1,4 +1,43 @@
 ============================================================
+FINAL STATUS
+----------------------------------------
+
+The misc/winter_jig project ran from late February to late March 2008.
+
+It's objective was to get development efforts towards a perl 6
+implementation unstuck and moving briskly, as it had been years
+earlier.
+
+The main result was the elf project, a p6 backend bootstrap using
+STD_red as an external parser, and a metaprogrammed core written in
+p5, and then p6, which emitted simple p5.  This was sort of a "last
+gasp effort" to get something significant out of winter_jig, which
+otherwise wouldn't have accomplished much.
+
+winter_jig started by trying to make existing implementations of p6,
+regex, and p6 parsing, more accessible to developers.  It became
+increasingly apparent that a lack of activity and interest by
+developers was the primary challenge facing both perl6 and winter_jig.
+In the absence of some dramatic success, there simply were no other
+developers.  That simplified the design space - anything which wasn't
+attractive enough to get developers would become just one more dead
+p6 implementation attempt.
+
+I found winter_jig's one month deadline quite useful in pruning the
+notoriously bushy perl6/pugs forest of development paths.  The focus
+on searching for big short-term gains might have ended in failure, but
+it avoided the target confusion of continuing to pursue the many paths
+which "could; soon; if only; as soon as" be useful.  Effort was still
+spent in a variety of directions, but having a metric for deciding
+when to shift between them, helped maintain focus.  The project was
+almost called spring_jig, to avoid embedding an assumption of one
+month duration.  I suspect things might have gone rather differently
+if that had happened.
+
+Most of the following is from STATUS_2008_Mar_05, but I have added some
+updates and notes marked FINAL.
+
+============================================================
 Using this file
 ----------------------------------------
 # Please rename the file when you update it.
@@ -127,40 +166,55 @@ schema (which was not present in the original).
 (MILESTONE) It's as easy to access the kp6 ast as it ever will be.
 Non-local and semantic work is *not* on the agenda.
 
+FINAL 
+
+Nothing additional.
 
 ----------------------------------------
 RAKUDO AST:
 
-(BLOCKED) [particle] was working on doing a yaml dump of it, but ran
+[particle] was working on doing a yaml dump of it, but ran
 out of tuits.  A hand-off to coke is possible.  cognominal has
 expressed interest.  ast_rakudo/Notes.txt has an irc conversation on
-the path foward.
+the path foward.  FINAL - no update.  I don't know current status.
 
 There is an existing --target=parse , so the ast which rakudo would
-expose can be eyeballed.  Nothing currently exists which can parse
-that output.
+expose can be eyeballed.
 
-[QUESTION] In dumping the ast, is it simply a format issue?  Eg,
-adding yaml dumpers to parrot objects?  Or does the tree need clean-up
-as well?
+Q - In dumping the ast, is it simply a format issue?  Eg, adding yaml
+dumpers to parrot objects?  Or does the tree need clean-up as well?
+A - While generating yaml proved non-trivial, it proved possible to
+use the --target=parse dump format directly.  The ast was usable,
+the biggest problem being the Match()s not knowing what rule they came
+from, requireing a "well, my parent calls me x, and I have fields y and
+z, so maybe I'm a... variable?" game.
 
-There is a new script which runs rakudo with --target=parse against
+There is a script which runs rakudo with --target=parse against
 the pugs t/spec.  The results, only 35 of 128 files are successfully
 parsed, is less than I hoped.  But I have not looked at the nature of
 the failures, so they may be meaninglessly trivial, or fundamental.
 
-*** PRIORITY:
-(TODO) Look at the rakudo parse fails and get a feel for what is
-happening.  This will determine how large a role rakudo might play
-over the rest of March.
+(punted) Infrastructure to keep in sync.
 
-(TODO) Infrastructure to keep in sync.
-
-(TODO) Create validator.  Perhaps use XML or prolog this time, rather
+(punted) Create validator.  Perhaps use XML or prolog this time, rather
 than custom perl?
 
-(TODO) Simple wrapper library.
+(done) Simple wrapper library.
 
+FINAL 
+
+elf_on_rakudo
+- parsed p6 by scraping the output from rakudo's --target=parse.
+- created a kp6-like IR from this Match tree by guessing what rules
+Match()s came from based on what their parents called them, and what
+subrules they contained.
+- generated simple p5 code.
+Rakudo's --target=parse turned out to be too slow to be easily usable,
+and the effort was abandoned.  Other issues were the mess involved in
+guessing what rules Match()s came from, the lack of parrot development
+resources to address any issues which arose, and uncertainties about
+how broad the p6 dialect parsed was.  Good things included nice
+expression parsing.
 
 ----------------------------------------
 REDSIX AST:
@@ -179,12 +233,18 @@ is missing, as the nodes turn out to need some massage before dumping
 occurs.  This was explored a bit in the "soon to be thrown away" ATerm
 dumping code which was also added.
 
-(TODO) Add ATerm-like massage to the yaml dumping, and flesh it out.
+(done/punted) Add ATerm-like massage to the yaml dumping, and flesh it out.
 
-(TODO) Determine if this is needed.  While rakudo can't *run* very
+(done) Determine if this is needed.  While rakudo can't *run* very
 much, if it can *parse* everything (can't - not clear yet why), or
 almost everything, redsix can, and as fast, then we can punt this.
 
+FINAL
+
+The clearer ATerm IR dumping made obvious that the redsix parser was
+producing some flawed IR trees.  Since trying to debug redsix parsing,
+an old pugs grammar rendered in a temporary regexp kludge, was
+unattractive, using redsix as a parser ended up being abandoned.
 
 ============================================================
 Match trees
@@ -199,13 +259,21 @@ MATCH TREE ABSTRACTION:
 
 kqalify should be sufficiently powerful.  Look to src/perl6/Cursor5.pm.
 
+FINAL -  Nothing additional done.
+
 ----------------------------------------
 STD5.pm SUPPORT
 
 (WAIT) for abstraction.
 
-(TODO) Add yaml dump to Cursor5.
+(punt) Add yaml dump to Cursor5.
 
+FINAL
+
+Nothing additional done.
+
+Experience with STD_red suggests using a language specific dump format
+for Match trees, rather than yaml, is faster and less buggy.
 
 ============================================================
 Accessible components
@@ -235,6 +303,8 @@ ACCESSIBLE REGEX ENGINE (PGE):
 
 (BLOCKED) Waiting on parrat yaml.
 
+FINAL - See note above regards yaml and Match trees.
+
 ACCESSIBLE REGEX ENGINE (Pugs::Compiler::Rule):
 
 (TODO) Get a conformant search result Match-tree yaml dump.
@@ -248,6 +318,8 @@ again, it may be trivially easy.
   It seem likely to do at least some things better than pcr.
   So this should probably go ahead. - putter 2008-Mar-06
 
+FINAL - Nothing additional done.
+yare may be translated into p6 as part of the elf project.
 
 ============================================================
 Frontends
@@ -261,12 +333,14 @@ STD5
 STD5 now has a wrapper which outputs a yaml Match tree.
 Development of STD.pm and STD5 may have hit some issues.
 
-(TODO) Explore what can be done to smooth STD.pm and STD5 development.
+(ONGOING-TODO) Explore what can be done to smooth STD.pm and STD5 development.
 
 (HOLD) Write match-tree to whatever-ast converter.
 The set of things parsed does not yet seem interesting
 enough to pursue yet.
 
+FINAL - STD5 development remains key.  The only way to assist which
+        was found, was to provide encouragment.
 
 STD_red
 
@@ -274,14 +348,17 @@ A version of STD.pm hand translated to ruby.  Intended to be a
 relatively low risk, but high manual effort, attempt to get a usably
 working p6 parser.
 
-(TODO) Continue to increase the portion of the parse tree which
+(ongoing) Continue to increase the portion of the parse tree which
 generates Match()es.
 
-(TODO) Assess the problem of some things (like assignment) not having
+(done) Assess the problem of some things (like assignment) not having
 a "working" implementation speced in STD.pm.
 
-
 See winter_jig/STD/README.
+
+FINAL - This was the path which ended up working.  elf_on_STD_red
+became a backend bootstrap using STD_red to parse.  First p5, and
+then p6, compiled it to simple p5 code.
 
 
 REDSIX
@@ -307,3 +384,7 @@ runtime dependencies?
 rewriting yet_another_regex_engine from p5 to this dialect of p6"???
 Does the non-obviousness indicate a project management thinko?
 
+FINAL
+
+This approach ceased to be pursued.  I don't recall the cause.  It may
+have been slow parse speed, or the narrow kp6 dialect.
