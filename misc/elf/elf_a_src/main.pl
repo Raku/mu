@@ -114,7 +114,7 @@ default Run code.
     my($self,$p6_file,$p6_code)=@_;
     $p6_code ||= `cat $p6_file`;
     my $std_red_from_root = "misc/STD_red/STD_red_run";
-    my $std_red_from_src = "../../../$std_red_from_root";
+    my $std_red_from_src = "../../$std_red_from_root";
     my $std_red;
     if(-f $std_red_from_src) {
       $std_red = $std_red_from_src;
