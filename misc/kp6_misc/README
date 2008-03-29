@@ -1,0 +1,17 @@
+These are kp6 related leftovers from the March 2008 winter_jig project.
+
+They are here mostly for reference, rather than in anticipation of any
+further development.  At some point they should probably be moved off
+to the Archive.
+
+FILES
+
+kp6_ast
+
+  tools for using the kp6 ast outside of kp6.
+
+backend_bare_perl5
+
+  the start of a p6 implementation, using kp6 as an external parser,
+  and a simple p5 emitter.
+
