@@ -15,8 +15,10 @@ development process.  That's this directory.
  You need:
 
   * ruby 1.9
-    Make sure it's not a development copy.  ruby --version should be
-    no earlier than 2007-12-25 revision 14709.
+    Make sure it's not an early development copy.  Ruby 1.9.0 was
+    released in Dec 2007.  But before that, there were several years of
+    unreleased 1.9 branch development code which called itself 1.9.0.
+    ruby --version should be no earlier than 2007-12-25 revision 14709.
 
   For multimethods to work, you also need gems and multimethod.
   redsix doesn't currently use multimethods for its own code,
