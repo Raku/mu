@@ -1702,9 +1702,9 @@ else {
 my $name = join('::',@{(($whiteboard::in_package))});
 ("\n{ package ".$name.";\n".
  "use Moose;\n".
- "use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';\n".
  join("\n",@{IR->emit_p5_for($n->{traits})||[]}).
  IR->emit_p5_for($n->{block}).
+ "; __PACKAGE__->meta->make_immutable();\n".
  "\n}\n");
   }
 }
@@ -1746,7 +1746,8 @@ sub Program::prelude {
   return "#line ".(__LINE__+1)." elf_a_src/prelude.pl\n".<<'END';
 package main;
 use Perl6::Say;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use Moose::Autobox; 
 
 our $a_ARGS = [@ARGV];
 

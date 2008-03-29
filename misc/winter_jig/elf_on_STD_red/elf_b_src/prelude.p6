@@ -4,7 +4,8 @@ method prelude() {
   '
 package main;
 use Perl6::Say;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use Moose::Autobox;
 
 our $a_ARGS = [@ARGV];
 

@@ -62,7 +62,7 @@ default Run code.
       }
     }
     my $prelude = "";
-    if $include_prelude || not($dont_eval) {
+    if $include_prelude {
       $prelude = self.prelude;
     }
     $p5_code = $prelude~"\n"~$p5_code;

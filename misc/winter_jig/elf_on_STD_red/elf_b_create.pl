@@ -28,7 +28,7 @@ sub main {
     $output = shift(@ARGV) || die "what output file?";
   }
   if(@ARGV && $ARGV[0] eq '--check-bootstrap') {
-    print STDERR ("\nYou might want to define STD_RED_CACHEDIR".
+    print STDERR ("\nYou might want to define STD_RED_CACHEDIR ".
                   "for faster compilation.\n\n") if(!$ENV{STD_RED_CACHEDIR});
     exe("./elf_a_create.pl --create-only");
     exe("./elf_b_create.pl --create-only");

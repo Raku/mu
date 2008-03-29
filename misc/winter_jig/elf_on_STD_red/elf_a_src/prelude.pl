@@ -4,7 +4,8 @@ sub Program::prelude {
   return "#line ".(__LINE__+1)." elf_a_src/prelude.pl\n".<<'END';
 package main;
 use Perl6::Say;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use Moose::Autobox; 
 
 our $a_ARGS = [@ARGV];
 

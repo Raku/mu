@@ -143,9 +143,9 @@ class SimpleEmit5 {
     my $name = $^whiteboard::in_package.join('::');
     ("\n{ package "~$name~";\n"~
      "use Moose;\n"~
-     "use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';\n"~ #XXX can this be use()d in one place instead?
      $.e($n<traits>||[]).join("\n")~
      $.e($n<block>)~
+     "; __PACKAGE__->meta->make_immutable();\n"~
      "\n}\n");
   };
   method cb__Trait ($n) {

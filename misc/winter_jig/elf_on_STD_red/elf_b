@@ -1,34 +1,33 @@
 #!/usr/bin/perl -w
-
+#line 5 elf_a_src/prelude.pl
 package main;
 use Perl6::Say;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use Moose::Autobox; 
 
 our $a_ARGS = [@ARGV];
 
 {package UNDEF;}
-{package UNDEF; sub ref{"UNDEF"}}
-{package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
+{package UNDEF; sub ref{'UNDEF'}}
+{package UNIVERSAL; sub ref{ref($_[0]) || 'SCALAR'} }
 
 sub ::undef{undef}
 
 use Carp;
 sub slurp{my($file)=@_; `cat $file`;}
-sub unslurp{
-  my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
+sub unslurp{my($text,$file)=@_; open(F,">$file") or die $!; print F $text; close F;}
 sub file_exists{-e $_[0]}
-sub system{CORE::system(@_)}
+sub system{system(@_)}
 sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
 sub ::die{croak @_}
-sub ::exit{CORE::exit(@_)}
-sub ::defined{CORE::defined($_[0])}
-sub ::substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
-sub ::not ($){CORE::not $_[0]}
-sub ::exec{CORE::exec(@_)}
-
+sub ::exit{exit(@_)}
+sub ::defined{defined($_[0])}
+sub ::substr ($$$){substr($_[0],$_[1],$_[2])}
+sub ::not ($){not $_[0]}
+sub ::exec{exec(@_)}
 
 # because the p5->p6 massage of ast_handlers isnt massaging join.
-sub ::join{CORE::join(CORE::shift,@_)}
+sub ::join{join(CORE::shift,@_)}
 # end
 
 { package SCALAR;
@@ -37,17 +36,17 @@ sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
 
 { package ARRAY;
-sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
+sub splice { my $a = CORE::shift; [splice(@{$a},$_[0],$_[1])] }
 }
 
 package main;
 
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+#line 2 emitted_p5_1906
+package main;
 use Data::Dumper;
 
 { package Match;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 has 'rule' => (is => 'rw');;
 has 'str' => (is => 'rw');;
 has 'from' => (is => 'rw');;
@@ -76,34 +75,35 @@ sub indent{my $self=CORE::shift;my($s)=@_;
 $s->re_gsub(qr/(?m:^(?!\Z))/, '  ')};
 sub indent_except_top{my $self=CORE::shift;my($s)=@_;
 $s->re_gsub(qr/(?m:^(?<!\A)(?!\Z))/, '  ')};
-sub match_string{my $self=CORE::shift;$self->str}
+sub match_string{my $self=CORE::shift;$self->str}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package ARRAY;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub match_describe{my $self=CORE::shift;((('[
 ' . Match->indent($self->map(sub {my($e)=@_;
 $e->match_describe()})->join(',
 '))) . '
-]'))}
+]'))}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package SCALAR;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
+sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}; __PACKAGE__->meta->make_immutable();
+
 }
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+#line 2 emitted_p5_8309
+package main;
 use Data::Dumper;
 
 { package IRBuild;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 has 'constructors' => (is => 'rw');;
 ($main::irbuilder = IRBuild->new());
 sub add_constructor{my $self=CORE::shift;my($k,$constructor)=@_;
@@ -123,47 +123,48 @@ $constructor->($m)
 ::die('Unknown rule: $rule
 It needs to be added to ast_handlers.
 ')
-}}
+}}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package Match;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-sub make_ir_from_Match_tree{my $self=CORE::shift;$main::irbuilder->make_ir_from_Match_tree($self)}
+sub make_ir_from_Match_tree{my $self=CORE::shift;$main::irbuilder->make_ir_from_Match_tree($self)}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package ARRAY;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self->map(sub {my($e)=@_;
-$e->make_ir_from_Match_tree()})}
+$e->make_ir_from_Match_tree()})}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package SCALAR;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
+sub make_ir_from_Match_tree{my $self=CORE::shift;$self}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package UNDEF;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
+sub make_ir_from_Match_tree{my $self=CORE::shift;$self}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()}
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+#line 2 emitted_p5_4231
+package main;
 use Data::Dumper;
 
 { package IRBuild;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
 IR0::CompUnit->newp($m, ::irbuild_ir($m->{'hash'}->{'statementlist'}))});
 $main::irbuilder->add_constructor('statement', sub {my($m)=@_;
@@ -180,7 +181,7 @@ if($key) {
 my $one = ::irbuild_ir($m->{'hash'}->{$key});
 $one});
 $main::irbuilder->add_constructor('expect_term', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = ::irbuild_ir($m->{'hash'}->{'noun'});
+{package main; use vars '$es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = ::irbuild_ir($m->{'hash'}->{'noun'});
 my $post = ($m->{'hash'}->{'post'} || []);
 for(($post)->flatten){
 ($::es_blackboard__expect_term_base = ::irbuild_ir($_))
@@ -339,13 +340,13 @@ IR0::Lit_SigArgument->newp($m, ::irbuild_ir($m->{'hash'}->{'param_var'}))});
 $main::irbuilder->add_constructor('param_var', sub {my($m)=@_;
 IR0::Var->newp($m, ::irbuild_ir($m->{'hash'}->{'sigil'}), ::irbuild_ir($m->{'hash'}->{'twigil'}), ::irbuild_ir($m->{'hash'}->{'ident'}))});
 $main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
+{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
 ::irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:module', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
+{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
 ::irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:package', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
+{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
 ::irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_def', sub {my($m)=@_;
 IR0::PackageDeclarator->newp($m, $::es_blackboard__package_declarator, ::irbuild_ir($m->{'hash'}->{'module_name'})->[0], ::irbuild_ir($m->{'hash'}->{'traits'}), ::irbuild_ir($m->{'hash'}->{'block'}))});
@@ -360,70 +361,70 @@ if((::not((::irbuild_ir($m->{'hash'}->{'lambda'}) and ::not(::irbuild_ir($m->{'h
 IR0::Lit_Hash->newp($m, ::irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))
 }else {
 ::die('AST handler circumfix:pblock partially unimplemented')
-}})
+}}); __PACKAGE__->meta->make_immutable();
+
 }
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+#line 2 emitted_p5_2461
+package main;
 use Data::Dumper;
 
 { package ARRAY;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub ir0_describe{my $self=CORE::shift;(('[' . $self->map(sub {my($e)=@_;
-$e->ir0_describe()})->join(',')) . ']')}
+$e->ir0_describe()})->join(',')) . ']')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package SCALAR;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-sub ir0_describe{my $self=CORE::shift;($self . '')}
+sub ir0_describe{my $self=CORE::shift;($self . '')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package UNDEF;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-sub ir0_describe{my $self=CORE::shift;'undef'}
+sub ir0_describe{my $self=CORE::shift;'undef'}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 
 { package IR0::Base;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+; __PACKAGE__->meta->make_immutable();
 
 }
 ;
 
 { package IR0::Val_Base;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-extends 'IR0::Base';
+extends 'IR0::Base';; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Base;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-extends 'IR0::Base';
+extends 'IR0::Base';; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Base;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-extends 'IR0::Base';
+extends 'IR0::Base';; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::CompUnit;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
@@ -433,13 +434,13 @@ $emitter->cb__CompUnit($self)};
 sub node_name{my $self=CORE::shift;'CompUnit'};
 sub field_names{my $self=CORE::shift;['statements']};
 sub field_values{my $self=CORE::shift;[$self->statements]};
-sub ir0_describe{my $self=CORE::shift;(('CompUnit(' . $self->statements->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('CompUnit(' . $self->statements->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Val_Int;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$text)=@_;
@@ -449,13 +450,13 @@ $emitter->cb__Val_Int($self)};
 sub node_name{my $self=CORE::shift;'Val_Int'};
 sub field_names{my $self=CORE::shift;['text']};
 sub field_values{my $self=CORE::shift;[$self->text]};
-sub ir0_describe{my $self=CORE::shift;(('Val_Int(' . $self->text->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Val_Int(' . $self->text->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::PackageDeclarator;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'name' => (is => 'rw');;
@@ -468,13 +469,13 @@ $emitter->cb__PackageDeclarator($self)};
 sub node_name{my $self=CORE::shift;'PackageDeclarator'};
 sub field_names{my $self=CORE::shift;['kind', 'name', 'traits', 'block']};
 sub field_values{my $self=CORE::shift;[$self->kind, $self->name, $self->traits, $self->block]};
-sub ir0_describe{my $self=CORE::shift;(((((((('PackageDeclarator(' . $self->kind->ir0_describe()) . ',') . $self->name->ir0_describe()) . ',') . $self->traits->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((((('PackageDeclarator(' . $self->kind->ir0_describe()) . ',') . $self->name->ir0_describe()) . ',') . $self->traits->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Trait;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'verb' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
@@ -485,13 +486,13 @@ $emitter->cb__Trait($self)};
 sub node_name{my $self=CORE::shift;'Trait'};
 sub field_names{my $self=CORE::shift;['verb', 'expr']};
 sub field_values{my $self=CORE::shift;[$self->verb, $self->expr]};
-sub ir0_describe{my $self=CORE::shift;(((('Trait(' . $self->verb->ir0_describe()) . ',') . $self->expr->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Trait(' . $self->verb->ir0_describe()) . ',') . $self->expr->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Block;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
@@ -501,13 +502,13 @@ $emitter->cb__Block($self)};
 sub node_name{my $self=CORE::shift;'Block'};
 sub field_names{my $self=CORE::shift;['statements']};
 sub field_values{my $self=CORE::shift;[$self->statements]};
-sub ir0_describe{my $self=CORE::shift;(('Block(' . $self->statements->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Block(' . $self->statements->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Quote;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'concat' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$concat)=@_;
@@ -517,13 +518,13 @@ $emitter->cb__Quote($self)};
 sub node_name{my $self=CORE::shift;'Quote'};
 sub field_names{my $self=CORE::shift;['concat']};
 sub field_values{my $self=CORE::shift;[$self->concat]};
-sub ir0_describe{my $self=CORE::shift;(('Quote(' . $self->concat->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Quote(' . $self->concat->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Val_Bit;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'bit' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$bit)=@_;
@@ -533,13 +534,13 @@ $emitter->cb__Val_Bit($self)};
 sub node_name{my $self=CORE::shift;'Val_Bit'};
 sub field_names{my $self=CORE::shift;['bit']};
 sub field_values{my $self=CORE::shift;[$self->bit]};
-sub ir0_describe{my $self=CORE::shift;(('Val_Bit(' . $self->bit->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Val_Bit(' . $self->bit->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Val_Num;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'num' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$num)=@_;
@@ -549,13 +550,13 @@ $emitter->cb__Val_Num($self)};
 sub node_name{my $self=CORE::shift;'Val_Num'};
 sub field_names{my $self=CORE::shift;['num']};
 sub field_values{my $self=CORE::shift;[$self->num]};
-sub ir0_describe{my $self=CORE::shift;(('Val_Num(' . $self->num->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Val_Num(' . $self->num->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Val_Buf;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$buf)=@_;
@@ -565,13 +566,13 @@ $emitter->cb__Val_Buf($self)};
 sub node_name{my $self=CORE::shift;'Val_Buf'};
 sub field_names{my $self=CORE::shift;['buf']};
 sub field_values{my $self=CORE::shift;[$self->buf]};
-sub ir0_describe{my $self=CORE::shift;(('Val_Buf(' . $self->buf->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Val_Buf(' . $self->buf->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Val_Char;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$char)=@_;
@@ -581,13 +582,13 @@ $emitter->cb__Val_Char($self)};
 sub node_name{my $self=CORE::shift;'Val_Char'};
 sub field_names{my $self=CORE::shift;['char']};
 sub field_values{my $self=CORE::shift;[$self->char]};
-sub ir0_describe{my $self=CORE::shift;(('Val_Char(' . $self->char->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Val_Char(' . $self->char->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Val_Undef;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
@@ -596,13 +597,13 @@ $emitter->cb__Val_Undef($self)};
 sub node_name{my $self=CORE::shift;'Val_Undef'};
 sub field_names{my $self=CORE::shift;[]};
 sub field_values{my $self=CORE::shift;[]};
-sub ir0_describe{my $self=CORE::shift;('Val_Undef(' . ')')}
+sub ir0_describe{my $self=CORE::shift;('Val_Undef(' . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Val_Object;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'clazz' => (is => 'rw');;
 has 'fields' => (is => 'rw');;
@@ -613,13 +614,13 @@ $emitter->cb__Val_Object($self)};
 sub node_name{my $self=CORE::shift;'Val_Object'};
 sub field_names{my $self=CORE::shift;['clazz', 'fields']};
 sub field_values{my $self=CORE::shift;[$self->clazz, $self->fields]};
-sub ir0_describe{my $self=CORE::shift;(((('Val_Object(' . $self->clazz->ir0_describe()) . ',') . $self->fields->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Val_Object(' . $self->clazz->ir0_describe()) . ',') . $self->fields->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Val_Rx;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Val_Base';has 'match' => (is => 'rw');;
 has 'pat' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pat)=@_;
@@ -629,13 +630,13 @@ $emitter->cb__Val_Rx($self)};
 sub node_name{my $self=CORE::shift;'Val_Rx'};
 sub field_names{my $self=CORE::shift;['pat']};
 sub field_values{my $self=CORE::shift;[$self->pat]};
-sub ir0_describe{my $self=CORE::shift;(('Val_Rx(' . $self->pat->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Val_Rx(' . $self->pat->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Seq;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'seq' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$seq)=@_;
@@ -645,13 +646,13 @@ $emitter->cb__Lit_Seq($self)};
 sub node_name{my $self=CORE::shift;'Lit_Seq'};
 sub field_names{my $self=CORE::shift;['seq']};
 sub field_values{my $self=CORE::shift;[$self->seq]};
-sub ir0_describe{my $self=CORE::shift;(('Lit_Seq(' . $self->seq->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Lit_Seq(' . $self->seq->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Array;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$array)=@_;
@@ -661,13 +662,13 @@ $emitter->cb__Lit_Array($self)};
 sub node_name{my $self=CORE::shift;'Lit_Array'};
 sub field_names{my $self=CORE::shift;['array']};
 sub field_values{my $self=CORE::shift;[$self->array]};
-sub ir0_describe{my $self=CORE::shift;(('Lit_Array(' . $self->array->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Lit_Array(' . $self->array->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Hash;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$hash)=@_;
@@ -677,13 +678,13 @@ $emitter->cb__Lit_Hash($self)};
 sub node_name{my $self=CORE::shift;'Lit_Hash'};
 sub field_names{my $self=CORE::shift;['hash']};
 sub field_values{my $self=CORE::shift;[$self->hash]};
-sub ir0_describe{my $self=CORE::shift;(('Lit_Hash(' . $self->hash->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Lit_Hash(' . $self->hash->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Pair;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -694,13 +695,13 @@ $emitter->cb__Lit_Pair($self)};
 sub node_name{my $self=CORE::shift;'Lit_Pair'};
 sub field_names{my $self=CORE::shift;['key', 'value']};
 sub field_values{my $self=CORE::shift;[$self->key, $self->value]};
-sub ir0_describe{my $self=CORE::shift;(((('Lit_Pair(' . $self->key->ir0_describe()) . ',') . $self->value->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Lit_Pair(' . $self->key->ir0_describe()) . ',') . $self->value->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_SigArgument;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -719,13 +720,13 @@ $emitter->cb__Lit_SigArgument($self)};
 sub node_name{my $self=CORE::shift;'Lit_SigArgument'};
 sub field_names{my $self=CORE::shift;['key', 'value', 'type', 'has_default', 'is_named_only', 'is_optional', 'is_slurpy', 'is_multidimensional', 'is_rw', 'is_copy']};
 sub field_values{my $self=CORE::shift;[$self->key, $self->value, $self->type, $self->has_default, $self->is_named_only, $self->is_optional, $self->is_slurpy, $self->is_multidimensional, $self->is_rw, $self->is_copy]};
-sub ir0_describe{my $self=CORE::shift;(((((((((((((((((((('Lit_SigArgument(' . $self->key->ir0_describe()) . ',') . $self->value->ir0_describe()) . ',') . $self->type->ir0_describe()) . ',') . $self->has_default->ir0_describe()) . ',') . $self->is_named_only->ir0_describe()) . ',') . $self->is_optional->ir0_describe()) . ',') . $self->is_slurpy->ir0_describe()) . ',') . $self->is_multidimensional->ir0_describe()) . ',') . $self->is_rw->ir0_describe()) . ',') . $self->is_copy->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((((((((((((((((('Lit_SigArgument(' . $self->key->ir0_describe()) . ',') . $self->value->ir0_describe()) . ',') . $self->type->ir0_describe()) . ',') . $self->has_default->ir0_describe()) . ',') . $self->is_named_only->ir0_describe()) . ',') . $self->is_optional->ir0_describe()) . ',') . $self->is_slurpy->ir0_describe()) . ',') . $self->is_multidimensional->ir0_describe()) . ',') . $self->is_rw->ir0_describe()) . ',') . $self->is_copy->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_NamedArgument;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -736,13 +737,13 @@ $emitter->cb__Lit_NamedArgument($self)};
 sub node_name{my $self=CORE::shift;'Lit_NamedArgument'};
 sub field_names{my $self=CORE::shift;['key', 'value']};
 sub field_values{my $self=CORE::shift;[$self->key, $self->value]};
-sub ir0_describe{my $self=CORE::shift;(((('Lit_NamedArgument(' . $self->key->ir0_describe()) . ',') . $self->value->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Lit_NamedArgument(' . $self->key->ir0_describe()) . ',') . $self->value->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Code;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'pad' => (is => 'rw');;
 has 'state' => (is => 'rw');;
@@ -756,13 +757,13 @@ $emitter->cb__Lit_Code($self)};
 sub node_name{my $self=CORE::shift;'Lit_Code'};
 sub field_names{my $self=CORE::shift;['pad', 'state', 'sig', 'body', 'catch']};
 sub field_values{my $self=CORE::shift;[$self->pad, $self->state, $self->sig, $self->body, $self->catch]};
-sub ir0_describe{my $self=CORE::shift;(((((((((('Lit_Code(' . $self->pad->ir0_describe()) . ',') . $self->state->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->body->ir0_describe()) . ',') . $self->catch->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((((((('Lit_Code(' . $self->pad->ir0_describe()) . ',') . $self->state->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->body->ir0_describe()) . ',') . $self->catch->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Object;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'clazz' => (is => 'rw');;
 has 'fields' => (is => 'rw');;
@@ -773,13 +774,13 @@ $emitter->cb__Lit_Object($self)};
 sub node_name{my $self=CORE::shift;'Lit_Object'};
 sub field_names{my $self=CORE::shift;['clazz', 'fields']};
 sub field_values{my $self=CORE::shift;[$self->clazz, $self->fields]};
-sub ir0_describe{my $self=CORE::shift;(((('Lit_Object(' . $self->clazz->ir0_describe()) . ',') . $self->fields->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Lit_Object(' . $self->clazz->ir0_describe()) . ',') . $self->fields->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Var;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
@@ -792,13 +793,13 @@ $emitter->cb__Var($self)};
 sub node_name{my $self=CORE::shift;'Var'};
 sub field_names{my $self=CORE::shift;['sigil', 'twigil', 'name', 'namespace']};
 sub field_values{my $self=CORE::shift;[$self->sigil, $self->twigil, $self->name, $self->namespace]};
-sub ir0_describe{my $self=CORE::shift;(((((((('Var(' . $self->sigil->ir0_describe()) . ',') . $self->twigil->ir0_describe()) . ',') . $self->name->ir0_describe()) . ',') . $self->namespace->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((((('Var(' . $self->sigil->ir0_describe()) . ',') . $self->twigil->ir0_describe()) . ',') . $self->name->ir0_describe()) . ',') . $self->namespace->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Bind;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
@@ -809,13 +810,13 @@ $emitter->cb__Bind($self)};
 sub node_name{my $self=CORE::shift;'Bind'};
 sub field_names{my $self=CORE::shift;['parameters', 'arguments']};
 sub field_values{my $self=CORE::shift;[$self->parameters, $self->arguments]};
-sub ir0_describe{my $self=CORE::shift;(((('Bind(' . $self->parameters->ir0_describe()) . ',') . $self->arguments->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Bind(' . $self->parameters->ir0_describe()) . ',') . $self->arguments->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Assign;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
@@ -826,13 +827,13 @@ $emitter->cb__Assign($self)};
 sub node_name{my $self=CORE::shift;'Assign'};
 sub field_names{my $self=CORE::shift;['parameters', 'arguments']};
 sub field_values{my $self=CORE::shift;[$self->parameters, $self->arguments]};
-sub ir0_describe{my $self=CORE::shift;(((('Assign(' . $self->parameters->ir0_describe()) . ',') . $self->arguments->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Assign(' . $self->parameters->ir0_describe()) . ',') . $self->arguments->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Proto;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name)=@_;
@@ -842,13 +843,13 @@ $emitter->cb__Proto($self)};
 sub node_name{my $self=CORE::shift;'Proto'};
 sub field_names{my $self=CORE::shift;['name']};
 sub field_values{my $self=CORE::shift;[$self->name]};
-sub ir0_describe{my $self=CORE::shift;(('Proto(' . $self->name->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Proto(' . $self->name->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Call;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'hyper' => (is => 'rw');;
@@ -861,13 +862,13 @@ $emitter->cb__Call($self)};
 sub node_name{my $self=CORE::shift;'Call'};
 sub field_names{my $self=CORE::shift;['invocant', 'hyper', 'method', 'arguments']};
 sub field_values{my $self=CORE::shift;[$self->invocant, $self->hyper, $self->method, $self->arguments]};
-sub ir0_describe{my $self=CORE::shift;(((((((('Call(' . $self->invocant->ir0_describe()) . ',') . $self->hyper->ir0_describe()) . ',') . $self->method->ir0_describe()) . ',') . $self->arguments->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((((('Call(' . $self->invocant->ir0_describe()) . ',') . $self->hyper->ir0_describe()) . ',') . $self->method->ir0_describe()) . ',') . $self->arguments->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Apply;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'code' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
@@ -878,13 +879,13 @@ $emitter->cb__Apply($self)};
 sub node_name{my $self=CORE::shift;'Apply'};
 sub field_names{my $self=CORE::shift;['code', 'arguments']};
 sub field_values{my $self=CORE::shift;[$self->code, $self->arguments]};
-sub ir0_describe{my $self=CORE::shift;(((('Apply(' . $self->code->ir0_describe()) . ',') . $self->arguments->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Apply(' . $self->code->ir0_describe()) . ',') . $self->arguments->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Return;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'result' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$result)=@_;
@@ -894,13 +895,13 @@ $emitter->cb__Return($self)};
 sub node_name{my $self=CORE::shift;'Return'};
 sub field_names{my $self=CORE::shift;['result']};
 sub field_values{my $self=CORE::shift;[$self->result]};
-sub ir0_describe{my $self=CORE::shift;(('Return(' . $self->result->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Return(' . $self->result->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::If;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'test' => (is => 'rw');;
 has 'body' => (is => 'rw');;
@@ -913,13 +914,13 @@ $emitter->cb__If($self)};
 sub node_name{my $self=CORE::shift;'If'};
 sub field_names{my $self=CORE::shift;['test', 'body', 'elsif', 'else']};
 sub field_values{my $self=CORE::shift;[$self->test, $self->body, $self->elsif, $self->else]};
-sub ir0_describe{my $self=CORE::shift;(((((((('If(' . $self->test->ir0_describe()) . ',') . $self->body->ir0_describe()) . ',') . $self->elsif->ir0_describe()) . ',') . $self->else->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((((('If(' . $self->test->ir0_describe()) . ',') . $self->body->ir0_describe()) . ',') . $self->elsif->ir0_describe()) . ',') . $self->else->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::While;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'test' => (is => 'rw');;
 has 'body' => (is => 'rw');;
@@ -930,13 +931,13 @@ $emitter->cb__While($self)};
 sub node_name{my $self=CORE::shift;'While'};
 sub field_names{my $self=CORE::shift;['test', 'body']};
 sub field_values{my $self=CORE::shift;[$self->test, $self->body]};
-sub ir0_describe{my $self=CORE::shift;(((('While(' . $self->test->ir0_describe()) . ',') . $self->body->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('While(' . $self->test->ir0_describe()) . ',') . $self->body->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::For;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'body' => (is => 'rw');;
@@ -947,13 +948,13 @@ $emitter->cb__For($self)};
 sub node_name{my $self=CORE::shift;'For'};
 sub field_names{my $self=CORE::shift;['expr', 'body']};
 sub field_values{my $self=CORE::shift;[$self->expr, $self->body]};
-sub ir0_describe{my $self=CORE::shift;(((('For(' . $self->expr->ir0_describe()) . ',') . $self->body->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('For(' . $self->expr->ir0_describe()) . ',') . $self->body->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Decl;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'decl' => (is => 'rw');;
 has 'type' => (is => 'rw');;
@@ -966,13 +967,13 @@ $emitter->cb__Decl($self)};
 sub node_name{my $self=CORE::shift;'Decl'};
 sub field_names{my $self=CORE::shift;['decl', 'type', 'var', 'default']};
 sub field_values{my $self=CORE::shift;[$self->decl, $self->type, $self->var, $self->default]};
-sub ir0_describe{my $self=CORE::shift;(((((((('Decl(' . $self->decl->ir0_describe()) . ',') . $self->type->ir0_describe()) . ',') . $self->var->ir0_describe()) . ',') . $self->default->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((((('Decl(' . $self->decl->ir0_describe()) . ',') . $self->type->ir0_describe()) . ',') . $self->var->ir0_describe()) . ',') . $self->default->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Sig;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'positional' => (is => 'rw');;
@@ -983,13 +984,13 @@ $emitter->cb__Sig($self)};
 sub node_name{my $self=CORE::shift;'Sig'};
 sub field_names{my $self=CORE::shift;['invocant', 'positional']};
 sub field_values{my $self=CORE::shift;[$self->invocant, $self->positional]};
-sub ir0_describe{my $self=CORE::shift;(((('Sig(' . $self->invocant->ir0_describe()) . ',') . $self->positional->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Sig(' . $self->invocant->ir0_describe()) . ',') . $self->positional->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Capture;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'array' => (is => 'rw');;
@@ -1001,13 +1002,13 @@ $emitter->cb__Lit_Capture($self)};
 sub node_name{my $self=CORE::shift;'Lit_Capture'};
 sub field_names{my $self=CORE::shift;['invocant', 'array', 'hash']};
 sub field_values{my $self=CORE::shift;[$self->invocant, $self->array, $self->hash]};
-sub ir0_describe{my $self=CORE::shift;(((((('Lit_Capture(' . $self->invocant->ir0_describe()) . ',') . $self->array->ir0_describe()) . ',') . $self->hash->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Lit_Capture(' . $self->invocant->ir0_describe()) . ',') . $self->array->ir0_describe()) . ',') . $self->hash->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Lit_Subset;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Lit_Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'base_class' => (is => 'rw');;
@@ -1019,13 +1020,13 @@ $emitter->cb__Lit_Subset($self)};
 sub node_name{my $self=CORE::shift;'Lit_Subset'};
 sub field_names{my $self=CORE::shift;['name', 'base_class', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->base_class, $self->block]};
-sub ir0_describe{my $self=CORE::shift;(((((('Lit_Subset(' . $self->name->ir0_describe()) . ',') . $self->base_class->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Lit_Subset(' . $self->name->ir0_describe()) . ',') . $self->base_class->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Method;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'sig' => (is => 'rw');;
@@ -1037,13 +1038,13 @@ $emitter->cb__Method($self)};
 sub node_name{my $self=CORE::shift;'Method'};
 sub field_names{my $self=CORE::shift;['name', 'sig', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->sig, $self->block]};
-sub ir0_describe{my $self=CORE::shift;(((((('Method(' . $self->name->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Method(' . $self->name->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Sub;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'sig' => (is => 'rw');;
@@ -1055,13 +1056,13 @@ $emitter->cb__Sub($self)};
 sub node_name{my $self=CORE::shift;'Sub'};
 sub field_names{my $self=CORE::shift;['name', 'sig', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->sig, $self->block]};
-sub ir0_describe{my $self=CORE::shift;(((((('Sub(' . $self->name->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Sub(' . $self->name->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Macro;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'sig' => (is => 'rw');;
@@ -1073,13 +1074,13 @@ $emitter->cb__Macro($self)};
 sub node_name{my $self=CORE::shift;'Macro'};
 sub field_names{my $self=CORE::shift;['name', 'sig', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->sig, $self->block]};
-sub ir0_describe{my $self=CORE::shift;(((((('Macro(' . $self->name->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Macro(' . $self->name->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Coro;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'sig' => (is => 'rw');;
@@ -1091,13 +1092,13 @@ $emitter->cb__Coro($self)};
 sub node_name{my $self=CORE::shift;'Coro'};
 sub field_names{my $self=CORE::shift;['name', 'sig', 'block']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->sig, $self->block]};
-sub ir0_describe{my $self=CORE::shift;(((((('Coro(' . $self->name->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Coro(' . $self->name->ir0_describe()) . ',') . $self->sig->ir0_describe()) . ',') . $self->block->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::P5Token;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'regex' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$regex)=@_;
@@ -1107,13 +1108,13 @@ $emitter->cb__P5Token($self)};
 sub node_name{my $self=CORE::shift;'P5Token'};
 sub field_names{my $self=CORE::shift;['regex']};
 sub field_values{my $self=CORE::shift;[$self->regex]};
-sub ir0_describe{my $self=CORE::shift;(('P5Token(' . $self->regex->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('P5Token(' . $self->regex->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Token;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'regex' => (is => 'rw');;
@@ -1125,13 +1126,13 @@ $emitter->cb__Token($self)};
 sub node_name{my $self=CORE::shift;'Token'};
 sub field_names{my $self=CORE::shift;['name', 'regex', 'sym']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->regex, $self->sym]};
-sub ir0_describe{my $self=CORE::shift;(((((('Token(' . $self->name->ir0_describe()) . ',') . $self->regex->ir0_describe()) . ',') . $self->sym->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Token(' . $self->name->ir0_describe()) . ',') . $self->regex->ir0_describe()) . ',') . $self->sym->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Do;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$block)=@_;
@@ -1141,13 +1142,13 @@ $emitter->cb__Do($self)};
 sub node_name{my $self=CORE::shift;'Do'};
 sub field_names{my $self=CORE::shift;['block']};
 sub field_values{my $self=CORE::shift;[$self->block]};
-sub ir0_describe{my $self=CORE::shift;(('Do(' . $self->block->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Do(' . $self->block->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Begin;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$block)=@_;
@@ -1157,13 +1158,13 @@ $emitter->cb__Begin($self)};
 sub node_name{my $self=CORE::shift;'Begin'};
 sub field_names{my $self=CORE::shift;['block']};
 sub field_values{my $self=CORE::shift;[$self->block]};
-sub ir0_describe{my $self=CORE::shift;(('Begin(' . $self->block->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Begin(' . $self->block->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Use;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 has 'mod' => (is => 'rw');;
 has 'perl5' => (is => 'rw');;
@@ -1174,13 +1175,13 @@ $emitter->cb__Use($self)};
 sub node_name{my $self=CORE::shift;'Use'};
 sub field_names{my $self=CORE::shift;['mod', 'perl5']};
 sub field_values{my $self=CORE::shift;[$self->mod, $self->perl5]};
-sub ir0_describe{my $self=CORE::shift;(((('Use(' . $self->mod->ir0_describe()) . ',') . $self->perl5->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((('Use(' . $self->mod->ir0_describe()) . ',') . $self->perl5->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Base';has 'match' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
@@ -1189,13 +1190,13 @@ $emitter->cb__Rule($self)};
 sub node_name{my $self=CORE::shift;'Rule'};
 sub field_names{my $self=CORE::shift;[]};
 sub field_values{my $self=CORE::shift;[]};
-sub ir0_describe{my $self=CORE::shift;('Rule(' . ')')}
+sub ir0_describe{my $self=CORE::shift;('Rule(' . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Quantifier;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'term' => (is => 'rw');;
 has 'quant' => (is => 'rw');;
@@ -1210,13 +1211,13 @@ $emitter->cb__Rule_Quantifier($self)};
 sub node_name{my $self=CORE::shift;'Rule_Quantifier'};
 sub field_names{my $self=CORE::shift;['term', 'quant', 'greedy', 'ws1', 'ws2', 'ws3']};
 sub field_values{my $self=CORE::shift;[$self->term, $self->quant, $self->greedy, $self->ws1, $self->ws2, $self->ws3]};
-sub ir0_describe{my $self=CORE::shift;(((((((((((('Rule_Quantifier(' . $self->term->ir0_describe()) . ',') . $self->quant->ir0_describe()) . ',') . $self->greedy->ir0_describe()) . ',') . $self->ws1->ir0_describe()) . ',') . $self->ws2->ir0_describe()) . ',') . $self->ws3->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((((((((('Rule_Quantifier(' . $self->term->ir0_describe()) . ',') . $self->quant->ir0_describe()) . ',') . $self->greedy->ir0_describe()) . ',') . $self->ws1->ir0_describe()) . ',') . $self->ws2->ir0_describe()) . ',') . $self->ws3->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Or;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'terms' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$terms)=@_;
@@ -1226,13 +1227,13 @@ $emitter->cb__Rule_Or($self)};
 sub node_name{my $self=CORE::shift;'Rule_Or'};
 sub field_names{my $self=CORE::shift;['terms']};
 sub field_values{my $self=CORE::shift;[$self->terms]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_Or(' . $self->terms->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_Or(' . $self->terms->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Concat;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'concat' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$concat)=@_;
@@ -1242,13 +1243,13 @@ $emitter->cb__Rule_Concat($self)};
 sub node_name{my $self=CORE::shift;'Rule_Concat'};
 sub field_names{my $self=CORE::shift;['concat']};
 sub field_values{my $self=CORE::shift;[$self->concat]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_Concat(' . $self->concat->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_Concat(' . $self->concat->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Subrule;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'metasyntax' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
@@ -1260,13 +1261,13 @@ $emitter->cb__Rule_Subrule($self)};
 sub node_name{my $self=CORE::shift;'Rule_Subrule'};
 sub field_names{my $self=CORE::shift;['metasyntax', 'ident', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->metasyntax, $self->ident, $self->capture_to_array]};
-sub ir0_describe{my $self=CORE::shift;(((((('Rule_Subrule(' . $self->metasyntax->ir0_describe()) . ',') . $self->ident->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Rule_Subrule(' . $self->metasyntax->ir0_describe()) . ',') . $self->ident->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_SubruleNoCapture;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'metasyntax' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$metasyntax)=@_;
@@ -1276,13 +1277,13 @@ $emitter->cb__Rule_SubruleNoCapture($self)};
 sub node_name{my $self=CORE::shift;'Rule_SubruleNoCapture'};
 sub field_names{my $self=CORE::shift;['metasyntax']};
 sub field_values{my $self=CORE::shift;[$self->metasyntax]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_SubruleNoCapture(' . $self->metasyntax->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_SubruleNoCapture(' . $self->metasyntax->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Var;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
@@ -1294,13 +1295,13 @@ $emitter->cb__Rule_Var($self)};
 sub node_name{my $self=CORE::shift;'Rule_Var'};
 sub field_names{my $self=CORE::shift;['sigil', 'twigil', 'name']};
 sub field_values{my $self=CORE::shift;[$self->sigil, $self->twigil, $self->name]};
-sub ir0_describe{my $self=CORE::shift;(((((('Rule_Var(' . $self->sigil->ir0_describe()) . ',') . $self->twigil->ir0_describe()) . ',') . $self->name->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Rule_Var(' . $self->sigil->ir0_describe()) . ',') . $self->twigil->ir0_describe()) . ',') . $self->name->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Constant;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'constant' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$constant)=@_;
@@ -1310,13 +1311,13 @@ $emitter->cb__Rule_Constant($self)};
 sub node_name{my $self=CORE::shift;'Rule_Constant'};
 sub field_names{my $self=CORE::shift;['constant']};
 sub field_values{my $self=CORE::shift;[$self->constant]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_Constant(' . $self->constant->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_Constant(' . $self->constant->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Dot;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
@@ -1325,13 +1326,13 @@ $emitter->cb__Rule_Dot($self)};
 sub node_name{my $self=CORE::shift;'Rule_Dot'};
 sub field_names{my $self=CORE::shift;[]};
 sub field_values{my $self=CORE::shift;[]};
-sub ir0_describe{my $self=CORE::shift;('Rule_Dot(' . ')')}
+sub ir0_describe{my $self=CORE::shift;('Rule_Dot(' . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_SpecialChar;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$char)=@_;
@@ -1341,13 +1342,13 @@ $emitter->cb__Rule_SpecialChar($self)};
 sub node_name{my $self=CORE::shift;'Rule_SpecialChar'};
 sub field_names{my $self=CORE::shift;['char']};
 sub field_values{my $self=CORE::shift;[$self->char]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_SpecialChar(' . $self->char->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_SpecialChar(' . $self->char->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Block;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'closure' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$closure)=@_;
@@ -1357,13 +1358,13 @@ $emitter->cb__Rule_Block($self)};
 sub node_name{my $self=CORE::shift;'Rule_Block'};
 sub field_names{my $self=CORE::shift;['closure']};
 sub field_values{my $self=CORE::shift;[$self->closure]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_Block(' . $self->closure->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_Block(' . $self->closure->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_InterpolateVar;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'var' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$var)=@_;
@@ -1373,13 +1374,13 @@ $emitter->cb__Rule_InterpolateVar($self)};
 sub node_name{my $self=CORE::shift;'Rule_InterpolateVar'};
 sub field_names{my $self=CORE::shift;['var']};
 sub field_values{my $self=CORE::shift;[$self->var]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_InterpolateVar(' . $self->var->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_InterpolateVar(' . $self->var->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_NamedCapture;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'rule' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
@@ -1391,13 +1392,13 @@ $emitter->cb__Rule_NamedCapture($self)};
 sub node_name{my $self=CORE::shift;'Rule_NamedCapture'};
 sub field_names{my $self=CORE::shift;['rule', 'ident', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->rule, $self->ident, $self->capture_to_array]};
-sub ir0_describe{my $self=CORE::shift;(((((('Rule_NamedCapture(' . $self->rule->ir0_describe()) . ',') . $self->ident->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Rule_NamedCapture(' . $self->rule->ir0_describe()) . ',') . $self->ident->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Before;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'rule' => (is => 'rw');;
 has 'assertion_modifier' => (is => 'rw');;
@@ -1409,13 +1410,13 @@ $emitter->cb__Rule_Before($self)};
 sub node_name{my $self=CORE::shift;'Rule_Before'};
 sub field_names{my $self=CORE::shift;['rule', 'assertion_modifier', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->rule, $self->assertion_modifier, $self->capture_to_array]};
-sub ir0_describe{my $self=CORE::shift;(((((('Rule_Before(' . $self->rule->ir0_describe()) . ',') . $self->assertion_modifier->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Rule_Before(' . $self->rule->ir0_describe()) . ',') . $self->assertion_modifier->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_After;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'rule' => (is => 'rw');;
 has 'assertion_modifier' => (is => 'rw');;
@@ -1427,13 +1428,13 @@ $emitter->cb__Rule_After($self)};
 sub node_name{my $self=CORE::shift;'Rule_After'};
 sub field_names{my $self=CORE::shift;['rule', 'assertion_modifier', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->rule, $self->assertion_modifier, $self->capture_to_array]};
-sub ir0_describe{my $self=CORE::shift;(((((('Rule_After(' . $self->rule->ir0_describe()) . ',') . $self->assertion_modifier->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Rule_After(' . $self->rule->ir0_describe()) . ',') . $self->assertion_modifier->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_NegateCharClass;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'chars' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$chars)=@_;
@@ -1443,13 +1444,13 @@ $emitter->cb__Rule_NegateCharClass($self)};
 sub node_name{my $self=CORE::shift;'Rule_NegateCharClass'};
 sub field_names{my $self=CORE::shift;['chars']};
 sub field_values{my $self=CORE::shift;[$self->chars]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_NegateCharClass(' . $self->chars->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_NegateCharClass(' . $self->chars->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_CharClass;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'chars' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$chars)=@_;
@@ -1459,13 +1460,13 @@ $emitter->cb__Rule_CharClass($self)};
 sub node_name{my $self=CORE::shift;'Rule_CharClass'};
 sub field_names{my $self=CORE::shift;['chars']};
 sub field_values{my $self=CORE::shift;[$self->chars]};
-sub ir0_describe{my $self=CORE::shift;(('Rule_CharClass(' . $self->chars->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(('Rule_CharClass(' . $self->chars->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 
 { package IR0::Rule_Capture;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 extends 'IR0::Rule_Base';has 'match' => (is => 'rw');;
 has 'rule' => (is => 'rw');;
 has 'position' => (is => 'rw');;
@@ -1477,18 +1478,20 @@ $emitter->cb__Rule_Capture($self)};
 sub node_name{my $self=CORE::shift;'Rule_Capture'};
 sub field_names{my $self=CORE::shift;['rule', 'position', 'capture_to_array']};
 sub field_values{my $self=CORE::shift;[$self->rule, $self->position, $self->capture_to_array]};
-sub ir0_describe{my $self=CORE::shift;(((((('Rule_Capture(' . $self->rule->ir0_describe()) . ',') . $self->position->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}
+sub ir0_describe{my $self=CORE::shift;(((((('Rule_Capture(' . $self->rule->ir0_describe()) . ',') . $self->position->ir0_describe()) . ',') . $self->capture_to_array->ir0_describe()) . ')')}; __PACKAGE__->meta->make_immutable();
+
 }
+; __PACKAGE__->meta->make_immutable();
 
 }
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+#line 2 emitted_p5_6666
+package main;
 use Data::Dumper;
 
 { package SimpleEmit5;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub e{my $self=CORE::shift;my($x)=@_;
 my $ref = $x->ref();
 if(($ref eq 'UNDEF')) {
@@ -1502,7 +1505,7 @@ $self->e($ae)})
 $x->callback($self)
 }};
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
-{package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
+{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
 ((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 ' . 'use Data::Dumper;
 ') . $self->e($n->{'statements'})->join(';
@@ -1641,14 +1644,14 @@ if((($n->{'positional'}->elems() == 0))) {
 sub cb__Lit_SigArgument{my $self=CORE::shift;my($n)=@_;
 $self->e($n->{'key'})};
 sub cb__PackageDeclarator{my $self=CORE::shift;my($n)=@_;
-{package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
+{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
 my $name = $::es_whiteboard__in_package->join('::');
 (((((((('
 { package ' . $name) . ';
 ') . 'use Moose;
-') . 'use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => \'UNDEF\';
 ') . $self->e(($n->{'traits'} || []))->join('
-')) . $self->e($n->{'block'})) . '
+')) . $self->e($n->{'block'})) . '; __PACKAGE__->meta->make_immutable();
+') . '
 }
 '))};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
@@ -1673,20 +1676,22 @@ $op->re_gsub(' ', $arg);
 ((((($self->e($n->{'invocant'}) . '->') . $self->e($n->{'method'})) . '(') . $self->e(($n->{'arguments'} || []))->join(',')) . ')')
 }};
 sub cb__Lit_Hash{my $self=CORE::shift;my($n)=@_;
-(('{' . $self->e(($n->{'hash'} || []))->join(',')) . '}')}
+(('{' . $self->e(($n->{'hash'} || []))->join(',')) . '}')}; __PACKAGE__->meta->make_immutable();
+
 }
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+#line 2 emitted_p5_9762
+package main;
 use Data::Dumper;
 
 { package Program;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub prelude{my $self=CORE::shift;'
 package main;
 use Perl6::Say;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use Moose::Autobox;
 
 our $a_ARGS = [@ARGV];
 
@@ -1725,16 +1730,17 @@ sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
 }
 
 package main;
-'}
+'}; __PACKAGE__->meta->make_immutable();
+
 }
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+#line 2 emitted_p5_1994
+package main;
 use Data::Dumper;
 
 { package Program;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub print_usage_and_die{my $self=CORE::shift;::say('
 Usage: [-v] [-c|-x|-xe] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
 
@@ -1790,7 +1796,7 @@ $self->print_usage_and_die()
 }
 };
 my $prelude = '';
-if(($include_prelude || ::not($dont_eval))) {
+if($include_prelude) {
 ($prelude = $self->prelude())
 };
 ($p5_code = (($prelude . '
@@ -1835,16 +1841,17 @@ my $p5 = $ir->callback(SimpleEmit5->new());
 if($verbose) {
 ::say($p5)
 };
-$p5}
+$p5}; __PACKAGE__->meta->make_immutable();
+
 }
 ;
 Program->new()->main($a_ARGS);
 
 { package Fastdump;
 use Moose;
-use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub match{my($r,$s,$f,$t,$h)=@_;
-Match->make($r, $s, $f, $t, $h)}
+Match->make($r, $s, $f, $t, $h)}; __PACKAGE__->meta->make_immutable();
+
 }
 
 ;

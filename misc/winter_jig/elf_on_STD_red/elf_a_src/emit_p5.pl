@@ -198,9 +198,9 @@ else {
 my $name = join('::',@{(($whiteboard::in_package))});
 ("\n{ package ".$name.";\n".
  "use Moose;\n".
- "use Moose::Autobox; use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';\n".
  join("\n",@{IR->emit_p5_for($n->{traits})||[]}).
  IR->emit_p5_for($n->{block}).
+ "; __PACKAGE__->meta->make_immutable();\n".
  "\n}\n");
   }
 }
