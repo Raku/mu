@@ -1,0 +1,29 @@
+Scripts making it easier to run various perl6 implementations and components.
+
+We have accumulated many implementations of
+- perl6
+- regex engines
+- parsers of p6
+
+Running them often requires knowing some non-obvious implementation
+specific details, such as odd command lines, or what directory you
+need to be in.
+
+These scripts are intended to capture at least some of that knowledge,
+to make it easier to play with different implementations/components.
+
+They were created in March 2008, in the hope that having past work
+more accessible would make it easier to, and clearer how to, proceed
+towards Christmas.
+
+FILES
+
+sixcmd - runs various perl 6 implementations.
+sixrx  - runs one (pcr) regex implementation.
+
+FUTURE
+
+I've mostly used sixcmd to help me remember how to invoke rakudo.
+
+When PGE becomes capable of exporting some sort of Match info, that
+could be added to sixrx, making it more useful.
