@@ -14,10 +14,13 @@ our @ir_nodes = IR_Zero_Def::nodes();
 main();
 
 sub main {
-    my $output_file = 'elf_one';
+    my $output_file = 'elf_one.p6';
     my $code = file_code();
     open(F,">$output_file") or die $!;
     print F $code; close(F);
+    my $cmd = "./elf_zero -c $output_file -o elf_one";
+    print STDERR '#',$cmd,"\n";
+    system($cmd) or die $?;
     if(@ARGV) {
       exec("./$output_file",@ARGV)
     }
@@ -64,13 +67,13 @@ END
 
 sub ir_nodes {
     my $base = <<'END';
-  class Base {
+  class IR0::Base {
   }
-  class Val_Base is Base {
+  class IR0::Val_Base is Base {
   }
-  class Lit_Base is Base {
+  class IR0::Lit_Base is Base {
   }
-  class Rule_Base is Base {
+  class IR0::Rule_Base is Base {
   }
 END
     my $nodes = "";
@@ -90,7 +93,7 @@ END
 	    $init .= "\$.$ident = \$$ident;\n      ";
 	}
 	$nodes .= <<"END"
-  class $name is $base {
+  class IR0::$name is $base {
     $has
     method new($params) {
       $init
@@ -100,12 +103,10 @@ END
 END
     }
     <<"END";
-module BadIR {
 $base
 $nodes
 # Constructors
 #...
-}
 END
 }
 

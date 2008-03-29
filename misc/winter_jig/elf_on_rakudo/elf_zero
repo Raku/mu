@@ -902,22 +902,28 @@ end
 class Program
   def print_usage_and_exit
     STDERR.print <<'end'; exit(2)
-Usage: OPTIONS [ P6_FILE | -e P6_CODE ]
+Usage: OPTIONS [-c] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
 
 OPTIONS are as yet undefined.
 end
   end
   def main(argv)
     p6_code = nil
-    arg = argv.shift
-    if not arg
-      print_usage_and_exit
-    elsif arg == '-e'
-      p6_code = argv.shift or print_usage_and_exit
-    elsif File.exists? arg
-      p6_code = File.open(arg,'r'){|f|f.read}
-    else
-      print_usage_and_exit
+    compile = false
+    output_file = nil
+    print_usage_and_exit if argv.empty?
+    while arg = argv.shift
+      if arg == '-c'
+        compile = true
+      elsif arg == '-o'
+        output_file = argv.shift or print_usage_and_exit
+      elsif arg == '-e'
+        p6_code = argv.shift or print_usage_and_exit
+      elsif File.exists? arg
+        p6_code = File.open(arg,'r'){|f|f.read}
+      else
+        print_usage_and_exit
+      end
     end
     print "\n"
     build = BuildIR.new('rakudo_ast.data')
@@ -936,6 +942,9 @@ end
     print "\n----\n"
     print p5
     print "\n"
+    if compile and output_file
+      File.new(output_file,'w'){|f|f.print p5}
+    end
   end
   def parse(p6_file,p6_code)
     p6_code ||= File.open(p6_file,'r'){|f|f.read}
