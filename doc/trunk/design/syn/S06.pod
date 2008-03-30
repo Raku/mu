@@ -2695,9 +2695,9 @@ the current block was defined).
 
 Ordinarily a top-level Perl "script" just evaluates its anonymous
 mainline code and exits.  During the mainline code, the program's
-arguments are available in raw form from the C<@ARGS> array.  At the end of
+arguments are available in raw form from the C<@*ARGS> array.  At the end of
 the mainline code, however, a C<MAIN> subroutine will be called with
-whatever command-line arguments remain in C<@ARGS>.  This call is
+whatever command-line arguments remain in C<@*ARGS>.  This call is
 performed if and only if:
 
 =over
@@ -2755,7 +2755,7 @@ and hence is available at any later time as C<$?USAGE>.
 Common Unix command-line conventions are mapped onto the capture
 as follows:
 
-     On command line...         $ARGS capture gets...
+     On command line...         $*ARGS capture gets...
 
     -name                      :name
     -name=value                :name<value>
