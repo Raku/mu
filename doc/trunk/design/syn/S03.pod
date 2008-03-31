@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 17 Mar 2008
+  Last Modified: 31 Mar 2008
   Number: 3
-  Version: 133
+  Version: 134
 
 =head1 Overview
 
@@ -40,7 +40,7 @@ each level:
     L  Concatenation     ~
     X  Junctive and      &
     X  Junctive or       | ^
-    L  Named unary       rand sleep abs
+    L  Named unary       sleep abs sin
     N  Nonchaining infix but does <=> leg cmp .. ..^ ^.. ^..^
     C  Chaining infix    != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv
     L  Tight and         &&
@@ -221,7 +221,7 @@ Circumfixed items are treated like a term on the outside.
 
 =item *
 
-Function call
+Function call with parens:
 
     a(1)
 
@@ -262,6 +262,14 @@ Listop (leftward)
 As in Perl 5, a list operator looks like a term to the expression on
 its left, so it binds tighter than comma on the left but looser than
 comma on the right--see List prefix precedence below.
+
+=item *
+
+0-ary functions
+
+    self
+    undef
+    rand
 
 =back
 
@@ -568,10 +576,11 @@ C<< prefix:<+> >>, numeric context
 
     +$x
 
-Unlike in Perl 5, where C<+> is a no-op, this operator coerces
-to numeric context in Perl 6.  (It coerces only the value, not the
-original variable.)  The narrowest appropriate type of C<Int>, C<Num>,
-or C<Complex> will be returned.  A string containing two integers
+Unlike in Perl 5, where C<+> is a no-op, this operator coerces to
+numeric context in Perl 6.  (It coerces only the value, not the
+original variable.)  For values that are not already considered
+numeric, the narrowest appropriate type of C<Int>, C<Num>, or
+C<Complex> will be returned; however, string containing two integers
 separated by a C</> will be returned as a C<Rat>.  Exponential notation
 and radix notations are recognized.
 
@@ -721,7 +730,6 @@ use in hyperops and junctions, and whether they can profitably benefit
 from a lazy exception model.)
 
 Use of C<div> on two C<Int> values results in a ratio of the C<Rat> type.
-Integerizing a rat involves truncating its tail.
 
 =item *
 
@@ -941,16 +949,48 @@ C<< infix:<^> >>, one() operator
 
 =head2 Named unary precedence
 
+Functions of one argument
+
+    int
+    sleep
+    abs
+    sin
+    ...         # see S29 Functions
+
+Note that, unlike in Perl 5, you must use the C<.meth> forms to default
+to C<$_> in Perl 6.
+
+There is no unary C<rand> function in Perl 6, though there is a C<.rand>
+method call and a 0-ary C<rand> term.
+
 =over
 
 =item *
 
-Functions of one argument
+C<< prefix:<int> >>
 
-    rand sleep abs etc.
+Coerces to type C<Int>.  Floor semantics are used for fractional
+values, including strings that appear to express fractional values.
+That is, C<int($x)> must have the same result as C<int(+$x)> in all
+cases.  All implicit conversions to integer use the same semantics.
 
-Note that, unlike in Perl 5, you must use the C<.meth> forms to default
-to C<$_> in Perl 6.
+(Note that, despite the fact that C<int> is a valid native type
+name, this function does not express conversion to that native type.
+Such subtype conversions are done automatically upon assignment to
+a subtyped container, and fail if the container cannot hold the value.)
+
+=item *
+
+C<< prefix:<sleep> >>
+
+Suspends the current thread of execution for the specified number of seconds,
+which may be fractional.
+
+=item *
+
+C<< prefix:<abs> >>
+
+Returns the absolute value of the specified argument.
 
 =back
 
