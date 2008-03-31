@@ -72,6 +72,10 @@ END
     rescue Interrupt
       exit(1)
     end
+    if not tree
+      STDERR.print "Parse failed.\n"
+      exit(1)
+    end
     if not format
       STDERR.print "describing...\n" if kibitz
       print tree.match_describe

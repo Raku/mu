@@ -122,7 +122,7 @@ class Perl < Grammar
     token_category :package_declarator, 'nofat'
     token_category :routine_declarator, 'nofat'
     rule_category  :statement_prefix,   'nofat'
-    rule_category  :statement_control, 'nofat_space'
+    token_category  :statement_control, 'nofat_space' # rule_category, but nofat_space has been integrated now
     rule_category  :statement_mod_cond, 'nofat'
     rule_category  :statement_mod_loop, 'nofat'
     token_category :infix_prefix_meta_operator
@@ -138,7 +138,7 @@ class Perl < Grammar
     token_category :regex_declarator
 
     def unspacey; unsp;true end
-    def nofat_space; nofat and before(/\s|\#/); end
+    def nofat_space; before(/\s|\#/) and nofat end
 
     # Lexical routines
 
@@ -325,14 +325,14 @@ class Perl < Grammar
     #R XXX Do these need trailing wsp?  Current use is INCONSISTENT.
     #R XXX Should the get leading wsp by default?  Are they?
     #R XXX   STD.pm suggests they not have it?
-    def_rules_rest :statement_control,%w{ use no },%q{
+    def_tokens_rest :statement_control,false,%w{ use no },%q{
       e=nil
-      nofat_space and
+      nofat_space and wsp and
       mn = module_name and wsp and (e=_EXPR and wsp;true) and
       (h={:module_name=>mn};_hkv(h,:EXPR,e);_match_from(start,h,:<sym>))
     }
-    def_rules_rest :statement_control,%w{ if }, %q{
-      wsp;
+    def_tokens_rest :statement_control,false,%w{ if }, %q{
+      wsp; #R XXX
       e=_EXPR and wsp and pb=pblock and wsp and
       ei=starRULE{ b1=pos; scan(/elsif/) and wsp and e1=_EXPR and wsp and pb1=pblock and
                    _match_from(b1,{:elsif_expr=>e1,:elsif_block=>pb1},:elsif) } and
@@ -342,17 +342,20 @@ class Perl < Grammar
        _match_from(start,h,:if))
     }
 
-    def_rules_rest :statement_control,%w{ unless while until  for given when },%q{
+    def_tokens_rest :statement_control,false,%w{ unless while until  for given when },%q{
+      wsp; #R XXX
       e=_EXPR and wsp and pb=pblock and
       _match_from(start,{:expr=>e,:block=>pb},:<sym>)
     }
-    def_rules_rest :statement_control,%w{ repeat },%q{
+    def_tokens_rest :statement_control,false,%w{ repeat },%q{
+      wsp; #R XXX
       ((wu= scan(/while|until/) and wsp and e=_EXPR and wsp and bk=block and wsp and
         _match_from(start,{'0'=>wu,:wu_expr=>e,:wu_block=>bk},:repeat)) or
        (bk=block and wsp and wu=scan(/while|until/) and wsp and e=_EXPR and wsp and
         _match_from(start,{'0'=>wu,:expr_wu=>e,:block_wu=>bk},:repeat)))
     }
-    def_rules_rest :statement_control,%w{ loop },%q{
+    def_tokens_rest :statement_control,false,%w{ loop },%q{
+      wsp; #R XXX
       ((scan(/\(/) and wsp and
         e1= _EXPR and wsp and scan(/;/) and wsp and
         e2= _EXPR and wsp and scan(/;/) and wsp and
@@ -365,10 +368,12 @@ class Perl < Grammar
         _match_from(start,h,:loop)))
     }
 
-    def_rules_rest :statement_control,%w{
+    def_tokens_rest :statement_control,false,%w{
       default BEGIN CHECK INIT END START ENTER LEAVE KEEP UNDO FIRST NEXT LAST
       PRE POST CATCH CONTROL },
       %q{
+        nofat_space and
+       (wsp;true) and #R XXX
         bk=block and wsp and
         _match_from(start,{:block=>bk},:<sym>)
       }
