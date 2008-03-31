@@ -41,7 +41,7 @@ sub splice { my $a = CORE::shift; [splice(@{$a},$_[0],$_[1])] }
 
 package main;
 
-#line 2 emitted_p5_1906
+#line 2 emitted_p5_7995
 package main;
 use Data::Dumper;
 
@@ -98,7 +98,7 @@ sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}; __PACKAGE__->m
 }
 
 ;
-#line 2 emitted_p5_8309
+#line 2 emitted_p5_7097
 package main;
 use Data::Dumper;
 
@@ -159,7 +159,7 @@ sub make_ir_from_Match_tree{my $self=CORE::shift;$self}; __PACKAGE__->meta->make
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()}
 ;
-#line 2 emitted_p5_4231
+#line 2 emitted_p5_3381
 package main;
 use Data::Dumper;
 
@@ -366,7 +366,7 @@ IR0::Lit_Hash->newp($m, ::irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statem
 }
 
 ;
-#line 2 emitted_p5_2461
+#line 2 emitted_p5_3631
 package main;
 use Data::Dumper;
 
@@ -1486,7 +1486,7 @@ sub ir0_describe{my $self=CORE::shift;(((((('Rule_Capture(' . $self->rule->ir0_d
 }
 
 ;
-#line 2 emitted_p5_6666
+#line 2 emitted_p5_5653
 package main;
 use Data::Dumper;
 
@@ -1681,7 +1681,7 @@ sub cb__Lit_Hash{my $self=CORE::shift;my($n)=@_;
 }
 
 ;
-#line 2 emitted_p5_9762
+#line 2 emitted_p5_2942
 package main;
 use Data::Dumper;
 
@@ -1735,7 +1735,7 @@ package main;
 }
 
 ;
-#line 2 emitted_p5_1994
+#line 2 emitted_p5_6414
 package main;
 use Data::Dumper;
 
@@ -1824,7 +1824,7 @@ if((::not($output_file))) {
 }};
 sub compile{my $self=CORE::shift;my($p6_code,$verbose)=@_;
 ::unslurp($p6_code, 'deleteme.p6');
-my $parser = '../../STD_red/STD_red_run';
+my $parser = '../STD_red/STD_red_run';
 my $cmd = ($parser . ' -q --format=p5a deleteme.p6 > deleteme.dump');
 ((::system($cmd) == 0) or ::die('Parse failed.
 '));
