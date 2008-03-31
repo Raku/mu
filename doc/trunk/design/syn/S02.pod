@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 17 Mar 2008
+  Last Modified: 31 Mar 2008
   Number: 2
-  Version: 130
+  Version: 131
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1366,6 +1366,12 @@ the sigil.
 
 The context in which a subscript is evaluated is no longer controlled
 by the sigil either.  Subscripts are always evaluated in list context.
+(More specifically, they are evaluated in a variant of list context
+known as I<slice> context, which preserves dimensional information
+so that you can do multi-dimensional slices using semicolons.  However,
+each slice dimension evaluates its sublist in normal list context,
+so functions called as part of a subscript don't see a slice context.
+See S09 for more on slice context.)
 
 If you need to force inner context to item (scalar), we now have convenient
 single-character context specifiers such as + for numbers and ~ for strings:
