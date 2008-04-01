@@ -7,8 +7,14 @@ class SimpleEmit5 {
   '
 package main;
 use Perl6::Say;
-use autobox 2.23; use autobox::Core 0.4; use autobox UNDEF => "UNDEF";
+use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 use Moose::Autobox;
+{package AssertCurrentModuleVersions;
+ use Moose 0.40;
+ use Moose::Autobox 0.06;
+ use autobox 2.23;
+ use autobox::Core 0.4;
+}
 
 our $a_ARGS = [@ARGV];
 
