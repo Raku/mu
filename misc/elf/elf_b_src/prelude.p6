@@ -43,6 +43,8 @@ sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
 }
 
+sub parser_name{$0."_src/../elf_a_src/STD_red/STD_red_run"}
+
 package main;
 ';
 }

@@ -95,7 +95,7 @@ default Run code.
   method compile($p6_code,$verbose) {
     #say $p6_code;
     unslurp($p6_code,"deleteme.p6");
-    my $parser = "../STD_red/STD_red_run";
+    my $parser = parser_name();
     my $cmd = $parser ~ " -q --format=p5a deleteme.p6 > deleteme.dump";
     system($cmd) == 0 or die("Parse failed.\n");
     my $dump5 = slurp("deleteme.dump");

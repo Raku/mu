@@ -113,15 +113,15 @@ default Run code.
   sub parse {
     my($self,$p6_file,$p6_code)=@_;
     $p6_code ||= `cat $p6_file`;
-    my $std_red_from_root = "misc/STD_red/STD_red_run";
-    my $std_red_from_src = "../../$std_red_from_root";
+    my $std_red_from_self = $0."_src/../elf_a_src/STD_red/STD_red_run";
     my $std_red;
-    if(-f $std_red_from_src) {
-      $std_red = $std_red_from_src;
+    if(-f $std_red_from_self) {
+      $std_red = $std_red_from_self;
     } else {
-      die "The environment variable PUGS_ROOT must be defined.\n"
-          if !exists($ENV{PUGS_ROOT});
-      $std_red = $ENV{PUGS_ROOT}."/".$std_red_from_root;
+      die "Unable to find parser: $std_red_from_self\n";
+      #die "The environment variable PUGS_ROOT must be defined.\n"
+      #    if !exists($ENV{PUGS_ROOT});
+      #$std_red = $ENV{PUGS_ROOT}."/".$std_red_from_root;
     }
     my $file = $p6_file;
     if(!$file) {
@@ -141,3 +141,4 @@ Program->new()->main(\@ARGV);
 { package Fastdump;
   sub match {my($r,$s,$f,$t,$h)=@_;Match->new_set($r,$s,$f,$t,$h)}
 }
+
