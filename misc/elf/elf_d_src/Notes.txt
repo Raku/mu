@@ -1,0 +1,578 @@
+
+The objective of this document is to create a node/attribute set for IR1, the new elf_d IR.
+Then perhaps a set of methods.
+
+----------------------------------------------------------------------
+Synthesis and discussion
+----------------------------------------------------------------------
+
+
+----------------------------------------------------------------------
+From elf_a (and thus from kp6):
+----------------------------------------------------------------------
+
+CompUnit   statements # unit_type name traits attributes methods body
+
+Val_Int    text
+
+
+PackageDeclarator kind name traits block
+Trait     verb expr
+Block     statements
+Quote     concat
+
+
+Val_Bit    bit
+Val_Num    num
+Val_Buf    buf
+Val_Char   char
+Val_Undef 
+Val_Object clazz fields
+Val_Rx  pat
+
+Lit_Seq    seq
+Lit_Array  array    
+Lit_Hash   hash
+Lit_Pair   key value
+
+Lit_SigArgument  key value type has_default is_named_only is_optional is_slurpy is_multidimensional is_rw is_copy
+
+Lit_NamedArgument  key value
+
+Lit_Code  pad state sig body catch
+
+Lit_Object  clazz fields
+
+Var     sigil twigil name namespace
+Bind    parameters arguments
+Assign  parameters arguments
+Proto   name
+
+Call    invocant hyper method arguments
+Apply   code arguments
+
+Return  result
+If      test body elsif else
+While   test body
+For     expr body
+Decl    decl type var default
+Sig     invocant positional
+
+Lit_Capture  invocant array hash
+Lit_Subset   name base_class block
+
+Method  name sig block
+Sub     name sig block
+Macro   name sig block
+Coro    name sig block
+
+P5Token  regex
+
+Token  name regex sym
+
+Do     block
+Begin  block
+
+Use    mod perl5
+
+
+# ------------- REGEX AST ----------
+
+
+Rule 
+Rule_Quantifier  term quant greedy ws1 ws2 ws3
+Rule_Or  terms
+Rule_Concat  concat
+Rule_Subrule  metasyntax ident capture_to_array
+Rule_SubruleNoCapture  metasyntax
+Rule_Var  sigil twigil name
+Rule_Constant  constant
+Rule_Dot 
+Rule_SpecialChar  char
+Rule_Block  closure
+Rule_InterpolateVar  var
+Rule_NamedCapture  rule ident capture_to_array
+Rule_Before  rule assertion_modifier capture_to_array
+Rule_After  rule assertion_modifier capture_to_array
+Rule_NegateCharClass chars
+Rule_CharClass chars
+Rule_Capture  rule position capture_to_array
+
+----------------------------------------------------------------------
+From kp6_ast (closer to the orignal kp6 than elf_b).
+----------------------------------------------------------------------
+# Representation of KindaPerl6/Ast.pm
+# Created from v6/v6-KindaPerl6/src/KindaPerl6/Ast.pm r19980.
+
+node(' CompUnit    $.unit_type $.name @.traits %.attributes %.methods @.body ');
+
+node(' Val::Int    $.int ');
+node(' Val::Bit    $.bit ');
+node(' Val::Num    $.num ');
+node(' Val::Buf    $.buf ');
+node(' Val::Char   $.char ');
+node(' Val::Undef  ');
+node(' Val::Object $.class %.fields ');
+
+node(' Lit::Seq    @.seq ');
+node(' Lit::Array  @.array     ');
+node(' Lit::Hash   @.hash ');
+node(' Lit::Pair   $.key $.value ');
+
+# see also S06, Runtime::Perl6::Signature.pm, Grammar::Signature.pm
+#    has $.is_optional;  # !is_required
+#    # has $.is_longname;
+node(' Lit::SigArgument  $.key $.value $.type $.has_default $.is_named_only $.is_optional $.is_slurpy $.is_multidimensional $.is_rw $.is_copy ');
+
+node(' Lit::NamedArgument  $.key $.value ');
+
+#     has %.pad         #  is Mapping of Type; # All my/state/parameter variables
+#     has %.state       #  is Mapping of Exp;  # State initializers, run upon first entry 
+#     has $.sig         #  is Sig              # Signature
+#     has @.body        #  is Seq of Exp;      # Code body 
+#     has $.CATCH       #  is Lit::Code;       # Exception handler
+#     #has @.parameters  #  is Seq of Exp;      # Signature
+node(' Lit::Code  %.pad %.state $.sig @.body $.CATCH ');
+
+node(' Lit::Object  $.class @.fields% ');
+
+node(' Var     $.sigil $.twigil $.name $.namespace ');
+node(' Bind    $.parameters $.arguments ');
+node(' Assign  $.parameters $.arguments ');
+node(' Proto   $.name ');
+
+#    #has $.hyper
+node(' Call    $.invocant $.hyper $.method @.arguments ');
+node(' Apply   $.code @.arguments ');
+
+node(' Return  $.result ');
+node(' If      $.cond @.body @.otherwise ');
+node(' While   $.cond @.body ');
+node(' Decl    $.decl $.type@ $.var@ ');
+node(' Sig     $.invocant $.positional@ ');
+
+node(' Lit::Capture  $.invocant $.array@ $.hash@ ');
+node(' Lit::Subset   $.name $.base_class $.block ');
+
+#    #has $.sig
+node(' Method  $.name $.block ');
+node(' Sub     $.name @.block$ ');
+node(' Macro   $.name @.block$ ');
+node(' Coro    $.name @.block$ ');
+
+node(' P5Token  $.regex ');
+
+#    #has $.sig
+#    has $.sym  # token:sym<...>
+node(' Token  $.name $.regex $.sym ');
+
+node(' Do     @.block ');
+node(' BEGIN  @.block ');
+
+node(' Use    $.mod $.perl5 ');
+
+
+# ------------- REGEX AST ----------
+
+
+node(' Rule  ');
+node(' Rule::Quantifier  $.term $.quant $.greedy $.ws1 $.ws2 $.ws3 ');
+node(' Rule::Or  @.or$ ');
+node(' Rule::Concat  @.concat$ ');
+node(' Rule::Subrule  $.metasyntax $.ident $.capture_to_array ');
+node(' Rule::SubruleNoCapture  $.metasyntax ');
+node(' Rule::Var  $.sigil $.twigil $.name ');
+node(' Rule::Constant  $.constant ');
+node(' Rule::Dot  ');
+node(' Rule::SpecialChar  $.char ');
+node(' Rule::Block  $.closure ');
+node(' Rule::InterpolateVar  $.var ');
+node(' Rule::NamedCapture  $.rule $.ident $.capture_to_array ');
+node(' Rule::Before  $.rule $.assertion_modifier $.capture_to_array ');
+node(' Rule::After  $.rule $.assertion_modifier $.capture_to_array ');
+node(' Rule::NegateCharClass $.chars ');
+node(' Rule::CharClass $.chars ');
+node(' Rule::Capture  $.rule $.position $.capture_to_array ');
+
+----------------------------------------------------------------------
+From pugs (actually misc/old_pugs_perl5_backend/pilrun2-leftovers/pil.pl)
+----------------------------------------------------------------------
+node_h 'PIL_Environment',      'PIL_Environment', 
+  'pilGlob' ,'[PIL_Decl]',
+  'pilMain' ,'PIL_Stmts';
+
+node_s 'PIL_Stmts',            'PNil';
+node_h 'PIL_Stmts',            'PStmts', 
+  'pStmt'  ,'PIL_Stmt',
+  'pStmts' ,'PIL_Stmts';
+node_h 'PIL_Stmts',            'PPad', 
+  'pScope' ,'Scope',
+  'pSyms'  ,'[(VarName, PIL_Expr)]',
+  'pStmts' ,'PIL_Stmts';
+
+node_s 'PIL_Stmt',             'PNoop';
+node_h 'PIL_Stmt',             'PStmt', 
+  'pExpr' ,'PIL_Expr';
+node_h 'PIL_Stmt',             'PPos', 
+  'pPos'  ,'Pos',
+  'pExp'  ,'Exp',
+  'pNode' ,'PIL_Stmt';
+
+node_h 'PIL_Expr',             'PRawName', 
+  'pRawName' ,'VarName';
+node_h 'PIL_Expr',             'PExp', 
+  'pLV'   ,'PIL_LValue';
+node_h 'PIL_Expr',             'PLit', 
+  'pLit'  ,'PIL_Literal';
+node_h 'PIL_Expr',             'PThunk', 
+  'pThunk' ,'PIL_Expr';
+node_h 'PIL_Expr',             'PCode', 
+  'pType'    ,'SubType',
+  'pParams'  ,'[TParam]',
+  'pLValue'  ,'Bool',
+  'pIsMulti' ,'Bool',
+  'pBody'    ,'PIL_Stmts';
+
+node_h 'PIL_Decl',             'PSub', 
+  'pSubName'    ,'SubName',
+  'pSubType'    ,'SubType',
+  'pSubParams'  ,'[TParam]',
+  'pSubLValue'  ,'Bool',
+  'pSubIsMulti' ,'Bool',
+  'pSubBody'    ,'PIL_Stmts';
+
+node_h 'PIL_Literal',          'PVal', 
+  'pVal'  ,'Val';
+
+node_h 'PIL_LValue',           'PVar', 
+  'pVarName' ,'VarName';
+node_h 'PIL_LValue',           'PApp', 
+  'pCxt'  ,'TCxt',
+  'pFun'  ,'PIL_Expr',
+  'pInv'  ,'Maybe PIL_Expr',
+  'pArgs' ,'[PIL_Expr]';
+node_h 'PIL_LValue',           'PAssign', 
+  'pLHS'  ,'[PIL_LValue]',
+  'pRHS'  ,'PIL_Expr';
+node_h 'PIL_LValue',           'PBind', 
+  'pLHS'  ,'[PIL_LValue]',
+  'pRHS'  ,'PIL_Expr';
+
+node_h 'TParam',               'MkTParam', 
+  'tpParam'   ,'Param',
+  'tpDefault' ,'Maybe PIL_Expr';
+
+node_s 'TCxt',                 'TCxtVoid';
+node_a 'TCxt',                 'TCxtLValue',
+  'type' ,'Type';
+node_a 'TCxt',                 'TCxtItem',
+  'type' ,'Type';
+node_a 'TCxt',                 'TCxtSlurpy',
+  'type' ,'Type';
+node_a 'TCxt',                 'TTailCall',
+  'tcxt' ,'TCxt';
+
+node_h 'TEnv',                 'MkTEnv', 
+  'tLexDepth' ,'Int',
+  'tTokDepth' ,'Int',
+  'tCxt'      ,'TCxt',
+  'tReg'      ,'(TVar (Int, String))',
+  'tLabel'    ,'(TVar (Int))';
+
+
+node_s 'Scope', 'SState';
+node_s 'Scope', 'SMy';
+node_s 'Scope', 'SOur';
+node_s 'Scope', 'SLet';
+node_s 'Scope', 'STemp';
+node_s 'Scope', 'SGlobal';
+
+node_s 'SubType', 'SubMethod';
+node_s 'SubType', 'SubCoroutine';
+node_s 'SubType', 'SubMacro';
+node_s 'SubType', 'SubRoutine';
+node_s 'SubType', 'SubBlock';
+node_s 'SubType', 'SubPointy';
+node_s 'SubType', 'SubPrim';
+
+node_s 'Val', 'VUndef';
+node_a 'Val', 'VBool' , 'value' ,'unk';
+node_a 'Val', 'VInt'  , 'value' ,'unk';
+node_a 'Val', 'VRat'  , 'value' ,'unk';
+node_a 'Val', 'VNum'  , 'value' ,'unk';
+node_a 'Val', 'VStr'  , 'value' ,'unk';
+node_a 'Val', 'VList' , 'value' ,'unk';
+node_a 'Val', 'VType' , 'value' ,'unk';
+
+node_s 'Cxt', 'CxtVoid';
+node_a 'Cxt', 'CxtItem'   , 'type' ,'Type';
+node_a 'Cxt', 'CxtSlurpy' , 'type' ,'Type';
+
+node_a 'Type', 'MkType',
+  'typename', 'String';
+node_a2 'Type', 'TypeOr',
+  'lhs' ,'Type',
+  'rhs' ,'Type';
+node_a2 'Type', 'TypeAnd',
+  'lhs' ,'Type',
+  'rhs' ,'Type';
+
+node_h 'Param', 'MkParam',
+  'isInvocant'   ,'Bool',
+  'isOptional'   ,'Bool',
+  'isNamed'      ,'Bool',
+  'isLValue'     ,'Bool',
+  'isWritable'   ,'Bool',
+  'isLazy'       ,'Bool',
+  'paramName'    ,'String',
+  'paramContext' ,'Cxt',
+  'paramDefault' ,'Exp';
+
+node_h 'Pos', 'MkPos',
+  'posName'        ,'String',
+  'posBeginLine'   ,'Int',
+  'posBeginColumn' ,'Int',
+  'posEndLine'     ,'Int',
+  'posEndColumn'   ,'Int';
+
+----------------------------------------------------------------------
+From redsix
+----------------------------------------------------------------------
+All src whiteboard
+
+Rx modifiers,pattern
+PPair name,value
+ArrayLiteral array
+HashLiteral thehash
+PRole name,body
+PClass name,body
+PModule name,body
+PPackage name,body
+UsePackage pkg
+TypeLiteral -
+MemberDeclaration var,default
+VarError -
+ClosureTrait flavor,block
+DoBlock block
+StandaloneBlock block
+CodeBlock block
+Comment comment
+UndefLiteral -
+ListLiteral list
+Block statementlist
+StatementList statements
+ApplyMethod obj,f,arggen
+Apply f,arggen
+Capture argl
+Identifier -
+Number num
+SimpleString -
+String str
+Quote quote,str
+Variable -
+VarSub name
+VarDecl scope,mumble,vars,trait,op,vals
+Cond sense_of_first_test,body
+For enu,body
+Word -
+SubDecl scope,kind,name,sig,body
+Signature params,returns,kind
+Arguments theargs
+Infix fun,fargs
+Prefix fun,fargs
+Postfix fun,fargs
+Postcircumfix fun,fargs
+WrappedPPair pair
+
+----------------------------------------------------------------------
+From parrot PAST
+http://www.parrotcode.org/docs/pdd/pdd26_ast.html
+http://search.cpan.org/~bschmal/parrot-0.6.0/docs/pct/past_building_blocks.pod
+----------------------------------------------------------------------
+Node children name src pos named(pmichaud on irc)
+Stmts -
+Val value returns
+Var scope{lexical,package,parameter,keyed,attribute} viviself vivibase isdecl lvalue slurpy  namespace "an optional child, representing the object to which the scope(attribute) belongs"
+Op pasttype
+  copy
+  bind
+  if
+  unless
+  while
+  until
+  repeat_while, repeat_until
+  for
+  call
+  callmethod
+#vocabulary: condition body
+pirop
+try
+xor
+Block blocktype{declaration,immediate} namespace symbol
+ compiler#"=>children are something else entirely"
+ arity
+
+----------------------------------------------------------------------
+STD stuff
+----------------------------------------------------------------------
+$ grep 'package RE' ../../src/perl6/gimme5 
+REbase;
+RE
+RE_adverb
+RE_assertion
+RE_assertvar
+RE_block
+RE_bindvar
+RE_bindnamed
+RE_bindpos
+RE_bracket
+RE_cclass
+RE_decl
+RE_double
+RE_string
+RE_meta
+RE_method_noarg
+RE_method_internal
+RE_method_re
+RE_method_str
+RE_method
+RE_noop
+RE_every
+RE_first
+RE_paren
+RE_quantified_atom
+RE_qw
+RE_sequence
+RE_submatch
+RE_all
+RE_any
+RE_var
+$ egrep '^sub' ../../src/perl6/gimme5 
+sub unangle {
+sub un6 {
+sub indent {
+sub panic {
+sub MAIN {
+sub heredoc { my $self = shift;  
+sub$ws$NAME {
+sub BUILD {
+sub nounphrase {
+sub here {
+sub ws {
+sub wsany {
+sub regex {
+sub first {
+sub every {
+sub submatch {
+sub any {
+sub all {
+sub sequence {
+sub quantified_atom {
+sub quantifier {
+sub atom {
+sub backslash {
+sub assertion {
+sub block {
+sub code {
+sub unbalanced {
+$ egrep 'package RE' ../../src/perl6/metholate 
+REbase;
+RE
+RE_adverb
+RE_assertion
+RE_assertvar
+RE_block
+RE_bindvar
+RE_bindnamed
+RE_bindpos
+RE_bracket
+RE_cclass
+RE_decl
+RE_double
+RE_string
+RE_meta
+RE_method_noarg
+RE_method_internal
+RE_method_re
+RE_method_str
+RE_method
+RE_noop
+RE_ordered_conjunction
+RE_ordered_disjunction
+RE_paren
+RE_quantified_atom
+RE_qw
+RE_sequence
+RE_submatch
+RE_unordered_conjunction
+RE_unordered_disjunction
+RE_var
+$ egrep '^sub' ../../src/perl6/metholate 
+sub indent {
+sub panic {
+sub here {
+sub ws {
+sub wsany {
+sub regex {
+sub ordered_disjunction {
+sub ordered_conjunction {
+sub submatch {
+sub unordered_disjunction {
+sub unordered_conjunction {
+sub sequence {
+sub quantified_atom {
+sub quantifier {
+sub atom {
+sub backslash {
+sub assertion {
+sub block {
+sub code {
+sub unbalanced {
+# Cursor5
+_STARf
+_STARg
+_STARr
+_PLUSf
+_PLUSg
+_PLUSr
+_OPTr
+_OPTg
+_OPTf
+_BRACKET
+_PAREN
+_NOTBEFORE
+_NOTCHAR
+before
+after
+null
+_ASSERT
+_BINDVAR
+_BINDPOS
+_BINDNAMED
+_EXACT
+_EXACT_rev
+_DIGIT
+_DIGIT_rev
+_ALNUM
+_ALNUM_rev
+alpha
+_SPACE
+_SPACE_rev
+_HSPACE
+_HSPACE_rev
+_VSPACE
+_VSPACE_rev
+_CCLASS
+_CCLASS_rev
+_ANY
+_BOS
+_BOL
+_EOS
+_EOL
+_RIGHTWB
+_LEFTWB
+_REDUCE
+_COMMITBRANCH
+_COMMITRULE
+commit
+fail
