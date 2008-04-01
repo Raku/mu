@@ -43,7 +43,7 @@ sub parser_name{$0."_src/../elf_a_src/STD_red/STD_red_run"}
 
 package main;
 
-#line 2 emitted_p5_1994
+#line 2 emitted_p5_3194
 package main;
 use Data::Dumper;
 
@@ -100,7 +100,7 @@ sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}; __PACKAGE__->m
 }
 
 ;
-#line 2 emitted_p5_3848
+#line 2 emitted_p5_7159
 package main;
 use Data::Dumper;
 
@@ -161,7 +161,7 @@ sub make_ir_from_Match_tree{my $self=CORE::shift;$self}; __PACKAGE__->meta->make
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()}
 ;
-#line 2 emitted_p5_1705
+#line 2 emitted_p5_8352
 package main;
 use Data::Dumper;
 
@@ -368,7 +368,7 @@ IR0::Lit_Hash->newp($m, ::irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statem
 }
 
 ;
-#line 2 emitted_p5_8880
+#line 2 emitted_p5_4013
 package main;
 use Data::Dumper;
 
@@ -1488,7 +1488,7 @@ sub ir0_describe{my $self=CORE::shift;(((((('Rule_Capture(' . $self->rule->ir0_d
 }
 
 ;
-#line 2 emitted_p5_7611
+#line 2 emitted_p5_8177
 package main;
 use Data::Dumper;
 
@@ -1683,7 +1683,7 @@ sub cb__Lit_Hash{my $self=CORE::shift;my($n)=@_;
 }
 
 ;
-#line 2 emitted_p5_8232
+#line 2 emitted_p5_1796
 package main;
 use Data::Dumper;
 
@@ -1694,6 +1694,12 @@ package main;
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 use Moose::Autobox;
+{package AssertCurrentModuleVersions;
+ use Moose 0.40;
+ use Moose::Autobox 0.06;
+ use autobox 2.23;
+ use autobox::Core 0.4;
+}
 
 our $a_ARGS = [@ARGV];
 
@@ -1739,7 +1745,7 @@ package main;
 }
 
 ;
-#line 2 emitted_p5_8657
+#line 2 emitted_p5_2809
 package main;
 use Data::Dumper;
 
