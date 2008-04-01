@@ -1,0 +1,58 @@
+
+Cast of Characters
+
+After elf_d - subsequent objectives:
+ Sufficient IR analysis for near-term backend goals.
+ Facilitate start of various backends - smop, conformant p5, maybe ruby.
+ Facilitate other components:
+   Prelude.
+   regex.
+   Better command line.
+   Start of STD5 integration.
+
+elf_d
+Purpose:
+  Switch to a new IR.
+  Metaprogramming infrastructure for new IR and for ast-to-ir conversion.
+  External development of new backends becomes easy.
+Maybe:
+  Alternate emitter for faster p5 (mostly to shakedown backend creation story).
+  IR analysis.
+  Address some inconvenient implementation limitations.
+  Start of p6 Prelude.
+Comparison: Like elf_c, but with new IR nodes.
+Written in: elf_c dialect.
+Can be compiled by: elf_d, elf_c.
+Status: active development (eventually).
+
+elf_c
+Purpose:
+  Refactor implementation classes, now that has() is available.
+  Add use() support, for both runtime and whole-program compilation.
+  Makes creation of derivative implementations easier.
+Comparison: Like elf_b, but written in elf_b p6, not elf_a p6 (basically +has).
+Written in: elf_b dialect.
+Emits: Currently same as elf_b, but that may change.
+Can be compiled by: elf_c, elf_b.
+Linkages:
+  ast_handlers and ir_nodes are copies of those in std_b.
+  They can't be regenerated, but only recopied by hand.
+  The hope is elf_c won't remain active long enough for that to be a problem.
+Status: active development.
+
+elf_b
+Purpose: Switch implementation language from p5 to p6.
+Comparison: Like elf_a, but written in p6.
+Written in: p6, elf_a dialect.
+Emits: Slighly less simple and less fast p5 than elf_a.
+Can be compiled by: elf_b, elf_a.
+Linkages:
+  Uses elf_a ast_handlers, mechanically massaged into p6.
+  Uses elf_a's copy of STD_red.
+Status: slushy.
+
+elf_a
+Why: First step.
+Written in: p5
+Emits: Simple and fast p5.
+Status: slushy.

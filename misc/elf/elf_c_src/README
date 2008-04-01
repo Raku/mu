@@ -1,0 +1,8 @@
+
+2008-Apr-01 00:18
+Bootstrap check:
+
+../elf_b -x -o ../elf_c Match.pm IR0_Nodes.pm IR0_FromAST.pm IR0_FromAST_handlers.pm EmitSimpleP5_fromIR0.pm ElfC_CommandLine.pm
+../elf_c -x -o ../elf_c1 Match.pm IR0_Nodes.pm IR0_FromAST.pm IR0_FromAST_handlers.pm EmitSimpleP5_fromIR0.pm ElfC_CommandLine.pm
+../elf_c1 -x -o ../elf_c2 Match.pm IR0_Nodes.pm IR0_FromAST.pm IR0_FromAST_handlers.pm EmitSimpleP5_fromIR0.pm ElfC_CommandLine.pm
+diff ../elf_c[12]
