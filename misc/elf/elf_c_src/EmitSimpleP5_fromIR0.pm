@@ -7,7 +7,7 @@ class SimpleEmit5 {
   '
 package main;
 use Perl6::Say;
-use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use autobox 2.23; use autobox::Core 0.4; use autobox UNDEF => "UNDEF";
 use Moose::Autobox;
 
 our $a_ARGS = [@ARGV];
