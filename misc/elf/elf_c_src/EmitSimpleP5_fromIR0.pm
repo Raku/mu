@@ -4,7 +4,7 @@ class SimpleEmit5 {
   has $.compiler;
 
   method prelude ($n) {
-  '
+  '#!/usr/bin/perl -w
 package main;
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
@@ -49,13 +49,50 @@ sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
 
 { package ARRAY;
+# absent from autobox::Core
 sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
+sub copy { my $a = CORE::shift; [@$a] }
+# buggy in autobox::Core
+BEGIN{my $x = *ARRAY::unshift; undef &$x;}
+sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 }
 
 sub parser_name{
   my $f = $0;
   $f =~ s/[^\/]+$//;
   $f."../STD_red/STD_red_run"
+}
+
+our $a_INC = ["."];
+sub ::require {
+  my($module)=@_;
+  my $file = find_required_module($module);
+  $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$a_INC)." ).\n";
+  eval_file($file);
+};
+sub ::find_required_module {
+  my($module)=@_;
+  my @names = ($module,$module.".pm",$module.".p6");
+  for my $dir (@$a_INC) {
+    for my $name (@names) {
+      my $file = $dir."/".$name;
+      if(-f $file) {
+        return $file;
+      }
+    }
+  }
+  return undef;
+}
+
+our $compiler0;
+our $compiler1;
+sub ::eval_file {
+  my($file)=@_;
+  $compiler0->eval_file($file);
+}
+sub ::eval_perl6 {
+  my($code)=@_;
+  $compiler0->eval_perl6($code);
 }
 
 package main;
@@ -142,8 +179,8 @@ package main;
   };
   method cb__Use ($n) {
     my $module = $n<mod>;
-    if $.compiler.dont_use($module) { "" }
-    else { "***use() is unimplemented***" }
+    if $.compiler.hook_for_use($module) { "" }
+    else { "***Unimplemented use()***" }
   };
   method cb__Val_Buf ($n) {
     my $s = eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}').($n<buf>);

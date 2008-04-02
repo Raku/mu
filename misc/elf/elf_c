@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-
 package main;
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
@@ -44,13 +43,63 @@ sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
 
 { package ARRAY;
+# absent from autobox::Core
 sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
+sub copy { my $a = CORE::shift; [@$a] }
+# buggy in autobox::Core
+BEGIN{my $x = *ARRAY::unshift; undef &$x;}
+sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 }
 
-sub parser_name{$0."_src/../elf_a_src/STD_red/STD_red_run"}
+sub parser_name{
+  my $f = $0;
+  $f =~ s/[^\/]+$//;
+  $f."../STD_red/STD_red_run"
+}
+
+our $a_INC = ["."];
+sub ::require {
+  my($module)=@_;
+  my $file = find_required_module($module);
+  $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$a_INC)." ).\n";
+  eval_file($file);
+};
+sub ::find_required_module {
+  my($module)=@_;
+  my @names = ($module,$module.".pm",$module.".p6");
+  for my $dir (@$a_INC) {
+    for my $name (@names) {
+      my $file = $dir."/".$name;
+      if(-f $file) {
+        return $file;
+      }
+    }
+  }
+  return undef;
+}
+
+our $compiler0;
+our $compiler1;
+sub ::eval_file {
+  my($file)=@_;
+  $compiler0->eval_file($file);
+}
+sub ::eval_perl6 {
+  my($code)=@_;
+  $compiler0->eval_perl6($code);
+}
 
 package main;
 
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+use Data::Dumper;
+;
+;
+;
+;
+;
+
+;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use Data::Dumper;
 
@@ -1499,7 +1548,7 @@ use Data::Dumper;
 use Moose;
 has 'compiler' => (is => 'rw');;
 sub prelude{my $self=CORE::shift;my($n)=@_;
-'
+'#!/usr/bin/perl -w
 package main;
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
@@ -1544,13 +1593,50 @@ sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
 
 { package ARRAY;
+# absent from autobox::Core
 sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
+sub copy { my $a = CORE::shift; [@$a] }
+# buggy in autobox::Core
+BEGIN{my $x = *ARRAY::unshift; undef &$x;}
+sub unshift (\\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 }
 
 sub parser_name{
   my $f = $0;
   $f =~ s/[^\\/]+$//;
   $f."../STD_red/STD_red_run"
+}
+
+our $a_INC = ["."];
+sub ::require {
+  my($module)=@_;
+  my $file = find_required_module($module);
+  $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$a_INC)." ).\\n";
+  eval_file($file);
+};
+sub ::find_required_module {
+  my($module)=@_;
+  my @names = ($module,$module.".pm",$module.".p6");
+  for my $dir (@$a_INC) {
+    for my $name (@names) {
+      my $file = $dir."/".$name;
+      if(-f $file) {
+        return $file;
+      }
+    }
+  }
+  return undef;
+}
+
+our $compiler0;
+our $compiler1;
+sub ::eval_file {
+  my($file)=@_;
+  $compiler0->eval_file($file);
+}
+sub ::eval_perl6 {
+  my($code)=@_;
+  $compiler0->eval_perl6($code);
 }
 
 package main;
@@ -1637,10 +1723,10 @@ $name->re_gsub('^(.)::', '$1');
 }};
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
 my $module = $n->{'mod'};
-if($self->compiler->dont_use($module)) {
+if($self->compiler->hook_for_use($module)) {
 ''
 }else {
-'***use() is unimplemented***'
+'***Unimplemented use()***'
 }};
 sub cb__Val_Buf{my $self=CORE::shift;my($n)=@_;
 my $s = ::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'});
@@ -1755,7 +1841,7 @@ use Data::Dumper;
 { package Program;
 use Moose;
 sub print_usage_and_die{my $self=CORE::shift;::say('
-Usage: [-v] [-c|-x|-xe] [-o OUTPUT_FILE] [ P6_FILE | -e P6_CODE ]
+Usage: [-v] [-c|-x|-xe] [-o OUTPUT_FILE] [-I dir] [ P6_FILE | -e P6_CODE ]+
 
 default Run code.
  -c     Compile code.
@@ -1771,48 +1857,48 @@ $self->print_usage_and_die()
 my $output_file;
 my $dont_eval;
 my $run_externally;
+my $include_prelude = 1;
 my $verbose;
-my $include_prelude;
-my $tasks = [];
+my $sources = [];
 while($args->elems()) {
 my $arg = $args->shift();
 if(($arg eq '-v')) {
 ($verbose = 1)
 }elsif(($arg eq '-c')) {
-($dont_eval = 1)
-}elsif(($arg eq '-x')) {
 ($dont_eval = 1);
-($include_prelude = 1)
+($include_prelude = 0)
+}elsif(($arg eq '-x')) {
+($dont_eval = 1)
 }elsif(($arg eq '-xe')) {
 ($dont_eval = 1);
-($include_prelude = 1);
 ($run_externally = 1)
 }elsif(($arg eq '-o')) {
 ($output_file = ($args->shift() || $self->print_usage_and_die()))
 }elsif(($arg eq '-e')) {
 my $p6_code = ($args->shift() || $self->print_usage_and_die());
-$tasks->push(CompilerTask->new('filename', '-e', 'code', $p6_code))
+$sources->push(CompilerSource->new('filename', '-e', 'code', $p6_code))
 }elsif(::file_exists($arg)) {
-$tasks->push(CompilerTask->new('filename', $arg))
+$sources->push(CompilerSource->new('filename', $arg))
+}elsif(($arg eq '-I')) {
+my $dir = ($args->shift() || $self->print_usage_and_die());
+$a_INC->push($dir)
 }elsif(($arg eq '--')) {
 last
 }else {
 $self->print_usage_and_die()
 }
 };
-my $compiler = Compiler->new();
-$compiler->verbose($verbose);
-$compiler->include_prelude($include_prelude);
-my $p5_code = $compiler->do_tasks($tasks);
 if((::not($dont_eval))) {
-::eval_perl5($p5_code)
+$compiler0->eval_sources($sources, $verbose)
 }elsif(($run_externally)) {
 if((::not($output_file))) {
 ($output_file = 'deleteme_exe')
 };
+my $p5_code = $compiler1->compile_sources($sources, $verbose, $include_prelude);
 ::unslurp($p5_code, $output_file);
 ::exec('perl', $output_file, $args)
 }else {
+my $p5_code = $compiler1->compile_sources($sources, $verbose, $include_prelude);
 if((::not($output_file))) {
 ::say($p5_code)
 }else {
@@ -1823,7 +1909,7 @@ if((::not($output_file))) {
 }
 ;
 
-{ package CompilerTask;
+{ package CompilerSource;
 use Moose;
 has 'filename' => (is => 'rw');;
 has 'code' => (is => 'rw');;
@@ -1834,34 +1920,43 @@ has 'module' => (is => 'rw');; __PACKAGE__->meta->make_immutable();
 
 { package Compiler;
 use Moose;
-has 'units' => (is => 'rw');;
+sub eval_perl6{my $self=CORE::shift;my($code)=@_;
+my $compiler = Compiler->new('is_compiler_for_runtime', 1);
+$compiler->eval_sources([CompilerSource->new('code', $code)], 0)};
+sub eval_file{my $self=CORE::shift;my($file)=@_;
+$self->eval_perl6(::slurp($file))};
+has 'is_compiler_for_runtime' => (is => 'rw');;
 has 'verbose' => (is => 'rw');;
-has 'include_prelude' => (is => 'rw');;
-has 'extra_tasks' => (is => 'rw');;
+has 'is_eval' => (is => 'rw');;
+sub eval_sources{my $self=CORE::shift;my($sources,$verbose)=@_;
+$self->verbose($verbose);
+$self->is_eval(1);
+my $p5_code = $self->do_tasks($sources);
+::eval_perl5($p5_code)};
+sub compile_sources{my $self=CORE::shift;my($sources,$verbose,$include_prelude)=@_;
+$self->verbose($verbose);
+$self->is_eval(0);
+my $p5_code = $self->do_tasks($sources);
+if($include_prelude) {
+($p5_code = (($self->prelude() . '
+') . $p5_code))
+};
+$p5_code};
+has 'todo' => (is => 'rw');;
 sub do_tasks{my $self=CORE::shift;my($tasks)=@_;
 my $p5_code = '';
-$self->extra_tasks([]);
-for($tasks->flatten){
-my $p6_code = $_->code();
+$self->todo($tasks->copy());
+while($self->todo->elems()) {
+my $task = $self->todo->shift();
+my $p6_code = $task->code();
 if(::not(::defined($p6_code))) {
-($p6_code = ::slurp($_->filename()))
+($p6_code = ::slurp($task->filename()))
 };
 my $p5 = $self->compile($p6_code);
-for($self->extra_tasks->flatten){
-
-};
-$self->extra_tasks([]);
 ($p5_code = (($p5_code . $p5) . '
 ;
 '))
 };
-if($self->include_prelude) {
-($p5_code = (($self->prelude() . '
-') . $p5_code))
-};
-($p5_code = (('#!/usr/bin/perl -w
-' . $p5_code) . '
-'));
 $p5_code};
 sub compile{my $self=CORE::shift;my($p6_code)=@_;
 ::unslurp($p6_code, 'deleteme.p6');
@@ -1878,14 +1973,21 @@ my $ir = $tree->make_ir_from_Match_tree();
 if($self->verbose) {
 ::say($ir->ir0_describe())
 };
-my $p5 = $ir->callback(SimpleEmit5->new($self));
+my $p5 = $ir->callback(SimpleEmit5->new('compiler', $self));
 if($self->verbose) {
 ::say($p5)
 };
 $p5};
 sub prelude{my $self=CORE::shift;SimpleEmit5->prelude()};
-sub dont_use{my $self=CORE::shift;my($module)=@_;
-::undef()}; __PACKAGE__->meta->make_immutable();
+sub hook_for_use{my $self=CORE::shift;my($module)=@_;
+if($self->is_eval) {
+::require($module)
+}else {
+my $filename = (::find_required_module($module) || ::die((((('Didnt find ' . $module) . ' in ( ') . $a_INC->join(' ')) . ' ).
+')));
+$self->todo->push(CompilerSource->new('filename', $filename))
+};
+1}; __PACKAGE__->meta->make_immutable();
 
 }
 ;
@@ -1897,6 +1999,9 @@ Match->make($r, $s, $f, $t, $h)}; __PACKAGE__->meta->make_immutable();
 
 }
 ;
+if(::not($compiler0)) {
+($compiler0 = Compiler->new('is_compiler_for_runtime', 1))
+};
+($compiler1 = Compiler->new());
 Program->new()->main($a_ARGS)
 ;
-
