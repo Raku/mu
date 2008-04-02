@@ -20,14 +20,13 @@ default Run code.
     my $output_file;
     my $dont_eval;
     my $run_externally;
-    my $include_prelude;
     my $verbose;
-    my $p6_code;
-    my $p5_code;
+    my $include_prelude;
+    my $tasks = [];
     while $args.elems {
       my $arg = $args.shift;
       if $arg eq '-v' {
-        $verbose = 1
+        $verbose = 1;
       }
       elsif $arg eq '-c' {
         $dont_eval = 1;
@@ -45,14 +44,11 @@ default Run code.
         $output_file = $args.shift || self.print_usage_and_die;
       }
       elsif $arg eq '-e' {
-        $p6_code = $args.shift || self.print_usage_and_die;
-        $p5_code = $p5_code ~ Compiler.new.compile($p6_code,$verbose);
-        $p5_code = $p5_code ~ "\n;\n";
+        my $p6_code = $args.shift || self.print_usage_and_die;
+        $tasks.push(CompilerTask.new('filename',"-e",'code',$p6_code));
       }
       elsif file_exists($arg) {
-        $p6_code = slurp($arg);
-        $p5_code = $p5_code ~ Compiler.new.compile($p6_code,$verbose);
-        $p5_code = $p5_code ~ "\n;\n";
+        $tasks.push(CompilerTask.new('filename',$arg));
       }
       elsif $arg eq '--' {
         last;
@@ -61,12 +57,10 @@ default Run code.
         self.print_usage_and_die;
       }
     }
-    my $prelude = "";
-    if $include_prelude {
-      $prelude = Compiler.prelude;
-    }
-    $p5_code = $prelude~"\n"~$p5_code;
-    $p5_code = "#!/usr/bin/perl -w\n"~$p5_code;
+    my $compiler = Compiler.new;
+    $compiler.verbose($verbose); # XXX emitter workaround re Moose.
+    $compiler.include_prelude($include_prelude); # XXX emitter workaround re Moose.
+    my $p5_code = $compiler.do_tasks($tasks);
     if(not($dont_eval)) {
       eval_perl5($p5_code);
       #if($@) { #XXX how to easily check result?
@@ -75,7 +69,6 @@ default Run code.
       #}
     }
     elsif($run_externally) {
-      $p5_code = $p5_code~"\n";
       if(not($output_file)) {
         #XXX how to use tempfile?
         $output_file = "deleteme_exe";
@@ -87,16 +80,42 @@ default Run code.
       if(not $output_file) {
         say $p5_code;
       } else {
-        $p5_code = $p5_code~"\n";
         unslurp($p5_code,$output_file);
       }
     }
   };
 };
-Program.new().main(@*ARGS);
+
+class CompilerTask {
+  has $.filename;
+  has $.code;
+  has $.module;
+};
 
 class Compiler {
-  method compile($p6_code,$verbose) {
+  has $.units;
+  has $.verbose;
+  has $.include_prelude;
+  has $.extra_tasks;
+  method do_tasks($tasks) {
+    my $p5_code = "";
+    $.extra_tasks = [];
+    for $tasks {
+      my $p6_code = $_.code;
+      if not(defined($p6_code)) { $p6_code = slurp($_.filename); }
+      my $p5 = self.compile($p6_code);
+      for $.extra_tasks {
+      };
+      $.extra_tasks = [];
+      $p5_code = $p5_code ~ $p5 ~ "\n;\n";
+    }
+    if $.include_prelude {
+      $p5_code = self.prelude~"\n"~$p5_code;
+    }
+    $p5_code = "#!/usr/bin/perl -w\n"~$p5_code~"\n";
+    $p5_code;
+  };
+  method compile($p6_code) {
     #say $p6_code;
     unslurp($p6_code,"deleteme.p6");
     my $parser = parser_name();
@@ -105,12 +124,12 @@ class Compiler {
     my $dump5 = slurp("deleteme.dump");
     #say $dump5;
     my $tree = eval_perl5("package Fastdump;"~$dump5);
-    if $verbose { say $tree.match_describe; }
+    if $.verbose { say $tree.match_describe; }
     my $ir = $tree.make_ir_from_Match_tree();
     #say eval_perl5('sub{use Data::Dumper; Data::Dumper::Dumper($_[0])}').($ir);
-    if $verbose { say $ir.ir0_describe; }
+    if $.verbose { say $ir.ir0_describe; }
     my $p5 = $ir.callback(SimpleEmit5.new(self));
-    if $verbose { say $p5; }
+    if $.verbose { say $p5; }
     $p5;
   };
   method prelude() {
@@ -122,4 +141,6 @@ class Compiler {
 };
 package Fastdump {
   sub match ($r,$s,$f,$t,$h){Match.make($r,$s,$f,$t,$h)}
-}
+};
+
+Program.new().main(@*ARGS);

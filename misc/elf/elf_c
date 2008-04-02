@@ -1771,10 +1771,9 @@ $self->print_usage_and_die()
 my $output_file;
 my $dont_eval;
 my $run_externally;
-my $include_prelude;
 my $verbose;
-my $p6_code;
-my $p5_code;
+my $include_prelude;
+my $tasks = [];
 while($args->elems()) {
 my $arg = $args->shift();
 if(($arg eq '-v')) {
@@ -1791,36 +1790,23 @@ if(($arg eq '-v')) {
 }elsif(($arg eq '-o')) {
 ($output_file = ($args->shift() || $self->print_usage_and_die()))
 }elsif(($arg eq '-e')) {
-($p6_code = ($args->shift() || $self->print_usage_and_die()));
-($p5_code = ($p5_code . Compiler->new()->compile($p6_code, $verbose)));
-($p5_code = ($p5_code . '
-;
-'))
+my $p6_code = ($args->shift() || $self->print_usage_and_die());
+$tasks->push(CompilerTask->new('filename', '-e', 'code', $p6_code))
 }elsif(::file_exists($arg)) {
-($p6_code = ::slurp($arg));
-($p5_code = ($p5_code . Compiler->new()->compile($p6_code, $verbose)));
-($p5_code = ($p5_code . '
-;
-'))
+$tasks->push(CompilerTask->new('filename', $arg))
 }elsif(($arg eq '--')) {
 last
 }else {
 $self->print_usage_and_die()
 }
 };
-my $prelude = '';
-if($include_prelude) {
-($prelude = Compiler->prelude())
-};
-($p5_code = (($prelude . '
-') . $p5_code));
-($p5_code = ('#!/usr/bin/perl -w
-' . $p5_code));
+my $compiler = Compiler->new();
+$compiler->verbose($verbose);
+$compiler->include_prelude($include_prelude);
+my $p5_code = $compiler->do_tasks($tasks);
 if((::not($dont_eval))) {
 ::eval_perl5($p5_code)
 }elsif(($run_externally)) {
-($p5_code = ($p5_code . '
-'));
 if((::not($output_file))) {
 ($output_file = 'deleteme_exe')
 };
@@ -1830,19 +1816,54 @@ if((::not($output_file))) {
 if((::not($output_file))) {
 ::say($p5_code)
 }else {
-($p5_code = ($p5_code . '
-'));
 ::unslurp($p5_code, $output_file)
 }
 }}; __PACKAGE__->meta->make_immutable();
 
 }
 ;
-Program->new()->main($a_ARGS);
+
+{ package CompilerTask;
+use Moose;
+has 'filename' => (is => 'rw');;
+has 'code' => (is => 'rw');;
+has 'module' => (is => 'rw');; __PACKAGE__->meta->make_immutable();
+
+}
+;
 
 { package Compiler;
 use Moose;
-sub compile{my $self=CORE::shift;my($p6_code,$verbose)=@_;
+has 'units' => (is => 'rw');;
+has 'verbose' => (is => 'rw');;
+has 'include_prelude' => (is => 'rw');;
+has 'extra_tasks' => (is => 'rw');;
+sub do_tasks{my $self=CORE::shift;my($tasks)=@_;
+my $p5_code = '';
+$self->extra_tasks([]);
+for($tasks->flatten){
+my $p6_code = $_->code();
+if(::not(::defined($p6_code))) {
+($p6_code = ::slurp($_->filename()))
+};
+my $p5 = $self->compile($p6_code);
+for($self->extra_tasks->flatten){
+
+};
+$self->extra_tasks([]);
+($p5_code = (($p5_code . $p5) . '
+;
+'))
+};
+if($self->include_prelude) {
+($p5_code = (($self->prelude() . '
+') . $p5_code))
+};
+($p5_code = (('#!/usr/bin/perl -w
+' . $p5_code) . '
+'));
+$p5_code};
+sub compile{my $self=CORE::shift;my($p6_code)=@_;
 ::unslurp($p6_code, 'deleteme.p6');
 my $parser = ::parser_name();
 my $cmd = ($parser . ' -q --format=p5a deleteme.p6 > deleteme.dump');
@@ -1850,15 +1871,15 @@ my $cmd = ($parser . ' -q --format=p5a deleteme.p6 > deleteme.dump');
 '));
 my $dump5 = ::slurp('deleteme.dump');
 my $tree = ::eval_perl5(('package Fastdump;' . $dump5));
-if($verbose) {
+if($self->verbose) {
 ::say($tree->match_describe())
 };
 my $ir = $tree->make_ir_from_Match_tree();
-if($verbose) {
+if($self->verbose) {
 ::say($ir->ir0_describe())
 };
 my $p5 = $ir->callback(SimpleEmit5->new($self));
-if($verbose) {
+if($self->verbose) {
 ::say($p5)
 };
 $p5};
@@ -1875,6 +1896,7 @@ sub match{my($r,$s,$f,$t,$h)=@_;
 Match->make($r, $s, $f, $t, $h)}; __PACKAGE__->meta->make_immutable();
 
 }
-
+;
+Program->new()->main($a_ARGS)
 ;
 
