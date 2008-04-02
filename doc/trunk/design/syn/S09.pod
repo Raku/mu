@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
   Last Modified: 2 Apr 2008
   Number: 9
-  Version: 25
+  Version: 26
 
 =head1 Overview
 
@@ -1168,10 +1168,14 @@ value.  Perhaps the associated value can also be bundled in somehow.]
 
 Autovivification will only happen if the vivifiable path is bound to
 a read-write container.  Value extraction (that is, binding to a readonly
-or copy container) does not autovivify.  (Note that assignment implicitly
-binds a copy, so it does not autovivify its right side.)  Any mention of
-an expression within a C<Capture> delays the autovivification decision
-to binding time.  (Binding to a "ref" parameter also defers the decision.)
+or copy container) does not autovivify.
+
+Note that assignment is treated the same way as binding to a copy container,
+so it does not autovivify its right side either.
+
+Any mention of an expression within a C<Capture> delays the autovivification
+decision to binding time.  (Binding to a "ref" parameter also defers the
+decision.)
 
 This is as opposed to Perl 5, where autovivification could happen
 unintentionally, even when the code looks like a non-destructive test:
