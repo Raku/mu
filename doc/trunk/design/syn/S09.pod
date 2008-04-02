@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 17 Mar 2008
+  Last Modified: 2 Apr 2008
   Number: 9
-  Version: 24
+  Version: 25
 
 =head1 Overview
 
@@ -1044,27 +1044,33 @@ where each such range is autoiterated for you.
 In the abstract (and often in the concrete), this puts an implicit
 loop around the block of the closure that visits all the possible
 subscript values for that dimension (unless the parameter is actually
-supplied to the closure, in which case that is what is used as the
-slice subscript).  This implicit loop is assumed to be parallelizable.
+supplied to the closure, in which case the supplied value is used as
+the slice subscript instead).
+
+This implicit loop is assumed to be parallelizable.
 
 So to write a typical tensor multiplication:
 
     Cijkl = Aij * Bkl
 
-you can just write this:
+you can simply call a closure with no arguments, allowing the C<autoindex>
+pragma to fill in the defaults:
 
     use autoindex;
-    do { @c[$^i, $^j, $^k, $^l] = @a[$^i, $^j] * @b[$^k, $^l] };
+    -> $i, $j, $k, $l { @c[$i; $j; $k; $l] = @a[$i; $j] * @b[$k; $l] }();
 
-or equivalently:
+or you can use the C<do BLOCK> syntax (see L<S04/"The do-once loop">) to
+call that closure, which also implicitly iterates:
 
-    -> $i, $j, $k, $l { @c[$i, $j, $k, $l] = @a[$i, $j] * @b[$k, $l] }();
-
-or even:
-
+    use autoindex;
     do -> $i, $j, $k, $l {
-        @c[$i, $j, $k, $l] = @a[$i, $j] * @b[$k, $l]
+        @c[$i; $j; $k; $l] = @a[$i; $j] * @b[$k; $l]
     }
+
+or even use placeholder variables instead of a parameter list:
+
+    use autoindex;
+    do { @c[$^i; $^j; $^k; $^l] = @a[$^i; $^j] * @b[$^k; $^l] };
 
 That's almost pretty.
 
