@@ -1489,7 +1489,7 @@ object with parens after it (which may, of course, contain arguments):
 
     &foo($arg1, $arg2);
 
-Whitespace is not allowed before the parens because it it is parsed as
+Whitespace is not allowed before the parens because it is parsed as
 a postfix.  As with any postfix, there is also a corresponding C<.()>
 operator, and you may use the "unspace" form to insert optional
 whitespace and comments between the backslash and either of the

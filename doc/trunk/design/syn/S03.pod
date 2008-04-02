@@ -85,7 +85,7 @@ descriptions are here; special topics are covered afterwards.
 
 This isn't really a precedence level, but it's in here because no operator
 can have tighter precedence than a term.  See S02 for longer descriptions of
-various terms.
+various terms.  Here are some examples.
 
 =over
 
@@ -137,7 +137,10 @@ Array composer
 
     [1,2,3]
 
-Provides list context inside.
+Provides list context inside.  (Technically, it really provides a
+"semilist" context, which is a semicolon-separated list of statements,
+each of which is interpreted in list context and then concatenated
+into the final list.)
 
 =item *
 
@@ -213,11 +216,14 @@ Type names
 
 =item *
 
-Circumfixed subexpressions
+Subexpressions circumfixed by parentheses
 
     (1+2)
 
-Circumfixed items are treated like a term on the outside.
+Parentheses are parsed on the inside as a semicolon-separated list
+of statements, which (unlike the statements in a block) returns the results
+of all the statements concatenated together as a C<List> of C<Capture>.
+How that is subsequently treated depends on its eventual binding.
 
 =item *
 
