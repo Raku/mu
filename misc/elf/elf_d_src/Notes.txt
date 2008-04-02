@@ -6,6 +6,62 @@ Then perhaps a set of methods.
 Synthesis and discussion
 ----------------------------------------------------------------------
 
+All match
+
+CompUnit statements filename
+Block statements
+
+Use kind module_name expr   # expr?
+
+DeclarePackage scope plurality kind module_name traits block
+DeclareMethod  scope typenames plurality (ident multisig|sigil postcircumfix) traits block
+DeclareSub     scope typenames plurality ident multisig traits block
+DeclareMacro   scope typenames plurality ident multisig traits block
+DeclareVar     scope typenames plurality var postcircumfix traits default_op default_expr
+
+Var     sigil twigil pathname
+Trait   verb expr
+ClosureTrait kind block
+
+ModuleName pathname pairs
+PathName   path
+SubName  (category pairs|desigilname) signature
+  # a parser conflict in sublongname between colonpairs* and sigterm?
+
+Call    invocant method capture
+Apply   function capture
+Hyper   operator capture
+
+Capture   arguments
+MultiSig  signatures
+Signature parameters return_type
+Parameter type_constraints quant ident param_var traits post_constraints default_expr
+TypeConstraint (value | where_expr)  #eh?
+PostConstraint (multisig | where_expr)   #eh?
+ParamVar  (var | sigil twigil ( subname | ident postcircumfix )? )  #XXX shudder
+
+Undef
+NumInt base text                            # or provide base-10 text?
+NumDec intpart fracpart exp
+NumRad radix intpart fracpart base exp 
+Array  array    
+Hash   hash
+Pair   key value
+Type   typename
+
+Rx     ???
+Buf    ???
+
+Subset  ???
+
+# List
+# Seq
+
+For    expr block
+Cond   sense_of_first_test clauses else_
+Loop   label pretest block posttest
+
+
 
 ----------------------------------------------------------------------
 From elf_a (and thus from kp6):
