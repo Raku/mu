@@ -1356,10 +1356,14 @@ formats for both key and value in the first string: C<< .fmt('%s: %s', "\n") >>.
 
 Subscripts now consistently dereference the container produced by
 whatever was to their left.  Whitespace is not allowed between a
-variable name and its subscript.  However, there is a corresponding
-B<dot> form of each subscript (C<@foo.[1]> and C<%bar.{'a'}>).  Constant
-string subscripts may be placed in angles, so C<%bar.{'a'}> may also
-be written as C<< %bar<a> >> or C<< %bar.<a> >>.
+variable name and its subscript.  However, there are two ways to
+stretch the construct out visually.  Since a subscript is a kind
+of postfix operator, there is a corresponding B<dot> form of each
+subscript (C<@foo.[1]> and C<%bar.{'a'}>) that makes the dereference
+a little more explicit. Constant string subscripts may be placed
+in angles, so C<%bar.{'a'}> may also be written as C<< %bar<a> >>
+or C<< %bar.<a> >>.  Additionally, you may insert extra whitespace
+using the unspace.
 
 =item *
 
