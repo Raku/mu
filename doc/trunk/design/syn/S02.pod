@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 31 Mar 2008
+  Last Modified: 2 Apr 2008
   Number: 2
-  Version: 131
+  Version: 132
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -224,23 +224,23 @@ any of several whitespace dependencies in Perl.  For example, since
 Perl requires an absence of whitespace between a noun and a postfix
 operator, using unspace lets you line up postfix operators:
 
-    %hash\  .{$key}
-    @array\ .[$ix]
-    $subref\.($arg)
+    %hash\  {$key}
+    @array\ [$ix]
+    $subref\($arg)
 
-As a special case to support the use above, a backslashed dot where
+As a special case to support the use above, a backslash where
 a postfix is expected is considered a degenerate form of unspace.
 Note that whitespace is not allowed before that, hence
 
-    $subref \.($arg)
+    $subref \($arg)
 
 is a syntax error (two terms in a row).  And
 
-    foo \.($arg)
+    foo \($arg)
 
-will be parsed as a list operator with an argument:
+will be parsed as a list operator with a C<Capture> argument:
 
-    foo(\$_.($arg))
+    foo(\($arg))
 
 However, other forms of unspace may usefully be preceded by whitespace.
 (Unary uses of backslash may therefore never be followed by whitespace
@@ -297,8 +297,10 @@ To the heredoc parser that just looks like:
         OUTPUT
 
 Note that this is one of those cases in which it is fine to have
-whitespace before the unspace.  (Note also that the example above
-is not meant to spec how the test suite works. :)
+whitespace before the unspace, since we're only trying to suppress
+the newline transition, not all whitespace as in the case of postfix
+parsing.  (Note also that the example above is not meant to spec how
+the test suite works. :)
 
 =item *
 
@@ -345,6 +347,8 @@ be written in any of these forms:
     $x++
 
     $x.++
+
+    $x\ ++
 
     $x\ .++
 
@@ -1481,11 +1485,13 @@ object with parens after it (which may, of course, contain arguments):
 
     &foo($arg1, $arg2);
 
-Whitespace is not allowed before the parens, but there is a
-corresponding C<.()> operator, plus the "unspace" forms that allow
-you to insert optional whitespace and comments between the backslash
-and the dot:
+Whitespace is not allowed before the parens because it it is parsed as
+a postfix.  As with any postfix, there is also a corresponding C<.()>
+operator, and you may use the "unspace" form to insert optional
+whitespace and comments between the backslash and either of the
+postfix forms:
 
+    &foo\   ($arg1, $arg2);
     &foo\   .($arg1, $arg2);
     &foo\#[
         embedded comment
@@ -1838,7 +1844,7 @@ be derived from a type name by use of the C<::> postfix operator:
 
     MyType::<$foo>
     MyType.::.{'$foo'}          # same thing with dots
-    MyType\ .::\ .{'$foo'}      # same thing with unspaces
+    MyType\ ::\ {'$foo'}        # same thing with unspaces
 
 (Directly subscripting the type with either square brackets or curlies
 is reserved for various generic type-theoretic operations.  In most other
@@ -2939,9 +2945,9 @@ You can also use the :key($value) form to quote the keys of option
 pairs.  To align values of option pairs, you may use the
 "unspace" postfix forms:
 
-    :longkey\  .($value)
-    :shortkey\ .<string>
-    :fookey\   .{ $^a <=> $^b }
+    :longkey\  ($value)
+    :shortkey\ <string>
+    :fookey\   { $^a <=> $^b }
 
 These will be interpreted as
 
