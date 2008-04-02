@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 31 Mar 2008
+  Last Modified: 2 Apr 2008
   Number: 3
-  Version: 134
+  Version: 135
 
 =head1 Overview
 
@@ -146,10 +146,11 @@ into the final list.)
 
 Hash composer
 
+    { }
     { a => 42 }
 
-Inside must be a list of pairs, otherwise you must use C<hash()>
-or C<%()> instead.
+Inside must be either empty, or a single list starting with a pair or a hash,
+otherwise you must use C<hash()> or C<%()> instead.
 
 =item *
 
