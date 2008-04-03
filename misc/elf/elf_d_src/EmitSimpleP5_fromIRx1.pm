@@ -26,6 +26,7 @@ our $a_ARGS = [@ARGV];
 {package UNDEF;}
 {package UNDEF; sub ref{"UNDEF"}}
 {package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
+{package UNIVERSAL; sub WHAT{CORE::ref($_[0]) || "SCALAR"} }
 
 sub ::undef{undef}
 
