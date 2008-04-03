@@ -63,6 +63,9 @@ END
     output = cached_output_for(code, format ? format : nil)
     if output; print output; exit end
 
+    # Hacks
+    code = code.gsub(/\n=begin.*?\n=end[^\n]*/m,'')
+
     kibitz = false
     pn = Perl.new(code)
     tree=nil
