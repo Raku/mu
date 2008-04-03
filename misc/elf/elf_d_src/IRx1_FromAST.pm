@@ -16,7 +16,7 @@ class IRx1_Build {
     if($constructor) {
       $constructor.($m);
     } else {
-      die "Unknown rule: $rule\nIt needs to be added to ast_handlers.\n";
+      die "Unknown rule: "~$rule~"\nIt needs to be added to ast_handlers.\n";
     }
   };
 };
@@ -124,6 +124,9 @@ IRx1::Apply.newp($m,irbuild_ir($m.{'hash'}{'subshortname'}),IRx1::Capture.newp($
     });
     $main::irbuilder.add_constructor('module_name:normal', sub ($m) {
     ($m.match_string);
+    });
+    $main::irbuilder.add_constructor('statement_control:BEGIN', sub ($m) {
+    IRx1::ClosureTrait.newp($m,'BEGIN',irbuild_ir($m.{'hash'}{'block'}));
     });
     $main::irbuilder.add_constructor('term:listop', sub ($m) {
     my $not_really_an_arglist = irbuild_ir($m.{'hash'}{'arglist'});

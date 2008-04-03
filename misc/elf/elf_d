@@ -894,9 +894,9 @@ my $constructor = $self->constructors->{$rule};
 if(($constructor)) {
 $constructor->($m)
 }else {
-::die('Unknown rule: $rule
+::die((('Unknown rule: ' . $rule) . '
 It needs to be added to ast_handlers.
-')
+'))
 }}; __PACKAGE__->meta->make_immutable();
 
 }
@@ -1005,6 +1005,8 @@ $main::irbuilder->add_constructor('module_name:depreciated', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('module_name:normal', sub {my($m)=@_;
 ($m->match_string())});
+$main::irbuilder->add_constructor('statement_control:BEGIN', sub {my($m)=@_;
+IRx1::ClosureTrait->newp($m, 'BEGIN', ::irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('term:listop', sub {my($m)=@_;
 my $not_really_an_arglist = ::irbuild_ir($m->{'hash'}->{'arglist'});
 if(::irbuild_ir($m->{'hash'}->{'arglist'})) {
@@ -1158,9 +1160,12 @@ use Data::Dumper;
 { package SimpleEmit5;
 use Moose;
 has 'compiler' => (is => 'rw');;
+sub prelude_for_entering_a_package{my $self=CORE::shift;'use autobox; use autobox::Core; use autobox UNDEF => \'UNDEF\';
+'};
 sub prelude{my $self=CORE::shift;my($n)=@_;
 '#!/usr/bin/perl -w
 package main;
+use Data::Dumper; # Used to render Buf strings.
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 use Moose::Autobox;
@@ -1267,26 +1272,29 @@ $x->callback($self)
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 {package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
 ((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-' . 'use Data::Dumper;
-') . $self->e($n->{'statements'})->join(';
+' . $self->prelude_for_entering_a_package()) . $self->e($n->{'statements'})->join(';
 ')))};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
 (('' . $self->e($n->{'statements'})->join(';
 ')) . '')};
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
 my $module = $n->{'module_name'};
-if($self->compiler->hook_for_use($module)) {
+if(($module eq 'v6-alpha')) {
+''
+}elsif($self->compiler->hook_for_use($module)) {
 ''
 }else {
 '***Unimplemented use()***'
 }};
+sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
+((($n->{'kind'} . '{') . $self->e($n->{'block'})) . '}')};
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
 {package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
 my $name = $::es_whiteboard__in_package->join('::');
-(((((((('
+((((((((('
 { package ' . $name) . ';
 ') . 'use Moose;
-') . $self->e(($n->{'traits'} || []))->join('
+') . $self->prelude_for_entering_a_package()) . $self->e(($n->{'traits'} || []))->join('
 ')) . $self->e($n->{'block'})) . '; __PACKAGE__->meta->make_immutable();
 ') . '
 }

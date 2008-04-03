@@ -3,9 +3,14 @@ class SimpleEmit5 {
 
   has $.compiler;
 
+  method prelude_for_entering_a_package () {
+    "use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';\n"
+  };
+
   method prelude ($n) {
   '#!/usr/bin/perl -w
 package main;
+use Data::Dumper; # Used to render Buf strings.
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 use Moose::Autobox;
@@ -111,7 +116,7 @@ package main;
   method cb__CompUnit ($n) {
     my $^whiteboard::in_package = [];
     ("package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.\n"~
-     "use Data::Dumper;\n"~
+     self.prelude_for_entering_a_package()~
      $.e($n<statements>).join(";\n"))
   };
   method cb__Block ($n) {
@@ -120,15 +125,21 @@ package main;
 
   method cb__Use ($n) {
     my $module = $n<module_name>;
-    if $.compiler.hook_for_use($module) { "" }
+    if $module eq 'v6-alpha' { "" }
+    elsif $.compiler.hook_for_use($module) { "" }
     else { "***Unimplemented use()***" }
+  };
+  method cb__ClosureTrait ($n) {
+    $n<kind>~'{'~$.e($n<block>)~'}'
   };
 
   method cb__PackageDecl ($n) {
+
     my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n<name>];
     my $name = $^whiteboard::in_package.join('::');
     ("\n{ package "~$name~";\n"~
      "use Moose;\n"~
+     self.prelude_for_entering_a_package()~
      $.e($n<traits>||[]).join("\n")~
      $.e($n<block>)~
      "; __PACKAGE__->meta->make_immutable();\n"~

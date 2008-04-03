@@ -73,6 +73,9 @@ module_name:depreciated
 module_name:normal
 *text*
 
+statement_control:BEGIN
+ClosureTrait.newp('BEGIN',$m<block>)
+
 term:listop
 my $not_really_an_arglist = $m<arglist>;
 if $m<arglist> {
@@ -228,7 +231,7 @@ class IRx1_Build {
     if($constructor) {
       $constructor.($m);
     } else {
-      die "Unknown rule: $rule\nIt needs to be added to ast_handlers.\n";
+      die "Unknown rule: "~$rule~"\nIt needs to be added to ast_handlers.\n";
     }
   };
 };
