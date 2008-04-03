@@ -14,14 +14,8 @@ package UNDEF {
     'undef'
   };
 };
-package IR0 {
+package IRx1 {
   class Base {
-  };
-  class Val_Base is Base {
-  };
-  class Lit_Base is Base {
-  };
-  class Rule_Base is Base {
   };
   class CompUnit is Base {
     has $.match;
@@ -70,17 +64,17 @@ package IR0 {
     has $.scope;
     has $.plurality;
     has $.kind;
-    has $.module_name;
+    has $.name;
     has $.traits;
     has $.block;
     
-    method newp($match,$scope,$plurality,$kind,$module_name,$traits,$block) { self.new('match', $match, 'scope', $scope, 'plurality', $plurality, 'kind', $kind, 'module_name', $module_name, 'traits', $traits, 'block', $block) };
+    method newp($match,$scope,$plurality,$kind,$name,$traits,$block) { self.new('match', $match, 'scope', $scope, 'plurality', $plurality, 'kind', $kind, 'name', $name, 'traits', $traits, 'block', $block) };
     method callback($emitter) { $emitter.cb__PackageDecl(self) };
     method node_name() { 'PackageDecl' };
-    method field_names() { ['scope','plurality','kind','module_name','traits','block'] };
-    method field_values() { [$.scope,$.plurality,$.kind,$.module_name,$.traits,$.block] };
+    method field_names() { ['scope','plurality','kind','name','traits','block'] };
+    method field_values() { [$.scope,$.plurality,$.kind,$.name,$.traits,$.block] };
     method ir0_describe() {
-      'PackageDecl('~$.scope.ir0_describe~','~$.plurality.ir0_describe~','~$.kind.ir0_describe~','~$.module_name.ir0_describe~','~$.traits.ir0_describe~','~$.block.ir0_describe~')'
+      'PackageDecl('~$.scope.ir0_describe~','~$.plurality.ir0_describe~','~$.kind.ir0_describe~','~$.name.ir0_describe~','~$.traits.ir0_describe~','~$.block.ir0_describe~')'
     };
   };
   class MethodDecl is Base {

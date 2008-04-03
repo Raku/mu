@@ -287,7 +287,7 @@ sub write_ast_handlers {
     $body =~ s/\bir\(/irbuild_ir\(/g;
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;
     $body =~ s/<(\w+)>/.{'hash'}{'$1'}/g;
-    $body =~ s/([A-Z]\w+\.new\w*)\(/IR0::$1(\$m,/g;
+    $body =~ s/([A-Z]\w+\.new\w*)\(/IRx1::$1(\$m,/g;
     $body =~ s/\*text\*/(\$m.match_string)/g;
     if($body =~ /\*1\*/) {
       $body =~ s/\*1\*/\$one/g;

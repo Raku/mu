@@ -22,7 +22,8 @@ Block statements
 
 Use kind module_name expr
 
-PackageDecl  scope plurality kind module_name traits block
+PackageDecl  scope plurality kind name traits block
+#name:{ModuleName}
 MethodDecl   scope typenames plurality name multisig traits block sigil postcircumfix 
 SubDecl      scope typenames plurality name multisig traits block
 MacroDecl    scope typenames plurality name multisig traits block

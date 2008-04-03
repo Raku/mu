@@ -125,7 +125,7 @@ package main;
   };
 
   method cb__PackageDecl ($n) {
-    my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n<module_name>];
+    my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n<name>];
     my $name = $^whiteboard::in_package.join('::');
     ("\n{ package "~$name~";\n"~
      "use Moose;\n"~

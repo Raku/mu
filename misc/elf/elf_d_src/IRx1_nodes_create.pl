@@ -134,14 +134,8 @@ sub write_ir_nodes {
         'undef'
       };
     };
-    package IR0 {
+    package IRx1 {
       class Base {
-      };
-      class Val_Base is Base {
-      };
-      class Lit_Base is Base {
-      };
-      class Rule_Base is Base {
       };
   END
 
