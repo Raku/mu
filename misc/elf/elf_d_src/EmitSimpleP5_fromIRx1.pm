@@ -43,6 +43,7 @@ sub ::defined{CORE::defined($_[0])}
 sub ::substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
 sub ::not ($){CORE::not $_[0]}
 sub ::exec{CORE::exec(@_)}
+sub ::sleep{CORE::sleep(@_)}
 
 
 # because the p5->p6 massage of ast_handlers isnt massaging join.
