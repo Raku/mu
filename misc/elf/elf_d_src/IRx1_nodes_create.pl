@@ -120,17 +120,17 @@ sub write_ir_nodes {
   my $code = "".unindent(<<'  END');
     # Warning: This file is mechanically written.  Your changes will be overwritten.
     package ARRAY {
-      method ir0_describe() {
-        '[' ~ self.map(sub($e){$e.ir0_describe}).join(",") ~ ']'
+      method irx1_describe() {
+        '[' ~ self.map(sub($e){$e.irx1_describe}).join(",") ~ ']'
       };
     };
     package SCALAR {
-      method ir0_describe() {
+      method irx1_describe() {
         self ~ ""
       };
     };
     package UNDEF {
-      method ir0_describe() {
+      method irx1_describe() {
         'undef'
       };
     };
@@ -159,8 +159,8 @@ sub write_ir_nodes {
         method node_name() { '$name' };
         method field_names() { [$field_names] };
         method field_values() { [$field_values] };
-        method ir0_describe() {
-          @{["'".$name."('~".join("','~",(map{'$.'.$_.'.ir0_describe~'}@fields))."')'"]}
+        method irx1_describe() {
+          @{["'".$name."('~".join("','~",(map{'$.'.$_.'.irx1_describe~'}@fields))."')'"]}
         };
       };
     END

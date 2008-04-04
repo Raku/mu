@@ -1,5 +1,9 @@
 
-class SimpleEmit5 {
+class EmitSimpleP5 {
+
+  method new_emitter($ignore,$compiler) {
+    self.new('compiler',$compiler);
+  };
 
   has $.compiler;
 
@@ -31,7 +35,7 @@ our $a_ARGS = [@ARGV];
 sub ::undef{undef}
 
 use Carp;
-sub slurp{my($file)=@_; `cat $file`;}
+sub slurp{my($file)=@_; my $s = `cat $file`; $s}
 sub unslurp{
   my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
 sub file_exists{-e $_[0]}
@@ -44,7 +48,6 @@ sub ::substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
 sub ::not ($){CORE::not $_[0]}
 sub ::exec{CORE::exec(@_)}
 sub ::sleep{CORE::sleep(@_)}
-
 
 # because the p5->p6 massage of ast_handlers isnt massaging join.
 sub ::join{CORE::join(CORE::shift,@_)}
@@ -93,6 +96,10 @@ sub ::find_required_module {
 
 our $compiler0;
 our $compiler1;
+our $parser0;
+our $parser1;
+our $emitter0;
+our $emitter1;
 sub ::eval_file {
   my($file)=@_;
   $compiler0->eval_file($file);
@@ -309,3 +316,5 @@ package main;
 
 };
 
+if not($*emitter0) { $*emitter0 = EmitSimpleP5.new}
+$*emitter1 = EmitSimpleP5.new;

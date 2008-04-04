@@ -1,3 +1,34 @@
+A development story (a tale of two compilers)
+
+  Say someone hands you a working perl6.
+  What can you do with it?
+
+  If you alrady have your own implementation of p6, written in p6,
+  you could now compile it.
+    six -o mysix -x MySix.pm
+
+  But you could *not*, in general, do
+    six MySix.pm
+  If you tried, as MySix was compiled (which can involve running) and
+  run, it would stomp all over the implementation of six.  In general,
+  breaking it.
+
+  If you instead wanted to make small, *compatible* changes to six,
+  you could do
+    six TweakSix.pm ...
+  Which would likely give you 'mumble was redefined' warnings, but
+  could otherwise be harmless and helpful.
+
+  But what if you have something inbetween.  More than a compatible
+  tweak, but less than a full implementation.  Some hook apis are
+  provided to permit larger changes.
+
+  To make it easier to work on new compilers, the compiler for
+  internal use need not be the same one used to provide external
+  compiled code.  And the compiler used for each, can be independently
+  hot-swapped at runtime.  That's why there are conceptually two
+  compilers.  And $*compiler0, $*compiler1, $*emitter0, $*emitter1, etc.
+
 
 Cast of Characters
 
