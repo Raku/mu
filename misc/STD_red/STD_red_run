@@ -34,6 +34,10 @@ END
     if ARGV.size == 1 and ARGV[0] == '--help'
       print_usage_and_exit(nil,0)
     end
+    if m = ARGV[0].match(/--error-message=(.+)/)
+      ARGV.shift
+      error_message = m[1]+"\n"
+    end
     if ARGV[0] == '-q'
       ARGV.shift
       quiet = true
@@ -45,10 +49,6 @@ END
     if m = ARGV[0].match(/--start=(\w+)/)
       ARGV.shift
       start = m[1]
-    end
-    if m = ARGV[0].match(/--error-message=(.+)/)
-      ARGV.shift
-      error_message = m[1]+"\n"
     end
     if ARGV[0] == '-e'
       ARGV.shift
@@ -78,14 +78,14 @@ END
     begin 
       tree = pn.send(start.to_sym)
     rescue RuntimeError => e
-      print error_message, e.message
+      STDERR.print error_message, e.message
       bt = e.backtrace
       bt = bt.slice(0,10) if quiet
       s = "  "+bt.join("\n  ")+"\n"
       if m = e.backtrace[0].match('^(.*?)STD_red')
         s = s.gsub(m[1],'')
       end
-      print s
+      STDERR.print s
       exit(1)
     rescue Interrupt
       exit(1)
