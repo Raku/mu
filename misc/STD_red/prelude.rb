@@ -53,7 +53,11 @@ class Grammar
   def _line_and_indent_of_offset(off)
     lines = @str.slice(0,off).split(/\n/)
     sz = lines.length
-    [sz,sz == 0 ? 0 : lines[-1].length]
+    if sz == 0
+      [1,0]
+    else
+      [sz,lines[-1].length]
+    end
   end
   def _picture_of_offset(off)
     bot = off - 30;  bot = 0 if bot < 0
@@ -69,7 +73,7 @@ class Grammar
   def panic(msg)
     line_num,char_in_line = _line_and_indent_of_offset(pos)
     picture = _picture_of_offset(pos)
-    raise "panic at line:col #{line_num}:#{char_in_line} (#{pos}): #{msg}\n#{picture}"
+    raise "panic at line #{line_num} column #{char_in_line} (pos #{pos}): #{msg}\n#{picture}"
   end
 
   def null; true; end

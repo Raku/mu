@@ -25,6 +25,7 @@ END
     start = '_UNIT'
     quiet = format = false
     code = nil
+    error_message = ""
     if ARGV.empty?
       print "\nRun #{$0} --help  to get help.\n";
       Repl.new.parser_rule
@@ -44,6 +45,10 @@ END
     if m = ARGV[0].match(/--start=(\w+)/)
       ARGV.shift
       start = m[1]
+    end
+    if m = ARGV[0].match(/--error-message=(.+)/)
+      ARGV.shift
+      error_message = m[1]+"\n"
     end
     if ARGV[0] == '-e'
       ARGV.shift
@@ -72,6 +77,14 @@ END
     STDERR.print "parsing...\n" if kibitz
     begin 
       tree = pn.send(start.to_sym)
+    rescue RuntimeError => e
+      print error_message,e.message
+      s = "  "+e.backtrace.slice(0,10).join("\n  ")+"\n"
+      if m = e.backtrace[0].match('^(.*?)STD_red')
+        s = s.gsub(m[1],'')
+      end
+      print s
+      exit(1)
     rescue Interrupt
       exit(1)
     end
