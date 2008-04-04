@@ -26,7 +26,7 @@ our $a_ARGS = [@ARGV];
 sub ::undef{undef}
 
 use Carp;
-sub slurp{my($file)=@_; `cat $file`;}
+sub slurp{my($file)=@_; my $s = `cat $file`; $s}
 sub unslurp{
   my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
 sub file_exists{-e $_[0]}
@@ -87,6 +87,10 @@ sub ::find_required_module {
 
 our $compiler0;
 our $compiler1;
+our $parser0;
+our $parser1;
+our $emitter0;
+our $emitter1;
 sub ::eval_file {
   my($file)=@_;
   $compiler0->eval_file($file);
