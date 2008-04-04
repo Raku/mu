@@ -78,8 +78,10 @@ END
     begin 
       tree = pn.send(start.to_sym)
     rescue RuntimeError => e
-      print error_message,e.message
-      s = "  "+e.backtrace.slice(0,10).join("\n  ")+"\n"
+      print error_message, e.message
+      bt = e.backtrace
+      bt = bt.slice(0,10) if quiet
+      s = "  "+bt.join("\n  ")+"\n"
       if m = e.backtrace[0].match('^(.*?)STD_red')
         s = s.gsub(m[1],'')
       end
