@@ -61,7 +61,7 @@ sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 sub parser_name{
   my $f = $0;
   $f =~ s/[^\/]+$//;
-  $f."../STD_red/STD_red_run"
+  $f."elf_c_src/STD_red/STD_red_run"
 }
 
 our $a_INC = ["."];
