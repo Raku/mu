@@ -161,21 +161,27 @@ pblock
 block
 Block.newp($m<statementlist>)
 
+plurality_declarator:multi
+my $^blackboard::plurality = 'multi';
+$m<pluralized>
+
 routine_declarator:routine_def
+my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
 if $m<ident> { $ident = $m<ident>.[0] };
 my $sig = Signature.newp([],undef);
 if $m<multisig> { $sig = $m<multisig>.[0] };
-SubDecl.newp(undef,undef,undef,$ident,$sig,undef,$m<block>)
+SubDecl.newp(undef,undef,$plurality,$ident,$sig,undef,$m<block>)
 
 routine_declarator:method_def
-MethodDecl.newp(undef,undef,undef,$m<ident>,$m<multisig>.[0],undef,$m<block>)
+my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+MethodDecl.newp(undef,undef,$plurality,$m<ident>,$m<multisig>.[0],undef,$m<block>)
 
 signature
 Signature.newp($m<parsep>,undef)
 
 parameter
-Parameter.newp(undef,undef,undef,$m<param_var>)
+Parameter.newp($m<type_constraint>,$m<quantchar>,$m<param_var>)
 
 param_var
 ParamVar.newp($m<sigil>,$m<twigil>,$m<ident>)

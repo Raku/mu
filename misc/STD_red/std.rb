@@ -761,16 +761,22 @@ class Perl < Grammar
         }
     end
 
-    def pluralized #R rule XXX rule-ness is currently ignored
-        (variable_decl or
-         let_pos{ scan(/\(/) and signature and scan(/\)/) and ruleSTAR{trait} } or
-         package_declarator or
-         routine_declarator or
-         regex_declarator or
-         type_declarator)
+    def pluralized
+        let_pos {
+            wsp and
+            (variable_decl or
+             let_pos{
+                 scan(/\(/) and wsp and signature and wsp and
+                 scan(/\)/) and wsp and
+                 ruleSTAR{trait} } or
+             package_declarator or
+             routine_declarator or
+             regex_declarator or
+             type_declarator) }
     end
 
-    def_tokens_rest :plurality_declarator,false,%w{ multi proto only },%q{ pluralized }
+    def_tokens_rest :plurality_declarator,false,%w{ multi proto only },%q{
+       p= pluralized and _match_from(start,{:pluralized=>p},:<sym>) }
     def_tokens_rest :routine_declarator,false,%w{ sub },%q{ routine_def }
     def_tokens_rest :routine_declarator,false,%w{ method submethod },%q{ method_def }
     def_tokens_rest :routine_declarator,false,%w{ macro },%q{ macro_def }
@@ -1530,8 +1536,10 @@ class Perl < Grammar
             b = pos; ft=nil
             parsep = starRULE{
                 p= parameter and wsp and
-                (scan(/,|:|;;|;/) or before(/-->|\)|\{/)) and
-                p
+                (sep= scan(/,|:|;;|;/) or before(/-->|\)|\{/)) and
+                (if sep and sep != ','
+                     p.hash[:followed_by_separator] = sep; end #R NONSPEC
+                 p)
             }
             wsp
             parsep and quesRULE{ scan(/-->/) and wsp and ft= fulltypename } and
@@ -1583,8 +1591,8 @@ class Perl < Grammar
         quantS = nil
         v = (
              b=pos
-             pv=nil
-             starTOK{ type_constraint } and 
+             pv=quantchar_=nil
+             tc= starTOK{ type_constraint } and 
              (let_pos{
                   quantchar_ = scan(/\*/) and pv = param_var and
                   slurp_=[quantchar_,pv] and quantS = '*'
@@ -1616,6 +1624,8 @@ class Perl < Grammar
              } and
              (h={};
               _hkv(h,:param_var,pv)
+              _hkv(h,:quantchar,quantchar_)
+              _hkv(h,:type_constraint,tc)
               _match_from(b,h,:parameter)
               )) or return false
         # enforce zone constraints

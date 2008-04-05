@@ -241,21 +241,27 @@ $one;
     $main::irbuilder.add_constructor('block', sub ($m) {
     IRx1::Block.newp($m,irbuild_ir($m.{'hash'}{'statementlist'}));
     });
+    $main::irbuilder.add_constructor('plurality_declarator:multi', sub ($m) {
+    my $^blackboard::plurality = 'multi';
+irbuild_ir($m.{'hash'}{'pluralized'});
+    });
     $main::irbuilder.add_constructor('routine_declarator:routine_def', sub ($m) {
-    my $ident = "";
+    my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+my $ident = "";
 if irbuild_ir($m.{'hash'}{'ident'}) { $ident = irbuild_ir($m.{'hash'}{'ident'}).[0] };
 my $sig = IRx1::Signature.newp($m,[],undef);
 if irbuild_ir($m.{'hash'}{'multisig'}) { $sig = irbuild_ir($m.{'hash'}{'multisig'}).[0] };
-IRx1::SubDecl.newp($m,undef,undef,undef,$ident,$sig,undef,irbuild_ir($m.{'hash'}{'block'}));
+IRx1::SubDecl.newp($m,undef,undef,$plurality,$ident,$sig,undef,irbuild_ir($m.{'hash'}{'block'}));
     });
     $main::irbuilder.add_constructor('routine_declarator:method_def', sub ($m) {
-    IRx1::MethodDecl.newp($m,undef,undef,undef,irbuild_ir($m.{'hash'}{'ident'}),irbuild_ir($m.{'hash'}{'multisig'}).[0],undef,irbuild_ir($m.{'hash'}{'block'}));
+    my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.{'hash'}{'ident'}),irbuild_ir($m.{'hash'}{'multisig'}).[0],undef,irbuild_ir($m.{'hash'}{'block'}));
     });
     $main::irbuilder.add_constructor('signature', sub ($m) {
     IRx1::Signature.newp($m,irbuild_ir($m.{'hash'}{'parsep'}),undef);
     });
     $main::irbuilder.add_constructor('parameter', sub ($m) {
-    IRx1::Parameter.newp($m,undef,undef,undef,irbuild_ir($m.{'hash'}{'param_var'}));
+    IRx1::Parameter.newp($m,irbuild_ir($m.{'hash'}{'type_constraint'}),irbuild_ir($m.{'hash'}{'quantchar'}),irbuild_ir($m.{'hash'}{'param_var'}));
     });
     $main::irbuilder.add_constructor('param_var', sub ($m) {
     IRx1::ParamVar.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),irbuild_ir($m.{'hash'}{'twigil'}),irbuild_ir($m.{'hash'}{'ident'}));

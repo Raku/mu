@@ -35,7 +35,7 @@ Hyper   operator capture
 Capture   arguments
 MultiSig  signatures
 Signature parameters return_type
-Parameter type_constraints quant ident param_var traits post_constraints default_expr
+Parameter type_constraints quant param_var ident traits post_constraints default_expr
 TypeConstraint value where_expr #(value | where_expr)
 PostConstraint multisig where_expr #(multisig | where_expr)
 ParamVar  sigil twigil name

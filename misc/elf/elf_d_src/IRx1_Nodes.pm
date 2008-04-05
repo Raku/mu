@@ -343,19 +343,19 @@ package IRx1 {
     has $.match;
     has $.type_constraints;
     has $.quant;
-    has $.ident;
     has $.param_var;
+    has $.ident;
     has $.traits;
     has $.post_constraints;
     has $.default_expr;
     
-    method newp($match,$type_constraints,$quant,$ident,$param_var,$traits,$post_constraints,$default_expr) { self.new('match', $match, 'type_constraints', $type_constraints, 'quant', $quant, 'ident', $ident, 'param_var', $param_var, 'traits', $traits, 'post_constraints', $post_constraints, 'default_expr', $default_expr) };
+    method newp($match,$type_constraints,$quant,$param_var,$ident,$traits,$post_constraints,$default_expr) { self.new('match', $match, 'type_constraints', $type_constraints, 'quant', $quant, 'param_var', $param_var, 'ident', $ident, 'traits', $traits, 'post_constraints', $post_constraints, 'default_expr', $default_expr) };
     method callback($emitter) { $emitter.cb__Parameter(self) };
     method node_name() { 'Parameter' };
-    method field_names() { ['type_constraints','quant','ident','param_var','traits','post_constraints','default_expr'] };
-    method field_values() { [$.type_constraints,$.quant,$.ident,$.param_var,$.traits,$.post_constraints,$.default_expr] };
+    method field_names() { ['type_constraints','quant','param_var','ident','traits','post_constraints','default_expr'] };
+    method field_values() { [$.type_constraints,$.quant,$.param_var,$.ident,$.traits,$.post_constraints,$.default_expr] };
     method irx1_describe() {
-      'Parameter('~$.type_constraints.irx1_describe~','~$.quant.irx1_describe~','~$.ident.irx1_describe~','~$.param_var.irx1_describe~','~$.traits.irx1_describe~','~$.post_constraints.irx1_describe~','~$.default_expr.irx1_describe~')'
+      'Parameter('~$.type_constraints.irx1_describe~','~$.quant.irx1_describe~','~$.param_var.irx1_describe~','~$.ident.irx1_describe~','~$.traits.irx1_describe~','~$.post_constraints.irx1_describe~','~$.default_expr.irx1_describe~')'
     };
   };
   class TypeConstraint is Base {
