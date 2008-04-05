@@ -1,6 +1,12 @@
 use v6-alpha;
 use Test;
 
+=begin description
+
+Basic tests about variables having built-in types assigned
+
+=end description
+
 # L<S02/"Built-In Data Types"/"A variable's type is a constraint indicating what sorts">
 
 plan 8;
@@ -13,6 +19,7 @@ ok(do{my Str $bar; $bar ~~ Str}, 'Str $bar isa Str');
 
 my Int $foo;
 my Str $bar;
+
 is(try{$foo = 'xyz'}, undef, 'Int restricts to integers', :todo);
 is(try{$foo = 42},    42,    'Int is an integer');
 is(try{$bar = 42},    undef, 'Str restricts to strings', :todo);
