@@ -1,26 +1,9 @@
 use v6-alpha;
 
 use Test;
-plan 49;
-
-#L<S02/Literals/"Characters indexed by hex numbers">
-my %unicode = (
-	'a'  => "\x61",
-	'æ'  => "\xE6",
-	'喃' => "\x5583",
-	'𨮁' => "\x28B81",
-);
-
-for %unicode.kv -> $literal, $codepoint {
-	is(
-		$codepoint,
-		$literal,
-		'Does a character codepoint (\x..) evaluate to the same thing as its literal?'
-	);
-}
+plan 44;
 
 #L<S02/"Built-In Data Types"/".bytes, .codes or .graphs">
-is("møøse".perl.chars, 7, 'Is .perl handling unicode now?');
 
 # LATIN CAPITAL LETTER A, COMBINING GRAVE ACCENT
 my Str $u = "\x[0041,0300]";
@@ -30,6 +13,7 @@ is $u.codes, 2, 'combining À is two codes';
 is $u.graphs, 1, 'combining À is one graph';
 is "foo\r\nbar".codes, 8, 'CRLF is 2 codes';
 is "foo\r\nbar".graphs, 7, 'CRLF is 1 graph';
+
 # Speculation, .chars is unspecced, also use Bytes etc.
 is $u.chars, 1, '.chars defaults to .graphs';
 
