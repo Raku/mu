@@ -187,11 +187,60 @@ package main;
       }
     }
   };
+  method cb__MethodDecl ($n) {
+    if $n<plurality> && $n<plurality> eq 'multi' {
+      my $name = $.e($n<name>);
+      my $param_types = $n<multisig><parameters>.map(sub($p){
+        my $types = $.e($p<type_constraints>);
+        if $types {
+          if $types.elems != 1 { die("only limited multi method support") }
+          $types[0];
+        } else {
+          undef;
+        }
+      });
+      my $type0 = $param_types[0];
+      if not($type0) {
+        die("implementation limitation: a multi method's first parameter must have a type: "~$name~"\n");
+      }
+      my $stem = '_mmd__'~$name~'__';
+      my $branch_name = $stem~$type0;
+      my $setup_name = '_reset'~$stem;
+      my $code = "";
+      $code = $code ~
+          '
+{ my $setup = sub {
+    my @meths = __PACKAGE__->meta->compute_all_applicable_methods;
+    my $h = {};
+    for my $m (@meths) {
+      next if not $m->{name} =~ /^'~$stem~'(\w+)/;
+      my $type = $1;
+      $h->{$type} = $m->{code}{q{&!body}};
+    };
+    my $s = eval q{sub {
+      my $ref = ref($_[1]) || "SCALAR";
+      my $f = $h->{$ref}; goto $f if $f;
+      Carp::croak "multi method '~$name~' cant dispatch on type: ".$ref."\n";
+    }};
+    die $@ if $@;
+    eval q{{no warnings; *'~$name~' = $s;}};
+    die $@ if $@;
+    goto &'~$name~';
+  };
+  eval q{{no warnings; *'~$setup_name~' = $setup;}};
+  die $@ if $@;
+  eval q{{no warnings; *'~$name~' = $setup;}};
+  die $@ if $@;
+};
+';
+      'sub '~$branch_name~'{my $self=CORE::shift;'~$.e($n<multisig>)~$.e($n<block>)~'}' ~ $code;
+    }
+    else {
+      'sub '~$.e($n<name>)~'{my $self=CORE::shift;'~$.e($n<multisig>)~$.e($n<block>)~'}'
+    }
+  };
   method cb__SubDecl ($n) {
     'sub '~$.e($n<name>)~'{'~$.e($n<multisig>)~$.e($n<block>)~'}'
-  };
-  method cb__MethodDecl ($n) {
-    'sub '~$.e($n<name>)~'{my $self=CORE::shift;'~$.e($n<multisig>)~$.e($n<block>)~'}'
   };
   method cb__Signature ($n) {
     if($n<parameters>.elems == 0) { "" }
