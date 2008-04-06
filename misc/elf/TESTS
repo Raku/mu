@@ -1,0 +1,4 @@
+../../t/01-sanity/01-tap.t
+../../t/01-sanity/03-equal.t
+../../t/01-sanity/04-if.t
+../../t/01-sanity/07-substr.t

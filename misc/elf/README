@@ -1,3 +1,9 @@
+Running tests
+
+  You can run a couple of tests with
+    prove --exec 'perl elf_d' - < TESTS
+  If you find that any other tests run please put them into TESTS.
+
 A development story (a tale of two compilers)
 
   Say someone hands you a working perl6.
