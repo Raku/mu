@@ -1,10 +1,3 @@
-PaP6 ( Parrot and Perl 6 ) testing
-
-install 
-* File-Copy-Recursive
-* Win32-Process-Info
-
-ActivePerl 5.8.8, build 517
-* ppm3 install File-Copy-Recursive
-* ppm3 install Win32-Process-Info
-
+Renamed to TapTinder and moved. 
+* http://mj41.cz/wiki/TapTinder
+* http://pr.perl6.cz/svn/taptinder/trunk/
