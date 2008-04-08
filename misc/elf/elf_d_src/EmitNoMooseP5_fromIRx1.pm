@@ -28,6 +28,17 @@ our $a_ARGS = [@ARGV];
 {package UNDEF; sub ref{"UNDEF"}}
 {package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
 {package UNIVERSAL; sub WHAT{CORE::ref($_[0]) || "SCALAR"} }
+{package Object;
+    sub new {
+        my $self = shift;
+        my $class = ref $self || $self;
+        if (ref $_[0] eq "HASH") {
+            bless {%{$_[0]}}, $class;
+        } else {
+            bless {@_}, $class;
+        }
+    }
+}
 
 sub ::undef{undef}
 
@@ -141,7 +152,7 @@ package main;
 
     my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n<name>];
     my $name = $^whiteboard::in_package.join('::');
-    ("\n{ package "~$name~";\n"~
+    ("\n{ package "~$name~";\nour @ISA=qw(Object);\n"~
      self.prelude_for_entering_a_package()~
      $.e($n<traits>||[]).join("\n")~
      $.e($n<block>)~
@@ -150,7 +161,7 @@ package main;
   method cb__Trait ($n) {
     if($n<verb> eq 'is') {
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
-      "push(our @ISA,'"~$name~"');\n"
+      "push(@ISA,'"~$name~"');\n"
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n<verb>~" has not been implemented.\n";
       "***Trait***"
@@ -167,9 +178,9 @@ package main;
       }
       "sub " ~ $.e($n<var><name>) ~ " {\n" ~
       "  if (@_ == 2) {\n" ~
-      "      $_[0]{'" ~ $.e($n<var><name>) ~ "'} = $_[1]\n" ~
+      "      $_[0]{'" ~ $.e($n<var><name>) ~ "'} = $_[1];\n" ~
       " } else {\n" ~
-      "     $_[0]{'" ~ $.e($n<var><name>) ~ "'}\n" ~
+      "     $_[0]{'" ~ $.e($n<var><name>) ~ "'};\n" ~
       "  }\n" ~
       "}\n";
     } else {
