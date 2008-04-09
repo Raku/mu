@@ -78,7 +78,7 @@ sub run {
     my ($program, $executer) = @_;
     my $response = _fork_and_eval($program, $executer);
     if (!length $response){
-        $program = '( ( do { ' . $program . ' } ).perl ).print';
+        $program = '( ( do { ' . $program . "\n} ).perl ).print";
         $response = _fork_and_eval($program, $executer);
         if (!length $response){
             $response = "No output (you need to produce output to STDOUT)";
