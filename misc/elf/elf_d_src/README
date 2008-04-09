@@ -1,9 +1,10 @@
 
 ../elf_c -x -o ../elf_d0 ElfD.pm
 ../elf_d0 -x -o ../elf_d ElfD.pm
-../elf_d -x -o ../elf_d1 ElfD.pm
-diff ../elf_d ../elf_d1
-../elf_d1 -e 'say 3'
+cp ../elf_d ../elf_d1
+../elf_d1 -x -o ../elf_d2 ElfD.pm
+diff ../elf_d[12]
+../elf_d2 -e 'say 3'
 
 Obsolete:
 ../elf_c -x -I ../elf_c_src -o ../elf_d ElfD.pm
