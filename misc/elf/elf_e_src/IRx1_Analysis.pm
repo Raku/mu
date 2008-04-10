@@ -20,6 +20,11 @@ class IRx1::Base {
       elsif $_.WHAT eq 'ARRAY' {
         for $_ { 
           if $_.can('is_IR_node') {$a.push($_)}
+          elsif $_.WHAT eq 'ARRAY' { # for Cond
+            for $_ { 
+              if $_.can('is_IR_node') {$a.push($_)}
+            }
+          }
         }
       };
     }
@@ -51,10 +56,6 @@ class IRx1::Base {
 };
 
 # note_block_lexical_variable_decls
-
-class IRx1::CompUnit_and_Block {};
-class IRx1::CompUnit { is IRx1::CompUnit_and_Block };
-class IRx1::Block    { is IRx1::CompUnit_and_Block };
 
 class IRx1::CompUnit_and_Block {
   method note_block_lexical_variable_decls() {

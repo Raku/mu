@@ -204,12 +204,40 @@ __PACKAGE__->meta->make_immutable();
 }
 ;
 
+{ package IRx1::CompUnit_and_Block;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::CompUnit;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::CompUnit_and_Block';;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Block;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::CompUnit_and_Block';;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'filename' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements,$filename)=@_;
 $self->new('match', $match, 'statements', $statements, 'filename', $filename)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -228,6 +256,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
 $self->new('match', $match, 'statements', $statements)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -248,6 +277,7 @@ use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'module_name' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$kind,$module_name,$expr)=@_;
 $self->new('match', $match, 'kind', $kind, 'module_name', $module_name, 'expr', $expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -271,6 +301,7 @@ has 'kind' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'traits' => (is => 'rw');;
 has 'block' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$plurality,$kind,$name,$traits,$block)=@_;
 $self->new('match', $match, 'scope', $scope, 'plurality', $plurality, 'kind', $kind, 'name', $name, 'traits', $traits, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -297,6 +328,7 @@ has 'traits' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'postcircumfix' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block,$sigil,$postcircumfix)=@_;
 $self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block, 'sigil', $sigil, 'postcircumfix', $postcircumfix)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -321,6 +353,7 @@ has 'name' => (is => 'rw');;
 has 'multisig' => (is => 'rw');;
 has 'traits' => (is => 'rw');;
 has 'block' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block)=@_;
 $self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -345,6 +378,7 @@ has 'name' => (is => 'rw');;
 has 'multisig' => (is => 'rw');;
 has 'traits' => (is => 'rw');;
 has 'block' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block)=@_;
 $self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -370,6 +404,7 @@ has 'postcircumfix' => (is => 'rw');;
 has 'traits' => (is => 'rw');;
 has 'default_op' => (is => 'rw');;
 has 'default_expr' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$var,$postcircumfix,$traits,$default_op,$default_expr)=@_;
 $self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'var', $var, 'postcircumfix', $postcircumfix, 'traits', $traits, 'default_op', $default_op, 'default_expr', $default_expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -390,6 +425,7 @@ use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
 has 'name' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 $self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -409,6 +445,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'verb' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$verb,$expr)=@_;
 $self->new('match', $match, 'verb', $verb, 'expr', $expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -428,6 +465,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'block' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$kind,$block)=@_;
 $self->new('match', $match, 'kind', $kind, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -447,6 +485,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name,$pairs)=@_;
 $self->new('match', $match, 'name', $name, 'pairs', $pairs)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -465,6 +504,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'path' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$path)=@_;
 $self->new('match', $match, 'path', $path)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -486,6 +526,7 @@ has 'category' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
 has 'desigilname' => (is => 'rw');;
 has 'signature' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$category,$pairs,$desigilname,$signature)=@_;
 $self->new('match', $match, 'category', $category, 'pairs', $pairs, 'desigilname', $desigilname, 'signature', $signature)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -505,6 +546,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'postcircumfix' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$ident,$postcircumfix)=@_;
 $self->new('match', $match, 'ident', $ident, 'postcircumfix', $postcircumfix)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -525,6 +567,7 @@ use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'method' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$invocant,$method,$capture)=@_;
 $self->new('match', $match, 'invocant', $invocant, 'method', $method, 'capture', $capture)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -544,6 +587,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'function' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$function,$capture)=@_;
 $self->new('match', $match, 'function', $function, 'capture', $capture)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -563,6 +607,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'operator' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$operator,$capture)=@_;
 $self->new('match', $match, 'operator', $operator, 'capture', $capture)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -581,6 +626,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$arguments)=@_;
 $self->new('match', $match, 'arguments', $arguments)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -599,6 +645,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'signatures' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$signatures)=@_;
 $self->new('match', $match, 'signatures', $signatures)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -618,6 +665,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'return_type' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$parameters,$return_type)=@_;
 $self->new('match', $match, 'parameters', $parameters, 'return_type', $return_type)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -642,6 +690,7 @@ has 'ident' => (is => 'rw');;
 has 'traits' => (is => 'rw');;
 has 'post_constraints' => (is => 'rw');;
 has 'default_expr' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$type_constraints,$quant,$param_var,$ident,$traits,$post_constraints,$default_expr)=@_;
 $self->new('match', $match, 'type_constraints', $type_constraints, 'quant', $quant, 'param_var', $param_var, 'ident', $ident, 'traits', $traits, 'post_constraints', $post_constraints, 'default_expr', $default_expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -661,6 +710,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$value,$where_expr)=@_;
 $self->new('match', $match, 'value', $value, 'where_expr', $where_expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -680,6 +730,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'multisig' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$multisig,$where_expr)=@_;
 $self->new('match', $match, 'multisig', $multisig, 'where_expr', $where_expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -700,6 +751,7 @@ use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
 has 'name' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 $self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -717,6 +769,7 @@ __PACKAGE__->meta->make_immutable();
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -736,6 +789,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 has 'base' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$text,$base)=@_;
 $self->new('match', $match, 'text', $text, 'base', $base)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -756,6 +810,7 @@ use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
 has 'fracpart' => (is => 'rw');;
 has 'exp' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$intpart,$fracpart,$exp)=@_;
 $self->new('match', $match, 'intpart', $intpart, 'fracpart', $fracpart, 'exp', $exp)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -778,6 +833,7 @@ has 'intpart' => (is => 'rw');;
 has 'fracpart' => (is => 'rw');;
 has 'base' => (is => 'rw');;
 has 'exp' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$radix,$intpart,$fracpart,$base,$exp)=@_;
 $self->new('match', $match, 'radix', $radix, 'intpart', $intpart, 'fracpart', $fracpart, 'base', $base, 'exp', $exp)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -796,6 +852,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$array)=@_;
 $self->new('match', $match, 'array', $array)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -814,6 +871,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$hash)=@_;
 $self->new('match', $match, 'hash', $hash)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -833,6 +891,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$key,$value)=@_;
 $self->new('match', $match, 'key', $key, 'value', $value)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -851,6 +910,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'typename' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$typename)=@_;
 $self->new('match', $match, 'typename', $typename)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -869,6 +929,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'pat' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pat)=@_;
 $self->new('match', $match, 'pat', $pat)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -887,6 +948,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$buf)=@_;
 $self->new('match', $match, 'buf', $buf)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -906,6 +968,7 @@ use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
 $self->new('match', $match, 'expr', $expr, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -926,6 +989,7 @@ use base 'IRx1::Base';has 'match' => (is => 'rw');;
 has 'clauses' => (is => 'rw');;
 has 'default' => (is => 'rw');;
 has 'invert_first_test' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$clauses,$default,$invert_first_test)=@_;
 $self->new('match', $match, 'clauses', $clauses, 'default', $default, 'invert_first_test', $invert_first_test)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -947,6 +1011,7 @@ has 'pretest' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'posttest' => (is => 'rw');;
 has 'label' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pretest,$block,$posttest,$label)=@_;
 $self->new('match', $match, 'pretest', $pretest, 'block', $block, 'posttest', $posttest, 'label', $label)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1267,6 +1332,127 @@ __PACKAGE__->meta->make_immutable();
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 
+{ package IRx1::CompUnit;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub do_all_analysis{my $self=CORE::shift;$self->initialize_notes();
+$self->note_parents();
+$self->note_block_lexical_variable_decls()};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Base;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub is_IR_node{my $self=CORE::shift;1};
+sub initialize_notes{my $self=CORE::shift;$self->notes({});
+my $a = [];
+for($self->field_values()->flatten){
+if($_->can('is_IR_node')) {
+$a->push($_)
+}elsif(($_->WHAT() eq 'ARRAY')) {
+for($_->flatten){
+if($_->can('is_IR_node')) {
+$a->push($_)
+}elsif(($_->WHAT() eq 'ARRAY')) {
+for($_->flatten){
+if($_->can('is_IR_node')) {
+$a->push($_)
+}
+}
+}
+}
+}
+};
+($self->notes()->{'child_nodes'} = $a);
+for($self->child_nodes()->flatten){
+$_->initialize_notes()
+}};
+sub destroy_notes{my $self=CORE::shift;for($self->notes()->{'child_nodes'}->flatten){
+$_->destroy_notes()
+};
+$self->notes(::undef())};
+sub child_nodes{my $self=CORE::shift;$self->notes()->{'child_nodes'}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::CompUnit;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_parents{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
+for($self->child_nodes()->flatten){
+$_->note_parents()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Base;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_parents{my $self=CORE::shift;($self->notes()->{'parent'} = $::es_whiteboard__parent);
+{package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
+for($self->child_nodes()->flatten){
+$_->note_parents()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::CompUnit_and_Block;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_block_lexical_variable_decls{my $self=CORE::shift;my $a = [];
+{package main; use vars '$1es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
+($self->notes()->{'lexical_variable_decls'} = $a);
+for($self->child_nodes()->flatten){
+$_->note_block_lexical_variable_decls()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::VarDecl;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_block_lexical_variable_decls{my $self=CORE::shift;if($self->is_lexical()) {
+$::es_whiteboard__lexical_variable_decls->push($self)
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Base;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_block_lexical_variable_decls{my $self=CORE::shift;for($self->child_nodes()->flatten){
+$_->note_block_lexical_variable_decls()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::VarDecl;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub is_lexical{my $self=CORE::shift;($self->scope() eq 'my')};
+__PACKAGE__->meta->make_immutable();
+
+}
+
+;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+
 { package EmitSimpleP5;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
@@ -1389,6 +1575,7 @@ $self->e($ae)})
 $x->callback($self)
 }};
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
+$n->do_all_analysis();
 {package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
 ((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 ' . $self->prelude_for_entering_a_package()) . $self->e($n->{'statements'})->join(';
@@ -1877,6 +2064,7 @@ Program->new()->main($a_ARGS)
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+;
 ;
 ;
 ;

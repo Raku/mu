@@ -1,6 +1,6 @@
 
-../elf_d -x -I ../elf_d_src -o ../elf_e ElfE.pm
-../elf_e -x -I ../elf_d_src -o ../elf_e1 ElfE.pm
-../elf_e1 -x -I ../elf_d_src -o ../elf_e2 ElfE.pm
+../elf_d -x -I ../elf_d_src -I . -o ../elf_e ElfE.pm
+../elf_e -x -I ../elf_d_src -I . -o ../elf_e1 ElfE.pm
+../elf_e1 -x -I ../elf_d_src -I . -o ../elf_e2 ElfE.pm
 diff ../elf_e[12]
 ../elf_e2 -e 'say 3'
