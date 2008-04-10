@@ -4,6 +4,10 @@ Running tests
     prove --exec 'perl elf_d' - < TESTS
   If you find that any other tests run please put them into TESTS.
 
+Tips
+
+    eval_perl5('sub{print Data::Dumper::Dumper($_[0])}').($n);
+
 A development story (a tale of two compilers)
 
   Say someone hands you a working perl6.
@@ -47,26 +51,31 @@ After elf_d - subsequent objectives:
    Better command line.
    Start of STD5 integration.
 
-elf_d
-Purpose:
-  Switch to a new IR.
-  Metaprogramming infrastructure for new IR and for ast-to-ir conversion.
-  External development of new backends becomes easy.
+elf_e
+Purpose: Using IR analysis to clean up the emitted runtime.
+  sub decls no longer global.
 Maybe:
-  Alternate emitter for faster p5 (mostly to shakedown backend creation story).
-  IR analysis.
-  Address some inconvenient implementation limitations.
+  Address some other inconvenient implementation limitations.
   Start of p6 Prelude.
-Comparison: Like elf_c, but with new IR nodes.
+  Change to plugin architecture?
+Comparison: Like elf_d.
+Written in: elf_d dialect.
+Can be compiled by: elf_e, elf_d.
+Linkages:
+  Currently using many elf_d files.
+Status: active development.
+
+elf_d
+Purpose: New IR.  New metaprogramming infrastructure.
+Comparison:
+  Like elf_c, but with new IR nodes.
+  @ISA can be incrementally extended.
 Written in: elf_c dialect.
 Can be compiled by: elf_d, elf_c.
-Status: active development (eventually).
+Status: active development, but getting near slush.
 
 elf_c
-Purpose:
-  Refactor implementation classes, now that has() is available.
-  Add use() support, for both runtime and whole-program compilation.
-  Makes creation of derivative implementations easier.
+Purpose: Refactored with has().  Added use().
 Comparison: Like elf_b, but written in elf_b p6, not elf_a p6 (basically +has).
 Written in: elf_b dialect.
 Emits: Currently same as elf_b, but that may change.
@@ -75,7 +84,7 @@ Linkages:
   ast_handlers and ir_nodes are copies of those in std_b.
   They can't be regenerated, but only recopied by hand.
   The hope is elf_c won't remain active long enough for that to be a problem.
-Status: active development.
+Status: slushy.
 
 elf_b
 Purpose: Switch implementation language from p5 to p6.
