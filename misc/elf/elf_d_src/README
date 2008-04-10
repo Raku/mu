@@ -6,6 +6,16 @@ cp ../elf_d ../elf_d1
 diff ../elf_d[12]
 ../elf_d2 -e 'say 3'
 
+NoMoose:
+
+../elf_c -x -o ../elf_dm0 ElfD_NoMoose.pm
+../elf_dm0 -x -o ../elf_dm ElfD_NoMoose.pm
+cp ../elf_dm ../elf_dm1
+../elf_dm1 -x -o ../elf_dm2 ElfD_NoMoose.pm
+diff ../elf_dm[12]
+../elf_dm2 -e 'say 3'
+
+
 Obsolete:
 ../elf_c -x -I ../elf_c_src -o ../elf_d ElfD.pm
 ../elf_d -x -I ../elf_c_src -o ../elf_d1 ElfD.pm
