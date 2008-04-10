@@ -21,6 +21,7 @@ use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
  use autobox 2.23;
  use autobox::Core 0.4;
 }
+{package NoSideEffects; use Class::Multimethods;}
 
 our $a_ARGS = [@ARGV];
 
@@ -90,7 +91,9 @@ sub ::require {
 };
 sub ::find_required_module {
   my($module)=@_;
-  my @names = ($module,$module.".pm",$module.".p6"); for my $dir (@$a_INC) { for my $name (@names) {
+  my @names = ($module,$module.".pm",$module.".p6");
+  for my $dir (@$a_INC) {
+    for my $name (@names) {
       my $file = $dir."/".$name;
       if(-f $file) {
         return $file;
@@ -161,7 +164,8 @@ package main;
   method cb__Trait ($n) {
     if($n<verb> eq 'is') {
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
-      "push(@ISA,'"~$name~"');\n"
+      "use base '"~$name~"';\n"
+      #"push(@ISA,'"~$name~"');\n"
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n<verb>~" has not been implemented.\n";
       "***Trait***"
@@ -197,28 +201,13 @@ package main;
       }
     }
   };
-  method cb__MethodDecl ($n) {
-    if $n<plurality> && $n<plurality> eq 'multi' {
-      my $name = $.e($n<name>);
-      my $param_types = $n<multisig><parameters>.map(sub($p){
-        my $types = $.e($p<type_constraints>);
-        if $types {
-          if $types.elems != 1 { die("only limited multi method support") }
-          $types[0];
-        } else {
-          undef;
-        }
-      });
-      my $type0 = $param_types[0];
-      if not($type0) {
-        die("implementation limitation: a multi method's first parameter must have a type: "~$name~"\n");
-      }
-      my $stem = '_mmd__'~$name~'__';
-      my $branch_name = $stem~$type0;
-      my $setup_name = '_reset'~$stem;
-      my $code = "";
-      $code = $code ~
-          '
+  method multimethods_using_hack ($n,$name,$type0) {
+    my $stem = '_mmd__'~$name~'__';
+    my $branch_name = $stem~$type0;
+    my $setup_name = '_reset'~$stem;
+    my $code = "";
+    $code = $code ~
+    '
 { my $setup = sub {
     my @meths = __PACKAGE__->meta->compute_all_applicable_methods;
     my $h = {};
@@ -243,7 +232,36 @@ package main;
   die $@ if $@;
 };
 ';
-      'sub '~$branch_name~'{my $self=CORE::shift;'~$.e($n<multisig>)~$.e($n<block>)~'}' ~ $code;
+    'sub '~$branch_name~'{my $self=CORE::shift;'~$.e($n<multisig>)~$.e($n<block>)~'}' ~ $code;
+  };
+  method multimethods_using_CM ($n,$name,$type0) {
+    my $n_args = $n<multisig><parameters>.elems;
+    $type0 = $type0.re_gsub('^Any$','*');
+    $type0 = $type0.re_gsub('^SCALAR$','$');
+    my $param_padding = "";  my $i = 1;
+    while $i < $n_args { $i = $i + 1; $param_padding = $param_padding ~ ' * '; }
+    'Class::Multimethods::multimethod '~$name~
+    ' =>qw( * '~$type0~$param_padding~' ) => '~
+    'sub {my $self=CORE::shift;'~$.e($n<multisig>)~$.e($n<block>)~'};';
+  };
+  method cb__MethodDecl ($n) {
+    if $n<plurality> && $n<plurality> eq 'multi' {
+      my $name = $.e($n<name>);
+      my $param_types = $n<multisig><parameters>.map(sub($p){
+        my $types = $.e($p<type_constraints>);
+        if $types {
+          if $types.elems != 1 { die("only limited multi method support") }
+          $types[0];
+        } else {
+          undef;
+        }
+      });
+      my $type0 = $param_types[0];
+      if not($type0) {
+        die("implementation limitation: a multi method's first parameter must have a type: "~$name~"\n");
+      }
+      #self.multimethods_using_hack($n,$name,$type0);
+      self.multimethods_using_CM($n,$name,$type0);
     }
     else {
       'sub '~$.e($n<name>)~'{my $self=CORE::shift;'~$.e($n<multisig>)~$.e($n<block>)~'}'
