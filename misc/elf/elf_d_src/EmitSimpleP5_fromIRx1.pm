@@ -148,17 +148,17 @@ package main;
     my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n<name>];
     my $name = $^whiteboard::in_package.join('::');
     ("\n{ package "~$name~";\n"~
-     "use Moose;\n"~
+     "use Moose;"~" __PACKAGE__->meta->make_mutable();\n"~
      self.prelude_for_entering_a_package()~
      $.e($n<traits>||[]).join("\n")~
      $.e($n<block>)~
-     "; __PACKAGE__->meta->make_immutable();\n"~
+     ";\n__PACKAGE__->meta->make_immutable();\n"~
      "\n}\n");
   };
   method cb__Trait ($n) {
     if($n<verb> eq 'is') {
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
-      "extends '"~$name~"';"
+      "use base '"~$name~"';"
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n<verb>~" has not been implemented.\n";
       "***Trait***"
