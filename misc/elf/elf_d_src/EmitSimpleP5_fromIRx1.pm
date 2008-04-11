@@ -11,20 +11,27 @@ class EmitSimpleP5 {
     "use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';\n"
   };
 
+  method prelude_oo () {
+    '
+{package AssertCurrentModuleVersions;
+ use Moose 0.40;
+ use Moose::Autobox 0.06;
+}
+';
+  };
   method prelude ($n) {
   '#!/usr/bin/perl -w
 package main;
 use Data::Dumper; # Used to render Buf strings.
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
-use Moose::Autobox;
 {package AssertCurrentModuleVersions;
- use Moose 0.40;
- use Moose::Autobox 0.06;
  use autobox 2.23;
  use autobox::Core 0.4;
 }
 {package NoSideEffects; use Class::Multimethods;}
+
+'~self.prelude_oo~'
 
 our $a_ARGS = [@ARGV];
 
@@ -157,16 +164,18 @@ package main;
   };
   method cb__Trait ($n) {
     if($n<verb> eq 'is') {
+      my $pkgname = $^whiteboard::in_package.join('::');
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
-      "use base '"~$name~"';"
+      $name.re_gsub('^::','');
+      #'BEGIN{ print STDERR join(", ",(grep{/^Moose::Object$/ ? () : $_} @'~$pkgname~'::ISA),q('~$name~')),"\n";'~"}\n"~
+      'BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @'~$pkgname~'::ISA),q('~$name~')) }'~"\n"
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n<verb>~" has not been implemented.\n";
       "***Trait***"
     }
   };
 
-  method cb__VarDecl ($n) {
-    if($n<scope> eq 'has') {
+  method do_VarDecl_has ($n) {
       my $default = $.e($n<default_expr>);
       if(defined $default) {
         $default = ", default => "~$default
@@ -174,6 +183,11 @@ package main;
         $default = ""
       }
       "has '"~$.e($n<var><name>)~"' => (is => 'rw'"~$default~");"
+  };
+
+  method cb__VarDecl ($n) {
+    if($n<scope> eq 'has') {
+      self.do_VarDecl_has($n);
     } else {
       my $default = "";
       if $n<default_expr> { $default = ' = '~$.e($n<default_expr>) }

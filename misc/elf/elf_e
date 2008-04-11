@@ -3,14 +3,18 @@ package main;
 use Data::Dumper; # Used to render Buf strings.
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
-use Moose::Autobox;
 {package AssertCurrentModuleVersions;
- use Moose 0.40;
- use Moose::Autobox 0.06;
  use autobox 2.23;
  use autobox::Core 0.4;
 }
 {package NoSideEffects; use Class::Multimethods;}
+
+
+{package AssertCurrentModuleVersions;
+ use Moose 0.40;
+ use Moose::Autobox 0.06;
+}
+
 
 our $a_ARGS = [@ARGV];
 
@@ -216,7 +220,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::CompUnit_and_Block';;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::CompUnit::ISA),q(IRx1::CompUnit_and_Block)) }
+;
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -225,7 +230,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::CompUnit_and_Block';;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Block::ISA),q(IRx1::CompUnit_and_Block)) }
+;
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -234,7 +240,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::CompUnit::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'filename' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -254,7 +261,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Block::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
@@ -273,7 +281,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Use;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Use::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'module_name' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
@@ -294,7 +303,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::PackageDecl::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
@@ -318,7 +328,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::MethodDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::MethodDecl::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -345,7 +356,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::SubDecl::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -370,7 +382,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::MacroDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::MacroDecl::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -395,7 +408,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::VarDecl::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -421,7 +435,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Var;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Var::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
 has 'name' => (is => 'rw');;
@@ -442,7 +457,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Trait;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Trait::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'verb' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -462,7 +478,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::ClosureTrait;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::ClosureTrait::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -482,7 +499,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::ModuleName;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::ModuleName::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -502,7 +520,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::PathName;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::PathName::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'path' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$path)=@_;
@@ -521,7 +540,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::SubName;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::SubName::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'category' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
 has 'desigilname' => (is => 'rw');;
@@ -543,7 +563,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::ShapedParamName;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::ShapedParamName::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'postcircumfix' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -563,7 +584,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Call;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Call::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'method' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
@@ -584,7 +606,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Apply::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'function' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -604,7 +627,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Hyper;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Hyper::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'operator' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -624,7 +648,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Capture;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Capture::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$arguments)=@_;
@@ -643,7 +668,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::MultiSig;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::MultiSig::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'signatures' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$signatures)=@_;
@@ -662,7 +688,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Signature;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Signature::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'return_type' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -682,7 +709,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Parameter;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Parameter::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'type_constraints' => (is => 'rw');;
 has 'quant' => (is => 'rw');;
 has 'param_var' => (is => 'rw');;
@@ -707,7 +735,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::TypeConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::TypeConstraint::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -727,7 +756,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::PostConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::PostConstraint::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'multisig' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -747,7 +777,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::ParamVar;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::ParamVar::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
 has 'name' => (is => 'rw');;
@@ -768,7 +799,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Undef;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Undef::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
@@ -786,7 +818,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::NumInt;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::NumInt::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 has 'base' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -806,7 +839,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::NumDec;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::NumDec::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
 has 'fracpart' => (is => 'rw');;
 has 'exp' => (is => 'rw');;
@@ -827,7 +861,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::NumRad;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::NumRad::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'radix' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
 has 'fracpart' => (is => 'rw');;
@@ -850,7 +885,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Array;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Array::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$array)=@_;
@@ -869,7 +905,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Hash::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$hash)=@_;
@@ -888,7 +925,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Pair::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -908,7 +946,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Type;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Type::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'typename' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$typename)=@_;
@@ -927,7 +966,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Rx;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Rx::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'pat' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pat)=@_;
@@ -946,7 +986,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Buf;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Buf::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$buf)=@_;
@@ -965,7 +1006,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::For;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::For::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -985,7 +1027,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Cond;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Cond::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'clauses' => (is => 'rw');;
 has 'default' => (is => 'rw');;
 has 'invert_first_test' => (is => 'rw');;
@@ -1006,7 +1049,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Loop;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-use base 'IRx1::Base';has 'match' => (is => 'rw');;
+BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Loop::ISA),q(IRx1::Base)) }
+has 'match' => (is => 'rw');;
 has 'pretest' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'posttest' => (is => 'rw');;
@@ -1461,20 +1505,25 @@ $self->new('compiler', $compiler)};
 has 'compiler' => (is => 'rw');;
 sub prelude_for_entering_a_package{my $self=CORE::shift;'use autobox; use autobox::Core; use autobox UNDEF => \'UNDEF\';
 '};
+sub prelude_oo{my $self=CORE::shift;'
+{package AssertCurrentModuleVersions;
+ use Moose 0.40;
+ use Moose::Autobox 0.06;
+}
+'};
 sub prelude{my $self=CORE::shift;my($n)=@_;
-'#!/usr/bin/perl -w
+(('#!/usr/bin/perl -w
 package main;
 use Data::Dumper; # Used to render Buf strings.
 use Perl6::Say;
 use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
-use Moose::Autobox;
 {package AssertCurrentModuleVersions;
- use Moose 0.40;
- use Moose::Autobox 0.06;
  use autobox 2.23;
  use autobox::Core 0.4;
 }
 {package NoSideEffects; use Class::Multimethods;}
+
+' . $self->prelude_oo()) . '
 
 our $a_ARGS = [@ARGV];
 
@@ -1561,7 +1610,7 @@ sub ::eval_perl6 {
 }
 
 package main;
-'};
+')};
 sub e{my $self=CORE::shift;my($x)=@_;
 my $ref = $x->ref();
 if(($ref eq 'UNDEF')) {
@@ -1608,22 +1657,27 @@ __PACKAGE__->meta->make_immutable();
 '))};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
 if((($n->{'verb'} eq 'is'))) {
+my $pkgname = $::es_whiteboard__in_package->join('::');
 my $name = (($::es_whiteboard__in_package->splice(0, (0 - 1))->join('::') . '::') . $self->e($n->{'expr'}));
-(('use base \'' . $name) . '\';')
+$name->re_gsub('^::', '');
+((((('BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @' . $pkgname) . '::ISA),q(') . $name) . ')) }') . '
+')
 }else {
 ::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
 '));
 '***Trait***'
 }};
-sub cb__VarDecl{my $self=CORE::shift;my($n)=@_;
-if((($n->{'scope'} eq 'has'))) {
+sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
 my $default = $self->e($n->{'default_expr'});
 if((::defined($default))) {
 ($default = (', default => ' . $default))
 }else {
 ($default = '')
 };
-(((('has \'' . $self->e($n->{'var'}->{'name'})) . '\' => (is => \'rw\'') . $default) . ');')
+(((('has \'' . $self->e($n->{'var'}->{'name'})) . '\' => (is => \'rw\'') . $default) . ');')};
+sub cb__VarDecl{my $self=CORE::shift;my($n)=@_;
+if((($n->{'scope'} eq 'has'))) {
+$self->do_VarDecl_has($n)
 }else {
 my $default = '';
 if($n->{'default_expr'}) {
