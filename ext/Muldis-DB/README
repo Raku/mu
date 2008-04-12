@@ -6,7 +6,7 @@ by Darren Duncan <perl@DarrenDuncan.net>
 PREFACE
 
 This distribution features the Perl 5 or 6 (depending on which copy of this
-README file you are reading) module named "Muldis::DB" (Full-featured truly
+README file you are reading) module named Muldis::DB (Full-featured truly
 relational DBMS in Perl) and its support structure.
 
 Muldis DB has 2 co-developed versions, which are written in native Perl 5
@@ -74,10 +74,10 @@ an organized and searchable fashion.  Their main search site is at
 "http://search.cpan.org", and my own DUNCAND author page is at
 "http://search.cpan.org/search?author=DUNCAND".
 
-The main CPAN search site url for Muldis-DB for Perl 5 is
+The main CPAN search site url for Muldis DB for Perl 5 is
 "http://search.cpan.org/dist/Muldis-DB/"; that is the url you should link
 to presently if you want something to consider the "home page" of
-Muldis-DB; it is best to refer people there by default.
+Muldis DB; it is best to refer people there by default.
 
 You can download my oldest tarred and gzipped distributions from BACKPAN,
 at "http://history.perl.org/backpan/authors/id/D/DU/DUNCAND/", or from my
@@ -86,14 +86,17 @@ to the libdwg 1.0, first released on 2000 July 23.
 
 SUPPORT
 
-Currently, the best place to get basic support is the appropriate user
-forums (see "http://mm.DarrenDuncan.net/mailman/listinfo"), which exist so
-that Muldis DB users can help each other, or that help coming from
-Muldis DB developers can be said once to many people, rather than to each
-individually.
+Several public email-based forums exist whose main topic is all
+implementations of the Muldis D language, especially the Muldis DB project,
+which they are named for.  They exist so that Muldis D / Muldis DB users
+can help each other, or that help coming from Muldis D / Muldis DB
+developers can be said once to many people, rather than to each
+individually.  All of these you can reach via
+"http://mm.DarrenDuncan.net/mailman/listinfo".
 
-Alternately, you can purchase more advanced commercial support for
-Muldis DB from the author; contact "perl@DarrenDuncan.net" for details.
+Alternately, you can purchase more advanced commercial support for various
+Muldis D implementations, particularly Muldis DB, from its author by way of
+Muldis Data Systems; see "http://www.muldis.com/" for details.
 
 FIN
 

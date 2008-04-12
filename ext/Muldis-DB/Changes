@@ -1,7 +1,7 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2008-03-xx   Darren Duncan <perl@DarrenDuncan.net>
+2008-04-xx   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis DB version 0.7.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.7.0.tar.gz.  Muldis DB version 0.7.0 for Perl 6 is not
@@ -10,10 +10,67 @@
     incorporates all of said updates, though it may have some of them.
 
     * New file versions are: DB.pm and Interface.pm and Validator.pm and
-    Example.pm 0.7.0 and SeeAlso.pod 0.4.3.  Added new file
+    Example.pm 0.7.0 and SeeAlso.pod 0.4.5.  Added new file
     lib/Muldis/DB/Engine/Example/Value.pm, which starts at version 0.0.0.
 
+    * (DB.pm)  The TRADEMARK POLICY section was severely edited to excise
+    most legalese, and is now just half its previous size; the old longer
+    version was shunted off to the Muldis Data Systems' website.
+
+    * (Interface.pm, Validator.pm)  Update to retain compatibility with the
+    official Muldis D version 0.25.0, where the second (authority) part of
+    a fully-qualified Muldis D language name has changed from
+    'cpan:DUNCAND' to 'http://muldis.com'.
+
     TODO: Describe the new Value.pm and other new friends.
+
+    * (SeeAlso.pod)  A few minor updates.
+
+    * Minor update to the file archives/OSCON2008SessionProposal.txt which
+    reflects that the proposal was accepted; the talk will be given Jul 23.
+
+2008-03-23   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis DB version 0.6.2 for Perl 5 is released on CPAN as
+    Muldis-DB-0.6.2.tar.gz.  Muldis DB version 0.6.2 for Perl 6 is not
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version, and it should not be assumed that the Perl 6 version
+    incorporates all of said updates, though it may have some of them.
+
+    * Renamed the 2 t/MDB_\w+ test files to t/Muldis_DB_\w+.
+
+    * New file versions are: DB.pm and Interface.pm and Validator.pm and
+    Example.pm 0.6.2 and SeeAlso.pod 0.4.4.
+
+    * Updated DB.pm and the README file to clarify that commercial support
+    is available from the author specifically by way of Muldis Data
+    Systems.
+
+    * Updated all .pm and .pod files to add a new TRADEMARK POLICY section
+    near the end of each; it serves for trademarks what the LICENSE AND
+    COPYRIGHT did for copyrights.  The DB.pm file had the actual text, and
+    the other files simply say to look at DB.pm.  To summarize, the word
+    MULDIS is a trademark and how you may use it has limitations.
+
+    * (DB.pm, Interface.pm, Validator.pm, SeeAlso.pod)  A few minor updates
+    to reflect the fact that, for one thing, the Muldis D official spec is
+    now released under the Perl main package namespace Muldis::D rather
+    than Language::MuldisD, and for another thing, some small aspects of
+    Muldis DB's reflection of the Muldis D language were out of date, but
+    now they were updated to resync.
+
+2008-03-10   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis DB version 0.6.1 for Perl 5 is released on CPAN as
+    Muldis-DB-0.6.1.tar.gz.  Muldis DB version 0.6.1 for Perl 6 is not
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version, and it should not be assumed that the Perl 6 version
+    incorporates all of said updates, though it may have some of them.
+
+    * New file versions are: DB.pm and Interface.pm and Validator.pm and
+    Example.pm 0.6.1 and SeeAlso.pod 0.4.3.
+
+    * Updated the README file to emphasize the Perl 5 version for now.
 
     * (SeeAlso.pod)  A few minor updates.
 
@@ -23,8 +80,6 @@
     of a proposal to give a talk on Muldis D + DB at OSCON 2008 (it can
     also be given elsewhere); this is likely the most succinct description
     yet of what the projects are and why one would want to use them.
-
-    * Updated the README file to emphasize the Perl 5 version for now.
 
 2008-03-10   Darren Duncan <perl@DarrenDuncan.net>
 
@@ -326,7 +381,7 @@
         lib/Muldis/DB/Validator.pm
         LICENSE/GPL
         Makefile.PL
-        MANIFEST			This list of files
+        MANIFEST
         MANIFEST.SKIP
         META.yml
         README
@@ -457,7 +512,7 @@
         lib/Muldis/DB/SeeAlso.pod
         lib/Muldis/DB/Validator.pm
         Makefile.PL
-        MANIFEST			This list of files
+        MANIFEST
         MANIFEST.SKIP
         META.yml
         README
