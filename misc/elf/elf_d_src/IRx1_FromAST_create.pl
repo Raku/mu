@@ -262,10 +262,6 @@ class UNDEF {
   }
 };
 
-sub irbuild_ir ($x) {
-  $x.make_ir_from_Match_tree()
-};
-
 END_CODE
 
 
@@ -281,8 +277,14 @@ sub write_ast_handlers {
   };
   my @paragraphs = $paragraphs->($def);
 
-  my $code = $header_code.unindent(<<"  END");
+  my $code = $header_code.unindent(<<'  END');
+    sub irbuild_ir ($x) { # Deleteme when elf_d need not be supported.
+      $x.make_ir_from_Match_tree()
+    };
     package IRx1_Build {
+      sub irbuild_ir ($x) {
+        $x.make_ir_from_Match_tree()
+      };
   END
 
   my %seen;

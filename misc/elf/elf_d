@@ -57,6 +57,9 @@ sub copy { my $a = CORE::shift; [@$a] }
 BEGIN{my $x = *ARRAY::unshift; undef &$x;}
 sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 }
+{ package HASH;
+  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1 }
+}
 
 sub parser_name{
   my $f = $0;
@@ -1079,6 +1082,8 @@ $x->make_ir_from_Match_tree()};
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub irbuild_ir{my($x)=@_;
+$x->make_ir_from_Match_tree()};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
 IRx1::CompUnit->newp($m, ::irbuild_ir($m->{'hash'}->{'statementlist'}))});
 $main::irbuilder->add_constructor('statement', sub {my($m)=@_;
@@ -1377,6 +1382,9 @@ sub copy { my $a = CORE::shift; [@$a] }
 # buggy in autobox::Core
 BEGIN{my $x = *ARRAY::unshift; undef &$x;}
 sub unshift (\\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
+}
+{ package HASH;
+  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1 }
 }
 
 sub parser_name{

@@ -74,6 +74,9 @@ sub copy { my $a = CORE::shift; [@$a] }
 BEGIN{my $x = *ARRAY::unshift; undef &$x;}
 sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 }
+{ package HASH;
+  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1 }
+}
 
 sub parser_name{
   my $f = $0;
