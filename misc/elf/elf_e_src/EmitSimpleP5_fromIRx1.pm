@@ -35,35 +35,34 @@ use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 
 '~self.prelude_oo~'
 
-{ package GLOBAL;
-  our $a_ARGS = [@ARGV];
-}
-
 {package UNDEF;}
 {package UNDEF; sub ref{"UNDEF"}}
 {package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
 {package UNIVERSAL; sub WHAT{CORE::ref($_[0]) || "SCALAR"} }
 
-sub ::undef{undef}
+{ package GLOBAL;
+  use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+  use Perl6::Say;
 
-use Carp;
-sub slurp{my($file)=@_; my $s = `cat $file`; $s}
-sub unslurp{
-  my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
-sub file_exists{-e $_[0]}
-sub system{CORE::system(@_)}
-sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
-sub ::die{croak @_}
-sub ::exit{CORE::exit(@_)}
-sub ::defined{CORE::defined($_[0])}
-sub ::substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
-sub ::not ($){CORE::not $_[0]}
-sub ::exec{CORE::exec(@_)}
-sub ::sleep{CORE::sleep(@_)}
+  our $a_ARGS = [@ARGV];
 
-# because the p5->p6 massage of ast_handlers isnt massaging join.
-sub ::join{CORE::join(CORE::shift,@_)}
-# end
+  sub undef{undef}
+
+  use Carp;
+  sub slurp{my($file)=@_; my $s = `cat $file`; $s}
+  sub unslurp{
+    my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
+  sub file_exists{-e $_[0]}
+  sub system{CORE::system(@_)}
+  sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+  sub die{croak @_}
+  sub exit{CORE::exit(@_)}
+  sub defined{CORE::defined($_[0])}
+  sub substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
+  sub not ($){CORE::not $_[0]}
+  sub exec{CORE::exec(@_)}
+  sub sleep{CORE::sleep(@_)}
+}
 
 { package SCALAR;
 sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
@@ -78,51 +77,59 @@ sub copy { my $a = CORE::shift; [@$a] }
 BEGIN{my $x = *ARRAY::unshift; undef &$x;}
 sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 }
-
-sub parser_name{
-  my $f = $0;
-  $f =~ s/[^\/]+$//;
-  $f."../STD_red/STD_red_run"
+{ package HASH;
+  sub dup { my $h = CORE::shift;
+            # dont simplify to "...ift; {%$h} }".  returns 0.  autobox issue?
+            my $h1 = {%$h}; $h1
+  }
 }
+
 
 { package GLOBAL;
+
+  sub parser_name{
+    my $f = $0;
+    $f =~ s/[^\/]+$//;
+    $f."../STD_red/STD_red_run"
+  }
+
   our $a_INC = ["."];
-}
-sub ::require {
-  my($module)=@_;
-  my $file = find_required_module($module);
-  $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$GLOBAL::a_INC)." ).\n";
-  eval_file($file);
-};
-sub ::find_required_module {
-  my($module)=@_;
-  my @names = ($module,$module.".pm",$module.".p6");
-  for my $dir (@$GLOBAL::a_INC) {
-    for my $name (@names) {
-      my $file = $dir."/".$name;
-      if(-f $file) {
-        return $file;
+
+  sub require {
+    my($module)=@_;
+    my $file = find_required_module($module);
+    $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$GLOBAL::a_INC)." ).\n";
+    eval_file($file);
+  };
+  sub find_required_module {
+    my($module)=@_;
+    my @names = ($module,$module.".pm",$module.".p6");
+    for my $dir (@$GLOBAL::a_INC) {
+      for my $name (@names) {
+        my $file = $dir."/".$name;
+        if(-f $file) {
+          return $file;
+        }
       }
     }
+    return undef;
   }
-  return undef;
-}
 
-{ package GLOBAL;
   our $compiler0;
   our $compiler1;
   our $parser0;
   our $parser1;
   our $emitter0;
   our $emitter1;
-}
-sub ::eval_file {
-  my($file)=@_;
-  $GLOBAL::compiler0->eval_file($file);
-}
-sub ::eval_perl6 {
-  my($code)=@_;
-  $GLOBAL::compiler0->eval_perl6($code);
+
+  sub eval_file {
+    my($file)=@_;
+    $GLOBAL::compiler0->eval_file($file);
+  }
+  sub eval_perl6 {
+    my($code)=@_;
+    $GLOBAL::compiler0->eval_perl6($code);
+  }
 }
 
 package main;
@@ -341,7 +348,11 @@ package main;
       }elsif($f eq 'return') {
         'return('~$.e($n<capture>)~')';
       }elsif($f =~ /^\w/) {
-        '::'~$f~'('~$.e($n<capture>)~')';
+        if $n.notes<lexical_bindings>.{'&'~$f} {
+          ''~$f~'('~$.e($n<capture>)~')'
+        } else {
+          'GLOBAL::'~$f~'('~$.e($n<capture>)~')'
+        }
       }else{
          $f~'('~$.e($n<capture>)~')';
       }

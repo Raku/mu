@@ -57,6 +57,9 @@ sub copy { my $a = CORE::shift; [@$a] }
 BEGIN{my $x = *ARRAY::unshift; undef &$x;}
 sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 }
+{ package HASH;
+  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1 }
+}
 
 sub parser_name{
   my $f = $0;
@@ -1146,6 +1149,8 @@ $x->make_ir_from_Match_tree()};
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub irbuild_ir{my($x)=@_;
+$x->make_ir_from_Match_tree()};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
 IRx1::CompUnit->newp($m, ::irbuild_ir($m->{'hash'}->{'statementlist'}))});
 $main::irbuilder->add_constructor('statement', sub {my($m)=@_;
@@ -1381,7 +1386,8 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub do_all_analysis{my $self=CORE::shift;$self->initialize_notes();
 $self->note_parents();
-$self->note_block_lexical_variable_decls()};
+$self->note_block_lexical_variable_decls();
+$self->note_environment()};
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1468,6 +1474,23 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;if($self->is_lexical()) {
 $::es_whiteboard__lexical_variable_decls->push($self)
+};
+for($self->child_nodes()->flatten){
+$_->note_block_lexical_variable_decls()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::SubDecl;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_block_lexical_variable_decls{my $self=CORE::shift;if($_->name()) {
+$::es_whiteboard__lexical_variable_decls->push($self)
+};
+for($self->child_nodes()->flatten){
+$_->note_block_lexical_variable_decls()
 }};
 __PACKAGE__->meta->make_immutable();
 
@@ -1485,10 +1508,111 @@ __PACKAGE__->meta->make_immutable();
 }
 ;
 
+{ package IRx1::CompUnit;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
+{package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
+for($self->child_nodes()->flatten){
+$_->note_environment()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Block;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
+for($self->child_nodes()->flatten){
+$_->note_environment()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::CompUnit_and_Block;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
+my $h1 = $h->dup();
+for($decls->flatten){
+my $k = ($_->sigil() . $_->name());
+($h1->{$k} = $_)
+};
+$h1};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::PackageDecl;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_environment{my $self=CORE::shift;my $new_chain;
+if($self->path_is_absolute()) {
+($new_chain = [$self])
+}else {
+($new_chain = [$::es_whiteboard__package_chain->flatten(), $self])
+};
+{package main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = $new_chain;
+for($self->child_nodes()->flatten){
+$_->note_environment()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Apply;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_environment{my $self=CORE::shift;($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
+for($self->child_nodes()->flatten){
+$_->note_environment()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Base;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub note_environment{my $self=CORE::shift;for($self->child_nodes()->flatten){
+$_->note_environment()
+}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
 sub is_lexical{my $self=CORE::shift;($self->scope() eq 'my')};
+sub sigil{my $self=CORE::shift;$self->{'var'}->{'sigil'}};
+sub name{my $self=CORE::shift;$self->{'var'}->{'name'}};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::SubDecl;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub sigil{my $self=CORE::shift;'&'};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::PackageDecl;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+sub path_is_absolute{my $self=CORE::shift;($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))};
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1527,35 +1651,34 @@ use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 
 ' . $self->prelude_oo()) . '
 
-{ package GLOBAL;
-  our $a_ARGS = [@ARGV];
-}
-
 {package UNDEF;}
 {package UNDEF; sub ref{"UNDEF"}}
 {package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
 {package UNIVERSAL; sub WHAT{CORE::ref($_[0]) || "SCALAR"} }
 
-sub ::undef{undef}
+{ package GLOBAL;
+  use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+  use Perl6::Say;
 
-use Carp;
-sub slurp{my($file)=@_; my $s = `cat $file`; $s}
-sub unslurp{
-  my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
-sub file_exists{-e $_[0]}
-sub system{CORE::system(@_)}
-sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
-sub ::die{croak @_}
-sub ::exit{CORE::exit(@_)}
-sub ::defined{CORE::defined($_[0])}
-sub ::substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
-sub ::not ($){CORE::not $_[0]}
-sub ::exec{CORE::exec(@_)}
-sub ::sleep{CORE::sleep(@_)}
+  our $a_ARGS = [@ARGV];
 
-# because the p5->p6 massage of ast_handlers isnt massaging join.
-sub ::join{CORE::join(CORE::shift,@_)}
-# end
+  sub undef{undef}
+
+  use Carp;
+  sub slurp{my($file)=@_; my $s = `cat $file`; $s}
+  sub unslurp{
+    my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
+  sub file_exists{-e $_[0]}
+  sub system{CORE::system(@_)}
+  sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+  sub die{croak @_}
+  sub exit{CORE::exit(@_)}
+  sub defined{CORE::defined($_[0])}
+  sub substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
+  sub not ($){CORE::not $_[0]}
+  sub exec{CORE::exec(@_)}
+  sub sleep{CORE::sleep(@_)}
+}
 
 { package SCALAR;
 sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
@@ -1570,51 +1693,59 @@ sub copy { my $a = CORE::shift; [@$a] }
 BEGIN{my $x = *ARRAY::unshift; undef &$x;}
 sub unshift (\\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 }
-
-sub parser_name{
-  my $f = $0;
-  $f =~ s/[^\\/]+$//;
-  $f."../STD_red/STD_red_run"
+{ package HASH;
+  sub dup { my $h = CORE::shift;
+            # dont simplify to "...ift; {%$h} }".  returns 0.  autobox issue?
+            my $h1 = {%$h}; $h1
+  }
 }
+
 
 { package GLOBAL;
+
+  sub parser_name{
+    my $f = $0;
+    $f =~ s/[^\\/]+$//;
+    $f."../STD_red/STD_red_run"
+  }
+
   our $a_INC = ["."];
-}
-sub ::require {
-  my($module)=@_;
-  my $file = find_required_module($module);
-  $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$GLOBAL::a_INC)." ).\\n";
-  eval_file($file);
-};
-sub ::find_required_module {
-  my($module)=@_;
-  my @names = ($module,$module.".pm",$module.".p6");
-  for my $dir (@$GLOBAL::a_INC) {
-    for my $name (@names) {
-      my $file = $dir."/".$name;
-      if(-f $file) {
-        return $file;
+
+  sub require {
+    my($module)=@_;
+    my $file = find_required_module($module);
+    $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$GLOBAL::a_INC)." ).\\n";
+    eval_file($file);
+  };
+  sub find_required_module {
+    my($module)=@_;
+    my @names = ($module,$module.".pm",$module.".p6");
+    for my $dir (@$GLOBAL::a_INC) {
+      for my $name (@names) {
+        my $file = $dir."/".$name;
+        if(-f $file) {
+          return $file;
+        }
       }
     }
+    return undef;
   }
-  return undef;
-}
 
-{ package GLOBAL;
   our $compiler0;
   our $compiler1;
   our $parser0;
   our $parser1;
   our $emitter0;
   our $emitter1;
-}
-sub ::eval_file {
-  my($file)=@_;
-  $GLOBAL::compiler0->eval_file($file);
-}
-sub ::eval_perl6 {
-  my($code)=@_;
-  $GLOBAL::compiler0->eval_perl6($code);
+
+  sub eval_file {
+    my($file)=@_;
+    $GLOBAL::compiler0->eval_file($file);
+  }
+  sub eval_perl6 {
+    my($code)=@_;
+    $GLOBAL::compiler0->eval_perl6($code);
+  }
 }
 
 package main;
@@ -1823,7 +1954,11 @@ if((($f =~ qr/^\$\w+$/))) {
 }elsif((($f eq 'return'))) {
 (('return(' . $self->e($n->{'capture'})) . ')')
 }elsif((($f =~ qr/^\w/))) {
-(((('::' . $f) . '(') . $self->e($n->{'capture'})) . ')')
+if($n->notes()->{'lexical_bindings'}->{('&' . $f)}) {
+(((('' . $f) . '(') . $self->e($n->{'capture'})) . ')')
+}else {
+(((('GLOBAL::' . $f) . '(') . $self->e($n->{'capture'})) . ')')
+}
 }else {
 ((($f . '(') . $self->e($n->{'capture'})) . ')')
 }

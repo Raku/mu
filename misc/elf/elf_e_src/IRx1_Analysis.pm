@@ -4,6 +4,7 @@ class IRx1::CompUnit {
     self.initialize_notes;
     self.note_parents;
     self.note_block_lexical_variable_decls;
+    self.note_environment;
   };
 };
 
@@ -70,6 +71,15 @@ class IRx1::VarDecl {
     if self.is_lexical {
       $^whiteboard::lexical_variable_decls.push(self);
     }
+    for self.child_nodes {$_.note_block_lexical_variable_decls}
+  };
+};
+class IRx1::SubDecl {
+  method note_block_lexical_variable_decls() {
+    if $_.name {
+      $^whiteboard::lexical_variable_decls.push(self);
+    }
+    for self.child_nodes {$_.note_block_lexical_variable_decls}
   };
 };
 class IRx1::Base {
@@ -78,8 +88,69 @@ class IRx1::Base {
   };
 };
 
-# VarDecl
-class IRx1::VarDecl {
-  method is_lexical() {self.scope eq 'my'};
+# note_environment
+
+class IRx1::CompUnit {
+  method note_environment() {
+    my $^whiteboard::package_chain = [];
+    my $^whiteboard::lexical_bindings =
+      self.update_lexical_bindings({},
+                                   self.notes<lexical_variable_decls>);
+    for self.child_nodes {$_.note_environment}
+  };
+};
+class IRx1::Block {
+  method note_environment() {
+    my $^whiteboard::lexical_bindings =
+      self.update_lexical_bindings($^whiteboard::lexical_bindings,
+                                   self.notes<lexical_variable_decls>);
+    for self.child_nodes {$_.note_environment}
+  };
+};
+class IRx1::CompUnit_and_Block {
+  method update_lexical_bindings($h,$decls) {
+    my $h1 = $h.dup;
+    for $decls {
+      my $k = $_.sigil ~ $_.name;
+      $h1{$k} = $_;
+    }
+    $h1;
+  };
+};
+class IRx1::PackageDecl {
+  method note_environment() {
+    my $new_chain;
+    if self.path_is_absolute {
+      $new_chain = [self];
+    } else {
+      $new_chain = [$^whiteboard::package_chain.flatten,self];
+    }
+    my $^whiteboard::package_chain = $new_chain;
+    for self.child_nodes {$_.note_environment}
+  };
+};
+class IRx1::Apply {
+  method note_environment() {
+    self.notes<lexical_bindings> = $^whiteboard::lexical_bindings;
+    for self.child_nodes {$_.note_environment}
+  };
+};
+class IRx1::Base {
+  method note_environment() {
+    for self.child_nodes {$_.note_environment}
+  };
 };
 
+
+# info
+class IRx1::VarDecl {
+  method is_lexical() {self.scope eq 'my'};
+  method sigil() { self.<var><sigil> };
+  method name () { self.<var><name> };
+};
+class IRx1::SubDecl {
+  method sigil() { '&' };
+};
+class IRx1::PackageDecl {
+  method path_is_absolute() { self.name && self.name =~ /^GLOBAL\b'/ }
+};
