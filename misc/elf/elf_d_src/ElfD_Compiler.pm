@@ -14,25 +14,34 @@ class Compiler {
     my $p5 = self.compile_fragment($code,$filename,$verbose);
     eval_perl5($p5);
   };
+  method compile_fragment_cache_get($code,$filename) { undef };
+  method compile_fragment_cache_set($code,$filename,$value) { };
   method compile_fragment($code,$filename,$verbose) {
     my $tree;
-    if $.is_for_active_runtime {
-      $tree = $*parser0.parse($code,$filename);
-    } else {
-      $tree = $*parser1.parse($code,$filename);
+    my $cached = self.compile_fragment_cache_get($code,$filename);
+    if $cached {
+      $cached
     }
-    if $verbose { say $tree.match_describe; }
-    my $ir = $tree.make_ir_from_Match_tree();
-    #say eval_perl5('sub{use Data::Dumper; Data::Dumper::Dumper($_[0])}').($ir);
-    if $verbose { say $ir.irx1_describe; }
-    my $p5;
-    if $.is_for_active_runtime {
-      $p5 = $ir.callback($*emitter0.new_emitter('compiler',self));
-    } else {
-      $p5 = $ir.callback($*emitter1.new_emitter('compiler',self));
+    else {
+      if $.is_for_active_runtime {
+        $tree = $*parser0.parse($code,$filename);
+      } else {
+        $tree = $*parser1.parse($code,$filename);
+      }
+      if $verbose { say $tree.match_describe; }
+      my $ir = $tree.make_ir_from_Match_tree();
+      #say eval_perl5('sub{use Data::Dumper; Data::Dumper::Dumper($_[0])}').($ir);
+      if $verbose { say $ir.irx1_describe; }
+      my $p5;
+      if $.is_for_active_runtime {
+        $p5 = $ir.callback($*emitter0.new_emitter('compiler',self));
+      } else {
+        $p5 = $ir.callback($*emitter1.new_emitter('compiler',self));
+      }
+      if $verbose { say $p5; }
+      self.compile_fragment_cache_set($code,$filename,$p5);
+      $p5;
     }
-    if $verbose { say $p5; }
-    $p5;
   };
 
   has $.todo;

@@ -1757,8 +1757,16 @@ $self->eval_fragment(::slurp($file), $file, 0)};
 sub eval_fragment{my $self=CORE::shift;my($code,$filename,$verbose)=@_;
 my $p5 = $self->compile_fragment($code, $filename, $verbose);
 ::eval_perl5($p5)};
+sub compile_fragment_cache_get{my $self=CORE::shift;my($code,$filename)=@_;
+::undef()};
+sub compile_fragment_cache_set{my $self=CORE::shift;my($code,$filename,$value)=@_;
+};
 sub compile_fragment{my $self=CORE::shift;my($code,$filename,$verbose)=@_;
 my $tree;
+my $cached = $self->compile_fragment_cache_get($code, $filename);
+if($cached) {
+$cached
+}else {
 if($self->is_for_active_runtime) {
 ($tree = $parser0->parse($code, $filename))
 }else {
@@ -1780,7 +1788,9 @@ if($self->is_for_active_runtime) {
 if($verbose) {
 ::say($p5)
 };
-$p5};
+$self->compile_fragment_cache_set($code, $filename, $p5);
+$p5
+}};
 has 'todo' => (is => 'rw');;
 sub compile_executable{my $self=CORE::shift;my($sources,$output_file)=@_;
 $self->todo([]);
