@@ -5,7 +5,7 @@ use Muldis::DB::Interface;
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB::Engine::Example-0.6.0 {
+module Muldis::DB::Engine::Example-0.6.2 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -328,7 +328,7 @@ Self-contained reference implementation of a Muldis DB Engine
 
 =head1 VERSION
 
-This document describes Muldis::DB::Engine::Example version 0.6.0 for Perl
+This document describes Muldis::DB::Engine::Example version 0.6.2 for Perl
 6.
 
 It also describes the same-number versions for Perl 6 of
@@ -384,7 +384,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Muldis::DB::Interface-0.6.0|Muldis::DB::Interface>.
+L<Muldis::DB::Interface-0.6.2|Muldis::DB::Interface>.
 
 =head1 INCOMPATIBILITIES
 
@@ -411,6 +411,10 @@ This file is part of the Muldis DB framework.
 Muldis DB is Copyright © 2002-2008, Darren Duncan.
 
 See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
+
+=head1 TRADEMARK POLICY
+
+The TRADEMARK POLICY in L<Muldis::DB> applies to this file too.
 
 =head1 ACKNOWLEDGEMENTS
 

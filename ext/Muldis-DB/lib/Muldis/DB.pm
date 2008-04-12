@@ -3,7 +3,7 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-package Muldis::DB-0.6.0 {
+package Muldis::DB-0.6.2 {
     # Note that Perl code only exists at all in this file in order to help
     # the CPAN indexer handle the distribution properly.
 } # package Muldis::DB
@@ -22,7 +22,7 @@ Full-featured truly relational DBMS in Perl
 
 =head1 VERSION
 
-This document is Muldis::DB version 0.6.0.
+This document is Muldis::DB version 0.6.2.
 
 =head1 DESCRIPTION
 
@@ -45,13 +45,13 @@ single routine or three.  Unlike the Perl DBI, which takes commands in some
 dialect of SQL, which changes based on the implementation in use, Muldis DB
 takes commands in the B<Muldis D> language, which has just one dialect
 shared by all implementations.  See the separate all-documentation
-distribution L<Language::MuldisD> for the formal definition of the Muldis D
+distribution L<Muldis::D> for the formal definition of the Muldis D
 language which Muldis DB is based on.
 
 The minimal core of the Muldis DB framework, the one component that
 probably every program would use, is the L<Muldis::DB::Interface> file.  It
 defines a small set of roles/classes that comprise a common API (that
-processes I<Perl Hosted Abstract Muldis D> commands) for Muldis DB
+processes I<Perl Hosted Data Muldis D> commands) for Muldis DB
 implementations to do and which applications invoke, called the I<Muldis DB
 Native Interface> (or I<MDBNI>).  For the most part, C<Interface> just
 defines shims and it can only be used when they are subclassed by an
@@ -88,7 +88,7 @@ satisfies I<TTM>'s definition of a "B<D>" language.  The main web site for
 I<TTM> is L<http://www.thethirdmanifesto.com/>, and its authors have also
 written several books and papers and taught classes on the subject over the
 last 35+ years, along with Codd himself (some are listed in the separately
-distributed L<Language::MuldisD::SeeAlso> documentation file).  Note that
+distributed L<Muldis::D::SeeAlso> documentation file).  Note that
 the Muldis DB documentation will be focusing mainly on how Muldis DB itself
 works, and will not spend much time in providing rationale; you can read
 I<TTM> itself and various other external documentation for much of that.
@@ -220,7 +220,7 @@ which implements this test suite.
 
 =head1 SEE ALSO
 
-The separate all-documentation distribution L<Language::MuldisD> is the
+The separate all-documentation distribution L<Muldis::D> is the
 formal definition of the Muldis D language which Muldis DB is based on.
 
 The Perl module L<Muldis::DB::Validator> is bundled with Muldis DB and can
@@ -270,6 +270,50 @@ appreciate being informed any time you create a modified version of Muldis
 DB that you are willing to distribute, because that is a practical way of
 suggesting improvements to the standard version.
 
+=head1 TRADEMARK POLICY
+
+MULDIS and MULDIS MULTIVERSE OF DISCOURSE are trademarks of Muldis Data
+Systems Inc. (L<http://www.muldis.com/>), which is wholly owned by Darren
+Duncan.  The trademarks apply to computer database software and related
+services.  See L<http://www.muldis.com/trademark_policy.html> for the full
+written details of Muldis Data Systems' trademark policy.
+
+The word MULDIS is intended to be used as the distinguishing brand name for
+all the products and services of Muldis Data Systems.  So we would greatly
+appreciate it if in general you do not incorporate the word MULDIS into the
+name or logo of your website, business, product or service, but rather use
+your own distinct name (exceptions appear below).  It is, however, always
+okay to use the word MULDIS only in descriptions of your website, business,
+product or service to provide accurate information to the public about
+yourself.
+
+If you do incorporate the word MULDIS into your names anyway, either
+because you have permission from us or you have some other good reason,
+then:  You must make clear that you are not Muldis Data Systems and that
+you do not represent Muldis Data Systems.  A simple or conspicuous
+disclaimer on your home page and product or service documentation is an
+excellent way of doing that.
+
+Please respect the conventions of the Perl community by not using the
+namespace C<Muldis::> at all for your own works, unless you have explicit
+permission to do so from Muldis Data Systems; that namespace is mainly just
+for our official works.  You can always use either the C<MuldisX::>
+namespace for related unofficial works, or some other namespace that is
+completely different.  Also as per conventions, its fine to use C<Muldis>
+within a Perl package name where that word is nested under some other
+project-specific namespace (for example, C<Foo::Storage::Muldis_DB> or
+C<Bar::Interface::Muldis_DB>), and the package serves to interact with a
+Muldis Data Systems work or service.
+
+If you have made a language variant or extension based on the B<Muldis D>
+language, then please follow the naming conventions described in the
+VERSIONING (L<Muldis::D/VERSIONING>) documentation of the official
+B<Muldis D> language spec.
+
+If you would like to use (or have already used) the word MULDIS for any use
+that ought to require permission, please contact Muldis Data Systems and
+we'll discuss a way to make that happen.
+
 =head1 ACKNOWLEDGEMENTS
 
 None yet.
@@ -277,7 +321,7 @@ None yet.
 =head1 FORUMS
 
 Several public email-based forums exist whose main topic is all
-implementations of the L<Muldis D|Language::MuldisD> language, especially
+implementations of the L<Muldis D|Muldis::D> language, especially
 the L<Muldis DB|Muldis::DB> project, which they are named for.  All of
 these you can reach via L<http://mm.DarrenDuncan.net/mailman/listinfo>; go
 there to manage your subscriptions to, or view the archives of, the
@@ -314,7 +358,7 @@ An official IRC channel for Muldis DB is also intended, but not yet
 started.
 
 Alternately, you can purchase more advanced commercial support for various
-Muldis D implementations, particularly Muldis DB, from its author; contact
-C<perl@DarrenDuncan.net> for details.
+Muldis D implementations, particularly Muldis DB, from its author by way of
+Muldis Data Systems; see (L<http://www.muldis.com/>) for details.
 
 =cut

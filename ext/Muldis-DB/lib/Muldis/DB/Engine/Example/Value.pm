@@ -635,6 +635,10 @@ Muldis DB is Copyright © 2002-2008, Darren Duncan.
 
 See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
+=head1 TRADEMARK POLICY
+
+The TRADEMARK POLICY in L<Muldis::DB> applies to this file too.
+
 =head1 ACKNOWLEDGEMENTS
 
 The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
