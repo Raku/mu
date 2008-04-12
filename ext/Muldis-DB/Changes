@@ -10,8 +10,7 @@
     incorporates all of said updates, though it may have some of them.
 
     * New file versions are: DB.pm and Interface.pm and Validator.pm and
-    Example.pm 0.7.0 and SeeAlso.pod 0.4.5.  Added new file
-    lib/Muldis/DB/Engine/Example/Value.pm, which starts at version 0.0.0.
+    Example.pm 0.7.0 and SeeAlso.pod 0.4.5.
 
     * (DB.pm)  The TRADEMARK POLICY section was severely edited to excise
     most legalese, and is now just half its previous size; the old longer
@@ -21,8 +20,6 @@
     official Muldis D version 0.25.0, where the second (authority) part of
     a fully-qualified Muldis D language name has changed from
     'cpan:DUNCAND' to 'http://muldis.com'.
-
-    TODO: Describe the new Value.pm and other new friends.
 
     * (SeeAlso.pod)  A few minor updates.
 
