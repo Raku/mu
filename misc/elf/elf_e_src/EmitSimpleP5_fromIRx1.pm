@@ -21,6 +21,8 @@ class EmitSimpleP5 {
   };
   method prelude ($n) {
   '#!/usr/bin/perl -w
+use strict;
+use warnings;
 package main;
 use Data::Dumper; # Used to render Buf strings.
 use Perl6::Say;
@@ -33,7 +35,9 @@ use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 
 '~self.prelude_oo~'
 
-our $a_ARGS = [@ARGV];
+{ package GLOBAL;
+  our $a_ARGS = [@ARGV];
+}
 
 {package UNDEF;}
 {package UNDEF; sub ref{"UNDEF"}}
@@ -81,17 +85,19 @@ sub parser_name{
   $f."../STD_red/STD_red_run"
 }
 
-our $a_INC = ["."];
+{ package GLOBAL;
+  our $a_INC = ["."];
+}
 sub ::require {
   my($module)=@_;
   my $file = find_required_module($module);
-  $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$a_INC)." ).\n";
+  $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$GLOBAL::a_INC)." ).\n";
   eval_file($file);
 };
 sub ::find_required_module {
   my($module)=@_;
   my @names = ($module,$module.".pm",$module.".p6");
-  for my $dir (@$a_INC) {
+  for my $dir (@$GLOBAL::a_INC) {
     for my $name (@names) {
       my $file = $dir."/".$name;
       if(-f $file) {
@@ -102,19 +108,21 @@ sub ::find_required_module {
   return undef;
 }
 
-our $compiler0;
-our $compiler1;
-our $parser0;
-our $parser1;
-our $emitter0;
-our $emitter1;
+{ package GLOBAL;
+  our $compiler0;
+  our $compiler1;
+  our $parser0;
+  our $parser1;
+  our $emitter0;
+  our $emitter1;
+}
 sub ::eval_file {
   my($file)=@_;
-  $compiler0->eval_file($file);
+  $GLOBAL::compiler0->eval_file($file);
 }
 sub ::eval_perl6 {
   my($code)=@_;
-  $compiler0->eval_perl6($code);
+  $GLOBAL::compiler0->eval_perl6($code);
 }
 
 package main;
@@ -330,8 +338,10 @@ package main;
         '$self'
       }elsif($f eq 'last') {
         'last'
+      }elsif($f eq 'return') {
+        'return('~$.e($n<capture>)~')';
       }elsif($f =~ /^\w/) {
-         '::'~$f~'('~$.e($n<capture>)~')';
+        '::'~$f~'('~$.e($n<capture>)~')';
       }else{
          $f~'('~$.e($n<capture>)~')';
       }
@@ -375,6 +385,9 @@ package main;
     }elsif($t eq '^') {
       $name.re_gsub('::','__');
       '$'~'::'~$name
+    }elsif($t eq '*') {
+      $name.re_gsub('::','__');
+      '$'~'GLOBAL::'~$name
     }else{
       '$'~$name
     }
