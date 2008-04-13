@@ -1,10 +1,11 @@
-                                Muldis::DB
+                              Muldis::Rosetta
 ---------------------------------------------------------------------------
 
 Following is a summary of things that still need doing.  It is specific to
-the Muldis-DB core distribution only, and doesn't talk about things that
-would go in other distributions.  (But, look at lib/Muldis/DB/SeeAlso.pod
-for a list of other related distributions that should be created.)
+the Muldis-Rosetta core distribution only, and doesn't talk about things
+that would go in other distributions.  (But, look at
+lib/Muldis/Rosetta/SeeAlso.pod for a list of other related distributions
+that should be created.)
 
 The following list is loosely ordered by priority, but list items may
 actually be addressed in a different order.  There is no specific time
@@ -67,8 +68,8 @@ dependency to 5.10 from 5.8.1, to simplify further dependencies.
 
 * Applicable to the Perl 5 version only:  Consider lowering the Perl
 version dependency to 5.6 from 5.8.1, so that other projects which may
-become dependants of Muldis-DB and already work under 5.6 won't have to
-force Perl core upgrades.  If this is done, the list of further
+become dependants of Muldis-Rosetta and already work under 5.6 won't have
+to force Perl core upgrades.  If this is done, the list of further
 dependencies will doubtless increase to include some things bundled with
 Perl 5.8, and/or Unicode may not work so well here.  Note that this may
 likely only happen if Moose was adopted, in which case the minimum Perl

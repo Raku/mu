@@ -4,71 +4,72 @@
 
 =head1 NAME
 
-Muldis::DB::SeeAlso -
+Muldis::Rosetta::SeeAlso -
 External resources that you really ought to look at
 
 =head1 VERSION
 
-This document is Muldis::DB::SeeAlso version 0.4.4.
+This document is Muldis::Rosetta::SeeAlso version 0.4.4.
 
 =head1 DESCRIPTION
 
-This document is a central location within the L<Muldis::DB> distribution
-where any important recommendations of or links to external resources go.
-This includes both resources that were helpful in making Muldis DB, as
-well as resources that are or could be related to Muldis DB.
+This document is a central location within the L<Muldis::Rosetta>
+distribution where any important recommendations of or links to external
+resources go.  This includes both resources that were helpful in making
+Muldis Rosetta, as well as resources that are or could be related to Muldis
+Rosetta.
 
 =head1 FORMAL SPECIFICATION
 
-Please see the separately distributed L<Muldis::D> distribution,
-which defines the B<Muldis D> language that Muldis DB implements and uses
-as its primary API.  Likewise see also the L<Muldis::D::SeeAlso>
-appendix document of the Muldis D spec for links to various things
-comprising and related to I<The Third Manifesto>, which Muldis DB is a
-formal implementation of by way of Muldis D.
+Please see the separately distributed L<Muldis::D> distribution, which
+defines the B<Muldis D> language that Muldis Rosetta implements and uses as
+its primary API.  Likewise see also the L<Muldis::D::SeeAlso> appendix
+document of the Muldis D spec for links to various things comprising and
+related to I<The Third Manifesto>, which Muldis Rosetta is a formal
+implementation of by way of Muldis D.
 
-=head1 LIST OF PUBLIC MULDIS DB ENGINES
+=head1 LIST OF PUBLIC MULDIS ROSETTA ENGINES
 
 I<This documentation is pending.>
 
-L<Muldis::DB::Engine::Example>.
+L<Muldis::Rosetta::Engine::Example>.
 
-=head1 PROSPECTIVE MULDIS DB EXTENSIONS
+=head1 PROSPECTIVE MULDIS ROSETTA EXTENSIONS
 
 These are some theoretical examples of other Perl modules or documentation
-that could be created to work with Muldis DB, but if so would most likely
-be distributed independently from it.  The given package names are
+that could be created to work with Muldis Rosetta, but if so would most
+likely be distributed independently from it.  The given package names are
 examples, and the examples in question could have other names if
 appropriate.
 
 =over
 
-=item C<Muldis::DB::Cookbook(|::\w+)>
+=item C<Muldis::Rosetta::Cookbook(|::\w+)>
 
 Pod files with a potentially large collection of examples, tutorials, FAQs,
-and so on that help people learn how to employ Muldis DB for the things
-they need to do.  In particular, there should be a lot of help given for
-people migrating from other systems that use different paradigms than
-Muldis DB does, for example SQL-using systems.
+and so on that help people learn how to employ Muldis Rosetta for the
+things they need to do.  In particular, there should be a lot of help given
+for people migrating from other systems that use different paradigms than
+Muldis Rosetta does, for example SQL-using systems.
 
 The Cookbook distro may also be the main repository of executing code that
-would otherwise go in the /examples directory of the Muldis DB core
+would otherwise go in the /examples directory of the Muldis Rosetta core
 distro.
 
-=item C<Genezzo> or C<Genezzo::Muldis_DB> or
-C<Muldis::DB::Engine::Genezzo> etc
+=item C<Genezzo> or C<Genezzo::Muldis_Rosetta> or
+C<Muldis::Rosetta::Engine::Genezzo> etc
 
-A Muldis DB Engine built around Jeffrey Cohen's L<Genezzo> DBMS, or
+A Muldis Rosetta Engine built around Jeffrey Cohen's L<Genezzo> DBMS, or
 specifically the root module that provides the C<new_machine> function,
 could conceivably have either of the above file or package names, depending
 on what its author prefers, or something else yet.  A strong name influence
-could be whether Muldis DB forms the sole public interface for Genezzo
+could be whether Muldis Rosetta forms the sole public interface for Genezzo
 after its conversion to use it, or whether Genezzo would retain alternate
-public APIs that work without Muldis DB being present on the system.  If
-Muldis DB is Genezzo's sole or primary interface, then simply C<Genezzo> is
-probably best for branding.
+public APIs that work without Muldis Rosetta being present on the system.
+If Muldis Rosetta is Genezzo's sole or primary interface, then simply
+C<Genezzo> is probably best for branding.
 
-=item C<Muldis::DB::PHDMD::Refactor(|::\w+)>
+=item C<Muldis::Rosetta::PHDMD::Refactor(|::\w+)>
 
 Utility modules that take Perl Hosted Data Muldis D (PHDMD) code as input
 and derive other PHDMD code as output, such as with the purpose of
@@ -85,7 +86,8 @@ that knows the specific needs of that Engine's implementation environment.
 Other words that could go in such module names are like C<Optimize> or
 C<Canon>, or whatever authors prefer.
 
-=item C<Muldis::DB::PHDMD::YAML> and C<Muldis::DB::PHDMD::XML> etc
+=item C<Muldis::Rosetta::PHDMD::YAML> and C<Muldis::Rosetta::PHDMD::XML>
+etc
 
 Utility modules that serialize Perl Hosted Data Muldis D code to, or
 unserialize it from, logically equivalent YAML, XML, or other generic data
@@ -94,28 +96,28 @@ language itself and not output any Perl-specific details that aren't in
 non-Perl languages, so that it is suitable for interchange, at the very
 least between Perl 5 and Perl 6.
 
-=item C<Muldis::DB::PHDMD::Translate::PTMD>
+=item C<Muldis::Rosetta::PHDMD::Translate::PTMD>
 
 Utility module that parses Plain Text Muldis D (PTMD) code into Perl Hosted
 Data Muldis D, and also that generates the former from the latter.  The 2
 formats should basically have a 1:1 correspondence.
 
-=item C<Muldis::DB::Shell>
+=item C<Muldis::Rosetta::Shell>
 
-Implementation of a command-line user application over the Muldis DB API
-that takes Plain Text Muldis D as input, compiles it and runs it, and
+Implementation of a command-line user application over the Muldis Rosetta
+API that takes Plain Text Muldis D as input, compiles it and runs it, and
 nicely formats output for user display.  This is analogous to
 L<DBI::Shell>.
 
-=item C<DBD::Muldis_DB>
+=item C<DBD::Muldis_Rosetta>
 
-A wrapper over the Muldis DB API that makes it work as a L<DBI> driver
+A wrapper over the Muldis Rosetta API that makes it work as a L<DBI> driver
 module, should that be useful.  Depending on what DBI itself permits or
 requires, this could take a variety of query definition formats, including
 either or both of Plain Text Muldis D or (most likely) Perl Hosted Data
 Muldis D.
 
-=item C<Muldis::DB::PHMD::Translate::Tutorial_D> etc
+=item C<Muldis::Rosetta::PHMD::Translate::Tutorial_D> etc
 
 Utility module that parses the B<Tutorial D> language into Perl Hosted
 Muldis D code, and also that generates the former from the latter.  Mainly
@@ -125,16 +127,16 @@ implementations.  In addition, separate utility modules can be made which
 translate to and from other B<D> languages that don't look like B<Tutorial
 D>.
 
-=item C<Muldis::DB::PHDMD::Translate::SQL::Native>
+=item C<Muldis::Rosetta::PHDMD::Translate::SQL::Native>
 
-Utility module that parses a Muldis DB-native variant of SQL into Perl
+Utility module that parses a Muldis Rosetta-native variant of SQL into Perl
 Hosted Data Muldis D, and also that generates the former from the latter.
 This SQL variant is essentially a cleaned up subset of the SQL:2003
 standard, with some misfeatures removed, some missing features added, and
 some alterations common in other SQL DBMSs substituted or added.  Or
 alternately, it is like a subset of Muldis D made to look as much like SQL
-as possible.  This Muldis DB-native SQL variant always has distinct column
-names in rowsets, requires matching column names for inputs to
+as possible.  This Muldis Rosetta-native SQL variant always has distinct
+column names in rowsets, requires matching column names for inputs to
 union/intersect/etc, never stores or results in duplicate rows, always uses
 2-valued logic (not (>=3)-valued logic), and has case-sensitive
 table/column/etc names and character strings.  An application written to
@@ -143,14 +145,14 @@ deterministically, and perform faster, than ones written to some other SQL
 dialect, since there is less indirection involved between what users query
 and what actually happens to implement it.
 
-=item C<Muldis::DB::PHDMD::Translate::SQL::\w+>
+=item C<Muldis::Rosetta::PHDMD::Translate::SQL::\w+>
 
 Utility modules that parse other variants of SQL (or subsets thereof) into
 Perl Hosted Data Muldis D, and also that generate the former from the
 latter.  Examples of these variants are the actual SQL:2003 standard, and
 the native dialects of each actual SQL DBMS.
 
-=item C<Muldis::DB::PHDMD::Translate::\w+>
+=item C<Muldis::Rosetta::PHDMD::Translate::\w+>
 
 Utility modules that translate data (including code and declaratives)
 between representations that are Perl Hosted Data Muldis D and
@@ -162,63 +164,63 @@ including native Perl routine definitions (L<PPI> would probably be
 employed in the Perl 5 version), and including commonly used third party
 class' objects.
 
-=item C<Muldis::DB::Proxy::(Server|Client|\w+)>
+=item C<Muldis::Rosetta::Proxy::(Server|Client|\w+)>
 
-Implementation(s) of a generic proxy server plus client for the Muldis DB
-API, letting the normal Muldis DB Engine and the user application reside
-in separate processes.  The client would do
-C<Muldis::DB::Interface> roles and the server would be an application or
-server-extending plugin that sits on top of the Muldis DB API.  Or
+Implementation(s) of a generic proxy server plus client for the Muldis
+Rosetta API, letting the normal Muldis Rosetta Engine and the user
+application reside in separate processes.  The client would do
+C<Muldis::Rosetta::Interface> roles and the server would be an application
+or server-extending plugin that sits on top of the Muldis Rosetta API.  Or
 whatever implementers want to do.  This is analogous to proxying modules
 for DBI or other DBMSs.
 
-=item C<Muldis::DB::Engine::(SQLite|Postgres|Oracle|\w+)>
+=item C<Muldis::Rosetta::Engine::(SQLite|Postgres|Oracle|\w+)>
 
-A default (but not mandatory) namespace for Muldis DB Engines to go, that
-provide the C<new_machine> function and do the
-C<Muldis::DB::Interface::\w+> roles.  A lot of these would likely be
-implemented over existing DBMSs, which results in Muldis DB being an
+A default (but not mandatory) namespace for Muldis Rosetta Engines to go,
+that provide the C<new_machine> function and do the
+C<Muldis::Rosetta::Interface::\w+> roles.  A lot of these would likely be
+implemented over existing DBMSs, which results in Muldis Rosetta being an
 alternative API for them.
 
-=item C<Muldis::DB::Engine::DBI>
+=item C<Muldis::Rosetta::Engine::DBI>
 
-A Muldis DB Engine built around the Perl DBI module in a more generic
+A Muldis Rosetta Engine built around the Perl DBI module in a more generic
 fashion, that would work with multiple DBD modules rather than being
 specific to one SQL DBMS, could be named this.
 
-=item C<DBIx::Class::Storage::Muldis_DB> etc
+=item C<DBIx::Class::Storage::Muldis_Rosetta> etc
 
 An alternative plug-in storage engine for L<DBIx::Class> that uses Muldis
-DB rather than DBI.  Analogous extensions can be added to other DBI
+Rosetta rather than DBI.  Analogous extensions can be added to other DBI
 wrappers modules such as L<Tangram> or L<Rose::DB> or what have you.  In
 either case, said alternatives can either be bundled with the core distros
 of those other modules, or separately from them, as per their authors'
 preferences.
 
-=item C<Muldis::DB::Emulator::(DBI|JDBC|OCI|\w+)>
+=item C<Muldis::Rosetta::Emulator::(DBI|JDBC|OCI|\w+)>
 
-Emulations of other modules or APIs as wrappers over Muldis DB.  This is
-potentially the easiest way, short of the other modules themselves being
-appropriately updated, to permit migration for legacy apps to Muldis DB
-while they have the fewest actual code changes.  The emulators would likely
-employ SQL translator utilities internally.
+Emulations of other modules or APIs as wrappers over Muldis Rosetta.  This
+is potentially the easiest way, short of the other modules themselves being
+appropriately updated, to permit migration for legacy apps to Muldis
+Rosetta while they have the fewest actual code changes.  The emulators
+would likely employ SQL translator utilities internally.
 
-=item C<MuldisX::DB::\w+>
+=item C<MuldisX::Rosetta::\w+>
 
-Unofficial extensions to Muldis DB could be named in this space, though it
-doesn't have to be used if prior coordination happens between developers;
-moreover, this namespace is likely to be used even by the main Muldis DB
-developers to experiment with possible extensions without tying up a "good"
-namespace for them.
+Unofficial extensions to Muldis Rosetta could be named in this space,
+though it doesn't have to be used if prior coordination happens between
+developers; moreover, this namespace is likely to be used even by the main
+Muldis Rosetta developers to experiment with possible extensions without
+tying up a "good" namespace for them.
 
 =back
 
-=head1 PUBLIC SOLUTIONS BUILT OVER MULDIS DB
+=head1 PUBLIC SOLUTIONS BUILT OVER MULDIS ROSETTA
 
 I<This documentation is pending.>
 
 These Perl 5 applications and frameworks are, perhaps, at the front of the
-line to get Muldis DB bindings: L<Jifty>, L<Catalyst>, L<Maypole>,
+line to get Muldis Rosetta bindings: L<Jifty>, L<Catalyst>, L<Maypole>,
 L<Bricolage>, L<RT>.  Generally speaking, the more active the development
 or the more popular the project, the higher the priority to support it.
 
@@ -254,18 +256,18 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the Muldis DB framework.
+This file is part of the Muldis Rosetta framework.
 
-Muldis DB is Copyright © 2002-2008, Darren Duncan.
+Muldis Rosetta is Copyright © 2002-2008, Darren Duncan.
 
-See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
+See the LICENSE AND COPYRIGHT of L<Muldis::Rosetta> for details.
 
 =head1 TRADEMARK POLICY
 
-The TRADEMARK POLICY in L<Muldis::DB> applies to this file too.
+The TRADEMARK POLICY in L<Muldis::Rosetta> applies to this file too.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Muldis::Rosetta> apply to this file too.
 
 =cut

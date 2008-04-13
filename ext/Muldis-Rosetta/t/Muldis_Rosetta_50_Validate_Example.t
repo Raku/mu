@@ -1,8 +1,8 @@
 use v6-alpha;
 
-use Muldis::DB::Validator;
+use Muldis::Rosetta::Validator;
 
-Muldis::DB::Validator::main(
-    :engine_name('Muldis::DB::Engine::Example'),
+Muldis::Rosetta::Validator::main(
+    :engine_name('Muldis::Rosetta::Engine::Example'),
     :machine_config({}),
 );
