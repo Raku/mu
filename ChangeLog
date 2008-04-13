@@ -67,9 +67,9 @@ is now not hidden, which is consistent with Pugs' "config.yml" nature.
 
 * [ext/HTTP/] - A general purpose HTTP toolkit for Perl 6
 * [ext/MessageBus/] - Message Bus with PubSub protocol
-* [ext/Muldis-DB/] - Full-featured truly relational DBMS in Perl
+* [ext/Muldis-Rosetta/] - Full-featured truly relational DBMS in Perl
 ** This is a rewrite of ext/Rosetta/, which is now deleted
-** Note that any further release changes for Muldis-DB will be detailed in
+** Note, any further release changes for Muldis Rosetta will be detailed in
    its own Changes file rather than the general Pugs ChangeLog file
 * [ext/Web/] - A general purpose Web toolkit for Perl 6
 

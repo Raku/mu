@@ -80,9 +80,9 @@ The "Locale-KeyedText" library is released by Darren Duncan under the GNU
 Lesser General Public License (LGPL), version 2.1 or later.  See
 LICENSE/LGPL-3 and LICENSE/GPL-3.
 
-The "Muldis-DB" library is released by Darren Duncan under the GNU Lesser
-General Public License (LGPL), version 3.0 or later.  See LICENSE/LGPL-3
-and LICENSE/GPL-3.
+The "Muldis-Rosetta" library is released by Darren Duncan under the GNU
+Lesser General Public License (LGPL), version 3.0 or later.  See
+LICENSE/LGPL-3 and LICENSE/GPL-3.
 
 The "WTemplate" library is released by Andras Barthazi under any
 version of the GNU General Public License (GPL).  See LICENSE/GPL-3.

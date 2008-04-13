@@ -962,8 +962,8 @@ None reported.
 =head1 SEE ALSO
 
 These Perl 6 packages may some day be dependents of Locale::KeyedText:
-L<Muldis::DB::AST>, L<Muldis::DB>, L<Muldis::DB::Validator>,
-L<Muldis::DB::Engine::Example>, L<Muldis::DB::Shell>.
+L<Muldis::Rosetta::Interface>, L<Muldis::Rosetta::Validator>,
+L<Muldis::Rosetta::Engine::Example>, L<Muldis::Rosetta::Shell>.
 
 =head1 BUGS AND LIMITATIONS
 

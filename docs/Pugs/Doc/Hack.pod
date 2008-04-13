@@ -151,7 +151,7 @@ Expanding this one level deeper:
     |   |-- MessageBus         Message Bus with PubSub protocol
     |   |-- MIME-Base64        Base64 encode/decode (not a Perl 5 port)
     |   |-- Module-Pluggable-Fast  Find and load plugin modules
-    |   |-- Muldis-DB          Full-featured truly relational DBMS in Perl
+    |   |-- Muldis-Rosetta     Full-featured truly relational DBMS in Perl
     |   |-- Net-IRC            IRC protocol implementation
     |   |-- Parse-Rule         Perl 6 port of the Parrot Grammar Engine
     |   |-- Perl-Compiler      A Perl 6 port of Pugs
