@@ -8,7 +8,7 @@ class EmitSimpleP5 {
   has $.compiler;
 
   method prelude_for_entering_a_package () {
-    "use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';\n"
+    "use autobox; use autobox UNDEF => 'UNDEF';\n"
   };
 
   method prelude_oo () {
@@ -21,27 +21,174 @@ class EmitSimpleP5 {
   };
   method prelude ($n) {
   '#!/usr/bin/perl -w
-use strict;
+#use strict; #XXX narrow, and reenable after typenames are quoted.
 use warnings;
-package main;
-use Data::Dumper; # Used to render Buf strings.
-use Perl6::Say;
-use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+
 {package AssertCurrentModuleVersions;
  use autobox 2.23;
- use autobox::Core 0.4;
 }
-{package NoSideEffects; use Class::Multimethods;}
+{ package NoSideEffects;
+  use Class::Multimethods;
+  use Data::Dumper;
+}
 
 '~self.prelude_oo~'
 
+
 {package UNDEF;}
-{package UNDEF; sub ref{"UNDEF"}}
-{package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
-{package UNIVERSAL; sub WHAT{CORE::ref($_[0]) || "SCALAR"} }
+{package UNDEF; sub WHAT {"Undef"}}
+{package UNIVERSAL; sub ref {CORE::ref($_[0]) || "SCALAR"} } # For IRx1_FromAST.pm.
+{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || "SCALARISH"} }
+
+{ package Object;
+  sub can { UNIVERSAL::can($_[0],$_[1]) }
+  sub isa { UNIVERSAL::isa($_[0],$_[1]) }
+  sub does { UNIVERSAL::isa($_[0],$_[1]) }
+}  
+
+no warnings qw(redefine prototype);
+{ package SCALAR;
+  sub WHAT { my $x = $_[0]; ~$x&$x ? "Str" : $x =~ /\A\d+\z/ ? "Int" : "Num" }
+
+  # randomness taken from autobox::Core
+
+  sub chomp   ($)   { CORE::chomp($_[0]); }
+  sub chop    ($)   { CORE::chop($_[0]); }
+  sub chr     ($)   { CORE::chr($_[0]); }
+  sub crypt   ($$)  { CORE::crypt($_[0], $_[1]); }
+  sub index   ($@)  { CORE::index($_[0], $_[1], @_[2.. $#_]); }
+  sub lc      ($)   { CORE::lc($_[0]); }
+  sub lcfirst ($)   { CORE::lcfirst($_[0]); }
+  sub length  ($)   { CORE::length($_[0]); }
+  sub ord     ($)   { CORE::ord($_[0]); }
+  sub pack    ($;@) { CORE::pack(@_); }
+  sub reverse ($)   { CORE::reverse($_[0]); }
+  sub rindex  ($@)  { CORE::rindex($_[0], $_[1], @_[2.. $#_]); }
+  sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
+  sub substr  ($@)  { CORE::substr($_[0], $_[1], @_[2 .. $#_]); }
+  sub uc      ($)   { CORE::uc($_[0]); }
+  sub ucfirst ($)   { CORE::ucfirst($_[0]); }
+  sub unpack  ($;@) { CORE::unpack($_[0], @_[1..$#_]); }
+  sub quotemeta ($) { CORE::quotemeta($_[0]); }
+  sub vec     ($$$) { CORE::vec($_[0], $_[1], $_[2]); }
+  sub undef   ($)   { $_[0] = undef }
+  sub m       ($$)  { [ $_[0] =~ m{$_[1]} ] }
+  sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
+  sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
+  sub split   ($$)  { [ split $_[1], $_[0] ] }
+
+  sub abs     ($)  { CORE::abs($_[0]) }
+  sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
+  sub cos     ($)  { CORE::cos($_[0]) }
+  sub exp     ($)  { CORE::exp($_[0]) }
+  sub int     ($)  { CORE::int($_[0]) }
+  sub log     ($)  { CORE::log($_[0]) }
+  sub oct     ($)  { CORE::oct($_[0]) }
+  sub hex     ($)  { CORE::hex($_[0]); }
+  sub rand    ($)  { CORE::rand($_[0]) }
+  sub sin     ($)  { CORE::sin($_[0]) }
+  sub sqrt    ($)  { CORE::sqrt($_[0]) }
+
+  sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
+  sub upto ($$) { [ $_[0]..$_[1] ] }
+  sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
+}
+{ package ARRAY;
+  sub WHAT {"Array"}
+
+  sub shape { my $a = CORE::shift; 0+@$a } # ?
+  sub end { my $a = CORE::shift; -1+@$a } # ?
+  sub elems { my $a = CORE::shift; CORE::scalar @$a }
+  sub delete { my $a = CORE::shift; @_ ? CORE::delete($a->[$_[0]]) : undef }
+  sub exists { my $a = CORE::shift; @_ ? CORE::exists($a->[$_[0]]) : undef }
+  sub pop (\@) { CORE::pop @{$_[0]}; }
+  sub shift { my $a = CORE::shift; CORE::shift(@$a) }
+  sub push { my $a = CORE::shift; CORE::push(@$a,@_); $a }
+  sub unshift { my $a = CORE::shift; CORE::unshift(@$a,@_) }
+  sub splice {
+    my $a = CORE::shift;
+    my $offset = CORE::shift || 0;
+    my $size = CORE::shift || 0;
+    [CORE::splice(@{$a},$offset,$size,@_)]
+  }
+  sub keys { my $a = CORE::shift; [0..(@$a-1)] }
+  sub kv { my $a = CORE::shift; my $idx = 0; [map{($idx++,$_)}@$a] }
+  sub pairs { my $a = CORE::shift; my $idx = 0; [map{Pair->new("key"=>$idx++,"value"=>$_)}@$a] }
+  sub values { my $a = CORE::shift; @$a }
+
+  # Speculative
+
+  sub clone { my $a = CORE::shift; [@$a] }
+
+  # Non-spec
+
+  sub grep (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::grep { $sub->($_) } @$arr ]; }
+  sub join (\@$) { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
+  sub map (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::map { $sub->($_) } @$arr ]; }
+  sub reverse (\@) { [ CORE::reverse @{$_[0]} ] }
+  sub sort (\@;&) { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a cmp $b }; [ CORE::sort { $sub->($a, $b) } @$arr ]; }
+  sub max(\@) { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
+  sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
+
+  sub each (\@$) {
+    my $arr = CORE::shift; my $sub = CORE::shift;
+    foreach my $i (@$arr) {$sub->($i);}
+  }
+  sub each_with_index (\@$) {
+    my $arr = CORE::shift; my $sub = CORE::shift;
+    for(my $i = 0; $i < $#$arr; $i++) {$sub->($i, $arr->[$i]);}
+  }
+
+  # Internal
+
+  sub flatten (\@) { ( @{$_[0]} ) }
+}
+{ package HASH;
+  sub WHAT {"Hash"}
+
+  # randomness taken from autobox::Core
+
+  sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
+  sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
+  sub keys (\%) { [ CORE::keys %{$_[0]} ] }
+  sub values (\%) { [ CORE::values %{$_[0]} ] }
+
+  sub each (\%$) {
+    my $hash = CORE::shift;
+    my $cb = CORE::shift;
+    while((my $k, my $v) = CORE::each(%$hash)) {
+      $cb->($k, $v);
+    }
+  }
+
+  # spec
+
+  sub kv { my $h = CORE::shift; [map{($_,$h->{$_})} CORE::keys %$h] }
+  sub pairs { my $h = CORE::shift; [map{Pair->new("key"=>$_,"value"=>$h->{$_})} CORE::keys %$h] }
+
+  # Speculative
+
+  sub clone {
+    my $h = CORE::shift;
+    # Do not simplify this to "...ift; {%$h} }".  returns 0.  autobox issue?
+    my $h1 = {%$h}; $h1
+  }
+
+  # Temporary
+
+  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1} # obsolete
+}
+use warnings;
+
+{ package Any; sub __make_not_empty_for_use_base{}}
+{ package SCALAR; use base "Any";}
+{ package ARRAY; use base "Any";}
+{ package HASH; use base "Any";}
+{ package CODE; use base "Any";}
+
 
 { package GLOBAL;
-  use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+  use autobox; use autobox UNDEF => "UNDEF";
   use Perl6::Say;
 
   our $a_ARGS = [@ARGV];
@@ -65,23 +212,8 @@ use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 }
 
 { package SCALAR;
-sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
-sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
-}
-
-{ package ARRAY;
-# absent from autobox::Core
-sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
-sub copy { my $a = CORE::shift; [@$a] }
-# buggy in autobox::Core
-BEGIN{my $x = *ARRAY::unshift; undef &$x;}
-sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
-}
-{ package HASH;
-  sub dup { my $h = CORE::shift;
-            # dont simplify to "...ift; {%$h} }".  returns 0.  autobox issue?
-            my $h1 = {%$h}; $h1
-  }
+  sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
+  sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
 
 
@@ -132,15 +264,19 @@ sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
   }
 }
 
-package main;
+package main; # -> Main once elf_d support is dropped.
+use autobox; use autobox UNDEF => "UNDEF";
 ';
   };
 
   method e($x) {
-    my $ref = $x.ref;
-    if $ref eq 'UNDEF' { $x }
-    elsif $ref eq 'SCALAR' { $x }
-    elsif $ref eq 'ARRAY' { $x.map(sub($ae){$.e($ae)}) }
+    my $ref = $x.WHAT;
+    if $ref eq 'Undef' { $x }
+    elsif $ref eq 'UNDEF' { $x }  # until off elf_d
+    elsif $ref eq 'SCALAR' { $x }  # until off elf_d
+    elsif $ref eq 'Str' || $ref eq 'Int' || $ref eq 'Num' { $x }
+    elsif $ref eq 'Array' { $x.map(sub($ae){$.e($ae)}) }
+    elsif $ref eq 'ARRAY' { $x.map(sub($ae){$.e($ae)}) } # until off elf_d
     else {$x.callback(self)}
   };
 
@@ -184,8 +320,7 @@ package main;
       my $pkgname = $^whiteboard::in_package.join('::');
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
       $name.re_gsub('^::','');
-      #'BEGIN{ print STDERR join(", ",(grep{/^Moose::Object$/ ? () : $_} @'~$pkgname~'::ISA),q('~$name~')),"\n";'~"}\n"~
-      'BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @'~$pkgname~'::ISA),q('~$name~')) }'~"\n"
+      "use base '"~$name~"';\n";
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n<verb>~" has not been implemented.\n";
       "***Trait***"
@@ -235,7 +370,7 @@ package main;
       $h->{$type} = $m->{code}{q{&!body}};
     };
     my $s = eval q{sub {
-      my $ref = ref($_[1]) || "SCALAR";
+      my $ref = ref($_[1]) || $_[1]->WHAT;
       my $f = $h->{$ref}; goto $f if $f;
       Carp::croak "multi method '~$name~' cant dispatch on type: ".$ref."\n";
     }};
@@ -255,7 +390,9 @@ package main;
   method multimethods_using_CM ($n,$name,$type0) {
     my $n_args = $n<multisig><parameters>.elems;
     $type0 = $type0.re_gsub('^Any$','*');
-    $type0 = $type0.re_gsub('^SCALAR$','$');
+    $type0 = $type0.re_gsub('^Int$','#');
+    $type0 = $type0.re_gsub('^Num$','#');
+    $type0 = $type0.re_gsub('^Str$','$');
     my $param_padding = "";  my $i = 1;
     while $i < $n_args { $i = $i + 1; $param_padding = $param_padding ~ ' * '; }
     'Class::Multimethods::multimethod '~$name~

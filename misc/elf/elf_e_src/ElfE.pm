@@ -5,4 +5,5 @@ use IRx1_Analysis;
 use EmitSimpleP5_fromIRx1;
 use ElfD_Parser;
 use ElfD_Compiler;
+use ElfE_Prelude;
 use ElfD_CommandLine;

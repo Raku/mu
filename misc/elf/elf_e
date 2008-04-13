@@ -1,13 +1,14 @@
 #!/usr/bin/perl -w
-package main;
-use Data::Dumper; # Used to render Buf strings.
-use Perl6::Say;
-use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+use strict;
+use warnings;
+
 {package AssertCurrentModuleVersions;
  use autobox 2.23;
- use autobox::Core 0.4;
 }
-{package NoSideEffects; use Class::Multimethods;}
+{ package NoSideEffects;
+  use Class::Multimethods;
+  use Data::Dumper;
+}
 
 
 {package AssertCurrentModuleVersions;
@@ -16,101 +17,245 @@ use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 }
 
 
-our $a_ARGS = [@ARGV];
 
 {package UNDEF;}
-{package UNDEF; sub ref{"UNDEF"}}
-{package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
-{package UNIVERSAL; sub WHAT{CORE::ref($_[0]) || "SCALAR"} }
+{package UNDEF; sub WHAT {"Undef"}}
+{package UNIVERSAL; sub ref {CORE::ref($_[0]) || "SCALAR"} } # For IRx1_FromAST.pm.
+{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || "SCALARISH"} }
 
-sub ::undef{undef}
+{ package Object;
+  sub can { UNIVERSAL::can($_[0],$_[1]) }
+  sub isa { UNIVERSAL::isa($_[0],$_[1]) }
+  sub does { UNIVERSAL::isa($_[0],$_[1]) }
+}  
 
-use Carp;
-sub slurp{my($file)=@_; my $s = `cat $file`; $s}
-sub unslurp{
-  my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
-sub file_exists{-e $_[0]}
-sub system{CORE::system(@_)}
-sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
-sub ::die{croak @_}
-sub ::exit{CORE::exit(@_)}
-sub ::defined{CORE::defined($_[0])}
-sub ::substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
-sub ::not ($){CORE::not $_[0]}
-sub ::exec{CORE::exec(@_)}
-sub ::sleep{CORE::sleep(@_)}
-
-# because the p5->p6 massage of ast_handlers isnt massaging join.
-sub ::join{CORE::join(CORE::shift,@_)}
-# end
-
+no warnings qw(redefine prototype);
 { package SCALAR;
-sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
-sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
-}
+  sub WHAT { my $x = $_[0]; ~$x&$x ? "Str" : $x =~ /\A\d+\z/ ? "Int" : "Num" }
 
+  # randomness taken from autobox::Core
+
+  sub chomp   ($)   { CORE::chomp($_[0]); }
+  sub chop    ($)   { CORE::chop($_[0]); }
+  sub chr     ($)   { CORE::chr($_[0]); }
+  sub crypt   ($$)  { CORE::crypt($_[0], $_[1]); }
+  sub index   ($@)  { CORE::index($_[0], $_[1], @_[2.. $#_]); }
+  sub lc      ($)   { CORE::lc($_[0]); }
+  sub lcfirst ($)   { CORE::lcfirst($_[0]); }
+  sub length  ($)   { CORE::length($_[0]); }
+  sub ord     ($)   { CORE::ord($_[0]); }
+  sub pack    ($;@) { CORE::pack(@_); }
+  sub reverse ($)   { CORE::reverse($_[0]); }
+  sub rindex  ($@)  { CORE::rindex($_[0], $_[1], @_[2.. $#_]); }
+  sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
+  sub substr  ($@)  { CORE::substr($_[0], $_[1], @_[2 .. $#_]); }
+  sub uc      ($)   { CORE::uc($_[0]); }
+  sub ucfirst ($)   { CORE::ucfirst($_[0]); }
+  sub unpack  ($;@) { CORE::unpack($_[0], @_[1..$#_]); }
+  sub quotemeta ($) { CORE::quotemeta($_[0]); }
+  sub vec     ($$$) { CORE::vec($_[0], $_[1], $_[2]); }
+  sub undef   ($)   { $_[0] = undef }
+  sub m       ($$)  { [ $_[0] =~ m{$_[1]} ] }
+  sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
+  sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
+  sub split   ($$)  { [ split $_[1], $_[0] ] }
+
+  sub abs     ($)  { CORE::abs($_[0]) }
+  sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
+  sub cos     ($)  { CORE::cos($_[0]) }
+  sub exp     ($)  { CORE::exp($_[0]) }
+  sub int     ($)  { CORE::int($_[0]) }
+  sub log     ($)  { CORE::log($_[0]) }
+  sub oct     ($)  { CORE::oct($_[0]) }
+  sub hex     ($)  { CORE::hex($_[0]); }
+  sub rand    ($)  { CORE::rand($_[0]) }
+  sub sin     ($)  { CORE::sin($_[0]) }
+  sub sqrt    ($)  { CORE::sqrt($_[0]) }
+
+  sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
+  sub upto ($$) { [ $_[0]..$_[1] ] }
+  sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
+}
 { package ARRAY;
-# absent from autobox::Core
-sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
-sub copy { my $a = CORE::shift; [@$a] }
-# buggy in autobox::Core
-BEGIN{my $x = *ARRAY::unshift; undef &$x;}
-sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
+  sub WHAT {"Array"}
+
+  sub shape { my $a = CORE::shift; 0+@$a } # ?
+  sub end { my $a = CORE::shift; -1+@$a } # ?
+  sub elems { my $a = CORE::shift; CORE::scalar @$a }
+  sub delete { my $a = CORE::shift; @_ ? CORE::delete($a->[$_[0]]) : undef }
+  sub exists { my $a = CORE::shift; @_ ? CORE::exists($a->[$_[0]]) : undef }
+  sub pop (\@) { CORE::pop @{$_[0]}; }
+  sub shift { my $a = CORE::shift; CORE::shift(@$a) }
+  sub push { my $a = CORE::shift; CORE::push(@$a,@_); $a }
+  sub unshift { my $a = CORE::shift; CORE::unshift(@$a,@_) }
+  sub splice {
+    my $a = CORE::shift;
+    my $offset = CORE::shift || 0;
+    my $size = CORE::shift || 0;
+    [CORE::splice(@{$a},$offset,$size,@_)]
+  }
+  sub keys { my $a = CORE::shift; [0..(@$a-1)] }
+  sub kv { my $a = CORE::shift; my $idx = 0; [map{($idx++,$_)}@$a] }
+  sub pairs { my $a = CORE::shift; my $idx = 0; [map{Pair->new("key"=>$idx++,"value"=>$_)}@$a] }
+  sub values { my $a = CORE::shift; @$a }
+
+  # Speculative
+
+  sub clone { my $a = CORE::shift; [@$a] }
+
+  # Non-spec
+
+  sub grep (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::grep { $sub->($_) } @$arr ]; }
+  sub join (\@$) { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
+  sub map (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::map { $sub->($_) } @$arr ]; }
+  sub reverse (\@) { [ CORE::reverse @{$_[0]} ] }
+  sub sort (\@;&) { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a cmp $b }; [ CORE::sort { $sub->($a, $b) } @$arr ]; }
+  sub max(\@) { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
+  sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
+
+  sub each (\@$) {
+    my $arr = CORE::shift; my $sub = CORE::shift;
+    foreach my $i (@$arr) {$sub->($i);}
+  }
+  sub each_with_index (\@$) {
+    my $arr = CORE::shift; my $sub = CORE::shift;
+    for(my $i = 0; $i < $#$arr; $i++) {$sub->($i, $arr->[$i]);}
+  }
+
+  # Internal
+
+  sub flatten (\@) { ( @{$_[0]} ) }
 }
 { package HASH;
-  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1 }
-}
+  sub WHAT {"Hash"}
 
-sub parser_name{
-  my $f = $0;
-  $f =~ s/[^\/]+$//;
-  $f."../STD_red/STD_red_run"
-}
+  # randomness taken from autobox::Core
 
-our $a_INC = ["."];
-sub ::require {
-  my($module)=@_;
-  my $file = find_required_module($module);
-  $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$a_INC)." ).\n";
-  eval_file($file);
-};
-sub ::find_required_module {
-  my($module)=@_;
-  my @names = ($module,$module.".pm",$module.".p6");
-  for my $dir (@$a_INC) {
-    for my $name (@names) {
-      my $file = $dir."/".$name;
-      if(-f $file) {
-        return $file;
-      }
+  sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
+  sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
+  sub keys (\%) { [ CORE::keys %{$_[0]} ] }
+  sub values (\%) { [ CORE::values %{$_[0]} ] }
+
+  sub each (\%$) {
+    my $hash = CORE::shift;
+    my $cb = CORE::shift;
+    while((my $k, my $v) = CORE::each(%$hash)) {
+      $cb->($k, $v);
     }
   }
-  return undef;
+
+  # spec
+
+  sub kv { my $h = CORE::shift; [map{($_,$h->{$_})} CORE::keys %$h] }
+  sub pairs { my $h = CORE::shift; [map{Pair->new("key"=>$_,"value"=>$h->{$_})} CORE::keys %$h] }
+
+  # Speculative
+
+  sub clone {
+    my $h = CORE::shift;
+    # Do not simplify this to "...ift; {%$h} }".  returns 0.  autobox issue?
+    my $h1 = {%$h}; $h1
+  }
+
+  # Temporary
+
+  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1} # obsolete
+}
+use warnings;
+
+{ package Any; sub __make_not_empty_for_use_base{}}
+{ package SCALAR; use base "Any";}
+{ package ARRAY; use base "Any";}
+{ package HASH; use base "Any";}
+{ package CODE; use base "Any";}
+
+
+{ package GLOBAL;
+  use autobox; use autobox UNDEF => "UNDEF";
+  use Perl6::Say;
+
+  our $a_ARGS = [@ARGV];
+
+  sub undef{undef}
+
+  use Carp;
+  sub slurp{my($file)=@_; my $s = `cat $file`; $s}
+  sub unslurp{
+    my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
+  sub file_exists{-e $_[0]}
+  sub system{CORE::system(@_)}
+  sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+  sub die{croak @_}
+  sub exit{CORE::exit(@_)}
+  sub defined{CORE::defined($_[0])}
+  sub substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
+  sub not ($){CORE::not $_[0]}
+  sub exec{CORE::exec(@_)}
+  sub sleep{CORE::sleep(@_)}
 }
 
-our $compiler0;
-our $compiler1;
-our $parser0;
-our $parser1;
-our $emitter0;
-our $emitter1;
-sub ::eval_file {
-  my($file)=@_;
-  $compiler0->eval_file($file);
-}
-sub ::eval_perl6 {
-  my($code)=@_;
-  $compiler0->eval_perl6($code);
+{ package SCALAR;
+  sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
+  sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
 
-package main;
+
+{ package GLOBAL;
+
+  sub parser_name{
+    my $f = $0;
+    $f =~ s/[^\/]+$//;
+    $f."../STD_red/STD_red_run"
+  }
+
+  our $a_INC = ["."];
+
+  sub require {
+    my($module)=@_;
+    my $file = find_required_module($module);
+    $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$GLOBAL::a_INC)." ).\n";
+    eval_file($file);
+  };
+  sub find_required_module {
+    my($module)=@_;
+    my @names = ($module,$module.".pm",$module.".p6");
+    for my $dir (@$GLOBAL::a_INC) {
+      for my $name (@names) {
+        my $file = $dir."/".$name;
+        if(-f $file) {
+          return $file;
+        }
+      }
+    }
+    return undef;
+  }
+
+  our $compiler0;
+  our $compiler1;
+  our $parser0;
+  our $parser1;
+  our $emitter0;
+  our $emitter1;
+
+  sub eval_file {
+    my($file)=@_;
+    $GLOBAL::compiler0->eval_file($file);
+  }
+  sub eval_perl6 {
+    my($code)=@_;
+    $GLOBAL::compiler0->eval_perl6($code);
+  }
+}
+
+package main; # -> Main once elf_d support is dropped.
+use autobox; use autobox UNDEF => "UNDEF";
 
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 has 'rule' => (is => 'rw');;
 has 'str' => (is => 'rw');;
 has 'from' => (is => 'rw');;
@@ -124,7 +269,7 @@ for($self->hash->keys()->flatten){
 my $k = $_;
 my $v = $self->hash->{$k};
 my $vs = 'undef';
-if(::defined($v)) {
+if(GLOBAL::defined($v)) {
 ($vs = $v->match_describe())
 };
 ($s = ((((($s . '
@@ -147,7 +292,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub match_describe{my $self=CORE::shift;((('[
 ' . Match->indent($self->map(sub {my($e)=@_;
 $e->match_describe()})->join(',
@@ -160,7 +305,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package SCALAR;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')};
 __PACKAGE__->meta->make_immutable();
 
@@ -168,11 +313,11 @@ __PACKAGE__->meta->make_immutable();
 
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub irx1_describe{my $self=CORE::shift;(('[' . $self->map(sub {my($e)=@_;
 $e->irx1_describe()})->join(',')) . ']')};
 __PACKAGE__->meta->make_immutable();
@@ -182,7 +327,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package SCALAR;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub irx1_describe{my $self=CORE::shift;($self . '')};
 __PACKAGE__->meta->make_immutable();
 
@@ -191,7 +336,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package UNDEF;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub irx1_describe{my $self=CORE::shift;'undef'};
 __PACKAGE__->meta->make_immutable();
 
@@ -200,11 +345,11 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 ;
 __PACKAGE__->meta->make_immutable();
 
@@ -213,7 +358,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 ;
 __PACKAGE__->meta->make_immutable();
 
@@ -222,8 +367,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::CompUnit::ISA),q(IRx1::CompUnit_and_Block)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::CompUnit_and_Block';
 ;
 __PACKAGE__->meta->make_immutable();
 
@@ -232,8 +377,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Block::ISA),q(IRx1::CompUnit_and_Block)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::CompUnit_and_Block';
 ;
 __PACKAGE__->meta->make_immutable();
 
@@ -242,8 +387,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::CompUnit::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'filename' => (is => 'rw');;
@@ -263,8 +408,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Block::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -283,8 +428,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Use;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Use::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'module_name' => (is => 'rw');;
@@ -305,8 +450,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::PackageDecl::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -330,8 +475,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MethodDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::MethodDecl::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
@@ -358,8 +503,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::SubDecl::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
@@ -384,8 +529,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MacroDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::MacroDecl::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
@@ -410,8 +555,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::VarDecl::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
@@ -437,8 +582,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Var;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Var::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
@@ -459,8 +604,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Trait;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Trait::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'verb' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
@@ -480,8 +625,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ClosureTrait;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::ClosureTrait::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'block' => (is => 'rw');;
@@ -501,8 +646,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ModuleName;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::ModuleName::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
@@ -522,8 +667,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PathName;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::PathName::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'path' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -542,8 +687,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubName;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::SubName::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'category' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
@@ -565,8 +710,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ShapedParamName;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::ShapedParamName::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'postcircumfix' => (is => 'rw');;
@@ -586,8 +731,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Call;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Call::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'method' => (is => 'rw');;
@@ -608,8 +753,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Apply::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'function' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
@@ -629,8 +774,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Hyper;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Hyper::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'operator' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
@@ -650,8 +795,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Capture;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Capture::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -670,8 +815,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MultiSig;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::MultiSig::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'signatures' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -690,8 +835,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Signature;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Signature::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'return_type' => (is => 'rw');;
@@ -711,8 +856,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Parameter;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Parameter::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'type_constraints' => (is => 'rw');;
 has 'quant' => (is => 'rw');;
@@ -737,8 +882,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::TypeConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::TypeConstraint::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
@@ -758,8 +903,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PostConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::PostConstraint::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'multisig' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
@@ -779,8 +924,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ParamVar;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::ParamVar::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
@@ -801,8 +946,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Undef;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Undef::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
@@ -820,8 +965,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumInt;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::NumInt::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 has 'base' => (is => 'rw');;
@@ -841,8 +986,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumDec;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::NumDec::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
 has 'fracpart' => (is => 'rw');;
@@ -863,8 +1008,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumRad;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::NumRad::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'radix' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
@@ -887,8 +1032,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Array;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Array::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -907,8 +1052,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Hash::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -927,8 +1072,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Pair::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -948,8 +1093,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Type;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Type::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'typename' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -968,8 +1113,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Rx;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Rx::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'pat' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -988,8 +1133,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Buf;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Buf::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1008,8 +1153,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::For;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::For::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
@@ -1029,8 +1174,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Cond;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Cond::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'clauses' => (is => 'rw');;
 has 'default' => (is => 'rw');;
@@ -1051,8 +1196,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Loop;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @IRx1::Loop::ISA),q(IRx1::Base)) }
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'pretest' => (is => 'rw');;
 has 'block' => (is => 'rw');;
@@ -1077,11 +1222,11 @@ __PACKAGE__->meta->make_immutable();
 
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 has 'constructors' => (is => 'rw');;
 ($main::irbuilder = IRx1_Build->new());
 sub add_constructor{my $self=CORE::shift;my($k,$constructor)=@_;
@@ -1098,7 +1243,7 @@ my $constructor = $self->constructors->{$rule};
 if(($constructor)) {
 $constructor->($m)
 }else {
-::die((('Unknown rule: ' . $rule) . '
+GLOBAL::die((('Unknown rule: ' . $rule) . '
 It needs to be added to ast_handlers.
 '))
 }};
@@ -1109,7 +1254,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$main::irbuilder->make_ir_from_Match_tree($self)};
 __PACKAGE__->meta->make_immutable();
 
@@ -1118,7 +1263,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self->map(sub {my($e)=@_;
 $e->make_ir_from_Match_tree()})};
 __PACKAGE__->meta->make_immutable();
@@ -1128,7 +1273,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package SCALAR;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self};
 __PACKAGE__->meta->make_immutable();
 
@@ -1137,7 +1282,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package UNDEF;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self};
 __PACKAGE__->meta->make_immutable();
 
@@ -1148,230 +1293,230 @@ $x->make_ir_from_Match_tree()};
 
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
-IRx1::CompUnit->newp($m, ::irbuild_ir($m->{'hash'}->{'statementlist'}))});
+IRx1::CompUnit->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))});
 $main::irbuilder->add_constructor('statement', sub {my($m)=@_;
 my $key;
 for($m->{'hash'}->keys()->flatten){
 if(($_ ne 'match')) {
 if($key) {
-::die('Unexpectedly more than 1 field - dont know which to choose
+GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 ')
 };
 ($key = $_)
 }
 };
-my $one = ::irbuild_ir($m->{'hash'}->{$key});
+my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
 $main::irbuilder->add_constructor('expect_term', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = ::irbuild_ir($m->{'hash'}->{'noun'});
+{package main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = irbuild_ir($m->{'hash'}->{'noun'});
 my $post = ($m->{'hash'}->{'post'} || []);
 for($post->flatten){
-($::es_blackboard__expect_term_base = ::irbuild_ir($_))
+($::es_blackboard__expect_term_base = irbuild_ir($_))
 };
 $::es_blackboard__expect_term_base});
 $main::irbuilder->add_constructor('post', sub {my($m)=@_;
-(::irbuild_ir($m->{'hash'}->{'dotty'}) or ::irbuild_ir($m->{'hash'}->{'postop'}))});
+(irbuild_ir($m->{'hash'}->{'dotty'}) or irbuild_ir($m->{'hash'}->{'postop'}))});
 $main::irbuilder->add_constructor('dotty:methodop', sub {my($m)=@_;
-IRx1::Call->newp($m, $::es_blackboard__expect_term_base, ::irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, ::irbuild_ir($m->{'hash'}->{'semilist'})))});
+IRx1::Call->newp($m, $::es_blackboard__expect_term_base, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))});
 $main::irbuilder->add_constructor('dotty:postcircumfix', sub {my($m)=@_;
 my $s = ($m->match_string());
-my $name = ((::substr($s, 0, 1) . ' ') . ::substr($s, (0 - 1), 1));
+my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (0 - 1), 1));
 my $ident = ('postcircumfix:' . $name);
-my $args = ::irbuild_ir($m->{'hash'}->{'kludge_name'});
+my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() eq 'SCALAR')))) {
 ($args = [$args])
 };
 IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))});
 $main::irbuilder->add_constructor('postcircumfix', sub {my($m)=@_;
 my $s = ($m->match_string());
-my $name = ((::substr($s, 0, 1) . ' ') . ::substr($s, (0 - 1), 1));
+my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (0 - 1), 1));
 my $ident = ('postcircumfix:' . $name);
-my $args = ::irbuild_ir($m->{'hash'}->{'kludge_name'});
+my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() eq 'SCALAR')))) {
 ($args = [$args])
 };
 IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))});
 $main::irbuilder->add_constructor('term:expect_term', sub {my($m)=@_;
-::irbuild_ir($m->{'hash'}->{'noun'})});
+irbuild_ir($m->{'hash'}->{'noun'})});
 $main::irbuilder->add_constructor('term', sub {my($m)=@_;
 if((($m->match_string()) eq 'self')) {
 IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []))
 }else {
-::die('AST term partially unimplemented.
+GLOBAL::die('AST term partially unimplemented.
 ')
 }});
 $main::irbuilder->add_constructor('integer', sub {my($m)=@_;
 IRx1::NumInt->newp($m, ($m->match_string()))});
 $main::irbuilder->add_constructor('subcall', sub {my($m)=@_;
-my $t = ::irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'twigil'});
+my $t = irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'twigil'});
 if(($t && ($t eq '.'))) {
-IRx1::Call->newp($m, IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, [])), ::irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'desigilname'}->{'hash'}->{'ident'}), IRx1::Capture->newp($m, ::irbuild_ir($m->{'hash'}->{'semilist'})))
+IRx1::Call->newp($m, IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, [])), irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'desigilname'}->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))
 }else {
-IRx1::Apply->newp($m, ::irbuild_ir($m->{'hash'}->{'subshortname'}), IRx1::Capture->newp($m, ::irbuild_ir($m->{'hash'}->{'semilist'})))
+IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'subshortname'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))
 }});
 $main::irbuilder->add_constructor('name', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('statement_control:use', sub {my($m)=@_;
-IRx1::Use->newp($m, 'use', ::irbuild_ir($m->{'hash'}->{'module_name'}))});
+IRx1::Use->newp($m, 'use', irbuild_ir($m->{'hash'}->{'module_name'}))});
 $main::irbuilder->add_constructor('module_name:depreciated', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('module_name:normal', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('statement_control:BEGIN', sub {my($m)=@_;
-IRx1::ClosureTrait->newp($m, 'BEGIN', ::irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::ClosureTrait->newp($m, 'BEGIN', irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('term:listop', sub {my($m)=@_;
-my $not_really_an_arglist = ::irbuild_ir($m->{'hash'}->{'arglist'});
-if(::irbuild_ir($m->{'hash'}->{'arglist'})) {
-IRx1::Apply->newp($m, ::irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, [$not_really_an_arglist]))
+my $not_really_an_arglist = irbuild_ir($m->{'hash'}->{'arglist'});
+if(irbuild_ir($m->{'hash'}->{'arglist'})) {
+IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, [$not_really_an_arglist]))
 }else {
-IRx1::Apply->newp($m, ::irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, []))
+IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, []))
 }});
 $main::irbuilder->add_constructor('quote:q', sub {my($m)=@_;
-IRx1::Buf->newp($m, ::irbuild_ir($m->{'hash'}->{'text'}))});
+IRx1::Buf->newp($m, irbuild_ir($m->{'hash'}->{'text'}))});
 $main::irbuilder->add_constructor('quote:qq', sub {my($m)=@_;
-my $s = ::irbuild_ir($m->{'hash'}->{'text'});
+my $s = irbuild_ir($m->{'hash'}->{'text'});
 $s->re_gsub(qr/(?<!\\)\\n/, '
 ');
 $s->re_gsub(qr/(?<!\\)\\t/, '	');
 IRx1::Buf->newp($m, $s)});
 $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
-my $s = ::irbuild_ir($m->{'hash'}->{'text'});
+my $s = irbuild_ir($m->{'hash'}->{'text'});
 IRx1::Rx->newp($m, $s)});
 $main::irbuilder->add_constructor('infix', sub {my($m)=@_;
 my $op = ($m->match_string());
 if(($op eq 'str')) {
 ($op = '=')
 };
-IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, [::irbuild_ir($m->{'hash'}->{'left'}), ::irbuild_ir($m->{'hash'}->{'right'})]))});
+IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'left'}), irbuild_ir($m->{'hash'}->{'right'})]))});
 $main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
-my $vd = ::irbuild_ir($m->{'hash'}->{'scoped'});
-IRx1::VarDecl->newp($m, 'my', ::undef(), ::undef(), $vd->[0], ::undef(), ::undef(), '=', $vd->[1])});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scope_declarator:has', sub {my($m)=@_;
-my $vd = ::irbuild_ir($m->{'hash'}->{'scoped'});
-IRx1::VarDecl->newp($m, 'has', ::undef(), ::undef(), $vd->[0], ::undef(), ::undef(), '=', $vd->[1])});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+IRx1::VarDecl->newp($m, 'has', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scope_declarator:our', sub {my($m)=@_;
-my $vd = ::irbuild_ir($m->{'hash'}->{'scoped'});
-IRx1::VarDecl->newp($m, 'our', ::undef(), ::undef(), $vd->[0], ::undef(), ::undef(), '=', $vd->[1])});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+IRx1::VarDecl->newp($m, 'our', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scoped', sub {my($m)=@_;
 my $key;
 for($m->{'hash'}->keys()->flatten){
 if(($_ ne 'match')) {
 if($key) {
-::die('Unexpectedly more than 1 field - dont know which to choose
+GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 ')
 };
 ($key = $_)
 }
 };
-my $one = ::irbuild_ir($m->{'hash'}->{$key});
+my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
 $main::irbuilder->add_constructor('variable_decl', sub {my($m)=@_;
-[::irbuild_ir($m->{'hash'}->{'variable'}), ::irbuild_ir($m->{'hash'}->{'default_value'})]});
+[irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'})]});
 $main::irbuilder->add_constructor('variable', sub {my($m)=@_;
-IRx1::Var->newp($m, ::irbuild_ir($m->{'hash'}->{'sigil'}), ::irbuild_ir($m->{'hash'}->{'twigil'}), ::irbuild_ir($m->{'hash'}->{'desigilname'}))});
+IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), irbuild_ir($m->{'hash'}->{'twigil'}), irbuild_ir($m->{'hash'}->{'desigilname'}))});
 $main::irbuilder->add_constructor('sigil', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('twigil', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('circumfix', sub {my($m)=@_;
 my $s = ($m->match_string());
-my $name = ((::substr($s, 0, 1) . ' ') . ::substr($s, (0 - 1), 1));
-my $args = ::irbuild_ir($m->{'hash'}->{'kludge_name'});
+my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (0 - 1), 1));
+my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() eq 'SCALAR')))) {
 ($args = [$args])
 };
 IRx1::Apply->newp($m, ('circumfix:' . $name), IRx1::Capture->newp($m, $args))});
 $main::irbuilder->add_constructor('statement_control:for', sub {my($m)=@_;
-IRx1::For->newp($m, ::irbuild_ir($m->{'hash'}->{'expr'}), ::irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::For->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('statement_control:while', sub {my($m)=@_;
-IRx1::Loop->newp($m, ::irbuild_ir($m->{'hash'}->{'expr'}), ::irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::Loop->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('statement_control:if', sub {my($m)=@_;
-my $els = ::irbuild_ir($m->{'hash'}->{'else'});
+my $els = irbuild_ir($m->{'hash'}->{'else'});
 if($els) {
 ($els = $els->[0])
 };
-IRx1::Cond->newp($m, [[::irbuild_ir($m->{'hash'}->{'if_expr'}), ::irbuild_ir($m->{'hash'}->{'if_block'})]]->push(::irbuild_ir($m->{'hash'}->{'elsif'})->flatten()), $els)});
+IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'if_expr'}), irbuild_ir($m->{'hash'}->{'if_block'})]]->push(irbuild_ir($m->{'hash'}->{'elsif'})->flatten()), $els)});
 $main::irbuilder->add_constructor('elsif', sub {my($m)=@_;
-[::irbuild_ir($m->{'hash'}->{'elsif_expr'}), ::irbuild_ir($m->{'hash'}->{'elsif_block'})]});
+[irbuild_ir($m->{'hash'}->{'elsif_expr'}), irbuild_ir($m->{'hash'}->{'elsif_block'})]});
 $main::irbuilder->add_constructor('if__else', sub {my($m)=@_;
 my $key;
 for($m->{'hash'}->keys()->flatten){
 if(($_ ne 'match')) {
 if($key) {
-::die('Unexpectedly more than 1 field - dont know which to choose
+GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 ')
 };
 ($key = $_)
 }
 };
-my $one = ::irbuild_ir($m->{'hash'}->{$key});
+my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
 $main::irbuilder->add_constructor('pblock', sub {my($m)=@_;
 my $key;
 for($m->{'hash'}->keys()->flatten){
 if(($_ ne 'match')) {
 if($key) {
-::die('Unexpectedly more than 1 field - dont know which to choose
+GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 ')
 };
 ($key = $_)
 }
 };
-my $one = ::irbuild_ir($m->{'hash'}->{$key});
+my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
 $main::irbuilder->add_constructor('block', sub {my($m)=@_;
-IRx1::Block->newp($m, ::irbuild_ir($m->{'hash'}->{'statementlist'}))});
+IRx1::Block->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))});
 $main::irbuilder->add_constructor('plurality_declarator:multi', sub {my($m)=@_;
 {package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality = 'multi';
-::irbuild_ir($m->{'hash'}->{'pluralized'})});
+irbuild_ir($m->{'hash'}->{'pluralized'})});
 $main::irbuilder->add_constructor('routine_declarator:routine_def', sub {my($m)=@_;
 my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
 my $ident = '';
-if(::irbuild_ir($m->{'hash'}->{'ident'})) {
-($ident = ::irbuild_ir($m->{'hash'}->{'ident'})->[0])
+if(irbuild_ir($m->{'hash'}->{'ident'})) {
+($ident = irbuild_ir($m->{'hash'}->{'ident'})->[0])
 };
-my $sig = IRx1::Signature->newp($m, [], ::undef());
-if(::irbuild_ir($m->{'hash'}->{'multisig'})) {
-($sig = ::irbuild_ir($m->{'hash'}->{'multisig'})->[0])
+my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
+if(irbuild_ir($m->{'hash'}->{'multisig'})) {
+($sig = irbuild_ir($m->{'hash'}->{'multisig'})->[0])
 };
-IRx1::SubDecl->newp($m, ::undef(), ::undef(), $plurality, $ident, $sig, ::undef(), ::irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('routine_declarator:method_def', sub {my($m)=@_;
 my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
-IRx1::MethodDecl->newp($m, ::undef(), ::undef(), $plurality, ::irbuild_ir($m->{'hash'}->{'ident'}), ::irbuild_ir($m->{'hash'}->{'multisig'})->[0], ::undef(), ::irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'multisig'})->[0], GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('signature', sub {my($m)=@_;
-IRx1::Signature->newp($m, ::irbuild_ir($m->{'hash'}->{'parsep'}), ::undef())});
+IRx1::Signature->newp($m, irbuild_ir($m->{'hash'}->{'parsep'}), GLOBAL::undef())});
 $main::irbuilder->add_constructor('parameter', sub {my($m)=@_;
-IRx1::Parameter->newp($m, ::irbuild_ir($m->{'hash'}->{'type_constraint'}), ::irbuild_ir($m->{'hash'}->{'quantchar'}), ::irbuild_ir($m->{'hash'}->{'param_var'}))});
+IRx1::Parameter->newp($m, irbuild_ir($m->{'hash'}->{'type_constraint'}), irbuild_ir($m->{'hash'}->{'quantchar'}), irbuild_ir($m->{'hash'}->{'param_var'}))});
 $main::irbuilder->add_constructor('param_var', sub {my($m)=@_;
-IRx1::ParamVar->newp($m, ::irbuild_ir($m->{'hash'}->{'sigil'}), ::irbuild_ir($m->{'hash'}->{'twigil'}), ::irbuild_ir($m->{'hash'}->{'ident'}))});
+IRx1::ParamVar->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), irbuild_ir($m->{'hash'}->{'twigil'}), irbuild_ir($m->{'hash'}->{'ident'}))});
 $main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
 {package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
-::irbuild_ir($m->{'hash'}->{'package_def'})});
+irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:module', sub {my($m)=@_;
 {package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
-::irbuild_ir($m->{'hash'}->{'package_def'})});
+irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:package', sub {my($m)=@_;
 {package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
-::irbuild_ir($m->{'hash'}->{'package_def'})});
+irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_def', sub {my($m)=@_;
-IRx1::PackageDecl->newp($m, ::undef(), ::undef(), $::es_blackboard__package_declarator, ::irbuild_ir($m->{'hash'}->{'module_name'})->[0], ::irbuild_ir($m->{'hash'}->{'traits'}), ::irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::PackageDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $::es_blackboard__package_declarator, irbuild_ir($m->{'hash'}->{'module_name'})->[0], irbuild_ir($m->{'hash'}->{'traits'}), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('fulltypename', sub {my($m)=@_;
-::irbuild_ir($m->{'hash'}->{'typename'})->join('::')});
+irbuild_ir($m->{'hash'}->{'typename'})->join('::')});
 $main::irbuilder->add_constructor('typename', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('trait_verb:is', sub {my($m)=@_;
-IRx1::Trait->newp($m, 'is', ::irbuild_ir($m->{'hash'}->{'ident'}))});
+IRx1::Trait->newp($m, 'is', irbuild_ir($m->{'hash'}->{'ident'}))});
 $main::irbuilder->add_constructor('circumfix:pblock', sub {my($m)=@_;
-if((::not(::irbuild_ir($m->{'hash'}->{'lambda'})) and ::not(::irbuild_ir($m->{'hash'}->{'signature'})))) {
-IRx1::Hash->newp($m, ::irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))
+if((GLOBAL::not(irbuild_ir($m->{'hash'}->{'lambda'})) and GLOBAL::not(irbuild_ir($m->{'hash'}->{'signature'})))) {
+IRx1::Hash->newp($m, irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))
 }else {
-::die('AST handler circumfix:pblock partially unimplemented')
+GLOBAL::die('AST handler circumfix:pblock partially unimplemented')
 }});
 __PACKAGE__->meta->make_immutable();
 
@@ -1379,11 +1524,11 @@ __PACKAGE__->meta->make_immutable();
 
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub do_all_analysis{my $self=CORE::shift;$self->initialize_notes();
 $self->note_parents();
 $self->note_block_lexical_variable_decls();
@@ -1395,18 +1540,18 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub is_IR_node{my $self=CORE::shift;1};
 sub initialize_notes{my $self=CORE::shift;$self->notes({});
 my $a = [];
 for($self->field_values()->flatten){
 if($_->can('is_IR_node')) {
 $a->push($_)
-}elsif(($_->WHAT() eq 'ARRAY')) {
+}elsif((($_->WHAT() eq 'ARRAY') || ($_->WHAT() eq 'Array'))) {
 for($_->flatten){
 if($_->can('is_IR_node')) {
 $a->push($_)
-}elsif(($_->WHAT() eq 'ARRAY')) {
+}elsif((($_->WHAT() eq 'ARRAY') || ($_->WHAT() eq 'Array'))) {
 for($_->flatten){
 if($_->can('is_IR_node')) {
 $a->push($_)
@@ -1423,7 +1568,7 @@ $_->initialize_notes()
 sub destroy_notes{my $self=CORE::shift;for($self->notes()->{'child_nodes'}->flatten){
 $_->destroy_notes()
 };
-$self->notes(::undef())};
+$self->notes(GLOBAL::undef())};
 sub child_nodes{my $self=CORE::shift;$self->notes()->{'child_nodes'}};
 __PACKAGE__->meta->make_immutable();
 
@@ -1432,7 +1577,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_parents{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
 $_->note_parents()
@@ -1444,7 +1589,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_parents{my $self=CORE::shift;($self->notes()->{'parent'} = $::es_whiteboard__parent);
 {package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
@@ -1457,7 +1602,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;my $a = [];
 {package main; use vars '$1es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
 ($self->notes()->{'lexical_variable_decls'} = $a);
@@ -1471,7 +1616,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;if($self->is_lexical()) {
 $::es_whiteboard__lexical_variable_decls->push($self)
 };
@@ -1485,7 +1630,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;if($_->name()) {
 $::es_whiteboard__lexical_variable_decls->push($self)
 };
@@ -1499,7 +1644,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;for($self->child_nodes()->flatten){
 $_->note_block_lexical_variable_decls()
 }};
@@ -1510,7 +1655,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
 {package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
@@ -1523,7 +1668,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
 $_->note_environment()
@@ -1535,7 +1680,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
 my $h1 = $h->dup();
 for($decls->flatten){
@@ -1550,7 +1695,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;my $new_chain;
 if($self->path_is_absolute()) {
 ($new_chain = [$self])
@@ -1568,7 +1713,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
 for($self->child_nodes()->flatten){
 $_->note_environment()
@@ -1580,7 +1725,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;for($self->child_nodes()->flatten){
 $_->note_environment()
 }};
@@ -1591,7 +1736,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub is_lexical{my $self=CORE::shift;($self->scope() eq 'my')};
 sub sigil{my $self=CORE::shift;$self->{'var'}->{'sigil'}};
 sub name{my $self=CORE::shift;$self->{'var'}->{'name'}};
@@ -1602,7 +1747,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub sigil{my $self=CORE::shift;'&'};
 __PACKAGE__->meta->make_immutable();
 
@@ -1611,7 +1756,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub path_is_absolute{my $self=CORE::shift;($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))};
 __PACKAGE__->meta->make_immutable();
 
@@ -1619,15 +1764,15 @@ __PACKAGE__->meta->make_immutable();
 
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package EmitSimpleP5;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
 $self->new('compiler', $compiler)};
 has 'compiler' => (is => 'rw');;
-sub prelude_for_entering_a_package{my $self=CORE::shift;'use autobox; use autobox::Core; use autobox UNDEF => \'UNDEF\';
+sub prelude_for_entering_a_package{my $self=CORE::shift;'use autobox; use autobox UNDEF => \'UNDEF\';
 '};
 sub prelude_oo{my $self=CORE::shift;'
 {package AssertCurrentModuleVersions;
@@ -1639,25 +1784,172 @@ sub prelude{my $self=CORE::shift;my($n)=@_;
 (('#!/usr/bin/perl -w
 use strict;
 use warnings;
-package main;
-use Data::Dumper; # Used to render Buf strings.
-use Perl6::Say;
-use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+
 {package AssertCurrentModuleVersions;
  use autobox 2.23;
- use autobox::Core 0.4;
 }
-{package NoSideEffects; use Class::Multimethods;}
+{ package NoSideEffects;
+  use Class::Multimethods;
+  use Data::Dumper;
+}
 
 ' . $self->prelude_oo()) . '
 
+
 {package UNDEF;}
-{package UNDEF; sub ref{"UNDEF"}}
-{package UNIVERSAL; sub ref{CORE::ref($_[0]) || "SCALAR"} }
-{package UNIVERSAL; sub WHAT{CORE::ref($_[0]) || "SCALAR"} }
+{package UNDEF; sub WHAT {"Undef"}}
+{package UNIVERSAL; sub ref {CORE::ref($_[0]) || "SCALAR"} } # For IRx1_FromAST.pm.
+{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || "SCALARISH"} }
+
+{ package Object;
+  sub can { UNIVERSAL::can($_[0],$_[1]) }
+  sub isa { UNIVERSAL::isa($_[0],$_[1]) }
+  sub does { UNIVERSAL::isa($_[0],$_[1]) }
+}  
+
+no warnings qw(redefine prototype);
+{ package SCALAR;
+  sub WHAT { my $x = $_[0]; ~$x&$x ? "Str" : $x =~ /\\A\\d+\\z/ ? "Int" : "Num" }
+
+  # randomness taken from autobox::Core
+
+  sub chomp   ($)   { CORE::chomp($_[0]); }
+  sub chop    ($)   { CORE::chop($_[0]); }
+  sub chr     ($)   { CORE::chr($_[0]); }
+  sub crypt   ($$)  { CORE::crypt($_[0], $_[1]); }
+  sub index   ($@)  { CORE::index($_[0], $_[1], @_[2.. $#_]); }
+  sub lc      ($)   { CORE::lc($_[0]); }
+  sub lcfirst ($)   { CORE::lcfirst($_[0]); }
+  sub length  ($)   { CORE::length($_[0]); }
+  sub ord     ($)   { CORE::ord($_[0]); }
+  sub pack    ($;@) { CORE::pack(@_); }
+  sub reverse ($)   { CORE::reverse($_[0]); }
+  sub rindex  ($@)  { CORE::rindex($_[0], $_[1], @_[2.. $#_]); }
+  sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
+  sub substr  ($@)  { CORE::substr($_[0], $_[1], @_[2 .. $#_]); }
+  sub uc      ($)   { CORE::uc($_[0]); }
+  sub ucfirst ($)   { CORE::ucfirst($_[0]); }
+  sub unpack  ($;@) { CORE::unpack($_[0], @_[1..$#_]); }
+  sub quotemeta ($) { CORE::quotemeta($_[0]); }
+  sub vec     ($$$) { CORE::vec($_[0], $_[1], $_[2]); }
+  sub undef   ($)   { $_[0] = undef }
+  sub m       ($$)  { [ $_[0] =~ m{$_[1]} ] }
+  sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
+  sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
+  sub split   ($$)  { [ split $_[1], $_[0] ] }
+
+  sub abs     ($)  { CORE::abs($_[0]) }
+  sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
+  sub cos     ($)  { CORE::cos($_[0]) }
+  sub exp     ($)  { CORE::exp($_[0]) }
+  sub int     ($)  { CORE::int($_[0]) }
+  sub log     ($)  { CORE::log($_[0]) }
+  sub oct     ($)  { CORE::oct($_[0]) }
+  sub hex     ($)  { CORE::hex($_[0]); }
+  sub rand    ($)  { CORE::rand($_[0]) }
+  sub sin     ($)  { CORE::sin($_[0]) }
+  sub sqrt    ($)  { CORE::sqrt($_[0]) }
+
+  sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
+  sub upto ($$) { [ $_[0]..$_[1] ] }
+  sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
+}
+{ package ARRAY;
+  sub WHAT {"Array"}
+
+  sub shape { my $a = CORE::shift; 0+@$a } # ?
+  sub end { my $a = CORE::shift; -1+@$a } # ?
+  sub elems { my $a = CORE::shift; CORE::scalar @$a }
+  sub delete { my $a = CORE::shift; @_ ? CORE::delete($a->[$_[0]]) : undef }
+  sub exists { my $a = CORE::shift; @_ ? CORE::exists($a->[$_[0]]) : undef }
+  sub pop (\\@) { CORE::pop @{$_[0]}; }
+  sub shift { my $a = CORE::shift; CORE::shift(@$a) }
+  sub push { my $a = CORE::shift; CORE::push(@$a,@_); $a }
+  sub unshift { my $a = CORE::shift; CORE::unshift(@$a,@_) }
+  sub splice {
+    my $a = CORE::shift;
+    my $offset = CORE::shift || 0;
+    my $size = CORE::shift || 0;
+    [CORE::splice(@{$a},$offset,$size,@_)]
+  }
+  sub keys { my $a = CORE::shift; [0..(@$a-1)] }
+  sub kv { my $a = CORE::shift; my $idx = 0; [map{($idx++,$_)}@$a] }
+  sub pairs { my $a = CORE::shift; my $idx = 0; [map{Pair->new("key"=>$idx++,"value"=>$_)}@$a] }
+  sub values { my $a = CORE::shift; @$a }
+
+  # Speculative
+
+  sub clone { my $a = CORE::shift; [@$a] }
+
+  # Non-spec
+
+  sub grep (\\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::grep { $sub->($_) } @$arr ]; }
+  sub join (\\@$) { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
+  sub map (\\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::map { $sub->($_) } @$arr ]; }
+  sub reverse (\\@) { [ CORE::reverse @{$_[0]} ] }
+  sub sort (\\@;&) { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a cmp $b }; [ CORE::sort { $sub->($a, $b) } @$arr ]; }
+  sub max(\\@) { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
+  sub min(\\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
+
+  sub each (\\@$) {
+    my $arr = CORE::shift; my $sub = CORE::shift;
+    foreach my $i (@$arr) {$sub->($i);}
+  }
+  sub each_with_index (\\@$) {
+    my $arr = CORE::shift; my $sub = CORE::shift;
+    for(my $i = 0; $i < $#$arr; $i++) {$sub->($i, $arr->[$i]);}
+  }
+
+  # Internal
+
+  sub flatten (\\@) { ( @{$_[0]} ) }
+}
+{ package HASH;
+  sub WHAT {"Hash"}
+
+  # randomness taken from autobox::Core
+
+  sub delete (\\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \\@res }
+  sub exists (\\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
+  sub keys (\\%) { [ CORE::keys %{$_[0]} ] }
+  sub values (\\%) { [ CORE::values %{$_[0]} ] }
+
+  sub each (\\%$) {
+    my $hash = CORE::shift;
+    my $cb = CORE::shift;
+    while((my $k, my $v) = CORE::each(%$hash)) {
+      $cb->($k, $v);
+    }
+  }
+
+  # spec
+
+  sub kv { my $h = CORE::shift; [map{($_,$h->{$_})} CORE::keys %$h] }
+  sub pairs { my $h = CORE::shift; [map{Pair->new("key"=>$_,"value"=>$h->{$_})} CORE::keys %$h] }
+
+  # Speculative
+
+  sub clone {
+    my $h = CORE::shift;
+    # Do not simplify this to "...ift; {%$h} }".  returns 0.  autobox issue?
+    my $h1 = {%$h}; $h1
+  }
+
+  # Temporary
+
+  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1} # obsolete
+}
+use warnings;
+
+{ package Any; sub __make_not_empty_for_use_base{}}
+{ package SCALAR; use base "Any";}
+{ package ARRAY; use base "Any";}
+{ package HASH; use base "Any";}
+{ package CODE; use base "Any";}
+
 
 { package GLOBAL;
-  use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
+  use autobox; use autobox UNDEF => "UNDEF";
   use Perl6::Say;
 
   our $a_ARGS = [@ARGV];
@@ -1681,23 +1973,8 @@ use autobox; use autobox::Core; use autobox UNDEF => "UNDEF";
 }
 
 { package SCALAR;
-sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
-sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
-}
-
-{ package ARRAY;
-# absent from autobox::Core
-sub splice { my $a = CORE::shift; [CORE::splice(@{$a},$_[0],$_[1])] }
-sub copy { my $a = CORE::shift; [@$a] }
-# buggy in autobox::Core
-BEGIN{my $x = *ARRAY::unshift; undef &$x;}
-sub unshift (\\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
-}
-{ package HASH;
-  sub dup { my $h = CORE::shift;
-            # dont simplify to "...ift; {%$h} }".  returns 0.  autobox issue?
-            my $h1 = {%$h}; $h1
-  }
+  sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
+  sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
 
 
@@ -1748,14 +2025,22 @@ sub unshift (\\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
   }
 }
 
-package main;
+package main; # -> Main once elf_d support is dropped.
+use autobox; use autobox UNDEF => "UNDEF";
 ')};
 sub e{my $self=CORE::shift;my($x)=@_;
-my $ref = $x->ref();
-if(($ref eq 'UNDEF')) {
+my $ref = $x->WHAT();
+if(($ref eq 'Undef')) {
+$x
+}elsif(($ref eq 'UNDEF')) {
 $x
 }elsif(($ref eq 'SCALAR')) {
 $x
+}elsif(((($ref eq 'Str') || ($ref eq 'Int')) || ($ref eq 'Num'))) {
+$x
+}elsif(($ref eq 'Array')) {
+$x->map(sub {my($ae)=@_;
+$self->e($ae)})
 }elsif(($ref eq 'ARRAY')) {
 $x->map(sub {my($ae)=@_;
 $self->e($ae)})
@@ -1799,16 +2084,16 @@ if((($n->{'verb'} eq 'is'))) {
 my $pkgname = $::es_whiteboard__in_package->join('::');
 my $name = (($::es_whiteboard__in_package->splice(0, (0 - 1))->join('::') . '::') . $self->e($n->{'expr'}));
 $name->re_gsub('^::', '');
-((((('BEGIN { extends((grep{/^Moose::Object$/ ? () : $_} @' . $pkgname) . '::ISA),q(') . $name) . ')) }') . '
+(('use base \'' . $name) . '\';
 ')
 }else {
-::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
+GLOBAL::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
 '));
 '***Trait***'
 }};
 sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
 my $default = $self->e($n->{'default_expr'});
-if((::defined($default))) {
+if((GLOBAL::defined($default))) {
 ($default = (', default => ' . $default))
 }else {
 ($default = '')
@@ -1845,7 +2130,7 @@ my $code = '';
       $h->{$type} = $m->{code}{q{&!body}};
     };
     my $s = eval q{sub {
-      my $ref = ref($_[1]) || "SCALAR";
+      my $ref = ref($_[1]) || $_[1]->WHAT;
       my $f = $h->{$ref}; goto $f if $f;
       Carp::croak "multi method ') . $name) . ' cant dispatch on type: ".$ref."\\n";
     }};
@@ -1864,7 +2149,9 @@ my $code = '';
 sub multimethods_using_CM{my $self=CORE::shift;my($n,$name,$type0)=@_;
 my $n_args = $n->{'multisig'}->{'parameters'}->elems();
 ($type0 = $type0->re_gsub('^Any$', '*'));
-($type0 = $type0->re_gsub('^SCALAR$', '$'));
+($type0 = $type0->re_gsub('^Int$', '#'));
+($type0 = $type0->re_gsub('^Num$', '#'));
+($type0 = $type0->re_gsub('^Str$', '$'));
 my $param_padding = '';
 my $i = 1;
 while(($i < $n_args)) {
@@ -1879,15 +2166,15 @@ my $param_types = $n->{'multisig'}->{'parameters'}->map(sub {my($p)=@_;
 my $types = $self->e($p->{'type_constraints'});
 if($types) {
 if(($types->elems() != 1)) {
-::die('only limited multi method support')
+GLOBAL::die('only limited multi method support')
 };
 $types->[0]
 }else {
-::undef()
+GLOBAL::undef()
 }});
 my $type0 = $param_types->[0];
-if(::not($type0)) {
-::die((('implementation limitation: a multi method\'s first parameter must have a type: ' . $name) . '
+if(GLOBAL::not($type0)) {
+GLOBAL::die((('implementation limitation: a multi method\'s first parameter must have a type: ' . $name) . '
 '))
 };
 $self->multimethods_using_CM($n, $name, $type0)
@@ -2026,7 +2313,7 @@ $self->e($n->{'text'})};
 sub cb__Hash{my $self=CORE::shift;my($n)=@_;
 (('{' . $self->e(($n->{'hash'} || []))->join(',')) . '}')};
 sub cb__Buf{my $self=CORE::shift;my($n)=@_;
-my $s = ::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'});
+my $s = GLOBAL::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'});
 $s->chomp();
 $s};
 sub cb__Rx{my $self=CORE::shift;my($n)=@_;
@@ -2035,81 +2322,91 @@ __PACKAGE__->meta->make_immutable();
 
 }
 ;
-if(::not($emitter0)) {
-($emitter0 = EmitSimpleP5->new())
+if(GLOBAL::not($GLOBAL::emitter0)) {
+($GLOBAL::emitter0 = EmitSimpleP5->new())
 };
-($emitter1 = EmitSimpleP5->new())
+($GLOBAL::emitter1 = EmitSimpleP5->new())
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package Parser;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 has 'is_for_active_runtime' => (is => 'rw');;
 sub parse{my $self=CORE::shift;my($p6_code,$claim_as_filename)=@_;
-::unslurp($p6_code, 'deleteme.p6');
+GLOBAL::unslurp($p6_code, 'deleteme.p6');
 my $parser = $self->parser_name();
 my $msg = (('Parse error in: ' . $claim_as_filename) . '
 ');
 my $cmd = ((($parser . ' --error-message=\'') . $msg) . '\' -q --format=p5a deleteme.p6 > deleteme.dump');
-((::system($cmd) == 0) or ::die('Parse failed.
+((GLOBAL::system($cmd) == 0) or GLOBAL::die('Parse failed.
 '));
-my $dump5 = ::slurp('deleteme.dump');
-my $tree = ::eval_perl5(('package Fastdump;' . $dump5));
+my $dump5 = GLOBAL::slurp('deleteme.dump');
+my $tree = GLOBAL::eval_perl5(('package Fastdump;' . $dump5));
 $tree};
-sub parser_name{my $self=CORE::shift;::parser_name()};
+sub parser_name{my $self=CORE::shift;GLOBAL::parser_name()};
 __PACKAGE__->meta->make_immutable();
 
 }
 ;
-::eval_perl5('
+GLOBAL::eval_perl5('
 { package Fastdump;
   sub match {my($r,$s,$f,$t,$h)=@_; Match->make_from_rsfth($r,$s,$f,$t,$h)}
 }');
-if(::not($parser0)) {
-($parser0 = Parser->new('is_for_active_runtime', 1))
+if(GLOBAL::not($GLOBAL::parser0)) {
+($GLOBAL::parser0 = Parser->new('is_for_active_runtime', 1))
 };
-($parser1 = Parser->new())
+($GLOBAL::parser1 = Parser->new())
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package Compiler;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
 has 'is_for_active_runtime' => (is => 'rw');;
 sub eval_perl6{my $self=CORE::shift;my($code)=@_;
 $self->eval_fragment($code, '-e', 0)};
 sub eval_file{my $self=CORE::shift;my($file)=@_;
-$self->eval_fragment(::slurp($file), $file, 0)};
+$self->eval_fragment(GLOBAL::slurp($file), $file, 0)};
 sub eval_fragment{my $self=CORE::shift;my($code,$filename,$verbose)=@_;
 my $p5 = $self->compile_fragment($code, $filename, $verbose);
-::eval_perl5($p5)};
+GLOBAL::eval_perl5($p5)};
+sub compile_fragment_cache_get{my $self=CORE::shift;my($code,$filename)=@_;
+GLOBAL::undef()};
+sub compile_fragment_cache_set{my $self=CORE::shift;my($code,$filename,$value)=@_;
+};
 sub compile_fragment{my $self=CORE::shift;my($code,$filename,$verbose)=@_;
 my $tree;
-if($self->is_for_active_runtime) {
-($tree = $parser0->parse($code, $filename))
+my $cached = $self->compile_fragment_cache_get($code, $filename);
+if($cached) {
+$cached
 }else {
-($tree = $parser1->parse($code, $filename))
+if($self->is_for_active_runtime) {
+($tree = $GLOBAL::parser0->parse($code, $filename))
+}else {
+($tree = $GLOBAL::parser1->parse($code, $filename))
 };
 if($verbose) {
-::say($tree->match_describe())
+GLOBAL::say($tree->match_describe())
 };
 my $ir = $tree->make_ir_from_Match_tree();
 if($verbose) {
-::say($ir->irx1_describe())
+GLOBAL::say($ir->irx1_describe())
 };
 my $p5;
 if($self->is_for_active_runtime) {
-($p5 = $ir->callback($emitter0->new_emitter('compiler', $self)))
+($p5 = $ir->callback($GLOBAL::emitter0->new_emitter('compiler', $self)))
 }else {
-($p5 = $ir->callback($emitter1->new_emitter('compiler', $self)))
+($p5 = $ir->callback($GLOBAL::emitter1->new_emitter('compiler', $self)))
 };
 if($verbose) {
-::say($p5)
+GLOBAL::say($p5)
 };
-$p5};
+$self->compile_fragment_cache_set($code, $filename, $p5);
+$p5
+}};
 has 'todo' => (is => 'rw');;
 sub compile_executable{my $self=CORE::shift;my($sources,$output_file)=@_;
 $self->todo([]);
@@ -2122,7 +2419,7 @@ my $verbose = $_->[2];
 my $more_p5 = $self->compile_fragment($code, $file, $verbose);
 while(($self->todo->elems() > 0)) {
 my $filename = $self->todo->shift();
-my $module_p5 = $self->compile_fragment(::slurp($filename), $filename, $verbose);
+my $module_p5 = $self->compile_fragment(GLOBAL::slurp($filename), $filename, $verbose);
 ($p5 = (($p5 . $module_p5) . '
 ;
 '))
@@ -2132,21 +2429,21 @@ my $module_p5 = $self->compile_fragment(::slurp($filename), $filename, $verbose)
 '))
 };
 if(($output_file eq '-')) {
-::say($p5)
+GLOBAL::say($p5)
 }else {
-::unslurp($p5, $output_file)
+GLOBAL::unslurp($p5, $output_file)
 };
 ['perl', $output_file]};
 sub prelude{my $self=CORE::shift;if($self->is_for_active_runtime) {
-$emitter0->prelude()
+$GLOBAL::emitter0->prelude()
 }else {
-$emitter1->prelude()
+$GLOBAL::emitter1->prelude()
 }};
 sub hook_for_use{my $self=CORE::shift;my($module)=@_;
 if($self->is_for_active_runtime) {
-::require($module)
+GLOBAL::require($module)
 }else {
-my $filename = (::find_required_module($module) || ::die((((('Didnt find ' . $module) . ' in ( ') . $a_INC->join(' ')) . ' ).
+my $filename = (GLOBAL::find_required_module($module) || GLOBAL::die((((('Didnt find ' . $module) . ' in ( ') . $GLOBAL::a_INC->join(' ')) . ' ).
 ')));
 $self->todo->push($filename)
 };
@@ -2155,18 +2452,449 @@ __PACKAGE__->meta->make_immutable();
 
 }
 ;
-if(::not($compiler0)) {
-($compiler0 = Compiler->new('is_for_active_runtime', 1))
+if(GLOBAL::not($GLOBAL::compiler0)) {
+($GLOBAL::compiler0 = Compiler->new('is_for_active_runtime', 1))
 };
-($compiler1 = Compiler->new())
+($GLOBAL::compiler1 = Compiler->new())
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
+
+{ package Any;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Object;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Bit;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Int;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'SCALAR';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Str;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'SCALAR';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Num;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'SCALAR';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Complex;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Bool;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Code;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'CODE';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Block;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Code';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package List;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Seq;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Range;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Set;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Bag;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Junction;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Object';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Pair;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+has 'key' => (is => 'rw');;
+has 'value' => (is => 'rw');;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Mapping;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Signature;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Capture;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Blob;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Scalar;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Array;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Hash;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package KeyHash;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package KeySet;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package KeyBag;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Buf;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IO;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Routine;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Code';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Sub;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Method;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Subethod;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Macro;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Regex;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Match;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Package;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Module;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Package';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Class;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Module';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Role;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Module';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Grammar;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Module';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Any;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Object';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Object;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+
+;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+use autobox; use autobox UNDEF => 'UNDEF';
 
 { package Program;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
-sub print_usage_and_die{my $self=CORE::shift;::say('
+use autobox; use autobox UNDEF => 'UNDEF';
+sub print_usage_and_die{my $self=CORE::shift;GLOBAL::say('
 Usage: [-v] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
          [ P6_FILE | -e P6_CODE ]+ [ -- ARGS* ]
 
@@ -2187,7 +2915,7 @@ One can also do
  [ P6_FILE | -e P6_CODE ]+  these are compiled.
 
 ');
-::exit(2)};
+GLOBAL::exit(2)};
 sub main{my $self=CORE::shift;my($args)=@_;
 if(($args->elems() == 0)) {
 $self->print_usage_and_die()
@@ -2197,37 +2925,37 @@ my $mode = 'r';
 my $output_file;
 my $output = sub {my($text)=@_;
 if($output_file) {
-::unslurp($text, $output_file)
+GLOBAL::unslurp($text, $output_file)
 }else {
-::say($text)
+GLOBAL::say($text)
 }};
 my $sources = [];
 my $handle = sub {my($filename,$code)=@_;
 if(($mode eq 'r')) {
-$compiler0->eval_fragment($code, $filename, $verbose)
+$GLOBAL::compiler0->eval_fragment($code, $filename, $verbose)
 }elsif((($mode eq 's0') || ($mode eq 's1'))) {
 my $comp;
 if(($mode eq 's0')) {
-($comp = $compiler0)
+($comp = $GLOBAL::compiler0)
 }else {
-($comp = $compiler1)
+($comp = $GLOBAL::compiler1)
 };
 $output->($comp->compile_fragment($code, $filename, $verbose))
 }else {
 $sources->push([$code, $filename, $verbose])
 }};
 my $at_end = sub {if((($mode eq 'x') && ($sources->elems() != 0))) {
-if(::not($output_file)) {
+if(GLOBAL::not($output_file)) {
 ($output_file = '-')
 };
-my $exec_args = $compiler1->compile_executable($sources, $output_file)
+my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file)
 }elsif((($mode eq 'xr') && ($sources->elems() != 0))) {
-if(::not($output_file)) {
+if(GLOBAL::not($output_file)) {
 ($output_file = 'deleteme_exe')
 };
-my $exec_args = $compiler1->compile_executable($sources, $output_file);
-::say(((('# ' . $exec_args->join(' ')) . ' ') . $args->join(' ')));
-::exec($exec_args->flatten(), $args)
+my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file);
+GLOBAL::say(((('# ' . $exec_args->join(' ')) . ' ') . $args->join(' ')));
+GLOBAL::exec($exec_args->flatten(), $args)
 }};
 while($args->elems()) {
 my $arg = $args->shift();
@@ -2246,11 +2974,11 @@ if(($arg eq '-v')) {
 }elsif(($arg eq '-e')) {
 my $p6_code = ($args->shift() || $self->print_usage_and_die());
 $handle->('-e', $p6_code)
-}elsif(::file_exists($arg)) {
-$handle->($arg, ::slurp($arg))
+}elsif(GLOBAL::file_exists($arg)) {
+$handle->($arg, GLOBAL::slurp($arg))
 }elsif(($arg eq '-I')) {
 my $dir = ($args->shift() || $self->print_usage_and_die());
-$a_INC->unshift($dir)
+$GLOBAL::a_INC->unshift($dir)
 }elsif(($arg eq '--')) {
 last
 }else {
@@ -2262,10 +2990,11 @@ __PACKAGE__->meta->make_immutable();
 
 }
 ;
-Program->new()->main($a_ARGS)
+Program->new()->main($GLOBAL::a_ARGS)
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox::Core; use autobox UNDEF => 'UNDEF';
+use autobox; use autobox UNDEF => 'UNDEF';
+;
 ;
 ;
 ;
