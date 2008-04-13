@@ -18,11 +18,18 @@ module Kernel
 end
 
 class Grammar
-  def initialize(orig)
+  attr_accessor :permit_partial_parse
+  def initialize(orig,at=0)
     @scanner = StringScanner.new(orig)
     @str = orig
     @eat_cache = {}
     @ws_from = @ws_to = false
+    @scanner.pos = at
+    if at != 0
+      @permit_partial_parse = true
+      $env_vars.scope_enter(:unitstopper)
+      $env_vars[:unitstopper] = "_EOS"
+    end
   end
   def pos; @scanner.pos; end
   def fail_at(n); @scanner.pos = n; false; end

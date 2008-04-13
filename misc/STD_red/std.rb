@@ -83,9 +83,11 @@ class Perl < Grammar
     #R helper
     def scan_unitstopper
         us = $env_vars[:unitstopper];
-        (if us == '_EOS'; @scanner.eos?
-         else; raise "assert: known unitstopper: #{us}"
-         end) or panic("Can't understand next input--giving up")
+        ((if us == '_EOS'; @scanner.eos?
+          else; raise "assert: known unitstopper: #{us}"
+          end) or
+         permit_partial_parse or
+         panic("Can't understand next input--giving up"))
     end
 
     #R XXX TODO - the non-simple constraints are not being applied.

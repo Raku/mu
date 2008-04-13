@@ -17,12 +17,23 @@ FORMAT
  yaml
  p5a
 
+Other arguments:
+
+ --error-message=MSG
+ What to say when the parse fails.
+
+ --at=POS
+ Start parsing at position POS, instead of at 0.
+ Implies that a partial parse is ok.
+ A speculative feature provided to aid the development of other
+ parsers, by permitting them to delegate some parsing tasks.
+
 END
     exit(code)
   end
 
   def main
-    start = '_UNIT'
+    start = '_UNIT'; at = 0
     quiet = format = false
     code = nil
     error_message = ""
@@ -50,6 +61,10 @@ END
       ARGV.shift
       start = m[1]
     end
+    if m = ARGV[0].match(/--at=(\d+)/)
+      ARGV.shift
+      at = m[1].to_i
+    end
     if ARGV[0] == '-e'
       ARGV.shift
       code = ARGV.shift
@@ -72,7 +87,7 @@ END
     code = code.gsub(/\n=begin.*?\n=end[^\n]*/m,'')
 
     kibitz = false
-    pn = Perl.new(code)
+    pn = Perl.new(code,at)
     tree=nil
     STDERR.print "parsing...\n" if kibitz
     begin 
