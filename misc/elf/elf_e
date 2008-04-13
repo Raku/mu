@@ -256,6 +256,437 @@ use autobox; use autobox UNDEF => "UNDEF";
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use autobox; use autobox UNDEF => 'UNDEF';
 
+{ package Any;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Object;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Bit;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Int;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'SCALAR';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Str;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'SCALAR';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Num;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'SCALAR';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Complex;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Bool;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Code;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'CODE';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Block;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Code';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package List;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Seq;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Range;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Set;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Bag;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Junction;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Object';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Pair;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+has 'key' => (is => 'rw');;
+has 'value' => (is => 'rw');;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Mapping;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Signature;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Capture;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Blob;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Scalar;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Array;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Hash;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package KeyHash;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package KeySet;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package KeyBag;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Buf;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IO;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Routine;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Code';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Sub;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Method;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Subethod;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Macro;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Regex;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Routine';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Match;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Package;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Any';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Module;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Package';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Class;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Module';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Role;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Module';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Grammar;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Module';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Any;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'Object';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Object;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+;
+__PACKAGE__->meta->make_immutable();
+
+}
+
+;
+package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+use autobox; use autobox UNDEF => 'UNDEF';
+
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
 use autobox; use autobox UNDEF => 'UNDEF';
@@ -2462,437 +2893,6 @@ if(GLOBAL::not($GLOBAL::compiler0)) {
 ($GLOBAL::compiler0 = Compiler->new('is_for_active_runtime', 1))
 };
 ($GLOBAL::compiler1 = Compiler->new())
-;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
-
-{ package Any;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Object;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Bit;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Int;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'SCALAR';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Str;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'SCALAR';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Num;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'SCALAR';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Complex;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Bool;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Code;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'CODE';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Block;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Code';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package List;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Seq;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Range;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Set;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Bag;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Junction;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Object';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Pair;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-has 'key' => (is => 'rw');;
-has 'value' => (is => 'rw');;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Mapping;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Signature;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Capture;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Blob;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Scalar;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Array;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Hash;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package KeyHash;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package KeySet;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package KeyBag;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Buf;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package IO;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Routine;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Code';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Sub;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Routine';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Method;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Routine';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Subethod;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Routine';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Macro;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Routine';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Regex;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Routine';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Match;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Package;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Any';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Module;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Package';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Class;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Module';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Role;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Module';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Grammar;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Module';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Any;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-use base 'Object';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-;
-
-{ package Object;
-use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
-;
-__PACKAGE__->meta->make_immutable();
-
-}
-
 ;
 package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 use autobox; use autobox UNDEF => 'UNDEF';
