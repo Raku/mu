@@ -249,6 +249,10 @@ use warnings;
     }
     return undef;
   }
+  sub mkdir {
+    my($dir) = @_;
+    mkdir($dir);
+  }
 
   our $compiler0;
   our $compiler1;
