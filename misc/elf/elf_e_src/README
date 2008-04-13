@@ -1,15 +1,15 @@
 
-../elf_d -x -I ../elf_d_src -I . -o ../elf_e0 ElfE.pm
-../elf_e0 -x -I ../elf_d_src -I . -o ../elf_e ElfE.pm
+../elf_d -x -I ../elf_d_src -I . -o ../elf_e0 Elf.pm
+../elf_e0 -x -I ../elf_d_src -I . -o ../elf_e Elf.pm
 cp ../elf_e ../elf_e1
-../elf_e1 -x -I ../elf_d_src -I . -o ../elf_e2 ElfE.pm
+../elf_e1 -x -I ../elf_d_src -I . -o ../elf_e2 Elf.pm
 diff ../elf_e[12]
 ../elf_e2 -e 'say 3'
 
-../elf_d -x -I ../elf_d_src -I . -o ../elf_em0 ElfE_NoMoose.pm
-../elf_em0 -x -I ../elf_d_src -I . -o ../elf_em ElfE_NoMoose.pm
+../elf_d -x -I ../elf_d_src -I . -o ../elf_em0 Elf_NoMoose.pm
+../elf_em0 -x -I ../elf_d_src -I . -o ../elf_em Elf_NoMoose.pm
 cp ../elf_em ../elf_em1
-../elf_em1 -x -I ../elf_d_src -I . -o ../elf_em2 ElfE_NoMoose.pm
+../elf_em1 -x -I ../elf_d_src -I . -o ../elf_em2 Elf_NoMoose.pm
 diff ../elf_em[12]
 ../elf_em2 -e 'say 3'
 cp ../elf_em ../elf_e_nomoose

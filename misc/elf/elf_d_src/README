@@ -1,24 +1,24 @@
 
-../elf_c -x -o ../elf_d0 ElfD.pm
-../elf_d0 -x -o ../elf_d ElfD.pm
+../elf_c -x -o ../elf_d0 Elf.pm
+../elf_d0 -x -o ../elf_d Elf.pm
 cp ../elf_d ../elf_d1
-../elf_d1 -x -o ../elf_d2 ElfD.pm
+../elf_d1 -x -o ../elf_d2 Elf.pm
 diff ../elf_d[12]
 ../elf_d2 -e 'say 3'
 
 NoMoose:
 
-../elf_d -x -o ../elf_dm0 ElfD_NoMoose.pm
-../elf_dm0 -x -o ../elf_dm ElfD_NoMoose.pm
+../elf_d -x -o ../elf_dm0 Elf_NoMoose.pm
+../elf_dm0 -x -o ../elf_dm Elf_NoMoose.pm
 cp ../elf_dm ../elf_dm1
-../elf_dm1 -x -o ../elf_dm2 ElfD_NoMoose.pm
+../elf_dm1 -x -o ../elf_dm2 Elf_NoMoose.pm
 diff ../elf_dm[12]
 ../elf_dm2 -e 'say 3'
 cp ../elf_dm ../elf_d_nomoose
 
 Obsolete:
-../elf_c -x -I ../elf_c_src -o ../elf_d ElfD.pm
-../elf_d -x -I ../elf_c_src -o ../elf_d1 ElfD.pm
-../elf_d1 -x -I ../elf_c_src -o ../elf_d2 ElfD.pm
+../elf_c -x -I ../elf_c_src -o ../elf_d Elf.pm
+../elf_d -x -I ../elf_c_src -o ../elf_d1 Elf.pm
+../elf_d1 -x -I ../elf_c_src -o ../elf_d2 Elf.pm
 diff ../elf_d[12]
 ../elf_d2 -e 'say 3'
