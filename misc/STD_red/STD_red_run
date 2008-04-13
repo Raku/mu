@@ -91,6 +91,10 @@ END
     tree=nil
     STDERR.print "parsing...\n" if kibitz
     begin 
+      $env_vars.scope_enter(:unitstopper)
+      $env_vars[:unitstopper] = "_EOS"
+      $env_vars.scope_enter(:stop)
+      $env_vars[:stop] = "if you see this dont stop"
       tree = pn.send(start.to_sym)
     rescue RuntimeError => e
       STDERR.print error_message, e.message

@@ -243,8 +243,10 @@ class Perl < Grammar
 
     #R QUESTION regexp_block lacks block's \h*.  Intentional?
     def regex_block
-        let_pos{ scan(/\{/) and r= regex('}') and _block_rest and
-                 _match_from(b,{:regex=>r},:regex_block) }
+        let_pos{
+            b = pos
+            scan(/\{/) and r= regex('}') and _block_rest and
+            _match_from(b,{:regex=>r},:regex_block) }
     end
 
     def _block_rest
@@ -1482,7 +1484,6 @@ class Perl < Grammar
         }
     end
 
-    #R# untested
     def regex_def
         rul{
             b=pos
@@ -1896,62 +1897,105 @@ false #R
         $env_vars.scope_leave
         return termstackA[0];
     end
-end
 
 
-    #############################################3333
+    #############################################
     ## Regex
-    #############################################3333
+    #############################################
+    #R# NONSPEC "patterns" as a common thing to call one's children.
+    #R#   It greatly reduces noise.
+    #R#   Were this precedence based, rather than a precedence-chain'o rules,
+    #R#   something like it would already be done.
+    #R#   Perhaps call it something else?
 
-class Regex < Perl
-
-    def regex(stop)
+    def regex(stop="/")
         $env_vars.scope_enter(:stop)
         $env_vars[:stop] = stop
-        v = rul{ regex_ordered_disjunction }
+        b=pos
+        v = rul{ regex_first }
         $env_vars.scope_leave
-        v
+        _match_from(b,{:patterns=>v},:regex)
     end
 
-    def regex_ordered_disjunction
+    def regex_first
+        b=pos
+        s=nil
         rul{scan(/(\|\|)?/) and wsp and
-            interleaveRULE(/\|\|/){ regex_ordered_conjunction } }
+            s= interleaveRULE(/\|\|/){ regex_every } } and
+            (s.size == 1 ? s[0] :
+            _match_from(b,{:patterns=>s},:regex_first))
     end
 
-    def regex_ordered_conjunction
-        rul{ interleaveRULE(/&&/){ regex_submatch } }
+    def regex_every
+        b=pos
+        s=nil
+        rul{ s= interleaveRULE(/&&/){ regex_submatch } } and
+            (s.size == 1 ? s[0] :
+            _match_from(b,{:patterns=>s},:regex_every))
     end
 
     def regex_submatch
-        rul{ interleaveRULE(/!?~~/){ regex_unordered_disjunction } }
+        b=pos
+        s=nil
+        s= rul{ interleaveRULE(/!?~~/){ regex_any } } and
+            (s.size == 1 ? s[0] :
+             _match_from(b,{:patterns=>s},:regex_submatch))
     end
 
-    def regex_unordered_disjunction
+    def regex_any
+        b=pos
+        s=nil
         rul{ quesRULE{ let_pos{ scan(/\|/) and not before(/\|/) } } and
-            interleaveRULE(/\!(?!\!)/){ regex_unordered_conjunction } }
+            s= interleaveRULE(/\!(?!\!)/){ regex_all } } and
+            (s.size == 1 ? s[0] :
+             _match_from(b,{:patterns=>s},:regex_any))
     end
 
-    def regex_unordered_conjunction
-        rul{ interleaveRULE(/\&(?!\&)/){ regex_sequence } }
+    def regex_all
+        b=pos
+        s=nil
+        s= rul{ interleaveRULE(/\&(?!\&)/){ regex_sequence } } and
+            (s.size == 1 ? s[0] :
+             _match_from(b,{:patterns=>s},:regex_all))
+            
     end
 
     def regex_sequence
-        plusRULE{regex_quantified_atom}
+        b=pos
+        s= plusRULE{regex_quantified_atom} and
+        _match_from(b,{:patterns=>s},:regex_sequence)
     end
 
     def regex_quantified_atom
-        rul{ ra = regex_atom and wsp and
-            (regex_quantifier and
-             (ra.max_width or
-              panic("Can't quantify zero-width atom"));true) }
+        b=pos
+        ra=rq=nil
+        rul{ ra= regex_atom and wsp and
+            (rq= regex_quantifier
+             #and (ra.max_width or
+             # panic("Can't quantify zero-width atom"))
+             ;true)
+        } and
+            !rq ? ra :
+            (h={}
+             _hkv(h,:regex_atom,ra)
+             _hkv(h,:regex_quantifier,rq)
+             _match_from(b,h,:regex_quantified_atom))
     end
 
     def regex_atom
-        (wsp and
-         ((let_pos{ scan(/#{$env_vars[:stop]}/) } and return(false);false) or
-          (regex_metachar and wsp) or
-          (scan(/\w/) and wsp) or
-          panic("unrecognized metacharacter")))
+        rmc=w=nil
+        b=pos
+        ((wsp and
+          ((let_pos{ scan(/#{$env_vars[:stop]}/) } and return(false);false) or
+           (rmc= regex_metachar and wsp) or
+           (w= scan(/\w/) and wsp) or
+           false #XXX nonspec
+           #panic("unrecognized metacharacter")
+           )) and
+         (h={}
+          _hkv(h,:char,w) # unspec
+          _hkv(h,:regex_metachar,rmc)
+          _match_from(b,h,:regex_atom)))
     end
 
     def_tokens_rest :regex_metachar,false,%w{ > && & || | ] ) \\ },%q{ return false }
@@ -1971,7 +2015,7 @@ class Regex < Perl
 
     def_token_full :regex_metachar,false,'qw',/(?=<\s)/,%q{ quote }
 
-    def_token_full :regex_metachar,false,'< >',/\</,%q{ unsp; regex_assertion and scan(/\>/) }
+    def_token_full :regex_metachar,false,'< >',/\</,%q{ unsp; r= regex_assertion and scan(/\>/) and r }
     def_tokens_rest :regex_metachar,false,%w{ \\ },%q{ regex_backslash }
     def_tokens_simple :regex_metachar,false,%w{ . ^^ ^ }
     def_tokens_simple :regex_metachar,false,%w{ $$ }
@@ -2010,13 +2054,21 @@ class Regex < Perl
 
     def_token_full :regex_assertion,false,'{ }',/\{/,%q{ block }
 
-    def_token_full :regex_assertion,false,'variable',/(?=#{sigil_speed_hack_re})/,%q{ before{ sigil } and _EXPR(nil,HLOOSEST,method(:assertstopper)) }
-    def_token_full :regex_assertion,false,'method',/(?=\.(?!>))/,%q{ before(/\.(?!>)/) and _EXPR(nil,HLOOSEST,method(:assertstopper)) }
-    def_token_full :regex_assertion,false,'ident',//,%q{ ident and quesTOK{
-      (let_pos{ scan(/\=/) and regex_assertion} or
-       let_pos{ scan(/\:/) and wsp and q_unbalanced(qlang('Q',':qq'), '>')} or
-       let_pos{ scan(/\(/) and semilist and scan(/\)/)} or
-       (wsp and _EXPR(nil,HLOOSEST,method(:assertstopper))) ) } }
+    def_token_full :regex_assertion,false,'variable',/(?=#{sigil_speed_hack_re})/,%q{ before{ sigil } and _EXPR(nil,HLOOSEST) }
+    def_token_full :regex_assertion,false,'method',/(?=\.(?!>))/,%q{ before(/\.(?!>)/) and _EXPR(nil,HLOOSEST) }
+    def_token_full :regex_assertion,false,'ident',//,%q{
+      b=pos
+      (i= ident and a= quesTOK{
+       (let_pos{ scan(/\=/) and regex_assertion} or
+        let_pos{ scan(/\:/) and wsp and q_unbalanced(qlang('Q',':qq'), '>')} or
+        let_pos{ scan(/\(/) and semilist and scan(/\)/)} or
+        false #(wsp and _EXPR(nil,HLOOSEST)) #XXX causes <a> to panic
+        ) }) and
+       (h={}
+         _hkv(h,:ident,i)
+         # XXX second clause ignored
+         _match_from(b,h,:ident))
+     }
 
     def_tokens_rest :regex_assertion,false,%w{ [ + - },%q{ before(/[\<sym>]/) and plusTOK{cclass_elem} }
     def_tokens_simple :regex_assertion,false,%w{ . , }
@@ -2063,7 +2115,7 @@ class Perl
     #def heredoc; false; end
     def method_missing(method, *args)
         #print "FAKING #{method}\n"
-        print "FAKING #{method} for #{caller.slice(0,1)}\n"
+        STDERR.print "FAKING #{method} for #{caller.slice(0,1)}\n"
         false
     end
 end

@@ -27,8 +27,6 @@ class Grammar
     @scanner.pos = at
     if at != 0
       @permit_partial_parse = true
-      $env_vars.scope_enter(:unitstopper)
-      $env_vars[:unitstopper] = "_EOS"
     end
   end
   def pos; @scanner.pos; end
@@ -154,6 +152,18 @@ class Grammar
     end
     a
   end
+  def interleaveRULE(between,&blk)
+    a = []
+    while 1
+      v = blk.call()
+      if v
+        a.push(v)
+        wsp
+        break if not scan(between)
+      end
+    end
+    a.empty? ? false : a
+  end
 
   def quesRX(fun,&more)
     before_fun = pos
@@ -259,7 +269,9 @@ class Grammar
         sym or return false
 
         if v.instance_of?(Match)
-          v.rule = "#{category}:\#{v.rule||"kludge_node"}"
+          if not(v.rule and v.rule =~ /:/)
+            v.rule = "#{category}:\#{v.rule||"kludge_node"}"
+          end
           m = v
         else
           h = v.is_a?(TrueClass) ? nil : {:kludge_name =>v}
