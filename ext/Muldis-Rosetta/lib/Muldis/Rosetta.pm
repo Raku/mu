@@ -39,7 +39,7 @@ DBI framework at large, so if you know how to use the Perl DBI to work with
 databases, it should be easy enough to apply that knowledge to using Muldis
 Rosetta to work with databases.  Like the Perl DBI, Muldis Rosetta has
 separately distributable core, implementation, and extension distributions.
- Like an implementation ("driver") of the Perl DBI, an implementation
+Like an implementation ("driver") of the Perl DBI, an implementation
 ("engine") of Muldis Rosetta works according to the command design pattern;
 its API is very minimalistic and mainly serves to process arbitrary
 "commands" through a single routine or three.  Unlike the Perl DBI, which

@@ -41,12 +41,12 @@ sub new_machine of Muldis::Rosetta::Interface::Machine (Str :$engine_name!,
             :machine_config($machine_config) );
     };
     if (my $err = $!) {
-        die qq{new_machine(): The Muldis Rosetta Engine modu '$engine_name'}
+        die qq{new_machine(): The Muldis Rosetta Engine mod '$engine_name'}
             ~ qq{ threw an exception during its new_machine() exec: $err};
     }
     die q{new_machine(): The new_machine() constructor function of the}
-            ~ qq{ Muldis Rosetta Engine module '$engine_name' did not return an}
-            ~ q{ object of a Muldis::Rosetta::Interface::Machine-doing class.}
+            ~ qq{ Muldis Rosetta Engine mod '$engine_name' did not ret an}
+            ~ q{ obj of a Muldis::Rosetta::Interface::Machine-doing class.}
         if !$machine.defined
             or !$machine.does(::Muldis::Rosetta::Interface::Machine);
 

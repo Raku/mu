@@ -73,7 +73,8 @@ method store_exp_ast_lang (Array :$lang!) {
 
 ###########################################################################
 
-method new_process of Muldis::Rosetta::Engine::Example::Public::Process () {
+method new_process
+        of Muldis::Rosetta::Engine::Example::Public::Process () {
     return ::Muldis::Rosetta::Engine::Example::Public::Process.new(
         :machine(self) );
 }
@@ -112,7 +113,8 @@ class Muldis::Rosetta::Engine::Example::Public::Process {
 
 ###########################################################################
 
-submethod BUILD (Muldis::Rosetta::Engine::Example::Public::Machine :$machine!) {
+submethod BUILD
+        (Muldis::Rosetta::Engine::Example::Public::Machine :$machine!) {
 
     # TODO: input checks.
 
@@ -147,8 +149,8 @@ method assoc_vars of Array () {
     return [$!assoc_vars.values];
 }
 
-method new_func_binding of Muldis::Rosetta::Engine::Example::Public::FuncBinding
-        () {
+method new_func_binding
+        of Muldis::Rosetta::Engine::Example::Public::FuncBinding () {
     return ::Muldis::Rosetta::Engine::Example::Public::FuncBinding.new(
         :process(self) );
 }
@@ -157,8 +159,8 @@ method assoc_func_bindings of Array () {
     return [$!assoc_func_bindings.values];
 }
 
-method new_proc_binding of Muldis::Rosetta::Engine::Example::Public::ProcBinding
-        () {
+method new_proc_binding
+        of Muldis::Rosetta::Engine::Example::Public::ProcBinding () {
     return ::Muldis::Rosetta::Engine::Example::Public::ProcBinding.new(
         :process(self) );
 }
@@ -250,8 +252,8 @@ class Muldis::Rosetta::Engine::Example::Public::Var {
 
 ###########################################################################
 
-submethod BUILD (Muldis::Rosetta::Engine::Example::Public::Process :$process!,
-        Str :$decl_type!) {
+submethod BUILD (Muldis::Rosetta::Engine::Example::Public::Process
+        :$process!, Str :$decl_type!) {
 
     # TODO: input checks.
 

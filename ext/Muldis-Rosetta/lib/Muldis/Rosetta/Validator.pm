@@ -15,7 +15,8 @@ sub main (Str :$engine_name!, Any :$machine_config!) {
 
     plan( 13 );
 
-    say "#### Muldis::Rosetta::Validator starting test of $engine_name ####";
+    say "#### Muldis::Rosetta::Validator"
+        ~ " starting test of $engine_name ####";
 
     # Instantiate a Muldis Rosetta DBMS / virtual machine.
     my Muldis::Rosetta::Interface::Machine $machine
@@ -25,12 +26,14 @@ sub main (Str :$engine_name!, Any :$machine_config!) {
         :machine_config($machine_config),
     );
     does_ok( $machine, 'Muldis::Rosetta::Interface::Machine' );
-    my Muldis::Rosetta::Interface::Process $process = $machine.new_process();
+    my Muldis::Rosetta::Interface::Process $process
+        = $machine.new_process();
     does_ok( $process, 'Muldis::Rosetta::Interface::Process' );
 
     _scenario_foods_suppliers_shipments_v1( $process );
 
-    say "#### Muldis::Rosetta::Validator finished test of $engine_name ####";
+    say "#### Muldis::Rosetta::Validator"
+        ~ " finished test of $engine_name ####";
 
     return;
 }
