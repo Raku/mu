@@ -5,7 +5,7 @@ use Muldis::Rosetta::Interface;
 ###########################################################################
 ###########################################################################
 
-module Muldis::Rosetta::Validator-0.6.2 {
+module Muldis::Rosetta::Validator-0.7.0 {
 
     use Test;
 
@@ -228,7 +228,7 @@ A common comprehensive test suite to run against all Engines
 
 =head1 VERSION
 
-This document describes Muldis::Rosetta::Validator version 0.6.2 for Perl
+This document describes Muldis::Rosetta::Validator version 0.7.0 for Perl
 6.
 
 =head1 SYNOPSIS
@@ -306,7 +306,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Muldis::Rosetta::Interface-0.6.2|Muldis::Rosetta::Interface>.
+L<Muldis::Rosetta::Interface-0.7.0|Muldis::Rosetta::Interface>.
 
 =head1 INCOMPATIBILITIES
 

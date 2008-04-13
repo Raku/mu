@@ -3,7 +3,7 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-package Muldis::Rosetta-0.6.2 {
+package Muldis::Rosetta-0.7.0 {
     # Note that Perl code only exists at all in this file in order to help
     # the CPAN indexer handle the distribution properly.
 } # package Muldis::Rosetta
@@ -22,7 +22,7 @@ Full-featured truly relational DBMS in Perl
 
 =head1 VERSION
 
-This document is Muldis::Rosetta version 0.6.2.
+This document is Muldis::Rosetta version 0.7.0.
 
 =head1 DESCRIPTION
 

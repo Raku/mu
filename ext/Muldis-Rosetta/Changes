@@ -1,20 +1,30 @@
                               Muldis::Rosetta
 ---------------------------------------------------------------------------
 
-2008-04-xx   Darren Duncan <perl@DarrenDuncan.net>
+2008-04-12   Darren Duncan <perl@DarrenDuncan.net>
 
-    * Muldis DB version 0.7.0 for Perl 5 is released on CPAN as
-    Muldis-DB-0.7.0.tar.gz.  Muldis DB version 0.7.0 for Perl 6 is not
-    released at all.  The rest of this Changes entry refers only to the
-    Perl 5 version, and it should not be assumed that the Perl 6 version
-    incorporates all of said updates, though it may have some of them.
+    * Muldis Rosetta version 0.7.0 for Perl 5 is released on CPAN as
+    Muldis-Rosetta-0.7.0.tar.gz.  Muldis Rosetta version 0.7.0 for Perl 6
+    is not released at all.  The rest of this Changes entry refers only to
+    the Perl 5 version, but it also happens that the Perl 6 version was
+    also brought fully up to date along with it.
 
-    * New file versions are: DB.pm and Interface.pm and Validator.pm and
-    Example.pm 0.7.0 and SeeAlso.pod 0.4.5.
+    * What was Muldis-DB at version 0.6.2 has been renamed to
+    Muldis-Rosetta.  This is the first release of the Muldis-Rosetta
+    distribution, and the first release of any distribution to contain Perl
+    5 package names like Muldis::Rosetta(|::\w+).  All of the files in this
+    distribution are as identical as possible to how they were when last
+    released under the names Muldis::DB(|::\w+) but for the name changes.
+    All lib/ files were renamed appropriately, and also the 2
+    t/Muldis_DB_\w+ were renamed to t/Muldis_Rosetta_\w+.
 
-    * (DB.pm)  The TRADEMARK POLICY section was severely edited to excise
-    most legalese, and is now just half its previous size; the old longer
-    version was shunted off to the Muldis Data Systems' website.
+    * All versioned files had their version numbers incremented to the
+    first higher 0.N.0.  New file versions are: Rosetta.pm and Interface.pm
+    and Validator.pm and Example.pm 0.7.0 and SeeAlso.pod 0.5.0.
+
+    * (Rosetta.pm)  The TRADEMARK POLICY section was severely edited to
+    excise most legalese, and is now just half its previous size; the old
+    longer version was shunted off to the Muldis Data Systems' website.
 
     * (Interface.pm, Validator.pm)  Update to retain compatibility with the
     official Muldis D version 0.25.0, where the second (authority) part of
@@ -25,6 +35,63 @@
 
     * Minor update to the file archives/OSCON2008SessionProposal.txt which
     reflects that the proposal was accepted; the talk will be given Jul 23.
+    Also retconned the file to use current names, urls of Muldis D|Rosetta;
+    the copy on the OSCON website will likewise be updated if possible.
+
+    * This is the Muldis-Rosetta-0.7.0 file manifest:
+
+        archives/OSCON2005LightningTalk.txt
+        archives/OSCON2006SessionProposal.txt
+        archives/OSCON2008SessionProposal.txt
+        Changes
+        INSTALL
+        lib/Muldis/Rosetta.pm
+        lib/Muldis/Rosetta/Engine/Example.pm
+        lib/Muldis/Rosetta/Interface.pm
+        lib/Muldis/Rosetta/SeeAlso.pod
+        lib/Muldis/Rosetta/Validator.pm
+        LICENSE/GPL
+        LICENSE/LGPL
+        Makefile.PL
+        MANIFEST
+        MANIFEST.SKIP
+        META.yml
+        README
+        t/Muldis_Rosetta_00_Compile.t
+        t/Muldis_Rosetta_50_Validate_Example.t
+        TODO
+
+2008-04-11   Darren Duncan <perl@DarrenDuncan.net>
+
+    The next version of the Module List will list the following module:
+
+      modid:       Muldis::Rosetta
+      DSLIP:       cmpOl
+      description: Full-featured truly relational DBMS in Perl
+      userid:      DUNCAND (Darren Duncan)
+      chapterid:   7 (Database_Interfaces)
+      enteredby:   SMUELLER (Steffen Müller)
+      enteredon:   Fri Apr 11 07:37:39 2008 GMT
+
+    The resulting entry will be:
+
+    Muldis::
+    ::Rosetta    cmpOl Full-featured truly relational DBMS in Perl  DUNCAND
+
+2008-04-10   Darren Duncan <perl@DarrenDuncan.net>
+
+    Record update in the PAUSE modules database:
+
+           modid: [Muldis::DB]
+           statd: [c]
+           stats: [m]
+           statl: [p]
+           stati: [O]
+           statp: [l]
+     description: [Full-featured truly relational DBMS in Perl]
+          userid: [DUNCAND]
+       chapterid: [7]
+        mlstatus: [delete] was [list]
 
 2008-03-23   Darren Duncan <perl@DarrenDuncan.net>
 
@@ -579,7 +646,8 @@
     release of the (partial) project under the QDRDBMS name.
 
     * Shortly after this, QDRDBMS was renamed to its presumably final name
-    of "Muldis DB", and its command language to "Muldis D".
+    of "Muldis DB", and its command language to "Muldis D".  But while
+    "Muldis D" stuck, "Muldis DB" was fated for a further rename later.
 
 2006-04-14 thru 2006-11-22
 
@@ -593,7 +661,7 @@
     remains to this day.  Pugs 6.2.13 and later included this.
 
     * Set-Relation received various small updates thru 2007-02-03, but is
-    now stagnant; it will likely get un-stuck after Muldis DB sets an
+    now stagnant; it will likely get un-stuck after Muldis Rosetta sets an
     example for it.
 
 2006-02-01 thru 2006-04-13
@@ -619,7 +687,7 @@
     Pugs 6.2.12 (SVN rev 10930), on 2006-06-26, had the corresponding Perl
     6 version; Pugs 6.2.13 (SVN rev 11402), on 2006-10-27, had the last
     CPAN release of Perl 6 Rosetta, with trivial Perl 6 only updates.
-    After this, Pugs would have a Muldis DB instead.
+    After this, Pugs would have a Muldis Rosetta instead.
 
     * This time period also saw very little code, and almost entirely
     documentation updates.
@@ -674,7 +742,7 @@
     guided design decisions, and the Perl 5 one intended to be the one
     production-ready first, to be used until Perl 6 itself was production
     ready.  That co-development was maintained afterwards, and happens with
-    the Muldis DB core.
+    the Muldis Rosetta core.
 
     * There was practically no code produced at this time, mainly just
     design documentation.
@@ -714,7 +782,8 @@
     excised from the Pugs VC (to P6PAN, which didn't go anywhere).
 
     * A Lightning Talk was also given introducing Rosetta at OSCON 2005;
-    but it is Muldis DB instead that will fulfill the promises made in it.
+    but it is Muldis Rosetta instead that will fulfill the promises made in
+    it.
 
 2002-06-07
 
@@ -722,4 +791,4 @@
     designed to enable external code that used them to work seamlessly on
     multiple database products.  Some of this work was reused later in the
     Rosetta DBMS framework et al, and hence 2002 is the start of the
-    declared copyright date range for Muldis DB.
+    declared copyright date range for Muldis Rosetta.

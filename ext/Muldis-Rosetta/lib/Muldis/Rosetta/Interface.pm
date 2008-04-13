@@ -3,7 +3,7 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-module Muldis::Rosetta::Interface-0.6.2 {
+module Muldis::Rosetta::Interface-0.7.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -254,7 +254,7 @@ Common public API for Muldis Rosetta Engines
 
 =head1 VERSION
 
-This document describes Muldis::Rosetta::Interface version 0.6.2 for Perl
+This document describes Muldis::Rosetta::Interface version 0.7.0 for Perl
 6.
 
 It also describes the same-number versions for Perl 6 of

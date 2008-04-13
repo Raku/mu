@@ -9,7 +9,7 @@ External resources that you really ought to look at
 
 =head1 VERSION
 
-This document is Muldis::Rosetta::SeeAlso version 0.4.4.
+This document is Muldis::Rosetta::SeeAlso version 0.5.0.
 
 =head1 DESCRIPTION
 
