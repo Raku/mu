@@ -21,7 +21,8 @@ class EmitSimpleP5 {
   };
   method prelude ($n) {
   '#!/usr/bin/perl -w
-#use strict; #XXX narrow, and reenable after typenames are quoted.
+use strict;
+no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
 
 {package AssertCurrentModuleVersions;
@@ -209,6 +210,8 @@ use warnings;
   sub not ($){CORE::not $_[0]}
   sub exec{CORE::exec(@_)}
   sub sleep{CORE::sleep(@_)}
+
+  sub split{[CORE::split($_[0],$_[1])]}
 }
 
 { package SCALAR;
