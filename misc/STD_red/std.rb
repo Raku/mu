@@ -1493,7 +1493,7 @@ class Perl < Grammar
             quesRULE{ scan(/:?\(/) and wsp and si= signature and si.push(si) and wsp and scan(/\)/) } and wsp and
             k= regex_block and
             (h={};
-             _hkv(h,:ident,i)
+             _hkv(h,:ident,i[0])
              _hkv(h,:signature,s)
              _hkv(h,:trait,t)
              _hkv(h,:regex_block,k)
@@ -1963,7 +1963,8 @@ false #R
     def regex_sequence
         b=pos
         s= plusRULE{regex_quantified_atom} and
-        _match_from(b,{:patterns=>s},:regex_sequence)
+            (s.size == 1 ? s[0] :
+             _match_from(b,{:patterns=>s},:regex_sequence))
     end
 
     def regex_quantified_atom

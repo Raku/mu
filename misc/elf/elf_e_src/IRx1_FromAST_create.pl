@@ -198,6 +198,10 @@ package_declarator:package
 my $^blackboard::package_declarator = 'package';
 $m<package_def>
 
+package_declarator:grammar
+my $^blackboard::package_declarator = 'grammar';
+$m<package_def>
+
 package_def
 PackageDecl.newp(undef,undef,$^blackboard::package_declarator,$m<module_name>.[0],$m<traits>,$m<block>)
 
@@ -216,6 +220,50 @@ if not($m<lambda>) and not($m<signature>) {
 } else {
   die "AST handler circumfix:pblock partially unimplemented";
 }
+
+regex_declarator:regex_def
+RegexDef.newp($m<ident>,$m<regex_block>)
+
+regex_block
+$m<regex>
+
+regex
+Regex.newp($m<patterns>)
+
+regex_first
+RegexFirst.newp($m<patterns>)
+
+regex_every
+RegexEvery.newp($m<patterns>)
+
+regex_submatch
+RegexSubmatch.newp($m<patterns>)
+
+regex_any
+RegexAny.newp($m<patterns>)
+
+regex_all
+RegexAll.newp($m<patterns>)
+
+regex_sequence
+RegexSequence.newp($m<patterns>)
+
+regex_quantified_atom
+RegexQuantifiedAtom.newp($m<regex_atom>,$m<regex_quantifier>)
+
+regex_atom
+if $m<char> { RegexAtom.newp(*1*) } else { *1* }
+
+regex_metachar:regex_backslash
+RegexBackslash.newp(*text*)
+
+regex_metachar:regex_mod_internal
+RegexModInternal.newp(*text*)
+
+regex_assertion:ident
+RegexAssertion.newp($m<ident>)
+
+
 END_DEF
 
 my $header_code = <<'END_CODE';
@@ -316,9 +364,9 @@ sub write_ast_handlers {
       END
     }
 
-    $code .= unindent(<<"    END","    ");
+    $code .= "\n".unindent(<<"    END","    ");
       \$main::irbuilder.add_constructor('$name', sub (\$m) {
-      $body;
+        $body;
       });
     END
 

@@ -72,6 +72,20 @@ For    expr block
 Cond   clauses default invert_first_test 
 Loop   pretest block posttest label 
 
+RegexDef ident pattern
+Regex patterns
+RegexFirst patterns
+RegexEvery patterns
+RegexSubmatch patterns
+RegexAny patterns
+RegexAll patterns
+RegexSequence patterns
+RegexQuantifiedAtom atom quantifier
+RegexAtom atom
+RegexBackslash char
+RegexAssertion ident
+RegexModInternal mod
+
 
 
 END_DEF

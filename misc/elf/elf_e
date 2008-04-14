@@ -1654,6 +1654,268 @@ __PACKAGE__->meta->make_immutable();
 
 }
 ;
+
+{ package IRx1::RegexDef;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'ident' => (is => 'rw');;
+has 'pattern' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$ident,$pattern)=@_;
+$self->new('match', $match, 'ident', $ident, 'pattern', $pattern)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexDef($self)};
+sub node_name{my $self=CORE::shift;'RegexDef'};
+sub field_names{my $self=CORE::shift;['ident', 'pattern']};
+sub field_values{my $self=CORE::shift;[$self->ident, $self->pattern]};
+sub irx1_describe{my $self=CORE::shift;(((('RegexDef(' . $self->ident->irx1_describe()) . ',') . $self->pattern->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Regex;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'patterns' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
+$self->new('match', $match, 'patterns', $patterns)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Regex($self)};
+sub node_name{my $self=CORE::shift;'Regex'};
+sub field_names{my $self=CORE::shift;['patterns']};
+sub field_values{my $self=CORE::shift;[$self->patterns]};
+sub irx1_describe{my $self=CORE::shift;(('Regex(' . $self->patterns->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexFirst;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'patterns' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
+$self->new('match', $match, 'patterns', $patterns)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexFirst($self)};
+sub node_name{my $self=CORE::shift;'RegexFirst'};
+sub field_names{my $self=CORE::shift;['patterns']};
+sub field_values{my $self=CORE::shift;[$self->patterns]};
+sub irx1_describe{my $self=CORE::shift;(('RegexFirst(' . $self->patterns->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexEvery;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'patterns' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
+$self->new('match', $match, 'patterns', $patterns)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexEvery($self)};
+sub node_name{my $self=CORE::shift;'RegexEvery'};
+sub field_names{my $self=CORE::shift;['patterns']};
+sub field_values{my $self=CORE::shift;[$self->patterns]};
+sub irx1_describe{my $self=CORE::shift;(('RegexEvery(' . $self->patterns->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexSubmatch;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'patterns' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
+$self->new('match', $match, 'patterns', $patterns)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexSubmatch($self)};
+sub node_name{my $self=CORE::shift;'RegexSubmatch'};
+sub field_names{my $self=CORE::shift;['patterns']};
+sub field_values{my $self=CORE::shift;[$self->patterns]};
+sub irx1_describe{my $self=CORE::shift;(('RegexSubmatch(' . $self->patterns->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexAny;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'patterns' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
+$self->new('match', $match, 'patterns', $patterns)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexAny($self)};
+sub node_name{my $self=CORE::shift;'RegexAny'};
+sub field_names{my $self=CORE::shift;['patterns']};
+sub field_values{my $self=CORE::shift;[$self->patterns]};
+sub irx1_describe{my $self=CORE::shift;(('RegexAny(' . $self->patterns->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexAll;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'patterns' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
+$self->new('match', $match, 'patterns', $patterns)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexAll($self)};
+sub node_name{my $self=CORE::shift;'RegexAll'};
+sub field_names{my $self=CORE::shift;['patterns']};
+sub field_values{my $self=CORE::shift;[$self->patterns]};
+sub irx1_describe{my $self=CORE::shift;(('RegexAll(' . $self->patterns->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexSequence;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'patterns' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
+$self->new('match', $match, 'patterns', $patterns)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexSequence($self)};
+sub node_name{my $self=CORE::shift;'RegexSequence'};
+sub field_names{my $self=CORE::shift;['patterns']};
+sub field_values{my $self=CORE::shift;[$self->patterns]};
+sub irx1_describe{my $self=CORE::shift;(('RegexSequence(' . $self->patterns->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexQuantifiedAtom;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'atom' => (is => 'rw');;
+has 'quantifier' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$atom,$quantifier)=@_;
+$self->new('match', $match, 'atom', $atom, 'quantifier', $quantifier)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexQuantifiedAtom($self)};
+sub node_name{my $self=CORE::shift;'RegexQuantifiedAtom'};
+sub field_names{my $self=CORE::shift;['atom', 'quantifier']};
+sub field_values{my $self=CORE::shift;[$self->atom, $self->quantifier]};
+sub irx1_describe{my $self=CORE::shift;(((('RegexQuantifiedAtom(' . $self->atom->irx1_describe()) . ',') . $self->quantifier->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexAtom;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'atom' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$atom)=@_;
+$self->new('match', $match, 'atom', $atom)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexAtom($self)};
+sub node_name{my $self=CORE::shift;'RegexAtom'};
+sub field_names{my $self=CORE::shift;['atom']};
+sub field_values{my $self=CORE::shift;[$self->atom]};
+sub irx1_describe{my $self=CORE::shift;(('RegexAtom(' . $self->atom->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexBackslash;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'char' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$char)=@_;
+$self->new('match', $match, 'char', $char)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexBackslash($self)};
+sub node_name{my $self=CORE::shift;'RegexBackslash'};
+sub field_names{my $self=CORE::shift;['char']};
+sub field_values{my $self=CORE::shift;[$self->char]};
+sub irx1_describe{my $self=CORE::shift;(('RegexBackslash(' . $self->char->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexAssertion;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'ident' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$ident)=@_;
+$self->new('match', $match, 'ident', $ident)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexAssertion($self)};
+sub node_name{my $self=CORE::shift;'RegexAssertion'};
+sub field_names{my $self=CORE::shift;['ident']};
+sub field_values{my $self=CORE::shift;[$self->ident]};
+sub irx1_describe{my $self=CORE::shift;(('RegexAssertion(' . $self->ident->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::RegexModInternal;
+use Moose; __PACKAGE__->meta->make_mutable();
+use autobox; use autobox UNDEF => 'UNDEF';
+use base 'IRx1::Base';
+has 'match' => (is => 'rw');;
+has 'mod' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$mod)=@_;
+$self->new('match', $match, 'mod', $mod)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RegexModInternal($self)};
+sub node_name{my $self=CORE::shift;'RegexModInternal'};
+sub field_names{my $self=CORE::shift;['mod']};
+sub field_values{my $self=CORE::shift;[$self->mod]};
+sub irx1_describe{my $self=CORE::shift;(('RegexModInternal(' . $self->mod->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1942,6 +2204,9 @@ irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:package', sub {my($m)=@_;
 {package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
 irbuild_ir($m->{'hash'}->{'package_def'})});
+$main::irbuilder->add_constructor('package_declarator:grammar', sub {my($m)=@_;
+{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'grammar';
+irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_def', sub {my($m)=@_;
 IRx1::PackageDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $::es_blackboard__package_declarator, irbuild_ir($m->{'hash'}->{'module_name'})->[0], irbuild_ir($m->{'hash'}->{'traits'}), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('fulltypename', sub {my($m)=@_;
@@ -1956,6 +2221,49 @@ IRx1::Hash->newp($m, irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementli
 }else {
 GLOBAL::die('AST handler circumfix:pblock partially unimplemented')
 }});
+$main::irbuilder->add_constructor('regex_declarator:regex_def', sub {my($m)=@_;
+IRx1::RegexDef->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'regex_block'}))});
+$main::irbuilder->add_constructor('regex_block', sub {my($m)=@_;
+irbuild_ir($m->{'hash'}->{'regex'})});
+$main::irbuilder->add_constructor('regex', sub {my($m)=@_;
+IRx1::Regex->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+$main::irbuilder->add_constructor('regex_first', sub {my($m)=@_;
+IRx1::RegexFirst->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+$main::irbuilder->add_constructor('regex_every', sub {my($m)=@_;
+IRx1::RegexEvery->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+$main::irbuilder->add_constructor('regex_submatch', sub {my($m)=@_;
+IRx1::RegexSubmatch->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+$main::irbuilder->add_constructor('regex_any', sub {my($m)=@_;
+IRx1::RegexAny->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+$main::irbuilder->add_constructor('regex_all', sub {my($m)=@_;
+IRx1::RegexAll->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+$main::irbuilder->add_constructor('regex_sequence', sub {my($m)=@_;
+IRx1::RegexSequence->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+$main::irbuilder->add_constructor('regex_quantified_atom', sub {my($m)=@_;
+IRx1::RegexQuantifiedAtom->newp($m, irbuild_ir($m->{'hash'}->{'regex_atom'}), irbuild_ir($m->{'hash'}->{'regex_quantifier'}))});
+$main::irbuilder->add_constructor('regex_atom', sub {my($m)=@_;
+my $key;
+for($m->{'hash'}->keys()->flatten){
+if(($_ ne 'match')) {
+if($key) {
+GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
+')
+};
+($key = $_)
+}
+};
+my $one = irbuild_ir($m->{'hash'}->{$key});
+if(irbuild_ir($m->{'hash'}->{'char'})) {
+IRx1::RegexAtom->newp($m, $one)
+}else {
+$one
+}});
+$main::irbuilder->add_constructor('regex_metachar:regex_backslash', sub {my($m)=@_;
+IRx1::RegexBackslash->newp($m, ($m->match_string()))});
+$main::irbuilder->add_constructor('regex_metachar:regex_mod_internal', sub {my($m)=@_;
+IRx1::RegexModInternal->newp($m, ($m->match_string()))});
+$main::irbuilder->add_constructor('regex_assertion:ident', sub {my($m)=@_;
+IRx1::RegexAssertion->newp($m, irbuild_ir($m->{'hash'}->{'ident'}))});
 __PACKAGE__->meta->make_immutable();
 
 }
