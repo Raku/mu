@@ -8,7 +8,12 @@ class EmitSimpleP5 {
   has $.compiler;
 
   method prelude_for_entering_a_package () {
-    "use autobox; use autobox UNDEF => 'UNDEF';\n"
+      "";
+  };
+
+  method prelude_lexical () {
+      "use autobox;use autobox UNDEF => 'UNDEF';
+      ";
   };
 
   method prelude_oo () {
@@ -32,7 +37,6 @@ use warnings;
   use Class::Multimethods;
   use Data::Dumper;
 }
-
 '~self.prelude_oo~'
 
 
@@ -189,7 +193,6 @@ use warnings;
 
 
 { package GLOBAL;
-  use autobox; use autobox UNDEF => "UNDEF";
   use Perl6::Say;
 
   our $a_ARGS = [@ARGV];
@@ -272,7 +275,6 @@ use warnings;
 }
 
 package main; # -> Main once elf_d support is dropped.
-use autobox; use autobox UNDEF => "UNDEF";
 ';
   };
 
@@ -293,7 +295,7 @@ use autobox; use autobox UNDEF => "UNDEF";
     my $^whiteboard::in_package = [];
     ("package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.\n"~
      self.prelude_for_entering_a_package()~
-     $.e($n<statements>).join(";\n"))
+     $.e($n<statements>).join(";\n")~";1;\n")
   };
   method cb__Block ($n) {
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
@@ -304,7 +306,7 @@ use autobox; use autobox UNDEF => "UNDEF";
     my $module = $n<module_name>;
     if $module eq 'v6-alpha' { "" }
     elsif $.compiler.hook_for_use($module) { "" }
-    else { "***Unimplemented use()***" }
+    else { "use " ~$module }
   };
   method cb__ClosureTrait ($n) {
     $n<kind>~'{'~$.e($n<block>)~'}'
