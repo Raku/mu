@@ -365,35 +365,39 @@ die "AST handler circumfix:pblock partially unimplemented";
     });
 
     $main::irbuilder.add_constructor('regex', sub ($m) {
-      IRx1::Regex.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
+      IRx1::Regex.newp($m,irbuild_ir($m.{'hash'}{'pattern'}));
     });
 
     $main::irbuilder.add_constructor('regex_first', sub ($m) {
-      IRx1::RegexFirst.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
+      IRx1::RxFirst.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
     });
 
     $main::irbuilder.add_constructor('regex_every', sub ($m) {
-      IRx1::RegexEvery.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
+      IRx1::RxEvery.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
     });
 
     $main::irbuilder.add_constructor('regex_submatch', sub ($m) {
-      IRx1::RegexSubmatch.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
+      IRx1::RxSubmatch.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
     });
 
     $main::irbuilder.add_constructor('regex_any', sub ($m) {
-      IRx1::RegexAny.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
+      IRx1::RxAny.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
     });
 
     $main::irbuilder.add_constructor('regex_all', sub ($m) {
-      IRx1::RegexAll.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
+      IRx1::RxAll.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
     });
 
     $main::irbuilder.add_constructor('regex_sequence', sub ($m) {
-      IRx1::RegexSequence.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
+      IRx1::RxSequence.newp($m,irbuild_ir($m.{'hash'}{'patterns'}));
     });
 
     $main::irbuilder.add_constructor('regex_quantified_atom', sub ($m) {
-      IRx1::RegexQuantifiedAtom.newp($m,irbuild_ir($m.{'hash'}{'regex_atom'}),irbuild_ir($m.{'hash'}{'regex_quantifier'}));
+      IRx1::RxQuantifiedAtom.newp($m,irbuild_ir($m.{'hash'}{'regex_atom'}),irbuild_ir($m.{'hash'}{'regex_quantifier'}));
+    });
+
+    $main::irbuilder.add_constructor('regex_quantifier', sub ($m) {
+      ($m.match_string);
     });
 
     $main::irbuilder.add_constructor('regex_atom', sub ($m) {
@@ -407,18 +411,46 @@ for $m.{'hash'}.keys {
   }
 }
 my $one = irbuild_ir($m.{'hash'}{$key});
-if irbuild_ir($m.{'hash'}{'char'}) { IRx1::RegexAtom.newp($m,$one) } else { $one };
+if irbuild_ir($m.{'hash'}{'char'}) { IRx1::RxLiteral.newp($m,irbuild_ir($m.{'hash'}{'char'}),"'") } else { $one };
     });
 
     $main::irbuilder.add_constructor('regex_metachar:regex_backslash', sub ($m) {
-      IRx1::RegexBackslash.newp($m,($m.match_string));
+      IRx1::RxBackslash.newp($m,($m.match_string));
     });
 
     $main::irbuilder.add_constructor('regex_metachar:regex_mod_internal', sub ($m) {
-      IRx1::RegexModInternal.newp($m,($m.match_string));
+      IRx1::RxModInternal.newp($m,($m.match_string));
     });
 
     $main::irbuilder.add_constructor('regex_assertion:ident', sub ($m) {
-      IRx1::RegexAssertion.newp($m,irbuild_ir($m.{'hash'}{'ident'}));
+      IRx1::RxAssertion.newp($m,irbuild_ir($m.{'hash'}{'ident'}));
+    });
+
+    $main::irbuilder.add_constructor('regex_metachar:capture', sub ($m) {
+      IRx1::RxCapture.newp($m,irbuild_ir($m.{'hash'}{'regex'}.{'hash'}{'pattern'}));
+    });
+
+    $main::irbuilder.add_constructor('regex_metachar:group', sub ($m) {
+      IRx1::RxGroup.newp($m,irbuild_ir($m.{'hash'}{'regex'}.{'hash'}{'pattern'}));
+    });
+
+    $main::irbuilder.add_constructor('regex_metachar:block', sub ($m) {
+      IRx1::RxBlock.newp($m,irbuild_ir($m.{'hash'}{'block'}));
+    });
+
+    $main::irbuilder.add_constructor('regex_metachar:var', sub ($m) {
+      IRx1::RxBind.newp($m,irbuild_ir($m.{'hash'}{'variable'}),irbuild_ir($m.{'hash'}{'binding'}));
+    });
+
+    $main::irbuilder.add_constructor('regex_metachar:q', sub ($m) {
+      IRx1::RxLiteral.newp($m,irbuild_ir($m.{'hash'}{'text'}),"'");
+    });
+
+    $main::irbuilder.add_constructor('regex_metachar:qq', sub ($m) {
+      IRx1::RxLiteral.newp($m,irbuild_ir($m.{'hash'}{'text'}),'"');
+    });
+
+    $main::irbuilder.add_constructor('regex_metachar', sub ($m) {
+      IRx1::RxSymbol.newp($m,($m.match_string));
     });
 }

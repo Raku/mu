@@ -74,18 +74,22 @@ Loop   pretest block posttest label
 
 RegexDef ident pattern
 Regex patterns
-RegexFirst patterns
-RegexEvery patterns
-RegexSubmatch patterns
-RegexAny patterns
-RegexAll patterns
-RegexSequence patterns
-RegexQuantifiedAtom atom quantifier
-RegexAtom atom
-RegexBackslash char
-RegexAssertion ident
-RegexModInternal mod
-
+RxFirst patterns
+RxEvery patterns
+RxSubmatch patterns
+RxAny patterns
+RxAll patterns
+RxSequence patterns
+RxQuantifiedAtom atom quantifier
+RxBackslash char
+RxAssertion ident
+RxModInternal mod
+RxCapture pattern
+RxGroup pattern
+RxBlock block
+RxBind var binding
+RxLiteral text quote
+RxSymbol symbol
 
 
 END_DEF

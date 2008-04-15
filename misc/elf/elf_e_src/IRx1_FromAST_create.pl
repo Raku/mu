@@ -228,41 +228,64 @@ regex_block
 $m<regex>
 
 regex
-Regex.newp($m<patterns>)
+Regex.newp($m<pattern>)
 
 regex_first
-RegexFirst.newp($m<patterns>)
+RxFirst.newp($m<patterns>)
 
 regex_every
-RegexEvery.newp($m<patterns>)
+RxEvery.newp($m<patterns>)
 
 regex_submatch
-RegexSubmatch.newp($m<patterns>)
+RxSubmatch.newp($m<patterns>)
 
 regex_any
-RegexAny.newp($m<patterns>)
+RxAny.newp($m<patterns>)
 
 regex_all
-RegexAll.newp($m<patterns>)
+RxAll.newp($m<patterns>)
 
 regex_sequence
-RegexSequence.newp($m<patterns>)
+RxSequence.newp($m<patterns>)
 
 regex_quantified_atom
-RegexQuantifiedAtom.newp($m<regex_atom>,$m<regex_quantifier>)
+RxQuantifiedAtom.newp($m<regex_atom>,$m<regex_quantifier>)
+
+regex_quantifier
+*text*
 
 regex_atom
-if $m<char> { RegexAtom.newp(*1*) } else { *1* }
+if $m<char> { RxLiteral.newp($m<char>,"'") } else { *1* }
 
 regex_metachar:regex_backslash
-RegexBackslash.newp(*text*)
+RxBackslash.newp(*text*)
 
 regex_metachar:regex_mod_internal
-RegexModInternal.newp(*text*)
+RxModInternal.newp(*text*)
 
 regex_assertion:ident
-RegexAssertion.newp($m<ident>)
+RxAssertion.newp($m<ident>)
 
+regex_metachar:capture
+RxCapture.newp($m<regex><pattern>)
+
+regex_metachar:group
+RxGroup.newp($m<regex><pattern>)
+
+regex_metachar:block
+RxBlock.newp($m<block>)
+
+regex_metachar:var
+RxBind.newp($m<variable>,$m<binding>)
+
+regex_metachar:q
+RxLiteral.newp($m<text>,"'")
+
+regex_metachar:qq
+RxLiteral.newp($m<text>,'"')
+
+regex_metachar
+RxSymbol.newp(*text*)
 
 END_DEF
 

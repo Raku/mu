@@ -2822,7 +2822,7 @@ sub irx1_describe{my $self=CORE::shift;(('Regex(' . $self->patterns->irx1_descri
 }
 ;
 
-{ package IRx1::RegexFirst;
+{ package IRx1::RxFirst;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -2852,15 +2852,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexFirst($self)};
-sub node_name{my $self=CORE::shift;'RegexFirst'};
+$emitter->cb__RxFirst($self)};
+sub node_name{my $self=CORE::shift;'RxFirst'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RegexFirst(' . $self->patterns->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxFirst(' . $self->patterns->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexEvery;
+{ package IRx1::RxEvery;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -2890,15 +2890,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexEvery($self)};
-sub node_name{my $self=CORE::shift;'RegexEvery'};
+$emitter->cb__RxEvery($self)};
+sub node_name{my $self=CORE::shift;'RxEvery'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RegexEvery(' . $self->patterns->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxEvery(' . $self->patterns->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexSubmatch;
+{ package IRx1::RxSubmatch;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -2928,15 +2928,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexSubmatch($self)};
-sub node_name{my $self=CORE::shift;'RegexSubmatch'};
+$emitter->cb__RxSubmatch($self)};
+sub node_name{my $self=CORE::shift;'RxSubmatch'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RegexSubmatch(' . $self->patterns->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxSubmatch(' . $self->patterns->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexAny;
+{ package IRx1::RxAny;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -2966,15 +2966,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexAny($self)};
-sub node_name{my $self=CORE::shift;'RegexAny'};
+$emitter->cb__RxAny($self)};
+sub node_name{my $self=CORE::shift;'RxAny'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RegexAny(' . $self->patterns->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxAny(' . $self->patterns->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexAll;
+{ package IRx1::RxAll;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -3004,15 +3004,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexAll($self)};
-sub node_name{my $self=CORE::shift;'RegexAll'};
+$emitter->cb__RxAll($self)};
+sub node_name{my $self=CORE::shift;'RxAll'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RegexAll(' . $self->patterns->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxAll(' . $self->patterns->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexSequence;
+{ package IRx1::RxSequence;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -3042,15 +3042,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexSequence($self)};
-sub node_name{my $self=CORE::shift;'RegexSequence'};
+$emitter->cb__RxSequence($self)};
+sub node_name{my $self=CORE::shift;'RxSequence'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RegexSequence(' . $self->patterns->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxSequence(' . $self->patterns->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexQuantifiedAtom;
+{ package IRx1::RxQuantifiedAtom;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -3088,53 +3088,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$atom,$quantifier)=@_;
 $self->new('match', $match, 'atom', $atom, 'quantifier', $quantifier)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexQuantifiedAtom($self)};
-sub node_name{my $self=CORE::shift;'RegexQuantifiedAtom'};
+$emitter->cb__RxQuantifiedAtom($self)};
+sub node_name{my $self=CORE::shift;'RxQuantifiedAtom'};
 sub field_names{my $self=CORE::shift;['atom', 'quantifier']};
 sub field_values{my $self=CORE::shift;[$self->atom, $self->quantifier]};
-sub irx1_describe{my $self=CORE::shift;(((('RegexQuantifiedAtom(' . $self->atom->irx1_describe()) . ',') . $self->quantifier->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(((('RxQuantifiedAtom(' . $self->atom->irx1_describe()) . ',') . $self->quantifier->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexAtom;
- use base qw(Object);
-use base 'IRx1::Base';
-sub match {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- } else {
-     $_[0]{'match'};
-  }
-}
-;
-sub atom {
-  if (@_ == 2) {
-      $_[0]{'atom'} = $_[1];
- } else {
-     $_[0]{'atom'};
-  }
-}
-;
-sub notes {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- } else {
-     $_[0]{'notes'};
-  }
-}
-;
-sub newp{my $self=CORE::shift;my($match,$atom)=@_;
-$self->new('match', $match, 'atom', $atom)};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexAtom($self)};
-sub node_name{my $self=CORE::shift;'RegexAtom'};
-sub field_names{my $self=CORE::shift;['atom']};
-sub field_values{my $self=CORE::shift;[$self->atom]};
-sub irx1_describe{my $self=CORE::shift;(('RegexAtom(' . $self->atom->irx1_describe()) . ')')}
-}
-;
-
-{ package IRx1::RegexBackslash;
+{ package IRx1::RxBackslash;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -3164,15 +3126,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$char)=@_;
 $self->new('match', $match, 'char', $char)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexBackslash($self)};
-sub node_name{my $self=CORE::shift;'RegexBackslash'};
+$emitter->cb__RxBackslash($self)};
+sub node_name{my $self=CORE::shift;'RxBackslash'};
 sub field_names{my $self=CORE::shift;['char']};
 sub field_values{my $self=CORE::shift;[$self->char]};
-sub irx1_describe{my $self=CORE::shift;(('RegexBackslash(' . $self->char->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxBackslash(' . $self->char->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexAssertion;
+{ package IRx1::RxAssertion;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -3202,15 +3164,15 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$ident)=@_;
 $self->new('match', $match, 'ident', $ident)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexAssertion($self)};
-sub node_name{my $self=CORE::shift;'RegexAssertion'};
+$emitter->cb__RxAssertion($self)};
+sub node_name{my $self=CORE::shift;'RxAssertion'};
 sub field_names{my $self=CORE::shift;['ident']};
 sub field_values{my $self=CORE::shift;[$self->ident]};
-sub irx1_describe{my $self=CORE::shift;(('RegexAssertion(' . $self->ident->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxAssertion(' . $self->ident->irx1_describe()) . ')')}
 }
 ;
 
-{ package IRx1::RegexModInternal;
+{ package IRx1::RxModInternal;
  use base qw(Object);
 use base 'IRx1::Base';
 sub match {
@@ -3240,11 +3202,255 @@ sub notes {
 sub newp{my $self=CORE::shift;my($match,$mod)=@_;
 $self->new('match', $match, 'mod', $mod)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexModInternal($self)};
-sub node_name{my $self=CORE::shift;'RegexModInternal'};
+$emitter->cb__RxModInternal($self)};
+sub node_name{my $self=CORE::shift;'RxModInternal'};
 sub field_names{my $self=CORE::shift;['mod']};
 sub field_values{my $self=CORE::shift;[$self->mod]};
-sub irx1_describe{my $self=CORE::shift;(('RegexModInternal(' . $self->mod->irx1_describe()) . ')')}
+sub irx1_describe{my $self=CORE::shift;(('RxModInternal(' . $self->mod->irx1_describe()) . ')')}
+}
+;
+
+{ package IRx1::RxCapture;
+ use base qw(Object);
+use base 'IRx1::Base';
+sub match {
+  if (@_ == 2) {
+      $_[0]{'match'} = $_[1];
+ } else {
+     $_[0]{'match'};
+  }
+}
+;
+sub pattern {
+  if (@_ == 2) {
+      $_[0]{'pattern'} = $_[1];
+ } else {
+     $_[0]{'pattern'};
+  }
+}
+;
+sub notes {
+  if (@_ == 2) {
+      $_[0]{'notes'} = $_[1];
+ } else {
+     $_[0]{'notes'};
+  }
+}
+;
+sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
+$self->new('match', $match, 'pattern', $pattern)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RxCapture($self)};
+sub node_name{my $self=CORE::shift;'RxCapture'};
+sub field_names{my $self=CORE::shift;['pattern']};
+sub field_values{my $self=CORE::shift;[$self->pattern]};
+sub irx1_describe{my $self=CORE::shift;(('RxCapture(' . $self->pattern->irx1_describe()) . ')')}
+}
+;
+
+{ package IRx1::RxGroup;
+ use base qw(Object);
+use base 'IRx1::Base';
+sub match {
+  if (@_ == 2) {
+      $_[0]{'match'} = $_[1];
+ } else {
+     $_[0]{'match'};
+  }
+}
+;
+sub pattern {
+  if (@_ == 2) {
+      $_[0]{'pattern'} = $_[1];
+ } else {
+     $_[0]{'pattern'};
+  }
+}
+;
+sub notes {
+  if (@_ == 2) {
+      $_[0]{'notes'} = $_[1];
+ } else {
+     $_[0]{'notes'};
+  }
+}
+;
+sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
+$self->new('match', $match, 'pattern', $pattern)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RxGroup($self)};
+sub node_name{my $self=CORE::shift;'RxGroup'};
+sub field_names{my $self=CORE::shift;['pattern']};
+sub field_values{my $self=CORE::shift;[$self->pattern]};
+sub irx1_describe{my $self=CORE::shift;(('RxGroup(' . $self->pattern->irx1_describe()) . ')')}
+}
+;
+
+{ package IRx1::RxBlock;
+ use base qw(Object);
+use base 'IRx1::Base';
+sub match {
+  if (@_ == 2) {
+      $_[0]{'match'} = $_[1];
+ } else {
+     $_[0]{'match'};
+  }
+}
+;
+sub block {
+  if (@_ == 2) {
+      $_[0]{'block'} = $_[1];
+ } else {
+     $_[0]{'block'};
+  }
+}
+;
+sub notes {
+  if (@_ == 2) {
+      $_[0]{'notes'} = $_[1];
+ } else {
+     $_[0]{'notes'};
+  }
+}
+;
+sub newp{my $self=CORE::shift;my($match,$block)=@_;
+$self->new('match', $match, 'block', $block)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RxBlock($self)};
+sub node_name{my $self=CORE::shift;'RxBlock'};
+sub field_names{my $self=CORE::shift;['block']};
+sub field_values{my $self=CORE::shift;[$self->block]};
+sub irx1_describe{my $self=CORE::shift;(('RxBlock(' . $self->block->irx1_describe()) . ')')}
+}
+;
+
+{ package IRx1::RxBind;
+ use base qw(Object);
+use base 'IRx1::Base';
+sub match {
+  if (@_ == 2) {
+      $_[0]{'match'} = $_[1];
+ } else {
+     $_[0]{'match'};
+  }
+}
+;
+sub var {
+  if (@_ == 2) {
+      $_[0]{'var'} = $_[1];
+ } else {
+     $_[0]{'var'};
+  }
+}
+;
+sub binding {
+  if (@_ == 2) {
+      $_[0]{'binding'} = $_[1];
+ } else {
+     $_[0]{'binding'};
+  }
+}
+;
+sub notes {
+  if (@_ == 2) {
+      $_[0]{'notes'} = $_[1];
+ } else {
+     $_[0]{'notes'};
+  }
+}
+;
+sub newp{my $self=CORE::shift;my($match,$var,$binding)=@_;
+$self->new('match', $match, 'var', $var, 'binding', $binding)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RxBind($self)};
+sub node_name{my $self=CORE::shift;'RxBind'};
+sub field_names{my $self=CORE::shift;['var', 'binding']};
+sub field_values{my $self=CORE::shift;[$self->var, $self->binding]};
+sub irx1_describe{my $self=CORE::shift;(((('RxBind(' . $self->var->irx1_describe()) . ',') . $self->binding->irx1_describe()) . ')')}
+}
+;
+
+{ package IRx1::RxLiteral;
+ use base qw(Object);
+use base 'IRx1::Base';
+sub match {
+  if (@_ == 2) {
+      $_[0]{'match'} = $_[1];
+ } else {
+     $_[0]{'match'};
+  }
+}
+;
+sub text {
+  if (@_ == 2) {
+      $_[0]{'text'} = $_[1];
+ } else {
+     $_[0]{'text'};
+  }
+}
+;
+sub quote {
+  if (@_ == 2) {
+      $_[0]{'quote'} = $_[1];
+ } else {
+     $_[0]{'quote'};
+  }
+}
+;
+sub notes {
+  if (@_ == 2) {
+      $_[0]{'notes'} = $_[1];
+ } else {
+     $_[0]{'notes'};
+  }
+}
+;
+sub newp{my $self=CORE::shift;my($match,$text,$quote)=@_;
+$self->new('match', $match, 'text', $text, 'quote', $quote)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RxLiteral($self)};
+sub node_name{my $self=CORE::shift;'RxLiteral'};
+sub field_names{my $self=CORE::shift;['text', 'quote']};
+sub field_values{my $self=CORE::shift;[$self->text, $self->quote]};
+sub irx1_describe{my $self=CORE::shift;(((('RxLiteral(' . $self->text->irx1_describe()) . ',') . $self->quote->irx1_describe()) . ')')}
+}
+;
+
+{ package IRx1::RxSymbol;
+ use base qw(Object);
+use base 'IRx1::Base';
+sub match {
+  if (@_ == 2) {
+      $_[0]{'match'} = $_[1];
+ } else {
+     $_[0]{'match'};
+  }
+}
+;
+sub symbol {
+  if (@_ == 2) {
+      $_[0]{'symbol'} = $_[1];
+ } else {
+     $_[0]{'symbol'};
+  }
+}
+;
+sub notes {
+  if (@_ == 2) {
+      $_[0]{'notes'} = $_[1];
+ } else {
+     $_[0]{'notes'};
+  }
+}
+;
+sub newp{my $self=CORE::shift;my($match,$symbol)=@_;
+$self->new('match', $match, 'symbol', $symbol)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__RxSymbol($self)};
+sub node_name{my $self=CORE::shift;'RxSymbol'};
+sub field_names{my $self=CORE::shift;['symbol']};
+sub field_values{my $self=CORE::shift;[$self->symbol]};
+sub irx1_describe{my $self=CORE::shift;(('RxSymbol(' . $self->symbol->irx1_describe()) . ')')}
 }
 
 }
@@ -3547,21 +3753,23 @@ IRx1::RegexDef->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'h
 $main::irbuilder->add_constructor('regex_block', sub {my($m)=@_;
 irbuild_ir($m->{'hash'}->{'regex'})});
 $main::irbuilder->add_constructor('regex', sub {my($m)=@_;
-IRx1::Regex->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+IRx1::Regex->newp($m, irbuild_ir($m->{'hash'}->{'pattern'}))});
 $main::irbuilder->add_constructor('regex_first', sub {my($m)=@_;
-IRx1::RegexFirst->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+IRx1::RxFirst->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
 $main::irbuilder->add_constructor('regex_every', sub {my($m)=@_;
-IRx1::RegexEvery->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+IRx1::RxEvery->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
 $main::irbuilder->add_constructor('regex_submatch', sub {my($m)=@_;
-IRx1::RegexSubmatch->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+IRx1::RxSubmatch->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
 $main::irbuilder->add_constructor('regex_any', sub {my($m)=@_;
-IRx1::RegexAny->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+IRx1::RxAny->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
 $main::irbuilder->add_constructor('regex_all', sub {my($m)=@_;
-IRx1::RegexAll->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+IRx1::RxAll->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
 $main::irbuilder->add_constructor('regex_sequence', sub {my($m)=@_;
-IRx1::RegexSequence->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+IRx1::RxSequence->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
 $main::irbuilder->add_constructor('regex_quantified_atom', sub {my($m)=@_;
-IRx1::RegexQuantifiedAtom->newp($m, irbuild_ir($m->{'hash'}->{'regex_atom'}), irbuild_ir($m->{'hash'}->{'regex_quantifier'}))});
+IRx1::RxQuantifiedAtom->newp($m, irbuild_ir($m->{'hash'}->{'regex_atom'}), irbuild_ir($m->{'hash'}->{'regex_quantifier'}))});
+$main::irbuilder->add_constructor('regex_quantifier', sub {my($m)=@_;
+($m->match_string())});
 $main::irbuilder->add_constructor('regex_atom', sub {my($m)=@_;
 my $key;
 for($m->{'hash'}->keys()->flatten){
@@ -3575,16 +3783,30 @@ GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
 if(irbuild_ir($m->{'hash'}->{'char'})) {
-IRx1::RegexAtom->newp($m, $one)
+IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'char'}), '\'')
 }else {
 $one
 }});
 $main::irbuilder->add_constructor('regex_metachar:regex_backslash', sub {my($m)=@_;
-IRx1::RegexBackslash->newp($m, ($m->match_string()))});
+IRx1::RxBackslash->newp($m, ($m->match_string()))});
 $main::irbuilder->add_constructor('regex_metachar:regex_mod_internal', sub {my($m)=@_;
-IRx1::RegexModInternal->newp($m, ($m->match_string()))});
+IRx1::RxModInternal->newp($m, ($m->match_string()))});
 $main::irbuilder->add_constructor('regex_assertion:ident', sub {my($m)=@_;
-IRx1::RegexAssertion->newp($m, irbuild_ir($m->{'hash'}->{'ident'}))})
+IRx1::RxAssertion->newp($m, irbuild_ir($m->{'hash'}->{'ident'}))});
+$main::irbuilder->add_constructor('regex_metachar:capture', sub {my($m)=@_;
+IRx1::RxCapture->newp($m, irbuild_ir($m->{'hash'}->{'regex'}->{'hash'}->{'pattern'}))});
+$main::irbuilder->add_constructor('regex_metachar:group', sub {my($m)=@_;
+IRx1::RxGroup->newp($m, irbuild_ir($m->{'hash'}->{'regex'}->{'hash'}->{'pattern'}))});
+$main::irbuilder->add_constructor('regex_metachar:block', sub {my($m)=@_;
+IRx1::RxBlock->newp($m, irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('regex_metachar:var', sub {my($m)=@_;
+IRx1::RxBind->newp($m, irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'binding'}))});
+$main::irbuilder->add_constructor('regex_metachar:q', sub {my($m)=@_;
+IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'text'}), '\'')});
+$main::irbuilder->add_constructor('regex_metachar:qq', sub {my($m)=@_;
+IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'text'}), '"')});
+$main::irbuilder->add_constructor('regex_metachar', sub {my($m)=@_;
+IRx1::RxSymbol->newp($m, ($m->match_string()))})
 }
 ;1;
 

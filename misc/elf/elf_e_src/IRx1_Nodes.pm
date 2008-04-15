@@ -654,159 +654,231 @@ package IRx1 {
       'Regex('~$.patterns.irx1_describe~')'
     };
   };
-  class RegexFirst is Base {
+  class RxFirst is Base {
     has $.match;
     has $.patterns;
     has $.notes;
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
-    method callback($emitter) { $emitter.cb__RegexFirst(self) };
-    method node_name() { 'RegexFirst' };
+    method callback($emitter) { $emitter.cb__RxFirst(self) };
+    method node_name() { 'RxFirst' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
-      'RegexFirst('~$.patterns.irx1_describe~')'
+      'RxFirst('~$.patterns.irx1_describe~')'
     };
   };
-  class RegexEvery is Base {
+  class RxEvery is Base {
     has $.match;
     has $.patterns;
     has $.notes;
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
-    method callback($emitter) { $emitter.cb__RegexEvery(self) };
-    method node_name() { 'RegexEvery' };
+    method callback($emitter) { $emitter.cb__RxEvery(self) };
+    method node_name() { 'RxEvery' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
-      'RegexEvery('~$.patterns.irx1_describe~')'
+      'RxEvery('~$.patterns.irx1_describe~')'
     };
   };
-  class RegexSubmatch is Base {
+  class RxSubmatch is Base {
     has $.match;
     has $.patterns;
     has $.notes;
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
-    method callback($emitter) { $emitter.cb__RegexSubmatch(self) };
-    method node_name() { 'RegexSubmatch' };
+    method callback($emitter) { $emitter.cb__RxSubmatch(self) };
+    method node_name() { 'RxSubmatch' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
-      'RegexSubmatch('~$.patterns.irx1_describe~')'
+      'RxSubmatch('~$.patterns.irx1_describe~')'
     };
   };
-  class RegexAny is Base {
+  class RxAny is Base {
     has $.match;
     has $.patterns;
     has $.notes;
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
-    method callback($emitter) { $emitter.cb__RegexAny(self) };
-    method node_name() { 'RegexAny' };
+    method callback($emitter) { $emitter.cb__RxAny(self) };
+    method node_name() { 'RxAny' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
-      'RegexAny('~$.patterns.irx1_describe~')'
+      'RxAny('~$.patterns.irx1_describe~')'
     };
   };
-  class RegexAll is Base {
+  class RxAll is Base {
     has $.match;
     has $.patterns;
     has $.notes;
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
-    method callback($emitter) { $emitter.cb__RegexAll(self) };
-    method node_name() { 'RegexAll' };
+    method callback($emitter) { $emitter.cb__RxAll(self) };
+    method node_name() { 'RxAll' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
-      'RegexAll('~$.patterns.irx1_describe~')'
+      'RxAll('~$.patterns.irx1_describe~')'
     };
   };
-  class RegexSequence is Base {
+  class RxSequence is Base {
     has $.match;
     has $.patterns;
     has $.notes;
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
-    method callback($emitter) { $emitter.cb__RegexSequence(self) };
-    method node_name() { 'RegexSequence' };
+    method callback($emitter) { $emitter.cb__RxSequence(self) };
+    method node_name() { 'RxSequence' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
-      'RegexSequence('~$.patterns.irx1_describe~')'
+      'RxSequence('~$.patterns.irx1_describe~')'
     };
   };
-  class RegexQuantifiedAtom is Base {
+  class RxQuantifiedAtom is Base {
     has $.match;
     has $.atom;
     has $.quantifier;
     has $.notes;
     
     method newp($match,$atom,$quantifier) { self.new('match', $match, 'atom', $atom, 'quantifier', $quantifier) };
-    method callback($emitter) { $emitter.cb__RegexQuantifiedAtom(self) };
-    method node_name() { 'RegexQuantifiedAtom' };
+    method callback($emitter) { $emitter.cb__RxQuantifiedAtom(self) };
+    method node_name() { 'RxQuantifiedAtom' };
     method field_names() { ['atom','quantifier'] };
     method field_values() { [$.atom,$.quantifier] };
     method irx1_describe() {
-      'RegexQuantifiedAtom('~$.atom.irx1_describe~','~$.quantifier.irx1_describe~')'
+      'RxQuantifiedAtom('~$.atom.irx1_describe~','~$.quantifier.irx1_describe~')'
     };
   };
-  class RegexAtom is Base {
-    has $.match;
-    has $.atom;
-    has $.notes;
-    
-    method newp($match,$atom) { self.new('match', $match, 'atom', $atom) };
-    method callback($emitter) { $emitter.cb__RegexAtom(self) };
-    method node_name() { 'RegexAtom' };
-    method field_names() { ['atom'] };
-    method field_values() { [$.atom] };
-    method irx1_describe() {
-      'RegexAtom('~$.atom.irx1_describe~')'
-    };
-  };
-  class RegexBackslash is Base {
+  class RxBackslash is Base {
     has $.match;
     has $.char;
     has $.notes;
     
     method newp($match,$char) { self.new('match', $match, 'char', $char) };
-    method callback($emitter) { $emitter.cb__RegexBackslash(self) };
-    method node_name() { 'RegexBackslash' };
+    method callback($emitter) { $emitter.cb__RxBackslash(self) };
+    method node_name() { 'RxBackslash' };
     method field_names() { ['char'] };
     method field_values() { [$.char] };
     method irx1_describe() {
-      'RegexBackslash('~$.char.irx1_describe~')'
+      'RxBackslash('~$.char.irx1_describe~')'
     };
   };
-  class RegexAssertion is Base {
+  class RxAssertion is Base {
     has $.match;
     has $.ident;
     has $.notes;
     
     method newp($match,$ident) { self.new('match', $match, 'ident', $ident) };
-    method callback($emitter) { $emitter.cb__RegexAssertion(self) };
-    method node_name() { 'RegexAssertion' };
+    method callback($emitter) { $emitter.cb__RxAssertion(self) };
+    method node_name() { 'RxAssertion' };
     method field_names() { ['ident'] };
     method field_values() { [$.ident] };
     method irx1_describe() {
-      'RegexAssertion('~$.ident.irx1_describe~')'
+      'RxAssertion('~$.ident.irx1_describe~')'
     };
   };
-  class RegexModInternal is Base {
+  class RxModInternal is Base {
     has $.match;
     has $.mod;
     has $.notes;
     
     method newp($match,$mod) { self.new('match', $match, 'mod', $mod) };
-    method callback($emitter) { $emitter.cb__RegexModInternal(self) };
-    method node_name() { 'RegexModInternal' };
+    method callback($emitter) { $emitter.cb__RxModInternal(self) };
+    method node_name() { 'RxModInternal' };
     method field_names() { ['mod'] };
     method field_values() { [$.mod] };
     method irx1_describe() {
-      'RegexModInternal('~$.mod.irx1_describe~')'
+      'RxModInternal('~$.mod.irx1_describe~')'
+    };
+  };
+  class RxCapture is Base {
+    has $.match;
+    has $.pattern;
+    has $.notes;
+    
+    method newp($match,$pattern) { self.new('match', $match, 'pattern', $pattern) };
+    method callback($emitter) { $emitter.cb__RxCapture(self) };
+    method node_name() { 'RxCapture' };
+    method field_names() { ['pattern'] };
+    method field_values() { [$.pattern] };
+    method irx1_describe() {
+      'RxCapture('~$.pattern.irx1_describe~')'
+    };
+  };
+  class RxGroup is Base {
+    has $.match;
+    has $.pattern;
+    has $.notes;
+    
+    method newp($match,$pattern) { self.new('match', $match, 'pattern', $pattern) };
+    method callback($emitter) { $emitter.cb__RxGroup(self) };
+    method node_name() { 'RxGroup' };
+    method field_names() { ['pattern'] };
+    method field_values() { [$.pattern] };
+    method irx1_describe() {
+      'RxGroup('~$.pattern.irx1_describe~')'
+    };
+  };
+  class RxBlock is Base {
+    has $.match;
+    has $.block;
+    has $.notes;
+    
+    method newp($match,$block) { self.new('match', $match, 'block', $block) };
+    method callback($emitter) { $emitter.cb__RxBlock(self) };
+    method node_name() { 'RxBlock' };
+    method field_names() { ['block'] };
+    method field_values() { [$.block] };
+    method irx1_describe() {
+      'RxBlock('~$.block.irx1_describe~')'
+    };
+  };
+  class RxBind is Base {
+    has $.match;
+    has $.var;
+    has $.binding;
+    has $.notes;
+    
+    method newp($match,$var,$binding) { self.new('match', $match, 'var', $var, 'binding', $binding) };
+    method callback($emitter) { $emitter.cb__RxBind(self) };
+    method node_name() { 'RxBind' };
+    method field_names() { ['var','binding'] };
+    method field_values() { [$.var,$.binding] };
+    method irx1_describe() {
+      'RxBind('~$.var.irx1_describe~','~$.binding.irx1_describe~')'
+    };
+  };
+  class RxLiteral is Base {
+    has $.match;
+    has $.text;
+    has $.quote;
+    has $.notes;
+    
+    method newp($match,$text,$quote) { self.new('match', $match, 'text', $text, 'quote', $quote) };
+    method callback($emitter) { $emitter.cb__RxLiteral(self) };
+    method node_name() { 'RxLiteral' };
+    method field_names() { ['text','quote'] };
+    method field_values() { [$.text,$.quote] };
+    method irx1_describe() {
+      'RxLiteral('~$.text.irx1_describe~','~$.quote.irx1_describe~')'
+    };
+  };
+  class RxSymbol is Base {
+    has $.match;
+    has $.symbol;
+    has $.notes;
+    
+    method newp($match,$symbol) { self.new('match', $match, 'symbol', $symbol) };
+    method callback($emitter) { $emitter.cb__RxSymbol(self) };
+    method node_name() { 'RxSymbol' };
+    method field_names() { ['symbol'] };
+    method field_values() { [$.symbol] };
+    method irx1_describe() {
+      'RxSymbol('~$.symbol.irx1_describe~')'
     };
   };
 }

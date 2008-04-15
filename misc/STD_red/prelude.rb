@@ -154,8 +154,7 @@ class Grammar
   end
   def interleaveRULE(between,&blk)
     a = []
-    while 1
-      v = blk.call()
+    while v = blk.call()
       if v
         a.push(v)
         wsp

@@ -1165,6 +1165,10 @@ class Perl < Grammar
     def quotesnabber(kind,*a)
         b1 = pos #R off by one
         close = a.pop
+        if not close
+            close = "'" if kind == ':q'
+            close = '"' if kind == ':qq'
+        end
         word = a[0]
         if close == "'"
             s= scan(/(?:[^\'\\]|\\.)*\'/) or panic("Error in quotesnabber")
@@ -1914,7 +1918,7 @@ false #R
         b=pos
         v = rul{ regex_first }
         $env_vars.scope_leave
-        _match_from(b,{:patterns=>v},:regex)
+        _match_from(b,{:pattern=>v},:regex)
     end
 
     def regex_first
@@ -1945,8 +1949,8 @@ false #R
     def regex_any
         b=pos
         s=nil
-        rul{ quesRULE{ let_pos{ scan(/\|/) and not before(/\|/) } } and
-            s= interleaveRULE(/\!(?!\!)/){ regex_all } } and
+        rul{ quesRULE{ scan(/\|(?!\|)/) } and
+            s= interleaveRULE(/\|(?!\|)/){ regex_all } } and
             (s.size == 1 ? s[0] :
              _match_from(b,{:patterns=>s},:regex_any))
     end
@@ -1972,8 +1976,8 @@ false #R
         ra=rq=nil
         rul{ ra= regex_atom and wsp and
             (rq= regex_quantifier
-             #and (ra.max_width or
-             # panic("Can't quantify zero-width atom"))
+             #R# and (ra.max_width or #R XXX
+             #R# panic("Can't quantify zero-width atom"))
              ;true)
         } and
             !rq ? ra :
@@ -1987,15 +1991,16 @@ false #R
         rmc=w=nil
         b=pos
         ((wsp and
-          ((let_pos{ scan(/#{$env_vars[:stop]}/) } and return(false);false) or
+          scan(/(?!#{'\\'+$env_vars[:stop]})/) and
+          (
            (rmc= regex_metachar and wsp) or
-           (w= scan(/\w/) and wsp) or
-           false #XXX nonspec
-           #panic("unrecognized metacharacter")
+           #R As a speed/simplicity hack, eat multiple \w
+           (w= scan(/\w(?:\w*(?=\w))?/) and wsp) or
+           false #R XXX nonspec
+           #R# panic("unrecognized metacharacter")
            )) and
-         (h={}
+         rmc ? rmc : (h={}
           _hkv(h,:char,w) # unspec
-          _hkv(h,:regex_metachar,rmc)
           _match_from(b,h,:regex_atom)))
     end
 
@@ -2005,12 +2010,21 @@ false #R
     def_token_full :regex_metachar,false,'quant',regex_quantifier_re,%q{ panic("quantifier quantifies nothing") }
 
     # "normal" metachars
-    def_token_full :regex_metachar,false,'{ }',/(?=\{)/,%q{ block }
+    def_token_full :regex_metachar,false,'{ }',/(?=\{)/,%q{
+      b=pos
+      bk= block and
+      _match_from(b,{:block=>bk},:block) } #R NONSPEC rule name
 
     def_token_full :regex_metachar,false,'mod',//,%q{ regex_mod_internal }
 
-    def_token_full :regex_metachar,false,'[ ]',/(?=\[)/,%q{ regex(']') and scan(/\]/) }
-    def_token_full :regex_metachar,false,'( )',/(?=\()/,%q{ regex(')') and scan(/\)/) }
+    def_token_full :regex_metachar,false,'[ ]',/(?=\[)/,%q{
+       b=pos
+       scan(/\[/) and r=  regex(']') and scan(/\]/)
+       (_match_from(b,{:regex=>r},:group))} #R NONSPEC rule name
+    def_token_full :regex_metachar,false,'( )',/(?=\()/,%q{
+       b=pos
+       scan(/\(/) and r= regex(')') and scan(/\)/) and
+       (_match_from(b,{:regex=>r},:capture))} #R NONSPEC rule name
 
     def_tokens_simple :regex_metachar,false,%w{ <( )> << >> « » }
 
@@ -2025,7 +2039,12 @@ false #R
     def_token_full :regex_metachar,false,"' '",/\'/,%q{ quotesnabber(":q") }
     def_token_full :regex_metachar,false,'" "',/\"/,%q{ quotesnabber(":qq") }
 
-    def_token_full :regex_metachar,false,'var',/(?!\$\$)/,%q{ binding_=nil; sym=variable and wsp and (scan(/:=/) and wsp and binding_= regex_quantified_atom; true) }
+    def_token_full :regex_metachar,false,'var',/(?!\$\$)/,%q{
+        binding_=nil
+        sym=variable and wsp and (scan(/:=/) and wsp and
+        binding_= regex_quantified_atom; true) and
+        _match_from(b,{:variable=>sym,:binding=>binding_},:var)
+    }
 
     def codepoint
         scan(/\[(.*?)\]/)
@@ -2063,11 +2082,11 @@ false #R
        (let_pos{ scan(/\=/) and regex_assertion} or
         let_pos{ scan(/\:/) and wsp and q_unbalanced(qlang('Q',':qq'), '>')} or
         let_pos{ scan(/\(/) and semilist and scan(/\)/)} or
-        false #(wsp and _EXPR(nil,HLOOSEST)) #XXX causes <a> to panic
+        false #R# (wsp and _EXPR(nil,HLOOSEST)) #XXX causes <a> to panic
         ) }) and
        (h={}
          _hkv(h,:ident,i)
-         # XXX second clause ignored
+         #R XXX second clause ignored
          _match_from(b,h,:ident))
      }
 
