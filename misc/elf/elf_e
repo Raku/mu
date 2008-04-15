@@ -11,7 +11,6 @@ use warnings;
   use Data::Dumper;
 }
 
-
 {package AssertCurrentModuleVersions;
  use Moose 0.40;
  use Moose::Autobox 0.06;
@@ -172,7 +171,6 @@ use warnings;
 
 
 { package GLOBAL;
-  use autobox; use autobox UNDEF => "UNDEF";
   use Perl6::Say;
 
   our $a_ARGS = [@ARGV];
@@ -255,14 +253,12 @@ use warnings;
 }
 
 package main; # -> Main once elf_d support is dropped.
-use autobox; use autobox UNDEF => "UNDEF";
 
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Any;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 ;
 __PACKAGE__->meta->make_immutable();
 
@@ -271,7 +267,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Object;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 ;
 __PACKAGE__->meta->make_immutable();
 
@@ -280,7 +275,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Bit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -290,7 +284,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Int;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'SCALAR';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -300,7 +293,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Str;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'SCALAR';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -310,7 +302,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Num;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'SCALAR';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -320,7 +311,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Complex;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -330,7 +320,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Bool;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -340,7 +329,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Code;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'CODE';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -350,7 +338,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Code';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -360,7 +347,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package List;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -370,7 +356,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Seq;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -380,7 +365,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Range;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -390,7 +374,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Set;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -400,7 +383,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Bag;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -410,7 +392,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Junction;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Object';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -420,7 +401,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -431,7 +411,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Mapping;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -441,7 +420,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Signature;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -451,7 +429,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Capture;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -461,7 +438,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Blob;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -471,7 +447,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Scalar;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -481,7 +456,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Array;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -491,7 +465,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -501,7 +474,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package KeyHash;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -511,7 +483,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package KeySet;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -521,7 +492,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package KeyBag;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -531,7 +501,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Buf;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -541,7 +510,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IO;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -551,7 +519,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Routine;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Code';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -561,7 +528,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Sub;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Routine';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -571,7 +537,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Method;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Routine';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -581,7 +546,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Subethod;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Routine';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -591,7 +555,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Macro;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Routine';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -601,7 +564,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Regex;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Routine';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -611,7 +573,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -621,7 +582,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Package;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Any';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -631,7 +591,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Module;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Package';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -641,7 +600,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Class;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Module';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -651,7 +609,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Role;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Module';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -661,7 +618,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Grammar;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Module';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -671,7 +627,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Any;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'Object';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -681,19 +636,18 @@ __PACKAGE__->meta->make_immutable();
 
 { package Object;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 ;
 __PACKAGE__->meta->make_immutable();
 
 }
+;1;
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 has 'rule' => (is => 'rw');;
 has 'str' => (is => 'rw');;
 has 'from' => (is => 'rw');;
@@ -730,7 +684,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub match_describe{my $self=CORE::shift;((('[
 ' . Match->indent($self->map(sub {my($e)=@_;
 $e->match_describe()})->join(',
@@ -743,19 +696,18 @@ __PACKAGE__->meta->make_immutable();
 
 { package SCALAR;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')};
 __PACKAGE__->meta->make_immutable();
 
 }
+;1;
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub irx1_describe{my $self=CORE::shift;(('[' . $self->map(sub {my($e)=@_;
 $e->irx1_describe()})->join(',')) . ']')};
 __PACKAGE__->meta->make_immutable();
@@ -765,7 +717,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package SCALAR;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub irx1_describe{my $self=CORE::shift;($self . '')};
 __PACKAGE__->meta->make_immutable();
 
@@ -774,7 +725,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package UNDEF;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub irx1_describe{my $self=CORE::shift;'undef'};
 __PACKAGE__->meta->make_immutable();
 
@@ -783,11 +733,9 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 ;
 __PACKAGE__->meta->make_immutable();
 
@@ -796,7 +744,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 ;
 __PACKAGE__->meta->make_immutable();
 
@@ -805,7 +752,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::CompUnit_and_Block';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -815,7 +761,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::CompUnit_and_Block';
 ;
 __PACKAGE__->meta->make_immutable();
@@ -825,7 +770,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
@@ -846,7 +790,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
@@ -866,7 +809,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Use;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
@@ -888,7 +830,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
@@ -913,7 +854,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MethodDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
@@ -941,7 +881,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
@@ -967,7 +906,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MacroDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
@@ -993,7 +931,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
@@ -1020,7 +957,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Var;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
@@ -1042,7 +978,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Trait;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'verb' => (is => 'rw');;
@@ -1063,7 +998,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ClosureTrait;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
@@ -1084,7 +1018,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ModuleName;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
@@ -1105,7 +1038,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PathName;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'path' => (is => 'rw');;
@@ -1125,7 +1057,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubName;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'category' => (is => 'rw');;
@@ -1148,7 +1079,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ShapedParamName;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
@@ -1169,7 +1099,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Call;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
@@ -1191,7 +1120,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'function' => (is => 'rw');;
@@ -1212,7 +1140,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Hyper;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'operator' => (is => 'rw');;
@@ -1233,7 +1160,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Capture;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
@@ -1253,7 +1179,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MultiSig;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'signatures' => (is => 'rw');;
@@ -1273,7 +1198,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Signature;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
@@ -1294,7 +1218,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Parameter;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'type_constraints' => (is => 'rw');;
@@ -1320,7 +1243,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::TypeConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -1341,7 +1263,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PostConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'multisig' => (is => 'rw');;
@@ -1362,7 +1283,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ParamVar;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
@@ -1384,7 +1304,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Undef;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1403,7 +1322,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumInt;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
@@ -1424,7 +1342,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumDec;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
@@ -1446,7 +1363,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumRad;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'radix' => (is => 'rw');;
@@ -1470,7 +1386,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Array;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
@@ -1490,7 +1405,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
@@ -1510,7 +1424,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
@@ -1531,7 +1444,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Type;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'typename' => (is => 'rw');;
@@ -1551,7 +1463,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Rx;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'pat' => (is => 'rw');;
@@ -1571,7 +1482,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Buf;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
@@ -1591,7 +1501,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::For;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
@@ -1612,7 +1521,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Cond;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'clauses' => (is => 'rw');;
@@ -1634,7 +1542,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Loop;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'pretest' => (is => 'rw');;
@@ -1657,7 +1564,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexDef;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
@@ -1678,7 +1584,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Regex;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
@@ -1698,7 +1603,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexFirst;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
@@ -1718,7 +1622,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexEvery;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
@@ -1738,7 +1641,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexSubmatch;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
@@ -1758,7 +1660,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexAny;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
@@ -1778,7 +1679,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexAll;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
@@ -1798,7 +1698,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexSequence;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
@@ -1818,7 +1717,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexQuantifiedAtom;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'atom' => (is => 'rw');;
@@ -1839,7 +1737,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexAtom;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'atom' => (is => 'rw');;
@@ -1859,7 +1756,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexBackslash;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
@@ -1879,7 +1775,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexAssertion;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
@@ -1899,7 +1794,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexModInternal;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'mod' => (is => 'rw');;
@@ -1919,14 +1813,14 @@ __PACKAGE__->meta->make_immutable();
 __PACKAGE__->meta->make_immutable();
 
 }
+;1;
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 has 'constructors' => (is => 'rw');;
 ($main::irbuilder = IRx1_Build->new());
 sub add_constructor{my $self=CORE::shift;my($k,$constructor)=@_;
@@ -1954,7 +1848,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$main::irbuilder->make_ir_from_Match_tree($self)};
 __PACKAGE__->meta->make_immutable();
 
@@ -1963,7 +1856,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self->map(sub {my($e)=@_;
 $e->make_ir_from_Match_tree()})};
 __PACKAGE__->meta->make_immutable();
@@ -1973,7 +1865,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package SCALAR;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self};
 __PACKAGE__->meta->make_immutable();
 
@@ -1982,7 +1873,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package UNDEF;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self};
 __PACKAGE__->meta->make_immutable();
 
@@ -1993,7 +1883,6 @@ $x->make_ir_from_Match_tree()};
 
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
@@ -2267,14 +2156,14 @@ IRx1::RegexAssertion->newp($m, irbuild_ir($m->{'hash'}->{'ident'}))});
 __PACKAGE__->meta->make_immutable();
 
 }
+;1;
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub do_all_analysis{my $self=CORE::shift;$self->initialize_notes();
 $self->note_parents();
 $self->note_block_lexical_variable_decls();
@@ -2286,7 +2175,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub is_IR_node{my $self=CORE::shift;1};
 sub initialize_notes{my $self=CORE::shift;$self->notes({});
 my $a = [];
@@ -2323,7 +2211,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_parents{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
 $_->note_parents()
@@ -2335,7 +2222,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_parents{my $self=CORE::shift;($self->notes()->{'parent'} = $::es_whiteboard__parent);
 {package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
@@ -2348,7 +2234,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;my $a = [];
 {package main; use vars '$1es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
 ($self->notes()->{'lexical_variable_decls'} = $a);
@@ -2362,7 +2247,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;if($self->is_lexical()) {
 $::es_whiteboard__lexical_variable_decls->push($self)
 };
@@ -2376,7 +2260,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;if($_->name()) {
 $::es_whiteboard__lexical_variable_decls->push($self)
 };
@@ -2390,7 +2273,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_block_lexical_variable_decls{my $self=CORE::shift;for($self->child_nodes()->flatten){
 $_->note_block_lexical_variable_decls()
 }};
@@ -2401,7 +2283,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
 {package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
@@ -2414,7 +2295,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
 $_->note_environment()
@@ -2426,7 +2306,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
 my $h1 = $h->dup();
 for($decls->flatten){
@@ -2441,7 +2320,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;my $new_chain;
 if($self->path_is_absolute()) {
 ($new_chain = [$self])
@@ -2459,7 +2337,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
 for($self->child_nodes()->flatten){
 $_->note_environment()
@@ -2471,7 +2348,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub note_environment{my $self=CORE::shift;for($self->child_nodes()->flatten){
 $_->note_environment()
 }};
@@ -2482,7 +2358,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub is_lexical{my $self=CORE::shift;($self->scope() eq 'my')};
 sub sigil{my $self=CORE::shift;$self->{'var'}->{'sigil'}};
 sub name{my $self=CORE::shift;$self->{'var'}->{'name'}};
@@ -2493,7 +2368,6 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub sigil{my $self=CORE::shift;'&'};
 __PACKAGE__->meta->make_immutable();
 
@@ -2502,24 +2376,24 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub path_is_absolute{my $self=CORE::shift;($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))};
 __PACKAGE__->meta->make_immutable();
 
 }
+;1;
 
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package EmitSimpleP5;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
 $self->new('compiler', $compiler)};
 has 'compiler' => (is => 'rw');;
-sub prelude_for_entering_a_package{my $self=CORE::shift;'use autobox; use autobox UNDEF => \'UNDEF\';
-'};
+sub prelude_for_entering_a_package{my $self=CORE::shift;''};
+sub prelude_lexical{my $self=CORE::shift;'use autobox;use autobox UNDEF => \'UNDEF\';
+      '};
 sub prelude_oo{my $self=CORE::shift;'
 {package AssertCurrentModuleVersions;
  use Moose 0.40;
@@ -2539,7 +2413,6 @@ use warnings;
   use Class::Multimethods;
   use Data::Dumper;
 }
-
 ' . $self->prelude_oo()) . '
 
 
@@ -2696,7 +2569,6 @@ use warnings;
 
 
 { package GLOBAL;
-  use autobox; use autobox UNDEF => "UNDEF";
   use Perl6::Say;
 
   our $a_ARGS = [@ARGV];
@@ -2779,7 +2651,6 @@ use warnings;
 }
 
 package main; # -> Main once elf_d support is dropped.
-use autobox; use autobox UNDEF => "UNDEF";
 ')};
 sub e{my $self=CORE::shift;my($x)=@_;
 my $ref = $x->WHAT();
@@ -2803,9 +2674,10 @@ $x->callback($self)
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 $n->do_all_analysis();
 {package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
-((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+(((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 ' . $self->prelude_for_entering_a_package()) . $self->e($n->{'statements'})->join(';
-')))};
+')) . ';1;
+'))};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
 (('' . $self->e($n->{'statements'})->join(';
 ')) . '')};
@@ -2816,7 +2688,7 @@ if(($module eq 'v6-alpha')) {
 }elsif($self->compiler->hook_for_use($module)) {
 ''
 }else {
-'***Unimplemented use()***'
+('use ' . $module)
 }};
 sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
 ((($n->{'kind'} . '{') . $self->e($n->{'block'})) . '}')};
@@ -3078,14 +2950,14 @@ __PACKAGE__->meta->make_immutable();
 if(GLOBAL::not($GLOBAL::emitter0)) {
 ($GLOBAL::emitter0 = EmitSimpleP5->new())
 };
-($GLOBAL::emitter1 = EmitSimpleP5->new())
+($GLOBAL::emitter1 = EmitSimpleP5->new());1;
+
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Parser;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 has 'is_for_active_runtime' => (is => 'rw');;
 sub parse{my $self=CORE::shift;my($p6_code,$claim_as_filename)=@_;
 GLOBAL::unslurp($p6_code, 'deleteme.p6');
@@ -3110,14 +2982,14 @@ GLOBAL::eval_perl5('
 if(GLOBAL::not($GLOBAL::parser0)) {
 ($GLOBAL::parser0 = Parser->new('is_for_active_runtime', 1))
 };
-($GLOBAL::parser1 = Parser->new())
+($GLOBAL::parser1 = Parser->new());1;
+
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Compiler;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 has 'is_for_active_runtime' => (is => 'rw');;
 sub eval_perl6{my $self=CORE::shift;my($code)=@_;
 $self->eval_fragment($code, '-e', 0)};
@@ -3150,9 +3022,9 @@ GLOBAL::say($ir->irx1_describe())
 };
 my $p5;
 if($self->is_for_active_runtime) {
-($p5 = $ir->callback($GLOBAL::emitter0->new_emitter('compiler', $self)))
+($p5 = ($GLOBAL::emitter0->prelude_lexical() . $ir->callback($GLOBAL::emitter0->new_emitter('compiler', $self))))
 }else {
-($p5 = $ir->callback($GLOBAL::emitter1->new_emitter('compiler', $self)))
+($p5 = ($GLOBAL::emitter1->prelude_lexical() . $ir->callback($GLOBAL::emitter1->new_emitter('compiler', $self))))
 };
 if($verbose) {
 GLOBAL::say($p5)
@@ -3208,14 +3080,14 @@ __PACKAGE__->meta->make_immutable();
 if(GLOBAL::not($GLOBAL::compiler0)) {
 ($GLOBAL::compiler0 = Compiler->new('is_for_active_runtime', 1))
 };
-($GLOBAL::compiler1 = Compiler->new())
+($GLOBAL::compiler1 = Compiler->new());1;
+
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Program;
 use Moose; __PACKAGE__->meta->make_mutable();
-use autobox; use autobox UNDEF => 'UNDEF';
 sub print_usage_and_die{my $self=CORE::shift;GLOBAL::say('
 Usage: [-v] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
          [ P6_FILE | -e P6_CODE ]+ [ -- ARGS* ]
@@ -3312,17 +3184,19 @@ __PACKAGE__->meta->make_immutable();
 
 }
 ;
-Program->new()->main($GLOBAL::a_ARGS)
+Program->new()->main($GLOBAL::a_ARGS);1;
+
 ;
-package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-use autobox; use autobox UNDEF => 'UNDEF';
-;
-;
-;
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 ;
 ;
 ;
 ;
 ;
+;
+;
+;
+;1;
 
 ;
