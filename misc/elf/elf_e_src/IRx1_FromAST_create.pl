@@ -155,6 +155,11 @@ elsif
 if__else
 *1*
 
+
+statement_prefix:gather
+Apply.newp("statement_prefix:gather",$m<statement>)
+
+
 pblock
 *1*
 

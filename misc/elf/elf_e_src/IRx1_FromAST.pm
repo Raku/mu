@@ -263,6 +263,10 @@ my $one = irbuild_ir($m.{'hash'}{$key});
 $one;
     });
 
+    $main::irbuilder.add_constructor('statement_prefix:gather', sub ($m) {
+      IRx1::Apply.newp($m,"statement_prefix:gather",irbuild_ir($m.{'hash'}{'statement'}));
+    });
+
     $main::irbuilder.add_constructor('pblock', sub ($m) {
         my $key;
 for $m.{'hash'}.keys {

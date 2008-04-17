@@ -194,6 +194,7 @@ use warnings;
 
 { package GLOBAL;
   use Perl6::Say;
+  use Perl6::Take; # gather take
 
   our $a_ARGS = [@ARGV];
 
@@ -482,6 +483,9 @@ package main; # -> Main once elf_d support is dropped.
       my $op = $1;
       my $arg = $.e($n<capture>);
       $op.re_gsub(' ',$arg);
+    }
+    elsif($.e($n<function>) =~ /^statement_prefix:gather$/) {
+      'GLOBAL::gather'~$.e($n<capture>)~''
     }
     else {
       my $f = $.e($n<function>);

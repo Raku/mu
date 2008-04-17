@@ -487,8 +487,9 @@ class Perl < Grammar
     def noun
         (fatarrow || package_declarator || scope_declarator || plurality_declarator ||
          routine_declarator || regex_declarator || type_declarator || circumfix ||
-         dotty || subcall || variable || value || capterm || sigterm || term ||
-         statement_prefix || colonpair)
+         dotty || subcall || variable || value || capterm || sigterm || 
+         statement_prefix || term ||  #R NONSPEC out of order
+         colonpair)
     end
     
     def fatarrow
@@ -1668,7 +1669,8 @@ class Perl < Grammar
         rul{ scan(/\=/) and _EXPR(nil,Hitem_assignment) }
     end
 
-    def_tokens_rest :statement_prefix,false,%w{ do try gather contend async lazy },%q{ statement }
+    def_tokens_rest :statement_prefix,false,%w{ do try gather contend async lazy },%q{
+      s= statement and _match_from(start,{:statement=>s},:<sym>) }
 
 
     ## term

@@ -172,6 +172,7 @@ use warnings;
 
 { package GLOBAL;
   use Perl6::Say;
+  use Perl6::Take; # gather take
 
   our $a_ARGS = [@ARGV];
 
@@ -2141,6 +2142,8 @@ GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
+$main::irbuilder->add_constructor('statement_prefix:gather', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:gather', irbuild_ir($m->{'hash'}->{'statement'}))});
 $main::irbuilder->add_constructor('pblock', sub {my($m)=@_;
 my $key;
 for($m->{'hash'}->keys()->flatten){
@@ -2683,6 +2686,7 @@ use warnings;
 
 { package GLOBAL;
   use Perl6::Say;
+  use Perl6::Take; # gather take
 
   our $a_ARGS = [@ARGV];
 
@@ -2968,6 +2972,8 @@ if((($t && ($t eq '.')))) {
 my $op = $1;
 my $arg = $self->e($n->{'capture'});
 $op->re_gsub(' ', $arg)
+}elsif((($self->e($n->{'function'}) =~ qr/^statement_prefix:gather$/))) {
+(('GLOBAL::gather' . $self->e($n->{'capture'})) . '')
 }else {
 my $f = $self->e($n->{'function'});
 if((($f =~ qr/^\$\w+$/))) {
