@@ -191,10 +191,18 @@ use warnings;
 { package HASH; use base "Any";}
 { package CODE; use base "Any";}
 
+{ package Private;
+  # Taken from Perl6::Take 0.04.
+  our @GATHER;
+  sub gather (&) {local @GATHER = (@GATHER, []); shift->(); $GATHER[-1] }
+  sub take (@) {push @{ $GATHER[-1] }, @_; undef }
+}
 
 { package GLOBAL;
   use Perl6::Say;
-  use Perl6::Take; # gather take
+  { no warnings;
+    *gather = \&Private::gather;
+    *take   = \&Private::take;}
 
   our $a_ARGS = [@ARGV];
 
