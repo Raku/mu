@@ -1920,7 +1920,7 @@ false #R
         b=pos
         v = rul{ regex_first }
         $env_vars.scope_leave
-        _match_from(b,{:pattern=>v},:regex)
+        v and _match_from(b,{:pattern=>v},:regex)
     end
 
     def regex_first
@@ -2036,14 +2036,19 @@ false #R
     def_tokens_rest :regex_metachar,false,%w{ \\ },%q{ regex_backslash }
     def_tokens_simple :regex_metachar,false,%w{ . ^^ ^ }
     def_tokens_simple :regex_metachar,false,%w{ $$ }
-    def_tokens_rest :regex_metachar,false,%w{ $ },%q{ before(/\s|\||\)|\]|\>/) }
+    def_tokens_rest :regex_metachar,false,%w{ $ },%q{
+      before(/\s|\||\)|\]|\>|\}/) or #R NONSPEC added \}
+      @scanner.eos? #R NONSPEC ADDED
+    }
 
     def_token_full :regex_metachar,false,"' '",/\'/,%q{ quotesnabber(":q") }
     def_token_full :regex_metachar,false,'" "',/\"/,%q{ quotesnabber(":qq") }
 
-    def_token_full :regex_metachar,false,'var',/(?!\$\$)/,%q{
+    def_tokens_rest :regex_metachar,false,%w{ ::: :: },%q{ _match_from(start,{},:commit) } #R ADDED
+
+    def_token_full :regex_metachar,false,'var',/(?!\$\$|:)/,%q{ #R ADDED ':' check, helping commit
         binding_=nil
-        sym=variable and wsp and (scan(/:=/) and wsp and
+        sym=variable and wsp and (scan(/=/) and wsp and #R NONSPEC TYPO? changed := to =.
         binding_= regex_quantified_atom; true) and
         _match_from(b,{:variable=>sym,:binding=>binding_},:var)
     }
@@ -2065,53 +2070,89 @@ false #R
         letter = letter.to_s
         def_token_full :regex_backslash,false,letter,/(?i:#{letter})/,rest
     end
-    %w{ a b d e f h n r t v w }.each{|letter| rx_bs letter }
+    %w{ a b d e f h n r s t v w }.each{|letter| rx_bs letter } #R ADDED \s
     rx_bs :c,%q{ (scan(/\[ [^\]\n\r]* \]/x) or
                   codepoint) }
     rx_bs :o,%q{ octint or (scan(/\[/) and octint and starTOK{ scan(/,/) and octint} and scan(/\]/)) }
     rx_bs :x,%q{ hexint or (scan(/\[/) and hexint and starTOK{ scan(/,/) and hexint} and scan(/\]/)) }
+    def_token_full :regex_backslash,false,'metasyntactic',/\W/,nil #R ADDED
     def_token_full :regex_backslash,false,'oops',//,%q{ panic("unrecognized regex backslash sequence") }
 
-    def_tokens_rest :regex_assertion,false,%w{ ? ! },%q{ regex_assertion }
+    def_tokens_rest :regex_assertion,false,%w{ ? ! . },%q{ regex_assertion }
 
     def_token_full :regex_assertion,false,'{ }',/\{/,%q{ block }
 
     def_token_full :regex_assertion,false,'variable',/(?=#{sigil_speed_hack_re})/,%q{ before{ sigil } and _EXPR(nil,HLOOSEST) }
-    def_token_full :regex_assertion,false,'method',/(?=\.(?!>))/,%q{ before(/\.(?!>)/) and _EXPR(nil,HLOOSEST) }
+    def_token_full :regex_assertion,false,'method',/(?=\.(?!>))/,%q{
+      before(/\.(?!>)(?=\w+\()/) and #R NONSPEC second test to avoid <.ws> parsing as method.
+      _EXPR(nil,HLOOSEST)
+    }
     def_token_full :regex_assertion,false,'ident',//,%q{
       b=pos
+      ra=qu=sl=e=cc=nil
       (i= ident and a= quesTOK{
-       (let_pos{ scan(/\=/) and regex_assertion} or
-        let_pos{ scan(/\:/) and wsp and q_unbalanced(qlang('Q',':qq'), '>')} or
-        let_pos{ scan(/\(/) and semilist and scan(/\)/)} or
-        false #R# (wsp and _EXPR(nil,HLOOSEST)) #XXX causes <a> to panic
+       (let_pos{ scan(/\=/) and ra= regex_assertion} or
+        let_pos{ scan(/\:/) and wsp and qu= q_unbalanced(qlang('Q',':qq'), '>')} or
+        let_pos{ scan(/\(/) and sl= semilist and scan(/\)/)} or
+        let_pos{ wsp and scan(/(?=[-+])/) and cc= plusTOK{cclass_elem} } or #R NONSPEC ADDED for <alpha-[x]>
+        #R# let_pos{ wsp and e= _EXPR(nil,HLOOSEST) }
+        let_pos{ wsp and e= regex } #R NONSPEC - expr just seems bogus.  Confirmed by TT.
         ) }) and
        (h={}
-         _hkv(h,:ident,i)
-         #R XXX second clause ignored
-         _match_from(b,h,:ident))
+        _hkv(h,:ident,i)
+        _hkv(h,:regex_assertion,ra)
+        _hkv(h,:q_unbalanced,qu)
+        _hkv(h,:semilist,sl)
+        _hkv(h,:regex,e) #R NONSPEC
+        _hkv(h,:cclass_elem,cc) #R NONSPEC
+        _match_from(b,h,:ident))
      }
 
-    def_tokens_rest :regex_assertion,false,%w{ [ + - },%q{ before(/[\<sym>]/) and plusTOK{cclass_elem} }
-    def_tokens_simple :regex_assertion,false,%w{ . , }
+    def_token_full :regex_assertion,false,'cclass',/(?=[\[+-])/,%q{ e= plusTOK{cclass_elem} and _match_from(start,{:cclass_elem=>e},:cclass) }
+    def_tokens_simple :regex_assertion,false,%w{ , }
+    #R# def_tokens_simple :regex_assertion,false,%w{ . } #R XXX Causes problems for <.ws>
     def_tokens_rest :regex_assertion,false,%w{ ~~ },%q{ (desigilname;true) }
 
     def cclass_elem
-        (scan(/[-+]?/) and 
-         ((name) or
-          (before(/\[/) and bracketed(QLang(:cclass)))))
+        b = pos
+        pm=n=cc=nil
+        let_pos {
+            pm= scan(/[-+]/)
+            wsp
+            ((n= (name) or
+              (before(/\[/) and 
+               #R# bracketed(QLang(:cclass))
+               cc= scan(/\[\]?([^\]\\]|\\.)*?\]/) #R KLUDGE
+               )) and
+             (h={}
+              _hkv(h,:op,pm) #R NONSPEC is unnamed
+              _hkv(h,:name,n)
+              _hkv(h,:bracketed,cc)
+              _match_from(b,h,:cclass_elem)))
+        }
     end
 
 
     def regex_mod_arg
-        let_pos{ scan(/\(/) and semilist and scan(/\)/) }
+        let_pos{ scan(/\(/) and sl= semilist and scan(/\)/) and sl }
     end
 
     def_token_full :regex_mod_internal,false,'adv',//,%q{ quotepair and true }
     #R XXX     <quotepair> { $/<sym> := «: $<quotepair><key>» }
 
-    def_tokens_rest :regex_mod_internal,false,%w{ :i },%q{ quesTOK{regex_mod_arg} }
-    def_tokens_simple :regex_mod_internal,false,%w{ :!i }
+    def self.rx_rmi(name)
+        name = name.to_s
+        n1 = ":#{name}"
+        n2 = ":!#{name}"
+        def_tokens_rest :regex_mod_internal,false,[ n1 ],%q{ rma= quesTOK{regex_mod_arg} and
+          (h={}
+           _hkv(h,:regex_mod_arg,rma[0])
+           _match_from(start,h,:regex_mod_internal))
+        }
+        def_tokens_simple :regex_mod_internal,false,[ n2 ]
+    end
+    %w{ i b r ratchet  s x nth }.each{|name| rx_rmi name} #R NONSPEC ADDED s x nth
+    #R# def_token_full :regex_mod_internal,false,'oops',/:!?\w/,%q{ panic("unrecognized regex modifier") }
 
     def_tokens_rest :regex_quantifier,false,%w{ * + ? },%q{ quantmod }
     def_tokens_rest :regex_quantifier,false,%w{ ** },%q{ quantmod and wsp and scan(/\d+(?:\.\.(?:\d+|\*))?/) or block or regex_atom }
