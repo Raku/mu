@@ -369,7 +369,7 @@ sub bind {
     $lv++;
 
 	if ( my $constraint = $self->constraint ) {
-		unless ( $constraint->(ref $var eq 'SCALAR' ? $$var : $var) ) {
+		unless ( $constraint->(ref $var eq 'SCALAR' ? $$var : $var, level => $lv, pad => $pad, var => $var, param => $self) ) {
 			die "Failed constraint of param " . $self->name;
 		}
 	}
