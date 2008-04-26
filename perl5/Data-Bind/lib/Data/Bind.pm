@@ -56,6 +56,7 @@ sub sig_element {
 	    ({ container_var => $param->{var},
 	       named_only    => $param->{named_only},
 	       is_writable   => $param->{is_rw},
+	       is_copy       => $param->{is_copy},
 	       is_slurpy     => $param->{is_slurpy},
 	       invocant      => $param->{invocant},
 	       constraint    => $param->{constraint},
@@ -333,7 +334,7 @@ sub arity {
 
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var named_only constraint));
+__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_copy is_slurpy container_var named_only constraint));
 use Devel::LexAlias qw(lexalias);
 
 sub slurpy_bind {
@@ -373,7 +374,10 @@ sub bind {
     my $ref = $pad->{$self->container_var} or Carp::confess $self->container_var;
     if ($self->p5type eq '$') {
 	# XXX: check $var type etc, take additional ref
-	if ($self->is_writable) {
+        if ($self->is_copy) {
+            $$ref = $var;
+        }
+	elsif ($self->is_writable) {
 	    lexalias($lv, $self->container_var, $var);
 	}
 	else {
