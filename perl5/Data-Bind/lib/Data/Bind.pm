@@ -368,6 +368,12 @@ sub bind {
     my ($self, $var, $lv, $pad) = @_;
     $lv++;
 
+	if ( my $constraint = $self->constraint ) {
+		unless ( $constraint->(ref $var eq 'SCALAR' ? $$var : $var) ) {
+			die "Failed constraint of param " . $self->name;
+		}
+	}
+
     if ($self->p5type eq '&') {
 	return [ (caller($lv-1))[0].'::'.$self->name => $$var ];
     }
