@@ -375,7 +375,7 @@ sub bind {
     if ($self->p5type eq '$') {
 	# XXX: check $var type etc, take additional ref
         if ($self->is_copy) {
-            $$ref = $var;
+            $$ref = $$var;
         }
 	elsif ($self->is_writable) {
 	    lexalias($lv, $self->container_var, $var);
