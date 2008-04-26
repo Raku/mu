@@ -1,8 +1,13 @@
+--- 
 abstract: Bind and alias variables
-author: Chia-liang Kao <clkao@clkao.org>
+author: 
+  - Chia-liang Kao <clkao@clkao.org>
 distribution_type: module
-generated_by: Module::Install version 0.63
+generated_by: Module::Install version 0.68
 license: perl
+meta-spec: 
+  url: http://module-build.sourceforge.net/META-spec-v1.3.html
+  version: 1.3
 name: Data-Bind
 no_index: 
   directory: 
@@ -10,9 +15,10 @@ no_index:
     - t
 requires: 
   Class::Accessor::Fast: 0
+  Data::Capture: 0
   Devel::Caller: 0.10
   Devel::LexAlias: 0
   PadWalker: 0
   Test::Exception: 0
   perl: 5.8.0
-version: 0.28
+version: 0.29

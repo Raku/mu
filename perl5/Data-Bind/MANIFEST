@@ -10,7 +10,6 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Data/Bind.pm
 Makefile.PL
-SIGNATURE
 MANIFEST			This list of files
 META.yml
 t/arrays.t
@@ -18,6 +17,8 @@ t/coderef.t
 t/compat.t
 t/highlevel.t
 t/multidimension.t
+t/objects.t
+t/overload.t
 t/scalars.t
 t/slurpy_param.t
 t/sub.t

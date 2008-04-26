@@ -1,3 +1,10 @@
+[Changes for 0.29  - 27 Apr, 2008]
+
+* Make arg_bind work with overloaded objects.
+* multidimensional bindings.
+* implement is_copy.
+* constraint support.
+
 [Changes for 0.28  - 24 Jul, 2006]
 
 * Fix binding between array/hash and arrayref/hashref.
