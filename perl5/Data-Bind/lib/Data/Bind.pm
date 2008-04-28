@@ -17,7 +17,7 @@ sub bind_op {
 
     my $sig = Data::Bind->sig(map { { var => $_, is_rw => 1 } } keys %vars);
     $sig->[0]->bind({ positional => [ values %vars ],
-		      named => {} }, 2);
+                      named => {} }, 2);
 
     # XXX: probably returning the var
     return;
@@ -27,7 +27,7 @@ sub bind_op2 {
     my ($a, $b) = @_;
     if (ref($a) eq 'ARRAY' && ref($b) ne 'ARRAY') {
         # binding @array := $arrayref
-	$b = $$b;
+        $b = $$b;
     }
     _alias_a_to_b($a, $b, 0);
 }
@@ -36,7 +36,7 @@ sub sig {
     my ($class, @sigs) = @_;
 
     if (ref $sigs[0] eq 'HASH') { # one element
-	@sigs = ([@sigs]);
+        @sigs = ([@sigs]);
     }
 
     return Data::Bind::SigCollection->new( [ map { $class->sig_element(@$_) } @sigs ] );
@@ -51,53 +51,53 @@ sub sig_element {
     my $multidim;
 
     for my $param (@_) {
-	die 'more than one multidimensional slurpy argument' if $multidim;
-	my $db_param = Data::Bind::Param->new
-	    ({ container_var => $param->{var},
-	       named_only    => $param->{named_only},
-	       is_writable   => $param->{is_rw},
-	       is_copy       => $param->{is_copy},
-	       is_slurpy     => $param->{is_slurpy},
-	       invocant      => $param->{invocant},
-	       constraint    => $param->{constraint},
-	       p5type        => substr($param->{var}, 0, 1),
-	       name          => substr($param->{var}, 1) });
+        die 'more than one multidimensional slurpy argument' if $multidim;
+        my $db_param = Data::Bind::Param->new
+            ({ container_var => $param->{var},
+               named_only    => $param->{named_only},
+               is_writable   => $param->{is_rw},
+               is_copy       => $param->{is_copy},
+               is_slurpy     => $param->{is_slurpy},
+               invocant      => $param->{invocant},
+               constraint    => $param->{constraint},
+               p5type        => substr($param->{var}, 0, 1),
+               name          => substr($param->{var}, 1) });
 
-	$multidim = $param->{is_multidimension};
-	$db_param->is_slurpy(1) if $multidim;
+        $multidim = $param->{is_multidimension};
+        $db_param->is_slurpy(1) if $multidim;
 
-	if ($param->{invocant}) {
-	    $db_param->is_optional(1)
-		unless $param->{required};
-	    $invocant = $db_param;
-	}
-	elsif ($param->{named_only}) {
-	    if ($db_param->is_slurpy) {
-		$named_slurpy = $db_param;
-		next;
-	    }
-	    $now_named = 1;
-	    $db_param->is_optional(1)
-		unless $param->{required};
-	    $named->{$db_param->name} = $db_param;
-	}
-	else {
-	    unless ($db_param->is_slurpy) {
-		Carp::carp("positional argument after named ones") if $now_named;
-	    }
-	    $db_param->is_optional(1)
-		if $param->{optional};
+        if ($param->{invocant}) {
+            $db_param->is_optional(1)
+                unless $param->{required};
+            $invocant = $db_param;
+        }
+        elsif ($param->{named_only}) {
+            if ($db_param->is_slurpy) {
+                $named_slurpy = $db_param;
+                next;
+            }
+            $now_named = 1;
+            $db_param->is_optional(1)
+                unless $param->{required};
+            $named->{$db_param->name} = $db_param;
+        }
+        else {
+            unless ($db_param->is_slurpy) {
+                Carp::carp("positional argument after named ones") if $now_named;
+            }
+            $db_param->is_optional(1)
+                if $param->{optional};
 
-	    push @{$positional}, $db_param;
-	    $named->{$db_param->name} = $db_param;
-	}
+            push @{$positional}, $db_param;
+            $named->{$db_param->name} = $db_param;
+        }
     }
 
     return Data::Bind::Sig->new
-	({ named => $named, positional => $positional,
-	   is_multidimension => $multidim,
-	   invocant => $invocant,
-	   named_slurpy => $named_slurpy });
+        ({ named => $named, positional => $positional,
+           is_multidimension => $multidim,
+           invocant => $invocant,
+           named_slurpy => $named_slurpy });
 }
 
 # some higher level stuff
@@ -132,11 +132,11 @@ sub arg_bind {
     # We have to install the locals here, otherwise there can be
     # side-effects when it's too many levels away.
     for (@install_local) {
-	my ($name, $code) = @$_;
-	no strict 'refs';
-	no warnings 'redefine';
-	*{$name} = $code;
-	Data::Bind::_forget_unlocal(2);
+        my ($name, $code) = @$_;
+        no strict 'refs';
+        no warnings 'redefine';
+        *{$name} = $code;
+        Data::Bind::_forget_unlocal(2);
     }
 }
 
@@ -215,23 +215,23 @@ sub bind_all {
     my $multidim = $self->[0]->is_multidimension;
     my @x;
     while (@$arg) {
-	my $inv  = ref($arg->[0]) && ref($arg->[0]) eq 'ARRAY' ? undef : shift @$arg;
-	last unless defined $inv || @$arg;
-	my $pos = shift @$arg;
-	my $named = shift @$arg;
+        my $inv  = ref($arg->[0]) && ref($arg->[0]) eq 'ARRAY' ? undef : shift @$arg;
+        last unless defined $inv || @$arg;
+        my $pos = shift @$arg;
+        my $named = shift @$arg;
 
-	if ($multidim) {
-	    push @x, \Data::Capture->new( { invocant => $inv, positional => $pos, named => $named });
-	}
-	else {
-	    die 'wrong dimension' unless $self->[$i];
-	    push @install_local,
-		@{ $self->[$i++]->bind({ invocant => $inv, positional => $pos, named => $named }, $lv) };
-	}
+        if ($multidim) {
+            push @x, \Data::Capture->new( { invocant => $inv, positional => $pos, named => $named });
+        }
+        else {
+            die 'wrong dimension' unless $self->[$i];
+            push @install_local,
+                @{ $self->[$i++]->bind({ invocant => $inv, positional => $pos, named => $named }, $lv) };
+        }
     }
 
     if ($multidim) {
-	$self->[0]->bind( { positional => \@x }, $lv );
+        $self->[0]->bind( { positional => \@x }, $lv );
     }
 
     return \@install_local;
@@ -263,39 +263,42 @@ use Carp qw(croak);
 use PadWalker qw(peek_my);
 
 sub bind {
-    my ($self, $args, $lv) = @_;
-    local $Carp::CarpLevel = 2;
+    my ( $self, $args, $lv ) = @_;
     $lv ||= 1;
+    $self->finalize_binding( $self->prepare_binding($args), $lv + 1 );
+}
+
+sub prepare_binding {
+    my ($self, $args) = @_;
+    local $Carp::CarpLevel = 2;
     my %bound;
 
-    my $pad = peek_my($lv);
     my $named_arg = $args->{named};
-    my @ret;
 
     my $bindings;
 
     if ($self->invocant) {
-	croak 'invocant missing'
-	    if !defined $args->{invocant};
+        croak 'invocant missing'
+            if !defined $args->{invocant};
 
         $bindings->{$self->invocant->container_var} = [ $self->invocant, \$args->{invocant} ];
     }
     else {
-	croak 'unexpected invocant'
-	    if defined $args->{invocant};
+        croak 'unexpected invocant'
+            if defined $args->{invocant};
     }
 
     for my $param_name (keys %{$self->named || {}}) {
-	my $param = $self->named->{$param_name};
-	if (my $current = delete $named_arg->{$param_name}) {
-	    # XXX: handle array concating
+        my $param = $self->named->{$param_name};
+        if (my $current = delete $named_arg->{$param_name}) {
+            # XXX: handle array concating
             $bindings->{ $param->container_var } = [ $param, $current ];
-	    $bound{$param_name}++;
-	}
-	elsif ($param->named_only) {
-	    croak "named argument ".$param->name." is required"
-		unless $param->is_optional;
-	}
+            $bound{$param_name}++;
+        }
+        elsif ($param->named_only) {
+            croak "named argument ".$param->name." is required"
+                unless $param->is_optional;
+        }
     }
 
     if ($self->named_slurpy) {
@@ -303,30 +306,39 @@ sub bind {
             [ $self->named_slurpy, $named_arg, 'slurpy' ];
     }
     else {
-	# XXX: report extra incoming named args
+        # XXX: report extra incoming named args
     }
 
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
-	if ($param->is_slurpy && $param->p5type ne '$') {
+        if ($param->is_slurpy && $param->p5type ne '$') {
             $bindings->{ $param->container_var } = [ $param, $pos_arg, 'slurpy' ];
-	    $pos_arg = [];
-	    last;
-	}
-	next if $bound{$param->name};
-	my $current = shift @$pos_arg;
-	unless ($current) {
-	    last if $param->is_optional;
-	    croak "positional argument ".$param->name." is required";
-	}
+            $pos_arg = [];
+            last;
+        }
+        next if $bound{$param->name};
+        my $current = shift @$pos_arg;
+        unless ($current) {
+            last if $param->is_optional;
+            croak "positional argument ".$param->name." is required";
+        }
         $bindings->{ $param->container_var } = [ $param, $current ];
     }
     # extra incoming positional args
     if (@$pos_arg) {
-	croak "extra positional argument.";
+        croak "extra positional argument.";
     }
 
-    @ret = map { $_->[2] ? $_->[0]->slurpy_bind($_->[1], $lv, $pad)
+    return $bindings;
+}
+
+sub finalize_binding {
+    my ( $self, $bindings, $lv ) = @_;
+
+    $lv ||= 1;
+    my $pad = peek_my($lv);
+
+    my @ret = map { $_->[2] ? $_->[0]->slurpy_bind($_->[1], $lv, $pad)
                  : $_->[0]->bind($_->[1], $lv, $pad) } values %{ $bindings };
 
     return \@ret;
@@ -350,22 +362,22 @@ sub slurpy_bind {
     my $ref = $pad->{$self->container_var} or Carp::confess $self->container_var;
 
     if ($self->p5type eq '@') {
-	my $i = 0;
-	# flatten
-	for my $var (@$vars) {
-	    if (ref($var) eq 'ARRAY') {
-		Data::Bind::_av_store($ref, $i++, \$var->[$_]) for 0..$#{$var};
-	    }
-	    else {
-		Data::Bind::_av_store($ref, $i++, $var);
-	    }
-	}
-	return;
+        my $i = 0;
+        # flatten
+        for my $var (@$vars) {
+            if (ref($var) eq 'ARRAY') {
+                Data::Bind::_av_store($ref, $i++, \$var->[$_]) for 0..$#{$var};
+            }
+            else {
+                Data::Bind::_av_store($ref, $i++, $var);
+            }
+        }
+        return;
     }
     if ($self->p5type eq '%') {
-	Data::Bind::_hv_store($ref, $_, $vars->{$_})
-	   for keys %$vars;
-	return;
+        Data::Bind::_hv_store($ref, $_, $vars->{$_})
+           for keys %$vars;
+        return;
     }
     die "not yet";
 }
@@ -374,39 +386,39 @@ sub bind {
     my ($self, $var, $lv, $pad) = @_;
     $lv++;
 
-	if ( my $constraint = $self->constraint ) {
-		unless ( $constraint->(ref $var eq 'SCALAR' ? $$var : $var, level => $lv, pad => $pad, var => $var, param => $self) ) {
-			die "Failed constraint of param " . $self->name;
-		}
-	}
+        if ( my $constraint = $self->constraint ) {
+                unless ( $constraint->(ref $var eq 'SCALAR' ? $$var : $var, level => $lv, pad => $pad, var => $var, param => $self) ) {
+                        die "Failed constraint of param " . $self->name;
+                }
+        }
 
     if ($self->p5type eq '&') {
-	return [ (caller($lv-1))[0].'::'.$self->name => $$var ];
+        return [ (caller($lv-1))[0].'::'.$self->name => $$var ];
     }
     my $ref = $pad->{$self->container_var} or Carp::confess $self->container_var;
     if ($self->p5type eq '$') {
-	# XXX: check $var type etc, take additional ref
+        # XXX: check $var type etc, take additional ref
         if ($self->is_copy) {
             $$ref = $$var;
         }
-	elsif ($self->is_writable) {
-	    lexalias($lv, $self->container_var, $var);
-	}
-	else {
-	    if (ref($var) eq 'ARRAY' || ref($var) eq 'HASH') {
-		Data::Bind::_alias_a_to_b($ref, \$var, 1);
-	    }
-	    elsif (defined $$var) {
-		Data::Bind::_alias_a_to_b($ref, $var, 1);
-	    }
-	}
-	return;
+        elsif ($self->is_writable) {
+            lexalias($lv, $self->container_var, $var);
+        }
+        else {
+            if (ref($var) eq 'ARRAY' || ref($var) eq 'HASH') {
+                Data::Bind::_alias_a_to_b($ref, \$var, 1);
+            }
+            elsif (defined $$var) {
+                Data::Bind::_alias_a_to_b($ref, $var, 1);
+            }
+        }
+        return;
     }
     if ($self->p5type eq '@') {
-	Data::Bind::_alias_a_to_b($ref, $var, !$self->is_writable);
+        Data::Bind::_alias_a_to_b($ref, $var, !$self->is_writable);
     }
     else {
-	die 'not yet';
+        die 'not yet';
     }
     return;
 }
