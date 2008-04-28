@@ -256,6 +256,20 @@ sub bind {
     $self->[0]->bind($_[0], $_[1] || 2);
 }
 
+sub prepare_binding {
+    shift->[0]->prepare_binding(@_);
+}
+
+sub finalize_binding {
+    my ( $self, $binding, $lv ) = @_;
+    $lv ||= 1;
+    $self->[0]->finalize_binding($binding, $lv + 1);
+}
+
+sub all_variable_names {
+    my %seen; grep { !$seen{$_}++ } $_[0][0]->all_variable_names;
+}
+
 package Data::Bind::Sig;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_accessors(qw(positional invocant named named_slurpy is_multidimension));
@@ -348,6 +362,19 @@ sub finalize_binding {
 sub arity {
     my $self = shift;
     scalar grep { !$_->is_optional } values %{$self->named};
+}
+
+sub all_variable_names {
+    my $self = shift;
+    my %seen;
+    return (
+        grep { !$seen{$_}++ } map { $_->container_var } grep { defined } (
+            # FIXME also invocant
+            values %{ $self->named },
+            @{ $self->positional },
+            $self->named_slurpy,
+            )
+    );
 }
 
 package Data::Bind::Param;
