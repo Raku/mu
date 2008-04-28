@@ -272,11 +272,13 @@ sub bind {
     my $named_arg = $args->{named};
     my @ret;
 
+    my $bindings;
+
     if ($self->invocant) {
 	croak 'invocant missing'
 	    if !defined $args->{invocant};
 
-	push @ret, $self->invocant->bind(\$args->{invocant}, $lv, $pad);
+        $bindings->{$self->invocant->container_var} = [ $self->invocant, \$args->{invocant} ];
     }
     else {
 	croak 'unexpected invocant'
@@ -287,7 +289,7 @@ sub bind {
 	my $param = $self->named->{$param_name};
 	if (my $current = delete $named_arg->{$param_name}) {
 	    # XXX: handle array concating
-	    push @ret, $param->bind($current, $lv, $pad);
+            $bindings->{ $param->container_var } = [ $param, $current ];
 	    $bound{$param_name}++;
 	}
 	elsif ($param->named_only) {
@@ -297,7 +299,8 @@ sub bind {
     }
 
     if ($self->named_slurpy) {
-	push @ret, $self->named_slurpy->slurpy_bind($named_arg, $lv, $pad);
+        $bindings->{ $self->named_slurpy->container_var  } =
+            [ $self->named_slurpy, $named_arg, 'slurpy' ];
     }
     else {
 	# XXX: report extra incoming named args
@@ -306,7 +309,7 @@ sub bind {
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
 	if ($param->is_slurpy && $param->p5type ne '$') {
-	    push @ret, $param->slurpy_bind($pos_arg, $lv, $pad);
+            $bindings->{ $param->container_var } = [ $param, $pos_arg, 'slurpy' ];
 	    $pos_arg = [];
 	    last;
 	}
@@ -316,12 +319,15 @@ sub bind {
 	    last if $param->is_optional;
 	    croak "positional argument ".$param->name." is required";
 	}
-	push @ret, $param->bind($current, $lv, $pad);
+        $bindings->{ $param->container_var } = [ $param, $current ];
     }
     # extra incoming positional args
     if (@$pos_arg) {
 	croak "extra positional argument.";
     }
+
+    @ret = map { $_->[2] ? $_->[0]->slurpy_bind($_->[1], $lv, $pad)
+                 : $_->[0]->bind($_->[1], $lv, $pad) } values %{ $bindings };
 
     return \@ret;
 }
