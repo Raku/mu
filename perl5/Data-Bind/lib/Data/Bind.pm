@@ -60,6 +60,7 @@ sub sig_element {
                is_slurpy     => $param->{is_slurpy},
                invocant      => $param->{invocant},
                constraint    => $param->{constraint},
+               default       => $param->{default},
                p5type        => substr($param->{var}, 0, 1),
                name          => substr($param->{var}, 1) });
 
@@ -309,6 +310,9 @@ sub prepare_binding {
             $bindings->{ $param->container_var } = [ $param, $current ];
             $bound{$param_name}++;
         }
+        elsif ($param->default) {
+            $bindings->{ $param->container_var } = [ $param, \$param->default->() ];
+        }
         elsif ($param->named_only) {
             croak "named argument ".$param->name." is required"
                 unless $param->is_optional;
@@ -332,7 +336,14 @@ sub prepare_binding {
         }
         next if $bound{$param->name};
         my $current = shift @$pos_arg;
+        # XXX crap logic, simplify me
         unless ($current) {
+
+            if ($param->default) {
+                $bindings->{ $param->container_var } = [ $param, \$param->default->() ];
+                next;
+            }
+
             last if $param->is_optional;
             croak "positional argument ".$param->name." is required";
         }
@@ -379,7 +390,7 @@ sub all_variable_names {
 
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_copy is_slurpy container_var named_only constraint));
+__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_copy is_slurpy container_var named_only constraint default));
 use Devel::LexAlias qw(lexalias);
 
 sub slurpy_bind {
