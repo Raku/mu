@@ -1182,13 +1182,19 @@ L<Subrule captures>. For example:
      / <.ident> <.ws> /      # nothing captured
 
 The assertion is otherwise parsed identically to an assertion beginning with
-an identifier, provided the next thing after the dot is an identifier.  Otherwise it
+an identifier, provided the next thing after the dot is an identifier.  As with
+the identifier form, any extra arguments pertaining to the matching engine
+are automatically supplied to the argument list.
+
+If the dot is not followed by an identifier, it
 is parsed as a "dotty" postfix of some type, such as an indirect method call:
 
     <.$indirect($depth, $binding, $fate, @args)>
 
 In this case the object passed as the invocant is the current match
 state, and the method is expected to return a new match state object.
+The extra pattern matching arguments (C<$depth>, C<$binding>, and
+C<$fate>) must be supplied explicitly.
 
 The non-capturing behavior may be overridden with a C<:keepall>.
 
