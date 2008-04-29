@@ -387,7 +387,7 @@ sub all_variable_names {
         grep { !$seen{$_}++ } map { $_->container_var } grep { defined } (
             @{ $self->positional },
             # FIXME also invocant
-            values %{ $self->named },
+            @{ $self->named }{ sort keys %{ $self->named } },
 			$self->positional_slurpy,
             $self->named_slurpy,
             )
