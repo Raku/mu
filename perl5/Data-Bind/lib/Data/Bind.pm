@@ -268,7 +268,7 @@ sub finalize_binding {
 }
 
 sub all_variable_names {
-    my %seen; grep { !$seen{$_}++ and die "duplicate variable in signature" } $_[0][0]->all_variable_names;
+    my %seen; grep { !$seen{$_}++ or die "duplicate variable $_ in signature" } $_[0][0]->all_variable_names;
 }
 
 package Data::Bind::Sig;
@@ -388,7 +388,6 @@ sub all_variable_names {
             @{ $self->positional },
             # FIXME also invocant
             @{ $self->named }{ sort keys %{ $self->named } },
-			$self->positional_slurpy,
             $self->named_slurpy,
             )
     );
