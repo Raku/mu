@@ -346,11 +346,13 @@ package main; # -> Main once elf_d support is dropped.
   };
 
   method do_VarDecl_has ($n) {
-      my $default = $.e($n<default_expr>);
-      if(defined $default) {
-        $default = ", default => "~$default
+      my $default = "";
+      my $default_expr = $.e($n<default_expr>);
+      if $default_expr {
+        $default = ", default => sub{ "~$default_expr~" }"
       } else {
-        $default = ""
+        if($n<var><sigil> eq '@') { $default = ', default => sub{ [] }' }
+        if($n<var><sigil> eq '%') { $default = ', default => sub{ {} }' }
       }
       "has '"~$.e($n<var><name>)~"' => (is => 'rw'"~$default~");"
   };
@@ -360,7 +362,12 @@ package main; # -> Main once elf_d support is dropped.
       self.do_VarDecl_has($n);
     } else {
       my $default = "";
-      if $n<default_expr> { $default = ' = '~$.e($n<default_expr>) }
+      if $n<default_expr> {
+        $default = ' = '~$.e($n<default_expr>);
+      } else {
+        if($n<var><sigil> eq '@') { $default = ' = [];' }
+        if($n<var><sigil> eq '%') { $default = ' = {};' }
+      }
       if($n<var><twigil> eq '^') {
         my $name = $.e($n<var>);
         $name.re_gsub('^(.)::','$1');

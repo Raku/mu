@@ -2850,11 +2850,17 @@ GLOBAL::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not b
 '***Trait***'
 }};
 sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
-my $default = $self->e($n->{'default_expr'});
-if((GLOBAL::defined($default))) {
-($default = (', default => ' . $default))
+my $default = '';
+my $default_expr = $self->e($n->{'default_expr'});
+if($default_expr) {
+($default = ((', default => sub{ ' . $default_expr) . ' }'))
 }else {
-($default = '')
+if((($n->{'var'}->{'sigil'} eq '@'))) {
+($default = ', default => sub{ [] }')
+};
+if((($n->{'var'}->{'sigil'} eq '%'))) {
+($default = ', default => sub{ {} }')
+}
 };
 (((('has \'' . $self->e($n->{'var'}->{'name'})) . '\' => (is => \'rw\'') . $default) . ');')};
 sub cb__VarDecl{my $self=CORE::shift;my($n)=@_;
@@ -2864,6 +2870,13 @@ $self->do_VarDecl_has($n)
 my $default = '';
 if($n->{'default_expr'}) {
 ($default = (' = ' . $self->e($n->{'default_expr'})))
+}else {
+if((($n->{'var'}->{'sigil'} eq '@'))) {
+($default = ' = [];')
+};
+if((($n->{'var'}->{'sigil'} eq '%'))) {
+($default = ' = {};')
+}
 };
 if((($n->{'var'}->{'twigil'} eq '^'))) {
 my $name = $self->e($n->{'var'});
