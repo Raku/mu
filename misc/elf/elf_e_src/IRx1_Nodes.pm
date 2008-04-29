@@ -29,6 +29,7 @@ package IRx1 {
     
     method newp($match,$statements,$filename) { self.new('match', $match, 'statements', $statements, 'filename', $filename) };
     method callback($emitter) { $emitter.cb__CompUnit(self) };
+    method node_name() { 'CompUnit' };
     method field_names() { ['statements','filename'] };
     method field_values() { [$.statements,$.filename] };
     method irx1_describe() {
@@ -42,6 +43,7 @@ package IRx1 {
     
     method newp($match,$statements) { self.new('match', $match, 'statements', $statements) };
     method callback($emitter) { $emitter.cb__Block(self) };
+    method node_name() { 'Block' };
     method field_names() { ['statements'] };
     method field_values() { [$.statements] };
     method irx1_describe() {
@@ -57,6 +59,7 @@ package IRx1 {
     
     method newp($match,$kind,$module_name,$expr) { self.new('match', $match, 'kind', $kind, 'module_name', $module_name, 'expr', $expr) };
     method callback($emitter) { $emitter.cb__Use(self) };
+    method node_name() { 'Use' };
     method field_names() { ['kind','module_name','expr'] };
     method field_values() { [$.kind,$.module_name,$.expr] };
     method irx1_describe() {
@@ -75,6 +78,7 @@ package IRx1 {
     
     method newp($match,$scope,$plurality,$kind,$name,$traits,$block) { self.new('match', $match, 'scope', $scope, 'plurality', $plurality, 'kind', $kind, 'name', $name, 'traits', $traits, 'block', $block) };
     method callback($emitter) { $emitter.cb__PackageDecl(self) };
+    method node_name() { 'PackageDecl' };
     method field_names() { ['scope','plurality','kind','name','traits','block'] };
     method field_values() { [$.scope,$.plurality,$.kind,$.name,$.traits,$.block] };
     method irx1_describe() {
@@ -96,6 +100,7 @@ package IRx1 {
     
     method newp($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block,$sigil,$postcircumfix) { self.new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block, 'sigil', $sigil, 'postcircumfix', $postcircumfix) };
     method callback($emitter) { $emitter.cb__MethodDecl(self) };
+    method node_name() { 'MethodDecl' };
     method field_names() { ['scope','typenames','plurality','name','multisig','traits','block','sigil','postcircumfix'] };
     method field_values() { [$.scope,$.typenames,$.plurality,$.name,$.multisig,$.traits,$.block,$.sigil,$.postcircumfix] };
     method irx1_describe() {
@@ -115,6 +120,7 @@ package IRx1 {
     
     method newp($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block) { self.new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block) };
     method callback($emitter) { $emitter.cb__SubDecl(self) };
+    method node_name() { 'SubDecl' };
     method field_names() { ['scope','typenames','plurality','name','multisig','traits','block'] };
     method field_values() { [$.scope,$.typenames,$.plurality,$.name,$.multisig,$.traits,$.block] };
     method irx1_describe() {
@@ -134,6 +140,7 @@ package IRx1 {
     
     method newp($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block) { self.new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block) };
     method callback($emitter) { $emitter.cb__MacroDecl(self) };
+    method node_name() { 'MacroDecl' };
     method field_names() { ['scope','typenames','plurality','name','multisig','traits','block'] };
     method field_values() { [$.scope,$.typenames,$.plurality,$.name,$.multisig,$.traits,$.block] };
     method irx1_describe() {
@@ -154,6 +161,7 @@ package IRx1 {
     
     method newp($match,$scope,$typenames,$plurality,$var,$postcircumfix,$traits,$default_op,$default_expr) { self.new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'var', $var, 'postcircumfix', $postcircumfix, 'traits', $traits, 'default_op', $default_op, 'default_expr', $default_expr) };
     method callback($emitter) { $emitter.cb__VarDecl(self) };
+    method node_name() { 'VarDecl' };
     method field_names() { ['scope','typenames','plurality','var','postcircumfix','traits','default_op','default_expr'] };
     method field_values() { [$.scope,$.typenames,$.plurality,$.var,$.postcircumfix,$.traits,$.default_op,$.default_expr] };
     method irx1_describe() {
@@ -169,6 +177,7 @@ package IRx1 {
     
     method newp($match,$sigil,$twigil,$name) { self.new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name) };
     method callback($emitter) { $emitter.cb__Var(self) };
+    method node_name() { 'Var' };
     method field_names() { ['sigil','twigil','name'] };
     method field_values() { [$.sigil,$.twigil,$.name] };
     method irx1_describe() {
@@ -183,6 +192,7 @@ package IRx1 {
     
     method newp($match,$verb,$expr) { self.new('match', $match, 'verb', $verb, 'expr', $expr) };
     method callback($emitter) { $emitter.cb__Trait(self) };
+    method node_name() { 'Trait' };
     method field_names() { ['verb','expr'] };
     method field_values() { [$.verb,$.expr] };
     method irx1_describe() {
@@ -197,6 +207,7 @@ package IRx1 {
     
     method newp($match,$kind,$block) { self.new('match', $match, 'kind', $kind, 'block', $block) };
     method callback($emitter) { $emitter.cb__ClosureTrait(self) };
+    method node_name() { 'ClosureTrait' };
     method field_names() { ['kind','block'] };
     method field_values() { [$.kind,$.block] };
     method irx1_describe() {
@@ -211,6 +222,7 @@ package IRx1 {
     
     method newp($match,$name,$pairs) { self.new('match', $match, 'name', $name, 'pairs', $pairs) };
     method callback($emitter) { $emitter.cb__ModuleName(self) };
+    method node_name() { 'ModuleName' };
     method field_names() { ['name','pairs'] };
     method field_values() { [$.name,$.pairs] };
     method irx1_describe() {
@@ -224,6 +236,7 @@ package IRx1 {
     
     method newp($match,$path) { self.new('match', $match, 'path', $path) };
     method callback($emitter) { $emitter.cb__PathName(self) };
+    method node_name() { 'PathName' };
     method field_names() { ['path'] };
     method field_values() { [$.path] };
     method irx1_describe() {
@@ -240,6 +253,7 @@ package IRx1 {
     
     method newp($match,$category,$pairs,$desigilname,$signature) { self.new('match', $match, 'category', $category, 'pairs', $pairs, 'desigilname', $desigilname, 'signature', $signature) };
     method callback($emitter) { $emitter.cb__SubName(self) };
+    method node_name() { 'SubName' };
     method field_names() { ['category','pairs','desigilname','signature'] };
     method field_values() { [$.category,$.pairs,$.desigilname,$.signature] };
     method irx1_describe() {
@@ -254,6 +268,7 @@ package IRx1 {
     
     method newp($match,$ident,$postcircumfix) { self.new('match', $match, 'ident', $ident, 'postcircumfix', $postcircumfix) };
     method callback($emitter) { $emitter.cb__ShapedParamName(self) };
+    method node_name() { 'ShapedParamName' };
     method field_names() { ['ident','postcircumfix'] };
     method field_values() { [$.ident,$.postcircumfix] };
     method irx1_describe() {
@@ -269,6 +284,7 @@ package IRx1 {
     
     method newp($match,$invocant,$method,$capture) { self.new('match', $match, 'invocant', $invocant, 'method', $method, 'capture', $capture) };
     method callback($emitter) { $emitter.cb__Call(self) };
+    method node_name() { 'Call' };
     method field_names() { ['invocant','method','capture'] };
     method field_values() { [$.invocant,$.method,$.capture] };
     method irx1_describe() {
@@ -283,6 +299,7 @@ package IRx1 {
     
     method newp($match,$function,$capture) { self.new('match', $match, 'function', $function, 'capture', $capture) };
     method callback($emitter) { $emitter.cb__Apply(self) };
+    method node_name() { 'Apply' };
     method field_names() { ['function','capture'] };
     method field_values() { [$.function,$.capture] };
     method irx1_describe() {
@@ -297,6 +314,7 @@ package IRx1 {
     
     method newp($match,$operator,$capture) { self.new('match', $match, 'operator', $operator, 'capture', $capture) };
     method callback($emitter) { $emitter.cb__Hyper(self) };
+    method node_name() { 'Hyper' };
     method field_names() { ['operator','capture'] };
     method field_values() { [$.operator,$.capture] };
     method irx1_describe() {
@@ -310,6 +328,7 @@ package IRx1 {
     
     method newp($match,$arguments) { self.new('match', $match, 'arguments', $arguments) };
     method callback($emitter) { $emitter.cb__Capture(self) };
+    method node_name() { 'Capture' };
     method field_names() { ['arguments'] };
     method field_values() { [$.arguments] };
     method irx1_describe() {
@@ -323,6 +342,7 @@ package IRx1 {
     
     method newp($match,$signatures) { self.new('match', $match, 'signatures', $signatures) };
     method callback($emitter) { $emitter.cb__MultiSig(self) };
+    method node_name() { 'MultiSig' };
     method field_names() { ['signatures'] };
     method field_values() { [$.signatures] };
     method irx1_describe() {
@@ -337,6 +357,7 @@ package IRx1 {
     
     method newp($match,$parameters,$return_type) { self.new('match', $match, 'parameters', $parameters, 'return_type', $return_type) };
     method callback($emitter) { $emitter.cb__Signature(self) };
+    method node_name() { 'Signature' };
     method field_names() { ['parameters','return_type'] };
     method field_values() { [$.parameters,$.return_type] };
     method irx1_describe() {
@@ -356,6 +377,7 @@ package IRx1 {
     
     method newp($match,$type_constraints,$quant,$param_var,$ident,$traits,$post_constraints,$default_expr) { self.new('match', $match, 'type_constraints', $type_constraints, 'quant', $quant, 'param_var', $param_var, 'ident', $ident, 'traits', $traits, 'post_constraints', $post_constraints, 'default_expr', $default_expr) };
     method callback($emitter) { $emitter.cb__Parameter(self) };
+    method node_name() { 'Parameter' };
     method field_names() { ['type_constraints','quant','param_var','ident','traits','post_constraints','default_expr'] };
     method field_values() { [$.type_constraints,$.quant,$.param_var,$.ident,$.traits,$.post_constraints,$.default_expr] };
     method irx1_describe() {
@@ -370,6 +392,7 @@ package IRx1 {
     
     method newp($match,$value,$where_expr) { self.new('match', $match, 'value', $value, 'where_expr', $where_expr) };
     method callback($emitter) { $emitter.cb__TypeConstraint(self) };
+    method node_name() { 'TypeConstraint' };
     method field_names() { ['value','where_expr'] };
     method field_values() { [$.value,$.where_expr] };
     method irx1_describe() {
@@ -384,6 +407,7 @@ package IRx1 {
     
     method newp($match,$multisig,$where_expr) { self.new('match', $match, 'multisig', $multisig, 'where_expr', $where_expr) };
     method callback($emitter) { $emitter.cb__PostConstraint(self) };
+    method node_name() { 'PostConstraint' };
     method field_names() { ['multisig','where_expr'] };
     method field_values() { [$.multisig,$.where_expr] };
     method irx1_describe() {
@@ -399,6 +423,7 @@ package IRx1 {
     
     method newp($match,$sigil,$twigil,$name) { self.new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name) };
     method callback($emitter) { $emitter.cb__ParamVar(self) };
+    method node_name() { 'ParamVar' };
     method field_names() { ['sigil','twigil','name'] };
     method field_values() { [$.sigil,$.twigil,$.name] };
     method irx1_describe() {
@@ -411,6 +436,7 @@ package IRx1 {
     
     method newp($match) { self.new('match', $match) };
     method callback($emitter) { $emitter.cb__Undef(self) };
+    method node_name() { 'Undef' };
     method field_names() { [] };
     method field_values() { [] };
     method irx1_describe() {
@@ -425,6 +451,7 @@ package IRx1 {
     
     method newp($match,$text,$base) { self.new('match', $match, 'text', $text, 'base', $base) };
     method callback($emitter) { $emitter.cb__NumInt(self) };
+    method node_name() { 'NumInt' };
     method field_names() { ['text','base'] };
     method field_values() { [$.text,$.base] };
     method irx1_describe() {
@@ -440,6 +467,7 @@ package IRx1 {
     
     method newp($match,$intpart,$fracpart,$exp) { self.new('match', $match, 'intpart', $intpart, 'fracpart', $fracpart, 'exp', $exp) };
     method callback($emitter) { $emitter.cb__NumDec(self) };
+    method node_name() { 'NumDec' };
     method field_names() { ['intpart','fracpart','exp'] };
     method field_values() { [$.intpart,$.fracpart,$.exp] };
     method irx1_describe() {
@@ -457,6 +485,7 @@ package IRx1 {
     
     method newp($match,$radix,$intpart,$fracpart,$base,$exp) { self.new('match', $match, 'radix', $radix, 'intpart', $intpart, 'fracpart', $fracpart, 'base', $base, 'exp', $exp) };
     method callback($emitter) { $emitter.cb__NumRad(self) };
+    method node_name() { 'NumRad' };
     method field_names() { ['radix','intpart','fracpart','base','exp'] };
     method field_values() { [$.radix,$.intpart,$.fracpart,$.base,$.exp] };
     method irx1_describe() {
@@ -470,6 +499,7 @@ package IRx1 {
     
     method newp($match,$array) { self.new('match', $match, 'array', $array) };
     method callback($emitter) { $emitter.cb__Array(self) };
+    method node_name() { 'Array' };
     method field_names() { ['array'] };
     method field_values() { [$.array] };
     method irx1_describe() {
@@ -483,6 +513,7 @@ package IRx1 {
     
     method newp($match,$hash) { self.new('match', $match, 'hash', $hash) };
     method callback($emitter) { $emitter.cb__Hash(self) };
+    method node_name() { 'Hash' };
     method field_names() { ['hash'] };
     method field_values() { [$.hash] };
     method irx1_describe() {
@@ -497,6 +528,7 @@ package IRx1 {
     
     method newp($match,$key,$value) { self.new('match', $match, 'key', $key, 'value', $value) };
     method callback($emitter) { $emitter.cb__Pair(self) };
+    method node_name() { 'Pair' };
     method field_names() { ['key','value'] };
     method field_values() { [$.key,$.value] };
     method irx1_describe() {
@@ -510,6 +542,7 @@ package IRx1 {
     
     method newp($match,$typename) { self.new('match', $match, 'typename', $typename) };
     method callback($emitter) { $emitter.cb__Type(self) };
+    method node_name() { 'Type' };
     method field_names() { ['typename'] };
     method field_values() { [$.typename] };
     method irx1_describe() {
@@ -523,6 +556,7 @@ package IRx1 {
     
     method newp($match,$pat) { self.new('match', $match, 'pat', $pat) };
     method callback($emitter) { $emitter.cb__Rx(self) };
+    method node_name() { 'Rx' };
     method field_names() { ['pat'] };
     method field_values() { [$.pat] };
     method irx1_describe() {
@@ -536,6 +570,7 @@ package IRx1 {
     
     method newp($match,$buf) { self.new('match', $match, 'buf', $buf) };
     method callback($emitter) { $emitter.cb__Buf(self) };
+    method node_name() { 'Buf' };
     method field_names() { ['buf'] };
     method field_values() { [$.buf] };
     method irx1_describe() {
@@ -550,6 +585,7 @@ package IRx1 {
     
     method newp($match,$expr,$block) { self.new('match', $match, 'expr', $expr, 'block', $block) };
     method callback($emitter) { $emitter.cb__For(self) };
+    method node_name() { 'For' };
     method field_names() { ['expr','block'] };
     method field_values() { [$.expr,$.block] };
     method irx1_describe() {
@@ -565,6 +601,7 @@ package IRx1 {
     
     method newp($match,$clauses,$default,$invert_first_test) { self.new('match', $match, 'clauses', $clauses, 'default', $default, 'invert_first_test', $invert_first_test) };
     method callback($emitter) { $emitter.cb__Cond(self) };
+    method node_name() { 'Cond' };
     method field_names() { ['clauses','default','invert_first_test'] };
     method field_values() { [$.clauses,$.default,$.invert_first_test] };
     method irx1_describe() {
@@ -581,6 +618,7 @@ package IRx1 {
     
     method newp($match,$pretest,$block,$posttest,$label) { self.new('match', $match, 'pretest', $pretest, 'block', $block, 'posttest', $posttest, 'label', $label) };
     method callback($emitter) { $emitter.cb__Loop(self) };
+    method node_name() { 'Loop' };
     method field_names() { ['pretest','block','posttest','label'] };
     method field_values() { [$.pretest,$.block,$.posttest,$.label] };
     method irx1_describe() {
@@ -595,6 +633,7 @@ package IRx1 {
     
     method newp($match,$ident,$pattern) { self.new('match', $match, 'ident', $ident, 'pattern', $pattern) };
     method callback($emitter) { $emitter.cb__RegexDef(self) };
+    method node_name() { 'RegexDef' };
     method field_names() { ['ident','pattern'] };
     method field_values() { [$.ident,$.pattern] };
     method irx1_describe() {
@@ -608,6 +647,7 @@ package IRx1 {
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
     method callback($emitter) { $emitter.cb__Regex(self) };
+    method node_name() { 'Regex' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
@@ -621,6 +661,7 @@ package IRx1 {
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
     method callback($emitter) { $emitter.cb__RxFirst(self) };
+    method node_name() { 'RxFirst' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
@@ -634,6 +675,7 @@ package IRx1 {
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
     method callback($emitter) { $emitter.cb__RxEvery(self) };
+    method node_name() { 'RxEvery' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
@@ -647,6 +689,7 @@ package IRx1 {
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
     method callback($emitter) { $emitter.cb__RxSubmatch(self) };
+    method node_name() { 'RxSubmatch' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
@@ -660,6 +703,7 @@ package IRx1 {
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
     method callback($emitter) { $emitter.cb__RxAny(self) };
+    method node_name() { 'RxAny' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
@@ -673,6 +717,7 @@ package IRx1 {
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
     method callback($emitter) { $emitter.cb__RxAll(self) };
+    method node_name() { 'RxAll' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
@@ -686,6 +731,7 @@ package IRx1 {
     
     method newp($match,$patterns) { self.new('match', $match, 'patterns', $patterns) };
     method callback($emitter) { $emitter.cb__RxSequence(self) };
+    method node_name() { 'RxSequence' };
     method field_names() { ['patterns'] };
     method field_values() { [$.patterns] };
     method irx1_describe() {
@@ -700,6 +746,7 @@ package IRx1 {
     
     method newp($match,$atom,$quantifier) { self.new('match', $match, 'atom', $atom, 'quantifier', $quantifier) };
     method callback($emitter) { $emitter.cb__RxQuantifiedAtom(self) };
+    method node_name() { 'RxQuantifiedAtom' };
     method field_names() { ['atom','quantifier'] };
     method field_values() { [$.atom,$.quantifier] };
     method irx1_describe() {
@@ -713,6 +760,7 @@ package IRx1 {
     
     method newp($match,$char) { self.new('match', $match, 'char', $char) };
     method callback($emitter) { $emitter.cb__RxBackslash(self) };
+    method node_name() { 'RxBackslash' };
     method field_names() { ['char'] };
     method field_values() { [$.char] };
     method irx1_describe() {
@@ -726,6 +774,7 @@ package IRx1 {
     
     method newp($match,$ident) { self.new('match', $match, 'ident', $ident) };
     method callback($emitter) { $emitter.cb__RxAssertion(self) };
+    method node_name() { 'RxAssertion' };
     method field_names() { ['ident'] };
     method field_values() { [$.ident] };
     method irx1_describe() {
@@ -739,6 +788,7 @@ package IRx1 {
     
     method newp($match,$mod) { self.new('match', $match, 'mod', $mod) };
     method callback($emitter) { $emitter.cb__RxModInternal(self) };
+    method node_name() { 'RxModInternal' };
     method field_names() { ['mod'] };
     method field_values() { [$.mod] };
     method irx1_describe() {
@@ -752,6 +802,7 @@ package IRx1 {
     
     method newp($match,$pattern) { self.new('match', $match, 'pattern', $pattern) };
     method callback($emitter) { $emitter.cb__RxCapture(self) };
+    method node_name() { 'RxCapture' };
     method field_names() { ['pattern'] };
     method field_values() { [$.pattern] };
     method irx1_describe() {
@@ -765,6 +816,7 @@ package IRx1 {
     
     method newp($match,$pattern) { self.new('match', $match, 'pattern', $pattern) };
     method callback($emitter) { $emitter.cb__RxGroup(self) };
+    method node_name() { 'RxGroup' };
     method field_names() { ['pattern'] };
     method field_values() { [$.pattern] };
     method irx1_describe() {
@@ -778,6 +830,7 @@ package IRx1 {
     
     method newp($match,$block) { self.new('match', $match, 'block', $block) };
     method callback($emitter) { $emitter.cb__RxBlock(self) };
+    method node_name() { 'RxBlock' };
     method field_names() { ['block'] };
     method field_values() { [$.block] };
     method irx1_describe() {
@@ -792,6 +845,7 @@ package IRx1 {
     
     method newp($match,$var,$binding) { self.new('match', $match, 'var', $var, 'binding', $binding) };
     method callback($emitter) { $emitter.cb__RxBind(self) };
+    method node_name() { 'RxBind' };
     method field_names() { ['var','binding'] };
     method field_values() { [$.var,$.binding] };
     method irx1_describe() {
@@ -806,6 +860,7 @@ package IRx1 {
     
     method newp($match,$text,$quote) { self.new('match', $match, 'text', $text, 'quote', $quote) };
     method callback($emitter) { $emitter.cb__RxLiteral(self) };
+    method node_name() { 'RxLiteral' };
     method field_names() { ['text','quote'] };
     method field_values() { [$.text,$.quote] };
     method irx1_describe() {
@@ -819,6 +874,7 @@ package IRx1 {
     
     method newp($match,$symbol) { self.new('match', $match, 'symbol', $symbol) };
     method callback($emitter) { $emitter.cb__RxSymbol(self) };
+    method node_name() { 'RxSymbol' };
     method field_names() { ['symbol'] };
     method field_values() { [$.symbol] };
     method irx1_describe() {

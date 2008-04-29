@@ -178,6 +178,7 @@ sub write_ir_nodes {
         $has
         method newp($params) { self.new($init) };
         method callback(\$emitter) { \$emitter.cb__$name(self) };
+        method node_name() { '$name' };
         method field_names() { [$field_names] };
         method field_values() { [$field_values] };
         method irx1_describe() {
