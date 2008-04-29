@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 47;
+use Test::More tests => 48;
 use Test::Exception;
 use Data::Bind;
 # L<S03/"Binding">
@@ -98,6 +98,8 @@ sub {
   my @array  = <a b c>;
   my $var    = "d";
   bind_op2(\$array[1], \$var);
+
+  is($array[1], $var, "bind_op2");
 
   lives_ok { $foo->([\@array]) };
   is $var,    "new_value",     "passing an array to a sub expecting an array behaves correctly (1)";

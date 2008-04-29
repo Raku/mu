@@ -222,7 +222,7 @@ sub bind_all {
         my $named = shift @$arg;
 
         if ($multidim) {
-            push @x, \Data::Capture->new( { invocant => $inv, positional => $pos, named => $named });
+            push @x, \Data::Capture::Overload->new( { invocant => $inv, positional => $pos, named => $named });
         }
         else {
             die 'wrong dimension' unless $self->[$i];
@@ -268,39 +268,44 @@ sub finalize_binding {
 }
 
 sub all_variable_names {
-    my %seen; grep { !$seen{$_}++ } $_[0][0]->all_variable_names;
+    my %seen; grep { !$seen{$_}++ and die "duplicate variable in signature" } $_[0][0]->all_variable_names;
 }
 
 package Data::Bind::Sig;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_accessors(qw(positional invocant named named_slurpy is_multidimension));
 use Carp qw(croak);
+use Scalar::Util qw(blessed);
 use PadWalker qw(peek_my);
+
+use Data::Capture;
 
 sub bind {
     my ( $self, $args, $lv ) = @_;
     $lv ||= 1;
-    $self->finalize_binding( $self->prepare_binding($args), $lv + 1 );
+    $self->finalize_binding( $self->prepare_binding(Data::Capture->new($args)), $lv + 1 );
 }
 
 sub prepare_binding {
-    my ($self, $args) = @_;
+    my ($self, $capture, %opts) = @_;
     local $Carp::CarpLevel = 2;
+
     my %bound;
 
-    my $named_arg = $args->{named};
+    my $named_arg = $capture->named;
 
     my $bindings;
 
+	# FIXME invocant should be ref, it's writable in perl5
     if ($self->invocant) {
         croak 'invocant missing'
-            if !defined $args->{invocant};
+            if !defined $capture->invocant;
 
-        $bindings->{$self->invocant->container_var} = [ $self->invocant, \$args->{invocant} ];
+        $bindings->{$self->invocant->container_var} = [ $self->invocant, \$capture->invocant ];
     }
     else {
         croak 'unexpected invocant'
-            if defined $args->{invocant};
+            if defined $capture->invocant;
     }
 
     for my $param_name (keys %{$self->named || {}}) {
@@ -311,13 +316,13 @@ sub prepare_binding {
             $bound{$param_name}++;
         }
         elsif ($param->default) {
-            $bindings->{ $param->container_var } = [ $param, \$param->default->() ];
+            $bindings->{ $param->container_var } = [ $param, $opts{no_defaults} ? undef : \$param->default->(), 'default' ];
         }
         elsif ($param->named_only) {
             croak "named argument ".$param->name." is required"
                 unless $param->is_optional;
         }
-    }
+     }
 
     if ($self->named_slurpy) {
         $bindings->{ $self->named_slurpy->container_var  } =
@@ -327,7 +332,7 @@ sub prepare_binding {
         # XXX: report extra incoming named args
     }
 
-    my $pos_arg = $args->{positional};
+    my $pos_arg = $capture->positional;
     for my $param (@{$self->positional || []}) {
         if ($param->is_slurpy && $param->p5type ne '$') {
             $bindings->{ $param->container_var } = [ $param, $pos_arg, 'slurpy' ];
@@ -340,7 +345,7 @@ sub prepare_binding {
         unless ($current) {
 
             if ($param->default) {
-                $bindings->{ $param->container_var } = [ $param, \$param->default->() ];
+                $bindings->{ $param->container_var } = [ $param, $opts{no_defaults} ? undef : \$param->default->(), "default" ];
                 next;
             }
 
@@ -380,9 +385,10 @@ sub all_variable_names {
     my %seen;
     return (
         grep { !$seen{$_}++ } map { $_->container_var } grep { defined } (
+            @{ $self->positional },
             # FIXME also invocant
             values %{ $self->named },
-            @{ $self->positional },
+			$self->positional_slurpy,
             $self->named_slurpy,
             )
     );

@@ -26,6 +26,5 @@ use Scalar::Util 'reftype';
 
 sub as_string {
     my $self = shift;
-    warn reftype($self);
     "$self->{id}: $self->{name}";
 }

@@ -10,7 +10,7 @@ sub new {
 	if ( @params == 1 ) {
 		return bless $params[0], $class;
 	} else {
-		return bless { invocant => \(my $x), positional => [], named => { }, @params }, $class;
+		return bless { @params }, $class;
 	}
 }
 
@@ -22,10 +22,10 @@ sub invocant   { $_[0]{invocant}   }
 sub positional { $_[0]{positional} }
 sub named      { $_[0]{named}      }
 
-sub keys   { CORE::keys   %{$_[0]{named}} }
-sub values { CORE::values %{$_[0]{named}} }
+sub keys   { CORE::keys   %{$_[0]->named} }
+sub values { CORE::values %{$_[0]->named} }
 
-sub kv     { map { ( $_, $_[0]{$_} ) }   $_[0]->keys  }
+sub kv     { %{$_[0]->named} }
 
 sub elems  { scalar $_[0]->keys }
 
@@ -41,8 +41,51 @@ sub yaml {
     require YAML::Syck;
     # interoperability with other YAML/Syck bindings:
     $YAML::Syck::ImplicitTyping = 1;
-    YAML::Syck::Dump( $_[0] );
+    YAML::Syck::Dump( $_[0]->data );
 }
+
+package Data::Capture::Overload;
+use base qw(Data::Capture);
+
+use Scalar::Util qw(blessed refaddr);
+
+use overload (
+    '@{}'    => \&array,
+    '%{}'    => \&hash,
+    '${}'    => \&scalar,
+    fallback => 1,
+);
+
+my %captures;
+
+sub new {
+	my ( $class, @args ) = @_;
+
+	my $capture = blessed($args[0]) ? $args[0] : Data::Capture->new(@args);
+
+	my $self = bless \$capture;
+
+	$captures{refaddr $self} = $capture;
+
+	return $self;
+}
+
+sub DESTROY { delete $captures{refaddr $_[0]} }
+
+sub data   {  $captures{refaddr $_[0]}             }
+sub scalar {  $captures{refaddr $_[0]}->invocant   }
+sub array  {  $captures{refaddr $_[0]}->positional }
+sub hash   {  $captures{refaddr $_[0]}->named      }
+sub invocant   {  $captures{refaddr $_[0]}->invocant   }
+sub positional {  $captures{refaddr $_[0]}->positional }
+sub named      {  $captures{refaddr $_[0]}->named      }
+
+sub keys   { CORE::keys   %{$captures{refaddr $_[0]}->named} }
+sub values { CORE::values %{$captures{refaddr $_[0]}->named} }
+
+sub kv     { map { ( $_, $_[0]->{$_} ) }   $_[0]->keys  }
+
+
 
 1;
 
