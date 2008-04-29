@@ -39,6 +39,21 @@ use warnings;
 }
 '~self.prelude_oo~'
 
+# Move to the Regexp prelude once that becomes part of the prelude.
+{ package BacktrackMacrosKludge;
+  sub _let_gen {
+    my($vars) = @_;
+    my $nvars = 1+($vars =~ tr/,//);
+    my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
+    push(@SCRATCH::_let_stack,[$vars,$tmpvars]);
+    "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
+  }
+  sub _let_end {
+    my $e = shift(@SCRATCH::_let_stack) || die "LET(){ }LET pairs didnt match up";
+    my($vars,$tmpvars) = @$e;
+    "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
+  }
+}
 
 {package UNDEF;}
 {package UNDEF; sub WHAT {"Undef"}}
@@ -227,10 +242,20 @@ use warnings;
 }
 
 { package SCALAR;
+  sub re_sub         {
+    my $expr = "\$_[0] =~ s/$_[1]/$_[2]/".($_[3]||"");
+    eval $expr;
+    Carp::confess($@) if $@;
+    $_[0]
+  }
+  sub re_sub_g ($$$) {
+    eval "\$_[0] =~ s/$_[1]/$_[2]/g";
+    Carp::confess($@) if $@;
+    $_[0]
+  }
+  # legacy
   sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
-  sub re_sub  ($$$) {$_[0] =~ s/$_[1]/$_[2]/;  $_[0]}
 }
-
 
 { package GLOBAL;
 
@@ -417,7 +442,7 @@ package main; # -> Main once elf_d support is dropped.
     $type0 = $type0.re_gsub('^Any$','*');
     $type0 = $type0.re_gsub('^Int$','#');
     $type0 = $type0.re_gsub('^Num$','#');
-    $type0 = $type0.re_gsub('^Str$','$');
+    $type0 = $type0.re_gsub('^Str$','\$');
     my $param_padding = "";  my $i = 1;
     while $i < $n_args { $i = $i + 1; $param_padding = $param_padding ~ ' * '; }
     'Class::Multimethods::multimethod '~$name~
