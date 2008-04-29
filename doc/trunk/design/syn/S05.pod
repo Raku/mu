@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 19 Mar 2008
+   Last Modified: 29 Apr 2008
    Number: 5
-   Version: 76
+   Version: 77
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1157,13 +1157,12 @@ is more or less equivalent to
 
 To pass a regex with leading whitespace you must use the parenthesized form.
 
-If the first character is a colon, the rest of the text (following any
-whitespace) is passed as a string, so the previous may also be written as:
+If the first character is a colon followed by whitespace, the rest
+of the text is taken as a list of arguments to the method, just as
+in ordinary Perl syntax.  So these mean the same thing:
 
-    <foo: bar>
-
-To pass a string with leading whitespace, or to interpolate any values
-into the string, you must use the parenthesized form.
+    <foo('foo', $bar, 42)>
+    <foo: 'foo', $bar, 42>
 
 No other characters are allowed after the initial identifier.
 
@@ -1181,6 +1180,15 @@ L<Subrule captures>. For example:
      / <ident>  <ws>  /      # $/<ident> and $/<ws> both captured
      / <.ident> <ws>  /      # only $/<ws> captured
      / <.ident> <.ws> /      # nothing captured
+
+The assertion is otherwise parsed identically to an assertion beginning with
+an identifier, provided the next thing after the dot is an identifier.  Otherwise it
+is parsed as a "dotty" postfix of some type, such as an indirect method call:
+
+    <.$indirect($depth, $binding, $fate, @args)>
+
+In this case the object passed as the invocant is the current match
+state, and the method is expected to return a new match state object.
 
 The non-capturing behavior may be overridden with a C<:keepall>.
 
