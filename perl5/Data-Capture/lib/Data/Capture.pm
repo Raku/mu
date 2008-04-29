@@ -5,34 +5,27 @@ use strict;
 use warnings;
 use Scalar::Util qw( refaddr blessed );
 
-use overload (
-    '@{}'    => \&array,
-    '%{}'    => \&hash,
-    '${}'    => \&scalar,
-    fallback => 1,
-);
-
-my %_data;
-
 sub new {
-    my $obj = bless \$_[1], $_[0];
-    $_data{ refaddr $obj } = $_[1];
-    return $obj;
+	my ( $class, @params ) = @_;
+	if ( @params == 1 ) {
+		return bless $params[0], $class;
+	} else {
+		return bless { invocant => \(my $x), positional => [], named => { }, @params }, $class;
+	}
 }
 
-sub DESTROY {  
-    delete $_data{ refaddr $_[0] };
-}
+sub data       { $_[0]             }
+sub scalar     { $_[0]{invocant}   } # so $$c gets invocant
+sub array      { $_[0]{positional} }
+sub hash       { $_[0]{named}      }
+sub invocant   { $_[0]{invocant}   }
+sub positional { $_[0]{positional} }
+sub named      { $_[0]{named}      }
 
-sub data   {  $_data{refaddr $_[0]}               }
-sub scalar {  $_data{refaddr $_[0]}->{invocant}   } # so $$c gets invocant
-sub array  {  $_data{refaddr $_[0]}->{positional} }
-sub hash   {  $_data{refaddr $_[0]}->{named}      }
+sub keys   { CORE::keys   %{$_[0]{named}} }
+sub values { CORE::values %{$_[0]{named}} }
 
-sub keys   { CORE::keys   %{$_data{refaddr $_[0]}->{named}} }
-sub values { CORE::values %{$_data{refaddr $_[0]}->{named}} }
-
-sub kv     { map { ( $_, $_[0]->{$_} ) }   $_[0]->keys  }
+sub kv     { map { ( $_, $_[0]{$_} ) }   $_[0]->keys  }
 
 sub elems  { scalar $_[0]->keys }
 
