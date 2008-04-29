@@ -39,6 +39,8 @@ END
     error_message = ""
     if ARGV.empty?
       print "\nRun #{$0} --help  to get help.\n";
+      $:.push(File.dirname($0))
+      require 'std'
       Repl.new.parser_rule
       exit(0)
     end
