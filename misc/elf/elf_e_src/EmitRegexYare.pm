@@ -11,51 +11,29 @@
 #  Interactive shell and command line - though may again need something like it for testing.
 
 class EmitRegex {
+
   method expand_backtrack_macros ($code) {
-    Needs to be turned into p6...
-{
-  package Regexp::ModuleA::ReentrantEngine::BacktrackMacros;
-  
-  my @_let_stack;
-  sub _let_gen {
-    my($vars)=@_;
-    my $nvars = 1+($vars =~ tr/,//);
-    my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
-    push(@_let_stack,[$vars,$tmpvars]);
-    "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
-  }
-  sub _let_end {
-    my $e = shift(@_let_stack) || die "LET(){ }LET pairs didn't match up";
-    my($vars,$tmpvars) = @$e;
-    "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
-    }
-  sub filter_string {
-    my($s)=@_;
-    local $_ = $s;
-    s/\bLET\(([^\)]+)\)\{/_let_gen($1)/eg;
-    s/\}LET;/_let_end().";"/eg;
-    s/\bFAIL_IF_FAILED\(([^\)]+)\);/return($1) if FAILED($1);/g;
-    s/\bFAIL\(\)/return(undef)/g;
-    s/\bFAIL_SEQUENCE\(\)/die("fail sequence\\n")/g;
-    s/\bFAIL_GROUP\(\)/die("fail group\\n")/g;
-    s/\bFAIL_REGEX\(\)/die("fail regex\\n")/g;
-    s/\bFAIL_MATCH\(\)/die("fail match\\n")/g;
-    s/\bFAILED\(([^\)]+)\)/(!defined($1)||(!ref($1)&&($1<=0)))/g;
-    s/\bTAILCALL\(([^,\)]+),?([^\)]*)\);/\@_=($2);goto \&$1;/g;
-    $_;
-  }
-  use Filter::Simple sub {
-    $_ = filter_string($_);
-    #print STDERR $_;
-    $_;
-  };
-  1;
-}
 
+    $code.re_sub('\bLET\(([^\)]+)\)\{','BacktrackMacrosKludge::_let_gen($1)','eg');
+    $code.re_sub('\}LET;','BacktrackMacrosKludge::_let_end().";"','eg');
+
+    $code.re_sub_g('\bFAIL_IF_FAILED\(([^\)]+)\);','return($1) if FAILED($1);');
+    $code.re_sub_g('\bFAIL\(\)','return(undef)');
+    $code.re_sub_g('\bFAILED\(([^\)]+)\)','(!defined($1)||(!ref($1)&&($1<=0)))');
+
+    $code.re_sub_g('\bFAIL_SEQUENCE\(\)','die("fail sequence\\n"');
+    $code.re_sub_g('\bFAIL_GROUP\(\)','die("fail group\\n"');
+    $code.re_sub_g('\bFAIL_REGEX\(\)','die("fail regex\\n"');
+    $code.re_sub_g('\bFAIL_MATCH\(\)','die("fail match\\n"');
+
+    $code.re_sub_g('\bTAILCALL\(([^,\)]+),?([^\)]*)\);','\@_=($2);goto \&$1;');
+
+    $code;
   };
 
-  method regex_prelude {
-    self.expand_backtrack_macros '
+  method regex_prelude () {
+    self.expand_backtrack_macros('
+
 package Regexp::ModuleA;
 use strict;
 use warnings;
@@ -653,7 +631,7 @@ sub {
   }
 
 }
-'
+');
   };
 
   #======================================================================
