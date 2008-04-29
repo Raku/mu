@@ -2037,18 +2037,23 @@ false #R
     def_tokens_simple :regex_metachar,false,%w{ . ^^ ^ }
     def_tokens_simple :regex_metachar,false,%w{ $$ }
     def_tokens_rest :regex_metachar,false,%w{ $ },%q{
-      before(/\s|\||\)|\]|\>|\}/) or #R NONSPEC added \}
-      @scanner.eos? #R NONSPEC ADDED
+      before(/\s|\||\&|\)|\]|\>|\}/) or #R NONSPEC KLUDGE added \}, for eos-ness.  May need '/' too.
+      @scanner.eos?
     }
 
     def_token_full :regex_metachar,false,"' '",/\'/,%q{ quotesnabber(":q") }
     def_token_full :regex_metachar,false,'" "',/\"/,%q{ quotesnabber(":qq") }
 
-    def_tokens_rest :regex_metachar,false,%w{ ::: :: },%q{ _match_from(start,{},:commit) } #R ADDED
+    def_tokens_rest :regex_metachar,false,%w{ ::: :: },%q{
+      _match_from(start,{},:commit) #R NONSPEC rule name
+    }
+    def_token_full :regex_metachar,false,':',/:(?!\w)/,%q{
+      _match_from(start,{},:commit) #R NONSPEC rule name
+    }
 
     def_token_full :regex_metachar,false,'var',/(?!\$\$|:)/,%q{ #R ADDED ':' check, helping commit
         binding_=nil
-        sym=variable and wsp and (scan(/=/) and wsp and #R NONSPEC TYPO? changed := to =.
+        sym=variable and wsp and (scan(/=/) and wsp and
         binding_= regex_quantified_atom; true) and
         _match_from(b,{:variable=>sym,:binding=>binding_},:var)
     }
@@ -2070,12 +2075,12 @@ false #R
         letter = letter.to_s
         def_token_full :regex_backslash,false,letter,/(?i:#{letter})/,rest
     end
-    %w{ a b d e f h n r s t v w }.each{|letter| rx_bs letter } #R ADDED \s
+    %w{ a b d e f h n r s t v w }.each{|letter| rx_bs letter }
     rx_bs :c,%q{ (scan(/\[ [^\]\n\r]* \]/x) or
                   codepoint) }
     rx_bs :o,%q{ octint or (scan(/\[/) and octint and starTOK{ scan(/,/) and octint} and scan(/\]/)) }
     rx_bs :x,%q{ hexint or (scan(/\[/) and hexint and starTOK{ scan(/,/) and hexint} and scan(/\]/)) }
-    def_token_full :regex_backslash,false,'metasyntactic',/\W/,nil #R ADDED
+    def_token_full :regex_backslash,false,'misc',/\W/,nil #R NONSPEC should define a $<litchar>.
     def_token_full :regex_backslash,false,'oops',//,%q{ panic("unrecognized regex backslash sequence") }
 
     def_tokens_rest :regex_assertion,false,%w{ ? ! . },%q{ regex_assertion }
@@ -2084,8 +2089,8 @@ false #R
 
     def_token_full :regex_assertion,false,'variable',/(?=#{sigil_speed_hack_re})/,%q{ before{ sigil } and _EXPR(nil,HLOOSEST) }
     def_token_full :regex_assertion,false,'method',/(?=\.(?!>))/,%q{
-      before(/\.(?!>)(?=\w+\()/) and #R NONSPEC second test to avoid <.ws> parsing as method.
-      _EXPR(nil,HLOOSEST)
+      before(/\.(?!>)(?=\w+\()/) and #R NONSPEC second clause is to avoid <.foo> parsing as method.
+      d= dotty and _match_from(start,{:dotty=>d},:method)
     }
     def_token_full :regex_assertion,false,'ident',//,%q{
       b=pos
@@ -2094,9 +2099,7 @@ false #R
        (let_pos{ scan(/\=/) and ra= regex_assertion} or
         let_pos{ scan(/\:/) and wsp and qu= q_unbalanced(qlang('Q',':qq'), '>')} or
         let_pos{ scan(/\(/) and sl= semilist and scan(/\)/)} or
-        let_pos{ wsp and scan(/(?=[-+])/) and cc= plusTOK{cclass_elem} } or #R NONSPEC ADDED for <alpha-[x]>
-        #R# let_pos{ wsp and e= _EXPR(nil,HLOOSEST) }
-        let_pos{ wsp and e= regex } #R NONSPEC - expr just seems bogus.  Confirmed by TT.
+        let_pos{ wsp and e= regex }
         ) }) and
        (h={}
         _hkv(h,:ident,i)
@@ -2151,7 +2154,9 @@ false #R
         }
         def_tokens_simple :regex_mod_internal,false,[ n2 ]
     end
-    %w{ i b r ratchet  s x nth }.each{|name| rx_rmi name} #R NONSPEC ADDED s x nth
+    #R NONSPEC ADDED x nth
+    #R NONSPEC rule names aren't quite right
+    %w{ i insensitive b basechar r ratchet s sigspace  x nth }.each{|name| rx_rmi name}
     #R# def_token_full :regex_mod_internal,false,'oops',/:!?\w/,%q{ panic("unrecognized regex modifier") }
 
     def_tokens_rest :regex_quantifier,false,%w{ * + ? },%q{ quantmod }
