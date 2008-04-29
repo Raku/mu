@@ -766,7 +766,6 @@ sub newp{my $self=CORE::shift;my($match,$statements,$filename)=@_;
 $self->new('match', $match, 'statements', $statements, 'filename', $filename)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__CompUnit($self)};
-sub node_name{my $self=CORE::shift;'CompUnit'};
 sub field_names{my $self=CORE::shift;['statements', 'filename']};
 sub field_values{my $self=CORE::shift;[$self->statements, $self->filename]};
 sub irx1_describe{my $self=CORE::shift;(((('CompUnit(' . $self->statements->irx1_describe()) . ',') . $self->filename->irx1_describe()) . ')')}
@@ -804,7 +803,6 @@ sub newp{my $self=CORE::shift;my($match,$statements)=@_;
 $self->new('match', $match, 'statements', $statements)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Block($self)};
-sub node_name{my $self=CORE::shift;'Block'};
 sub field_names{my $self=CORE::shift;['statements']};
 sub field_values{my $self=CORE::shift;[$self->statements]};
 sub irx1_describe{my $self=CORE::shift;(('Block(' . $self->statements->irx1_describe()) . ')')}
@@ -858,7 +856,6 @@ sub newp{my $self=CORE::shift;my($match,$kind,$module_name,$expr)=@_;
 $self->new('match', $match, 'kind', $kind, 'module_name', $module_name, 'expr', $expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Use($self)};
-sub node_name{my $self=CORE::shift;'Use'};
 sub field_names{my $self=CORE::shift;['kind', 'module_name', 'expr']};
 sub field_values{my $self=CORE::shift;[$self->kind, $self->module_name, $self->expr]};
 sub irx1_describe{my $self=CORE::shift;(((((('Use(' . $self->kind->irx1_describe()) . ',') . $self->module_name->irx1_describe()) . ',') . $self->expr->irx1_describe()) . ')')}
@@ -936,7 +933,6 @@ sub newp{my $self=CORE::shift;my($match,$scope,$plurality,$kind,$name,$traits,$b
 $self->new('match', $match, 'scope', $scope, 'plurality', $plurality, 'kind', $kind, 'name', $name, 'traits', $traits, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__PackageDecl($self)};
-sub node_name{my $self=CORE::shift;'PackageDecl'};
 sub field_names{my $self=CORE::shift;['scope', 'plurality', 'kind', 'name', 'traits', 'block']};
 sub field_values{my $self=CORE::shift;[$self->scope, $self->plurality, $self->kind, $self->name, $self->traits, $self->block]};
 sub irx1_describe{my $self=CORE::shift;(((((((((((('PackageDecl(' . $self->scope->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->kind->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')}
@@ -1038,7 +1034,6 @@ sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$mult
 $self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block, 'sigil', $sigil, 'postcircumfix', $postcircumfix)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__MethodDecl($self)};
-sub node_name{my $self=CORE::shift;'MethodDecl'};
 sub field_names{my $self=CORE::shift;['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block', 'sigil', 'postcircumfix']};
 sub field_values{my $self=CORE::shift;[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block, $self->sigil, $self->postcircumfix]};
 sub irx1_describe{my $self=CORE::shift;(((((((((((((((((('MethodDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ',') . $self->sigil->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ')')}
@@ -1124,7 +1119,6 @@ sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$mult
 $self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__SubDecl($self)};
-sub node_name{my $self=CORE::shift;'SubDecl'};
 sub field_names{my $self=CORE::shift;['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block']};
 sub field_values{my $self=CORE::shift;[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]};
 sub irx1_describe{my $self=CORE::shift;(((((((((((((('SubDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')}
@@ -1210,7 +1204,6 @@ sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$mult
 $self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__MacroDecl($self)};
-sub node_name{my $self=CORE::shift;'MacroDecl'};
 sub field_names{my $self=CORE::shift;['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block']};
 sub field_values{my $self=CORE::shift;[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]};
 sub irx1_describe{my $self=CORE::shift;(((((((((((((('MacroDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')}
@@ -1304,7 +1297,6 @@ sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$var,$postc
 $self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'var', $var, 'postcircumfix', $postcircumfix, 'traits', $traits, 'default_op', $default_op, 'default_expr', $default_expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__VarDecl($self)};
-sub node_name{my $self=CORE::shift;'VarDecl'};
 sub field_names{my $self=CORE::shift;['scope', 'typenames', 'plurality', 'var', 'postcircumfix', 'traits', 'default_op', 'default_expr']};
 sub field_values{my $self=CORE::shift;[$self->scope, $self->typenames, $self->plurality, $self->var, $self->postcircumfix, $self->traits, $self->default_op, $self->default_expr]};
 sub irx1_describe{my $self=CORE::shift;(((((((((((((((('VarDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->var->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->default_op->irx1_describe()) . ',') . $self->default_expr->irx1_describe()) . ')')}
@@ -1358,7 +1350,6 @@ sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 $self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Var($self)};
-sub node_name{my $self=CORE::shift;'Var'};
 sub field_names{my $self=CORE::shift;['sigil', 'twigil', 'name']};
 sub field_values{my $self=CORE::shift;[$self->sigil, $self->twigil, $self->name]};
 sub irx1_describe{my $self=CORE::shift;(((((('Var(' . $self->sigil->irx1_describe()) . ',') . $self->twigil->irx1_describe()) . ',') . $self->name->irx1_describe()) . ')')}
@@ -1404,7 +1395,6 @@ sub newp{my $self=CORE::shift;my($match,$verb,$expr)=@_;
 $self->new('match', $match, 'verb', $verb, 'expr', $expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Trait($self)};
-sub node_name{my $self=CORE::shift;'Trait'};
 sub field_names{my $self=CORE::shift;['verb', 'expr']};
 sub field_values{my $self=CORE::shift;[$self->verb, $self->expr]};
 sub irx1_describe{my $self=CORE::shift;(((('Trait(' . $self->verb->irx1_describe()) . ',') . $self->expr->irx1_describe()) . ')')}
@@ -1450,7 +1440,6 @@ sub newp{my $self=CORE::shift;my($match,$kind,$block)=@_;
 $self->new('match', $match, 'kind', $kind, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__ClosureTrait($self)};
-sub node_name{my $self=CORE::shift;'ClosureTrait'};
 sub field_names{my $self=CORE::shift;['kind', 'block']};
 sub field_values{my $self=CORE::shift;[$self->kind, $self->block]};
 sub irx1_describe{my $self=CORE::shift;(((('ClosureTrait(' . $self->kind->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')}
@@ -1496,7 +1485,6 @@ sub newp{my $self=CORE::shift;my($match,$name,$pairs)=@_;
 $self->new('match', $match, 'name', $name, 'pairs', $pairs)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__ModuleName($self)};
-sub node_name{my $self=CORE::shift;'ModuleName'};
 sub field_names{my $self=CORE::shift;['name', 'pairs']};
 sub field_values{my $self=CORE::shift;[$self->name, $self->pairs]};
 sub irx1_describe{my $self=CORE::shift;(((('ModuleName(' . $self->name->irx1_describe()) . ',') . $self->pairs->irx1_describe()) . ')')}
@@ -1534,7 +1522,6 @@ sub newp{my $self=CORE::shift;my($match,$path)=@_;
 $self->new('match', $match, 'path', $path)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__PathName($self)};
-sub node_name{my $self=CORE::shift;'PathName'};
 sub field_names{my $self=CORE::shift;['path']};
 sub field_values{my $self=CORE::shift;[$self->path]};
 sub irx1_describe{my $self=CORE::shift;(('PathName(' . $self->path->irx1_describe()) . ')')}
@@ -1596,7 +1583,6 @@ sub newp{my $self=CORE::shift;my($match,$category,$pairs,$desigilname,$signature
 $self->new('match', $match, 'category', $category, 'pairs', $pairs, 'desigilname', $desigilname, 'signature', $signature)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__SubName($self)};
-sub node_name{my $self=CORE::shift;'SubName'};
 sub field_names{my $self=CORE::shift;['category', 'pairs', 'desigilname', 'signature']};
 sub field_values{my $self=CORE::shift;[$self->category, $self->pairs, $self->desigilname, $self->signature]};
 sub irx1_describe{my $self=CORE::shift;(((((((('SubName(' . $self->category->irx1_describe()) . ',') . $self->pairs->irx1_describe()) . ',') . $self->desigilname->irx1_describe()) . ',') . $self->signature->irx1_describe()) . ')')}
@@ -1642,7 +1628,6 @@ sub newp{my $self=CORE::shift;my($match,$ident,$postcircumfix)=@_;
 $self->new('match', $match, 'ident', $ident, 'postcircumfix', $postcircumfix)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__ShapedParamName($self)};
-sub node_name{my $self=CORE::shift;'ShapedParamName'};
 sub field_names{my $self=CORE::shift;['ident', 'postcircumfix']};
 sub field_values{my $self=CORE::shift;[$self->ident, $self->postcircumfix]};
 sub irx1_describe{my $self=CORE::shift;(((('ShapedParamName(' . $self->ident->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ')')}
@@ -1696,7 +1681,6 @@ sub newp{my $self=CORE::shift;my($match,$invocant,$method,$capture)=@_;
 $self->new('match', $match, 'invocant', $invocant, 'method', $method, 'capture', $capture)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Call($self)};
-sub node_name{my $self=CORE::shift;'Call'};
 sub field_names{my $self=CORE::shift;['invocant', 'method', 'capture']};
 sub field_values{my $self=CORE::shift;[$self->invocant, $self->method, $self->capture]};
 sub irx1_describe{my $self=CORE::shift;(((((('Call(' . $self->invocant->irx1_describe()) . ',') . $self->method->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')}
@@ -1742,7 +1726,6 @@ sub newp{my $self=CORE::shift;my($match,$function,$capture)=@_;
 $self->new('match', $match, 'function', $function, 'capture', $capture)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Apply($self)};
-sub node_name{my $self=CORE::shift;'Apply'};
 sub field_names{my $self=CORE::shift;['function', 'capture']};
 sub field_values{my $self=CORE::shift;[$self->function, $self->capture]};
 sub irx1_describe{my $self=CORE::shift;(((('Apply(' . $self->function->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')}
@@ -1788,7 +1771,6 @@ sub newp{my $self=CORE::shift;my($match,$operator,$capture)=@_;
 $self->new('match', $match, 'operator', $operator, 'capture', $capture)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Hyper($self)};
-sub node_name{my $self=CORE::shift;'Hyper'};
 sub field_names{my $self=CORE::shift;['operator', 'capture']};
 sub field_values{my $self=CORE::shift;[$self->operator, $self->capture]};
 sub irx1_describe{my $self=CORE::shift;(((('Hyper(' . $self->operator->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')}
@@ -1826,7 +1808,6 @@ sub newp{my $self=CORE::shift;my($match,$arguments)=@_;
 $self->new('match', $match, 'arguments', $arguments)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Capture($self)};
-sub node_name{my $self=CORE::shift;'Capture'};
 sub field_names{my $self=CORE::shift;['arguments']};
 sub field_values{my $self=CORE::shift;[$self->arguments]};
 sub irx1_describe{my $self=CORE::shift;(('Capture(' . $self->arguments->irx1_describe()) . ')')}
@@ -1864,7 +1845,6 @@ sub newp{my $self=CORE::shift;my($match,$signatures)=@_;
 $self->new('match', $match, 'signatures', $signatures)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__MultiSig($self)};
-sub node_name{my $self=CORE::shift;'MultiSig'};
 sub field_names{my $self=CORE::shift;['signatures']};
 sub field_values{my $self=CORE::shift;[$self->signatures]};
 sub irx1_describe{my $self=CORE::shift;(('MultiSig(' . $self->signatures->irx1_describe()) . ')')}
@@ -1910,7 +1890,6 @@ sub newp{my $self=CORE::shift;my($match,$parameters,$return_type)=@_;
 $self->new('match', $match, 'parameters', $parameters, 'return_type', $return_type)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Signature($self)};
-sub node_name{my $self=CORE::shift;'Signature'};
 sub field_names{my $self=CORE::shift;['parameters', 'return_type']};
 sub field_values{my $self=CORE::shift;[$self->parameters, $self->return_type]};
 sub irx1_describe{my $self=CORE::shift;(((('Signature(' . $self->parameters->irx1_describe()) . ',') . $self->return_type->irx1_describe()) . ')')}
@@ -1996,7 +1975,6 @@ sub newp{my $self=CORE::shift;my($match,$type_constraints,$quant,$param_var,$ide
 $self->new('match', $match, 'type_constraints', $type_constraints, 'quant', $quant, 'param_var', $param_var, 'ident', $ident, 'traits', $traits, 'post_constraints', $post_constraints, 'default_expr', $default_expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Parameter($self)};
-sub node_name{my $self=CORE::shift;'Parameter'};
 sub field_names{my $self=CORE::shift;['type_constraints', 'quant', 'param_var', 'ident', 'traits', 'post_constraints', 'default_expr']};
 sub field_values{my $self=CORE::shift;[$self->type_constraints, $self->quant, $self->param_var, $self->ident, $self->traits, $self->post_constraints, $self->default_expr]};
 sub irx1_describe{my $self=CORE::shift;(((((((((((((('Parameter(' . $self->type_constraints->irx1_describe()) . ',') . $self->quant->irx1_describe()) . ',') . $self->param_var->irx1_describe()) . ',') . $self->ident->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->post_constraints->irx1_describe()) . ',') . $self->default_expr->irx1_describe()) . ')')}
@@ -2042,7 +2020,6 @@ sub newp{my $self=CORE::shift;my($match,$value,$where_expr)=@_;
 $self->new('match', $match, 'value', $value, 'where_expr', $where_expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__TypeConstraint($self)};
-sub node_name{my $self=CORE::shift;'TypeConstraint'};
 sub field_names{my $self=CORE::shift;['value', 'where_expr']};
 sub field_values{my $self=CORE::shift;[$self->value, $self->where_expr]};
 sub irx1_describe{my $self=CORE::shift;(((('TypeConstraint(' . $self->value->irx1_describe()) . ',') . $self->where_expr->irx1_describe()) . ')')}
@@ -2088,7 +2065,6 @@ sub newp{my $self=CORE::shift;my($match,$multisig,$where_expr)=@_;
 $self->new('match', $match, 'multisig', $multisig, 'where_expr', $where_expr)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__PostConstraint($self)};
-sub node_name{my $self=CORE::shift;'PostConstraint'};
 sub field_names{my $self=CORE::shift;['multisig', 'where_expr']};
 sub field_values{my $self=CORE::shift;[$self->multisig, $self->where_expr]};
 sub irx1_describe{my $self=CORE::shift;(((('PostConstraint(' . $self->multisig->irx1_describe()) . ',') . $self->where_expr->irx1_describe()) . ')')}
@@ -2142,7 +2118,6 @@ sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 $self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__ParamVar($self)};
-sub node_name{my $self=CORE::shift;'ParamVar'};
 sub field_names{my $self=CORE::shift;['sigil', 'twigil', 'name']};
 sub field_values{my $self=CORE::shift;[$self->sigil, $self->twigil, $self->name]};
 sub irx1_describe{my $self=CORE::shift;(((((('ParamVar(' . $self->sigil->irx1_describe()) . ',') . $self->twigil->irx1_describe()) . ',') . $self->name->irx1_describe()) . ')')}
@@ -2172,7 +2147,6 @@ sub newp{my $self=CORE::shift;my($match)=@_;
 $self->new('match', $match)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Undef($self)};
-sub node_name{my $self=CORE::shift;'Undef'};
 sub field_names{my $self=CORE::shift;[]};
 sub field_values{my $self=CORE::shift;[]};
 sub irx1_describe{my $self=CORE::shift;('Undef(' . ')')}
@@ -2218,7 +2192,6 @@ sub newp{my $self=CORE::shift;my($match,$text,$base)=@_;
 $self->new('match', $match, 'text', $text, 'base', $base)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__NumInt($self)};
-sub node_name{my $self=CORE::shift;'NumInt'};
 sub field_names{my $self=CORE::shift;['text', 'base']};
 sub field_values{my $self=CORE::shift;[$self->text, $self->base]};
 sub irx1_describe{my $self=CORE::shift;(((('NumInt(' . $self->text->irx1_describe()) . ',') . $self->base->irx1_describe()) . ')')}
@@ -2272,7 +2245,6 @@ sub newp{my $self=CORE::shift;my($match,$intpart,$fracpart,$exp)=@_;
 $self->new('match', $match, 'intpart', $intpart, 'fracpart', $fracpart, 'exp', $exp)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__NumDec($self)};
-sub node_name{my $self=CORE::shift;'NumDec'};
 sub field_names{my $self=CORE::shift;['intpart', 'fracpart', 'exp']};
 sub field_values{my $self=CORE::shift;[$self->intpart, $self->fracpart, $self->exp]};
 sub irx1_describe{my $self=CORE::shift;(((((('NumDec(' . $self->intpart->irx1_describe()) . ',') . $self->fracpart->irx1_describe()) . ',') . $self->exp->irx1_describe()) . ')')}
@@ -2342,7 +2314,6 @@ sub newp{my $self=CORE::shift;my($match,$radix,$intpart,$fracpart,$base,$exp)=@_
 $self->new('match', $match, 'radix', $radix, 'intpart', $intpart, 'fracpart', $fracpart, 'base', $base, 'exp', $exp)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__NumRad($self)};
-sub node_name{my $self=CORE::shift;'NumRad'};
 sub field_names{my $self=CORE::shift;['radix', 'intpart', 'fracpart', 'base', 'exp']};
 sub field_values{my $self=CORE::shift;[$self->radix, $self->intpart, $self->fracpart, $self->base, $self->exp]};
 sub irx1_describe{my $self=CORE::shift;(((((((((('NumRad(' . $self->radix->irx1_describe()) . ',') . $self->intpart->irx1_describe()) . ',') . $self->fracpart->irx1_describe()) . ',') . $self->base->irx1_describe()) . ',') . $self->exp->irx1_describe()) . ')')}
@@ -2380,7 +2351,6 @@ sub newp{my $self=CORE::shift;my($match,$array)=@_;
 $self->new('match', $match, 'array', $array)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Array($self)};
-sub node_name{my $self=CORE::shift;'Array'};
 sub field_names{my $self=CORE::shift;['array']};
 sub field_values{my $self=CORE::shift;[$self->array]};
 sub irx1_describe{my $self=CORE::shift;(('Array(' . $self->array->irx1_describe()) . ')')}
@@ -2418,7 +2388,6 @@ sub newp{my $self=CORE::shift;my($match,$hash)=@_;
 $self->new('match', $match, 'hash', $hash)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Hash($self)};
-sub node_name{my $self=CORE::shift;'Hash'};
 sub field_names{my $self=CORE::shift;['hash']};
 sub field_values{my $self=CORE::shift;[$self->hash]};
 sub irx1_describe{my $self=CORE::shift;(('Hash(' . $self->hash->irx1_describe()) . ')')}
@@ -2464,7 +2433,6 @@ sub newp{my $self=CORE::shift;my($match,$key,$value)=@_;
 $self->new('match', $match, 'key', $key, 'value', $value)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Pair($self)};
-sub node_name{my $self=CORE::shift;'Pair'};
 sub field_names{my $self=CORE::shift;['key', 'value']};
 sub field_values{my $self=CORE::shift;[$self->key, $self->value]};
 sub irx1_describe{my $self=CORE::shift;(((('Pair(' . $self->key->irx1_describe()) . ',') . $self->value->irx1_describe()) . ')')}
@@ -2502,7 +2470,6 @@ sub newp{my $self=CORE::shift;my($match,$typename)=@_;
 $self->new('match', $match, 'typename', $typename)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Type($self)};
-sub node_name{my $self=CORE::shift;'Type'};
 sub field_names{my $self=CORE::shift;['typename']};
 sub field_values{my $self=CORE::shift;[$self->typename]};
 sub irx1_describe{my $self=CORE::shift;(('Type(' . $self->typename->irx1_describe()) . ')')}
@@ -2540,7 +2507,6 @@ sub newp{my $self=CORE::shift;my($match,$pat)=@_;
 $self->new('match', $match, 'pat', $pat)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Rx($self)};
-sub node_name{my $self=CORE::shift;'Rx'};
 sub field_names{my $self=CORE::shift;['pat']};
 sub field_values{my $self=CORE::shift;[$self->pat]};
 sub irx1_describe{my $self=CORE::shift;(('Rx(' . $self->pat->irx1_describe()) . ')')}
@@ -2578,7 +2544,6 @@ sub newp{my $self=CORE::shift;my($match,$buf)=@_;
 $self->new('match', $match, 'buf', $buf)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Buf($self)};
-sub node_name{my $self=CORE::shift;'Buf'};
 sub field_names{my $self=CORE::shift;['buf']};
 sub field_values{my $self=CORE::shift;[$self->buf]};
 sub irx1_describe{my $self=CORE::shift;(('Buf(' . $self->buf->irx1_describe()) . ')')}
@@ -2624,7 +2589,6 @@ sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
 $self->new('match', $match, 'expr', $expr, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__For($self)};
-sub node_name{my $self=CORE::shift;'For'};
 sub field_names{my $self=CORE::shift;['expr', 'block']};
 sub field_values{my $self=CORE::shift;[$self->expr, $self->block]};
 sub irx1_describe{my $self=CORE::shift;(((('For(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')}
@@ -2678,7 +2642,6 @@ sub newp{my $self=CORE::shift;my($match,$clauses,$default,$invert_first_test)=@_
 $self->new('match', $match, 'clauses', $clauses, 'default', $default, 'invert_first_test', $invert_first_test)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Cond($self)};
-sub node_name{my $self=CORE::shift;'Cond'};
 sub field_names{my $self=CORE::shift;['clauses', 'default', 'invert_first_test']};
 sub field_values{my $self=CORE::shift;[$self->clauses, $self->default, $self->invert_first_test]};
 sub irx1_describe{my $self=CORE::shift;(((((('Cond(' . $self->clauses->irx1_describe()) . ',') . $self->default->irx1_describe()) . ',') . $self->invert_first_test->irx1_describe()) . ')')}
@@ -2740,7 +2703,6 @@ sub newp{my $self=CORE::shift;my($match,$pretest,$block,$posttest,$label)=@_;
 $self->new('match', $match, 'pretest', $pretest, 'block', $block, 'posttest', $posttest, 'label', $label)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Loop($self)};
-sub node_name{my $self=CORE::shift;'Loop'};
 sub field_names{my $self=CORE::shift;['pretest', 'block', 'posttest', 'label']};
 sub field_values{my $self=CORE::shift;[$self->pretest, $self->block, $self->posttest, $self->label]};
 sub irx1_describe{my $self=CORE::shift;(((((((('Loop(' . $self->pretest->irx1_describe()) . ',') . $self->block->irx1_describe()) . ',') . $self->posttest->irx1_describe()) . ',') . $self->label->irx1_describe()) . ')')}
@@ -2786,7 +2748,6 @@ sub newp{my $self=CORE::shift;my($match,$ident,$pattern)=@_;
 $self->new('match', $match, 'ident', $ident, 'pattern', $pattern)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RegexDef($self)};
-sub node_name{my $self=CORE::shift;'RegexDef'};
 sub field_names{my $self=CORE::shift;['ident', 'pattern']};
 sub field_values{my $self=CORE::shift;[$self->ident, $self->pattern]};
 sub irx1_describe{my $self=CORE::shift;(((('RegexDef(' . $self->ident->irx1_describe()) . ',') . $self->pattern->irx1_describe()) . ')')}
@@ -2824,7 +2785,6 @@ sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Regex($self)};
-sub node_name{my $self=CORE::shift;'Regex'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
 sub irx1_describe{my $self=CORE::shift;(('Regex(' . $self->patterns->irx1_describe()) . ')')}
@@ -2862,7 +2822,6 @@ sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxFirst($self)};
-sub node_name{my $self=CORE::shift;'RxFirst'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
 sub irx1_describe{my $self=CORE::shift;(('RxFirst(' . $self->patterns->irx1_describe()) . ')')}
@@ -2900,7 +2859,6 @@ sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxEvery($self)};
-sub node_name{my $self=CORE::shift;'RxEvery'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
 sub irx1_describe{my $self=CORE::shift;(('RxEvery(' . $self->patterns->irx1_describe()) . ')')}
@@ -2938,7 +2896,6 @@ sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxSubmatch($self)};
-sub node_name{my $self=CORE::shift;'RxSubmatch'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
 sub irx1_describe{my $self=CORE::shift;(('RxSubmatch(' . $self->patterns->irx1_describe()) . ')')}
@@ -2976,7 +2933,6 @@ sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxAny($self)};
-sub node_name{my $self=CORE::shift;'RxAny'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
 sub irx1_describe{my $self=CORE::shift;(('RxAny(' . $self->patterns->irx1_describe()) . ')')}
@@ -3014,7 +2970,6 @@ sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxAll($self)};
-sub node_name{my $self=CORE::shift;'RxAll'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
 sub irx1_describe{my $self=CORE::shift;(('RxAll(' . $self->patterns->irx1_describe()) . ')')}
@@ -3052,7 +3007,6 @@ sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 $self->new('match', $match, 'patterns', $patterns)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxSequence($self)};
-sub node_name{my $self=CORE::shift;'RxSequence'};
 sub field_names{my $self=CORE::shift;['patterns']};
 sub field_values{my $self=CORE::shift;[$self->patterns]};
 sub irx1_describe{my $self=CORE::shift;(('RxSequence(' . $self->patterns->irx1_describe()) . ')')}
@@ -3098,7 +3052,6 @@ sub newp{my $self=CORE::shift;my($match,$atom,$quantifier)=@_;
 $self->new('match', $match, 'atom', $atom, 'quantifier', $quantifier)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxQuantifiedAtom($self)};
-sub node_name{my $self=CORE::shift;'RxQuantifiedAtom'};
 sub field_names{my $self=CORE::shift;['atom', 'quantifier']};
 sub field_values{my $self=CORE::shift;[$self->atom, $self->quantifier]};
 sub irx1_describe{my $self=CORE::shift;(((('RxQuantifiedAtom(' . $self->atom->irx1_describe()) . ',') . $self->quantifier->irx1_describe()) . ')')}
@@ -3136,7 +3089,6 @@ sub newp{my $self=CORE::shift;my($match,$char)=@_;
 $self->new('match', $match, 'char', $char)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxBackslash($self)};
-sub node_name{my $self=CORE::shift;'RxBackslash'};
 sub field_names{my $self=CORE::shift;['char']};
 sub field_values{my $self=CORE::shift;[$self->char]};
 sub irx1_describe{my $self=CORE::shift;(('RxBackslash(' . $self->char->irx1_describe()) . ')')}
@@ -3174,7 +3126,6 @@ sub newp{my $self=CORE::shift;my($match,$ident)=@_;
 $self->new('match', $match, 'ident', $ident)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxAssertion($self)};
-sub node_name{my $self=CORE::shift;'RxAssertion'};
 sub field_names{my $self=CORE::shift;['ident']};
 sub field_values{my $self=CORE::shift;[$self->ident]};
 sub irx1_describe{my $self=CORE::shift;(('RxAssertion(' . $self->ident->irx1_describe()) . ')')}
@@ -3212,7 +3163,6 @@ sub newp{my $self=CORE::shift;my($match,$mod)=@_;
 $self->new('match', $match, 'mod', $mod)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxModInternal($self)};
-sub node_name{my $self=CORE::shift;'RxModInternal'};
 sub field_names{my $self=CORE::shift;['mod']};
 sub field_values{my $self=CORE::shift;[$self->mod]};
 sub irx1_describe{my $self=CORE::shift;(('RxModInternal(' . $self->mod->irx1_describe()) . ')')}
@@ -3250,7 +3200,6 @@ sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
 $self->new('match', $match, 'pattern', $pattern)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxCapture($self)};
-sub node_name{my $self=CORE::shift;'RxCapture'};
 sub field_names{my $self=CORE::shift;['pattern']};
 sub field_values{my $self=CORE::shift;[$self->pattern]};
 sub irx1_describe{my $self=CORE::shift;(('RxCapture(' . $self->pattern->irx1_describe()) . ')')}
@@ -3288,7 +3237,6 @@ sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
 $self->new('match', $match, 'pattern', $pattern)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxGroup($self)};
-sub node_name{my $self=CORE::shift;'RxGroup'};
 sub field_names{my $self=CORE::shift;['pattern']};
 sub field_values{my $self=CORE::shift;[$self->pattern]};
 sub irx1_describe{my $self=CORE::shift;(('RxGroup(' . $self->pattern->irx1_describe()) . ')')}
@@ -3326,7 +3274,6 @@ sub newp{my $self=CORE::shift;my($match,$block)=@_;
 $self->new('match', $match, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxBlock($self)};
-sub node_name{my $self=CORE::shift;'RxBlock'};
 sub field_names{my $self=CORE::shift;['block']};
 sub field_values{my $self=CORE::shift;[$self->block]};
 sub irx1_describe{my $self=CORE::shift;(('RxBlock(' . $self->block->irx1_describe()) . ')')}
@@ -3372,7 +3319,6 @@ sub newp{my $self=CORE::shift;my($match,$var,$binding)=@_;
 $self->new('match', $match, 'var', $var, 'binding', $binding)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxBind($self)};
-sub node_name{my $self=CORE::shift;'RxBind'};
 sub field_names{my $self=CORE::shift;['var', 'binding']};
 sub field_values{my $self=CORE::shift;[$self->var, $self->binding]};
 sub irx1_describe{my $self=CORE::shift;(((('RxBind(' . $self->var->irx1_describe()) . ',') . $self->binding->irx1_describe()) . ')')}
@@ -3418,7 +3364,6 @@ sub newp{my $self=CORE::shift;my($match,$text,$quote)=@_;
 $self->new('match', $match, 'text', $text, 'quote', $quote)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxLiteral($self)};
-sub node_name{my $self=CORE::shift;'RxLiteral'};
 sub field_names{my $self=CORE::shift;['text', 'quote']};
 sub field_values{my $self=CORE::shift;[$self->text, $self->quote]};
 sub irx1_describe{my $self=CORE::shift;(((('RxLiteral(' . $self->text->irx1_describe()) . ',') . $self->quote->irx1_describe()) . ')')}
@@ -3456,7 +3401,6 @@ sub newp{my $self=CORE::shift;my($match,$symbol)=@_;
 $self->new('match', $match, 'symbol', $symbol)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__RxSymbol($self)};
-sub node_name{my $self=CORE::shift;'RxSymbol'};
 sub field_names{my $self=CORE::shift;['symbol']};
 sub field_values{my $self=CORE::shift;[$self->symbol]};
 sub irx1_describe{my $self=CORE::shift;(('RxSymbol(' . $self->symbol->irx1_describe()) . ')')}
