@@ -130,44 +130,11 @@ MGVTBL alias_vtbl = {
  0			/* dup */
 };
 
+
 typedef SV *SVREF;
 
-MODULE = Data::Bind                PACKAGE = Data::Bind
-
 void
-_forget_unlocal(IV howmany)
-  CODE:
-{
-    int lv;
-    for(lv=1; lv <= howmany; ++lv) {
-        PL_scopestack[PL_scopestack_ix - (lv + 1)] = PL_savestack_ix;
-    }
-}
-
-void
-_av_store(SV *av_ref, I32 key, SV *val)
-  CODE:
-{
-    /* XXX many checks */
-    AV *av = (AV *)SvRV(av_ref);
-    /* XXX unref the old one in slot? */
-    av_store(av, key, SvREFCNT_inc(SvRV(val)));
-}
-
-void
-_hv_store(SV *hv_ref, const char *key, SV *val)
-  CODE:
-{
-    /* XXX many checks */
-    HV *hv = (HV *)SvRV(hv_ref);
-    /* XXX unref the old one in slot? */
-    hv_store(hv, key, strlen(key), SvREFCNT_inc((SvRV(val))), 0);
-}
-
-void
-_alias_a_to_b(SVREF a, SVREF b, int read_only)
-  CODE:
-{
+__alias_a_to_b(SVREF a, SVREF b, int read_only) {
     /* This bit of evil lifted straight from Perl_newSVrv  */
     const U32 refcnt = SvREFCNT(a);
     int is_my = SvPADMY(a);
@@ -240,4 +207,77 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
     if (read_only || SvREADONLY(b)) {
 	SvREADONLY_on(a);
     }
+}
+
+
+OP *___bind_pad(pTHX)
+{
+    dAXMARK;
+    int n = PL_op->op_targ;
+    int i;
+      for (i = 0; i < n; ++i) {
+        SAVECLEARSV(PAD_SVl(i+1));
+        __alias_a_to_b(PAD_SVl(i+1), ST(i), 0);
+    }
+    return NORMAL;
+}
+
+
+MODULE = Data::Bind                PACKAGE = Data::Bind
+
+void
+OP_bind_pad(flags, n)
+    I32 flags
+    I32 n
+    SV** sparepad = NO_INIT
+    OP *o = NO_INIT
+    OP *saveop = NO_INIT
+    I32 typenum = NO_INIT
+    CODE:
+        sparepad = PL_curpad;
+        saveop = PL_op;
+        PL_curpad = AvARRAY(PL_comppad);
+        o = newOP(OP_CUSTOM, flags);
+        o->op_ppaddr = ___bind_pad;
+        o->op_targ = n;
+        PL_curpad = sparepad;
+        PL_op = saveop;
+            ST(0) = sv_newmortal();
+        sv_setiv(newSVrv(ST(0), "B::OP"), PTR2IV(o));
+
+void
+_forget_unlocal(IV howmany)
+  CODE:
+{
+    int lv;
+    for(lv=1; lv <= howmany; ++lv) {
+        PL_scopestack[PL_scopestack_ix - (lv + 1)] = PL_savestack_ix;
+    }
+}
+
+void
+_av_store(SV *av_ref, I32 key, SV *val)
+  CODE:
+{
+    /* XXX many checks */
+    AV *av = (AV *)SvRV(av_ref);
+    /* XXX unref the old one in slot? */
+    av_store(av, key, SvREFCNT_inc(SvRV(val)));
+}
+
+void
+_hv_store(SV *hv_ref, const char *key, SV *val)
+  CODE:
+{
+    /* XXX many checks */
+    HV *hv = (HV *)SvRV(hv_ref);
+    /* XXX unref the old one in slot? */
+    hv_store(hv, key, strlen(key), SvREFCNT_inc((SvRV(val))), 0);
+}
+
+void
+_alias_a_to_b(SVREF a, SVREF b, int read_only)
+  CODE:
+{
+    __alias_a_to_b(a, b, read_only);
 }
