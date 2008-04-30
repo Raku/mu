@@ -524,19 +524,21 @@ class Perl < Grammar
 
     def quotepair
         b = pos; id1=id2=pc1=n=nil
-        (scan(/:/) and b1 = pos and
-         (let_pos{ scan(/!/) and id1= ident } or
-          (id2= ident and (unsp; before(/\(/) and pc1= postcircumfix;true)) or
-          #R NONSPEC spec doesn't have n and suffix named, so this is speculative.
-          n= scan(/\d+/) and suf= scan(/[a-z]+/)) and
-         (false_ = id1 ? _match_from(b1,{:ident=>id1},:quotepair__false) : nil;
-          value_ = id2 ? _match_from(b1,{:ident=>id2,:postcircumfix=>pc1},:quotepair__value) : nil;
-          nth_ = suf ? _match_from(b1,{:n=>n,:suffix=>suf},:quotepair__nth) : nil;
-          h={};
-          _hkv(h,:false,false_)
-          _hkv(h,:value,value_)
-          _hkv(h,:nth,nth_)
-          _match_from(b,h,:quotepair)))
+        let_pos{
+            scan(/:/) and b1 = pos and
+            (let_pos{ scan(/!/) and id1= ident } or
+             (id2= ident and (unsp; before(/\(/) and pc1= postcircumfix;true)) or
+             #R NONSPEC spec doesn't have n and suffix named, so this is speculative.
+             (n= scan(/\d+/) and suf= scan(/[a-z]+/))) and
+            (false_ = id1 ? _match_from(b1,{:ident=>id1},:quotepair__false) : nil;
+             value_ = id2 ? _match_from(b1,{:ident=>id2,:postcircumfix=>pc1},:quotepair__value) : nil;
+             nth_ = suf ? _match_from(b1,{:n=>n,:suffix=>suf},:quotepair__nth) : nil;
+             h={};
+             _hkv(h,:false,false_)
+             _hkv(h,:value,value_)
+             _hkv(h,:nth,nth_)
+             _match_from(b,h,:quotepair))
+        }
     end
 
     def expect_tight_infix(loosest)
@@ -996,7 +998,13 @@ class Perl < Grammar
 
     def_tokens_simple :quote_mod,false,%w{ w ww x to s a h f c b }
 
-    def_tokens_rest :quote,false,%w{ rx m },%q{ nofat and quotesnabber(':regex') }
+    def_tokens_rest :quote,false,%w{ rx m },%q{
+      nofat and mod= starTOK{ quotepair } and q= quotesnabber(':regex') and
+      (h={}
+       _hkv(h,:quotepair,mod)
+       _hkv(h,:quotesnabber,q)
+       _match_from(start,h,:regex))
+    }
     def_tokens_rest :quote,false,%w{ mm },%q{ nofat and quotesnabber(':regex', ':s') }
     def_tokens_rest :quote,false,%w{ s },%q{ nofat and pat=quotesnabber(':regex') and finish_subst(pat) }
     def_tokens_rest :quote,false,%w{ ss },%q{ nofat and pat=quotesnabber(':regex', ':s') and finish_subst(pat) }
@@ -1169,6 +1177,11 @@ class Perl < Grammar
         if not close
             close = "'" if kind == ':q'
             close = '"' if kind == ':qq'
+            if kind == ':regex'
+                return false if not scan(/\//)
+                b1 += 1
+                close = '/'
+            end
         end
         word = a[0]
         if close == "'"
