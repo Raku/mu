@@ -51,9 +51,9 @@ class Perl < Grammar
     def_precedence :loose_or        ,{ :prec=>"c=", :assoc=>:left,  :assign=>1 }
     def_precedence :LOOSEST         ,{ :prec=>"a=!",                           }
     def_precedence :terminator      ,{ :prec=>"a=", :assoc=>:list              }
-    SLOOSEST = HLOOSEST[:prec]
+    SLOOSEST = "a=!" #R HLOOSEST[:prec]
 
-    #R module PrecOp
+    #R role PrecOp
     def precop_method(m,defaults)
         defaults.each{|k,v| m[k] = v if not m.key? k }
         if $env_vars[:thisopH]  #R non-spec, but... needed?
@@ -117,16 +117,18 @@ class Perl < Grammar
     token_category :quote_mod
     token_category :q_backslash
     token_category :qq_backslash
-    token_category :trait_verb,      'nofat_space'
-    token_category :trait_auxiliary, 'nofat_space'
-    token_category :type_declarator,    'nofat'
-    token_category :scope_declarator,   'nofat'
-    token_category :package_declarator, 'nofat'
-    token_category :routine_declarator, 'nofat'
-    rule_category  :statement_prefix,   'nofat'
-    token_category  :statement_control, 'nofat_space' # rule_category, but nofat_space has been integrated now
-    rule_category  :statement_mod_cond, 'nofat'
-    rule_category  :statement_mod_loop, 'nofat'
+    token_category :trait_verb,        'nofat_space'
+    token_category :trait_auxiliary,   'nofat_space'
+    token_category :type_declarator,      'nofat'
+    token_category :scope_declarator,     'nofat'
+    token_category :package_declarator,   'nofat'
+    token_category :plurality_declarator, 'nofat'
+    token_category :routine_declarator,   'nofat'
+    token_category :regex_declarator,     'nofat'
+    token_category :statement_prefix,     'nofat'
+    token_category :statement_control, 'nofat_space'
+    token_category :statement_mod_cond,   'nofat'
+    token_category :statement_mod_loop,   'nofat'
     token_category :infix_prefix_meta_operator
     token_category :infix_postfix_meta_operator
     token_category :infix_circumfixfix_meta_operator
@@ -136,15 +138,15 @@ class Perl < Grammar
     #R categories added:
     token_category :terminator
     token_category :infix_circumfix_meta_operator
-    token_category :plurality_declarator
-    token_category :regex_declarator
 
     def unspacey; unsp;true end
-    def nofat_space; before(/\s|\#/) and nofat end
+    def nofat_space
+        before(/\s|\#/) and
+        nofat #R# before{nofat} # nofat is already a zero-length assertion.
+    end
 
     # Lexical routines
 
-    #R QUESTION: why is this regex not token?
     def nofat
         # make sure we're at end of a non-autoquoted identifier
         # regex nofat { <!before » \h* <.unsp>? '=>' > <!before \w> }
@@ -153,23 +155,31 @@ class Perl < Grammar
     end
 
 
-    if RUBY_VERSION =~ /^(1\.9|2\.)/ # have look-behind
+    if RUBY_VERSION =~ /\A(1\.9|2\.)/ # have look-behind
+        $have_lookbehind = true
         eval %q{ def wsp__after_and_before_ws; scan(/(?<=\w)(?=\w)/) end }
     else
+        $have_lookbehind = false
         eval %q{ def wsp__after_and_before_ws; scan(/(?=\w)/) and after(/\w/)  end }
     end
 
     #R ws, renamed wsp to make life easier.
     def wsp
         pos == ws_to and return true
+        #R# || <?after \w> <?before \w> ::: <!>        # must \s+ between words
         #R# after(/\w/) and before(/\w/) and return false
         wsp__after_and_before_ws and return false
-        ws_from = pos
-        starTOK{ unsp || let_pos{ vws and heredoc} || unv }
-        ws_to = pos
+        @ws_from = pos
+        starTOK{
+            unsp or
+            let_pos{ vws and heredoc } or
+            unv
+        }
+        @ws_to = pos
+        true
     end
     def unsp
-        let_pos{ scan(/\\/) and before(/\s|\#/) and starTOK{ vws || unv } }
+        scan(/\\(?=\s|\#)/) and starTOK{ vws or unv }
     end
     def unsp?; (unsp;true); end
     def vws
@@ -182,10 +192,11 @@ class Perl < Grammar
     def unv
         let_pos{
             scan(/[ \t]+/) or
-            (after(/^|\n/) and (pod_comment or
-                                 (scan(/\#/) and
-                                  ((bracketed and panic("Can't use embedded comments in column 1")) or
-                                   scan(/.*/)) ))) or
+            (@scanner.bol? and
+             (pod_comment or
+              (scan(/\#/) and
+               ((bracketed and panic("Can't use embedded comments in column 1")) or
+                scan(/.*/)) ))) or
             (scan(/\#/) and (bracketed or scan(/.*/)))
         }
     end
@@ -193,9 +204,13 @@ class Perl < Grammar
     def ident; scan(/[[:alpha:]_]\w*/); end
     
     def pod_comment
-        after(/^|\n/) and scan(/=/) and unsp? and
-        (let_pos{ scan(/begin/) and wsp and id = ident and
-                  scan(/.*?\n=/) and unsp? and scan(/end/) and wsp and scan(/#{id}.*/)
+        @scanner.bol? and scan(/=/) and unsp? and
+        (let_pos{
+             scan(/begin[ \t]*/) and
+             #wsp and #R XXX causes problems with "=begin\n=head...".
+             (id= ident;true) and
+             scan(/(?:.|\n)*?\n=end\b/) and #R XXX doesn't accept unsp between '=' and 'end'.
+             (not(id) or (wsp and scan(/#{id}.*/)))
          } or
          scan(/.*/))
     end
@@ -222,6 +237,7 @@ class Perl < Grammar
         wsp
         scan_unitstopper
         wsp
+        $env_vars.scope_leave
         _match_from(b,{:statementlist=>_sl},:comp_unit)
     end
 
@@ -272,7 +288,7 @@ class Perl < Grammar
     end
 
     def label
-        let_pos{ id = ident and scan(/:\s/) and wsp }
+        let_pos{ id = ident and scan(/:(?=\s)/) and wsp }
         #R ...missing... bookkeeping - needed?
     end
 
@@ -287,42 +303,69 @@ class Perl < Grammar
         $env_vars[:endstmt] = -1;
         (label_ = control_ = expr_ = mod_loop_ = mod_cond_ =
          loopx_ = condx_ = mod_condloop_ = modexpr_ = nil)
-        wsp
-        b = pos
-        label_= starTOK{ label }
-        ((control_= statement_control) or
-         let_pos{
-           b1 = nil;
-           x= expect_term and expr_= _EXPR(x) and
-           (b1 = pos) and
-           ((before{ stdstopper }) or
-            (let_pos{ mod_loop_= statement_mod_loop and loopx= _EXPR }) or 
-            (let_pos{ mod_cond_= statement_mod_cond and condx= _EXPR and
-               (before{ stdstopper } or
-                mod_condloop_= statement_mod_loop and loopx= _EXPR )}) ) and
-             (modexpr_= b1 != pos ? _match_from(b1,{},:statement__modexpr) : nil; true)
-         } or
-         before(/;/)) and
-        eat_terminator or return false
-        $env_vars.scope_leave
-        h = {}
-        _hkv(h,:label,label_)
-        _hkv(h,:control,control_)
-        _hkv(h,:expr,expr_)
-        _hkv(h,:mod_loop,mod_loop_)
-        _hkv(h,:mod_cond,mod_cond_)
-        _hkv(h,:loopx,loopx_)
-        _hkv(h,:condx,condx_)
-        _hkv(h,:mod_condloop,mod_condloop_)
-        _hkv(h,:modexprp,modexpr_)
-        m = _match_from(b,h,:statement)
+        let_pos{
+            wsp
+            b = pos
+            label_= starTOK{ label }
+            (begin
+                 let_pos{
+                     (( control_= statement_control or
+                        before(/;/) ) and
+                      eat_terminator)  
+                 }
+             end or
+             begin
+                 let_pos{
+                     b1 = nil
+                     endstmt = $env_vars[:endstmt]; endargs = $env_vars[:endargs]
+                     expr_= _EXPR and
+                     (b1 = pos;true) and
+                     (let_pos{
+                          before{ stdstopper } and
+                          eat_terminator } or
+                      let_pos{
+                          $env_vars[:endstmt] = endstmt; $env_vars[:endargs] = endargs
+                          mod_loop_= statement_mod_loop and loopx= _EXPR and
+                          eat_terminator } or
+                      let_pos{
+                          $env_vars[:endstmt] = endstmt; $env_vars[:endargs] = endargs
+                          endstmt1 = $env_vars[:endstmt]; endargs1 = $env_vars[:endargs]
+                          mod_cond_= statement_mod_cond and condx= _EXPR and
+                          (let_pos{
+                               before{ stdstopper } and
+                               eat_terminator } or
+                           let_pos{
+                               $env_vars[:endstmt] = endstmt1; $env_vars[:endargs] = endargs1
+                               mod_condloop_= statement_mod_loop and loopx= _EXPR and
+                               eat_terminator } or
+                           false)
+                      } or
+                      false)
+                     #R NONSPEC  modexpr missing
+                     #R# (modexpr_= b1 != pos ? _match_from(b1,{},:statement__modexpr) : nil; true)
+                 }
+             end) and
+            begin
+                h = {}
+                _hkv(h,:label,label_)
+                _hkv(h,:control,control_)
+                _hkv(h,:expr,expr_)
+                _hkv(h,:mod_loop,mod_loop_)
+                _hkv(h,:mod_cond,mod_cond_)
+                _hkv(h,:loopx,loopx_)
+                _hkv(h,:condx,condx_)
+                _hkv(h,:mod_condloop,mod_condloop_)
+                _hkv(h,:modexprp,modexpr_)
+                m = _match_from(b,h,:statement)
+            end
+        } || ($env_vars.scope_leave; false) #R XXX fails to reset endargs
     end
 
     def eat_terminator
         ( scan(/;/) or
           ($env_vars[:endstmt] == ws_from) or 
           before{ terminator } or
-          @scanner.eos? or #R added QUESTION: what's the right thing?
+          @scanner.eos? or @scanner.check(/\n/) or
           panic("Statement not terminated properly"))
     end
 
@@ -936,7 +979,7 @@ class Perl < Grammar
     end
 
     def theredoc
-        scan(/^[ \t]*?/) and eat($env_vars[:delim]) and scan(/[ \t]*$\n?/)
+        @scanner.bol? and scan(/[ \t]*?/) and eat($env_vars[:delim]) and scan(/[ \t]*$\n?/)
     end
 
     # XXX be sure to temporize @herestub_queue on reentry to new line of heredocs
@@ -1691,9 +1734,9 @@ class Perl < Grammar
     def_tokens_simple :term,:term,%w{ self * }
 
     def self.sigil_speed_hack_re; /\$|@@|@|%|&|::/; end
-    def_token_full :circumfix,:term,'sigil',sigil_speed_hack_re,%q{ scan(/\(/) and semilist and scan(/\)/) }
+    def_token_full :circumfix,:term,'sigil',sigil_speed_hack_re,%q{ scan(/\(/) and sl= semilist and scan(/\)/) and sl }
 
-    def_token_full :circumfix,:term,'typename',//,%q{ typename and scan(/\(/) and semilist and scan(/\)/) }
+    def_token_full :circumfix,:term,'typename',//,%q{ typename and scan(/\(/) and sl= semilist and scan(/\)/) and sl }
 
     def_tokens_rest :circumfix,:term,%w{ ( },%q{let_pos{ t = statementlist and scan(/\)/) and t }}
     def_tokens_rest :circumfix,:term,%w{ [ },%q{let_pos{ t = statementlist and scan(/\]/) and t }}
@@ -1762,13 +1805,14 @@ class Perl < Grammar
 
     #R regex - ##Q why is this a regex?
     def stdstopper
-        (@scanner.eos? ||
+        (@scanner.eos? || @scanner.check(/\n/) ||
          terminator || statement_mod_cond || statement_mod_loop ||
          ((before(/\{/) or before{ _lambda }) and after(/\s/)) ||
-#R         cent.pos == env[:endstmt] ||
-#R         cent.pos == env[:endargs]
-#R         #    | <$+unitstopper> #R?
-false #R
+         ws_from == $env_vars[:endstmt] ||
+         pos == $env_vars[:endargs] ||
+         false
+         #R  #    | <$+unitstopper> #R?
+         #R  #  scan_unitstopper
          )
     end
 
@@ -2191,7 +2235,7 @@ class Perl
     #R XXX NONSPEC - added 'starts with a capital letter' test.
     #R Which probably breaks something.
     #R# def is_type(name); HTypenames.key?(name) end
-    def is_type(name); HTypenames.key?(name) or name =~ /^[A-Z]/ end
+    def is_type(name); HTypenames.key?(name) or name =~ /^[A-Z](?![A-Z]*$)/ end
 
     #def heredoc; false; end
     def method_missing(method, *args)

@@ -14,27 +14,6 @@ STD_red_run is currently much faster in ruby 1.9 than 1.8.
 If you compile large things, you probably want to make sure its #! line finds 1.9.
 Either by having 1.9's "ruby" first in your PATH, or by editing the #! line.
 
---yaml won't work under ruby 1.9 without a patch applied to 1.9's yaml.rb.
- *** But --yaml isn't being used now, so this is no longer needed.
-Error ruby/1.9.0/yaml.rb:391:in `hash': can't convert Hash into Integer (TypeError)
-ruby 1.9.0 yaml has a bug.  On some of Match objects, (eg, --yaml -e '3'),
-.hash fails with : can't convert Hash into Integer (TypeError).
-But 1.9's lookbehind provides 10x faster parsing than than our current 1.8 workaround.
-So here is a patch to lib/ruby/1.9.0/yaml.rb:
-PATCH_START
---- yaml.rb.orig        2008-03-20 13:25:42.000000000 -0400
-+++ yaml.rb     2008-03-20 13:26:03.000000000 -0400
-@@ -386,6 +386,7 @@
-             end
-         oid =
-             case oid when Fixnum, NilClass; oid
-+            when Hash,Array; oid.object_id
-             else oid = "#{oid.object_id}-#{oid.hash}"
-             end
-         out.emit( oid, &e )
-PATCH_END
-
-
 Regex reminders
   given { <a>+ <b>+ }
   token: /^ <a>+: <b>+: $/
@@ -62,7 +41,33 @@ Re backtracking,
   easiest possible development path.
 
 
-Sources which can be cribbed from:
- v6/v6-KindaPerl6/compiled/ruby-kp6-mp6/kp6_runtime.rb
- misc/pX/Common/redsix/redsix
- misc/pX/Common/yet_another_regex_engine/Regexp_ModuleA.pm (perhaps)
+To test the parsibility of a set of files:
+  find ../../v6/v6-KindaPerl6/t/kp6/ -type f | grep -v svn | sort | xargs -n 1 perl -e 'local $_=shift;$r=system("./STD_red_run $_ > /dev/null 2>&1");print "",($r == 0 ? "-" : "X")," ",$_,"\n";' > test-kp6
+
+
+
+RUBY YAML
+
+Is not being used now, so you can ignore this section.
+
+--yaml won't work under ruby 1.9 without a patch applied to 1.9's yaml.rb.
+ *** But --yaml isn't being used now, so this is no longer needed.
+Error ruby/1.9.0/yaml.rb:391:in `hash': can't convert Hash into Integer (TypeError)
+ruby 1.9.0 yaml has a bug.  On some of Match objects, (eg, --yaml -e '3'),
+.hash fails with : can't convert Hash into Integer (TypeError).
+But 1.9's lookbehind provides 10x faster parsing than than our current 1.8 workaround.
+So here is a patch to lib/ruby/1.9.0/yaml.rb:
+PATCH_START
+--- yaml.rb.orig        2008-03-20 13:25:42.000000000 -0400
++++ yaml.rb     2008-03-20 13:26:03.000000000 -0400
+@@ -386,6 +386,7 @@
+             end
+         oid =
+             case oid when Fixnum, NilClass; oid
++            when Hash,Array; oid.object_id
+             else oid = "#{oid.object_id}-#{oid.hash}"
+             end
+         out.emit( oid, &e )
+PATCH_END
+
+
