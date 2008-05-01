@@ -12,18 +12,25 @@ unless ($five == 5) {
     exit();
 }
 
+# 2008-May-01 .nextwith tailcalls removed to help rakudo.
+# Probably degrades error messages, so restore once rakudo does .nextwith.
+
 sub tryok ($ok, $todo = '') {
     if ($todo) {
-        &ok.nextwith($ok,$todo, :todo);
+        #&ok.nextwith($ok,$todo, :todo);
+        ok($ok,$todo, :todo);
     } else {
-        &ok.nextwith($ok);
+        #&ok.nextwith($ok);
+        ok($ok);
     }
 }
 sub tryeq ($lhs, $rhs, $todo = '') {
     if ($todo) {
-        &ok.nextwith($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs, :todo);
+        #&ok.nextwith($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs, :todo);
+        ok($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs, :todo);
     } else {
-        &ok.nextwith($lhs == $rhs);
+        #&ok.nextwith($lhs == $rhs);
+        ok($lhs == $rhs);
     }
 }
 sub tryeq_sloppy ($lhs, $rhs, $todo1 = '') {
@@ -31,16 +38,20 @@ sub tryeq_sloppy ($lhs, $rhs, $todo1 = '') {
     $todo = ' # TODO ' ~ $todo if $todo;
     if ($lhs == $rhs) {
         if ($todo) {
-            &ok.nextwith($lhs==$rhs,$todo, :todo);
+            #&ok.nextwith($lhs==$rhs,$todo, :todo);
+            ok($lhs==$rhs,$todo, :todo);
         } else {
-            &ok.nextwith($lhs==$rhs,$todo);
+            #&ok.nextwith($lhs==$rhs,$todo);
+            ok($lhs==$rhs,$todo);
         }
     } else {
         my $error = abs($lhs - $rhs) / $lhs; 
         if ($todo) {
-            &ok.nextwith($error <1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs, :todo);
+            #&ok.nextwith($error <1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs, :todo);
+            ok($error <1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs, :todo);
         } else {
-            &ok.nextwith($error <1e-9);
+            #&ok.nextwith($error <1e-9);
+            ok($error <1e-9);
         }
     }
 }
