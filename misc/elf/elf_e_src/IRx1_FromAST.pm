@@ -4,7 +4,7 @@ class IRx1_Build {
   has $.constructors;
   $main::irbuilder = IRx1_Build.new;
   method add_constructor($k,$constructor) {
-    if $.constructors {}else{
+    if $.constructors {} else {
       my $h = {};
       $.constructors = $h;
     }

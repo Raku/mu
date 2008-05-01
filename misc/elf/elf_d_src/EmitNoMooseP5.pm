@@ -28,7 +28,7 @@ class EmitNoMooseP5 is EmitSimpleP5 {
      "\n}\n");
   };
   method cb__Trait ($n) {
-    if($n<verb> eq 'is') {
+    if ($n<verb> eq 'is') {
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
       "use base '"~$name~"';\n"
     } else {
@@ -39,7 +39,7 @@ class EmitNoMooseP5 is EmitSimpleP5 {
 
   method do_VarDecl_has ($n) {
       my $default = $.e($n<default_expr>);
-      if(defined $default) {
+      if (defined $default) {
         $default = ", default => "~$default
       } else {
         $default = ""

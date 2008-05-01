@@ -543,7 +543,7 @@ package main; # -> Main once elf_d support is dropped.
         } else {
           'GLOBAL::'~$f~'('~$.e($n<capture>)~')'
         }
-      }else{
+      } else {
          $f~'('~$.e($n<capture>)~')';
       }
     }
@@ -589,7 +589,7 @@ package main; # -> Main once elf_d support is dropped.
     } elsif ($t eq '*') {
       $name.re_gsub('::','__');
       '$'~'GLOBAL::'~$name
-    }else{
+    } else {
       '$'~$name
     }
   };
