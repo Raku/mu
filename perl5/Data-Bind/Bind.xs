@@ -212,10 +212,10 @@ __alias_a_to_b(SVREF a, SVREF b, int read_only) {
 
 OP *___bind_pad(pTHX)
 {
-    dAXMARK;
+    dMARK; dAX; dSP; dITEMS;
     int n = PL_op->op_targ;
     int i;
-      for (i = 0; i < n; ++i) {
+    for (i = 0; i < items; ++i) {
         SAVECLEARSV(PAD_SVl(i+1));
         __alias_a_to_b(PAD_SVl(i+1), ST(i), 0);
     }
