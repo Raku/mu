@@ -13,7 +13,7 @@ class IRx1_Build {
   method make_ir_from_Match_tree($m) {
     my $rule = $m.rule;
     my $constructor = $.constructors{$rule};
-    if($constructor) {
+    if ($constructor) {
       $constructor.($m);
     } else {
       die "Unknown rule: "~$rule~"\nIt needs to be added to ast_handlers.\n";

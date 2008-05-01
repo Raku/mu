@@ -310,7 +310,7 @@ class IRx1_Build {
   method make_ir_from_Match_tree($m) {
     my $rule = $m.rule;
     my $constructor = $.constructors{$rule};
-    if($constructor) {
+    if ($constructor) {
       $constructor.($m);
     } else {
       die "Unknown rule: "~$rule~"\nIt needs to be added to ast_handlers.\n";
@@ -376,7 +376,7 @@ sub write_ast_handlers {
     $body =~ s/<(\w+)>/.{'hash'}{'$1'}/g;
     $body =~ s/([A-Z]\w+\.new\w*)\(/IRx1::$1(\$m,/g;
     $body =~ s/\*text\*/(\$m.match_string)/g;
-    if($body =~ /\*1\*/) {
+    if ($body =~ /\*1\*/) {
       $body =~ s/\*1\*/\$one/g;
       $body = unindent(<<'      END',"  ").$body;
         my $key;

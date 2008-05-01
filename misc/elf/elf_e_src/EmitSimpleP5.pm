@@ -359,7 +359,7 @@ package main; # -> Main once elf_d support is dropped.
      "\n}\n");
   };
   method cb__Trait ($n) {
-    if($n<verb> eq 'is') {
+    if ($n<verb> eq 'is') {
       my $pkgname = $^whiteboard::in_package.join('::');
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
       $name.re_gsub('^::','');
@@ -376,24 +376,24 @@ package main; # -> Main once elf_d support is dropped.
       if $default_expr {
         $default = ", default => sub{ "~$default_expr~" }"
       } else {
-        if($n<var><sigil> eq '@') { $default = ', default => sub{ [] }' }
-        if($n<var><sigil> eq '%') { $default = ', default => sub{ {} }' }
+        if ($n<var><sigil> eq '@') { $default = ', default => sub{ [] }' }
+        if ($n<var><sigil> eq '%') { $default = ', default => sub{ {} }' }
       }
       "has '"~$.e($n<var><name>)~"' => (is => 'rw'"~$default~");"
   };
 
   method cb__VarDecl ($n) {
-    if($n<scope> eq 'has') {
+    if ($n<scope> eq 'has') {
       self.do_VarDecl_has($n);
     } else {
       my $default = "";
       if $n<default_expr> {
         $default = ' = '~$.e($n<default_expr>);
       } else {
-        if($n<var><sigil> eq '@') { $default = ' = [];' }
-        if($n<var><sigil> eq '%') { $default = ' = {};' }
+        if ($n<var><sigil> eq '@') { $default = ' = [];' }
+        if ($n<var><sigil> eq '%') { $default = ' = {};' }
       }
-      if($n<var><twigil> eq '^') {
+      if ($n<var><twigil> eq '^') {
         my $name = $.e($n<var>);
         $name.re_gsub('^(.)::','$1');
         ("{package main; use vars '"~$name~"'};"~
@@ -476,7 +476,7 @@ package main; # -> Main once elf_d support is dropped.
     'sub '~$.e($n<name>)~'{'~$.e($n<multisig>)~$.e($n<block>)~'}'
   };
   method cb__Signature ($n) {
-    if($n<parameters>.elems == 0) { "" }
+    if ($n<parameters>.elems == 0) { "" }
     else {
       'my('~$.e($n<parameters>).join(",")~')=@_;'~"\n";
     }
@@ -490,10 +490,10 @@ package main; # -> Main once elf_d support is dropped.
 
   method cb__Call ($n) {
     my $method = $.e($n<method>);
-    if($method =~ 'postcircumfix:< >') {
+    if ($method =~ 'postcircumfix:< >') {
       $.e($n<invocant>)~'->'~"{'"~$.e($n<capture>)~"'}";
     }
-    elsif($method =~ 'postcircumfix:(.*)') {
+    elsif ($method =~ 'postcircumfix:(.*)') {
       my $op = $1;
       my $arg = $.e($n<capture>);
       $op.re_gsub(' ',$arg);
@@ -508,36 +508,36 @@ package main; # -> Main once elf_d support is dropped.
       my $a = $.e($n<capture><arguments>);
       my $l = $a[0];
       my $r = $a[1];
-      if($op eq '~') { "("~$l~" . "~$r~")" }
-      elsif($op eq ',') { $l~", "~$r }
-      elsif($op eq '=') {
+      if ($op eq '~') { "("~$l~" . "~$r~")" }
+      elsif ($op eq ',') { $l~", "~$r }
+      elsif ($op eq '=') {
         my $t = $.e($n<capture><arguments>[0]<twigil>);
-        if($t && $t eq '.') {
+        if ($t && $t eq '.') {
           $l~'('~$r~')'
         }
         else { "("~$l~" "~$op~" "~$r~")" }
       }
       else { "("~$l~" "~$op~" "~$r~")" }
     }
-    elsif($.e($n<function>) =~ /^circumfix:(.+)/) {
+    elsif ($.e($n<function>) =~ /^circumfix:(.+)/) {
       my $op = $1;
       my $arg = $.e($n<capture>);
       $op.re_gsub(' ',$arg);
     }
-    elsif($.e($n<function>) =~ /^statement_prefix:gather$/) {
+    elsif ($.e($n<function>) =~ /^statement_prefix:gather$/) {
       'GLOBAL::gather'~$.e($n<capture>)~''
     }
     else {
       my $f = $.e($n<function>);
-      if($f =~ /^\$\w+$/) {
+      if ($f =~ /^\$\w+$/) {
          $f~'->('~$.e($n<capture>)~')';
-      }elsif($f eq 'self') {
+      } elsif ($f eq 'self') {
         '$self'
-      }elsif($f eq 'last') {
+      } elsif ($f eq 'last') {
         'last'
-      }elsif($f eq 'return') {
+      } elsif ($f eq 'return') {
         'return('~$.e($n<capture>)~')';
-      }elsif($f =~ /^\w/) {
+      } elsif ($f =~ /^\w/) {
         if $n.notes<lexical_bindings>.{'&'~$f} {
           ''~$f~'('~$.e($n<capture>)~')'
         } else {
@@ -581,12 +581,12 @@ package main; # -> Main once elf_d support is dropped.
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
     my $name = $env~$pre~$.e($n<name>);
-    if($t eq '.') {
+    if ($t eq '.') {
       '$self->'~$name
-    }elsif($t eq '^') {
+    } elsif ($t eq '^') {
       $name.re_gsub('::','__');
       '$'~'::'~$name
-    }elsif($t eq '*') {
+    } elsif ($t eq '*') {
       $name.re_gsub('::','__');
       '$'~'GLOBAL::'~$name
     }else{
