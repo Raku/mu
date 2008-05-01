@@ -217,7 +217,8 @@ OP *___bind_pad(pTHX)
     int i;
     for (i = 0; i < items; ++i) {
         SAVECLEARSV(PAD_SVl(i+1));
-        __alias_a_to_b(PAD_SVl(i+1), ST(i), 0);
+        // rw only for now
+        PAD_SVl(i+1) = SvREFCNT_inc(ST(i));
     }
     return NORMAL;
 }
