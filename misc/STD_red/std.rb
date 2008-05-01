@@ -369,9 +369,6 @@ class Perl < Grammar
           panic("Statement not terminated properly"))
     end
 
-    #R XXX Do these need trailing wsp?  Current use is INCONSISTENT.
-    #R XXX Should the get leading wsp by default?  Are they?
-    #R XXX   STD.pm suggests they not have it?
     def_tokens_rest :statement_control,false,%w{ use no },%q{
       e=nil
       nofat_space and wsp and
@@ -379,30 +376,32 @@ class Perl < Grammar
       (h={:module_name=>mn};_hkv(h,:EXPR,e);_match_from(start,h,:<sym>))
     }
     def_tokens_rest :statement_control,false,%w{ if }, %q{
-      wsp; #R XXX
+      nofat_space and wsp and
       e=_EXPR and wsp and pb=pblock and wsp and
-      ei=starRULE{ b1=pos; scan(/elsif/) and wsp and e1=_EXPR and wsp and pb1=pblock and
+      ei=starRULE{ b1=pos; scan(/elsif/) and nofat_space and wsp and
+                   e1=_EXPR and wsp and pb1=pblock and wsp and
                    _match_from(b1,{:elsif_expr=>e1,:elsif_block=>pb1},:elsif) } and
-      el=quesRULE{ b1=pos; scan(/else/) and wsp and pb1=pblock and
+      el=quesRULE{ b1=pos; scan(/else/) and nofat_space and wsp and
+                   pb1=pblock and wsp and
                    _match_from(b1,{:pblock=>pb1},:if__else) } and
       (h={:if_expr=>e,:if_block=>pb,:elsif=>ei};_hkv(h,:else,el);
        _match_from(start,h,:if))
     }
 
     def_tokens_rest :statement_control,false,%w{ unless while until  for given when },%q{
-      wsp; #R XXX
-      e=_EXPR and wsp and pb=pblock and
+      nofat_space and wsp and
+      e=_EXPR and wsp and pb=pblock and wsp and
       _match_from(start,{:expr=>e,:block=>pb},:<sym>)
     }
     def_tokens_rest :statement_control,false,%w{ repeat },%q{
-      wsp; #R XXX
+      nofat_space and wsp and
       ((wu= scan(/while|until/) and wsp and e=_EXPR and wsp and bk=block and wsp and
         _match_from(start,{'0'=>wu,:wu_expr=>e,:wu_block=>bk},:repeat)) or
        (bk=block and wsp and wu=scan(/while|until/) and wsp and e=_EXPR and wsp and
         _match_from(start,{'0'=>wu,:expr_wu=>e,:block_wu=>bk},:repeat)))
     }
     def_tokens_rest :statement_control,false,%w{ loop },%q{
-      wsp; #R XXX
+      nofat_space and wsp and
       ((scan(/\(/) and wsp and
         e1= _EXPR and wsp and scan(/;/) and wsp and
         e2= _EXPR and wsp and scan(/;/) and wsp and
@@ -410,7 +409,7 @@ class Perl < Grammar
         (h={};_hkv(h,:loop_e1,e1);_hkv(h,:loop_e2,e2);_hkv(h,:loop_e3,e3);
          eee= _match_from(start,h,:loop__eee)
        );true) and
-       bk= block and 
+       bk= block and wsp and
        (h={:loop_block=>bk};_hkv(h,:loop_eee,eee);
         _match_from(start,h,:loop)))
     }
@@ -419,19 +418,28 @@ class Perl < Grammar
       default BEGIN CHECK INIT END START ENTER LEAVE KEEP UNDO FIRST NEXT LAST
       PRE POST CATCH CONTROL },
       %q{
-        nofat_space and
-       (wsp;true) and #R XXX
+        nofat_space and wsp and
+        bk=block and wsp and
+        _match_from(start,{:block=>bk},:<sym>)
+      }
+
+    def_tokens_rest :term,false,%w{
+      BEGIN CHECK INIT START ENTER FIRST },
+      %q{
+        wsp and
         bk=block and wsp and
         _match_from(start,{:block=>bk},:<sym>)
       }
 
     def modifier_expr; wsp and e=_EXPR and wsp and e; end
     def_rules_rest :statement_mod_cond,%w{ if unless when },%q{
-      me=modifier_expr and
+      nofat and wsp and
+      me=modifier_expr and wsp and
       _match_from(start,{:mod_<sym>=>me},:<sym>)
     }
     def_rules_rest :statement_mod_loop,%w{ while until for given },%q{
-      me=modifier_expr and
+      nofat and wsp and
+      me=modifier_expr and wsp and
       _match_from(start,{:mod_<sym>=>me},:<sym>)
     }
     
@@ -471,55 +479,29 @@ class Perl < Grammar
     end
 
     def expect_term
-        b = pos
-        v = let_pos{
+        let_pos{
             b = pos
-            pre_=adv=np=nil
+            pre_=adv=nil
+            #(before{ stdstopper } or
             (noun_= noun or
              (pre_= plusTOK{ pre } and noun_= noun)) and
             # also queue up any postfixes, since adverbs could change things
             post_= starTOK{ post } and
             wsp and
             (adv_= adverbs;true) and
-            # now push ops over the noun according to precedence.
-            #R { make $¢.nounphrase(:noun($<noun>), :pre(@<pre>), :post(@<post>)) }
-            #R np= nounphrase(noun_,(pre_||[]),post_) and
             (h={};
              _hkv(h,:noun,noun_)
              _hkv(h,:pre,pre_)
              _hkv(h,:post,post_)
              _hkv(h,:adverbs,adv_)
-             _hkv(h,:nounphrase_,np) #R XXX very nonspec
              _match_from(b,h,:expect_term))
         }
-    end
-
-    def nounphrase(nounS,preA,postA,*rest)
-        nounphrase = nounS
-        preS = preA.pop
-        postS = postA.shift
-        while preS or postS
-            oldterm = nounphrase
-            if preS
-                if postS and postS[:prec] > preS[:prec]
-                    nonphrase = postS
-                    postS = postA.shift
-                else
-                    nounphrase = preS
-                    preS = preA.pop
-                end
-            else
-                nounphrase = postS
-                postS = postA.shift
-            end
-            nounphrase[:term] = oldterm
-        end
-        nounphrase
     end
 
     def adverbs
         b = pos
         colonpair_=nil
+        not before{ stdstopper } and
         (plusTOK{ _cp = colonpair and (colonpair_ ||= []; colonpair_.push(_cp);true) and wsp } and
          ( prop = $env_vars[:prevop] or
            panic('No previous operator visible to adverbial pair ('+colonpair_.inspect+')');
@@ -541,7 +523,7 @@ class Perl < Grammar
             (key = ident and
              scan(/[ \t]*/) and
              scan(/\=>/) and wsp and
-             val = _EXPR(nil,Hitem_assignment)) and
+             val = _EXPR(Hitem_assignment)) and
             _match_from(b,{:key=>key,:val=>val},:fatarrow)
         }
     end
@@ -595,7 +577,8 @@ class Perl < Grammar
 
     def expect_infix
         b = pos; i=ipost=ipre=icirc=nil
-        (((i= infix and starTOK{ ipost= infix_postfix_meta_operator }) or
+        not(before{stdstopper}) and
+        ((let_pos{ i= infix and starTOK{ ipost= infix_postfix_meta_operator } } or
           (ipre= infix_prefix_meta_operator) or
           (icirc= infix_circumfix_meta_operator)) and
          (h={};
@@ -606,19 +589,32 @@ class Perl < Grammar
           _match_from(b,h,:expect_infix)))
     end
 
-    def_tokens_rest :dotty,false,%w{ .+ .* .? .= .^ .: },%q{ op= methodop and _match_from(start,{:sym=>'<sym>',:methodop=>op},:'<sym>') }
-    def_tokens_rest :dotty,false,%w{ . },%q{ dottyop }
+    def_tokens_rest :dotty,false,%w{ .+ .* .? .= .^ .: },%q{
+      unspacey and
+      op= methodop and
+      _match_from(start,{:sym=>'<sym>',:methodop=>op},:fancy)
+    }
+    def_tokens_rest :dotty,false,%w{ . },%q{
+      unspacey and
+      op= dottyop
+      #R XXX requires an elf update
+      #R# _match_from(start,{:sym=>'<sym>',:dottyop=>op},:plain)
+    }
+    def_tokens_rest :dotty,false,%w{ ! },%q{
+      unspacey and
+      op= methodop and
+      _match_from(start,{:sym=>'<sym>',:methodop=>op},:private)
+    }
     def dottyop; methodop or postop; end
-
-    #R YYY sync scan has reached here.
 
     def post
         let_pos{
             b=pos
             d=postop_=nil;ppmo=[]
+            not(before{stdstopper}) and
             # last whitespace didn't end here (or was zero width)
             (pos != ws_to or ws_to == ws_from) and
-            ((scan(/\\(?=\.)/)) or unsp?) and 
+            before{unspacey} and 
             starTOK{
                 let_pos{
                     quesTOK{scan(/\./) and unsp?} and
@@ -725,7 +721,7 @@ class Perl < Grammar
         $env_vars.scope_enter(:endargs)
         $env_vars[:endargs] = false #R ??? XXX "0" or "false"?
         wsp and
-        v = _EXPR(nil,Hlist_prefix)
+        v = _EXPR(Hlist_prefix)
         $env_vars.scope_leave
         v
     end
@@ -757,8 +753,8 @@ class Perl < Grammar
          #R XXX only first value is captured.
          #R QUESTION spec rx would seem to not interleave the = and .= ?
          quesTOK{
-             ((scan(/\=/) and wsp and e1=_EXPR(nil,var[:sigil] == '$' ? Hitem_assignment : Hlist_prefix)) or
-              (scan(/\.\=/) and wsp and e2=_EXPR(nil,Hitem_assignment)))
+             ((scan(/\=/) and wsp and e1=_EXPR(var[:sigil] == '$' ? Hitem_assignment : Hlist_prefix)) or
+              (scan(/\.\=/) and wsp and e2=_EXPR(Hitem_assignment)))
          }) and
          (h={};
           _hkv(h,:variable,var)
@@ -1060,7 +1056,7 @@ class Perl < Grammar
             (pat[:delim] == 2 and ((wsp and infix and
                                     ($env_vars[:thisop][:prec] == Hitem_assignment[:prec] or
                                      panic("Bracketed subst must use some form of assignment")) and
-                                    repl=_EXPR(nil,Hitem_assignment)) or :failed)) or
+                                    repl=_EXPR(Hitem_assignment)) or :failed)) or
             # unbracketed form
             (repl=q_unbalanced(qlang('Q',':qq'), pat[:delim][0])))
         $env_vars.scope_leave
@@ -1430,7 +1426,9 @@ class Perl < Grammar
             triple = /#{stop}#{stop}#{stop}/
             if before(triple)
                 # XXX triple rule should just be in escapes to be customizable
-                dequote_ = _EXPR(nil,HLOOSEST,triple) or return fail_at(b)
+                #R STD.pm no longer supports stop arg, but still uses it here.
+                #R# dequote_ = _EXPR(HLOOSEST,triple) or return fail_at(b)
+                dequote_ = _EXPR(HLOOSEST) or return fail_at(b)
             elsif before(start)
                 subtext_ = q_balanced(lang, start, stop, esc) or fail_at(b)
             elsif before(esc)
@@ -1619,12 +1617,12 @@ class Perl < Grammar
 
     def type_constraint
         rul{ value or
-            (scan(/where/) and _EXPR(nil,Hchaining)) }
+            (scan(/where/) and _EXPR(Hchaining)) }
     end
 
     def post_constraint
         rul{ multisig or
-            (scan(/where/) and _EXPR(nil,Hchaining)) }
+            (scan(/where/) and _EXPR(Hchaining)) }
     end
 
     def param_var
@@ -1722,7 +1720,7 @@ class Perl < Grammar
     end
 
     def default_value
-        rul{ scan(/\=/) and _EXPR(nil,Hitem_assignment) }
+        rul{ scan(/\=/) and _EXPR(Hitem_assignment) }
     end
 
     def_tokens_rest :statement_prefix,false,%w{ do try gather contend async lazy },%q{
@@ -1765,7 +1763,7 @@ class Perl < Grammar
 
 
     ## conditional
-    def_token_full :infix,:conditional,'?? !!',/\?\?/,%q{ _EXPR(nil,Hconditional) }
+    def_token_full :infix,:conditional,'?? !!',/\?\?/,%q{ _EXPR(Hconditional) }
     #R assorted cautionary panics left out
 
     ## assignment
@@ -1821,7 +1819,9 @@ class Perl < Grammar
     def reverse(a);a.reverse;end
     def item(h);raise "what does item do?";end
     def _EXPR(*args); let_pos{ _EXPR_raw(*args) }; end
-    def _EXPR_raw(seenS=false, preclimH=nil, stopS=nil, *fateA) #R Args reordered!
+    def _EXPR_raw(preclimH=nil)
+        stopS=nil
+        seenS=false
         noisy = false #R added
         hereS_workaround = self
 

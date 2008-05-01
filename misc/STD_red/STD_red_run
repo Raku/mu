@@ -86,7 +86,7 @@ END
     if output; print output; exit end
 
     # Hacks
-    code = code.gsub(/\n=begin.*?\n=end[^\n]*/m,'')
+    #code = code.gsub(/\n=begin.*?\n=end[^\n]*/m,'')
 
     kibitz = false
     pn = Perl.new(code,at)
