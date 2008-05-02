@@ -223,6 +223,43 @@ OP *___bind_pad(pTHX)
     return NORMAL;
 }
 
+/* format:  [ [ order, mode, defaultsub ]... ] */
+
+OP *___bind_pad2(pTHX)
+{
+    //    dSP; dMARK; dITEMS; 
+
+        dAXMARK; dSP; dITEMS;
+        //    sv_dump(((SVOP*)PL_op)->op_sv);
+        AV * const _defargs = GvAV(PL_defgv);
+
+        AV *av = SvRV(((SVOP*)PL_op)->op_sv);
+    int i;
+    fprintf(stderr, "... hi %d %d\n", av_len(av), items);
+    for (i = 0; i <= av_len(av); ++i) {
+        SV *current_arg = *av_fetch(_defargs, i, 0);//ST(i);
+        SV *entry = *av_fetch(av, i, 0);
+        IV order = SvIVX(*av_fetch(SvRV(entry), 0, 0));
+        SV *mode = *av_fetch(SvRV(entry), 1, 0);
+        SV *sub = *av_fetch(SvRV(entry), 2, 0);
+        fprintf(stderr, ".... i=%d %d(%d) for \n", i, order, SvIVX(mode));
+        sv_dump(current_arg);
+        SAVECLEARSV(PAD_SVl(order));
+        if (SvIVX(mode)) {
+            // copy
+            SvSetSV(PAD_SVl(order), SvREFCNT_inc(current_arg));
+            fprintf(stderr, "to copy\n");
+            //            sv_dump(ST(i+2));
+        }
+        else {
+            PAD_SVl(order) = SvREFCNT_inc(current_arg);
+            fprintf(stderr, "to alias\n");
+            //            sv_dump(ST(i+2));
+        }
+    }
+    RETURN;
+}
+
 
 MODULE = Data::Bind                PACKAGE = Data::Bind
 
@@ -243,7 +280,28 @@ OP_bind_pad(flags, n)
         o->op_targ = n;
         PL_curpad = sparepad;
         PL_op = saveop;
-            ST(0) = sv_newmortal();
+        ST(0) = sv_newmortal();
+        sv_setiv(newSVrv(ST(0), "B::OP"), PTR2IV(o));
+
+void
+OP_bind_pad2(flags, spec)
+    I32 flags
+    SV *spec
+    SV** sparepad = NO_INIT
+    OP *o = NO_INIT
+    OP *saveop = NO_INIT
+    I32 typenum = NO_INIT
+    CODE:
+        sparepad = PL_curpad;
+        saveop = PL_op;
+        PL_curpad = AvARRAY(PL_comppad);
+    fprintf(stderr, "get our op... %d\n", av_len((AV*)SvRV(spec)));
+        sv_dump(SvRV(spec));
+        o = newSVOP(OP_CONST, flags, SvREFCNT_inc(spec));
+        o->op_ppaddr = ___bind_pad2;
+        PL_curpad = sparepad;
+        PL_op = saveop;
+        ST(0) = sv_newmortal();
         sv_setiv(newSVrv(ST(0), "B::OP"), PTR2IV(o));
 
 void
