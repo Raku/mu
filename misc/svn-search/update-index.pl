@@ -23,7 +23,9 @@ if (!-e $index_file){
 
 $idx->open();
 
-$idx->add({
-		start_rev	=> $idx->get_last_indexed_rev + 1,
-		end_rev		=> 'HEAD',
-		});
+eval {
+    $idx->add({
+            start_rev	=> $idx->get_last_indexed_rev + 1,
+            end_rev		=> 'HEAD',
+            });
+};
