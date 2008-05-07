@@ -92,7 +92,7 @@ method header (
         my $value = %extra{$key};
         my $temp_key = ucfirst(lc($key));
         
-        $temp_key ~~ s:P5:g/[-_](\w)/-$0.uc()/;
+        $temp_key ~~ s:g[ <-[ _ ]> <alnum> ] = -$<alnum>.uc;
         
         given $key {
             when "Target" { $header ~= "Window-Target: "     ~ $value~"\n"; }
@@ -151,18 +151,18 @@ method redirect (
 
 method url_decode (Str $to_decode) returns Str {
     my $decoded = $to_decode;
-    $decoded ~~ s:P5:g/\+/ /;
+    $decoded ~~ s:g/\+/ /;
     given $!URL_ENCODING {
         when 'iso-8859-1' {
-            $decoded ~~ s:P5:g/%([\da-fA-F][\da-fA-F])/{chr(:16($0))}/;
+            $decoded ~~ s:g/%(<[<digit>a..fA..F]><[<digit>a..fA..F]>)/{chr(:16($0))}/;
         }
         when 'utf-8' {
-            $decoded ~~ s:P5:g:i/%(F[CD])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&1)*1073741824+(:16($1)+&63)*16777216+(:16($2)+&63)*262144+(:16($3)+&63)*4096+(:16($4)+&63)*64+(:16($5)+&63))}/;
-            $decoded ~~ s:P5:g:i/%(F[8-B])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&3)*16777216+(:16($1)+&63)*262144+(:16($2)+&63)*4096+(:16($3)+&63)*64+(:16($4)+&63))}/;
-            $decoded ~~ s:P5:g:i/%(F[0-7])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&7)*262144+(:16($1)+&63)*4096+(:16($2)+&63)*64+(:16($3)+&63))}/;
-            $decoded ~~ s:P5:g:i/%(E[\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&15)*4096+(:16($1)+&63)*64+(:16($2)+&63))}/;
-            $decoded ~~ s:P5:g:i/%([CD][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&31)*64+(:16($1)+&63))}/;
-            $decoded ~~ s:P5:g:i/%([0-7][\dA-F])/{chr(:16($0))}/;
+            $decoded ~~ s:g:i/%(F[CD])%([8-9AB][<digit>A..F])%([8-9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&1)*1073741824+(:16($1)+&63)*16777216+(:16($2)+&63)*262144+(:16($3)+&63)*4096+(:16($4)+&63)*64+(:16($5)+&63))}/;
+            $decoded ~~ s:g:i/%(F[8..B])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&3)*16777216+(:16($1)+&63)*262144+(:16($2)+&63)*4096+(:16($3)+&63)*64+(:16($4)+&63))}/;
+            $decoded ~~ s:g:i/%(F[0..7])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&7)*262144+(:16($1)+&63)*4096+(:16($2)+&63)*64+(:16($3)+&63))}/;
+            $decoded ~~ s:g:i/%(E[<digit>A..F])%([8..9AB][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&15)*4096+(:16($1)+&63)*64+(:16($2)+&63))}/;
+            $decoded ~~ s:g:i/%([CD][<digit>A..F])%([8..9AB][<digit>A..F])/{chr((:16($0)+&31)*64+(:16($1)+&63))}/;
+            $decoded ~~ s:g:i/%([0..7][<digit>A..F])/{chr(:16($0))}/;
         }
     }
     return $decoded;
@@ -185,10 +185,10 @@ method url_encode (Str $to_encode) returns Str {
     };
     given $!URL_ENCODING {
         when 'iso-8859-1' {
-            $encoded ~~ s:P5:g/([^-.\w])/$dec2hex(ord($0))/;
+            $encoded ~~ s:g/(<-[-.<alnum>]>)/{$dec2hex(ord($0))}/;
         }
         when 'utf-8' {
-            $encoded ~~ s:P5:g/([^-.\w])/$utf82hex(ord($0))/;
+            $encoded ~~ s:g/(<-[-.<alnum>]>)/{$utf82hex(ord($0))}/;
         }
     }
     return $encoded;
@@ -205,7 +205,7 @@ method pack_params returns Str {
 }
 
 method unpack_params (Str $data) returns Str {
-    my @pairs = split(rx:P5/[&;]/, $data);
+    my @pairs = split(rx/<[&;]>/, $data);
     for @pairs -> $pair {
         my ($key, $value) = split('=', $pair);
         $key = self.url_decode($key);
@@ -251,19 +251,19 @@ method escapeHTML (Str $string is copy, Bool :$newlines) returns Str {
     # XXX check for $self.escape == 0
     #unless ($self.escape != 0) { return $toencode; }
     
-    $string ~~ s:P5:g/&/&amp;/;
-    $string ~~ s:P5:g/</&lt;/;
-    $string ~~ s:P5:g/>/&gt;/;
+    $string ~~ s:g/&/&amp;/;
+    $string ~~ s:g/</&lt;/;
+    $string ~~ s:g/>/&gt;/;
     
     # XXX check for HTML 3.2
-    #if ($self.DTD_PUBLIC_IDENTIFIER ~~ rx:P5/[^X]HTML 3\.2/i) {
+    #if ($self.DTD_PUBLIC_IDENTIFIER ~~ rx:i/<-[X]>HTML 3\.2/) {
         # $quot; was accidentally omitted from the HTML 3.2 DTD -- see
         # <http://validator.w3.org/docs/errors.html#bad-entity> /
         # <http://lists.w3.org/Archives/Public/www-html/1997Mar/0003.html>.
         
-        #$string ~~ s:P5:g/"/&#34;/;
+        #$string ~~ s:g/"/&#34;/;
     #} else {
-        $string ~~ s:P5:g/"/&quot;/;
+        $string ~~ s:g/"/&quot;/;
     #}
     
     my $latin;
@@ -273,13 +273,13 @@ method escapeHTML (Str $string is copy, Bool :$newlines) returns Str {
     $latin = 1;
     
     if ($latin) {
-        $string ~~ s:P5:g/'/&#39;/;
-        $string ~~ s:P5:g/\x8b/&#8249;/;
-        $string ~~ s:P5:g/\x9b/&#8250;/;
+        $string ~~ s:g/'/&#39;/;
+        $string ~~ s:g/\x8b/&#8249;/;
+        $string ~~ s:g/\x9b/&#8250;/;
         
         if ($newlines) {
-            $string ~~ s:P5:g/\012/&#10;/;
-            $string ~~ s:P5:g/\015/&#13;/;
+            $string ~~ s:g/\o12/&#10;/;
+            $string ~~ s:g/\o15/&#13;/;
         }
     }
     
@@ -290,14 +290,14 @@ method unescapeHTML (Str $string is copy) returns Str {
 
     my $latin = ?(uc $!CHARSET ~~ "ISO-8859-1"|"WINDOWS-1252");
 
-    $string ~~ s:P5:g/&([^;]*);/{
+    $string ~~ s:g/&(<-[ ; ]>*);/{
         given (lc $0) {
             when "amp"  { "&" }
             when "quot" { '"' }
             when "gt"   { ">" }
             when "lt"   { "<" }
-            when m:P5{^#(\d+)$}          && $latin { chr($1) }
-            when m:P5:i{^#x([0-9a-f]+)$} && $latin { chr(hex($1)) }
+            when m{^#(<digit>+)$}         && $latin { chr($1) }
+            when m:i{^#x(<[0..9a..f]>+)$} && $latin { chr(hex($1)) }
             default { $0  }
         }
     }/;
