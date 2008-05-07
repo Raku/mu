@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 29 Apr 2008
+   Last Modified: 7 May 2008
    Number: 5
-   Version: 77
+   Version: 78
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -736,15 +736,14 @@ as a number unless you are very careful about which units you are
 dealing with.
 
 The C<Cursor> object can also return the original item that we are
-matching against; this is available from the C<._> method, named to
-remind you that it probably came from the user's C<$_> variable.
-(But that may well be off in some other scope when indirect rules
-are called, so we mustn't rely on the user's lexical scope.)
+matching against; this is available from the C<.orig> method.
 
 The closure is also guaranteed to start with a C<$/> C<Match> object
 representing the match so far.  However, if the closure does its own
 internal matching, its C<$/> variable will be rebound to the result
-of I<that> match until the end of the embedded closure.
+of I<that> match until the end of the embedded closure.  (The match
+will actually continue with the current value of the C<$¢> object after
+the closure.  C<$/> and C<$¢> just start out the same in your closure.)
 
 =item *
 
@@ -2201,7 +2200,7 @@ as C<$/>, which is a contextual lexical declared in the outer
 subroutine that is calling the regex.  (A regex declares its own
 lexical C<$/> variable, which always refers to the most recent
 submatch within the rule, if any.)  The current match state is
-kept in the regex's C<$_> variable which will eventually get
+kept in the regex's C<$¢> variable which will eventually get
 processed into the user's C<$/> variable when the match completes.
 
 =item *
@@ -2349,6 +2348,22 @@ the match. For example:
          say "Found sub def from index $/.from.bytes ",
              "to index $/.to.bytes";
      }
+
+The currently defined methods are
+
+    $/.from	# the initial match position
+    $/.to	# the final match position
+    $/.chars	# $/.to - $/.from
+    $/.orig	# the original match string
+    $/.text	# substr($/.orig, $/.from, $/.chars)
+
+Within the regex the current match state C<$¢> also provides
+
+    .pos	# the current match position
+
+This last value may correspond to either C<$¢.from> or C<$¢.to> depending
+on whether the match is proceeding in a forward or backward direction
+(the latter case arising inside an C<< <?after ...> >> assertion).
 
 =item *
 
