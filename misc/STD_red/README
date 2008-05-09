@@ -42,8 +42,10 @@ Re backtracking,
 
 
 To test the parsibility of a set of files:
-  find ../../v6/v6-KindaPerl6/t/kp6/ -type f | grep -v svn | sort | xargs -n 1 perl -e 'local $_=shift;$r=system("./STD_red_run $_ > /dev/null 2>&1");print "",($r == 0 ? "-" : "X")," ",$_,"\n";' > test-kp6
 
+  find ../../v6/v6-KindaPerl6/t/kp6/ -type f | grep -v svn | sort | xargs -n 1 perl -e 'exit if !/\.t$/; local $_=shift;$r=system("./STD_red_run $_ > /dev/null 2>&1");print "",($r == 0 ? "-" : "X")," ",$_,"\n";' > test-kp6
+
+  find ../../t/ -type f | grep -v svn | sort | xargs -n 1 perl -e 'exit if !/\.t$/; local $_=shift;$r=system("./STD_red_run $_ > /dev/null 2>&1");print "",($r == 0 ? "-" : "X")," ",$_,"\n";' > test-t
 
 
 RUBY YAML

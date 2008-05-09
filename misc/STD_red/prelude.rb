@@ -244,19 +244,19 @@ class Grammar
         k = args[0]
         v = nil
       end
-      case k
-      when 'nofat' # / >> <nofat> /
-        print "# caveat: #{category} endsym nofat unimplemented\n" if not $quiet
-      when 'nofat_space' # / \s+ <nofat> /
-        print "# caveat: #{category} endsym nofat_space unimplemented\n" if not $quiet
-      when 'unspacey' # / <.unsp>? /
-        print "# caveat: #{category} endsym unspacey unimplemented\n" if not $quiet
-      when 'endsym'
-        print "# caveat: #{category} endsym unimplemented\n" if not $quiet
-      else
-        p category, k
-        raise "bug"
-      end
+#      case k
+#      when 'nofat' # / >> <nofat> /
+#        print "# caveat: #{category} endsym nofat unimplemented\n" if not $quiet
+#      when 'nofat_space' # / \s+ <nofat> /
+#        print "# caveat: #{category} endsym nofat_space unimplemented\n" if not $quiet
+#      when 'unspacey' # / <.unsp>? /
+#        print "# caveat: #{category} endsym unspacey unimplemented\n" if not $quiet
+#      when 'endsym'
+#        print "# caveat: #{category} endsym unimplemented\n" if not $quiet
+#      else
+#        p category, k
+#        raise "bug"
+#      end
     end
 
     eval "@@__precedences_for_#{category}_symbols__ = {}"
@@ -271,9 +271,13 @@ class Grammar
           if not(v.rule and v.rule =~ /:/)
             v.rule = "#{category}:\#{v.rule||"kludge_node"}"
           end
+          if not v[:sym]
+            v[:sym] = sym
+          end
           m = v
         else
-          h = v.is_a?(TrueClass) ? nil : {:kludge_name =>v}
+          h = v.is_a?(TrueClass) ? {} : {:kludge_name =>v}
+          h[:sym] = sym
           m = _match_from(b,h,'#{category}')
         end
 
@@ -369,10 +373,10 @@ class CategoryMatcher
     @member_cache ||= @member_index.values.sort{|a,b|
       b.leading_re.to_s.length <=> a.leading_re.to_s.length}
     b0 = b1 = scanr.pos
-    if @is_rule_category
-      gram.wsp or return false
-      b1 = scanr.pos
-    end
+    #if @is_rule_category
+    #  gram.wsp or return false
+    #  b1 = scanr.pos
+    #end
     @member_cache.each{|cm|
       scanr.scan(cm.leading_re) or next
       rest = cm.rest
