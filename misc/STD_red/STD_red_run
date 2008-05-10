@@ -89,6 +89,7 @@ END
     #code = code.gsub(/\n=begin.*?\n=end[^\n]*/m,'')
     code = code.gsub(/\n=kwid.*?\n=cut[^\n]*/m,'')
     code = code.gsub(/\n=pod.*?\n=cut[^\n]*/m,'')
+    code = code.gsub(/\n=head1.*?\n=cut[^\n]*/m,'')
 
     kibitz = false
     pn = Perl.new(code,at)

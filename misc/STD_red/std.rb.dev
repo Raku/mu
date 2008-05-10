@@ -296,7 +296,7 @@ class Perl < Grammar
                  let_pos{
                      (( control_= statement_control or
                         before(/;/) )
-                      )  
+                      )
                  }
              end or
              begin
@@ -306,22 +306,22 @@ class Perl < Grammar
                      expr_= _EXPR and
                      (b1 = pos;true) and
                      (let_pos{
-                          before{ stdstopper }
+                          before{ stdstopper_no_mod } #R XXX NONSPEC KLUDGE _no_mod - STD.pm bug? workaround.
                       } or
                       let_pos{
                           $env_vars[:endstmt] = endstmt; $env_vars[:endargs] = endargs
-                          mod_loop_= statement_mod_loop and loopx= _EXPR
+                          mod_loop_= statement_mod_loop #R XXX NONSPEC bug? workaround # and loopx= _EXPR
                       } or
                       let_pos{
                           $env_vars[:endstmt] = endstmt; $env_vars[:endargs] = endargs
                           endstmt1 = $env_vars[:endstmt]; endargs1 = $env_vars[:endargs]
-                          mod_cond_= statement_mod_cond and condx= _EXPR and
+                          mod_cond_= statement_mod_cond and #R XXX NONSPEC bug? workaround # condx= _EXPR and
                           (let_pos{
-                               before{ stdstopper }
+                               before{ stdstopper_no_mod } #R XXX NONSPEC KLUDGE _no_mod - STD.pm bug? workaround.
                            } or
                            let_pos{
                                $env_vars[:endstmt] = endstmt1; $env_vars[:endargs] = endargs1
-                               mod_condloop_= statement_mod_loop and loopx= _EXPR
+                               mod_condloop_= statement_mod_loop #R XXX NONSPEC bug? workaround # and loopx= _EXPR
                            } or
                            false)
                       } or
@@ -417,12 +417,12 @@ class Perl < Grammar
       }
 
     def modifier_expr; wsp and e=_EXPR and wsp and e; end
-    def_rules_rest :statement_mod_cond,%w{ if unless when },%q{
+    def_tokens_rest :statement_mod_cond,false,%w{ if unless when },%q{
       nofat and wsp and
       me=modifier_expr and wsp and
       _match_from(start,{:mod_<sym>=>me},:<sym>)
     }
-    def_rules_rest :statement_mod_loop,%w{ while until for given },%q{
+    def_tokens_rest :statement_mod_loop,false,%w{ while until for given },%q{
       nofat and wsp and
       me=modifier_expr and wsp and
       _match_from(start,{:mod_<sym>=>me},:<sym>)
@@ -570,7 +570,7 @@ class Perl < Grammar
               i= infix and
               ($env_vars.scope_enter(:opS)   # (used in infix_postfix_meta_operator)
                $env_vars[:opS] = i
-               starTOK{ ipost= infix_postfix_meta_operator }) and # may modify $+op
+               ipost= starTOK{ infix_postfix_meta_operator }) and # may modify $+op
               (op = $env_vars[:opS])
           } or
           (ipre= infix_prefix_meta_operator) or
@@ -689,7 +689,8 @@ class Perl < Grammar
 
     def_tokens_rest :infix_postfix_meta_operator,:item_assignment,%w{ = },%q{
        lex1(:assignment) and
-       (o = $env_vars[:opS]
+       (op = $env_vars[:opS]
+        o = op[:O]
         (o[:prec] > Hitem_assignment[:prec] or
          panic("Can't make assignment op of operator looser than assignment"))
         (not(o[:assoc] == :chain) or
@@ -968,10 +969,26 @@ class Perl < Grammar
                            (?: (?: \. \d+(?:_\d+)* (?: [Ee] [+\-]? \d+ )?)
                          |                         (?: [Ee] [+\-]? \d+ ))/x); end
     def rad_number
-        let_pos{ scan(/:/) and radix_ = scan(/\d+/) and unsp? } and
-            ( ( scan(/</) and intpart = scan(/[0-9a-zA-Z]+/) and (fracpart = scan(/\.[0-9a-zA-Z]+/);true) and ( scan(/\*/) and base = radint and scan(/\*\*/) and exp = radint;true)) or
-              ( before(/\[/) and postcircumfix ) or
-              ( before(/\(/) and postcircumfix ))
+        let_pos{
+            b=pos
+            radix_=intpart=fracpart=base=exp=pc=nil
+            scan(/:/) and radix_ = scan(/\d+/) and unsp? and
+            ( ( scan(/</) and
+                intpart = scan(/[0-9a-zA-Z_]+/) and #R XXX NONSPEC ADDED _
+                (fracpart = scan(/\.[0-9a-zA-Z_]+/);true) and  #R XXX NONSPEC ADDED _
+                (scan(/\*/) and base = radint and scan(/\*\*/) and exp = radint;true) and
+                scan(/>/)) or
+              ( before(/\[/) and pc= postcircumfix ) or
+              ( before(/\(/) and pc= postcircumfix )) and
+            (h={}
+             _hkv(h,:radix,radix_)
+             _hkv(h,:intpart,intpart)
+             _hkv(h,:fracpart,fracpart)
+             _hkv(h,:base,base)
+             _hkv(h,:exp,exp)
+             _hkv(h,:postcircumfix,pc)
+             _match_from(b,h,:rad_number))
+        }
     end
     def octint; scan(/[0-7]+/); end
     def hexint; scan(/[0-9a-fA-F]+/); end
@@ -1394,6 +1411,8 @@ class Perl < Grammar
             #R perhaps R should panic() rather than die().
             rightbrack = Open2close[char] or raise "No matching close delimiter";
             stop = rightbrack * strt.length;
+            strt = Regexp.new(Regexp.quote(strt)) #R# NOTE returning regexp
+            stop = Regexp.new(Regexp.quote(stop)) #R# NOTE returning regexp
             return strt, stop;
         else
             raise "assert fail: can't get here"
@@ -1796,7 +1815,11 @@ class Perl < Grammar
 
 
     ## conditional
-    def_token_full :infix,:conditional,'?? !!',/\?\?/,%q{ _EXPR(Hconditional) }
+    def_token_full :infix,:conditional,'?? !!',/\?\?/,%q{
+        wsp and
+        e= _EXPR(Hconditional) and scan(/!!/) and
+        _match_from(start,{:EXPR=>e},:conditional)
+    }
     #R assorted cautionary panics left out
 
     ## assignment
@@ -1839,7 +1862,18 @@ class Perl < Grammar
         before{ scan(/\{/) or _lambda } and after(/\s/)
     end
 
-    #R regex - ##Q why is this a regex?
+    def stdstopper_no_mod #R XXX KLUDGE ADDED STD.pm bug workaround
+        (@scanner.eos? || @scanner.check(/\n/) ||
+         terminator || #R# no _mod_ # statement_mod_cond || statement_mod_loop ||
+#R XXX issues with "do {}"
+#         ((before(/\{/) or before{ _lambda }) and after(/\s/)) ||
+         ws_from == $env_vars[:endstmt] ||
+         pos == $env_vars[:endargs] ||
+         false
+         #R  #    | <$+unitstopper> #R?
+         #R  #  scan_unitstopper
+         )
+    end
     def stdstopper
         (@scanner.eos? || @scanner.check(/\n/) ||
          terminator || statement_mod_cond || statement_mod_loop ||
