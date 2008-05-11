@@ -4,11 +4,11 @@ use Test;
 
 plan 5;
 
-=pod
+=begin pod
 
 Anonymous class tests.
 
-=cut
+=end pod
 
 my $class;
 ok eval('$class = class { method meth() { return 42 } }'),

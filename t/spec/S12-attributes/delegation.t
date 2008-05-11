@@ -4,29 +4,29 @@ use Test;
 
 plan 41;
 
-=pod
+=begin desc
 
 Delegation tests from L<S12/Delegation>
 
-=cut
+=end desc
 
 # L<S12/Delegation>
 
-class Backend1 { method hi() { 42 } method cool() { 1337 } }
-class Backend2 { method hi() { 23 } method cool() {  539 } }
+class Backend1 { method hi() { 42 }; method cool() { 1337 } }
+class Backend2 { method hi() { 23 }; method cool() {  539 } }
 class Frontend { has $.backend is rw handles "hi" }
 ok Backend1.new, "class definition worked";
 
-is eval('Backend1.new.hi'), 42, "basic sanity (1)";
-is eval('Backend2.new.hi'), 23, "basic sanity (2)";
+is Backend1.new.hi, 42, "basic sanity (1)";
+is Backend2.new.hi, 23, "basic sanity (2)";
 
 {
   my $a;
   ok ($a = Frontend.new), "basic instantiation worked (1)";
   ok (!try { $a.hi }), "calling a method on no object didn't succeed (1)";
-  ok $a.backend = Backend1.new(), "setting a handler object (1)";
+  ok ($a.backend = Backend1.new()), "setting a handler object (1)";
   ok (!($a ~~ Backend1)),             "object wasn't isa()ed (1)";
-  is try{ $a.hi }, 42, "method was successfully handled by backend object (1)", :todo<feature>;
+  is try{ $a.hi }, 42, "method was successfully handled by backend object (1)";
 }
 
 {
@@ -35,7 +35,7 @@ is eval('Backend2.new.hi'), 23, "basic sanity (2)";
   ok (!try { $a.hi }), "calling a method on no object didn't succeed (2)";
   ok ($a.backend = Backend2.new()), "setting a handler object (2)";
   ok (!($a ~~ Backend2)),             "object wasn't isa()ed (2)";
-  is try{ $a.hi }, 23, "method was successfully handled by backend object (2)", :todo<feature>;
+  is try{ $a.hi }, 23, "method was successfully handled by backend object (2)";
 }
 
 
@@ -98,3 +98,5 @@ ok MyArray.new, "class with attribute and return value delegation";
   is try{ $a.codes  }, 5, "return delegation worked", :todo<feature>;
   is try{ $a.graphs }, 5, "return delegation worked", :todo<feature>;
 }
+
+# vim: syn=perl6
