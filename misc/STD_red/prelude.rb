@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 require 'strscan'
 
 require 'match'
@@ -28,6 +30,17 @@ class Grammar
     if at != 0
       @permit_partial_parse = true
     end
+
+    # StringScanner uses byte offsets, not character offsets
+    # So we have to kludge around that...
+    @offset_of_pos = []
+    @offset_of_pos[0] = 0
+    s = StringScanner.new(orig)
+    chr = 1
+    while s.scan(/./um)
+      @offset_of_pos[s.pos] = chr
+      chr += 1
+    end
   end
   def pos; @scanner.pos; end
   def fail_at(n); @scanner.pos = n; false; end
@@ -47,7 +60,10 @@ class Grammar
 
   def _match_from(from,h=nil,rule=nil)
     h ||= {}
-    Match.new(@str,from,@scanner.pos,true,h,nil,rule)
+    Match.new(@str,
+              (@offset_of_pos[from] or raise "bug"),
+              (@offset_of_pos[@scanner.pos] or raise "bug"),
+              true,h,nil,rule)
   end
   def _match_pat(re,rule=nil)
     b = @scanner.pos
@@ -65,6 +81,7 @@ class Grammar
     end
   end
   def _picture_of_offset(off)
+    off = @offset_of_pos[off]
     bot = off - 30;  bot = 0 if bot < 0
     below = @str.slice(bot,off-bot)
     above = @str.slice(off,30)
@@ -95,7 +112,7 @@ class Grammar
   end
   def after(re)
     # no look-behind in 1.8 :(
-    s = @str.slice(0,pos)
+    s = @str.slice(0,(@offset_of_pos[pos] or raise "bug"))
     Regexp.new("#{re}\\z").match(s) ? true : false
   end
 
@@ -228,11 +245,14 @@ class Grammar
   def self.token_category(category,*args)
     eval "@@matcher_for_#{category} = CategoryMatcher.new"
     _help_def_category(category,args)
+    if category != :category
+      def_tokens_simple(:category,false,[category.to_s])
+    end
   end
-  def self.rule_category(category,*args)
-    eval "@@matcher_for_#{category} = CategoryMatcher.new(true)"
-    _help_def_category(category,args)
-  end
+#  def self.rule_category(category,*args)
+#    eval "@@matcher_for_#{category} = CategoryMatcher.new(true)"
+#    _help_def_category(category,args)
+#  end
   def self._help_def_category(category,args)
 
     # endsym's

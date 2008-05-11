@@ -5,8 +5,9 @@ module MatchDescribe
   def match_describe(seen=nil)
     seen ||= {}
     return ("LOOP***"+match_describe_name) if seen.member?(self.object_id); seen[self.object_id] = true
-    indent            = lambda{|s| s ? s.gsub(/(?m)^(?!\Z)/,'  ') : '*nil*' }
-    indent_except_top = lambda{|s| s ? s.gsub(/(?m)^(?!\Z)/,'  ').sub(/^  /,'') : '*nil*' }
+    spsp = '  '.force_encoding('utf-8')
+    indent            = lambda{|s| s ? s.gsub(/(?m)^(?!\Z)/,spsp) : '*nil*' }
+    indent_except_top = lambda{|s| s ? s.gsub(/(?m)^(?!\Z)/,spsp).sub(/^  /,'') : '*nil*' }
     n = match_describe_name
     b = as_b ? 'true' : 'false'
     s = "'"+indent_except_top.call(as_s).gsub(/([\\'])/){|w|"\\#{w}"}+"'"
@@ -31,6 +32,7 @@ module MatchDescribe
   end
   def match_describe_name()
     "#{self.class}:#{object_id.to_s(36)}"
+    # "#{self.class}"
   end
 end
 class Match

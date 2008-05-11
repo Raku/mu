@@ -1,18 +1,9 @@
 #!/usr/bin/env ruby
+# -*- encoding: utf-8 -*-
 # A ruby transliteration of src/perl6/STD.pm
 # See README.
 #
-# STD issues
-#   /categories added/ are still missing from STD.pm.
-#   The "after the }" part of block and regex_block are different.
-#     #R XXX this is assumed a typo, yes?
-#   Added eos? check to eat_terminator.
-#   module_name:depreciated should be before module_name:normal.
-#   is \h* not allowed after the => in fatarrow?
-#   "$wsequiv ~~ s/^ (\t+) /{ ' ' x ($0 * 8) }/; # per spec", ^^ instead of ^ ?
-#
 # STD_red issues
-#  Need to get rid of the xXXX "I don't know what to do here" abstraction.
 #  Some Match ruls are "foo__bar", where bar was a #= comment.  This is wrongish.
 #
 
@@ -51,19 +42,14 @@ class Perl < Grammar
     def_precedence :loose_or        ,{ :prec=>"c=", :assoc=>:left,  :assign=>1 }
     def_precedence :LOOSEST         ,{ :prec=>"a=!",                           }
     def_precedence :terminator      ,{ :prec=>"a=", :assoc=>:list              }
-    SLOOSEST = "a=!" #R HLOOSEST[:prec]
+    SLOOSEST = HLOOSEST[:prec]
 
     #R role PrecOp
     def precop_method(m,defaults)
-        defaults.each{|k,v| m[k] = v if not m.key? k }
-        if $env_vars[:thisopH]  #R non-spec, but... needed?
-            $env_vars[:thisopH][:top] = m;
-            if not m.key?(:transparent)
-                $env_vars[:thisopH][:prec] = m[:prec];
-                $env_vars[:thisopH][:assoc] = m[:assoc];
-            end
-        else
-            STDERR.print("The $env_vars[:thisopH] non-spec check was used.\n") if not $quiet
+        if not defaults[:transparent]
+            mO = m[:O]
+            mO = m[:O] = {} if not mO
+            defaults.each{|k,v| mO[k] = v if not mO.key? k }
         end
         return m;
     end
@@ -192,12 +178,12 @@ class Perl < Grammar
     def unv
         let_pos{
             scan(/[ \t]+/) or
-            (@scanner.bol? and
-             (pod_comment or
-              (scan(/\#/) and
-               ((bracketed and panic("Can't use embedded comments in column 1")) or
-                scan(/.*/)) ))) or
-            (scan(/\#/) and (bracketed or scan(/.*/)))
+            (@scanner.bol? and pod_comment) or
+            let_pos{
+               scan(/\#/) and bracketed and
+               (not(@scanner.bol?) or panic("Can't use embedded comments in column 1"))
+            } or
+            (scan(/\#.*/u))
         }
     end
 
@@ -209,10 +195,10 @@ class Perl < Grammar
              scan(/begin[ \t]*/) and
              #wsp and #R XXX causes problems with "=begin\n=head...".
              (id= ident;true) and
-             scan(/(?:.|\n)*?\n=end\b/) and #R XXX doesn't accept unsp between '=' and 'end'.
-             (not(id) or (wsp and scan(/#{id}.*/)))
+             scan(/(?:.|\n)*?\n=end\b/u) and #R XXX doesn't accept unsp between '=' and 'end'.
+             (not(id) or (wsp and scan(/#{id}.*/u)))
          } or
-         scan(/.*/))
+         scan(/.*/u))
     end
 
     # Top-level rules
@@ -235,7 +221,7 @@ class Perl < Grammar
         wsp
         _sl = statementlist
         wsp
-        scan_unitstopper
+        scan_unitstopper #R panic() is in scan_unitstopper
         wsp
         $env_vars.scope_leave
         _match_from(b,{:statementlist=>_sl},:comp_unit)
@@ -280,11 +266,11 @@ class Perl < Grammar
 
 
     def statementlist
-        starRULE{ statement }
+        starRULE{ s= statement and eat_terminator and s }
     end
 
     def semilist
-        starRULE{ statement }
+        starRULE{ s= statement and eat_terminator and s }
     end
 
     def label
@@ -304,14 +290,14 @@ class Perl < Grammar
         (label_ = control_ = expr_ = mod_loop_ = mod_cond_ =
          loopx_ = condx_ = mod_condloop_ = modexpr_ = nil)
         let_pos{
-            wsp
             b = pos
+            wsp
             label_= starTOK{ label }
             (begin
                  let_pos{
                      (( control_= statement_control or
-                        before(/;/) ) and
-                      eat_terminator)  
+                        before(/;/) )
+                      )
                  }
              end or
              begin
@@ -321,23 +307,23 @@ class Perl < Grammar
                      expr_= _EXPR and
                      (b1 = pos;true) and
                      (let_pos{
-                          before{ stdstopper } and
-                          eat_terminator } or
+                          before{ stdstopper_no_mod } #R XXX NONSPEC KLUDGE _no_mod - STD.pm bug? workaround.
+                      } or
                       let_pos{
                           $env_vars[:endstmt] = endstmt; $env_vars[:endargs] = endargs
-                          mod_loop_= statement_mod_loop and loopx= _EXPR and
-                          eat_terminator } or
+                          mod_loop_= statement_mod_loop #R XXX NONSPEC bug? workaround # and loopx= _EXPR
+                      } or
                       let_pos{
                           $env_vars[:endstmt] = endstmt; $env_vars[:endargs] = endargs
                           endstmt1 = $env_vars[:endstmt]; endargs1 = $env_vars[:endargs]
-                          mod_cond_= statement_mod_cond and condx= _EXPR and
+                          mod_cond_= statement_mod_cond and #R XXX NONSPEC bug? workaround # condx= _EXPR and
                           (let_pos{
-                               before{ stdstopper } and
-                               eat_terminator } or
+                               before{ stdstopper_no_mod } #R XXX NONSPEC KLUDGE _no_mod - STD.pm bug? workaround.
+                           } or
                            let_pos{
                                $env_vars[:endstmt] = endstmt1; $env_vars[:endargs] = endargs1
-                               mod_condloop_= statement_mod_loop and loopx= _EXPR and
-                               eat_terminator } or
+                               mod_condloop_= statement_mod_loop #R XXX NONSPEC bug? workaround # and loopx= _EXPR
+                           } or
                            false)
                       } or
                       false)
@@ -432,12 +418,12 @@ class Perl < Grammar
       }
 
     def modifier_expr; wsp and e=_EXPR and wsp and e; end
-    def_rules_rest :statement_mod_cond,%w{ if unless when },%q{
+    def_tokens_rest :statement_mod_cond,false,%w{ if unless when },%q{
       nofat and wsp and
       me=modifier_expr and wsp and
       _match_from(start,{:mod_<sym>=>me},:<sym>)
     }
-    def_rules_rest :statement_mod_loop,%w{ while until for given },%q{
+    def_tokens_rest :statement_mod_loop,false,%w{ while until for given },%q{
       nofat and wsp and
       me=modifier_expr and wsp and
       _match_from(start,{:mod_<sym>=>me},:<sym>)
@@ -468,9 +454,9 @@ class Perl < Grammar
              (precircum_= prefix_circumfix_meta_operator)
              ) and
             (prepost_= starTOK{ prefix_postfix_meta_operator }) and
-            false and #R wsp and #XXX causes regressions.  why?
-            (prec = (prefix_||precircum_)[:prec];
-             h={:pres=>prec};
+            wsp and
+            (o = (prefix_||precircum_)[:O];
+             h={:O=>o};
              _hkv(h,:prefix,prefix_);
              _hkv(h,:precircum,precircum_);
              _hkv(h,:prepost,prepost_);
@@ -482,7 +468,7 @@ class Perl < Grammar
         let_pos{
             b = pos
             pre_=adv=nil
-            #(before{ stdstopper } or
+            return false if before{ stdstopper } 
             (noun_= noun or
              (pre_= plusTOK{ pre } and noun_= noun)) and
             # also queue up any postfixes, since adverbs could change things
@@ -520,8 +506,7 @@ class Perl < Grammar
     def fatarrow
         let_pos{
             b = pos
-            (key = ident and
-             scan(/[ \t]*/) and
+            (key= ident and scan(/[ \t]*/) and
              scan(/\=>/) and wsp and
              val = _EXPR(Hitem_assignment)) and
             _match_from(b,{:key=>key,:val=>val},:fatarrow)
@@ -529,7 +514,8 @@ class Perl < Grammar
     end
 
     def colonpair
-        b = pos; id1=id2=pc1=pc2=si=tw=dns=nil
+        b = pos; id1=id2=pc1=pc2=si=tw=dsn=nil
+        let_pos{
         (scan(/:/) and b1 = pos and
          (let_pos{ scan(/!/) and id1= ident } or
           ( id2= ident and (unsp; pc1= postcircumfix;true)) or
@@ -545,6 +531,7 @@ class Perl < Grammar
           _hkv(h,:structural,structural_)
           _hkv(h,:varname,varname_)
           _match_from(b,h,:colonpair)))
+        }
     end
 
     def quotepair
@@ -570,15 +557,22 @@ class Perl < Grammar
         let_pos {
             ((not before{ scan(/\{/) or _lambda }) and # presumably a statement control block
              ei= expect_infix and
-             ($env_vars[:thisop][:prec] > loosest or parsefail) and
+             #R# { $<O> := $<expect_infix><O> }  #R not required as ei is passed on directly.
+             (ei[:O][:prec] > loosest) and
              ei)
         }
     end
 
     def expect_infix
-        b = pos; i=ipost=ipre=icirc=nil
-        not(before{stdstopper}) and
-        ((let_pos{ i= infix and starTOK{ ipost= infix_postfix_meta_operator } } or
+        b = pos; i=ipost=ipre=icirc=nil; op=nil
+        not(before{infixstopper}) and
+        ((let_pos{
+              i= infix and
+              ($env_vars.scope_enter(:opS)   # (used in infix_postfix_meta_operator)
+               $env_vars[:opS] = i
+               ipost= starTOK{ infix_postfix_meta_operator }) and # may modify $+op
+              (op = $env_vars[:opS])
+          } or
           (ipre= infix_prefix_meta_operator) or
           (icirc= infix_circumfix_meta_operator)) and
          (h={};
@@ -586,26 +580,30 @@ class Perl < Grammar
           _hkv(h,:infix_postfix_meta_operator,ipost)
           _hkv(h,:infix_prefix_meta_operator,ipre)
           _hkv(h,:infix_circumfix_meta_operator,icirc)
+          h[:O] = op ? op[:O] : (ipre || icirc)[:O]
+          h[:sym] = (i || ipre || icirc)[:sym]
           _match_from(b,h,:expect_infix)))
     end
 
-    def_tokens_rest :dotty,false,%w{ .+ .* .? .= .^ .: },%q{
+    def_tokens_rest :dotty,:methodcall,%w{ .+ .* .? .= .^ .: .:: },%q{ #R NONSPEC ADDED .::
       unspacey and
       op= methodop and
-      _match_from(start,{:sym=>'<sym>',:methodop=>op},:fancy)
+      _match_from(start,{:sym=>'<sym>',:methodop=>op,:O=>op[:O]},:'<sym>') #R NONSPEC name(s)?
     }
-    def_tokens_rest :dotty,false,%w{ . },%q{
+    def_tokens_rest :dotty,:methodcall,%w{ . },%q{
       unspacey and
       op= dottyop
       #R XXX requires an elf update
-      #R# _match_from(start,{:sym=>'<sym>',:dottyop=>op},:plain)
+      #R# _match_from(start,{:sym=>'<sym>',:dottyop=>op,:O=>op[:O]},:'<sym>')
     }
-    def_tokens_rest :dotty,false,%w{ ! },%q{
+    def_tokens_rest :dotty,:methodcall,%w{ ! },%q{
       unspacey and
       op= methodop and
-      _match_from(start,{:sym=>'<sym>',:methodop=>op},:private)
+      _match_from(start,{:sym=>'<sym>',:methodop=>op,:O=>op[:O]},:'<sym>')
     }
-    def dottyop; methodop or postop; end
+    def dottyop #R [:O] copying unnecessary as no Match is created.
+        methodop or postop
+    end
 
     def post
         let_pos{
@@ -624,35 +622,32 @@ class Perl < Grammar
             } and
             (d= dotty or postop_= postop) and
             (h={};
+             h[:O] = (d || postop_)[:O]
              _hkv(h,:postfix_prefix_meta_operator,ppmo)
              _hkv(h,:dotty,d)
              _hkv(h,:postop,postop_)
-             _hkv(h,:prec,postop_[:prec]) if postop_
              _match_from(b,h,:post))
         }
     end
 
-    #R XXX TODO I currently don't understand the [LIST] issue.  And dont support it.
+    #R XXX TODO I currently don't understand the [LIST] issue.  And so likely dont support it.
 
     # Note: backtracks, or we'd never get to parse [LIST] on seeing [+ and such.
     # (Also backtracks if on \op when no \op infix exists.)
     def_token_full :prefix_circumfix_meta_operator,false,'reduce',/\[/,%q{
-       b = pos
-       scan(/\[/) or return false
-       $env_vars.scope_enter(:thisop)
-       #starNgRX(proc{ scan(/\\/) }){ expect_infix and scan(/\]/) }
-       (let_pos{ expect_infix and scan(/\]/) } or 
-        (scan(/\\\\/) and expect_infix and scan(/\]/)) or
-        ($env_vars.scope_leave;return fail_at(b)))
-
-       ((not $env_vars[:thisop][:assoc] == 'non') or
-        panic("Can't reduce a non-associative operator"))
-       ((not $env_vars[:thisop][:prec] == Hconditional[:prec]) or
-        panic("Can't reduce a conditional operator"))
-
-       xXXX[:prec] = $env_vars[:thisop][:prec]
-
-       $env_vars.scope_leave
+       let_pos{
+           b = pos
+           scan(/\[(?=\S*\])/) or return false
+           ei=nil
+           (let_pos{ ei= expect_infix and scan(/\]/) } or
+            let_pos{ scan(/\\\\/) and ei= expect_infix and scan(/\]/) }) and
+           (o = ei[:O]
+            (not(o[:assoc] == :non) or
+             panic("Can't reduce a non-associative operator"))
+            (not(o[:prec] == Hconditional[:prec]) or
+             panic("Can't reduce a conditional operator"))
+            _match_from(b,{:expect_infix=>ei,:O=>o},:reduce))
+       }
     }
 
     def_tokens_simple :prefix_postfix_meta_operator,false,%w{ « }
@@ -660,31 +655,50 @@ class Perl < Grammar
     def_tokens_simple :postfix_prefix_meta_operator,false,%w{ » }
     def_tokens_simple :postfix_prefix_meta_operator,false,%w{ >> }
 
-    def_tokens_rest :infix_prefix_meta_operator,:chaining,%w{ ! },%q{lex1(:negation) and let_pos{ (not before(/!/)) and infix } and (($env_vars[:thisop][:assoc] == :chain) or ($env_vars[:thisop][:assoc] and $env_vars[:thisop][:bool]) or panic("Only boolean infix operators may be negated")) and ( $env_vars[:thisop][:hyper] and panic("Negation of hyper operator not allowed");true)}
+    def_tokens_rest :infix_prefix_meta_operator,:chaining,%w{ ! },%q{
+      i=nil
+      lex1(:negation) and
+      let_pos{ (not before(/!/)) and i= infix } and
+      (o = i[:O]
+       (o[:assoc] == :chain or
+        o[:assoc] and o[:bool] or
+        panic("Only boolean infix operators may be negated"))
+       (o[:hyper] and
+        panic("Negation of hyper operator not allowed"))
+       _match_from(start,{:infix=>i,:O=>o},:<sym>))
+    }
 
     def lex1(s)
-        $env_vars[:thisop][s] and panic("Nested #{s} metaoperators not allowed")
+        false and #R XXX UNIMPLEMENTED - STD.pm being refactored
+        panic("Nested #{s} metaoperators not allowed")
         true
     end
 
-    #R sym<X X>, fyi
-    def_tokens_rest :infix_circumfix_meta_operator,:list_infix,%w{ X },%q{ lex1(:cross) and infix and scan(/X/) }
+    def_token_full :infix_circumfix_meta_operator,:list_infix,'X X',/X/,%q{
+      lex1(:cross) and let_pos{ i= infix and scan(/X/) } and
+      _match_from(start,{:infix=>i,:O=>i[:O]},:'<sym>')
+    }
 
-    #R NONSPEC - multiple tokens, rather than a single one
-    #R  Can fix once we discard "hash model" of token parsing.
-    def self._icmo_brackets(left,right)
-        eval("def_tokens_rest :infix_circumfix_meta_operator,:hyper,%w{ #{left} },%q{ lex1(:hyper) and infix and scan(/#{right}/) }")
-    end
-    _icmo_brackets('«','»')
-    _icmo_brackets('«','«')
-    _icmo_brackets('»','»')
-    _icmo_brackets('»','«')
-    _icmo_brackets('<<','>>')
-    _icmo_brackets('<<','<<')
-    _icmo_brackets('>>','>>')
-    _icmo_brackets('>>','<<')
+    def_token_full :infix_circumfix_meta_operator,:hyper,'« »',/(?=«|»|<<|>>)/,%q{
+      i=nil
+      lex1(:hyper) and
+      (let_pos{ scan(/«|»/) and i= infix and scan(/«|»/) } or
+       let_pos{ scan(/<<|>>/) and i= infix and scan(/<<|>>/) }) and
+      _match_from(start,{:infix=>i,:O=>i[:O]},:'<sym>')
+    }
 
-    def_tokens_rest :infix_postfix_meta_operator,:item_assignment,%w{ = },%q{ lex1(:assignment) and (($env_vars[:thisop][:prec] > item_assignmentH[:prec]) or panic("Can't make assignment op of operator looser than assignment")) and ((not $env_vars[:thisop][:assoc] == :chain) or panic("Can't make assignment op of boolean operator")) and ((not $env_vars[:thisop][:assoc] == :non) or panic("Can't make assignment op of non-associative operator")) }
+    def_tokens_rest :infix_postfix_meta_operator,:item_assignment,%w{ = },%q{
+       lex1(:assignment) and
+       (op = $env_vars[:opS]
+        o = op[:O]
+        (o[:prec] > Hitem_assignment[:prec] or
+         panic("Can't make assignment op of operator looser than assignment"))
+        (not(o[:assoc] == :chain) or
+         panic("Can't make assignment op of boolean operator"))
+        (not(o[:assoc] == :non) or
+         panic("Can't make assignment op of non-associative operator"))
+        _match_from(start,{:O=>o},:'<sym>'))
+    }
     
     def_tokens_rest :postcircumfix,:methodcall,%w{ ( },%q{ sl=semilist and scan(/\)/) and sl }
     def_tokens_rest :postcircumfix,:methodcall,%w{ [ },%q{ sl=semilist and scan(/\]/) and sl }
@@ -694,7 +708,7 @@ class Perl < Grammar
     def_tokens_rest :postcircumfix,:methodcall,%w{ « },%q{ w=shellwords('»') and scan(/»/) and w }
     
     def postop
-        #R We pass though, and so don't have to set $<prec>.
+        #R We pass though, and so don't have to set [:O].
         (( postfix ) or
          ( postcircumfix ))
     end
@@ -727,12 +741,12 @@ class Perl < Grammar
     end
 
     def anglewords(stop)
-        #wsp and starTOK{ (not before(/#{stop}/)) and scan(/./) } # XXX need to split
-        wsp and scan(/(?:(?!#{stop}).)*/) #R# Modified, to get str, not array of char.
+        #wsp and starTOK{ (not before(/#{stop}/u)) and scan(/./u) } # XXX need to split
+        wsp and scan(/(?:(?!#{stop}).)*/u) #R# Modified, to get str, not array of char.
     end
 
     def shellwords(stop)
-        wsp and starTOK{ (not before(/#{stop}/)) and scan(/./) } # XXX need to split
+        wsp and starTOK{ (not before(/#{stop}/)) and scan(/./u) } # XXX need to split
     end
 
     #R inlined lambda in re
@@ -822,7 +836,12 @@ class Perl < Grammar
     end
 
     def_tokens_rest :plurality_declarator,false,%w{ multi proto only },%q{
-       p= pluralized and _match_from(start,{:pluralized=>p},:<sym>) }
+       if not before{ wsp and scan(/sub/) } #R XXX NONSPEC ADDED
+         r= routine_def and _match_from(start,{:routine_def=>r},:<sym>)
+       else
+         p= pluralized and _match_from(start,{:pluralized=>p},:<sym>)
+       end
+    }
     def_tokens_rest :routine_declarator,false,%w{ sub },%q{ routine_def }
     def_tokens_rest :routine_declarator,false,%w{ method submethod },%q{ method_def }
     def_tokens_rest :routine_declarator,false,%w{ macro },%q{ macro_def }
@@ -831,8 +850,9 @@ class Perl < Grammar
 
     # Most of these special variable rules are there simply to catch old p5 brainos
     #R so most are ignored here.
-    #R only $! and $¢ are non-obs?  Ignore them all for now.
-    #R special_variables: ignored.
+    #R Ignore most of them for now.
+
+    def_tokens_simple :special_variable,false,%w{ $/ $! $_ }
 
 
     # desigilname should only follow a sigil/twigil
@@ -848,9 +868,9 @@ class Perl < Grammar
          let_pos{
              sln=dsl=pc=nil
              (si = sigil and (tw = twigil;true) and
-              ((si == '&' and (sln = sublongname or return false;sln)) or
+              ((si[:sym] == '&' and (sln = sublongname or return false;sln)) or
                dsl= desigilname) and
-              ((tw == '.' and unsp? and before(/\(/) and pc= postcircumfix) or
+              ((tw and tw[:sym] == '.' and unsp? and before(/\(/) and pc= postcircumfix) or
                null)) and
              (h={:sigil=>si,:twigil=>tw};
               _hkv(h,:sublongname,sln)
@@ -869,7 +889,7 @@ class Perl < Grammar
          # A bare ::($foo) is not considered a variable, but ::($foo)::<$bar> is.
          # (The point being that we want a sigil either first or last but not both.)
          #= FOO::<$x>
-         let_pos{ name and scan(/::/) and before(/[\<\«\{]/) and postcircumfix }
+         let_pos{ name and scan(/::/) and before(/[\<\{«]/) and postcircumfix }
          )
     end
 
@@ -894,8 +914,14 @@ class Perl < Grammar
     end
 
     def subshortname
-        (let_pos{category and plusTOK{colonpair}} or
-         desigilname)
+        b=pos
+        (let_pos{
+             c= category and cp= plusTOK{colonpair} and
+             _match_from(b,{:category=>c,:colonpair=>cp},:subshortname)
+         } or
+         (dsn= desigilname and
+          _match_from(b,{:desigilname=>dsn},:subshortname))
+         )
     end
     
     def sublongname
@@ -945,12 +971,30 @@ class Perl < Grammar
         }x,'integer'
     end
     def radint; integer or (let_pos{ r = rad_number and r[:intpart] and not r[:fracpart] }); end
-    def dec_number; scan(/\d+(?:_\d+)* (?: \. \d+(?:_\d+)* (?: [Ee] [+\-]? \d+ )? )/x); end #R QUESTION why outer bracket?
+    def dec_number; scan(/\d+(?:_\d+)*
+                           (?: (?: \. \d+(?:_\d+)* (?: [Ee] [+\-]? \d+ )?)
+                         |                         (?: [Ee] [+\-]? \d+ ))/x); end
     def rad_number
-        let_pos{ scan(/:/) and radix_ = scan(/\d+/) and unsp? } and
-            ( ( scan(/</) and intpart = scan(/[0-9a-zA-Z]+/) and (fracpart = scan(/\.[0-9a-zA-Z]+/);true) and ( scan(/\*/) and base = radint and scan(/\*\*/) and exp = radint;true)) or
-              ( before(/\[/) and postcircumfix ) or
-              ( before(/\(/) and postcircumfix ))
+        let_pos{
+            b=pos
+            radix_=intpart=fracpart=base=exp=pc=nil
+            scan(/:/) and radix_ = scan(/\d+/) and unsp? and
+            ( ( scan(/</) and
+                intpart = scan(/[0-9a-zA-Z_]+/) and #R XXX NONSPEC ADDED _
+                (fracpart = scan(/\.[0-9a-zA-Z_]+/);true) and  #R XXX NONSPEC ADDED _
+                (scan(/\*/) and base = radint and scan(/\*\*/) and exp = radint;true) and
+                scan(/>/)) or
+              ( before(/\[/) and pc= postcircumfix ) or
+              ( before(/\(/) and pc= postcircumfix )) and
+            (h={}
+             _hkv(h,:radix,radix_)
+             _hkv(h,:intpart,intpart)
+             _hkv(h,:fracpart,fracpart)
+             _hkv(h,:base,base)
+             _hkv(h,:exp,exp)
+             _hkv(h,:postcircumfix,pc)
+             _match_from(b,h,:rad_number))
+        }
     end
     def octint; scan(/[0-7]+/); end
     def hexint; scan(/[0-9a-fA-F]+/); end
@@ -1246,7 +1290,7 @@ class Perl < Grammar
                 s.slice!(-2,2)
                 _match_from(b1-1,{:text=>s},:qq_ww)
             elsif close == '»'
-                s= scan(/(?:[^\»\\]|\\.)*»/) or panic("Error in quotesnabber")
+                s= scan(/(?:[^»\\]|\\.)*»/) or panic("Error in quotesnabber")
                 s.slice!(-1,1)
                 _match_from(b1-1,{:text=>s},:qq_ww)
             else; raise "bug"
@@ -1366,13 +1410,15 @@ class Perl < Grammar
         #    <?before <+isPe> > {
         #        self.panic("Use a closing delimiter for an opener is reserved");
         #    }
-        elsif strt = scan(/(.)\1*/) #R XXX huh?
-            char = strt.match(/(.)\1*/)[1]
+        elsif strt = scan(/(.)\1*/u) #R XXX huh?
+            char = strt.match(/(.)\1*/u)[1]
             return false if not Open2close[char] #R XXX added workaround
             #R XXX QUESTION without a more selective check, <bracketed> fails below.
             #R perhaps R should panic() rather than die().
             rightbrack = Open2close[char] or raise "No matching close delimiter";
             stop = rightbrack * strt.length;
+            strt = Regexp.new(Regexp.quote(strt)) #R# NOTE returning regexp
+            stop = Regexp.new(Regexp.quote(stop)) #R# NOTE returning regexp
             return strt, stop;
         else
             raise "assert fail: can't get here"
@@ -1434,7 +1480,7 @@ class Perl < Grammar
             elsif before(esc)
                 e=q_escape(lang) or return fail_at(b)
             else
-                scan(/./m) or break
+                scan(/./um) or break
             end
         end
         scan(stop) or return fail_at(b)
@@ -1452,7 +1498,7 @@ class Perl < Grammar
             if before(esc)
                 e=q_escape(lang) or return fail_at(b)
             else
-                scan(/./m) or break
+                scan(/./um) or break
             end
         end
         send(stop) or return fail_at(b)
@@ -1466,7 +1512,7 @@ class Perl < Grammar
             if before(esc)
                 e=q_escape(lang) or return fail_at(b)
             else
-                scan(/./m) or break
+                scan(/./um) or break
             end
         end
         scan(stop) or return fail_at(b)
@@ -1485,7 +1531,7 @@ class Perl < Grammar
          (before(/\{/) and block) or
          (before(/$/) and variable and (extrapost;true)) or
          lex_pos{ variable and extrapost } or
-         scan(/.|\n/))
+         scan(/.|\n/u))
     end
 
     # Note, backtracks!  So expect_postfix mustn't commit to anything permanent.
@@ -1513,7 +1559,18 @@ class Perl < Grammar
     def routine_def
         rul{
             b=pos
-            i= quesRULE{ident} and wsp and 
+            #R# i= quesRULE{ident} and wsp and 
+            i= nil
+            #R NONSPEC ADDED subshortname
+            #R NONSPEC this is all implementation mechanism...
+            (if i= subshortname and i[:category]
+                cat = i[:category][:sym].to_sym
+                cp0 = i[:colonpair][0]
+                v = cp0[:value]
+                n = (v and v[:ident]) || cp0[:structural][:kludge_name]
+                prec = :additive #R XXX NONSPEC default precedence
+                class << self;self;end.def_tokens_simple(cat,prec,[n])
+            end; true) and wsp and
             s= quesRULE{multisig} and wsp and
             t= starRULE{trait} and wsp and
             k= block and
@@ -1549,10 +1606,15 @@ class Perl < Grammar
             s=[]
             i= quesRULE{ident} and wsp and
             t= starRULE{trait} and wsp and
+            ( #R XXX NONSPEC ADDED 'token f :P5 {a}'
+             a=nil
+             plusTOK{ _cp = colonpair and (a ||= []; a.push(_cp);true) and wsp }
+             true) and wsp and
             quesRULE{ scan(/:?\(/) and wsp and si= signature and si.push(si) and wsp and scan(/\)/) } and wsp and
             k= regex_block and
             (h={};
              _hkv(h,:ident,i[0])
+             _hkv(h,:adverbs,a) #R XXX NONSPEC ADDED
              _hkv(h,:signature,s)
              _hkv(h,:trait,t)
              _hkv(h,:regex_block,k)
@@ -1580,11 +1642,12 @@ class Perl < Grammar
     def_rules_rest :trait_verb,%w{ handles },%q{ _EXPR }
 
     def capterm
-        let_pos{ scan(/\\\(/) and capture and scan(/\)/) }
+        let_pos{ scan(/\\\(/) and c= capture and scan(/\)/) and c }
     end
 
-    def capture #R rule
-        _EXPR
+    def capture
+        b=pos
+        wsp and e= _EXPR and wsp and _match_from(b,{:EXPR=>e},:capture)
     end
 
     def sigterm
@@ -1628,23 +1691,28 @@ class Perl < Grammar
     def param_var
         let_pos{
             b=pos
-            si=tw=id=nil
+            cap=si=tw=id=pc=nil
+            (cap= scan(/\|/) and wsp;true) and #R XXX NONSPEC ADDED (|$c) S06.html#Argument_list_binding
             (si=sigil and (tw=twigil;true) and
              (# Is it a longname declaration?
-              (let_pos{ si.str == '&' and id=ident } and
-               (ident_=sublongname or return false;ident_)) or
+              (before{ si.str == '&' and ident } and
+               (id= sublongname or return false;id)) or
               # Is it a shaped array or hash declaration?
-              (let_pos{ (si.str == '@' or si.str == '%')  and
-                   (ident;true) and wsp and before(/[\<\(\[\{]/) and
-                   postcircumfix }) or
+              (let_pos{
+                   (si.str == '@' or si.str == '%')  and
+                   (id= ident;true) and wsp and before(/[\<\(\[\{]/) and
+                   pc= postcircumfix
+               }) or
               # ordinary parameter name
               (id=ident) or
               # bare sigil?          
               (null))) and
             (h={};
+             _hkv(h,:capture,cap) #R XXX NONSPEC ADDED
              _hkv(h,:sigil,si)
              _hkv(h,:twigil,tw)
              _hkv(h,:ident,id)
+             _hkv(h,:postcircumfix,pc)
              _match_from(b,h,:param_var))
         }
     end
@@ -1653,7 +1721,7 @@ class Perl < Grammar
         quantS = nil
         v = (
              b=pos
-             pv=quantchar_=nil
+             pv=quantchar_=dv=nil
              tc= starTOK{ type_constraint } and 
              (let_pos{
                   quantchar_ = scan(/\*/) and pv = param_var and
@@ -1669,18 +1737,18 @@ class Perl < Grammar
                 let_pos{
                     pv= param_var and quantS = '!'
                 }) and
-               quesTOK{ quanchar_ = scan(/[\?!]/) and quantS = quantchar_ })) and
+               quesTOK{
+                   quantchar_ = scan(/[\?!]/) and quantS = quantchar_
+               })) and
                starTOK{ trait } and
                starTOK{ post_constraint } and
                quesTOK{
-                 (default_value and
+                 (dv= default_value and
                   (case quantchar_
                    when '!'
                        panic("Can't put a default on a required parameter")
                    when '*'
                        panic("Can't put a default on a slurpy parameter")
-                   else
-                       raise 'bug?'
                    end
                    quantS = '?'))
              } and
@@ -1688,6 +1756,7 @@ class Perl < Grammar
               _hkv(h,:param_var,pv)
               _hkv(h,:quantchar,quantchar_)
               _hkv(h,:type_constraint,tc)
+              _hkv(h,:default_value,dv)
               _match_from(b,h,:parameter)
               )) or return false
         # enforce zone constraints
@@ -1709,22 +1778,25 @@ class Perl < Grammar
             when :var
                 panic("Can't use optional positional parameter in variadic zone")
             else
-                raise 'bug?'
+                STDERR.print "Ignoring alleged zone violation.\n" if not $quiet
+                #R# raise 'bug?' #R XXX but I'm not sure why this isn't working.
             end
         when '*'
             $env_vars[:zone] = :var
         else
+            p quantS
             raise 'bug?'
         end
         v
     end
 
     def default_value
-        rul{ scan(/\=/) and _EXPR(Hitem_assignment) }
+        rul{ scan(/\=/) and wsp and _EXPR(Hitem_assignment) }
     end
 
     def_tokens_rest :statement_prefix,false,%w{ do try gather contend async lazy },%q{
-      s= statement and _match_from(start,{:statement=>s},:<sym>) }
+      s= statement and
+      _match_from(start,{:statement=>s},:<sym>) }
 
 
     ## term
@@ -1747,23 +1819,31 @@ class Perl < Grammar
     def_tokens_simple :postfix,:autoincrement,%w{ ++ -- i }
     def_tokens_simple :prefix,:autoincrement,%w{ ++ -- }
     def_tokens_simple :infix,:exponentiation,%w{ ** }
-    def_tokens_simple :prefix,:symbolic_unary,%w{ ! + - ~ ? = * ** ~^ +^ ?^ ^ | }
-    def_tokens_simple :infix,:multiplicative,%w{ * / % +& +< << >> +> ~&> ~< ~> }
+    def_tokens_simple :prefix,:symbolic_unary,%w{ ! + - ~ ? = * ** ~^ +^ ?^ ^ | \\ } #R NONSPEC ADDED \\
+    def_tokens_simple :infix,:multiplicative,%w{ * / % +& +< << >> +> ~&> ~< ~> ?& div mod } #R NONSPEC ADDED ?& div mod
     def_tokens_simple :infix,:additive,%w{ + - +| +^ ~| ~^ ?| ?^ }
     def_tokens_simple :infix,:replication,%w{ x xx }
     def_tokens_simple :infix,:concatenation,%w{ ~ }
     def_tokens_simple :infix,:junctive_and,%w{ & }
     def_tokens_simple :infix,:junctive_or,%w{ | ^ }
     def_tokens_simple :prefix,:named_unary,%w{ rand sleep abs }
-    def_tokens_simple :infix,:nonchaining,%w{ <=> cmp is but does .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff fff^ ^fff^ }
-    def_tokens_simple :infix,:chaining,%w{ == != < <= > >= ~~ !~ =~ eq ne lt le gt ge =:= === }
+    def_tokens_simple :prefix,:named_unary,%w{ sin cos tan asin acos atan exp }
+    def_tokens_simple :infix,:nonchaining,%w{ <=> cmp leg is but does .. ^.. ..^ ^..^ } #R NONSPEC ADDED leg. Moved ff per S03 + TT.
+    def_tokens_simple :infix,:chaining,%w{ == != < <= > >= ~~ !~ =~ eq ne lt le gt ge =:= === eqv } #R NONSPEC ADDED eqv.
     def_tokens_simple :infix,:tight_and,%w{ && }
-    def_tokens_simple :infix,:tight_or,%w{ || // }
-    def_tokens_rest :infix,:tight_or,%w{ ^^ },%q{ xXXX[:assoc] = :list }
+    def_tokens_simple :infix,:tight_or,%w{ || // min max } #R NONSPEC ADDED min max.
+    def_tokens_simple :infix,:conditional,%w{  ff ^ff ff^ ^ff^ fff ^fff fff^ ^fff^ } #R NONSPEC Moved ff.
+    def_tokens_rest :infix,:tight_or,%w{ ^^ },%q{
+      _match_from(start,{:O=>{:assoc=>:list}},:'<sym>')  # override Tight_or's 'left' associativity
+    }
 
 
     ## conditional
-    def_token_full :infix,:conditional,'?? !!',/\?\?/,%q{ _EXPR(Hconditional) }
+    def_token_full :infix,:conditional,'?? !!',/\?\?/,%q{
+        wsp and
+        e= _EXPR(Hconditional) and scan(/!!/) and
+        _match_from(start,{:EXPR=>e},:conditional)
+    }
     #R assorted cautionary panics left out
 
     ## assignment
@@ -1773,16 +1853,18 @@ class Perl < Grammar
 
     def_tokens_simple :infix,:item_assignment,%w{ := ::= }
     # XXX need to do something to turn subcall into method call here...
-    def_tokens_simple :infix,:item_assignment,%w{ .= }
+    def_tokens_simple :infix,:item_assignment,%w{ .= => } #R NONSPEC ADDED  '=>' for $var => 2.
     # Note, other assignment ops generated by infix_postfix_meta_operator rule
 
     def_tokens_simple :prefix,:loose_unary,%w{ true not }
-    def_tokens_simple :infix,:comma,%w{ , p5=> }
+    def_tokens_simple :infix,:comma,%w{ , p5=> : }  #R NONSPEC added ':' for \(4:5,6)
     def_tokens_simple :infix,:list_infix,%w{ X Z minmax }
 
-    #R QUESTION: STD says ... \s ... not \s+.  That can't be right, can it?
-    def_token_full :term,:list_prefix,'sigil',sigil_speed_hack_re,%q{ scan(/\s+/) and arglist }
-    def_token_full :term,:list_prefix,'typecast',//,%q{ typename and scan(/\s+/) and arglist }
+    def_token_full :term,:list_prefix,'sigil',sigil_speed_hack_re,%q{ before(/\s/) and arglist }
+    def_token_full :term,:list_prefix,'typecast',//,%q{
+        tn= typename and scan(/\s+/) and a= arglist and
+        _begin_from(start,{:typename=>tn,:arglist=>a,:sym=>tn.str},:<sym>)
+    }
 
     # unrecognized identifiers are assumed to be post-declared listops.
     # (XXX for cheating purposes this rule must be the last term: rule)
@@ -1798,14 +1880,29 @@ class Perl < Grammar
        
     def_tokens_simple :infix,:loose_and,%w{ and andthen }
     def_tokens_simple :infix,:loose_or,%w{ or xor orelse }
-    def_tokens_before :terminator,:terminator,%w{ ; <== ==> --> ) ] \} !! }
+    def_tokens_before :terminator,:terminator,%w{ ; <== ==> --> ) ] \} !! <<== ==>> } #R NONSPEC ADDED <<== ==>> per S03.
 
+    def infixstopper
+        before{ scan(/\{/) or _lambda } and after(/\s/)
+    end
 
-    #R regex - ##Q why is this a regex?
+    def stdstopper_no_mod #R XXX KLUDGE ADDED STD.pm bug workaround
+        (@scanner.eos? || @scanner.check(/\n/) ||
+         terminator || #R# no _mod_ # statement_mod_cond || statement_mod_loop ||
+#R XXX issues with "do {}"
+#         ((before(/\{/) or before{ _lambda }) and after(/\s/)) ||
+         ws_from == $env_vars[:endstmt] ||
+         pos == $env_vars[:endargs] ||
+         false
+         #R  #    | <$+unitstopper> #R?
+         #R  #  scan_unitstopper
+         )
+    end
     def stdstopper
         (@scanner.eos? || @scanner.check(/\n/) ||
          terminator || statement_mod_cond || statement_mod_loop ||
-         ((before(/\{/) or before{ _lambda }) and after(/\s/)) ||
+#R XXX issues with "do {}"
+#         ((before(/\{/) or before{ _lambda }) and after(/\s/)) ||
          ws_from == $env_vars[:endstmt] ||
          pos == $env_vars[:endargs] ||
          false
@@ -1816,149 +1913,164 @@ class Perl < Grammar
 
     def pop(a);a.pop;end
     def push(a,e);a.push(e);end
+    def shift(a);a.shift;end
     def reverse(a);a.reverse;end
     def item(h);raise "what does item do?";end
     def _EXPR(*args); let_pos{ _EXPR_raw(*args) }; end
     def _EXPR_raw(preclimH=nil)
-        stopS=nil
-        seenS=false
         noisy = false #R added
-        hereS_workaround = self
-
+        #noisy = true #R added
         preclimH ||= HLOOSEST
-        stopS ||= method(:stdstopper)
-
-        $env_vars.scope_enter(:inquoteS,:prevopS,:thisopH);
         
-        my preclimS = preclimH[:prec];
+        preclimS = preclimH[:prec];
+        $env_vars.scope_enter(:inquoteS,:prevopS);
         $env_vars[:inquoteS] = 0
-        #    my terminatorA = before(lambda{|s| stop(s) } );
-        #    return () if not terminatorA.empty? and terminatorA[0].bool;
         termstackA = []
         opstackA = []
 
-        #R push opstackA, termH;         # (just a sentinel value)
-        push opstackA, {:prec=>"a="} #R kludge
+        # (just a sentinel value)
+        push opstackA, {:O=>{:prec=>"a="},:sym=>''} #R kludge
 
+        hereS_workaround = self
         hereS = nil
-        if seenS 
-            hereS = seenS;
-        else 
-            my tA = [expect_term()];
-            hereS = tA[0];
-        end
-        push termstackA, hereS;
         say "In EXPR, at ", hereS_workaround.pos if noisy;
 
         reduce = lambda {
             say "entering reduce, termstack == ", termstackA.length, " opstack == ", opstackA.length if noisy;
-            my opS = pop(opstackA);
-            case opS[:assoc] 
+            opS = pop(opstackA);
+
+            case opS[:O][:assoc].to_s
             when 'chain' 
                 say "reducing chain" if noisy;
                 chainA = []
                 push chainA, pop(termstackA);
-                push chainA, opS;
+                #R# push chainA, opS; #R XXX - seemed odd
                 while not opstackA.empty? 
-                    break if opS[:prec] != opstackA[-1][:prec];
+                    break if opS[:O][:prec] != opstackA[-1][:O][:prec];
+                    break if opS[:sym] != opstackA[-1][:sym];
                     push chainA, pop(termstackA);
-                    push chainA, pop(opstackA)[:top];
+                    #R# push chainA, pop(opstackA); #R XXX - seemed odd
+                    pop(opstackA); #R XXX from above
                 end
                 push chainA, pop(termstackA);
-                opS[:top][:chain] = reverse chainA;
-                push termstackA, opS[:top];
+                opS[:chain] = reverse chainA;
+                push termstackA, opS;
             when 'list' 
                 say "reducing list" if noisy;
                 listA = []
                 push listA, pop(termstackA);
                 while not opstackA.empty? 
-                    break if opS[:top][:sym] != opstackA[-1][:top][:sym];
+                    break if opS[:sym] != opstackA[-1][:sym];
                     push listA, pop(termstackA);
                     pop(opstackA);
                 end
                 push listA, pop(termstackA);
-                opS[:top][:list] = reverse listA;
-                push termstackA, opS[:top];
+                opS[:list] = reverse listA;
+                push termstackA, opS;
             else
                 say "reducing" if noisy;
                 listA = []
-                say termstackA.length if noisy;
+                say "Termstack size: ",termstackA.length if noisy;
+                
+                if opS[:O][:assoc]
+                    opS[:right] = pop termstackA;
+                    opS[:left] = pop termstackA;
+                else
+                    opS[:arg] = pop termstackA;
+                end
 
-                #opS[:top][:right] = pop termstackA;
-                #opS[:top][:left] = pop termstackA;
-
-                my _opH = opS;   # XXX anti-pugs hack
-                _opH[:top][:right] = pop termstackA;
-                _opH[:top][:left] = pop termstackA;
-                opS = _opH;
-
-                push termstackA, opS[:top];
+                push termstackA, opS;
             end
         }
 
         while true 
-            say "In while true, at ", hereS_workaround.pos if noisy;
+            say "In loop, at ", hereS_workaround.pos if noisy;
+            oldposS = hereS_workaround.pos
+            tA = [hereS_workaround.expect_term()]  # eats ws too
+            tA = [] if not tA[0] #R
+            break unless tA.length > 0
+            hereS = tA[0]
+            break unless hereS_workaround.pos > oldposS
 
-            wsp #R added
+            # interleave prefix and postfix, pretend they're infixish
+            mS = hereS
+            preA = []
+            preA = mS[:pre] if mS[:pre]
+            postA = []
+            postA = mS[:post] if mS[:post]
+            #R Mutate expet_infix's $<post>.  Eeep.
+            while true
+                if preA.length > 0
+                    if postA.length > 0 and postA[0][:O][:prec] > preA[0][:O][:prec]
+                        push opstackA, shift(postA)
+                    else
+                        push opstackA, pop(preA)
+                    end
+                elsif postA.length > 0
+                    push opstackA, shift(postA)
+                else
+                    break
+                end
+            end
 
-            my terminatorA = [hereS_workaround.before{stopS.call()}]
-            my tS = terminatorA[0];
-            break if tS and terminatorA[0].bool;
-            $env_vars[:thisopH] = {}
+            push termstackA, hereS
+            say "after push: #{termstackA.length}" if noisy
             #        my infixA = [hereS_workaround.expect_tight_infix(preclimS)];
-            my infixA = [hereS_workaround.expect_infix()];
-            my infixS = infixA[0];
-            hereS = infixS;
-            wsp
+            oldposS = hereS_workaround.pos
+            infixA = [hereS_workaround.expect_infix()]
+            infixA = [] if not infixA[0] #R ruby
+            break unless infixA.length > 0
+            infixS = infixA[0];
+            break unless pos > oldposS
 
             # XXX might want to allow this in a declaration though
             if not infixS;  hereS_workaround.panic("Can't have two terms in a row"); end
 
-            if not $env_vars[:thisopH].key?(:prec) 
-                say "No prec case in thisop!" if noisy;
-                $env_vars[:thisopH] = Hterminator;
+            if not infixS[:sym]
+                p infixS
+                raise "bug "
             end
-            thisprecS = $env_vars[:thisopH][:prec];
+
+            wsp
+
+            inO = infixS[:O]
+            inprec = inO[:prec]
+            if not inprec
+                say "No prec case in thisop!" if noisy;
+                inprec = Hterminator[:prec]
+            end
             # substitute precedence for listops
-            $env_vars[:thisopH][:prec] = $env_vars[:thisopH][:sub] if $env_vars[:thisopH][:sub];
-            
+            inO[:prec] = inO[:sub] if inO[:sub]
+
             # Does new infix (or terminator) force any reductions?
-            while opstackA[-1][:prec] > thisprecS 
+            while opstackA[-1][:O][:prec] > inprec
                 reduce.call();
             end
             
             # Not much point in reducing the sentinels...
-            break if thisprecS < SLOOSEST;
+            break if inprec < SLOOSEST;
             
             # Equal precedence, so use associativity to decide.
-            if opstackA[-1][:prec] == thisprecS 
-                case $env_vars[:thisopH][:assoc].to_s
+            if opstackA[-1][:O][:prec] == inprec
+                case inO[:assoc].to_s
                 when 'non' ;   hereS_workaround.panic("\"#{infixS}\" is not associative")
                 when 'left' ;  reduce.call()   # reduce immediately
                 when 'right';  # just shift
                 when 'chain';  # just shift
                 when 'list'                # if op differs reduce else shift
-                    reduce.call() if $env_vars[:thisopH][:top][:sym] != opstackA[-1][:top][:sym];
+                    reduce.call() if infixS[:sym] != opstackA[-1][:sym];
                 else
                     hereS_workaround.panic("Unknown associativity \"#{$env_vars[:thisopH][:assoc]}\" for \"#{infixS}\"")
                 end
             end
-            push opstackA, $env_vars[:thisopH]  #R item($env_vars[:thisopH]); # ignore puzzling item()
-            my terminatorA = [hereS_workaround.before{stopS.call()}];
-            if not terminatorA.empty? and terminatorA[0].bool 
-                hereS_workaround.panic("#{infixS.perl()} is missing right term");
-            end
-            $env_vars[:thisopH] = {}
-
-            my tA = [hereS_workaround.expect_term()];
-            hereS = tA[0];
-            push termstackA, hereS;
-            say "after push: ", termstackA.length if noisy;
+            push opstackA, infixS
         end
         reduce.call() while termstackA.length > 1;
-        termstackA.length == 1 or hereS_workaround.panic("Internal operator parser error, termstack == #{termstackA.length}");
+        if termstackA.length > 0
+            termstackA.length == 1 or hereS_workaround.panic("Internal operator parser error, termstack == #{termstackA.length}");
+        end
         $env_vars.scope_leave
-        return termstackA[0];
+        return termstackA[0] #R nil if array is empty
     end
 
 
@@ -2116,11 +2228,11 @@ class Perl < Grammar
     }
 
     def codepoint
-        scan(/\[(.*?)\]/)
+        scan(/\[(.*?)\]/u)
     end
 
     def_tokens_before :q_backslash,false,%w{ qq },%q{ quote }
-    def_tokens_rest :q_backslash,false,[""],%q{ scan(/./) }
+    def_tokens_rest :q_backslash,false,[""],%q{ scan(/./u) }
 
     def_tokens_rest :qq_backslash,false,%w{ c },%q{ scan(/\[[^\]\n\r]*\]/) or codepoint }
 
