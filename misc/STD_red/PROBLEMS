@@ -1,0 +1,28 @@
+
+t/02-test-pm/3-output.t
+int is a typename, so doesn't parse as a subcall.
+int 3
+
+t/blocks/currying.t
+Adverbial arguments without a comma don't parse.
+f(:x(1) :y(2))
+
+t/blocks/implicit_parameters.t
+UNKNOWN.
+{3}.()
+
+t/blocks/lvalue_subroutines.t
+comment breaks } end-of-statement
+sub f { 3 } # without rw
+
+t/blocks/multi_sub.t
+comment breaks } end-of-statement
+
+t/blocks/param_signature.t
+q{...} isn't being treated as a string
+
+
+t/blocks/return.t
+Is this really valid?
+while $x-- { return 24; } return 42;
+

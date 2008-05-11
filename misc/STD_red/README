@@ -6,7 +6,8 @@ It may, or may not, also work with ruby 1.8.
 EXAMPLE
   ./STD_red_run -e 42
 
-
+  time ((find ../../v6/v6-KindaPerl6/t/kp6/ -type f ; find ../../t/ -type f )| grep -v '\.svn' | sort | xargs -n 1 perl -e 'local $_=shift;exit if !/\.t$/;$r=system("./STD_red_run $_ > /dev/null 2>&1");print "",($r == 0 ? "-" : "X")," ",$_,"\n";' > test-status)
+  ~5 minutes
 
 NOTES
 
@@ -39,13 +40,6 @@ Re backtracking,
   We're not making a regexp engine, nor a real Grammar.
   We're simply trying to get the ability to parse static p6, by the
   easiest possible development path.
-
-
-To test the parsibility of a set of files:
-
-  find ../../v6/v6-KindaPerl6/t/kp6/ -type f | grep -v svn | sort | xargs -n 1 perl -e 'local $_=shift;exit if !/\.t$/;$r=system("./STD_red_run $_ > /dev/null 2>&1");print "",($r == 0 ? "-" : "X")," ",$_,"\n";' > test-kp6
-
-  find ../../t/ -type f | grep -v svn | sort | xargs -n 1 perl -e 'local $_=shift;exit if !/\.t$/;$r=system("./STD_red_run $_ > /dev/null 2>&1");print "",($r == 0 ? "-" : "X")," ",$_,"\n";' > test-t
 
 
 RUBY YAML
