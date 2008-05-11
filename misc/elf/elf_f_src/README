@@ -1,0 +1,7 @@
+
+../elf_e -x -o ../elf_f0 Elf.pm
+../elf_f0 -x -o ../elf_f Elf.pm
+cp ../elf_f ../elf_f1
+../elf_f1 -x -o ../elf_f2 Elf.pm
+diff ../elf_f[12]
+../elf_f2 -e 'say 3'
