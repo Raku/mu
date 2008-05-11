@@ -262,8 +262,8 @@ use warnings;
   sub parser_name{
     my $f = $0;
     $f =~ s/[^\/]+$//;
-    # $f."elf_e_src/STD_red/STD_red_run"
-    $f."../STD_red/STD_red_run"
+    $f."elf_e_src/STD_red/STD_red_run"
+    # $f."../STD_red/STD_red_run"
   }
 
   our $a_INC = ["."];
