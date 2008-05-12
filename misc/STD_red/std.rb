@@ -1953,7 +1953,8 @@ class Perl < Grammar
                     pop(opstackA); #R XXX from above
                 end
                 push chainA, pop(termstackA);
-                opS[:chain] = reverse chainA;
+                #R# opS[:chain] = reverse chainA;
+                opS[:args] = reverse chainA; #R XXX NONSPEC normalize name of argument list.
                 push termstackA, opS;
             when 'list' 
                 say "reducing list" if noisy;
@@ -1965,7 +1966,8 @@ class Perl < Grammar
                     pop(opstackA);
                 end
                 push listA, pop(termstackA);
-                opS[:list] = reverse listA;
+                #R# opS[:list] = reverse listA;
+                opS[:args] = reverse listA; #R XXX NONSPEC normalize name of argument list.
                 push termstackA, opS;
             else
                 say "reducing" if noisy;
@@ -1973,15 +1975,19 @@ class Perl < Grammar
                 say "Termstack size: ",termstackA.length if noisy;
                 
                 if opS[:O][:assoc]
-                    opS[:right] = pop termstackA;
-                    opS[:left] = pop termstackA;
+                    #R# opS[:right] = pop termstackA;
+                    #R# opS[:left] = pop termstackA;
+                    opS[:args] = [pop(termstackA),pop(termstackA)] #R XXX NONSPEC normalize name of argument list.
                 else
-                    opS[:arg] = pop termstackA;
+                    #R# opS[:arg] = pop termstackA;
+                    opS[:args] = [pop(termstackA)] #R XXX NONSPEC normalize name of argument list.
                 end
 
                 push termstackA, opS;
             end
         }
+
+        deepcopy = lambda {|o| Marshal.load(Marshal.dump(o)) } #R XXX KLUDGE
 
         while true 
             say "In loop, at ", hereS_workaround.pos if noisy;
@@ -1995,19 +2001,18 @@ class Perl < Grammar
             # interleave prefix and postfix, pretend they're infixish
             mS = hereS
             preA = []
-            preA = mS[:pre] if mS[:pre]
+            preA = mS[:pre].dup if mS[:pre]
             postA = []
-            postA = mS[:post] if mS[:post]
-            #R Mutate expet_infix's $<post>.  Eeep.
+            postA = mS[:post].dup if mS[:post]
             while true
                 if preA.length > 0
                     if postA.length > 0 and postA[0][:O][:prec] > preA[0][:O][:prec]
-                        push opstackA, shift(postA)
+                        push opstackA, deepcopy.(shift(postA)) #R XXX NONSPEC .dup to avoid cycles.
                     else
-                        push opstackA, pop(preA)
+                        push opstackA, deepcopy.(pop(preA)) #R XXX NONSPEC .dup to avoid cycles.
                     end
                 elsif postA.length > 0
-                    push opstackA, shift(postA)
+                    push opstackA, deepcopy.(shift(postA)) #R XXX NONSPEC .dup to avoid cycles.
                 else
                     break
                 end

@@ -117,7 +117,7 @@ class Array
   def to_dump0; '['+map{|e| e.to_dump0}.join(",")+']'; end
 end
 class Hash
-  def to_dump0; '{'+map{|k,v| k+' => '+v.to_dump0}.join(",")+'}' end
+  def to_dump0; '{'+map{|k,v| k.to_s+' => '+v.to_dump0}.join(",")+'}' end
 end
 class String
   def to_dump0; inspect.gsub(/([$@%])/){|m|'\\'+m[0]} end
