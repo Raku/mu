@@ -162,6 +162,9 @@ no warnings qw(redefine prototype);
   # Internal
 
   sub flatten (\@) { ( @{$_[0]} ) }
+  sub flatten_recursively {
+    map { my $ref = ref($_); ($ref && $ref eq "ARRAY") ? $_->flatten_recursively : $_ } @{$_[0]}
+  }
 }
 { package HASH;
   sub WHAT {"Hash"}
@@ -214,10 +217,29 @@ use warnings;
 }
 
 { package GLOBAL;
-  use Perl6::Say;
   { no warnings;
     *gather = \&Private::gather;
     *take   = \&Private::take;}
+
+  {
+    use Scalar::Util "openhandle";
+    sub say {
+      my $currfh = select();
+      my($handle,$warning);
+      {no strict "refs"; $handle = openhandle($_[0]) ? shift : \*$currfh;}
+      @_ = $_ unless @_;
+      my @as = @_;
+      @_ = map {
+        my $ref = ref($_);
+        ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
+      } @as;
+      local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
+      my $res = print {$handle} @_, "\n";
+      return $res if $res;
+      $warning =~ s/[ ]at[ ].*//xms;
+      Carp::croak $warning;
+    }
+  }
 
   our $a_ARGS = [@ARGV];
 
