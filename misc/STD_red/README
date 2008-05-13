@@ -3,11 +3,19 @@ A ruby transliteration of src/perl6/STD.pm
 INSTALL
 
 The release of ruby 1.9.0 (dated late December '07) is recommended.
-It may, or may not, also work with ruby 1.8.
+It will not work with ruby 1.8.  ruby svn HEAD is also not the right thing.
+There used to be iffy support for 1.8, but adding utf handling broke it.
 
 http://www.ruby-lang.org/en/news/2007/12/25/ruby-1-9-0-released/
 $ ruby --version
 ruby 1.9.0 (2007-12-25 revision 14709) [...]
+
+Debian:
+ ruby1.9 libreadline-ruby1.9
+ * Debian (testing aka "Lenny") error:
+   `require': no such file to load -- readline (LoadError) from -e:1:in `<main>'
+   Means you don't have libreadline-ruby1.9.
+
 
 EXAMPLE
   ./STD_red_run -e 42

@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
-require "yaml"
+
+RUBY_VERSION =~ /\A(1\.9|2\.)/ or raise "#{$0} needs ruby 1.9.  See README."
+
 
 class STDRedRun
   def print_usage_and_exit(msg=nil,code=2)
@@ -15,8 +17,8 @@ is seen again.  -e CODE is not cached.  And when std.rb is changed,
 previous cache entries are ignored.
 
 FORMAT
- yaml
  p5a
+ yaml   # depreciated
 
 Other arguments:
 
@@ -126,6 +128,7 @@ END
     elsif format == 'p5a'
       print out(tree.to_dump0)
     elsif format == 'yaml'
+      require "yaml"
       tree.prepare_for_yaml_dump if tree
       STDERR.print "yaml dumping...\n" if kibitz
       yml = YAML::dump(tree)+"\n"
