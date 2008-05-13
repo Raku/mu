@@ -330,17 +330,11 @@ $one;
     });
 
     $main::irbuilder.add_constructor('pblock', sub ($m) {
-        my $key;
-for $m.{'hash'}.keys {
-  if $_ ne 'match' {
-    if $key {
-      die("Unexpectedly more than 1 field - dont know which to choose\n")
-    }
-    $key = $_;
-  }
-}
-my $one = irbuild_ir($m.{'hash'}{$key});
-$one;
+      if $m.{'hash'}{'signature'} {
+IRx1::SubDecl.newp($m,undef,undef,undef,undef,irbuild_ir($m.{'hash'}{'signature'}),undef,irbuild_ir($m.{'hash'}{'block'}))
+} else {
+irbuild_ir($m.{'hash'}{'block'})
+};
     });
 
     $main::irbuilder.add_constructor('block', sub ($m) {

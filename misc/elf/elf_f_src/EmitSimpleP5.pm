@@ -576,8 +576,18 @@ package main; # -> Main once elf_d support is dropped.
     }
     elsif ($.e($n<function>) =~ /^circumfix:(.+)/) {
       my $op = $1;
-      my $arg = $.e($n<capture>);
-      $op.re_gsub(' ',$arg);
+      if $op eq '< >' {
+        my $s = $n<capture><arguments>[0];
+        my $words = $s.split(/\s+/);
+        if $words.elems == 0 {
+          '[]'
+        } else {
+          "['"~$words.join("','")~"']"
+        }
+      } else {
+        my $arg = $.e($n<capture>);
+        $op.re_gsub(' ',$arg);
+      }
     }
     elsif ($.e($n<function>) =~ /^statement_prefix:gather$/) {
       'GLOBAL::gather'~$.e($n<capture>)~''

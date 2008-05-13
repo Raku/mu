@@ -215,7 +215,11 @@ Apply.newp("statement_prefix:gather",$m<statement>)
 
 
 pblock
-*1*
+if $o<signature> {
+  SubDecl.newp(undef,undef,undef,undef,$m<signature>,undef,$m<block>)
+} else {
+  $m<block>
+}
 
 block
 Block.newp($m<statementlist>)
