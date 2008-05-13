@@ -362,10 +362,18 @@ package main; # -> Main once elf_d support is dropped.
   };
 
   method cb__Use ($n) {
-    my $module = $n<module_name>;
+    my $module = $.e($n<module_name>);
+    my $expr = $.e($n<expr>);
     if $module eq 'v6-alpha' { "" }
-    elsif $.compiler.hook_for_use($module) { "" }
-    else { "use " ~$module }
+    elsif $module eq 'lib' {
+      my $name = $n<expr><buf>;
+      if $.compiler.hook_for_use_lib($name) { "" }
+      else { "" }
+    }
+    elsif $.compiler.hook_for_use($module,$expr) { "" }
+    else {
+      "use " ~$module;
+    }
   };
   method cb__ClosureTrait ($n) {
     $n<kind>~'{'~$.e($n<block>)~'}'

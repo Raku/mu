@@ -179,7 +179,7 @@ IRx1::Apply.newp($m,irbuild_ir($m.{'hash'}{'subshortname'}),IRx1::Capture.newp($
     });
 
     $main::irbuilder.add_constructor('statement_control:use', sub ($m) {
-      IRx1::Use.newp($m,'use',irbuild_ir($m.{'hash'}{'module_name'}));
+      IRx1::Use.newp($m,'use',irbuild_ir($m.{'hash'}{'module_name'}),irbuild_ir($m.{'hash'}{'EXPR'}));
     });
 
     $main::irbuilder.add_constructor('module_name:depreciated', sub ($m) {

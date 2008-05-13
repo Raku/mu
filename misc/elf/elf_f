@@ -2168,7 +2168,7 @@ $main::irbuilder->add_constructor('name', sub {my($m)=@_;
 $main::irbuilder->add_constructor('subshortname', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('statement_control:use', sub {my($m)=@_;
-IRx1::Use->newp($m, 'use', irbuild_ir($m->{'hash'}->{'module_name'}))});
+IRx1::Use->newp($m, 'use', irbuild_ir($m->{'hash'}->{'module_name'}), irbuild_ir($m->{'hash'}->{'EXPR'}))});
 $main::irbuilder->add_constructor('module_name:depreciated', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('module_name:normal', sub {my($m)=@_;
@@ -2997,10 +2997,18 @@ sub cb__Block{my $self=CORE::shift;my($n)=@_;
 (('' . $self->e($n->{'statements'})->join(';
 ')) . '')};
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
-my $module = $n->{'module_name'};
+my $module = $self->e($n->{'module_name'});
+my $expr = $self->e($n->{'expr'});
 if(($module eq 'v6-alpha')) {
 ''
-}elsif($self->compiler->hook_for_use($module)) {
+}elsif(($module eq 'lib')) {
+my $name = $n->{'expr'}->{'buf'};
+if($self->compiler->hook_for_use_lib($name)) {
+''
+}else {
+''
+}
+}elsif($self->compiler->hook_for_use($module, $expr)) {
 ''
 }else {
 ('use ' . $module)
@@ -3430,7 +3438,14 @@ $GLOBAL::emitter0->prelude()
 }else {
 $GLOBAL::emitter1->prelude()
 }};
-sub hook_for_use{my $self=CORE::shift;my($module)=@_;
+sub hook_for_use_lib{my $self=CORE::shift;my($expr)=@_;
+$GLOBAL::a_INC->unshift($expr);
+if($self->is_for_active_runtime) {
+1
+}else {
+0
+}};
+sub hook_for_use{my $self=CORE::shift;my($module,$expr)=@_;
 if($self->is_for_active_runtime) {
 GLOBAL::require($module)
 }else {

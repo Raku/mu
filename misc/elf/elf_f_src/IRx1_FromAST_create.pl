@@ -106,7 +106,7 @@ subshortname
 *text*
 
 statement_control:use
-Use.newp('use',$m<module_name>)
+Use.newp('use',$m<module_name>,$m<EXPR>)
 
 module_name:depreciated
 *text*

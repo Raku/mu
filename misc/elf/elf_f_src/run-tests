@@ -43,7 +43,7 @@ exit;
     $r .= "  $files_run run ".int($files_run/$files_total*100)."%.";
     $r .= "  $files_ok ok ".int($files_ok/$files_total*100)."%.\n";
     $r .= "Tests: $tests_total+.";
-    $r .= "  $tests_ok ok <".int($tests_ok/$tests_total*100)."%";
+    $r .= "  $tests_ok ok <".(int($tests_ok/$tests_total*100*100)/100)."%";
     $r .= ", ".($tests_total-$tests_ok)."+ not.\n";
     print $r;
   }

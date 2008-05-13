@@ -75,7 +75,11 @@ class Compiler {
       $*emitter1.prelude
     }
   };
-  method hook_for_use($module) {
+  method hook_for_use_lib($expr) {
+    @*INC.unshift($expr);
+    if $.is_for_active_runtime { 1 } else { 0 }
+  }
+  method hook_for_use($module,$expr) {
     if $.is_for_active_runtime {
       require($module);
     } else {
