@@ -10,16 +10,45 @@ CompUnit.newp($m<statementlist>)
 statement
 *1*
 
+expect_infix
+if $m<infix> {
+  if $m<infix_postfix_meta_operator> {
+    die "Unimplemented infix_postfix_meta_operator";
+  }
+  my $op = $m<infix><sym>;
+  Apply.newp("infix:"~$op,Capture.newp($m<args>))
+} else {
+  die "Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator";
+}
+
 expect_term
 my $^blackboard::expect_term_base = $m<noun>;
-my $post = $m.{'hash'}{'post'} || [];
-for $post {
+my $ops = [];
+if $o<pre>  { $ops.push($o<pre>.flatten) };
+if $o<post> { $ops.push($o<post>.flatten) };
+for $ops {
   $^blackboard::expect_term_base = ir($_)
 }
 $^blackboard::expect_term_base
 
+term:expect_term
+$m<noun>
+
 post
-$m<dotty> or $m<postop>
+if $o<args> {
+  $m<args>[0]
+} else {
+  $m<dotty> or $m<postop>
+}
+
+pre
+if $o<args> {
+  $m<args>[0]
+} elsif $o<prefix> {
+  $m<prefix>
+} else {
+  die "pre without a prefix is unimplemented";
+}
 
 dotty:methodop
 Call.newp($^blackboard::expect_term_base,$m<ident>,Capture.newp($m<semilist>))
@@ -40,8 +69,17 @@ my $args = $m<kludge_name>;
 if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
 Call.newp($^blackboard::expect_term_base,$ident,Capture.newp($args))
 
-term:expect_term
-$m<noun>
+postfix
+my $op = *text*;
+Apply.newp("postfix:"~$op,Capture.newp([$^blackboard::expect_term_base]))
+
+prefix
+my $op = *text*;
+Apply.newp("prefix:"~$op,Capture.newp([$^blackboard::expect_term_base]))
+
+infix
+my $op = *text*;
+Apply.newp("infix:"~$op,Capture.newp([$m<left>,$m<right>]))
 
 term
 if *text* eq 'self' {
@@ -62,7 +100,10 @@ if $t && $t eq '.' {
 }
 
 name
-*text* # $m<ident>
+*text*
+
+subshortname
+*text*
 
 statement_control:use
 Use.newp('use',$m<module_name>)
@@ -97,13 +138,6 @@ quote:regex
 my $s = $m<text>;
 Rx.newp($s)
 
-infix
-#XXX Work around YAML::Syck::Load bug.
-# str: "="  is becoming str: "str". :/
-my $op = *text*;
-if $op eq 'str' { $op = '=' };
-Apply.newp("infix:"~$op,Capture.newp([$m<left>,$m<right>]))
-
 scope_declarator:my
 my $vd = $m<scoped>;
 VarDecl.newp('my',undef,undef,$vd.[0],undef,undef,'=',$vd.[1])
@@ -123,13 +157,33 @@ variable_decl
 [$m<variable>,$m<default_value>]
 
 variable
-Var.newp($m<sigil>,$m<twigil>,$m<desigilname>)
+my $tw = $m<twigil>;
+if $o<postcircumfix> {
+  if $tw eq "." {
+    my $slf = Apply.newp('self',Capture.newp([]));
+    my $args = $m<postcircumfix><kludge_name>;
+    if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
+    Call.newp($slf,$m<desigilname>,Capture.newp($args))
+  } else {
+    my $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
+    my $^blackboard::expect_term_base = $v;
+    $m<postcircumfix>;
+  }
+} else {
+  Var.newp($m<sigil>,$tw,$m<desigilname>);
+}
 
 sigil
 *text*
 
 twigil
 *text*
+
+special_variable
+my $v = *text*;
+my $s = substr($v,0,1);
+my $n = substr($v,1,$v.length);
+Var.newp($s,undef,$n)
 
 circumfix
 my $s = *text*;
@@ -173,7 +227,7 @@ $m<pluralized>
 routine_declarator:routine_def
 my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
-if $m<ident> { $ident = $m<ident>.[0] };
+if $o<ident> { $ident = $m<ident>  };
 my $sig = Signature.newp([],undef);
 if $m<multisig> { $sig = $m<multisig>.[0] };
 SubDecl.newp(undef,undef,$plurality,$ident,$sig,undef,$m<block>)
@@ -373,6 +427,7 @@ sub write_ast_handlers {
 
     $body =~ s/\bir\(/irbuild_ir\(/g;
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;
+    $body =~ s/\$o((?:<\w+>)+)/\$m$1/g;
     $body =~ s/<(\w+)>/.{'hash'}{'$1'}/g;
     $body =~ s/([A-Z]\w+\.new\w*)\(/IRx1::$1(\$m,/g;
     $body =~ s/\*text\*/(\$m.match_string)/g;

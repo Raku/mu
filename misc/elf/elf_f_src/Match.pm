@@ -40,6 +40,22 @@ class ARRAY {
      "\n]")
   }
 };
+class HASH {
+  method match_describe() {
+    my $s = "{";
+    for self.keys {
+      my $k = $_;
+      my $v = self.{$k};
+      my $vs = 'undef';
+      if defined($v) {
+        $vs = $v.match_describe;
+      }
+      $s = $s ~ "\n  "~$k~" => "~Match.indent_except_top($vs)~",";
+    }
+    if self.keys.elems {$s = $s ~ "\n"}
+    $s ~ "}"
+  };
+};
 class SCALAR {
   method match_describe() {
     "'"~self~"'"

@@ -1977,7 +1977,9 @@ class Perl < Grammar
                 if opS[:O][:assoc]
                     #R# opS[:right] = pop termstackA;
                     #R# opS[:left] = pop termstackA;
-                    opS[:args] = [pop(termstackA),pop(termstackA)] #R XXX NONSPEC normalize name of argument list.
+                    right = pop termstackA;
+                    left = pop termstackA;
+                    opS[:args] = [left,right] #R XXX NONSPEC normalize name of argument list.
                 else
                     #R# opS[:arg] = pop termstackA;
                     opS[:args] = [pop(termstackA)] #R XXX NONSPEC normalize name of argument list.

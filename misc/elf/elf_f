@@ -238,6 +238,8 @@ use warnings;
 { package GLOBAL;
 
   sub parser_name{
+    my $e = $ENV{ELF_STD_RED_RUN};
+    return $e if $e;
     my $f = $0;
     $f =~ s/[^\/]+$//;
     # $f."elf_e_src/STD_red/STD_red_run"
@@ -724,6 +726,29 @@ sub match_describe{my $self=CORE::shift;((('[
 $e->match_describe()})->join(',
 '))) . '
 ]'))};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package HASH;
+use Moose; __PACKAGE__->meta->make_mutable();
+sub match_describe{my $self=CORE::shift;my $s = '{';
+for($self->keys()->flatten){
+my $k = $_;
+my $v = $self->{$k};
+my $vs = 'undef';
+if(GLOBAL::defined($v)) {
+($vs = $v->match_describe())
+};
+($s = ((((($s . '
+  ') . $k) . ' => ') . Match->indent_except_top($vs)) . ','))
+};
+if($self->keys()->elems()) {
+($s = ($s . '
+'))
+};
+($s . '}')};
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2032,20 +2057,50 @@ GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
+$main::irbuilder->add_constructor('expect_infix', sub {my($m)=@_;
+if(irbuild_ir($m->{'hash'}->{'infix'})) {
+if(irbuild_ir($m->{'hash'}->{'infix_postfix_meta_operator'})) {
+GLOBAL::die('Unimplemented infix_postfix_meta_operator')
+};
+my $op = irbuild_ir($m->{'hash'}->{'infix'}->{'hash'}->{'sym'});
+IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'args'})))
+}else {
+GLOBAL::die('Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator')
+}});
 $main::irbuilder->add_constructor('expect_term', sub {my($m)=@_;
 {package main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = irbuild_ir($m->{'hash'}->{'noun'});
-my $post = ($m->{'hash'}->{'post'} || []);
-for($post->flatten){
+my $ops = [];
+if($m->{'hash'}->{'pre'}) {
+$ops->push($m->{'hash'}->{'pre'}->flatten())
+};
+if($m->{'hash'}->{'post'}) {
+$ops->push($m->{'hash'}->{'post'}->flatten())
+};
+for($ops->flatten){
 ($::es_blackboard__expect_term_base = irbuild_ir($_))
 };
 $::es_blackboard__expect_term_base});
+$main::irbuilder->add_constructor('term:expect_term', sub {my($m)=@_;
+irbuild_ir($m->{'hash'}->{'noun'})});
 $main::irbuilder->add_constructor('post', sub {my($m)=@_;
-(irbuild_ir($m->{'hash'}->{'dotty'}) or irbuild_ir($m->{'hash'}->{'postop'}))});
+if($m->{'hash'}->{'args'}) {
+irbuild_ir($m->{'hash'}->{'args'})->[0]
+}else {
+(irbuild_ir($m->{'hash'}->{'dotty'}) or irbuild_ir($m->{'hash'}->{'postop'}))
+}});
+$main::irbuilder->add_constructor('pre', sub {my($m)=@_;
+if($m->{'hash'}->{'args'}) {
+irbuild_ir($m->{'hash'}->{'args'})->[0]
+}elsif($m->{'hash'}->{'prefix'}) {
+irbuild_ir($m->{'hash'}->{'prefix'})
+}else {
+GLOBAL::die('pre without a prefix is unimplemented')
+}});
 $main::irbuilder->add_constructor('dotty:methodop', sub {my($m)=@_;
 IRx1::Call->newp($m, $::es_blackboard__expect_term_base, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))});
 $main::irbuilder->add_constructor('dotty:postcircumfix', sub {my($m)=@_;
 my $s = ($m->match_string());
-my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (0 - 1), 1));
+my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $ident = ('postcircumfix:' . $name);
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() eq 'SCALAR')))) {
@@ -2054,15 +2109,22 @@ if(($args && (($args->ref() eq 'SCALAR')))) {
 IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))});
 $main::irbuilder->add_constructor('postcircumfix', sub {my($m)=@_;
 my $s = ($m->match_string());
-my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (0 - 1), 1));
+my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $ident = ('postcircumfix:' . $name);
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() eq 'SCALAR')))) {
 ($args = [$args])
 };
 IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))});
-$main::irbuilder->add_constructor('term:expect_term', sub {my($m)=@_;
-irbuild_ir($m->{'hash'}->{'noun'})});
+$main::irbuilder->add_constructor('postfix', sub {my($m)=@_;
+my $op = ($m->match_string());
+IRx1::Apply->newp($m, ('postfix:' . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))});
+$main::irbuilder->add_constructor('prefix', sub {my($m)=@_;
+my $op = ($m->match_string());
+IRx1::Apply->newp($m, ('prefix:' . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))});
+$main::irbuilder->add_constructor('infix', sub {my($m)=@_;
+my $op = ($m->match_string());
+IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'left'}), irbuild_ir($m->{'hash'}->{'right'})]))});
 $main::irbuilder->add_constructor('term', sub {my($m)=@_;
 if((($m->match_string()) eq 'self')) {
 IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []))
@@ -2080,6 +2142,8 @@ IRx1::Call->newp($m, IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, [])),
 IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'subshortname'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))
 }});
 $main::irbuilder->add_constructor('name', sub {my($m)=@_;
+($m->match_string())});
+$main::irbuilder->add_constructor('subshortname', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('statement_control:use', sub {my($m)=@_;
 IRx1::Use->newp($m, 'use', irbuild_ir($m->{'hash'}->{'module_name'}))});
@@ -2107,12 +2171,6 @@ IRx1::Buf->newp($m, $s)});
 $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
 my $s = irbuild_ir($m->{'hash'}->{'text'});
 IRx1::Rx->newp($m, $s)});
-$main::irbuilder->add_constructor('infix', sub {my($m)=@_;
-my $op = ($m->match_string());
-if(($op eq 'str')) {
-($op = '=')
-};
-IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'left'}), irbuild_ir($m->{'hash'}->{'right'})]))});
 $main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
 my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
 IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
@@ -2138,14 +2196,35 @@ $one});
 $main::irbuilder->add_constructor('variable_decl', sub {my($m)=@_;
 [irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'})]});
 $main::irbuilder->add_constructor('variable', sub {my($m)=@_;
-IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), irbuild_ir($m->{'hash'}->{'twigil'}), irbuild_ir($m->{'hash'}->{'desigilname'}))});
+my $tw = irbuild_ir($m->{'hash'}->{'twigil'});
+if($m->{'hash'}->{'postcircumfix'}) {
+if(($tw eq '.')) {
+my $slf = IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []));
+my $args = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'});
+if(($args && (($args->ref() eq 'SCALAR')))) {
+($args = [$args])
+};
+IRx1::Call->newp($m, $slf, irbuild_ir($m->{'hash'}->{'desigilname'}), IRx1::Capture->newp($m, $args))
+}else {
+my $v = IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), $tw, irbuild_ir($m->{'hash'}->{'desigilname'}));
+{package main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = $v;
+irbuild_ir($m->{'hash'}->{'postcircumfix'})
+}
+}else {
+IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), $tw, irbuild_ir($m->{'hash'}->{'desigilname'}))
+}});
 $main::irbuilder->add_constructor('sigil', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('twigil', sub {my($m)=@_;
 ($m->match_string())});
+$main::irbuilder->add_constructor('special_variable', sub {my($m)=@_;
+my $v = ($m->match_string());
+my $s = GLOBAL::substr($v, 0, 1);
+my $n = GLOBAL::substr($v, 1, $v->length());
+IRx1::Var->newp($m, $s, GLOBAL::undef(), $n)});
 $main::irbuilder->add_constructor('circumfix', sub {my($m)=@_;
 my $s = ($m->match_string());
-my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (0 - 1), 1));
+my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() eq 'SCALAR')))) {
 ($args = [$args])
@@ -2200,8 +2279,8 @@ $main::irbuilder->add_constructor('routine_declarator:routine_def', sub {my($m)=
 my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
 my $ident = '';
-if(irbuild_ir($m->{'hash'}->{'ident'})) {
-($ident = irbuild_ir($m->{'hash'}->{'ident'})->[0])
+if($m->{'hash'}->{'ident'}) {
+($ident = irbuild_ir($m->{'hash'}->{'ident'}))
 };
 my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
 if(irbuild_ir($m->{'hash'}->{'multisig'})) {
@@ -2786,6 +2865,8 @@ use warnings;
 { package GLOBAL;
 
   sub parser_name{
+    my $e = $ENV{ELF_STD_RED_RUN};
+    return $e if $e;
     my $f = $0;
     $f =~ s/[^\\/]+$//;
     # $f."elf_e_src/STD_red/STD_red_run"
@@ -2892,7 +2973,7 @@ __PACKAGE__->meta->make_immutable();
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
 if((($n->{'verb'} eq 'is'))) {
 my $pkgname = $::es_whiteboard__in_package->join('::');
-my $name = (($::es_whiteboard__in_package->splice(0, (0 - 1))->join('::') . '::') . $self->e($n->{'expr'}));
+my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') . $self->e($n->{'expr'}));
 $name->re_gsub('^::', '');
 (('use base \'' . $name) . '\';
 ')
@@ -3038,7 +3119,11 @@ my $r = $a->[1];
 if((($op eq '~'))) {
 (((('(' . $l) . ' . ') . $r) . ')')
 }elsif((($op eq ','))) {
-(($l . ', ') . $r)
+my $s = $a->shift();
+while($a->elems()) {
+($s = (($s . ', ') . $a->shift()))
+};
+$s
 }elsif((($op eq '='))) {
 my $t = $self->e($n->{'capture'}->{'arguments'}->[0]->{'twigil'});
 if((($t && ($t eq '.')))) {
@@ -3048,6 +3133,24 @@ if((($t && ($t eq '.')))) {
 }
 }else {
 (((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')
+}
+}elsif(($n->{'function'} =~ qr/^prefix:(.+)$/)) {
+my $op = $1;
+my $a = $self->e($n->{'capture'}->{'arguments'});
+my $x = $a->[0];
+if(0) {
+
+}else {
+(((('(' . $op) . '') . $x) . ')')
+}
+}elsif(($n->{'function'} =~ qr/^postfix:(.+)$/)) {
+my $op = $1;
+my $a = $self->e($n->{'capture'}->{'arguments'});
+my $x = $a->[0];
+if(0) {
+
+}else {
+(((('(' . $x) . '') . $op) . ')')
 }
 }elsif((($self->e($n->{'function'}) =~ qr/^circumfix:(.+)/))) {
 my $op = $1;

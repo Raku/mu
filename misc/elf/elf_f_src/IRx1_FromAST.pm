@@ -67,17 +67,49 @@ my $one = irbuild_ir($m.{'hash'}{$key});
 $one;
     });
 
+    $main::irbuilder.add_constructor('expect_infix', sub ($m) {
+      if irbuild_ir($m.{'hash'}{'infix'}) {
+if irbuild_ir($m.{'hash'}{'infix_postfix_meta_operator'}) {
+  die "Unimplemented infix_postfix_meta_operator";
+}
+my $op = irbuild_ir($m.{'hash'}{'infix'}.{'hash'}{'sym'});
+IRx1::Apply.newp($m,"infix:"~$op,IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'args'})))
+} else {
+die "Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator";
+};
+    });
+
     $main::irbuilder.add_constructor('expect_term', sub ($m) {
       my $^blackboard::expect_term_base = irbuild_ir($m.{'hash'}{'noun'});
-my $post = $m.{'hash'}{'post'} || [];
-for $post {
+my $ops = [];
+if $m.{'hash'}{'pre'}  { $ops.push($m.{'hash'}{'pre'}.flatten) };
+if $m.{'hash'}{'post'} { $ops.push($m.{'hash'}{'post'}.flatten) };
+for $ops {
 $^blackboard::expect_term_base = irbuild_ir($_)
 }
 $^blackboard::expect_term_base;
     });
 
+    $main::irbuilder.add_constructor('term:expect_term', sub ($m) {
+      irbuild_ir($m.{'hash'}{'noun'});
+    });
+
     $main::irbuilder.add_constructor('post', sub ($m) {
-      irbuild_ir($m.{'hash'}{'dotty'}) or irbuild_ir($m.{'hash'}{'postop'});
+      if $m.{'hash'}{'args'} {
+irbuild_ir($m.{'hash'}{'args'})[0]
+} else {
+irbuild_ir($m.{'hash'}{'dotty'}) or irbuild_ir($m.{'hash'}{'postop'})
+};
+    });
+
+    $main::irbuilder.add_constructor('pre', sub ($m) {
+      if $m.{'hash'}{'args'} {
+irbuild_ir($m.{'hash'}{'args'})[0]
+} elsif $m.{'hash'}{'prefix'} {
+irbuild_ir($m.{'hash'}{'prefix'})
+} else {
+die "pre without a prefix is unimplemented";
+};
     });
 
     $main::irbuilder.add_constructor('dotty:methodop', sub ($m) {
@@ -102,8 +134,19 @@ if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
 IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args));
     });
 
-    $main::irbuilder.add_constructor('term:expect_term', sub ($m) {
-      irbuild_ir($m.{'hash'}{'noun'});
+    $main::irbuilder.add_constructor('postfix', sub ($m) {
+      my $op = ($m.match_string);
+IRx1::Apply.newp($m,"postfix:"~$op,IRx1::Capture.newp($m,[$^blackboard::expect_term_base]));
+    });
+
+    $main::irbuilder.add_constructor('prefix', sub ($m) {
+      my $op = ($m.match_string);
+IRx1::Apply.newp($m,"prefix:"~$op,IRx1::Capture.newp($m,[$^blackboard::expect_term_base]));
+    });
+
+    $main::irbuilder.add_constructor('infix', sub ($m) {
+      my $op = ($m.match_string);
+IRx1::Apply.newp($m,"infix:"~$op,IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'left'}),irbuild_ir($m.{'hash'}{'right'})]));
     });
 
     $main::irbuilder.add_constructor('term', sub ($m) {
@@ -128,6 +171,10 @@ IRx1::Apply.newp($m,irbuild_ir($m.{'hash'}{'subshortname'}),IRx1::Capture.newp($
     });
 
     $main::irbuilder.add_constructor('name', sub ($m) {
+      ($m.match_string);
+    });
+
+    $main::irbuilder.add_constructor('subshortname', sub ($m) {
       ($m.match_string);
     });
 
@@ -172,12 +219,6 @@ IRx1::Buf.newp($m,$s);
 IRx1::Rx.newp($m,$s);
     });
 
-    $main::irbuilder.add_constructor('infix', sub ($m) {
-      my $op = ($m.match_string);
-if $op eq 'str' { $op = '=' };
-IRx1::Apply.newp($m,"infix:"~$op,IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'left'}),irbuild_ir($m.{'hash'}{'right'})]));
-    });
-
     $main::irbuilder.add_constructor('scope_declarator:my', sub ($m) {
       my $vd = irbuild_ir($m.{'hash'}{'scoped'});
 IRx1::VarDecl.newp($m,'my',undef,undef,$vd.[0],undef,undef,'=',$vd.[1]);
@@ -212,7 +253,21 @@ $one;
     });
 
     $main::irbuilder.add_constructor('variable', sub ($m) {
-      IRx1::Var.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),irbuild_ir($m.{'hash'}{'twigil'}),irbuild_ir($m.{'hash'}{'desigilname'}));
+      my $tw = irbuild_ir($m.{'hash'}{'twigil'});
+if $m.{'hash'}{'postcircumfix'} {
+if $tw eq "." {
+  my $slf = IRx1::Apply.newp($m,'self',IRx1::Capture.newp($m,[]));
+  my $args = irbuild_ir($m.{'hash'}{'postcircumfix'}.{'hash'}{'kludge_name'});
+  if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
+  IRx1::Call.newp($m,$slf,irbuild_ir($m.{'hash'}{'desigilname'}),IRx1::Capture.newp($m,$args))
+} else {
+  my $v = IRx1::Var.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),$tw,irbuild_ir($m.{'hash'}{'desigilname'}));
+  my $^blackboard::expect_term_base = $v;
+  irbuild_ir($m.{'hash'}{'postcircumfix'});
+}
+} else {
+IRx1::Var.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),$tw,irbuild_ir($m.{'hash'}{'desigilname'}));
+};
     });
 
     $main::irbuilder.add_constructor('sigil', sub ($m) {
@@ -221,6 +276,13 @@ $one;
 
     $main::irbuilder.add_constructor('twigil', sub ($m) {
       ($m.match_string);
+    });
+
+    $main::irbuilder.add_constructor('special_variable', sub ($m) {
+      my $v = ($m.match_string);
+my $s = substr($v,0,1);
+my $n = substr($v,1,$v.length);
+IRx1::Var.newp($m,$s,undef,$n);
     });
 
     $main::irbuilder.add_constructor('circumfix', sub ($m) {
@@ -293,7 +355,7 @@ irbuild_ir($m.{'hash'}{'pluralized'});
     $main::irbuilder.add_constructor('routine_declarator:routine_def', sub ($m) {
       my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
-if irbuild_ir($m.{'hash'}{'ident'}) { $ident = irbuild_ir($m.{'hash'}{'ident'}).[0] };
+if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
 my $sig = IRx1::Signature.newp($m,[],undef);
 if irbuild_ir($m.{'hash'}{'multisig'}) { $sig = irbuild_ir($m.{'hash'}{'multisig'}).[0] };
 IRx1::SubDecl.newp($m,undef,undef,$plurality,$ident,$sig,undef,irbuild_ir($m.{'hash'}{'block'}));

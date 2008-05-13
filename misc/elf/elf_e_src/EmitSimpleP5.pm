@@ -260,6 +260,8 @@ use warnings;
 { package GLOBAL;
 
   sub parser_name{
+    my $e = $ENV{ELF_STD_RED_RUN};
+    return $e if $e;
     my $f = $0;
     $f =~ s/[^\/]+$//;
     $f."elf_e_src/STD_red/STD_red_run"

@@ -260,6 +260,8 @@ use warnings;
 { package GLOBAL;
 
   sub parser_name{
+    my $e = $ENV{ELF_STD_RED_RUN};
+    return $e if $e;
     my $f = $0;
     $f =~ s/[^\/]+$//;
     # $f."elf_e_src/STD_red/STD_red_run"
@@ -510,7 +512,11 @@ package main; # -> Main once elf_d support is dropped.
       my $l = $a[0];
       my $r = $a[1];
       if ($op eq '~') { "("~$l~" . "~$r~")" }
-      elsif ($op eq ',') { $l~", "~$r }
+      elsif ($op eq ',') {
+        my $s = $a.shift;
+        while $a.elems { $s = $s ~", "~ $a.shift }
+        $s;
+      }
       elsif ($op eq '=') {
         my $t = $.e($n<capture><arguments>[0]<twigil>);
         if ($t && $t eq '.') {
@@ -519,6 +525,20 @@ package main; # -> Main once elf_d support is dropped.
         else { "("~$l~" "~$op~" "~$r~")" }
       }
       else { "("~$l~" "~$op~" "~$r~")" }
+    }
+    elsif $n<function> =~ /^prefix:(.+)$/ {
+      my $op = $1;
+      my $a = $.e($n<capture><arguments>);
+      my $x = $a[0];
+      if 0 { }
+      else { "("~$op~""~$x~")" }
+    }
+    elsif $n<function> =~ /^postfix:(.+)$/ {
+      my $op = $1;
+      my $a = $.e($n<capture><arguments>);
+      my $x = $a[0];
+      if 0 { }
+      else { "("~$x~""~$op~")" }
     }
     elsif ($.e($n<function>) =~ /^circumfix:(.+)/) {
       my $op = $1;
