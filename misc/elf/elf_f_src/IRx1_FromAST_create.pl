@@ -274,8 +274,13 @@ trait_verb:is
 Trait.newp('is',$m<ident>)
 
 circumfix:pblock
-if not($m<lambda>) and not($m<signature>) {
+if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string =~ /^:/ {
   Hash.newp($m<block><statementlist>)
+} elsif $o<block><statementlist>[0]<expr> and $o<block><statementlist>[0]<expr><sym> and $o<block><statementlist>[0]<expr><sym> eq "," { # XXX Not p6.  Remove once off elf_e, and Match updated.
+  Hash.newp($m<block><statementlist>)
+} elsif not($m<lambda>) and not($m<signature>) {
+  my $s = SubDecl.newp(undef,undef,undef,undef,undef,undef,$m<block>);
+  Apply.newp($s,Capture.newp([]))
 } else {
   die "AST handler circumfix:pblock partially unimplemented";
 }

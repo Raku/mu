@@ -44,7 +44,7 @@ class Compiler {
     }
   };
 
-  has $.todo;
+  has $.todo = [];
   method compile_executable($sources,$output_file) {
     $.todo = [];
     my $p5 = self.prelude ~ "\n";

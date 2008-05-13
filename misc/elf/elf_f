@@ -2318,8 +2318,13 @@ $main::irbuilder->add_constructor('typename', sub {my($m)=@_;
 $main::irbuilder->add_constructor('trait_verb:is', sub {my($m)=@_;
 IRx1::Trait->newp($m, 'is', irbuild_ir($m->{'hash'}->{'ident'}))});
 $main::irbuilder->add_constructor('circumfix:pblock', sub {my($m)=@_;
-if((GLOBAL::not(irbuild_ir($m->{'hash'}->{'lambda'})) and GLOBAL::not(irbuild_ir($m->{'hash'}->{'signature'})))) {
+if((($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->elems() == 0) or ($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->match_string() =~ qr/^:/))) {
 IRx1::Hash->newp($m, irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))
+}elsif((($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->{'hash'}->{'expr'} and $m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->{'hash'}->{'expr'}->{'hash'}->{'sym'}) and ($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->{'hash'}->{'expr'}->{'hash'}->{'sym'} eq ','))) {
+IRx1::Hash->newp($m, irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))
+}elsif((GLOBAL::not(irbuild_ir($m->{'hash'}->{'lambda'})) and GLOBAL::not(irbuild_ir($m->{'hash'}->{'signature'})))) {
+my $s = IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}));
+IRx1::Apply->newp($m, $s, IRx1::Capture->newp($m, []))
 }else {
 GLOBAL::die('AST handler circumfix:pblock partially unimplemented')
 }});
@@ -3086,7 +3091,19 @@ $self->multimethods_using_CM($n, $name, $type0)
 ((((('sub ' . $self->e($n->{'name'})) . '{my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}')
 }};
 sub cb__SubDecl{my $self=CORE::shift;my($n)=@_;
-((((('sub ' . $self->e($n->{'name'})) . '{') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}')};
+my $name = $n->{'name'};
+if($name) {
+($name = $self->e($name))
+}else {
+($name = '')
+};
+my $sig = $n->{'multisig'};
+if($sig) {
+($sig = $self->e($sig))
+}else {
+($sig = '')
+};
+((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')};
 sub cb__Signature{my $self=CORE::shift;my($n)=@_;
 if((($n->{'parameters'}->elems() == 0))) {
 ''
@@ -3168,6 +3185,8 @@ if((($f =~ qr/^\$\w+$/))) {
 'last'
 }elsif((($f eq 'return'))) {
 (('return(' . $self->e($n->{'capture'})) . ')')
+}elsif((($f =~ qr/^sub\s*{/))) {
+(((('(' . $f) . ')->(') . $self->e($n->{'capture'})) . ')')
 }elsif((($f =~ qr/^\w/))) {
 if($n->notes()->{'lexical_bindings'}->{('&' . $f)}) {
 (((('' . $f) . '(') . $self->e($n->{'capture'})) . ')')
@@ -3335,7 +3354,7 @@ GLOBAL::say($p5)
 $self->compile_fragment_cache_set($code, $filename, $p5);
 $p5
 }};
-has 'todo' => (is => 'rw');;
+has 'todo' => (is => 'rw', default => sub{ [] });;
 sub compile_executable{my $self=CORE::shift;my($sources,$output_file)=@_;
 $self->todo([]);
 my $p5 = ($self->prelude() . '

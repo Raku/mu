@@ -476,7 +476,11 @@ package main; # -> Main once elf_d support is dropped.
     }
   };
   method cb__SubDecl ($n) {
-    'sub '~$.e($n<name>)~'{'~$.e($n<multisig>)~$.e($n<block>)~'}'
+    my $name = $n<name>;
+    if $name { $name = $.e($name) } else { $name = "" }
+    my $sig = $n<multisig>;
+    if $sig { $sig = $.e($sig) } else { $sig = "" }
+    'sub '~$name~'{'~$sig~$.e($n<block>)~'}';
   };
   method cb__Signature ($n) {
     if ($n<parameters>.elems == 0) { "" }
@@ -558,6 +562,8 @@ package main; # -> Main once elf_d support is dropped.
         'last'
       } elsif ($f eq 'return') {
         'return('~$.e($n<capture>)~')';
+      } elsif ($f =~ /^sub\s*{/) {
+        '('~$f~')->('~$.e($n<capture>)~')'
       } elsif ($f =~ /^\w/) {
         if $n.notes<lexical_bindings>.{'&'~$f} {
           ''~$f~'('~$.e($n<capture>)~')'
