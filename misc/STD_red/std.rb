@@ -1647,7 +1647,11 @@ class Perl < Grammar
 
     def capture
         b=pos
-        wsp and e= _EXPR and wsp and _match_from(b,{:EXPR=>e},:capture)
+        e=nil
+        wsp and (e= _EXPR and wsp;true) and #R XXX NONSPEC optional, for \().
+            (h={}
+             _hkv(h,:EXPR,e)
+             _match_from(b,h,:capture))
     end
 
     def sigterm

@@ -267,6 +267,33 @@ Parameter.newp($m<type_constraint>,$m<quantchar>,$m<param_var>)
 param_var
 ParamVar.newp($m<sigil>,$m<twigil>,$m<ident>)
 
+capture
+if not($o<EXPR>) {
+  Capture.newp([])
+}
+elsif $o<EXPR><noun> {
+  Capture.newp([$m<EXPR><noun>])
+}
+elsif $o<EXPR><sym> && $o<EXPR><sym> eq ':' {
+  my $args = $m<EXPR><args>;
+  my $inv = $args.shift;
+  Capture.newp($args,$inv)
+}
+elsif $o<EXPR><sym> && $o<EXPR><sym> eq ',' {
+  my $args = $o<EXPR><args>;
+  my $arg0 = $args && $args[0];
+  my $inv = undef;
+  if $arg0 && $arg0<sym> && $arg0<sym> eq ':' {
+    $args.shift;
+    $inv = $arg0<args>[0];
+    if $arg0<args>[1] {
+      $args.unshift($arg0<args>[1]);
+    }
+  }
+  Capture.newp(ir($args),ir($inv))
+}
+else { die "capture AST form not recognized" }
+
 colonpair
 *1*
 

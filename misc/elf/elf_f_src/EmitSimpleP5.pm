@@ -628,7 +628,13 @@ package main; # -> Main once elf_d support is dropped.
     }
   };
   method cb__Capture ($n) {
-    $.e($n<arguments>||[]).join(",")
+    my $a = $.e($n<arguments>||[]).join(",");
+    if $n<invocant> {
+      my $inv = $.e($n<invocant>);
+      if $a { $inv~", "~$a }
+      else { $inv }
+    }
+    else { $a }
   };
 
   method cb__For ($n) {

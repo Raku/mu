@@ -1249,15 +1249,16 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use base 'IRx1::Base';
 has 'match' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
+has 'invocant' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
-sub newp{my $self=CORE::shift;my($match,$arguments)=@_;
-$self->new('match', $match, 'arguments', $arguments)};
+sub newp{my $self=CORE::shift;my($match,$arguments,$invocant)=@_;
+$self->new('match', $match, 'arguments', $arguments, 'invocant', $invocant)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Capture($self)};
 sub node_name{my $self=CORE::shift;'Capture'};
-sub field_names{my $self=CORE::shift;['arguments']};
-sub field_values{my $self=CORE::shift;[$self->arguments]};
-sub irx1_describe{my $self=CORE::shift;(('Capture(' . $self->arguments->irx1_describe()) . ')')};
+sub field_names{my $self=CORE::shift;['arguments', 'invocant']};
+sub field_values{my $self=CORE::shift;[$self->arguments, $self->invocant]};
+sub irx1_describe{my $self=CORE::shift;(((('Capture(' . $self->arguments->irx1_describe()) . ',') . $self->invocant->irx1_describe()) . ')')};
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2318,6 +2319,30 @@ $main::irbuilder->add_constructor('parameter', sub {my($m)=@_;
 IRx1::Parameter->newp($m, irbuild_ir($m->{'hash'}->{'type_constraint'}), irbuild_ir($m->{'hash'}->{'quantchar'}), irbuild_ir($m->{'hash'}->{'param_var'}))});
 $main::irbuilder->add_constructor('param_var', sub {my($m)=@_;
 IRx1::ParamVar->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), irbuild_ir($m->{'hash'}->{'twigil'}), irbuild_ir($m->{'hash'}->{'ident'}))});
+$main::irbuilder->add_constructor('capture', sub {my($m)=@_;
+if(GLOBAL::not($m->{'hash'}->{'EXPR'})) {
+IRx1::Capture->newp($m, [])
+}elsif($m->{'hash'}->{'EXPR'}->{'hash'}->{'noun'}) {
+IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'noun'})])
+}elsif(($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} && ($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} eq ':'))) {
+my $args = irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'args'});
+my $inv = $args->shift();
+IRx1::Capture->newp($m, $args, $inv)
+}elsif(($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} && ($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} eq ','))) {
+my $args = $m->{'hash'}->{'EXPR'}->{'hash'}->{'args'};
+my $arg0 = ($args && $args->[0]);
+my $inv = GLOBAL::undef();
+if((($arg0 && $arg0->{'hash'}->{'sym'}) && ($arg0->{'hash'}->{'sym'} eq ':'))) {
+$args->shift();
+($inv = $arg0->{'hash'}->{'args'}->[0]);
+if($arg0->{'hash'}->{'args'}->[1]) {
+$args->unshift($arg0->{'hash'}->{'args'}->[1])
+}
+};
+IRx1::Capture->newp($m, irbuild_ir($args), irbuild_ir($inv))
+}else {
+GLOBAL::die('capture AST form not recognized')
+}});
 $main::irbuilder->add_constructor('colonpair', sub {my($m)=@_;
 my $key;
 for($m->{'hash'}->keys()->flatten){
@@ -3296,7 +3321,17 @@ if($n->notes()->{'lexical_bindings'}->{('&' . $f)}) {
 }
 }};
 sub cb__Capture{my $self=CORE::shift;my($n)=@_;
-$self->e(($n->{'arguments'} || []))->join(',')};
+my $a = $self->e(($n->{'arguments'} || []))->join(',');
+if($n->{'invocant'}) {
+my $inv = $self->e($n->{'invocant'});
+if($a) {
+(($inv . ', ') . $a)
+}else {
+$inv
+}
+}else {
+$a
+}};
 sub cb__For{my $self=CORE::shift;my($n)=@_;
 (((('for(' . $self->e($n->{'expr'})) . '->flatten){
 ') . $self->e($n->{'block'})) . '

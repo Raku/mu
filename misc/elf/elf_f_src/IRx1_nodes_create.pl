@@ -32,7 +32,7 @@ Call    invocant method capture
 Apply   function capture
 Hyper   operator capture
 
-Capture   arguments
+Capture   arguments invocant
 MultiSig  signatures
 Signature parameters return_type
 Parameter type_constraints quant param_var ident traits post_constraints default_expr

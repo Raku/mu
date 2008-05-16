@@ -324,15 +324,16 @@ package IRx1 {
   class Capture is Base {
     has $.match;
     has $.arguments;
+    has $.invocant;
     has $.notes;
     
-    method newp($match,$arguments) { self.new('match', $match, 'arguments', $arguments) };
+    method newp($match,$arguments,$invocant) { self.new('match', $match, 'arguments', $arguments, 'invocant', $invocant) };
     method callback($emitter) { $emitter.cb__Capture(self) };
     method node_name() { 'Capture' };
-    method field_names() { ['arguments'] };
-    method field_values() { [$.arguments] };
+    method field_names() { ['arguments','invocant'] };
+    method field_values() { [$.arguments,$.invocant] };
     method irx1_describe() {
-      'Capture('~$.arguments.irx1_describe~')'
+      'Capture('~$.arguments.irx1_describe~','~$.invocant.irx1_describe~')'
     };
   };
   class MultiSig is Base {

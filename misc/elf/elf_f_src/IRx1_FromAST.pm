@@ -385,6 +385,34 @@ IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.{'hash'}{'ident'})
       IRx1::ParamVar.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),irbuild_ir($m.{'hash'}{'twigil'}),irbuild_ir($m.{'hash'}{'ident'}));
     });
 
+    $main::irbuilder.add_constructor('capture', sub ($m) {
+      if not($m.{'hash'}{'EXPR'}) {
+IRx1::Capture.newp($m,[])
+}
+elsif $m.{'hash'}{'EXPR'}.{'hash'}{'noun'} {
+IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'EXPR'}.{'hash'}{'noun'})])
+}
+elsif $m.{'hash'}{'EXPR'}.{'hash'}{'sym'} && $m.{'hash'}{'EXPR'}.{'hash'}{'sym'} eq ':' {
+my $args = irbuild_ir($m.{'hash'}{'EXPR'}.{'hash'}{'args'});
+my $inv = $args.shift;
+IRx1::Capture.newp($m,$args,$inv)
+}
+elsif $m.{'hash'}{'EXPR'}.{'hash'}{'sym'} && $m.{'hash'}{'EXPR'}.{'hash'}{'sym'} eq ',' {
+my $args = $m.{'hash'}{'EXPR'}.{'hash'}{'args'};
+my $arg0 = $args && $args[0];
+my $inv = undef;
+if $arg0 && $arg0.{'hash'}{'sym'} && $arg0.{'hash'}{'sym'} eq ':' {
+  $args.shift;
+  $inv = $arg0.{'hash'}{'args'}[0];
+  if $arg0.{'hash'}{'args'}[1] {
+    $args.unshift($arg0.{'hash'}{'args'}[1]);
+  }
+}
+IRx1::Capture.newp($m,irbuild_ir($args),irbuild_ir($inv))
+}
+else { die "capture AST form not recognized" };
+    });
+
     $main::irbuilder.add_constructor('colonpair', sub ($m) {
         my $key;
 for $m.{'hash'}.keys {
