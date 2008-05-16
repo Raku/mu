@@ -1,0 +1,3 @@
+perl ../elf_f_nomoose slime.p6 > gen.c 
+~/p6/v6/smop/libtool gcc -L/home/pawel/p6/v6/smop/src -I/home/pawel/p6/v6/smop/include -lsmop gen.c -o gen
+./gen
