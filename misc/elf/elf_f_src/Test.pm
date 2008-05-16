@@ -25,6 +25,11 @@ sub is ($v,$v2, $msg, $todo) {
 sub is_deeply($v,$v2, $msg, $todo) {
     is($v,$v2, $msg, $todo)
 }
+sub is_approx($v,$v2, $msg, $todo) {
+    my $epsilon = 0.00001;
+    my $d = $v - $v2;  if $d < 0 { $d = -$d }
+    ok(($d < $epsilon), $msg, $todo)
+}
 
 sub isnt ($v,$v2, $msg, $todo) {
     my $st = ""; if $todo.WHAT eq 'Pair' { $st = " # TODO "~$todo.value };

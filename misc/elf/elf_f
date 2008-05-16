@@ -309,6 +309,10 @@ use warnings;
     my($code)=@_;
     $GLOBAL::compiler0->eval_perl6($code);
   }
+  sub eval {
+    my($code)=@_;
+    eval_perl6($code);
+  }
 }
 
 package main; # -> Main once elf_d support is dropped.
@@ -699,7 +703,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 __PACKAGE__->meta->make_immutable();
 
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -782,7 +786,7 @@ sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')};
 __PACKAGE__->meta->make_immutable();
 
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -1992,7 +1996,7 @@ __PACKAGE__->meta->make_immutable();
 __PACKAGE__->meta->make_immutable();
 
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -2301,7 +2305,7 @@ my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
 if(irbuild_ir($m->{'hash'}->{'multisig'})) {
 ($sig = irbuild_ir($m->{'hash'}->{'multisig'})->[0])
 };
-IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('routine_declarator:method_def', sub {my($m)=@_;
 my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
@@ -2312,6 +2316,29 @@ $main::irbuilder->add_constructor('parameter', sub {my($m)=@_;
 IRx1::Parameter->newp($m, irbuild_ir($m->{'hash'}->{'type_constraint'}), irbuild_ir($m->{'hash'}->{'quantchar'}), irbuild_ir($m->{'hash'}->{'param_var'}))});
 $main::irbuilder->add_constructor('param_var', sub {my($m)=@_;
 IRx1::ParamVar->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), irbuild_ir($m->{'hash'}->{'twigil'}), irbuild_ir($m->{'hash'}->{'ident'}))});
+$main::irbuilder->add_constructor('colonpair', sub {my($m)=@_;
+my $key;
+for($m->{'hash'}->keys()->flatten){
+if(($_ ne 'match')) {
+if($key) {
+GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
+')
+};
+($key = $_)
+}
+};
+my $one = irbuild_ir($m->{'hash'}->{$key});
+$one});
+$main::irbuilder->add_constructor('colonpair__false', sub {my($m)=@_;
+IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::NumInt->newp($m, 0))});
+$main::irbuilder->add_constructor('colonpair__value', sub {my($m)=@_;
+my $value;
+if($m->{'hash'}->{'postcircumfix'}) {
+($value = irbuild_ir($m->{'hash'}->{'postcircumfix'}))
+}else {
+($value = IRx1::NumInt->newp($m, 1))
+};
+IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), $value)});
 $main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
 {package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
 irbuild_ir($m->{'hash'}->{'package_def'})});
@@ -2405,7 +2432,7 @@ IRx1::RxSymbol->newp($m, ($m->match_string()))});
 __PACKAGE__->meta->make_immutable();
 
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -2629,7 +2656,7 @@ sub path_is_absolute{my $self=CORE::shift;($self->name() && ($self->name() =~ qr
 __PACKAGE__->meta->make_immutable();
 
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -2956,6 +2983,10 @@ use warnings;
     my($code)=@_;
     $GLOBAL::compiler0->eval_perl6($code);
   }
+  sub eval {
+    my($code)=@_;
+    eval_perl6($code);
+  }
 }
 
 package main; # -> Main once elf_d support is dropped.
@@ -2984,7 +3015,7 @@ $n->do_all_analysis();
 {package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
 (((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 ' . $self->prelude_for_entering_a_package()) . $self->e($n->{'statements'})->join(';
-')) . ';1;
+')) . ';
 '))};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
 (('' . $self->e($n->{'statements'})->join(';
@@ -2993,6 +3024,8 @@ sub cb__Use{my $self=CORE::shift;my($n)=@_;
 my $module = $self->e($n->{'module_name'});
 my $expr = $self->e($n->{'expr'});
 if(($module eq 'v6-alpha')) {
+''
+}elsif(($module eq 'v6')) {
 ''
 }elsif(($module eq 'lib')) {
 my $name = $n->{'expr'}->{'buf'};
@@ -3148,7 +3181,11 @@ if($sig) {
 }else {
 ($sig = '')
 };
-((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')};
+if((($n->{'traits'} && $n->{'traits'}->[0]->{'expr'}) && ($n->{'traits'}->[0]->{'expr'} eq 'p5'))) {
+((((('sub ' . $name) . '{') . $sig) . $n->{'block'}->{'statements'}->[0]->{'buf'}) . '}')
+}else {
+((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')
+}};
 sub cb__Signature{my $self=CORE::shift;my($n)=@_;
 if((($n->{'parameters'}->elems() == 0))) {
 ''
@@ -3202,6 +3239,8 @@ my $a = $self->e($n->{'capture'}->{'arguments'});
 my $x = $a->[0];
 if(0) {
 
+}elsif(($op eq '?')) {
+(('((' . $x) . ')?1:0)')
 }else {
 (((('(' . $op) . '') . $x) . ')')
 }
@@ -3320,6 +3359,8 @@ $s->chomp();
 $s};
 sub cb__Rx{my $self=CORE::shift;my($n)=@_;
 (('qr/' . $n->{'pat'}) . '/')};
+sub cb__Pair{my $self=CORE::shift;my($n)=@_;
+(((('(' . $self->e($n->{'key'})) . '=>') . $self->e($n->{'value'})) . ')')};
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3327,7 +3368,21 @@ __PACKAGE__->meta->make_immutable();
 if(GLOBAL::not($GLOBAL::emitter0)) {
 ($GLOBAL::emitter0 = EmitSimpleP5->new())
 };
-($GLOBAL::emitter1 = EmitSimpleP5->new());1;
+($GLOBAL::emitter1 = EmitSimpleP5->new());
+
+;
+use autobox;use autobox UNDEF => 'UNDEF';
+      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+sub header{use Math::Trig qw();};
+header();
+
+{ package Num;
+use Moose; __PACKAGE__->meta->make_mutable();
+sub pi{Math::Trig::pi();};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -3359,7 +3414,7 @@ GLOBAL::eval_perl5('
 if(GLOBAL::not($GLOBAL::parser0)) {
 ($GLOBAL::parser0 = Parser->new('is_for_active_runtime', 1))
 };
-($GLOBAL::parser1 = Parser->new());1;
+($GLOBAL::parser1 = Parser->new());
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -3464,7 +3519,7 @@ __PACKAGE__->meta->make_immutable();
 if(GLOBAL::not($GLOBAL::compiler0)) {
 ($GLOBAL::compiler0 = Compiler->new('is_for_active_runtime', 1))
 };
-($GLOBAL::compiler1 = Compiler->new());1;
+($GLOBAL::compiler1 = Compiler->new());
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -3573,7 +3628,7 @@ __PACKAGE__->meta->make_immutable();
 
 }
 ;
-Program->new()->main($GLOBAL::a_ARGS);1;
+Program->new()->main($GLOBAL::a_ARGS);
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -3586,6 +3641,7 @@ use autobox;use autobox UNDEF => 'UNDEF';
 ;
 ;
 ;
-;1;
+;
+;
 
 ;

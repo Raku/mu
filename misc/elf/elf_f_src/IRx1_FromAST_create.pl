@@ -234,7 +234,7 @@ my $ident = "";
 if $o<ident> { $ident = $m<ident>  };
 my $sig = Signature.newp([],undef);
 if $m<multisig> { $sig = $m<multisig>.[0] };
-SubDecl.newp(undef,undef,$plurality,$ident,$sig,undef,$m<block>)
+SubDecl.newp(undef,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
 
 routine_declarator:method_def
 my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
@@ -248,6 +248,22 @@ Parameter.newp($m<type_constraint>,$m<quantchar>,$m<param_var>)
 
 param_var
 ParamVar.newp($m<sigil>,$m<twigil>,$m<ident>)
+
+colonpair
+*1*
+
+colonpair__false
+Pair.newp($m<ident>,NumInt.newp(0))
+
+colonpair__value
+my $value;
+if $o<postcircumfix> {
+  $value = $m<postcircumfix>;
+} else {
+  $value = NumInt.newp(1);
+}
+Pair.newp($m<ident>,$value)
+
 
 package_declarator:class
 my $^blackboard::package_declarator = 'class';

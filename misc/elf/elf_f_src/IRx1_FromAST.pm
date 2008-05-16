@@ -352,7 +352,7 @@ my $ident = "";
 if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
 my $sig = IRx1::Signature.newp($m,[],undef);
 if irbuild_ir($m.{'hash'}{'multisig'}) { $sig = irbuild_ir($m.{'hash'}{'multisig'}).[0] };
-IRx1::SubDecl.newp($m,undef,undef,$plurality,$ident,$sig,undef,irbuild_ir($m.{'hash'}{'block'}));
+IRx1::SubDecl.newp($m,undef,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
     });
 
     $main::irbuilder.add_constructor('routine_declarator:method_def', sub ($m) {
@@ -370,6 +370,34 @@ IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.{'hash'}{'ident'})
 
     $main::irbuilder.add_constructor('param_var', sub ($m) {
       IRx1::ParamVar.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),irbuild_ir($m.{'hash'}{'twigil'}),irbuild_ir($m.{'hash'}{'ident'}));
+    });
+
+    $main::irbuilder.add_constructor('colonpair', sub ($m) {
+        my $key;
+for $m.{'hash'}.keys {
+  if $_ ne 'match' {
+    if $key {
+      die("Unexpectedly more than 1 field - dont know which to choose\n")
+    }
+    $key = $_;
+  }
+}
+my $one = irbuild_ir($m.{'hash'}{$key});
+$one;
+    });
+
+    $main::irbuilder.add_constructor('colonpair__false', sub ($m) {
+      IRx1::Pair.newp($m,irbuild_ir($m.{'hash'}{'ident'}),IRx1::NumInt.newp($m,0));
+    });
+
+    $main::irbuilder.add_constructor('colonpair__value', sub ($m) {
+      my $value;
+if $m.{'hash'}{'postcircumfix'} {
+$value = irbuild_ir($m.{'hash'}{'postcircumfix'});
+} else {
+$value = IRx1::NumInt.newp($m,1);
+}
+IRx1::Pair.newp($m,irbuild_ir($m.{'hash'}{'ident'}),$value);
     });
 
     $main::irbuilder.add_constructor('package_declarator:class', sub ($m) {

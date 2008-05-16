@@ -331,6 +331,10 @@ use warnings;
     my($code)=@_;
     $GLOBAL::compiler0->eval_perl6($code);
   }
+  sub eval {
+    my($code)=@_;
+    eval_perl6($code);
+  }
 }
 
 package main; # -> Main once elf_d support is dropped.
@@ -354,7 +358,7 @@ package main; # -> Main once elf_d support is dropped.
     my $^whiteboard::in_package = [];
     ("package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.\n"~
      self.prelude_for_entering_a_package()~
-     $.e($n<statements>).join(";\n")~";1;\n")
+     $.e($n<statements>).join(";\n")~";\n")
   };
   method cb__Block ($n) {
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
@@ -365,6 +369,7 @@ package main; # -> Main once elf_d support is dropped.
     my $module = $.e($n<module_name>);
     my $expr = $.e($n<expr>);
     if $module eq 'v6-alpha' { "" }
+    elsif $module eq 'v6' { "" }
     elsif $module eq 'lib' {
       my $name = $n<expr><buf>;
       if $.compiler.hook_for_use_lib($name) { "" }
@@ -510,7 +515,11 @@ package main; # -> Main once elf_d support is dropped.
     if $name { $name = $.e($name) } else { $name = "" }
     my $sig = $n<multisig>;
     if $sig { $sig = $.e($sig) } else { $sig = "" }
-    'sub '~$name~'{'~$sig~$.e($n<block>)~'}';
+    if $n<traits> && $n<traits>[0]<expr> && $n<traits>[0]<expr> eq 'p5' {
+      'sub '~$name~'{'~$sig~$n<block><statements>[0]<buf>~'}';
+    } else {
+      'sub '~$name~'{'~$sig~$.e($n<block>)~'}';
+    }
   };
   method cb__Signature ($n) {
     if ($n<parameters>.elems == 0) { "" }
@@ -565,6 +574,7 @@ package main; # -> Main once elf_d support is dropped.
       my $a = $.e($n<capture><arguments>);
       my $x = $a[0];
       if 0 { }
+      elsif $op eq '?' { '(('~$x~')?1:0)' }
       else { "("~$op~""~$x~")" }
     }
     elsif $n<function> =~ /^postfix:(.+)$/ {
@@ -673,6 +683,9 @@ package main; # -> Main once elf_d support is dropped.
   };
   method cb__Rx ($n) {
     'qr/'~$n<pat>~'/'
+  };
+  method cb__Pair($n) {
+    '('~$.e($n<key>)~'=>'~$.e($n<value>)~')'
   };
 
 };
