@@ -2152,8 +2152,11 @@ $main::irbuilder->add_constructor('infix', sub {my($m)=@_;
 my $op = ($m->match_string());
 IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'left'}), irbuild_ir($m->{'hash'}->{'right'})]))});
 $main::irbuilder->add_constructor('term', sub {my($m)=@_;
-if((($m->match_string()) eq 'self')) {
+my $text = ($m->match_string());
+if(($text eq 'self')) {
 IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []))
+}elsif(($text eq '*')) {
+IRx1::Apply->newp($m, 'whatever', IRx1::Capture->newp($m, []))
 }else {
 GLOBAL::die('AST term partially unimplemented.
 ')
@@ -2198,27 +2201,16 @@ $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
 my $s = irbuild_ir($m->{'hash'}->{'text'});
 IRx1::Rx->newp($m, $s)});
 $main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
 IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scope_declarator:has', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
 IRx1::VarDecl->newp($m, 'has', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scope_declarator:our', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
 IRx1::VarDecl->newp($m, 'our', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scoped', sub {my($m)=@_;
-my $key;
-for($m->{'hash'}->keys()->flatten){
-if(($_ ne 'match')) {
-if($key) {
-GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
-')
-};
-($key = $_)
-}
-};
-my $one = irbuild_ir($m->{'hash'}->{$key});
-$one});
+[irbuild_ir($m->{'hash'}->{'variable_decl'}), irbuild_ir($m->{'hash'}->{'fulltypename'})]});
 $main::irbuilder->add_constructor('variable_decl', sub {my($m)=@_;
 [irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'})]});
 $main::irbuilder->add_constructor('variable', sub {my($m)=@_;
@@ -2281,8 +2273,18 @@ GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
+$main::irbuilder->add_constructor('statement_prefix:do', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:do', irbuild_ir($m->{'hash'}->{'statement'}))});
+$main::irbuilder->add_constructor('statement_prefix:try', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:try', irbuild_ir($m->{'hash'}->{'statement'}))});
 $main::irbuilder->add_constructor('statement_prefix:gather', sub {my($m)=@_;
 IRx1::Apply->newp($m, 'statement_prefix:gather', irbuild_ir($m->{'hash'}->{'statement'}))});
+$main::irbuilder->add_constructor('statement_prefix:contend', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:contend', irbuild_ir($m->{'hash'}->{'statement'}))});
+$main::irbuilder->add_constructor('statement_prefix:async', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:async', irbuild_ir($m->{'hash'}->{'statement'}))});
+$main::irbuilder->add_constructor('statement_prefix:lazy', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:lazy', irbuild_ir($m->{'hash'}->{'statement'}))});
 $main::irbuilder->add_constructor('pblock', sub {my($m)=@_;
 if($m->{'hash'}->{'signature'}) {
 IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'signature'}), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))
@@ -3013,10 +3015,12 @@ $x->callback($self)
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 $n->do_all_analysis();
 {package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
-(((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-' . $self->prelude_for_entering_a_package()) . $self->e($n->{'statements'})->join(';
+my $code = (('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+' . $self->prelude_for_entering_a_package()));
+my $stmts = $self->e($n->{'statements'});
+(($code . $stmts->join(';
 ')) . ';
-'))};
+')};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
 (('' . $self->e($n->{'statements'})->join(';
 ')) . '')};

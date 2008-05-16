@@ -356,9 +356,11 @@ package main; # -> Main once elf_d support is dropped.
   method cb__CompUnit ($n) {
     $n.do_all_analysis();
     my $^whiteboard::in_package = [];
-    ("package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.\n"~
-     self.prelude_for_entering_a_package()~
-     $.e($n<statements>).join(";\n")~";\n")
+    my $code = (
+      "package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.\n"~
+      self.prelude_for_entering_a_package());
+    my $stmts = $.e($n<statements>);
+    $code ~ $stmts.join(";\n")~";\n";
   };
   method cb__Block ($n) {
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~

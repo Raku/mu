@@ -82,8 +82,11 @@ my $op = *text*;
 Apply.newp("infix:"~$op,Capture.newp([$m<left>,$m<right>]))
 
 term
-if *text* eq 'self' {
+my $text = *text*;
+if $text eq 'self' {
   Apply.newp('self',Capture.newp([]))
+} elsif $text eq '*' {
+  Apply.newp('whatever',Capture.newp([]))
 } else {
   die "AST term partially unimplemented.\n";
 }
@@ -139,19 +142,19 @@ my $s = $m<text>;
 Rx.newp($s)
 
 scope_declarator:my
-my $vd = $m<scoped>;
+my $vd = $m<scoped>[0];
 VarDecl.newp('my',undef,undef,$vd.[0],undef,undef,'=',$vd.[1])
 
 scope_declarator:has
-my $vd = $m<scoped>;
+my $vd = $m<scoped>[0];
 VarDecl.newp('has',undef,undef,$vd.[0],undef,undef,'=',$vd.[1])
 
 scope_declarator:our
-my $vd = $m<scoped>;
+my $vd = $m<scoped>[0];
 VarDecl.newp('our',undef,undef,$vd.[0],undef,undef,'=',$vd.[1])
 
 scoped
-*1*
+[$m<variable_decl>,$m<fulltypename>]
 
 variable_decl
 [$m<variable>,$m<default_value>]
@@ -210,8 +213,23 @@ if__else
 *1*
 
 
+statement_prefix:do
+Apply.newp("statement_prefix:do",$m<statement>)
+
+statement_prefix:try
+Apply.newp("statement_prefix:try",$m<statement>)
+
 statement_prefix:gather
 Apply.newp("statement_prefix:gather",$m<statement>)
+
+statement_prefix:contend
+Apply.newp("statement_prefix:contend",$m<statement>)
+
+statement_prefix:async
+Apply.newp("statement_prefix:async",$m<statement>)
+
+statement_prefix:lazy
+Apply.newp("statement_prefix:lazy",$m<statement>)
 
 
 pblock

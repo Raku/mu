@@ -150,8 +150,11 @@ IRx1::Apply.newp($m,"infix:"~$op,IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'
     });
 
     $main::irbuilder.add_constructor('term', sub ($m) {
-      if ($m.match_string) eq 'self' {
+      my $text = ($m.match_string);
+if $text eq 'self' {
 IRx1::Apply.newp($m,'self',IRx1::Capture.newp($m,[]))
+} elsif $text eq '*' {
+IRx1::Apply.newp($m,'whatever',IRx1::Capture.newp($m,[]))
 } else {
 die "AST term partially unimplemented.\n";
 };
@@ -220,32 +223,22 @@ IRx1::Rx.newp($m,$s);
     });
 
     $main::irbuilder.add_constructor('scope_declarator:my', sub ($m) {
-      my $vd = irbuild_ir($m.{'hash'}{'scoped'});
+      my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
 IRx1::VarDecl.newp($m,'my',undef,undef,$vd.[0],undef,undef,'=',$vd.[1]);
     });
 
     $main::irbuilder.add_constructor('scope_declarator:has', sub ($m) {
-      my $vd = irbuild_ir($m.{'hash'}{'scoped'});
+      my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
 IRx1::VarDecl.newp($m,'has',undef,undef,$vd.[0],undef,undef,'=',$vd.[1]);
     });
 
     $main::irbuilder.add_constructor('scope_declarator:our', sub ($m) {
-      my $vd = irbuild_ir($m.{'hash'}{'scoped'});
+      my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
 IRx1::VarDecl.newp($m,'our',undef,undef,$vd.[0],undef,undef,'=',$vd.[1]);
     });
 
     $main::irbuilder.add_constructor('scoped', sub ($m) {
-        my $key;
-for $m.{'hash'}.keys {
-  if $_ ne 'match' {
-    if $key {
-      die("Unexpectedly more than 1 field - dont know which to choose\n")
-    }
-    $key = $_;
-  }
-}
-my $one = irbuild_ir($m.{'hash'}{$key});
-$one;
+      [irbuild_ir($m.{'hash'}{'variable_decl'}),irbuild_ir($m.{'hash'}{'fulltypename'})];
     });
 
     $main::irbuilder.add_constructor('variable_decl', sub ($m) {
@@ -325,8 +318,28 @@ my $one = irbuild_ir($m.{'hash'}{$key});
 $one;
     });
 
+    $main::irbuilder.add_constructor('statement_prefix:do', sub ($m) {
+      IRx1::Apply.newp($m,"statement_prefix:do",irbuild_ir($m.{'hash'}{'statement'}));
+    });
+
+    $main::irbuilder.add_constructor('statement_prefix:try', sub ($m) {
+      IRx1::Apply.newp($m,"statement_prefix:try",irbuild_ir($m.{'hash'}{'statement'}));
+    });
+
     $main::irbuilder.add_constructor('statement_prefix:gather', sub ($m) {
       IRx1::Apply.newp($m,"statement_prefix:gather",irbuild_ir($m.{'hash'}{'statement'}));
+    });
+
+    $main::irbuilder.add_constructor('statement_prefix:contend', sub ($m) {
+      IRx1::Apply.newp($m,"statement_prefix:contend",irbuild_ir($m.{'hash'}{'statement'}));
+    });
+
+    $main::irbuilder.add_constructor('statement_prefix:async', sub ($m) {
+      IRx1::Apply.newp($m,"statement_prefix:async",irbuild_ir($m.{'hash'}{'statement'}));
+    });
+
+    $main::irbuilder.add_constructor('statement_prefix:lazy', sub ($m) {
+      IRx1::Apply.newp($m,"statement_prefix:lazy",irbuild_ir($m.{'hash'}{'statement'}));
     });
 
     $main::irbuilder.add_constructor('pblock', sub ($m) {

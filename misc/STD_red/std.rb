@@ -782,17 +782,17 @@ class Perl < Grammar
         regex_declarator or package_declarator or
             #R XXX not backtracking properly - don't know if it needs to yet
             b=pos
-            ts=v=nil
+            ft=v=sig=ts=nil
             (let_pos{
-                 ts= starRULE{typename} and 
+                 ft= starRULE{fulltypename} and wsp and
                  ( v= variable_decl or
-                   (scan(/\(/) and signature and scan(/\)/) and starRULE{trait}) or
+                   let_pos{ scan(/\(/) and wsp and signature and wsp and scan(/\)/) and wsp and starRULE{trait} } or
                    plurality_declarator or
                    routine_declarator or
                    type_declarator)
              }) and
             (h={};
-             _hkv(h,:typename,ts)
+             _hkv(h,:fulltypename,ft)
              _hkv(h,:variable_decl,v)
              _match_from(b,h,:scoped))
     end
@@ -1966,6 +1966,7 @@ class Perl < Grammar
                     pop(opstackA);
                 end
                 push listA, pop(termstackA);
+                pop listA if not listA[-1] #R XXX '(2,3,)' adds a nil
                 #R# opS[:list] = reverse listA;
                 opS[:args] = reverse listA; #R XXX NONSPEC normalize name of argument list.
                 push termstackA, opS;
