@@ -227,9 +227,9 @@ OP *___bind_pad(pTHX)
 
 OP *___bind_pad2(pTHX)
 {
-    dAXMARK; dSP; dITEMS;
+    dSP;
     AV *_defargs = GvAV(PL_defgv);
-    AV *av = SvRV(((SVOP*)PL_op)->op_sv);
+    AV *av = SvRV(cSVOPx_sv(PL_op));
     int i;
     for (i = 0; i <= av_len(av); ++i) {
         SV *current_arg = *av_fetch(_defargs, i, 0);
