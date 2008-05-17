@@ -240,6 +240,7 @@ OP *___bind_pad2(pTHX)
         SAVECLEARSV(PAD_SVl(order));
         /* XXX: check if order is over items, if so it means it's empty and we should apply default_sub->() */
         if (SvIVX(mode)) {
+            PAD_SVl(order) = newSV(0);
             SvSetSV(PAD_SVl(order), SvREFCNT_inc(current_arg));
         }
         else {
