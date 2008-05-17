@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 7 May 2008
+   Last Modified: 18 May 2008
    Number: 5
-   Version: 78
+   Version: 79
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -2094,8 +2094,14 @@ self reference, which is not allowed in traditional regular
 expressions).  A logical alternation using C<|> then takes two or
 more of these lists and dispatches to the alternative that matches
 the longest token prefix.  This may or may not be the alternative
-that comes first lexically.  (However, in the case of a tie between
-alternatives, the textually earlier alternative does take precedence.)
+that comes first lexically.
+
+However, if two alternatives match at the same length, the tie is
+broken by one of two methods.  If the alternatives are in different
+grammars, standard MRO (method resolution order) determines which
+one to try first.  If the alternatives are in the same grammar, the
+textually earlier alternative takes precedence.  (If a grammar's rules
+are defined in more than one file, the results are undefined.)
 
 This longest token prefix corresponds roughly to the notion of "token"
 in other parsing systems that use a lexer, but in the case of Perl
@@ -2149,6 +2155,11 @@ be possible to know when to fire off the assertions without backchecks.)
 
 Greedy quantifiers and character classes do not terminate a token pattern.
 Zero-width assertions such as word boundaries are also okay.
+
+Because such assertions can be part of the token, the lexer engine must
+be able to recover from the failure of such an assertion and backtrack
+to the next best token candidate, which might be the same length or shorter,
+but can never be longer than the current candidate.
 
 For a pattern that starts with a positive lookahead assertion,
 the assertion is assumed to be more specific than the subsequent
