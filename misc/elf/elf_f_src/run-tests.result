@@ -150,7 +150,7 @@ X  0%	8  0 		../../../t/examples/99problems/problem13.t
 -  0%	1  0 1		../../../t/examples/99problems/problem22.t
 -C 0%	5  0 5		../../../t/examples/99problems/problem23.t
 -C 0%	3  0 3		../../../t/examples/99problems/problem24.t
--C 0%	1  0 1		../../../t/examples/99problems/problem25.t
+-d 0%	1  0 1		../../../t/examples/99problems/problem25.t
 X  0%	1  0 		../../../t/examples/99problems/problem26.t
 X  0%	1  0 		../../../t/examples/99problems/problem27.t
 -  0%	2  0 1 1!	../../../t/examples/99problems/problem28.t
@@ -169,7 +169,7 @@ X  0%	1  0 		../../../t/examples/99problems/problem46.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem47.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem48.t
 X  0%	6  0 		../../../t/examples/99problems/problem49.t
--C 0%	1  0 1		../../../t/examples/99problems/problem50.t
+-d 0%	1  0 1		../../../t/examples/99problems/problem50.t
 X  0%	5  0 		../../../t/examples/99problems/problem54.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem55.t
 X  0%	9  0 		../../../t/examples/99problems/problem56.t
@@ -447,7 +447,7 @@ X  0%	10  0 		../../../t/run/12-script-args.t
 -C 0%	8  0 8		../../../t/spec/S02-builtin_data_types/infinity.t
 -C 0%	8  0 8		../../../t/spec/S02-builtin_data_types/type.t
 -C 0%	57  0 57	../../../t/spec/S02-literals/autoref.t
--C 0%	4  0 4		../../../t/spec/S02-literals/hex_chars.t
+-d 0%	4  0 4		../../../t/spec/S02-literals/hex_chars.t
 -C 0%	93  0 93	../../../t/spec/S02-literals/radix.t
 -C 0%	19  0 19	../../../t/spec/S02-names_and_variables/fmt.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
@@ -580,7 +580,7 @@ X  0%	74  0 		../../../t/spec/S29-scalar/undef.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chop.t
 X  0%	11  0 		../../../t/spec/S29-str/quotemeta.t
 -d 0%	31  0 31	../../../t/spec/S29-str/rindex.t
--C 0%	8  0 8		../../../t/spec/S29-str/samecase.t
+-d 0%	8  0 8		../../../t/spec/S29-str/samecase.t
 X  0%	27  0 		../../../t/spec/S29-str/split.t
 -d 0%	12  0 12	../../../t/spec/S29-str/sprintf.t
 -C 0%	40  0 40	../../../t/spec/S29-str/substr.t
@@ -628,7 +628,7 @@ X  0%	18  0 		../../../t/syntax/inplace.t
 -  0%	11  0 8 3!	../../../t/syntax/interpolation/fmt.t
 -C 0%	7  0 7		../../../t/syntax/interpolation/hash_access.t
 X  0%	39  0 		../../../t/syntax/interpolation/strings.t
--C 0%	3  0 3		../../../t/syntax/lf_in_list.t
+-  33%	3  1 0 2!	../../../t/syntax/lf_in_list.t
 -C 0%	4  0 4		../../../t/syntax/list_comprehension.t
 -C 0%	?  0 ?		../../../t/syntax/list_quote_junction.t
 -C 0%	?  0 ?		../../../t/syntax/list_quote_whitespace.t
@@ -754,7 +754,7 @@ ok	6		../../../v6/v6-KindaPerl6/t/kp6/27-array.t
 -C 0%	4  0 4		../../../v6/v6-KindaPerl6/t/kp6/28-subs.t
 -C 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/29-signature.t
 -d 0%	3  0 3		../../../v6/v6-KindaPerl6/t/kp6/30-prelude-match.t
--C 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/31-prelude-capture.t
+-d 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/31-prelude-capture.t
 X  0%	4  0 		../../../v6/v6-KindaPerl6/t/kp6/32-oo-isa.t
 X  0%	4  0 		../../../v6/v6-KindaPerl6/t/kp6/33-subset.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/34-typed-container.t
@@ -812,5 +812,5 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 -d 0%	6  0 6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 813.  578 parsed 71%.  160 run 19%.  33 ok 4%.
-Tests: 16405+.  226 ok <1.37%, 16179+ not.
+Files: 813.  578 parsed 71%.  166 run 20%.  33 ok 4%.
+Tests: 16405+.  227 ok <1.38%, 16178+ not.
