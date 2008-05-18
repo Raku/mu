@@ -229,14 +229,14 @@ OP *___bind_pad2(pTHX)
 {
     dSP;
     AV *_defargs = GvAV(PL_defgv);
-    AV *av = SvRV(cSVOPx_sv(PL_op));
+    AV *av = (AV *)SvRV(cSVOPx_sv(PL_op));
     int i;
     for (i = 0; i <= av_len(av); ++i) {
         SV *current_arg = *av_fetch(_defargs, i, 0);
         SV *entry = *av_fetch(av, i, 0);
-        IV order = SvIVX(*av_fetch(SvRV(entry), 0, 0));
-        SV *mode = *av_fetch(SvRV(entry), 1, 0); // XXX: should do SvOK
-        SV *default_sub = *av_fetch(SvRV(entry), 2, 0);
+        IV order = SvIVX(*av_fetch((AV *)SvRV(entry), 0, 0));
+        SV *mode = *av_fetch((AV *)SvRV(entry), 1, 0); // XXX: should do SvOK
+        SV *default_sub = *av_fetch((AV *)SvRV(entry), 2, 0);
         SAVECLEARSV(PAD_SVl(order));
         /* XXX: check if order is over items, if so it means it's empty and we should apply default_sub->() */
         if (SvIVX(mode)) {
@@ -245,6 +245,10 @@ OP *___bind_pad2(pTHX)
         }
         else {
             PAD_SVl(order) = SvREFCNT_inc(current_arg);
+/*
+            PAD_SVl(order) = newSV(0);
+            __alias_a_to_b(PAD_SVl(order), current_arg, 0);
+*/
         }
     }
     RETURN;
