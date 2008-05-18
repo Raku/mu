@@ -21,7 +21,10 @@ class EmitNoMooseP5 is EmitSimpleP5 {
 
     my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n<name>];
     my $name = $^whiteboard::in_package.join('::');
-    ("\n{ package "~$name~";\n use base qw(Object);\n"~
+    my $base = "use base qw(Object);\n";
+    if $name eq 'Object' { $base = "" }
+    ("\n{ package "~$name~";\n"~
+     $base~ 
      self.prelude_for_entering_a_package()~
      $.e($n<traits>||[]).join("\n")~
      $.e($n<block>)~
@@ -29,8 +32,9 @@ class EmitNoMooseP5 is EmitSimpleP5 {
   };
   method cb__Trait ($n) {
     if ($n<verb> eq 'is') {
+      my $pkgname = $^whiteboard::in_package.join('::');
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
-      "use base '"~$name~"';\n"
+      "BEGIN{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n<verb>~" has not been implemented.\n";
       "***Trait***"

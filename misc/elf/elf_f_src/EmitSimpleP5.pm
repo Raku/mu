@@ -403,7 +403,7 @@ package main; # -> Main once elf_d support is dropped.
       my $pkgname = $^whiteboard::in_package.join('::');
       my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
       $name.re_gsub('^::','');
-      "use base '"~$name~"';\n";
+      "BEGIN{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n<verb>~" has not been implemented.\n";
       "***Trait***"

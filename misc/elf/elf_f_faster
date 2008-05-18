@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 use strict;
 no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
@@ -147,6 +147,9 @@ no warnings qw(redefine prototype);
   # Internal
 
   sub flatten (\@) { ( @{$_[0]} ) }
+  sub flatten_recursively {
+    map { my $ref = ref($_); ($ref && $ref eq "ARRAY") ? $_->flatten_recursively : $_ } @{$_[0]}
+  }
 }
 { package HASH;
   sub WHAT {"Hash"}
@@ -199,10 +202,29 @@ use warnings;
 }
 
 { package GLOBAL;
-  use Perl6::Say;
   { no warnings;
     *gather = \&Private::gather;
     *take   = \&Private::take;}
+
+  {
+    use Scalar::Util "openhandle";
+    sub say {
+      my $currfh = select();
+      my($handle,$warning);
+      {no strict "refs"; $handle = openhandle($_[0]) ? shift : \*$currfh;}
+      @_ = $_ unless @_;
+      my @as = @_;
+      @_ = map {
+        my $ref = ref($_);
+        ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
+      } @as;
+      local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
+      my $res = print {$handle} @_, "\n";
+      return $res if $res;
+      $warning =~ s/[ ]at[ ].*//xms;
+      Carp::croak $warning;
+    }
+  }
 
   our $a_ARGS = [@ARGV];
 
@@ -294,6 +316,10 @@ use warnings;
     my($code)=@_;
     $GLOBAL::compiler0->eval_perl6($code);
   }
+  sub eval {
+    my($code)=@_;
+    eval_perl6($code);
+  }
 }
 
 package main; # -> Main once elf_d support is dropped.
@@ -302,118 +328,117 @@ use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Any;
- use base qw(Object);
+use base qw(Object);
 
 }
 ;
 
 { package Object;
- use base qw(Object);
 
 }
 ;
 
 { package Bit;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Bit::ISA,'::Any');}
 
 }
 ;
 
 { package Int;
- use base qw(Object);
-use base '::SCALAR';
+use base qw(Object);
+BEGIN{push(@Int::ISA,'::SCALAR');}
 
 }
 ;
 
 { package Str;
- use base qw(Object);
-use base '::SCALAR';
+use base qw(Object);
+BEGIN{push(@Str::ISA,'::SCALAR');}
 
 }
 ;
 
 { package Num;
- use base qw(Object);
-use base '::SCALAR';
+use base qw(Object);
+BEGIN{push(@Num::ISA,'::SCALAR');}
 
 }
 ;
 
 { package Complex;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Complex::ISA,'::Any');}
 
 }
 ;
 
 { package Bool;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Bool::ISA,'::Any');}
 
 }
 ;
 
 { package Code;
- use base qw(Object);
-use base '::CODE';
+use base qw(Object);
+BEGIN{push(@Code::ISA,'::CODE');}
 
 }
 ;
 
 { package Block;
- use base qw(Object);
-use base '::Code';
+use base qw(Object);
+BEGIN{push(@Block::ISA,'::Code');}
 
 }
 ;
 
 { package List;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@List::ISA,'::Any');}
 
 }
 ;
 
 { package Seq;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Seq::ISA,'::Any');}
 
 }
 ;
 
 { package Range;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Range::ISA,'::Any');}
 
 }
 ;
 
 { package Set;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Set::ISA,'::Any');}
 
 }
 ;
 
 { package Bag;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Bag::ISA,'::Any');}
 
 }
 ;
 
 { package Junction;
- use base qw(Object);
-use base '::Object';
+use base qw(Object);
+BEGIN{push(@Junction::ISA,'::Object');}
 
 }
 ;
 
 { package Pair;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Pair::ISA,'::Any');}
 sub key {
   if (@_ == 2) {
       $_[0]{'key'} = $_[1];
@@ -434,192 +459,191 @@ sub value {
 ;
 
 { package Mapping;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Mapping::ISA,'::Any');}
 
 }
 ;
 
 { package Signature;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Signature::ISA,'::Any');}
 
 }
 ;
 
 { package Capture;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Capture::ISA,'::Any');}
 
 }
 ;
 
 { package Blob;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Blob::ISA,'::Any');}
 
 }
 ;
 
 { package Scalar;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Scalar::ISA,'::Any');}
 
 }
 ;
 
 { package Array;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Array::ISA,'::Any');}
 
 }
 ;
 
 { package Hash;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Hash::ISA,'::Any');}
 
 }
 ;
 
 { package KeyHash;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@KeyHash::ISA,'::Any');}
 
 }
 ;
 
 { package KeySet;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@KeySet::ISA,'::Any');}
 
 }
 ;
 
 { package KeyBag;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@KeyBag::ISA,'::Any');}
 
 }
 ;
 
 { package Buf;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Buf::ISA,'::Any');}
 
 }
 ;
 
 { package IO;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@IO::ISA,'::Any');}
 
 }
 ;
 
 { package Routine;
- use base qw(Object);
-use base '::Code';
+use base qw(Object);
+BEGIN{push(@Routine::ISA,'::Code');}
 
 }
 ;
 
 { package Sub;
- use base qw(Object);
-use base '::Routine';
+use base qw(Object);
+BEGIN{push(@Sub::ISA,'::Routine');}
 
 }
 ;
 
 { package Method;
- use base qw(Object);
-use base '::Routine';
+use base qw(Object);
+BEGIN{push(@Method::ISA,'::Routine');}
 
 }
 ;
 
 { package Subethod;
- use base qw(Object);
-use base '::Routine';
+use base qw(Object);
+BEGIN{push(@Subethod::ISA,'::Routine');}
 
 }
 ;
 
 { package Macro;
- use base qw(Object);
-use base '::Routine';
+use base qw(Object);
+BEGIN{push(@Macro::ISA,'::Routine');}
 
 }
 ;
 
 { package Regex;
- use base qw(Object);
-use base '::Routine';
+use base qw(Object);
+BEGIN{push(@Regex::ISA,'::Routine');}
 
 }
 ;
 
 { package Match;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Match::ISA,'::Any');}
 
 }
 ;
 
 { package Package;
- use base qw(Object);
-use base '::Any';
+use base qw(Object);
+BEGIN{push(@Package::ISA,'::Any');}
 
 }
 ;
 
 { package Module;
- use base qw(Object);
-use base '::Package';
+use base qw(Object);
+BEGIN{push(@Module::ISA,'::Package');}
 
 }
 ;
 
 { package Class;
- use base qw(Object);
-use base '::Module';
+use base qw(Object);
+BEGIN{push(@Class::ISA,'::Module');}
 
 }
 ;
 
 { package Role;
- use base qw(Object);
-use base '::Module';
+use base qw(Object);
+BEGIN{push(@Role::ISA,'::Module');}
 
 }
 ;
 
 { package Grammar;
- use base qw(Object);
-use base '::Module';
+use base qw(Object);
+BEGIN{push(@Grammar::ISA,'::Module');}
 
 }
 ;
 
 { package Any;
- use base qw(Object);
-use base '::Object';
+use base qw(Object);
+BEGIN{push(@Any::ISA,'::Object');}
 
 }
 ;
 
 { package Object;
- use base qw(Object);
 
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Match;
- use base qw(Object);
+use base qw(Object);
 sub rule {
   if (@_ == 2) {
       $_[0]{'rule'} = $_[1];
@@ -688,7 +712,7 @@ sub match_string{my $self=CORE::shift;$self->str}
 ;
 
 { package ARRAY;
- use base qw(Object);
+use base qw(Object);
 sub match_describe{my $self=CORE::shift;((('[
 ' . Match->indent($self->map(sub {my($e)=@_;
 $e->match_describe()})->join(',
@@ -698,7 +722,7 @@ $e->match_describe()})->join(',
 ;
 
 { package HASH;
- use base qw(Object);
+use base qw(Object);
 sub match_describe{my $self=CORE::shift;my $s = '{';
 for($self->keys()->flatten){
 my $k = $_;
@@ -719,66 +743,66 @@ if($self->keys()->elems()) {
 ;
 
 { package SCALAR;
- use base qw(Object);
+use base qw(Object);
 sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package ARRAY;
- use base qw(Object);
+use base qw(Object);
 sub irx1_describe{my $self=CORE::shift;(('[' . $self->map(sub {my($e)=@_;
 $e->irx1_describe()})->join(',')) . ']')}
 }
 ;
 
 { package SCALAR;
- use base qw(Object);
+use base qw(Object);
 sub irx1_describe{my $self=CORE::shift;($self . '')}
 }
 ;
 
 { package UNDEF;
- use base qw(Object);
+use base qw(Object);
 sub irx1_describe{my $self=CORE::shift;'undef'}
 }
 ;
 
 { package IRx1;
- use base qw(Object);
+use base qw(Object);
 
 { package IRx1::Base;
- use base qw(Object);
+use base qw(Object);
 
 }
 ;
 
 { package IRx1::CompUnit_and_Block;
- use base qw(Object);
+use base qw(Object);
 
 }
 ;
 
 { package IRx1::CompUnit;
- use base qw(Object);
-use base 'IRx1::CompUnit_and_Block';
+use base qw(Object);
+BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::CompUnit_and_Block');}
 
 }
 ;
 
 { package IRx1::Block;
- use base qw(Object);
-use base 'IRx1::CompUnit_and_Block';
+use base qw(Object);
+BEGIN{push(@IRx1::Block::ISA,'IRx1::CompUnit_and_Block');}
 
 }
 ;
 
 { package IRx1::CompUnit;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -823,8 +847,8 @@ sub irx1_describe{my $self=CORE::shift;(((('CompUnit(' . $self->statements->irx1
 ;
 
 { package IRx1::Block;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Block::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -861,8 +885,8 @@ sub irx1_describe{my $self=CORE::shift;(('Block(' . $self->statements->irx1_desc
 ;
 
 { package IRx1::Use;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Use::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -915,8 +939,8 @@ sub irx1_describe{my $self=CORE::shift;(((((('Use(' . $self->kind->irx1_describe
 ;
 
 { package IRx1::PackageDecl;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::PackageDecl::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -993,8 +1017,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((((((('PackageDecl(' . $self->scope
 ;
 
 { package IRx1::MethodDecl;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::MethodDecl::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1095,8 +1119,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((((((((((((('MethodDecl(' . $self->
 ;
 
 { package IRx1::SubDecl;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::SubDecl::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1181,8 +1205,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((((((((('SubDecl(' . $self->scope->
 ;
 
 { package IRx1::MacroDecl;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::MacroDecl::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1267,8 +1291,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((((((((('MacroDecl(' . $self->scope
 ;
 
 { package IRx1::VarDecl;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::VarDecl::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1361,8 +1385,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((((((((((('VarDecl(' . $self->scope
 ;
 
 { package IRx1::Var;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Var::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1415,8 +1439,8 @@ sub irx1_describe{my $self=CORE::shift;(((((('Var(' . $self->sigil->irx1_describ
 ;
 
 { package IRx1::Trait;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Trait::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1461,8 +1485,8 @@ sub irx1_describe{my $self=CORE::shift;(((('Trait(' . $self->verb->irx1_describe
 ;
 
 { package IRx1::ClosureTrait;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::ClosureTrait::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1507,8 +1531,8 @@ sub irx1_describe{my $self=CORE::shift;(((('ClosureTrait(' . $self->kind->irx1_d
 ;
 
 { package IRx1::ModuleName;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::ModuleName::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1553,8 +1577,8 @@ sub irx1_describe{my $self=CORE::shift;(((('ModuleName(' . $self->name->irx1_des
 ;
 
 { package IRx1::PathName;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::PathName::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1591,8 +1615,8 @@ sub irx1_describe{my $self=CORE::shift;(('PathName(' . $self->path->irx1_describ
 ;
 
 { package IRx1::SubName;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::SubName::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1653,8 +1677,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((('SubName(' . $self->category->irx
 ;
 
 { package IRx1::ShapedParamName;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::ShapedParamName::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1699,8 +1723,8 @@ sub irx1_describe{my $self=CORE::shift;(((('ShapedParamName(' . $self->ident->ir
 ;
 
 { package IRx1::Call;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Call::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1753,8 +1777,8 @@ sub irx1_describe{my $self=CORE::shift;(((((('Call(' . $self->invocant->irx1_des
 ;
 
 { package IRx1::Apply;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Apply::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1799,8 +1823,8 @@ sub irx1_describe{my $self=CORE::shift;(((('Apply(' . $self->function->irx1_desc
 ;
 
 { package IRx1::Hyper;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Hyper::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1845,8 +1869,8 @@ sub irx1_describe{my $self=CORE::shift;(((('Hyper(' . $self->operator->irx1_desc
 ;
 
 { package IRx1::Capture;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Capture::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1863,6 +1887,14 @@ sub arguments {
   }
 }
 ;
+sub invocant {
+  if (@_ == 2) {
+      $_[0]{'invocant'} = $_[1];
+ } else {
+     $_[0]{'invocant'};
+  }
+}
+;
 sub notes {
   if (@_ == 2) {
       $_[0]{'notes'} = $_[1];
@@ -1871,20 +1903,20 @@ sub notes {
   }
 }
 ;
-sub newp{my $self=CORE::shift;my($match,$arguments)=@_;
-$self->new('match', $match, 'arguments', $arguments)};
+sub newp{my $self=CORE::shift;my($match,$arguments,$invocant)=@_;
+$self->new('match', $match, 'arguments', $arguments, 'invocant', $invocant)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Capture($self)};
 sub node_name{my $self=CORE::shift;'Capture'};
-sub field_names{my $self=CORE::shift;['arguments']};
-sub field_values{my $self=CORE::shift;[$self->arguments]};
-sub irx1_describe{my $self=CORE::shift;(('Capture(' . $self->arguments->irx1_describe()) . ')')}
+sub field_names{my $self=CORE::shift;['arguments', 'invocant']};
+sub field_values{my $self=CORE::shift;[$self->arguments, $self->invocant]};
+sub irx1_describe{my $self=CORE::shift;(((('Capture(' . $self->arguments->irx1_describe()) . ',') . $self->invocant->irx1_describe()) . ')')}
 }
 ;
 
 { package IRx1::MultiSig;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::MultiSig::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1921,8 +1953,8 @@ sub irx1_describe{my $self=CORE::shift;(('MultiSig(' . $self->signatures->irx1_d
 ;
 
 { package IRx1::Signature;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Signature::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -1967,8 +1999,8 @@ sub irx1_describe{my $self=CORE::shift;(((('Signature(' . $self->parameters->irx
 ;
 
 { package IRx1::Parameter;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Parameter::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2053,8 +2085,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((((((((('Parameter(' . $self->type_
 ;
 
 { package IRx1::TypeConstraint;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::TypeConstraint::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2099,8 +2131,8 @@ sub irx1_describe{my $self=CORE::shift;(((('TypeConstraint(' . $self->value->irx
 ;
 
 { package IRx1::PostConstraint;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::PostConstraint::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2145,8 +2177,8 @@ sub irx1_describe{my $self=CORE::shift;(((('PostConstraint(' . $self->multisig->
 ;
 
 { package IRx1::ParamVar;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::ParamVar::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2199,8 +2231,8 @@ sub irx1_describe{my $self=CORE::shift;(((((('ParamVar(' . $self->sigil->irx1_de
 ;
 
 { package IRx1::Undef;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Undef::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2229,8 +2261,8 @@ sub irx1_describe{my $self=CORE::shift;('Undef(' . ')')}
 ;
 
 { package IRx1::NumInt;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::NumInt::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2275,8 +2307,8 @@ sub irx1_describe{my $self=CORE::shift;(((('NumInt(' . $self->text->irx1_describ
 ;
 
 { package IRx1::NumDec;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::NumDec::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2329,8 +2361,8 @@ sub irx1_describe{my $self=CORE::shift;(((((('NumDec(' . $self->intpart->irx1_de
 ;
 
 { package IRx1::NumRad;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::NumRad::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2399,8 +2431,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((((('NumRad(' . $self->radix->irx1_
 ;
 
 { package IRx1::Array;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Array::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2437,8 +2469,8 @@ sub irx1_describe{my $self=CORE::shift;(('Array(' . $self->array->irx1_describe(
 ;
 
 { package IRx1::Hash;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Hash::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2475,8 +2507,8 @@ sub irx1_describe{my $self=CORE::shift;(('Hash(' . $self->hash->irx1_describe())
 ;
 
 { package IRx1::Pair;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Pair::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2521,8 +2553,8 @@ sub irx1_describe{my $self=CORE::shift;(((('Pair(' . $self->key->irx1_describe()
 ;
 
 { package IRx1::Type;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Type::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2559,8 +2591,8 @@ sub irx1_describe{my $self=CORE::shift;(('Type(' . $self->typename->irx1_describ
 ;
 
 { package IRx1::Rx;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Rx::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2597,8 +2629,8 @@ sub irx1_describe{my $self=CORE::shift;(('Rx(' . $self->pat->irx1_describe()) . 
 ;
 
 { package IRx1::Buf;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Buf::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2635,8 +2667,8 @@ sub irx1_describe{my $self=CORE::shift;(('Buf(' . $self->buf->irx1_describe()) .
 ;
 
 { package IRx1::For;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::For::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2681,8 +2713,8 @@ sub irx1_describe{my $self=CORE::shift;(((('For(' . $self->expr->irx1_describe()
 ;
 
 { package IRx1::Cond;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Cond::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2735,8 +2767,8 @@ sub irx1_describe{my $self=CORE::shift;(((((('Cond(' . $self->clauses->irx1_desc
 ;
 
 { package IRx1::Loop;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Loop::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2797,8 +2829,8 @@ sub irx1_describe{my $self=CORE::shift;(((((((('Loop(' . $self->pretest->irx1_de
 ;
 
 { package IRx1::RegexDef;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RegexDef::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2843,8 +2875,8 @@ sub irx1_describe{my $self=CORE::shift;(((('RegexDef(' . $self->ident->irx1_desc
 ;
 
 { package IRx1::Regex;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::Regex::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2881,8 +2913,8 @@ sub irx1_describe{my $self=CORE::shift;(('Regex(' . $self->patterns->irx1_descri
 ;
 
 { package IRx1::RxFirst;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxFirst::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2919,8 +2951,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxFirst(' . $self->patterns->irx1_desc
 ;
 
 { package IRx1::RxEvery;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxEvery::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2957,8 +2989,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxEvery(' . $self->patterns->irx1_desc
 ;
 
 { package IRx1::RxSubmatch;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxSubmatch::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -2995,8 +3027,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxSubmatch(' . $self->patterns->irx1_d
 ;
 
 { package IRx1::RxAny;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxAny::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3033,8 +3065,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxAny(' . $self->patterns->irx1_descri
 ;
 
 { package IRx1::RxAll;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxAll::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3071,8 +3103,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxAll(' . $self->patterns->irx1_descri
 ;
 
 { package IRx1::RxSequence;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxSequence::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3109,8 +3141,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxSequence(' . $self->patterns->irx1_d
 ;
 
 { package IRx1::RxQuantifiedAtom;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxQuantifiedAtom::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3155,8 +3187,8 @@ sub irx1_describe{my $self=CORE::shift;(((('RxQuantifiedAtom(' . $self->atom->ir
 ;
 
 { package IRx1::RxBackslash;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxBackslash::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3193,8 +3225,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxBackslash(' . $self->char->irx1_desc
 ;
 
 { package IRx1::RxAssertion;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxAssertion::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3231,8 +3263,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxAssertion(' . $self->ident->irx1_des
 ;
 
 { package IRx1::RxModInternal;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxModInternal::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3269,8 +3301,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxModInternal(' . $self->mod->irx1_des
 ;
 
 { package IRx1::RxCapture;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxCapture::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3307,8 +3339,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxCapture(' . $self->pattern->irx1_des
 ;
 
 { package IRx1::RxGroup;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxGroup::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3345,8 +3377,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxGroup(' . $self->pattern->irx1_descr
 ;
 
 { package IRx1::RxBlock;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxBlock::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3383,8 +3415,8 @@ sub irx1_describe{my $self=CORE::shift;(('RxBlock(' . $self->block->irx1_describ
 ;
 
 { package IRx1::RxBind;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxBind::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3429,8 +3461,8 @@ sub irx1_describe{my $self=CORE::shift;(((('RxBind(' . $self->var->irx1_describe
 ;
 
 { package IRx1::RxLiteral;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxLiteral::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3475,8 +3507,8 @@ sub irx1_describe{my $self=CORE::shift;(((('RxLiteral(' . $self->text->irx1_desc
 ;
 
 { package IRx1::RxSymbol;
- use base qw(Object);
-use base 'IRx1::Base';
+use base qw(Object);
+BEGIN{push(@IRx1::RxSymbol::ISA,'IRx1::Base');}
 sub match {
   if (@_ == 2) {
       $_[0]{'match'} = $_[1];
@@ -3512,14 +3544,14 @@ sub irx1_describe{my $self=CORE::shift;(('RxSymbol(' . $self->symbol->irx1_descr
 }
 
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package IRx1_Build;
- use base qw(Object);
+use base qw(Object);
 sub constructors {
   if (@_ == 2) {
       $_[0]{'constructors'} = $_[1];
@@ -3551,26 +3583,26 @@ It needs to be added to ast_handlers.
 ;
 
 { package Match;
- use base qw(Object);
+use base qw(Object);
 sub make_ir_from_Match_tree{my $self=CORE::shift;$main::irbuilder->make_ir_from_Match_tree($self)}
 }
 ;
 
 { package ARRAY;
- use base qw(Object);
+use base qw(Object);
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self->map(sub {my($e)=@_;
 $e->make_ir_from_Match_tree()})}
 }
 ;
 
 { package SCALAR;
- use base qw(Object);
+use base qw(Object);
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
 }
 ;
 
 { package UNDEF;
- use base qw(Object);
+use base qw(Object);
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
 }
 ;
@@ -3578,7 +3610,7 @@ sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()};
 
 { package IRx1_Build;
- use base qw(Object);
+use base qw(Object);
 sub irbuild_ir{my($x)=@_;
 $x->make_ir_from_Match_tree()};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
@@ -3665,8 +3697,11 @@ $main::irbuilder->add_constructor('infix', sub {my($m)=@_;
 my $op = ($m->match_string());
 IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'left'}), irbuild_ir($m->{'hash'}->{'right'})]))});
 $main::irbuilder->add_constructor('term', sub {my($m)=@_;
-if((($m->match_string()) eq 'self')) {
+my $text = ($m->match_string());
+if(($text eq 'self')) {
 IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []))
+}elsif(($text eq '*')) {
+IRx1::Apply->newp($m, 'whatever', IRx1::Capture->newp($m, []))
 }else {
 GLOBAL::die('AST term partially unimplemented.
 ')
@@ -3685,7 +3720,7 @@ $main::irbuilder->add_constructor('name', sub {my($m)=@_;
 $main::irbuilder->add_constructor('subshortname', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('statement_control:use', sub {my($m)=@_;
-IRx1::Use->newp($m, 'use', irbuild_ir($m->{'hash'}->{'module_name'}))});
+IRx1::Use->newp($m, 'use', irbuild_ir($m->{'hash'}->{'module_name'}), irbuild_ir($m->{'hash'}->{'EXPR'}))});
 $main::irbuilder->add_constructor('module_name:depreciated', sub {my($m)=@_;
 ($m->match_string())});
 $main::irbuilder->add_constructor('module_name:normal', sub {my($m)=@_;
@@ -3711,27 +3746,16 @@ $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
 my $s = irbuild_ir($m->{'hash'}->{'text'});
 IRx1::Rx->newp($m, $s)});
 $main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
 IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scope_declarator:has', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
 IRx1::VarDecl->newp($m, 'has', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scope_declarator:our', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'});
+my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
 IRx1::VarDecl->newp($m, 'our', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
 $main::irbuilder->add_constructor('scoped', sub {my($m)=@_;
-my $key;
-for($m->{'hash'}->keys()->flatten){
-if(($_ ne 'match')) {
-if($key) {
-GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
-')
-};
-($key = $_)
-}
-};
-my $one = irbuild_ir($m->{'hash'}->{$key});
-$one});
+[irbuild_ir($m->{'hash'}->{'variable_decl'}), irbuild_ir($m->{'hash'}->{'fulltypename'})]});
 $main::irbuilder->add_constructor('variable_decl', sub {my($m)=@_;
 [irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'})]});
 $main::irbuilder->add_constructor('variable', sub {my($m)=@_;
@@ -3794,21 +3818,24 @@ GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
+$main::irbuilder->add_constructor('statement_prefix:do', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:do', irbuild_ir($m->{'hash'}->{'statement'}))});
+$main::irbuilder->add_constructor('statement_prefix:try', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:try', irbuild_ir($m->{'hash'}->{'statement'}))});
 $main::irbuilder->add_constructor('statement_prefix:gather', sub {my($m)=@_;
 IRx1::Apply->newp($m, 'statement_prefix:gather', irbuild_ir($m->{'hash'}->{'statement'}))});
+$main::irbuilder->add_constructor('statement_prefix:contend', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:contend', irbuild_ir($m->{'hash'}->{'statement'}))});
+$main::irbuilder->add_constructor('statement_prefix:async', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:async', irbuild_ir($m->{'hash'}->{'statement'}))});
+$main::irbuilder->add_constructor('statement_prefix:lazy', sub {my($m)=@_;
+IRx1::Apply->newp($m, 'statement_prefix:lazy', irbuild_ir($m->{'hash'}->{'statement'}))});
 $main::irbuilder->add_constructor('pblock', sub {my($m)=@_;
-my $key;
-for($m->{'hash'}->keys()->flatten){
-if(($_ ne 'match')) {
-if($key) {
-GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
-')
-};
-($key = $_)
-}
-};
-my $one = irbuild_ir($m->{'hash'}->{$key});
-$one});
+if($m->{'hash'}->{'signature'}) {
+IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'signature'}), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))
+}else {
+irbuild_ir($m->{'hash'}->{'block'})
+}});
 $main::irbuilder->add_constructor('block', sub {my($m)=@_;
 IRx1::Block->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))});
 $main::irbuilder->add_constructor('plurality_declarator:multi', sub {my($m)=@_;
@@ -3825,7 +3852,7 @@ my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
 if(irbuild_ir($m->{'hash'}->{'multisig'})) {
 ($sig = irbuild_ir($m->{'hash'}->{'multisig'})->[0])
 };
-IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('routine_declarator:method_def', sub {my($m)=@_;
 my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
@@ -3836,6 +3863,53 @@ $main::irbuilder->add_constructor('parameter', sub {my($m)=@_;
 IRx1::Parameter->newp($m, irbuild_ir($m->{'hash'}->{'type_constraint'}), irbuild_ir($m->{'hash'}->{'quantchar'}), irbuild_ir($m->{'hash'}->{'param_var'}))});
 $main::irbuilder->add_constructor('param_var', sub {my($m)=@_;
 IRx1::ParamVar->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), irbuild_ir($m->{'hash'}->{'twigil'}), irbuild_ir($m->{'hash'}->{'ident'}))});
+$main::irbuilder->add_constructor('capture', sub {my($m)=@_;
+if(GLOBAL::not($m->{'hash'}->{'EXPR'})) {
+IRx1::Capture->newp($m, [])
+}elsif($m->{'hash'}->{'EXPR'}->{'hash'}->{'noun'}) {
+IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'noun'})])
+}elsif(($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} && ($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} eq ':'))) {
+my $args = irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'args'});
+my $inv = $args->shift();
+IRx1::Capture->newp($m, $args, $inv)
+}elsif(($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} && ($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} eq ','))) {
+my $args = $m->{'hash'}->{'EXPR'}->{'hash'}->{'args'};
+my $arg0 = ($args && $args->[0]);
+my $inv = GLOBAL::undef();
+if((($arg0 && $arg0->{'hash'}->{'sym'}) && ($arg0->{'hash'}->{'sym'} eq ':'))) {
+$args->shift();
+($inv = $arg0->{'hash'}->{'args'}->[0]);
+if($arg0->{'hash'}->{'args'}->[1]) {
+$args->unshift($arg0->{'hash'}->{'args'}->[1])
+}
+};
+IRx1::Capture->newp($m, irbuild_ir($args), irbuild_ir($inv))
+}else {
+GLOBAL::die('capture AST form not recognized')
+}});
+$main::irbuilder->add_constructor('colonpair', sub {my($m)=@_;
+my $key;
+for($m->{'hash'}->keys()->flatten){
+if(($_ ne 'match')) {
+if($key) {
+GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
+')
+};
+($key = $_)
+}
+};
+my $one = irbuild_ir($m->{'hash'}->{$key});
+$one});
+$main::irbuilder->add_constructor('colonpair__false', sub {my($m)=@_;
+IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::NumInt->newp($m, 0))});
+$main::irbuilder->add_constructor('colonpair__value', sub {my($m)=@_;
+my $value;
+if($m->{'hash'}->{'postcircumfix'}) {
+($value = irbuild_ir($m->{'hash'}->{'postcircumfix'}))
+}else {
+($value = IRx1::NumInt->newp($m, 1))
+};
+IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), $value)});
 $main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
 {package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
 irbuild_ir($m->{'hash'}->{'package_def'})});
@@ -3927,14 +4001,14 @@ IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'text'}), '"')});
 $main::irbuilder->add_constructor('regex_metachar', sub {my($m)=@_;
 IRx1::RxSymbol->newp($m, ($m->match_string()))})
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package IRx1::CompUnit;
- use base qw(Object);
+use base qw(Object);
 sub do_all_analysis{my $self=CORE::shift;$self->initialize_notes();
 $self->note_parents();
 $self->note_block_lexical_variable_decls();
@@ -3943,7 +4017,7 @@ $self->note_environment()}
 ;
 
 { package IRx1::Base;
- use base qw(Object);
+use base qw(Object);
 sub is_IR_node{my $self=CORE::shift;1};
 sub initialize_notes{my $self=CORE::shift;$self->notes({});
 my $a = [];
@@ -3977,7 +4051,7 @@ sub child_nodes{my $self=CORE::shift;$self->notes()->{'child_nodes'}}
 ;
 
 { package IRx1::CompUnit;
- use base qw(Object);
+use base qw(Object);
 sub note_parents{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
 $_->note_parents()
@@ -3986,7 +4060,7 @@ $_->note_parents()
 ;
 
 { package IRx1::Base;
- use base qw(Object);
+use base qw(Object);
 sub note_parents{my $self=CORE::shift;($self->notes()->{'parent'} = $::es_whiteboard__parent);
 {package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
@@ -3996,7 +4070,7 @@ $_->note_parents()
 ;
 
 { package IRx1::CompUnit_and_Block;
- use base qw(Object);
+use base qw(Object);
 sub note_block_lexical_variable_decls{my $self=CORE::shift;my $a = [];
 {package main; use vars '$1es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
 ($self->notes()->{'lexical_variable_decls'} = $a);
@@ -4007,7 +4081,7 @@ $_->note_block_lexical_variable_decls()
 ;
 
 { package IRx1::VarDecl;
- use base qw(Object);
+use base qw(Object);
 sub note_block_lexical_variable_decls{my $self=CORE::shift;if($self->is_lexical()) {
 $::es_whiteboard__lexical_variable_decls->push($self)
 };
@@ -4018,7 +4092,7 @@ $_->note_block_lexical_variable_decls()
 ;
 
 { package IRx1::SubDecl;
- use base qw(Object);
+use base qw(Object);
 sub note_block_lexical_variable_decls{my $self=CORE::shift;if($_->name()) {
 $::es_whiteboard__lexical_variable_decls->push($self)
 };
@@ -4029,7 +4103,7 @@ $_->note_block_lexical_variable_decls()
 ;
 
 { package IRx1::Base;
- use base qw(Object);
+use base qw(Object);
 sub note_block_lexical_variable_decls{my $self=CORE::shift;for($self->child_nodes()->flatten){
 $_->note_block_lexical_variable_decls()
 }}
@@ -4037,7 +4111,7 @@ $_->note_block_lexical_variable_decls()
 ;
 
 { package IRx1::CompUnit;
- use base qw(Object);
+use base qw(Object);
 sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
 {package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
@@ -4047,7 +4121,7 @@ $_->note_environment()
 ;
 
 { package IRx1::Block;
- use base qw(Object);
+use base qw(Object);
 sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
 $_->note_environment()
@@ -4056,7 +4130,7 @@ $_->note_environment()
 ;
 
 { package IRx1::CompUnit_and_Block;
- use base qw(Object);
+use base qw(Object);
 sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
 my $h1 = $h->dup();
 for($decls->flatten){
@@ -4068,7 +4142,7 @@ $h1}
 ;
 
 { package IRx1::PackageDecl;
- use base qw(Object);
+use base qw(Object);
 sub note_environment{my $self=CORE::shift;my $new_chain;
 if($self->path_is_absolute()) {
 ($new_chain = [$self])
@@ -4083,7 +4157,7 @@ $_->note_environment()
 ;
 
 { package IRx1::Apply;
- use base qw(Object);
+use base qw(Object);
 sub note_environment{my $self=CORE::shift;($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
 for($self->child_nodes()->flatten){
 $_->note_environment()
@@ -4092,7 +4166,7 @@ $_->note_environment()
 ;
 
 { package IRx1::Base;
- use base qw(Object);
+use base qw(Object);
 sub note_environment{my $self=CORE::shift;for($self->child_nodes()->flatten){
 $_->note_environment()
 }}
@@ -4100,7 +4174,7 @@ $_->note_environment()
 ;
 
 { package IRx1::VarDecl;
- use base qw(Object);
+use base qw(Object);
 sub is_lexical{my $self=CORE::shift;($self->scope() eq 'my')};
 sub sigil{my $self=CORE::shift;$self->{'var'}->{'sigil'}};
 sub name{my $self=CORE::shift;$self->{'var'}->{'name'}}
@@ -4108,23 +4182,23 @@ sub name{my $self=CORE::shift;$self->{'var'}->{'name'}}
 ;
 
 { package IRx1::SubDecl;
- use base qw(Object);
+use base qw(Object);
 sub sigil{my $self=CORE::shift;'&'}
 }
 ;
 
 { package IRx1::PackageDecl;
- use base qw(Object);
+use base qw(Object);
 sub path_is_absolute{my $self=CORE::shift;($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))}
 }
-;1;
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package EmitSimpleP5;
- use base qw(Object);
+use base qw(Object);
 sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
 $self->new('compiler', $compiler)};
 sub compiler {
@@ -4145,7 +4219,7 @@ sub prelude_oo{my $self=CORE::shift;'
 }
 '};
 sub prelude{my $self=CORE::shift;my($n)=@_;
-(('#!/usr/bin/perl -w
+(('#!/usr/bin/env perl
 use strict;
 no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
@@ -4282,6 +4356,9 @@ no warnings qw(redefine prototype);
   # Internal
 
   sub flatten (\\@) { ( @{$_[0]} ) }
+  sub flatten_recursively {
+    map { my $ref = ref($_); ($ref && $ref eq "ARRAY") ? $_->flatten_recursively : $_ } @{$_[0]}
+  }
 }
 { package HASH;
   sub WHAT {"Hash"}
@@ -4334,10 +4411,29 @@ use warnings;
 }
 
 { package GLOBAL;
-  use Perl6::Say;
   { no warnings;
     *gather = \\&Private::gather;
     *take   = \\&Private::take;}
+
+  {
+    use Scalar::Util "openhandle";
+    sub say {
+      my $currfh = select();
+      my($handle,$warning);
+      {no strict "refs"; $handle = openhandle($_[0]) ? shift : \\*$currfh;}
+      @_ = $_ unless @_;
+      my @as = @_;
+      @_ = map {
+        my $ref = ref($_);
+        ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
+      } @as;
+      local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
+      my $res = print {$handle} @_, "\\n";
+      return $res if $res;
+      $warning =~ s/[ ]at[ ].*//xms;
+      Carp::croak $warning;
+    }
+  }
 
   our $a_ARGS = [@ARGV];
 
@@ -4429,6 +4525,10 @@ use warnings;
     my($code)=@_;
     $GLOBAL::compiler0->eval_perl6($code);
   }
+  sub eval {
+    my($code)=@_;
+    eval_perl6($code);
+  }
 }
 
 package main; # -> Main once elf_d support is dropped.
@@ -4455,18 +4555,30 @@ $x->callback($self)
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 $n->do_all_analysis();
 {package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
-(((('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-' . $self->prelude_for_entering_a_package()) . $self->e($n->{'statements'})->join(';
-')) . ';1;
-'))};
+my $code = (('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+' . $self->prelude_for_entering_a_package()));
+my $stmts = $self->e($n->{'statements'});
+(($code . $stmts->join(';
+')) . ';
+')};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
 (('' . $self->e($n->{'statements'})->join(';
 ')) . '')};
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
-my $module = $n->{'module_name'};
+my $module = $self->e($n->{'module_name'});
+my $expr = $self->e($n->{'expr'});
 if(($module eq 'v6-alpha')) {
 ''
-}elsif($self->compiler->hook_for_use($module)) {
+}elsif(($module eq 'v6')) {
+''
+}elsif(($module eq 'lib')) {
+my $name = $n->{'expr'}->{'buf'};
+if($self->compiler->hook_for_use_lib($name)) {
+''
+}else {
+''
+}
+}elsif($self->compiler->hook_for_use($module, $expr)) {
 ''
 }else {
 ('use ' . $module)
@@ -4490,7 +4602,7 @@ if((($n->{'verb'} eq 'is'))) {
 my $pkgname = $::es_whiteboard__in_package->join('::');
 my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') . $self->e($n->{'expr'}));
 $name->re_gsub('^::', '');
-(('use base \'' . $name) . '\';
+(((('BEGIN{push(@' . $pkgname) . '::ISA,\'') . $name) . '\');}
 ')
 }else {
 GLOBAL::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
@@ -4613,7 +4725,11 @@ if($sig) {
 }else {
 ($sig = '')
 };
-((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')};
+if((($n->{'traits'} && $n->{'traits'}->[0]->{'expr'}) && ($n->{'traits'}->[0]->{'expr'} eq 'p5'))) {
+((((('sub ' . $name) . '{') . $sig) . $n->{'block'}->{'statements'}->[0]->{'buf'}) . '}')
+}else {
+((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')
+}};
 sub cb__Signature{my $self=CORE::shift;my($n)=@_;
 if((($n->{'parameters'}->elems() == 0))) {
 ''
@@ -4667,6 +4783,8 @@ my $a = $self->e($n->{'capture'}->{'arguments'});
 my $x = $a->[0];
 if(0) {
 
+}elsif(($op eq '?')) {
+(('((' . $x) . ')?1:0)')
 }else {
 (((('(' . $op) . '') . $x) . ')')
 }
@@ -4681,8 +4799,18 @@ if(0) {
 }
 }elsif((($self->e($n->{'function'}) =~ qr/^circumfix:(.+)/))) {
 my $op = $1;
+if(($op eq '< >')) {
+my $s = $n->{'capture'}->{'arguments'}->[0];
+my $words = $s->split(qr/\s+/);
+if(($words->elems() == 0)) {
+'[]'
+}else {
+(('[\'' . $words->join('\',\'')) . '\']')
+}
+}else {
 my $arg = $self->e($n->{'capture'});
 $op->re_gsub(' ', $arg)
+}
 }elsif((($self->e($n->{'function'}) =~ qr/^statement_prefix:gather$/))) {
 (('GLOBAL::gather' . $self->e($n->{'capture'})) . '')
 }else {
@@ -4708,7 +4836,17 @@ if($n->notes()->{'lexical_bindings'}->{('&' . $f)}) {
 }
 }};
 sub cb__Capture{my $self=CORE::shift;my($n)=@_;
-$self->e(($n->{'arguments'} || []))->join(',')};
+my $a = $self->e(($n->{'arguments'} || []))->join(',');
+if($n->{'invocant'}) {
+my $inv = $self->e($n->{'invocant'});
+if($a) {
+(($inv . ', ') . $a)
+}else {
+$inv
+}
+}else {
+$a
+}};
 sub cb__For{my $self=CORE::shift;my($n)=@_;
 (((('for(' . $self->e($n->{'expr'})) . '->flatten){
 ') . $self->e($n->{'block'})) . '
@@ -4774,21 +4912,23 @@ my $s = GLOBAL::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Du
 $s->chomp();
 $s};
 sub cb__Rx{my $self=CORE::shift;my($n)=@_;
-(('qr/' . $n->{'pat'}) . '/')}
+(('qr/' . $n->{'pat'}) . '/')};
+sub cb__Pair{my $self=CORE::shift;my($n)=@_;
+(((('(' . $self->e($n->{'key'})) . '=>') . $self->e($n->{'value'})) . ')')}
 }
 ;
 if(GLOBAL::not($GLOBAL::emitter0)) {
 ($GLOBAL::emitter0 = EmitSimpleP5->new())
 };
-($GLOBAL::emitter1 = EmitSimpleP5->new());1;
+($GLOBAL::emitter1 = EmitSimpleP5->new());
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package EmitNoMooseP5;
- use base qw(Object);
-use base '::EmitSimpleP5';
+use base qw(Object);
+BEGIN{push(@EmitNoMooseP5::ISA,'::EmitSimpleP5');}
 sub prelude_oo{my $self=CORE::shift;'
 {package Object;
     sub new {
@@ -4805,17 +4945,22 @@ sub prelude_oo{my $self=CORE::shift;'
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
 {package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
 my $name = $::es_whiteboard__in_package->join('::');
-((((((('
+my $base = 'use base qw(Object);
+';
+if(($name eq 'Object')) {
+($base = '')
+};
+(((((((('
 { package ' . $name) . ';
- use base qw(Object);
-') . $self->prelude_for_entering_a_package()) . $self->e(($n->{'traits'} || []))->join('
+') . $base) . $self->prelude_for_entering_a_package()) . $self->e(($n->{'traits'} || []))->join('
 ')) . $self->e($n->{'block'})) . '
 }
 '))};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
 if((($n->{'verb'} eq 'is'))) {
+my $pkgname = $::es_whiteboard__in_package->join('::');
 my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') . $self->e($n->{'expr'}));
-(('use base \'' . $name) . '\';
+(((('BEGIN{push(@' . $pkgname) . '::ISA,\'') . $name) . '\');}
 ')
 }else {
 GLOBAL::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
@@ -4840,14 +4985,14 @@ if((GLOBAL::defined($default))) {
 }
 ;
 ($GLOBAL::emitter0 = EmitNoMooseP5->new());
-($GLOBAL::emitter1 = EmitNoMooseP5->new());1;
+($GLOBAL::emitter1 = EmitNoMooseP5->new());
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Parser;
- use base qw(Object);
+use base qw(Object);
 sub is_for_active_runtime {
   if (@_ == 2) {
       $_[0]{'is_for_active_runtime'} = $_[1];
@@ -4877,14 +5022,14 @@ GLOBAL::eval_perl5('
 if(GLOBAL::not($GLOBAL::parser0)) {
 ($GLOBAL::parser0 = Parser->new('is_for_active_runtime', 1))
 };
-($GLOBAL::parser1 = Parser->new());1;
+($GLOBAL::parser1 = Parser->new());
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Compiler;
- use base qw(Object);
+use base qw(Object);
 sub is_for_active_runtime {
   if (@_ == 2) {
       $_[0]{'is_for_active_runtime'} = $_[1];
@@ -4973,7 +5118,14 @@ $GLOBAL::emitter0->prelude()
 }else {
 $GLOBAL::emitter1->prelude()
 }};
-sub hook_for_use{my $self=CORE::shift;my($module)=@_;
+sub hook_for_use_lib{my $self=CORE::shift;my($expr)=@_;
+$GLOBAL::a_INC->unshift($expr);
+if($self->is_for_active_runtime) {
+1
+}else {
+0
+}};
+sub hook_for_use{my $self=CORE::shift;my($module,$expr)=@_;
 if($self->is_for_active_runtime) {
 GLOBAL::require($module)
 }else {
@@ -4987,14 +5139,14 @@ $self->todo->push($filename)
 if(GLOBAL::not($GLOBAL::compiler0)) {
 ($GLOBAL::compiler0 = Compiler->new('is_for_active_runtime', 1))
 };
-($GLOBAL::compiler1 = Compiler->new());1;
+($GLOBAL::compiler1 = Compiler->new());
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
       package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
 
 { package Program;
- use base qw(Object);
+use base qw(Object);
 sub print_usage_and_die{my $self=CORE::shift;GLOBAL::say('
 Usage: [-v] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
          [ P6_FILE | -e P6_CODE ]+ [ -- ARGS* ]
@@ -5024,6 +5176,7 @@ $self->print_usage_and_die()
 my $verbose;
 my $mode = 'r';
 my $output_file;
+my $incs = [];
 my $output = sub {my($text)=@_;
 if($output_file) {
 GLOBAL::unslurp($text, $output_file)
@@ -5073,13 +5226,17 @@ if(($arg eq '-v')) {
 }elsif(($arg eq '-o')) {
 ($output_file = ($args->shift() || $self->print_usage_and_die()))
 }elsif(($arg eq '-e')) {
+$GLOBAL::a_INC->unshift($incs->reverse()->flatten());
+($incs = []);
 my $p6_code = ($args->shift() || $self->print_usage_and_die());
 $handle->('-e', $p6_code)
 }elsif(GLOBAL::file_exists($arg)) {
+$GLOBAL::a_INC->unshift($incs->reverse()->flatten());
+($incs = []);
 $handle->($arg, GLOBAL::slurp($arg))
 }elsif(($arg eq '-I')) {
 my $dir = ($args->shift() || $self->print_usage_and_die());
-$GLOBAL::a_INC->unshift($dir)
+$incs->unshift($dir)
 }elsif(($arg eq '--')) {
 last
 }else {
@@ -5089,7 +5246,7 @@ $self->print_usage_and_die()
 $at_end->()}
 }
 ;
-Program->new()->main($GLOBAL::a_ARGS);1;
+Program->new()->main($GLOBAL::a_ARGS);
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -5103,6 +5260,6 @@ use autobox;use autobox UNDEF => 'UNDEF';
 ;
 ;
 ;
-;1;
+;
 
 ;

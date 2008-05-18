@@ -1,6 +1,6 @@
 
-touch     ../elf_f0 ../elf_f1 ../elf_f2 ../elf_f ../elf_f_faster
-chmod a+x ../elf_f0 ../elf_f1 ../elf_f2 ../elf_f ../elf_f_faster
+touch     ../elf_f0 ../elf_f1 ../elf_f2 ../elf_f ../elf_f_faster ../elf_f_faster2
+chmod a+x ../elf_f0 ../elf_f1 ../elf_f2 ../elf_f ../elf_f_faster ../elf_f_faster2
 
 ../elf_e -x -o ../elf_f0 Elf.pm
 ELF_STD_RED_RUN=../../STD_red/STD_red_run ../elf_f0 -x -o ../elf_f Elf.pm
@@ -14,6 +14,8 @@ diff ../elf_f[12]
 diff ../elf_f ../elf_f2
 ../elf_f2 -e 'say 3'
 
-# Doesn't currently work.
 ../elf_f -x -o ../elf_f_faster Elf_Faster.pm
 ../elf_f_faster -x -o ../elf_f_faster Elf_Faster.pm
+../elf_f_faster -x -o ../elf_f_faster2 Elf_Faster.pm
+diff ../elf_f_faster ../elf_f_faster2
+../elf_f_faster2 -e 'say 3'
