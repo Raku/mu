@@ -82,7 +82,7 @@ X  0%	19  0 		../../../t/builtins/caller.t
 -C 0%	?  0 ?		../../../t/builtins/perl.t
 -C 0%	16  0 16	../../../t/builtins/ref.t
 -C 0%	38  0 38	../../../t/builtins/sigils.t
--C 0%	9  0 9		../../../t/builtins/strings/match.t
+-d 0%	9  0 9		../../../t/builtins/strings/match.t
 -C 0%	12  0 12	../../../t/builtins/strings/subst.t
 -C 0%	44  0 44	../../../t/builtins/strings/unicode.t
 -d 0%	3  0 3		../../../t/builtins/system/crypt.t
@@ -468,7 +468,7 @@ X  0%	8  0 		../../../t/spec/S05-modifier/basechar.t
 X  0%	9  0 		../../../t/spec/S05-modifier/ii.t
 X  0%	6  0 		../../../t/spec/S05-modifier/pos.t
 -C 0%	5  0 5		../../../t/spec/S05-modifier/repetition-exhausitve.t
--C 0%	2  0 2		../../../t/spec/S05-modifier/repetition.t
+ok	2		../../../t/spec/S05-modifier/repetition.t
 X  0%	17  0 		../../../t/spec/S05-transliteration/trans.t
 -C 0%	15  0 15	../../../t/spec/S06-advanced_subroutine_features/want.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/named-placeholders.t
@@ -630,7 +630,7 @@ X  0%	18  0 		../../../t/syntax/inplace.t
 X  0%	39  0 		../../../t/syntax/interpolation/strings.t
 -  33%	3  1 0 2!	../../../t/syntax/lf_in_list.t
 -C 0%	4  0 4		../../../t/syntax/list_comprehension.t
--C 0%	?  0 ?		../../../t/syntax/list_quote_junction.t
+-d 0%	?  0 ?		../../../t/syntax/list_quote_junction.t
 -C 0%	?  0 ?		../../../t/syntax/list_quote_whitespace.t
 -C 0%	4  0 4		../../../t/syntax/numbers/list_of_digits.t
 -C 0%	?  0 ?		../../../t/syntax/numbers/misc.t
@@ -638,7 +638,7 @@ X  0%	19  0 		../../../t/syntax/numbers/underscores.t
 X  0%	39  0 		../../../t/syntax/pairs.t
 -d 0%	1  0 1		../../../t/syntax/parsing/braces_in_rules.t
 -  0%	6  0 6		../../../t/syntax/parsing/braces_in_strings.t
--C 0%	3  0 3		../../../t/syntax/parsing/filetest.t
+-  33%	3  1 2		../../../t/syntax/parsing/filetest.t
 -d 0%	9  0 9		../../../t/syntax/parsing/gt.t
 -C 0%	3  0 3		../../../t/syntax/parsing/hash_sub.t
 -C 0%	4  0 4		../../../t/syntax/parsing/lt.t
@@ -724,7 +724,7 @@ X  0%	4  0 		../../../t/xx-uncategorized/say-crash.t
 -  50%	4  2 2		../../../t/xx-uncategorized/short_circuiting.t
 X  0%	1  0 		../../../t/xx-uncategorized/slow-parse-fail.t
 -C 0%	3  0 3		../../../t/xx-uncategorized/smartmatch_autovivifies.t
--C 0%	4  0 4		../../../t/xx-uncategorized/smartmatch_rx_obstacle.t
+-d 0%	4  0 4		../../../t/xx-uncategorized/smartmatch_rx_obstacle.t
 -C 0%	8  0 8		../../../t/xx-uncategorized/value_alias_readonly.t
 ok	2		../../../v6/v6-KindaPerl6/t/kp6/01-tap.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/02-str-concat.t
@@ -812,5 +812,5 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 -d 0%	6  0 6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 813.  578 parsed 71%.  166 run 20%.  33 ok 4%.
-Tests: 16405+.  227 ok <1.38%, 16178+ not.
+Files: 813.  578 parsed 71%.  171 run 21%.  34 ok 4%.
+Tests: 16405+.  230 ok <1.4%, 16175+ not.

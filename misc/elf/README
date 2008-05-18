@@ -40,9 +40,8 @@ Purpose:
 Maybe:
   Branches - additional and renamed: Good / Main / Faster.(?)
 Comparison: Like elf_e, but new parser version.
-Written in: elf_e dialect, but likely to become self levitating,
-  to permit rapid parsetree changes.
-Can be compiled by: elf_f, and for now elf_e.
+Written in: elf_f dialect.
+Can be compiled by: elf_f.
 Linkages: none.
 Status: active development.
 

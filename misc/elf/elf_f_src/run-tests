@@ -8,6 +8,7 @@ print STDERR "using $elf\n";
 my @t = map{chomp;/\.t$/?$_:()} `(find $root/v6/v6-KindaPerl6/t/kp6/ -type f; find $root/t -type f)|grep -v '\.svn'| sort`;
 
 #@t = splice(@t,0,2);
+#@t = '../../../t/syntax/list_quote_junction.t';
 TestReport->new(\@t)->run;
 exit;
 
@@ -129,9 +130,13 @@ exit;
     join("",@res) =~ /^1\.\.(\d+)\n/m;
     if($1) {
       my $plan = $self->{plan};
-      if(!$plan) {
+      if($1 > 10000) {
+        warn "$file: saw bogus plan output, and ignored it.\n";
+      }
+      elsif(!$plan) {
         $self->{plan} = $1+0;
-      } else {
+      }
+      else {
         warn "BUG: $file plan didn't match: $plan vs $self->{plan}.";
       }
       $self->{saw_plan} = 1;

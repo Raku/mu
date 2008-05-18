@@ -7,3 +7,8 @@ class Num {
 sub pi() is p5 {'Math::Trig::pi();'}
 }
 
+$*PID = (sub () is p5 {'$$'}).();
+
+sub GLOBAL { # sub *f(){} isn't working yet.
+}
+

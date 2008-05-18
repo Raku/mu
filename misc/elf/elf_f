@@ -239,6 +239,8 @@ use warnings;
   sub sleep{CORE::sleep(@_)}
 
   sub split{[CORE::split($_[0],$_[1])]}
+
+  sub unlink{CORE::unlink(@_)}
 }
 
 { package SCALAR;
@@ -2940,6 +2942,8 @@ use warnings;
   sub sleep{CORE::sleep(@_)}
 
   sub split{[CORE::split($_[0],$_[1])]}
+
+  sub unlink{CORE::unlink(@_)}
 }
 
 { package SCALAR;
@@ -3422,6 +3426,8 @@ __PACKAGE__->meta->make_immutable();
 
 }
 ;
+($GLOBAL::PID = (sub {$$})->());
+sub GLOBAL{};
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
@@ -3431,15 +3437,19 @@ use autobox;use autobox UNDEF => 'UNDEF';
 use Moose; __PACKAGE__->meta->make_mutable();
 has 'is_for_active_runtime' => (is => 'rw');;
 sub parse{my $self=CORE::shift;my($p6_code,$claim_as_filename)=@_;
-GLOBAL::unslurp($p6_code, 'deleteme.p6');
+my $stem = ('deleteme' . $GLOBAL::PID);
+my $input = ($stem . '.p6');
+my $output = ($stem . '.dump');
+GLOBAL::unslurp($p6_code, $input);
 my $parser = $self->parser_name();
 my $msg = (('Parse error in: ' . $claim_as_filename) . '
 ');
-my $cmd = ((($parser . ' --error-message=\'') . $msg) . '\' -q --format=p5a deleteme.p6 > deleteme.dump');
+my $cmd = (((((($parser . ' --error-message=\'') . $msg) . '\' -q --format=p5a ') . $input) . ' > ') . $output);
 ((GLOBAL::system($cmd) == 0) or GLOBAL::die('Parse failed.
 '));
-my $dump5 = GLOBAL::slurp('deleteme.dump');
+my $dump5 = GLOBAL::slurp($output);
 my $tree = GLOBAL::eval_perl5(('package Fastdump;' . $dump5));
+GLOBAL::unlink($input, $output);
 $tree};
 sub parser_name{my $self=CORE::shift;GLOBAL::parser_name()};
 __PACKAGE__->meta->make_immutable();

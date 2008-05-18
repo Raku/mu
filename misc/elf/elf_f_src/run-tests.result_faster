@@ -557,7 +557,7 @@ X  0%	40  0 		../../../t/spec/S29-num/abs.t
 X  0%	44  0 		../../../t/spec/S29-num/exp.t
 X  0%	58  0 		../../../t/spec/S29-num/int.t
 X  0%	11  0 		../../../t/spec/S29-num/log.t
--  0%	6  0 1 5!	../../../t/spec/S29-num/pi.t
+-  16%	6  1 0 5!	../../../t/spec/S29-num/pi.t
 -d 0%	26  0 26	../../../t/spec/S29-num/rand.t
 X  0%	10  0 		../../../t/spec/S29-num/roots.t
 -C 0%	36  0 36	../../../t/spec/S29-num/rounders.t
@@ -630,7 +630,7 @@ X  0%	18  0 		../../../t/syntax/inplace.t
 X  0%	39  0 		../../../t/syntax/interpolation/strings.t
 -  33%	3  1 0 2!	../../../t/syntax/lf_in_list.t
 -C 0%	4  0 4		../../../t/syntax/list_comprehension.t
--d 0%	32893504  0 32893504	../../../t/syntax/list_quote_junction.t
+-d 0%	?  0 ?		../../../t/syntax/list_quote_junction.t
 -C 0%	?  0 ?		../../../t/syntax/list_quote_whitespace.t
 -C 0%	4  0 4		../../../t/syntax/numbers/list_of_digits.t
 -C 0%	?  0 ?		../../../t/syntax/numbers/misc.t
@@ -813,4 +813,4 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
 Files: 813.  578 parsed 71%.  173 run 21%.  35 ok 4%.
-Tests: 32909909+.  230 ok <0%, 32909679+ not.
+Tests: 16405+.  231 ok <1.4%, 16174+ not.

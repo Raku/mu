@@ -261,6 +261,8 @@ use warnings;
   sub sleep{CORE::sleep(@_)}
 
   sub split{[CORE::split($_[0],$_[1])]}
+
+  sub unlink{CORE::unlink(@_)}
 }
 
 { package SCALAR;
