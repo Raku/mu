@@ -25,7 +25,7 @@ class EmitSimpleP5 {
 ';
   };
   method prelude ($n) {
-  '#!/usr/bin/perl -w
+  '#!/usr/bin/env perl
 use strict;
 no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
