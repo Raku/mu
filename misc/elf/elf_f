@@ -2328,7 +2328,7 @@ IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::NumInt->newp($m,
 $main::irbuilder->add_constructor('colonpair__value', sub {my($m)=@_;
 my $value;
 if($m->{'hash'}->{'postcircumfix'}) {
-($value = irbuild_ir($m->{'hash'}->{'postcircumfix'}))
+($value = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'}))
 }else {
 ($value = IRx1::NumInt->newp($m, 1))
 };

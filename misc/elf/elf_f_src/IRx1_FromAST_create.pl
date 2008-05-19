@@ -306,7 +306,7 @@ Pair.newp($m<ident>,NumInt.newp(0))
 colonpair__value
 my $value;
 if $o<postcircumfix> {
-  $value = $m<postcircumfix>;
+  $value = $m<postcircumfix><kludge_name>;
 } else {
   $value = NumInt.newp(1);
 }

@@ -2078,6 +2078,7 @@ class Perl < Grammar
             push opstackA, infixS
         end
         reduce.call() while termstackA.length > 1;
+        reduce.call() if opstackA.length == 2; #R XXX NONSPEC added for \(2:)
         if termstackA.length > 0
             termstackA.length == 1 or hereS_workaround.panic("Internal operator parser error, termstack == #{termstackA.length}");
         end

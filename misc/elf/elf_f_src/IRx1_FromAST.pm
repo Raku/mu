@@ -434,7 +434,7 @@ $one;
     $main::irbuilder.add_constructor('colonpair__value', sub ($m) {
       my $value;
 if $m.{'hash'}{'postcircumfix'} {
-$value = irbuild_ir($m.{'hash'}{'postcircumfix'});
+$value = irbuild_ir($m.{'hash'}{'postcircumfix'}.{'hash'}{'kludge_name'});
 } else {
 $value = IRx1::NumInt.newp($m,1);
 }
