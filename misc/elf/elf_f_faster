@@ -273,7 +273,7 @@ use warnings;
     return $e if $e;
     my $f = $0;
     $f =~ s/[^\/]+$//;
-    # $f."elf_e_src/STD_red/STD_red_run"
+    # $f."elf_f_src/STD_red/STD_red_run"
     $f."../STD_red/STD_red_run"
   }
 
@@ -324,21 +324,10 @@ use warnings;
   }
 }
 
-package main; # -> Main once elf_d support is dropped.
+package Main;
 
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
-
-{ package Any;
-use base qw(Object);
-
-}
-;
-
-{ package Object;
-
-}
-;
+      package Main;
 
 { package Bit;
 use base qw(Object);
@@ -642,7 +631,7 @@ BEGIN{push(@Any::ISA,'::Object');}
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package Match;
 use base qw(Object);
@@ -752,7 +741,7 @@ sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package ARRAY;
 use base qw(Object);
@@ -3550,7 +3539,7 @@ sub irx1_describe{my $self=CORE::shift;(('RxSymbol(' . $self->symbol->irx1_descr
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package IRx1_Build;
 use base qw(Object);
@@ -3608,8 +3597,6 @@ use base qw(Object);
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
 }
 ;
-sub irbuild_ir{my($x)=@_;
-$x->make_ir_from_Match_tree()};
 
 { package IRx1_Build;
 use base qw(Object);
@@ -3641,7 +3628,7 @@ IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, irbuild_ir($m->{
 GLOBAL::die('Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator')
 }});
 $main::irbuilder->add_constructor('expect_term', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = irbuild_ir($m->{'hash'}->{'noun'});
+{package Main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = irbuild_ir($m->{'hash'}->{'noun'});
 my $ops = [];
 if($m->{'hash'}->{'pre'}) {
 $ops->push($m->{'hash'}->{'pre'}->flatten())
@@ -3772,7 +3759,7 @@ if(($args && (($args->ref() eq 'SCALAR')))) {
 IRx1::Call->newp($m, $slf, irbuild_ir($m->{'hash'}->{'desigilname'}), IRx1::Capture->newp($m, $args))
 }else {
 my $v = IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), $tw, irbuild_ir($m->{'hash'}->{'desigilname'}));
-{package main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = $v;
+{package Main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = $v;
 irbuild_ir($m->{'hash'}->{'postcircumfix'})
 }
 }else {
@@ -3841,11 +3828,11 @@ irbuild_ir($m->{'hash'}->{'block'})
 $main::irbuilder->add_constructor('block', sub {my($m)=@_;
 IRx1::Block->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))});
 $main::irbuilder->add_constructor('plurality_declarator:multi', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality = 'multi';
+{package Main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality = 'multi';
 irbuild_ir($m->{'hash'}->{'pluralized'})});
 $main::irbuilder->add_constructor('routine_declarator:routine_def', sub {my($m)=@_;
 my $plurality = $::es_blackboard__plurality;
-{package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
+{package Main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
 my $ident = '';
 if($m->{'hash'}->{'ident'}) {
 ($ident = irbuild_ir($m->{'hash'}->{'ident'}))
@@ -3857,7 +3844,7 @@ if(irbuild_ir($m->{'hash'}->{'multisig'})) {
 IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('routine_declarator:method_def', sub {my($m)=@_;
 my $plurality = $::es_blackboard__plurality;
-{package main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
+{package Main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
 IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'multisig'})->[0], GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('signature', sub {my($m)=@_;
 IRx1::Signature->newp($m, irbuild_ir($m->{'hash'}->{'parsep'}), GLOBAL::undef())});
@@ -3913,16 +3900,16 @@ if($m->{'hash'}->{'postcircumfix'}) {
 };
 IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), $value)});
 $main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
+{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
 irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:module', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
+{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
 irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:package', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
+{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
 irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_declarator:grammar', sub {my($m)=@_;
-{package main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'grammar';
+{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'grammar';
 irbuild_ir($m->{'hash'}->{'package_def'})});
 $main::irbuilder->add_constructor('package_def', sub {my($m)=@_;
 IRx1::PackageDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $::es_blackboard__package_declarator, irbuild_ir($m->{'hash'}->{'module_name'})->[0], irbuild_ir($m->{'hash'}->{'traits'}), irbuild_ir($m->{'hash'}->{'block'}))});
@@ -4007,7 +3994,7 @@ IRx1::RxSymbol->newp($m, ($m->match_string()))})
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package IRx1::CompUnit;
 use base qw(Object);
@@ -4026,11 +4013,11 @@ my $a = [];
 for($self->field_values()->flatten){
 if($_->can('is_IR_node')) {
 $a->push($_)
-}elsif((($_->WHAT() eq 'ARRAY') || ($_->WHAT() eq 'Array'))) {
+}elsif(($_->WHAT() eq 'Array')) {
 for($_->flatten){
 if($_->can('is_IR_node')) {
 $a->push($_)
-}elsif((($_->WHAT() eq 'ARRAY') || ($_->WHAT() eq 'Array'))) {
+}elsif(($_->WHAT() eq 'Array')) {
 for($_->flatten){
 if($_->can('is_IR_node')) {
 $a->push($_)
@@ -4054,7 +4041,7 @@ sub child_nodes{my $self=CORE::shift;$self->notes()->{'child_nodes'}}
 
 { package IRx1::CompUnit;
 use base qw(Object);
-sub note_parents{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
+sub note_parents{my $self=CORE::shift;{package Main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
 $_->note_parents()
 }}
@@ -4064,7 +4051,7 @@ $_->note_parents()
 { package IRx1::Base;
 use base qw(Object);
 sub note_parents{my $self=CORE::shift;($self->notes()->{'parent'} = $::es_whiteboard__parent);
-{package main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
+{package Main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
 $_->note_parents()
 }}
@@ -4074,7 +4061,7 @@ $_->note_parents()
 { package IRx1::CompUnit_and_Block;
 use base qw(Object);
 sub note_block_lexical_variable_decls{my $self=CORE::shift;my $a = [];
-{package main; use vars '$1es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
+{package Main; use vars '$1es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
 ($self->notes()->{'lexical_variable_decls'} = $a);
 for($self->child_nodes()->flatten){
 $_->note_block_lexical_variable_decls()
@@ -4114,8 +4101,8 @@ $_->note_block_lexical_variable_decls()
 
 { package IRx1::CompUnit;
 use base qw(Object);
-sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
-{package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
+sub note_environment{my $self=CORE::shift;{package Main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
+{package Main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
 $_->note_environment()
 }}
@@ -4124,7 +4111,7 @@ $_->note_environment()
 
 { package IRx1::Block;
 use base qw(Object);
-sub note_environment{my $self=CORE::shift;{package main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
+sub note_environment{my $self=CORE::shift;{package Main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
 $_->note_environment()
 }}
@@ -4151,7 +4138,7 @@ if($self->path_is_absolute()) {
 }else {
 ($new_chain = [$::es_whiteboard__package_chain->flatten(), $self])
 };
-{package main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = $new_chain;
+{package Main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = $new_chain;
 for($self->child_nodes()->flatten){
 $_->note_environment()
 }}
@@ -4197,7 +4184,7 @@ sub path_is_absolute{my $self=CORE::shift;($self->name() && ($self->name() =~ qr
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package EmitSimpleP5;
 use base qw(Object);
@@ -4484,7 +4471,7 @@ use warnings;
     return $e if $e;
     my $f = $0;
     $f =~ s/[^\\/]+$//;
-    # $f."elf_e_src/STD_red/STD_red_run"
+    # $f."elf_f_src/STD_red/STD_red_run"
     $f."../STD_red/STD_red_run"
   }
 
@@ -4535,22 +4522,15 @@ use warnings;
   }
 }
 
-package main; # -> Main once elf_d support is dropped.
+package Main;
 ')};
 sub e{my $self=CORE::shift;my($x)=@_;
 my $ref = $x->WHAT();
 if(($ref eq 'Undef')) {
 $x
-}elsif(($ref eq 'UNDEF')) {
-$x
-}elsif(($ref eq 'SCALAR')) {
-$x
 }elsif(((($ref eq 'Str') || ($ref eq 'Int')) || ($ref eq 'Num'))) {
 $x
 }elsif(($ref eq 'Array')) {
-$x->map(sub {my($ae)=@_;
-$self->e($ae)})
-}elsif(($ref eq 'ARRAY')) {
 $x->map(sub {my($ae)=@_;
 $self->e($ae)})
 }else {
@@ -4558,8 +4538,8 @@ $x->callback($self)
 }};
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 $n->do_all_analysis();
-{package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
-my $code = (('package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+{package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
+my $code = (('package Main;
 ' . $self->prelude_for_entering_a_package()));
 my $stmts = $self->e($n->{'statements'});
 (($code . $stmts->join(';
@@ -4590,7 +4570,7 @@ if($self->compiler->hook_for_use_lib($name)) {
 sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
 ((($n->{'kind'} . '{') . $self->e($n->{'block'})) . '}')};
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
-{package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
+{package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
 my $name = $::es_whiteboard__in_package->join('::');
 (((((((((('
 { package ' . $name) . ';
@@ -4645,7 +4625,7 @@ if((($n->{'var'}->{'sigil'} eq '%'))) {
 if((($n->{'var'}->{'twigil'} eq '^'))) {
 my $name = $self->e($n->{'var'});
 $name->re_gsub('^(.)::', '$1');
-((((((('{package main; use vars \'' . $name) . '\'};') . 'local') . ' ') . $self->e($n->{'var'})) . $default))
+((((((('{package Main; use vars \'' . $name) . '\'};') . 'local') . ' ') . $self->e($n->{'var'})) . $default))
 }else {
 ((($n->{'scope'} . ' ') . $self->e($n->{'var'})) . $default)
 }
@@ -4928,7 +4908,7 @@ if(GLOBAL::not($GLOBAL::emitter0)) {
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package EmitNoMooseP5;
 use base qw(Object);
@@ -4947,7 +4927,7 @@ sub prelude_oo{my $self=CORE::shift;'
 }
 '};
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
-{package main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
+{package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
 my $name = $::es_whiteboard__in_package->join('::');
 my $base = 'use base qw(Object);
 ';
@@ -4993,7 +4973,7 @@ if((GLOBAL::defined($default))) {
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 sub header{use Math::Trig qw();};
 header();
 
@@ -5007,7 +4987,7 @@ sub GLOBAL{};
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package Parser;
 use base qw(Object);
@@ -5048,7 +5028,7 @@ if(GLOBAL::not($GLOBAL::parser0)) {
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package Compiler;
 use base qw(Object);
@@ -5165,7 +5145,7 @@ if(GLOBAL::not($GLOBAL::compiler0)) {
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 
 { package Program;
 use base qw(Object);
@@ -5272,7 +5252,7 @@ Program->new()->main($GLOBAL::a_ARGS);
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';
-      package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.
+      package Main;
 ;
 ;
 ;

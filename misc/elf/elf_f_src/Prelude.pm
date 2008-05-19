@@ -1,5 +1,3 @@
-class Any {};  class Object {}; # remove after elf_d
-
 #     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
 class Bit is Any {};
 #     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)

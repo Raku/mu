@@ -3,9 +3,15 @@ OVERVIEW
 Elf is a p6 compiler.
 
 The currently recommended version is:
-  elf_e  (because elf_f isn't ready yet).
+  elf_f
 
-elf_e --help  for more info.
+elf_f --help  for more info.
+
+It uses perl from your path.  5.10 is recommended - it can have half
+the startup time of 5.8.8.
+
+elf_f_faster is faster, but not always equivalent.
+
 
 INSTALL
 

@@ -18,10 +18,10 @@ class IRx1::Base {
     my $a = [];
     for self.field_values {
       if $_.can('is_IR_node') {$a.push($_)}
-      elsif $_.WHAT eq 'ARRAY' || $_.WHAT eq 'Array' { # drop 'ARRAY' with elf_d support
+      elsif $_.WHAT eq 'Array' {
         for $_ { 
           if $_.can('is_IR_node') {$a.push($_)}
-          elsif $_.WHAT eq 'ARRAY' || $_.WHAT eq 'Array' { # for Cond   # drop 'ARRAY' with elf_d support
+          elsif $_.WHAT eq 'Array' {
             for $_ { 
               if $_.can('is_IR_node') {$a.push($_)}
             }

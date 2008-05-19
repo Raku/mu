@@ -288,7 +288,7 @@ use warnings;
     return $e if $e;
     my $f = $0;
     $f =~ s/[^\/]+$//;
-    # $f."elf_e_src/STD_red/STD_red_run"
+    # $f."elf_f_src/STD_red/STD_red_run"
     $f."../STD_red/STD_red_run"
   }
 
@@ -339,18 +339,15 @@ use warnings;
   }
 }
 
-package main; # -> Main once elf_d support is dropped.
+package Main;
 ';
   };
 
   method e($x) {
     my $ref = $x.WHAT;
     if $ref eq 'Undef' { $x }
-    elsif $ref eq 'UNDEF' { $x }  # until off elf_d
-    elsif $ref eq 'SCALAR' { $x }  # until off elf_d
     elsif $ref eq 'Str' || $ref eq 'Int' || $ref eq 'Num' { $x }
     elsif $ref eq 'Array' { $x.map(sub($ae){$.e($ae)}) }
-    elsif $ref eq 'ARRAY' { $x.map(sub($ae){$.e($ae)}) } # until off elf_d
     else {$x.callback(self)}
   };
 
@@ -359,7 +356,7 @@ package main; # -> Main once elf_d support is dropped.
     $n.do_all_analysis();
     my $^whiteboard::in_package = [];
     my $code = (
-      "package main; # not Main, otherwise ::foo() hack for sub()s doesnt work.\n"~
+      "package Main;\n"~
       self.prelude_for_entering_a_package());
     my $stmts = $.e($n<statements>);
     $code ~ $stmts.join(";\n")~";\n";
@@ -438,7 +435,7 @@ package main; # -> Main once elf_d support is dropped.
       if ($n<var><twigil> eq '^') {
         my $name = $.e($n<var>);
         $name.re_gsub('^(.)::','$1');
-        ("{package main; use vars '"~$name~"'};"~
+        ("{package Main; use vars '"~$name~"'};"~
          'local'~' '~$.e($n<var>)~$default)
       }
       else {

@@ -2,7 +2,8 @@
 touch     ../elf_f0 ../elf_f1 ../elf_f2 ../elf_f ../elf_f_faster ../elf_f_faster2
 chmod a+x ../elf_f0 ../elf_f1 ../elf_f2 ../elf_f ../elf_f_faster ../elf_f_faster2
 
-../elf_f -x -o ../elf_f1 Elf.pm
+../elf_f -x -o ../elf_f0 Elf.pm
+../elf_f0 -x -o ../elf_f1 Elf.pm
 ../elf_f1 -x -o ../elf_f2 Elf.pm
 diff ../elf_f1 ../elf_f2
 ../elf_f2 -e 'say 3'
