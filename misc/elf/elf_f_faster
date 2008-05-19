@@ -206,26 +206,6 @@ use warnings;
     *gather = \&Private::gather;
     *take   = \&Private::take;}
 
-  {
-    use Scalar::Util "openhandle";
-    sub say {
-      my $currfh = select();
-      my($handle,$warning);
-      {no strict "refs"; $handle = openhandle($_[0]) ? shift : \*$currfh;}
-      @_ = $_ unless @_;
-      my @as = @_;
-      @_ = map {
-        my $ref = ref($_);
-        ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
-      } @as;
-      local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
-      my $res = print {$handle} @_, "\n";
-      return $res if $res;
-      $warning =~ s/[ ]at[ ].*//xms;
-      Carp::croak $warning;
-    }
-  }
-
   our $a_ARGS = [@ARGV];
 
   sub undef{undef}
@@ -3724,12 +3704,15 @@ IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($
 IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, []))
 }});
 $main::irbuilder->add_constructor('quote:q', sub {my($m)=@_;
-IRx1::Buf->newp($m, irbuild_ir($m->{'hash'}->{'text'}))});
+my $s = irbuild_ir($m->{'hash'}->{'text'});
+$s->re_gsub(qr/(?<!\\)\\\\/, '\\');
+IRx1::Buf->newp($m, $s)});
 $main::irbuilder->add_constructor('quote:qq', sub {my($m)=@_;
 my $s = irbuild_ir($m->{'hash'}->{'text'});
 $s->re_gsub(qr/(?<!\\)\\n/, '
 ');
 $s->re_gsub(qr/(?<!\\)\\t/, '	');
+$s->re_gsub(qr/(?<!\\)\\\\/, '\\');
 IRx1::Buf->newp($m, $s)});
 $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
 my $s = irbuild_ir($m->{'hash'}->{'text'});
@@ -4404,26 +4387,6 @@ use warnings;
     *gather = \\&Private::gather;
     *take   = \\&Private::take;}
 
-  {
-    use Scalar::Util "openhandle";
-    sub say {
-      my $currfh = select();
-      my($handle,$warning);
-      {no strict "refs"; $handle = openhandle($_[0]) ? shift : \\*$currfh;}
-      @_ = $_ unless @_;
-      my @as = @_;
-      @_ = map {
-        my $ref = ref($_);
-        ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
-      } @as;
-      local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
-      my $res = print {$handle} @_, "\\n";
-      return $res if $res;
-      $warning =~ s/[ ]at[ ].*//xms;
-      Carp::croak $warning;
-    }
-  }
-
   our $a_ARGS = [@ARGV];
 
   sub undef{undef}
@@ -4710,7 +4673,8 @@ if($sig) {
 ($sig = '')
 };
 if((($n->{'traits'} && $n->{'traits'}->[0]->{'expr'}) && ($n->{'traits'}->[0]->{'expr'} eq 'p5'))) {
-((((('sub ' . $name) . '{') . $sig) . $n->{'block'}->{'statements'}->[0]->{'buf'}) . '}')
+my $code = $n->{'block'}->{'statements'}->[0]->{'buf'};
+((((('sub ' . $name) . '{') . $sig) . $code) . '}')
 }else {
 ((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')
 }};
@@ -4718,13 +4682,26 @@ sub cb__Signature{my $self=CORE::shift;my($n)=@_;
 if((($n->{'parameters'}->elems() == 0))) {
 ''
 }else {
-((('my(' . $self->e($n->{'parameters'})->join(',')) . ')=@_;') . '
+{package Main; use vars '$1es_whiteboard__signature_inits'};local $::es_whiteboard__signature_inits = '';
+my $pl = $self->e($n->{'parameters'})->join(',');
+(((('my(' . $pl) . ')=@_;') . $::es_whiteboard__signature_inits) . '
 ')
 }};
 sub cb__Parameter{my $self=CORE::shift;my($n)=@_;
-$self->e($n->{'param_var'})};
+my $enc = $self->e($n->{'param_var'});
+if(($n->{'quant'} && ($n->{'quant'} eq '*'))) {
+my $tmp = ('@' . $n->{'param_var'}->{'name'});
+($::es_whiteboard__signature_inits = ((((($::es_whiteboard__signature_inits . '
+my ') . $enc) . ' = \\') . $tmp) . ';'));
+$tmp
+}else {
+$enc
+}};
 sub cb__ParamVar{my $self=CORE::shift;my($n)=@_;
-($n->{'sigil'} . $self->e($n->{'name'}))};
+my $s = $n->{'sigil'};
+my $t = '';
+my $dsn = $self->e($n->{'name'});
+$self->encode_varname($s, $t, $dsn)};
 sub cb__Call{my $self=CORE::shift;my($n)=@_;
 my $method = $self->e($n->{'method'});
 if((($method =~ 'postcircumfix:< >'))) {
@@ -4858,9 +4835,7 @@ sub cb__Loop{my $self=CORE::shift;my($n)=@_;
 (((('while(' . $self->e($n->{'pretest'})) . ') {
 ') . $self->e($n->{'block'})) . '
 }')};
-sub cb__Var{my $self=CORE::shift;my($n)=@_;
-my $s = $n->{'sigil'};
-my $t = ($n->{'twigil'} || '');
+sub encode_varname{my $self=CORE::shift;my($s,$t,$dsn)=@_;
 my $env = '';
 my $pre = '';
 if(($t eq '^')) {
@@ -4875,7 +4850,7 @@ if(($s eq '@')) {
 if(($s eq '%')) {
 ($pre = 'h_')
 };
-my $name = (($env . $pre) . $self->e($n->{'name'}));
+my $name = (($env . $pre) . $dsn);
 if((($t eq '.'))) {
 ('$self->' . $name)
 }elsif((($t eq '^'))) {
@@ -4887,6 +4862,11 @@ $name->re_gsub('::', '__');
 }else {
 ('$' . $name)
 }};
+sub cb__Var{my $self=CORE::shift;my($n)=@_;
+my $s = $n->{'sigil'};
+my $t = ($n->{'twigil'} || '');
+my $dsn = $self->e($n->{'name'});
+$self->encode_varname($s, $t, $dsn)};
 sub cb__NumInt{my $self=CORE::shift;my($n)=@_;
 $self->e($n->{'text'})};
 sub cb__Hash{my $self=CORE::shift;my($n)=@_;
@@ -4983,7 +4963,28 @@ sub pi{Math::Trig::pi();}
 }
 ;
 ($GLOBAL::PID = (sub {$$})->());
-sub GLOBAL{};
+
+{ package GLOBAL;
+use base qw(Object);
+sub say{my(@args)=@_;
+my $a_args = \@args;
+use Scalar::Util "openhandle";
+    my $currfh = select();
+    my($handle,$warning);
+    {no strict "refs"; $handle = openhandle($_[0]) ? shift : \*$currfh;}
+    @args = $_ unless @args;
+    @args = map {
+      my $ref = ref($_);
+      ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
+    } @args;
+    local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
+    my $res = print {$handle} @args, "\n";
+    return $res if $res;
+    $warning =~ s/[ ]at[ ].*//xms;
+    Carp::croak $warning;
+    }
+}
+;
 
 ;
 use autobox;use autobox UNDEF => 'UNDEF';

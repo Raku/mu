@@ -129,12 +129,15 @@ if $m<arglist> {
 }
 
 quote:q
-Buf.newp($m<text>)
+my $s = $m<text>;
+$s =~ s/(?<!\\)\\\\/\\/g;
+Buf.newp($s)
 
 quote:qq
 my $s = $m<text>;
 $s =~ s/(?<!\\)\\n/\n/g;
 $s =~ s/(?<!\\)\\t/\t/g;
+$s =~ s/(?<!\\)\\\\/\\/g;
 Buf.newp($s)
 
 quote:regex

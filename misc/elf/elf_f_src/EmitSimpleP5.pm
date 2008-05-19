@@ -221,26 +221,6 @@ use warnings;
     *gather = \&Private::gather;
     *take   = \&Private::take;}
 
-  {
-    use Scalar::Util "openhandle";
-    sub say {
-      my $currfh = select();
-      my($handle,$warning);
-      {no strict "refs"; $handle = openhandle($_[0]) ? shift : \*$currfh;}
-      @_ = $_ unless @_;
-      my @as = @_;
-      @_ = map {
-        my $ref = ref($_);
-        ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
-      } @as;
-      local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
-      my $res = print {$handle} @_, "\n";
-      return $res if $res;
-      $warning =~ s/[ ]at[ ].*//xms;
-      Carp::croak $warning;
-    }
-  }
-
   our $a_ARGS = [@ARGV];
 
   sub undef{undef}
@@ -517,7 +497,8 @@ package Main;
     my $sig = $n<multisig>;
     if $sig { $sig = $.e($sig) } else { $sig = "" }
     if $n<traits> && $n<traits>[0]<expr> && $n<traits>[0]<expr> eq 'p5' {
-      'sub '~$name~'{'~$sig~$n<block><statements>[0]<buf>~'}';
+      my $code = $n<block><statements>[0]<buf>;
+      'sub '~$name~'{'~$sig~$code~'}';
     } else {
       'sub '~$name~'{'~$sig~$.e($n<block>)~'}';
     }
@@ -525,14 +506,26 @@ package Main;
   method cb__Signature ($n) {
     if ($n<parameters>.elems == 0) { "" }
     else {
-      'my('~$.e($n<parameters>).join(",")~')=@_;'~"\n";
+      my $^whiteboard::signature_inits = "";
+      my $pl = $.e($n<parameters>).join(",");
+      'my('~$pl~')=@_;'~$^whiteboard::signature_inits~"\n";
     }
   };
   method cb__Parameter ($n) {
-    $.e($n<param_var>)
+    my $enc = $.e($n<param_var>);
+    if $n<quant> && $n<quant> eq '*' {
+      my $tmp = "@"~$n<param_var><name>;
+      $^whiteboard::signature_inits = $^whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
+      $tmp;
+    } else {
+      $enc;
+    }
   };
   method cb__ParamVar ($n) {
-    $n<sigil>~$.e($n<name>)
+    my $s = $n<sigil>;
+    my $t = '';
+    my $dsn = $.e($n<name>);
+    $.encode_varname($s,$t,$dsn);
   };
 
   method cb__Call ($n) {
@@ -654,9 +647,7 @@ package Main;
     'while('~$.e($n<pretest>)~") {\n"~$.e($n<block>)~"\n}"
   };
 
-  method cb__Var ($n) {
-    my $s = $n<sigil>;
-    my $t = $n<twigil>||'';
+  method encode_varname($s,$t,$dsn) {
     #XXX $pkg:x -> s_pkg::x :(
     my $env = '';
     my $pre = '';
@@ -664,7 +655,7 @@ package Main;
     if $s eq '$' && $env eq 'e' { $pre = 's_' };
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
-    my $name = $env~$pre~$.e($n<name>);
+    my $name = $env~$pre~$dsn;
     if ($t eq '.') {
       '$self->'~$name
     } elsif ($t eq '^') {
@@ -676,6 +667,13 @@ package Main;
     } else {
       '$'~$name
     }
+  };
+
+  method cb__Var ($n) {
+    my $s = $n<sigil>;
+    my $t = $n<twigil>||'';
+    my $dsn = $.e($n<name>);
+    $.encode_varname($s,$t,$dsn);
   };
   method cb__NumInt ($n) {
     $.e($n<text>)
