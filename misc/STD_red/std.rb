@@ -637,7 +637,7 @@ class Perl < Grammar
     def_token_full :prefix_circumfix_meta_operator,false,'reduce',/\[/,%q{
        let_pos{
            b = pos
-           scan(/\[(?=\S*\])/) or return false
+           scan(/(?=\S*\])/) or return false
            ei=nil
            (let_pos{ ei= expect_infix and scan(/\]/) } or
             let_pos{ scan(/\\\\/) and ei= expect_infix and scan(/\]/) }) and
@@ -1957,6 +1957,7 @@ class Perl < Grammar
                     pop(opstackA); #R XXX from above
                 end
                 push chainA, pop(termstackA);
+                pop chainA if not chainA[-1] #R XXX NONSPEC '[<] <2 3>' adds a nil
                 #R# opS[:chain] = reverse chainA;
                 opS[:args] = reverse chainA; #R XXX NONSPEC normalize name of argument list.
                 push termstackA, opS;
@@ -1970,7 +1971,7 @@ class Perl < Grammar
                     pop(opstackA);
                 end
                 push listA, pop(termstackA);
-                pop listA if not listA[-1] #R XXX '(2,3,)' adds a nil
+                pop listA if not listA[-1] #R XXX NONSPEC '(2,3,)' adds a nil
                 #R# opS[:list] = reverse listA;
                 opS[:args] = reverse listA; #R XXX NONSPEC normalize name of argument list.
                 push termstackA, opS;
