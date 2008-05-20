@@ -326,6 +326,15 @@ IRx1::Loop.newp($m,$test,irbuild_ir($m.{'hash'}{'block'}));
 IRx1::Loop.newp($m,$test,$^blackboard::statement_expr);
     });
 
+    $main::irbuilder.add_constructor('statement_control:loop', sub ($m) {
+      my $e1 = irbuild_ir($m.{'hash'}{'loop_eee'}.{'hash'}{'loop_e1'});
+my $e2 = irbuild_ir($m.{'hash'}{'loop_eee'}.{'hash'}{'loop_e2'});
+my $e3 = irbuild_ir($m.{'hash'}{'loop_eee'}.{'hash'}{'loop_e3'});
+my $block = irbuild_ir($m.{'hash'}{'loop_block'});
+my $body = IRx1::Loop.newp($m,$e2,IRx1::Block.newp($m,[$block,$e3]));
+IRx1::Block.newp($m,[$e1,$body]);
+    });
+
     $main::irbuilder.add_constructor('statement_control:if', sub ($m) {
       my $els = irbuild_ir($m.{'hash'}{'else'});
 if $els { $els = $els[0] }

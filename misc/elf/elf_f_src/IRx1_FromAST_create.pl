@@ -233,6 +233,13 @@ statement_mod_loop:until
 my $test = Apply.newp("not",Capture.newp([$m<modifier_expr>]));
 Loop.newp($test,$^blackboard::statement_expr)
 
+statement_control:loop
+my $e1 = $m<loop_eee><loop_e1>;
+my $e2 = $m<loop_eee><loop_e2>;
+my $e3 = $m<loop_eee><loop_e3>;
+my $block = $m<loop_block>;
+my $body = Loop.newp($e2,Block.newp([$block,$e3]));
+Block.newp([$e1,$body])
 
 statement_control:if
 my $els = $m<else>;
