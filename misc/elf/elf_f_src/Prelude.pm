@@ -84,3 +84,7 @@ class Grammar is Module {};
 class Any is Object {};
 #     Object      Perl 6 object (either Any or Junction)
 class Object {}; #XXX does Class 
+
+class Any {
+  method say() { say(self) }
+}

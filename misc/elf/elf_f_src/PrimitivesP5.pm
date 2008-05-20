@@ -19,7 +19,7 @@ package GLOBAL { # sub *f(){} isn't working yet.
     @args = $_ unless @args;
     @args = map {
       my $ref = ref($_);
-      ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
+      ($ref && $ref eq "ARRAY") ? join(" ",ARRAY::flatten_recursively($_)) : $_
     } @args;
     local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
     my $res = print {$handle} @args, "\n";

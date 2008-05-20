@@ -37,7 +37,7 @@ use warnings;
   use Class::Multimethods;
   use Data::Dumper;
 }
-'~self.prelude_oo~'
+'~self.prelude_oo~self.prelude_lexical~'
 
 # Move to the Regexp prelude once that becomes part of the prelude.
 { package BacktrackMacrosKludge;

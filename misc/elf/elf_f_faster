@@ -22,7 +22,8 @@ use warnings;
         }
     }
 }
-
+use autobox;use autobox UNDEF => 'UNDEF';
+      
 
 # Move to the Regexp prelude once that becomes part of the prelude.
 { package BacktrackMacrosKludge;
@@ -606,6 +607,12 @@ BEGIN{push(@Any::ISA,'::Object');}
 
 { package Object;
 
+}
+;
+
+{ package Any;
+use base qw(Object);
+sub say{my $self=CORE::shift;GLOBAL::say($self)}
 }
 ;
 
@@ -4358,7 +4365,7 @@ sub prelude_oo{my $self=CORE::shift;'
 }
 '};
 sub prelude{my $self=CORE::shift;my($n)=@_;
-(('#!/usr/bin/env perl
+((('#!/usr/bin/env perl
 use strict;
 no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
@@ -4370,7 +4377,7 @@ use warnings;
   use Class::Multimethods;
   use Data::Dumper;
 }
-' . $self->prelude_oo()) . '
+' . $self->prelude_oo()) . $self->prelude_lexical()) . '
 
 # Move to the Regexp prelude once that becomes part of the prelude.
 { package BacktrackMacrosKludge;
@@ -5142,7 +5149,7 @@ use Scalar::Util "openhandle";
     @args = $_ unless @args;
     @args = map {
       my $ref = ref($_);
-      ($ref && $ref eq "ARRAY") ? ARRAY::flatten_recursively($_) : $_
+      ($ref && $ref eq "ARRAY") ? join(" ",ARRAY::flatten_recursively($_)) : $_
     } @args;
     local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
     my $res = print {$handle} @args, "\n";
