@@ -50,7 +50,7 @@ Hash   hash
 Pair   key value
 Type   typename
 
-Rx     pat
+Rx     pat modifiers
 Buf    buf
 
 # Subset  ???

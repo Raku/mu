@@ -155,8 +155,8 @@ $s =~ s/(?<!\\)\\\\/\\/g;
 Buf.newp($s)
 
 quote:regex
-my $s = $m<text>;
-Rx.newp($s)
+my $s = $m<text> || $m<quotesnabber><text>;
+Rx.newp($s,$m<quotepair>)
 
 scope_declarator:my
 my $vd = $m<scoped>[0];
@@ -366,6 +366,21 @@ colonpair__false
 Pair.newp($m<ident>,NumInt.newp(0))
 
 colonpair__value
+my $value;
+if $o<postcircumfix> {
+  $value = $m<postcircumfix><kludge_name>;
+} else {
+  $value = NumInt.newp(1);
+}
+Pair.newp($m<ident>,$value)
+
+quotepair
+*1*
+
+quotepair__false
+Pair.newp($m<ident>,NumInt.newp(0))
+
+quotepair__value
 my $value;
 if $o<postcircumfix> {
   $value = $m<postcircumfix><kludge_name>;

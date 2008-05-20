@@ -2629,6 +2629,14 @@ sub pat {
   }
 }
 ;
+sub modifiers {
+  if (@_ == 2) {
+      $_[0]{'modifiers'} = $_[1];
+ } else {
+     $_[0]{'modifiers'};
+  }
+}
+;
 sub notes {
   if (@_ == 2) {
       $_[0]{'notes'} = $_[1];
@@ -2637,14 +2645,14 @@ sub notes {
   }
 }
 ;
-sub newp{my $self=CORE::shift;my($match,$pat)=@_;
-(do{$self->new('match', $match, 'pat', $pat)})};
+sub newp{my $self=CORE::shift;my($match,$pat,$modifiers)=@_;
+(do{$self->new('match', $match, 'pat', $pat, 'modifiers', $modifiers)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 (do{$emitter->cb__Rx($self)})};
 sub node_name{my $self=CORE::shift;(do{'Rx'})};
-sub field_names{my $self=CORE::shift;(do{['pat']})};
-sub field_values{my $self=CORE::shift;(do{[$self->pat]})};
-sub irx1_describe{my $self=CORE::shift;(do{(('Rx(' . $self->pat->irx1_describe()) . ')')})}})
+sub field_names{my $self=CORE::shift;(do{['pat', 'modifiers']})};
+sub field_values{my $self=CORE::shift;(do{[$self->pat, $self->modifiers]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Rx(' . $self->pat->irx1_describe()) . ',') . $self->modifiers->irx1_describe()) . ')')})}})
 }
 ;
 
@@ -3917,8 +3925,8 @@ $s->re_gsub(qr/(?<!\\)\\t/, '	');
 $s->re_gsub(qr/(?<!\\)\\\\/, '\\');
 IRx1::Buf->newp($m, $s)})});
 $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
-(do{my $s = irbuild_ir($m->{'hash'}->{'text'});
-IRx1::Rx->newp($m, $s)})});
+(do{my $s = (irbuild_ir($m->{'hash'}->{'text'}) || irbuild_ir($m->{'hash'}->{'quotesnabber'}->{'hash'}->{'text'}));
+IRx1::Rx->newp($m, $s, irbuild_ir($m->{'hash'}->{'quotepair'}))})});
 $main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
 (do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
 IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])})});
@@ -4110,6 +4118,29 @@ $one})});
 $main::irbuilder->add_constructor('colonpair__false', sub {my($m)=@_;
 (do{IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::NumInt->newp($m, 0))})});
 $main::irbuilder->add_constructor('colonpair__value', sub {my($m)=@_;
+(do{my $value;
+if($m->{'hash'}->{'postcircumfix'}) {
+(do{($value = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'}))})
+}else {
+(do{($value = IRx1::NumInt->newp($m, 1))})
+};
+IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), $value)})});
+$main::irbuilder->add_constructor('quotepair', sub {my($m)=@_;
+(do{my $key;
+for($m->{'hash'}->keys()->flatten){
+(do{if(($_ ne 'match')) {
+(do{if($key) {
+(do{GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
+')})
+};
+($key = $_)})
+}})
+};
+my $one = irbuild_ir($m->{'hash'}->{$key});
+$one})});
+$main::irbuilder->add_constructor('quotepair__false', sub {my($m)=@_;
+(do{IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::NumInt->newp($m, 0))})});
+$main::irbuilder->add_constructor('quotepair__value', sub {my($m)=@_;
 (do{my $value;
 if($m->{'hash'}->{'postcircumfix'}) {
 (do{($value = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'}))})

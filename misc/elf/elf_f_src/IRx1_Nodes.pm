@@ -563,15 +563,16 @@ package IRx1 {
   class Rx is Base {
     has $.match;
     has $.pat;
+    has $.modifiers;
     has $.notes;
     
-    method newp($match,$pat) { self.new('match', $match, 'pat', $pat) };
+    method newp($match,$pat,$modifiers) { self.new('match', $match, 'pat', $pat, 'modifiers', $modifiers) };
     method callback($emitter) { $emitter.cb__Rx(self) };
     method node_name() { 'Rx' };
-    method field_names() { ['pat'] };
-    method field_values() { [$.pat] };
+    method field_names() { ['pat','modifiers'] };
+    method field_values() { [$.pat,$.modifiers] };
     method irx1_describe() {
-      'Rx('~$.pat.irx1_describe~')'
+      'Rx('~$.pat.irx1_describe~','~$.modifiers.irx1_describe~')'
     };
   };
   class Buf is Base {

@@ -535,16 +535,21 @@ class Perl < Grammar
     end
 
     def quotepair
-        b = pos; id1=id2=pc1=n=nil
+        b = pos; id1=id2=pc1=n=suf=nil
         let_pos{
             scan(/:/) and b1 = pos and
             (let_pos{ scan(/!/) and id1= ident } or
              (id2= ident and (unsp; before(/\(/) and pc1= postcircumfix;true)) or
              #R NONSPEC spec doesn't have n and suffix named, so this is speculative.
              (n= scan(/\d+/) and suf= scan(/[a-z]+/))) and
-            (false_ = id1 ? _match_from(b1,{:ident=>id1},:quotepair__false) : nil;
-             value_ = id2 ? _match_from(b1,{:ident=>id2,:postcircumfix=>pc1},:quotepair__value) : nil;
-             nth_ = suf ? _match_from(b1,{:n=>n,:suffix=>suf},:quotepair__nth) : nil;
+            (h={}
+             _hkv(h,:ident,(id1 || id2))
+             _hkv(h,:postcircumfix,pc1)
+             _hkv(h,:n,n)
+             _hkv(h,:suffix,suf)
+             false_ = id1 ? _match_from(b1,h,:quotepair__false) : nil;
+             value_ = id2 ? _match_from(b1,h,:quotepair__value) : nil;
+             nth_ = suf ? _match_from(b1,h,:quotepair__nth) : nil;
              h={};
              _hkv(h,:false,false_)
              _hkv(h,:value,value_)

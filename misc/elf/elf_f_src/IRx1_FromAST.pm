@@ -232,8 +232,8 @@ IRx1::Buf.newp($m,$s);
     });
 
     $main::irbuilder.add_constructor('quote:regex', sub ($m) {
-      my $s = irbuild_ir($m.{'hash'}{'text'});
-IRx1::Rx.newp($m,$s);
+      my $s = irbuild_ir($m.{'hash'}{'text'}) || irbuild_ir($m.{'hash'}{'quotesnabber'}.{'hash'}{'text'});
+IRx1::Rx.newp($m,$s,irbuild_ir($m.{'hash'}{'quotepair'}));
     });
 
     $main::irbuilder.add_constructor('scope_declarator:my', sub ($m) {
@@ -505,6 +505,34 @@ $one;
     });
 
     $main::irbuilder.add_constructor('colonpair__value', sub ($m) {
+      my $value;
+if $m.{'hash'}{'postcircumfix'} {
+$value = irbuild_ir($m.{'hash'}{'postcircumfix'}.{'hash'}{'kludge_name'});
+} else {
+$value = IRx1::NumInt.newp($m,1);
+}
+IRx1::Pair.newp($m,irbuild_ir($m.{'hash'}{'ident'}),$value);
+    });
+
+    $main::irbuilder.add_constructor('quotepair', sub ($m) {
+        my $key;
+for $m.{'hash'}.keys {
+  if $_ ne 'match' {
+    if $key {
+      die("Unexpectedly more than 1 field - dont know which to choose\n")
+    }
+    $key = $_;
+  }
+}
+my $one = irbuild_ir($m.{'hash'}{$key});
+$one;
+    });
+
+    $main::irbuilder.add_constructor('quotepair__false', sub ($m) {
+      IRx1::Pair.newp($m,irbuild_ir($m.{'hash'}{'ident'}),IRx1::NumInt.newp($m,0));
+    });
+
+    $main::irbuilder.add_constructor('quotepair__value', sub ($m) {
       my $value;
 if $m.{'hash'}{'postcircumfix'} {
 $value = irbuild_ir($m.{'hash'}{'postcircumfix'}.{'hash'}{'kludge_name'});
