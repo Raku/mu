@@ -3,16 +3,16 @@ class Compiler {
 
   has $.is_for_active_runtime;
 
-  method eval_perl6($code) {
-    self.eval_fragment($code,'-e',0);
+  method eval_perl6($code,$env) {
+    self.eval_fragment($code,'-e',0,$env);
   };
   method eval_file($file) {
     self.eval_fragment(slurp($file),$file,0);
   };
 
-  method eval_fragment($code,$filename,$verbose) {
+  method eval_fragment($code,$filename,$verbose,$env) {
     my $p5 = self.compile_fragment($code,$filename,$verbose);
-    eval_perl5($p5);
+    eval_perl5($p5,$env);
   };
   method compile_fragment_cache_get($code,$filename) { undef };
   method compile_fragment_cache_set($code,$filename,$value) { };

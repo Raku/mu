@@ -240,7 +240,15 @@ use warnings;
     my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
-  sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+  sub eval_perl5{
+    my($p5,$env)=@_;
+    if($env) { $env->($p5) }
+    else {
+      my $code = "package Main; ".$p5;
+      my $res = eval($code); croak($@) if $@;
+      $res
+    }
+  }
   sub die{croak @_}
   sub exit{CORE::exit(@_)}
   sub defined{CORE::defined($_[0])}
@@ -319,12 +327,12 @@ use warnings;
     $GLOBAL::compiler0->eval_file($file);
   }
   sub eval_perl6 {
-    my($code)=@_;
-    $GLOBAL::compiler0->eval_perl6($code);
+    my($code,$env)=@_;
+    $GLOBAL::compiler0->eval_perl6($code,$env);
   }
   sub eval {
-    my($code)=@_;
-    eval_perl6($code);
+    my($code,$env)=@_;
+    eval_perl6($code,$env);
   }
 }
 
@@ -621,7 +629,12 @@ package Main;
         if $n.notes<lexical_bindings>.{'&'~$f} {
           ''~$f~'('~$.e($n<capture>)~')'
         } else {
-          'GLOBAL::'~$f~'('~$.e($n<capture>)~')'
+          if $f eq 'eval' {
+            my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
+            'GLOBAL::'~$f~'('~$.e($n<capture>)~','~$env~')'
+          } else {
+            'GLOBAL::'~$f~'('~$.e($n<capture>)~')'
+          }
         }
       } else {
          $f~'('~$.e($n<capture>)~')';

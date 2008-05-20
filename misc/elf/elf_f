@@ -219,7 +219,15 @@ use warnings;
     my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
-  sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+  sub eval_perl5{
+    my($p5,$env)=@_;
+    if($env) { $env->($p5) }
+    else {
+      my $code = "package Main; ".$p5;
+      my $res = eval($code); croak($@) if $@;
+      $res
+    }
+  }
   sub die{croak @_}
   sub exit{CORE::exit(@_)}
   sub defined{CORE::defined($_[0])}
@@ -298,12 +306,12 @@ use warnings;
     $GLOBAL::compiler0->eval_file($file);
   }
   sub eval_perl6 {
-    my($code)=@_;
-    $GLOBAL::compiler0->eval_perl6($code);
+    my($code,$env)=@_;
+    $GLOBAL::compiler0->eval_perl6($code,$env);
   }
   sub eval {
-    my($code)=@_;
-    eval_perl6($code);
+    my($code,$env)=@_;
+    eval_perl6($code,$env);
   }
 }
 
@@ -315,7 +323,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 { package Bit;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Bit::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -324,7 +332,7 @@ __PACKAGE__->meta->make_immutable();
 { package Int;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Int::ISA,'INTEGER');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -333,7 +341,7 @@ __PACKAGE__->meta->make_immutable();
 { package Str;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Str::ISA,'STRING');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -342,7 +350,7 @@ __PACKAGE__->meta->make_immutable();
 { package Num;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Num::ISA,'FLOAT');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -351,7 +359,7 @@ __PACKAGE__->meta->make_immutable();
 { package Complex;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Complex::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -360,7 +368,7 @@ __PACKAGE__->meta->make_immutable();
 { package Bool;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Bool::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -369,7 +377,7 @@ __PACKAGE__->meta->make_immutable();
 { package Code;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Code::ISA,'CODE');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -378,7 +386,7 @@ __PACKAGE__->meta->make_immutable();
 { package Block;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Block::ISA,'Code');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -387,7 +395,7 @@ __PACKAGE__->meta->make_immutable();
 { package List;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@List::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -396,7 +404,7 @@ __PACKAGE__->meta->make_immutable();
 { package Seq;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Seq::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -405,7 +413,7 @@ __PACKAGE__->meta->make_immutable();
 { package Range;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Range::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -414,7 +422,7 @@ __PACKAGE__->meta->make_immutable();
 { package Set;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Set::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -423,7 +431,7 @@ __PACKAGE__->meta->make_immutable();
 { package Bag;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Bag::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -432,7 +440,7 @@ __PACKAGE__->meta->make_immutable();
 { package Junction;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Junction::ISA,'Object');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -441,8 +449,8 @@ __PACKAGE__->meta->make_immutable();
 { package Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Pair::ISA,'Any');}
-has 'key' => (is => 'rw');;
-has 'value' => (is => 'rw');;
+(do{has 'key' => (is => 'rw');;
+has 'value' => (is => 'rw');});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -451,7 +459,7 @@ __PACKAGE__->meta->make_immutable();
 { package Mapping;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Mapping::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -460,7 +468,7 @@ __PACKAGE__->meta->make_immutable();
 { package Signature;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Signature::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -469,7 +477,7 @@ __PACKAGE__->meta->make_immutable();
 { package Capture;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Capture::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -478,7 +486,7 @@ __PACKAGE__->meta->make_immutable();
 { package Blob;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Blob::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -487,7 +495,7 @@ __PACKAGE__->meta->make_immutable();
 { package Scalar;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Scalar::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -496,7 +504,7 @@ __PACKAGE__->meta->make_immutable();
 { package Array;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Array::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -505,7 +513,7 @@ __PACKAGE__->meta->make_immutable();
 { package Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Hash::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -514,7 +522,7 @@ __PACKAGE__->meta->make_immutable();
 { package KeyHash;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@KeyHash::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -523,7 +531,7 @@ __PACKAGE__->meta->make_immutable();
 { package KeySet;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@KeySet::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -532,7 +540,7 @@ __PACKAGE__->meta->make_immutable();
 { package KeyBag;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@KeyBag::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -541,7 +549,7 @@ __PACKAGE__->meta->make_immutable();
 { package Buf;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Buf::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -550,7 +558,7 @@ __PACKAGE__->meta->make_immutable();
 { package IO;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IO::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -559,7 +567,7 @@ __PACKAGE__->meta->make_immutable();
 { package Routine;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Routine::ISA,'Code');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -568,7 +576,7 @@ __PACKAGE__->meta->make_immutable();
 { package Sub;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Sub::ISA,'Routine');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -577,7 +585,7 @@ __PACKAGE__->meta->make_immutable();
 { package Method;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Method::ISA,'Routine');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -586,7 +594,7 @@ __PACKAGE__->meta->make_immutable();
 { package Subethod;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Subethod::ISA,'Routine');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -595,7 +603,7 @@ __PACKAGE__->meta->make_immutable();
 { package Macro;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Macro::ISA,'Routine');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -604,7 +612,7 @@ __PACKAGE__->meta->make_immutable();
 { package Regex;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Regex::ISA,'Routine');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -613,7 +621,7 @@ __PACKAGE__->meta->make_immutable();
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Match::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -622,7 +630,7 @@ __PACKAGE__->meta->make_immutable();
 { package Package;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Package::ISA,'Any');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -631,7 +639,7 @@ __PACKAGE__->meta->make_immutable();
 { package Module;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Module::ISA,'Package');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -640,7 +648,7 @@ __PACKAGE__->meta->make_immutable();
 { package Class;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Class::ISA,'Module');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -649,7 +657,7 @@ __PACKAGE__->meta->make_immutable();
 { package Role;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Role::ISA,'Module');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -658,7 +666,7 @@ __PACKAGE__->meta->make_immutable();
 { package Grammar;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Grammar::ISA,'Module');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -667,7 +675,7 @@ __PACKAGE__->meta->make_immutable();
 { package Any;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Any::ISA,'Object');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -675,7 +683,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Object;
 use Moose; __PACKAGE__->meta->make_mutable();
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -683,7 +691,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Any;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub say{my $self=CORE::shift;GLOBAL::say($self)};
+(do{sub say{my $self=CORE::shift;(do{GLOBAL::say($self)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -695,35 +703,35 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-has 'rule' => (is => 'rw');;
+(do{has 'rule' => (is => 'rw');;
 has 'str' => (is => 'rw');;
 has 'from' => (is => 'rw');;
 has 'to' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 sub make_from_rsfth{my $self=CORE::shift;my($r,$s,$f,$t,$h)=@_;
-my $init = {'rule', $r, 'str', $s, 'from', $f, 'to', $t, 'hash', $h};
-$self->new($init)};
-sub match_describe{my $self=CORE::shift;my $s = ((((((($self->rule . '<') . $self->from) . ',') . $self->to) . ',\'') . $self->str) . '\',{');
+(do{my $init = {'rule', $r, 'str', $s, 'from', $f, 'to', $t, 'hash', $h};
+$self->new($init)})};
+sub match_describe{my $self=CORE::shift;(do{my $s = ((((((($self->rule . '<') . $self->from) . ',') . $self->to) . ',\'') . $self->str) . '\',{');
 for($self->hash->keys()->flatten){
-my $k = $_;
+(do{my $k = $_;
 my $v = $self->hash->{$k};
 my $vs = 'undef';
 if(GLOBAL::defined($v)) {
-($vs = $v->match_describe())
+(do{($vs = $v->match_describe())})
 };
 ($s = ((((($s . '
-  ') . $k) . ' => ') . $self->indent_except_top($vs)) . ','))
+  ') . $k) . ' => ') . $self->indent_except_top($vs)) . ','))})
 };
 if($self->hash->keys()->elems()) {
-($s = ($s . '
-'))
+(do{($s = ($s . '
+'))})
 };
-($s = ($s . '}>'))};
+($s = ($s . '}>'))})};
 sub indent{my $self=CORE::shift;my($s)=@_;
-$s->re_gsub(qr/(?m:^(?!\Z))/, '  ')};
+(do{$s->re_gsub(qr/(?m:^(?!\Z))/, '  ')})};
 sub indent_except_top{my $self=CORE::shift;my($s)=@_;
-$s->re_gsub(qr/(?m:^(?<!\A)(?!\Z))/, '  ')};
-sub match_string{my $self=CORE::shift;$self->str};
+(do{$s->re_gsub(qr/(?m:^(?<!\A)(?!\Z))/, '  ')})};
+sub match_string{my $self=CORE::shift;(do{$self->str})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -731,11 +739,11 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub match_describe{my $self=CORE::shift;((('[
+(do{sub match_describe{my $self=CORE::shift;(do{((('[
 ' . Match->indent($self->map(sub {my($e)=@_;
-$e->match_describe()})->join(',
+(do{$e->match_describe()})})->join(',
 '))) . '
-]'))};
+]'))})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -743,22 +751,22 @@ __PACKAGE__->meta->make_immutable();
 
 { package HASH;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub match_describe{my $self=CORE::shift;my $s = '{';
+(do{sub match_describe{my $self=CORE::shift;(do{my $s = '{';
 for($self->keys()->flatten){
-my $k = $_;
+(do{my $k = $_;
 my $v = $self->{$k};
 my $vs = 'undef';
 if(GLOBAL::defined($v)) {
-($vs = $v->match_describe())
+(do{($vs = $v->match_describe())})
 };
 ($s = ((((($s . '
-  ') . $k) . ' => ') . Match->indent_except_top($vs)) . ','))
+  ') . $k) . ' => ') . Match->indent_except_top($vs)) . ','))})
 };
 if($self->keys()->elems()) {
-($s = ($s . '
-'))
+(do{($s = ($s . '
+'))})
 };
-($s . '}')};
+($s . '}')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -766,7 +774,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package STRING;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')};
+(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -774,7 +782,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package INTEGER;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')};
+(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -782,7 +790,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package FLOAT;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')};
+(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -794,8 +802,8 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub irx1_describe{my $self=CORE::shift;(('[' . $self->map(sub {my($e)=@_;
-$e->irx1_describe()})->join(',')) . ']')};
+(do{sub irx1_describe{my $self=CORE::shift;(do{(('[' . $self->map(sub {my($e)=@_;
+(do{$e->irx1_describe()})})->join(',')) . ']')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -803,7 +811,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package STRING;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub irx1_describe{my $self=CORE::shift;($self . '')};
+(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -811,7 +819,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package INTEGER;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub irx1_describe{my $self=CORE::shift;($self . '')};
+(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -819,7 +827,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package FLOAT;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub irx1_describe{my $self=CORE::shift;($self . '')};
+(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -827,7 +835,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package UNDEF;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub irx1_describe{my $self=CORE::shift;'undef'};
+(do{sub irx1_describe{my $self=CORE::shift;(do{'undef'})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -835,10 +843,10 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1;
 use Moose; __PACKAGE__->meta->make_mutable();
-
+(do{
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -846,7 +854,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -855,7 +863,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::CompUnit_and_Block');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -864,7 +872,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Block::ISA,'IRx1::CompUnit_and_Block');}
-;
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -873,18 +881,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'filename' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements,$filename)=@_;
-$self->new('match', $match, 'statements', $statements, 'filename', $filename)};
+(do{$self->new('match', $match, 'statements', $statements, 'filename', $filename)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__CompUnit($self)};
-sub node_name{my $self=CORE::shift;'CompUnit'};
-sub field_names{my $self=CORE::shift;['statements', 'filename']};
-sub field_values{my $self=CORE::shift;[$self->statements, $self->filename]};
-sub irx1_describe{my $self=CORE::shift;(((('CompUnit(' . $self->statements->irx1_describe()) . ',') . $self->filename->irx1_describe()) . ')')};
+(do{$emitter->cb__CompUnit($self)})};
+sub node_name{my $self=CORE::shift;(do{'CompUnit'})};
+sub field_names{my $self=CORE::shift;(do{['statements', 'filename']})};
+sub field_values{my $self=CORE::shift;(do{[$self->statements, $self->filename]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('CompUnit(' . $self->statements->irx1_describe()) . ',') . $self->filename->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -893,17 +901,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Block::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
-$self->new('match', $match, 'statements', $statements)};
+(do{$self->new('match', $match, 'statements', $statements)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Block($self)};
-sub node_name{my $self=CORE::shift;'Block'};
-sub field_names{my $self=CORE::shift;['statements']};
-sub field_values{my $self=CORE::shift;[$self->statements]};
-sub irx1_describe{my $self=CORE::shift;(('Block(' . $self->statements->irx1_describe()) . ')')};
+(do{$emitter->cb__Block($self)})};
+sub node_name{my $self=CORE::shift;(do{'Block'})};
+sub field_names{my $self=CORE::shift;(do{['statements']})};
+sub field_values{my $self=CORE::shift;(do{[$self->statements]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('Block(' . $self->statements->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -912,19 +920,19 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Use;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Use::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'module_name' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$kind,$module_name,$expr)=@_;
-$self->new('match', $match, 'kind', $kind, 'module_name', $module_name, 'expr', $expr)};
+(do{$self->new('match', $match, 'kind', $kind, 'module_name', $module_name, 'expr', $expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Use($self)};
-sub node_name{my $self=CORE::shift;'Use'};
-sub field_names{my $self=CORE::shift;['kind', 'module_name', 'expr']};
-sub field_values{my $self=CORE::shift;[$self->kind, $self->module_name, $self->expr]};
-sub irx1_describe{my $self=CORE::shift;(((((('Use(' . $self->kind->irx1_describe()) . ',') . $self->module_name->irx1_describe()) . ',') . $self->expr->irx1_describe()) . ')')};
+(do{$emitter->cb__Use($self)})};
+sub node_name{my $self=CORE::shift;(do{'Use'})};
+sub field_names{my $self=CORE::shift;(do{['kind', 'module_name', 'expr']})};
+sub field_values{my $self=CORE::shift;(do{[$self->kind, $self->module_name, $self->expr]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((('Use(' . $self->kind->irx1_describe()) . ',') . $self->module_name->irx1_describe()) . ',') . $self->expr->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -933,7 +941,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::PackageDecl::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
@@ -942,13 +950,13 @@ has 'traits' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$plurality,$kind,$name,$traits,$block)=@_;
-$self->new('match', $match, 'scope', $scope, 'plurality', $plurality, 'kind', $kind, 'name', $name, 'traits', $traits, 'block', $block)};
+(do{$self->new('match', $match, 'scope', $scope, 'plurality', $plurality, 'kind', $kind, 'name', $name, 'traits', $traits, 'block', $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__PackageDecl($self)};
-sub node_name{my $self=CORE::shift;'PackageDecl'};
-sub field_names{my $self=CORE::shift;['scope', 'plurality', 'kind', 'name', 'traits', 'block']};
-sub field_values{my $self=CORE::shift;[$self->scope, $self->plurality, $self->kind, $self->name, $self->traits, $self->block]};
-sub irx1_describe{my $self=CORE::shift;(((((((((((('PackageDecl(' . $self->scope->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->kind->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')};
+(do{$emitter->cb__PackageDecl($self)})};
+sub node_name{my $self=CORE::shift;(do{'PackageDecl'})};
+sub field_names{my $self=CORE::shift;(do{['scope', 'plurality', 'kind', 'name', 'traits', 'block']})};
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->plurality, $self->kind, $self->name, $self->traits, $self->block]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((('PackageDecl(' . $self->scope->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->kind->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -957,7 +965,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::MethodDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::MethodDecl::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -969,13 +977,13 @@ has 'sigil' => (is => 'rw');;
 has 'postcircumfix' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block,$sigil,$postcircumfix)=@_;
-$self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block, 'sigil', $sigil, 'postcircumfix', $postcircumfix)};
+(do{$self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block, 'sigil', $sigil, 'postcircumfix', $postcircumfix)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__MethodDecl($self)};
-sub node_name{my $self=CORE::shift;'MethodDecl'};
-sub field_names{my $self=CORE::shift;['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block', 'sigil', 'postcircumfix']};
-sub field_values{my $self=CORE::shift;[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block, $self->sigil, $self->postcircumfix]};
-sub irx1_describe{my $self=CORE::shift;(((((((((((((((((('MethodDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ',') . $self->sigil->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ')')};
+(do{$emitter->cb__MethodDecl($self)})};
+sub node_name{my $self=CORE::shift;(do{'MethodDecl'})};
+sub field_names{my $self=CORE::shift;(do{['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block', 'sigil', 'postcircumfix']})};
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block, $self->sigil, $self->postcircumfix]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((((('MethodDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ',') . $self->sigil->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -984,7 +992,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::SubDecl::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -994,13 +1002,13 @@ has 'traits' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block)=@_;
-$self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block)};
+(do{$self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__SubDecl($self)};
-sub node_name{my $self=CORE::shift;'SubDecl'};
-sub field_names{my $self=CORE::shift;['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block']};
-sub field_values{my $self=CORE::shift;[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]};
-sub irx1_describe{my $self=CORE::shift;(((((((((((((('SubDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')};
+(do{$emitter->cb__SubDecl($self)})};
+sub node_name{my $self=CORE::shift;(do{'SubDecl'})};
+sub field_names{my $self=CORE::shift;(do{['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block']})};
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('SubDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1009,7 +1017,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::MacroDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::MacroDecl::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -1019,13 +1027,13 @@ has 'traits' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block)=@_;
-$self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block)};
+(do{$self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'name', $name, 'multisig', $multisig, 'traits', $traits, 'block', $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__MacroDecl($self)};
-sub node_name{my $self=CORE::shift;'MacroDecl'};
-sub field_names{my $self=CORE::shift;['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block']};
-sub field_values{my $self=CORE::shift;[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]};
-sub irx1_describe{my $self=CORE::shift;(((((((((((((('MacroDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')};
+(do{$emitter->cb__MacroDecl($self)})};
+sub node_name{my $self=CORE::shift;(do{'MacroDecl'})};
+sub field_names{my $self=CORE::shift;(do{['scope', 'typenames', 'plurality', 'name', 'multisig', 'traits', 'block']})};
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('MacroDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->name->irx1_describe()) . ',') . $self->multisig->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1034,7 +1042,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::VarDecl::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -1045,13 +1053,13 @@ has 'default_op' => (is => 'rw');;
 has 'default_expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$var,$postcircumfix,$traits,$default_op,$default_expr)=@_;
-$self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'var', $var, 'postcircumfix', $postcircumfix, 'traits', $traits, 'default_op', $default_op, 'default_expr', $default_expr)};
+(do{$self->new('match', $match, 'scope', $scope, 'typenames', $typenames, 'plurality', $plurality, 'var', $var, 'postcircumfix', $postcircumfix, 'traits', $traits, 'default_op', $default_op, 'default_expr', $default_expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__VarDecl($self)};
-sub node_name{my $self=CORE::shift;'VarDecl'};
-sub field_names{my $self=CORE::shift;['scope', 'typenames', 'plurality', 'var', 'postcircumfix', 'traits', 'default_op', 'default_expr']};
-sub field_values{my $self=CORE::shift;[$self->scope, $self->typenames, $self->plurality, $self->var, $self->postcircumfix, $self->traits, $self->default_op, $self->default_expr]};
-sub irx1_describe{my $self=CORE::shift;(((((((((((((((('VarDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->var->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->default_op->irx1_describe()) . ',') . $self->default_expr->irx1_describe()) . ')')};
+(do{$emitter->cb__VarDecl($self)})};
+sub node_name{my $self=CORE::shift;(do{'VarDecl'})};
+sub field_names{my $self=CORE::shift;(do{['scope', 'typenames', 'plurality', 'var', 'postcircumfix', 'traits', 'default_op', 'default_expr']})};
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->var, $self->postcircumfix, $self->traits, $self->default_op, $self->default_expr]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((('VarDecl(' . $self->scope->irx1_describe()) . ',') . $self->typenames->irx1_describe()) . ',') . $self->plurality->irx1_describe()) . ',') . $self->var->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->default_op->irx1_describe()) . ',') . $self->default_expr->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1060,19 +1068,19 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Var;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Var::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
-$self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)};
+(do{$self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Var($self)};
-sub node_name{my $self=CORE::shift;'Var'};
-sub field_names{my $self=CORE::shift;['sigil', 'twigil', 'name']};
-sub field_values{my $self=CORE::shift;[$self->sigil, $self->twigil, $self->name]};
-sub irx1_describe{my $self=CORE::shift;(((((('Var(' . $self->sigil->irx1_describe()) . ',') . $self->twigil->irx1_describe()) . ',') . $self->name->irx1_describe()) . ')')};
+(do{$emitter->cb__Var($self)})};
+sub node_name{my $self=CORE::shift;(do{'Var'})};
+sub field_names{my $self=CORE::shift;(do{['sigil', 'twigil', 'name']})};
+sub field_values{my $self=CORE::shift;(do{[$self->sigil, $self->twigil, $self->name]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((('Var(' . $self->sigil->irx1_describe()) . ',') . $self->twigil->irx1_describe()) . ',') . $self->name->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1081,18 +1089,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Trait;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Trait::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'verb' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$verb,$expr)=@_;
-$self->new('match', $match, 'verb', $verb, 'expr', $expr)};
+(do{$self->new('match', $match, 'verb', $verb, 'expr', $expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Trait($self)};
-sub node_name{my $self=CORE::shift;'Trait'};
-sub field_names{my $self=CORE::shift;['verb', 'expr']};
-sub field_values{my $self=CORE::shift;[$self->verb, $self->expr]};
-sub irx1_describe{my $self=CORE::shift;(((('Trait(' . $self->verb->irx1_describe()) . ',') . $self->expr->irx1_describe()) . ')')};
+(do{$emitter->cb__Trait($self)})};
+sub node_name{my $self=CORE::shift;(do{'Trait'})};
+sub field_names{my $self=CORE::shift;(do{['verb', 'expr']})};
+sub field_values{my $self=CORE::shift;(do{[$self->verb, $self->expr]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Trait(' . $self->verb->irx1_describe()) . ',') . $self->expr->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1101,18 +1109,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::ClosureTrait;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::ClosureTrait::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$kind,$block)=@_;
-$self->new('match', $match, 'kind', $kind, 'block', $block)};
+(do{$self->new('match', $match, 'kind', $kind, 'block', $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__ClosureTrait($self)};
-sub node_name{my $self=CORE::shift;'ClosureTrait'};
-sub field_names{my $self=CORE::shift;['kind', 'block']};
-sub field_values{my $self=CORE::shift;[$self->kind, $self->block]};
-sub irx1_describe{my $self=CORE::shift;(((('ClosureTrait(' . $self->kind->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')};
+(do{$emitter->cb__ClosureTrait($self)})};
+sub node_name{my $self=CORE::shift;(do{'ClosureTrait'})};
+sub field_names{my $self=CORE::shift;(do{['kind', 'block']})};
+sub field_values{my $self=CORE::shift;(do{[$self->kind, $self->block]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('ClosureTrait(' . $self->kind->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1121,18 +1129,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::ModuleName;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::ModuleName::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$name,$pairs)=@_;
-$self->new('match', $match, 'name', $name, 'pairs', $pairs)};
+(do{$self->new('match', $match, 'name', $name, 'pairs', $pairs)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__ModuleName($self)};
-sub node_name{my $self=CORE::shift;'ModuleName'};
-sub field_names{my $self=CORE::shift;['name', 'pairs']};
-sub field_values{my $self=CORE::shift;[$self->name, $self->pairs]};
-sub irx1_describe{my $self=CORE::shift;(((('ModuleName(' . $self->name->irx1_describe()) . ',') . $self->pairs->irx1_describe()) . ')')};
+(do{$emitter->cb__ModuleName($self)})};
+sub node_name{my $self=CORE::shift;(do{'ModuleName'})};
+sub field_names{my $self=CORE::shift;(do{['name', 'pairs']})};
+sub field_values{my $self=CORE::shift;(do{[$self->name, $self->pairs]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('ModuleName(' . $self->name->irx1_describe()) . ',') . $self->pairs->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1141,17 +1149,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::PathName;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::PathName::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'path' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$path)=@_;
-$self->new('match', $match, 'path', $path)};
+(do{$self->new('match', $match, 'path', $path)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__PathName($self)};
-sub node_name{my $self=CORE::shift;'PathName'};
-sub field_names{my $self=CORE::shift;['path']};
-sub field_values{my $self=CORE::shift;[$self->path]};
-sub irx1_describe{my $self=CORE::shift;(('PathName(' . $self->path->irx1_describe()) . ')')};
+(do{$emitter->cb__PathName($self)})};
+sub node_name{my $self=CORE::shift;(do{'PathName'})};
+sub field_names{my $self=CORE::shift;(do{['path']})};
+sub field_values{my $self=CORE::shift;(do{[$self->path]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('PathName(' . $self->path->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1160,20 +1168,20 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::SubName;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::SubName::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'category' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
 has 'desigilname' => (is => 'rw');;
 has 'signature' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$category,$pairs,$desigilname,$signature)=@_;
-$self->new('match', $match, 'category', $category, 'pairs', $pairs, 'desigilname', $desigilname, 'signature', $signature)};
+(do{$self->new('match', $match, 'category', $category, 'pairs', $pairs, 'desigilname', $desigilname, 'signature', $signature)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__SubName($self)};
-sub node_name{my $self=CORE::shift;'SubName'};
-sub field_names{my $self=CORE::shift;['category', 'pairs', 'desigilname', 'signature']};
-sub field_values{my $self=CORE::shift;[$self->category, $self->pairs, $self->desigilname, $self->signature]};
-sub irx1_describe{my $self=CORE::shift;(((((((('SubName(' . $self->category->irx1_describe()) . ',') . $self->pairs->irx1_describe()) . ',') . $self->desigilname->irx1_describe()) . ',') . $self->signature->irx1_describe()) . ')')};
+(do{$emitter->cb__SubName($self)})};
+sub node_name{my $self=CORE::shift;(do{'SubName'})};
+sub field_names{my $self=CORE::shift;(do{['category', 'pairs', 'desigilname', 'signature']})};
+sub field_values{my $self=CORE::shift;(do{[$self->category, $self->pairs, $self->desigilname, $self->signature]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((('SubName(' . $self->category->irx1_describe()) . ',') . $self->pairs->irx1_describe()) . ',') . $self->desigilname->irx1_describe()) . ',') . $self->signature->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1182,18 +1190,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::ShapedParamName;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::ShapedParamName::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'postcircumfix' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$ident,$postcircumfix)=@_;
-$self->new('match', $match, 'ident', $ident, 'postcircumfix', $postcircumfix)};
+(do{$self->new('match', $match, 'ident', $ident, 'postcircumfix', $postcircumfix)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__ShapedParamName($self)};
-sub node_name{my $self=CORE::shift;'ShapedParamName'};
-sub field_names{my $self=CORE::shift;['ident', 'postcircumfix']};
-sub field_values{my $self=CORE::shift;[$self->ident, $self->postcircumfix]};
-sub irx1_describe{my $self=CORE::shift;(((('ShapedParamName(' . $self->ident->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ')')};
+(do{$emitter->cb__ShapedParamName($self)})};
+sub node_name{my $self=CORE::shift;(do{'ShapedParamName'})};
+sub field_names{my $self=CORE::shift;(do{['ident', 'postcircumfix']})};
+sub field_values{my $self=CORE::shift;(do{[$self->ident, $self->postcircumfix]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('ShapedParamName(' . $self->ident->irx1_describe()) . ',') . $self->postcircumfix->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1202,19 +1210,19 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Call;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Call::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'method' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$invocant,$method,$capture)=@_;
-$self->new('match', $match, 'invocant', $invocant, 'method', $method, 'capture', $capture)};
+(do{$self->new('match', $match, 'invocant', $invocant, 'method', $method, 'capture', $capture)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Call($self)};
-sub node_name{my $self=CORE::shift;'Call'};
-sub field_names{my $self=CORE::shift;['invocant', 'method', 'capture']};
-sub field_values{my $self=CORE::shift;[$self->invocant, $self->method, $self->capture]};
-sub irx1_describe{my $self=CORE::shift;(((((('Call(' . $self->invocant->irx1_describe()) . ',') . $self->method->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')};
+(do{$emitter->cb__Call($self)})};
+sub node_name{my $self=CORE::shift;(do{'Call'})};
+sub field_names{my $self=CORE::shift;(do{['invocant', 'method', 'capture']})};
+sub field_values{my $self=CORE::shift;(do{[$self->invocant, $self->method, $self->capture]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((('Call(' . $self->invocant->irx1_describe()) . ',') . $self->method->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1223,18 +1231,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Apply::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'function' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$function,$capture)=@_;
-$self->new('match', $match, 'function', $function, 'capture', $capture)};
+(do{$self->new('match', $match, 'function', $function, 'capture', $capture)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Apply($self)};
-sub node_name{my $self=CORE::shift;'Apply'};
-sub field_names{my $self=CORE::shift;['function', 'capture']};
-sub field_values{my $self=CORE::shift;[$self->function, $self->capture]};
-sub irx1_describe{my $self=CORE::shift;(((('Apply(' . $self->function->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')};
+(do{$emitter->cb__Apply($self)})};
+sub node_name{my $self=CORE::shift;(do{'Apply'})};
+sub field_names{my $self=CORE::shift;(do{['function', 'capture']})};
+sub field_values{my $self=CORE::shift;(do{[$self->function, $self->capture]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Apply(' . $self->function->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1243,18 +1251,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Hyper;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Hyper::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'operator' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$operator,$capture)=@_;
-$self->new('match', $match, 'operator', $operator, 'capture', $capture)};
+(do{$self->new('match', $match, 'operator', $operator, 'capture', $capture)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Hyper($self)};
-sub node_name{my $self=CORE::shift;'Hyper'};
-sub field_names{my $self=CORE::shift;['operator', 'capture']};
-sub field_values{my $self=CORE::shift;[$self->operator, $self->capture]};
-sub irx1_describe{my $self=CORE::shift;(((('Hyper(' . $self->operator->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')};
+(do{$emitter->cb__Hyper($self)})};
+sub node_name{my $self=CORE::shift;(do{'Hyper'})};
+sub field_names{my $self=CORE::shift;(do{['operator', 'capture']})};
+sub field_values{my $self=CORE::shift;(do{[$self->operator, $self->capture]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Hyper(' . $self->operator->irx1_describe()) . ',') . $self->capture->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1263,18 +1271,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Capture;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Capture::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$arguments,$invocant)=@_;
-$self->new('match', $match, 'arguments', $arguments, 'invocant', $invocant)};
+(do{$self->new('match', $match, 'arguments', $arguments, 'invocant', $invocant)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Capture($self)};
-sub node_name{my $self=CORE::shift;'Capture'};
-sub field_names{my $self=CORE::shift;['arguments', 'invocant']};
-sub field_values{my $self=CORE::shift;[$self->arguments, $self->invocant]};
-sub irx1_describe{my $self=CORE::shift;(((('Capture(' . $self->arguments->irx1_describe()) . ',') . $self->invocant->irx1_describe()) . ')')};
+(do{$emitter->cb__Capture($self)})};
+sub node_name{my $self=CORE::shift;(do{'Capture'})};
+sub field_names{my $self=CORE::shift;(do{['arguments', 'invocant']})};
+sub field_values{my $self=CORE::shift;(do{[$self->arguments, $self->invocant]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Capture(' . $self->arguments->irx1_describe()) . ',') . $self->invocant->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1283,17 +1291,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::MultiSig;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::MultiSig::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'signatures' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$signatures)=@_;
-$self->new('match', $match, 'signatures', $signatures)};
+(do{$self->new('match', $match, 'signatures', $signatures)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__MultiSig($self)};
-sub node_name{my $self=CORE::shift;'MultiSig'};
-sub field_names{my $self=CORE::shift;['signatures']};
-sub field_values{my $self=CORE::shift;[$self->signatures]};
-sub irx1_describe{my $self=CORE::shift;(('MultiSig(' . $self->signatures->irx1_describe()) . ')')};
+(do{$emitter->cb__MultiSig($self)})};
+sub node_name{my $self=CORE::shift;(do{'MultiSig'})};
+sub field_names{my $self=CORE::shift;(do{['signatures']})};
+sub field_values{my $self=CORE::shift;(do{[$self->signatures]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('MultiSig(' . $self->signatures->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1302,18 +1310,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Signature;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Signature::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'return_type' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$parameters,$return_type)=@_;
-$self->new('match', $match, 'parameters', $parameters, 'return_type', $return_type)};
+(do{$self->new('match', $match, 'parameters', $parameters, 'return_type', $return_type)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Signature($self)};
-sub node_name{my $self=CORE::shift;'Signature'};
-sub field_names{my $self=CORE::shift;['parameters', 'return_type']};
-sub field_values{my $self=CORE::shift;[$self->parameters, $self->return_type]};
-sub irx1_describe{my $self=CORE::shift;(((('Signature(' . $self->parameters->irx1_describe()) . ',') . $self->return_type->irx1_describe()) . ')')};
+(do{$emitter->cb__Signature($self)})};
+sub node_name{my $self=CORE::shift;(do{'Signature'})};
+sub field_names{my $self=CORE::shift;(do{['parameters', 'return_type']})};
+sub field_values{my $self=CORE::shift;(do{[$self->parameters, $self->return_type]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Signature(' . $self->parameters->irx1_describe()) . ',') . $self->return_type->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1322,7 +1330,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Parameter;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Parameter::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'type_constraints' => (is => 'rw');;
 has 'quant' => (is => 'rw');;
 has 'param_var' => (is => 'rw');;
@@ -1332,13 +1340,13 @@ has 'post_constraints' => (is => 'rw');;
 has 'default_expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$type_constraints,$quant,$param_var,$ident,$traits,$post_constraints,$default_expr)=@_;
-$self->new('match', $match, 'type_constraints', $type_constraints, 'quant', $quant, 'param_var', $param_var, 'ident', $ident, 'traits', $traits, 'post_constraints', $post_constraints, 'default_expr', $default_expr)};
+(do{$self->new('match', $match, 'type_constraints', $type_constraints, 'quant', $quant, 'param_var', $param_var, 'ident', $ident, 'traits', $traits, 'post_constraints', $post_constraints, 'default_expr', $default_expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Parameter($self)};
-sub node_name{my $self=CORE::shift;'Parameter'};
-sub field_names{my $self=CORE::shift;['type_constraints', 'quant', 'param_var', 'ident', 'traits', 'post_constraints', 'default_expr']};
-sub field_values{my $self=CORE::shift;[$self->type_constraints, $self->quant, $self->param_var, $self->ident, $self->traits, $self->post_constraints, $self->default_expr]};
-sub irx1_describe{my $self=CORE::shift;(((((((((((((('Parameter(' . $self->type_constraints->irx1_describe()) . ',') . $self->quant->irx1_describe()) . ',') . $self->param_var->irx1_describe()) . ',') . $self->ident->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->post_constraints->irx1_describe()) . ',') . $self->default_expr->irx1_describe()) . ')')};
+(do{$emitter->cb__Parameter($self)})};
+sub node_name{my $self=CORE::shift;(do{'Parameter'})};
+sub field_names{my $self=CORE::shift;(do{['type_constraints', 'quant', 'param_var', 'ident', 'traits', 'post_constraints', 'default_expr']})};
+sub field_values{my $self=CORE::shift;(do{[$self->type_constraints, $self->quant, $self->param_var, $self->ident, $self->traits, $self->post_constraints, $self->default_expr]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('Parameter(' . $self->type_constraints->irx1_describe()) . ',') . $self->quant->irx1_describe()) . ',') . $self->param_var->irx1_describe()) . ',') . $self->ident->irx1_describe()) . ',') . $self->traits->irx1_describe()) . ',') . $self->post_constraints->irx1_describe()) . ',') . $self->default_expr->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1347,18 +1355,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::TypeConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::TypeConstraint::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$value,$where_expr)=@_;
-$self->new('match', $match, 'value', $value, 'where_expr', $where_expr)};
+(do{$self->new('match', $match, 'value', $value, 'where_expr', $where_expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__TypeConstraint($self)};
-sub node_name{my $self=CORE::shift;'TypeConstraint'};
-sub field_names{my $self=CORE::shift;['value', 'where_expr']};
-sub field_values{my $self=CORE::shift;[$self->value, $self->where_expr]};
-sub irx1_describe{my $self=CORE::shift;(((('TypeConstraint(' . $self->value->irx1_describe()) . ',') . $self->where_expr->irx1_describe()) . ')')};
+(do{$emitter->cb__TypeConstraint($self)})};
+sub node_name{my $self=CORE::shift;(do{'TypeConstraint'})};
+sub field_names{my $self=CORE::shift;(do{['value', 'where_expr']})};
+sub field_values{my $self=CORE::shift;(do{[$self->value, $self->where_expr]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('TypeConstraint(' . $self->value->irx1_describe()) . ',') . $self->where_expr->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1367,18 +1375,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::PostConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::PostConstraint::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'multisig' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$multisig,$where_expr)=@_;
-$self->new('match', $match, 'multisig', $multisig, 'where_expr', $where_expr)};
+(do{$self->new('match', $match, 'multisig', $multisig, 'where_expr', $where_expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__PostConstraint($self)};
-sub node_name{my $self=CORE::shift;'PostConstraint'};
-sub field_names{my $self=CORE::shift;['multisig', 'where_expr']};
-sub field_values{my $self=CORE::shift;[$self->multisig, $self->where_expr]};
-sub irx1_describe{my $self=CORE::shift;(((('PostConstraint(' . $self->multisig->irx1_describe()) . ',') . $self->where_expr->irx1_describe()) . ')')};
+(do{$emitter->cb__PostConstraint($self)})};
+sub node_name{my $self=CORE::shift;(do{'PostConstraint'})};
+sub field_names{my $self=CORE::shift;(do{['multisig', 'where_expr']})};
+sub field_values{my $self=CORE::shift;(do{[$self->multisig, $self->where_expr]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('PostConstraint(' . $self->multisig->irx1_describe()) . ',') . $self->where_expr->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1387,19 +1395,19 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::ParamVar;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::ParamVar::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
-$self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)};
+(do{$self->new('match', $match, 'sigil', $sigil, 'twigil', $twigil, 'name', $name)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__ParamVar($self)};
-sub node_name{my $self=CORE::shift;'ParamVar'};
-sub field_names{my $self=CORE::shift;['sigil', 'twigil', 'name']};
-sub field_values{my $self=CORE::shift;[$self->sigil, $self->twigil, $self->name]};
-sub irx1_describe{my $self=CORE::shift;(((((('ParamVar(' . $self->sigil->irx1_describe()) . ',') . $self->twigil->irx1_describe()) . ',') . $self->name->irx1_describe()) . ')')};
+(do{$emitter->cb__ParamVar($self)})};
+sub node_name{my $self=CORE::shift;(do{'ParamVar'})};
+sub field_names{my $self=CORE::shift;(do{['sigil', 'twigil', 'name']})};
+sub field_values{my $self=CORE::shift;(do{[$self->sigil, $self->twigil, $self->name]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((('ParamVar(' . $self->sigil->irx1_describe()) . ',') . $self->twigil->irx1_describe()) . ',') . $self->name->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1408,16 +1416,16 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Undef;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Undef::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
-$self->new('match', $match)};
+(do{$self->new('match', $match)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Undef($self)};
-sub node_name{my $self=CORE::shift;'Undef'};
-sub field_names{my $self=CORE::shift;[]};
-sub field_values{my $self=CORE::shift;[]};
-sub irx1_describe{my $self=CORE::shift;('Undef(' . ')')};
+(do{$emitter->cb__Undef($self)})};
+sub node_name{my $self=CORE::shift;(do{'Undef'})};
+sub field_names{my $self=CORE::shift;(do{[]})};
+sub field_values{my $self=CORE::shift;(do{[]})};
+sub irx1_describe{my $self=CORE::shift;(do{('Undef(' . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1426,18 +1434,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::NumInt;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::NumInt::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 has 'base' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$text,$base)=@_;
-$self->new('match', $match, 'text', $text, 'base', $base)};
+(do{$self->new('match', $match, 'text', $text, 'base', $base)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__NumInt($self)};
-sub node_name{my $self=CORE::shift;'NumInt'};
-sub field_names{my $self=CORE::shift;['text', 'base']};
-sub field_values{my $self=CORE::shift;[$self->text, $self->base]};
-sub irx1_describe{my $self=CORE::shift;(((('NumInt(' . $self->text->irx1_describe()) . ',') . $self->base->irx1_describe()) . ')')};
+(do{$emitter->cb__NumInt($self)})};
+sub node_name{my $self=CORE::shift;(do{'NumInt'})};
+sub field_names{my $self=CORE::shift;(do{['text', 'base']})};
+sub field_values{my $self=CORE::shift;(do{[$self->text, $self->base]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('NumInt(' . $self->text->irx1_describe()) . ',') . $self->base->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1446,19 +1454,19 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::NumDec;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::NumDec::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
 has 'fracpart' => (is => 'rw');;
 has 'exp' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$intpart,$fracpart,$exp)=@_;
-$self->new('match', $match, 'intpart', $intpart, 'fracpart', $fracpart, 'exp', $exp)};
+(do{$self->new('match', $match, 'intpart', $intpart, 'fracpart', $fracpart, 'exp', $exp)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__NumDec($self)};
-sub node_name{my $self=CORE::shift;'NumDec'};
-sub field_names{my $self=CORE::shift;['intpart', 'fracpart', 'exp']};
-sub field_values{my $self=CORE::shift;[$self->intpart, $self->fracpart, $self->exp]};
-sub irx1_describe{my $self=CORE::shift;(((((('NumDec(' . $self->intpart->irx1_describe()) . ',') . $self->fracpart->irx1_describe()) . ',') . $self->exp->irx1_describe()) . ')')};
+(do{$emitter->cb__NumDec($self)})};
+sub node_name{my $self=CORE::shift;(do{'NumDec'})};
+sub field_names{my $self=CORE::shift;(do{['intpart', 'fracpart', 'exp']})};
+sub field_values{my $self=CORE::shift;(do{[$self->intpart, $self->fracpart, $self->exp]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((('NumDec(' . $self->intpart->irx1_describe()) . ',') . $self->fracpart->irx1_describe()) . ',') . $self->exp->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1467,7 +1475,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::NumRad;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::NumRad::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'radix' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
 has 'fracpart' => (is => 'rw');;
@@ -1475,13 +1483,13 @@ has 'base' => (is => 'rw');;
 has 'exp' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$radix,$intpart,$fracpart,$base,$exp)=@_;
-$self->new('match', $match, 'radix', $radix, 'intpart', $intpart, 'fracpart', $fracpart, 'base', $base, 'exp', $exp)};
+(do{$self->new('match', $match, 'radix', $radix, 'intpart', $intpart, 'fracpart', $fracpart, 'base', $base, 'exp', $exp)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__NumRad($self)};
-sub node_name{my $self=CORE::shift;'NumRad'};
-sub field_names{my $self=CORE::shift;['radix', 'intpart', 'fracpart', 'base', 'exp']};
-sub field_values{my $self=CORE::shift;[$self->radix, $self->intpart, $self->fracpart, $self->base, $self->exp]};
-sub irx1_describe{my $self=CORE::shift;(((((((((('NumRad(' . $self->radix->irx1_describe()) . ',') . $self->intpart->irx1_describe()) . ',') . $self->fracpart->irx1_describe()) . ',') . $self->base->irx1_describe()) . ',') . $self->exp->irx1_describe()) . ')')};
+(do{$emitter->cb__NumRad($self)})};
+sub node_name{my $self=CORE::shift;(do{'NumRad'})};
+sub field_names{my $self=CORE::shift;(do{['radix', 'intpart', 'fracpart', 'base', 'exp']})};
+sub field_values{my $self=CORE::shift;(do{[$self->radix, $self->intpart, $self->fracpart, $self->base, $self->exp]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((('NumRad(' . $self->radix->irx1_describe()) . ',') . $self->intpart->irx1_describe()) . ',') . $self->fracpart->irx1_describe()) . ',') . $self->base->irx1_describe()) . ',') . $self->exp->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1490,17 +1498,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Array;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Array::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$array)=@_;
-$self->new('match', $match, 'array', $array)};
+(do{$self->new('match', $match, 'array', $array)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Array($self)};
-sub node_name{my $self=CORE::shift;'Array'};
-sub field_names{my $self=CORE::shift;['array']};
-sub field_values{my $self=CORE::shift;[$self->array]};
-sub irx1_describe{my $self=CORE::shift;(('Array(' . $self->array->irx1_describe()) . ')')};
+(do{$emitter->cb__Array($self)})};
+sub node_name{my $self=CORE::shift;(do{'Array'})};
+sub field_names{my $self=CORE::shift;(do{['array']})};
+sub field_values{my $self=CORE::shift;(do{[$self->array]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('Array(' . $self->array->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1509,17 +1517,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Hash::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$hash)=@_;
-$self->new('match', $match, 'hash', $hash)};
+(do{$self->new('match', $match, 'hash', $hash)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Hash($self)};
-sub node_name{my $self=CORE::shift;'Hash'};
-sub field_names{my $self=CORE::shift;['hash']};
-sub field_values{my $self=CORE::shift;[$self->hash]};
-sub irx1_describe{my $self=CORE::shift;(('Hash(' . $self->hash->irx1_describe()) . ')')};
+(do{$emitter->cb__Hash($self)})};
+sub node_name{my $self=CORE::shift;(do{'Hash'})};
+sub field_names{my $self=CORE::shift;(do{['hash']})};
+sub field_values{my $self=CORE::shift;(do{[$self->hash]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('Hash(' . $self->hash->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1528,18 +1536,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Pair::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$key,$value)=@_;
-$self->new('match', $match, 'key', $key, 'value', $value)};
+(do{$self->new('match', $match, 'key', $key, 'value', $value)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Pair($self)};
-sub node_name{my $self=CORE::shift;'Pair'};
-sub field_names{my $self=CORE::shift;['key', 'value']};
-sub field_values{my $self=CORE::shift;[$self->key, $self->value]};
-sub irx1_describe{my $self=CORE::shift;(((('Pair(' . $self->key->irx1_describe()) . ',') . $self->value->irx1_describe()) . ')')};
+(do{$emitter->cb__Pair($self)})};
+sub node_name{my $self=CORE::shift;(do{'Pair'})};
+sub field_names{my $self=CORE::shift;(do{['key', 'value']})};
+sub field_values{my $self=CORE::shift;(do{[$self->key, $self->value]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Pair(' . $self->key->irx1_describe()) . ',') . $self->value->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1548,17 +1556,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Type;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Type::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'typename' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$typename)=@_;
-$self->new('match', $match, 'typename', $typename)};
+(do{$self->new('match', $match, 'typename', $typename)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Type($self)};
-sub node_name{my $self=CORE::shift;'Type'};
-sub field_names{my $self=CORE::shift;['typename']};
-sub field_values{my $self=CORE::shift;[$self->typename]};
-sub irx1_describe{my $self=CORE::shift;(('Type(' . $self->typename->irx1_describe()) . ')')};
+(do{$emitter->cb__Type($self)})};
+sub node_name{my $self=CORE::shift;(do{'Type'})};
+sub field_names{my $self=CORE::shift;(do{['typename']})};
+sub field_values{my $self=CORE::shift;(do{[$self->typename]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('Type(' . $self->typename->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1567,17 +1575,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Rx;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Rx::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'pat' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pat)=@_;
-$self->new('match', $match, 'pat', $pat)};
+(do{$self->new('match', $match, 'pat', $pat)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Rx($self)};
-sub node_name{my $self=CORE::shift;'Rx'};
-sub field_names{my $self=CORE::shift;['pat']};
-sub field_values{my $self=CORE::shift;[$self->pat]};
-sub irx1_describe{my $self=CORE::shift;(('Rx(' . $self->pat->irx1_describe()) . ')')};
+(do{$emitter->cb__Rx($self)})};
+sub node_name{my $self=CORE::shift;(do{'Rx'})};
+sub field_names{my $self=CORE::shift;(do{['pat']})};
+sub field_values{my $self=CORE::shift;(do{[$self->pat]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('Rx(' . $self->pat->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1586,17 +1594,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Buf;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Buf::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$buf)=@_;
-$self->new('match', $match, 'buf', $buf)};
+(do{$self->new('match', $match, 'buf', $buf)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Buf($self)};
-sub node_name{my $self=CORE::shift;'Buf'};
-sub field_names{my $self=CORE::shift;['buf']};
-sub field_values{my $self=CORE::shift;[$self->buf]};
-sub irx1_describe{my $self=CORE::shift;(('Buf(' . $self->buf->irx1_describe()) . ')')};
+(do{$emitter->cb__Buf($self)})};
+sub node_name{my $self=CORE::shift;(do{'Buf'})};
+sub field_names{my $self=CORE::shift;(do{['buf']})};
+sub field_values{my $self=CORE::shift;(do{[$self->buf]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('Buf(' . $self->buf->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1605,18 +1613,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::For;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::For::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
-$self->new('match', $match, 'expr', $expr, 'block', $block)};
+(do{$self->new('match', $match, 'expr', $expr, 'block', $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__For($self)};
-sub node_name{my $self=CORE::shift;'For'};
-sub field_names{my $self=CORE::shift;['expr', 'block']};
-sub field_values{my $self=CORE::shift;[$self->expr, $self->block]};
-sub irx1_describe{my $self=CORE::shift;(((('For(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')};
+(do{$emitter->cb__For($self)})};
+sub node_name{my $self=CORE::shift;(do{'For'})};
+sub field_names{my $self=CORE::shift;(do{['expr', 'block']})};
+sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('For(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1625,19 +1633,19 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Cond;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Cond::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'clauses' => (is => 'rw');;
 has 'default' => (is => 'rw');;
 has 'invert_first_test' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$clauses,$default,$invert_first_test)=@_;
-$self->new('match', $match, 'clauses', $clauses, 'default', $default, 'invert_first_test', $invert_first_test)};
+(do{$self->new('match', $match, 'clauses', $clauses, 'default', $default, 'invert_first_test', $invert_first_test)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Cond($self)};
-sub node_name{my $self=CORE::shift;'Cond'};
-sub field_names{my $self=CORE::shift;['clauses', 'default', 'invert_first_test']};
-sub field_values{my $self=CORE::shift;[$self->clauses, $self->default, $self->invert_first_test]};
-sub irx1_describe{my $self=CORE::shift;(((((('Cond(' . $self->clauses->irx1_describe()) . ',') . $self->default->irx1_describe()) . ',') . $self->invert_first_test->irx1_describe()) . ')')};
+(do{$emitter->cb__Cond($self)})};
+sub node_name{my $self=CORE::shift;(do{'Cond'})};
+sub field_names{my $self=CORE::shift;(do{['clauses', 'default', 'invert_first_test']})};
+sub field_values{my $self=CORE::shift;(do{[$self->clauses, $self->default, $self->invert_first_test]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((('Cond(' . $self->clauses->irx1_describe()) . ',') . $self->default->irx1_describe()) . ',') . $self->invert_first_test->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1646,20 +1654,20 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Loop;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Loop::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'pretest' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'posttest' => (is => 'rw');;
 has 'label' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pretest,$block,$posttest,$label)=@_;
-$self->new('match', $match, 'pretest', $pretest, 'block', $block, 'posttest', $posttest, 'label', $label)};
+(do{$self->new('match', $match, 'pretest', $pretest, 'block', $block, 'posttest', $posttest, 'label', $label)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Loop($self)};
-sub node_name{my $self=CORE::shift;'Loop'};
-sub field_names{my $self=CORE::shift;['pretest', 'block', 'posttest', 'label']};
-sub field_values{my $self=CORE::shift;[$self->pretest, $self->block, $self->posttest, $self->label]};
-sub irx1_describe{my $self=CORE::shift;(((((((('Loop(' . $self->pretest->irx1_describe()) . ',') . $self->block->irx1_describe()) . ',') . $self->posttest->irx1_describe()) . ',') . $self->label->irx1_describe()) . ')')};
+(do{$emitter->cb__Loop($self)})};
+sub node_name{my $self=CORE::shift;(do{'Loop'})};
+sub field_names{my $self=CORE::shift;(do{['pretest', 'block', 'posttest', 'label']})};
+sub field_values{my $self=CORE::shift;(do{[$self->pretest, $self->block, $self->posttest, $self->label]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((((((('Loop(' . $self->pretest->irx1_describe()) . ',') . $self->block->irx1_describe()) . ',') . $self->posttest->irx1_describe()) . ',') . $self->label->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1668,18 +1676,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Given;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Given::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
-$self->new('match', $match, 'expr', $expr, 'block', $block)};
+(do{$self->new('match', $match, 'expr', $expr, 'block', $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Given($self)};
-sub node_name{my $self=CORE::shift;'Given'};
-sub field_names{my $self=CORE::shift;['expr', 'block']};
-sub field_values{my $self=CORE::shift;[$self->expr, $self->block]};
-sub irx1_describe{my $self=CORE::shift;(((('Given(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')};
+(do{$emitter->cb__Given($self)})};
+sub node_name{my $self=CORE::shift;(do{'Given'})};
+sub field_names{my $self=CORE::shift;(do{['expr', 'block']})};
+sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Given(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1688,18 +1696,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::When;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::When::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
-$self->new('match', $match, 'expr', $expr, 'block', $block)};
+(do{$self->new('match', $match, 'expr', $expr, 'block', $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__When($self)};
-sub node_name{my $self=CORE::shift;'When'};
-sub field_names{my $self=CORE::shift;['expr', 'block']};
-sub field_values{my $self=CORE::shift;[$self->expr, $self->block]};
-sub irx1_describe{my $self=CORE::shift;(((('When(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')};
+(do{$emitter->cb__When($self)})};
+sub node_name{my $self=CORE::shift;(do{'When'})};
+sub field_names{my $self=CORE::shift;(do{['expr', 'block']})};
+sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('When(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1708,18 +1716,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Label;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Label::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'labels' => (is => 'rw');;
 has 'statement' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$labels,$statement)=@_;
-$self->new('match', $match, 'labels', $labels, 'statement', $statement)};
+(do{$self->new('match', $match, 'labels', $labels, 'statement', $statement)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Label($self)};
-sub node_name{my $self=CORE::shift;'Label'};
-sub field_names{my $self=CORE::shift;['labels', 'statement']};
-sub field_values{my $self=CORE::shift;[$self->labels, $self->statement]};
-sub irx1_describe{my $self=CORE::shift;(((('Label(' . $self->labels->irx1_describe()) . ',') . $self->statement->irx1_describe()) . ')')};
+(do{$emitter->cb__Label($self)})};
+sub node_name{my $self=CORE::shift;(do{'Label'})};
+sub field_names{my $self=CORE::shift;(do{['labels', 'statement']})};
+sub field_values{my $self=CORE::shift;(do{[$self->labels, $self->statement]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('Label(' . $self->labels->irx1_describe()) . ',') . $self->statement->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1728,18 +1736,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RegexDef;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RegexDef::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'pattern' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$ident,$pattern)=@_;
-$self->new('match', $match, 'ident', $ident, 'pattern', $pattern)};
+(do{$self->new('match', $match, 'ident', $ident, 'pattern', $pattern)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RegexDef($self)};
-sub node_name{my $self=CORE::shift;'RegexDef'};
-sub field_names{my $self=CORE::shift;['ident', 'pattern']};
-sub field_values{my $self=CORE::shift;[$self->ident, $self->pattern]};
-sub irx1_describe{my $self=CORE::shift;(((('RegexDef(' . $self->ident->irx1_describe()) . ',') . $self->pattern->irx1_describe()) . ')')};
+(do{$emitter->cb__RegexDef($self)})};
+sub node_name{my $self=CORE::shift;(do{'RegexDef'})};
+sub field_names{my $self=CORE::shift;(do{['ident', 'pattern']})};
+sub field_values{my $self=CORE::shift;(do{[$self->ident, $self->pattern]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('RegexDef(' . $self->ident->irx1_describe()) . ',') . $self->pattern->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1748,17 +1756,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Regex;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::Regex::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
-$self->new('match', $match, 'patterns', $patterns)};
+(do{$self->new('match', $match, 'patterns', $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__Regex($self)};
-sub node_name{my $self=CORE::shift;'Regex'};
-sub field_names{my $self=CORE::shift;['patterns']};
-sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('Regex(' . $self->patterns->irx1_describe()) . ')')};
+(do{$emitter->cb__Regex($self)})};
+sub node_name{my $self=CORE::shift;(do{'Regex'})};
+sub field_names{my $self=CORE::shift;(do{['patterns']})};
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('Regex(' . $self->patterns->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1767,17 +1775,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxFirst;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxFirst::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
-$self->new('match', $match, 'patterns', $patterns)};
+(do{$self->new('match', $match, 'patterns', $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxFirst($self)};
-sub node_name{my $self=CORE::shift;'RxFirst'};
-sub field_names{my $self=CORE::shift;['patterns']};
-sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RxFirst(' . $self->patterns->irx1_describe()) . ')')};
+(do{$emitter->cb__RxFirst($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxFirst'})};
+sub field_names{my $self=CORE::shift;(do{['patterns']})};
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxFirst(' . $self->patterns->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1786,17 +1794,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxEvery;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxEvery::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
-$self->new('match', $match, 'patterns', $patterns)};
+(do{$self->new('match', $match, 'patterns', $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxEvery($self)};
-sub node_name{my $self=CORE::shift;'RxEvery'};
-sub field_names{my $self=CORE::shift;['patterns']};
-sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RxEvery(' . $self->patterns->irx1_describe()) . ')')};
+(do{$emitter->cb__RxEvery($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxEvery'})};
+sub field_names{my $self=CORE::shift;(do{['patterns']})};
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxEvery(' . $self->patterns->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1805,17 +1813,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxSubmatch;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxSubmatch::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
-$self->new('match', $match, 'patterns', $patterns)};
+(do{$self->new('match', $match, 'patterns', $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxSubmatch($self)};
-sub node_name{my $self=CORE::shift;'RxSubmatch'};
-sub field_names{my $self=CORE::shift;['patterns']};
-sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RxSubmatch(' . $self->patterns->irx1_describe()) . ')')};
+(do{$emitter->cb__RxSubmatch($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxSubmatch'})};
+sub field_names{my $self=CORE::shift;(do{['patterns']})};
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxSubmatch(' . $self->patterns->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1824,17 +1832,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxAny;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxAny::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
-$self->new('match', $match, 'patterns', $patterns)};
+(do{$self->new('match', $match, 'patterns', $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxAny($self)};
-sub node_name{my $self=CORE::shift;'RxAny'};
-sub field_names{my $self=CORE::shift;['patterns']};
-sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RxAny(' . $self->patterns->irx1_describe()) . ')')};
+(do{$emitter->cb__RxAny($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxAny'})};
+sub field_names{my $self=CORE::shift;(do{['patterns']})};
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxAny(' . $self->patterns->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1843,17 +1851,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxAll;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxAll::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
-$self->new('match', $match, 'patterns', $patterns)};
+(do{$self->new('match', $match, 'patterns', $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxAll($self)};
-sub node_name{my $self=CORE::shift;'RxAll'};
-sub field_names{my $self=CORE::shift;['patterns']};
-sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RxAll(' . $self->patterns->irx1_describe()) . ')')};
+(do{$emitter->cb__RxAll($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxAll'})};
+sub field_names{my $self=CORE::shift;(do{['patterns']})};
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxAll(' . $self->patterns->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1862,17 +1870,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxSequence;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxSequence::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
-$self->new('match', $match, 'patterns', $patterns)};
+(do{$self->new('match', $match, 'patterns', $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxSequence($self)};
-sub node_name{my $self=CORE::shift;'RxSequence'};
-sub field_names{my $self=CORE::shift;['patterns']};
-sub field_values{my $self=CORE::shift;[$self->patterns]};
-sub irx1_describe{my $self=CORE::shift;(('RxSequence(' . $self->patterns->irx1_describe()) . ')')};
+(do{$emitter->cb__RxSequence($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxSequence'})};
+sub field_names{my $self=CORE::shift;(do{['patterns']})};
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxSequence(' . $self->patterns->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1881,18 +1889,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxQuantifiedAtom;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxQuantifiedAtom::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'atom' => (is => 'rw');;
 has 'quantifier' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$atom,$quantifier)=@_;
-$self->new('match', $match, 'atom', $atom, 'quantifier', $quantifier)};
+(do{$self->new('match', $match, 'atom', $atom, 'quantifier', $quantifier)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxQuantifiedAtom($self)};
-sub node_name{my $self=CORE::shift;'RxQuantifiedAtom'};
-sub field_names{my $self=CORE::shift;['atom', 'quantifier']};
-sub field_values{my $self=CORE::shift;[$self->atom, $self->quantifier]};
-sub irx1_describe{my $self=CORE::shift;(((('RxQuantifiedAtom(' . $self->atom->irx1_describe()) . ',') . $self->quantifier->irx1_describe()) . ')')};
+(do{$emitter->cb__RxQuantifiedAtom($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxQuantifiedAtom'})};
+sub field_names{my $self=CORE::shift;(do{['atom', 'quantifier']})};
+sub field_values{my $self=CORE::shift;(do{[$self->atom, $self->quantifier]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('RxQuantifiedAtom(' . $self->atom->irx1_describe()) . ',') . $self->quantifier->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1901,17 +1909,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxBackslash;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxBackslash::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$char)=@_;
-$self->new('match', $match, 'char', $char)};
+(do{$self->new('match', $match, 'char', $char)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxBackslash($self)};
-sub node_name{my $self=CORE::shift;'RxBackslash'};
-sub field_names{my $self=CORE::shift;['char']};
-sub field_values{my $self=CORE::shift;[$self->char]};
-sub irx1_describe{my $self=CORE::shift;(('RxBackslash(' . $self->char->irx1_describe()) . ')')};
+(do{$emitter->cb__RxBackslash($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxBackslash'})};
+sub field_names{my $self=CORE::shift;(do{['char']})};
+sub field_values{my $self=CORE::shift;(do{[$self->char]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxBackslash(' . $self->char->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1920,17 +1928,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxAssertion;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxAssertion::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$ident)=@_;
-$self->new('match', $match, 'ident', $ident)};
+(do{$self->new('match', $match, 'ident', $ident)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxAssertion($self)};
-sub node_name{my $self=CORE::shift;'RxAssertion'};
-sub field_names{my $self=CORE::shift;['ident']};
-sub field_values{my $self=CORE::shift;[$self->ident]};
-sub irx1_describe{my $self=CORE::shift;(('RxAssertion(' . $self->ident->irx1_describe()) . ')')};
+(do{$emitter->cb__RxAssertion($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxAssertion'})};
+sub field_names{my $self=CORE::shift;(do{['ident']})};
+sub field_values{my $self=CORE::shift;(do{[$self->ident]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxAssertion(' . $self->ident->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1939,17 +1947,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxModInternal;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxModInternal::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'mod' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$mod)=@_;
-$self->new('match', $match, 'mod', $mod)};
+(do{$self->new('match', $match, 'mod', $mod)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxModInternal($self)};
-sub node_name{my $self=CORE::shift;'RxModInternal'};
-sub field_names{my $self=CORE::shift;['mod']};
-sub field_values{my $self=CORE::shift;[$self->mod]};
-sub irx1_describe{my $self=CORE::shift;(('RxModInternal(' . $self->mod->irx1_describe()) . ')')};
+(do{$emitter->cb__RxModInternal($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxModInternal'})};
+sub field_names{my $self=CORE::shift;(do{['mod']})};
+sub field_values{my $self=CORE::shift;(do{[$self->mod]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxModInternal(' . $self->mod->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1958,17 +1966,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxCapture;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxCapture::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'pattern' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
-$self->new('match', $match, 'pattern', $pattern)};
+(do{$self->new('match', $match, 'pattern', $pattern)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxCapture($self)};
-sub node_name{my $self=CORE::shift;'RxCapture'};
-sub field_names{my $self=CORE::shift;['pattern']};
-sub field_values{my $self=CORE::shift;[$self->pattern]};
-sub irx1_describe{my $self=CORE::shift;(('RxCapture(' . $self->pattern->irx1_describe()) . ')')};
+(do{$emitter->cb__RxCapture($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxCapture'})};
+sub field_names{my $self=CORE::shift;(do{['pattern']})};
+sub field_values{my $self=CORE::shift;(do{[$self->pattern]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxCapture(' . $self->pattern->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1977,17 +1985,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxGroup;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxGroup::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'pattern' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
-$self->new('match', $match, 'pattern', $pattern)};
+(do{$self->new('match', $match, 'pattern', $pattern)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxGroup($self)};
-sub node_name{my $self=CORE::shift;'RxGroup'};
-sub field_names{my $self=CORE::shift;['pattern']};
-sub field_values{my $self=CORE::shift;[$self->pattern]};
-sub irx1_describe{my $self=CORE::shift;(('RxGroup(' . $self->pattern->irx1_describe()) . ')')};
+(do{$emitter->cb__RxGroup($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxGroup'})};
+sub field_names{my $self=CORE::shift;(do{['pattern']})};
+sub field_values{my $self=CORE::shift;(do{[$self->pattern]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxGroup(' . $self->pattern->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1996,17 +2004,17 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxBlock;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxBlock::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$block)=@_;
-$self->new('match', $match, 'block', $block)};
+(do{$self->new('match', $match, 'block', $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxBlock($self)};
-sub node_name{my $self=CORE::shift;'RxBlock'};
-sub field_names{my $self=CORE::shift;['block']};
-sub field_values{my $self=CORE::shift;[$self->block]};
-sub irx1_describe{my $self=CORE::shift;(('RxBlock(' . $self->block->irx1_describe()) . ')')};
+(do{$emitter->cb__RxBlock($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxBlock'})};
+sub field_names{my $self=CORE::shift;(do{['block']})};
+sub field_values{my $self=CORE::shift;(do{[$self->block]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxBlock(' . $self->block->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2015,18 +2023,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxBind;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxBind::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'var' => (is => 'rw');;
 has 'binding' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$var,$binding)=@_;
-$self->new('match', $match, 'var', $var, 'binding', $binding)};
+(do{$self->new('match', $match, 'var', $var, 'binding', $binding)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxBind($self)};
-sub node_name{my $self=CORE::shift;'RxBind'};
-sub field_names{my $self=CORE::shift;['var', 'binding']};
-sub field_values{my $self=CORE::shift;[$self->var, $self->binding]};
-sub irx1_describe{my $self=CORE::shift;(((('RxBind(' . $self->var->irx1_describe()) . ',') . $self->binding->irx1_describe()) . ')')};
+(do{$emitter->cb__RxBind($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxBind'})};
+sub field_names{my $self=CORE::shift;(do{['var', 'binding']})};
+sub field_values{my $self=CORE::shift;(do{[$self->var, $self->binding]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('RxBind(' . $self->var->irx1_describe()) . ',') . $self->binding->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2035,18 +2043,18 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxLiteral;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxLiteral::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 has 'quote' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$text,$quote)=@_;
-$self->new('match', $match, 'text', $text, 'quote', $quote)};
+(do{$self->new('match', $match, 'text', $text, 'quote', $quote)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxLiteral($self)};
-sub node_name{my $self=CORE::shift;'RxLiteral'};
-sub field_names{my $self=CORE::shift;['text', 'quote']};
-sub field_values{my $self=CORE::shift;[$self->text, $self->quote]};
-sub irx1_describe{my $self=CORE::shift;(((('RxLiteral(' . $self->text->irx1_describe()) . ',') . $self->quote->irx1_describe()) . ')')};
+(do{$emitter->cb__RxLiteral($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxLiteral'})};
+sub field_names{my $self=CORE::shift;(do{['text', 'quote']})};
+sub field_values{my $self=CORE::shift;(do{[$self->text, $self->quote]})};
+sub irx1_describe{my $self=CORE::shift;(do{(((('RxLiteral(' . $self->text->irx1_describe()) . ',') . $self->quote->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2055,21 +2063,21 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::RxSymbol;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RxSymbol::ISA,'IRx1::Base');}
-has 'match' => (is => 'rw');;
+(do{has 'match' => (is => 'rw');;
 has 'symbol' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match,$symbol)=@_;
-$self->new('match', $match, 'symbol', $symbol)};
+(do{$self->new('match', $match, 'symbol', $symbol)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
-$emitter->cb__RxSymbol($self)};
-sub node_name{my $self=CORE::shift;'RxSymbol'};
-sub field_names{my $self=CORE::shift;['symbol']};
-sub field_values{my $self=CORE::shift;[$self->symbol]};
-sub irx1_describe{my $self=CORE::shift;(('RxSymbol(' . $self->symbol->irx1_describe()) . ')')};
+(do{$emitter->cb__RxSymbol($self)})};
+sub node_name{my $self=CORE::shift;(do{'RxSymbol'})};
+sub field_names{my $self=CORE::shift;(do{['symbol']})};
+sub field_values{my $self=CORE::shift;(do{[$self->symbol]})};
+sub irx1_describe{my $self=CORE::shift;(do{(('RxSymbol(' . $self->symbol->irx1_describe()) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
-;
+});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2081,26 +2089,26 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
-has 'constructors' => (is => 'rw');;
+(do{has 'constructors' => (is => 'rw');;
 ($main::irbuilder = IRx1_Build->new());
 sub add_constructor{my $self=CORE::shift;my($k,$constructor)=@_;
-if($self->constructors) {
-
+(do{if($self->constructors) {
+(do{})
 }else {
-my $h = {};
-$self->constructors($h)
+(do{my $h = {};
+$self->constructors($h)})
 };
-($self->constructors->{$k} = $constructor)};
+($self->constructors->{$k} = $constructor)})};
 sub make_ir_from_Match_tree{my $self=CORE::shift;my($m)=@_;
-my $rule = $m->rule();
+(do{my $rule = $m->rule();
 my $constructor = $self->constructors->{$rule};
 if(($constructor)) {
-$constructor->($m)
+(do{$constructor->($m)})
 }else {
-GLOBAL::die((('Unknown rule: ' . $rule) . '
+(do{GLOBAL::die((('Unknown rule: ' . $rule) . '
 It needs to be added to ast_handlers.
-'))
-}};
+'))})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2108,7 +2116,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub make_ir_from_Match_tree{my $self=CORE::shift;$main::irbuilder->make_ir_from_Match_tree($self)};
+(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$main::irbuilder->make_ir_from_Match_tree($self)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2116,8 +2124,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub make_ir_from_Match_tree{my $self=CORE::shift;$self->map(sub {my($e)=@_;
-$e->make_ir_from_Match_tree()})};
+(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self->map(sub {my($e)=@_;
+(do{$e->make_ir_from_Match_tree()})})})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2125,7 +2133,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package STRING;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub make_ir_from_Match_tree{my $self=CORE::shift;$self};
+(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2133,7 +2141,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package INTEGER;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub make_ir_from_Match_tree{my $self=CORE::shift;$self};
+(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2141,7 +2149,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package FLOAT;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub make_ir_from_Match_tree{my $self=CORE::shift;$self};
+(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2149,7 +2157,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package UNDEF;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub make_ir_from_Match_tree{my $self=CORE::shift;$self};
+(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2157,427 +2165,426 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub irbuild_ir{my($x)=@_;
-$x->make_ir_from_Match_tree()};
+(do{sub irbuild_ir{my($x)=@_;
+(do{$x->make_ir_from_Match_tree()})};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
-IRx1::CompUnit->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))});
+(do{IRx1::CompUnit->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))})});
 $main::irbuilder->add_constructor('statement', sub {my($m)=@_;
-my $labels = irbuild_ir($m->{'hash'}->{'label'});
+(do{my $labels = irbuild_ir($m->{'hash'}->{'label'});
 my $result = (irbuild_ir($m->{'hash'}->{'expr'}) || irbuild_ir($m->{'hash'}->{'control'}));
 if(($m->{'hash'}->{'expr'} && (($m->{'hash'}->{'mod_loop'} || $m->{'hash'}->{'mod_cond'})))) {
-{package Main; use vars '$1es_blackboard__statement_expr'};local $::es_blackboard__statement_expr = $result;
+(do{{package Main; use vars '$1es_blackboard__statement_expr'};local $::es_blackboard__statement_expr = $result;
 ($result = (irbuild_ir($m->{'hash'}->{'mod_loop'}) || irbuild_ir($m->{'hash'}->{'mod_cond'})));
 if($m->{'hash'}->{'mod_condloop'}) {
-($::es_blackboard__statement_expr = $result);
-($result = irbuild_ir($m->{'hash'}->{'mod_condloop'}))
-}
+(do{($::es_blackboard__statement_expr = $result);
+($result = irbuild_ir($m->{'hash'}->{'mod_condloop'}))})
+}})
 };
 if($labels) {
-IRx1::Label->newp($m, $labels, $result)
+(do{IRx1::Label->newp($m, $labels, $result)})
 }else {
-$result
-}});
+(do{$result})
+}})});
 $main::irbuilder->add_constructor('expect_infix', sub {my($m)=@_;
-if(irbuild_ir($m->{'hash'}->{'infix'})) {
-if(irbuild_ir($m->{'hash'}->{'infix_postfix_meta_operator'})) {
-GLOBAL::die('Unimplemented infix_postfix_meta_operator')
+(do{if(irbuild_ir($m->{'hash'}->{'infix'})) {
+(do{if(irbuild_ir($m->{'hash'}->{'infix_postfix_meta_operator'})) {
+(do{GLOBAL::die('Unimplemented infix_postfix_meta_operator')})
 };
 my $op = irbuild_ir($m->{'hash'}->{'infix'}->{'hash'}->{'sym'});
-IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'args'})))
+IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'args'})))})
 }else {
-GLOBAL::die('Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator')
-}});
+(do{GLOBAL::die('Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator')})
+}})});
 $main::irbuilder->add_constructor('expect_term', sub {my($m)=@_;
-{package Main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = irbuild_ir($m->{'hash'}->{'noun'});
+(do{{package Main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = irbuild_ir($m->{'hash'}->{'noun'});
 my $ops = [];
 if($m->{'hash'}->{'pre'}) {
-$ops->push($m->{'hash'}->{'pre'}->flatten())
+(do{$ops->push($m->{'hash'}->{'pre'}->flatten())})
 };
 if($m->{'hash'}->{'post'}) {
-$ops->push($m->{'hash'}->{'post'}->flatten())
+(do{$ops->push($m->{'hash'}->{'post'}->flatten())})
 };
 for($ops->flatten){
-($::es_blackboard__expect_term_base = irbuild_ir($_))
+(do{($::es_blackboard__expect_term_base = irbuild_ir($_))})
 };
-$::es_blackboard__expect_term_base});
+$::es_blackboard__expect_term_base})});
 $main::irbuilder->add_constructor('term:expect_term', sub {my($m)=@_;
-irbuild_ir($m->{'hash'}->{'noun'})});
+(do{irbuild_ir($m->{'hash'}->{'noun'})})});
 $main::irbuilder->add_constructor('post', sub {my($m)=@_;
-if($m->{'hash'}->{'args'}) {
-irbuild_ir($m->{'hash'}->{'args'})->[0]
+(do{if($m->{'hash'}->{'args'}) {
+(do{irbuild_ir($m->{'hash'}->{'args'})->[0]})
 }else {
-(irbuild_ir($m->{'hash'}->{'dotty'}) or irbuild_ir($m->{'hash'}->{'postop'}))
-}});
+(do{(irbuild_ir($m->{'hash'}->{'dotty'}) or irbuild_ir($m->{'hash'}->{'postop'}))})
+}})});
 $main::irbuilder->add_constructor('pre', sub {my($m)=@_;
-if($m->{'hash'}->{'args'}) {
-irbuild_ir($m->{'hash'}->{'args'})->[0]
+(do{if($m->{'hash'}->{'args'}) {
+(do{irbuild_ir($m->{'hash'}->{'args'})->[0]})
 }elsif($m->{'hash'}->{'prefix'}) {
-irbuild_ir($m->{'hash'}->{'prefix'})
+(do{irbuild_ir($m->{'hash'}->{'prefix'})})
 }else {
-GLOBAL::die('pre without a prefix is unimplemented')
-}});
+(do{GLOBAL::die('pre without a prefix is unimplemented')})
+}})});
 $main::irbuilder->add_constructor('dotty:methodop', sub {my($m)=@_;
-IRx1::Call->newp($m, $::es_blackboard__expect_term_base, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))});
+(do{IRx1::Call->newp($m, $::es_blackboard__expect_term_base, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))})});
 $main::irbuilder->add_constructor('dotty:postcircumfix', sub {my($m)=@_;
-my $s = ($m->match_string());
+(do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $ident = ('postcircumfix:' . $name);
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() ne 'ARRAY')))) {
-($args = [$args])
+(do{($args = [$args])})
 };
-IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))});
+IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))})});
 $main::irbuilder->add_constructor('postcircumfix', sub {my($m)=@_;
-my $s = ($m->match_string());
+(do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $ident = ('postcircumfix:' . $name);
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() ne 'ARRAY')))) {
-($args = [$args])
+(do{($args = [$args])})
 };
-IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))});
+IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))})});
 $main::irbuilder->add_constructor('postfix', sub {my($m)=@_;
-my $op = ($m->match_string());
-IRx1::Apply->newp($m, ('postfix:' . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))});
+(do{my $op = ($m->match_string());
+IRx1::Apply->newp($m, ('postfix:' . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))})});
 $main::irbuilder->add_constructor('prefix', sub {my($m)=@_;
-my $op = ($m->match_string());
-IRx1::Apply->newp($m, ('prefix:' . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))});
+(do{my $op = ($m->match_string());
+IRx1::Apply->newp($m, ('prefix:' . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))})});
 $main::irbuilder->add_constructor('infix', sub {my($m)=@_;
-my $op = ($m->match_string());
-IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'left'}), irbuild_ir($m->{'hash'}->{'right'})]))});
+(do{my $op = ($m->match_string());
+IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'left'}), irbuild_ir($m->{'hash'}->{'right'})]))})});
 $main::irbuilder->add_constructor('term', sub {my($m)=@_;
-my $text = ($m->match_string());
+(do{my $text = ($m->match_string());
 if(($text eq 'self')) {
-IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []))
+(do{IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []))})
 }elsif(($text eq '*')) {
-IRx1::Apply->newp($m, 'whatever', IRx1::Capture->newp($m, []))
+(do{IRx1::Apply->newp($m, 'whatever', IRx1::Capture->newp($m, []))})
 }else {
-GLOBAL::die('AST term partially unimplemented.
-')
-}});
+(do{GLOBAL::die('AST term partially unimplemented.
+')})
+}})});
 $main::irbuilder->add_constructor('integer', sub {my($m)=@_;
-IRx1::NumInt->newp($m, ($m->match_string()))});
+(do{IRx1::NumInt->newp($m, ($m->match_string()))})});
 $main::irbuilder->add_constructor('subcall', sub {my($m)=@_;
-my $t = irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'twigil'});
+(do{my $t = irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'twigil'});
 if(($t && ($t eq '.'))) {
-IRx1::Call->newp($m, IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, [])), irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'desigilname'}->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))
+(do{IRx1::Call->newp($m, IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, [])), irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'desigilname'}->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))})
 }else {
-IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'subshortname'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))
-}});
+(do{IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'subshortname'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))})
+}})});
 $main::irbuilder->add_constructor('name', sub {my($m)=@_;
-($m->match_string())});
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor('subshortname', sub {my($m)=@_;
-($m->match_string())});
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor('statement_control:use', sub {my($m)=@_;
-IRx1::Use->newp($m, 'use', irbuild_ir($m->{'hash'}->{'module_name'}), irbuild_ir($m->{'hash'}->{'EXPR'}))});
+(do{IRx1::Use->newp($m, 'use', irbuild_ir($m->{'hash'}->{'module_name'}), irbuild_ir($m->{'hash'}->{'EXPR'}))})});
 $main::irbuilder->add_constructor('module_name:depreciated', sub {my($m)=@_;
-($m->match_string())});
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor('module_name:normal', sub {my($m)=@_;
-($m->match_string())});
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor('statement_control:BEGIN', sub {my($m)=@_;
-IRx1::ClosureTrait->newp($m, 'BEGIN', irbuild_ir($m->{'hash'}->{'block'}))});
+(do{IRx1::ClosureTrait->newp($m, 'BEGIN', irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('term:listop', sub {my($m)=@_;
-my $not_really_an_arglist = irbuild_ir($m->{'hash'}->{'arglist'});
+(do{my $not_really_an_arglist = irbuild_ir($m->{'hash'}->{'arglist'});
 if(irbuild_ir($m->{'hash'}->{'arglist'})) {
-IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, [$not_really_an_arglist]))
+(do{IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, [$not_really_an_arglist]))})
 }else {
-IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, []))
-}});
+(do{IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, []))})
+}})});
 $main::irbuilder->add_constructor('quote:q', sub {my($m)=@_;
-my $s = irbuild_ir($m->{'hash'}->{'text'});
+(do{my $s = irbuild_ir($m->{'hash'}->{'text'});
 $s->re_gsub(qr/(?<!\\)\\\\/, '\\');
-IRx1::Buf->newp($m, $s)});
+IRx1::Buf->newp($m, $s)})});
 $main::irbuilder->add_constructor('quote:qq', sub {my($m)=@_;
-my $s = irbuild_ir($m->{'hash'}->{'text'});
+(do{my $s = irbuild_ir($m->{'hash'}->{'text'});
 $s->re_gsub(qr/(?<!\\)\\n/, '
 ');
 $s->re_gsub(qr/(?<!\\)\\t/, '	');
 $s->re_gsub(qr/(?<!\\)\\\\/, '\\');
-IRx1::Buf->newp($m, $s)});
+IRx1::Buf->newp($m, $s)})});
 $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
-my $s = irbuild_ir($m->{'hash'}->{'text'});
-IRx1::Rx->newp($m, $s)});
+(do{my $s = irbuild_ir($m->{'hash'}->{'text'});
+IRx1::Rx->newp($m, $s)})});
 $main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
+(do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
+IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])})});
 $main::irbuilder->add_constructor('scope_declarator:has', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'has', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
+(do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
+IRx1::VarDecl->newp($m, 'has', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])})});
 $main::irbuilder->add_constructor('scope_declarator:our', sub {my($m)=@_;
-my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'our', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])});
+(do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
+IRx1::VarDecl->newp($m, 'our', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])})});
 $main::irbuilder->add_constructor('scoped', sub {my($m)=@_;
-[irbuild_ir($m->{'hash'}->{'variable_decl'}), irbuild_ir($m->{'hash'}->{'fulltypename'})]});
+(do{[irbuild_ir($m->{'hash'}->{'variable_decl'}), irbuild_ir($m->{'hash'}->{'fulltypename'})]})});
 $main::irbuilder->add_constructor('variable_decl', sub {my($m)=@_;
-[irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'})]});
+(do{[irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'})]})});
 $main::irbuilder->add_constructor('variable', sub {my($m)=@_;
-my $tw = irbuild_ir($m->{'hash'}->{'twigil'});
+(do{my $tw = irbuild_ir($m->{'hash'}->{'twigil'});
 if($m->{'hash'}->{'postcircumfix'}) {
-if(($tw eq '.')) {
-my $slf = IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []));
+(do{if(($tw eq '.')) {
+(do{my $slf = IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []));
 my $args = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() ne 'ARRAY')))) {
-($args = [$args])
+(do{($args = [$args])})
 };
-IRx1::Call->newp($m, $slf, irbuild_ir($m->{'hash'}->{'desigilname'}), IRx1::Capture->newp($m, $args))
+IRx1::Call->newp($m, $slf, irbuild_ir($m->{'hash'}->{'desigilname'}), IRx1::Capture->newp($m, $args))})
 }else {
-my $v = IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), $tw, irbuild_ir($m->{'hash'}->{'desigilname'}));
+(do{my $v = IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), $tw, irbuild_ir($m->{'hash'}->{'desigilname'}));
 {package Main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = $v;
-irbuild_ir($m->{'hash'}->{'postcircumfix'})
-}
+irbuild_ir($m->{'hash'}->{'postcircumfix'})})
+}})
 }else {
-IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), $tw, irbuild_ir($m->{'hash'}->{'desigilname'}))
-}});
+(do{IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), $tw, irbuild_ir($m->{'hash'}->{'desigilname'}))})
+}})});
 $main::irbuilder->add_constructor('sigil', sub {my($m)=@_;
-($m->match_string())});
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor('twigil', sub {my($m)=@_;
-($m->match_string())});
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor('special_variable', sub {my($m)=@_;
-my $v = ($m->match_string());
+(do{my $v = ($m->match_string());
 my $s = GLOBAL::substr($v, 0, 1);
 my $n = GLOBAL::substr($v, 1, $v->length());
-IRx1::Var->newp($m, $s, GLOBAL::undef(), $n)});
+IRx1::Var->newp($m, $s, GLOBAL::undef(), $n)})});
 $main::irbuilder->add_constructor('circumfix', sub {my($m)=@_;
-my $s = ($m->match_string());
+(do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() ne 'ARRAY')))) {
-($args = [$args])
+(do{($args = [$args])})
 };
-IRx1::Apply->newp($m, ('circumfix:' . $name), IRx1::Capture->newp($m, $args))});
+IRx1::Apply->newp($m, ('circumfix:' . $name), IRx1::Capture->newp($m, $args))})});
 $main::irbuilder->add_constructor('statement_control:for', sub {my($m)=@_;
-IRx1::For->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
+(do{IRx1::For->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('statement_mod_loop:for', sub {my($m)=@_;
-IRx1::For->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)});
+(do{IRx1::For->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)})});
 $main::irbuilder->add_constructor('statement_control:while', sub {my($m)=@_;
-IRx1::Loop->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
+(do{IRx1::Loop->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('statement_mod_loop:while', sub {my($m)=@_;
-IRx1::Loop->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)});
+(do{IRx1::Loop->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)})});
 $main::irbuilder->add_constructor('statement_control:until', sub {my($m)=@_;
-my $test = IRx1::Apply->newp($m, 'not', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'expr'})]));
-IRx1::Loop->newp($m, $test, irbuild_ir($m->{'hash'}->{'block'}))});
+(do{my $test = IRx1::Apply->newp($m, 'not', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'expr'})]));
+IRx1::Loop->newp($m, $test, irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('statement_mod_loop:until', sub {my($m)=@_;
-my $test = IRx1::Apply->newp($m, 'not', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'modifier_expr'})]));
-IRx1::Loop->newp($m, $test, $::es_blackboard__statement_expr)});
+(do{my $test = IRx1::Apply->newp($m, 'not', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'modifier_expr'})]));
+IRx1::Loop->newp($m, $test, $::es_blackboard__statement_expr)})});
 $main::irbuilder->add_constructor('statement_control:if', sub {my($m)=@_;
-my $els = irbuild_ir($m->{'hash'}->{'else'});
+(do{my $els = irbuild_ir($m->{'hash'}->{'else'});
 if($els) {
-($els = $els->[0])
+(do{($els = $els->[0])})
 };
-IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'if_expr'}), irbuild_ir($m->{'hash'}->{'if_block'})]]->push(irbuild_ir($m->{'hash'}->{'elsif'})->flatten()), $els)});
+IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'if_expr'}), irbuild_ir($m->{'hash'}->{'if_block'})]]->push(irbuild_ir($m->{'hash'}->{'elsif'})->flatten()), $els)})});
 $main::irbuilder->add_constructor('elsif', sub {my($m)=@_;
-[irbuild_ir($m->{'hash'}->{'elsif_expr'}), irbuild_ir($m->{'hash'}->{'elsif_block'})]});
+(do{[irbuild_ir($m->{'hash'}->{'elsif_expr'}), irbuild_ir($m->{'hash'}->{'elsif_block'})]})});
 $main::irbuilder->add_constructor('if__else', sub {my($m)=@_;
-my $key;
+(do{my $key;
 for($m->{'hash'}->keys()->flatten){
-if(($_ ne 'match')) {
-if($key) {
-GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
-')
+(do{if(($_ ne 'match')) {
+(do{if($key) {
+(do{GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
+')})
 };
-($key = $_)
-}
+($key = $_)})
+}})
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
-$one});
+$one})});
 $main::irbuilder->add_constructor('statement_mod_cond:if', sub {my($m)=@_;
-IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr]], GLOBAL::undef())});
+(do{IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr]], GLOBAL::undef())})});
 $main::irbuilder->add_constructor('statement_control:unless', sub {my($m)=@_;
-IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'})]], GLOBAL::undef(), 1)});
+(do{IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'})]], GLOBAL::undef(), 1)})});
 $main::irbuilder->add_constructor('statement_mod_cond:unless', sub {my($m)=@_;
-IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr]], GLOBAL::undef(), 1)});
+(do{IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr]], GLOBAL::undef(), 1)})});
 $main::irbuilder->add_constructor('statement_control:given', sub {my($m)=@_;
-IRx1::Given->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
+(do{IRx1::Given->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('statement_mod_loop:given', sub {my($m)=@_;
-IRx1::Given->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)});
+(do{IRx1::Given->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)})});
 $main::irbuilder->add_constructor('statement_control:when', sub {my($m)=@_;
-IRx1::When->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
+(do{IRx1::When->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('statement_mod_cond:when', sub {my($m)=@_;
-IRx1::When->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)});
+(do{IRx1::When->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)})});
 $main::irbuilder->add_constructor('statement_control:default', sub {my($m)=@_;
-IRx1::When->newp($m, GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))});
+(do{IRx1::When->newp($m, GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('statement_prefix:do', sub {my($m)=@_;
-IRx1::Apply->newp($m, 'statement_prefix:do', irbuild_ir($m->{'hash'}->{'statement'}))});
+(do{IRx1::Apply->newp($m, 'statement_prefix:do', irbuild_ir($m->{'hash'}->{'statement'}))})});
 $main::irbuilder->add_constructor('statement_prefix:try', sub {my($m)=@_;
-IRx1::Apply->newp($m, 'statement_prefix:try', irbuild_ir($m->{'hash'}->{'statement'}))});
+(do{IRx1::Apply->newp($m, 'statement_prefix:try', irbuild_ir($m->{'hash'}->{'statement'}))})});
 $main::irbuilder->add_constructor('statement_prefix:gather', sub {my($m)=@_;
-IRx1::Apply->newp($m, 'statement_prefix:gather', irbuild_ir($m->{'hash'}->{'statement'}))});
+(do{IRx1::Apply->newp($m, 'statement_prefix:gather', irbuild_ir($m->{'hash'}->{'statement'}))})});
 $main::irbuilder->add_constructor('statement_prefix:contend', sub {my($m)=@_;
-IRx1::Apply->newp($m, 'statement_prefix:contend', irbuild_ir($m->{'hash'}->{'statement'}))});
+(do{IRx1::Apply->newp($m, 'statement_prefix:contend', irbuild_ir($m->{'hash'}->{'statement'}))})});
 $main::irbuilder->add_constructor('statement_prefix:async', sub {my($m)=@_;
-IRx1::Apply->newp($m, 'statement_prefix:async', irbuild_ir($m->{'hash'}->{'statement'}))});
+(do{IRx1::Apply->newp($m, 'statement_prefix:async', irbuild_ir($m->{'hash'}->{'statement'}))})});
 $main::irbuilder->add_constructor('statement_prefix:lazy', sub {my($m)=@_;
-IRx1::Apply->newp($m, 'statement_prefix:lazy', irbuild_ir($m->{'hash'}->{'statement'}))});
+(do{IRx1::Apply->newp($m, 'statement_prefix:lazy', irbuild_ir($m->{'hash'}->{'statement'}))})});
 $main::irbuilder->add_constructor('pblock', sub {my($m)=@_;
-if($m->{'hash'}->{'signature'}) {
-IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'signature'}), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))
+(do{if($m->{'hash'}->{'signature'}) {
+(do{IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'signature'}), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))})
 }else {
-irbuild_ir($m->{'hash'}->{'block'})
-}});
+(do{irbuild_ir($m->{'hash'}->{'block'})})
+}})});
 $main::irbuilder->add_constructor('block', sub {my($m)=@_;
-IRx1::Block->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))});
+(do{IRx1::Block->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))})});
 $main::irbuilder->add_constructor('plurality_declarator:multi', sub {my($m)=@_;
-{package Main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality = 'multi';
-irbuild_ir($m->{'hash'}->{'pluralized'})});
+(do{{package Main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality = 'multi';
+irbuild_ir($m->{'hash'}->{'pluralized'})})});
 $main::irbuilder->add_constructor('routine_declarator:routine_def', sub {my($m)=@_;
-my $plurality = $::es_blackboard__plurality;
+(do{my $plurality = $::es_blackboard__plurality;
 {package Main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
 my $ident = '';
 if($m->{'hash'}->{'ident'}) {
-($ident = irbuild_ir($m->{'hash'}->{'ident'}))
+(do{($ident = irbuild_ir($m->{'hash'}->{'ident'}))})
 };
 my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
 if(irbuild_ir($m->{'hash'}->{'multisig'})) {
-($sig = irbuild_ir($m->{'hash'}->{'multisig'})->[0])
+(do{($sig = irbuild_ir($m->{'hash'}->{'multisig'})->[0])})
 };
-IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('routine_declarator:method_def', sub {my($m)=@_;
-my $plurality = $::es_blackboard__plurality;
+(do{my $plurality = $::es_blackboard__plurality;
 {package Main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
-IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'multisig'})->[0], GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))});
+IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'multisig'})->[0], GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('signature', sub {my($m)=@_;
-IRx1::Signature->newp($m, irbuild_ir($m->{'hash'}->{'parsep'}), GLOBAL::undef())});
+(do{IRx1::Signature->newp($m, irbuild_ir($m->{'hash'}->{'parsep'}), GLOBAL::undef())})});
 $main::irbuilder->add_constructor('parameter', sub {my($m)=@_;
-IRx1::Parameter->newp($m, irbuild_ir($m->{'hash'}->{'type_constraint'}), irbuild_ir($m->{'hash'}->{'quantchar'}), irbuild_ir($m->{'hash'}->{'param_var'}))});
+(do{IRx1::Parameter->newp($m, irbuild_ir($m->{'hash'}->{'type_constraint'}), irbuild_ir($m->{'hash'}->{'quantchar'}), irbuild_ir($m->{'hash'}->{'param_var'}))})});
 $main::irbuilder->add_constructor('param_var', sub {my($m)=@_;
-IRx1::ParamVar->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), irbuild_ir($m->{'hash'}->{'twigil'}), irbuild_ir($m->{'hash'}->{'ident'}))});
+(do{IRx1::ParamVar->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), irbuild_ir($m->{'hash'}->{'twigil'}), irbuild_ir($m->{'hash'}->{'ident'}))})});
 $main::irbuilder->add_constructor('capture', sub {my($m)=@_;
-if(GLOBAL::not($m->{'hash'}->{'EXPR'})) {
-IRx1::Capture->newp($m, [])
+(do{if(GLOBAL::not($m->{'hash'}->{'EXPR'})) {
+(do{IRx1::Capture->newp($m, [])})
 }elsif($m->{'hash'}->{'EXPR'}->{'hash'}->{'noun'}) {
-IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'noun'})])
+(do{IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'noun'})])})
 }elsif(($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} && ($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} eq ':'))) {
-my $args = irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'args'});
+(do{my $args = irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'args'});
 my $inv = $args->shift();
-IRx1::Capture->newp($m, $args, $inv)
+IRx1::Capture->newp($m, $args, $inv)})
 }elsif(($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} && ($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} eq ','))) {
-my $args = $m->{'hash'}->{'EXPR'}->{'hash'}->{'args'};
+(do{my $args = $m->{'hash'}->{'EXPR'}->{'hash'}->{'args'};
 my $arg0 = ($args && $args->[0]);
 my $inv = GLOBAL::undef();
 if((($arg0 && $arg0->{'hash'}->{'sym'}) && ($arg0->{'hash'}->{'sym'} eq ':'))) {
-$args->shift();
+(do{$args->shift();
 ($inv = $arg0->{'hash'}->{'args'}->[0]);
 if($arg0->{'hash'}->{'args'}->[1]) {
-$args->unshift($arg0->{'hash'}->{'args'}->[1])
-}
+(do{$args->unshift($arg0->{'hash'}->{'args'}->[1])})
+}})
 };
-IRx1::Capture->newp($m, irbuild_ir($args), irbuild_ir($inv))
+IRx1::Capture->newp($m, irbuild_ir($args), irbuild_ir($inv))})
 }else {
-GLOBAL::die('capture AST form not recognized')
-}});
+(do{GLOBAL::die('capture AST form not recognized')})
+}})});
 $main::irbuilder->add_constructor('colonpair', sub {my($m)=@_;
-my $key;
+(do{my $key;
 for($m->{'hash'}->keys()->flatten){
-if(($_ ne 'match')) {
-if($key) {
-GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
-')
+(do{if(($_ ne 'match')) {
+(do{if($key) {
+(do{GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
+')})
 };
-($key = $_)
-}
+($key = $_)})
+}})
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
-$one});
+$one})});
 $main::irbuilder->add_constructor('colonpair__false', sub {my($m)=@_;
-IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::NumInt->newp($m, 0))});
+(do{IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::NumInt->newp($m, 0))})});
 $main::irbuilder->add_constructor('colonpair__value', sub {my($m)=@_;
-my $value;
+(do{my $value;
 if($m->{'hash'}->{'postcircumfix'}) {
-($value = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'}))
+(do{($value = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'}))})
 }else {
-($value = IRx1::NumInt->newp($m, 1))
+(do{($value = IRx1::NumInt->newp($m, 1))})
 };
-IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), $value)});
+IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), $value)})});
 $main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
-{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
-irbuild_ir($m->{'hash'}->{'package_def'})});
+(do{{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
+irbuild_ir($m->{'hash'}->{'package_def'})})});
 $main::irbuilder->add_constructor('package_declarator:module', sub {my($m)=@_;
-{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
-irbuild_ir($m->{'hash'}->{'package_def'})});
+(do{{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'module';
+irbuild_ir($m->{'hash'}->{'package_def'})})});
 $main::irbuilder->add_constructor('package_declarator:package', sub {my($m)=@_;
-{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
-irbuild_ir($m->{'hash'}->{'package_def'})});
+(do{{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'package';
+irbuild_ir($m->{'hash'}->{'package_def'})})});
 $main::irbuilder->add_constructor('package_declarator:grammar', sub {my($m)=@_;
-{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'grammar';
-irbuild_ir($m->{'hash'}->{'package_def'})});
+(do{{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'grammar';
+irbuild_ir($m->{'hash'}->{'package_def'})})});
 $main::irbuilder->add_constructor('package_def', sub {my($m)=@_;
-IRx1::PackageDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $::es_blackboard__package_declarator, irbuild_ir($m->{'hash'}->{'module_name'})->[0], irbuild_ir($m->{'hash'}->{'traits'}), irbuild_ir($m->{'hash'}->{'block'}))});
+(do{IRx1::PackageDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $::es_blackboard__package_declarator, irbuild_ir($m->{'hash'}->{'module_name'})->[0], irbuild_ir($m->{'hash'}->{'traits'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('fulltypename', sub {my($m)=@_;
-irbuild_ir($m->{'hash'}->{'typename'})->join('::')});
+(do{irbuild_ir($m->{'hash'}->{'typename'})->join('::')})});
 $main::irbuilder->add_constructor('typename', sub {my($m)=@_;
-($m->match_string())});
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor('trait_verb:is', sub {my($m)=@_;
-IRx1::Trait->newp($m, 'is', irbuild_ir($m->{'hash'}->{'ident'}))});
+(do{IRx1::Trait->newp($m, 'is', irbuild_ir($m->{'hash'}->{'ident'}))})});
 $main::irbuilder->add_constructor('circumfix:pblock', sub {my($m)=@_;
-if((($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->elems() == 0) or ($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->match_string() =~ qr/^:/))) {
-IRx1::Hash->newp($m, irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))
+(do{if((($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->elems() == 0) or ($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->match_string() =~ qr/^:/))) {
+(do{IRx1::Hash->newp($m, irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))})
 }elsif((($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->{'hash'}->{'expr'} and $m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->{'hash'}->{'expr'}->{'hash'}->{'sym'}) and ($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}->[0]->{'hash'}->{'expr'}->{'hash'}->{'sym'} eq ','))) {
-IRx1::Hash->newp($m, irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))
+(do{IRx1::Hash->newp($m, irbuild_ir($m->{'hash'}->{'block'}->{'hash'}->{'statementlist'}))})
 }elsif((GLOBAL::not(irbuild_ir($m->{'hash'}->{'lambda'})) and GLOBAL::not(irbuild_ir($m->{'hash'}->{'signature'})))) {
-my $s = IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}));
-IRx1::Apply->newp($m, $s, IRx1::Capture->newp($m, []))
+(do{irbuild_ir($m->{'hash'}->{'block'})})
 }else {
-GLOBAL::die('AST handler circumfix:pblock partially unimplemented')
-}});
+(do{GLOBAL::die('AST handler circumfix:pblock partially unimplemented')})
+}})});
 $main::irbuilder->add_constructor('regex_declarator:regex_def', sub {my($m)=@_;
-IRx1::RegexDef->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'regex_block'}))});
+(do{IRx1::RegexDef->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'regex_block'}))})});
 $main::irbuilder->add_constructor('regex_block', sub {my($m)=@_;
-irbuild_ir($m->{'hash'}->{'regex'})});
+(do{irbuild_ir($m->{'hash'}->{'regex'})})});
 $main::irbuilder->add_constructor('regex', sub {my($m)=@_;
-IRx1::Regex->newp($m, irbuild_ir($m->{'hash'}->{'pattern'}))});
+(do{IRx1::Regex->newp($m, irbuild_ir($m->{'hash'}->{'pattern'}))})});
 $main::irbuilder->add_constructor('regex_first', sub {my($m)=@_;
-IRx1::RxFirst->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+(do{IRx1::RxFirst->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))})});
 $main::irbuilder->add_constructor('regex_every', sub {my($m)=@_;
-IRx1::RxEvery->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+(do{IRx1::RxEvery->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))})});
 $main::irbuilder->add_constructor('regex_submatch', sub {my($m)=@_;
-IRx1::RxSubmatch->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+(do{IRx1::RxSubmatch->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))})});
 $main::irbuilder->add_constructor('regex_any', sub {my($m)=@_;
-IRx1::RxAny->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+(do{IRx1::RxAny->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))})});
 $main::irbuilder->add_constructor('regex_all', sub {my($m)=@_;
-IRx1::RxAll->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+(do{IRx1::RxAll->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))})});
 $main::irbuilder->add_constructor('regex_sequence', sub {my($m)=@_;
-IRx1::RxSequence->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))});
+(do{IRx1::RxSequence->newp($m, irbuild_ir($m->{'hash'}->{'patterns'}))})});
 $main::irbuilder->add_constructor('regex_quantified_atom', sub {my($m)=@_;
-IRx1::RxQuantifiedAtom->newp($m, irbuild_ir($m->{'hash'}->{'regex_atom'}), irbuild_ir($m->{'hash'}->{'regex_quantifier'}))});
+(do{IRx1::RxQuantifiedAtom->newp($m, irbuild_ir($m->{'hash'}->{'regex_atom'}), irbuild_ir($m->{'hash'}->{'regex_quantifier'}))})});
 $main::irbuilder->add_constructor('regex_quantifier', sub {my($m)=@_;
-($m->match_string())});
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor('regex_atom', sub {my($m)=@_;
-my $key;
+(do{my $key;
 for($m->{'hash'}->keys()->flatten){
-if(($_ ne 'match')) {
-if($key) {
-GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
-')
+(do{if(($_ ne 'match')) {
+(do{if($key) {
+(do{GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
+')})
 };
-($key = $_)
-}
+($key = $_)})
+}})
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
 if(irbuild_ir($m->{'hash'}->{'char'})) {
-IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'char'}), '\'')
+(do{IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'char'}), '\'')})
 }else {
-$one
-}});
+(do{$one})
+}})});
 $main::irbuilder->add_constructor('regex_metachar:regex_backslash', sub {my($m)=@_;
-IRx1::RxBackslash->newp($m, ($m->match_string()))});
+(do{IRx1::RxBackslash->newp($m, ($m->match_string()))})});
 $main::irbuilder->add_constructor('regex_metachar:regex_mod_internal', sub {my($m)=@_;
-IRx1::RxModInternal->newp($m, ($m->match_string()))});
+(do{IRx1::RxModInternal->newp($m, ($m->match_string()))})});
 $main::irbuilder->add_constructor('regex_assertion:ident', sub {my($m)=@_;
-IRx1::RxAssertion->newp($m, irbuild_ir($m->{'hash'}->{'ident'}))});
+(do{IRx1::RxAssertion->newp($m, irbuild_ir($m->{'hash'}->{'ident'}))})});
 $main::irbuilder->add_constructor('regex_metachar:capture', sub {my($m)=@_;
-IRx1::RxCapture->newp($m, irbuild_ir($m->{'hash'}->{'regex'}->{'hash'}->{'pattern'}))});
+(do{IRx1::RxCapture->newp($m, irbuild_ir($m->{'hash'}->{'regex'}->{'hash'}->{'pattern'}))})});
 $main::irbuilder->add_constructor('regex_metachar:group', sub {my($m)=@_;
-IRx1::RxGroup->newp($m, irbuild_ir($m->{'hash'}->{'regex'}->{'hash'}->{'pattern'}))});
+(do{IRx1::RxGroup->newp($m, irbuild_ir($m->{'hash'}->{'regex'}->{'hash'}->{'pattern'}))})});
 $main::irbuilder->add_constructor('regex_metachar:block', sub {my($m)=@_;
-IRx1::RxBlock->newp($m, irbuild_ir($m->{'hash'}->{'block'}))});
+(do{IRx1::RxBlock->newp($m, irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('regex_metachar:var', sub {my($m)=@_;
-IRx1::RxBind->newp($m, irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'binding'}))});
+(do{IRx1::RxBind->newp($m, irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'binding'}))})});
 $main::irbuilder->add_constructor('regex_metachar:q', sub {my($m)=@_;
-IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'text'}), '\'')});
+(do{IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'text'}), '\'')})});
 $main::irbuilder->add_constructor('regex_metachar:qq', sub {my($m)=@_;
-IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'text'}), '"')});
+(do{IRx1::RxLiteral->newp($m, irbuild_ir($m->{'hash'}->{'text'}), '"')})});
 $main::irbuilder->add_constructor('regex_metachar', sub {my($m)=@_;
-IRx1::RxSymbol->newp($m, ($m->match_string()))});
+(do{IRx1::RxSymbol->newp($m, ($m->match_string()))})})});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2589,10 +2596,10 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub do_all_analysis{my $self=CORE::shift;$self->initialize_notes();
+(do{sub do_all_analysis{my $self=CORE::shift;(do{$self->initialize_notes();
 $self->note_parents();
 $self->note_block_lexical_variable_decls();
-$self->note_environment()};
+$self->note_environment()})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2600,35 +2607,35 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub is_IR_node{my $self=CORE::shift;1};
-sub initialize_notes{my $self=CORE::shift;$self->notes({});
+(do{sub is_IR_node{my $self=CORE::shift;(do{1})};
+sub initialize_notes{my $self=CORE::shift;(do{$self->notes({});
 my $a = [];
 for($self->field_values()->flatten){
-if($_->can('is_IR_node')) {
-$a->push($_)
+(do{if($_->can('is_IR_node')) {
+(do{$a->push($_)})
 }elsif(($_->WHAT() eq 'Array')) {
-for($_->flatten){
-if($_->can('is_IR_node')) {
-$a->push($_)
+(do{for($_->flatten){
+(do{if($_->can('is_IR_node')) {
+(do{$a->push($_)})
 }elsif(($_->WHAT() eq 'Array')) {
-for($_->flatten){
-if($_->can('is_IR_node')) {
-$a->push($_)
-}
-}
-}
-}
-}
+(do{for($_->flatten){
+(do{if($_->can('is_IR_node')) {
+(do{$a->push($_)})
+}})
+}})
+}})
+}})
+}})
 };
 ($self->notes()->{'child_nodes'} = $a);
 for($self->child_nodes()->flatten){
-$_->initialize_notes()
-}};
-sub destroy_notes{my $self=CORE::shift;for($self->notes()->{'child_nodes'}->flatten){
-$_->destroy_notes()
+(do{$_->initialize_notes()})
+}})};
+sub destroy_notes{my $self=CORE::shift;(do{for($self->notes()->{'child_nodes'}->flatten){
+(do{$_->destroy_notes()})
 };
-$self->notes(GLOBAL::undef())};
-sub child_nodes{my $self=CORE::shift;$self->notes()->{'child_nodes'}};
+$self->notes(GLOBAL::undef())})};
+sub child_nodes{my $self=CORE::shift;(do{$self->notes()->{'child_nodes'}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2636,10 +2643,10 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_parents{my $self=CORE::shift;{package Main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
+(do{sub note_parents{my $self=CORE::shift;(do{{package Main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
-$_->note_parents()
-}};
+(do{$_->note_parents()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2647,11 +2654,11 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_parents{my $self=CORE::shift;($self->notes()->{'parent'} = $::es_whiteboard__parent);
+(do{sub note_parents{my $self=CORE::shift;(do{($self->notes()->{'parent'} = $::es_whiteboard__parent);
 {package Main; use vars '$1es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
-$_->note_parents()
-}};
+(do{$_->note_parents()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2659,12 +2666,12 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_block_lexical_variable_decls{my $self=CORE::shift;my $a = [];
+(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{my $a = [];
 {package Main; use vars '$1es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
 ($self->notes()->{'lexical_variable_decls'} = $a);
 for($self->child_nodes()->flatten){
-$_->note_block_lexical_variable_decls()
-}};
+(do{$_->note_block_lexical_variable_decls()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2672,12 +2679,12 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_block_lexical_variable_decls{my $self=CORE::shift;if($self->is_lexical()) {
-$::es_whiteboard__lexical_variable_decls->push($self)
+(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->is_lexical()) {
+(do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
 for($self->child_nodes()->flatten){
-$_->note_block_lexical_variable_decls()
-}};
+(do{$_->note_block_lexical_variable_decls()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2685,12 +2692,12 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_block_lexical_variable_decls{my $self=CORE::shift;if($_->name()) {
-$::es_whiteboard__lexical_variable_decls->push($self)
+(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($_->name()) {
+(do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
 for($self->child_nodes()->flatten){
-$_->note_block_lexical_variable_decls()
-}};
+(do{$_->note_block_lexical_variable_decls()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2698,9 +2705,9 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_block_lexical_variable_decls{my $self=CORE::shift;for($self->child_nodes()->flatten){
-$_->note_block_lexical_variable_decls()
-}};
+(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
+(do{$_->note_block_lexical_variable_decls()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2708,11 +2715,11 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_environment{my $self=CORE::shift;{package Main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
+(do{sub note_environment{my $self=CORE::shift;(do{{package Main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
 {package Main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
-$_->note_environment()
-}};
+(do{$_->note_environment()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2720,10 +2727,10 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_environment{my $self=CORE::shift;{package Main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
+(do{sub note_environment{my $self=CORE::shift;(do{{package Main; use vars '$1es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
-$_->note_environment()
-}};
+(do{$_->note_environment()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2731,13 +2738,13 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
-my $h1 = $h->dup();
+(do{sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
+(do{my $h1 = $h->dup();
 for($decls->flatten){
-my $k = ($_->sigil() . $_->name());
-($h1->{$k} = $_)
+(do{my $k = ($_->sigil() . $_->name());
+($h1->{$k} = $_)})
 };
-$h1};
+$h1})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2745,16 +2752,16 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_environment{my $self=CORE::shift;my $new_chain;
+(do{sub note_environment{my $self=CORE::shift;(do{my $new_chain;
 if($self->path_is_absolute()) {
-($new_chain = [$self])
+(do{($new_chain = [$self])})
 }else {
-($new_chain = [$::es_whiteboard__package_chain->flatten(), $self])
+(do{($new_chain = [$::es_whiteboard__package_chain->flatten(), $self])})
 };
 {package Main; use vars '$1es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = $new_chain;
 for($self->child_nodes()->flatten){
-$_->note_environment()
-}};
+(do{$_->note_environment()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2762,10 +2769,10 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_environment{my $self=CORE::shift;($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
+(do{sub note_environment{my $self=CORE::shift;(do{($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
 for($self->child_nodes()->flatten){
-$_->note_environment()
-}};
+(do{$_->note_environment()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2773,9 +2780,9 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub note_environment{my $self=CORE::shift;for($self->child_nodes()->flatten){
-$_->note_environment()
-}};
+(do{sub note_environment{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
+(do{$_->note_environment()})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2783,9 +2790,9 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub is_lexical{my $self=CORE::shift;($self->scope() eq 'my')};
-sub sigil{my $self=CORE::shift;$self->{'var'}->{'sigil'}};
-sub name{my $self=CORE::shift;$self->{'var'}->{'name'}};
+(do{sub is_lexical{my $self=CORE::shift;(do{($self->scope() eq 'my')})};
+sub sigil{my $self=CORE::shift;(do{$self->{'var'}->{'sigil'}})};
+sub name{my $self=CORE::shift;(do{$self->{'var'}->{'name'}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2793,7 +2800,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub sigil{my $self=CORE::shift;'&'};
+(do{sub sigil{my $self=CORE::shift;(do{'&'})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2801,7 +2808,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub path_is_absolute{my $self=CORE::shift;($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))};
+(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2813,19 +2820,19 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package EmitSimpleP5;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
-$self->new('compiler', $compiler)};
+(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
+(do{$self->new('compiler', $compiler)})};
 has 'compiler' => (is => 'rw');;
-sub prelude_for_entering_a_package{my $self=CORE::shift;''};
-sub prelude_lexical{my $self=CORE::shift;'use autobox ARRAY => \'ARRAY\', HASH => \'HASH\', CODE => \'CODE\', INTEGER => \'INTEGER\', FLOAT => \'FLOAT\', STRING => \'STRING\', UNDEF => \'UNDEF\';
-      '};
-sub prelude_oo{my $self=CORE::shift;'
+sub prelude_for_entering_a_package{my $self=CORE::shift;(do{''})};
+sub prelude_lexical{my $self=CORE::shift;(do{'use autobox ARRAY => \'ARRAY\', HASH => \'HASH\', CODE => \'CODE\', INTEGER => \'INTEGER\', FLOAT => \'FLOAT\', STRING => \'STRING\', UNDEF => \'UNDEF\';
+      '})};
+sub prelude_oo{my $self=CORE::shift;(do{'
 {package AssertCurrentModuleVersions;
  use Moose 0.44;
 }
-'};
+'})};
 sub prelude{my $self=CORE::shift;my($n)=@_;
-((('#!/usr/bin/env perl
+(do{((('#!/usr/bin/env perl
 use strict;
 no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
@@ -3041,7 +3048,15 @@ use warnings;
     my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
-  sub eval_perl5{my($p5)=@_;my $res = eval($p5); croak($@) if $@; $res}
+  sub eval_perl5{
+    my($p5,$env)=@_;
+    if($env) { $env->($p5) }
+    else {
+      my $code = "package Main; ".$p5;
+      my $res = eval($code); croak($@) if $@;
+      $res
+    }
+  }
   sub die{croak @_}
   sub exit{CORE::exit(@_)}
   sub defined{CORE::defined($_[0])}
@@ -3120,64 +3135,64 @@ use warnings;
     $GLOBAL::compiler0->eval_file($file);
   }
   sub eval_perl6 {
-    my($code)=@_;
-    $GLOBAL::compiler0->eval_perl6($code);
+    my($code,$env)=@_;
+    $GLOBAL::compiler0->eval_perl6($code,$env);
   }
   sub eval {
-    my($code)=@_;
-    eval_perl6($code);
+    my($code,$env)=@_;
+    eval_perl6($code,$env);
   }
 }
 
 package Main;
-')};
+')})};
 sub e{my $self=CORE::shift;my($x)=@_;
-my $ref = $x->WHAT();
+(do{my $ref = $x->WHAT();
 if(($ref eq 'Undef')) {
-$x
+(do{$x})
 }elsif(((($ref eq 'Str') || ($ref eq 'Int')) || ($ref eq 'Num'))) {
-$x
+(do{$x})
 }elsif(($ref eq 'Array')) {
-$x->map(sub {my($ae)=@_;
-$self->e($ae)})
+(do{$x->map(sub {my($ae)=@_;
+(do{$self->e($ae)})})})
 }else {
-$x->callback($self)
-}};
+(do{$x->callback($self)})
+}})};
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
-$n->do_all_analysis();
+(do{$n->do_all_analysis();
 {package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
 my $code = (('package Main;
 ' . $self->prelude_for_entering_a_package()));
 my $stmts = $self->e($n->{'statements'});
 (($code . $stmts->join(';
 ')) . ';
-')};
+')})};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
-(('' . $self->e($n->{'statements'})->join(';
-')) . '')};
+(do{(('(do{' . $self->e($n->{'statements'})->join(';
+')) . '})')})};
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
-my $module = $self->e($n->{'module_name'});
+(do{my $module = $self->e($n->{'module_name'});
 my $expr = $self->e($n->{'expr'});
 if(($module eq 'v6-alpha')) {
-''
+(do{''})
 }elsif(($module eq 'v6')) {
-''
+(do{''})
 }elsif(($module eq 'lib')) {
-my $name = $n->{'expr'}->{'buf'};
+(do{my $name = $n->{'expr'}->{'buf'};
 if($self->compiler->hook_for_use_lib($name)) {
-''
+(do{''})
 }else {
-''
-}
+(do{''})
+}})
 }elsif($self->compiler->hook_for_use($module, $expr)) {
-''
+(do{''})
 }else {
-('use ' . $module)
-}};
+(do{('use ' . $module)})
+}})};
 sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
-((($n->{'kind'} . '{') . $self->e($n->{'block'})) . '}')};
+(do{((($n->{'kind'} . '{') . $self->e($n->{'block'})) . '}')})};
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
-{package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
+(do{{package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
 my $name = $::es_whiteboard__in_package->join('::');
 (((((((((('
 { package ' . $name) . ';
@@ -3187,58 +3202,58 @@ my $name = $::es_whiteboard__in_package->join('::');
 __PACKAGE__->meta->make_immutable();
 ') . '
 }
-'))};
+'))})};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
-if((($n->{'verb'} eq 'is'))) {
-my $pkgname = $::es_whiteboard__in_package->join('::');
+(do{if((($n->{'verb'} eq 'is'))) {
+(do{my $pkgname = $::es_whiteboard__in_package->join('::');
 my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') . $self->e($n->{'expr'}));
 $name->re_gsub('^::', '');
 (((('BEGIN{push(@' . $pkgname) . '::ISA,\'') . $name) . '\');}
-')
+')})
 }else {
-GLOBAL::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
+(do{GLOBAL::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
 '));
-'***Trait***'
-}};
+'***Trait***'})
+}})};
 sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
-my $default = '';
+(do{my $default = '';
 my $default_expr = $self->e($n->{'default_expr'});
 if($default_expr) {
-($default = ((', default => sub{ ' . $default_expr) . ' }'))
+(do{($default = ((', default => sub{ ' . $default_expr) . ' }'))})
 }else {
-if((($n->{'var'}->{'sigil'} eq '@'))) {
-($default = ', default => sub{ [] }')
+(do{if((($n->{'var'}->{'sigil'} eq '@'))) {
+(do{($default = ', default => sub{ [] }')})
 };
 if((($n->{'var'}->{'sigil'} eq '%'))) {
-($default = ', default => sub{ {} }')
-}
+(do{($default = ', default => sub{ {} }')})
+}})
 };
-(((('has \'' . $self->e($n->{'var'}->{'name'})) . '\' => (is => \'rw\'') . $default) . ');')};
+(((('has \'' . $self->e($n->{'var'}->{'name'})) . '\' => (is => \'rw\'') . $default) . ');')})};
 sub cb__VarDecl{my $self=CORE::shift;my($n)=@_;
-if((($n->{'scope'} eq 'has'))) {
-$self->do_VarDecl_has($n)
+(do{if((($n->{'scope'} eq 'has'))) {
+(do{$self->do_VarDecl_has($n)})
 }else {
-my $default = '';
+(do{my $default = '';
 if($n->{'default_expr'}) {
-($default = (' = ' . $self->e($n->{'default_expr'})))
+(do{($default = (' = ' . $self->e($n->{'default_expr'})))})
 }else {
-if((($n->{'var'}->{'sigil'} eq '@'))) {
-($default = ' = [];')
+(do{if((($n->{'var'}->{'sigil'} eq '@'))) {
+(do{($default = ' = [];')})
 };
 if((($n->{'var'}->{'sigil'} eq '%'))) {
-($default = ' = {};')
-}
+(do{($default = ' = {};')})
+}})
 };
 if((($n->{'var'}->{'twigil'} eq '^'))) {
-my $name = $self->e($n->{'var'});
+(do{my $name = $self->e($n->{'var'});
 $name->re_gsub('^(.)::', '$1');
-((((((('{package Main; use vars \'' . $name) . '\'};') . 'local') . ' ') . $self->e($n->{'var'})) . $default))
+((((((('{package Main; use vars \'' . $name) . '\'};') . 'local') . ' ') . $self->e($n->{'var'})) . $default))})
 }else {
-((($n->{'scope'} . ' ') . $self->e($n->{'var'})) . $default)
-}
-}};
+(do{((($n->{'scope'} . ' ') . $self->e($n->{'var'})) . $default)})
+}})
+}})};
 sub multimethods_using_hack{my $self=CORE::shift;my($n,$name,$type0)=@_;
-my $stem = (('_mmd__' . $name) . '__');
+(do{my $stem = (('_mmd__' . $name) . '__');
 my $branch_name = ($stem . $type0);
 my $setup_name = ('_reset' . $stem);
 my $code = '';
@@ -3267,9 +3282,9 @@ my $code = '';
   die $@ if $@;
 };
 '));
-(((((('sub ' . $branch_name) . '{my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}') . $code)};
+(((((('sub ' . $branch_name) . '{my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}') . $code)})};
 sub multimethods_using_CM{my $self=CORE::shift;my($n,$name,$type0)=@_;
-my $n_args = $n->{'multisig'}->{'parameters'}->elems();
+(do{my $n_args = $n->{'multisig'}->{'parameters'}->elems();
 ($type0 = $type0->re_gsub('^Any$', '*'));
 ($type0 = $type0->re_gsub('^Int$', '#'));
 ($type0 = $type0->re_gsub('^Num$', '#'));
@@ -3277,258 +3292,263 @@ my $n_args = $n->{'multisig'}->{'parameters'}->elems();
 my $param_padding = '';
 my $i = 1;
 while(($i < $n_args)) {
-($i = ($i + 1));
-($param_padding = ($param_padding . ' * '))
+(do{($i = ($i + 1));
+($param_padding = ($param_padding . ' * '))})
 };
-((((((((('Class::Multimethods::multimethod ' . $name) . ' =>qw( * ') . $type0) . $param_padding) . ' ) => ') . 'sub {my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '};')};
+((((((((('Class::Multimethods::multimethod ' . $name) . ' =>qw( * ') . $type0) . $param_padding) . ' ) => ') . 'sub {my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '};')})};
 sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
-if(($n->{'plurality'} && ($n->{'plurality'} eq 'multi'))) {
-my $name = $self->e($n->{'name'});
+(do{if(($n->{'plurality'} && ($n->{'plurality'} eq 'multi'))) {
+(do{my $name = $self->e($n->{'name'});
 my $param_types = $n->{'multisig'}->{'parameters'}->map(sub {my($p)=@_;
-my $types = $self->e($p->{'type_constraints'});
+(do{my $types = $self->e($p->{'type_constraints'});
 if($types) {
-if(($types->elems() != 1)) {
-GLOBAL::die('only limited multi method support')
+(do{if(($types->elems() != 1)) {
+(do{GLOBAL::die('only limited multi method support')})
 };
-$types->[0]
+$types->[0]})
 }else {
-GLOBAL::undef()
-}});
+(do{GLOBAL::undef()})
+}})});
 my $type0 = $param_types->[0];
 if(GLOBAL::not($type0)) {
-GLOBAL::die((('implementation limitation: a multi method\'s first parameter must have a type: ' . $name) . '
-'))
+(do{GLOBAL::die((('implementation limitation: a multi method\'s first parameter must have a type: ' . $name) . '
+'))})
 };
-$self->multimethods_using_CM($n, $name, $type0)
+$self->multimethods_using_CM($n, $name, $type0)})
 }else {
-((((('sub ' . $self->e($n->{'name'})) . '{my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}')
-}};
+(do{((((('sub ' . $self->e($n->{'name'})) . '{my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}')})
+}})};
 sub cb__SubDecl{my $self=CORE::shift;my($n)=@_;
-my $name = $n->{'name'};
+(do{my $name = $n->{'name'};
 if($name) {
-($name = $self->e($name))
+(do{($name = $self->e($name))})
 }else {
-($name = '')
+(do{($name = '')})
 };
 my $sig = $n->{'multisig'};
 if($sig) {
-($sig = $self->e($sig))
+(do{($sig = $self->e($sig))})
 }else {
-($sig = '')
+(do{($sig = '')})
 };
 if((($n->{'traits'} && $n->{'traits'}->[0]->{'expr'}) && ($n->{'traits'}->[0]->{'expr'} eq 'p5'))) {
-my $code = $n->{'block'}->{'statements'}->[0]->{'buf'};
-((((('sub ' . $name) . '{') . $sig) . $code) . '}')
+(do{my $code = $n->{'block'}->{'statements'}->[0]->{'buf'};
+((((('sub ' . $name) . '{') . $sig) . $code) . '}')})
 }else {
-((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')
-}};
+(do{((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')})
+}})};
 sub cb__Signature{my $self=CORE::shift;my($n)=@_;
-if((($n->{'parameters'}->elems() == 0))) {
-''
+(do{if((($n->{'parameters'}->elems() == 0))) {
+(do{''})
 }else {
-{package Main; use vars '$1es_whiteboard__signature_inits'};local $::es_whiteboard__signature_inits = '';
+(do{{package Main; use vars '$1es_whiteboard__signature_inits'};local $::es_whiteboard__signature_inits = '';
 my $pl = $self->e($n->{'parameters'})->join(',');
 (((('my(' . $pl) . ')=@_;') . $::es_whiteboard__signature_inits) . '
-')
-}};
+')})
+}})};
 sub cb__Parameter{my $self=CORE::shift;my($n)=@_;
-my $enc = $self->e($n->{'param_var'});
+(do{my $enc = $self->e($n->{'param_var'});
 if(($n->{'quant'} && ($n->{'quant'} eq '*'))) {
-my $tmp = ('@' . $n->{'param_var'}->{'name'});
+(do{my $tmp = ('@' . $n->{'param_var'}->{'name'});
 ($::es_whiteboard__signature_inits = ((((($::es_whiteboard__signature_inits . '
 my ') . $enc) . ' = \\') . $tmp) . ';'));
-$tmp
+$tmp})
 }else {
-$enc
-}};
+(do{$enc})
+}})};
 sub cb__ParamVar{my $self=CORE::shift;my($n)=@_;
-my $s = $n->{'sigil'};
+(do{my $s = $n->{'sigil'};
 my $t = '';
 my $dsn = $self->e($n->{'name'});
-$self->encode_varname($s, $t, $dsn)};
+$self->encode_varname($s, $t, $dsn)})};
 sub cb__Call{my $self=CORE::shift;my($n)=@_;
-my $method = $self->e($n->{'method'});
+(do{my $method = $self->e($n->{'method'});
 if((($method =~ 'postcircumfix:< >'))) {
-(((($self->e($n->{'invocant'}) . '->') . '{\'') . $self->e($n->{'capture'})) . '\'}')
+(do{(((($self->e($n->{'invocant'}) . '->') . '{\'') . $self->e($n->{'capture'})) . '\'}')})
 }elsif((($method =~ 'postcircumfix:(.*)'))) {
-my $op = $1;
+(do{my $op = $1;
 my $arg = $self->e($n->{'capture'});
 $op->re_gsub(' ', $arg);
-(($self->e($n->{'invocant'}) . '->') . $op)
+(($self->e($n->{'invocant'}) . '->') . $op)})
 }else {
-((((($self->e($n->{'invocant'}) . '->') . $self->e($n->{'method'})) . '(') . $self->e($n->{'capture'})) . ')')
-}};
+(do{((((($self->e($n->{'invocant'}) . '->') . $self->e($n->{'method'})) . '(') . $self->e($n->{'capture'})) . ')')})
+}})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
-if(($n->{'function'} =~ qr/^infix:(.+)$/)) {
-my $op = $1;
+(do{if(($n->{'function'} =~ qr/^infix:(.+)$/)) {
+(do{my $op = $1;
 my $a = $self->e($n->{'capture'}->{'arguments'});
 my $l = $a->[0];
 my $r = $a->[1];
 if((($op eq '~'))) {
-(((('(' . $l) . ' . ') . $r) . ')')
+(do{(((('(' . $l) . ' . ') . $r) . ')')})
 }elsif((($op eq ','))) {
-my $s = $a->shift();
+(do{my $s = $a->shift();
 while($a->elems()) {
-($s = (($s . ', ') . $a->shift()))
+(do{($s = (($s . ', ') . $a->shift()))})
 };
-$s
+$s})
 }elsif((($op eq '='))) {
-my $t = $self->e($n->{'capture'}->{'arguments'}->[0]->{'twigil'});
+(do{my $t = $self->e($n->{'capture'}->{'arguments'}->[0]->{'twigil'});
 if((($t && ($t eq '.')))) {
-((($l . '(') . $r) . ')')
+(do{((($l . '(') . $r) . ')')})
 }else {
-(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')
-}
+(do{(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')})
+}})
 }else {
-(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')
-}
+(do{(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')})
+}})
 }elsif(($n->{'function'} =~ qr/^prefix:(.+)$/)) {
-my $op = $1;
+(do{my $op = $1;
 my $a = $self->e($n->{'capture'}->{'arguments'});
 my $x = $a->[0];
 if(0) {
-
+(do{})
 }elsif(($op eq '?')) {
-(('((' . $x) . ')?1:0)')
+(do{(('((' . $x) . ')?1:0)')})
 }else {
-(((('(' . $op) . '') . $x) . ')')
-}
+(do{(((('(' . $op) . '') . $x) . ')')})
+}})
 }elsif(($n->{'function'} =~ qr/^postfix:(.+)$/)) {
-my $op = $1;
+(do{my $op = $1;
 my $a = $self->e($n->{'capture'}->{'arguments'});
 my $x = $a->[0];
 if(0) {
-
+(do{})
 }else {
-(((('(' . $x) . '') . $op) . ')')
-}
+(do{(((('(' . $x) . '') . $op) . ')')})
+}})
 }elsif((($self->e($n->{'function'}) =~ qr/^circumfix:(.+)/))) {
-my $op = $1;
+(do{my $op = $1;
 if(($op eq '< >')) {
-my $s = $n->{'capture'}->{'arguments'}->[0];
+(do{my $s = $n->{'capture'}->{'arguments'}->[0];
 my $words = $s->split(qr/\s+/);
 if(($words->elems() == 0)) {
-'[]'
+(do{'[]'})
 }else {
-(('[\'' . $words->join('\',\'')) . '\']')
-}
+(do{(('[\'' . $words->join('\',\'')) . '\']')})
+}})
 }else {
-my $arg = $self->e($n->{'capture'});
-$op->re_gsub(' ', $arg)
-}
+(do{my $arg = $self->e($n->{'capture'});
+$op->re_gsub(' ', $arg)})
+}})
 }elsif((($self->e($n->{'function'}) =~ qr/^statement_prefix:gather$/))) {
-(('GLOBAL::gather' . $self->e($n->{'capture'})) . '')
+(do{(('GLOBAL::gather' . $self->e($n->{'capture'})) . '')})
 }else {
-my $f = $self->e($n->{'function'});
+(do{my $f = $self->e($n->{'function'});
 if((($f =~ qr/^\$\w+$/))) {
-((($f . '->(') . $self->e($n->{'capture'})) . ')')
+(do{((($f . '->(') . $self->e($n->{'capture'})) . ')')})
 }elsif((($f eq 'self'))) {
-'$self'
+(do{'$self'})
 }elsif((($f eq 'last'))) {
-'last'
+(do{'last'})
 }elsif((($f eq 'return'))) {
-(('return(' . $self->e($n->{'capture'})) . ')')
+(do{(('return(' . $self->e($n->{'capture'})) . ')')})
 }elsif((($f =~ qr/^sub\s*{/))) {
-(((('(' . $f) . ')->(') . $self->e($n->{'capture'})) . ')')
+(do{(((('(' . $f) . ')->(') . $self->e($n->{'capture'})) . ')')})
 }elsif((($f =~ qr/^\w/))) {
-if($n->notes()->{'lexical_bindings'}->{('&' . $f)}) {
-(((('' . $f) . '(') . $self->e($n->{'capture'})) . ')')
+(do{if($n->notes()->{'lexical_bindings'}->{('&' . $f)}) {
+(do{(((('' . $f) . '(') . $self->e($n->{'capture'})) . ')')})
 }else {
-(((('GLOBAL::' . $f) . '(') . $self->e($n->{'capture'})) . ')')
-}
+(do{if(($f eq 'eval')) {
+(do{my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
+(((((('GLOBAL::' . $f) . '(') . $self->e($n->{'capture'})) . ',') . $env) . ')')})
 }else {
-((($f . '(') . $self->e($n->{'capture'})) . ')')
-}
-}};
+(do{(((('GLOBAL::' . $f) . '(') . $self->e($n->{'capture'})) . ')')})
+}})
+}})
+}else {
+(do{((($f . '(') . $self->e($n->{'capture'})) . ')')})
+}})
+}})};
 sub cb__Capture{my $self=CORE::shift;my($n)=@_;
-my $a = $self->e(($n->{'arguments'} || []))->join(',');
+(do{my $a = $self->e(($n->{'arguments'} || []))->join(',');
 if($n->{'invocant'}) {
-my $inv = $self->e($n->{'invocant'});
+(do{my $inv = $self->e($n->{'invocant'});
 if($a) {
-(($inv . ', ') . $a)
+(do{(($inv . ', ') . $a)})
 }else {
-$inv
-}
+(do{$inv})
+}})
 }else {
-$a
-}};
+(do{$a})
+}})};
 sub cb__For{my $self=CORE::shift;my($n)=@_;
-(((('for(' . $self->e($n->{'expr'})) . '->flatten){
+(do{(((('for(' . $self->e($n->{'expr'})) . '->flatten){
 ') . $self->e($n->{'block'})) . '
-}')};
+}')})};
 sub cb__Cond{my $self=CORE::shift;my($n)=@_;
-my $els = '';
+(do{my $els = '';
 if($n->{'default'}) {
-($els = (('else {
+(do{($els = (('else {
 ' . $self->e($n->{'default'})) . '
-}'))
+}'))})
 };
 my $clauses = $self->e($n->{'clauses'});
 my $first = $clauses->shift();
 my $first_test = $first->[0];
 if($n->{'invert_first_test'}) {
-($first_test = (('not(' . $first_test) . ')'))
+(do{($first_test = (('not(' . $first_test) . ')'))})
 };
 ((((((('if(' . $first_test) . ') {
 ') . $first->[1]) . '
 }') . $clauses->map(sub {my($e)=@_;
-(((('elsif(' . $e->[0]) . ') {
+(do{(((('elsif(' . $e->[0]) . ') {
 ') . $e->[1]) . '
-}')})->join('')) . $els))};
+}')})})->join('')) . $els))})};
 sub cb__Loop{my $self=CORE::shift;my($n)=@_;
-(((('while(' . $self->e($n->{'pretest'})) . ') {
+(do{(((('while(' . $self->e($n->{'pretest'})) . ') {
 ') . $self->e($n->{'block'})) . '
-}')};
+}')})};
 sub encode_varname{my $self=CORE::shift;my($s,$t,$dsn)=@_;
-my $env = '';
+(do{my $env = '';
 my $pre = '';
 if(($t eq '^')) {
-($env = 'e')
+(do{($env = 'e')})
 };
 if((($s eq '$') && ($env eq 'e'))) {
-($pre = 's_')
+(do{($pre = 's_')})
 };
 if(($s eq '@')) {
-($pre = 'a_')
+(do{($pre = 'a_')})
 };
 if(($s eq '%')) {
-($pre = 'h_')
+(do{($pre = 'h_')})
 };
 my $name = (($env . $pre) . $dsn);
 if((($t eq '.'))) {
-('$self->' . $name)
+(do{('$self->' . $name)})
 }elsif((($t eq '^'))) {
-$name->re_gsub('::', '__');
-(('$' . '::') . $name)
+(do{$name->re_gsub('::', '__');
+(('$' . '::') . $name)})
 }elsif((($t eq '*'))) {
-$name->re_gsub('::', '__');
-(('$' . 'GLOBAL::') . $name)
+(do{$name->re_gsub('::', '__');
+(('$' . 'GLOBAL::') . $name)})
 }else {
-('$' . $name)
-}};
+(do{('$' . $name)})
+}})};
 sub cb__Var{my $self=CORE::shift;my($n)=@_;
-my $s = $n->{'sigil'};
+(do{my $s = $n->{'sigil'};
 my $t = ($n->{'twigil'} || '');
 my $dsn = $self->e($n->{'name'});
-$self->encode_varname($s, $t, $dsn)};
+$self->encode_varname($s, $t, $dsn)})};
 sub cb__NumInt{my $self=CORE::shift;my($n)=@_;
-$self->e($n->{'text'})};
+(do{$self->e($n->{'text'})})};
 sub cb__Hash{my $self=CORE::shift;my($n)=@_;
-(('{' . $self->e(($n->{'hash'} || []))->join(',')) . '}')};
+(do{(('{' . $self->e(($n->{'hash'} || []))->join(',')) . '}')})};
 sub cb__Buf{my $self=CORE::shift;my($n)=@_;
-my $s = GLOBAL::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'});
+(do{my $s = GLOBAL::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'});
 $s->chomp();
-$s};
+$s})};
 sub cb__Rx{my $self=CORE::shift;my($n)=@_;
-(('qr/' . $n->{'pat'}) . '/')};
+(do{(('qr/' . $n->{'pat'}) . '/')})};
 sub cb__Pair{my $self=CORE::shift;my($n)=@_;
-(((('(' . $self->e($n->{'key'})) . '=>') . $self->e($n->{'value'})) . ')')};
+(do{(((('(' . $self->e($n->{'key'})) . '=>') . $self->e($n->{'value'})) . ')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
 ;
 if(GLOBAL::not($GLOBAL::emitter0)) {
-($GLOBAL::emitter0 = EmitSimpleP5->new())
+(do{($GLOBAL::emitter0 = EmitSimpleP5->new())})
 };
 ($GLOBAL::emitter1 = EmitSimpleP5->new());
 
@@ -3540,7 +3560,7 @@ header();
 
 { package Num;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub pi{Math::Trig::pi();};
+(do{sub pi{Math::Trig::pi();}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3549,7 +3569,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package GLOBAL;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub say{my(@args)=@_;
+(do{sub say{my(@args)=@_;
 my $a_args = \@args;
 use Scalar::Util "openhandle";
     my $currfh = select();
@@ -3565,7 +3585,7 @@ use Scalar::Util "openhandle";
     return $res if $res;
     $warning =~ s/[ ]at[ ].*//xms;
     Carp::croak $warning;
-    };
+    }});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3577,9 +3597,9 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Parser;
 use Moose; __PACKAGE__->meta->make_mutable();
-has 'is_for_active_runtime' => (is => 'rw');;
+(do{has 'is_for_active_runtime' => (is => 'rw');;
 sub parse{my $self=CORE::shift;my($p6_code,$claim_as_filename)=@_;
-my $stem = ('deleteme' . $GLOBAL::PID);
+(do{my $stem = ('deleteme' . $GLOBAL::PID);
 my $input = ($stem . '.p6');
 my $output = ($stem . '.dump');
 GLOBAL::unslurp($p6_code, $input);
@@ -3592,8 +3612,8 @@ my $cmd = (((((($parser . ' --error-message=\'') . $msg) . '\' -q --format=p5a '
 my $dump5 = GLOBAL::slurp($output);
 my $tree = GLOBAL::eval_perl5(('package Fastdump;' . $dump5));
 GLOBAL::unlink($input, $output);
-$tree};
-sub parser_name{my $self=CORE::shift;GLOBAL::parser_name()};
+$tree})};
+sub parser_name{my $self=CORE::shift;(do{GLOBAL::parser_name()})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3603,7 +3623,7 @@ GLOBAL::eval_perl5('
   sub match {my($r,$s,$f,$t,$h)=@_; Match->make_from_rsfth($r,$s,$f,$t,$h)}
 }');
 if(GLOBAL::not($GLOBAL::parser0)) {
-($GLOBAL::parser0 = Parser->new('is_for_active_runtime', 1))
+(do{($GLOBAL::parser0 = Parser->new('is_for_active_runtime', 1))})
 };
 ($GLOBAL::parser1 = Parser->new());
 
@@ -3613,102 +3633,102 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Compiler;
 use Moose; __PACKAGE__->meta->make_mutable();
-has 'is_for_active_runtime' => (is => 'rw');;
-sub eval_perl6{my $self=CORE::shift;my($code)=@_;
-$self->eval_fragment($code, '-e', 0)};
+(do{has 'is_for_active_runtime' => (is => 'rw');;
+sub eval_perl6{my $self=CORE::shift;my($code,$env)=@_;
+(do{$self->eval_fragment($code, '-e', 0, $env)})};
 sub eval_file{my $self=CORE::shift;my($file)=@_;
-$self->eval_fragment(GLOBAL::slurp($file), $file, 0)};
-sub eval_fragment{my $self=CORE::shift;my($code,$filename,$verbose)=@_;
-my $p5 = $self->compile_fragment($code, $filename, $verbose);
-GLOBAL::eval_perl5($p5)};
+(do{$self->eval_fragment(GLOBAL::slurp($file), $file, 0)})};
+sub eval_fragment{my $self=CORE::shift;my($code,$filename,$verbose,$env)=@_;
+(do{my $p5 = $self->compile_fragment($code, $filename, $verbose);
+GLOBAL::eval_perl5($p5, $env)})};
 sub compile_fragment_cache_get{my $self=CORE::shift;my($code,$filename)=@_;
-GLOBAL::undef()};
+(do{GLOBAL::undef()})};
 sub compile_fragment_cache_set{my $self=CORE::shift;my($code,$filename,$value)=@_;
-};
+(do{})};
 sub compile_fragment{my $self=CORE::shift;my($code,$filename,$verbose)=@_;
-my $tree;
+(do{my $tree;
 my $cached = $self->compile_fragment_cache_get($code, $filename);
 if($cached) {
-$cached
+(do{$cached})
 }else {
-if($self->is_for_active_runtime) {
-($tree = $GLOBAL::parser0->parse($code, $filename))
+(do{if($self->is_for_active_runtime) {
+(do{($tree = $GLOBAL::parser0->parse($code, $filename))})
 }else {
-($tree = $GLOBAL::parser1->parse($code, $filename))
+(do{($tree = $GLOBAL::parser1->parse($code, $filename))})
 };
 if($verbose) {
-GLOBAL::say($tree->match_describe())
+(do{GLOBAL::say($tree->match_describe())})
 };
 my $ir = $tree->make_ir_from_Match_tree();
 if($verbose) {
-GLOBAL::say($ir->irx1_describe())
+(do{GLOBAL::say($ir->irx1_describe())})
 };
 my $p5;
 if($self->is_for_active_runtime) {
-($p5 = ($GLOBAL::emitter0->prelude_lexical() . $ir->callback($GLOBAL::emitter0->new_emitter('compiler', $self))))
+(do{($p5 = ($GLOBAL::emitter0->prelude_lexical() . $ir->callback($GLOBAL::emitter0->new_emitter('compiler', $self))))})
 }else {
-($p5 = ($GLOBAL::emitter1->prelude_lexical() . $ir->callback($GLOBAL::emitter1->new_emitter('compiler', $self))))
+(do{($p5 = ($GLOBAL::emitter1->prelude_lexical() . $ir->callback($GLOBAL::emitter1->new_emitter('compiler', $self))))})
 };
 if($verbose) {
-GLOBAL::say($p5)
+(do{GLOBAL::say($p5)})
 };
 $self->compile_fragment_cache_set($code, $filename, $p5);
-$p5
-}};
+$p5})
+}})};
 has 'todo' => (is => 'rw', default => sub{ [] });;
 sub compile_executable{my $self=CORE::shift;my($sources,$output_file)=@_;
-$self->todo([]);
+(do{$self->todo([]);
 my $p5 = ($self->prelude() . '
 ');
 for($sources->flatten){
-my $code = $_->[0];
+(do{my $code = $_->[0];
 my $file = $_->[1];
 my $verbose = $_->[2];
 my $more_p5 = $self->compile_fragment($code, $file, $verbose);
 while(($self->todo->elems() > 0)) {
-my $filename = $self->todo->shift();
+(do{my $filename = $self->todo->shift();
 my $module_p5 = $self->compile_fragment(GLOBAL::slurp($filename), $filename, $verbose);
 ($p5 = (($p5 . $module_p5) . '
 ;
-'))
+'))})
 };
 ($p5 = (($p5 . $more_p5) . '
 ;
-'))
+'))})
 };
 if(($output_file eq '-')) {
-GLOBAL::say($p5)
+(do{GLOBAL::say($p5)})
 }else {
-GLOBAL::unslurp($p5, $output_file)
+(do{GLOBAL::unslurp($p5, $output_file)})
 };
-['perl', $output_file]};
-sub prelude{my $self=CORE::shift;if($self->is_for_active_runtime) {
-$GLOBAL::emitter0->prelude()
+['perl', $output_file]})};
+sub prelude{my $self=CORE::shift;(do{if($self->is_for_active_runtime) {
+(do{$GLOBAL::emitter0->prelude()})
 }else {
-$GLOBAL::emitter1->prelude()
-}};
+(do{$GLOBAL::emitter1->prelude()})
+}})};
 sub hook_for_use_lib{my $self=CORE::shift;my($expr)=@_;
-$GLOBAL::a_INC->unshift($expr);
+(do{$GLOBAL::a_INC->unshift($expr);
 if($self->is_for_active_runtime) {
-1
+(do{1})
 }else {
-0
-}};
+(do{0})
+}})};
 sub hook_for_use{my $self=CORE::shift;my($module,$expr)=@_;
-if($self->is_for_active_runtime) {
-GLOBAL::require($module)
+(do{if($self->is_for_active_runtime) {
+(do{GLOBAL::require($module)})
 }else {
-my $filename = (GLOBAL::find_required_module($module) || GLOBAL::die((((('Didnt find ' . $module) . ' in ( ') . $GLOBAL::a_INC->join(' ')) . ' ).
+(do{my $filename = (GLOBAL::find_required_module($module) || GLOBAL::die((((('Didnt find ' . $module) . ' in ( ') . $GLOBAL::a_INC->join(' ')) . ' ).
 ')));
-$self->todo->push($filename)
+$self->todo->push($filename)})
 };
-1};
+1})}});
 __PACKAGE__->meta->make_immutable();
 
 }
 ;
 if(GLOBAL::not($GLOBAL::compiler0)) {
-($GLOBAL::compiler0 = Compiler->new('is_for_active_runtime', 1))
+(do{($GLOBAL::compiler0 = Compiler->new('is_for_active_runtime', 1))})
 };
 ($GLOBAL::compiler1 = Compiler->new());
 
@@ -3718,7 +3738,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Program;
 use Moose; __PACKAGE__->meta->make_mutable();
-sub print_usage_and_die{my $self=CORE::shift;GLOBAL::say('
+(do{sub print_usage_and_die{my $self=CORE::shift;(do{GLOBAL::say('
 Usage: [-v] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
          [ P6_FILE | -e P6_CODE ]+ [ -- ARGS* ]
 
@@ -3739,82 +3759,82 @@ One can also do
  [ P6_FILE | -e P6_CODE ]+  these are compiled.
 
 ');
-GLOBAL::exit(2)};
+GLOBAL::exit(2)})};
 sub main{my $self=CORE::shift;my($args)=@_;
-if(($args->elems() == 0)) {
-$self->print_usage_and_die()
+(do{if(($args->elems() == 0)) {
+(do{$self->print_usage_and_die()})
 };
 my $verbose;
 my $mode = 'r';
 my $output_file;
 my $incs = [];
 my $output = sub {my($text)=@_;
-if($output_file) {
-GLOBAL::unslurp($text, $output_file)
+(do{if($output_file) {
+(do{GLOBAL::unslurp($text, $output_file)})
 }else {
-GLOBAL::say($text)
-}};
+(do{GLOBAL::say($text)})
+}})};
 my $sources = [];
 my $handle = sub {my($filename,$code)=@_;
-if(($mode eq 'r')) {
-$GLOBAL::compiler0->eval_fragment($code, $filename, $verbose)
+(do{if(($mode eq 'r')) {
+(do{$GLOBAL::compiler0->eval_fragment($code, $filename, $verbose)})
 }elsif((($mode eq 's0') || ($mode eq 's1'))) {
-my $comp;
+(do{my $comp;
 if(($mode eq 's0')) {
-($comp = $GLOBAL::compiler0)
+(do{($comp = $GLOBAL::compiler0)})
 }else {
-($comp = $GLOBAL::compiler1)
+(do{($comp = $GLOBAL::compiler1)})
 };
-$output->($comp->compile_fragment($code, $filename, $verbose))
+$output->($comp->compile_fragment($code, $filename, $verbose))})
 }else {
-$sources->push([$code, $filename, $verbose])
-}};
-my $at_end = sub {if((($mode eq 'x') && ($sources->elems() != 0))) {
-if(GLOBAL::not($output_file)) {
-($output_file = '-')
+(do{$sources->push([$code, $filename, $verbose])})
+}})};
+my $at_end = sub {(do{if((($mode eq 'x') && ($sources->elems() != 0))) {
+(do{if(GLOBAL::not($output_file)) {
+(do{($output_file = '-')})
 };
-my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file)
+my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file)})
 }elsif((($mode eq 'xr') && ($sources->elems() != 0))) {
-if(GLOBAL::not($output_file)) {
-($output_file = 'deleteme_exe')
+(do{if(GLOBAL::not($output_file)) {
+(do{($output_file = 'deleteme_exe')})
 };
 my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file);
 GLOBAL::say(((('# ' . $exec_args->join(' ')) . ' ') . $args->join(' ')));
-GLOBAL::exec($exec_args->flatten(), $args)
-}};
+GLOBAL::exec($exec_args->flatten(), $args)})
+}})};
 while($args->elems()) {
-my $arg = $args->shift();
+(do{my $arg = $args->shift();
 if(($arg eq '-v')) {
-($verbose = 1)
+(do{($verbose = 1)})
 }elsif(($arg eq '-s0')) {
-($mode = 's0')
+(do{($mode = 's0')})
 }elsif(($arg eq '-s')) {
-($mode = 's1')
+(do{($mode = 's1')})
 }elsif(($arg eq '-x')) {
-($mode = 'x')
+(do{($mode = 'x')})
 }elsif(($arg eq '-xr')) {
-($mode = 'xr')
+(do{($mode = 'xr')})
 }elsif(($arg eq '-o')) {
-($output_file = ($args->shift() || $self->print_usage_and_die()))
+(do{($output_file = ($args->shift() || $self->print_usage_and_die()))})
 }elsif(($arg eq '-e')) {
-$GLOBAL::a_INC->unshift($incs->reverse()->flatten());
+(do{$GLOBAL::a_INC->unshift($incs->reverse()->flatten());
 ($incs = []);
 my $p6_code = ($args->shift() || $self->print_usage_and_die());
-$handle->('-e', $p6_code)
+$handle->('-e', $p6_code)})
 }elsif(GLOBAL::file_exists($arg)) {
-$GLOBAL::a_INC->unshift($incs->reverse()->flatten());
+(do{$GLOBAL::a_INC->unshift($incs->reverse()->flatten());
 ($incs = []);
-$handle->($arg, GLOBAL::slurp($arg))
+$handle->($arg, GLOBAL::slurp($arg))})
 }elsif(($arg eq '-I')) {
-my $dir = ($args->shift() || $self->print_usage_and_die());
-$incs->unshift($dir)
+(do{my $dir = ($args->shift() || $self->print_usage_and_die());
+$incs->unshift($dir)})
 }elsif(($arg eq '--')) {
-last
+(do{last})
 }else {
-$self->print_usage_and_die()
-}
+(do{$self->print_usage_and_die()})
+}})
 };
-$at_end->()};
+$at_end->()})}});
 __PACKAGE__->meta->make_immutable();
 
 }
