@@ -128,8 +128,21 @@ exit;
     my($self)=@_;
     return if $self->{ran}++;
     my $file = $self->file;
-    my @res = `$elf $file 2>/dev/null`;
-    my $exit_ok = $? == 0;
+    my @res;
+    my $exit_ok = undef;
+    eval {
+      local $SIG{ALRM} = sub {
+        # ignore SIGHUP here so the kill only affects children.
+        local $SIG{HUP} = 'IGNORE';
+        kill 1,(-$$);
+        print STDERR "Timeout: $file.\n";
+        die;
+      };
+      alarm 20;
+      @res = `$elf $file 2>/dev/null`;
+      $exit_ok = $? == 0;
+      alarm 0;
+    };
     join("",@res) =~ /^1\.\.(\d+)\n/m;
     if($1) {
       my $plan = $self->{plan};
