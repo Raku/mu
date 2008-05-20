@@ -67,7 +67,7 @@ X  0%	17  0 		../../../t/builtins/arity.t
 -  8%	12  1 0 11!	../../../t/builtins/arrays/elems.t
 -d 0%	14  0 14	../../../t/builtins/arrays/end.t
 -C 0%	1  0 1		../../../t/builtins/arrays/init-in-exported-sub.t
--C 0%	19  0 19	../../../t/builtins/arrays/isa.t
+-d 0%	19  0 19	../../../t/builtins/arrays/isa.t
 X  0%	19  0 		../../../t/builtins/caller.t
 -C 0%	8  0 8		../../../t/builtins/container/each.t
 -C 0%	1  0 1		../../../t/builtins/control_flow/die_and_end.t
@@ -77,7 +77,7 @@ X  0%	19  0 		../../../t/builtins/caller.t
 -C 0%	3  0 3		../../../t/builtins/math/complex_powers.t
 -  33%	6  2 4		../../../t/builtins/math/NaN.t
 -  0%	1  0 1		../../../t/builtins/math/pi_internals.t
--  72%	29  21 2 6!	../../../t/builtins/my.t
+-  79%	29  23 6	../../../t/builtins/my.t
 -C 0%	98  0 98	../../../t/builtins/perl2.t
 -C 0%	?  0 ?		../../../t/builtins/perl.t
 -C 0%	16  0 16	../../../t/builtins/ref.t
@@ -101,7 +101,7 @@ X  0%	19  0 		../../../t/builtins/caller.t
 -C 0%	2  0 2		../../../t/closure_traits/multiple.t
 X  0%	13  0 		../../../t/closure_traits/next.t
 X  0%	16  0 		../../../t/closure_traits/pre_post.t
-X  0%	10  0 		../../../t/closure_traits/rvalue.t
+-C 0%	10  0 10	../../../t/closure_traits/rvalue.t
 X  0%	21  0 		../../../t/closure_traits/start.t
 -C 0%	32  0 32	../../../t/data_types/anon_block.t
 -C 0%	12  0 12	../../../t/data_types/array_extending.t
@@ -109,7 +109,7 @@ X  0%	21  0 		../../../t/closure_traits/start.t
 -C 0%	45  0 45	../../../t/data_types/array_ref.t
 -C 0%	71  0 71	../../../t/data_types/array.t
 X  0%	7  0 		../../../t/data_types/autovivification.t
--C 0%	18  0 18	../../../t/data_types/bool.t
+-d 0%	18  0 18	../../../t/data_types/bool.t
 -C 0%	18  0 18	../../../t/data_types/capture.t
 -C 0%	4  0 4		../../../t/data_types/catch_type_cast_mismatch.t
 -C 0%	30  0 30	../../../t/data_types/enum.t
@@ -157,7 +157,7 @@ X  0%	8  0 		../../../t/examples/99problems/problem13.t
 -C 0%	10  0 10	../../../t/examples/99problems/problem31.t
 -  0%	4  0 0 4!	../../../t/examples/99problems/problem32.t
 -C 0%	3  0 3		../../../t/examples/99problems/problem33.t
-X  0%	20  0 		../../../t/examples/99problems/problem34.t
+-C 0%	20  0 20	../../../t/examples/99problems/problem34.t
 -C 0%	1  0 1		../../../t/examples/99problems/problem35.t
 -C 0%	5  0 5		../../../t/examples/99problems/problem36.t
 X  0%	20  0 		../../../t/examples/99problems/problem37.t
@@ -206,7 +206,7 @@ X  0%	1  0 		../../../t/examples/99problems/problem91.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem93.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem94.t
 -C 0%	1  0 1		../../../t/examples/99problems/problem95.t
--C 0%	4  0 4		../../../t/examples/99problems/problem96.t
+-  25%	4  1 3		../../../t/examples/99problems/problem96.t
 -C 0%	1  0 1		../../../t/examples/99problems/problem97.t
 X  0%	10  0 		../../../t/examples/99problems/problem98.t
 X  0%	?  0 		../../../t/examples/all_parse.t
@@ -372,13 +372,13 @@ X  0%	2  0 		../../../t/perl5/return.t
 X  0%	5  0 		../../../t/perl5/roundtrip.t
 -C 0%	2  0 2		../../../t/regex/capture_rollback.t
 X  0%	?  0 		../../../t/regex/extract_pghpw.t
--C 0%	19  0 19	../../../t/regex/from_perl6_rules/anchors.t
+-d 0%	19  0 19	../../../t/regex/from_perl6_rules/anchors.t
 X  0%	45  0 		../../../t/regex/from_perl6_rules/array_cap.t
--C 0%	4  0 4		../../../t/regex/from_perl6_rules/assert.t
+-  25%	4  1 0 3!	../../../t/regex/from_perl6_rules/assert.t
 X  0%	64  0 		../../../t/regex/from_perl6_rules/capture.t
--C 0%	24  0 24	../../../t/regex/from_perl6_rules/charset.t
--C 0%	10  0 10	../../../t/regex/from_perl6_rules/codevars.t
--C 0%	3  0 3		../../../t/regex/from_perl6_rules/combchar.t
+-  41%	24  10 14	../../../t/regex/from_perl6_rules/charset.t
+-  10%	10  1 0 9!	../../../t/regex/from_perl6_rules/codevars.t
+ok	3		../../../t/regex/from_perl6_rules/combchar.t
 -C 0%	7  0 7		../../../t/regex/from_perl6_rules/context.t
 X  0%	172  0 		../../../t/regex/from_perl6_rules/counted.t
 -C 0%	33  0 33	../../../t/regex/from_perl6_rules/der_grammar.t
@@ -386,12 +386,12 @@ X  0%	44  0 		../../../t/regex/from_perl6_rules/exhaustive.t
 -C 0%	17  0 17	../../../t/regex/from_perl6_rules/grammar.t
 X  0%	116  0 		../../../t/regex/from_perl6_rules/hash_cap.t
 -C 0%	23  0 23	../../../t/regex/from_perl6_rules/hashkv.t
--C 0%	2  0 2		../../../t/regex/from_perl6_rules/inline.t
+-  50%	2  1 1		../../../t/regex/from_perl6_rules/inline.t
 -C 0%	29  0 29	../../../t/regex/from_perl6_rules/litvar.t
 -C 0%	10  0 10	../../../t/regex/from_perl6_rules/lookaround.t
 -C 0%	26  0 26	../../../t/regex/from_perl6_rules/named_cap.t
--C 0%	419  0 419	../../../t/regex/from_perl6_rules/named_chars.t
--C 0%	15  0 15	../../../t/regex/from_perl6_rules/newline.t
+-  66%	419  280 139	../../../t/regex/from_perl6_rules/named_chars.t
+-  53%	15  8 7		../../../t/regex/from_perl6_rules/newline.t
 X  0%	8  0 		../../../t/regex/from_perl6_rules/noncap.t
 X  0%	4  0 		../../../t/regex/from_perl6_rules/null.t
 -C 0%	10  0 10	../../../t/regex/from_perl6_rules/overlapping.t
@@ -401,7 +401,7 @@ X  0%	4  0 		../../../t/regex/from_perl6_rules/null.t
 X  0%	2349  0 	../../../t/regex/from_perl6_rules/propcharset.t
 X  0%	1881  0 	../../../t/regex/from_perl6_rules/properties.t
 X  0%	4  0 		../../../t/regex/from_perl6_rules/qinterp.t
--C 0%	6  0 6		../../../t/regex/from_perl6_rules/repeat.t
+-  50%	6  3 3		../../../t/regex/from_perl6_rules/repeat.t
 X  0%	4  0 		../../../t/regex/from_perl6_rules/rulecode.t
 X  0%	207  0 		../../../t/regex/from_perl6_rules/stdrules.t
 -C 0%	31  0 31	../../../t/regex/from_perl6_rules/subrule.t
@@ -458,11 +458,11 @@ X  0%	11  0 		../../../t/spec/S03-operators/cross-metaop.t
 ok	15		../../../t/spec/S03-operators/equality.t
 -C 0%	13  0 13	../../../t/spec/S03-operators/not.t
 -  80%	36  29 7	../../../t/spec/S03-operators/relational.t
--C 0%	11  0 11	../../../t/spec/S03-operators/true.t
+-d 0%	11  0 11	../../../t/spec/S03-operators/true.t
 X  0%	25  0 		../../../t/spec/S04-statements/try.t
 ok	4		../../../t/spec/S04-statements/until.t
 -C 0%	10  0 10	../../../t/spec/S04-statements/while.t
-X  0%	8  0 		../../../t/spec/S05-modifier/basechar.t
+-C 0%	8  0 8		../../../t/spec/S05-modifier/basechar.t
 -C 0%	4  0 4		../../../t/spec/S05-modifier/continue.t
 -C 0%	7  0 7		../../../t/spec/S05-modifier/ignorecase.t
 X  0%	9  0 		../../../t/spec/S05-modifier/ii.t
@@ -476,7 +476,7 @@ X  0%	17  0 		../../../t/spec/S05-transliteration/trans.t
 -C 0%	6  0 6		../../../t/spec/S06-signature/slurpy-placeholders.t
 -C 0%	38  0 38	../../../t/spec/S09-autovivification/autovivification.t
 -C 0%	24  0 24	../../../t/spec/S09-subscript_slice/slice.t
-X  0%	41  0 		../../../t/spec/S12-attributes/delegation.t
+-C 0%	41  0 41	../../../t/spec/S12-attributes/delegation.t
 X  0%	4  0 		../../../t/spec/S12-class/attributes.t
 -C 0%	21  0 21	../../../t/spec/S12-class/basic.t
 -C 0%	1  0 1		../../../t/spec/S12-class/inheritance-class-methods.t
@@ -487,7 +487,7 @@ X  0%	2  0 		../../../t/spec/S12-class/instantiate.t
 X  0%	3  0 		../../../t/spec/S12-methods/private_methods.t
 -C 0%	8  0 8		../../../t/spec/S12-role/composition.t
 X  0%	20  0 		../../../t/spec/S16-filehandles/chmod.t
--C 0%	4  0 4		../../../t/spec/S16-filehandles/connect.t
+-d 0%	4  0 4		../../../t/spec/S16-filehandles/connect.t
 -C 0%	36  0 36	../../../t/spec/S16-filehandles/dir.t
 -C 0%	37  0 37	../../../t/spec/S16-filehandles/io_in_for_loops.t
 -C 0%	13  0 13	../../../t/spec/S16-filehandles/io_in_while_loops.t
@@ -506,13 +506,13 @@ X  0%	4  0 		../../../t/spec/S17-async/syntax.t
 ok	3		../../../t/spec/S29-any/cmp.t
 -C 0%	38  0 38	../../../t/spec/S29-any/eqv.t
 -  0%	18  0 1 17!	../../../t/spec/S29-array/delete.t
--C 0%	12  0 12	../../../t/spec/S29-array/exists.t
+-  33%	12  4 0 8!	../../../t/spec/S29-array/exists.t
 -d 0%	6  0 6		../../../t/spec/S29-array/keys_values.t
 -C 0%	9  0 9		../../../t/spec/S29-array/kv.t
 -C 0%	10  0 10	../../../t/spec/S29-array/pairs.t
--C 0%	27  0 27	../../../t/spec/S29-array/pop.t
+-  3%	27  1 0 26!	../../../t/spec/S29-array/pop.t
 -  0%	42  0 1 41!	../../../t/spec/S29-array/push.t
--C 0%	27  0 27	../../../t/spec/S29-array/shift.t
+-  3%	27  1 0 26!	../../../t/spec/S29-array/shift.t
 -C 0%	33  0 33	../../../t/spec/S29-array/splice.t
 -  0%	53  0 1 52!	../../../t/spec/S29-array/unshift.t
 X  0%	6  0 		../../../t/spec/S29-container/cat.t
@@ -521,7 +521,7 @@ X  0%	8  0 		../../../t/spec/S29-container/roundrobin.t
 -C 0%	10  0 10	../../../t/spec/S29-context/die_arg_preservation.t
 X  0%	14  0 		../../../t/spec/S29-context/die.t
 X  0%	1  0 		../../../t/spec/S29-context/evalfile.t
--C 0%	8  0 8		../../../t/spec/S29-context/eval.t
+-  50%	8  4 1 3!	../../../t/spec/S29-context/eval.t
 ok	1		../../../t/spec/S29-context/exit-in-if.t
 ok	1		../../../t/spec/S29-context/exit.t
 -d 0%	2  0 2		../../../t/spec/S29-context/nothing.t
@@ -646,7 +646,7 @@ X  0%	19  0 		../../../t/syntax/numbers/underscores.t
 -C 0%	2  0 2		../../../t/syntax/parsing/non-dotted-new-disallowed.t
 -d 0%	1  0 1		../../../t/syntax/parsing/parens.t
 ok	3		../../../t/syntax/parsing/pod_in_multi_line_exprs.t
--C 0%	1  0 1		../../../t/syntax/parsing/postfix_if_and_is.t
+-  0%	1  0 1		../../../t/syntax/parsing/postfix_if_and_is.t
 -C 0%	5  0 5		../../../t/syntax/parsing/spaceship.t
 X  0%	20  0 		../../../t/syntax/parsing/sub_calls.t
 -d 0%	3  0 3		../../../t/syntax/parsing/subscript.t
@@ -673,7 +673,7 @@ X  0%	28  0 		../../../t/unspecced/sort.t
 -C 0%	3  0 3		../../../t/unspecced/tailcall.t
 X  0%	5  0 		../../../t/unspecced/times.t
 -C 0%	18  0 18	../../../t/var/assigning_refs.t
--C 0%	22  0 22	../../../t/var/autoderef.t
+-  9%	22  2 7 13!	../../../t/var/autoderef.t
 X  0%	18  0 		../../../t/var/caller.t
 -C 0%	6  0 6		../../../t/var/chained.t
 -  0%	19  0 1 18!	../../../t/var/constant.t
@@ -719,7 +719,7 @@ X  0%	2  0 		../../../t/xx-uncategorized/return_in_anonymous_subs.t
 -C 0%	1  0 1		../../../t/xx-uncategorized/rules_with_embedded_parrot.t
 -C 0%	3  0 3		../../../t/xx-uncategorized/rule_used_in_Str.t
 X  0%	4  0 		../../../t/xx-uncategorized/say-crash.t
--C 0%	2  0 2		../../../t/xx-uncategorized/self_inheritance.t
+ok	2		../../../t/xx-uncategorized/self_inheritance.t
 -  0%	1  0 1		../../../t/xx-uncategorized/shift-from-function-array-arg.t
 -  50%	4  2 2		../../../t/xx-uncategorized/short_circuiting.t
 X  0%	1  0 		../../../t/xx-uncategorized/slow-parse-fail.t
@@ -812,5 +812,5 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 -d 0%	6  0 6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 813.  598 parsed 73%.  218 run 26%.  42 ok 5%.
-Tests: 16409+.  296 ok <1.8%, 16113+ not.
+Files: 813.  602 parsed 74%.  239 run 29%.  44 ok 5%.
+Tests: 16409+.  620 ok <3.77%, 15789+ not.

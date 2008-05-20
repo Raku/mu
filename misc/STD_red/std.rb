@@ -596,11 +596,12 @@ class Perl < Grammar
       #R XXX requires an elf update
       #R# _match_from(start,{:sym=>'<sym>',:dottyop=>op,:O=>op[:O]},:'<sym>')
     }
-    def_tokens_rest :dotty,:methodcall,%w{ ! },%q{
-      unspacey and
-      op= methodop and
-      _match_from(start,{:sym=>'<sym>',:methodop=>op,:O=>op[:O]},:'<sym>')
-    }
+    #R XXX NONSPEC Disabled ! to avoid conflict with prefix:<!> in '!foo()'.
+    #def_tokens_rest :dotty,:methodcall,%w{ ! },%q{
+    #  unspacey and
+    #  op= methodop and
+    #  _match_from(start,{:sym=>'<sym>',:methodop=>op,:O=>op[:O]},:'<sym>')
+    #}
     def dottyop #R [:O] copying unnecessary as no Match is created.
         methodop or postop
     end
