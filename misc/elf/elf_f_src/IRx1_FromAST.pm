@@ -547,8 +547,7 @@ IRx1::Hash.newp($m,irbuild_ir($m.{'hash'}{'block'}.{'hash'}{'statementlist'}))
 } elsif $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'} and $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'}.{'hash'}{'sym'} and $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'}.{'hash'}{'sym'} eq "," {
 IRx1::Hash.newp($m,irbuild_ir($m.{'hash'}{'block'}.{'hash'}{'statementlist'}))
 } elsif not(irbuild_ir($m.{'hash'}{'lambda'})) and not(irbuild_ir($m.{'hash'}{'signature'})) {
-my $s = IRx1::SubDecl.newp($m,undef,undef,undef,undef,undef,undef,irbuild_ir($m.{'hash'}{'block'}));
-IRx1::Apply.newp($m,$s,IRx1::Capture.newp($m,[]))
+irbuild_ir($m.{'hash'}{'block'})
 } else {
 die "AST handler circumfix:pblock partially unimplemented";
 };

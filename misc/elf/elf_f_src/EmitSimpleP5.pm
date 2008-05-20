@@ -352,7 +352,7 @@ package Main;
   };
   method cb__Block ($n) {
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
-    ''~$.e($n<statements>).join(";\n")~''
+    '(do{'~$.e($n<statements>).join(";\n")~'})'
   };
 
   method cb__Use ($n) {
