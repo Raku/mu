@@ -290,6 +290,7 @@ use warnings;
   }
 
   our $a_INC = ["."];
+  our $h_ENV = \%ENV;
 
   sub require {
     my($module)=@_;
