@@ -145,7 +145,17 @@ sub write_ir_nodes {
         '[' ~ self.map(sub($e){$e.irx1_describe}).join(",") ~ ']'
       };
     };
-    package SCALAR {
+    package STRING {
+      method irx1_describe() {
+        self ~ ""
+      };
+    };
+    package INTEGER {
+      method irx1_describe() {
+        self ~ ""
+      };
+    };
+    package FLOAT {
       method irx1_describe() {
         self ~ ""
       };

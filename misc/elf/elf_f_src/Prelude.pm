@@ -1,11 +1,11 @@
 #     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
 class Bit is Any {};
 #     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
-class Int is SCALAR {};
+class Int is INTEGER {};
 #     Str         Perl string (finite sequence of Unicode characters)
-class Str is SCALAR {};
+class Str is STRING {};
 #     Num         Perl number
-class Num is SCALAR {};
+class Num is FLOAT {};
 #     Complex     Perl complex number
 class Complex is Any {};
 #     Bool        Perl boolean

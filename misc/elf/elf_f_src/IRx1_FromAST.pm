@@ -30,7 +30,17 @@ class ARRAY {
     self.map(sub($e){$e.make_ir_from_Match_tree()})
   }
 };
-class SCALAR {
+class STRING {
+  method make_ir_from_Match_tree() {
+    self
+  }
+};
+class INTEGER {
+  method make_ir_from_Match_tree() {
+    self
+  }
+};
+class FLOAT {
   method make_ir_from_Match_tree() {
     self
   }
@@ -122,7 +132,7 @@ die "pre without a prefix is unimplemented";
 my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $ident = "postcircumfix:"~$name;
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
-if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
+if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
 IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args));
     });
 
@@ -131,7 +141,7 @@ IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$
 my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $ident = "postcircumfix:"~$name;
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
-if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
+if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
 IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args));
     });
 
@@ -255,7 +265,7 @@ if $m.{'hash'}{'postcircumfix'} {
 if $tw eq "." {
   my $slf = IRx1::Apply.newp($m,'self',IRx1::Capture.newp($m,[]));
   my $args = irbuild_ir($m.{'hash'}{'postcircumfix'}.{'hash'}{'kludge_name'});
-  if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
+  if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
   IRx1::Call.newp($m,$slf,irbuild_ir($m.{'hash'}{'desigilname'}),IRx1::Capture.newp($m,$args))
 } else {
   my $v = IRx1::Var.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),$tw,irbuild_ir($m.{'hash'}{'desigilname'}));
@@ -286,7 +296,7 @@ IRx1::Var.newp($m,$s,undef,$n);
       my $s = ($m.match_string);
 my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
-if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
+if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
 IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args));
     });
 

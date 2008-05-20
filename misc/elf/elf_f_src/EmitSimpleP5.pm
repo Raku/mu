@@ -12,15 +12,14 @@ class EmitSimpleP5 {
   };
 
   method prelude_lexical () {
-      "use autobox;use autobox UNDEF => 'UNDEF';
+      "use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       ";
   };
 
   method prelude_oo () {
     '
 {package AssertCurrentModuleVersions;
- use Moose 0.40;
- use Moose::Autobox 0.06;
+ use Moose 0.44;
 }
 ';
   };
@@ -31,7 +30,7 @@ no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
 
 {package AssertCurrentModuleVersions;
- use autobox 2.23;
+ use autobox 2.51;
 }
 { package NoSideEffects;
   use Class::Multimethods;
@@ -57,8 +56,8 @@ use warnings;
 
 {package UNDEF;}
 {package UNDEF; sub WHAT {"Undef"}}
-{package UNIVERSAL; sub ref {CORE::ref($_[0]) || "SCALAR"} } # For IRx1_FromAST.pm.
-{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || "SCALARISH"} }
+{package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
+{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
 
 { package Object;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
@@ -67,8 +66,8 @@ use warnings;
 }  
 
 no warnings qw(redefine prototype);
-{ package SCALAR;
-  sub WHAT { my $x = $_[0]; ~$x&$x ? "Str" : $x =~ /\A\d+\z/ ? "Int" : "Num" }
+{ package STRING;
+  sub WHAT { "Str" }
 
   # randomness taken from autobox::Core
 
@@ -96,7 +95,8 @@ no warnings qw(redefine prototype);
   sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
   sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
   sub split   ($$)  { [ split $_[1], $_[0] ] }
-
+}
+{ package NUMBER;
   sub abs     ($)  { CORE::abs($_[0]) }
   sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
   sub cos     ($)  { CORE::cos($_[0]) }
@@ -108,7 +108,14 @@ no warnings qw(redefine prototype);
   sub rand    ($)  { CORE::rand($_[0]) }
   sub sin     ($)  { CORE::sin($_[0]) }
   sub sqrt    ($)  { CORE::sqrt($_[0]) }
-
+}
+{ package FLOAT;
+  use base "NUMBER";
+  sub WHAT { "Num" }
+}
+{ package INTEGER;
+  use base "NUMBER";
+  sub WHAT { "Int" }
   sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
   sub upto ($$) { [ $_[0]..$_[1] ] }
   sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
@@ -204,7 +211,9 @@ no warnings qw(redefine prototype);
 use warnings;
 
 { package Any; sub __make_not_empty_for_use_base{}}
-{ package SCALAR; use base "Any";}
+{ package STRING; use base "Any";}
+{ package INTEGER; use base "Any";}
+{ package FLOAT; use base "Any";}
 { package ARRAY; use base "Any";}
 { package HASH; use base "Any";}
 { package CODE; use base "Any";}
@@ -245,7 +254,7 @@ use warnings;
   sub unlink{CORE::unlink(@_)}
 }
 
-{ package SCALAR;
+{ package STRING;
   sub re_sub         {
     my $expr = "\$_[0] =~ s/$_[1]/$_[2]/".($_[3]||"");
     eval $expr;

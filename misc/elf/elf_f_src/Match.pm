@@ -56,7 +56,17 @@ class HASH {
     $s ~ "}"
   };
 };
-class SCALAR {
+class STRING {
+  method match_describe() {
+    "'"~self~"'"
+  }
+}
+class INTEGER {
+  method match_describe() {
+    "'"~self~"'"
+  }
+}
+class FLOAT {
   method match_describe() {
     "'"~self~"'"
   }

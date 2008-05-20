@@ -4,7 +4,7 @@ no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
 
 {package AssertCurrentModuleVersions;
- use autobox 2.23;
+ use autobox 2.51;
 }
 { package NoSideEffects;
   use Class::Multimethods;
@@ -22,7 +22,7 @@ use warnings;
         }
     }
 }
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       
 
 # Move to the Regexp prelude once that becomes part of the prelude.
@@ -43,8 +43,8 @@ use autobox;use autobox UNDEF => 'UNDEF';
 
 {package UNDEF;}
 {package UNDEF; sub WHAT {"Undef"}}
-{package UNIVERSAL; sub ref {CORE::ref($_[0]) || "SCALAR"} } # For IRx1_FromAST.pm.
-{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || "SCALARISH"} }
+{package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
+{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
 
 { package Object;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
@@ -53,8 +53,8 @@ use autobox;use autobox UNDEF => 'UNDEF';
 }  
 
 no warnings qw(redefine prototype);
-{ package SCALAR;
-  sub WHAT { my $x = $_[0]; ~$x&$x ? "Str" : $x =~ /\A\d+\z/ ? "Int" : "Num" }
+{ package STRING;
+  sub WHAT { "Str" }
 
   # randomness taken from autobox::Core
 
@@ -82,7 +82,8 @@ no warnings qw(redefine prototype);
   sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
   sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
   sub split   ($$)  { [ split $_[1], $_[0] ] }
-
+}
+{ package NUMBER;
   sub abs     ($)  { CORE::abs($_[0]) }
   sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
   sub cos     ($)  { CORE::cos($_[0]) }
@@ -94,7 +95,14 @@ no warnings qw(redefine prototype);
   sub rand    ($)  { CORE::rand($_[0]) }
   sub sin     ($)  { CORE::sin($_[0]) }
   sub sqrt    ($)  { CORE::sqrt($_[0]) }
-
+}
+{ package FLOAT;
+  use base "NUMBER";
+  sub WHAT { "Num" }
+}
+{ package INTEGER;
+  use base "NUMBER";
+  sub WHAT { "Int" }
   sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
   sub upto ($$) { [ $_[0]..$_[1] ] }
   sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
@@ -190,7 +198,9 @@ no warnings qw(redefine prototype);
 use warnings;
 
 { package Any; sub __make_not_empty_for_use_base{}}
-{ package SCALAR; use base "Any";}
+{ package STRING; use base "Any";}
+{ package INTEGER; use base "Any";}
+{ package FLOAT; use base "Any";}
 { package ARRAY; use base "Any";}
 { package HASH; use base "Any";}
 { package CODE; use base "Any";}
@@ -231,7 +241,7 @@ use warnings;
   sub unlink{CORE::unlink(@_)}
 }
 
-{ package SCALAR;
+{ package STRING;
   sub re_sub         {
     my $expr = "\$_[0] =~ s/$_[1]/$_[2]/".($_[3]||"");
     eval $expr;
@@ -307,7 +317,7 @@ use warnings;
 
 package Main;
 
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package Bit;
@@ -319,21 +329,21 @@ BEGIN{push(@Bit::ISA,'::Any');}
 
 { package Int;
 use base qw(Object);
-BEGIN{push(@Int::ISA,'::SCALAR');}
+BEGIN{push(@Int::ISA,'::INTEGER');}
 
 }
 ;
 
 { package Str;
 use base qw(Object);
-BEGIN{push(@Str::ISA,'::SCALAR');}
+BEGIN{push(@Str::ISA,'::STRING');}
 
 }
 ;
 
 { package Num;
 use base qw(Object);
-BEGIN{push(@Num::ISA,'::SCALAR');}
+BEGIN{push(@Num::ISA,'::FLOAT');}
 
 }
 ;
@@ -617,7 +627,7 @@ sub say{my $self=CORE::shift;GLOBAL::say($self)}
 ;
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package Match;
@@ -720,14 +730,26 @@ if($self->keys()->elems()) {
 }
 ;
 
-{ package SCALAR;
+{ package STRING;
+use base qw(Object);
+sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
+}
+;
+
+{ package INTEGER;
+use base qw(Object);
+sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
+}
+;
+
+{ package FLOAT;
 use base qw(Object);
 sub match_describe{my $self=CORE::shift;(('\'' . $self) . '\'')}
 }
 ;
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package ARRAY;
@@ -737,7 +759,19 @@ $e->irx1_describe()})->join(',')) . ']')}
 }
 ;
 
-{ package SCALAR;
+{ package STRING;
+use base qw(Object);
+sub irx1_describe{my $self=CORE::shift;($self . '')}
+}
+;
+
+{ package INTEGER;
+use base qw(Object);
+sub irx1_describe{my $self=CORE::shift;($self . '')}
+}
+;
+
+{ package FLOAT;
 use base qw(Object);
 sub irx1_describe{my $self=CORE::shift;($self . '')}
 }
@@ -3663,7 +3697,7 @@ sub irx1_describe{my $self=CORE::shift;(('RxSymbol(' . $self->symbol->irx1_descr
 ;
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package IRx1_Build;
@@ -3711,7 +3745,19 @@ $e->make_ir_from_Match_tree()})}
 }
 ;
 
-{ package SCALAR;
+{ package STRING;
+use base qw(Object);
+sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
+}
+;
+
+{ package INTEGER;
+use base qw(Object);
+sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
+}
+;
+
+{ package FLOAT;
 use base qw(Object);
 sub make_ir_from_Match_tree{my $self=CORE::shift;$self}
 }
@@ -3791,7 +3837,7 @@ my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $ident = ('postcircumfix:' . $name);
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
-if(($args && (($args->ref() eq 'SCALAR')))) {
+if(($args && (($args->ref() ne 'ARRAY')))) {
 ($args = [$args])
 };
 IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))});
@@ -3800,7 +3846,7 @@ my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $ident = ('postcircumfix:' . $name);
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
-if(($args && (($args->ref() eq 'SCALAR')))) {
+if(($args && (($args->ref() ne 'ARRAY')))) {
 ($args = [$args])
 };
 IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))});
@@ -3884,7 +3930,7 @@ if($m->{'hash'}->{'postcircumfix'}) {
 if(($tw eq '.')) {
 my $slf = IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, []));
 my $args = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'});
-if(($args && (($args->ref() eq 'SCALAR')))) {
+if(($args && (($args->ref() ne 'ARRAY')))) {
 ($args = [$args])
 };
 IRx1::Call->newp($m, $slf, irbuild_ir($m->{'hash'}->{'desigilname'}), IRx1::Capture->newp($m, $args))
@@ -3909,7 +3955,7 @@ $main::irbuilder->add_constructor('circumfix', sub {my($m)=@_;
 my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
 my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
-if(($args && (($args->ref() eq 'SCALAR')))) {
+if(($args && (($args->ref() ne 'ARRAY')))) {
 ($args = [$args])
 };
 IRx1::Apply->newp($m, ('circumfix:' . $name), IRx1::Capture->newp($m, $args))});
@@ -4150,7 +4196,7 @@ IRx1::RxSymbol->newp($m, ($m->match_string()))})
 ;
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package IRx1::CompUnit;
@@ -4340,7 +4386,7 @@ sub path_is_absolute{my $self=CORE::shift;($self->name() && ($self->name() =~ qr
 ;
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package EmitSimpleP5;
@@ -4356,12 +4402,11 @@ sub compiler {
 }
 ;
 sub prelude_for_entering_a_package{my $self=CORE::shift;''};
-sub prelude_lexical{my $self=CORE::shift;'use autobox;use autobox UNDEF => \'UNDEF\';
+sub prelude_lexical{my $self=CORE::shift;'use autobox ARRAY => \'ARRAY\', HASH => \'HASH\', CODE => \'CODE\', INTEGER => \'INTEGER\', FLOAT => \'FLOAT\', STRING => \'STRING\', UNDEF => \'UNDEF\';
       '};
 sub prelude_oo{my $self=CORE::shift;'
 {package AssertCurrentModuleVersions;
- use Moose 0.40;
- use Moose::Autobox 0.06;
+ use Moose 0.44;
 }
 '};
 sub prelude{my $self=CORE::shift;my($n)=@_;
@@ -4371,7 +4416,7 @@ no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
 use warnings;
 
 {package AssertCurrentModuleVersions;
- use autobox 2.23;
+ use autobox 2.51;
 }
 { package NoSideEffects;
   use Class::Multimethods;
@@ -4397,8 +4442,8 @@ use warnings;
 
 {package UNDEF;}
 {package UNDEF; sub WHAT {"Undef"}}
-{package UNIVERSAL; sub ref {CORE::ref($_[0]) || "SCALAR"} } # For IRx1_FromAST.pm.
-{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || "SCALARISH"} }
+{package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
+{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
 
 { package Object;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
@@ -4407,8 +4452,8 @@ use warnings;
 }  
 
 no warnings qw(redefine prototype);
-{ package SCALAR;
-  sub WHAT { my $x = $_[0]; ~$x&$x ? "Str" : $x =~ /\\A\\d+\\z/ ? "Int" : "Num" }
+{ package STRING;
+  sub WHAT { "Str" }
 
   # randomness taken from autobox::Core
 
@@ -4436,7 +4481,8 @@ no warnings qw(redefine prototype);
   sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
   sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
   sub split   ($$)  { [ split $_[1], $_[0] ] }
-
+}
+{ package NUMBER;
   sub abs     ($)  { CORE::abs($_[0]) }
   sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
   sub cos     ($)  { CORE::cos($_[0]) }
@@ -4448,7 +4494,14 @@ no warnings qw(redefine prototype);
   sub rand    ($)  { CORE::rand($_[0]) }
   sub sin     ($)  { CORE::sin($_[0]) }
   sub sqrt    ($)  { CORE::sqrt($_[0]) }
-
+}
+{ package FLOAT;
+  use base "NUMBER";
+  sub WHAT { "Num" }
+}
+{ package INTEGER;
+  use base "NUMBER";
+  sub WHAT { "Int" }
   sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
   sub upto ($$) { [ $_[0]..$_[1] ] }
   sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
@@ -4544,7 +4597,9 @@ no warnings qw(redefine prototype);
 use warnings;
 
 { package Any; sub __make_not_empty_for_use_base{}}
-{ package SCALAR; use base "Any";}
+{ package STRING; use base "Any";}
+{ package INTEGER; use base "Any";}
+{ package FLOAT; use base "Any";}
 { package ARRAY; use base "Any";}
 { package HASH; use base "Any";}
 { package CODE; use base "Any";}
@@ -4585,7 +4640,7 @@ use warnings;
   sub unlink{CORE::unlink(@_)}
 }
 
-{ package SCALAR;
+{ package STRING;
   sub re_sub         {
     my $expr = "\\$_[0] =~ s/$_[1]/$_[2]/".($_[3]||"");
     eval $expr;
@@ -5061,7 +5116,7 @@ if(GLOBAL::not($GLOBAL::emitter0)) {
 ($GLOBAL::emitter1 = EmitSimpleP5->new());
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package EmitNoMooseP5;
@@ -5126,7 +5181,7 @@ if((GLOBAL::defined($default))) {
 ($GLOBAL::emitter1 = EmitNoMooseP5->new());
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 sub header{use Math::Trig qw();};
 header();
@@ -5161,7 +5216,7 @@ use Scalar::Util "openhandle";
 ;
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package Parser;
@@ -5202,7 +5257,7 @@ if(GLOBAL::not($GLOBAL::parser0)) {
 ($GLOBAL::parser1 = Parser->new());
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package Compiler;
@@ -5319,7 +5374,7 @@ if(GLOBAL::not($GLOBAL::compiler0)) {
 ($GLOBAL::compiler1 = Compiler->new());
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
 { package Program;
@@ -5426,7 +5481,7 @@ $at_end->()}
 Program->new()->main($GLOBAL::a_ARGS);
 
 ;
-use autobox;use autobox UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 ;
 ;
