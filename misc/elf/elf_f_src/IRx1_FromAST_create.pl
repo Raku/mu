@@ -217,20 +217,20 @@ statement_control:for
 For.newp($m<expr>,$m<block>)
 
 statement_mod_loop:for
-For.newp($m<expr>,$^blackboard::statement_expr)
+For.newp($m<modifier_expr>,$^blackboard::statement_expr)
 
 statement_control:while
 Loop.newp($m<expr>,$m<block>)
 
 statement_mod_loop:while
-Loop.newp($m<expr>,$^blackboard::statement_expr)
+Loop.newp($m<modifier_expr>,$^blackboard::statement_expr)
 
 statement_control:until
 my $test = Apply.newp("not",Capture.newp([$m<expr>]));
 Loop.newp($test,$m<block>)
 
 statement_mod_loop:until
-my $test = Apply.newp("not",Capture.newp([$m<expr>]));
+my $test = Apply.newp("not",Capture.newp([$m<modifier_expr>]));
 Loop.newp($test,$^blackboard::statement_expr)
 
 
@@ -259,7 +259,7 @@ statement_control:given
 Given.newp($m<expr>,$m<block>)
 
 statement_mod_loop:given
-Given.newp($m<expr>,$^blackboard::statement_expr)
+Given.newp($m<modifier_expr>,$^blackboard::statement_expr)
 
 statement_control:when
 When.newp($m<expr>,$m<block>)

@@ -295,7 +295,7 @@ IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args));
     });
 
     $main::irbuilder.add_constructor('statement_mod_loop:for', sub ($m) {
-      IRx1::For.newp($m,irbuild_ir($m.{'hash'}{'expr'}),$^blackboard::statement_expr);
+      IRx1::For.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:while', sub ($m) {
@@ -303,7 +303,7 @@ IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args));
     });
 
     $main::irbuilder.add_constructor('statement_mod_loop:while', sub ($m) {
-      IRx1::Loop.newp($m,irbuild_ir($m.{'hash'}{'expr'}),$^blackboard::statement_expr);
+      IRx1::Loop.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:until', sub ($m) {
@@ -312,7 +312,7 @@ IRx1::Loop.newp($m,$test,irbuild_ir($m.{'hash'}{'block'}));
     });
 
     $main::irbuilder.add_constructor('statement_mod_loop:until', sub ($m) {
-      my $test = IRx1::Apply.newp($m,"not",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'expr'})]));
+      my $test = IRx1::Apply.newp($m,"not",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'modifier_expr'})]));
 IRx1::Loop.newp($m,$test,$^blackboard::statement_expr);
     });
 
@@ -357,7 +357,7 @@ $one;
     });
 
     $main::irbuilder.add_constructor('statement_mod_loop:given', sub ($m) {
-      IRx1::Given.newp($m,irbuild_ir($m.{'hash'}{'expr'}),$^blackboard::statement_expr);
+      IRx1::Given.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:when', sub ($m) {
