@@ -215,6 +215,20 @@ elsif
 if__else
 *1*
 
+statement_control:given
+my $expr = $m<expr>;
+my $^blackboard::given_clauses = [];
+my $^blackboard::given_default;
+$m<block>;
+Given.newp($expr,$^blackboard::given_clauses,$^blackboard::given_default)
+
+statement_control:when
+$^blackboard::given_clauses.push([$m<expr>,$m<block>]);
+undef
+
+statement_control:default
+$^blackboard::given_default = $m<block>;
+undef
 
 statement_prefix:do
 Apply.newp("statement_prefix:do",$m<statement>)

@@ -626,6 +626,22 @@ package IRx1 {
       'Loop('~$.pretest.irx1_describe~','~$.block.irx1_describe~','~$.posttest.irx1_describe~','~$.label.irx1_describe~')'
     };
   };
+  class Given is Base {
+    has $.match;
+    has $.expr;
+    has $.clauses;
+    has $.default;
+    has $.notes;
+    
+    method newp($match,$expr,$clauses,$default) { self.new('match', $match, 'expr', $expr, 'clauses', $clauses, 'default', $default) };
+    method callback($emitter) { $emitter.cb__Given(self) };
+    method node_name() { 'Given' };
+    method field_names() { ['expr','clauses','default'] };
+    method field_values() { [$.expr,$.clauses,$.default] };
+    method irx1_describe() {
+      'Given('~$.expr.irx1_describe~','~$.clauses.irx1_describe~','~$.default.irx1_describe~')'
+    };
+  };
   class RegexDef is Base {
     has $.match;
     has $.ident;

@@ -1615,6 +1615,27 @@ __PACKAGE__->meta->make_immutable();
 }
 ;
 
+{ package IRx1::Given;
+use Moose; __PACKAGE__->meta->make_mutable();
+BEGIN{push(@IRx1::Given::ISA,'IRx1::Base');}
+has 'match' => (is => 'rw');;
+has 'expr' => (is => 'rw');;
+has 'clauses' => (is => 'rw');;
+has 'default' => (is => 'rw');;
+has 'notes' => (is => 'rw');;
+sub newp{my $self=CORE::shift;my($match,$expr,$clauses,$default)=@_;
+$self->new('match', $match, 'expr', $expr, 'clauses', $clauses, 'default', $default)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Given($self)};
+sub node_name{my $self=CORE::shift;'Given'};
+sub field_names{my $self=CORE::shift;['expr', 'clauses', 'default']};
+sub field_values{my $self=CORE::shift;[$self->expr, $self->clauses, $self->default]};
+sub irx1_describe{my $self=CORE::shift;(((((('Given(' . $self->expr->irx1_describe()) . ',') . $self->clauses->irx1_describe()) . ',') . $self->default->irx1_describe()) . ')')};
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
 { package IRx1::RegexDef;
 use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@IRx1::RegexDef::ISA,'IRx1::Base');}
@@ -2241,6 +2262,18 @@ GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
+$main::irbuilder->add_constructor('statement_control:given', sub {my($m)=@_;
+my $expr = irbuild_ir($m->{'hash'}->{'expr'});
+{package Main; use vars '$1es_blackboard__given_clauses'};local $::es_blackboard__given_clauses = [];
+{package Main; use vars '$1es_blackboard__given_default'};local $::es_blackboard__given_default;
+irbuild_ir($m->{'hash'}->{'block'});
+IRx1::Given->newp($m, $expr, $::es_blackboard__given_clauses, $::es_blackboard__given_default)});
+$main::irbuilder->add_constructor('statement_control:when', sub {my($m)=@_;
+$::es_blackboard__given_clauses->push([irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'})]);
+GLOBAL::undef()});
+$main::irbuilder->add_constructor('statement_control:default', sub {my($m)=@_;
+($::es_blackboard__given_default = irbuild_ir($m->{'hash'}->{'block'}));
+GLOBAL::undef()});
 $main::irbuilder->add_constructor('statement_prefix:do', sub {my($m)=@_;
 IRx1::Apply->newp($m, 'statement_prefix:do', irbuild_ir($m->{'hash'}->{'statement'}))});
 $main::irbuilder->add_constructor('statement_prefix:try', sub {my($m)=@_;

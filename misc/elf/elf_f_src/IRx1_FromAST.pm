@@ -318,6 +318,24 @@ my $one = irbuild_ir($m.{'hash'}{$key});
 $one;
     });
 
+    $main::irbuilder.add_constructor('statement_control:given', sub ($m) {
+      my $expr = irbuild_ir($m.{'hash'}{'expr'});
+my $^blackboard::given_clauses = [];
+my $^blackboard::given_default;
+irbuild_ir($m.{'hash'}{'block'});
+IRx1::Given.newp($m,$expr,$^blackboard::given_clauses,$^blackboard::given_default);
+    });
+
+    $main::irbuilder.add_constructor('statement_control:when', sub ($m) {
+      $^blackboard::given_clauses.push([irbuild_ir($m.{'hash'}{'expr'}),irbuild_ir($m.{'hash'}{'block'})]);
+undef;
+    });
+
+    $main::irbuilder.add_constructor('statement_control:default', sub ($m) {
+      $^blackboard::given_default = irbuild_ir($m.{'hash'}{'block'});
+undef;
+    });
+
     $main::irbuilder.add_constructor('statement_prefix:do', sub ($m) {
       IRx1::Apply.newp($m,"statement_prefix:do",irbuild_ir($m.{'hash'}{'statement'}));
     });

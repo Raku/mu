@@ -58,6 +58,7 @@ Buf    buf
 For    expr block
 Cond   clauses default invert_first_test 
 Loop   pretest block posttest label 
+Given  expr clauses default
 
 RegexDef ident pattern
 Regex patterns
