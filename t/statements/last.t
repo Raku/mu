@@ -19,7 +19,7 @@ plan 8;
 
 {
     is(
-        eval('sub mylast { last; }; my $tracker = 0; for 1 .. 5 { $tracker = $_; mylast(); } $tracker'),
+        eval('sub mylast { last; }; my $tracker = 0; for 1 .. 5 { $tracker = $_; mylast(); }; $tracker'),
         1,
         "tracker is 1 because mylast exits loop";
     );
@@ -63,7 +63,7 @@ plan 8;
 
 {
     is(
-        eval('my $var=0; DONE: for (1..2) { last DONE; $var++;} $var'),
+        eval('my $var=0; DONE: for (1..2) { last DONE; $var++;}; $var'),
         0,
         "var is 0 because last before increment",
         :todo<bug>
@@ -83,7 +83,7 @@ plan 8;
 
 {
     is(
-        eval('my $var=0; OUT: for (1..2) { IN: for (1..2) { last OUT } $var++;} $var'),
+        eval('my $var=0; OUT: for (1..2) { IN: for (1..2) { last OUT }; $var++;}; $var'),
         0,
         "var is 0 because last before increment in nested loop",
         :todo(1)
