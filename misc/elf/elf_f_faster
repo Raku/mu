@@ -2818,19 +2818,11 @@ sub expr {
   }
 }
 ;
-sub clauses {
+sub block {
   if (@_ == 2) {
-      $_[0]{'clauses'} = $_[1];
+      $_[0]{'block'} = $_[1];
  } else {
-     $_[0]{'clauses'};
-  }
-}
-;
-sub default {
-  if (@_ == 2) {
-      $_[0]{'default'} = $_[1];
- } else {
-     $_[0]{'default'};
+     $_[0]{'block'};
   }
 }
 ;
@@ -2842,14 +2834,106 @@ sub notes {
   }
 }
 ;
-sub newp{my $self=CORE::shift;my($match,$expr,$clauses,$default)=@_;
-$self->new('match', $match, 'expr', $expr, 'clauses', $clauses, 'default', $default)};
+sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
+$self->new('match', $match, 'expr', $expr, 'block', $block)};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
 $emitter->cb__Given($self)};
 sub node_name{my $self=CORE::shift;'Given'};
-sub field_names{my $self=CORE::shift;['expr', 'clauses', 'default']};
-sub field_values{my $self=CORE::shift;[$self->expr, $self->clauses, $self->default]};
-sub irx1_describe{my $self=CORE::shift;(((((('Given(' . $self->expr->irx1_describe()) . ',') . $self->clauses->irx1_describe()) . ',') . $self->default->irx1_describe()) . ')')}
+sub field_names{my $self=CORE::shift;['expr', 'block']};
+sub field_values{my $self=CORE::shift;[$self->expr, $self->block]};
+sub irx1_describe{my $self=CORE::shift;(((('Given(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')}
+}
+;
+
+{ package IRx1::When;
+use base qw(Object);
+BEGIN{push(@IRx1::When::ISA,'IRx1::Base');}
+sub match {
+  if (@_ == 2) {
+      $_[0]{'match'} = $_[1];
+ } else {
+     $_[0]{'match'};
+  }
+}
+;
+sub expr {
+  if (@_ == 2) {
+      $_[0]{'expr'} = $_[1];
+ } else {
+     $_[0]{'expr'};
+  }
+}
+;
+sub block {
+  if (@_ == 2) {
+      $_[0]{'block'} = $_[1];
+ } else {
+     $_[0]{'block'};
+  }
+}
+;
+sub notes {
+  if (@_ == 2) {
+      $_[0]{'notes'} = $_[1];
+ } else {
+     $_[0]{'notes'};
+  }
+}
+;
+sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
+$self->new('match', $match, 'expr', $expr, 'block', $block)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__When($self)};
+sub node_name{my $self=CORE::shift;'When'};
+sub field_names{my $self=CORE::shift;['expr', 'block']};
+sub field_values{my $self=CORE::shift;[$self->expr, $self->block]};
+sub irx1_describe{my $self=CORE::shift;(((('When(' . $self->expr->irx1_describe()) . ',') . $self->block->irx1_describe()) . ')')}
+}
+;
+
+{ package IRx1::Label;
+use base qw(Object);
+BEGIN{push(@IRx1::Label::ISA,'IRx1::Base');}
+sub match {
+  if (@_ == 2) {
+      $_[0]{'match'} = $_[1];
+ } else {
+     $_[0]{'match'};
+  }
+}
+;
+sub labels {
+  if (@_ == 2) {
+      $_[0]{'labels'} = $_[1];
+ } else {
+     $_[0]{'labels'};
+  }
+}
+;
+sub statement {
+  if (@_ == 2) {
+      $_[0]{'statement'} = $_[1];
+ } else {
+     $_[0]{'statement'};
+  }
+}
+;
+sub notes {
+  if (@_ == 2) {
+      $_[0]{'notes'} = $_[1];
+ } else {
+     $_[0]{'notes'};
+  }
+}
+;
+sub newp{my $self=CORE::shift;my($match,$labels,$statement)=@_;
+$self->new('match', $match, 'labels', $labels, 'statement', $statement)};
+sub callback{my $self=CORE::shift;my($emitter)=@_;
+$emitter->cb__Label($self)};
+sub node_name{my $self=CORE::shift;'Label'};
+sub field_names{my $self=CORE::shift;['labels', 'statement']};
+sub field_values{my $self=CORE::shift;[$self->labels, $self->statement]};
+sub irx1_describe{my $self=CORE::shift;(((('Label(' . $self->labels->irx1_describe()) . ',') . $self->statement->irx1_describe()) . ')')}
 }
 ;
 
@@ -3639,18 +3723,21 @@ $x->make_ir_from_Match_tree()};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
 IRx1::CompUnit->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))});
 $main::irbuilder->add_constructor('statement', sub {my($m)=@_;
-my $key;
-for($m->{'hash'}->keys()->flatten){
-if(($_ ne 'match')) {
-if($key) {
-GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
-')
-};
-($key = $_)
+my $labels = irbuild_ir($m->{'hash'}->{'label'});
+my $result = (irbuild_ir($m->{'hash'}->{'expr'}) || irbuild_ir($m->{'hash'}->{'control'}));
+if(($m->{'hash'}->{'expr'} && (($m->{'hash'}->{'mod_loop'} || $m->{'hash'}->{'mod_cond'})))) {
+{package Main; use vars '$1es_blackboard__statement_expr'};local $::es_blackboard__statement_expr = $result;
+($result = (irbuild_ir($m->{'hash'}->{'mod_loop'}) || irbuild_ir($m->{'hash'}->{'mod_cond'})));
+if($m->{'hash'}->{'mod_condloop'}) {
+($::es_blackboard__statement_expr = $result);
+($result = irbuild_ir($m->{'hash'}->{'mod_condloop'}))
 }
 };
-my $one = irbuild_ir($m->{'hash'}->{$key});
-$one});
+if($labels) {
+IRx1::Label->newp($m, $labels, $result)
+}else {
+$result
+}});
 $main::irbuilder->add_constructor('expect_infix', sub {my($m)=@_;
 if(irbuild_ir($m->{'hash'}->{'infix'})) {
 if(irbuild_ir($m->{'hash'}->{'infix_postfix_meta_operator'})) {
@@ -3821,8 +3908,18 @@ if(($args && (($args->ref() eq 'SCALAR')))) {
 IRx1::Apply->newp($m, ('circumfix:' . $name), IRx1::Capture->newp($m, $args))});
 $main::irbuilder->add_constructor('statement_control:for', sub {my($m)=@_;
 IRx1::For->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('statement_mod_loop:for', sub {my($m)=@_;
+IRx1::For->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), $::es_blackboard__statement_expr)});
 $main::irbuilder->add_constructor('statement_control:while', sub {my($m)=@_;
 IRx1::Loop->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('statement_mod_loop:while', sub {my($m)=@_;
+IRx1::Loop->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), $::es_blackboard__statement_expr)});
+$main::irbuilder->add_constructor('statement_control:until', sub {my($m)=@_;
+my $test = IRx1::Apply->newp($m, 'not', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'expr'})]));
+IRx1::Loop->newp($m, $test, irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('statement_mod_loop:until', sub {my($m)=@_;
+my $test = IRx1::Apply->newp($m, 'not', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'expr'})]));
+IRx1::Loop->newp($m, $test, $::es_blackboard__statement_expr)});
 $main::irbuilder->add_constructor('statement_control:if', sub {my($m)=@_;
 my $els = irbuild_ir($m->{'hash'}->{'else'});
 if($els) {
@@ -3844,18 +3941,22 @@ GLOBAL::die('Unexpectedly more than 1 field - dont know which to choose
 };
 my $one = irbuild_ir($m->{'hash'}->{$key});
 $one});
+$main::irbuilder->add_constructor('statement_mod_cond:if', sub {my($m)=@_;
+IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr]], GLOBAL::undef())});
+$main::irbuilder->add_constructor('statement_control:unless', sub {my($m)=@_;
+IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'})]], GLOBAL::undef(), 1)});
+$main::irbuilder->add_constructor('statement_mod_cond:unless', sub {my($m)=@_;
+IRx1::Cond->newp($m, [[irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr]], GLOBAL::undef(), 1)});
 $main::irbuilder->add_constructor('statement_control:given', sub {my($m)=@_;
-my $expr = irbuild_ir($m->{'hash'}->{'expr'});
-{package Main; use vars '$1es_blackboard__given_clauses'};local $::es_blackboard__given_clauses = [];
-{package Main; use vars '$1es_blackboard__given_default'};local $::es_blackboard__given_default;
-irbuild_ir($m->{'hash'}->{'block'});
-IRx1::Given->newp($m, $expr, $::es_blackboard__given_clauses, $::es_blackboard__given_default)});
+IRx1::Given->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('statement_mod_loop:given', sub {my($m)=@_;
+IRx1::Given->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), $::es_blackboard__statement_expr)});
 $main::irbuilder->add_constructor('statement_control:when', sub {my($m)=@_;
-$::es_blackboard__given_clauses->push([irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'})]);
-GLOBAL::undef()});
+IRx1::When->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))});
+$main::irbuilder->add_constructor('statement_mod_cond:when', sub {my($m)=@_;
+IRx1::When->newp($m, irbuild_ir($m->{'hash'}->{'modifier_expr'}), $::es_blackboard__statement_expr)});
 $main::irbuilder->add_constructor('statement_control:default', sub {my($m)=@_;
-($::es_blackboard__given_default = irbuild_ir($m->{'hash'}->{'block'}));
-GLOBAL::undef()});
+IRx1::When->newp($m, GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))});
 $main::irbuilder->add_constructor('statement_prefix:do', sub {my($m)=@_;
 IRx1::Apply->newp($m, 'statement_prefix:do', irbuild_ir($m->{'hash'}->{'statement'}))});
 $main::irbuilder->add_constructor('statement_prefix:try', sub {my($m)=@_;

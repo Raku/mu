@@ -629,17 +629,46 @@ package IRx1 {
   class Given is Base {
     has $.match;
     has $.expr;
-    has $.clauses;
-    has $.default;
+    has $.block;
     has $.notes;
     
-    method newp($match,$expr,$clauses,$default) { self.new('match', $match, 'expr', $expr, 'clauses', $clauses, 'default', $default) };
+    method newp($match,$expr,$block) { self.new('match', $match, 'expr', $expr, 'block', $block) };
     method callback($emitter) { $emitter.cb__Given(self) };
     method node_name() { 'Given' };
-    method field_names() { ['expr','clauses','default'] };
-    method field_values() { [$.expr,$.clauses,$.default] };
+    method field_names() { ['expr','block'] };
+    method field_values() { [$.expr,$.block] };
     method irx1_describe() {
-      'Given('~$.expr.irx1_describe~','~$.clauses.irx1_describe~','~$.default.irx1_describe~')'
+      'Given('~$.expr.irx1_describe~','~$.block.irx1_describe~')'
+    };
+  };
+  class When is Base {
+    has $.match;
+    has $.expr;
+    has $.block;
+    has $.notes;
+    
+    method newp($match,$expr,$block) { self.new('match', $match, 'expr', $expr, 'block', $block) };
+    method callback($emitter) { $emitter.cb__When(self) };
+    method node_name() { 'When' };
+    method field_names() { ['expr','block'] };
+    method field_values() { [$.expr,$.block] };
+    method irx1_describe() {
+      'When('~$.expr.irx1_describe~','~$.block.irx1_describe~')'
+    };
+  };
+  class Label is Base {
+    has $.match;
+    has $.labels;
+    has $.statement;
+    has $.notes;
+    
+    method newp($match,$labels,$statement) { self.new('match', $match, 'labels', $labels, 'statement', $statement) };
+    method callback($emitter) { $emitter.cb__Label(self) };
+    method node_name() { 'Label' };
+    method field_names() { ['labels','statement'] };
+    method field_values() { [$.labels,$.statement] };
+    method irx1_describe() {
+      'Label('~$.labels.irx1_describe~','~$.statement.irx1_describe~')'
     };
   };
   class RegexDef is Base {

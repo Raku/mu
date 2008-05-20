@@ -51,17 +51,21 @@ package IRx1_Build {
     });
 
     $main::irbuilder.add_constructor('statement', sub ($m) {
-        my $key;
-for $m.{'hash'}.keys {
-  if $_ ne 'match' {
-    if $key {
-      die("Unexpectedly more than 1 field - dont know which to choose\n")
-    }
-    $key = $_;
-  }
+      my $labels = irbuild_ir($m.{'hash'}{'label'});
+my $result = irbuild_ir($m.{'hash'}{'expr'}) || irbuild_ir($m.{'hash'}{'control'});
+if $m.{'hash'}{'expr'} && ($m.{'hash'}{'mod_loop'} || $m.{'hash'}{'mod_cond'}) {
+my $^blackboard::statement_expr = $result;
+$result = irbuild_ir($m.{'hash'}{'mod_loop'}) || irbuild_ir($m.{'hash'}{'mod_cond'});
+if $m.{'hash'}{'mod_condloop'} {
+  $^blackboard::statement_expr = $result;
+  $result = irbuild_ir($m.{'hash'}{'mod_condloop'});
 }
-my $one = irbuild_ir($m.{'hash'}{$key});
-$one;
+}
+if $labels {
+IRx1::Label.newp($m,$labels,$result);
+} else {
+$result;
+};
     });
 
     $main::irbuilder.add_constructor('expect_infix', sub ($m) {
@@ -290,8 +294,26 @@ IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args));
       IRx1::For.newp($m,irbuild_ir($m.{'hash'}{'expr'}),irbuild_ir($m.{'hash'}{'block'}));
     });
 
+    $main::irbuilder.add_constructor('statement_mod_loop:for', sub ($m) {
+      IRx1::For.newp($m,irbuild_ir($m.{'hash'}{'expr'}),$^blackboard::statement_expr);
+    });
+
     $main::irbuilder.add_constructor('statement_control:while', sub ($m) {
       IRx1::Loop.newp($m,irbuild_ir($m.{'hash'}{'expr'}),irbuild_ir($m.{'hash'}{'block'}));
+    });
+
+    $main::irbuilder.add_constructor('statement_mod_loop:while', sub ($m) {
+      IRx1::Loop.newp($m,irbuild_ir($m.{'hash'}{'expr'}),$^blackboard::statement_expr);
+    });
+
+    $main::irbuilder.add_constructor('statement_control:until', sub ($m) {
+      my $test = IRx1::Apply.newp($m,"not",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'expr'})]));
+IRx1::Loop.newp($m,$test,irbuild_ir($m.{'hash'}{'block'}));
+    });
+
+    $main::irbuilder.add_constructor('statement_mod_loop:until', sub ($m) {
+      my $test = IRx1::Apply.newp($m,"not",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'expr'})]));
+IRx1::Loop.newp($m,$test,$^blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:if', sub ($m) {
@@ -318,22 +340,36 @@ my $one = irbuild_ir($m.{'hash'}{$key});
 $one;
     });
 
+    $main::irbuilder.add_constructor('statement_mod_cond:if', sub ($m) {
+      IRx1::Cond.newp($m,[[irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr]],undef);
+    });
+
+    $main::irbuilder.add_constructor('statement_control:unless', sub ($m) {
+      IRx1::Cond.newp($m,[[irbuild_ir($m.{'hash'}{'expr'}),irbuild_ir($m.{'hash'}{'block'})]],undef,1);
+    });
+
+    $main::irbuilder.add_constructor('statement_mod_cond:unless', sub ($m) {
+      IRx1::Cond.newp($m,[[irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr]],undef,1);
+    });
+
     $main::irbuilder.add_constructor('statement_control:given', sub ($m) {
-      my $expr = irbuild_ir($m.{'hash'}{'expr'});
-my $^blackboard::given_clauses = [];
-my $^blackboard::given_default;
-irbuild_ir($m.{'hash'}{'block'});
-IRx1::Given.newp($m,$expr,$^blackboard::given_clauses,$^blackboard::given_default);
+      IRx1::Given.newp($m,irbuild_ir($m.{'hash'}{'expr'}),irbuild_ir($m.{'hash'}{'block'}));
+    });
+
+    $main::irbuilder.add_constructor('statement_mod_loop:given', sub ($m) {
+      IRx1::Given.newp($m,irbuild_ir($m.{'hash'}{'expr'}),$^blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:when', sub ($m) {
-      $^blackboard::given_clauses.push([irbuild_ir($m.{'hash'}{'expr'}),irbuild_ir($m.{'hash'}{'block'})]);
-undef;
+      IRx1::When.newp($m,irbuild_ir($m.{'hash'}{'expr'}),irbuild_ir($m.{'hash'}{'block'}));
+    });
+
+    $main::irbuilder.add_constructor('statement_mod_cond:when', sub ($m) {
+      IRx1::When.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:default', sub ($m) {
-      $^blackboard::given_default = irbuild_ir($m.{'hash'}{'block'});
-undef;
+      IRx1::When.newp($m,undef,irbuild_ir($m.{'hash'}{'block'}));
     });
 
     $main::irbuilder.add_constructor('statement_prefix:do', sub ($m) {

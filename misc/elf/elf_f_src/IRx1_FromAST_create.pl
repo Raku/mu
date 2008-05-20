@@ -8,7 +8,21 @@ comp_unit
 CompUnit.newp($m<statementlist>)
 
 statement
-*1*
+my $labels = $m<label>;
+my $result = $m<expr> || $m<control>;
+if $o<expr> && ($o<mod_loop> || $o<mod_cond>) {
+  my $^blackboard::statement_expr = $result;
+  $result = $m<mod_loop> || $m<mod_cond>;
+  if $o<mod_condloop> {
+    $^blackboard::statement_expr = $result;
+    $result = $m<mod_condloop>;
+  }
+}
+if $labels {
+  Label.newp($labels,$result);
+} else {
+  $result;
+}
 
 expect_infix
 if $m<infix> {
@@ -198,11 +212,27 @@ my $args = $m<kludge_name>;
 if $args && ($args.ref eq 'SCALAR')  { $args = [$args] }
 Apply.newp("circumfix:"~$name,Capture.newp($args))
 
+
 statement_control:for
 For.newp($m<expr>,$m<block>)
 
+statement_mod_loop:for
+For.newp($m<expr>,$^blackboard::statement_expr)
+
 statement_control:while
 Loop.newp($m<expr>,$m<block>)
+
+statement_mod_loop:while
+Loop.newp($m<expr>,$^blackboard::statement_expr)
+
+statement_control:until
+my $test = Apply.newp("not",Capture.newp([$m<expr>]));
+Loop.newp($test,$m<block>)
+
+statement_mod_loop:until
+my $test = Apply.newp("not",Capture.newp([$m<expr>]));
+Loop.newp($test,$^blackboard::statement_expr)
+
 
 statement_control:if
 my $els = $m<else>;
@@ -215,20 +245,31 @@ elsif
 if__else
 *1*
 
+statement_mod_cond:if
+Cond.newp([[$m<modifier_expr>,$^blackboard::statement_expr]],undef)
+
+statement_control:unless
+Cond.newp([[$m<expr>,$m<block>]],undef,1)
+
+statement_mod_cond:unless
+Cond.newp([[$m<modifier_expr>,$^blackboard::statement_expr]],undef,1)
+
+
 statement_control:given
-my $expr = $m<expr>;
-my $^blackboard::given_clauses = [];
-my $^blackboard::given_default;
-$m<block>;
-Given.newp($expr,$^blackboard::given_clauses,$^blackboard::given_default)
+Given.newp($m<expr>,$m<block>)
+
+statement_mod_loop:given
+Given.newp($m<expr>,$^blackboard::statement_expr)
 
 statement_control:when
-$^blackboard::given_clauses.push([$m<expr>,$m<block>]);
-undef
+When.newp($m<expr>,$m<block>)
+
+statement_mod_cond:when
+When.newp($m<modifier_expr>,$^blackboard::statement_expr)
 
 statement_control:default
-$^blackboard::given_default = $m<block>;
-undef
+When.newp(undef,$m<block>)
+
 
 statement_prefix:do
 Apply.newp("statement_prefix:do",$m<statement>)

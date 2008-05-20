@@ -274,7 +274,7 @@ class Perl < Grammar
     end
 
     def label
-        let_pos{ id = ident and scan(/:(?=\s)/) and wsp }
+        let_pos{ id = ident and scan(/:(?=\s)/) and wsp and id }
         #R ...missing... bookkeeping - needed?
     end
 
@@ -421,12 +421,12 @@ class Perl < Grammar
     def_tokens_rest :statement_mod_cond,false,%w{ if unless when },%q{
       nofat and wsp and
       me=modifier_expr and wsp and
-      _match_from(start,{:mod_<sym>=>me},:<sym>)
+      _match_from(start,{:modifier_expr=>me},:<sym>) #R NONSPEC normalized name, ignored #= name.
     }
     def_tokens_rest :statement_mod_loop,false,%w{ while until for given },%q{
       nofat and wsp and
       me=modifier_expr and wsp and
-      _match_from(start,{:mod_<sym>=>me},:<sym>)
+      _match_from(start,{:modifier_expr=>me},:<sym>) #R NONSPEC normalized name, ignored #= name.
     }
     
     #R reordered.  depreciated needs to come first.
