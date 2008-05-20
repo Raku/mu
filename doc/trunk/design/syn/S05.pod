@@ -389,7 +389,7 @@ modifiers at the end.)  For instance,
 
      m:P5/(?mi)^(?:[a-z]|\d){1,2}(?=\s)/
 
-is equivalant to the Perl 6 syntax:
+is equivalent to the Perl 6 syntax:
 
     m/ :i ^^ [ <[a..z]> || \d ] ** 1..2 <before \s> /
 
