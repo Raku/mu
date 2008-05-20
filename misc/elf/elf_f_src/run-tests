@@ -5,6 +5,9 @@ use warnings;
 my $root = "../../..";
 my $elf = "$root/misc/elf/".(shift||"elf_f");
 print STDERR "using $elf\n";
+
+`$elf -e 3`; $? == 0 or die "ERROR: $elf isn't working.  Aborting $0.\n";
+
 my @t = map{chomp;/\.t$/?$_:()} `(find $root/v6/v6-KindaPerl6/t/kp6/ -type f; find $root/t -type f)|grep -v '\.svn'| sort`;
 
 #@t = splice(@t,0,2);
