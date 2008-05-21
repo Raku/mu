@@ -49,7 +49,7 @@ smop_native_uint_init ()
   ((SMOP__ResponderInterface *) SMOP__NATIVE__uint)->REFERENCE =
     uint_reference;
   ((SMOP__ResponderInterface *) SMOP__NATIVE__uint)->RELEASE = uint_release;
-  ((SMOP__ResponderInterface *) SMOP__NATIVE__uint)->id = "Native uint\0";
+  ((SMOP__ResponderInterface *) SMOP__NATIVE__uint)->id = "Native uint";
 }
 
 void

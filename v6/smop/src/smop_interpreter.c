@@ -295,7 +295,7 @@ void smop_interpreter_init() {
   ((SMOP__ResponderInterface*)SMOP__INTPTR__InterpreterInstance)->MESSAGE = interpreter_message;
   ((SMOP__ResponderInterface*)SMOP__INTPTR__InterpreterInstance)->REFERENCE = interpreter_reference;
   ((SMOP__ResponderInterface*)SMOP__INTPTR__InterpreterInstance)->RELEASE = interpreter_release;
-  ((SMOP__ResponderInterface*)SMOP__INTPTR__InterpreterInstance)->id = "SMOP Intepreter Instance\0";
+  ((SMOP__ResponderInterface*)SMOP__INTPTR__InterpreterInstance)->id = "SMOP Intepreter Instance";
 
 }
 

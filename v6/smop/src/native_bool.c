@@ -35,7 +35,7 @@ void smop_native_bool_init() {
   ri->MESSAGE = bool_message;
   ri->REFERENCE = bool_reference;
   ri->RELEASE = bool_release;
-  ri->id = "Native Boolean\0";
+  ri->id = "Native Boolean";
 
   SMOP__NATIVE__bool_true = calloc(1,sizeof(SMOP__Object));
   assert(SMOP__NATIVE__bool_true);

@@ -58,7 +58,7 @@ void smop_slime_capturize_init() {
   ((SMOP__ResponderInterface*)SMOP__SLIME__Capturize)->MESSAGE = capturize_message;
   ((SMOP__ResponderInterface*)SMOP__SLIME__Capturize)->REFERENCE = capturize_reference;
   ((SMOP__ResponderInterface*)SMOP__SLIME__Capturize)->RELEASE = capturize_release;
-  ((SMOP__ResponderInterface*)SMOP__SLIME__Capturize)->id = "SMOP SLIME Capturize\0";
+  ((SMOP__ResponderInterface*)SMOP__SLIME__Capturize)->id = "SMOP SLIME Capturize";
 }
 
 void smop_slime_capturize_destr() {

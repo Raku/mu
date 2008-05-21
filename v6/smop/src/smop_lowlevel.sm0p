@@ -141,7 +141,7 @@ void smop_lowlevel_init() {
   ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->MESSAGE = lowlevelop_message;
   ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->REFERENCE = lowlevelop_reference;
   ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->RELEASE = lowlevelop_release;
-  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->id = "SMOP Lowlevel Operator\0";
+  ((SMOP__ResponderInterface*)SMOP__LOWLEVEL__Operators)->id = "SMOP Lowlevel Operator";
 
 #ifdef SMOP_LOWLEVEL_MEM_TRACE
   trace_list_alloc = 1024;
