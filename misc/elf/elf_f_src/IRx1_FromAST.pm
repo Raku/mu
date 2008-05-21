@@ -238,17 +238,17 @@ IRx1::Rx.newp($m,$s,irbuild_ir($m.{'hash'}{'quotepair'}));
 
     $main::irbuilder.add_constructor('scope_declarator:my', sub ($m) {
       my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
-IRx1::VarDecl.newp($m,'my',undef,undef,$vd.[0],undef,undef,'=',$vd.[1]);
+IRx1::VarDecl.newp($m,'my',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1]);
     });
 
     $main::irbuilder.add_constructor('scope_declarator:has', sub ($m) {
       my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
-IRx1::VarDecl.newp($m,'has',undef,undef,$vd.[0],undef,undef,'=',$vd.[1]);
+IRx1::VarDecl.newp($m,'has',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1]);
     });
 
     $main::irbuilder.add_constructor('scope_declarator:our', sub ($m) {
       my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
-IRx1::VarDecl.newp($m,'our',undef,undef,$vd.[0],undef,undef,'=',$vd.[1]);
+IRx1::VarDecl.newp($m,'our',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1]);
     });
 
     $main::irbuilder.add_constructor('scoped', sub ($m) {
@@ -256,7 +256,7 @@ IRx1::VarDecl.newp($m,'our',undef,undef,$vd.[0],undef,undef,'=',$vd.[1]);
     });
 
     $main::irbuilder.add_constructor('variable_decl', sub ($m) {
-      [irbuild_ir($m.{'hash'}{'variable'}),irbuild_ir($m.{'hash'}{'default_value'})];
+      [irbuild_ir($m.{'hash'}{'variable'}),irbuild_ir($m.{'hash'}{'default_value'}),irbuild_ir($m.{'hash'}{'traits'})];
     });
 
     $main::irbuilder.add_constructor('variable', sub ($m) {
@@ -443,7 +443,7 @@ IRx1::SubDecl.newp($m,undef,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{
 
     $main::irbuilder.add_constructor('routine_declarator:method_def', sub ($m) {
       my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
-IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.{'hash'}{'ident'}),irbuild_ir($m.{'hash'}{'multisig'}).[0],undef,irbuild_ir($m.{'hash'}{'block'}));
+IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.{'hash'}{'ident'}),irbuild_ir($m.{'hash'}{'multisig'}).[0],irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
     });
 
     $main::irbuilder.add_constructor('signature', sub ($m) {
@@ -540,6 +540,10 @@ $value = irbuild_ir($m.{'hash'}{'postcircumfix'}.{'hash'}{'kludge_name'});
 $value = IRx1::NumInt.newp($m,1);
 }
 IRx1::Pair.newp($m,irbuild_ir($m.{'hash'}{'ident'}),$value);
+    });
+
+    $main::irbuilder.add_constructor('quotepair__nth', sub ($m) {
+      IRx1::Pair.newp($m,'nth',irbuild_ir($m.{'hash'}{'n'}));
     });
 
     $main::irbuilder.add_constructor('package_declarator:class', sub ($m) {

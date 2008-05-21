@@ -160,21 +160,21 @@ Rx.newp($s,$m<quotepair>)
 
 scope_declarator:my
 my $vd = $m<scoped>[0];
-VarDecl.newp('my',undef,undef,$vd.[0],undef,undef,'=',$vd.[1])
+VarDecl.newp('my',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1])
 
 scope_declarator:has
 my $vd = $m<scoped>[0];
-VarDecl.newp('has',undef,undef,$vd.[0],undef,undef,'=',$vd.[1])
+VarDecl.newp('has',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1])
 
 scope_declarator:our
 my $vd = $m<scoped>[0];
-VarDecl.newp('our',undef,undef,$vd.[0],undef,undef,'=',$vd.[1])
+VarDecl.newp('our',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1])
 
 scoped
 [$m<variable_decl>,$m<fulltypename>]
 
 variable_decl
-[$m<variable>,$m<default_value>]
+[$m<variable>,$m<default_value>,$m<traits>]
 
 variable
 my $tw = $m<twigil>;
@@ -321,7 +321,7 @@ SubDecl.newp(undef,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
 
 routine_declarator:method_def
 my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
-MethodDecl.newp(undef,undef,$plurality,$m<ident>,$m<multisig>.[0],undef,$m<block>)
+MethodDecl.newp(undef,undef,$plurality,$m<ident>,$m<multisig>.[0],$m<trait>,$m<block>)
 
 signature
 Signature.newp($m<parsep>,undef)
@@ -388,6 +388,9 @@ if $o<postcircumfix> {
   $value = NumInt.newp(1);
 }
 Pair.newp($m<ident>,$value)
+
+quotepair__nth
+Pair.newp('nth',$m<n>)
 
 
 package_declarator:class

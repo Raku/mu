@@ -135,6 +135,13 @@ class IRx1::Apply {
     for self.child_nodes {$_.note_environment}
   };
 };
+class IRx1::Var {
+  method note_environment() {
+    my $key = self<sigil> ~ self<name>;
+    self.notes<decl> = $^whiteboard::lexical_bindings{$key};
+    for self.child_nodes {$_.note_environment}
+  }
+}
 class IRx1::Base {
   method note_environment() {
     for self.child_nodes {$_.note_environment}
@@ -145,6 +152,10 @@ class IRx1::Base {
 # info
 class IRx1::VarDecl {
   method is_lexical() {self.scope eq 'my'};
+  method is_context() {
+    for self.traits {if $_.expr eq 'context' { return 1 }}
+    return 0;
+  }
   method sigil() { self.<var><sigil> };
   method name () { self.<var><name> };
 };

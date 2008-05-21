@@ -505,6 +505,10 @@ package Main;
       #self.multimethods_using_hack($n,$name,$type0);
       self.multimethods_using_CM($n,$name,$type0);
     }
+    elsif $n<traits> && $n<traits>[0]<expr> && $n<traits>[0]<expr> eq 'p5' {
+      my $code = $n<block><statements>[0]<buf>;
+      'sub '~$.e($n<name>)~'{ my $self=CORE::shift;'~$.e($n<multisig>)~$code~'}';
+    }
     else {
       'sub '~$.e($n<name>)~'{my $self=CORE::shift;'~$.e($n<multisig>)~$.e($n<block>)~'}'
     }

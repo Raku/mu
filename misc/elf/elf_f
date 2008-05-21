@@ -2309,17 +2309,17 @@ $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
 IRx1::Rx->newp($m, $s, irbuild_ir($m->{'hash'}->{'quotepair'}))})});
 $main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
 (do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])})});
+IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), $vd->[2], '=', $vd->[1])})});
 $main::irbuilder->add_constructor('scope_declarator:has', sub {my($m)=@_;
 (do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'has', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])})});
+IRx1::VarDecl->newp($m, 'has', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), $vd->[2], '=', $vd->[1])})});
 $main::irbuilder->add_constructor('scope_declarator:our', sub {my($m)=@_;
 (do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'our', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), GLOBAL::undef(), '=', $vd->[1])})});
+IRx1::VarDecl->newp($m, 'our', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), $vd->[2], '=', $vd->[1])})});
 $main::irbuilder->add_constructor('scoped', sub {my($m)=@_;
 (do{[irbuild_ir($m->{'hash'}->{'variable_decl'}), irbuild_ir($m->{'hash'}->{'fulltypename'})]})});
 $main::irbuilder->add_constructor('variable_decl', sub {my($m)=@_;
-(do{[irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'})]})});
+(do{[irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'}), irbuild_ir($m->{'hash'}->{'traits'})]})});
 $main::irbuilder->add_constructor('variable', sub {my($m)=@_;
 (do{my $tw = irbuild_ir($m->{'hash'}->{'twigil'});
 if($m->{'hash'}->{'postcircumfix'}) {
@@ -2451,7 +2451,7 @@ IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $s
 $main::irbuilder->add_constructor('routine_declarator:method_def', sub {my($m)=@_;
 (do{my $plurality = $::es_blackboard__plurality;
 {package Main; use vars '$1es_blackboard__plurality'};local $::es_blackboard__plurality;
-IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'multisig'})->[0], GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))})});
+IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{'hash'}->{'ident'}), irbuild_ir($m->{'hash'}->{'multisig'})->[0], irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('signature', sub {my($m)=@_;
 (do{IRx1::Signature->newp($m, irbuild_ir($m->{'hash'}->{'parsep'}), GLOBAL::undef())})});
 $main::irbuilder->add_constructor('parameter', sub {my($m)=@_;
@@ -2528,6 +2528,8 @@ if($m->{'hash'}->{'postcircumfix'}) {
 (do{($value = IRx1::NumInt->newp($m, 1))})
 };
 IRx1::Pair->newp($m, irbuild_ir($m->{'hash'}->{'ident'}), $value)})});
+$main::irbuilder->add_constructor('quotepair__nth', sub {my($m)=@_;
+(do{IRx1::Pair->newp($m, 'nth', irbuild_ir($m->{'hash'}->{'n'}))})});
 $main::irbuilder->add_constructor('package_declarator:class', sub {my($m)=@_;
 (do{{package Main; use vars '$1es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = 'class';
 irbuild_ir($m->{'hash'}->{'package_def'})})});
@@ -2810,6 +2812,18 @@ __PACKAGE__->meta->make_immutable();
 }
 ;
 
+{ package IRx1::Var;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->{'sigil'} . $self->{'name'});
+($self->notes()->{'decl'} = $::es_whiteboard__lexical_bindings->{$key});
+for($self->child_nodes()->flatten){
+(do{$_->note_environment()})
+}})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
 (do{sub note_environment{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
@@ -2823,6 +2837,12 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 (do{sub is_lexical{my $self=CORE::shift;(do{($self->scope() eq 'my')})};
+sub is_context{my $self=CORE::shift;(do{for($self->traits()->flatten){
+(do{if(($_->expr() eq 'context')) {
+(do{return(1)})
+}})
+};
+return(0)})};
 sub sigil{my $self=CORE::shift;(do{$self->{'var'}->{'sigil'}})};
 sub name{my $self=CORE::shift;(do{$self->{'var'}->{'name'}})}});
 __PACKAGE__->meta->make_immutable();
@@ -3348,6 +3368,9 @@ if(GLOBAL::not($type0)) {
 '))})
 };
 $self->multimethods_using_CM($n, $name, $type0)})
+}elsif((($n->{'traits'} && $n->{'traits'}->[0]->{'expr'}) && ($n->{'traits'}->[0]->{'expr'} eq 'p5'))) {
+(do{my $code = $n->{'block'}->{'statements'}->[0]->{'buf'};
+((((('sub ' . $self->e($n->{'name'})) . '{ my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $code) . '}')})
 }else {
 (do{((((('sub ' . $self->e($n->{'name'})) . '{my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}')})
 }})};
@@ -3619,6 +3642,62 @@ use Scalar::Util "openhandle";
     $warning =~ s/[ ]at[ ].*//xms;
     Carp::croak $warning;
     }});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Any;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub perl{my $self=CORE::shift;(do{($self->WHAT() . '.new()')})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package STRING;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub perl{ my $self=CORE::shift;
+    no warnings "once";
+    local $Data::Dumper::Pure = 1;
+    local $Data::Dumper::Terse = 1;
+    my $s = Data::Dumper::Dumper($self);
+    CORE::chomp($s);
+    $s;}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package INTEGER;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub perl{my $self=CORE::shift;(do{('' . $self)})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package FLOAT;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub perl{my $self=CORE::shift;(do{('' . $self)})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package ARRAY;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub perl{my $self=CORE::shift;(do{(('[' . $self->map(sub {my($e)=@_;
+(do{$e->perl()})})->join(',')) . ']')})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package HASH;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub perl{my $self=CORE::shift;(do{(('{' . $self->keys()->map(sub {my($k)=@_;
+(do{(($k->perl() . ' => ') . $self->{$k}->perl())})})->join(', ')) . '}')})}});
 __PACKAGE__->meta->make_immutable();
 
 }

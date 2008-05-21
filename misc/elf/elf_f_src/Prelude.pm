@@ -88,3 +88,5 @@ class Object {}; #XXX does Class
 class Any {
   method say() { say(self) }
 }
+
+
