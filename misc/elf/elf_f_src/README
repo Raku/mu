@@ -1,19 +1,1 @@
 
-touch     ../elf_f0 ../elf_f1 ../elf_f2 ../elf_f ../elf_f_faster ../elf_f_faster0 ../elf_f_faster1 ../elf_f_faster2
-chmod a+x ../elf_f0 ../elf_f1 ../elf_f2 ../elf_f ../elf_f_faster ../elf_f_faster0 ../elf_f_faster1 ../elf_f_faster2
-
-../elf_f -x -o ../elf_f0 Elf.pm
-../elf_f0 -x -o ../elf_f1 Elf.pm
-../elf_f1 -x -o ../elf_f2 Elf.pm
-diff ../elf_f1 ../elf_f2
-../elf_f2 -e 'say 3'
-
-../elf_f -x -o ../elf_f_faster0 Elf_Faster.pm
-../elf_f_faster0 -x -o ../elf_f_faster1 Elf_Faster.pm
-../elf_f_faster1 -x -o ../elf_f_faster2 Elf_Faster.pm
-diff ../elf_f_faster1 ../elf_f_faster2
-../elf_f_faster2 -e 'say 3'
-
-cp ../elf_f2 ../elf_f
-cp ../elf_f_faster2 ../elf_f_faster
-
