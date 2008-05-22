@@ -247,6 +247,7 @@ use warnings;
   sub split{[CORE::split($_[0],$_[1])]}
 
   sub unlink{CORE::unlink(@_)}
+  sub sprintf{CORE::sprintf(shift,@_)}
 }
 
 { package STRING;
@@ -297,6 +298,14 @@ use warnings;
       }
     }
     return undef;
+  }
+  sub import {
+    my($module,@args)=@_;
+    my $args = \@args;
+    my $import = "if(defined(&".$module."::import)) { ".$module."->import(\$args); }";
+    my $result = eval $import;
+    Carp::confess($@) if $@;
+    $result;
   }
   sub mkdir {
     my($dir) = @_;
@@ -4710,6 +4719,7 @@ use warnings;
   sub split{[CORE::split($_[0],$_[1])]}
 
   sub unlink{CORE::unlink(@_)}
+  sub sprintf{CORE::sprintf(shift,@_)}
 }
 
 { package STRING;
@@ -4760,6 +4770,14 @@ use warnings;
       }
     }
     return undef;
+  }
+  sub import {
+    my($module,@args)=@_;
+    my $args = \\@args;
+    my $import = "if(defined(&".$module."::import)) { ".$module."->import(\\$args); }";
+    my $result = eval $import;
+    Carp::confess($@) if $@;
+    $result;
   }
   sub mkdir {
     my($dir) = @_;
@@ -5186,9 +5204,10 @@ sub cb__Buf{my $self=CORE::shift;my($n)=@_;
 $s->chomp();
 $s})};
 sub cb__Rx{my $self=CORE::shift;my($n)=@_;
-(do{(('qr/' . $n->{'pat'}) . '/')})};
+(do{my $pat = ($n->{'pat'} || '');
+(('qr/' . $pat) . '/')})};
 sub cb__Pair{my $self=CORE::shift;my($n)=@_;
-(do{(((('(' . $self->e($n->{'key'})) . '=>') . $self->e($n->{'value'})) . ')')})}})
+(do{(((('Pair->new(\'key\',\'' . $self->e($n->{'key'})) . '\',\'value\',\'') . $self->e($n->{'value'})) . '\')')})}})
 }
 ;
 if(GLOBAL::not($GLOBAL::emitter0)) {
@@ -5484,7 +5503,8 @@ if($self->is_for_active_runtime) {
 }})};
 sub hook_for_use{my $self=CORE::shift;my($module,$expr)=@_;
 (do{if($self->is_for_active_runtime) {
-(do{GLOBAL::require($module)})
+(do{GLOBAL::require($module);
+GLOBAL::import($module, $expr)})
 }else {
 (do{my $filename = (GLOBAL::find_required_module($module) || GLOBAL::die((((('Didnt find ' . $module) . ' in ( ') . $GLOBAL::a_INC->join(' ')) . ' ).
 ')));

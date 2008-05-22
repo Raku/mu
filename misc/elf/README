@@ -12,6 +12,13 @@ the startup time of 5.8.8.
 
 elf_f_faster is faster, but not always equivalent.
 
+P6 scripts:
+  $ cat say3
+  #!/usr/bin/env elf_f_faster
+  say 3;
+  $ ./say 3
+  3
+
 
 INSTALL
 
@@ -25,6 +32,8 @@ development or slushy/frozen.
 STD_red requires ruby 1.9.  See it's README for installation info.
 
 RUNNING TESTS
+
+  See run-tests in elf_f_src.
 
   You can run a couple of tests with
     prove --exec 'perl elf_d' - < TESTS

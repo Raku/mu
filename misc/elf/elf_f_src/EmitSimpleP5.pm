@@ -260,6 +260,7 @@ use warnings;
   sub split{[CORE::split($_[0],$_[1])]}
 
   sub unlink{CORE::unlink(@_)}
+  sub sprintf{CORE::sprintf(shift,@_)}
 }
 
 { package STRING;
@@ -310,6 +311,14 @@ use warnings;
       }
     }
     return undef;
+  }
+  sub import {
+    my($module,@args)=@_;
+    my $args = \@args;
+    my $import = "if(defined(&".$module."::import)) { ".$module."->import(\$args); }";
+    my $result = eval $import;
+    Carp::confess($@) if $@;
+    $result;
   }
   sub mkdir {
     my($dir) = @_;
@@ -714,10 +723,11 @@ package Main;
     $s;
   };
   method cb__Rx ($n) {
-    'qr/'~$n<pat>~'/'
+    my $pat = $n<pat> || '';
+    'qr/'~$pat~'/'
   };
   method cb__Pair($n) {
-    '('~$.e($n<key>)~'=>'~$.e($n<value>)~')'
+    "Pair->new('key','"~$.e($n<key>)~"','value','"~$.e($n<value>)~"')"
   };
 
 };

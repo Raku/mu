@@ -82,6 +82,7 @@ class Compiler {
   method hook_for_use($module,$expr) {
     if $.is_for_active_runtime {
       require($module);
+      import($module,$expr);
     } else {
       my $filename = find_required_module($module) ||
           die("Didnt find "~$module~" in ( "~@*INC.join(" ")~" ).\n");
