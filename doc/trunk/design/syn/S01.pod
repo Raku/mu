@@ -117,13 +117,13 @@ Migration in the other direction is also important.  In Perl 6
 mode, one can drop back to Perl 5 mode  with C<use v5> at the
 beginning of a lexical block.  Such blocks may be nested:
 
-    use v6-alpha;
+    use v6;
     # ...some Perl 6 code...
     {
         use v5;
         # ...some Perl 5 code...
         {
-            use v6-alpha;
+            use v6;
             # ...more Perl 6 code...
         }
     }

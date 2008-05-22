@@ -359,25 +359,6 @@ something like:
 
 to guarantee that you get the unembraced Perl.  C<:-)>
 
-To allow a version specification that works with both Perl 5 and Perl 6, we
-use variants of the "v6" pseudomodule.  This form specifically allows
-use of a subsequent hyphenated identifier.
-Before the full specification of Perl 6.0.0 is released, you can use C<alpha>
-to denote a program using syntax that is still subject
-to change:
-
-    use v6-alpha;
-
-Later on
-
-    use v6-std;
-
-will indicate standard version 6 of Perl.
-
-The C<use v6-alpha> line also serves as the Perl 5 incantation to switch to
-Perl 6 parsing.  In Perl 5 this actually ends up calling the v6.pm module with a
-C<-alpha> argument, for insane-but-useful reasons.
-
 For wildcards any valid smartmatch selector works:
 
     use Dog:ver(1.2.1 | 1.3.4):auth(/:i jrandom/);
@@ -456,7 +437,7 @@ so you can say things like:
 To get Perl 6 parsing rather than the default Perl 5 parsing,
 we said you could force Perl 6 mode in your main program with:
 
-    use v6-alpha;
+    use v6;
 
 Actually, if you're running a parser that is aware of Perl 6, you
 can just start your main program with any of:
@@ -492,13 +473,13 @@ In the other direction, to inline Perl 5 code inside a Perl 6 program, put
 C<use v5> at the beginning of a lexical block.  Such blocks can nest arbitrarily
 deeply to switch between Perl versions:
 
-    use v6-std;
+    use v6;
     # ...some Perl 6 code...
     {
         use v5;
         # ...some Perl 5 code...
         {
-            use v6-std;
+            use v6;
             # ...more Perl 6 code...
         }
     }
