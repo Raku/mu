@@ -42,18 +42,8 @@ class EmitFasterP5 is EmitSimpleP5 {
   };
 
   method do_VarDecl_has ($n) {
-      my $default = $.e($n.default_expr);
-      if (defined $default) {
-        $default = ", default => "~$default
-      } else {
-        $default = ""
-      }
-      "sub " ~ $.e($n.var.name) ~ " {\n" ~
-      "  if (@_ == 2) {\n" ~
-      "      $_[0]{'" ~ $.e($n.var.name) ~ "'} = $_[1];\n" ~
-      " } else {\n" ~
+      "sub " ~ $.e($n.var.name) ~ ": lvalue {\n" ~
       "     $_[0]{'" ~ $.e($n.var.name) ~ "'};\n" ~
-      "  }\n" ~
       "}\n";
   };
 

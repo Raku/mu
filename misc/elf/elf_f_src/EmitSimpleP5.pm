@@ -369,7 +369,7 @@ package Main;
     $code ~ $stmts.join(";\n")~";\n";
   };
   method cb__Block ($n) {
-    #'# '~$.e($n.notes.lexical_variable_decls).join(" ")~"\n"~
+    #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
     '(do{'~$.e($n.statements).join(";\n")~'})'
   };
 
@@ -586,7 +586,10 @@ package Main;
         $s;
       }
       elsif ($op eq '=') {
-        my $t = $.e($n.capture.arguments[0].twigil);
+        my $t;
+        if $n.capture.arguments[0].isa("Var") {
+            $t = $.e($n.capture.arguments[0].twigil);
+        }
         if ($t && $t eq '.') {
           $l~'('~$r~')'
         }
@@ -640,7 +643,7 @@ package Main;
       } elsif ($f =~ /^sub\s*{/) {
         '('~$f~')->('~$.e($n.capture)~')'
       } elsif ($f =~ /^\w/) {
-        if $n.notes.lexical_bindings.{'&'~$f} {
+        if $n.notes<lexical_bindings>{'&'~$f} {
           ''~$f~'('~$.e($n.capture)~')'
         } else {
           if $f eq 'eval' {
