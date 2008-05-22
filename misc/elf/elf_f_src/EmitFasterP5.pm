@@ -48,11 +48,11 @@ class EmitFasterP5 is EmitSimpleP5 {
       } else {
         $default = ""
       }
-      "sub " ~ $.e($n.var<name>) ~ " {\n" ~
+      "sub " ~ $.e($n.var.name) ~ " {\n" ~
       "  if (@_ == 2) {\n" ~
-      "      $_[0]{'" ~ $.e($n.var<name>) ~ "'} = $_[1];\n" ~
+      "      $_[0]{'" ~ $.e($n.var.name) ~ "'} = $_[1];\n" ~
       " } else {\n" ~
-      "     $_[0]{'" ~ $.e($n.var<name>) ~ "'};\n" ~
+      "     $_[0]{'" ~ $.e($n.var.name) ~ "'};\n" ~
       "  }\n" ~
       "}\n";
   };

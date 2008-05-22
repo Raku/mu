@@ -369,7 +369,7 @@ package Main;
     $code ~ $stmts.join(";\n")~";\n";
   };
   method cb__Block ($n) {
-    #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
+    #'# '~$.e($n.notes.lexical_variable_decls).join(" ")~"\n"~
     '(do{'~$.e($n.statements).join(";\n")~'})'
   };
 
@@ -379,7 +379,7 @@ package Main;
     if $module eq 'v6-alpha' { "" }
     elsif $module eq 'v6' { "" }
     elsif $module eq 'lib' {
-      my $name = $n.expr<buf>;
+      my $name = $n.expr.buf;
       if $.compiler.hook_for_use_lib($name) { "" }
       else { "" }
     }
@@ -422,10 +422,10 @@ package Main;
       if $default_expr {
         $default = ", default => sub{ "~$default_expr~" }"
       } else {
-        if ($n.var<sigil> eq '@') { $default = ', default => sub{ [] }' }
-        if ($n.var<sigil> eq '%') { $default = ', default => sub{ {} }' }
+        if ($n.var.sigil eq '@') { $default = ', default => sub{ [] }' }
+        if ($n.var.sigil eq '%') { $default = ', default => sub{ {} }' }
       }
-      "has '"~$.e($n.var<name>)~"' => (is => 'rw'"~$default~");"
+      "has '"~$.e($n.var.name)~"' => (is => 'rw'"~$default~");"
   };
 
   method cb__VarDecl ($n) {
@@ -436,10 +436,10 @@ package Main;
       if $n.default_expr {
         $default = ' = '~$.e($n.default_expr);
       } else {
-        if ($n.var<sigil> eq '@') { $default = ' = [];' }
-        if ($n.var<sigil> eq '%') { $default = ' = {};' }
+        if ($n.var.sigil eq '@') { $default = ' = [];' }
+        if ($n.var.sigil eq '%') { $default = ' = {};' }
       }
-      if ($n.var<twigil> eq '^') {
+      if ($n.var.twigil eq '^') {
         my $name = $.e($n.var);
         $name.re_gsub('^(.)::','$1');
         ("{package Main; use vars '"~$name~"'};"~
@@ -484,7 +484,7 @@ package Main;
     'sub '~$branch_name~'{my $self=CORE::shift;'~$.e($n.multisig)~$.e($n.block)~'}' ~ $code;
   };
   method multimethods_using_CM ($n,$name,$type0) {
-    my $n_args = $n.multisig<parameters>.elems;
+    my $n_args = $n.multisig.parameters.elems;
     $type0 = $type0.re_gsub('^Any$','*');
     $type0 = $type0.re_gsub('^Int$','#');
     $type0 = $type0.re_gsub('^Num$','#');
@@ -498,8 +498,8 @@ package Main;
   method cb__MethodDecl ($n) {
     if $n.plurality && $n.plurality eq 'multi' {
       my $name = $.e($n.name);
-      my $param_types = $n.multisig<parameters>.map(sub($p){
-        my $types = $.e($p<type_constraints>);
+      my $param_types = $n.multisig.parameters.map(sub($p){
+        my $types = $.e($p.type_constraints);
         if $types {
           if $types.elems != 1 { die("only limited multi method support") }
           $types[0];
@@ -514,8 +514,8 @@ package Main;
       #self.multimethods_using_hack($n,$name,$type0);
       self.multimethods_using_CM($n,$name,$type0);
     }
-    elsif $n.traits && $n.traits[0]<expr> && $n.traits[0]<expr> eq 'p5' {
-      my $code = $n.block<statements>[0]<buf>;
+    elsif $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'p5' {
+      my $code = $n.block.statements[0].buf;
       'sub '~$.e($n.name)~'{ my $self=CORE::shift;'~$.e($n.multisig)~$code~'}';
     }
     else {
@@ -527,8 +527,8 @@ package Main;
     if $name { $name = $.e($name) } else { $name = "" }
     my $sig = $n.multisig;
     if $sig { $sig = $.e($sig) } else { $sig = "" }
-    if $n.traits && $n.traits[0]<expr> && $n.traits[0]<expr> eq 'p5' {
-      my $code = $n.block<statements>[0]<buf>;
+    if $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'p5' {
+      my $code = $n.block.statements[0].buf;
       'sub '~$name~'{'~$sig~$code~'}';
     } else {
       'sub '~$name~'{'~$sig~$.e($n.block)~'}';
@@ -545,7 +545,7 @@ package Main;
   method cb__Parameter ($n) {
     my $enc = $.e($n.param_var);
     if $n.quant && $n.quant eq '*' {
-      my $tmp = "@"~$n.param_var<name>;
+      my $tmp = "@"~$n.param_var.name;
       $^whiteboard::signature_inits = $^whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
       $tmp;
     } else {
@@ -576,7 +576,7 @@ package Main;
   method cb__Apply ($n) {
     if $n.function =~ /^infix:(.+)$/ {
       my $op = $1;
-      my $a = $.e($n.capture<arguments>);
+      my $a = $.e($n.capture.arguments);
       my $l = $a[0];
       my $r = $a[1];
       if ($op eq '~') { "("~$l~" . "~$r~")" }
@@ -586,7 +586,7 @@ package Main;
         $s;
       }
       elsif ($op eq '=') {
-        my $t = $.e($n.capture<arguments>[0]<twigil>);
+        my $t = $.e($n.capture.arguments[0].twigil);
         if ($t && $t eq '.') {
           $l~'('~$r~')'
         }
@@ -596,7 +596,7 @@ package Main;
     }
     elsif $n.function =~ /^prefix:(.+)$/ {
       my $op = $1;
-      my $a = $.e($n.capture<arguments>);
+      my $a = $.e($n.capture.arguments);
       my $x = $a[0];
       if 0 { }
       elsif $op eq '?' { '(('~$x~')?1:0)' }
@@ -604,7 +604,7 @@ package Main;
     }
     elsif $n.function =~ /^postfix:(.+)$/ {
       my $op = $1;
-      my $a = $.e($n.capture<arguments>);
+      my $a = $.e($n.capture.arguments);
       my $x = $a[0];
       if 0 { }
       else { "("~$x~""~$op~")" }
@@ -612,7 +612,7 @@ package Main;
     elsif ($.e($n.function) =~ /^circumfix:(.+)/) {
       my $op = $1;
       if $op eq '< >' {
-        my $s = $n.capture<arguments>[0];
+        my $s = $n.capture.arguments[0];
         my $words = $s.split(/\s+/);
         if $words.elems == 0 {
           '[]'
@@ -640,7 +640,7 @@ package Main;
       } elsif ($f =~ /^sub\s*{/) {
         '('~$f~')->('~$.e($n.capture)~')'
       } elsif ($f =~ /^\w/) {
-        if $n.notes<lexical_bindings>.{'&'~$f} {
+        if $n.notes.lexical_bindings.{'&'~$f} {
           ''~$f~'('~$.e($n.capture)~')'
         } else {
           if $f eq 'eval' {
