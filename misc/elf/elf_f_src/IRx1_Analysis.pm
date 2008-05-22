@@ -13,7 +13,7 @@ class IRx1::CompUnit {
 class IRx1::Base {
   method is_IR_node(){1};
   method initialize_notes() {
-    self.notes({});
+    self.notes = {};
 
     my $a = [];
     for self.field_values {
@@ -35,7 +35,7 @@ class IRx1::Base {
   };
   method destroy_notes() {
     for self.notes<child_nodes> {$_.destroy_notes}
-    self.notes(undef)
+    self.notes = undef
   };
   method child_nodes() { self.notes<child_nodes> };
 };

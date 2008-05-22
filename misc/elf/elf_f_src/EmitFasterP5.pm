@@ -43,7 +43,8 @@ class EmitFasterP5 is EmitSimpleP5 {
 
   method do_VarDecl_has ($n) {
       "sub " ~ $.e($n.var.name) ~ ": lvalue {\n" ~
-      "     $_[0]{'" ~ $.e($n.var.name) ~ "'};\n" ~
+#      'if (@_ == 2) { die "improper accessor use(they do NOT take parameters' ~ $.e($n.var.name) ~ '"}' ~
+      '     $_[0]{' ~ "'" ~ $.e($n.var.name) ~ "'};\n" ~
       "}\n";
   };
 
