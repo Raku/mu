@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use FindBin;
 
 # P27 (**) Group the elements of a set into disjoint subsets.

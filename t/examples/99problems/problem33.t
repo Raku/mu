@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use FindBin;
 
 # P33 (*) Determine whether two positive integer numbers are coprime.

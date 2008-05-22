@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # P56 (**) Symmetric binary trees
 # 

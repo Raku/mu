@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # P32 (**) Determine the greatest common divisor of two positive integer numbers.
 # 

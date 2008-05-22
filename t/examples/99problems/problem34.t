@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # P34 (**) Calculate Euler's totient function phi(m).
 # 

@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 ## test perl 6 regexes, requiring P5 regex to work
 

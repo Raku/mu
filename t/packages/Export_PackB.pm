@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 module t::packages::Export_PackB {
   use t::packages::Export_PackA;

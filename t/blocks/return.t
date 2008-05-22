@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test; plan 8;
 
 # Is there a better reference for the spec for how return return works? 

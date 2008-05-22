@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # Test the running order of BEGIN/CHECK/INIT/END
 # These blocks appear in ascending order

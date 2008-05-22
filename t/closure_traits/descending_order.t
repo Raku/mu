@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # Test the running order of closure traits
 # These blocks appear in descending order

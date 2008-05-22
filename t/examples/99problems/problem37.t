@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use FindBin;
 
 # P37 (**) Calculate Euler's totient function phi(m) (improved).

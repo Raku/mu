@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # ------------------------ E M I T T E R ------------------------ #
 
@@ -14,7 +14,7 @@ class Talk {
 
 package main;
 
-use v6-alpha;
+use v6;
 use Test;
 
 plan 11 + (2 * 2);

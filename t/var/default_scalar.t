@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 
 # This has some tests for $_, but $_ is under-spec'ed now.

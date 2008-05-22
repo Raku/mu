@@ -1,9 +1,9 @@
-use v6-alpha;
+use v6;
 
 use Test;
 
 plan 3;
-my $destroy_test = 'use v6-alpha;
+my $destroy_test = 'use v6;
 
 class Foo
 {

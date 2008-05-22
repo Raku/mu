@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 plan(2);
 
@@ -12,7 +12,7 @@ my $y = 'case';
  {
     # Smoke does not complete because of this
     # Uncomment the following two lines when this is fixed
-    #use v6-alpha;
+    #use v6;
     #$y ~= 'book';
   };
 };

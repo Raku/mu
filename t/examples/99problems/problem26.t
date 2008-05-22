@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # P26 (**) Generate the combinations of K distinct objects chosen from the N
 # elements of a list

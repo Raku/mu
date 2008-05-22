@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # P36 (**) Determine the prime factors of a given positive integer (2).
 # 

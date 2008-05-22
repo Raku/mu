@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 
 # L<S03/Changes to Perl 5 operators/"scalar dereference">

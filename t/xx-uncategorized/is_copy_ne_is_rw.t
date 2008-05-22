@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 
 sub foo ($foo is copy = 5, $bar is copy = 10) {

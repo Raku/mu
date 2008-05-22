@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # P54A (*) Check whether a given term represents a binary tree
 # 

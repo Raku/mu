@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 
 # L<S02/Immutable types/Pair        A single key-to-value association>
