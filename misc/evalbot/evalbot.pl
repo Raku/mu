@@ -168,7 +168,7 @@ package Evalbot;
 
     sub filter_rakudo {
         my $str = shift;
-        $str =~ s/\ncalled from Sub.*//s;
+        $str =~ s/called from Sub.*//ms;
         return $str;
 
     }
