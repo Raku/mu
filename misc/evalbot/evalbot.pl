@@ -78,6 +78,8 @@ package Evalbot;
                 my $p6_out   = EvalbotExecuter::run($str, $executer{rakudo});
 #                my $nqp_out  = EvalbotExecuter::run($str, $executer{nqp});
                 return "kp6: $kp6_out\npugs: $pugs_out\nrakudo: $p6_out";
+            } elsif ($eval_name eq 'rakudo' ){
+                return filter_rakudo(EvalbotExecuter::run($str, $e));
             } else {
                 return EvalbotExecuter::run($str, $e);
             }
@@ -162,6 +164,13 @@ package Evalbot;
         } else {
             return "_unknown";
         }
+    }
+
+    sub filter_rakudo {
+        my $str = shift;
+        $str =~ s/\ncalled from Sub.*//s;
+        return $str;
+
     }
 
 
