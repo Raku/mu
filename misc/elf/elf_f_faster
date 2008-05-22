@@ -5219,9 +5219,9 @@ if(GLOBAL::not($GLOBAL::emitter0)) {
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
 
-{ package EmitNoMooseP5;
+{ package EmitFasterP5;
 use base qw(Object);
-BEGIN{push(@EmitNoMooseP5::ISA,'::EmitSimpleP5');}
+BEGIN{push(@EmitFasterP5::ISA,'::EmitSimpleP5');}
 (do{sub prelude_oo{my $self=CORE::shift;(do{'
 {package Object;
     sub new {
@@ -5277,8 +5277,8 @@ if((GLOBAL::defined($default))) {
 ')})}})
 }
 ;
-($GLOBAL::emitter0 = EmitNoMooseP5->new());
-($GLOBAL::emitter1 = EmitNoMooseP5->new());
+($GLOBAL::emitter0 = EmitFasterP5->new());
+($GLOBAL::emitter1 = EmitFasterP5->new());
 
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';

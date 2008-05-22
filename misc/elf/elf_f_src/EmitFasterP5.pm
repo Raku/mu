@@ -1,5 +1,5 @@
 
-class EmitNoMooseP5 is EmitSimpleP5 {
+class EmitFasterP5 is EmitSimpleP5 {
 
   method prelude_oo () {
     '
@@ -59,6 +59,6 @@ class EmitNoMooseP5 is EmitSimpleP5 {
 
 };
 
-#if not($*emitter0) { $*emitter0 = EmitNoMooseP5.new}
-$*emitter0 = EmitNoMooseP5.new;
-$*emitter1 = EmitNoMooseP5.new;
+#if not($*emitter0) { $*emitter0 = EmitFasterP5.new}
+$*emitter0 = EmitFasterP5.new;
+$*emitter1 = EmitFasterP5.new;
