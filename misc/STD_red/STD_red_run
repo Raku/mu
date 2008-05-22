@@ -90,10 +90,12 @@ END
     if output; print output; exit end
 
     # Hacks
-    #code = code.gsub(/\n=begin.*?\n=end[^\n]*/m,'')
-    code = code.gsub(/\n=kwid.*?\n=cut[^\n]*/m,'')
-    code = code.gsub(/\n=pod.*?\n=cut[^\n]*/m,'')
-    code = code.gsub(/\n=head1.*?\n=cut[^\n]*/m,'')
+    whiteout = ->(s){s.gsub(/[^ \n]/,' ')};
+    #code = code.gsub(/\n=begin.*?\n=end[^\n]*/m) {|m|whiteout.(m)}
+    code = code.gsub(/\n=kwid.*?\n=cut[^\n]*/m) {|m|whiteout.(m)}
+    code = code.gsub(/\n=pod.*?\n=cut[^\n]*/m) {|m|whiteout.(m)}
+    code = code.gsub(/\n=head1.*?\n=cut[^\n]*/m) {|m|whiteout.(m)}
+    print code; exit;
 
     kibitz = false
     pn = Perl.new(code,at)
