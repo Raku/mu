@@ -24,10 +24,10 @@ class Match {
     $s = $s ~ "}>";
   };
   method indent($s) {
-    $s.re_gsub(/(?m:^(?!\Z))/,'  ')
+    $s.re_gsub(rx:P5/(?m:^(?!\Z))/,'  ')
   };
   method indent_except_top($s) {
-    $s.re_gsub(/(?m:^(?<!\A)(?!\Z))/,'  ')
+    $s.re_gsub(rx:P5/(?m:^(?<!\A)(?!\Z))/,'  ')
   };
   method match_string() {
     $.str

@@ -19,40 +19,40 @@ class EmitFasterP5 is EmitSimpleP5 {
 
   method cb__PackageDecl ($n) {
 
-    my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n<name>];
+    my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n.name];
     my $name = $^whiteboard::in_package.join('::');
     my $base = "use base qw(Object);\n";
     if $name eq 'Object' { $base = "" }
     ("\n{ package "~$name~";\n"~
      $base~ 
      self.prelude_for_entering_a_package()~
-     $.e($n<traits>||[]).join("\n")~
-     $.e($n<block>)~
+     $.e($n.traits||[]).join("\n")~
+     $.e($n.block)~
      "\n}\n");
   };
   method cb__Trait ($n) {
-    if ($n<verb> eq 'is') {
+    if ($n.verb eq 'is') {
       my $pkgname = $^whiteboard::in_package.join('::');
-      my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n<expr>);
+      my $name = $^whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
       "BEGIN{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
-      say "ERROR: Emitting p5 for Trait verb "~$n<verb>~" has not been implemented.\n";
+      say "ERROR: Emitting p5 for Trait verb "~$n.verb~" has not been implemented.\n";
       "***Trait***"
     }
   };
 
   method do_VarDecl_has ($n) {
-      my $default = $.e($n<default_expr>);
+      my $default = $.e($n.default_expr);
       if (defined $default) {
         $default = ", default => "~$default
       } else {
         $default = ""
       }
-      "sub " ~ $.e($n<var><name>) ~ " {\n" ~
+      "sub " ~ $.e($n.var<name>) ~ " {\n" ~
       "  if (@_ == 2) {\n" ~
-      "      $_[0]{'" ~ $.e($n<var><name>) ~ "'} = $_[1];\n" ~
+      "      $_[0]{'" ~ $.e($n.var<name>) ~ "'} = $_[1];\n" ~
       " } else {\n" ~
-      "     $_[0]{'" ~ $.e($n<var><name>) ~ "'};\n" ~
+      "     $_[0]{'" ~ $.e($n.var<name>) ~ "'};\n" ~
       "  }\n" ~
       "}\n";
   };
