@@ -646,8 +646,8 @@ use base qw(Object);
      $_[0]{'rule'};
 }
 ;
-sub str: lvalue {
-     $_[0]{'str'};
+sub match_str: lvalue {
+     $_[0]{'match_str'};
 }
 ;
 sub from: lvalue {
@@ -658,14 +658,18 @@ sub to: lvalue {
      $_[0]{'to'};
 }
 ;
+sub bool: lvalue {
+     $_[0]{'bool'};
+}
+;
 sub hash: lvalue {
      $_[0]{'hash'};
 }
 ;
 sub make_from_rsfth{my $self=CORE::shift;my($r,$s,$f,$t,$h)=@_;
-(do{my $init = {'rule', $r, 'str', $s, 'from', $f, 'to', $t, 'hash', $h};
+(do{my $init = {'rule', $r, 'match_str', $s, 'from', $f, 'to', $t, 'hash', $h};
 $self->new($init)})};
-sub match_describe{my $self=CORE::shift;(do{my $s = ((((((($self->rule . '<') . $self->from) . ',') . $self->to) . ',\'') . $self->str) . '\',{');
+sub match_describe{my $self=CORE::shift;(do{my $s = ((((((($self->rule . '<') . $self->from) . ',') . $self->to) . ',\'') . $self->match_str) . '\',{');
 for($self->hash->keys()->flatten){
 (do{my $k = $_;
 my $v = $self->hash->{$k};
@@ -685,7 +689,8 @@ sub indent{my $self=CORE::shift;my($s)=@_;
 (do{$s->re_gsub(qr/(?m:^(?!\Z))/, '  ')})};
 sub indent_except_top{my $self=CORE::shift;my($s)=@_;
 (do{$s->re_gsub(qr/(?m:^(?<!\A)(?!\Z))/, '  ')})};
-sub match_string{my $self=CORE::shift;(do{$self->str})}})
+sub match_string{my $self=CORE::shift;(do{$self->match_str})};
+sub Str{my $self=CORE::shift;(do{$self->match_str->substr($self->from, ($self->to - $self->from))})}})
 }
 ;
 
@@ -4072,15 +4077,17 @@ if($a) {
 (do{$a})
 }})};
 sub cb__For{my $self=CORE::shift;my($n)=@_;
-(do{if(($n->block()->WHAT() eq 'SubDecl')) {
-(do{(((('for(' . $self->e($n->expr())) . '->flatten){
-') . $self->e($n->block())) . '->()
-}')})
-}else {
-(do{(((('for(' . $self->e($n->expr())) . '->flatten){
-') . $self->e($n->block())) . '
-}')})
-}})};
+(do{my $push = '';
+if(($n->expr()->WHAT() ne 'IRx1::Apply')) {
+(do{($push = '->flatten')})
+};
+my $pull = '';
+if(($n->block()->WHAT() eq 'IRx1::SubDecl')) {
+(do{($pull = '->($_)')})
+};
+(((((('for(' . $self->e($n->expr())) . $push) . '){
+') . $self->e($n->block())) . $pull) . '
+}')})};
 sub cb__Cond{my $self=CORE::shift;my($n)=@_;
 (do{my $els = '';
 if($n->default()) {

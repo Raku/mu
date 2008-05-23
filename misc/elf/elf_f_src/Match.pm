@@ -1,16 +1,17 @@
 
 class Match {
   has $.rule;
-  has $.str;
+  has $.match_str;
   has $.from;
   has $.to;
+  has $.bool;
   has $.hash;
   method make_from_rsfth($r,$s,$f,$t,$h) {
-    my $init = { 'rule',$r,'str',$s,'from',$f,'to',$t,'hash',$h };
+    my $init = { 'rule',$r,'match_str',$s,'from',$f,'to',$t,'hash',$h };
     self.new($init)
   };
   method match_describe() {
-    my $s = $.rule~"<"~$.from~","~$.to~",'"~$.str~"',{";
+    my $s = $.rule~"<"~$.from~","~$.to~",'"~$.match_str~"',{";
     for $.hash.keys {
       my $k = $_;
       my $v = $.hash{$k};
@@ -30,8 +31,11 @@ class Match {
     $s.re_gsub(rx:P5/(?m:^(?<!\A)(?!\Z))/,'  ')
   };
   method match_string() {
-    $.str
+    $.match_str
   };
+  method Str() {
+    $.match_str.substr($.from, $.to-$.from)
+  }
 };
 class ARRAY {
   method match_describe() {
