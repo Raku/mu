@@ -127,7 +127,7 @@ package Evalbot;
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "./elf_f $name >> $filename 2>&1";
+        system "./elf_f_faster $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
