@@ -669,7 +669,7 @@ package Main;
   };
 
   method cb__For ($n) {
-    if $n.block.WHAT eq 'SubDecl' {
+    if $n.block.WHAT eq 'IRx1::SubDecl' {
       'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"->()\n}"
     } else {
       'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"\n}"
