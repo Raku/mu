@@ -669,7 +669,11 @@ package Main;
   };
 
   method cb__For ($n) {
-    'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"->()\n}"
+    if $n.block.WHAT eq 'SubDecl' {
+      'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"->()\n}"
+    } else {
+      'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"\n}"
+    }
   };
   method cb__Cond ($n) {
     my $els = '';

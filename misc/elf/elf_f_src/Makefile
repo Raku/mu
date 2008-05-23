@@ -28,10 +28,13 @@ bootstrap_faster:
 	# Checking bootstrap of elf_f_faster.
 	# old compiler, new code
 	../elf_f_faster  -x -o ../elf_f_faster0 Elf_Faster.pm
+	chmod +x ../elf_f_faster0
 	# hybrid compiler
 	../elf_f_faster0 -x -o ../elf_f_faster1 Elf_Faster.pm
+	chmod +x ../elf_f_faster1
 	# new compiler
 	../elf_f_faster1 -x -o ../elf_f_faster2 Elf_Faster.pm
+	chmod +x ../elf_f_faster2
 	# compiled itself?
 	diff ../elf_f_faster1 ../elf_f_faster2
 
