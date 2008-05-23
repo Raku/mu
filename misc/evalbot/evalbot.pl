@@ -53,6 +53,7 @@ package Evalbot;
             perl6   => \&exec_eval,
             nqp     => \&exec_nqp,
             rakudo  => \&exec_p6,
+            elf     => \&exec_elf,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ")$postfix";
 
@@ -76,8 +77,9 @@ package Evalbot;
                 my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
                 my $kp6_out  = EvalbotExecuter::run($str, $executer{kp6});
                 my $p6_out   = EvalbotExecuter::run($str, $executer{rakudo});
+                my $elf_out  = EvalbotExecuter::run($str, $executer{elf});
 #                my $nqp_out  = EvalbotExecuter::run($str, $executer{nqp});
-                return "kp6: $kp6_out\npugs: $pugs_out\nrakudo: $p6_out";
+                return "kp6: $kp6_out\npugs: $pugs_out\nrakudo: $p6_out\nelf: $elf_out";
             } elsif ($eval_name eq 'rakudo' ){
                 return filter_rakudo(EvalbotExecuter::run($str, $e));
             } else {
@@ -113,6 +115,19 @@ package Evalbot;
         print $tmp_fh $program;
         close $tmp_fh;
         system "PUGS_SAFEMODE=true ./pugs $name >> $filename 2>&1";
+        unlink $name;
+        chdir $FindBin::Bin;
+        return;
+    }
+
+    sub exec_elf {
+        my ($program, $fh, $filename) = @_;
+        chdir('../elf')
+            or confess("Can't chdir to elf base dir: $!");
+        my ($tmp_fh, $name) = tempfile();
+        print $tmp_fh $program;
+        close $tmp_fh;
+        system "./elf_f $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
