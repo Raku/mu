@@ -669,11 +669,11 @@ package Main;
   };
 
   method cb__For ($n) {
-    if $n.block.WHAT eq 'IRx1::SubDecl' {
-      'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"->()\n}"
-    } else {
-      'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"\n}"
-    }
+    my $push = "";
+    if $n.expr.WHAT ne 'IRx1::Apply' { $push = "->flatten"};
+    my $pull = "";
+    if $n.block.WHAT eq 'IRx1::SubDecl' { $pull = "->($_)"};
+    'for('~$.e($n.expr)~$push~"){\n"~$.e($n.block)~$pull~"\n}"
   };
   method cb__Cond ($n) {
     my $els = '';
