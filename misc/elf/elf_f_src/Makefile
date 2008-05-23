@@ -58,8 +58,11 @@ bootstrap_prep:
 # extra:
 bootstrap_on_simple:
 	../elf_f -x -o ../elf_f0 Elf.pm
+	chmod +x ../elf_f0
 	../elf_f0 -x -o ../elf_f1 Elf.pm
+	chmod +x ../elf_f1
 	../elf_f1 -x -o ../elf_f2 Elf.pm
+	chmod +x ../elf_f2
 	diff ../elf_f1 ../elf_f2
 	../elf_f2 -e 'say 3'
 	#

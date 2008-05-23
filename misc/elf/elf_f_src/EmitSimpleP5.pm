@@ -669,7 +669,7 @@ package Main;
   };
 
   method cb__For ($n) {
-    'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"\n}"
+    'for('~$.e($n.expr)~"->flatten){\n"~$.e($n.block)~"->()\n}"
   };
   method cb__Cond ($n) {
     my $els = '';

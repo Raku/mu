@@ -120,7 +120,7 @@ A development story (a tale of two compilers)
   Say someone hands you a working perl6.
   What can you do with it?
 
-  If you alrady have your own implementation of p6, written in p6,
+  If you already have your own implementation of p6, written in p6,
   you could now compile it.
     six -o mysix -x MySix.pm
 
