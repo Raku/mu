@@ -4072,9 +4072,15 @@ if($a) {
 (do{$a})
 }})};
 sub cb__For{my $self=CORE::shift;my($n)=@_;
+(do{if(($n->block()->WHAT() eq 'SubDecl')) {
+(do{(((('for(' . $self->e($n->expr())) . '->flatten){
+') . $self->e($n->block())) . '->()
+}')})
+}else {
 (do{(((('for(' . $self->e($n->expr())) . '->flatten){
 ') . $self->e($n->block())) . '
-}')})};
+}')})
+}})};
 sub cb__Cond{my $self=CORE::shift;my($n)=@_;
 (do{my $els = '';
 if($n->default()) {
