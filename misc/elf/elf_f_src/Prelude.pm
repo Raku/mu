@@ -1,18 +1,18 @@
 #     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
 class Bit is Any {};
 #     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
-class Int is INTEGER {};
+class Int is Any {};
 #     Str         Perl string (finite sequence of Unicode characters)
-class Str is STRING {};
+class Str is Any {};
 #     Num         Perl number
-class Num is FLOAT {};
+class Num is Any {};
 #     Complex     Perl complex number
 class Complex is Any {};
 #     Bool        Perl boolean
 class Bool is Any {};
 #     Exception   Perl exception
 #     Code        Base class for all executable objects
-class Code is CODE {};
+class Code is Any {};
 #     Block       Executable objects that have lexical scopes
 class Block is Code {};
 #     List        Lazy Perl list (composed of immutables and iterators)
@@ -90,3 +90,18 @@ class Any {
 }
 
 
+package GLOBAL {
+
+  sub prefix_plus($x) { # should be multi
+    $x.Num
+  }
+
+}
+
+# Num
+class Int   { method Num () { self } }
+class Num   { method Num () { self } }
+class Str   { method Num () { self.primitive_Num() } }
+class Array { method Num () { self.elems } }
+class Hash  { method Num () { self.keys.elems } }
+class Pair  { method Num () { 2 } }; # so says pugs, the only impl working. 2008-May-24

@@ -52,8 +52,17 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
 }  
 
+# Avoid "use base" error: Base class package "Xxx" is empty. :/
+{ package Num; our $_i_am_not_empty_; }
+{ package Int; our $_i_am_not_empty_; }
+{ package Str; our $_i_am_not_empty_; }
+{ package Array; our $_i_am_not_empty_; }
+{ package Hash; our $_i_am_not_empty_; }
+
+
 no warnings qw(redefine prototype);
 { package STRING;
+  use base "Str";
   sub WHAT { "Str" }
 
   # randomness taken from autobox::Core
@@ -82,8 +91,12 @@ no warnings qw(redefine prototype);
   sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
   sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
   sub split   ($$)  { [ split $_[1], $_[0] ] }
+
+  sub primitive_Num { no warnings "numeric"; 0+$_[0] }
 }
-{ package NUMBER;
+
+{ package FLOAT_and_INTEGER;
+  use base "Num";
   sub abs     ($)  { CORE::abs($_[0]) }
   sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
   sub cos     ($)  { CORE::cos($_[0]) }
@@ -95,19 +108,23 @@ no warnings qw(redefine prototype);
   sub rand    ($)  { CORE::rand($_[0]) }
   sub sin     ($)  { CORE::sin($_[0]) }
   sub sqrt    ($)  { CORE::sqrt($_[0]) }
+
 }
 { package FLOAT;
-  use base "NUMBER";
+  use base "FLOAT_and_INTEGER";
   sub WHAT { "Num" }
 }
 { package INTEGER;
-  use base "NUMBER";
+  use base "FLOAT_and_INTEGER";
+  use base "Int";
+
   sub WHAT { "Int" }
   sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
   sub upto ($$) { [ $_[0]..$_[1] ] }
   sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
 }
 { package ARRAY;
+  use base "Array";
   sub WHAT {"Array"}
 
   sub shape { my $a = CORE::shift; 0+@$a } # ?
@@ -161,6 +178,7 @@ no warnings qw(redefine prototype);
   }
 }
 { package HASH;
+  use base "Hash";
   sub WHAT {"Hash"}
 
   # randomness taken from autobox::Core
@@ -347,21 +365,21 @@ BEGIN{push(@Bit::ISA,'::Any');}
 
 { package Int;
 use base qw(Object);
-BEGIN{push(@Int::ISA,'::INTEGER');}
+BEGIN{push(@Int::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Str;
 use base qw(Object);
-BEGIN{push(@Str::ISA,'::STRING');}
+BEGIN{push(@Str::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Num;
 use base qw(Object);
-BEGIN{push(@Num::ISA,'::FLOAT');}
+BEGIN{push(@Num::ISA,'::Any');}
 (do{})
 }
 ;
@@ -382,7 +400,7 @@ BEGIN{push(@Bool::ISA,'::Any');}
 
 { package Code;
 use base qw(Object);
-BEGIN{push(@Code::ISA,'::CODE');}
+BEGIN{push(@Code::ISA,'::Any');}
 (do{})
 }
 ;
@@ -633,6 +651,49 @@ BEGIN{push(@Any::ISA,'::Object');}
 { package Any;
 use base qw(Object);
 (do{sub say{my $self=CORE::shift;(do{GLOBAL::say($self)})}})
+}
+;
+
+{ package GLOBAL;
+use base qw(Object);
+(do{sub prefix_plus{my($x)=@_;
+(do{$x->Num()})}})
+}
+;
+
+{ package Int;
+use base qw(Object);
+(do{sub Num{my $self=CORE::shift;(do{$self})}})
+}
+;
+
+{ package Num;
+use base qw(Object);
+(do{sub Num{my $self=CORE::shift;(do{$self})}})
+}
+;
+
+{ package Str;
+use base qw(Object);
+(do{sub Num{my $self=CORE::shift;(do{$self->primitive_Num()})}})
+}
+;
+
+{ package Array;
+use base qw(Object);
+(do{sub Num{my $self=CORE::shift;(do{$self->elems()})}})
+}
+;
+
+{ package Hash;
+use base qw(Object);
+(do{sub Num{my $self=CORE::shift;(do{$self->keys()->elems()})}})
+}
+;
+
+{ package Pair;
+use base qw(Object);
+(do{sub Num{my $self=CORE::shift;(do{2})}})
 }
 ;
 
@@ -3490,8 +3551,17 @@ use warnings;
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
 }  
 
+# Avoid "use base" error: Base class package "Xxx" is empty. :/
+{ package Num; our $_i_am_not_empty_; }
+{ package Int; our $_i_am_not_empty_; }
+{ package Str; our $_i_am_not_empty_; }
+{ package Array; our $_i_am_not_empty_; }
+{ package Hash; our $_i_am_not_empty_; }
+
+
 no warnings qw(redefine prototype);
 { package STRING;
+  use base "Str";
   sub WHAT { "Str" }
 
   # randomness taken from autobox::Core
@@ -3520,8 +3590,12 @@ no warnings qw(redefine prototype);
   sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
   sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
   sub split   ($$)  { [ split $_[1], $_[0] ] }
+
+  sub primitive_Num { no warnings "numeric"; 0+$_[0] }
 }
-{ package NUMBER;
+
+{ package FLOAT_and_INTEGER;
+  use base "Num";
   sub abs     ($)  { CORE::abs($_[0]) }
   sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
   sub cos     ($)  { CORE::cos($_[0]) }
@@ -3533,19 +3607,23 @@ no warnings qw(redefine prototype);
   sub rand    ($)  { CORE::rand($_[0]) }
   sub sin     ($)  { CORE::sin($_[0]) }
   sub sqrt    ($)  { CORE::sqrt($_[0]) }
+
 }
 { package FLOAT;
-  use base "NUMBER";
+  use base "FLOAT_and_INTEGER";
   sub WHAT { "Num" }
 }
 { package INTEGER;
-  use base "NUMBER";
+  use base "FLOAT_and_INTEGER";
+  use base "Int";
+
   sub WHAT { "Int" }
   sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
   sub upto ($$) { [ $_[0]..$_[1] ] }
   sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
 }
 { package ARRAY;
+  use base "Array";
   sub WHAT {"Array"}
 
   sub shape { my $a = CORE::shift; 0+@$a } # ?
@@ -3599,6 +3677,7 @@ no warnings qw(redefine prototype);
   }
 }
 { package HASH;
+  use base "Hash";
   sub WHAT {"Hash"}
 
   # randomness taken from autobox::Core
@@ -4063,6 +4142,8 @@ if(0) {
 (do{})
 }elsif(($op eq '?')) {
 (do{(('((' . $x) . ')?1:0)')})
+}elsif(($op eq '+')) {
+(do{(('GLOBAL::prefix_plus(' . $x) . ')')})
 }else {
 (do{(((('(' . $op) . '') . $x) . ')')})
 }})
@@ -4214,7 +4295,7 @@ sub cb__Pair{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
 (((('(' . $self->e($n->key())) . ' => ') . $self->e($n->value())) . ')')})
 }else {
-(do{(((('Pair->new(\'key\',' . $self->e($n->key())) . ', \'value\',') . $self->e($n->value())) . ')')})
+(do{(((('Pair->new(\'key\',' . $self->e($n->key())) . ' => \'value\',') . $self->e($n->value())) . ')')})
 }})}})
 }
 ;

@@ -80,8 +80,17 @@ use warnings;
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
 }  
 
+# Avoid "use base" error: Base class package "Xxx" is empty. :/
+{ package Num; our $_i_am_not_empty_; }
+{ package Int; our $_i_am_not_empty_; }
+{ package Str; our $_i_am_not_empty_; }
+{ package Array; our $_i_am_not_empty_; }
+{ package Hash; our $_i_am_not_empty_; }
+
+
 no warnings qw(redefine prototype);
 { package STRING;
+  use base "Str";
   sub WHAT { "Str" }
 
   # randomness taken from autobox::Core
@@ -110,8 +119,12 @@ no warnings qw(redefine prototype);
   sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
   sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
   sub split   ($$)  { [ split $_[1], $_[0] ] }
+
+  sub primitive_Num { no warnings "numeric"; 0+$_[0] }
 }
-{ package NUMBER;
+
+{ package FLOAT_and_INTEGER;
+  use base "Num";
   sub abs     ($)  { CORE::abs($_[0]) }
   sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
   sub cos     ($)  { CORE::cos($_[0]) }
@@ -123,19 +136,23 @@ no warnings qw(redefine prototype);
   sub rand    ($)  { CORE::rand($_[0]) }
   sub sin     ($)  { CORE::sin($_[0]) }
   sub sqrt    ($)  { CORE::sqrt($_[0]) }
+
 }
 { package FLOAT;
-  use base "NUMBER";
+  use base "FLOAT_and_INTEGER";
   sub WHAT { "Num" }
 }
 { package INTEGER;
-  use base "NUMBER";
+  use base "FLOAT_and_INTEGER";
+  use base "Int";
+
   sub WHAT { "Int" }
   sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
   sub upto ($$) { [ $_[0]..$_[1] ] }
   sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
 }
 { package ARRAY;
+  use base "Array";
   sub WHAT {"Array"}
 
   sub shape { my $a = CORE::shift; 0+@$a } # ?
@@ -189,6 +206,7 @@ no warnings qw(redefine prototype);
   }
 }
 { package HASH;
+  use base "Hash";
   sub WHAT {"Hash"}
 
   # randomness taken from autobox::Core
@@ -647,6 +665,7 @@ package Main;
       my $x = $a[0];
       if 0 { }
       elsif $op eq '?' { '(('~$x~')?1:0)' }
+      elsif $op eq '+' { 'GLOBAL::prefix_plus('~$x~')' }
       else { "("~$op~""~$x~")" }
     }
     elsif $fun =~ /^postfix:(.+)$/ {
@@ -784,7 +803,7 @@ package Main;
       my $^whiteboard::emit_pairs_inline = 0;
       '('~$.e($n.key)~' => '~$.e($n.value)~')'
     } else {
-      "Pair->new('key',"~$.e($n.key)~", 'value',"~$.e($n.value)~")"
+      "Pair->new('key',"~$.e($n.key)~" => 'value',"~$.e($n.value)~")"
     }
   };
 
