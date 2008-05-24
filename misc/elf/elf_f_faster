@@ -4010,7 +4010,7 @@ $self->note_environment()})}})
 { package IRx1::Base;
 use base qw(Object);
 (do{sub is_IR_node{my $self=CORE::shift;(do{1})};
-sub initialize_notes{my $self=CORE::shift;(do{$self->notes({});
+sub initialize_notes{my $self=CORE::shift;(do{$self->notes() = {};
 my $a = [];
 for($self->field_values()->flatten){
 (do{if($_->can('is_IR_node')) {
@@ -4036,7 +4036,7 @@ for($self->child_nodes()->flatten){
 sub destroy_notes{my $self=CORE::shift;(do{for($self->notes()->{'child_nodes'}->flatten){
 (do{$_->destroy_notes()})
 };
-$self->notes(GLOBAL::undef())})};
+$self->notes() = GLOBAL::undef()})};
 sub child_nodes{my $self=CORE::shift;(do{$self->notes()->{'child_nodes'}})}})
 }
 ;
@@ -4792,6 +4792,10 @@ $op->re_gsub(' ', $arg);
 }else {
 (do{((((($self->e($n->invocant()) . '->') . $self->e($n->method())) . '(') . $self->e($n->capture())) . ')')})
 }})};
+sub do_Apply_assignment_to_method{my $self=CORE::shift;my($n)=@_;
+(do{my $args = $n->capture()->arguments();
+my $r = $self->e($args->[1]);
+((((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '(') . $r) . ')')})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 (do{if(($n->function() =~ qr/^infix:(.+)$/)) {
 (do{my $op = $1;
@@ -4817,7 +4821,7 @@ if((($t && ($t eq '.')))) {
 }})
 };
 if((($args->[0]->isa('IRx1::Call') && ($args->[0]->capture()->arguments()->elems() == 0)))) {
-(do{return(((((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '(') . $r) . ')'))})
+(do{return($self->do_Apply_assignment_to_method($n))})
 }})
 };
 (((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')})
@@ -5028,6 +5032,10 @@ my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') .
 '));
 '***Trait***'})
 }})};
+sub do_Apply_assignment_to_method{my $self=CORE::shift;my($n)=@_;
+(do{my $args = $n->capture()->arguments();
+my $r = $self->e($args->[1]);
+(((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '() = ') . $r)})};
 sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
 (do{(((((((((((((((('sub ' . $self->e($n->var()->name())) . ': lvalue {
 ') . '  if (@_ == 2) {') . '

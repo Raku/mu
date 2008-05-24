@@ -41,6 +41,12 @@ class EmitFasterP5 is EmitSimpleP5 {
     }
   };
 
+  method do_Apply_assignment_to_method($n) {
+    my $args = $n.capture.arguments;
+    my $r = $.e($args[1]);
+    $.e($args[0].invocant)~'->'~$.e($args[0].method)~'() = '~$r
+  }
+
   method do_VarDecl_has ($n) {
       "sub " ~ $.e($n.var.name) ~ ": lvalue {\n" ~
       '  if (@_ == 2) {'~"\n" ~

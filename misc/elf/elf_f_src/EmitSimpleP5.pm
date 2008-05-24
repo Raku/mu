@@ -588,6 +588,11 @@ package Main;
       $.e($n.invocant)~'->'~$.e($n.method)~'('~$.e($n.capture)~')'
     }
   };
+  method do_Apply_assignment_to_method($n) {
+    my $args = $n.capture.arguments;
+    my $r = $.e($args[1]);
+    $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
+  }
   method cb__Apply ($n) {
     if $n.function =~ /^infix:(.+)$/ {
       my $op = $1;
@@ -613,7 +618,7 @@ package Main;
         if ($args[0].isa("IRx1::Call") &&
             $args[0].capture.arguments.elems == 0)
         {
-          return $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
+          return $.do_Apply_assignment_to_method($n);
         }
       }
       "("~$l~" "~$op~" "~$r~")";
