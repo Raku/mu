@@ -588,10 +588,9 @@ package Main;
       $.e($n.invocant)~'->'~$.e($n.method)~'('~$.e($n.capture)~')'
     }
   };
-  method do_Apply_assignment_to_method($n) {
-    my $args = $n.capture.arguments;
-    my $r = $.e($args[1]);
-    $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
+  # have $foo.bar = ... turned into $foo.bar(...)
+  method needs_accessors_as_setters_hack() {
+      1;
   }
   method cb__Apply ($n) {
     if $n.function =~ /^infix:(.+)$/ {
@@ -608,7 +607,7 @@ package Main;
         while $a.elems { $s = $s ~", "~ $a.shift }
         return $s;
       }
-      if ($op eq '=') {
+      if ($op eq '=') && self.needs_accessors_as_setters_hack {
         if $args[0].isa("IRx1::Var") {
           my $t = $args[0].twigil;
           if ($t && $t eq '.') {
@@ -618,7 +617,7 @@ package Main;
         if ($args[0].isa("IRx1::Call") &&
             $args[0].capture.arguments.elems == 0)
         {
-          return $.do_Apply_assignment_to_method($n);
+          return $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
         }
       }
       "("~$l~" "~$op~" "~$r~")";

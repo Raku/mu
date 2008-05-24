@@ -3463,10 +3463,6 @@ $op->re_gsub(' ', $arg);
 }else {
 (do{((((($self->e($n->invocant()) . '->') . $self->e($n->method())) . '(') . $self->e($n->capture())) . ')')})
 }})};
-sub do_Apply_assignment_to_method{my $self=CORE::shift;my($n)=@_;
-(do{my $args = $n->capture()->arguments();
-my $r = $self->e($args->[1]);
-((((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '(') . $r) . ')')})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 (do{if(($n->function() =~ qr/^infix:(.+)$/)) {
 (do{my $op = $1;
@@ -3492,7 +3488,7 @@ if((($t && ($t eq '.')))) {
 }})
 };
 if((($args->[0]->isa('IRx1::Call') && ($args->[0]->capture()->arguments()->elems() == 0)))) {
-(do{return($self->do_Apply_assignment_to_method($n))})
+(do{return(((((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '(') . $r) . ')'))})
 }})
 };
 (((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')})

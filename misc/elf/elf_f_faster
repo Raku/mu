@@ -440,16 +440,10 @@ BEGIN{push(@Junction::ISA,'::Object');}
 use base qw(Object);
 BEGIN{push(@Pair::ISA,'::Any');}
 (do{sub key: lvalue {
-  if (@_ == 2) {
-      $_[0]{'key'} = $_[1];
- }
      $_[0]{'key'};
 }
 ;
 sub value: lvalue {
-  if (@_ == 2) {
-      $_[0]{'value'} = $_[1];
- }
      $_[0]{'value'};
 }
 })
@@ -649,44 +643,26 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 { package Match;
 use base qw(Object);
 (do{sub rule: lvalue {
-  if (@_ == 2) {
-      $_[0]{'rule'} = $_[1];
- }
      $_[0]{'rule'};
 }
 ;
 sub match_str: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match_str'} = $_[1];
- }
      $_[0]{'match_str'};
 }
 ;
 sub from: lvalue {
-  if (@_ == 2) {
-      $_[0]{'from'} = $_[1];
- }
      $_[0]{'from'};
 }
 ;
 sub to: lvalue {
-  if (@_ == 2) {
-      $_[0]{'to'} = $_[1];
- }
      $_[0]{'to'};
 }
 ;
 sub bool: lvalue {
-  if (@_ == 2) {
-      $_[0]{'bool'} = $_[1];
- }
      $_[0]{'bool'};
 }
 ;
 sub hash: lvalue {
-  if (@_ == 2) {
-      $_[0]{'hash'} = $_[1];
- }
      $_[0]{'hash'};
 }
 ;
@@ -835,30 +811,18 @@ BEGIN{push(@IRx1::Block::ISA,'IRx1::CompUnit_and_Block');}
 use base qw(Object);
 BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub statements: lvalue {
-  if (@_ == 2) {
-      $_[0]{'statements'} = $_[1];
- }
      $_[0]{'statements'};
 }
 ;
 sub filename: lvalue {
-  if (@_ == 2) {
-      $_[0]{'filename'} = $_[1];
- }
      $_[0]{'filename'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -877,23 +841,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('CompUnit(' . $self->statements->
 use base qw(Object);
 BEGIN{push(@IRx1::Block::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub statements: lvalue {
-  if (@_ == 2) {
-      $_[0]{'statements'} = $_[1];
- }
      $_[0]{'statements'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -912,37 +867,22 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Block(' . $self->statements->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::Use::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub kind: lvalue {
-  if (@_ == 2) {
-      $_[0]{'kind'} = $_[1];
- }
      $_[0]{'kind'};
 }
 ;
 sub module_name: lvalue {
-  if (@_ == 2) {
-      $_[0]{'module_name'} = $_[1];
- }
      $_[0]{'module_name'};
 }
 ;
 sub expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'expr'} = $_[1];
- }
      $_[0]{'expr'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -961,58 +901,34 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('Use(' . $self->kind->irx1_desc
 use base qw(Object);
 BEGIN{push(@IRx1::PackageDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub scope: lvalue {
-  if (@_ == 2) {
-      $_[0]{'scope'} = $_[1];
- }
      $_[0]{'scope'};
 }
 ;
 sub plurality: lvalue {
-  if (@_ == 2) {
-      $_[0]{'plurality'} = $_[1];
- }
      $_[0]{'plurality'};
 }
 ;
 sub kind: lvalue {
-  if (@_ == 2) {
-      $_[0]{'kind'} = $_[1];
- }
      $_[0]{'kind'};
 }
 ;
 sub name: lvalue {
-  if (@_ == 2) {
-      $_[0]{'name'} = $_[1];
- }
      $_[0]{'name'};
 }
 ;
 sub traits: lvalue {
-  if (@_ == 2) {
-      $_[0]{'traits'} = $_[1];
- }
      $_[0]{'traits'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1031,79 +947,46 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((('PackageDecl(' . $self->s
 use base qw(Object);
 BEGIN{push(@IRx1::MethodDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub scope: lvalue {
-  if (@_ == 2) {
-      $_[0]{'scope'} = $_[1];
- }
      $_[0]{'scope'};
 }
 ;
 sub typenames: lvalue {
-  if (@_ == 2) {
-      $_[0]{'typenames'} = $_[1];
- }
      $_[0]{'typenames'};
 }
 ;
 sub plurality: lvalue {
-  if (@_ == 2) {
-      $_[0]{'plurality'} = $_[1];
- }
      $_[0]{'plurality'};
 }
 ;
 sub name: lvalue {
-  if (@_ == 2) {
-      $_[0]{'name'} = $_[1];
- }
      $_[0]{'name'};
 }
 ;
 sub multisig: lvalue {
-  if (@_ == 2) {
-      $_[0]{'multisig'} = $_[1];
- }
      $_[0]{'multisig'};
 }
 ;
 sub traits: lvalue {
-  if (@_ == 2) {
-      $_[0]{'traits'} = $_[1];
- }
      $_[0]{'traits'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub sigil: lvalue {
-  if (@_ == 2) {
-      $_[0]{'sigil'} = $_[1];
- }
      $_[0]{'sigil'};
 }
 ;
 sub postcircumfix: lvalue {
-  if (@_ == 2) {
-      $_[0]{'postcircumfix'} = $_[1];
- }
      $_[0]{'postcircumfix'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1122,65 +1005,38 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((((('MethodDecl(' . $se
 use base qw(Object);
 BEGIN{push(@IRx1::SubDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub scope: lvalue {
-  if (@_ == 2) {
-      $_[0]{'scope'} = $_[1];
- }
      $_[0]{'scope'};
 }
 ;
 sub typenames: lvalue {
-  if (@_ == 2) {
-      $_[0]{'typenames'} = $_[1];
- }
      $_[0]{'typenames'};
 }
 ;
 sub plurality: lvalue {
-  if (@_ == 2) {
-      $_[0]{'plurality'} = $_[1];
- }
      $_[0]{'plurality'};
 }
 ;
 sub name: lvalue {
-  if (@_ == 2) {
-      $_[0]{'name'} = $_[1];
- }
      $_[0]{'name'};
 }
 ;
 sub multisig: lvalue {
-  if (@_ == 2) {
-      $_[0]{'multisig'} = $_[1];
- }
      $_[0]{'multisig'};
 }
 ;
 sub traits: lvalue {
-  if (@_ == 2) {
-      $_[0]{'traits'} = $_[1];
- }
      $_[0]{'traits'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1199,65 +1055,38 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('SubDecl(' . $self->sco
 use base qw(Object);
 BEGIN{push(@IRx1::MacroDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub scope: lvalue {
-  if (@_ == 2) {
-      $_[0]{'scope'} = $_[1];
- }
      $_[0]{'scope'};
 }
 ;
 sub typenames: lvalue {
-  if (@_ == 2) {
-      $_[0]{'typenames'} = $_[1];
- }
      $_[0]{'typenames'};
 }
 ;
 sub plurality: lvalue {
-  if (@_ == 2) {
-      $_[0]{'plurality'} = $_[1];
- }
      $_[0]{'plurality'};
 }
 ;
 sub name: lvalue {
-  if (@_ == 2) {
-      $_[0]{'name'} = $_[1];
- }
      $_[0]{'name'};
 }
 ;
 sub multisig: lvalue {
-  if (@_ == 2) {
-      $_[0]{'multisig'} = $_[1];
- }
      $_[0]{'multisig'};
 }
 ;
 sub traits: lvalue {
-  if (@_ == 2) {
-      $_[0]{'traits'} = $_[1];
- }
      $_[0]{'traits'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1276,72 +1105,42 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('MacroDecl(' . $self->s
 use base qw(Object);
 BEGIN{push(@IRx1::VarDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub scope: lvalue {
-  if (@_ == 2) {
-      $_[0]{'scope'} = $_[1];
- }
      $_[0]{'scope'};
 }
 ;
 sub typenames: lvalue {
-  if (@_ == 2) {
-      $_[0]{'typenames'} = $_[1];
- }
      $_[0]{'typenames'};
 }
 ;
 sub plurality: lvalue {
-  if (@_ == 2) {
-      $_[0]{'plurality'} = $_[1];
- }
      $_[0]{'plurality'};
 }
 ;
 sub var: lvalue {
-  if (@_ == 2) {
-      $_[0]{'var'} = $_[1];
- }
      $_[0]{'var'};
 }
 ;
 sub postcircumfix: lvalue {
-  if (@_ == 2) {
-      $_[0]{'postcircumfix'} = $_[1];
- }
      $_[0]{'postcircumfix'};
 }
 ;
 sub traits: lvalue {
-  if (@_ == 2) {
-      $_[0]{'traits'} = $_[1];
- }
      $_[0]{'traits'};
 }
 ;
 sub default_op: lvalue {
-  if (@_ == 2) {
-      $_[0]{'default_op'} = $_[1];
- }
      $_[0]{'default_op'};
 }
 ;
 sub default_expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'default_expr'} = $_[1];
- }
      $_[0]{'default_expr'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1360,37 +1159,22 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((('VarDecl(' . $self->s
 use base qw(Object);
 BEGIN{push(@IRx1::Var::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub sigil: lvalue {
-  if (@_ == 2) {
-      $_[0]{'sigil'} = $_[1];
- }
      $_[0]{'sigil'};
 }
 ;
 sub twigil: lvalue {
-  if (@_ == 2) {
-      $_[0]{'twigil'} = $_[1];
- }
      $_[0]{'twigil'};
 }
 ;
 sub name: lvalue {
-  if (@_ == 2) {
-      $_[0]{'name'} = $_[1];
- }
      $_[0]{'name'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1409,30 +1193,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('Var(' . $self->sigil->irx1_des
 use base qw(Object);
 BEGIN{push(@IRx1::Trait::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub verb: lvalue {
-  if (@_ == 2) {
-      $_[0]{'verb'} = $_[1];
- }
      $_[0]{'verb'};
 }
 ;
 sub expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'expr'} = $_[1];
- }
      $_[0]{'expr'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1451,30 +1223,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Trait(' . $self->verb->irx1_desc
 use base qw(Object);
 BEGIN{push(@IRx1::ClosureTrait::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub kind: lvalue {
-  if (@_ == 2) {
-      $_[0]{'kind'} = $_[1];
- }
      $_[0]{'kind'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1493,30 +1253,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('ClosureTrait(' . $self->kind->ir
 use base qw(Object);
 BEGIN{push(@IRx1::ModuleName::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub name: lvalue {
-  if (@_ == 2) {
-      $_[0]{'name'} = $_[1];
- }
      $_[0]{'name'};
 }
 ;
 sub pairs: lvalue {
-  if (@_ == 2) {
-      $_[0]{'pairs'} = $_[1];
- }
      $_[0]{'pairs'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1535,23 +1283,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('ModuleName(' . $self->name->irx1
 use base qw(Object);
 BEGIN{push(@IRx1::PathName::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub path: lvalue {
-  if (@_ == 2) {
-      $_[0]{'path'} = $_[1];
- }
      $_[0]{'path'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1570,44 +1309,26 @@ sub irx1_describe{my $self=CORE::shift;(do{(('PathName(' . $self->path->irx1_des
 use base qw(Object);
 BEGIN{push(@IRx1::SubName::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub category: lvalue {
-  if (@_ == 2) {
-      $_[0]{'category'} = $_[1];
- }
      $_[0]{'category'};
 }
 ;
 sub pairs: lvalue {
-  if (@_ == 2) {
-      $_[0]{'pairs'} = $_[1];
- }
      $_[0]{'pairs'};
 }
 ;
 sub desigilname: lvalue {
-  if (@_ == 2) {
-      $_[0]{'desigilname'} = $_[1];
- }
      $_[0]{'desigilname'};
 }
 ;
 sub signature: lvalue {
-  if (@_ == 2) {
-      $_[0]{'signature'} = $_[1];
- }
      $_[0]{'signature'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1626,30 +1347,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((('SubName(' . $self->category-
 use base qw(Object);
 BEGIN{push(@IRx1::ShapedParamName::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub ident: lvalue {
-  if (@_ == 2) {
-      $_[0]{'ident'} = $_[1];
- }
      $_[0]{'ident'};
 }
 ;
 sub postcircumfix: lvalue {
-  if (@_ == 2) {
-      $_[0]{'postcircumfix'} = $_[1];
- }
      $_[0]{'postcircumfix'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1668,37 +1377,22 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('ShapedParamName(' . $self->ident
 use base qw(Object);
 BEGIN{push(@IRx1::Call::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub invocant: lvalue {
-  if (@_ == 2) {
-      $_[0]{'invocant'} = $_[1];
- }
      $_[0]{'invocant'};
 }
 ;
 sub method: lvalue {
-  if (@_ == 2) {
-      $_[0]{'method'} = $_[1];
- }
      $_[0]{'method'};
 }
 ;
 sub capture: lvalue {
-  if (@_ == 2) {
-      $_[0]{'capture'} = $_[1];
- }
      $_[0]{'capture'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1717,30 +1411,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('Call(' . $self->invocant->irx1
 use base qw(Object);
 BEGIN{push(@IRx1::Apply::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub function: lvalue {
-  if (@_ == 2) {
-      $_[0]{'function'} = $_[1];
- }
      $_[0]{'function'};
 }
 ;
 sub capture: lvalue {
-  if (@_ == 2) {
-      $_[0]{'capture'} = $_[1];
- }
      $_[0]{'capture'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1759,30 +1441,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Apply(' . $self->function->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::Hyper::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub operator: lvalue {
-  if (@_ == 2) {
-      $_[0]{'operator'} = $_[1];
- }
      $_[0]{'operator'};
 }
 ;
 sub capture: lvalue {
-  if (@_ == 2) {
-      $_[0]{'capture'} = $_[1];
- }
      $_[0]{'capture'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1801,30 +1471,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Hyper(' . $self->operator->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::Capture::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub arguments: lvalue {
-  if (@_ == 2) {
-      $_[0]{'arguments'} = $_[1];
- }
      $_[0]{'arguments'};
 }
 ;
 sub invocant: lvalue {
-  if (@_ == 2) {
-      $_[0]{'invocant'} = $_[1];
- }
      $_[0]{'invocant'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1843,23 +1501,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Capture(' . $self->arguments->ir
 use base qw(Object);
 BEGIN{push(@IRx1::MultiSig::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub signatures: lvalue {
-  if (@_ == 2) {
-      $_[0]{'signatures'} = $_[1];
- }
      $_[0]{'signatures'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1878,30 +1527,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(('MultiSig(' . $self->signatures->ir
 use base qw(Object);
 BEGIN{push(@IRx1::Signature::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub parameters: lvalue {
-  if (@_ == 2) {
-      $_[0]{'parameters'} = $_[1];
- }
      $_[0]{'parameters'};
 }
 ;
 sub return_type: lvalue {
-  if (@_ == 2) {
-      $_[0]{'return_type'} = $_[1];
- }
      $_[0]{'return_type'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1920,65 +1557,38 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Signature(' . $self->parameters-
 use base qw(Object);
 BEGIN{push(@IRx1::Parameter::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub type_constraints: lvalue {
-  if (@_ == 2) {
-      $_[0]{'type_constraints'} = $_[1];
- }
      $_[0]{'type_constraints'};
 }
 ;
 sub quant: lvalue {
-  if (@_ == 2) {
-      $_[0]{'quant'} = $_[1];
- }
      $_[0]{'quant'};
 }
 ;
 sub param_var: lvalue {
-  if (@_ == 2) {
-      $_[0]{'param_var'} = $_[1];
- }
      $_[0]{'param_var'};
 }
 ;
 sub ident: lvalue {
-  if (@_ == 2) {
-      $_[0]{'ident'} = $_[1];
- }
      $_[0]{'ident'};
 }
 ;
 sub traits: lvalue {
-  if (@_ == 2) {
-      $_[0]{'traits'} = $_[1];
- }
      $_[0]{'traits'};
 }
 ;
 sub post_constraints: lvalue {
-  if (@_ == 2) {
-      $_[0]{'post_constraints'} = $_[1];
- }
      $_[0]{'post_constraints'};
 }
 ;
 sub default_expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'default_expr'} = $_[1];
- }
      $_[0]{'default_expr'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -1997,30 +1607,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('Parameter(' . $self->t
 use base qw(Object);
 BEGIN{push(@IRx1::TypeConstraint::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub value: lvalue {
-  if (@_ == 2) {
-      $_[0]{'value'} = $_[1];
- }
      $_[0]{'value'};
 }
 ;
 sub where_expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'where_expr'} = $_[1];
- }
      $_[0]{'where_expr'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2039,30 +1637,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('TypeConstraint(' . $self->value-
 use base qw(Object);
 BEGIN{push(@IRx1::PostConstraint::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub multisig: lvalue {
-  if (@_ == 2) {
-      $_[0]{'multisig'} = $_[1];
- }
      $_[0]{'multisig'};
 }
 ;
 sub where_expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'where_expr'} = $_[1];
- }
      $_[0]{'where_expr'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2081,37 +1667,22 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('PostConstraint(' . $self->multis
 use base qw(Object);
 BEGIN{push(@IRx1::ParamVar::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub sigil: lvalue {
-  if (@_ == 2) {
-      $_[0]{'sigil'} = $_[1];
- }
      $_[0]{'sigil'};
 }
 ;
 sub twigil: lvalue {
-  if (@_ == 2) {
-      $_[0]{'twigil'} = $_[1];
- }
      $_[0]{'twigil'};
 }
 ;
 sub name: lvalue {
-  if (@_ == 2) {
-      $_[0]{'name'} = $_[1];
- }
      $_[0]{'name'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2130,16 +1701,10 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('ParamVar(' . $self->sigil->irx
 use base qw(Object);
 BEGIN{push(@IRx1::Undef::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2158,30 +1723,18 @@ sub irx1_describe{my $self=CORE::shift;(do{('Undef(' . ')')})}})
 use base qw(Object);
 BEGIN{push(@IRx1::NumInt::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub text: lvalue {
-  if (@_ == 2) {
-      $_[0]{'text'} = $_[1];
- }
      $_[0]{'text'};
 }
 ;
 sub base: lvalue {
-  if (@_ == 2) {
-      $_[0]{'base'} = $_[1];
- }
      $_[0]{'base'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2200,37 +1753,22 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('NumInt(' . $self->text->irx1_des
 use base qw(Object);
 BEGIN{push(@IRx1::NumDec::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub intpart: lvalue {
-  if (@_ == 2) {
-      $_[0]{'intpart'} = $_[1];
- }
      $_[0]{'intpart'};
 }
 ;
 sub fracpart: lvalue {
-  if (@_ == 2) {
-      $_[0]{'fracpart'} = $_[1];
- }
      $_[0]{'fracpart'};
 }
 ;
 sub exp: lvalue {
-  if (@_ == 2) {
-      $_[0]{'exp'} = $_[1];
- }
      $_[0]{'exp'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2249,51 +1787,30 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('NumDec(' . $self->intpart->irx
 use base qw(Object);
 BEGIN{push(@IRx1::NumRad::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub radix: lvalue {
-  if (@_ == 2) {
-      $_[0]{'radix'} = $_[1];
- }
      $_[0]{'radix'};
 }
 ;
 sub intpart: lvalue {
-  if (@_ == 2) {
-      $_[0]{'intpart'} = $_[1];
- }
      $_[0]{'intpart'};
 }
 ;
 sub fracpart: lvalue {
-  if (@_ == 2) {
-      $_[0]{'fracpart'} = $_[1];
- }
      $_[0]{'fracpart'};
 }
 ;
 sub base: lvalue {
-  if (@_ == 2) {
-      $_[0]{'base'} = $_[1];
- }
      $_[0]{'base'};
 }
 ;
 sub exp: lvalue {
-  if (@_ == 2) {
-      $_[0]{'exp'} = $_[1];
- }
      $_[0]{'exp'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2312,23 +1829,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((('NumRad(' . $self->radix->i
 use base qw(Object);
 BEGIN{push(@IRx1::Array::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub array: lvalue {
-  if (@_ == 2) {
-      $_[0]{'array'} = $_[1];
- }
      $_[0]{'array'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2347,23 +1855,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Array(' . $self->array->irx1_descr
 use base qw(Object);
 BEGIN{push(@IRx1::Hash::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub hash: lvalue {
-  if (@_ == 2) {
-      $_[0]{'hash'} = $_[1];
- }
      $_[0]{'hash'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2382,30 +1881,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Hash(' . $self->hash->irx1_describ
 use base qw(Object);
 BEGIN{push(@IRx1::Pair::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub key: lvalue {
-  if (@_ == 2) {
-      $_[0]{'key'} = $_[1];
- }
      $_[0]{'key'};
 }
 ;
 sub value: lvalue {
-  if (@_ == 2) {
-      $_[0]{'value'} = $_[1];
- }
      $_[0]{'value'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2424,23 +1911,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Pair(' . $self->key->irx1_descri
 use base qw(Object);
 BEGIN{push(@IRx1::Type::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub typename: lvalue {
-  if (@_ == 2) {
-      $_[0]{'typename'} = $_[1];
- }
      $_[0]{'typename'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2459,30 +1937,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Type(' . $self->typename->irx1_des
 use base qw(Object);
 BEGIN{push(@IRx1::Rx::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub pat: lvalue {
-  if (@_ == 2) {
-      $_[0]{'pat'} = $_[1];
- }
      $_[0]{'pat'};
 }
 ;
 sub modifiers: lvalue {
-  if (@_ == 2) {
-      $_[0]{'modifiers'} = $_[1];
- }
      $_[0]{'modifiers'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2501,23 +1967,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Rx(' . $self->pat->irx1_describe
 use base qw(Object);
 BEGIN{push(@IRx1::Buf::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub buf: lvalue {
-  if (@_ == 2) {
-      $_[0]{'buf'} = $_[1];
- }
      $_[0]{'buf'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2536,30 +1993,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Buf(' . $self->buf->irx1_describe(
 use base qw(Object);
 BEGIN{push(@IRx1::For::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'expr'} = $_[1];
- }
      $_[0]{'expr'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2578,37 +2023,22 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('For(' . $self->expr->irx1_descri
 use base qw(Object);
 BEGIN{push(@IRx1::Cond::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub clauses: lvalue {
-  if (@_ == 2) {
-      $_[0]{'clauses'} = $_[1];
- }
      $_[0]{'clauses'};
 }
 ;
 sub default: lvalue {
-  if (@_ == 2) {
-      $_[0]{'default'} = $_[1];
- }
      $_[0]{'default'};
 }
 ;
 sub invert_first_test: lvalue {
-  if (@_ == 2) {
-      $_[0]{'invert_first_test'} = $_[1];
- }
      $_[0]{'invert_first_test'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2627,44 +2057,26 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('Cond(' . $self->clauses->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::Loop::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub pretest: lvalue {
-  if (@_ == 2) {
-      $_[0]{'pretest'} = $_[1];
- }
      $_[0]{'pretest'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub posttest: lvalue {
-  if (@_ == 2) {
-      $_[0]{'posttest'} = $_[1];
- }
      $_[0]{'posttest'};
 }
 ;
 sub label: lvalue {
-  if (@_ == 2) {
-      $_[0]{'label'} = $_[1];
- }
      $_[0]{'label'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2683,30 +2095,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((('Loop(' . $self->pretest->irx
 use base qw(Object);
 BEGIN{push(@IRx1::Given::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'expr'} = $_[1];
- }
      $_[0]{'expr'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2725,30 +2125,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Given(' . $self->expr->irx1_desc
 use base qw(Object);
 BEGIN{push(@IRx1::When::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub expr: lvalue {
-  if (@_ == 2) {
-      $_[0]{'expr'} = $_[1];
- }
      $_[0]{'expr'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2767,30 +2155,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('When(' . $self->expr->irx1_descr
 use base qw(Object);
 BEGIN{push(@IRx1::Label::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub labels: lvalue {
-  if (@_ == 2) {
-      $_[0]{'labels'} = $_[1];
- }
      $_[0]{'labels'};
 }
 ;
 sub statement: lvalue {
-  if (@_ == 2) {
-      $_[0]{'statement'} = $_[1];
- }
      $_[0]{'statement'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2809,30 +2185,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Label(' . $self->labels->irx1_de
 use base qw(Object);
 BEGIN{push(@IRx1::RegexDef::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub ident: lvalue {
-  if (@_ == 2) {
-      $_[0]{'ident'} = $_[1];
- }
      $_[0]{'ident'};
 }
 ;
 sub pattern: lvalue {
-  if (@_ == 2) {
-      $_[0]{'pattern'} = $_[1];
- }
      $_[0]{'pattern'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2851,23 +2215,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('RegexDef(' . $self->ident->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::Regex::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub patterns: lvalue {
-  if (@_ == 2) {
-      $_[0]{'patterns'} = $_[1];
- }
      $_[0]{'patterns'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2886,23 +2241,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Regex(' . $self->patterns->irx1_de
 use base qw(Object);
 BEGIN{push(@IRx1::RxFirst::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub patterns: lvalue {
-  if (@_ == 2) {
-      $_[0]{'patterns'} = $_[1];
- }
      $_[0]{'patterns'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2921,23 +2267,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxFirst(' . $self->patterns->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::RxEvery::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub patterns: lvalue {
-  if (@_ == 2) {
-      $_[0]{'patterns'} = $_[1];
- }
      $_[0]{'patterns'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2956,23 +2293,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxEvery(' . $self->patterns->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::RxSubmatch::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub patterns: lvalue {
-  if (@_ == 2) {
-      $_[0]{'patterns'} = $_[1];
- }
      $_[0]{'patterns'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -2991,23 +2319,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxSubmatch(' . $self->patterns->ir
 use base qw(Object);
 BEGIN{push(@IRx1::RxAny::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub patterns: lvalue {
-  if (@_ == 2) {
-      $_[0]{'patterns'} = $_[1];
- }
      $_[0]{'patterns'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3026,23 +2345,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxAny(' . $self->patterns->irx1_de
 use base qw(Object);
 BEGIN{push(@IRx1::RxAll::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub patterns: lvalue {
-  if (@_ == 2) {
-      $_[0]{'patterns'} = $_[1];
- }
      $_[0]{'patterns'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3061,23 +2371,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxAll(' . $self->patterns->irx1_de
 use base qw(Object);
 BEGIN{push(@IRx1::RxSequence::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub patterns: lvalue {
-  if (@_ == 2) {
-      $_[0]{'patterns'} = $_[1];
- }
      $_[0]{'patterns'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3096,30 +2397,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxSequence(' . $self->patterns->ir
 use base qw(Object);
 BEGIN{push(@IRx1::RxQuantifiedAtom::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub atom: lvalue {
-  if (@_ == 2) {
-      $_[0]{'atom'} = $_[1];
- }
      $_[0]{'atom'};
 }
 ;
 sub quantifier: lvalue {
-  if (@_ == 2) {
-      $_[0]{'quantifier'} = $_[1];
- }
      $_[0]{'quantifier'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3138,23 +2427,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('RxQuantifiedAtom(' . $self->atom
 use base qw(Object);
 BEGIN{push(@IRx1::RxBackslash::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub char: lvalue {
-  if (@_ == 2) {
-      $_[0]{'char'} = $_[1];
- }
      $_[0]{'char'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3173,23 +2453,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxBackslash(' . $self->char->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::RxAssertion::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub ident: lvalue {
-  if (@_ == 2) {
-      $_[0]{'ident'} = $_[1];
- }
      $_[0]{'ident'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3208,23 +2479,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxAssertion(' . $self->ident->irx1
 use base qw(Object);
 BEGIN{push(@IRx1::RxModInternal::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub mod: lvalue {
-  if (@_ == 2) {
-      $_[0]{'mod'} = $_[1];
- }
      $_[0]{'mod'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3243,23 +2505,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxModInternal(' . $self->mod->irx1
 use base qw(Object);
 BEGIN{push(@IRx1::RxCapture::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub pattern: lvalue {
-  if (@_ == 2) {
-      $_[0]{'pattern'} = $_[1];
- }
      $_[0]{'pattern'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3278,23 +2531,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxCapture(' . $self->pattern->irx1
 use base qw(Object);
 BEGIN{push(@IRx1::RxGroup::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub pattern: lvalue {
-  if (@_ == 2) {
-      $_[0]{'pattern'} = $_[1];
- }
      $_[0]{'pattern'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3313,23 +2557,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxGroup(' . $self->pattern->irx1_d
 use base qw(Object);
 BEGIN{push(@IRx1::RxBlock::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub block: lvalue {
-  if (@_ == 2) {
-      $_[0]{'block'} = $_[1];
- }
      $_[0]{'block'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3348,30 +2583,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxBlock(' . $self->block->irx1_des
 use base qw(Object);
 BEGIN{push(@IRx1::RxBind::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub var: lvalue {
-  if (@_ == 2) {
-      $_[0]{'var'} = $_[1];
- }
      $_[0]{'var'};
 }
 ;
 sub binding: lvalue {
-  if (@_ == 2) {
-      $_[0]{'binding'} = $_[1];
- }
      $_[0]{'binding'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3390,30 +2613,18 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('RxBind(' . $self->var->irx1_desc
 use base qw(Object);
 BEGIN{push(@IRx1::RxLiteral::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub text: lvalue {
-  if (@_ == 2) {
-      $_[0]{'text'} = $_[1];
- }
      $_[0]{'text'};
 }
 ;
 sub quote: lvalue {
-  if (@_ == 2) {
-      $_[0]{'quote'} = $_[1];
- }
      $_[0]{'quote'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3432,23 +2643,14 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('RxLiteral(' . $self->text->irx1_
 use base qw(Object);
 BEGIN{push(@IRx1::RxSymbol::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
-  if (@_ == 2) {
-      $_[0]{'match'} = $_[1];
- }
      $_[0]{'match'};
 }
 ;
 sub symbol: lvalue {
-  if (@_ == 2) {
-      $_[0]{'symbol'} = $_[1];
- }
      $_[0]{'symbol'};
 }
 ;
 sub notes: lvalue {
-  if (@_ == 2) {
-      $_[0]{'notes'} = $_[1];
- }
      $_[0]{'notes'};
 }
 ;
@@ -3472,9 +2674,6 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 { package IRx1_Build;
 use base qw(Object);
 (do{sub constructors: lvalue {
-  if (@_ == 2) {
-      $_[0]{'constructors'} = $_[1];
- }
      $_[0]{'constructors'};
 }
 ;
@@ -3484,7 +2683,7 @@ sub add_constructor{my $self=CORE::shift;my($k,$constructor)=@_;
 (do{})
 }else {
 (do{my $h = {};
-$self->constructors($h)})
+($self->constructors = $h)})
 };
 ($self->constructors->{$k} = $constructor)})};
 sub make_ir_from_Match_tree{my $self=CORE::shift;my($m)=@_;
@@ -4010,7 +3209,7 @@ $self->note_environment()})}})
 { package IRx1::Base;
 use base qw(Object);
 (do{sub is_IR_node{my $self=CORE::shift;(do{1})};
-sub initialize_notes{my $self=CORE::shift;(do{$self->notes() = {};
+sub initialize_notes{my $self=CORE::shift;(do{($self->notes() = {});
 my $a = [];
 for($self->field_values()->flatten){
 (do{if($_->can('is_IR_node')) {
@@ -4036,7 +3235,7 @@ for($self->child_nodes()->flatten){
 sub destroy_notes{my $self=CORE::shift;(do{for($self->notes()->{'child_nodes'}->flatten){
 (do{$_->destroy_notes()})
 };
-$self->notes() = GLOBAL::undef()})};
+($self->notes() = GLOBAL::undef())})};
 sub child_nodes{my $self=CORE::shift;(do{$self->notes()->{'child_nodes'}})}})
 }
 ;
@@ -4223,9 +3422,6 @@ sub tidy{my $self=CORE::shift;my($source)=@_;
     }
     ')->($source))})};
 sub compiler: lvalue {
-  if (@_ == 2) {
-      $_[0]{'compiler'} = $_[1];
- }
      $_[0]{'compiler'};
 }
 ;
@@ -4792,10 +3988,7 @@ $op->re_gsub(' ', $arg);
 }else {
 (do{((((($self->e($n->invocant()) . '->') . $self->e($n->method())) . '(') . $self->e($n->capture())) . ')')})
 }})};
-sub do_Apply_assignment_to_method{my $self=CORE::shift;my($n)=@_;
-(do{my $args = $n->capture()->arguments();
-my $r = $self->e($args->[1]);
-((((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '(') . $r) . ')')})};
+sub needs_accessors_as_setters_hack{my $self=CORE::shift;(do{1})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 (do{if(($n->function() =~ qr/^infix:(.+)$/)) {
 (do{my $op = $1;
@@ -4813,7 +4006,7 @@ while($a->elems()) {
 };
 return($s)})
 };
-if((($op eq '='))) {
+if(((($op eq '=')) && $self->needs_accessors_as_setters_hack())) {
 (do{if($args->[0]->isa('IRx1::Var')) {
 (do{my $t = $args->[0]->twigil();
 if((($t && ($t eq '.')))) {
@@ -4821,7 +4014,7 @@ if((($t && ($t eq '.')))) {
 }})
 };
 if((($args->[0]->isa('IRx1::Call') && ($args->[0]->capture()->arguments()->elems() == 0)))) {
-(do{return($self->do_Apply_assignment_to_method($n))})
+(do{return(((((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '(') . $r) . ')'))})
 }})
 };
 (((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')})
@@ -5032,15 +4225,9 @@ my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') .
 '));
 '***Trait***'})
 }})};
-sub do_Apply_assignment_to_method{my $self=CORE::shift;my($n)=@_;
-(do{my $args = $n->capture()->arguments();
-my $r = $self->e($args->[1]);
-(((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '() = ') . $r)})};
+sub needs_accessors_as_setters_hack{my $self=CORE::shift;(do{0})};
 sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
-(do{(((((((((((((((('sub ' . $self->e($n->var()->name())) . ': lvalue {
-') . '  if (@_ == 2) {') . '
-') . '      $_[0]{') . '\'') . $self->e($n->var()->name())) . '\'') . '} = $_[1];') . '
-') . ' }
+(do{((((((('sub ' . $self->e($n->var()->name())) . ': lvalue {
 ') . '     $_[0]{') . '\'') . $self->e($n->var()->name())) . '\'};
 ') . '}
 ')})}})
@@ -5135,9 +4322,6 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 { package Parser;
 use base qw(Object);
 (do{sub is_for_active_runtime: lvalue {
-  if (@_ == 2) {
-      $_[0]{'is_for_active_runtime'} = $_[1];
- }
      $_[0]{'is_for_active_runtime'};
 }
 ;
@@ -5175,9 +4359,6 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 { package Compiler;
 use base qw(Object);
 (do{sub is_for_active_runtime: lvalue {
-  if (@_ == 2) {
-      $_[0]{'is_for_active_runtime'} = $_[1];
- }
      $_[0]{'is_for_active_runtime'};
 }
 ;
@@ -5252,14 +4433,11 @@ $self->compile_fragment_cache_set($code, $filename, $p5);
 $p5})
 }})};
 sub todo: lvalue {
-  if (@_ == 2) {
-      $_[0]{'todo'} = $_[1];
- }
      $_[0]{'todo'};
 }
 ;
 sub compile_executable{my $self=CORE::shift;my($sources,$output_file)=@_;
-(do{$self->todo([]);
+(do{($self->todo = []);
 my $p5 = ($self->prelude() . '
 ');
 for($sources->flatten){
