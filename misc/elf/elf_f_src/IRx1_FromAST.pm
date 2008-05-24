@@ -84,10 +84,20 @@ if irbuild_ir($m.{'hash'}{'infix_postfix_meta_operator'}) {
   die "Unimplemented infix_postfix_meta_operator";
 }
 my $op = irbuild_ir($m.{'hash'}{'infix'}.{'hash'}{'sym'});
-IRx1::Apply.newp($m,"infix:"~$op,IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'args'})||[]))
+if $op eq '=>' {
+  my $args = irbuild_ir($m.{'hash'}{'args'});
+  if $args[2] { die "chained => unimplemented" }
+  IRx1::Pair.newp($m,$args[0],$args[1])
+} else {
+  IRx1::Apply.newp($m,"infix:"~$op,IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'args'})||[]))
+}
 } else {
 die "Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator";
 };
+    });
+
+    $main::irbuilder.add_constructor('fatarrow', sub ($m) {
+      IRx1::Pair.newp($m,irbuild_ir($m.{'hash'}{'key'}),irbuild_ir($m.{'hash'}{'val'}));
     });
 
     $main::irbuilder.add_constructor('expect_term', sub ($m) {
@@ -586,6 +596,8 @@ irbuild_ir($m.{'hash'}{'package_def'});
       if $m.{'hash'}{'block'}.{'hash'}{'statementlist'}.elems == 0 or $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].match_string =~ /^:/ {
 IRx1::Hash.newp($m,irbuild_ir($m.{'hash'}{'block'}.{'hash'}{'statementlist'}))
 } elsif $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'} and $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'}.{'hash'}{'sym'} and $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'}.{'hash'}{'sym'} eq "," {
+IRx1::Hash.newp($m,irbuild_ir($m.{'hash'}{'block'}.{'hash'}{'statementlist'}))
+} elsif $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'} and $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'}.{'hash'}{'sym'} and $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'}.{'hash'}{'sym'} eq "=>" {
 IRx1::Hash.newp($m,irbuild_ir($m.{'hash'}{'block'}.{'hash'}{'statementlist'}))
 } elsif not(irbuild_ir($m.{'hash'}{'lambda'})) and not(irbuild_ir($m.{'hash'}{'signature'})) {
 irbuild_ir($m.{'hash'}{'block'})

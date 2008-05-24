@@ -30,10 +30,19 @@ if $m<infix> {
     die "Unimplemented infix_postfix_meta_operator";
   }
   my $op = $m<infix><sym>;
-  Apply.newp("infix:"~$op,Capture.newp($m<args>||[]))
+  if $op eq '=>' {
+    my $args = $m<args>;
+    if $args[2] { die "chained => unimplemented" }
+    Pair.newp($args[0],$args[1])
+  } else {
+    Apply.newp("infix:"~$op,Capture.newp($m<args>||[]))
+  }
 } else {
   die "Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator";
 }
+
+fatarrow
+Pair.newp($m<key>,$m<val>)
 
 expect_term
 my $^blackboard::expect_term_base = $m<noun>;
@@ -425,6 +434,8 @@ circumfix:pblock
 if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string =~ /^:/ {
   Hash.newp($m<block><statementlist>)
 } elsif $o<block><statementlist>[0]<expr> and $o<block><statementlist>[0]<expr><sym> and $o<block><statementlist>[0]<expr><sym> eq "," { # XXX Not p6.  Remove once off elf_e, and Match updated.
+  Hash.newp($m<block><statementlist>)
+} elsif $o<block><statementlist>[0]<expr> and $o<block><statementlist>[0]<expr><sym> and $o<block><statementlist>[0]<expr><sym> eq "=>" {
   Hash.newp($m<block><statementlist>)
 } elsif not($m<lambda>) and not($m<signature>) {
   $m<block>

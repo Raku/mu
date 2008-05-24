@@ -377,6 +377,7 @@ package Main;
   method cb__CompUnit ($n) {
     $n.do_all_analysis();
     my $^whiteboard::in_package = [];
+    my $^whiteboard::emit_pairs_inline = 0;
     my $code = (
       "package Main;\n"~
       self.prelude_for_entering_a_package());
@@ -384,6 +385,7 @@ package Main;
     $code ~ $stmts.join(";\n")~";\n";
   };
   method cb__Block ($n) {
+    my $^whiteboard::emit_pairs_inline = 0;
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
     '(do{'~$.e($n.statements).join(";\n")~'})'
   };
@@ -404,11 +406,11 @@ package Main;
     }
   };
   method cb__ClosureTrait ($n) {
+    my $^whiteboard::emit_pairs_inline = 0;
     $n.kind~'{'~$.e($n.block)~'}'
   };
 
   method cb__PackageDecl ($n) {
-
     my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n.name];
     my $name = $^whiteboard::in_package.join('::');
     ("\n{ package "~$name~";\n"~
@@ -444,20 +446,33 @@ package Main;
   };
 
   method cb__VarDecl ($n) {
+    my $^whiteboard::emit_pairs_inline = 0;
     if ($n.scope eq 'has') {
       self.do_VarDecl_has($n);
     } else {
       my $default = "";
       if $n.default_expr {
-        $default = ' = '~$.e($n.default_expr);
+        if (not($n.var.sigil eq '$') &&
+            $n.default_expr.isa('IRx1::Apply') &&
+            ($n.default_expr.function eq 'circumfix:( )' ||
+             $n.default_expr.function eq 'infix:,'))
+        {
+          my $pre = ''; my $post = '';
+          if $n.is_array { $pre = '['; $post = ']' }
+          if $n.is_hash  { $pre = '{'; $post = '}' }
+          my $^whiteboard::emit_pairs_inline = 1;
+          $default = ' = '~$pre~$.e($n.default_expr)~$post;
+        } else {
+          $default = ' = '~$.e($n.default_expr);
+        }
       } else {
         if ($n.var.sigil eq '@') { $default = ' = [];' }
         if ($n.var.sigil eq '%') { $default = ' = {};' }
       }
       if ($n.var.twigil eq '^') {
         my $name = $.e($n.var);
-        $name.re_gsub('^(.)::','$1');
-        ("{package Main; use vars '"~$name~"'};"~
+        $name.re_sub_g('^(.)::','$1');
+        ("{package main; use vars '"~$name~"'};"~
          'local'~' '~$.e($n.var)~$default)
       }
       else {
@@ -538,6 +553,7 @@ package Main;
     }
   };
   method cb__SubDecl ($n) {
+    my $^whiteboard::emit_pairs_inline = 0;
     my $name = $n.name;
     if $name { $name = $.e($name) } else { $name = "" }
     my $sig = $n.multisig;
@@ -575,6 +591,7 @@ package Main;
   };
 
   method cb__Call ($n) {
+    my $^whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
     if ($method =~ 'postcircumfix:< >') {
       $.e($n.invocant)~'->'~"{'"~$.e($n.capture)~"'}";
@@ -593,7 +610,9 @@ package Main;
       1;
   }
   method cb__Apply ($n) {
-    if $n.function =~ /^infix:(.+)$/ {
+    # my $^whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
+    my $fun = $.e($n.function);
+    if $fun =~ /^infix:(.+)$/ {
       my $op = $1;
       my $args = $n.capture.arguments;
       my $a = $.e($args);
@@ -622,7 +641,7 @@ package Main;
       }
       "("~$l~" "~$op~" "~$r~")";
     }
-    elsif $n.function =~ /^prefix:(.+)$/ {
+    elsif $fun =~ /^prefix:(.+)$/ {
       my $op = $1;
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
@@ -630,14 +649,14 @@ package Main;
       elsif $op eq '?' { '(('~$x~')?1:0)' }
       else { "("~$op~""~$x~")" }
     }
-    elsif $n.function =~ /^postfix:(.+)$/ {
+    elsif $fun =~ /^postfix:(.+)$/ {
       my $op = $1;
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
       if 0 { }
       else { "("~$x~""~$op~")" }
     }
-    elsif ($.e($n.function) =~ /^circumfix:(.+)/) {
+    elsif $fun =~ /^circumfix:(.+)/ {
       my $op = $1;
       if $op eq '< >' {
         my $s = $n.capture.arguments[0];
@@ -652,11 +671,11 @@ package Main;
         $op.re_gsub(' ',$arg);
       }
     }
-    elsif ($.e($n.function) =~ /^statement_prefix:gather$/) {
+    elsif $fun =~ /^statement_prefix:gather$/ {
       'GLOBAL::gather'~$.e($n.capture)~''
     }
     else {
-      my $f = $.e($n.function);
+      my $f = $fun;
       if ($f =~ /^\$\w+$/) {
          $f~'->('~$.e($n.capture)~')';
       } elsif ($f eq 'self') {
@@ -684,6 +703,7 @@ package Main;
     }
   };
   method cb__Capture ($n) {
+    # my $^whiteboard::emit_pairs_inline = 0; XXX?
     my $a = $.e($n.arguments||[]).join(",");
     if $n.invocant {
       my $inv = $.e($n.invocant);
@@ -716,7 +736,7 @@ package Main;
   };
 
   method encode_varname($s,$t,$dsn) {
-    #XXX $pkg:x -> s_pkg::x :(
+    #XXX $pkg::x -> s_pkg::x :(
     my $env = '';
     my $pre = '';
     if $t eq '^' { $env = 'e' };
@@ -747,6 +767,7 @@ package Main;
     $.e($n.text)
   };
   method cb__Hash ($n) {
+    my $^whiteboard::emit_pairs_inline = 1;
     '{'~$.e($n.hash||[]).join(",")~'}'
   };
   method cb__Buf ($n) {
@@ -759,7 +780,12 @@ package Main;
     'qr/'~$pat~'/'
   };
   method cb__Pair($n) {
-    "Pair->new('key','"~$.e($n.key)~"','value','"~$.e($n.value)~"')"
+    if $^whiteboard::emit_pairs_inline {
+      my $^whiteboard::emit_pairs_inline = 0;
+      '('~$.e($n.key)~' => '~$.e($n.value)~')'
+    } else {
+      "Pair->new('key',"~$.e($n.key)~", 'value',"~$.e($n.value)~")"
+    }
   };
 
 };

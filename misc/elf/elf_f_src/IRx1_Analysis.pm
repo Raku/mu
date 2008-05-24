@@ -156,8 +156,11 @@ class IRx1::VarDecl {
     for self.traits {if $_.expr eq 'context' { return 1 }}
     return 0;
   }
-  method sigil() { self.<var><sigil> };
   method name () { self.<var><name> };
+  method sigil() { self.<var><sigil> };
+  method is_scalar() { self.<var><sigil> eq '$' }
+  method is_array() { self.<var><sigil> eq '@' }
+  method is_hash() { self.<var><sigil> eq '%' }
 };
 class IRx1::SubDecl {
   method sigil() { '&' };
