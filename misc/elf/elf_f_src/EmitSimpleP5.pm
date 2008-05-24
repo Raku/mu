@@ -585,16 +585,6 @@ package Main;
         while $a.elems { $s = $s ~", "~ $a.shift }
         $s;
       }
-      elsif ($op eq '=') {
-        my $t;
-        if $n.capture.arguments[0].isa("Var") {
-            $t = $.e($n.capture.arguments[0].twigil);
-        }
-        if ($t && $t eq '.') {
-          $l~'('~$r~')'
-        }
-        else { "("~$l~" "~$op~" "~$r~")" }
-      }
       else { "("~$l~" "~$op~" "~$r~")" }
     }
     elsif $n.function =~ /^prefix:(.+)$/ {

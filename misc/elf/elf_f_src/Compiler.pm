@@ -16,6 +16,33 @@ class Compiler {
   };
   method compile_fragment_cache_get($code,$filename) { undef };
   method compile_fragment_cache_set($code,$filename,$value) { };
+
+  sub dump_IRx1($ast) {
+    if $ast.isa("IRx1::Base") {
+      my $field_names = $ast.field_names;
+      my $field_values = $ast.field_values;
+      my $i=0;
+      my $str = $ast.node_name ~ '(';
+      while $i < $field_names.elems {
+        if $i != 0 {
+          $str = $str ~ ',';
+        }
+        $str = $str ~ $field_names[$i] ~ '=>' ~ dump_IRx1($field_values[$i]);
+        $i++;
+      }
+      $str = $str ~ ')';
+      return $str;
+    } elsif $ast.WHAT eq "Array" {
+      return '[' ~ $ast.map(sub ($e) {dump_IRx1($e)}).join(',') ~ ']';
+    } elsif $ast.WHAT eq "Str" {
+      #TODO: '
+      return "'" ~ $ast ~ "'"
+    } elsif $ast.WHAT eq "Undef" {
+      return 'undef'
+    } else {
+      return $ast
+    }
+  }
   method compile_fragment($code,$filename,$verbose) {
     my $tree;
     my $cached = self.compile_fragment_cache_get($code,$filename);
@@ -31,7 +58,8 @@ class Compiler {
       if $verbose { say $tree.match_describe; }
       my $ir = $tree.make_ir_from_Match_tree();
       #say eval_perl5('sub{use Data::Dumper; Data::Dumper::Dumper($_[0])}').($ir);
-      if $verbose { say $ir.irx1_describe; }
+      #if $verbose { say $ir.irx1_describe; }
+      if $verbose { say dump_IRx1($ir) }
       my $p5;
       if $.is_for_active_runtime {
         $p5 = $*emitter0.prelude_lexical ~ $ir.callback($*emitter0.new_emitter('compiler',self));
