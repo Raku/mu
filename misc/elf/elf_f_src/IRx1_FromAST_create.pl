@@ -30,7 +30,7 @@ if $m<infix> {
     die "Unimplemented infix_postfix_meta_operator";
   }
   my $op = $m<infix><sym>;
-  Apply.newp("infix:"~$op,Capture.newp($m<args>))
+  Apply.newp("infix:"~$op,Capture.newp($m<args>||[]))
 } else {
   die "Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator";
 }
@@ -65,7 +65,7 @@ if $o<args> {
 }
 
 dotty:methodop
-Call.newp($^blackboard::expect_term_base,$m<ident>,Capture.newp($m<semilist>))
+Call.newp($^blackboard::expect_term_base,$m<ident>,Capture.newp($m<semilist>||[]))
 
 dotty:postcircumfix
 my $s = *text*;
@@ -73,7 +73,7 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $ident = "postcircumfix:"~$name;
 my $args = $m<kludge_name>;
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-Call.newp($^blackboard::expect_term_base,$ident,Capture.newp($args))
+Call.newp($^blackboard::expect_term_base,$ident,Capture.newp($args||[]))
 
 postcircumfix
 my $s = *text*;
@@ -81,7 +81,7 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $ident = "postcircumfix:"~$name;
 my $args = $m<kludge_name>;
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-Call.newp($^blackboard::expect_term_base,$ident,Capture.newp($args))
+Call.newp($^blackboard::expect_term_base,$ident,Capture.newp($args||[]))
 
 postfix
 my $op = *text*;
@@ -111,9 +111,9 @@ NumInt.newp(*text*)
 subcall
 my $t = $m<subshortname><twigil>;
 if $t && $t eq '.' {
-  Call.newp(Apply.newp('self',Capture.newp([])),$m<subshortname><desigilname><ident>,Capture.newp($m<semilist>))
+  Call.newp(Apply.newp('self',Capture.newp([])),$m<subshortname><desigilname><ident>,Capture.newp($m<semilist>||[]))
 } else {
-  Apply.newp($m<subshortname>,Capture.newp($m<semilist>))
+  Apply.newp($m<subshortname>,Capture.newp($m<semilist>||[]))
 }
 
 name
@@ -183,7 +183,7 @@ if $o<postcircumfix> {
     my $slf = Apply.newp('self',Capture.newp([]));
     my $args = $m<postcircumfix><kludge_name>;
     if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-    Call.newp($slf,$m<desigilname>,Capture.newp($args))
+    Call.newp($slf,$m<desigilname>,Capture.newp($args||[]))
   } else {
     my $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
     my $^blackboard::expect_term_base = $v;
@@ -210,7 +210,7 @@ my $s = *text*;
 my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $args = $m<kludge_name>;
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-Apply.newp("circumfix:"~$name,Capture.newp($args))
+Apply.newp("circumfix:"~$name,Capture.newp($args||[]))
 
 
 statement_control:for
@@ -342,7 +342,7 @@ elsif $o<EXPR><noun> {
 elsif $o<EXPR><sym> && $o<EXPR><sym> eq ':' {
   my $args = $m<EXPR><args>;
   my $inv = $args.shift;
-  Capture.newp($args,$inv)
+  Capture.newp($args||[],$inv)
 }
 elsif $o<EXPR><sym> && $o<EXPR><sym> eq ',' {
   my $args = $o<EXPR><args>;
@@ -355,7 +355,7 @@ elsif $o<EXPR><sym> && $o<EXPR><sym> eq ',' {
       $args.unshift($arg0<args>[1]);
     }
   }
-  Capture.newp(ir($args),ir($inv))
+  Capture.newp(ir($args)||[],ir($inv))
 }
 else { die "capture AST form not recognized" }
 

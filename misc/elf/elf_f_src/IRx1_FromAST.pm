@@ -84,7 +84,7 @@ if irbuild_ir($m.{'hash'}{'infix_postfix_meta_operator'}) {
   die "Unimplemented infix_postfix_meta_operator";
 }
 my $op = irbuild_ir($m.{'hash'}{'infix'}.{'hash'}{'sym'});
-IRx1::Apply.newp($m,"infix:"~$op,IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'args'})))
+IRx1::Apply.newp($m,"infix:"~$op,IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'args'})||[]))
 } else {
 die "Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator";
 };
@@ -124,7 +124,7 @@ die "pre without a prefix is unimplemented";
     });
 
     $main::irbuilder.add_constructor('dotty:methodop', sub ($m) {
-      IRx1::Call.newp($m,$^blackboard::expect_term_base,irbuild_ir($m.{'hash'}{'ident'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'semilist'})));
+      IRx1::Call.newp($m,$^blackboard::expect_term_base,irbuild_ir($m.{'hash'}{'ident'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'semilist'})||[]));
     });
 
     $main::irbuilder.add_constructor('dotty:postcircumfix', sub ($m) {
@@ -133,7 +133,7 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $ident = "postcircumfix:"~$name;
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args));
+IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args||[]));
     });
 
     $main::irbuilder.add_constructor('postcircumfix', sub ($m) {
@@ -142,7 +142,7 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $ident = "postcircumfix:"~$name;
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args));
+IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args||[]));
     });
 
     $main::irbuilder.add_constructor('postfix', sub ($m) {
@@ -178,9 +178,9 @@ die "AST term partially unimplemented.\n";
     $main::irbuilder.add_constructor('subcall', sub ($m) {
       my $t = irbuild_ir($m.{'hash'}{'subshortname'}.{'hash'}{'twigil'});
 if $t && $t eq '.' {
-IRx1::Call.newp($m,IRx1::Apply.newp($m,'self',IRx1::Capture.newp($m,[])),irbuild_ir($m.{'hash'}{'subshortname'}.{'hash'}{'desigilname'}.{'hash'}{'ident'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'semilist'})))
+IRx1::Call.newp($m,IRx1::Apply.newp($m,'self',IRx1::Capture.newp($m,[])),irbuild_ir($m.{'hash'}{'subshortname'}.{'hash'}{'desigilname'}.{'hash'}{'ident'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'semilist'})||[]))
 } else {
-IRx1::Apply.newp($m,irbuild_ir($m.{'hash'}{'subshortname'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'semilist'})))
+IRx1::Apply.newp($m,irbuild_ir($m.{'hash'}{'subshortname'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'semilist'})||[]))
 };
     });
 
@@ -266,7 +266,7 @@ if $tw eq "." {
   my $slf = IRx1::Apply.newp($m,'self',IRx1::Capture.newp($m,[]));
   my $args = irbuild_ir($m.{'hash'}{'postcircumfix'}.{'hash'}{'kludge_name'});
   if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-  IRx1::Call.newp($m,$slf,irbuild_ir($m.{'hash'}{'desigilname'}),IRx1::Capture.newp($m,$args))
+  IRx1::Call.newp($m,$slf,irbuild_ir($m.{'hash'}{'desigilname'}),IRx1::Capture.newp($m,$args||[]))
 } else {
   my $v = IRx1::Var.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),$tw,irbuild_ir($m.{'hash'}{'desigilname'}));
   my $^blackboard::expect_term_base = $v;
@@ -297,7 +297,7 @@ IRx1::Var.newp($m,$s,undef,$n);
 my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args));
+IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args||[]));
     });
 
     $main::irbuilder.add_constructor('statement_control:for', sub ($m) {
@@ -468,7 +468,7 @@ IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'EXPR'}.{'hash'}{'noun'})])
 elsif $m.{'hash'}{'EXPR'}.{'hash'}{'sym'} && $m.{'hash'}{'EXPR'}.{'hash'}{'sym'} eq ':' {
 my $args = irbuild_ir($m.{'hash'}{'EXPR'}.{'hash'}{'args'});
 my $inv = $args.shift;
-IRx1::Capture.newp($m,$args,$inv)
+IRx1::Capture.newp($m,$args||[],$inv)
 }
 elsif $m.{'hash'}{'EXPR'}.{'hash'}{'sym'} && $m.{'hash'}{'EXPR'}.{'hash'}{'sym'} eq ',' {
 my $args = $m.{'hash'}{'EXPR'}.{'hash'}{'args'};
@@ -481,7 +481,7 @@ if $arg0 && $arg0.{'hash'}{'sym'} && $arg0.{'hash'}{'sym'} eq ':' {
     $args.unshift($arg0.{'hash'}{'args'}[1]);
   }
 }
-IRx1::Capture.newp($m,irbuild_ir($args),irbuild_ir($inv))
+IRx1::Capture.newp($m,irbuild_ir($args)||[],irbuild_ir($inv))
 }
 else { die "capture AST form not recognized" };
     });

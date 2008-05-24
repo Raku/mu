@@ -714,14 +714,15 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
 (do{has 'rule' => (is => 'rw');;
-has 'str' => (is => 'rw');;
+has 'match_str' => (is => 'rw');;
 has 'from' => (is => 'rw');;
 has 'to' => (is => 'rw');;
+has 'bool' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 sub make_from_rsfth{my $self=CORE::shift;my($r,$s,$f,$t,$h)=@_;
-(do{my $init = {'rule', $r, 'str', $s, 'from', $f, 'to', $t, 'hash', $h};
+(do{my $init = {'rule', $r, 'match_str', $s, 'from', $f, 'to', $t, 'hash', $h};
 $self->new($init)})};
-sub match_describe{my $self=CORE::shift;(do{my $s = ((((((($self->rule . '<') . $self->from) . ',') . $self->to) . ',\'') . $self->str) . '\',{');
+sub match_describe{my $self=CORE::shift;(do{my $s = ((((((($self->rule . '<') . $self->from) . ',') . $self->to) . ',\'') . $self->match_str) . '\',{');
 for($self->hash->keys()->flatten){
 (do{my $k = $_;
 my $v = $self->hash->{$k};
@@ -741,7 +742,8 @@ sub indent{my $self=CORE::shift;my($s)=@_;
 (do{$s->re_gsub(qr/(?m:^(?!\Z))/, '  ')})};
 sub indent_except_top{my $self=CORE::shift;my($s)=@_;
 (do{$s->re_gsub(qr/(?m:^(?<!\A)(?!\Z))/, '  ')})};
-sub match_string{my $self=CORE::shift;(do{$self->str})}});
+sub match_string{my $self=CORE::shift;(do{$self->match_str})};
+sub Str{my $self=CORE::shift;(do{$self->match_str->substr($self->from, ($self->to - $self->from))})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2202,7 +2204,7 @@ $main::irbuilder->add_constructor('expect_infix', sub {my($m)=@_;
 (do{GLOBAL::die('Unimplemented infix_postfix_meta_operator')})
 };
 my $op = irbuild_ir($m->{'hash'}->{'infix'}->{'hash'}->{'sym'});
-IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'args'})))})
+IRx1::Apply->newp($m, ('infix:' . $op), IRx1::Capture->newp($m, (irbuild_ir($m->{'hash'}->{'args'}) || [])))})
 }else {
 (do{GLOBAL::die('Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator')})
 }})});
@@ -2236,7 +2238,7 @@ $main::irbuilder->add_constructor('pre', sub {my($m)=@_;
 (do{GLOBAL::die('pre without a prefix is unimplemented')})
 }})});
 $main::irbuilder->add_constructor('dotty:methodop', sub {my($m)=@_;
-(do{IRx1::Call->newp($m, $::es_blackboard__expect_term_base, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))})});
+(do{IRx1::Call->newp($m, $::es_blackboard__expect_term_base, irbuild_ir($m->{'hash'}->{'ident'}), IRx1::Capture->newp($m, (irbuild_ir($m->{'hash'}->{'semilist'}) || [])))})});
 $main::irbuilder->add_constructor('dotty:postcircumfix', sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
@@ -2245,7 +2247,7 @@ my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() ne 'ARRAY')))) {
 (do{($args = [$args])})
 };
-IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))})});
+IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
 $main::irbuilder->add_constructor('postcircumfix', sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . ' ') . GLOBAL::substr($s, (-1), 1));
@@ -2254,7 +2256,7 @@ my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() ne 'ARRAY')))) {
 (do{($args = [$args])})
 };
-IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, $args))})});
+IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
 $main::irbuilder->add_constructor('postfix', sub {my($m)=@_;
 (do{my $op = ($m->match_string());
 IRx1::Apply->newp($m, ('postfix:' . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))})});
@@ -2279,9 +2281,9 @@ $main::irbuilder->add_constructor('integer', sub {my($m)=@_;
 $main::irbuilder->add_constructor('subcall', sub {my($m)=@_;
 (do{my $t = irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'twigil'});
 if(($t && ($t eq '.'))) {
-(do{IRx1::Call->newp($m, IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, [])), irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'desigilname'}->{'hash'}->{'ident'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))})
+(do{IRx1::Call->newp($m, IRx1::Apply->newp($m, 'self', IRx1::Capture->newp($m, [])), irbuild_ir($m->{'hash'}->{'subshortname'}->{'hash'}->{'desigilname'}->{'hash'}->{'ident'}), IRx1::Capture->newp($m, (irbuild_ir($m->{'hash'}->{'semilist'}) || [])))})
 }else {
-(do{IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'subshortname'}), IRx1::Capture->newp($m, irbuild_ir($m->{'hash'}->{'semilist'})))})
+(do{IRx1::Apply->newp($m, irbuild_ir($m->{'hash'}->{'subshortname'}), IRx1::Capture->newp($m, (irbuild_ir($m->{'hash'}->{'semilist'}) || [])))})
 }})});
 $main::irbuilder->add_constructor('name', sub {my($m)=@_;
 (do{($m->match_string())})});
@@ -2338,7 +2340,7 @@ my $args = irbuild_ir($m->{'hash'}->{'postcircumfix'}->{'hash'}->{'kludge_name'}
 if(($args && (($args->ref() ne 'ARRAY')))) {
 (do{($args = [$args])})
 };
-IRx1::Call->newp($m, $slf, irbuild_ir($m->{'hash'}->{'desigilname'}), IRx1::Capture->newp($m, $args))})
+IRx1::Call->newp($m, $slf, irbuild_ir($m->{'hash'}->{'desigilname'}), IRx1::Capture->newp($m, ($args || [])))})
 }else {
 (do{my $v = IRx1::Var->newp($m, irbuild_ir($m->{'hash'}->{'sigil'}), $tw, irbuild_ir($m->{'hash'}->{'desigilname'}));
 {package Main; use vars '$1es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = $v;
@@ -2363,7 +2365,7 @@ my $args = irbuild_ir($m->{'hash'}->{'kludge_name'});
 if(($args && (($args->ref() ne 'ARRAY')))) {
 (do{($args = [$args])})
 };
-IRx1::Apply->newp($m, ('circumfix:' . $name), IRx1::Capture->newp($m, $args))})});
+IRx1::Apply->newp($m, ('circumfix:' . $name), IRx1::Capture->newp($m, ($args || [])))})});
 $main::irbuilder->add_constructor('statement_control:for', sub {my($m)=@_;
 (do{IRx1::For->newp($m, irbuild_ir($m->{'hash'}->{'expr'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('statement_mod_loop:for', sub {my($m)=@_;
@@ -2475,7 +2477,7 @@ $main::irbuilder->add_constructor('capture', sub {my($m)=@_;
 }elsif(($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} && ($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} eq ':'))) {
 (do{my $args = irbuild_ir($m->{'hash'}->{'EXPR'}->{'hash'}->{'args'});
 my $inv = $args->shift();
-IRx1::Capture->newp($m, $args, $inv)})
+IRx1::Capture->newp($m, ($args || []), $inv)})
 }elsif(($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} && ($m->{'hash'}->{'EXPR'}->{'hash'}->{'sym'} eq ','))) {
 (do{my $args = $m->{'hash'}->{'EXPR'}->{'hash'}->{'args'};
 my $arg0 = ($args && $args->[0]);
@@ -2487,7 +2489,7 @@ if($arg0->{'hash'}->{'args'}->[1]) {
 (do{$args->unshift($arg0->{'hash'}->{'args'}->[1])})
 }})
 };
-IRx1::Capture->newp($m, irbuild_ir($args), irbuild_ir($inv))})
+IRx1::Capture->newp($m, (irbuild_ir($args) || []), irbuild_ir($inv))})
 }else {
 (do{GLOBAL::die('capture AST form not recognized')})
 }})});
@@ -2883,6 +2885,20 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 use Moose; __PACKAGE__->meta->make_mutable();
 (do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
 (do{$self->new('compiler', $compiler)})};
+sub tidy{my $self=CORE::shift;my($source)=@_;
+(do{GLOBAL::say(GLOBAL::eval_perl5('
+    sub {
+      eval("use Perl::Tidy");
+      if ($@) {
+        $_[0];
+      } else {
+        my $source = $_[0];
+        my $dest;
+        Perl::Tidy::perltidy(argv=>[],source=>\\$source,destination=>\\$dest);
+        $dest;
+      }
+    }
+    ')->($source))})};
 has 'compiler' => (is => 'rw');;
 sub prelude_for_entering_a_package{my $self=CORE::shift;(do{''})};
 sub prelude_lexical{my $self=CORE::shift;(do{'use autobox ARRAY => \'ARRAY\', HASH => \'HASH\', CODE => \'CODE\', INTEGER => \'INTEGER\', FLOAT => \'FLOAT\', STRING => \'STRING\', UNDEF => \'UNDEF\';
@@ -3234,22 +3250,22 @@ sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 {package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
 my $code = (('package Main;
 ' . $self->prelude_for_entering_a_package()));
-my $stmts = $self->e($n->{'statements'});
+my $stmts = $self->e($n->statements());
 (($code . $stmts->join(';
 ')) . ';
 ')})};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
-(do{(('(do{' . $self->e($n->{'statements'})->join(';
+(do{(('(do{' . $self->e($n->statements())->join(';
 ')) . '})')})};
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
-(do{my $module = $self->e($n->{'module_name'});
-my $expr = $self->e($n->{'expr'});
+(do{my $module = $self->e($n->module_name());
+my $expr = $self->e($n->expr());
 if(($module eq 'v6-alpha')) {
 (do{''})
 }elsif(($module eq 'v6')) {
 (do{''})
 }elsif(($module eq 'lib')) {
-(do{my $name = $n->{'expr'}->{'buf'};
+(do{my $name = $n->expr()->buf();
 if($self->compiler->hook_for_use_lib($name)) {
 (do{''})
 }else {
@@ -3261,66 +3277,66 @@ if($self->compiler->hook_for_use_lib($name)) {
 (do{('use ' . $module)})
 }})};
 sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
-(do{((($n->{'kind'} . '{') . $self->e($n->{'block'})) . '}')})};
+(do{((($n->kind() . '{') . $self->e($n->block())) . '}')})};
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
-(do{{package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->{'name'}];
+(do{{package Main; use vars '$1es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->name()];
 my $name = $::es_whiteboard__in_package->join('::');
 (((((((((('
 { package ' . $name) . ';
 ') . 'use Moose;') . ' __PACKAGE__->meta->make_mutable();
-') . $self->prelude_for_entering_a_package()) . $self->e(($n->{'traits'} || []))->join('
-')) . $self->e($n->{'block'})) . ';
+') . $self->prelude_for_entering_a_package()) . $self->e(($n->traits() || []))->join('
+')) . $self->e($n->block())) . ';
 __PACKAGE__->meta->make_immutable();
 ') . '
 }
 '))})};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
-(do{if((($n->{'verb'} eq 'is'))) {
+(do{if((($n->verb() eq 'is'))) {
 (do{my $pkgname = $::es_whiteboard__in_package->join('::');
-my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') . $self->e($n->{'expr'}));
+my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') . $self->e($n->expr()));
 $name->re_gsub('^::', '');
 (((('BEGIN{push(@' . $pkgname) . '::ISA,\'') . $name) . '\');}
 ')})
 }else {
-(do{GLOBAL::say((('ERROR: Emitting p5 for Trait verb ' . $n->{'verb'}) . ' has not been implemented.
+(do{GLOBAL::say((('ERROR: Emitting p5 for Trait verb ' . $n->verb()) . ' has not been implemented.
 '));
 '***Trait***'})
 }})};
 sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
 (do{my $default = '';
-my $default_expr = $self->e($n->{'default_expr'});
+my $default_expr = $self->e($n->default_expr());
 if($default_expr) {
 (do{($default = ((', default => sub{ ' . $default_expr) . ' }'))})
 }else {
-(do{if((($n->{'var'}->{'sigil'} eq '@'))) {
+(do{if((($n->var()->sigil() eq '@'))) {
 (do{($default = ', default => sub{ [] }')})
 };
-if((($n->{'var'}->{'sigil'} eq '%'))) {
+if((($n->var()->sigil() eq '%'))) {
 (do{($default = ', default => sub{ {} }')})
 }})
 };
-(((('has \'' . $self->e($n->{'var'}->{'name'})) . '\' => (is => \'rw\'') . $default) . ');')})};
+(((('has \'' . $self->e($n->var()->name())) . '\' => (is => \'rw\'') . $default) . ');')})};
 sub cb__VarDecl{my $self=CORE::shift;my($n)=@_;
-(do{if((($n->{'scope'} eq 'has'))) {
+(do{if((($n->scope() eq 'has'))) {
 (do{$self->do_VarDecl_has($n)})
 }else {
 (do{my $default = '';
-if($n->{'default_expr'}) {
-(do{($default = (' = ' . $self->e($n->{'default_expr'})))})
+if($n->default_expr()) {
+(do{($default = (' = ' . $self->e($n->default_expr())))})
 }else {
-(do{if((($n->{'var'}->{'sigil'} eq '@'))) {
+(do{if((($n->var()->sigil() eq '@'))) {
 (do{($default = ' = [];')})
 };
-if((($n->{'var'}->{'sigil'} eq '%'))) {
+if((($n->var()->sigil() eq '%'))) {
 (do{($default = ' = {};')})
 }})
 };
-if((($n->{'var'}->{'twigil'} eq '^'))) {
-(do{my $name = $self->e($n->{'var'});
+if((($n->var()->twigil() eq '^'))) {
+(do{my $name = $self->e($n->var());
 $name->re_gsub('^(.)::', '$1');
-((((((('{package Main; use vars \'' . $name) . '\'};') . 'local') . ' ') . $self->e($n->{'var'})) . $default))})
+((((((('{package Main; use vars \'' . $name) . '\'};') . 'local') . ' ') . $self->e($n->var())) . $default))})
 }else {
-(do{((($n->{'scope'} . ' ') . $self->e($n->{'var'})) . $default)})
+(do{((($n->scope() . ' ') . $self->e($n->var())) . $default)})
 }})
 }})};
 sub multimethods_using_hack{my $self=CORE::shift;my($n,$name,$type0)=@_;
@@ -3353,9 +3369,9 @@ my $code = '';
   die $@ if $@;
 };
 '));
-(((((('sub ' . $branch_name) . '{my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}') . $code)})};
+(((((('sub ' . $branch_name) . '{my $self=CORE::shift;') . $self->e($n->multisig())) . $self->e($n->block())) . '}') . $code)})};
 sub multimethods_using_CM{my $self=CORE::shift;my($n,$name,$type0)=@_;
-(do{my $n_args = $n->{'multisig'}->{'parameters'}->elems();
+(do{my $n_args = $n->multisig()->parameters()->elems();
 ($type0 = $type0->re_gsub('^Any$', '*'));
 ($type0 = $type0->re_gsub('^Int$', '#'));
 ($type0 = $type0->re_gsub('^Num$', '#'));
@@ -3366,12 +3382,12 @@ while(($i < $n_args)) {
 (do{($i = ($i + 1));
 ($param_padding = ($param_padding . ' * '))})
 };
-((((((((('Class::Multimethods::multimethod ' . $name) . ' =>qw( * ') . $type0) . $param_padding) . ' ) => ') . 'sub {my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '};')})};
+((((((((('Class::Multimethods::multimethod ' . $name) . ' =>qw( * ') . $type0) . $param_padding) . ' ) => ') . 'sub {my $self=CORE::shift;') . $self->e($n->multisig())) . $self->e($n->block())) . '};')})};
 sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
-(do{if(($n->{'plurality'} && ($n->{'plurality'} eq 'multi'))) {
-(do{my $name = $self->e($n->{'name'});
-my $param_types = $n->{'multisig'}->{'parameters'}->map(sub {my($p)=@_;
-(do{my $types = $self->e($p->{'type_constraints'});
+(do{if(($n->plurality() && ($n->plurality() eq 'multi'))) {
+(do{my $name = $self->e($n->name());
+my $param_types = $n->multisig()->parameters()->map(sub {my($p)=@_;
+(do{my $types = $self->e($p->type_constraints());
 if($types) {
 (do{if(($types->elems() != 1)) {
 (do{GLOBAL::die('only limited multi method support')})
@@ -3386,44 +3402,44 @@ if(GLOBAL::not($type0)) {
 '))})
 };
 $self->multimethods_using_CM($n, $name, $type0)})
-}elsif((($n->{'traits'} && $n->{'traits'}->[0]->{'expr'}) && ($n->{'traits'}->[0]->{'expr'} eq 'p5'))) {
-(do{my $code = $n->{'block'}->{'statements'}->[0]->{'buf'};
-((((('sub ' . $self->e($n->{'name'})) . '{ my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $code) . '}')})
+}elsif((($n->traits() && $n->traits()->[0]->expr()) && ($n->traits()->[0]->expr() eq 'p5'))) {
+(do{my $code = $n->block()->statements()->[0]->buf();
+((((('sub ' . $self->e($n->name())) . '{ my $self=CORE::shift;') . $self->e($n->multisig())) . $code) . '}')})
 }else {
-(do{((((('sub ' . $self->e($n->{'name'})) . '{my $self=CORE::shift;') . $self->e($n->{'multisig'})) . $self->e($n->{'block'})) . '}')})
+(do{((((('sub ' . $self->e($n->name())) . '{my $self=CORE::shift;') . $self->e($n->multisig())) . $self->e($n->block())) . '}')})
 }})};
 sub cb__SubDecl{my $self=CORE::shift;my($n)=@_;
-(do{my $name = $n->{'name'};
+(do{my $name = $n->name();
 if($name) {
 (do{($name = $self->e($name))})
 }else {
 (do{($name = '')})
 };
-my $sig = $n->{'multisig'};
+my $sig = $n->multisig();
 if($sig) {
 (do{($sig = $self->e($sig))})
 }else {
 (do{($sig = '')})
 };
-if((($n->{'traits'} && $n->{'traits'}->[0]->{'expr'}) && ($n->{'traits'}->[0]->{'expr'} eq 'p5'))) {
-(do{my $code = $n->{'block'}->{'statements'}->[0]->{'buf'};
+if((($n->traits() && $n->traits()->[0]->expr()) && ($n->traits()->[0]->expr() eq 'p5'))) {
+(do{my $code = $n->block()->statements()->[0]->buf();
 ((((('sub ' . $name) . '{') . $sig) . $code) . '}')})
 }else {
-(do{((((('sub ' . $name) . '{') . $sig) . $self->e($n->{'block'})) . '}')})
+(do{((((('sub ' . $name) . '{') . $sig) . $self->e($n->block())) . '}')})
 }})};
 sub cb__Signature{my $self=CORE::shift;my($n)=@_;
-(do{if((($n->{'parameters'}->elems() == 0))) {
+(do{if((($n->parameters()->elems() == 0))) {
 (do{''})
 }else {
 (do{{package Main; use vars '$1es_whiteboard__signature_inits'};local $::es_whiteboard__signature_inits = '';
-my $pl = $self->e($n->{'parameters'})->join(',');
+my $pl = $self->e($n->parameters())->join(',');
 (((('my(' . $pl) . ')=@_;') . $::es_whiteboard__signature_inits) . '
 ')})
 }})};
 sub cb__Parameter{my $self=CORE::shift;my($n)=@_;
-(do{my $enc = $self->e($n->{'param_var'});
-if(($n->{'quant'} && ($n->{'quant'} eq '*'))) {
-(do{my $tmp = ('@' . $n->{'param_var'}->{'name'});
+(do{my $enc = $self->e($n->param_var());
+if(($n->quant() && ($n->quant() eq '*'))) {
+(do{my $tmp = ('@' . $n->param_var()->name());
 ($::es_whiteboard__signature_inits = ((((($::es_whiteboard__signature_inits . '
 my ') . $enc) . ' = \\') . $tmp) . ';'));
 $tmp})
@@ -3431,49 +3447,54 @@ $tmp})
 (do{$enc})
 }})};
 sub cb__ParamVar{my $self=CORE::shift;my($n)=@_;
-(do{my $s = $n->{'sigil'};
+(do{my $s = $n->sigil();
 my $t = '';
-my $dsn = $self->e($n->{'name'});
+my $dsn = $self->e($n->name());
 $self->encode_varname($s, $t, $dsn)})};
 sub cb__Call{my $self=CORE::shift;my($n)=@_;
-(do{my $method = $self->e($n->{'method'});
+(do{my $method = $self->e($n->method());
 if((($method =~ 'postcircumfix:< >'))) {
-(do{(((($self->e($n->{'invocant'}) . '->') . '{\'') . $self->e($n->{'capture'})) . '\'}')})
+(do{(((($self->e($n->invocant()) . '->') . '{\'') . $self->e($n->capture())) . '\'}')})
 }elsif((($method =~ 'postcircumfix:(.*)'))) {
 (do{my $op = $1;
-my $arg = $self->e($n->{'capture'});
+my $arg = $self->e($n->capture());
 $op->re_gsub(' ', $arg);
-(($self->e($n->{'invocant'}) . '->') . $op)})
+(($self->e($n->invocant()) . '->') . $op)})
 }else {
-(do{((((($self->e($n->{'invocant'}) . '->') . $self->e($n->{'method'})) . '(') . $self->e($n->{'capture'})) . ')')})
+(do{((((($self->e($n->invocant()) . '->') . $self->e($n->method())) . '(') . $self->e($n->capture())) . ')')})
 }})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
-(do{if(($n->{'function'} =~ qr/^infix:(.+)$/)) {
+(do{if(($n->function() =~ qr/^infix:(.+)$/)) {
 (do{my $op = $1;
-my $a = $self->e($n->{'capture'}->{'arguments'});
+my $args = $n->capture()->arguments();
+my $a = $self->e($args);
 my $l = $a->[0];
 my $r = $a->[1];
 if((($op eq '~'))) {
-(do{(((('(' . $l) . ' . ') . $r) . ')')})
-}elsif((($op eq ','))) {
+(do{return((((('(' . $l) . ' . ') . $r) . ')'))})
+};
+if((($op eq ','))) {
 (do{my $s = $a->shift();
 while($a->elems()) {
 (do{($s = (($s . ', ') . $a->shift()))})
 };
-$s})
-}elsif((($op eq '='))) {
-(do{my $t = $self->e($n->{'capture'}->{'arguments'}->[0]->{'twigil'});
+return($s)})
+};
+if((($op eq '='))) {
+(do{if($args->[0]->isa('IRx1::Var')) {
+(do{my $t = $args->[0]->twigil();
 if((($t && ($t eq '.')))) {
-(do{((($l . '(') . $r) . ')')})
-}else {
-(do{(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')})
+(do{return(((($l . '(') . $r) . ')'))})
 }})
-}else {
-(do{(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')})
+};
+if((($args->[0]->isa('IRx1::Call') && ($args->[0]->capture()->arguments()->elems() == 0)))) {
+(do{return(((((($self->e($args->[0]->invocant()) . '->') . $self->e($args->[0]->method())) . '(') . $r) . ')'))})
 }})
-}elsif(($n->{'function'} =~ qr/^prefix:(.+)$/)) {
+};
+(((((('(' . $l) . ' ') . $op) . ' ') . $r) . ')')})
+}elsif(($n->function() =~ qr/^prefix:(.+)$/)) {
 (do{my $op = $1;
-my $a = $self->e($n->{'capture'}->{'arguments'});
+my $a = $self->e($n->capture()->arguments());
 my $x = $a->[0];
 if(0) {
 (do{})
@@ -3482,19 +3503,19 @@ if(0) {
 }else {
 (do{(((('(' . $op) . '') . $x) . ')')})
 }})
-}elsif(($n->{'function'} =~ qr/^postfix:(.+)$/)) {
+}elsif(($n->function() =~ qr/^postfix:(.+)$/)) {
 (do{my $op = $1;
-my $a = $self->e($n->{'capture'}->{'arguments'});
+my $a = $self->e($n->capture()->arguments());
 my $x = $a->[0];
 if(0) {
 (do{})
 }else {
 (do{(((('(' . $x) . '') . $op) . ')')})
 }})
-}elsif((($self->e($n->{'function'}) =~ qr/^circumfix:(.+)/))) {
+}elsif((($self->e($n->function()) =~ qr/^circumfix:(.+)/))) {
 (do{my $op = $1;
 if(($op eq '< >')) {
-(do{my $s = $n->{'capture'}->{'arguments'}->[0];
+(do{my $s = $n->capture()->arguments()->[0];
 my $words = $s->split(qr/\s+/);
 if(($words->elems() == 0)) {
 (do{'[]'})
@@ -3502,42 +3523,42 @@ if(($words->elems() == 0)) {
 (do{(('[\'' . $words->join('\',\'')) . '\']')})
 }})
 }else {
-(do{my $arg = $self->e($n->{'capture'});
+(do{my $arg = $self->e($n->capture());
 $op->re_gsub(' ', $arg)})
 }})
-}elsif((($self->e($n->{'function'}) =~ qr/^statement_prefix:gather$/))) {
-(do{(('GLOBAL::gather' . $self->e($n->{'capture'})) . '')})
+}elsif((($self->e($n->function()) =~ qr/^statement_prefix:gather$/))) {
+(do{(('GLOBAL::gather' . $self->e($n->capture())) . '')})
 }else {
-(do{my $f = $self->e($n->{'function'});
+(do{my $f = $self->e($n->function());
 if((($f =~ qr/^\$\w+$/))) {
-(do{((($f . '->(') . $self->e($n->{'capture'})) . ')')})
+(do{((($f . '->(') . $self->e($n->capture())) . ')')})
 }elsif((($f eq 'self'))) {
 (do{'$self'})
 }elsif((($f eq 'last'))) {
 (do{'last'})
 }elsif((($f eq 'return'))) {
-(do{(('return(' . $self->e($n->{'capture'})) . ')')})
+(do{(('return(' . $self->e($n->capture())) . ')')})
 }elsif((($f =~ qr/^sub\s*{/))) {
-(do{(((('(' . $f) . ')->(') . $self->e($n->{'capture'})) . ')')})
+(do{(((('(' . $f) . ')->(') . $self->e($n->capture())) . ')')})
 }elsif((($f =~ qr/^\w/))) {
 (do{if($n->notes()->{'lexical_bindings'}->{('&' . $f)}) {
-(do{(((('' . $f) . '(') . $self->e($n->{'capture'})) . ')')})
+(do{(((('' . $f) . '(') . $self->e($n->capture())) . ')')})
 }else {
 (do{if(($f eq 'eval')) {
 (do{my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
-(((((('GLOBAL::' . $f) . '(') . $self->e($n->{'capture'})) . ',') . $env) . ')')})
+(((((('GLOBAL::' . $f) . '(') . $self->e($n->capture())) . ',') . $env) . ')')})
 }else {
-(do{(((('GLOBAL::' . $f) . '(') . $self->e($n->{'capture'})) . ')')})
+(do{(((('GLOBAL::' . $f) . '(') . $self->e($n->capture())) . ')')})
 }})
 }})
 }else {
-(do{((($f . '(') . $self->e($n->{'capture'})) . ')')})
+(do{((($f . '(') . $self->e($n->capture())) . ')')})
 }})
 }})};
 sub cb__Capture{my $self=CORE::shift;my($n)=@_;
-(do{my $a = $self->e(($n->{'arguments'} || []))->join(',');
-if($n->{'invocant'}) {
-(do{my $inv = $self->e($n->{'invocant'});
+(do{my $a = $self->e(($n->arguments() || []))->join(',');
+if($n->invocant()) {
+(do{my $inv = $self->e($n->invocant());
 if($a) {
 (do{(($inv . ', ') . $a)})
 }else {
@@ -3547,20 +3568,28 @@ if($a) {
 (do{$a})
 }})};
 sub cb__For{my $self=CORE::shift;my($n)=@_;
-(do{(((('for(' . $self->e($n->{'expr'})) . '->flatten){
-') . $self->e($n->{'block'})) . '
+(do{my $push = '';
+if(($n->expr()->WHAT() ne 'IRx1::Apply')) {
+(do{($push = '->flatten')})
+};
+my $pull = '';
+if(($n->block()->WHAT() eq 'IRx1::SubDecl')) {
+(do{($pull = '->($_)')})
+};
+(((((('for(' . $self->e($n->expr())) . $push) . '){
+') . $self->e($n->block())) . $pull) . '
 }')})};
 sub cb__Cond{my $self=CORE::shift;my($n)=@_;
 (do{my $els = '';
-if($n->{'default'}) {
+if($n->default()) {
 (do{($els = (('else {
-' . $self->e($n->{'default'})) . '
+' . $self->e($n->default())) . '
 }'))})
 };
-my $clauses = $self->e($n->{'clauses'});
+my $clauses = $self->e($n->clauses());
 my $first = $clauses->shift();
 my $first_test = $first->[0];
-if($n->{'invert_first_test'}) {
+if($n->invert_first_test()) {
 (do{($first_test = (('not(' . $first_test) . ')'))})
 };
 ((((((('if(' . $first_test) . ') {
@@ -3570,8 +3599,8 @@ if($n->{'invert_first_test'}) {
 ') . $e->[1]) . '
 }')})})->join('')) . $els))})};
 sub cb__Loop{my $self=CORE::shift;my($n)=@_;
-(do{(((('while(' . $self->e($n->{'pretest'})) . ') {
-') . $self->e($n->{'block'})) . '
+(do{(((('while(' . $self->e($n->pretest())) . ') {
+') . $self->e($n->block())) . '
 }')})};
 sub encode_varname{my $self=CORE::shift;my($s,$t,$dsn)=@_;
 (do{my $env = '';
@@ -3601,23 +3630,23 @@ if((($t eq '.'))) {
 (do{('$' . $name)})
 }})};
 sub cb__Var{my $self=CORE::shift;my($n)=@_;
-(do{my $s = $n->{'sigil'};
-my $t = ($n->{'twigil'} || '');
-my $dsn = $self->e($n->{'name'});
+(do{my $s = $n->sigil();
+my $t = ($n->twigil() || '');
+my $dsn = $self->e($n->name());
 $self->encode_varname($s, $t, $dsn)})};
 sub cb__NumInt{my $self=CORE::shift;my($n)=@_;
-(do{$self->e($n->{'text'})})};
+(do{$self->e($n->text())})};
 sub cb__Hash{my $self=CORE::shift;my($n)=@_;
-(do{(('{' . $self->e(($n->{'hash'} || []))->join(',')) . '}')})};
+(do{(('{' . $self->e(($n->hash() || []))->join(',')) . '}')})};
 sub cb__Buf{my $self=CORE::shift;my($n)=@_;
-(do{my $s = GLOBAL::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->{'buf'});
+(do{my $s = GLOBAL::eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}')->($n->buf());
 $s->chomp();
 $s})};
 sub cb__Rx{my $self=CORE::shift;my($n)=@_;
-(do{my $pat = ($n->{'pat'} || '');
+(do{my $pat = ($n->pat() || '');
 (('qr/' . $pat) . '/')})};
 sub cb__Pair{my $self=CORE::shift;my($n)=@_;
-(do{(((('Pair->new(\'key\',\'' . $self->e($n->{'key'})) . '\',\'value\',\'') . $self->e($n->{'value'})) . '\')')})}});
+(do{(((('Pair->new(\'key\',\'' . $self->e($n->key())) . '\',\'value\',\'') . $self->e($n->value())) . '\')')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3776,6 +3805,31 @@ sub compile_fragment_cache_get{my $self=CORE::shift;my($code,$filename)=@_;
 (do{GLOBAL::undef()})};
 sub compile_fragment_cache_set{my $self=CORE::shift;my($code,$filename,$value)=@_;
 (do{})};
+sub dump_IRx1{my($ast)=@_;
+(do{if($ast->isa('IRx1::Base')) {
+(do{my $field_names = $ast->field_names();
+my $field_values = $ast->field_values();
+my $i = 0;
+my $str = ($ast->node_name() . '(');
+while(($i < $field_names->elems())) {
+(do{if(($i != 0)) {
+(do{($str = ($str . ','))})
+};
+($str = ((($str . $field_names->[$i]) . '=>') . dump_IRx1($field_values->[$i])));
+($i++)})
+};
+($str = ($str . ')'));
+return($str)})
+}elsif(($ast->WHAT() eq 'Array')) {
+(do{return((('[' . $ast->map(sub {my($e)=@_;
+(do{dump_IRx1($e)})})->join(',')) . ']'))})
+}elsif(($ast->WHAT() eq 'Str')) {
+(do{return((('\'' . $ast) . '\''))})
+}elsif(($ast->WHAT() eq 'Undef')) {
+(do{return('undef')})
+}else {
+(do{return($ast)})
+}})};
 sub compile_fragment{my $self=CORE::shift;my($code,$filename,$verbose)=@_;
 (do{my $tree;
 my $cached = $self->compile_fragment_cache_get($code, $filename);
@@ -3792,7 +3846,7 @@ if($verbose) {
 };
 my $ir = $tree->make_ir_from_Match_tree();
 if($verbose) {
-(do{GLOBAL::say($ir->irx1_describe())})
+(do{GLOBAL::say($GLOBAL::emitter0->tidy(dump_IRx1($ir)))})
 };
 my $p5;
 if($self->is_for_active_runtime) {
@@ -3801,7 +3855,11 @@ if($self->is_for_active_runtime) {
 (do{($p5 = ($GLOBAL::emitter1->prelude_lexical() . $ir->callback($GLOBAL::emitter1->new_emitter('compiler', $self))))})
 };
 if($verbose) {
-(do{GLOBAL::say($p5)})
+(do{if($self->is_for_active_runtime) {
+(do{GLOBAL::say($GLOBAL::emitter0->tidy($p5))})
+}else {
+(do{GLOBAL::say($GLOBAL::emitter1->tidy($p5))})
+}})
 };
 $self->compile_fragment_cache_set($code, $filename, $p5);
 $p5})

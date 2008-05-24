@@ -591,16 +591,32 @@ package Main;
   method cb__Apply ($n) {
     if $n.function =~ /^infix:(.+)$/ {
       my $op = $1;
-      my $a = $.e($n.capture.arguments);
+      my $args = $n.capture.arguments;
+      my $a = $.e($args);
       my $l = $a[0];
       my $r = $a[1];
-      if ($op eq '~') { "("~$l~" . "~$r~")" }
-      elsif ($op eq ',') {
+      if ($op eq '~') {
+        return "("~$l~" . "~$r~")"
+      }
+      if ($op eq ',') {
         my $s = $a.shift;
         while $a.elems { $s = $s ~", "~ $a.shift }
-        $s;
+        return $s;
       }
-      else { "("~$l~" "~$op~" "~$r~")" }
+      if ($op eq '=') {
+        if $args[0].isa("IRx1::Var") {
+          my $t = $args[0].twigil;
+          if ($t && $t eq '.') {
+            return $l~'('~$r~')'
+          }
+        }
+        if ($args[0].isa("IRx1::Call") &&
+            $args[0].capture.arguments.elems == 0)
+        {
+          return $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
+        }
+      }
+      "("~$l~" "~$op~" "~$r~")";
     }
     elsif $n.function =~ /^prefix:(.+)$/ {
       my $op = $1;

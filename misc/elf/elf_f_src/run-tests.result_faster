@@ -778,9 +778,9 @@ X  0%	1  0 		../../../v6/v6-KindaPerl6/t/kp6/53-attr-bind.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/54-while.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/55-numeric-lt.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/57-method-without-return.t
--  0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/58-object-accessors.t
+ok	2		../../../v6/v6-KindaPerl6/t/kp6/58-object-accessors.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/59-inheritance.t
--  0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/60-inherited-accessors.t
+ok	2		../../../v6/v6-KindaPerl6/t/kp6/60-inherited-accessors.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/61-shortcircuit-lexicals.t
 -d 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/62-hash-of-hash.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
@@ -812,5 +812,5 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 -d 0%	6  0 6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 813.  602 parsed 74%.  259 run 31%.  51 ok 6%.
-Tests: 16409+.  557 ok <3.39%, 15852+ not.
+Files: 813.  602 parsed 74%.  259 run 31%.  53 ok 6%.
+Tests: 16409+.  561 ok <3.41%, 15848+ not.
