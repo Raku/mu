@@ -5,14 +5,29 @@ class EmitSimpleP5 {
     self.new('compiler',$compiler);
   };
 
+  method tidy($source) {
+    say eval_perl5('
+    sub {
+      eval("use Perl::Tidy");
+      if ($@) {
+        $_[0];
+      } else {
+        my $source = $_[0];
+        my $dest;
+        Perl::Tidy::perltidy(argv=>[],source=>\$source,destination=>\$dest);
+        $dest;
+      }
+    }
+    ').($source);
+  }
   has $.compiler;
 
   method prelude_for_entering_a_package () {
-      "";
+    "";
   };
 
   method prelude_lexical () {
-      "use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+    "use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       ";
   };
 
