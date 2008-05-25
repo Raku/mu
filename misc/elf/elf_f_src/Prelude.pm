@@ -96,15 +96,27 @@ package GLOBAL {
     $x.Num
   }
 
+  sub say(*@a) {
+    for @a { print $_.Str,"\n" }
+  }
+
 }
 
-# Num
+# .Num()
 class Int   { method Num () { self } }
 class Num   { method Num () { self } }
 class Str   { method Num () { self.primitive_Num() } }
 class Array { method Num () { self.elems } }
 class Hash  { method Num () { self.keys.elems } }
 class Pair  { method Num () { 2 } }; # so says pugs, the only impl working. 2008-May-24
+
+# .Str()
+class Int   { method Str () { ''~self } }
+class Num   { method Str () { ''~self } }
+class Str   { method Str () { self } }
+class Array { method Str () { self.join('') } }
+class Hash  { method Str () { self.keys.map(sub($k){$k~"\t"~self<$k>}).join("\n") } }
+class Pair  { method Str () { $.key~"\t"~$.value } }
 
 class Any {
   method print() { say self }

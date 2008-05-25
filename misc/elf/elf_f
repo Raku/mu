@@ -234,7 +234,7 @@ use warnings;
   use Carp;
   sub slurp{my($file)=@_; my $s = `cat $file`; $s}
   sub unslurp{
-    my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
+    my($text,$file)=@_; open(F,">$file") or CORE::die $!; CORE::print F $text; close F;}
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
   sub eval_perl5{
@@ -258,6 +258,7 @@ use warnings;
 
   sub unlink{CORE::unlink(@_)}
   sub sprintf{CORE::sprintf(shift,@_)}
+  sub print { CORE::print @_ }
 }
 
 { package STRING;
@@ -728,7 +729,13 @@ __PACKAGE__->meta->make_immutable();
 { package GLOBAL;
 use Moose; __PACKAGE__->meta->make_mutable();
 (do{sub prefix_plus{my($x)=@_;
-(do{$x->Num()})}});
+(do{$x->Num()})};
+sub say{my(@a)=@_;
+my $a_a = \@a;
+(do{for($a_a->flatten){
+(do{GLOBAL::print($_->Str(), '
+')})
+}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -777,6 +784,56 @@ __PACKAGE__->meta->make_immutable();
 { package Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
 (do{sub Num{my $self=CORE::shift;(do{2})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Int;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub Str{my $self=CORE::shift;(do{('' . $self)})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Num;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub Str{my $self=CORE::shift;(do{('' . $self)})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Str;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub Str{my $self=CORE::shift;(do{$self})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Array;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub Str{my $self=CORE::shift;(do{$self->join('')})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Hash;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub Str{my $self=CORE::shift;(do{$self->keys()->map(sub {my($k)=@_;
+(do{(($k . '	') . $self->{'$k'})})})->join('
+')})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Pair;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub Str{my $self=CORE::shift;(do{(($self->key . '	') . $self->value)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3250,7 +3307,7 @@ use warnings;
   use Carp;
   sub slurp{my($file)=@_; my $s = `cat $file`; $s}
   sub unslurp{
-    my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
+    my($text,$file)=@_; open(F,">$file") or CORE::die $!; CORE::print F $text; close F;}
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
   sub eval_perl5{
@@ -3274,6 +3331,7 @@ use warnings;
 
   sub unlink{CORE::unlink(@_)}
   sub sprintf{CORE::sprintf(shift,@_)}
+  sub print { CORE::print @_ }
 }
 
 { package STRING;
@@ -3548,7 +3606,6 @@ $types->[0]})
 if($is_method) {
 (do{$param_types->unshift('Any')})
 };
-GLOBAL::say($param_types);
 my $sig = $param_types->map(sub {my($t)=@_;
 (do{if(($t eq 'Any')) {
 (do{'*'})
@@ -3867,23 +3924,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package GLOBAL;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub say{my(@args)=@_;
-my $a_args = \@args;
-use Scalar::Util "openhandle";
-    my $currfh = select();
-    my($handle,$warning);
-    {no strict "refs"; $handle = openhandle($_[0]) ? shift : \*$currfh;}
-    @args = $_ unless @args;
-    @args = map {
-      my $ref = ref($_);
-      ($ref && $ref eq "ARRAY") ? join(" ",ARRAY::flatten_recursively($_)) : $_
-    } @args;
-    local $SIG{__WARN__} = sub { $warning = join q{}, @_ };
-    my $res = print {$handle} @args, "\n";
-    return $res if $res;
-    $warning =~ s/[ ]at[ ].*//xms;
-    Carp::croak $warning;
-    }});
+(do{});
 __PACKAGE__->meta->make_immutable();
 
 }

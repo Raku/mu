@@ -270,7 +270,7 @@ use warnings;
   use Carp;
   sub slurp{my($file)=@_; my $s = `cat $file`; $s}
   sub unslurp{
-    my($text,$file)=@_; open(F,">$file") or CORE::die $!; print F $text; close F;}
+    my($text,$file)=@_; open(F,">$file") or CORE::die $!; CORE::print F $text; close F;}
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
   sub eval_perl5{
@@ -294,6 +294,7 @@ use warnings;
 
   sub unlink{CORE::unlink(@_)}
   sub sprintf{CORE::sprintf(shift,@_)}
+  sub print { CORE::print @_ }
 }
 
 { package STRING;
@@ -561,7 +562,6 @@ package Main;
     if $is_method {
       $param_types.unshift('Any');
     }
-    say $param_types;
     my $sig = $param_types.map(sub($t){
       # XXX C::M needs to be modified to work on both INTEGER and Int. :(
       if $t eq 'Any' { '*' }
