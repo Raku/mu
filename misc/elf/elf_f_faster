@@ -4119,7 +4119,7 @@ my $sig = $param_types->map(sub {my($t)=@_;
 }else {
 (do{$t})
 }})})->join(' ');
-(((((('Class::Multimethods::multimethod ' . $name) . ' =>qw( ') . $sig) . ' ) => ') . $f_emitted) . ';')})};
+(((((('Class::Multimethods::multimethod ' . $name) . ' => split(/\\s+/,\'') . $sig) . '\') => ') . $f_emitted) . ';')})};
 sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
 (do{my $body;
 if((($n->traits() && $n->traits()->[0]->expr()) && ($n->traits()->[0]->expr() eq 'p5'))) {

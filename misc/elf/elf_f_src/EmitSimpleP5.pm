@@ -575,7 +575,7 @@ package Main;
       else { $t }
     }).join(' ');
     'Class::Multimethods::multimethod '~$name~
-    ' =>qw( '~$sig~' ) => '~ $f_emitted ~';';
+    " => split(/\s+/,'"~$sig~"') => "~ $f_emitted ~';';
   };
   method cb__MethodDecl ($n) {
     my $body;
