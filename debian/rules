@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-include /usr/share/dpatch/dpatch.make
+#include /usr/share/dpatch/dpatch.make
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS = unoptimized
@@ -11,9 +11,9 @@ endif
 PUGS_BUILD_OPTS = $(DEB_BUILD_OPTIONS)
 
 configure: configure-stamp
-configure-stamp: patch-stamp
+configure-stamp: 
 	dh_testdir
-	PUGS_EMBED=perl5,parrot perl Makefile.PL INSTALLDIRS=vendor PREFIX=/usr
+	PUGS_EMBED=perl5 perl Makefile.PL INSTALLDIRS=vendor PREFIX=/usr
 	touch configure-stamp
 
 build: build-arch build-indep
@@ -21,7 +21,7 @@ build: build-arch build-indep
 build-arch: build-arch-stamp
 build-arch-stamp: configure-stamp 
 	$(MAKE) $(CFLAGS)
-	-test $$SKIP_TESTS || $(MAKE) upload-smoke
+#	-test $$SKIP_TESTS || $(MAKE) upload-smoke
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/script/pugscc $(CURDIR)/debian/pugscc.1
 	touch build-arch-stamp
 
@@ -29,7 +29,7 @@ build-indep: build-indep-stamp
 build-indep-stamp: configure-stamp 
 	touch build-indep-stamp
 
-clean: clean1 unpatch
+clean: clean1 
 clean1:
 	dh_testdir
 	dh_testroot
@@ -57,7 +57,8 @@ install-indep: install-stamp
 install-arch: install-stamp
 	dh_testdir
 	dh_testroot
-	rmdir --ignore-fail-on-non-empty $(CURDIR)/debian/pugs/usr/lib/perl6/5.8/
+#	rmdir --ignore-fail-on-non-empty 
+	rm -rf $(CURDIR)/debian/pugs/usr/lib/perl6/5.8/
 
 # Build architecture independant packages using the common target.
 binary-indep: build-indep install-indep
@@ -95,4 +96,4 @@ binary-arch: build-arch install-arch
 	dh_builddeb -a
 
 binary: binary-arch binary-indep
-.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch configure patch unpatch clean1
+.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch configure  clean1
