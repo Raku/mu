@@ -2368,7 +2368,7 @@ class Perl
     #R XXX NONSPEC - added 'starts with a capital letter' test.
     #R Which probably breaks something.
     #R# def is_type(name); HTypenames.key?(name) end
-    def is_type(name); HTypenames.key?(name) or name =~ /^[A-Z](?![A-Z]*$)/ end
+    def is_type(name); HTypenames.key?(name) or name =~ /^[A-Z](?:$|(?![A-Z]*$))/ end
 
     #def heredoc; false; end
     def method_missing(method, *args)

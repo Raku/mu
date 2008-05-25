@@ -46,19 +46,18 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
 
-{ package Object;
+{ package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
   sub isa { UNIVERSAL::isa($_[0],$_[1]) }
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
 }  
 
 # Avoid "use base" error: Base class package "Xxx" is empty. :/
-{ package Num; our $_i_am_not_empty_; }
-{ package Int; our $_i_am_not_empty_; }
-{ package Str; our $_i_am_not_empty_; }
-{ package Array; our $_i_am_not_empty_; }
-{ package Hash; our $_i_am_not_empty_; }
-
+{ package Num; our $_tell_use_base_i_am_not_empty_; }
+{ package Int; our $_tell_use_base_i_am_not_empty_; }
+{ package Str; our $_tell_use_base_i_am_not_empty_; }
+{ package Array; our $_tell_use_base_i_am_not_empty_; }
+{ package Hash; our $_tell_use_base_i_am_not_empty_; }
 
 no warnings qw(redefine prototype);
 { package STRING;
@@ -358,105 +357,104 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Bit;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Bit::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Int;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Int::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Str;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Str::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Num;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Num::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Complex;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Complex::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Bool;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Bool::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Code;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Code::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Block;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Block::ISA,'::Code');}
 (do{})
 }
 ;
 
 { package List;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@List::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Seq;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Seq::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Range;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Range::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Set;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Set::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Bag;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Bag::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Junction;
-use base qw(Object);
 BEGIN{push(@Junction::ISA,'::Object');}
 (do{})
 }
 ;
 
 { package Pair;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Pair::ISA,'::Any');}
 (do{sub key: lvalue {
      $_[0]{'key'};
@@ -470,175 +468,174 @@ sub value: lvalue {
 ;
 
 { package Mapping;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Mapping::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Signature;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Signature::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Capture;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Capture::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Blob;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Blob::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Scalar;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Scalar::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Array;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Array::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Hash;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Hash::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package KeyHash;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@KeyHash::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package KeySet;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@KeySet::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package KeyBag;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@KeyBag::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Buf;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Buf::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package IO;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IO::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Routine;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Routine::ISA,'::Code');}
 (do{})
 }
 ;
 
 { package Sub;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Sub::ISA,'::Routine');}
 (do{})
 }
 ;
 
 { package Method;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Method::ISA,'::Routine');}
 (do{})
 }
 ;
 
 { package Subethod;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Subethod::ISA,'::Routine');}
 (do{})
 }
 ;
 
 { package Macro;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Macro::ISA,'::Routine');}
 (do{})
 }
 ;
 
 { package Regex;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Regex::ISA,'::Routine');}
 (do{})
 }
 ;
 
 { package Match;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Match::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Package;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Package::ISA,'::Any');}
 (do{})
 }
 ;
 
 { package Module;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Module::ISA,'::Package');}
 (do{})
 }
 ;
 
 { package Class;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Class::ISA,'::Module');}
 (do{})
 }
 ;
 
 { package Role;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Role::ISA,'::Module');}
 (do{})
 }
 ;
 
 { package Grammar;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@Grammar::ISA,'::Module');}
 (do{})
 }
 ;
 
 { package Any;
-use base qw(Object);
 BEGIN{push(@Any::ISA,'::Object');}
 (do{})
 }
@@ -650,13 +647,12 @@ BEGIN{push(@Any::ISA,'::Object');}
 ;
 
 { package Any;
-use base qw(Object);
 (do{sub say{my $self=CORE::shift;(do{GLOBAL::say($self)})}})
 }
 ;
 
 { package GLOBAL;
-use base qw(Object);
+use base qw(Any);
 (do{sub prefix_plus{my($x)=@_;
 (do{$x->Num()})};
 sub say{my(@a)=@_;
@@ -669,67 +665,67 @@ my $a_a = \@a;
 ;
 
 { package Int;
-use base qw(Object);
+use base qw(Any);
 (do{sub Num{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package Num;
-use base qw(Object);
+use base qw(Any);
 (do{sub Num{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package Str;
-use base qw(Object);
+use base qw(Any);
 (do{sub Num{my $self=CORE::shift;(do{$self->primitive_Num()})}})
 }
 ;
 
 { package Array;
-use base qw(Object);
+use base qw(Any);
 (do{sub Num{my $self=CORE::shift;(do{$self->elems()})}})
 }
 ;
 
 { package Hash;
-use base qw(Object);
+use base qw(Any);
 (do{sub Num{my $self=CORE::shift;(do{$self->keys()->elems()})}})
 }
 ;
 
 { package Pair;
-use base qw(Object);
+use base qw(Any);
 (do{sub Num{my $self=CORE::shift;(do{2})}})
 }
 ;
 
 { package Int;
-use base qw(Object);
+use base qw(Any);
 (do{sub Str{my $self=CORE::shift;(do{('' . $self)})}})
 }
 ;
 
 { package Num;
-use base qw(Object);
+use base qw(Any);
 (do{sub Str{my $self=CORE::shift;(do{('' . $self)})}})
 }
 ;
 
 { package Str;
-use base qw(Object);
+use base qw(Any);
 (do{sub Str{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package Array;
-use base qw(Object);
+use base qw(Any);
 (do{sub Str{my $self=CORE::shift;(do{$self->join('')})}})
 }
 ;
 
 { package Hash;
-use base qw(Object);
+use base qw(Any);
 (do{sub Str{my $self=CORE::shift;(do{$self->keys()->map(sub {my($k)=@_;
 (do{(($k . '	') . $self->{'$k'})})})->join('
 ')})}})
@@ -737,13 +733,12 @@ use base qw(Object);
 ;
 
 { package Pair;
-use base qw(Object);
+use base qw(Any);
 (do{sub Str{my $self=CORE::shift;(do{(($self->key . '	') . $self->value)})}})
 }
 ;
 
 { package Any;
-use base qw(Object);
 (do{sub print{my $self=CORE::shift;(do{GLOBAL::say($self)})}})
 }
 ;
@@ -753,7 +748,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Match;
-use base qw(Object);
+use base qw(Any);
 (do{sub rule: lvalue {
      $_[0]{'rule'};
 }
@@ -807,7 +802,7 @@ sub Str{my $self=CORE::shift;(do{$self->match_str->substr($self->from, ($self->t
 ;
 
 { package ARRAY;
-use base qw(Object);
+use base qw(Any);
 (do{sub match_describe{my $self=CORE::shift;(do{((('[
 ' . Match->indent($self->map(sub {my($e)=@_;
 (do{$e->match_describe()})})->join(',
@@ -817,7 +812,7 @@ use base qw(Object);
 ;
 
 { package HASH;
-use base qw(Object);
+use base qw(Any);
 (do{sub match_describe{my $self=CORE::shift;(do{my $s = '{';
 for($self->keys()->flatten){
 (do{my $k = $_;
@@ -838,19 +833,19 @@ if($self->keys()->elems()) {
 ;
 
 { package STRING;
-use base qw(Object);
+use base qw(Any);
 (do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}})
 }
 ;
 
 { package INTEGER;
-use base qw(Object);
+use base qw(Any);
 (do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}})
 }
 ;
 
 { package FLOAT;
-use base qw(Object);
+use base qw(Any);
 (do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}})
 }
 ;
@@ -860,67 +855,67 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package ARRAY;
-use base qw(Object);
+use base qw(Any);
 (do{sub irx1_describe{my $self=CORE::shift;(do{(('[' . $self->map(sub {my($e)=@_;
 (do{$e->irx1_describe()})})->join(',')) . ']')})}})
 }
 ;
 
 { package STRING;
-use base qw(Object);
+use base qw(Any);
 (do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}})
 }
 ;
 
 { package INTEGER;
-use base qw(Object);
+use base qw(Any);
 (do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}})
 }
 ;
 
 { package FLOAT;
-use base qw(Object);
+use base qw(Any);
 (do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}})
 }
 ;
 
 { package UNDEF;
-use base qw(Object);
+use base qw(Any);
 (do{sub irx1_describe{my $self=CORE::shift;(do{'undef'})}})
 }
 ;
 
 { package IRx1;
-use base qw(Object);
+use base qw(Any);
 (do{
 { package IRx1::Base;
-use base qw(Object);
+use base qw(Any);
 (do{})
 }
 ;
 
 { package IRx1::CompUnit_and_Block;
-use base qw(Object);
+use base qw(Any);
 (do{})
 }
 ;
 
 { package IRx1::CompUnit;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::CompUnit_and_Block');}
 (do{})
 }
 ;
 
 { package IRx1::Block;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Block::ISA,'IRx1::CompUnit_and_Block');}
 (do{})
 }
 ;
 
 { package IRx1::CompUnit;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -950,7 +945,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('CompUnit(' . $self->statements->
 ;
 
 { package IRx1::Block;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Block::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -976,7 +971,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Block(' . $self->statements->irx1_
 ;
 
 { package IRx1::Use;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Use::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1010,7 +1005,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('Use(' . $self->kind->irx1_desc
 ;
 
 { package IRx1::PackageDecl;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::PackageDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1056,7 +1051,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((('PackageDecl(' . $self->s
 ;
 
 { package IRx1::MethodDecl;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::MethodDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1114,7 +1109,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((((('MethodDecl(' . $se
 ;
 
 { package IRx1::SubDecl;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::SubDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1164,7 +1159,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('SubDecl(' . $self->sco
 ;
 
 { package IRx1::MacroDecl;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::MacroDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1214,7 +1209,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('MacroDecl(' . $self->s
 ;
 
 { package IRx1::VarDecl;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::VarDecl::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1268,7 +1263,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((('VarDecl(' . $self->s
 ;
 
 { package IRx1::Var;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Var::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1302,7 +1297,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('Var(' . $self->sigil->irx1_des
 ;
 
 { package IRx1::Trait;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Trait::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1332,7 +1327,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Trait(' . $self->verb->irx1_desc
 ;
 
 { package IRx1::ClosureTrait;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::ClosureTrait::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1362,7 +1357,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('ClosureTrait(' . $self->kind->ir
 ;
 
 { package IRx1::ModuleName;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::ModuleName::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1392,7 +1387,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('ModuleName(' . $self->name->irx1
 ;
 
 { package IRx1::PathName;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::PathName::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1418,7 +1413,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('PathName(' . $self->path->irx1_des
 ;
 
 { package IRx1::SubName;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::SubName::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1456,7 +1451,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((('SubName(' . $self->category-
 ;
 
 { package IRx1::ShapedParamName;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::ShapedParamName::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1486,7 +1481,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('ShapedParamName(' . $self->ident
 ;
 
 { package IRx1::Call;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Call::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1520,7 +1515,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('Call(' . $self->invocant->irx1
 ;
 
 { package IRx1::Apply;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Apply::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1550,7 +1545,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Apply(' . $self->function->irx1_
 ;
 
 { package IRx1::Hyper;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Hyper::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1580,7 +1575,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Hyper(' . $self->operator->irx1_
 ;
 
 { package IRx1::Capture;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Capture::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1610,7 +1605,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Capture(' . $self->arguments->ir
 ;
 
 { package IRx1::MultiSig;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::MultiSig::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1636,7 +1631,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('MultiSig(' . $self->signatures->ir
 ;
 
 { package IRx1::Signature;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Signature::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1666,7 +1661,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Signature(' . $self->parameters-
 ;
 
 { package IRx1::Parameter;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Parameter::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1716,7 +1711,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((('Parameter(' . $self->t
 ;
 
 { package IRx1::TypeConstraint;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::TypeConstraint::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1746,7 +1741,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('TypeConstraint(' . $self->value-
 ;
 
 { package IRx1::PostConstraint;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::PostConstraint::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1776,7 +1771,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('PostConstraint(' . $self->multis
 ;
 
 { package IRx1::ParamVar;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::ParamVar::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1810,7 +1805,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('ParamVar(' . $self->sigil->irx
 ;
 
 { package IRx1::Undef;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Undef::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1832,7 +1827,7 @@ sub irx1_describe{my $self=CORE::shift;(do{('Undef(' . ')')})}})
 ;
 
 { package IRx1::NumInt;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::NumInt::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1862,7 +1857,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('NumInt(' . $self->text->irx1_des
 ;
 
 { package IRx1::NumDec;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::NumDec::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1896,7 +1891,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('NumDec(' . $self->intpart->irx
 ;
 
 { package IRx1::NumRad;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::NumRad::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1938,7 +1933,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((((('NumRad(' . $self->radix->i
 ;
 
 { package IRx1::Array;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Array::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1964,7 +1959,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Array(' . $self->array->irx1_descr
 ;
 
 { package IRx1::Hash;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Hash::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -1990,7 +1985,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Hash(' . $self->hash->irx1_describ
 ;
 
 { package IRx1::Pair;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Pair::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2020,7 +2015,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Pair(' . $self->key->irx1_descri
 ;
 
 { package IRx1::Type;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Type::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2046,7 +2041,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Type(' . $self->typename->irx1_des
 ;
 
 { package IRx1::Rx;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Rx::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2076,7 +2071,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Rx(' . $self->pat->irx1_describe
 ;
 
 { package IRx1::Buf;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Buf::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2102,7 +2097,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Buf(' . $self->buf->irx1_describe(
 ;
 
 { package IRx1::For;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::For::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2132,7 +2127,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('For(' . $self->expr->irx1_descri
 ;
 
 { package IRx1::Cond;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Cond::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2166,7 +2161,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((('Cond(' . $self->clauses->irx1_
 ;
 
 { package IRx1::Loop;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Loop::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2204,7 +2199,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((((((('Loop(' . $self->pretest->irx
 ;
 
 { package IRx1::Given;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Given::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2234,7 +2229,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Given(' . $self->expr->irx1_desc
 ;
 
 { package IRx1::When;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::When::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2264,7 +2259,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('When(' . $self->expr->irx1_descr
 ;
 
 { package IRx1::Label;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Label::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2294,7 +2289,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('Label(' . $self->labels->irx1_de
 ;
 
 { package IRx1::RegexDef;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RegexDef::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2324,7 +2319,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('RegexDef(' . $self->ident->irx1_
 ;
 
 { package IRx1::Regex;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::Regex::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2350,7 +2345,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('Regex(' . $self->patterns->irx1_de
 ;
 
 { package IRx1::RxFirst;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxFirst::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2376,7 +2371,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxFirst(' . $self->patterns->irx1_
 ;
 
 { package IRx1::RxEvery;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxEvery::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2402,7 +2397,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxEvery(' . $self->patterns->irx1_
 ;
 
 { package IRx1::RxSubmatch;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxSubmatch::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2428,7 +2423,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxSubmatch(' . $self->patterns->ir
 ;
 
 { package IRx1::RxAny;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxAny::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2454,7 +2449,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxAny(' . $self->patterns->irx1_de
 ;
 
 { package IRx1::RxAll;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxAll::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2480,7 +2475,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxAll(' . $self->patterns->irx1_de
 ;
 
 { package IRx1::RxSequence;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxSequence::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2506,7 +2501,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxSequence(' . $self->patterns->ir
 ;
 
 { package IRx1::RxQuantifiedAtom;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxQuantifiedAtom::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2536,7 +2531,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('RxQuantifiedAtom(' . $self->atom
 ;
 
 { package IRx1::RxBackslash;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxBackslash::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2562,7 +2557,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxBackslash(' . $self->char->irx1_
 ;
 
 { package IRx1::RxAssertion;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxAssertion::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2588,7 +2583,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxAssertion(' . $self->ident->irx1
 ;
 
 { package IRx1::RxModInternal;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxModInternal::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2614,7 +2609,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxModInternal(' . $self->mod->irx1
 ;
 
 { package IRx1::RxCapture;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxCapture::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2640,7 +2635,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxCapture(' . $self->pattern->irx1
 ;
 
 { package IRx1::RxGroup;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxGroup::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2666,7 +2661,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxGroup(' . $self->pattern->irx1_d
 ;
 
 { package IRx1::RxBlock;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxBlock::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2692,7 +2687,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(('RxBlock(' . $self->block->irx1_des
 ;
 
 { package IRx1::RxBind;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxBind::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2722,7 +2717,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('RxBind(' . $self->var->irx1_desc
 ;
 
 { package IRx1::RxLiteral;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxLiteral::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2752,7 +2747,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(((('RxLiteral(' . $self->text->irx1_
 ;
 
 { package IRx1::RxSymbol;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@IRx1::RxSymbol::ISA,'IRx1::Base');}
 (do{sub match: lvalue {
      $_[0]{'match'};
@@ -2784,7 +2779,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package IRx1_Build;
-use base qw(Object);
+use base qw(Any);
 (do{sub constructors: lvalue {
      $_[0]{'constructors'};
 }
@@ -2812,44 +2807,44 @@ It needs to be added to ast_handlers.
 ;
 
 { package Match;
-use base qw(Object);
+use base qw(Any);
 (do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$main::irbuilder->make_ir_from_Match_tree($self)})}})
 }
 ;
 
 { package ARRAY;
-use base qw(Object);
+use base qw(Any);
 (do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self->map(sub {my($e)=@_;
 (do{$e->make_ir_from_Match_tree()})})})}})
 }
 ;
 
 { package STRING;
-use base qw(Object);
+use base qw(Any);
 (do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package INTEGER;
-use base qw(Object);
+use base qw(Any);
 (do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package FLOAT;
-use base qw(Object);
+use base qw(Any);
 (do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package UNDEF;
-use base qw(Object);
+use base qw(Any);
 (do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package IRx1_Build;
-use base qw(Object);
+use base qw(Any);
 (do{sub irbuild_ir{my($x)=@_;
 (do{$x->make_ir_from_Match_tree()})};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
@@ -3334,7 +3329,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package IRx1::CompUnit;
-use base qw(Object);
+use base qw(Any);
 (do{sub do_all_analysis{my $self=CORE::shift;(do{$self->initialize_notes();
 $self->note_parents();
 $self->note_block_lexical_variable_decls();
@@ -3343,7 +3338,7 @@ $self->note_environment()})}})
 ;
 
 { package IRx1::Base;
-use base qw(Object);
+use base qw(Any);
 (do{sub is_IR_node{my $self=CORE::shift;(do{1})};
 sub initialize_notes{my $self=CORE::shift;(do{($self->notes() = {});
 my $a = [];
@@ -3377,7 +3372,7 @@ sub child_nodes{my $self=CORE::shift;(do{$self->notes()->{'child_nodes'}})}})
 ;
 
 { package IRx1::CompUnit;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_parents{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
 (do{$_->note_parents()})
@@ -3386,7 +3381,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::Base;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_parents{my $self=CORE::shift;(do{($self->notes()->{'parent'} = $::es_whiteboard__parent);
 {package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
@@ -3396,7 +3391,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::CompUnit_and_Block;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{my $a = [];
 {package main; use vars '$es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
 ($self->notes()->{'lexical_variable_decls'} = $a);
@@ -3407,7 +3402,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::VarDecl;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->is_lexical()) {
 (do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
@@ -3418,7 +3413,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::SubDecl;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($_->name()) {
 (do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
@@ -3429,7 +3424,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::Base;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
 (do{$_->note_block_lexical_variable_decls()})
 }})}})
@@ -3437,7 +3432,7 @@ use base qw(Object);
 ;
 
 { package IRx1::CompUnit;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
 {package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
@@ -3447,7 +3442,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::Block;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
 (do{$_->note_environment()})
@@ -3456,7 +3451,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::CompUnit_and_Block;
-use base qw(Object);
+use base qw(Any);
 (do{sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
 (do{my $h1 = $h->dup();
 for($decls->flatten){
@@ -3468,7 +3463,7 @@ $h1})}})
 ;
 
 { package IRx1::PackageDecl;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_environment{my $self=CORE::shift;(do{my $new_chain;
 if($self->path_is_absolute()) {
 (do{($new_chain = [$self])})
@@ -3483,7 +3478,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::Apply;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_environment{my $self=CORE::shift;(do{($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
 for($self->child_nodes()->flatten){
 (do{$_->note_environment()})
@@ -3492,7 +3487,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::Var;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->{'sigil'} . $self->{'name'});
 ($self->notes()->{'decl'} = $::es_whiteboard__lexical_bindings->{$key});
 for($self->child_nodes()->flatten){
@@ -3502,7 +3497,7 @@ for($self->child_nodes()->flatten){
 ;
 
 { package IRx1::Base;
-use base qw(Object);
+use base qw(Any);
 (do{sub note_environment{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
 (do{$_->note_environment()})
 }})}})
@@ -3510,7 +3505,7 @@ use base qw(Object);
 ;
 
 { package IRx1::VarDecl;
-use base qw(Object);
+use base qw(Any);
 (do{sub is_lexical{my $self=CORE::shift;(do{($self->scope() eq 'my')})};
 sub is_context{my $self=CORE::shift;(do{for($self->traits()->flatten){
 (do{if(($_->expr() eq 'context')) {
@@ -3527,13 +3522,13 @@ sub is_hash{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq '%')})}})
 ;
 
 { package IRx1::SubDecl;
-use base qw(Object);
+use base qw(Any);
 (do{sub sigil{my $self=CORE::shift;(do{'&'})}})
 }
 ;
 
 { package IRx1::PackageDecl;
-use base qw(Object);
+use base qw(Any);
 (do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))})}})
 }
 ;
@@ -3543,7 +3538,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package EmitSimpleP5;
-use base qw(Object);
+use base qw(Any);
 (do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
 (do{$self->new('compiler', $compiler)})};
 sub tidy{my $self=CORE::shift;my($source)=@_;
@@ -3608,19 +3603,18 @@ use warnings;
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
 
-{ package Object;
+{ package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
   sub isa { UNIVERSAL::isa($_[0],$_[1]) }
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
 }  
 
 # Avoid "use base" error: Base class package "Xxx" is empty. :/
-{ package Num; our $_i_am_not_empty_; }
-{ package Int; our $_i_am_not_empty_; }
-{ package Str; our $_i_am_not_empty_; }
-{ package Array; our $_i_am_not_empty_; }
-{ package Hash; our $_i_am_not_empty_; }
-
+{ package Num; our $_tell_use_base_i_am_not_empty_; }
+{ package Int; our $_tell_use_base_i_am_not_empty_; }
+{ package Str; our $_tell_use_base_i_am_not_empty_; }
+{ package Array; our $_tell_use_base_i_am_not_empty_; }
+{ package Hash; our $_tell_use_base_i_am_not_empty_; }
 
 no warnings qw(redefine prototype);
 { package STRING;
@@ -3967,10 +3961,20 @@ sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->name()];
 my $name = $::es_whiteboard__in_package->join('::');
-(((((((((('
+my $base = 'use base "Any";';
+if(($name eq 'Any')) {
+(do{($base = '')})
+};
+if(($name eq 'Object')) {
+(do{($base = '')})
+};
+if(($name eq 'Junction')) {
+(do{($base = '')})
+};
+((((((((((('
 { package ' . $name) . ';
 ') . 'use Moose;') . ' __PACKAGE__->meta->make_mutable();
-') . $self->prelude_for_entering_a_package()) . $self->e(($n->traits() || []))->join('
+') . $base) . $self->prelude_for_entering_a_package()) . $self->e(($n->traits() || []))->join('
 ')) . $self->e($n->block())) . ';
 __PACKAGE__->meta->make_immutable();
 ') . '
@@ -4407,7 +4411,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package EmitFasterP5;
-use base qw(Object);
+use base qw(Any);
 BEGIN{push(@EmitFasterP5::ISA,'::EmitSimpleP5');}
 (do{sub prelude_oo{my $self=CORE::shift;(do{'
 {package Object;
@@ -4425,9 +4429,15 @@ BEGIN{push(@EmitFasterP5::ISA,'::EmitSimpleP5');}
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->name()];
 my $name = $::es_whiteboard__in_package->join('::');
-my $base = 'use base qw(Object);
+my $base = 'use base qw(Any);
 ';
+if(($name eq 'Any')) {
+(do{($base = '')})
+};
 if(($name eq 'Object')) {
+(do{($base = '')})
+};
+if(($name eq 'Junction')) {
 (do{($base = '')})
 };
 (((((((('
@@ -4465,26 +4475,25 @@ sub header{use Math::Trig qw();};
 header();
 
 { package Num;
-use base qw(Object);
+use base qw(Any);
 (do{sub pi{Math::Trig::pi();}})
 }
 ;
 ($GLOBAL::PID = (sub {$$})->());
 
 { package GLOBAL;
-use base qw(Object);
+use base qw(Any);
 (do{})
 }
 ;
 
 { package Any;
-use base qw(Object);
 (do{sub perl{my $self=CORE::shift;(do{($self->WHAT() . '.new(!!!)')})}})
 }
 ;
 
 { package STRING;
-use base qw(Object);
+use base qw(Any);
 (do{sub perl{my $self=CORE::shift;
     no warnings "once";
     local $Data::Dumper::Pure = 1;
@@ -4496,26 +4505,26 @@ use base qw(Object);
 ;
 
 { package INTEGER;
-use base qw(Object);
+use base qw(Any);
 (do{sub perl{my $self=CORE::shift;(do{('' . $self)})}})
 }
 ;
 
 { package FLOAT;
-use base qw(Object);
+use base qw(Any);
 (do{sub perl{my $self=CORE::shift;(do{('' . $self)})}})
 }
 ;
 
 { package ARRAY;
-use base qw(Object);
+use base qw(Any);
 (do{sub perl{my $self=CORE::shift;(do{(('[' . $self->map(sub {my($e)=@_;
 (do{$e->perl()})})->join(',')) . ']')})}})
 }
 ;
 
 { package HASH;
-use base qw(Object);
+use base qw(Any);
 (do{sub perl{my $self=CORE::shift;(do{(('{' . $self->keys()->map(sub {my($k)=@_;
 (do{(($k->perl() . ' => ') . $self->{$k}->perl())})})->join(', ')) . '}')})}})
 }
@@ -4526,7 +4535,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Parser;
-use base qw(Object);
+use base qw(Any);
 (do{sub is_for_active_runtime: lvalue {
      $_[0]{'is_for_active_runtime'};
 }
@@ -4563,7 +4572,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Compiler;
-use base qw(Object);
+use base qw(Any);
 (do{sub is_for_active_runtime: lvalue {
      $_[0]{'is_for_active_runtime'};
 }
@@ -4705,7 +4714,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Program;
-use base qw(Object);
+use base qw(Any);
 (do{sub print_usage_and_die{my $self=CORE::shift;(do{GLOBAL::say('
 Usage: [-v] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
          [ P6_FILE | -e P6_CODE ]+ [ -- ARGS* ]

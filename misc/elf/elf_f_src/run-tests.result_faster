@@ -257,8 +257,8 @@ X  0%	12  0 		../../../t/oo/attributes/undeclared_attribute.t
 -d 0%	4  0 4		../../../t/oo/autopair_instantiation.t
 -C 0%	2  0 2		../../../t/oo/can.t
 -d 0%	5  0 5		../../../t/oo/class/anonymous.t
--C 0%	1  0 1		../../../t/oo/class_inclusion_with_inherited_class.t
--C 0%	1  0 1		../../../t/oo/class_inheritance_become_infinite_loop.t
+X  0%	1  0 		../../../t/oo/class_inclusion_with_inherited_class.t
+X  0%	1  0 		../../../t/oo/class_inheritance_become_infinite_loop.t
 X  0%	4  0 		../../../t/oo/class/inherit_from_role.t
 -C 0%	2  0 2		../../../t/oo/class/literal.t
 -C 0%	3  0 3		../../../t/oo/class_name_and_attribute_name_confliction.t
@@ -307,7 +307,7 @@ X  0%	15  0 		../../../t/oo/trusts.t
 -C 0%	5  0 5		../../../t/oo/value_types.t
 -C 0%	7  0 7		../../../t/oo/what.t
 X  0%	74  0 		../../../t/operators/adverbial_modifiers.t
--  75%	4  3 1		../../../t/operators/and_precedence.t
+-  50%	4  2 1 1!	../../../t/operators/and_precedence.t
 X  0%	188  0 		../../../t/operators/arith.t
 -  23%	43  10 0 33!	../../../t/operators/auto.t
 -C 0%	46  0 46	../../../t/operators/binding/arrays.t
@@ -696,7 +696,7 @@ X  0%	31  0 		../../../t/var/temp.t
 -C 0%	39  0 39	../../../t/var/var.t
 X  0%	6  0 		../../../t/xx-uncategorized/assuming_and_mmd.t
 X  0%	2  0 		../../../t/xx-uncategorized/attribute_hash.t
--C 0%	4  0 4		../../../t/xx-uncategorized/attribute_of_return_value.t
+-d 0%	4  0 4		../../../t/xx-uncategorized/attribute_of_return_value.t
 -  50%	2  1 1		../../../t/xx-uncategorized/cast_undef_shortcircuit.t
 -C 0%	71  0 71	../../../t/xx-uncategorized/decode-utf-chunks.t
 -d 0%	1  0 1		../../../t/xx-uncategorized/deref_doesnt.t
@@ -719,7 +719,7 @@ X  0%	11  0 		../../../t/xx-uncategorized/prelude_test.t
 X  0%	2  0 		../../../t/xx-uncategorized/return_in_anonymous_subs.t
 -C 0%	20  0 20	../../../t/xx-uncategorized/rule_recursive.t
 -C 0%	1  0 1		../../../t/xx-uncategorized/rules_with_embedded_parrot.t
--d 0%	3  0 3		../../../t/xx-uncategorized/rule_used_in_Str.t
+ok	3		../../../t/xx-uncategorized/rule_used_in_Str.t
 X  0%	4  0 		../../../t/xx-uncategorized/say-crash.t
 ok	2		../../../t/xx-uncategorized/self_inheritance.t
 -  0%	1  0 1		../../../t/xx-uncategorized/shift-from-function-array-arg.t
@@ -791,7 +791,7 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 -C 0%	4  0 4		../../../v6/v6-KindaPerl6/t/kp6/65-autovivify-deep.t
 -C 0%	17  0 17	../../../v6/v6-KindaPerl6/t/kp6/66-autovivify-bind.t
 -d 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/67-list-interpolation.t
--d 0%	4  0 4		../../../v6/v6-KindaPerl6/t/kp6/68-list-assignment.t
+-  0%	4  0 4		../../../v6/v6-KindaPerl6/t/kp6/68-list-assignment.t
 -C 0%	4  0 4		../../../v6/v6-KindaPerl6/t/kp6/69-list-binding.t
 -C 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/grammar/01-simple-or-token.t
 -C 0%	3  0 3		../../../v6/v6-KindaPerl6/t/kp6/grammar/02-non-capturing-group.t
@@ -814,5 +814,5 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 -d 0%	6  0 6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 815.  603 parsed 73%.  299 run 36%.  64 ok 7%.
-Tests: 16419+.  664 ok <4.04%, 15755+ not.
+Files: 815.  601 parsed 73%.  300 run 36%.  65 ok 7%.
+Tests: 16419+.  666 ok <4.05%, 15753+ not.

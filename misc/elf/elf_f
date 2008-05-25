@@ -38,19 +38,18 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
 
-{ package Object;
+{ package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
   sub isa { UNIVERSAL::isa($_[0],$_[1]) }
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
 }  
 
 # Avoid "use base" error: Base class package "Xxx" is empty. :/
-{ package Num; our $_i_am_not_empty_; }
-{ package Int; our $_i_am_not_empty_; }
-{ package Str; our $_i_am_not_empty_; }
-{ package Array; our $_i_am_not_empty_; }
-{ package Hash; our $_i_am_not_empty_; }
-
+{ package Num; our $_tell_use_base_i_am_not_empty_; }
+{ package Int; our $_tell_use_base_i_am_not_empty_; }
+{ package Str; our $_tell_use_base_i_am_not_empty_; }
+{ package Array; our $_tell_use_base_i_am_not_empty_; }
+{ package Hash; our $_tell_use_base_i_am_not_empty_; }
 
 no warnings qw(redefine prototype);
 { package STRING;
@@ -351,7 +350,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Bit;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Bit::ISA,'Any');}
+use base "Any";BEGIN{push(@Bit::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -360,7 +359,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Int;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Int::ISA,'Any');}
+use base "Any";BEGIN{push(@Int::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -369,7 +368,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Str;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Str::ISA,'Any');}
+use base "Any";BEGIN{push(@Str::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -378,7 +377,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Num;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Num::ISA,'Any');}
+use base "Any";BEGIN{push(@Num::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -387,7 +386,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Complex;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Complex::ISA,'Any');}
+use base "Any";BEGIN{push(@Complex::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -396,7 +395,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Bool;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Bool::ISA,'Any');}
+use base "Any";BEGIN{push(@Bool::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -405,7 +404,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Code;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Code::ISA,'Any');}
+use base "Any";BEGIN{push(@Code::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -414,7 +413,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Block::ISA,'Code');}
+use base "Any";BEGIN{push(@Block::ISA,'Code');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -423,7 +422,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package List;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@List::ISA,'Any');}
+use base "Any";BEGIN{push(@List::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -432,7 +431,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Seq;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Seq::ISA,'Any');}
+use base "Any";BEGIN{push(@Seq::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -441,7 +440,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Range;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Range::ISA,'Any');}
+use base "Any";BEGIN{push(@Range::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -450,7 +449,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Set;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Set::ISA,'Any');}
+use base "Any";BEGIN{push(@Set::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -459,7 +458,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Bag;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Bag::ISA,'Any');}
+use base "Any";BEGIN{push(@Bag::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -477,7 +476,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Pair::ISA,'Any');}
+use base "Any";BEGIN{push(@Pair::ISA,'Any');}
 (do{has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');});
 __PACKAGE__->meta->make_immutable();
@@ -487,7 +486,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Mapping;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Mapping::ISA,'Any');}
+use base "Any";BEGIN{push(@Mapping::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -496,7 +495,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Signature;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Signature::ISA,'Any');}
+use base "Any";BEGIN{push(@Signature::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -505,7 +504,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Capture;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Capture::ISA,'Any');}
+use base "Any";BEGIN{push(@Capture::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -514,7 +513,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Blob;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Blob::ISA,'Any');}
+use base "Any";BEGIN{push(@Blob::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -523,7 +522,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Scalar;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Scalar::ISA,'Any');}
+use base "Any";BEGIN{push(@Scalar::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -532,7 +531,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Array;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Array::ISA,'Any');}
+use base "Any";BEGIN{push(@Array::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -541,7 +540,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Hash::ISA,'Any');}
+use base "Any";BEGIN{push(@Hash::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -550,7 +549,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package KeyHash;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@KeyHash::ISA,'Any');}
+use base "Any";BEGIN{push(@KeyHash::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -559,7 +558,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package KeySet;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@KeySet::ISA,'Any');}
+use base "Any";BEGIN{push(@KeySet::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -568,7 +567,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package KeyBag;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@KeyBag::ISA,'Any');}
+use base "Any";BEGIN{push(@KeyBag::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -577,7 +576,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Buf;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Buf::ISA,'Any');}
+use base "Any";BEGIN{push(@Buf::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -586,7 +585,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IO;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IO::ISA,'Any');}
+use base "Any";BEGIN{push(@IO::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -595,7 +594,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Routine;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Routine::ISA,'Code');}
+use base "Any";BEGIN{push(@Routine::ISA,'Code');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -604,7 +603,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Sub;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Sub::ISA,'Routine');}
+use base "Any";BEGIN{push(@Sub::ISA,'Routine');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -613,7 +612,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Method;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Method::ISA,'Routine');}
+use base "Any";BEGIN{push(@Method::ISA,'Routine');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -622,7 +621,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Subethod;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Subethod::ISA,'Routine');}
+use base "Any";BEGIN{push(@Subethod::ISA,'Routine');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -631,7 +630,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Macro;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Macro::ISA,'Routine');}
+use base "Any";BEGIN{push(@Macro::ISA,'Routine');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -640,7 +639,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Regex;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Regex::ISA,'Routine');}
+use base "Any";BEGIN{push(@Regex::ISA,'Routine');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -649,7 +648,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Match::ISA,'Any');}
+use base "Any";BEGIN{push(@Match::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -658,7 +657,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Package;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Package::ISA,'Any');}
+use base "Any";BEGIN{push(@Package::ISA,'Any');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -667,7 +666,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Module;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Module::ISA,'Package');}
+use base "Any";BEGIN{push(@Module::ISA,'Package');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -676,7 +675,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Class;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Class::ISA,'Module');}
+use base "Any";BEGIN{push(@Class::ISA,'Module');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -685,7 +684,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Role;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Role::ISA,'Module');}
+use base "Any";BEGIN{push(@Role::ISA,'Module');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -694,7 +693,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Grammar;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@Grammar::ISA,'Module');}
+use base "Any";BEGIN{push(@Grammar::ISA,'Module');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -728,7 +727,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package GLOBAL;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub prefix_plus{my($x)=@_;
+use base "Any";(do{sub prefix_plus{my($x)=@_;
 (do{$x->Num()})};
 sub say{my(@a)=@_;
 my $a_a = \@a;
@@ -743,7 +742,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Int;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Num{my $self=CORE::shift;(do{$self})}});
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -751,7 +750,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Num;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Num{my $self=CORE::shift;(do{$self})}});
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -759,7 +758,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Str;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Num{my $self=CORE::shift;(do{$self->primitive_Num()})}});
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->primitive_Num()})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -767,7 +766,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Array;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Num{my $self=CORE::shift;(do{$self->elems()})}});
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->elems()})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -775,7 +774,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Num{my $self=CORE::shift;(do{$self->keys()->elems()})}});
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->keys()->elems()})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -783,7 +782,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Num{my $self=CORE::shift;(do{2})}});
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{2})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -791,7 +790,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Int;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Str{my $self=CORE::shift;(do{('' . $self)})}});
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{('' . $self)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -799,7 +798,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Num;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Str{my $self=CORE::shift;(do{('' . $self)})}});
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{('' . $self)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -807,7 +806,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Str;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Str{my $self=CORE::shift;(do{$self})}});
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -815,7 +814,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Array;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Str{my $self=CORE::shift;(do{$self->join('')})}});
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self->join('')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -823,7 +822,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Str{my $self=CORE::shift;(do{$self->keys()->map(sub {my($k)=@_;
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self->keys()->map(sub {my($k)=@_;
 (do{(($k . '	') . $self->{'$k'})})})->join('
 ')})}});
 __PACKAGE__->meta->make_immutable();
@@ -833,7 +832,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub Str{my $self=CORE::shift;(do{(($self->key . '	') . $self->value)})}});
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{(($self->key . '	') . $self->value)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -853,7 +852,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{has 'rule' => (is => 'rw');;
+use base "Any";(do{has 'rule' => (is => 'rw');;
 has 'match_str' => (is => 'rw');;
 has 'from' => (is => 'rw');;
 has 'to' => (is => 'rw');;
@@ -891,7 +890,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub match_describe{my $self=CORE::shift;(do{((('[
+use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{((('[
 ' . Match->indent($self->map(sub {my($e)=@_;
 (do{$e->match_describe()})})->join(',
 '))) . '
@@ -903,7 +902,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package HASH;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub match_describe{my $self=CORE::shift;(do{my $s = '{';
+use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{my $s = '{';
 for($self->keys()->flatten){
 (do{my $k = $_;
 my $v = $self->{$k};
@@ -926,7 +925,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package STRING;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
+use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -934,7 +933,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package INTEGER;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
+use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -942,7 +941,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package FLOAT;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
+use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(('\'' . $self) . '\'')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -954,7 +953,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub irx1_describe{my $self=CORE::shift;(do{(('[' . $self->map(sub {my($e)=@_;
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{(('[' . $self->map(sub {my($e)=@_;
 (do{$e->irx1_describe()})})->join(',')) . ']')})}});
 __PACKAGE__->meta->make_immutable();
 
@@ -963,7 +962,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package STRING;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -971,7 +970,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package INTEGER;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -979,7 +978,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package FLOAT;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . '')})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -987,7 +986,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package UNDEF;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub irx1_describe{my $self=CORE::shift;(do{'undef'})}});
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{'undef'})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -995,10 +994,10 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{
+use base "Any";(do{
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{});
+use base "Any";(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1006,7 +1005,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{});
+use base "Any";(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -1014,7 +1013,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::CompUnit_and_Block');}
+use base "Any";BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::CompUnit_and_Block');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -1023,7 +1022,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Block::ISA,'IRx1::CompUnit_and_Block');}
+use base "Any";BEGIN{push(@IRx1::Block::ISA,'IRx1::CompUnit_and_Block');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 
@@ -1032,7 +1031,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'filename' => (is => 'rw');;
@@ -1052,7 +1051,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Block::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Block::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'statements' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1071,7 +1070,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Use;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Use::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Use::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'module_name' => (is => 'rw');;
@@ -1092,7 +1091,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::PackageDecl::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::PackageDecl::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'plurality' => (is => 'rw');;
@@ -1116,7 +1115,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MethodDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::MethodDecl::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::MethodDecl::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
@@ -1143,7 +1142,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::SubDecl::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::SubDecl::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
@@ -1168,7 +1167,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MacroDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::MacroDecl::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::MacroDecl::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
@@ -1193,7 +1192,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::VarDecl::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::VarDecl::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'scope' => (is => 'rw');;
 has 'typenames' => (is => 'rw');;
@@ -1219,7 +1218,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Var;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Var::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Var::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
@@ -1240,7 +1239,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Trait;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Trait::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Trait::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'verb' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
@@ -1260,7 +1259,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ClosureTrait;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::ClosureTrait::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::ClosureTrait::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'kind' => (is => 'rw');;
 has 'block' => (is => 'rw');;
@@ -1280,7 +1279,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ModuleName;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::ModuleName::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::ModuleName::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'name' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
@@ -1300,7 +1299,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PathName;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::PathName::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::PathName::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'path' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1319,7 +1318,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubName;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::SubName::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::SubName::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'category' => (is => 'rw');;
 has 'pairs' => (is => 'rw');;
@@ -1341,7 +1340,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ShapedParamName;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::ShapedParamName::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::ShapedParamName::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'postcircumfix' => (is => 'rw');;
@@ -1361,7 +1360,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Call;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Call::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Call::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
 has 'method' => (is => 'rw');;
@@ -1382,7 +1381,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Apply::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Apply::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'function' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
@@ -1402,7 +1401,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Hyper;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Hyper::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Hyper::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'operator' => (is => 'rw');;
 has 'capture' => (is => 'rw');;
@@ -1422,7 +1421,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Capture;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Capture::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Capture::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'arguments' => (is => 'rw');;
 has 'invocant' => (is => 'rw');;
@@ -1442,7 +1441,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::MultiSig;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::MultiSig::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::MultiSig::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'signatures' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1461,7 +1460,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Signature;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Signature::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Signature::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'parameters' => (is => 'rw');;
 has 'return_type' => (is => 'rw');;
@@ -1481,7 +1480,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Parameter;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Parameter::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Parameter::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'type_constraints' => (is => 'rw');;
 has 'quant' => (is => 'rw');;
@@ -1506,7 +1505,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::TypeConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::TypeConstraint::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::TypeConstraint::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'value' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
@@ -1526,7 +1525,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PostConstraint;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::PostConstraint::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::PostConstraint::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'multisig' => (is => 'rw');;
 has 'where_expr' => (is => 'rw');;
@@ -1546,7 +1545,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::ParamVar;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::ParamVar::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::ParamVar::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'sigil' => (is => 'rw');;
 has 'twigil' => (is => 'rw');;
@@ -1567,7 +1566,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Undef;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Undef::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Undef::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
 sub newp{my $self=CORE::shift;my($match)=@_;
@@ -1585,7 +1584,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumInt;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::NumInt::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::NumInt::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 has 'base' => (is => 'rw');;
@@ -1605,7 +1604,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumDec;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::NumDec::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::NumDec::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
 has 'fracpart' => (is => 'rw');;
@@ -1626,7 +1625,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::NumRad;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::NumRad::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::NumRad::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'radix' => (is => 'rw');;
 has 'intpart' => (is => 'rw');;
@@ -1649,7 +1648,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Array;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Array::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Array::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'array' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1668,7 +1667,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Hash;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Hash::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Hash::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'hash' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1687,7 +1686,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Pair;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Pair::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Pair::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'key' => (is => 'rw');;
 has 'value' => (is => 'rw');;
@@ -1707,7 +1706,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Type;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Type::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Type::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'typename' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1726,7 +1725,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Rx;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Rx::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Rx::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'pat' => (is => 'rw');;
 has 'modifiers' => (is => 'rw');;
@@ -1746,7 +1745,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Buf;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Buf::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Buf::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'buf' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1765,7 +1764,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::For;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::For::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::For::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
@@ -1785,7 +1784,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Cond;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Cond::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Cond::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'clauses' => (is => 'rw');;
 has 'default' => (is => 'rw');;
@@ -1806,7 +1805,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Loop;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Loop::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Loop::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'pretest' => (is => 'rw');;
 has 'block' => (is => 'rw');;
@@ -1828,7 +1827,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Given;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Given::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Given::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
@@ -1848,7 +1847,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::When;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::When::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::When::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'expr' => (is => 'rw');;
 has 'block' => (is => 'rw');;
@@ -1868,7 +1867,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Label;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Label::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Label::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'labels' => (is => 'rw');;
 has 'statement' => (is => 'rw');;
@@ -1888,7 +1887,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RegexDef;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RegexDef::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RegexDef::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'pattern' => (is => 'rw');;
@@ -1908,7 +1907,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Regex;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::Regex::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::Regex::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1927,7 +1926,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxFirst;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxFirst::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxFirst::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1946,7 +1945,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxEvery;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxEvery::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxEvery::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1965,7 +1964,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxSubmatch;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxSubmatch::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxSubmatch::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -1984,7 +1983,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxAny;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxAny::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxAny::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2003,7 +2002,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxAll;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxAll::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxAll::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2022,7 +2021,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxSequence;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxSequence::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxSequence::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'patterns' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2041,7 +2040,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxQuantifiedAtom;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxQuantifiedAtom::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxQuantifiedAtom::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'atom' => (is => 'rw');;
 has 'quantifier' => (is => 'rw');;
@@ -2061,7 +2060,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxBackslash;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxBackslash::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxBackslash::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'char' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2080,7 +2079,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxAssertion;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxAssertion::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxAssertion::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'ident' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2099,7 +2098,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxModInternal;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxModInternal::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxModInternal::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'mod' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2118,7 +2117,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxCapture;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxCapture::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxCapture::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'pattern' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2137,7 +2136,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxGroup;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxGroup::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxGroup::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'pattern' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2156,7 +2155,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxBlock;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxBlock::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxBlock::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'block' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2175,7 +2174,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxBind;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxBind::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxBind::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'var' => (is => 'rw');;
 has 'binding' => (is => 'rw');;
@@ -2195,7 +2194,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxLiteral;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxLiteral::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxLiteral::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'text' => (is => 'rw');;
 has 'quote' => (is => 'rw');;
@@ -2215,7 +2214,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::RxSymbol;
 use Moose; __PACKAGE__->meta->make_mutable();
-BEGIN{push(@IRx1::RxSymbol::ISA,'IRx1::Base');}
+use base "Any";BEGIN{push(@IRx1::RxSymbol::ISA,'IRx1::Base');}
 (do{has 'match' => (is => 'rw');;
 has 'symbol' => (is => 'rw');;
 has 'notes' => (is => 'rw');;
@@ -2242,7 +2241,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{has 'constructors' => (is => 'rw');;
+use base "Any";(do{has 'constructors' => (is => 'rw');;
 ($main::irbuilder = IRx1_Build->new());
 sub add_constructor{my $self=CORE::shift;my($k,$constructor)=@_;
 (do{if($self->constructors) {
@@ -2269,7 +2268,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Match;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$main::irbuilder->make_ir_from_Match_tree($self)})}});
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$main::irbuilder->make_ir_from_Match_tree($self)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2277,7 +2276,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self->map(sub {my($e)=@_;
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self->map(sub {my($e)=@_;
 (do{$e->make_ir_from_Match_tree()})})})}});
 __PACKAGE__->meta->make_immutable();
 
@@ -2286,7 +2285,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package STRING;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2294,7 +2293,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package INTEGER;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2302,7 +2301,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package FLOAT;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2310,7 +2309,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package UNDEF;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2318,7 +2317,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1_Build;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub irbuild_ir{my($x)=@_;
+use base "Any";(do{sub irbuild_ir{my($x)=@_;
 (do{$x->make_ir_from_Match_tree()})};
 $main::irbuilder->add_constructor('comp_unit', sub {my($m)=@_;
 (do{IRx1::CompUnit->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))})});
@@ -2805,7 +2804,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub do_all_analysis{my $self=CORE::shift;(do{$self->initialize_notes();
+use base "Any";(do{sub do_all_analysis{my $self=CORE::shift;(do{$self->initialize_notes();
 $self->note_parents();
 $self->note_block_lexical_variable_decls();
 $self->note_environment()})}});
@@ -2816,7 +2815,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub is_IR_node{my $self=CORE::shift;(do{1})};
+use base "Any";(do{sub is_IR_node{my $self=CORE::shift;(do{1})};
 sub initialize_notes{my $self=CORE::shift;(do{$self->notes({});
 my $a = [];
 for($self->field_values()->flatten){
@@ -2852,7 +2851,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_parents{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
+use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
 (do{$_->note_parents()})
 }})}});
@@ -2863,7 +2862,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_parents{my $self=CORE::shift;(do{($self->notes()->{'parent'} = $::es_whiteboard__parent);
+use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{($self->notes()->{'parent'} = $::es_whiteboard__parent);
 {package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for($self->child_nodes()->flatten){
 (do{$_->note_parents()})
@@ -2875,7 +2874,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{my $a = [];
+use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{my $a = [];
 {package main; use vars '$es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
 ($self->notes()->{'lexical_variable_decls'} = $a);
 for($self->child_nodes()->flatten){
@@ -2888,7 +2887,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->is_lexical()) {
+use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->is_lexical()) {
 (do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
 for($self->child_nodes()->flatten){
@@ -2901,7 +2900,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($_->name()) {
+use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($_->name()) {
 (do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
 for($self->child_nodes()->flatten){
@@ -2914,7 +2913,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
+use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
 (do{$_->note_block_lexical_variable_decls()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2924,7 +2923,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
 {package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
 (do{$_->note_environment()})
@@ -2936,7 +2935,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
 for($self->child_nodes()->flatten){
 (do{$_->note_environment()})
 }})}});
@@ -2947,7 +2946,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::CompUnit_and_Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
+use base "Any";(do{sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
 (do{my $h1 = $h->dup();
 for($decls->flatten){
 (do{my $k = ($_->sigil() . $_->name());
@@ -2961,7 +2960,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_environment{my $self=CORE::shift;(do{my $new_chain;
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $new_chain;
 if($self->path_is_absolute()) {
 (do{($new_chain = [$self])})
 }else {
@@ -2978,7 +2977,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_environment{my $self=CORE::shift;(do{($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
 for($self->child_nodes()->flatten){
 (do{$_->note_environment()})
 }})}});
@@ -2989,7 +2988,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Var;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->{'sigil'} . $self->{'name'});
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->{'sigil'} . $self->{'name'});
 ($self->notes()->{'decl'} = $::es_whiteboard__lexical_bindings->{$key});
 for($self->child_nodes()->flatten){
 (do{$_->note_environment()})
@@ -3001,7 +3000,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub note_environment{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
 (do{$_->note_environment()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -3011,7 +3010,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub is_lexical{my $self=CORE::shift;(do{($self->scope() eq 'my')})};
+use base "Any";(do{sub is_lexical{my $self=CORE::shift;(do{($self->scope() eq 'my')})};
 sub is_context{my $self=CORE::shift;(do{for($self->traits()->flatten){
 (do{if(($_->expr() eq 'context')) {
 (do{return(1)})
@@ -3030,7 +3029,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub sigil{my $self=CORE::shift;(do{'&'})}});
+use base "Any";(do{sub sigil{my $self=CORE::shift;(do{'&'})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3038,7 +3037,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))})}});
+use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3050,7 +3049,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package EmitSimpleP5;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
+use base "Any";(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
 (do{$self->new('compiler', $compiler)})};
 sub tidy{my $self=CORE::shift;my($source)=@_;
 (do{GLOBAL::say(GLOBAL::eval_perl5('
@@ -3111,19 +3110,18 @@ use warnings;
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
 
-{ package Object;
+{ package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
   sub isa { UNIVERSAL::isa($_[0],$_[1]) }
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
 }  
 
 # Avoid "use base" error: Base class package "Xxx" is empty. :/
-{ package Num; our $_i_am_not_empty_; }
-{ package Int; our $_i_am_not_empty_; }
-{ package Str; our $_i_am_not_empty_; }
-{ package Array; our $_i_am_not_empty_; }
-{ package Hash; our $_i_am_not_empty_; }
-
+{ package Num; our $_tell_use_base_i_am_not_empty_; }
+{ package Int; our $_tell_use_base_i_am_not_empty_; }
+{ package Str; our $_tell_use_base_i_am_not_empty_; }
+{ package Array; our $_tell_use_base_i_am_not_empty_; }
+{ package Hash; our $_tell_use_base_i_am_not_empty_; }
 
 no warnings qw(redefine prototype);
 { package STRING;
@@ -3470,10 +3468,20 @@ sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->name()];
 my $name = $::es_whiteboard__in_package->join('::');
-(((((((((('
+my $base = 'use base "Any";';
+if(($name eq 'Any')) {
+(do{($base = '')})
+};
+if(($name eq 'Object')) {
+(do{($base = '')})
+};
+if(($name eq 'Junction')) {
+(do{($base = '')})
+};
+((((((((((('
 { package ' . $name) . ';
 ') . 'use Moose;') . ' __PACKAGE__->meta->make_mutable();
-') . $self->prelude_for_entering_a_package()) . $self->e(($n->traits() || []))->join('
+') . $base) . $self->prelude_for_entering_a_package()) . $self->e(($n->traits() || []))->join('
 ')) . $self->e($n->block())) . ';
 __PACKAGE__->meta->make_immutable();
 ') . '
@@ -3915,7 +3923,7 @@ header();
 
 { package Num;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub pi{Math::Trig::pi();}});
+use base "Any";(do{sub pi{Math::Trig::pi();}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3924,7 +3932,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package GLOBAL;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{});
+use base "Any";(do{});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3940,7 +3948,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package STRING;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub perl{my $self=CORE::shift;
+use base "Any";(do{sub perl{my $self=CORE::shift;
     no warnings "once";
     local $Data::Dumper::Pure = 1;
     local $Data::Dumper::Terse = 1;
@@ -3954,7 +3962,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package INTEGER;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub perl{my $self=CORE::shift;(do{('' . $self)})}});
+use base "Any";(do{sub perl{my $self=CORE::shift;(do{('' . $self)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3962,7 +3970,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package FLOAT;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub perl{my $self=CORE::shift;(do{('' . $self)})}});
+use base "Any";(do{sub perl{my $self=CORE::shift;(do{('' . $self)})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3970,7 +3978,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package ARRAY;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub perl{my $self=CORE::shift;(do{(('[' . $self->map(sub {my($e)=@_;
+use base "Any";(do{sub perl{my $self=CORE::shift;(do{(('[' . $self->map(sub {my($e)=@_;
 (do{$e->perl()})})->join(',')) . ']')})}});
 __PACKAGE__->meta->make_immutable();
 
@@ -3979,7 +3987,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package HASH;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub perl{my $self=CORE::shift;(do{(('{' . $self->keys()->map(sub {my($k)=@_;
+use base "Any";(do{sub perl{my $self=CORE::shift;(do{(('{' . $self->keys()->map(sub {my($k)=@_;
 (do{(($k->perl() . ' => ') . $self->{$k}->perl())})})->join(', ')) . '}')})}});
 __PACKAGE__->meta->make_immutable();
 
@@ -3992,7 +4000,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Parser;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{has 'is_for_active_runtime' => (is => 'rw');;
+use base "Any";(do{has 'is_for_active_runtime' => (is => 'rw');;
 sub parse{my $self=CORE::shift;my($p6_code,$claim_as_filename)=@_;
 (do{my $stem = ('deleteme' . $GLOBAL::PID);
 my $input = ($stem . '.p6');
@@ -4028,7 +4036,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Compiler;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{has 'is_for_active_runtime' => (is => 'rw');;
+use base "Any";(do{has 'is_for_active_runtime' => (is => 'rw');;
 sub eval_perl6{my $self=CORE::shift;my($code,$env)=@_;
 (do{$self->eval_fragment($code, '-e', 0, $env)})};
 sub eval_file{my $self=CORE::shift;my($file)=@_;
@@ -4166,7 +4174,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Program;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub print_usage_and_die{my $self=CORE::shift;(do{GLOBAL::say('
+use base "Any";(do{sub print_usage_and_die{my $self=CORE::shift;(do{GLOBAL::say('
 Usage: [-v] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
          [ P6_FILE | -e P6_CODE ]+ [ -- ARGS* ]
 

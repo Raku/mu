@@ -74,19 +74,18 @@ use warnings;
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
 
-{ package Object;
+{ package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
   sub isa { UNIVERSAL::isa($_[0],$_[1]) }
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
 }  
 
 # Avoid "use base" error: Base class package "Xxx" is empty. :/
-{ package Num; our $_i_am_not_empty_; }
-{ package Int; our $_i_am_not_empty_; }
-{ package Str; our $_i_am_not_empty_; }
-{ package Array; our $_i_am_not_empty_; }
-{ package Hash; our $_i_am_not_empty_; }
-
+{ package Num; our $_tell_use_base_i_am_not_empty_; }
+{ package Int; our $_tell_use_base_i_am_not_empty_; }
+{ package Str; our $_tell_use_base_i_am_not_empty_; }
+{ package Array; our $_tell_use_base_i_am_not_empty_; }
+{ package Hash; our $_tell_use_base_i_am_not_empty_; }
 
 no warnings qw(redefine prototype);
 { package STRING;
@@ -432,8 +431,13 @@ package Main;
   method cb__PackageDecl ($n) {
     my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n.name];
     my $name = $^whiteboard::in_package.join('::');
+    my $base = 'use base "Any";';
+    if $name eq 'Any' { $base = '' }
+    if $name eq 'Object' { $base = '' }
+    if $name eq 'Junction' { $base = '' }
     ("\n{ package "~$name~";\n"~
      "use Moose;"~" __PACKAGE__->meta->make_mutable();\n"~
+     $base~
      self.prelude_for_entering_a_package()~
      $.e($n.traits||[]).join("\n")~
      $.e($n.block)~
