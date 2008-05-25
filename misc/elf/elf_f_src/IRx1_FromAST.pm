@@ -402,27 +402,27 @@ $one;
     });
 
     $main::irbuilder.add_constructor('statement_prefix:do', sub ($m) {
-      IRx1::Apply.newp($m,"statement_prefix:do",irbuild_ir($m.{'hash'}{'statement'}));
+      IRx1::Apply.newp($m,"statement_prefix:do",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'statement'})]));
     });
 
     $main::irbuilder.add_constructor('statement_prefix:try', sub ($m) {
-      IRx1::Apply.newp($m,"statement_prefix:try",irbuild_ir($m.{'hash'}{'statement'}));
+      IRx1::Apply.newp($m,"statement_prefix:try",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'statement'})]));
     });
 
     $main::irbuilder.add_constructor('statement_prefix:gather', sub ($m) {
-      IRx1::Apply.newp($m,"statement_prefix:gather",irbuild_ir($m.{'hash'}{'statement'}));
+      IRx1::Apply.newp($m,"statement_prefix:gather",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'statement'})]));
     });
 
     $main::irbuilder.add_constructor('statement_prefix:contend', sub ($m) {
-      IRx1::Apply.newp($m,"statement_prefix:contend",irbuild_ir($m.{'hash'}{'statement'}));
+      IRx1::Apply.newp($m,"statement_prefix:contend",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'statement'})]));
     });
 
     $main::irbuilder.add_constructor('statement_prefix:async', sub ($m) {
-      IRx1::Apply.newp($m,"statement_prefix:async",irbuild_ir($m.{'hash'}{'statement'}));
+      IRx1::Apply.newp($m,"statement_prefix:async",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'statement'})]));
     });
 
     $main::irbuilder.add_constructor('statement_prefix:lazy', sub ($m) {
-      IRx1::Apply.newp($m,"statement_prefix:lazy",irbuild_ir($m.{'hash'}{'statement'}));
+      IRx1::Apply.newp($m,"statement_prefix:lazy",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'statement'})]));
     });
 
     $main::irbuilder.add_constructor('pblock', sub ($m) {

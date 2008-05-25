@@ -288,22 +288,22 @@ When.newp(undef,$m<block>)
 
 
 statement_prefix:do
-Apply.newp("statement_prefix:do",$m<statement>)
+Apply.newp("statement_prefix:do",Capture.newp([$m<statement>]))
 
 statement_prefix:try
-Apply.newp("statement_prefix:try",$m<statement>)
+Apply.newp("statement_prefix:try",Capture.newp([$m<statement>]))
 
 statement_prefix:gather
-Apply.newp("statement_prefix:gather",$m<statement>)
+Apply.newp("statement_prefix:gather",Capture.newp([$m<statement>]))
 
 statement_prefix:contend
-Apply.newp("statement_prefix:contend",$m<statement>)
+Apply.newp("statement_prefix:contend",Capture.newp([$m<statement>]))
 
 statement_prefix:async
-Apply.newp("statement_prefix:async",$m<statement>)
+Apply.newp("statement_prefix:async",Capture.newp([$m<statement>]))
 
 statement_prefix:lazy
-Apply.newp("statement_prefix:lazy",$m<statement>)
+Apply.newp("statement_prefix:lazy",Capture.newp([$m<statement>]))
 
 
 pblock

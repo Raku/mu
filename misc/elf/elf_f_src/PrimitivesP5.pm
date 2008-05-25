@@ -32,7 +32,7 @@ package GLOBAL { # sub *f(){} isn't working yet.
 }
 
 class Any {
-  method perl() { self.WHAT ~ '.new()' }
+  method perl() { self.WHAT ~ '.new(!!!)' }
 }
 class STRING {
   method perl() is p5 {'

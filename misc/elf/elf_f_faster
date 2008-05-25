@@ -697,6 +697,12 @@ use base qw(Object);
 }
 ;
 
+{ package Any;
+use base qw(Object);
+(do{sub print{my $self=CORE::shift;(do{GLOBAL::say($self)})}})
+}
+;
+
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
@@ -3056,17 +3062,17 @@ $main::irbuilder->add_constructor('statement_mod_cond:when', sub {my($m)=@_;
 $main::irbuilder->add_constructor('statement_control:default', sub {my($m)=@_;
 (do{IRx1::When->newp($m, GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('statement_prefix:do', sub {my($m)=@_;
-(do{IRx1::Apply->newp($m, 'statement_prefix:do', irbuild_ir($m->{'hash'}->{'statement'}))})});
+(do{IRx1::Apply->newp($m, 'statement_prefix:do', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'statement'})]))})});
 $main::irbuilder->add_constructor('statement_prefix:try', sub {my($m)=@_;
-(do{IRx1::Apply->newp($m, 'statement_prefix:try', irbuild_ir($m->{'hash'}->{'statement'}))})});
+(do{IRx1::Apply->newp($m, 'statement_prefix:try', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'statement'})]))})});
 $main::irbuilder->add_constructor('statement_prefix:gather', sub {my($m)=@_;
-(do{IRx1::Apply->newp($m, 'statement_prefix:gather', irbuild_ir($m->{'hash'}->{'statement'}))})});
+(do{IRx1::Apply->newp($m, 'statement_prefix:gather', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'statement'})]))})});
 $main::irbuilder->add_constructor('statement_prefix:contend', sub {my($m)=@_;
-(do{IRx1::Apply->newp($m, 'statement_prefix:contend', irbuild_ir($m->{'hash'}->{'statement'}))})});
+(do{IRx1::Apply->newp($m, 'statement_prefix:contend', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'statement'})]))})});
 $main::irbuilder->add_constructor('statement_prefix:async', sub {my($m)=@_;
-(do{IRx1::Apply->newp($m, 'statement_prefix:async', irbuild_ir($m->{'hash'}->{'statement'}))})});
+(do{IRx1::Apply->newp($m, 'statement_prefix:async', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'statement'})]))})});
 $main::irbuilder->add_constructor('statement_prefix:lazy', sub {my($m)=@_;
-(do{IRx1::Apply->newp($m, 'statement_prefix:lazy', irbuild_ir($m->{'hash'}->{'statement'}))})});
+(do{IRx1::Apply->newp($m, 'statement_prefix:lazy', IRx1::Capture->newp($m, [irbuild_ir($m->{'hash'}->{'statement'})]))})});
 $main::irbuilder->add_constructor('pblock', sub {my($m)=@_;
 (do{if($m->{'hash'}->{'signature'}) {
 (do{IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'signature'}), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'block'}))})
@@ -4185,6 +4191,17 @@ if(0) {
 }else {
 (do{(((('(' . $op) . '') . $x) . ')')})
 }})
+}elsif(($fun =~ qr/^statement_prefix:(.+)$/)) {
+(do{my $op = $1;
+if(($op eq 'do')) {
+(do{(('do{' . $self->e($n->capture()->arguments()->[0])) . '}')})
+}elsif(($op eq 'try')) {
+(do{(('eval{' . $self->e($n->capture())) . '}')})
+}elsif(($op eq 'gather')) {
+(do{(('GLOBAL::gather' . $self->e($n->capture())) . '')})
+}else {
+(do{GLOBAL::die(($fun . ': unimplemented'))})
+}})
 }elsif(($fun =~ qr/^postfix:(.+)$/)) {
 (do{my $op = $1;
 my $a = $self->e($n->capture()->arguments());
@@ -4208,8 +4225,6 @@ if(($words->elems() == 0)) {
 (do{my $arg = $self->e($n->capture());
 $op->re_gsub(' ', $arg)})
 }})
-}elsif(($fun =~ qr/^statement_prefix:gather$/)) {
-(do{(('GLOBAL::gather' . $self->e($n->capture())) . '')})
 }else {
 (do{my $f = $fun;
 if((($f =~ qr/^\$\w+$/))) {
@@ -4435,7 +4450,7 @@ use Scalar::Util "openhandle";
 
 { package Any;
 use base qw(Object);
-(do{sub perl{my $self=CORE::shift;(do{($self->WHAT() . '.new()')})}})
+(do{sub perl{my $self=CORE::shift;(do{($self->WHAT() . '.new(!!!)')})}})
 }
 ;
 

@@ -695,6 +695,18 @@ package Main;
       elsif $op eq '+' { 'GLOBAL::prefix_plus('~$x~')' }
       else { "("~$op~""~$x~")" }
     }
+    elsif $fun =~ /^statement_prefix:(.+)$/ {
+      my $op = $1;
+      if $op eq 'do' {
+        'do{'~$.e($n.capture.arguments[0])~'}'
+      } elsif $op eq 'try' {
+        'eval{'~$.e($n.capture)~'}'
+      } elsif $op eq 'gather' {
+        'GLOBAL::gather'~$.e($n.capture)~''
+      } else {
+        die $fun~': unimplemented';
+      }
+    }
     elsif $fun =~ /^postfix:(.+)$/ {
       my $op = $1;
       my $a = $.e($n.capture.arguments);
@@ -716,9 +728,6 @@ package Main;
         my $arg = $.e($n.capture);
         $op.re_gsub(' ',$arg);
       }
-    }
-    elsif $fun =~ /^statement_prefix:gather$/ {
-      'GLOBAL::gather'~$.e($n.capture)~''
     }
     else {
       my $f = $fun;
