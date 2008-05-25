@@ -811,14 +811,18 @@ class Perl < Grammar
     def package_def
         let_pos{
             b = pos
+            mn=traits_=bk=nil
             (wsp and
              (mn = quesRULE{ module_name } and wsp and
               traits_= starRULE{ trait } and wsp and
-              (let_pos{ $env_vars[:begin_compunit] and scan(/;/) and wsp and
+              (let_pos{ $env_vars[:begin_compunit] and
+                before(/;/) and # XXX NONSPEC Dont eat the ; , it's needed by the callee.
                 (mn.bool or panic("Compilation unit cannot be anonymous")) and
                 ($env_vars[:begin_compunit] = false
-                 true)} or
-               (bk= block and wsp)))) and
+                 true)
+               } or
+               (bk= block and wsp)
+               ))) and
             (h={};
              _hkv(h,:module_name,mn)
              _hkv(h,:traits,traits_)
