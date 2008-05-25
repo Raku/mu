@@ -3049,8 +3049,10 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package EmitSimpleP5;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler)=@_;
-(do{$self->new('compiler', $compiler)})};
+use base "Any";(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler,$ignore2,$filename)=@_;
+(do{$self->new('compiler', $compiler, 'filename', $filename)})};
+has 'compiler' => (is => 'rw');;
+has 'filename' => (is => 'rw');;
 sub tidy{my $self=CORE::shift;my($source)=@_;
 (do{GLOBAL::say(GLOBAL::eval_perl5('
     sub {
@@ -3065,7 +3067,6 @@ sub tidy{my $self=CORE::shift;my($source)=@_;
       }
     }
     ')->($source))})};
-has 'compiler' => (is => 'rw');;
 sub prelude_for_entering_a_package{my $self=CORE::shift;(do{''})};
 sub prelude_lexical{my $self=CORE::shift;(do{'use autobox ARRAY => \'ARRAY\', HASH => \'HASH\', CODE => \'CODE\', INTEGER => \'INTEGER\', FLOAT => \'FLOAT\', STRING => \'STRING\', UNDEF => \'UNDEF\';
       '})};
@@ -3886,7 +3887,17 @@ sub cb__Var{my $self=CORE::shift;my($n)=@_;
 (do{my $s = $n->sigil();
 my $t = ($n->twigil() || '');
 my $dsn = $self->e($n->name());
-$self->encode_varname($s, $t, $dsn)})};
+my $v = (($s . $t) . $dsn);
+if(((($v eq '$?PACKAGE') || ($v eq '$?MODULE')) || ($v eq '$?CLASS'))) {
+(do{my $pkgname = $::es_whiteboard__in_package->join('::');
+(('\'' . $pkgname) . '\'')})
+}elsif(($v eq '$?FILE')) {
+(do{(('\'' . $self->filename) . '\'')})
+}elsif(($v eq '$?LINE')) {
+(do{'0'})
+}else {
+(do{$self->encode_varname($s, $t, $dsn)})
+}})};
 sub cb__NumInt{my $self=CORE::shift;my($n)=@_;
 (do{$self->e($n->text())})};
 sub cb__Hash{my $self=CORE::shift;my($n)=@_;
@@ -4096,9 +4107,9 @@ if($verbose) {
 };
 my $p5;
 if($self->is_for_active_runtime) {
-(do{($p5 = ($GLOBAL::emitter0->prelude_lexical() . $ir->callback($GLOBAL::emitter0->new_emitter('compiler', $self))))})
+(do{($p5 = (($GLOBAL::emitter0->prelude_lexical() . $ir->callback($GLOBAL::emitter0->new_emitter('compiler', $self, 'filename', $filename)))))})
 }else {
-(do{($p5 = ($GLOBAL::emitter1->prelude_lexical() . $ir->callback($GLOBAL::emitter1->new_emitter('compiler', $self))))})
+(do{($p5 = (($GLOBAL::emitter1->prelude_lexical() . $ir->callback($GLOBAL::emitter1->new_emitter('compiler', $self, 'filename', $filename)))))})
 };
 if($verbose) {
 (do{if($self->is_for_active_runtime) {

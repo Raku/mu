@@ -1,10 +1,14 @@
 
 class EmitSimpleP5 {
 
-  method new_emitter($ignore,$compiler) {
-    self.new('compiler',$compiler);
+  method new_emitter($ignore,$compiler,$ignore2,$filename) {
+    self.new('compiler',$compiler,'filename',$filename);
   };
 
+  has $.compiler;
+  has $.filename;
+
+  # XXX This tidy() needs to go away or become p6.
   method tidy($source) {
     say eval_perl5('
     sub {
@@ -20,7 +24,7 @@ class EmitSimpleP5 {
     }
     ').($source);
   }
-  has $.compiler;
+
 
   method prelude_for_entering_a_package () {
     "";
@@ -820,7 +824,17 @@ package Main;
     my $s = $n.sigil;
     my $t = $n.twigil||'';
     my $dsn = $.e($n.name);
-    $.encode_varname($s,$t,$dsn);
+    my $v = $s~$t~$dsn;
+    if $v eq '$?PACKAGE' || $v eq '$?MODULE' || $v eq '$?CLASS' {
+      my $pkgname = $^whiteboard::in_package.join('::'); # XXX should use $n notes instead.
+      "'"~$pkgname~"'"
+    } elsif $v eq '$?FILE' {
+      "'"~$.filename~"'"
+    } elsif $v eq '$?LINE' {
+      '0' # XXX $n notes needs to provide this.
+    } else {
+      $.encode_varname($s,$t,$dsn);
+    }
   };
   method cb__NumInt ($n) {
     $.e($n.text)
