@@ -81,3 +81,10 @@ is $str, 'inner', 'return in pointy returns from enclosing sub';
 
 # L<S06/""Pointy blocks""/It is referenced>
 # Coming soon...
+
+
+# -> { $^a, $^b } is illegal; you can't mix real sigs with placeholders,
+# and the -> introduces a sig of ().  TimToady #perl6 2008-May-24
+ok !eval(q{
+    -> { $^a, $^b }
+}),'-> { $^a, $^b } is illegal';
