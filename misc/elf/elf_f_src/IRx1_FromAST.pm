@@ -439,10 +439,19 @@ irbuild_ir($m.{'hash'}{'block'})
 
     $main::irbuilder.add_constructor('plurality_declarator:multi', sub ($m) {
       my $^blackboard::plurality = 'multi';
-irbuild_ir($m.{'hash'}{'pluralized'});
+irbuild_ir($m.{'hash'}{'pluralized'}) || irbuild_ir($m.{'hash'}{'routine_def'});
     });
 
     $main::irbuilder.add_constructor('routine_declarator:routine_def', sub ($m) {
+      my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+my $ident = "";
+if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
+my $sig = IRx1::Signature.newp($m,[],undef);
+if irbuild_ir($m.{'hash'}{'multisig'}) { $sig = irbuild_ir($m.{'hash'}{'multisig'}).[0] };
+IRx1::SubDecl.newp($m,undef,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
+    });
+
+    $main::irbuilder.add_constructor('routine_def', sub ($m) {
       my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
 if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };

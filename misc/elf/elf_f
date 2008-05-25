@@ -2531,8 +2531,20 @@ $main::irbuilder->add_constructor('block', sub {my($m)=@_;
 (do{IRx1::Block->newp($m, irbuild_ir($m->{'hash'}->{'statementlist'}))})});
 $main::irbuilder->add_constructor('plurality_declarator:multi', sub {my($m)=@_;
 (do{{package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality = 'multi';
-irbuild_ir($m->{'hash'}->{'pluralized'})})});
+(irbuild_ir($m->{'hash'}->{'pluralized'}) || irbuild_ir($m->{'hash'}->{'routine_def'}))})});
 $main::irbuilder->add_constructor('routine_declarator:routine_def', sub {my($m)=@_;
+(do{my $plurality = $::es_blackboard__plurality;
+{package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
+my $ident = '';
+if($m->{'hash'}->{'ident'}) {
+(do{($ident = irbuild_ir($m->{'hash'}->{'ident'}))})
+};
+my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
+if(irbuild_ir($m->{'hash'}->{'multisig'})) {
+(do{($sig = irbuild_ir($m->{'hash'}->{'multisig'})->[0])})
+};
+IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))})});
+$main::irbuilder->add_constructor('routine_def', sub {my($m)=@_;
 (do{my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
 my $ident = '';
@@ -3466,8 +3478,24 @@ $name->re_sub_g('^(.)::', '$1');
 (do{((($n->scope() . ' ') . $self->e($n->var())) . $default)})
 }})
 }})};
-sub multimethods_using_hack{my $self=CORE::shift;my($n,$name,$type0)=@_;
-(do{my $stem = (('_mmd__' . $name) . '__');
+sub multimethods_using_hack{my $self=CORE::shift;my($n,$name,$param_types)=@_;
+(do{my $name = $self->e($n->name());
+my $param_types = $n->multisig()->parameters()->map(sub {my($p)=@_;
+(do{my $types = $self->e($p->type_constraints());
+if($types) {
+(do{if(($types->elems() != 1)) {
+(do{GLOBAL::die('unsupported: parameter with !=1 type constraint.')})
+};
+$types->[0]})
+}else {
+(do{GLOBAL::undef()})
+}})});
+my $type0 = $param_types->[0];
+if(GLOBAL::not($type0)) {
+(do{GLOBAL::die((('implementation limitation: a multi method\'s first parameter must have a type: ' . $name) . '
+'))})
+};
+my $stem = (('_mmd__' . $name) . '__');
 my $branch_name = ($stem . $type0);
 my $setup_name = ('_reset' . $stem);
 my $code = '';
@@ -3497,43 +3525,47 @@ my $code = '';
 };
 '));
 (((((('sub ' . $branch_name) . '{my $self=CORE::shift;') . $self->e($n->multisig())) . $self->e($n->block())) . '}') . $code)})};
-sub multimethods_using_CM{my $self=CORE::shift;my($n,$name,$type0)=@_;
-(do{my $n_args = $n->multisig()->parameters()->elems();
-($type0 = $type0->re_gsub('^Any$', '*'));
-($type0 = $type0->re_gsub('^Int$', '#'));
-($type0 = $type0->re_gsub('^Num$', '#'));
-($type0 = $type0->re_gsub('^Str$', '\\$'));
-my $param_padding = '';
-my $i = 1;
-while(($i < $n_args)) {
-(do{($i = ($i + 1));
-($param_padding = ($param_padding . ' * '))})
-};
-((((((((('Class::Multimethods::multimethod ' . $name) . ' =>qw( * ') . $type0) . $param_padding) . ' ) => ') . 'sub {my $self=CORE::shift;') . $self->e($n->multisig())) . $self->e($n->block())) . '};')})};
-sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
-(do{if(($n->plurality() && ($n->plurality() eq 'multi'))) {
+sub multi_using_CM{my $self=CORE::shift;my($n,$is_method,$f_emitted)=@_;
 (do{my $name = $self->e($n->name());
 my $param_types = $n->multisig()->parameters()->map(sub {my($p)=@_;
 (do{my $types = $self->e($p->type_constraints());
 if($types) {
 (do{if(($types->elems() != 1)) {
-(do{GLOBAL::die('only limited multi method support')})
+(do{GLOBAL::die('unsupported: parameter with !=1 type constraint.')})
 };
 $types->[0]})
 }else {
-(do{GLOBAL::undef()})
+(do{'Any'})
 }})});
-my $type0 = $param_types->[0];
-if(GLOBAL::not($type0)) {
-(do{GLOBAL::die((('implementation limitation: a multi method\'s first parameter must have a type: ' . $name) . '
-'))})
+if($is_method) {
+(do{$param_types->unshift('Any')})
 };
-$self->multimethods_using_CM($n, $name, $type0)})
-}elsif((($n->traits() && $n->traits()->[0]->expr()) && ($n->traits()->[0]->expr() eq 'p5'))) {
-(do{my $code = $n->block()->statements()->[0]->buf();
-((((('sub ' . $self->e($n->name())) . '{ my $self=CORE::shift;') . $self->e($n->multisig())) . $code) . '}')})
+GLOBAL::say($param_types);
+my $sig = $param_types->map(sub {my($t)=@_;
+(do{if(($t eq 'Any')) {
+(do{'*'})
+}elsif(($t eq 'Int')) {
+(do{'#'})
+}elsif(($t eq 'Num')) {
+(do{'#'})
+}elsif(($t eq 'Str')) {
+(do{'$'})
 }else {
-(do{((((('sub ' . $self->e($n->name())) . '{my $self=CORE::shift;') . $self->e($n->multisig())) . $self->e($n->block())) . '}')})
+(do{$t})
+}})})->join(' ');
+(((((('Class::Multimethods::multimethod ' . $name) . ' =>qw( ') . $sig) . ' ) => ') . $f_emitted) . ';')})};
+sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
+(do{my $body;
+if((($n->traits() && $n->traits()->[0]->expr()) && ($n->traits()->[0]->expr() eq 'p5'))) {
+(do{($body = $n->block()->statements()->[0]->buf())})
+}else {
+(do{($body = $self->e($n->block()))})
+};
+if(($n->plurality() && ($n->plurality() eq 'multi'))) {
+(do{my $ef = ((('sub {my $self=CORE::shift;' . $self->e($n->multisig())) . $body) . '}');
+$self->multi_using_CM($n, 1, $ef)})
+}else {
+(do{((((('sub ' . $self->e($n->name())) . '{my $self=CORE::shift;') . $self->e($n->multisig())) . $body) . '}')})
 }})};
 sub cb__SubDecl{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
@@ -3549,11 +3581,17 @@ if($sig) {
 }else {
 (do{($sig = '')})
 };
+my $body;
 if((($n->traits() && $n->traits()->[0]->expr()) && ($n->traits()->[0]->expr() eq 'p5'))) {
-(do{my $code = $n->block()->statements()->[0]->buf();
-((((('sub ' . $name) . '{') . $sig) . $code) . '}')})
+(do{($body = $n->block()->statements()->[0]->buf())})
 }else {
-(do{((((('sub ' . $name) . '{') . $sig) . $self->e($n->block())) . '}')})
+(do{($body = $self->e($n->block()))})
+};
+if(($n->plurality() && ($n->plurality() eq 'multi'))) {
+(do{my $ef = ((('sub {' . $sig) . $body) . '}');
+$self->multi_using_CM($n, 0, $ef)})
+}else {
+(do{((((('sub ' . $name) . '{') . $sig) . $body) . '}')})
 }})};
 sub cb__Signature{my $self=CORE::shift;my($n)=@_;
 (do{if((($n->parameters()->elems() == 0))) {
@@ -3844,7 +3882,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package STRING;
 use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub perl{ my $self=CORE::shift;
+(do{sub perl{my $self=CORE::shift;
     no warnings "once";
     local $Data::Dumper::Pure = 1;
     local $Data::Dumper::Terse = 1;

@@ -498,7 +498,23 @@ package Main;
       }
     }
   };
-  method multimethods_using_hack ($n,$name,$type0) {
+
+
+  method multimethods_using_hack ($n,$name,$param_types) {
+    my $name = $.e($n.name);
+    my $param_types = $n.multisig.parameters.map(sub($p){
+      my $types = $.e($p.type_constraints);
+        if $types {
+          if $types.elems != 1 { die("unsupported: parameter with !=1 type constraint.") }
+          $types[0];
+        } else {
+          undef;
+        }
+    });
+    my $type0 = $param_types[0];
+    if not($type0) {
+      die("implementation limitation: a multi method's first parameter must have a type: "~$name~"\n");
+    }
     my $stem = '_mmd__'~$name~'__';
     my $branch_name = $stem~$type0;
     my $setup_name = '_reset'~$stem;
@@ -531,56 +547,67 @@ package Main;
 ';
     'sub '~$branch_name~'{my $self=CORE::shift;'~$.e($n.multisig)~$.e($n.block)~'}' ~ $code;
   };
-  method multimethods_using_CM ($n,$name,$type0) {
-    my $n_args = $n.multisig.parameters.elems;
-    $type0 = $type0.re_gsub('^Any$','*');
-    $type0 = $type0.re_gsub('^Int$','#');
-    $type0 = $type0.re_gsub('^Num$','#');
-    $type0 = $type0.re_gsub('^Str$','\$');
-    my $param_padding = "";  my $i = 1;
-    while $i < $n_args { $i = $i + 1; $param_padding = $param_padding ~ ' * '; }
+  method multi_using_CM ($n,$is_method,$f_emitted) {
+    my $name = $.e($n.name);
+    my $param_types = $n.multisig.parameters.map(sub($p){
+      my $types = $.e($p.type_constraints);
+      if $types {
+        if $types.elems != 1 { die("unsupported: parameter with !=1 type constraint.") }
+        $types[0];
+      } else {
+        'Any'
+      }
+    });
+    if $is_method {
+      $param_types.unshift('Any');
+    }
+    say $param_types;
+    my $sig = $param_types.map(sub($t){
+      # XXX C::M needs to be modified to work on both INTEGER and Int. :(
+      if $t eq 'Any' { '*' }
+      elsif $t eq 'Int' { '#' }
+      elsif $t eq 'Num' { '#' }
+      elsif $t eq 'Str' { '$' }
+      else { $t }
+    }).join(' ');
     'Class::Multimethods::multimethod '~$name~
-    ' =>qw( * '~$type0~$param_padding~' ) => '~
-    'sub {my $self=CORE::shift;'~$.e($n.multisig)~$.e($n.block)~'};';
+    ' =>qw( '~$sig~' ) => '~ $f_emitted ~';';
   };
   method cb__MethodDecl ($n) {
-    if $n.plurality && $n.plurality eq 'multi' {
-      my $name = $.e($n.name);
-      my $param_types = $n.multisig.parameters.map(sub($p){
-        my $types = $.e($p.type_constraints);
-        if $types {
-          if $types.elems != 1 { die("only limited multi method support") }
-          $types[0];
-        } else {
-          undef;
-        }
-      });
-      my $type0 = $param_types[0];
-      if not($type0) {
-        die("implementation limitation: a multi method's first parameter must have a type: "~$name~"\n");
-      }
-      #self.multimethods_using_hack($n,$name,$type0);
-      self.multimethods_using_CM($n,$name,$type0);
-    }
-    elsif $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'p5' {
-      my $code = $n.block.statements[0].buf;
-      'sub '~$.e($n.name)~'{ my $self=CORE::shift;'~$.e($n.multisig)~$code~'}';
+    my $body;
+    if $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'p5' {
+      $body = $n.block.statements[0].buf;
     }
     else {
-      'sub '~$.e($n.name)~'{my $self=CORE::shift;'~$.e($n.multisig)~$.e($n.block)~'}'
+      $body = $.e($n.block);
+    }
+    if $n.plurality && $n.plurality eq 'multi' {
+      #self.multimethods_using_hack($n);
+      my $ef = 'sub {my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
+      self.multi_using_CM($n,1,$ef);
+    }
+    else {
+      'sub '~$.e($n.name)~'{my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
     }
   };
+
   method cb__SubDecl ($n) {
     my $^whiteboard::emit_pairs_inline = 0;
     my $name = $n.name;
     if $name { $name = $.e($name) } else { $name = "" }
     my $sig = $n.multisig;
     if $sig { $sig = $.e($sig) } else { $sig = "" }
+    my $body;
     if $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'p5' {
-      my $code = $n.block.statements[0].buf;
-      'sub '~$name~'{'~$sig~$code~'}';
+      $body = $n.block.statements[0].buf;
     } else {
-      'sub '~$name~'{'~$sig~$.e($n.block)~'}';
+      $body = $.e($n.block);
+    }
+    if $n.plurality && $n.plurality eq 'multi' {
+      my $ef = 'sub {'~$sig~$body~'}';
+      self.multi_using_CM($n,0,$ef);
+    } else {
+      'sub '~$name~'{'~$sig~$body~'}';
     }
   };
   method cb__Signature ($n) {

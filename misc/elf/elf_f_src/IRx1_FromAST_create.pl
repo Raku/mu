@@ -318,9 +318,19 @@ Block.newp($m<statementlist>)
 
 plurality_declarator:multi
 my $^blackboard::plurality = 'multi';
-$m<pluralized>
+$m<pluralized> || $m<routine_def>
 
 routine_declarator:routine_def
+my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+my $ident = "";
+if $o<ident> { $ident = $m<ident>  };
+my $sig = Signature.newp([],undef);
+if $m<multisig> { $sig = $m<multisig>.[0] };
+SubDecl.newp(undef,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
+
+# routine_def is the same as routine_declarator:routine_def
+# This is a workaround for STD.pm not recognizing  multi f(){} .
+routine_def
 my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
 if $o<ident> { $ident = $m<ident>  };
@@ -572,7 +582,7 @@ sub write_ast_handlers {
   my($def,$file)=@_;
   my $paragraphs = sub {
     my($text)=@_;
-    $text =~ s/^\s*#.*\n//mg;
+    $text =~ s/^[ ]*#.*\n//mg;
     $text =~ s/[ ]*#.*//g;
     $text =~ s/^([ \t]*\n)*//;
     my @x = split(/\n\n+/,$text);
