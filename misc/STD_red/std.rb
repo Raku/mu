@@ -842,7 +842,7 @@ class Perl < Grammar
     end
 
     def_tokens_rest :plurality_declarator,false,%w{ multi proto only },%q{
-       if not before{ wsp and scan(/sub/) } #R XXX NONSPEC ADDED
+       if not before{ wsp and scan(/sub\b|method\b/) } #R XXX NONSPEC ADDED
          r= routine_def and _match_from(start,{:routine_def=>r},:<sym>)
        else
          p= pluralized and _match_from(start,{:pluralized=>p},:<sym>)
