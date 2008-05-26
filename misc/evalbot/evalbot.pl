@@ -76,7 +76,8 @@ package Evalbot;
             } elsif ($eval_name eq 'perl6'){
                 my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
                 my $kp6_out  = EvalbotExecuter::run($str, $executer{kp6});
-                my $p6_out   = EvalbotExecuter::run($str, $executer{rakudo});
+                my $p6_out   = filter_rakudo(
+                        EvalbotExecuter::run($str, $executer{rakudo}));
                 my $elf_out  = EvalbotExecuter::run($str, $executer{elf});
 #                my $nqp_out  = EvalbotExecuter::run($str, $executer{nqp});
                 return "kp6: $kp6_out\npugs: $pugs_out\nrakudo: $p6_out\nelf: $elf_out";
