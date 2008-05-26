@@ -788,18 +788,23 @@ class Perl < Grammar
         regex_declarator or package_declarator or
             #R XXX not backtracking properly - don't know if it needs to yet
             b=pos
-            ft=v=sig=ts=nil
+            ft=v=sig=ts=pd=rd=td=nil
             (let_pos{
                  ft= starRULE{fulltypename} and wsp and
                  ( v= variable_decl or
-                   let_pos{ scan(/\(/) and wsp and signature and wsp and scan(/\)/) and wsp and starRULE{trait} } or
-                   plurality_declarator or
-                   routine_declarator or
-                   type_declarator)
+                   let_pos{ scan(/\(/) and wsp and sig= signature and wsp and scan(/\)/) and wsp and ts= starRULE{trait} } or
+                   pd= plurality_declarator or
+                   rd= routine_declarator or
+                   td= type_declarator)
              }) and
             (h={};
              _hkv(h,:fulltypename,ft)
              _hkv(h,:variable_decl,v)
+             _hkv(h,:signature,sig)
+             _hkv(h,:trait,ts)
+             _hkv(h,:plurality_declarator,pd)
+             _hkv(h,:routine_declarator,rd)
+             _hkv(h,:type_declarator,td)
              _match_from(b,h,:scoped))
     end
     def_tokens_rest :scope_declarator,false,%w{ my our state constant has },%q{b=pos; s=scoped and _match_from(b,{:scoped=>s},:<sym>) }
@@ -816,7 +821,7 @@ class Perl < Grammar
              (mn = quesRULE{ module_name } and wsp and
               traits_= starRULE{ trait } and wsp and
               (let_pos{ $env_vars[:begin_compunit] and
-                before(/;/) and # XXX NONSPEC Dont eat the ; , it's needed by the callee.
+                before(/;/) and # XXX NONSPEC Dont eat the ; , it's needed by the caller.
                 (mn.bool or panic("Compilation unit cannot be anonymous")) and
                 ($env_vars[:begin_compunit] = false
                  true)
