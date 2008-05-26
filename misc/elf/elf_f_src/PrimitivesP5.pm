@@ -11,6 +11,8 @@ $*PID = (sub () is p5 {'$$'}).();
 
 package GLOBAL { # sub *f(){} isn't working yet.
 
+  sub primitive_runtime_version is p5 {'CORE::sprintf "perl %vd", $^V'}
+
 }
 
 class Any {

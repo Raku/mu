@@ -4275,6 +4275,8 @@ if(((($v eq '$?PACKAGE') || ($v eq '$?MODULE')) || ($v eq '$?CLASS'))) {
 (do{(('\'' . $self->filename) . '\'')})
 }elsif(($v eq '$?LINE')) {
 (do{'0'})
+}elsif(($v eq '$?PERLVER')) {
+(do{(('\'elf / ' . GLOBAL::primitive_runtime_version()) . '\'')})
 }else {
 (do{$self->encode_varname($s, $t, $dsn)})
 }})};
@@ -4358,7 +4360,7 @@ use base "Any";(do{sub pi{Math::Trig::pi();}})
 ($GLOBAL::PID = (sub {$$})->());
 
 { package GLOBAL;
-use base "Any";(do{})
+use base "Any";(do{sub primitive_runtime_version{CORE::sprintf "perl %vd", $^V}})
 }
 ;
 
