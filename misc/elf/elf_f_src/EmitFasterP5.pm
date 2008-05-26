@@ -17,21 +17,6 @@ class EmitFasterP5 is EmitSimpleP5 {
 ';
   };
 
-  method cb__PackageDecl ($n) {
-
-    my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n.name];
-    my $name = $^whiteboard::in_package.join('::');
-    my $base = "use base qw(Any);\n";
-    if $name eq 'Any' { $base = "" }
-    if $name eq 'Object' { $base = "" }
-    if $name eq 'Junction' { $base = "" }
-    ("\n{ package "~$name~";\n"~
-     $base~ 
-     self.prelude_for_entering_a_package()~
-     $.e($n.traits||[]).join("\n")~
-     $.e($n.block)~
-     "\n}\n");
-  };
   method cb__Trait ($n) {
     if ($n.verb eq 'is') {
       my $pkgname = $^whiteboard::in_package.join('::');
@@ -43,7 +28,7 @@ class EmitFasterP5 is EmitSimpleP5 {
     }
   };
 
-  method needs_accessors_as_setters_hack() {
+  method using_Moose() {
       0;
   }
   method do_VarDecl_has ($n) {

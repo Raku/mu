@@ -476,7 +476,7 @@ X  0%	17  0 		../../../t/spec/S05-transliteration/trans.t
 -C 0%	6  0 6		../../../t/spec/S06-signature/slurpy-placeholders.t
 -C 0%	38  0 38	../../../t/spec/S09-autovivification/autovivification.t
 -C 0%	24  0 24	../../../t/spec/S09-subscript_slice/slice.t
--  33%	3  1 2		../../../t/spec/S11-modules/module-file.t
+-  66%	3  2 1		../../../t/spec/S11-modules/module-file.t
 -  71%	7  5 2		../../../t/spec/S11-modules/module.t
 -C 0%	41  0 41	../../../t/spec/S12-attributes/delegation.t
 X  0%	4  0 		../../../t/spec/S12-class/attributes.t
@@ -815,4 +815,4 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
 Files: 815.  603 parsed 73%.  315 run 38%.  68 ok 8%.
-Tests: 16419+.  712 ok <4.33%, 15707+ not.
+Tests: 16419+.  713 ok <4.34%, 15706+ not.

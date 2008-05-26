@@ -403,11 +403,13 @@ package Main;
     $n.do_all_analysis();
     my $^whiteboard::in_package = [];
     my $^whiteboard::emit_pairs_inline = 0;
+    my $^whiteboard::compunit_footer = [];
     my $code = (
       "package Main;\n"~
       self.prelude_for_entering_a_package());
     my $stmts = $.e($n.statements);
-    $code ~ $stmts.join(";\n")~";\n";
+    my $foot = $^whiteboard::compunit_footer.join(";\n");
+    $code ~ $stmts.join(";\n")~$foot~";\n";
   };
   method cb__Block ($n) {
     my $^whiteboard::emit_pairs_inline = 0;
@@ -436,20 +438,27 @@ package Main;
   };
 
   method cb__PackageDecl ($n) {
-    my $^whiteboard::in_package = [$^whiteboard::in_package.flatten,$n.name];
-    my $name = $^whiteboard::in_package.join('::');
+    my $in_package = [$^whiteboard::in_package.flatten,$n.name];
+    my $name = $in_package.join('::');
     my $base = 'use base "Any";';
     if $name eq 'Any' { $base = '' }
     if $name eq 'Object' { $base = '' }
     if $name eq 'Junction' { $base = '' }
-    ("\n{ package "~$name~";\n"~
-     "use Moose;"~" __PACKAGE__->meta->make_mutable();\n"~
-     $base~
-     self.prelude_for_entering_a_package()~
-     $.e($n.traits||[]).join("\n")~
-     $.e($n.block)~
-     ";\n__PACKAGE__->meta->make_immutable();\n"~
-     "\n}\n");
+    my $head = "\n{ package "~$name~";\n";
+    my $foot = "\n}\n";
+    if $.using_Moose {
+       $head = $head ~ "use Moose;"~" __PACKAGE__->meta->make_mutable();\n";
+       $foot = ";\n__PACKAGE__->meta->make_immutable();\n"~ "\n}\n";
+    }
+    $head = $head ~ $base~ self.prelude_for_entering_a_package();
+    if $n.block {
+      my $^whiteboard::in_package = $in_package; # my()
+      $head ~ $.e($n.traits||[]).join("\n") ~ $.e($n.block) ~ $foot;
+    } else {
+      $^whiteboard::in_package = $in_package; # not my()
+      $^whiteboard::compunit_footer.unshift($foot);
+      $head ~ $.e($n.traits||[]).join("\n") ~ ";\n"
+    }
   };
   method cb__Trait ($n) {
     if ($n.verb eq 'is') {
@@ -661,8 +670,9 @@ package Main;
       $.e($n.invocant)~'->'~$.e($n.method)~'('~$.e($n.capture)~')'
     }
   };
-  # have $foo.bar = ... turned into $foo.bar(...)
-  method needs_accessors_as_setters_hack() {
+  method using_Moose() {
+      # $foo.bar = ... turned into $foo.bar(...)
+      # Moose-based class initializers.
       1;
   }
   method cb__Apply ($n) {
@@ -682,7 +692,7 @@ package Main;
         while $a.elems { $s = $s ~", "~ $a.shift }
         return $s;
       }
-      if ($op eq '=') && self.needs_accessors_as_setters_hack {
+      if ($op eq '=') && $.using_Moose {
         if $args[0].isa("IRx1::Var") {
           my $t = $args[0].twigil;
           if ($t && $t eq '.') {

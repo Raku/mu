@@ -3449,11 +3449,14 @@ sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 (do{$n->do_all_analysis();
 {package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
 {package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
+{package main; use vars '$es_whiteboard__compunit_footer'};local $::es_whiteboard__compunit_footer = [];
 my $code = (('package Main;
 ' . $self->prelude_for_entering_a_package()));
 my $stmts = $self->e($n->statements());
-(($code . $stmts->join(';
-')) . ';
+my $foot = $::es_whiteboard__compunit_footer->join(';
+');
+((($code . $stmts->join(';
+')) . $foot) . ';
 ')})};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
@@ -3482,8 +3485,8 @@ sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
 ((($n->kind() . '{') . $self->e($n->block())) . '}')})};
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
-(do{{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [$::es_whiteboard__in_package->flatten(), $n->name()];
-my $name = $::es_whiteboard__in_package->join('::');
+(do{my $in_package = [$::es_whiteboard__in_package->flatten(), $n->name()];
+my $name = $in_package->join('::');
 my $base = 'use base "Any";';
 if(($name eq 'Any')) {
 (do{($base = '')})
@@ -3494,15 +3497,33 @@ if(($name eq 'Object')) {
 if(($name eq 'Junction')) {
 (do{($base = '')})
 };
-((((((((((('
+my $head = (('
 { package ' . $name) . ';
-') . 'use Moose;') . ' __PACKAGE__->meta->make_mutable();
-') . $base) . $self->prelude_for_entering_a_package()) . $self->e(($n->traits() || []))->join('
-')) . $self->e($n->block())) . ';
-__PACKAGE__->meta->make_immutable();
-') . '
+');
+my $foot = '
 }
-'))})};
+';
+if($self->using_Moose) {
+(do{($head = (($head . 'use Moose;') . ' __PACKAGE__->meta->make_mutable();
+'));
+($foot = (';
+__PACKAGE__->meta->make_immutable();
+' . '
+}
+'))})
+};
+($head = (($head . $base) . $self->prelude_for_entering_a_package()));
+if($n->block()) {
+(do{{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = $in_package;
+((($head . $self->e(($n->traits() || []))->join('
+')) . $self->e($n->block())) . $foot)})
+}else {
+(do{($::es_whiteboard__in_package = $in_package);
+$::es_whiteboard__compunit_footer->unshift($foot);
+(($head . $self->e(($n->traits() || []))->join('
+')) . ';
+')})
+}})};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
 (do{if((($n->verb() eq 'is'))) {
 (do{my $pkgname = $::es_whiteboard__in_package->join('::');
@@ -3719,7 +3740,7 @@ $op->re_gsub(' ', $arg);
 }else {
 (do{((((($self->e($n->invocant()) . '->') . $self->e($n->method())) . '(') . $self->e($n->capture())) . ')')})
 }})};
-sub needs_accessors_as_setters_hack{my $self=CORE::shift;(do{1})};
+sub using_Moose{my $self=CORE::shift;(do{1})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 (do{my $fun = $self->e($n->function());
 if(($fun =~ qr/^infix:(.+)$/)) {
@@ -3738,7 +3759,7 @@ while($a->elems()) {
 };
 return($s)})
 };
-if(((($op eq '=')) && $self->needs_accessors_as_setters_hack())) {
+if(((($op eq '=')) && $self->using_Moose)) {
 (do{if($args->[0]->isa('IRx1::Var')) {
 (do{my $t = $args->[0]->twigil();
 if((($t && ($t eq '.')))) {
