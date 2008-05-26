@@ -94,6 +94,30 @@ RxBind var binding
 RxLiteral text quote
 RxSymbol symbol
 
+# RxCommitSequence
+# RxCommitGroup
+# RxCommitRegex
+# RxCommitMatch
+# 
+# RxPat5 pat
+# RxExact text
+# RxMixinMod sigspace i #...
+# RxModExpr mods expr
+# RxModInline mods
+# RxBackref backref_n
+# RxAlias target target_spec expr
+# RxQuant min max expr nongreedy
+# RxASpace aspace_inpkg text
+# RxSubrule created_in_pkg name exprs neg nocap
+# RxARegex modpat mods expr
+# RxBiind created_in_pkg name expr
+# RxNamespace created_in_pkg nsname bindings pkg
+# RxCode code
+# RxCodeRx code
+# RxIndependent expr
+# RxConditional test expr_then expr_else
+# RxLookaround is_forward is_positive is_expr
+
 
 END_DEF
 

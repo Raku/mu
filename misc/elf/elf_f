@@ -33,10 +33,13 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
   }
 }
 
-{package UNDEF;}
 {package UNDEF; sub WHAT {"Undef"}}
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
+
+{ package UNDEF;
+  sub perl { "undef" }
+}
 
 { package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
@@ -2468,18 +2471,23 @@ $main::irbuilder->add_constructor('quote:regex', sub {my($m)=@_;
 (do{my $s = (irbuild_ir($m->{'hash'}->{'text'}) || irbuild_ir($m->{'hash'}->{'quotesnabber'}->{'hash'}->{'text'}));
 IRx1::Rx->newp($m, $s, irbuild_ir($m->{'hash'}->{'quotepair'}))})});
 $main::irbuilder->add_constructor('scope_declarator:my', sub {my($m)=@_;
-(do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'my', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), $vd->[2], '=', $vd->[1])})});
+(do{{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope = 'my';
+irbuild_ir($m->{'hash'}->{'scoped'})})});
 $main::irbuilder->add_constructor('scope_declarator:has', sub {my($m)=@_;
-(do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'has', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), $vd->[2], '=', $vd->[1])})});
+(do{{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope = 'has';
+irbuild_ir($m->{'hash'}->{'scoped'})})});
 $main::irbuilder->add_constructor('scope_declarator:our', sub {my($m)=@_;
-(do{my $vd = irbuild_ir($m->{'hash'}->{'scoped'})->[0];
-IRx1::VarDecl->newp($m, 'our', GLOBAL::undef(), GLOBAL::undef(), $vd->[0], GLOBAL::undef(), $vd->[2], '=', $vd->[1])})});
+(do{{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope = 'our';
+irbuild_ir($m->{'hash'}->{'scoped'})})});
 $main::irbuilder->add_constructor('scoped', sub {my($m)=@_;
-(do{[irbuild_ir($m->{'hash'}->{'variable_decl'}), irbuild_ir($m->{'hash'}->{'fulltypename'})]})});
+(do{{package main; use vars '$es_blackboard__typenames'};local $::es_blackboard__typenames = irbuild_ir($m->{'hash'}->{'fulltypename'});
+((((irbuild_ir($m->{'hash'}->{'variable_decl'}) || irbuild_ir($m->{'hash'}->{'signature'})) || irbuild_ir($m->{'hash'}->{'plurality_declarator'})) || irbuild_ir($m->{'hash'}->{'routine_declarator'})) || irbuild_ir($m->{'hash'}->{'type_declarator'}))})});
 $main::irbuilder->add_constructor('variable_decl', sub {my($m)=@_;
-(do{[irbuild_ir($m->{'hash'}->{'variable'}), irbuild_ir($m->{'hash'}->{'default_value'}), irbuild_ir($m->{'hash'}->{'traits'})]})});
+(do{my $scope = $::es_blackboard__scope;
+{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope;
+my $typenames = $::es_blackboard__typenames;
+{package main; use vars '$es_blackboard__typenames'};local $::es_blackboard__typenames = GLOBAL::undef();
+IRx1::VarDecl->newp($m, $scope, $typenames, GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'variable'}), GLOBAL::undef(), irbuild_ir($m->{'hash'}->{'traits'}), '=', irbuild_ir($m->{'hash'}->{'default_value'}))})});
 $main::irbuilder->add_constructor('variable', sub {my($m)=@_;
 (do{my $tw = irbuild_ir($m->{'hash'}->{'twigil'});
 if($m->{'hash'}->{'postcircumfix'}) {
@@ -2597,7 +2605,9 @@ $main::irbuilder->add_constructor('plurality_declarator:multi', sub {my($m)=@_;
 (do{{package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality = 'multi';
 (irbuild_ir($m->{'hash'}->{'pluralized'}) || irbuild_ir($m->{'hash'}->{'routine_def'}))})});
 $main::irbuilder->add_constructor('routine_declarator:routine_def', sub {my($m)=@_;
-(do{my $plurality = $::es_blackboard__plurality;
+(do{my $scope = $::es_blackboard__scope;
+{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope;
+my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
 my $ident = '';
 if($m->{'hash'}->{'ident'}) {
@@ -2607,9 +2617,11 @@ my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
 if(irbuild_ir($m->{'hash'}->{'multisig'})) {
 (do{($sig = irbuild_ir($m->{'hash'}->{'multisig'})->[0])})
 };
-IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))})});
+IRx1::SubDecl->newp($m, $scope, GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('routine_def', sub {my($m)=@_;
-(do{my $plurality = $::es_blackboard__plurality;
+(do{my $scope = $::es_blackboard__scope;
+{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope;
+my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
 my $ident = '';
 if($m->{'hash'}->{'ident'}) {
@@ -2619,7 +2631,7 @@ my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
 if(irbuild_ir($m->{'hash'}->{'multisig'})) {
 (do{($sig = irbuild_ir($m->{'hash'}->{'multisig'})->[0])})
 };
-IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))})});
+IRx1::SubDecl->newp($m, $scope, GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{'hash'}->{'trait'}), irbuild_ir($m->{'hash'}->{'block'}))})});
 $main::irbuilder->add_constructor('routine_declarator:method_def', sub {my($m)=@_;
 (do{my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
@@ -3106,10 +3118,13 @@ use warnings;
   }
 }
 
-{package UNDEF;}
 {package UNDEF; sub WHAT {"Undef"}}
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
+
+{ package UNDEF;
+  sub perl { "undef" }
+}
 
 { package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
@@ -3890,6 +3905,7 @@ my $dsn = $self->e($n->name());
 my $v = (($s . $t) . $dsn);
 if(((($v eq '$?PACKAGE') || ($v eq '$?MODULE')) || ($v eq '$?CLASS'))) {
 (do{my $pkgname = $::es_whiteboard__in_package->join('::');
+($pkgname = ($pkgname || 'Main'));
 (('\'' . $pkgname) . '\'')})
 }elsif(($v eq '$?FILE')) {
 (do{(('\'' . $self->filename) . '\'')})

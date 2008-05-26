@@ -168,22 +168,26 @@ my $s = $m<text> || $m<quotesnabber><text>;
 Rx.newp($s,$m<quotepair>)
 
 scope_declarator:my
-my $vd = $m<scoped>[0];
-VarDecl.newp('my',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1])
+my $^blackboard::scope = 'my';
+$m<scoped>
 
 scope_declarator:has
-my $vd = $m<scoped>[0];
-VarDecl.newp('has',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1])
+my $^blackboard::scope = 'has';
+$m<scoped>
 
 scope_declarator:our
-my $vd = $m<scoped>[0];
-VarDecl.newp('our',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1])
+my $^blackboard::scope = 'our';
+$m<scoped>
 
 scoped
-[$m<variable_decl>,$m<fulltypename>]
+my $^blackboard::typenames = $m<fulltypename>;
+$m<variable_decl> || $m<signature> || $m<plurality_declarator> || $m<routine_declarator>  || $m<type_declarator>
 
 variable_decl
-[$m<variable>,$m<default_value>,$m<traits>]
+my $scope = $^blackboard::scope; my $^blackboard::scope;
+my $typenames = $^blackboard::typenames; my $^blackboard::typenames = undef;
+VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<traits>,'=',$m<default_value>)
+
 
 variable
 my $tw = $m<twigil>;
@@ -321,22 +325,24 @@ my $^blackboard::plurality = 'multi';
 $m<pluralized> || $m<routine_def>
 
 routine_declarator:routine_def
+my $scope = $^blackboard::scope; my $^blackboard::scope;
 my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
 if $o<ident> { $ident = $m<ident>  };
 my $sig = Signature.newp([],undef);
 if $m<multisig> { $sig = $m<multisig>.[0] };
-SubDecl.newp(undef,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
+SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
 
 # routine_def is the same as routine_declarator:routine_def
 # This is a workaround for STD.pm not recognizing  multi f(){} .
 routine_def
+my $scope = $^blackboard::scope; my $^blackboard::scope;
 my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
 if $o<ident> { $ident = $m<ident>  };
 my $sig = Signature.newp([],undef);
 if $m<multisig> { $sig = $m<multisig>.[0] };
-SubDecl.newp(undef,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
+SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
 
 routine_declarator:method_def
 my $plurality = $^blackboard::plurality; my $^blackboard::plurality;

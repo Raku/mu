@@ -73,10 +73,13 @@ use warnings;
   }
 }
 
-{package UNDEF;}
 {package UNDEF; sub WHAT {"Undef"}}
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
+
+{ package UNDEF;
+  sub perl { "undef" }
+}
 
 { package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
@@ -827,6 +830,7 @@ package Main;
     my $v = $s~$t~$dsn;
     if $v eq '$?PACKAGE' || $v eq '$?MODULE' || $v eq '$?CLASS' {
       my $pkgname = $^whiteboard::in_package.join('::'); # XXX should use $n notes instead.
+      $pkgname = $pkgname || 'Main';
       "'"~$pkgname~"'"
     } elsif $v eq '$?FILE' {
       "'"~$.filename~"'"

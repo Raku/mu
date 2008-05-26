@@ -247,26 +247,29 @@ IRx1::Rx.newp($m,$s,irbuild_ir($m.{'hash'}{'quotepair'}));
     });
 
     $main::irbuilder.add_constructor('scope_declarator:my', sub ($m) {
-      my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
-IRx1::VarDecl.newp($m,'my',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1]);
+      my $^blackboard::scope = 'my';
+irbuild_ir($m.{'hash'}{'scoped'});
     });
 
     $main::irbuilder.add_constructor('scope_declarator:has', sub ($m) {
-      my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
-IRx1::VarDecl.newp($m,'has',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1]);
+      my $^blackboard::scope = 'has';
+irbuild_ir($m.{'hash'}{'scoped'});
     });
 
     $main::irbuilder.add_constructor('scope_declarator:our', sub ($m) {
-      my $vd = irbuild_ir($m.{'hash'}{'scoped'})[0];
-IRx1::VarDecl.newp($m,'our',undef,undef,$vd.[0],undef,$vd.[2],'=',$vd.[1]);
+      my $^blackboard::scope = 'our';
+irbuild_ir($m.{'hash'}{'scoped'});
     });
 
     $main::irbuilder.add_constructor('scoped', sub ($m) {
-      [irbuild_ir($m.{'hash'}{'variable_decl'}),irbuild_ir($m.{'hash'}{'fulltypename'})];
+      my $^blackboard::typenames = irbuild_ir($m.{'hash'}{'fulltypename'});
+irbuild_ir($m.{'hash'}{'variable_decl'}) || irbuild_ir($m.{'hash'}{'signature'}) || irbuild_ir($m.{'hash'}{'plurality_declarator'}) || irbuild_ir($m.{'hash'}{'routine_declarator'})  || irbuild_ir($m.{'hash'}{'type_declarator'});
     });
 
     $main::irbuilder.add_constructor('variable_decl', sub ($m) {
-      [irbuild_ir($m.{'hash'}{'variable'}),irbuild_ir($m.{'hash'}{'default_value'}),irbuild_ir($m.{'hash'}{'traits'})];
+      my $scope = $^blackboard::scope; my $^blackboard::scope;
+my $typenames = $^blackboard::typenames; my $^blackboard::typenames = undef;
+IRx1::VarDecl.newp($m,$scope,$typenames,undef,irbuild_ir($m.{'hash'}{'variable'}),undef,irbuild_ir($m.{'hash'}{'traits'}),'=',irbuild_ir($m.{'hash'}{'default_value'}));
     });
 
     $main::irbuilder.add_constructor('variable', sub ($m) {
@@ -443,21 +446,23 @@ irbuild_ir($m.{'hash'}{'pluralized'}) || irbuild_ir($m.{'hash'}{'routine_def'});
     });
 
     $main::irbuilder.add_constructor('routine_declarator:routine_def', sub ($m) {
-      my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+      my $scope = $^blackboard::scope; my $^blackboard::scope;
+my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
 if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
 my $sig = IRx1::Signature.newp($m,[],undef);
 if irbuild_ir($m.{'hash'}{'multisig'}) { $sig = irbuild_ir($m.{'hash'}{'multisig'}).[0] };
-IRx1::SubDecl.newp($m,undef,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
+IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
     });
 
     $main::irbuilder.add_constructor('routine_def', sub ($m) {
-      my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+      my $scope = $^blackboard::scope; my $^blackboard::scope;
+my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
 my $ident = "";
 if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
 my $sig = IRx1::Signature.newp($m,[],undef);
 if irbuild_ir($m.{'hash'}{'multisig'}) { $sig = irbuild_ir($m.{'hash'}{'multisig'}).[0] };
-IRx1::SubDecl.newp($m,undef,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
+IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
     });
 
     $main::irbuilder.add_constructor('routine_declarator:method_def', sub ($m) {
