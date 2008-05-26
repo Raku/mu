@@ -847,7 +847,7 @@ package Main;
     } elsif $v eq '$?LINE' {
       '0' # XXX $n notes needs to provide this.
     } elsif $v eq '$?PERLVER' {
-      "'elf / "~ primitive_runtime_version() ~"'"
+      "'elf / "~ primitive_runtime_version() ~ " / " ~ $.WHAT ~"'"
     } else {
       $.encode_varname($s,$t,$dsn);
     }

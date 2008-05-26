@@ -4276,7 +4276,7 @@ if(((($v eq '$?PACKAGE') || ($v eq '$?MODULE')) || ($v eq '$?CLASS'))) {
 }elsif(($v eq '$?LINE')) {
 (do{'0'})
 }elsif(($v eq '$?PERLVER')) {
-(do{(('\'elf / ' . GLOBAL::primitive_runtime_version()) . '\'')})
+(do{(((('\'elf / ' . GLOBAL::primitive_runtime_version()) . ' / ') . $self->WHAT) . '\'')})
 }else {
 (do{$self->encode_varname($s, $t, $dsn)})
 }})};
