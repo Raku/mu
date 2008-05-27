@@ -301,6 +301,7 @@ use warnings;
   sub unlink{CORE::unlink(@_)}
   sub sprintf{CORE::sprintf(shift,@_)}
   sub print { CORE::print @_ }
+  sub quotemeta { CORE::quotemeta($_[0]) }
 }
 
 { package STRING;
@@ -512,6 +513,7 @@ package Main;
         if ($n.var.sigil eq '%') { $default = ' = {};' }
       }
       if ($n.var.twigil eq '^') {
+        # HACK 
         my $name = $.e($n.var);
         $name.re_sub_g('^(.)::','$1');
         ("{package main; use vars '"~$name~"'};"~
@@ -863,9 +865,7 @@ package Main;
     '{'~$.e($n.hash||[]).join(",")~'}'
   };
   method cb__Buf ($n) {
-    my $s = eval_perl5('sub{local $Data::Dumper::Terse = 1; Data::Dumper::Dumper($_[0])}').($n.buf);
-    $s.chomp;
-    $s;
+    '"' ~ quotemeta($n.buf) ~ '"';
   };
   method cb__Rx ($n) {
     my $pat = $n.pat || '';

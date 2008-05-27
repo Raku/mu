@@ -19,14 +19,7 @@ class Any {
   method perl() { self.WHAT ~ '.new(!!!)' }
 }
 class STRING {
-  method perl() is p5 {'
-    no warnings "once";
-    local $Data::Dumper::Pure = 1;
-    local $Data::Dumper::Terse = 1;
-    my $s = Data::Dumper::Dumper($self);
-    CORE::chomp($s);
-    $s;'
-  }
+  method perl() is p5 {'q{"} . CORE::quotemeta($self) . q{"}'}
 }
 class INTEGER {
   method perl() { ''~self }

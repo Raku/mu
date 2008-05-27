@@ -57,7 +57,6 @@ class Compiler {
       }
       if $verbose { say $tree.match_describe; }
       my $ir = $tree.make_ir_from_Match_tree();
-      if $verbose { say $ir.irx1_describe; }
       if $verbose { say $*emitter1.tidy(dump_IRx1($ir)) }
 
       my $p5;
