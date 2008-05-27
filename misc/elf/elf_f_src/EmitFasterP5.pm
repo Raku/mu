@@ -4,14 +4,15 @@ class EmitFasterP5 is EmitSimpleP5 {
   method prelude_oo () {
     '
 {package Object;
+    our %DEFAULTS;
     sub new {
         my $self = shift;
         my $class = ref $self || $self;
-        if (ref $_[0] eq "HASH") {
-            bless {%{$_[0]}}, $class;
-        } else {
-            bless {@_}, $class;
+        my $obj = bless {@_}, $class;
+        for (keys %{$DEFAULTS{$class}}) {
+            $obj->{$_} = $DEFAULTS{$class}{$_}->() unless $obj->{$_};
         }
+        $obj;
     }
 }
 ';
@@ -31,10 +32,15 @@ class EmitFasterP5 is EmitSimpleP5 {
   method using_Moose() {
       0;
   }
-  method do_VarDecl_has ($n) {
-      "sub " ~ $.e($n.var.name) ~ ": lvalue {\n" ~
-      '     $_[0]{' ~ "'" ~ $.e($n.var.name) ~ "'};\n" ~
+  method do_VarDecl_has ($n,$default) {
+      my $name = $.e($n.var.name);
+      my $code = "sub " ~ $name ~ ": lvalue {\n" ~
+      '     $_[0]{' ~ "'" ~ $name ~ "'};\n" ~
       "}\n";
+      if $default {
+          $code = $code ~ '$Object::DEFAULTS{'~$^whiteboard::in_package.join('::')~"}{'"~ $name ~ "'} = sub {"~$default~'};';
+      }
+      $code;
   };
 
 };

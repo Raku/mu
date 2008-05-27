@@ -472,14 +472,9 @@ package Main;
     }
   };
 
-  method do_VarDecl_has ($n) {
-      my $default = "";
-      my $default_expr = $.e($n.default_expr);
-      if $default_expr {
-        $default = ", default => sub{ "~$default_expr~" }"
-      } else {
-        if ($n.var.sigil eq '@') { $default = ', default => sub{ [] }' }
-        if ($n.var.sigil eq '%') { $default = ', default => sub{ {} }' }
+  method do_VarDecl_has ($n,$default) {
+      if ($default) {
+          $default = ", default => sub{ "~$default~" }"
       }
       "has '"~$.e($n.var.name)~"' => (is => 'rw'"~$default~");"
   };
@@ -487,7 +482,15 @@ package Main;
   method cb__VarDecl ($n) {
     my $^whiteboard::emit_pairs_inline = 0;
     if ($n.scope eq 'has') {
-      self.do_VarDecl_has($n);
+      my $default = "";
+      my $default_expr = $.e($n.default_expr);
+      if $default_expr {
+        $default = $default_expr;
+      } else {
+        if ($n.var.sigil eq '@') { $default = '[]' }
+        if ($n.var.sigil eq '%') { $default = '{}' }
+      }
+      self.do_VarDecl_has($n,$default);
     } else {
       my $default = "";
       if $n.default_expr {

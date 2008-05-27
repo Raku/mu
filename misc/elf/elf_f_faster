@@ -12,14 +12,15 @@ use warnings;
 }
 
 {package Object;
+    our %DEFAULTS;
     sub new {
         my $self = shift;
         my $class = ref $self || $self;
-        if (ref $_[0] eq "HASH") {
-            bless {%{$_[0]}}, $class;
-        } else {
-            bless {@_}, $class;
+        my $obj = bless {@_}, $class;
+        for (keys %{$DEFAULTS{$class}}) {
+            $obj->{$_} = $DEFAULTS{$class}{$_}->() unless $obj->{$_};
         }
+        $obj;
     }
 }
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
@@ -725,8 +726,7 @@ sub hash: lvalue {
 }
 ;
 sub make_from_rsfth{my $self=CORE::shift;my($r,$s,$f,$t,$h)=@_;
-(do{my $init = {'rule', $r, 'match_str', $s, 'from', $f, 'to', $t, 'hash', $h};
-$self->new($init)})};
+(do{$self->new('rule', $r, 'match_str', $s, 'from', $f, 'to', $t, 'hash', $h)})};
 sub match_describe{my $self=CORE::shift;(do{my $s = ((((((($self->rule . '<') . $self->from) . ',') . $self->to) . ',\'') . $self->match_str) . '\',{');
 for($self->hash->keys()->flatten){
 (do{my $k = $_;
@@ -3879,24 +3879,27 @@ $name->re_gsub('^::', '');
 '));
 '***Trait***'})
 }})};
-sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
-(do{my $default = '';
-my $default_expr = $self->e($n->default_expr());
-if($default_expr) {
-(do{($default = ((', default => sub{ ' . $default_expr) . ' }'))})
-}else {
-(do{if((($n->var()->sigil() eq '@'))) {
-(do{($default = ', default => sub{ [] }')})
-};
-if((($n->var()->sigil() eq '%'))) {
-(do{($default = ', default => sub{ {} }')})
-}})
+sub do_VarDecl_has{my $self=CORE::shift;my($n,$default)=@_;
+(do{if(($default)) {
+(do{($default = ((', default => sub{ ' . $default) . ' }'))})
 };
 (((('has \'' . $self->e($n->var()->name())) . '\' => (is => \'rw\'') . $default) . ');')})};
 sub cb__VarDecl{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
 if((($n->scope() eq 'has'))) {
-(do{$self->do_VarDecl_has($n)})
+(do{my $default = '';
+my $default_expr = $self->e($n->default_expr());
+if($default_expr) {
+(do{($default = $default_expr)})
+}else {
+(do{if((($n->var()->sigil() eq '@'))) {
+(do{($default = '[]')})
+};
+if((($n->var()->sigil() eq '%'))) {
+(do{($default = '{}')})
+}})
+};
+$self->do_VarDecl_has($n, $default)})
 }else {
 (do{my $default = '';
 if($n->default_expr()) {
@@ -4314,14 +4317,15 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 use base "Any";BEGIN{push(@EmitFasterP5::ISA,'::EmitSimpleP5');}
 (do{sub prelude_oo{my $self=CORE::shift;(do{'
 {package Object;
+    our %DEFAULTS;
     sub new {
         my $self = shift;
         my $class = ref $self || $self;
-        if (ref $_[0] eq "HASH") {
-            bless {%{$_[0]}}, $class;
-        } else {
-            bless {@_}, $class;
+        my $obj = bless {@_}, $class;
+        for (keys %{$DEFAULTS{$class}}) {
+            $obj->{$_} = $DEFAULTS{$class}{$_}->() unless $obj->{$_};
         }
+        $obj;
     }
 }
 '})};
@@ -4337,11 +4341,16 @@ my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join('::') . '::') .
 '***Trait***'})
 }})};
 sub using_Moose{my $self=CORE::shift;(do{0})};
-sub do_VarDecl_has{my $self=CORE::shift;my($n)=@_;
-(do{((((((('sub ' . $self->e($n->var()->name())) . ': lvalue {
-') . '     $_[0]{') . '\'') . $self->e($n->var()->name())) . '\'};
+sub do_VarDecl_has{my $self=CORE::shift;my($n,$default)=@_;
+(do{my $name = $self->e($n->var()->name());
+my $code = ((((((('sub ' . $name) . ': lvalue {
+') . '     $_[0]{') . '\'') . $name) . '\'};
 ') . '}
-')})}})
+');
+if($default) {
+(do{($code = ((((((($code . '$Object::DEFAULTS{') . $::es_whiteboard__in_package->join('::')) . '}{\'') . $name) . '\'} = sub {') . $default) . '};'))})
+};
+$code})}})
 }
 ;
 ($GLOBAL::emitter0 = EmitFasterP5->new());
@@ -4523,7 +4532,7 @@ $p5})
 sub todo: lvalue {
      $_[0]{'todo'};
 }
-;
+$Object::DEFAULTS{Compiler}{'todo'} = sub {[]};;
 sub compile_executable{my $self=CORE::shift;my($sources,$output_file)=@_;
 (do{($self->todo = []);
 my $p5 = ($self->prelude() . '

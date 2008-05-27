@@ -7,8 +7,7 @@ class Match {
   has $.bool;
   has $.hash;
   method make_from_rsfth($r,$s,$f,$t,$h) {
-    my $init = { 'rule',$r,'match_str',$s,'from',$f,'to',$t,'hash',$h };
-    self.new($init)
+    self.new('rule',$r,'match_str',$s,'from',$f,'to',$t,'hash',$h);
   };
   method match_describe() {
     my $s = $.rule~"<"~$.from~","~$.to~",'"~$.match_str~"',{";
