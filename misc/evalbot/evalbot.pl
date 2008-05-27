@@ -190,7 +190,7 @@ EOM
     }
 
     sub get_rakudo_revision {
-        my $file = glob ("~/parrot/languages/perl6/rakudo_svn_revision");
+        my $file = '/home/evalenv/parrot/languages/perl6/rakudo_svn_revision';
         open my $f, '<', $file or die "Can't open file '$file': $!";
         my $res = <$file>;
         close $f;
