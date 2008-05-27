@@ -23,11 +23,14 @@ if (!-e $index_file){
 
 $idx->open();
 
-eval {
-    $idx->add({
-            end_rev         => $idx->get_last_indexed_rev + 1,
-            start_rev       => 'HEAD',
-            });
-};
+while (1) {
+    eval {
+        $idx->add({
+                start_rev       => $idx->get_last_indexed_rev + 1,
+                end_rev         => $idx->get_last_indexed_rev + 1,
+                });
+    };
+    last if $@;
+}
 
 # vim: expandtab
