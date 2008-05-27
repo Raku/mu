@@ -70,47 +70,46 @@ no warnings qw(redefine prototype);
 
   # randomness taken from autobox::Core
 
-  sub chomp   ($)   { CORE::chomp($_[0]); }
-  sub chop    ($)   { CORE::chop($_[0]); }
-  sub chr     ($)   { CORE::chr($_[0]); }
-  sub crypt   ($$)  { CORE::crypt($_[0], $_[1]); }
-  sub index   ($@)  { CORE::index($_[0], $_[1], @_[2.. $#_]); }
-  sub lc      ($)   { CORE::lc($_[0]); }
-  sub lcfirst ($)   { CORE::lcfirst($_[0]); }
-  sub length  ($)   { CORE::length($_[0]); }
-  sub ord     ($)   { CORE::ord($_[0]); }
-  sub pack    ($;@) { CORE::pack(@_); }
-  sub reverse ($)   { CORE::reverse($_[0]); }
-  sub rindex  ($@)  { CORE::rindex($_[0], $_[1], @_[2.. $#_]); }
-  sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
-  sub substr  ($@)  { CORE::substr($_[0], $_[1], @_[2 .. $#_]); }
-  sub uc      ($)   { CORE::uc($_[0]); }
-  sub ucfirst ($)   { CORE::ucfirst($_[0]); }
-  sub unpack  ($;@) { CORE::unpack($_[0], @_[1..$#_]); }
-  sub quotemeta ($) { CORE::quotemeta($_[0]); }
-  sub vec     ($$$) { CORE::vec($_[0], $_[1], $_[2]); }
-  sub undef   ($)   { $_[0] = undef }
-  sub m       ($$)  { [ $_[0] =~ m{$_[1]} ] }
-  sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
-  sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
-  sub split   ($$)  { [ split $_[1], $_[0] ] }
+  sub chomp    { CORE::chomp($_[0]); }
+  sub chop     { CORE::chop($_[0]); }
+  sub chr      { CORE::chr($_[0]); }
+  sub crypt    { CORE::crypt($_[0], $_[1]); }
+  sub index    { CORE::index($_[0], $_[1], @_[2.. $#_]); }
+  sub lc       { CORE::lc($_[0]); }
+  sub lcfirst  { CORE::lcfirst($_[0]); }
+  sub length   { CORE::length($_[0]); }
+  sub ord      { CORE::ord($_[0]); }
+  sub pack     { CORE::pack(@_); }
+  sub reverse  { CORE::reverse($_[0]); }
+  sub rindex   { CORE::rindex($_[0], $_[1], @_[2.. $#_]); }
+  sub sprintf  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
+  sub substr   { CORE::substr($_[0], $_[1], @_[2 .. $#_]); }
+  sub uc       { CORE::uc($_[0]); }
+  sub ucfirst  { CORE::ucfirst($_[0]); }
+  sub unpack   { CORE::unpack($_[0], @_[1..$#_]); }
+  sub quotemet { CORE::quotemeta($_[0]); }
+  sub undef    { $_[0] = undef }
+  sub m        { [ $_[0] =~ m{$_[1]} ] }
+  sub nm        { [ $_[0] !~ m{$_[1]} ] }
+  sub s        { $_[0] =~ s{$_[1]}{$_[2]} }
+  sub split    { [ split $_[1], $_[0] ] }
 
   sub primitive_Num { no warnings "numeric"; 0+$_[0] }
 }
 
 { package FLOAT_and_INTEGER;
   use base "Num";
-  sub abs     ($)  { CORE::abs($_[0]) }
-  sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
-  sub cos     ($)  { CORE::cos($_[0]) }
-  sub exp     ($)  { CORE::exp($_[0]) }
-  sub int     ($)  { CORE::int($_[0]) }
-  sub log     ($)  { CORE::log($_[0]) }
-  sub oct     ($)  { CORE::oct($_[0]) }
-  sub hex     ($)  { CORE::hex($_[0]); }
-  sub rand    ($)  { CORE::rand($_[0]) }
-  sub sin     ($)  { CORE::sin($_[0]) }
-  sub sqrt    ($)  { CORE::sqrt($_[0]) }
+  sub abs   { CORE::abs($_[0]) }
+  sub atan2 { CORE::atan2($_[0], $_[1]) }
+  sub cos   { CORE::cos($_[0]) }
+  sub exp   { CORE::exp($_[0]) }
+  sub int   { CORE::int($_[0]) }
+  sub log   { CORE::log($_[0]) }
+  sub oct   { CORE::oct($_[0]) }
+  sub hex   { CORE::hex($_[0]); }
+  sub rand  { CORE::rand($_[0]) }
+  sub sin   { CORE::sin($_[0]) }
+  sub sqrt  { CORE::sqrt($_[0]) }
 
 }
 { package FLOAT;
@@ -135,7 +134,7 @@ no warnings qw(redefine prototype);
   sub elems { my $a = CORE::shift; CORE::scalar @$a }
   sub delete { my $a = CORE::shift; @_ ? CORE::delete($a->[$_[0]]) : undef }
   sub exists { my $a = CORE::shift; @_ ? CORE::exists($a->[$_[0]]) : undef }
-  sub pop (\@) { CORE::pop @{$_[0]}; }
+  sub pop   { CORE::pop @{$_[0]}; }
   sub shift { my $a = CORE::shift; CORE::shift(@$a) }
   sub push { my $a = CORE::shift; CORE::push(@$a,@_); $a }
   sub unshift { my $a = CORE::shift; CORE::unshift(@$a,@_) }
@@ -156,26 +155,17 @@ no warnings qw(redefine prototype);
 
   # Non-spec
 
-  sub grep (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::grep { $sub->($_) } @$arr ]; }
-  sub join (\@$) { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
-  sub map (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::map { $sub->($_) } @$arr ]; }
-  sub reverse (\@) { [ CORE::reverse @{$_[0]} ] }
-  sub sort (\@;&) { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a cmp $b }; [ CORE::sort { $sub->($a, $b) } @$arr ]; }
-  sub max(\@) { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
-  sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
-
-  sub each (\@$) {
-    my $arr = CORE::shift; my $sub = CORE::shift;
-    foreach my $i (@$arr) {$sub->($i);}
-  }
-  sub each_with_index (\@$) {
-    my $arr = CORE::shift; my $sub = CORE::shift;
-    for(my $i = 0; $i < $#$arr; $i++) {$sub->($i, $arr->[$i]);}
-  }
+  sub grep  { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::grep { $sub->($_) } @$arr ]; }
+  sub join  { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
+  sub map  { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::map { $sub->($_) } @$arr ]; }
+  sub reverse  { [ CORE::reverse @{$_[0]} ] }
+  sub sort  { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a cmp $b }; [ CORE::sort { $sub->($a, $b) } @$arr ]; }
+  sub max { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
+  sub min { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
 
   # Internal
 
-  sub flatten (\@) { ( @{$_[0]} ) }
+  sub flatten  { ( @{$_[0]} ) }
   sub flatten_recursively {
     map { my $ref = ref($_); ($ref && $ref eq "ARRAY") ? $_->flatten_recursively : $_ } @{$_[0]}
   }
@@ -186,12 +176,12 @@ no warnings qw(redefine prototype);
 
   # randomness taken from autobox::Core
 
-  sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
-  sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
-  sub keys (\%) { [ CORE::keys %{$_[0]} ] }
-  sub values (\%) { [ CORE::values %{$_[0]} ] }
+  sub delete  { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
+  sub exists  { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
+  sub keys  { [ CORE::keys %{$_[0]} ] }
+  sub values  { [ CORE::values %{$_[0]} ] }
 
-  sub each (\%$) {
+  sub each  {
     my $hash = CORE::shift;
     my $cb = CORE::shift;
     while((my $k, my $v) = CORE::each(%$hash)) {
@@ -3490,47 +3480,46 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \
 \ \ \#\ randomness\ taken\ from\ autobox\:\:Core\
 \
-\ \ sub\ chomp\ \ \ \(\$\)\ \ \ \{\ CORE\:\:chomp\(\$_\[0\]\)\;\ \}\
-\ \ sub\ chop\ \ \ \ \(\$\)\ \ \ \{\ CORE\:\:chop\(\$_\[0\]\)\;\ \}\
-\ \ sub\ chr\ \ \ \ \ \(\$\)\ \ \ \{\ CORE\:\:chr\(\$_\[0\]\)\;\ \}\
-\ \ sub\ crypt\ \ \ \(\$\$\)\ \ \{\ CORE\:\:crypt\(\$_\[0\]\,\ \$_\[1\]\)\;\ \}\
-\ \ sub\ index\ \ \ \(\$\@\)\ \ \{\ CORE\:\:index\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\.\.\ \$\#_\]\)\;\ \}\
-\ \ sub\ lc\ \ \ \ \ \ \(\$\)\ \ \ \{\ CORE\:\:lc\(\$_\[0\]\)\;\ \}\
-\ \ sub\ lcfirst\ \(\$\)\ \ \ \{\ CORE\:\:lcfirst\(\$_\[0\]\)\;\ \}\
-\ \ sub\ length\ \ \(\$\)\ \ \ \{\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
-\ \ sub\ ord\ \ \ \ \ \(\$\)\ \ \ \{\ CORE\:\:ord\(\$_\[0\]\)\;\ \}\
-\ \ sub\ pack\ \ \ \ \(\$\;\@\)\ \{\ CORE\:\:pack\(\@_\)\;\ \}\
-\ \ sub\ reverse\ \(\$\)\ \ \ \{\ CORE\:\:reverse\(\$_\[0\]\)\;\ \}\
-\ \ sub\ rindex\ \ \(\$\@\)\ \ \{\ CORE\:\:rindex\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\.\.\ \$\#_\]\)\;\ \}\
-\ \ sub\ sprintf\ \(\$\@\)\ \ \{\ CORE\:\:sprintf\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\.\.\ \$\#_\]\)\;\ \}\
-\ \ sub\ substr\ \ \(\$\@\)\ \ \{\ CORE\:\:substr\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\ \.\.\ \$\#_\]\)\;\ \}\
-\ \ sub\ uc\ \ \ \ \ \ \(\$\)\ \ \ \{\ CORE\:\:uc\(\$_\[0\]\)\;\ \}\
-\ \ sub\ ucfirst\ \(\$\)\ \ \ \{\ CORE\:\:ucfirst\(\$_\[0\]\)\;\ \}\
-\ \ sub\ unpack\ \ \(\$\;\@\)\ \{\ CORE\:\:unpack\(\$_\[0\]\,\ \@_\[1\.\.\$\#_\]\)\;\ \}\
-\ \ sub\ quotemeta\ \(\$\)\ \{\ CORE\:\:quotemeta\(\$_\[0\]\)\;\ \}\
-\ \ sub\ vec\ \ \ \ \ \(\$\$\$\)\ \{\ CORE\:\:vec\(\$_\[0\]\,\ \$_\[1\]\,\ \$_\[2\]\)\;\ \}\
-\ \ sub\ undef\ \ \ \(\$\)\ \ \ \{\ \$_\[0\]\ \=\ undef\ \}\
-\ \ sub\ m\ \ \ \ \ \ \ \(\$\$\)\ \ \{\ \[\ \$_\[0\]\ \=\~\ m\{\$_\[1\]\}\ \]\ \}\
-\ \ sub\ nm\ \ \ \ \ \ \ \(\$\$\)\ \ \{\ \[\ \$_\[0\]\ \!\~\ m\{\$_\[1\]\}\ \]\ \}\
-\ \ sub\ s\ \ \ \ \ \ \ \(\$\$\$\)\ \{\ \$_\[0\]\ \=\~\ s\{\$_\[1\]\}\{\$_\[2\]\}\ \}\
-\ \ sub\ split\ \ \ \(\$\$\)\ \ \{\ \[\ split\ \$_\[1\]\,\ \$_\[0\]\ \]\ \}\
+\ \ sub\ chomp\ \ \ \ \{\ CORE\:\:chomp\(\$_\[0\]\)\;\ \}\
+\ \ sub\ chop\ \ \ \ \ \{\ CORE\:\:chop\(\$_\[0\]\)\;\ \}\
+\ \ sub\ chr\ \ \ \ \ \ \{\ CORE\:\:chr\(\$_\[0\]\)\;\ \}\
+\ \ sub\ crypt\ \ \ \ \{\ CORE\:\:crypt\(\$_\[0\]\,\ \$_\[1\]\)\;\ \}\
+\ \ sub\ index\ \ \ \ \{\ CORE\:\:index\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\.\.\ \$\#_\]\)\;\ \}\
+\ \ sub\ lc\ \ \ \ \ \ \ \{\ CORE\:\:lc\(\$_\[0\]\)\;\ \}\
+\ \ sub\ lcfirst\ \ \{\ CORE\:\:lcfirst\(\$_\[0\]\)\;\ \}\
+\ \ sub\ length\ \ \ \{\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
+\ \ sub\ ord\ \ \ \ \ \ \{\ CORE\:\:ord\(\$_\[0\]\)\;\ \}\
+\ \ sub\ pack\ \ \ \ \ \{\ CORE\:\:pack\(\@_\)\;\ \}\
+\ \ sub\ reverse\ \ \{\ CORE\:\:reverse\(\$_\[0\]\)\;\ \}\
+\ \ sub\ rindex\ \ \ \{\ CORE\:\:rindex\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\.\.\ \$\#_\]\)\;\ \}\
+\ \ sub\ sprintf\ \ \{\ CORE\:\:sprintf\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\.\.\ \$\#_\]\)\;\ \}\
+\ \ sub\ substr\ \ \ \{\ CORE\:\:substr\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\ \.\.\ \$\#_\]\)\;\ \}\
+\ \ sub\ uc\ \ \ \ \ \ \ \{\ CORE\:\:uc\(\$_\[0\]\)\;\ \}\
+\ \ sub\ ucfirst\ \ \{\ CORE\:\:ucfirst\(\$_\[0\]\)\;\ \}\
+\ \ sub\ unpack\ \ \ \{\ CORE\:\:unpack\(\$_\[0\]\,\ \@_\[1\.\.\$\#_\]\)\;\ \}\
+\ \ sub\ quotemet\ \{\ CORE\:\:quotemeta\(\$_\[0\]\)\;\ \}\
+\ \ sub\ undef\ \ \ \ \{\ \$_\[0\]\ \=\ undef\ \}\
+\ \ sub\ m\ \ \ \ \ \ \ \ \{\ \[\ \$_\[0\]\ \=\~\ m\{\$_\[1\]\}\ \]\ \}\
+\ \ sub\ nm\ \ \ \ \ \ \ \ \{\ \[\ \$_\[0\]\ \!\~\ m\{\$_\[1\]\}\ \]\ \}\
+\ \ sub\ s\ \ \ \ \ \ \ \ \{\ \$_\[0\]\ \=\~\ s\{\$_\[1\]\}\{\$_\[2\]\}\ \}\
+\ \ sub\ split\ \ \ \ \{\ \[\ split\ \$_\[1\]\,\ \$_\[0\]\ \]\ \}\
 \
 \ \ sub\ primitive_Num\ \{\ no\ warnings\ \"numeric\"\;\ 0\+\$_\[0\]\ \}\
 \}\
 \
 \{\ package\ FLOAT_and_INTEGER\;\
 \ \ use\ base\ \"Num\"\;\
-\ \ sub\ abs\ \ \ \ \ \(\$\)\ \ \{\ CORE\:\:abs\(\$_\[0\]\)\ \}\
-\ \ sub\ atan2\ \ \ \(\$\)\ \ \{\ CORE\:\:atan2\(\$_\[0\]\,\ \$_\[1\]\)\ \}\
-\ \ sub\ cos\ \ \ \ \ \(\$\)\ \ \{\ CORE\:\:cos\(\$_\[0\]\)\ \}\
-\ \ sub\ exp\ \ \ \ \ \(\$\)\ \ \{\ CORE\:\:exp\(\$_\[0\]\)\ \}\
-\ \ sub\ int\ \ \ \ \ \(\$\)\ \ \{\ CORE\:\:int\(\$_\[0\]\)\ \}\
-\ \ sub\ log\ \ \ \ \ \(\$\)\ \ \{\ CORE\:\:log\(\$_\[0\]\)\ \}\
-\ \ sub\ oct\ \ \ \ \ \(\$\)\ \ \{\ CORE\:\:oct\(\$_\[0\]\)\ \}\
-\ \ sub\ hex\ \ \ \ \ \(\$\)\ \ \{\ CORE\:\:hex\(\$_\[0\]\)\;\ \}\
-\ \ sub\ rand\ \ \ \ \(\$\)\ \ \{\ CORE\:\:rand\(\$_\[0\]\)\ \}\
-\ \ sub\ sin\ \ \ \ \ \(\$\)\ \ \{\ CORE\:\:sin\(\$_\[0\]\)\ \}\
-\ \ sub\ sqrt\ \ \ \ \(\$\)\ \ \{\ CORE\:\:sqrt\(\$_\[0\]\)\ \}\
+\ \ sub\ abs\ \ \ \{\ CORE\:\:abs\(\$_\[0\]\)\ \}\
+\ \ sub\ atan2\ \{\ CORE\:\:atan2\(\$_\[0\]\,\ \$_\[1\]\)\ \}\
+\ \ sub\ cos\ \ \ \{\ CORE\:\:cos\(\$_\[0\]\)\ \}\
+\ \ sub\ exp\ \ \ \{\ CORE\:\:exp\(\$_\[0\]\)\ \}\
+\ \ sub\ int\ \ \ \{\ CORE\:\:int\(\$_\[0\]\)\ \}\
+\ \ sub\ log\ \ \ \{\ CORE\:\:log\(\$_\[0\]\)\ \}\
+\ \ sub\ oct\ \ \ \{\ CORE\:\:oct\(\$_\[0\]\)\ \}\
+\ \ sub\ hex\ \ \ \{\ CORE\:\:hex\(\$_\[0\]\)\;\ \}\
+\ \ sub\ rand\ \ \{\ CORE\:\:rand\(\$_\[0\]\)\ \}\
+\ \ sub\ sin\ \ \ \{\ CORE\:\:sin\(\$_\[0\]\)\ \}\
+\ \ sub\ sqrt\ \ \{\ CORE\:\:sqrt\(\$_\[0\]\)\ \}\
 \
 \}\
 \{\ package\ FLOAT\;\
@@ -3555,7 +3544,7 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \ \ sub\ elems\ \{\ my\ \$a\ \=\ CORE\:\:shift\;\ CORE\:\:scalar\ \@\$a\ \}\
 \ \ sub\ delete\ \{\ my\ \$a\ \=\ CORE\:\:shift\;\ \@_\ \?\ CORE\:\:delete\(\$a\-\>\[\$_\[0\]\]\)\ \:\ undef\ \}\
 \ \ sub\ exists\ \{\ my\ \$a\ \=\ CORE\:\:shift\;\ \@_\ \?\ CORE\:\:exists\(\$a\-\>\[\$_\[0\]\]\)\ \:\ undef\ \}\
-\ \ sub\ pop\ \(\\\@\)\ \{\ CORE\:\:pop\ \@\{\$_\[0\]\}\;\ \}\
+\ \ sub\ pop\ \ \ \{\ CORE\:\:pop\ \@\{\$_\[0\]\}\;\ \}\
 \ \ sub\ shift\ \{\ my\ \$a\ \=\ CORE\:\:shift\;\ CORE\:\:shift\(\@\$a\)\ \}\
 \ \ sub\ push\ \{\ my\ \$a\ \=\ CORE\:\:shift\;\ CORE\:\:push\(\@\$a\,\@_\)\;\ \$a\ \}\
 \ \ sub\ unshift\ \{\ my\ \$a\ \=\ CORE\:\:shift\;\ CORE\:\:unshift\(\@\$a\,\@_\)\ \}\
@@ -3576,26 +3565,17 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \
 \ \ \#\ Non\-spec\
 \
-\ \ sub\ grep\ \(\\\@\&\)\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sub\ \=\ CORE\:\:shift\;\ \[\ CORE\:\:grep\ \{\ \$sub\-\>\(\$_\)\ \}\ \@\$arr\ \]\;\ \}\
-\ \ sub\ join\ \(\\\@\$\)\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sep\ \=\ CORE\:\:shift\;\ CORE\:\:join\ \$sep\,\ \@\$arr\;\ \}\
-\ \ sub\ map\ \(\\\@\&\)\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sub\ \=\ CORE\:\:shift\;\ \[\ CORE\:\:map\ \{\ \$sub\-\>\(\$_\)\ \}\ \@\$arr\ \]\;\ \}\
-\ \ sub\ reverse\ \(\\\@\)\ \{\ \[\ CORE\:\:reverse\ \@\{\$_\[0\]\}\ \]\ \}\
-\ \ sub\ sort\ \(\\\@\;\&\)\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sub\ \=\ CORE\:\:shift\(\)\ \|\|\ sub\ \{\ \$a\ cmp\ \$b\ \}\;\ \[\ CORE\:\:sort\ \{\ \$sub\-\>\(\$a\,\ \$b\)\ \}\ \@\$arr\ \]\;\ \}\
-\ \ sub\ max\(\\\@\)\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$max\ \=\ \$arr\-\>\[0\]\;\ foreach\ \(\@\$arr\)\ \{\$max\ \=\ \$_\ if\ \$_\ \>\ \$max\ \}\;\ \$max\;\ \}\
-\ \ sub\ min\(\\\@\)\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$min\ \=\ \$arr\-\>\[0\]\;\ foreach\ \(\@\$arr\)\ \{\$min\ \=\ \$_\ if\ \$_\ \<\ \$min\ \}\;\ \$min\;\ \}\
-\
-\ \ sub\ each\ \(\\\@\$\)\ \{\
-\ \ \ \ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sub\ \=\ CORE\:\:shift\;\
-\ \ \ \ foreach\ my\ \$i\ \(\@\$arr\)\ \{\$sub\-\>\(\$i\)\;\}\
-\ \ \}\
-\ \ sub\ each_with_index\ \(\\\@\$\)\ \{\
-\ \ \ \ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sub\ \=\ CORE\:\:shift\;\
-\ \ \ \ for\(my\ \$i\ \=\ 0\;\ \$i\ \<\ \$\#\$arr\;\ \$i\+\+\)\ \{\$sub\-\>\(\$i\,\ \$arr\-\>\[\$i\]\)\;\}\
-\ \ \}\
+\ \ sub\ grep\ \ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sub\ \=\ CORE\:\:shift\;\ \[\ CORE\:\:grep\ \{\ \$sub\-\>\(\$_\)\ \}\ \@\$arr\ \]\;\ \}\
+\ \ sub\ join\ \ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sep\ \=\ CORE\:\:shift\;\ CORE\:\:join\ \$sep\,\ \@\$arr\;\ \}\
+\ \ sub\ map\ \ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sub\ \=\ CORE\:\:shift\;\ \[\ CORE\:\:map\ \{\ \$sub\-\>\(\$_\)\ \}\ \@\$arr\ \]\;\ \}\
+\ \ sub\ reverse\ \ \{\ \[\ CORE\:\:reverse\ \@\{\$_\[0\]\}\ \]\ \}\
+\ \ sub\ sort\ \ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$sub\ \=\ CORE\:\:shift\(\)\ \|\|\ sub\ \{\ \$a\ cmp\ \$b\ \}\;\ \[\ CORE\:\:sort\ \{\ \$sub\-\>\(\$a\,\ \$b\)\ \}\ \@\$arr\ \]\;\ \}\
+\ \ sub\ max\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$max\ \=\ \$arr\-\>\[0\]\;\ foreach\ \(\@\$arr\)\ \{\$max\ \=\ \$_\ if\ \$_\ \>\ \$max\ \}\;\ \$max\;\ \}\
+\ \ sub\ min\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$min\ \=\ \$arr\-\>\[0\]\;\ foreach\ \(\@\$arr\)\ \{\$min\ \=\ \$_\ if\ \$_\ \<\ \$min\ \}\;\ \$min\;\ \}\
 \
 \ \ \#\ Internal\
 \
-\ \ sub\ flatten\ \(\\\@\)\ \{\ \(\ \@\{\$_\[0\]\}\ \)\ \}\
+\ \ sub\ flatten\ \ \{\ \(\ \@\{\$_\[0\]\}\ \)\ \}\
 \ \ sub\ flatten_recursively\ \{\
 \ \ \ \ map\ \{\ my\ \$ref\ \=\ ref\(\$_\)\;\ \(\$ref\ \&\&\ \$ref\ eq\ \"ARRAY\"\)\ \?\ \$_\-\>flatten_recursively\ \:\ \$_\ \}\ \@\{\$_\[0\]\}\
 \ \ \}\
@@ -3606,12 +3586,12 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \
 \ \ \#\ randomness\ taken\ from\ autobox\:\:Core\
 \
-\ \ sub\ delete\ \(\\\%\@\)\ \{\ my\ \$hash\ \=\ CORE\:\:shift\;\ my\ \@res\ \=\ \(\)\;\ CORE\:\:foreach\(\@_\)\ \{\ push\ \@res\,\ CORE\:\:delete\ \$hash\-\>\{\$_\}\;\ \}\ CORE\:\:wantarray\ \?\ \@res\ \:\ \\\@res\ \}\
-\ \ sub\ exists\ \(\\\%\$\)\ \{\ my\ \$hash\ \=\ CORE\:\:shift\;\ CORE\:\:exists\ \$hash\-\>\{\$_\[0\]\}\;\ \}\
-\ \ sub\ keys\ \(\\\%\)\ \{\ \[\ CORE\:\:keys\ \%\{\$_\[0\]\}\ \]\ \}\
-\ \ sub\ values\ \(\\\%\)\ \{\ \[\ CORE\:\:values\ \%\{\$_\[0\]\}\ \]\ \}\
+\ \ sub\ delete\ \ \{\ my\ \$hash\ \=\ CORE\:\:shift\;\ my\ \@res\ \=\ \(\)\;\ CORE\:\:foreach\(\@_\)\ \{\ push\ \@res\,\ CORE\:\:delete\ \$hash\-\>\{\$_\}\;\ \}\ CORE\:\:wantarray\ \?\ \@res\ \:\ \\\@res\ \}\
+\ \ sub\ exists\ \ \{\ my\ \$hash\ \=\ CORE\:\:shift\;\ CORE\:\:exists\ \$hash\-\>\{\$_\[0\]\}\;\ \}\
+\ \ sub\ keys\ \ \{\ \[\ CORE\:\:keys\ \%\{\$_\[0\]\}\ \]\ \}\
+\ \ sub\ values\ \ \{\ \[\ CORE\:\:values\ \%\{\$_\[0\]\}\ \]\ \}\
 \
-\ \ sub\ each\ \(\\\%\$\)\ \{\
+\ \ sub\ each\ \ \{\
 \ \ \ \ my\ \$hash\ \=\ CORE\:\:shift\;\
 \ \ \ \ my\ \$cb\ \=\ CORE\:\:shift\;\
 \ \ \ \ while\(\(my\ \$k\,\ my\ \$v\)\ \=\ CORE\:\:each\(\%\$hash\)\)\ \{\
