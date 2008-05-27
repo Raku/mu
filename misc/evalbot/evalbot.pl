@@ -80,7 +80,14 @@ package Evalbot;
                         EvalbotExecuter::run($str, $executer{rakudo}));
                 my $elf_out  = EvalbotExecuter::run($str, $executer{elf});
 #                my $nqp_out  = EvalbotExecuter::run($str, $executer{nqp});
-                return "kp6: $kp6_out\npugs: $pugs_out\nrakudo: $p6_out\nelf: $elf_out";
+                my $svn_revision = get_revision();
+                my $rakudo_revision = get_rakudo_revision();
+                return <<"EOM";
+kp6 r$svn_revision: $kp6_out
+pugs: $pugs_out
+rakudo r$rakudo_revision: $p6_out
+elf r$svn_revision: $elf_out
+EOM
             } elsif ($eval_name eq 'rakudo' ){
                 return filter_rakudo(EvalbotExecuter::run($str, $e));
             } else {
@@ -180,6 +187,15 @@ package Evalbot;
         } else {
             return "_unknown";
         }
+    }
+
+    sub get_rakudo_revision {
+        my $file = glob ("~/parrot/languages/perl6/rakudo_svn_revision");
+        open my $f, '<', $file or die "Can't open file '$file': $!";
+        my $res = <$file>;
+        close $f;
+        chomp $res;
+        return $res;
     }
 
     sub filter_rakudo {
