@@ -90,7 +90,7 @@ elf r$svn_revision: $elf_out
 EOM
             } elsif ($eval_name eq 'rakudo' ){
                 my $rakudo_rev = get_rakudo_revision();
-                return "rakudo r $rakudo_rev" . filter_rakudo(EvalbotExecuter::run($str, $e));
+                return "rakudo r$rakudo_rev " . filter_rakudo(EvalbotExecuter::run($str, $e));
             } else {
                 return EvalbotExecuter::run($str, $e);
             }
