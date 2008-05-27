@@ -6,8 +6,6 @@ use Test;
 
 This tests the &?ROUTINE magical value
 
-L<S06/The C<&?ROUTINE> object>
-
 =cut
 
 plan 4;

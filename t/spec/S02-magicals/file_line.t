@@ -9,7 +9,7 @@ plan 2;
 is($?LINE, 9, '$?LINE works');
 
 # L<S02/Names/Which file am I in>
-ok($?FILE eq ('t/magicals/file_line.t' | 't\\magicals\\file_line.t'), '$?FILE works');
+ok($?FILE eq ('t/spec/S02-magicals/file_line.t' | 't\\spec\\S02-magicals\\file_line.t'), '$?FILE works');
 
 # NOTE:
 # above is a junction hack for Unix and Win32 file 
