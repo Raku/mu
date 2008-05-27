@@ -71,7 +71,7 @@ package Evalbot;
             my $e = $executer{$eval_name};
             warn "Eval: $str\n";
             if ($eval_name eq 'kp6') {
-                my $rev_string = 'r' . get_revision() . ': ';
+                my $rev_string = 'kp6 r' . get_revision() . ': ';
                 return $rev_string . EvalbotExecuter::run($str, $e);
             } elsif ($eval_name eq 'perl6'){
                 my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
@@ -89,7 +89,8 @@ rakudo r$rakudo_revision: $p6_out
 elf r$svn_revision: $elf_out
 EOM
             } elsif ($eval_name eq 'rakudo' ){
-                return filter_rakudo(EvalbotExecuter::run($str, $e));
+                my $rakudo_rev = get_rakudo_revision();
+                return "rakudo r $rakudo_rev" . filter_rakudo(EvalbotExecuter::run($str, $e));
             } else {
                 return EvalbotExecuter::run($str, $e);
             }
@@ -192,7 +193,7 @@ EOM
     sub get_rakudo_revision {
         my $file = '/home/evalenv/parrot/languages/perl6/rakudo_svn_revision';
         open my $f, '<', $file or die "Can't open file '$file': $!";
-        my $res = <$file>;
+        my $res = <$f>;
         close $f;
         chomp $res;
         return $res;
