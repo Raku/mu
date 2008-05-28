@@ -22,7 +22,7 @@ plan 12;
     is(+@a, 5, "5 elements gathered");
     ok($i, "gather code executed");
     is(@a[0], 1, "first elem taken");
-    is(@a[-1], 5, "last elem taken");
+    is(@a[*-1], 5, "last elem taken");
 };
 
 # Nested gathers, two levels

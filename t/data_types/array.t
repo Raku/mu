@@ -122,7 +122,7 @@ dies_ok  { @array[1] = $*ERR }, "stuffing IO in an Int array does not work", :to
 
 # indexing from the end
 my @array12 = ('a', 'b', 'c', 'e'); 
-is @array12[*-1],'e', "indexing from the end [-1]";
+is @array12[*-1],'e', "indexing from the end [*-1]";
 
 skip_rest "* not yet implemented"; exit;
 
@@ -179,6 +179,7 @@ is ~@b,
   my @arr = <a normal array with nothing funny>;
   my $minus_one = -1;
 
+  # XXX should that even parse? 
   dies_ok { @arr[-1] }, "readonly accessing [-1] of normal array is fatal";
   lives_ok { @arr[ $minus_one ] }, "indirectly accessing [-1] " ~
                                    "through a variable is ok";

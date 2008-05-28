@@ -19,7 +19,7 @@ plan 16;
 {
   my $foo = 42;
 
-  is ($foo, "does_not_matter")[-2], 42,
+  is ($foo, "does_not_matter")[*-2], 42,
     "indexing lists by a negative index works correctly";
 }
 

@@ -48,7 +48,7 @@ plan 12;
 {
     my @array   = <a b c d>;
     my $defined;
-    try { $defined = defined @array[-5]; }
+    try { $defined = defined @array[*-5]; }
 
     ok !$defined,
         'defined @array[$negative_index_out_of_bounds] should be false';
