@@ -1,0 +1,33 @@
+=head1 NAME
+
+Deprecated Syntax
+
+=head1 SYNOPSIS
+
+This document tries summarized common mistakes in the test suite. If you
+help refactoring the suite, or write new tests, read this document first.
+
+=head1 DEPRECATED SYNTAX
+
+=head2 Old POD
+
+Old POD looks like this:
+
+    =head1 heading
+    ...
+    =cut
+
+The new POD looks like this:
+
+    =begin stuff
+    ...
+    =end stuff
+
+All new files, and all below C<t/spec/> should follow the new conventions.
+
+=head2 Array indexes with negative numbers
+
+The Perl 5 style negative array indexes C<@array[-1]> are spelled
+C<@array[*-1]> in Perl 6.
+
+=cut
