@@ -3,14 +3,14 @@ OVERVIEW
 Elf is a p6 compiler.
 
 The currently recommended version is:
-  elf_f
+  elf_f_faster
 
-elf_f --help  for more info.
+elf_f_faster --help  for more info.
 
 It uses perl from your path.  5.10 is recommended - it can have half
 the startup time of 5.8.8.
 
-elf_f_faster is faster, but not always equivalent.
+elf_f slower, but not always equivalent. (it uses Moose)
 
 P6 scripts:
   $ cat say3
