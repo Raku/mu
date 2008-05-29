@@ -11,10 +11,10 @@ statement
 my $labels = $m<label>;
 my $result = $m<expr> || $m<control>;
 if $o<expr> && ($o<mod_loop> || $o<mod_cond>) {
-  my $^blackboard::statement_expr = $result;
+  my $+blackboard::statement_expr = $result;
   $result = $m<mod_loop> || $m<mod_cond>;
   if $o<mod_condloop> {
-    $^blackboard::statement_expr = $result;
+    $+blackboard::statement_expr = $result;
     $result = $m<mod_condloop>;
   }
 }
@@ -45,14 +45,14 @@ fatarrow
 Pair.newp($m<key>,$m<val>)
 
 expect_term
-my $^blackboard::expect_term_base = $m<noun>;
+my $+blackboard::expect_term_base = $m<noun>;
 my $ops = [];
 if $o<pre>  { $ops.push($o<pre>.flatten) };
 if $o<post> { $ops.push($o<post>.flatten) };
 for $ops {
-  $^blackboard::expect_term_base = ir($_)
+  $+blackboard::expect_term_base = ir($_)
 }
-$^blackboard::expect_term_base
+$+blackboard::expect_term_base
 
 term:expect_term
 $m<noun>
@@ -74,7 +74,7 @@ if $o<args> {
 }
 
 dotty:methodop
-Call.newp($^blackboard::expect_term_base,$m<ident>,Capture.newp($m<semilist>||[]))
+Call.newp($+blackboard::expect_term_base,$m<ident>,Capture.newp($m<semilist>||[]))
 
 dotty:postcircumfix
 my $s = *text*;
@@ -82,7 +82,7 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $ident = "postcircumfix:"~$name;
 my $args = $m<kludge_name>;
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-Call.newp($^blackboard::expect_term_base,$ident,Capture.newp($args||[]))
+Call.newp($+blackboard::expect_term_base,$ident,Capture.newp($args||[]))
 
 postcircumfix
 my $s = *text*;
@@ -90,15 +90,15 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $ident = "postcircumfix:"~$name;
 my $args = $m<kludge_name>;
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-Call.newp($^blackboard::expect_term_base,$ident,Capture.newp($args||[]))
+Call.newp($+blackboard::expect_term_base,$ident,Capture.newp($args||[]))
 
 postfix
 my $op = *text*;
-Apply.newp("postfix:"~$op,Capture.newp([$^blackboard::expect_term_base]))
+Apply.newp("postfix:"~$op,Capture.newp([$+blackboard::expect_term_base]))
 
 prefix
 my $op = *text*;
-Apply.newp("prefix:"~$op,Capture.newp([$^blackboard::expect_term_base]))
+Apply.newp("prefix:"~$op,Capture.newp([$+blackboard::expect_term_base]))
 
 infix
 my $op = *text*;
@@ -168,24 +168,24 @@ my $s = $m<text> || $m<quotesnabber><text>;
 Rx.newp($s,$m<quotepair>)
 
 scope_declarator:my
-my $^blackboard::scope = 'my';
+my $+blackboard::scope = 'my';
 $m<scoped>
 
 scope_declarator:has
-my $^blackboard::scope = 'has';
+my $+blackboard::scope = 'has';
 $m<scoped>
 
 scope_declarator:our
-my $^blackboard::scope = 'our';
+my $+blackboard::scope = 'our';
 $m<scoped>
 
 scoped
-my $^blackboard::typenames = $m<fulltypename>;
+my $+blackboard::typenames = $m<fulltypename>;
 $m<variable_decl> || $m<signature> || $m<plurality_declarator> || $m<routine_declarator>  || $m<type_declarator>
 
 variable_decl
-my $scope = $^blackboard::scope; my $^blackboard::scope;
-my $typenames = $^blackboard::typenames; my $^blackboard::typenames = undef;
+my $scope = $+blackboard::scope; my $+blackboard::scope;
+my $typenames = $+blackboard::typenames; my $+blackboard::typenames = undef;
 VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<traits>,'=',$m<default_value>)
 
 
@@ -199,7 +199,7 @@ if $o<postcircumfix> {
     Call.newp($slf,$m<desigilname>,Capture.newp($args||[]))
   } else {
     my $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
-    my $^blackboard::expect_term_base = $v;
+    my $+blackboard::expect_term_base = $v;
     $m<postcircumfix>;
   }
 } else {
@@ -230,13 +230,13 @@ statement_control:for
 For.newp($m<expr>,$m<block>)
 
 statement_mod_loop:for
-For.newp($m<modifier_expr>,$^blackboard::statement_expr)
+For.newp($m<modifier_expr>,$+blackboard::statement_expr)
 
 statement_control:while
 Loop.newp($m<expr>,$m<block>)
 
 statement_mod_loop:while
-Loop.newp($m<modifier_expr>,$^blackboard::statement_expr)
+Loop.newp($m<modifier_expr>,$+blackboard::statement_expr)
 
 statement_control:until
 my $test = Apply.newp("not",Capture.newp([$m<expr>]));
@@ -244,7 +244,7 @@ Loop.newp($test,$m<block>)
 
 statement_mod_loop:until
 my $test = Apply.newp("not",Capture.newp([$m<modifier_expr>]));
-Loop.newp($test,$^blackboard::statement_expr)
+Loop.newp($test,$+blackboard::statement_expr)
 
 statement_control:loop
 my $e1 = $m<loop_eee><loop_e1>;
@@ -266,26 +266,26 @@ if__else
 *1*
 
 statement_mod_cond:if
-Cond.newp([[$m<modifier_expr>,$^blackboard::statement_expr]],undef)
+Cond.newp([[$m<modifier_expr>,$+blackboard::statement_expr]],undef)
 
 statement_control:unless
 Cond.newp([[$m<expr>,$m<block>]],undef,1)
 
 statement_mod_cond:unless
-Cond.newp([[$m<modifier_expr>,$^blackboard::statement_expr]],undef,1)
+Cond.newp([[$m<modifier_expr>,$+blackboard::statement_expr]],undef,1)
 
 
 statement_control:given
 Given.newp($m<expr>,$m<block>)
 
 statement_mod_loop:given
-Given.newp($m<modifier_expr>,$^blackboard::statement_expr)
+Given.newp($m<modifier_expr>,$+blackboard::statement_expr)
 
 statement_control:when
 When.newp($m<expr>,$m<block>)
 
 statement_mod_cond:when
-When.newp($m<modifier_expr>,$^blackboard::statement_expr)
+When.newp($m<modifier_expr>,$+blackboard::statement_expr)
 
 statement_control:default
 When.newp(undef,$m<block>)
@@ -321,12 +321,12 @@ block
 Block.newp($m<statementlist>)
 
 plurality_declarator:multi
-my $^blackboard::plurality = 'multi';
+my $+blackboard::plurality = 'multi';
 $m<pluralized> || $m<routine_def>
 
 routine_declarator:routine_def
-my $scope = $^blackboard::scope; my $^blackboard::scope;
-my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+my $scope = $+blackboard::scope; my $+blackboard::scope;
+my $plurality = $+blackboard::plurality; my $+blackboard::plurality;
 my $ident = "";
 if $o<ident> { $ident = $m<ident>  };
 my $sig = Signature.newp([],undef);
@@ -336,8 +336,8 @@ SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
 # routine_def is the same as routine_declarator:routine_def
 # This is a workaround for STD.pm not recognizing  multi f(){} .
 routine_def
-my $scope = $^blackboard::scope; my $^blackboard::scope;
-my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+my $scope = $+blackboard::scope; my $+blackboard::scope;
+my $plurality = $+blackboard::plurality; my $+blackboard::plurality;
 my $ident = "";
 if $o<ident> { $ident = $m<ident>  };
 my $sig = Signature.newp([],undef);
@@ -345,7 +345,7 @@ if $m<multisig> { $sig = $m<multisig>.[0] };
 SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
 
 routine_declarator:method_def
-my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+my $plurality = $+blackboard::plurality; my $+blackboard::plurality;
 MethodDecl.newp(undef,undef,$plurality,$m<ident>,$m<multisig>.[0],$m<trait>,$m<block>)
 
 signature
@@ -419,23 +419,23 @@ Pair.newp('nth',$m<n>)
 
 
 package_declarator:class
-my $^blackboard::package_declarator = 'class';
+my $+blackboard::package_declarator = 'class';
 $m<package_def>
 
 package_declarator:module
-my $^blackboard::package_declarator = 'module';
+my $+blackboard::package_declarator = 'module';
 $m<package_def>
 
 package_declarator:package
-my $^blackboard::package_declarator = 'package';
+my $+blackboard::package_declarator = 'package';
 $m<package_def>
 
 package_declarator:grammar
-my $^blackboard::package_declarator = 'grammar';
+my $+blackboard::package_declarator = 'grammar';
 $m<package_def>
 
 package_def
-PackageDecl.newp(undef,undef,$^blackboard::package_declarator,$m<module_name>.[0],$m<traits>,$m<block>)
+PackageDecl.newp(undef,undef,$+blackboard::package_declarator,$m<module_name>.[0],$m<traits>,$m<block>)
 
 fulltypename
 $m<typename>.join("::")

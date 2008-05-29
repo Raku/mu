@@ -3909,7 +3909,7 @@ if((($n->var()->sigil() eq "\%"))) {
 (do{($default = "\ \=\ \{\}\;")})
 }})
 };
-if((($n->var()->twigil() eq "\^"))) {
+if((($n->var()->twigil() eq "\+"))) {
 (do{my $name = $self->e($n->var());
 $name->re_sub_g("\^\(\.\)\:\:", "\$1");
 ((((((("\{package\ main\;\ use\ vars\ \'" . $name) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
@@ -4223,7 +4223,7 @@ sub cb__Loop{my $self=CORE::shift;my($n)=@_;
 sub encode_varname{my $self=CORE::shift;my($s,$t,$dsn)=@_;
 (do{my $env = "";
 my $pre = "";
-if(($t eq "\^")) {
+if(($t eq "\+")) {
 (do{($env = "e")})
 };
 if((($s eq "\$") && ($env eq "e"))) {
@@ -4238,7 +4238,7 @@ if(($s eq "\%")) {
 my $name = (($env . $pre) . $dsn);
 if((($t eq "\."))) {
 (do{("\$self\-\>" . $name)})
-}elsif((($t eq "\^"))) {
+}elsif((($t eq "\+"))) {
 (do{$name->re_gsub("\:\:", "__");
 (("\$" . "\:\:") . $name)})
 }elsif((($t eq "\*"))) {

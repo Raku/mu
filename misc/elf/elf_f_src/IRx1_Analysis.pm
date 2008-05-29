@@ -44,14 +44,14 @@ class IRx1::Base {
 
 class IRx1::CompUnit {
   method note_parents() {
-    my $^whiteboard::parent = self;
+    my $+whiteboard::parent = self;
     for self.child_nodes {$_.note_parents}
   };
 };
 class IRx1::Base {
   method note_parents() {
-    self.notes<parent> = $^whiteboard::parent;
-    my $^whiteboard::parent = self;
+    self.notes<parent> = $+whiteboard::parent;
+    my $+whiteboard::parent = self;
     for self.child_nodes {$_.note_parents}
   };
 };
@@ -61,7 +61,7 @@ class IRx1::Base {
 class IRx1::CompUnit_and_Block {
   method note_block_lexical_variable_decls() {
     my $a = [];
-    my $^whiteboard::lexical_variable_decls = $a;
+    my $+whiteboard::lexical_variable_decls = $a;
     self.notes<lexical_variable_decls> = $a;
     for self.child_nodes {$_.note_block_lexical_variable_decls}
   };
@@ -69,7 +69,7 @@ class IRx1::CompUnit_and_Block {
 class IRx1::VarDecl {
   method note_block_lexical_variable_decls() {
     if self.is_lexical {
-      $^whiteboard::lexical_variable_decls.push(self);
+      $+whiteboard::lexical_variable_decls.push(self);
     }
     for self.child_nodes {$_.note_block_lexical_variable_decls}
   };
@@ -77,7 +77,7 @@ class IRx1::VarDecl {
 class IRx1::SubDecl {
   method note_block_lexical_variable_decls() {
     if $_.name {
-      $^whiteboard::lexical_variable_decls.push(self);
+      $+whiteboard::lexical_variable_decls.push(self);
     }
     for self.child_nodes {$_.note_block_lexical_variable_decls}
   };
@@ -92,8 +92,8 @@ class IRx1::Base {
 
 class IRx1::CompUnit {
   method note_environment() {
-    my $^whiteboard::package_chain = [];
-    my $^whiteboard::lexical_bindings =
+    my $+whiteboard::package_chain = [];
+    my $+whiteboard::lexical_bindings =
       self.update_lexical_bindings({},
                                    self.notes<lexical_variable_decls>);
     for self.child_nodes {$_.note_environment}
@@ -101,8 +101,8 @@ class IRx1::CompUnit {
 };
 class IRx1::Block {
   method note_environment() {
-    my $^whiteboard::lexical_bindings =
-      self.update_lexical_bindings($^whiteboard::lexical_bindings,
+    my $+whiteboard::lexical_bindings =
+      self.update_lexical_bindings($+whiteboard::lexical_bindings,
                                    self.notes<lexical_variable_decls>);
     for self.child_nodes {$_.note_environment}
   };
@@ -123,22 +123,22 @@ class IRx1::PackageDecl {
     if self.path_is_absolute {
       $new_chain = [self];
     } else {
-      $new_chain = [$^whiteboard::package_chain.flatten,self];
+      $new_chain = [$+whiteboard::package_chain.flatten,self];
     }
-    my $^whiteboard::package_chain = $new_chain;
+    my $+whiteboard::package_chain = $new_chain;
     for self.child_nodes {$_.note_environment}
   };
 };
 class IRx1::Apply {
   method note_environment() {
-    self.notes<lexical_bindings> = $^whiteboard::lexical_bindings;
+    self.notes<lexical_bindings> = $+whiteboard::lexical_bindings;
     for self.child_nodes {$_.note_environment}
   };
 };
 class IRx1::Var {
   method note_environment() {
     my $key = self<sigil> ~ self<name>;
-    self.notes<decl> = $^whiteboard::lexical_bindings{$key};
+    self.notes<decl> = $+whiteboard::lexical_bindings{$key};
     for self.child_nodes {$_.note_environment}
   }
 }

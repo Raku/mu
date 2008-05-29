@@ -232,21 +232,13 @@ X  0%	3  0 		../../../t/macros/macro_code_test.t
 X  0%	5  0 		../../../t/macros/opaque_ast_macros.t
 X  0%	1  0 		../../../t/macros/operator_macros.t
 -C 0%	8  0 8		../../../t/macros/string_returning_macros.t
--C 0%	1  0 1		../../../t/magicals/block.t
 -C 0%	8  0 8		../../../t/magicals/caller_pos.t
--C 0%	6  0 6		../../../t/magicals/dollar_underscore.t
-X  0%	14  0 		../../../t/magicals/env.t
--  0%	2  0 2		../../../t/magicals/file_line.t
 -  33%	3  1 0 2!	../../../t/magicals/inc.t
 -C 0%	11  0 11	../../../t/magicals/line_basic.t
-X  0%	1  0 		../../../t/magicals/pid.t
--  0%	1  0 1		../../../t/magicals/progname.t
--C 0%	4  0 4		../../../t/magicals/subname.t
-X  0%	4  0 		../../../t/magicals/sub.t
 -C 0%	1  0 1		../../../t/oo/attributes/array.t
 X  0%	8  0 		../../../t/oo/attributes/attribute_initialization.t
 -  0%	6  0 1 5!	../../../t/oo/attributes/attribute_list.t
--  17%	17  3 10 4!	../../../t/oo/attributes/class.t
+-  23%	17  4 9 4!	../../../t/oo/attributes/class.t
 -d 0%	21  0 21	../../../t/oo/attributes/defaults.t
 X  0%	71  0 		../../../t/oo/attributes/instance.t
 -d 0%	3  0 3		../../../t/oo/attributes/is_rw_on_class.t
@@ -448,6 +440,15 @@ X  0%	10  0 		../../../t/run/12-script-args.t
 -  1%	57  1 2 54!	../../../t/spec/S02-literals/autoref.t
 -  0%	4  0 8 -4!	../../../t/spec/S02-literals/hex_chars.t
 -C 0%	93  0 93	../../../t/spec/S02-literals/radix.t
+-C 0%	1  0 1		../../../t/spec/S02-magicals/block.t
+-C 0%	8  0 8		../../../t/spec/S02-magicals/dollar_bang.t
+X  0%	14  0 		../../../t/spec/S02-magicals/env.t
+-  0%	2  0 2		../../../t/spec/S02-magicals/file_line.t
+-C 0%	6  0 6		../../../t/spec/S02-magicals/perlver.t
+X  0%	1  0 		../../../t/spec/S02-magicals/pid.t
+-  0%	1  0 1		../../../t/spec/S02-magicals/progname.t
+-C 0%	4  0 4		../../../t/spec/S02-magicals/subname.t
+X  0%	4  0 		../../../t/spec/S02-magicals/sub.t
 -d 0%	19  0 19	../../../t/spec/S02-names_and_variables/fmt.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
 X  0%	76  0 		../../../t/spec/S02-whitespace_and_comments/unspace.t
@@ -472,12 +473,13 @@ ok	2		../../../t/spec/S05-modifier/repetition.t
 X  0%	17  0 		../../../t/spec/S05-transliteration/trans.t
 -C 0%	15  0 15	../../../t/spec/S06-advanced_subroutine_features/want.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/named-placeholders.t
--  0%	3  0 3		../../../t/spec/S06-signature/positional-placeholders.t
+-C 0%	3  0 3		../../../t/spec/S06-signature/positional-placeholders.t
 -C 0%	6  0 6		../../../t/spec/S06-signature/slurpy-placeholders.t
 -C 0%	38  0 38	../../../t/spec/S09-autovivification/autovivification.t
 -C 0%	24  0 24	../../../t/spec/S09-subscript_slice/slice.t
 -  66%	3  2 1		../../../t/spec/S11-modules/module-file.t
 -  71%	7  5 2		../../../t/spec/S11-modules/module.t
+-C 0%	8  0 8		../../../t/spec/S11-modules/re-export.t
 -C 0%	41  0 41	../../../t/spec/S12-attributes/delegation.t
 X  0%	4  0 		../../../t/spec/S12-class/attributes.t
 -C 0%	21  0 21	../../../t/spec/S12-class/basic.t
@@ -488,6 +490,8 @@ X  0%	2  0 		../../../t/spec/S12-class/instantiate.t
 -C 0%	6  0 6		../../../t/spec/S12-methods/indirect_notation.t
 X  0%	3  0 		../../../t/spec/S12-methods/private_methods.t
 -C 0%	8  0 8		../../../t/spec/S12-role/composition.t
+X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-long.t
+X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-short.t
 X  0%	20  0 		../../../t/spec/S16-filehandles/chmod.t
 -d 0%	4  0 4		../../../t/spec/S16-filehandles/connect.t
 -C 0%	36  0 36	../../../t/spec/S16-filehandles/dir.t
@@ -510,7 +514,7 @@ ok	3		../../../t/spec/S29-any/cmp.t
 -  0%	18  0 1 17!	../../../t/spec/S29-array/delete.t
 -  33%	12  4 0 8!	../../../t/spec/S29-array/exists.t
 -d 0%	6  0 6		../../../t/spec/S29-array/keys_values.t
--C 0%	9  0 9		../../../t/spec/S29-array/kv.t
+-  11%	9  1 5 3!	../../../t/spec/S29-array/kv.t
 -C 0%	10  0 10	../../../t/spec/S29-array/pairs.t
 -  3%	27  1 0 26!	../../../t/spec/S29-array/pop.t
 -  2%	42  1 0 41!	../../../t/spec/S29-array/push.t
@@ -679,7 +683,7 @@ X  0%	5  0 		../../../t/unspecced/times.t
 X  0%	18  0 		../../../t/var/caller.t
 -C 0%	6  0 6		../../../t/var/chained.t
 -  0%	19  0 1 18!	../../../t/var/constant.t
--C 0%	5  0 5		../../../t/var/contextual.t
+-  80%	5  4 1		../../../t/var/contextual.t
 -C 0%	4  0 4		../../../t/var/default_scalar.t
 ok	3		../../../t/var/is_copy.t
 -C 0%	9  0 9		../../../t/var/is_readonly.t
@@ -814,5 +818,5 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 -d 0%	6  0 6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 815.  603 parsed 73%.  315 run 38%.  68 ok 8%.
-Tests: 16419+.  713 ok <4.34%, 15706+ not.
+Files: 819.  605 parsed 73%.  316 run 38%.  68 ok 8%.
+Tests: 16463+.  719 ok <4.36%, 15744+ not.

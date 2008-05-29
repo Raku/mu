@@ -64,10 +64,10 @@ package IRx1_Build {
       my $labels = irbuild_ir($m.{'hash'}{'label'});
 my $result = irbuild_ir($m.{'hash'}{'expr'}) || irbuild_ir($m.{'hash'}{'control'});
 if $m.{'hash'}{'expr'} && ($m.{'hash'}{'mod_loop'} || $m.{'hash'}{'mod_cond'}) {
-my $^blackboard::statement_expr = $result;
+my $+blackboard::statement_expr = $result;
 $result = irbuild_ir($m.{'hash'}{'mod_loop'}) || irbuild_ir($m.{'hash'}{'mod_cond'});
 if $m.{'hash'}{'mod_condloop'} {
-  $^blackboard::statement_expr = $result;
+  $+blackboard::statement_expr = $result;
   $result = irbuild_ir($m.{'hash'}{'mod_condloop'});
 }
 }
@@ -101,14 +101,14 @@ die "Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator";
     });
 
     $main::irbuilder.add_constructor('expect_term', sub ($m) {
-      my $^blackboard::expect_term_base = irbuild_ir($m.{'hash'}{'noun'});
+      my $+blackboard::expect_term_base = irbuild_ir($m.{'hash'}{'noun'});
 my $ops = [];
 if $m.{'hash'}{'pre'}  { $ops.push($m.{'hash'}{'pre'}.flatten) };
 if $m.{'hash'}{'post'} { $ops.push($m.{'hash'}{'post'}.flatten) };
 for $ops {
-$^blackboard::expect_term_base = irbuild_ir($_)
+$+blackboard::expect_term_base = irbuild_ir($_)
 }
-$^blackboard::expect_term_base;
+$+blackboard::expect_term_base;
     });
 
     $main::irbuilder.add_constructor('term:expect_term', sub ($m) {
@@ -134,7 +134,7 @@ die "pre without a prefix is unimplemented";
     });
 
     $main::irbuilder.add_constructor('dotty:methodop', sub ($m) {
-      IRx1::Call.newp($m,$^blackboard::expect_term_base,irbuild_ir($m.{'hash'}{'ident'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'semilist'})||[]));
+      IRx1::Call.newp($m,$+blackboard::expect_term_base,irbuild_ir($m.{'hash'}{'ident'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'semilist'})||[]));
     });
 
     $main::irbuilder.add_constructor('dotty:postcircumfix', sub ($m) {
@@ -143,7 +143,7 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $ident = "postcircumfix:"~$name;
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args||[]));
+IRx1::Call.newp($m,$+blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args||[]));
     });
 
     $main::irbuilder.add_constructor('postcircumfix', sub ($m) {
@@ -152,17 +152,17 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $ident = "postcircumfix:"~$name;
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
 if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
-IRx1::Call.newp($m,$^blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args||[]));
+IRx1::Call.newp($m,$+blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args||[]));
     });
 
     $main::irbuilder.add_constructor('postfix', sub ($m) {
       my $op = ($m.match_string);
-IRx1::Apply.newp($m,"postfix:"~$op,IRx1::Capture.newp($m,[$^blackboard::expect_term_base]));
+IRx1::Apply.newp($m,"postfix:"~$op,IRx1::Capture.newp($m,[$+blackboard::expect_term_base]));
     });
 
     $main::irbuilder.add_constructor('prefix', sub ($m) {
       my $op = ($m.match_string);
-IRx1::Apply.newp($m,"prefix:"~$op,IRx1::Capture.newp($m,[$^blackboard::expect_term_base]));
+IRx1::Apply.newp($m,"prefix:"~$op,IRx1::Capture.newp($m,[$+blackboard::expect_term_base]));
     });
 
     $main::irbuilder.add_constructor('infix', sub ($m) {
@@ -247,28 +247,28 @@ IRx1::Rx.newp($m,$s,irbuild_ir($m.{'hash'}{'quotepair'}));
     });
 
     $main::irbuilder.add_constructor('scope_declarator:my', sub ($m) {
-      my $^blackboard::scope = 'my';
+      my $+blackboard::scope = 'my';
 irbuild_ir($m.{'hash'}{'scoped'});
     });
 
     $main::irbuilder.add_constructor('scope_declarator:has', sub ($m) {
-      my $^blackboard::scope = 'has';
+      my $+blackboard::scope = 'has';
 irbuild_ir($m.{'hash'}{'scoped'});
     });
 
     $main::irbuilder.add_constructor('scope_declarator:our', sub ($m) {
-      my $^blackboard::scope = 'our';
+      my $+blackboard::scope = 'our';
 irbuild_ir($m.{'hash'}{'scoped'});
     });
 
     $main::irbuilder.add_constructor('scoped', sub ($m) {
-      my $^blackboard::typenames = irbuild_ir($m.{'hash'}{'fulltypename'});
+      my $+blackboard::typenames = irbuild_ir($m.{'hash'}{'fulltypename'});
 irbuild_ir($m.{'hash'}{'variable_decl'}) || irbuild_ir($m.{'hash'}{'signature'}) || irbuild_ir($m.{'hash'}{'plurality_declarator'}) || irbuild_ir($m.{'hash'}{'routine_declarator'})  || irbuild_ir($m.{'hash'}{'type_declarator'});
     });
 
     $main::irbuilder.add_constructor('variable_decl', sub ($m) {
-      my $scope = $^blackboard::scope; my $^blackboard::scope;
-my $typenames = $^blackboard::typenames; my $^blackboard::typenames = undef;
+      my $scope = $+blackboard::scope; my $+blackboard::scope;
+my $typenames = $+blackboard::typenames; my $+blackboard::typenames = undef;
 IRx1::VarDecl.newp($m,$scope,$typenames,undef,irbuild_ir($m.{'hash'}{'variable'}),undef,irbuild_ir($m.{'hash'}{'traits'}),'=',irbuild_ir($m.{'hash'}{'default_value'}));
     });
 
@@ -282,7 +282,7 @@ if $tw eq "." {
   IRx1::Call.newp($m,$slf,irbuild_ir($m.{'hash'}{'desigilname'}),IRx1::Capture.newp($m,$args||[]))
 } else {
   my $v = IRx1::Var.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),$tw,irbuild_ir($m.{'hash'}{'desigilname'}));
-  my $^blackboard::expect_term_base = $v;
+  my $+blackboard::expect_term_base = $v;
   irbuild_ir($m.{'hash'}{'postcircumfix'});
 }
 } else {
@@ -318,7 +318,7 @@ IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args||[]));
     });
 
     $main::irbuilder.add_constructor('statement_mod_loop:for', sub ($m) {
-      IRx1::For.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr);
+      IRx1::For.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$+blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:while', sub ($m) {
@@ -326,7 +326,7 @@ IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args||[]));
     });
 
     $main::irbuilder.add_constructor('statement_mod_loop:while', sub ($m) {
-      IRx1::Loop.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr);
+      IRx1::Loop.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$+blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:until', sub ($m) {
@@ -336,7 +336,7 @@ IRx1::Loop.newp($m,$test,irbuild_ir($m.{'hash'}{'block'}));
 
     $main::irbuilder.add_constructor('statement_mod_loop:until', sub ($m) {
       my $test = IRx1::Apply.newp($m,"not",IRx1::Capture.newp($m,[irbuild_ir($m.{'hash'}{'modifier_expr'})]));
-IRx1::Loop.newp($m,$test,$^blackboard::statement_expr);
+IRx1::Loop.newp($m,$test,$+blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:loop', sub ($m) {
@@ -373,7 +373,7 @@ $one;
     });
 
     $main::irbuilder.add_constructor('statement_mod_cond:if', sub ($m) {
-      IRx1::Cond.newp($m,[[irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr]],undef);
+      IRx1::Cond.newp($m,[[irbuild_ir($m.{'hash'}{'modifier_expr'}),$+blackboard::statement_expr]],undef);
     });
 
     $main::irbuilder.add_constructor('statement_control:unless', sub ($m) {
@@ -381,7 +381,7 @@ $one;
     });
 
     $main::irbuilder.add_constructor('statement_mod_cond:unless', sub ($m) {
-      IRx1::Cond.newp($m,[[irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr]],undef,1);
+      IRx1::Cond.newp($m,[[irbuild_ir($m.{'hash'}{'modifier_expr'}),$+blackboard::statement_expr]],undef,1);
     });
 
     $main::irbuilder.add_constructor('statement_control:given', sub ($m) {
@@ -389,7 +389,7 @@ $one;
     });
 
     $main::irbuilder.add_constructor('statement_mod_loop:given', sub ($m) {
-      IRx1::Given.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr);
+      IRx1::Given.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$+blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:when', sub ($m) {
@@ -397,7 +397,7 @@ $one;
     });
 
     $main::irbuilder.add_constructor('statement_mod_cond:when', sub ($m) {
-      IRx1::When.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$^blackboard::statement_expr);
+      IRx1::When.newp($m,irbuild_ir($m.{'hash'}{'modifier_expr'}),$+blackboard::statement_expr);
     });
 
     $main::irbuilder.add_constructor('statement_control:default', sub ($m) {
@@ -441,13 +441,13 @@ irbuild_ir($m.{'hash'}{'block'})
     });
 
     $main::irbuilder.add_constructor('plurality_declarator:multi', sub ($m) {
-      my $^blackboard::plurality = 'multi';
+      my $+blackboard::plurality = 'multi';
 irbuild_ir($m.{'hash'}{'pluralized'}) || irbuild_ir($m.{'hash'}{'routine_def'});
     });
 
     $main::irbuilder.add_constructor('routine_declarator:routine_def', sub ($m) {
-      my $scope = $^blackboard::scope; my $^blackboard::scope;
-my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+      my $scope = $+blackboard::scope; my $+blackboard::scope;
+my $plurality = $+blackboard::plurality; my $+blackboard::plurality;
 my $ident = "";
 if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
 my $sig = IRx1::Signature.newp($m,[],undef);
@@ -456,8 +456,8 @@ IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}
     });
 
     $main::irbuilder.add_constructor('routine_def', sub ($m) {
-      my $scope = $^blackboard::scope; my $^blackboard::scope;
-my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+      my $scope = $+blackboard::scope; my $+blackboard::scope;
+my $plurality = $+blackboard::plurality; my $+blackboard::plurality;
 my $ident = "";
 if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
 my $sig = IRx1::Signature.newp($m,[],undef);
@@ -466,7 +466,7 @@ IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}
     });
 
     $main::irbuilder.add_constructor('routine_declarator:method_def', sub ($m) {
-      my $plurality = $^blackboard::plurality; my $^blackboard::plurality;
+      my $plurality = $+blackboard::plurality; my $+blackboard::plurality;
 IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.{'hash'}{'ident'}),irbuild_ir($m.{'hash'}{'multisig'}).[0],irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
     });
 
@@ -571,27 +571,27 @@ IRx1::Pair.newp($m,irbuild_ir($m.{'hash'}{'ident'}),$value);
     });
 
     $main::irbuilder.add_constructor('package_declarator:class', sub ($m) {
-      my $^blackboard::package_declarator = 'class';
+      my $+blackboard::package_declarator = 'class';
 irbuild_ir($m.{'hash'}{'package_def'});
     });
 
     $main::irbuilder.add_constructor('package_declarator:module', sub ($m) {
-      my $^blackboard::package_declarator = 'module';
+      my $+blackboard::package_declarator = 'module';
 irbuild_ir($m.{'hash'}{'package_def'});
     });
 
     $main::irbuilder.add_constructor('package_declarator:package', sub ($m) {
-      my $^blackboard::package_declarator = 'package';
+      my $+blackboard::package_declarator = 'package';
 irbuild_ir($m.{'hash'}{'package_def'});
     });
 
     $main::irbuilder.add_constructor('package_declarator:grammar', sub ($m) {
-      my $^blackboard::package_declarator = 'grammar';
+      my $+blackboard::package_declarator = 'grammar';
 irbuild_ir($m.{'hash'}{'package_def'});
     });
 
     $main::irbuilder.add_constructor('package_def', sub ($m) {
-      IRx1::PackageDecl.newp($m,undef,undef,$^blackboard::package_declarator,irbuild_ir($m.{'hash'}{'module_name'}).[0],irbuild_ir($m.{'hash'}{'traits'}),irbuild_ir($m.{'hash'}{'block'}));
+      IRx1::PackageDecl.newp($m,undef,undef,$+blackboard::package_declarator,irbuild_ir($m.{'hash'}{'module_name'}).[0],irbuild_ir($m.{'hash'}{'traits'}),irbuild_ir($m.{'hash'}{'block'}));
     });
 
     $main::irbuilder.add_constructor('fulltypename', sub ($m) {
