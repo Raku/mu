@@ -43,7 +43,7 @@ class Blob is Any {};
 #     Scalar      Perl scalar
 class Scalar is Any {};
 #     Array       Perl array
-class Array is Any {};
+class Array is List {};
 #     Hash        Perl hash
 class Hash is Any {};
 #     KeyHash     Perl hash that autodeletes values matching default

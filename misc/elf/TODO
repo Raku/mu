@@ -1,0 +1,30 @@
+Things you can do to help...
+
+*** Update ../STD_red/PROBLEMS.
+It's fallen out of sync with what actually parses.
+
+*** Fix or document test failues.
+Go through the run-tests results.
+For each "ran but test failed", look at why.
+If it's a missing or defective bit of prelude, either
+ mention it below, or
+ fix the prelude.
+If it's an emitter problem, mention it below.
+
+If it's a parser problem or failure ("X"), 
+determine why the parse failed, and add a one-liner which
+replicates it to ../STD_red/PROBLEMS.
+
+*** Flesh out the prelude.
+Go through S29 etc, adding p6 implementations to one of the preludes.
+If it doesn't compile as spec'ed, comment it out so it serves as a todo.
+
+
+
+TODO
+
+* remove the following distastefull deviations
+  - re_gsub
+
+* replace cruft like  $.var.sigil eq '$' in Emit with methods in/added-to Analysis.  eg, is_scalar. (http://irclog.perlgeek.de/perl6/2008-05-24#i_309702)
+

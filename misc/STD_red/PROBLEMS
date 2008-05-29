@@ -1,4 +1,12 @@
 
+Note that the tests of :todo are _intentionally_ failing, and will stay that way.
+:todo in a test means some other implementation has a problem with it.  We don't care.
+
+
+
+
+The rest of this file may be out of date...
+
 t/02-test-pm/3-output.t
 int is a typename, so doesn't parse as a subcall.
 int 3

@@ -525,7 +525,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package Array;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";BEGIN{push(@Array::ISA,'Any');}
+use base "Any";BEGIN{push(@Array::ISA,'List');}
 (do{});
 __PACKAGE__->meta->make_immutable();
 

@@ -43,14 +43,6 @@ TIPS
 
     eval_perl5('sub{print Data::Dumper::Dumper($_[0])}').($n);
 
-TODO
-
-* remove the following distastefull deviations
-  - re_gsub
-  - $^whiteboard (^ is the placeholder twigil in Perl 6)
-* replace cruft like  $.var.sigil eq '$' in Emit with methods in/added-to Analysis.  eg, is_scalar. (http://irclog.perlgeek.de/perl6/2008-05-24#i_309702)
-
-
 VERSIONS
 
 elf_f
