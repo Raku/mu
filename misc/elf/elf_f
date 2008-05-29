@@ -725,7 +725,7 @@ use base "Any";(do{sub prefix_plus{my($x)=@_;
 (do{$x->Num()})};
 sub say{my(@a)=@_;
 my $a_a = \@a;
-(do{for($a_a->flatten){
+(do{for(($a_a)->flatten){
 (do{GLOBAL::print($_->Str(), "\
 ")})
 }})}});
@@ -855,7 +855,7 @@ has 'hash' => (is => 'rw');;
 sub make_from_rsfth{my $self=CORE::shift;my($r,$s,$f,$t,$h)=@_;
 (do{$self->new("rule", $r, "match_str", $s, "from", $f, "to", $t, "hash", $h)})};
 sub match_describe{my $self=CORE::shift;(do{my $s = ((((((($self->rule . "\<") . $self->from) . "\,") . $self->to) . "\,\'") . $self->match_str) . "\'\,\{");
-for($self->hash->keys()->flatten){
+for(($self->hash->keys())->flatten){
 (do{my $k = $_;
 my $v = $self->hash->{$k};
 my $vs = "undef";
@@ -896,7 +896,7 @@ __PACKAGE__->meta->make_immutable();
 { package HASH;
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{my $s = "\{";
-for($self->keys()->flatten){
+for(($self->keys())->flatten){
 (do{my $k = $_;
 my $v = $self->{$k};
 my $vs = "undef";
@@ -2359,7 +2359,7 @@ if($m->{"hash"}->{"pre"}) {
 if($m->{"hash"}->{"post"}) {
 (do{$ops->push($m->{"hash"}->{"post"}->flatten())})
 };
-for($ops->flatten){
+for(($ops)->flatten){
 (do{($::es_blackboard__expect_term_base = irbuild_ir($_))})
 };
 $::es_blackboard__expect_term_base})});
@@ -2544,7 +2544,7 @@ $main::irbuilder->add_constructor("elsif", sub {my($m)=@_;
 (do{[irbuild_ir($m->{"hash"}->{"elsif_expr"}), irbuild_ir($m->{"hash"}->{"elsif_block"})]})});
 $main::irbuilder->add_constructor("if__else", sub {my($m)=@_;
 (do{my $key;
-for($m->{"hash"}->keys()->flatten){
+for(($m->{"hash"}->keys())->flatten){
 (do{if(($_ ne "match")) {
 (do{if($key) {
 (do{GLOBAL::die("Unexpectedly\ more\ than\ 1\ field\ \-\ dont\ know\ which\ to\ choose\
@@ -2658,7 +2658,7 @@ IRx1::Capture->newp($m, (irbuild_ir($args) || []), irbuild_ir($inv))})
 }})});
 $main::irbuilder->add_constructor("colonpair", sub {my($m)=@_;
 (do{my $key;
-for($m->{"hash"}->keys()->flatten){
+for(($m->{"hash"}->keys())->flatten){
 (do{if(($_ ne "match")) {
 (do{if($key) {
 (do{GLOBAL::die("Unexpectedly\ more\ than\ 1\ field\ \-\ dont\ know\ which\ to\ choose\
@@ -2681,7 +2681,7 @@ if($m->{"hash"}->{"postcircumfix"}) {
 IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), $value)})});
 $main::irbuilder->add_constructor("quotepair", sub {my($m)=@_;
 (do{my $key;
-for($m->{"hash"}->keys()->flatten){
+for(($m->{"hash"}->keys())->flatten){
 (do{if(($_ ne "match")) {
 (do{if($key) {
 (do{GLOBAL::die("Unexpectedly\ more\ than\ 1\ field\ \-\ dont\ know\ which\ to\ choose\
@@ -2760,7 +2760,7 @@ $main::irbuilder->add_constructor("regex_quantifier", sub {my($m)=@_;
 (do{($m->match_string())})});
 $main::irbuilder->add_constructor("regex_atom", sub {my($m)=@_;
 (do{my $key;
-for($m->{"hash"}->keys()->flatten){
+for(($m->{"hash"}->keys())->flatten){
 (do{if(($_ ne "match")) {
 (do{if($key) {
 (do{GLOBAL::die("Unexpectedly\ more\ than\ 1\ field\ \-\ dont\ know\ which\ to\ choose\
@@ -2806,10 +2806,10 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub do_all_analysis{my $self=CORE::shift;(do{$self->initialize_notes();
-$self->note_parents();
-$self->note_block_lexical_variable_decls();
-$self->note_environment()})}});
+use base "Any";(do{sub do_all_analysis{my $self=CORE::shift;(do{$self->initialize_notes;
+$self->note_parents;
+$self->note_block_lexical_variable_decls;
+$self->note_environment})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2820,15 +2820,15 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub is_IR_node{my $self=CORE::shift;(do{1})};
 sub initialize_notes{my $self=CORE::shift;(do{$self->notes({});
 my $a = [];
-for($self->field_values()->flatten){
+for(($self->field_values)->flatten){
 (do{if($_->can("is_IR_node")) {
 (do{$a->push($_)})
 }elsif(($_->WHAT() eq "Array")) {
-(do{for($_->flatten){
+(do{for(($_)->flatten){
 (do{if($_->can("is_IR_node")) {
 (do{$a->push($_)})
 }elsif(($_->WHAT() eq "Array")) {
-(do{for($_->flatten){
+(do{for(($_)->flatten){
 (do{if($_->can("is_IR_node")) {
 (do{$a->push($_)})
 }})
@@ -2837,15 +2837,15 @@ for($self->field_values()->flatten){
 }})
 }})
 };
-($self->notes()->{'child_nodes'} = $a);
-for($self->child_nodes()->flatten){
+($self->notes->{'child_nodes'} = $a);
+for(($self->child_nodes)->flatten){
 (do{$_->initialize_notes()})
 }})};
-sub destroy_notes{my $self=CORE::shift;(do{for($self->notes()->{'child_nodes'}->flatten){
+sub destroy_notes{my $self=CORE::shift;(do{for(($self->notes->{'child_nodes'})->flatten){
 (do{$_->destroy_notes()})
 };
 $self->notes(GLOBAL::undef())})};
-sub child_nodes{my $self=CORE::shift;(do{$self->notes()->{'child_nodes'}})}});
+sub child_nodes{my $self=CORE::shift;(do{$self->notes->{'child_nodes'}})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -2854,7 +2854,7 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
-for($self->child_nodes()->flatten){
+for(($self->child_nodes)->flatten){
 (do{$_->note_parents()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2864,9 +2864,9 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{($self->notes()->{'parent'} = $::es_whiteboard__parent);
+use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{($self->notes->{'parent'} = $::es_whiteboard__parent);
 {package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
-for($self->child_nodes()->flatten){
+for(($self->child_nodes)->flatten){
 (do{$_->note_parents()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2878,8 +2878,8 @@ __PACKAGE__->meta->make_immutable();
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{my $a = [];
 {package main; use vars '$es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
-($self->notes()->{'lexical_variable_decls'} = $a);
-for($self->child_nodes()->flatten){
+($self->notes->{'lexical_variable_decls'} = $a);
+for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2889,10 +2889,20 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->is_lexical()) {
+use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->is_lexical) {
 (do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
-for($self->child_nodes()->flatten){
+($self->notes->{'is'} = {});
+my $traits = ($self->traits || []);
+for(($traits)->flatten){
+(do{if(($_->verb() eq "is")) {
+(do{($self->notes->{'is'}->{$_->expr()} = 1)})
+}})
+};
+if(((($self->{'var'}->{'twigil'} || "")) eq "\+")) {
+(do{($self->notes->{'is'}->{'context'} = 1)})
+};
+for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2905,7 +2915,7 @@ use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($_->name()) {
 (do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
-for($self->child_nodes()->flatten){
+for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2915,7 +2925,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
+use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2926,8 +2936,8 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::CompUnit;
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
-{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes()->{'lexical_variable_decls'});
-for($self->child_nodes()->flatten){
+{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes->{'lexical_variable_decls'});
+for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2937,8 +2947,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Block;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes()->{'lexical_variable_decls'});
-for($self->child_nodes()->flatten){
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes->{'lexical_variable_decls'});
+for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2950,7 +2960,7 @@ __PACKAGE__->meta->make_immutable();
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
 (do{my $h1 = $h->dup();
-for($decls->flatten){
+for(($decls)->flatten){
 (do{my $k = ($_->sigil() . $_->name());
 ($h1->{$k} = $_)})
 };
@@ -2963,13 +2973,13 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::PackageDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $new_chain;
-if($self->path_is_absolute()) {
+if($self->path_is_absolute) {
 (do{($new_chain = [$self])})
 }else {
 (do{($new_chain = [$::es_whiteboard__package_chain->flatten(), $self])})
 };
 {package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = $new_chain;
-for($self->child_nodes()->flatten){
+for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2979,8 +2989,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Apply;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{($self->notes()->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
-for($self->child_nodes()->flatten){
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{($self->notes->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
+for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -2991,8 +3001,13 @@ __PACKAGE__->meta->make_immutable();
 { package IRx1::Var;
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->{'sigil'} . $self->{'name'});
-($self->notes()->{'decl'} = $::es_whiteboard__lexical_bindings->{$key});
-for($self->child_nodes()->flatten){
+($self->notes->{'decl'} = $::es_whiteboard__lexical_bindings->{$key});
+if($self->notes->{'decl'}) {
+(do{($self->notes->{'is'} = $self->notes->{'decl'}->notes()->{'is'})})
+}else {
+(do{($self->notes->{'is'} = {})})
+};
+for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -3002,7 +3017,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::Base;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{for($self->child_nodes()->flatten){
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}});
 __PACKAGE__->meta->make_immutable();
@@ -3012,13 +3027,8 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::VarDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub is_lexical{my $self=CORE::shift;(do{($self->scope() eq "my")})};
-sub is_context{my $self=CORE::shift;(do{for($self->traits()->flatten){
-(do{if(($_->expr() eq "context")) {
-(do{return(1)})
-}})
-};
-return(0)})};
+use base "Any";(do{sub is_lexical{my $self=CORE::shift;(do{($self->scope eq "my")})};
+sub is_context{my $self=CORE::shift;(do{$self->notes->{'is'}->{'context'}})};
 sub name{my $self=CORE::shift;(do{$self->{'var'}->{'name'}})};
 sub sigil{my $self=CORE::shift;(do{$self->{'var'}->{'sigil'}})};
 sub is_scalar{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\$")})};
@@ -3031,7 +3041,19 @@ __PACKAGE__->meta->make_immutable();
 
 { package IRx1::SubDecl;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub sigil{my $self=CORE::shift;(do{"\&"})}});
+use base "Any";(do{sub sigil{my $self=CORE::shift;(do{"\&"})};
+sub is_scalar{my $self=CORE::shift;(do{GLOBAL::undef()})};
+sub is_array{my $self=CORE::shift;(do{GLOBAL::undef()})};
+sub is_hash{my $self=CORE::shift;(do{GLOBAL::undef()})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IRx1::Var;
+use Moose; __PACKAGE__->meta->make_mutable();
+use base "Any";(do{sub decl{my $self=CORE::shift;(do{$self->notes->{'decl'}})};
+sub is_context{my $self=CORE::shift;(do{(((($self->{'twigil'} || "")) eq "\+") || $self->notes->{'is'}->{'context'})})}});
 __PACKAGE__->meta->make_immutable();
 
 }
@@ -3565,7 +3587,7 @@ if((($n->var()->sigil() eq "\%"))) {
 (do{($default = "\ \=\ \{\}\;")})
 }})
 };
-if((($n->var()->twigil() eq "\+"))) {
+if(($n->is_context())) {
 (do{my $name = $self->e($n->var());
 $name->re_sub_g("\^\(\.\)\:\:", "\$1");
 ((((((("\{package\ main\;\ use\ vars\ \'" . $name) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
@@ -3850,7 +3872,7 @@ my $pull = "";
 if(($n->block()->WHAT() eq "IRx1\:\:SubDecl")) {
 (do{($pull = "\-\>\(\$_\)")})
 };
-(((((("for\(" . $self->e($n->expr())) . $push) . "\)\{\
+((((((("for\(\(" . $self->e($n->expr())) . "\)") . $push) . "\)\{\
 ") . $self->e($n->block())) . $pull) . "\
 \}")})};
 sub cb__Cond{my $self=CORE::shift;my($n)=@_;
@@ -3906,6 +3928,9 @@ if((($t eq "\."))) {
 sub cb__Var{my $self=CORE::shift;my($n)=@_;
 (do{my $s = $n->sigil();
 my $t = ($n->twigil() || "");
+if($n->is_context()) {
+(do{($t = "\+")})
+};
 my $dsn = $self->e($n->name());
 my $v = (($s . $t) . $dsn);
 if(((($v eq "\$\?PACKAGE") || ($v eq "\$\?MODULE")) || ($v eq "\$\?CLASS"))) {
@@ -4138,7 +4163,7 @@ sub compile_executable{my $self=CORE::shift;my($sources,$output_file)=@_;
 (do{$self->todo([]);
 my $p5 = ($self->prelude() . "\
 ");
-for($sources->flatten){
+for(($sources)->flatten){
 (do{my $code = $_->[0];
 my $file = $_->[1];
 my $verbose = $_->[2];

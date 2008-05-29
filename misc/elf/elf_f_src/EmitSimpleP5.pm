@@ -502,7 +502,7 @@ package Main;
         if ($n.var.sigil eq '@') { $default = ' = [];' }
         if ($n.var.sigil eq '%') { $default = ' = {};' }
       }
-      if ($n.var.twigil eq '+') {
+      if ($n.is_context) {
         # HACK 
         my $name = $.e($n.var);
         $name.re_sub_g('^(.)::','$1');
@@ -789,7 +789,7 @@ package Main;
     if $n.expr.WHAT ne 'IRx1::Apply' { $push = "->flatten"};
     my $pull = "";
     if $n.block.WHAT eq 'IRx1::SubDecl' { $pull = "->($_)"};
-    'for('~$.e($n.expr)~$push~"){\n"~$.e($n.block)~$pull~"\n}"
+    'for(('~$.e($n.expr)~')'~$push~"){\n"~$.e($n.block)~$pull~"\n}"
   };
   method cb__Cond ($n) {
     my $els = '';
@@ -831,6 +831,7 @@ package Main;
   method cb__Var ($n) {
     my $s = $n.sigil;
     my $t = $n.twigil||'';
+    if $n.is_context { $t = '+' }
     my $dsn = $.e($n.name);
     my $v = $s~$t~$dsn;
     if $v eq '$?PACKAGE' || $v eq '$?MODULE' || $v eq '$?CLASS' {
