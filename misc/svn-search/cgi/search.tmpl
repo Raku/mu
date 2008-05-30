@@ -46,6 +46,7 @@
         <h3>Revision <a href="http://dev.pugscode.org/changeset/<TMPL_VAR
         NAME=revision>"><TMPL_VAR NAME=revision></a> by <TMPL_VAR NAME=author></h3>
         <pre><TMPL_VAR NAME=message></pre>
+        <TMPL_IF paths>
         <p>Modified files:</p>
         <ul>
         <TMPL_LOOP NAME=paths>
@@ -53,6 +54,7 @@
             NAME=path>?rev=<TMPL_VAR NAME=revision>"><TMPL_VAR NAME=path></a></li>
         </TMPL_LOOP>
         </ul>
+        </TMPL_IF>
     </TMPL_LOOP>
     </div>
 
