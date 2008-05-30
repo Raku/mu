@@ -29,6 +29,12 @@
 #  package Regexp::ModuleA::Interactive
 # Command-line and glue.
 
+{ package VersionConstraints;
+  use Regexp::Common 2.122;
+  use Sub::Name 0.03;
+  use Filter::Simple 0.82;
+}
+
 package Regexp::ModuleA;
 use strict;
 use warnings;
@@ -880,7 +886,7 @@ sub {
     my($o)=@_;
     my $noop = $o->RMARE_noop;
     my $code = $o->{'code'};
-    $code = "''" if $code =~ /\A\s*\z/;
+    $code = "''" if $code =~ /\A\s*\z/; #YYY XXX Why?
     my $tmp = Regexp::ModuleA::AST::CodeRx::_rewrite_matchvars($o,$code);
     my $need_match = $code ne $tmp || $code =~ /\$M\b/;
     $code = $tmp;
@@ -2208,7 +2214,7 @@ sub new_rx_from_re {
     print STDERR $m->match_describe,"\n" if $verbose;
     if(!$m || $m->from != 0 || $m->to != length($re)) {
       my $err = "Regexp syntax error:";
-      Carp::confess "$err / <== HERE $re/" if $m->from != 0; #XX should set beginat
+      Carp::confess "$err / <== HERE $re/" if !$m || $m->from != 0; #XX should set beginat
       my $at = $m->to+1;
       Carp::confess "$err /".substr($re,0,$at)." <== HERE ".substr($re,$at)."/";
     }

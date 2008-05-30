@@ -91,6 +91,7 @@ sub test6 {
 		if($got_ok && $got_at == ($at+0)) {
 		    print "ok\n";
 		} else {
+                    $got_at = "" if !defined $got_at;
 		    print "not ok\n  \# Expected: >$s< at $at\n  \#      Got: >$got_s< at $got_at\n";
 		}
 	    }
