@@ -840,6 +840,14 @@ __PACKAGE__->meta->make_immutable();
 }
 ;
 
+{ package Any;
+use Moose; __PACKAGE__->meta->make_mutable();
+(do{sub true{my $self=CORE::shift;(do{GLOBAL::defined($self)})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
       package Main;
@@ -2625,7 +2633,11 @@ IRx1::SubDecl->newp($m, $scope, GLOBAL::undef(), $plurality, $ident, $sig, irbui
 $main::irbuilder->add_constructor("routine_declarator\:method_def", sub {my($m)=@_;
 (do{my $plurality = $::es_blackboard__plurality;
 {package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
-IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{"hash"}->{"ident"}), irbuild_ir($m->{"hash"}->{"multisig"})->[0], irbuild_ir($m->{"hash"}->{"trait"}), irbuild_ir($m->{"hash"}->{"block"}))})});
+my $multisig = irbuild_ir($m->{"hash"}->{"multisig"});
+if(GLOBAL::not($multisig)) {
+(do{($multisig = [IRx1::Signature->newp($m, [], GLOBAL::undef())])})
+};
+IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{"hash"}->{"ident"}), $multisig->[0], irbuild_ir($m->{"hash"}->{"trait"}), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("signature", sub {my($m)=@_;
 (do{IRx1::Signature->newp($m, irbuild_ir($m->{"hash"}->{"parsep"}), GLOBAL::undef())})});
 $main::irbuilder->add_constructor("parameter", sub {my($m)=@_;
@@ -4040,6 +4052,37 @@ __PACKAGE__->meta->make_immutable();
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub perl{my $self=CORE::shift;(do{(("\{" . $self->keys()->map(sub {my($k)=@_;
 (do{(($k->perl() . "\ \=\>\ ") . $self->{$k}->perl())})})->join("\,\ ")) . "\}")})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package Math;
+use Moose; __PACKAGE__->meta->make_mutable();
+use base "Any";(do{sub rand{my $self=CORE::shift;my($max)=@_;
+CORE::rand($max||1)};
+sub srand{my $self=CORE::shift;my($seed)=@_;
+CORE::srand($seed)}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package IO;
+use Moose; __PACKAGE__->meta->make_mutable();
+use base "Any";(do{sub mkdir{my $self=CORE::shift;my($dirname)=@_;
+CORE::mkdir($dirname)};
+sub rmdir{my $self=CORE::shift;my($dirname)=@_;
+CORE::rmdir($dirname)}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package GLOBAL;
+use Moose; __PACKAGE__->meta->make_mutable();
+use base "Any";(do{sub rmdir{my($dirname)=@_;
+CORE::rmdir($dirname)}});
 __PACKAGE__->meta->make_immutable();
 
 }

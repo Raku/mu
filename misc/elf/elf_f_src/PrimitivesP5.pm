@@ -35,3 +35,15 @@ class HASH {
     '{' ~ self.keys.map(sub($k){$k.perl() ~ ' => ' ~ self.{$k}.perl}).join(", ") ~ '}'
   }
 }
+
+module Math {
+  method rand($max) is p5 {'CORE::rand($max||1)'}
+  method srand($seed) is p5 {'CORE::srand($seed)'}
+}
+module IO {
+  method mkdir($dirname) is p5 {'CORE::mkdir($dirname)'}
+  method rmdir($dirname) is p5 {'CORE::rmdir($dirname)'}
+}
+package GLOBAL {
+  sub rmdir($dirname) is p5 {'CORE::rmdir($dirname)'}
+}

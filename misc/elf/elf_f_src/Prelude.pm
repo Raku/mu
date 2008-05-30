@@ -121,3 +121,9 @@ class Pair  { method Str () { $.key~"\t"~$.value } }
 class Any {
   method print() { say self }
 }
+
+
+class Any {
+  method true() { defined(self) }
+}
+

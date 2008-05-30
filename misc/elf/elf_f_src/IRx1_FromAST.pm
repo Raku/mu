@@ -467,7 +467,9 @@ IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}
 
     $main::irbuilder.add_constructor('routine_declarator:method_def', sub ($m) {
       my $plurality = $+blackboard::plurality; my $+blackboard::plurality;
-IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.{'hash'}{'ident'}),irbuild_ir($m.{'hash'}{'multisig'}).[0],irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
+my $multisig = irbuild_ir($m.{'hash'}{'multisig'});
+if not($multisig) { $multisig = [IRx1::Signature.newp($m,[],undef)]; }
+IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.{'hash'}{'ident'}),$multisig.[0],irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
     });
 
     $main::irbuilder.add_constructor('signature', sub ($m) {

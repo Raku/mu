@@ -239,7 +239,7 @@ X  0%	1  0 		../../../t/macros/operator_macros.t
 X  0%	8  0 		../../../t/oo/attributes/attribute_initialization.t
 -  0%	6  0 1 5!	../../../t/oo/attributes/attribute_list.t
 -  23%	17  4 9 4!	../../../t/oo/attributes/class.t
--d 0%	21  0 21	../../../t/oo/attributes/defaults.t
+-  0%	21  0 2 19!	../../../t/oo/attributes/defaults.t
 X  0%	71  0 		../../../t/oo/attributes/instance.t
 -d 0%	3  0 3		../../../t/oo/attributes/is_rw_on_class.t
 -C 0%	7  0 7		../../../t/oo/attributes/methods_on_typed_attrs.t
@@ -247,7 +247,7 @@ X  0%	25  0 		../../../t/oo/attributes/mutators.t
 X  0%	19  0 		../../../t/oo/attributes/recursive.t
 X  0%	12  0 		../../../t/oo/attributes/undeclared_attribute.t
 -d 0%	4  0 4		../../../t/oo/autopair_instantiation.t
--C 0%	2  0 2		../../../t/oo/can.t
+-  0%	2  0 2		../../../t/oo/can.t
 -d 0%	5  0 5		../../../t/oo/class/anonymous.t
 X  0%	1  0 		../../../t/oo/class_inclusion_with_inherited_class.t
 X  0%	1  0 		../../../t/oo/class_inheritance_become_infinite_loop.t
@@ -257,12 +257,12 @@ X  0%	4  0 		../../../t/oo/class/inherit_from_role.t
 -C 0%	9  0 9		../../../t/oo/class/nested_use.t
 -C 0%	9  0 9		../../../t/oo/clone.t
 -C 0%	13  0 13	../../../t/oo/construction.t
--C 0%	6  0 6		../../../t/oo/destruction.t
+-  33%	6  2 0 4!	../../../t/oo/destruction.t
 -  3%	58  2 11 45!	../../../t/oo/enums.t
 -C 0%	?  0 ?		../../../t/oo/from_moose/001_recipe.t
 X  0%	3  0 		../../../t/oo/global_destruction.t
 X  0%	32  0 		../../../t/oo/inheritance.t
--C 0%	2  0 2		../../../t/oo/instantiation.t
+-d 0%	2  0 2		../../../t/oo/instantiation.t
 X  0%	17  0 		../../../t/oo/magical_vars.t
 X  0%	11  0 		../../../t/oo/meta_class.t
 X  0%	4  0 		../../../t/oo/methods/both.t
@@ -275,9 +275,9 @@ X  0%	16  0 		../../../t/oo/methods/multi.t
 -d 0%	6  0 6		../../../t/oo/methods/not_found_fails.t
 X  0%	?  0 		../../../t/oo/methods/overload.t
 -C 0%	3  0 3		../../../t/oo/methods/ref.t
--C 0%	2  0 2		../../../t/oo/methods/topic.t
+-d 0%	2  0 2		../../../t/oo/methods/topic.t
 -  0%	2  0 2		../../../t/oo/named_parameters_in_BUILD.t
--C 0%	4  0 4		../../../t/oo/object_id.t
+-d 0%	4  0 4		../../../t/oo/object_id.t
 -  0%	1  0 1		../../../t/oo/positional_parameters_in_BUILD.t
 X  0%	2  0 		../../../t/oo/precedence.t
 -C 0%	18  0 18	../../../t/oo/proxy.t
@@ -449,7 +449,7 @@ X  0%	1  0 		../../../t/spec/S02-magicals/pid.t
 -  0%	1  0 1		../../../t/spec/S02-magicals/progname.t
 -C 0%	4  0 4		../../../t/spec/S02-magicals/subname.t
 X  0%	4  0 		../../../t/spec/S02-magicals/sub.t
--d 0%	19  0 19	../../../t/spec/S02-names_and_variables/fmt.t
+X  0%	19  0 		../../../t/spec/S02-names_and_variables/fmt.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
 X  0%	76  0 		../../../t/spec/S02-whitespace_and_comments/unspace.t
 X  0%	304  0 		../../../t/spec/S03-operators/assign.t
@@ -483,14 +483,17 @@ X  0%	17  0 		../../../t/spec/S05-transliteration/trans.t
 -C 0%	41  0 41	../../../t/spec/S12-attributes/delegation.t
 X  0%	4  0 		../../../t/spec/S12-class/attributes.t
 -C 0%	21  0 21	../../../t/spec/S12-class/basic.t
--C 0%	1  0 1		../../../t/spec/S12-class/inheritance-class-methods.t
+ok	1		../../../t/spec/S12-class/inheritance-class-methods.t
 X  0%	2  0 		../../../t/spec/S12-class/instantiate.t
 -C 0%	3  0 3		../../../t/spec/S12-class/parent_attributes.t
--C 0%	5  0 5		../../../t/spec/S12-methods/calling_syntax.t
+ok	5		../../../t/spec/S12-methods/calling_syntax.t
 -C 0%	6  0 6		../../../t/spec/S12-methods/indirect_notation.t
 X  0%	3  0 		../../../t/spec/S12-methods/private_methods.t
 -C 0%	8  0 8		../../../t/spec/S12-role/composition.t
+X  0%	2  0 		../../../t/spec/S13-overloading/fallbacks-deep.t
+-C 0%	5  0 5		../../../t/spec/S13-overloading/multiple-signatures.t
 X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-long.t
+X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-mixed.t
 X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-short.t
 X  0%	20  0 		../../../t/spec/S16-filehandles/chmod.t
 -d 0%	4  0 4		../../../t/spec/S16-filehandles/connect.t
@@ -511,7 +514,7 @@ X  0%	7  0 		../../../t/spec/S17-async/contend.t
 X  0%	4  0 		../../../t/spec/S17-async/syntax.t
 ok	3		../../../t/spec/S29-any/cmp.t
 -C 0%	38  0 38	../../../t/spec/S29-any/eqv.t
--  0%	18  0 1 17!	../../../t/spec/S29-array/delete.t
+-  0%	19  0 1 18!	../../../t/spec/S29-array/delete.t
 -  33%	12  4 0 8!	../../../t/spec/S29-array/exists.t
 -d 0%	6  0 6		../../../t/spec/S29-array/keys_values.t
 -  11%	9  1 5 3!	../../../t/spec/S29-array/kv.t
@@ -581,7 +584,7 @@ X  0%	74  0 		../../../t/spec/S29-scalar/undef.t
 -d 0%	31  0 31	../../../t/spec/S29-str/index.t
 -C 0%	8  0 8		../../../t/spec/S29-str/lcfirst.t
 -C 0%	11  0 11	../../../t/spec/S29-str/lc.t
--d 0%	55  0 55	../../../t/spec/S29-str/length.t
+-  0%	55  0 1 54!	../../../t/spec/S29-str/length.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chomp.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chop.t
 X  0%	11  0 		../../../t/spec/S29-str/quotemeta.t
@@ -749,7 +752,7 @@ ok	2		../../../v6/v6-KindaPerl6/t/kp6/13-do.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/16-what.t
 ok	2		../../../v6/v6-KindaPerl6/t/kp6/17-closure.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/19-routine.t
--d 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/20-bit.t
+ok	2		../../../v6/v6-KindaPerl6/t/kp6/20-bit.t
 -C 0%	6  0 6		../../../v6/v6-KindaPerl6/t/kp6/21-oo.t
 ok	2		../../../v6/v6-KindaPerl6/t/kp6/22-oo-self.t
 -C 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/23-str-substr.t
@@ -769,9 +772,9 @@ ok	4		../../../v6/v6-KindaPerl6/t/kp6/35-undef.t
 -C 0%	4  0 4		../../../v6/v6-KindaPerl6/t/kp6/37-grep.t
 -C 0%	3  0 3		../../../v6/v6-KindaPerl6/t/kp6/38-sort.t
 -d 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/40-hash-keys.t
--C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/41-attr-hash-keys.t
+-d 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/41-attr-hash-keys.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/42-single-rule-grammar.t
--C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/43-class-constructor-with-params.t
+-d 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/43-class-constructor-with-params.t
 ok	4		../../../v6/v6-KindaPerl6/t/kp6/44-map.t
 ok	4		../../../v6/v6-KindaPerl6/t/kp6/45-for.t
 -C 0%	3  0 3		../../../v6/v6-KindaPerl6/t/kp6/46-hash-item-bind.t
@@ -783,9 +786,9 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/48-do.t
 X  0%	1  0 		../../../v6/v6-KindaPerl6/t/kp6/53-attr-bind.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/54-while.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/55-numeric-lt.t
--C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/57-method-without-return.t
+ok	1		../../../v6/v6-KindaPerl6/t/kp6/57-method-without-return.t
 -  0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/58-object-accessors.t
--C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/59-inheritance.t
+ok	1		../../../v6/v6-KindaPerl6/t/kp6/59-inheritance.t
 -  0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/60-inherited-accessors.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/61-shortcircuit-lexicals.t
 -d 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/62-hash-of-hash.t
@@ -814,9 +817,9 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/grammar/15-capture-from-rule-block.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/grammar/16-empty-const-as-last.t
 -C 0%	5  0 5		../../../v6/v6-KindaPerl6/t/kp6/grammar/17-or.t
--d 0%	8  0 8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
--d 0%	6  0 6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
+ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
+ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 819.  605 parsed 73%.  316 run 38%.  68 ok 8%.
-Tests: 16463+.  719 ok <4.36%, 15744+ not.
+Files: 822.  605 parsed 73%.  326 run 39%.  75 ok 9%.
+Tests: 16485+.  745 ok <4.51%, 15740+ not.

@@ -346,7 +346,9 @@ SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
 
 routine_declarator:method_def
 my $plurality = $+blackboard::plurality; my $+blackboard::plurality;
-MethodDecl.newp(undef,undef,$plurality,$m<ident>,$m<multisig>.[0],$m<trait>,$m<block>)
+my $multisig = $m<multisig>;
+if not($multisig) { $multisig = [Signature.newp([],undef)]; }
+MethodDecl.newp(undef,undef,$plurality,$m<ident>,$multisig.[0],$m<trait>,$m<block>)
 
 signature
 Signature.newp($m<parsep>,undef)
