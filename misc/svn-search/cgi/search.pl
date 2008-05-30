@@ -7,10 +7,10 @@ use Data::Dumper;
 use CGI;
 use HTML::Template;
 use Encode qw(encode decode);
-my $results_per_page = 20;
 $CGI::POST_MAX = 1024;
 $CGI::DISABLE_UPLOADS = 1;
 my $cgi = new CGI;
+my $results_per_page = 20;
 
 print "Content-Type: text/html; charset=utf-8\n\n";
 
@@ -22,6 +22,7 @@ my $t = HTML::Template->new(
 
 if (length $q){
 	$q = encode("utf8", $q);
+    $results_per_page = 50 if $cgi->param('terse');
 	search($q, $t);
 	$t->param(Q => $q);
 }
@@ -53,8 +54,8 @@ sub search {
 	# This returns a 'KinoSearch::Search::Hits' object
 	$result->seek($offset, $results_per_page);
 
-	my @offsets = map { { offset => 10 * $_, number => $_ + 1 } } 
-			0 .. int $total_hits / 10;
+	my @offsets = map { { offset => $results_per_page * $_, number => $_ + 1 } } 
+			0 .. int $total_hits / $results_per_page;
 
 	my @results;
 
@@ -63,7 +64,9 @@ sub search {
 		for (qw(revision author message)){
 			$h{$_} = $hr->{$_};
 		}
-		$h{paths} = [ map { {path => $_} } split m/\s+/, $hr->{paths} ];
+        unless ($cgi->param('terse')){
+            $h{paths} = [ map { {path => $_} } split m/\s+/, $hr->{paths} ];
+        }
 		push @results, \%h;
 	}
 	$t->param(OFFSETS 		=> \@offsets);
