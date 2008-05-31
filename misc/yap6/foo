@@ -1,2 +1,6 @@
-a = 1;
+a = 3;
 print a;
+b = 5 ** a
+print b;
+c = a / b;
+print c

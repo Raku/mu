@@ -5,8 +5,8 @@ use Stream ':all';
 use base 'Exporter';
 our @EXPORT_OK = qw(lookfor l $End_of_Input $nothing T error handle_error
                 operator star option concatenate alternate
-                display_failures labeledblock commalist termilist %N
-                parser checkval action test say);
+                display_failures %N
+                parser checkval action test say c a o);
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 use Stream 'node', 'head', 'tail', 'promise';
@@ -28,6 +28,7 @@ use overload
                 '>'  => \&V,
                 '/'  => \&checkval,
                 '""' => \&overload::StrVal,
+#                '""' => \&parser_name,
   ;
 
 our %N;
@@ -36,9 +37,15 @@ sub parser (&) { bless $_[0] => __PACKAGE__ }
 
 # a mere shortcuts
 sub Parser::l { @_ = [@_]; goto &lookfor }
-sub Parser::atleast0 { @_ = [@_]; goto &star }
+sub Parser::c { goto &concatenate }
+sub Parser::a { goto &alternate }
+sub Parser::o { goto &operator }
 
-## Chapter 8 section 3.3
+sub parser_name { 
+    my $parser = shift; 
+    my $key = overload::StrVal($parser); 
+    exists($N{$key}) ? $N{$key} : $key; 
+} 
 
 sub list_of {
   my ($element, $separator) = @_;
@@ -89,7 +96,9 @@ sub lookfor {
     }
     my $wanted_value = $value->($next, $u);
     debug "Token matched";
-    return ($wanted_value, tail($input));
+    my @arr = ($wanted_value, tail($input));
+    debug Dumper(\@arr);
+    return @arr;
   };
   $N{$parser} = "[@$wanted]";
   return $parser;
@@ -103,7 +112,7 @@ sub End_of_Input {
     return (undef, undef);
   }
   my $errmsg = "Syntax Error near ".Dumper($input);
-  $errmsg = substr($errmsg,70) if length($errmsg) > 70;
+  $errmsg = substr($errmsg,0,70) if length($errmsg) > 70;
   debug "Hint: the last statement must be followed by a semi-colon or newline";
   if ($ENV{DEBUG}) { debug $errmsg } else { warn $errmsg }
   die [undef, $input];
@@ -184,7 +193,7 @@ sub concatenate {
   $p = parser {
     my $input = shift;
     debug "Looking for $N{$p}";
-    debug "(input is: ".Dumper($input).")";
+#    debug "(input is: ".Dumper($input).")";
     if (defined $input) {
       debug "(Next token is ".Dumper($input->[0]).")";
     } else {
@@ -198,7 +207,8 @@ sub concatenate {
       $q++;
       eval { ($v, $input) = $_->($input) };
       if ($@) {
-        say "Syntax Error: Unhandled exception when trying parser component $q/$np near ", substr($input,50), $@ unless ref $@;
+        say "Syntax Error: Unhandled exception when trying".
+            "parser component $q/$np near ", Dumper($input), $@ unless ref $@;
         die unless ref $@;
         die ['CONC', $input, [\@succeeded, $@]];
       } else {
@@ -224,8 +234,8 @@ sub star {
   my ($p_star, $conc);
   $p_star = alternate(T($conc = concatenate($p, sub { $p_star->($_[0]) }),
                         sub { 
-                          debug "STAR(".Dumper($_[0]).", ".Dumper($_[1]).")";
-                          [$_[0], @{$_[1]}] 
+#                          debug "STAR(".Dumper($_[0]).", ".Dumper($_[1]).")";
+                          [$_[0], @{$_[1]}]
                         }),
                       T($nothing,
                         sub { $null_tuple }),
@@ -242,49 +252,6 @@ sub option {
   $p_opt;
 }
 
-# commalist(p, sep) = p star(sep p) option(sep)
-sub commalist {
-  my ($p, $separator, $sepstr) = @_;
-
-  if (defined $separator) {
-    $sepstr ||= $N{$separator};
-  } else {
-    $separator ||= lookfor('COMMA');
-    $sepstr ||= ", ";
-  }
-
-  my $parser = T(concatenate($p,
-                             star(T(concatenate($separator, $p),
-                                    sub { $_[1] }
-                                   )),
-                             option($separator)),
-                 sub { [$_[0], @{$_[1]}] }
-                );
-
-
-  $N{$parser} = "$N{$p}$sepstr $N{$p}$sepstr ...";
-  return $parser;
-}
-
-sub termilist {
-  my ($p) = shift;
-  commalist($p, lookfor('TERMINATOR'), "; ");
-}
-
-sub labeledblock {
-  my ($label, $contents) = @_;
-  my $t;
-  my $p = concatenate(concatenate(concatenate($label, 
-                                              lookfor('LBRACE'),
-                                             ),
-                                  $t = star($contents),
-                                 ),
-                      lookfor('RBRACE'),
-                     );
-  $N{$p} = "$N{$label} { $N{$t} }";
-  T($p, sub { [$_[0], @{$_[2]}] });
-}
-
 # Only suitable for applying to concatenations
 sub T {
   my ($parser, $transform) = @_;
@@ -294,20 +261,29 @@ sub T {
     my ($value, $newinput) = $parser->($input);
     debug "Transforming value produced by $N{$parser}";
     debug "Input to $N{$parser}:  ". Dumper($value);
-#    my @values;
-#    while (ref($value) eq 'Pair') {
+    my @values;
+    use Data::Structure::Util qw(unbless);
+    while (ref($value) eq 'Tuple') {
 #      unshift @values, $value->[1];
 #      $value = $value->[0];
-#    }
+#      say "_", Dumper($value), "_";
+       unbless ( $value );
+    }
 #    unshift @values, $value;
 #    { local $" = ')(';
 #      my $msg = "Flattened:  (".Dumper(\@values).")";
-#      if (ref $values[0] eq 'ARRAY') { msg .= " [\$v[0] = (".Dumper($values[0]).")" };
+#      if (ref $values[0] eq 'ARRAY') { $msg .= " [\$v[0] = (".Dumper($values[0]).")" };
+#      debug $msg;
 #    }
+#    say "_", Dumper(\@values), "_";
 #    if (@values == 1 && UNIVERSAL::isa($values[0], 'ARRAY')) { 
+#    if (@values == 1 && ref($values[0]) eq 'ARRAY') { 
 #      @values = @{$values[0]};
 #    }
-    $value = $transform->(@$value);
+#    $value = [[$value]] unless ref($value) eq 'ARRAY';
+#    say "_", Dumper($value), "_";
+#    $value = $transform->($value) if ref($value) eq 'SCALAR';
+    $value = $transform->(@$value);# if ref($value) eq 'ARRAY';
     debug "Output from $N{$parser}: ". Dumper($value);
     return ($value, $newinput);
   };
