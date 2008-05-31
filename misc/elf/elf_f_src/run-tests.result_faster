@@ -151,15 +151,15 @@ X  0%	8  0 		../../../t/examples/99problems/problem13.t
 -C 0%	5  0 5		../../../t/examples/99problems/problem23.t
 -C 0%	3  0 3		../../../t/examples/99problems/problem24.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem25.t
--  0%	1  0 0 1!	../../../t/examples/99problems/problem26.t
--C 0%	1  0 1		../../../t/examples/99problems/problem27.t
+X  0%	1  0 		../../../t/examples/99problems/problem26.t
+X  0%	1  0 		../../../t/examples/99problems/problem27.t
 -  0%	2  0 1 1!	../../../t/examples/99problems/problem28.t
--C 0%	10  0 10	../../../t/examples/99problems/problem31.t
--  0%	4  0 0 4!	../../../t/examples/99problems/problem32.t
--C 0%	3  0 3		../../../t/examples/99problems/problem33.t
--C 0%	20  0 20	../../../t/examples/99problems/problem34.t
--C 0%	1  0 1		../../../t/examples/99problems/problem35.t
--C 0%	5  0 5		../../../t/examples/99problems/problem36.t
+X  0%	10  0 		../../../t/examples/99problems/problem31.t
+X  0%	4  0 		../../../t/examples/99problems/problem32.t
+X  0%	3  0 		../../../t/examples/99problems/problem33.t
+X  0%	20  0 		../../../t/examples/99problems/problem34.t
+X  0%	1  0 		../../../t/examples/99problems/problem35.t
+X  0%	5  0 		../../../t/examples/99problems/problem36.t
 X  0%	20  0 		../../../t/examples/99problems/problem37.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem38.t
 -d 0%	2  0 2		../../../t/examples/99problems/problem39.t
@@ -168,22 +168,22 @@ X  0%	20  0 		../../../t/examples/99problems/problem37.t
 X  0%	1  0 		../../../t/examples/99problems/problem46.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem47.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem48.t
--C 0%	6  0 6		../../../t/examples/99problems/problem49.t
+X  0%	6  0 		../../../t/examples/99problems/problem49.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem50.t
--C 0%	5  0 5		../../../t/examples/99problems/problem54.t
+X  0%	5  0 		../../../t/examples/99problems/problem54.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem55.t
--  0%	9  0 0 9!	../../../t/examples/99problems/problem56.t
+X  0%	9  0 		../../../t/examples/99problems/problem56.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem57.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem58.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem59.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem60.t
--  0%	2  0 2		../../../t/examples/99problems/problem61.t
+-  50%	2  1 1		../../../t/examples/99problems/problem61.t
 -  0%	4  0 4		../../../t/examples/99problems/problem62.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem63.t
 -  0%	1  0 1		../../../t/examples/99problems/problem64.t
 -C 0%	1  0 1		../../../t/examples/99problems/problem65.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem66.t
--  0%	2  0 1 1!	../../../t/examples/99problems/problem67.t
+-  50%	2  1 0 1!	../../../t/examples/99problems/problem67.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem68.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem69.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem70.t
@@ -605,17 +605,17 @@ X  0%	41  0 		../../../t/statements/for.t
 -C 0%	12  0 12	../../../t/statements/gather.t
 X  0%	52  0 		../../../t/statements/given.t
 -C 0%	3  0 3		../../../t/statements/grep-and-sort-in-for.t
--  75%	24  18 0 6!	../../../t/statements/if.t
+-C 0%	24  0 24	../../../t/statements/if.t
 X  0%	?  0 		../../../t/statements/io_leaking_into_runtime.t
--  50%	8  4 1 3!	../../../t/statements/last.t
+-  62%	8  5 0 3!	../../../t/statements/last.t
 X  0%	14  0 		../../../t/statements/loop.t
 -C 0%	3  0 3		../../../t/statements/map-and-sort-in-for.t
 -C 0%	12  0 12	../../../t/statements/modifiers/for.t
 -C 0%	4  0 4		../../../t/statements/modifiers/given.t
 -C 0%	4  0 4		../../../t/statements/modifiers/if2.t
 X  0%	1  0 		../../../t/statements/modifiers/if3.t
--  50%	2  1 1		../../../t/statements/modifiers/if.t
--  50%	2  1 1		../../../t/statements/modifiers/unless.t
+ok	2		../../../t/statements/modifiers/if.t
+ok	2		../../../t/statements/modifiers/unless.t
 -C 0%	3  0 3		../../../t/statements/modifiers/until.t
 -C 0%	3  0 3		../../../t/statements/modifiers/while.t
 X  0%	12  0 		../../../t/statements/next.t
@@ -624,7 +624,7 @@ X  0%	12  0 		../../../t/statements/next.t
 X  0%	16  0 		../../../t/statements/repeat.t
 X  0%	10  0 		../../../t/statements/unless.t
 ok	4		../../../t/statements/until.t
--  50%	24  12 12	../../../t/statements/values_in_bool_context.t
+ok	24		../../../t/statements/values_in_bool_context.t
 -C 0%	10  0 10	../../../t/statements/while.t
 -  0%	9  0 9		../../../t/syntax/char_by_name.t
 -  0%	43  0 3 40!	../../../t/syntax/char_by_number.t
@@ -655,7 +655,7 @@ X  0%	19  0 		../../../t/syntax/numbers/underscores.t
 -C 0%	2  0 2		../../../t/syntax/parsing/non-dotted-new-disallowed.t
 -d 0%	1  0 1		../../../t/syntax/parsing/parens.t
 ok	3		../../../t/syntax/parsing/pod_in_multi_line_exprs.t
--  0%	1  0 1		../../../t/syntax/parsing/postfix_if_and_is.t
+ok	1		../../../t/syntax/parsing/postfix_if_and_is.t
 -C 0%	5  0 5		../../../t/syntax/parsing/spaceship.t
 X  0%	20  0 		../../../t/syntax/parsing/sub_calls.t
 -d 0%	3  0 3		../../../t/syntax/parsing/subscript.t
@@ -704,7 +704,7 @@ X  0%	31  0 		../../../t/var/temp.t
 X  0%	6  0 		../../../t/xx-uncategorized/assuming_and_mmd.t
 X  0%	2  0 		../../../t/xx-uncategorized/attribute_hash.t
 -d 0%	4  0 4		../../../t/xx-uncategorized/attribute_of_return_value.t
--  50%	2  1 1		../../../t/xx-uncategorized/cast_undef_shortcircuit.t
+ok	2		../../../t/xx-uncategorized/cast_undef_shortcircuit.t
 -C 0%	71  0 71	../../../t/xx-uncategorized/decode-utf-chunks.t
 -d 0%	1  0 1		../../../t/xx-uncategorized/deref_doesnt.t
 ok	1		../../../t/xx-uncategorized/empty_kwid.t
@@ -712,7 +712,7 @@ X  0%	1  0 		../../../t/xx-uncategorized/global_subst_with_lookbehind.t
 X  0%	1  0 		../../../t/xx-uncategorized/hyperop.t
 -d 0%	2  0 2		../../../t/xx-uncategorized/io_close_with_scope.t
 -d 0%	1  0 1		../../../t/xx-uncategorized/io_finalize_part1.t
--d 0%	4  0 4		../../../t/xx-uncategorized/io_finalize_part2.t
+-C 0%	4  0 4		../../../t/xx-uncategorized/io_finalize_part2.t
 -C 0%	7  0 7		../../../t/xx-uncategorized/is_copy_ne_is_rw.t
 ok	2		../../../t/xx-uncategorized/lexical-array-in-inner-block.t
 -  0%	2  0 2		../../../t/xx-uncategorized/named_2_positional.t
@@ -821,5 +821,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 822.  605 parsed 73%.  326 run 39%.  75 ok 9%.
-Tests: 16485+.  745 ok <4.51%, 15740+ not.
+Files: 822.  594 parsed 72%.  324 run 39%.  80 ok 9%.
+Tests: 16485+.  746 ok <4.52%, 15739+ not.

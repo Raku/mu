@@ -2043,7 +2043,7 @@ class Perl < Grammar
 
             push termstackA, hereS
             say "after push: #{termstackA.length}" if noisy
-            break if hereS_workaround.stdstopper; #R NONSPEC ADDED for "{3}\nis(4);"
+            break if before{ hereS_workaround.stdstopper }; #R NONSPEC ADDED for "{3}\nis(4);"
             #        my infixA = [hereS_workaround.expect_tight_infix(preclimS)];
             oldposS = hereS_workaround.pos
             infixA = [hereS_workaround.expect_infix()]
