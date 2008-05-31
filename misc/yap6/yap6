@@ -1,0 +1,141 @@
+#!/usr/local/bin/perl
+
+# yap6/yap6
+# This is intended to be (eventually) a hand-coded replacement for
+# STD.pm->cheat->gimme5->
+
+use warnings;
+use strict;
+# Parser.pm overloads some Perl operators for grammar notation convenience
+use Parser ':all';
+use Lexer ':all';
+
+my $handle_lex_whitespace = sub { "" };
+
+# pipe your source code to this program; it will evaluate it.
+my $input = allinput(\*STDIN);
+
+# This generates a lexer.  It will eventually contain all the character
+# categories in STD.pm, ie. it will produce a stream of tokens, one for
+# each character, other than \w, which of course are lumped successively.
+# Someday this file will be automatically generated from STD.pm, probably
+# by some version of this program.
+my $lexer = iterator_to_stream(make_lexer($input,
+
+# These are the patterns to do the initial lexing.  Each's first item is
+# a category used by the "l()" (lookfor) function, which is a technique of
+# defining literals in the grammar rules.  These are the defaults from
+# MJD's "Higher Order Perl", but they'll be modified greatly.
+
+[ 'TERMINATOR'      ,qr/;\n*|\n+/         ,                            ],
+[ 'INT'             ,qr/\d+/              ,                            ],
+[ 'PRINT'           ,qr/\bprint\b/        ,                            ],
+[ 'IDENTIFIER'      ,qr|[A-Za-z_]\w*|     ,                            ],
+[ 'OP'              ,qr#\*\*|[-=+*/()]#   ,                            ],
+[ 'WHITESPACE'      ,qr/\s+/              ,$handle_lex_whitespace      ],
+
+)); 
+
+# This is our current excuse for a symbol table for our (only) variable scope.
+my %VAR;
+
+# These are globally accessible "shortcuts" to the actual parser coderefs.
+my ($base, $expression, $factor, $program, $statement, $term);
+my ($Base, $Expression, $Factor, $Program, $Statement, $Term);
+
+$Base               = parser { $base            ->(@_) };
+$Expression         = parser { $expression      ->(@_) };
+$Factor             = parser { $factor          ->(@_) };
+$Program            = parser { $program         ->(@_) };
+$Statement          = parser { $statement       ->(@_) };
+$Term               = parser { $term            ->(@_) };
+
+# Currently these handlers do a synchronous evaluation of
+# simple variable assignment, variable printing, and
+# Please Excuse My Dear Aunt arithmetic.
+# comprising a one-step interpreter. Soon, instead they
+# will pass around and generate an enhanced AST.
+# On an evaluation run of a given "visible-code instruction set",
+# they can be defined to implement the runtime, given a decent
+# object/metaobject model.  Of course, they may return coderefs
+# to subroutines in other packages, or another coderef
+# generator.
+
+my $handle_infix_addition = sub { $_[0] + $_[1] };
+my $handle_print_statement = sub { say $_[1] };
+my $handle_assignment_statement = sub { $VAR{$_[0]} = $_[2] };
+my $handle_infix_subtraction = sub { $_[0] - $_[1] };
+my $handle_infix_multiplication = sub { $_[0] * $_[1] };
+my $handle_infix_division = sub { die "can't divide by 0" unless $_[1]; $_[0] / $_[1] };
+my $handle_infix_exponentiation_factor = sub { $_[1] };
+my $handle_empty_nothing = sub { 1 };
+my $handle_infix_exponentiation_operation = sub { $_[0] ** $_[1] };
+my $handle_variable_lookup = sub { $VAR{$_[0][1]} || 0 };
+my $handle_balanced_parenthetical = sub { $_[1] };
+
+# Each grammar rule defines the creation of a hierarchy of
+# parser objects.  concatenate(), signified by infix "-",
+# looks for successive match successes.  alternate(), signified
+# by infix "|" ), finds the first successful match of
+# the rest of the input.  Yes, it backtracks.
+# Soon, alternate will find all the
+# successful matches, and choose the one that eats the most
+# characters, comprising a longest-token-matcher.  If >one
+# parse-tree candidates eat the same size input, there is
+# either (too much) ambiguity in the input, or a problem with
+# the grammar (that it allows too much ambiguity).
+
+$program = concatenate(star($Statement), $End_of_Input);
+
+$statement = alternate(T(concatenate(lookfor('PRINT'),
+                                     $Expression,
+                                     lookfor('TERMINATOR')),
+                         $handle_print_statement),
+                       T(concatenate(lookfor('IDENTIFIER'),
+                                     lookfor(['OP', '=']),
+                                     $Expression,
+                                     lookfor('TERMINATOR')),
+                         $handle_assignment_statement));
+
+$expression = operator($Term,   [lookfor(['OP', '+']), $handle_infix_addition],
+                  [lookfor(['OP', '-']), $handle_infix_subtraction]);
+
+$term = operator($Factor, [lookfor(['OP', '*']), $handle_infix_multiplication],
+                  [lookfor(['OP', '/']), $handle_infix_division]);
+
+$factor = T(concatenate($Base,
+                        alternate(T(concatenate(lookfor(['OP', '**']),
+                                                $Factor),
+                                    $handle_infix_exponentiation_factor),
+                                  T($nothing, $handle_empty_nothing))),
+            $handle_infix_exponentiation_operation);
+
+$base = alternate(lookfor('INT'),
+        lookfor('IDENTIFIER',
+                $handle_variable_lookup),
+        T(concatenate(lookfor(['OP', '(']),
+                      $Expression,
+                      lookfor(['OP', ')'])),
+          $handle_balanced_parenthetical));
+
+$program->($lexer);
+
+
+
+# COPYRIGHT NOTICE:
+# The contents of this file are Copyright (c) 2008, Matthew Wilson
+# and any other contributors whose commits are recorded by the
+# "pugscode" subversion source control repository.  The contributors'
+# names/handles of are listed in the "pugsroot/AUTHORS" file).
+# See licenses/Artistic2.txt for the 'Artistic License 2.0',
+# under which this code is distributed and which may be found
+# at http://www.opensource.org/licenses/artistic-license-2.0.php
+# or http://www.perlfoundation.org/artistic_license_2_0
+
+# ORIGIN:
+# The code in this file originates directly
+#       from Higher-Order Perl by Mark Dominus,
+#       published by Morgan Kaufmann Publishers,
+#       Copyright 2005 by Elsevier Inc
+# Because of the origin, this file is also subject to the license
+# agreement at http://hop.perl.plover.com/LICENSE.txt
