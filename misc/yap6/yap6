@@ -68,7 +68,8 @@ my $handle_infix_subtraction = sub { my $term = $_[1]; sub { $_[0] - $term } };
 my $handle_infix_multiplication = sub { my $factor = $_[1];
                                         sub {$_[0] * $factor}};
 my $handle_infix_division = sub { my $factor = $_[1];
-                                  die "can't divide by 0" unless $factor;
+                                  warn "failed to divide by 0!" unless $factor;
+                                  $factor ||= 1; #silly, I know; this is only a toy interpreter.
                                   sub {$_[0] / $factor}};
 my $handle_infix_exponentiation_factor = sub { $_[1] };
 my $handle_empty_nothing = sub { 1 };
