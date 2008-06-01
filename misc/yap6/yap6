@@ -52,7 +52,7 @@ $Term               = parser { $term            ->(@_) };
 
 # Currently these handlers do a synchronous evaluation of
 # simple variable assignment, variable printing, and
-# Please Excuse My Dear Aunt arithmetic.
+# Please Excuse My Dear Aunt Sally arithmetic.
 # comprising a one-step interpreter. Soon, instead they
 # will pass around and generate an enhanced AST.
 # On an evaluation run of a given "visible-code instruction set",
