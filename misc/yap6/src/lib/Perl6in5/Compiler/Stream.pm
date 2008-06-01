@@ -1,4 +1,4 @@
-package Stream;
+package Perl6in5::Compiler::Stream;
 use base Exporter;
 @EXPORT_OK = qw(node head tail drop upto upfrom show promise
                 filter transform merge list_to_stream cutsort
@@ -27,23 +27,19 @@ sub tail {
 sub is_promise {
   UNIVERSAL::isa($_[0], 'CODE');
 }
+
 sub promise (&) { $_[0] }
-
-
-## Chapter 6 section 2.1
 
 sub upto {
   my ($m, $n) = @_;
   return if $m > $n;
   node($m, promise { upto($m+1, $n) } );
 }
+
 sub upfrom {
   my ($m) = @_;
   node($m, promise { upfrom($m+1) } );
 }
-
-
-## Chapter 6 section 2.2
 
 sub show {
   my ($s, $n) = @_;
@@ -54,17 +50,11 @@ sub show {
   print $/;
 }
 
-
-## Chapter 6 section 2.2
-
 sub drop {
   my $h = head($_[0]);
   $_[0] = tail($_[0]);
   return $h;
 }
-
-
-## Chapter 6 section 2.2
 
 sub transform (&$) {
   my $f = shift;
@@ -73,9 +63,6 @@ sub transform (&$) {
   node($f->(head($s)),
        promise { transform($f, tail($s)) });
 }
-
-
-## Chapter 6 section 2.2
 
 sub filter (&$) {
   my $f = shift;
@@ -88,9 +75,6 @@ sub filter (&$) {
        promise { filter($f, tail($s)) });
 }
 
-
-## Chapter 6 section 3.1
-
 sub tail {
   my ($s) = @_;
   if (is_promise($s->[1])) {
@@ -98,9 +82,6 @@ sub tail {
   }
   $s->[1];
 }
-
-
-## Chapter 6 section 4
 
 sub merge {
   my ($S, $T) = @_;
@@ -116,9 +97,6 @@ sub merge {
    }
 }
 
-
-## Chapter 6 section 5.3
-
 sub list_to_stream {
   my $node = pop;
   while (@_) {
@@ -131,7 +109,6 @@ sub insert (\@$$);
 sub cutsort {
   my ($s, $cmp, $cut, @pending) = @_;
   my @emit;
-
   while ($s) {
     while (@pending && $cut->($pending[0], head($s))) {
       push @emit, shift @pending;
@@ -145,12 +122,8 @@ sub cutsort {
       $s = tail($s);
     }
   }
-
   return list_to_stream(@pending, undef);
 }
-
-
-## Chapter 6 section 5.3
 
 sub insert (\@$$) {
   my ($a, $e, $cmp) = @_;
@@ -167,17 +140,11 @@ sub insert (\@$$) {
   splice(@$a, $lo, 0, $e);
 }
 
-
-## Chapter 6 section 6.1
-
 sub iterate_function {
   my ($f, $x) = @_;
   my $s;         
   $s = node($x, promise { &transform($f, $s) });
 }
-
-
-## Chapter 6 section 6.3
 
 sub cut_loops {
   my ($tortoise, $hare) = @_;
@@ -195,9 +162,6 @@ sub cut_loops {
   return node(head($tortoise), 
               promise { cut_loops(tail($tortoise), $hare) });
 }
-
-
-## Chapter 6 section 6.3
 
 sub cut_loops2 {
   my ($tortoise, $hare, $n) = @_;

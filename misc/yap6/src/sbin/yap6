@@ -1,8 +1,11 @@
 #!/usr/local/bin/perl
 
-# yap6/yap6
+# yap6/src/sbin/yap6
 # This is intended to be (eventually) a hand-coded replacement for
-# STD.pm->cheat->gimme5->
+# pugs' STD.pm->cheat->gimme5->
+
+# Much of this will soon be refactored into the Perl6in5 modules
+use lib '../lib';
 
 use warnings;
 use strict;

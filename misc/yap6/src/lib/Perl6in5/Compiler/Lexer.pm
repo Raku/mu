@@ -1,8 +1,10 @@
-package Lexer;
+package Perl6in5::Compiler::Lexer;
+
+use Perl6in5::Compiler::Stream qw(node);
+
 use base "Exporter";
 @EXPORT_OK = qw(make_charstream blocks records tokens iterator_to_stream
                 make_lexer allinput);
-
 %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 sub make_charstream {
@@ -10,8 +12,12 @@ sub make_charstream {
   return sub { return getc($fh) };
 }
 
-
-## Chapter 8 section 1.1
+sub iterator_to_stream {
+  my $it = shift;
+  my $v = $it->();
+  return unless defined $v;
+  node($v, sub { iterator_to_stream($it) });
+}
 
 sub records {
   my $input = shift;
@@ -27,9 +33,6 @@ sub records {
   }
 }
 
-
-## Chapter 8 section 1.3
-
 sub allinput {
   my $fh = shift;
   my @data;
@@ -38,6 +41,7 @@ sub allinput {
   }
   sub { return shift @data }
 }
+
 sub blocks {
   my $fh = shift;
   my $blocksize = shift || 8192;
@@ -46,9 +50,6 @@ sub blocks {
     return $block;
   }
 }
-
-
-## Chapter 8 section 1.3
 
 sub tokens {
   my ($input, $label, $pattern, $maketoken) = @_;
@@ -83,9 +84,6 @@ sub tokens {
   }
 }
 
-
-## Chapter 8 section 1.3
-
 sub make_lexer {
   my $lexer = shift;
   while (@_) {
@@ -95,10 +93,6 @@ sub make_lexer {
   $lexer;
 }
 
-
-## Chapter 8 section 1.4
-
-BEGIN { require 'iterator-to-stream.pl' }
 1;
 
 

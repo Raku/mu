@@ -6,15 +6,14 @@ use strict;
 use Perl6in5::Compiler::Stream ':all';
 use Data::Structure::Util qw(unbless);
 use base 'Exporter';
+
 our @EXPORT_OK = qw(lookfor l $End_of_Input $nothing T error handle_error
                 operator star option concatenate alternate
-                display_failures %N iterator_to_stream
-                parser checkval action test say c a o);
+                display_failures %N parser checkval action test say);
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
-use Stream 'node', 'head', 'tail', 'promise';
-
-use Data::Dumper; # so that debug output is on one line:
+use Data::Dumper;
+# so that debug output is on one line:
 $Data::Dumper::Indent = 0;
 $Data::Dumper::Terse = 1;
 $Data::Dumper::Useqq = 1;
@@ -39,10 +38,10 @@ our %N; # parser name storage
 sub parser (&) { bless $_[0] => __PACKAGE__ }
 
 # mere shortcuts
-sub __PACKAGE__::l { @_ = [@_]; goto &lookfor }
-#sub __PACKAGE__::c { goto &concatenate }
-#sub __PACKAGE__::a { goto &alternate }
-#sub __PACKAGE__::o { goto &operator }
+sub Perl6in5::Compiler::Parser::l { @_ = [@_]; goto &lookfor }
+#sub Perl6in5::Compiler::Parser::c { goto &concatenate }
+#sub Perl6in5::Compiler::Parser::a { goto &alternate }
+#sub Perl6in5::Compiler::Parser::o { goto &operator }
 
 sub parser_name { 
     my $parser = shift; 
