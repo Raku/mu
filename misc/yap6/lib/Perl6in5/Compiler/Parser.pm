@@ -1,11 +1,14 @@
+package Perl6in5::Compiler::Parser;
+
 use warnings;
 use strict;
-package Parser;
-use Stream ':all';
+
+use Perl6in5::Compiler::Stream ':all';
+use Data::Structure::Util qw(unbless);
 use base 'Exporter';
 our @EXPORT_OK = qw(lookfor l $End_of_Input $nothing T error handle_error
                 operator star option concatenate alternate
-                display_failures %N
+                display_failures %N iterator_to_stream
                 parser checkval action test say c a o);
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -31,15 +34,15 @@ use overload
 #                '""' => \&parser_name,
   ;
 
-our %N;
+our %N; # parser name storage
 
 sub parser (&) { bless $_[0] => __PACKAGE__ }
 
-# a mere shortcuts
-sub Parser::l { @_ = [@_]; goto &lookfor }
-sub Parser::c { goto &concatenate }
-sub Parser::a { goto &alternate }
-sub Parser::o { goto &operator }
+# mere shortcuts
+sub __PACKAGE__::l { @_ = [@_]; goto &lookfor }
+#sub __PACKAGE__::c { goto &concatenate }
+#sub __PACKAGE__::a { goto &alternate }
+#sub __PACKAGE__::o { goto &operator }
 
 sub parser_name { 
     my $parser = shift; 
@@ -55,14 +58,10 @@ sub list_of {
                      star($separator, $element));
 }
 
-## Chapter 8 section 4.3
-
 sub null_list {
   my $input = shift;
   return ([], $input);
 }
-
-## Chapter 8 section 6
 
 sub action {
   my $action = shift;
@@ -114,8 +113,7 @@ sub End_of_Input {
   my $errmsg = "Syntax Error near ".Dumper($input);
   $errmsg = substr($errmsg,0,70) if length($errmsg) > 70;
   debug "Hint: the last statement must be followed by a semi-colon or newline";
-  if ($ENV{DEBUG}) { debug $errmsg } else { warn $errmsg }
-  die [undef, $input];
+  die $errmsg;
 }
 our $End_of_Input = \&End_of_Input;
 bless $End_of_Input => __PACKAGE__;
@@ -262,28 +260,10 @@ sub T {
     debug "Transforming value produced by $N{$parser}";
     debug "Input to $N{$parser}:  ". Dumper($value);
     my @values;
-    use Data::Structure::Util qw(unbless);
     while (ref($value) eq 'Tuple') {
-#      unshift @values, $value->[1];
-#      $value = $value->[0];
-#      say "_", Dumper($value), "_";
        unbless ( $value );
     }
-#    unshift @values, $value;
-#    { local $" = ')(';
-#      my $msg = "Flattened:  (".Dumper(\@values).")";
-#      if (ref $values[0] eq 'ARRAY') { $msg .= " [\$v[0] = (".Dumper($values[0]).")" };
-#      debug $msg;
-#    }
-#    say "_", Dumper(\@values), "_";
-#    if (@values == 1 && UNIVERSAL::isa($values[0], 'ARRAY')) { 
-#    if (@values == 1 && ref($values[0]) eq 'ARRAY') { 
-#      @values = @{$values[0]};
-#    }
-#    $value = [[$value]] unless ref($value) eq 'ARRAY';
-#    say "_", Dumper($value), "_";
-#    $value = $transform->($value) if ref($value) eq 'SCALAR';
-    $value = $transform->(@$value);# if ref($value) eq 'ARRAY';
+    $value = $transform->(@$value);
     debug "Output from $N{$parser}: ". Dumper($value);
     return ($value, $newinput);
   };
@@ -462,6 +442,13 @@ sub operator {
           });
   $N{$result} = "(operations {$opdesc} on ".((exists $N{$subpart_parser} && defined $N{$subpart_parser})?$N{$subpart_parser}:"unknown subpartparser")."s)";
   $result;
+}
+
+sub iterator_to_stream {
+  my $it = shift;
+  my $v = $it->();
+  return unless defined $v;
+  node($v, sub { iterator_to_stream($it) });
 }
 
 1;

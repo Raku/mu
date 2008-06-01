@@ -1,3 +1,18 @@
-sorry for taking the name yap6 (which formerly belonged to what is now called smop).
 
-please see the comments inline yapc/yapc for an explanation...
+yap6 TODO:
+
+diakopter added 2008-05-31:
+ - rearrange source tree - DONE
+ - stub in the Object/MetaModel dir structure
+ - refactor handler structure to use a lookup/dispatch table
+ - refactor into Perl 5 modules; top-level namespace: Perl6in5
+ - make the parser success-handlers generate an AST
+   instead of pretending to be a rudimentary interpreter
+ - add an optional Longest-Token-Matching mode to Parser.pm
+   to supplement the current (default/only) First-Matching mode
+ - implement Test.pm and related harness/prove
+ - fix copyright notices & license(s)
+ - add ROADMAP
+ - add CHANGES
+ - add KUDOS
+ - add INSTALL
