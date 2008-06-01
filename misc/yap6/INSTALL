@@ -1,0 +1,1 @@
+you cannot yet install yap6, but when the Makefile.PL is ready, you'll be able to install it using that.  Or when the debian directory is fleshed out.  Or when the .spec file is completed (redhat and derivatives).

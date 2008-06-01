@@ -15,9 +15,10 @@ my %parms = (
     PM                  => { 'Compiler.pm' => '$(INST_LIBDIR)/Perl6in5/Compiler.pm' },
     EXE_FILES           => [ 'yap6' ],
     PREREQ_PM => {
-        'Getopt::Long'  => 0,
-        'File::Slurp'   => 9999.13,
-        'App::Ack'      => 0, # because Perl 6 users need this. :)
+        'Getopt::Long'          => 0,
+        'File::Slurp'           => 9999.13,
+        'Data::Structure::Util' => 
+        'App::Ack'              => 0, # because Perl 6 users ought to need this. :)
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 #    clean               => { FILES => 'yap6-1*' },
@@ -30,7 +31,7 @@ if ( $ExtUtils::MakeMaker::VERSION =~ /^\d\.\d\d$/ and $ExtUtils::MakeMaker::VER
 if ( $ExtUtils::MakeMaker::VERSION ge '6.36' ) {
     $parms{EXTRA_META} = <<EOF;
 resources:
-    homepage: http://www.perlsix.org/svn/pugs/browse
+    homepage: http://www.perlsix.org/svn/pugs/browse/misc/yap6
     bugtracker: irc://irc.freenode.net/#perl6 - Ask for a commitbit, and add your failing test (case).
     license: http://dev.perl.org/licenses/
     Repository: http://svn.pugscode.org/pugs
