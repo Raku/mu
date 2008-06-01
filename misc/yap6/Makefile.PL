@@ -15,9 +15,15 @@ my %parms = (
     PM                  => { 'Compiler.pm' => '$(INST_LIBDIR)/Perl6in5/Compiler.pm' },
     EXE_FILES           => [ 'yap6' ],
     PREREQ_PM => {
-        'Getopt::Long'          => 0,
+        'Log::Log4perl'         => 1.16,
+        'Sub::Exporter'         => 0.979,
+        'Getopt::Long'          => '2.37_01',
+        'Params::Util'          => 0.33,
         'File::Slurp'           => 9999.13,
-        'Data::Structure::Util' => 
+        'Data::Structure::Util' => 0.15,
+        'Test::Output'          => 0.10,
+        'Test::More'            => 0.80,
+        'Moose'                 => 0.48,
         'App::Ack'              => 0, # because Perl 6 users ought to need this. :)
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
