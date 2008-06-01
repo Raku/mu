@@ -7,8 +7,8 @@
 use warnings;
 use strict;
 # Parser.pm overloads some Perl operators for grammar notation convenience
-use Parser ':all';
-use Lexer ':all';
+use Perl6in5::Compiler::Parser ':all';
+use Perl6in5::Compiler::Lexer ':all';
 
 my $handle_lex_whitespace = sub { "" };
 
@@ -141,11 +141,11 @@ sub labeledblock {
 
 $N{\&End_of_Input} = 'EOI';
 $N{\&nothing} = '(nothing)';
-$N{$Expression} = 'expression';
-$N{$Term} = 'term';
-$N{$Factor} = 'factor';
-$N{$Statement} = 'statement';
-$N{$Base} = 'base';
+$N{$Expression} = 'Expression';
+$N{$Term} = 'Term';
+$N{$Factor} = 'Factor';
+$N{$Statement} = 'Statement';
+$N{$Base} = 'Base';
 
 $program = star($Statement) - $End_of_Input;
 
@@ -164,7 +164,7 @@ $term = $Factor - star(l('OP', '*') - $Factor >> $handle_infix_multiplication
           
 $factor = $Base - ( l('OP', '**') - $Factor >> $handle_infix_exponentiation_factor
                   | $nothing >> $handle_empty_nothing )
-        >> $handle_infix_exponentiation_operation;
+          >> $handle_infix_exponentiation_operation;
 
 $base = l('INT')
       | (l('IDENTIFIER') > $handle_variable_lookup)
