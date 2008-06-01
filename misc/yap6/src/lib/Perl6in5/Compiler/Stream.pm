@@ -2,7 +2,7 @@ package Perl6in5::Compiler::Stream;
 use base Exporter;
 @EXPORT_OK = qw(node head tail drop upto upfrom show promise
                 filter transform merge list_to_stream cutsort
-                iterate_function cut_loops);
+                iterate_function cut_loops iterator_to_stream allinput);
 
 %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -173,6 +173,22 @@ sub cut_loops2 {
             && $n++;
   return node(head($tortoise), 
               promise { cut_loops(tail($tortoise), $hare, $n) });
+}
+
+sub iterator_to_stream {
+  my $it = shift;
+  my $v = $it->();
+  return unless defined $v;
+  node($v, sub { iterator_to_stream($it) });
+}
+
+sub allinput {
+  my $fh = shift;
+  my @data;
+  { local $/;
+    $data[0] = <$fh>;
+  }
+  sub { return shift @data }
 }
 
 1;

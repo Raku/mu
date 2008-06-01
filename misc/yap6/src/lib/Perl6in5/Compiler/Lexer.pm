@@ -1,22 +1,15 @@
 package Perl6in5::Compiler::Lexer;
 
-use Perl6in5::Compiler::Stream qw(node);
+use Perl6in5::Compiler::Stream qw(node iterator_to_stream allinput);
 
 use base "Exporter";
-@EXPORT_OK = qw(make_charstream blocks records tokens iterator_to_stream
-                make_lexer allinput);
+@EXPORT_OK = qw(make_charstream blocks records tokens 
+                make_lexer);
 %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 sub make_charstream {
   my $fh = shift;
   return sub { return getc($fh) };
-}
-
-sub iterator_to_stream {
-  my $it = shift;
-  my $v = $it->();
-  return unless defined $v;
-  node($v, sub { iterator_to_stream($it) });
 }
 
 sub records {
@@ -31,15 +24,6 @@ sub records {
   return sub {
     return shift @records;
   }
-}
-
-sub allinput {
-  my $fh = shift;
-  my @data;
-  { local $/;
-    $data[0] = <$fh>;
-  }
-  sub { return shift @data }
 }
 
 sub blocks {

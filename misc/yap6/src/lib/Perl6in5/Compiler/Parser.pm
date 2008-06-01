@@ -162,7 +162,7 @@ sub alternate {
       eval { ($v, $newinput) = $_->($input) };
       if ($@) {
         debug "Unhandled exception when trying alternative $q/$np :".Dumper(\$@) unless ref $@;
-        die unless ref $@;
+        exit(1) unless ref $@;
         debug "Failed alternative $q/$np";
         push @failures, $@;
       } else {
@@ -441,13 +441,6 @@ sub operator {
           });
   $N{$result} = "(operations {$opdesc} on ".((exists $N{$subpart_parser} && defined $N{$subpart_parser})?$N{$subpart_parser}:"unknown subpartparser")."s)";
   $result;
-}
-
-sub iterator_to_stream {
-  my $it = shift;
-  my $v = $it->();
-  return unless defined $v;
-  node($v, sub { iterator_to_stream($it) });
 }
 
 1;
