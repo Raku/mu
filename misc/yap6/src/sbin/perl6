@@ -11,7 +11,8 @@ use Perl6in5::Grammar::STD_hand;
 use File::Slurp;
 
 # don't parse by lines, pass the whole input string to the parser file.
-my @data = (read_file($ARGV[0]) or die 'reading input file failed');
+my @data = ($ARGV[0])?(read_file($ARGV[0]) or die 'reading input file failed'):(join('',(<>)));
+
 my $reader = sub { return shift @data };
 my $runner = make_parser($reader) or die 'parser generation failed: '.$!;
 
