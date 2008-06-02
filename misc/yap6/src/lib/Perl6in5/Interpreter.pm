@@ -26,7 +26,6 @@ sub make_runner {
     my $reader = sub { return shift @data };
     eval( "use $grammar;" );
     if (@$) { die 'failed to load grammar: '.$! };
-    my $runner = eval( $grammar.'::make_parser($reader)' );
-    if (@$) { die 'parser generation failed: '.$! };
+    my $runner = make_parser($reader) or die 'parser generation failed: '.$!;
     $runner;
 }

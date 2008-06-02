@@ -3,6 +3,9 @@ package Perl6in5::Grammar::Calculator;
 use warnings;
 use strict;
 
+use base 'Exporter';
+our @EXPORT = qw ( make_parser );
+
 # isa Perl6in5::Grammar someday (to inherit some of the common features below)
 
 use Perl6in5::Compiler::Stream ':all';
