@@ -24,8 +24,8 @@ sub say (@) { foreach (@_) {print $_.$/ if $_} }
 sub debug($);
 # for syrupy syntax
 use overload
-                '-'  => \&concatenate2,
-                '|'  => \&alternate2,
+                '-'  => \&concatenate,
+                '|'  => \&alternate,
                 '>>' => \&T,
                 '>'  => \&V,
                 '/'  => \&checkval,
@@ -133,12 +133,6 @@ our $nothing = \&nothing;
 bless $nothing => __PACKAGE__;
 $N{$nothing} = "(nothing)";
 
-sub alternate2 {
-  my ($A, $B) = @_;
-  alternate($A, $B);
-}
-
-my $ALT = 'A';
 sub alternate {
   my @p = @_;
   return parser { return () } if @p == 0;
@@ -175,11 +169,6 @@ sub alternate {
   };
   $N{$p} = "(" . join(" | ", map $N{$_}, @p) . ")";
   return $p;
-}
-
-sub concatenate2 {
-  my ($A, $B) = @_;
-  concatenate($A, $B);
 }
 
 sub concatenate {
