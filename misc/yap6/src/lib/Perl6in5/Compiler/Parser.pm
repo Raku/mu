@@ -1,4 +1,5 @@
 use strict 'refs';
+use warnings;
 
 # Library based on chap09/arith25.pl
 
@@ -9,20 +10,22 @@ use Exporter;
 @EXPORT_OK = qw(lookfor _ $End_of_Input $nothing T error handle_error
                 operator star option concatenate alternate
                 display_failures labeledblock commalist 
-                termilist %N l
-                parser checkval);
+                termilist
+                %N
+                l parser checkval);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise';
-sub trace($);
+
 use overload
-                '-' => \&concatenate2,
-                '|' => \&alternate2,
+                '-' => \&concatenate,
+                '|' => \&alternate,
                 '>>' => \&T,
                 '>' => \&V,
                 '/' => \&checkval,
-                '""' => \&overload::StrVal
+                '""' => \&overload::StrVal,
+#                '""' => \&parser_name
   ;
 
 use Data::Dumper;
@@ -30,19 +33,30 @@ use Data::Dumper;
 $Data::Dumper::Indent = 0;
 $Data::Dumper::Terse = 1;
 $Data::Dumper::Useqq = 1;
+$Data::Dumper::Quotekeys = 0;
+#$Data::Dumper::Deparse = 1; # trace
+
+sub trace ($) { # trace
+  my $msg = (shift) . "\n"; # trace
+  my $i = 0; # trace
+  $i++ while caller($i); # trace
+  $I = " " x ($i-2); # trace
+  $I =~ s/../ |/g; # trace
+  $I .= ' ' unless length($I) % 2; # trace
+  print $I, $msg; # trace
+} # trace
 
 sub parser (&) { bless $_[0] => __PACKAGE__ }
-sub l { @_ = [@_]; goto &lookfor }
 
-#sub Perl6in5::Compiler::Parser::_ { @_ = [@_]; goto &lookfor }
+sub l { @_ = [@_]; goto &lookfor }
 
 sub lookfor {
   my $wanted = shift;
   my $value = shift || sub { $_[0][1] };
   my $u = shift;
-
   $wanted = [$wanted] unless ref $wanted;
-  my $parser = parser {
+  my $parser;
+  $parser = parser {
     my $input = shift;
     trace "Looking for token ".Dumper($wanted);
     unless (defined $input) {
@@ -50,6 +64,11 @@ sub lookfor {
       die ['TOKEN', $input, $wanted];
     }
     my $next = head($input);
+    unless (defined $next) {
+      trace "Premature end of input";
+      die ['TOKEN', $next, $wanted];
+    }
+    $next = [$next] unless ref $next;
     trace "Next token is ".Dumper($next);
     for my $i (0 .. $#$wanted) {
       next unless defined $wanted->[$i];
@@ -62,8 +81,7 @@ sub lookfor {
     trace "Token matched";
     return ($wanted_value, tail($input));
   };
-
-  $N{$parser} = "[@$wanted]";
+  $N{$parser} = "[@$wanted]"; # trace
   return $parser;
 }
 
@@ -71,53 +89,45 @@ sub End_of_Input {
   my $input = shift;
   trace "Looking for End of Input";
   return (undef, undef) unless defined($input);
-  die ["End of input", $input];
+  return (undef, $input);
 }
+
 $End_of_Input = \&End_of_Input;
 bless $End_of_Input => __PACKAGE__;
-$N{$End_of_Input} = "EOI";
 
 sub nothing {
   my $input = shift;
   trace "Looking for nothing";
-  if (defined $input) {
+  if (defined $input) { # trace
     trace "(Next token is ".Dumper($input->[0]);
-  } else {
+  } else { # trace
     trace "(At end of input)";
-  }
+  } # trace
   return (undef, $input);
 }
 
 $nothing = \&nothing;
 bless $nothing => __PACKAGE__;
-$N{$nothing} = "(nothing)";
 
-sub alternate2 {
-  my ($A, $B) = @_;
-  alternate($A, $B);
-}
-
-my $ALT = 'A';
 sub alternate {
-  my @p = @_;
+  my @p = grep $_,@_;
   return parser { return () } if @p == 0;
   return $p[0]             if @p == 1;
-
   my $p;
-  $N{$p} = "(" . join(" | ", map $p, @p) . ")";
   $p = parser {
     my $input = shift;
     trace "Looking for alt $N{$p}";
-    if (defined $input) {
-      trace "(Next token is ".Dumper($input->[0]);
-    } else {
-      trace "(At end of input)";
-    }
-    my ($q, $np) = (0, scalar @p);
+    if (defined $input) { # trace
+      trace "Next token is ".Dumper($input->[0]);
+    } else { # trace
+      trace "At end of input";
+    } # trace
+    $input = [$input] unless ref $input;
+    my ($q, $np) = (0, scalar @p); # trace
     my ($v, $newinput);
     my @failures;
     for (@p) {
-      $q++;
+      $q++; # trace
       trace "Trying alternative $q/$np";
       eval { ($v, $newinput) = $_->($input) };
       if ($@) {
@@ -132,43 +142,38 @@ sub alternate {
     trace "No alternatives matched in $N{$p}; failing";
     die ['ALT', $input, \@failures];
   };
+  $N{$p} = "(" . join(" | ", map eval{$N{$_}}, @p) . ")"; # trace
   return $p;
 }
 
-sub concatenate2 {
-  my ($A, $B) = @_;
-  concatenate($A, $B);
-}
-
-my $CON = 'A';
 sub concatenate {
-
-  my @p = @_;
+  my @p = grep $_,@_;
   return $nothing if @p == 0;
   return $p[0]  if @p == 1;
-
   my $p;
   $p = parser {
     my $input = shift;
     trace "Looking for $N{$p}";
-    if (defined $input) {
-      trace "(Next token is ".Dumper($input->[0]);
-    } else {
-      trace "(At end of input)";
-    }
+    if (defined $input) { # trace
+      trace "Next token is ".Dumper($input->[0]);
+    } else { # trace
+      trace "At end of input";
+    } # trace
+    $input = [$input] unless ref $input;
     my $v;
     my @values;
-    my ($q, $np) = (0, scalar @p);
-    my @succeeded;
+    my ($q, $np) = (0, scalar @p); # trace
+    my @succeeded; # trace
     for (@p) {
-      $q++;
+      $q++; # trace
       eval { ($v, $input) = $_->($input) };
       if ($@) {
         die unless ref $@;
-        die ['CONC', $input, [\@succeeded, $@]];
+        die ['CONC', $input, [\@succeeded, $@]]; # trace
+        die ['CONC', $input, [[], $@]]; # sneaky :)
       } else {
         trace "Matched concatenated component $q/$np";
-        push @succeeded, $N{$_};
+        push @succeeded, $N{$_}; # trace
         push @values, $v;
       }
     }
@@ -178,32 +183,34 @@ sub concatenate {
     }
     return (bless(\@values => Tuple), $input);
   };
-  $N{$p} = join " ", map $N{$_}, @p;
+  $N{$p} = join " ", map $N{$_}, @p; # trace
   return $p;
 }
 
 my $null_tuple = [];
 bless $null_tuple => 'Tuple';
+
 sub star {
   my $p = shift;
   my ($p_star, $conc);
-  $p_star = alternate(T($conc = concatenate($p, sub { $p_star->($_[0]) }),
+  my $p_starexec = parser { $p_star->(@_) };
+  $N{$p_starexec} = ""; # trace
+  $p_star = alternate(T($conc = concatenate($p, $p_starexec),
                         sub { 
-#                          print "STAR($_[0], $_[1])";
                           [$_[0], @{$_[1]}] 
                         }),
                       T($nothing,
                         sub { $null_tuple }),
                      );
-  $N{$p_star} = "star($N{$p})";
-  $N{$conc} = "$N{$p} $N{$p_star}";
+  $N{$p_star} = "star($N{$p})"; # trace
+  $N{$conc} = "$N{$p} $N{$p_star}"; # trace
   $p_star;
 }
 
 sub option {
   my $p = shift;
   $p_opt = alternate($p, $nothing);
-  $N{$p_opt} = "option($N{$p})";
+  $N{$p_opt} = "option($N{$p})"; # trace
   $p_opt;
 }
 
@@ -217,7 +224,6 @@ sub commalist {
     $separator ||= lookfor('COMMA');
     $sepstr ||= ", ";
   }
-
   my $parser = T(concatenate($p,
                              star(T(concatenate($separator, $p),
                                     sub { $_[1] }
@@ -225,9 +231,7 @@ sub commalist {
                              option($separator)),
                  sub { [$_[0], @{$_[1]}] }
                 );
-
-
-  $N{$parser} = "$N{$p}$sepstr $N{$p}$sepstr ...";
+  $N{$parser} = "$N{$p}$sepstr $N{$p}$sepstr ..."; # trace
   return $parser;
 }
 
@@ -246,39 +250,24 @@ sub labeledblock {
                                  ),
                       lookfor('RBRACE'),
                      );
-  $N{$p} = "$N{$label} { $N{$t} }";
+  $N{$p} = "$N{$label} { $N{$t} }"; # trace
   T($p, sub { [$_[0], @{$_[2]}] });
 }
 
-use Data::Dumper;
 # Only suitable for applying to concatenations
 sub T {
   my ($parser, $transform) = @_;
-#  return $parser;
-  my $p = parser {
+  my $p;
+  $p = parser {
     my $input = shift;
     my ($value, $newinput) = $parser->($input);
     trace "Transforming value produced by $N{$parser}";
     trace "Input to $N{$parser}:  ". Dumper($value);
-#    my @values;
-#    while (ref($value) eq 'Pair') {
-#      unshift @values, $value->[1];
-#      $value = $value->[0];
-#    }
-#    unshift @values, $value;
-#    { local $" = ')(';
-#      print "Flattened:  (@values)";
-#      if (ref $values[0] eq 'ARRAY') { print " [\$v[0] = (@{$values[0]})]" };
-#      print;
-#    }
-#    if (@values == 1 && UNIVERSAL::isa($values[0], 'ARRAY')) { 
-#      @values = @{$values[0]};
-#    }
     $value = $transform->(@$value);
     trace "Output from $N{$parser}: ". Dumper($value);
     return ($value, $newinput);
   };
-  $N{$p} = $N{$parser};
+  $N{$p} = $N{$parser}; # trace
   return $p;
 }
 
@@ -294,18 +283,19 @@ sub V {
     trace "Output from $N{$parser}: ". Dumper($value);
     return ($value, $newinput);
   };
-  $N{$p} = $N{$parser};
+  $N{$p} = $N{$parser}; # trace
   return $p;
 }
 
 sub checkval {
   my ($parser, $condition) = @_;
-  $label = "$N{$parser} condition";
+  $label = "$N{$parser} condition"; # trace
   return parser {
     my $input = shift;
     my ($val, $newinput) = $parser->($input);
     return ($val, $newinput) if ($condition->($val));
-    die ['CONDITION', $label, $val];
+    die ['CONDITION', $label, $val]; # trace
+    die ['CONDITION', "trace mode off", $val]; # sneaky
   }
 }
 
@@ -319,64 +309,32 @@ sub test {
 }
 
 sub error {
-  my ($checker, $continuation) = @_;
-  my $p;
-  $p = parser {
-    my $input = shift;
-    trace "Error in $N{$continuation}";
-    trace "Discarding up to $N{$checker}";
-    my @discarded;
-
-    while (defined($input)) {
-      my $h = head($input);
-      if (my (undef, $result) = $checker->($input)) {
-        trace "Discarding $N{$checker}";
-        push @discarded, $N{$checker};
-        $input = $result;
-        last;
-      } else {
-        trace "Discarding token [@$h]";
-        push @discarded, $h->[1];
-        drop($input);
-      }
-    }
-
-    warn "Erroneous input: ignoring '@discarded'" if @discarded;
-    return unless defined $input;
-
-    trace "Continuing with $N{$continuation} after error recovery";
-    return $continuation->($input);
-  };
-  $N{$p} = "errhandler($N{$continuation} -> $N{$checker})";
-  return $p;
-}
-
-
-sub handle_error {
   my ($try) = @_;
   my $p;
   $p = parser {
     my $input = shift;
     my @result = eval { $try->($input) };
     if ($@) {
+      my $msg = $@;
+      $msg =~ s/ at .*//;
+      $msg =~ s/^.*propagated.*$//mg;
+      $msg =~ s/\n//mg;
+      print "Illegal usage: ".$msg;
       display_failures($@) if ref $@;
       die;
     }
     return @result;
   };
-}
-
-sub trace ($) {
-  my $msg = (shift) . "\n";
-  my $i = 0;
-  $i++ while caller($i);
-  $I = " " x ($i-2);
-  $I =~ s/../ |/g;
-  print $I, $msg;
+  $N{$p} = $N{$try}; # trace
+  $p;
 }
 
 sub display_failures {
   my ($fail, $depth) = @_;
+  my $xx = 0;
+  $xx = 1; # trace
+  die unless $xx;
+  $Data::Dumper::Useqq = 0;
   $depth ||= 0;
   my $I = "  " x $depth;
   unless (ref $fail) { die $fail }
@@ -385,7 +343,12 @@ sub display_failures {
   while (length($pos_desc) < 40) {
     if ($position) {
       my $h = head($position);
-      $pos_desc .= "[@$h] ";
+      if (!defined $h) {
+        $pos_desc .= "End of input ";
+        last;
+      }
+      $h = [$h] unless ref $h;
+      $pos_desc .= "@$h ";
     } else {
       $pos_desc .= "End of input ";
       last;
@@ -394,19 +357,18 @@ sub display_failures {
   }
   chop $pos_desc;
   $pos_desc .= "..." if defined $position;
-
   if ($type eq 'TOKEN') {
     print $I, "Wanted [@$data] instead of '$pos_desc'";
   } elsif ($type eq 'End of input') {
     print $I, "Wanted EOI instead of '$pos_desc'";
   } elsif ($type eq 'ALT') {
-    print $I, ($depth ? "Or any" : "Any"), " of the following:";
+    print $I, ($depth ? "Or any" : "Any"), " of the following:\n";
     for (@$data) {
       display_failures($_, $depth+1);
     }
   } elsif ($type eq 'CONC') {
     my ($succeeded, $subfailure) = @$data;
-    print $I, "Following (@$succeeded), got '$pos_desc' instead of:";
+    print $I, "Following (@$succeeded), got '$pos_desc' instead of:\n";
     display_failures($subfailure, $depth+1);
   } else {
     die "Unknown failure type '$type'";
@@ -417,7 +379,6 @@ sub operator {
   my ($subpart_parser, @ops) = @_;
   my (@alternatives);
   my $opdesc;
-  
   for my $op (@ops) {
     my ($operator, $op_func) = @$op;
     my $rest_op;
@@ -428,14 +389,12 @@ sub operator {
                        my $rest = $_[1];
                        sub { $op_func->($_[0], $rest) }
                      });
-    $N{$rest_op} = $N{$t_rest_op} = "($N{$operator} $N{$subpart_parser})";
-    $opdesc .= "$N{$operator} ";
+    $N{$rest_op} = $N{$t_rest_op} = "($N{$operator} $N{$subpart_parser})"; # trace
+    $opdesc .= "$N{$operator} "; # trace
   }
-  chop $opdesc;
-
+  chop $opdesc; # trace
   my $alts = alternate(@alternatives);
-  $N{$alts} = "some operation {$opdesc} $N{$subpart_parser}";
-  
+  $N{$alts} = "some operation {$opdesc} $N{$subpart_parser}"; # trace
   my $result = 
     T(concatenate($subpart_parser,
                   star($alts)),
@@ -445,7 +404,7 @@ sub operator {
             }
             $total;
           });
-  $N{$result} = "(operations {$opdesc} on $N{$subpart_parser}s)";
+  $N{$result} = "(operations {$opdesc} on $N{$subpart_parser}s)"; # trace
   $result;
 }
 

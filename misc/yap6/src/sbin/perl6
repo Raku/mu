@@ -3,6 +3,8 @@
 use warnings;
 use strict;
 
+$| = 1;
+
 use lib '../lib';
 #use Perl6in5::Interpreter;
 #my $runner = make_runner( 'Perl6in5::Grammar::STD_hand', $ARGV[0] );
@@ -16,5 +18,5 @@ my @data = ($ARGV[0])?(read_file($ARGV[0]) or die 'reading input file failed'):(
 my $reader = sub { return shift @data };
 my $runner = make_parser($reader) or die 'parser generation failed: '.$!;
 
-$runner->() && print "\n";
-
+my $result = $runner->();
+exit $result;

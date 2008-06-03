@@ -1,7 +1,7 @@
 package Perl6in5::Grammar::STD_hand;
 
 use warnings;
-use strict;
+#use strict;
 
 use base 'Exporter';
 our @EXPORT = qw ( make_parser );
@@ -18,7 +18,6 @@ use Math::BigFloat;
 sub make_parser {
     my $input = shift;
     
-    
     my $handle_lex_whitespace = sub { "" };
     
     my $lexer = iterator_to_stream(make_lexer($input,
@@ -26,7 +25,7 @@ sub make_parser {
     [ 'TERMINATOR'      ,qr/;\n*|\n+/         ,                            ],
     [ 'INT'             ,qr/\d+/              ,                            ],
     [ 'SAY'             ,qr/\bsay\b/          ,                            ],
-    [ 'IDENTIFIER'      ,qr|[A-Za-z_]\w*|     ,                            ],
+    [ 'IDENTIFIER'      ,qr|\$[A-Za-z_]\w*|   ,                            ],
     [ 'OP'              ,qr#\*\*|[-=+*/()]#   ,                            ],
     [ 'WHITESPACE'      ,qr/\s+/              ,$handle_lex_whitespace      ],
 
@@ -84,7 +83,7 @@ sub make_parser {
 
     my $handle_infix_exponentiation_operation = sub { $_[0] ** $_[1] };
 
-    my $handle_variable_lookup = sub { $VAR{$_[0]} };
+    my $handle_variable_lookup = sub { die "Undeclared Variable $_[0]" unless exists $VAR{$_[0]}; $VAR{$_[0]}; };
 
     my $handle_base_value = sub { $_[1] };
 
@@ -102,8 +101,7 @@ sub make_parser {
     $statement = l('SAY') - $Expression - l('TERMINATOR')
                  >> $handle_say_statement
                | l('IDENTIFIER') - l('OP', '=') - $Expression - l('TERMINATOR')
-                 >> $handle_assignment_statement
-               | error(lookfor('TERMINATOR'), $Statement);
+                 >> $handle_assignment_statement;
 
     $expression = $Term - star(l('OP', '+') - $Term >>  $handle_infix_addition
                              | l('OP', '-') - $Term >> $handle_infix_subtraction) 
@@ -122,7 +120,17 @@ sub make_parser {
           | l('OP', '(') - $Expression - l('OP', ')')
           >> $handle_base_value;
 
-    sub { $program->($lexer) }
+    sub {
+        eval { error($program)->($lexer) };
+        if ($@) {
+            print "  Syntax Error...!";
+            #print Dumper($@);
+            #display_failures($@);
+            return 255;
+        } else {
+            return 0;
+        }
+    }
 }
 
 1;
