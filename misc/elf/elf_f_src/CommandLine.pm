@@ -97,17 +97,17 @@ One can also do
         $output_file = $args.shift || self.print_usage_and_die;
       }
       elsif $arg eq '-e' {
-        @*INC.unshift($incs.reverse.flatten); $incs = [];
+        @*INC.unshift($incs.flatten); $incs = [];
         my $p6_code = $args.shift || self.print_usage_and_die;
         $handle.('-e',$p6_code);
       }
       elsif file_exists($arg) {
-        @*INC.unshift($incs.reverse.flatten); $incs = [];
+        @*INC.unshift($incs.flatten); $incs = [];
         $handle.($arg,slurp($arg));
       }
       elsif $arg eq '-I' {
         my $dir = $args.shift || self.print_usage_and_die;
-        $incs.unshift($dir);
+        $incs.push($dir);
       }
       elsif $arg eq '--' {
         last;
