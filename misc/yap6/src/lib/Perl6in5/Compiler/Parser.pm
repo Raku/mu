@@ -1,5 +1,6 @@
 use strict 'refs';
 use warnings;
+no warnings 'recursion';
 
 # Library based on chap09/arith25.pl
 
@@ -27,6 +28,8 @@ use overload
                 '""' => \&overload::StrVal,
 #                '""' => \&parser_name
   ;
+
+$| = 1; # trace
 
 use Data::Dumper;
 # so that trace output is on one line:
@@ -88,8 +91,8 @@ sub lookfor {
 sub End_of_Input {
   my $input = shift;
   trace "Looking for End of Input";
-  return (undef, undef) unless defined($input);
-  return (undef, $input);
+  return (undef, undef) unless defined($input->[0]);
+  die ["End of input", $input];
 }
 
 $End_of_Input = \&End_of_Input;
@@ -99,7 +102,7 @@ sub nothing {
   my $input = shift;
   trace "Looking for nothing";
   if (defined $input) { # trace
-    trace "(Next token is ".Dumper($input->[0]);
+    trace "Next token is ".Dumper($input->[0]);
   } else { # trace
     trace "(At end of input)";
   } # trace
@@ -260,6 +263,7 @@ sub T {
   my $p;
   $p = parser {
     my $input = shift;
+    trace "Going to transform with $N{$parser}";
     my ($value, $newinput) = $parser->($input);
     trace "Transforming value produced by $N{$parser}";
     trace "Input to $N{$parser}:  ". Dumper($value);
@@ -315,13 +319,15 @@ sub error {
     my $input = shift;
     my @result = eval { $try->($input) };
     if ($@) {
-      my $msg = $@;
-      $msg =~ s/ at .*//;
-      $msg =~ s/^.*propagated.*$//mg;
-      $msg =~ s/\n//mg;
-      print "Illegal usage: ".$msg;
+      my $msg = Dumper($@);
+      if ($msg =~ / at /) {
+          $msg =~ s/ at .*//;
+          $msg =~ s/^.*propagated.*$//mg;
+          $msg =~ s/\n//mg;
+          print "Illegal usage: ".$msg;
+      }
       display_failures($@) if ref $@;
-      die;
+      die $msg;
     }
     return @result;
   };
@@ -333,8 +339,7 @@ sub display_failures {
   my ($fail, $depth) = @_;
   my $xx = 0;
   $xx = 1; # trace
-  die unless $xx;
-  $Data::Dumper::Useqq = 0;
+  return unless $xx;
   $depth ||= 0;
   my $I = "  " x $depth;
   unless (ref $fail) { die $fail }

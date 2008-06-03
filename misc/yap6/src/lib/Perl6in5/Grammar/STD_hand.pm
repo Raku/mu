@@ -96,7 +96,7 @@ sub make_parser {
     my $handle_integer_inst =
     sub { Math::BigFloat->new($_[0]) };
 
-    $program = star($Statement) - $End_of_Input;
+    $program = error(star($Statement) - $End_of_Input);
 
     $statement = l('SAY') - $Expression - l('TERMINATOR')
                  >> $handle_say_statement
@@ -121,7 +121,7 @@ sub make_parser {
           >> $handle_base_value;
 
     sub {
-        eval { error($program)->($lexer) };
+        eval { $program->($lexer) };
         if ($@) {
             print "  Syntax Error...!";
             #print Dumper($@);
