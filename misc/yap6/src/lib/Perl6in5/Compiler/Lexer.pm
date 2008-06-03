@@ -1,16 +1,31 @@
+#
+# This software is Copyright 2005 by Elsevier Inc.  You may use it
+# under the terms of the license at http://perl.plover.com/hop/LICENSE.txt .
+#
+
+
+
+###
+### Lexer.pm
+###
+
+## Chapter 8 section 1.1
+
 package Perl6in5::Compiler::Lexer;
-
-use Perl6in5::Compiler::Stream qw(node iterator_to_stream allinput);
-
+use Perl6in5::Compiler::Stream 'node';
 use base "Exporter";
-@EXPORT_OK = qw(make_charstream blocks records tokens 
-                make_lexer);
+@EXPORT_OK = qw(make_charstream blocks records tokens iterator_to_stream
+                make_lexer allinput);
+
 %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 sub make_charstream {
   my $fh = shift;
   return sub { return getc($fh) };
 }
+
+
+## Chapter 8 section 1.1
 
 sub records {
   my $input = shift;
@@ -26,6 +41,17 @@ sub records {
   }
 }
 
+
+## Chapter 8 section 1.3
+
+sub allinput {
+  my $fh = shift;
+  my @data;
+  { local $/;
+    $data[0] = <$fh>;
+  }
+  sub { return shift @data }
+}
 sub blocks {
   my $fh = shift;
   my $blocksize = shift || 8192;
@@ -34,6 +60,9 @@ sub blocks {
     return $block;
   }
 }
+
+
+## Chapter 8 section 1.3
 
 sub tokens {
   my ($input, $label, $pattern, $maketoken) = @_;
@@ -68,6 +97,9 @@ sub tokens {
   }
 }
 
+
+## Chapter 8 section 1.3
+
 sub make_lexer {
   my $lexer = shift;
   while (@_) {
@@ -77,23 +109,11 @@ sub make_lexer {
   $lexer;
 }
 
+sub iterator_to_stream {
+  my $it = shift;
+  my $v = $it->();
+  return unless defined $v;
+  node($v, sub { iterator_to_stream($it) });
+}
+
 1;
-
-
-# COPYRIGHT NOTICE:
-# The contents of this file are Copyright (c) 2008, Matthew Wilson
-# and any other contributors whose commits are recorded by the
-# "pugscode" subversion source control repository.  The contributors'
-# names/handles of are listed in the "pugsroot/AUTHORS" file).
-# See licenses/Artistic2.txt for the 'Artistic License 2.0',
-# under which this code is distributed and which may be found
-# at http://www.opensource.org/licenses/artistic-license-2.0.php
-# or http://www.perlfoundation.org/artistic_license_2_0
-
-# ORIGIN:
-# The code in this file originates directly
-#       from Higher-Order Perl by Mark Dominus,
-#       published by Morgan Kaufmann Publishers,
-#       Copyright 2005 by Elsevier Inc
-# Because of the origin, this file is also subject to the license
-# agreement at http://hop.perl.plover.com/LICENSE.txt

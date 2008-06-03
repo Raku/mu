@@ -16,4 +16,5 @@ my @data = ($ARGV[0])?(read_file($ARGV[0]) or die 'reading input file failed'):(
 my $reader = sub { return shift @data };
 my $runner = make_parser($reader) or die 'parser generation failed: '.$!;
 
-$runner->();
+$runner->() && print "\n";
+
