@@ -1,6 +1,0 @@
-#!/usr/local/bin/perl
-
-use lib '../lib';
-use Perl6in5::Interpreter;
-my $runner = make_runner( 'Perl6in5::Grammar::Calculator', $ARGV[0] );
-$runner->();
