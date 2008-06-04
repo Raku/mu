@@ -150,7 +150,7 @@ EOM
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "perl -Ilib sbin/perl6 $filename 2>&1";
+        system "perl -Ilib sbin/perl6 $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
