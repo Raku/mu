@@ -54,6 +54,7 @@ package Evalbot;
             nqp     => \&exec_nqp,
             rakudo  => \&exec_p6,
             elf     => \&exec_elf,
+            yap6    => \&exec_yap6,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ")$postfix";
 
@@ -137,6 +138,19 @@ EOM
         print $tmp_fh $program;
         close $tmp_fh;
         system "./elf_f_faster $name >> $filename 2>&1";
+        unlink $name;
+        chdir $FindBin::Bin;
+        return;
+    }
+
+    sub exec_yap6 {
+        my ($program, $fh, $filename) = @_;
+        chdir('../yap6')
+            or confess("Can't chdir to elf base dir: $!");
+        my ($tmp_fh, $name) = tempfile();
+        print $tmp_fh $program;
+        close $tmp_fh;
+        system "perl -Ilib sbin/perl6 $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
