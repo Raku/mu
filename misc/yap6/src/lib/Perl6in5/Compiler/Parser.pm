@@ -11,11 +11,10 @@ use Exporter;
 @EXPORT_OK = qw(lookfor _ $End_of_Input $nothing T error handle_error
                 operator star option concatenate alternate
                 display_failures labeledblock commalist 
-                termilist
-                %N
-                l parser checkval);
+                termilist trace %N l parser checkval);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
+
 use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise';
 
@@ -184,7 +183,7 @@ sub concatenate {
     while (ref $values[0] eq 'Tuple') {
       splice @values, 0, 1, @{$values[0]};
     }
-    return (bless(\@values => Tuple), $input);
+    return (bless(\@values => 'Tuple'), $input);
   };
   $N{$p} = join " ", map $N{$_}, @p; # trace
   return $p;
@@ -319,11 +318,14 @@ sub error {
     my $input = shift;
     my @result = eval { $try->($input) };
     if ($@) {
+      my $trace = 0;
+      $trace = 1; # trace
       my $msg = Dumper($@);
       if ($msg =~ / at /) {
+          if (!$trace) {
           $msg =~ s/ at .*//;
           $msg =~ s/^.*propagated.*$//mg;
-          $msg =~ s/\n//mg;
+          $msg =~ s/\n//mg; }
           print "Illegal usage: ".$msg;
       }
       display_failures($@) if ref $@;

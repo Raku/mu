@@ -1,10 +1,12 @@
 package Perl6in5::Grammar::STD_hand;
 
 use warnings;
-#use strict;
+use strict;
 
 use base 'Exporter';
 our @EXPORT = qw ( make_parser );
+
+use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 
 # isa Perl6in5::Grammar someday (to inherit some of the common features below)
 
@@ -22,19 +24,20 @@ sub make_parser {
     
     my $lexer = iterator_to_stream(make_lexer($input,
 
-    [ 'TERMINATOR'      ,qr/;\n*|\n+/         ,                            ],
+    [ 'TRM'             ,qr/;\n*|\n+/         ,                            ],
+    [ 'DLR'             ,qr/\$/         ,                            ],
     [ 'INT'             ,qr/\d+/              ,                            ],
     [ 'SAY'             ,qr/\bsay\b/          ,                            ],
-    [ 'IDENTIFIER'      ,qr|\$[A-Za-z_]\w*|   ,                            ],
+    [ 'ID'              ,qr|[A-Za-z_]\w*|   ,                            ],
     [ 'OP'              ,qr#\*\*|[-=+*/()]#   ,                            ],
-    [ 'WHITESPACE'      ,qr/\s+/              ,$handle_lex_whitespace      ],
+    [ 'WS'              ,qr/\s+/              ,$handle_lex_whitespace      ],
 
     )); 
 
     my %VAR;
 
-    my ($base, $expression, $factor, $program, $statement, $term);
-    my ($Base, $Expression, $Factor, $Program, $Statement, $Term);
+    my ($base, $expression, $factor, $program, $statement, $term, $scopeDeclarator, $sVar);
+    my ($Base, $Expression, $Factor, $Program, $Statement, $Term, $ScopeDeclarator, $SVar);
 
     $Base               = parser { $base            ->(@_) };
     $Expression         = parser { $expression      ->(@_) };
@@ -42,6 +45,8 @@ sub make_parser {
     $Program            = parser { $program         ->(@_) };
     $Statement          = parser { $statement       ->(@_) };
     $Term               = parser { $term            ->(@_) };
+    $ScopeDeclarator    = parser { $scopeDeclarator ->(@_) };
+    $SVar               = parser { $sVar            ->(@_) };
 
     # these hash keys are coderef (addresses)
     $N{ $End_of_Input      } = 'EOI';
@@ -52,12 +57,52 @@ sub make_parser {
     $N{ $Statement         } = 'Statement';
     $N{ $Base              } = 'Base';
     $N{ $Program           } = 'Program';
+    $N{ $ScopeDeclarator   } = 'my|our';
+    $N{ $SVar              } = 'sVar';
+
+sub say (@) { print $_."\n" for @_ }
+
+sub adn (@) { 
+    say "Adding AST node: ".(Dumper([map("$_",@_)]));
+    Dumper([map("$_",@_)]);
+}
 
     my $handle_say_statement =
-    sub { print $_[1]."\n" };
+    #sub { print $_[1]."\n" };
+    sub { adn('__PACKAGE__::say',$_[1]) };
 
     my $handle_assignment_statement =
-    sub { $VAR{ $_[0]} = $_[2] };
+    #sub { $VAR{ $_[0] } = $_[2] };
+    sub { # keep a parse-time pad of declared variable names
+            adn('__PACKAGE__::assign',@_[0,2]) };
+
+    my $handle_declarator = 
+    sub { bless([$_[0]] => 'Tuple') };
+
+    $sVar = concatenate(l('DLR'),l('ID')) >> sub {
+            "$_[0]$_[1]";
+            #bless(["$_[0]$_[1]"] => 'Tuple')
+        };
+
+    my $handle_declaration_statement =
+    #sub { $VAR{ $_[0] } = $_[2] };
+    sub {   if ($_[0]) {
+                warn "declaration of $_[1] masks ".
+                "another in the same scope" if exists $VAR{$_[1]};
+                # keep a parse-time pad of declared variable names..
+                # later such checking will be done during analysis
+                # (after parsing)
+                adn('__PACKAGE__::declare',($_[0],$_[1]))
+            } else {
+                die "$_[1] has yet to be declared" unless exists $VAR{$_[1]};
+            }
+            $_[3] = "$_[3]";
+            shift;
+            trace " \%N size... ".scalar(keys(%N));
+            trace "setting $_[0] to $_[2]";
+            $VAR{$_[0]} = $_[2];
+            trace " \%N size... ".scalar(keys(%N));
+            $handle_assignment_statement->(@_) };
 
     my $handle_infix_addition =
     sub { my $term = $_[1];
@@ -73,7 +118,7 @@ sub make_parser {
           
     my $handle_infix_division =
     sub { my $factor = $_[1];
-          warn "failed to divide by 0!" unless $factor;
+          warn "cannot divide by 0." unless $factor;
           $factor ||= 1; #silly, I know; this is only a toy interpreter.
           sub {$_[0] / $factor}};
           
@@ -83,7 +128,7 @@ sub make_parser {
 
     my $handle_infix_exponentiation_operation = sub { $_[0] ** $_[1] };
 
-    my $handle_variable_lookup = sub { die "Undeclared Variable $_[0]" unless exists $VAR{$_[0]}; $VAR{$_[0]}; };
+    my $handle_variable_lookup = sub { die "Undeclared variable $_[0]" unless exists $VAR{$_[0]}; "$VAR{$_[0]}"; };
 
     my $handle_base_value = sub { $_[1] };
 
@@ -98,10 +143,12 @@ sub make_parser {
 
     $program = error(star($Statement) - $End_of_Input);
 
-    $statement = l('SAY') - $Expression - l('TERMINATOR')
+    $scopeDeclarator = l('ID','my') | l('ID','our');
+
+    $statement = l('SAY') - $Expression - l('TRM')
                  >> $handle_say_statement
-               | l('IDENTIFIER') - l('OP', '=') - $Expression - l('TERMINATOR')
-                 >> $handle_assignment_statement;
+               | (option($ScopeDeclarator) > $handle_declarator) - $sVar - l('OP', '=') - $Expression - l('TRM')
+                 >> $handle_declaration_statement;
 
     $expression = $Term - star(l('OP', '+') - $Term >>  $handle_infix_addition
                              | l('OP', '-') - $Term >> $handle_infix_subtraction) 
@@ -116,7 +163,7 @@ sub make_parser {
               >> $handle_infix_exponentiation_operation;
 
     $base = (l('INT') > $handle_integer_inst)
-          | (l('IDENTIFIER') > $handle_variable_lookup)
+          | ($sVar > $handle_variable_lookup)
           | l('OP', '(') - $Expression - l('OP', ')')
           >> $handle_base_value;
 
