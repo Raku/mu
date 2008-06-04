@@ -21,3 +21,11 @@ diakopter added 2008-06-01:
  - switch the debug/verbose/info/warn system to use Log::Log4perl
  - use Sub::Exporter's subroutine wrapper-generators for
    generating Perl 5 code for Perl 6 compilation units...?
+   
+diakopter added 2008-06-02:
+ - there's a lot of potential for memoization (since the parsing
+   is entirely functional-oriented), given some work to properly
+   normalize each's parameters.
+   
+diakopter added 2008-06-04:
+ - add runtime eval
