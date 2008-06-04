@@ -10,12 +10,18 @@ our ($nothing, $End_of_Input);
 use Exporter;
 @EXPORT_OK = qw(lookfor _ $End_of_Input $nothing T error debug
                 operator star option concatenate alternate
-                display_failures labeledblock commalist 
+                display_failures labeledblock commalist o
                 termilist trace %N l parser checkval);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
+# disregarding leading whitespace, lines that start with trace
+# or end with trace are discarded by the source filter in 
+# Perl6in5::Compiler::Trace.  This allows execution time to be
+# much faster than otherwise, since the strings to be traced
+# are not only not sent to STDOUT; they aren't even built.
+
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise';
 
 use overload
@@ -27,6 +33,7 @@ use overload
                 '""' => \&overload::StrVal,
   ;
 
+  
 $| = 1; # trace
 
 use Data::Dumper;
@@ -61,6 +68,7 @@ sub debug ($) { # debug
 sub parser (&) { bless $_[0] => __PACKAGE__ }
 
 sub l { @_ = [@_]; goto &lookfor }
+sub o { goto &option }
 
 sub lookfor {
   my $wanted = shift;
@@ -100,8 +108,13 @@ sub lookfor {
 sub End_of_Input {
   my $input = shift;
   trace "Looking for End of Input";
-  return (undef, undef) unless defined($input->[0]);
-  die ["End of input", $input];
+  unless (defined($input->[0])) {
+    trace "Found End of Input";
+    return (undef, undef);
+  } else {
+    trace "Found more input";
+    die ["End of input", $input];
+  }
 }
 
 $End_of_Input = \&End_of_Input;
@@ -195,7 +208,6 @@ sub concatenate {
     }
     return (bless(\@values => 'Tuple'), $input);
   };
-#  trace "concsub".Dumper(\@p).Dumper(\%N)."@p";
   $N{$p} = join " ", map $N{$_}, @p; # trace
   return $p;
 }
@@ -215,7 +227,6 @@ sub star {
                       T($nothing,
                         sub { $null_tuple }),
                      );
-#  trace Dumper($p);
   $N{$p_star} = "star($N{$p})"; # trace
   $N{$conc} = "conc $N{$p} $N{$p_star}"; # trace
   $p_star;
@@ -231,18 +242,12 @@ sub option {
 # commalist(p, sep) = p star(sep p) option(sep)
 sub commalist {
   my ($p, $separator, $sepstr) = @_;
-
-  if (defined $separator) {
-    $sepstr ||= $N{$separator};
-  } else {
-    $separator ||= lookfor('COMMA');
-    $sepstr ||= ", ";
-  }
+  $sepstr ||= $N{$separator};
   my $parser = T(concatenate($p,
                              star(T(concatenate($separator, $p),
                                     sub { $_[1] }
                                    )),
-                             option($separator)),
+                             star($separator)),
                  sub { [$_[0], @{$_[1]}] }
                 );
   $N{$parser} = "$N{$p}$sepstr $N{$p}$sepstr ..."; # trace
@@ -345,7 +350,6 @@ sub error {
     }
     return @result;
   };
-  #trace "errorsub".Dumper($try);
   $N{$p} = $N{$try}; # trace
   $p;
 }
