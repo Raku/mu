@@ -8,7 +8,7 @@ package Perl6in5::Compiler::Parser;
 our ($nothing, $End_of_Input);
 
 use Exporter;
-@EXPORT_OK = qw(lookfor _ $End_of_Input $nothing T error handle_error
+@EXPORT_OK = qw(lookfor _ $End_of_Input $nothing T error debug
                 operator star option concatenate alternate
                 display_failures labeledblock commalist 
                 termilist trace %N l parser checkval);
@@ -19,13 +19,12 @@ use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise';
 
 use overload
-                '-' => \&concatenate,
-                '|' => \&alternate,
+                '-'  => \&concatenate,
+                '|'  => \&alternate,
                 '>>' => \&T,
-                '>' => \&V,
-                '/' => \&checkval,
+                '>'  => \&V,
+                '/'  => \&checkval,
                 '""' => \&overload::StrVal,
-#                '""' => \&parser_name
   ;
 
 $| = 1; # trace
@@ -37,6 +36,7 @@ $Data::Dumper::Terse = 1;
 $Data::Dumper::Useqq = 1;
 $Data::Dumper::Quotekeys = 0;
 #$Data::Dumper::Deparse = 1; # trace
+#$Data::Dumper::Deparse = 1; # debug
 
 sub trace ($) { # trace
   my $msg = (shift) . "\n"; # trace
@@ -47,6 +47,16 @@ sub trace ($) { # trace
   $I .= ' ' unless length($I) % 2; # trace
   print $I, $msg; # trace
 } # trace
+
+sub debug ($) { # debug
+  my $msg = (shift) . "\n"; # debug
+  my $i = 0; # debug
+  $i++ while caller($i); # debug
+  $I = " " x ($i-2); # debug
+  $I =~ s/../ |/g; # debug
+  $I .= ' ' unless length($I) % 2; # debug
+  print $I, $msg; # debug
+} # debug
 
 sub parser (&) { bless $_[0] => __PACKAGE__ }
 
@@ -185,6 +195,7 @@ sub concatenate {
     }
     return (bless(\@values => 'Tuple'), $input);
   };
+#  trace "concsub".Dumper(\@p).Dumper(\%N)."@p";
   $N{$p} = join " ", map $N{$_}, @p; # trace
   return $p;
 }
@@ -204,8 +215,9 @@ sub star {
                       T($nothing,
                         sub { $null_tuple }),
                      );
+#  trace Dumper($p);
   $N{$p_star} = "star($N{$p})"; # trace
-  $N{$conc} = "$N{$p} $N{$p_star}"; # trace
+  $N{$conc} = "conc $N{$p} $N{$p_star}"; # trace
   $p_star;
 }
 
@@ -333,6 +345,7 @@ sub error {
     }
     return @result;
   };
+  #trace "errorsub".Dumper($try);
   $N{$p} = $N{$try}; # trace
   $p;
 }

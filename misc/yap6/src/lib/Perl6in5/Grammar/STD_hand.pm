@@ -1,7 +1,7 @@
 package Perl6in5::Grammar::STD_hand;
 
 use warnings;
-use strict;
+#use strict; #haha
 
 use base 'Exporter';
 our @EXPORT = qw ( make_parser );
@@ -10,6 +10,7 @@ use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 
 # isa Perl6in5::Grammar someday (to inherit some of the common features below)
 
+use Perl6in5::Grammar ':all'; # heehee; a source filter.
 use Perl6in5::Compiler::Stream ':all';
 use Perl6in5::Compiler::Parser ':all';
 use Perl6in5::Compiler::Lexer ':all';
@@ -17,27 +18,37 @@ use Perl6in5::Compiler::Lexer ':all';
 use Data::Dumper;
 use Math::BigFloat;
 
+no warnings 'reserved';
+$Data::Dumper::Deparse = 1;
+
+# The identifier of each of your rules must begin with a lowercase letter.   sorry.
+
+#rule someRule sub { debug 'hello world' };
+
+
 sub make_parser {
     my $input = shift;
     
-    my $handle_lex_whitespace = sub { "" };
+    my $wS = sub { "" };
     
     my $lexer = iterator_to_stream(make_lexer($input,
 
     [ 'TRM'             ,qr/;\n*|\n+/         ,                            ],
-    [ 'DLR'             ,qr/\$/         ,                            ],
+    [ 'DLR'             ,qr/\$/               ,                            ],
     [ 'INT'             ,qr/\d+/              ,                            ],
     [ 'SAY'             ,qr/\bsay\b/          ,                            ],
-    [ 'ID'              ,qr|[A-Za-z_]\w*|   ,                            ],
-    [ 'OP'              ,qr#\*\*|[-=+*/()]#   ,                            ],
-    [ 'WS'              ,qr/\s+/              ,$handle_lex_whitespace      ],
+    [ 'ID'              ,qr|[A-Za-z_]\w*|     ,                            ],
+    [ 'OP'              ,qr#\*\*|["-=+*/()]#   ,                            ],
+    [ 'WS'              ,qr/\s+/              ,$wS                         ],
 
     )); 
 
     my %VAR;
+    $N{$End_of_Input} = 'End of Input';
+    $N{$nothing} = 'nothing';
 
-    my ($base, $expression, $factor, $program, $statement, $term, $scopeDeclarator, $sVar);
-    my ($Base, $Expression, $Factor, $Program, $Statement, $Term, $ScopeDeclarator, $SVar);
+    my ($base, $expression, $factor, $program, $statement, $term, $scopeDeclarator, $sVar, $stringLit);
+    my ($Base, $Expression, $Factor, $Program, $Statement, $Term, $ScopeDeclarator, $SVar, $StringLit);
 
     $Base               = parser { $base            ->(@_) };
     $Expression         = parser { $expression      ->(@_) };
@@ -47,6 +58,7 @@ sub make_parser {
     $Term               = parser { $term            ->(@_) };
     $ScopeDeclarator    = parser { $scopeDeclarator ->(@_) };
     $SVar               = parser { $sVar            ->(@_) };
+    $StringLit          = parser { $stringLit       ->(@_) };
 
     # these hash keys are coderef (addresses)
     $N{ $End_of_Input      } = 'EOI';
@@ -59,13 +71,16 @@ sub make_parser {
     $N{ $Program           } = 'Program';
     $N{ $ScopeDeclarator   } = 'my|our';
     $N{ $SVar              } = 'sVar';
+    $N{ $StringLit         } = 'StringLit';
+    
+    sub execnow (&) { $_[0]->() }
 
-sub say (@) { print $_."\n" for @_ }
+    sub say (@) { print $_."\n" for @_ }
 
-sub adn (@) { 
-    say "Adding AST node: ".(Dumper([map("$_",@_)]));
-    Dumper([map("$_",@_)]);
-}
+    sub adn (@) { 
+        say "Adding AST node: ".(Dumper([map("$_",@_)]));
+        Dumper([map("$_",@_)]);
+    }
 
     my $handle_say_statement =
     #sub { print $_[1]."\n" };
@@ -88,7 +103,7 @@ sub adn (@) {
     #sub { $VAR{ $_[0] } = $_[2] };
     sub {   if ($_[0]) {
                 warn "declaration of $_[1] masks ".
-                "another in the same scope" if exists $VAR{$_[1]};
+                "earlier declaration in the same scope" if exists $VAR{$_[1]};
                 # keep a parse-time pad of declared variable names..
                 # later such checking will be done during analysis
                 # (after parsing)
@@ -138,41 +153,59 @@ sub adn (@) {
               $first = $f->($first); 
           } $first};
 
+    my $handle_string_lit = sub { $_[1] };
+
     my $handle_integer_inst =
     sub { Math::BigFloat->new($_[0]) };
 
-    $program = error(star($Statement) - $End_of_Input);
+    rule program {
+        error(star($Statement) - $End_of_Input);
+    };
 
-    $scopeDeclarator = l('ID','my') | l('ID','our');
+    rule stringLit {
+        l('OP','"') - l('ID') - l('OP','"') >> $handle_string_lit
+    };
 
-    $statement = l('SAY') - $Expression - l('TRM')
+    rule scopeDeclarator {
+        l('ID','my') | l('ID','our');
+    };
+
+    rule statement {
+        l('SAY') - $Expression - l('TRM')
                  >> $handle_say_statement
                | (option($ScopeDeclarator) > $handle_declarator) - $sVar - l('OP', '=') - $Expression - l('TRM')
-                 >> $handle_declaration_statement;
+                 >> $handle_declaration_statement
+    };
 
-    $expression = $Term - star(l('OP', '+') - $Term >>  $handle_infix_addition
-                             | l('OP', '-') - $Term >> $handle_infix_subtraction) 
-                  >> $handle_cascade;
+    rule expression {
+    $Term - star(l('OP', '+') - $Term >>  $handle_infix_addition
+             | l('OP', '-') - $Term >> $handle_infix_subtraction) 
+                  >> $handle_cascade
+    };
 
-    $term = $Factor - star(l('OP', '*') - $Factor >> $handle_infix_multiplication
-                         | l('OP', '/') - $Factor >> $handle_infix_division)
-            >> $handle_cascade;
-              
-    $factor = $Base - ( l('OP', '**') - $Factor >> $handle_infix_exponentiation_factor
-                      | $nothing >> $handle_empty_nothing )
-              >> $handle_infix_exponentiation_operation;
+    rule term {
+        $Factor - star(l('OP', '*') - $Factor >> $handle_infix_multiplication
+                     | l('OP', '/') - $Factor >> $handle_infix_division)
+        >> $handle_cascade
+    };
 
-    $base = (l('INT') > $handle_integer_inst)
+    rule factor {
+        $Base - ( l('OP', '**') - $Factor >> $handle_infix_exponentiation_factor
+                | $nothing >> $handle_empty_nothing )
+        >> $handle_infix_exponentiation_operation
+    };
+
+    rule base {
+     (l('INT') > $handle_integer_inst)
           | ($sVar > $handle_variable_lookup)
           | l('OP', '(') - $Expression - l('OP', ')')
-          >> $handle_base_value;
+          >> $handle_base_value
+    };
 
     sub {
         eval { $program->($lexer) };
         if ($@) {
             print "  Syntax Error...!";
-            #print Dumper($@);
-            #display_failures($@);
             return 255;
         } else {
             return 0;
