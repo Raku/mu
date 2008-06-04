@@ -145,7 +145,7 @@ EOM
 
     sub exec_yap6 {
         my ($program, $fh, $filename) = @_;
-        chdir('../yap6')
+        chdir('../yap6/src')
             or confess("Can't chdir to elf base dir: $!");
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
