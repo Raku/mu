@@ -30,4 +30,10 @@ All new files, and all below C<t/spec/> should follow the new conventions.
 The Perl 5 style negative array indexes C<@array[-1]> are spelled
 C<@array[*-1]> in Perl 6.
 
+=head2 Special Pugs variables
+
+Some tests rely on C<$?PUGS_BACKEND> and similar variables. Since they are not
+specced, they cause failures on other implementations. Either remove these
+variables alltogether, or at enclose them in C<eval '...'>.
+
 =cut
