@@ -21,11 +21,9 @@ $Data::Dumper::Indent = 0;
 $Data::Dumper::Terse = 1;
 $Data::Dumper::Useqq = 1;
 $Data::Dumper::Quotekeys = 0;
-
-use Math::BigFloat;
+$Data::Dumper::Deparse = 1;
 
 no warnings qw{ reserved closure recursion };
-$Data::Dumper::Deparse = 1;
 
 sub make_parser {
     my $input = shift;
@@ -152,17 +150,6 @@ sub make_parser {
         Dumper([map("$_",@_)]);
     }
 
-    my $handle_say_stmt =
-    sub {   adn("say($_[1])");
-            1; # someday Bool::True
-            };
-
-    my $handle_assignment_stmt =
-    sub { # keep a parse-time pad of declared variable names
-            adn("assign(@_[0,2])");
-            $_[2]; # someday this will set $_ at semantic analysis time.
-            };
-
     sub ch { # parse for a single character.
         my $p;
         $p = l("C",$_[0]);
@@ -195,10 +182,6 @@ sub make_parser {
     }
 
     #sub k { goto &keyword }
-    
-    rule comma {
-        ','
-    };
 
     sub clist {
         my $ins = shift;
@@ -222,67 +205,9 @@ sub make_parser {
         $p;
     }
 
-    my $handle_declarator = 
-    sub { bless([$_[0]] => 'Tuple') };
-
     $sVar = concatenate('$',l('ID')) >> sub {
             "$_[0]$_[1]";
         };
-
-    my $handle_declaration_stmt =
-    sub {   if ($_[0]) {
-                warn "declaration of $_[1] masks ".
-                "earlier declaration in the same scope" if exists $VAR{$_[1]};
-                # keep a parse-time pad of declared variable names..
-                # later such checking will be done during analysis
-                # (after parsing)
-                adn('declare',($_[0],$_[1]))
-            } else {
-                die "$_[1] has yet to be declared" unless exists $VAR{$_[1]};
-            }
-            #$_[3] = "$_[3]";
-            shift;
-            $VAR{$_[0]} = $_[2];
-            $handle_assignment_stmt->(@_) };
-
-    my $handle_infix_addition =
-    sub { my $term = $_[1];
-          sub { $_[0] + $term }};
-
-    my $handle_infix_subtraction =
-    sub { my $term = $_[1];
-          sub { $_[0] - $term }};
-
-    my $handle_infix_multiplication =
-    sub { my $factor = $_[1];
-          sub { $_[0] * $factor }};
-
-    my $handle_infix_division =
-    sub { my $factor = $_[1];
-          warn "cannot divide by 0." unless $factor;
-          $factor ||= 1; #silly, I know; this is only a toy interpreter.
-          sub {$_[0] / $factor}};
-
-    my $handle_infix_exponentiation_factor = sub { $_[1] };
-
-    my $handle_empty_nothing = sub { 1 };
-
-    my $handle_infix_exponentiation_operation = sub { debug Dumper(\@_)."ie";$_[0] ** $_[1] };
-
-    my $handle_variable_lookup = sub { debug Dumper(\@_)."vl";die "Undeclared variable $_[0]" unless exists $VAR{$_[0]}; "$VAR{$_[0]}"; };
-
-    my $handle_base_value = sub { debug Dumper(\@_)."bv";$_[1] };
-
-    my $handle_cascade =
-    sub { my ($first, $rest) = @_;
-          for my $f (@$rest) {
-              $first = $f->($first);
-          } $first};
-
-    my $handle_string_lit = sub { $_[1] };
-
-    my $handle_integer_inst =
-    sub { my $a = Math::BigFloat->new($_[0]);"$a"; };
 
     # The identifier of each of your rules must begin with a lowercase letter.   sorry.
 
@@ -293,10 +218,10 @@ sub make_parser {
     rule program {
         # treat everything as Perl 5 by default. haha!
         #o($Perl5zone)        -        # can't slurp "up until" until we're backtracking
-                        # I need a function "until($p,$q)" that returns a parser that 
-                        # iterates through the stream of tokens, trying $q against the
-                        # remaining input at each token, essentially using $q as a stop
-                        # phrase, then returns $p's and $q's matches, concatenated.
+        # I need a function "until($p,$q)" that returns a parser that 
+        # iterates through the stream of tokens, trying $q against the
+        # remaining input at each token, essentially using $q as a stop
+        # phrase, then returns $p's and $q's matches, concatenated.
      #parser { sub {} }
         o(usev6 - error(o(stmtList))) - o(newline) - eoi
         # an optional Perl 5 section # use v6; # error trapper #optional Stmt list
@@ -306,15 +231,17 @@ sub make_parser {
         l('USEV6')
     };
 
+    rule comma {
+        ','
+    };
+
     rule stmtList {
-          (o(newline) - (expr - o(stmtTrm - o(stmtList | blockList)) - o(newline)))
-        | (o(newline) - blockList)
-        # the first Stmt in the list  # 0 or more Terminator-Stmt
-        # since Block-NewLine includes its own implied following terminator...
+            o(newline) - (expr - o(stmtTrm - o(stmtList | blockList)) - o(newline)
+                        | blockList)
     };
 
     rule blockList {
-        block - o((newline | stmtTrm) - o(stmtList)) - o(newline)
+            block - o((newline | stmtTrm) - o(stmtList)) - o(newline)
     };
 
     rule newline {
@@ -329,9 +256,12 @@ sub make_parser {
         o(blkPrmbl) - blkBare
     };
 
-    rule blkPrmbl { # block preamble
-        (o(blkModf) - o(scpDecl - blkRetT) - blkType - o(l('ID')) - o(w('()',blkPrms)) #- o($BlkTrts)
-        ) | compUnit | flowCtrl | blkLabl
+    rule blkPrmbl {
+            o(blkModf) - o(scpDecl - blkRetT) - blkType
+            - o(l('ID')) - o(w('()',blkPrms)) #- o($BlkTrts)
+          | compUnit
+          | flowCtrl
+          | blkLabl
     };
 
     rule flowCtrl { # Until I die, I would cry unless unless/until were included.
@@ -376,31 +306,23 @@ sub make_parser {
         keywords(qw{ my our })
     };
 
-    rule expr { # or a bare expression (implied $_=Expr)
-        w('()',expr) | ((keyword('say') - expr
-                 >> $handle_say_stmt)
-               | ((o(scpDecl) > $handle_declarator) - sVar - '=' - expr )
-                 >> $handle_declaration_stmt) |
-        (term - (star((('+' - term) >>  $handle_infix_addition)
-               | ('-' - term >> $handle_infix_subtraction)))
-                  >> $handle_cascade) | block
+    rule expr {
+            w('()',expr) | ((keyword('say') - expr)
+          | ((o(scpDecl)) - sVar - '=' - expr ))
+          | term - (star('+' - term | '-' - term))
+          | block
     };
 
     rule term {
-        factor - star('*' - factor >> $handle_infix_multiplication
-                     | '/' - factor >> $handle_infix_division)
-                  >> $handle_cascade
+            factor - star('*' - factor | '/' - factor)
     };
 
     rule factor {
-        (base - (o(word('**') - (factor > $handle_infix_exponentiation_factor))))
-        >> $handle_infix_exponentiation_operation
+            base - o(word('**') - factor)
     };
 
     rule base {
-     (l('INT') > $handle_integer_inst)
-          | (sVar > $handle_variable_lookup)
-          | (w('()',expr) >> $handle_base_value)
+            l('INT') | sVar | w('()',expr)
     };
 
     sub {
@@ -409,6 +331,7 @@ sub make_parser {
             print "  Syntax Error near: ".Dumper(tail(head(tail($@))));
             return 255;
         } else {
+            print "Parse successful\n";
             return 0;
         }
     }
