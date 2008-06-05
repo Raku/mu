@@ -49,10 +49,8 @@ sub trace ($) { # trace
   my $msg = (shift) . "\n"; # trace
   my $i = 0; # trace
   $i++ while caller($i); # trace
-  $I = " " x ($i-2); # trace
-  $I =~ s/../ |/g; # trace
-  $I .= ' ' unless length($I) % 2; # trace
-  print $I, $msg; # trace
+  $I = "-" x int($i/2-1); # trace
+  print $i.$I." ", $msg; # trace
 } # trace
 
 sub debug ($) { # debug
@@ -193,7 +191,11 @@ sub concatenate {
       $q++; # trace
       eval { ($v, $input) = $_->($input) };
       if ($@) {
-        die unless ref $@;
+        unless (ref $@) {
+            $Data::Dumper::Deparse = 1; # trace
+            trace "Dying in CONC; current parser: ".Dumper($_);
+            die;
+        }
         die ['CONC', $input, [\@succeeded, $@]]; # trace
         die ['CONC', $input, [[], $@]]; # sneaky :)
       } else {
@@ -217,6 +219,11 @@ bless $null_tuple => 'Tuple';
 
 sub star {
   my $p = shift;
+  unless (defined $p) {
+    my @a=caller;
+    trace Dumper(\@a);
+    die;
+  }
   my ($p_star, $conc);
   my $p_starexec = parser { $p_star->(@_) };
   $N{$p_starexec} = ""; # trace
