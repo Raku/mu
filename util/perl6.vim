@@ -29,7 +29,8 @@ setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
 " Billions of keywords
 syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB contained 
 syn keyword p6Attn          todo Todo TODO WTF XXX contained
-syn keyword p6Module        module class role use require package enum grammar
+" XXX 'subset declares a type, but not a module - how should it be classified?
+syn keyword p6Module        module class role use require package enum grammar subset
 syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi only
 syn keyword p6KeyDecl       rule token regex category
 syn keyword p6KeyScopeDecl  let my our state temp has constant proto
