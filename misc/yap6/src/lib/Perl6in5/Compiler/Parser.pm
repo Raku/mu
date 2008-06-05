@@ -242,7 +242,7 @@ sub option {
 # commalist(p, sep) = p star(sep p) option(sep)
 sub commalist {
   my ($p, $separator, $sepstr) = @_;
-  $sepstr ||= $N{$separator};
+  #$sepstr ||= $N{$separator};
   my $parser = T(concatenate($p,
                              star(T(concatenate($separator, $p),
                                     sub { $_[1] }
