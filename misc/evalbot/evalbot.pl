@@ -81,6 +81,7 @@ package Evalbot;
                         EvalbotExecuter::run($str, $executer{rakudo}));
                 my $elf_out  = EvalbotExecuter::run($str, $executer{elf});
 #                my $nqp_out  = EvalbotExecuter::run($str, $executer{nqp});
+#                my $yap6_out  = EvalbotExecuter::run($str, $executer{yap6});
                 my $svn_revision = get_revision();
                 my $rakudo_revision = get_rakudo_revision();
                 return <<"EOM";
@@ -148,7 +149,8 @@ EOM
         chdir('../yap6/src')
             or confess("Can't chdir to elf base dir: $!");
         my ($tmp_fh, $name) = tempfile();
-        print $tmp_fh $program;
+        my $preamble = "use v6;\n";
+        print $tmp_fh $preamble.$program;
         close $tmp_fh;
         system "perl -Ilib sbin/perl6 $name >> $filename 2>&1";
         unlink $name;
