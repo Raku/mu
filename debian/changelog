@@ -1,3 +1,9 @@
+pugs (6.2.13) unstable; urgency=low
+  
+  * bumped version
+
+ -- Moritz Lenz <mlenz@physik.uni-wuerzburg.de>  Thu,  05 June 2008 10:48:15 +0200
+
 pugs (6.2.12-2) unstable; urgency=low
 
   * removed parrot embedding because it is broken in upstream
