@@ -46,6 +46,8 @@ package Evalbot;
     my $prefix  = '';
     my $postfix = ':';
 
+    my $evalbot_version = get_revision();
+
     my %executer = (
 #            echo    => \&exec_echo,
             kp6     => \&exec_kp6,
@@ -96,6 +98,15 @@ EOM
             } else {
                 return EvalbotExecuter::run($str, $e);
             }
+        } elsif ( $message =~ m/\Aevalbot\s*control\s+(\w+)/) {
+            my $command = $1;
+            if ($command eq 'restart'){
+                # we do hope that evalbot is started in an endless loop ;-)
+                exit;
+            } elsif ($command eq 'version'){
+                return "This is evalbot revision $evalbot_version";
+            }
+
         }
         return;
     }
