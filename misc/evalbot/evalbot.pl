@@ -121,7 +121,7 @@ EOM
         chdir('../../v6/v6-KindaPerl6/')
             or confess("Can't chdir to kp6 dir: $!");
         my ($tmp_fh, $name) = tempfile();
-        binmode $tmp_fn, ':utf8';
+        binmode $tmp_fh, ':utf8';
         print $tmp_fh $program;
         close $tmp_fh;
         system "perl script/kp6 --secure < $name >$filename 2>&1";
