@@ -67,6 +67,19 @@ PROJECTS
   focus is now broader, it's time to go through the parser and FromAST and
   make sure all useful parses produce Match trees, and all those trees yield IR.
 
+DISTASTEFULL DEVIATIONS
+
+* .re_gsub
+    replace with .subst(rx:g/pattern/)
+* eval_perl5
+* file_exists
+* =~ 
+    =~ is explicitly forbidden in Perl 6, replace with ~~)
+* is p5
+    replace with "use v5;"
+* faking named parameters with positional
+    .new('foo',1) should be turned into .new(foo=>1)
+
 REQUESTED FEATURES
 
 * The ability to say
@@ -81,8 +94,6 @@ ASSORTED TODO
 
 * Switch from $+foo to temp($foo).
 
-* remove the following distastefull deviations
-  - re_gsub
 
 * replace cruft like  $.var.sigil eq '$' in Emit with methods in/added-to Analysis.  eg, is_scalar. (http://irclog.perlgeek.de/perl6/2008-05-24#i_309702)
 
