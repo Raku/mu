@@ -148,16 +148,16 @@ sub alternate {
     $i++ while caller($i);
     trace "alternate $p on $input at depth $i"; # trace
     if (# we've been in this parser before
-        exists $adepth->{$p} && (trace "hi1")
+        exists $adepth->{$p}
         # we've seen this input for this parser before
-        && exists $adepth->{$p}->{$input} && (trace "hi2")
+        && exists $adepth->{$p}->{$input}
         # our current depth is lower than before
-        && $adepth->{$p}->{$input} < $i && (trace "hi3")) {
+        && $adepth->{$p}->{$input} < $i) {
         # we're in an infinite recursion.
         trace "$p was too deep in itself.";
         die ['CONC', $input, [[], $@]];
     } else { # trace
-        trace "we're not in an infinite recursion"; # trace
+        #trace "we're not in an infinite recursion"; # trace
     }
     # store the coderef addresses for this
     # parser so we can detect infinite loops
@@ -203,18 +203,18 @@ sub concatenate {
     my $input = shift;
     my $i = 0;
     $i++ while caller($i);
-    trace "concatenate $p on $input at depth $i";
+    #trace "concatenate $p on $input at depth $i"; # trace
     if (# we've been in this parser before
-        exists $cdepth->{$p} && (trace "hi1")
+        exists $cdepth->{$p}
         # we've seen this input for this parser before
-        && exists $cdepth->{$p}->{$input} && (trace "hi2")
+        && exists $cdepth->{$p}->{$input}
         # our current depth is lower than before
-        && $cdepth->{$p}->{$input} < $i && (trace "hi3")) {
+        && $cdepth->{$p}->{$input} < $i) {
         # we're in an infinite recursion.
         trace "$p was too deep in itself.";
         die ['CONC', $input, [[], $@]];
     } else { # trace
-        trace "we're not in an infinite recursion";
+        #trace "we're not in an infinite recursion"; # trace
     }
     # store the coderef addresses for this
     # parser so we can detect infinite loops
