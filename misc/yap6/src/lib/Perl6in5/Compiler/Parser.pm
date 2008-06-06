@@ -144,24 +144,6 @@ sub alternate {
   my $p;
   $p = parser {
     my $input = shift;
-    my $i = 0;
-    $i++ while caller($i);
-    trace "alternate $p on $input at depth $i"; # trace
-    if (# we've been in this parser before
-        exists $adepth->{$p}
-        # we've seen this input for this parser before
-        && exists $adepth->{$p}->{$input}
-        # our current depth is lower than before
-        && $adepth->{$p}->{$input} < $i) {
-        # we're in an infinite recursion.
-        trace "$p was too deep in itself.";
-        die ['CONC', $input, [[], $@]];
-    } else { # trace
-        #trace "we're not in an infinite recursion"; # trace
-    }
-    # store the coderef addresses for this
-    # parser so we can detect infinite loops
-    $adepth->{$p}->{$input} = $i;
     trace "Looking for alt $N{$p}";
     if (defined $input) { # trace
       trace "Next token is ".Dumper($input->[0]);

@@ -238,17 +238,14 @@ sub make_parser {
 
     # non-block expression
     rule nbexpr {
-            l('INT')
-          | sVari
+            sVari
           | impor
           | assign
           | declare
           | keyword('say') - expr
           | w('()',expr)
-            # because op_numaddt begins with (something that begins with...x)
-            # nbexpr, it needs to be after the ones that don't (or else
-            # infinite loops occur.
           | op_numaddt
+          | l('INT')
     };
 
     rule op_numaddt {
