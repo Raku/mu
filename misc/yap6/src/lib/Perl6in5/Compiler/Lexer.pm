@@ -65,36 +65,38 @@ sub blocks {
 ## Chapter 8 section 1.3
 
 sub tokens {
-  my ($input, $label, $pattern, $maketoken) = @_;
-  $maketoken ||= sub { [ $_[1], $_[0] ] };
-  my @tokens;
-  my $buf = "";   # set to undef to when input is exhausted
-  my $split = sub { split /($pattern)/, $_[0] };
-  sub {
-    while (@tokens == 0 && defined $buf) {
-      my $i = $input->();
-      if (ref $i) {
-        my ($sep, $tok) = $split->($buf);
-        $tok = $maketoken->($tok, $label) if defined $tok;
-        push @tokens, grep $_ ne "", $sep, $tok, $i;
-        $buf = "";
-        last;
-      }
-
-      $buf .= $i if defined $i;
-      my @newtoks = $split->($buf);
-      while (@newtoks > 2 
-             || @newtoks && ! defined $i) {
-        push @tokens, shift(@newtoks);
-        push @tokens, $maketoken->(shift(@newtoks), $label) 
-                if @newtoks;
-      }
-      $buf = join "", @newtoks;
-      undef $buf if ! defined $i;
-      @tokens = grep $_ ne "", @tokens;
-    }
-    return shift(@tokens);
-  }
+    my ( $input, $label, $pattern, $maketoken ) = @_;
+    $maketoken ||= sub { [ $_[0] => $_[1] ] };
+    my @tokens;
+    my $buf = "";    # set to undef when input is exhausted
+    my $split = sub { split /($pattern)/ => $_[0] };
+    return sub {
+        while ( 0 == @tokens && defined $buf ) {
+            my $i = $input->();
+            if ( ref $i ) {    # input is a token
+                my ( $sep, $tok ) = $split->($buf);
+                $tok = $maketoken->( $label, $tok ) if defined $tok;
+                push @tokens => grep defined && $_ ne "" => $sep, $tok, $i;
+                $buf = "";
+                last;
+            }
+            $buf .= $i if defined $i;    # append new input to buffer
+            my @newtoks = $split->($buf);
+            while ( @newtoks > 2 || @newtoks && !defined $i ) {
+                # buffer contains complete separator plus combined token
+                # OR we've reached the end of input
+                push @tokens => shift @newtoks;
+                push @tokens => $maketoken->( $label, shift @newtoks )
+                  if @newtoks;
+            }
+            # reassemble remaining contents of buffer
+            $buf = join "" => @newtoks;
+            undef $buf unless defined $i;
+            @tokens = grep $_ ne "" => @tokens;
+        }
+        $_[0] = '' unless defined $_[0];
+        return 'peek' eq $_[0] ? $tokens[0] : shift @tokens;
+    };
 }
 
 
@@ -107,6 +109,12 @@ sub make_lexer {
     $lexer = tokens($lexer, @$args);
   }
   $lexer;
+}
+
+sub string_lexer {
+    my $text = shift;
+    my @text = $text;
+    return make_lexer( sub { shift @text }, @_ );
 }
 
 sub iterator_to_stream {

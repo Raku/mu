@@ -1,6 +1,6 @@
 use strict 'refs';
 use warnings;
-no warnings 'recursion';
+no warnings qw{ reserved closure recursion };
 
 # Library based on chap09/arith25.pl
 
@@ -10,8 +10,9 @@ our ($nothing, $End_of_Input);
 use Exporter;
 @EXPORT_OK = qw(lookfor _ $End_of_Input $nothing T error debug
                 operator star option concatenate alternate
-                display_failures labeledblock commalist o
-                termilist trace %N l parser checkval);
+                display_failures labeledblock commalist o say
+                termilist trace %N l parser checkval execnow
+                adn ch w keyword keywords clist gt0 word);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -45,6 +46,10 @@ $Data::Dumper::Quotekeys = 0;
 #$Data::Dumper::Deparse = 1; # trace
 #$Data::Dumper::Deparse = 1; # debug
 
+sub execnow (&) { $_[0]->() }
+
+sub say (@) { print($_,"\n") for @_ }
+
 sub trace ($) { # trace
   my $msg = (shift) . "\n"; # trace
   my $i = 0; # trace
@@ -57,10 +62,8 @@ sub debug ($) { # debug
   my $msg = (shift) . "\n"; # debug
   my $i = 0; # debug
   $i++ while caller($i); # debug
-  $I = " " x ($i-2); # debug
-  $I =~ s/../ |/g; # debug
-  $I .= ' ' unless length($I) % 2; # debug
-  print $I, $msg; # debug
+  $I = "-" x int($i/2-1); # debug
+  print $i.$I." ", $msg; # debug
 } # debug
 
 sub parser (&) { bless $_[0] => __PACKAGE__ }
@@ -132,6 +135,8 @@ sub nothing {
 $nothing = \&nothing;
 bless $nothing => __PACKAGE__;
 
+my $adepth = {};
+
 sub alternate {
   my @p = grep $_,@_;
   return parser { return () } if @p == 0;
@@ -139,6 +144,24 @@ sub alternate {
   my $p;
   $p = parser {
     my $input = shift;
+    my $i = 0;
+    $i++ while caller($i);
+    trace "concatenate $p on $input at depth $i"; # trace
+    if (# we've been in this parser before
+        exists $adepth->{$p} && (trace "hi1")
+        # we've seen this input for this parser before
+        && exists $adepth->{$p}->{$input} && (trace "hi2")
+        # our current depth is lower than before
+        && $adepth->{$p}->{$input} < $i && (trace "hi3")) {
+        # we're in an infinite recursion.
+        trace "$p was too deep in itself.";
+        die ['CONC', $input, [[], $@]];
+    } else { # trace
+        trace "we're not in an infinite recursion"; # trace
+    }
+    # store the coderef addresses for this
+    # parser so we can detect infinite loops
+    $cdepth->{$p}->{$input} = $i;
     trace "Looking for alt $N{$p}";
     if (defined $input) { # trace
       trace "Next token is ".Dumper($input->[0]);
@@ -169,6 +192,8 @@ sub alternate {
   return $p;
 }
 
+my $cdepth = {};
+
 sub concatenate {
   my @p = grep $_,@_;
   return $nothing if @p == 0;
@@ -176,6 +201,24 @@ sub concatenate {
   my $p;
   $p = parser {
     my $input = shift;
+    my $i = 0;
+    $i++ while caller($i);
+    trace "concatenate $p on $input at depth $i";
+    if (# we've been in this parser before
+        exists $cdepth->{$p} && (trace "hi1")
+        # we've seen this input for this parser before
+        && exists $cdepth->{$p}->{$input} && (trace "hi2")
+        # our current depth is lower than before
+        && $cdepth->{$p}->{$input} < $i && (trace "hi3")) {
+        # we're in an infinite recursion.
+        trace "$p was too deep in itself.";
+        die ['CONC', $input, [[], $@]];
+    } else { # trace
+        trace "we're not in an infinite recursion";
+    }
+    # store the coderef addresses for this
+    # parser so we can detect infinite loops
+    $cdepth->{$p}->{$input} = $i;
     trace "Looking for $N{$p}";
     if (defined $input) { # trace
       trace "Next token is ".Dumper($input->[0]);
@@ -439,5 +482,68 @@ sub operator {
   $result;
 }
 
+
+sub adn (@) {
+    print "Adding AST node: "; # trace
+    say join('',map(Dumper($_)." ",@_));
+    Dumper([map("$_",@_)]);
+}
+
+sub ch { # parse for a single character.
+    my $p;
+    my $char = $_[0];
+    $p = l("C",$char);
+    $N{$p} = "$char"; # trace
+    $p;
+}
+
+sub w { # look for a wrapped entity.  first parm is split into the wrappers.
+    my ($d,$e) = split(//,$_[0]);
+    my $p;
+    my $item = $_[1];
+    $p = concatenate(ch($d),$item,ch($e));
+    $N{$p} = "$d$N{$item}$e"; # trace
+    $p;
+}
+
+sub keyword {
+    my $ins = shift;
+    my $p;
+    $p = l('ID',$ins);
+    $N{$p} = "$ins"; # trace
+    $p;
+}
+
+sub keywords {
+    my @args = @_;
+    my $p;
+    $p = alternate(map(keyword($_),@args));
+    $N{$p} = join("|",@args); # trace
+    $p;
+}
+
+sub clist {
+    my $ins = shift;
+    my $p;
+    $p = commalist($ins,$comma->(),', ');
+    $N{$p} = "clist($N{$ins}"; # trace
+    $p;
+}
+
+sub gt0 { # hit on 1 or more of the contained. (gt0 == greater than zero)
+    my $p;
+    my $item = $_[0];
+    $p = concatenate($item,star($item));
+    $N{$p} = ">=1($N{$item})"; # trace
+    $p;
+}
+
+sub word {
+    my $p;
+    my $word = $_[0];
+    $p = concatenate(map(ch($_),split(//, $word)));
+    $N{$p} = $word;
+    $p;
+}
 
 1;
