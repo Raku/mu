@@ -146,7 +146,7 @@ sub alternate {
     my $input = shift;
     my $i = 0;
     $i++ while caller($i);
-    trace "concatenate $p on $input at depth $i"; # trace
+    trace "alternate $p on $input at depth $i"; # trace
     if (# we've been in this parser before
         exists $adepth->{$p} && (trace "hi1")
         # we've seen this input for this parser before
@@ -161,7 +161,7 @@ sub alternate {
     }
     # store the coderef addresses for this
     # parser so we can detect infinite loops
-    $cdepth->{$p}->{$input} = $i;
+    $adepth->{$p}->{$input} = $i;
     trace "Looking for alt $N{$p}";
     if (defined $input) { # trace
       trace "Next token is ".Dumper($input->[0]);

@@ -238,12 +238,7 @@ sub make_parser {
 
     # non-block expression
     rule nbexpr {
-            # End of Input needs to be here because nbexpr can be the
-            # final element in a program, but it's also self-referential
-            # (so it gets caught in endless loops when looking for a
-            # trailing expression.
-            eoi
-          | l('INT')
+            l('INT')
           | sVari
           | impor
           | assign
