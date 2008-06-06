@@ -11,3 +11,7 @@ This file had entries in the past (r16405). Since this file wasn't touched in ov
 OVERALL
 * Add smartlinks to tests without them
 * Continue moving tests from t/ to t/spec/
+
+S29
+* tests for array: shape and end
+* tests for complex: polar
