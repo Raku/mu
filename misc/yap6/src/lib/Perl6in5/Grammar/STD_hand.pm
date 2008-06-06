@@ -30,8 +30,6 @@ sub make_parser {
     my $wS = sub { "" };
     
     my $lexer = iterator_to_stream(make_lexer($input,
-    [ 'USEV6'           ,qr/use\s+v6;/        ,                            ],
-    [ 'NL'              ,qr/\n+/              ,                            ],
     [ 'ID'              ,qr|[A-Za-z_]\w*|     ,                            ],
     [ 'INT'             ,qr|\d+|              ,                            ],
     # someday soon I'll need to remove whitespace from here and handle it
@@ -54,7 +52,7 @@ sub make_parser {
         $usev6, $comma, $stmtList, $newline, $blkBare, $blkPrmbl, $nbexpr,
         $blkType, $blkRetT, $blkModf, $stmtTrm, $scpDecl, $block, $arg,
         $blkPrm, $compUnit, $flowCtrl, $blkLabl, $clype, $impor, $assign,
-        $op_numaddt
+        $op_numaddt, $blkTrait, $pkgDecl
     );
 
     sub eoi () { $End_of_Input };
@@ -120,6 +118,10 @@ sub make_parser {
     sub blkLabl () { $BlkLabl };
     my $CompUnit           = parser { $compUnit        ->(@_) };
     sub compUnit () { $CompUnit };
+    my $BlkTrait           = parser { $blkTrait        ->(@_) };
+    sub blkTrait () { $BlkTrait };
+    my $PkgDecl           = parser { $pkgDecl        ->(@_) };
+    sub pkgDecl () { $PkgDecl };
 
     # these hash keys are coderef (addresses)
     our %N = (
@@ -155,8 +157,11 @@ sub make_parser {
         $Nbexpr           => 'Nbexpr',
         $Declare          => 'Declare',
         $Op_numaddt       => 'Op_numaddt',
+        $BlkTrait         => 'BlkTrait',
+        $PkgDecl          => 'PkgDecl',
     );
 
+    #   Rule Writing
     # Rules that consist at the top level of alternatives (separated by "|")
     # generally represent "classes" of items that are encoded in the
     # source.
@@ -165,6 +170,12 @@ sub make_parser {
     # "-") generally represent items that define the descent into
     # "subcontexts", or areas of the source code where things signify
     # differently from things in a "higher" context.
+    # 
+    # In order to specifiy precedence levels, just create another
+    # level of indirection by creating a rule to represent the 
+    # precedence level, and order the possibilities in the order of 
+    # 1) whither recursion 2) whether the beginning of a match to
+    # rule n is contained in the beginning of the next rule.
     
     # The identifier of each of your rules must begin with a lowercase letter,
     # so that the source filter can transform/generate the grammar properly.
@@ -197,13 +208,21 @@ sub make_parser {
             # the perl5zone rule is operational.
             o(newline)
           - o(usev6
-              - error(o(stmtList)))
+              - error(o(pkgDecl)
+                    - o(stmtList)))
           - o(newline)
           - eoi
     };
 
+    rule pkgDecl {
+        keyword('package') - l('ID') - stmtTrm;
+    };
+
     rule usev6 {
-            l('USEV6')
+                (keyword('use') - keywords(qw{ v6 Perl:ver(v6..*):auth(Any) Perl-6 })
+              | keyword('module') - o(keyword('Main'))
+              | keywords(qw{ class v6.0.0 v6 6 }))
+          - stmtTrm
     };
 
     rule sVari {
@@ -222,18 +241,18 @@ sub make_parser {
             # own rule as they are encountered (in the test suite)
             o(newline)
                 # blocks and other expressions have different statement terminators
-              - (   (nbexpr
-                      - o(newline)
-                      - o(stmtTrm
-                          - o(stmtList))
-                      - o(newline))
-                  | (block
-                               # either a newline or semicolon can terminate a block "statement"
-                               # so that another statement (stmtList) can follow.
-                      - o(  (stmtTrm
-                          | newline)
-                          - stmtList))
-                      - o(newline))
+          - (   block
+                  # either a newline or semicolon can terminate a block "statement"
+                  # so that another statement (stmtList) can follow.
+              - o(  (stmtTrm
+                  | newline)
+                  - stmtList)
+              | nbexpr
+              - o(newline)
+              - o(stmtTrm
+                  - o(stmtList))
+             )
+          - o(newline)
     };
 
     # non-block expression
@@ -246,6 +265,7 @@ sub make_parser {
           | w('()',expr)
           | op_numaddt
           | l('INT')
+          | dieif(pkgDecl,"Can't declare a non-block package")
     };
 
     rule op_numaddt {
@@ -255,7 +275,7 @@ sub make_parser {
     };
 
     rule newline {
-            gt0(l('NL'))
+            gt0(l("C","\n"))
     };
 
     rule blkBare {
@@ -269,18 +289,23 @@ sub make_parser {
     rule blkPrmbl {
             
             o(blkModf)
-          - o(scpDecl - clype)
+            # this is an example of sometimes having to enumerate various
+            # possiblities during a sequence of variously optional terms
             # blkType is the only required term in the block preamble
-          - blkType
+          - (scpDecl - clype - blkType | scpDecl - blkType | blkType )
           - o(l('ID')) - o(w('()',blkPrms))
-          #- o($BlkTrts)
+          - star(blkTrait)
           | compUnit
           | flowCtrl
           | blkLabl
     };
 
+    rule blkTrait {
+        keyword('is') - l('ID')
+    };
+
     rule impor {
-            keywords(qw{ use require }) - l('ID')
+            keywords(qw{ use require module class }) - l('ID')
     };
 
     rule flowCtrl { # Until I die, I would cry unless unless/until were included.
@@ -293,7 +318,8 @@ sub make_parser {
     };
 
     rule blkType {
-            keywords(qw{ sub method submethod regex token rule macro })
+            keywords(qw{ sub method submethod regex token rule
+                         macro module package })
     };
 
     rule blkRetT {
@@ -336,6 +362,7 @@ sub make_parser {
 
     rule declare {
             scpDecl - sVari
+          | keywords(qw{ module class }) - clype
     };
 
     rule assign {

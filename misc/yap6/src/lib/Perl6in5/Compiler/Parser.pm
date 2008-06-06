@@ -12,7 +12,8 @@ use Exporter;
                 operator star option concatenate alternate
                 display_failures labeledblock commalist o say
                 termilist trace %N l parser checkval execnow
-                adn ch w keyword keywords clist gt0 word);
+                adn ch w keyword keywords clist gt0 word dieif
+                );
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -508,7 +509,32 @@ sub clist {
     my $ins = shift;
     my $p;
     $p = commalist($ins,$comma->(),', ');
-    $N{$p} = "clist($N{$ins}"; # trace
+    $N{$p} = "clist($N{$ins})"; # trace
+    $p;
+}
+
+sub dieif {
+    my ($ins,$msg) = @_;
+    my $p;
+    $p = parser {
+        my $input = shift;
+        trace "Dying if find $N{$p}";
+        if (defined $input) { # trace
+            trace "Next token is ".Dumper($input->[0]);
+        } else { # trace
+            trace "At end of input";
+        } # trace
+        $input = [$input] unless ref $input;
+        my ($v, $newinput);
+        eval { ($v, $newinput) = $ins->($input) };
+        if ($@) {
+            return (undef, $input);
+        } else {
+            trace "Matched $N{$ins}, so dying";
+            die $msg;
+        }
+    };
+    $N{$p} = "dieif($N{$ins})"; # trace
     $p;
 }
 
