@@ -27,20 +27,15 @@ no warnings qw{ reserved closure recursion };
 sub make_parser {
     my $input = shift;
     
-    my $wS = sub { "" };
-    
     my $lexer = iterator_to_stream(make_lexer($input,
     [ 'ID'              ,qr|[A-Za-z_]\w*|     ,                            ],
     [ 'INT'             ,qr|\d+|              ,                            ],
-    # someday soon I'll need to remove whitespace from here and handle it
-    # in the parser (not the lexer), since there are so many special rules
-    # around ws and unspace.  Actually someday soon, all that should remain
+    # Actually someday soon, all that should remain
     # here is the "C" pattern (unfortunately?), since there is so much that
     # will need to be redefinable at parse time, the lexing needs to go
     # character by character.  This means that the lexing step will merely
     # generate a sub generator that generates a stream of nested arrayrefs
     # (with the lexer as the tail) that each contain the next character.
-    [ 'WS'              ,qr/\s+/              ,$wS                         ],
     [ "C"               ,qr#.#                ,                            ],
 
     )); 
@@ -213,7 +208,7 @@ sub make_parser {
     # are parsed correctly.
     # 
     # rule perl5zone {
-        # sl(); # grabs anything/everything...
+            # sl(); # grabs anything/everything...
     # }
 
     rule program {
@@ -228,7 +223,7 @@ sub make_parser {
     };
 
     rule pkgDecl {
-        keyword('package') - l('ID') - stmtTrm;
+            keyword('package') - l('ID') - stmtTrm;
     };
 
     rule usev6 {
@@ -239,7 +234,7 @@ sub make_parser {
     };
 
     rule sVari {
-        '$' - l('ID')
+            '$' - l('ID')
     };
 
     rule comma {
@@ -272,6 +267,7 @@ sub make_parser {
     rule nbexpr {
             sVari
           | impor
+          | dieif(pkgDecl,"Can't declare a non-block package")
           | assign
           | declare
           | blkTrait
@@ -279,17 +275,19 @@ sub make_parser {
           | w('()',expr)
           | op_numaddt
           | l('INT')
-          | dieif(pkgDecl,"Can't declare a non-block package")
     };
 
     rule op_numaddt {
             term
-              - star('+' - term
-                   | '-' - term)
+          - star('+' - term
+               | '-' - term)
     };
 
     rule newline {
-            gt0(l("C","\n"))
+            # it took me a while to realize this is the
+            # correct place for this. -msw
+            dieif(word("\n".'#{'),'\'\n#{\' is illegal')
+          | gt0(l("C","\n"))
     };
 
     rule blkBare {
@@ -301,7 +299,6 @@ sub make_parser {
     };
 
     rule blkPrmbl {
-            
             o(blkModf)
             # this is an example of sometimes having to enumerate various
             # possiblities during a sequence of variously optional terms
@@ -313,19 +310,19 @@ sub make_parser {
           | compUnit
           | flowCtrl
           | blkLabl
-          | arrowInv - o(comma - clist(blkPrms))
+          | arrowInv - o(',' - clist(blkPrms))
     };
 
     rule arrowInv {
-        keyword('<-') - prmDecl
+            word('<-') - prmDecl
     };
 
     rule blkTrait {
-        gt0(keywords(qw{ is does has }) - l('ID'))
+            gt0(keywords(qw{ is does has }) - l('ID'))
     };
 
     rule impor {
-            keywords(qw{ use require module class }) - l('ID')
+            keywords(qw{ no use require module class }) - l('ID') - o(nbexpr)
     };
 
     rule flowCtrl { # Until I die, I would cry unless unless/until were included.
@@ -339,7 +336,7 @@ sub make_parser {
 
     rule blkType {
             keywords(qw{ sub method submethod regex token rule
-                         macro module class package })
+                         macro module class package grammar})
     };
 
     rule blkRetT {
@@ -394,7 +391,7 @@ sub make_parser {
 
     rule declare {
             scpDecl - prmDecl
-          | keywords(qw{ module class }) - clype
+          | keywords(qw{ module class grammar }) - clype
     };
 
     rule assign {

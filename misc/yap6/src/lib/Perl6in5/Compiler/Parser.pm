@@ -13,7 +13,7 @@ use Exporter;
                 display_failures labeledblock commalist o say
                 termilist trace %N l parser checkval execnow
                 adn ch w keyword keywords clist gt0 word dieif
-                semilist);
+                semilist unspace concatws through p6ws);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -24,11 +24,13 @@ use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 # much faster than otherwise, since the strings to be traced
 # are not only not sent to STDOUT; they aren't even built.
 
-use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise';
+use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise', 'drop';
 
 use overload
-                '-'  => \&concatenate,
+                '-'  => \&concatws,
+                '+'  => \&concatenate,
                 '|'  => \&alternate,
+                '&'  => \&alterlong,
                 '>>' => \&T,
                 '>'  => \&V,
                 '/'  => \&checkval,
@@ -177,6 +179,77 @@ sub alternate {
 
 my $cdepth = {};
 
+sub p6ws () {
+  my $p;
+  $p = gt0(alternate(l('C',' '),
+                     l('C',"\n"),
+                     concatenate(l('C','#'),
+                     # yes, I realize the below is incorrect; a special
+                     # function will need to be created eventually.
+                                 alternate(concatenate(gt0(l('C','{')),
+                                                       through(gt0(l('C','}')))),
+                                           concatenate(gt0(l('C','(')),
+                                                       through(gt0(l('C',')')))),
+                                           concatenate(gt0(l('C','[')),
+                                                       through(gt0(l('C',']')))),
+                                           concatenate(gt0(l('C','<')),
+                                                       through(gt0(l('C','>')))))),
+                     concatenate(l('C','#'),
+                                 through(newline)))
+                                 # XXX need to add heredoc here soon.
+                                 );
+  $N{$p} = ' '; # trace
+  return $p;
+}
+
+sub through {
+    my $stop = shift;
+    my $p;
+    $p = parser {
+        my $input = shift;
+        my $v;
+        my @values;
+        while (defined $input) {
+            eval { ($v, $input) = $stop->($input) };
+            if ($@) {
+                unless (ref $@) {
+                    $Data::Dumper::Deparse = 1; # trace
+                    trace "Dying in through; current parser: ".Dumper($stop);
+                    die;
+                }
+                trace "through $N{$stop} still not matched";
+                push @values, drop($input);
+                die ['CONC', $input, [\@succeeded, $@]] unless defined $input; # trace
+                next;
+            } else {
+                trace "through $N{$stop} matched";
+                push @values, $v;
+                last;
+            }
+        }
+        while (ref $values[0] eq 'Tuple') {
+            splice @values, 0, 1, @{$values[0]};
+        }
+        return (bless(\@values => 'Tuple'), $input);
+    };
+    $N{$p} = 'through($N{$stop})'; # trace
+    $p;
+}
+
+sub concatws {
+  my @p = grep $_,@_;
+  return $nothing if @p == 0;
+  return $p[0]  if @p == 1;
+  my $p;
+  my $o = option(p6ws());
+  $N{$o} = ' ';
+  my @q = map { $_ => $o } @p; pop @q;
+  $p = concatenate(@q);
+  $N{$p} = join " ", map $N{$_}, @p; # trace
+  return $p;
+}
+
+
 sub concatenate {
   my @p = grep $_,@_;
   return $nothing if @p == 0;
@@ -219,7 +292,7 @@ sub concatenate {
       if ($@) {
         unless (ref $@) {
             $Data::Dumper::Deparse = 1; # trace
-            trace "Dying in CONC; current parser: ".Dumper($_);
+            trace "Dying in CONC+; current parser: ".Dumper($_);
             die;
         }
         die ['CONC', $input, [\@succeeded, $@]]; # trace
@@ -236,7 +309,7 @@ sub concatenate {
     }
     return (bless(\@values => 'Tuple'), $input);
   };
-  $N{$p} = join " ", map $N{$_}, @p; # trace
+  $N{$p} = join "", map $N{$_}, @p; # trace
   return $p;
 }
 
@@ -244,16 +317,14 @@ my $null_tuple = [];
 bless $null_tuple => 'Tuple';
 
 sub star {
-  my $p = shift;
-  unless (defined $p) {
-    my @a=caller;
-    trace Dumper(\@a);
-    die;
-  }
+  my ($p,$ws) = @_;
   my ($p_star, $conc);
+  # concatenate using whitespace by default.
+  my $concat = sub { concatws(@_) };
+  if ($ws) { $concat = sub { concatenate(@_) }; };
   my $p_starexec = parser { $p_star->(@_) };
   $N{$p_starexec} = ""; # trace
-  $p_star = alternate(T($conc = concatenate($p, $p_starexec),
+  $p_star = alternate(T($conc = $concat->($p, $p_starexec),
                         sub { 
                           [$_[0], @{$_[1]}] 
                         }),
@@ -275,11 +346,11 @@ sub option {
 # commalist(p, sep) = p star(sep p) option(sep)
 sub commalist {
   my ($p, $separator, $sepstr) = @_;
-  my $parser = T(concatenate($p,
-                             star(T(concatenate(star($separator), $p),
+  my $parser = T(concatws($p,
+                             star(T(concatws(star($separator,1), $p),
                                     sub { $_[1] }
-                                   )),
-                             star($separator)),
+                                   ),1),
+                             star($separator,1)),
                  sub { [$_[0], @{$_[1]}] }
                 );
   $N{$parser} = "$N{$p}$sepstr$N{$p}$sepstr..."; # trace
@@ -471,11 +542,24 @@ sub adn (@) {
     Dumper([map("$_",@_)]);
 }
 
-sub ch { # parse for a single character.
+sub ch { # parse for a single (normal) character.
+    # Because of the weirdness of unspace, grammars that
+    # need to look for backslashes will need to use l("C",'\\')
     my $p;
     my $char = $_[0];
-    $p = l("C",$char);
+    # through(option(something)) is an interesting construct.
+    # It means chew/slurp stuff through something if something
+    # is the first token (series).  Since option() succeeds with
+    # nothing(), through will only ever chew 1 match.
+    $p = concatenate(through(option(unspace())),l("C",$char));
     $N{$p} = Dumper($char); # trace
+    $p;
+}
+
+sub unspace () {
+    my $p;
+    $p = concatenate(gt0(l("C",'\\'),1),option(p6ws()));
+    $N{$p} = 'unspace'; # trace
     $p;
 }
 
@@ -483,7 +567,7 @@ sub w { # look for a wrapped entity.  first parm is split into the wrappers.
     my ($d,$e) = split(//,$_[0]);
     my $p;
     my $item = $_[1];
-    $p = concatenate(ch($d),$item,ch($e));
+    $p = concatws(ch($d),$item,ch($e));
     $N{$p} = "$d$N{$item}$e"; # trace
     $p;
 }
@@ -548,7 +632,9 @@ sub dieif {
 sub gt0 { # hit on 1 or more of the contained. (gt0 == greater than zero)
     my $p;
     my $item = $_[0];
-    $p = concatenate($item,star($item));
+    my $conc = sub { concatws(@_) };
+    if ($_[1]) { $conc = sub { concatenate(@_) }; };
+    $p = $conc->($item,star($item));
     $N{$p} = ">=1($N{$item})"; # trace
     $p;
 }

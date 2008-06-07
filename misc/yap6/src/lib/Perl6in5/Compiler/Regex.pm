@@ -168,4 +168,81 @@ sub bal {
        });
 }
 
+my ($regex, $alternative, $atom, $qatoms);
+
+sub regex_to_stream {
+  my @rinput = @_;
+  my $rinput = sub { shift @rinput };
+  
+  my $lexer = iterator_to_stream(
+          make_lexer($input,
+                     ['PAREN',      qr/[()]/,],
+                     ['QUANT',      qr/[*+?]/                     ],
+                     ['BAR',        qr/[|]/,                      ],
+                     ['ATOM',       qr/\\x[0-9a-fA-F]{0,2} # hex escape
+                                      |\\\d+               # octal escape
+                                      |\\.                 # other \
+                                      |.                   # other char
+                                      /x, ],
+                    )
+          );
+
+    my ($result) =  $regex->($lexer);
+    return $result;
+  }
+
+
+## Chapter 8 section 5
+
+use Parser ':all';
+
+my $Regex        = parser { $regex      ->(@_) };
+my $Alternative  = parser { $alternative->(@_) };
+my $Atom         = parser { $atom       ->(@_) };
+my $QAtom        = parser { $qatom      ->(@_) };
+
+
+## Chapter 8 section 5
+
+use Regex;
+
+# regex -> alternative 'BAR' regex  |  alternative
+$regex = alternate(T(concatenate($Alternative,
+                                 lookfor('BAR'),
+                                 $Regex),
+                     sub { Regex::union($_[0], $_[2]) }),
+                   $Alternative);
+# alternative -> qatom alternative | (nothing)
+$alternative = alternate(T(concatenate($QAtom, $Alternative),
+                           \&Regex::concat),
+                         T(\&nothing, sub { Regex::literal("") }));
+my %quant;
+
+# qatom -> atom ('QUANT' | (nothing))
+$qatom  = T(concatenate($Atom,
+                        alternate(lookfor('QUANT'),
+                                  \&nothing),
+                       ),
+            sub { my ($at, $q) = @_;
+                  defined $q ? $quant{$q}->($at) : $at });
+
+%quant = ('*' => \&Regex::star,
+          '+' => \&Regex::plus,
+          '?' => \&Regex::query,
+         );
+sub query {
+  my $s = shift;
+  union(literal(""), $s);
+}
+# atom -> 'ATOM' | '(' regex ')'
+$atom = alternate(lookfor("ATOM", sub { Regex::literal($_[0][1]) }),
+                  T(concatenate(lookfor(["PAREN", "("]),
+                                $Regex,
+                                lookfor(["PAREN", ")"]),
+                               ),
+                    sub { $_[1] }),
+                 );
+
+
+
 1;
