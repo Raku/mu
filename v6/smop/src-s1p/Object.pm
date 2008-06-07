@@ -32,18 +32,16 @@ initializes it with the given named parameters and protoobjects.
 
 =begin
 
-=item  method bless($candidate?, *@protoobjects, *%initialize --> Object )
+=item  method bless($candidate, *@protoobjects, *%initialize --> Object )
 
 This method sets the invocant as the prototype of the given object and
-call the initialization code from least-derived to most-derived.
+call the initialization code from least-derived to most-derived. In
+Object, it is simply delegated to the metaclass.
 
 =end
 
-  method bless($prototype: $candidate?, *@protoobjects, *%initialize --> Object ) {
-      $candidate //= $prototype.CREATE();
-      $candidate.^!bless($prototype);
-      $candidate.BUILDALL(|@protoobjects, |%initialize);
-      return $candidate;
+  method bless(|$capture) {
+      return $prototype.^bless(|$capture);
   }
 
 
@@ -54,7 +52,7 @@ Creates a clone of the current object.
 =end
 
   method clone($object:  --> Object ) {
-      return $object.^!clone();
+      return $object.^clone();
   }
 
 =begin
@@ -73,7 +71,7 @@ Is this object defined?
 
 =item method isa($prototype --> bool )
 
-Is $prototype part of this object's hierarchy?
+Is $prototype part of this object hierarchy?
 
 =end
 
@@ -115,11 +113,8 @@ representation or the default one.
 
 =end
 
-  method CREATE($prototype: :$repr --> Object) {
-      # TODO: we don't really support creating alternative
-      # representations right now. But one can always call CREATE on
-      # another representation by himself and call bless with it.
-      return $prototype.^!CREATE()
+  method CREATE(|$capture) {
+      return self.^CREATE(|$capture)
   }
 
 =begin
@@ -131,30 +126,8 @@ This will traverse the hierarchy calling BUILD in each class.
 =end
 
 
-  method BUILDALL($object: *@protoobjects, *%initialize) {
-      fail if not $object.^!instance;
-      return $object!buildall_recurse($object, @protoobjects, %initialize);
-  }
-
-  my method buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
-      for ($prototype.^!isa()) -> $isa {
-          $object!buildall_recurse($isa, |@protoobjects, |%initialize)
-      }
-      for ($prototype.^!does()) -> $does {
-          $object!buildall_recurse($does, |@protoobjects, |%initialize)
-      }
-
-      my $package = $prototype.^!package();
-      $object.^!initialize_instance_storage($package);
-
-      for ($prototype.^!attributes()) -> $att {
-          $object.^!initialize_instance_storage_slot($package, $att.private_name(), $att.create_container());
-      }
-
-      # TODO: test if any of the protoobjects are of the same type of
-      # the current prototype, and if that's the case, translate it into
-      # named arguments.
-      $prototype.?BUILD($object: |%initialize);
+  method BUILDALL(|$capture) {
+      return self.^BUILDALL(|$capture);
   }
 
 =begin
@@ -166,19 +139,7 @@ This will traverse the hierarchy calling DESTROY in each class.
 =end
 
   method DESTROYALL($object:) {
-      $object!destroyall_recurse($object);
-  }
-
-  my method destroyall_recurse($object: $prototype) {
-      $prototype.?DESTROY($object: );
-      $object.^!destroy_instance_storage($prototype.^!package());
-
-      for ($prototype.^!does()) -> $does {
-          $object!destroyall_recurse($does)
-      }
-      for ($prototype.^!isa()) -> $isa {
-          $object!destroyall_recurse($isa)
-      }
+      $object.^DESTROYALL();
   }
 
 =begin

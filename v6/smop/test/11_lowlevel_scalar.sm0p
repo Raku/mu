@@ -31,8 +31,8 @@ int main() {
     $scalar2.SMOP__ID__FETCH();
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
-    $scalar1.SMOP__ID__STORE();
     $scalar2.SMOP__ID__STORE();
+    $scalar1.SMOP__ID__STORE();
   };
 
 
@@ -64,7 +64,7 @@ int main() {
   printf("ok 8 - scalar 1 cell have the correct value\n");
 
   if ((SMOP_RI(r2) != (SMOP__ResponderInterface*)SMOP__NATIVE__int) || SMOP__NATIVE__int_fetch(r2) != 1) printf("not ");
-  printf("ok 9 - scalar 1 cell have the correct value\n");
+  printf("ok 9 - scalar 2 cell have the correct value\n");
 
   SMOP_RELEASE(interpreter,scalar1);
   SMOP_RELEASE(interpreter,scalar2);
