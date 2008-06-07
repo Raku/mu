@@ -8,12 +8,13 @@ package Perl6in5::Compiler::Parser;
 our ($nothing, $End_of_Input);
 
 use Exporter;
-@EXPORT_OK = qw(lookfor _ $End_of_Input $nothing T error debug
+@EXPORT_OK = qw(lookfor $End_of_Input $nothing T error debug
                 operator star option concatenate alternate
                 display_failures labeledblock commalist o say
                 termilist trace %N l parser checkval execnow
-                adn ch w keyword keywords clist gt0 word dieif
-                semilist unspace concatws through p6ws);
+                adn ch w keyword keywords clist gt0 word panic
+                semilist unspace concatoptws through p6ws
+                newline concatmanws);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -26,9 +27,14 @@ use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise', 'drop';
 
+$|=0; # trace
+
+my $toodeep = 5;
+
 use overload
-                '-'  => \&concatws,
-                '+'  => \&concatenate,
+                '-'  => \&concatoptws,
+                '+'  => \&concatmanws,
+                '.'  => \&concatenate,
                 '|'  => \&alternate,
                 '&'  => \&alterlong,
                 '>>' => \&T,
@@ -37,7 +43,14 @@ use overload
                 '""' => \&overload::StrVal,
   ;
 
-  
+sub normalizer {
+    "@_"
+};
+
+# Here's a fun trick; memoize the parser generator functions :)
+use Memoize;
+map { memoize $_, NORMALIZER=>'normalizer' unless (/^\W/ || /^trace$/) } qw{ newline p6ws nothing };
+
 $| = 1; # trace
 
 use Data::Dumper;
@@ -58,7 +71,17 @@ sub trace ($) { # trace
   my $i = 0; # trace
   $i++ while caller($i); # trace
   $I = "-" x int($i/2-1); # trace
-  print $i.$I." ", $msg; # trace
+  warn $i.$I." ", $msg; # trace
+} # trace
+
+sub callstack () { # trace
+  my $i = 1; # trace
+  my $msg; # trace
+  while (my @stack = caller($i)) { # trace
+    $i++; # trace
+    $msg .= "\t".join(",",@stack)."\n" if @stack; # trace
+  } # trace
+  trace $msg;
 } # trace
 
 sub debug ($) { # debug
@@ -66,7 +89,7 @@ sub debug ($) { # debug
   my $i = 0; # debug
   $i++ while caller($i); # debug
   $I = "-" x int($i/2-1); # debug
-  print $i.$I." ", $msg; # debug
+  warn $i.$I." ", $msg; # debug
 } # debug
 
 sub parser (&) { bless $_[0] => __PACKAGE__ }
@@ -82,7 +105,7 @@ sub lookfor {
   my $parser;
   $parser = parser {
     my $input = shift;
-    trace "Looking for token ".Dumper($wanted);
+    trace "Looking for token ".Dumper($wanted)." in ".Dumper(head($input));
     unless (defined $input) {
       trace "Premature end of input";
       die ['TOKEN', $input, $wanted];
@@ -93,8 +116,8 @@ sub lookfor {
       die ['TOKEN', $next, $wanted];
     }
     $next = [$next] unless ref $next;
-    trace "Next token is ".Dumper($next);
     for my $i (0 .. $#$wanted) {
+      trace "trying subtoken $i";
       next unless defined $wanted->[$i];
       unless ($wanted->[$i] eq $next->[$i]) {
         trace "Token mismatch";
@@ -116,7 +139,7 @@ sub End_of_Input {
     trace "Found End of Input";
     return (undef, undef);
   } else {
-    trace "Found more input";
+    trace "Found more input: ".Dumper($input);
     die ["End of input", $input];
   }
 }
@@ -137,8 +160,6 @@ sub nothing {
 
 $nothing = \&nothing;
 bless $nothing => __PACKAGE__;
-
-my $adepth = {};
 
 sub alternate {
   my @p = grep $_,@_;
@@ -174,35 +195,39 @@ sub alternate {
     die ['ALT', $input, \@failures];
   };
   $N{$p} = "(" . join(" | ", map eval{$N{$_}}, @p) . ")"; # trace
-  return $p;
+  $p;
 }
 
 my $cdepth = {};
 
 sub p6ws () {
   my $p;
-  $p = gt0(alternate(l('C',' '),
-                     l('C',"\n"),
-                     concatenate(l('C','#'),
+  #trace "generating p6ws".Dumper([caller()]);
+  $p = alternate(newline(),gt0(alternate(l("C"," "),
+                     concatenate(l("C","#"),
                      # yes, I realize the below is incorrect; a special
                      # function will need to be created eventually.
-                                 alternate(concatenate(gt0(l('C','{')),
-                                                       through(gt0(l('C','}')))),
-                                           concatenate(gt0(l('C','(')),
-                                                       through(gt0(l('C',')')))),
-                                           concatenate(gt0(l('C','[')),
-                                                       through(gt0(l('C',']')))),
-                                           concatenate(gt0(l('C','<')),
-                                                       through(gt0(l('C','>')))))),
-                     concatenate(l('C','#'),
-                                 through(newline)))
+                                 alternate(concatenate(gt0(l("C","{"),1),
+                                                       through(gt0(l("C","}"),1),1)),
+                                           concatenate(gt0(l("C","("),1),
+                                                       through(gt0(l("C",")"),1),1)),
+                                           concatenate(gt0(l("C","["),1),
+                                                       through(gt0(l("C","]"),1),1)),
+                                           concatenate(gt0(l("C","<"),1),
+                                                       through(gt0(l("C",">"),1),1)))),
+                     concatenate(l("C","#"),
+                                 through(l("C","\n"),1))
                                  # XXX need to add heredoc here soon.
-                                 );
-  $N{$p} = ' '; # trace
-  return $p;
+                                 ),1));
+  $p = gt0(alternate(l("C"," "),l("C","\n")),1);
+#  $p = l("C"," ");
+  $N{$p} = 'ws'; # trace
+  $p;
 }
 
+# slurp up stuff until a stopper parser matches. basically, the {*} signifier.
 sub through {
+  #trace 'generating through'.Dumper([caller()]);
     my $stop = shift;
     my $p;
     $p = parser {
@@ -232,23 +257,180 @@ sub through {
         }
         return (bless(\@values => 'Tuple'), $input);
     };
-    $N{$p} = 'through($N{$stop})'; # trace
+    $N{$p} = "through($N{$stop})"; # trace
     $p;
 }
 
-sub concatws {
+sub concatmanws {
   my @p = grep $_,@_;
   return $nothing if @p == 0;
   return $p[0]  if @p == 1;
-  my $p;
-  my $o = option(p6ws());
-  $N{$o} = ' ';
-  my @q = map { $_ => $o } @p; pop @q;
-  $p = concatenate(@q);
-  $N{$p} = join " ", map $N{$_}, @p; # trace
+  my ($p,$o);
+  $o = p6ws;
+  $p = parser {
+    my $input = shift;
+    my $i = 0;
+    $i++ while caller($i);
+    #trace "concatenate $p on $input at depth $i"; # trace
+    if (# we've been in this parser before
+        exists $cdepth->{$p}
+        # we've seen this input for this parser before
+        && exists $cdepth->{$p}->{$input}
+        # our current depth is lower than before
+        && $cdepth->{$p}->{$input} > $toodeep) {
+        # we're in an infinite recursion.
+        trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
+        die ['CONC', $input, [[], $@]];
+    } else { # trace
+        #trace "we're not in an infinite recursion"; # trace
+    }
+    # store the coderef addresses for this
+    # parser so we can detect infinite loops
+    $cdepth->{$p}->{$input}++;
+    trace "Looking for $N{$p}";
+    #trace "concatenate: ".Dumper(\@p);
+    if (defined $input) { # trace
+      trace "Next token is ".Dumper($input->[0]);
+    } else { # trace
+      trace "At end of input";
+    } # trace
+    $input = [$input] unless ref $input;
+    my $v;
+    my @values;
+    my ($q, $np) = (0, scalar @p);
+    my @succeeded; # trace
+    for (@p) {
+      $q++;
+      eval { ($v, $input) = $_->($input) };
+      if ($@) {
+        unless (ref $@) {
+            $Data::Dumper::Deparse = 1; # trace
+            trace "Dying in CONC+; current parser: $N{$p}\n";
+            die;
+        }
+        die ['CONC', $input, [\@succeeded, $@]]; # trace
+        die ['CONC', $input, [[], $@]]; # sneaky :)
+      } else {
+        trace "Matched some whitespace after $q/$np: ".Dumper($v).Dumper(\@succeeded);
+        push @succeeded, $N{$_}; # trace
+        push @values, $v;
+      }
+      unless ($q == $np) {
+          trace "in concatmanws, finding whitespace after $q/$np";
+          eval { ($v, $input) = $o->($input) };
+          if ($@) {
+            unless (ref $@) {
+                $Data::Dumper::Deparse = 1; # trace
+                trace "Dying in CONC-; current parser: $N{$p}\n";
+                die;
+            }
+            die ['CONC', $input, [\@succeeded, $@]]; # trace
+            die ['CONC', $input, [[], $@]]; # sneaky :)
+          } else {
+            trace "Matched concatws whitespace $q/$np";
+            push @succeeded, ' '; # trace
+            push @values, $v;
+          }
+      } else {
+       die 'Failed' if $N{$p} eq '(?Class/Type)-SVari';
+      }
+    }
+    trace "Finished matching $N{$p}";
+    while (ref $values[0] eq 'Tuple') {
+      splice @values, 0, 1, @{$values[0]};
+    }
+    return (bless(\@values => 'Tuple'), $input);
+  };
+  $N{$p} = join "+", map $N{$_}, @p; # trace
   return $p;
 }
 
+sub concatoptws {
+  my @p = grep $_,@_;
+  return $nothing if @p == 0;
+  return $p[0]  if @p == 1;
+  my ($p,$o);
+  $o = p6ws;
+  $p = parser {
+    my $input = shift;
+    my $i = 0;
+    $i++ while caller($i);
+    #trace "concatenate $p on $input at depth $i"; # trace
+    if (# we've been in this parser before
+        exists $cdepth->{$p}
+        # we've seen this input for this parser before
+        && exists $cdepth->{$p}->{$input}
+        # our current depth is lower than before
+        && $cdepth->{$p}->{$input} > $toodeep) {
+        # we're in an infinite recursion.
+        trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
+        die ['CONC', $input, [[], $@]];
+    } else { # trace
+        #trace "we're not in an infinite recursion"; # trace
+    }
+    # store the coderef addresses for this
+    # parser so we can detect infinite loops
+    $cdepth->{$p}->{$input}++;
+    trace "Looking for $N{$p}";
+    #trace "concatenate: ".Dumper(\@p);
+    if (defined $input) { # trace
+      trace "Next token is ".Dumper($input->[0]);
+    } else { # trace
+      trace "At end of input";
+    } # trace
+    $input = [$input] unless ref $input;
+    my $v;
+    my @values;
+    my ($q, $np) = (0, scalar @p);
+    my @succeeded; # trace
+    for (@p) {
+      $q++;
+      eval { ($v, $input) = $_->($input) };
+      if ($@) {
+        unless (ref $@) {
+            $Data::Dumper::Deparse = 1; # trace
+            trace "Dying in CONC-; current parser: $N{$p}\n";
+            die;
+        }
+        die ['CONC', $input, [\@succeeded, $@]]; # trace
+        die ['CONC', $input, [[], $@]]; # sneaky :)
+      } else {
+        trace "Possibly matched concatopt component $q/$np";
+        push @succeeded, $N{$_}; # trace
+        push @values, $v;
+      }
+      unless ($q == $np) {
+          eval { ($v, $input) = $o->($input) };
+          if ($@) {
+            unless (ref $@) {
+                $Data::Dumper::Deparse = 1; # trace
+                trace "Dying in CONC-; current parser: $N{$p}\n";
+                die;
+            }
+          } else {
+            trace "Matched some whitespace after $q/$np";
+            push @succeeded, ' '; # trace
+            push @values, $v;
+          }
+      }
+    }
+    trace "Finished matching $N{$p}";
+    while (ref $values[0] eq 'Tuple') {
+      splice @values, 0, 1, @{$values[0]};
+    }
+    return (bless(\@values => 'Tuple'), $input);
+  };
+  $N{$p} = join "-", map $N{$_}, @p; # trace
+  return $p;
+}
+
+sub newline {
+  my $p;
+  $p = alternate(panic(word("\n#{"),"\\n#{ is illegal"),gt0(l("C","\n"),1));
+  $p = gt0(l("C","\n"),1);
+  $N{$p} = "nl"; # trace
+  return $p;
+}
 
 sub concatenate {
   my @p = grep $_,@_;
@@ -265,17 +447,18 @@ sub concatenate {
         # we've seen this input for this parser before
         && exists $cdepth->{$p}->{$input}
         # our current depth is lower than before
-        && $cdepth->{$p}->{$input} < $i) {
+        && $cdepth->{$p}->{$input} > $toodeep) {
         # we're in an infinite recursion.
-        trace "$p was too deep in itself.";
+        trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
         die ['CONC', $input, [[], $@]];
     } else { # trace
         #trace "we're not in an infinite recursion"; # trace
     }
     # store the coderef addresses for this
     # parser so we can detect infinite loops
-    $cdepth->{$p}->{$input} = $i;
+    $cdepth->{$p}->{$input}++;
     trace "Looking for $N{$p}";
+    #trace "concatenate: ".Dumper(\@p);
     if (defined $input) { # trace
       trace "Next token is ".Dumper($input->[0]);
     } else { # trace
@@ -292,7 +475,7 @@ sub concatenate {
       if ($@) {
         unless (ref $@) {
             $Data::Dumper::Deparse = 1; # trace
-            trace "Dying in CONC+; current parser: ".Dumper($_);
+            trace "Dying in CONC.; current parser: $N{$p}\n";
             die;
         }
         die ['CONC', $input, [\@succeeded, $@]]; # trace
@@ -309,7 +492,7 @@ sub concatenate {
     }
     return (bless(\@values => 'Tuple'), $input);
   };
-  $N{$p} = join "", map $N{$_}, @p; # trace
+  $N{$p} = join ".", map $N{$_}, @p; # trace
   return $p;
 }
 
@@ -317,11 +500,13 @@ my $null_tuple = [];
 bless $null_tuple => 'Tuple';
 
 sub star {
-  my ($p,$ws) = @_;
+  #trace $_[1].'generating star'.Dumper([caller()]);
+  my ($p,$nows) = @_;
   my ($p_star, $conc);
   # concatenate using whitespace by default.
-  my $concat = sub { concatws(@_) };
-  if ($ws) { $concat = sub { concatenate(@_) }; };
+  my $concat = sub { concatmanws(@_) };
+  if ($nows) { $concat = sub { concatenate(@_) }; };
+  #trace "star concat is: ".Dumper($concat);
   my $p_starexec = parser { $p_star->(@_) };
   $N{$p_starexec} = ""; # trace
   $p_star = alternate(T($conc = $concat->($p, $p_starexec),
@@ -331,7 +516,7 @@ sub star {
                       T($nothing,
                         sub { $null_tuple }),
                      );
-  $N{$p_star} = "star($N{$p})"; # trace
+  $N{$p_star} = "($N{$p})*"; # trace
   $N{$conc} = "conc $N{$p} $N{$p_star}"; # trace
   $p_star;
 }
@@ -339,15 +524,15 @@ sub star {
 sub option {
   my $p = shift;
   $p_opt = alternate($p, $nothing);
-  $N{$p_opt} = "option($N{$p})"; # trace
+  $N{$p_opt} = "(?$N{$p})"; # trace
   $p_opt;
 }
 
 # commalist(p, sep) = p star(sep p) option(sep)
 sub commalist {
   my ($p, $separator, $sepstr) = @_;
-  my $parser = T(concatws($p,
-                             star(T(concatws(star($separator,1), $p),
+  my $parser = T(concatoptws($p,
+                             star(T(concatoptws(star($separator,1), $p),
                                     sub { $_[1] }
                                    ),1),
                              star($separator,1)),
@@ -463,11 +648,11 @@ sub display_failures {
   $xx = 1; # trace
   return unless $xx;
   $depth ||= 0;
-  my $I = "  " x $depth;
+  my $I = " " x $depth;
   unless (ref $fail) { die $fail }
   my ($type, $position, $data) = @$fail;
   my $pos_desc = "";
-  while (length($pos_desc) < 40) {
+  while (length($pos_desc) < 80) {
     if ($position) {
       my $h = head($position);
       if (!defined $h) {
@@ -475,7 +660,7 @@ sub display_failures {
         last;
       }
       $h = [$h] unless ref $h;
-      $pos_desc .= "@$h ";
+      $pos_desc .= "$h->[1]";
     } else {
       $pos_desc .= "End of input ";
       last;
@@ -485,9 +670,9 @@ sub display_failures {
   chop $pos_desc;
   $pos_desc .= "..." if defined $position;
   if ($type eq 'TOKEN') {
-    print $I, "Wanted [@$data] instead of '$pos_desc'";
+    print $I, "Wanted [@$data] instead of ".Dumper($pos_desc);
   } elsif ($type eq 'End of input') {
-    print $I, "Wanted EOI instead of '$pos_desc'";
+    print $I, "Wanted EOI instead of ".Dumper($pos_desc);
   } elsif ($type eq 'ALT') {
     print $I, ($depth ? "Or any" : "Any"), " of the following:\n";
     for (@$data) {
@@ -495,7 +680,7 @@ sub display_failures {
     }
   } elsif ($type eq 'CONC') {
     my ($succeeded, $subfailure) = @$data;
-    print $I, "Following (@$succeeded), got '$pos_desc' instead of:\n";
+    print $I, "After ".Dumper("@$succeeded").", got ".Dumper($pos_desc)." instead of: ";
     display_failures($subfailure, $depth+1);
   } else {
     die "Unknown failure type '$type'";
@@ -543,6 +728,7 @@ sub adn (@) {
 }
 
 sub ch { # parse for a single (normal) character.
+  #trace 'generating ch'.Dumper([caller()]);
     # Because of the weirdness of unspace, grammars that
     # need to look for backslashes will need to use l("C",'\\')
     my $p;
@@ -557,8 +743,9 @@ sub ch { # parse for a single (normal) character.
 }
 
 sub unspace () {
+  #trace 'generating unspace'.Dumper([caller()]);
     my $p;
-    $p = concatenate(gt0(l("C",'\\'),1),option(p6ws()));
+    $p = concatenate(l("C","\\"),star(p6ws(),1));
     $N{$p} = 'unspace'; # trace
     $p;
 }
@@ -567,7 +754,7 @@ sub w { # look for a wrapped entity.  first parm is split into the wrappers.
     my ($d,$e) = split(//,$_[0]);
     my $p;
     my $item = $_[1];
-    $p = concatws(ch($d),$item,ch($e));
+    $p = concatoptws(ch($d),$item,ch($e));
     $N{$p} = "$d$N{$item}$e"; # trace
     $p;
 }
@@ -604,7 +791,7 @@ sub semilist {
     $p;
 }
 
-sub dieif {
+sub panic {
     my ($ins,$msg) = @_;
     my $p;
     $p = parser {
@@ -619,22 +806,26 @@ sub dieif {
         my ($v, $newinput);
         eval { ($v, $newinput) = $ins->($input) };
         if ($@) {
-            return (undef, $input);
+            die ['panic', $input, [[], $@]]; 
         } else {
             trace "Matched $N{$ins}, so dying";
             die $msg;
         }
     };
-    $N{$p} = "dieif($N{$ins})"; # trace
+    $N{$p} = "panic($N{$ins})"; # trace
     $p;
 }
 
 sub gt0 { # hit on 1 or more of the contained. (gt0 == greater than zero)
+  #trace $_[1].'generating gt0'.Dumper([caller()]);
     my $p;
-    my $item = $_[0];
-    my $conc = sub { concatws(@_) };
-    if ($_[1]) { $conc = sub { concatenate(@_) }; };
-    $p = $conc->($item,star($item));
+    my ($item,$nows) = @_;
+    $nows ||= 0;
+    my $conc = sub { concatmanws(@_) };
+    if ($nows ==1) { $conc = sub { concatenate(@_) }; };
+    if ($nows ==2) { $conc = sub { concatoptws(@_) }; };
+    #trace "gt0 conc is: ".Dumper($conc);
+    $p = $conc->($item,star($item,$nows));
     $N{$p} = ">=1($N{$item})"; # trace
     $p;
 }
@@ -642,7 +833,7 @@ sub gt0 { # hit on 1 or more of the contained. (gt0 == greater than zero)
 sub word {
     my $p;
     my $word = $_[0];
-    $p = concatenate(map(ch($_),split(//, $word)));
+    $p = concatenate(map(l('C',$_),split(//, $word)));
     $N{$p} = Dumper($word); # trace
     $p;
 }
