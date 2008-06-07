@@ -13,7 +13,7 @@ use Exporter;
                 display_failures labeledblock commalist o say
                 termilist trace %N l parser checkval execnow
                 adn ch w keyword keywords clist gt0 word dieif
-                );
+                semilist);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -275,15 +275,14 @@ sub option {
 # commalist(p, sep) = p star(sep p) option(sep)
 sub commalist {
   my ($p, $separator, $sepstr) = @_;
-  #$sepstr ||= $N{$separator};
   my $parser = T(concatenate($p,
-                             star(T(concatenate($separator, $p),
+                             star(T(concatenate(star($separator), $p),
                                     sub { $_[1] }
                                    )),
                              star($separator)),
                  sub { [$_[0], @{$_[1]}] }
                 );
-  $N{$parser} = "$N{$p}$sepstr $N{$p}$sepstr ..."; # trace
+  $N{$parser} = "$N{$p}$sepstr$N{$p}$sepstr..."; # trace
   return $parser;
 }
 
@@ -476,7 +475,7 @@ sub ch { # parse for a single character.
     my $p;
     my $char = $_[0];
     $p = l("C",$char);
-    $N{$p} = "$char"; # trace
+    $N{$p} = Dumper($char); # trace
     $p;
 }
 
@@ -508,8 +507,16 @@ sub keywords {
 sub clist {
     my $ins = shift;
     my $p;
-    $p = commalist($ins,$comma->(),', ');
+    $p = commalist($ins,ch(','),',');
     $N{$p} = "clist($N{$ins})"; # trace
+    $p;
+}
+
+sub semilist {
+    my $ins = shift;
+    my $p;
+    $p = commalist($ins,alternate(ch(','),ch(';')),',;');
+    $N{$p} = "semilist($N{$ins})"; # trace
     $p;
 }
 
@@ -550,7 +557,7 @@ sub word {
     my $p;
     my $word = $_[0];
     $p = concatenate(map(ch($_),split(//, $word)));
-    $N{$p} = $word;
+    $N{$p} = Dumper($word); # trace
     $p;
 }
 

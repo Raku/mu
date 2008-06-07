@@ -251,7 +251,7 @@ sub make_parser {
               - o(newline)
               - o(stmtTrm
                   - o(stmtList))
-             )
+            )
           - o(newline)
     };
 
@@ -261,6 +261,7 @@ sub make_parser {
           | impor
           | assign
           | declare
+          | blkTrait
           | keyword('say') - expr
           | w('()',expr)
           | op_numaddt
@@ -293,15 +294,16 @@ sub make_parser {
             # possiblities during a sequence of variously optional terms
             # blkType is the only required term in the block preamble
           - (scpDecl - clype - blkType | scpDecl - blkType | blkType )
-          - o(l('ID')) - o(w('()',blkPrms))
-          - star(blkTrait)
+          - o(o('^') - l('ID')) - o(vsblty) - w('()',o(blkPrms))
+          - o(blkTrait)
           | compUnit
           | flowCtrl
           | blkLabl
+          | arrowInv - o(comma - clist(blkPrms))
     };
 
     rule blkTrait {
-        keyword('is') - l('ID')
+        gt0(keywords(qw{ is does has }) - l('ID'))
     };
 
     rule impor {
@@ -319,7 +321,7 @@ sub make_parser {
 
     rule blkType {
             keywords(qw{ sub method submethod regex token rule
-                         macro module package })
+                         macro module class package })
     };
 
     rule blkRetT {
@@ -344,7 +346,19 @@ sub make_parser {
     };
 
     rule blkPrms {
-            star(arg)
+            o(invcDecl) - o(semilist(prmDecl))
+    };
+
+    rule invcDecl {
+            prmDecl - ':'
+    };
+
+    rule prmDecl {
+            o(clype) - sVari
+    };
+
+    rule vsblty {
+        keywords(qw{ public private })
     };
 
     rule stmtTrm {
@@ -361,12 +375,12 @@ sub make_parser {
     };
 
     rule declare {
-            scpDecl - sVari
+            scpDecl - prmDecl
           | keywords(qw{ module class }) - clype
     };
 
     rule assign {
-            o(scpDecl) - sVari - '=' - expr
+            o(scpDecl) - prmDecl - '=' - expr
     };
 
     # This is a great example of how to structure an operator's
