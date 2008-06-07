@@ -192,17 +192,54 @@ Is this a subclass of the given class?
 =end
 
   method ^isa($object: $superclass --> bool) {
-      my sub isa_recurse($object, $superclass) {
-          return true if $object === $superclass;
-          for ($object.^!isa) --> $isa {
-              my $res = $isa.^isa($superclass);
-              return true if $res;
-          }
-          return false;
+      return true if $object === $superclass;
+      for ($object.^!isa) --> $isa {
+          return true if $isa === $superclass;
+          my $res = $isa.^isa($superclass);
+          return true if $res;
       }
-
-      return isa_recurse($object, $superclass);
+      return false;
   }
 
+=begin
+
+=item method ^does($object: $superclass --> bool)
+
+Does this object matches the given class?
+
+=end
+
+  method ^does($object: $superclass --> bool) {
+      return true if $object === $superclass;
+      for ($object.^!does) --> $isa {
+          return true if $isa === $superclass;
+          my $res = $isa.^does($superclass);
+          return true if $res;
+      }
+      for ($object.^!does) --> $does {
+          return true if $does === $superclass;
+          my $res = $does.^does($superclass);
+          return true if $res;
+      }
+      return false;
+  }
+
+=begin
+
+=item method ^can($object: $name, $capture? --> List of Method)
+
+Returns a lazy list of methods that match to this name/capture.
+
+=end
+
+  method ^can($object: $name, $capture? --> List of Method) {
+      my List of Method @methods = gather {
+          take
+            <=== grep { .name eq $name &&
+                        $capture ?? .signature.ACCEPTS($capture) !! 1 }
+            <=== $object.^methods(); #>
+      };
+      return @methods;
+  }
 
 }
