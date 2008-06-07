@@ -52,7 +52,8 @@ sub make_parser {
         $usev6, $comma, $stmtList, $newline, $blkBare, $blkPrmbl, $nbexpr,
         $blkType, $blkRetT, $blkModf, $stmtTrm, $scpDecl, $block, $arg,
         $blkPrm, $compUnit, $flowCtrl, $blkLabl, $clype, $impor, $assign,
-        $op_numaddt, $blkTrait, $pkgDecl
+        $op_numaddt, $blkTrait, $pkgDecl, $arrowInv, $prmDecl, $vsblty,
+        $invcDecl
     );
 
     sub eoi () { $End_of_Input };
@@ -120,8 +121,16 @@ sub make_parser {
     sub compUnit () { $CompUnit };
     my $BlkTrait           = parser { $blkTrait        ->(@_) };
     sub blkTrait () { $BlkTrait };
-    my $PkgDecl           = parser { $pkgDecl        ->(@_) };
+    my $PkgDecl            = parser { $pkgDecl         ->(@_) };
     sub pkgDecl () { $PkgDecl };
+    my $ArrowInv           = parser { $arrowInv        ->(@_) };
+    sub arrowInv () { $ArrowInv };
+    my $PrmDecl            = parser { $prmDecl         ->(@_) };
+    sub prmDecl () { $PrmDecl };
+    my $Vsblty             = parser { $vsblty          ->(@_) };
+    sub vsblty () { $Vsblty };
+    my $InvcDecl           = parser { $invcDecl        ->(@_) };
+    sub invcDecl () { $InvcDecl };
 
     # these hash keys are coderef (addresses)
     our %N = (
@@ -159,6 +168,10 @@ sub make_parser {
         $Op_numaddt       => 'Op_numaddt',
         $BlkTrait         => 'BlkTrait',
         $PkgDecl          => 'PkgDecl',
+        $ArrowInv         => 'ArrowInv',
+        $PrmDecl          => 'PrmDecl',
+        $Vsblty           => 'Vsblty',
+        $InvcDecl         => 'InvcDecl'
     );
 
     #   Rule Writing
@@ -292,6 +305,7 @@ sub make_parser {
             o(blkModf)
             # this is an example of sometimes having to enumerate various
             # possiblities during a sequence of variously optional terms
+            # in order to force the obtaining of the appropriate token set
             # blkType is the only required term in the block preamble
           - (scpDecl - clype - blkType | scpDecl - blkType | blkType )
           - o(o('^') - l('ID')) - o(vsblty) - w('()',o(blkPrms))
@@ -300,6 +314,10 @@ sub make_parser {
           | flowCtrl
           | blkLabl
           | arrowInv - o(comma - clist(blkPrms))
+    };
+
+    rule arrowInv {
+        keyword('<-') - prmDecl
     };
 
     rule blkTrait {
