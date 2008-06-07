@@ -16,26 +16,26 @@ This class implements the HOW API.
 
 =over
 
-=item method CREATE($prototype: :$repr --> Object )
+=item method CREATE($how: $prototype, :$repr --> Object )
 
 This method will alloc an object of the given representation.
 
 =end
 
-  method CREATE($prototype: :$repr --> Object) {
+  method CREATE($how: $prototype, :$repr --> Object) {
       my $obj = ___EMPTY_REPR___($repr).^!CREATE();
       $obj.^!how($prototype.^!how);
   }
 
 =begin
 
-=item method bless($prototype: $candidate, *@protoobjects, *%initialize --> Object)
+=item method bless($how: $prototype, $candidate, *@protoobjects, *%initialize --> Object)
 
 This method will initialize the candidate object.
 
 =end
 
-  method bless($prototype: $candidate, *@protoobjects, *%initialize --> Object) {
+  method bless($how: $prototype, $candidate, *@protoobjects, *%initialize --> Object) {
       $candidate.^!bless($prototype);
       @protoobjects.unshift($candidate.^!whence) if
         $candidate.^!whence;
@@ -45,19 +45,19 @@ This method will initialize the candidate object.
 
 =begin
 
-=item method BUILDALL($object: *@protoobjects, *%initialize)
+=item method BUILDALL($how: $object, *@protoobjects, *%initialize)
 
 This method is called from bless, to actually initialize the values of the object.
 
 =end
 
-  method BUILDALL($object: *@protoobjects, *%initialize) {
-      my sub buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
+  method BUILDALL($how: $object, *@protoobjects, *%initialize) {
+      my sub buildall_recurse($object, $prototype, *@protoobjects, *%initialize) {
           for ($prototype.^!isa()) -> $isa {
-              buildall_recurse($object: $isa, |@protoobjects, |%initialize)
+              buildall_recurse($object, $isa, |@protoobjects, |%initialize)
           }
           for ($prototype.^!does()) -> $does {
-              buildall_recurse($object: $does, |@protoobjects, |%initialize)
+              buildall_recurse($object, $does, |@protoobjects, |%initialize)
           }
 
           my $package = $prototype.^!package();
@@ -72,67 +72,67 @@ This method is called from bless, to actually initialize the values of the objec
           $prototype.?BUILD($object: |%protoargs, |%initialize);
       }
       fail if not $object.^!instance;
-      return buildall_recurse($object: $object, @protoobjects, %initialize);
+      return buildall_recurse($object, $object, @protoobjects, %initialize);
   }
 
 
 =begin
 
-=item method DESTROYALL($object: )
+=item method DESTROYALL($how: $object)
 
 This method is called when the object is being destroyed.
 
 =end
 
-  method DESTROYALL($object:) {
-      my sub destroyall_recurse($object: $prototype) {
+  method DESTROYALL($how: $object) {
+      my sub destroyall_recurse($object, $prototype) {
           $prototype.?DESTROY($object: );
           $object.^!destroy_instance_storage($prototype.^!package());
 
           for ($prototype.^!does()) -> $does {
-              destroyall_recurse($object: $does)
+              destroyall_recurse($object, $does)
           }
           for ($prototype.^!isa()) -> $isa {
-              destroyall_recurse($object: $isa)
+              destroyall_recurse($object, $isa)
           }
       }
-      destroyall_recurse($object: $object);
+      destroyall_recurse($object, $object);
   }
 
 
 =begin
 
-=item method clone($object: )
+=item method clone($how: $object)
 
 In this metaclass, clone is a direct call on the REPR.
 
 =end
 
-  method clone($object: ) {
+  method clone($how: $object) {
       return $object.^!clone();
   }
 
 =begin
 
-=item method defined($object: )
+=item method defined($how: $object)
 
 In this metaclass, defined is a direct call on the REPR.
 
 =end
 
-  method defined($object: ) {
+  method defined($how: $object) {
       $object.^!defined();
   }
 
 =begin
 
-=item method methods($object: --> List of Method)
+=item method methods($how: $object --> List of Method)
 
 Returns a lazy list with all the methods implemented by this object.
 
 =end
 
-  method methods($object: --> List of Method) {
+  method methods($how: $object --> List of Method) {
       my sub list_methods_recurse($obj) {
           for ($obj.^!methods) --> $selfdef {
               take $selfdef;
@@ -157,13 +157,13 @@ Returns a lazy list with all the methods implemented by this object.
 
 =begin
 
-=item method attributes($object: --> List of Attribute)
+=item method attributes($how: $object, --> List of Attribute)
 
 Returns a lazy list with all the attributes of this object.
 
 =end
 
-  method attributes($object: --> List of Attribute) {
+  method attributes($how: $object, --> List of Attribute) {
       my sub list_attributes_recurse($obj) {
           for ($obj.^!attributes) --> $attr {
               take $attr;
@@ -185,13 +185,13 @@ Returns a lazy list with all the attributes of this object.
 
 =begin
 
-=item method isa($object: $superclass --> bool)
+=item method isa($how: $object, $superclass --> bool)
 
 Is this a subclass of the given class?
 
 =end
 
-  method isa($object: $superclass --> bool) {
+  method isa($how: $object, $superclass --> bool) {
       return true if $object === $superclass;
       for ($object.^!isa) --> $isa {
           return true if $isa === $superclass;
@@ -203,13 +203,13 @@ Is this a subclass of the given class?
 
 =begin
 
-=item method does($object: $superclass --> bool)
+=item method does($how: $object, $superclass --> bool)
 
 Does this object matches the given class?
 
 =end
 
-  method does($object: $superclass --> bool) {
+  method does($how: $object, $superclass --> bool) {
       return true if $object === $superclass;
       for ($object.^!does) --> $isa {
           return true if $isa === $superclass;
@@ -226,13 +226,13 @@ Does this object matches the given class?
 
 =begin
 
-=item method can($object: $name, $capture? --> List of Method)
+=item method can($how: $object, $name, $capture? --> List of Method)
 
 Returns a lazy list of methods that match to this name/capture.
 
 =end
 
-  method can($object: $name, $capture? --> List of Method) {
+  method can($how: $object, $name, $capture? --> List of Method) {
       my List of Method @methods = gather {
           take
             <=== grep { .name eq $name &&
