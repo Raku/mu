@@ -275,7 +275,7 @@ sub concatmanws {
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
-        && exists $cdepth->{$p}->{$input}
+        && defined($input) && exists $cdepth->{$p}->{$input}
         # our current depth is lower than before
         && $cdepth->{$p}->{$input} > $toodeep) {
         # we're in an infinite recursion.
@@ -331,8 +331,6 @@ sub concatmanws {
             push @succeeded, ' '; # trace
             push @values, $v;
           }
-      } else {
-       die 'Failed' if $N{$p} eq '(?Class/Type)-SVari';
       }
     }
     trace "Finished matching $N{$p}";
@@ -359,7 +357,7 @@ sub concatoptws {
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
-        && exists $cdepth->{$p}->{$input}
+        && defined($input) && exists $cdepth->{$p}->{$input}
         # our current depth is lower than before
         && $cdepth->{$p}->{$input} > $toodeep) {
         # we're in an infinite recursion.
@@ -445,7 +443,7 @@ sub concatenate {
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
-        && exists $cdepth->{$p}->{$input}
+        && defined($input) && exists $cdepth->{$p}->{$input}
         # our current depth is lower than before
         && $cdepth->{$p}->{$input} > $toodeep) {
         # we're in an infinite recursion.
