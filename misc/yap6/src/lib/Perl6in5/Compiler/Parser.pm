@@ -272,21 +272,23 @@ sub concatmanws {
     my $i = 0;
     $i++ while caller($i);
     #trace "concatenate $p on $input at depth $i"; # trace
+    my $loc = $input;
+    $loc //= 1; # fix '/
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
-        && defined($input) && exists $cdepth->{$p}->{$input}
+        && exists $cdepth->{$p}->{$loc}
         # our current depth is lower than before
-        && $cdepth->{$p}->{$input} > $toodeep) {
+        && $cdepth->{$p}->{$loc} > $toodeep) {
         # we're in an infinite recursion.
         trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
-        die ['CONC', $input, [[], $@]];
+        die ['CONC', $loc, [[], $@]];
     } else { # trace
         #trace "we're not in an infinite recursion"; # trace
     }
     # store the coderef addresses for this
     # parser so we can detect infinite loops
-    $cdepth->{$p}->{$input}++;
+    $cdepth->{$p}->{$loc}++;
     trace "Looking for $N{$p}";
     #trace "concatenate: ".Dumper(\@p);
     if (defined $input) { # trace
@@ -354,21 +356,23 @@ sub concatoptws {
     my $i = 0;
     $i++ while caller($i);
     #trace "concatenate $p on $input at depth $i"; # trace
+    my $loc = $input;
+    $loc //= 1; # fix '/
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
-        && defined($input) && exists $cdepth->{$p}->{$input}
+        && exists $cdepth->{$p}->{$loc}
         # our current depth is lower than before
-        && $cdepth->{$p}->{$input} > $toodeep) {
+        && $cdepth->{$p}->{$loc} > $toodeep) {
         # we're in an infinite recursion.
         trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
-        die ['CONC', $input, [[], $@]];
+        die ['CONC', $loc, [[], $@]];
     } else { # trace
         #trace "we're not in an infinite recursion"; # trace
     }
     # store the coderef addresses for this
     # parser so we can detect infinite loops
-    $cdepth->{$p}->{$input}++;
+    $cdepth->{$p}->{$loc}++;
     trace "Looking for $N{$p}";
     #trace "concatenate: ".Dumper(\@p);
     if (defined $input) { # trace
@@ -440,21 +444,23 @@ sub concatenate {
     my $i = 0;
     $i++ while caller($i);
     #trace "concatenate $p on $input at depth $i"; # trace
+    my $loc = $input;
+    $loc //= 1; # fix '/
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
-        && defined($input) && exists $cdepth->{$p}->{$input}
+        && exists $cdepth->{$p}->{$loc}
         # our current depth is lower than before
-        && $cdepth->{$p}->{$input} > $toodeep) {
+        && $cdepth->{$p}->{$loc} > $toodeep) {
         # we're in an infinite recursion.
         trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
-        die ['CONC', $input, [[], $@]];
+        die ['CONC', $loc, [[], $@]];
     } else { # trace
         #trace "we're not in an infinite recursion"; # trace
     }
     # store the coderef addresses for this
     # parser so we can detect infinite loops
-    $cdepth->{$p}->{$input}++;
+    $cdepth->{$p}->{$loc}++;
     trace "Looking for $N{$p}";
     #trace "concatenate: ".Dumper(\@p);
     if (defined $input) { # trace
