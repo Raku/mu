@@ -16,26 +16,26 @@ This class implements the HOW API.
 
 =over
 
-=item method ^CREATE($prototype: :$repr --> Object )
+=item method CREATE($prototype: :$repr --> Object )
 
 This method will alloc an object of the given representation.
 
 =end
 
-  method ^CREATE($prototype: :$repr --> Object) {
+  method CREATE($prototype: :$repr --> Object) {
       my $obj = ___EMPTY_REPR___($repr).^!CREATE();
       $obj.^!how($prototype.^!how);
   }
 
 =begin
 
-=item method ^bless($prototype: $candidate, *@protoobjects, *%initialize --> Object)
+=item method bless($prototype: $candidate, *@protoobjects, *%initialize --> Object)
 
 This method will initialize the candidate object.
 
 =end
 
-  method ^bless($prototype: $candidate, *@protoobjects, *%initialize --> Object) {
+  method bless($prototype: $candidate, *@protoobjects, *%initialize --> Object) {
       $candidate.^!bless($prototype);
       @protoobjects.unshift($candidate.^!whence) if
         $candidate.^!whence;
@@ -45,13 +45,13 @@ This method will initialize the candidate object.
 
 =begin
 
-=item method ^BUILDALL($object: *@protoobjects, *%initialize)
+=item method BUILDALL($object: *@protoobjects, *%initialize)
 
 This method is called from bless, to actually initialize the values of the object.
 
 =end
 
-  method ^BUILDALL($object: *@protoobjects, *%initialize) {
+  method BUILDALL($object: *@protoobjects, *%initialize) {
       my sub buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
           for ($prototype.^!isa()) -> $isa {
               buildall_recurse($object: $isa, |@protoobjects, |%initialize)
@@ -78,7 +78,7 @@ This method is called from bless, to actually initialize the values of the objec
 
 =begin
 
-=item method ^DESTROYALL($object: )
+=item method DESTROYALL($object: )
 
 This method is called when the object is being destroyed.
 
@@ -102,37 +102,37 @@ This method is called when the object is being destroyed.
 
 =begin
 
-=item method ^clone($object: )
+=item method clone($object: )
 
 In this metaclass, clone is a direct call on the REPR.
 
 =end
 
-  method ^clone($object: ) {
+  method clone($object: ) {
       return $object.^!clone();
   }
 
 =begin
 
-=item method ^defined($object: )
+=item method defined($object: )
 
 In this metaclass, defined is a direct call on the REPR.
 
 =end
 
-  method ^defined($object: ) {
+  method defined($object: ) {
       $object.^!defined();
   }
 
 =begin
 
-=item method ^methods($object: --> List of Method)
+=item method methods($object: --> List of Method)
 
 Returns a lazy list with all the methods implemented by this object.
 
 =end
 
-  method ^methods($object: --> List of Method) {
+  method methods($object: --> List of Method) {
       my sub list_methods_recurse($obj) {
           for ($obj.^!methods) --> $selfdef {
               take $selfdef;
@@ -157,13 +157,13 @@ Returns a lazy list with all the methods implemented by this object.
 
 =begin
 
-=item method ^attributes($object: --> List of Attribute)
+=item method attributes($object: --> List of Attribute)
 
 Returns a lazy list with all the attributes of this object.
 
 =end
 
-  method ^attributes($object: --> List of Attribute) {
+  method attributes($object: --> List of Attribute) {
       my sub list_attributes_recurse($obj) {
           for ($obj.^!attributes) --> $attr {
               take $attr;
@@ -185,13 +185,13 @@ Returns a lazy list with all the attributes of this object.
 
 =begin
 
-=item method ^isa($object: $superclass --> bool)
+=item method isa($object: $superclass --> bool)
 
 Is this a subclass of the given class?
 
 =end
 
-  method ^isa($object: $superclass --> bool) {
+  method isa($object: $superclass --> bool) {
       return true if $object === $superclass;
       for ($object.^!isa) --> $isa {
           return true if $isa === $superclass;
@@ -203,13 +203,13 @@ Is this a subclass of the given class?
 
 =begin
 
-=item method ^does($object: $superclass --> bool)
+=item method does($object: $superclass --> bool)
 
 Does this object matches the given class?
 
 =end
 
-  method ^does($object: $superclass --> bool) {
+  method does($object: $superclass --> bool) {
       return true if $object === $superclass;
       for ($object.^!does) --> $isa {
           return true if $isa === $superclass;
@@ -226,13 +226,13 @@ Does this object matches the given class?
 
 =begin
 
-=item method ^can($object: $name, $capture? --> List of Method)
+=item method can($object: $name, $capture? --> List of Method)
 
 Returns a lazy list of methods that match to this name/capture.
 
 =end
 
-  method ^can($object: $name, $capture? --> List of Method) {
+  method can($object: $name, $capture? --> List of Method) {
       my List of Method @methods = gather {
           take
             <=== grep { .name eq $name &&
