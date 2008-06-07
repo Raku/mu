@@ -650,7 +650,7 @@ sub display_failures {
   my ($fail, $depth) = @_;
   my $xx = 0;
   $xx = 1; # trace
-  return unless $xx;
+  #return unless $xx;
   $depth ||= 0;
   my $I = " " x $depth;
   unless (ref $fail) { die $fail }
