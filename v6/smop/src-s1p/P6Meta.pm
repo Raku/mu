@@ -23,7 +23,8 @@ This method will alloc an object of the given representation.
 =end
 
   method ^CREATE($prototype: :$repr --> Object) {
-      return ___EMPTY_REPR___($repr).^!CREATE();
+      my $obj = ___EMPTY_REPR___($repr).^!CREATE();
+      $obj.^!how($prototype.^!how);
   }
 
 =begin
@@ -36,6 +37,8 @@ This method will initialize the candidate object.
 
   method ^bless($prototype: $candidate, *@protoobjects, *%initialize --> Object) {
       $candidate.^!bless($prototype);
+      @protoobjects.unshift($candidate.^!whence) if
+        $candidate.^!whence;
       $candidate.BUILDALL(|@protoobjects, |%initialize);
       return $candidate;
   }
@@ -49,31 +52,29 @@ This method is called from bless, to actually initialize the values of the objec
 =end
 
   method ^BUILDALL($object: *@protoobjects, *%initialize) {
+      my sub buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
+          for ($prototype.^!isa()) -> $isa {
+              buildall_recurse($object: $isa, |@protoobjects, |%initialize)
+          }
+          for ($prototype.^!does()) -> $does {
+              buildall_recurse($object: $does, |@protoobjects, |%initialize)
+          }
+
+          my $package = $prototype.^!package();
+          $object.^!initialize_instance_storage($package);
+
+          for ($prototype.^!attributes()) -> $att {
+              $object.^!initialize_instance_storage_slot
+                ($package, $att.private_name(), $att.create_container());
+          }
+
+          my %protoargs = @protoobjects.grep { $_.WHAT === $prototype };
+          $prototype.?BUILD($object: |%protoargs, |%initialize);
+      }
       fail if not $object.^!instance;
-      return $object!^buildall_recurse($object, @protoobjects, %initialize);
+      return buildall_recurse($object: $object, @protoobjects, %initialize);
   }
 
-  my method ^buildall_recurse($object: $prototype, *@protoobjects, *%initialize) {
-      for ($prototype.^!isa()) -> $isa {
-          $object!buildall_recurse($isa, |@protoobjects, |%initialize)
-      }
-      for ($prototype.^!does()) -> $does {
-          $object!buildall_recurse($does, |@protoobjects, |%initialize)
-      }
-
-      my $package = $prototype.^!package();
-      $object.^!initialize_instance_storage($package);
-
-      for ($prototype.^!attributes()) -> $att {
-          $object.^!initialize_instance_storage_slot
-            ($package, $att.private_name(), $att.create_container());
-      }
-
-      # TODO: test if any of the protoobjects are of the same type of
-      # the current prototype, and if that's the case, translate it into
-      # named arguments.
-      $prototype.?BUILD($object: |%initialize);
-  }
 
 =begin
 
@@ -84,20 +85,20 @@ This method is called when the object is being destroyed.
 =end
 
   method DESTROYALL($object:) {
-      $object!^destroyall_recurse($object);
+      my sub destroyall_recurse($object: $prototype) {
+          $prototype.?DESTROY($object: );
+          $object.^!destroy_instance_storage($prototype.^!package());
+
+          for ($prototype.^!does()) -> $does {
+              destroyall_recurse($object: $does)
+          }
+          for ($prototype.^!isa()) -> $isa {
+              destroyall_recurse($object: $isa)
+          }
+      }
+      destroyall_recurse($object: $object);
   }
 
-  my method ^destroyall_recurse($object: $prototype) {
-      $prototype.?DESTROY($object: );
-      $object.^!destroy_instance_storage($prototype.^!package());
-
-      for ($prototype.^!does()) -> $does {
-          $object!destroyall_recurse($does)
-      }
-      for ($prototype.^!isa()) -> $isa {
-          $object!destroyall_recurse($isa)
-      }
-  }
 
 =begin
 
@@ -120,9 +121,88 @@ In this metaclass, defined is a direct call on the REPR.
 =end
 
   method ^defined($object: ) {
-      return $object.^!defined();
+      $object.^!defined();
   }
 
+=begin
+
+=item method ^methods($object: --> List of Method)
+
+Returns a lazy list with all the methods implemented by this object.
+
+=end
+
+  method ^methods($object: --> List of Method) {
+      my sub list_methods_recurse($obj) {
+          for ($obj.^!methods) --> $selfdef {
+              take $selfdef;
+          }
+          for ($obj.^!isa) --> $isa {
+              list_methods_recurse($isa);
+          }
+          for ($obj.^!role) --> $role {
+              list_methods_recurse($role);
+          }
+      }
+
+      List of Method @methods = gather {
+          list_methods_recurse($object);
+          for ($object.^!submethods) --> $submethod {
+             take $submethod;
+          }
+      };
+      return @methods;
+  }
+
+
+=begin
+
+=item method ^attributes($object: --> List of Attribute)
+
+Returns a lazy list with all the attributes of this object.
+
+=end
+
+  method ^attributes($object: --> List of Attribute) {
+      my sub list_attributes_recurse($obj) {
+          for ($obj.^!attributes) --> $attr {
+              take $attr;
+          }
+          for ($obj.^!isa) --> $isa {
+              list_attributes_recurse($isa);
+          }
+          for ($obj.^!role) --> $role {
+              list_attributes_recurse($role);
+          }
+      }
+
+      List of Attribute @attributes = gather {
+          list_attributes_recurse($object);
+      };
+      return @attributes;
+  }
+
+
+=begin
+
+=item method ^isa($object: $superclass --> bool)
+
+Is this a subclass of the given class?
+
+=end
+
+  method ^isa($object: $superclass --> bool) {
+      my sub isa_recurse($object, $superclass) {
+          return true if $object === $superclass;
+          for ($object.^!isa) --> $isa {
+              my $res = $isa.^isa($superclass);
+              return true if $res;
+          }
+          return false;
+      }
+
+      return isa_recurse($object, $superclass);
+  }
 
 
 }
