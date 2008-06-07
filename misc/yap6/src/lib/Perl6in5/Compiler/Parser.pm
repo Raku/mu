@@ -273,7 +273,7 @@ sub concatmanws {
     $i++ while caller($i);
     #trace "concatenate $p on $input at depth $i"; # trace
     my $loc = $input;
-    $loc //= 1; # fix '/
+    $loc ||= 1; # fix '/
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
@@ -357,7 +357,7 @@ sub concatoptws {
     $i++ while caller($i);
     #trace "concatenate $p on $input at depth $i"; # trace
     my $loc = $input;
-    $loc //= 1; # fix '/
+    $loc ||= 1; # fix '/
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
@@ -445,7 +445,7 @@ sub concatenate {
     $i++ while caller($i);
     #trace "concatenate $p on $input at depth $i"; # trace
     my $loc = $input;
-    $loc //= 1; # fix '/
+    $loc ||= 1; # fix '/
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser before
