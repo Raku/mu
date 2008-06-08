@@ -30,6 +30,16 @@ All new files, and all below C<t/spec/> should follow the new conventions.
 The Perl 5 style negative array indexes C<@array[-1]> are spelled
 C<@array[*-1]> in Perl 6.
 
+=head2 pos()
+
+C<pos> is dead. C<$/.to> is the replacement.
+
+=head2 length()
+
+C<length> is gone. Hashes should use C<keys>, C<values>, or the hash in numeric
+context. For arrays, you want C<elems> or the array in numeric context. For
+strings, you want one of C<chars>, C<graphs>, C<codes>, or C<bytes>.
+
 =head2 Special Pugs variables
 
 Some tests rely on C<$?PUGS_BACKEND> and similar variables. Since they are not
