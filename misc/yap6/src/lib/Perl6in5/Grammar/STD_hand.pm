@@ -20,11 +20,12 @@ $Data::Dumper::Indent = 0;
 $Data::Dumper::Terse = 1;
 $Data::Dumper::Useqq = 1;
 $Data::Dumper::Quotekeys = 0;
-$Data::Dumper::Deparse = 1;
+#$Data::Dumper::Deparse = 1;
 
 no warnings qw{ reserved closure recursion };
 
 sub make_parser {
+    
     my $input = shift;
     
     my $lexer = iterator_to_stream(make_lexer($input,
@@ -49,9 +50,6 @@ sub make_parser {
         $invcDecl, $func_say
     );
 
-    sub eoi () { $End_of_Input };
-    # don't need a sub for $nothing, since it's always embedded in option()
-    
     my $Op_numaddt         = parser { $op_numaddt      ->(@_) };
     sub op_numaddt () { $Op_numaddt };
     my $Nbexpr             = parser { $nbexpr          ->(@_) };
@@ -84,8 +82,6 @@ sub make_parser {
     sub comma () { $Comma };
     my $StmtList           = parser { $stmtList        ->(@_) };
     sub stmtList () { $StmtList };
-#    my $Newline            = parser { $newline         ->(@_) };
-#    sub newline () { $Newline };
     my $BlkBare            = parser { $blkBare         ->(@_) };
     sub blkBare () { $BlkBare };
     my $BlkPrmbl           = parser { $blkPrmbl        ->(@_) };
@@ -129,8 +125,6 @@ sub make_parser {
 
     # these hash keys are coderef (addresses)
     our %N = (
-        $End_of_Input     => 'EOI',
-        $nothing          => 'nothing',
         $Expr             => 'Expr',
         $Term             => 'Term',
         $Factor           => 'Factor',
@@ -142,7 +136,6 @@ sub make_parser {
         $Usev6            => 'Usev6',
         $Comma            => 'Comma',
         $StmtList         => 'StmtList',
-#        $Newline          => 'Newline',
         $BlkBare          => 'BlkBare',
         $BlkPrmbl         => 'BlkPrmbl',
         $BlkType          => 'BlkType',
@@ -193,21 +186,6 @@ sub make_parser {
     # to be handled as Perl 5 code.
     
     
-    # Note: 
-    # I can't slurp "up until" until we're fully backtracking
-    # I need a function "until($p,$q)" that returns a parser that 
-    # iterates through the stream of tokens, trying $q against the
-    # remaining input at each token, essentially using $q as a stop
-    # phrase, then returns $p's and $q's matches, concatenated.
-    # 
-    # The until() parser generator would also be very helpful for
-    # transforming ("tricking" the parser, as TimToady says) quotations
-    # in preparation for parsing them in a "normal" context.  You could
-    # have a parser generator that (internally) slurps up until the first
-    # non-escaped stop character(-sequence), optionally counting/tracking
-    # "balanced" stop characters (so that things like qq{ sub foo { $bar }; }
-    # are parsed correctly.
-    # 
     # rule perl5zone {
             # sl(); # grabs anything/everything...
     # }
@@ -215,66 +193,49 @@ sub make_parser {
     rule program {
             # everything must start with a use v6; statement until
             # the perl5zone rule is operational.
-            error(o(p6ws)
+            opt(p6ws)
           . usev6
-          . o(o(p6ws) . pkgDecl)
-          . o(o(p6ws) . stmtList)
-          . o(p6ws)
-          . eoi)
+          . opt(opt(p6ws) . pkgDecl)
+          . opt(opt(p6ws) . stmtList)
+          . opt(p6ws)
+          . eoi
     };
 
     rule pkgDecl {
-            keyword('package') - l('ID') - stmtTrm;
+            keyword('package') + hit('ID') . stmtTrm;
     };
 
     rule usev6 {
-                (keyword('use') - keywords(qw{ v6 Perl:ver(v6..*):auth(Any) Perl-6 })
-              | keyword('module') - o(keyword('Main'))
+                (keyword('use') + keywords(qw{ v6 Perl-6 })
+              | keyword('module') + opt(keyword('Main'))
               | keywords(qw{ class v6.0.0 v6 6 }))
-          - stmtTrm
+          . stmtTrm
     };
 
     rule sVari {
-            '$' . l('ID')
+            '$' . hit('ID')
     };
 
     rule comma {
             ','
     };
 
-    # option(Newline) (option(Newline)  option(StmtTrm option(StmtList)) option(Newline) | Block option((StmtTrm | Newline) StmtList) option(Newline))
-    
     rule stmtList {
-            # newlines can appear basically anywhere before, inside, or
-            # after nearly all expressions.  Exceptions will get their
-            # own rule as they are encountered (in the test suite)
-            o(p6ws)
-                # blocks and other expressions have different statement terminators
-          . (   block
-                  # either a newline or semicolon can terminate a block "statement"
-                  # so that another statement (stmtList) can follow.
-              . o(  (o(p6ws) . stmtTrm
-                  | newline)
-                  - stmtList)
-              | nbexpr
-              - o(stmtTrm
-                  - o(stmtList))
-            )
-      #    + o(p6ws)
+           -(   nbexpr . opt(      stmtTrm          . opt(stmtList) )
+              | block . ( stmtTrm | -(ch("\n"))-- ) . opt(stmtList)
+            )--
     };
 
-    # non-block expression
     rule nbexpr {
             panic(pkgDecl,"Can't declare a non-block package")
           | sVari
           | impor
           | assign
-          | declare
           | func_say
           | blkTrait
           | w('()',expr)
           | op_numaddt
-          | l('INT')
+          | hit('INT')
     };
     
     rule func_say {
@@ -288,26 +249,26 @@ sub make_parser {
     };
 
     rule blkBare {
-            w("{}",o(stmtList))
+            w("{}",opt(stmtList))
     };
 
     rule block {
-            o(blkPrmbl) - blkBare
+            opt(blkPrmbl) - blkBare
     };
 
     rule blkPrmbl {
-            o(blkModf)
+            opt(blkModf++)
             # this is an example of sometimes having to enumerate various
             # possiblities during a sequence of variously optional terms
             # in order to force the obtaining of the appropriate token set
             # blkType is the only required term in the block preamble
-          - (scpDecl - clype - blkType | scpDecl - blkType | blkType )
-          - o(o('^') - l('ID')) - o(vsblty) - w('()',o(blkPrms))
-          - o(blkTrait)
+          . (scpDecl + clype + blkType | scpDecl + blkType | blkType )
+          . opt(+(opt('^') . sVari)) - opt(+(vsblty)) . opt(+(w('()',opt(blkPrms))))
+          . opt(+(blkTrait))
           | compUnit
           | flowCtrl
           | blkLabl
-          | arrowInv - o(',' - clist(blkPrms))
+          | arrowInv - opt(',' - clist(blkPrms))
     };
 
     rule arrowInv {
@@ -315,18 +276,18 @@ sub make_parser {
     };
 
     rule blkTrait {
-            gt0((keywords(qw{ is does has }) - l('ID')))
+            plus(-(keywords(qw{ is does has }) + prmDecl))
     };
 
     rule impor {
-            keywords(qw{ no use require module class }) - l('ID') - o(nbexpr)
+            keywords(qw{ no use require module class }) + hit('ID') . opt(+nbexpr)
     };
 
-    rule flowCtrl { # Until I die, I would cry unless unless/until were included.
+    rule flowCtrl {
             keywords(qw{ loop do while until })
     };
 
-    rule condBlk {
+    rule condBlk { # Until I die, I would cry unless unless/until were included.
         # if unless elsif else 
     };
 
@@ -345,12 +306,12 @@ sub make_parser {
     };
 
     rule clype {
-            l('ID')  # just take any class/type name for now :)
+            hit('ID')  # just take any class/type name for now :)
             #  $Clype    # Class/Type
     };
 
     rule blkLabl {
-            l('ID') . ':';
+            hit('ID') . ':';
     };
 
     rule blkModf {
@@ -363,7 +324,7 @@ sub make_parser {
 
     # block parameter declaration
     rule blkPrms {
-            o(invcDecl) - o(semilist(prmDecl))
+            opt(invcDecl) . plus(-comma - prmDecl--))
     };
     
     # invocant declaration
@@ -372,7 +333,7 @@ sub make_parser {
     };
 
     rule prmDecl {
-            o(clype . o(p6ws)) - sVari
+            opt(clype++) . sVari
     };
 
     rule vsblty {
@@ -380,7 +341,7 @@ sub make_parser {
     };
 
     rule stmtTrm {
-            gt0(';',2)
+            plus(-';'--)
     };
 
     rule scpDecl {
@@ -398,19 +359,17 @@ sub make_parser {
     };
 
     rule assign {
-            o(scpDecl . o(p6ws)) - prmDecl - '=' - expr
+            opt(scpDecl++) . prmDecl - '=' - expr
     };
 
-    # This is a great example of how to structure an operator's
+    # This is a great example of how to structure an operator level's
     # (recursive) grammar syntax.
     rule term {
-            factor
-          - star('*' - factor
-               | '/' - factor)
+            factor - star(('*' | '/') - factor)
     };
 
     rule factor {
-            nbexpr - o(word('**') - factor)
+            nbexpr - opt(word('**') - factor)
     };
 
     sub {

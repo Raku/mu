@@ -5,16 +5,14 @@ no warnings qw{ reserved closure recursion };
 # Library based on chap09/arith25.pl
 
 package Perl6in5::Compiler::Parser;
-our ($nothing, $End_of_Input);
 
 use Exporter;
-@EXPORT_OK = qw(lookfor $End_of_Input $nothing T error debug
-                operator star option concatenate alternate
-                display_failures labeledblock commalist o say
-                termilist trace %N l parser checkval execnow
-                adn ch w keyword keywords clist gt0 word panic
-                semilist unspace concatoptws through p6ws
-                newline concatmanws);
+@EXPORT_OK = qw(hit eoi nothing T V error debug star opt
+                display_failures o say all any
+                trace %N l parser checkval execnow
+                ch w keyword keywords word panic p6ws
+                unspace optws manws opttws mantws through
+                newline plus both);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -27,29 +25,28 @@ use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise', 'drop';
 
-$|=0; # trace
-
-my $toodeep = 5;
+my $toodeep = 50;
 
 use overload
-                '-'  => \&concatoptws,
-                '+'  => \&concatmanws,
-                '.'  => \&concatenate,
-                '|'  => \&alternate,
-                '&'  => \&alterlong,
-                '>>' => \&T,
-                '>'  => \&V,
-                '/'  => \&checkval,
-                '""' => \&overload::StrVal,
+    '-'  => \&optws, # optional leading or intervening whitespace
+    '+'  => \&manws, # mandatory leading or intervening whitespace
+    '.'  => \&all, # intervening whitespace disallowed
+    '|'  => \&any, # defaultly longest token matching
+    '&'  => \&any_other, # could use this for non-eating ltm
+                         # which could also be peekahead. or
+                         # first match.
+    '++' => \&mantws, # trailing mandatory whitespace
+    '--' => \&opttws, # trailing optional whitespace
+    '...'=> \&and_through # both($_[0],through($_[1]))
+    '>>' => \&T, # unused currently
+    '>'  => \&V, # unused currently
+    '/'  => \&checkval, # unused currently
+    '""' => \&overload::StrVal,  # this helps stringify parser names for %N
   ;
-
-sub normalizer {
-    "@_"
-};
 
 # Here's a fun trick; memoize the parser generator functions :)
 use Memoize;
-map { memoize $_, NORMALIZER=>'normalizer' unless (/^\W/ || /^trace$/) } qw{ newline p6ws nothing };
+map { memoize $_ unless (/^\W/ || /^trace$/) } qw{ newline p6ws nothing };
 
 $| = 1; # trace
 
@@ -65,6 +62,13 @@ $Data::Dumper::Quotekeys = 0;
 sub execnow (&) { $_[0]->() }
 
 sub say (@) { print($_,"\n") for @_ }
+
+sub parser (&) { bless $_[0] => __PACKAGE__ }
+
+sub l { @_ = [@_]; goto &hit }
+
+sub o { goto &opt }
+
 
 sub trace ($) { # trace
   my $msg = (shift) . "\n"; # trace
@@ -92,83 +96,89 @@ sub debug ($) { # debug
   warn $i.$I." ", $msg; # debug
 } # debug
 
-sub parser (&) { bless $_[0] => __PACKAGE__ }
-
-sub l { @_ = [@_]; goto &lookfor }
-sub o { goto &option }
-
-sub lookfor {
+sub hit {
+  trace "generating hit ".Dumper([caller()]).Dumper(\@_);
+  # an arrayref of a lex category and an expectation.
+  # Eventually, this may carry interesting categories such as regex.
+  # Think of the "wanted" as the match pattern, and the
+  # $value (sub) as the capture-obtainer.
   my $wanted = shift;
+  # value obtaining/transformation function.
+  # in our case, 
   my $value = shift || sub { $_[0][1] };
-  my $u = shift;
+  # I'm not sure what this is used for; it's sent as the 2nd argument
+  # to the obtain-value function.  I guess it could be state storage
+  # for macros.
+  my $v = shift;
+  # This is necessary for the occasions when l[ookfor]('category') is 
+  # passed in on its own without an expected (literal) value.
   $wanted = [$wanted] unless ref $wanted;
   my $parser;
   $parser = parser {
-    my $input = shift;
-    trace "Looking for token ".Dumper($wanted)." in ".Dumper(head($input));
-    unless (defined $input) {
+    my ($input,$cont,$u) = shift;
+    trace "Looking for token ".Dumper($wanted->[1])." in ".Dumper(head($input->[1]));
+    unless (defined $input && defined(head($input))) {
       trace "Premature end of input";
-      die ['TOKEN', $input, $wanted];
+      return [{expected=>$wanted,found=>[undef],line=>'',file=>''}];
     }
     my $next = head($input);
-    unless (defined $next) {
-      trace "Premature end of input";
-      die ['TOKEN', $next, $wanted];
-    }
     $next = [$next] unless ref $next;
     for my $i (0 .. $#$wanted) {
       trace "trying subtoken $i";
       next unless defined $wanted->[$i];
       unless ($wanted->[$i] eq $next->[$i]) {
         trace "Token mismatch";
-        die ['TOKEN', $input, $wanted];
+        return [{expected=>$wanted,found=>$next,line=>'',file=>''}];
       }
     }
-    my $wanted_value = $value->($next, $u);
+    my $wanted_value = $value->($next, $v);
     trace "Token matched";
-    return ($wanted_value, tail($input));
+    $cont->(tail($input),undef,{eaten=>length($next->[1]),ast=>[]});
   };
-  $N{$parser} = "[@$wanted]"; # trace
-  return $parser;
+  $N{$parser} = Dumper($wanted); # trace
+  $parser;
 }
 
-sub End_of_Input {
-  my $input = shift;
-  trace "Looking for End of Input";
-  unless (defined($input->[0])) {
-    trace "Found End of Input";
-    return (undef, undef);
-  } else {
-    trace "Found more input: ".Dumper($input);
-    die ["End of input", $input];
-  }
+sub eoi () {
+  my $p = parser {
+  my ($input,$cont,$u) = @_;
+      trace "Looking for EOI";
+      unless (defined($input) && defined($input->[0])) {
+        trace "Found EOI";
+        return $cont->($input,undef,{eaten=>0,ast=>[]});
+      } else {
+        trace "Found more input: ".Dumper($input);
+        return [{expected=>'EOI',found=>$input,line=>'',file=>''}];
+      }
+  };
+  $N{$p} = "eoi";
+  $p;
 }
 
-$End_of_Input = \&End_of_Input;
-bless $End_of_Input => __PACKAGE__;
-
-sub nothing {
-  my $input = shift;
-  trace "Looking for nothing";
-  if (defined $input) { # trace
-    trace "Next token is ".Dumper($input->[0]);
-  } else { # trace
-    trace "(At end of input)";
-  } # trace
-  return (undef, $input);
+sub nothing () {
+    trace "generating nothing ".Dumper([caller()]).Dumper(\@_);
+    my $p = parser {
+        my ($input, $cont,$u) = @_;
+        if (defined $input) { # trace
+            trace "Next token is ".Dumper($input->[0]);
+        } else { # trace
+            trace "(At end of input)";
+        } # trace
+        return $cont->($input,undef,{eaten=>0,ast=>[]});
+    };
+    $N{$p} = "nothing";
+    $p;
 }
 
-$nothing = \&nothing;
-bless $nothing => __PACKAGE__;
-
-sub alternate {
+sub any {
+  trace "generating any ".Dumper([caller()]).Dumper(\@_);
   my @p = grep $_,@_;
   return parser { return () } if @p == 0;
   return $p[0]             if @p == 1;
   my $p;
   $p = parser {
-    my $input = shift;
-    trace "Looking for alt $N{$p}";
+    my ($input,$cont,$u) = @_;
+    trace "Longest token match: $N{$p}";
     if (defined $input) { # trace
       trace "Next token is ".Dumper($input->[0]);
     } else { # trace
@@ -176,396 +186,217 @@ sub alternate {
     } # trace
     $input = [$input] unless ref $input;
     my ($q, $np) = (0, scalar @p); # trace
-    my ($v, $newinput);
+    my ($v,$w);
     my @failures;
     for (@p) {
       $q++; # trace
-      trace "Trying alternative $q/$np";
-      eval { ($v, $newinput) = $_->($input) };
-      if ($@) {
-        die unless ref $@;
-        trace "Failed alternative $q/$np";
-        push @failures, $@;
+      trace "Trying $q/$np: ".$N{$p[$q-1]};
+      $w = $_->($input,$cont,$u);
+      if (ref($w) ne 'HASH') {
+        trace "Failed $q/$np: ".$N{$p[$q-1]};
+        push @failures, $w;
       } else {
-        trace "Matched alternative $q/$np";
-        return ($v, $newinput);
+        if ($w->{eaten} > $v->{eaten}) {
+            # this is the new longest branch.
+            $v = $w;
+            $v->{branch} = $q; # trace
+        }
+        trace "Matched $q/$np using ".$w->{eaten}." chars: ".$N{$p[$q-1]};
       }
+      $w = undef;
     }
-    trace "No alternatives matched in $N{$p}; failing";
-    die ['ALT', $input, \@failures];
+    if ( defined $v ) {
+        trace "Match $q/$np selected: [".$N{$p[$q-1]}."] with ".$v->{eaten}." chars eaten.";
+        return $v;
+    } else {
+        trace "Failed to match any of: $N{$p}";
+        return [@failures];
+    }
   };
-  $N{$p} = "(" . join(" | ", map eval{$N{$_}}, @p) . ")"; # trace
+  $N{$p} = "any(" . join("|", map $N{$_}, @p) . ")"; # trace
   $p;
 }
 
-my $cdepth = {};
-
 sub p6ws () {
+  trace "generating p6ws ".Dumper([caller()]).Dumper(\@_);
   my $p;
-  #trace "generating p6ws".Dumper([caller()]);
-  $p = alternate(newline(),gt0(alternate(l("C"," "),
-                     concatenate(l("C","#"),
-                     # yes, I realize the below is incorrect; a special
-                     # function will need to be created eventually.
-                                 alternate(concatenate(gt0(l("C","{"),1),
-                                                       through(gt0(l("C","}"),1),1)),
-                                           concatenate(gt0(l("C","("),1),
-                                                       through(gt0(l("C",")"),1),1)),
-                                           concatenate(gt0(l("C","["),1),
-                                                       through(gt0(l("C","]"),1),1)),
-                                           concatenate(gt0(l("C","<"),1),
-                                                       through(gt0(l("C",">"),1),1)))),
-                     concatenate(l("C","#"),
-                                 through(l("C","\n"),1))
-                                 # XXX need to add heredoc here soon.
-                                 ),1));
-  $p = gt0(alternate(l("C"," "),l("C","\n")),1);
-#  $p = l("C"," ");
+  $p = plus(any(ch(" "),ch("\n")));
+#  $p = ch(" ");
   $N{$p} = 'ws'; # trace
   $p;
 }
 
 # slurp up stuff until a stopper parser matches. basically, the {*} signifier.
 sub through {
-  #trace 'generating through'.Dumper([caller()]);
+  trace 'generating through'.Dumper([caller()]).Dumper(\@_);
     my $stop = shift;
     my $p;
     $p = parser {
-        my $input = shift;
+        my ($input,$cont,$u) = @_;
         my $v;
         my @values;
-        while (defined $input) {
-            eval { ($v, $input) = $stop->($input) };
-            if ($@) {
-                unless (ref $@) {
-                    $Data::Dumper::Deparse = 1; # trace
-                    trace "Dying in through; current parser: ".Dumper($stop);
-                    die;
-                }
-                trace "through $N{$stop} still not matched";
-                push @values, drop($input);
-                die ['CONC', $input, [\@succeeded, $@]] unless defined $input; # trace
-                next;
-            } else {
+        my $input2=$input;
+        while (defined $input2) {
+            $v = $stop->($input2);
+            if (ref($v) eq 'HASH') {
                 trace "through $N{$stop} matched";
                 push @values, $v;
                 last;
+            } else {
+                trace "through $N{$stop} still not matched";
+                push @values, drop($input2);
+                return [{expected=>$stop,found=>[undef],line=>'',file=>''}] unless defined $input2; # trace
+                next;
             }
         }
-        while (ref $values[0] eq 'Tuple') {
-            splice @values, 0, 1, @{$values[0]};
-        }
-        return (bless(\@values => 'Tuple'), $input);
+        my $len;
+        $len += length($_) foreach @values;
+        trace "Through token matched";
+        $cont->(tail($input),undef,{eaten=>$len,ast=>[@values,$u]});
     };
-    $N{$p} = "through($N{$stop})"; # trace
+    $N{$p} = "{*}.".$N{$stop}; # trace
     $p;
 }
 
-sub concatmanws {
-  my @p = grep $_,@_;
-  return $nothing if @p == 0;
-  return $p[0]  if @p == 1;
-  my ($p,$o);
-  $o = p6ws;
-  $p = parser {
-    my $input = shift;
-    my $i = 0;
-    $i++ while caller($i);
-    #trace "concatenate $p on $input at depth $i"; # trace
-    my $loc = $input;
-    $loc ||= 1; # fix '/
-    if (# we've been in this parser before
-        exists $cdepth->{$p}
-        # we've seen this input for this parser before
-        && exists $cdepth->{$p}->{$loc}
-        # our current depth is lower than before
-        && $cdepth->{$p}->{$loc} > $toodeep) {
-        # we're in an infinite recursion.
-        trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
-        die ['CONC', $loc, [[], $@]];
-    } else { # trace
-        #trace "we're not in an infinite recursion"; # trace
-    }
-    # store the coderef addresses for this
-    # parser so we can detect infinite loops
-    $cdepth->{$p}->{$loc}++;
-    trace "Looking for $N{$p}";
-    #trace "concatenate: ".Dumper(\@p);
-    if (defined $input) { # trace
-      trace "Next token is ".Dumper($input->[0]);
-    } else { # trace
-      trace "At end of input";
-    } # trace
-    $input = [$input] unless ref $input;
-    my $v;
-    my @values;
-    my ($q, $np) = (0, scalar @p);
-    my @succeeded; # trace
-    for (@p) {
-      $q++;
-      eval { ($v, $input) = $_->($input) };
-      if ($@) {
-        unless (ref $@) {
-            $Data::Dumper::Deparse = 1; # trace
-            trace "Dying in CONC+; current parser: $N{$p}\n";
-            die;
-        }
-        die ['CONC', $input, [\@succeeded, $@]]; # trace
-        die ['CONC', $input, [[], $@]]; # sneaky :)
-      } else {
-        trace "Matched some whitespace after $q/$np: ".Dumper($v).Dumper(\@succeeded);
-        push @succeeded, $N{$_}; # trace
-        push @values, $v;
-      }
-      unless ($q == $np) {
-          trace "in concatmanws, finding whitespace after $q/$np";
-          eval { ($v, $input) = $o->($input) };
-          if ($@) {
-            unless (ref $@) {
-                $Data::Dumper::Deparse = 1; # trace
-                trace "Dying in CONC-; current parser: $N{$p}\n";
-                die;
-            }
-            die ['CONC', $input, [\@succeeded, $@]]; # trace
-            die ['CONC', $input, [[], $@]]; # sneaky :)
-          } else {
-            trace "Matched concatws whitespace $q/$np";
-            push @succeeded, ' '; # trace
-            push @values, $v;
-          }
-      }
-    }
-    trace "Finished matching $N{$p}";
-    while (ref $values[0] eq 'Tuple') {
-      splice @values, 0, 1, @{$values[0]};
-    }
-    return (bless(\@values => 'Tuple'), $input);
-  };
-  $N{$p} = join "+", map $N{$_}, @p; # trace
-  return $p;
-}
+# optws and manws always receive 1 or 2 arguments when called
+# by the overloaded operators in grammars
+# (so that it always gets two arguments)
+#   from within hand-written parser generators, write them out
+#   explicitly, or always pass them two arguments :)
 
-sub concatoptws {
-  my @p = grep $_,@_;
-  return $nothing if @p == 0;
-  return $p[0]  if @p == 1;
-  my ($p,$o);
-  $o = p6ws;
-  $p = parser {
-    my $input = shift;
-    my $i = 0;
-    $i++ while caller($i);
-    #trace "concatenate $p on $input at depth $i"; # trace
-    my $loc = $input;
-    $loc ||= 1; # fix '/
-    if (# we've been in this parser before
-        exists $cdepth->{$p}
-        # we've seen this input for this parser before
-        && exists $cdepth->{$p}->{$loc}
-        # our current depth is lower than before
-        && $cdepth->{$p}->{$loc} > $toodeep) {
-        # we're in an infinite recursion.
-        trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
-        die ['CONC', $loc, [[], $@]];
-    } else { # trace
-        #trace "we're not in an infinite recursion"; # trace
-    }
-    # store the coderef addresses for this
-    # parser so we can detect infinite loops
-    $cdepth->{$p}->{$loc}++;
-    trace "Looking for $N{$p}";
-    #trace "concatenate: ".Dumper(\@p);
-    if (defined $input) { # trace
-      trace "Next token is ".Dumper($input->[0]);
-    } else { # trace
-      trace "At end of input";
-    } # trace
-    $input = [$input] unless ref $input;
-    my $v;
-    my @values;
-    my ($q, $np) = (0, scalar @p);
-    my @succeeded; # trace
-    for (@p) {
-      $q++;
-      eval { ($v, $input) = $_->($input) };
-      if ($@) {
-        unless (ref $@) {
-            $Data::Dumper::Deparse = 1; # trace
-            trace "Dying in CONC-; current parser: $N{$p}\n";
-            die;
-        }
-        die ['CONC', $input, [\@succeeded, $@]]; # trace
-        die ['CONC', $input, [[], $@]]; # sneaky :)
-      } else {
-        trace "Possibly matched concatopt component $q/$np";
-        push @succeeded, $N{$_}; # trace
-        push @values, $v;
-      }
-      unless ($q == $np) {
-          eval { ($v, $input) = $o->($input) };
-          if ($@) {
-            unless (ref $@) {
-                $Data::Dumper::Deparse = 1; # trace
-                trace "Dying in CONC-; current parser: $N{$p}\n";
-                die;
-            }
-          } else {
-            trace "Matched some whitespace after $q/$np";
-            push @succeeded, ' '; # trace
-            push @values, $v;
-          }
-      }
-    }
-    trace "Finished matching $N{$p}";
-    while (ref $values[0] eq 'Tuple') {
-      splice @values, 0, 1, @{$values[0]};
-    }
-    return (bless(\@values => 'Tuple'), $input);
-  };
-  $N{$p} = join "-", map $N{$_}, @p; # trace
-  return $p;
-}
-
-sub newline {
+sub optws {
+  trace "generating optws ".Dumper([caller()]).Dumper(\@_);
   my $p;
-  $p = alternate(panic(word("\n#{"),"\\n#{ is illegal"),gt0(l("C","\n"),1));
-  $p = gt0(l("C","\n"),1);
-  $N{$p} = "nl"; # trace
-  return $p;
+  my @i = @_;
+  if (defined($i[1])) {
+    # binary -, so optional intervening whitespace
+    $p = parser { all($i[0], opt(p6ws), $i[1]) };
+    $N{$p} = "$N{$i[0]}-$N{$i[1]}"; # trace
+  } else {
+    # unary -, so optional leading whitespace
+    $p = parser { both(opt(p6ws), $i[0], '.') };
+    $N{$p} = " -($N{$i[0]})"; # trace
+  }
+  $p;
 }
 
-sub concatenate {
-  my @p = grep $_,@_;
-  return $nothing if @p == 0;
-  return $p[0]  if @p == 1;
+sub manws {
+  trace "generating manws ".Dumper([caller()]).Dumper(\@_);
   my $p;
-  $p = parser {
-    my $input = shift;
-    my $i = 0;
-    $i++ while caller($i);
-    #trace "concatenate $p on $input at depth $i"; # trace
-    my $loc = $input;
-    $loc ||= 1; # fix '/
-    if (# we've been in this parser before
-        exists $cdepth->{$p}
-        # we've seen this input for this parser before
-        && exists $cdepth->{$p}->{$loc}
-        # our current depth is lower than before
-        && $cdepth->{$p}->{$loc} > $toodeep) {
-        # we're in an infinite recursion.
-        trace "$p ($N{$p}) was too deep (>$toodeep) in itself.";
-        die ['CONC', $loc, [[], $@]];
-    } else { # trace
-        #trace "we're not in an infinite recursion"; # trace
-    }
-    # store the coderef addresses for this
-    # parser so we can detect infinite loops
-    $cdepth->{$p}->{$loc}++;
-    trace "Looking for $N{$p}";
-    #trace "concatenate: ".Dumper(\@p);
-    if (defined $input) { # trace
-      trace "Next token is ".Dumper($input->[0]);
-    } else { # trace
-      trace "At end of input";
-    } # trace
-    $input = [$input] unless ref $input;
-    my $v;
-    my @values;
-    my ($q, $np) = (0, scalar @p); # trace
-    my @succeeded; # trace
-    for (@p) {
-      $q++; # trace
-      eval { ($v, $input) = $_->($input) };
-      if ($@) {
-        unless (ref $@) {
-            $Data::Dumper::Deparse = 1; # trace
-            trace "Dying in CONC.; current parser: $N{$p}\n";
-            die;
-        }
-        die ['CONC', $input, [\@succeeded, $@]]; # trace
-        die ['CONC', $input, [[], $@]]; # sneaky :)
-      } else {
-        trace "Matched concatenated component $q/$np";
-        push @succeeded, $N{$_}; # trace
-        push @values, $v;
-      }
-    }
-    trace "Finished matching $N{$p}";
-    while (ref $values[0] eq 'Tuple') {
-      splice @values, 0, 1, @{$values[0]};
-    }
-    return (bless(\@values => 'Tuple'), $input);
-  };
-  $N{$p} = join ".", map $N{$_}, @p; # trace
+  my @i = @_;
+  if (defined($i[1])) {
+    # binary +, so mandatory intervening  whitespace
+    $p = parser { all($i[0], p6ws, $i[1]) };
+    $N{$p} = "$N{$i[0]}+$N{$i[1]}"; # trace
+  } else {
+    # unary +, so mandatory leading whitespace
+    $p = parser { both(p6ws, $i[0], '.') };
+    $N{$p} = " +($N{$i[0]})"; # trace
+  }
+  $p;
+}
+
+sub opttws {
+  trace "generating opttws ".Dumper([caller()]).Dumper(\@_);
+  my $p;
+  my @i = @_;
+  # optional trailing whitespace
+  $p = parser { both($i[0], opt(p6ws), '.') };
+  $N{$p} = "($N{$i[0]})-- "; # trace
+  }
+  $p;
+}
+
+sub mantws {
+  trace "generating mantws ".Dumper([caller()]).Dumper(\@_);
+  my $p;
+  my @i = @_;
+  # mandatory trailing whitespace
+  $p = parser { both($i[0], opt(p6ws), '.') };
+  $N{$p} = "($N{$i[0]})++ "; # trace
+  }
+  $p;
+}
+
+sub newline () {
+  trace "generating newline ".Dumper([caller()]).Dumper(\@_);
+  my $p;
+#  $p = plus(any(panic(word("\n#{"),"\\n#{ is illegal"),opttws(optws(ch("\n")))));
+  $p = plus(opttws(optws(ch("\n"))));
+  $N{$p} = "\\n"; # trace
   return $p;
 }
 
-my $null_tuple = [];
-bless $null_tuple => 'Tuple';
+# plus($s) = /^s+$/
+sub plus {
+  trace "generating plus ".Dumper([caller()]).Dumper(\@_);
+  my $parser = shift;
+  my $p = parser { all($parser, star($parser)) };
+  $N{$p} = "($N{$p})+ "; # trace
+  $p;
+}
+
+my $cdepth = {};
+
+sub both {
+  trace "generating both ".Dumper([caller()]).Dumper(\@_);
+  my ($A, $B, $wsrule) = @_;
+  my $p = parser {
+    my ($input, $cont, $u) = @_;
+    my $BC = parser {
+      # $BC won't get invoked by hit() unless A succeeds.
+      $B->($_[0], $cont, $_[2]); # to $aval
+    };
+    if ($wsrule eq '.') {
+        # leave $A the way it is (this function's base case)
+    } elsif ($wsrule eq '+') {
+        $A = manws($A);
+    } elsif ($wsrule eq '-') {
+        $A = optws($A);
+    }
+    $N{$BC} = $N{$B}.'.'.$N{$cont}; # trace
+    $A->($input, $BC, $u);
+  };
+  $N{$p} = $N{$A}.$wsrule.$N{$B}; # trace
+  return $p;
+}
+
+sub all {
+  return nothing if @_ == 0; # this should never occur
+  return $_[0]  if @_ == 1; # the base case for this function
+  my $head = shift;
+  my @tails = @_;
+  my $tail = parser {
+    all(@tails);
+  };
+  my $p = parser {
+    both($head, $tail, '.');
+  };
+  $N{$p} = "all($N{head},".join(",",map($N{$_},@tails)).")"; # trace
+  $p;
+}
 
 sub star {
-  #trace $_[1].'generating star'.Dumper([caller()]);
+  trace 'generating star'.Dumper([caller()]).Dumper(\@_);
   my ($p,$nows) = @_;
   my ($p_star, $conc);
-  # concatenate using whitespace by default.
-  my $concat = sub { concatmanws(@_) };
-  if ($nows) { $concat = sub { concatenate(@_) }; };
-  #trace "star concat is: ".Dumper($concat);
   my $p_starexec = parser { $p_star->(@_) };
   $N{$p_starexec} = ""; # trace
-  $p_star = alternate(T($conc = $concat->($p, $p_starexec),
-                        sub { 
-                          [$_[0], @{$_[1]}] 
-                        }),
-                      T($nothing,
-                        sub { $null_tuple }),
-                     );
-  $N{$p_star} = "($N{$p})*"; # trace
-  $N{$conc} = "conc $N{$p} $N{$p_star}"; # trace
+  $p_star = opt($conc = ( sub { all(@_) } )->($p, $p_starexec));
+  $N{$p_star} = "$N{$p}*"; # trace
+  $N{$conc} = "$N{$p}.$N{$p_star}"; # trace
   $p_star;
 }
 
-sub option {
+sub opt {
   my $p = shift;
-  $p_opt = alternate($p, $nothing);
+  my $p_opt = any($p, nothing);
   $N{$p_opt} = "(?$N{$p})"; # trace
   $p_opt;
 }
 
-# commalist(p, sep) = p star(sep p) option(sep)
-sub commalist {
-  my ($p, $separator, $sepstr) = @_;
-  my $parser = T(concatoptws($p,
-                             star(T(concatoptws(star($separator,1), $p),
-                                    sub { $_[1] }
-                                   ),1),
-                             star($separator,1)),
-                 sub { [$_[0], @{$_[1]}] }
-                );
-  $N{$parser} = "$N{$p}$sepstr$N{$p}$sepstr..."; # trace
-  return $parser;
-}
-
-sub termilist {
-  my ($p) = shift;
-  commalist($p, lookfor('TERMINATOR'), "; ");
-}
-
-sub labeledblock {
-  my ($label, $contents) = @_;
-  my $t;
-  my $p = concatenate(concatenate(concatenate($label, 
-                                              lookfor('LBRACE'),
-                                             ),
-                                  $t = star($contents),
-                                 ),
-                      lookfor('RBRACE'),
-                     );
-  $N{$p} = "$N{$label} { $N{$t} }"; # trace
-  T($p, sub { [$_[0], @{$_[2]}] });
-}
-
 # Only suitable for applying to concatenations
+# (because their input parsers return(ed) an array)
 sub T {
   my ($parser, $transform) = @_;
   my $p;
@@ -583,9 +414,9 @@ sub T {
   return $p;
 }
 
+# suitable for applying to things returning a single value
 sub V {
   my ($parser, $transform) = @_;
-#  return $parser;
   my $p = parser {
     my $input = shift;
     my ($value, $newinput) = $parser->($input);
@@ -599,25 +430,35 @@ sub V {
   return $p;
 }
 
-sub checkval {
+# this generates a parser that checks the return of a
+#     parser (its first argument) using its second argument,
+#     which is a coderef that tests validity of a given
+#     output against whatever standards.  Could be used
+#     in yap6 as part of (both pos and neg) lookahead
+sub check {
   my ($parser, $condition) = @_;
-  $label = "$N{$parser} condition"; # trace
-  return parser {
+  my $p = parser {
     my $input = shift;
     my ($val, $newinput) = $parser->($input);
     return ($val, $newinput) if ($condition->($val));
-    die ['CONDITION', $label, $val]; # trace
-    die ['CONDITION', "trace mode off", $val]; # sneaky
-  }
+  };
+  $N{$p} = exists($N{$condition})?"check($N{$parser},$N{$condition})": # trace
+    "check($N{$parser},condition)"; # trace
+  $p;
 }
 
+# same as checkval, except it doesn't pass the input through
+#     a specified parser first.  the testing routine can implement
+#     its own parsing, of course.  
 sub test {
   my $action = shift;
-  return parser {
+  my $p = return parser {
     my $input = shift;
     my $result = $action->($input);
     return $result ? (undef, $input) : ();
   };
+  $N{$p} = exists($N{$action})?"test($N{$action})":"test(condition)"; # trace
+  $p;
 }
 
 sub error {
@@ -691,70 +532,31 @@ sub display_failures {
   }
 }
 
-sub operator {
-  my ($subpart_parser, @ops) = @_;
-  my (@alternatives);
-  my $opdesc;
-  for my $op (@ops) {
-    my ($operator, $op_func) = @$op;
-    my $rest_op;
-    push @alternatives,
-      $t_rest_op = T($rest_op = concatenate($operator,
-                                            $subpart_parser),
-                     sub {
-                       my $rest = $_[1];
-                       sub { $op_func->($_[0], $rest) }
-                     });
-    $N{$rest_op} = $N{$t_rest_op} = "($N{$operator} $N{$subpart_parser})"; # trace
-    $opdesc .= "$N{$operator} "; # trace
-  }
-  chop $opdesc; # trace
-  my $alts = alternate(@alternatives);
-  $N{$alts} = "some operation {$opdesc} $N{$subpart_parser}"; # trace
-  my $result = 
-    T(concatenate($subpart_parser,
-                  star($alts)),
-      sub { my ($total, $funcs) = @_;
-            for my $f (@$funcs) {
-              $total = $f->($total);
-            }
-            $total;
-          });
-  $N{$result} = "(operations {$opdesc} on $N{$subpart_parser}s)"; # trace
-  $result;
-}
-
-
-sub adn (@) {
-    print "Adding AST node: "; # trace
-    say join('',map(Dumper($_)." ",@_));
-    Dumper([map("$_",@_)]);
-}
-
 sub ch { # parse for a single (normal) character.
-  #trace 'generating ch'.Dumper([caller()]);
+  trace 'generating ch '.Dumper([caller()]).Dumper(\@_);
     # Because of the weirdness of unspace, grammars that
-    # need to look for backslashes will need to use l("C",'\\')
+    # need to look for backslashes will need to use hit("C",'\\')
     my $p;
     my $char = $_[0];
-    # through(option(something)) is an interesting construct.
+    # through(opt(something)) is an interesting construct.
     # It means chew/slurp stuff through something if something
-    # is the first token (series).  Since option() succeeds with
+    # is the first token (series).  Since opt() succeeds with
     # nothing(), through will only ever chew 1 match.
-    $p = concatenate(through(option(unspace())),l("C",$char));
+    $p = all(through(opt(unspace)),hit("C",$char));
     $N{$p} = Dumper($char); # trace
     $p;
 }
 
 sub unspace () {
-  #trace 'generating unspace'.Dumper([caller()]);
+  trace 'generating unspace '.Dumper([caller()]).Dumper(\@_);
     my $p;
-    $p = concatenate(l("C","\\"),star(p6ws(),1));
+    $p = all(ch("\\"),star(p6ws));
     $N{$p} = 'unspace'; # trace
     $p;
 }
 
 sub w { # look for a wrapped entity.  first parm is split into the wrappers.
+    trace 'generating w '.Dumper([caller()]).Dumper(\@_);
     my ($d,$e) = split(//,$_[0]);
     my $p;
     my $item = $_[1];
@@ -765,42 +567,23 @@ sub w { # look for a wrapped entity.  first parm is split into the wrappers.
 
 sub keyword {
     my $ins = shift;
-    my $p;
-    $p = l('ID',$ins);
+    my $p = hit('ID',$ins);
     $N{$p} = "$ins"; # trace
     $p;
 }
 
 sub keywords {
     my @args = @_;
-    my $p;
-    $p = alternate(map(keyword($_),@args));
+    my $p = any(map(keyword($_),@args));
     $N{$p} = join("|",@args); # trace
-    $p;
-}
-
-sub clist {
-    my $ins = shift;
-    my $p;
-    $p = commalist($ins,ch(','),',');
-    $N{$p} = "clist($N{$ins})"; # trace
-    $p;
-}
-
-sub semilist {
-    my $ins = shift;
-    my $p;
-    $p = commalist($ins,alternate(ch(','),ch(';')),',;');
-    $N{$p} = "semilist($N{$ins})"; # trace
     $p;
 }
 
 sub panic {
     my ($ins,$msg) = @_;
-    my $p;
-    $p = parser {
+    my $p = parser {
         my $input = shift;
-        trace "Dying if find $N{$p}";
+        trace "Dying if find $N{$ins}";
         if (defined $input) { # trace
             trace "Next token is ".Dumper($input->[0]);
         } else { # trace
@@ -820,24 +603,9 @@ sub panic {
     $p;
 }
 
-sub gt0 { # hit on 1 or more of the contained. (gt0 == greater than zero)
-  #trace $_[1].'generating gt0'.Dumper([caller()]);
-    my $p;
-    my ($item,$nows) = @_;
-    $nows ||= 0;
-    my $conc = sub { concatmanws(@_) };
-    if ($nows ==1) { $conc = sub { concatenate(@_) }; };
-    if ($nows ==2) { $conc = sub { concatoptws(@_) }; };
-    #trace "gt0 conc is: ".Dumper($conc);
-    $p = $conc->($item,star($item,$nows));
-    $N{$p} = ">=1($N{$item})"; # trace
-    $p;
-}
-
 sub word {
-    my $p;
     my $word = $_[0];
-    $p = concatenate(map(l('C',$_),split(//, $word)));
+    my $p = all(map(ch($_),split(//, $word)));
     $N{$p} = Dumper($word); # trace
     $p;
 }
