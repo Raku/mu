@@ -75,10 +75,11 @@ package Evalbot;
             warn "Eval: $str\n";
             if ($eval_name eq 'kp6') {
                 my $rev_string = 'kp6 r' . get_revision() . ': ';
-                return $rev_string . EvalbotExecuter::run($str, $e);
+                return $rev_string . filter_kp6(EvalbotExecuter::run($str, $e));
             } elsif ($eval_name eq 'perl6'){
                 my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
-                my $kp6_out  = EvalbotExecuter::run($str, $executer{kp6});
+                my $kp6_out  = filter_kp6(
+                        EvalbotExecuter::run($str, $executer{kp6}));
                 my $p6_out   = filter_rakudo(
                         EvalbotExecuter::run($str, $executer{rakudo}));
                 my $elf_out  = EvalbotExecuter::run($str, $executer{elf});
@@ -235,7 +236,12 @@ EOM
         my $str = shift;
         $str =~ s/called from Sub.*//ms;
         return $str;
+    }
 
+    sub filter_kp6 {
+        my $str = shift;
+        $str =~ s/KindaPerl6::Runtime.*//ms;
+        return $str;
     }
 
 
