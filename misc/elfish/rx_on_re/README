@@ -1,0 +1,45 @@
+
+Objective:  Create a regex engine written in p6.
+
+Approach:
+
+Start with the "working" p5 yet_another_regex_engine/Regexp_ModuleA.pm
+and its t/.  Using the fact that the current elf_f_faster emits p5
+which is compatible with normal handwritten p5, incrementally migrate
+Regexp_ModuleA.pm into p6, _while keeping it working_.
+
+Once there a p6 version is working, but still emitting p5 and thus
+only suitable for p5 backends, then create a version which emits p6.
+
+Milestones:
+
+() Dev environment and regression testing set up.
+() P6 version passes t/.
+() P6 version emitting P6 passes t/.
+
+PLAN
+
+() Makefile - a hyrid p6/p5 build; t/ regression test.
+() Node definitions in p6.
+() Migrate analysis methods to p6, one method at a time.
+() Migrate emitter methods to p6.
+() Setup for second translation phase.
+() Migrate emitted code from p5 to p6.
+
+then
+() Depending on emitted p6 performance, keep or set aside p5 version.
+() Adapt one of the versions to elf and STD.
+() Sync with current regex spec.
+() Implement ratchet.
+() Flesh out and improve.
+
+ISSUES
+
+() Not sure whether to migrate the p5 grammar or not.  STD.pm doesn't
+currently have one.
+
+
+NOTES
+
+/EmitRegexYare.pm is a leftover from a previous attempt in this direction.
+Bits of it may be of use.

@@ -62,22 +62,29 @@ Given  expr block
 When   expr block
 Label  labels statement
 
+
 RegexDef ident pattern
 Regex patterns
+
 RxFirst patterns
 RxEvery patterns
 RxSubmatch patterns
 RxAny patterns
 RxAll patterns
 RxSequence patterns
+
 RxQuantifiedAtom atom quantifier
 RxBackslash char
 RxAssertion ident
+
 RxModInternal mod
+
 RxCapture pattern
 RxGroup pattern
+
 RxBlock block
 RxBind var binding
+
 RxLiteral text quote
 RxSymbol symbol
 
@@ -85,7 +92,7 @@ RxSymbol symbol
 # RxCommitGroup
 # RxCommitRegex
 # RxCommitMatch
-# 
+
 # RxPat5 pat
 # RxExact text
 # RxMixinMod sigspace i #...
