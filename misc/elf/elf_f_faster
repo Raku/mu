@@ -4696,17 +4696,17 @@ if(($arg eq "\-v")) {
 }elsif(($arg eq "\-o")) {
 (do{($output_file = ($args->shift() || $self->print_usage_and_die()))})
 }elsif(($arg eq "\-e")) {
-(do{$GLOBAL::a_INC->unshift($incs->reverse()->flatten());
+(do{$GLOBAL::a_INC->unshift($incs->flatten());
 ($incs = []);
 my $p6_code = ($args->shift() || $self->print_usage_and_die());
 $handle->("\-e", $p6_code)})
 }elsif(GLOBAL::file_exists($arg)) {
-(do{$GLOBAL::a_INC->unshift($incs->reverse()->flatten());
+(do{$GLOBAL::a_INC->unshift($incs->flatten());
 ($incs = []);
 $handle->($arg, GLOBAL::slurp($arg))})
 }elsif(($arg eq "\-I")) {
 (do{my $dir = ($args->shift() || $self->print_usage_and_die());
-$incs->unshift($dir)})
+$incs->push($dir)})
 }elsif(($arg eq "\-\-")) {
 (do{last})
 }else {

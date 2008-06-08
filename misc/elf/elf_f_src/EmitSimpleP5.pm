@@ -872,3 +872,6 @@ package Main;
   };
 
 };
+
+if not($*emitter0) { $*emitter0 = EmitSimpleP5.new}
+$*emitter1 = EmitSimpleP5.new;

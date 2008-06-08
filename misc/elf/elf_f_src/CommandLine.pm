@@ -29,8 +29,6 @@ One can also do
       self.print_usage_and_die;
     }
 
-
-
     my $verbose;
     my $mode = 'r';
     my $output_file;
@@ -120,3 +118,4 @@ One can also do
   }
 };
 
+Program.new().main(@*ARGS);

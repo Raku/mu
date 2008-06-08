@@ -2,8 +2,6 @@
 class Compiler {
 
   has $.is_for_active_runtime;
-  has $.parser;
-  has $.emitter;
 
   method eval_perl6($code,$env) {
     self.eval_fragment($code,'-e',0,$env);
@@ -52,17 +50,30 @@ class Compiler {
       $cached
     }
     else {
-      $tree = $.parser.parse($code,$filename);
+      if $.is_for_active_runtime {
+        $tree = $*parser0.parse($code,$filename);
+      } else {
+        $tree = $*parser1.parse($code,$filename);
+      }
       if $verbose { say $tree.match_describe; }
       my $ir = $tree.make_ir_from_Match_tree();
-      if $verbose { say $.emitter.tidy(dump_IRx1($ir)) }
+      if $verbose { say $*emitter1.tidy(dump_IRx1($ir)) }
 
       my $p5;
-      $p5 = ($.emitter.prelude_lexical ~
-        $ir.callback($.emitter.new_emitter('compiler',self,'filename',$filename)));
+      if $.is_for_active_runtime {
+        $p5 = ($*emitter0.prelude_lexical ~
+               $ir.callback($*emitter0.new_emitter('compiler',self,'filename',$filename)));
+      } else {
+        $p5 = ($*emitter1.prelude_lexical ~
+               $ir.callback($*emitter1.new_emitter('compiler',self,'filename',$filename)));
+      }
 
       if $verbose {
-        say $.emitter.tidy($p5);
+          if $.is_for_active_runtime {
+              say $*emitter0.tidy($p5);
+          } else {
+              say $*emitter1.tidy($p5);
+          }
       }
       self.compile_fragment_cache_set($code,$filename,$p5);
       $p5;
@@ -94,7 +105,11 @@ class Compiler {
   };
 
   method prelude() {
-      $.emitter.prelude
+    if $.is_for_active_runtime {
+      $*emitter0.prelude
+    } else {
+      $*emitter1.prelude
+    }
   };
   method hook_for_use_lib($expr) {
     @*INC.unshift($expr);
@@ -112,5 +127,8 @@ class Compiler {
     1; # true -> Don't emit use().
   };
 };
+
+if not($*compiler0) { $*compiler0 = Compiler.new('is_for_active_runtime',1) }
+$*compiler1 = Compiler.new;
 
 

@@ -64,7 +64,6 @@ X  0%	33  0 		../../../t/blocks/sub_ref.t
 -C 0%	3  0 3		../../../t/blocks/unhashify.t
 -C 0%	20  0 20	../../../t/blocks/wrap.t
 X  0%	17  0 		../../../t/builtins/arity.t
--  25%	12  3 0 9!	../../../t/builtins/arrays/elems.t
 -  7%	14  1 0 13!	../../../t/builtins/arrays/end.t
 -C 0%	1  0 1		../../../t/builtins/arrays/init-in-exported-sub.t
 -d 0%	19  0 19	../../../t/builtins/arrays/isa.t
@@ -441,7 +440,7 @@ X  0%	10  0 		../../../t/run/12-script-args.t
 -  0%	4  0 8 -4!	../../../t/spec/S02-literals/hex_chars.t
 -C 0%	93  0 93	../../../t/spec/S02-literals/radix.t
 -C 0%	1  0 1		../../../t/spec/S02-magicals/block.t
--C 0%	8  0 8		../../../t/spec/S02-magicals/dollar_bang.t
+-d 0%	8  0 8		../../../t/spec/S02-magicals/dollar_bang.t
 X  0%	14  0 		../../../t/spec/S02-magicals/env.t
 -  0%	2  0 2		../../../t/spec/S02-magicals/file_line.t
 -C 0%	6  0 6		../../../t/spec/S02-magicals/perlver.t
@@ -450,6 +449,8 @@ X  0%	1  0 		../../../t/spec/S02-magicals/pid.t
 -C 0%	4  0 4		../../../t/spec/S02-magicals/subname.t
 X  0%	4  0 		../../../t/spec/S02-magicals/sub.t
 X  0%	19  0 		../../../t/spec/S02-names_and_variables/fmt.t
+-C 0%	4  0 4		../../../t/spec/S02-polymorphic_types/subset-code.t
+-C 0%	6  0 6		../../../t/spec/S02-polymorphic_types/subset-range.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
 X  0%	76  0 		../../../t/spec/S02-whitespace_and_comments/unspace.t
 X  0%	304  0 		../../../t/spec/S03-operators/assign.t
@@ -460,7 +461,7 @@ ok	15		../../../t/spec/S03-operators/equality.t
 -C 0%	13  0 13	../../../t/spec/S03-operators/not.t
 -  80%	36  29 7	../../../t/spec/S03-operators/relational.t
 -d 0%	11  0 11	../../../t/spec/S03-operators/true.t
-X  0%	25  0 		../../../t/spec/S04-statements/try.t
+-  4%	25  1 5 19!	../../../t/spec/S04-statements/try.t
 ok	4		../../../t/spec/S04-statements/until.t
 -C 0%	10  0 10	../../../t/spec/S04-statements/while.t
 -  0%	8  0 8		../../../t/spec/S05-modifier/basechar.t
@@ -515,6 +516,7 @@ X  0%	4  0 		../../../t/spec/S17-async/syntax.t
 ok	3		../../../t/spec/S29-any/cmp.t
 -C 0%	38  0 38	../../../t/spec/S29-any/eqv.t
 -  0%	19  0 1 18!	../../../t/spec/S29-array/delete.t
+-  25%	12  3 0 9!	../../../t/spec/S29-array/elems.t
 -  33%	12  4 0 8!	../../../t/spec/S29-array/exists.t
 -d 0%	6  0 6		../../../t/spec/S29-array/keys_values.t
 -  11%	9  1 5 3!	../../../t/spec/S29-array/kv.t
@@ -546,7 +548,7 @@ X  0%	25  0 		../../../t/spec/S29-hash/slice.t
 X  0%	11  0 		../../../t/spec/S29-list/classify.t
 X  0%	9  0 		../../../t/spec/S29-list/first.t
 X  0%	29  0 		../../../t/spec/S29-list/grep.t
--  6%	31  2 0 29!	../../../t/spec/S29-list/join.t
+-  6%	33  2 0 31!	../../../t/spec/S29-list/join.t
 -d 0%	7  0 7		../../../t/spec/S29-list/map_empty_list.t
 -d 0%	3  0 3		../../../t/spec/S29-list/map_flattening.t
 -d 0%	2  0 2		../../../t/spec/S29-list/map_function_return_values.t
@@ -556,19 +558,19 @@ X  0%	5  0 		../../../t/spec/S29-list/map_topic.t
 -C 0%	4  0 4		../../../t/spec/S29-list/map_with_signature.t
 -  4%	24  1 0 23!	../../../t/spec/S29-list/minmax.t
 -C 0%	1  0 1		../../../t/spec/S29-list/mutating_listops.t
--C 0%	11  0 11	../../../t/spec/S29-list/pick.t
+X  0%	13  0 		../../../t/spec/S29-list/pick.t
 X  0%	11  0 		../../../t/spec/S29-list/reduce.t
 -C 0%	45  0 45	../../../t/spec/S29-list/reverse.t
 X  0%	21  0 		../../../t/spec/S29-list/sort.t
 -  0%	9  0 1 8!	../../../t/spec/S29-list/uniq.t
 X  0%	40  0 		../../../t/spec/S29-num/abs.t
--C 0%	129  0 129	../../../t/spec/S29-num/complex.t
+X  0%	129  0 		../../../t/spec/S29-num/complex.t
 X  0%	44  0 		../../../t/spec/S29-num/exp.t
-X  0%	58  0 		../../../t/spec/S29-num/int.t
+X  0%	61  0 		../../../t/spec/S29-num/int.t
 X  0%	11  0 		../../../t/spec/S29-num/log.t
--  16%	6  1 0 5!	../../../t/spec/S29-num/pi.t
+X  0%	6  0 		../../../t/spec/S29-num/pi.t
 -d 0%	26  0 26	../../../t/spec/S29-num/rand.t
-X  0%	10  0 		../../../t/spec/S29-num/roots.t
+-C 0%	10  0 10	../../../t/spec/S29-num/roots.t
 -C 0%	36  0 36	../../../t/spec/S29-num/rounders.t
 -d 0%	6  0 6		../../../t/spec/S29-num/sign.t
 -C 0%	7  0 7		../../../t/spec/S29-num/sqrt.t
@@ -587,17 +589,19 @@ X  0%	74  0 		../../../t/spec/S29-scalar/undef.t
 -  0%	55  0 1 54!	../../../t/spec/S29-str/length.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chomp.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chop.t
+-d 0%	2  0 2		../../../t/spec/S29-str/pos.t
 X  0%	11  0 		../../../t/spec/S29-str/quotemeta.t
 -d 0%	31  0 31	../../../t/spec/S29-str/rindex.t
+-d 0%	7  0 7		../../../t/spec/S29-str/samebase.t
 -d 0%	8  0 8		../../../t/spec/S29-str/samecase.t
 X  0%	27  0 		../../../t/spec/S29-str/split.t
-ok	12		../../../t/spec/S29-str/sprintf.t
+-  91%	37  34 3	../../../t/spec/S29-str/sprintf.t
 -C 0%	40  0 40	../../../t/spec/S29-str/substr.t
 -d 0%	4  0 4		../../../t/spec/S29-str/ucfirst.t
 -C 0%	11  0 11	../../../t/spec/S29-str/uc.t
 X  0%	10  0 		../../../t/spec/S29-time/time.t
 -d 0%	6  0 6		../../../t/spec/S29-trig/e.t
--d 0%	51  0 51	../../../t/spec/S29-trig/trig.t
+-d 0%	53  0 53	../../../t/spec/S29-trig/trig.t
 -C 0%	9  0 9		../../../t/spec/S29-type/declarations.t
 -C 0%	20  0 20	../../../t/statements/do.t
 X  0%	41  0 		../../../t/statements/for.t
@@ -821,5 +825,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 822.  594 parsed 72%.  324 run 39%.  80 ok 9%.
-Tests: 16485+.  746 ok <4.52%, 15739+ not.
+Files: 826.  597 parsed 72%.  327 run 39%.  79 ok 9%.
+Tests: 16538+.  768 ok <4.64%, 15770+ not.

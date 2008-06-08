@@ -26,3 +26,6 @@ class EmitTokensP5 is EmitFasterP5 {
   }
 
 };
+
+$*emitter0 = EmitTokensP5.new;
+$*emitter1 = EmitTokensP5.new;

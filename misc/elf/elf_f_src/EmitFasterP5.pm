@@ -44,3 +44,7 @@ class EmitFasterP5 is EmitSimpleP5 {
   };
 
 };
+
+#if not($*emitter0) { $*emitter0 = EmitFasterP5.new}
+$*emitter0 = EmitFasterP5.new;
+$*emitter1 = EmitFasterP5.new;
