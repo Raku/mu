@@ -46,4 +46,19 @@ Some tests rely on C<$?PUGS_BACKEND> and similar variables. Since they are not
 specced, they cause failures on other implementations. Either remove these
 variables alltogether, or at enclose them in C<eval '...'>.
 
+=head2 "my" in pointy block signatures
+
+C<<for @list -> my $x >> is wrong, no need for a C<my> here. The current test
+suite seems clear of that error.
+
+=head2 dies_ok for tests that can fail at compile time
+
+C<dies_ok> should only be used for tests that have to fail at run time. For
+example non-existant subs are no such case. Always bare in mind that a clever
+compiler might do some type inference and prove that there always will be an
+error, and throw it at compile time.
+
+If in doubt, use C<eval_dies_ok> instead. If you have a case where C<dies_ok>
+is fine, remeber to pass a code ref to it.
+
 =cut
