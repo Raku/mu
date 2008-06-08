@@ -18,3 +18,4 @@ OVERALL
 S29
 * tests for array: shape and end
 * tests for complex: polar
+* tests for pack and unpack
