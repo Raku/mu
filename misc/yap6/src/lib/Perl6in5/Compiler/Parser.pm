@@ -99,20 +99,9 @@ sub debug ($) { # debug
 } # debug
 
 sub hit {
-  #trace "generating hit ".Dumper([caller()]).Dumper(\@_);
-  # an arrayref of a lex category and an expectation.
-  # Eventually, this may carry interesting categories such as regex.
-  # Think of the "wanted" as the match pattern, and the
-  # $value (sub) as the capture-obtainer.
   my ($wanted,$value,$v) = ([@_],undef,undef);
   $value = sub { $_[0] } if !defined($value);
   $value = [$value] unless ref $value;
-  # I'm not sure what this is used for; it's sent as the 2nd argument
-  # to the obtain-value function.  I guess it could be state storage
-  # for macros.
-  #my $v = shift;
-  # This is necessary for the occasions when l[ookfor]('category') is 
-  # passed in on its own without an expected (literal) value.
   $wanted = [$wanted] unless ref $wanted;
   my $parser;
   $parser = parser {
@@ -127,7 +116,6 @@ sub hit {
     $next = [$next] unless ref $next;
     $wanted = [$wanted] unless ref $wanted;
     for my $i (0 .. $#$wanted) {
-      trace "trying subtoken $i";
       next unless defined $wanted->[$i];
       unless ($wanted->[$i] eq $next->[$i]) {
         trace "Token mismatch";
@@ -136,7 +124,9 @@ sub hit {
     }
     my $wanted_value = $value->($next, $v);
     trace "Token matched";
-    $cont->(tail($input),undef,{eaten=>length($next->[1]),ast=>[]});
+    my $r = $cont->(tail($input),undef,{eaten=>length($next->[1]),ast=>[]});
+    #trace "Continuation returned ".Dumper($r);
+    $r;
   };
   $N{$parser} = Dumper($wanted); # trace
   $parser;
@@ -145,12 +135,12 @@ sub hit {
 sub eoi () {
   my $p = parser {
   my ($input,$cont,$u) = @_;
-      trace "Looking for EOI";
+      debug "Looking for EOI in ".Dumper($input);
       unless (defined($input) && defined($input->[0])) {
         trace "Found EOI";
         return {eaten=>0,ast=>[]};
       } else {
-        trace "Found more input: ".Dumper($input);
+        #print "Found unparsed input: ".Dumper($input);
         return [{expected=>'EOI',found=>$input,line=>'',file=>''}];
       }
   };
@@ -167,7 +157,9 @@ sub nothing () {
         } else { # trace
             trace "(At end of input)";
         } # trace
-        return $cont->($input,undef,{eaten=>0,ast=>[]});
+        my $r = $cont->($input,undef,{eaten=>0,ast=>[]});
+        trace "Nothing returned ".Dumper($r);
+        $r;
     };
     $N{$p} = "nothing";
     $p;
@@ -193,9 +185,9 @@ sub any {
     my @failures;
     for (@p) {
       $q++; # trace
-      #trace dump1($_);
       trace "Trying $q/$np: ".$N{$p[$q-1]};
       $w = $_->($input,$cont,$u);
+      #trace "any: ".$N{$p[$q-1]}." returned ".Dumper($w);
       if (ref($w) ne 'HASH') {
         trace "Failed $q/$np: ".$N{$p[$q-1]};
         push @failures, $w;
@@ -206,16 +198,17 @@ sub any {
         #    $v = $w;
         #    $v->{branch} = $q; # trace
         #}
-        trace "Matched $q/$np using ".$w->{eaten}." chars: ".$N{$p[$q-1]};
+        trace "Matched $q/$np: ".$N{$p[$q-1]};
       }
       $w = undef;
     }
     if ( defined $v ) {
-        trace "Match $q/$np selected: [".$N{$p[$q-1]}."] with ".$v->{eaten}." chars eaten.";
+        trace "Finished matching $N{$p}";
+        #trace "Match $q/$np selected: [".$N{$p[$q-1]}."] with ".$v->{eaten}." chars eaten.";
         return $v;
     } else {
         trace "Failed to match any of: $N{$p}";
-        return [@failures];
+        return [];
     }
   };
   #trace "any ".Dumper(\@p);
@@ -366,10 +359,17 @@ sub both {
     # parser so we can detect infinite loops
     $cdepth->{$p}->{$loc}++;
     my ($aval,$bval);
-    my $BC = parser {
-      trace "in BC";
+    my $BC;
+    $BC = parser {
+      my ($newinput) = @_;
       # $BC won't get invoked by hit() unless A succeeds.
-      $bval = $B->($_[0], $cont, $_[2]); # to $aval
+      $bval = $B->($newinput, $cont, undef);
+#      if (ref $bval eq 'HASH') {
+#        return $bval;
+#      } else {
+#        #trace "BC: ".$N{$BC}." returned ".Dumper($bval);
+#        return ['failed'];
+#      }
     };
     if ($wsrule eq '.') {
         # leave $A the way it is (this function's base case)
@@ -381,7 +381,13 @@ sub both {
     $N{$BC} = $N{$B}.'.'.$N{$cont}; # trace
     trace "both attempting $N{$A} then $N{$BC}";
     $aval = $A->($input, $BC, $u);
-    return [$aval,$bval];
+#    if (ref $aval eq 'HASH' && ref $bval eq 'HASH') {
+#      trace "Finished matching $N{$A} and $N{$BC}";
+#      return { a => $aval, b => $bval };
+#    } else {
+#      trace "Failed to match $N{$A} and $N{$BC}";
+#      return [$aval,$bval];
+#    }
   };
   $N{$p} = $N{$A}.$wsrule.$N{$B}; # trace
   $p;

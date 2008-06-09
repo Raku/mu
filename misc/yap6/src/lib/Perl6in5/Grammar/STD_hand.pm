@@ -206,7 +206,7 @@ sub make_parser {
                 (keyword('use') + keywords(qw{ v6 Perl-6 })
               | keyword('module') + opt(keyword('Main'))
               | keywords(qw{ class v6.0.0 v6 6 }))
-          . stmtTrm
+          - stmtTrm
     };
 
     rule sVari {
@@ -370,14 +370,13 @@ sub make_parser {
     };
 
     sub {
-        my @results;
-        @results = (program->($lexer,eoi));
-        if ($@) {
-            #warn "syntax error near: ".Dumper(head(tail(head($@))) || head(tail($@)))."\n";
+        my $result = (program->($lexer,eoi));
+        if (ref($result) ne 'HASH') {
+            print "syntax error: ".Dumper($result);
             return 255;
         } else {
             print "parse successful\n";
-            trace Dumper(\@results);
+            debug Dumper($result);
             return 0;
         }
     }
