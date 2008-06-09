@@ -193,12 +193,9 @@ sub make_parser {
     rule program {
             # everything must start with a use v6; statement until
             # the perl5zone rule is operational.
-            opt(p6ws)
-          . usev6
-          . opt(opt(p6ws) . pkgDecl)
-          . opt(opt(p6ws) . stmtList)
-          . opt(p6ws)
-          . eoi
+            -((usev6)--)
+          . opt(pkgDecl--)
+          . opt(stmtList--)
     };
 
     rule pkgDecl {
@@ -221,14 +218,14 @@ sub make_parser {
     };
 
     rule stmtList {
-           -(   nbexpr . opt(      stmtTrm          . opt(stmtList) )
-              | block . ( stmtTrm | -(ch("\n"))-- ) . opt(stmtList)
-            )--
+           -((   nbexpr . opt(      stmtTrm          . opt(stmtList) )
+              | block . ( stmtTrm | -((ch("\n"))--) ) . opt(stmtList)
+            )--)
     };
 
     rule nbexpr {
-            panic(pkgDecl,"Can't declare a non-block package")
-          | sVari
+           # panic(pkgDecl,"Can't declare a non-block package")
+            sVari
           | impor
           | assign
           | func_say
@@ -268,7 +265,7 @@ sub make_parser {
           | compUnit
           | flowCtrl
           | blkLabl
-          | arrowInv - opt(',' - clist(blkPrms))
+          | arrowInv - opt(',' - opt(blkPrms))
     };
 
     rule arrowInv {
@@ -324,7 +321,7 @@ sub make_parser {
 
     # block parameter declaration
     rule blkPrms {
-            opt(invcDecl) . plus(-comma - prmDecl--))
+            opt(invcDecl) . plus(-(comma) - (prmDecl)--)
     };
     
     # invocant declaration
@@ -365,7 +362,7 @@ sub make_parser {
     # This is a great example of how to structure an operator level's
     # (recursive) grammar syntax.
     rule term {
-            factor - star(('*' | '/') - factor)
+            factor - star('*' - factor | '/' - factor )
     };
 
     rule factor {
@@ -374,7 +371,7 @@ sub make_parser {
 
     sub {
         my @results;
-        eval { @results = (program->($lexer)) };
+        @results = (program->($lexer,eoi));
         if ($@) {
             #warn "syntax error near: ".Dumper(head(tail(head($@))) || head(tail($@)))."\n";
             return 255;
