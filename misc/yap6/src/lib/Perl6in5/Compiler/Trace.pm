@@ -4,6 +4,16 @@ package Perl6in5::Compiler::Trace;
 
 use Filter::Simple;
 FILTER {
-    s/^\s+trace.*$//mg unless ($ENV{TRACE});
-    s/^.*trace$//mg unless ($ENV{TRACE});
+    my $level = $ENV{TRACE};
+    my $maxtrace = 6;
+    if (defined $level && $level <= $maxtrace && $level > 0) {
+        s/'tracelevel'/${level}/mg;
+        while ($level < $maxtrace ) {
+            $level++;
+            s/^\s+trace.${level}.*$//mg;
+        }
+    } else {
+        s/^\s+trace.*$//mg;
+        s/^.*trace$//mg;
+    }
 }

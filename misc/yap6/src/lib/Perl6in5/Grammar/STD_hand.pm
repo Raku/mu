@@ -226,19 +226,19 @@ sub make_parser {
     rule nbexpr {
            # panic(pkgDecl,"Can't declare a non-block package")
             sVari
+          | hit('INT')
           | impor
           | assign
           | func_say
           | blkTrait
           | w('()',expr)
           | op_numaddt
-          | hit('INT')
     };
-    
+
     rule func_say {
         keyword('say') + expr
     };
-    
+
     rule op_numaddt {
             term
           - star('+' - term
@@ -371,12 +371,19 @@ sub make_parser {
 
     sub {
         my $result = (program->($lexer,eoi));
-        if (ref($result) ne 'HASH') {
-            print "syntax error: ".Dumper($result);
+        if (ref($result) ne 'ARRAY') {
+            my $msg;
+            if ($result->{expected} eq '' && length($result->{left}) > 0) {
+                $msg = 'incomplete statement near '.Dumper($result->{left});
+            } elsif (length($result->{left}) == 0) {
+                $msg = 'syntax error near the EOI';
+            } else {
+                $msg = "syntax error near ".Dumper($result->{left});
+            }
+            print STDERR $msg;
             return 255;
         } else {
-            print "parse successful\n";
-            debug Dumper($result);
+            print "parse successful:".Dumper($result)."\n";
             return 0;
         }
     }

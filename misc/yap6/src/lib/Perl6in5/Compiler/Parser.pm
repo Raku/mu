@@ -2,23 +2,21 @@ use strict 'refs';
 use warnings;
 no warnings qw{ reserved closure recursion };
 
-# Library based on chap09/arith25.pl
-
 package Perl6in5::Compiler::Parser;
 
 use Exporter;
 @EXPORT_OK = qw(hit eoi nothing T V error debug star opt
-                display_failures o say all any
-                trace %N l parser checkval execnow
+                display_failures say all one flatten
+                trace %N parser check execnow
                 ch w keyword keywords word panic p6ws
                 unspace optws manws opttws mantws through
                 newline plus both);
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
-use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
+use Perl6in5::Compiler::Trace; # set env var trace for trace output
 # disregarding leading whitespace, lines that start with trace
-# or end with trace are discarded by the source filter in 
+# or end with trace,are discarded by the source filter in 
 # Perl6in5::Compiler::Trace.  This allows execution time to be
 # much faster than otherwise, since the strings to be traced
 # are not only not sent to STDOUT; they aren't even built.
@@ -31,7 +29,7 @@ use overload
     '-'  => \&optws, # optional leading or intervening whitespace
     '+'  => \&manws, # mandatory leading or intervening whitespace
     '.'  => \&all, # intervening whitespace disallowed
-    '|'  => \&any, # defaultly longest token matching
+    '|'  => \&one, # defaultly longest token matching
     '&'  => \&any_other, # could use this for non-eating ltm
                          # which could also be peekahead. or
                          # first match.
@@ -44,6 +42,7 @@ use overload
 
 # Here's a fun trick; memoize the parser generator functions :)
 use Memoize;
+#map { memoize $_ unless (/^\W/ || /^trace$/) } @EXPORT_OK;
 map { memoize $_ unless (/^\W/ || /^trace$/) } qw{ newline p6ws nothing };
 
 $| = 1; # trace
@@ -63,16 +62,19 @@ sub say (@) { print($_,"\n") for @_ }
 
 sub parser (&) { bless $_[0] => __PACKAGE__ }
 
-sub l { @_ = [@_]; goto &hit }
-
-sub o { goto &opt }
-
 sub dump1 {
+#  return '';
 { local $Data::Dumper::Deparse = 1;
-    "dumper from ".Dumper([caller()])."\n".join("\n", map $N{$_}, @_).Dumper(@_); }
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Terse = 0;
+$Data::Dumper::Useqq = 0;
+$Data::Dumper::Quotekeys = 0;
+    "dumper from ".Dumper([caller()])."\n".join("\n", map eval{$N{$_}||'none'}, grep $_,@_).Dumper(@_); }
 }
 
-sub trace ($) { # trace
+sub trace ($$) { # trace
+  my $level = shift; # trace
+  return unless $level <= 'tracelevel'; # trace
   my $msg = (shift) . "\n"; # trace
   my $i = 0; # trace
   $i++ while caller($i); # trace
@@ -87,7 +89,7 @@ sub callstack () { # trace
     $i++; # trace
     $msg .= "\t".join(",",@stack)."\n" if @stack; # trace
   } # trace
-  trace $msg;
+  trace 4,$msg;
 } # trace
 
 sub debug ($) { # debug
@@ -98,50 +100,17 @@ sub debug ($) { # debug
   print $i.$I." ", $msg; # debug
 } # debug
 
-sub hit {
-  my ($wanted,$value,$v) = ([@_],undef,undef);
-  $value = sub { $_[0] } if !defined($value);
-  $value = [$value] unless ref $value;
-  $wanted = [$wanted] unless ref $wanted;
-  my $parser;
-  $parser = parser {
-    my ($input,$cont,$u) = @_;
-    #trace " after this, will run ".$N{$cont}.Dumper([caller()]).dump1($cont);
-    #trace "Looking for token ".Dumper($wanted)." in ".Dumper(head($input));
-    unless (defined $input && defined(head($input))) {
-      trace "Premature end of input";
-      return [{expected=>$wanted,found=>[undef],line=>'',file=>''}];
-    }
-    my $next = head($input);
-    $next = [$next] unless ref $next;
-    $wanted = [$wanted] unless ref $wanted;
-    for my $i (0 .. $#$wanted) {
-      next unless defined $wanted->[$i];
-      unless ($wanted->[$i] eq $next->[$i]) {
-        trace "Token mismatch";
-        return [{expected=>$wanted,found=>$next,line=>'',file=>''}];
-      }
-    }
-    my $wanted_value = $value->($next, $v);
-    trace "Token matched";
-    my $r = $cont->(tail($input),undef,{eaten=>length($next->[1]),ast=>[]});
-    #trace "Continuation returned ".Dumper($r);
-    $r;
-  };
-  $N{$parser} = Dumper($wanted); # trace
-  $parser;
-}
-
 sub eoi () {
+  trace 6,"generating eoi ".Dumper([caller()]).Dumper(\@_);
   my $p = parser {
   my ($input,$cont,$u) = @_;
-      debug "Looking for EOI in ".Dumper($input);
+      trace 4,"Looking for EOI in ".Dumper($input);
       unless (defined($input) && defined($input->[0])) {
-        trace "Found EOI";
-        return {eaten=>0,ast=>[]};
+        trace 5,"Found EOI";
+        return [ '' , [ 'EOI'] ]; # this is the tail of the AST
       } else {
-        #print "Found unparsed input: ".Dumper($input);
-        return [{expected=>'EOI',found=>$input,line=>'',file=>''}];
+        trace 5,"Found unparsed input: ".Dumper(flatten($input));
+        return {left=>flatten($input),expected=>'EOI'};
       }
   };
   $N{$p} = "eoi";
@@ -149,111 +118,248 @@ sub eoi () {
 }
 
 sub nothing () {
-    #trace "generating nothing ".Dumper([caller()]).Dumper(\@_);
-    my $p = parser {
-        my ($input, $cont,$u) = @_;
+    trace 6,"generating nothing ".Dumper([caller()]).Dumper(\@_);
+    my $p;
+    $p = parser {
         if (defined $input) { # trace
-            trace "Next token is ".Dumper($input->[0]);
+            trace 5,"Next token is ".Dumper($_[0]->[0]);
         } else { # trace
-            trace "(At end of input)";
+            trace 5,"(At end of input)";
         } # trace
-        my $r = $cont->($input,undef,{eaten=>0,ast=>[]});
-        trace "Nothing returned ".Dumper($r);
-        $r;
+        # nothing is the only base-parser that returns the 
+        # result of its continuation untouched
+        $_[1]->($_[0]);
     };
     $N{$p} = "nothing";
     $p;
 }
 
-sub any {
-  #trace "generating any ".Dumper([caller()]).dump1(@_);
+sub p6ws () {
+  trace 6,"generating p6ws ".Dumper([caller()]).Dumper(\@_);
+  my $p = plus(one(ch(" "),ch("\n")));
+  $N{$p} = ' _ '; # trace
+  $p;
+}
+
+sub hit {
+  trace 6,"generating hit ".Dumper([caller()]).Dumper(\@_);
+  my ($wanted,$value) = ([@_],undef,undef);
+  $value = sub { $_[0] } if !defined($value);
+  $value = [$value] unless ref $value;
+  $wanted = [$wanted] unless ref $wanted;
+  my $p;
+  $p = parser {
+    my ($input,$cont) = @_;
+    trace 5," after this, will run ".$N{$cont}.Dumper([caller()]).dump1($cont);
+    trace 4,"Looking for token ".Dumper($wanted)." in ".Dumper(head($input));
+    unless (defined $input && defined(head($input))) {
+      trace 4,"Premature end of input";
+      my $msg = $wanted->[0];
+      $msg .= $wanted->[1] if defined $wanted->[1];
+      return {left=>'EOI',expected=>$msg};
+    }
+    my $next = head($input);
+    $next = [$next] unless ref $next;
+    for my $i (0 .. $#$wanted) {
+      next unless defined $wanted->[$i];
+      unless ($wanted->[$i] eq $next->[$i]) {
+        trace 4,"Token mismatch";
+        return {left=>flatten($input),expected=>$wanted->[$i]};
+      }
+    }
+    # probably should re-add this later for stuff
+    #my $wanted_value = $value->($next, $v);
+    
+    # hit() and eoi() are the only leaf parsers in our search
+    # space.
+    
+    # the head of the return is the successfully matched string 
+    # returning so far from this branch.  Each appending
+    # parser prepends their output, returns it in the head
+    # and returns the new AST in the tail.
+    my $r = $cont->(tail($input));
+    if (ref $r ne 'ARRAY') {
+        trace 4,"failed";
+        return $r;
+    }
+    [ flatten($input), [ $next->[1] , tail($r) ]];
+  };
+  $N{$p} = Dumper($wanted); # trace
+  $p;
+}
+
+sub one {
+  trace 6,"generating one ".Dumper([caller()]).dump1(@_);
   my @p = grep $_,@_;
   return parser { return () } if @p == 0;
   return $p[0]             if @p == 1;
   my $p;
   $p = parser {
-    my ($input,$cont,$u) = @_;
-    trace "Longest token match: $N{$p}";
+    my ($input,$cont) = @_;
+    trace 3,"Longest token match: $N{$p}";
     if (defined $input) { # trace
-      trace "Next token is ".Dumper($input->[0]);
+      trace 3,"Next token is ".Dumper($input->[0]);
     } else { # trace
-      trace "At end of input";
+      trace 3,"At end of input";
     } # trace
     $input = [$input] unless ref $input;
     my ($q, $np) = (0, scalar @p); # trace
-    my ($v,$w);
-    my @failures;
+    my ($v,$w,$z);
     for (@p) {
       $q++; # trace
-      trace "Trying $q/$np: ".$N{$p[$q-1]};
-      $w = $_->($input,$cont,$u);
-      #trace "any: ".$N{$p[$q-1]}." returned ".Dumper($w);
-      if (ref($w) ne 'HASH') {
-        trace "Failed $q/$np: ".$N{$p[$q-1]};
-        push @failures, $w;
+      trace 2,"Trying $q/$np: ".$N{$p[$q-1]};
+      $w = $_->($input,$cont);
+      trace 4,"one: ".$N{$p[$q-1]}." returned ".Dumper($w);
+      if (ref($w) ne 'ARRAY') {
+        trace 2,"Failed $q/$np: ".$N{$p[$q-1]};
+        # send back the shortest remaining input if none of them succeed
+        $z = $w if (!defined $z || (length($w->{left}) < length($z->{left} && $z->{left} !~ /^\s+$/)));
+        trace 1,"Failed to match one of: $N{$p}".Dumper($z);
       } else {
-        $v = $w;
-        #if ($w->{eaten} > $v->{eaten}) {
-        #    # this is the new longest branch.
-        #    $v = $w;
-        #    $v->{branch} = $q; # trace
-        #}
-        trace "Matched $q/$np: ".$N{$p[$q-1]};
+        trace 3,"Matched $q/$np: ".$N{$p[$q-1]};
+        # this branch returned an AST and the eaten input.
+        $v = $w if (!defined $v || (length(head($w)) > length(head($v))));
+        # theoretically, if the grammar is consistent, any resulting AST
+        # should be a complete AST of the entire input, so there shouldn't
+        # ever be more than 1 success...
       }
       $w = undef;
     }
-    if ( defined $v ) {
-        trace "Finished matching $N{$p}";
-        #trace "Match $q/$np selected: [".$N{$p[$q-1]}."] with ".$v->{eaten}." chars eaten.";
-        return $v;
-    } else {
-        trace "Failed to match any of: $N{$p}";
-        return [];
+    if ( !defined $v ) {
+        trace 1,"Failed to match all of: $N{$p}".Dumper($z);
+        return $z;
     }
+    trace 3,"Finished matching $N{$p}";
+    trace 3,"Match $q/$np selected: [".$N{$p[$q-1]}."] with ".length(head($v))." chars eaten." if defined head($v);
+    $v;
   };
-  #trace "any ".Dumper(\@p);
-  $N{$p} = "any(" . join("|", map $N{$_}, @p) . ")"; # trace
+  trace 5,"one ".dump1(@p);
+  $N{$p} = "one(" . join("|", map $N{$_}, @p) . ")"; # trace
   $p;
 }
 
-sub p6ws () {
-  #trace "generating p6ws ".Dumper([caller()]).Dumper(\@_);
+my $cdepth = {};
+
+sub both {
+  trace 6,"generating both ".Dumper([caller()]).dump1($_[0],$_[1]);
+  my ($A, $B, $wsrule) = @_;
   my $p;
-  $p = plus(any(ch(" "),ch("\n")));
-#  $p = ch(" ");
-  $N{$p} = 'ws'; # trace
+  $p = parser {
+    my ($input, $cont) = @_;
+    my $i = 0;
+    $i++ while caller($i);
+    trace 5,"both $p on $input at depth $i"; # trace
+    my $loc = $input;
+    $loc ||= 1;
+    if (# we've been in this parser before
+        exists $cdepth->{$p}
+        # we've seen this input for this parser before
+        && exists $cdepth->{$p}->{$loc}
+        # our current depth is lower than before
+        && $cdepth->{$p}->{$loc} > $toodeep) {
+        # we're in an infinite recursion.
+        trace 3,"$N{$p} was too deep (>$toodeep) in itself.";
+        return {left=>flatten($input),expected=>''};
+    } else { # trace
+        trace 5,"we're not in an infinite recursion"; # trace
+    }
+    # store the coderef addresses for this
+    # parser so we can detect infinite loops
+    $cdepth->{$p}->{$loc}++;
+    my ($aval,$bval);
+    my $BC;
+    $BC = parser {
+      my ($newinput) = @_;
+      # $BC won't get invoked by hit() unless A succeeds.
+      $B->($newinput, $cont);
+    };
+    if ($wsrule eq '.') {
+        # leave $A the way it is (this function's base case)
+    } elsif ($wsrule eq '+') {
+        $A = manws($A)
+    } elsif ($wsrule eq '-') {
+        $A = optws($A)
+    }
+    $N{$BC} = $N{$B}.'.'.$N{$cont}; # trace
+    trace 2,"both attempting $N{$A} then $N{$BC}";
+    $aval = $A->($input, $BC, $u);
+    # $aval won't be an AST if $bval wasn't an AST.
+    if (ref($aval) ne 'ARRAY') {
+      trace 2,"Failed to match at least one of $N{$A} and $N{$BC}";
+      return $aval;
+    }
+    trace 2,"Finished matching $N{$A} and $N{$BC}";
+    return [head($aval), head(tail($aval)), tail(tail($aval))];
+  };
+  trace 5,"both ".dump1($A,$B);
+  $N{$p} = $N{$A}.$wsrule.$N{$B}; # trace
   $p;
 }
 
-# slurp up stuff until a stopper parser matches. basically, the {*} signifier.
-sub through {
-  #trace 'generating through'.Dumper([caller()]).Dumper(\@_);
-    my $stop = shift;
+sub all {
+  trace 6,'generating all '.Dumper([caller()]).dump1(@_);
+  my @p = grep $_,@_;
+  return nothing if @p == 0; # this should never occur
+  return $_[0]  if @p == 1; # the base case for this function
+  my $head = shift @p;
+  my $p = both($head, all(@p), '.');
+  $N{$p} = "all($N{$head},".join(",",map($N{$_},@p)).")"; # trace
+  trace 5,"all ".dump1($head,@p,$p);
+  $p;
+}
+
+sub star {
+    trace 6,'generating star '.Dumper([caller()]).Dumper(\@_);
+    my $p = shift;
+    my ($p_star, $conc, $p_exec);
+    $p_exec = parser { $p_star->(@_) };
+    $N{$p_exec} = "($N{$p})+"; # trace
+    $conc = both($p, $p_exec, '.');
+    $N{$conc} = "($N{$p}.($N{$p})*|nothing)"; # trace
+    $p_star = one($conc, nothing);
+    $N{$p_star} = "($N{$p})*"; # trace
+    $p_star;
+}
+
+sub opt {
+  trace 6,'generating opt '.Dumper([caller()]).Dumper(\@_);
+  my $p = shift;
+  my $p_opt = one($p, nothing);
+  $N{$p_opt} = "?($N{$p})"; # trace
+  $p_opt;
+}
+
+sub ch { # parse for a single (normal) character.
+    trace 6,'generating ch '.Dumper([caller()]).Dumper(\@_);
+    # Because of the weirdness of unspace, grammars that
+    # need to look for backslashes will need to use hit("C",'\\')
     my $p;
-    $p = parser {
-        my ($input,$cont,$u) = @_;
-        my $v;
-        my @values;
-        my $input2=$input;
-        while (defined $input2) {
-            $v = $stop->($input2);
-            if (ref($v) eq 'HASH') {
-                trace "through $N{$stop} matched";
-                push @values, $v;
-                last;
-            } else {
-                trace "through $N{$stop} still not matched";
-                push @values, drop($input2);
-                return [{expected=>$stop,found=>[undef],line=>'',file=>''}] unless defined $input2; # trace
-                next;
-            }
-        }
-        my $len;
-        $len += length($_) foreach @values;
-        trace "Through token matched";
-        $cont->(tail($input),undef,{eaten=>$len,ast=>[@values,$u]});
-    };
-    $N{$p} = "{*}.".$N{$stop}; # trace
+    my $char = $_[0];
+    # through(opt(something)) is an interesting construct.
+    # It means chew/slurp stuff through something if something
+    # is the first token (series).  Since opt() succeeds with
+    # nothing(), through will only ever chew 1 match.
+    #$p = all(through(opt(unspace)),hit("C",$char));
+    $p = hit("C",$char);
+    $N{$p} = Dumper($char); # trace
+    $p;
+}
+
+sub unspace () {
+    trace 6,'generating unspace '.Dumper([caller()]).Dumper(\@_);
+    my $p;
+    $p = all(ch("\\"),star(p6ws));
+    $N{$p} = 'unspace'; # trace
+    $p;
+}
+
+sub w { # look for a wrapped entity.  first parm is split into the wrappers.
+    trace 6,'generating w '.Dumper([caller()]).Dumper(\@_);
+    my ($d,$e) = split(//,$_[0]);
+    my $p;
+    my $item = $_[1];
+    $p = optws(optws(ch($d),$item),ch($e));
+    $N{$p} = "$d$N{$item}$e"; # trace
     $p;
 }
 
@@ -264,7 +370,7 @@ sub through {
 #   explicitly, or always pass them two arguments :)
 
 sub optws {
-  #trace "generating optws ".Dumper([caller()]).Dumper(\@_);
+  trace 6,"generating optws ".Dumper([caller()]).Dumper(\@_);
   my $p;
   if ($_[1]) {
     # binary -, so optional intervening whitespace
@@ -279,7 +385,7 @@ sub optws {
 }
 
 sub manws {
-  #trace "generating manws ".Dumper([caller()]).Dumper(\@_);
+  trace 6,"generating manws ".Dumper([caller()]).Dumper(\@_);
   my $p;
   my @i = @_;
   if (defined($i[1])) {
@@ -295,7 +401,7 @@ sub manws {
 }
 
 sub opttws {
-  #trace "generating opttws ".Dumper([caller()]).Dumper(\@_);
+  trace 6,"generating opttws ".Dumper([caller()]).Dumper(\@_);
   my $p;
   my @i = @_;
   # optional trailing whitespace
@@ -305,7 +411,7 @@ sub opttws {
 }
 
 sub mantws {
-  #trace "generating mantws ".Dumper([caller()]).Dumper(\@_);
+  trace 6,"generating mantws ".Dumper([caller()]).Dumper(\@_);
   # mandatory trailing whitespace
   my $p = both($_[0], opt(p6ws), '.');
   $N{$p} = "($N{$_[0]})++ "; # trace
@@ -313,9 +419,9 @@ sub mantws {
 }
 
 sub newline () {
-  #trace "generating newline ".Dumper([caller()]).Dumper(\@_);
+  trace 6,"generating newline ".Dumper([caller()]).Dumper(\@_);
   my $p;
-#  $p = plus(any(panic(word("\n#{"),"\\n#{ is illegal"),opttws(optws(ch("\n")))));
+#  $p = plus(one(panic(word("\n#{"),"\\n#{ is illegal"),opttws(optws(ch("\n")))));
   $p = plus(opttws(optws(ch("\n"))));
   $N{$p} = "\\n"; # trace
   return $p;
@@ -323,106 +429,101 @@ sub newline () {
 
 # plus($s) = /^s+$/
 sub plus {
-  #trace "generating plus ".Dumper([caller()]).Dumper(\@_);
+  trace 6,"generating plus ".Dumper([caller()]).Dumper(\@_);
   my $parser = shift;
   my $p = all($parser, star($parser));
   $N{$p} = "($N{$p})+ "; # trace
   $p;
 }
 
-my $cdepth = {};
-
-sub both {
-  #trace "generating both ".Dumper([caller()]).Dumper(\($_[0],$_[1]));
-  my ($A, $B, $wsrule) = @_;
-  my $p;
-  $p = parser {
-    my ($input, $cont, $u) = @_;
-    my $i = 0;
-    $i++ while caller($i);
-    #trace "concatenate $p on $input at depth $i"; # trace
-    my $loc = $input;
-    $loc ||= 1; # fix '/
-    if (# we've been in this parser before
-        exists $cdepth->{$p}
-        # we've seen this input for this parser before
-        && exists $cdepth->{$p}->{$loc}
-        # our current depth is lower than before
-        && $cdepth->{$p}->{$loc} > $toodeep) {
-        # we're in an infinite recursion.
-        trace "$N{$p} was too deep (>$toodeep) in itself.";
-        return {};
-    } else { # trace
-        #trace "we're not in an infinite recursion"; # trace
-    }
-    # store the coderef addresses for this
-    # parser so we can detect infinite loops
-    $cdepth->{$p}->{$loc}++;
-    my ($aval,$bval);
-    my $BC;
-    $BC = parser {
-      my ($newinput) = @_;
-      # $BC won't get invoked by hit() unless A succeeds.
-      $bval = $B->($newinput, $cont, undef);
-#      if (ref $bval eq 'HASH') {
-#        return $bval;
-#      } else {
-#        #trace "BC: ".$N{$BC}." returned ".Dumper($bval);
-#        return ['failed'];
-#      }
+# slurp up stuff until a stopper parser matches. basically, the {*} signifier.
+sub through {
+  trace 6,'generating through'.Dumper([caller()]).Dumper(\@_);
+    my $stop = shift;
+    my $p;
+    $p = parser {
+        my ($input,$cont,$u) = @_;
+        my $v;
+        my @values;
+        my $input2=$input;
+        while (defined $input2) {
+            $v = $stop->($input2);
+            if (ref($v) eq 'HASH') {
+                trace 5,"through $N{$stop} matched";
+                push @values, $v;
+                last;
+            } else {
+                trace 5,"through $N{$stop} still not matched";
+                push @values, drop($input2);
+                return [{expected=>$stop,found=>[undef],line=>'',file=>''}] unless defined $input2; # trace
+                next;
+            }
+        }
+        my $len;
+        $len += length($_) foreach @values;
+        trace 4,"Through token matched";
+        $cont->(tail($input),undef,{eaten=>$len,ast=>[@values,$u]});
     };
-    if ($wsrule eq '.') {
-        # leave $A the way it is (this function's base case)
-    } elsif ($wsrule eq '+') {
-        $A = manws($A)
-    } elsif ($wsrule eq '-') {
-        $A = optws($A)
+    $N{$p} = "{*}.".$N{$stop}; # trace
+    $p;
+}
+
+sub keyword {
+    trace 6,'generating keyword '.Dumper([caller()]).Dumper(\@_);
+    my $ins = shift;
+    my $p = hit('ID',$ins);
+    $N{$p} = "$ins"; # trace
+    $p;
+}
+
+sub keywords {
+    trace 6,'generating keywords '.Dumper([caller()]).Dumper(\@_);
+    my @args = @_;
+    my $p = one(map(keyword($_),@args));
+    $N{$p} = join("|",@args); # trace
+    $p;
+}
+
+sub panic {
+    trace 6,'generating panic '.Dumper([caller()]).Dumper(\@_);
+    my ($ins,$msg) = @_;
+    my $p = parser {
+        my $input = shift;
+        trace 4,"Dying if find $N{$ins}";
+        if (defined $input) { # trace
+            trace 4,"Next token is ".Dumper($input->[0]);
+        } else { # trace
+            trace 4,"At end of input";
+        } # trace
+        $input = [$input] unless ref $input;
+        my ($v, $newinput);
+        eval { ($v, $newinput) = $ins->($input) };
+        if ($@) {
+            die ['panic', $input, [[], $@]]; 
+        } else {
+            trace 4,"Matched $N{$ins}, so dying";
+            die $msg;
+        }
+    };
+    $N{$p} = "panic($N{$ins})"; # trace
+    $p;
+}
+
+sub word {
+    trace 6,'generating word '.Dumper([caller()]).Dumper(\@_);
+    my $word = $_[0];
+    my $p = all(map(ch($_),split(//, $word)));
+    $N{$p} = Dumper($word); # trace
+    $p;
+}
+
+sub flatten {
+    my ($s,$y,$h,$v) = ($_[0], '', undef, undef);
+    while (defined $s && ref($s) eq 'ARRAY' && defined ($h = head($s)) && defined ($v = $h->[1])) {
+        $y .= $v;
+        $s = tail($s);
     }
-    $N{$BC} = $N{$B}.'.'.$N{$cont}; # trace
-    trace "both attempting $N{$A} then $N{$BC}";
-    $aval = $A->($input, $BC, $u);
-#    if (ref $aval eq 'HASH' && ref $bval eq 'HASH') {
-#      trace "Finished matching $N{$A} and $N{$BC}";
-#      return { a => $aval, b => $bval };
-#    } else {
-#      trace "Failed to match $N{$A} and $N{$BC}";
-#      return [$aval,$bval];
-#    }
-  };
-  $N{$p} = $N{$A}.$wsrule.$N{$B}; # trace
-  $p;
-}
-
-sub all {
-  #trace 'generating all '.Dumper([caller()]).dump1(@_);
-  my @p = grep $_,@_;
-  return nothing if @p == 0; # this should never occur
-  return $_[0]  if @p == 1; # the base case for this function
-  my $head = shift @p;
-  my $p = both($head, all(@p), '.');
-  $N{$p} = "all($N{$head},".join(",",map($N{$_},@p)).")"; # trace
-  #trace "all ".dump1($head,@p,$p);
-  $p;
-}
-
-sub star {
-  #trace 'generating star '.Dumper([caller()]).Dumper(\@_);
-  my ($p,$nows) = @_;
-  my ($p_star, $conc);
-  my $p_starexec = parser { $p_star->(@_) };
-  $N{$p_starexec} = ""; # trace
-  my $p_sub = all(@_);
-  $p_star = opt(($conc = sub { $p_sub } )->($p, $p_starexec));
-  $N{$p_star} = "$N{$p}*"; # trace
-  $N{$conc} = "$N{$p}.$N{$p_star}"; # trace
-  $p_star;
-}
-
-sub opt {
-  my $p = shift;
-  my $p_opt = any($p, nothing);
-  $N{$p_opt} = "?($N{$p})"; # trace
-  $p_opt;
+    $y;
 }
 
 # Only suitable for applying to concatenations
@@ -432,12 +533,12 @@ sub T {
   my $p;
   $p = parser {
     my $input = shift;
-    trace "Going to transform with $N{$parser}";
+    trace 4,"Going to transform with $N{$parser}";
     my ($value, $newinput) = $parser->($input);
-    trace "Transforming value produced by $N{$parser}";
-    trace "Input to $N{$parser}:  ". Dumper($value);
+    trace 4,"Transforming value produced by $N{$parser}";
+    trace 4,"Input to $N{$parser}:  ". Dumper($value);
     $value = $transform->(@$value);
-    trace "Output from $N{$parser}: ". Dumper($value);
+    trace 4,"Output from $N{$parser}: ". Dumper($value);
     return ($value, $newinput);
   };
   $N{$p} = $N{$parser}; # trace
@@ -450,10 +551,10 @@ sub V {
   my $p = parser {
     my $input = shift;
     my ($value, $newinput) = $parser->($input);
-    trace "Vransforming value produced by $N{$parser}";
-    trace "Input to $N{$parser}:  ". Dumper($value);
+    trace 4,"Vransforming value produced by $N{$parser}";
+    trace 4,"Input to $N{$parser}:  ". Dumper($value);
     $value = $transform->($value); 
-    trace "Output from $N{$parser}: ". Dumper($value);
+    trace 4,"Output from $N{$parser}: ". Dumper($value);
     return ($value, $newinput);
   };
   $N{$p} = $N{$parser}; # trace
@@ -549,7 +650,7 @@ sub display_failures {
   } elsif ($type eq 'End of input') {
     print $I, "Wanted EOI instead of ".Dumper($pos_desc);
   } elsif ($type eq 'ALT') {
-    print $I, ($depth ? "Or any" : "Any"), " of the following:\n";
+    print $I, ($depth ? "Or one" : "Any"), " of the following:\n";
     for (@$data) {
       display_failures($_, $depth+1);
     }
@@ -560,85 +661,6 @@ sub display_failures {
   } else {
     die "Unknown failure type '$type'";
   }
-}
-
-sub ch { # parse for a single (normal) character.
-  #trace 'generating ch '.Dumper([caller()]).Dumper(\@_);
-    # Because of the weirdness of unspace, grammars that
-    # need to look for backslashes will need to use hit("C",'\\')
-    my $p;
-    my $char = $_[0];
-    # through(opt(something)) is an interesting construct.
-    # It means chew/slurp stuff through something if something
-    # is the first token (series).  Since opt() succeeds with
-    # nothing(), through will only ever chew 1 match.
-    #$p = all(through(opt(unspace)),hit("C",$char));
-    $p = hit("C",$char);
-    $N{$p} = Dumper($char); # trace
-    $p;
-}
-
-sub unspace () {
-  #trace 'generating unspace '.Dumper([caller()]).Dumper(\@_);
-    my $p;
-    $p = all(ch("\\"),star(p6ws));
-    $N{$p} = 'unspace'; # trace
-    $p;
-}
-
-sub w { # look for a wrapped entity.  first parm is split into the wrappers.
-    #trace 'generating w '.Dumper([caller()]).Dumper(\@_);
-    my ($d,$e) = split(//,$_[0]);
-    my $p;
-    my $item = $_[1];
-    $p = optws(optws(ch($d),$item),ch($e));
-    $N{$p} = "$d$N{$item}$e"; # trace
-    $p;
-}
-
-sub keyword {
-    my $ins = shift;
-    my $p = hit('ID',$ins);
-    $N{$p} = "$ins"; # trace
-    $p;
-}
-
-sub keywords {
-    my @args = @_;
-    my $p = any(map(keyword($_),@args));
-    $N{$p} = join("|",@args); # trace
-    $p;
-}
-
-sub panic {
-    my ($ins,$msg) = @_;
-    my $p = parser {
-        my $input = shift;
-        trace "Dying if find $N{$ins}";
-        if (defined $input) { # trace
-            trace "Next token is ".Dumper($input->[0]);
-        } else { # trace
-            trace "At end of input";
-        } # trace
-        $input = [$input] unless ref $input;
-        my ($v, $newinput);
-        eval { ($v, $newinput) = $ins->($input) };
-        if ($@) {
-            die ['panic', $input, [[], $@]]; 
-        } else {
-            trace "Matched $N{$ins}, so dying";
-            die $msg;
-        }
-    };
-    $N{$p} = "panic($N{$ins})"; # trace
-    $p;
-}
-
-sub word {
-    my $word = $_[0];
-    my $p = all(map(ch($_),split(//, $word)));
-    $N{$p} = Dumper($word); # trace
-    $p;
 }
 
 1;
