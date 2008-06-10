@@ -47,7 +47,7 @@ sub make_parser {
         $blkType, $blkRetT, $blkModf, $stmtTrm, $scpDecl, $block, $arg,
         $blkPrm, $compUnit, $flowCtrl, $blkLabl, $clype, $impor, $assign,
         $op_numaddt, $blkTrait, $pkgDecl, $arrowInv, $prmDecl, $vsblty,
-        $invcDecl, $func_say
+        $invcDecl, $func_say, $bareInt, $identifier
     );
 
     my $Op_numaddt         = parser { $op_numaddt      ->(@_) };
@@ -122,6 +122,10 @@ sub make_parser {
     sub invcDecl () { $InvcDecl };
     my $Func_say           = parser { $func_say        ->(@_) };
     sub func_say () { $Func_say };
+    my $BareInt           = parser { $bareInt        ->(@_) };
+    sub bareInt () { $BareInt };
+    my $Identifier           = parser { $identifier        ->(@_) };
+    sub identifier () { $Identifier };
 
     # these hash keys are coderef (addresses)
     our %N = (
@@ -160,46 +164,33 @@ sub make_parser {
         $PrmDecl          => 'PrmDecl',
         $Vsblty           => 'Vsblty',
         $InvcDecl         => 'InvcDecl',
-        $Func_say         => 'Func_say'
+        $Func_say         => 'Func_say',
+        $BareInt          => 'BareInt',
+        $Identifier       => 'Identifier',
+        $Nothing          => 'Nothing',
     );
 
-    #   Rule Writing
-    # Rules that consist at the top level of alternatives (separated by "|")
-    # generally represent "classes" of items that are encoded in the
-    # source.
-    # 
-    # Rules that consist at the top level of a sequence (items separated by
-    # "-") generally represent items that define the descent into
-    # "subcontexts", or areas of the source code where things signify
-    # differently from things in a "higher" context.
-    # 
-    # In order to specifiy precedence levels, just create another
-    # level of indirection by creating a rule to represent the 
-    # precedence level, and order the possibilities in the order of 
-    # 1) whither recursion 2) whether the beginning of a match to
-    # rule n is contained in the beginning of the next rule.
+    my @compUnits    = qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST 
+                         LAST BEGIN END INIT CHECK UNITCHECK };
+    my @blkTypes     = qw{ sub method submethod regex token rule
+                         macro module class package grammar};
+    my @bareFuncs    = qw{ use no say };
     
+    #   Rule Writing
+
     # The identifier of each of your rules must begin with a lowercase letter,
     # so that the source filter can transform/generate the grammar properly.
-
-    # The synopses specify that everything before a "use v6;" statement is
-    # to be handled as Perl 5 code.
-    
-    
-    # rule perl5zone {
-            # sl(); # grabs anything/everything...
-    # }
 
     rule program {
             # everything must start with a use v6; statement until
             # the perl5zone rule is operational.
             -((usev6)--)
           . opt(pkgDecl--)
-          . opt(stmtList--)
+          . opt(stmtList)
     };
 
     rule pkgDecl {
-            keyword('package') + hit('ID') . stmtTrm;
+            keyword('package') + identifier . stmtTrm;
     };
 
     rule usev6 {
@@ -209,8 +200,16 @@ sub make_parser {
           - stmtTrm
     };
 
+    rule identifier {
+        match( qr|^([A-Za-z_]\w*)| )
+    };
+
+    rule bareInt {
+        match( qr|^(\d+)| )
+    };
+
     rule sVari {
-            '$' . hit('ID')
+            '$' . identifier
     };
 
     rule comma {
@@ -218,8 +217,8 @@ sub make_parser {
     };
 
     rule stmtList {
-           -((   nbexpr . opt(      stmtTrm          . opt(stmtList) )
-              | block . ( stmtTrm | -((ch("\n"))--) ) . opt(stmtList)
+           -((   block . ( stmtTrm | -(ch("\n")--) ) . opt(eoi | stmtList)
+              | nbexpr . opt(      stmtTrm          . opt(eoi | stmtList) )
             )--)
     };
 
@@ -231,8 +230,8 @@ sub make_parser {
               , assign
               , func_say
               , blkTrait
-              , w('()',expr)
-              , op_numaddt)
+              , op_numaddt
+              , w('()',expr))
     };
 
     rule func_say {
@@ -254,7 +253,7 @@ sub make_parser {
     };
 
     rule blkPrmbl {
-            opt(blkModf++)
+            one(opt(blkModf++)
             # this is an example of sometimes having to enumerate various
             # possiblities during a sequence of variously optional terms
             # in order to force the obtaining of the appropriate token set
@@ -262,10 +261,10 @@ sub make_parser {
           . (scpDecl + clype + blkType | scpDecl + blkType | blkType )
           . opt(+(opt('^') . sVari)) - opt(+(vsblty)) . opt(+(w('()',opt(blkPrms))))
           . opt(+(blkTrait))
-          | compUnit
-          | flowCtrl
-          | blkLabl
-          | arrowInv - opt(',' - opt(blkPrms))
+          , compUnit
+          , flowCtrl
+          , blkLabl
+          , arrowInv - opt(',' - opt(blkPrms)))
     };
 
     rule arrowInv {
@@ -289,13 +288,11 @@ sub make_parser {
     };
 
     rule compUnit {
-            keywords(qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST 
-                         LAST BEGIN END INIT CHECK UNITCHECK })
+            keywords( @compUnits )
     };
 
     rule blkType {
-            keywords(qw{ sub method submethod regex token rule
-                         macro module class package grammar})
+            keywords( @blkTypes )
     };
 
     rule blkRetT {
@@ -366,24 +363,22 @@ sub make_parser {
     };
 
     rule factor {
-            nbexpr - opt(word('**') - factor)
+            ( block | nbexpr ) - opt(word('**') - factor)
     };
 
     sub {
         my $result = (program->($lexer,eoi));
         if (ref($result) ne 'ARRAY') {
             my $msg;
-            if ($result->{expected} eq '' && length($result->{left}) > 0) {
-                $msg = 'incomplete statement near '.Dumper($result->{left});
-            } elsif (length($result->{left}) == 0) {
-                $msg = 'syntax error near the EOI';
+            if (($result->{expected} eq '' || $result->{left} eq 'EOI') && length($result->{left}) > 0) {
+                $msg = 'incomplete statement near '.Dumper($result->{left})."\n";
             } else {
-                $msg = "syntax error near ".Dumper($result->{left});
+                $msg = "syntax error near ".Dumper($result->{left})."\n";
             }
             print STDERR $msg;
             return 255;
         } else {
-            print "parse successful:".Dumper($result)."\n";
+            print "parse successful\n";#:".Dumper($result)."\n";
             return 0;
         }
     }

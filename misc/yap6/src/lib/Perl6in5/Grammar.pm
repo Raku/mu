@@ -10,7 +10,7 @@ FILTER {
     s/^\s+rule\s+([A-Za-z_])(\w*)\s+\{/\$$1$2 = execnow {/mg;
     s/'(.)'/ch('$1')/mg;
     s/\+\+/ + nothing/mg;
-    s/--/ - nothing/mg;
+    s/--/ - nothing/mg; # this is kinda broken; try not to use it... :)
 };
 
 1;

@@ -7,10 +7,10 @@ package Perl6in5::Compiler::Parser;
 use Exporter;
 @EXPORT_OK = qw(hit eoi nothing T V error debug star opt
                 display_failures say all one flatten
-                trace %N parser check execnow
+                trace %N parser check execnow $Nothing
                 ch w keyword keywords word panic p6ws
                 unspace optws manws opttws mantws through
-                newline plus both);
+                newline plus both match );
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -20,10 +20,12 @@ use Perl6in5::Compiler::Trace; # set env var trace for trace output
 # Perl6in5::Compiler::Trace.  This allows execution time to be
 # much faster than otherwise, since the strings to be traced
 # are not only not sent to STDOUT; they aren't even built.
+my $tracemode = 0;
+$tracemode = 1; # trace
 
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise', 'drop';
 
-my $toodeep = 500;
+my $toodeep = 2;
 
 use overload
     '-'  => \&optws, # optional leading or intervening whitespace
@@ -37,12 +39,24 @@ use overload
     '>'  => \&V, # unused currently
     '/'  => \&checkval, # unused currently
     '""' => \&overload::StrVal,  # this helps stringify parser names for %N
-  ;
+;
 
-# Here's a fun trick; memoize the terminal parser constructors :)
+sub normalize_parser { # memoize
+    # stringify the contents of $input and the coderef # memoize
+    # of the continuation. # memoize
+    return 'noargs' unless (defined $_[0] && ref($_[0]) eq 'ARRAY'); # memoize
+    #debug( Dumper([caller(3),caller(2),caller(1),caller(0)]).dump1(@_) ) unless defined $_[0]; # memoize
+    my $msg = join('',(grep $_,@{$_[0]})); # memoize
+    $msg .= "$_[1]" if defined($_[1]); # memoize
+    $msg; # memoize
+} # memoize
+
+# memoize the terminal parser constructors
 use Memoize;
-#map { memoize $_ unless (/^\W/ || /^trace$/) } @EXPORT_OK;
-map { memoize $_ unless (/^\W/ || /^trace$/) } qw{ newline p6ws nothing flatten };
+map { memoize $_ } qw{ newline p6ws nothing flatten }; # memoize
+# the other benefit of this is that we don't get more than one of 
+# each kind of parser constructed, which means the memoization of the
+# generated functions will be more efficient than otherwise.
 
 $| = 1; # trace
 
@@ -59,7 +73,12 @@ sub execnow (&) { $_[0]->() }
 
 sub say (@) { print($_,"\n") for @_ }
 
-sub parser (&) { bless( memoize($_[0]) => __PACKAGE__ ) }
+# memoize each and every generated parser coderef before it's blessed.
+sub parser (&) { bless( 
+    memoize( # memoize
+        $_[0]
+        , NORMALIZER=>'normalize_parser') # memoize
+        => __PACKAGE__ ) }
 
 sub dump1 {
 #  return '';
@@ -96,13 +115,13 @@ sub debug ($) { # debug
   my $i = 0; # debug
   $i++ while caller($i); # debug
   $I = "-" x int($i/2-1); # debug
-  print $i.$I." ", $msg; # debug
+  print STDERR $i.$I." ", $msg; # debug
 } # debug
 
 sub eoi () {
   trace 6,"generating eoi ".Dumper([caller()]).Dumper(\@_);
   my $p = parser {
-  my ($input,$cont,$u) = @_;
+  my ($input) = @_;
       trace 4,"Looking for EOI in ".Dumper($input);
       unless (defined($input) && defined($input->[0])) {
         trace 5,"Found EOI";
@@ -116,22 +135,21 @@ sub eoi () {
   $p;
 }
 
-sub nothing () {
-    trace 6,"generating nothing ".Dumper([caller()]).Dumper(\@_);
-    my $p;
-    $p = parser {
-        if (defined $input) { # trace
-            trace 5,"Next token is ".Dumper($_[0]->[0]);
-        } else { # trace
-            trace 5,"(At end of input)";
-        } # trace
-        # nothing is the only base-parser that returns the 
-        # result of its continuation untouched
-        $_[1]->($_[0]);
-    };
-    $N{$p} = "nothing"; # trace
-    $p;
-}
+our $Nothing = sub {
+    if (defined $_[0]) { # trace
+        trace 5,"Next token is ".Dumper($_[0]->[0]);
+    } else { # trace
+        trace 5,"(At end of input)";
+    } # trace
+    # nothing is the only base-parser that returns the 
+    # result of its continuation untouched. Nearly always
+    # the continuation will be eoi()
+    $_[1]->($_[0]);
+};
+# junk for eta-conversion
+memoize $Nothing; # memoize
+bless( $Nothing => __PACKAGE__ );
+sub nothing () { $Nothing };
 
 sub p6ws () {
   trace 6,"generating p6ws ".Dumper([caller()]).Dumper(\@_);
@@ -142,6 +160,7 @@ sub p6ws () {
 
 sub unmore {
     my $q = shift;
+    # this parser acts like a NOT gate
     my ($p);
     $p = parser {
         my ($input,$cont) = @_;
@@ -195,10 +214,10 @@ sub match {
         my ($input,$cont) = @_;
         my ($r) = (flatten($input) =~ $q) or return "$q failed to match";
         my $i = $input;
-        shift @$i for (1..length($r)) if length($i);
+        if (length($i)) { shift @$i for (1..length($r)) }
         $q->($i,$cont);
     };
-    $N{$p} = "match($N{q})"; # trace
+    $N{$p} = "match($q)"; # trace
     $p;
 }
 
@@ -212,7 +231,7 @@ sub hit {
   $p = parser {
     my ($input,$cont) = @_;
     trace 5," after this, will run ".$N{$cont}.Dumper([caller()]).dump1($cont);
-    trace 4,"Looking for token ".Dumper($wanted)." in ".Dumper(head($input));
+    trace 3,"Looking for token ".Dumper($wanted)." in ".Dumper(head($input));
     unless (defined $input && defined(head($input))) {
       trace 4,"Premature end of input";
       my $msg = $wanted->[0];
@@ -278,25 +297,14 @@ sub one {
         %{$z} = %{$w} if (defined($w->{left}) && $w->{left} !~ /^\s+$/ && length($w->{left}) > 0 && (!defined $z || (length($w->{left}) < length($z->{left}))));
       } else {
         trace 3,"Matched $q/$np: ".$N{$p[$q-1]};
-        # this branch returned an AST and the eaten input.
         return $w;
-        $r = $w if (!defined $r || (length(head($w)) > length(head($r))));
-        # theoretically, if the grammar is consistent, any resulting AST
-        # should be a complete AST of the entire input, so there shouldn't
-        # ever be more than 1 success...
       }
-      $w = undef;
     }
-    if ( !defined $r ) {
-        trace 3,"Failed to match any of: $N{$p}".Dumper($z);
-        trace 1,"sending back: ".Dumper($z);
-        $r = $z;
-    }
-    trace 3,"Finished matching $N{$p}";
-    #trace 3,"Match $q/$np selected: [".$N{$p[$q-1]}."] with ".length(head($r))." chars eaten." if defined head($r);
-    $r;
+    trace 3,"Failed to match any of: $N{$p}".Dumper($z);
+    trace 5,"sending back: ".Dumper($z);
+    return $z;
   };
-  trace 5,"one ".dump1(@p);
+  trace 6,"one ".dump1(@p);
   $N{$p} = "one(" . join("|", map $N{$_}, @p) . ")"; # trace
   $p;
 }
@@ -467,10 +475,9 @@ sub manws {
 sub opttws {
   trace 6,"generating opttws ".Dumper([caller()]).Dumper(\@_);
   my $p;
-  my @i = @_;
   # optional trailing whitespace
-  $p = both($i[0], opt(p6ws), '.');
-  $N{$p} = "($N{$i[0]})-- "; # trace
+  $p = both($_[0], opt(p6ws), '.');
+  $N{$p} = "($N{$_[0]})-- "; # trace
   $p;
 }
 

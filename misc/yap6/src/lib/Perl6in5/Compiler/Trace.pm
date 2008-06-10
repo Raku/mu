@@ -13,6 +13,8 @@ FILTER {
             $level++;
             s/^\s+trace.${level}.*$//mg;
         }
+        # remove the memoization stuff, b/c it breaks tracing/debugging.
+        s/^.*memoize$//mg;
     } else {
         s/^\s+trace.*$//mg;
         s/^.*trace$//mg;
