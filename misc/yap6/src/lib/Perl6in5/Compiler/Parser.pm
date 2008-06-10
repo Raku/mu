@@ -25,7 +25,7 @@ $tracemode = 1; # trace
 
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise', 'drop';
 
-my $toodeep = 2;
+my $toodeep = 0;
 
 use overload
     '-'  => \&optws, # optional leading or intervening whitespace
