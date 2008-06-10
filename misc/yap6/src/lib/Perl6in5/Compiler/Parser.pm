@@ -39,10 +39,10 @@ use overload
     '""' => \&overload::StrVal,  # this helps stringify parser names for %N
   ;
 
-# Here's a fun trick; memoize the parser generator functions :)
+# Here's a fun trick; memoize the terminal parser constructors :)
 use Memoize;
 #map { memoize $_ unless (/^\W/ || /^trace$/) } @EXPORT_OK;
-map { memoize $_ unless (/^\W/ || /^trace$/) } qw{ newline p6ws nothing };
+map { memoize $_ unless (/^\W/ || /^trace$/) } qw{ newline p6ws nothing flatten };
 
 $| = 1; # trace
 
@@ -59,10 +59,7 @@ sub execnow (&) { $_[0]->() }
 
 sub say (@) { print($_,"\n") for @_ }
 
-sub parser (&) { bless $_[0] => __PACKAGE__ }
-
-# memoize parser results ourselves by input/continuation tuples.
-our %PR;
+sub parser (&) { bless( memoize($_[0]) => __PACKAGE__ ) }
 
 sub dump1 {
 #  return '';
@@ -213,26 +210,22 @@ sub hit {
   my $p;
   $p = parser {
     my ($input,$cont) = @_;
-    my $r;
-    return $PR{$p.$input.$cont} if exists $PR{$p.$input.$cont};
     trace 5," after this, will run ".$N{$cont}.Dumper([caller()]).dump1($cont);
     trace 4,"Looking for token ".Dumper($wanted)." in ".Dumper(head($input));
     unless (defined $input && defined(head($input))) {
       trace 4,"Premature end of input";
       my $msg = $wanted->[0];
       $msg .= $wanted->[1] if defined $wanted->[1];
-      $r = {left=>'EOI',expected=>$msg};
-    } else {
-        my $next = head($input);
-        $next = [$next] unless ref $next;
-        for my $i (0 .. $#$wanted) {
-          next unless defined $wanted->[$i];
-          unless ($wanted->[$i] eq $next->[$i]) {
-            trace 4,"Token mismatch";
-            $r = {left=>flatten($input),expected=>$wanted->[$i]};
-            last;
-          }
-        }
+      return {left=>'EOI',expected=>$msg};
+    }
+    my $next = head($input);
+    $next = [$next] unless ref $next;
+    for my $i (0 .. $#$wanted) {
+      next unless defined $wanted->[$i];
+      unless ($wanted->[$i] eq $next->[$i]) {
+        trace 4,"Token mismatch";
+        return {left=>flatten($input),expected=>$wanted->[$i]};
+      }
     }
     # probably should re-add this later for stuff
     #my $wanted_value = $value->($next, $v);
@@ -244,15 +237,12 @@ sub hit {
     # returning so far from this branch.  Each appending
     # parser prepends their output, returns it in the head
     # and returns the new AST in the tail.
-    unless (defined $r) {
-        $r = $cont->(tail($input));
-        if (ref $r ne 'ARRAY') {
-            trace 4,"failed";
-        } else {
-            $r = [ flatten($input), [ $next->[1] , tail($r) ]];
-        }
+    $r = $cont->(tail($input));
+    if (ref $r ne 'ARRAY') {
+        trace 4,"failed";
+        return $r;
     }
-    $PR{$p.$input.$cont} = $r;
+    [ flatten($input), [ $next->[1] , tail($r) ]];
   };
   $N{$p} = Dumper($wanted); # trace
   $p;
@@ -267,7 +257,6 @@ sub one {
   $p = parser {
     my ($input,$cont) = @_;
     my $r;
-    return $PR{$p.$input.$cont} if exists $PR{$p.$input.$cont};
     trace 3,"Match one: $N{$p}";
     if (defined $input) { # trace
       trace 3,"Next token is ".Dumper($input->[0]);
@@ -289,8 +278,7 @@ sub one {
       } else {
         trace 3,"Matched $q/$np: ".$N{$p[$q-1]};
         # this branch returned an AST and the eaten input.
-        $r = $w;
-        last;
+        return $w;
         $r = $w if (!defined $r || (length(head($w)) > length(head($r))));
         # theoretically, if the grammar is consistent, any resulting AST
         # should be a complete AST of the entire input, so there shouldn't
@@ -304,8 +292,8 @@ sub one {
         $r = $z;
     }
     trace 3,"Finished matching $N{$p}";
-    trace 3,"Match $q/$np selected: [".$N{$p[$q-1]}."] with ".length(head($r))." chars eaten." if defined head($r);
-    $PR{$p.$input.$cont} = $r;
+    #trace 3,"Match $q/$np selected: [".$N{$p[$q-1]}."] with ".length(head($r))." chars eaten." if defined head($r);
+    $r;
   };
   trace 5,"one ".dump1(@p);
   $N{$p} = "one(" . join("|", map $N{$_}, @p) . ")"; # trace
@@ -603,18 +591,14 @@ sub word {
     $p;
 }
 
-our %FI;
-
 sub flatten {
-    my ($s,$t,$y,$h,$v) = ($_[0], $_[0], '', undef, undef);
-    # memoize this...
+    my ($s,$y,$h,$v) = ($_[0], '', undef, undef);
     return '' unless defined $s;
-    return $FI{$t} if exists $FI{$t};
     while (ref($s) eq 'ARRAY' && defined ($h = head($s)) && defined ($v = $h->[1])) {
         $y .= $v;
         $s = tail($s);
     }
-    $FI{$t} = $y;
+    $y;
 }
 
 # Only suitable for applying to concatenations

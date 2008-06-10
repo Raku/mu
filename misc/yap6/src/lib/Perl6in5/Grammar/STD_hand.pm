@@ -225,14 +225,14 @@ sub make_parser {
 
     rule nbexpr {
            # panic(pkgDecl,"Can't declare a non-block package")
-            sVari
-          | hit('INT')
-          | impor
-          | assign
-          | func_say
-          | blkTrait
-          | w('()',expr)
-          | op_numaddt
+            one(sVari
+              , hit('INT')
+              , impor
+              , assign
+              , func_say
+              , blkTrait
+              , w('()',expr)
+              , op_numaddt)
     };
 
     rule func_say {
