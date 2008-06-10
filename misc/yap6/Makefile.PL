@@ -10,7 +10,7 @@ use ExtUtils::MakeMaker;
 my %parms = (
     NAME                => 'yap6',
     AUTHOR              => 'Matthew Wilson <diakopter@gmail.com>',
-    ABSTRACT            => 'An implementation of Perl 6 in Perl 5',
+    ABSTRACT            => 'An implementation of Perl 6 in Perl 5.  Much thanks to MJD.',
     VERSION_FROM        => 'Compiler.pm',
     PM                  => { 'Compiler.pm' => '$(INST_LIBDIR)/Perl6in5/Compiler.pm' },
     EXE_FILES           => [ 'yap6' ],
@@ -23,6 +23,7 @@ my %parms = (
         'Params::Util'          => 0.33,
         'File::Slurp'           => 9999.13,
         'Data::Structure::Util' => 0.15,
+        'DBD::SQLite'           => 1.14,
         'Test::Output'          => 0.10,
         'Test::More'            => 0.80,
         'Moose'                 => 0.48,

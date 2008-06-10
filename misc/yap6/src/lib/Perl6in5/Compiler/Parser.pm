@@ -112,7 +112,7 @@ sub eoi () {
         return {left=>flatten($input),expected=>'EOI'};
       }
   };
-  $N{$p} = "eoi";
+  $N{$p} = "eoi"; # trace
   $p;
 }
 
@@ -129,7 +129,7 @@ sub nothing () {
         # result of its continuation untouched
         $_[1]->($_[0]);
     };
-    $N{$p} = "nothing";
+    $N{$p} = "nothing"; # trace
     $p;
 }
 
@@ -159,7 +159,7 @@ sub unmore {
         # always succeeds, with the original input and continuation.
         nothing->($input,$cont);
     };
-    $N{$p} = "fail($N{q})";
+    $N{$p} = "fail($N{q})"; # trace
     $p;
 }
 
@@ -178,26 +178,27 @@ sub iff {
         # original input on success.
         $q->($input,$o);
     };
-    $N{$p} = "iff($N{q})";
+    $N{$p} = "iff($N{q})"; # trace
     $p;
 }
 
 sub match {
     my $q = shift;
+    # $q is a regular expression of the form:
+    # qr/^(match_pattern)/  if you want to eat input returned by the match
+    # qr/match_pattern/ if you don't want it to eat input (or wrap it in iff())
+    # note that you must include the ^ when eating input or you will get
+    # incorrect results, b/c match() uses the length of the captured group
+    # to eat the proper length of input.  Make sure your REs aren't greedy...
     my ($p);
     $p = parser {
         my ($input,$cont) = @_;
-        my $o = parser {
-            # $q must have succeeded, so send the original
-            # input through nothing to the original continuation
-            nothing->($input,$cont);
-        };
-        $N{$o} = "thru($N{$p})"; # trace
-        # test $input on $q; letting it continue with the
-        # original input on success.
-        $q->($input,$o);
+        my ($r) = (flatten($input) =~ $q) or return "$q failed to match";
+        my $i = $input;
+        shift @$i for (1..length($r)) if length($i);
+        $q->($i,$cont);
     };
-    $N{$p} = "iff($N{q})";
+    $N{$p} = "match($N{q})"; # trace
     $p;
 }
 
