@@ -10,7 +10,7 @@ use Exporter;
                 trace %N parser check execnow $Nothing
                 ch w keyword keywords word panic p6ws
                 unspace optws manws opttws mantws through
-                newline plus both match );
+                newline plus both match unmore );
 @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -45,14 +45,13 @@ sub normalize_parser { # memoize
     # stringify the contents of $input and the coderef # memoize
     # of the continuation. # memoize
     return 'noargs' unless (defined $_[0] && ref($_[0]) eq 'ARRAY'); # memoize
-    #debug( Dumper([caller(3),caller(2),caller(1),caller(0)]).dump1(@_) ) unless defined $_[0]; # memoize
     my $msg = join('',(grep $_,@{$_[0]})); # memoize
     $msg .= "$_[1]" if defined($_[1]); # memoize
     $msg; # memoize
 } # memoize
 
 # memoize the terminal parser constructors
-use Memoize;
+use Memoize; # memoize
 map { memoize $_ } qw{ newline p6ws nothing flatten }; # memoize
 # the other benefit of this is that we don't get more than one of 
 # each kind of parser constructed, which means the memoization of the
@@ -75,9 +74,9 @@ sub say (@) { print($_,"\n") for @_ }
 
 # memoize each and every generated parser coderef before it's blessed.
 sub parser (&) { bless( 
-    memoize( # memoize
+  #  memoize( # memoize
         $_[0]
-        , NORMALIZER=>'normalize_parser') # memoize
+   #     , NORMALIZER=>'normalize_parser') # memoize
         => __PACKAGE__ ) }
 
 sub dump1 {
@@ -165,18 +164,19 @@ sub unmore {
     $p = parser {
         my ($input,$cont) = @_;
         my $o = parser {
+            my ($input2,$cont2) = @_;
             # the inverse of the nothing parser; this always fails.
             # so, we know if $q returns the below string, $q
             # succeeded.  Otherwise, we'll get some other error
             # hashref from q.
-            return 'udder_end_compleat_feelure';
+            return {expected=>'udder_end_compleat_feelure',left=>flatten($input2)};
         };
         $N{$o} = "fake($N{$p})"; # trace
         my $r = $q->($input,$o);
-        return "fail() matched, so returning" if !ref $r;
+        return $r unless ref $r eq 'ARRAY';
         # send it along its merry way to the nothing parser, which
         # always succeeds, with the original input and continuation.
-        nothing->($input,$cont);
+        $cont->($input);
     };
     $N{$p} = "fail($N{q})"; # trace
     $p;
@@ -285,7 +285,7 @@ sub one {
     } # trace
     $input = [$input] unless ref $input;
     my ($q, $np) = (0, scalar @p); # trace
-    my ($w,$z);
+    my ($v,$w,$z);
     for (@p) {
       $q++; # trace
       trace 2,"Trying $q/$np: ".$N{$p[$q-1]};
@@ -297,12 +297,14 @@ sub one {
         %{$z} = %{$w} if (defined($w->{left}) && $w->{left} !~ /^\s+$/ && length($w->{left}) > 0 && (!defined $z || (length($w->{left}) < length($z->{left}))));
       } else {
         trace 3,"Matched $q/$np: ".$N{$p[$q-1]};
-        return $w;
+        $v = $w if (!defined $v || length($w->{left}) < $v->{left});
       }
+      $w = undef;
     }
+    return $v if defined $v;
     trace 3,"Failed to match any of: $N{$p}".Dumper($z);
     trace 5,"sending back: ".Dumper($z);
-    return $z;
+    $z;
   };
   trace 6,"one ".dump1(@p);
   $N{$p} = "one(" . join("|", map $N{$_}, @p) . ")"; # trace
@@ -459,15 +461,14 @@ sub optws {
 sub manws {
   trace 6,"generating manws ".Dumper([caller()]).Dumper(\@_);
   my $p;
-  my @i = @_;
-  if (defined($i[1])) {
+  if (defined($_[1])) {
     # binary +, so mandatory intervening  whitespace
-    $p = all($i[0], p6ws, $i[1]);
-    $N{$p} = "$N{$i[0]}+$N{$i[1]}"; # trace
+    $p = all($_[0], p6ws, $_[1]);
+    $N{$p} = "$N{$_[0]}+$N{$_[1]}"; # trace
   } else {
     # unary +, so mandatory leading whitespace
-    $p = both(p6ws, $i[0], '.');
-    $N{$p} = " +($N{$i[0]})"; # trace
+    $p = both(p6ws, $_[0], '.');
+    $N{$p} = " +($N{$_[0]})"; # trace
   }
   $p;
 }
@@ -484,7 +485,7 @@ sub opttws {
 sub mantws {
   trace 6,"generating mantws ".Dumper([caller()]).Dumper(\@_);
   # mandatory trailing whitespace
-  my $p = both($_[0], opt(p6ws), '.');
+  my $p = both($_[0], p6ws, '.');
   $N{$p} = "($N{$_[0]})++ "; # trace
   $p;
 }
@@ -570,22 +571,15 @@ sub panic {
     trace 6,'generating panic '.Dumper([caller()]).Dumper(\@_);
     my ($ins,$msg) = @_;
     my $p = parser {
-        my $input = shift;
+        my ($input,$cont) = @_;
         trace 4,"Dying if find $N{$ins}";
-        if (defined $input) { # trace
-            trace 4,"Next token is ".Dumper($input->[0]);
-        } else { # trace
-            trace 4,"At end of input";
-        } # trace
-        $input = [$input] unless ref $input;
-        my ($v, $newinput);
-        eval { ($v, $newinput) = $ins->($input) };
-        if ($@) {
-            die ['panic', $input, [[], $@]]; 
-        } else {
-            trace 4,"Matched $N{$ins}, so dying";
+        my $q = parser {
             die $msg;
-        }
+        };
+        $N{$q} = "fake $N{$ins}";
+        my $r = $ins->($input,$q);
+        # we didn't die, so $q didn't succeed.
+        $cont->($input);
     };
     $N{$p} = "panic($N{$ins})"; # trace
     $p;

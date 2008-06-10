@@ -47,7 +47,7 @@ sub make_parser {
         $blkType, $blkRetT, $blkModf, $stmtTrm, $scpDecl, $block, $arg,
         $blkPrm, $compUnit, $flowCtrl, $blkLabl, $clype, $impor, $assign,
         $op_numaddt, $blkTrait, $pkgDecl, $arrowInv, $prmDecl, $vsblty,
-        $invcDecl, $func_say, $bareInt, $identifier
+        $invcDecl, $func_say, $bareInt, $identifier, $bareString
     );
 
     my $Op_numaddt         = parser { $op_numaddt      ->(@_) };
@@ -126,6 +126,8 @@ sub make_parser {
     sub bareInt () { $BareInt };
     my $Identifier           = parser { $identifier        ->(@_) };
     sub identifier () { $Identifier };
+    my $BareString           = parser { $bareString        ->(@_) };
+    sub bareString () { $BareString };
 
     # these hash keys are coderef (addresses)
     our %N = (
@@ -168,6 +170,7 @@ sub make_parser {
         $BareInt          => 'BareInt',
         $Identifier       => 'Identifier',
         $Nothing          => 'Nothing',
+        $BareString       => 'BareString'
     );
 
     my @compUnits    = qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST 
@@ -190,7 +193,7 @@ sub make_parser {
     };
 
     rule pkgDecl {
-            keyword('package') + hit('ID') . stmtTrm;
+            keyword('package') + hit('ID') - stmtTrm;
     };
 
     rule usev6 {
@@ -222,16 +225,24 @@ sub make_parser {
             )--)
     };
 
+    rule bareString {
+        w('""',star(unmore('"') . (hit("C") | hit("INT") | hit("ID")))) | w("''",star(unmore("'") . hit("C") | hit("INT") | hit("ID")))
+    };
+
     rule nbexpr {
-           # panic(pkgDecl,"Can't declare a non-block package")
-            one(sVari
-              , hit('INT')
-              , impor
+              one(panic(pkgDecl,
+                "Can't declare a non-block package")
+              , w('()',expr)
+              , op_numaddt
               , assign
+              , declare
+              , impor
               , func_say
               , blkTrait
-              , op_numaddt
-              , w('()',expr))
+              , bareString
+              , sVari
+              , hit('INT')
+              )
     };
 
     rule func_say {
@@ -363,7 +374,7 @@ sub make_parser {
     };
 
     rule factor {
-            ( block | nbexpr ) - opt(word('**') - factor)
+            expr - opt(word('**') - factor)
     };
 
     sub {
