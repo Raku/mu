@@ -217,7 +217,7 @@ sub make_parser {
     };
 
     rule stmtList {
-           -((   block . ( stmtTrm | -(ch("\n")--) ) . opt(eoi | stmtList)
+           -((   block . opt(( stmtTrm | -(ch("\n")--) ) . opt(eoi | stmtList))
               | nbexpr . opt(      stmtTrm          . opt(eoi | stmtList) )
             )--)
     };
