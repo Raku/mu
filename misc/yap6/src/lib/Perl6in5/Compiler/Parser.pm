@@ -212,7 +212,7 @@ sub match {
     my ($p);
     $p = parser {
         my ($input,$cont) = @_;
-        my ($r) = (flatten($input) =~ $q) or return "$q failed to match";
+        my ($r) = (flatten($input) =~ $q) or return {left=>flatten($input),expected=>"$q"};
         my $i = $input;
         if (length($i)) { shift @$i for (1..length($r)) }
         $cont->($i);

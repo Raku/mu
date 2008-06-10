@@ -190,7 +190,7 @@ sub make_parser {
     };
 
     rule pkgDecl {
-            keyword('package') + identifier . stmtTrm;
+            keyword('package') + hit('ID') . stmtTrm;
     };
 
     rule usev6 {
@@ -209,7 +209,7 @@ sub make_parser {
     };
 
     rule sVari {
-            '$' . identifier
+            '$' . hit('ID')
     };
 
     rule comma {
@@ -259,7 +259,7 @@ sub make_parser {
             # in order to force the obtaining of the appropriate token set
             # blkType is the only required term in the block preamble
           . (scpDecl + clype + blkType | scpDecl + blkType | blkType )
-          . opt(+(opt('^') . sVari)) - opt(+(vsblty)) . opt(+(w('()',opt(blkPrms))))
+          - opt(opt('^') . hit('ID')) - opt(+(vsblty)) . opt(+(w('()',opt(blkPrms))))
           . opt(+(blkTrait))
           , compUnit
           , flowCtrl
