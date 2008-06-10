@@ -2,30 +2,13 @@
 yap6 TODO:
 
 diakopter added 2008-05-31:
- - rearrange source tree - DONE
- - stub in the Object/MetaModel dir structure
  - refactor handler structure to use a lookup/dispatch table
- - refactor into Perl 5 modules; top-level namespace: Perl6in5 - DONE
  - make the parser success-handlers generate an AST
-   instead of pretending to be a rudimentary interpreter
- - add an optional Longest-Token-Matching mode to Parser.pm
-   to supplement the current (default/only) First-Matching mode
  - implement Test.pm and related harness/prove
  - fix copyright notices & license(s)
- - add ROADMAP
  - add CHANGES
  - add KUDOS
  - add INSTALL
 
-diakopter added 2008-06-01:
- - switch the debug/verbose/info/warn system to use Log::Log4perl
- - use Sub::Exporter's subroutine wrapper-generators for
-   generating Perl 5 code for Perl 6 compilation units...?
-   
-diakopter added 2008-06-02:
- - there's a lot of potential for memoization (since the parsing
-   is entirely functional-oriented), given some work to properly
-   normalize each's parameters.
-   
 diakopter added 2008-06-04:
  - add runtime eval
