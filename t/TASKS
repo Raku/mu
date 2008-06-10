@@ -14,6 +14,14 @@ This file had entries in the past (r16405). Since this file wasn't touched in ov
 OVERALL
 * Add smartlinks to tests without them
 * Continue moving tests from t/ to t/spec/
+* Improve the Vim syntax highlighting to recognize test keywords
+
+S12
+* tests for $object.WALK
+* tests for $object.*@candidates
+* tests for $object.'+whatever' versus $object.+whatever
+* tests for parallel dispatch
+* tests for "but" (such as 0 but Bool::True)
 
 S29
 * tests for array: shape and end
