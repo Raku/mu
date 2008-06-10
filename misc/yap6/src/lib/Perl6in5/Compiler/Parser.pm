@@ -215,7 +215,7 @@ sub match {
         my ($r) = (flatten($input) =~ $q) or return "$q failed to match";
         my $i = $input;
         if (length($i)) { shift @$i for (1..length($r)) }
-        $q->($i,$cont);
+        $cont->($i);
     };
     $N{$p} = "match($q)"; # trace
     $p;
