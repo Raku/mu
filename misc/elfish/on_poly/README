@@ -1,0 +1,35 @@
+
+Disclaimer: There is nothing here yet.  This is an empty skeleton.
+
+Objective: Challenge and guide the elf emitter architecture and
+prelude, by attempting the slow creation of elf backends in bulk.
+
+Unlike elf itself, and elfish/on_sbcl, bootstrap is _not_ a near term
+objective.  No kludging to get to bootstrap, and indulging in any
+hackery needed to obtain acceptable performance.  Instead, a common
+set of primitives, an extensive prelude, implementation-specific
+macros, and perhaps a kernel-language-like emitter architecture.
+
+Even if little code ends up here, or that only slowly, having it helps
+me think more clearly about where elf is going.
+
+It's not entirely clear what approach will be taken to perl6
+conformance.  For better or worse, the perl6 spec is still in rather
+great flux.  So building it "right" from the ground up is currently
+impossible.  :/ So the objective is then to create something which can
+gracefully move around in the p6-ish design space.  A second form of
+the question is whether prelude material can be directly copied from
+the Snn and executed.  That would be ideal.  5-year-old pugs-based
+systems were closer than elf is today, due to current limitations of
+STD_red and STD.pm itself.  I'm unclear on how hard to push on this.
+It may force on_poly to stall while parsing improves.
+
+Intended subdirectories:
+common
+on_chicken
+on_clisp (?)
+on_js (JavaScript::SpiderMonkey w js 1.7; maybe browser?)
+on_perl5
+on_python
+on_ruby1.9
+on_sbcl
