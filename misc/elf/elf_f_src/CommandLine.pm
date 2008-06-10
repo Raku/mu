@@ -67,7 +67,7 @@ One can also do
       }
       elsif $mode eq 'xr' && $sources.elems != 0 {
         if not($output_file) {
-          $output_file = "deleteme_exe";
+          $output_file = "./deleteme_exe";
         }
         my $exec_args = $*compiler1.compile_executable($sources,$output_file);
         say "# "~$exec_args.join(" ")~" "~$args.join(" ");

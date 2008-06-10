@@ -100,8 +100,9 @@ class Compiler {
       say $p5;
     } else {
       unslurp($p5,$output_file);
+      chmod_exe($output_file);
     };
-    ['perl',$output_file];
+    [$output_file];
   };
 
   method prelude() {

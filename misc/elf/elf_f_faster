@@ -261,6 +261,8 @@ use warnings;
   sub sprintf{CORE::sprintf(shift,@_)}
   sub print { CORE::print @_ }
   sub quotemeta { CORE::quotemeta($_[0]) }
+
+  sub chmod_exe { CORE::chmod(0755,$_[0]) } # Hack for Compiler.
 }
 
 { package STRING;
@@ -3699,6 +3701,8 @@ use\ warnings\;\
 \ \ sub\ sprintf\{CORE\:\:sprintf\(shift\,\@_\)\}\
 \ \ sub\ print\ \{\ CORE\:\:print\ \@_\ \}\
 \ \ sub\ quotemeta\ \{\ CORE\:\:quotemeta\(\$_\[0\]\)\ \}\
+\
+\ \ sub\ chmod_exe\ \{\ CORE\:\:chmod\(0755\,\$_\[0\]\)\ \}\ \#\ Hack\ for\ Compiler\.\
 \}\
 \
 \{\ package\ STRING\;\
@@ -4580,9 +4584,10 @@ my $module_p5 = $self->compile_fragment(GLOBAL::slurp($filename), $filename, $ve
 if(($output_file eq "\-")) {
 (do{GLOBAL::say($p5)})
 }else {
-(do{GLOBAL::unslurp($p5, $output_file)})
+(do{GLOBAL::unslurp($p5, $output_file);
+GLOBAL::chmod_exe($output_file)})
 };
-["perl", $output_file]})};
+[$output_file]})};
 sub prelude{my $self=CORE::shift;(do{if($self->is_for_active_runtime) {
 (do{$GLOBAL::emitter0->prelude()})
 }else {
@@ -4675,7 +4680,7 @@ my $at_end = sub {(do{if((($mode eq "x") && ($sources->elems() != 0))) {
 my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file)})
 }elsif((($mode eq "xr") && ($sources->elems() != 0))) {
 (do{if(GLOBAL::not($output_file)) {
-(do{($output_file = "deleteme_exe")})
+(do{($output_file = "\.\/deleteme_exe")})
 };
 my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file);
 GLOBAL::say(((("\#\ " . $exec_args->join("\ ")) . "\ ") . $args->join("\ ")));

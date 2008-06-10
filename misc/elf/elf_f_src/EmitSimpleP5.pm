@@ -292,6 +292,8 @@ use warnings;
   sub sprintf{CORE::sprintf(shift,@_)}
   sub print { CORE::print @_ }
   sub quotemeta { CORE::quotemeta($_[0]) }
+
+  sub chmod_exe { CORE::chmod(0755,$_[0]) } # Hack for Compiler.
 }
 
 { package STRING;
