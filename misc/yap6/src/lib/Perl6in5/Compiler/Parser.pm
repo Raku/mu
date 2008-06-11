@@ -268,7 +268,7 @@ sub hit {
         return err($in,"search string was empty") unless $l;
         my $tier = []; # the new tier in the AST
         for my $i (1..$count) {
-            return err($in,"mismatched: '$want'")
+            return err($in,$want)
                 unless substr(left($_[0]),$l*($i-1),$l*$i) eq $want;
             push @$tier,$want;
         }
@@ -380,7 +380,7 @@ sub both {
     }
     #$cdepth->{$p}->{$loc}--;
     trace 2,"Finished matching $N{$A} and $N{$BC}";
-    return {%$aval,
+    return {%$r,
         ast=> [
             [ # the new "current node"
               # merges the result of $BC
