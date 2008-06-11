@@ -1,7 +1,7 @@
 package Perl6in5::Grammar::STD_hand;
 
 use warnings;
-#use strict; #haha
+use strict;
 
 use base 'Exporter';
 our @EXPORT = qw ( make_parser );
@@ -34,7 +34,8 @@ sub make_parser {
         $blkType, $blkRetT, $blkModf, $stmtTrm, $scpDecl, $block, $arg,
         $blkPrm, $compUnit, $flowCtrl, $blkLabl, $clype, $impor, $assign,
         $op_numaddt, $blkTrait, $pkgDecl, $arrowInv, $prmDecl, $vsblty,
-        $invcDecl, $func_say, $bareInt, $identifier, $bareString
+        $invcDecl, $func_say, $bareInt, $identifier, $bareString, $blkPrms,
+        $condBlk
     );
 
     my $Op_numaddt         = parser { $op_numaddt      ->(@_) };
@@ -115,6 +116,8 @@ sub make_parser {
     sub identifier () { $Identifier };
     my $BareString           = parser { $bareString        ->(@_) };
     sub bareString () { $BareString };
+    my $CondBlk           = parser { $condBlk        ->(@_) };
+    sub condBlk () { $CondBlk };
 
     # these hash keys are coderef (addresses)
     our %N = (
@@ -157,7 +160,8 @@ sub make_parser {
         $BareInt          => 'BareInt',
         $Identifier       => 'Identifier',
         $Nothing          => 'Nothing',
-        $BareString       => 'BareString'
+        $BareString       => 'BareString',
+        $CondBlk          => 'CondBlk'
     );
 
     my @compUnits    = qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST 
@@ -175,8 +179,9 @@ sub make_parser {
             # everything must start with a use v6; statement until
             # the perl5zone rule is operational.
             -((usev6)--)
-          . opt(pkgDecl--)
-          . opt(stmtList)
+          . opt(stmtTrm
+          - opt(pkgDecl--)
+          . opt(stmtList))
     };
 
     rule pkgDecl {
@@ -187,7 +192,6 @@ sub make_parser {
                 (keyword('use') + keywords(qw{ v6 Perl-6 })
               | keyword('module') + opt(keyword('Main'))
               | keywords(qw{ class v6.0.0 v6 6 }))
-          - stmtTrm
     };
 
     rule identifier {

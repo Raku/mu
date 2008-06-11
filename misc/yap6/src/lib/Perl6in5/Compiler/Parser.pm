@@ -1,18 +1,20 @@
-use strict 'refs';
+use strict;
 use warnings;
 no warnings qw{ reserved closure recursion };
 
 package Perl6in5::Compiler::Parser;
 
 use Exporter;
-@EXPORT_OK = qw(hit eoi nothing debug star opt
+our @EXPORT_OK = qw(hit eoi nothing debug star opt
                 say all one flatten newline left ceoi
                 trace %N parser check execnow $Nothing
                 ch w keyword keywords panic p6ws
                 unspace optws manws opttws mantws through
                 plus both match unmore );
-@ISA = 'Exporter';
+our @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
+
+our %N;
 
 use Perl6in5::Compiler::Trace; # set env var trace for trace output
 # disregarding leading whitespace, lines that start with trace
@@ -98,7 +100,7 @@ sub trace ($$) { # trace
   my $msg = (shift) . "\n"; # trace
   my $i = 0; # trace
   $i++ while caller($i); # trace
-  $I = "-" x int($i/2-1); # trace
+  my $I = "-" x int($i/2-1); # trace
   warn $i.$I." ", $msg; # trace
 } # trace
 
@@ -116,7 +118,7 @@ sub debug ($) { # debug
   my $msg = (shift) . "\n"; # debug
   my $i = 0; # debug
   $i++ while caller($i); # debug
-  $I = "-" x int($i/2-1); # debug
+  my $I = "-" x int($i/2-1); # debug
   print STDERR $i.$I." ", $msg; # debug
 } # debug
 
@@ -261,18 +263,21 @@ sub hit {
     my $p;
     my $tmp = $p = parser {
         my ($in,$cont) = @_;
-        trace 5,"hit got '".Dumper($in)."'";
-        return eoi->($in) if ceoi($in);
+        trace 4,"hit got ".Dumper(left($in));
         my $l = length($want);
         $in->{want} = $want x $count;
         return err($in,"search string was empty") unless $l;
         my $tier = []; # the new tier in the AST
         for my $i (1..$count) {
-            return err($in,$want)
-                unless substr(left($_[0]),$l*($i-1),$l*$i) eq $want;
+            unless (substr(left($_[0]),$l*($i-1),$l*$i) eq $want) {
+                trace 4,"hit missed";
+                return err($in,$want);
+            }
+            trace 4,"hit matched";
             push @$tier,$want;
         }
         $in->{pos} += $l * $count;
+        trace 4,"advanced pos by ".($l*$count);
         $in->{ast} = [$tier,$in->{ast}];
         $in->{hit} = $in->{want};
         if ($in->{hit} =~ /\n/) {
@@ -283,7 +288,8 @@ sub hit {
         } else {
             $in->{col} += $l * $count;
         }
-        $cont->($in);
+        my $r = $cont->($in);
+        $r;
     };
     weaken($p);
     $N{$p} = Dumper($want x $count); # trace
@@ -295,6 +301,7 @@ sub ceoi {
 }
 
 sub err{
+    trace 3,"errored ".Dumper($_[1]);
     return {%{$_[0]},success=>0,expected=>($_[1] || 'unknown')};
 }
 
@@ -305,7 +312,6 @@ sub one {
   my $p;
   my $tmp = $p = parser {
     my ($in,$cont) = @_;
-    return eoi->($in) if ceoi($in);
     trace 3,"Match one: $N{$p}";
     my ($q, $np) = (0, scalar @p); # trace
     my ($v,$r);
@@ -313,7 +319,7 @@ sub one {
         $q++; # trace
         trace 2,"Trying $q/$np: ".$N{$p[$q-1]};
         $r = $_->($in,$cont);
-        trace 5,"one: ".$N{$p[$q-1]}." returned ".Dumper($r);
+        trace 4,"one: ".$N{$p[$q-1]}." returned ".Dumper($r);
         $v = $r if (!defined $v ||
             (($r->{success} || 
                 $v->{success} == $r->{success}) &&
@@ -337,10 +343,9 @@ sub both {
   my $p;
   my $tmp = $p = parser {
     my ($in, $cont) = @_;
-    return eoi->($in) if ceoi($in);
     my $i = 0;
     $i++ while caller($i);
-    trace 5,"both $N{$p} on $in at depth $i"; # trace
+    trace 4,"both $N{$p} on ".Dumper(left($in))." at depth $i"; # trace
     my $loc = $in->{'pos'}.$in->{mut};
     $loc ||= 'persnickity';
     if (# we've been in this parser before
@@ -373,7 +378,7 @@ sub both {
     weaken($BC);
     $N{$BC} = $N{$B}.'.'.$N{$cont}; # trace
     trace 2,"both attempting $N{$A} then $N{$BC}";
-    $r = $A->($in, $BC, $u);
+    $r = $A->($in, $BC);
     unless ($r->{success}) {
       trace 2,"Failed to match at least one of $N{$A} and $N{$BC}";
       return $r;
@@ -553,7 +558,7 @@ sub thru {
         my $len;
         $len += length($_) foreach @values;
         trace 4,"Through token matched";
-        $cont->(tail($in),undef,{eaten=>$len,ast=>[@values,$u]});
+        $cont->(tail($in),undef,{eaten=>$len,ast=>[@values]});
     };
     weaken($p);
     $N{$p} = "{*}.".$N{$stop}; # trace
