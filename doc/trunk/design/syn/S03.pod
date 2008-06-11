@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 2 Apr 2008
+  Last Modified: 11 Jun 2008
   Number: 3
-  Version: 135
+  Version: 136
 
 =head1 Overview
 
@@ -36,36 +36,46 @@ each level:
     L  Symbolic unary    ! + - ~ ? | +^ ~^ ?^ \ ^ =
     L  Multiplicative    * / % +& +< +> ~& ~< ~> ?& div mod
     L  Additive          + - +| +^ ~| ~^ ?| ?^
-    N  Replication       x xx
-    L  Concatenation     ~
+    L  Replication       x xx
+    X  Concatenation     ~
     X  Junctive and      &
     X  Junctive or       | ^
     L  Named unary       sleep abs sin
     N  Nonchaining infix but does <=> leg cmp .. ..^ ^.. ^..^
     C  Chaining infix    != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv
-    L  Tight and         &&
-    L  Tight or          || ^^ // min max
+    X  Tight and         &&
+    X  Tight or          || ^^ // min max
     L  Conditional       ?? !! ff fff
     R  Item assignment   = := ::= => += -= **= xx= .=
     L  Loose unary       true not
     X  Comma operator    , p5=>
     X  List infix        Z minmax X X~X X*X XeqvX
     R  List prefix       : print push say die map substr ... [+] [*] any $ @
-    L  Loose and         and andthen
-    L  Loose or          or xor orelse
+    X  Loose and         and andthen
+    X  Loose or          or xor orelse
     N  Terminator        ; <==, ==>, <<==, ==>>, {...}, unless, extra ), ], }
 
-The associativities specified above are:
+Using two C<!> symbols below generically to represent any pair of operators
+that have the same precedence, the associativities specified above
+for binary operators are interpreted as follows:
 
-        Assoc     Meaning of $a op $b op $c
+        Assoc     Meaning of $a ! $b ! $c
         =====     =========================
-    L   left      ($a op $b) op $c
-    R   right     $a op ($b op $c)
+    L   left      ($a ! $b) ! $c
+    R   right     $a ! ($b ! $c)
     N   non       ILLEGAL
-    C   chain     ($a op $b) and ($b op $c)
-    X   list      op($a, $b, $c) or op($a; $b; $c)
+    C   chain     ($a ! $b) and ($b ! $c)
+    X   list      infix:<!>($a; $b; $c)
 
-Note that list associativity only works between identical operators.
+For unaries this is interpreted as:
+
+        Assoc     Meaning of !$a!
+        =====     =========================
+    L   left      (!$a)!
+    R   right     !($a!)
+    N   non       ILLEGAL
+
+Note that list associativity (X) only works between identical operators.
 If two different list-associative operators have the same precedence,
 they are assumed to be left-associative with respect to each other.
 For example, the C<X> cross operator and the C<Z> zip operator both
@@ -76,6 +86,9 @@ have a precedence of "list infix", but:
 is parsed as:
 
     (@a X @b) Z @c
+
+Similarly, if the only implementation of a list-associative operator
+is binary, it will be treated as left associative.
 
 If you don't see your favorite operator above, the following
 sections cover all the operators in precedence order.  Basic operator
@@ -659,7 +672,7 @@ C<< prefix:<^> >>, upto operator
 
     ^$limit
 
-Constructs a range of C<0..^$limit> or locates a metaclass as a shortcut
+Constructs a range of C<0 ..^ $limit> or locates a metaclass as a shortcut
 for C<$limit.HOW>.  See L</Range semantics>.
 
 =item *
@@ -932,7 +945,7 @@ C<< infix:<~> >>, string/buffer concatenation
 
 C<< infix:<&> >>, all() operator
 
-    $x & $y
+    $a & $b & $c ...
 
 =back
 
@@ -944,13 +957,13 @@ C<< infix:<&> >>, all() operator
 
 C<< infix:<|> >>, any() operator
 
-    $x | $y
+    $a | $b | $c ...
 
 =item *
 
 C<< infix:<^> >>, one() operator
 
-    $x ^ $y
+    $a ^ $b ^ $c ...
 
 =back
 
@@ -1041,6 +1054,11 @@ Range object constructor
 
 Constructs Range objects, optionally excluding one or both endpoints.
 See L</Range semantics>.
+
+Note that these differ:
+
+    $min ..^ $max	$ min .. $max-1
+    $min .. ^$max	# $min .. (0..$max-1)
 
 =back
 
@@ -1145,10 +1163,10 @@ See L</Negated relational operators>.
 
 C<< infix:<&&> >>, short-circuit and
 
-    $condition && $whentrue
+    $a && $b && $c ...
 
-Returns the left argument if the left argument is false, otherwise
-evaluates and returns the right argument.  In list context forces
+Returns the first argument that evaluates to false, otherwise
+returns the result of the last argument.  In list context forces
 a false return to mean C<()>.  See C<and> below for low-precedence
 version.
 
@@ -1160,13 +1178,14 @@ version.
 
 =item *
 
-C<< infix:<||> >>, short-circuiting inclusive-or
+C<< infix:<||> >>, short-circuit inclusive-or
 
-    $condition || $whenfalse
+    $a || $b || $c ...
 
-Returns the left argument if it's true, otherwise evaluates and returns
-the right argument.  It is specifically allowed to use a list or array
-both as a boolean and as a list value produced if the boolean is true:
+Returns the first argument that evaluates to a true value, otherwise
+returns the result of the last argument.  It is specifically allowed
+to use a list or array both as a boolean and as a list value produced
+if the boolean is true:
 
     @a = @b || @c;              # broken in Perl 5; works in Perl 6
 
@@ -1175,35 +1194,37 @@ See C<or> below for low-precedence version.
 
 =item *
 
-C<< infix:<^^> >>, exclusive-or
+C<< infix:<^^> >>, short-circuit exclusive-or
 
-    $x ^^ $y
+    $a ^^ $b ^^ $c ...
 
 Returns the true argument if there is one (and only one).  Returns
-C<Bool::False> if both arguments are false or both arguments are true.
-In list context forces a false return to mean C<()>.
+C<Bool::False> if all arguments are false or if more than one argument
+is true.  In list context forces a false return to mean C<()>.
 See C<xor> below for low-precedence version.
+
+Similar to the C<[^^]> reduce operator, but short-circuits in the sense
+that it does not evaluate any arguments after a 2nd true result.
 
 =item *
 
-C<< infix:<//> >>, default operator
+C<< infix:<//> >>, short-circuit default operator
 
-    $value // $default
+    $a // $b // $c ...
 
-Returns the left argument if it's defined, otherwise evaluates and
-returns the right argument.  In list context forces a false return
-to mean C<()>.  See C<orelse> below for a similar but not identical
-low-precedence version.
+Returns the first argument that evaluates to a defined value, otherwise
+returns the result of the last argument.  In list context forces a
+false return to mean C<()>.  See C<orelse> below for a similar but
+not identical low-precedence version.
 
 =item *
 
 Minimum and maximum
 
-    $min0 min $min1
-    $max0 max $max1
+    $a min $b min $c ...
+    $a max $b max $c ...
 
-Instead of deciding whether to return the left or right based on booleans
-or definedness, these return the minimum or maximum value.  See also the
+These return the minimum or maximum value.  See also the
 C<minmax> listop.
 
 Not all types can support the concept of infinity.  Therefore any
@@ -1774,10 +1795,10 @@ C<%()>.
 
 C<< infix:<and> >>, short-circuit and
 
-    $condition and $whentrue
+    $a and $b and $c ...
 
-Returns the left argument if the left argument is false, otherwise
-evaluates and returns the right argument.  In list context forces
+Returns the first argument that evaluates to false, otherwise
+returns the result of the last argument.  In list context forces
 a false return to mean C<()>.  See C<&&> above for high-precedence
 version.
 
@@ -1785,9 +1806,9 @@ version.
 
 C<< infix:<andthen> >>, proceed on success
 
-    test1() andthen test2()
+    test1() andthen test2() andthen test3() ...
 
-Returns the left argument if the left argument indicates failure
+Returns the first argument whose evaluation indicates failure
 (that is, if the result is undefined).  Otherwise it
 evaluates and returns the right argument.
 
@@ -1815,20 +1836,20 @@ There is no corresponding high-precedence version.
 
 C<< infix:<or> >>, short-circuit inclusive or
 
-    $condition or $whenfalse
+    $a or $b or $c ...
 
-Returns the left argument if it's true, otherwise evaluates and
-returns the right argument.  In list context forces a false return
+Returns the first argument that evaluates to true, otherwise returns
+the result of the last argument.  In list context forces a false return
 to mean C<()>.  See C<||> above for high-precedence version.
 
 =item *
 
 C<< infix:<xor> >>, exclusive or
 
-    $x xor $y
+    $a xor $b xor $c ...
 
 Returns the true argument if there is one (and only one).  Returns
-C<Bool::False> if both arguments are false or both arguments are true.
+C<Bool::False> if all arguments are false or if more than one argument is true.
 In list context forces a false return to mean C<()>.
 See C<^^> above for high-precedence version.
 
@@ -1836,11 +1857,11 @@ See C<^^> above for high-precedence version.
 
 C<< infix:<orelse> >>, proceed on failure
 
-    test1() orelse test2()
+    test1() orelse test2() orelse test3() ...
 
-Returns the left argument if the left argument indicates success
-(that is, if the result is defined).  Otherwise it evaluates and
-returns the right argument.
+Returns the first argument that evaluates successfully (that is,
+if the result is defined).  Otherwise returns the result of the
+right argument.
 
 If the right side is a block or pointy block, the result of the left
 side is bound to any arguments of the block.  If the right side is
