@@ -1203,8 +1203,15 @@ C<Bool::False> if all arguments are false or if more than one argument
 is true.  In list context forces a false return to mean C<()>.
 See C<xor> below for low-precedence version.
 
-Similar to the C<[^^]> reduce operator, but short-circuits in the sense
-that it does not evaluate any arguments after a 2nd true result.
+This operator short-circuits in the sense that it does not evaluate
+any arguments after a 2nd true result.  Closely related is the reduce
+operator:
+
+    [^^] a(), b(), c() ...
+
+but note that reduce operators are not macros but ordinary list
+operators, so c() is always called before the reduce is done.
+
 
 =item *
 
@@ -1704,7 +1711,7 @@ Reduce operators
 
     [+] [*] [<] [\+] [\*] etc.
 
-See L<Reduction operators>.
+See L<Reduction operators> below.
 
 =item *
 
@@ -3486,7 +3493,7 @@ it must associate the same way as the operator used:
     [-] 4, 3, 2;      # 4-3-2 = (4-3)-2 = -1
     [**] 4, 3, 2;     # 4**3**2 = 4**(3**2) = 262144
 
-For list-associating operators (like C<< < >>), all arguments are taken
+For chain-associative operators (like C<< < >>), all arguments are taken
 together, just as if you had written it out explicitly:
 
     [<] 1, 3, 5;      # 1 < 3 < 5
@@ -3634,6 +3641,15 @@ rather than
 
 (And, in fact, the latter are already easy to express anyway,
 and more obviously nonsensical.)
+
+Similarly, list-associative operators that have the thunk-izing characteristics of
+macros (such as short-circuit operators) lose those macro-like characteristics.
+You can say
+
+    [||] a(), b(), c(), d()
+
+to return the first true result, but the evaluation of the list is controlled
+by the semantics of the list, not the semantics of C<||>.
 
 Most reduce operators return a simple scalar value, and hence do not care
 whether they are evaluated in item or list context.  However, as with
