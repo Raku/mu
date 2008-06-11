@@ -219,12 +219,12 @@ sub make_parser {
     rule nbexpr {
               one(panic(pkgDecl,
                 "Can't declare a non-block package")
+              , func_say
               , w('()',expr)
               , op_numaddt
               , assign
               , declare
               , impor
-              , func_say
               , blkTrait
      #         , bareString
               , sVari
@@ -333,7 +333,7 @@ sub make_parser {
     };
 
     rule stmtTrm {
-            plus(-';'--)
+            plus(-(';'--))
     };
 
     rule scpDecl {
@@ -365,15 +365,15 @@ sub make_parser {
     };
 
     sub {
-        my $result = (program->($input,eoi));
-        if (ref($result) ne 'ARRAY') {
+        my $r = (program->($input,eoi));
+        unless ($r->{success}) {
             my $msg;
-            if (($result->{expected} eq '' || $result->{left} eq 'EOI') && length($result->{left}) > 0) {
-                $msg = 'incomplete statement near '.Dumper($result->{left})."\n";
+            if (ceoi($r)) {
+                $msg = "incomplete statement near the end of input";
             } else {
-                $msg = "syntax error near ".Dumper($result->{left})."\n";
+                $msg = "syntax error (or degenerate/incomplete grammar) at line ".$r->{line}." col ".$r->{col}." near ".(sprintf '<%.50s>', Dumper(left($r)).($r->{expected}?"\nExpected: '".$r->{expected}."'.":''));
             }
-            print STDERR $msg;
+            print STDERR $msg."\n";
             return 255;
         } else {
             print "parse successful\n";#:".Dumper($result)."\n";

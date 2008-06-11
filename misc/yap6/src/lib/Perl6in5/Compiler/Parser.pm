@@ -6,7 +6,7 @@ package Perl6in5::Compiler::Parser;
 
 use Exporter;
 @EXPORT_OK = qw(hit eoi nothing debug star opt
-                say all one flatten newline
+                say all one flatten newline left ceoi
                 trace %N parser check execnow $Nothing
                 ch w keyword keywords panic p6ws
                 unspace optws manws opttws mantws through
@@ -27,7 +27,7 @@ use Scalar::Util qw( weaken );
 
 use Perl6in5::Compiler::Stream 'node', 'head', 'tail', 'promise', 'drop';
 
-my $toodeep = 0;
+my $toodeep = 2;
 
 use overload
     '-'  => \&optws, # optional leading or intervening whitespace
@@ -46,17 +46,15 @@ use overload
 sub normalize_parser { # memoize
     # stringify the contents of $in and the coderef # memoize
     # of the continuation. # memoize
-    return 'noargs' unless (defined $_[0] && ref($_[0]) eq 'HASH'); # memoize
-    my $msg = left($_[0]); # memoize
-    $msg .= "$_[1]" if defined($_[1]); # memoize
-    $msg; # memoize
+    # left() is also memoized :) # memoize
+    left($_[0]).$_[0]->{'pos'}; # memoize
 } # memoize
 
 # memoize the terminal parser constructors
 use Memoize; # memoize
 map { memoize $_ } qw{ newline p6ws nothing }; # memoize
 # the other benefit of this is that we don't get more than one of 
-# each kind of parser constructed, which means the memoization of the
+# each kind of terminal parser constructed, which means the memoization of the
 # generated functions will be more efficient than otherwise.
 
 $| = 1; # trace
@@ -76,7 +74,10 @@ sub say (@) { print($_,"\n") for @_ }
 
 # memoize each and every generated parser coderef before it's blessed.
 sub parser (&) { bless( 
-  #  memoize( # memoize
+   # for some reason, memoization of the 
+   # generated parsers makes everything
+   # much slower... /me is confused
+   # memoize( # memoize
         $_[0]
    #     , NORMALIZER=>'normalize_parser') # memoize
         => __PACKAGE__ ) }
@@ -120,21 +121,24 @@ sub debug ($) { # debug
 } # debug
 
 sub eoi () {
-  my $p;
-  my $tmp = $p = parser {
-      my ($in) = @_;
-      trace 4,"Looking for EOI in '".Dumper(left($_[0]))."'";
-      if (left($in) eq "") {
+    my $p;
+    my $tmp = $p = parser {
+        my ($in) = @_;
+        trace 4,"Looking for EOI in '".Dumper(left($_[0]))."'";
+        if (!ceoi($in)) {
+            trace 5,"Found unparsed input: '".Dumper(left($_[0]))."'";
+            return err($in,'EOI');
+        }
         trace 5,"Found EOI";
-        return [ '' , [ 'EOI'] ]; # this is the tail of the AST
-      } else {
-        trace 5,"Found unparsed input: '".Dumper(left($_[0]))."'";
-        return {left=>left($in),expected=>'EOI'};
-      }
-  };
-  $N{$p} = "eoi"; # trace
-  weaken($p);
-  $p;
+        return {%$in,
+            success=>1,
+            ast=>[[],['EOI']],
+            hit=>''
+        };
+    };
+    $N{$p} = "EOI"; # trace
+    weaken($p);
+    $p;
 }
 
 our $Nothing = sub {
@@ -144,8 +148,7 @@ our $Nothing = sub {
         trace 5,"(At end of input)";
     } # trace
     # nothing is the only base-parser that returns the 
-    # result of its continuation untouched. Nearly always
-    # the continuation will be eoi()
+    # result of its continuation untouched.
     $_[1]->($_[0]);
 };
 # junk for eta-conversion
@@ -176,12 +179,12 @@ sub unmore {
             # so, we know if $q returns the below string, $q
             # succeeded.  Otherwise, we'll get some other error
             # hashref from q.
-            return {expected=>'udder_end_compleat_feelure',left=>left($in2)};
+            return {success=>0};
         };
         weaken($o);
         $N{$o} = "fake($N{$p})"; # trace
         my $r = $q->($in,$o);
-        return $r unless ref $r eq 'ARRAY';
+        return $r unless $r->{success};
         # send it along its merry way to the nothing parser, which
         # always succeeds, with the original input and continuation.
         $cont->($in);
@@ -224,7 +227,7 @@ sub match {
     my $tmp = $p = parser {
         my ($in,$cont) = @_;
         $in->{want} = "RE $q";
-        my ($r) = (left($in) =~ $q) or return {left=>left($in),expected=>"$q"};
+        my ($r) = (left($in) =~ $q) or return err($in,"$q");
         my $tier = [];
         push @$tier, $r;
         $in->{pos} += length($r);
@@ -258,13 +261,14 @@ sub hit {
     my $p;
     my $tmp = $p = parser {
         my ($in,$cont) = @_;
-        trace 5,"hit got '".Dumper($in)."'"
+        trace 5,"hit got '".Dumper($in)."'";
+        return eoi->($in) if ceoi($in);
         my $l = length($want);
         $in->{want} = $want x $count;
         return err($in,"search string was empty") unless $l;
         my $tier = []; # the new tier in the AST
         for my $i (1..$count) {
-            return err($in,"mismatched: '$want'") 
+            return err($in,"mismatched: '$want'")
                 unless substr(left($_[0]),$l*($i-1),$l*$i) eq $want;
             push @$tier,$want;
         }
@@ -282,13 +286,16 @@ sub hit {
         $cont->($in);
     };
     weaken($p);
-    $N{$p} = $want x $count; # trace
+    $N{$p} = Dumper($want x $count); # trace
     $p;
 }
 
+sub ceoi {
+    left($_[0]) eq ''
+}
+
 sub err{
-    my $a = { %{$_[0]},err=>$_[1]};
-    $a;
+    return {%{$_[0]},success=>0,expected=>($_[1] || 'unknown')};
 }
 
 sub one {
@@ -298,37 +305,25 @@ sub one {
   my $p;
   my $tmp = $p = parser {
     my ($in,$cont) = @_;
-    my $r;
+    return eoi->($in) if ceoi($in);
     trace 3,"Match one: $N{$p}";
-    if (defined $in) { # trace
-      trace 3,"Next token is ".left($in);
-    } else { # trace
-      trace 3,"At end of input";
-    } # trace
-    $in = [$in] unless ref $in;
     my ($q, $np) = (0, scalar @p); # trace
-    my ($v,$w,$z);
+    my ($v,$r);
     for (@p) {
-      $q++; # trace
-      trace 2,"Trying $q/$np: ".$N{$p[$q-1]};
-      $w = $_->($in,$cont);
-      trace 4,"one: ".$N{$p[$q-1]}." returned ".Dumper($w);
-      if (ref($w) eq 'HASH') {
-        trace 2,"Failed $q/$np: ".$N{$p[$q-1]};
-        # send back the shortest remaining input if none of them succeed
-        %{$z} = %{$w} if (defined($w->{left}) && $w->{left} !~ /^\s+$/ && length($w->{left}) > 0 && (!defined $z || (length($w->{left}) < length($z->{left}))));
-      } else {
-        trace 3,"Matched $q/$np: ".$N{$p[$q-1]};
-        $v = $w if (!defined $v);
-      }
-      $w = undef;
+        $q++; # trace
+        trace 2,"Trying $q/$np: ".$N{$p[$q-1]};
+        $r = $_->($in,$cont);
+        trace 5,"one: ".$N{$p[$q-1]}." returned ".Dumper($r);
+        $v = $r if (!defined $v ||
+            (($r->{success} || 
+                $v->{success} == $r->{success}) &&
+                length(left($r)) < length(left($v))));
+        trace 2,($r->{success}?"Matched":"Failed").": $q/$np: ".$N{$p[$q-1]};
     }
-    return $v if defined $v;
-    trace 3,"Failed to match any of: $N{$p}".Dumper($z);
-    trace 5,"sending back: ".Dumper($z);
-    $z;
+    trace 3,"Failed to match any of: $N{$p}" unless $v->{success};
+    trace 5,"sending back: ".Dumper($v);
+    $v;
   };
-  trace 6,"one ".dump1(@p);
   weaken($p);
   $N{$p} = "one(" . join("|", map $N{$_}, @p) . ")"; # trace
   $p;
@@ -342,26 +337,27 @@ sub both {
   my $p;
   my $tmp = $p = parser {
     my ($in, $cont) = @_;
+    return eoi->($in) if ceoi($in);
     my $i = 0;
     $i++ while caller($i);
     trace 5,"both $N{$p} on $in at depth $i"; # trace
-    my $loc = left($in);
+    my $loc = $in->{'pos'}.$in->{mut};
     $loc ||= 'persnickity';
     if (# we've been in this parser before
         exists $cdepth->{$p}
         # we've seen this input for this parser last
-        && $cdepth->{$p} eq $loc) {
+        && $cdepth->{$p}->{$loc} && 
+        $cdepth->{$p}->{$loc} > length(left($in))+1) {
         # we're in an infinite recursion.
         trace 3,"$N{$p} was too deep (>$toodeep) in itself.";
-        return {left=>left($in),expected=>''};
+        err($in,"infinite recursion detected");
     } else { # trace
         trace 5,"we're not in an infinite recursion";
     }
     # store the coderef addresses for this
     # parser so we can detect infinite loops
-    $cdepth->{$p} = $loc;
-    my ($aval,$bval);
-    my $BC;
+    $cdepth->{$p}->{$loc}++;
+    my ($r,$BC);
     my $tmp2 = $BC = parser {
       my ($newinput) = @_;
       # $BC won't get invoked by hit() unless A succeeds.
@@ -377,16 +373,24 @@ sub both {
     weaken($BC);
     $N{$BC} = $N{$B}.'.'.$N{$cont}; # trace
     trace 2,"both attempting $N{$A} then $N{$BC}";
-    $aval = $A->($in, $BC, $u);
-    # $aval won't be an AST if $bval wasn't an AST.
-    if (ref($aval) ne 'ARRAY') {
+    $r = $A->($in, $BC, $u);
+    unless ($r->{success}) {
       trace 2,"Failed to match at least one of $N{$A} and $N{$BC}";
-      return $aval;
+      return $r;
     }
+    #$cdepth->{$p}->{$loc}--;
     trace 2,"Finished matching $N{$A} and $N{$BC}";
-    return [[head($aval), head(tail($aval))], tail($aval)];
+    return {%$aval,
+        ast=> [
+            [ # the new "current node"
+              # merges the result of $BC
+              # with the most recent result
+                @{head($r->{ast})},
+                $r->{hit} ],
+            tail($r->{ast}) ]
+    };
   };
-  trace 5,"both ".dump1($A,$B);
+  trace 6,"both ".dump1($A,$B);
   weaken($p);
   $N{$p} = $N{$A}.$wsrule.$N{$B}; # trace
   $p;
@@ -394,8 +398,7 @@ sub both {
 
 sub all {
   my @p = grep $_,@_;
-  return nothing if @p == 0; # this should never occur
-  return $_[0]  if @p == 1; # the base case for this function
+  return scalar(@p)?$_[0]:nothing if @p < 2;
   my $head = shift @p;
   my $p;
   my $tmp = $p = both($head, all(@p), '.');
@@ -407,11 +410,12 @@ sub all {
 
 sub star {
     my ($p, $conc, $p_exec);
-    $p_exec = parser { $p->(@_) };
+    my $tmp = $p_exec = parser { $p->(@_) };
+    weaken($p_exec);
     $N{$p_exec} = "($N{$_[0]})+"; # trace
     $conc = both($_[0], $p_exec, '.');
     $N{$conc} = "($N{$_[0]}.($N{$_[0]})*|nothing)"; # trace
-    my $tmp = $p = one($conc, nothing);
+    my $tmp2 = $p = one($conc, nothing);
     weaken($p);
     $N{$p} = "($N{$_[0]})*"; # trace
     $p;
@@ -482,7 +486,6 @@ sub manws {
 
 sub opttws {
   my $p;
-  # optional trailing whitespace
   my $tmp = $p = both($_[0], opt(p6ws), '.');
   weaken($p);
   $N{$p} = "($N{$_[0]})-- "; # trace
@@ -490,7 +493,6 @@ sub opttws {
 }
 
 sub mantws {
-  # mandatory trailing whitespace
   my $p;
   my $tmp = $p = both($_[0], p6ws, '.');
   weaken($p);
@@ -501,7 +503,6 @@ sub mantws {
 sub newline () {
   my $p;
   my $tmp = $p = plus(one(panic(hit("\n#{"),"\\n#{ is illegal"),opttws(optws(hit("\n")))));
-  #my $tmp = $p = plus(opttws(optws(hit("\n"))));
   weaken($p);
   $N{$p} = "\\n"; # trace
   $p;
