@@ -16,7 +16,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 11 Jun 2008
    Number: 5
-   Version: 80
+   Version: 81
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1407,6 +1407,15 @@ Note: the effect of a forward-scanning lookbehind at the top level
 can be achieved with:
 
     / .*? prestuff <( mainpat )> /
+
+=item *
+
+The C<< <...> >>, C<< <???> >>, and C<< <!!!> >> special tokens
+have the same "not-defined-yet" meanings within regexes that the bare
+elipses have in ordinary code.  (However, by the recursive rules above,
+C<< <!!> >> is equivalent to C<< <?> >>, which matches the null string.
+Likewise C<< <!!before x> >> is just like C<< <?before x> >>, except
+that it is ignored by the longest-token matcher.)
 
 =item *
 
