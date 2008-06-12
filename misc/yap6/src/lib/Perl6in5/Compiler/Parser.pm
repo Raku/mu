@@ -16,6 +16,8 @@ our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 our %N;
 
+use Tie::IxHash;
+
 use Perl6in5::Compiler::Trace; # set env var trace for trace output
 # disregarding leading whitespace, lines that start with trace
 # or end with trace,are discarded by the source filter in 
@@ -43,20 +45,6 @@ use overload
     '""' => \&overload::StrVal,  # this helps stringify parser names for %N
 ;
 
-#sub normalize_parser { # memoize
-    # stringify the contents of $in and the coderef # memoize
-    # of the continuation. # memoize
-    # left() is also memoized :) # memoize
-#    left($_[0]).$_[0]->{'pos'}.(defined $_[1])?$_[1]:''; # memoize
-#} # memoize
-
-# memoize the terminal parser constructors
-#use Memoize; # memoize
-#map { memoize $_ } qw{ newline p6ws nothing }; # memoize
-# the other benefit of this is that we don't get more than one of 
-# each kind of terminal parser constructed, which means the memoization of the
-# generated functions will be more efficient than otherwise.
-
 $| = 1;
  # trace
 
@@ -73,21 +61,12 @@ sub execnow (&) { $_[0]->() }
 
 sub say (@) { print($_,"\n") for @_ }
 
-# memoize each and every generated parser coderef before it's blessed.
 sub parser (&) { 
- #   my $subref = $_[0]; # memoize
- #   my $memoized; # memoize
- #   my $blessed =  # memoize
     bless(  
-    #    $memoized =  # memoize
-    #    memoize( # memoize
-        $_[0]
-        #, NORMALIZER=>'normalize_parser' # memoize
-    #    ) # memoize
-        => __PACKAGE__ );
-  #  $N{$memoized} = $N{$subref}; # memoize
-  #  delete $N{$subref}; # memoize
-  #  $blessed;
+    #mapply( 
+    $_[0]
+    # ) 
+    => __PACKAGE__ );
 }
 
 sub dump1 {
@@ -127,6 +106,265 @@ sub debug ($) { # debug
   my $I = "-" x int($i/2-1); # debug
   print STDERR $i.$I." ", $msg; # debug
 } # debug
+
+sub ohr { # ordered hash ref
+    tie my %h, 'Tie::IxHash', @_;
+    return \%h;
+}
+
+# Randal Schwartz' deep_copy, modified
+sub deep_copy {
+    my $this = shift;
+    my $r = ref $this;
+    if (not $r || $r eq "CODE") {
+        $this;
+    } elsif ($r eq "ARRAY") {
+        [map deep_copy($_), @$this];
+    } elsif ($r eq "HASH") {
+        +{map { $_ => deep_copy($this->{$_}) } keys %$this};
+    } else {
+        die "deep_copy failure";
+    }
+}
+
+# the memo table, storing memo entries
+# key depth 0. position in input string ($pos)
+#           1. coderef of target rule ($q)
+#     value 2. hashref of rule result ($ans)
+#        OR 2. arrayref of LR object ($lr)
+# Most times, there will be more rules
+# (high hundreds?) than positions.
+our %M;
+
+# setter/getter for a memo table entry.
+sub mmemo {
+    # inputs: rule, position, $ans|$lr
+    $M{$_[1]}->{$_[0]} = $_[2] if defined $_[2];
+    # outputs: [ $ans, $pos ]
+    $M{$_[1]}->{$_[0]};
+}
+
+# The stack of possibly-left-recursive ops
+# implemented as a perl array with push/pop,
+# whose member items are references to @lrs.
+# @lr items are arrayref tri-tuples:
+# 0. The "seed" result-kernel
+# 1. the "rule"'s coderef
+# 2. the "head" rule of the seed, initially undef,
+#    signifying non-left-recursive invocations.
+#    A reference to the hashref stored in %H by pos
+our @L;
+
+# The currently-being-grown left recursions,
+# implemented as a hashref, mapping position
+# to the left recursion being grown there.
+# key   depth 0: position
+# value depth 1: "head": coderef to the rule
+# key   depth 1: "iSet" - Tie::IxHash set of
+#                rule coderefs known to be
+#                'involved' in the left recursion
+# key   depth 1: "eSet" - Tie::IxHash set of
+#                rule coderefs planned to be
+#                evaluated during this growth cycle
+# key   depth 2: rules as hash entries keyed by
+#                their coderef's values
+our %H;
+
+sub mapply {
+
+    # mapply wraps every other parser with:
+    # 1. a memo table check/handler &
+    # 2. a[n] [in]direct left recursion check/handler
+    # 
+    # for details, see packrat_TR-2007-002.pdf:
+    # 
+    # "Packrat Parsers Can Support Left Recursion"
+    # VPRI Technical Report TR-2007-002
+    # ACM SIGPLAN 2008 Workshop on Partial
+    # Evaluation and Program Manipulation
+    # (PEPM '08) January 2008
+    # ACM 978-1-59593-977-7/08/0001
+    # by Alessandro Warth
+    #    James R. Douglass
+    #    Todd Millstein
+
+    my $q = $_[0];
+    my $p;
+    my $tmp = $p = parser {
+        my ($in,$cont) = @_;
+        my $pos = $in->{'pos'};
+        my $m = mrecall($q,$pos);
+        if (!defined $m) {
+            
+            # Initialize a new (lexical) @lr
+            my @lr = ( undef, $q, undef );
+            
+            # push the newly created left-recursive
+            # entry onto the left-recursive stack.
+            push @L, \@lr;
+            
+            # Set the initial memo table entry for
+            # this rule/pos to be that $lr
+            mmemo($q, $pos, \@lr);
+            
+            # This evaluates the body of the rule,
+            # which of course calls their wrapper
+            # mapply() parsers prior, in turn.
+            # The resulting hashref is a little
+            # different from the paper's original
+            # specification (just the AST or a failure code)
+            my $ans = $q->($in,$cont);
+            
+            # Pop the $lr back off the lr stack because
+            # we're done generating its lr seed.
+            pop @L;
+            
+            # check if its evaluation created a "head"
+            if (defined $lr[2]) {
+                
+                # store the result of $q (and its continuation(s))
+                # in the left-recursive item's seed slot.
+                $lr[0] = deep_copy($ans);
+                
+                # if the LR's rule isn't our current rule
+                # must dereference the head, since they're
+                # all really stored in %H.
+                if (${$lr[2]}->{rule} ne $q) {
+                    
+                    # return the LR's seed
+                    return $lr[0];
+                    
+                } else {
+                    # there was no head created
+                    
+                    # commit the seed to the memo table
+                    mmemo($q,$pos,$lr[0]);
+                    
+                    # if that branch was a failure
+                    unless ($lr[0]->{success}) {
+                        
+                        # return that failure
+                        return deep_copy($lr[0]);
+                        
+                    } else {
+                        # the branch succeeded
+                        
+                        # commit the head to head storage
+                        $H{$pos} = $lr[2];
+                        
+                        # 
+                        while (1) {
+                            
+                            # at each iteration, the involved
+                            # rules get another chance to hit.
+                            delete $H{$pos}->{eSet} if exists
+                                $H{$pos}->{eSet};
+                            $H{$pos}->{eSet} = ohr();
+                            foreach (keys %{$H{$pos}->{iSet}}) {
+                                $H{$pos}->{eSet}->{$_} = 
+                                    $H{$pos}->{iSet}->{$_};
+                            }
+                            
+                            # run the rule *again*, this time
+                            # the results should be different
+                            $ans = $q->($in,$cont);
+                            unless (
+                                $ans->{success} &&
+                                $ans->{'pos'} <= $pos
+                            ) { last } else {
+                                mmemo($q,$pos,deep_copy($ans));
+                            }
+                        }
+                        delete $H{$pos};
+                        return deep_copy($ans);
+                    }
+                    
+                }
+                
+                
+            } else {
+                # commit the change to the memo table;
+                mmemo($q,$pos,deep_copy($ans));
+                
+                return deep_copy($ans);
+            }
+        } else {
+            # store the result's position
+            # $m->[1]
+            
+            # if the answer was an LR
+            if (ref $m eq 'ARRAY') {
+                
+                # initialize the LR
+                # if there's already a head
+                if (!defined $m->[2]) {
+                    
+                    # define a head
+                    my ($iSet1,$eSet1) = (ohr(),ohr());
+                    my $hd = {
+                        rule => $q,
+                        iSet => $iSet1,
+                        eSet => $eSet1
+                    };
+                    my $hdr = \$hd;
+                    
+                    if (my $s = pop @L) {
+                        while ( $s->[2] ne $hdr ) {
+                            $s->[2] = $hdr;
+                            $hd->{iSet}->{$s->[1]} = 1;
+                            if (scalar(@L)) {
+                                $s = pop @L;
+                            } else {
+                                last;
+                            }
+                        }
+                    }
+                }
+                
+                # return the LR's seed
+                return $m->[0];
+            } else {
+                return deep_copy($m);
+            }
+            
+        }
+        
+    };
+    $N{$p} = "_$N{$q}_";
+    weaken($p);
+    $p;
+}
+
+sub mrecall {
+    # inputs: rule, position, input
+    my $m = mmemo($_[0],$_[1]);
+    return $m if (!exists $H{$_[1]} || keys(%{$H{$_[1]}}) == 0);
+    unless (
+        !defined $m ||
+        exists $H{$_[1]}->{head}->{$_[0]} ||
+        exists $H{$_[1]}->{iSet}->{$_[0]}
+    ) {
+        return {%{$_[2]}, success=>0, 'pos'=>$_[1]};
+    }
+    if (exists $H{$_[1]}->{eSet}->{$_[0]}) {
+        delete $H{$_[1]}->{eSet}->{$_[0]};
+        my $r = $_[0]->($_[2],mreflect());
+        $m = [ ($r->{success})?$r->{ast}:'FAIL',
+                $r->{'pos'} ];
+    }
+    $m;
+}
+
+sub mreflect {
+    my $p;
+    my $tmp = $p = parser {
+        my ($in) = @_;
+        return {%$in,success=>1};
+    };
+    $N{$p} = "reflect";
+    weaken($p);
+    $p;
+}
 
 sub eoi {
     my $p;
