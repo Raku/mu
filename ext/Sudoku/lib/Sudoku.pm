@@ -86,7 +86,7 @@ method init($self: Int $width, Int $height){
     $!delimiter = join ('-' x $.width), (map {'+'}, 1 .. ($.height+1));
     $!delimiter ~= "\n";
 
-    for (0 .. $!length - 1) -> my $i {
+    for (0 .. $!length - 1) >  $i {
         #columns:
         push @!constraint, [($i xx $!length) Z (0 .. $!length - 1)];
         #rows:
@@ -127,7 +127,7 @@ method from_string(Str $s){
 #    PRE {
 #        $s.chars == $!length*$!length;
 #    }
-    for (0 .. $!length*$!length-1) -> my $i {
+    for (0 .. $!length*$!length-1) -> $i {
         if +$s.substr($i, 1) {
             self.set_item(+$s.substr($i, 1), $i % $!length, int($i / $!length));
         }
@@ -158,14 +158,14 @@ method set_item($self: Int $elem, Int $x, Int $y){
 
     # constraint propagation
     # no more numbers are allowed where the current number is set
-    for (0 .. $!length - 1) -> my $i {
+    for (0 .. $!length - 1) -> $i {
         @!allowed[$x][$y][$i] = 0;
     }
 
     # propagation in the rest:
-    for @!constraint -> my $c {
+    for @!constraint -> $c {
         my $in = 0;
-        for @$c -> my $cell {
+        for @$c -> $cell {
             if $cell[0] == $x and $cell[1] == $y {
                 $in = 1;
                 last;
@@ -173,7 +173,7 @@ method set_item($self: Int $elem, Int $x, Int $y){
         }
         
         if $in {
-            for @$c -> my $cell {
+            for @$c -> $cell {
                 @!allowed[$cell[0]][$cell[1]][$elem-1] = 0;
             }
         }
@@ -285,11 +285,11 @@ method cross {
 
 method simple_solve1($self:) {
     my $success = 0;
-    for (0 .. $!length - 1) -> my $x {
-        for (0 .. $!length -1) -> my $y {
+    for (0 .. $!length - 1) -> $x {
+        for (0 .. $!length -1) -> $y {
             my $count = 0;
             my $pointer = 0;
-            for (0 .. $!length - 1) -> my $num {
+            for (0 .. $!length - 1) -> $num {
                 if @!allowed[$x][$y][$num - 1] {
                     $count++;
                     $pointer = $num;
@@ -315,12 +315,12 @@ method simple_solve2($self:) {
 
     my $success = 0;
 
-    for @!constraint -> my $c {
-        for (1 .. $!length)-> my $num {
+    for @!constraint -> $c {
+        for (1 .. $!length)-> $num {
             my $x;
             my $y;
             my $count = 0;
-            for @$c -> my $tupel {
+            for @$c -> $tupel {
                 if @!allowed[$tupel[0]][$tupel[1]][$num - 1] {
                     $count++;
                     $x = $tupel[0];
@@ -342,8 +342,8 @@ method simple_solve2($self:) {
 #returns a true value if the Sudoku is fully solved
 
 method is_solved {
-    for (0 .. $!length - 1) -> my $x {
-        for (0 .. $!length - 1) -> my $y {
+    for (0 .. $!length - 1) -> $x {
+        for (0 .. $!length - 1) -> $y {
             return 0 if @.field[$x][$y] == 0;
         }
     }
@@ -358,12 +358,12 @@ method dump {
 
 method backtrack($self:) {
 #    say "backtracking...";
-    for (0 .. $!length - 1) -> my $x {
-        for (0 .. $!length - 1) -> my $y {
+    for (0 .. $!length - 1) -> $x {
+        for (0 .. $!length - 1) -> $y {
             if @.field[$x][$y] == 0 {
                 # found an empty positon, let's backtrack here!
 #                say "Backtracking at ($x, $y)";
-                for (1 .. $!length) -> my $num {
+                for (1 .. $!length) -> $num {
                     if $self.is_allowed($num, $x, $y) {
 #                        say "found";
                         my $copy = $self.clone;
