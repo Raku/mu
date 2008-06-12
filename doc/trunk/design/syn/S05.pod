@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 18 May 2008
+   Last Modified: 11 Jun 2008
    Number: 5
-   Version: 79
+   Version: 80
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -181,7 +181,7 @@ the next character is a left parenthesis.)
 The single-character modifiers also have longer versions:
 
          :i        :ignorecase
-         :b        :basechar
+         :a        :ignoreaccent
          :g        :global
 
 =item *
@@ -227,7 +227,7 @@ included in the analysis.
 
 =item *
 
-The C<:b> (or C<:basechar>) modifier scopes exactly like C<:ignorecase>
+The C<:a> (or C<:ignoreaccent>) modifier scopes exactly like C<:ignorecase>
 except that it ignores accents instead of case.  It is equivalent
 to taking each grapheme (in both target and pattern), converting
 both to NFD (maximally decomposed) and then comparing the two base
@@ -237,7 +237,7 @@ of determining the truth of the assertion; the actual text matched
 includes all ignored characters, including any that follow the final
 base character.
 
-The C<:bb> (or C<:samebase>) variant may be used on a substitution to change the
+The C<:aa> (or C<:sameaccent>) variant may be used on a substitution to change the
 substituted string to the same accent pattern as the matched string.
 Accent info is carried across on a character by character basis.  If
 the right string is longer than the left one, the remaining characters
@@ -968,8 +968,8 @@ As with a scalar variable, each element is matched as a literal
 unless it happens to be a C<Regex> object, in which case it is matched
 as a subrule.  As with scalar subrules, a tainted subrule always fails.
 All string values pay attention to the current C<:ignorecase>
-and C<:basechar> settings, while C<Regex> values use their own
-C<:ignorecase> and C<:basechar> settings.
+and C<:ignoreaccent> settings, while C<Regex> values use their own
+C<:ignorecase> and C<:ignoreaccent> settings.
 
 When you get tired of writing:
 
@@ -1069,7 +1069,7 @@ Any other value causes the match to fail.
 =back
 
 All hash keys, and values that are strings, pay attention to the
-C<:ignorecase> and C<:basechar> settings.  (Subrules maintain their
+C<:ignorecase> and C<:ignoreaccent> settings.  (Subrules maintain their
 own case settings.)
 
 You may combine multiple hashes under the same longest-token
