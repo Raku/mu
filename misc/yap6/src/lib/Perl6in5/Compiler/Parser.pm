@@ -562,7 +562,14 @@ sub one {
         my ($q, $np) = (0, scalar @p); # trace
         my ($v,$r,$z);
         my $b = {};
-        %{$b} = %{$in};
+        eval {
+            %{$b} = %{$in};
+        };
+        if ($@) {
+            use Carp 'confess';
+            confess('argh');
+        }
+
         for (@p) {
             $q++; # trace
             my $c = {};
