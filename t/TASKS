@@ -20,7 +20,6 @@ S12
 * tests for $object.WALK
 * tests for $object.*@candidates
 * tests for $object.'+whatever' versus $object.+whatever
-* tests for parallel dispatch
 * tests for "but" (such as 0 but Bool::True)
 
 S29
