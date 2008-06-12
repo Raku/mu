@@ -6,7 +6,7 @@ use strict;
 use base 'Exporter';
 our @EXPORT = qw ( make_parser );
 
-use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
+#use Perl6in5::Compiler::Trace; # set env var TRACE for trace output
 
 # isa Perl6in5::Grammar someday (to inherit some of the common features below)
 
@@ -120,7 +120,7 @@ sub make_parser {
     sub condBlk () { $CondBlk };
 
     # these hash keys are coderef (addresses)
-    our %N = (
+    %N = (
         $Expr             => 'Expr',
         $Term             => 'Term',
         $Factor           => 'Factor',
@@ -159,7 +159,6 @@ sub make_parser {
         $Func_say         => 'Func_say',
         $BareInt          => 'BareInt',
         $Identifier       => 'Identifier',
-        $Nothing          => 'Nothing',
         $BareString       => 'BareString',
         $CondBlk          => 'CondBlk'
     );
@@ -178,10 +177,10 @@ sub make_parser {
     rule program {
             # everything must start with a use v6; statement until
             # the perl5zone rule is operational.
-            -((usev6)--)
-          . opt(stmtTrm
-          - opt(pkgDecl--)
-          . opt(stmtList))
+            opt(-(usev6)
+          - opt(stmtTrm
+          - opt(pkgDecl)
+          - opt(stmtList)))
     };
 
     rule pkgDecl {
@@ -195,11 +194,11 @@ sub make_parser {
     };
 
     rule identifier {
-        match( qr|^([A-Za-z_]\w*)| )
+            match( qr|^([A-Za-z_]\w*)| )
     };
 
     rule bareInt {
-        match( qr|^(\d+)| )
+            match( qr|^(\d+)| )
     };
 
     rule sVari {
@@ -211,9 +210,9 @@ sub make_parser {
     };
 
     rule stmtList {
-           -((   block . opt(( stmtTrm | -(hit("\n")--) ) . opt(stmtList))
+           -(opt(stmtTrm)) - (   block . opt(( stmtTrm | -(hit("\n"))) . opt(stmtList))
               | nbexpr . opt(      stmtTrm          . opt(stmtList) )
-            )--)
+            )
     };
 
     rule bareString {
@@ -237,13 +236,7 @@ sub make_parser {
     };
 
     rule func_say {
-        keyword('say') + expr
-    };
-
-    rule op_numaddt {
-            term
-          - star('+' - term
-               | '-' - term)
+            keyword('say') + expr
     };
 
     rule blkBare {
@@ -255,18 +248,18 @@ sub make_parser {
     };
 
     rule blkPrmbl {
-            one(opt(blkModf++)
+            one(opt(blkModf)
             # this is an example of sometimes having to enumerate various
             # possiblities during a sequence of variously optional terms
             # in order to force the obtaining of the appropriate token set
             # blkType is the only required term in the block preamble
-          . (scpDecl + clype + blkType | scpDecl + blkType | blkType )
-          - opt(opt('^') . identifier) - opt(+(vsblty)) . opt(+(w('()',opt(blkPrms))))
+          . (+scpDecl + (clype + blkType | blkType) | +blkType )
+          . opt(+(opt('^') . identifier)) . opt(+(vsblty)) . opt(+(w('()',opt(blkPrms))))
           . opt(+(blkTrait))
           , compUnit
           , flowCtrl
           , blkLabl
-          , arrowInv - opt(',' - opt(blkPrms)))
+          , arrowInv . opt(-',' - blkPrms))
     };
 
     rule arrowInv {
@@ -286,7 +279,7 @@ sub make_parser {
     };
 
     rule condBlk { # Until I die, I would cry unless unless/until were included.
-        # if unless elsif else 
+            # if unless elsif else 
     };
 
     rule compUnit {
@@ -320,7 +313,7 @@ sub make_parser {
 
     # block parameter declaration
     rule blkPrms {
-            opt(invcDecl) . plus(-(comma) - (prmDecl)--)
+            opt(invcDecl) . plus(-(comma) - prmDecl)
     };
     
     # invocant declaration
@@ -329,15 +322,16 @@ sub make_parser {
     };
 
     rule prmDecl {
-            opt(clype++) . sVari
+            sVari
+          | clype + sVari
     };
 
     rule vsblty {
-        keywords(qw{ public private })
+            keywords(qw{ public private })
     };
 
     rule stmtTrm {
-            plus(-(';'--))
+            plus(-';')
     };
 
     rule scpDecl {
@@ -355,7 +349,14 @@ sub make_parser {
     };
 
     rule assign {
-            opt(scpDecl++) . prmDecl - '=' - expr
+            (prmDecl | scpDecl + prmDecl)
+            - '=' - expr
+    };
+
+    rule op_numaddt {
+            term
+          - star('+' - term
+               | '-' - term)
     };
 
     # This is a great example of how to structure an operator level's
@@ -380,7 +381,7 @@ sub make_parser {
             print STDERR $msg."\n";
             return 255;
         } else {
-            print "parse successful\n";#:".Dumper($result)."\n";
+            print "parse successful\n:".Dumper($r)."\n";
             return 0;
         }
     }
