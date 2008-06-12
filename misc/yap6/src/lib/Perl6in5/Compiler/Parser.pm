@@ -61,12 +61,14 @@ sub execnow (&) { $_[0]->() }
 
 sub say (@) { print($_,"\n") for @_ }
 
-sub parser (&) { 
-    bless(  
-    #mapply( 
-    $_[0]
-    # ) 
-    => __PACKAGE__ );
+sub parser (&) {
+    #mapply(  $_[0],
+        bless( $_[0] => __PACKAGE__ )
+    #);
+}
+
+sub parser2 (&) {
+    bless( $_[0] => __PACKAGE__ )
 }
 
 sub dump1 {
@@ -189,11 +191,14 @@ sub mapply {
     #    Todd Millstein
 
     my $q = $_[0];
+    trace 1,"Building a mapply parser";
     my $p;
-    my $tmp = $p = parser {
+    my $tmp = $p = parser2 {
         my ($in,$cont) = @_;
+        trace 1,"Got to mapply. in: ".Dumper($in);
         my $pos = $in->{'pos'};
         my $m = mrecall($q,$pos);
+        trace 1,"mrecall returned ".Dumper($m);
         if (!defined $m) {
             
             # Initialize a new (lexical) @lr
@@ -229,7 +234,7 @@ sub mapply {
                 # if the LR's rule isn't our current rule
                 # must dereference the head, since they're
                 # all really stored in %H.
-                if (${$lr[2]}->{rule} ne $q) {
+                if ("${$lr[2]}->{rule}" ne "$q") {
                     
                     # return the LR's seed
                     return $lr[0];
@@ -296,7 +301,7 @@ sub mapply {
             if (ref $m eq 'ARRAY') {
                 
                 # initialize the LR
-                # if there's already a head
+                # if there's not already a head
                 if (!defined $m->[2]) {
                     
                     # define a head
@@ -309,7 +314,8 @@ sub mapply {
                     my $hdr = \$hd;
                     
                     if (my $s = pop @L) {
-                        while ( $s->[2] ne $hdr ) {
+                        trace 2,"popped rule is ".Dumper($s);
+                        while ( "$s->[2]" ne "$hdr" ) {
                             $s->[2] = $hdr;
                             $hd->{iSet}->{$s->[1]} = 1;
                             if (scalar(@L)) {
@@ -326,11 +332,9 @@ sub mapply {
             } else {
                 return deep_copy($m);
             }
-            
         }
-        
     };
-    $N{$p} = "_$N{$q}_";
+    $N{$p} = "_mapply_";
     weaken($p);
     $p;
 }
@@ -568,10 +572,9 @@ sub one {
             $q++; # trace
             my $c = {};
             %{$c} = %{$b};
-            trace 2,"Trying $q/$np: ".$N{$p[$q-1]}." on ".left($c)." and will send to ".$N{$cont};
-            trace 2," b pos is ".$b->{'pos'};
+            trace 3,"Trying $q/$np: ".$N{$p[$q-1]}." on ".left($c)." and will send to ".$N{$cont};
             $r = $_->($c,$cont);
-            trace 2," b pos is ".$b->{'pos'};
+            trace 3," b pos is ".$b->{'pos'};
             trace 4,"one: ".$N{$p[$q-1]}." returned ".Dumper($r);
             unless ($r->{success}) {
                 trace 2,"Failed $q/$np: ".$N{$p[$q-1]};
