@@ -23,7 +23,7 @@ use warnings;
         $obj;
     }
 }
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       
 
 # Move to the Regexp prelude once that becomes part of the prelude.
@@ -41,6 +41,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
     "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
   }
 }
+
 
 {package UNDEF; sub WHAT {"Undef"}}
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox::universal::type($_[0]) } } # For IRx1_FromAST.pm.
@@ -234,14 +235,24 @@ use warnings;
     *gather = \&Private::gather;
     *take   = \&Private::take;}
 
-  our $a_ARGS = [@ARGV];
+  our $a_ARGS = [map {encoding::decode("utf8",$_)} @ARGV];
 
   sub undef{undef}
 
   use Carp;
-  sub slurp{my($file)=@_; my $s = `cat $file`; $s}
-  sub unslurp{
-    my($text,$file)=@_; open(F,">$file") or CORE::die $!; CORE::print F $text; close F;}
+  sub slurp {
+    my($file)=@_;
+    local $/;
+    open(my $fh,"<:utf8",$file);
+    my $s = <$fh>;
+    $s
+  }
+  sub unslurp {
+    my($text,$file)=@_;
+    open(my $fh,">:utf8",$file) or CORE::die $!;
+    CORE::print $fh $text;
+    close $fh;
+  }
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
   sub eval_perl5{
@@ -356,7 +367,7 @@ use warnings;
 
 package Main;
 
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package Bit;
@@ -701,7 +712,7 @@ use base "Any";(do{sub Str{my $self=CORE::shift;(do{(($self->key . "\	") . $self
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package Match;
@@ -801,7 +812,7 @@ use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) .
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package ARRAY;
@@ -2656,7 +2667,7 @@ sub irx1_describe{my $self=CORE::shift;(do{(("RxSymbol\(" . $self->symbol->irx1_
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package IRx1_Build;
@@ -3217,7 +3228,7 @@ $main::irbuilder->add_constructor("regex_metachar", sub {my($m)=@_;
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package IRx1::CompUnit;
@@ -3427,7 +3438,7 @@ use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() 
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package EmitSimpleP5;
@@ -3456,7 +3467,7 @@ sub tidy{my $self=CORE::shift;my($source)=@_;
 \ \ \ \ \}\
 \ \ \ \ ")->($source))})};
 sub prelude_for_entering_a_package{my $self=CORE::shift;(do{""})};
-sub prelude_lexical{my $self=CORE::shift;(do{"use\ autobox\ ARRAY\ \=\>\ \'ARRAY\'\,\ HASH\ \=\>\ \'HASH\'\,\ CODE\ \=\>\ \'CODE\'\,\ INTEGER\ \=\>\ \'INTEGER\'\,\ FLOAT\ \=\>\ \'FLOAT\'\,\ STRING\ \=\>\ \'STRING\'\,\ UNDEF\ \=\>\ \'UNDEF\'\;\ \ use\ utf8\;\
+sub prelude_lexical{my $self=CORE::shift;(do{"use\ autobox\ ARRAY\ \=\>\ \'ARRAY\'\,\ HASH\ \=\>\ \'HASH\'\,\ CODE\ \=\>\ \'CODE\'\,\ INTEGER\ \=\>\ \'INTEGER\'\,\ FLOAT\ \=\>\ \'FLOAT\'\,\ STRING\ \=\>\ \'STRING\'\,\ UNDEF\ \=\>\ \'UNDEF\'\;\ \ use\ encoding\ \'utf8\'\;\
 \ \ \ \ \ \ "})};
 sub prelude_oo{my $self=CORE::shift;(do{"\
 \{package\ AssertCurrentModuleVersions\;\
@@ -3493,6 +3504,7 @@ use\ warnings\;\
 \ \ \ \ \"\}\;\ if\(\!FAILED\(\\\$__v__\)\)\{\ \(\$tmpvars\)\=\(\$vars\)\;\ \}\}\;\ if\(\!FAILED\(\\\$__v__\)\)\{\ \(\$vars\)\=\(\$tmpvars\)\ \}\;\ \\\$__v__\ \}\)\"\
 \ \ \}\
 \}\
+\
 \
 \{package\ UNDEF\;\ sub\ WHAT\ \{\"Undef\"\}\}\
 \{package\ UNIVERSAL\;\ sub\ ref\ \{CORE\:\:ref\(\$_\[0\]\)\ \|\|\ autobox\:\:universal\:\:type\(\$_\[0\]\)\ \}\ \}\ \#\ For\ IRx1_FromAST\.pm\.\
@@ -3686,14 +3698,24 @@ use\ warnings\;\
 \ \ \ \ \*gather\ \=\ \\\&Private\:\:gather\;\
 \ \ \ \ \*take\ \ \ \=\ \\\&Private\:\:take\;\}\
 \
-\ \ our\ \$a_ARGS\ \=\ \[\@ARGV\]\;\
+\ \ our\ \$a_ARGS\ \=\ \[map\ \{encoding\:\:decode\(\"utf8\"\,\$_\)\}\ \@ARGV\]\;\
 \
 \ \ sub\ undef\{undef\}\
 \
 \ \ use\ Carp\;\
-\ \ sub\ slurp\{my\(\$file\)\=\@_\;\ my\ \$s\ \=\ \`cat\ \$file\`\;\ \$s\}\
-\ \ sub\ unslurp\{\
-\ \ \ \ my\(\$text\,\$file\)\=\@_\;\ open\(F\,\"\>\$file\"\)\ or\ CORE\:\:die\ \$\!\;\ CORE\:\:print\ F\ \$text\;\ close\ F\;\}\
+\ \ sub\ slurp\ \{\
+\ \ \ \ my\(\$file\)\=\@_\;\
+\ \ \ \ local\ \$\/\;\
+\ \ \ \ open\(my\ \$fh\,\"\<\:utf8\"\,\$file\)\;\
+\ \ \ \ my\ \$s\ \=\ \<\$fh\>\;\
+\ \ \ \ \$s\
+\ \ \}\
+\ \ sub\ unslurp\ \{\
+\ \ \ \ my\(\$text\,\$file\)\=\@_\;\
+\ \ \ \ open\(my\ \$fh\,\"\>\:utf8\"\,\$file\)\ or\ CORE\:\:die\ \$\!\;\
+\ \ \ \ CORE\:\:print\ \$fh\ \$text\;\
+\ \ \ \ close\ \$fh\;\
+\ \ \}\
 \ \ sub\ file_exists\{\-e\ \$_\[0\]\}\
 \ \ sub\ system\{CORE\:\:system\(\@_\)\}\
 \ \ sub\ eval_perl5\{\
@@ -4356,7 +4378,7 @@ if(GLOBAL::not($GLOBAL::emitter0)) {
 ($GLOBAL::emitter1 = EmitSimpleP5->new());
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package EmitFasterP5;
@@ -4403,7 +4425,7 @@ $code})}})
 ($GLOBAL::emitter1 = EmitFasterP5->new());
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 sub header{use Math::Trig qw();};
 header();
@@ -4474,7 +4496,7 @@ CORE::rmdir($dirname)}})
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package Parser;
@@ -4493,8 +4515,8 @@ my $msg = (("Parse\ error\ in\:\ " . $claim_as_filename) . "\
 my $cmd = (((((($parser . "\ \-\-error\-message\=\'") . $msg) . "\'\ \-q\ \-\-format\=p5a\ ") . $input) . "\ \>\ ") . $output);
 ((GLOBAL::system($cmd) == 0) or GLOBAL::die("Parse\ failed\.\
 "));
-my $dump5 = GLOBAL::slurp($output);
-my $tree = GLOBAL::eval_perl5(("package\ Fastdump\;" . $dump5));
+my $dump5 = ("package\ Fastdump\;" . GLOBAL::slurp($output));
+my $tree = GLOBAL::eval_perl5($dump5);
 GLOBAL::unlink($input, $output);
 $tree})};
 sub parser_name{my $self=CORE::shift;(do{GLOBAL::parser_name()})}})
@@ -4510,7 +4532,7 @@ if(GLOBAL::not($GLOBAL::parser0)) {
 ($GLOBAL::parser1 = Parser->new());
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package Compiler;
@@ -4649,7 +4671,7 @@ if(GLOBAL::not($GLOBAL::compiler0)) {
 ($GLOBAL::compiler1 = Compiler->new());
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
 { package Program;
@@ -4755,7 +4777,7 @@ $at_end->()})}})
 Program->new()->main($GLOBAL::a_ARGS);
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 ;
 ;

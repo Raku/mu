@@ -11,8 +11,8 @@ class Parser {
     my $msg = "Parse error in: "~$claim_as_filename~"\n";
     my $cmd = $parser ~ " --error-message='"~$msg~"' -q --format=p5a "~$input~" > "~$output;
     system($cmd) == 0 or die("Parse failed.\n");
-    my $dump5 = slurp($output);
-    my $tree = eval_perl5("package Fastdump;"~$dump5);
+    my $dump5 = "package Fastdump;"~slurp($output);
+    my $tree = eval_perl5($dump5);
     unlink($input,$output);
     $tree;
   };

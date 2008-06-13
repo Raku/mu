@@ -31,7 +31,7 @@ class EmitSimpleP5 {
   };
 
   method prelude_lexical () {
-    "use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
+    "use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       ";
   };
 
@@ -72,6 +72,7 @@ use warnings;
     "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
   }
 }
+
 
 {package UNDEF; sub WHAT {"Undef"}}
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox::universal::type($_[0]) } } # For IRx1_FromAST.pm.
@@ -265,14 +266,24 @@ use warnings;
     *gather = \&Private::gather;
     *take   = \&Private::take;}
 
-  our $a_ARGS = [@ARGV];
+  our $a_ARGS = [map {encoding::decode("utf8",$_)} @ARGV];
 
   sub undef{undef}
 
   use Carp;
-  sub slurp{my($file)=@_; my $s = `cat $file`; $s}
-  sub unslurp{
-    my($text,$file)=@_; open(F,">$file") or CORE::die $!; CORE::print F $text; close F;}
+  sub slurp {
+    my($file)=@_;
+    local $/;
+    open(my $fh,"<:utf8",$file);
+    my $s = <$fh>;
+    $s
+  }
+  sub unslurp {
+    my($text,$file)=@_;
+    open(my $fh,">:utf8",$file) or CORE::die $!;
+    CORE::print $fh $text;
+    close $fh;
+  }
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
   sub eval_perl5{
