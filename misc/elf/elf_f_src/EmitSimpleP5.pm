@@ -74,8 +74,8 @@ use warnings;
 }
 
 {package UNDEF; sub WHAT {"Undef"}}
-{package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox->type($_[0]) } } # For IRx1_FromAST.pm.
-{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox->type($_[0]) } }
+{package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox::universal::type($_[0]) } } # For IRx1_FromAST.pm.
+{package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox::universal::type($_[0]) } }
 
 { package UNDEF;
   sub perl { "undef" }
