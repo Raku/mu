@@ -6,15 +6,13 @@ package Perl6in5::Compiler::Trace;
 use Filter::Simple;
 FILTER {
     my $level = $ENV{TRACE};
-    my $maxtrace = 6;
+    my $maxtrace = 8;
     if (defined $level && $level <= $maxtrace && $level > 0) {
         s/'tracelevel'/${level}/mg;
         while ($level < $maxtrace ) {
             $level++;
-            s/^\s+trace.${level}.*$//mg;
+            s/^(\s+trace.${level}.*)$/#$1/mg;
         }
-        # remove the memoization stuff, b/c it breaks tracing/debugging.
-        s/^.*memoize$/\n/mg;
     } else {
         s/^\s+trace.*$//mg;
         s/^.*trace$//mg;

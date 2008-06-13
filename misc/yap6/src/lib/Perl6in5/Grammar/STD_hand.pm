@@ -216,7 +216,7 @@ sub make_parser {
     };
 
     rule bareString {
-      #  w('""',star(unmore('"') . (hit("C") | hit("INT") | hit("ID")))) | w("''",star(unmore("'") . identifier))
+      #  w('""',star(unmore('"'))) | w("''",star(unmore("'") . identifier))
     };
 
     rule nbexpr {
@@ -252,6 +252,7 @@ sub make_parser {
             # this is an example of sometimes having to enumerate various
             # possiblities during a sequence of variously optional terms
             # in order to force the obtaining of the appropriate token set
+            # (because of overlap of the patterns)
             # blkType is the only required term in the block preamble
           . (+scpDecl + (clype + blkType | blkType) | +blkType )
           . opt(+(opt('^') . identifier)) . opt(+(vsblty)) . opt(+(w('()',opt(blkPrms))))
@@ -359,8 +360,6 @@ sub make_parser {
                | '-' - term)
     };
 
-    # This is a great example of how to structure an operator level's
-    # (recursive) grammar syntax.
     rule term {
             factor - star('*' - factor | '/' - factor )
     };

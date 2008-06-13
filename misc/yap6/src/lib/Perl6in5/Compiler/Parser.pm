@@ -7,7 +7,7 @@ package Perl6in5::Compiler::Parser;
 use Exporter;
 our @EXPORT_OK = qw(hit eoi nothing debug star opt %stat
                 say all one flatten newline left ceoi
-                trace %N parser check execnow $Nothing
+                trace %N parser check $Nothing
                 ch w keyword keywords panic p6ws
                 unspace optws manws opttws mantws through
                 plus both match unmore );
@@ -57,13 +57,11 @@ use Data::Dumper;
 #$Data::Dumper::Deparse = 1; # trace
 #$Data::Dumper::Deparse = 1; # debug
 
-sub execnow (&) { $_[0]->() }
-
 sub say (@) { print($_,"\n") for @_ }
 
 sub parser (&) {
-    #mapply(  $_[0],
-        bless( $_[0] => __PACKAGE__ )
+    #mapply(
+        parser2( $_[0] )
     #);
 }
 
@@ -140,6 +138,7 @@ our %M;
 
 # setter/getter for a memo table entry.
 sub mmemo {
+    trace 1,"mmemo got: ".Dumper(\@_)." from ".Dumper([caller(0),caller(1),caller(2)]) unless defined $_[1];
     # inputs: rule, position, $ans|$lr
     $M{$_[1]}->{$_[0]} = $_[2] if defined $_[2];
     # outputs: [ $ans, $pos ]
@@ -197,22 +196,24 @@ sub mapply {
     my $p;
     my $tmp = $p = parser2 {
         $stat{rulecalls}++;
-        trace 1,"in rulecall $stat{rulecalls}";
+        trace 6,"in rulecall $stat{rulecalls}";
         my ($in,$cont) = @_;
-        trace 5,"Got to mapply. in: ".Dumper($in);
+        trace 1,"Got to mapply. in: ".Dumper($in,[caller(0),caller(1),caller(2),caller(3),caller(4)]) unless defined $in->{'pos'};
+        die unless defined $in->{'pos'};
         my $pos = $in->{'pos'};
+        trace 7,"mappy pos is ".$pos;
         my $m = mrecall($q,$pos);
         trace 5,"mrecall returned ".Dumper($m);
         if (!defined $m) {
-            trace 1,"mapply $pos - m was not defined";
+            trace 5,"mapply $pos - m was not defined";
             
             # Initialize a new (lexical) @lr
-            my @lr = ( 'FAIL', $q, undef );
+            my @lr = ( {%$in, success=>0}, $q, undef );
             
-            # push the newly created left-recursive
+            # push a reference to the newly created left-recursive
             # entry onto the left-recursive stack.
             push @L, \@lr;
-            trace 1,"mapply \@L is now ".scalar(@L);
+            trace 5,"mapply \@L is now ".scalar(@L);
             
             # Set the initial memo table entry for
             # this rule/pos to be that $lr
@@ -236,7 +237,7 @@ sub mapply {
             
             # check if its evaluation created a "head"
             if (defined $lr[2]) {
-                trace 1,"mapply $pos - lr-head was defined";
+                trace 5,"mapply $pos - lr-head was defined";
                 
                 # store the result of $q (and its continuation(s))
                 # in the left-recursive item's seed slot.
@@ -246,7 +247,7 @@ sub mapply {
                 # must dereference the head, since they're
                 # all really stored in %H.
                 if (defined ${$lr[2]}->{rule} && "${$lr[2]}->{rule}" ne "$q") {
-                    trace 1,"mapply $pos - rule was different from q";
+                    trace 5,"mapply $pos - rule was different from q";
                     
                     # return the LR's seed
                     return $lr[0];
@@ -267,17 +268,20 @@ sub mapply {
                     } else {
                         # the branch succeeded
                         
+                        trace 6,"lr being committed is ".Dumper(\@lr);
                         # commit the head to head storage
-                        $H{$pos} = $lr[2];
+                        $H{$pos} = ${$lr[2]};
                         
                         # 
                         while (1) {
-                            
+                            trace 6,"resetting eSet for ";#.Dumper($H{$pos});
                             # at each iteration, the involved
                             # rules get another chance to hit.
+                            trace 6,"ref Hpos is ".ref($H{$pos});
                             delete $H{$pos}->{eSet} if exists
                                 $H{$pos}->{eSet};
                             $H{$pos}->{eSet} = ohr();
+                            trace 6,"got here 234";
                             foreach (keys %{$H{$pos}->{iSet}}) {
                                 $H{$pos}->{eSet}->{$_} = 
                                     $H{$pos}->{iSet}->{$_};
@@ -298,7 +302,7 @@ sub mapply {
                     }
                     
                 }
-                trace 1,"mapply $pos - lr-head was NOT defined";
+                trace 5,"mapply $pos - lr-head was NOT defined";
                 
             } else {
                 # commit the change to the memo table;
@@ -356,17 +360,17 @@ sub mrecall {
     # inputs: rule, position, input
     my $m = mmemo($_[0],$_[1]);
     return $m if (!exists $H{$_[1]} || keys(%{$H{$_[1]}}) == 0);
-    unless (
-        !defined $m ||
+    if (
+        !defined $m && (
         exists $H{$_[1]}->{head}->{$_[0]} ||
-        exists $H{$_[1]}->{iSet}->{$_[0]}
+        exists $H{$_[1]}->{iSet}->{$_[0]} )
     ) {
-        return {%{$_[2]}, success=>0, 'pos'=>$_[1]};
+        return err($_[2],"mrecall failure");
     }
     if (exists $H{$_[1]}->{eSet}->{$_[0]}) {
         delete $H{$_[1]}->{eSet}->{$_[0]};
         my $r = $_[0]->($_[2],mreflect());
-        $m = [ ($r->{success})?$r->{ast}:'FAIL',
+        $m = [ $r,
                 $r->{'pos'} ];
     }
     $m;
@@ -537,7 +541,7 @@ sub hit {
         my $tier = []; # the new tier in the AST
         for my $i (1..$count) {
             trace 6,"in hit:".Dumper($in)." l is $l  i is $i  want is ".Dumper($want);
-            unless (substr(left($in),$l*($i-1),$l*$i) eq $want) {
+            unless (substr(left($_[0]),$l*($i-1),$l*$i) eq $want) {
                 trace 3,"hit missed";
                 return err($in,$want);
             }
