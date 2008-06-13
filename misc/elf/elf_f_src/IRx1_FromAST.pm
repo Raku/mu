@@ -199,7 +199,13 @@ IRx1::Apply.newp($m,irbuild_ir($m.{'hash'}{'subshortname'}),IRx1::Capture.newp($
     });
 
     $main::irbuilder.add_constructor('subshortname', sub ($m) {
-      ($m.match_string);
+      if $m.{'hash'}{'category'} {
+my $cat = $m.{'hash'}{'category'}.match_string;
+my $op = $m.{'hash'}{'colonpair'}[0].{'hash'}{'structural'}.{'hash'}{'kludge_name'};
+$cat~':'~$op;
+} else {
+($m.match_string)
+};
     });
 
     $main::irbuilder.add_constructor('statement_control:use', sub ($m) {

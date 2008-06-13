@@ -2440,7 +2440,13 @@ if(($t && ($t eq "\."))) {
 $main::irbuilder->add_constructor("name", sub {my($m)=@_;
 (do{($m->match_string())})});
 $main::irbuilder->add_constructor("subshortname", sub {my($m)=@_;
-(do{($m->match_string())})});
+(do{if($m->{"hash"}->{"category"}) {
+(do{my $cat = $m->{"hash"}->{"category"}->match_string();
+my $op = $m->{"hash"}->{"colonpair"}->[0]->{"hash"}->{"structural"}->{"hash"}->{"kludge_name"};
+(($cat . "\:") . $op)})
+}else {
+(do{($m->match_string())})
+}})});
 $main::irbuilder->add_constructor("statement_control\:use", sub {my($m)=@_;
 (do{IRx1::Use->newp($m, "use", irbuild_ir($m->{"hash"}->{"module_name"}), irbuild_ir($m->{"hash"}->{"EXPR"}))})});
 $main::irbuilder->add_constructor("module_name\:depreciated", sub {my($m)=@_;
@@ -3660,6 +3666,7 @@ my $code = "";
 (((((("sub\ " . $branch_name) . "\{my\ \$self\=CORE\:\:shift\;") . $self->e($n->multisig())) . $self->e($n->block())) . "\}") . $code)})};
 sub multi_using_CM{my $self=CORE::shift;my($n,$is_method,$f_emitted)=@_;
 (do{my $name = $self->e($n->name());
+my $enc_name = $self->encode_function_name($name);
 my $param_types = $n->multisig()->parameters()->map(sub {my($p)=@_;
 (do{my $types = $self->e($p->type_constraints());
 if($types) {
@@ -3685,7 +3692,7 @@ my $sig = $param_types->map(sub {my($t)=@_;
 }else {
 (do{$t})
 }})})->join("\ ");
-(((((("Class\:\:Multimethods\:\:multimethod\ " . $name) . "\ \=\>\ split\(\/\\s\+\/\,\'") . $sig) . "\'\)\ \=\>\ ") . $f_emitted) . "\;")})};
+(((((("Class\:\:Multimethods\:\:multimethod\ " . $enc_name) . "\ \=\>\ split\(\/\\s\+\/\,\'") . $sig) . "\'\)\ \=\>\ ") . $f_emitted) . "\;")})};
 sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
 (do{my $body;
 if((($n->traits() && $n->traits()->[0]->expr()) && ($n->traits()->[0]->expr() eq "p5"))) {
@@ -3697,7 +3704,8 @@ if(($n->plurality() && ($n->plurality() eq "multi"))) {
 (do{my $ef = ((("sub\ \{my\ \$self\=CORE\:\:shift\;" . $self->e($n->multisig())) . $body) . "\}");
 $self->multi_using_CM($n, 1, $ef)})
 }else {
-(do{((((("sub\ " . $self->e($n->name())) . "\{my\ \$self\=CORE\:\:shift\;") . $self->e($n->multisig())) . $body) . "\}")})
+(do{my $enc_name = $self->encode_function_name($self->e($n->name()));
+((((("sub\ " . $enc_name) . "\{my\ \$self\=CORE\:\:shift\;") . $self->e($n->multisig())) . $body) . "\}")})
 }})};
 sub cb__SubDecl{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
@@ -3723,7 +3731,8 @@ if(($n->plurality() && ($n->plurality() eq "multi"))) {
 (do{my $ef = ((("sub\ \{" . $sig) . $body) . "\}");
 $self->multi_using_CM($n, 0, $ef)})
 }else {
-(do{((((("sub\ " . $name) . "\{") . $sig) . $body) . "\}")})
+(do{my $enc_name = $self->encode_function_name($name);
+((((("sub\ " . $enc_name) . "\{") . $sig) . $body) . "\}")})
 }})};
 sub cb__Signature{my $self=CORE::shift;my($n)=@_;
 (do{if((($n->parameters()->elems() == 0))) {
@@ -3763,11 +3772,21 @@ $op->re_gsub("\ ", $arg);
 (do{((((($self->e($n->invocant()) . "\-\>") . $self->e($n->method())) . "\(") . $self->e($n->capture())) . "\)")})
 }})};
 sub using_Moose{my $self=CORE::shift;(do{1})};
+sub encode_function_name{my $self=CORE::shift;my($name)=@_;
+(do{$name->re_sub("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_");
+$name->re_sub("\(\[\^\\w\:\]\)", "\"_\"\.CORE\:\:ord\(\$1\)", "eg");
+$name})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 (do{my $fun = $self->e($n->function());
-if(($fun =~ qr/^infix:(.+)$/)) {
+if($n->notes()->{'lexical_bindings'}->{("\&" . $fun)}) {
+(do{my $fe = $self->encode_function_name($fun);
+(((("" . $fe) . "\(") . $self->e($n->capture())) . "\)")})
+}elsif(($fun =~ qr/^infix:(.+)$/)) {
 (do{my $op = $1;
 my $args = $n->capture()->arguments();
+if(((($args->elems() == 1) && $args->[0]->isa("IRx1\:\:Apply")) && ($args->[0]->function() eq "infix\:\,"))) {
+(do{($args = $args->[0]->capture()->arguments())})
+};
 my $a = $self->e($args);
 my $l = $a->[0];
 my $r = $a->[1];

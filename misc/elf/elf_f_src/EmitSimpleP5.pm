@@ -567,6 +567,7 @@ package Main;
   };
   method multi_using_CM ($n,$is_method,$f_emitted) {
     my $name = $.e($n.name);
+    my $enc_name = $.encode_function_name($name);
     my $param_types = $n.multisig.parameters.map(sub($p){
       my $types = $.e($p.type_constraints);
       if $types {
@@ -587,7 +588,7 @@ package Main;
       elsif $t eq 'Str' { '$' }
       else { $t }
     }).join(' ');
-    'Class::Multimethods::multimethod '~$name~
+    'Class::Multimethods::multimethod '~$enc_name~
     " => split(/\s+/,'"~$sig~"') => "~ $f_emitted ~';';
   };
   method cb__MethodDecl ($n) {
@@ -604,7 +605,8 @@ package Main;
       self.multi_using_CM($n,1,$ef);
     }
     else {
-      'sub '~$.e($n.name)~'{my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
+      my $enc_name = $.encode_function_name($.e($n.name));
+      'sub '~$enc_name~'{my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
     }
   };
 
@@ -624,7 +626,8 @@ package Main;
       my $ef = 'sub {'~$sig~$body~'}';
       self.multi_using_CM($n,0,$ef);
     } else {
-      'sub '~$name~'{'~$sig~$body~'}';
+      my $enc_name = $.encode_function_name($name);
+      'sub '~$enc_name~'{'~$sig~$body~'}';
     }
   };
   method cb__Signature ($n) {
@@ -672,12 +675,24 @@ package Main;
       # Moose-based class initializers.
       1;
   }
+  method encode_function_name($name) {
+     $name.re_sub('^(\w+):(?!:)','${1}_');
+     $name.re_sub('([^\w:])','"_".CORE::ord($1)','eg');
+     $name;
+  }
   method cb__Apply ($n) {
     # my $+whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
     my $fun = $.e($n.function);
-    if $fun =~ /^infix:(.+)$/ {
+    if $n.notes<lexical_bindings>{'&'~$fun} {
+       my $fe = $.encode_function_name($fun);
+       ''~$fe~'('~$.e($n.capture)~')'
+    }
+    elsif $fun =~ /^infix:(.+)$/ {
       my $op = $1;
       my $args = $n.capture.arguments;
+      if $args.elems == 1 && $args[0].isa('IRx1::Apply') && $args[0].function eq 'infix:,' {
+        $args = $args[0].capture.arguments;
+      }
       my $a = $.e($args);
       my $l = $a[0];
       my $r = $a[1];

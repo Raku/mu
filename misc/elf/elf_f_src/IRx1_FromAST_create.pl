@@ -129,7 +129,13 @@ name
 *text*
 
 subshortname
-*text*
+if $o<category> {
+  my $cat = $o<category>.match_string;
+  my $op = $o<colonpair>[0]<structural><kludge_name>;
+  $cat~':'~$op;
+} else {
+  *text*
+}
 
 statement_control:use
 Use.newp('use',$m<module_name>,$m<EXPR>)
