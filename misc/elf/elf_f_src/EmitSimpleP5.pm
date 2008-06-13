@@ -112,8 +112,8 @@ no warnings qw(redefine prototype);
   sub length   { CORE::length($_[0]); }
   sub bytes    { use bytes; CORE::length($_[0]); }
   sub chars    { CORE::length($_[0]); }
-  sub codes    { CORE::length($_[0]); }
-  sub graphs   { CORE::length($_[0]); }
+  sub codes    { my @c = unpack("U*",$_[0]); 0+@c }
+  sub graphs   { require String::Multibyte; String::Multibyte->new("Grapheme")->length($_[0]) }
 
   sub ord      { CORE::ord($_[0]); }
   sub pack     { CORE::pack(@_); }
