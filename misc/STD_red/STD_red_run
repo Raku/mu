@@ -91,10 +91,10 @@ END
 
     # Hacks
     whiteout = ->(s){s.gsub(/[^ \n]/,' ')};
-    #code = code.gsub(/\n=begin.*?\n=end[^\n]*/m) {|m|whiteout.(m)}
-    code = code.gsub(/\n=kwid.*?\n=cut[^\n]*/m) {|m|whiteout.(m)}
-    code = code.gsub(/\n=pod.*?\n=cut[^\n]*/m) {|m|whiteout.(m)}
-    code = code.gsub(/\n=head1.*?\n=cut[^\n]*/m) {|m|whiteout.(m)}
+    #code = code.gsub(/\n=begin.*?\n=end[^\n]*/um) {|m|whiteout.(m)}
+    code = code.gsub(/\n=kwid.*?\n=cut[^\n]*/um) {|m|whiteout.(m)}
+    code = code.gsub(/\n=pod.*?\n=cut[^\n]*/um) {|m|whiteout.(m)}
+    code = code.gsub(/\n=head1.*?\n=cut[^\n]*/um) {|m|whiteout.(m)}
 
     kibitz = false
     pn = Perl.new(code,at)

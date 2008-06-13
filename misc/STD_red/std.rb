@@ -137,23 +137,23 @@ class Perl < Grammar
         # make sure we're at end of a non-autoquoted identifier
         # regex nofat { <!before » \h* <.unsp>? '=>' > <!before \w> }
         (not before{ scan(/»/) and scan(/[ \t]*/) and (unsp;true) and scan(/=>/) } and
-         not before(/\w/))
+         not before(/\w/u))
     end
 
 
     if RUBY_VERSION =~ /\A(1\.9|2\.)/ # have look-behind
         $have_lookbehind = true
-        eval %q{ def wsp__after_and_before_ws; scan(/(?<=\w)(?=\w)/) end }
+        eval %q{ def wsp__after_and_before_ws; scan(/(?<=\w)(?=\w)/u) end }
     else
         $have_lookbehind = false
-        eval %q{ def wsp__after_and_before_ws; scan(/(?=\w)/) and after(/\w/)  end }
+        eval %q{ def wsp__after_and_before_ws; scan(/(?=\w)/u) and after(/\w/u)  end }
     end
 
     #R ws, renamed wsp to make life easier.
     def wsp
         pos == ws_to and return true
         #R# || <?after \w> <?before \w> ::: <!>        # must \s+ between words
-        #R# after(/\w/) and before(/\w/) and return false
+        #R# after(/\w/u) and before(/\w/u) and return false
         wsp__after_and_before_ws and return false
         @ws_from = pos
         starTOK{
@@ -187,7 +187,7 @@ class Perl < Grammar
         }
     end
 
-    def ident; scan(/[[:alpha:]_]\w*/); end
+    def ident; scan(/[[:alpha:]_]\w*/u); end
     
     def pod_comment
         @scanner.bol? and scan(/=/) and unsp? and
@@ -434,7 +434,7 @@ class Perl < Grammar
       scan(/v6-alpha/) and
        _match_from(start,{},:depreciated)
     }
-    def_token_full :module_name,false,'normal',/(?=\w)/,%q{
+    def_token_full :module_name,false,'normal',/(?=\w)/u,%q{
       (n=name and na= starTOK{ colonpair }) and
       (h={:name=>n};_hkv(h,:colonpair,na)
        _match_from(start,h,:normal))
@@ -723,7 +723,7 @@ class Perl < Grammar
         b = pos; id=v=q=sl=al=nil
         ((id= ident or
           (before(/\$|\@/) and v= variable) or
-          (before(/[\'\"]/) and q= quote and (q =~ /\W/ or panic("Useless use of quotes")))) and
+          (before(/[\'\"]/) and q= quote and (q =~ /\W/u or panic("Useless use of quotes")))) and
          unsp? and
          (let_pos{ scan(/\./); unsp; scan(/\(/) and sl= semilist and scan(/\)/) } or
           let_pos{ scan(/\:/) and before(/\s/) and (not $env_vars[:inqoute]) and al= arglist } or
@@ -1168,7 +1168,7 @@ class Perl < Grammar
             base = pedigree.shift
             eval("q.init_root_of_#{base}")
             pedigree.each{|mod|
-                ma = mod.match(/^:(!)?(\w+)$/) or raise "bug"
+                ma = mod.match(/^:(!)?(\w+)$/u) or raise "bug"
                 all,neg,name = ma.to_a
                 q.tweak(name => (neg ? false : 1))
             }
@@ -1320,7 +1320,7 @@ class Perl < Grammar
     def quotesnabber__non_fake(*qA)
         $env_vars.scope_enter(:delim)
         $env_vars[:delim] = '' 
-        v = ((not before(/\w/)) and nofat and #R XX? ::
+        v = ((not before(/\w/u)) and nofat and #R XX? ::
          wsp and
          starTOK{ q = quotepair and qA.push(q) and wsp } and
          # Dispatch to current lang's subparser.
@@ -2196,7 +2196,7 @@ class Perl < Grammar
           (
            (rmc= regex_metachar and wsp) or
            #R As a speed/simplicity hack, eat multiple \w
-           (w= scan(/\w(?:\w*(?=\w))?/) and wsp) or
+           (w= scan(/\w(?:\w*(?=\w))?/u) and wsp) or
            false #R XXX nonspec
            #R# panic("unrecognized metacharacter")
            )) and
@@ -2246,7 +2246,7 @@ class Perl < Grammar
     def_tokens_rest :regex_metachar,false,%w{ ::: :: },%q{
       _match_from(start,{},:commit) #R NONSPEC rule name
     }
-    def_token_full :regex_metachar,false,':',/:(?!\w)/,%q{
+    def_token_full :regex_metachar,false,':',/:(?!\w)/u,%q{
       _match_from(start,{},:commit) #R NONSPEC rule name
     }
 
@@ -2279,7 +2279,7 @@ class Perl < Grammar
                   codepoint) }
     rx_bs :o,%q{ octint or (scan(/\[/) and octint and starTOK{ scan(/,/) and octint} and scan(/\]/)) }
     rx_bs :x,%q{ hexint or (scan(/\[/) and hexint and starTOK{ scan(/,/) and hexint} and scan(/\]/)) }
-    def_token_full :regex_backslash,false,'misc',/\W/,nil #R NONSPEC should define a $<litchar>.
+    def_token_full :regex_backslash,false,'misc',/\W/u,nil #R NONSPEC should define a $<litchar>.
     def_token_full :regex_backslash,false,'oops',//,%q{ panic("unrecognized regex backslash sequence") }
 
     def_tokens_rest :regex_assertion,false,%w{ ? ! . },%q{ regex_assertion }
@@ -2288,7 +2288,7 @@ class Perl < Grammar
 
     def_token_full :regex_assertion,false,'variable',/(?=#{sigil_speed_hack_re})/,%q{ before{ sigil } and _EXPR(nil,HLOOSEST) }
     def_token_full :regex_assertion,false,'method',/(?=\.(?!>))/,%q{
-      before(/\.(?!>)(?=\w+\()/) and #R NONSPEC second clause is to avoid <.foo> parsing as method.
+      before(/\.(?!>)(?=\w+\()/u) and #R NONSPEC second clause is to avoid <.foo> parsing as method.
       d= dotty and _match_from(start,{:dotty=>d},:method)
     }
     def_token_full :regex_assertion,false,'ident',//,%q{
@@ -2356,7 +2356,7 @@ class Perl < Grammar
     #R NONSPEC ADDED x nth
     #R NONSPEC rule names aren't quite right
     %w{ i insensitive b basechar r ratchet s sigspace  x nth }.each{|name| rx_rmi name}
-    #R# def_token_full :regex_mod_internal,false,'oops',/:!?\w/,%q{ panic("unrecognized regex modifier") }
+    #R# def_token_full :regex_mod_internal,false,'oops',/:!?\w/u,%q{ panic("unrecognized regex modifier") }
 
     def_tokens_rest :regex_quantifier,false,%w{ * + ? },%q{ quantmod }
     def_tokens_rest :regex_quantifier,false,%w{ ** },%q{ quantmod and wsp and scan(/\d+(?:\.\.(?:\d+|\*))?/) or block or regex_atom }
