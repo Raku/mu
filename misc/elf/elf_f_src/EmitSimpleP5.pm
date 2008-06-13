@@ -31,7 +31,7 @@ class EmitSimpleP5 {
   };
 
   method prelude_lexical () {
-    "use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+    "use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       ";
   };
 
@@ -108,7 +108,13 @@ no warnings qw(redefine prototype);
   sub index    { CORE::index($_[0], $_[1], @_[2.. $#_]); }
   sub lc       { CORE::lc($_[0]); }
   sub lcfirst  { CORE::lcfirst($_[0]); }
+
   sub length   { CORE::length($_[0]); }
+  sub bytes    { use bytes; CORE::length($_[0]); }
+  sub chars    { CORE::length($_[0]); }
+  sub codes    { CORE::length($_[0]); }
+  sub graphs   { CORE::length($_[0]); }
+
   sub ord      { CORE::ord($_[0]); }
   sub pack     { CORE::pack(@_); }
   sub reverse  { CORE::reverse($_[0]); }

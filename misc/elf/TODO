@@ -50,7 +50,7 @@ PROJECTS
    backends.
 
 () Prelude - flesh it out.
-  - Get mangling working so fix:<x> can be defined in Prelude.  Make sure unicode works.
+  - Allow fix:<x> to be defined in Prelude.  Make it work with unicode.
   - Create a 'is p5_macro' to replace the emitter doing it.
 
 () Prelude - flesh out unboxed prelude classes.
@@ -75,8 +75,6 @@ DISTASTEFULL DEVIATIONS
 * file_exists
 * =~ 
     =~ is explicitly forbidden in Perl 6, replace with ~~)
-* is p5
-    replace with "use v5;"
 * faking named parameters with positional
     .new('foo',1) should be turned into .new(foo=>1)
 

@@ -14,7 +14,7 @@ use warnings;
 {package AssertCurrentModuleVersions;
  use Moose 0.44;
 }
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       
 
 # Move to the Regexp prelude once that becomes part of the prelude.
@@ -68,7 +68,13 @@ no warnings qw(redefine prototype);
   sub index    { CORE::index($_[0], $_[1], @_[2.. $#_]); }
   sub lc       { CORE::lc($_[0]); }
   sub lcfirst  { CORE::lcfirst($_[0]); }
+
   sub length   { CORE::length($_[0]); }
+  sub bytes    { use bytes; CORE::length($_[0]); }
+  sub chars    { CORE::length($_[0]); }
+  sub codes    { CORE::length($_[0]); }
+  sub graphs   { CORE::length($_[0]); }
+
   sub ord      { CORE::ord($_[0]); }
   sub pack     { CORE::pack(@_); }
   sub reverse  { CORE::reverse($_[0]); }
@@ -341,7 +347,7 @@ use warnings;
 
 package Main;
 
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package Bit;
@@ -851,7 +857,7 @@ __PACKAGE__->meta->make_immutable();
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package Match;
@@ -951,7 +957,7 @@ __PACKAGE__->meta->make_immutable();
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package ARRAY;
@@ -2239,7 +2245,7 @@ __PACKAGE__->meta->make_immutable();
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package IRx1_Build;
@@ -2821,7 +2827,7 @@ __PACKAGE__->meta->make_immutable();
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package IRx1::CompUnit;
@@ -3088,7 +3094,7 @@ __PACKAGE__->meta->make_immutable();
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package EmitSimpleP5;
@@ -3112,7 +3118,7 @@ sub tidy{my $self=CORE::shift;my($source)=@_;
 \ \ \ \ \}\
 \ \ \ \ ")->($source))})};
 sub prelude_for_entering_a_package{my $self=CORE::shift;(do{""})};
-sub prelude_lexical{my $self=CORE::shift;(do{"use\ autobox\ ARRAY\ \=\>\ \'ARRAY\'\,\ HASH\ \=\>\ \'HASH\'\,\ CODE\ \=\>\ \'CODE\'\,\ INTEGER\ \=\>\ \'INTEGER\'\,\ FLOAT\ \=\>\ \'FLOAT\'\,\ STRING\ \=\>\ \'STRING\'\,\ UNDEF\ \=\>\ \'UNDEF\'\;\
+sub prelude_lexical{my $self=CORE::shift;(do{"use\ autobox\ ARRAY\ \=\>\ \'ARRAY\'\,\ HASH\ \=\>\ \'HASH\'\,\ CODE\ \=\>\ \'CODE\'\,\ INTEGER\ \=\>\ \'INTEGER\'\,\ FLOAT\ \=\>\ \'FLOAT\'\,\ STRING\ \=\>\ \'STRING\'\,\ UNDEF\ \=\>\ \'UNDEF\'\;\ \ use\ utf8\;\
 \ \ \ \ \ \ "})};
 sub prelude_oo{my $self=CORE::shift;(do{"\
 \{package\ AssertCurrentModuleVersions\;\
@@ -3185,7 +3191,13 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \ \ sub\ index\ \ \ \ \{\ CORE\:\:index\(\$_\[0\]\,\ \$_\[1\]\,\ \@_\[2\.\.\ \$\#_\]\)\;\ \}\
 \ \ sub\ lc\ \ \ \ \ \ \ \{\ CORE\:\:lc\(\$_\[0\]\)\;\ \}\
 \ \ sub\ lcfirst\ \ \{\ CORE\:\:lcfirst\(\$_\[0\]\)\;\ \}\
+\
 \ \ sub\ length\ \ \ \{\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
+\ \ sub\ bytes\ \ \ \ \{\ use\ bytes\;\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
+\ \ sub\ chars\ \ \ \ \{\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
+\ \ sub\ codes\ \ \ \ \{\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
+\ \ sub\ graphs\ \ \ \{\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
+\
 \ \ sub\ ord\ \ \ \ \ \ \{\ CORE\:\:ord\(\$_\[0\]\)\;\ \}\
 \ \ sub\ pack\ \ \ \ \ \{\ CORE\:\:pack\(\@_\)\;\ \}\
 \ \ sub\ reverse\ \ \{\ CORE\:\:reverse\(\$_\[0\]\)\;\ \}\
@@ -4008,7 +4020,7 @@ if(GLOBAL::not($GLOBAL::emitter0)) {
 ($GLOBAL::emitter1 = EmitSimpleP5->new());
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 sub header{use Math::Trig qw();};
 header();
@@ -4112,7 +4124,7 @@ __PACKAGE__->meta->make_immutable();
 ;
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package Parser;
@@ -4148,7 +4160,7 @@ if(GLOBAL::not($GLOBAL::parser0)) {
 ($GLOBAL::parser1 = Parser->new());
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package Compiler;
@@ -4284,7 +4296,7 @@ if(GLOBAL::not($GLOBAL::compiler0)) {
 ($GLOBAL::compiler1 = Compiler->new());
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 
 { package Program;
@@ -4393,7 +4405,7 @@ __PACKAGE__->meta->make_immutable();
 Program->new()->main($GLOBAL::a_ARGS);
 
 ;
-use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use utf8;
       package Main;
 ;
 ;

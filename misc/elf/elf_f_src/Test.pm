@@ -44,7 +44,12 @@ sub eval_ok ($v, $msg, $todo) {
     if eval($v) { say "ok "~$count~" - "~$msg~$st }
     else { say "not ok "~$count~" - "~$msg~$st }
 }
-
+sub eval_dies_ok($v, $msg, $todo) {
+    my $st = ""; if $todo.WHAT eq 'Pair' { $st = " # TODO "~$todo.value };
+    $count++;
+    if eval($v) { say "not ok "~$count~" - "~$msg~$st } # dont have $@ yet.
+    else { say "ok "~$count~" - "~$msg~$st }
+}
 sub eval_is ($v,$v2, $msg, $todo) {
     my $st = ""; if $todo.WHAT eq 'Pair' { $st = " # TODO "~$todo.value };
     $count++;

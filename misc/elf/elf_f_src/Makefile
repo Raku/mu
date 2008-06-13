@@ -2,7 +2,6 @@
 test: test_faster bootstrap_faster
 
 test_faster:
-	# you might have wanted  test_faster2  instead?
 	./run-tests elf_f_faster > test_result_faster
 	diff run-tests.result_faster test_result_faster
 
