@@ -5,7 +5,7 @@ no warnings qw{ reserved closure recursion };
 package Perl6in5::Compiler::Parser;
 
 use Exporter;
-our @EXPORT_OK = qw(hit eoi nothing debug star opt
+our @EXPORT_OK = qw(hit eoi nothing debug star opt %stat
                 say all one flatten newline left ceoi
                 trace %N parser check execnow $Nothing
                 ch w keyword keywords panic p6ws
@@ -50,10 +50,10 @@ $| = 1;
 
 use Data::Dumper;
 # so that trace output is on one line:
-$Data::Dumper::Indent = 0;
-$Data::Dumper::Terse = 1;
-$Data::Dumper::Useqq = 1;
-$Data::Dumper::Quotekeys = 0;
+#$Data::Dumper::Indent = 1;
+#$Data::Dumper::Terse = 0;
+#$Data::Dumper::Useqq = 1;
+#$Data::Dumper::Quotekeys = 0;
 #$Data::Dumper::Deparse = 1; # trace
 #$Data::Dumper::Deparse = 1; # debug
 
@@ -172,6 +172,8 @@ our @L;
 #                their coderef's values
 our %H;
 
+our %stat;
+
 sub mapply {
 
     # mapply wraps every other parser with:
@@ -191,26 +193,31 @@ sub mapply {
     #    Todd Millstein
 
     my $q = $_[0];
-    trace 1,"Building a mapply parser";
+    trace 5,"Building a mapply parser";
     my $p;
     my $tmp = $p = parser2 {
+        $stat{rulecalls}++;
+        trace 1,"in rulecall $stat{rulecalls}";
         my ($in,$cont) = @_;
-        trace 1,"Got to mapply. in: ".Dumper($in);
+        trace 5,"Got to mapply. in: ".Dumper($in);
         my $pos = $in->{'pos'};
         my $m = mrecall($q,$pos);
-        trace 1,"mrecall returned ".Dumper($m);
+        trace 5,"mrecall returned ".Dumper($m);
         if (!defined $m) {
+            trace 1,"mapply $pos - m was not defined";
             
             # Initialize a new (lexical) @lr
-            my @lr = ( undef, $q, undef );
+            my @lr = ( 'FAIL', $q, undef );
             
             # push the newly created left-recursive
             # entry onto the left-recursive stack.
             push @L, \@lr;
+            trace 1,"mapply \@L is now ".scalar(@L);
             
             # Set the initial memo table entry for
             # this rule/pos to be that $lr
             mmemo($q, $pos, \@lr);
+            trace 5,"mapply \%M is ".Dumper(\%M);
             
             # This evaluates the body of the rule,
             # which of course calls their wrapper
@@ -218,14 +225,18 @@ sub mapply {
             # The resulting hashref is a little
             # different from the paper's original
             # specification (just the AST or a failure code)
+            trace 5,"mapply sending ".Dumper($in)." to $q";
             my $ans = $q->($in,$cont);
+            trace 5,"mapply got ".Dumper($ans)."from the rule";
             
+            trace 5,"mapply about to pop \@L: ".Dumper(\@_);
             # Pop the $lr back off the lr stack because
             # we're done generating its lr seed.
             pop @L;
             
             # check if its evaluation created a "head"
             if (defined $lr[2]) {
+                trace 1,"mapply $pos - lr-head was defined";
                 
                 # store the result of $q (and its continuation(s))
                 # in the left-recursive item's seed slot.
@@ -234,12 +245,14 @@ sub mapply {
                 # if the LR's rule isn't our current rule
                 # must dereference the head, since they're
                 # all really stored in %H.
-                if ("${$lr[2]}->{rule}" ne "$q") {
+                if (defined ${$lr[2]}->{rule} && "${$lr[2]}->{rule}" ne "$q") {
+                    trace 1,"mapply $pos - rule was different from q";
                     
                     # return the LR's seed
                     return $lr[0];
                     
                 } else {
+                    trace 1,"mapply $pos - rule was SAME AS q";
                     # there was no head created
                     
                     # commit the seed to the memo table
@@ -285,7 +298,7 @@ sub mapply {
                     }
                     
                 }
-                
+                trace 1,"mapply $pos - lr-head was NOT defined";
                 
             } else {
                 # commit the change to the memo table;
@@ -314,8 +327,8 @@ sub mapply {
                     my $hdr = \$hd;
                     
                     if (my $s = pop @L) {
-                        trace 2,"popped rule is ".Dumper($s);
-                        while ( "$s->[2]" ne "$hdr" ) {
+                        trace 5,"popped rule is $N{$s}\n\n ".Dumper($s);
+                        while ( !defined $s->[2] || $s->[2] ne "$hdr" ) {
                             $s->[2] = $hdr;
                             $hd->{iSet}->{$s->[1]} = 1;
                             if (scalar(@L)) {
@@ -361,7 +374,7 @@ sub mrecall {
 
 sub mreflect {
     my $p;
-    my $tmp = $p = parser {
+    my $tmp = $p = parser2 {
         my ($in) = @_;
         return {%$in,success=>1};
     };
@@ -394,7 +407,7 @@ sub eoi {
 
 sub nothing {
     my $p;
-    my $tmp = $p = parser {
+    my $tmp = $p = parser2 {
         if (left($_[0]) ne "") { # trace
             # nothing is the only base-parser that returns the 
             # result of its continuation untouched.
@@ -402,7 +415,10 @@ sub nothing {
         } else { # trace
             trace 3,"Nothing: (At end of input)";
         } # trace
-        $_[1]->($_[0]);
+        trace 5,"Nothing sending ".Dumper($_[0])." to ".Dumper($_[1]);
+        my $r = $_[1]->($_[0]);
+        trace 5,"Nothing got back ".Dumper($r)." from ".Dumper($_[1]);
+        $r;
     };
     weaken($p);
     $N{$p} = 'Nothing';
@@ -501,6 +517,7 @@ sub match {
 }
 
 sub left {
+    trace 6,"left got ".Dumper(\@_)." from ".Dumper([caller(0),caller(1),caller(2),caller(3),caller(4)]);
     substr($_[0]->{inp},$_[0]->{'pos'})
 }
 
@@ -519,11 +536,12 @@ sub hit {
         return err($in,"hit() is empty in the grammar") unless $l;
         my $tier = []; # the new tier in the AST
         for my $i (1..$count) {
-            unless (substr(left($_[0]),$l*($i-1),$l*$i) eq $want) {
-                trace 4,"hit missed";
+            trace 6,"in hit:".Dumper($in)." l is $l  i is $i  want is ".Dumper($want);
+            unless (substr(left($in),$l*($i-1),$l*$i) eq $want) {
+                trace 3,"hit missed";
                 return err($in,$want);
             }
-            trace 4,"hit matched";
+            trace 3,"hit matched";
             push @$tier,$want;
         }
         $in->{'pos'} += $l * $count;
@@ -565,23 +583,25 @@ sub one {
         trace 3,"Match one: $N{$p}";
         my ($q, $np) = (0, scalar @p); # trace
         my ($v,$r,$z);
-        my $b = {};
-        %{$b} = %{$in};
+        my $b = deep_copy($in);
 
         for (@p) {
             $q++; # trace
-            my $c = {};
-            %{$c} = %{$b};
+            my $c = deep_copy($b);
             trace 3,"Trying $q/$np: ".$N{$p[$q-1]}." on ".left($c)." and will send to ".$N{$cont};
             $r = $_->($c,$cont);
             trace 3," b pos is ".$b->{'pos'};
-            trace 4,"one: ".$N{$p[$q-1]}." returned ".Dumper($r);
+            trace 5,"one: ".$N{$p[$q-1]}." returned ".Dumper($r);
             unless ($r->{success}) {
                 trace 2,"Failed $q/$np: ".$N{$p[$q-1]};
                 # send back the shortest remaining input if none
                 # succeed; this means the input was validly parsed
                 # up till then.
-                $z = $r if (!defined $z || length(left($r)) < length(left($z)));
+                if (!defined $z || length(left($r)) < length(left($z))) {
+                    $z = $r;
+                    trace 5,"one just set z to ".Dumper($z);
+                }
+                
             } else {
                 trace 3,"Matched $q/$np: ".$N{$p[$q-1]};
                 return $r if $r->{fated};
@@ -596,7 +616,7 @@ sub one {
         # not ask me how many hours it took me to discover this.
         trace 3,"Failed to match any of: $N{$p}";
         trace 5,"sending back: ".Dumper({%$z, 'pos'=>$b->{'pos'}});
-        return ($z->{backed})?$z:{%$r, 'pos'=>$b->{'pos'},backed=>1};
+        return (($z->{backed})?$z:{%$z, 'pos'=>$b->{'pos'},backed=>1});
     };
     weaken($p);
     $N{$p} = "one(" . join("|", map $N{$_}, @p) . ")";
@@ -611,26 +631,6 @@ sub both {
   my $p;
   my $tmp = $p = parser {
     my ($in, $cont) = @_;
-    my $i = 0;
-    $i++ while caller($i);
-    trace 4,"both $N{$p} on ".Dumper(left($in))." at depth $i";
-    my $loc = $in->{'pos'}.$in->{mut};
-    $loc ||= 'persnickity';
-    if (# we've been in this parser before
-        exists $cdepth->{$p}
-        # we've seen this input for this parser last
-        && exists $cdepth->{$p}->{$loc} && 
-        $cdepth->{$p}->{$loc} > length(left($in))+1) {
-        # we're in an infinite recursion.
-        trace 4,"$N{$p} was too deep in itself: at $cdepth->{$p}->{$loc}";
-        return err($in,"recursion curtailed in $N{$p}");
-    } else {
-        # store the coderef addresses for this
-        # parser so we can detect infinite loops
-        $cdepth->{$p}->{$loc}++;
-        trace 5,"we're not in an infinite recursion";
-        trace 5,'$cdepth->{$p}->{$loc}'." is now $cdepth->{$p}->{$loc}";
-    }
     my ($r,$BC);
     my $tmp2 = $BC = parser {
       my ($newinput) = @_;
@@ -795,11 +795,12 @@ sub plus {
         };
         $N{$q} = "fake($N{$p})";
         my $s;
-        $n = $in;
+        $n = deep_copy($in);
         while(1) {
             # keep sending to our reflector
+            trace 5,"sending to ".$N{$t};
             $n = $t->($n,$q);
-            trace 1,"plus return ".Dumper($n);
+            trace 5,"plus return ".Dumper($n);
             last unless $n->{success} == 1;
         }
         return err($in,"$N{$p}") unless $n->{success};

@@ -16,10 +16,10 @@ use Perl6in5::Compiler::Parser ':all';
 use Perl6in5::Compiler::Lexer ':all';
 
 use Data::Dumper;
-$Data::Dumper::Indent = 0;
-$Data::Dumper::Terse = 1;
-$Data::Dumper::Useqq = 1;
-$Data::Dumper::Quotekeys = 0;
+#$Data::Dumper::Indent = 0;
+#$Data::Dumper::Terse = 1;
+#$Data::Dumper::Useqq = 1;
+#$Data::Dumper::Quotekeys = 0;
 #$Data::Dumper::Deparse = 1;
 
 no warnings qw{ reserved closure recursion };
@@ -188,9 +188,9 @@ sub make_parser {
     };
 
     rule usev6 {
-                (keyword('use') + keywords(qw{ v6 Perl-6 })
-              | keyword('module') + opt(keyword('Main'))
-              | keywords(qw{ class v6.0.0 v6 6 }))
+            keyword('use') + keywords(qw{ v6 Perl-6 })
+          | keyword('module') + opt(keyword('Main'))
+          | keywords(qw{ class v6.0.0 v6 6 })
     };
 
     rule identifier {
@@ -378,10 +378,10 @@ sub make_parser {
             } else {
                 $msg = "syntax error (or degenerate/incomplete grammar) at line ".($r->{line}+1)." col ".$r->{col}." near ".(sprintf '%.50s', Dumper(left($r))).($r->{expected}?"\nExpected: ".Dumper($r->{expected}).".":'');
             }
-            print STDERR $msg."\n";
+            print STDERR $msg."\n".Dumper($r);
             return 255;
         } else {
-            print "parse successful\n:".Dumper($r)."\n";
+            print "parse successful in $stat{rulecalls} rule executions.\n:".Dumper($r)."\n";
             return 0;
         }
     }
