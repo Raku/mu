@@ -48,15 +48,6 @@ sub blkPrms();
 sub condBlk();
 sub blkTrm();
 
-my ($base, $expr, $factor, $program, $term, $sVari, $stringLit, $declare,
-    $usev6, $stmtList, $newline, $blkBare, $blkPrmbl, $nbexpr,
-    $blkType, $blkRetT, $blkModf, $stmtTrm, $scpDecl, $block, $arg,
-    $blkPrm, $compUnit, $flowCtrl, $blkLabl, $clype, $impor, $assign,
-    $op_numaddt, $blkTrait, $pkgDecl, $arrowInv, $prmDecl, $vsblty,
-    $invcDecl, $func_say, $bareInt, $identifier, $bareString, $blkPrms,
-    $condBlk, $blkTrm
-);
-
 my @compUnits    = qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST 
                      LAST BEGIN END INIT CHECK UNITCHECK };
 my @blkTypes     = qw{ sub method submethod regex token rule
