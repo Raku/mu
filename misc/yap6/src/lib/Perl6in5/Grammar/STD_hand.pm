@@ -73,11 +73,9 @@ my @blkDecls  = qw{ module class grammar };
 rule program {
         # everything must start with a use v6; statement until
         # the perl5zone rule is operational.
-        opt( usev6 ) -
-        opt(
-            stmtTrm
-            - opt( pkgDecl )
-            - opt( stmtList ) ) - eoi
+        opt( usev6 - (stmtTrm | eoi) )
+        - opt( pkgDecl )
+        - opt( stmtList ) ) - eoi
 };
 
 rule pkgDecl {
