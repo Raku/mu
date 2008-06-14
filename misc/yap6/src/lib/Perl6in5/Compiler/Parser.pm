@@ -474,6 +474,9 @@ sub match {
         $in->{hit} = $r;
         if ($r =~ /\n/) {
             my @lines = split "\n",$r;
+            my @lines2 = split //,$r;
+            @lines = @lines2 unless @lines;
+            die "lines: ".Dumper($r) unless @lines;
             $in->{col} = length($lines[-1]);
             # the number of lines is 1 greater than the lines breaks
             $in->{line} += scalar(@lines) - 1;
