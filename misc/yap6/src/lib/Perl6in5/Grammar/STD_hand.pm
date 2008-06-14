@@ -258,7 +258,7 @@ sub make_parser {
     };
 
     rule blkTrait {
-            keywords( qw{ is does has } ) + prmDecl
+            keywords( qw{ is does has } ) + clype
     };
 
     rule impor {
