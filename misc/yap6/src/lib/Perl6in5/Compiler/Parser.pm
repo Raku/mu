@@ -60,9 +60,9 @@ $Data::Dumper::Quotekeys = 0;
 sub say (@) { print($_,"\n") for @_ }
 
 sub parser (&) {
-    #mapply(
+    mapply(
         parser2( $_[0] )
-    #);
+    );
 }
 
 sub parser2 (&) {

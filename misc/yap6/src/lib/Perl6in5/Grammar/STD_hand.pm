@@ -336,7 +336,7 @@ sub make_parser {
     
     rule declare {
             scpDecl + prmDecl
-            | keywords( @blkDecl ) + clype
+            | keywords( @blkDecls ) + clype
     };
     
     rule assign {

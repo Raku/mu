@@ -60,9 +60,8 @@ sub make_parser {
         $Identifier => 'Identifier'
     );
     
-    # right recursion
     rule program {
-            star( -( stmt ) )
+            star( -( stmt - ';' ) )
     };
     
     # terminal
@@ -75,9 +74,14 @@ sub make_parser {
             '$' . match( qr|^([A-Za-z_]\w*)| )
     };
     
+    # intentional left recursion
+    rule nbexpr {
+        
+    };
+    
     # leading terminals then expression.
     rule stmt {
-            ( hit( "say" )++ | identifier - '=' ) - expr - ';'
+            ( hit( "say" )++ | identifier - '=' ) - expr
     };
     
     # all exprs are terms. ow() is "optional wrap"
