@@ -74,11 +74,6 @@ sub make_parser {
             '$' . match( qr|^([A-Za-z_]\w*)| )
     };
     
-    # intentional left recursion
-    rule nbexpr {
-        
-    };
-    
     # leading terminals then expression.
     rule stmt {
             ( hit( "say" )++ | identifier - '=' ) - expr
@@ -107,18 +102,21 @@ sub make_parser {
     };
     
     sub {
-        my $r = (program->($input,eoi));
+        my $r = (program->($input));
         unless ($r->{success}) {
             my $msg;
-            if (ceoi($r)) {
-                $msg = "incomplete statement near the end of input";
+            if ($r->{expected} eq 'EOI') {
+                $msg = "syntax error near the end of input";
             } else {
-                $msg = "syntax error (or degenerate/incomplete grammar) at line ".($r->{line}+1)." col ".$r->{col}." near ".(sprintf '%.50s', Dumper(left($r))).($r->{expected}?"\nExpected: ".Dumper($r->{expected}).".":'');
+                $msg = "syntax error at line "
+                .($r->{line})." col ".$r->{col}." near ".
+                (sprintf '%.20s', Dumper(left($r))).
+                ($r->{expected}?"\nExpected: ".Dumper($r->{expected}).".":'');
             }
-            print STDERR $msg."\n".Dumper($r);
+            print STDERR $msg."\n".Dumper($r->{ast});
             return 255;
         } else {
-            print "parse successful in $stat{rulecalls} rule executions.\n:".Dumper($r)."\n";
+            print "parsed: ".Dumper($r->{ast})."\n";
             return 0;
         }
     }

@@ -60,23 +60,13 @@ $Data::Dumper::Quotekeys = 0;
 sub say (@) { print($_,"\n") for @_ }
 
 sub parser (&) {
-    mapply(
+    #mapply(
         parser2( $_[0] )
-    );
+    #);
 }
 
 sub parser2 (&) {
     bless( $_[0] => __PACKAGE__ )
-}
-
-sub dump1 {
-#  return '';
-{ local $Data::Dumper::Deparse = 0;
-$Data::Dumper::Indent = 1;
-$Data::Dumper::Terse = 1;
-$Data::Dumper::Useqq = 1;
-$Data::Dumper::Quotekeys = 0;
-    "dumper from ".Dumper([caller(),caller(1),caller(2),caller(3),caller(4),caller(5),caller(6)])."\n".join("\n", map eval{$N{$_}||'none'}, grep $_,@_).Dumper(@_).join("\n",@_).Dumper(\%N).("_-" x 500) }
 }
 
 sub trace ($$) { # trace
@@ -107,7 +97,8 @@ sub debug ($) { # debug
   print STDERR $i.$I." ", $msg; # debug
 } # debug
 
-sub ohr { # ordered hash ref
+# ordered hash ref
+sub ohr {
     tie my %h, 'Tie::IxHash', @_;
     return \%h;
 }
@@ -347,6 +338,7 @@ sub mapply {
                 # return the LR's seed
                 return $m->[0];
             } else {
+                $stat{memohits}++;
                 return deep_copy($m);
             }
         }
@@ -400,7 +392,7 @@ sub eoi {
         return {%$in,
             success=>1,
             fated=>1,
-            ast=>[[],['EOI']],
+            ast=>[@{$in->{ast}},['EOI']],
             hit=>''
         };
     };
@@ -421,7 +413,7 @@ sub nothing {
 
 sub blank () {
     my $p;
-    my $tmp = $p = match( qr|^\s+| );
+    my $tmp = $p = match( qr|^(\s+)| );
     weaken($p);
     $N{$p} = 'blank';
     $p;
@@ -477,13 +469,11 @@ sub match {
         my ($in) = @_;
         $in->{want} = "RE $q";
         my ($r) = (left($in) =~ $q) or return err($in,"$N{$p}");
-        my $tier = [];
-        push @$tier, $r;
         $in->{pos} += length($r);
-        $in->{ast} = [$tier,$in->{ast}];
+        $in->{ast} = [@{$in->{ast} || []}, [$r]] unless $r =~ /^[\s\n]+$/;;
         $in->{hit} = $r;
-        if ($in->{hit} =~ /\n/) {
-            my @lines = split "\n",$in->{hit} ;
+        if ($r =~ /\n/) {
+            my @lines = split "\n",$r;
             $in->{col} = length($lines[-1]);
             # the number of lines is 1 greater than the lines breaks
             $in->{line} += scalar(@lines) - 1;
@@ -522,15 +512,16 @@ sub hit {
                 trace 3,"hit missed";
                 return err($in,$want);
             }
-            trace 3,"hit matched; sending to ".$N{$cont};
+            trace 3,"hit matched;";
             push @$tier,$want;
         }
         $in->{'pos'} += $l * $count;
         trace 4,"advanced pos by ".($l*$count);
-        $in->{ast} = [$tier,$in->{ast}];
+        #$in->{ast} = defined($in->{ast})?[$in->{ast},@$tier]:$tier;
+        $in->{ast} = [@{$in->{ast} || []}, $tier ];
         $in->{hit} = $in->{want};
         if ($in->{hit} =~ /\n/) {
-            my @lines = split "\n",$in->{hit} ;
+            my @lines = split "\n",$in->{hit};
             $in->{col} = length($lines[$#lines] || '');
             # the number of lines is 1 greater than the line breaks
             $in->{line} += scalar(@lines) - 1;
@@ -564,7 +555,6 @@ sub one {
         my ($q, $np) = (0, scalar @p); # trace
         my ($v,$r,$z);
         my $b = deep_copy($in);
-
         for (@p) {
             $q++; # trace
             my $c = deep_copy($b);
@@ -587,8 +577,6 @@ sub one {
             trace 3,"one  ".$in->{'pos'}."  matched >0   $N{$p}";
             return $v;
         }
-        # we need to reset the pos on failure.  Please do
-        # not ask me how many hours it took me to discover this.
         trace 2,"one  ".$in->{'pos'}."  failed all   $N{$p}";
         trace 5,"sending back: ".Dumper({%$z, 'pos'=>$b->{'pos'}});
         return (($z->{backed})?$z:{%$z, 'pos'=>$b->{'pos'},backed=>1});
@@ -605,7 +593,7 @@ sub both {
   $wsrule ||= '.';
   my $p;
   my $tmp = $p = parser {
-    my ($in, $cont) = @_;
+    my ($in) = @_;
     my ($r);
     if ($wsrule eq '.') {
         # leave $A the way it is (this function's base case)
@@ -620,30 +608,17 @@ sub both {
       trace 2,"both  ".$in->{'pos'}."  failed 1   $N{$A}";
       return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
     }
-    $r->{ast} = [
-        [ # the new "current node"
-          # merges the result of $BC
-          # with the most recent result
-          #  @{head($r->{ast})},
-            $r->{hit} ],
-        tail($r->{ast}) ];
+    warn "we got an undef ast from $N{$A} in both" unless defined($r->{ast});
     $r = $B->($r);
     unless ($r->{success}) {
       trace 2,"both  ".$in->{'pos'}."  failed 2   $N{$B}";
       return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
     }
+    #$r->{ast} = [head($r->{ast}),tail($r->{ast})];
+    warn "we got an undef ast from $N{$B} in both" unless defined($r->{ast});
     trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$B}";
-    return {%$r,
-        ast=> [
-            [ # the new "current node"
-              # merges the result of $BC
-              # with the most recent result
-             #   @{head($r->{ast})},
-                $r->{hit} ],
-            tail($r->{ast}) ]
-    };
+    $r;
   };
-  trace 6,"both ".dump1($A,$B);
   weaken($p);
   $N{$p} = "( $N{$A} $wsrule $N{$B} )";
   $p;
@@ -655,13 +630,13 @@ sub all {
   my $tail = pop @p;
   my $p;
   my $tmp = $p = both(all(@p),$tail,'.');
-  trace 6,"all ".dump1($tail,@p,$p);
   weaken($p);
   $N{$p} = "all( ".join(" , ",map($N{$_},@p))." , $N{$tail} )";
   $p;
 }
 
-sub star { # placing star directly in another star() causes right recursion
+# placing star directly in another star() causes right recursion
+sub star {
     my ($p, $p_conc, $p_exec);
     
     # this is the self-reference
@@ -696,7 +671,8 @@ sub unspace () {
     $p;
 }
 
-sub w { # look for a wrapped entity.  first parm is split into the wrappers.
+# look for a wrapped entity.  first parm is split into the wrappers.
+sub w {
     my ($d,$e) = split(//,$_[0]);
     my $p;
     my $tmp = $p = all(hit($d),$_[1],hit($e));
@@ -707,7 +683,8 @@ sub w { # look for a wrapped entity.  first parm is split into the wrappers.
 
 # the following 2 parsers are left-recursive
 
-sub ow { # look for an optionally wrapped entity.
+# look for an optionally wrapped entity.
+sub ow {
     my ($d,$e) = split(//,$_[0]);
     my $p;
     my $tmp = $p = one(w($_[0],$_[1]),$_[1]);
@@ -716,7 +693,8 @@ sub ow { # look for an optionally wrapped entity.
     $p;
 }
 
-sub now { # nested optional wrap
+# nested optional wrap
+sub now {
     my ($d,$e) = split(//,$_[0]);
     my ($p, $p_conc, $p_exec);
     
@@ -824,7 +802,7 @@ sub thru {
     my $stop = $_[0];
     my $p;
     my $tmp = $p = parser {
-        my ($in,$cont) = @_;
+        my ($in) = @_;
         my $v;
         my @values;
         my $in2=$in;
@@ -844,7 +822,7 @@ sub thru {
         my $len;
         $len += length($_) foreach @values;
         trace 4,"Through token matched";
-        $cont->(tail($in),undef,{eaten=>$len,ast=>[@values]});
+        $in;
     };
     weaken($p);
     $N{$p} = "{*}.".$N{$stop};
