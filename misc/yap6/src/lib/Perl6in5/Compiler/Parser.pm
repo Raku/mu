@@ -7,14 +7,14 @@ package Perl6in5::Compiler::Parser;
 use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing debug star opt %stat
                 say all one flatten newline left ceoi
-                trace %N parser check $Nothing
+                trace %N parser check $Nothing to
                 ch w keyword keywords panic p6ws
                 unspace optws manws opttws mantws through
                 plus both match unmore ow now);
 our @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
-our (%N,%HR);
+our (%N);
 
 use Tie::IxHash;
 
@@ -59,15 +59,39 @@ $Data::Dumper::Quotekeys = 0;
 
 sub say (@) { print($_,"\n") for @_ }
 
-sub parser (&;&) {
+sub parser2 (&;&) {
     #mapply(
-        parser2( $_[0] )
+        parser( @_ )
     #);
 }
 
-sub parser2 (&;&) {
-    $HR{$_[0]} = $_[1] if defined($_[1]) && ref($_[1]) eq 'CODE';
-    bless( $_[0] => __PACKAGE__ )
+sub parser (&;&) {
+    if (defined($_[1]) && ref($_[1]) eq 'CODE') {
+        return handler(@_);
+    } else {
+        return bless( $_[0] => __PACKAGE__ )
+    }
+}
+
+sub handler {
+    my ($p,$h,$w) = @_;
+    my $label = $N{$p};
+    print "giving label $label";
+    $p = bless( $_[0] => __PACKAGE__ );
+    # store this function's handler in this closure...
+    my $tmp = $w = parser2 {
+        my ($in) = @_;
+        $N{$h} = $N{$p}; # just in time labeling
+        arrange($p->($in),$h,$p);
+    };
+    $w;
+}
+
+sub arrange {
+    my ($r,$h,$p) = @_;
+    print "Arranging result of $N{$p}";
+    $h->();
+    $r;
 }
 
 sub trace ($$) { # trace
@@ -862,6 +886,19 @@ sub panic {
     };
     weaken($p);
     $N{$p} = "panic( $N{$ins} )";
+    $p;
+}
+
+# build a parser object to
+# arrange the results of a rule properly
+sub to (&) {
+    my ($h,$p) = @_;
+    my $tmp = $p = parser {
+        my ($in) = @_;
+        return {%{$in}, success=>1};
+    };
+    weaken($p);
+    $N{$p} = "handlerhandler";
     $p;
 }
 
