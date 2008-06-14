@@ -177,7 +177,7 @@ sub make_parser {
                 - opt(
                     stmtTrm
                     - opt( pkgDecl )
-                    - opt( stmtList ) ) )
+                    - opt( stmtList ) ) ) - eoi
     };
 
     rule pkgDecl {
@@ -209,11 +209,11 @@ sub make_parser {
     };
     
     rule blkTrm {
-        hit( "\n" ) | stmtTrm
+            hit( "\n" ) | stmtTrm
     };
     
     rule bareString {
-      #  w('""',star(unmore('"'))) | w("''",star(unmore("'") . identifier))
+            #w('""',star(unmore('"'))) | w("''",star(unmore("'") . identifier))
     };
 
     rule nbexpr {
@@ -340,7 +340,9 @@ sub make_parser {
     };
     
     rule assign {
-            opt( scpDecl ) + prmDecl - '=' - expr
+        #    hit('my $blah =') - block |
+        #    (opt( keywords( qw{ my our } )++ ) . prmDecl - '=' - expr) |
+            ( scpDecl | nothing ) - prmDecl - '=' - expr
     };
     
     # this will become some op prec lev (postfix)
@@ -362,13 +364,16 @@ sub make_parser {
     };
     
     sub {
-        my $r = (program->($input,eoi));
+        my $r = (program->($input));
         unless ($r->{success}) {
             my $msg;
             if (ceoi($r)) {
                 $msg = "incomplete statement near the end of input";
             } else {
-                $msg = "syntax error (or degenerate/incomplete grammar) at line ".($r->{line}+1)." col ".$r->{col}." near ".(sprintf '%.50s', Dumper(left($r))).($r->{expected}?"\nExpected: ".Dumper($r->{expected}).".":'');
+                $msg = "syntax error (or degenerate/incomplete grammar) at line "
+                .($r->{line}+1)." col ".$r->{col}." near ".
+                (sprintf '%.50s', Dumper(left($r))).
+                ($r->{expected}?"\nExpected: ".Dumper($r->{expected}).".":'');
             }
             print STDERR $msg."\n".Dumper($r);
             return 255;

@@ -138,7 +138,7 @@ our %M;
 
 # setter/getter for a memo table entry.
 sub mmemo {
-    trace 1,"mmemo got: ".Dumper(\@_)." from ".Dumper([caller(0),caller(1),caller(2)]) unless defined $_[1];
+    trace 5,"mmemo got: ".Dumper(\@_)." from ".Dumper([caller(0),caller(1),caller(2)]) unless defined $_[1];
     # inputs: rule, position, $ans|$lr
     $M{$_[1]}->{$_[0]} = $_[2] if defined $_[2];
     # outputs: [ $ans, $pos ]
@@ -197,11 +197,11 @@ sub mapply {
     my $tmp = $p = parser2 {
         $stat{rulecalls}++;
         trace 6,"in rulecall $stat{rulecalls}";
-        my ($in,$cont) = @_;
-        trace 1,"Got to mapply. in: ".Dumper($in,[caller(0),caller(1),caller(2),caller(3),caller(4)]) unless defined $in->{'pos'};
+        my ($in) = @_;
+        trace 5,"Got to mapply. in: ".Dumper($in,[caller(0),caller(1),caller(2),caller(3),caller(4)]) unless defined $in->{'pos'};
         die unless defined $in->{'pos'};
         my $pos = $in->{'pos'};
-        trace 7,"mappy pos is ".$pos;
+        trace 7,"mapply pos is ".$pos;
         my $m = mrecall($q,$pos);
         trace 5,"mrecall returned ".Dumper($m);
         if (!defined $m) {
@@ -227,7 +227,7 @@ sub mapply {
             # different from the paper's original
             # specification (just the AST or a failure code)
             trace 5,"mapply sending ".Dumper($in)." to $q";
-            my $ans = $q->($in,$cont);
+            my $ans = $q->($in);
             trace 5,"mapply got ".Dumper($ans)."from the rule";
             
             trace 5,"mapply about to pop \@L: ".Dumper(\@_);
@@ -239,7 +239,7 @@ sub mapply {
             if (defined $lr[2]) {
                 trace 5,"mapply $pos - lr-head was defined";
                 
-                # store the result of $q (and its continuation(s))
+                # store the result of $q
                 # in the left-recursive item's seed slot.
                 $lr[0] = deep_copy($ans);
                 
@@ -289,7 +289,7 @@ sub mapply {
                             
                             # run the rule *again*, this time
                             # the results should be different
-                            $ans = $q->($in,$cont);
+                            $ans = $q->($in);
                             unless (
                                 $ans->{success} &&
                                 $ans->{'pos'} <= $pos
@@ -331,7 +331,7 @@ sub mapply {
                     my $hdr = \$hd;
                     
                     if (my $s = pop @L) {
-                        trace 5,"popped rule is $N{$s}\n\n ".Dumper($s);
+                        trace 1,"popped rule is $N{$s}\n\n $s";
                         while ( !defined $s->[2] || $s->[2] ne "$hdr" ) {
                             $s->[2] = $hdr;
                             $hd->{iSet}->{$s->[1]} = 1;
@@ -412,12 +412,7 @@ sub eoi {
 sub nothing {
     my $p;
     my $tmp = $p = parser2 {
-        # nothing is the only base-parser that returns the 
-        # result of its continuation untouched.
-        trace 5,"Nothing sending ".Dumper($_[0])." to ".Dumper($_[1]);
-        my $r = $_[1]->($_[0]);
-        trace 5,"Nothing got back ".Dumper($r)." from ".Dumper($_[1]);
-        $r;
+        $_[0];
     };
     weaken($p);
     $N{$p} = 'nothing';
@@ -445,23 +440,11 @@ sub unmore {
     # this parser acts like a NOT gate
     my ($p);
     my $tmp = $p = parser {
-        my ($in,$cont) = @_;
-        my $o;
-        my $tmp2 = $o = parser {
-            my ($in2,$cont2) = @_;
-            # the inverse of the nothing parser; this always fails.
-            # so, we know if $q returns the below string, $q
-            # succeeded.  Otherwise, we'll get some other error
-            # hashref from q.
-            return {success=>0};
-        };
-        weaken($o);
-        $N{$o} = "fail( $N{$p} )";
-        my $r = $q->($in,$o);
-        return $r unless $r->{success};
-        # send it along its merry way to the nothing parser, which
-        # always succeeds, with the original input and continuation.
-        $cont->($in);
+        my ($in) = @_;
+        my $b = deep_copy($in);
+        $in = $q->($in);
+        $b->{success} = $in->{success}?0:1;
+        $b;
     };
     weaken($p);
     $N{$p} = "fail( $N{$q} )";
@@ -472,18 +455,10 @@ sub iff {
     my $q = shift;
     my $p;
     my $tmp = $p = parser {
-        my ($in,$cont) = @_;
-        my $o;
-        my $tmp2 = $o = parser {
-            # $q must have succeeded, so send the original
-            # input to the original continuation
-            $cont->($in);
-        };
-        weaken($o);
-        $N{$o} = "to( $N{$p} )";
-        # test $in on $q; letting it continue with the
-        # original input on success.
-        $q->($in,$o);
+        my ($in) = @_;
+        my $b = deep_copy($in);
+        $b->{success} = $in->{success}?1:0;
+        $b;
     };
     weaken($p);
     $N{$p} = "iff( $N{q} )";
@@ -499,7 +474,7 @@ sub match {
     # to eat the proper length of input.  Probably your REs shouldn't be greedy...
     my $p;
     my $tmp = $p = parser {
-        my ($in,$cont) = @_;
+        my ($in) = @_;
         $in->{want} = "RE $q";
         my ($r) = (left($in) =~ $q) or return err($in,"$N{$p}");
         my $tier = [];
@@ -515,7 +490,7 @@ sub match {
         } else {
             $in->{col} += length($r);
         }
-        $cont->($in);
+        $in;
     };
     weaken($p);
     $N{$p} = "match( $q )";
@@ -535,7 +510,7 @@ sub hit {
     $count ||= 1;
     my $p;
     my $tmp = $p = parser {
-        my ($in,$cont) = @_;
+        my ($in) = @_;
         trace 4,"hit got ".Dumper(left($in));
         my $l = length($want);
         $in->{want} = $want x $count;
@@ -562,8 +537,7 @@ sub hit {
         } else {
             $in->{col} += $l * $count;
         }
-        my $r = $cont->($in);
-        $r;
+        $in;
     };
     weaken($p);
     $N{$p} = Dumper($want x $count);
@@ -585,8 +559,8 @@ sub one {
     return $p[0]             if @p == 1;
     my $p;
     my $tmp = $p = parser {
-        my ($in,$cont) = @_;
-        trace 2,"one  ".$in->{'pos'}."  trying >0   ".$N{$p}." on ".Dumper(left($in))."   and will send to   ".$N{$cont};
+        my ($in) = @_;
+        trace 2,"one  ".$in->{'pos'}."  trying >0   ".$N{$p}." on ".Dumper(left($in));
         my ($q, $np) = (0, scalar @p); # trace
         my ($v,$r,$z);
         my $b = deep_copy($in);
@@ -594,21 +568,17 @@ sub one {
         for (@p) {
             $q++; # trace
             my $c = deep_copy($b);
-            trace 2,"one  ".$in->{'pos'}."  trying $q/$np   ".$N{$p[$q-1]}." on ".Dumper(left($c))." and will send to ".$N{$cont};
-            $r = $_->($c,$cont);
+            trace 2,"one  ".$in->{'pos'}."  trying $q/$np   ".$N{$p[$q-1]}." on ".Dumper(left($c));
+            $r = $_->($c);
             trace 5,"one  ".$N{$p[$q-1]}." returned ".Dumper($r);
             unless ($r->{success}) {
                 trace 2,"one  ".$in->{'pos'}."  failed $q/$np    ".$N{$p[$q-1]};
                 # send back the shortest remaining input if none
                 # succeed; this means the input was validly parsed
                 # up till then.
-                if (!defined $z || length(left($r)) < length(left($z))) {
-                    $z = deep_copy($r);
-                    trace 5,"one just set z to ".Dumper($z);
-                }
-                
+                $z = deep_copy($r) if (!defined $z || length(left($r)) < length(left($z)));
             } else {
-                trace 3,"one  ".$in->{'pos'}."  did  match   $q/$np: ".$N{$p[$q-1]};
+                trace 3,"one  ".$in->{'pos'}."  matched $q/$np    ".$N{$p[$q-1]};
                 #return $r if $r->{fated};
                 $v = deep_copy($r) if (!defined $v || length(left($r)) < length(left($v)));
             }
@@ -636,34 +606,39 @@ sub both {
   my $p;
   my $tmp = $p = parser {
     my ($in, $cont) = @_;
-    my ($r,$BC);
-    my $tmp2 = $BC = parser {
-      my ($newinput) = @_;
-      # $BC won't get invoked by hit() unless A succeeds.
-      $B->($newinput, $cont);
-    };
+    my ($r);
     if ($wsrule eq '.') {
         # leave $A the way it is (this function's base case)
     } elsif ($wsrule eq '+') {
-        $A = manws($A)
+        $A = mantws($A)
     } elsif ($wsrule eq '-') {
-        $A = optws($A)
+        $A = opttws($A)
     }
-    weaken($BC);
-    $N{$BC} = "$N{$B} . $N{$cont}";
-    trace 2,"both  ".$in->{'pos'}."  attempting   $N{$A}   then   $N{$BC}";
-    $r = $A->($in, $BC);
+    trace 2,"both  ".$in->{'pos'}."  attempting   $N{$A}   then   $N{$B}";
+    $r = $A->($in);
     unless ($r->{success}) {
-      trace 2,"both  ".$in->{'pos'}."  failed 1|2   $N{$A}   and   $N{$BC}";
+      trace 2,"both  ".$in->{'pos'}."  failed 1   $N{$A}";
       return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
     }
-    trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$BC}";
+    $r->{ast} = [
+        [ # the new "current node"
+          # merges the result of $BC
+          # with the most recent result
+          #  @{head($r->{ast})},
+            $r->{hit} ],
+        tail($r->{ast}) ];
+    $r = $B->($r);
+    unless ($r->{success}) {
+      trace 2,"both  ".$in->{'pos'}."  failed 2   $N{$B}";
+      return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
+    }
+    trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$B}";
     return {%$r,
         ast=> [
             [ # the new "current node"
               # merges the result of $BC
               # with the most recent result
-                @{head($r->{ast})},
+             #   @{head($r->{ast})},
                 $r->{hit} ],
             tail($r->{ast}) ]
     };
@@ -886,7 +861,7 @@ sub keyword {
 
 sub keywords {
     my $p;
-    my $tmp = $p = one(map(keyword($_),@_));
+    my $tmp = $p = one(map(hit($_),@_));
     weaken($p);
     $N{$p} = join(" | ",@_);
     $p;
@@ -896,18 +871,12 @@ sub panic {
     my ($ins,$msg) = @_;
     my $p;
     my $tmp = $p = parser {
-        my ($in,$cont) = @_;
+        my ($in) = @_;
         trace 4,"Dying if find $N{$ins}";
-        my $q;
-        my $tmp2 = $q = parser {
-            die $msg;
-        };
-        weaken($q);
-        $N{$q} = "$N{$ins}";
-        my $r = $ins->($in,$q);
-        # we didn't die, so $q didn't succeed.
-        # therefore send the continuation the original input
-        $cont->($in);
+        my $b = deep_copy($in);
+        $in = $ins->($in);
+        die $msg if $in->{success};
+        $b;
     };
     weaken($p);
     $N{$p} = "panic( $N{$ins} )";
