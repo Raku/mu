@@ -32,6 +32,8 @@ rule identifier {
 # leading terminals then expression.
 rule stmt {
         ( hit( "say" )++ | identifier - '=' ) - expr
+}{
+    print "handling stmt";
 };
 
 # all exprs are terms. ow() is "optional wrap"

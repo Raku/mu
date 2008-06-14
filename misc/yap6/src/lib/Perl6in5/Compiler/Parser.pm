@@ -14,7 +14,7 @@ our @EXPORT_OK = qw(hit eoi nothing debug star opt %stat
 our @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
-our %N;
+our (%N,%HR);
 
 use Tie::IxHash;
 
@@ -59,13 +59,14 @@ $Data::Dumper::Quotekeys = 0;
 
 sub say (@) { print($_,"\n") for @_ }
 
-sub parser (&) {
+sub parser (&;&) {
     #mapply(
         parser2( $_[0] )
     #);
 }
 
-sub parser2 (&) {
+sub parser2 (&;&) {
+    $HR{$_[0]} = $_[1] if defined($_[1]) && ref($_[1]) eq 'CODE';
     bless( $_[0] => __PACKAGE__ )
 }
 

@@ -15,6 +15,7 @@ use File::Slurp;
 FILTER {
     s/^rule\s+([A-Za-z_]\w*)\s+\{/rule '$1' => sub {/mg;
     s/'(.)'/hit('$1')/mg;
+    s/\}\{/}, sub {/mg;
     s/\+\+/ + nothing/mg;
     s/--/ - nothing/mg;
 };
