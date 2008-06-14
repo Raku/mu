@@ -83,8 +83,8 @@ rule block {
 
 rule blkPrmbl {
         one(
-            opt( blkModf++ )
-            . ( opt(scpDecl++) . ( clype + blkType | blkType ) | blkType )
+            opt( blkModf+p6ws )
+            . ( opt(scpDecl+p6ws) . ( clype + blkType | blkType ) | blkType )
             - opt( opt( '^' ) . identifier )
             - opt( vsblty )
             - opt( w( '()', -( star( blkPrms ) ) ) )
@@ -183,7 +183,7 @@ rule declare {
 
 rule assign {
     #    hit('my $blah =') - block |
-    #    (opt( keywords( qw{ my our } )++ ) . prmDecl - '=' - expr) |
+    #    (opt( keywords( qw{ my our } )+p6ws ) . prmDecl - '=' - expr) |
         ( scpDecl | nothing ) - prmDecl - '=' - expr
 };
 
