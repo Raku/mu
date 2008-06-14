@@ -75,7 +75,7 @@ rule program {
         # the perl5zone rule is operational.
         opt( usev6 - (stmtTrm | eoi) )
         - opt( pkgDecl )
-        - opt( stmtList ) ) - eoi
+        - opt( stmtList ) - eoi
 };
 
 rule pkgDecl {
