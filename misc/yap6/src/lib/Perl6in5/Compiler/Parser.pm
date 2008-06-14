@@ -869,8 +869,7 @@ sub panic {
 sub to (&) {
     my ($h,$p) = @_;
     my $tmp = $p = parser {
-        my ($in) = @_;
-        return {%{$in}, success=>1};
+        return {%{$h->(shift)}, success=>1};
     };
     weaken($p);
     $N{$p} = "handlerhandler";

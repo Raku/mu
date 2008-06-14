@@ -18,7 +18,7 @@ rule identifier {
 # leading terminals then expression.
 rule stmt {
         ( lit( "say" ).p6ws | identifier - '=' ) - expr
-        . to { say "handling stmt"; @_ }
+        . to { warn "handling stmt"; $_[0] }
 };
 
 # all exprs are terms. ow() is "optional wrap"
