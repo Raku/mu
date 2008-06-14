@@ -59,39 +59,14 @@ $Data::Dumper::Quotekeys = 0;
 
 sub say (@) { print($_,"\n") for @_ }
 
-sub parser2 (&;&) {
+sub parser (&) {
     #mapply(
-        parser( @_ )
+        parser2( @_ )
     #);
 }
 
-sub parser (&;&) {
-    if (defined($_[1]) && ref($_[1]) eq 'CODE') {
-        return handler(@_);
-    } else {
-        return bless( $_[0] => __PACKAGE__ )
-    }
-}
-
-sub handler {
-    my ($p,$h,$w) = @_;
-    my $label = $N{$p};
-    print "giving label $label";
-    $p = bless( $_[0] => __PACKAGE__ );
-    # store this function's handler in this closure...
-    my $tmp = $w = parser2 {
-        my ($in) = @_;
-        $N{$h} = $N{$p}; # just in time labeling
-        arrange($p->($in),$h,$p);
-    };
-    $w;
-}
-
-sub arrange {
-    my ($r,$h,$p) = @_;
-    print "Arranging result of $N{$p}";
-    $h->();
-    $r;
+sub parser2 (&) {
+    return bless( $_[0] => __PACKAGE__ )
 }
 
 sub trace ($$) { # trace
