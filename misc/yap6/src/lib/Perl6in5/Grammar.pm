@@ -9,6 +9,8 @@ FILTER {
     # the normal way in MJD's grammar system.
     s/^\s+rule\s+([A-Za-z_])(\w*)\s+\{/\n\$$1$2 = do {/mg;
     s/'(.)'/hit('$1')/mg;
+    s/\+\+/ + nothing/mg;
+    s/--/ - nothing/mg;
 };
 
 1;

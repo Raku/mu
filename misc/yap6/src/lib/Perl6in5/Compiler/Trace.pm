@@ -11,7 +11,7 @@ FILTER {
         s/'tracelevel'/${level}/mg;
         while ($level < $maxtrace ) {
             $level++;
-            s/^(\s+trace.${level}.*)$/#$1/mg;
+            s/^\s+trace.${level}.*$//mg;
         }
     } else {
         s/^\s+trace.*$//mg;

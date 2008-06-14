@@ -10,7 +10,7 @@ our @EXPORT_OK = qw(hit eoi nothing debug star opt %stat
                 trace %N parser check $Nothing
                 ch w keyword keywords panic p6ws
                 unspace optws manws opttws mantws through
-                plus both match unmore );
+                plus both match unmore ow now);
 our @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -50,10 +50,10 @@ $| = 1;
 
 use Data::Dumper;
 # so that trace output is on one line:
-#$Data::Dumper::Indent = 1;
-#$Data::Dumper::Terse = 0;
-#$Data::Dumper::Useqq = 1;
-#$Data::Dumper::Quotekeys = 0;
+$Data::Dumper::Indent = 0;
+$Data::Dumper::Terse = 1;
+$Data::Dumper::Useqq = 1;
+$Data::Dumper::Quotekeys = 0;
 #$Data::Dumper::Deparse = 1; # trace
 #$Data::Dumper::Deparse = 1; # debug
 
@@ -86,7 +86,7 @@ sub trace ($$) { # trace
   my $i = 0; # trace
   $i++ while caller($i); # trace
   my $I = "-" x int($i/2-1); # trace
-  warn $i.$I." ", $msg; # trace
+  warn " $i -- ", $msg; # trace
 } # trace
 
 sub callstack () { # trace
@@ -116,7 +116,7 @@ sub ohr { # ordered hash ref
 sub deep_copy {
     my $this = shift;
     my $r = ref $this;
-    if (not $r || $r eq "CODE") {
+    if (not $r || $r eq "CODE" || $r eq 'REF') {
         $this;
     } elsif ($r eq "ARRAY") {
         [map deep_copy($_), @$this];
@@ -412,30 +412,32 @@ sub eoi {
 sub nothing {
     my $p;
     my $tmp = $p = parser2 {
-        if (left($_[0]) ne "") { # trace
-            # nothing is the only base-parser that returns the 
-            # result of its continuation untouched.
-            trace 3,"Nothing: Input left is ".Dumper(left($_[0]));
-        } else { # trace
-            trace 3,"Nothing: (At end of input)";
-        } # trace
+        # nothing is the only base-parser that returns the 
+        # result of its continuation untouched.
         trace 5,"Nothing sending ".Dumper($_[0])." to ".Dumper($_[1]);
         my $r = $_[1]->($_[0]);
         trace 5,"Nothing got back ".Dumper($r)." from ".Dumper($_[1]);
         $r;
     };
     weaken($p);
-    $N{$p} = 'Nothing';
+    $N{$p} = 'nothing';
+    $p;
+}
+
+sub blank () {
+    my $p;
+    my $tmp = $p = match( qr|^\s+| );
+    weaken($p);
+    $N{$p} = 'blank';
     $p;
 }
 
 sub p6ws () {
-  trace 6,"generating p6ws ".Dumper([caller()]).Dumper(\@_);
-  my $p;
-  my $tmp = $p = plus(one(hit(" "),hit("\n")));
-  weaken($p);
-  $N{$p} = ' ws ';
-  $p;
+    my $p;
+    my $tmp = $p = plus(one(blank,hit("\n")));
+    weaken($p);
+    $N{$p} = 'WS';
+    $p;
 }
 
 sub unmore {
@@ -454,7 +456,7 @@ sub unmore {
             return {success=>0};
         };
         weaken($o);
-        $N{$o} = "fake($N{$p})";
+        $N{$o} = "fail( $N{$p} )";
         my $r = $q->($in,$o);
         return $r unless $r->{success};
         # send it along its merry way to the nothing parser, which
@@ -462,7 +464,7 @@ sub unmore {
         $cont->($in);
     };
     weaken($p);
-    $N{$p} = "fail($N{$q})";
+    $N{$p} = "fail( $N{$q} )";
     $p;
 }
 
@@ -478,13 +480,13 @@ sub iff {
             $cont->($in);
         };
         weaken($o);
-        $N{$o} = "to($N{$p})";
+        $N{$o} = "to( $N{$p} )";
         # test $in on $q; letting it continue with the
         # original input on success.
         $q->($in,$o);
     };
     weaken($p);
-    $N{$p} = "iff($N{q})";
+    $N{$p} = "iff( $N{q} )";
     $p;
 }
 
@@ -516,7 +518,7 @@ sub match {
         $cont->($in);
     };
     weaken($p);
-    $N{$p} = "match($q)";
+    $N{$p} = "match( $q )";
     $p;
 }
 
@@ -540,12 +542,12 @@ sub hit {
         return err($in,"hit() is empty in the grammar") unless $l;
         my $tier = []; # the new tier in the AST
         for my $i (1..$count) {
-            trace 6,"in hit:".Dumper($in)." l is $l  i is $i  want is ".Dumper($want);
+            trace 5,"in hit:".Dumper($in)." l is $l  i is $i  want is ".Dumper($want);
             unless (substr(left($_[0]),$l*($i-1),$l*$i) eq $want) {
                 trace 3,"hit missed";
                 return err($in,$want);
             }
-            trace 3,"hit matched";
+            trace 3,"hit matched; sending to ".$N{$cont};
             push @$tier,$want;
         }
         $in->{'pos'} += $l * $count;
@@ -555,7 +557,7 @@ sub hit {
         if ($in->{hit} =~ /\n/) {
             my @lines = split "\n",$in->{hit} ;
             $in->{col} = length($lines[$#lines] || '');
-            # the number of lines is 1 greater than the lines breaks
+            # the number of lines is 1 greater than the line breaks
             $in->{line} += scalar(@lines) - 1;
         } else {
             $in->{col} += $l * $count;
@@ -584,7 +586,7 @@ sub one {
     my $p;
     my $tmp = $p = parser {
         my ($in,$cont) = @_;
-        trace 3,"Match one: $N{$p}";
+        trace 2,"one  ".$in->{'pos'}."  trying >0   ".$N{$p}." on ".Dumper(left($in))."   and will send to   ".$N{$cont};
         my ($q, $np) = (0, scalar @p); # trace
         my ($v,$r,$z);
         my $b = deep_copy($in);
@@ -592,38 +594,37 @@ sub one {
         for (@p) {
             $q++; # trace
             my $c = deep_copy($b);
-            trace 3,"Trying $q/$np: ".$N{$p[$q-1]}." on ".left($c)." and will send to ".$N{$cont};
+            trace 2,"one  ".$in->{'pos'}."  trying $q/$np   ".$N{$p[$q-1]}." on ".Dumper(left($c))." and will send to ".$N{$cont};
             $r = $_->($c,$cont);
-            trace 3," b pos is ".$b->{'pos'};
-            trace 5,"one: ".$N{$p[$q-1]}." returned ".Dumper($r);
+            trace 5,"one  ".$N{$p[$q-1]}." returned ".Dumper($r);
             unless ($r->{success}) {
-                trace 2,"Failed $q/$np: ".$N{$p[$q-1]};
+                trace 2,"one  ".$in->{'pos'}."  failed $q/$np    ".$N{$p[$q-1]};
                 # send back the shortest remaining input if none
                 # succeed; this means the input was validly parsed
                 # up till then.
                 if (!defined $z || length(left($r)) < length(left($z))) {
-                    $z = $r;
+                    $z = deep_copy($r);
                     trace 5,"one just set z to ".Dumper($z);
                 }
                 
             } else {
-                trace 3,"Matched $q/$np: ".$N{$p[$q-1]};
-                return $r if $r->{fated};
-                $v = $r if (!defined $v || length(left($r)) < length(left($v)));
+                trace 3,"one  ".$in->{'pos'}."  did  match   $q/$np: ".$N{$p[$q-1]};
+                #return $r if $r->{fated};
+                $v = deep_copy($r) if (!defined $v || length(left($r)) < length(left($v)));
             }
         }
         if (defined $v) {
-            trace 3,"Finished matching $N{$p}";
+            trace 3,"one  ".$in->{'pos'}."  matched >0   $N{$p}";
             return $v;
         }
         # we need to reset the pos on failure.  Please do
         # not ask me how many hours it took me to discover this.
-        trace 3,"Failed to match any of: $N{$p}";
+        trace 2,"one  ".$in->{'pos'}."  failed all   $N{$p}";
         trace 5,"sending back: ".Dumper({%$z, 'pos'=>$b->{'pos'}});
         return (($z->{backed})?$z:{%$z, 'pos'=>$b->{'pos'},backed=>1});
     };
     weaken($p);
-    $N{$p} = "one(" . join("|", map $N{$_}, @p) . ")";
+    $N{$p} = "( " . join(" | ", map $N{$_}, @p) . " )";
     $p;
 }
 
@@ -649,14 +650,14 @@ sub both {
         $A = optws($A)
     }
     weaken($BC);
-    $N{$BC} = $N{$B}.'.'.$N{$cont};
-    trace 2,"both attempting $N{$A} then $N{$BC}";
+    $N{$BC} = "$N{$B} . $N{$cont}";
+    trace 2,"both  ".$in->{'pos'}."  attempting   $N{$A}   then   $N{$BC}";
     $r = $A->($in, $BC);
     unless ($r->{success}) {
-      trace 2,"Failed to match at least one of $N{$A} and $N{$BC}";
+      trace 2,"both  ".$in->{'pos'}."  failed 1|2   $N{$A}   and   $N{$BC}";
       return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
     }
-    trace 2,"Finished matching $N{$A} and $N{$BC}";
+    trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$BC}";
     return {%$r,
         ast=> [
             [ # the new "current node"
@@ -669,11 +670,7 @@ sub both {
   };
   trace 6,"both ".dump1($A,$B);
   weaken($p);
-  $N{$p} = $N{$A};
-  $N{$p} .= $wsrule;
-  $Data::Dumper::Deparse = 1;
-  print Dumper($B).Dumper([caller(5)]) unless exists $N{$B};
-  $N{$p} .= $N{$B};
+  $N{$p} = "( $N{$A} $wsrule $N{$B} )";
   $p;
 }
 
@@ -685,15 +682,26 @@ sub all {
   my $tmp = $p = both(all(@p),$tail,'.');
   trace 6,"all ".dump1($tail,@p,$p);
   weaken($p);
-  $N{$p} = "all(".join(",",map($N{$_},@p)).",$N{$tail})";
+  $N{$p} = "all( ".join(" , ",map($N{$_},@p))." , $N{$tail} )";
   $p;
 }
 
-sub star {
-    my $p;
-    my $tmp = $p = opt(plus($_[0]));
+sub star { # placing star directly in another star() causes right recursion
+    my ($p, $p_conc, $p_exec);
+    
+    # this is the self-reference
+    my $tmp1 = $p_exec = parser { $p->(@_) };
+    weaken($p_exec);
+    $N{$p_exec} = "star( $N{$_[0]} )";
+    
+    # this is the recursion - the parser $p will call $p
+    my $tmp2 = $p_conc = both($_[0], $p_exec, '.');
+    weaken($p_conc);
+    $N{$p_conc} = "( $N{$_[0]} . $N{$p_exec} )";
+    
+    my $tmp3 = $p = one($p_conc, nothing);
     weaken($p);
-    $N{$p} = "($N{$_[0]})*";
+    $N{$p} = $N{$p_exec};
     $p;
 }
 
@@ -701,7 +709,7 @@ sub opt {
   my $p;
   my $tmp = $p = one($_[0], nothing);
   weaken($p);
-  $N{$p} = "?($N{$_[0]})";
+  $N{$p} = "opt( $N{$_[0]} )";
   $p;
 }
 
@@ -709,16 +717,47 @@ sub unspace () {
     my $p;
     my $tmp = $p = all(hit("\\"),star(p6ws));
     weaken($p);
-    $N{$p} = 'unspace';
+    $N{$p} = 'us';
     $p;
 }
 
 sub w { # look for a wrapped entity.  first parm is split into the wrappers.
     my ($d,$e) = split(//,$_[0]);
     my $p;
-    my $tmp = $p = optws(optws(hit($d),$_[1]),hit($e));
+    my $tmp = $p = all(hit($d),$_[1],hit($e));
     weaken($p);
-    $N{$p} = "$d$N{$_[1]}$e";
+    $N{$p} = "\"$d\" $N{$_[1]} \"$e\"";
+    $p;
+}
+
+# the following 2 parsers are left-recursive
+
+sub ow { # look for an optionally wrapped entity.
+    my ($d,$e) = split(//,$_[0]);
+    my $p;
+    my $tmp = $p = one(w($_[0],$_[1]),$_[1]);
+    weaken($p);
+    $N{$p} = "[\"$d\"] $N{$_[1]} [\"$e\"]";
+    $p;
+}
+
+sub now { # nested optional wrap
+    my ($d,$e) = split(//,$_[0]);
+    my ($p, $p_conc, $p_exec);
+    
+    # this is the self-reference
+    my $tmp1 = $p_exec = parser { $p->(@_) };
+    weaken($p_exec);
+    $N{$p_exec} = "now( $N{$_[0]} )";
+    
+    # this is the recursion - the parser $p will call $p
+    my $tmp2 = $p_conc = one( ow( $_[0], one( $p_exec , $_[1] ) ) );
+    weaken($p_conc);
+    $N{$p_conc} = "( $N{$_[0]} | now( $N{$p_exec} ) )";
+    
+    my $tmp3 = $p = ow( $_[0], $p_conc );
+    weaken($p);
+    $N{$p} = $N{$p_exec};
     $p;
 }
 
@@ -734,12 +773,12 @@ sub optws {
     # binary -, so optional intervening whitespace
     $tmp = $p = all($_[0], opt(p6ws), $_[1]);
     weaken($p);
-    $N{$p} = "$N{$_[0]}-$N{$_[1]}";
+    $N{$p} = "$N{$_[0]} - $N{$_[1]}";
   } else {
     # unary -, so optional leading whitespace
     $tmp = $p = both(opt(p6ws), $_[0], '.');
     weaken($p);
-    $N{$p} = " -($N{$_[0]})";
+    $N{$p} = " -( $N{$_[0]} )";
   }
   $p;
 }
@@ -750,12 +789,12 @@ sub manws {
     # binary +, so mandatory intervening  whitespace
     $tmp = $p = all($_[0], p6ws, $_[1]);
     weaken($p);
-    $N{$p} = "$N{$_[0]}+$N{$_[1]}";
+    $N{$p} = "$N{$_[0]} + $N{$_[1]}";
   } else {
     # unary +, so mandatory leading whitespace
     $tmp = $p = both(p6ws, $_[0], '.');
     weaken($p);
-    $N{$p} = " +($N{$_[0]})";
+    $N{$p} = "+( $N{$_[0]} )";
   }
   $p;
 }
@@ -764,7 +803,7 @@ sub opttws {
   my $p;
   my $tmp = $p = both($_[0], opt(p6ws), '.');
   weaken($p);
-  $N{$p} = "($N{$_[0]})-- ";
+  $N{$p} = "( $N{$_[0]} )--";
   $p;
 }
 
@@ -772,7 +811,7 @@ sub mantws {
   my $p;
   my $tmp = $p = both($_[0], p6ws, '.');
   weaken($p);
-  $N{$p} = "($N{$_[0]})++ ";
+  $N{$p} = "( $N{$_[0]} )++";
   $p;
 }
 
@@ -788,30 +827,9 @@ sub newline () {
 sub plus {
     my $t = $_[0];
     my $p;
-    my $tmp = $p = parser {
-        my ($in,$cont) = @_;
-        my $r = 0;
-        my ($q,$n);
-        my $tmp2 = $q = parser {
-            my ($in2,$cont2) = @_;
-            # if we got here once, we've succeeded.
-            $in2;
-        };
-        $N{$q} = "fake($N{$p})";
-        my $s;
-        $n = deep_copy($in);
-        while(1) {
-            # keep sending to our reflector
-            trace 5,"sending to ".$N{$t};
-            $n = $t->($n,$q);
-            trace 5,"plus return ".Dumper($n);
-            last unless $n->{success} == 1;
-        }
-        return err($in,"$N{$p}") unless $n->{success};
-        $cont->($n);
-    };
+    my $tmp = $p = both($t,star($t),'.');
     weaken($p);
-    $N{$p} = "($N{$_[0]})+ ";
+    $N{$p} = "plus( $N{$_[0]} )";
     $p;
 }
 
@@ -820,7 +838,7 @@ sub nthru {
   my $p;
   my $tmp = $p = both($n, thru($o),'.');
   weaken($p);
-  $N{$p} = "$N{$n}...$N{$o}";
+  $N{$p} = "$N{$n} ... $N{$o}";
   $p;
 }
 
@@ -862,15 +880,15 @@ sub keyword {
     my $p;
     my $tmp = $p = hit($_[0]);
     weaken($p);
-    $N{$p} = "$_[0]";
+    $N{$p} = "'$_[0]'";
     $p;
 }
 
 sub keywords {
     my $p;
-    my $tmp = $p = one(map(hit($_),@_));
+    my $tmp = $p = one(map(keyword($_),@_));
     weaken($p);
-    $N{$p} = join("|",@_);
+    $N{$p} = join(" | ",@_);
     $p;
 }
 
@@ -885,14 +903,14 @@ sub panic {
             die $msg;
         };
         weaken($q);
-        $N{$q} = "fake $N{$ins}";
+        $N{$q} = "$N{$ins}";
         my $r = $ins->($in,$q);
         # we didn't die, so $q didn't succeed.
         # therefore send the continuation the original input
         $cont->($in);
     };
     weaken($p);
-    $N{$p} = "panic($N{$ins})";
+    $N{$p} = "panic( $N{$ins} )";
     $p;
 }
 
