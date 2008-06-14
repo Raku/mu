@@ -83,8 +83,8 @@ rule block {
 
 rule blkPrmbl {
         one(
-            opt( blkModf+p6ws )
-            . ( opt(scpDecl+p6ws) . ( clype + blkType | blkType ) | blkType )
+            opt( blkModf.p6ws )
+            . ( opt(scpDecl.p6ws) . ( clype + blkType | blkType ) | blkType )
             - opt( opt( '^' ) . identifier )
             - opt( vsblty )
             - opt( w( '()', -( star( blkPrms ) ) ) )
