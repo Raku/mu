@@ -10,7 +10,7 @@ This test tests the C<WHAT> builtin.
 
 # L<S12/Introspection/"WHAT">
 
-plan 7;
+plan 9;
 
 # Basic subroutine/method form tests for C<WHAT>.
 {
@@ -32,4 +32,15 @@ plan 7;
   ok($a.WHAT === Sub,    "a sub's type is Sub");
   ok($a.WHAT ~~ Routine, "a sub isa Routine");
   ok($a.WHAT ~~ Code,    "a sub isa Code");
+}
+
+# L<S12/Introspection/"These are all actually macros, not true operators or methods.">
+
+{
+    class Foo {
+        method WHAT {'Bar'}
+    }
+    my $o = Foo.new;
+    is(Foo."WHAT", 'Bar', '."WHAT" calls the method instead of the macro');
+    is(Foo.WHAT,   'Foo', '.WHAT still works as intended');
 }
