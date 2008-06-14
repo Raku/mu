@@ -5,7 +5,7 @@ no warnings qw{ reserved closure recursion };
 package Perl6in5::Compiler::Parser;
 
 use Exporter;
-our @EXPORT_OK = qw(hit eoi nothing debug star opt %stat
+our @EXPORT_OK = qw(lit eoi nothing debug star opt %stat
                 say all one flatten newline left ceoi
                 trace %N parser check $Nothing
                 ch w keyword keywords panic p6ws
@@ -422,7 +422,7 @@ sub blank () {
 
 sub p6ws () {
     my $p;
-    my $tmp = $p = plus(one(blank,hit("\n")));
+    my $tmp = $p = plus(one(blank,lit("\n")));
     weaken($p);
     $N{$p} = 'WS';
     $p;
@@ -496,7 +496,7 @@ sub left {
     substr($_[0]->{inp},$_[0]->{'pos'})
 }
 
-sub hit {
+sub lit {
     my ($want,$count) = @_;
     # $want is the desired string.
     # $count is the number of occurrences to match.
@@ -508,7 +508,7 @@ sub hit {
         trace 4,"hit got ".Dumper(left($in));
         my $l = length($want);
         $in->{want} = $want x $count;
-        return err($in,"hit() is empty in the grammar") unless $l;
+        return err($in,"lit() is empty in the grammar") unless $l;
         my $tier = []; # the new tier in the AST
         for my $i (1..$count) {
             trace 5,"in hit:".Dumper($in)." l is $l  i is $i  want is ".Dumper($want);
@@ -669,7 +669,7 @@ sub opt {
 
 sub unspace () {
     my $p;
-    my $tmp = $p = all(hit("\\"),star(p6ws));
+    my $tmp = $p = all(lit("\\"),star(p6ws));
     weaken($p);
     $N{$p} = 'us';
     $p;
@@ -679,7 +679,7 @@ sub unspace () {
 sub w {
     my ($d,$e) = split(//,$_[0]);
     my $p;
-    my $tmp = $p = all(hit($d),$_[1],hit($e));
+    my $tmp = $p = all(lit($d),$_[1],lit($e));
     weaken($p);
     $N{$p} = "\"$d\" $N{$_[1]} \"$e\"";
     $p;
@@ -774,7 +774,7 @@ sub mantws {
 
 sub newline () {
   my $p;
-  my $tmp = $p = plus(one(panic(hit("\n#{"),"\\n#{ is illegal"),opttws(optws(hit("\n")))));
+  my $tmp = $p = plus(one(panic(lit("\n#{"),"\\n#{ is illegal"),opttws(optws(lit("\n")))));
   weaken($p);
   $N{$p} = "\\n";
   $p;
@@ -835,7 +835,7 @@ sub thru {
 
 sub keyword {
     my $p;
-    my $tmp = $p = hit($_[0]);
+    my $tmp = $p = lit($_[0]);
     weaken($p);
     $N{$p} = "'$_[0]'";
     $p;
@@ -843,7 +843,7 @@ sub keyword {
 
 sub keywords {
     my $p;
-    my $tmp = $p = one(map(hit($_),@_));
+    my $tmp = $p = one(map(lit($_),@_));
     weaken($p);
     $N{$p} = join(" | ",@_);
     $p;

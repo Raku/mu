@@ -15,7 +15,7 @@ use File::Slurp;
 FILTER {
     my @rules = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;
     s/^rule\s+([A-Za-z_]\w*)\s+\{/rule '$1' => sub {/mg;
-    s/'(.)'/hit('$1')/mg;
+    s/'(.)'/lit('$1')/mg;
     $_ = join('',map {"sub $_();\n"} @rules).$_;
 };
 

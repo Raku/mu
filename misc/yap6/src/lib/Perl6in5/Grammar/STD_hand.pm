@@ -51,7 +51,7 @@ rule stmtList {
 };
 
 rule blkTrm {
-        hit( "\n" ) | stmtTrm
+        lit( "\n" ) | stmtTrm
 };
 
 rule bareString {
@@ -96,7 +96,7 @@ rule blkPrmbl {
 };
 
 rule arrowInv {
-        hit( '<-' ) - prmDecl
+        lit( '<-' ) - prmDecl
 };
 
 rule blkTrait {
@@ -182,7 +182,7 @@ rule declare {
 };
 
 rule assign {
-    #    hit('my $blah =') - block |
+    #    lit('my $blah =') - block |
     #    (opt( keywords( qw{ my our } )+p6ws ) . prmDecl - '=' - expr) |
         ( scpDecl | nothing ) - prmDecl - '=' - expr
 };
@@ -198,7 +198,7 @@ rule term {
 };
 
 rule factor {
-        base - opt( hit('**') - factor )
+        base - opt( lit('**') - factor )
 };
 
 rule base {
