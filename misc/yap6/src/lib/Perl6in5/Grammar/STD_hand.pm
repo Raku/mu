@@ -242,11 +242,11 @@ sub make_parser {
     rule blkPrmbl {
             one(
                 opt( blkModf++ )
-                . ( scpDecl + ( clype + blkType | blkType ) | blkType )
-                . opt( +( opt( '^' ) . identifier ) )
-                . opt( +( vsblty ) )
-                . opt( +( w( '()', -( opt( blkPrms ) ) ) ) )
-                . star( +( blkTrait ) )
+                . ( opt(scpDecl++) . ( clype + blkType | blkType ) | blkType )
+                - opt( opt( '^' ) . identifier )
+                - opt( vsblty )
+                - opt( w( '()', -( opt( blkPrms ) ) ) )
+                - star( blkTrait )
                 , compUnit
                 , flowCtrl
                 , blkLabl
