@@ -1,24 +1,5 @@
 #!/usr/local/bin/perl
 
-use warnings;
-use strict;
-
-$| = 1;
-
 use lib '../lib';
-#use Perl6in5::Interpreter;
-#my $runner = make_runner( 'Perl6in5::Grammar::STD_hand', $ARGV[0] );
 
 use Perl6in5::Grammar::STD_hand;
-use File::Slurp;
-
-# don't parse by lines, pass the whole input string to the parser file.
-my $inp = $ARGV[0]?(read_file($ARGV[0]) or die 'reading input file failed'):join('',(<>));
-my $name = $ARGV[0] || 'STDIN';
-my $input = { inp => $inp, 'pos' => 0, line => 1, name => $name, col => 1, mut => 0 , success => -1, fated => 0 , backed => 0 , ast => [] };
-#  success 0 means the branch failed
-#  success 1 means the branch succeeded (to EOI)
-my $runner = make_parser($input) or die 'parser generation failed: '.$!;
-
-my $result = $runner->();
-exit $result;

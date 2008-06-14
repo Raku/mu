@@ -6,9 +6,6 @@ diakopter added 2008-05-31:
  - make the parser success-handlers generate an AST
  - implement Test.pm and related harness/prove
  - fix copyright notices & license(s)
- - add CHANGES
- - add KUDOS
- - add INSTALL
 
 diakopter added 2008-06-04:
  - add runtime eval

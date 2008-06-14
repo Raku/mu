@@ -1,1 +1,5 @@
-yap6 is currently in its infancy.
+The lexing engine is stable/reliable.  It's a standard recursive descent
+parser.  There are a series of routines (named m*()) that (once debugged/
+optimized), should provide significant speedups for situations that might
+require applying rules that are left-recursive.
+
