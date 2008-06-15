@@ -346,7 +346,7 @@ list of whitespace.  From least valuable to most, the pecking order is:
 
 The primary intent of these rules is to minimize format disruption
 when substitution happens across line boundaries and such.  There is,
-of course, no guarantee that the result will exactly what a human would
+of course, no guarantee that the result will be exactly what a human would
 do.
 
 The C<:s> modifier is considered sufficiently important that
