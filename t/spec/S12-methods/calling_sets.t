@@ -1,4 +1,4 @@
-use Test; plan 13;
+use Test; plan 17;
 
 # L<S12/"Calling sets of methods">
 # L<S12/"Roles">
@@ -32,7 +32,10 @@ role plugin_2 { multi method init_hook { $.cnt += 3 } }
     try { $result = $object.?nope };
     ok($object.?meth, $test);
     is($result,undef, q"                                       ..undef otherwise ");
-    # TODO: add test for $object.?$meth (dynamic method) as well
+
+    my $thing = 'child_only';
+    is($object.?$thing, 'child_only', '$o.?$name works as expected');
+    is($object.'?child_only', undef, '$object.\'?name\' correctly does not call $object.name');
 }
 
 {
@@ -53,11 +56,12 @@ role plugin_2 { multi method init_hook { $.cnt += 3 } }
     try { $result = $object.*$meth };
     is($object.cnt, 2, "$test: Case 2 visits both Child and Parent (as dynamic method call)");
 
+    is($object.'*cnt', undef, '$object.\'*name\' correctly does not call $object.*name');
+
     my $meth = 'sqrt'; 
     my $ans = 0;
     try { $ans = 4.*$meth };
     is($ans, 2, q"$obj.*$meth works built-in methods like 'sqrt'");
-
 }
 
 {
@@ -84,8 +88,10 @@ role plugin_2 { multi method init_hook { $.cnt += 3 } }
     try { $result = $object.+meth };
     is($object.cnt, 2, "$test: Case 2 visits both Child and Parent");
 
-    # TODO: add test for $object.+$meth (dynamic method) as well
+    my $name = 'child_only';
+    is($object.+$name, 'child_only', '$object.+$method works');
 
+    # TODO: add test for $object.+$meth (dynamic method) with multiple methods called as well
 }
 
 ok(0,q'STUB: $object.*WALK[:breadth:omit($?CLASS)]::meth(@args);', :todo<feature> );
