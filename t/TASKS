@@ -19,7 +19,6 @@ OVERALL
 S12
 * tests for $object.WALK
 * tests for $object.*@candidates
-* tests for $object.'+whatever' versus $object.+whatever
 * tests for "but" (such as 0 but Bool::True)
 * tests for metamethods (under "Introspection" in S12)
 * tests for autovivification
