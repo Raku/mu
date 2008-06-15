@@ -20,8 +20,12 @@ replicates it to ../STD_red/PROBLEMS.
 Go through S29 etc, adding p6 implementations to one of the preludes.
 If it doesn't compile as spec'ed, comment it out so it serves as a todo.
 
+*** Remove a distastefull deviation (see below)
+Implement the proper feature and remove the ugly and distastefull workaround
+
 BIG PICTURE
 
+() Remove distastefull deviations
 () Move to p6, and a full bootstrap.
    Switch the front-end to p6, and as much as possible of the runtime.
 () Get additional backends working.  javascript, ruby, python, scheme, common lisp.
@@ -29,6 +33,17 @@ BIG PICTURE
 () Switch to real p6 oo.
 () Move towards full spec conformance.
 
+DISTASTEFULL DEVIATIONS
+
+* .re_gsub
+    replace with .subst(rx:g/pattern/)
+* eval_perl5
+* file_exists
+* =~ 
+    =~ is explicitly forbidden in Perl 6, replace with ~~)
+* faking named parameters with positional
+    .new('foo',1) should be turned into .new(foo=>1)
+* newp
 
 PROJECTS
 
@@ -67,16 +82,6 @@ PROJECTS
   focus is now broader, it's time to go through the parser and FromAST and
   make sure all useful parses produce Match trees, and all those trees yield IR.
 
-DISTASTEFULL DEVIATIONS
-
-* .re_gsub
-    replace with .subst(rx:g/pattern/)
-* eval_perl5
-* file_exists
-* =~ 
-    =~ is explicitly forbidden in Perl 6, replace with ~~)
-* faking named parameters with positional
-    .new('foo',1) should be turned into .new(foo=>1)
 
 REQUESTED FEATURES
 
