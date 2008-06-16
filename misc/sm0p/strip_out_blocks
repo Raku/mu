@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+use Term::ANSIColor qw(:constants);
+use strict;
+use warnings;
+local $/;
+my $grammar = <>;
+
+my $block;
+$block = qr/ (?> [^{}]+ | \{ (??{$block}) \} )*?/x;
+
+$grammar =~ s[(token \s* \w+ \s* \{ )($block)( \})][
+    my $start = $1;
+    my $body = $2;
+    my $end = $3;
+    $body =~ s/(?<!')(\{ $block \})/'{*}'/egx;
+    $start.$body.$end;
+]exg;
+print $grammar;
