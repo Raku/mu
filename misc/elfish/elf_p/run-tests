@@ -1,0 +1,170 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $root = "../../..";
+my $elf = "$root/misc/elf/".(shift||"elf_f");
+print STDERR "using $elf\n";
+
+`$elf -e 3`; $? == 0 or die "ERROR: $elf isn't working.  Aborting $0.\n";
+
+my @t = map{chomp;/\.t$/?$_:()} `(find $root/v6/v6-KindaPerl6/t/kp6/ -type f; find $root/t -type f)|grep -v '\.svn'| sort`;
+
+#@t = splice(@t,0,2);
+#@t = '../../../t/syntax/list_quote_junction.t';
+TestReport->new(\@t)->run;
+exit;
+
+{
+  package TestReport;
+  sub new {
+    my($cls,$test_files)=@_;
+    bless {test_files=>$test_files}, $cls;
+  }
+  sub run {
+    my($self)=@_;
+    my $files_total = 0;
+    my $files_parsed = 0;
+    my $files_run = 0;
+    my $files_ok = 0;
+    my $tests_total = 0;
+    my $tests_ok = 0;
+    for my $t (@{$self->{test_files}}) {
+      my $tf = TestFile->new($t)->test;
+      print $tf->report,"\n";
+      $files_total++;
+      $files_parsed++ if $tf->{parsed};
+      $files_run++ if $tf->{saw_plan};
+      my $plan = $tf->{plan};
+      my $ok = $tf->{ok};
+      if($plan ne '?') {
+        $files_ok++ if $ok == $plan;
+        $tests_total += $plan;
+      }
+      $tests_ok += $ok;
+    }
+    my $r = "\nFiles: $files_total.";
+    $r .= "  $files_parsed parsed ".int($files_parsed/$files_total*100)."%.";
+    $r .= "  $files_run run ".int($files_run/$files_total*100)."%.";
+    $r .= "  $files_ok ok ".int($files_ok/$files_total*100)."%.\n";
+    $r .= "Tests: $tests_total+.";
+    $r .= "  $tests_ok ok <".(int($tests_ok/$tests_total*100*100)/100)."%";
+    $r .= ", ".($tests_total-$tests_ok)."+ not.\n";
+    print $r;
+  }
+}    
+
+{
+  package TestFile;
+  sub new {
+    my($cls,$file)=@_;
+    bless {
+      'file'=>$file,
+      'ok'=>0
+    },$cls;
+  }
+  sub file { shift->{'file'} }
+  sub contents {my($self)=@_; my $file = $self->file; `cat $file`;}
+  sub guess_how_many_tests {
+    my($self)=@_;
+    my $n = $self->{plan};
+    return $n if $n;
+    my $src = $self->contents;
+    $src =~ /\bsay [\"\']1\.\.(\d+)[\"\'];/ and $n = $1;
+    $src =~ /\bplan (\d+);/ and $n = $1;
+    $src =~ /\bplan\(\s*(\d+)\s*\);/ and $n = $1;
+    $self->{plan} = $n || '?';
+  }
+  sub test {
+    my($self)=@_;
+    $self->{parsed} ||= $self->parsed;
+    if($self->{parsed}) {
+      $self->run;
+    }
+    $self;
+  }
+  sub report {
+    my($self)=@_;
+    my $n = $self->guess_how_many_tests;
+    my $num = "";
+    my $result;
+    my $plan_n = $self->{plan} eq '?' ? -42 : $self->{plan};
+    if(!$self->{parsed}) {
+      $result = "X  0%";
+      $num .= "$n  0 $num";
+    }
+    else {
+      $result = "-";
+
+      if($self->{ok} == $plan_n && $self->{not_ok} == 0) {
+        $result = "ok";
+        $num .= "$n";
+      }
+      elsif($self->{ok} == 0 && $self->{not_ok} == 0 && !$self->{exit_ok}) {
+        my $e = "d";
+        $e = "C" if not $self->{saw_plan};
+        $result .= "$e 0%";
+        $num .= "$n  0 $n";
+      }
+      else {
+        my($plan,$ok,$not_ok) = ($self->{plan},$self->{ok},$self->{not_ok});
+        my $unk = $plan-$ok-$not_ok; $unk = $unk ? " $unk!" : "";
+        my $pc = int($ok/$plan*100)."%";
+        $num .= "$n  $ok $not_ok$unk";
+        $result .= "  $pc";
+      }
+    }
+    $num .= "\t" if length($num) < 8;
+    "$result\t$num\t".$self->file;
+  }
+  sub parsed {
+    my($self)=@_;
+    my $parser = $root."/misc/STD_red/STD_red_run";
+    my $file = $self->file;
+    my $cmd = "$parser $file > /dev/null 2>\&1";
+    system($cmd) == 0;
+  }
+  sub run {
+    my($self)=@_;
+    return if $self->{ran}++;
+    my $file = $self->file;
+    my @res;
+    my $exit_ok = undef;
+    eval {
+      local $SIG{ALRM} = sub {
+        # ignore SIGHUP here so the kill only affects children.
+        local $SIG{HUP} = 'IGNORE';
+        kill 1,(-$$);
+        print STDERR "Timeout: $file.\n";
+        die;
+      };
+      alarm 20;
+      @res = `$elf $file 2>/dev/null`;
+      $exit_ok = $? == 0;
+      alarm 0;
+    };
+    join("",@res) =~ /^1\.\.(\d+)\n/m;
+    if($1) {
+      my $plan = $self->{plan};
+      if($1 > 10000) {
+        warn "$file: saw bogus plan output, and ignored it.\n";
+      }
+      elsif(!$plan) {
+        $self->{plan} = $1+0;
+      }
+      else {
+        warn "BUG: $file plan didn't match: $plan vs $self->{plan}.";
+      }
+      $self->{saw_plan} = 1;
+    }
+    my @tmp;
+    @tmp = grep{/^ok/} @res;
+    my $ok = 0+@tmp;
+    @tmp = grep{/^not ok/} @res;
+    my $not_ok = 0+@tmp;
+    $self->{exit_ok} = $exit_ok;
+    $self->{ok} = $ok;
+    $self->{not_ok} = $not_ok;
+  }
+}
+
