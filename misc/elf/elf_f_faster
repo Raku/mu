@@ -2826,6 +2826,9 @@ $main::irbuilder->add_constructor("prefix", sub {my($m)=@_;
 IRx1::Apply->newp($m, ("prefix\:" . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))})});
 $main::irbuilder->add_constructor("infix", sub {my($m)=@_;
 (do{my $op = ($m->match_string());
+if((($op eq "\=\~"))) {
+(do{GLOBAL::die("There\ is\ no\ \=\~\ operator\ in\ Perl\ 6\ \-\-\ did\ you\ mean\ \~\~\ \(match\)\ or\ \~\=\ \(concat\-assign\)\?")})
+};
 IRx1::Apply->newp($m, ("infix\:" . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"left"}), irbuild_ir($m->{"hash"}->{"right"})]))})});
 $main::irbuilder->add_constructor("term", sub {my($m)=@_;
 (do{my $text = ($m->match_string());
@@ -3154,7 +3157,7 @@ $main::irbuilder->add_constructor("typename", sub {my($m)=@_;
 $main::irbuilder->add_constructor("trait_verb\:is", sub {my($m)=@_;
 (do{IRx1::Trait->newp($m, "is", irbuild_ir($m->{"hash"}->{"ident"}))})});
 $main::irbuilder->add_constructor("circumfix\:pblock", sub {my($m)=@_;
-(do{if((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->elems() == 0) or ($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->match_string() =~ qr/^:/))) {
+(do{if((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->elems() == 0) or ($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->match_string() ~~ qr/^:/))) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}))})
 }elsif((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"} and $m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"}->{"hash"}->{"sym"}) and ($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"}->{"hash"}->{"sym"} eq "\,"))) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}))})
@@ -3433,7 +3436,7 @@ sub is_context{my $self=CORE::shift;(do{(((($self->{'twigil'} || "")) eq "\+") |
 ;
 
 { package IRx1::PackageDecl;
-use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))})}})
+use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() ~~ qr/^GLOBAL\b'/))})}})
 }
 ;
 
@@ -4133,9 +4136,9 @@ $self->encode_varname($s, $t, $dsn)})};
 sub cb__Call{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
 my $method = $self->e($n->method());
-if((($method =~ "postcircumfix\:\<\ \>"))) {
+if((($method eq "postcircumfix\:\<\ \>"))) {
 (do{(((($self->e($n->invocant()) . "\-\>") . "\{\'") . $self->e($n->capture())) . "\'\}")})
-}elsif((($method =~ "postcircumfix\:\(\.\*\)"))) {
+}elsif((($method ~~ qr/postcircumfix:(.*)/))) {
 (do{my $op = $1;
 my $arg = $self->e($n->capture());
 $op->re_gsub("\ ", $arg);
@@ -4153,7 +4156,7 @@ sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 if($n->notes()->{'lexical_bindings'}->{("\&" . $fun)}) {
 (do{my $fe = $self->encode_function_name($fun);
 (((("" . $fe) . "\(") . $self->e($n->capture())) . "\)")})
-}elsif(($fun =~ qr/^infix:(.+)$/)) {
+}elsif(($fun ~~ qr/^infix:(.+)$/)) {
 (do{my $op = $1;
 my $args = $n->capture()->arguments();
 if(((($args->elems() == 1) && $args->[0]->isa("IRx1\:\:Apply")) && ($args->[0]->function() eq "infix\:\,"))) {
@@ -4184,7 +4187,7 @@ if((($args->[0]->isa("IRx1\:\:Call") && ($args->[0]->capture()->arguments()->ele
 }})
 };
 (((((("\(" . $l) . "\ ") . $op) . "\ ") . $r) . "\)")})
-}elsif(($fun =~ qr/^prefix:(.+)$/)) {
+}elsif(($fun ~~ qr/^prefix:(.+)$/)) {
 (do{my $op = $1;
 my $a = $self->e($n->capture()->arguments());
 my $x = $a->[0];
@@ -4197,7 +4200,7 @@ if(0) {
 }else {
 (do{(((("\(" . $op) . "") . $x) . "\)")})
 }})
-}elsif(($fun =~ qr/^statement_prefix:(.+)$/)) {
+}elsif(($fun ~~ qr/^statement_prefix:(.+)$/)) {
 (do{my $op = $1;
 if(($op eq "do")) {
 (do{(("do\{" . $self->e($n->capture()->arguments()->[0])) . "\}")})
@@ -4208,7 +4211,7 @@ if(($op eq "do")) {
 }else {
 (do{GLOBAL::die(($fun . "\:\ unimplemented"))})
 }})
-}elsif(($fun =~ qr/^postfix:(.+)$/)) {
+}elsif(($fun ~~ qr/^postfix:(.+)$/)) {
 (do{my $op = $1;
 my $a = $self->e($n->capture()->arguments());
 my $x = $a->[0];
@@ -4217,7 +4220,7 @@ if(0) {
 }else {
 (do{(((("\(" . $x) . "") . $op) . "\)")})
 }})
-}elsif(($fun =~ qr/^circumfix:(.+)/)) {
+}elsif(($fun ~~ qr/^circumfix:(.+)/)) {
 (do{my $op = $1;
 if(($op eq "\<\ \>")) {
 (do{my $s = $n->capture()->arguments()->[0];
@@ -4233,7 +4236,7 @@ $op->re_gsub("\ ", $arg)})
 }})
 }else {
 (do{my $f = $fun;
-if((($f =~ qr/^\$\w+$/))) {
+if((($f ~~ qr/^\$\w+$/))) {
 (do{((($f . "\-\>\(") . $self->e($n->capture())) . "\)")})
 }elsif((($f eq "self"))) {
 (do{"\$self"})
@@ -4241,9 +4244,9 @@ if((($f =~ qr/^\$\w+$/))) {
 (do{"last"})
 }elsif((($f eq "return"))) {
 (do{(("return\(" . $self->e($n->capture())) . "\)")})
-}elsif((($f =~ qr/^sub\s*{/))) {
+}elsif((($f ~~ qr/^sub\s*{/))) {
 (do{(((("\(" . $f) . "\)\-\>\(") . $self->e($n->capture())) . "\)")})
-}elsif((($f =~ qr/^\w/))) {
+}elsif((($f ~~ qr/^\w/))) {
 (do{if($n->notes()->{'lexical_bindings'}->{("\&" . $f)}) {
 (do{(((("" . $f) . "\(") . $self->e($n->capture())) . "\)")})
 }else {

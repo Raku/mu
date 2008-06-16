@@ -39,8 +39,6 @@ DISTASTEFULL DEVIATIONS
     replace with .subst(rx:g/pattern/)
 * eval_perl5
 * file_exists
-* =~ 
-    =~ is explicitly forbidden in Perl 6, replace with ~~)
 * faking named parameters with positional
     .new('foo',1) should be turned into .new(foo=>1)
 * newp
