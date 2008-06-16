@@ -72,7 +72,7 @@ use Carp qw(confess);
 use File::Temp qw(tempfile);
 use Encode qw(encode);
 
-my $max_output_len = 300;
+my $max_output_len = 290;
 
 sub run {
     my ($program, $executer) = @_;
