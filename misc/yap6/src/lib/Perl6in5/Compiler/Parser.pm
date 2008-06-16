@@ -392,7 +392,7 @@ sub eoi {
         return {%$in,
             success=>1,
             fated=>1,
-            ast=>[@{$in->{ast}},['EOI']],
+       #     ast=>[@{$in->{ast}},['EOI']],
             hit=>''
         };
     };
@@ -468,26 +468,28 @@ sub match {
     my $tmp = $p = parser {
         my ($in) = @_;
         $in->{want} = "RE $q";
-        my ($r) = (left($in) =~ $q) or return err($in,"$N{$p}");
-        $in->{pos} += length($r);
-        $in->{ast} = [@{$in->{ast} || []}, [$r]] unless $r =~ /^[\s\n]+$/;;
-        $in->{hit} = $r;
-        if ($r =~ /\n/) {
-            my @lines = split "\n",$r;
-            my @lines2 = split //,$r;
-            @lines = @lines2 unless @lines;
-            die "lines: ".Dumper($r) unless @lines;
-            $in->{col} = length($lines[-1]);
-            # the number of lines is 1 greater than the lines breaks
-            $in->{line} += scalar(@lines) - 1;
-        } else {
-            $in->{col} += length($r);
-        }
-        $in;
+        ($in->{hit}) = (left($in) =~ $q) or return err($in,"$N{$p}");
+        $in->{pos} += length($in->{hit});
+        $in->{ast} = [@{$in->{ast} || []},$in->{hit}] unless $in->{hit} =~ /^[\s\n]+$/;
+        lineify($in);
     };
     weaken($p);
     $N{$p} = "match( $q )";
     $p;
+}
+
+sub lineify {
+    if ($_[0]->{hit} =~ /\n/) {
+        my @lines = split "\n",$_[0]->{hit};
+        my @lines2 = split //,$_[0]->{hit};
+        @lines = @lines2 unless @lines;
+        $_[0]->{col} = length($lines[-1]);
+        # the number of lines is 1 greater than the line breaks
+        $_[0]->{line} += scalar(@lines) - 1;
+    } else {
+        $_[0]->{col} += length($_[0]->{hit});
+    }
+    $_[0];
 }
 
 sub left {
@@ -508,7 +510,7 @@ sub lit {
         my $l = length($want);
         $in->{want} = $want x $count;
         return err($in,"lit() is empty in the grammar") unless $l;
-        my $tier = []; # the new tier in the AST
+        my @tier = (); # the new tier in the AST
         for my $i (1..$count) {
             trace 5,"in hit:".Dumper($in)." l is $l  i is $i  want is ".Dumper($want);
             unless (substr(left($_[0]),$l*($i-1),$l*$i) eq $want) {
@@ -516,22 +518,13 @@ sub lit {
                 return err($in,$want);
             }
             trace 3,"hit matched;";
-            push @$tier,$want;
+            push @tier,$want;
         }
         $in->{'pos'} += $l * $count;
         trace 4,"advanced pos by ".($l*$count);
-        #$in->{ast} = defined($in->{ast})?[$in->{ast},@$tier]:$tier;
-        $in->{ast} = [@{$in->{ast} || []}, $tier ];
+        $in->{ast} = [@{$in->{ast} || []},@tier];
         $in->{hit} = $in->{want};
-        if ($in->{hit} =~ /\n/) {
-            my @lines = split "\n",$in->{hit};
-            $in->{col} = length($lines[$#lines] || '');
-            # the number of lines is 1 greater than the line breaks
-            $in->{line} += scalar(@lines) - 1;
-        } else {
-            $in->{col} += $l * $count;
-        }
-        $in;
+        lineify($in);
     };
     weaken($p);
     $N{$p} = Dumper($want x $count);
@@ -611,13 +604,11 @@ sub both {
       trace 2,"both  ".$in->{'pos'}."  failed 1   $N{$A}";
       return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
     }
-    warn "we got an undef ast from $N{$A} in both" unless defined($r->{ast});
     $r = $B->($r);
     unless ($r->{success}) {
       trace 2,"both  ".$in->{'pos'}."  failed 2   $N{$B}";
       return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
     }
-    #$r->{ast} = [head($r->{ast}),tail($r->{ast})];
     warn "we got an undef ast from $N{$B} in both" unless defined($r->{ast});
     trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$B}";
     $r;
@@ -869,11 +860,58 @@ sub panic {
 sub to (&) {
     my ($h,$p) = @_;
     my $tmp = $p = parser {
-        return {%{$h->(shift)}, success=>1};
+        return {%{$h->($_[0])}, success=>1};
     };
     weaken($p);
     $N{$p} = "handlerhandler";
     $p;
 }
+
+sub r_amper {
+    # iff(0).1 w/ identical start/endpoints
+}
+
+sub r_2amper {
+    # "both" sequence point - backtracking "allowed"
+}
+
+sub r_pipe {
+    # disjunction - can be tried in parallel or random order
+}
+
+sub r_2pipe {
+    # firstone()
+}
+
+sub r_2tilde {
+    # left item result, submatch
+}
+
+sub r_caret {
+    # tight prefix, binds to start of subject
+}
+
+sub r_dollar {
+    # tight postfix, binds to end of subject
+}
+
+sub r_sbrac {
+    # "square brackets" w('[]')  # note - need an internals-balancing edition of w()
+    # precedence override, non-capturing
+}
+
+sub r_rbrac {
+    # "round brackets" w('()') - capturing group.
+}
+
+sub r_abrac {
+    # "angle brackets" w('<>') - 
+}
+
+sub r_cbrac {
+    # "curly brackets" w('{}') - embedded closure
+}
+
+
 
 1;

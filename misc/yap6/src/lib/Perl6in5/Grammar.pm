@@ -4,13 +4,17 @@ use strict;
 use warnings;
 no warnings qw{ reserved closure recursion };
 
-use base 'Exporter';
-our @EXPORT = qw ( run_program );
-
 use Perl6in5::Compiler::Parser ':all';
+
+use base 'Exporter';
+our @EXPORT = qw ( run_program head tail );
+
 use Filter::Simple;
 use Data::Dumper;
 use File::Slurp;
+
+sub head { &Perl6in5::Compiler::Parser::head(@_) }
+sub tail { &Perl6in5::Compiler::Parser::tail(@_) }
 
 FILTER {
     my @rules = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;

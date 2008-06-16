@@ -18,7 +18,8 @@ rule identifier {
 # leading terminals then expression.
 rule stmt {
         ( lit( "say" ).p6ws | identifier - '=' ) - expr
-        . to { warn "handling stmt"; $_[0] }
+        . to { return {%{$_[0]}, 
+            ast=>['stmt_new',$_[0]->{ast}] } }
 };
 
 # all exprs are terms. ow() is "optional wrap"
