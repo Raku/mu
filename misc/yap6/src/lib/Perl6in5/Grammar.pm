@@ -20,10 +20,10 @@ FILTER {
     my @rules = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;
     s/^rule\s+([A-Za-z_]\w*)\s+\{/rule '$1' => sub {/mg;
     s/'(.)'/lit('$1')/mg;
-    $_ = join('',map {"sub $_();\n"} @rules).$_;
+    $_ = join('',map {"sub $_();"} @rules).$_;
 };
 
-{
+#{
     my @order;
     my %rules;
     sub rule {
@@ -41,23 +41,29 @@ FILTER {
             $rules{$name} = $code->();
         }
     }
-}
+#}
 
 END {
     my ($input,$name) = $ARGV[0]?
         (scalar(read_file($ARGV[0])),$ARGV[0]):
         (join('',(<>)),'STDIN');
     
-    $input = { inp => $input, 'pos' => 0, line => 1, name => $name, col => 1, mut => 0 , success => -1, fated => 0 , backed => 0, ast=>[] };
+    $input = { inp => $input, 'pos' => 0, line => 1, name => $name, col => 1, mut => 0 , success => -1, fated => 0 , backed => 0, ast=>[[],[]] };
+    # the ast has a head and tail.  head is the outer stuff;
+    # tail is the inner stuff.
+    
     #  success 0 means the branch failed
     #  success 1 means the branch succeeded (to EOI)
     #  success -1 means outcome not yet determined
     finish_rule_creation;
     
     my $r = (program()->($input));
+    
+    $Data::Dumper::Indent = 1;
+    $Data::Dumper::Terse = 1;
     unless ($r->{success}) {
         my $msg;
-        if ($r->{expected} eq 'EOI') {
+        if (defined $r->{expected} && $r->{expected} eq 'EOI') {
             $msg = "syntax error near the end of input";
         } else {
             $msg = "syntax error at line "
