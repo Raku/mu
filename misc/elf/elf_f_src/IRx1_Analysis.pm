@@ -187,5 +187,5 @@ class IRx1::Var {
   method is_context() { (self.<twigil>||'') eq '+' || $.notes<is><context> }
 }
 class IRx1::PackageDecl {
-  method path_is_absolute() { self.name && self.name ~~ /^GLOBAL\b'/ }
+  method path_is_absolute() { self.name && self.name =~ /^GLOBAL\b'/ }
 }

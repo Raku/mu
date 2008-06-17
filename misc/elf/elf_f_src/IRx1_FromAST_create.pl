@@ -102,9 +102,6 @@ Apply.newp("prefix:"~$op,Capture.newp([$+blackboard::expect_term_base]))
 
 infix
 my $op = *text*;
-if ($op eq '=~') {
-    die "There is no =~ operator in Perl 6 -- did you mean ~~ (match) or ~= (concat-assign)?";
-}
 Apply.newp("infix:"~$op,Capture.newp([$m<left>,$m<right>]))
 
 term
@@ -458,7 +455,7 @@ trait_verb:is
 Trait.newp('is',$m<ident>)
 
 circumfix:pblock
-if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string ~~ /^:/ {
+if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string =~ /^:/ {
   Hash.newp($m<block><statementlist>)
 } elsif $o<block><statementlist>[0]<expr> and $o<block><statementlist>[0]<expr><sym> and $o<block><statementlist>[0]<expr><sym> eq "," { # XXX Not p6.  Remove once off elf_e, and Match updated.
   Hash.newp($m<block><statementlist>)

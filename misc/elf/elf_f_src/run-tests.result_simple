@@ -14,7 +14,7 @@ ok	4		../../../t/01-sanity/07-range.t
 ok	2		../../../t/01-sanity/07-simple-multisubs.t
 ok	4		../../../t/01-sanity/07-split.t
 ok	1		../../../t/01-sanity/07-substr.t
--  25%	4  1 3		../../../t/01-sanity/07-try.t
+-  50%	4  2 2		../../../t/01-sanity/07-try.t
 ok	1		../../../t/02-test-pm/0-compile.t
 -C 0%	60  0 60	../../../t/02-test-pm/1-basic.t
 -d 0%	11  0 11	../../../t/02-test-pm/2-force_todo.t
@@ -266,7 +266,6 @@ X  0%	17  0 		../../../t/oo/magical_vars.t
 X  0%	11  0 		../../../t/oo/meta_class.t
 X  0%	4  0 		../../../t/oo/methods/both.t
 X  0%	10  0 		../../../t/oo/methods/builtins.t
-X  0%	13  0 		../../../t/oo/methods/calling_sets.t
 X  0%	15  0 		../../../t/oo/methods/chaining.t
 -  0%	3  0 3		../../../t/oo/methods/class.t
 -C 0%	19  0 19	../../../t/oo/methods/instance.t
@@ -296,7 +295,6 @@ X  0%	9  0 		../../../t/oo/traits/basic.t
 -d 0%	7  0 7		../../../t/oo/traits/parameterized.t
 X  0%	15  0 		../../../t/oo/trusts.t
 -C 0%	5  0 5		../../../t/oo/value_types.t
--C 0%	7  0 7		../../../t/oo/what.t
 X  0%	74  0 		../../../t/operators/adverbial_modifiers.t
 -  50%	4  2 1 1!	../../../t/operators/and_precedence.t
 X  0%	188  0 		../../../t/operators/arith.t
@@ -464,14 +462,15 @@ ok	15		../../../t/spec/S03-operators/equality.t
 -  4%	25  1 5 19!	../../../t/spec/S04-statements/try.t
 ok	4		../../../t/spec/S04-statements/until.t
 -C 0%	10  0 10	../../../t/spec/S04-statements/while.t
--  0%	8  0 8		../../../t/spec/S05-modifier/basechar.t
 -C 0%	4  0 4		../../../t/spec/S05-modifier/continue.t
+-  0%	10  0 10	../../../t/spec/S05-modifier/ignoreaccent.t
 -C 0%	7  0 7		../../../t/spec/S05-modifier/ignorecase.t
 X  0%	9  0 		../../../t/spec/S05-modifier/ii.t
 X  0%	6  0 		../../../t/spec/S05-modifier/pos.t
 -C 0%	5  0 5		../../../t/spec/S05-modifier/repetition-exhausitve.t
 ok	2		../../../t/spec/S05-modifier/repetition.t
-X  0%	17  0 		../../../t/spec/S05-transliteration/trans.t
+X  0%	8  0 		../../../t/spec/S05-modifier/sameaccent.t
+-d 0%	17  0 17	../../../t/spec/S05-transliteration/trans.t
 -C 0%	15  0 15	../../../t/spec/S06-advanced_subroutine_features/want.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/named-placeholders.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/positional-placeholders.t
@@ -484,14 +483,23 @@ X  0%	17  0 		../../../t/spec/S05-transliteration/trans.t
 -C 0%	41  0 41	../../../t/spec/S12-attributes/delegation.t
 X  0%	4  0 		../../../t/spec/S12-class/attributes.t
 -C 0%	21  0 21	../../../t/spec/S12-class/basic.t
-ok	1		../../../t/spec/S12-class/inheritance-class-methods.t
+ok	5		../../../t/spec/S12-class/inheritance-class-methods.t
 X  0%	2  0 		../../../t/spec/S12-class/instantiate.t
+ok	4		../../../t/spec/S12-class/is_also_instead.t
+X  0%	12  0 		../../../t/spec/S12-class/open_closed.t
 -C 0%	3  0 3		../../../t/spec/S12-class/parent_attributes.t
-ok	5		../../../t/spec/S12-methods/calling_syntax.t
--C 0%	6  0 6		../../../t/spec/S12-methods/indirect_notation.t
+X  0%	17  0 		../../../t/spec/S12-methods/calling_sets.t
+X  0%	11  0 		../../../t/spec/S12-methods/calling_syntax.t
+-C 0%	9  0 9		../../../t/spec/S12-methods/defer_call.t
+-C 0%	9  0 9		../../../t/spec/S12-methods/defer_next.t
+-C 0%	7  0 7		../../../t/spec/S12-methods/indirect_notation.t
+-C 0%	3  0 3		../../../t/spec/S12-methods/lastcall.t
+-C 0%	21  0 21	../../../t/spec/S12-methods/parallel_dispatch.t
 X  0%	3  0 		../../../t/spec/S12-methods/private_methods.t
+X  0%	10  0 		../../../t/spec/S12-methods/what.t
+X  0%	4  0 		../../../t/spec/S12-role/attributes.t
 -C 0%	8  0 8		../../../t/spec/S12-role/composition.t
-X  0%	2  0 		../../../t/spec/S13-overloading/fallbacks-deep.t
+-C 0%	2  0 2		../../../t/spec/S13-overloading/fallbacks-deep.t
 -C 0%	5  0 5		../../../t/spec/S13-overloading/multiple-signatures.t
 X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-long.t
 X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-mixed.t
@@ -586,13 +594,13 @@ X  0%	74  0 		../../../t/spec/S29-scalar/undef.t
 -d 0%	31  0 31	../../../t/spec/S29-str/index.t
 -C 0%	8  0 8		../../../t/spec/S29-str/lcfirst.t
 -C 0%	11  0 11	../../../t/spec/S29-str/lc.t
--  0%	55  0 1 54!	../../../t/spec/S29-str/length.t
+-  5%	55  3 1 51!	../../../t/spec/S29-str/length.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chomp.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chop.t
--d 0%	2  0 2		../../../t/spec/S29-str/pos.t
+-  50%	2  1 0 1!	../../../t/spec/S29-str/pos.t
 X  0%	11  0 		../../../t/spec/S29-str/quotemeta.t
 -d 0%	31  0 31	../../../t/spec/S29-str/rindex.t
--d 0%	7  0 7		../../../t/spec/S29-str/samebase.t
+-d 0%	7  0 7		../../../t/spec/S29-str/sameaccent.t
 -d 0%	8  0 8		../../../t/spec/S29-str/samecase.t
 X  0%	27  0 		../../../t/spec/S29-str/split.t
 -  91%	37  34 3	../../../t/spec/S29-str/sprintf.t
@@ -654,7 +662,7 @@ X  0%	19  0 		../../../t/syntax/numbers/underscores.t
 -  33%	3  1 2		../../../t/syntax/parsing/filetest.t
 -d 0%	9  0 9		../../../t/syntax/parsing/gt.t
 -C 0%	3  0 3		../../../t/syntax/parsing/hash_sub.t
--  50%	4  2 0 2!	../../../t/syntax/parsing/lt.t
+-  50%	4  2 2		../../../t/syntax/parsing/lt.t
 -  60%	5  3 2		../../../t/syntax/parsing/nested_hashrefs.t
 -C 0%	2  0 2		../../../t/syntax/parsing/non-dotted-new-disallowed.t
 -d 0%	1  0 1		../../../t/syntax/parsing/parens.t
@@ -825,5 +833,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 826.  597 parsed 72%.  325 run 39%.  79 ok 9%.
-Tests: 16538+.  769 ok <4.64%, 15769+ not.
+Files: 834.  602 parsed 72%.  326 run 39%.  79 ok 9%.
+Tests: 16628+.  777 ok <4.67%, 15851+ not.

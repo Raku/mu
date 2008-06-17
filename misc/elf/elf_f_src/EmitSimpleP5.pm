@@ -73,7 +73,10 @@ use warnings;
   }
 }
 
-
+# Workaround autobox 2.53 api change. :(
+if(!defined(&autobox::universal::type)) {
+  eval q{package autobox::universal; sub type { autobox->type($_[0]) }};
+}
 {package UNDEF; sub WHAT {"Undef"}}
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox::universal::type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox::universal::type($_[0]) } }
@@ -675,10 +678,10 @@ package Main;
   method cb__Call ($n) {
     my $+whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
-    if ($method eq 'postcircumfix:< >') {
+    if ($method =~ 'postcircumfix:< >') {
       $.e($n.invocant)~'->'~"{'"~$.e($n.capture)~"'}";
     }
-    elsif ($method ~~ /postcircumfix:(.*)/) {
+    elsif ($method =~ 'postcircumfix:(.*)') {
       my $op = $1;
       my $arg = $.e($n.capture);
       $op.re_gsub(' ',$arg);
@@ -704,7 +707,7 @@ package Main;
        my $fe = $.encode_function_name($fun);
        ''~$fe~'('~$.e($n.capture)~')'
     }
-    elsif $fun ~~ /^infix:(.+)$/ {
+    elsif $fun =~ /^infix:(.+)$/ {
       my $op = $1;
       my $args = $n.capture.arguments;
       if $args.elems == 1 && $args[0].isa('IRx1::Apply') && $args[0].function eq 'infix:,' {
@@ -736,7 +739,7 @@ package Main;
       }
       "("~$l~" "~$op~" "~$r~")";
     }
-    elsif $fun ~~ /^prefix:(.+)$/ {
+    elsif $fun =~ /^prefix:(.+)$/ {
       my $op = $1;
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
@@ -745,7 +748,7 @@ package Main;
       elsif $op eq '+' { 'GLOBAL::prefix_plus('~$x~')' }
       else { "("~$op~""~$x~")" }
     }
-    elsif $fun ~~ /^statement_prefix:(.+)$/ {
+    elsif $fun =~ /^statement_prefix:(.+)$/ {
       my $op = $1;
       if $op eq 'do' {
         'do{'~$.e($n.capture.arguments[0])~'}'
@@ -757,14 +760,14 @@ package Main;
         die $fun~': unimplemented';
       }
     }
-    elsif $fun ~~ /^postfix:(.+)$/ {
+    elsif $fun =~ /^postfix:(.+)$/ {
       my $op = $1;
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
       if 0 { }
       else { "("~$x~""~$op~")" }
     }
-    elsif $fun ~~ /^circumfix:(.+)/ {
+    elsif $fun =~ /^circumfix:(.+)/ {
       my $op = $1;
       if $op eq '< >' {
         my $s = $n.capture.arguments[0];
@@ -781,7 +784,7 @@ package Main;
     }
     else {
       my $f = $fun;
-      if ($f ~~ /^\$\w+$/) {
+      if ($f =~ /^\$\w+$/) {
          $f~'->('~$.e($n.capture)~')';
       } elsif ($f eq 'self') {
         '$self'
@@ -789,9 +792,9 @@ package Main;
         'last'
       } elsif ($f eq 'return') {
         'return('~$.e($n.capture)~')';
-      } elsif ($f ~~ /^sub\s*{/) {
+      } elsif ($f =~ /^sub\s*{/) {
         '('~$f~')->('~$.e($n.capture)~')'
-      } elsif ($f ~~ /^\w/) {
+      } elsif ($f =~ /^\w/) {
         if $n.notes<lexical_bindings>{'&'~$f} {
           ''~$f~'('~$.e($n.capture)~')'
         } else {

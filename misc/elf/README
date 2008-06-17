@@ -123,7 +123,6 @@ A development story (a tale of two compilers)
   you could now compile it.
     six -o mysix -x MySix.pm
 
-
   (This is section is highly doubtfull, and IMHO an elf bug -- pmurias)
   But you could *not*, in general, do
     six MySix.pm
