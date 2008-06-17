@@ -2,4 +2,6 @@
 
 use lib '../lib';
 
-use Perl6in5::Grammar::tester;
+my $gram = shift;
+
+eval "use Perl6in5::Grammar::$gram;";
