@@ -83,4 +83,7 @@ sub fail ($msg) {
     say "not ok "~$count~" - "~$msg;
 }
 
+sub skip_rest ($msg) { say $msg }
+
+
 };

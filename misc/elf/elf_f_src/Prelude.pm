@@ -92,10 +92,6 @@ class Any {
 
 package GLOBAL {
 
-  sub prefix_plus($x) { # should be multi
-    $x.Num
-  }
-
   sub say(*@a) {
     for @a { print $_.Str,"\n" }
   }
@@ -117,6 +113,7 @@ class Str   { method Str () { self } }
 class Array { method Str () { self.join('') } }
 class Hash  { method Str () { self.keys.map(sub($k){$k~"\t"~self<$k>}).join("\n") } }
 class Pair  { method Str () { $.key~"\t"~$.value } }
+
 
 class Any {
   method print() { say self }

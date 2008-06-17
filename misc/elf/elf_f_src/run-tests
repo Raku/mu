@@ -106,6 +106,11 @@ exit;
         $result .= "$e 0%";
         $num .= "$n  0 $n";
       }
+      elsif($self->{plan} eq '?') {
+        my($plan,$ok,$not_ok) = ($self->{plan},$self->{ok},$self->{not_ok});
+        $num .= "??  $ok $not_ok ??!";
+        $result .= "  ??%";
+      }
       else {
         my($plan,$ok,$not_ok) = ($self->{plan},$self->{ok},$self->{not_ok});
         my $unk = $plan-$ok-$not_ok; $unk = $unk ? " $unk!" : "";

@@ -743,9 +743,7 @@ __PACKAGE__->meta->make_immutable();
 
 { package GLOBAL;
 use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub prefix_plus{my($x)=@_;
-(do{$x->Num()})};
-sub say{my(@a)=@_;
+use base "Any";(do{sub say{my(@a)=@_;
 my $a_a = \@a;
 (do{for(($a_a)->flatten){
 (do{GLOBAL::print($_->Str(), "\
@@ -2463,6 +2461,9 @@ $main::irbuilder->add_constructor("subshortname", sub {my($m)=@_;
 (do{if($m->{"hash"}->{"category"}) {
 (do{my $cat = $m->{"hash"}->{"category"}->match_string();
 my $op = $m->{"hash"}->{"colonpair"}->[0]->{"hash"}->{"structural"}->{"hash"}->{"kludge_name"};
+if(($op->WHAT() eq "Array")) {
+(do{($op = $op->join(""))})
+};
 (($cat . "\:") . $op)})
 }else {
 (do{($m->match_string())})
@@ -3706,7 +3707,7 @@ my $code = "";
 (((((("sub\ " . $branch_name) . "\{my\ \$self\=CORE\:\:shift\;") . $self->e($n->multisig())) . $self->e($n->block())) . "\}") . $code)})};
 sub multi_using_CM{my $self=CORE::shift;my($n,$is_method,$f_emitted)=@_;
 (do{my $name = $self->e($n->name());
-my $enc_name = $self->encode_function_name($name);
+my $enc_name = $self->mangle_function_name($name);
 my $param_types = $n->multisig()->parameters()->map(sub {my($p)=@_;
 (do{my $types = $self->e($p->type_constraints());
 if($types) {
@@ -3744,7 +3745,7 @@ if(($n->plurality() && ($n->plurality() eq "multi"))) {
 (do{my $ef = ((("sub\ \{my\ \$self\=CORE\:\:shift\;" . $self->e($n->multisig())) . $body) . "\}");
 $self->multi_using_CM($n, 1, $ef)})
 }else {
-(do{my $enc_name = $self->encode_function_name($self->e($n->name()));
+(do{my $enc_name = $self->mangle_function_name($self->e($n->name()));
 ((((("sub\ " . $enc_name) . "\{my\ \$self\=CORE\:\:shift\;") . $self->e($n->multisig())) . $body) . "\}")})
 }})};
 sub cb__SubDecl{my $self=CORE::shift;my($n)=@_;
@@ -3771,7 +3772,7 @@ if(($n->plurality() && ($n->plurality() eq "multi"))) {
 (do{my $ef = ((("sub\ \{" . $sig) . $body) . "\}");
 $self->multi_using_CM($n, 0, $ef)})
 }else {
-(do{my $enc_name = $self->encode_function_name($name);
+(do{my $enc_name = $self->mangle_function_name($name);
 ((((("sub\ " . $enc_name) . "\{") . $sig) . $body) . "\}")})
 }})};
 sub cb__Signature{my $self=CORE::shift;my($n)=@_;
@@ -3812,16 +3813,17 @@ $op->re_gsub("\ ", $arg);
 (do{((((($self->e($n->invocant()) . "\-\>") . $self->e($n->method())) . "\(") . $self->e($n->capture())) . "\)")})
 }})};
 sub using_Moose{my $self=CORE::shift;(do{1})};
-sub encode_function_name{my $self=CORE::shift;my($name)=@_;
+sub mangle_function_name{my $self=CORE::shift;my($name)=@_;
 (do{$name->re_sub("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_");
-$name->re_sub("\(\[\^\\w\:\]\)", "\"_\"\.CORE\:\:ord\(\$1\)", "eg");
+$name->re_sub("\(\[\^\\w\]\)", "\"_\"\.CORE\:\:ord\(\$1\)", "eg");
 $name})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 (do{my $fun = $self->e($n->function());
 if($n->notes()->{'lexical_bindings'}->{("\&" . $fun)}) {
-(do{my $fe = $self->encode_function_name($fun);
-(((("" . $fe) . "\(") . $self->e($n->capture())) . "\)")})
-}elsif(($fun =~ qr/^infix:(.+)$/)) {
+(do{my $fe = $self->mangle_function_name($fun);
+return((((("" . $fe) . "\(") . $self->e($n->capture())) . "\)"))})
+};
+if(($fun =~ qr/^infix:(.+)$/)) {
 (do{my $op = $1;
 my $args = $n->capture()->arguments();
 if(((($args->elems() == 1) && $args->[0]->isa("IRx1\:\:Apply")) && ($args->[0]->function() eq "infix\:\,"))) {
@@ -3851,28 +3853,27 @@ if((($args->[0]->isa("IRx1\:\:Call") && ($args->[0]->capture()->arguments()->ele
 (do{return(((((($self->e($args->[0]->invocant()) . "\-\>") . $self->e($args->[0]->method())) . "\(") . $r) . "\)"))})
 }})
 };
-(((((("\(" . $l) . "\ ") . $op) . "\ ") . $r) . "\)")})
+if(($op =~ qr/^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$/)) {
+(do{return((((((("\(" . $l) . "\ ") . $op) . "\ ") . $r) . "\)"))})
+}})
 }elsif(($fun =~ qr/^prefix:(.+)$/)) {
 (do{my $op = $1;
 my $a = $self->e($n->capture()->arguments());
 my $x = $a->[0];
-if(0) {
-(do{})
-}elsif(($op eq "\?")) {
-(do{(("\(\(" . $x) . "\)\?1\:0\)")})
-}elsif(($op eq "\+")) {
-(do{(("GLOBAL\:\:prefix_plus\(" . $x) . "\)")})
-}else {
-(do{(((("\(" . $op) . "") . $x) . "\)")})
+if(($op eq "\?")) {
+(do{return((("\(\(" . $x) . "\)\?1\:0\)"))})
+};
+if(($op =~ qr/^(-)$/)) {
+(do{return((((("\(" . $op) . "") . $x) . "\)"))})
 }})
 }elsif(($fun =~ qr/^statement_prefix:(.+)$/)) {
 (do{my $op = $1;
 if(($op eq "do")) {
-(do{(("do\{" . $self->e($n->capture()->arguments()->[0])) . "\}")})
+(do{return((("do\{" . $self->e($n->capture()->arguments()->[0])) . "\}"))})
 }elsif(($op eq "try")) {
-(do{(("eval\{" . $self->e($n->capture())) . "\}")})
+(do{return((("eval\{" . $self->e($n->capture())) . "\}"))})
 }elsif(($op eq "gather")) {
-(do{(("GLOBAL\:\:gather" . $self->e($n->capture())) . "")})
+(do{return((("GLOBAL\:\:gather" . $self->e($n->capture())) . ""))})
 }else {
 (do{GLOBAL::die(($fun . "\:\ unimplemented"))})
 }})
@@ -3880,10 +3881,8 @@ if(($op eq "do")) {
 (do{my $op = $1;
 my $a = $self->e($n->capture()->arguments());
 my $x = $a->[0];
-if(0) {
-(do{})
-}else {
-(do{(((("\(" . $x) . "") . $op) . "\)")})
+if(($op =~ qr/^(\+\+)$/)) {
+(do{return((((("\(" . $x) . "") . $op) . "\)"))})
 }})
 }elsif(($fun =~ qr/^circumfix:(.+)/)) {
 (do{my $op = $1;
@@ -3891,40 +3890,33 @@ if(($op eq "\<\ \>")) {
 (do{my $s = $n->capture()->arguments()->[0];
 my $words = $s->split(qr/\s+/);
 if(($words->elems() == 0)) {
-(do{"\[\]"})
+(do{return("\[\]")})
 }else {
-(do{(("\[\'" . $words->join("\'\,\'")) . "\'\]")})
+(do{return((("\[\'" . $words->join("\'\,\'")) . "\'\]"))})
 }})
-}else {
+}elsif(($op =~ qr/^(\( \)|\[ \])$/)) {
 (do{my $arg = $self->e($n->capture());
-$op->re_gsub("\ ", $arg)})
+return($op->re_gsub("\ ", $arg))})
 }})
-}else {
-(do{my $f = $fun;
-if((($f =~ qr/^\$\w+$/))) {
-(do{((($f . "\-\>\(") . $self->e($n->capture())) . "\)")})
-}elsif((($f eq "self"))) {
-(do{"\$self"})
-}elsif((($f eq "last"))) {
-(do{"last"})
-}elsif((($f eq "return"))) {
-(do{(("return\(" . $self->e($n->capture())) . "\)")})
-}elsif((($f =~ qr/^sub\s*{/))) {
-(do{(((("\(" . $f) . "\)\-\>\(") . $self->e($n->capture())) . "\)")})
-}elsif((($f =~ qr/^\w/))) {
-(do{if($n->notes()->{'lexical_bindings'}->{("\&" . $f)}) {
-(do{(((("" . $f) . "\(") . $self->e($n->capture())) . "\)")})
-}else {
-(do{if(($f eq "eval")) {
+}elsif((($fun eq "self"))) {
+(do{return("\$self")})
+}elsif((($fun eq "last"))) {
+(do{return("last")})
+}elsif((($fun eq "return"))) {
+(do{return((("return\(" . $self->e($n->capture())) . "\)"))})
+}elsif((($fun =~ qr/^\$\w+$/))) {
+(do{return(((($fun . "\-\>\(") . $self->e($n->capture())) . "\)"))})
+}elsif((($fun =~ qr/^sub\s*{/))) {
+(do{return((((("\(" . $fun) . "\)\-\>\(") . $self->e($n->capture())) . "\)"))})
+}elsif(($fun eq "eval")) {
 (do{my $env = "sub\{my\$s\=eval\(\$_\[0\]\)\;Carp\:\:carp\(\$\@\)if\$\@\;\$s\}";
-(((((("GLOBAL\:\:" . $f) . "\(") . $self->e($n->capture())) . "\,") . $env) . "\)")})
+return((((((("GLOBAL\:\:" . $fun) . "\(") . $self->e($n->capture())) . "\,") . $env) . "\)"))})
+};
+if(($fun =~ qr/^\w/)) {
+(do{my $fe = $self->mangle_function_name($fun);
+return((((("GLOBAL\:\:" . $fe) . "\(") . $self->e($n->capture())) . "\)"))})
 }else {
-(do{(((("GLOBAL\:\:" . $f) . "\(") . $self->e($n->capture())) . "\)")})
-}})
-}})
-}else {
-(do{((($f . "\(") . $self->e($n->capture())) . "\)")})
-}})
+(do{return(((($fun . "\(") . $self->e($n->capture())) . "\)"))})
 }})};
 sub cb__Capture{my $self=CORE::shift;my($n)=@_;
 (do{my $a = $self->e(($n->arguments() || []))->join("\,");
@@ -4120,6 +4112,14 @@ __PACKAGE__->meta->make_immutable();
 }
 ;
 
+{ package Regexp;
+use Moose; __PACKAGE__->meta->make_mutable();
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{("" . $self)})}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
 { package Math;
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub rand{my $self=CORE::shift;my($max)=@_;
@@ -4146,6 +4146,113 @@ __PACKAGE__->meta->make_immutable();
 use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub rmdir{my($dirname)=@_;
 CORE::rmdir($dirname)}});
+__PACKAGE__->meta->make_immutable();
+
+}
+;
+
+{ package GLOBAL;
+use Moose; __PACKAGE__->meta->make_mutable();
+use base "Any";(do{Class::Multimethods::multimethod prefix__63 => split(/\s+/,'*') => sub {my($a)=@_;
+(do{$a->Bool()})};;
+Class::Multimethods::multimethod prefix__33 => split(/\s+/,'*') => sub {my($a)=@_;
+!$a};;
+Class::Multimethods::multimethod prefix__43 => split(/\s+/,'*') => sub {my($a)=@_;
+(do{$a->Num()})};;
+Class::Multimethods::multimethod prefix__43 => split(/\s+/,'#') => sub {my($a)=@_;
+(do{$a})};;
+Class::Multimethods::multimethod prefix__43 => split(/\s+/,'Array') => sub {my($a)=@_;
+(do{$a->elems()})};;
+Class::Multimethods::multimethod prefix__126 => split(/\s+/,'*') => sub {my($a)=@_;
+(do{$a->Str()})};;
+Class::Multimethods::multimethod prefix__126 => split(/\s+/,'$') => sub {my($a)=@_;
+(do{$a})};;
+Class::Multimethods::multimethod prefix__45 => split(/\s+/,'#') => sub {my($a)=@_;
+(0-$a)};;
+Class::Multimethods::multimethod prefix__43_43 => split(/\s+/,'#') => sub {my($a)=@_;
+++ $a};;
+Class::Multimethods::multimethod prefix__45_45 => split(/\s+/,'#') => sub {my($a)=@_;
+-- $a};;
+Class::Multimethods::multimethod postfix__43_43 => split(/\s+/,'#') => sub {my($a)=@_;
+$a ++};;
+Class::Multimethods::multimethod postfix__45_45 => split(/\s+/,'#') => sub {my($a)=@_;
+$a --};;
+Class::Multimethods::multimethod postfix_i => split(/\s+/,'#') => sub {my($a)=@_;
+(do{$a})};;
+Class::Multimethods::multimethod infix__43 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a + $b)};;
+Class::Multimethods::multimethod infix__42 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a * $b)};;
+Class::Multimethods::multimethod infix__42_42 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a ** $b)};;
+Class::Multimethods::multimethod infix_and => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a and $b)};;
+Class::Multimethods::multimethod infix_or => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a or $b)};;
+Class::Multimethods::multimethod infix_eq => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a eq $b)};;
+Class::Multimethods::multimethod infix_ne => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a ne $b)};;
+Class::Multimethods::multimethod infix__33_61 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a != $b)};;
+Class::Multimethods::multimethod infix__61_61 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a == $b)};;
+Class::Multimethods::multimethod infix__60 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a < $b)};;
+Class::Multimethods::multimethod infix__62 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a > $b)};;
+Class::Multimethods::multimethod infix__60_61 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a <= $b)};;
+Class::Multimethods::multimethod infix__62_61 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a >= $b)};;
+Class::Multimethods::multimethod infix__60_61_62 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a <=> $b)};;
+Class::Multimethods::multimethod infix_ge => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a ge $b)};;
+Class::Multimethods::multimethod infix_gt => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a gt $b)};;
+Class::Multimethods::multimethod infix_le => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a le $b)};;
+Class::Multimethods::multimethod infix_lt => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a lt $b)};;
+Class::Multimethods::multimethod infix_cmp => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a cmp $b)};;
+Class::Multimethods::multimethod infix_xor => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a xor $b)};;
+Class::Multimethods::multimethod infix__61_61_61 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+(do{GLOBAL::undef()})};;
+Class::Multimethods::multimethod infix__61_58_61 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+(do{GLOBAL::undef()})};;
+Class::Multimethods::multimethod infix__94 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a ^ $b)};;
+Class::Multimethods::multimethod infix__46_46 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a .. $b)};;
+Class::Multimethods::multimethod infix__94_46_46 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a .. $b)};;
+Class::Multimethods::multimethod infix__46_46_94 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a .. $b)};;
+Class::Multimethods::multimethod infix__94_46_46_94 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a .. $b)};;
+Class::Multimethods::multimethod infix__62_62 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a >> $b)};;
+Class::Multimethods::multimethod infix__60_60 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a << $b)};;
+Class::Multimethods::multimethod infix__124 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a | $b)};;
+Class::Multimethods::multimethod infix__124_124 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a || $b)};;
+Class::Multimethods::multimethod infix__38 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a & $b)};;
+Class::Multimethods::multimethod infix__38_38 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a && $b)};;
+Class::Multimethods::multimethod infix_58_58_61 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a = $b)};;
+Class::Multimethods::multimethod infix__33_126 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+(do{GLOBAL::undef()})};;
+Class::Multimethods::multimethod infix__126_126 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+(do{GLOBAL::undef()})};;
+Class::Multimethods::multimethod infix__126_126 => split(/\s+/,'$ Regexp') => sub {my($a,$b)=@_;
+$a =~ $b};});
 __PACKAGE__->meta->make_immutable();
 
 }

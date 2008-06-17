@@ -587,7 +587,7 @@ package Main;
   };
   method multi_using_CM ($n,$is_method,$f_emitted) {
     my $name = $.e($n.name);
-    my $enc_name = $.encode_function_name($name);
+    my $enc_name = $.mangle_function_name($name);
     my $param_types = $n.multisig.parameters.map(sub($p){
       my $types = $.e($p.type_constraints);
       if $types {
@@ -625,7 +625,7 @@ package Main;
       self.multi_using_CM($n,1,$ef);
     }
     else {
-      my $enc_name = $.encode_function_name($.e($n.name));
+      my $enc_name = $.mangle_function_name($.e($n.name));
       'sub '~$enc_name~'{my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
     }
   };
@@ -646,7 +646,7 @@ package Main;
       my $ef = 'sub {'~$sig~$body~'}';
       self.multi_using_CM($n,0,$ef);
     } else {
-      my $enc_name = $.encode_function_name($name);
+      my $enc_name = $.mangle_function_name($name);
       'sub '~$enc_name~'{'~$sig~$body~'}';
     }
   };
@@ -695,19 +695,19 @@ package Main;
       # Moose-based class initializers.
       1;
   }
-  method encode_function_name($name) {
+  method mangle_function_name($name) {
      $name.re_sub('^(\w+):(?!:)','${1}_');
-     $name.re_sub('([^\w:])','"_".CORE::ord($1)','eg');
+     $name.re_sub('([^\w])','"_".CORE::ord($1)','eg');
      $name;
   }
   method cb__Apply ($n) {
     # my $+whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
     my $fun = $.e($n.function);
     if $n.notes<lexical_bindings>{'&'~$fun} {
-       my $fe = $.encode_function_name($fun);
-       ''~$fe~'('~$.e($n.capture)~')'
+       my $fe = $.mangle_function_name($fun);
+       return ''~$fe~'('~$.e($n.capture)~')'
     }
-    elsif $fun =~ /^infix:(.+)$/ {
+    if $fun =~ /^infix:(.+)$/ {
       my $op = $1;
       my $args = $n.capture.arguments;
       if $args.elems == 1 && $args[0].isa('IRx1::Apply') && $args[0].function eq 'infix:,' {
@@ -737,25 +737,30 @@ package Main;
           return $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
         }
       }
-      "("~$l~" "~$op~" "~$r~")";
+      #XXX := is here temporarily to postpone a regression.
+      if $op =~ /^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$/ {
+        return "("~$l~" "~$op~" "~$r~")";
+      }
     }
     elsif $fun =~ /^prefix:(.+)$/ {
       my $op = $1;
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
-      if 0 { }
-      elsif $op eq '?' { '(('~$x~')?1:0)' }
-      elsif $op eq '+' { 'GLOBAL::prefix_plus('~$x~')' }
-      else { "("~$op~""~$x~")" }
+      if $op eq '?' {
+        return '(('~$x~')?1:0)'
+      }
+      if $op =~ /^(-)$/ {
+        return  "("~$op~""~$x~")"
+      }
     }
     elsif $fun =~ /^statement_prefix:(.+)$/ {
       my $op = $1;
       if $op eq 'do' {
-        'do{'~$.e($n.capture.arguments[0])~'}'
+        return 'do{'~$.e($n.capture.arguments[0])~'}'
       } elsif $op eq 'try' {
-        'eval{'~$.e($n.capture)~'}'
+        return 'eval{'~$.e($n.capture)~'}'
       } elsif $op eq 'gather' {
-        'GLOBAL::gather'~$.e($n.capture)~''
+        return 'GLOBAL::gather'~$.e($n.capture)~''
       } else {
         die $fun~': unimplemented';
       }
@@ -764,8 +769,9 @@ package Main;
       my $op = $1;
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
-      if 0 { }
-      else { "("~$x~""~$op~")" }
+      if $op =~ /^(\+\+)$/ {
+        return "("~$x~""~$op~")"
+      }
     }
     elsif $fun =~ /^circumfix:(.+)/ {
       my $op = $1;
@@ -773,41 +779,42 @@ package Main;
         my $s = $n.capture.arguments[0];
         my $words = $s.split(/\s+/);
         if $words.elems == 0 {
-          '[]'
+          return '[]'
         } else {
-          "['"~$words.join("','")~"']"
+          return "['"~$words.join("','")~"']"
         }
-      } else {
+      }
+      elsif $op =~ /^(\( \)|\[ \])$/ {
         my $arg = $.e($n.capture);
-        $op.re_gsub(' ',$arg);
+        return $op.re_gsub(' ',$arg);
       }
     }
+    elsif ($fun eq 'self') {
+      return '$self'
+    }
+    elsif ($fun eq 'last') {
+      return 'last'
+    }
+    elsif ($fun eq 'return') {
+      return 'return('~$.e($n.capture)~')';
+    }
+    elsif ($fun =~ /^\$\w+$/) {
+      return $fun~'->('~$.e($n.capture)~')';
+    }
+    elsif ($fun =~ /^sub\s*{/) {
+      return '('~$fun~')->('~$.e($n.capture)~')'
+    }
+    elsif $fun eq 'eval' {
+      my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
+      return 'GLOBAL::'~$fun~'('~$.e($n.capture)~','~$env~')'
+    }
+
+    if $fun =~ /^\w/ {
+      my $fe = $.mangle_function_name($fun);
+      return 'GLOBAL::'~$fe~'('~$.e($n.capture)~')'
+    }
     else {
-      my $f = $fun;
-      if ($f =~ /^\$\w+$/) {
-         $f~'->('~$.e($n.capture)~')';
-      } elsif ($f eq 'self') {
-        '$self'
-      } elsif ($f eq 'last') {
-        'last'
-      } elsif ($f eq 'return') {
-        'return('~$.e($n.capture)~')';
-      } elsif ($f =~ /^sub\s*{/) {
-        '('~$f~')->('~$.e($n.capture)~')'
-      } elsif ($f =~ /^\w/) {
-        if $n.notes<lexical_bindings>{'&'~$f} {
-          ''~$f~'('~$.e($n.capture)~')'
-        } else {
-          if $f eq 'eval' {
-            my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
-            'GLOBAL::'~$f~'('~$.e($n.capture)~','~$env~')'
-          } else {
-            'GLOBAL::'~$f~'('~$.e($n.capture)~')'
-          }
-        }
-      } else {
-         $f~'('~$.e($n.capture)~')';
-      }
+       return  $fun~'('~$.e($n.capture)~')';
     }
   };
   method cb__Capture ($n) {

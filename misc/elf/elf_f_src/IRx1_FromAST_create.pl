@@ -132,6 +132,9 @@ subshortname
 if $o<category> {
   my $cat = $o<category>.match_string;
   my $op = $o<colonpair>[0]<structural><kludge_name>;
+  #XXX The next line is a workaround for an unexamined bug, perhaps in STD_red.
+  # multi infix:«<=» ($a,$b) {}  yields a ['<','='] .
+  if $op.WHAT eq 'Array' { $op = $op.join("") }
   $cat~':'~$op;
 } else {
   *text*

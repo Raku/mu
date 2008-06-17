@@ -19,7 +19,7 @@ ok	1		../../../t/02-test-pm/0-compile.t
 -C 0%	60  0 60	../../../t/02-test-pm/1-basic.t
 -d 0%	11  0 11	../../../t/02-test-pm/2-force_todo.t
 X  0%	1  0 		../../../t/02-test-pm/3-output.t
--C 0%	6  0 6		../../../t/02-test-pm/4-version_lt.t
+-d 0%	6  0 6		../../../t/02-test-pm/4-version_lt.t
 -C 0%	9  0 9		../../../t/02-test-pm/5-todo.t
 -C 0%	8  0 8		../../../t/blocks/arg_ref_type_preservation.t
 ok	1		../../../t/blocks/bare_block_with_dollar_underscore.t
@@ -33,7 +33,7 @@ X  0%	14  0 		../../../t/blocks/implicit_parameters.t
 -C 0%	6  0 6		../../../t/blocks/lexical_subs.t
 -C 0%	12  0 12	../../../t/blocks/loopscope.t
 X  0%	14  0 		../../../t/blocks/lvalue_subroutines.t
--C 0%	3  0 3		../../../t/blocks/meth_vs_sub_call.t
+-d 0%	3  0 3		../../../t/blocks/meth_vs_sub_call.t
 -  14%	7  1 0 6!	../../../t/blocks/multidimensional_arglists.t
 -  0%	26  0 26	../../../t/blocks/multi_named_vs_pos.t
 X  0%	22  0 		../../../t/blocks/multi_sub.t
@@ -45,21 +45,21 @@ X  0%	14  0 		../../../t/blocks/pointy.t
 X  0%	6  0 		../../../t/blocks/proto.t
 -C 0%	13  0 13	../../../t/blocks/recurse.t
 -C 0%	4  0 4		../../../t/blocks/return_function.t
--C 0%	8  0 8		../../../t/blocks/return.t
+-  12%	8  1 4 3!	../../../t/blocks/return.t
 -C 0%	8  0 8		../../../t/blocks/scoped_named_subs.t
 X  0%	6  0 		../../../t/blocks/slurpy_code_param.t
 -d 0%	26  0 26	../../../t/blocks/slurpy_param.t
 -  0%	3  0 1 2!	../../../t/blocks/splat_rw.t
--C 0%	4  0 4		../../../t/blocks/splatty_in_caller_position.t
+-d 0%	4  0 4		../../../t/blocks/splatty_in_caller_position.t
 -  0%	1  0 1		../../../t/blocks/splatty_with_type.t
 -C 0%	1  0 1		../../../t/blocks/statement_control.t
 -d 0%	6  0 6		../../../t/blocks/sub_arg_errors.t
--  0%	1  0 1		../../../t/blocks/sub_bug.t
+-d 0%	1  0 1		../../../t/blocks/sub_bug.t
 -C 0%	63  0 63	../../../t/blocks/sub_named_params.t
 -  16%	12  2 10	../../../t/blocks/sub_parameter_traits.t
 X  0%	33  0 		../../../t/blocks/sub_ref.t
 -d 0%	10  0 10	../../../t/blocks/sub_return_object_method_call.t
--  9%	63  6 1 56!	../../../t/blocks/sub_return_values.t
+-d 0%	63  0 63	../../../t/blocks/sub_return_values.t
 -C 0%	17  0 17	../../../t/blocks/subroutine.t
 -C 0%	3  0 3		../../../t/blocks/unhashify.t
 -C 0%	20  0 20	../../../t/blocks/wrap.t
@@ -73,7 +73,7 @@ X  0%	19  0 		../../../t/builtins/caller.t
 -  25%	4  1 5 -2!	../../../t/builtins/control_flow/fail.t
 -C 0%	23  0 23	../../../t/builtins/control_flow/leave.t
 -C 0%	7  0 7		../../../t/builtins/control_flow/return.t
--C 0%	3  0 3		../../../t/builtins/math/complex_powers.t
+-d 0%	3  0 3		../../../t/builtins/math/complex_powers.t
 -  33%	6  2 4		../../../t/builtins/math/NaN.t
 -  0%	1  0 1		../../../t/builtins/math/pi_internals.t
 -  79%	29  23 6	../../../t/builtins/my.t
@@ -83,7 +83,7 @@ X  0%	19  0 		../../../t/builtins/caller.t
 -C 0%	38  0 38	../../../t/builtins/sigils.t
 -d 0%	9  0 9		../../../t/builtins/strings/match.t
 -C 0%	12  0 12	../../../t/builtins/strings/subst.t
--C 0%	44  0 44	../../../t/builtins/strings/unicode.t
+-d 0%	44  0 44	../../../t/builtins/strings/unicode.t
 -d 0%	3  0 3		../../../t/builtins/system/crypt.t
 -C 0%	8  0 8		../../../t/closure_traits/ascending_order.t
 -C 0%	5  0 5		../../../t/closure_traits/check.t
@@ -138,7 +138,7 @@ X  0%	2  0 		../../../t/examples/99problems/problem08.t
 -C 0%	1  0 1		../../../t/examples/99problems/problem11.t
 -C 0%	1  0 1		../../../t/examples/99problems/problem12.t
 X  0%	8  0 		../../../t/examples/99problems/problem13.t
--C 0%	2  0 2		../../../t/examples/99problems/problem14.t
+-d 0%	2  0 2		../../../t/examples/99problems/problem14.t
 -C 0%	1  0 1		../../../t/examples/99problems/problem15.t
 -C 0%	5  0 5		../../../t/examples/99problems/problem16.t
 -C 0%	2  0 2		../../../t/examples/99problems/problem17.t
@@ -217,7 +217,7 @@ X  0%	17  0 		../../../t/general/atoms.t
 -C 0%	4  0 4		../../../t/general/config.t
 -d 0%	4  0 4		../../../t/junction/abc.t
 -d 0%	1  0 1		../../../t/junction/any_values_infinite_loop.t
-ok	1		../../../t/junction/array_deref.t
+-d 0%	1  0 1		../../../t/junction/array_deref.t
 -d 0%	14  0 14	../../../t/junction/associative.t
 -d 0%	7  0 7		../../../t/junction/chained_operators.t
 -d 0%	2  0 2		../../../t/junction/junction_any_pick.t
@@ -234,7 +234,7 @@ X  0%	1  0 		../../../t/macros/operator_macros.t
 -C 0%	8  0 8		../../../t/magicals/caller_pos.t
 -  33%	3  1 0 2!	../../../t/magicals/inc.t
 -C 0%	11  0 11	../../../t/magicals/line_basic.t
--C 0%	1  0 1		../../../t/oo/attributes/array.t
+-d 0%	1  0 1		../../../t/oo/attributes/array.t
 X  0%	8  0 		../../../t/oo/attributes/attribute_initialization.t
 -  0%	6  0 1 5!	../../../t/oo/attributes/attribute_list.t
 -  23%	17  4 9 4!	../../../t/oo/attributes/class.t
@@ -254,7 +254,7 @@ X  0%	4  0 		../../../t/oo/class/inherit_from_role.t
 -C 0%	2  0 2		../../../t/oo/class/literal.t
 -C 0%	3  0 3		../../../t/oo/class_name_and_attribute_name_confliction.t
 -C 0%	9  0 9		../../../t/oo/class/nested_use.t
--C 0%	9  0 9		../../../t/oo/clone.t
+-d 0%	9  0 9		../../../t/oo/clone.t
 -C 0%	13  0 13	../../../t/oo/construction.t
 -  33%	6  2 0 4!	../../../t/oo/destruction.t
 -  3%	58  2 11 45!	../../../t/oo/enums.t
@@ -289,16 +289,16 @@ X  0%	2  0 		../../../t/oo/precedence.t
 X  0%	1  0 		../../../t/oo/roles/submethods.t
 X  0%	2  0 		../../../t/oo/roles/super.t
 X  0%	26  0 		../../../t/oo/submethods.t
--C 0%	2  0 2		../../../t/oo/super.t
+-d 0%	2  0 2		../../../t/oo/super.t
 -C 0%	13  0 13	../../../t/oo/syntax-but.t
 X  0%	9  0 		../../../t/oo/traits/basic.t
 -d 0%	7  0 7		../../../t/oo/traits/parameterized.t
 X  0%	15  0 		../../../t/oo/trusts.t
--C 0%	5  0 5		../../../t/oo/value_types.t
+-d 0%	5  0 5		../../../t/oo/value_types.t
 X  0%	74  0 		../../../t/operators/adverbial_modifiers.t
 -  50%	4  2 1 1!	../../../t/operators/and_precedence.t
 X  0%	188  0 		../../../t/operators/arith.t
--  23%	43  10 0 33!	../../../t/operators/auto.t
+-  6%	43  3 7 33!	../../../t/operators/auto.t
 -C 0%	46  0 46	../../../t/operators/binding/arrays.t
 -C 0%	12  0 12	../../../t/operators/binding/attributes.t
 X  0%	37  0 		../../../t/operators/binding/hashes.t
@@ -319,18 +319,18 @@ X  0%	39  0 		../../../t/operators/identity.t
 X  0%	7  0 		../../../t/operators/iteration.t
 X  0%	13  0 		../../../t/operators/listquote.t
 -C 0%	4  0 4		../../../t/operators/lvalue.t
--  0%	1  0 1		../../../t/operators/negated_smartmatch.t
+ok	1		../../../t/operators/negated_smartmatch.t
 -  31%	35  11 24	../../../t/operators/numify.t
 X  0%	35  0 		../../../t/operators/operator_overloading.t
 -C 0%	49  0 49	../../../t/operators/operator.t
 X  0%	48  0 		../../../t/operators/precedence/builtins.t
 X  0%	10  0 		../../../t/operators/precedence/self-defined.t
 X  0%	176  0 		../../../t/operators/quoting.t
--C 0%	50  0 50	../../../t/operators/range.t
+-d 0%	50  0 50	../../../t/operators/range.t
 -C 0%	2  0 2		../../../t/operators/recursive_definition.t
 X  0%	49  0 		../../../t/operators/reduce_le1arg.t
 X  0%	52  0 		../../../t/operators/reduce-metaop.t
--  84%	39  33 6	../../../t/operators/relational.t
+-  74%	39  29 3 7!	../../../t/operators/relational.t
 -C 0%	23  0 23	../../../t/operators/repeat.t
 X  0%	34  0 		../../../t/operators/short_circuit.t
 X  0%	56  0 		../../../t/operators/smartmatch.t
@@ -345,7 +345,7 @@ X  0%	1  0 		../../../t/packages/autoload.t
 X  0%	1  0 		../../../t/packages/reflection.t
 X  0%	18  0 		../../../t/packages/require_and_use.t
 X  0%	23  0 		../../../t/packages/scope.t
--d 0%	1  0 1		../../../t/packages/symbols.t
+-  0%	1  0 1		../../../t/packages/symbols.t
 -C 0%	1  0 1		../../../t/packages/use_perl_6.t
 X  0%	18  0 		../../../t/perl5/array.t
 X  0%	19  0 		../../../t/perl5/basic.t
@@ -359,34 +359,34 @@ X  0%	13  0 		../../../t/perl5/method.t
 -C 0%	1  0 1		../../../t/perl5/modify_inside_p5.t
 X  0%	2  0 		../../../t/perl5/return.t
 X  0%	5  0 		../../../t/perl5/roundtrip.t
--C 0%	2  0 2		../../../t/regex/capture_rollback.t
+-d 0%	2  0 2		../../../t/regex/capture_rollback.t
 X  0%	?  0 		../../../t/regex/extract_pghpw.t
 -d 0%	19  0 19	../../../t/regex/from_perl6_rules/anchors.t
 X  0%	45  0 		../../../t/regex/from_perl6_rules/array_cap.t
 -  0%	4  0 1 3!	../../../t/regex/from_perl6_rules/assert.t
 X  0%	64  0 		../../../t/regex/from_perl6_rules/capture.t
--  16%	24  4 20	../../../t/regex/from_perl6_rules/charset.t
--  0%	10  0 1 9!	../../../t/regex/from_perl6_rules/codevars.t
--  0%	3  0 3		../../../t/regex/from_perl6_rules/combchar.t
+-  4%	24  1 1 22!	../../../t/regex/from_perl6_rules/charset.t
+-  10%	10  1 0 9!	../../../t/regex/from_perl6_rules/codevars.t
+ok	3		../../../t/regex/from_perl6_rules/combchar.t
 -  14%	7  1 0 6!	../../../t/regex/from_perl6_rules/context.t
 X  0%	172  0 		../../../t/regex/from_perl6_rules/counted.t
 -C 0%	33  0 33	../../../t/regex/from_perl6_rules/der_grammar.t
 X  0%	44  0 		../../../t/regex/from_perl6_rules/exhaustive.t
 -C 0%	17  0 17	../../../t/regex/from_perl6_rules/grammar.t
 X  0%	116  0 		../../../t/regex/from_perl6_rules/hash_cap.t
--  65%	23  15 8	../../../t/regex/from_perl6_rules/hashkv.t
--  50%	2  1 1		../../../t/regex/from_perl6_rules/inline.t
+-  4%	23  1 0 22!	../../../t/regex/from_perl6_rules/hashkv.t
+-  50%	2  1 0 1!	../../../t/regex/from_perl6_rules/inline.t
 -C 0%	29  0 29	../../../t/regex/from_perl6_rules/litvar.t
 -C 0%	10  0 10	../../../t/regex/from_perl6_rules/lookaround.t
 -C 0%	26  0 26	../../../t/regex/from_perl6_rules/named_cap.t
--  33%	419  139 280	../../../t/regex/from_perl6_rules/named_chars.t
+-  2%	419  10 0 409!	../../../t/regex/from_perl6_rules/named_chars.t
 -C 0%	15  0 15	../../../t/regex/from_perl6_rules/newline.t
 X  0%	8  0 		../../../t/regex/from_perl6_rules/noncap.t
 X  0%	4  0 		../../../t/regex/from_perl6_rules/null.t
 -C 0%	10  0 10	../../../t/regex/from_perl6_rules/overlapping.t
 -C 0%	19  0 19	../../../t/regex/from_perl6_rules/patvar.t
 -C 0%	9  0 9		../../../t/regex/from_perl6_rules/pos.t
--  25%	31  8 16 7!	../../../t/regex/from_perl6_rules/prior.t
+-  12%	31  4 0 27!	../../../t/regex/from_perl6_rules/prior.t
 X  0%	2349  0 	../../../t/regex/from_perl6_rules/propcharset.t
 X  0%	1881  0 	../../../t/regex/from_perl6_rules/properties.t
 X  0%	4  0 		../../../t/regex/from_perl6_rules/qinterp.t
@@ -395,7 +395,7 @@ X  0%	4  0 		../../../t/regex/from_perl6_rules/rulecode.t
 X  0%	207  0 		../../../t/regex/from_perl6_rules/stdrules.t
 -C 0%	31  0 31	../../../t/regex/from_perl6_rules/subrule.t
 X  0%	3  0 		../../../t/regex/from_perl6_rules/subst.t
--  42%	7  3 4		../../../t/regex/from_perl6_rules/word.t
+-  42%	7  3 1 3!	../../../t/regex/from_perl6_rules/word.t
 X  0%	3  0 		../../../t/regex/grammar.t
 X  0%	6  0 		../../../t/regex/named_rule_capture.t
 -C 0%	5  0 5		../../../t/regex/nonstrings.t
@@ -403,13 +403,13 @@ X  0%	2  0 		../../../t/regex/numbered_match_variable.t
 X  0%	535  0 		../../../t/regex/p6regex/p6regex.t
 -  0%	100  0 1 99!	../../../t/regex/perl5_1.t
 -  8%	100  8 4 88!	../../../t/regex/perl5_2.t
--  2%	100  2 9 89!	../../../t/regex/perl5_3.t
--  8%	100  8 92	../../../t/regex/perl5_4.t
+-  4%	100  4 7 89!	../../../t/regex/perl5_3.t
+-  9%	100  9 91	../../../t/regex/perl5_4.t
 -  21%	102  22 60 20!	../../../t/regex/perl5_5.t
 -  6%	104  7 7 90!	../../../t/regex/perl5_6.t
 -d 0%	100  0 100	../../../t/regex/perl5_7.t
 -  1%	103  2 0 101!	../../../t/regex/perl5_8.t
--  9%	84  8 9 67!	../../../t/regex/perl5_9.t
+-  8%	84  7 10 67!	../../../t/regex/perl5_9.t
 -d 0%	3  0 3		../../../t/regex/rules_refs.t
 ok	1		../../../t/regex/rx_perl5_escape.t
 -  0%	4  0 2 2!	../../../t/regex/rx_perl5_g.t
@@ -434,7 +434,7 @@ X  0%	?  0 		../../../t/run/11-safemode.t
 X  0%	10  0 		../../../t/run/12-script-args.t
 -C 0%	8  0 8		../../../t/spec/S02-builtin_data_types/infinity.t
 -  50%	8  4 4		../../../t/spec/S02-builtin_data_types/type.t
--  1%	57  1 2 54!	../../../t/spec/S02-literals/autoref.t
+-  1%	57  1 1 55!	../../../t/spec/S02-literals/autoref.t
 -  0%	4  0 8 -4!	../../../t/spec/S02-literals/hex_chars.t
 -C 0%	93  0 93	../../../t/spec/S02-literals/radix.t
 -C 0%	1  0 1		../../../t/spec/S02-magicals/block.t
@@ -452,23 +452,23 @@ X  0%	19  0 		../../../t/spec/S02-names_and_variables/fmt.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
 X  0%	76  0 		../../../t/spec/S02-whitespace_and_comments/unspace.t
 X  0%	304  0 		../../../t/spec/S03-operators/assign.t
--  22%	45  10 0 35!	../../../t/spec/S03-operators/autoincrement.t
--C 0%	9  0 9		../../../t/spec/S03-operators/comparison.t
+-  6%	45  3 7 35!	../../../t/spec/S03-operators/autoincrement.t
+-  33%	9  3 0 6!	../../../t/spec/S03-operators/comparison.t
 X  0%	11  0 		../../../t/spec/S03-operators/cross-metaop.t
 ok	15		../../../t/spec/S03-operators/equality.t
 -C 0%	13  0 13	../../../t/spec/S03-operators/not.t
--  80%	36  29 7	../../../t/spec/S03-operators/relational.t
+-  69%	36  25 3 8!	../../../t/spec/S03-operators/relational.t
 -d 0%	11  0 11	../../../t/spec/S03-operators/true.t
--  4%	25  1 5 19!	../../../t/spec/S04-statements/try.t
+-  12%	25  3 3 19!	../../../t/spec/S04-statements/try.t
 ok	4		../../../t/spec/S04-statements/until.t
 -C 0%	10  0 10	../../../t/spec/S04-statements/while.t
 -C 0%	4  0 4		../../../t/spec/S05-modifier/continue.t
--  0%	10  0 10	../../../t/spec/S05-modifier/ignoreaccent.t
+ok	10		../../../t/spec/S05-modifier/ignoreaccent.t
 -C 0%	7  0 7		../../../t/spec/S05-modifier/ignorecase.t
 X  0%	9  0 		../../../t/spec/S05-modifier/ii.t
 X  0%	6  0 		../../../t/spec/S05-modifier/pos.t
 -C 0%	5  0 5		../../../t/spec/S05-modifier/repetition-exhausitve.t
-ok	2		../../../t/spec/S05-modifier/repetition.t
+-  50%	2  1 1		../../../t/spec/S05-modifier/repetition.t
 X  0%	8  0 		../../../t/spec/S05-modifier/sameaccent.t
 -d 0%	17  0 17	../../../t/spec/S05-transliteration/trans.t
 -C 0%	15  0 15	../../../t/spec/S06-advanced_subroutine_features/want.t
@@ -492,7 +492,7 @@ X  0%	17  0 		../../../t/spec/S12-methods/calling_sets.t
 X  0%	11  0 		../../../t/spec/S12-methods/calling_syntax.t
 -C 0%	9  0 9		../../../t/spec/S12-methods/defer_call.t
 -C 0%	9  0 9		../../../t/spec/S12-methods/defer_next.t
--C 0%	7  0 7		../../../t/spec/S12-methods/indirect_notation.t
+-  14%	7  1 0 6!	../../../t/spec/S12-methods/indirect_notation.t
 -C 0%	3  0 3		../../../t/spec/S12-methods/lastcall.t
 -C 0%	21  0 21	../../../t/spec/S12-methods/parallel_dispatch.t
 X  0%	3  0 		../../../t/spec/S12-methods/private_methods.t
@@ -505,15 +505,15 @@ X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-long.t
 X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-mixed.t
 X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-short.t
 X  0%	20  0 		../../../t/spec/S16-filehandles/chmod.t
--d 0%	4  0 4		../../../t/spec/S16-filehandles/connect.t
+-  0%	4  0 0 4!	../../../t/spec/S16-filehandles/connect.t
 -C 0%	36  0 36	../../../t/spec/S16-filehandles/dir.t
--C 0%	37  0 37	../../../t/spec/S16-filehandles/io_in_for_loops.t
--C 0%	13  0 13	../../../t/spec/S16-filehandles/io_in_while_loops.t
+-d 0%	37  0 37	../../../t/spec/S16-filehandles/io_in_for_loops.t
+-d 0%	13  0 13	../../../t/spec/S16-filehandles/io_in_while_loops.t
 X  0%	57  0 		../../../t/spec/S16-filehandles/io.t
 -d 0%	5  0 5		../../../t/spec/S16-filehandles/open.t
 X  0%	6  0 		../../../t/spec/S16-filehandles/unlink.t
 X  0%	1  0 		../../../t/spec/S16-io/getc.t
--C 0%	?  0 ?		../../../t/spec/S16-io/print.t
+-  ??%	??  4 0 ??!	../../../t/spec/S16-io/print.t
 -  80%	5  4 0 1!	../../../t/spec/S16-io/say.t
 -C 0%	1  0 1		../../../t/spec/S16-unfiled/getpeername.t
 -d 0%	3  0 3		../../../t/spec/S16-unfiled/readline.t
@@ -536,7 +536,7 @@ ok	3		../../../t/spec/S29-any/cmp.t
 -  1%	53  1 0 52!	../../../t/spec/S29-array/unshift.t
 X  0%	6  0 		../../../t/spec/S29-container/cat.t
 X  0%	8  0 		../../../t/spec/S29-container/roundrobin.t
--C 0%	9  0 9		../../../t/spec/S29-container/zip.t
+-d 0%	9  0 9		../../../t/spec/S29-container/zip.t
 -  40%	10  4 6		../../../t/spec/S29-context/die_arg_preservation.t
 X  0%	14  0 		../../../t/spec/S29-context/die.t
 X  0%	1  0 		../../../t/spec/S29-context/evalfile.t
@@ -578,10 +578,10 @@ X  0%	61  0 		../../../t/spec/S29-num/int.t
 X  0%	11  0 		../../../t/spec/S29-num/log.t
 X  0%	6  0 		../../../t/spec/S29-num/pi.t
 -d 0%	26  0 26	../../../t/spec/S29-num/rand.t
--C 0%	10  0 10	../../../t/spec/S29-num/roots.t
--C 0%	36  0 36	../../../t/spec/S29-num/rounders.t
+-  10%	10  1 0 9!	../../../t/spec/S29-num/roots.t
+-d 0%	36  0 36	../../../t/spec/S29-num/rounders.t
 -d 0%	6  0 6		../../../t/spec/S29-num/sign.t
--C 0%	7  0 7		../../../t/spec/S29-num/sqrt.t
+-d 0%	7  0 7		../../../t/spec/S29-num/sqrt.t
 -C 0%	3  0 3		../../../t/spec/S29-os/system.t
 X  0%	?  0 		../../../t/spec/S29-os/system-with-spaces.t
 -  52%	21  11 0 10!	../../../t/spec/S29-scalar/defined.t
@@ -594,7 +594,7 @@ X  0%	74  0 		../../../t/spec/S29-scalar/undef.t
 -d 0%	31  0 31	../../../t/spec/S29-str/index.t
 -C 0%	8  0 8		../../../t/spec/S29-str/lcfirst.t
 -C 0%	11  0 11	../../../t/spec/S29-str/lc.t
--  5%	55  3 1 51!	../../../t/spec/S29-str/length.t
+-  3%	55  2 1 52!	../../../t/spec/S29-str/length.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chomp.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chop.t
 -  50%	2  1 0 1!	../../../t/spec/S29-str/pos.t
@@ -642,7 +642,7 @@ ok	24		../../../t/statements/values_in_bool_context.t
 -  0%	43  0 3 40!	../../../t/syntax/char_by_number.t
 X  0%	41  0 		../../../t/syntax/comments.t
 -C 0%	6  0 6		../../../t/syntax/decl_vs_assign_prec.t
--C 0%	40  0 40	../../../t/syntax/force_context.t
+-d 0%	40  0 40	../../../t/syntax/force_context.t
 -d 0%	2  0 2		../../../t/syntax/hyper_latin1.t
 X  0%	18  0 		../../../t/syntax/inplace.t
 -  0%	10  0 2 8!	../../../t/syntax/interpolation/arrays.t
@@ -694,18 +694,18 @@ X  0%	28  0 		../../../t/unspecced/sort.t
 -C 0%	3  0 3		../../../t/unspecced/tailcall.t
 X  0%	5  0 		../../../t/unspecced/times.t
 -  16%	18  3 0 15!	../../../t/var/assigning_refs.t
--  4%	22  1 3 18!	../../../t/var/autoderef.t
+-d 0%	22  0 22	../../../t/var/autoderef.t
 X  0%	18  0 		../../../t/var/caller.t
 -C 0%	6  0 6		../../../t/var/chained.t
 -  0%	19  0 1 18!	../../../t/var/constant.t
 -  80%	5  4 1		../../../t/var/contextual.t
--C 0%	4  0 4		../../../t/var/default_scalar.t
+-  0%	4  0 1 3!	../../../t/var/default_scalar.t
 ok	3		../../../t/var/is_copy.t
 -C 0%	9  0 9		../../../t/var/is_readonly.t
 X  0%	6  0 		../../../t/var/is_rw.t
 -C 0%	15  0 15	../../../t/var/lazy.t
 -  9%	11  1 4 6!	../../../t/var/let.t
--C 0%	7  0 7		../../../t/var/lvalue_deep_brackets.t
+-  42%	7  3 0 4!	../../../t/var/lvalue_deep_brackets.t
 -C 0%	12  0 12	../../../t/var/my.t
 ok	2		../../../t/var/passing_the_pair_class_to_a_sub.t
 -C 0%	12  0 12	../../../t/var/refs_point_to_containers.t
@@ -728,7 +728,7 @@ X  0%	1  0 		../../../t/xx-uncategorized/hyperop.t
 -C 0%	7  0 7		../../../t/xx-uncategorized/is_copy_ne_is_rw.t
 ok	2		../../../t/xx-uncategorized/lexical-array-in-inner-block.t
 -  0%	2  0 2		../../../t/xx-uncategorized/named_2_positional.t
--C 0%	10  0 10	../../../t/xx-uncategorized/namespaces.t
+-  10%	10  1 1 8!	../../../t/xx-uncategorized/namespaces.t
 -  0%	1  0 1		../../../t/xx-uncategorized/optional_copy.t
 -C 0%	6  0 6		../../../t/xx-uncategorized/pair_boolean.t
 -C 0%	3  0 3		../../../t/xx-uncategorized/pair_in_array.t
@@ -745,7 +745,7 @@ ok	2		../../../t/xx-uncategorized/self_inheritance.t
 ok	4		../../../t/xx-uncategorized/short_circuiting.t
 X  0%	1  0 		../../../t/xx-uncategorized/slow-parse-fail.t
 ok	3		../../../t/xx-uncategorized/smartmatch_autovivifies.t
--d 0%	4  0 4		../../../t/xx-uncategorized/smartmatch_rx_obstacle.t
+-  0%	4  0 0 4!	../../../t/xx-uncategorized/smartmatch_rx_obstacle.t
 -C 0%	8  0 8		../../../t/xx-uncategorized/value_alias_readonly.t
 ok	2		../../../v6/v6-KindaPerl6/t/kp6/01-tap.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/02-str-concat.t
@@ -759,7 +759,7 @@ ok	1		../../../v6/v6-KindaPerl6/t/kp6/06-begin.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/11-lex-sub.t
 -  50%	2  1 1		../../../v6/v6-KindaPerl6/t/kp6/12-lex-sub-lex-sub.t
 ok	2		../../../v6/v6-KindaPerl6/t/kp6/13-do.t
--C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/14-compile-time-bind.t
+-d 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/14-compile-time-bind.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/15-rebind.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/16-what.t
 ok	2		../../../v6/v6-KindaPerl6/t/kp6/17-closure.t
@@ -833,5 +833,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 834.  602 parsed 72%.  328 run 39%.  79 ok 9%.
-Tests: 16628+.  776 ok <4.66%, 15852+ not.
+Files: 834.  602 parsed 72%.  354 run 42%.  80 ok 9%.
+Tests: 16628+.  627 ok <3.77%, 16001+ not.

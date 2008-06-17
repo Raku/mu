@@ -36,6 +36,8 @@ class HASH {
   }
 }
 
+class Regexp { method Str () { ''~self } }
+
 module Math {
   method rand($max) is p5 {'CORE::rand($max||1)'}
   method srand($seed) is p5 {'CORE::srand($seed)'}
@@ -46,4 +48,84 @@ module IO {
 }
 package GLOBAL {
   sub rmdir($dirname) is p5 {'CORE::rmdir($dirname)'}
+}
+
+
+package GLOBAL {
+
+
+  multi prefix:<?> (Any $a) { $a.Bool }
+  multi prefix:<!> (Any $a) is p5 {'!$a'}
+
+  multi prefix:<+> (Any $a) { $a.Num }
+  multi prefix:<+> (Num $a) { $a }
+  multi prefix:<+> (Array $a) { $a.elems }
+
+  multi prefix:<~> (Any $a) { $a.Str }
+  multi prefix:<~> (Str $a) { $a }
+
+  multi prefix:<-> (Num $a) is p5 {'(0-$a)'}
+
+  multi prefix:<++> (Num $a) is p5 {'++ $a'}
+  multi prefix:<--> (Num $a) is p5 {'-- $a'}
+
+
+  multi postfix:<++> (Num $a) is p5 {'$a ++'}
+  multi postfix:<--> (Num $a) is p5 {'$a --'}
+  multi postfix:<i>  (Num $a) { $a } ;# Need to implement Complex.
+
+
+  # infix < > == != eq ne + - || && and or = =~   # Not called.
+
+  # XXX fixme...
+
+  multi infix:<+>    ($a,$b) is p5 {'($a + $b)'}
+  multi infix:<*>    ($a,$b) is p5 {'($a * $b)'}
+  multi infix:<**>   ($a,$b) is p5 {'($a ** $b)'}
+
+  multi infix:<and>  ($a,$b) is p5 {'($a and $b)'}
+  multi infix:<or>   ($a,$b) is p5 {'($a or $b)'}
+  multi infix:<eq>   ($a,$b) is p5 {'($a eq $b)'}
+  multi infix:<ne>   ($a,$b) is p5 {'($a ne $b)'}
+
+  multi infix:<!=>   ($a,$b) is p5 {'($a != $b)'}
+  multi infix:<==>   ($a,$b) is p5 {'($a == $b)'}
+  multi infix:«<»    ($a,$b) is p5 {'($a < $b)'}
+  multi infix:«>»    ($a,$b) is p5 {'($a > $b)'}
+  multi infix:«<=»   ($a,$b) is p5 {'($a <= $b)'}
+  multi infix:«>=»   ($a,$b) is p5 {'($a >= $b)'}
+  multi infix:«<=>»  ($a,$b) is p5 {'($a <=> $b)'}
+
+  multi infix:<ge>   ($a,$b) is p5 {'($a ge $b)'}
+  multi infix:<gt>   ($a,$b) is p5 {'($a gt $b)'}
+  multi infix:<le>   ($a,$b) is p5 {'($a le $b)'}
+  multi infix:<lt>   ($a,$b) is p5 {'($a lt $b)'}
+  multi infix:<cmp>  ($a,$b) is p5 {'($a cmp $b)'}
+
+  multi infix:<xor>  ($a,$b) is p5 {'($a xor $b)'}
+
+  multi infix:<===>   ($a,$b) { undef }
+  multi infix:<=:=>   ($a,$b) { undef }
+
+  multi infix:<^>    ($a,$b) is p5 {'($a ^ $b)'}
+  multi infix:<..>   ($a,$b) is p5 {'($a .. $b)'}
+  multi infix:<^..>  ($a,$b) is p5 {'($a .. $b)'}
+  multi infix:<..^>  ($a,$b) is p5 {'($a .. $b)'}
+  multi infix:<^..^> ($a,$b) is p5 {'($a .. $b)'}
+
+  multi infix:«>>»    ($a,$b) is p5 {'($a >> $b)'}
+  multi infix:«<<»    ($a,$b) is p5 {'($a << $b)'}
+
+  multi infix:<|>     ($a,$b) is p5 {'($a | $b)'}
+  multi infix:<||>    ($a,$b) is p5 {'($a || $b)'}
+  multi infix:<&>     ($a,$b) is p5 {'($a & $b)'}
+  multi infix:<&&>    ($a,$b) is p5 {'($a && $b)'}
+
+  multi infix:<:=>    ($a,$b) is p5 {'($a = $b)'} ;# crock
+
+  multi infix:<!~>   (Any $a, Any $b) { undef }
+  multi infix:<~~>   (Any $a, Any $b) { undef }
+  multi infix:<~~>   (Str $a, Regexp $b) is p5 {'$a =~ $b'}
+
+  
 }
