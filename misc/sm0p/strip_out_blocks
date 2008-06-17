@@ -8,11 +8,18 @@ my $grammar = <>;
 my $block;
 $block = qr/ (?> [^{}]+ | \{ (??{$block}) \} )*?/x;
 
+my $nr = 0;
+my @blocks;
 $grammar =~ s[(token \s* \w+ \s* \{ )($block)( \})][
     my $start = $1;
     my $body = $2;
     my $end = $3;
-    $body =~ s/(?<!')(\{ $block \})/'{*}'/egx;
+    $body =~ s/(?<!')(\{ $block \})/push(@blocks,$1);'{*}' . "  #= sm0p_" . $nr++/egx;
     $start.$body.$end;
 ]exg;
-print $grammar;
+open(my $striped,">striped");
+open(my $actions,">actions");
+print $striped $grammar;
+for (0..$#blocks) {
+    print $actions "sub sm0p_$_ $blocks[$_]\n";
+}
