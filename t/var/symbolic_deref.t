@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 22;
+plan 24;
 
 # See L<http://www.nntp.perl.org/group/perl.perl6.language/22858> --
 # previously, "my $a; say $::("a")" died (you had to s/my/our/). Now, it was
@@ -40,8 +40,11 @@ plan 22;
 {
   $pugs::is::cool = 42;
   my $cool = "cool";
+  my $pugsis = 'pugs::is';
 
   is $::("pugs")::is::($cool), 42, 'not so basic symbolic dereferentiation works';
+  is $::($pugsis)::($cool),    42, 'symbolic derefertiation with multiple packages in one variable works';
+  eval_dies_ok('$::($pugsis)cool', '$::($foo)bar is illegal');
 }
 
 {
