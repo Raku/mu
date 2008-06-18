@@ -1,5 +1,3 @@
-=begin perlhints
-
 id:     lambda:«->»
 token:  ->
 syn:    -> SIGNATURE { STATEMENTS }
@@ -16,9 +14,6 @@ desc:   introduces a (possibly empty) signature to a block, applying the
         'is rw' trait on all arguments
 ex:     for @list <-> $a { $a++ }
 
-=end perlhints
-=begin perlhints
-
 id:     block
 token:  { }
 syn:    { <statemts> }
@@ -26,9 +21,6 @@ name:   block
 # XXX what kind of scope?
 desc:   groups statements and introduces a new scope
 ex:     for @list -> $a { say $a }
-
-=end perlhints
-=begin perlhints
 
 id:     regex_block
 token:  { }
@@ -39,9 +31,6 @@ ex:     regex word { <alpha>+ }
 seealso: regex_declarator:regex
 seealso: regex_declarator:token
 seealso: regex_declarator:rule
-
-=end perlhints
-=begin perlhints
 
 id:     label
 token:  :
@@ -55,9 +44,6 @@ ex:     INNER:
             } 
         }
 
-=end perlhints
-=begin perlhints
-
 # XXX is this the right place for this?
 id:     eat_terminator
 token:  ;
@@ -67,9 +53,6 @@ desc:   terminates a statement. Optional for the last statement in a
         block or file.
 ex:     say $a;
         say $b;
-
-=end perlhints
-=begin perlhints
 
 id:     statement_control:use
 token:  use
@@ -83,9 +66,6 @@ ex:     {
         }
         # Perl 6 code here
 
-=end perlhints
-=begin perlhints
-
 id:     statement_control:no
 token:  no
 syn:    no MODULE EXPRESSION;
@@ -93,9 +73,6 @@ name:   no
 desc:   Unloads a module or class, or disables a pragma
 ex:     no Test;
 seealso: statement_control:use
-
-=end perlhints
-=begin perlhints
 
 id:     statement_control:if
 token:  if elsif else
@@ -117,9 +94,6 @@ ex:     if $a < $b {
             say "b is larger than a"
         }
 
-=end perlhints
-=begin perlhints
-
 id:     statement_control:unless
 token:  unless
 syn:    unless EXPRESSION BLOCK
@@ -131,9 +105,6 @@ ex:     unless $allowed {
         }
 seealso: statement_control:if
 
-=end perlhints
-=begin perlhints
-
 id:     statement_control:while
 token:  while
 syn:    while EXPRESSION BLOCK
@@ -144,9 +115,6 @@ ex:     while $a < $b {
         }
         say $a;
 
-=end perlhints
-=begin perlhints
-
 id:     statement_control:until
 token:  until
 syn:    until EXPRESSION BLOCK
@@ -156,9 +124,6 @@ ex:     until $a > $b {
             $a *= 2;
         }
         say $a;
-
-=end perlhints
-=begin perlhints
 
 id:     statement_control:repeat
 token:  repeat
@@ -174,9 +139,6 @@ ex:     my $in;
             $in = =$*IN;
         } until $in ~~ m/hi|hello|cheers/ 
 
-=end perlhints
-=begin perlhints
-
 id:    statement_control:loop
 token: loop
 syn:   loop(EXPR1; EXPR2; EXPR3) BLOCK
@@ -187,9 +149,6 @@ ex:     loop(my $i = 1; $i < $limit; $i *= 2){
             say $i;  
         }
             
-=end perlhints
-=begin perlhints
-
 id:    statement_control:for
 token: for
 syn:   for LIST PBLOCK
@@ -204,9 +163,6 @@ ex:     for @list Z 0 .. * -> $item, $index {
 ex:     for @list {
             .say    # use $_ as implicit topic
         }
-
-=end perlhints
-=begin perlhints
 
 id:     statement_control:given
 token:  given
@@ -244,9 +200,6 @@ seealso: statement_control:given
 
 # TODO: BEGIN, CHECK, INIT, ...
 
-=end perlhints
-=begin perlhints
-
 id:     version
 token:  v .
 name:   version
@@ -255,11 +208,8 @@ ex:     v1.2
 ex:     v3.4+
 ex:     v0.*.3
 
-=end perlhints
-=begin perlhints 
-
-token:  =>
 id:     fatarrow
+token:  =>
 syn:    KEY => VALUE
 name:   pair
 token:  =>
@@ -270,9 +220,6 @@ ex:     my %continents = (
             India   => 'Asia'
         );
 ex:     say @list.grep(matcher => &my_function);
-
-=end perlhints
-=begin perlhints
 
 id:     scope_declarator:my
 token:  my
@@ -379,4 +326,28 @@ seealso: regex_declarator:rule
 seealso: regex_declarator:regex
 seealso: package_declarator:class
 
-=end perlhints
+id:     package_declarator:module
+token:  module
+syn:    module MODULENAME MODULEDEF
+syn:    module MODULENAME TRAITS MODULEDEF
+name:   module
+desc:   declares a module, which is a package with a bit of extra semantics
+        TODO: find out what the difference between a package and a module
+        is, and explain it
+
+# TODO: explain 'package'
+
+id:     package_declarator:role
+token:  role
+syn:    role ROLENAME ROLEDEF
+name:   role
+desc:   declares a role, which is a collection of methods and attributes,
+        or a class of which no objects can be instantiated directly. Some
+        other languages call these things "mixins". Roles are intended to be
+        the primary means of object-oriented code reuse in Perl 6.
+ex:     role Pet {
+            has $.owner;
+            method feed($food) { ... }
+        }
+# TODO: more examples for roles
+
