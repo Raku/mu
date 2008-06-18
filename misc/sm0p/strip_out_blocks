@@ -10,16 +10,31 @@ $block = qr/ (?> [^{}]+ | \{ (??{$block}) \} )*?/x;
 
 my $nr = 0;
 my @blocks;
+
+#i should fix elf instead
+sub un6 {
+    local $_ = shift;
+    s/~/./g;
+    s/\$?\$<(\w+)>/\$c->{$1}/g;
+    s/\.(\w+)/->$1/g;
+    s/\?\?/?/g;
+    s/!!/:/g;
+    $_;
+}
 $grammar =~ s[(token \s* \w+ \s* \{ )($block)( \})][
     my $start = $1;
     my $body = $2;
     my $end = $3;
-    $body =~ s/(?<!')(\{ $block \})/push(@blocks,$1);'{*}' . "  #= sm0p_" . $nr++/egx;
+    $body =~ s/(?<!')\{ ($block) \}/push(@blocks,$1);'{*}' . "  #= sm0p_" . $nr++/egx;
     $start.$body.$end;
 ]exg;
 open(my $striped,">striped");
 open(my $actions,">actions");
+open(my $actions_p5,">actions_p5");
 print $striped $grammar;
+print $actions_p5 "use autobox::Core;\n";
+print $actions_p5 "sub make(\$) {}\n";
 for (0..$#blocks) {
-    print $actions "sub sm0p_$_ $blocks[$_]\n";
+    print $actions "sub sm0p_$_ {$blocks[$_]}\n";
+    print $actions_p5 "sub sm0p_$_ {\nmy \$self=shift;my \$c=shift;\n".un6($blocks[$_])."}\n";
 }

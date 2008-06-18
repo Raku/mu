@@ -90,7 +90,7 @@ token idconst {
 };
 
 token name {
-    <alpha> [ <alpha> | <digit> ]+
+    <.alpha> [ <.alpha> | <.digit> ]+
 };
 
 token ws {
