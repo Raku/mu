@@ -2,18 +2,17 @@ use v6;
 
 use Test;
 
-plan 176;
+plan 186;
 
 my $foo = "FOO";
 my $bar = "BAR";
 
-=kwid
+=begin description
 
 Tests quoting constructs as defined in L<S02/Literals>
 
 =todo
 
-* q:to - heredocs (done)
 * q:n, q:b, and other interpolation levels (half-done)
 * meaningful quotations (qx, rx, etc)
 * review shell quoting semantics of «»
@@ -21,7 +20,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 * interpolation of scalar, array, hash, function and closure syntaxes
 * q : a d verb s // parsing
 
-=cut
+=end description
 
 # L<S02/Lexical Conventions/"bidirectional mirrorings" or "Ps/Pe properties">
 {
@@ -496,4 +495,31 @@ Hello, World
     my $s = "有人在笑";
     my $t = q:s /$s/;
     is $t, $s, "Testing for q:s operator. (utf8)";
+}
+
+# multiple quoting modes
+{
+    my $s = 'string';
+    my @a = <arr1 arr2>;
+    my %h = (foo => 'bar');
+    is(q:sa'$s@a[]%h', $s ~ @a ~ '%h', 'multiple modifiers interpolate only what is expected');
+}
+
+# shorthands:
+{
+    my $alpha = 'foo';
+    my $beta  = 'bar';
+    my @delta = <baz qux>;
+    my %gamma = (abc => 123);
+    sub zeta {42};
+
+    is(qw(a b), <a b>, 'qw');
+    is(qww($alpha $beta), <foo bar>, 'qww');
+    is(qq($alpha $beta), 'foo bar', 'qq');
+    is(Qs($alpha @delta[] %gamma<>), 'foo @delta %gamma', 'Qs');
+    is(Qa($alpha @delta[] %gamma<>), '$alpha ' ~ @delta ~ ' %gamma', 'Qa');
+    is(Qh($alpha @delta[] %gamma<>), '$alpha @delta ' ~ %gamma, 'Qh');
+    is(Qf($alpha &zeta()), '$alpha 42', 'Qf');
+    is(Qb($alpha\t$beta), '$alpha	$beta', 'Qb');
+    is(Qc({1+1}), 2, 'Qc');
 }
