@@ -635,7 +635,7 @@ GLOBAL::print("\
 sub infix_xx{my($a_a,$count)=@_;
 (do{my $a_result = [];;
 for((GLOBAL::infix__46_46(1,$count))){
-(do{GLOBAL::push($a_result, $a_a)})
+(do{$a_result->push($a_a)})
 };
 $a_a})}})
 }
