@@ -23,27 +23,20 @@ FILTER {
     $_ = join('',map {"sub $_();"} @rules).$_;
 };
 
-#{
-    my @order;
-    my %rules;
-    sub rule {
-        my ($name,$code) = @_;
-        my $stub = parser { $rules{$name}->(@_) };
-        $N{$stub} = ucfirst($name);
-        {
-            $Perl6in5::Grammar::{$name} = sub() {$stub};
-        }
-        push(@order,[$name,$code]);
+my @order;
+my %rules;
+sub rule {
+    my ($name,$code) = @_;
+    my $stub = parser { $rules{$name}->(@_) };
+    $N{$stub} = ucfirst($name);
+    {
+        $Perl6in5::Grammar::{$name} = sub() {$stub};
     }
-    sub finish_rule_creation {
-        for (@order) {
-            my ($name,$code) = @$_;
-            $rules{$name} = $code->();
-        }
-    }
-#}
+    push(@order,[$name,$code]);
+}
 
 END {
+    $rules{$_->[0]} = $_->[1]->() for @order;
     my ($input,$name) = $ARGV[0]?
         (scalar(read_file($ARGV[0])),$ARGV[0]):
         (join('',(<>)),'STDIN');
@@ -55,7 +48,6 @@ END {
     #  success 0 means the branch failed
     #  success 1 means the branch succeeded (to EOI)
     #  success -1 means outcome not yet determined
-    finish_rule_creation;
     
     my $r = (program()->($input));
     
