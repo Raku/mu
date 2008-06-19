@@ -3774,7 +3774,9 @@ Class::Multimethods::multimethod infix__33_126 => split(/\s+/,'* *') => sub {my(
 Class::Multimethods::multimethod infix__126_126 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
 (do{GLOBAL::undef()})};;
 Class::Multimethods::multimethod infix__126_126 => split(/\s+/,'$ Regexp') => sub {my($a,$b)=@_;
-$a =~ $b};})
+$a =~ $b};;
+Class::Multimethods::multimethod infix_x => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+($a x $b)};})
 }
 ;
 
