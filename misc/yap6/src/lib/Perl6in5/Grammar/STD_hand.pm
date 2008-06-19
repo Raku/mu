@@ -46,12 +46,12 @@ rule sVari {
 
 # this rule is directly right-recursive
 rule stmtList {
-        opt( stmtTrm ) - ( block . opt( blkTrm . opt( stmtList ) )
+        star( stmtTrm ) - ( block . opt( blkTrm . opt( stmtList ) )
             | nbexpr . opt( stmtTrm - opt( stmtList ) ) )
 };
 
 rule blkTrm {
-        lit( "\n" ) | stmtTrm
+        lit( "\n" ) ^ stmtTrm
 };
 
 rule bareString {
@@ -70,11 +70,11 @@ rule nbexpr {
 };
 
 rule func_say {
-        keyword('say') + expr
+        keyword('say') . opt( +( expr ) )
 };
 
 rule blkBare {
-        w("{}",opt(stmtList))
+        w( "{}", -( opt( stmtList ) ) - nothing)
 };
 
 rule block {
@@ -83,16 +83,28 @@ rule block {
 
 rule blkPrmbl {
         one(
-            opt( blkModf.p6ws )
-            . ( opt(scpDecl.p6ws) . ( clype + blkType | blkType ) | blkType )
-            - opt( opt( '^' ) . identifier )
-            - opt( vsblty )
+            blkNumber
+            . blkDeclarator
+            . blkIdentifier
+            . blkVisibility
             - opt( w( '()', -( star( blkPrms ) ) ) )
             - star( blkTrait )
             , compUnit
             , flowCtrl
-            , blkLabl
+            , blkLabel
             , arrowInv . opt( -( ',' ) - star( blkPrms ) ) )
+};
+
+rule blkVisibility {
+        opt( vsblty . p6ws )
+};
+
+rule blkDeclarator {
+        opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType
+};
+
+rule blkIdentifier {
+        opt( opt( '^' ) . identifier . p6ws ) 
 };
 
 rule arrowInv {
@@ -108,7 +120,7 @@ rule impor {
 };
 
 rule flowCtrl {
-        keywords( qw{ loop do while until } )
+        keywords( qw{ do } )
 };
 
 rule condBlk { # Until I die, I would cry unless unless/until were included.
@@ -132,12 +144,12 @@ rule clype {
         #  $Clype    # Class/Type
 };
 
-rule blkLabl {
+rule blkLabel {
         identifier . ':';
 };
 
-rule blkModf {
-        keywords(qw{ multi proto only })
+rule blkNumber {
+        opt( keywords( qw{ multi proto only } ) . p6ws )
 };
 
 rule arg {
@@ -172,8 +184,8 @@ rule scpDecl {
 };
 
 rule expr {
-        block
-        | nbexpr
+          nbexpr
+        | block
 };
 
 rule declare {

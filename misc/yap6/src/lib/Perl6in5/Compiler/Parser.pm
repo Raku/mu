@@ -41,6 +41,7 @@ use overload
     '...'=> \&nthru, # both($_[0],through($_[1]))
     '>>' => \&T, # unused currently
     '>'  => \&V, # unused currently
+    '^'  => \&first, # short-circuiting one() - alternation. (first match)
     '/'  => \&checkval, # unused currently
     '""' => \&overload::StrVal,  # this helps stringify parser names for %N
 ;
@@ -173,8 +174,22 @@ our %H;
 our %stat;
 
 sub mapply {
-    # the fourth edition of the apply-rule routine
-    # this one supports direct & indirect recursion.
+    # mapply wraps every other parser with:
+    # 1. a memo table check/handler &
+    # 2. a[n] [in]direct left recursion check/handler
+    # 
+    # for details, see packrat_TR-2007-002.pdf:
+    # 
+    # "Packrat Parsers Can Support Left Recursion"
+    # VPRI Technical Report TR-2007-002
+    # ACM SIGPLAN 2008 Workshop on Partial
+    # Evaluation and Program Manipulation
+    # (PEPM '08) January 2008
+    # ACM 978-1-59593-977-7/08/0001
+    # by Alessandro Warth
+    #    James R. Douglass
+    #    Todd Millstein
+
     my $q = $_[0];
     my $p;
     my $tmp = $p = parser2 {
@@ -367,224 +382,6 @@ sub mapply {
     $p;
 }
 
-sub mapply_old {
-    # mapply wraps every other parser with:
-    # 1. a memo table check/handler &
-    # 2. a[n] [in]direct left recursion check/handler
-    # 
-    # for details, see packrat_TR-2007-002.pdf:
-    # 
-    # "Packrat Parsers Can Support Left Recursion"
-    # VPRI Technical Report TR-2007-002
-    # ACM SIGPLAN 2008 Workshop on Partial
-    # Evaluation and Program Manipulation
-    # (PEPM '08) January 2008
-    # ACM 978-1-59593-977-7/08/0001
-    # by Alessandro Warth
-    #    James R. Douglass
-    #    Todd Millstein
-
-    my $q = $_[0];
-    my $p;
-    my $tmp = $p = parser2 {
-        $stat{rulecalls}++;
-        trace 1,"in rulecall $stat{rulecalls}";
-        my ($in) = @_;
-        trace 1,"Got to mapply. in: ".Dumper($in,[caller(0),caller(1),caller(2),caller(3),caller(4)]) unless defined $in->{'pos'};
-        trace 1,"Got to mapply WITHOUT A RULE. in: ".Dumper($in,[caller(0),caller(1),caller(2),caller(3),caller(4)]) unless defined $q;
-        die unless defined $in->{'pos'};
-        my $pos = $in->{'pos'};
-        trace 1,"mapply pos is ".$pos;
-        my $m = mrecall($q,$pos);
-        trace 1,"mrecall returned ".Dumper($m);
-        if (defined $q && exists $N{$q}) {
-            trace 5,"name of rule is $N{$q}";
-        } else {
-            trace 1,"rule had no name! ".Dumper($q);
-        }
-        if (!defined $m) {
-            trace 1,"mapply $pos - m was not defined, so we have never before encountered this rule.";
-            
-            # Initialize a new (lexical) @lr
-            my @lr = ( { %$in, success=>0 }, $q, undef );
-            
-            # push a reference to the newly created left-recursive
-            # entry onto the left-recursive stack.
-            push @L, \@lr;
-            trace 6,"mapply size of \@L is now ".scalar(@L);
-            
-            # Set the initial memo table entry for
-            # this rule/pos to be that $lr
-            trace 1,"calling mmemo";
-            mmemo($q, $pos, \@lr);
-            trace 1,"done with mmemo";
-            trace 4,"mapply \%M is ".Dumper(\%M);
-            
-            # This evaluates the body of the rule,
-            # which of course calls their wrapper
-            # mapply() parsers prior, in turn.
-            # The resulting hashref is a little
-            # different from the paper's original
-            # specification (just the AST or a failure code)
-            trace 1,"mapply sending ".Dumper($in)." to q";
-            my $ans = $q->($in);
-            trace 1,"mapply got ".Dumper($ans)."from the rule";
-            
-            trace 1,"mapply about to pop \@L: ".Dumper(\@_);
-            # Pop the $lr back off the lr stack because
-            # we're done generating its lr seed.
-            pop @L;
-            
-            # check if its evaluation created a "head"
-            if (defined $lr[2]) {
-                trace 1,"mapply $pos - lr-head was defined";
-                
-                # store the result of $q
-                # in the left-recursive item's seed slot.
-                $lr[0] = deep_copy($ans);
-                
-                # if the LR's rule isn't our current rule
-                # must dereference the head, since they're
-                # all really stored in %H.
-                if (defined ${$lr[2]}->{rule} && "${$lr[2]}->{rule}" ne "$q") {
-                    trace 1,"mapply $pos - rule dump: ".Dumper($lr[2]);
-                    trace 1,"mapply $pos - rule ".$N{${$lr[2]}->{rule}}." was different from q: ".$N{$p};
-                    
-                    # return the LR's seed
-                    return $lr[0];
-                    
-                } else {
-                    trace 1,"mapply $pos - rule was SAME AS q";
-                    # there was no head created
-                    
-                    # commit the seed to the memo table
-                    mmemo($q,$pos,$lr[0]);
-                    
-                    # if that branch was a failure
-                    unless ($lr[0]->{success}) {
-                        
-                        # return that failure
-                        return deep_copy($lr[0]);
-                        
-                    } else {
-                        # the branch succeeded
-                        
-                        trace 1,"lr being committed is ".Dumper(\@lr);
-                        # commit the head to head storage
-                        $H{$pos} = ${$lr[2]};
-                        
-                        # 
-                        while (1) {
-                            trace 1,"resetting eSet";#.Dumper($H{$pos});
-                            # at each iteration, the involved
-                            # rules get another chance to hit.
-                            trace 1,"ref Hpos is ".ref($H{$pos});
-                            delete $H{$pos}->{eSet} if exists
-                                $H{$pos}->{eSet};
-                            $H{$pos}->{eSet} = ohr();
-                            trace 1,"got here 234";
-                            foreach (keys %{$H{$pos}->{iSet}}) {
-                                $H{$pos}->{eSet}->{$_} = 
-                                    $H{$pos}->{iSet}->{$_};
-                            }
-                            
-                            # run the rule *again*, this time
-                            # the results should be different
-                            $ans = $q->($in);
-                            unless (
-                                $ans->{success} &&
-                                $ans->{'pos'} <= $pos
-                            ) { last } else {
-                                mmemo($q,$pos,deep_copy($ans));
-                            }
-                        }
-                        delete $H{$pos};
-                        return deep_copy($ans);
-                    }
-                    
-                }
-                trace 1,"mapply $pos - lr-head was NOT defined";
-                
-            } else {
-                # commit the change to the memo table;
-                mmemo($q,$pos,deep_copy($ans));
-                
-                return deep_copy($ans);
-            }
-        } else {
-            # store the result's position
-            # $m->[1]
-            
-            # if the answer was an LR
-            if (ref $m eq 'ARRAY') {
-                
-                # initialize the LR
-                # if there's not already a head
-                if (!defined $m->[2]) {
-                    
-                    # define a head
-                    my ($iSet1,$eSet1) = (ohr(),ohr());
-                    my $hd = {
-                        rule => $q,
-                        iSet => $iSet1,
-                        eSet => $eSet1
-                    };
-                    my $hdr = \$hd;
-                    
-                    if (my $s = pop @L) {
-                        trace 1,"popped rule is ".Dumper($s);
-                        while ( !defined $s->[2] || $s->[2] ne "$hdr" ) {
-                            $s->[2] = $hdr;
-                            $hd->{iSet}->{$s->[1]} = 1;
-                            if (scalar(@L)) {
-                                $s = pop @L;
-                            } else {
-                                last;
-                            }
-                        }
-                    }
-                }
-                
-                # return the LR's seed
-                return $m->[0];
-            } else {
-                $stat{memohits}++;
-                return deep_copy($m);
-            }
-        }
-    };
-    $N{$p} = "_mapply_";
-    weaken($p);
-    $p;
-}
-
-sub mrecall {
-    # inputs: rule, position, input
-    my $m = mmemo($_[0],$_[1]);
-    if (!exists $H{$_[1]} || keys(%{$H{$_[1]}}) == 0) {
-        trace 1,"mrecall returning ".Dumper($m)." b/c there are no heads for this pos";
-        return $m;
-    } else {
-        trace 1,"mrecall got some heads for this pos, at rule ".Dumper($m);
-    }
-    if (
-        !defined $m &&
-        !exists $H{$_[1]}->{head}->{$_[0]} &&
-        !exists $H{$_[1]}->{iSet}->{$_[0]}
-    ) {
-        return err($_[2],"mrecall failure");
-    }
-    if (exists $H{$_[1]}->{eSet}->{$_[0]} && defined $H{$_[1]}->{eSet}->{$_[0]}) {
-        delete $H{$_[1]}->{eSet}->{$_[0]};
-        trace 1,"mrecall calling"." ".$N{$_[0]}." with ".Dumper($_[2]);
-        my $r = $_[0]->($_[2]);
-        mmemo($_[0],$_[1],$r);
-        $m = [ $r,
-                $r->{'pos'} ];
-    }
-    $m;
-}
-
 sub eoi {
     my $p;
     my $tmp = $p = parser {
@@ -752,10 +549,15 @@ sub err{
     return {%{$_[0]},success=>0,expected=>($_[1] || 'unknown')};
 }
 
+sub first {
+    one( { first => 1 }, @_ );
+}
+
 sub one {
+    my $opts = (ref $_[0] eq 'HASH')?shift:{};
     my @p = grep $_,@_;
     return nothing if @p == 0;
-    return $p[0]             if @p == 1;
+    return $p[0] if @p == 1;
     my $p;
     my $tmp = $p = parser {
         my ($in) = @_;
@@ -778,6 +580,7 @@ sub one {
             } else {
                 trace 3,"one  ".$in->{'pos'}."  matched $q/$np    ".$N{$p[$q-1]};
                 #return $r if $r->{fated};
+                return (($r->{backed})?$r:{%$r, 'pos'=>$b->{'pos'},backed=>1}) if $opts->{first};
                 $v = deep_copy($r) if (!defined $v || length(left($r)) < length(left($v)));
             }
         }
@@ -790,7 +593,8 @@ sub one {
         return (($z->{backed})?$z:{%$z, 'pos'=>$b->{'pos'},backed=>1});
     };
     weaken($p);
-    $N{$p} = "( " . join(" | ", map $N{$_}, @p) . " )";
+    my $joiner = ($opts->{first})?' ^ ':' | ';
+    $N{$p} = "( " . join($joiner, map $N{$_}, @p) . " )";
     $p;
 }
 
@@ -842,7 +646,7 @@ sub all {
   $p;
 }
 
-# placing star directly in another star() causes right recursion
+# placing star directly in another star() causes left recursion
 sub star {
     my ($p, $p_conc, $p_exec);
     
