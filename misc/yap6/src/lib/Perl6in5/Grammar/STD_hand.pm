@@ -99,16 +99,17 @@ rule blkIdentifier {
         opt( opt( '^' ) . identifier . p6ws ) 
 };
 
-lrule commalist {
-        -( plus( ',' ) ) - opt( $_[1], $_[0] )
-};
+#lrule commalist {
+#        -( plus( ',' ) ) - opt( $_[1], $_[0] )
+#};
 
 rule blkPrms {
         opt( w( '()', opt( invcDecl ) . blkPrmsList ) )
 };
 
 rule blkPrmsList {
-        opt( commalist( prmDecl ) )
+        'h'
+#        opt( commalist( prmDecl ) )
 };
 
 rule arrowInv {

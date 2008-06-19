@@ -45,15 +45,13 @@ sub rule {
 }
 
 sub lrule {
-    my ($name,$code) = @_;
+    my ($name,$code) = @_; # $code *is* commalist combinator.
     # generate a function that generates parser generators that curry eachself.
     my $stub = sub {
+        # first input to this sub: the thing in the commalist. (becomes $_[1])
         my $s = shift;
-        my $p;
-        my $tmp2 = $p = parser {
-            $code->($code,$s);
-        };
-        weaken($p);
+        my $p; # the parser combinator we're building - becomes $_[0]
+        $p = $code->($p,$s);
         $N{$p} = $name.'( '.$N{$s}.' )';
         $p;
     };
