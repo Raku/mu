@@ -1,7 +1,7 @@
 grammar sm0p;
 token frame {
     <ws> <identifier> <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <node>+ <ws> '}' <ws> ';'
-    { return $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
+    { make $<identifier> ~ ' = SMOP_DISPATCH(interpreter, '
       ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
       ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
       ~ ($$<node>).join(',') ~ ' }, NULL)); ' }
@@ -10,7 +10,7 @@ token frame {
 token node {
     <ws> <responder> '.' <identifier> '('
     [ <ws> <invocant> <ws> ':' ]? <ws> <positional> <ws> <named> <ws> ')' ';'
-    { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+    { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
       ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
       ~ ' SMOP__ID__responder, SMOP_RI(' ~ $<responder> ~ '), '
       ~ ' SMOP__ID__identifier, ' ~ $<identifier> ~ ', '
@@ -18,12 +18,12 @@ token node {
       ~ ($<invocant> ?? $<invocant> !! $<responder>) ~ ', '~ $<positional> ~', '~ $<named> ~') '
       ~ ',NULL }))' }
   | <ws> <identifier> <ws> ';'
-    { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+    { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
       ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
       ~ ' SMOP__ID__result, ' ~ $<identifier>
       ~ ',NULL }))' }
   | <ws> ';'
-    { return 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+    { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
       ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, NULL))' }
 };
 
@@ -37,8 +37,8 @@ token responder {
 
 token positional {
     <positionals>
-    { return '(SMOP__Object*[]){' ~ ($$<positionals>).join(',') ~ ',NULL}'  }
-  | { return 'NULL' }
+    { make '(SMOP__Object*[]){' ~ ($$<positionals>).join(',') ~ ',NULL}'  }
+  | { make 'NULL' }
 };
 
 token positionals {
