@@ -4,7 +4,7 @@ Objective:  Create a regex engine written in p6.
 Approach:
 
 Start with the "working" p5 yet_another_regex_engine/Regexp_ModuleA.pm
-and its t/.  Using the fact that the current elf_f_faster emits p5
+and its t/.  Using the fact that the current elf_f emits p5
 which is compatible with normal handwritten p5, incrementally migrate
 Regexp_ModuleA.pm into p6, _while keeping it working_.
 

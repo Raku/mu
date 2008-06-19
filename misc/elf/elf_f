@@ -11,8 +11,17 @@ use warnings;
   use Data::Dumper;
 }
 
-{package AssertCurrentModuleVersions;
- use Moose 0.44;
+{package Object;
+    our %DEFAULTS;
+    sub new {
+        my $self = shift;
+        my $class = ref $self || $self;
+        my $obj = bless {@_}, $class;
+        for (keys %{$DEFAULTS{$class}}) {
+            $obj->{$_} = $DEFAULTS{$class}{$_}->() unless $obj->{$_};
+        }
+        $obj;
+    }
 }
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       
@@ -365,506 +374,335 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Bit;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Bit::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Int;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Int::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Str;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Str::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Num;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Num::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Complex;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Complex::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Bool;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Bool::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Code;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Code::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Block;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Block::ISA,'Code');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package List;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@List::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Seq;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Seq::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Range;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Range::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Set;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Set::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Bag;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Bag::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Junction;
-use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Junction::ISA,'Object');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Pair;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Pair::ISA,'Any');}
-(do{has 'key' => (is => 'rw');;
-has 'value' => (is => 'rw');});
-__PACKAGE__->meta->make_immutable();
-
+(do{sub key { if(@_==2){$_[0]{'key'}=$_[1]}else{$_[0]{'key'}}};
+sub value { if(@_==2){$_[0]{'value'}=$_[1]}else{$_[0]{'value'}}}})
 }
 ;
 
 { package Mapping;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Mapping::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Signature;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Signature::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Capture;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Capture::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Blob;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Blob::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Scalar;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Scalar::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Array;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Array::ISA,'List');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Hash;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Hash::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package KeyHash;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@KeyHash::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package KeySet;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@KeySet::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package KeyBag;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@KeyBag::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Buf;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Buf::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package IO;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IO::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Routine;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Routine::ISA,'Code');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Sub;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Sub::ISA,'Routine');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Method;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Method::ISA,'Routine');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Subethod;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Subethod::ISA,'Routine');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Macro;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Macro::ISA,'Routine');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Regex;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Regex::ISA,'Routine');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Match;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Match::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Package;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Package::ISA,'Any');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Module;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Module::ISA,'Package');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Class;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Class::ISA,'Module');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Role;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Role::ISA,'Module');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Grammar;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@Grammar::ISA,'Module');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Any;
-use Moose; __PACKAGE__->meta->make_mutable();
 BEGIN{push(@Any::ISA,'Object');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Object;
-use Moose; __PACKAGE__->meta->make_mutable();
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package Any;
-use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub say{my $self=CORE::shift;(do{GLOBAL::say($self)})}});
-__PACKAGE__->meta->make_immutable();
-
+(do{sub say{my $self=CORE::shift;(do{GLOBAL::say($self)})}})
 }
 ;
 
 { package GLOBAL;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub say{my(@a)=@_;
 my $a_a = \@a;
 (do{for(($a_a)->flatten){
 (do{GLOBAL::print($_->Str(), "\
 ")})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package Int;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package Num;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package Str;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->primitive_Num()})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->primitive_Num()})}})
 }
 ;
 
 { package Array;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->elems()})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->elems()})}})
 }
 ;
 
 { package Hash;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->keys()->elems()})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{$self->keys()->elems()})}})
 }
 ;
 
 { package Pair;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Num{my $self=CORE::shift;(do{2})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Num{my $self=CORE::shift;(do{2})}})
 }
 ;
 
 { package Int;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Str{my $self=CORE::shift;(do{("" . $self)})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{("" . $self)})}})
 }
 ;
 
 { package Num;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Str{my $self=CORE::shift;(do{("" . $self)})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{("" . $self)})}})
 }
 ;
 
 { package Str;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package Array;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self->join("")})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self->join("")})}})
 }
 ;
 
 { package Hash;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self->keys()->map(sub {my($k)=@_;
 (do{(($k . "\	") . $self->{'$k'})})})->join("\
-")})}});
-__PACKAGE__->meta->make_immutable();
-
+")})}})
 }
 ;
 
 { package Pair;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Str{my $self=CORE::shift;(do{(($self->key . "\	") . $self->value)})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{(($self->key . "\	") . $self->value)})}})
 }
 ;
 
 { package Any;
-use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub print{my $self=CORE::shift;(do{GLOBAL::say($self)})}});
-__PACKAGE__->meta->make_immutable();
-
+(do{sub print{my $self=CORE::shift;(do{GLOBAL::say($self)})}})
 }
 ;
 
 { package Any;
-use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub true{my $self=CORE::shift;(do{GLOBAL::defined($self)})}});
-__PACKAGE__->meta->make_immutable();
-
+(do{sub true{my $self=CORE::shift;(do{GLOBAL::defined($self)})}})
 }
 ;
 
@@ -873,13 +711,12 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Match;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{has 'rule' => (is => 'rw');;
-has 'match_str' => (is => 'rw');;
-has 'from' => (is => 'rw');;
-has 'to' => (is => 'rw');;
-has 'bool' => (is => 'rw');;
-has 'hash' => (is => 'rw');;
+use base "Any";(do{sub rule { if(@_==2){$_[0]{'rule'}=$_[1]}else{$_[0]{'rule'}}};
+sub match_str { if(@_==2){$_[0]{'match_str'}=$_[1]}else{$_[0]{'match_str'}}};
+sub from { if(@_==2){$_[0]{'from'}=$_[1]}else{$_[0]{'from'}}};
+sub to { if(@_==2){$_[0]{'to'}=$_[1]}else{$_[0]{'to'}}};
+sub bool { if(@_==2){$_[0]{'bool'}=$_[1]}else{$_[0]{'bool'}}};
+sub hash { if(@_==2){$_[0]{'hash'}=$_[1]}else{$_[0]{'hash'}}};
 sub make_from_rsfth{my $self=CORE::shift;my($r,$s,$f,$t,$h)=@_;
 (do{$self->new("rule", $r, "match_str", $s, "from", $f, "to", $t, "hash", $h)})};
 sub match_describe{my $self=CORE::shift;(do{my $s = ((((((($self->rule . "\<") . $self->from) . "\,") . $self->to) . "\,\'") . $self->match_str) . "\'\,\{");
@@ -903,26 +740,20 @@ sub indent{my $self=CORE::shift;my($s)=@_;
 sub indent_except_top{my $self=CORE::shift;my($s)=@_;
 (do{$s->re_gsub(qr/(?m:^(?<!\A)(?!\Z))/, "\ \ ")})};
 sub match_string{my $self=CORE::shift;(do{$self->match_str})};
-sub Str{my $self=CORE::shift;(do{$self->match_str->substr($self->from, ($self->to - $self->from))})}});
-__PACKAGE__->meta->make_immutable();
-
+sub Str{my $self=CORE::shift;(do{$self->match_str->substr($self->from, ($self->to - $self->from))})}})
 }
 ;
 
 { package ARRAY;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{((("\[\
 " . Match->indent($self->map(sub {my($e)=@_;
 (do{$e->match_describe()})})->join("\,\
 "))) . "\
-\]"))})}});
-__PACKAGE__->meta->make_immutable();
-
+\]"))})}})
 }
 ;
 
 { package HASH;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{my $s = "\{";
 for(($self->keys())->flatten){
 (do{my $k = $_;
@@ -938,33 +769,22 @@ if($self->keys()->elems()) {
 (do{($s = ($s . "\
 "))})
 };
-($s . "\}")})}});
-__PACKAGE__->meta->make_immutable();
-
+($s . "\}")})}})
 }
 ;
 
 { package STRING;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}})
 }
 ;
 
 { package INTEGER;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}})
 }
 ;
 
 { package FLOAT;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}})
 }
 ;
 
@@ -973,90 +793,61 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package ARRAY;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{(("\[" . $self->map(sub {my($e)=@_;
-(do{$e->irx1_describe()})})->join("\,")) . "\]")})}});
-__PACKAGE__->meta->make_immutable();
-
+(do{$e->irx1_describe()})})->join("\,")) . "\]")})}})
 }
 ;
 
 { package STRING;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
 }
 ;
 
 { package INTEGER;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
 }
 ;
 
 { package FLOAT;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
 }
 ;
 
 { package UNDEF;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{"undef"})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{"undef"})}})
 }
 ;
 
 { package IRx1;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{
 { package IRx1::Base;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{})
 }
 ;
 
 { package IRx1::CompUnit_and_Block;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{})
 }
 ;
 
 { package IRx1::CompUnit;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::CompUnit_and_Block');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package IRx1::Block;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Block::ISA,'IRx1::CompUnit_and_Block');}
-(do{});
-__PACKAGE__->meta->make_immutable();
-
+(do{})
 }
 ;
 
 { package IRx1::CompUnit;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::CompUnit::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'statements' => (is => 'rw');;
-has 'filename' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub statements { if(@_==2){$_[0]{'statements'}=$_[1]}else{$_[0]{'statements'}}};
+sub filename { if(@_==2){$_[0]{'filename'}=$_[1]}else{$_[0]{'filename'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$statements,$filename)=@_;
 (do{$self->new("match", $match, "statements", $statements, "filename", $filename)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1064,18 +855,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"CompUnit"})};
 sub field_names{my $self=CORE::shift;(do{["statements", "filename"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->statements, $self->filename]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("CompUnit\(" . $self->statements->irx1_describe()) . "\,") . $self->filename->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("CompUnit\(" . $self->statements->irx1_describe()) . "\,") . $self->filename->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Block;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Block::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'statements' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub statements { if(@_==2){$_[0]{'statements'}=$_[1]}else{$_[0]{'statements'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
 (do{$self->new("match", $match, "statements", $statements)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1083,20 +871,17 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Block"})};
 sub field_names{my $self=CORE::shift;(do{["statements"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->statements]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Block\(" . $self->statements->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("Block\(" . $self->statements->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Use;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Use::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'kind' => (is => 'rw');;
-has 'module_name' => (is => 'rw');;
-has 'expr' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub kind { if(@_==2){$_[0]{'kind'}=$_[1]}else{$_[0]{'kind'}}};
+sub module_name { if(@_==2){$_[0]{'module_name'}=$_[1]}else{$_[0]{'module_name'}}};
+sub expr { if(@_==2){$_[0]{'expr'}=$_[1]}else{$_[0]{'expr'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$kind,$module_name,$expr)=@_;
 (do{$self->new("match", $match, "kind", $kind, "module_name", $module_name, "expr", $expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1104,23 +889,20 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Use"})};
 sub field_names{my $self=CORE::shift;(do{["kind", "module_name", "expr"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->kind, $self->module_name, $self->expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("Use\(" . $self->kind->irx1_describe()) . "\,") . $self->module_name->irx1_describe()) . "\,") . $self->expr->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((("Use\(" . $self->kind->irx1_describe()) . "\,") . $self->module_name->irx1_describe()) . "\,") . $self->expr->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::PackageDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::PackageDecl::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'scope' => (is => 'rw');;
-has 'plurality' => (is => 'rw');;
-has 'kind' => (is => 'rw');;
-has 'name' => (is => 'rw');;
-has 'traits' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub scope { if(@_==2){$_[0]{'scope'}=$_[1]}else{$_[0]{'scope'}}};
+sub plurality { if(@_==2){$_[0]{'plurality'}=$_[1]}else{$_[0]{'plurality'}}};
+sub kind { if(@_==2){$_[0]{'kind'}=$_[1]}else{$_[0]{'kind'}}};
+sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
+sub traits { if(@_==2){$_[0]{'traits'}=$_[1]}else{$_[0]{'traits'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$plurality,$kind,$name,$traits,$block)=@_;
 (do{$self->new("match", $match, "scope", $scope, "plurality", $plurality, "kind", $kind, "name", $name, "traits", $traits, "block", $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1128,26 +910,23 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"PackageDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "plurality", "kind", "name", "traits", "block"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->plurality, $self->kind, $self->name, $self->traits, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((("PackageDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->kind->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((("PackageDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->kind->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::MethodDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::MethodDecl::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'scope' => (is => 'rw');;
-has 'typenames' => (is => 'rw');;
-has 'plurality' => (is => 'rw');;
-has 'name' => (is => 'rw');;
-has 'multisig' => (is => 'rw');;
-has 'traits' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'sigil' => (is => 'rw');;
-has 'postcircumfix' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub scope { if(@_==2){$_[0]{'scope'}=$_[1]}else{$_[0]{'scope'}}};
+sub typenames { if(@_==2){$_[0]{'typenames'}=$_[1]}else{$_[0]{'typenames'}}};
+sub plurality { if(@_==2){$_[0]{'plurality'}=$_[1]}else{$_[0]{'plurality'}}};
+sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
+sub multisig { if(@_==2){$_[0]{'multisig'}=$_[1]}else{$_[0]{'multisig'}}};
+sub traits { if(@_==2){$_[0]{'traits'}=$_[1]}else{$_[0]{'traits'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub sigil { if(@_==2){$_[0]{'sigil'}=$_[1]}else{$_[0]{'sigil'}}};
+sub postcircumfix { if(@_==2){$_[0]{'postcircumfix'}=$_[1]}else{$_[0]{'postcircumfix'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block,$sigil,$postcircumfix)=@_;
 (do{$self->new("match", $match, "scope", $scope, "typenames", $typenames, "plurality", $plurality, "name", $name, "multisig", $multisig, "traits", $traits, "block", $block, "sigil", $sigil, "postcircumfix", $postcircumfix)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1155,24 +934,21 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"MethodDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "typenames", "plurality", "name", "multisig", "traits", "block", "sigil", "postcircumfix"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block, $self->sigil, $self->postcircumfix]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((((("MethodDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\,") . $self->sigil->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((((("MethodDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\,") . $self->sigil->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::SubDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::SubDecl::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'scope' => (is => 'rw');;
-has 'typenames' => (is => 'rw');;
-has 'plurality' => (is => 'rw');;
-has 'name' => (is => 'rw');;
-has 'multisig' => (is => 'rw');;
-has 'traits' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub scope { if(@_==2){$_[0]{'scope'}=$_[1]}else{$_[0]{'scope'}}};
+sub typenames { if(@_==2){$_[0]{'typenames'}=$_[1]}else{$_[0]{'typenames'}}};
+sub plurality { if(@_==2){$_[0]{'plurality'}=$_[1]}else{$_[0]{'plurality'}}};
+sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
+sub multisig { if(@_==2){$_[0]{'multisig'}=$_[1]}else{$_[0]{'multisig'}}};
+sub traits { if(@_==2){$_[0]{'traits'}=$_[1]}else{$_[0]{'traits'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block)=@_;
 (do{$self->new("match", $match, "scope", $scope, "typenames", $typenames, "plurality", $plurality, "name", $name, "multisig", $multisig, "traits", $traits, "block", $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1180,24 +956,21 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"SubDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "typenames", "plurality", "name", "multisig", "traits", "block"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("SubDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("SubDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::MacroDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::MacroDecl::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'scope' => (is => 'rw');;
-has 'typenames' => (is => 'rw');;
-has 'plurality' => (is => 'rw');;
-has 'name' => (is => 'rw');;
-has 'multisig' => (is => 'rw');;
-has 'traits' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub scope { if(@_==2){$_[0]{'scope'}=$_[1]}else{$_[0]{'scope'}}};
+sub typenames { if(@_==2){$_[0]{'typenames'}=$_[1]}else{$_[0]{'typenames'}}};
+sub plurality { if(@_==2){$_[0]{'plurality'}=$_[1]}else{$_[0]{'plurality'}}};
+sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
+sub multisig { if(@_==2){$_[0]{'multisig'}=$_[1]}else{$_[0]{'multisig'}}};
+sub traits { if(@_==2){$_[0]{'traits'}=$_[1]}else{$_[0]{'traits'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block)=@_;
 (do{$self->new("match", $match, "scope", $scope, "typenames", $typenames, "plurality", $plurality, "name", $name, "multisig", $multisig, "traits", $traits, "block", $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1205,25 +978,22 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"MacroDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "typenames", "plurality", "name", "multisig", "traits", "block"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("MacroDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("MacroDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::VarDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::VarDecl::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'scope' => (is => 'rw');;
-has 'typenames' => (is => 'rw');;
-has 'plurality' => (is => 'rw');;
-has 'var' => (is => 'rw');;
-has 'postcircumfix' => (is => 'rw');;
-has 'traits' => (is => 'rw');;
-has 'default_op' => (is => 'rw');;
-has 'default_expr' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub scope { if(@_==2){$_[0]{'scope'}=$_[1]}else{$_[0]{'scope'}}};
+sub typenames { if(@_==2){$_[0]{'typenames'}=$_[1]}else{$_[0]{'typenames'}}};
+sub plurality { if(@_==2){$_[0]{'plurality'}=$_[1]}else{$_[0]{'plurality'}}};
+sub var { if(@_==2){$_[0]{'var'}=$_[1]}else{$_[0]{'var'}}};
+sub postcircumfix { if(@_==2){$_[0]{'postcircumfix'}=$_[1]}else{$_[0]{'postcircumfix'}}};
+sub traits { if(@_==2){$_[0]{'traits'}=$_[1]}else{$_[0]{'traits'}}};
+sub default_op { if(@_==2){$_[0]{'default_op'}=$_[1]}else{$_[0]{'default_op'}}};
+sub default_expr { if(@_==2){$_[0]{'default_expr'}=$_[1]}else{$_[0]{'default_expr'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$var,$postcircumfix,$traits,$default_op,$default_expr)=@_;
 (do{$self->new("match", $match, "scope", $scope, "typenames", $typenames, "plurality", $plurality, "var", $var, "postcircumfix", $postcircumfix, "traits", $traits, "default_op", $default_op, "default_expr", $default_expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1231,20 +1001,17 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"VarDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "typenames", "plurality", "var", "postcircumfix", "traits", "default_op", "default_expr"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->var, $self->postcircumfix, $self->traits, $self->default_op, $self->default_expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((("VarDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->var->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->default_op->irx1_describe()) . "\,") . $self->default_expr->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((("VarDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->var->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->default_op->irx1_describe()) . "\,") . $self->default_expr->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Var;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Var::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'sigil' => (is => 'rw');;
-has 'twigil' => (is => 'rw');;
-has 'name' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub sigil { if(@_==2){$_[0]{'sigil'}=$_[1]}else{$_[0]{'sigil'}}};
+sub twigil { if(@_==2){$_[0]{'twigil'}=$_[1]}else{$_[0]{'twigil'}}};
+sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 (do{$self->new("match", $match, "sigil", $sigil, "twigil", $twigil, "name", $name)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1252,19 +1019,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Var"})};
 sub field_names{my $self=CORE::shift;(do{["sigil", "twigil", "name"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->sigil, $self->twigil, $self->name]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("Var\(" . $self->sigil->irx1_describe()) . "\,") . $self->twigil->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((("Var\(" . $self->sigil->irx1_describe()) . "\,") . $self->twigil->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Trait;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Trait::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'verb' => (is => 'rw');;
-has 'expr' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub verb { if(@_==2){$_[0]{'verb'}=$_[1]}else{$_[0]{'verb'}}};
+sub expr { if(@_==2){$_[0]{'expr'}=$_[1]}else{$_[0]{'expr'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$verb,$expr)=@_;
 (do{$self->new("match", $match, "verb", $verb, "expr", $expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1272,19 +1036,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Trait"})};
 sub field_names{my $self=CORE::shift;(do{["verb", "expr"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->verb, $self->expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Trait\(" . $self->verb->irx1_describe()) . "\,") . $self->expr->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Trait\(" . $self->verb->irx1_describe()) . "\,") . $self->expr->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::ClosureTrait;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::ClosureTrait::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'kind' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub kind { if(@_==2){$_[0]{'kind'}=$_[1]}else{$_[0]{'kind'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$kind,$block)=@_;
 (do{$self->new("match", $match, "kind", $kind, "block", $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1292,19 +1053,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"ClosureTrait"})};
 sub field_names{my $self=CORE::shift;(do{["kind", "block"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->kind, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("ClosureTrait\(" . $self->kind->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("ClosureTrait\(" . $self->kind->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::ModuleName;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::ModuleName::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'name' => (is => 'rw');;
-has 'pairs' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
+sub pairs { if(@_==2){$_[0]{'pairs'}=$_[1]}else{$_[0]{'pairs'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$name,$pairs)=@_;
 (do{$self->new("match", $match, "name", $name, "pairs", $pairs)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1312,18 +1070,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"ModuleName"})};
 sub field_names{my $self=CORE::shift;(do{["name", "pairs"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->name, $self->pairs]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("ModuleName\(" . $self->name->irx1_describe()) . "\,") . $self->pairs->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("ModuleName\(" . $self->name->irx1_describe()) . "\,") . $self->pairs->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::PathName;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::PathName::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'path' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub path { if(@_==2){$_[0]{'path'}=$_[1]}else{$_[0]{'path'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$path)=@_;
 (do{$self->new("match", $match, "path", $path)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1331,21 +1086,18 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"PathName"})};
 sub field_names{my $self=CORE::shift;(do{["path"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->path]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("PathName\(" . $self->path->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("PathName\(" . $self->path->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::SubName;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::SubName::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'category' => (is => 'rw');;
-has 'pairs' => (is => 'rw');;
-has 'desigilname' => (is => 'rw');;
-has 'signature' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub category { if(@_==2){$_[0]{'category'}=$_[1]}else{$_[0]{'category'}}};
+sub pairs { if(@_==2){$_[0]{'pairs'}=$_[1]}else{$_[0]{'pairs'}}};
+sub desigilname { if(@_==2){$_[0]{'desigilname'}=$_[1]}else{$_[0]{'desigilname'}}};
+sub signature { if(@_==2){$_[0]{'signature'}=$_[1]}else{$_[0]{'signature'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$category,$pairs,$desigilname,$signature)=@_;
 (do{$self->new("match", $match, "category", $category, "pairs", $pairs, "desigilname", $desigilname, "signature", $signature)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1353,19 +1105,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"SubName"})};
 sub field_names{my $self=CORE::shift;(do{["category", "pairs", "desigilname", "signature"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->category, $self->pairs, $self->desigilname, $self->signature]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((("SubName\(" . $self->category->irx1_describe()) . "\,") . $self->pairs->irx1_describe()) . "\,") . $self->desigilname->irx1_describe()) . "\,") . $self->signature->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((("SubName\(" . $self->category->irx1_describe()) . "\,") . $self->pairs->irx1_describe()) . "\,") . $self->desigilname->irx1_describe()) . "\,") . $self->signature->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::ShapedParamName;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::ShapedParamName::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'ident' => (is => 'rw');;
-has 'postcircumfix' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub ident { if(@_==2){$_[0]{'ident'}=$_[1]}else{$_[0]{'ident'}}};
+sub postcircumfix { if(@_==2){$_[0]{'postcircumfix'}=$_[1]}else{$_[0]{'postcircumfix'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$ident,$postcircumfix)=@_;
 (do{$self->new("match", $match, "ident", $ident, "postcircumfix", $postcircumfix)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1373,20 +1122,17 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"ShapedParamName"})};
 sub field_names{my $self=CORE::shift;(do{["ident", "postcircumfix"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->ident, $self->postcircumfix]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("ShapedParamName\(" . $self->ident->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("ShapedParamName\(" . $self->ident->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Call;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Call::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'invocant' => (is => 'rw');;
-has 'method' => (is => 'rw');;
-has 'capture' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub invocant { if(@_==2){$_[0]{'invocant'}=$_[1]}else{$_[0]{'invocant'}}};
+sub method { if(@_==2){$_[0]{'method'}=$_[1]}else{$_[0]{'method'}}};
+sub capture { if(@_==2){$_[0]{'capture'}=$_[1]}else{$_[0]{'capture'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$invocant,$method,$capture)=@_;
 (do{$self->new("match", $match, "invocant", $invocant, "method", $method, "capture", $capture)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1394,19 +1140,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Call"})};
 sub field_names{my $self=CORE::shift;(do{["invocant", "method", "capture"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->invocant, $self->method, $self->capture]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("Call\(" . $self->invocant->irx1_describe()) . "\,") . $self->method->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((("Call\(" . $self->invocant->irx1_describe()) . "\,") . $self->method->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Apply;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Apply::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'function' => (is => 'rw');;
-has 'capture' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub function { if(@_==2){$_[0]{'function'}=$_[1]}else{$_[0]{'function'}}};
+sub capture { if(@_==2){$_[0]{'capture'}=$_[1]}else{$_[0]{'capture'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$function,$capture)=@_;
 (do{$self->new("match", $match, "function", $function, "capture", $capture)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1414,19 +1157,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Apply"})};
 sub field_names{my $self=CORE::shift;(do{["function", "capture"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->function, $self->capture]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Apply\(" . $self->function->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Apply\(" . $self->function->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Hyper;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Hyper::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'operator' => (is => 'rw');;
-has 'capture' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub operator { if(@_==2){$_[0]{'operator'}=$_[1]}else{$_[0]{'operator'}}};
+sub capture { if(@_==2){$_[0]{'capture'}=$_[1]}else{$_[0]{'capture'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$operator,$capture)=@_;
 (do{$self->new("match", $match, "operator", $operator, "capture", $capture)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1434,19 +1174,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Hyper"})};
 sub field_names{my $self=CORE::shift;(do{["operator", "capture"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->operator, $self->capture]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Hyper\(" . $self->operator->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Hyper\(" . $self->operator->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Capture;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Capture::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'arguments' => (is => 'rw');;
-has 'invocant' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub arguments { if(@_==2){$_[0]{'arguments'}=$_[1]}else{$_[0]{'arguments'}}};
+sub invocant { if(@_==2){$_[0]{'invocant'}=$_[1]}else{$_[0]{'invocant'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$arguments,$invocant)=@_;
 (do{$self->new("match", $match, "arguments", $arguments, "invocant", $invocant)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1454,18 +1191,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Capture"})};
 sub field_names{my $self=CORE::shift;(do{["arguments", "invocant"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->arguments, $self->invocant]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Capture\(" . $self->arguments->irx1_describe()) . "\,") . $self->invocant->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Capture\(" . $self->arguments->irx1_describe()) . "\,") . $self->invocant->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::MultiSig;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::MultiSig::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'signatures' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub signatures { if(@_==2){$_[0]{'signatures'}=$_[1]}else{$_[0]{'signatures'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$signatures)=@_;
 (do{$self->new("match", $match, "signatures", $signatures)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1473,19 +1207,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"MultiSig"})};
 sub field_names{my $self=CORE::shift;(do{["signatures"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->signatures]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("MultiSig\(" . $self->signatures->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("MultiSig\(" . $self->signatures->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Signature;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Signature::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'parameters' => (is => 'rw');;
-has 'return_type' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub parameters { if(@_==2){$_[0]{'parameters'}=$_[1]}else{$_[0]{'parameters'}}};
+sub return_type { if(@_==2){$_[0]{'return_type'}=$_[1]}else{$_[0]{'return_type'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$parameters,$return_type)=@_;
 (do{$self->new("match", $match, "parameters", $parameters, "return_type", $return_type)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1493,24 +1224,21 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Signature"})};
 sub field_names{my $self=CORE::shift;(do{["parameters", "return_type"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->parameters, $self->return_type]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Signature\(" . $self->parameters->irx1_describe()) . "\,") . $self->return_type->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Signature\(" . $self->parameters->irx1_describe()) . "\,") . $self->return_type->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Parameter;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Parameter::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'type_constraints' => (is => 'rw');;
-has 'quant' => (is => 'rw');;
-has 'param_var' => (is => 'rw');;
-has 'ident' => (is => 'rw');;
-has 'traits' => (is => 'rw');;
-has 'post_constraints' => (is => 'rw');;
-has 'default_expr' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub type_constraints { if(@_==2){$_[0]{'type_constraints'}=$_[1]}else{$_[0]{'type_constraints'}}};
+sub quant { if(@_==2){$_[0]{'quant'}=$_[1]}else{$_[0]{'quant'}}};
+sub param_var { if(@_==2){$_[0]{'param_var'}=$_[1]}else{$_[0]{'param_var'}}};
+sub ident { if(@_==2){$_[0]{'ident'}=$_[1]}else{$_[0]{'ident'}}};
+sub traits { if(@_==2){$_[0]{'traits'}=$_[1]}else{$_[0]{'traits'}}};
+sub post_constraints { if(@_==2){$_[0]{'post_constraints'}=$_[1]}else{$_[0]{'post_constraints'}}};
+sub default_expr { if(@_==2){$_[0]{'default_expr'}=$_[1]}else{$_[0]{'default_expr'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$type_constraints,$quant,$param_var,$ident,$traits,$post_constraints,$default_expr)=@_;
 (do{$self->new("match", $match, "type_constraints", $type_constraints, "quant", $quant, "param_var", $param_var, "ident", $ident, "traits", $traits, "post_constraints", $post_constraints, "default_expr", $default_expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1518,19 +1246,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Parameter"})};
 sub field_names{my $self=CORE::shift;(do{["type_constraints", "quant", "param_var", "ident", "traits", "post_constraints", "default_expr"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->type_constraints, $self->quant, $self->param_var, $self->ident, $self->traits, $self->post_constraints, $self->default_expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("Parameter\(" . $self->type_constraints->irx1_describe()) . "\,") . $self->quant->irx1_describe()) . "\,") . $self->param_var->irx1_describe()) . "\,") . $self->ident->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->post_constraints->irx1_describe()) . "\,") . $self->default_expr->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("Parameter\(" . $self->type_constraints->irx1_describe()) . "\,") . $self->quant->irx1_describe()) . "\,") . $self->param_var->irx1_describe()) . "\,") . $self->ident->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->post_constraints->irx1_describe()) . "\,") . $self->default_expr->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::TypeConstraint;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::TypeConstraint::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'value' => (is => 'rw');;
-has 'where_expr' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub value { if(@_==2){$_[0]{'value'}=$_[1]}else{$_[0]{'value'}}};
+sub where_expr { if(@_==2){$_[0]{'where_expr'}=$_[1]}else{$_[0]{'where_expr'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$value,$where_expr)=@_;
 (do{$self->new("match", $match, "value", $value, "where_expr", $where_expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1538,19 +1263,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"TypeConstraint"})};
 sub field_names{my $self=CORE::shift;(do{["value", "where_expr"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->value, $self->where_expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("TypeConstraint\(" . $self->value->irx1_describe()) . "\,") . $self->where_expr->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("TypeConstraint\(" . $self->value->irx1_describe()) . "\,") . $self->where_expr->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::PostConstraint;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::PostConstraint::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'multisig' => (is => 'rw');;
-has 'where_expr' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub multisig { if(@_==2){$_[0]{'multisig'}=$_[1]}else{$_[0]{'multisig'}}};
+sub where_expr { if(@_==2){$_[0]{'where_expr'}=$_[1]}else{$_[0]{'where_expr'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$multisig,$where_expr)=@_;
 (do{$self->new("match", $match, "multisig", $multisig, "where_expr", $where_expr)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1558,20 +1280,17 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"PostConstraint"})};
 sub field_names{my $self=CORE::shift;(do{["multisig", "where_expr"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->multisig, $self->where_expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("PostConstraint\(" . $self->multisig->irx1_describe()) . "\,") . $self->where_expr->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("PostConstraint\(" . $self->multisig->irx1_describe()) . "\,") . $self->where_expr->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::ParamVar;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::ParamVar::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'sigil' => (is => 'rw');;
-has 'twigil' => (is => 'rw');;
-has 'name' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub sigil { if(@_==2){$_[0]{'sigil'}=$_[1]}else{$_[0]{'sigil'}}};
+sub twigil { if(@_==2){$_[0]{'twigil'}=$_[1]}else{$_[0]{'twigil'}}};
+sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 (do{$self->new("match", $match, "sigil", $sigil, "twigil", $twigil, "name", $name)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1579,17 +1298,14 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"ParamVar"})};
 sub field_names{my $self=CORE::shift;(do{["sigil", "twigil", "name"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->sigil, $self->twigil, $self->name]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("ParamVar\(" . $self->sigil->irx1_describe()) . "\,") . $self->twigil->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((("ParamVar\(" . $self->sigil->irx1_describe()) . "\,") . $self->twigil->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Undef;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Undef::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match)=@_;
 (do{$self->new("match", $match)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1597,19 +1313,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Undef"})};
 sub field_names{my $self=CORE::shift;(do{[]})};
 sub field_values{my $self=CORE::shift;(do{[]})};
-sub irx1_describe{my $self=CORE::shift;(do{("Undef\(" . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{("Undef\(" . "\)")})}})
 }
 ;
 
 { package IRx1::NumInt;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::NumInt::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'text' => (is => 'rw');;
-has 'base' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub text { if(@_==2){$_[0]{'text'}=$_[1]}else{$_[0]{'text'}}};
+sub base { if(@_==2){$_[0]{'base'}=$_[1]}else{$_[0]{'base'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$text,$base)=@_;
 (do{$self->new("match", $match, "text", $text, "base", $base)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1617,20 +1330,17 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"NumInt"})};
 sub field_names{my $self=CORE::shift;(do{["text", "base"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->text, $self->base]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("NumInt\(" . $self->text->irx1_describe()) . "\,") . $self->base->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("NumInt\(" . $self->text->irx1_describe()) . "\,") . $self->base->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::NumDec;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::NumDec::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'intpart' => (is => 'rw');;
-has 'fracpart' => (is => 'rw');;
-has 'exp' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub intpart { if(@_==2){$_[0]{'intpart'}=$_[1]}else{$_[0]{'intpart'}}};
+sub fracpart { if(@_==2){$_[0]{'fracpart'}=$_[1]}else{$_[0]{'fracpart'}}};
+sub exp { if(@_==2){$_[0]{'exp'}=$_[1]}else{$_[0]{'exp'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$intpart,$fracpart,$exp)=@_;
 (do{$self->new("match", $match, "intpart", $intpart, "fracpart", $fracpart, "exp", $exp)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1638,22 +1348,19 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"NumDec"})};
 sub field_names{my $self=CORE::shift;(do{["intpart", "fracpart", "exp"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->intpart, $self->fracpart, $self->exp]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("NumDec\(" . $self->intpart->irx1_describe()) . "\,") . $self->fracpart->irx1_describe()) . "\,") . $self->exp->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((("NumDec\(" . $self->intpart->irx1_describe()) . "\,") . $self->fracpart->irx1_describe()) . "\,") . $self->exp->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::NumRad;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::NumRad::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'radix' => (is => 'rw');;
-has 'intpart' => (is => 'rw');;
-has 'fracpart' => (is => 'rw');;
-has 'base' => (is => 'rw');;
-has 'exp' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub radix { if(@_==2){$_[0]{'radix'}=$_[1]}else{$_[0]{'radix'}}};
+sub intpart { if(@_==2){$_[0]{'intpart'}=$_[1]}else{$_[0]{'intpart'}}};
+sub fracpart { if(@_==2){$_[0]{'fracpart'}=$_[1]}else{$_[0]{'fracpart'}}};
+sub base { if(@_==2){$_[0]{'base'}=$_[1]}else{$_[0]{'base'}}};
+sub exp { if(@_==2){$_[0]{'exp'}=$_[1]}else{$_[0]{'exp'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$radix,$intpart,$fracpart,$base,$exp)=@_;
 (do{$self->new("match", $match, "radix", $radix, "intpart", $intpart, "fracpart", $fracpart, "base", $base, "exp", $exp)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1661,18 +1368,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"NumRad"})};
 sub field_names{my $self=CORE::shift;(do{["radix", "intpart", "fracpart", "base", "exp"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->radix, $self->intpart, $self->fracpart, $self->base, $self->exp]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((("NumRad\(" . $self->radix->irx1_describe()) . "\,") . $self->intpart->irx1_describe()) . "\,") . $self->fracpart->irx1_describe()) . "\,") . $self->base->irx1_describe()) . "\,") . $self->exp->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((((("NumRad\(" . $self->radix->irx1_describe()) . "\,") . $self->intpart->irx1_describe()) . "\,") . $self->fracpart->irx1_describe()) . "\,") . $self->base->irx1_describe()) . "\,") . $self->exp->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Array;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Array::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'array' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub array { if(@_==2){$_[0]{'array'}=$_[1]}else{$_[0]{'array'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$array)=@_;
 (do{$self->new("match", $match, "array", $array)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1680,18 +1384,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Array"})};
 sub field_names{my $self=CORE::shift;(do{["array"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->array]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Array\(" . $self->array->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("Array\(" . $self->array->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Hash;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Hash::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'hash' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub hash { if(@_==2){$_[0]{'hash'}=$_[1]}else{$_[0]{'hash'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$hash)=@_;
 (do{$self->new("match", $match, "hash", $hash)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1699,19 +1400,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Hash"})};
 sub field_names{my $self=CORE::shift;(do{["hash"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->hash]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Hash\(" . $self->hash->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("Hash\(" . $self->hash->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Pair;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Pair::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'key' => (is => 'rw');;
-has 'value' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub key { if(@_==2){$_[0]{'key'}=$_[1]}else{$_[0]{'key'}}};
+sub value { if(@_==2){$_[0]{'value'}=$_[1]}else{$_[0]{'value'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$key,$value)=@_;
 (do{$self->new("match", $match, "key", $key, "value", $value)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1719,18 +1417,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Pair"})};
 sub field_names{my $self=CORE::shift;(do{["key", "value"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->key, $self->value]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Pair\(" . $self->key->irx1_describe()) . "\,") . $self->value->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Pair\(" . $self->key->irx1_describe()) . "\,") . $self->value->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Type;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Type::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'typename' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub typename { if(@_==2){$_[0]{'typename'}=$_[1]}else{$_[0]{'typename'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$typename)=@_;
 (do{$self->new("match", $match, "typename", $typename)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1738,19 +1433,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Type"})};
 sub field_names{my $self=CORE::shift;(do{["typename"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->typename]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Type\(" . $self->typename->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("Type\(" . $self->typename->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Rx;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Rx::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'pat' => (is => 'rw');;
-has 'modifiers' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub pat { if(@_==2){$_[0]{'pat'}=$_[1]}else{$_[0]{'pat'}}};
+sub modifiers { if(@_==2){$_[0]{'modifiers'}=$_[1]}else{$_[0]{'modifiers'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$pat,$modifiers)=@_;
 (do{$self->new("match", $match, "pat", $pat, "modifiers", $modifiers)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1758,18 +1450,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Rx"})};
 sub field_names{my $self=CORE::shift;(do{["pat", "modifiers"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->pat, $self->modifiers]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Rx\(" . $self->pat->irx1_describe()) . "\,") . $self->modifiers->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Rx\(" . $self->pat->irx1_describe()) . "\,") . $self->modifiers->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Buf;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Buf::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'buf' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub buf { if(@_==2){$_[0]{'buf'}=$_[1]}else{$_[0]{'buf'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$buf)=@_;
 (do{$self->new("match", $match, "buf", $buf)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1777,19 +1466,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Buf"})};
 sub field_names{my $self=CORE::shift;(do{["buf"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->buf]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Buf\(" . $self->buf->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("Buf\(" . $self->buf->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::For;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::For::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'expr' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub expr { if(@_==2){$_[0]{'expr'}=$_[1]}else{$_[0]{'expr'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
 (do{$self->new("match", $match, "expr", $expr, "block", $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1797,20 +1483,17 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"For"})};
 sub field_names{my $self=CORE::shift;(do{["expr", "block"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("For\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("For\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Cond;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Cond::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'clauses' => (is => 'rw');;
-has 'default' => (is => 'rw');;
-has 'invert_first_test' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub clauses { if(@_==2){$_[0]{'clauses'}=$_[1]}else{$_[0]{'clauses'}}};
+sub default { if(@_==2){$_[0]{'default'}=$_[1]}else{$_[0]{'default'}}};
+sub invert_first_test { if(@_==2){$_[0]{'invert_first_test'}=$_[1]}else{$_[0]{'invert_first_test'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$clauses,$default,$invert_first_test)=@_;
 (do{$self->new("match", $match, "clauses", $clauses, "default", $default, "invert_first_test", $invert_first_test)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1818,21 +1501,18 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Cond"})};
 sub field_names{my $self=CORE::shift;(do{["clauses", "default", "invert_first_test"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->clauses, $self->default, $self->invert_first_test]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("Cond\(" . $self->clauses->irx1_describe()) . "\,") . $self->default->irx1_describe()) . "\,") . $self->invert_first_test->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((("Cond\(" . $self->clauses->irx1_describe()) . "\,") . $self->default->irx1_describe()) . "\,") . $self->invert_first_test->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Loop;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Loop::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'pretest' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'posttest' => (is => 'rw');;
-has 'label' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub pretest { if(@_==2){$_[0]{'pretest'}=$_[1]}else{$_[0]{'pretest'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub posttest { if(@_==2){$_[0]{'posttest'}=$_[1]}else{$_[0]{'posttest'}}};
+sub label { if(@_==2){$_[0]{'label'}=$_[1]}else{$_[0]{'label'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$pretest,$block,$posttest,$label)=@_;
 (do{$self->new("match", $match, "pretest", $pretest, "block", $block, "posttest", $posttest, "label", $label)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1840,19 +1520,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Loop"})};
 sub field_names{my $self=CORE::shift;(do{["pretest", "block", "posttest", "label"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->pretest, $self->block, $self->posttest, $self->label]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((("Loop\(" . $self->pretest->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\,") . $self->posttest->irx1_describe()) . "\,") . $self->label->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((((((("Loop\(" . $self->pretest->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\,") . $self->posttest->irx1_describe()) . "\,") . $self->label->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Given;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Given::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'expr' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub expr { if(@_==2){$_[0]{'expr'}=$_[1]}else{$_[0]{'expr'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
 (do{$self->new("match", $match, "expr", $expr, "block", $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1860,19 +1537,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Given"})};
 sub field_names{my $self=CORE::shift;(do{["expr", "block"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Given\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Given\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::When;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::When::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'expr' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub expr { if(@_==2){$_[0]{'expr'}=$_[1]}else{$_[0]{'expr'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
 (do{$self->new("match", $match, "expr", $expr, "block", $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1880,19 +1554,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"When"})};
 sub field_names{my $self=CORE::shift;(do{["expr", "block"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("When\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("When\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Label;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Label::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'labels' => (is => 'rw');;
-has 'statement' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub labels { if(@_==2){$_[0]{'labels'}=$_[1]}else{$_[0]{'labels'}}};
+sub statement { if(@_==2){$_[0]{'statement'}=$_[1]}else{$_[0]{'statement'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$labels,$statement)=@_;
 (do{$self->new("match", $match, "labels", $labels, "statement", $statement)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1900,19 +1571,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Label"})};
 sub field_names{my $self=CORE::shift;(do{["labels", "statement"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->labels, $self->statement]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Label\(" . $self->labels->irx1_describe()) . "\,") . $self->statement->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("Label\(" . $self->labels->irx1_describe()) . "\,") . $self->statement->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RegexDef;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RegexDef::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'ident' => (is => 'rw');;
-has 'pattern' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub ident { if(@_==2){$_[0]{'ident'}=$_[1]}else{$_[0]{'ident'}}};
+sub pattern { if(@_==2){$_[0]{'pattern'}=$_[1]}else{$_[0]{'pattern'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$ident,$pattern)=@_;
 (do{$self->new("match", $match, "ident", $ident, "pattern", $pattern)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1920,18 +1588,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RegexDef"})};
 sub field_names{my $self=CORE::shift;(do{["ident", "pattern"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->ident, $self->pattern]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("RegexDef\(" . $self->ident->irx1_describe()) . "\,") . $self->pattern->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("RegexDef\(" . $self->ident->irx1_describe()) . "\,") . $self->pattern->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::Regex;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::Regex::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'patterns' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1939,18 +1604,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"Regex"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Regex\(" . $self->patterns->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("Regex\(" . $self->patterns->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxFirst;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxFirst::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'patterns' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1958,18 +1620,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxFirst"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxFirst\(" . $self->patterns->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxFirst\(" . $self->patterns->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxEvery;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxEvery::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'patterns' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1977,18 +1636,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxEvery"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxEvery\(" . $self->patterns->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxEvery\(" . $self->patterns->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxSubmatch;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxSubmatch::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'patterns' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -1996,18 +1652,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxSubmatch"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxSubmatch\(" . $self->patterns->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxSubmatch\(" . $self->patterns->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxAny;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxAny::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'patterns' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2015,18 +1668,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxAny"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxAny\(" . $self->patterns->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxAny\(" . $self->patterns->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxAll;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxAll::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'patterns' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2034,18 +1684,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxAll"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxAll\(" . $self->patterns->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxAll\(" . $self->patterns->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxSequence;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxSequence::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'patterns' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2053,19 +1700,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxSequence"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxSequence\(" . $self->patterns->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxSequence\(" . $self->patterns->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxQuantifiedAtom;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxQuantifiedAtom::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'atom' => (is => 'rw');;
-has 'quantifier' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub atom { if(@_==2){$_[0]{'atom'}=$_[1]}else{$_[0]{'atom'}}};
+sub quantifier { if(@_==2){$_[0]{'quantifier'}=$_[1]}else{$_[0]{'quantifier'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$atom,$quantifier)=@_;
 (do{$self->new("match", $match, "atom", $atom, "quantifier", $quantifier)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2073,18 +1717,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxQuantifiedAtom"})};
 sub field_names{my $self=CORE::shift;(do{["atom", "quantifier"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->atom, $self->quantifier]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("RxQuantifiedAtom\(" . $self->atom->irx1_describe()) . "\,") . $self->quantifier->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("RxQuantifiedAtom\(" . $self->atom->irx1_describe()) . "\,") . $self->quantifier->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxBackslash;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxBackslash::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'char' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub char { if(@_==2){$_[0]{'char'}=$_[1]}else{$_[0]{'char'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$char)=@_;
 (do{$self->new("match", $match, "char", $char)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2092,18 +1733,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxBackslash"})};
 sub field_names{my $self=CORE::shift;(do{["char"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->char]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxBackslash\(" . $self->char->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxBackslash\(" . $self->char->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxAssertion;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxAssertion::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'ident' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub ident { if(@_==2){$_[0]{'ident'}=$_[1]}else{$_[0]{'ident'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$ident)=@_;
 (do{$self->new("match", $match, "ident", $ident)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2111,18 +1749,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxAssertion"})};
 sub field_names{my $self=CORE::shift;(do{["ident"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->ident]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxAssertion\(" . $self->ident->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxAssertion\(" . $self->ident->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxModInternal;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxModInternal::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'mod' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub mod { if(@_==2){$_[0]{'mod'}=$_[1]}else{$_[0]{'mod'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$mod)=@_;
 (do{$self->new("match", $match, "mod", $mod)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2130,18 +1765,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxModInternal"})};
 sub field_names{my $self=CORE::shift;(do{["mod"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->mod]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxModInternal\(" . $self->mod->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxModInternal\(" . $self->mod->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxCapture;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxCapture::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'pattern' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub pattern { if(@_==2){$_[0]{'pattern'}=$_[1]}else{$_[0]{'pattern'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
 (do{$self->new("match", $match, "pattern", $pattern)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2149,18 +1781,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxCapture"})};
 sub field_names{my $self=CORE::shift;(do{["pattern"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->pattern]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxCapture\(" . $self->pattern->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxCapture\(" . $self->pattern->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxGroup;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxGroup::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'pattern' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub pattern { if(@_==2){$_[0]{'pattern'}=$_[1]}else{$_[0]{'pattern'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
 (do{$self->new("match", $match, "pattern", $pattern)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2168,18 +1797,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxGroup"})};
 sub field_names{my $self=CORE::shift;(do{["pattern"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->pattern]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxGroup\(" . $self->pattern->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxGroup\(" . $self->pattern->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxBlock;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxBlock::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'block' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$block)=@_;
 (do{$self->new("match", $match, "block", $block)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2187,19 +1813,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxBlock"})};
 sub field_names{my $self=CORE::shift;(do{["block"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxBlock\(" . $self->block->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxBlock\(" . $self->block->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxBind;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxBind::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'var' => (is => 'rw');;
-has 'binding' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub var { if(@_==2){$_[0]{'var'}=$_[1]}else{$_[0]{'var'}}};
+sub binding { if(@_==2){$_[0]{'binding'}=$_[1]}else{$_[0]{'binding'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$var,$binding)=@_;
 (do{$self->new("match", $match, "var", $var, "binding", $binding)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2207,19 +1830,16 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxBind"})};
 sub field_names{my $self=CORE::shift;(do{["var", "binding"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->var, $self->binding]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("RxBind\(" . $self->var->irx1_describe()) . "\,") . $self->binding->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("RxBind\(" . $self->var->irx1_describe()) . "\,") . $self->binding->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxLiteral;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxLiteral::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'text' => (is => 'rw');;
-has 'quote' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub text { if(@_==2){$_[0]{'text'}=$_[1]}else{$_[0]{'text'}}};
+sub quote { if(@_==2){$_[0]{'quote'}=$_[1]}else{$_[0]{'quote'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$text,$quote)=@_;
 (do{$self->new("match", $match, "text", $text, "quote", $quote)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2227,18 +1847,15 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxLiteral"})};
 sub field_names{my $self=CORE::shift;(do{["text", "quote"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->text, $self->quote]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("RxLiteral\(" . $self->text->irx1_describe()) . "\,") . $self->quote->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(((("RxLiteral\(" . $self->text->irx1_describe()) . "\,") . $self->quote->irx1_describe()) . "\)")})}})
 }
 ;
 
 { package IRx1::RxSymbol;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";BEGIN{push(@IRx1::RxSymbol::ISA,'IRx1::Base');}
-(do{has 'match' => (is => 'rw');;
-has 'symbol' => (is => 'rw');;
-has 'notes' => (is => 'rw');;
+(do{sub match { if(@_==2){$_[0]{'match'}=$_[1]}else{$_[0]{'match'}}};
+sub symbol { if(@_==2){$_[0]{'symbol'}=$_[1]}else{$_[0]{'symbol'}}};
+sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$symbol)=@_;
 (do{$self->new("match", $match, "symbol", $symbol)})};
 sub callback{my $self=CORE::shift;my($emitter)=@_;
@@ -2246,13 +1863,9 @@ sub callback{my $self=CORE::shift;my($emitter)=@_;
 sub node_name{my $self=CORE::shift;(do{"RxSymbol"})};
 sub field_names{my $self=CORE::shift;(do{["symbol"]})};
 sub field_values{my $self=CORE::shift;(do{[$self->symbol]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxSymbol\(" . $self->symbol->irx1_describe()) . "\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub irx1_describe{my $self=CORE::shift;(do{(("RxSymbol\(" . $self->symbol->irx1_describe()) . "\)")})}})
 }
-});
-__PACKAGE__->meta->make_immutable();
-
+})
 }
 ;
 
@@ -2261,8 +1874,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package IRx1_Build;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{has 'constructors' => (is => 'rw');;
+use base "Any";(do{sub constructors { if(@_==2){$_[0]{'constructors'}=$_[1]}else{$_[0]{'constructors'}}};
 ($main::irbuilder = IRx1_Build->new());
 sub add_constructor{my $self=CORE::shift;my($k,$constructor)=@_;
 (do{if($self->constructors) {
@@ -2281,63 +1893,42 @@ if(($constructor)) {
 (do{GLOBAL::die((("Unknown\ rule\:\ " . $rule) . "\
 It\ needs\ to\ be\ added\ to\ ast_handlers\.\
 "))})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package Match;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$main::irbuilder->make_ir_from_Match_tree($self)})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$main::irbuilder->make_ir_from_Match_tree($self)})}})
 }
 ;
 
 { package ARRAY;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self->map(sub {my($e)=@_;
-(do{$e->make_ir_from_Match_tree()})})})}});
-__PACKAGE__->meta->make_immutable();
-
+(do{$e->make_ir_from_Match_tree()})})})}})
 }
 ;
 
 { package STRING;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package INTEGER;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package FLOAT;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package UNDEF;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
 { package IRx1_Build;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub irbuild_ir{my($x)=@_;
 (do{$x->make_ir_from_Match_tree()})};
 $main::irbuilder->add_constructor("comp_unit", sub {my($m)=@_;
@@ -2835,9 +2426,7 @@ $main::irbuilder->add_constructor("regex_metachar\:q", sub {my($m)=@_;
 $main::irbuilder->add_constructor("regex_metachar\:qq", sub {my($m)=@_;
 (do{IRx1::RxLiteral->newp($m, irbuild_ir($m->{"hash"}->{"text"}), "\"")})});
 $main::irbuilder->add_constructor("regex_metachar", sub {my($m)=@_;
-(do{IRx1::RxSymbol->newp($m, ($m->match_string()))})})});
-__PACKAGE__->meta->make_immutable();
-
+(do{IRx1::RxSymbol->newp($m, ($m->match_string()))})})})
 }
 ;
 
@@ -2846,18 +2435,14 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package IRx1::CompUnit;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub do_all_analysis{my $self=CORE::shift;(do{$self->initialize_notes;
 $self->note_parents;
 $self->note_block_lexical_variable_decls;
-$self->note_environment})}});
-__PACKAGE__->meta->make_immutable();
-
+$self->note_environment})}})
 }
 ;
 
 { package IRx1::Base;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub is_IR_node{my $self=CORE::shift;(do{1})};
 sub initialize_notes{my $self=CORE::shift;(do{$self->notes({});
 my $a = [];
@@ -2886,50 +2471,38 @@ sub destroy_notes{my $self=CORE::shift;(do{for(($self->notes->{'child_nodes'})->
 (do{$_->destroy_notes()})
 };
 $self->notes(GLOBAL::undef())})};
-sub child_nodes{my $self=CORE::shift;(do{$self->notes->{'child_nodes'}})}});
-__PACKAGE__->meta->make_immutable();
-
+sub child_nodes{my $self=CORE::shift;(do{$self->notes->{'child_nodes'}})}})
 }
 ;
 
 { package IRx1::CompUnit;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for(($self->child_nodes)->flatten){
 (do{$_->note_parents()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::Base;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{($self->notes->{'parent'} = $::es_whiteboard__parent);
 {package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
 for(($self->child_nodes)->flatten){
 (do{$_->note_parents()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::CompUnit_and_Block;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{my $a = [];
 {package main; use vars '$es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
 ($self->notes->{'lexical_variable_decls'} = $a);
 for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::VarDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->is_lexical) {
 (do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
@@ -2945,74 +2518,56 @@ if(((($self->{'var'}->{'twigil'} || "")) eq "\+")) {
 };
 for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::SubDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($_->name()) {
 (do{$::es_whiteboard__lexical_variable_decls->push($self)})
 };
 for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::Base;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::CompUnit;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
 {package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes->{'lexical_variable_decls'});
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::Block;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes->{'lexical_variable_decls'});
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::CompUnit_and_Block;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub update_lexical_bindings{my $self=CORE::shift;my($h,$decls)=@_;
 (do{my $h1 = $h->dup();
 for(($decls)->flatten){
 (do{my $k = ($_->sigil() . $_->name());
 ($h1->{$k} = $_)})
 };
-$h1})}});
-__PACKAGE__->meta->make_immutable();
-
+$h1})}})
 }
 ;
 
 { package IRx1::PackageDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $new_chain;
 if($self->path_is_absolute) {
 (do{($new_chain = [$self])})
@@ -3022,25 +2577,19 @@ if($self->path_is_absolute) {
 {package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = $new_chain;
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::Apply;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{($self->notes->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::Var;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->{'sigil'} . $self->{'name'});
 ($self->notes->{'decl'} = $::es_whiteboard__lexical_bindings->{$key});
 if($self->notes->{'decl'}) {
@@ -3050,61 +2599,44 @@ if($self->notes->{'decl'}) {
 };
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::Base;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 
 { package IRx1::VarDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub is_lexical{my $self=CORE::shift;(do{($self->scope eq "my")})};
 sub is_context{my $self=CORE::shift;(do{$self->notes->{'is'}->{'context'}})};
 sub name{my $self=CORE::shift;(do{$self->{'var'}->{'name'}})};
 sub sigil{my $self=CORE::shift;(do{$self->{'var'}->{'sigil'}})};
 sub is_scalar{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\$")})};
 sub is_array{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\@")})};
-sub is_hash{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\%")})}});
-__PACKAGE__->meta->make_immutable();
-
+sub is_hash{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\%")})}})
 }
 ;
 
 { package IRx1::SubDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub sigil{my $self=CORE::shift;(do{"\&"})};
 sub is_scalar{my $self=CORE::shift;(do{GLOBAL::undef()})};
 sub is_array{my $self=CORE::shift;(do{GLOBAL::undef()})};
-sub is_hash{my $self=CORE::shift;(do{GLOBAL::undef()})}});
-__PACKAGE__->meta->make_immutable();
-
+sub is_hash{my $self=CORE::shift;(do{GLOBAL::undef()})}})
 }
 ;
 
 { package IRx1::Var;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub decl{my $self=CORE::shift;(do{$self->notes->{'decl'}})};
-sub is_context{my $self=CORE::shift;(do{(((($self->{'twigil'} || "")) eq "\+") || $self->notes->{'is'}->{'context'})})}});
-__PACKAGE__->meta->make_immutable();
-
+sub is_context{my $self=CORE::shift;(do{(((($self->{'twigil'} || "")) eq "\+") || $self->notes->{'is'}->{'context'})})}})
 }
 ;
 
 { package IRx1::PackageDecl;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))})}})
 }
 ;
 
@@ -3113,11 +2645,10 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package EmitSimpleP5;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler,$ignore2,$filename)=@_;
 (do{$self->new("compiler", $compiler, "filename", $filename)})};
-has 'compiler' => (is => 'rw');;
-has 'filename' => (is => 'rw');;
+sub compiler { if(@_==2){$_[0]{'compiler'}=$_[1]}else{$_[0]{'compiler'}}};
+sub filename { if(@_==2){$_[0]{'filename'}=$_[1]}else{$_[0]{'filename'}}};
 sub tidy{my $self=CORE::shift;my($source)=@_;
 (do{GLOBAL::say(GLOBAL::eval_perl5("\
 \ \ \ \ sub\ \{\
@@ -3135,11 +2666,27 @@ sub tidy{my $self=CORE::shift;my($source)=@_;
 sub prelude_for_entering_a_package{my $self=CORE::shift;(do{""})};
 sub prelude_lexical{my $self=CORE::shift;(do{"use\ autobox\ ARRAY\ \=\>\ \'ARRAY\'\,\ HASH\ \=\>\ \'HASH\'\,\ CODE\ \=\>\ \'CODE\'\,\ INTEGER\ \=\>\ \'INTEGER\'\,\ FLOAT\ \=\>\ \'FLOAT\'\,\ STRING\ \=\>\ \'STRING\'\,\ UNDEF\ \=\>\ \'UNDEF\'\;\ \ use\ encoding\ \'utf8\'\;\
 \ \ \ \ \ \ "})};
-sub prelude_oo{my $self=CORE::shift;(do{"\
-\{package\ AssertCurrentModuleVersions\;\
-\ use\ Moose\ 0\.44\;\
+sub using_Moose{my $self=CORE::shift;(do{0})};
+sub create_default_for{my $self=CORE::shift;my($cls,$field_name,$default)=@_;
+(do{(((((("\$Object\:\:DEFAULTS\{" . $cls) . "\}\{\'") . $field_name) . "\'\}\ \=\ sub\ \{") . $default) . "\}\;")})};
+sub prelude_oo{my $self=CORE::shift;(do{if($self->using_Moose) {
+(do{"\{package\ AssertCurrentModuleVersions\;\ \ use\ Moose\ 0\.44\;\ \}"})
+}else {
+(do{"\
+\{package\ Object\;\
+\ \ \ \ our\ \%DEFAULTS\;\
+\ \ \ \ sub\ new\ \{\
+\ \ \ \ \ \ \ \ my\ \$self\ \=\ shift\;\
+\ \ \ \ \ \ \ \ my\ \$class\ \=\ ref\ \$self\ \|\|\ \$self\;\
+\ \ \ \ \ \ \ \ my\ \$obj\ \=\ bless\ \{\@_\}\,\ \$class\;\
+\ \ \ \ \ \ \ \ for\ \(keys\ \%\{\$DEFAULTS\{\$class\}\}\)\ \{\
+\ \ \ \ \ \ \ \ \ \ \ \ \$obj\-\>\{\$_\}\ \=\ \$DEFAULTS\{\$class\}\{\$_\}\-\>\(\)\ unless\ \$obj\-\>\{\$_\}\;\
+\ \ \ \ \ \ \ \ \}\
+\ \ \ \ \ \ \ \ \$obj\;\
+\ \ \ \ \}\
 \}\
-"})};
+"})
+}})};
 sub prelude{my $self=CORE::shift;my($n)=@_;
 (do{((("\#\!\/usr\/bin\/env\ perl\
 use\ strict\;\
@@ -3577,6 +3124,8 @@ __PACKAGE__\-\>meta\-\>make_immutable\(\)\;\
 " . "\
 \}\
 "))})
+}else {
+(do{})
 };
 ($head = (($head . $base) . $self->prelude_for_entering_a_package()));
 if($n->block()) {
@@ -3603,10 +3152,23 @@ $name->re_gsub("\^\:\:", "");
 "\*\*\*Trait\*\*\*"})
 }})};
 sub do_VarDecl_has{my $self=CORE::shift;my($n,$default)=@_;
-(do{if(($default)) {
-(do{($default = (("\,\ default\ \=\>\ sub\{\ " . $default) . "\ \}"))})
+(do{my $name = $self->e($n->var()->name());
+if($self->using_Moose) {
+(do{my $dflt = $default;
+if($dflt) {
+(do{($dflt = (("\,\ default\ \=\>\ sub\{\ " . $default) . "\ \}"))})
 };
-(((("has\ \'" . $self->e($n->var()->name())) . "\'\ \=\>\ \(is\ \=\>\ \'rw\'") . $default) . "\)\;")})};
+(((("has\ \'" . $name) . "\'\ \=\>\ \(is\ \=\>\ \'rw\'") . $dflt) . "\)\;")})
+}else {
+(do{my $x = (((("\$_\[0\]\{" . "\'") . $name) . "\'") . "\}");
+my $code = (((((("sub\ " . $name) . "\ \{\ if\(\@_\=\=2\)\{") . $x) . "\=\$_\[1\]\}else\{") . $x) . "\}\}");
+if($default) {
+(do{my $pkg = $::es_whiteboard__in_package->join("\:\:");
+($code = (($code . "\;\
+") . $self->create_default_for($pkg, $name, $default)))})
+};
+$code})
+}})};
 sub cb__VarDecl{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
 if((($n->scope() eq "has"))) {
@@ -3812,7 +3374,6 @@ $op->re_gsub("\ ", $arg);
 }else {
 (do{((((($self->e($n->invocant()) . "\-\>") . $self->e($n->method())) . "\(") . $self->e($n->capture())) . "\)")})
 }})};
-sub using_Moose{my $self=CORE::shift;(do{1})};
 sub mangle_function_name{my $self=CORE::shift;my($name)=@_;
 (do{$name->re_sub("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_");
 $name->re_sub("\(\[\^\\w\]\)", "\"_\"\.CORE\:\:ord\(\$1\)", "eg");
@@ -3842,7 +3403,7 @@ while($a->elems()) {
 };
 return($s)})
 };
-if(((($op eq "\=")) && $self->using_Moose)) {
+if((($op eq "\="))) {
 (do{if($args->[0]->isa("IRx1\:\:Var")) {
 (do{my $t = $args->[0]->twigil();
 if((($t && ($t eq "\.")))) {
@@ -4029,9 +3590,7 @@ sub cb__Pair{my $self=CORE::shift;my($n)=@_;
 (((("\(" . $self->e($n->key())) . "\ \=\>\ ") . $self->e($n->value())) . "\)")})
 }else {
 (do{(((("Pair\-\>new\(\'key\'\," . $self->e($n->key())) . "\ \=\>\ \'value\'\,") . $self->e($n->value())) . "\)")})
-}})}});
-__PACKAGE__->meta->make_immutable();
-
+}})}})
 }
 ;
 if(GLOBAL::not($GLOBAL::emitter0)) {
@@ -4046,113 +3605,76 @@ sub header{use Math::Trig qw();};
 header();
 
 { package Num;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub pi{Math::Trig::pi();}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub pi{Math::Trig::pi();}})
 }
 ;
 ($GLOBAL::PID = (sub {$$})->());
 
 { package GLOBAL;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub primitive_runtime_version{CORE::sprintf "perl %vd", $^V}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub primitive_runtime_version{CORE::sprintf "perl %vd", $^V}})
 }
 ;
 
 { package Any;
-use Moose; __PACKAGE__->meta->make_mutable();
-(do{sub perl{my $self=CORE::shift;(do{($self->WHAT() . "\.new\(\!\!\!\)")})}});
-__PACKAGE__->meta->make_immutable();
-
+(do{sub perl{my $self=CORE::shift;(do{($self->WHAT() . "\.new\(\!\!\!\)")})}})
 }
 ;
 
 { package STRING;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub perl{my $self=CORE::shift;q{"} . CORE::quotemeta($self) . q{"}}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub perl{my $self=CORE::shift;q{"} . CORE::quotemeta($self) . q{"}}})
 }
 ;
 
 { package INTEGER;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub perl{my $self=CORE::shift;(do{("" . $self)})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub perl{my $self=CORE::shift;(do{("" . $self)})}})
 }
 ;
 
 { package FLOAT;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub perl{my $self=CORE::shift;(do{("" . $self)})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub perl{my $self=CORE::shift;(do{("" . $self)})}})
 }
 ;
 
 { package ARRAY;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub perl{my $self=CORE::shift;(do{(("\[" . $self->map(sub {my($e)=@_;
-(do{$e->perl()})})->join("\,")) . "\]")})}});
-__PACKAGE__->meta->make_immutable();
-
+(do{$e->perl()})})->join("\,")) . "\]")})}})
 }
 ;
 
 { package HASH;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub perl{my $self=CORE::shift;(do{(("\{" . $self->keys()->map(sub {my($k)=@_;
-(do{(($k->perl() . "\ \=\>\ ") . $self->{$k}->perl())})})->join("\,\ ")) . "\}")})}});
-__PACKAGE__->meta->make_immutable();
-
+(do{(($k->perl() . "\ \=\>\ ") . $self->{$k}->perl())})})->join("\,\ ")) . "\}")})}})
 }
 ;
 
 { package Regexp;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{sub Str{my $self=CORE::shift;(do{("" . $self)})}});
-__PACKAGE__->meta->make_immutable();
-
+use base "Any";(do{sub Str{my $self=CORE::shift;(do{("" . $self)})}})
 }
 ;
 
 { package Math;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub rand{my $self=CORE::shift;my($max)=@_;
 CORE::rand($max||1)};
 sub srand{my $self=CORE::shift;my($seed)=@_;
-CORE::srand($seed)}});
-__PACKAGE__->meta->make_immutable();
-
+CORE::srand($seed)}})
 }
 ;
 
 { package IO;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub mkdir{my $self=CORE::shift;my($dirname)=@_;
 CORE::mkdir($dirname)};
 sub rmdir{my $self=CORE::shift;my($dirname)=@_;
-CORE::rmdir($dirname)}});
-__PACKAGE__->meta->make_immutable();
-
+CORE::rmdir($dirname)}})
 }
 ;
 
 { package GLOBAL;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub rmdir{my($dirname)=@_;
-CORE::rmdir($dirname)}});
-__PACKAGE__->meta->make_immutable();
-
+CORE::rmdir($dirname)}})
 }
 ;
 
 { package GLOBAL;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{Class::Multimethods::multimethod prefix__63 => split(/\s+/,'*') => sub {my($a)=@_;
 (do{$a->Bool()})};;
 Class::Multimethods::multimethod prefix__33 => split(/\s+/,'*') => sub {my($a)=@_;
@@ -4252,9 +3774,7 @@ Class::Multimethods::multimethod infix__33_126 => split(/\s+/,'* *') => sub {my(
 Class::Multimethods::multimethod infix__126_126 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
 (do{GLOBAL::undef()})};;
 Class::Multimethods::multimethod infix__126_126 => split(/\s+/,'$ Regexp') => sub {my($a,$b)=@_;
-$a =~ $b};});
-__PACKAGE__->meta->make_immutable();
-
+$a =~ $b};})
 }
 ;
 
@@ -4263,8 +3783,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Parser;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{has 'is_for_active_runtime' => (is => 'rw');;
+use base "Any";(do{sub is_for_active_runtime { if(@_==2){$_[0]{'is_for_active_runtime'}=$_[1]}else{$_[0]{'is_for_active_runtime'}}};
 sub parse{my $self=CORE::shift;my($p6_code,$claim_as_filename)=@_;
 (do{my $stem = ("deleteme" . $GLOBAL::PID);
 my $input = ($stem . "\.p6");
@@ -4280,9 +3799,7 @@ my $dump5 = GLOBAL::slurp($output);
 my $tree = GLOBAL::eval_perl5(("package\ Fastdump\;" . $dump5));
 GLOBAL::unlink($input, $output);
 $tree})};
-sub parser_name{my $self=CORE::shift;(do{GLOBAL::parser_name()})}});
-__PACKAGE__->meta->make_immutable();
-
+sub parser_name{my $self=CORE::shift;(do{GLOBAL::parser_name()})}})
 }
 ;
 GLOBAL::eval_perl5("\
@@ -4299,8 +3816,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Compiler;
-use Moose; __PACKAGE__->meta->make_mutable();
-use base "Any";(do{has 'is_for_active_runtime' => (is => 'rw');;
+use base "Any";(do{sub is_for_active_runtime { if(@_==2){$_[0]{'is_for_active_runtime'}=$_[1]}else{$_[0]{'is_for_active_runtime'}}};
 sub eval_perl6{my $self=CORE::shift;my($code,$env)=@_;
 (do{$self->eval_fragment($code, "\-e", 0, $env)})};
 sub eval_file{my $self=CORE::shift;my($file)=@_;
@@ -4371,7 +3887,8 @@ if($verbose) {
 $self->compile_fragment_cache_set($code, $filename, $p5);
 $p5})
 }})};
-has 'todo' => (is => 'rw', default => sub{ [] });;
+sub todo { if(@_==2){$_[0]{'todo'}=$_[1]}else{$_[0]{'todo'}}};
+$Object::DEFAULTS{Compiler}{'todo'} = sub {[]};;
 sub compile_executable{my $self=CORE::shift;my($sources,$output_file)=@_;
 (do{$self->todo([]);
 my $p5 = ($self->prelude() . "\
@@ -4420,9 +3937,7 @@ GLOBAL::import($module, $expr)})
 ")));
 $self->todo->push($filename)})
 };
-1})}});
-__PACKAGE__->meta->make_immutable();
-
+1})}})
 }
 ;
 if(GLOBAL::not($GLOBAL::compiler0)) {
@@ -4435,7 +3950,6 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
       package Main;
 
 { package Program;
-use Moose; __PACKAGE__->meta->make_mutable();
 use base "Any";(do{sub print_usage_and_die{my $self=CORE::shift;(do{GLOBAL::say("\
 Usage\:\ \[\-v\]\ \[\-s0\|\-s\|\-x\|\-xr\]\ \[\-o\ OUTPUT_FILE\]\ \[\-I\ dir\]\
 \ \ \ \ \ \ \ \ \ \[\ P6_FILE\ \|\ \-e\ P6_CODE\ \]\+\ \[\ \-\-\ ARGS\*\ \]\
@@ -4532,9 +4046,7 @@ $incs->push($dir)})
 (do{$self->print_usage_and_die()})
 }})
 };
-$at_end->()})}});
-__PACKAGE__->meta->make_immutable();
-
+$at_end->()})}})
 }
 ;
 Program->new()->main($GLOBAL::a_ARGS);

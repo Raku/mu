@@ -1,5 +1,5 @@
 
-P6=../../elf/elf_f_faster
+P6=../../elf/elf_f
 ElfSrc=../../elf/elf_f_src/
 ElfOriginal=$(ElfSrc)/Elf_Faster.pm
 

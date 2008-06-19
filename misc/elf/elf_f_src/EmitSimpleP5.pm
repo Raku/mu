@@ -35,12 +35,30 @@ class EmitSimpleP5 {
       ";
   };
 
+  method using_Moose() { 0 }
+  method create_default_for($cls,$field_name,$default) {
+   '$Object::DEFAULTS{'~$cls~"}{'"~$field_name~"'} = sub {"~$default~'};'
+  }
   method prelude_oo () {
-    '
-{package AssertCurrentModuleVersions;
- use Moose 0.44;
+    if $.using_Moose {
+      '{package AssertCurrentModuleVersions;  use Moose 0.44; }'
+    }
+    else {
+'
+{package Object;
+    our %DEFAULTS;
+    sub new {
+        my $self = shift;
+        my $class = ref $self || $self;
+        my $obj = bless {@_}, $class;
+        for (keys %{$DEFAULTS{$class}}) {
+            $obj->{$_} = $DEFAULTS{$class}{$_}->() unless $obj->{$_};
+        }
+        $obj;
+    }
 }
 ';
+    }
   };
   method prelude ($n) {
   '#!/usr/bin/env perl
@@ -462,6 +480,7 @@ package Main;
     if $.using_Moose {
        $head = $head ~ "use Moose;"~" __PACKAGE__->meta->make_mutable();\n";
        $foot = ";\n__PACKAGE__->meta->make_immutable();\n"~ "\n}\n";
+    } else {
     }
     $head = $head ~ $base~ self.prelude_for_entering_a_package();
     if $n.block {
@@ -477,7 +496,7 @@ package Main;
     if ($n.verb eq 'is') {
       my $pkgname = $+whiteboard::in_package.join('::');
       my $name = $+whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
-      $name.re_gsub('^::','');
+      $name.re_gsub('^::',''); # Moose 0.44 doesn't like these.
       "BEGIN{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n.verb~" has not been implemented.\n";
@@ -486,10 +505,23 @@ package Main;
   };
 
   method do_VarDecl_has ($n,$default) {
-      if ($default) {
-          $default = ", default => sub{ "~$default~" }"
+    my $name = $.e($n.var.name);
+    if $.using_Moose {
+      my $dflt = $default;
+      if $dflt {
+        $dflt = ", default => sub{ "~$default~" }"
       }
-      "has '"~$.e($n.var.name)~"' => (is => 'rw'"~$default~");"
+      "has '"~$name~"' => (is => 'rw'"~$dflt~");"
+    } else {
+      #my $code = "sub "~$name~': lvalue { $_[0]{'~"'"~$name~"'};}\n";
+      my $x = '$_[0]{'~"'"~$name~"'"~'}';
+      my $code = 'sub '~$name~' { if(@_==2){'~$x~'=$_[1]}else{'~$x~'}}';
+      if $default {
+        my $pkg = $+whiteboard::in_package.join('::');
+        $code = $code ~";\n"~ $.create_default_for($pkg,$name,$default);
+      }
+      $code;
+    }
   };
 
   method cb__VarDecl ($n) {
@@ -690,11 +722,6 @@ package Main;
       $.e($n.invocant)~'->'~$.e($n.method)~'('~$.e($n.capture)~')'
     }
   };
-  method using_Moose() {
-      # $foo.bar = ... turned into $foo.bar(...)
-      # Moose-based class initializers.
-      1;
-  }
   method mangle_function_name($name) {
      $name.re_sub('^(\w+):(?!:)','${1}_');
      $name.re_sub('([^\w])','"_".CORE::ord($1)','eg');
@@ -724,7 +751,8 @@ package Main;
         while $a.elems { $s = $s ~", "~ $a.shift }
         return $s;
       }
-      if ($op eq '=') && $.using_Moose {
+      if ($op eq '=') {
+        # assignment to field.
         if $args[0].isa("IRx1::Var") {
           my $t = $args[0].twigil;
           if ($t && $t eq '.') {

@@ -130,7 +130,7 @@ END
 
 sub main {
   open(F,">STD_gray_run") or die;
-  print F "#!/usr/bin/env elf_f_faster\n";
+  print F "#!/usr/bin/env elf_f\n";
   print F  $gray.STD_gray_run();
   close F;
   system("./STD_gray_run",@ARGV);

@@ -1,3 +1,4 @@
+pugs t/ svn revision: 20874
 -  80%	10  8 2		../../../t/01-sanity/01-tap.t
 ok	4		../../../t/01-sanity/02-counter.t
 ok	4		../../../t/01-sanity/03-equal.t
@@ -325,7 +326,6 @@ X  0%	35  0 		../../../t/operators/operator_overloading.t
 -C 0%	49  0 49	../../../t/operators/operator.t
 X  0%	48  0 		../../../t/operators/precedence/builtins.t
 X  0%	10  0 		../../../t/operators/precedence/self-defined.t
-X  0%	176  0 		../../../t/operators/quoting.t
 -d 0%	50  0 50	../../../t/operators/range.t
 -C 0%	2  0 2		../../../t/operators/recursive_definition.t
 X  0%	49  0 		../../../t/operators/reduce_le1arg.t
@@ -433,9 +433,10 @@ X  0%	4  0 		../../../t/run/10-dash-uppercase-m.t
 X  0%	?  0 		../../../t/run/11-safemode.t
 X  0%	10  0 		../../../t/run/12-script-args.t
 -C 0%	8  0 8		../../../t/spec/S02-builtin_data_types/infinity.t
--  50%	8  4 4		../../../t/spec/S02-builtin_data_types/type.t
+-  50%	12  6 6		../../../t/spec/S02-builtin_data_types/type.t
 -  1%	57  1 1 55!	../../../t/spec/S02-literals/autoref.t
 -  0%	4  0 8 -4!	../../../t/spec/S02-literals/hex_chars.t
+X  0%	186  0 		../../../t/spec/S02-literals/quoting.t
 -C 0%	93  0 93	../../../t/spec/S02-literals/radix.t
 -C 0%	1  0 1		../../../t/spec/S02-magicals/block.t
 -d 0%	8  0 8		../../../t/spec/S02-magicals/dollar_bang.t
@@ -447,6 +448,7 @@ X  0%	1  0 		../../../t/spec/S02-magicals/pid.t
 -C 0%	4  0 4		../../../t/spec/S02-magicals/subname.t
 X  0%	4  0 		../../../t/spec/S02-magicals/sub.t
 X  0%	19  0 		../../../t/spec/S02-names_and_variables/fmt.t
+X  0%	16  0 		../../../t/spec/S02-names_and_variables/names.t
 -C 0%	4  0 4		../../../t/spec/S02-polymorphic_types/subset-code.t
 -C 0%	6  0 6		../../../t/spec/S02-polymorphic_types/subset-range.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
@@ -513,7 +515,7 @@ X  0%	57  0 		../../../t/spec/S16-filehandles/io.t
 -d 0%	5  0 5		../../../t/spec/S16-filehandles/open.t
 X  0%	6  0 		../../../t/spec/S16-filehandles/unlink.t
 X  0%	1  0 		../../../t/spec/S16-io/getc.t
--  ??%	??  4 0 ??!	../../../t/spec/S16-io/print.t
+-  33%	12  4 0 8!	../../../t/spec/S16-io/print.t
 -  80%	5  4 0 1!	../../../t/spec/S16-io/say.t
 -C 0%	1  0 1		../../../t/spec/S16-unfiled/getpeername.t
 -d 0%	3  0 3		../../../t/spec/S16-unfiled/readline.t
@@ -589,7 +591,7 @@ X  0%	74  0 		../../../t/spec/S29-scalar/undef.t
 -C 0%	4  0 4		../../../t/spec/S29-str/append.t
 -C 0%	11  0 11	../../../t/spec/S29-str/capitalize.t
 -d 0%	35  0 35	../../../t/spec/S29-str/chomp.t
--C 0%	2  0 2		../../../t/spec/S29-str/chop.t
+-C 0%	12  0 12	../../../t/spec/S29-str/chop.t
 -C 0%	10  0 10	../../../t/spec/S29-str/comb.t
 -d 0%	31  0 31	../../../t/spec/S29-str/index.t
 -C 0%	8  0 8		../../../t/spec/S29-str/lcfirst.t
@@ -710,7 +712,7 @@ X  0%	6  0 		../../../t/var/is_rw.t
 ok	2		../../../t/var/passing_the_pair_class_to_a_sub.t
 -C 0%	12  0 12	../../../t/var/refs_point_to_containers.t
 X  0%	20  0 		../../../t/var/state.t
-X  0%	22  0 		../../../t/var/symbolic_deref.t
+X  0%	24  0 		../../../t/var/symbolic_deref.t
 X  0%	31  0 		../../../t/var/temp.t
 -C 0%	39  0 39	../../../t/var/var.t
 X  0%	6  0 		../../../t/xx-uncategorized/assuming_and_mmd.t
@@ -799,9 +801,9 @@ X  0%	1  0 		../../../v6/v6-KindaPerl6/t/kp6/53-attr-bind.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/54-while.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/55-numeric-lt.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/57-method-without-return.t
--  0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/58-object-accessors.t
+ok	2		../../../v6/v6-KindaPerl6/t/kp6/58-object-accessors.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/59-inheritance.t
--  0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/60-inherited-accessors.t
+ok	2		../../../v6/v6-KindaPerl6/t/kp6/60-inherited-accessors.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/61-shortcircuit-lexicals.t
 -d 0%	2  0 2		../../../v6/v6-KindaPerl6/t/kp6/62-hash-of-hash.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/62-say-in-begin.t
@@ -833,5 +835,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 834.  602 parsed 72%.  354 run 42%.  80 ok 9%.
-Tests: 16628+.  627 ok <3.77%, 16001+ not.
+Files: 835.  602 parsed 72%.  355 run 42%.  82 ok 9%.
+Tests: 16682+.  633 ok <3.79%, 16049+ not.

@@ -1,5 +1,5 @@
 A SBCL backend for elf.  Just as kludgey as the p5 backend.
 Just started.
 
-../../elf/elf_f_faster EmitSBCL.pm -xr -e 'say 3'
-../../elf/elf_f_faster EmitSBCL.pm -v -xr -e 'sub f($x){say $x+3}; f(4)'
+../../elf/elf_f EmitSBCL.pm -xr -e 'say 3'
+../../elf/elf_f EmitSBCL.pm -v -xr -e 'sub f($x){say $x+3}; f(4)'
