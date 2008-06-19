@@ -637,7 +637,7 @@ sub infix_xx{my($a_a,$count)=@_;
 for((GLOBAL::infix__46_46(1,$count))){
 (do{$a_result->push($a_a)})
 };
-$a_a})}})
+$a_result})}})
 }
 ;
 

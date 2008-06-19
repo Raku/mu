@@ -102,7 +102,7 @@ package GLOBAL {
 	  for 1 .. $count {
 		  @result.push(@a)
 	  };
-	  @a;
+	  @result;
   }
 
 }
