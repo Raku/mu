@@ -12,10 +12,11 @@ use warnings;
 use Getopt::Long;
 my $nocolor = 0;
 my $vertical = 0;
+my $horizontal = 0;
 my $yaml = 0;
-GetOptions("nocolor"=>\$nocolor,"vertical"=>\$vertical,"yaml"=>\$yaml);
+GetOptions("nocolor"=>\$nocolor,"horizontal"=>\$horizontal,"vertical"=>\$vertical,"yaml"=>\$yaml);
 unless ($#ARGV <= 0) {
-    die "USAGE: [--nocolor] [filename]\n";
+    die "USAGE: [--nocolor --vertical --horizontal --yaml] [filename]\n";
 }
 if ($nocolor) {
     $DumpMatch::NOCOLOR = 1;
@@ -51,8 +52,8 @@ my $r = sm0p_with_actions->new($text)->$what();
 if ($yaml) {
     print Dump($r);
     exit;
-} else {
+} elsif ($vertical || $horizontal) {
     print dump_match($what=>$r,{actions=>1,vertical=>$vertical}),"\n";
-    print $r->item,"\n";
 }
+print $r->item,"\n";
 
