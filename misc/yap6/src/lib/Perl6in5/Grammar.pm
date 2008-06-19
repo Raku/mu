@@ -24,7 +24,8 @@ FILTER {
     s/^rule\s+([A-Za-z_]\w*)\s+\{/rule '$1' => sub {/mg;
     s/^lrule\s+([A-Za-z_]\w*)\s+\{/lrule '$1' => sub {/mg;
     s/'(.)'/lit('$1')/mg;
-    $_ = join('',map {"sub $_();"} @rules,@lrules).$_;
+    $_ = join('',map {"sub $_();"} @rules).$_;
+    $_ = join('',map {"sub $_;"} @lrules).$_;
 };
 
 my (@order,%rules,@lorder);
@@ -45,40 +46,29 @@ sub rule {
 
 sub lrule {
     my ($name,$code) = @_;
-    my $stub;
     # generate a function that generates parser generators that curry eachself.
-    my $tmp = $stub = $rules{$name} = sub {
-        my ($s,$l) = @_;
+    my $stub = sub {
+        my $s = shift;
         my $p;
         my $tmp2 = $p = parser {
-            $s->($s,$l);
+            $code->($code,$s);
         };
         weaken($p);
         $N{$p} = $name.'( '.$N{$s}.' )';
         $p;
     };
-    weaken($stub);
-    $N{$stub} = ucfirst($name);
     {
         $Perl6in5::Grammar::{$name} = sub { $stub->($_[0]) };
     }
-    push(@lorder,[$name,$code]);
 }
 
 END {
-    # the generator rules need generated first.
-    $rules{$_->[0]} = $_->[1]->() for (@lorder,@order);
+    $rules{$_->[0]} = $_->[1]->() for (@order);
     my ($input,$name) = $ARGV[0]?
         (scalar(read_file($ARGV[0])),$ARGV[0]):
         (join('',(<>)),'STDIN');
     
     $input = { inp => $input, 'pos' => 0, line => 1, name => $name, col => 1, mut => 0 , success => -1, fated => 0 , backed => 0, ast=>[[],[]] };
-    # the ast has a head and tail.  head is the outer stuff;
-    # tail is the inner stuff.
-    
-    #  success 0 means the branch failed
-    #  success 1 means the branch succeeded (to EOI)
-    #  success -1 means outcome not yet determined
     
     my $r = (program()->($input));
     
