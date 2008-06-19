@@ -4,6 +4,8 @@ use strict;
 use warnings;
 no warnings qw{ reserved closure recursion };
 
+use Scalar::Util qw( weaken );
+
 use Perl6in5::Compiler::Parser ':all';
 
 use base 'Exporter';
@@ -18,16 +20,22 @@ sub tail { &Perl6in5::Compiler::Parser::tail(@_) }
 
 FILTER {
     my @rules = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;
+    my @lrules = m/^lrule\s+([A-Za-z_]\w*)\s+\{/mg; # I suck
     s/^rule\s+([A-Za-z_]\w*)\s+\{/rule '$1' => sub {/mg;
+    s/^lrule\s+([A-Za-z_]\w*)\s+\{/lrule '$1' => sub {/mg;
     s/'(.)'/lit('$1')/mg;
-    $_ = join('',map {"sub $_();"} @rules).$_;
+    $_ = join('',map {"sub $_();"} @rules,@lrules).$_;
 };
 
-my @order;
-my %rules;
+my (@order,%rules,@lorder);
+
 sub rule {
     my ($name,$code) = @_;
-    my $stub = parser { $rules{$name}->(@_) };
+    my $stub;
+    my $tmp = $stub = parser {
+        $rules{$name}->();
+    };
+    weaken($stub);
     $N{$stub} = ucfirst($name);
     {
         $Perl6in5::Grammar::{$name} = sub() {$stub};
@@ -35,8 +43,31 @@ sub rule {
     push(@order,[$name,$code]);
 }
 
+sub lrule {
+    my ($name,$code) = @_;
+    my $stub;
+    # generate a function that generates parser generators that curry eachself.
+    my $tmp = $stub = $rules{$name} = sub {
+        my ($s,$l) = @_;
+        my $p;
+        my $tmp2 = $p = parser {
+            $s->($s,$l);
+        };
+        weaken($p);
+        $N{$p} = $name.'( '.$N{$s}.' )';
+        $p;
+    };
+    weaken($stub);
+    $N{$stub} = ucfirst($name);
+    {
+        $Perl6in5::Grammar::{$name} = sub { $stub->($_[0]) };
+    }
+    push(@lorder,[$name,$code]);
+}
+
 END {
-    $rules{$_->[0]} = $_->[1]->() for @order;
+    # the generator rules need generated first.
+    $rules{$_->[0]} = $_->[1]->() for (@lorder,@order);
     my ($input,$name) = $ARGV[0]?
         (scalar(read_file($ARGV[0])),$ARGV[0]):
         (join('',(<>)),'STDIN');

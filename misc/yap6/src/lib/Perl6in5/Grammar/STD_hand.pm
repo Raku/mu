@@ -6,17 +6,9 @@ my @compUnits    = qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST
 my @blkTypes     = qw{ sub method submethod regex token rule
                      macro module class package grammar};
 my @bareFuncs    = qw{ use no say };
-
-my @blkDecls  = qw{ module class grammar };
-
-#   Rule Writing
-
-# The identifier of each of your rules must begin with a lowercase letter,
-# so that the source filter can transform/generate the grammar properly.
+my @blkDecls     = qw{ module class grammar };
 
 rule program {
-        # everything must start with a use v6; statement until
-        # the perl5zone rule is operational.
         opt( usev6 - (stmtTrm | eoi) )
         - opt( pkgDecl )
         - opt( stmtList ) - eoi
@@ -87,12 +79,12 @@ rule blkPrmbl {
             . blkDeclarator
             . blkIdentifier
             . blkVisibility
-            - opt( w( '()', -( star( blkPrms ) ) ) )
+            . blkPrms
             - star( blkTrait )
             , compUnit
             , flowCtrl
             , blkLabel
-            , arrowInv . opt( -( ',' ) - star( blkPrms ) ) )
+            , arrowInv . blkPrmsList )
 };
 
 rule blkVisibility {
@@ -100,11 +92,23 @@ rule blkVisibility {
 };
 
 rule blkDeclarator {
-        opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType
+        opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType . p6ws
 };
 
 rule blkIdentifier {
         opt( opt( '^' ) . identifier . p6ws ) 
+};
+
+lrule commalist {
+        -( plus( ',' ) ) - opt( $_[1], $_[0] )
+};
+
+rule blkPrms {
+        opt( w( '()', opt( invcDecl ) . blkPrmsList ) )
+};
+
+rule blkPrmsList {
+        opt( commalist( prmDecl ) )
 };
 
 rule arrowInv {
@@ -154,11 +158,6 @@ rule blkNumber {
 
 rule arg {
         'h'  #obviously this is just a stub.
-};
-
-# block parameter declaration
-rule blkPrms {
-        opt( invcDecl ) - plus( -( ',' ) - prmDecl )
 };
 
 # invocant declaration
