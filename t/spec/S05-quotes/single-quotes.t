@@ -1,7 +1,7 @@
 use v6;
 use Test;
 
-=pod
+=begin description
 
 This file was derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/qinterp.t.
@@ -9,20 +9,20 @@ version 0.3 (12 Apr 2004), file t/qinterp.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
-=cut
+=end description
 
-plan 4;
+plan 5;
 
 # L<S05/Simplified lexical parsing of patterns/Sequences of one or more glyphs of either type>
 
-if !eval('("a" ~~ /a/)') {
-  skip_rest "skipped tests - rules support appears to be missing";
-} else {
 
 ok("ab cd" ~~ m/a 'b c' d/, 'ab cd 1');
 ok(!( "abcd" ~~ m/a 'b c' d/ ), 'not abcd 1');
 ok("ab cd" ~~ m/ab ' ' c d/, 'ab cd 2');
-ok(eval(q["ab/cd" ~~ m/ab '/' c d/]), 'ab/cd', :todo<bug>);
 
-}
+ok 'abab' ~~ m/'ab' **{2}/, "Single quotes group";
 
+#?pugs skip bug
+ok("ab/cd" ~~ m/ab '/' c d/, 'ab/cd');
+
+# vim: ft=perl6
