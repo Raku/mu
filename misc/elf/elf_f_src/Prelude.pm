@@ -100,8 +100,8 @@ package GLOBAL {
   sub infix:<xx>(@a, Int $count){
 	  my @result;
 	  for 1 .. $count {
-		  push @result, @a;
-	  }
+		  @result.push(@a)
+	  };
 	  @a;
   }
 
