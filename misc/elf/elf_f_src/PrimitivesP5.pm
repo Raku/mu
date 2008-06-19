@@ -127,5 +127,6 @@ package GLOBAL {
   multi infix:<~~>   (Any $a, Any $b) { undef }
   multi infix:<~~>   (Str $a, Regexp $b) is p5 {'$a =~ $b'}
 
+  multi infix:<x>    ($a, $b) is p5 {'($a x $b)'}
   
 }
