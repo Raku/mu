@@ -93,7 +93,16 @@ class Any {
 package GLOBAL {
 
   sub say(*@a) {
-    for @a { print $_.Str,"\n" }
+    for @a { print $_.Str; }
+	print "\n";
+  }
+
+  sub infix:<xx>(@a, Int $count){
+	  my @result;
+	  for 1 .. $count {
+		  push @result, @a;
+	  }
+	  @a;
   }
 
 }

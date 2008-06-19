@@ -628,9 +628,16 @@ BEGIN{push(@Any::ISA,'Object');}
 use base "Any";(do{sub say{my(@a)=@_;
 my $a_a = \@a;
 (do{for(($a_a)->flatten){
-(do{GLOBAL::print($_->Str(), "\
-")})
-}})}})
+(do{GLOBAL::print($_->Str())})
+};
+GLOBAL::print("\
+")})};
+sub infix_xx{my($a_a,$count)=@_;
+(do{my $a_result = [];;
+for((GLOBAL::infix__46_46(1,$count))){
+(do{GLOBAL::push($a_result, $a_a)})
+};
+$a_a})}})
 }
 ;
 
