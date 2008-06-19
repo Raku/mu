@@ -3,17 +3,24 @@ use strict;
 use warnings;
 
 my $root = "../../..";
-my $elf = "$root/misc/elf/".(shift||"elf_f");
-print STDERR "using $elf\n";
-
+my $elf = shift or die "Usage: $0 PATH_TO_A_PERL6";
 `$elf -e 3`; $? == 0 or die "ERROR: $elf isn't working.  Aborting $0.\n";
 
 my @t = map{chomp;/\.t$/?$_:()} `(find $root/v6/v6-KindaPerl6/t/kp6/ -type f; find $root/t -type f)|grep -v '\.svn'| sort`;
+
+print "pugs t/ svn revision: ",pugs_t_revision(),"\n";
 
 #@t = splice(@t,0,2);
 #@t = '../../../t/syntax/list_quote_junction.t';
 TestReport->new(\@t)->run;
 exit;
+
+sub pugs_t_revision {
+  chomp(my $dir = `dirname $0`);
+  my $info = `svn info $dir/../../../t`;
+  $info =~ /\nRevision:\s+(\d+)/ or die;
+  $1;
+}
 
 {
   package TestReport;

@@ -1,16 +1,18 @@
 
 test: test_faster bootstrap_faster
 
+RUN_TESTS=../../elfish/run-tests/run-tests
+CWD=$(shell pwd)
 test_faster:
-	./run-tests elf_f_faster > test_result_faster
+	${RUN_TESTS} ${CWD}/../elf_f_faster > test_result_faster
 	diff run-tests.result_faster test_result_faster
 
 test_faster2:
-	./run-tests elf_f_faster2 > test_result_faster
+	${RUN_TESTS} ${CWD}/../elf_f_faster2 > test_result_faster
 	diff run-tests.result_faster test_result_faster
 
 test_simple:
-	./run-tests elf_f > test_result_simple
+	${RUN_TESTS} ${CWD}/../elf_f > test_result_simple
 	diff run-tests.result_simple test_result_simple
 
 
