@@ -112,29 +112,24 @@ syn region p6BracketExpression start="\[" end="]" transparent
 
 " Double-quoted, qq, qw, qx, `` strings
 syn region p6InterpString start=+"+ skip=+\\"+ end=+"+ contains=@p6Interp
-syn region p6InterpString start=+`+ skip=+\\`+ end=+`+ contains=@p6Interp
 syn region p6InterpString start=+«+ end=+»+ contains=@p6Interp
 syn region p6InterpString start=+<<+ end=+>>+ contains=@p6Interp
-" \w-delimited strings
-syn region p6InterpString start="\<q[qwx]\s\+\z([a-zA-Z0-9_]\)" skip="\\\z1" end="\z1" contains=@p6Interp
 " Punctuation-delimited strings
-syn region p6InterpString start="\<q[qwx]\s*\z([^a-zA-Z0-9_ ]\)" skip="\\\z1" end="\z1" contains=@p6Interp
-syn region p6InterpString start="\<q[qwx]\s*{" skip="\\}" end="}" contains=@p6Interp
-syn region p6InterpString start="\<q[qwx]\s*(" skip="\\)" end=")" contains=@p6Interp
-syn region p6InterpString start="\<q[qwx]\s*\[" skip="\\]" end="]" contains=@p6Interp
-syn region p6InterpString start="\<q[qwx]\s*<" skip="\\>" end=">" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*\z([^a-zA-Z0-9:#_ ]\)" skip="\\\z1" end="\z1" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*{" skip="\\}" end="}" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*(" skip="\\)" end=")" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*\[" skip="\\]" end="]" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*<" skip="\\>" end=">" contains=@p6Interp
 
 " Single-quoted, q, '' strings
 syn region p6LiteralString start=+'+ skip=+\\'+ end=+'+
 syn region p6LiteralString start=+<<\@!\(.*>\)\@=+ end=+>\@<!>+
-" \w-delimited strings
-syn region p6LiteralString start="\<q\s\+\z([a-zA-Z0-9_]\)" skip="\\\z1" end="\z1"
 " Punctuation-delimited strings
-syn region p6LiteralString start="\<q\(\s*:[012]\)*\s*\z([^a-zA-Z0-9_ ]\)" skip="\\\z1" end="\z1"
-syn region p6LiteralString start="\<q\(\s*:[012]\)*\s*\[" skip="\\]" end="]"
-syn region p6LiteralString start="\<q\(\s*:[012]\)*\s*(" skip="\\)" end=")"
-syn region p6LiteralString start="\<q\(\s*:[012]\)*\s*{" skip="\\}" end="}"
-syn region p6LiteralString start="\<q\(\s*:[012]\)*\s*<" skip="\\>" end=">"
+syn region p6InterpString start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*\z([^a-zA-Z0-9:#_ ]\)" skip="\\\z1" end="\z1" contains=@p6Interp
+syn region p6InterpString start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*{" skip="\\}" end="}" contains=@p6Interp
+syn region p6InterpString start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*(" skip="\\)" end=")" contains=@p6Interp
+syn region p6InterpString start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*\[" skip="\\]" end="]" contains=@p6Interp
+syn region p6InterpString start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*<" skip="\\>" end=">" contains=@p6Interp
 
 " Numbers
 syn match  p6Number "\<\(\d*\.\d\+\|\d\+\.\d*\|\d\+\)\(e\d\+\)\{0,1}"
