@@ -355,6 +355,7 @@ class Grammar
     rest = rest_method_name.to_sym
   end
   def self._def_token(category,name,leading_re,precedence,rest=true)
+    name = name.join(" ") if name.is_a? Array
     leading_re ||= Regexp.new(Regexp.quote(name))
     _def_token_precedence(category,name,precedence)
     _def_category_member(category,name,leading_re,rest)
