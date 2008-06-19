@@ -1,0 +1,5 @@
+Some experimental files moved out of elf/elf_f_src/.
+
+Use -I to use elf_f_src.  eg,
+  export ELF_STD_RED_RUN=../../STD_red/STD_red_run
+  ../../elf/elf_f_faster -I ../../elf/elf_f_src -x -o elfx Elf_Tokens.pm
