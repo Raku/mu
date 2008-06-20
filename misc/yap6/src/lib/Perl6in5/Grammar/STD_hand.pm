@@ -69,22 +69,18 @@ rule nbexpr {
 };
 
 rule func_say {
-        keyword('say') . opt( + expr )
+        keyword('say') . opt( p6ws . expr )
 };
 
 rule impor {
-        keywords( qw{ no use require module class } ) + identifier . opt( + expr )
+        keywords( qw{ no use require module class } ) + identifier . opt( p6ws . expr )
 };
 
 rule block {
-        condBlk
-        ^ opt( blkPrmbl - nothing ) . blkBare
-};
-
-rule condBlk { # I would cry *until* I die, *unless* until/unless were included.
         keywords( qw{ if unless } ) + ow( '()', - expr - nothing ) - blkBare . star( - lit('elsif') + ow( '()', - expr - nothing ) - blkBare ) . opt( - lit('else') - blkBare )
-        | keywords( qw{ while until } ) + ow( '()', - expr - nothing ) - blkBare
-        | lit('try') - blkBare . opt( - lit('finally') - blkBare )
+        ^ keywords( qw{ while until } ) + ow( '()', - expr - nothing ) - blkBare
+        ^ opt( blkPrmbl - nothing ) . blkBare
+        ^ lit('try') - blkBare . opt( - lit('finally') - blkBare )
 };
 
 rule blkBare {
@@ -156,7 +152,7 @@ rule blkTrait {
 };
 
 rule arrowDecl {
-        arrowInv . blkPrmsList . opt( p6ws )
+        arrowInv . blkPrmsList
 };
 
 rule arrowInv {
