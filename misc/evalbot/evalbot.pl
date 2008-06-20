@@ -166,8 +166,7 @@ EOM
         chdir('../yap6/src')
             or confess("Can't chdir to elf base dir: $!");
         my ($tmp_fh, $name) = tempfile();
-        my $preamble = "use v6;\n";
-        print $tmp_fh $preamble.$program;
+        print $tmp_fh $program;
         close $tmp_fh;
         system "perl -Ilib sbin/perl6 $name >> $filename 2>&1";
         unlink $name;
