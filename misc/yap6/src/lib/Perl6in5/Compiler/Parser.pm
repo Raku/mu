@@ -7,7 +7,7 @@ package Perl6in5::Compiler::Parser;
 use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing debug star opt %stat
                 say all one flatten newline left ceoi
-                trace %N parser check $Nothing to
+                trace %N parser check $Nothing to first
                 ch w keyword keywords panic p6ws parser2
                 unspace optws manws opttws mantws through
                 plus both match unmore ow now);
@@ -382,6 +382,12 @@ sub mapply {
     $p;
 }
 
+sub hits {
+    trace 2,"hits so far:   ". ((defined $_[1]->{hit} && length($_[1]->{hit}) && exists $N{$_[0]})?(($_[1]->{hits} || '') .' '. $N{$_[0]}):($_[1]->{hits} || ''));
+    return ((defined $_[1]->{hit} && length($_[1]->{hit}) && exists $N{$_[0]})?{%{$_[1]}, hits=> ($_[1]->{hits} || '') .' '. $N{$_[0]} }:$_[1]); # trace
+    $_[1];
+}
+
 sub eoi {
     my $p;
     my $tmp = $p = parser {
@@ -424,7 +430,7 @@ sub blank () {
 
 sub p6ws () {
     my $p;
-    my $tmp = $p = plus(one(blank,lit("\n")));
+    my $tmp = $p = plus(first(blank,lit("\n")));
     weaken($p);
     $N{$p} = 'WS';
     $p;
@@ -581,7 +587,7 @@ sub one {
             } else {
                 trace 3,"one  ".$in->{'pos'}."  matched $q/$np    ".$N{$p[$q-1]};
                 #return $r if $r->{fated};
-                return (($r->{backed})?$r:{%$r, 'pos'=>$b->{'pos'},backed=>1}) if $opts->{first};
+                return hits($p,(($r->{backed})?$r:{%$r, 'pos'=>$b->{'pos'},backed=>1})) if $opts->{first};
                 $v = deep_copy($r) if (!defined $v || length(left($r)) < length(left($v)));
             }
         }
@@ -591,7 +597,7 @@ sub one {
         }
         trace 2,"one  ".$in->{'pos'}."  failed all   $N{$p}";
         trace 5,"sending back: ".Dumper({%$z, 'pos'=>$b->{'pos'}});
-        return (($z->{backed})?$z:{%$z, 'pos'=>$b->{'pos'},backed=>1});
+        return hits($p,(($z->{backed})?$z:{%$z, 'pos'=>$b->{'pos'},backed=>1}));
     };
     weaken($p);
     my $joiner = ($opts->{first})?' ^ ':' | ';
@@ -626,7 +632,7 @@ sub both {
     }
     warn "we got an undef ast from $N{$B} in both" unless defined($r->{ast});
     trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$B}";
-    $r;
+    hits($p,$r);
   };
   weaken($p);
   trace 6,"both creation dump: ".Dumper($A,$B,[caller(0),caller(1),caller(2)]);
@@ -661,7 +667,7 @@ sub star {
     weaken($p_conc);
     $N{$p_conc} = "( $N{$_[0]} . $N{$p_exec} )";
     
-    my $tmp3 = $p = one($p_conc, nothing);
+    my $tmp3 = $p = opt($p_conc);
     weaken($p);
     $N{$p} = $N{$p_exec};
     $p;
@@ -699,7 +705,7 @@ sub w {
 sub ow {
     my ($d,$e) = split(//,$_[0]);
     my $p;
-    my $tmp = $p = one(w($_[0],$_[1]),$_[1]);
+    my $tmp = $p = first(w($_[0],$_[1]),$_[1]);
     weaken($p);
     $N{$p} = "[\"$d\"] $N{$_[1]} [\"$e\"]";
     $p;
@@ -716,7 +722,7 @@ sub now {
     $N{$p_exec} = "now( $N{$_[0]} )";
     
     # this is the recursion - the parser $p will call $p
-    my $tmp2 = $p_conc = one( ow( $_[0], one( $p_exec , $_[1] ) ) );
+    my $tmp2 = $p_conc = first( ow( $_[0], first( $p_exec , $_[1] ) ) );
     weaken($p_conc);
     $N{$p_conc} = "( $N{$_[0]} | now( $N{$p_exec} ) )";
     
@@ -834,7 +840,7 @@ sub thru {
         my $len;
         $len += length($_) foreach @values;
         trace 4,"Through token matched";
-        $in;
+        hits($p,$in);
     };
     weaken($p);
     $N{$p} = "{*}.".$N{$stop};
@@ -851,9 +857,9 @@ sub keyword {
 
 sub keywords {
     my $p;
-    my $tmp = $p = both(iff(match(qr|^([A-Za-z_]\w*)|)),one(map(lit($_),@_)));
+    my $tmp = $p = both(iff(match(qr|^([A-Za-z_]\w*)|)),first(map(lit($_),@_)));
     weaken($p);
-    $N{$p} = "'".join("' | '",@_)."'";
+    $N{$p} = "( '".join("' ^ '",@_)."' )";
     $p;
 }
 

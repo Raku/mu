@@ -2,8 +2,8 @@ package Perl6in5::Grammar;
 use Perl6in5::Grammar;
 
 my @compUnits    = qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST 
-                     LAST BEGIN END INIT CHECK UNITCHECK };
-my @blkTypes     = qw{ sub method submethod regex token rule
+                     LAST BEGIN END INIT CHECK UNITCHECK do };
+my @blkTypes     = qw{ method submethod sub regex token rule
                      macro module class package grammar};
 my @bareFuncs    = qw{ use no say };
 my @blkDecls     = qw{ module class grammar };
@@ -12,7 +12,7 @@ my @blkNumbers   = qw{ multi proto only };
 rule program {
         opt( usev6 - (stmtTrm | eoi) )
         - opt( pkgDecl )
-        - opt( stmtList ) - eoi
+        . opt( stmtList ) . eoi
 };
 
 rule pkgDecl {
@@ -41,17 +41,17 @@ lrule commalist {
         -( plus( ',' ) ) - opt( $_[1], $_[0] )
 };
 
+rule stmtList {
+        star( stmtTrm ) - ( block . opt( blkTrm . opt( stmtList ) )
+            ^ nbexpr . opt( stmtTrm - opt( stmtList ) ) ) - nothing
+};
+
 rule stmtTrm {
         plus( - ';' )
 };
 
-rule stmtList {
-        star( stmtTrm ) - ( block . opt( blkTrm . opt( stmtList ) )
-            | nbexpr . opt( stmtTrm - opt( stmtList ) ) ) - star( stmtTrm )
-};
-
 rule blkTrm {
-        lit( "\n" ) ^ stmtTrm
+        lit( "\n" ) . opt( stmtTrm ) ^ stmtTrm
 };
 
 rule bareString {
@@ -72,8 +72,19 @@ rule func_say {
         keyword('say') . opt( +( expr ) )
 };
 
+rule impor {
+        keywords( qw{ no use require module class } ) + identifier . opt( +expr )
+};
+
 rule block {
-        opt( blkPrmbl ) . blkBare
+        condBlk
+        | opt( blkPrmbl - nothing ) . blkBare
+};
+
+rule condBlk { # I would cry *until* I die, *unless* until/unless were included.
+        keywords( qw{ if unless } ) + ow( '()', - expr - nothing ) - blkBare . star( - lit('elsif') + ow( '()', - expr - nothing ) - blkBare ) . opt( - lit('else') - blkBare )
+        | keywords( qw{ while until } ) + ow( '()', - expr - nothing ) - blkBare
+        | lit('try') - blkBare . opt( - lit('finally') - blkBare )
 };
 
 rule blkBare {
@@ -81,7 +92,7 @@ rule blkBare {
 };
 
 rule blkPrmbl {
-        one(
+        first(
             blkNumber
             . blkDeclarator
             . blkIdentifier
@@ -89,9 +100,8 @@ rule blkPrmbl {
             . blkPrms
             . blkTraits
             , compUnit
-            , flowCtrl
             , blkLabel
-            , arrowDecl ) - nothing
+            , arrowDecl )
 };
 
 rule blkNumber {
@@ -155,7 +165,7 @@ rule clype {
 };
 
 rule blkLabel {
-        panic(compUnit . ':' - blkBare, "colons are for block labels, not special compilation units")
+        panic( compUnit . ':' - blkBare, "colons are for block labels, not special compilation units" )
         | identifier . ':';
 };
 
@@ -168,16 +178,8 @@ rule prmDecl {
         opt( clype . p6ws ) . sVari
 };
 
-rule impor {
-        keywords( qw{ no use require module class } ) + identifier . opt( +nbexpr )
-};
-
 rule flowCtrl {
         keywords( qw{ do } )
-};
-
-rule condBlk { # Until I die, I would cry unless unless/until were included.
-        # if unless elsif else 
 };
 
 rule compUnit {
