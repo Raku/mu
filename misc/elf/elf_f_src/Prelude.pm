@@ -1,3 +1,6 @@
+
+# Class graph
+
 #     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
 class Bit is Any {};
 #     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
@@ -28,9 +31,7 @@ class Bag is Any {};
 #     Junction    Set with additional behaviors
 class Junction is Object {};
 #     Pair        A single key-to-value association
-class Pair is Any {
-  has $.key; has $.value;
-};
+class Pair is Any {};
 #     Mapping     Set of Pairs with no duplicate keys
 class Mapping is Any {};
 #     Signature   Function parameters (left-hand side of a binding)
@@ -84,6 +85,12 @@ class Grammar is Module {};
 class Any is Object {};
 #     Object      Perl 6 object (either Any or Junction)
 class Object {}; #XXX does Class 
+
+
+class Pair {
+  has $.key; has $.value;
+}
+
 
 class Any {
   method say() { say(self) }

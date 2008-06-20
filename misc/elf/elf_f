@@ -179,6 +179,7 @@ no warnings qw(redefine prototype);
   sub flatten_recursively {
     map { my $ref = ref($_); ($ref && $ref eq "ARRAY") ? $_->flatten_recursively : $_ } @{$_[0]}
   }
+
 }
 { package HASH;
   use base "Hash";
@@ -283,6 +284,18 @@ use warnings;
   sub quotemeta { CORE::quotemeta($_[0]) }
 
   sub chmod_exe { CORE::chmod(0755,$_[0]) } # Hack for Compiler.
+
+  sub private_tidy {
+    eval("use Perl::Tidy");
+    if ($@) { $_[0] }
+    else {
+      my $source = $_[0];
+      my $dest;
+      Perl::Tidy::perltidy(argv=>[],source=>\$source,destination=>\$dest);
+      $dest;
+    }
+  }
+
 }
 
 { package STRING;
@@ -459,8 +472,7 @@ BEGIN{push(@Junction::ISA,'Object');}
 
 { package Pair;
 use base "Any";BEGIN{push(@Pair::ISA,'Any');}
-(do{sub key { if(@_==2){$_[0]{'key'}=$_[1]}else{$_[0]{'key'}}};
-sub value { if(@_==2){$_[0]{'value'}=$_[1]}else{$_[0]{'value'}}}})
+(do{})
 }
 ;
 
@@ -616,6 +628,12 @@ BEGIN{push(@Any::ISA,'Object');}
 
 { package Object;
 (do{})
+}
+;
+
+{ package Pair;
+use base "Any";(do{sub key { if(@_==2){$_[0]{'key'}=$_[1]}else{$_[0]{'key'}}};
+sub value { if(@_==2){$_[0]{'value'}=$_[1]}else{$_[0]{'value'}}}})
 }
 ;
 
@@ -2657,19 +2675,7 @@ use base "Any";(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler,$ig
 sub compiler { if(@_==2){$_[0]{'compiler'}=$_[1]}else{$_[0]{'compiler'}}};
 sub filename { if(@_==2){$_[0]{'filename'}=$_[1]}else{$_[0]{'filename'}}};
 sub tidy{my $self=CORE::shift;my($source)=@_;
-(do{GLOBAL::say(GLOBAL::eval_perl5("\
-\ \ \ \ sub\ \{\
-\ \ \ \ \ \ eval\(\"use\ Perl\:\:Tidy\"\)\;\
-\ \ \ \ \ \ if\ \(\$\@\)\ \{\
-\ \ \ \ \ \ \ \ \$_\[0\]\;\
-\ \ \ \ \ \ \}\ else\ \{\
-\ \ \ \ \ \ \ \ my\ \$source\ \=\ \$_\[0\]\;\
-\ \ \ \ \ \ \ \ my\ \$dest\;\
-\ \ \ \ \ \ \ \ Perl\:\:Tidy\:\:perltidy\(argv\=\>\[\]\,source\=\>\\\$source\,destination\=\>\\\$dest\)\;\
-\ \ \ \ \ \ \ \ \$dest\;\
-\ \ \ \ \ \ \}\
-\ \ \ \ \}\
-\ \ \ \ ")->($source))})};
+(do{GLOBAL::private_tidy($source)})};
 sub prelude_for_entering_a_package{my $self=CORE::shift;(do{""})};
 sub prelude_lexical{my $self=CORE::shift;(do{"use\ autobox\ ARRAY\ \=\>\ \'ARRAY\'\,\ HASH\ \=\>\ \'HASH\'\,\ CODE\ \=\>\ \'CODE\'\,\ INTEGER\ \=\>\ \'INTEGER\'\,\ FLOAT\ \=\>\ \'FLOAT\'\,\ STRING\ \=\>\ \'STRING\'\,\ UNDEF\ \=\>\ \'UNDEF\'\;\ \ use\ encoding\ \'utf8\'\;\
 \ \ \ \ \ \ "})};
@@ -2862,6 +2868,7 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \ \ sub\ flatten_recursively\ \{\
 \ \ \ \ map\ \{\ my\ \$ref\ \=\ ref\(\$_\)\;\ \(\$ref\ \&\&\ \$ref\ eq\ \"ARRAY\"\)\ \?\ \$_\-\>flatten_recursively\ \:\ \$_\ \}\ \@\{\$_\[0\]\}\
 \ \ \}\
+\
 \}\
 \{\ package\ HASH\;\
 \ \ use\ base\ \"Hash\"\;\
@@ -2966,6 +2973,18 @@ use\ warnings\;\
 \ \ sub\ quotemeta\ \{\ CORE\:\:quotemeta\(\$_\[0\]\)\ \}\
 \
 \ \ sub\ chmod_exe\ \{\ CORE\:\:chmod\(0755\,\$_\[0\]\)\ \}\ \#\ Hack\ for\ Compiler\.\
+\
+\ \ sub\ private_tidy\ \{\
+\ \ \ \ eval\(\"use\ Perl\:\:Tidy\"\)\;\
+\ \ \ \ if\ \(\$\@\)\ \{\ \$_\[0\]\ \}\
+\ \ \ \ else\ \{\
+\ \ \ \ \ \ my\ \$source\ \=\ \$_\[0\]\;\
+\ \ \ \ \ \ my\ \$dest\;\
+\ \ \ \ \ \ Perl\:\:Tidy\:\:perltidy\(argv\=\>\[\]\,source\=\>\\\$source\,destination\=\>\\\$dest\)\;\
+\ \ \ \ \ \ \$dest\;\
+\ \ \ \ \}\
+\ \ \}\
+\
 \}\
 \
 \{\ package\ STRING\;\

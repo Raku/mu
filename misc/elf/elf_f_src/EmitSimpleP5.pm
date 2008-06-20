@@ -8,23 +8,7 @@ class EmitSimpleP5 {
   has $.compiler;
   has $.filename;
 
-  # XXX This tidy() needs to go away or become p6.
-  method tidy($source) {
-    say eval_perl5('
-    sub {
-      eval("use Perl::Tidy");
-      if ($@) {
-        $_[0];
-      } else {
-        my $source = $_[0];
-        my $dest;
-        Perl::Tidy::perltidy(argv=>[],source=>\$source,destination=>\$dest);
-        $dest;
-      }
-    }
-    ').($source);
-  }
-
+  method tidy($source) { private_tidy($source) }
 
   method prelude_for_entering_a_package () {
     "";
@@ -228,6 +212,7 @@ no warnings qw(redefine prototype);
   sub flatten_recursively {
     map { my $ref = ref($_); ($ref && $ref eq "ARRAY") ? $_->flatten_recursively : $_ } @{$_[0]}
   }
+
 }
 { package HASH;
   use base "Hash";
@@ -332,6 +317,18 @@ use warnings;
   sub quotemeta { CORE::quotemeta($_[0]) }
 
   sub chmod_exe { CORE::chmod(0755,$_[0]) } # Hack for Compiler.
+
+  sub private_tidy {
+    eval("use Perl::Tidy");
+    if ($@) { $_[0] }
+    else {
+      my $source = $_[0];
+      my $dest;
+      Perl::Tidy::perltidy(argv=>[],source=>\$source,destination=>\$dest);
+      $dest;
+    }
+  }
+
 }
 
 { package STRING;
