@@ -132,7 +132,7 @@ rule blkVisibility {
 };
 
 rule blkPrms {
-        opt( w( '()', - opt( invcDecl ) . blkPrmsList - nothing ) )
+        opt( w( '()', - opt( invcDecl | prmDecl ) . blkPrmsList - nothing ) )
 };
 
 rule blkPrmsList {
