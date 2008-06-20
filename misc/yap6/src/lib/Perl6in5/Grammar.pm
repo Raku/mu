@@ -47,12 +47,12 @@ sub lrule {
     my $stub = sub {
         my @r = @_;
         my $p;
-        $p = sub { $code->($p,@r) };
+        $p = $code->(parser { $p->(@_) },@r);
         $N{$p} = $name.'( '.join( "','",map($N{$_},@r)).' )';
         $p;
     };
     {
-        $Perl6in5::Grammar::{$name} = sub { $stub->(@_)->() };
+        $Perl6in5::Grammar::{$name} = sub { $stub->(@_) };
     }
 }
 
