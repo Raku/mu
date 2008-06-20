@@ -38,7 +38,7 @@ rule sVari {
 };
 
 lrule commalist {
-        -( plus( ',' ) ) - opt( $_[1], $_[0] )
+        -( plus( ',' ) ) . opt( - $_[1] . opt( $_[0] ) )
 };
 
 rule stmtList {
@@ -69,16 +69,16 @@ rule nbexpr {
 };
 
 rule func_say {
-        keyword('say') . opt( +( expr ) )
+        keyword('say') . opt( + expr )
 };
 
 rule impor {
-        keywords( qw{ no use require module class } ) + identifier . opt( +expr )
+        keywords( qw{ no use require module class } ) + identifier . opt( + expr )
 };
 
 rule block {
         condBlk
-        | opt( blkPrmbl - nothing ) . blkBare
+        ^ opt( blkPrmbl - nothing ) . blkBare
 };
 
 rule condBlk { # I would cry *until* I die, *unless* until/unless were included.
@@ -112,7 +112,7 @@ rule blkDeclarator {
         # the fact that blkType must be out in front demonstrates that sometimes
         # rules that have potentially overlapping alternatives (clype) may both hit on the
         # longest token matcher, so we have to put the one(s) that should win, earlier.
-        ( blkType | opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType ) . p6ws
+        ( blkType ^ opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType ) . p6ws
 };
 
 rule scpDecl {
@@ -132,7 +132,15 @@ rule blkVisibility {
 };
 
 rule blkPrms {
-        opt( w( '()', - opt( invcDecl | prmDecl ) . blkPrmsList - nothing ) )
+        opt( w( '()', - opt( invcDecl ) - nothing ) )
+};
+
+rule invcDecl {
+        prmDecl . ':' - opt( prmDecl . blkPrmsList ) ^ prmDecl . blkPrmsList
+};
+
+rule prmDecl {
+        opt( clype . p6ws ) . sVari
 };
 
 rule blkPrmsList {
@@ -167,15 +175,6 @@ rule clype {
 rule blkLabel {
         panic( compUnit . ':' - blkBare, "colons are for block labels, not special compilation units" )
         | identifier . ':';
-};
-
-# invocant declaration
-rule invcDecl {
-        prmDecl . ':'
-};
-
-rule prmDecl {
-        opt( clype . p6ws ) . sVari
 };
 
 rule flowCtrl {

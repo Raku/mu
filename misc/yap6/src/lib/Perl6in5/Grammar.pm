@@ -45,13 +45,14 @@ sub lrule {
     my ($name,$code) = @_;
     # generate a function that generates parser generators that curry eachself.
     my $stub = sub {
+        my @r = @_;
         my $p;
-        $p = $code->($p,@_);
-        $N{$p} = $name.'( '.join( "','",map($N{$_},@_)).' )';
+        $p = sub { $code->($p,@r) };
+        $N{$p} = $name.'( '.join( "','",map($N{$_},@r)).' )';
         $p;
     };
     {
-        $Perl6in5::Grammar::{$name} = sub { $stub->($_[0]) };
+        $Perl6in5::Grammar::{$name} = sub { $stub->(@_)->() };
     }
 }
 
@@ -65,7 +66,7 @@ END {
     
     my $r = (program()->($input));
     
-    $Data::Dumper::Indent = 1;
+    $Data::Dumper::Indent = 0;
     $Data::Dumper::Terse = 1;
     unless ($r->{success}) {
         my $msg;
