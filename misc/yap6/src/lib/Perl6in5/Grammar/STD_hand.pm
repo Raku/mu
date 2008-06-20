@@ -41,9 +41,12 @@ lrule commalist {
         plus( - ',' - nothing) . opt( $_[1] . opt( $_[0] ) )
 };
 
+lrule statement {
+        $_[1] . opt( $_[2] . opt( stmtList ) )
+};
+
 rule stmtList {
-        star( stmtTrm ) - ( block . opt( blkTrm . opt( stmtList ) )
-            ^ nbexpr . opt( stmtTrm - opt( stmtList ) ) ) - nothing
+        star( stmtTrm ) - ( statement( block, blkTrm ) ^ statement( nbexpr, stmtTrm ) ) - nothing
 };
 
 rule stmtTrm {
@@ -207,6 +210,31 @@ rule factor {
 };
 
 rule base {
-        bareInt ^ sVari ^ w( '()', expr )
+        bareInt ^ sVari ^ w( '()', stmtList )
 };
 
+    # N  Terms             42 3.14 "eek" qq["foo"] $x :!verbose @$array circumfix(anything) self undef rand $magicals
+    # L  Method postfix    .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^ .:
+    # L  Autoincrement     ++ --
+    # R  Exponentiation    **
+    # L  Symbolic unary    ! + - ~ ? | +^ ~^ ?^ \ ^ =
+    # L  Multiplicative    * / % +& +< +> ~& ~< ~> ?& div mod
+    # L  Additive          + - +| +^ ~| ~^ ?| ?^
+    # L  Replication       x xx
+    # X  Concatenation     ~
+    # X  Junctive and      &
+    # X  Junctive or       | ^
+    # L  Named unary       sleep abs sin
+    # N  Nonchaining infix but does <=> leg cmp .. ..^ ^.. ^..^
+    # C  Chaining infix    != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv
+    # X  Tight and         &&
+    # X  Tight or          || ^^ // min max
+    # L  Conditional       ?? !! ff fff
+    # R  Item assignment   = := ::= => += -= **= xx= .=
+    # L  Loose unary       true not
+    # X  Comma operator    , p5=>
+    # X  List infix        Z minmax X X~X X*X XeqvX
+    # R  List prefix       : print push say die map substr ... [+] [*] any $ @
+    # X  Loose and         and andthen
+    # X  Loose or          or xor orelse
+    # N  Terminator        ; <==, ==>, <<==, ==>>, {...}, unless, extra ), ], }
