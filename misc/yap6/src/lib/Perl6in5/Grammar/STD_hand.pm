@@ -38,7 +38,7 @@ rule sVari {
 };
 
 lrule commalist {
-        -( plus( ',' ) ) . opt( - $_[1] . opt( $_[0] ) )
+        plus( - ',' - nothing) . opt( $_[1] . opt( $_[0] ) )
 };
 
 rule stmtList {
