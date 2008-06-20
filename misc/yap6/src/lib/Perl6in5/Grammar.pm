@@ -45,10 +45,9 @@ sub lrule {
     my ($name,$code) = @_;
     # generate a function that generates parser generators that curry eachself.
     my $stub = sub {
-        my $s = shift;
         my $p;
-        $p = $code->($p,$s);
-        $N{$p} = $name.'( '.$N{$s}.' )';
+        $p = $code->($p,@_);
+        $N{$p} = $name.'( '.join( "','",map($N{$_},@_)).' )';
         $p;
     };
     {
