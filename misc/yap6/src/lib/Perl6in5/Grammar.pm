@@ -20,12 +20,10 @@ sub tail { &Perl6in5::Compiler::Parser::tail(@_) }
 
 FILTER {
     my @rules = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;
-    my @lrules = m/^lrule\s+([A-Za-z_]\w*)\s+\{/mg; # I suck
     s/^rule\s+([A-Za-z_]\w*)\s+\{/rule '$1' => sub {/mg;
     s/^lrule\s+([A-Za-z_]\w*)\s+\{/lrule '$1' => sub {/mg;
     s/'(.)'/lit('$1')/mg;
     $_ = join('',map {"sub $_();"} @rules).$_;
-    $_ = join('',map {"sub $_;"} @lrules).$_;
 };
 
 my (@order,%rules,@lorder);
