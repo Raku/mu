@@ -430,7 +430,7 @@ sub blank () {
 
 sub p6ws () {
     my $p;
-    my $tmp = $p = plus(first(blank,lit("\n")));
+    my $tmp = $p = plus(one(blank,lit("\n")));
     weaken($p);
     $N{$p} = 'WS';
     $p;
