@@ -105,7 +105,7 @@ sub ohr {
 
 # Randal Schwartz' deep_copy, modified
 sub deep_copy {
-    my $this = shift;
+    my $this = $_[0];
     my $r = ref $this;
     if (!$r || $r eq "CODE" || $r eq 'REF' || $r eq 'Perl6in5::Compiler::Parser') {
         $this;
@@ -127,7 +127,7 @@ our %M;
 # setter/getter for a memo table entry.
 sub mmemo {
     unless (defined $_[1]) {
-        trace 1,"mmemo got: ".Dumper(\@_)." from ".Dumper([caller(0),caller(1),caller(2)]);
+        trace 5,"mmemo got: ".Dumper(\@_)." from ".Dumper([caller(0),caller(1),caller(2)]);
         die "rule coderef empty";
     }
     # inputs: rule, position, $ans|$lr
@@ -447,21 +447,22 @@ sub unmore {
 }
 
 sub iff {
-    my $q = shift;
+    my $q = $_[0];
     my $p;
     my $tmp = $p = parser {
         my ($in) = @_;
         my $b = deep_copy($in);
+        $in = $q->($in);
         $b->{success} = $in->{success}?1:0;
         $b;
     };
     weaken($p);
-    $N{$p} = "iff( $N{q} )";
+    $N{$p} = "iff( $N{$q} )";
     $p;
 }
 
 sub match {
-    my $q = shift;
+    my $q = $_[0];
     # $q is a regular expression of the form:
     # qr/^(match_pattern)/ or qr/(match_pattern)/
     # note that you must include the ^ or you will get
@@ -668,7 +669,7 @@ sub star {
 
 sub opt {
   my $p;
-  my $tmp = $p = one($_[0], nothing);
+  my $tmp = $p = first($_[0], nothing);
   weaken($p);
   $N{$p} = "opt( $N{$_[0]} )";
   $p;
@@ -779,9 +780,9 @@ sub mantws {
   $p;
 }
 
-sub newline () {
+sub newline {
   my $p;
-  my $tmp = $p = plus(one(panic(lit("\n#{"),"\\n#{ is illegal"),opttws(optws(lit("\n")))));
+  my $tmp = $p = plus(first(panic(lit("\n#{"),"\\n#{ is illegal"),opttws(optws(lit("\n")))));
   weaken($p);
   $N{$p} = "\\n";
   $p;
@@ -850,7 +851,7 @@ sub keyword {
 
 sub keywords {
     my $p;
-    my $tmp = $p = one(map(lit($_),@_));
+    my $tmp = $p = both(iff(match(qr|^([A-Za-z_]\w*)|)),one(map(lit($_),@_)));
     weaken($p);
     $N{$p} = "'".join("' | '",@_)."'";
     $p;

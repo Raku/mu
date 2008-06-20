@@ -34,7 +34,7 @@ sub rule {
     my ($name,$code) = @_;
     my $stub;
     my $tmp = $stub = parser {
-        $rules{$name}->();
+        $rules{$name}->(@_);
     };
     weaken($stub);
     $N{$stub} = ucfirst($name);
@@ -45,12 +45,11 @@ sub rule {
 }
 
 sub lrule {
-    my ($name,$code) = @_; # $code *is* commalist combinator.
+    my ($name,$code) = @_;
     # generate a function that generates parser generators that curry eachself.
     my $stub = sub {
-        # first input to this sub: the thing in the commalist. (becomes $_[1])
         my $s = shift;
-        my $p; # the parser combinator we're building - becomes $_[0]
+        my $p;
         $p = $code->($p,$s);
         $N{$p} = $name.'( '.$N{$s}.' )';
         $p;

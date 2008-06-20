@@ -7,6 +7,7 @@ my @blkTypes     = qw{ sub method submethod regex token rule
                      macro module class package grammar};
 my @bareFuncs    = qw{ use no say };
 my @blkDecls     = qw{ module class grammar };
+my @blkNumbers   = qw{ multi proto only };
 
 rule program {
         opt( usev6 - (stmtTrm | eoi) )
@@ -36,10 +37,17 @@ rule sVari {
         '$' . identifier
 };
 
-# this rule is directly right-recursive
+lrule commalist {
+        -( plus( ',' ) ) - opt( $_[1], $_[0] )
+};
+
+rule stmtTrm {
+        plus( - ';' )
+};
+
 rule stmtList {
         star( stmtTrm ) - ( block . opt( blkTrm . opt( stmtList ) )
-            | nbexpr . opt( stmtTrm - opt( stmtList ) ) )
+            | nbexpr . opt( stmtTrm - opt( stmtList ) ) ) - star( stmtTrm )
 };
 
 rule blkTrm {
@@ -55,8 +63,7 @@ rule nbexpr {
             panic( pkgDecl, "Can't declare a non-block package")
             , func_say
             , op_numaddt
-            , assign
-            , declare
+            , declareAssign
             , impor
             , blkTrait )
 };
@@ -65,12 +72,12 @@ rule func_say {
         keyword('say') . opt( +( expr ) )
 };
 
-rule blkBare {
-        w( "{}", -( opt( stmtList ) ) - nothing)
+rule block {
+        opt( blkPrmbl ) . blkBare
 };
 
-rule block {
-        opt(blkPrmbl) - blkBare
+rule blkBare {
+        w( "{}", -( opt( stmtList ) ) )
 };
 
 rule blkPrmbl {
@@ -80,44 +87,85 @@ rule blkPrmbl {
             . blkIdentifier
             . blkVisibility
             . blkPrms
-            - star( blkTrait )
+            . blkTraits
             , compUnit
             , flowCtrl
             , blkLabel
-            , arrowInv . blkPrmsList )
+            , arrowDecl ) - nothing
 };
 
-rule blkVisibility {
-        opt( vsblty . p6ws )
+rule blkNumber {
+        opt( keywords( @blkNumbers ) . p6ws )
 };
 
 rule blkDeclarator {
-        opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType . p6ws
+        # the fact that blkType must be out in front demonstrates that sometimes
+        # rules that have potentially overlapping alternatives (clype) may both hit on the
+        # longest token matcher, so we have to put the one(s) that should win, earlier.
+        ( blkType | opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType ) . p6ws
+};
+
+rule scpDecl {
+        keywords( qw{ my our } )
+};
+
+rule blkType {
+        keywords( @blkTypes )
 };
 
 rule blkIdentifier {
         opt( opt( '^' ) . identifier . p6ws ) 
 };
 
-#lrule commalist {
-#        -( plus( ',' ) ) - opt( $_[1], $_[0] )
-#};
+rule blkVisibility {
+        opt( vsblty . p6ws )
+};
 
 rule blkPrms {
         opt( w( '()', opt( invcDecl ) . blkPrmsList ) )
 };
 
 rule blkPrmsList {
-        'h'
-#        opt( commalist( prmDecl ) )
+        opt( commalist( prmDecl ) )
+};
+
+rule blkTraits {
+        star( - blkTrait . p6ws )
+};
+
+rule blkTrait {
+        keywords( qw{ is does has } ) + clype + sVari
+};
+
+rule arrowDecl {
+        arrowInv . blkPrmsList . opt( p6ws )
 };
 
 rule arrowInv {
         lit( '<-' ) - prmDecl
 };
 
-rule blkTrait {
-        keywords( qw{ is does has } ) + clype
+rule blkRetT {
+        clype
+};
+
+rule clype {
+        identifier  # just take any class/type name for now :)
+        #  $Clype    # Class/Type
+};
+
+rule blkLabel {
+        panic(compUnit . ':' - blkBare, "colons are for block labels, not special compilation units")
+        | identifier . ':';
+};
+
+# invocant declaration
+rule invcDecl {
+        prmDecl . ':'
+};
+
+rule prmDecl {
+        opt( clype . p6ws ) . sVari
 };
 
 rule impor {
@@ -136,84 +184,33 @@ rule compUnit {
         keywords( @compUnits )
 };
 
-rule blkType {
-        keywords( @blkTypes )
-};
-
-rule blkRetT {
-        clype
-};
-
-rule clype {
-        identifier  # just take any class/type name for now :)
-        #  $Clype    # Class/Type
-};
-
-rule blkLabel {
-        identifier . ':';
-};
-
-rule blkNumber {
-        opt( keywords( qw{ multi proto only } ) . p6ws )
-};
-
-rule arg {
-        'h'  #obviously this is just a stub.
-};
-
-# invocant declaration
-rule invcDecl {
-        prmDecl . ':'
-};
-
-rule prmDecl {
-        sVari
-        | clype + sVari
-};
-
 rule vsblty {
         keywords( qw{ public private } )
 };
 
-rule stmtTrm {
-        plus( -( ';' ) )
-};
-
-rule scpDecl {
-        keywords( qw{ my our } )
-};
-
 rule expr {
-          nbexpr
+        nbexpr
         | block
 };
 
-rule declare {
-        scpDecl + prmDecl
-        | keywords( @blkDecls ) + clype
+rule declareAssign {
+        opt( scpDecl . p6ws ) . prmDecl . opt( - '=' - expr )
+        ^ keywords( @blkDecls ) + clype
 };
 
-rule assign {
-    #    lit('my $blah =') - block |
-    #    (opt( keywords( qw{ my our } )+p6ws ) . prmDecl - '=' - expr) |
-        ( scpDecl | nothing ) - prmDecl - '=' - expr
-};
-
-# this will become some op prec lev (postfix)
 rule op_numaddt {
-        term - star( ( '+' | '-' ) - term )
+        term . star( -( '+' | '-' ) - term )
 };
 
-# this will become some op prec lev (postfix)
 rule term {
-        factor - star( ( '*' | '/' ) - factor )
+        factor . star( -( '*' | '/' ) - factor )
 };
 
 rule factor {
-        base - opt( lit('**') - factor )
+        base . star( - lit('**') - base )
 };
 
 rule base {
-        bareInt | sVari | w( '()', expr )
+        bareInt ^ sVari ^ w( '()', expr )
 };
 
