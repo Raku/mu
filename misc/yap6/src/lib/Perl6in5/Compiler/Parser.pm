@@ -7,7 +7,7 @@ package Perl6in5::Compiler::Parser;
 use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing debug star opt %stat
                 say all one flatten newline left ceoi worry
-                trace %N parser check $Nothing to first
+                trace %N parser check $Nothing to first iff
                 ch w keyword keywords panic p6ws parser2
                 unspace optws manws opttws mantws through
                 plus both match unmore ow now warning error);
@@ -870,9 +870,9 @@ sub worry {
         my ($in) = @_;
         trace 4,"Worrying if find $N{$ins}";
         my $b = deep_copy($in);
-        $b = $ins->($b);
-        warning($msg,$in) if $b->{success};
-        err($in,"worry");
+        $in = $ins->($in);
+        warning($msg,$b) if $in->{success};
+        return {%$b,success=>($in->{success}?0:1)};
     };
     weaken($p);
     $N{$p} = "worry( $N{$ins} )";
@@ -880,11 +880,11 @@ sub worry {
 }
 
 sub warning {
-    print STDERR "Syntax warning at line ".$_[1]->{line}." col ".$_[1]->{col}." : ".$_[0]."\n"
+    print STDERR "Syntax warning in ".$_[1]->{name}." at line ".$_[1]->{line}." col ".$_[1]->{col}." : ".$_[0]."\n"
 }
 
 sub error {
-    print STDERR "Syntax error at line ".$_[1]->{line}." col ".$_[1]->{col}." : ".$_[0]."\n"
+    print STDERR "Syntax error in ".$_[1]->{name}." at line ".$_[1]->{line}." col ".$_[1]->{col}." : ".$_[0]."\n"
 }
 
 sub panic {

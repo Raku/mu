@@ -181,7 +181,7 @@ rule flowCtrl {
 };
 
 rule compUnit {
-        keywords( @compUnits ) . opt(worry( ':' - '{', "colons are for block labels, not special compilation units" ))
+        keywords( @compUnits ) . worry( ':' - '{', "colons are for block labels, not special compilation units" )
 };
 
 rule vsblty {
