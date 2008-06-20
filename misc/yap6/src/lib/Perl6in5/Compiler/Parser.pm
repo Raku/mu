@@ -6,11 +6,11 @@ package Perl6in5::Compiler::Parser;
 
 use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing debug star opt %stat
-                say all one flatten newline left ceoi
+                say all one flatten newline left ceoi worry
                 trace %N parser check $Nothing to first
                 ch w keyword keywords panic p6ws parser2
                 unspace optws manws opttws mantws through
-                plus both match unmore ow now);
+                plus both match unmore ow now warning error);
 our @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -863,6 +863,30 @@ sub keywords {
     $p;
 }
 
+sub worry {
+    my ($ins,$msg) = @_;
+    my $p;
+    my $tmp = $p = parser {
+        my ($in) = @_;
+        trace 4,"Worrying if find $N{$ins}";
+        my $b = deep_copy($in);
+        $b = $ins->($b);
+        warning($msg,$in) if $b->{success};
+        err($in,"worry");
+    };
+    weaken($p);
+    $N{$p} = "worry( $N{$ins} )";
+    $p;
+}
+
+sub warning {
+    print STDERR "Syntax warning at line ".$_[1]->{line}." col ".$_[1]->{col}." : ".$_[0]."\n"
+}
+
+sub error {
+    print STDERR "Syntax error at line ".$_[1]->{line}." col ".$_[1]->{col}." : ".$_[0]."\n"
+}
+
 sub panic {
     my ($ins,$msg) = @_;
     my $p;
@@ -871,7 +895,8 @@ sub panic {
         trace 4,"Dying if find $N{$ins}";
         my $b = deep_copy($in);
         $in = $ins->($in);
-        die $msg if $in->{success};
+        error($msg,$b) if $in->{success};
+        exit 255 if $in->{success};
         $b;
     };
     weaken($p);

@@ -173,8 +173,7 @@ rule clype {
 };
 
 rule blkLabel {
-        panic( compUnit . ':' - blkBare, "colons are for block labels, not special compilation units" )
-        | identifier . ':';
+        identifier . ':';
 };
 
 rule flowCtrl {
@@ -182,7 +181,7 @@ rule flowCtrl {
 };
 
 rule compUnit {
-        keywords( @compUnits )
+        keywords( @compUnits ) . worry( ':' - '{', "colons are for block labels, not special compilation units" )
 };
 
 rule vsblty {
