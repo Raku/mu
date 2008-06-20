@@ -189,8 +189,8 @@ rule vsblty {
 };
 
 rule expr {
-        nbexpr
-        | block
+        block
+        ^ nbexpr
 };
 
 rule declareAssign {
