@@ -36,7 +36,6 @@ sub rule {
     my $tmp = $stub = parser {
         $rules{$name}->(@_);
     };
-    weaken($stub);
     $N{$stub} = ucfirst($name);
     {
         $Perl6in5::Grammar::{$name} = sub() {$stub};
