@@ -6,7 +6,7 @@ my @compUnits    = qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST
 my @blkTypes     = qw{ method submethod sub regex token rule
                      macro module class package grammar};
 my @bareFuncs    = qw{ use no say };
-my @blkDecls     = qw{ module class grammar };
+my @blkDecls     = qw{ module class grammar role };
 my @blkNumbers   = qw{ multi proto only };
 
 rule program {
@@ -20,9 +20,9 @@ rule pkgDecl {
 };
 
 rule usev6 {
-        keyword('use') + keywords(qw{ v6 Perl-6 })
+        keyword('use') + lits(qw{ v6 Perl-6 })
         | keyword('module') + opt(keyword('Main'))
-        | keywords(qw{ class v6.0.0 v6 6 })
+        | lits(qw{ class v6.0.0 v6 6 })
 };
 
 rule identifier {
@@ -33,20 +33,28 @@ rule bareInt {
         match( qr|^(\d+)| )
 };
 
+#rule rx {
+#        rx_prmbl . first( map( rx_delims_same( $_ ), qw{ `~!@#$%^&*() }
+#};
+#
+#lrule rx_delims_same {
+#        $_[1] . rx_subj . $_[1] . opt( rx_target . $_[1] )
+#};
+
 rule sVari {
-        '$' . identifier
+        lits( qw{ $^ $? $ @@ @ % & } ) . identifier
 };
 
-lrule commalist {
+rule commalist {
         plus( - ',' - nothing) . opt( $_[1] . opt( $_[0] ) )
 };
 
-lrule statement {
-        $_[1] . opt( $_[2] . opt( stmtList ) )
+rule opt_chain_right_3 {
+        $_[1] . opt( $_[2] . opt( $_[3] ) )
 };
 
 rule stmtList {
-        star( stmtTrm ) - ( statement( block, blkTrm ) ^ statement( nbexpr, stmtTrm ) ) - nothing
+        star( stmtTrm ) - ( opt_chain_right_3( block, blkTrm, $_[0] ) ^ opt_chain_right_3( nbexpr, stmtTrm, $_[0] ) ) - nothing
 };
 
 rule stmtTrm {
@@ -80,7 +88,9 @@ rule impor {
 };
 
 rule block {
-        keywords( qw{ if unless } ) + ow( '()', - expr - nothing ) - blkBare . star( - lit('elsif') + ow( '()', - expr - nothing ) - blkBare ) . opt( - lit('else') - blkBare )
+        keywords( qw{ if unless } ) + ow( '()', - expr - nothing ) - blkBare
+        . star( - lit('elsif') + ow( '()', - expr - nothing ) - blkBare )
+        . opt( - lit('else') - blkBare )
         ^ keywords( qw{ while until } ) + ow( '()', - expr - nothing ) - blkBare
         ^ opt( blkPrmbl - nothing ) . blkBare
         ^ lit('try') - blkBare . opt( - lit('finally') - blkBare )
@@ -213,8 +223,8 @@ rule base {
         bareInt ^ sVari ^ w( '()', stmtList )
 };
 
-    # N  Terms             42 3.14 "eek" qq["foo"] $x :!verbose @$array circumfix(anything) self undef rand $magicals
-    # L  Method postfix    .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^ .:
+    # N  Terms             42 3.14 'eek' "$eek" q/qq["foo"] $x heredoc :!verbose @$array circumfix(anything) self undef rand $magicals [semilist] ((lazy) array composer) { empty/pair/hash } \(capture items) &div:(Int, Int --> Int) $() @() %() &() @@() /abc/ rx:i[abc] s/foo/bar/ typenames func(*) :by(2) :!verbose :(Dog $self:) .meth/.=meth 4,3, sort 2,1 
+    # L  Method postfix    .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^ .: !***
     # L  Autoincrement     ++ --
     # R  Exponentiation    **
     # L  Symbolic unary    ! + - ~ ? | +^ ~^ ?^ \ ^ =

@@ -2,7 +2,7 @@ package Perl6in5::Grammar;
 
 use strict;
 use warnings;
-no warnings qw{ reserved closure recursion };
+no warnings qw{ reserved closure recursion prototype };
 
 use Scalar::Util qw( weaken );
 
@@ -21,43 +21,26 @@ sub tail { &Perl6in5::Compiler::Parser::tail(@_) }
 FILTER {
     my @rules = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;
     s/^rule\s+([A-Za-z_]\w*)\s+\{/rule '$1' => sub {/mg;
-    s/^lrule\s+([A-Za-z_]\w*)\s+\{/lrule '$1' => sub {/mg;
     s/'(.)'/lit('$1')/mg;
-    $_ = join('',map {"sub $_();"} @rules).$_;
+    $_ = join('',map {"sub $_(@);"} @rules).$_;
 };
-
-my (@order,%rules,@lorder);
 
 sub rule {
     my ($name,$code) = @_;
-    my $stub;
-    my $tmp = $stub = parser {
-        $rules{$name}->(@_);
-    };
-    $N{$stub} = ucfirst($name);
-    {
-        $Perl6in5::Grammar::{$name} = sub() {$stub};
-    }
-    push(@order,[$name,$code]);
-}
-
-sub lrule {
-    my ($name,$code) = @_;
-    # generate a function that generates parser generators that curry eachself.
-    my $stub = sub {
+    my ($continuation, $stub);
+    $continuation = sub {
         my @r = @_;
         my $p;
-        $p = $code->(parser { $p->(@_) },@r);
-        $N{$p} = $name.'( '.join( "','",map($N{$_},@r)).' )';
+        $p = parser { $code->($p,@r)->(@_) };
+        $N{$p} = (scalar @r)?($name.'( '.join( "','",map($N{$_},@r)).' )'):$name;
         $p;
     };
     {
-        $Perl6in5::Grammar::{$name} = sub { $stub->(@_) };
+        $Perl6in5::Grammar::{$name} = $continuation;
     }
 }
 
 END {
-    $rules{$_->[0]} = $_->[1]->() for (@order);
     my ($input,$name) = $ARGV[0]?
         (scalar(read_file($ARGV[0])),$ARGV[0]):
         (join('',(<>)),'STDIN');
@@ -82,6 +65,7 @@ END {
         exit 255;
     } else {
         print "parsed: ".Dumper($r->{ast})."\n";
+        print "stats: ".Dumper(\%stat) if keys %stat;
         exit 0;
     }
 }

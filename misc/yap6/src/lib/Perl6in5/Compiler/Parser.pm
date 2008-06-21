@@ -7,7 +7,7 @@ package Perl6in5::Compiler::Parser;
 use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing debug star opt %stat
                 say all one flatten newline left ceoi worry
-                trace %N parser check $Nothing to first iff
+                trace %N parser check to first iff lits
                 ch w keyword keywords panic p6ws parser2
                 unspace optws manws opttws mantws through
                 plus both match unmore ow now warning error);
@@ -46,8 +46,7 @@ use overload
     '""' => \&overload::StrVal,  # this helps stringify parser names for %N
 ;
 
-$| = 1;
- # trace
+$| = 1; # trace
 
 use Data::Dumper;
 # so that trace output is on one line:
@@ -213,6 +212,7 @@ sub mapply {
             $m = mmemo($q,$pos,$q->($in));
         }
         unless (defined $m) {
+            $stat{memomisses}++;
             # $q has never been applied at this position.
             # by the time we get here, $p has been initialized as
             # a coderef to *this subroutine*, which has been given
@@ -338,6 +338,7 @@ sub mapply {
             
             # if the answer was an LR
             if (exists $m->{lr}) {
+                $stat{lrhits}++;
                 trace 6,"mapply got an arrayref from the memo table";
                 
                 # initialize the LR
@@ -857,7 +858,15 @@ sub keyword {
 
 sub keywords {
     my $p;
-    my $tmp = $p = both(iff(match(qr|^([A-Za-z_]\w*)|)),first(map(lit($_),@_)));
+    my $tmp = $p = both(iff(match(qr|^([A-Za-z_]\w*)|)),lits(@_));
+    weaken($p);
+    $N{$p} = "( '".join("' ^ '",@_)."' )";
+    $p;
+}
+
+sub lits {
+    my $p;
+    my $tmp = $p = first(map(lit($_),@_));
     weaken($p);
     $N{$p} = "( '".join("' ^ '",@_)."' )";
     $p;
