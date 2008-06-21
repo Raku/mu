@@ -28,6 +28,7 @@ S29
 * tests for array: shape and end
 * tests for complex: polar
 * tests for pack and unpack
+* S29 claims that "rand" is always a 0-ary function but the rand.t test calls it with arguments.
 
 IO
 * more tests for say() and print(). For example elf prints array references
