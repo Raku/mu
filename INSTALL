@@ -205,7 +205,7 @@ NOTES FOR GHC 6.6.1 AND REVISION > 19955
 ----------------------------------------
 
 This is only a way to get a running pugs with ghc 6.6.1 during the
-migration phase to ghc 6.8.x. It *NOT* solves any issues. It is tested
+migration phase to ghc 6.8.x. It does *NOT* solve any issues. It is tested
 with the  following environment (I believe only the ghc part is essential for
 this workaround):
 
@@ -232,7 +232,7 @@ was r19955.
 3. Build it ...
   perl Makefile.PL && make
 
-4. ..eventually twice, if it failed
+4. ..possibly twice, if it failed
   make
 
 5. Skip building Test.pm.yml
