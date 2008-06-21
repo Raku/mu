@@ -1499,7 +1499,7 @@ the string matched.  So
 
 The last is equivalent to
 
-    / ( foo | bar ) d ( foo | bar) /
+    / ( foo | bar ) d ( foo | bar ) /
 
 Note that the "self" call of
 
@@ -2065,7 +2065,7 @@ case matching the null string:
      $something = "";
      /a|b|c|$something/;
 
-In particular, C<< <?> >> always matches the null string successfuly,
+In particular, C<< <?> >> always matches the null string successfully,
 and C<< <!> >> always fails to match anything.
 
 =back
