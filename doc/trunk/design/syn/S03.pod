@@ -171,7 +171,7 @@ Closure
 
     { ... }
 
-When found where a statement is expected, executes immediately.  Othewise
+When found where a statement is expected, executes immediately.  Otherwise
 always defers evaluation of the inside scope.
 
 =item *
@@ -217,7 +217,7 @@ Regexes in quote-like notation
 
 Transliterations
 
-    tr/a..z/A..Z/;
+    tr/a..z/A..Z/
 
 Note ranges use C<..> rather than C<->.
 
