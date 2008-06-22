@@ -166,9 +166,12 @@ EOM
         chdir('../yap6/src')
             or confess("Can't chdir to elf base dir: $!");
         my ($tmp_fh, $name) = tempfile();
-        print $tmp_fh $program;
+        my ($gram,$inp) = split('|||',$program);
+        $gram = $inp?$gram:'STD_hand';
+        $inp ||= $gram;
+        print $tmp_fh $inp;
         close $tmp_fh;
-        system "perl -Ilib sbin/perl6 $name >> $filename 2>&1";
+        system "perl -Ilib sbin/test $gram $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
