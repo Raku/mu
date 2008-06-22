@@ -1,11 +1,7 @@
 
 yap6 TODO:
 
-diakopter added 2008-05-31:
- - refactor handler structure to use a lookup/dispatch table
- - make the parser success-handlers generate an AST
+ - come up with a generalized way for patterns to automatically
+   make the parser success-handlers generate an AST
  - implement Test.pm and related harness/prove
  - fix copyright notices & license(s)
-
-diakopter added 2008-06-04:
- - add runtime eval
