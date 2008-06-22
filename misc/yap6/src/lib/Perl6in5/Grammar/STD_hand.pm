@@ -1,13 +1,16 @@
 package Perl6in5::Grammar;
 use Perl6in5::Grammar;
 
-my @compUnits    = qw{ eval PRE POST ENTER LEAVE KEEP UNDO FIRST 
-                     LAST BEGIN END INIT CHECK UNITCHECK do };
+my @phases       = qw{ PRE POST ENTER LEAVE KEEP UNDO FIRST START CONTROL
+                     LAST BEGIN END INIT CHECK UNITCHECK CATCH NEXT };
+my @compUnits    = ( @phases, 'do' );
+my @lcPhases     = map lc($_), @phases;
 my @blkTypes     = qw{ method submethod sub regex token rule
                      macro module class package grammar};
 my @bareFuncs    = qw{ use no say };
 my @blkDecls     = qw{ module class grammar role };
 my @blkNumbers   = qw{ multi proto only };
+my @scopes       = qw{ my our state };
 
 pattern program {
         opt( usev6 - (stmtTrm | eoi) )
@@ -54,7 +57,10 @@ pattern opt_chain_right_3 {
 };
 
 pattern stmtList {
-        star( stmtTrm ) - ( opt_chain_right_3( block, blkTrm, stmtList ) ^ opt_chain_right_3( nbexpr, stmtTrm, stmtList ) ) - nothing
+        star( stmtTrm )
+            - ( opt_chain_right_3( block, blkTrm, stmtList )
+                ^ opt_chain_right_3( nbexpr, stmtTrm, stmtList ) )
+                    - nothing
 };
 
 pattern stmtTrm {
@@ -100,8 +106,11 @@ pattern block {
         ^ control_apodosis( lit('repeat') . opt( p6ws . arrowCondResult ) )
             + keywords( qw{ while until } ) + ow( '()', expr )
         ^ control_apodosis( lit('loop') . opt( p6ws . w( '()', stmtList ) ) )
+        ^ control_apodosis( lit('do') )
         ^ forBuilder( opt( '<' ) . lit('->') + blkPrms )
-        ^ forBuilder( lit('->') + blkPrms( isRwAppendix ) ) )
+        ^ forBuilder( lit('->') + blkPrms( isRwAppendix ) )
+        ^ opt( scpDecl . p6ws ) . prmDecl . plus( lit('will')
+            + control_apodosis( keywords( @lcPhases ) ) ) )
 };
 
 pattern isRwAppendix {
@@ -149,7 +158,7 @@ pattern blkDeclarator {
 };
 
 pattern scpDecl {
-        keywords( qw{ my our } )
+        keywords( @scopes )
 };
 
 pattern blkType {
@@ -212,7 +221,6 @@ pattern blkRetT {
 
 pattern clype {
         identifier  # just take any class/type name for now :)
-        #  $Clype    # Class/Type
 };
 
 pattern blkLabel {
