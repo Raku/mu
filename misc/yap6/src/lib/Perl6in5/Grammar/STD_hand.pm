@@ -95,8 +95,8 @@ pattern block {
         ^ control_protasis_apodosis( keywords( qw{ while until } ) )
         ^ opt( blkPrmbl - nothing ) . blkBare
         ^ lit('try') + blkBare . opt( + lit('finally') + blkBare )
-        ^ control_protasis_apodosis( lit('repeat') + keywords( qw{ while until } ) )
-        ^ control_apodosis( lit('repeat') ) + keywords( qw{ while until } ) + ow( '()', expr ) )
+        ^ control_protasis_apodosis( lit('repeat') + keywords( qw{ while until } ) . opt( p6ws . arrowCondResult ) )
+        ^ control_apodosis( lit('repeat') . opt( p6ws . arrowCondResult ) ) + keywords( qw{ while until } ) + ow( '()', expr ) )
 };
 
 pattern control_protasis_apodosis {
@@ -181,6 +181,10 @@ pattern arrowDecl {
 
 pattern arrowInv {
         lit( '<-' ) - prmDecl
+};
+
+pattern arrowCondResult {
+        lit( '->' ) - prmDecl
 };
 
 pattern blkRetT {
