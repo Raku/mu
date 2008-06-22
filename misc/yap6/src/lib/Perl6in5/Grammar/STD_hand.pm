@@ -93,6 +93,18 @@ pattern impor {
         keywords( qw{ no use require module class } ) + identifier . opt( p6ws . expr )
 };
 
+pattern series {
+        my ($pat,$sep,$count) = @_;
+        $count ||= 1;
+        $pat = $pat . $sep . $pat for (1..($count-1));
+};
+
+pattern compose {
+        my ($init,$pat,$count) = @_;
+        $count ||= 1;
+        $init = $count->($init) for (1..$count);
+};
+
 pattern block {
         iff( match( qr/^([^;}]+(?:\(.*\))?\s+{)/sm ) )
         . ( control_protasis_apodosis( keywords( qw{ if unless } ) )
@@ -105,8 +117,9 @@ pattern block {
             . opt( p6ws . arrowCondResult ) )
         ^ control_apodosis( lit('repeat') . opt( p6ws . arrowCondResult ) )
             + keywords( qw{ while until } ) + ow( '()', expr )
-        ^ control_apodosis( lit('loop') . opt( p6ws . w( '()', stmtList ) ) )
-        ^ control_apodosis( lit('do') )
+        ^ control_apodosis( lit('loop') . opt( p6ws
+            . w( '()', - expr - ';' - expr - ';' - expr - opt( ';' ) - nothing) ) )
+        ^ control_apodosis( keywords( 'do', 'given', 'when' ) )
         ^ forBuilder( opt( '<' ) . lit('->') + blkPrms )
         ^ forBuilder( lit('->') + blkPrms( isRwAppendix ) )
         ^ opt( scpDecl . p6ws ) . prmDecl . plus( lit('will')
