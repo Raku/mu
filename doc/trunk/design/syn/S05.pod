@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 11 Jun 2008
+   Last Modified: 21 Jun 2008
    Number: 5
-   Version: 81
+   Version: 82
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -391,7 +391,7 @@ modifiers at the end.)  For instance,
 
 is equivalent to the Perl 6 syntax:
 
-    m/ :i ^^ [ <[a..z]> || \d ] ** 1..2 <before \s> /
+    m/ :i ^^ [ <[a..z]> || \d ] ** 1..2 <?before \s> /
 
 =item *
 
@@ -1399,6 +1399,11 @@ The special named assertions include:
                               # short for <?{ .pos === $pos }>
                               # (considered declarative until $pos changes)
 
+It is legal to use any of these assertions as named captures by omitting the
+punctuation at the front.  However, capture entails some overhead in both
+memory and computation, so in general you want to suppress that for data
+you aren't interested in preserving.
+
 The C<after> assertion implements lookbehind by reversing the syntax
 tree and looking for things in the opposite order going to the left.
 It is illegal to do lookbehind on a pattern that cannot be reversed.
@@ -1534,7 +1539,7 @@ object.  That is:
 
 is equivalent to:
 
-    / <after foo> \d+ <before bar> /
+    / <?after foo> \d+ <?before bar> /
 
 except that the scan for "C<foo>" can be done in the forward direction,
 while a lookbehind assertion would presumably scan for C<\d+> and then
@@ -3426,7 +3431,7 @@ string that the regex skipped over in order to find later matches).
 Subcaptures are returned as a multidimensional list, which the user can
 choose to process in either of two ways.  If you refer to
 C<@()>, the multidimensionality is ignored and all the matches are returned
-flattened (but still lazily).  If you refer to @@(), you can
+flattened (but still lazily).  If you refer to C<@@()>, you can
 get each individual sublist as a Capture object. (That is, there is a C<@@()>
 coercion operator that happens, like C<@()>, to default to C<$/>.)
 As with any multidimensional list, each sublist can be lazy separately.
@@ -3582,6 +3587,13 @@ Hence:
      }
 
 =back
+
+=item *
+
+To switch to a different grammar in the middle of a regex, you may use the C<:lang> adverb.
+For example, to match an expression <expr> from $funnylang that is embedded in curlies, say:
+
+    token funnylang { '{' [ :lang($funnylang.unbalanced('}')) <expr> ] '}' }
 
 =head1 Syntactic categories
 
