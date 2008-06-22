@@ -19,7 +19,7 @@ sub head { &Perl6in5::Compiler::Parser::head(@_) }
 sub tail { &Perl6in5::Compiler::Parser::tail(@_) }
 
 FILTER {
-    my @patterns = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;
+    my @patterns = m/^pattern\s+([A-Za-z_]\w*)\s+\{/mg;
     s/^pattern\s+([A-Za-z_]\w*)\s+\{/pattern '$1' => sub {/mg;
     s/'(.)'/lit('$1')/mg;
     $_ = join('',map {"sub $_(@);"} @patterns).$_;

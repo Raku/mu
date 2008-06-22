@@ -1,11 +1,11 @@
 package Perl6in5::Grammar;
 use Perl6in5::Grammar;
 
-rule program {
+pattern program {
     nthru( foo, eoi )
 };
 
-rule foo {
+pattern foo {
       lit( 'foo' )
     | lit( 'foodie' ) . unmore( 's' )
     | lit( 'food' )                          # foodies should match here
