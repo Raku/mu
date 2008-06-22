@@ -7,8 +7,8 @@ package Perl6in5::Compiler::Parser;
 use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing debug star opt %stat
                 say all one flatten newline left ceoi worry
-                trace %N parser check to first iff lits
-                ch w keyword keywords panic p6ws parser2
+                trace %N parser check to first iff lits thru
+                ch w keyword keywords panic p6ws parser2 nthru
                 unspace optws manws opttws mantws through
                 plus both match unmore ow now warning error);
 our @ISA = 'Exporter';
@@ -38,7 +38,7 @@ use overload
     '|'  => \&one, # longest token matching by its nature.
     '!'  => \&unmore, # continue on failure, but don't eat input
     '~'  => \&iff, # continue on success, but don't eat input
-    '...'=> \&nthru, # both($_[0],through($_[1]))
+    '*'  => \&nthru, # both($_[0],through($_[1]))
     '>>' => \&T, # unused currently
     '>'  => \&V, # unused currently
     '^'  => \&first, # short-circuiting one() - alternation. (first match)
@@ -810,7 +810,7 @@ sub nthru {
   my $p;
   my $tmp = $p = both($n, thru($o),'.');
   weaken($p);
-  $N{$p} = "$N{$n} ... $N{$o}";
+  $N{$p} = "$N{$n} * $N{$o}";
   $p;
 }
 
@@ -822,29 +822,31 @@ sub thru {
     my $p;
     my $tmp = $p = parser {
         my ($in) = @_;
-        my $v;
         my @values;
-        my $in2=$in;
-        while (defined $in2) {
-            $v = $stop->($in2);
-            if (ref($v) eq 'HASH') {
+        my $v=deep_copy($in);
+        while (defined $v) {
+            $v = $stop->($v);
+            if ($v->{success}) {
                 trace 5,"through $N{$stop} matched";
-                push @values, $v;
+                push @values, $v->{hit};
                 last;
             } else {
                 trace 5,"through $N{$stop} still not matched";
-                push @values, drop($in2);
-                return [{expected=>$stop,found=>[undef],line=>'',file=>''}] unless defined $in2;
-                next;
+                push @values, substr($v->{inp},$v->{'pos'},1);
+                $v->{pos}++;
             }
         }
         my $len;
         $len += length($_) foreach @values;
+        $in->{hit} = join('',@values);
         trace 4,"Through token matched";
-        hits($p,$in);
+        $in->{pos} += length($in->{hit});
+        trace 3,"advanced pos by ".length($in->{hit});
+        push @{$in->{ast}->[0]},$in->{hit} unless $in->{hit} =~ /^[\s\n]+$/;
+        hits($p,lineify($in));
     };
     weaken($p);
-    $N{$p} = "{*}.".$N{$stop};
+    $N{$p} = '{*} . '.$N{$stop};
     $p;
 }
 

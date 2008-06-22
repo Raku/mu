@@ -54,7 +54,7 @@ rule opt_chain_right_3 {
 };
 
 rule stmtList {
-        star( stmtTrm ) - ( opt_chain_right_3( block, blkTrm, $_[0] ) ^ opt_chain_right_3( nbexpr, stmtTrm, $_[0] ) ) - nothing
+        star( stmtTrm ) - ( opt_chain_right_3( block, blkTrm, stmtList ) ^ opt_chain_right_3( nbexpr, stmtTrm, stmtList ) ) - nothing
 };
 
 rule stmtTrm {
