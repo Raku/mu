@@ -11,7 +11,7 @@ Although source code for GHC is available, it will take a very long time to
 build by yourself. (Several hours)
 
 Additionally, Pugs uses the Cabal framework (http://haskell.org/cabal/),
-which is usually bundled with GHC itself. (The 6.6 source code contains it.)
+which is usually bundled with GHC itself. (The 6.6.1 source code contains it.)
 
 http://jnthn.net/perl6/ has binary builds for Win32.  For Mac OS X (PowerPC),
 http://www.unobe.com/packages/ has binary builds too. If you'd like to build
@@ -261,7 +261,13 @@ above packages.)
 2. Type the following commands.
 
 $ cabal update
-$ cabal install pugs-compat
 $ cabal install Pugs
 
 ...and you're done.
+
+3. To upgrade the current Pugs installation to the latest released version,
+   simply type the same two lines of commands above:
+
+$ cabal update
+$ cabal install Pugs
+
