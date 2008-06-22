@@ -88,12 +88,23 @@ pattern impor {
 };
 
 pattern block {
-        keywords( qw{ if unless } ) + ow( '()', - expr - nothing ) - blkBare
-        . star( - lit('elsif') + ow( '()', - expr - nothing ) - blkBare )
+        iff( match( qr/^([^;}]+(?:\(.*\))?\s+{)/sm ) )
+        . ( control_protasis_apodosis( keywords( qw{ if unless } ) )
+        . star( - control_protasis_apodosis( lit('elsif') ) )
         . opt( - lit('else') - blkBare )
-        ^ keywords( qw{ while until } ) + ow( '()', - expr - nothing ) - blkBare
+        ^ control_protasis_apodosis( keywords( qw{ while until } ) )
         ^ opt( blkPrmbl - nothing ) . blkBare
-        ^ lit('try') - blkBare . opt( - lit('finally') - blkBare )
+        ^ lit('try') + blkBare . opt( + lit('finally') + blkBare )
+        ^ control_protasis_apodosis( lit('repeat') + keywords( qw{ while until } ) )
+        ^ control_apodosis( lit('repeat') ) + keywords( qw{ while until } ) + ow( '()', expr ) )
+};
+
+pattern control_protasis_apodosis {
+        control_apodosis( $_[1] + ow( '()', expr ) )
+};
+
+pattern control_apodosis {
+        $_[1] + blkBare
 };
 
 pattern blkBare {
