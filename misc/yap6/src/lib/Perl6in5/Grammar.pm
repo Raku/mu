@@ -19,13 +19,13 @@ sub head { &Perl6in5::Compiler::Parser::head(@_) }
 sub tail { &Perl6in5::Compiler::Parser::tail(@_) }
 
 FILTER {
-    my @rules = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;
-    s/^rule\s+([A-Za-z_]\w*)\s+\{/rule '$1' => sub {/mg;
+    my @patterns = m/^rule\s+([A-Za-z_]\w*)\s+\{/mg;
+    s/^pattern\s+([A-Za-z_]\w*)\s+\{/pattern '$1' => sub {/mg;
     s/'(.)'/lit('$1')/mg;
-    $_ = join('',map {"sub $_(@);"} @rules).$_;
+    $_ = join('',map {"sub $_(@);"} @patterns).$_;
 };
 
-sub rule {
+sub pattern {
     my ($name,$code) = @_;
     my ($continuation, $stub);
     $continuation = sub {
@@ -54,7 +54,7 @@ END {
     unless ($r->{success}) {
         my $msg;
         if (defined $r->{expected} && $r->{expected} eq 'EOI') {
-            $msg = "syntax error near the end of input";
+            $msg = "statement not terminated properly near the end of input";
         } else {
             $msg = "syntax error at line "
             .($r->{line})." col ".$r->{col}." near ".

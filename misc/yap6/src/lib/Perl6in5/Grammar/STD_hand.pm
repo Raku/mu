@@ -9,27 +9,27 @@ my @bareFuncs    = qw{ use no say };
 my @blkDecls     = qw{ module class grammar role };
 my @blkNumbers   = qw{ multi proto only };
 
-rule program {
+pattern program {
         opt( usev6 - (stmtTrm | eoi) )
         - opt( pkgDecl )
         . opt( stmtList ) . eoi
 };
 
-rule pkgDecl {
+pattern pkgDecl {
         keyword('package') + identifier - stmtTrm;
 };
 
-rule usev6 {
+pattern usev6 {
         keyword('use') + lits(qw{ v6 Perl-6 })
         | keyword('module') + opt(keyword('Main'))
         | lits(qw{ class v6.0.0 v6 6 })
 };
 
-rule identifier {
+pattern identifier {
         match( qr|^([A-Za-z_]\w*)| )
 };
 
-rule bareInt {
+pattern bareInt {
         match( qr|^(\d+)| )
 };
 
@@ -41,35 +41,35 @@ rule bareInt {
 #        $_[1] . rx_subj . $_[1] . opt( rx_target . $_[1] )
 #};
 
-rule sVari {
+pattern sVari {
         lits( qw{ $^ $? $ @@ @ % & } ) . identifier
 };
 
-rule commalist {
+pattern commalist {
         plus( - ',' - nothing) . opt( $_[1] . opt( $_[0] ) )
 };
 
-rule opt_chain_right_3 {
+pattern opt_chain_right_3 {
         $_[1] . opt( $_[2] . opt( $_[3] ) )
 };
 
-rule stmtList {
+pattern stmtList {
         star( stmtTrm ) - ( opt_chain_right_3( block, blkTrm, stmtList ) ^ opt_chain_right_3( nbexpr, stmtTrm, stmtList ) ) - nothing
 };
 
-rule stmtTrm {
+pattern stmtTrm {
         plus( - ';' )
 };
 
-rule blkTrm {
+pattern blkTrm {
         lit( "\n" ) . opt( stmtTrm ) ^ stmtTrm
 };
 
-rule bareString {
+pattern bareString {
         #w('""',star(unmore('"'))) | w("''",star(unmore("'") . identifier))
 };
 
-rule nbexpr {
+pattern nbexpr {
         one(
             panic( pkgDecl, "Can't declare a non-block package")
             , func_say
@@ -79,15 +79,15 @@ rule nbexpr {
             , blkTrait )
 };
 
-rule func_say {
+pattern func_say {
         keyword('say') . opt( p6ws . expr )
 };
 
-rule impor {
+pattern impor {
         keywords( qw{ no use require module class } ) + identifier . opt( p6ws . expr )
 };
 
-rule block {
+pattern block {
         keywords( qw{ if unless } ) + ow( '()', - expr - nothing ) - blkBare
         . star( - lit('elsif') + ow( '()', - expr - nothing ) - blkBare )
         . opt( - lit('else') - blkBare )
@@ -96,11 +96,11 @@ rule block {
         ^ lit('try') - blkBare . opt( - lit('finally') - blkBare )
 };
 
-rule blkBare {
+pattern blkBare {
         w( "{}", -( opt( stmtList ) ) )
 };
 
-rule blkPrmbl {
+pattern blkPrmbl {
         first(
             blkNumber
             . blkDeclarator
@@ -113,113 +113,113 @@ rule blkPrmbl {
             , arrowDecl )
 };
 
-rule blkNumber {
+pattern blkNumber {
         opt( keywords( @blkNumbers ) . p6ws )
 };
 
-rule blkDeclarator {
+pattern blkDeclarator {
         # the fact that blkType must be out in front demonstrates that sometimes
         # rules that have potentially overlapping alternatives (clype) may both hit on the
         # longest token matcher, so we have to put the one(s) that should win, earlier.
         ( blkType ^ opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType ) . p6ws
 };
 
-rule scpDecl {
+pattern scpDecl {
         keywords( qw{ my our } )
 };
 
-rule blkType {
+pattern blkType {
         keywords( @blkTypes )
 };
 
-rule blkIdentifier {
+pattern blkIdentifier {
         opt( opt( '^' ) . identifier . p6ws ) 
 };
 
-rule blkVisibility {
+pattern blkVisibility {
         opt( vsblty . p6ws )
 };
 
-rule blkPrms {
+pattern blkPrms {
         opt( w( '()', - opt( invcDecl ) - nothing ) )
 };
 
-rule invcDecl {
+pattern invcDecl {
         prmDecl . ':' - opt( prmDecl . blkPrmsList ) ^ prmDecl . blkPrmsList
 };
 
-rule prmDecl {
+pattern prmDecl {
         opt( clype . p6ws ) . sVari
 };
 
-rule blkPrmsList {
+pattern blkPrmsList {
         opt( commalist( prmDecl ) )
 };
 
-rule blkTraits {
+pattern blkTraits {
         star( - blkTrait . p6ws )
 };
 
-rule blkTrait {
+pattern blkTrait {
         keywords( qw{ is does has } ) + clype + sVari
 };
 
-rule arrowDecl {
+pattern arrowDecl {
         arrowInv . blkPrmsList
 };
 
-rule arrowInv {
+pattern arrowInv {
         lit( '<-' ) - prmDecl
 };
 
-rule blkRetT {
+pattern blkRetT {
         clype
 };
 
-rule clype {
+pattern clype {
         identifier  # just take any class/type name for now :)
         #  $Clype    # Class/Type
 };
 
-rule blkLabel {
+pattern blkLabel {
         identifier . ':';
 };
 
-rule flowCtrl {
+pattern flowCtrl {
         keywords( qw{ do } )
 };
 
-rule compUnit {
+pattern compUnit {
         keywords( @compUnits ) . worry( ':' - '{', "colons are for block labels, not special compilation units" )
 };
 
-rule vsblty {
+pattern vsblty {
         keywords( qw{ public private } )
 };
 
-rule expr {
+pattern expr {
         block
         ^ nbexpr
 };
 
-rule declareAssign {
+pattern declareAssign {
         opt( scpDecl . p6ws ) . prmDecl . opt( - '=' - expr )
         ^ keywords( @blkDecls ) + clype
 };
 
-rule op_numaddt {
+pattern op_numaddt {
         term . star( -( '+' | '-' ) - term )
 };
 
-rule term {
+pattern term {
         factor . star( -( '*' | '/' ) - factor )
 };
 
-rule factor {
+pattern factor {
         base . star( - lit('**') - base )
 };
 
-rule base {
+pattern base {
         bareInt ^ sVari ^ w( '()', stmtList )
 };
 
