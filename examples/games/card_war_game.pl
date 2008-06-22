@@ -6,10 +6,10 @@ use v6-alpha;
 
 =head1 DESCRIPTION
 
-This program simulates classic Card War Game as described on
+This program simulates the classic Card War Game as described on
 I<http://en.wikipedia.org/wiki/War_(card_game)>.
 
-It was written to test, show and explain some cool PERL6 features:
+It was written to test, to show and explain some cool Perl 6 features:
 
 =over 12
 
@@ -21,7 +21,7 @@ It was written to test, show and explain some cool PERL6 features:
 
 =item Array.uniq method
 
-=item definition of own operators
+=item defining your own operators
 
 =item subroutine parameters (including mapping of hashes to definitions)
 
@@ -85,10 +85,9 @@ bbkr (Pawel Pabian) L<cpan@bbkr.org>
 =cut
 
 # construct card deck
-# PERL6 'X' opeator is used to create cartesian product of values and colors
+# Perl 6 'X' opeator is used to create cartesian product of values and colors
 # so @deck = ( [2, 'Hearts'], [2, 'Clubs'], [2, 'Spades'], [2, 'Diamonds'], [3, 'Hearts'], ... );
-# deck is shuffled using random sort
-my @deck = sort { int rand 2 }, (2..10, 'Jack', 'Queen', 'King', 'Ace' X 'Hearts', 'Clubs', 'Spades', 'Diamonds');
+my @deck = (2..10, <Jack Queen King Ace> X <Hearts Clubs Spades Diamonds>).pick(*);
 
 # create players and split the deck between them (each player gets 26 cards to hand)
 my $player1 = {'name' => 'Player1', 'hand' => [splice(@deck, 0, 26)], 'stack' => [] };
@@ -110,7 +109,7 @@ while draw_cards(visible => 1) {
     }
     else {
         # round winner was defined
-        say $round_winner.{'name'} ~ ' won the round';
+        say $round_winner<name>, ' won the round';
         # round winner gets both stacks
         collect_cards($round_winner);
         say;
@@ -118,34 +117,34 @@ while draw_cards(visible => 1) {
 }
 
 # one or both players ran out of cards
-# PERL6 chained comparison operators are used
+# Perl 6 chained comparison operators are used
 print "\nRESULT: ";
-if ($player1.{'hand'}.elems == $player2.{'hand'}.elems == 0) {
+if ($player1<hand>.elems == $player2<hand>.elems == 0) {
     say 'both players ran out of cards';
 }
-elsif ($player1.{'hand'}.elems > $player2.{'hand'}.elems == 0) {
-    say $player1.{'name'} ~ ' won the game';
+elsif ($player1<hand>.elems > $player2<hand>.elems == 0) {
+    say $player1<name>, ' won the game';
 }
-elsif (0 == $player1.{'hand'}.elems < $player2.{'hand'}.elems) {
-    say $player2.{'name'} ~ ' won the game';
+elsif (0 == $player1<hand>.elems < $player2<hand>.elems) {
+    say $player2<name>, ' won the game';
 }
 
 exit 0;
 
-# PERL6 creating new operators
+# Perl 6 creating new operators
 # define CC (compare cards) operator
 sub infix:<CC> (ArrayRef $card1, ArrayRef $card2) {
     my %values = (
-        'Jack'    => 11,
-        'Queen' => 12,
-        'King'    => 13,
+        'Jack'   => 11,
+        'Queen'  => 12,
+        'King'   => 13,
         'Ace'    => 14,
     );
-    # PERL6 default values operator '//'
+    # Perl 6 default values operator '//'
     # if card value was not numeric, for example 'Ace', get mapped value
     # if not mapped value was defined just get card value (it was numeric)
-    my $value1 = %values{$card1.[0]} // $card1.[0];
-    my $value2 = %values{$card2.[0]} // $card2.[0];
+    my $value1 = %values{$card1[0]} // $card1[0];
+    my $value2 = %values{$card2[0]} // $card2[0];
 
     return $value1 <=> $value2;
 }
@@ -153,9 +152,9 @@ sub infix:<CC> (ArrayRef $card1, ArrayRef $card2) {
 # use CC operator to compare top cards on player stacks.
 # return player that won
 sub compare_cards {
-    my $compare = $player1.{'stack'}.[-1] CC $player2.{'stack'}.[-1];
+    my $compare = $player1<stack>[-1] CC $player2<stack>[-1];
 
-    # PERL6 'given/when' operator (works like switch)
+    # Perl 6 'given/when' operator (works like switch)
     given $compare {
         when 1 { return $player1 }
         when -1 { return $player2 }
@@ -166,19 +165,19 @@ sub compare_cards {
 # both players pops one card from their hands to their stacks
 # returns true if both players could pop cards
 sub draw_cards (Bool $visible) {
-    # PERL6 'gather/take' syntax used to check
+    # Perl 6 'gather/take' syntax used to check
     # if both players had cards to pop
     my @cards = gather for $player1, $player2 -> $player {
-        my $card = $player.{'hand'}.pop;
+        my $card = $player<hand>.pop;
         if defined $card {
-            # PERL6 '??/!!' operator (replacement for '?/:')
-            say $player.{'name'}, ' draws ', ($visible ?? $card.[0] ~ ' of ' ~$card.[1] !! 'face down card');
+            # Perl 6 '?? !!' operator (replacement for '?:')
+            say $player<name>, ' draws ', ($visible ?? $card.[0] ~ ' of ' ~$card.[1] !! 'face down card');
             # push popped card to players stack
-            $player.{'stack'}.push( $card );
+            $player<stack>.push( $card );
             take $card;
         }
         else {
-            say $player.{'name'}, ' has ran out of cards';
+            say $player<name>, ' has ran out of cards';
         }
     };
 
@@ -188,21 +187,21 @@ sub draw_cards (Bool $visible) {
 
 # player that won the round gets both stacks to his hand
 sub collect_cards(HashRef $winner) {
-    # PERL6 uniq method is used to get array
+    # Perl 6 uniq method is used to get array
     # containing winner and the other player
     for @($winner, $player1, $player2).uniq -> $player {
-        for @($player.{'stack'}) -> $card {
-            # PERL6 smart match operator to compare HashRefs
+        for @($player<stack>) -> $card {
+            # Perl 6 smart match operator to compare HashRefs
             if $player ~~ $winner {
-                say $winner.{'name'} ~ ' takes back his ' ~ $card.[0] ~ ' of ' ~$card.[1];
+                say $winner<name>, ' takes back his ', $card[0], ' of ', $card[1];
             }
             else {
-                say $winner.{'name'} ~ ' won ' ~ $card.[0] ~ ' of ' ~$card.[1];
+                say $winner<name>, ' won ', $card[0], ' of ', $card[1];
             }
-            $winner.{'hand'}.unshift( $card );
+            $winner<hand>.unshift( $card );
         }
         # clear stacks
-        $player.{'stack'} = [];
+        $player<stack> = [];
     }
 }
 
