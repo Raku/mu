@@ -90,13 +90,26 @@ pattern impor {
 pattern block {
         iff( match( qr/^([^;}]+(?:\(.*\))?\s+{)/sm ) )
         . ( control_protasis_apodosis( keywords( qw{ if unless } ) )
-        . star( - control_protasis_apodosis( lit('elsif') ) )
-        . opt( - lit('else') - blkBare )
+            . star( - control_protasis_apodosis( lit('elsif') ) )
+            . opt( - lit('else') - blkBare )
         ^ control_protasis_apodosis( keywords( qw{ while until } ) )
         ^ opt( blkPrmbl - nothing ) . blkBare
         ^ lit('try') + blkBare . opt( + lit('finally') + blkBare )
-        ^ control_protasis_apodosis( lit('repeat') + keywords( qw{ while until } ) . opt( p6ws . arrowCondResult ) )
-        ^ control_apodosis( lit('repeat') . opt( p6ws . arrowCondResult ) ) + keywords( qw{ while until } ) + ow( '()', expr ) )
+        ^ control_protasis_apodosis( lit('repeat') + keywords( qw{ while until } )
+            . opt( p6ws . arrowCondResult ) )
+        ^ control_apodosis( lit('repeat') . opt( p6ws . arrowCondResult ) )
+            + keywords( qw{ while until } ) + ow( '()', expr )
+        ^ control_apodosis( lit('loop') . opt( p6ws . w( '()', stmtList ) ) )
+        ^ forBuilder( opt( '<' ) . lit('->') + blkPrms )
+        ^ forBuilder( lit('->') + blkPrms( isRwAppendix ) ) )
+};
+
+pattern isRwAppendix {
+        opt( p6ws . lit('is') + lit('rw') )
+};
+
+pattern forBuilder {
+        control_apodosis( lit('for') + expr . opt( p6ws . $_[1] ) )
 };
 
 pattern control_protasis_apodosis {
@@ -117,7 +130,7 @@ pattern blkPrmbl {
             . blkDeclarator
             . blkIdentifier
             . blkVisibility
-            . blkPrms
+            . blkPrmsGroup
             . blkTraits
             , compUnit
             , blkLabel
@@ -151,20 +164,26 @@ pattern blkVisibility {
         opt( vsblty . p6ws )
 };
 
-pattern blkPrms {
+pattern blkPrmsGroup {
         opt( w( '()', - opt( invcDecl ) - nothing ) )
 };
 
 pattern invcDecl {
-        prmDecl . ':' - opt( prmDecl . blkPrmsList ) ^ prmDecl . blkPrmsList
+        prmDecl . ':' - opt( blkPrms ) ^ blkPrms
 };
 
 pattern prmDecl {
         opt( clype . p6ws ) . sVari
 };
 
+pattern blkPrms {
+        my $appendix = $_[1] || nothing;
+        prmDecl . $appendix . blkPrmsList( $appendix )
+};
+
 pattern blkPrmsList {
-        opt( commalist( prmDecl ) )
+        my $appendix = $_[1] || nothing;
+        opt( commalist( prmDecl . $appendix ) )
 };
 
 pattern blkTraits {
