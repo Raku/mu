@@ -166,9 +166,10 @@ EOM
         chdir('../yap6/src')
             or confess("Can't chdir to elf base dir: $!");
         my ($tmp_fh, $name) = tempfile();
-        my ($gram,$inp) = split('|||',$program);
-        $gram = $inp?$gram:'STD_hand';
+        my ($gram,$inp) = split('\|\|\|',$program);
+        my $is_custom = $inp?1:0;
         $inp ||= $gram;
+        $gram = $is_custom?$gram:'STD_hand';
         print $tmp_fh $inp;
         close $tmp_fh;
         system "perl -Ilib bin/test $gram $name >> $filename 2>&1";
