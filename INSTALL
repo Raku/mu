@@ -241,3 +241,27 @@ was r19955.
 Last two steps seems sometimes to be necessary to avoid messages like this
   ./pugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml
   pugs: user error (Not implemented: asYAML "Sub")
+
+INSTALLING PUGS VIA CABAL
+-------------------------
+
+It's now possible to download and install Pugs using cabal-install. Follow
+these steps:
+
+1. Make sure you have Cabal, cabal-install, HTTP and zlib installed.
+
+ <http://www.haskell.org/cabal/download.html>
+ <http://hackage.haskell.org/cgi-bin/hackage-scripts/package/HTTP>
+ <http://hackage.haskell.org/cgi-bin/hackage-scripts/package/zlib>
+
+(If you're unsure how to install this, the instructions contained in the README
+file of Cabal will help you get started. Those instructions work for all the
+above packages.)
+
+2. Type the following commands.
+
+$ cabal update
+$ cabal install pugs-compat
+$ cabal install Pugs
+
+...and you're done.
