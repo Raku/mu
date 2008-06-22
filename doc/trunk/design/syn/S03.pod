@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 11 Jun 2008
+  Last Modified: 21 Jun 2008
   Number: 3
-  Version: 136
+  Version: 137
 
 =head1 Overview
 
@@ -1753,13 +1753,18 @@ The C<item> contextualizer
 
     item foo()
 
-The new name for Perl 5's C<scalar> contextualizer.  Equivalent to C<$()>.
+The new name for Perl 5's C<scalar> contextualizer.  Equivalent to C<$()>
+(except that empty C<$()> means C<$($/)>, while empty C<item()> yields C<Failure>).
 We still call the values scalars, and talk about "scalar operators", but
 scalar operators are those that put their arguments into item context.
 
 If given a list, this function makes an C<Array> from it.  The function
 is agnostic about any C<Captures> in such a list.  (Use C<@> or C<@@>
 below to force that one way or the other).
+
+Note that this is a list operator, not a unary prefix operator,
+since you'd generally want it for converting a list to an item.
+Single items don't need to be converted to items.
 
 =item *
 
@@ -1769,7 +1774,8 @@ The C<list> contextualizer
 
 Forces the subsequent expression to be evaluated in list context.
 A list of C<Capture>s will be transformed into a flat list.
-Equivalent to C<@()>.
+Equivalent to C<@()> (except that empty C<@()> means C<@($/)>, while
+empty C<list()> means an empty list).
 
 =item *
 
@@ -1780,7 +1786,8 @@ The C<slice> contextualizer
 Forces the subsequent expression to be evaluated in slice context.
 (Slices are considered to be potentially multidimensional in Perl 6.)
 A list of C<Capture>s will be transformed into a list of lists.
-Equivalent to C<@@()>.
+Equivalent to C<@@()> (except that empty C<@@()> means C<@@($/)>, while
+empty C<slice()> means a null slice).
 
 =item *
 
@@ -1793,7 +1800,8 @@ The expression is evaluated in list context (flattening any C<Capture>s),
 then a hash will be created from the list, taken as a list of C<Pair>s.
 (Any element in the list that is not a C<Pair> will pretend to be a key
 and grab the next value in the last as its value.)  Equivalent to
-C<%()>.
+C<%()> (except that empty C<%()> means C<%($/)>, while
+empty C<hash()> means an empty hash).
 
 =back
 
