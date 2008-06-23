@@ -83,7 +83,6 @@ package Evalbot;
                 my $p6_out   = filter_rakudo(
                         EvalbotExecuter::run($str, $executer{rakudo}));
                 my $elf_out  = EvalbotExecuter::run($str, $executer{elf});
-#                my $nqp_out  = EvalbotExecuter::run($str, $executer{nqp});
 #                my $yap6_out  = EvalbotExecuter::run($str, $executer{yap6});
                 my $svn_revision = get_revision();
                 my $rakudo_revision = get_rakudo_revision();
@@ -96,6 +95,8 @@ EOM
             } elsif ($eval_name eq 'rakudo' ){
                 my $rakudo_rev = get_rakudo_revision();
                 return "rakudo r$rakudo_rev " . filter_rakudo(EvalbotExecuter::run($str, $e));
+            } elsif ($eval_name eq 'nqp') {
+                return "nqp: " . filter_rakudo(EvalbotExecuter::run($str, $e));
             } elsif ($eval_name eq 'yap6' ) {
                 my $svn_revision = get_revision();
                 return "yap6 r$svn_revision " . EvalbotExecuter::run($str, $e);
