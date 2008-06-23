@@ -20,6 +20,9 @@ S03
 * more comparison tests, especially cmp, leg, and return values of these operators
 * tests for cmp() and eqv() methods of objects
 * test 'Minimal whitespace DWIMmery'. A quick ack indicates that no tests exist to ensure that '@a  [$b]' dies.
+* test that '@array, *' repeats the final element infinitely
+* test that 'A' .. '_' (or other non-word character) is the same as 'A' .. 'Z'
+* tests for other range edgecases
 
 S12
 * tests for $object.WALK
@@ -28,6 +31,9 @@ S12
 * tests for metamethods (under "Introspection" in S12)
 * tests for autovivification
 * more tests for inheritance. Auzon noticed that there were no multiple inheritance tests, so other important things are bound to be missing.
+
+S16
+* tests for glob()
 
 S29
 * tests for array: shape and end
