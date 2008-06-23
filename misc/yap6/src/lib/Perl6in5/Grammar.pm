@@ -9,6 +9,7 @@ use Perl6in5::Compiler::Parser ':all';
 use Filter::Simple;
 use Data::Dumper;
 use File::Slurp;
+use Memoize;
 
 FILTER {
     my @patterns = m/^pattern\s+([A-Za-z_]\w*)\s+\{/mg;
@@ -30,8 +31,10 @@ FILTER {
         };
         {
             $Perl6in5::Grammar::{$name} = $a;
+            memoize($Perl6in5::Grammar::{$name},NORMALIZER=> sub { "@_" });
         }
     }
+    memoize('pattern',NORMALIZER=> sub { "@_" });
 }
 
 END {

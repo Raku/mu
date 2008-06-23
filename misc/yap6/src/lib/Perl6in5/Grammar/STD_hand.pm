@@ -11,6 +11,7 @@ my @bareFuncs    = qw{ use no say };
 my @blkDecls     = qw{ module class grammar role };
 my @blkNumbers   = qw{ multi proto only };
 my @scopes       = qw{ my our state };
+my @sigils       = qw{ $^ $? $ @@ @ % & };
 
 pattern program {
         opt( usev6 - (stmtTrm | eoi) )
@@ -29,11 +30,11 @@ pattern usev6 {
 };
 
 pattern identifier {
-        match( qr|^([A-Za-z_]\w*)| )
+        match( qr|^([A-Za-z_]\w*)|sp )
 };
 
 pattern bareInt {
-        match( qr|^(\d+)| )
+        match( qr|^(\d+)|sp )
 };
 
 #rule rx {
@@ -45,21 +46,17 @@ pattern bareInt {
 #};
 
 pattern sVari {
-        lits( qw{ $^ $? $ @@ @ % & } ) . identifier
+        lits( @sigils ) . identifier
 };
 
 pattern commalist {
         plus( - ',' - nothing) . opt( $_[1] . opt( $_[0] ) )
 };
 
-pattern opt_chain_right_3 {
-        $_[1] . opt( $_[2] . opt( $_[3] ) )
-};
-
 pattern stmtList {
         star( stmtTrm )
-            - ( opt_chain_right_3( block, blkTrm, stmtList )
-                ^ opt_chain_right_3( nbexpr, stmtTrm, stmtList ) )
+            - ( block . opt( blkTrm . opt( stmtList ) )
+                ^ nbexpr . opt( stmtTrm . opt( stmtList ) ) )
                     - nothing
 };
 
@@ -79,7 +76,8 @@ pattern nbexpr {
         one(
             panic( pkgDecl, "Can't declare a non-block package")
             , func_say
-            , op_numaddt
+            , base
+#            , op_numaddt
             , declareAssign
             , impor
             , blkTrait )
@@ -106,7 +104,7 @@ pattern compose {
 };
 
 pattern block {
-        iff( match( qr/^([^;}]+(?:\(.*\))?\s+{)/sm ) )
+        iff( match( qr/^[^;}]+(?:\(.*\))?\s+{/sp ) )
         . ( control_protasis_apodosis( keywords( qw{ if unless } ) )
             . star( - control_protasis_apodosis( lit('elsif') ) )
             . opt( - lit('else') - blkBare )
@@ -262,20 +260,20 @@ pattern declareAssign {
         ^ keywords( @blkDecls ) + clype
 };
 
-pattern op_numaddt {
-        term . star( -( '+' | '-' ) - term )
-};
+# pattern op_numaddt {
+        # term . star( -( '+' | '-' ) - term )
+# };
 
-pattern term {
-        factor . star( -( '*' | '/' ) - factor )
-};
+# pattern term {
+        # factor . star( -( '*' | '/' ) - factor )
+# };
 
-pattern factor {
-        base . star( - lit('**') - base )
-};
+# pattern factor {
+        # base . star( - lit('**') - base )
+# };
 
 pattern base {
-        bareInt ^ sVari ^ w( '()', stmtList )
+        sVari ^ bareInt ^ w( '()', stmtList )
 };
 
     # N  Terms             42 3.14 'eek' "$eek" q/qq["foo"] $x heredoc :!verbose @$array circumfix(anything) self undef rand $magicals [semilist] ((lazy) array composer) { empty/pair/hash } \(capture items) &div:(Int, Int --> Int) $() @() %() &() @@() /abc/ rx:i[abc] s/foo/bar/ typenames func(*) :by(2) :!verbose :(Dog $self:) .meth/.=meth 4,3, sort 2,1 

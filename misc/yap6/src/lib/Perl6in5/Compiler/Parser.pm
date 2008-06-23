@@ -1,4 +1,4 @@
-#use strict;
+use strict;
 use warnings;
 no warnings qw{ reserved closure recursion };
 
@@ -6,6 +6,7 @@ package Perl6in5::Compiler::Parser;
 
 use Tie::IxHash;
 use Perl6in5::Compiler::Trace;
+use Memoize;
 use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing star opt %stat
                 say all one newline left ceoi worry
@@ -87,8 +88,9 @@ our %stat;
 
 sub parser (&) {
     my $q = $_[0];
-    my $p;
-    $p = bless( sub {
+    my $p; # trace
+    $p =  # trace
+    bless( sub {
         my ($in) = @_;
         my $pos = $in->{'pos'};
         my $m = $M{$q}{$pos};
@@ -100,13 +102,15 @@ sub parser (&) {
         }
         $m;
     } => __PACKAGE__ );
-    $N{$p} = "_memoized_parser_"; # trace
-    $p;
+    $p; # trace
 }
 
+memoize('parser',NORMALIZER=> sub { "@_" });
+
 sub eoi {
-    my $p;
-    $p = parser {
+    my $p; # trace
+    $p =  # trace
+    parser {
         my ($in) = @_;
         trace 3,"Looking for EOI";
         if (!ceoi($in)) {
@@ -121,37 +125,45 @@ sub eoi {
         };
     };
     $N{$p} = "EOI"; # trace
-    $p;
+    $p; # trace
 }
+memoize('eoi',NORMALIZER=> sub { "@_" });
 
-sub nothing {
-    my $p;
-    $p = parser {
+sub nothing () {
+    my $p; # trace
+    $p =  # trace
+    parser {
         $_[0];
     };
     $N{$p} = 'nothing'; # trace
-    $p;
+    $p; # trace
 }
+memoize 'nothing';
 
 sub blank () {
-    my $p;
-    $p = match( qr|^(\s+)| );
+    my $p; # trace
+    $p =  # trace
+    match( qr|^(\s+)|sp );
     $N{$p} = 'blank'; # trace
-    $p;
+    $p; # trace
 }
+memoize 'blank';
 
 sub ws () {
-    my $p;
-    $p = plus(one(blank,lit("\n")));
+    my $p; # trace
+    $p =  # trace
+    plus(one(blank,lit("\n")));
     $N{$p} = 'ws'; # trace
-    $p;
+    $p; # trace
 }
+memoize 'ws';
 
 sub unmore {
     my $q = $_[0];
     # this parser acts like a NOT gate
-    my ($p);
-    $p = parser {
+    my ($p); # trace
+    $p =  # trace
+    parser {
         my ($in) = @_;
         my $b = $in;
         $in = $q->($in);
@@ -159,49 +171,53 @@ sub unmore {
         $b;
     };
     $N{$p} = "fail( $N{$q} )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('unmore',NORMALIZER=> sub { "@_" });
 
 sub iff {
     my $q = $_[0];
-    my $p;
-    $p = parser {
+    my $p; # trace
+    $p =  # trace
+    parser {
         my ($in) = @_;
-        my $b = $in;
+        my $b = deep_copy($in);
         $in = $q->($in);
         $b->{success} = $in->{success}?1:0;
         $b;
     };
     $N{$p} = "iff( $N{$q} )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('iff',NORMALIZER=> sub { "@_" });
 
 sub match {
     my $q = $_[0];
-    # $q is a regular expression of the form:
-    # qr/^(match_pattern)/ or qr/(match_pattern)/
+    # $q is a regular expression of the form: qr/^(match_pattern)/sp
     # note that you must include the ^ or you will get
     # incorrect results, b/c match() uses the length of the captured group
     # to eat the proper length of input.  Probably your REs shouldn't be greedy...
-    my $p;
-    $p = parser {
+    my $p; # trace
+    $p =  # trace
+    parser {
         my ($in) = @_;
         $in->{want} = "RE $q";
-        if (!(($in->{hit}) = (left($in) =~ $q))) {
+        unless (($in->{hit}) = left($in) =~ $q) {
             trace 3,"match failed on $N{$p}"; # trace
             return err($in,"$N{$p}"); # trace
-            return err($in,"none");
-        } else { # trace
+            return err($in,"unknown");
+        } else {
             trace 3,"match matched ".$in->{hit}." on $N{$p}"; # trace
         }
-        $in->{pos} += length($in->{hit});
+        $in->{'pos'} += length($in->{hit});
         trace 3,"advanced pos by ".length($in->{hit});
         push @{$in->{ast}->[0]},$in->{hit} unless $in->{hit} =~ /^[\s\n]+$/;
         lineify($in);
     };
     $N{$p} = "match( $q )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('match',NORMALIZER=> sub { "@_" });
 
 sub lineify {
     if ($_[0]->{hit} =~ /\n/) {
@@ -220,43 +236,22 @@ sub lineify {
 sub left {
     substr($_[0]->{inp},$_[0]->{'pos'})
 }
+memoize('left',NORMALIZER=> sub { $_[0]->{'pos'} });
 
 sub lit {
-    my ($want,$count) = @_;
-    # $want is the desired string.
-    # $count is the number of occurrences to match.
-    #   Defaults to 1 of course. 0 doesn't make sense.
-    $count ||= 1;
-    my $p;
-    $p = parser {
-        my ($in) = @_;
-        trace 4,"lit got ".Dumper(left($in));
-        my $l = length($want);
-        $in->{want} = $want x $count;
-        return err($in,"lit() is empty in the grammar") unless $l;
-        my @tier = (); # the new tier in the AST
-        for my $i (1..$count) {
-            trace 5,"in lit:".Dumper($in)." l is $l  i is $i  want is ".Dumper($want);
-            unless (substr(left($_[0]),$l*($i-1),$l*$i) eq $want) {
-                trace 3,"lit missed ".Dumper($want);
-                return err($in,$want);
-            }
-            trace 3,"lit matched $want";
-            push @tier,$want;
-        }
-        $in->{'pos'} += $l * $count;
-        trace 3,"advanced pos by ".($l*$count);
-        push @{$in->{ast}->[0]},@tier;
-        $in->{hit} = $in->{want};
-        lineify($in);
-    };
-    $N{$p} = Dumper($want x $count); # trace
-    $p;
+    my ($want) = @_;
+    my $p; # trace
+    $p =  # trace
+    match( qr/^(\Q$want\E)/sp );
+    $N{$p} = Dumper($want); # trace
+    $p; # trace
 }
+memoize 'lit';
 
 sub ceoi {
     left($_[0]) eq ''
 }
+memoize('ceoi',NORMALIZER=> sub { $_[0]->{'pos'} });
 
 sub err{
     trace 3,"errored ".Dumper($_[1]);
@@ -266,14 +261,16 @@ sub err{
 sub first {
     one( { first => 1 }, @_ );
 }
+memoize('first',NORMALIZER=> sub { "@_" });
 
 sub one {
     my $opts = (ref $_[0] eq 'HASH')?shift:{};
     my @p = grep $_,@_;
     return nothing if @p == 0;
     return $p[0] if @p == 1;
-    my $p;
-    $p = parser {
+    my $p; # trace
+    $p =  # trace
+    parser {
         my ($in) = @_;
         trace 2,"one  ".$in->{'pos'}."  trying >0   ".$N{$p}." on ".Dumper(left($in)); # trace
         my ($q, $np) = (0, scalar @p); # trace
@@ -282,11 +279,11 @@ sub one {
         for (@p) {
             $q++; # trace
             my $c = deep_copy($b);
-            trace 2,"one  ".$in->{'pos'}."  trying $q/$np   ".$N{$p[$q-1]}." on ".Dumper(left($c)); # trace
+            #trace 2,"one  ".$in->{'pos'}."  trying $q/$np   ".$N{$p[$q-1]}." on ".Dumper(left($c));# XXXXXXXXXXX   AUTOVIVIFICATION WEIRDNESS  # trace
             $r = $_->($c);
-            trace 5,"one  ".$N{$p[$q-1]}." returned ".Dumper($r); # trace
+            #trace 5,"one  ".$N{$p[$q-1]}." returned ".Dumper($r);# XXXXXXXXXXX   AUTOVIVIFICATION WEIRDNESS  # trace
             unless ($r->{success}) {
-                trace 2,"one  ".$in->{'pos'}."  failed $q/$np    ".$N{$p[$q-1]}; # trace
+                trace 3,"one  ".$in->{'pos'}."  failed $q/$np    ".$N{$p[$q-1]}; # trace
                 # send back the shortest remaining input if none
                 # succeed; this means the input was validly parsed
                 # up till then.
@@ -299,24 +296,25 @@ sub one {
             }
         }
         if (defined $v) {
-            trace 3,"one  ".$in->{'pos'}."  matched >0   $N{$p}"; # trace
+            trace 2,"one  ".$in->{'pos'}."  matched >0   $N{$p}"; # trace
             return $v;
         }
         trace 2,"one  ".$in->{'pos'}."  failed all   $N{$p}"; # trace
         trace 5,"sending back: ".Dumper({%$z, 'pos'=>$b->{'pos'}});
         return (($z->{backed})?$z:{%$z, 'pos'=>$b->{'pos'},backed=>1});
     };
-
-    my $joiner = ($opts->{first})?' ^ ':' | ';
+    my $joiner = ($opts->{first})?' ^ ':' | '; # trace
     $N{$p} = "( " . join($joiner, map $N{$_}, @p) . " )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('one',NORMALIZER=> sub { "@_" });
 
 sub both {
   my ($A, $B, $wsrule) = @_;
   $wsrule ||= '.';
-  my $p;
-  $p = parser {
+  my $p; # trace
+  $p =  # trace
+  parser {
     my ($in) = @_;
     my ($r);
     if ($wsrule eq '.') {
@@ -340,21 +338,23 @@ sub both {
     trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$B}"; # trace
     $r;
   };
-  trace 6,"both creation dump: ".Dumper($A,$B,[caller(0),caller(1),caller(2)]);
   $N{$p} = "( $N{$A} $wsrule $N{$B} )"; # trace
-  $p;
+  $p; # trace
 }
+memoize('both',NORMALIZER=> sub { "@_" });
 
 sub all {
   my @q = grep $_,@_;
   return nothing if @q == 0;
   return $q[0] if @q == 1;
   my $tail = pop @q;
-  my $p;
-  $p = both(all(@q),$tail,'.');
+  my $p; # trace
+  $p =  # trace
+  both(all(@q),$tail,'.');
   $N{$p} = "all( ".join(" , ",map($N{$_},@q))." , $N{$tail} )"; # trace
-  $p;
+  $p; # trace
 }
+memoize('all',NORMALIZER=> sub { "@_" });
 
 # placing star directly in another star() causes left recursion
 sub star {
@@ -367,40 +367,49 @@ sub star {
     $N{$p} = $N{$p_exec}; # trace
     $p;
 }
+memoize('star',NORMALIZER=> sub { "@_" });
 
 sub opt {
-  my $p;
-  $p = first($_[0], nothing);
+  my $p; # trace
+  $p =  # trace
+  first($_[0], nothing);
   $N{$p} = "opt( $N{$_[0]} )"; # trace
-  $p;
+  $p; # trace
 }
+memoize('opt',NORMALIZER=> sub { "@_" });
 
 sub unspace () {
-    my $p;
-    $p = all(lit("\\"),star(ws));
+    my $p; # trace
+    $p =  # trace
+    both(lit("\\"),star(ws));
     $N{$p} = 'us'; # trace
-    $p;
+    $p; # trace
 }
+memoize('unspace');
 
 # look for a wrapped entity.  first parm is split into the wrappers.
 sub w {
     my ($d,$e) = split(//,$_[0]);
-    my $p;
-    $p = all(lit($d),$_[1],lit($e));
+    my $p; # trace
+    $p =  # trace
+    both(both(lit($d),$_[1]),lit($e));
     $N{$p} = "\"$d\" $N{$_[1]} \"$e\""; # trace
-    $p;
+    $p; # trace
 }
+memoize('w',NORMALIZER=> sub { "@_" });
 
 # the following 2 parsers are left-recursive
 
 # look for an optionally wrapped entity.
 sub ow {
     my ($d,$e) = split(//,$_[0]); # trace
-    my $p;
-    $p = first(w($_[0],$_[1]),$_[1]);
+    my $p; # trace
+    $p =  # trace
+    first(w($_[0],$_[1]),$_[1]);
     $N{$p} = "[\"$d\"] $N{$_[1]} [\"$e\"]"; # trace
-    $p;
+    $p; # trace
 }
+memoize('ow',NORMALIZER=> sub { "@_" });
 
 # nested optional wrap
 sub now {
@@ -414,6 +423,7 @@ sub now {
     $N{$p} = $N{$p_exec}; # trace
     $p;
 }
+memoize('now',NORMALIZER=> sub { "@_" });
 
 # optws and manws always receive 1 or 2 arguments when called
 # by the overloaded operators in grammars
@@ -422,77 +432,94 @@ sub now {
 #   explicitly, or always pass them two arguments :)
 
 sub optws {
-  my $p;
+  my $p; # trace
   if ($_[1]) {
     # binary -, so optional intervening whitespace
-    $p = all($_[0], opt(ws), $_[1]);
+    $p =  # trace
+    both(both($_[0], first(ws,nothing)), $_[1]);
     $N{$p} = "$N{$_[0]} - $N{$_[1]}"; # trace
   } else {
     # unary -, so optional leading whitespace
-    $p = both(opt(ws), $_[0], '.');
+    $p =  # trace
+    both(opt(ws), $_[0], '.');
     $N{$p} = " -( $N{$_[0]} )"; # trace
   }
-  $p;
+  $p; # trace
 }
+memoize('optws',NORMALIZER=> sub { "@_" });
 
 sub manws {
-  my ($p);
+  my ($p); # trace
   if (defined($_[1])) {
     # binary +, so mandatory intervening  whitespace
-    $p = all($_[0], ws, $_[1]);
+    $p =  # trace
+    both(both($_[0], ws), $_[1]);
     $N{$p} = "$N{$_[0]} + $N{$_[1]}"; # trace
   } else {
     # unary +, so mandatory leading whitespace
-    $p = both(ws, $_[0], '.');
+    $p =  # trace
+    both(ws, $_[0], '.');
     $N{$p} = "+( $N{$_[0]} )"; # trace
   }
-  $p;
+  $p; # trace
 }
+memoize('manws',NORMALIZER=> sub { "@_" });
 
 sub opttws {
-  my $p;
-  $p = both($_[0], opt(ws), '.');
+  my $p; # trace
+  $p =  # trace
+  both($_[0], first(ws,nothing), '.');
   $N{$p} = "( $N{$_[0]} )--"; # trace
-  $p;
+  $p; # trace
 }
+memoize('opttws',NORMALIZER=> sub { "@_" });
 
 sub mantws {
-  my $p;
-  $p = both($_[0], ws, '.');
+  my $p; # trace
+  $p =  # trace
+  both($_[0], ws, '.');
   $N{$p} = "( $N{$_[0]} )++"; # trace
-  $p;
+  $p; # trace
 }
+memoize('mantws',NORMALIZER=> sub { "@_" });
 
 sub newline {
-  my $p;
-  $p = plus(first(panic(lit("\n#{"),"\\n#{ is illegal"),opttws(optws(lit("\n")))));
+  my $p; # trace
+  $p =  # trace
+  plus(first(panic(lit("\n#{"),"\\n#{ is illegal"),opttws(optws(lit("\n")))));
   $N{$p} = "\\n"; # trace
-  $p;
+  $p; # trace
 }
+memoize('newline',NORMALIZER=> sub { "@_" });
 
 sub plus {
     my $t = $_[0];
-    my $p;
-    $p = both($t,star($t),'.');
+    my $p; # trace
+    $p =  # trace
+    both($t,star($t),'.');
     $N{$p} = "plus( $N{$_[0]} )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('plus',NORMALIZER=> sub { "@_" });
 
 sub nthru {
   my ($n,$o) = @_;
-  my $p;
-  $p = both($n, thru($o),'.');
+  my $p; # trace
+  $p =  # trace
+  both($n, thru($o),'.');
   $N{$p} = "$N{$n} * $N{$o}"; # trace
-  $p;
+  $p; # trace
 }
+memoize('nthru',NORMALIZER=> sub { "@_" });
 
 # slurp up stuff until a stopper parser matches. basically, the {*} signifier.
 # if you want to slurp up stuff *up until but stopping short of* the stopper,
 # wrap the stopper in iff().  if-and-only-if, get it?
 sub thru {
     my $stop = $_[0];
-    my $p;
-    $p = parser {
+    my $p; # trace
+    $p =  # trace
+    parser {
         my ($in) = @_;
         my @values;
         my $v = $in;
@@ -505,50 +532,57 @@ sub thru {
             } else {
                 trace 5,"through $N{$stop} still not matched"; # trace
                 push @values, substr($v->{inp},$v->{'pos'},1);
-                $v->{pos}++;
+                $v->{'pos'}++;
             }
         }
         my $len;
         $len += length($_) foreach @values;
         $in->{hit} = join('',@values);
         trace 4,"Through token matched";
-        $in->{pos} += length($in->{hit});
+        $in->{'pos'} += length($in->{hit});
         trace 3,"advanced pos by ".length($in->{hit});
-        push @{$in->{ast}->[0]},$in->{hit} unless $in->{hit} =~ /^[\s\n]+$/;
+        push @{$in->{ast}->[0]},$in->{hit};
         lineify($in);
     };
     $N{$p} = '{*} . '.$N{$stop}; # trace
-    $p;
+    $p; # trace
 }
+memoize('thru',NORMALIZER=> sub { "@_" });
 
 sub keywords {
-    my $p;
-    $p = both(iff(match(qr|^([A-Za-z_]\w*)|)),lits(@_));
+    my $p; # trace
+    $p =  # trace
+    both(iff(match(qr|^([A-Za-z_]\w*)|)),lits(@_));
     $N{$p} = "( '".join("' ^ '",@_)."' )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('keywords',NORMALIZER=> sub { "@_" });
 
 sub lits {
-    my $p;
-    $p = first(map(lit($_),@_));
+    my $p; # trace
+    $p =  # trace
+    first(map(lit($_),@_));
     $N{$p} = "( '".join("' ^ '",@_)."' )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('lits');
 
 sub worry {
     my ($ins,$msg) = @_;
-    my $p;
-    $p = parser {
+    my $p; # trace
+    $p =  # trace
+    parser {
         my ($in) = @_;
         trace 4,"Worrying if find $N{$ins}"; # trace
-        my $b = $in;
+        my $b = deep_copy($in);
         $in = $ins->($in);
         warning($msg,$b) if $in->{success};
         return {%$b,success=>($in->{success}?0:1)};
     };
     $N{$p} = "worry( $N{$ins} )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('worry',NORMALIZER=> sub { "@_" });
 
 sub warning {
     print STDERR "Syntax warning in ".$_[1]->{name}." at line ".$_[1]->{line}." col ".$_[1]->{col}." : ".$_[0]."\n"
@@ -560,8 +594,9 @@ sub error {
 
 sub panic {
     my ($ins,$msg) = @_;
-    my $p;
-    $p = parser {
+    my $p; # trace
+    $p =  # trace
+    parser {
         my ($in) = @_;
         trace 4,"Dying if find $N{$ins}"; # trace
         my $b = $in;
@@ -571,17 +606,21 @@ sub panic {
         $b;
     };
     $N{$p} = "panic( $N{$ins} )"; # trace
-    $p;
+    $p; # trace
 }
+memoize('panic',NORMALIZER=> sub { "@_" });
 
 sub to {
-    my ($h,$p) = @_;
-    $p = parser {
+    my ($h) = @_;
+    my $p; # trace
+    $p =  # trace
+    parser {
         return {%{$h->($_[0])}, success=>1};
     };
     $N{$p} = "hh"; # trace
-    $p;
+    $p; # trace
 }
+memoize('to',NORMALIZER=> sub { "@_" });
 
 sub r_amper {
     # iff(0).1 w/ identical start/endpoints
