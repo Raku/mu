@@ -53,11 +53,14 @@ pattern commalist {
         plus( - ',' - nothing) . opt( $_[1] . opt( $_[0] ) )
 };
 
-pattern stmtList {
+pattern stmt {
         star( stmtTrm )
-            - ( block . opt( blkTrm . opt( stmtList ) )
-                ^ nbexpr . opt( stmtTrm . opt( stmtList ) ) )
-                    - nothing
+            - ( block . blkTrm
+                | nbexpr . stmtTrm )
+};
+
+pattern stmtList {
+        star( stmt ) . opt( expr )
 };
 
 pattern stmtTrm {
