@@ -30,11 +30,11 @@ pattern usev6 {
 };
 
 pattern identifier {
-        match( qr|^([A-Za-z_]\w*)|sp )
+        match( qr|^([A-Za-z_]\w*)|s )
 };
 
 pattern bareInt {
-        match( qr|^(\d+)|sp )
+        match( qr|^(\d+)|s )
 };
 
 #rule rx {
@@ -107,7 +107,7 @@ pattern compose {
 };
 
 pattern block {
-        iff( match( qr/^[^;}]+(?:\(.*\))?\s+{/sp ) )
+        iff( match( qr/^[^;}]+(?:\(.*\))?\s+{/s ) )
         . ( control_protasis_apodosis( keywords( qw{ if unless } ) )
             . star( - control_protasis_apodosis( lit('elsif') ) )
             . opt( - lit('else') - blkBare )

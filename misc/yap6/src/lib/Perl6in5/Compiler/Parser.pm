@@ -143,7 +143,7 @@ memoize 'nothing';
 sub blank () {
     my $p; # trace
     $p =  # trace
-    match( qr|^(\s+)|sp );
+    match( qr|^(\s+)|s );
     $N{$p} = 'blank'; # trace
     $p; # trace
 }
@@ -193,7 +193,7 @@ memoize('iff',NORMALIZER=> sub { "@_" });
 
 sub match {
     my $q = $_[0];
-    # $q is a regular expression of the form: qr/^(match_pattern)/sp
+    # $q is a regular expression of the form: qr/^(match_pattern)/s
     # note that you must include the ^ or you will get
     # incorrect results, b/c match() uses the length of the captured group
     # to eat the proper length of input.  Probably your REs shouldn't be greedy...
@@ -242,7 +242,7 @@ sub lit {
     my ($want) = @_;
     my $p; # trace
     $p =  # trace
-    match( qr/^(\Q$want\E)/sp );
+    match( qr/^(\Q$want\E)/s );
     $N{$p} = Dumper($want); # trace
     $p; # trace
 }
