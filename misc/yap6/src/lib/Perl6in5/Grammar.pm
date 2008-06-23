@@ -4,19 +4,11 @@ use strict;
 use warnings;
 no warnings qw{ reserved closure recursion prototype };
 
-use Scalar::Util qw( weaken );
-
+use Perl6in5::Compiler::Trace;
 use Perl6in5::Compiler::Parser ':all';
-
-use base 'Exporter';
-our @EXPORT = qw ( run_program head tail );
-
 use Filter::Simple;
 use Data::Dumper;
 use File::Slurp;
-
-sub head { &Perl6in5::Compiler::Parser::head(@_) }
-sub tail { &Perl6in5::Compiler::Parser::tail(@_) }
 
 FILTER {
     my @patterns = m/^pattern\s+([A-Za-z_]\w*)\s+\{/mg;
@@ -25,18 +17,20 @@ FILTER {
     $_ = join('',map {"sub $_(@);"} @patterns).$_;
 };
 
-sub pattern {
-    my ($name,$code) = @_;
-    my ($continuation, $stub);
-    $continuation = sub {
-        my @r = @_;
-        my $p;
-        $p = parser { $code->($p,@r)->(@_) };
-        $N{$p} = (scalar @r)?($name.'( '.join( "','",map($N{$_},@r)).' )'):$name;
-        $p;
-    };
-    {
-        $Perl6in5::Grammar::{$name} = $continuation;
+{
+    sub pattern {
+        my ($name,$code) = @_;
+        my $a;
+        $a = sub {
+            my @r = @_;
+            my $p;
+            $p = parser { $code->($p,@r)->(@_) };
+            $N{$p} = (scalar @r)?($name.'( '.join( "','",map($N{$_},@r)).' )'):$name; # trace
+            $p;
+        };
+        {
+            $Perl6in5::Grammar::{$name} = $a;
+        }
     }
 }
 
@@ -62,10 +56,11 @@ END {
             ($r->{expected}?"\nExpected: ".Dumper($r->{expected}).".":'');
         }
         print STDERR $msg."\n".Dumper($r->{ast});
+        print "stats: ".Dumper(\%stat)."\n" if keys %stat;
         exit 255;
     } else {
         print "parsed: ".Dumper($r->{ast})."\n";
-        print "stats: ".Dumper(\%stat) if keys %stat;
+        print "stats: ".Dumper(\%stat)."\n" if keys %stat;
         exit 0;
     }
 }

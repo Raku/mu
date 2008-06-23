@@ -19,12 +19,12 @@ pattern program {
 };
 
 pattern pkgDecl {
-        keyword('package') + identifier - stmtTrm;
+        lit('package') + identifier - stmtTrm;
 };
 
 pattern usev6 {
-        keyword('use') + lits(qw{ v6 Perl-6 })
-        | keyword('module') + opt(keyword('Main'))
+        lit('use') + lits(qw{ v6 Perl-6 })
+        | lit('module') + opt(lit('Main'))
         | lits(qw{ class v6.0.0 v6 6 })
 };
 
@@ -86,11 +86,11 @@ pattern nbexpr {
 };
 
 pattern func_say {
-        keyword('say') . opt( p6ws . expr )
+        lit('say') . opt( ws . expr )
 };
 
 pattern impor {
-        keywords( qw{ no use require module class } ) + identifier . opt( p6ws . expr )
+        keywords( qw{ no use require module class } ) + identifier . opt( ws . expr )
 };
 
 pattern series {
@@ -114,24 +114,24 @@ pattern block {
         ^ opt( blkPrmbl - nothing ) . blkBare
         ^ lit('try') + blkBare . opt( + lit('finally') + blkBare )
         ^ control_protasis_apodosis( lit('repeat') + keywords( qw{ while until } )
-            . opt( p6ws . arrowCondResult ) )
-        ^ control_apodosis( lit('repeat') . opt( p6ws . arrowCondResult ) )
+            . opt( ws . arrowCondResult ) )
+        ^ control_apodosis( lit('repeat') . opt( ws . arrowCondResult ) )
             + keywords( qw{ while until } ) + ow( '()', expr )
-        ^ control_apodosis( lit('loop') . opt( p6ws
+        ^ control_apodosis( lit('loop') . opt( ws
             . w( '()', - expr - ';' - expr - ';' - expr - opt( ';' ) - nothing) ) )
         ^ control_apodosis( keywords( 'do', 'given', 'when' ) )
         ^ forBuilder( opt( '<' ) . lit('->') + blkPrms )
         ^ forBuilder( lit('->') + blkPrms( isRwAppendix ) )
-        ^ opt( scpDecl . p6ws ) . prmDecl . plus( lit('will')
+        ^ opt( scpDecl . ws ) . prmDecl . plus( lit('will')
             + control_apodosis( keywords( @lcPhases ) ) ) )
 };
 
 pattern isRwAppendix {
-        opt( p6ws . lit('is') + lit('rw') )
+        opt( ws . lit('is') + lit('rw') )
 };
 
 pattern forBuilder {
-        control_apodosis( lit('for') + expr . opt( p6ws . $_[1] ) )
+        control_apodosis( lit('for') + expr . opt( ws . $_[1] ) )
 };
 
 pattern control_protasis_apodosis {
@@ -160,14 +160,14 @@ pattern blkPrmbl {
 };
 
 pattern blkNumber {
-        opt( keywords( @blkNumbers ) . p6ws )
+        opt( keywords( @blkNumbers ) . ws )
 };
 
 pattern blkDeclarator {
         # the fact that blkType must be out in front demonstrates that sometimes
         # rules that have potentially overlapping alternatives (clype) may both hit on the
         # longest token matcher, so we have to put the one(s) that should win, earlier.
-        ( blkType ^ opt( opt( scpDecl . p6ws ) . clype . p6ws ) . blkType ) . p6ws
+        ( blkType ^ opt( opt( scpDecl . ws ) . clype . ws ) . blkType ) . ws
 };
 
 pattern scpDecl {
@@ -179,11 +179,11 @@ pattern blkType {
 };
 
 pattern blkIdentifier {
-        opt( opt( '^' ) . identifier . p6ws ) 
+        opt( opt( '^' ) . identifier . ws ) 
 };
 
 pattern blkVisibility {
-        opt( vsblty . p6ws )
+        opt( vsblty . ws )
 };
 
 pattern blkPrmsGroup {
@@ -195,7 +195,7 @@ pattern invcDecl {
 };
 
 pattern prmDecl {
-        opt( clype . p6ws ) . sVari
+        opt( clype . ws ) . sVari
 };
 
 pattern blkPrms {
@@ -209,7 +209,7 @@ pattern blkPrmsList {
 };
 
 pattern blkTraits {
-        star( - blkTrait . p6ws )
+        star( - blkTrait . ws )
 };
 
 pattern blkTrait {
@@ -258,7 +258,7 @@ pattern expr {
 };
 
 pattern declareAssign {
-        opt( scpDecl . p6ws ) . prmDecl . opt( - '=' - expr )
+        opt( scpDecl . ws ) . prmDecl . opt( - '=' - expr )
         ^ keywords( @blkDecls ) + clype
 };
 
