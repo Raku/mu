@@ -238,7 +238,7 @@ sub lit {
         for my $i (1..$count) {
             trace 5,"in lit:".Dumper($in)." l is $l  i is $i  want is ".Dumper($want);
             unless (substr(left($_[0]),$l*($i-1),$l*$i) eq $want) {
-                trace 3,"lit missed $want";
+                trace 3,"lit missed ".Dumper($want);
                 return err($in,$want);
             }
             trace 3,"lit matched $want";
@@ -281,7 +281,7 @@ sub one {
         my $b = deep_copy($in);
         for (@p) {
             $q++; # trace
-            my $c = $b;
+            my $c = deep_copy($b);
             trace 2,"one  ".$in->{'pos'}."  trying $q/$np   ".$N{$p[$q-1]}." on ".Dumper(left($c)); # trace
             $r = $_->($c);
             trace 5,"one  ".$N{$p[$q-1]}." returned ".Dumper($r); # trace
@@ -290,12 +290,12 @@ sub one {
                 # send back the shortest remaining input if none
                 # succeed; this means the input was validly parsed
                 # up till then.
-                $z = $r if (!defined $z || length(left($r)) < length(left($z)));
+                $z = $r if (!defined $z || $r->{'pos'} > $z->{'pos'});
             } else {
                 trace 3,"one  ".$in->{'pos'}."  matched $q/$np    ".$N{$p[$q-1]}; # trace
                 #return $r if $r->{fated};
-                return (($r->{backed})?$r:{%$r, 'pos'=>$b->{'pos'},backed=>1}) if $opts->{first};
-                $v = $r if (!defined $v || length(left($r)) < length(left($v)));
+                return (($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1}) if $opts->{first};
+                $v = $r if (!defined $v || $r->{'pos'} > $v->{'pos'});
             }
         }
         if (defined $v) {
