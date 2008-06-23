@@ -56,7 +56,7 @@ pattern commalist {
 pattern stmt {
         star( stmtTrm )
             - ( block . blkTrm
-                | nbexpr . stmtTrm )
+                ^ nbexpr . stmtTrm )
 };
 
 pattern stmtList {

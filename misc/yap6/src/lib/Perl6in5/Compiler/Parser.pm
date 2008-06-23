@@ -11,7 +11,7 @@ use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing star opt %stat
                 say all one newline left ceoi worry
                 %N parser check to first iff trace thru
-                w keywords panic ws parser2 nthru lits
+                w keywords panic ws nthru lits
                 unspace optws manws opttws mantws through
                 plus both match unmore ow now warning error);
 our @ISA = 'Exporter';
@@ -46,10 +46,6 @@ $Data::Dumper::Useqq = 1;
 $Data::Dumper::Quotekeys = 0;
 
 sub say (@) { print($_) for @_; print "\n" }
-
-sub parser2 (&) {
-    return bless( $_[0] => __PACKAGE__ )
-}
 
 sub trace ($$) { # trace
   my $level = shift; # trace
@@ -93,12 +89,13 @@ sub parser (&) {
     bless( sub {
         my ($in) = @_;
         my $pos = $in->{'pos'};
-        my $m = $M{$q}{$pos};
-        if (!defined $m) {
+        my $m; 
+        if (!defined $M{$q}{$pos}) {
             $stat{memo_misses}++; # trace
             $m = $M{$q}{$pos} = $q->($in);
-        } else { # trace
+        } else {
             $stat{memo_hits}++; # trace
+            $m = $M{$q}{$pos};
         }
         $m;
     } => __PACKAGE__ );
@@ -621,6 +618,30 @@ sub to {
     $p; # trace
 }
 memoize('to',NORMALIZER=> sub { "@_" });
+
+our %opep_table;
+
+
+# operator precedence expression parser (builder)
+sub opep {
+    my ($t,      #  the "term" parser (what will appear in these expressions besides operators)
+        $o)      #  the operator table. AroHr:  [ { ... }, {
+                 #      'precedence_level_name' => {
+                 #          'operator_name' => [
+                 #              'literal symbol character(s)',
+                 #              'prefix|postfix|infix',
+                 #              'direction_of_association'
+                 #              'handler_name',
+                 # # the following 2 are trinary_whitespace_disallowed0_optional1_mandatory2:
+                 #              'leading',
+                 #              'trailing',
+                 #              'boolean_chaining'
+        = @_;
+    # precreate all the filtered/lookup membership tables as hash keys, so that classifications
+    # for "the next operator" can efficiently be tested by hash.exists().  
+    
+}
+
 
 sub r_amper {
     # iff(0).1 w/ identical start/endpoints

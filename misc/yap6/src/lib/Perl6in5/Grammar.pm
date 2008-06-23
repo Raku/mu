@@ -60,10 +60,12 @@ END {
         }
         print STDERR $msg."\n".Dumper($r->{ast});
         print "stats: ".Dumper(\%stat)."\n" if keys %stat;
+        print "names: ".scalar(keys(%N))."\n";
         exit 255;
     } else {
         print "parsed: ".Dumper($r->{ast})."\n";
         print "stats: ".Dumper(\%stat)."\n" if keys %stat;
+        print "names: ".scalar(keys(%N))."\n";
         exit 0;
     }
 }
