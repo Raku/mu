@@ -12,10 +12,16 @@ use File::Slurp;
 use Memoize;
 
 FILTER {
+    
+    # in order to enable adaptive grammars, take the entire grammar input here,
+    #       serialize it using Data::Dumper (or something), and append (or
+    #       prepend) it to the grammar file as 
+    
     my @patterns = m/^pattern\s+([A-Za-z_]\w*)\s+\{/mg;
     s/^pattern\s+([A-Za-z_]\w*)\s+\{/pattern '$1' => sub {/mg;
     s/'(.)'/lit('$1')/mg;
     $_ = join('',map {"sub $_(@);"} @patterns).$_;
+    
 };
 
 {

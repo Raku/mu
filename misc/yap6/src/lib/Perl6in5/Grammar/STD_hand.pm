@@ -14,8 +14,8 @@ my @scopes       = qw{ my our state };
 my @sigils       = qw{ $^ $? $ @@ @ % & };
 
 pattern program {
-        opt( usev6 - (stmtTrm | eoi) )
-        - opt( pkgDecl )
+        panic( pkgDecl, "Input file is Perl 5, not Perl 6!" )
+        - opt( usev6 - stmtTrm )
         . opt( stmtList ) - eoi
 };
 

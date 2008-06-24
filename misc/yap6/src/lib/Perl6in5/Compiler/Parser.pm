@@ -11,7 +11,7 @@ use Exporter;
 our @EXPORT_OK = qw(lit eoi nothing star opt %stat
                 say all one newline left ceoi worry
                 %N parser check to first iff trace thru
-                w keywords panic ws nthru lits
+                w keywords panic ws nthru lits %O
                 unspace optws manws opttws mantws through
                 plus both match unmore ow now warning error);
 our @ISA = 'Exporter';
@@ -78,28 +78,27 @@ sub deep_copy {
     }
 }
 
-our %M;
-
-our %stat;
+our (%M, %O, %stat);
 
 sub parser (&) {
     my $q = $_[0];
-    my $p; # trace
-    $p =  # trace
     bless( sub {
         my ($in) = @_;
         my $pos = $in->{'pos'};
         my $m; 
-        if (!defined $M{$q}{$pos}) {
+        unless (defined $M{$q}{$pos}) {
             $stat{memo_misses}++; # trace
-            $m = $M{$q}{$pos} = $q->($in);
+            $m = $q->($in);
+            if ($m->{success} && $m->{'pos'} > $pos) {
+                
+            }
+            $M{$q}{$pos} = $m;
         } else {
             $stat{memo_hits}++; # trace
             $m = $M{$q}{$pos};
         }
         $m;
     } => __PACKAGE__ );
-    $p; # trace
 }
 
 memoize('parser',NORMALIZER=> sub { "@_" });
