@@ -170,7 +170,7 @@ EOM
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "./pixie --quiet $name >> $filename 2>&1";
+        system "$^X pixie --quiet $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
