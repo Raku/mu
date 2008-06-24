@@ -7,7 +7,7 @@ use Filter::Simple;
 FILTER {
     my $level = $ENV{TRACE};
     my $maxtrace = 8;
-    if (defined $level) {
+    if (defined $level and $level ne '') {
         s/'tracelevel'/${level}/mg;
         while ($level < $maxtrace ) {
             $level++;

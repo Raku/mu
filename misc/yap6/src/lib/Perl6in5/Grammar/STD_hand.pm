@@ -16,7 +16,7 @@ my @sigils       = qw{ $^ $? $ @@ @ % & };
 pattern program {
         opt( usev6 - (stmtTrm | eoi) )
         - opt( pkgDecl )
-        . opt( stmtList ) . eoi
+        . opt( stmtList ) - eoi
 };
 
 pattern pkgDecl {

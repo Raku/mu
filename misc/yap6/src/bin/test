@@ -1,4 +1,7 @@
 #!/usr/local/bin/perl
+use diagnostics -verbose;
+
+enable  diagnostics;
 
 use lib '../lib';
 
