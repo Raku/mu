@@ -52,9 +52,15 @@ syn keyword p6KeyProperty   int16 int32 int64 uint1 uint2 uint4 uint8 uint16
 syn keyword p6KeyProperty   uint32 uint64 num16 num32 num64 complex16 complex32
 syn keyword p6KeyProperty   complex64 complex128 buf8 buf16 buf32 buf64
 syn keyword p6KeyProperty   WHAT HOW
-syn keyword p6KeyType       Array Bool Class Code Hash Int IO Num NumRange 
-syn keyword p6KeyType       Str StrRange Sub Role Rule Rat Complex Any
-syn keyword p6KeyType       Scalar List 
+" immutable types as of S02
+syn keyword p6KeyType       Int Num Complex Rat Str Bit Regex Set Junction
+syn keyword p6KeyType       Code Block List Seq
+" low-level types as of S02:
+syn keyword p6KeyType       int num complex rat buf bit
+"other types
+syn keyword p6KeyType       Array Bool Class Hash IO StrPos StrLen
+syn keyword p6KeyType       Sub Role Rule Rat Any Scalar
+
 syn keyword p6KeyFunc       substr index rindex
 syn keyword p6KeyFunc       grep map sort join split reduce min max reverse truncate zip
 syn keyword p6KeyFunc       cat roundrobin classify first 
