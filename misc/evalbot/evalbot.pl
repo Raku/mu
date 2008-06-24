@@ -56,6 +56,7 @@ package Evalbot;
             nqp     => \&exec_nqp,
             rakudo  => \&exec_p6,
             elf     => \&exec_elf,
+            pixie   => \&exec_pixie,
             yap6    => \&exec_yap6,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ")$postfix";
@@ -157,6 +158,19 @@ EOM
         print $tmp_fh $program;
         close $tmp_fh;
         system "./elf_f $name >> $filename 2>&1";
+        unlink $name;
+        chdir $FindBin::Bin;
+        return;
+    }
+
+    sub exec_pixie {
+        my ($program, $fh, $filename) = @_;
+        chdir('../pixie')
+            or confess("Can't chdir to pixie base dir: $!");
+        my ($tmp_fh, $name) = tempfile();
+        print $tmp_fh $program;
+        close $tmp_fh;
+        system "./pixie --quiet $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
