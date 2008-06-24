@@ -8,6 +8,21 @@ Object
     .fmt
     .print
     .say
+    .take
+    .new
+    .bless
+    .clone
+    .BUILD
+    .BUILDALL
+    .CREATE
+    .WHAT
+    .WHICH
+    .WHO
+    .WHERE
+    .HOW (...)
+    .WHEN
+    .WHY
+    .WHENCE
     fail
     die
     warn
@@ -159,14 +174,23 @@ Pair is Any does Associative
     .value
 Mapping is Set of Pair
 Signature is Any does Positional
+    .item
+    .list
+    .void
+    .rw
+    .arity
+    .count
 Capture is Any does Positional does Associative
 Match is Capture
     .from
     .to
     .pretext
+    .chars
+    .orig
+    .text
 Blob is Any
 Scalar is Any does Container does Order
-Array is Any does Container does Positional
+Array is Any does Container does Positional does KitchenSink
 Hash is Mapping does Container
 KeyHash is Hash
 KeySet is KeyHash
@@ -179,24 +203,58 @@ Buf is Any does Positional
     infix:{'~>'}
     infix:<~|>
     infix:<~^>
-IO is Any does Filetest does Each
+IO is Any does Filetest does Each does KitchenSink
     .file
+    .close
+    .fcntl
+    .ioctl
+    .name
+    .stat
+    .getc
+    .print
+    .say
+    .printf
+    .fileno
+    .flock
+    .eof
+    .lines
+    .seek
+    .tell
+    .slurp
+Socket is IO
+    .listen
+    .accept
+    .send
+    .recv
+    .shutdown
+    .(get|set)*
+Pipe is IO
 Statbuf is Any does Filetest
     .file
     .io
 Code is Any does Callable
 Block is Code
     .labels
-    .leave
-    .fail
-    .break
-    .next
-    .last
-    .redo
-    .goto
+    BEGIN
+    CHECK
+    INIT
+    END
+    START
+    ENTER
+    LEAVE
+    KEEP
+    UNDO
+    FIRST
+    NEXT
+    LAST
+    PRE
+    POST
+    CATCH
+    CONTROL
 Routine is Block does Container
     .name
     .return
+    .wrap
 Sub is Routine
 Method is Routine
 Submethod is Routine
@@ -208,7 +266,10 @@ Subst is Regex
 Token is Regex
 Rule is Regex
 Package is Any does Abstraction does Associative
+    .CANDO
 Module is Package
+    .EXPORT
+    .EXPORTALL
 Class is Module
     prefix:<^>
 Role is Module
@@ -216,9 +277,23 @@ Role is Module
 Enum is Any
 Grammar is Class
     .match
-Cursor is Any
+Cursor is Any (does Match ?)
     .pos
     ._
+    .orig
+    .from
+    .to
+Context is Any does Callable (or is Code ?)
+    .context
+    .caller
+    .leave
+    .want
+    .inline
+    .package
+    .file
+    .line
+    .my
+    .hints
 
 Roles
 ==================
@@ -246,6 +321,11 @@ Positional does Each
     .unshift
     .pack
     .sort
+    .keys
+    .values
+    .pairs
+    .kv
+    .shape
     infix:<Z>
     infix:<X>
     infix:<minmax>
@@ -256,11 +336,23 @@ Associative does Each
     .pairs
     .kv
     .contains
+    .iterator
 Callable
     postcircumfix:<( )>
     .repr
     .assuming
     .arity
+    .callwith
+    .callsame
+    .nextwith
+    .nextsame
+    .leave
+    .fail
+    .break
+    .next
+    .last
+    .redo
+    .goto
 Abstraction
 Iterator
     prefix:<=>
@@ -286,6 +378,7 @@ Order
 Container
     .STORE
     .FETCH
+    .TEMP
     infix:<=>
     infix:<:=>
     infix:<::=>
@@ -296,3 +389,6 @@ Pattern
 Each does Iterator
     .each
 Resumable
+KitchenSink
+    .clear
+    .push
