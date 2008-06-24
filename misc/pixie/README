@@ -1,0 +1,3 @@
+# pixie - an elf with a STD.pm frontend
+sh brew # compile 
+perl pixie <<< 'say "Hello World";' #that's more or less what's working now
