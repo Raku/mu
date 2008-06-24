@@ -10,8 +10,6 @@ elf_f --help  for more info.
 It uses perl from your path.  5.10 is recommended - it can have half
 the startup time of 5.8.8.
 
-elf_f is slower, but not always equivalent. (it uses Moose)
-
 P6 scripts:
   $ cat say3
   #!/usr/bin/env elf_f

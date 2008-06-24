@@ -1,0 +1,19 @@
+### comp_unit
+    make IRx1::CompUnit.new(statements=>$$<statementlist>);
+### term:name listop args 
+    make IRx1::Apply.new(function=>$$<name>,capture=>$$<arglist>);
+### arglist
+    if $<EXPR><infix> eq ',' {
+        make IRx1::Capture.new(arguments=> $<EXPR><list>.map({$$_});
+    } elsif $<EXPR><noun> {
+        make (IRx1::Capture.new(arguments=>[$$<EXPR><noun>]));
+    }
+### statement expr
+    make $$<EXPR><noun> if $<EXPR><noun>
+### noun
+    make $$<item>  if $<term>;
+    make $$<value> if $<value>; 
+### vale
+    make IRx1::Buf.new(buf=>$<quote><nibble>) if $<quote>;
+### statementlist
+    make $<statement>.map({$$_});

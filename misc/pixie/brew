@@ -1,0 +1,3 @@
+grep -v CommandLine ../elf/elf_f_src/Elf.pm > ElfCore.pm
+../elf/elf_f -x -o ElfCore5.pm -I ../elf/elf_f_src ElfCore.pm
+echo '1;' >> ElfCore5.pm

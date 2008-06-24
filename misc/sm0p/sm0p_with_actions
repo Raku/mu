@@ -53,7 +53,7 @@ if ($yaml) {
     print Dump($r);
     exit;
 } elsif ($vertical || $horizontal) {
-    print dump_match($what=>$r,{actions=>1,vertical=>$vertical}),"\n";
+    print dump_match($what=>$r,{actions=>sub {@_},vertical=>$vertical}),"\n";
 }
 print $r->item,"\n";
 
