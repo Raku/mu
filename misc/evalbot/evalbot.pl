@@ -106,7 +106,7 @@ package Evalbot;
             }
             return sprintf "%s%s: %s", $eval_name, $revision, $result;
         } elsif ( $message =~ m/\Aperl6:\s+(.+)\z/ ){
-            my $str = $2;
+            my $str = $1;
             return "Program empty" unless length $str;
             my $result = '';
             for my $eval_name qw(elf kp6 pugs rakudo){
