@@ -8,7 +8,7 @@ use Tie::IxHash;
 use Perl6in5::Compiler::Trace;
 use Memoize;
 use Exporter;
-our @EXPORT_OK = qw(lit eoi nothing star opt %stat
+our @EXPORT_OK = qw(lit eoi nothing star opt %stat $inp
                 say all one newline left ceoi worry
                 %N parser check to first iff trace thru
                 w keywords panic ws nthru lits %O
@@ -17,7 +17,7 @@ our @EXPORT_OK = qw(lit eoi nothing star opt %stat
 our @ISA = 'Exporter';
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
-our %N;
+our (%N, $inp);
 
 my $tracemode = 0;
 $tracemode = 1; # trace
@@ -244,7 +244,7 @@ sub lineify {
 }
 
 sub left {
-    substr($_[0]->{inp},$_[0]->{'pos'})
+    substr($inp,$_[0]->{'pos'})
 }
 memoize('left',NORMALIZER=> sub { $_[0]->{'pos'} });
 
@@ -374,8 +374,44 @@ sub all {
 }
 memoize('all',NORMALIZER=> sub { "@_" });
 
+# this is an iterative version of plus()
+sub plus {
+    my $q = $_[0];
+    my $p; # trace
+    $p =  # trace
+    parser {
+        my ($in) = @_;
+        my ($r, $s, $t);
+        $s = 0; # number succeeded (also, zero-index of the current one).
+        trace 2,"plus  ".$in->{'pos'}."  attempting   $N{$q}   then   $N{$q}"; # trace
+        $t = deep_copy($in);
+        do {
+            $t = $q->(deep_copy($t));
+            if ( $t->{success} ) {
+                $r = deep_copy($t);
+                $s++;
+            } else {
+                trace 2,"plus  ".$in->{'pos'}."  failed ".($s+1)."   $N{$q}"; # trace
+                return ( $t->{backed} ) ? $t : { %$t, 'pos' => $in->{'pos'}, backed => 1 } unless $s;
+            }
+        } while ( $t->{success} );
+        my $new = [];
+        trace 2,"plus  ".$in->{'pos'}."  did  match -$s- of   $N{$q}  "; # trace
+        while ( scalar( @{ $r->{hits} } ) && $s ) {
+            my $hit = pop @{ $r->{hits} };
+            push @{ $new }, ( ref( $hit ) eq 'ARRAY') ? @{ $hit } : $hit;
+            $s--;
+        }
+        push @{ $r->{hits} }, $new if scalar( @{ $new } );
+        $r;
+    };
+    $N{$p} = "plus( $N{$_[0]} )"; # trace
+    $p; # trace
+}
+memoize('plus',NORMALIZER=> sub { "@_" });
+
 # placing star directly in another star() causes left recursion
-sub star {
+sub star2 {
     my ($p, $p_conc, $p_exec);
     $p_exec = parser { $p->(@_) };
     $N{$p_exec} = "star( $N{$_[0]} )"; # trace
@@ -385,7 +421,7 @@ sub star {
     $N{$p} = $N{$p_exec}; # trace
     $p;
 }
-memoize('star',NORMALIZER=> sub { "@_" });
+memoize('star2',NORMALIZER=> sub { "@_" });
 
 sub opt {
   my $p; # trace
@@ -510,15 +546,15 @@ sub newline {
 }
 memoize('newline',NORMALIZER=> sub { "@_" });
 
-sub plus {
+sub star {
     my $t = $_[0];
     my $p; # trace
     $p =  # trace
-    both($t,star($t),'.');
-    $N{$p} = "plus( $N{$_[0]} )"; # trace
+    opt(plus($t));
+    $N{$p} = "star( $N{$_[0]} )"; # trace
     $p; # trace
 }
-memoize('plus',NORMALIZER=> sub { "@_" });
+memoize('star',NORMALIZER=> sub { "@_" });
 
 sub nthru {
   my ($n,$o) = @_;
@@ -549,7 +585,7 @@ sub thru {
                 last;
             } else {
                 trace 5,"through $N{$stop} still not matched"; # trace
-                push @values, substr($v->{inp},$v->{'pos'},1);
+                push @values, substr($inp,$v->{'pos'},1);
                 $v->{'pos'}++;
             }
         }

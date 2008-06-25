@@ -49,7 +49,9 @@ END {
         (scalar(read_file($ARGV[0])),$ARGV[0]):
         (join('',(<>)),'STDIN');
     
-    $input = { inp => $input, 'pos' => 0, line => 1, name => $name, col => 1, mut => 0 , success => -1, fated => 0 , backed => 0, ast=>[], hits=>[], both=>0 };
+    # $inp is in Parser.pm
+    $inp = $input;
+    $input = { 'pos' => 0, line => 1, name => $name, col => 1, mut => 0 , success => -1, fated => 0 , backed => 0, ast=>[], hits=>[], both=>0 };
     
     my $r = (program()->($input));
     
