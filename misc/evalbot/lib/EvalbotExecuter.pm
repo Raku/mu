@@ -133,11 +133,11 @@ sub _auto_execute {
     if (reftype($executer) eq "CODE"){
         $executer->($program, $fh, $out_filename);
     } else {
-        if ($program->{chdir}){
-            chdir $program->{chdir}
-                or confess "Can't chdir to '$program->{chdir}': $!";
+        if ($executer->{chdir}){
+            chdir $executer->{chdir}
+                or confess "Can't chdir to '$executer->{chdir}': $!";
         }
-        my $cmd = $program->{cmd_line} or confess "No command line given\n";
+        my $cmd = $executer->{cmd_line} or confess "No command line given\n";
         my ($prog_fh, $program_file_name) = tempfile();
         binmode $prog_fh, ':encoding(UTF-8)';
         print $prog_fh $program;
