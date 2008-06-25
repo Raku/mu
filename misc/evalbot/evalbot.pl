@@ -105,8 +105,9 @@ package Evalbot;
                 $revision = ' ' . $e->{revision}->();
             }
             return sprintf "%s%s: %s", $eval_name, $revision, $result;
-        } elsif ( $message =~ m/^perl6: (.*)/ ){
+        } elsif ( $message =~ m/\Aperl6:\s+(.+)\z/ ){
             my $str = $2;
+            return "Program empty" unless length $str;
             my $result = '';
             for my $eval_name qw(elf kp6 pugs rakudo){
                 my $e = $impls{$eval_name};
@@ -115,7 +116,7 @@ package Evalbot;
                 if (reftype($e) eq 'HASH' && $e->{revision}){
                     $revision = ' ' . $e->{revision}->();
                 }
-                $result .= sprintf "%s%s: %s", $eval_name, $revision, $tmp_res;
+                $result .= sprintf "%s%s: %s\n", $eval_name, $revision, $tmp_res;
             }
             return $result;
 
