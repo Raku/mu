@@ -38,7 +38,6 @@ use Data::Dumper;
 use FindBin;
 use lib 'lib';
 use EvalbotExecuter;
-use Scalar::Util qw(reftype);
 
 
 package Evalbot;
@@ -46,6 +45,7 @@ package Evalbot;
     use base 'Bot::BasicBot';
     use File::Temp qw(tempfile);
     use Carp qw(confess);
+    use Scalar::Util qw(reftype);
     my $prefix  = '';
     my $postfix = ':';
 
