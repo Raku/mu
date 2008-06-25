@@ -154,8 +154,9 @@ sub _set_resource_limits {
 # 5s-7s CPU time, 100 MiB RAM, maximum of 500 bytes output.
     setrlimit RLIMIT_CPU,   15, 20                   or confess "Couldn't setrlimit: $!\n";
     setrlimit RLIMIT_VMEM,  180 * 2**20, 200 * 2**20 or confess "Couldn't setrlimit: $!\n";
-# PIL2JS writes to a tempfile.
-    setrlimit RLIMIT_FSIZE, 50000, 50000,            or confess "Couldn't setrlimit: $!\n";
+# STD.pm has a lexing subdir, about 2MB in size, so allow 5MB
+    my $size_limit = 5 * 1024**2
+    setrlimit RLIMIT_FSIZE, $size_limit, $size_limit or confess "Couldn't setrlimit: $!\n";
 }
 
 1;
