@@ -70,6 +70,7 @@ use utf8;
 use BSD::Resource;
 use Carp qw(confess);
 use File::Temp qw(tempfile);
+use Scalar::Util qw(reftype);
 use Encode qw(encode);
 
 my $max_output_len = 290;
@@ -108,7 +109,7 @@ sub _fork_and_eval {
         confess "Can't fork(): $!";
     } elsif ($fork_val == 0) {
         _set_resource_limits();
-        &$executer($program, $fh, $filename);
+        _auto_execute($executer, $program, $fh, $filename);
         close $fh;
         exit;
     } else {
@@ -116,16 +117,36 @@ sub _fork_and_eval {
         wait;
     }
 
-# gather result
+    # gather result
     close $fh;
-    open ($fh, '<', $filename) or confess "Can't open temp file <$filename>: $!";
-    my $result;
-    {
-        local $/;
-        $result = join '', <$fh>;
-    }
+    open ($fh, '<:encoding(UTF-8)', $filename) or confess "Can't open temp file <$filename>: $!";
+    my $result = do { local $/; <$fh> };
     unlink $filename;
+    if (reftype($program) eq 'HASH' && $program->{filter}){
+        return $program->{filter}->($result);
+    } 
     return $result;
+}
+
+sub _auto_execute {
+    my ($executer, $program, $fh, $out_filename) = @_;
+    if (reftype($executer) eq "CODE"){
+        $executer->($program, $fh, $out_filename);
+    } else {
+        if ($program->{chdir}){
+            chdir $program->{chdir}
+                or confess "Can't chdir to '$program->{chdir}': $!";
+        }
+        my $cmd = $program->{cmd_line} or confess "No command line given\n";
+        my ($prog_fh, $program_file_name) = tempfile();
+        binmode $prog_fh, ':encoding(UTF-8)';
+        print $prog_fh $program;
+        close $prog_fh;
+
+        $cmd =~ s/\%out/$out_filename/g;
+        $cmd =~ s/\%program/$program_file_name/;
+        system($cmd);
+    }
 }
 
 sub _set_resource_limits {
