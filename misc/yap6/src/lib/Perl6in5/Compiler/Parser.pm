@@ -78,19 +78,33 @@ sub deep_copy {
     }
 }
 
-our (%M, %O, %stat);
+our ( %M, %stat );
 
-sub parser (&) {
-    my $q = $_[0];
+sub parser (&;$) {
+    my ($q,$name) = @_;
+    my $p; # trace
+    $p =  # trace
     bless( sub {
         my ($in) = @_;
         my $pos = $in->{'pos'};
-        my $m; 
+        my $m;
         unless (defined $M{$q}{$pos}) {
             $stat{memo_misses}++; # trace
             $m = $q->($in);
-            if ($m->{success} && $m->{'pos'} > $pos) {
-                
+            if ( $m->{success} && $m->{'pos'} > $pos ) {
+                if ( $name && $name !~ /^_/) {
+                    if ( $name eq 'program' ) {
+                        my $last = pop @{ $m->{hits} };
+                        $m->{hits} = { $name => @{ $m->{hits} } };
+                    } else {
+                        push @{ $m->{hits} }, { $name => pop @{ $m->{hits} } };
+                    }
+                    trace 4,"AST:   named and nonterminal: ".$N{$p}." and AST so far: ".Dumper($m->{hits});
+                } elsif ( defined( $m->{hit} ) && $m->{hit} ne '' ) {
+                    push @{ $m->{hits} }, $m->{hit};
+                    trace 4,"AST:   unnamed and terminal: ".$N{$p}." with hit: ".Dumper($m->{hit})." and AST so far: ".Dumper($m->{hits});
+                    $m->{hit} = '';
+                }
             }
             $M{$q}{$pos} = $m;
         } else {
@@ -99,8 +113,8 @@ sub parser (&) {
         }
         $m;
     } => __PACKAGE__ );
+    $p; # trace
 }
-
 memoize('parser',NORMALIZER=> sub { "@_" });
 
 sub eoi {
@@ -117,7 +131,7 @@ sub eoi {
         return {%$in,
             success=>1,
             fated=>1,
-            hit=>''
+            hit=>'end-of-input'
         };
     };
     $N{$p} = "EOI"; # trace
@@ -207,7 +221,7 @@ sub match {
         }
         $in->{'pos'} += length($in->{hit});
         trace 3,"advanced pos by ".length($in->{hit});
-        push @{$in->{ast}->[0]},$in->{hit} unless $in->{hit} =~ /^[\s\n]+$/;
+        #push @{$in->{hits}->[0]},$in->{hit};
         lineify($in);
     };
     $N{$p} = "match( $q )"; # trace
@@ -321,6 +335,13 @@ sub both {
         $A = both($A,first(ws,nothing))
     }
     trace 2,"both  ".$in->{'pos'}."  attempting   $N{$A}   then   $N{$B}"; # trace
+    
+    # The following is the messiest garbage I've ever written.
+    # PLEASE someone fix it.  All it's doing is inverting the last
+    # two items on the stack @{ $r->{hits} }, then flattening each
+    # (once) if it's an arrayref, and combining them together in
+    # one list and putting that back on the stack.
+    
     $r = $A->($in);
     unless ($r->{success}) {
       trace 2,"both  ".$in->{'pos'}."  failed 1   $N{$A}"; # trace
@@ -331,6 +352,18 @@ sub both {
       trace 2,"both  ".$in->{'pos'}."  failed 2   $N{$B}"; # trace
       return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
     }
+    my ( $hitB, $hitA );
+    $hitB = pop @{ $r->{hits} } if scalar( @{ $r->{hits} } );
+    my $hitA = pop @{ $r->{hits} } if scalar( @{ $r->{hits} } );
+    my $new = [
+        ( ref( $hitA ) eq 'ARRAY')
+        ? scalar( @{ $hitA } ) ? @{ $hitA } : () 
+        : defined( $hitA ) ? $hitA : () ,
+        ( ref( $hitB ) eq 'ARRAY')
+        ? scalar( @{ $hitB } ) ? @{ $hitB } : () 
+        : defined( $hitB ) ? $hitB : () ,
+    ];
+    push @{ $r->{hits} }, $new if scalar( @{ $new } );
     trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$B}"; # trace
     $r;
   };
@@ -537,7 +570,6 @@ sub thru {
         trace 4,"Through token matched";
         $in->{'pos'} += length($in->{hit});
         trace 3,"advanced pos by ".length($in->{hit});
-        push @{$in->{ast}->[0]},$in->{hit};
         lineify($in);
     };
     $N{$p} = '{*} . '.$N{$stop}; # trace

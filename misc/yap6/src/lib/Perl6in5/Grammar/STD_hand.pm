@@ -15,12 +15,12 @@ my @sigils       = qw{ $^ $? $ @@ @ % & };
 
 pattern program {
         panic( pkgDecl, "Input file is Perl 5, not Perl 6!" )
-        - opt( usev6 - stmtTrm )
+        - opt( usev6 - _stmtTrm )
         . opt( stmtList ) - eoi
 };
 
 pattern pkgDecl {
-        lit('package') + identifier - stmtTrm;
+        lit('package') + id - _stmtTrm;
 };
 
 pattern usev6 {
@@ -29,7 +29,7 @@ pattern usev6 {
         | lits(qw{ class v6.0.0 v6 6 })
 };
 
-pattern identifier {
+pattern id {
         match( qr|^([A-Za-z_]\w*)|s )
 };
 
@@ -46,52 +46,52 @@ pattern bareInt {
 #};
 
 pattern sVari {
-        lits( @sigils ) . identifier
+        lits( @sigils ) . id
 };
 
 pattern commalist {
         plus( - ',' - nothing) . opt( $_[1] . opt( $_[0] ) )
 };
 
-pattern stmt {
-        star( stmtTrm )
+pattern _stmt {
+        opt( _stmtTrm )
             - ( block . blkTrm
-                ^ nbexpr . stmtTrm )
+                ^ _nbexpr . _stmtTrm )
 };
 
 pattern stmtList {
-        star( stmt ) . opt( expr )
+        star( _stmt ) . opt( expr )
 };
 
-pattern stmtTrm {
+pattern _stmtTrm {
         plus( - ';' )
 };
 
 pattern blkTrm {
-        lit( "\n" ) . opt( stmtTrm ) ^ stmtTrm
+        lit( "\n" ) . opt( _stmtTrm ) ^ _stmtTrm
 };
 
 pattern bareString {
-        #w('""',star(unmore('"'))) | w("''",star(unmore("'") . identifier))
+        #w('""',star(unmore('"'))) | w("''",star(unmore("'") . id))
 };
 
-pattern nbexpr {
+pattern _nbexpr {
         one(
             panic( pkgDecl, "Can't declare a non-block package")
-            , func_say
-            , base
+            , func_call
+            , _base
 #            , op_numaddt
             , declareAssign
             , impor
             , blkTrait )
 };
 
-pattern func_say {
+pattern func_call {
         lit('say') . opt( ws . expr )
 };
 
 pattern impor {
-        keywords( qw{ no use require module class } ) + identifier . opt( ws . expr )
+        keywords( qw{ no use require module class } ) + id . opt( ws . expr )
 };
 
 pattern series {
@@ -180,7 +180,7 @@ pattern blkType {
 };
 
 pattern blkIdentifier {
-        opt( opt( '^' ) . identifier . ws ) 
+        opt( opt( '^' ) . id . ws ) 
 };
 
 pattern blkVisibility {
@@ -234,11 +234,11 @@ pattern blkRetT {
 };
 
 pattern clype {
-        identifier  # just take any class/type name for now :)
+        id  # just take any class/type name for now :)
 };
 
 pattern blkLabel {
-        identifier . ':';
+        id . ':';
 };
 
 pattern flowCtrl {
@@ -255,7 +255,7 @@ pattern vsblty {
 
 pattern expr {
         block
-        ^ nbexpr
+        ^ _nbexpr
 };
 
 pattern declareAssign {
@@ -272,10 +272,10 @@ pattern declareAssign {
 # };
 
 # pattern factor {
-        # base . star( - lit('**') - base )
+        # _base . star( - lit('**') - _base )
 # };
 
-pattern base {
+pattern _base {
         sVari ^ bareInt ^ w( '()', stmtList )
 };
 

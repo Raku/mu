@@ -31,7 +31,7 @@ FILTER {
         $a = sub {
             my @r = @_;
             my $p;
-            $p = parser { $code->($p,@r)->(@_) };
+            $p = parser( sub { $code->($p,@r)->(@_) }, $name );
             $N{$p} = (scalar @r)?($name.'( '.join( "','",map($N{$_},@r)).' )'):$name; # trace
             $p;
         };
@@ -48,7 +48,7 @@ END {
         (scalar(read_file($ARGV[0])),$ARGV[0]):
         (join('',(<>)),'STDIN');
     
-    $input = { inp => $input, 'pos' => 0, line => 1, name => $name, col => 1, mut => 0 , success => -1, fated => 0 , backed => 0, ast=>[[],[]] };
+    $input = { inp => $input, 'pos' => 0, line => 1, name => $name, col => 1, mut => 0 , success => -1, fated => 0 , backed => 0, ast=>[], hits=>[], both=>0 };
     
     my $r = (program()->($input));
     
@@ -64,14 +64,14 @@ END {
             (sprintf '%.20s', Dumper(left($r))).
             ($r->{expected}?"\nExpected: ".Dumper($r->{expected}).".":'');
         }
-        print STDERR $msg."\n".Dumper($r->{ast});
+        print STDERR $msg."\n".Dumper($r->{hits});
         print "stats: ".Dumper(\%stat)."\n" if keys %stat;
-        print "names: ".scalar(keys(%N))."\n";
+        print "names: ".scalar(keys(%N))."\n" if keys %N;
         exit 255;
     } else {
-        print "parsed: ".Dumper($r->{ast})."\n";
+        print "tree: ".Dumper($r->{hits})."\n";
         print "stats: ".Dumper(\%stat)."\n" if keys %stat;
-        print "names: ".scalar(keys(%N))."\n";
+        print "names: ".scalar(keys(%N))."\n" if keys %N;
         exit 0;
     }
 }
