@@ -38,6 +38,7 @@ use Data::Dumper;
 use FindBin;
 use lib 'lib';
 use EvalbotExecuter;
+use Scalar::Util qw(reftype);
 
 
 package Evalbot;
@@ -100,7 +101,7 @@ package Evalbot;
             warn "Eval: $str\n";
             my $result = EvalbotExecuter::run($str, $e, $eval_name);
             my $revision = '';
-            if ($e->{revision}){
+            if (reftype($e) eq 'HASH' && $e->{revision}){
                 $revision = ' ' . $e->{revision}->();
             }
             return sprintf "%s%s: %s", $eval_name, $revision, $result;
