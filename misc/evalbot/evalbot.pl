@@ -18,7 +18,9 @@ directory.
 
 =head1 AUTHOR
 
-Written by Moritz Lenz.
+Written by Moritz Lenz, many good contributions came from the #perl6 folks, 
+notably diakopter, Mitchell Charity (putter), Adrian Kreher (Auzon), rhr, 
+and all those that I forgot.
 
 Copyright (C) 2007 by Moritz Lenz and the pugs authors.
 
@@ -37,6 +39,39 @@ use FindBin;
 use lib 'lib';
 use EvalbotExecuter;
 
+our %impls = (
+        pixie => {
+            chdir       => '../pixie/',
+            cmd_line    => "$^X pixie --quiet \%program >> \%out 2>&1",
+        },
+        elf => {
+            chdir       => '../elf',
+            cmd_line    => './elf_f %program >> %out 2>&1',
+            revision    => \&svn_revision,
+        },
+        kp6 => {
+            chdir       => '../../v6/v6-KindaPerl6/',
+            cmd_line    => "$^X script/kp6 --secure < \%program >\%out 2>&1",
+            revision    => \&svn_revision,
+            filter      => \&filter_kp6,
+
+        },
+        rakudo => {
+            chdir       => '../../../parrot/',
+            cmd_line    => './parrot languages/perl6/perl6.pbc %program >> %out 2>&1',
+            revision    => \&get_rakudo_revision,
+            filter      => \&filter_pct,
+        },
+        nqp   => {
+            chdir       => '../../../parrot/',
+            cmd_line    => './parrot compilers/nqp/nqp.pbc %program >> %out 2>&1',
+            filter      => \&filter_pct,
+        },
+        pugs => {
+            cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/.cabal/bin/pugs %program >> %out 2>&1',
+        },
+
+);
 
 package Evalbot;
 {
@@ -81,7 +116,7 @@ package Evalbot;
                 my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
                 my $kp6_out  = filter_kp6(
                         EvalbotExecuter::run($str, $executer{kp6}));
-                my $p6_out   = filter_rakudo(
+                my $p6_out   = filter_pct(
                         EvalbotExecuter::run($str, $executer{rakudo}));
                 my $elf_out  = EvalbotExecuter::run($str, $executer{elf});
 #                my $yap6_out  = EvalbotExecuter::run($str, $executer{yap6});
@@ -95,9 +130,9 @@ elf r$svn_revision: $elf_out
 EOM
             } elsif ($eval_name eq 'rakudo' ){
                 my $rakudo_rev = get_rakudo_revision();
-                return "rakudo r$rakudo_rev " . filter_rakudo(EvalbotExecuter::run($str, $e));
+                return "rakudo r$rakudo_rev " . filter_pct(EvalbotExecuter::run($str, $e));
             } elsif ($eval_name eq 'nqp') {
-                return "nqp: " . filter_rakudo(EvalbotExecuter::run($str, $e));
+                return "nqp: " . filter_pct(EvalbotExecuter::run($str, $e));
             } elsif ($eval_name eq 'yap6' ) {
                 my $svn_revision = get_revision();
                 return "yap6 r$svn_revision " . EvalbotExecuter::run($str, $e);
@@ -250,7 +285,7 @@ EOM
         return $res;
     }
 
-    sub filter_rakudo {
+    sub filter_pct {
         my $str = shift;
         $str =~ s/called from Sub.*//ms;
         return $str;
