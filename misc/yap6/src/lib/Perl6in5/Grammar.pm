@@ -15,7 +15,8 @@ FILTER {
     
     # in order to enable adaptive grammars, take the entire grammar input here,
     #       serialize it using Data::Dumper (or something), and append (or
-    #       prepend) it to the grammar file as 
+    #       prepend) it to the grammar file as a string assigned to a global
+    #       scalar.
     
     my @patterns = m/^pattern\s+([A-Za-z_]\w*)\s+\{/mg;
     s/^pattern\s+([A-Za-z_]\w*)\s+\{/pattern '$1' => sub {/mg;
@@ -25,22 +26,22 @@ FILTER {
 };
 
 {
+    my ( %MP );
     sub pattern {
         my ($name,$code) = @_;
         my $a;
         $a = sub {
             my @r = @_;
+            return $MP{$name.$code} if exists $MP{$name.$code};
             my $p;
             $p = parser( sub { $code->($p,@r)->(@_) }, $name );
             $N{$p} = (scalar @r)?($name.'( '.join( "','",map($N{$_},@r)).' )'):$name; # trace
-            $p;
+            $MP{$name.$code} = $p;
         };
         {
             $Perl6in5::Grammar::{$name} = $a;
-            memoize($Perl6in5::Grammar::{$name},NORMALIZER=> sub { "@_" });
         }
     }
-    memoize('pattern',NORMALIZER=> sub { "@_" });
 }
 
 END {

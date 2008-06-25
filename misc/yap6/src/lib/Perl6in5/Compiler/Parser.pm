@@ -78,17 +78,21 @@ sub deep_copy {
     }
 }
 
-our ( %M, %stat );
+our ( %M, %stat, %MQ );
 
 sub parser (&;$) {
     my ($q,$name) = @_;
+    return $MQ{$q} if exists $MQ{$q};
     my $p; # trace
     $p =  # trace
-    bless( sub {
+    $MQ{$q} = bless( sub {
         my ($in) = @_;
         my $pos = $in->{'pos'};
         my $m;
-        unless (defined $M{$q}{$pos}) {
+        if (exists $M{$q}{$pos}) {
+            $stat{memo_hits}++; # trace
+            $m = $M{$q}{$pos};
+        } else {
             $stat{memo_misses}++; # trace
             $m = $q->($in);
             if ( $m->{success} && $m->{'pos'} > $pos ) {
@@ -107,15 +111,11 @@ sub parser (&;$) {
                 }
             }
             $M{$q}{$pos} = $m;
-        } else {
-            $stat{memo_hits}++; # trace
-            $m = $M{$q}{$pos};
         }
         $m;
     } => __PACKAGE__ );
     $p; # trace
 }
-memoize('parser',NORMALIZER=> sub { "@_" });
 
 sub eoi {
     my $p; # trace
@@ -137,7 +137,7 @@ sub eoi {
     $N{$p} = "EOI"; # trace
     $p; # trace
 }
-memoize('eoi',NORMALIZER=> sub { "@_" });
+memoize 'eoi';
 
 sub nothing () {
     my $p; # trace
