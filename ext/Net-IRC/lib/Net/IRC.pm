@@ -148,7 +148,9 @@ sub new_bot(
     }
 
     # We have already initialized %cache353{$chan}.
-    %cache353{$chan}.delete(@nicks);
+    if @nicks {
+      %cache353{$chan}.delete(@nicks);
+    }
 
     # For each nick, make sure we've registered them as people who are on
     # $chan:

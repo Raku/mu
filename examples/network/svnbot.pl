@@ -6,7 +6,7 @@ my $nick        = @*ARGS.shift // "blechbot";
 my $server      = @*ARGS.shift // "localhost";
 my $interval    = @*ARGS.shift // 300;
 my $repository  = @*ARGS.shift // ".";
-my $svndiffurl  = (@*ARGS[0] ~~ /http/) ?? @*ARGS.shift !! 0;
+my $svndiffurl  = (@*ARGS[0] ~~ rx:P5/http/) ?? @*ARGS.shift !! 0;
 my $show_branch = (@*ARGS[0] eq "true") ?? @*ARGS.shift !! 0;
 my $sep_header  = (@*ARGS[0] eq "true") ?? @*ARGS.shift !! 0;
 my ($host, $port) = split ":", $server;
@@ -113,11 +113,11 @@ sub svn_check($event) {
         debug "Checking for new commits (ignore error messages)... ";
         # svn_commits() sets $cur_svnrev, if needed.
         my $commits = svn_commits();
-        unless $commits {
+        if $commits {
+          debug "done, new commits (current HEAD revision: $cur_svnrev)";
+        } else {
           debug "done, no new commits (current HEAD revision: $cur_svnrev)";
           return;
-        } else {
-          debug "done, new commits (current HEAD revision: $cur_svnrev)";
         }
 
         my @lines   = split("\n", $commits).grep:{ $_ };
