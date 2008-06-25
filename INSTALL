@@ -258,16 +258,19 @@ these steps:
 file of Cabal will help you get started. Those instructions work for all the
 above packages.)
 
-2. Type the following commands.
+2. Type the following commands:
 
-$ cabal update
-$ cabal install Pugs
+    cabal update
+    cabal install Pugs
 
-...and you're done.
+...and you're done.  To build an optimized Pugs for benchmarking or smoke
+testing, replace the second command with:
+
+    cabal install Pugs -fOptimize
 
 3. To upgrade the current Pugs installation to the latest released version,
    simply type the same two lines of commands above:
 
-$ cabal update
-$ cabal install Pugs
+    cabal update
+    cabal install Pugs
 
