@@ -108,6 +108,7 @@ package Evalbot;
         } elsif ( $message =~ m/\Aperl6:\s+(.+)\z/ ){
             my $str = $1;
             return "Program empty" unless length $str;
+            warn "Perl6: $str\n";
             my $result = '';
             for my $eval_name qw(elf kp6 pugs rakudo){
                 my $e = $impls{$eval_name};
