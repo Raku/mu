@@ -386,12 +386,12 @@ sub plus {
         trace 2,"plus  ".$in->{'pos'}."  attempting   $N{$q}   then   $N{$q}"; # trace
         $t = deep_copy($in);
         do {
-            $t = $q->(deep_copy($t));
+            $t = $q->($t);
             if ( $t->{success} ) {
-                $r = deep_copy($t);
+                $r = $t;
                 $s++;
             } else {
-                trace 2,"plus  ".$in->{'pos'}."  failed ".($s+1)."   $N{$q}"; # trace
+                trace 2,"plus  ".$t->{'pos'}."  failed ".($s+1)."   $N{$q}"; # trace
                 return ( $t->{backed} ) ? $t : { %$t, 'pos' => $in->{'pos'}, backed => 1 } unless $s;
             }
         } while ( $t->{success} );
