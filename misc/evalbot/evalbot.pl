@@ -63,7 +63,6 @@ package Evalbot;
                 cmd_line    => "$^X script/kp6 --secure < \%program >\%out 2>&1",
                 revision    => \&svn_revision,
                 filter      => \&filter_kp6,
-
             },
             rakudo => {
                 chdir       => '../../../parrot/',
