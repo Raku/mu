@@ -354,7 +354,7 @@ sub both {
     }
     my ( $hitB, $hitA );
     $hitB = pop @{ $r->{hits} } if scalar( @{ $r->{hits} } );
-    my $hitA = pop @{ $r->{hits} } if scalar( @{ $r->{hits} } );
+    $hitA = pop @{ $r->{hits} } if scalar( @{ $r->{hits} } );
     my $new = [
         ( ref( $hitA ) eq 'ARRAY')
         ? scalar( @{ $hitA } ) ? @{ $hitA } : () 
