@@ -109,18 +109,20 @@ package Evalbot;
             my $str = $2;
             my $result = '';
             for my $eval_name qw(elf kp6 pugs rakudo){
-                my $tmp_res = EvalbotExecuter::run($str, $impls{$eval_name}, $eval_name);
+                my $e = $impls{$eval_name};
+                my $tmp_res = EvalbotExecuter::run($str, $e, $eval_name);
                 my $revision = '';
                 if (reftype($e) eq 'HASH' && $e->{revision}){
                     $revision = ' ' . $e->{revision}->();
                 }
                 $result .= sprintf "%s%s: %s", $eval_name, $revision, $tmp_res;
-                return $result;
             }
+            return $result;
 
         } elsif ( $message =~ m/\Aevalbot\s*control\s+(\w+)/) {
             my $command = $1;
             if ($command eq 'restart'){
+                warn "Restarting $0 (by user request\n";
                 # we do hope that evalbot is started in an endless loop ;-)
                 exit;
             } elsif ($command eq 'version'){
