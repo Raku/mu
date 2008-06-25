@@ -105,6 +105,19 @@ package Evalbot;
                 $revision = ' ' . $e->{revision}->();
             }
             return sprintf "%s%s: %s", $eval_name, $revision, $result;
+        } elsif ( $message =~ m/^perl6: (.*)/ ){
+            my $str = $2;
+            my $result = '';
+            for my $eval_name qw(elf kp6 pugs rakudo){
+                my $tmp_res = EvalbotExecuter::run($str, $impls{$eval_name}, $eval_name);
+                my $revision = '';
+                if (reftype($e) eq 'HASH' && $e->{revision}){
+                    $revision = ' ' . $e->{revision}->();
+                }
+                $result .= sprintf "%s%s: %s", $eval_name, $revision, $tmp_res;
+                return $result;
+            }
+
         } elsif ( $message =~ m/\Aevalbot\s*control\s+(\w+)/) {
             my $command = $1;
             if ($command eq 'restart'){
