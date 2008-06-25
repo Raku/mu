@@ -102,7 +102,7 @@ package Evalbot;
             my $result = EvalbotExecuter::run($str, $e, $eval_name);
             my $revision = '';
             if ($e->{revision}){
-                $revision = ' ' . $e->revision->();
+                $revision = ' ' . $e->{revision}->();
             }
             return sprintf "%s%s: %s", $eval_name, $revision, $result;
         } elsif ( $message =~ m/\Aevalbot\s*control\s+(\w+)/) {
