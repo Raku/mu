@@ -336,12 +336,6 @@ sub both {
     }
     trace 2,"both  ".$in->{'pos'}."  attempting   $N{$A}   then   $N{$B}"; # trace
     
-    # The following is the messiest garbage I've ever written.
-    # PLEASE someone fix it.  All it's doing is inverting the last
-    # two items on the stack @{ $r->{hits} }, then flattening each
-    # (once) if it's an arrayref, and combining them together in
-    # one list and putting that back on the stack.
-    
     $r = $A->($in);
     unless ($r->{success}) {
       trace 2,"both  ".$in->{'pos'}."  failed 1   $N{$A}"; # trace
@@ -352,16 +346,11 @@ sub both {
       trace 2,"both  ".$in->{'pos'}."  failed 2   $N{$B}"; # trace
       return ($r->{backed})?$r:{%$r, 'pos'=>$in->{'pos'},backed=>1};
     }
-    my ( $hitB, $hitA );
-    $hitB = pop @{ $r->{hits} } if scalar( @{ $r->{hits} } );
-    $hitA = pop @{ $r->{hits} } if scalar( @{ $r->{hits} } );
+    my $hitB = pop @{ $r->{hits} } || [];
+    my $hitA = pop @{ $r->{hits} } || [];
     my $new = [
-        ( ref( $hitA ) eq 'ARRAY')
-        ? scalar( @{ $hitA } ) ? @{ $hitA } : () 
-        : defined( $hitA ) ? $hitA : () ,
-        ( ref( $hitB ) eq 'ARRAY')
-        ? scalar( @{ $hitB } ) ? @{ $hitB } : () 
-        : defined( $hitB ) ? $hitB : () ,
+        ( ref( $hitA ) eq 'ARRAY') ? @{ $hitA } : $hitA,
+        ( ref( $hitB ) eq 'ARRAY') ? @{ $hitB } : $hitB
     ];
     push @{ $r->{hits} }, $new if scalar( @{ $new } );
     trace 2,"both  ".$in->{'pos'}."  did  match   $N{$A}   and   $N{$B}"; # trace
