@@ -56,12 +56,12 @@ package Evalbot;
             elf => {
                 chdir       => '../elf',
                 cmd_line    => './elf_f %program >> %out 2>&1',
-                revision    => \&svn_revision,
+                revision    => \&get_revision,
             },
             kp6 => {
                 chdir       => '../../v6/v6-KindaPerl6/',
                 cmd_line    => "$^X script/kp6 --secure < \%program >\%out 2>&1",
-                revision    => \&svn_revision,
+                revision    => \&get_revision,
                 filter      => \&filter_kp6,
             },
             rakudo => {
