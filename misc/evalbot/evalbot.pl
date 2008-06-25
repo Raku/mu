@@ -39,39 +39,6 @@ use FindBin;
 use lib 'lib';
 use EvalbotExecuter;
 
-our %impls = (
-        pixie => {
-            chdir       => '../pixie/',
-            cmd_line    => "$^X pixie --quiet \%program >> \%out 2>&1",
-        },
-        elf => {
-            chdir       => '../elf',
-            cmd_line    => './elf_f %program >> %out 2>&1',
-            revision    => \&svn_revision,
-        },
-        kp6 => {
-            chdir       => '../../v6/v6-KindaPerl6/',
-            cmd_line    => "$^X script/kp6 --secure < \%program >\%out 2>&1",
-            revision    => \&svn_revision,
-            filter      => \&filter_kp6,
-
-        },
-        rakudo => {
-            chdir       => '../../../parrot/',
-            cmd_line    => './parrot languages/perl6/perl6.pbc %program >> %out 2>&1',
-            revision    => \&get_rakudo_revision,
-            filter      => \&filter_pct,
-        },
-        nqp   => {
-            chdir       => '../../../parrot/',
-            cmd_line    => './parrot compilers/nqp/nqp.pbc %program >> %out 2>&1',
-            filter      => \&filter_pct,
-        },
-        pugs => {
-            cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/.cabal/bin/pugs %program >> %out 2>&1',
-        },
-
-);
 
 package Evalbot;
 {
@@ -81,20 +48,43 @@ package Evalbot;
     my $prefix  = '';
     my $postfix = ':';
 
+    our %impls = (
+            pixie => {
+                chdir       => '../pixie/',
+                cmd_line    => "$^X pixie --quiet \%program >> \%out 2>&1",
+            },
+            elf => {
+                chdir       => '../elf',
+                cmd_line    => './elf_f %program >> %out 2>&1',
+                revision    => \&svn_revision,
+            },
+            kp6 => {
+                chdir       => '../../v6/v6-KindaPerl6/',
+                cmd_line    => "$^X script/kp6 --secure < \%program >\%out 2>&1",
+                revision    => \&svn_revision,
+                filter      => \&filter_kp6,
+
+            },
+            rakudo => {
+                chdir       => '../../../parrot/',
+                cmd_line    => './parrot languages/perl6/perl6.pbc %program >> %out 2>&1',
+                revision    => \&get_rakudo_revision,
+                filter      => \&filter_pct,
+            },
+            nqp   => {
+                chdir       => '../../../parrot/',
+                cmd_line    => './parrot compilers/nqp/nqp.pbc %program >> %out 2>&1',
+                filter      => \&filter_pct,
+            },
+            pugs => {
+                cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/.cabal/bin/pugs %program >> %out 2>&1',
+            },
+            yap6 => \&exec_yap6,
+    );
+
     my $evalbot_version = get_revision();
 
-    my %executer = (
-#            echo    => \&exec_echo,
-            kp6     => \&exec_kp6,
-            pugs    => \&exec_pugs,
-            perl6   => \&exec_eval,
-            nqp     => \&exec_nqp,
-            rakudo  => \&exec_p6,
-            elf     => \&exec_elf,
-            pixie   => \&exec_pixie,
-            yap6    => \&exec_yap6,
-            );
-    my $regex = $prefix . '(' . join('|',  keys %executer) . ")$postfix";
+    my $regex = $prefix . '(' . join('|',  keys %impls) . ")$postfix";
 
     sub help {
         return "Usage: <$regex \$perl6_program>";
@@ -107,39 +97,14 @@ package Evalbot;
         my $message = $e->{body};
         if ($message =~ m/\A$regex\s+(.*)\z/){
             my ($eval_name, $str) = ($1, $2);
-            my $e = $executer{$eval_name};
+            my $e = $impls{$eval_name};
             warn "Eval: $str\n";
-            if ($eval_name eq 'kp6') {
-                my $rev_string = 'kp6 r' . get_revision() . ': ';
-                return $rev_string . filter_kp6(EvalbotExecuter::run($str, $e));
-            } elsif ($eval_name eq 'perl6'){
-                my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
-                my $kp6_out  = filter_kp6(
-                        EvalbotExecuter::run($str, $executer{kp6}));
-                my $p6_out   = filter_pct(
-                        EvalbotExecuter::run($str, $executer{rakudo}));
-                my $elf_out  = EvalbotExecuter::run($str, $executer{elf});
-#                my $yap6_out  = EvalbotExecuter::run($str, $executer{yap6});
-                my $svn_revision = get_revision();
-                my $rakudo_revision = get_rakudo_revision();
-                return <<"EOM";
-kp6 r$svn_revision: $kp6_out
-pugs: $pugs_out
-rakudo r$rakudo_revision: $p6_out
-elf r$svn_revision: $elf_out
-EOM
-            } elsif ($eval_name eq 'rakudo' ){
-                my $rakudo_rev = get_rakudo_revision();
-                return "rakudo r$rakudo_rev " . filter_pct(EvalbotExecuter::run($str, $e));
-            } elsif ($eval_name eq 'nqp') {
-                return "nqp: " . filter_pct(EvalbotExecuter::run($str, $e));
-            } elsif ($eval_name eq 'yap6' ) {
-                my $svn_revision = get_revision();
-                return "yap6 r$svn_revision " . EvalbotExecuter::run($str, $e);
-            
-            } else {
-                return EvalbotExecuter::run($str, $e);
+            my $result = EvalbotExecuter::run($str, $e, $eval_name);
+            my $revision = '';
+            if ($e->{revision}){
+                $revision = ' ' . $e->revision->();
             }
+            return sprintf "%s%s: %s", $eval_name, $revision, $result;
         } elsif ( $message =~ m/\Aevalbot\s*control\s+(\w+)/) {
             my $command = $1;
             if ($command eq 'restart'){
@@ -150,64 +115,6 @@ EOM
             }
 
         }
-        return;
-    }
-
-    sub exec_echo {
-        my ($program, $fh, $filename) = @_;
-        print $fh $program;
-    }
-
-    sub exec_kp6 {
-        my ($program, $fh, $filename) = @_;
-        chdir('../../v6/v6-KindaPerl6/')
-            or confess("Can't chdir to kp6 dir: $!");
-        my ($tmp_fh, $name) = tempfile();
-        binmode $tmp_fh, ':utf8';
-        print $tmp_fh $program;
-        close $tmp_fh;
-        system "perl script/kp6 --secure < $name >$filename 2>&1";
-        unlink $name;
-        chdir $FindBin::Bin;
-        return;
-    }
-
-    sub exec_pugs {
-        my ($program, $fh, $filename) = @_;
-        chdir('../../')
-            or confess("Can't chdir to pugs base dir: $!");
-        my ($tmp_fh, $name) = tempfile();
-        print $tmp_fh $program;
-        close $tmp_fh;
-        system "PUGS_SAFEMODE=true ./pugs $name >> $filename 2>&1";
-        unlink $name;
-        chdir $FindBin::Bin;
-        return;
-    }
-
-    sub exec_elf {
-        my ($program, $fh, $filename) = @_;
-        chdir('../elf')
-            or confess("Can't chdir to elf base dir: $!");
-        my ($tmp_fh, $name) = tempfile();
-        print $tmp_fh $program;
-        close $tmp_fh;
-        system "./elf_f $name >> $filename 2>&1";
-        unlink $name;
-        chdir $FindBin::Bin;
-        return;
-    }
-
-    sub exec_pixie {
-        my ($program, $fh, $filename) = @_;
-        chdir('../pixie')
-            or confess("Can't chdir to pixie base dir: $!");
-        my ($tmp_fh, $name) = tempfile();
-        print $tmp_fh $program;
-        close $tmp_fh;
-        system "$^X pixie --quiet $name >> $filename 2>&1";
-        unlink $name;
-        chdir $FindBin::Bin;
         return;
     }
 
@@ -225,45 +132,6 @@ EOM
         system "perl -Ilib bin/test $gram $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
-        return;
-    }
-
-    sub exec_nqp {
-        my ($program, $fh, $filename) = @_;
-        chdir('../../../parrot/')
-            or confess("Can't chdir to parrot base dir: $!");
-        my ($tmp_fh, $name) = tempfile();
-        print $tmp_fh $program;
-        close $tmp_fh;
-        system "./parrot compilers/nqp/nqp.pbc $name >> $filename 2>&1";
-        unlink $name;
-        chdir $FindBin::Bin;
-        return;
-    }
-
-    sub exec_p6 {
-        my ($program, $fh, $filename) = @_;
-        chdir('../../../parrot/')
-            or confess("Can't chdir to parrot base dir: $!");
-        my ($tmp_fh, $name) = tempfile();
-        print $tmp_fh $program;
-        close $tmp_fh;
-        system "./parrot languages/perl6/perl6.pbc $name >> $filename 2>&1";
-        unlink $name;
-        chdir $FindBin::Bin;
-        return;
-    }
-
-
-    sub exec_eval {
-        # not really called, see the "dispatcher"
-        return;
-        my ($program, $fh, $filename) = @_;
-        print $fh "pugs:[";
-        exec_pugs(@_);
-        print $fh "] kp6:[";
-        exec_kp6(@_);
-        print $fh "]";
         return;
     }
 
