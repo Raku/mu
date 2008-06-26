@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 39;
+plan 37;
 
 # L<S02/Names/names are reserved in the first position>
 ok !eval('module MY; 1'), 'MY is an out of scope name';
@@ -15,10 +15,6 @@ ok !eval('module CONTEXT; 1'), 'CONTEXT is an out of scope name';
 ok !eval('module SUPER; 1'), 'SUPER is an out of scope name';
 ok !eval('module COMPILING; 1'), 'COMPILING is an out of scope name';
 
-
-# L<S04/The Relationship of Blocks and Declarations>
-ok eval('my $x; my $x; 1'),       'it is legal to declare $x twice in the same scope.';
-ok eval('state $x; state $x; 1'), 'it is legal to declare $x twice in the same scope.';
 
 # L<S02/Names/The current lexical symbol table is now accessible>
 
