@@ -1,5 +1,21 @@
 #!/usr/local/bin/perl
 
+use Getopt::Long;
+my $nocolor;
+my $vertical;
+my $yaml;
+my $quiet;
+BEGIN {
+    GetOptions("nocolor"=>\$nocolor,"vertical"=>\$vertical,"quiet"=>\$quiet,"yaml"=>\$yaml);
+    unless ($#ARGV <= 0) {
+        die "USAGE: [--nocolor] [filename]\n";
+    }
+    if ($quiet) {
+        $SIG{__WARN__} = sub {};
+        open(STDERR,">/dev/null");
+    }
+}
+eval {
 use lib '../../src/perl6';
 use STD5;
 use ElfCore5;
@@ -11,15 +27,6 @@ require 'mangle.pl';
 use strict;
 use warnings;
 
-use Getopt::Long;
-my $nocolor = 0;
-my $vertical = 0;
-my $yaml = 0;
-my $quiet = 0;
-GetOptions("nocolor"=>\$nocolor,"vertical"=>\$vertical,"quiet"=>\$quiet,"yaml"=>\$yaml);
-unless ($#ARGV <= 0) {
-    die "USAGE: [--nocolor] [filename]\n";
-}
 if ($nocolor) {
     $DumpMatch::NOCOLOR = 1;
 }
@@ -104,3 +111,9 @@ my $ir = $r->{''};
 my $code = $GLOBAL::emitter1->prelude_lexical . $ir->callback($GLOBAL::emitter1);
 print $GLOBAL::emitter1->tidy($code),"\n" unless $quiet;
 eval($code);
+};
+if ($@) {
+    print "fatal error: $@";
+    die;
+}
+
