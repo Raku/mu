@@ -2060,7 +2060,6 @@ class Perl < Grammar
                 raise "bug "
             end
 
-            wsp
 
             inO = infixS[:O]
             inprec = inO[:prec]
@@ -2068,6 +2067,14 @@ class Perl < Grammar
                 say "No prec case in thisop!" if noisy;
                 inprec = Hterminator[:prec]
             end
+
+            if inprec < preclimS then
+                hereS_workaround.pos = oldposS
+                break 
+            end
+
+            wsp
+
             # substitute precedence for listops
             inO[:prec] = inO[:sub] if inO[:sub]
 

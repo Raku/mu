@@ -43,6 +43,7 @@ class Grammar
     end
   end
   def pos; @scanner.pos; end
+  def pos=(to); @scanner.pos = to; end
   def fail_at(n); @scanner.pos = n; false; end
   def scan(re); @scanner.scan(re); end
   def eat(str); @scanner.scan((@eat_cache[str] ||= Regexp.new(Regexp.quote(str)))); end
