@@ -11,9 +11,9 @@ if $?PUGS_BACKEND ne "BACKEND_PUGS" {
 }
 
 my @tests = (
-  "t::packages::RequireAndUse1", { $^a == 42 },
-  "t::packages::RequireAndUse2", { $^a != 23 },
-  "t::packages::RequireAndUse3", { $^a != 23 },
+  "t::spec::packages::RequireAndUse1", { $^a == 42 },
+  "t::spec::packages::RequireAndUse2", { $^a != 23 },
+  "t::spec::packages::RequireAndUse3", { $^a != 23 },
 );
 
 for @tests -> $mod, $expected_ret {
@@ -39,15 +39,15 @@ for @tests -> $mod, $expected_ret {
 our $loaded   = 0;
 our $imported = 0;
 
-eval q{use t::packages::LoadCounter; 1} orelse die "error loading package: $!";
+eval q{use t::spec::packages::LoadCounter; 1} orelse die "error loading package: $!";
 is($loaded,   1, "use loads a module");
 is($imported, 1, "use calls &import");
 
-eval q{use t::packages::LoadCounter; 1} orelse die "error loading package: $!";
+eval q{use t::spec::packages::LoadCounter; 1} orelse die "error loading package: $!";
 is($loaded,   1, "a second use doesn't load the module again");
 is($imported, 2, "a second use does call &import again");
 
-eval q{no t::packages::LoadCounter; 1} orelse die "error no'ing package: $!";
+eval q{no t::spec::packages::LoadCounter; 1} orelse die "error no'ing package: $!";
 is($loaded,   1, "&no doesn't load the module again");
 is($imported, 1, "&no calls &unimport");
 

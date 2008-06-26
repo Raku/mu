@@ -5,25 +5,25 @@ use Test;
 plan 7;
 
 # (Automatic s:g/::/$PATH_SEPARATOR_OF_CUR_OS/)++
-use t::packages::Export_PackB;
+use t::spec::packages::Export_PackB;
 
-ok t::packages::Export_PackB::does_export_work(),
+ok t::spec::packages::Export_PackB::does_export_work(),
   "'is export' works correctly even when not exporting to Main (1)";
 
-# t::packages::Export_PackA::exported_foo should not have been exported into
+# t::spec::packages::Export_PackA::exported_foo should not have been exported into
 # our namespace.
 dies_ok { exported_foo() },
   "'is export' works correctly even when not exporting to Main (2)";
 
 {
-    use t::packages::Export_PackC;
+    use t::spec::packages::Export_PackC;
     lives_ok { foo_packc() }, "lexical export works";
 }
 dies_ok { foo_packc() }, "lexical export is indeed lexical";
 
 
 sub moose {
-    use t::packages::Export_PackD;
+    use t::spec::packages::Export_PackD;
     is(this_gets_exported_lexically(), 'moose!', "lexical import survives pad regeneration")
 }
 

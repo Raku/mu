@@ -1,4 +1,4 @@
 use v6;
 
-module Import;
+module t::spec::packages::Import;
 # note the absence of a sub import() { }

@@ -3,9 +3,9 @@
 # At the top, it would mean the rest of the file was Perl 5 code.
 # So we use "package" with a block:
 
-package t::packages::Test {
+package t::spec::packages::Test {
 
-sub ns  { "t::packages::Test" }
+sub ns  { "t::spec::packages::Test" }
 
 sub pkg { $?PACKAGE }
 

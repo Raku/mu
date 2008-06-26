@@ -25,7 +25,7 @@ plan 23;
     }
 }
 
-use t::packages::Test;
+use t::spec::packages::Test;
 
 # test that all the functions are in the right place
 
@@ -47,8 +47,8 @@ is(Test3::pkg, ::Test3::, 'eval\'ed package $?PACKAGE');
 cmp_ok(Test3::pkg, &infix:<===>, ::Test3::, 'eval\'ed package type object');
 
 # this one came from t/packages/Test.pm
-is(t::packages::Test::ns, "t::packages::Test", "loaded package");
-cmp_ok(t::packages::Test::pkg, &infix:<===>, ::t::packages::Test::, 'loaded package $?PACKAGE object');
+is(t::spec::packages::Test::ns, "t::packages::Test", "loaded package");
+cmp_ok(t::spec::packages::Test::pkg, &infix:<===>, ::t::packages::Test::, 'loaded package $?PACKAGE object');
 my $x;
 lives_ok { $x = test_export() }, "export was imported successfully";
 is($x, "party island", "exported OK");
@@ -60,18 +60,18 @@ dies_ok { ns() }, "no ns() leaked";
 my $pkg;
 dies_ok  { $pkg = Our::Package::pkg },
     "Can't see `our' packages out of scope", :todo<feature>;
-lives_ok { $pkg = t::packages::Test::get_our_pkg() },
+lives_ok { $pkg = t::spec::packages::Test::get_our_pkg() },
     "Package in scope can see `our' package declarations";
 is($pkg, Our::Package, 'correct $?PACKAGE');
 ok(!($pkg === ::Our::Package),
    'not the same as global type object', :todo<feature>);
 
 # oh no, how do we get to that object, then?
-# perhaps %t::packages::Test::<Our::Package> ?
+# perhaps %t::spec::packages::Test::<Our::Package> ?
 
-dies_ok { $pkg = t::packages::Test::cant_see_pkg() },
+dies_ok { $pkg = t::spec::packages::Test::cant_see_pkg() },
     "can't see package declared out of scope", :todo<feature>;
-lives_ok { $pkg = t::packages::Test::my_pkg() },
+lives_ok { $pkg = t::spec::packages::Test::my_pkg() },
     "can see package declared in same scope";
 is($pkg, ::My::Package::, 'correct $?PACKAGE');
 ok($pkg !=== ::*My::Package::, 'not the same as global type object');
