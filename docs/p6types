@@ -79,7 +79,7 @@ Any is Object does Pattern
 Whatever is Any
 Failure is Any
 Complex is Any
-Num is Any does Order
+Num is Complex does Order
     infix:<+>
     infix:<->
     infix:<*>
@@ -104,7 +104,7 @@ Num is Any does Order
     prefix:<+^>
     prefix:<^>
 Rat is Num
-Int is Num
+Int is Rat
 Bit is Int
 Str is Any does Filetest does Order
     .bytes
@@ -298,6 +298,7 @@ Context is Any does Callable (or is Code ?)
 Roles
 ==================
 Positional does Each
+    (are most of these really in Any?)
     postcircumfix:<[ ]>
     .elems
     .end
