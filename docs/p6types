@@ -34,7 +34,7 @@ Object
     prefix:<?^>
     prefix:<true>
     prefix:<not>
-    prefix:<[X!beforeX=]«> etc.
+#    prefix:<[X!beforeX=]«> etc.
     infix:<?&>
     infix:<?|>
     infix:<?^>
@@ -72,7 +72,7 @@ Any is Object does Pattern
     prefix:<\>
     infix:<x>
     infix:<xx>
-    infix:{'=>'}
+    infix:«=>»
     infix:«p5=>»
     infix:<,>
     infix:<~~>
@@ -88,9 +88,9 @@ Num is Complex does Order
     infix:<div>
     infix:<mod>
     infix:<**>
-    infix:{'+&'}
-    infix:{'+<'}
-    infix:{'+>'}
+    infix:«+&»
+    infix:«+<»
+    infix:«+>»
     infix:<+|>
     infix:<+^>
     infix:<==>
@@ -199,8 +199,8 @@ Buf is Any does Positional
     .unpack
     prefix:<~^>
     infix:<~&>
-    infix:{'~<'}
-    infix:{'~>'}
+    infix:«~<»
+    infix:«~>»
     infix:<~|>
     infix:<~^>
 IO is Any does Filetest does Each does KitchenSink
@@ -227,7 +227,7 @@ Socket is IO
     .send
     .recv
     .shutdown
-    .(get|set)*
+#    .(get|set)*
 Pipe is IO
 Statbuf is Any does Filetest
     .file
@@ -359,7 +359,7 @@ Iterator
     prefix:<=>
     .reset
 Filetest
-    .:etc
+#    .:etc
 Order
     .succ
     .pred
