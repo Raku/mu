@@ -1,0 +1,457 @@
+# ../../../docs/p6types
+# Last Changed Rev: 21057
+
+class Any {}
+role Associative {}
+class Block {}
+class Buf {}
+role Callable {}
+class Class {}
+role Container {}
+class Context {}
+class Cursor {}
+role Each {}
+class Grammar {}
+class IO {}
+role Iterator {}
+class Junction {}
+role KitchenSink {}
+class Match {}
+class Module {}
+class Num {}
+class Object {}
+role Order {}
+class Package {}
+class Pair {}
+role Pattern {}
+role Positional {}
+class Range {}
+class Regex {}
+class Role {}
+class Routine {}
+class Signature {}
+class Socket {}
+class Statbuf {}
+class Str {}
+class StrLen {}
+class StrPos {}
+class Subst {}
+
+class Any  is Object does Pattern {}
+role Associative  does Each {}
+class Block  is Code {}
+class Buf  is Any does Positional {}
+role Callable  {}
+class Class  is Module {}
+role Container  {}
+class Context  is Any does Callable {}
+class Cursor  is Any {}
+role Each  does Iterator {}
+class Grammar  is Class {}
+class IO  is Any does Filetest does Each does KitchenSink {}
+role Iterator  {}
+class Junction  is Object does Set {}
+role KitchenSink  {}
+class Match  is Capture {}
+class Module  is Package {}
+class Num  is Complex does Order {}
+class Object  {}
+role Order  {}
+class Package  is Any does Abstraction does Associative {}
+class Pair  is Any does Associative {}
+role Pattern  {}
+role Positional  does Each {}
+class Range  is Any does List does Num {}
+class Regex  is Method {}
+class Role  is Module {}
+class Routine  is Block does Container {}
+class Signature  is Any does Positional {}
+class Socket  is IO {}
+class Statbuf  is Any does Filetest {}
+class Str  is Any does Filetest does Order {}
+class StrLen  is Any does Order {}
+class StrPos  is Any does Order {}
+class Subst  is Regex {}
+
+class Any {
+  multi sub prefix:<+> (Any $a) {}
+  multi sub prefix:<~> (Any $a) {}
+  multi sub prefix:<|> (Any $a) {}
+  multi sub prefix:<\> (Any $a) {}
+  multi sub infix:<x> (Any $a, Any $b) {}
+  multi sub infix:<xx> (Any $a, Any $b) {}
+  multi sub infix:«=>» (Any $a, Any $b) {}
+  multi sub infix:«p5=>» (Any $a, Any $b) {}
+  multi sub infix:<,> (Any $a, Any $b) {}
+  multi sub infix:<~~> (Any $a, Any $b) {}
+}
+role Associative {
+  multi sub postcircumfix:<{ }> (Associative $a, $b) {}
+  multi method keys () {}
+  multi method values () {}
+  multi method pairs () {}
+  multi method kv () {}
+  multi method contains () {}
+  multi method iterator () {}
+}
+class Block {
+  multi method labels () {}
+  multi sub BEGIN () {}
+  multi sub CHECK () {}
+  multi sub INIT () {}
+  multi sub END () {}
+  multi sub START () {}
+  multi sub ENTER () {}
+  multi sub LEAVE () {}
+  multi sub KEEP () {}
+  multi sub UNDO () {}
+  multi sub FIRST () {}
+  multi sub NEXT () {}
+  multi sub LAST () {}
+  multi sub PRE () {}
+  multi sub POST () {}
+  multi sub CATCH () {}
+  multi sub CONTROL () {}
+}
+class Buf {
+  multi method unpack () {}
+  multi sub prefix:<~^> (Buf $a) {}
+  multi sub infix:<~&> (Buf $a, Buf $b) {}
+  multi sub infix:«~<» (Buf $a, Buf $b) {}
+  multi sub infix:«~>» (Buf $a, Buf $b) {}
+  multi sub infix:<~|> (Buf $a, Buf $b) {}
+  multi sub infix:<~^> (Buf $a, Buf $b) {}
+}
+role Callable {
+  multi sub postcircumfix:<( )> (Callable $a, $b) {}
+  multi method repr () {}
+  multi method assuming () {}
+  multi method arity () {}
+  multi method callwith () {}
+  multi method callsame () {}
+  multi method nextwith () {}
+  multi method nextsame () {}
+  multi method leave () {}
+  multi method fail () {}
+  multi method break () {}
+  multi method next () {}
+  multi method last () {}
+  multi method redo () {}
+  multi method goto () {}
+}
+class Class {
+  multi sub prefix:<^> (Class $a) {}
+}
+role Container {
+  multi method STORE () {}
+  multi method FETCH () {}
+  multi method TEMP () {}
+  multi sub infix:<=> (Container $a, Container $b) {}
+  multi sub infix:<:=> (Container $a, Container $b) {}
+  multi sub infix:<::=> (Container $a, Container $b) {}
+  multi sub infix:<=:=> (Container $a, Container $b) {}
+}
+class Context {
+  multi method context () {}
+  multi method caller () {}
+  multi method leave () {}
+  multi method want () {}
+  multi method inline () {}
+  multi method package () {}
+  multi method file () {}
+  multi method line () {}
+  multi method my () {}
+  multi method hints () {}
+}
+class Cursor {
+  multi method pos () {}
+  multi method _ () {}
+  multi method orig () {}
+  multi method from () {}
+  multi method to () {}
+}
+role Each {
+  multi method each () {}
+}
+class Grammar {
+  multi method match () {}
+}
+class IO {
+  multi method file () {}
+  multi method close () {}
+  multi method fcntl () {}
+  multi method ioctl () {}
+  multi method name () {}
+  multi method stat () {}
+  multi method getc () {}
+  multi method print () {}
+  multi method say () {}
+  multi method printf () {}
+  multi method fileno () {}
+  multi method flock () {}
+  multi method eof () {}
+  multi method lines () {}
+  multi method seek () {}
+  multi method tell () {}
+  multi method slurp () {}
+}
+role Iterator {
+  multi sub prefix:<=> (Iterator $a) {}
+  multi method reset () {}
+}
+class Junction {
+  multi method values () {}
+}
+role KitchenSink {
+  multi method clear () {}
+  multi method push () {}
+}
+class Match {
+  multi method from () {}
+  multi method to () {}
+  multi method pretext () {}
+  multi method chars () {}
+  multi method orig () {}
+  multi method text () {}
+}
+class Module {
+  multi method EXPORT () {}
+  multi method EXPORTALL () {}
+}
+class Num {
+  multi sub infix:<+> (Num $a, Num $b) {}
+  multi sub infix:<-> (Num $a, Num $b) {}
+  multi sub infix:<*> (Num $a, Num $b) {}
+  multi sub infix:</> (Num $a, Num $b) {}
+  multi sub infix:<%> (Num $a, Num $b) {}
+  multi sub infix:<div> (Num $a, Num $b) {}
+  multi sub infix:<mod> (Num $a, Num $b) {}
+  multi sub infix:<**> (Num $a, Num $b) {}
+  multi sub infix:«+&» (Num $a, Num $b) {}
+  multi sub infix:«+<» (Num $a, Num $b) {}
+  multi sub infix:«+>» (Num $a, Num $b) {}
+  multi sub infix:<+|> (Num $a, Num $b) {}
+  multi sub infix:<+^> (Num $a, Num $b) {}
+  multi sub infix:<==> (Num $a, Num $b) {}
+  multi sub infix:«<=» (Num $a, Num $b) {}
+  multi sub infix:«>=» (Num $a, Num $b) {}
+  multi sub infix:«<» (Num $a, Num $b) {}
+  multi sub infix:«>» (Num $a, Num $b) {}
+  multi sub infix:«<=>» (Num $a, Num $b) {}
+  multi sub prefix:<-> (Num $a) {}
+  multi sub prefix:<int> (Num $a) {}
+  multi sub prefix:<+^> (Num $a) {}
+  multi sub prefix:<^> (Num $a) {}
+}
+class Object {
+  multi method defined () {}
+  multi method true () {}
+  multi method handled () {}
+  multi method perl () {}
+  multi method fmt () {}
+  multi method print () {}
+  multi method say () {}
+  multi method take () {}
+  multi method new () {}
+  multi method bless () {}
+  multi method clone () {}
+  multi method BUILD () {}
+  multi method BUILDALL () {}
+  multi method CREATE () {}
+  multi method WHAT () {}
+  multi method WHICH () {}
+  multi method WHO () {}
+  multi method WHERE () {}
+  multi method HOW () {}
+  multi method WHEN () {}
+  multi method WHY () {}
+  multi method WHENCE () {}
+  multi sub fail () {}
+  multi sub die () {}
+  multi sub warn () {}
+  multi sub term:<...> () {}
+  multi sub term:<!!!> () {}
+  multi sub term:<???> () {}
+  multi sub prefix:<?> (Object $a) {}
+  multi sub prefix:<!> (Object $a) {}
+  multi sub prefix:<?^> (Object $a) {}
+  multi sub prefix:<true> (Object $a) {}
+  multi sub prefix:<not> (Object $a) {}
+  multi sub infix:<?&> (Object $a, Object $b) {}
+  multi sub infix:<?|> (Object $a, Object $b) {}
+  multi sub infix:<?^> (Object $a, Object $b) {}
+  multi sub infix:<&&> (Object $a, Object $b) {}
+  multi sub infix:<||> (Object $a, Object $b) {}
+  multi sub infix:<^^> (Object $a, Object $b) {}
+  multi sub infix:<and> (Object $a, Object $b) {}
+  multi sub infix:<andthen> (Object $a, Object $b) {}
+  multi sub infix:<or> (Object $a, Object $b) {}
+  multi sub infix:<xor> (Object $a, Object $b) {}
+  multi sub infix:<orelse> (Object $a, Object $b) {}
+  multi sub infix:<?? !!> (Object $a, Object $b) {}
+  multi sub infix:<ff> (Object $a, Object $b) {}
+  multi sub infix:<^ff> (Object $a, Object $b) {}
+  multi sub infix:<ff^> (Object $a, Object $b) {}
+  multi sub infix:<^ff^> (Object $a, Object $b) {}
+  multi sub infix:<fff> (Object $a, Object $b) {}
+  multi sub infix:<^fff> (Object $a, Object $b) {}
+  multi sub infix:<fff^> (Object $a, Object $b) {}
+  multi sub infix:<^fff^> (Object $a, Object $b) {}
+  multi sub infix:<//> (Object $a, Object $b) {}
+  multi sub infix:<&> (Object $a, Object $b) {}
+  multi sub infix:<|> (Object $a, Object $b) {}
+  multi sub infix:<^> (Object $a, Object $b) {}
+  multi sub infix:<but> (Object $a, Object $b) {}
+  multi sub infix:<does> (Object $a, Object $b) {}
+  multi sub infix:<===> (Object $a, Object $b) {}
+  multi sub infix:<eqv> (Object $a, Object $b) {}
+}
+role Order {
+  multi method succ () {}
+  multi method pred () {}
+  multi sub infix:<before> (Order $a, Order $b) {}
+  multi sub infix:<after> (Order $a, Order $b) {}
+  multi sub infix:<cmp> (Order $a, Order $b) {}
+  multi sub prefix:<++> (Order $a) {}
+  multi sub prefix:<--> (Order $a) {}
+  multi sub postfix:<++> (Order $a) {}
+  multi sub postfix:<--> (Order $a) {}
+  multi sub infix:<min> (Order $a, Order $b) {}
+  multi sub infix:<max> (Order $a, Order $b) {}
+  multi sub infix:<..> (Order $a, Order $b) {}
+  multi sub infix:<^..> (Order $a, Order $b) {}
+  multi sub infix:<..^> (Order $a, Order $b) {}
+  multi sub infix:<^..^> (Order $a, Order $b) {}
+}
+class Package {
+  multi method CANDO () {}
+}
+class Pair {
+  multi method key () {}
+  multi method value () {}
+}
+role Pattern {
+  multi method ACCEPTS () {}
+  multi method REJECTS () {}
+}
+role Positional {
+  multi sub postcircumfix:<[ ]> (Positional $a, $b) {}
+  multi method elems () {}
+  multi method end () {}
+  multi method grep () {}
+  multi method map () {}
+  multi method bytes () {}
+  multi method codes () {}
+  multi method graphs () {}
+  multi method chars () {}
+  multi method any () {}
+  multi method all () {}
+  multi method one () {}
+  multi method none () {}
+  multi method min () {}
+  multi method max () {}
+  multi method minmax () {}
+  multi method reverse () {}
+  multi method push () {}
+  multi method pop () {}
+  multi method shift () {}
+  multi method unshift () {}
+  multi method pack () {}
+  multi method sort () {}
+  multi method keys () {}
+  multi method values () {}
+  multi method pairs () {}
+  multi method kv () {}
+  multi method shape () {}
+  multi sub infix:<Z> (Positional $a, Positional $b) {}
+  multi sub infix:<X> (Positional $a, Positional $b) {}
+  multi sub infix:<minmax> (Positional $a, Positional $b) {}
+}
+class Range {
+  multi method from () {}
+  multi method to () {}
+}
+class Regex {
+  multi method match () {}
+}
+class Role {
+  multi sub prefix:<^> (Role $a) {}
+}
+class Routine {
+  multi method name () {}
+  multi method return () {}
+  multi method wrap () {}
+}
+class Signature {
+  multi method item () {}
+  multi method list () {}
+  multi method void () {}
+  multi method rw () {}
+  multi method arity () {}
+  multi method count () {}
+}
+class Socket {
+  multi method listen () {}
+  multi method accept () {}
+  multi method send () {}
+  multi method recv () {}
+  multi method shutdown () {}
+}
+class Statbuf {
+  multi method file () {}
+  multi method io () {}
+}
+class Str {
+  multi method bytes () {}
+  multi method codes () {}
+  multi method graphs () {}
+  multi method chars () {}
+  multi method substr () {}
+  multi method unpack () {}
+  multi method match () {}
+  multi method subst () {}
+  multi method trans () {}
+  multi method eval () {}
+  multi method samebase () {}
+  multi method lc () {}
+  multi method lcfirst () {}
+  multi method uc () {}
+  multi method ucfirst () {}
+  multi method capitalize () {}
+  multi method samecase () {}
+  multi method ord () {}
+  multi method chr () {}
+  multi method normalize () {}
+  multi method nfd () {}
+  multi method nfkd () {}
+  multi method nfc () {}
+  multi method nfkc () {}
+  multi sub infix:<~> (Str $a, Str $b) {}
+  multi sub infix:<eq> (Str $a, Str $b) {}
+  multi sub infix:<ne> (Str $a, Str $b) {}
+  multi sub infix:<ge> (Str $a, Str $b) {}
+  multi sub infix:<gt> (Str $a, Str $b) {}
+  multi sub infix:<le> (Str $a, Str $b) {}
+  multi sub infix:<lt> (Str $a, Str $b) {}
+  multi sub infix:<leg> (Str $a, Str $b) {}
+}
+class StrLen {
+  multi method bytes () {}
+  multi method codes () {}
+  multi method graphs () {}
+  multi method chars () {}
+  multi sub prefix:<-> (StrLen $a) {}
+  multi sub infix:<+> (StrLen $a, StrLen $b) {}
+  multi sub infix:<-> (StrLen $a, StrLen $b) {}
+}
+class StrPos {
+  multi method bytes () {}
+  multi method codes () {}
+  multi method graphs () {}
+  multi method chars () {}
+  multi sub infix:<+> (StrPos $a, StrPos $b) {}
+  multi sub infix:<-> (StrPos $a, StrPos $b) {}
+}
+class Subst {
+  multi method subst () {}
+}

@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+# This is a temporary script to assist in assimilating doc/p6types
+# into the elf prelude.  2008-Jun-27
+
+use strict; use warnings;
+
+my $file = shift || '../../../docs/p6types';
+my @lines = `cat $file`;
+my %body; my %pkgkind; my %inherit;
+process_lines(@lines);
+output();
+
+sub process_lines {
+  my @lines = @_;
+  my($pkg,$kind);
+  for(@lines) {
+    if(/^Classes/) {$kind = "class";}
+    elsif(/^Roles/) {$kind = "role";}
+    elsif(/^Modules/) {$kind = "module";}
+    elsif(/^(\w+)((?: (?:is|does) \w+(?: of \w+)?)*)(.*)/) {
+      $pkg = $1;
+      my($inh,$rest) = ($2,$3);
+      $pkgkind{$pkg} = $kind;
+      do_inheritance($pkg,$inh);
+      print STDERR "Skipping \"$rest\" in:  $_ \n" if $rest;
+    } elsif(/^\s+\.(\S+)/) {
+      my $name = $1;
+      $body{$pkg} .= "  multi method $name () {}\n";
+    } elsif(/^\s+(\w+:(<.+?>|«.+?»)|\w+$)/) {
+      my $name = $1;
+      my $params = "";
+      $params = "$pkg \$a" if $name =~ /^(pre|post|circum)fix/;
+      $params = "$pkg \$a, $pkg \$b" if $name =~ /^(in)fix/;
+      $params = "$pkg \$a, \$b" if $name =~ /^(postcircum)fix/;
+      $body{$pkg} .= "  multi sub $name ($params) {}\n";
+    } else {
+      print STDERR "Skipping $_";
+    }
+  }
+}
+sub do_inheritance {
+  my($pkg,$inh)=@_;
+  $inherit{$pkg} .= $pkgkind{$pkg}." $pkg $inh {}\n";
+}
+sub output {
+  my @pkgs = sort keys %body;
+  print "# $file\n";
+  print "# ",`svn info $file 2>/dev/null | grep Rev:`;
+  print "\n";
+  for(@pkgs) {
+    print $pkgkind{$_}." $_ {}\n";
+  }
+  print "\n";
+  for(@pkgs) {
+    print $inherit{$_};
+  }
+  print "\n";
+  for(@pkgs) {
+    print $pkgkind{$_}." $_ {\n";
+    print $body{$_};
+    print "}\n";
+  }
+}
