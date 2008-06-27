@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 15;
+plan 17;
 
 # L<S03/"Changes to Perl 5 operators"/"-> becomes .">
 
@@ -56,23 +56,26 @@ is($foo.num(), 15, '... got the right num value');
 # test attribute accessors, too
 is($foo.baz(7).baz(6).num, 28, 'chained an auto-generated accessor');
 
+eval_dies_ok('Foo->new',  'Perl 5 -> is dead (class constructor)');
+eval_dies_ok('$foo->num', 'Perl 5 -> is dead (method call)');
+
 # L<S03/"Changes to Perl 5 operators"/"-> becomes .">
 # L<S12/"Open vs Closed Classes"/"though you have to be explicit">
 {
-class Pair is also {
-    our      method car () { self.key; }
-    our Pair method cdr () { self.value; }
-}
-
-# (A => (B => undef)) => (C => undef))
-# ((A B) C)
-
-my $cons = [=>] ( [=>] <A B>, undef ), <C>, undef;
-
-## Hmm.  Works with the latest release of Pugs (6.2.12 (r13256))
-## Leaving this in as something that once didn't work (6.2.12 CPAN)
-
-my $p = $cons.car;
-ok( $cons.key.key =:= $p.car, 'chaining through temp variable' );
-ok( $cons.key.key =:= $cons.car.car, 'chaining through Any return');
+    class Pair is also {
+        our      method car () { self.key; }
+        our Pair method cdr () { self.value; }
+    }
+    
+    # (A => (B => undef)) => (C => undef))
+    # ((A B) C)
+    
+    my $cons = [=>] ( [=>] <A B>, undef ), <C>, undef;
+    
+    ## Hmm.  Works with the latest release of Pugs (6.2.12 (r13256))
+    ## Leaving this in as something that once didn't work (6.2.12 CPAN)
+    
+    my $p = $cons.car;
+    ok( $cons.key.key =:= $p.car, 'chaining through temp variable' );
+    ok( $cons.key.key =:= $cons.car.car, 'chaining through Any return');
 }

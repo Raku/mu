@@ -4,15 +4,13 @@ use Test;
 
 plan 14;
 
-=pod
+=begin pod
 
 Checking Junctions' Associativeness
 
-L<S09/"Junctions">
-L<S03/"Junctive operators">
+=end pod
 
-=cut
-
+# L<S03/"Junctive operators">
 # L<S09/"Junctions">
 {
 

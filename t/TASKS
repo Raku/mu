@@ -17,7 +17,6 @@ OVERALL
 * Improve the Vim syntax highlighting to recognize test keywords
 
 S03
-* more comparison tests, especially cmp, leg, and return values of these operators
 * tests for cmp() and eqv() methods of objects
 * test 'Minimal whitespace DWIMmery'. A quick ack indicates that no tests exist to ensure that '@a  [$b]' dies.
 * test that '@array, *' repeats the final element infinitely

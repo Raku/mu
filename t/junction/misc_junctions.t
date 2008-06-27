@@ -4,16 +4,13 @@ use Test;
 
 plan 76;
 
-=pod
+=begin pod
 
 Misc. Junction tests 
 
-L<S09/Junctions>
+=end pod
 
-L<S03/Junctive operators>
-
-=cut
-
+# L<S03/Junctive operators>
 # L<S09/Junctions>
 {
 
