@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+open(my $std,shift);
+open(my $actions,shift);
+my (%actions,$action);
+for (<$actions>) {
+    if (/^### (.*?)\s*$/) {
+        $action = $1;
+    } else {
+        $actions{$action} .= $_;
+    }
+}
+my ($name);
+for (<$std>) {
+    if (/(?:token|rule) ([\w:]+)/) {
+        $name = $1;
+    } elsif (/\{\*\} \s* (?:\#=(.*))?/x) {
+        my $tag = $1 ? " $1" : ""; 
+        my $full_name = $name . $tag;
+#        warn "inserting $full_name" if $actions{$full_name};
+#        warn "not inserting <$full_name>" unless $actions{$full_name};
+        my $content = $actions{$full_name} // "...$full_name...";
+        chomp($content);
+        s/\{\*\}/{$content}/;
+    }
+    print $_;
+}

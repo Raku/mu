@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use File::Slurp qw(slurp);
+use Term::ANSIColor qw(:constants);
+
+my $without = slurp(shift);
+my $with = slurp(shift);
+my @chunks = split(/\{\*\}/,$without);
+
+my @last_token;
+for (@chunks) {
+    /^.* (?:regex|rule|token) \s+ (\w+)/sx;
+    push (@last_token,$1);
+}
+
+my $first = shift @chunks;
+$with =~ /^\Q$first\E/gc or die "can't match first chunk\n";
+for my $chunk (@chunks) {
+    die "can't match next chunk:$chunk\n" unless $with =~ /\G\{(.*?)\}\Q$chunk\E/sgc;
+    my $action = $1;
+    my $name = shift @last_token;
+    if ($action) {
+#        print RED,'{',$action,'}',RESET,$chunk;
+#        print '{',$action,'}',$chunk;
+        if ($action ne '*') {
+            my ($tag,) = $chunk =~ /#= (.*)/;
+            $tag //= '';
+            print "### $name $tag\n$action\n";
+        }
+    } else {
+        die "no action! chunk:$chunk";
+#        print GREEN,$chunk,RESET;
+    }
+}

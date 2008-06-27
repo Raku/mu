@@ -111,6 +111,7 @@ my $ir = $r->{''};
 my $code = $GLOBAL::emitter1->prelude_lexical . $ir->callback($GLOBAL::emitter1);
 print $GLOBAL::emitter1->tidy($code),"\n" unless $quiet;
 eval($code);
+print "error: $@" if $@;
 };
 if ($@) {
     print "fatal error: $@";
