@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use Term::ANSIColor qw(:constants);
 open(my $std,shift);
 open(my $actions,shift);
 my (%actions,$action);
@@ -16,11 +17,11 @@ for (<$std>) {
     if (/(?:token|rule) ([\w:]+)/) {
         $name = $1;
     } elsif (/\{\*\} \s* (?:\#=(.*))?/x) {
-        my $tag = $1 ? " $1" : ""; 
+        my $tag = $1 || ""; 
         my $full_name = $name . $tag;
-#        warn "inserting $full_name" if $actions{$full_name};
-#        warn "not inserting <$full_name>" unless $actions{$full_name};
-        my $content = $actions{$full_name} // "...$full_name...";
+#        warn "inserting ".GREEN.$full_name.RESET if $actions{$full_name};
+#        warn "not inserting <".RED.$full_name.RESET.">" unless $actions{$full_name};
+        my $content = $actions{$full_name} // "*";
         chomp($content);
         s/\{\*\}/{$content}/;
     }

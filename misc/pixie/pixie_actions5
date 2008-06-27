@@ -23,7 +23,7 @@ make (IRx1::CompUnit->new(statements=>$_->{statementlist}->item))
     
 ### value 
  make(IRx1::Buf->new(buf=>$_->{quote}{nibble}->item)) if $_->{quote} 
-### term listop args
+### term:name listop args
 
             make (IRx1::Apply->new(function=>$_->{name}->item,capture=>$_->{arglist}->item));
         

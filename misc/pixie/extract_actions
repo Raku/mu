@@ -10,7 +10,7 @@ my @chunks = split(/\{\*\}/,$without);
 
 my @last_token;
 for (@chunks) {
-    /^.* (?:regex|rule|token) \s+ (\w+)/sx;
+    /^.* (?:regex|rule|token) \s+ ([:\w]+)/sx;
     push (@last_token,$1);
 }
 
