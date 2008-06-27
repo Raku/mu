@@ -429,6 +429,14 @@ class Perl < Grammar
       _match_from(start,{:modifier_expr=>me},:<sym>) #R NONSPEC normalized name, ignored #= name.
     }
     
+    def role_name
+        b=pos
+        pc=nil
+        (mn= module_name and (before(/\[/) and pc= postcircumfix;true) and
+         (h={:module_name=>mn};_hkv(h,:postcircumfix,pc);
+          _match_from(b,h,:role_name)))
+    end
+
     #R reordered.  depreciated needs to come first.
     def_token_full :module_name,false,'depreciated',/(?=v6-alpha)/,%q{
       scan(/v6-alpha/) and
@@ -1652,6 +1660,8 @@ class Perl < Grammar
 
     def_rules_rest :trait_verb,%w{ is },%q{b=pos; i=ident and (pc=postcircumfix;true) and
       (h={:ident=>i};_hkv(h,:postcircumfix,pc);_match_from(b,h,:is)) }
+    def_rules_rest :trait_verb,%w{ does },%q{b=pos; rn=role_name and
+      (h={:role_name=>rn};_match_from(b,h,:does)) }
     def_rules_rest :trait_verb,%w{ will },%q{ ident and wsp and block }
     def_rules_rest :trait_verb,%w{ of returns },%q{ fulltypename }
     def_rules_rest :trait_verb,%w{ handles },%q{ _EXPR }
