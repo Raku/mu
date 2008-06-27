@@ -221,6 +221,10 @@ $cat~':'~$op;
       ($m.match_string);
     });
 
+    $main::irbuilder.add_constructor('role_name', sub ($m) {
+      ($m.match_string);
+    });
+
     $main::irbuilder.add_constructor('statement_control:BEGIN', sub ($m) {
       IRx1::ClosureTrait.newp($m,'BEGIN',irbuild_ir($m.{'hash'}{'block'}));
     });
@@ -579,6 +583,11 @@ IRx1::Pair.newp($m,irbuild_ir($m.{'hash'}{'ident'}),$value);
       IRx1::Pair.newp($m,'nth',irbuild_ir($m.{'hash'}{'n'}));
     });
 
+    $main::irbuilder.add_constructor('package_declarator:role', sub ($m) {
+      my $+blackboard::package_declarator = 'role';
+irbuild_ir($m.{'hash'}{'package_def'});
+    });
+
     $main::irbuilder.add_constructor('package_declarator:class', sub ($m) {
       my $+blackboard::package_declarator = 'class';
 irbuild_ir($m.{'hash'}{'package_def'});
@@ -613,6 +622,10 @@ irbuild_ir($m.{'hash'}{'package_def'});
 
     $main::irbuilder.add_constructor('trait_verb:is', sub ($m) {
       IRx1::Trait.newp($m,'is',irbuild_ir($m.{'hash'}{'ident'}));
+    });
+
+    $main::irbuilder.add_constructor('trait_verb:does', sub ($m) {
+      IRx1::Trait.newp($m,'does',irbuild_ir($m.{'hash'}{'role_name'}));
     });
 
     $main::irbuilder.add_constructor('circumfix:pblock', sub ($m) {

@@ -2073,6 +2073,8 @@ $main::irbuilder->add_constructor("module_name\:depreciated", sub {my($m)=@_;
 (do{($m->match_string())})});
 $main::irbuilder->add_constructor("module_name\:normal", sub {my($m)=@_;
 (do{($m->match_string())})});
+$main::irbuilder->add_constructor("role_name", sub {my($m)=@_;
+(do{($m->match_string())})});
 $main::irbuilder->add_constructor("statement_control\:BEGIN", sub {my($m)=@_;
 (do{IRx1::ClosureTrait->newp($m, "BEGIN", irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("term\:listop", sub {my($m)=@_;
@@ -2344,6 +2346,9 @@ if($m->{"hash"}->{"postcircumfix"}) {
 IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), $value)})});
 $main::irbuilder->add_constructor("quotepair__nth", sub {my($m)=@_;
 (do{IRx1::Pair->newp($m, "nth", irbuild_ir($m->{"hash"}->{"n"}))})});
+$main::irbuilder->add_constructor("package_declarator\:role", sub {my($m)=@_;
+(do{{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = "role";
+irbuild_ir($m->{"hash"}->{"package_def"})})});
 $main::irbuilder->add_constructor("package_declarator\:class", sub {my($m)=@_;
 (do{{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = "class";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
@@ -2364,6 +2369,8 @@ $main::irbuilder->add_constructor("typename", sub {my($m)=@_;
 (do{($m->match_string())})});
 $main::irbuilder->add_constructor("trait_verb\:is", sub {my($m)=@_;
 (do{IRx1::Trait->newp($m, "is", irbuild_ir($m->{"hash"}->{"ident"}))})});
+$main::irbuilder->add_constructor("trait_verb\:does", sub {my($m)=@_;
+(do{IRx1::Trait->newp($m, "does", irbuild_ir($m->{"hash"}->{"role_name"}))})});
 $main::irbuilder->add_constructor("circumfix\:pblock", sub {my($m)=@_;
 (do{if((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->elems() == 0) or ($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->match_string() =~ qr/^:/))) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}))})
@@ -3132,7 +3139,7 @@ $::es_whiteboard__compunit_footer->unshift($foot);
 ")})
 }})};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
-(do{if((($n->verb() eq "is"))) {
+(do{if(((($n->verb() eq "is") or ($n->verb() eq "does")))) {
 (do{my $pkgname = $::es_whiteboard__in_package->join("\:\:");
 my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join("\:\:") . "\:\:") . $self->e($n->expr()));
 $name->re_gsub("\^\:\:", "");

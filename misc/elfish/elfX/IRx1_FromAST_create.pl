@@ -149,6 +149,10 @@ module_name:depreciated
 module_name:normal
 *text*
 
+role_name
+*text*
+
+
 statement_control:BEGIN
 ClosureTrait.newp('BEGIN',$m<block>)
 
@@ -429,6 +433,10 @@ quotepair__nth
 Pair.newp('nth',$m<n>)
 
 
+package_declarator:role
+my $+blackboard::package_declarator = 'role';
+$m<package_def>
+
 package_declarator:class
 my $+blackboard::package_declarator = 'class';
 $m<package_def>
@@ -456,6 +464,10 @@ typename
 
 trait_verb:is
 Trait.newp('is',$m<ident>)
+
+trait_verb:does
+Trait.newp('does',$m<role_name>)
+
 
 circumfix:pblock
 if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string =~ /^:/ {
