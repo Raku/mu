@@ -66,10 +66,37 @@ Object
 Junction is Object does Set
     .values
 Any is Object does Pattern
+    .elems
+    .end
+    .grep
+    .map
+    .bytes
+    .codes
+    .graphs
+    .chars
+    .any
+    .all
+    .one
+    .none
+    .reverse
+    .push
+    .pop
+    .shift
+    .unshift
+    .pack
+    .sort
+    .keys
+    .values
+    .pairs
+    .kv
+    .shape
     prefix:<+>
     prefix:<~>
     prefix:<|>
     prefix:<\>
+    infix:<Z>
+    infix:<X>
+    infix:<minmax>
     infix:<x>
     infix:<xx>
     infix:«=>»
@@ -79,27 +106,27 @@ Any is Object does Pattern
 Whatever is Any
 Failure is Any
 Complex is Any
-Num is Complex does Order
     infix:<+>
     infix:<->
     infix:<*>
     infix:</>
+    infix:<**>
+    infix:<==>
+    prefix:<->
+Num is Complex does Order
     infix:<%>
     infix:<div>
     infix:<mod>
-    infix:<**>
     infix:«+&»
     infix:«+<»
     infix:«+>»
     infix:<+|>
     infix:<+^>
-    infix:<==>
     infix:«<=»
     infix:«>=»
     infix:«<»
     infix:«>»
     infix:«<=>»
-    prefix:<->
     prefix:<int>
     prefix:<+^>
     prefix:<^>
@@ -107,10 +134,6 @@ Rat is Num
 Int is Rat
 Bit is Int
 Str is Any does Filetest does Order
-    .bytes
-    .codes
-    .graphs
-    .chars
     .substr
     .unpack
     .match
@@ -144,17 +167,9 @@ Byte is AnyChar
 Codepoint is AnyChar
 Grapheme is AnyChar
 StrPos is Any does Order
-    .bytes
-    .codes
-    .graphs
-    .chars
     infix:<+>
     infix:<->
 StrLen is Any does Order
-    .bytes
-    .codes
-    .graphs
-    .chars
     prefix:<->
     infix:<+>
     infix:<->
@@ -298,44 +313,9 @@ Context is Any does Callable (or is Code ?)
 Roles
 ==================
 Positional does Each
-    (are most of these really in Any?)
     postcircumfix:<[ ]>
-    .elems
-    .end
-    .grep
-    .map
-    .bytes
-    .codes
-    .graphs
-    .chars
-    .any
-    .all
-    .one
-    .none
-    .min
-    .max
-    .minmax
-    .reverse
-    .push
-    .pop
-    .shift
-    .unshift
-    .pack
-    .sort
-    .keys
-    .values
-    .pairs
-    .kv
-    .shape
-    infix:<Z>
-    infix:<X>
-    infix:<minmax>
 Associative does Each
     postcircumfix:<{ }>
-    .keys
-    .values
-    .pairs
-    .kv
     .contains
     .iterator
 Callable
@@ -363,6 +343,9 @@ Filetest
 Order
     .succ
     .pred
+    .min
+    .max
+    .minmax
     infix:<before>
     infix:<after>
     infix:<cmp>
