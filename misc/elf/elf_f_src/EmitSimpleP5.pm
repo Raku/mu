@@ -490,7 +490,7 @@ package Main;
     }
   };
   method cb__Trait ($n) {
-    if ($n.verb eq 'is') {
+    if ($n.verb eq 'is' or $n.verb eq 'does') {
       my $pkgname = $+whiteboard::in_package.join('::');
       my $name = $+whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
       $name.re_gsub('^::',''); # Moose 0.44 doesn't like these.
