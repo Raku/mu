@@ -59,22 +59,6 @@ use warnings;
 }
 '~self.prelude_oo~self.prelude_lexical~'
 
-# Move to the Regexp prelude once that becomes part of the prelude.
-{ package BacktrackMacrosKludge;
-  sub _let_gen {
-    my($vars) = @_;
-    my $nvars = 1+($vars =~ tr/,//);
-    my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
-    push(@SCRATCH::_let_stack,[$vars,$tmpvars]);
-    "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
-  }
-  sub _let_end {
-    my $e = shift(@SCRATCH::_let_stack) || die "LET(){ }LET pairs didnt match up";
-    my($vars,$tmpvars) = @$e;
-    "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
-  }
-}
-
 # Workaround autobox 2.53 api change. :(
 if(!defined(&autobox::universal::type)) {
   eval q{package autobox::universal; sub type { autobox->type($_[0]) }};
@@ -246,9 +230,6 @@ no warnings qw(redefine prototype);
     my $h1 = {%$h}; $h1
   }
 
-  # Temporary
-
-  sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1} # obsolete
 }
 use warnings;
 
@@ -355,7 +336,9 @@ use warnings;
     my $f = $0;
     $f =~ s/[^\/]+$//;
     # $f."elf_f_src/STD_red/STD_red_run"
-    $f."../STD_red/STD_red_run"
+    for (qw(../STD_red/STD_red_run ../../STD_red/STD_red_run)) {
+        return $f.$_ if -e $f.$_;
+    }
   }
 
   our $a_INC = ["."];
@@ -883,6 +866,9 @@ package Main;
     if $s eq '$' && $env eq 'e' { $pre = 's_' };
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
+    if ($dsn ne $.mangle_function_name($dsn)) {
+        say $dsn~" => "~$.mangle_function_name($dsn);
+    }
     my $name = $env~$pre~$dsn;
     if ($t eq '.') {
       '$self->'~$name

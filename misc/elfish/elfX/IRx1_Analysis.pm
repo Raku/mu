@@ -121,7 +121,7 @@ class IRx1::Block {
 }
 class IRx1::CompUnit_and_Block {
   method update_lexical_bindings($h,$decls) {
-    my $h1 = $h.dup;
+    my $h1 = $h.clone;
     for $decls {
       my $k = $_.sigil ~ $_.name;
       $h1{$k} = $_;

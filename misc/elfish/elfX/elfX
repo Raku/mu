@@ -322,7 +322,9 @@ use warnings;
     my $f = $0;
     $f =~ s/[^\/]+$//;
     # $f."elf_f_src/STD_red/STD_red_run"
-    $f."../STD_red/STD_red_run"
+    for (qw(../STD_red/STD_red_run ../../STD_red/STD_red_run)) {
+        return $f.$_ if -e $f.$_;
+    }
   }
 
   our $a_INC = ["."];
@@ -3011,7 +3013,9 @@ use\ warnings\;\
 \ \ \ \ my\ \$f\ \=\ \$0\;\
 \ \ \ \ \$f\ \=\~\ s\/\[\^\\\/\]\+\$\/\/\;\
 \ \ \ \ \#\ \$f\.\"elf_f_src\/STD_red\/STD_red_run\"\
-\ \ \ \ \$f\.\"\.\.\/STD_red\/STD_red_run\"\
+\ \ \ \ for\ \(qw\(\.\.\/STD_red\/STD_red_run\ \.\.\/\.\.\/STD_red\/STD_red_run\)\)\ \{\
+\ \ \ \ \ \ \ \ return\ \$f\.\$_\ if\ \-e\ \$f\.\$_\;\
+\ \ \ \ \}\
 \ \ \}\
 \
 \ \ our\ \$a_INC\ \=\ \[\"\.\"\]\;\
