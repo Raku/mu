@@ -866,9 +866,6 @@ package Main;
     if $s eq '$' && $env eq 'e' { $pre = 's_' };
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
-    if ($dsn ne $.mangle_function_name($dsn)) {
-        say $dsn~" => "~$.mangle_function_name($dsn);
-    }
     my $name = $env~$pre~$dsn;
     if ($t eq '.') {
       '$self->'~$name
