@@ -3,6 +3,7 @@ use warnings;
 use strict;
 use Term::ANSIColor qw(:constants);
 open(my $std,shift);
+
 open(my $actions,shift);
 my (%actions,$action);
 for (<$actions>) {
@@ -12,6 +13,7 @@ for (<$actions>) {
         $actions{$action} .= $_;
     }
 }
+
 my ($name);
 for (<$std>) {
     if (/(?:token|rule) ([\w:]+)/) {

@@ -38,8 +38,24 @@ local $/;
 $text = Encode::decode('utf8', scalar <>);
 }
 
+open(my $actions,"pixie_actions5") || die "can't open actions file:$!";
+my (%actions,$action);
+for (<$actions>) {
+    if (/^### (.*?)\s*$/) {
+        $action = $1;
+    } else {
+        $actions{$action} .= $_;
+    }
+}
+
+while (my ($name,$code) = each %actions) {
+    $actions{$name} = eval("sub {package pixie_actions;".$code."}");
+}
+#use Data::Dump::Streamer;
+#print Dump(\%actions);
+
+
 { package pixie_actions;
-    use Moose;
     sub make($) {
         $_->{''} = $_[0];
     }
@@ -51,51 +67,23 @@ $text = Encode::decode('utf8', scalar <>);
             $_[0]->item;
         }
     }
-    sub comp_unit {
-        make (IRx1::CompUnit->new(statements=>$_->{statementlist}->item));
-    }
-    sub term__S_356name__listop__args {
-        make (IRx1::Apply->new(function=>$_->{name}->item,capture=>$_->{arglist}->item));
-    }
-    sub arglist {
-        if ($_->{EXPR}{infix} && $_->{EXPR}{infix}->item eq ',') {
-            make (IRx1::Capture->new(arguments=>[map {$_->{noun}{''}} @{$_->{EXPR}{list}}]));
-        } elsif ($_->{EXPR}{noun}) {
-            make (IRx1::Capture->new(arguments=>[$_->{EXPR}{noun}->item]));
-        }
-    }
-    sub statement__expr {
-        if ($_->{EXPR}{noun}) {
-            make ($_->{EXPR}{noun}->item)
-        }
-    }
-    sub noun {
-        make($_->{term}->item) if $_->{term};
-        make($_->{value}->item) if $_->{value}; 
-    }
-    sub value {
-        make(IRx1::Buf->new(buf=>$_->{quote}{nibble}->item)) if $_->{quote};
-    }
-    sub statementlist {
-        make(adapter($_->{statement}));
-    }
 }
-#pixie_actions::comp_unit();
-my $actions = pixie_actions->new();
 { package Perl_with_actions;
     use Term::ANSIColor qw(:constants);
-    BEGIN {our @ISA = qw(Perl) }
+    BEGIN { our @ISA = qw(Perl) }
     sub _REDUCE {
         my $self = shift;
         my $tag = shift;
-        $tag =~ s/ /__/g;
-        if ($actions->can($tag)) {
+        $tag =~ s/__S_\d+/:/;
+
+        if ($actions{$tag}) {
             print (GREEN,$tag,"\n",RESET) unless $quiet;
-            {local $_ = $self;$actions->$tag();}
+            local $_ = $self;
+            $actions{$tag}->();
             $self;
         } else {
             print (RED,$tag,"\n",RESET) unless $quiet;
-            $self->SUPER::_REDUCE($tag);
+            $self;
         }
     }
 }

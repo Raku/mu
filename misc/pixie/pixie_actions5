@@ -1,13 +1,17 @@
 ### comp_unit 
 make (IRx1::CompUnit->new(statements=>$_->{statementlist}->item))
 ### statementlist 
- make(adapter($_->{statement})) 
+ make([map {$_->item} @{$_->{statement}}])
+### statement control
+make ($_->{statement_control}->item) 
 ### statement expr
 
             if ($_->{EXPR}{noun}) {
                 make ($_->{EXPR}{noun}->item)
             }
         
+### statement_control:use 
+make(IRx1::Use->new(module_name=>$_->{module_name}->item))
 ### noun 
 
         make($_->{term}->item) if $_->{term};

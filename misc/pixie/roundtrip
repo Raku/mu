@@ -1,5 +1,5 @@
 #!/bin/sh
 perl insert_actions ../../src/perl6/STD.pm pixie_actions5 > STD.deleteme.pm
-perl extract_actions ../../src/perl6/STD.pm STD.tmp.pm > actions.deleteme
-diff actions.tmp pixie_actions5
+perl extract_actions ../../src/perl6/STD.pm STD.deleteme.pm > actions.deleteme
+diff actions.deleteme pixie_actions5
 rm actions.deleteme STD.deleteme.pm
