@@ -15,7 +15,7 @@ BEGIN {
         open(STDERR,">/dev/null");
     }
 }
-eval {
+#eval {
 use lib '../../src/perl6';
 use STD5;
 use ElfCore5;
@@ -49,7 +49,8 @@ for (<$actions>) {
 }
 
 while (my ($name,$code) = each %actions) {
-    $actions{$name} = eval("sub {package pixie_actions;".$code."}");
+    $actions{$name} = eval("sub {print \"action:: $name\n\";package pixie_actions;".$code."}");
+    die "error at pixie_action5, action $name: $@\n" if $@;
 }
 #use Data::Dump::Streamer;
 #print Dump(\%actions);
@@ -59,12 +60,29 @@ while (my ($name,$code) = each %actions) {
     sub make($) {
         $_->{''} = $_[0];
     }
-    sub adapter {
-        local $_;
-        if (ref $_[0] eq 'ARRAY') {
-            [map {$_->item} @{$_[0]}];
+    sub EXPR {
+        my $expr = shift;
+        use Data::Dumper;
+        if ($expr->{pre} && @{$expr->{pre}}) {
+            IRx1::Apply->new(
+                function => 'prefix:'.$expr->{pre}[0]->item,
+                capture  => IRx1::Capture->new(arguments=>[$expr->{noun}->item]),
+            );
+        } elsif ($expr->{post} && @{$expr->{post}}) {
+            IRx1::Apply->new(
+                function => 'postfix:'.$expr->{post}[0]->item,
+                capture  => IRx1::Capture->new(arguments=>[$expr->{noun}->item]),
+            );
+        } elsif ($expr->{noun}) {
+            $expr->{noun}->item;
+        } elsif ($expr->{infix}) {
+            IRx1::Apply->new(
+                function => 'infix:'.$expr->{infix}->item,
+                capture  => IRx1::Capture->new(arguments=>[EXPR($expr->{left}),EXPR($expr->{right})]),
+            );
         } else {
-            $_[0]->item;
+            warn 'unknown EXPR type';
+            undef;
         }
     }
 }
@@ -100,9 +118,9 @@ my $code = $GLOBAL::emitter1->prelude_lexical . $ir->callback($GLOBAL::emitter1)
 print $GLOBAL::emitter1->tidy($code),"\n" unless $quiet;
 eval($code);
 print "error: $@" if $@;
-};
-if ($@) {
-    print "fatal error: $@";
-    die;
-}
+#};
+#if ($@) {
+#    print "fatal error: $@";
+#    die;
+#}
 

@@ -1,33 +1,40 @@
 ### comp_unit 
 make (IRx1::CompUnit->new(statements=>$_->{statementlist}->item))
 ### statementlist 
- make([map {$_->item} @{$_->{statement}}])
+ make ([map { ref $_->item ? $_->item : '#' . $_->item } @{$_->{statement}}])
 ### statement control
 make ($_->{statement_control}->item) 
 ### statement expr
-
-            if ($_->{EXPR}{noun}) {
-                make ($_->{EXPR}{noun}->item)
-            }
+            make (EXPR($_->{EXPR}))
         
 ### statement_control:use 
 make(IRx1::Use->new(module_name=>$_->{module_name}->item))
 ### noun 
 
-        make($_->{term}->item) if $_->{term};
-        make($_->{value}->item) if $_->{value}; 
+        for my $key (keys %{$_}) {
+            next if $key =~ /^_|^sigil$/;
+            make ($_->{$key}->item);
+        }
     
 ### arglist 
 
         if ($_->{EXPR}{infix} && $_->{EXPR}{infix}->item eq ',') {
             make (IRx1::Capture->new(arguments=>[map {$_->{noun}{''}} @{$_->{EXPR}{list}}]));
-        } elsif ($_->{EXPR}{noun}) {
-            make (IRx1::Capture->new(arguments=>[$_->{EXPR}{noun}->item]));
+        } else {
+            make (IRx1::Capture->new(arguments=>[EXPR($_->{EXPR})]));
         }
-    
+
+### scope_declarator:my 
+
+        my $vd = $_->{scoped}{declarator}{variable_declarator};
+        if ($vd) {
+            make (IRx1::VarDecl->new(var=>$vd->{variable}->item,scope=>'my',default_expr=>EXPR($vd->{EXPR}[0])));
+        }
+
+### variable 
+make (IRx1::Var->new(sigil=>$_->{sigil}[0]->item,name=>$_->{desigilname}->item))
 ### value 
- make(IRx1::Buf->new(buf=>$_->{quote}{nibble}->item)) if $_->{quote} 
+ make (IRx1::Buf->new(buf=>$_->{quote}{nibble}->item)) if $_->{quote} 
 ### term:name listop args
 
             make (IRx1::Apply->new(function=>$_->{name}->item,capture=>$_->{arglist}->item));
-        

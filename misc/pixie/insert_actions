@@ -18,7 +18,9 @@ my ($name);
 for (<$std>) {
     if (/(?:token|rule) ([\w:]+)/) {
         $name = $1;
-    } elsif (/\{\*\} \s* (?:\#=(.*))?/x) {
+#        warn YELLOW,"$name",RESET;
+    }
+    if (/\{\*\} \s* (?:\#=(.*))?/x) {
         my $tag = $1 || ""; 
         my $full_name = $name . $tag;
 #        warn "inserting ".GREEN.$full_name.RESET if $actions{$full_name};
