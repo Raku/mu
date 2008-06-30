@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 L<S03/"Chaining binary precedence" /Value identity>
 
@@ -12,9 +12,9 @@ mutable types, and C<eqv> tests value equivalence for snapshots of mutable
 types.  So C<(1,2) === (1,2)> returns true but C<[1,2] === [1,2]> returns 
 false, and C<[1,2] eqv [1,2]> returns true.
 
-=cut
+=end pod
 
-plan 49;
+plan 51;
 
 # === on values
 {
@@ -127,11 +127,14 @@ plan 49;
   ok !$test($bar), "subparam binding doesn't affect === (4)";
 }
 
-=pod
+{
+    my $a = 1;
+    my $b = 2;
+    is($a === $a, Bool::True,  '=== returns Bool::True when true');
+    is($a === $b, Bool::False, '=== returns Bool::False when false');
+}
 
-L<S03/"Chaining binary precedence" /Negated relational operators>
-
-=cut
+# L<S03/"Chaining binary precedence" /Negated relational operators>
 {
   ok !(1 !=== 1), "!=== on values (1)";
   ok !(0 !=== 0), "!=== on values (2)";

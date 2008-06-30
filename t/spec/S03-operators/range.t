@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 50;
+plan 51;
 
 # 3..2 must *not* produce "3 2".  Use reverse to get a reversed range. -lwall
 
@@ -16,12 +16,10 @@ is ~("a".."a"), "a",     "(..) works on chars (2)";
 is ~("b".."a"), "",      "(..) works on chars (3)";
 is ~("Y".."AB"), "Y Z AA AB", "(..) works on carried chars (3)";
 
-{
-  skip 2, "Skipping hanging tests";
-  # my @array = 3...;
-  # is @array[0], 3, "(...) works (1)";
-  # is @array[3], 6, "(...) works (2)";
-}
+is ~('Y'..'z', 'Y Z', '(..) works on uppercase letter .. lowercase letter');
+is ~('Y'..'_', 'Y Z', '(..) works on letter .. non-letter');
+
+isnt ~(0..^10), ~(0.. ^10), '(0..^10) is not the same as (0.. ^10)');
 
 is ~(3..9-3), "3 4 5 6", "(..) has correct precedence (1)";
 is ~(2+1..6), "3 4 5 6", "(..) has correct precedence (2)";

@@ -20,7 +20,6 @@ S03
 * tests for cmp() and eqv() methods of objects
 * test 'Minimal whitespace DWIMmery'. A quick ack indicates that no tests exist to ensure that '@a  [$b]' dies.
 * test that '@array, *' repeats the final element infinitely
-* test that 'A' .. '_' (or other non-word character) is the same as 'A' .. 'Z'
 * tests for other range edgecases
 
 S12
