@@ -85,6 +85,30 @@ while (my ($name,$code) = each %actions) {
             undef;
         }
     }
+    sub quote {
+        my $quote = shift;
+
+        my $nibble = $quote->{nibble};
+        return IRx1::Buf->new(buf=>'') unless $nibble;
+
+        my @parts;
+        my @escapes =  sort {print "$a:$b";$a->from cmp $b->from} @{$nibble->{escape} // []};
+        use Term::ANSIColor qw(:constants);
+        my $at = $nibble->from;
+
+        for my $escape (@escapes) {
+            my $str = substr(${$nibble->orig},$at,$escape->from-$at);
+            push(@parts,IRx1::Buf->new(buf=>$str)) if $str;
+            push(@parts,$escape->{variable}->item);
+            $at = $escape->to;
+        }
+        push(@parts,IRx1::Buf->new(buf=>substr(${$nibble->orig},$at,$nibble->to-$at)));
+        my $item = shift @parts;
+        for (@parts) {
+            $item = IRx1::Apply->new(function=>'infix:~',capture=>IRx1::Capture->new(arguments=>[$item,$_]));
+        }
+        return $item;
+    }
 }
 { package Perl_with_actions;
     use Term::ANSIColor qw(:constants);

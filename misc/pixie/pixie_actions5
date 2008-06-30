@@ -34,7 +34,6 @@ make(IRx1::Use->new(module_name=>$_->{module_name}->item))
 ### variable 
 make (IRx1::Var->new(sigil=>$_->{sigil}[0]->item,name=>$_->{desigilname}->item))
 ### value 
- make (IRx1::Buf->new(buf=>$_->{quote}{nibble}->item)) if $_->{quote}{nibble} 
+ make (quote($_->{quote})) if $_->{quote};
 ### term:name listop args
-
-            make (IRx1::Apply->new(function=>$_->{longname}->item,capture=>$_->{arglist}->item));
+make (IRx1::Apply->new(function=>$_->{longname}->item,capture=>$_->{arglist}->item));
