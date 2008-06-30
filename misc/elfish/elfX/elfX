@@ -3691,13 +3691,13 @@ Class::Multimethods::multimethod prefix__126 => split(/\s+/,'$') => sub {my($a)=
 Class::Multimethods::multimethod prefix__45 => split(/\s+/,'#') => sub {my($a)=@_;
 (0-$a)};;
 Class::Multimethods::multimethod prefix__43_43 => split(/\s+/,'#') => sub {my($a)=@_;
-++ $a};;
+++ $_[0]};;
 Class::Multimethods::multimethod prefix__45_45 => split(/\s+/,'#') => sub {my($a)=@_;
--- $a};;
+-- $_[0]};;
 Class::Multimethods::multimethod postfix__43_43 => split(/\s+/,'#') => sub {my($a)=@_;
-$a ++};;
+$_[0] ++};;
 Class::Multimethods::multimethod postfix__45_45 => split(/\s+/,'#') => sub {my($a)=@_;
-$a --};;
+$_[0] --};;
 Class::Multimethods::multimethod postfix_i => split(/\s+/,'#') => sub {my($a)=@_;
 (do{$a})};;
 Class::Multimethods::multimethod infix__43 => split(/\s+/,'* *') => sub {my($a,$b)=@_;

@@ -66,12 +66,12 @@ package GLOBAL {
 
   multi prefix:<-> (Num $a) is p5 {'(0-$a)'}
 
-  multi prefix:<++> (Num $a) is p5 {'++ $a'}
-  multi prefix:<--> (Num $a) is p5 {'-- $a'}
+  # HACK as is rw is not supported yet
+  multi prefix:<++> (Num $a is rw) is p5 {'++ $_[0]'}
+  multi prefix:<--> (Num $a is rw) is p5 {'-- $_[0]'}
+  multi postfix:<++> (Num $a is rw) is p5 {'$_[0] ++'}
+  multi postfix:<--> (Num $a is rw) is p5 {'$_[0] --'}
 
-
-  multi postfix:<++> (Num $a) is p5 {'$a ++'}
-  multi postfix:<--> (Num $a) is p5 {'$a --'}
   multi postfix:<i>  (Num $a) { $a } ;# Need to implement Complex.
 
 
