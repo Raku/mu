@@ -140,6 +140,9 @@ package Evalbot;
         chdir('../yap6/src')
             or confess("Can't chdir to elf base dir: $!");
         my ($tmp_fh, $name) = tempfile();
+        if ($program =~ m/\|\|\|/){
+            confess "Disabled due to security concerns";
+        }
         my ($gram,$inp) = split('\|\|\|',$program);
         my $is_custom = $inp?1:0;
         $inp ||= $gram;
