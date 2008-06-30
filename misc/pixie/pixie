@@ -49,7 +49,7 @@ for (<$actions>) {
 }
 
 while (my ($name,$code) = each %actions) {
-    $actions{$name} = eval("sub {print \"action:: $name\n\";package pixie_actions;".$code."}");
+    $actions{$name} = eval("sub {package pixie_actions;".$code."}");
     die "error at pixie_action5, action $name: $@\n" if $@;
 }
 #use Data::Dump::Streamer;
