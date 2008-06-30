@@ -141,7 +141,15 @@ package Evalbot;
             or confess("Can't chdir to elf base dir: $!");
         my ($tmp_fh, $name) = tempfile();
         if ($program =~ m/\|\|\|/){
-            confess "Disabled due to security concerns";
+            die "Disabled due to security concerns";
+            # 11:28 < pmurias> yap6: >/dev/null;echo ../* |||;
+            # 11:28 < p6eval> yap6: OUTPUT[../CHANGES ../COPYRIGHT  
+            # etc.
+
+            # if you want to allow different commands, please
+            # either limit them to the current directory (if you think
+            # you can do it safely), or better, introduce a whitelist of
+            # allowed programs.
         }
         my ($gram,$inp) = split('\|\|\|',$program);
         my $is_custom = $inp?1:0;
