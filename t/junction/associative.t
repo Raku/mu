@@ -8,6 +8,10 @@ plan 14;
 
 Checking Junctions' Associativeness
 
+This test needs thorough re-work, because it relies on C<Junction.values>
+to return the values in the original order. That doesn't seem to be specced
+that way.
+
 =end pod
 
 # L<S03/"Junctive operators">
