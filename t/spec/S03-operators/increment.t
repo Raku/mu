@@ -6,7 +6,7 @@ plan 39;
 
 #L<S03/Autoincrement precedence>
 
-=kwid
+=begin description
 
 Mostly copied from Perl 5.8.4 s t/op/inc.t
 
@@ -14,7 +14,7 @@ Verify that addition/subtraction properly upgrade to doubles.
 These tests are only significant on machines with 32 bit longs,
 and two s complement negation, but should not fail anywhere.
 
-=cut
+=end description
 
 my $a = 2147483647;
 my $c=$a++;
