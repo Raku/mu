@@ -137,7 +137,7 @@ Misc. Junction tests
 }
 
 
-=pod
+=begin description
 
 Tests junction examples from Synopsis 03 
 
@@ -146,7 +146,7 @@ just using .perl until a better approach presents itself.
 
 L<S03/Junctive operators>
 
-=cut
+=end description
 
 # Canonical stringification of a junction
 sub j (Junction $j) { return $j.perl }
@@ -210,7 +210,7 @@ sub j (Junction $j) { return $j.perl }
     #    'for all(...) { ...} as parallelizable');
 }
 
-=pod
+=begin description
 
 These are implemented but still awaiting clarification on p6l.
 
@@ -223,7 +223,7 @@ L<S03/Junctive operators/They thread through operations>
  > operations on the junction. Junctions also implicitly distribute across 
  > operations, and rejunctify the results.
 
-=cut
+=end description
 
 {
     my @subs = (sub {3}, sub {2});
@@ -309,4 +309,3 @@ ok(!(?(1&0) != ?(1&&0)), 'boolean context');
     $c++ if 1 == any(1, 2, 3);
     is $c, 1, 'if modifier with junction should be called once';
 }
-    
