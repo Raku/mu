@@ -51,17 +51,16 @@ plan 20;
 }
 
 # state will first {...}
+#?pugs eval "parse error"
 {
     my ($a, $b);
-    eval '
-        my $gen = {
-            state $svar will first { 42 };
-            -> { $svar++ };
-        }
-        $a = $gen();    # $svar == 42
-        $a(); $a();     # $svar == 44
-        $b = $gen()();  # $svar == 44
-    ';
+    my $gen = {
+        state $svar will first { 42 };
+        -> { $svar++ };
+    }
+    $a = $gen();    # $svar == 42
+    $a(); $a();     # $svar == 44
+    $b = $gen()();  # $svar == 44
 
     is $b, 44, 'state will first {...} works', :todo<feature>;
 }
@@ -77,11 +76,13 @@ plan 20;
     $$svar_ref++; $$svar_ref++;
 
     my $svar_ref = $gen();
-    is $$svar_ref, 44, "reference to a state() var", :todo<bug>;
+    #?pugs todo "state bug"
+    is $$svar_ref, 44, "reference to a state() var";
 }
 
 # Anonymous state vars
 # L<http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429>
+#?pugs todo 'anonymous state vars'
 {
     # XXX -- currently this is parsed as \&state()
     my $gen = eval '{ try { \state } }';
@@ -91,23 +92,22 @@ plan 20;
     try { $$svar_ref++; $$svar_ref++ };  # $svar == 2
 
     my $svar_ref = $gen();               # $svar == 2
-    is try { $$svar_ref }, 2, "anonymous state() vars", :todo<feature>;
+    is try { $$svar_ref }, 2, "anonymous state() vars";
 }
 
 # L<http://www.nntp.perl.org/group/perl.perl6.language/20888>
 # ("Re: Declaration and definition of state() vars" from Larry)
+#?pugs eval 'Parse error'
 {
     my ($a, $b);
-    eval '
-        my $gen = {
-            (state $svar) = 42;
-            my $ret = { $svar++ };
-        };
+    my $gen = {
+        (state $svar) = 42;
+        my $ret = { $svar++ };
+    };
 
-        $a = $gen();        # $svar == 42
-        $a(); $a();         # $svar == 44
-        $b = $gen()();      # $svar == 42
-    ';
+    $a = $gen();        # $svar == 42
+    $a(); $a();         # $svar == 44
+    $b = $gen()();      # $svar == 42
     is $b, 42, "state() and parens"; # svar == 43
 }
 
