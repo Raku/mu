@@ -129,14 +129,14 @@ is($moo, 0, "var was not touched");
 }
 
 # test incrementing literals
-
+# all of those can be detected at compile time, so use eval_dies_ok here
 {
-    dies_ok { 4++ }, "can't postincrement a literal number";
-    dies_ok { ++4 }, "can't preincrement a literal number";
-    dies_ok { 4-- }, "can't postdecrement a literal number";
-    dies_ok { --4 }, "can't predecrement a literal number";
-    dies_ok { "x"++ }, "can't postincrement a literal string";
-    dies_ok { ++"x" }, "can't preincrement a literal string";
-    dies_ok { "x"-- }, "can't postdecrement a literal string";
-    dies_ok { --"x" }, "can't predecrement a literal string";
+    eval_dies_ok ' 4++ ', "can't postincrement a literal number";
+    eval_dies_ok ' ++4 ', "can't preincrement a literal number";
+    eval_dies_ok ' 4-- ', "can't postdecrement a literal number";
+    eval_dies_ok ' --4 ', "can't predecrement a literal number";
+    eval_dies_ok ' "x"++ ', "can't postincrement a literal string";
+    eval_dies_ok ' ++"x" ', "can't preincrement a literal string";
+    eval_dies_ok ' "x"-- ', "can't postdecrement a literal string";
+    eval_dies_ok ' --"x" ', "can't predecrement a literal string";
 }
