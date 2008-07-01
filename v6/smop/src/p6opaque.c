@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 #include <smop.h>
 #include <smop_oo.h>
 #include <smop_lowlevel.h>
@@ -103,6 +104,10 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__REPR_CREATE) {
     ret = smop_lowlevel_alloc(sizeof(SMOP__p6opaque_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__p6opaque__RI;
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    fprintf(stderr,"[SMOP p6opaque] DESTROYALL not implemented\n");
+  } else {
+    fprintf(stderr,"[SMOP p6opaque] Unkown method called\n");
   }
   SMOP_RELEASE(interpreter,capture);
   return ret;
