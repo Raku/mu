@@ -15,6 +15,7 @@ OVERALL
 * Add smartlinks to tests without them
 * Continue moving tests from t/ to t/spec/
 * Improve the Vim syntax highlighting to recognize test keywords
+* Review XXX entries for test corrections
 
 S03
 * tests for cmp() and eqv() methods of objects
@@ -30,6 +31,7 @@ S12
 * more tests for inheritance. Auzon noticed that there were no multiple inheritance tests, so other important things are bound to be missing.
 
 S16
+* Is there a reason that S16-io/say.t doesn't use plan()?
 * tests for glob()
 
 S29
@@ -38,6 +40,7 @@ S29
 * tests for pack and unpack
 * tests to ensure that rand has a bit of entropy
 * test for $number.rand (method form)
+* t/spec/S29-num/pi.t:20 has a syntax error
 
 IO
 * more tests for say() and print(). For example elf prints array references
