@@ -20,7 +20,7 @@ I'm in the process of smartlinking all the below tests.
 
 =cut
 
-plan 41;
+plan 44;
 
 ## No foreach
 # L<S04/The C<for> statement/"no foreach statement any more">
@@ -192,7 +192,6 @@ sub some_sub_4 ($arg) { $r ~= $arg; }
 for (@array_r) { .some_sub_4 };
 is($r, '012345', 'for (@array) { .some_sub } works');
 
-
 my @elems = <a b c d e>;
 
 {
@@ -302,3 +301,17 @@ is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :tod
     try { for ($a, $b, $c) -> $x is rw { $x++ } };
     is( [$a,$b,$c], [1,2,3], 'for ($a,$b,$c) -> $x is rw { $x++ }');
 }
+
+# list context
+
+$a = '';
+for 1..3, 4..6 { $a =~ $_.WHAT };
+is($a, 'IntIntIntIntIntInt', 'List context');
+
+$a = '';
+for [1..3, 4..6] { $a =~ $_.WHAT };
+is($a, 'Array', 'List context');
+
+$a = '';
+for [1..3], [4..6] { $a =~ $_.WHAT };
+is($a, 'ArrayArray', 'List context');
