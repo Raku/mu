@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 188;
+plan 190;
 
 my $five = abs(-5);
 
@@ -45,7 +45,7 @@ sub tryeq_sloppy ($lhs, $rhs, $todo1 = '') {
             ok($lhs==$rhs,$todo);
         }
     } else {
-        my $error = abs($lhs - $rhs) / $lhs; 
+        my $error = abs($lhs - $rhs) / $lhs;
         if ($todo) {
             #&ok.nextwith($error <1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs, :todo);
             ok($error <1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs, :todo);
@@ -313,6 +313,8 @@ is 1**1, 1;
 # Inf
 is Inf, Inf;
 is -Inf, -Inf;
+isnt Inf, -Inf;
+is -Inf.abs, Inf;
 is Inf+100, Inf;
 is Inf-100, Inf;
 is Inf*100, Inf;
@@ -370,6 +372,8 @@ is $nan2, NaN, "NaN**Inf";
 my $nan3 = Inf**NaN;
 is $nan3, NaN, "Inf**NaN";
 
+=begin pod
+
 =head2 BEHAVIOUR OF DIVISION AND MODULUS WITH ZERO
 
 This test tests the behaviour of '%' and '/' when used with
@@ -378,7 +382,7 @@ a zero modulus resp. divisor.
 All uses of a zero modulus or divisor should 'die', and the
 'die' should be non-fatal.
 
-=cut
+=end pod
 
 my $x;
 
