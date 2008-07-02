@@ -14,6 +14,8 @@ This file had entries in the past (r16405). Since this file wasn't touched in ov
 OVERALL
 * Add smartlinks to tests without them
 * Continue moving tests from t/ to t/spec/
+* Clean up old POD
+* Fudge tests for Rakudo where helpful
 * Improve the Vim syntax highlighting to recognize test keywords
 * Review XXX entries for test corrections
 
@@ -40,7 +42,6 @@ S29
 * tests for pack and unpack
 * tests to ensure that rand has a bit of entropy
 * test for $number.rand (method form)
-* t/spec/S29-num/pi.t:20 has a syntax error
 
 IO
 * more tests for say() and print(). For example elf prints array references
