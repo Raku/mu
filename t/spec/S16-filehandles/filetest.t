@@ -2,11 +2,13 @@ use v6;
 
 use Test;
 
+=begin pod
+
 =head1 DESCRIPTION
 
 This test tests the various filetest operators.
 
-=cut
+=end pod
 
 plan 37;
 
@@ -19,6 +21,9 @@ if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";
   exit;
 }
+
+# L<S03/Changes to Perl 5 operators/The filetest operators are gone.>
+# L<S16/Filehandles, files, and directories/A file test, where X is one of the letters listed below.>
 
 # Basic tests
 ok 't' ~~ :d,             "~~:d returns true on directories";
