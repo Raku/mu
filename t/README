@@ -30,7 +30,7 @@ Here are some basic guidelines to help you get started writing tests for Pugs.
 
 Please read the Perl 6 Spec first, namely, the Synopses:
 
-  http://dev.perl.org/perl6/doc/synopsis.html
+  http://perlcabal.org/syn/
 
 or directly from the SVN repos:
 

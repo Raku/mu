@@ -1,0 +1,165 @@
+=head1 How to add tests to the test suite
+
+This is a guide on how to add tests to the official Perl 6 test suite.
+
+=head2 Pro Forma
+
+All file pathes in this directory are relative to the root of the pugs
+repository (unless stated otherwise). You can obtain the pugs SVN repository
+by typing
+
+   svn co http://svn.pugscode.org/pugs
+
+A file path C<t/spec/> is the directory that can be obtained from
+C<http://svn.pugscode.org/pugs/t/spec/>.
+
+The test suite lives in C<t/>, and is slowly being moved to C<t/spec/>
+
+=head2 Where to start?
+
+First pick a language feature you want to test. If you don't know what to test
+and just want to test something, look at the file F<t/TASKS>, it contains a
+list of stuff that needs testing.
+
+=heads2 Check the other tests first
+
+Many things are already tested, and it would be waste of time to duplicate the
+effort, and a maintainance burden. So first  check if there are tests for the
+things you want. Usually a very efficient method is to do a full text search
+on the current test suite, either with C<grep> or C<ack> (a perl replacement
+for grep, see L<http://search.cpan.org/dist/ack>).
+
+Suppose you want to know if the method C<pick> is already implemented. You'd
+go into C<t/> and then type:
+
+    $ ack -l '\bpick\b'
+    examples/99problems/problem80.t
+    examples/99problems/problem24.t
+    examples/99problems/problem25.t
+    examples/99problems/problem23.t
+    spec/fudge
+    spec/S03-junctions/misc.t
+    spec/fudgeall
+    spec/S03-operators/assign.t
+    spec/S29-list/pick.t
+    junction/junction_any_pick.t
+    junction/junction_functions.t
+    junction/junction_pick.t
+
+Anything that doesn't end in C<.t> can be ignored for now. You see that there
+are even files with C<pick> in their name, so you can be pretty sure it's
+already tested.
+
+If you didn't find any tests, or the existing ones aren't covering all cases,
+go on with the next step.
+
+=head2 Where to Put the Tests?
+
+If there are already similar tests to those you want to add, just put them
+into the same file.
+
+If you're writing completely new tests, find a spot below C<t/spec/> where it
+fits.
+
+The typical file name of a test is C<t/spec/S29-list/map.t>. C<S29> is
+the synopsis where the feature is described, it can be found at
+L<http://perlcabal.org/syn/S29.html>. C<list> is the section within S29 where
+the feature is described, and C<map> is the feature being tested.
+
+Please adhere to this style as best as possible, when you are in doubt, ask on
+#perl6 on irc.freenode.org. Words in test file names should be separated by
+hyphens, eg C<S99-weird/very-weird-features.t>.
+
+=head2 Write the Tests
+
+The test suite uses the "Test Anything Protocol" (short TAP), and a module 
+named C<Test> that produces the apropriate output. Perl 5 programmers will
+be familiar with it because it's very much like L<Test::More>.
+
+Suppose you'd want to test the power operator C<**>. Your test file might
+looking something like that:
+
+    use v6;
+    use Test;
+    plan 4;
+
+    is 2**4,    16, 'Can calculate power of integers';
+    is (-2)**3, -8, 'Can calcualte power of negative integers';
+    is_approx 2**0.5, sqrt(2), 'Can use fractional exponents';
+    is 0**30,    0, '0**$something is 0 again';
+
+Let's go through this line by line.
+
+The first one tells the compiler that is
+a Perl 6 source file, not Perl 5. The second one load the C<Test> module.
+
+C<plan 4;> says "we're planning to run 4 tests in this file". If for example
+the test silently dies during execution, the TAP parser knows how many tests
+you planned to run, and raises an error if it didn't run that many.
+
+The next line is our first real test. It calls the C<is()> function with three
+arguments: the first is the expression whos value is being tested (C<2**4>),
+the second is the expected value (C<16>), and the third is a short description
+of what the test does.
+
+The next three lines are similar in spirit. Note that the third test uses
+C<is_approx> instead of C<is>, because it deals with floating point values,
+and direct comparison of floating point values is nearly always wrong.
+
+=head2 Smartlinks
+
+The test suite uses so-called "smartlinks" to identify which test files cover
+which parts of the synopsis. Please add at least one smartlink to each test
+file that you write.
+
+Smart links are covered in more detail here:
+ 
+    http://pugs.blogs.com/pugs/2006/08/integrating_the.html
+    http://pugs.blogs.com/pugs/2006/09/check_smoke_res.html
+    http://pugs.blogs.com/pugs/2006/09/the_benefits_of.html
+
+C<t/README> also contains some information on how smartlinks for.
+
+In our example we'd go into C<docs/Perl6/Spec> where the synopsis live, and
+search for occurences of C<**>:
+
+    ack '\*\*'
+
+This returns many results. The ones from C<Rule.pod> are mostly unrelated
+to the operator we just tested, because C<Rule.pod> describes regular
+expressions, and C<**> has a different meaning there.
+
+The best match seems to be C<Operator.pod>. Looking at
+L<http://perlcabal.org/syn/> reveals that it's also called S03 for short. So
+we know that our smartlink will start with C<< L<S03/ >>. Next we find out
+which section the best match is. That's C<Exponentiation precedence> in our
+case, so our smartlink looks like this: 
+C<< L<S03/Exponentiation precedence/> >>. 
+
+The only thing missing is to identify the paragraph. Instead of copying 
+the markup, we just use a part of what will be displayed, and put it 
+in double quotes:
+C<< L<S03/Exponentiation precedence/"infix:<**>"> >>. We place that line
+directly after the C<plan> directive in our test file.
+
+=head2 Comitting your changes
+
+Once you've written (or edited) a reasonable test file, you should commit the
+changes to the pugs repositoy.
+If you don't have a commit bit (that is the power to commit changes to the
+repository) join #perl on irc.freenode.net and ask for one.
+
+If you merely edited a test file, a simple
+C<svn ci> will do:
+
+    svn ci -m '[spec] added tests for $frobnicate_feature' path/to/file.t
+
+If you created a new file, you have to call C<svn add> first and set the svn
+properties. Lazy programmers use a shell script for that:
+
+    ./util/add-text-file.sh t/spec/S99-weird/very-weird-features.t
+    svn ci -m '[spec] test for very weird features' t/spec/S99-weird/very-weird-features.t
+
+Please always include the C<[spec]> marker at the beginning of your commit
+messages (or C<[t]> if you didn't modify C<t/spec/>), it helps other to
+identify which part of the repository you changed.

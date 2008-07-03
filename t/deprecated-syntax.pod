@@ -61,4 +61,10 @@ error, and throw it at compile time.
 If in doubt, use C<eval_dies_ok> instead. If you have a case where C<dies_ok>
 is fine, remeber to pass a code ref to it.
 
+=head2 Junctions are unordered
+
+Junctions are unordered assemblies, and C<Junction.values> returns these
+values in an arbitrary order, just like C<keys %hash> and the like. Don't rely
+on that order.
+
 =cut
