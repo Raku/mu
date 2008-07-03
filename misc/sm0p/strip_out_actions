@@ -26,7 +26,8 @@ $grammar =~ s[(token \s* (\w+) \s* \{ )($block)( \})][
     my $name = $2;
     my $body = $3;
     my $end = $4;
-    $body =~ s/(?<!')\{ ($block) \}/push(@blocks,["${name}__sm0p_$nr",$1]);'{*}' . "  #= sm0p_" . $nr++/egx;
+    $body =~ s/(?<!')\{ ($block) \}/push(@blocks,["${name}__sm0p_$nr",$1]);'{*}' . "  #= sm0p_" . $nr++ . "\n"
+/egx;
     $start.$body.$end;
 ]exg;
 open(my $striped,">striped");
@@ -42,11 +43,12 @@ sub make($) {
     $_->{''} = $_[0];
 }
 sub adapter {
-    local $_;
     if (ref $_[0] eq 'ARRAY') {
         [map {$_->item} @{$_[0]}];
-    } else {
+    } elsif ($_[0]) {
         $_[0]->item;
+    } else {
+        $_[0]
     }
 }
 HEADER
