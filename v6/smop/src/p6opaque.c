@@ -104,10 +104,37 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__REPR_CREATE) {
     ret = smop_lowlevel_alloc(sizeof(SMOP__p6opaque_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__p6opaque__RI;
-  } else if (identifier == SMOP__ID__DESTROYALL) {
-    fprintf(stderr,"[SMOP p6opaque] DESTROYALL not implemented\n");
+  } else if (identifier == SMOP__ID__REPR_how) {
+    fprintf(stderr,"[SMOP p6opaque] .^!how not implemented");
+    ret = SMOP__NATIVE__bool_true;
   } else {
-    fprintf(stderr,"[SMOP p6opaque] Unkown method called\n");
+    // as we want to support different captures, we'll start to use a
+    // sm0p frame in here, to use the capture as high-level and not as
+    // low-level
+    ret = SMOP__NATIVE__bool_true;
+    SMOP__Object* frame;
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation, interpreter);
+    $frame = q:sm0p {
+      $capture;
+      $identifier;
+      $capture.SMOP__ID__invocant();
+      SMOP__SLIME__CurrentFrame.copy(1);
+      SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
+      SMOP__p6opaque__RI.SMOP__ID__REPR_how();
+      SMOP__SLIME__CurrentFrame.copy(1);
+      SMOP__SLIME__CurrentFrame.move_responder(2,2);
+      SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(6,7,8),(),1));
+      SMOP__NATIVE__bool_true.SMOP__ID__dispatch();
+      $continuation;
+      SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(2),(),1));
+      $continuation.setr();
+      $interpreter.goto(|$continuation);
+    };
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  frame);
+
   }
   SMOP_RELEASE(interpreter,capture);
   return ret;
