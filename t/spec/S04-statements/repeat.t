@@ -16,8 +16,10 @@ plan 16;
   is($x, 2, 'ensure repeat {} while runs at least once');
 }
 
+#?rakudo skip 'redo'
 {
-  my $x = 0; try { repeat { $x++; redo if $x < 10 } while 0 };
+  my $x = 0;
+  repeat { $x++; redo if $x < 10 } while 0;
   is($x, 10, 'redo works in repeat');
 }
 
