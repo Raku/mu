@@ -20,14 +20,14 @@ I'm in the process of smartlinking all the below tests.
 
 =cut
 
-plan 44;
+plan 40;
 
 ## No foreach
 # L<S04/The C<for> statement/"no foreach statement any more">
 {
     my $times_run = 0;
-    ok (! eval 'foreach 1..10 { $times_run++ }; 1'), "foreach is gone";
-    ok (! eval 'foreach (1..10) { $times_run++}; 1'),
+    eval_dies_ok 'foreach 1..10 { $times_run++ }; 1', "foreach is gone";
+    eval_dies_ok 'foreach (1..10) { $times_run++}; 1',
         "foreach is gone, even with parens";
     is $times_run, 0, "foreach doesn't work";
 }
@@ -35,89 +35,81 @@ plan 44;
 ## for with plain old range operator w/out parens
 # L<S04/The C<for> statement/always takes a list as an argument>
 
-my $a;
-for 0 .. 5 { $a = $a ~ $_; };
-is($a, '012345', 'for 0..5 {} works');
-
-# ... with 'pointer'
-# L<S04/The C<for> statement/to the closure:>
-
-my $b;
-for 0 .. 5 -> $_ { $b = $b ~ $_; };
-is($b, '012345', 'for 0 .. 5 -> {} works');
-
 {
-    my $str;
-    my @a = 1..3;
-    my @b = 4..6;
-    for each(@a; @b) -> $x, $y {
-        $str ~= "($x $y)";
-    }
-    is $str, "(1 4)(2 5)(3 6)", 'for each(@a; @b) -> $x, $y works';
+    my $a;
+    for 0 .. 5 { $a = $a ~ $_; };
+    is($a, '012345', 'for 0..5 {} works');
 }
 
+# ... with pointy blocks
+# L<S04/The C<for> statement/to the closure:>
+
+{
+    my $b;
+    for 0 .. 5 -> $_ { $b = $b ~ $_; };
+    is($b, '012345', 'for 0 .. 5 -> {} works');
+}
+
+#?pugs eval 'todo: slice context'
 {
     my $str;
     my @a = 1..3;
     my @b = 5..6;
-    eval q{
-        for zip(@a; @b) -> [$x, $y] {
-            $str ~= "($x $y)";
-        }
+    for zip(@a; @b) -> $x, $y {
+        $str ~= "($x $y)";
+    }
     };
-    is $str, "(1 5)(2 4)(3 6)", 'for zip(@a; @b) -> [$x, $y] works', :todo<bug>;
+    is $str, "(1 5)(2 4)(3 6)", 'for zip(@a; @b) -> $x, $y works';
 }
 
-# ... with sub
-
-my $c;
-for (0 .. 5) sub { $c = $c ~ $_; };
-is($c, '012345', 'for 0 .. 5 sub {} works');
-
 # ... with referential sub
-
-my $d;
-sub some_sub_1 ($arg) { $d = $d ~ $arg; }
-for (0 .. 5) { .some_sub_1 };
-is($d, '012345', 'for 0 .. 5 { .some_sub } works');
+#?rakudo skip 'implicit invocant'
+{
+    my $d;
+    sub some_sub_1 ($arg) { $d = $d ~ $arg; }
+    for 0 .. 5 { .some_sub_1 };
+    is($d, '012345', 'for 0 .. 5 { .some_sub } works');
+}
 
 ## and now with parens around the range operator
+{
+    my $e;
+    for (0 .. 5) { $e = $e ~ $_; };
+    is($e, '012345', 'for () {} works');
+}
 
-my $e;
-for (0 .. 5) { $e = $e ~ $_; };
-is($e, '012345', 'for () {} works');
-
-# ... with 'pointer'
-
-my $f;
-for (0 .. 5) -> $_ { $f = $f ~ $_; };
-is($f, '012345', 'for () -> {} works');
-
-# ... with sub
-
-my $g;
-for (0 .. 5) sub { $g = $g ~ $_; };
-is($g, '012345', 'for (0 .. 5) sub {} works');
+# ... with pointy blocks
+{
+    my $f;
+    for (0 .. 5) -> $_ { $f = $f ~ $_; };
+    is($f, '012345', 'for () -> {} works');
+}
 
 # ... with referential sub
-
-my $h;
-sub some_sub_2 ($arg) { $h = $h ~ $arg; }
-for (0 .. 5) { .some_sub_2 };
-is($h, '012345', 'for (0 .. 5) { .some_sub } works');
+#?rakudo skip 'implicit invocant'
+{
+    my $h;
+    sub some_sub_2 ($arg) { $h = $h ~ $arg; }
+    for (0 .. 5) { .some_sub_2 };
+    is($h, '012345', 'for (0 .. 5) { .some_sub } works');
+}
 
 # ... with implicit topic
 
-$_ = "GLOBAL VALUE";
-for "INNER VALUE" {
-  is( .lc, "inner value", "Implicit default topic is seen by lc()");
-};
-is($_,"GLOBAL VALUE","After the loop the implicit topic gets restored");
+#?rakudo skip 'implicit invocant'
+{
+    $_ = "GLOBAL VALUE";
+    for "INNER VALUE" {
+    is( .lc, "inner value", "Implicit default topic is seen by lc()");
+    };
+    is($_,"GLOBAL VALUE","After the loop the implicit topic gets restored");
 
-$_ = "GLOBAL VALUE";
-is( .lc, "inner value", "Implicit default topic is seen by lc()" )
-  for "INNER VALUE";
-is($_,"GLOBAL VALUE","After the loop the implicit topic gets restored");
+    # as statement modifier
+    $_ = "GLOBAL VALUE";
+    is( .lc, "inner value", "Implicit default topic is seen by lc()" )
+        for "INNER VALUE";
+    is($_,"GLOBAL VALUE","After the loop the implicit topic gets restored");
+}
 
 ## and now for with 'topical' variables
 
@@ -141,19 +133,12 @@ my $k;
 for @array_k { $k = $k ~ $_; };
 is($k, '012345', 'for @array {} works');
 
-# ... with 'pointer'
+# ... with pointy blocks
 
 my @array_l = (0 .. 5);
 my $l;
 for @array_l -> $_ { $l = $l ~ $_; };
 is($l, '012345', 'for @array -> {} works');
-
-# ... with sub
-
-my @array_m = (0 .. 5);
-my $m;
-for (@array_m) sub { $m = $m ~ $_; };
-is($m, '012345', 'for @array sub {} works');
 
 # ... with referential sub
 
@@ -170,27 +155,23 @@ my $o;
 for (@array_o) { $o = $o ~ $_; };
 is($o, '012345', 'for (@array) {} works');
 
-# ... with 'pointer'
+# ... with pointy blocks
+{
+    my @array_p = (0 .. 5);
+    my $p;
+    for (@array_p) -> $_ { $p = $p ~ $_; };
+    is($p, '012345', 'for (@array) -> {} works');
+}
 
-my @array_p = (0 .. 5);
-my $p;
-for (@array_p) -> $_ { $p = $p ~ $_; };
-is($p, '012345', 'for (@array) -> {} works');
-
-# ... with sub
-
-my @array_q = (0 .. 5);
-my $q;
-for (@array_q) sub { $q ~= $_; };
-is($q, '012345', 'for (@array) sub {} works');
 
 # ... with referential sub
-
-my @array_r = (0 .. 5);
-my $r;
-sub some_sub_4 ($arg) { $r ~= $arg; }
-for (@array_r) { .some_sub_4 };
-is($r, '012345', 'for (@array) { .some_sub } works');
+{
+    my @array_r = (0 .. 5);
+    my $r;
+    sub some_sub_4 ($arg) { $r ~= $arg; }
+    for (@array_r) { .some_sub_4 };
+    is($r, '012345', 'for (@array) { .some_sub } works');
+}
 
 my @elems = <a b c d e>;
 
@@ -219,36 +200,51 @@ my @elems = <a b c d e>;
 
 
 # for with "is rw"
+{
+    my @array_s = (0..2);
+    my @s = (1..3);
+    for @array_s { $_++ };
+    is(@array_s, @s, 'for @array { $_++ }');
+}
 
-my @array_s = (0..2);
-my @s = (1..3);
-for @array_s { $_++ };
-is(@array_s, @s, 'for @array { $_++ }');
+{
+    my @array_t = (0..2);
+    my @t = (1..3);
+    for @array_t -> $val is rw { $val++ };
+    is(@array_t, @t, 'for @array -> $val is rw { $val++ }');
+}
 
-my @array_t = (0..2);
-my @t = (1..3);
-for @array_t -> $val is rw { $val++ };
-is(@array_t, @t, 'for @array -> $val is rw { $val++ }');
+#?pugs eval 'todo'
+{
+    my @array_v = (0..2);
+    my @v = (1..3);
+    for @array_v.values -> $val is rw { $val++ };
+    is(@array_v, @v, 'for @array.values -> $val is rw { $val++ }';
+}
 
-my @array_v = (0..2);
-my @v = (1..3);
-try { for @array_v.values -> $val is rw { $val++ }; };
-is(@array_v, @v, 'for @array.values -> $val is rw { $val++ }', :todo<feature>);
+#?pugs eval 'todo'
+{
+    my @array_kv = (0..2);
+    my @kv = (1..3);
+    for @array_kv.kv -> $key, $val is rw { $val++ };
+    is(@array_kv, @kv, 'for @array.kv -> $key, $val is rw { $val++ }');
+}
 
-my @array_kv = (0..2);
-my @kv = (1..3);
-try { for @array_kv.kv -> $key, $val is rw { $val++ }; };
-is(@array_kv, @kv, 'for @array.kv -> $key, $val is rw { $val++ }', :todo<feature>);
+#?pugs eval 'todo'
+{
+    my %hash_v = ( a => 1, b => 2, c => 3 );
+    my %v = ( a => 2, b => 3, c => 4 );
+    for %hash_v.values -> $val is rw { $val++ };
+    is(%hash_v, %v, 'for %hash.values -> $val is rw { $val++ }');
+}
 
-my %hash_v = ( a => 1, b => 2, c => 3 );
-my %v = ( a => 2, b => 3, c => 4 );
-try { for %hash_v.values -> $val is rw { $val++ }; };
-is(%hash_v, %v, 'for %hash.values -> $val is rw { $val++ }', :todo<feature>);
-
-my %hash_kv = ( a => 1, b => 2, c => 3 );
-my %kv = ( a => 2, b => 3, c => 4 );
-try { for %hash_kv.kv -> $key, $val is rw { $val++ }; };
-is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :todo<feature>);
+#?pugs eval 'todo'
+{
+    my %hash_kv = ( a => 1, b => 2, c => 3 );
+    my %kv = ( a => 2, b => 3, c => 4 );
+    try { for %hash_kv.kv -> $key, $val is rw { $val++ }; };
+    is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }');
+}
 
 
 # .key //= ++$i for @array1;
@@ -304,14 +300,16 @@ is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :tod
 
 # list context
 
-$a = '';
-for 1..3, 4..6 { $a =~ $_.WHAT };
-is($a, 'IntIntIntIntIntInt', 'List context');
+{
+    $a = '';
+    for 1..3, 4..6 { $a =~ $_.WHAT };
+    is($a, 'IntIntIntIntIntInt', 'List context');
 
-$a = '';
-for [1..3, 4..6] { $a =~ $_.WHAT };
-is($a, 'Array', 'List context');
+    $a = '';
+    for [1..3, 4..6] { $a =~ $_.WHAT };
+    is($a, 'Array', 'List context');
 
-$a = '';
-for [1..3], [4..6] { $a =~ $_.WHAT };
-is($a, 'ArrayArray', 'List context');
+    $a = '';
+    for [1..3], [4..6] { $a =~ $_.WHAT };
+    is($a, 'ArrayArray', 'List context');
+}
