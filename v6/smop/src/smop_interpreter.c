@@ -46,6 +46,7 @@ static void runloop(SMOP__Object* invocant,
       SMOP_DISPATCH(invocant, SMOP_RI(cont), SMOP__ID__eval,
                     SMOP__NATIVE__capture_create(invocant, SMOP_REFERENCE(invocant,cont), NULL, NULL));
       
+      
       if (invocant != SMOP__INTPTR__InterpreterInstance) {
         smop_lowlevel_rdlock(invocant);
         cont = ((interpreter_instance_struct*)invocant)->continuation;

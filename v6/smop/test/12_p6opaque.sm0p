@@ -7,7 +7,7 @@
 int main() {
   smop_init();
 
-  printf("1..5\n");
+  printf("1..4\n");
 
 
   SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
@@ -15,18 +15,25 @@ int main() {
                                             SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
   SMOP__Object* frame;
-  SMOP__Object* scalar1 = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_true);
-  
+  SMOP__Object* how = SMOP__NATIVE__bool_true;
+  SMOP__Object* p6opaque = 
+    SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP__p6opaque__RI,
+                  SMOP__ID__REPR_CREATE, SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                      SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+
   $frame = q:sm0p {
-    $scalar1;
-    SMOP__p6opaque__RI.SMOP__ID__REPR_CREATE();
-    SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(1),(),1));
-    $scalar1.SMOP__ID__STORE();
+    ;
+    $p6opaque.SMOP__ID__new();
   };
+  //  SMOP__SLIME__CurrentFrame.move_responder(7,2);
+  //  SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(9,(),(),1));
+  //  SMOP__p6opaque__RI.SMOP__ID__new();
+  //};
 
   if (!frame) printf("not ");
   printf("ok 1 - frame created.\n");
 
+  SMOP_RELEASE(interpreter,p6opaque);
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 frame);
@@ -40,20 +47,9 @@ int main() {
   printf("ok 3 - interpreter loop.\n");
 
 
-  SMOP__Object* r1 = SMOP__S1P__Scalar_FETCH(scalar1);
-  if (SMOP_RI(r1) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) printf("not ");
-  printf("ok 4 - P6 Opaque created inside the interpreter loop\n");
-
-  SMOP_RELEASE(interpreter,scalar1);
-
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
-                                                             SMOP_REFERENCE(interpreter,interpreter),
-                                                             NULL, NULL));
-
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 
-  printf("ok 5 - Scalar destroyed should free the p6opaque object also.\n");
+  printf("ok 4 - Scalar destroyed should free the p6opaque object also.\n");
 
   smop_destr();
   return 0;

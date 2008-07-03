@@ -44,12 +44,13 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
       smop_lowlevel_wrlock(node);
       old = ((smop_slime_node_struct*)node)->responder;
       ((smop_slime_node_struct*)node)->responder = set;
+      ret = ((smop_slime_node_struct*)node)->responder;
     } else {
       smop_lowlevel_rdlock(node);
+      ret = ((smop_slime_node_struct*)node)->responder;
+      SMOP_REFERENCE(interpreter,ret);
     }
-    ret = ((smop_slime_node_struct*)node)->responder;
     smop_lowlevel_unlock(node);
-    SMOP_REFERENCE(interpreter,ret);
     if (old) SMOP_RELEASE(interpreter, old);
     SMOP_RELEASE(interpreter,node);
 
@@ -159,8 +160,7 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     SMOP__Object* ncapture = ((smop_slime_node_struct*)node)->capture;
     smop_lowlevel_unlock(node);
 
-    //if (identifier && SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new))
-    //fprintf(stderr,"[SMOP__SLIME__Node:DEBUG] eval %s.\n", (char*)(identifier->data));
+    //fprintf(stderr,"[SMOP__SLIME__Node:DEBUG] eval\n");
 
     if (responder) {
       ret = SMOP_DISPATCH(interpreter,responder,identifier,SMOP_REFERENCE(interpreter,ncapture));

@@ -114,6 +114,9 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
       if (invocant == SMOP__p6opaque__RI) {
         fprintf(stderr, "[SMOP p6opaque] TODO: p6opaque RI's meta undefined yet\n");
         ret = SMOP__NATIVE__bool_false;
+      } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
+        fprintf(stderr, "[SMOP p6opaque] call to repr method with non p6opaque invocant\n");
+        ret = SMOP__NATIVE__bool_false;
       } else {
         if (set)
           smop_lowlevel_wrlock(invocant);
@@ -139,12 +142,13 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
 
           if (set) {
             fprintf(stderr, "[SMOP p6opaque] Can't set how on a instance\n");
+            SMOP_RELEASE(interpreter,set);
           } else {
 
             ret = SMOP__NATIVE__bool_true;
             SMOP__Object* frame;
             SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                                                       SMOP__ID__continuation, interpreter);
+                                                       SMOP__ID__continuation, SMOP_REFERENCE(interpreter,interpreter));
             $frame = q:sm0p {
               $continuation;
               $super.SMOP__ID__REPR_how();
@@ -160,10 +164,14 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
 
         } else if (set) {
           // create the metadata struct and set the how.
-        
+          SMOP__p6opaque_LOWL_metadata* m = calloc(1,sizeof(SMOP__p6opaque_LOWL_metadata));
+          assert(m);
+          m->how = set;
+          ((SMOP__p6opaque_struct*)invocant)->metadata = m;
+          smop_lowlevel_unlock(invocant);
 
+          ret = SMOP_REFERENCE(interpreter, set);
         } else {
-
           fprintf(stderr,"[SMOP p6opaque] TODO: invalid .^!how call\n");
         }
       }
@@ -181,7 +189,8 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     ret = SMOP__NATIVE__bool_true;
     SMOP__Object* frame;
     SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                                               SMOP__ID__continuation, interpreter);
+                                               SMOP__ID__continuation, 
+                                               SMOP_REFERENCE(interpreter,interpreter));
     $frame = q:sm0p {
       $capture;
       $identifier;

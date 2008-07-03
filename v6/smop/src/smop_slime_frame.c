@@ -173,8 +173,8 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       int pc = ((smop_slime_frame_struct*)frame)->pc;
       SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc];
       smop_lowlevel_unlock(frame);
-      SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__setr,
-                    SMOP__NATIVE__capture_create(interpreter,node,(SMOP__Object*[]){value, NULL},NULL));
+      SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
+                    SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),(SMOP__Object*[]){value, NULL},NULL));
       SMOP_RELEASE(interpreter,frame);
       ret = SMOP__NATIVE__bool_true;
     } else {
@@ -252,6 +252,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       SMOP__Object* count = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
       assert(SMOP_RI(count) == (SMOP__ResponderInterface*)SMOP__NATIVE__int);
       int c = SMOP__NATIVE__int_fetch(count);
+      SMOP_RELEASE(interpreter, count);
       smop_lowlevel_rdlock(frame);
       int pc = ((smop_slime_frame_struct*)frame)->pc;
       SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc - c];
@@ -259,8 +260,10 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       smop_lowlevel_unlock(frame);
       SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
                                         SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
-      SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__result,
-                    SMOP__NATIVE__capture_create(interpreter,thisnode,(SMOP__Object*[]){res,NULL},NULL));
+      SMOP_RELEASE(interpreter,
+                   SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__result,
+                                 SMOP__NATIVE__capture_create(interpreter,
+                                                              SMOP_REFERENCE(interpreter,thisnode),(SMOP__Object*[]){res,NULL},NULL)));
       ret = SMOP__NATIVE__bool_true;
       SMOP_RELEASE(interpreter,frame);
     } else {
@@ -276,6 +279,8 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       assert(SMOP_RI(target) == (SMOP__ResponderInterface*)SMOP__NATIVE__int);
       int c = SMOP__NATIVE__int_fetch(count);
       int t = SMOP__NATIVE__int_fetch(target);
+      SMOP_RELEASE(interpreter, count);
+      SMOP_RELEASE(interpreter, target);
       smop_lowlevel_rdlock(frame);
       int pc = ((smop_slime_frame_struct*)frame)->pc;
       SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc - c];
@@ -284,7 +289,10 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
                                         SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
       SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__responder,
-                    SMOP__NATIVE__capture_create(interpreter,thisnode,(SMOP__Object*[]){res,NULL},NULL));
+                    SMOP__NATIVE__capture_create(interpreter,
+                                                 SMOP_REFERENCE(interpreter,thisnode),
+                                                 (SMOP__Object*[]){(SMOP__Object*)SMOP_RI(res),NULL},NULL));
+      SMOP_RELEASE(interpreter, res);
       ret = SMOP__NATIVE__bool_true;
       SMOP_RELEASE(interpreter,frame);
     } else {
@@ -324,7 +332,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
                                         SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
       SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__identifier,
-                    SMOP__NATIVE__capture_create(interpreter,thisnode,(SMOP__Object*[]){res,NULL},NULL));
+                    SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,thisnode),(SMOP__Object*[]){res,NULL},NULL));
       SMOP_RELEASE(interpreter,count);
       SMOP_RELEASE(interpreter,target);
       SMOP_RELEASE(interpreter,frame);
