@@ -21,7 +21,7 @@ First pick a language feature you want to test. If you don't know what to test
 and just want to test something, look at the file F<t/TASKS>, it contains a
 list of stuff that needs testing.
 
-=heads2 Check the other tests first
+=head2 Check the other tests first
 
 Many things are already tested, and it would be waste of time to duplicate the
 effort, and a maintainance burden. So first  check if there are tests for the
@@ -131,7 +131,7 @@ expressions, and C<**> has a different meaning there.
 
 The best match seems to be C<Operator.pod>. Looking at
 L<http://perlcabal.org/syn/> reveals that it's also called S03 for short. So
-we know that our smartlink will start with C<< L<S03/ >>. Next we find out
+we know that our smartlink will start with C<< L<S03/> >>. Next we find out
 which section the best match is. That's C<Exponentiation precedence> in our
 case, so our smartlink looks like this: 
 C<< L<S03/Exponentiation precedence/> >>. 
