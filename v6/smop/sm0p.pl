@@ -41,11 +41,15 @@ while (<$input>) {
 sub preprocess {
     my $code = shift;
     my ($writer, $reader, $error) = map { gensym } 1..3;
-    my $pid = open3($writer, $reader, $error, 'perl',
-                    '-I'.$base.'/../v6-KindaPerl6/compiled/perl5-kp6-mp6/lib',
-                    $base.'/sm0p/KP6sm0p.pl');
+    my $pid;
+    if ($ENV{SM0P_FASTER}) {
+        $pid = open3($writer, $reader, $error, 'perl','-I'.$base.'/../../misc/sm0p', $base.'/../../misc/sm0p/sm0p_with_actions') || die "$@";
+    } else {
+        $pid = open3($writer, $reader, $error, 'perl', '-I'.$base.'/../v6-KindaPerl6/compiled/perl5-kp6-mp6/lib',$base.'/sm0p/KP6sm0p.pl');
+    }
     print {$writer} $code;
     close $writer;
+    print join '', <$error> if $ENV{SM0P_FASTER};
     my $ret = join '', <$reader>;
     die 'Bad sm0p code at '.$in unless $ret && $ret ne "\n";
     close $reader;
