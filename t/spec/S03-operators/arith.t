@@ -56,6 +56,7 @@ sub tryeq_sloppy ($lhs, $rhs, $todo1 = '') {
     }
 }
 
+# L<S03/Operator precedence>
 tryeq  13 %  4, 1;
 tryeq -13 %  4, 3;
 tryeq  13 % -4, -3;
