@@ -23,6 +23,7 @@ S03
 * tests for cmp() and eqv() methods of objects
 * test that '@array, *' repeats the final element infinitely
 * tests for other range edgecases
+* Junction tests need fixing. See below.
 
 S12
 * tests for $object.WALK
@@ -47,3 +48,12 @@ IO
 * more tests for say() and print(). For example elf prints array references
   as ARRAY(0x8832e28). This might be a bit tricky because we either have to
   capture stdout, or open a pipe to a second script.
+
+Junction tests
+ Quite some tests in t/junction relay on $junction.values to return the values
+ in a particular order. That's bad, because it doesn't seem to be specced (and
+ with good reason IMHO).
+ For example t/junction/associative.t uses $junction.values to to compare
+ junctions. An intermediate workaround is to use $junction.values.sort, but
+ what we *really* should have is a sub that tests for junction identity.
+ That could be an intersting piece of code to write. --moritz
