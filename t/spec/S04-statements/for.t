@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin description
 
 Tests the "for" statement
 
@@ -11,14 +11,7 @@ for statement as possible
 
 L<S04/The C<for> statement>
 
-=cut
-
-=begin comment
-
-I'm in the process of smartlinking all the below tests.
---trey 31 Aug 2006
-
-=cut
+=end description
 
 plan 40;
 
