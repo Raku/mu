@@ -35,7 +35,7 @@ syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi o
 syn keyword p6KeyDecl       rule token regex category
 syn keyword p6KeyScopeDecl  let my our state temp has constant proto
 syn keyword p6KeyFlow       if else elsif unless  
-syn keyword p6KeyFlow       for foreach loop while until when next last redo
+syn keyword p6KeyFlow       for foreach loop repeat while until when next last redo
 syn keyword p6KeyFlow       given not or and andthen orelse xor return default
 syn keyword p6KeyFlow       exit make
 syn keyword p6ClosureTrait  BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP UNDO NEXT LAST
