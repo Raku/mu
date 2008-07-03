@@ -101,12 +101,79 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                       SMOP__Object* identifier,
                                       SMOP__Object* capture) {
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
   if (identifier == SMOP__ID__REPR_CREATE) {
     ret = smop_lowlevel_alloc(sizeof(SMOP__p6opaque_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__p6opaque__RI;
+
   } else if (identifier == SMOP__ID__REPR_how) {
-    fprintf(stderr,"[SMOP p6opaque] .^!how not implemented");
-    ret = SMOP__NATIVE__bool_true;
+    if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+      SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter,capture);
+      SMOP__Object* set = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+
+      if (invocant == SMOP__p6opaque__RI) {
+        fprintf(stderr, "[SMOP p6opaque] TODO: p6opaque RI's meta undefined yet\n");
+        ret = SMOP__NATIVE__bool_false;
+      } else {
+        if (set)
+          smop_lowlevel_wrlock(invocant);
+        else
+          smop_lowlevel_rdlock(invocant);
+
+        if (((SMOP__p6opaque_struct*)invocant)->metadata) {
+          // we have our own metadata.
+          SMOP__Object* old = ((SMOP__p6opaque_struct*)invocant)->metadata->how;
+          ret = old;
+          if (set) {
+            ((SMOP__p6opaque_struct*)invocant)->metadata->how = set;
+            ret = set;
+          }
+          smop_lowlevel_unlock(invocant);
+          if (old) SMOP_RELEASE(interpreter, old);
+
+        } else if (((SMOP__p6opaque_struct*)invocant)->instanceof) {
+
+          // re-dispatch to the instanceof
+          SMOP__Object* super = ((SMOP__p6opaque_struct*)invocant)->instanceof;
+          smop_lowlevel_unlock(invocant);
+
+          if (set) {
+            fprintf(stderr, "[SMOP p6opaque] Can't set how on a instance\n");
+          } else {
+
+            ret = SMOP__NATIVE__bool_true;
+            SMOP__Object* frame;
+            SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                                       SMOP__ID__continuation, interpreter);
+            $frame = q:sm0p {
+              $continuation;
+              $super.SMOP__ID__REPR_how();
+              SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(1),(),1));
+              $continuation.setr();
+              $interpreter.goto(|$continuation);
+            };
+
+            SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                          SMOP__ID__goto,
+                          frame);
+          }
+
+        } else if (set) {
+          // create the metadata struct and set the how.
+        
+
+        } else {
+
+          fprintf(stderr,"[SMOP p6opaque] TODO: invalid .^!how call\n");
+        }
+      }
+
+      if (set) SMOP_RELEASE(interpreter,set);
+      SMOP_RELEASE(interpreter,invocant);
+    } else {
+      fprintf(stderr,"[SMOP p6opaque] TODO: non-native captures\n");
+      ret = SMOP__NATIVE__bool_false;
+    }
   } else {
     // as we want to support different captures, we'll start to use a
     // sm0p frame in here, to use the capture as high-level and not as
@@ -163,6 +230,7 @@ void smop_p6opaque_init() {
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->MESSAGE = p6opaque_message;
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->REFERENCE = p6opaque_reference;
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->RELEASE = p6opaque_release;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->id = "p6opaque";
 
 }
 

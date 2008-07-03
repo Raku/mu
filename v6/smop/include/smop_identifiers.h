@@ -26,6 +26,7 @@ extern SMOP__Object* SMOP__ID__drop;              /* "drop" */
 extern SMOP__Object* SMOP__ID__does;              /* "does" */
 extern SMOP__Object* SMOP__ID__DESTROY;           /* "DESTROY" */
 extern SMOP__Object* SMOP__ID__DESTROYALL;        /* "DESTROYALL" */
+extern SMOP__Object* SMOP__ID__dispatch;          /* "dispatch" */
 extern SMOP__Object* SMOP__ID__eval;              /* "eval" */
 extern SMOP__Object* SMOP__ID__FETCH;             /* "FETCH" */
 extern SMOP__Object* SMOP__ID__forget;            /* "forget" */
@@ -33,6 +34,7 @@ extern SMOP__Object* SMOP__ID__free;              /* "free" */
 extern SMOP__Object* SMOP__ID__goto;              /* "goto" */
 extern SMOP__Object* SMOP__ID__has_next;          /* "has_next" */
 extern SMOP__Object* SMOP__ID__identifier;        /* "identifier" */
+extern SMOP__Object* SMOP__ID__invocant;          /* "invocant" */
 extern SMOP__Object* SMOP__ID__isa;               /* "isa" */
 extern SMOP__Object* SMOP__ID__jail;              /* "jail" */
 extern SMOP__Object* SMOP__ID__lexical;           /* "lexical" */

@@ -50,6 +50,11 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__new) {
     ret = smop_native_empty_capture;
     SMOP_RELEASE(interpreter,capture);
+  } else if (identifier == SMOP__ID__invocant) {
+    SMOP__Object* invocant_capture = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    ret = SMOP__NATIVE__capture_invocant(interpreter, invocant_capture);
+    SMOP_RELEASE(interpreter, invocant_capture);
+    SMOP_RELEASE(interpreter,capture);
   } else if (identifier == SMOP__ID__DESTROYALL) {
     if (capture && capture != (SMOP__Object*)self
         && capture != smop_native_empty_capture
