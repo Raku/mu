@@ -9,7 +9,7 @@ token frame {
 
 token nodes {
     <node>*
-    { make $<node>.join(', ') }
+    { if ($<node>.elems) { make $<node>.join(', ') ~ ', NULL'} else { make '' }}
 }
 
 token node {
