@@ -15,6 +15,7 @@ token nodes {
 token node {
     <node_empty> { make $<node_empty> ~ '' }
     || <node_result> { make $<node_result> ~ '' }
+    || <node_move_capturize> { make $<node_move_capturize> ~ '' }
     || <node_capturized> { make $<node_capturized> ~ '' }
     || <node_full> { make $<node_full> ~ '' }
 }
@@ -36,6 +37,18 @@ token node_full {
       ~ ' SMOP__ID__capture, SMOP__NATIVE__capture_create(interpreter, '
       ~ 'SMOP_REFERENCE(interpreter,' ~ ($<invocant> ?? $<invocant> !! $<responder>) ~ '), '~ $<positional> ~', '~ $<named> ~') '
       ~ ' , NULL  }))' }
+}
+
+
+token node_move_capturize {
+    <ws> SMOP__SLIME__CurrentFrame '.' move_capturize '('
+    <ws> <capturize> <ws> ')' <ws> ';' <ws>
+    { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
+      ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
+      ~ ' SMOP__ID__responder, SMOP_REFERENCE(interpreter,(SMOP__Object*)SMOP_RI(SMOP__SLIME__CurrentFrame)), '
+      ~ ' SMOP__ID__identifier, SMOP_REFERENCE(interpreter,SMOP__ID__move_capturize), '
+      ~ ' SMOP__ID__capture, SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__CurrentFrame, '
+      ~ ' (SMOP__Object*[]){' ~ $<capturize> ~ ',NULL}, NULL) , NULL  }))' }
 }
 
 token node_capturized {
@@ -74,13 +87,20 @@ token positional {
 }
 
 token positionals {
-    <identifier>
+  [ <identifier>
     [
    ||  <ws> \, <ws> <positionals>
         { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ '), ' ~ $<positionals>  }
    ||  <ws>
         { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ '), NULL' }
     ]
+  ]||[ <nativeint>
+    [
+   ||  <ws> \, <ws> <positionals>
+        { make $<nativeint> ~ ', ' ~ $<positionals>  }
+   ||  <ws>
+        { make $<nativeint> ~ ', NULL' }
+    ]]
 }
 
 token named {
@@ -109,11 +129,9 @@ token identifier2 {
 }
 
 token identifier {
-    <capturize> { make $<capturize> ~ '' }
- ||'$' <name> { make $<name> ~ '' }
+   '$' <name> { make $<name> ~ '' }
  ||<idconst> { make $<idconst> ~ ''}
  ||<name> { make $<name> ~ '' }
- ||<nativeint> { make $<nativeint> ~ '' }
 }
 
 token idconst {
