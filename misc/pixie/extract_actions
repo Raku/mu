@@ -10,8 +10,10 @@ my @chunks = split(/\{\*\}/,$without);
 
 my @last_token;
 for (@chunks) {
-    /^.* (?:regex|rule|token) \s+ ([:\w]+)/sx;
-    push (@last_token,$1);
+    /^.* (?:regex|rule|token) \s+ ([:\w]+?(?:sym<.*?>)?)\s/sx;
+    my $name = $1;
+    $name =~ s/sym:<(.*)>/$1/g;
+    push (@last_token,$name);
 }
 
 my $first = shift @chunks;

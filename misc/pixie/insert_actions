@@ -16,14 +16,15 @@ for (<$actions>) {
 
 my ($name);
 for (<$std>) {
-    if (/(?:token|rule) ([\w:]+)/) {
+    if (/(?:regex|rule|token) \s+ ([:\w]+?(?:sym<.*?>)?)\s/x) {
         $name = $1;
+        $name =~ s/:sym<(.*)>/$1/;
 #        warn YELLOW,"$name",RESET;
     }
-    if (/\{\*\} \s* (?:\#=(.*))?/x) {
+    if (/\{\*\} .*? (?:\#=(.*))?$/x) {
         my $tag = $1 || ""; 
         my $full_name = $name . $tag;
-#        warn "inserting ".GREEN.$full_name.RESET if $actions{$full_name};
+#        warn "inserting ".GREEN.$full_name.RESET."\n".$_ if $actions{$full_name};
 #        warn "not inserting <".RED.$full_name.RESET.">" unless $actions{$full_name};
         my $content = $actions{$full_name} // "*";
         chomp($content);

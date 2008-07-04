@@ -24,6 +24,44 @@ use utf8;
 use YAML::XS;
 use Encode;
 require 'mangle.pl'; 
+sub ::unmangle {
+    local $_ = shift;
+    s/Grave/\`/g;
+    s/Tilde/\~/g;
+    s/Bang/\!/g;
+    s/At/\@/g;
+    s/Sharp/\#/g;
+    s/Dollar/\$/g;
+    s/Percent/\%/g;
+    s/Caret/\^/g;
+    s/Amp/\&/g;
+    s/Star/\*/g;
+    s/Paren/\(/g;
+    s/Thesis/\)/g;
+    s/Minus/\-/g;
+    s/Plus/\+/g;
+    s/Equal/\=/g;
+    s/Cur/\{/g;
+    s/Ly/\}/g;
+    s/Bra/\[/g;
+    s/Ket/\]/g;
+    s/Vert/\|/g;
+    s/Back/\\/g;
+    s/Colon/\:/g;
+    s/Semi/\;/g;
+    s/Single/\'/g;
+    s/Double/\"/g;
+    s/Lt/\</g;
+    s/Gt/\>/g;
+    s/Fre/\«/g;
+    s/Nch/\»/g;
+    s/Comma/\,/g;
+    s/Dot/\./g;
+    s/Question/\?/g;
+    s/Slash/\//g;
+    return $_;
+#	s/(\W)/sprintf("_%02x_",ord($1))/eg;
+}
 use strict;
 use warnings;
 
@@ -49,7 +87,9 @@ for (<$actions>) {
 }
 
 while (my ($name,$code) = each %actions) {
-    $actions{$name} = eval("sub {package pixie_actions;".$code."}");
+    my $str = qq!sub {\npackage pixie_actions;\n#line 1 "action $name"\n!.$code."}";
+    print $str;
+    $actions{$name} = eval($str);
     die "error at pixie_action5, action $name: $@\n" if $@;
 }
 #use Data::Dump::Streamer;
@@ -117,14 +157,15 @@ while (my ($name,$code) = each %actions) {
         my $self = shift;
         my $tag = shift;
         $tag =~ s/__S_\d+/:/;
+        my $tag = ::unmangle($tag);
 
         if ($actions{$tag}) {
-            print (GREEN,$tag,"\n",RESET) unless $quiet;
+            print (GREEN,$tag,RESET,"\n") unless $quiet;
             local $_ = $self;
             $actions{$tag}->();
             $self;
         } else {
-            print (RED,$tag,"\n",RESET) unless $quiet;
+            print (RED,$tag,RESET,"\n") unless $quiet;
             $self;
         }
     }
@@ -135,7 +176,7 @@ if ($yaml) {
     print Dump($r);
     exit;
 } else {
-    print dump_match($what=>$r,{vertical=>1,actions=>sub {Compiler::dump_IRx1(@_)}}),"\n" unless $quiet;
+    print dump_match($what=>$r,{vertical=>1,mark_arrays=>1,actions=>sub {Compiler::dump_IRx1(@_)}}),"\n" unless $quiet;
 }
 my $ir = $r->{''};
 my $code = $GLOBAL::emitter1->prelude_lexical . $ir->callback($GLOBAL::emitter1);

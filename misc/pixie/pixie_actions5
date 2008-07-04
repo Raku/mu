@@ -1,7 +1,9 @@
 ### comp_unit 
 make (IRx1::CompUnit->new(statements=>$_->{statementlist}->item))
+### block 
+make (IRx1::Block->new(statements=>$_->{statementlist}->item))
 ### statementlist 
- make ([map { ref $_->item ? $_->item : '#' . $_->item } @{$_->{statement}}])
+ make ([map { ref $_->item ? $_->item : do {(my $tmp = $_->item) =~ s/^^/#todo: /mg;$tmp}} @{$_->{statement}}])
 ### statement control
 make ($_->{statement_control}->item) 
 ### statement expr
@@ -9,6 +11,8 @@ make ($_->{statement_control}->item)
         
 ### statement_control:use 
 make(IRx1::Use->new(module_name=>$_->{module_name}->item))
+### statement_control:if 
+make (IRx1::Cond->new(clauses=>[EXPR($_->{EXPR}),$_->{pblock}{block}->item],default=>$_->{else} ? $_->{else}->item : undef))
 ### noun 
 
         for my $key (keys %{$_}) {
