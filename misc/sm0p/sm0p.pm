@@ -117,7 +117,7 @@ token identifier {
 }
 
 token idconst {
-  <idconst_list> { make 'SMOP__ID__' ~ $/ ~ '' }
+  <idconst_list> { make 'SMOP__ID__' ~ $<idconst_list> ~ '' }
 }
 
 token idconst_list {(new|lexical|back|capture|continuation|continues|copy|current|debug|drop|DESTROYALL|eval|forget|free|goto|has_next|identifier|jail|lexical|loop|move_capturize|move_identifier|move_responder|new|next|past|push|responder|result|setr|outer)}
@@ -140,7 +140,7 @@ token capturize {
 token cint1 { <cint> { make $<cint> ~ '' } }
 token cint2 { <cint> { make $<cint> ~ '' } }
 token cint {
-    <digitsP5> { make $/ ~ '' }
+    <digitsP5> { make $<digitsP5> ~ '' }
 }
 
 token cintlist1 { <cintlist> { make $<cintlist> ~ '' } }
@@ -162,7 +162,7 @@ token cintlistbody {
 }
 
 token nativeint {
-    <digitsP5> { make 'SMOP__NATIVE__int_create(' ~ $/ ~ ')' }
+    <digitsP5> { make 'SMOP__NATIVE__int_create(' ~ $<digitsP5> ~ ')' }
 }
 
 token nativeint_list {
