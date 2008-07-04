@@ -10,7 +10,15 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
                                   SMOP__Object* identifier,
                                   SMOP__Object* capture) {
   if (identifier == SMOP__ID__dispatch) {
-    printf("ok 3 - called dispatch\n");
+    SMOP__Object* called = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    if (called == SMOP__ID__STORE) {
+      printf("ok 3 - called dispatch\n");
+    } else if (called == SMOP__ID__DESTROYALL) {
+      printf("ok 4 - called DESTROYALL on the metaclass\n");
+    } else {
+      printf("not ok - unkown method to dispatch\n");
+    }
+    SMOP_RELEASE(interpreter, called);
     SMOP_RELEASE(interpreter, capture);
   } else if (identifier == SMOP__ID__DESTROYALL) {
     printf("ok 4 - called DESTROYALL\n");
@@ -24,7 +32,6 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
 extern SMOP__Object* test_release(SMOP__Object* interpreter, 
                                   SMOP__ResponderInterface* responder,
                                   SMOP__Object* obj) {
-  printf("-");
   smop_lowlevel_refcnt_dec(interpreter, responder, obj);
   return obj;
 }
@@ -32,7 +39,6 @@ extern SMOP__Object* test_release(SMOP__Object* interpreter,
 extern SMOP__Object* test_reference(SMOP__Object* interpreter, 
                                     SMOP__ResponderInterface* responder,
                                     SMOP__Object* obj) {
-  printf("+");
   smop_lowlevel_refcnt_inc(interpreter, responder, obj);
   return obj;
 }
@@ -40,7 +46,7 @@ extern SMOP__Object* test_reference(SMOP__Object* interpreter,
 int main() {
   smop_init();
 
-  printf("1..6\n");
+  printf("1..7\n");
 
 
   SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
@@ -63,6 +69,7 @@ int main() {
     ;
     $p6opaque.SMOP__ID__REPR_how($how);
     $p6opaque.SMOP__ID__STORE();
+    SMOP__SLIME__CurrentFrame.forget();
   };
 
   if (!frame) printf("not ");
@@ -74,19 +81,24 @@ int main() {
 
   printf("ok 2 - goto frame.\n");
 
+  printf("# before freeing how\n");
+  SMOP_RELEASE(interpreter,how);
+
+  printf("# before freeing p6opaque\n");
+  SMOP_RELEASE(interpreter,p6opaque);
+
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
                                                              SMOP_REFERENCE(interpreter,interpreter),
 
                                                              NULL, NULL));
 
-  printf("ok 5 - interpreter loop.\n");
+  printf("ok 6 - interpreter loop.\n");
 
-  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,how);
-  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,p6opaque);
+  printf("# before freeing the interpreter\n");
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 
-  printf("ok 6 - Scalar destroyed should free the p6opaque object also.\n");
+  printf("ok 7 - Scalar destroyed should free the p6opaque object also.\n");
 
   smop_destr();
   return 0;

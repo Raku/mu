@@ -202,8 +202,10 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
         SMOP__p6opaque_LOWL_metadata* m = ((SMOP__p6opaque_struct*)invocant)->metadata;
         ((SMOP__p6opaque_struct*)invocant)->metadata = NULL;
         smop_lowlevel_unlock(invocant);
-        SMOP_RELEASE(interpreter,m->how);
-        free(m);
+        if (m) {
+          if (m->how) SMOP_RELEASE(interpreter,m->how);
+          free(m);
+        }
       }
 
       SMOP_RELEASE(interpreter,invocant);
