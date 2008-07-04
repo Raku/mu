@@ -77,9 +77,9 @@ token positionals {
     <identifier>
     [
    ||  <ws> \, <ws> <positionals>
-        { make $<identifier> ~ ', ' ~ $<positionals>  }
+        { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ '), ' ~ $<positionals>  }
    ||  <ws>
-        { make $<identifier> ~ ', NULL' }
+        { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ '), NULL' }
     ]
 }
 
