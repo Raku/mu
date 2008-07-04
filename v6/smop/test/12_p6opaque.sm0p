@@ -74,14 +74,16 @@ int main() {
 
   printf("ok 2 - goto frame.\n");
 
-  SMOP_RELEASE(interpreter,p6opaque);
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
                                                              SMOP_REFERENCE(interpreter,interpreter),
+
                                                              NULL, NULL));
+
   printf("ok 5 - interpreter loop.\n");
 
-
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,how);
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,p6opaque);
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 
   printf("ok 6 - Scalar destroyed should free the p6opaque object also.\n");

@@ -230,6 +230,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
         SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(4,5,6),(),1));
         SMOP__NATIVE__bool_true.SMOP__ID__dispatch();
         $invocant.SMOP__ID__REPR_DESTROY();
+        SMOP__SLIME__CurrentFrame.forget();
         $interpreter.goto(|$continuation);
       };
     } else {
@@ -249,6 +250,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
         $capture.SMOP__ID__invocant();
         SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
         SMOP__p6opaque__RI.SMOP__ID__REPR_DESTROY();
+        SMOP__SLIME__CurrentFrame.forget();
         $interpreter.goto(|$continuation);
       };
     }

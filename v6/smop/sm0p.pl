@@ -42,10 +42,15 @@ sub preprocess {
     my $code = shift;
     my ($writer, $reader, $error) = map { gensym } 1..3;
     my $pid;
-    if ($ENV{SM0P_FASTER}) {
-        $pid = open3($writer, $reader, $error, 'perl',"-I$base/../../src/perl6",'-I'.$base.'/../../misc/sm0p', $base.'/../../misc/sm0p/sm0p_with_actions') || die "$@";
+    unless ($ENV{SM0P_SLOWISH_KP6}) {
+        $pid = open3($writer, $reader, $error,
+                     'perl',"-I$base/../../src/perl6",
+                     '-I'.$base.'/../../misc/sm0p',
+                     $base.'/../../misc/sm0p/sm0p_with_actions') || die "$@";
     } else {
-        $pid = open3($writer, $reader, $error, 'perl', '-I'.$base.'/../v6-KindaPerl6/compiled/perl5-kp6-mp6/lib',$base.'/sm0p/KP6sm0p.pl');
+        $pid = open3($writer, $reader, $error,
+                     'perl', '-I'.$base.'/../v6-KindaPerl6/compiled/perl5-kp6-mp6/lib',
+                     $base.'/sm0p/KP6sm0p.pl') || die $@;
     }
     print {$writer} $code;
     close $writer;
