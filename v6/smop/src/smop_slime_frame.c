@@ -78,6 +78,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
         SMOP_RELEASE(interpreter, frame);
         ret = SMOP__NATIVE__bool_true;
       } else {
+        smop_lowlevel_unlock(frame);
         ret = SMOP__NATIVE__bool_false;
       }
       SMOP_RELEASE(interpreter,frame);
@@ -199,6 +200,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
         SMOP_RELEASE(interpreter, frame);
         ret = SMOP__NATIVE__bool_true;
       } else {
+        smop_lowlevel_unlock(frame);
         ret = SMOP__NATIVE__bool_false;
       }
       SMOP_RELEASE(interpreter,frame);

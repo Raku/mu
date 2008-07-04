@@ -307,8 +307,8 @@ SMOP__Object*   SMOP__NATIVE__capture_named(SMOP__Object* interpreter,
       named_argument* res = bsearch(&foo, self->o_named, self->count_o_named, sizeof(named_argument), cmp_opt_named);
       if (res) {
         SMOP__Object* ret = res->value;
+        smop_lowlevel_unlock(capture);
         if (ret) {
-          smop_lowlevel_unlock(capture);
           return SMOP_REFERENCE(interpreter,ret);
         } else {
           return NULL;

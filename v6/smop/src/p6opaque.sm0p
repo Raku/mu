@@ -112,27 +112,30 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
       SMOP__Object* set = SMOP__NATIVE__capture_positional(interpreter,capture,0);
 
       if (invocant == SMOP__p6opaque__RI) {
-        fprintf(stderr, "[SMOP p6opaque] TODO: p6opaque RI's meta undefined yet\n");
         ret = SMOP__NATIVE__bool_false;
       } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
         fprintf(stderr, "[SMOP p6opaque] call to repr method with non p6opaque invocant\n");
         ret = SMOP__NATIVE__bool_false;
       } else {
-        if (set)
+
+        if (set) {
           smop_lowlevel_wrlock(invocant);
-        else
+        } else {
           smop_lowlevel_rdlock(invocant);
+        }
 
         if (((SMOP__p6opaque_struct*)invocant)->metadata) {
           // we have our own metadata.
-          SMOP__Object* old = ((SMOP__p6opaque_struct*)invocant)->metadata->how;
-          ret = old;
+          SMOP__Object* old = NULL;
           if (set) {
+            old = ((SMOP__p6opaque_struct*)invocant)->metadata->how;
             ((SMOP__p6opaque_struct*)invocant)->metadata->how = set;
-            ret = set;
           }
+          ret = ((SMOP__p6opaque_struct*)invocant)->metadata->how;
           smop_lowlevel_unlock(invocant);
+
           if (old) SMOP_RELEASE(interpreter, old);
+          SMOP_REFERENCE(interpreter, ret);
 
         } else if (((SMOP__p6opaque_struct*)invocant)->instanceof) {
 
@@ -142,7 +145,6 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
 
           if (set) {
             fprintf(stderr, "[SMOP p6opaque] Can't set how on a instance\n");
-            SMOP_RELEASE(interpreter,set);
           } else {
 
             ret = SMOP__NATIVE__bool_true;
@@ -172,7 +174,9 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
 
           ret = SMOP_REFERENCE(interpreter, set);
         } else {
+          smop_lowlevel_unlock(invocant);
           fprintf(stderr,"[SMOP p6opaque] TODO: invalid .^!how call\n");
+          ret = SMOP__NATIVE__bool_false;
         }
       }
 
@@ -182,6 +186,77 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
       fprintf(stderr,"[SMOP p6opaque] TODO: non-native captures\n");
       ret = SMOP__NATIVE__bool_false;
     }
+
+  } else if (identifier == SMOP__ID__REPR_DESTROY) {
+
+    if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+      SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter,capture);
+
+      if (invocant == SMOP__p6opaque__RI) {
+        ret = SMOP__NATIVE__bool_false;
+      } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
+        fprintf(stderr, "[SMOP p6opaque] call to repr method with non p6opaque invocant\n");
+        ret = SMOP__NATIVE__bool_false;
+      } else {
+        smop_lowlevel_wrlock(invocant);
+        SMOP__p6opaque_LOWL_metadata* m = ((SMOP__p6opaque_struct*)invocant)->metadata;
+        ((SMOP__p6opaque_struct*)invocant)->metadata = NULL;
+        smop_lowlevel_unlock(invocant);
+        SMOP_RELEASE(interpreter,m->how);
+        free(m);
+      }
+
+      SMOP_RELEASE(interpreter,invocant);
+    } else {
+      fprintf(stderr, "[SMOP p6opaque] TODO: non-native captures\n");
+    }
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+
+    ret = SMOP__NATIVE__bool_true;
+    SMOP__Object* frame;
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation, 
+                                               SMOP_REFERENCE(interpreter,interpreter));
+
+    if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
+      SMOP__Object* invocant = capture;
+      $frame = q:sm0p {
+        $capture;
+        $identifier;
+        $invocant;
+        $invocant.SMOP__ID__REPR_how();
+        SMOP__SLIME__CurrentFrame.copy(1);
+        SMOP__SLIME__CurrentFrame.move_responder(2,2);
+        SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(4,5,6),(),1));
+        SMOP__NATIVE__bool_true.SMOP__ID__dispatch();
+        $invocant.SMOP__ID__REPR_DESTROY();
+        $interpreter.goto(|$continuation);
+      };
+    } else {
+      $frame = q:sm0p {
+        $capture;
+        $identifier;
+        $capture.SMOP__ID__invocant();
+        $capture.SMOP__ID__invocant();
+        SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
+        SMOP__p6opaque__RI.SMOP__ID__REPR_how();
+        SMOP__SLIME__CurrentFrame.copy(1);
+        SMOP__SLIME__CurrentFrame.move_responder(2,2);
+        SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(6,7,8),(),1));
+        SMOP__NATIVE__bool_true.SMOP__ID__dispatch();
+        $capture.SMOP__ID__invocant();
+        SMOP__SLIME__CurrentFrame.move_responder(1,3);
+        $capture.SMOP__ID__invocant();
+        SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
+        SMOP__p6opaque__RI.SMOP__ID__REPR_DESTROY();
+        $interpreter.goto(|$continuation);
+      };
+    }
+
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  frame);
+
   } else {
     // as we want to support different captures, we'll start to use a
     // sm0p frame in here, to use the capture as high-level and not as
@@ -195,7 +270,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
       $capture;
       $identifier;
       $capture.SMOP__ID__invocant();
-      SMOP__SLIME__CurrentFrame.copy(1);
+      $capture.SMOP__ID__invocant();
       SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
       SMOP__p6opaque__RI.SMOP__ID__REPR_how();
       SMOP__SLIME__CurrentFrame.copy(1);

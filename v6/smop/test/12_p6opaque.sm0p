@@ -3,11 +3,44 @@
 #include <smop_s1p.h>
 #include <smop_slime.h>
 #include <smop_oo.h>
+#include <smop_lowlevel.h>
+
+static SMOP__Object* test_message(SMOP__Object* interpreter,
+                                  SMOP__ResponderInterface* responder,
+                                  SMOP__Object* identifier,
+                                  SMOP__Object* capture) {
+  if (identifier == SMOP__ID__dispatch) {
+    printf("ok 3 - called dispatch\n");
+    SMOP_RELEASE(interpreter, capture);
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    printf("ok 4 - called DESTROYALL\n");
+  } else {
+    printf("not ok - unkown method\n");
+    SMOP_RELEASE(interpreter, capture);
+  }
+  return SMOP__NATIVE__bool_true;
+}
+
+extern SMOP__Object* test_release(SMOP__Object* interpreter, 
+                                  SMOP__ResponderInterface* responder,
+                                  SMOP__Object* obj) {
+  printf("-");
+  smop_lowlevel_refcnt_dec(interpreter, responder, obj);
+  return obj;
+}
+
+extern SMOP__Object* test_reference(SMOP__Object* interpreter, 
+                                    SMOP__ResponderInterface* responder,
+                                    SMOP__Object* obj) {
+  printf("+");
+  smop_lowlevel_refcnt_inc(interpreter, responder, obj);
+  return obj;
+}
 
 int main() {
   smop_init();
 
-  printf("1..4\n");
+  printf("1..6\n");
 
 
   SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
@@ -15,7 +48,12 @@ int main() {
                                             SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
   SMOP__Object* frame;
-  SMOP__Object* how = SMOP__NATIVE__bool_true;
+  SMOP__Object* how = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)how)->MESSAGE = &test_message;
+  ((SMOP__ResponderInterface*)how)->REFERENCE = &test_reference;
+  ((SMOP__ResponderInterface*)how)->RELEASE = &test_release;
+  ((SMOP__ResponderInterface*)how)->id = "test metaclass";
+
   SMOP__Object* p6opaque = 
     SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP__p6opaque__RI,
                   SMOP__ID__REPR_CREATE, SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
@@ -23,33 +61,30 @@ int main() {
 
   $frame = q:sm0p {
     ;
-    $p6opaque.SMOP__ID__new();
+    $p6opaque.SMOP__ID__REPR_how($how);
+    $p6opaque.SMOP__ID__STORE();
   };
-  //  SMOP__SLIME__CurrentFrame.move_responder(7,2);
-  //  SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(9,(),(),1));
-  //  SMOP__p6opaque__RI.SMOP__ID__new();
-  //};
 
   if (!frame) printf("not ");
   printf("ok 1 - frame created.\n");
 
-  SMOP_RELEASE(interpreter,p6opaque);
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 frame);
 
   printf("ok 2 - goto frame.\n");
 
+  SMOP_RELEASE(interpreter,p6opaque);
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
                                                              SMOP_REFERENCE(interpreter,interpreter),
                                                              NULL, NULL));
-  printf("ok 3 - interpreter loop.\n");
+  printf("ok 5 - interpreter loop.\n");
 
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 
-  printf("ok 4 - Scalar destroyed should free the p6opaque object also.\n");
+  printf("ok 6 - Scalar destroyed should free the p6opaque object also.\n");
 
   smop_destr();
   return 0;

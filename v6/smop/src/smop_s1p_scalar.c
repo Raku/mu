@@ -28,7 +28,7 @@ SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
 }
 
 SMOP__Object* SMOP__S1P__Scalar_STORE(SMOP__Object* object, SMOP__Object* val) {
-  smop_lowlevel_rdlock(object);
+  smop_lowlevel_wrlock(object);
   SMOP__Object* old = ((SMOP__S1P__Scalar_struct*)object)->cell;
   ((SMOP__S1P__Scalar_struct*)object)->cell = val;
   smop_lowlevel_unlock(object);
@@ -53,6 +53,7 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     if (old) SMOP_RELEASE(interpreter,old);
     SMOP_RELEASE(interpreter,scalar);
     SMOP_RELEASE(interpreter,capture);
+
   } else if (SMOP__ID__DESTROYALL == identifier) {
     SMOP__S1P__Scalar_struct* s = (SMOP__S1P__Scalar_struct*)capture;
     
@@ -61,9 +62,11 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(capture);
 
     SMOP_RELEASE(interpreter,cell);
+
   } else {
     fprintf(stderr,"Unknown identifier in lowlevel method object invocation.\n");
     SMOP_RELEASE(interpreter,capture);
+    
   }
   return SMOP__NATIVE__bool_false;
 }
