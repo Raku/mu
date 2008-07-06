@@ -4,13 +4,13 @@ use Test;
 
 plan 14;
 
-=pod
+=begin description
 
 Testing lvalue-returning subroutines
 
 L<S06/"Lvalue subroutines">
 
-=cut
+=end description
 
 # Lvalue subrefs
 {
@@ -110,3 +110,5 @@ is try { proxyvar("PRE") }, 'PREfoo', 'proxy lvalue subroutine FETCH works', :to
 is try { proxyvar("PRE") = "BAR" }, 'BAR',
     'proxy lvalue subroutine STORE works and returns the correct value', :todo<feature>;
 is $realvar, 'BAR', 'variable was modified', :todo<feature>;
+
+# vim: ft=perl6

@@ -5,11 +5,11 @@ use Test; plan 8;
 # There is "return function" but that's a more advanced feature.
 #L<S04/"Control Exceptions">
 
-=pod
+=begin pod
 
 Basic tests for "return"
 
-=cut
+=end pod
 
 sub bar { return }
 is(bar(), undef, '... bare return statement returned undef');
@@ -34,3 +34,4 @@ is(return_1(), 1, '... return_1() returned 1 correctly');
 
 is( try { sub foo { my $x = 1; while $x-- { return 24; }; return 42; }; foo() }, 24, 'return in while');
 
+# vim: ft=perl6

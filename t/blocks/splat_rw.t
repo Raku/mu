@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin description
 
 Splatted parameters shouldn't be rw even if stated as such
 
-=cut
+=end description
 
 plan 3;
 
@@ -35,3 +35,5 @@ ok(
     !$!,
     "trying to define an 'is rw' splat works too",
 );
+
+# vim: ft=perl6

@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin description
 
 Tests curried subs as defined by L<S06/Currying>
 
@@ -10,7 +10,7 @@ Tests curried subs as defined by L<S06/Currying>
 
 * assuming on a use statement
 
-=cut
+=end description
 
 plan 13;
 
@@ -65,3 +65,5 @@ is( try { &__hyper.assuming(op => &infix:<+>)(@x, @x) },
     (2,4,46), 'currying functions with array arguments' );
 is( try { &__hyper.assuming(op => &infix:<+>)(a => @x, b => @x) },
     (2,4,46), 'currying functions with named array arguments' );
+
+# vim: ft=perl6
