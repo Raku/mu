@@ -10,9 +10,11 @@ my @tests = (
     "a string", "", "\0", "\t", "\n", "\r\n", "\o7", '{', '}', "\d123", '$a @string %with &sigils()',
     ?1, ?0,
     undef,
+    #?rakudo emit #
     rx:P5/foo/, rx:P5//, rx:P5/^.*$/,
 
     # References to scalars
+    #?rakudo emit #
     \42, \Inf, \-Inf, \NaN, \"string", \"", \?1, \?0, \undef,
 
     # Pairs - XXX - Very Broken - FIXME!
@@ -42,12 +44,12 @@ my @tests = (
 );
 
 plan 10 + 2*@tests;
-force_todo 8, 45..50, 94, 96;
+#?pugs emit force_todo 8, 45..50, 94, 96;
 
-unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
-  skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
-  exit;
-}
+#?pugs emit unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
+#?pugs emit   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
+#?pugs emit   exit;
+#?pugs emit }
 
 
 # L<S02/Names and Variables/To get a Perlish representation of any object>
@@ -58,9 +60,9 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
 #   the result**.
 {
     for @tests -> $obj {
-        is ~"item($obj.perl())".eval, ~$obj,
+        is ~eval("item($obj.perl())"), ~$obj,
             "($obj.perl()).perl returned something whose eval()ed stringification is unchanged";
-        is ~"WHAT($obj.perl())".eval, ~$obj.WHAT,
+        is ~eval("WHAT($obj.perl())"), ~$obj.WHAT,
             "($obj.perl()).perl returned something whose eval()ed .WHAT is unchanged";
     }
 }
@@ -111,8 +113,10 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
     my @foo = ([-1, -2], -3);
     is @foo.perl, '[[-1, -2], -3]', ".perl on a nested list";
 
+    #?rakudo emit #
     my @hyp = -« ([1, 2], 3);
     # what it currently (r16460) gives
+    #?rakudo 2 skip 'parsefail on hyper operator'
     isnt @hyp.perl, '[(-1, -2), -3]', "strange inner parens from .perl on result of hyperop", :todo<bug>;
 
     # what it should give
