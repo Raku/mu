@@ -2,7 +2,7 @@ use v6;
 use Test;
 plan 52;
 
-# L<S03/"Reduction operators">
+=begin pod
 
 =head1 DESCRIPTION
 
@@ -11,8 +11,9 @@ This test tests the C<[...]> reduce metaoperator.
 Reference:
 L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
 
-=cut
+=end pod
 
+# L<S03/"Reduction operators">
 
 # [...] reduce metaoperator
 {
@@ -45,15 +46,14 @@ L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
     ok (    [!=] 4, 5, 6),    "[!=] works (1)";
     ok (not [!=] 4, 4, 4),    "[!=] works (2)";
 
-    # these all fail now, until produced chains are figured out and implemented
-    is ([~] [\<]  1, 2, 3, 4), "1 1 1 1", "[\\<] works (1)", :todo<unspecced>;
-    is ([~] [\<]  1, 3, 2, 4), "1 1 0 0", "[\\<] works (2)", :todo<unspecced>;
-    is ([~] [\>]  4, 3, 2, 1), "1 1 1 1", "[\\>] works (1)", :todo<unspecced>;
-    is ([~] [\>]  4, 2, 3, 1), "1 1 0 0", "[\\>] works (2)", :todo<unspecced>;
-    is ([~] [\==]  4, 4, 4),   "1 1 1",   "[\\==] works (1)", :todo<unspecced>;
-    is ([~] [\==]  4, 5, 4),   "1 0 0",   "[\\==] works (2)", :todo<unspecced>;
-    is ([~] [\!=]  4, 5, 6),   "1 1 1",   "[\\!=] works (1)", :todo<unspecced>;
-    is ([~] [\!=]  4, 5, 4),   "1 0 0",   "[\\!=] works (2)", :todo<unspecced>;
+    is ([~] [\<]  1, 2, 3, 4), "1 1 1 1", "[\\<] works (1)";
+    is ([~] [\<]  1, 3, 2, 4), "1 1 0 0", "[\\<] works (2)";
+    is ([~] [\>]  4, 3, 2, 1), "1 1 1 1", "[\\>] works (1)";
+    is ([~] [\>]  4, 2, 3, 1), "1 1 0 0", "[\\>] works (2)";
+    is ([~] [\==]  4, 4, 4),   "1 1 1",   "[\\==] works (1)";
+    is ([~] [\==]  4, 5, 4),   "1 0 0",   "[\\==] works (2)";
+    is ([~] [\!=]  4, 5, 6),   "1 1 1",   "[\\!=] works (1)";
+    is ([~] [\!=]  4, 5, 4),   "1 0 0",   "[\\!=] works (2)";
 }
 
 {

@@ -9,7 +9,7 @@ plan 49;
 
 is ([**] ()), 1, "[**] () eq 1 (arguably nonsensical)";
 is ([*] ()), 1, "[*] () eq 1";
-dies_ok( { [/] () }, "[/] () should fail");
+dies_ok( { [/] () }, "[/] () should fail"); #" # syntax highlight kludge
 dies_ok( { [%] () }, "[%] () should fail");
 dies_ok( { [x] () }, "[x] () should fail");
 dies_ok( { [xx] () }, "[xx] () should fail");
