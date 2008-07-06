@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 =head1 List parameter test
 
@@ -14,7 +14,7 @@ You might also be interested in the thread Calling positionals by name in
 presence of a slurpy hash" on p6l started by Ingo
 Blechschmidt L<http://www.nntp.perl.org/group/perl.perl6.language/22883>
 
-=cut
+=end pod
 
 plan 26;
 
@@ -124,7 +124,7 @@ dies_ok { foo 1, x => 20, y => 300, 4000 },
 }
 
 ##### Now slurpy scalar tests here.
-=kwid
+=begin desc
 
 =head1 List parameter test
 
@@ -132,7 +132,7 @@ These tests are the testing for "List paameters" section of Synopsis 06
 
 L<<S06/List parameters/Slurpy scalar parameters capture what would otherwise be the first elements of the variadic array:>>
 
-=cut
+=end desc
 
 sub first(*$f, *$s, *@r){ return $f };
 sub second(*$f, *$s, *@r){ return $s };
@@ -145,3 +145,4 @@ is second(1, 2, 3, 4, 5), 2,
 is rest(1, 2, 3, 4, 5), 12,
   'Testing the rest slurpy *@r';
 
+# vim: ft=perl6

@@ -2,12 +2,6 @@ use v6;
 
 use Test;
 
-=kwid
-
-Tests for Synopsis 6
-
-=cut
-
 plan 17;
 
 sub foobar ($var) {
@@ -75,11 +69,7 @@ sub perl5sub {
 perl5sub(<foo bar>);
 is(@result, [<foo bar>], 'use @_ in sub');
 
-=pod
-
-L<S06/"Unpacking array parameters">
-
-=cut
+#L<S06/"Unpacking array parameters">
 
 sub argShifter (@a is rw) {
     my $first := shift @a;
@@ -94,11 +84,7 @@ eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 my @array = 3..7;
 is(try { unpack_array(@array) }, 3, 'unpacking an array parameter', :todo<feature>);
 
-=pod
-
-L<S06/"Unpacking hash parameters">
-
-=cut
+#L<S06/"Unpacking hash parameters">
 
 eval 'sub unpack_hash({:$yo, *%other}){ return $yo; }';
 

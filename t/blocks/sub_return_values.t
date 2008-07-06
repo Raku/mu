@@ -1,7 +1,7 @@
 use v6;
 use Test;
 
-=pod
+=begin desc
 
 This tests proper return of values from subroutines.
 
@@ -9,7 +9,7 @@ L<S06/"Subroutines and other code objects">
 
 See also t/blocks/return.t, which overlaps in scope.
 
-=cut
+=end desc
 
 # NOTE: the smart link above actually doesn't go to a good
 # reference for the spec for 'return', but I couldn't find
@@ -226,3 +226,4 @@ lives_ok({ $keys = +(foo_hash_ref().keys) },
 is($keys, 3, "got right result");
 lives_ok({ foo_hash_ref()<foo> },
     "can hash de-ref return value (hashref)");
+# vim: ft=perl6

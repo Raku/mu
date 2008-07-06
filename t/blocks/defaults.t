@@ -2,11 +2,12 @@ use v6;
 
 use Test;
 
-=kwid
+=begin description
 
 Tests assigning default values to variables of type code in sub definitions.
 L<S06/Optional parameters/Default values can be calculated at run-time>
-=cut
+
+=end description
 
 plan 2;
 
@@ -20,14 +21,16 @@ is(value_v, 10, "default sub called");
 
 package MyPack {
 
-sub double($x) { return 2 * $x }
+    sub double($x) { return 2 * $x }
 
-sub val_v(Code :$func = &double) is export {
-    return $func(5);
-}
+    sub val_v(Code :$func = &double) is export {
+        return $func(5);
+    }
 
 }
 
 use Test;
 
 ok((MyPack::val_v), "default sub called in package namespace");
+
+# vim: ft=perl6

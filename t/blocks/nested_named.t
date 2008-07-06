@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin desc
 
 Tests for nested subs in Apocalypse 6
 
-=cut 
+=end desc 
 
 plan 3;
 
@@ -22,3 +22,4 @@ is factorial(1), 1, "Checking semantics... 1";
 is factorial(2), 2, "Checking semantics... 2";
 is factorial(0), 1, "Checking semantics... 0";
 
+# vim: ft=perl6

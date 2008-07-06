@@ -4,13 +4,13 @@ plan 13;
 
 # L<S04/"The goto statement">
 
-=kwid
+=begin description
 
 Tests for the goto() builtin
 
 We have "phases" to make sure the gotos didn't run wild.
 
-=cut
+=end description
 
 
 our $phase;
@@ -76,3 +76,4 @@ is($test6, 1, "goto expr", :todo<feature>);
 
 is(++$phase, 6, "phase completed");
 
+# vim: ft=perl6

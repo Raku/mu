@@ -4,28 +4,36 @@ use Test;
 
 plan 12;
 
-=pod
+=begin description
 
 Testing parameter traits for subroutines
 
 L<S06/"Parameter traits">
 
-=cut
+=end description
 
 my $foo=1;
-sub mods_param ($x) { $x++; }
-dies_ok  { mods_param($foo) }, 'can\'t modify parameter, constant by default';
+
+# note: many of these errors can be detected at compile time, so need
+# eval_dies_ok instead of dies_ok 
+eval_dies_ok '
+    sub mods_param ($x) { $x++; }
+    mods_param($foo)
+    ',
+    'can\'t modify parameter, constant by default';
+    
 
 # is readonly
-sub mods_param_constant ($x is readonly) { $x++; }
-dies_ok  { mods_param_constant($foo) }, 'can\'t modify constant parameter, constant by default';
+eval_dies_ok 'sub mods_param_constant ($x is readonly) { $x++; }; 
+              mods_param_constant($foo);' , 
+              'can\'t modify constant parameter, constant by default';
 
 sub mods_param_rw ($x is rw) { $x++; }
 dies_ok  { mods_param_rw(1) }, 'can\'t modify constant even if we claim it\'s rw';
 sub mods_param_rw_does_nothing ($x is rw) { $x; }
 lives_ok { mods_param_rw_does_nothing(1) }, 'is rw with non-lvalue should autovivify';
 
-lives_ok  { mods_param_rw($foo) }, 'pass by reference doesn\'t die';
+lives_ok  { mods_param_rw($foo) }, 'pass by "is rw" doesn\'t die';
 is($foo, 2, 'pass by reference works');
 
 #icopy
@@ -47,3 +55,4 @@ is($foo, 2, 'is ref works', :todo);
 ok(eval('sub my_format (*@data is context(Item)) { }; 1'), "is context - compile check");
 
 # To do - check that is context actually works
+# vim: ft=perl6

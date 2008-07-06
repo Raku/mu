@@ -4,11 +4,11 @@ use Test;
 
 plan 6;
 
-=pod
+=begin pod
 
 These are misc. sub argument errors.
 
-=cut
+=end pod
 
 sub foo (*$x) { 1 }
 dies_ok  { foo(reverse(1,2)) }, 'slurpy args are now bounded (1)';
@@ -28,3 +28,5 @@ dies_ok eval('sub quuux ($?VERSION) { ... }'),
     'parser rejects magicals as args (1)';
 dies_ok eval('sub quuuux ($!) { ... }'),
     'parser rejects magicals as args (2)';
+
+# vim: ft=perl6

@@ -5,14 +5,13 @@ use Test;
 
 plan 33;
 
-
-=head1 DESCRIPITION
+=begin description
 
 These tests test subroutine references and their invocation.
 
 See L<S02/"Built-in Data Types"> for more information about Code, Routine, Sub, Block, etc.
 
-=cut
+=end description
 
 # See L<S02/"Built-in Data Types"> and especially L<A06/"The C<sub> form"> why {...} and ->
 # ... {...} aren't Subs, but Blocks (they're all Codes, though).

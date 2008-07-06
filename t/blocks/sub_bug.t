@@ -2,14 +2,18 @@ use v6;
 
 use Test;
 
-=kwid
+=begin pod
 
-The sub doesn't return anything
+In an ancient version of pugs the sub below didn't return anything
 
-=cut
+TODO: merge into one of the return.t files
+
+=end pod
 
 plan 1;
 
 sub foo { return (42, 1) }
 my $bar = ~foo();
 is($bar, '42 1', 'Should not return empty string');
+
+# vim: ft=perl6

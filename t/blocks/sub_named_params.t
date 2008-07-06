@@ -5,9 +5,7 @@ use Test;
 
 plan 63;
 
-=kwid
-
-= DESCRIPITION
+=begin description
 
 L<S06/Named parameters>
 These tests test named parmaeters.
@@ -29,7 +27,7 @@ These tests test named parmaeters.
 
 # Update: See L<http://www.nntp.perl.org/group/perl.perl6.language/23820>
 
-=cut
+=end description
 
 sub simple_pos_param($x) { $x }
 is simple_pos_param(x => 3), 3, "positional param may be addressed by name (1)";
@@ -161,9 +159,6 @@ is(%fellowship<dwarf>, undef, "dwarf arg was not given");
 }
 
 {
-  if $*OS eq "browser" {
-    skip 5, "skipping tests which infloop under PIL2JS";
-  } else {
     sub named_and_slurp(:$grass, *%rest) { return($grass, %rest) }
     my ($grass, %rest) = named_and_slurp(sky => 'blue', grass => 'green', fire => 'red');
     is($grass, 'green', "explicit named arg received despite slurpy hash");
@@ -171,26 +166,18 @@ is(%fellowship<dwarf>, undef, "dwarf arg was not given");
     is(%rest<sky>, 'blue', "sky argument was slurped");
     is(%rest<fire>, 'red', "fire argument was slurped");
     is(%rest<grass>, undef, "grass argument was NOT slurped");
-  }
 }
 
 {
-my $ref;
-sub setref($refin) {
-    $ref = $refin;
+    my $ref;
+    sub setref($refin) {
+        $ref = $refin;
+    }
+    my $aref = [0];
+    setref(refin => $aref);
+    $aref[0]++;
+    is($aref[0], 1, "aref actually implemented");
+    is($ref[0], 1, "ref is the same as aref");
 }
-my $aref = [0];
-setref(refin => $aref);
-$aref[0]++;
-is($aref[0], 1, "aref actually implemented");
-is($ref[0], 1, "ref is the same as aref");
-}
 
-=kwid
-
-= AUTHOR
-
-Jesse Vincent <jesse@bestpractical.com>
-Carl Masak <cmasak@gmail.com>
-
-=cut
+# vim: ft=perl6

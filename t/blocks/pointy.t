@@ -4,13 +4,13 @@ use Test;
 
 plan 14;
 
-=pod
+=begin description
 
 Test pointy sub behaviour described in S06
 
 L<S06/""Pointy blocks"">
 
-=cut
+=end description
 
 # L<S06/""Pointy blocks""/the parameter list of a pointy block does not
 # require parentheses>
@@ -89,3 +89,5 @@ eval(q{
     -> { $^a, $^b }
 });
 ok $!, '-> { $^a, $^b } is illegal';
+
+# vim: ft=perl6
