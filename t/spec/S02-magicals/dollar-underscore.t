@@ -2,7 +2,7 @@ use v6;
 
 # Tests for a bug uncovered when Jesse Vincent was testing 
 # functionality for Patrick Michaud
-
+# TODO: add smartlinks, more tests
 
 use Test;
 
@@ -25,4 +25,4 @@ for @list -> { isnt($_, 'a') }
 # Do pointy subs send along an implicit param even when a param is declared? No!
 for @list -> $letter { isnt( $_ ,'a' ) }
 
-
+# vim: ft=perl6
