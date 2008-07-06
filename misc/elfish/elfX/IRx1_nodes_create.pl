@@ -170,32 +170,6 @@ END_CODE
 sub write_ir_nodes {
   my($file)=@_;
   my $code = "".unindent(<<'  END');
-    # Warning: This file is mechanically written.  Your changes will be overwritten.
-    package ARRAY {
-      method irx1_describe() {
-        '[' ~ self.map(sub($e){$e.irx1_describe}).join(",") ~ ']'
-      };
-    };
-    package STRING {
-      method irx1_describe() {
-        self ~ ""
-      };
-    };
-    package INTEGER {
-      method irx1_describe() {
-        self ~ ""
-      };
-    };
-    package FLOAT {
-      method irx1_describe() {
-        self ~ ""
-      };
-    };
-    package UNDEF {
-      method irx1_describe() {
-        'undef'
-      };
-    };
     package IRx1 {
       class Base {
       };
@@ -225,9 +199,6 @@ sub write_ir_nodes {
         method node_name() { '$name' };
         method field_names() { [$field_names] };
         method field_values() { [$field_values] };
-        method irx1_describe() {
-          @{["'".$name."('~".join("','~",(map{'$.'.$_.'.irx1_describe~'}@fields))."')'"]}
-        };
       };
     END
   }
