@@ -2,17 +2,15 @@ use v6;
 
 use Test;
 
-# L<S02/Names and Variables/To get a Perlish representation of any object>
-
 plan 98;
 #force_todo 8, 44, 46, 48; # untodo with r10745
 
-unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
-  skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
-  exit;
-}
+#?pugs emit unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
+#?pugs emit   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
+#?pugs emit   exit;
+#?pugs emit }
 
-
+# L<S02/Names and Variables/To get a Perlish representation of any object>
 # Quoting S02 (emphasis added):
 #   To get a Perlish representation of any data value, use the .perl method.
 #   This will put quotes around strings, square brackets around list values,
@@ -54,15 +52,23 @@ sub desc_ref ($obj) {
         is  "WHAT($obj.perl())".eval,  $obj.WHAT, desc_ref($obj);
     }
 
+    #?rakudo emit skip 6, 'rx:P5// does not work';
+
+    #?rakudo emit =begin skip 
     for (rx:P5/foo/, rx:P5//, rx:P5/^.*$/,) -> $obj {
-        is ~"item($obj.perl())".eval    , ~$obj    , desc_perl($obj), :todo<bug>;
+        is ~"item($obj.perl())".eval, ~$obj, desc_perl($obj), :todo<bug>;
         is  "WHAT($obj.perl())".eval,  $obj.WHAT, desc_ref($obj), :todo<bug>;
     }
+    #?rakudo emit =end skip
 
+    #?rakudo emit skip 18, '\\foo does not work';
+
+    #?rakudo emit =begin skip 
     for (\42, \Inf, \-Inf, \NaN, \"string", \"", \?1, \?0, \undef,) -> $obj {
         is ~"item($obj.perl())".eval    , ~$obj    , desc_perl($obj);
         is  "WHAT($obj.perl())".eval,  $obj.WHAT, desc_ref($obj);
     }
+    #?rakudo emit =end skip
 
     # Pairs - XXX - Very Broken - FIXME!
     for ((a => 1),:b(2),) -> $obj {
@@ -150,6 +156,9 @@ sub desc_ref ($obj) {
     is((("f","oo","bar").keys).perl, "(0, 1, 2)", ".perl on a .keys list");
 }
 
+#?rakudo emit skip 3, 'hyperoperator does not work';
+
+#?rakudo emit =begin skip
 {
     # test bug in .perl on result of hyperoperator
     # first the trivial case without hyperop
@@ -163,3 +172,4 @@ sub desc_ref ($obj) {
     # what it should give
     is @hyp.perl, '[[-1, -2], -3]', ".perl on a nested list result of hyper operator", :todo<bug>;
 }
+#?rakudo emit =end skip
