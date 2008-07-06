@@ -61,6 +61,16 @@ error, and throw it at compile time.
 If in doubt, use C<eval_dies_ok> instead. If you have a case where C<dies_ok>
 is fine, remeber to pass a code ref to it.
 
+=head2 .perl isn't canonical
+
+The C<perl> method (which does roughly the same as perl 5's Data::Dumper)
+returns a string that, when evaluated, returns the same value as the original
+one.
+
+However it's result isn't guarantued to be of any canonical form, for example
+C<Str.perl> might return any legal quoting syntax. Testing for the exact value
+of C<$anything.perl> is most likely an error
+
 =head2 Junctions are unordered
 
 Junctions are unordered assemblies, and C<Junction.values> returns these
