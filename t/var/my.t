@@ -9,7 +9,7 @@ use Test;
 plan 11;
 
 {
-  is(eval('$x; my $x = 42'), undef, 'my() variable not yet visible (2)');
+  eval_dies_ok('$x; my $x = 42', 'my() variable not yet visible prior to declartation');
   is(eval('my $x = 42; $x'), 42, 'my() variable is visible now (2)');
 }
 
