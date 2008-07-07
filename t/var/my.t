@@ -6,18 +6,8 @@ use Test;
 # my() declarations scopes lexically to the rest of the block; using $MY::x or
 # $::("x") in the block before the actual declaration is erroneous.
 
-plan 11;
+plan 7;
 
-{
-  eval_dies_ok('$x; my $x = 42', 'my() variable not yet visible prior to declartation');
-  is(eval('my $x = 42; $x'), 42, 'my() variable is visible now (2)');
-}
-
-{
-  my $ret = 42;
-  is(eval('$ret = $x ~ my $x; 1'), undef, 'my() variable not yet visible (1)');
-  is $ret, 42,                   'my() variable not yet visible (2)';
-}
 
 {
   my $ret = 42;
