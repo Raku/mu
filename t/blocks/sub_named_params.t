@@ -26,6 +26,8 @@ These tests test named parmaeters.
 #
 
 # Update: See L<http://www.nntp.perl.org/group/perl.perl6.language/23820>
+#
+# TODO: merge into spec/S06-signature/named-parameters.t
 
 =end description
 
