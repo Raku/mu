@@ -14,7 +14,7 @@ if (1) { # create a new lexical scope
     my $b = 1;
     ok($b, '$b is available in this scope');
 }
-ok(!(eval '$b'), '$b is not available in this scope');
+eval_dies_ok '$b', '$b is not available in this scope';
 
 # changing a lexical within a block retains the changed value
 
@@ -45,7 +45,7 @@ my $d = 1;
         is($d, 2, '$d is now the lexical (inner) $d');    
     }
 }
-is(eval('$d'), 1, 'eval(\'$d\') has not changed');
+is($d, 1, '$d has not changed');
 
 is( eval('
 my $d = 1;
