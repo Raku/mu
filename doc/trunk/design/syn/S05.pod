@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 21 Jun 2008
+   Last Modified: 7 Jul 2008
    Number: 5
-   Version: 82
+   Version: 83
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -3661,11 +3661,24 @@ As a degenerate case, each side can be individual characters:
 
      $str.=trans( 'A'=>'a', 'B'=>'b', 'C'=>'c' );
 
+Whitespace characters are taken literally as characters to be
+translated from or to.  The C<..> range sequence is the only metasyntax
+recognized within a string, though you may of course use backslash
+interpolations in double quotes.  If the right side is too short, the
+final character is replicated out to the length of the left string.
+If there is no final character because the right side is the null
+string, the result is deletion instead.
+
 =item *
 
-The two sides of each pair may also be Array objects:
+Either or both sides of the pair may also be Array objects:
 
      $str.=trans( ['A'..'C'] => ['a'..'c'], <X Y Z> => <x y z> );
+
+The array version is the underlying primitive form: the semantics of
+the string form is exactly equivalent to first doing C<..> expansion
+and then splitting the string into individual characters and then
+using that as an array.
 
 =item *
 
@@ -3675,10 +3688,35 @@ characters:
      $str.=trans( [' ',      '<',    '>',    '&'    ] =>
                   ['&nbsp;', '&lt;', '&gt;', '&amp;' ]);
 
-
 In the case that more than one sequence of input characters matches,
 the longest one wins.  In the case of two identical sequences the
 first in order wins.
+
+=item *
+
+The recognition done by the string and array forms is very basic.
+To achieve greater power, any recognition element of the left side
+may be specified by a regex that can do character classes, lookahead,
+etc.
+
+
+    $str.=trans( [/ \h /,   '<',    '>',    '&'    ] =>
+                 ['&nbsp;', '&lt;', '&gt;', '&amp;' ]);
+
+    $str.=trans( / \s+ /, ' ' );  # squash all whitespace to one space
+
+These submatches are mixed into the overall match in exactly the same way that
+they are mixed into parallel alternation in ordinary regex processing, so
+longest token rules apply across all the possible matches specified to the
+transliteration operator.  Once a match is made and transliterated, the parallel
+matching resumes at the new position following the end of the previous match,
+even if it matched multiple characters.
+
+=item *
+
+If the right side of the arrow is a closure, it is evaluated to
+determine the replacement value.  If the left side was matched by a
+regex, the resulting match object is available within the closure.
 
 =back
 
