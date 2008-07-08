@@ -24,7 +24,7 @@ int main() {
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
   SMOP__Object* frame;
 
-  $frame = q:sm0p {
+  frame = q:sm0p {
     $scalar2;
     $scalar1;
     $scalar1.SMOP__ID__FETCH();

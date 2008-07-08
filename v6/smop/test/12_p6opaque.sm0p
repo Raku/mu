@@ -64,7 +64,7 @@ int main() {
                   SMOP__ID__REPR_CREATE, SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                       SMOP__INTPTR__InterpreterInstance,NULL,NULL));
 
-  $frame = q:sm0p {
+  frame = q:sm0p {
     ;
     $p6opaque.SMOP__ID__REPR_how($how);
     $p6opaque.SMOP__ID__STORE();

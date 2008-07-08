@@ -1,4 +1,4 @@
-.sm0p.c:
+.sm0p.c: $(top_srcdir)/../../misc/sm0p/sm0p5.pm
 	perl $(top_srcdir)/sm0p.pl $(top_srcdir) $< $@
 
 LDADD = -lsmop 

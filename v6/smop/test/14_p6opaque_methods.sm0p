@@ -107,7 +107,7 @@ int main() {
   // This sm0p block will create a p6opaque, set the how, push a
   // method into the list of methods and call some method. The how
   // implemented here will take the first method to call.
-  $frame = q:sm0p {
+  frame = q:sm0p {
     $how;
     $method;
     SMOP__p6opaque__RI.SMOP__ID__REPR_CREATE();
