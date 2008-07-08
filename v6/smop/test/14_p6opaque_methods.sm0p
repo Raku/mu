@@ -1,0 +1,154 @@
+#include <stdio.h>
+#include <smop.h>
+#include <smop_s1p.h>
+#include <smop_slime.h>
+#include <smop_oo.h>
+#include <smop_lowlevel.h>
+
+
+static SMOP__Object* test_message(SMOP__Object* interpreter,
+                                  SMOP__ResponderInterface* responder,
+                                  SMOP__Object* identifier,
+                                  SMOP__Object* capture) {
+  if (identifier == SMOP__ID__dispatch) {
+    SMOP__Object* called = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    if (called == SMOP__ID__DESTROYALL) {
+      printf("ok 4 - called DESTROYALL on the metaclass\n");
+    } else {
+      SMOP__Object* invocant = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+      SMOP__Objcet* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);
+      SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                                 SMOP__ID__continuation, 
+                                                 SMOP_REFERENCE(interpreter,interpreter));
+
+      SMOP__Object* frame;
+
+      // here we'll take the first method and call it.
+      $frame = q:sm0p {
+        $invocant;
+        $identifier;
+        $actualcapture;
+        $invocant.SMOP__ID__REPR_methods();
+        SMOP__SLIME__CurrentFrame.copy(1);
+        SMOP__SLIME__CurrentFrame.move_responder(2,2);
+        SMOP__SLIME__CurrentFrame.move_capturize(2,(),(),1);
+        SMOP__NATIVE__bool_true.SMOP__ID__shift();
+        SMOP__SLIME__CurrentFrame.copy(1);
+        SMOP__SLIME__CurrentFrame.move_responder(2,2);
+        SMOP__SLIME__CurrentFrame.move_capturize(2,(10,9,8),(),1);
+        SMOP__NATIVE__bool_true.SMOP__ID__call();
+        $continuation;
+        SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(2),(),1));
+        $continuation.setr();
+        SMOP__SLIME__CurrentFrame.forget();
+        $interpreter.goto(|$continuation);
+      };
+
+      SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                    SMOP__ID__goto,
+                    frame);
+      
+      SMOP_RELEASE(interpreter,invocant);
+      SMOP_RELEASE(interpreter,actualcapture);
+    }
+    SMOP_RELEASE(interpreter, called);
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    printf("ok 5 - called DESTROYALL\n");
+  } else {
+    printf("not ok - unkown method\n");
+  }
+  SMOP_RELEASE(interpreter, capture);
+  return SMOP__NATIVE__bool_true;
+}
+
+SMOP__Object* test_code(SMOP__Object* interpreter,
+                        SMOP__Object* method,
+                        SMOP__Object* capture) {
+  printf("ok 2 - method call.\n");
+  SMOP_RELEASE(interpreter,capture);
+  return SMOP__NATIVE__bool_false;
+}
+
+extern SMOP__Object* test_release(SMOP__Object* interpreter, 
+                                  SMOP__ResponderInterface* responder,
+                                  SMOP__Object* obj) {
+  smop_lowlevel_refcnt_dec(interpreter, responder, obj);
+  return obj;
+}
+
+extern SMOP__Object* test_reference(SMOP__Object* interpreter, 
+                                    SMOP__ResponderInterface* responder,
+                                    SMOP__Object* obj) {
+  smop_lowlevel_refcnt_inc(interpreter, responder, obj);
+  return obj;
+}
+
+int main() {
+  smop_init();
+
+  printf("1..7\n");
+
+
+  SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+                                            SMOP__ID__new, 
+                                            SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                         SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+  SMOP__Object* frame;
+  SMOP__Object* how = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)how)->MESSAGE = &test_message;
+  ((SMOP__ResponderInterface*)how)->REFERENCE = &test_reference;
+  ((SMOP__ResponderInterface*)how)->RELEASE = &test_release;
+  ((SMOP__ResponderInterface*)how)->id = "test metaclass";
+
+  SMOP__Object* method = SMOP__S1P__Method_create(0,SMOP__ID__new,
+                                                  SMOP__NATIVE__bool_false,
+                                                  test_code);
+
+  // This sm0p block will create a p6opaque, set the how, push a
+  // method into the list of methods and call some method. The how
+  // implemented here will take the first method to call.
+  $frame = q:sm0p {
+    $how;
+    $method;
+    SMOP__p6opaque__RI.SMOP__ID__REPR_CREATE();
+    SMOP__SLIME__CurrentFrame.copy(1);
+    SMOP__SLIME__CurrentFrame.move_capturize(1,(),(),1);
+    SMOP__p6opaque__RI.SMOP__ID__REPR_methods();
+    SMOP__SLIME__CurrentFrame.copy(1);
+    SMOP__SLIME__CurrentFrame.move_responder(1,2);
+    SMOP__SLIME__CurrentFrame.move_capturize(3,(8),(),1);
+    SMOP__NATIVE__bool_true.SMOP__ID__push();
+    SMOP__SLIME__CurrentFrame.copy(8);
+    SMOP__SLIME__CurrentFrame.move_capturize(1,(11),(),1);
+    SMOP__p6opaque__RI.SMOP__ID__REPR_how();
+    SMOP__SLIME__CurrentFrame.copy(11);
+    SMOP__SLIME__CurrentFrame.move_capturize(1,(),(),1);
+    SMOP__p6opaque__RI.SMOP__ID__STORE();
+  };
+
+  if (!frame) printf("not ");
+  printf("ok 1 - frame created.\n");
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                frame);
+
+  printf("ok 2 - goto frame.\n");
+
+  printf("# before freeing how\n");
+  SMOP_RELEASE(interpreter,how);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
+                                                             SMOP_REFERENCE(interpreter,interpreter),
+
+                                                             NULL, NULL));
+
+  printf("ok 6 - interpreter loop.\n");
+
+  printf("# before freeing the interpreter\n");
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
+
+  smop_destr();
+  return 0;
+}
