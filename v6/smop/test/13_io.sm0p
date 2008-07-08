@@ -18,14 +18,12 @@ int main(int argc, char** argv) {
                                             SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
   SMOP__Object* node = NULL;
-  SMOP__Object* ID_print = SMOP__NATIVE__idconst_create("print");
-
 
   SMOP__Object* io = SMOP__S1P__IO_create();
   SMOP__Object* ok1 = SMOP__S1P__Str_create("ok 1\n");
   node = q:sm0p {
     ;
-    $io.$ID_print($ok1);
+    $io.print($ok1);
   };
 
    

@@ -131,8 +131,8 @@ token identifier2 {
 token identifier {
    '$' <name> { make $<name> ~ '' }
  ||<idconst> { make $<idconst> ~ ''}
+ ||<name> { make 'SMOP__NATIVE__idconst_create("' ~ $<name> ~ '")' }
 }
-#||<name> { make $<name> ~ '' }
 
 token idconst {
   <idconst_list> { make 'SMOP__ID__' ~ $<idconst_list> ~ '' }
