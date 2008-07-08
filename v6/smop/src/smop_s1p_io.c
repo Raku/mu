@@ -21,11 +21,7 @@ static SMOP__Object* smop_s1p_io_message(SMOP__Object* interpreter,
                                      SMOP__Object* capture) {
 
   smop_s1p_io_struct* invocant;
-  if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__S1P__IO) {
-    invocant = (smop_s1p_io_struct*)capture;
-  } else {
-    invocant = (smop_s1p_io_struct*)(SMOP__NATIVE__capture_invocant(interpreter, capture));
-  }
+  invocant = (smop_s1p_io_struct*)(SMOP__NATIVE__capture_invocant(interpreter, capture));
 
   static SMOP__Object* ID_print = NULL;
 
@@ -37,10 +33,7 @@ static SMOP__Object* smop_s1p_io_message(SMOP__Object* interpreter,
     SMOP__S1P__IO_create();
   }
 
-  if (invocant &&
-      invocant != SMOP__S1P__IO)
-    SMOP_RELEASE(interpreter,invocant);
-
+  SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }
