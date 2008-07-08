@@ -3692,6 +3692,9 @@ In the case that more than one sequence of input characters matches,
 the longest one wins.  In the case of two identical sequences the
 first in order wins.
 
+As with the string form, missing righthand elements replicate the
+final element, and a null array results in deletion instead.
+
 =item *
 
 The recognition done by the string and array forms is very basic.
@@ -3703,7 +3706,8 @@ etc.
     $str.=trans( [/ \h /,   '<',    '>',    '&'    ] =>
                  ['&nbsp;', '&lt;', '&gt;', '&amp;' ]);
 
-    $str.=trans( / \s+ /, ' ' );  # squash all whitespace to one space
+    $str.=trans( / \s+ / => ' ' );  # squash all whitespace to one space
+    $str.=trans( / <!alpha> / => '' );  # delete all non-alpha
 
 These submatches are mixed into the overall match in exactly the same way that
 they are mixed into parallel alternation in ordinary regex processing, so
