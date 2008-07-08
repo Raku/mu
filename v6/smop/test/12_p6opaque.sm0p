@@ -19,13 +19,12 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
       printf("not ok - unkown method to dispatch\n");
     }
     SMOP_RELEASE(interpreter, called);
-    SMOP_RELEASE(interpreter, capture);
   } else if (identifier == SMOP__ID__DESTROYALL) {
     printf("ok 5 - called DESTROYALL\n");
   } else {
     printf("not ok - unkown method\n");
-    SMOP_RELEASE(interpreter, capture);
   }
+  SMOP_RELEASE(interpreter, capture);
   return SMOP__NATIVE__bool_true;
 }
 

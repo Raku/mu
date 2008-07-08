@@ -25,7 +25,6 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
     printf("ok 4 - method4 called.\n");
   } else if (identifier == SMOP__ID__DESTROYALL) {
     printf("ok 5 - DESTROYALL called.\n");
-    return NULL;
   } else {
     printf("not ok - unknown method called %p.\n",identifier);
   }

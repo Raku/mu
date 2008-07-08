@@ -55,13 +55,16 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     SMOP_RELEASE(interpreter,capture);
 
   } else if (SMOP__ID__DESTROYALL == identifier) {
-    SMOP__S1P__Scalar_struct* s = (SMOP__S1P__Scalar_struct*)capture;
+    SMOP__Object* scalar = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    SMOP__S1P__Scalar_struct* s = (SMOP__S1P__Scalar_struct*)scalar;
     
-    smop_lowlevel_wrlock(capture);
+    smop_lowlevel_wrlock(scalar);
     SMOP__Object* cell = s->cell; s->cell = NULL;
-    smop_lowlevel_unlock(capture);
+    smop_lowlevel_unlock(scalar);
 
-    SMOP_RELEASE(interpreter,cell);
+    SMOP_RELEASE(interpreter,scalar);
+    SMOP_RELEASE(interpreter,capture);
+    if (cell) SMOP_RELEASE(interpreter,cell);
 
   } else {
     fprintf(stderr,"Unknown identifier in lowlevel method object invocation.\n");
@@ -71,7 +74,7 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
   return SMOP__NATIVE__bool_false;
 }
 void smop_s1p_scalar_init() {
-  SMOP__S1P__Scalar = malloc(sizeof(SMOP__ResponderInterface));
+  SMOP__S1P__Scalar = calloc(1,sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->MESSAGE = smop_s1p_scalar_message;
   ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->REFERENCE = smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->RELEASE = smop_lowlevel_generic_release;

@@ -35,15 +35,18 @@ static SMOP__Object* lowlevel_method_message(SMOP__Object* interpreter,
 
     SMOP_RELEASE(interpreter,method);
   } else if (SMOP__ID__DESTROYALL == identifier) {
-    SMOP__S1P__Method_struct* m = (SMOP__S1P__Method_struct*)capture;
+    SMOP__Object* method = SMOP__NATIVE__capture_invocant(interpreter,capture);
+    SMOP__S1P__Method_struct* m = (SMOP__S1P__Method_struct*)method;
     
     smop_lowlevel_wrlock(capture);
     SMOP__Object* name = m->name; m->name = NULL;
     SMOP__Object* signature = m->signature; m->signature = NULL;
     smop_lowlevel_unlock(capture);
 
+    SMOP_RELEASE(interpreter,method);
     SMOP_RELEASE(interpreter,name);
     SMOP_RELEASE(interpreter,signature);
+    SMOP_RELEASE(interpreter,capture);
   } else {
     fprintf(stderr,"Unknown identifier in lowlevel method object invocation.\n");
     SMOP_RELEASE(interpreter,capture);

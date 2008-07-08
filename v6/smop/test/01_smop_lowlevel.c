@@ -34,6 +34,7 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
   } else {
     printf("not ok - Unknown identifier given %p.\n", identifier);
   }
+  if (capture) SMOP_RELEASE(stack, capture);
   return NULL;
 }
 

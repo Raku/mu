@@ -187,14 +187,34 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
     ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt = 999; // force it as to not getting here again...
     smop_lowlevel_unlock(value);
 
-    if (interpreter == SMOP__INTPTR__InterpreterInstance ||
-        (SMOP__Object*)SMOP_RI(value) == SMOP__INTPTR__InterpreterInstance ||
-        (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Frame ||
-        (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Node ||
-        (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Capturize ||
-        (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__capture ||
-        (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__int ||
-        (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__uint) {
+    if (interpreter == SMOP__INTPTR__InterpreterInstance) {
+
+      if ((SMOP__Object*)SMOP_RI(value) == SMOP__INTPTR__InterpreterInstance ||
+          (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Frame ||
+          (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Node ||
+          (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Capturize ||
+          (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__capture ||
+          (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__int ||
+          (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__uint) {
+
+        SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, value);
+
+      } else {
+        SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, SMOP__NATIVE__capture_create(interpreter,value,NULL,NULL));
+
+      }
+#ifdef SMOP_LOWLEVEL_MEM_TRACE
+      smop_mem_trace_del(value);
+#endif
+
+      smop_lowlevel_free(value);
+    } else if ((SMOP__Object*)SMOP_RI(value) == SMOP__INTPTR__InterpreterInstance ||
+               (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Frame ||
+               (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Node ||
+               (SMOP__Object*)SMOP_RI(value) == SMOP__SLIME__Capturize ||
+               (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__capture ||
+               (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__int ||
+               (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__uint) {
 
       SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, value);
 #ifdef SMOP_LOWLEVEL_MEM_TRACE
@@ -202,6 +222,7 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
 #endif
 
       smop_lowlevel_free(value);
+
     } else {
       // This is where the continuation will be manipulated as described in the .h file.
       SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
@@ -209,7 +230,7 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
       SMOP__Object* continuation = NULL;
       $continuation = q:sm0p {
         ;
-        $value.DESTROYALL(|$value);
+        $value.DESTROYALL($value);
         SMOP__SLIME__CurrentFrame.forget();
         SMOP__LOWLEVEL__Operators.free(|$value);
         $interpreter.goto(|$current);

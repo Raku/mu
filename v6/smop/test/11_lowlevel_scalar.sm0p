@@ -46,6 +46,10 @@ int main() {
 
   printf("ok 4 - goto frame.\n");
 
+  SMOP_RELEASE(interpreter,scalar1);
+  SMOP_RELEASE(interpreter,scalar2);
+
+
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
                                                              SMOP_REFERENCE(interpreter,interpreter),
@@ -65,9 +69,6 @@ int main() {
 
   if ((SMOP_RI(r2) != (SMOP__ResponderInterface*)SMOP__NATIVE__int) || SMOP__NATIVE__int_fetch(r2) != 1) printf("not ");
   printf("ok 9 - scalar 2 cell have the correct value\n");
-
-  SMOP_RELEASE(interpreter,scalar1);
-  SMOP_RELEASE(interpreter,scalar2);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,

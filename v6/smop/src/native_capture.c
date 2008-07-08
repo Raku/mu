@@ -192,7 +192,7 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
     int length = -1;
     while (positional[++length]);
     int size = sizeof(SMOP__Object*) * length;
-    ret->positional = malloc(size);
+    ret->positional = calloc(1,size);
     memcpy(ret->positional, positional, size);
     ret->count_positional = length;
   }
@@ -211,12 +211,12 @@ SMOP__Object*   SMOP__NATIVE__capture_create(SMOP__Object* interpreter,
     }
 
     int s_opt = sizeof(named_argument) * (l_opt + 1);
-    ret->o_named = malloc(s_opt);
+    ret->o_named = calloc(1,s_opt);
     ret->o_named[l_opt].key = NULL;
     ret->o_named[l_opt].value = NULL;
     ret->count_o_named = l_opt;
     int s_nor = sizeof(named_argument) * (l_nor + 1);
-    ret->named = malloc(s_nor);
+    ret->named = calloc(1,s_nor);
     ret->named[l_nor].key = NULL;
     ret->named[l_nor].value = NULL;
     ret->count_named = l_nor;
@@ -382,7 +382,7 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
 
   SMOP__Object** pos = NULL;
   if (n_positional && positional) {
-    pos = malloc(sizeof(SMOP__Object*) * (n_positional+1));
+    pos = calloc(1,sizeof(SMOP__Object*) * (n_positional+1));
     assert(pos);
     int i;
     for (i = 0; i < n_positional; i++) {
@@ -393,7 +393,7 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
 
   SMOP__Object** nam = NULL;
   if (n_named || n_o_named) {
-    nam = malloc(sizeof(SMOP__Object*) * ((n_named*2) + (n_o_named*2) + 1));
+    nam = calloc(1,sizeof(SMOP__Object*) * ((n_named*2) + (n_o_named*2) + 1));
     if (n_named) {
       int i;
       for (i = 0; i < n_named; i++) {
