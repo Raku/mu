@@ -13,39 +13,35 @@ int main(int argc, char** argv) {
 
   smop_init();
 
-  SMOP__Object* intrp = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
-                                      SMOP__ID__new, 
-                                      SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
-                                                                   SMOP__INTPTR__InterpreterInstance,NULL,NULL));
-
-  SMOP__Object* interpreter = intrp;
-
-
-
+  SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+                                            SMOP__ID__new, 
+                                            SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                         SMOP__INTPTR__InterpreterInstance,NULL,NULL));
   SMOP__Object* node = NULL;
-
   SMOP__Object* ID_print = SMOP__NATIVE__idconst_create("print");
 
+
   SMOP__Object* io = SMOP__S1P__IO_create();
+
   node = q:sm0p {
     ;
     $io.$ID_print(1);
   };
+
   SMOP_RELEASE(interpreter,io);
    
 
-  SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 node);
 
-  SMOP_DISPATCH(interpreter, SMOP_RI(intrp),
-                SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
-                                                             SMOP_REFERENCE(intrp,intrp),
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
+                                                             SMOP_REFERENCE(interpreter,interpreter),
                                                              NULL, NULL));
 
 
-  //SMOP_RELEASE(interpreter,hello_world);
-  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,intrp);
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 
   smop_destr();
 
