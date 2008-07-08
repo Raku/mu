@@ -35,6 +35,7 @@ static SMOP__Object* smop_s1p_io_message(SMOP__Object* interpreter,
         SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,i);
         if (SMOP_RI(obj) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
             printf("%s",SMOP__S1P__Str_c_str(obj));
+            SMOP_RELEASE(interpreter,obj);
         }
     }
   } else if (identifier == SMOP__ID__new) {
