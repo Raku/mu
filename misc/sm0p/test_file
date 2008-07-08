@@ -1,1 +1,3 @@
-bar = q:sm0p {foo;};
+bar = q:sm0p {
+  ; # this is a comment
+};

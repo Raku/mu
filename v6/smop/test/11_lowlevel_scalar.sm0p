@@ -27,12 +27,12 @@ int main() {
   frame = q:sm0p {
     $scalar2;
     $scalar1;
-    $scalar1.SMOP__ID__FETCH();
-    $scalar2.SMOP__ID__FETCH();
+    $scalar1.FETCH();
+    $scalar2.FETCH();
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
-    $scalar2.SMOP__ID__STORE();
-    $scalar1.SMOP__ID__STORE();
+    $scalar2.STORE();
+    $scalar1.STORE();
   };
 
 

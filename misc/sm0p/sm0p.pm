@@ -131,20 +131,20 @@ token identifier2 {
 token identifier {
    '$' <name> { make $<name> ~ '' }
  ||<idconst> { make $<idconst> ~ ''}
- ||<name> { make $<name> ~ '' }
 }
+#||<name> { make $<name> ~ '' }
 
 token idconst {
   <idconst_list> { make 'SMOP__ID__' ~ $<idconst_list> ~ '' }
 }
 
-token idconst_list {(new|lexical|back|capture|continuation|continues|copy|current|debug|drop|DESTROYALL|eval|forget|free|goto|has_next|identifier|jail|lexical|loop|move_capturize|move_identifier|move_responder|new|next|past|push|responder|result|setr|outer)}
+token idconst_list {(new|lexical|back|capture|continuation|continues|copy|current|debug|drop|DESTROYALL|FETCH|STORE|eval|forget|free|goto|has_next|identifier|jail|lexical|loop|move_capturize|move_identifier|move_responder|new|next|past|push|responder|result|setr|outer)}
 
 token name {
     <nameP5>
 }
 
-token ws  {\s*} 
+token ws  {[\s|'#'\N*\n]*} 
 
 token capturize {
     <ws> SMOP__SLIME__Capturize '.'  new  '(' <ws>

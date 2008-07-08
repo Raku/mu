@@ -66,9 +66,9 @@ int main() {
 
   frame = q:sm0p {
     ;
-    $p6opaque.SMOP__ID__REPR_how($how);
-    $p6opaque.SMOP__ID__STORE();
-    SMOP__SLIME__CurrentFrame.forget();
+    $p6opaque.$SMOP__ID__REPR_how($how);
+    $p6opaque.STORE();
+    $SMOP__SLIME__CurrentFrame.forget();
   };
 
   if (!frame) printf("not ");
