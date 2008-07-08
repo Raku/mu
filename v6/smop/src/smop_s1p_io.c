@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
+#include <smop_s1p.h>
 
 SMOP__Object* SMOP__S1P__IO;
 
@@ -28,7 +29,14 @@ static SMOP__Object* smop_s1p_io_message(SMOP__Object* interpreter,
   if (!ID_print) ID_print = SMOP__NATIVE__idconst_create("print");
 
   if (identifier == ID_print) {
-    printf("ok %d\n",SMOP__NATIVE__capture_positional_count(interpreter,capture));
+    int pc = SMOP__NATIVE__capture_positional_count(interpreter,capture);
+    int i;
+    for (i=0;i<pc;i++) {
+        SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,i);
+        if (SMOP_RI(obj) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
+            printf("%s",SMOP__S1P__Str_c_str(obj));
+        }
+    }
   } else if (identifier == SMOP__ID__new) {
     SMOP__S1P__IO_create();
   }

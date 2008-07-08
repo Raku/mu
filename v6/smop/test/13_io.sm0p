@@ -22,18 +22,17 @@ int main(int argc, char** argv) {
 
 
   SMOP__Object* io = SMOP__S1P__IO_create();
-
+  SMOP__Object* ok1 = SMOP__S1P__Str_create("ok 1\n");
   node = q:sm0p {
     ;
-    $io.$ID_print(1);
+    $io.$ID_print($ok1);
   };
 
-  SMOP_RELEASE(interpreter,io);
    
-
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 node);
+
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
@@ -41,6 +40,8 @@ int main(int argc, char** argv) {
                                                              NULL, NULL));
 
 
+  SMOP_RELEASE(interpreter,io);
+  SMOP_RELEASE(interpreter,ok1);
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 
   smop_destr();
