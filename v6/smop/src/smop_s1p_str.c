@@ -14,7 +14,7 @@ typedef struct smop_s1p_str_struct {
 /* the str pointer is freed when the string is collected */
 SMOP__Object* SMOP__S1P__Str_createn(char *str,int len) {
     smop_s1p_str_struct* ret = (smop_s1p_str_struct*) smop_lowlevel_alloc(sizeof(smop_s1p_str_struct));
-    ret->str = str;
+    ret->str = strndup(str,len);
     ret->len  = len;
     ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Str;
     return (SMOP__Object*) ret;
