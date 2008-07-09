@@ -3590,6 +3590,39 @@ sub cb__Pair{my $self=CORE::shift;my($n)=@_;
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
+
+{ package EmitSM0P;
+use base "Any";(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler,$ignore2,$filename)=@_;
+(do{$self->new("compiler", $compiler, "filename", $filename)})};
+sub compiler { if(@_==2){$_[0]{'compiler'}=$_[1]}else{$_[0]{'compiler'}}};
+sub filename { if(@_==2){$_[0]{'filename'}=$_[1]}else{$_[0]{'filename'}}};
+sub tidy{my $self=CORE::shift;my($source)=@_;
+(do{$source})};
+sub prelude_lexical{my $self=CORE::shift;(do{})};
+sub prelude_oo{my $self=CORE::shift;(do{})};
+sub prelude{my $self=CORE::shift;my($n)=@_;
+(do{""})};
+sub e{my $self=CORE::shift;my($x)=@_;
+(do{my $ref = $x->WHAT();
+if(($ref eq "Undef")) {
+(do{$x})
+}elsif(((($ref eq "Str") || ($ref eq "Int")) || ($ref eq "Num"))) {
+(do{$x})
+}elsif(($ref eq "Array")) {
+(do{$x->map(sub {my($ae)=@_;
+(do{$self->e($ae)})})})
+}else {
+(do{$x->callback($self)})
+}})};
+sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
+(do{"\#\ sm0p\ code\
+"})}})
+}
+;
+
+;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
+      package Main;
 sub header{use Math::Trig qw();};
 header();
 
@@ -3920,7 +3953,7 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Program;
 use base "Any";(do{sub print_usage_and_die{my $self=CORE::shift;(do{GLOBAL::say("\
-Usage\:\ \[\-v\]\ \[\-s0\|\-s\|\-x\|\-xr\]\ \[\-o\ OUTPUT_FILE\]\ \[\-I\ dir\]\
+Usage\:\ \[\-v\]\ \[\-B\ sm0p\]\ \[\-s0\|\-s\|\-x\|\-xr\]\ \[\-o\ OUTPUT_FILE\]\ \[\-I\ dir\]\
 \ \ \ \ \ \ \ \ \ \[\ P6_FILE\ \|\ \-e\ P6_CODE\ \]\+\ \[\ \-\-\ ARGS\*\ \]\
 \
 Unlike\ p5\,\ multiple\ P6_FILE\'s\ and\ \-e\ P6_CODE\'s\ and\ can\ be\ mixed\.\
@@ -3928,6 +3961,7 @@ Use\ \-\-\ to\ stop\.\
 \
 \ \-v\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ verbose\.\
 \
+\ \-C\ sm0p\ \ Compile\ to\ sm0p\
 \ default\ \ Compile0\ and\ eval\.\
 \ \-s0\ \ \ \ \ \ Compile0\ and\ show\ the\ resulting\ framgent\.\
 \ \-s\ \ \ \ \ \ \ Compile1\ and\ show\ the\ resulting\ fragment\.\
@@ -3945,10 +3979,9 @@ sub main{my $self=CORE::shift;my($args)=@_;
 (do{if(($args->elems() == 0)) {
 (do{$self->print_usage_and_die()})
 };
-($GLOBAL::compiler0 = Compiler->new("emitter", EmitSimpleP5->new(), "parser", Parser->new("is_for_active_runtime", 1), "is_for_active_runtime", 1));
-($GLOBAL::compiler1 = Compiler->new("emitter", EmitSimpleP5->new(), "parser", Parser->new("is_for_active_runtime", 0), "is_for_active_runtime", 0));
 my $verbose;
 my $mode = "r";
+my $backend = "perl5";
 my $output_file;
 my $incs = [];
 my $output = sub {my($text)=@_;
@@ -3958,8 +3991,18 @@ my $output = sub {my($text)=@_;
 (do{GLOBAL::say($text)})
 }})};
 my $sources = [];
+my $create_compilers = sub {(do{if((($backend eq "perl5"))) {
+(do{($GLOBAL::compiler0 = Compiler->new("emitter", EmitSimpleP5->new(), "parser", Parser->new("is_for_active_runtime", 1), "is_for_active_runtime", 1));
+($GLOBAL::compiler1 = Compiler->new("emitter", EmitSimpleP5->new(), "parser", Parser->new("is_for_active_runtime", 0), "is_for_active_runtime", 0))})
+}elsif((($backend eq "sm0p"))) {
+(do{($GLOBAL::compiler0 = Compiler->new("emitter", EmitSimpleP5->new(), "parser", Parser->new("is_for_active_runtime", 1), "is_for_active_runtime", 1));
+($GLOBAL::compiler1 = Compiler->new("emitter", EmitSM0P->new(), "parser", Parser->new("is_for_active_runtime", 0), "is_for_active_runtime", 0))})
+}else {
+(do{GLOBAL::say(("unkown\ backend\:" . $backend))})
+}})};
 my $handle = sub {my($filename,$code)=@_;
-(do{if(($mode eq "r")) {
+(do{$create_compilers->();
+if(($mode eq "r")) {
 (do{$GLOBAL::compiler0->eval_fragment($code, $filename, $verbose)})
 }elsif((($mode eq "s0") || ($mode eq "s1"))) {
 (do{my $comp;
@@ -3972,7 +4015,8 @@ $output->($comp->compile_fragment($code, $filename, $verbose))})
 }else {
 (do{$sources->push([$code, $filename, $verbose])})
 }})};
-my $at_end = sub {(do{if((($mode eq "x") && ($sources->elems() != 0))) {
+my $at_end = sub {(do{$create_compilers->();
+if((($mode eq "x") && ($sources->elems() != 0))) {
 (do{if(GLOBAL::not($output_file)) {
 (do{($output_file = "\-")})
 };
@@ -4004,6 +4048,8 @@ if(($arg eq "\-v")) {
 ($incs = []);
 my $p6_code = ($args->shift() || $self->print_usage_and_die());
 $handle->("\-e", $p6_code)})
+}elsif(($arg eq "\-C")) {
+(do{($backend = ($args->shift() || $self->print_usage_and_die()))})
 }elsif(GLOBAL::file_exists($arg)) {
 (do{$GLOBAL::a_INC->unshift($incs->flatten());
 ($incs = []);
@@ -4025,6 +4071,7 @@ Program->new()->main($GLOBAL::a_ARGS);
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
+;
 ;
 ;
 ;

@@ -1,8 +1,8 @@
-
+#TODO: get rid of the stange options
 class Program {
   method print_usage_and_die() {
     say "
-Usage: [-v] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
+Usage: [-v] [-B sm0p] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
          [ P6_FILE | -e P6_CODE ]+ [ -- ARGS* ]
 
 Unlike p5, multiple P6_FILE's and -e P6_CODE's and can be mixed.
@@ -10,6 +10,7 @@ Use -- to stop.
 
  -v                verbose.
 
+ -C sm0p  Compile to sm0p
  default  Compile0 and eval.
  -s0      Compile0 and show the resulting framgent.
  -s       Compile1 and show the resulting fragment.
@@ -29,11 +30,10 @@ One can also do
       self.print_usage_and_die;
     }
 
-    $*compiler0 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',1),'is_for_active_runtime',1);
-    $*compiler1 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',0),'is_for_active_runtime',0);
 
     my $verbose;
     my $mode = 'r';
+    my $backend = 'perl5';
     my $output_file;
     my $incs = [];
     my $output = sub ($text) {
@@ -44,7 +44,21 @@ One can also do
       }
     };
     my $sources = [];
+
+    my $create_compilers = sub () {
+        if ($backend eq 'perl5') {
+            $*compiler0 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',1),'is_for_active_runtime',1);
+            $*compiler1 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',0),'is_for_active_runtime',0);
+        } elsif ($backend eq 'sm0p') {
+            $*compiler0 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',1),'is_for_active_runtime',1);
+            $*compiler1 = Compiler.new('emitter',EmitSM0P.new(),'parser',Parser.new('is_for_active_runtime',0),'is_for_active_runtime',0);
+        } else {
+            say "unkown backend:"~$backend;
+        }
+    }
+
     my $handle = sub ($filename,$code) {
+      $create_compilers.();
       if $mode eq 'r' {
         $*compiler0.eval_fragment($code,$filename,$verbose);
       }
@@ -62,6 +76,7 @@ One can also do
       }
     };
     my $at_end = sub () {
+      $create_compilers.();
       if $mode eq 'x' && $sources.elems != 0 {
         if not($output_file) {
           $output_file = '-';
@@ -101,6 +116,9 @@ One can also do
         @*INC.unshift($incs.flatten); $incs = [];
         my $p6_code = $args.shift || self.print_usage_and_die;
         $handle.('-e',$p6_code);
+      }
+      elsif $arg eq '-C' {
+        $backend = $args.shift || self.print_usage_and_die;
       }
       elsif file_exists($arg) {
         @*INC.unshift($incs.flatten); $incs = [];
