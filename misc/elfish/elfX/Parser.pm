@@ -26,5 +26,3 @@ eval_perl5('
   sub match {my($r,$s,$f,$t,$h)=@_; Match->make_from_rsfth($r,$s,$f,$t,$h)}
 }');
 
-if not($*parser0) { $*parser0 = Parser.new('is_for_active_runtime',1) }
-$*parser1 = Parser.new;

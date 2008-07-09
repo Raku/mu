@@ -378,10 +378,6 @@ use warnings;
 
   our $compiler0;
   our $compiler1;
-  our $parser0;
-  our $parser1;
-  our $emitter0;
-  our $emitter1;
 
   sub eval_file {
     my($file)=@_;
@@ -924,6 +920,3 @@ package Main;
   };
 
 };
-
-if not($*emitter0) { $*emitter0 = EmitSimpleP5.new}
-$*emitter1 = EmitSimpleP5.new;

@@ -345,10 +345,6 @@ use warnings;
 
   our $compiler0;
   our $compiler1;
-  our $parser0;
-  our $parser1;
-  our $emitter0;
-  our $emitter1;
 
   sub eval_file {
     my($file)=@_;
@@ -3024,10 +3020,6 @@ use\ warnings\;\
 \
 \ \ our\ \$compiler0\;\
 \ \ our\ \$compiler1\;\
-\ \ our\ \$parser0\;\
-\ \ our\ \$parser1\;\
-\ \ our\ \$emitter0\;\
-\ \ our\ \$emitter1\;\
 \
 \ \ sub\ eval_file\ \{\
 \ \ \ \ my\(\$file\)\=\@_\;\
@@ -3592,10 +3584,6 @@ sub cb__Pair{my $self=CORE::shift;my($n)=@_;
 }})}})
 }
 ;
-if(GLOBAL::not($GLOBAL::emitter0)) {
-(do{($GLOBAL::emitter0 = EmitSimpleP5->new())})
-};
-($GLOBAL::emitter1 = EmitSimpleP5->new());
 
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
@@ -3807,10 +3795,6 @@ GLOBAL::eval_perl5("\
 \{\ package\ Fastdump\;\
 \ \ sub\ match\ \{my\(\$r\,\$s\,\$f\,\$t\,\$h\)\=\@_\;\ Match\-\>make_from_rsfth\(\$r\,\$s\,\$f\,\$t\,\$h\)\}\
 \}");
-if(GLOBAL::not($GLOBAL::parser0)) {
-(do{($GLOBAL::parser0 = Parser->new("is_for_active_runtime", 1))})
-};
-($GLOBAL::parser1 = Parser->new());
 
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
@@ -3818,6 +3802,8 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package Compiler;
 use base "Any";(do{sub is_for_active_runtime { if(@_==2){$_[0]{'is_for_active_runtime'}=$_[1]}else{$_[0]{'is_for_active_runtime'}}};
+sub parser { if(@_==2){$_[0]{'parser'}=$_[1]}else{$_[0]{'parser'}}};
+sub emitter { if(@_==2){$_[0]{'emitter'}=$_[1]}else{$_[0]{'emitter'}}};
 sub eval_perl6{my $self=CORE::shift;my($code,$env)=@_;
 (do{$self->eval_fragment($code, "\-e", 0, $env)})};
 sub eval_file{my $self=CORE::shift;my($file)=@_;
@@ -3860,30 +3846,18 @@ my $cached = $self->compile_fragment_cache_get($code, $filename);
 if($cached) {
 (do{$cached})
 }else {
-(do{if($self->is_for_active_runtime) {
-(do{($tree = $GLOBAL::parser0->parse($code, $filename))})
-}else {
-(do{($tree = $GLOBAL::parser1->parse($code, $filename))})
-};
+(do{($tree = $self->parser->parse($code, $filename));
 if($verbose) {
 (do{GLOBAL::say($tree->match_describe())})
 };
 my $ir = $tree->make_ir_from_Match_tree();
 if($verbose) {
-(do{GLOBAL::say($GLOBAL::emitter1->tidy(dump_IRx1($ir)))})
+(do{GLOBAL::say($self->emitter->tidy(dump_IRx1($ir)))})
 };
 my $p5;
-if($self->is_for_active_runtime) {
-(do{($p5 = (($GLOBAL::emitter0->prelude_lexical() . $ir->callback($GLOBAL::emitter0->new_emitter("compiler", $self, "filename", $filename)))))})
-}else {
-(do{($p5 = (($GLOBAL::emitter1->prelude_lexical() . $ir->callback($GLOBAL::emitter1->new_emitter("compiler", $self, "filename", $filename)))))})
-};
+($p5 = (($self->emitter->prelude_lexical() . $ir->callback($self->emitter->new_emitter("compiler", $self, "filename", $filename)))));
 if($verbose) {
-(do{if($self->is_for_active_runtime) {
-(do{GLOBAL::say($GLOBAL::emitter0->tidy($p5))})
-}else {
-(do{GLOBAL::say($GLOBAL::emitter1->tidy($p5))})
-}})
+(do{GLOBAL::say($self->emitter->tidy($p5))})
 };
 $self->compile_fragment_cache_set($code, $filename, $p5);
 $p5})
@@ -3917,11 +3891,7 @@ if(($output_file eq "\-")) {
 GLOBAL::chmod_exe($output_file)})
 };
 [$output_file]})};
-sub prelude{my $self=CORE::shift;(do{if($self->is_for_active_runtime) {
-(do{$GLOBAL::emitter0->prelude()})
-}else {
-(do{$GLOBAL::emitter1->prelude()})
-}})};
+sub prelude{my $self=CORE::shift;(do{$self->emitter->prelude()})};
 sub hook_for_use_lib{my $self=CORE::shift;my($expr)=@_;
 (do{$GLOBAL::a_INC->unshift($expr);
 if($self->is_for_active_runtime) {
@@ -3941,10 +3911,6 @@ $self->todo->push($filename)})
 1})}})
 }
 ;
-if(GLOBAL::not($GLOBAL::compiler0)) {
-(do{($GLOBAL::compiler0 = Compiler->new("is_for_active_runtime", 1))})
-};
-($GLOBAL::compiler1 = Compiler->new());
 
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
@@ -3977,6 +3943,8 @@ sub main{my $self=CORE::shift;my($args)=@_;
 (do{if(($args->elems() == 0)) {
 (do{$self->print_usage_and_die()})
 };
+($GLOBAL::compiler0 = Compiler->new("emitter", EmitSimpleP5->new(), "parser", Parser->new("is_for_active_runtime", 1), "is_for_active_runtime", 1));
+($GLOBAL::compiler1 = Compiler->new("emitter", EmitSimpleP5->new(), "parser", Parser->new("is_for_active_runtime", 0), "is_for_active_runtime", 0));
 my $verbose;
 my $mode = "r";
 my $output_file;
