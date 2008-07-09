@@ -110,7 +110,7 @@ package Evalbot;
             return "Program empty" unless length $str;
             warn "Perl6: $str\n";
             my $result = '';
-            for my $eval_name qw(elf kp6 pugs rakudo){
+            for my $eval_name qw(elf pugs rakudo){
                 my $e = $impls{$eval_name};
                 my $tmp_res = EvalbotExecuter::run($str, $e, $eval_name);
                 my $revision = '';
