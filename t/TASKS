@@ -25,6 +25,12 @@ S03
 * tests for other range edgecases
 * Junction tests need fixing. See below.
 
+S09
+* tests for compact arrays
+* more tests for multidimensional arrays (also .shape, see S29)
+* tests for user-defined array indexing
+* tests for PDL
+
 S12
 * tests for $object.WALK
 * tests for $object.*@candidates
