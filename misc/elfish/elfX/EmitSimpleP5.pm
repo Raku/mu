@@ -69,6 +69,7 @@ if(!defined(&autobox::universal::type)) {
 
 { package UNDEF;
   sub perl { "undef" }
+  sub Str  { "" }
 }
 
 { package Any;
