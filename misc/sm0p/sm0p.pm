@@ -63,10 +63,10 @@ token node_capturized {
 }
 
 token node_result {
-    <ws> <identifier> <ws> ';'
+    <ws> <value> <ws> ';'
     { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
       ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, (SMOP__Object*[]){'
-      ~ ' SMOP__ID__result, SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ ')'
+      ~ ' SMOP__ID__result, ' ~ $<value> 
       ~ ' , NULL}))' }
 }
 
@@ -86,27 +86,35 @@ token positional {
  ||{ make ' NULL' }
 }
 
+# workaround
+token notquote_or_backslashed {
+    '\\' . || <-["]>
+}
+token nativestring {
+    '"' (<.notquote_or_backslashed>*) '"'
+    { make 'SMOP__S1P__Str_create("' ~ $_->{0}->item ~ '")' }
+}
+
+token value {
+    || <nativestring> { make $<nativestring> }
+    || <nativeint>    { make $<nativeint> }
+    || <identifier>   { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ ')' }
+}
+
 token positionals {
-  [ <identifier>
+  <value>
     [
    ||  <ws> \, <ws> <positionals>
-        { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ '), ' ~ $<positionals>  }
+        { make $<value> ~ ',' ~ $<positionals>  }
    ||  <ws>
-        { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ '), NULL' }
+        { make $<value> ~ ', NULL' }
     ]
-  ]||[ <nativeint>
-    [
-   ||  <ws> \, <ws> <positionals>
-        { make $<nativeint> ~ ', ' ~ $<positionals>  }
-   ||  <ws>
-        { make $<nativeint> ~ ', NULL' }
-    ]]
 }
 
 token named {
     <pairs>
     { make '(SMOP__Object*[]){' ~ $<pairs> ~ '}'  }
- ||{ make ' NULL' }
+  ||{ make ' NULL' }
 }
 
 token pairs {
@@ -140,9 +148,6 @@ token idconst {
 
 token idconst_list {(new|lexical|back|capture|continuation|continues|copy|current|debug|drop|DESTROYALL|FETCH|STORE|eval|forget|free|goto|has_next|identifier|jail|lexical|loop|move_capturize|move_identifier|move_responder|new|next|past|push|responder|result|setr|outer)}
 
-token name {
-    <nameP5>
-}
 
 token ws  {[\s|'#'\N*\n]*} 
 
@@ -158,7 +163,7 @@ token capturize {
 token cint1 { <cint> { make $<cint> ~ '' } }
 token cint2 { <cint> { make $<cint> ~ '' } }
 token cint {
-    <digitsP5> { make $<digitsP5> ~ '' }
+    <digits> { make $<digits> ~ '' }
 }
 
 token cintlist1 { <cintlist> { make $<cintlist> ~ '' } }
@@ -180,7 +185,7 @@ token cintlistbody {
 }
 
 token nativeint {
-    <digitsP5> { make 'SMOP__NATIVE__int_create(' ~ $<digitsP5> ~ ')' }
+    <digits> { make 'SMOP__NATIVE__int_create(' ~ $<digits> ~ ')' }
 }
 
 token nativeint_list {
@@ -198,6 +203,5 @@ token nativeint_list_body {
     ]
 }
 
-token nameP5 {<[a-zA-Z_]>\w*}
-#token nameP5 {<[a-zA-Z_]>\w*}
-token digitsP5 {\d+}
+token name {<[a-zA-Z_]>\w*}
+token digits {\d+}

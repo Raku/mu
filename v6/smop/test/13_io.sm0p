@@ -20,10 +20,9 @@ int main(int argc, char** argv) {
   SMOP__Object* node = NULL;
 
   SMOP__Object* io = SMOP__S1P__IO_create();
-  SMOP__Object* ok1 = SMOP__S1P__Str_create("ok 1\n");
   node = q:sm0p {
     ;
-    $io.print($ok1);
+    $io.print("ok 1\n");
   };
 
    
@@ -39,7 +38,6 @@ int main(int argc, char** argv) {
 
 
   SMOP_RELEASE(interpreter,io);
-  SMOP_RELEASE(interpreter,ok1);
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 
   smop_destr();
