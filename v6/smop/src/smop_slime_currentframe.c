@@ -14,7 +14,7 @@ static SMOP__Object* currentframe_message(SMOP__Object* interpreter,
                                       SMOP__ID__continuation,
                                       SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
   SMOP__Object* delegated;
-  if (SMOP_RI(capture) == SMOP__NATIVE__capture) {
+  if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
     delegated = SMOP__NATIVE__capture_delegate(interpreter,
                                                frame,
                                                capture);

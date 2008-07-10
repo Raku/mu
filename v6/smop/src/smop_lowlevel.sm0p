@@ -228,11 +228,11 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
       SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
                                             SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
       SMOP__Object* continuation = NULL;
-      $continuation = q:sm0p {
+      continuation = q:sm0p {
         ;
         $value.DESTROYALL($value);
-        SMOP__SLIME__CurrentFrame.forget();
-        SMOP__LOWLEVEL__Operators.free(|$value);
+        $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
+        $SMOP__LOWLEVEL__Operators.$SMOP__ID__free(|$value);
         $interpreter.goto(|$current);
       };
       SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,  continuation);

@@ -89,7 +89,6 @@ int main() {
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
                                                              SMOP_REFERENCE(interpreter,interpreter),
-
                                                              NULL, NULL));
 
   printf("ok 6 - interpreter loop.\n");
