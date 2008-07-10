@@ -210,9 +210,6 @@ use either the dot notation or indirect object notation:
     $obj.doit(1,2,3)
     doit $obj: 1,2,3
 
-If the method was not found, it will fall back to a subroutine call
-instead, with the invocant becoming the first positional argument.
-
 Indirect object notation now requires a colon after the invocant,
 even if there are no arguments after the colon:
 
