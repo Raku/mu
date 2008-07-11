@@ -14,7 +14,7 @@ while (<$file>) {
     chomp;
     next unless /^extern SMOP__Object\* (\S+);.+\/\*\s\"(.+)\"\s\*\//;
     print {$decl} "SMOP__Object* $1;\n";
-    print {$init} "$1 = SMOP__NATIVE__idconst_create_nolist( \"$2\\0\" );\n";
+    print {$init} "$1 = SMOP__NATIVE__idconst_create_nolist( \"$2\" );\n";
     $rest .= "constlist[$count] = $1;\n";
     $count++;
 }

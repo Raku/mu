@@ -21,7 +21,7 @@ while (<$input>) {
         $sm0p_code = $_;
         while (<$input>) {
             $sm0p_code .= $_;
-            if ( $_ =~ /\}/ ) {
+            if ( $_ =~ /^\s*\}/ ) {
                 my $next_inline = $. + 1;
                 my $next_outline = $out_count + 2;
                 my $lines = qq{#line $next_outline "$out"\n}

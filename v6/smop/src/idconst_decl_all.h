@@ -70,3 +70,5 @@ SMOP__Object* SMOP__ID__REPR_package;
 SMOP__Object* SMOP__ID__REPR_properties;
 SMOP__Object* SMOP__ID__REPR_can;
 SMOP__Object* SMOP__ID__REPR_has;
+SMOP__Object* SMOP__ID__postcircumfix_curly;
+SMOP__Object* SMOP__ID__infix_eq;
