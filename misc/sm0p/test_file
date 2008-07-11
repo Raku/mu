@@ -1,3 +1,5 @@
 bar = q:sm0p {
-  ; # this is a comment
+  ;
+  # this is a comment
+  # this is a comment too
 };

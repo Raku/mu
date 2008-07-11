@@ -8,16 +8,23 @@ token frame {
 }
 
 token nodes {
+    {$smop::node_counter=0;$smop::labels={};}
     <node>*
     { if ($<node>.elems) { make $<node>.join(', ') ~ ', NULL'} else { make '' }}
 }
 
+token label {
+    <ws> <name> ':' <ws>
+    {$smop::labels->{$<name>} = $smop::node_counter;}
+}
 token node {
-    <node_empty> { make $<node_empty> ~ '' }
+    <label>?
+    {$smop::node_counter++;}
+    [<node_empty> { make $<node_empty> ~ '' }
     || <node_result> { make $<node_result> ~ '' }
     || <node_move_capturize> { make $<node_move_capturize> ~ '' }
     || <node_capturized> { make $<node_capturized> ~ '' }
-    || <node_full> { make $<node_full> ~ '' }
+    || <node_full> { make $<node_full> ~ '' }]
 }
 
 token node_empty {
@@ -99,6 +106,7 @@ token value {
     || <nativestring> { make $<nativestring> }
     || <nativeint>    { make $<nativeint> }
     || <identifier>   { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ ')' }
+    || "`" <name>   { make 'SMOP__NATIVE__int_create(' ~ ($smop::node_counter - $smop::labels->{$<name>}) ~ ')' }
 }
 
 token positionals {
