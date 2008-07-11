@@ -40,6 +40,7 @@ SMOP__Object* SMOP__ID__push;
 SMOP__Object* SMOP__ID__responder;
 SMOP__Object* SMOP__ID__result;
 SMOP__Object* SMOP__ID__setr;
+SMOP__Object* SMOP__ID__shift;
 SMOP__Object* SMOP__ID__STORE;
 SMOP__Object* SMOP__ID__outer;
 SMOP__Object* SMOP__ID__HOW_CREATE;

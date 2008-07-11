@@ -149,19 +149,19 @@ static SMOP__Object* p6opaque_message_DESTROYALL(SMOP__Object* interpreter,
                                              SMOP_REFERENCE(interpreter,interpreter));
 
   frame = q:sm0p {
-    $capture;
-    $identifier;
-    $capture.$SMOP__ID__invocant();
-    $capture.$SMOP__ID__invocant();
+    $capture; #
+    $identifier; #
+    $capture.$SMOP__ID__invocant(); #
+    $SMOP__SLIME__CurrentFrame.copy(1); #
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
-    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__copy(1);
+    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how(); #
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__copy(1); #
     $SMOP__SLIME__CurrentFrame.$SMOP__ID__move_responder(2,2);
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(6,7,8),(),1));
     $SMOP__NATIVE__bool_true.$SMOP__ID__dispatch();
-    $capture.$SMOP__ID__invocant();
+    $capture.$SMOP__ID__invocant(); #
     $SMOP__SLIME__CurrentFrame.$SMOP__ID__move_responder(1,3);
-    $capture.$SMOP__ID__invocant();
+    $capture.$SMOP__ID__invocant(); #
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
     $SMOP__p6opaque__RI.$SMOP__ID__REPR_DESTROY();
     $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
@@ -187,19 +187,20 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
                                              SMOP__ID__continuation, 
                                              SMOP_REFERENCE(interpreter,interpreter));
   frame = q:sm0p {
-    $capture;
-    $identifier;
-    $capture.$SMOP__ID__invocant();
-    $capture.$SMOP__ID__invocant();
+    $capture; #
+    $identifier; # 
+    $capture.$SMOP__ID__invocant(); #
+    $SMOP__SLIME__CurrentFrame.copy(1); #
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
-    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__copy(1);
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__move_responder(2,2);
+    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how(); #
+    $SMOP__SLIME__CurrentFrame.copy(1); #
+    $SMOP__SLIME__CurrentFrame.move_responder(2,2);
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(6,7,8),(),1));
-    $SMOP__NATIVE__bool_true.$SMOP__ID__dispatch();
-    $continuation;
+    $SMOP__NATIVE__bool_true.$SMOP__ID__dispatch(); #
+    $continuation; #
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(2),(),1));
     $continuation.$SMOP__ID__setr();
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
     $interpreter.goto(|$continuation);
   };
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
