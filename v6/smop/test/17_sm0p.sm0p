@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <smop.h>
+#include <smop_s1p.h>
+#include <smop_lowlevel.h>
+
+/* This test will have a set of methods in an object called by the
+ * stack.
+ */
+
+
+int main(int argc, char** argv) {
+
+  smop_init();
+
+  SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+                                            SMOP__ID__new, 
+                                            SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                         SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+  SMOP__Object* node = NULL;
+
+  SMOP__Object* io   = SMOP__S1P__IO_create();
+  node = q:sm0p {
+    ;
+    $io.print("1..2\n");
+    io: $io;
+    io_responder: $io; #$SMOP__SLIME__CurrentFrame.copy(`io);
+    print: print;
+    ok1: "ok 1 - move_reponder,move_identifier,move_capturize and an empty node work\n";
+    $SMOP__SLIME__CurrentFrame.move_responder(`io_responder,3);
+    $SMOP__SLIME__CurrentFrame.move_identifier(`print,2);
+    SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`io,(`ok1),(),1));
+    ;
+  }
+   
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                node);
+
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
+                                                             SMOP_REFERENCE(interpreter,interpreter),
+                                                             NULL, NULL));
+
+
+  SMOP_RELEASE(interpreter,io);
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
+
+  smop_destr();
+
+  return 0;
+}
