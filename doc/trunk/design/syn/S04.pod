@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 2 Apr 2008
+  Last Modified: 12 July 2008
   Number: 4
-  Version: 65
+  Version: 66
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -1268,7 +1268,12 @@ to them.  So
 When we say "clone", we mean the way the system takes a snapshot of the
 routine's lexical scope and binds it to the current instance of the routine
 so that if you ever use the current reference to the routine, it gets
-the current snapshot of its world, lexically speaking.
+the current snapshot of its world, lexically speaking.  (When we say that
+named subroutines do not consider themselves closures, this is a bit of a
+fib, since we must, in fact, take a reference to the subroutine in order to
+store it into the symbol table!  But this operation happens at compile time
+so the lexical scopes in view are just the initial prototype lexical scopes
+visible to the compiler.)
 
 Some closures produce C<Code> objects at compile time that cannot be
 cloned, because they're not attached to any runtime code that can
