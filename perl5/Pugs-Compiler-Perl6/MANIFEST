@@ -83,9 +83,9 @@ t/02-test-pm/2-force_todo.t
 # t/builtins/io/exit-in-if.t
 # t/builtins/io/exit.t  - error in make dist
 
-t/builtins/strings/append.t
+# t/builtins/strings/append.t
 
-t/data_types/array_extending.t
+# t/data_types/array_extending.t
 
 t/Test.pm
 t/Test.pmc

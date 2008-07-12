@@ -1,3 +1,8 @@
+0.021  2008-07-12
+
+- fixed Test.pm compilation (added 'abs' function)
+- Makefile.PL adds 'use v6-alpha' to standard tests
+
 0.020  2007-08-26
 
 - added Module::CompileV6 to MANIFEST (fixes broken CPAN distro)
