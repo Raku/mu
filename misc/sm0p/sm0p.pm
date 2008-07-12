@@ -19,12 +19,12 @@ token label {
 }
 token node {
     <label>?
-    {$smop::node_counter++;}
     [<node_empty> { make $<node_empty> ~ '' }
     || <node_result> { make $<node_result> ~ '' }
     || <node_move_capturize> { make $<node_move_capturize> ~ '' }
     || <node_capturized> { make $<node_capturized> ~ '' }
     || <node_full> { make $<node_full> ~ '' }]
+    {$smop::node_counter++;}
 }
 
 token node_empty {
@@ -172,6 +172,7 @@ token cint1 { <cint> { make $<cint> ~ '' } }
 token cint2 { <cint> { make $<cint> ~ '' } }
 token cint {
     <digits> { make $<digits> ~ '' }
+    || "`" <name>   { make ($smop::node_counter - $smop::labels->{$<name>}) }
 }
 
 token cintlist1 { <cintlist> { make $<cintlist> ~ '' } }

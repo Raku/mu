@@ -40,17 +40,17 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
     if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1) {
       SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
       int hashing_result = 0;
-      if (SMOP_RI(key) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
+      /*if (SMOP_RI(key) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
         //fprintf(stderr,"key hashed to %d\n",hashing_result);
       } else {
         fprintf(stderr,"only SMOP__S1P__Str keys are supported for now\n");
-      }
+      }*/
 
       hash_bucket* bucket = invocant->buckets[hashing_result];
       //fprintf(stderr,"bucket %p\n",bucket);
       if (bucket) while (1) {
         if (bucket->key == key) {
-          fprintf(stderr,"found key in hash\n");
+          fprintf(stderr,"# found key in hash\n");
           SMOP_REFERENCE(interpreter,bucket->cell);
           SMOP_RELEASE(interpreter,capture);
           return bucket->cell;
