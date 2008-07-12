@@ -1,7 +1,0 @@
-  node = q:sm0p {
-    ;
-    $obj.method1();
-    $obj.method2();
-    $obj.method3();
-    $obj.method4();
-  };
