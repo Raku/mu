@@ -49,6 +49,7 @@ extern SMOP__Object* SMOP__ID__push;              /* "push" */
 extern SMOP__Object* SMOP__ID__responder;         /* "responder" */
 extern SMOP__Object* SMOP__ID__result;            /* "result" */
 extern SMOP__Object* SMOP__ID__setr;              /* "setr" */
+extern SMOP__Object* SMOP__ID__shift;             /* "shift" */
 extern SMOP__Object* SMOP__ID__STORE;             /* "STORE" */
 extern SMOP__Object* SMOP__ID__outer;             /* "outer" */
 
