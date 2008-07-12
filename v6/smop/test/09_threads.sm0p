@@ -54,7 +54,6 @@ void* threaded_function(void* object) {
                                             SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
 
-  SMOP_REFERENCE(interpreter, object);
 
   SMOP__Object* node = NULL;
 
@@ -76,7 +75,6 @@ void* threaded_function(void* object) {
                                                              NULL, NULL));
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
-  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,object);
 
   return NULL;
 }
@@ -91,7 +89,6 @@ void* readonly_function(void* object) {
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
 
 
-  SMOP_REFERENCE(interpreter, object);
   SMOP__Object* node = NULL;
 
   node = q:sm0p {
@@ -112,7 +109,6 @@ void* readonly_function(void* object) {
                                                              NULL, NULL));
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
-  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,object);
 
   return NULL;
 }

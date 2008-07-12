@@ -106,10 +106,8 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       int pc = ((smop_slime_frame_struct*)frame)->pc;
       SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc];
       smop_lowlevel_unlock(frame);
-
       ret = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__eval,
                           SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
-
       SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
                                         SMOP__NATIVE__capture_create(interpreter,
                                                                      SMOP_REFERENCE(interpreter,node),
@@ -251,7 +249,6 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
     ret = SMOP__NATIVE__bool_false;
   
   } else if (identifier ==SMOP__ID__copy) {
-
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && frame != SMOP__SLIME__Frame) {
       SMOP__Object* count = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
@@ -261,9 +258,15 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       smop_lowlevel_rdlock(frame);
       int pc = ((smop_slime_frame_struct*)frame)->pc;
       SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc - c];
+      SMOP__Object* thisnode = ((smop_slime_frame_struct*)frame)->nodes[pc];
       smop_lowlevel_unlock(frame);
-      ret = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
-                          SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
+      SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
+                                        SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
+      SMOP_RELEASE(interpreter,
+                   SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__result,
+                                 SMOP__NATIVE__capture_create(interpreter,
+                                                              SMOP_REFERENCE(interpreter,thisnode),(SMOP__Object*[]){res,NULL},NULL)));
+      ret = SMOP__NATIVE__bool_true;
       SMOP_RELEASE(interpreter,frame);
     } else {
       ret = SMOP__NATIVE__bool_false;
@@ -285,24 +288,13 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc - c];
       SMOP__Object* thisnode = ((smop_slime_frame_struct*)frame)->nodes[pc + t];
       smop_lowlevel_unlock(frame);
-
       SMOP__Object* res = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
-                                        SMOP__NATIVE__capture_create(interpreter,
-                                                                     SMOP_REFERENCE(interpreter,node),
-                                                                     NULL,
-                                                                     NULL));
-
-      SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
+                                        SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
+      SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__responder,
                     SMOP__NATIVE__capture_create(interpreter,
-                                                 SMOP_REFERENCE(interpreter,node),
-                                                 (SMOP__Object*[]){SMOP__NATIVE__bool_false, NULL},
-                                                 NULL));
-
-      SMOP_RELEASE(interpreter,
-                   SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__responder,
-                                 SMOP__NATIVE__capture_create(interpreter,
-                                                              SMOP_REFERENCE(interpreter,thisnode),
-                                                              (SMOP__Object*[]){(SMOP__Object*)SMOP_RI(res),NULL},NULL)));
+                                                 SMOP_REFERENCE(interpreter,thisnode),
+                                                 (SMOP__Object*[]){(SMOP__Object*)SMOP_RI(res),NULL},NULL));
+      SMOP_RELEASE(interpreter, res);
       ret = SMOP__NATIVE__bool_true;
       SMOP_RELEASE(interpreter,frame);
     } else {

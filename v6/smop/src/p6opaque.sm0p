@@ -1,12 +1,101 @@
+
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include <smop.h>
 #include <smop_oo.h>
 #include <smop_lowlevel.h>
-#include "p6opaque.h"
+
+typedef struct SMOP__p6opaque_LOWL_A {
+  int count;
+  SMOP__Object** array;
+} SMOP__p6opaque_LOWL_A;
+
+typedef struct SMOP__p6opaque_LOWL_P {
+  SMOP__Object* key;
+  SMOP__Object* value;
+} SMOP__p6opaque_LOWL_P;
+
+typedef struct SMOP__p6opaque_LOWL_H {
+  int count;
+  SMOP__p6opaque_LOWL_P* pairs;
+} SMOP__p6opaque_LOWL_H;
+
+typedef struct SMOP__p6opaque_LOWL_PoA {
+  SMOP__Object* key;
+  SMOP__p6opaque_LOWL_A value;
+} SMOP__p6opaque_LOWL_PoA;
+
+typedef struct SMOP__p6opaque_LOWL_PoH {
+  SMOP__Object* key;
+  SMOP__p6opaque_LOWL_H value;
+} SMOP__p6opaque_LOWL_PoH;
+
+typedef struct SMOP__p6opaque_LOWL_HoA {
+  int count;
+  SMOP__p6opaque_LOWL_PoA* pairs;
+} SMOP__p6opaque_LOWL_HoA;
+
+typedef struct SMOP__p6opaque_LOWL_HoH {
+  int count;
+  SMOP__p6opaque_LOWL_PoH* pairs;
+} SMOP__p6opaque_LOWL_HoH;
+
+typedef struct SMOP__p6opaque_LOWL_metadata {
+  SMOP__Object* how;
+  SMOP__Object* package;
+  SMOP__p6opaque_LOWL_A isa;
+  SMOP__p6opaque_LOWL_A does;
+  SMOP__p6opaque_LOWL_H class_storage_optimal;
+  SMOP__p6opaque_LOWL_H class_storage;
+  SMOP__p6opaque_LOWL_H attributes_optimal;
+  SMOP__p6opaque_LOWL_H attributes;
+  SMOP__p6opaque_LOWL_HoA methods_optimal;
+  SMOP__p6opaque_LOWL_HoA methods;
+} SMOP__p6opaque_LOWL_metadata;
+
+typedef struct SMOP__p6opaque_struct {
+  SMOP__Object__BASE
+  SMOP__Object* instanceof;
+  SMOP__Object* WHENCE;
+  SMOP__p6opaque_LOWL_metadata* metadata;
+  SMOP__p6opaque_LOWL_HoH instance;
+} SMOP__p6opaque_struct;
+
+typedef struct SMOP__p6opaque_proxy_struct {
+  SMOP__Object__BASE
+  SMOP__Object* object;
+} SMOP__p6opaque_proxy_struct;
+
+typedef struct SMOP__p6opaque_canlazylist_struct {
+  SMOP__Object__BASE
+  SMOP__Object* object;
+  SMOP__Object* name;
+  SMOP__Object* capture;
+} SMOP__p6opaque_canlazylist_struct;
+
+typedef struct SMOP__p6opaque_canlazyiterator_struct {
+  SMOP__Object__BASE
+  SMOP__Object* object;
+  SMOP__Object* name;
+  SMOP__Object* capture;
+  int count_methods_optimal;
+  int count_methods;
+} SMOP__p6opaque_canlazyiterator_struct;
 
 SMOP__Object* SMOP__p6opaque__RI;
+SMOP__Object* SMOP__p6opaque__Scalar__whence;
+SMOP__Object* SMOP__p6opaque__Array__isa;
+SMOP__Object* SMOP__p6opaque__Array__does;
+SMOP__Object* SMOP__p6opaque__Hash__private_storage;
+SMOP__Object* SMOP__p6opaque__Hash__class_storage;
+SMOP__Object* SMOP__p6opaque__Array__methods;
+SMOP__Object* SMOP__p6opaque__Array__attributes;
+SMOP__Object* SMOP__p6opaque__Scalar__package;
+SMOP__Object* SMOP__p6opaque__Hash__properties;
+SMOP__Object* SMOP__p6opaque__List__can;
+SMOP__Object* SMOP__p6opaque__Iterator__can;
+
 
 static SMOP__Object* p6opaque_message_REPR_CREATE(SMOP__Object* interpreter,
                                                   SMOP__ResponderInterface* self,
@@ -30,7 +119,7 @@ static SMOP__Object* p6opaque_message_REPR_how(SMOP__Object* interpreter,
     if (invocant == SMOP__p6opaque__RI) {
       ret = SMOP__NATIVE__bool_false;
     } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
-      fprintf(stderr, "[SMOP p6opaque] call to .^!how with non p6opaque invocant\n");
+      fprintf(stderr, "[SMOP p6opaque] call to repr method with non p6opaque invocant\n");
       ret = SMOP__NATIVE__bool_false;
     } else {
 
@@ -117,7 +206,7 @@ static SMOP__Object* p6opaque_message_REPR_DESTROY(SMOP__Object* interpreter,
     if (invocant == SMOP__p6opaque__RI) {
       ret = SMOP__NATIVE__bool_false;
     } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
-      fprintf(stderr, "[SMOP p6opaque] call .^!DESTROY method with non p6opaque invocant\n");
+      fprintf(stderr, "[SMOP p6opaque] call to repr method with non p6opaque invocant\n");
       ret = SMOP__NATIVE__bool_false;
     } else {
       smop_lowlevel_wrlock(invocant);
@@ -149,19 +238,19 @@ static SMOP__Object* p6opaque_message_DESTROYALL(SMOP__Object* interpreter,
                                              SMOP_REFERENCE(interpreter,interpreter));
 
   frame = q:sm0p {
-    $capture; #
-    $identifier; #
-    $capture.$SMOP__ID__invocant(); #
-    $SMOP__SLIME__CurrentFrame.copy(1); #
+    $capture;
+    $identifier;
+    $capture.$SMOP__ID__invocant();
+    $capture.$SMOP__ID__invocant();
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
-    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how(); #
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__copy(1); #
+    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__copy(1);
     $SMOP__SLIME__CurrentFrame.$SMOP__ID__move_responder(2,2);
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(6,7,8),(),1));
     $SMOP__NATIVE__bool_true.$SMOP__ID__dispatch();
-    $capture.$SMOP__ID__invocant(); #
+    $capture.$SMOP__ID__invocant();
     $SMOP__SLIME__CurrentFrame.$SMOP__ID__move_responder(1,3);
-    $capture.$SMOP__ID__invocant(); #
+    $capture.$SMOP__ID__invocant();
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
     $SMOP__p6opaque__RI.$SMOP__ID__REPR_DESTROY();
     $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
@@ -187,53 +276,25 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
                                              SMOP__ID__continuation, 
                                              SMOP_REFERENCE(interpreter,interpreter));
   frame = q:sm0p {
-    $capture; #
-    $identifier; # 
-    $capture.$SMOP__ID__invocant(); #
-    $SMOP__SLIME__CurrentFrame.copy(1); #
+    $capture;
+    $identifier;
+    $capture.$SMOP__ID__invocant();
+    $capture.$SMOP__ID__invocant();
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(),(),1));
-    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how(); #
-    $SMOP__SLIME__CurrentFrame.copy(1); #
-    $SMOP__SLIME__CurrentFrame.move_responder(2,2);
+    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__copy(1);
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__move_responder(2,2);
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(2,(6,7,8),(),1));
-    $SMOP__NATIVE__bool_true.$SMOP__ID__dispatch(); #
-    $continuation; #
+    $SMOP__NATIVE__bool_true.$SMOP__ID__dispatch();
+    $continuation;
     SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(1,(2),(),1));
     $continuation.$SMOP__ID__setr();
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
     $interpreter.goto(|$continuation);
   };
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 frame);
 
-  return ret;
-}
-
-static SMOP__Object* p6opaque_message_REPR_methods(SMOP__Object* interpreter,
-                                                   SMOP__ResponderInterface* self,
-                                                   SMOP__Object* identifier,
-                                                   SMOP__Object* capture) {
-  SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
-
-    SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter,capture);
-
-    if (invocant == SMOP__p6opaque__RI ||
-        SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
-      fprintf(stderr, "[SMOP p6opaque] call to .^!methods with non p6opaque invocant\n");
-      ret = SMOP__NATIVE__bool_false;
-
-    } else {
-      // create the proxy array to the p6opaque object methods.
-      ret = p6opaque_methods_array_create(interpreter, invocant);
-
-    }
-
-    SMOP_RELEASE(interpreter,invocant);
-  } else {
-    fprintf(stderr, "[SMOP p6opaque] TODO: non-native captures\n");
-  }
   return ret;
 }
 
@@ -251,9 +312,6 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
 
   } else if (identifier == SMOP__ID__REPR_DESTROY) {
     ret = p6opaque_message_REPR_DESTROY(interpreter, self, identifier, capture);
-
-  } else if (identifier == SMOP__ID__REPR_methods) {
-    ret = p6opaque_message_REPR_methods(interpreter, self, identifier, capture);
 
   } else if (identifier == SMOP__ID__DESTROYALL) {
     ret = p6opaque_message_DESTROYALL(interpreter, self, identifier, capture);
@@ -291,13 +349,9 @@ void smop_p6opaque_init() {
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->RELEASE = p6opaque_release;
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->id = "p6opaque";
 
-  p6opaque_methods_init();
-
 }
 
 void smop_p6opaque_destr() {
-
-  p6opaque_methods_destr();
 
   free(SMOP__p6opaque__RI);
 

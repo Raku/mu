@@ -51,8 +51,6 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
       SMOP_REFERENCE(interpreter,ret);
     }
     smop_lowlevel_unlock(node);
-
-    if (ret) SMOP_REFERENCE(interpreter, ret);
     if (old) SMOP_RELEASE(interpreter, old);
     SMOP_RELEASE(interpreter,node);
 
