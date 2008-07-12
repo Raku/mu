@@ -21,9 +21,9 @@ int main(int argc, char** argv) {
   SMOP__Object* io   = SMOP__S1P__IO_create();
   node = q:sm0p {
     ;
-    $io.print("1..2\n");
+    $io.print("1..1\n");
     io: $io;
-    io_responder: $io; #$SMOP__SLIME__CurrentFrame.copy(`io);
+    io_responder: $SMOP__SLIME__CurrentFrame.copy(`io);
     print: print;
     ok1: "ok 1 - move_reponder,move_identifier,move_capturize and an empty node work\n";
     $SMOP__SLIME__CurrentFrame.move_responder(`io_responder,3);
@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
                 SMOP__ID__goto,
                 node);
 
+  SMOP_RELEASE(interpreter,io);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
