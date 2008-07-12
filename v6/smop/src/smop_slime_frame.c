@@ -478,6 +478,8 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       ret = SMOP__NATIVE__bool_false;
     }
   
+  } else {
+    fprintf(stderr,"unknown method called at frame\n");
   }
   SMOP_RELEASE(interpreter,capture);
   return ret;

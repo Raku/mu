@@ -45,6 +45,9 @@ static SMOP__Object* smop_s1p_io_message(SMOP__Object* interpreter,
     }
   } else if (identifier == SMOP__ID__new) {
     SMOP__S1P__IO_create();
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+  } else {
+    fprintf(stderr,"unkown method at S1P::IO\n");
   }
 
   SMOP_RELEASE(interpreter,invocant);
