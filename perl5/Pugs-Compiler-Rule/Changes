@@ -1,4 +1,7 @@
-0.28  2007-11-2
+0.29  2008-07-12
+- minor fix in test output
+
+0.28  2007-11-02
 - fixed test failures on Win32.
 - fixed some typos in the POD.
 
