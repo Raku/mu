@@ -28,8 +28,11 @@ int main(int argc, char** argv) {
     ok1: "ok 1 - move_reponder,move_identifier,move_capturize and an empty node work\n";
     $SMOP__SLIME__CurrentFrame.move_responder(`io_responder,3);
     $SMOP__SLIME__CurrentFrame.move_identifier(`print,2);
-    SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`io,(`ok1),(),1));
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`io,(`ok1),(),1));
     ;
+    #io2: $io;
+    #ok2: "ok 2 - call works\n"
+    #$SMOP__SLIME__CurrentFrame.call(print,SMOP__SLIME__Capturize(`io2,(),(),1));
   }
    
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),

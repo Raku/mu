@@ -29,8 +29,8 @@ int main() {
     $scalar1;
     $scalar1.FETCH();
     $scalar2.FETCH();
-    SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
-    SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(4,(2),(),2));
     $scalar2.STORE();
     $scalar1.STORE();
   };

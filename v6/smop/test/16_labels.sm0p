@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     io: $io;
     ok3: "ok 3\n";
     print: $io.print("ok ",`ok3,"\n","ok ",`io,"\n");
-    SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`io,(`ok3),(),1));
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`io,(`ok3),(),1));
     $io.print("not ok 3\n");
   };
 
