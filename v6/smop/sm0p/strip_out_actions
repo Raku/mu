@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+use Term::ANSIColor qw(:constants);
+use strict;
+use warnings;
+local $/;
+my $grammar = <>;
+
+my $block;
+$block = qr/ (?> [^{}]+ | \{ (??{$block}) \} )*?/x;
+
+my $nr = 0;
+my @blocks;
+
+#i should fix elf instead
+sub un6 {
+    local $_ = shift;
+    s/~/./g;
+    s/\$?\$<(\w+)>/adapter(\$_->{$1})/g;
+    s/\.(\w+)/->$1/g;
+    s/\?\?/?/g;
+    s/!!/:/g;
+    $_;
+}
+$grammar =~ s[(token \s* (\w+) \s* \{ )($block)( \})][
+    my $start = $1;
+    my $name = $2;
+    my $body = $3;
+    my $end = $4;
+    $body =~ s/(?<!')\{ ($block) \}/push(@blocks,["${name}__sm0p_$nr",$1]);'{*}' . "  #= sm0p_" . $nr++ . "\n"
+/egx;
+    $start.$body.$end;
+]exg;
+open(my $striped,">striped");
+open(my $actions,">actions");
+open(my $actions_p5,">sm0p_actions.pm");
+print $striped $grammar;
+print $actions_p5 <<'HEADER';
+package sm0p_actions;
+use Moose;
+use autobox::Core;
+use Data::Dumper;
+sub make($) {
+    $_->{''} = $_[0];
+}
+sub adapter {
+    if (ref $_[0] eq 'ARRAY') {
+        [map {$_->item} @{$_[0]}];
+    } elsif ($_[0]) {
+        $_[0]->item;
+    } else {
+        $_[0]
+    }
+}
+HEADER
+for (0..$#blocks) {
+    print $actions "sub ".$blocks[$_][0]."{$blocks[$_][1]}\n";
+    print $actions_p5 "sub ".$blocks[$_][0]." {\nmy \$self=shift;\n".un6($blocks[$_][1])."}\n";
+}
+print $actions_p5 "1;\n";

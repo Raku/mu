@@ -1,0 +1,59 @@
+#!/usr/local/bin/perl
+
+use lib '../../src/perl6';
+use sm0p5;
+use sm0p_actions;
+use DumpMatch;
+use utf8;
+use YAML::XS;
+use Encode;
+use strict;
+use warnings;
+use Getopt::Long;
+my $nocolor = 0;
+my $vertical = 0;
+my $horizontal = 0;
+my $yaml = 0;
+GetOptions("nocolor"=>\$nocolor,"horizontal"=>\$horizontal,"vertical"=>\$vertical,"yaml"=>\$yaml);
+unless ($#ARGV <= 0) {
+    die "USAGE: [--nocolor --vertical --horizontal --yaml] [filename]\n";
+}
+if ($nocolor) {
+    $DumpMatch::NOCOLOR = 1;
+}
+
+my $what = 'frame';
+my $text;
+{
+local $/;
+$text = Encode::decode('utf8', scalar <>);
+}
+
+my $actions = sm0p_actions->new();
+{package sm0p_with_actions;
+    BEGIN {our @ISA = qw(sm0p) }
+    sub _REDUCE {
+        my $self = shift;
+        my $tag = shift;
+        $tag =~ s/ /__/g;
+        if ($actions->can($tag)) {
+            #print "action: $tag\n";
+            {local $_ = $self;$actions->$tag();}
+            $self;
+        } else {
+            print "no action: $tag\n";
+            {local $_ = $self;$actions->$tag();}
+            $self->SUPER::_REDUCE($tag);
+        }
+    }
+}
+
+my $r = sm0p_with_actions->new($text)->$what();
+if ($yaml) {
+    print Dump($r);
+    exit;
+} elsif ($vertical || $horizontal) {
+    print dump_match($what=>$r,{actions=>sub {"@_"},vertical=>$vertical}),"\n";
+}
+print $r->item,"\n";
+

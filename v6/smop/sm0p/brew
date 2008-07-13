@@ -1,0 +1,3 @@
+perl strip_out_actions sm0p.pm
+cd ../../../src/perl6/
+perl gimme5 ../../v6/smop/sm0p/striped > ../../v6/smop/sm0p/sm0p5.pm
