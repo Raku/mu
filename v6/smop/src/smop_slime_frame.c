@@ -93,8 +93,9 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       int pc = ((smop_slime_frame_struct*)frame)->pc;
       SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc];
       smop_lowlevel_unlock(frame);
-      ret = SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__free,
-                          SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL));
+      SMOP_RELEASE(interpreter,
+                   SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__free,
+                                 SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),NULL,NULL)));
       SMOP_RELEASE(interpreter,frame);
     }
     ret = SMOP__NATIVE__bool_false;
@@ -176,8 +177,11 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       int pc = ((smop_slime_frame_struct*)frame)->pc;
       SMOP__Object* node = ((smop_slime_frame_struct*)frame)->nodes[pc];
       smop_lowlevel_unlock(frame);
-      SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
-                    SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node),(SMOP__Object*[]){value, NULL},NULL));
+      SMOP_RELEASE(interpreter,
+                   SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
+                                 SMOP__NATIVE__capture_create(interpreter,
+                                                              SMOP_REFERENCE(interpreter,node),
+                                                              (SMOP__Object*[]){value, NULL},NULL)));
       SMOP_RELEASE(interpreter,frame);
       ret = SMOP__NATIVE__bool_true;
     } else {
