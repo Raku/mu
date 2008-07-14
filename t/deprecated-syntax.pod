@@ -40,6 +40,20 @@ C<length> is gone. Hashes should use C<keys>, C<values>, or the hash in numeric
 context. For arrays, you want C<elems> or the array in numeric context. For
 strings, you want one of C<chars>, C<graphs>, C<codes>, or C<bytes>.
 
+=head2 try takes a statement
+
+C<try> is followed by a statement, so
+
+  is try { $operation }, 'foo', '$operation worked'
+
+is parsed as
+  
+  is try( { $operation }, 'foo', '$operation worked')
+
+which means only one argument to C<is()>, but three to C<try>. So don't use
+this if it's not what you want. This is wrongly used in the test suite right
+now in multiple places.
+
 =head2 Special Pugs variables
 
 Some tests rely on C<$?PUGS_BACKEND> and similar variables. Since they are not
