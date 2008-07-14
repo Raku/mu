@@ -27,7 +27,7 @@ token node {
 }
 
 token node_empty {
-    # <ws>
+     <ws>
   ';'
     { make 'SMOP_DISPATCH(interpreter, SMOP__SLIME__Node, SMOP__ID__new, '
       ~ ' SMOP__NATIVE__capture_create(interpreter, SMOP__SLIME__Node, NULL, NULL))' }
@@ -94,7 +94,10 @@ token value {
     || <nativeint>    { make $<nativeint> }
     || <capturize>    { make $<capturize> }
     || <identifier>   { make 'SMOP_REFERENCE(interpreter,' ~ $<identifier> ~ ')' }
-    || "`" <name>     { make 'SMOP__NATIVE__int_create(' ~ ($smop::node_counter - $smop::labels->{$<name>}) ~ ')' }
+    || "`" <name>     { 
+        die "undefined label " . $<name> ."\n" unless defined $smop::labels->{$<name>};
+        make 'SMOP__NATIVE__int_create(' ~ ($smop::node_counter - $smop::labels->{$<name>}) ~ ')'
+      }
 }
 
 token positionals {

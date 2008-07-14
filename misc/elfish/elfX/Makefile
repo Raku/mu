@@ -1,3 +1,5 @@
+once:
+	./elfX -x -o elfX0 Elf.pm
 
 RUN_TESTS=elfish/run-tests/run-tests
 CWD=$(shell pwd)

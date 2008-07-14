@@ -9,8 +9,6 @@
 
 
 int main(int argc, char** argv) {
-  printf("1..1\n");
-
   smop_init();
 
   SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
@@ -21,26 +19,3 @@ int main(int argc, char** argv) {
 
   SMOP__Object* io = SMOP__S1P__IO_create();
   node = q:sm0p {
-    ;
-    $io.print("ok 1\n");
-  };
-
-   
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                SMOP__ID__goto,
-                node);
-
-
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
-                                                             SMOP_REFERENCE(interpreter,interpreter),
-                                                             NULL, NULL));
-
-
-  SMOP_RELEASE(interpreter,io);
-  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
-
-  smop_destr();
-
-  return 0;
-}

@@ -23,7 +23,14 @@ int main(int argc, char** argv) {
   node = q:sm0p {
     ;
     $io.print("1..2\n");
-    $hash.$SMOP__ID__postcircumfix_curly(foo);             
+    invocant: $hash.$SMOP__ID__postcircumfix_curly(foo);             
+    $io.print("copying\n");
+    invocant_copy: $SMOP__SLIME__CurrentFrame.copy(`invocant);
+    identifier: FETCH;
+    $SMOP__SLIME__CurrentFrame.move_responder(`invocant_copy,3);
+    $SMOP__SLIME__CurrentFrame.move_identifier(`identifier,2);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant,(),(),1));
+    ;
     $io.print("ok 1 # sm0p lives after postcircumfix:<{ }>\n");
     $hash.$SMOP__ID__postcircumfix_curly(foo);             
     $io.print("ok 2 # sm0p lives after second postcircumfix:<{ }>\n");

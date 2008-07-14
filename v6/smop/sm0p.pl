@@ -47,7 +47,7 @@ sub preprocess {
         $base.'/sm0p/sm0p_with_actions') || die "$@";
     print {$writer} $code;
     close $writer;
-    #print join '', <$error> if $ENV{SM0P_FASTER};
+    print join '', <$error>;
     my $ret = join '', <$reader>;
     die 'Bad sm0p code at '.$in unless $ret && $ret ne "\n";
     close $reader;

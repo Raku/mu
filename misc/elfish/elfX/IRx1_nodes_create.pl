@@ -195,7 +195,7 @@ sub write_ir_nodes {
       class $name is $base {
         $has
         method newp($params) { self.new($init) };
-        method callback(\$emitter) { \$emitter.cb__$name(self) };
+        method callback(\$emitter,\$arg) { \$emitter.cb__$name(self,\$arg) };
         method node_name() { '$name' };
         method field_names() { [$field_names] };
         method field_values() { [$field_values] };

@@ -797,32 +797,6 @@ use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) .
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
-{ package ARRAY;
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{(("\[" . $self->map(sub {my($e)=@_;
-(do{$e->irx1_describe()})})->join("\,")) . "\]")})}})
-}
-;
-
-{ package STRING;
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
-}
-;
-
-{ package INTEGER;
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
-}
-;
-
-{ package FLOAT;
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
-}
-;
-
-{ package UNDEF;
-use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{"undef"})}})
-}
-;
-
 { package IRx1;
 use base "Any";(do{
 { package IRx1::Base;
@@ -855,12 +829,11 @@ sub filename { if(@_==2){$_[0]{'filename'}=$_[1]}else{$_[0]{'filename'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$statements,$filename)=@_;
 (do{$self->new("match", $match, "statements", $statements, "filename", $filename)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__CompUnit($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__CompUnit($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"CompUnit"})};
 sub field_names{my $self=CORE::shift;(do{["statements", "filename"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->statements, $self->filename]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("CompUnit\(" . $self->statements->irx1_describe()) . "\,") . $self->filename->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->statements, $self->filename]})}})
 }
 ;
 
@@ -871,12 +844,11 @@ sub statements { if(@_==2){$_[0]{'statements'}=$_[1]}else{$_[0]{'statements'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$statements)=@_;
 (do{$self->new("match", $match, "statements", $statements)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Block($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Block($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Block"})};
 sub field_names{my $self=CORE::shift;(do{["statements"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->statements]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Block\(" . $self->statements->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->statements]})}})
 }
 ;
 
@@ -889,12 +861,11 @@ sub expr { if(@_==2){$_[0]{'expr'}=$_[1]}else{$_[0]{'expr'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$kind,$module_name,$expr)=@_;
 (do{$self->new("match", $match, "kind", $kind, "module_name", $module_name, "expr", $expr)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Use($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Use($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Use"})};
 sub field_names{my $self=CORE::shift;(do{["kind", "module_name", "expr"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->kind, $self->module_name, $self->expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("Use\(" . $self->kind->irx1_describe()) . "\,") . $self->module_name->irx1_describe()) . "\,") . $self->expr->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->kind, $self->module_name, $self->expr]})}})
 }
 ;
 
@@ -910,12 +881,11 @@ sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$plurality,$kind,$name,$traits,$block)=@_;
 (do{$self->new("match", $match, "scope", $scope, "plurality", $plurality, "kind", $kind, "name", $name, "traits", $traits, "block", $block)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__PackageDecl($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__PackageDecl($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"PackageDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "plurality", "kind", "name", "traits", "block"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->plurality, $self->kind, $self->name, $self->traits, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((("PackageDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->kind->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->plurality, $self->kind, $self->name, $self->traits, $self->block]})}})
 }
 ;
 
@@ -934,12 +904,11 @@ sub postcircumfix { if(@_==2){$_[0]{'postcircumfix'}=$_[1]}else{$_[0]{'postcircu
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block,$sigil,$postcircumfix)=@_;
 (do{$self->new("match", $match, "scope", $scope, "typenames", $typenames, "plurality", $plurality, "name", $name, "multisig", $multisig, "traits", $traits, "block", $block, "sigil", $sigil, "postcircumfix", $postcircumfix)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__MethodDecl($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__MethodDecl($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"MethodDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "typenames", "plurality", "name", "multisig", "traits", "block", "sigil", "postcircumfix"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block, $self->sigil, $self->postcircumfix]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((((("MethodDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\,") . $self->sigil->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block, $self->sigil, $self->postcircumfix]})}})
 }
 ;
 
@@ -956,12 +925,11 @@ sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block)=@_;
 (do{$self->new("match", $match, "scope", $scope, "typenames", $typenames, "plurality", $plurality, "name", $name, "multisig", $multisig, "traits", $traits, "block", $block)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__SubDecl($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__SubDecl($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"SubDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "typenames", "plurality", "name", "multisig", "traits", "block"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("SubDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]})}})
 }
 ;
 
@@ -978,12 +946,11 @@ sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$name,$multisig,$traits,$block)=@_;
 (do{$self->new("match", $match, "scope", $scope, "typenames", $typenames, "plurality", $plurality, "name", $name, "multisig", $multisig, "traits", $traits, "block", $block)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__MacroDecl($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__MacroDecl($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"MacroDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "typenames", "plurality", "name", "multisig", "traits", "block"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("MacroDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\,") . $self->multisig->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->name, $self->multisig, $self->traits, $self->block]})}})
 }
 ;
 
@@ -1001,12 +968,11 @@ sub default_expr { if(@_==2){$_[0]{'default_expr'}=$_[1]}else{$_[0]{'default_exp
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$scope,$typenames,$plurality,$var,$postcircumfix,$traits,$default_op,$default_expr)=@_;
 (do{$self->new("match", $match, "scope", $scope, "typenames", $typenames, "plurality", $plurality, "var", $var, "postcircumfix", $postcircumfix, "traits", $traits, "default_op", $default_op, "default_expr", $default_expr)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__VarDecl($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__VarDecl($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"VarDecl"})};
 sub field_names{my $self=CORE::shift;(do{["scope", "typenames", "plurality", "var", "postcircumfix", "traits", "default_op", "default_expr"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->var, $self->postcircumfix, $self->traits, $self->default_op, $self->default_expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((((("VarDecl\(" . $self->scope->irx1_describe()) . "\,") . $self->typenames->irx1_describe()) . "\,") . $self->plurality->irx1_describe()) . "\,") . $self->var->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->default_op->irx1_describe()) . "\,") . $self->default_expr->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->scope, $self->typenames, $self->plurality, $self->var, $self->postcircumfix, $self->traits, $self->default_op, $self->default_expr]})}})
 }
 ;
 
@@ -1019,12 +985,11 @@ sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 (do{$self->new("match", $match, "sigil", $sigil, "twigil", $twigil, "name", $name)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Var($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Var($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Var"})};
 sub field_names{my $self=CORE::shift;(do{["sigil", "twigil", "name"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->sigil, $self->twigil, $self->name]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("Var\(" . $self->sigil->irx1_describe()) . "\,") . $self->twigil->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->sigil, $self->twigil, $self->name]})}})
 }
 ;
 
@@ -1036,12 +1001,11 @@ sub expr { if(@_==2){$_[0]{'expr'}=$_[1]}else{$_[0]{'expr'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$verb,$expr)=@_;
 (do{$self->new("match", $match, "verb", $verb, "expr", $expr)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Trait($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Trait($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Trait"})};
 sub field_names{my $self=CORE::shift;(do{["verb", "expr"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->verb, $self->expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Trait\(" . $self->verb->irx1_describe()) . "\,") . $self->expr->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->verb, $self->expr]})}})
 }
 ;
 
@@ -1053,12 +1017,11 @@ sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$kind,$block)=@_;
 (do{$self->new("match", $match, "kind", $kind, "block", $block)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__ClosureTrait($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__ClosureTrait($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"ClosureTrait"})};
 sub field_names{my $self=CORE::shift;(do{["kind", "block"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->kind, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("ClosureTrait\(" . $self->kind->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->kind, $self->block]})}})
 }
 ;
 
@@ -1070,12 +1033,11 @@ sub pairs { if(@_==2){$_[0]{'pairs'}=$_[1]}else{$_[0]{'pairs'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$name,$pairs)=@_;
 (do{$self->new("match", $match, "name", $name, "pairs", $pairs)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__ModuleName($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__ModuleName($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"ModuleName"})};
 sub field_names{my $self=CORE::shift;(do{["name", "pairs"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->name, $self->pairs]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("ModuleName\(" . $self->name->irx1_describe()) . "\,") . $self->pairs->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->name, $self->pairs]})}})
 }
 ;
 
@@ -1086,12 +1048,11 @@ sub path { if(@_==2){$_[0]{'path'}=$_[1]}else{$_[0]{'path'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$path)=@_;
 (do{$self->new("match", $match, "path", $path)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__PathName($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__PathName($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"PathName"})};
 sub field_names{my $self=CORE::shift;(do{["path"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->path]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("PathName\(" . $self->path->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->path]})}})
 }
 ;
 
@@ -1105,12 +1066,11 @@ sub signature { if(@_==2){$_[0]{'signature'}=$_[1]}else{$_[0]{'signature'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$category,$pairs,$desigilname,$signature)=@_;
 (do{$self->new("match", $match, "category", $category, "pairs", $pairs, "desigilname", $desigilname, "signature", $signature)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__SubName($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__SubName($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"SubName"})};
 sub field_names{my $self=CORE::shift;(do{["category", "pairs", "desigilname", "signature"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->category, $self->pairs, $self->desigilname, $self->signature]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((("SubName\(" . $self->category->irx1_describe()) . "\,") . $self->pairs->irx1_describe()) . "\,") . $self->desigilname->irx1_describe()) . "\,") . $self->signature->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->category, $self->pairs, $self->desigilname, $self->signature]})}})
 }
 ;
 
@@ -1122,12 +1082,11 @@ sub postcircumfix { if(@_==2){$_[0]{'postcircumfix'}=$_[1]}else{$_[0]{'postcircu
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$ident,$postcircumfix)=@_;
 (do{$self->new("match", $match, "ident", $ident, "postcircumfix", $postcircumfix)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__ShapedParamName($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__ShapedParamName($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"ShapedParamName"})};
 sub field_names{my $self=CORE::shift;(do{["ident", "postcircumfix"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->ident, $self->postcircumfix]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("ShapedParamName\(" . $self->ident->irx1_describe()) . "\,") . $self->postcircumfix->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->ident, $self->postcircumfix]})}})
 }
 ;
 
@@ -1140,12 +1099,11 @@ sub capture { if(@_==2){$_[0]{'capture'}=$_[1]}else{$_[0]{'capture'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$invocant,$method,$capture)=@_;
 (do{$self->new("match", $match, "invocant", $invocant, "method", $method, "capture", $capture)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Call($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Call($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Call"})};
 sub field_names{my $self=CORE::shift;(do{["invocant", "method", "capture"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->invocant, $self->method, $self->capture]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("Call\(" . $self->invocant->irx1_describe()) . "\,") . $self->method->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->invocant, $self->method, $self->capture]})}})
 }
 ;
 
@@ -1157,12 +1115,11 @@ sub capture { if(@_==2){$_[0]{'capture'}=$_[1]}else{$_[0]{'capture'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$function,$capture)=@_;
 (do{$self->new("match", $match, "function", $function, "capture", $capture)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Apply($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Apply($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Apply"})};
 sub field_names{my $self=CORE::shift;(do{["function", "capture"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->function, $self->capture]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Apply\(" . $self->function->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->function, $self->capture]})}})
 }
 ;
 
@@ -1174,12 +1131,11 @@ sub capture { if(@_==2){$_[0]{'capture'}=$_[1]}else{$_[0]{'capture'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$operator,$capture)=@_;
 (do{$self->new("match", $match, "operator", $operator, "capture", $capture)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Hyper($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Hyper($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Hyper"})};
 sub field_names{my $self=CORE::shift;(do{["operator", "capture"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->operator, $self->capture]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Hyper\(" . $self->operator->irx1_describe()) . "\,") . $self->capture->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->operator, $self->capture]})}})
 }
 ;
 
@@ -1191,12 +1147,11 @@ sub invocant { if(@_==2){$_[0]{'invocant'}=$_[1]}else{$_[0]{'invocant'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$arguments,$invocant)=@_;
 (do{$self->new("match", $match, "arguments", $arguments, "invocant", $invocant)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Capture($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Capture($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Capture"})};
 sub field_names{my $self=CORE::shift;(do{["arguments", "invocant"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->arguments, $self->invocant]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Capture\(" . $self->arguments->irx1_describe()) . "\,") . $self->invocant->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->arguments, $self->invocant]})}})
 }
 ;
 
@@ -1207,12 +1162,11 @@ sub signatures { if(@_==2){$_[0]{'signatures'}=$_[1]}else{$_[0]{'signatures'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$signatures)=@_;
 (do{$self->new("match", $match, "signatures", $signatures)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__MultiSig($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__MultiSig($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"MultiSig"})};
 sub field_names{my $self=CORE::shift;(do{["signatures"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->signatures]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("MultiSig\(" . $self->signatures->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->signatures]})}})
 }
 ;
 
@@ -1224,12 +1178,11 @@ sub return_type { if(@_==2){$_[0]{'return_type'}=$_[1]}else{$_[0]{'return_type'}
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$parameters,$return_type)=@_;
 (do{$self->new("match", $match, "parameters", $parameters, "return_type", $return_type)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Signature($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Signature($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Signature"})};
 sub field_names{my $self=CORE::shift;(do{["parameters", "return_type"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->parameters, $self->return_type]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Signature\(" . $self->parameters->irx1_describe()) . "\,") . $self->return_type->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->parameters, $self->return_type]})}})
 }
 ;
 
@@ -1246,12 +1199,11 @@ sub default_expr { if(@_==2){$_[0]{'default_expr'}=$_[1]}else{$_[0]{'default_exp
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$type_constraints,$quant,$param_var,$ident,$traits,$post_constraints,$default_expr)=@_;
 (do{$self->new("match", $match, "type_constraints", $type_constraints, "quant", $quant, "param_var", $param_var, "ident", $ident, "traits", $traits, "post_constraints", $post_constraints, "default_expr", $default_expr)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Parameter($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Parameter($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Parameter"})};
 sub field_names{my $self=CORE::shift;(do{["type_constraints", "quant", "param_var", "ident", "traits", "post_constraints", "default_expr"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->type_constraints, $self->quant, $self->param_var, $self->ident, $self->traits, $self->post_constraints, $self->default_expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((((((("Parameter\(" . $self->type_constraints->irx1_describe()) . "\,") . $self->quant->irx1_describe()) . "\,") . $self->param_var->irx1_describe()) . "\,") . $self->ident->irx1_describe()) . "\,") . $self->traits->irx1_describe()) . "\,") . $self->post_constraints->irx1_describe()) . "\,") . $self->default_expr->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->type_constraints, $self->quant, $self->param_var, $self->ident, $self->traits, $self->post_constraints, $self->default_expr]})}})
 }
 ;
 
@@ -1263,12 +1215,11 @@ sub where_expr { if(@_==2){$_[0]{'where_expr'}=$_[1]}else{$_[0]{'where_expr'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$value,$where_expr)=@_;
 (do{$self->new("match", $match, "value", $value, "where_expr", $where_expr)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__TypeConstraint($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__TypeConstraint($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"TypeConstraint"})};
 sub field_names{my $self=CORE::shift;(do{["value", "where_expr"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->value, $self->where_expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("TypeConstraint\(" . $self->value->irx1_describe()) . "\,") . $self->where_expr->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->value, $self->where_expr]})}})
 }
 ;
 
@@ -1280,12 +1231,11 @@ sub where_expr { if(@_==2){$_[0]{'where_expr'}=$_[1]}else{$_[0]{'where_expr'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$multisig,$where_expr)=@_;
 (do{$self->new("match", $match, "multisig", $multisig, "where_expr", $where_expr)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__PostConstraint($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__PostConstraint($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"PostConstraint"})};
 sub field_names{my $self=CORE::shift;(do{["multisig", "where_expr"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->multisig, $self->where_expr]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("PostConstraint\(" . $self->multisig->irx1_describe()) . "\,") . $self->where_expr->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->multisig, $self->where_expr]})}})
 }
 ;
 
@@ -1298,12 +1248,11 @@ sub name { if(@_==2){$_[0]{'name'}=$_[1]}else{$_[0]{'name'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$sigil,$twigil,$name)=@_;
 (do{$self->new("match", $match, "sigil", $sigil, "twigil", $twigil, "name", $name)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__ParamVar($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__ParamVar($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"ParamVar"})};
 sub field_names{my $self=CORE::shift;(do{["sigil", "twigil", "name"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->sigil, $self->twigil, $self->name]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("ParamVar\(" . $self->sigil->irx1_describe()) . "\,") . $self->twigil->irx1_describe()) . "\,") . $self->name->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->sigil, $self->twigil, $self->name]})}})
 }
 ;
 
@@ -1313,12 +1262,11 @@ use base "Any";BEGIN{push(@IRx1::Undef::ISA,'IRx1::Base');}
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match)=@_;
 (do{$self->new("match", $match)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Undef($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Undef($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Undef"})};
 sub field_names{my $self=CORE::shift;(do{[]})};
-sub field_values{my $self=CORE::shift;(do{[]})};
-sub irx1_describe{my $self=CORE::shift;(do{("Undef\(" . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[]})}})
 }
 ;
 
@@ -1330,12 +1278,11 @@ sub base { if(@_==2){$_[0]{'base'}=$_[1]}else{$_[0]{'base'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$text,$base)=@_;
 (do{$self->new("match", $match, "text", $text, "base", $base)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__NumInt($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__NumInt($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"NumInt"})};
 sub field_names{my $self=CORE::shift;(do{["text", "base"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->text, $self->base]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("NumInt\(" . $self->text->irx1_describe()) . "\,") . $self->base->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->text, $self->base]})}})
 }
 ;
 
@@ -1348,12 +1295,11 @@ sub exp { if(@_==2){$_[0]{'exp'}=$_[1]}else{$_[0]{'exp'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$intpart,$fracpart,$exp)=@_;
 (do{$self->new("match", $match, "intpart", $intpart, "fracpart", $fracpart, "exp", $exp)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__NumDec($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__NumDec($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"NumDec"})};
 sub field_names{my $self=CORE::shift;(do{["intpart", "fracpart", "exp"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->intpart, $self->fracpart, $self->exp]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("NumDec\(" . $self->intpart->irx1_describe()) . "\,") . $self->fracpart->irx1_describe()) . "\,") . $self->exp->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->intpart, $self->fracpart, $self->exp]})}})
 }
 ;
 
@@ -1368,12 +1314,11 @@ sub exp { if(@_==2){$_[0]{'exp'}=$_[1]}else{$_[0]{'exp'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$radix,$intpart,$fracpart,$base,$exp)=@_;
 (do{$self->new("match", $match, "radix", $radix, "intpart", $intpart, "fracpart", $fracpart, "base", $base, "exp", $exp)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__NumRad($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__NumRad($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"NumRad"})};
 sub field_names{my $self=CORE::shift;(do{["radix", "intpart", "fracpart", "base", "exp"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->radix, $self->intpart, $self->fracpart, $self->base, $self->exp]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((((("NumRad\(" . $self->radix->irx1_describe()) . "\,") . $self->intpart->irx1_describe()) . "\,") . $self->fracpart->irx1_describe()) . "\,") . $self->base->irx1_describe()) . "\,") . $self->exp->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->radix, $self->intpart, $self->fracpart, $self->base, $self->exp]})}})
 }
 ;
 
@@ -1384,12 +1329,11 @@ sub array { if(@_==2){$_[0]{'array'}=$_[1]}else{$_[0]{'array'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$array)=@_;
 (do{$self->new("match", $match, "array", $array)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Array($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Array($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Array"})};
 sub field_names{my $self=CORE::shift;(do{["array"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->array]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Array\(" . $self->array->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->array]})}})
 }
 ;
 
@@ -1400,12 +1344,11 @@ sub hash { if(@_==2){$_[0]{'hash'}=$_[1]}else{$_[0]{'hash'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$hash)=@_;
 (do{$self->new("match", $match, "hash", $hash)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Hash($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Hash($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Hash"})};
 sub field_names{my $self=CORE::shift;(do{["hash"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->hash]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Hash\(" . $self->hash->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->hash]})}})
 }
 ;
 
@@ -1417,12 +1360,11 @@ sub value { if(@_==2){$_[0]{'value'}=$_[1]}else{$_[0]{'value'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$key,$value)=@_;
 (do{$self->new("match", $match, "key", $key, "value", $value)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Pair($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Pair($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Pair"})};
 sub field_names{my $self=CORE::shift;(do{["key", "value"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->key, $self->value]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Pair\(" . $self->key->irx1_describe()) . "\,") . $self->value->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->key, $self->value]})}})
 }
 ;
 
@@ -1433,12 +1375,11 @@ sub typename { if(@_==2){$_[0]{'typename'}=$_[1]}else{$_[0]{'typename'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$typename)=@_;
 (do{$self->new("match", $match, "typename", $typename)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Type($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Type($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Type"})};
 sub field_names{my $self=CORE::shift;(do{["typename"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->typename]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Type\(" . $self->typename->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->typename]})}})
 }
 ;
 
@@ -1450,12 +1391,11 @@ sub modifiers { if(@_==2){$_[0]{'modifiers'}=$_[1]}else{$_[0]{'modifiers'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$pat,$modifiers)=@_;
 (do{$self->new("match", $match, "pat", $pat, "modifiers", $modifiers)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Rx($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Rx($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Rx"})};
 sub field_names{my $self=CORE::shift;(do{["pat", "modifiers"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->pat, $self->modifiers]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Rx\(" . $self->pat->irx1_describe()) . "\,") . $self->modifiers->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->pat, $self->modifiers]})}})
 }
 ;
 
@@ -1466,12 +1406,11 @@ sub buf { if(@_==2){$_[0]{'buf'}=$_[1]}else{$_[0]{'buf'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$buf)=@_;
 (do{$self->new("match", $match, "buf", $buf)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Buf($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Buf($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Buf"})};
 sub field_names{my $self=CORE::shift;(do{["buf"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->buf]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Buf\(" . $self->buf->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->buf]})}})
 }
 ;
 
@@ -1483,12 +1422,11 @@ sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
 (do{$self->new("match", $match, "expr", $expr, "block", $block)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__For($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__For($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"For"})};
 sub field_names{my $self=CORE::shift;(do{["expr", "block"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("For\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})}})
 }
 ;
 
@@ -1501,12 +1439,11 @@ sub invert_first_test { if(@_==2){$_[0]{'invert_first_test'}=$_[1]}else{$_[0]{'i
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$clauses,$default,$invert_first_test)=@_;
 (do{$self->new("match", $match, "clauses", $clauses, "default", $default, "invert_first_test", $invert_first_test)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Cond($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Cond($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Cond"})};
 sub field_names{my $self=CORE::shift;(do{["clauses", "default", "invert_first_test"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->clauses, $self->default, $self->invert_first_test]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((("Cond\(" . $self->clauses->irx1_describe()) . "\,") . $self->default->irx1_describe()) . "\,") . $self->invert_first_test->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->clauses, $self->default, $self->invert_first_test]})}})
 }
 ;
 
@@ -1520,12 +1457,11 @@ sub label { if(@_==2){$_[0]{'label'}=$_[1]}else{$_[0]{'label'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$pretest,$block,$posttest,$label)=@_;
 (do{$self->new("match", $match, "pretest", $pretest, "block", $block, "posttest", $posttest, "label", $label)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Loop($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Loop($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Loop"})};
 sub field_names{my $self=CORE::shift;(do{["pretest", "block", "posttest", "label"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->pretest, $self->block, $self->posttest, $self->label]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((((((("Loop\(" . $self->pretest->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\,") . $self->posttest->irx1_describe()) . "\,") . $self->label->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->pretest, $self->block, $self->posttest, $self->label]})}})
 }
 ;
 
@@ -1537,12 +1473,11 @@ sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
 (do{$self->new("match", $match, "expr", $expr, "block", $block)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Given($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Given($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Given"})};
 sub field_names{my $self=CORE::shift;(do{["expr", "block"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Given\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})}})
 }
 ;
 
@@ -1554,12 +1489,11 @@ sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$expr,$block)=@_;
 (do{$self->new("match", $match, "expr", $expr, "block", $block)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__When($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__When($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"When"})};
 sub field_names{my $self=CORE::shift;(do{["expr", "block"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("When\(" . $self->expr->irx1_describe()) . "\,") . $self->block->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->expr, $self->block]})}})
 }
 ;
 
@@ -1571,12 +1505,11 @@ sub statement { if(@_==2){$_[0]{'statement'}=$_[1]}else{$_[0]{'statement'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$labels,$statement)=@_;
 (do{$self->new("match", $match, "labels", $labels, "statement", $statement)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Label($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Label($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Label"})};
 sub field_names{my $self=CORE::shift;(do{["labels", "statement"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->labels, $self->statement]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("Label\(" . $self->labels->irx1_describe()) . "\,") . $self->statement->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->labels, $self->statement]})}})
 }
 ;
 
@@ -1588,12 +1521,11 @@ sub pattern { if(@_==2){$_[0]{'pattern'}=$_[1]}else{$_[0]{'pattern'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$ident,$pattern)=@_;
 (do{$self->new("match", $match, "ident", $ident, "pattern", $pattern)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RegexDef($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RegexDef($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RegexDef"})};
 sub field_names{my $self=CORE::shift;(do{["ident", "pattern"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->ident, $self->pattern]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("RegexDef\(" . $self->ident->irx1_describe()) . "\,") . $self->pattern->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->ident, $self->pattern]})}})
 }
 ;
 
@@ -1604,12 +1536,11 @@ sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__Regex($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__Regex($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"Regex"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("Regex\(" . $self->patterns->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})}})
 }
 ;
 
@@ -1620,12 +1551,11 @@ sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxFirst($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxFirst($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxFirst"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxFirst\(" . $self->patterns->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})}})
 }
 ;
 
@@ -1636,12 +1566,11 @@ sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxEvery($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxEvery($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxEvery"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxEvery\(" . $self->patterns->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})}})
 }
 ;
 
@@ -1652,12 +1581,11 @@ sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxSubmatch($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxSubmatch($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxSubmatch"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxSubmatch\(" . $self->patterns->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})}})
 }
 ;
 
@@ -1668,12 +1596,11 @@ sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxAny($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxAny($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxAny"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxAny\(" . $self->patterns->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})}})
 }
 ;
 
@@ -1684,12 +1611,11 @@ sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxAll($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxAll($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxAll"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxAll\(" . $self->patterns->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})}})
 }
 ;
 
@@ -1700,12 +1626,11 @@ sub patterns { if(@_==2){$_[0]{'patterns'}=$_[1]}else{$_[0]{'patterns'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$patterns)=@_;
 (do{$self->new("match", $match, "patterns", $patterns)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxSequence($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxSequence($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxSequence"})};
 sub field_names{my $self=CORE::shift;(do{["patterns"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->patterns]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxSequence\(" . $self->patterns->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->patterns]})}})
 }
 ;
 
@@ -1717,12 +1642,11 @@ sub quantifier { if(@_==2){$_[0]{'quantifier'}=$_[1]}else{$_[0]{'quantifier'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$atom,$quantifier)=@_;
 (do{$self->new("match", $match, "atom", $atom, "quantifier", $quantifier)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxQuantifiedAtom($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxQuantifiedAtom($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxQuantifiedAtom"})};
 sub field_names{my $self=CORE::shift;(do{["atom", "quantifier"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->atom, $self->quantifier]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("RxQuantifiedAtom\(" . $self->atom->irx1_describe()) . "\,") . $self->quantifier->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->atom, $self->quantifier]})}})
 }
 ;
 
@@ -1733,12 +1657,11 @@ sub char { if(@_==2){$_[0]{'char'}=$_[1]}else{$_[0]{'char'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$char)=@_;
 (do{$self->new("match", $match, "char", $char)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxBackslash($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxBackslash($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxBackslash"})};
 sub field_names{my $self=CORE::shift;(do{["char"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->char]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxBackslash\(" . $self->char->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->char]})}})
 }
 ;
 
@@ -1749,12 +1672,11 @@ sub ident { if(@_==2){$_[0]{'ident'}=$_[1]}else{$_[0]{'ident'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$ident)=@_;
 (do{$self->new("match", $match, "ident", $ident)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxAssertion($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxAssertion($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxAssertion"})};
 sub field_names{my $self=CORE::shift;(do{["ident"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->ident]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxAssertion\(" . $self->ident->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->ident]})}})
 }
 ;
 
@@ -1765,12 +1687,11 @@ sub mod { if(@_==2){$_[0]{'mod'}=$_[1]}else{$_[0]{'mod'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$mod)=@_;
 (do{$self->new("match", $match, "mod", $mod)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxModInternal($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxModInternal($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxModInternal"})};
 sub field_names{my $self=CORE::shift;(do{["mod"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->mod]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxModInternal\(" . $self->mod->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->mod]})}})
 }
 ;
 
@@ -1781,12 +1702,11 @@ sub pattern { if(@_==2){$_[0]{'pattern'}=$_[1]}else{$_[0]{'pattern'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
 (do{$self->new("match", $match, "pattern", $pattern)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxCapture($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxCapture($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxCapture"})};
 sub field_names{my $self=CORE::shift;(do{["pattern"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->pattern]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxCapture\(" . $self->pattern->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->pattern]})}})
 }
 ;
 
@@ -1797,12 +1717,11 @@ sub pattern { if(@_==2){$_[0]{'pattern'}=$_[1]}else{$_[0]{'pattern'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$pattern)=@_;
 (do{$self->new("match", $match, "pattern", $pattern)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxGroup($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxGroup($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxGroup"})};
 sub field_names{my $self=CORE::shift;(do{["pattern"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->pattern]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxGroup\(" . $self->pattern->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->pattern]})}})
 }
 ;
 
@@ -1813,12 +1732,11 @@ sub block { if(@_==2){$_[0]{'block'}=$_[1]}else{$_[0]{'block'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$block)=@_;
 (do{$self->new("match", $match, "block", $block)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxBlock($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxBlock($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxBlock"})};
 sub field_names{my $self=CORE::shift;(do{["block"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->block]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxBlock\(" . $self->block->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->block]})}})
 }
 ;
 
@@ -1830,12 +1748,11 @@ sub binding { if(@_==2){$_[0]{'binding'}=$_[1]}else{$_[0]{'binding'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$var,$binding)=@_;
 (do{$self->new("match", $match, "var", $var, "binding", $binding)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxBind($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxBind($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxBind"})};
 sub field_names{my $self=CORE::shift;(do{["var", "binding"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->var, $self->binding]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("RxBind\(" . $self->var->irx1_describe()) . "\,") . $self->binding->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->var, $self->binding]})}})
 }
 ;
 
@@ -1847,12 +1764,11 @@ sub quote { if(@_==2){$_[0]{'quote'}=$_[1]}else{$_[0]{'quote'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$text,$quote)=@_;
 (do{$self->new("match", $match, "text", $text, "quote", $quote)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxLiteral($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxLiteral($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxLiteral"})};
 sub field_names{my $self=CORE::shift;(do{["text", "quote"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->text, $self->quote]})};
-sub irx1_describe{my $self=CORE::shift;(do{(((("RxLiteral\(" . $self->text->irx1_describe()) . "\,") . $self->quote->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->text, $self->quote]})}})
 }
 ;
 
@@ -1863,12 +1779,11 @@ sub symbol { if(@_==2){$_[0]{'symbol'}=$_[1]}else{$_[0]{'symbol'}}};
 sub notes { if(@_==2){$_[0]{'notes'}=$_[1]}else{$_[0]{'notes'}}};
 sub newp{my $self=CORE::shift;my($match,$symbol)=@_;
 (do{$self->new("match", $match, "symbol", $symbol)})};
-sub callback{my $self=CORE::shift;my($emitter)=@_;
-(do{$emitter->cb__RxSymbol($self)})};
+sub callback{my $self=CORE::shift;my($emitter,$arg)=@_;
+(do{$emitter->cb__RxSymbol($self, $arg)})};
 sub node_name{my $self=CORE::shift;(do{"RxSymbol"})};
 sub field_names{my $self=CORE::shift;(do{["symbol"]})};
-sub field_values{my $self=CORE::shift;(do{[$self->symbol]})};
-sub irx1_describe{my $self=CORE::shift;(do{(("RxSymbol\(" . $self->symbol->irx1_describe()) . "\)")})}})
+sub field_values{my $self=CORE::shift;(do{[$self->symbol]})}})
 }
 })
 }
@@ -3594,15 +3509,18 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 { package EmitSM0P;
 use base "Any";(do{sub new_emitter{my $self=CORE::shift;my($ignore,$compiler,$ignore2,$filename)=@_;
 (do{$self->new("compiler", $compiler, "filename", $filename)})};
+sub SEQ { if(@_==2){$_[0]{'SEQ'}=$_[1]}else{$_[0]{'SEQ'}}};
+$Object::DEFAULTS{EmitSM0P}{'SEQ'} = sub {1};;
 sub compiler { if(@_==2){$_[0]{'compiler'}=$_[1]}else{$_[0]{'compiler'}}};
 sub filename { if(@_==2){$_[0]{'filename'}=$_[1]}else{$_[0]{'filename'}}};
 sub tidy{my $self=CORE::shift;my($source)=@_;
 (do{$source})};
-sub prelude_lexical{my $self=CORE::shift;(do{})};
-sub prelude_oo{my $self=CORE::shift;(do{})};
+sub prelude_lexical{my $self=CORE::shift;(do{"\#\ prelude\ lexical\
+"})};
 sub prelude{my $self=CORE::shift;my($n)=@_;
-(do{""})};
-sub e{my $self=CORE::shift;my($x)=@_;
+(do{"\#\ prelude\
+"})};
+sub e{my $self=CORE::shift;my($x,$arg)=@_;
 (do{my $ref = $x->WHAT();
 if(($ref eq "Undef")) {
 (do{$x})
@@ -3610,13 +3528,41 @@ if(($ref eq "Undef")) {
 (do{$x})
 }elsif(($ref eq "Array")) {
 (do{$x->map(sub {my($ae)=@_;
-(do{$self->e($ae)})})})
+(do{$self->e($ae, $self->genid())})})})
 }else {
-(do{$x->callback($self)})
+(do{$x->callback($self, $arg)})
 }})};
+sub genid{my $self=CORE::shift;(do{$self->SEQ(($self->SEQ() + 1));
+return(("id" . $self->SEQ()))})};
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
-(do{"\#\ sm0p\ code\
-"})}})
+(do{(("\#\ sm0p\ code\
+" . "\;\
+") . $self->e($n->statements())->join("\;"))})};
+sub capturize{my $self=CORE::shift;my($n,$id)=@_;
+(do{my $positionals = $n->capture()->arguments()->keys()->map(sub {my($k)=@_;
+(do{("\`pos_" . $id)})})->join("\,");
+(((("SMOP__SLIME__Capturize\.new\(\`i_" . $id) . "\,\(") . $positionals) . "\)\,\(\)\,1\)")})};
+sub cb__Call{my $self=CORE::shift;my($n,$ret)=@_;
+(do{my $id = $self->genid();
+my $positionals = "";
+for(($n->capture()->arguments()->keys())->flatten){
+sub {my($i)=@_;
+(do{($positionals = ($positionals . $self->e($n->capture()->arguments()->[$i], ("pos_" . $id))))})}->($_)
+};
+((((((((((((((((((((((((("\#\ method\ call\ " . $id) . "\
+") . $self->e($n->invocant(), ("i_" . $id))) . "ic_") . $id) . "\:\ \$SMOP__SLIME__CurrentFrame\.copy\(\`i_") . $id) . "\)\;\
+") . "id_") . $id) . "\:") . $n->method()) . "\;\
+") . $positionals) . "\$SMOP__SLIME__CurrentFrame\.move_responder\(\`ic_") . $id) . "\,3\)\;\
+") . "\$SMOP__SLIME__CurrentFrame\.move_identifier\(\`id_") . $id) . "\,2\)\;\
+") . "\$SMOP__SLIME__CurrentFrame\.move_capturize\(") . $self->capturize($n, $id)) . "\)\;\
+") . $ret) . "\:\ \;\
+")})};
+sub cb__Buf{my $self=CORE::shift;my($n,$label)=@_;
+(do{((((($label . "\:") . "\"") . $n->buf()->re_gsub(qr/\n/, "\\n")) . "\"") . "\;\
+")})};
+sub cb__Var{my $self=CORE::shift;my($n,$label)=@_;
+(do{((($label . "\:\ \$") . $n->name()) . "\;\
+")})}})
 }
 ;
 

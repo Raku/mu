@@ -1,5 +1,10 @@
-.sm0p.c: $(top_srcdir)/../../misc/sm0p/sm0p5.pm
+ELFX = $(top_srcdir)/../../misc/elfish/elfX/
+.sm0p.c:
 	perl $(top_srcdir)/sm0p.pl $(top_srcdir) $< $@
+.p6.pure_sm0p:
+	perl $(ELFX)/elfX -C sm0p -s $< > $@
+.pure_sm0p.sm0p:
+	cat $(ELFX)/sm0p_boilerplate_front $< $(ELFX)/sm0p_boilerplate_back > $@
 
 LDADD = -lsmop 
 AM_LDFLAGS = -L$(top_builddir)/src
@@ -22,7 +27,7 @@ check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
 10_lowlevel_methods_t_SOURCES = 10_lowlevel_methods.c
 11_lowlevel_scalar_t_SOURCES = 11_lowlevel_scalar.sm0p
 12_p6opaque_t_SOURCES = 12_p6opaque.sm0p
-13_io_t_SOURCES = 13_io.sm0p
+13_io_t_SOURCES = 13_io.p6
 14_p6opaque_methods_t_SOURCES = 14_p6opaque_methods.sm0p
 15_hash_t_SOURCES = 15_hash.sm0p
 16_labels_t_SOURCES = 16_labels.sm0p
