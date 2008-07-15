@@ -20,12 +20,12 @@ plan 20;
 }
 
 # state() inside coderefs
+# L<S04/Closure traits/"semantics to any initializer, so this also works">
 {
     my $gen = {
         # Note: The following line is only executed once, because it's equivalent
         # to
         #   state $svar will first { 42 };
-        # L<S04/Closure traits/"semantics to any initializer, so this also works">
         state $svar = 42;
         my $ret = { $svar++ };
     };
