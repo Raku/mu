@@ -48,7 +48,7 @@ class EmitSM0P {
       "# method call " ~ $id ~ "\n" ~
       $.e($n.invocant,'i_'~$id) ~
       'ic_'~$id~': $SMOP__SLIME__CurrentFrame.copy(`i_' ~ $id ~ ");\n" ~
-      'id_'~$id~':'~$n.method~";\n" ~
+      'id_'~$id~': q:identifier['~$n.method~"];\n" ~
       $positionals ~
       '$SMOP__SLIME__CurrentFrame.move_responder(`ic_' ~ $id ~ ",3);\n" ~
       '$SMOP__SLIME__CurrentFrame.move_identifier(`id_' ~ $id ~ ",2);\n" ~
@@ -56,7 +56,7 @@ class EmitSM0P {
       $ret ~ ": ;\n"
   };
   method cb__Buf ($n,$label) {
-      $label ~ ":" ~ '"' ~ $n.buf.re_gsub(/\n/,"\\n") ~ '"' ~ ";\n"; #TODO: quote \ and "
+      $label ~ ": " ~ '"' ~ $n.buf.re_gsub(/\n/,"\\n") ~ '"' ~ ";\n"; #TODO: quote \ and "
   }
   method cb__Var ($n,$label) {
       $label ~ ': $' ~ $n.name ~ ";\n"

@@ -12,6 +12,7 @@
                                                              NULL, NULL));
 
 
+  SMOP_RELEASE(interpreter,hash);
   SMOP_RELEASE(interpreter,io);
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 

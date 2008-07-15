@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 
-use lib '../../src/perl6';
+use lib '../../../src/perl6','../../src/perl6';
 use sm0p5;
 use DumpMatch;
 use utf8;

@@ -135,10 +135,17 @@ token identifier2 {
     <identifier> { make $<identifier> ~ '' }
 }
 
+
+token notbracket_or_backslashed {
+    '\\' . || <-[\]]>
+}
+
 token identifier {
    '$' <name> { make $<name> ~ '' }
- ||<idconst> { make $<idconst> ~ ''}
- ||<name> { make 'SMOP__NATIVE__idconst_create("' ~ $<name> ~ '")' }
+ || 'q:identifier[' (<.notbracket_or_backslashed>*) ']'
+     { make 'SMOP__NATIVE__idconst_create("' ~ $_->{0}->item ~ '")' }
+ || <idconst> { make $<idconst> ~ ''}
+ || <name> { make 'SMOP__NATIVE__idconst_create("' ~ $<name> ~ '")' }
 }
 
 token idconst {
