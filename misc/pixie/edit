@@ -1,0 +1,3 @@
+perl insert_actions ../../src/perl6/STD.pm pixie_actions5 > STD.pm
+vim STD.pm
+perl extract_actions ../../src/perl6/STD.pm STD.pm > pixie_actions5
