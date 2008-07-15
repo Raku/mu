@@ -17,7 +17,7 @@ BEGIN {
 }
 #eval {
 use lib '../../src/perl6';
-use STD5;
+use STD;
 use ElfCore5;
 use DumpMatch;
 use utf8;
@@ -88,7 +88,7 @@ for (<$actions>) {
 
 while (my ($name,$code) = each %actions) {
     my $str = qq!sub {\npackage pixie_actions;\n#line 1 "action $name"\n!.$code."}";
-    print $str;
+        #print $str;
     $actions{$name} = eval($str);
     die "error at pixie_action5, action $name: $@\n" if $@;
 }
