@@ -172,7 +172,20 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
     SMOP__Object* ncapture = ((smop_slime_node_struct*)node)->capture;
     smop_lowlevel_unlock(node);
 
-    //fprintf(stderr,"[SMOP__SLIME__Node:DEBUG] eval\n");
+
+#ifdef SMOP_SLIME_DEBUG
+    if (identifier && SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
+      int u;
+      char* external = SMOP__NATIVE__idconst_fetch(identifier, &u);
+      char* local = malloc(u+1);
+      memcpy(local, external, u);
+      local[u] = 0;
+      fprintf(stderr, "[node] eval \"%s\".\n", local);
+      free(local);
+    } else {
+      fprintf(stderr, "[node] eval.\n");
+    }
+#endif
 
     if (responder) {
       ret = SMOP_DISPATCH(interpreter,responder,identifier,SMOP_REFERENCE(interpreter,ncapture));

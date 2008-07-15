@@ -1,10 +1,10 @@
 .sm0p.c:
 	perl $(top_srcdir)/sm0p.pl $(top_srcdir) $< $@
 
-AM_CFLAGS = -Wall -D_GNU_SOURCE -DSMOP_LOWLEVEL_MEM_TRACE -I$(top_srcdir)/include 
+AM_CFLAGS = -Wall -D_GNU_SOURCE -DSMOP_LOWLEVEL_MEM_TRACE -I$(top_srcdir)/include
 AM_LDFLAGS = --no-undefined
 # use this to see alloc, refcnt_inc, refcnt_dec and destroys...    -DSMOP_LOWLEVEL_MEM_DEBUG 
-
+# use this to see all eval calls in SLIME -DSMOP_SLIME_DEBUG
 lib_LTLIBRARIES = libsmop.la
 libsmop_la_LIBADD = -lpthread
 libsmop_la_SOURCES = smop_lowlevel.sm0p idconst.c						\
