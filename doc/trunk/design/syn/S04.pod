@@ -1290,7 +1290,7 @@ of scope synchronously with its usage.  Unlike global subs, they
 do not need a compile-time C<::=> binding, but like global subs,
 they perform a C<:=> binding to the lexical symbol at clone time
 (again, conceptually at the entry to the outer lexical scope, but
-possible deferred.)
+possibly deferred.)
 
     sub foo {
 	# conceptual cloning happens to both blocks below
