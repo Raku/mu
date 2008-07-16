@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     $SMOP__SLIME__CurrentFrame.move_identifier(`print,2);
     $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`io,(`ok1),(),1));
     ;
-    $io.q:identifier[print]("ok 2 - q:identifier works");
+    $io.q:identifier[print]("ok 2 - q:identifier works\n");
     #io2: $io;
     #ok2: "ok 2 - call works\n"
     #$SMOP__SLIME__CurrentFrame.call(print,SMOP__SLIME__Capturize(`io2,(),(),1));
@@ -48,7 +48,6 @@ int main(int argc, char** argv) {
                                                              NULL, NULL));
 
 
-  SMOP_RELEASE(interpreter,io);
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
 
   smop_destr();

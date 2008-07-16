@@ -13,7 +13,7 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__dispatch) {
     SMOP__Object* called = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     if (called == SMOP__ID__DESTROYALL) {
-      printf("ok 4 - called DESTROYALL on the metaclass\n");
+      printf("ok 5 - called DESTROYALL on the metaclass\n");
 
     } else {
       printf("ok 3 - dispatching on the metaclass\n");
@@ -56,7 +56,7 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
     }
     SMOP_RELEASE(interpreter, called);
   } else if (identifier == SMOP__ID__DESTROYALL) {
-    printf("ok 5 - called DESTROYALL\n");
+    printf("ok 6 - called DESTROYALL\n");
   } else {
     printf("not ok - unkown method\n");
   }
@@ -156,7 +156,7 @@ int main() {
                                                              SMOP_REFERENCE(interpreter,interpreter),
                                                              NULL, NULL));
 
-  printf("ok 6 - interpreter loop.\n");
+  printf("ok 7 - interpreter loop.\n");
 
   printf("# before freeing the interpreter\n");
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);

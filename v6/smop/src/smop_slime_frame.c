@@ -274,7 +274,9 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
     }
   
   } else if (identifier ==  SMOP__ID__move_responder) {
+
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
+
     if (frame && frame != SMOP__SLIME__Frame) {
       SMOP__Object* count = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
       SMOP__Object* target = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
@@ -295,18 +297,21 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
                                                                      SMOP_REFERENCE(interpreter,node),
                                                                      NULL,
                                                                      NULL));
-
       SMOP_DISPATCH(interpreter,SMOP_RI(node),SMOP__ID__result,
                     SMOP__NATIVE__capture_create(interpreter,
                                                  SMOP_REFERENCE(interpreter,node),
                                                  (SMOP__Object*[]){SMOP__NATIVE__bool_false, NULL},
                                                  NULL));
 
+      SMOP__Object* responder = SMOP_REFERENCE(interpreter,(SMOP__Object*)SMOP_RI(res));
+      if (res) SMOP_RELEASE(interpreter, res);
+
       SMOP_RELEASE(interpreter,
                    SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__responder,
                                  SMOP__NATIVE__capture_create(interpreter,
                                                               SMOP_REFERENCE(interpreter,thisnode),
-                                                              (SMOP__Object*[]){(SMOP__Object*)SMOP_RI(res),NULL},NULL)));
+                                                              (SMOP__Object*[]){responder,NULL},NULL)));
+
       ret = SMOP__NATIVE__bool_true;
       SMOP_RELEASE(interpreter,frame);
     } else {
@@ -403,7 +408,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
         SMOP_DISPATCH(interpreter,SMOP_RI(node_invocant),
                       SMOP__ID__result,
                       SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node_invocant),NULL,NULL));
-    
+
       for (i = 0; i < n_pos; i++) {
         result_positional_arr[i] =
           SMOP_DISPATCH(interpreter,SMOP_RI(nodes_positional_arr[i]),
@@ -424,6 +429,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
                     SMOP__ID__result,
                     SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,node_invocant),
                                                  (SMOP__Object*[]){SMOP__NATIVE__bool_false,NULL},NULL)));
+
       for (i = 0; i < n_pos; i++) {
         SMOP_RELEASE(interpreter,
                      SMOP_DISPATCH(interpreter,SMOP_RI(nodes_positional_arr[i]),
@@ -438,7 +444,6 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
                                                                                  SMOP_REFERENCE(interpreter,nodes_named_arr[i]),
                                                                                  (SMOP__Object*[]){SMOP__NATIVE__bool_false,NULL},NULL)));
       }
-
 
       SMOP__Object* res = SMOP__NATIVE__capture_create(interpreter,result_invocant, result_positional_arr, result_named_arr);
 

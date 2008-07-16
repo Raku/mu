@@ -96,7 +96,6 @@ static SMOP__Object* p6opaque_message_REPR_how(SMOP__Object* interpreter,
       }
     }
 
-    if (set) SMOP_RELEASE(interpreter,set);
     SMOP_RELEASE(interpreter,invocant);
   } else {
     fprintf(stderr,"[SMOP p6opaque] TODO: non-native captures\n");

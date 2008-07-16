@@ -44,7 +44,6 @@ static SMOP__Object* p6opaque_methods_message(SMOP__Object* interpreter,
 
 static SMOP__Object* p6opaque_methods_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
   if ((SMOP__Object*)SMOP__p6opaque__Array__methods != obj) {
-    printf("+ %p\n",obj);
     smop_lowlevel_refcnt_inc(interpreter, responder, obj);
   }
   return obj;
@@ -52,7 +51,6 @@ static SMOP__Object* p6opaque_methods_reference(SMOP__Object* interpreter, SMOP_
 
 static SMOP__Object* p6opaque_methods_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
   if ((SMOP__Object*)SMOP__p6opaque__Array__methods != obj) {
-    printf("- %p\n",obj);
     smop_lowlevel_refcnt_dec(interpreter, responder, obj);
   }
   return obj;
