@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 12 July 2008
+  Last Modified: 16 July 2008
   Number: 4
-  Version: 66
+  Version: 67
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -1253,27 +1253,64 @@ Everything is conceptually a closure in Perl 6, but the optimizer
 is free to turn unreferenced closures into mere blocks of code.
 It is also free to turn referenced closures into mere anonymous
 subroutines if the block does not refer to any external lexicals that
-should themselves be cloned.  In particular, named subroutines in any
-scope do not consider themselves closures unless you take a reference
-to them.  So
+should themselves be cloned.  (When we say "clone", we mean the way
+the system takes a snapshot of the routine's lexical scope and binds
+it to the current instance of the routine so that if you ever use
+the current reference to the routine, it gets the current snapshot
+of its world in terms of the lexical symbols that are visible to it.)
+
+All remaining blocks are conceptually cloned into closures as soon
+as the lexical scope containing them is entered.  (This may be done
+lazily as long as consistent semantics are preserved, so a block
+that is never executed and never has a reference taken can avoid
+cloning altogether.  Execution or reference taking forces cloning
+in this case--references are not allowed to be lazily cloned, since
+no guarantee can be made that the scope needed for cloning will
+remain in existence over the life of the reference.)
+
+In particular, named subroutines are a special problem when embedded in
+a changing lexical scope (when they make reference to it).  The binding
+of such a definition to a name within a symbol table counts as taking
+a reference, so at compile time there is an initial C<::=> binding
+to the symbol table entry in question.  For "global" bindings to
+symbol tables visible at compile time, this binds to the compile-time
+view of the lexical scopes.  (At run-time, the initial run-time view
+of these scopes is copied from the compiler's view of them, so that
+initializations carry over, for instance.)  At run time, whenever such
+a subroutine needs to be cloned, an additional C<:=> binding is done
+at clone time to the same symbol table entry that the original C<::=>
+was bound to.  (The binding is not restored on exit from the current
+lexical scope; this C<:=> binding records the I<last> cloning, not
+the currently in-use cloning, so any use of the global reference must
+take into consideration that it is functioning only as a cache of the
+most recent cloning, not as a surrogate for the current lexical scope.)
+
+Lexical names do not share this problem, since the symbol goes out
+of scope synchronously with its usage.  Unlike global subs, they
+do not need a compile-time C<::=> binding, but like global subs,
+they perform a C<:=> binding to the lexical symbol at clone time
+(again, conceptually at the entry to the outer lexical scope, but
+possible deferred.)
 
     sub foo {
+	# conceptual cloning happens to both blocks below
         my $x = 1;
-        my sub bar { print $x }         # not cloned yet
-        my &baz = { bar(); print $x };  # cloned immediately
-        my $code = &bar;                # now bar is cloned
+        my sub bar { print $x }         # already conceptualy cloned, but can be lazily deferred
+        my &baz := { bar(); print $x }; # block is cloned immediately, forcing cloning of bar
+        my $code = &bar;                # this would also force bar to be cloned
         return &baz;
     }
 
-When we say "clone", we mean the way the system takes a snapshot of the
-routine's lexical scope and binds it to the current instance of the routine
-so that if you ever use the current reference to the routine, it gets
-the current snapshot of its world, lexically speaking.  (When we say that
-named subroutines do not consider themselves closures, this is a bit of a
-fib, since we must, in fact, take a reference to the subroutine in order to
-store it into the symbol table!  But this operation happens at compile time
-so the lexical scopes in view are just the initial prototype lexical scopes
-visible to the compiler.)
+In particular, blocks of inline control flow need not be cloned until
+called.  [Note: this is currently a potential problem for user-defined
+constructs, since you have to take references to blocks to pass them
+to whatever is managing the control flow.  Perhaps the laziness can
+be deferred through Captures to binding time, so a slurpy of block
+refs doesn't clone them all prematurely.  On the other hand, this
+either means the Capture must be smart enough to keep track of the
+lexical scope it came from so that it can pass the info to the cloner,
+or it means that we need some special fat not-cloned-yet references
+that can carry the info lazily.  Neither approach is pretty.]
 
 Some closures produce C<Code> objects at compile time that cannot be
 cloned, because they're not attached to any runtime code that can
