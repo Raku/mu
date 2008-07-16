@@ -18,7 +18,7 @@ my ($name);
 for (<$std>) {
     if (/(?:regex|rule|token) \s+ ([:\w]+?(?:sym<.*?>)?)\s/x) {
         $name = $1;
-        $name =~ s/:sym<(.*)>/$1/;
+#        $name =~ s/:sym<(.*)>/$1/;
 #        warn YELLOW,"$name",RESET;
     }
     if (/\{\*\} .*? (?:\#=(.*))?$/x) {

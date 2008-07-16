@@ -1,0 +1,6 @@
+(please add question to this file and they will (hopefully) be answered ;)
+* (re)compile the elf component with sh compile (if it changed)
+* edit actions with either sh edit or $EDITOR pixie_action5
+* test with perl pixie t/01-sanity/01-tap.t
+* use can use elfX -v -e 'perl6 code' and view misc/elfish/elfX/IRx1_nodes_create.pl see the ast format
+

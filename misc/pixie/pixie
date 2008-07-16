@@ -62,6 +62,13 @@ sub ::unmangle {
     return $_;
 #	s/(\W)/sprintf("_%02x_",ord($1))/eg;
 }
+sub ::vague {
+    my ($name,) = @_;
+    $name =~ s/_//g;
+    $name =~ s/ //g;
+    $name =~ s/:sym<(.*?)>/:$1/g;
+    $name;
+}
 use strict;
 use warnings;
 
@@ -82,7 +89,7 @@ for (<$actions>) {
     if (/^### (.*?)\s*$/) {
         $action = $1;
     } else {
-        $actions{$action} .= $_;
+        $actions{::vague($action)} .= $_;
     }
 }
 
@@ -159,18 +166,20 @@ while (my ($name,$code) = each %actions) {
         $tag =~ s/__S_\d+/:/;
         my $tag = ::unmangle($tag);
 
-        if ($actions{$tag}) {
+        if ($actions{::vague($tag)}) {
             print (GREEN,$tag,RESET,"\n") unless $quiet;
             local $_ = $self;
-            $actions{$tag}->();
+            $actions{::vague($tag)}->();
             $self;
         } else {
-            print (RED,$tag,RESET,"\n") unless $quiet;
+            print (RED,$tag," ~~ ",::vague($tag),RESET,"\n") unless $quiet;
             $self;
         }
     }
 }
 
+use Data::Dumper;
+print Dumper(\%actions);
 my $r = Perl_with_actions->new($text)->$what();
 if ($yaml) {
     print Dump($r);
@@ -179,8 +188,8 @@ if ($yaml) {
     print dump_match($what=>$r,{vertical=>1,mark_arrays=>1,actions=>sub {Compiler::dump_IRx1(@_)}}),"\n" unless $quiet;
 }
 my $ir = $r->{''};
-my $code = $GLOBAL::emitter1->prelude_lexical . $ir->callback($GLOBAL::emitter1);
-print $GLOBAL::emitter1->tidy($code),"\n" unless $quiet;
+my $code = $GLOBAL::compiler1->emitter->prelude_lexical . $ir->callback($GLOBAL::compiler1->emitter);
+print $GLOBAL::compiler1->emitter->tidy($code),"\n" unless $quiet;
 eval($code);
 print "error: $@" if $@;
 #};
