@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin pod
 L<S04/"Loop statements"/next>
 next
 next if <condition>;
@@ -11,7 +11,7 @@ next <label>;
 next in nested loops
 next <label> in nested loops
 
-=cut
+=end pod
 
 plan 12;
 
@@ -27,12 +27,11 @@ plan 12;
 }
 
 {
-    my $tracker = 0; for (1..5) { next if 2 < $_ < 4; $tracker = $_;}
+    my $tracker = 0; for (1..5) { next unless 2 < $_ < 4; $tracker = $_;}
     is(
         $tracker,
         3,
-        "... nothing before or after 3 (next if <cond>)",
-        :todo<bug>
+        "... nothing before or after 3 (next unless <cond>)",
     );
 }
 
@@ -80,11 +79,11 @@ plan 12;
     );
 }
 
-=pod
+=begin pod
 
 Check that C<next> works on the correct loop/block
 
-=cut
+=end pod
 
 {
   my $foo;
