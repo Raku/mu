@@ -39,7 +39,9 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
       int hashing_result = 0;
       if (SMOP_RI(key) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
+        SMOP__Object* dest = key;
         key = SMOP__NATIVE__idconst_create(SMOP__S1P__Str_c_str(key));
+        SMOP_RELEASE(interpreter,dest);
       }
       hash_bucket* bucket = invocant->buckets[hashing_result];
       //fprintf(stderr,"bucket %p\n",bucket);
@@ -60,7 +62,6 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       hash_bucket* new_bucket = (hash_bucket*) calloc(1,sizeof(hash_bucket));
 
       new_bucket->key  = key;
-      //SMOP_REFERENCE(interpreter,key);
 
       new_bucket->cell = cell;
       new_bucket->next = NULL;
