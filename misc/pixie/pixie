@@ -122,13 +122,25 @@ while (my ($name,$code) = each %actions) {
             );
         } elsif ($expr->{noun}) {
             $expr->{noun}->item;
+        } elsif ($expr->{O}{chain}) {
+            my $chain = $expr->{O}{chain};
+            if (scalar @$chain == 3) {
+                IRx1::Apply->new(
+                    function => 'infix:'.$expr->{infix}->item,
+                    capture  => IRx1::Capture->new(arguments=>[EXPR($chain->[0]),EXPR($chain->[2])]),
+                );
+            } else {
+                die "can't handle operator chaining:".length(@$chain).','.join(';',map {"[".$_->item."]"} @$chain)."\n";
+            }
         } elsif ($expr->{infix}) {
             IRx1::Apply->new(
                 function => 'infix:'.$expr->{infix}->item,
                 capture  => IRx1::Capture->new(arguments=>[EXPR($expr->{left}),EXPR($expr->{right})]),
             );
         } else {
-            warn 'unknown EXPR type';
+            #use Data::Dumper;
+            #die Dumper($expr);
+            warn "unknown EXPR type:$expr".join(';',keys(%{$expr}))."\n";
             undef;
         }
     }
@@ -178,8 +190,6 @@ while (my ($name,$code) = each %actions) {
     }
 }
 
-use Data::Dumper;
-print Dumper(\%actions);
 my $r = Perl_with_actions->new($text)->$what();
 if ($yaml) {
     print Dump($r);

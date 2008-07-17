@@ -4,6 +4,8 @@ make (IRx1::CompUnit->new(statements=>$_->{statementlist}->item))
 make (IRx1::Block->new(statements=>$_->{statementlist}->item))
 ### statementlist 
  make ([map { ref $_->item ? $_->item : do {(my $tmp = $_->item) =~ s/^^/#todo: /mg;$tmp}} @{$_->{statement}}])
+### semilist 
+make (IRx1::Block->new(statements=>[map {$_->item} @{$_->{statement}}]))
 ### statement control
 make ($_->{statement_control}->item) 
 ### statement expr
@@ -12,7 +14,7 @@ make ($_->{statement_control}->item)
 ### statement_control:use 
 make(IRx1::Use->new(module_name=>$_->{module_name}->item))
 ### statement_control:if 
-make (IRx1::Cond->new(clauses=>[EXPR($_->{EXPR}),$_->{pblock}{block}->item],default=>$_->{else} ? $_->{else}->item : undef))
+make (IRx1::Cond->new(clauses=>[[EXPR($_->{EXPR}),$_->{pblock}{block}->item]],default=>$_->{else} ? $_->{else}{pblock}{block}->item : undef))
 ### noun 
 
         for my $key (keys %{$_}) {
@@ -39,5 +41,7 @@ make (IRx1::Cond->new(clauses=>[EXPR($_->{EXPR}),$_->{pblock}{block}->item],defa
 make (IRx1::Var->new(sigil=>$_->{sigil}[0]->item,name=>$_->{desigilname}->item))
 ### value 
  make (quote($_->{quote})) if $_->{quote};
+### circumfix:sym<( )> 
+make $_->{semilist}->item
 ### term:name listop args
 make (IRx1::Apply->new(function=>$_->{longname}->item,capture=>$_->{arglist}->item));
