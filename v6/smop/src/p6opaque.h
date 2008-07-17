@@ -18,7 +18,7 @@ typedef struct SMOP__p6opaque_LOWL_P {
 
 typedef struct SMOP__p6opaque_LOWL_H {
   int count;
-  SMOP__p6opaque_LOWL_P* pairs;
+  SMOP__p6opaque_LOWL_P** pairs;
 } SMOP__p6opaque_LOWL_H;
 
 typedef struct SMOP__p6opaque_LOWL_PoA {
@@ -33,12 +33,12 @@ typedef struct SMOP__p6opaque_LOWL_PoH {
 
 typedef struct SMOP__p6opaque_LOWL_HoA {
   int count;
-  SMOP__p6opaque_LOWL_PoA* pairs;
+  SMOP__p6opaque_LOWL_PoA** pairs;
 } SMOP__p6opaque_LOWL_HoA;
 
 typedef struct SMOP__p6opaque_LOWL_HoH {
   int count;
-  SMOP__p6opaque_LOWL_PoH* pairs;
+  SMOP__p6opaque_LOWL_PoH** pairs;
 } SMOP__p6opaque_LOWL_HoH;
 
 typedef struct SMOP__p6opaque_LOWL_metadata {

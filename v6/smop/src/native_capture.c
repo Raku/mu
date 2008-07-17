@@ -55,6 +55,17 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
     ret = SMOP__NATIVE__capture_invocant(interpreter, invocant_capture);
     SMOP_RELEASE(interpreter, invocant_capture);
     SMOP_RELEASE(interpreter,capture);
+
+  } else if (identifier == SMOP__ID__positional) {
+    SMOP__Object* invocant_capture = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    SMOP__Object* intask = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    
+    ret = SMOP__NATIVE__capture_positional(interpreter, invocant_capture, SMOP__NATIVE__int_fetch(intask));
+
+    SMOP_RELEASE(interpreter, intask);
+    SMOP_RELEASE(interpreter, invocant_capture);
+    SMOP_RELEASE(interpreter, capture);
+
   } else if (identifier == SMOP__ID__DESTROYALL) {
     if (capture && capture != (SMOP__Object*)self
         && capture != smop_native_empty_capture

@@ -1,5 +1,6 @@
 #include <smop.h>
 #include <smop_lowlevel.h>
+#include <smop_identifiers.h>
 #include <smop_s1p.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -31,6 +32,7 @@ static SMOP__Object* lowlevel_method_message(SMOP__Object* interpreter,
                                              SMOP__ResponderInterface* responder,
                                              SMOP__Object* identifier,
                                              SMOP__Object* capture) {
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
   if (SMOP__ID__call == identifier) {
     SMOP__Object* method = SMOP__NATIVE__capture_invocant(interpreter,capture);
     SMOP__S1P__Method_struct* m = (SMOP__S1P__Method_struct*)method;
@@ -52,6 +54,28 @@ static SMOP__Object* lowlevel_method_message(SMOP__Object* interpreter,
     SMOP_RELEASE(interpreter,capture);
     SMOP_RELEASE(interpreter,method);
 
+  } else if (SMOP__ID__name == identifier) {
+    SMOP__Object* method = SMOP__NATIVE__capture_invocant(interpreter,capture);
+    SMOP__S1P__Method_struct* m = (SMOP__S1P__Method_struct*)method;
+    smop_lowlevel_rdlock(capture);
+    ret = m->name; m->name = NULL;
+    smop_lowlevel_unlock(capture);
+
+    SMOP_RELEASE(interpreter,method);
+    SMOP_REFERENCE(interpreter,ret);
+    SMOP_RELEASE(interpreter,capture);
+
+  } else if (SMOP__ID__signature == identifier) {
+    SMOP__Object* method = SMOP__NATIVE__capture_invocant(interpreter,capture);
+    SMOP__S1P__Method_struct* m = (SMOP__S1P__Method_struct*)method;
+    smop_lowlevel_rdlock(capture);
+    ret = m->signature; m->signature = NULL;
+    smop_lowlevel_unlock(capture);
+
+    SMOP_RELEASE(interpreter,method);
+    SMOP_REFERENCE(interpreter,ret);
+    SMOP_RELEASE(interpreter,capture);
+
   } else if (SMOP__ID__DESTROYALL == identifier) {
     SMOP__Object* method = SMOP__NATIVE__capture_invocant(interpreter,capture);
     SMOP__S1P__Method_struct* m = (SMOP__S1P__Method_struct*)method;
@@ -63,14 +87,14 @@ static SMOP__Object* lowlevel_method_message(SMOP__Object* interpreter,
 
     SMOP_RELEASE(interpreter,method);
 
-    SMOP_RELEASE(interpreter,name);
-    SMOP_RELEASE(interpreter,signature);
+    if (name) SMOP_RELEASE(interpreter,name);
+    if (signature) SMOP_RELEASE(interpreter,signature);
     SMOP_RELEASE(interpreter,capture);
   } else {
     fprintf(stderr,"Unknown identifier in lowlevel method object invocation.\n");
     SMOP_RELEASE(interpreter,capture);
   }
-  return SMOP__NATIVE__bool_false;
+  return ret;
 }
 
 static SMOP__Object* lowlevel_method_reference(SMOP__Object* interpreter,
