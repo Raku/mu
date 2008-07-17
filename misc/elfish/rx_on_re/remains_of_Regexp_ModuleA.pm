@@ -31,7 +31,7 @@
 
 { package VersionConstraints;
   use Regexp::Common 2.122;
-  use Sub::Name 0.03;
+  #use Sub::Name 0.03;
   use Filter::Simple 0.82;
 }
 
@@ -103,7 +103,8 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
 {
   package Regexp::ModuleA::AST::BaseClass;
 
-  use Sub::Name;
+  #use Sub::Name;
+  sub subname { $_[1] }
   our $sub_id = 1;
 
   sub RMARE_emit {
@@ -804,7 +805,8 @@ sub {
   
   # <foo>
   package Regexp::ModuleA::AST::Subrule;
-  use Sub::Name;
+  #use Sub::Name;
+  sub subname { $_[1] }
   sub RMARE_emit {
     my($o)=@_;
     my $exprs = $o->{exprs};
@@ -836,7 +838,8 @@ sub {
   
   # rx/a/
   package Regexp::ModuleA::AST::ARegex;
-  use Sub::Name;
+  #use Sub::Name;
+  sub subname { $_[1] }
   sub RMARE_emit {
     my($o)=@_;
     my $pkg = $o->{pkg};
@@ -860,7 +863,8 @@ sub {
   
   # regex foo /a/; rule foo /a/; token foo /a/
   package Regexp::ModuleA::AST::Biind;
-  use Sub::Name;
+  #use Sub::Name;
+  sub subname { $_[1] }
   sub RMARE_emit {
     my($o)=@_;
     my $pkg = $o->{pkg};
@@ -2632,7 +2636,8 @@ sub make0_from_node___literal {
 # Rx
 #
 package Regexp::ModuleA::Rx;
-use Sub::Name;
+#use Sub::Name;
+sub subname { $_[1] }
 
 sub _new_from_ast {
   my($rxclass,$ast,$pkg,$name,$f,$matchergen)=@_;

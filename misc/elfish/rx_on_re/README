@@ -11,6 +11,48 @@ Regexp_ModuleA.pm into p6, _while keeping it working_.
 Once there a p6 version is working, but still emitting p5 and thus
 only suitable for p5 backends, then create a version which emits p6.
 
+
+CURRENT STATUS:
+
+  Facing a perl malloc panic.
+
+  While setting up the development environment and regression testing,
+  I hit a perl malloc/free bug.
+
+            # 'abc'i        ABC     y       $&      ABC
+    not ok # Unexpected compilation failure.
+    # compile "(?i)abc" failed: panic: malloc at remains_of_Regexp_ModuleA.pm line 158.
+     at remains_of_Regexp_ModuleA.pm line 2235
+  and then
+            # 'abc'i        XBC     n       -       -
+    not ok # Unexpected compilation failure.
+    # compile "(?i)abc" failed: panic: free from wrong pool at remains_of_Regexp_ModuleA.pm line 158.
+     at remains_of_Regexp_ModuleA.pm line 2235
+
+  Segfaults have been a problem with Regexp_ModuleA in the past.
+  That's the reason its code is such a mess - it proved fragile in the
+  face of simple refactoring.  Just moving code around the file could
+  cause segfaults.
+
+  Comments in http://rt.perl.org/rt3/Public/Bug/Display.html?id=55658
+  suggests the current failure (of elf+Regexp in v5.10.0) is
+  symptomatically consistent with the those earlier segfaults (of
+  Regexp by itself) seen in v5.8 (and v5.6?).
+
+  With Sub::Name commented out, I fuzzily believe the only non-core non-pure
+  perl module being used by the elf_f + Regexp_ModuleA combination is autobox.
+  But in light of the earlier difficulties, I suspect that's not the cause.
+
+  The difficulty may (or may not) only affect x86_64.  One option might
+  be to proceed with a 32 bit restriction.
+
+  I was hoping to find the problem gone in 5.10.  Since it appears not
+  to be, I'm unsure whether to proceed with this dev path.  Debugging
+  perlguts isn't what I had in mind.
+
+END CURRENT STATUS
+
+
 Milestones:
 
 () Dev environment and regression testing set up.
@@ -43,3 +85,27 @@ NOTES
 
 /EmitRegexYare.pm is a leftover from a previous attempt in this direction.
 Bits of it may be of use.
+
+
+BASELINE
+
+$ prove t/re_tests.t
+t/re_tests....FAILED tests 234, 322, 380, 419, 422, 495-496, 533-536, 598, 806-823, 828, 830-831, 860-861, 866
+	Failed 36/961 tests, 96.25% okay
+Failed Test  Stat Wstat Total Fail  List of Failed
+-------------------------------------------------------------------------------
+t/re_tests.t              961   36  234 322 380 419 422 495-496 533-536 598
+                                    806-823 828 830-831 860-861 866
+Failed 1/1 test scripts. 36/961 subtests failed.
+Files=1, Tests=961, 20 wallclock secs (19.05 cusr +  0.26 csys = 19.31 CPU)
+
+$ prove t/rx.t
+t/rx....FAILED tests 22, 60-62, 85, 223, 226, 239, 246, 248, 250, 258-259, 264, 329, 365-366, 383, 392, 394, 397, 433-435, 439, 444-445, 502, 508, 513, 515-536
+	Failed 52/536 tests, 90.30% okay
+Failed Test Stat Wstat Total Fail  List of Failed
+-------------------------------------------------------------------------------
+t/rx.t                   536   52  22 60-62 85 223 226 239 246 248 250 258-259
+                                   264 329 365-366 383 392 394 397 433-435 439
+                                   444-445 502 508 513 515-536
+Failed 1/1 test scripts. 52/536 subtests failed.
+Files=1, Tests=536, 17 wallclock secs (17.30 cusr +  0.35 csys = 17.65 CPU)

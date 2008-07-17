@@ -2,7 +2,7 @@
 require 't/re_tests.pl';
 
 BEGIN {
-    my $m = $ENV{RE_TESTS_MODULE} || 'Regexp_ModuleA';
+    my $m = $ENV{RE_TESTS_MODULE} || 'remains_of_Regexp_ModuleA';
     eval("use $m;");
     die $@ if $@;
 }
