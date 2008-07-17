@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
   Last Modified: 16 July 2008
   Number: 4
-  Version: 67
+  Version: 68
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -1059,6 +1059,14 @@ everything else, to guarantee that even C<LEAVE> blocks can't violate DBC.
 Likewise C<PRE> blocks fire off before any C<ENTER> or C<FIRST> (though not
 before C<BEGIN>, C<CHECK>, or C<INIT>, since those are done at compile or
 process initialization time).
+
+For blocks such as C<KEEP> and C<POST> that are run when exiting a
+scope normally, the return value (if any) from that scope is available
+as the current topic.  (It is presented as a C<Capture> object.)
+The topic of the outer block is still available as C<< OUTER::<$_> >>.
+Whether the return value is modifiable may be a policy of the block
+in question.  In particular, the return value should not be modified
+within a C<POST> block, but a C<LEAVE> block could be more liberal.
 
 =head1 Statement parsing
 
