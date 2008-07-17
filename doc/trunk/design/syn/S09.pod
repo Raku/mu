@@ -789,7 +789,7 @@ semicolon subscripts:
     @x[0;1;42]
     @x[0..10; 1,0; 1..*:by(2)]
 
-Built-in array types are expected succeed either way, even if
+Built-in array types are expected to succeed either way, even if
 the cascaded subscript form must be implemented inefficiently by
 constructing temporary slice objects for later subscripts to use.
 (User-defined types may choose not to support the cascaded form, but
