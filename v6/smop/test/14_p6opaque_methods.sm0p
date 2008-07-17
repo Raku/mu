@@ -27,6 +27,11 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
       SMOP__Object* frame;
 
       // here we'll take the first method and call it.
+      /*
+      frame = q:s1p {
+        return $invocant.^!methods.shift.call($invocant,$identifier,$capture);
+      }
+      */
       frame = q:sm0p {
         invocant: $invocant;
         identifier: $identifier;

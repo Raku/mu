@@ -49,7 +49,9 @@ static SMOP__Object* p6opaque_methods_message(SMOP__Object* interpreter,
     SMOP__Object* frame;
     SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                                SMOP__ID__continuation, SMOP_REFERENCE(interpreter,interpreter));
-
+    /* frame = q:p6 {
+        $invocant.register($capture.positional(0).name,$capture.positional(0).signature,$capture.positional(0));
+    } */
     frame = q:sm0p {
       identifier: q:identifier[name];
       method: $capture.positional(0);
