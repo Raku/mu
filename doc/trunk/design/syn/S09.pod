@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 27 May 2008
+  Last Modified: 17 July 2008
   Number: 9
-  Version: 27
+  Version: 28
 
 =head1 Overview
 
@@ -776,6 +776,27 @@ index value to each slice list:
 
     @x[0;1;42]
 
+=head1 Cascaded subscripting of multidimensional arrays
+
+For all multidimensional array types, it is expected that cascaded subscripts:
+
+    @x[0][1][42]
+    @x[0..10][1,0][1..*:by(2)]
+
+will either fail or produce the same results as the equivalent
+semicolon subscripts:
+
+    @x[0;1;42]
+    @x[0..10; 1,0; 1..*:by(2)]
+
+Built-in array types are expected succeed either way, even if
+the cascaded subscript form must be implemented inefficiently by
+constructing temporary slice objects for later subscripts to use.
+(User-defined types may choose not to support the cascaded form, but
+if so, they should fail rather than providing different semantics.)
+As a consequence, for built-in types of declared shape, the appropriate
+number of cascaded subscripts may always be optimized into the
+semicolon form.
 
 =head1 The semicolon operator
 
