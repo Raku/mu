@@ -1276,8 +1276,8 @@ to the symbol table entry in question.  For "global" bindings to
 symbol tables visible at compile time, this binds to the compile-time
 view of the lexical scopes.  (At run-time, the initial run-time view
 of these scopes is copied from the compiler's view of them, so that
-initializations carry over, for instance.)  At run time, whenever such
-a subroutine needs to be cloned, an additional C<:=> binding is done
+initializations carry over, for instance.)  At run time, when such
+a subroutine is cloned, an additional C<:=> binding is done
 at clone time to the same symbol table entry that the original C<::=>
 was bound to.  (The binding is not restored on exit from the current
 lexical scope; this C<:=> binding records the I<last> cloning, not
