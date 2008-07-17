@@ -2,9 +2,10 @@ use v6;
 
 use Test;
 
-plan 20;
+plan 23;
 
 # L<S04/The do-once loop/"can't" put "statement modifier">
+#?rakudo 3 todo 'do {} while/until/if is valid but should not be'
 eval_dies_ok 'my $i = 1; do { $i++ } while $i < 5;',
     "'do' can't take the 'while' modifier";
 
@@ -24,6 +25,7 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
     "'do' can't take the 'given' modifier";
 
 # L<S04/The do-once loop/statement "prefixing with" do>
+#?rakudo skip 'my($a, $b, $c) = "a" .. "c" not implemented'
 {
     my $x;
     my ($a, $b, $c) = 'a' .. 'c';
@@ -40,7 +42,8 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
 	in list context.
 =end comment
 	$x = do if 0 { 1 } elsif 0 { 2 };
-	is $x, undef, 'when if dose not execute any branch, return undef';
+        #?rakudo 1 todo 'rakudo does not return undef when do if does not return a value'
+	is $x, undef, 'when if does not execute any branch, return undef';
 }
 
 {
@@ -64,9 +67,20 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
 
     $ret = do 3 + 2;
     is($ret, 5, 'do EXPR should also work (simple + expr)');
+
+    $ret = do do 5;
+    is($ret, 5, 'nested do (1)');
+
+    $ret = do {do 5};
+    is($ret, 5, 'nested do (2)');
+
+    # precedence decisions do not cross a do boundary
+    $ret = 2 * do 2 + 5;
+    is($ret, 14, 'do affects precendence correctly');
 }
 
 # L<S04/The do-once loop/"can take" "loop control statements">
+#?rakudo skip 'next not implemented'
 {
     my $i;
     do {
@@ -77,8 +91,9 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
     is $i, 1, "'next' works in 'do' block";
 }
 
+#?rakudo skip 'last not implemented'
 {
-    is eval(q{
+    is eval('
         my $i;
         do {
             $i++;
@@ -86,14 +101,15 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
             $i--;
         };
         $i;
-    }), 1, "'last' works in 'do' block";
+    '), 1, "'last' works in 'do' block";
 }
 
 # IRC notes:
 # <agentzh> audreyt: btw, can i use redo in the do-once loop?
 # <audreyt> it can, and it will redo it
+#?rakudo skip 'redo not implemented'
 {
-    is eval(q{
+    is eval('
         my $i;
         do {
             $i++;
@@ -101,7 +117,7 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
             $i--;
         };
         $i;
-    }), 2, "'redo' works in 'do' block";
+    '), 2, "'redo' works in 'do' block";
 }
 
 # L<S04/The do-once loop/"bare block" "no longer a do-once loop">
