@@ -22,10 +22,12 @@ INSTALL
 
 The elf executable is generic perl 5.
 It can be called from any directory.  It can be renamed.
-It can be moved to a different directory, but expects to find its STD_red
-parser in either ../STD_red or elf_X_src/STD_red, relative to the
-directory of the executable, and depending on whether it's on active
-development or slushy/frozen.
+
+It can be moved to a different directory, but needs to find STD_red_run.
+It looks for ../STD_red/STD_red_run or ./elf_X_src/STD_red/STD_red_run,
+relative to the directory of the executable (active elf versions use the
+first, older slushy/frozen versions use the second).
+Both can be overridden by setting the ELF_STD_RED_RUN environment variable.
 
 STD_red requires ruby 1.9.  See it's README for installation info.
 
