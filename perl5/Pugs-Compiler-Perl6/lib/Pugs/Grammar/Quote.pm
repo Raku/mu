@@ -89,10 +89,10 @@ sub angle_quoted {
   |
     <before '{' >
     [
-        <Pugs::Grammar::Expression.parse>
+        <Pugs::Grammar::Perl6.block>
         { return {
             statement => 'do',
-            exp1 => $/{'Pugs::Grammar::Expression.parse'}() 
+            exp1 => $/{'Pugs::Grammar::Perl6.block'}() 
         } }
     |
         .
