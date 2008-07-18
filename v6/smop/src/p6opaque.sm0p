@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <smop.h>
+#include <smop_s1p.h>
 #include <smop_oo.h>
 #include <smop_lowlevel.h>
 
@@ -16,13 +17,14 @@ class metadata {
   has @.isa;
   has @.does;
   has %.class_storage;
-  has @.attributes;
+  has %.attributes;
   has %.methods of Array;
   has %.submethods of Array;
 }
 */
 SMOP__Object* SMOP__p6opaque__RI;
-typedef struct SMOP_p6opaque_metadata {
+static SMOP__Object* SMOP__p6opaque_metadata__RI;
+typedef struct smop_p6opaque_metadata {
   SMOP__Object__BASE
   SMOP__Object* how;
   SMOP__Object* package;
@@ -31,24 +33,52 @@ typedef struct SMOP_p6opaque_metadata {
   SMOP__Object* attributes;
   SMOP__Object* methods;
   SMOP__Object* submethods;
-} SMOP_p6opaque_metadata;
+} smop_p6opaque_metadata;
 
-typedef struct SMOP_p6opaque {
+typedef struct smop_p6opaque {
   SMOP__Object__BASE
   SMOP__Object *metadata;
   SMOP__Object *instance;
-} SMOP_p6opaque;
+} smop_p6opaque;
 
+static SMOP__Object* create_metadata(void) {
+    smop_p6opaque_metadata* metadata = (smop_p6opaque_metadata*) smop_lowlevel_alloc(sizeof(smop_p6opaque_metadata));
+    metadata->RI = (SMOP__ResponderInterface*) SMOP__p6opaque_metadata__RI;
+    metadata->how = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    metadata->does = SMOP__NATIVE__bool_false; /*SMOP__S1P__Array_create()*/
+    metadata->class_storage = SMOP__S1P__Hash_create();
+    metadata->attributes = SMOP__S1P__Hash_create();
+    metadata->methods = SMOP__S1P__Hash_create();
+    metadata->submethods = SMOP__S1P__Hash_create();
+    return (SMOP__Object*) metadata;
+}
+static SMOP__Object* p6opaque_metadata_message(SMOP__Object* interpreter,
+                                      SMOP__ResponderInterface* self,
+                                      SMOP__Object* identifier,
+                                      SMOP__Object* capture) {
+  smop_p6opaque_metadata* metadata = SMOP__NATIVE__capture_invocant(interpreter,capture);
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+  if (identifier == SMOP__ID__DESTROYALL) {
+    SMOP_RELEASE(interpreter,metadata->RI);
+    SMOP_RELEASE(interpreter,metadata->how);
+    SMOP_RELEASE(interpreter,metadata->does);
+    SMOP_RELEASE(interpreter,metadata->class_storage);
+    SMOP_RELEASE(interpreter,metadata->attributes);
+    SMOP_RELEASE(interpreter,metadata->methods);
+    SMOP_RELEASE(interpreter,metadata->submethods);
+  }
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
+}
 static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                       SMOP__ResponderInterface* self,
                                       SMOP__Object* identifier,
                                       SMOP__Object* capture) {
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  SMOP_p6opaque* invocant = (SMOP_p6opaque*) capture;
-  SMOP_p6opaque_metadata* metadata = (SMOP_p6opaque_metadata*) invocant->metadata;
+  smop_p6opaque* invocant = (smop_p6opaque*) SMOP__NATIVE__capture_invocant(interpreter,capture);
   if (identifier == SMOP__ID__REPR_CREATE) {
-    invocant->instance = SMOP__NATIVE__bool_false;
-    invocant->metadata = SMOP__NATIVE__bool_false;
+    invocant->instance = SMOP__S1P__Hash_create();
+    invocant->metadata = create_metadata();
   } else if (identifier == SMOP__ID__DESTROYALL) {
     SMOP_RELEASE(interpreter,invocant->instance);
     SMOP_RELEASE(interpreter,invocant->metadata);
@@ -63,8 +93,15 @@ void smop_p6opaque_init() {
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->REFERENCE = smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->RELEASE = smop_lowlevel_generic_release;
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->id = "p6opaque";
+
+  SMOP__p6opaque_metadata__RI = calloc(1,sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)SMOP__p6opaque_metadata__RI)->MESSAGE = p6opaque_metadata_message;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque_metadata__RI)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque_metadata__RI)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque_metadata__RI)->id = "p6opaque metadata";
 }
 
 void smop_p6opaque_destr() {
   free(SMOP__p6opaque__RI);
+  free(SMOP__p6opaque_metadata__RI);
 }
