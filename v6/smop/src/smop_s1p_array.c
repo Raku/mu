@@ -6,6 +6,7 @@ SMOP__Object* SMOP__S1P__Array;
 
 typedef struct smop_s1p_array_struct {
   SMOP__Object__BASE
+  int elems;
   int size;
   SMOP__Object** content;
 } smop_s1p_array_struct;
