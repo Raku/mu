@@ -259,7 +259,9 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     SMOP__Object* cont = ((interpreter_instance_struct*)invocant)->continuation;
     smop_lowlevel_unlock(invocant);
 
-    runloop(invocant, cont);
+    if (cont != SMOP__NATIVE__bool_false) {
+      runloop(invocant, cont);
+    }
 
   } else if (identifier == SMOP__ID__DESTROYALL) {
     interpreter_instance_struct* inst = (interpreter_instance_struct*)capture;
