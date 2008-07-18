@@ -32,9 +32,8 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
 
   smop_s1p_hash_struct* invocant = (smop_s1p_hash_struct*)(SMOP__NATIVE__capture_invocant(interpreter, capture));
 
-  if (invocant) SMOP_RELEASE(interpreter,invocant);
-
   if (identifier == SMOP__ID__postcircumfix_curly) {
+
     if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1) {
       SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
       int hashing_result = 0;
@@ -47,6 +46,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       //fprintf(stderr,"bucket %p\n",bucket);
       if (bucket) while (1) {
         if (bucket->key == key) {
+          SMOP_RELEASE(interpreter,invocant);
           SMOP_REFERENCE(interpreter,bucket->cell);
           SMOP_RELEASE(interpreter,capture);
           return bucket->cell;
@@ -68,6 +68,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       if (bucket) bucket->next = new_bucket;
       else invocant->buckets[hashing_result] = new_bucket;
 
+      SMOP_RELEASE(interpreter,invocant);
       SMOP_REFERENCE(interpreter,cell);
       SMOP_RELEASE(interpreter,capture);
       return cell;
@@ -75,6 +76,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       fprintf(stderr,"wrong number of arguments to postrcicumfix:<{ }>\n");
     }
   } else if (identifier == SMOP__ID__new) {
+    if (invocant) SMOP_RELEASE(interpreter,invocant);
     return SMOP__S1P__Hash_create();
 
   } else if (identifier == SMOP__ID__DESTROYALL) {
@@ -92,6 +94,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       free(invocant->buckets);
   }
 
+  if (invocant) SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }

@@ -21,6 +21,12 @@ void smop_destr() {
   SMOP_BOOTSTRAP_DESTR_SEQUENCE;
 
   SMOP_DISPATCH(SMOP__GlobalInterpreter, SMOP_RI(SMOP__GlobalInterpreter),
+                SMOP__ID__loop, 
+                SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
+                                             SMOP_REFERENCE(SMOP__GlobalInterpreter,SMOP__GlobalInterpreter),
+                                             NULL, NULL));
+
+  SMOP_DISPATCH(SMOP__GlobalInterpreter, SMOP_RI(SMOP__GlobalInterpreter),
                 SMOP__ID__goto, 
                 SMOP__NATIVE__bool_false);
 
