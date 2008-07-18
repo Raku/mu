@@ -44,6 +44,7 @@ if (@inc) {
         mkpath(dirname($_));
         my $src = "$inc[-1]/../$_";
         $src = "$inc[-1]/../ext/Test/lib/Test.pm" if $_ eq 't/Test.pm';
+	next unless -f $src;
         copy($src => $_);
         `$^X -i -pe ' s/^use v6;/use v6-alpha;/ ' '$_' `
             if -f $_;
