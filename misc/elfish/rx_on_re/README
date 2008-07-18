@@ -11,48 +11,6 @@ Regexp_ModuleA.pm into p6, _while keeping it working_.
 Once there a p6 version is working, but still emitting p5 and thus
 only suitable for p5 backends, then create a version which emits p6.
 
-
-CURRENT STATUS:
-
-  Facing a perl malloc panic.
-
-  While setting up the development environment and regression testing,
-  I hit a perl malloc/free bug.
-
-            # 'abc'i        ABC     y       $&      ABC
-    not ok # Unexpected compilation failure.
-    # compile "(?i)abc" failed: panic: malloc at remains_of_Regexp_ModuleA.pm line 158.
-     at remains_of_Regexp_ModuleA.pm line 2235
-  and then
-            # 'abc'i        XBC     n       -       -
-    not ok # Unexpected compilation failure.
-    # compile "(?i)abc" failed: panic: free from wrong pool at remains_of_Regexp_ModuleA.pm line 158.
-     at remains_of_Regexp_ModuleA.pm line 2235
-
-  Segfaults have been a problem with Regexp_ModuleA in the past.
-  That's the reason its code is such a mess - it proved fragile in the
-  face of simple refactoring.  Just moving code around the file could
-  cause segfaults.
-
-  Comments in http://rt.perl.org/rt3/Public/Bug/Display.html?id=55658
-  suggests the current failure (of elf+Regexp in v5.10.0) is
-  symptomatically consistent with the those earlier segfaults (of
-  Regexp by itself) seen in v5.8 (and v5.6?).
-
-  With Sub::Name commented out, I fuzzily believe the only non-core non-pure
-  perl module being used by the elf_f + Regexp_ModuleA combination is autobox.
-  But in light of the earlier difficulties, I suspect that's not the cause.
-
-  The difficulty may (or may not) only affect x86_64.  One option might
-  be to proceed with a 32 bit restriction.
-
-  I was hoping to find the problem gone in 5.10.  Since it appears not
-  to be, I'm unsure whether to proceed with this dev path.  Debugging
-  perlguts isn't what I had in mind.
-
-END CURRENT STATUS
-
-
 Milestones:
 
 () Dev environment and regression testing set up.
