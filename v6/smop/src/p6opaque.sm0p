@@ -9,7 +9,9 @@
 /*
 class p6opaque {
   has $.WHENCE;
+  has $.instanceof;
   has metadata $.metadata;
+  has Hash of Hash $.instance;
 }
 class metadata {
   has $.how;
@@ -37,8 +39,10 @@ typedef struct smop_p6opaque_metadata {
 
 typedef struct smop_p6opaque {
   SMOP__Object__BASE
-  SMOP__Object *metadata;
-  SMOP__Object *instance;
+  SMOP__Object* whence;
+  SMOP__Object* instanceof;
+  SMOP__Object* metadata;
+  SMOP__Object* instance;
 } smop_p6opaque;
 
 static SMOP__Object* create_metadata(void) {
