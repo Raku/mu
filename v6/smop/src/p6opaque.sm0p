@@ -81,7 +81,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     invocant->instance = SMOP__S1P__Hash_create();
     invocant->metadata = create_metadata();
   } else if (identifier == SMOP__ID__REPR_how) {
-    ret = metadata->how;
+    ret = SMOP_REFERENCE(interpreter,metadata->how);
   } else if (identifier == SMOP__ID__DESTROYALL) {
     SMOP_RELEASE(interpreter,invocant->instance);
     SMOP_RELEASE(interpreter,invocant->metadata);
