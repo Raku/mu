@@ -151,6 +151,11 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     } else {
       target = SMOP_REFERENCE(interpreter,capture);
     }
+
+    if (SMOP_RI(target) == SMOP_RI(SMOP__NATIVE__bool_false)) {
+      target = NULL;
+    }
+
     smop_lowlevel_wrlock(invocant);
     SMOP__Object* cont = ((interpreter_instance_struct*)invocant)->continuation;
     ((interpreter_instance_struct*)invocant)->continuation = target;
