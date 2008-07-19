@@ -1,0 +1,147 @@
+# see README
+
+digraph G {
+  rankdir=LR;
+  node [shape=none];
+
+  subgraph cluster_elf_syntax {
+    use_temp
+    -> "elf could be parsed\nby a working STD"
+    -> STD_parses_elf
+
+    "elf_g created" -> use_temp
+    use_temp [label="elf $^x misuse\nswitched to temp($x)"];
+    STD_parses_elf [label="STD parses elf"]
+    
+    style=filled; color=lightgray;
+    label="elf implementation syntax";
+  };
+
+  subgraph cluster_rx_on_re {
+    r0 [label="pass tests with\np5 from p5" fontcolor=gray];
+    r5 [label="pass tests with\np5 from p6"];
+    r6 [label="pass tests with\np6 from p6"];
+    r0 -> r5 [color=gray]
+    r5 -> r6;
+    parse_pieces [label="low overhead p6 parsing\nor change approach" fontsize=10];
+    parse_pieces -> r6 [style=dashed];
+    tweak_rx [label="sync rx syntax"];
+    r6 -> tweak_rx [style=dashed];
+
+  subgraph cluster_cursor_sync {
+    snodes [label="semisync nodes"];
+    non_LTM [label="non LTM |"]
+    snodes ->
+    non_LTM ->
+    "LTM in p5" ->
+    "LTM in p6"
+
+    rx_milestone [label="have STD-capable rx engine\nrunning fast and with tests" shape=box]
+    non_LTM -> rx_milestone;
+
+    tweak_rx -> snodes [style=dashed]
+
+    style=filled; color=lightgray;
+    label="sync with Cursor";
+  };
+
+    style=filled; color=lightgray;
+    label="rx_on_re";
+  };
+  subgraph cluster_STD_coverage {
+    gt_pugs [label="surpasses pugs\non t/ and ext/"]
+    good_grammar [label="have static\nPerl 6 grammar" shape=box]
+    STD_elf [label="elf"]
+
+    STD_elf -> "elf and its\nderivatives" ->
+    "superset of\nSTD_red" -> gt_pugs
+    gt_pugs -> good_grammar
+
+    style=filled; color=lightgray;
+    label="STD coverage"
+  };
+  STD_elf -> STD_parses_elf
+
+
+  subgraph cluster_elf_rx {
+    orig [label="re passthru" fontcolor=gray]
+    re_pass [label="syntactically correct\nre passthru"]
+    orig -> re_pass [color=gray]
+    re_pass -> rx_crude5
+
+    subgraph cluster_crude_rx {
+      rx_crude5 [label="in p5"];
+      rx_crude [label="in p6"];
+      label="crude rx";
+      either [label=""]
+    }
+    r5 -> rx_crude5;
+
+    support_rules [label="elf supports\nrules/grammars" shape=box]
+    either -> support_rules
+
+    { rx_crude5 r6 } -> rx_crude;
+
+    style=filled; color=lightgray;
+    label="elf rx"
+  };
+
+  subgraph cluster_off_STD_red {
+    can_use_STD [label=""]
+    std_boots [label="external STD\nbootstraps elf"]
+    "external STD\nparser" -> std_boots
+    elf_runs_STD [label="elf rx can run\nmodified STD"]
+    elf_on_STD [label="elf on STD" shape=box]
+    { std_boots elf_runs_STD } -> elf_on_STD
+    rx_milestone -> elf_runs_STD    
+    
+    elf_ltm5 [label="elf/p5 LTM"]
+    elf_on_STD -> elf_ltm5 [style=dashed]
+    elf_ltm5 -> "elf LTM"
+    elf_on_STD6 [label="elf on STD\nall p6"]
+    elf_frontend6 [label="elf p6 frontend" shape=box]
+    elf_on_STD -> elf_on_STD6 -> elf_frontend6
+
+    style=filled; color=lightgray;
+    label="elf moved from STD_red to STD"
+  };
+  "LTM in p5" -> elf_ltm5
+  "LTM in p6" -> "elf LTM"
+  STD_parses_elf -> std_boots [constraint=false]
+  support_rules -> elf_runs_STD [constraint=false]
+
+  subgraph cluster_bootstrap {
+
+    subgraph cluster_backend {
+      elf_P5_back [label="elf/p5\nbackend bootstrap" fontcolor=gray];
+      elf_CL_back [label="elf/CL\nbackend bootstrap"];
+      {"elf/CL\nbackend" [fontcolor=gray]} -> elf_CL_back [color=gray]
+      style=filled; color=lightgray;
+    };
+    subgraph cluster_frontend {
+      weak_bs5 [label="p5 frontend\nweak p5 bootstrap"];
+      p6_frontend [label="p6 frontend"];
+      style=filled; color=lightgray;
+    };
+
+    elf_CL_bs [label="elf/CL\nbootstrapped"];
+    elf_P5_bs [label="elf/p5\nbootstrapped"];
+
+    elf_P5_back -> weak_bs5 [color=gray];
+    weak_bs5 -> elf_P5_bs
+    elf_CL_back -> elf_CL_bs
+    p6_frontend -> { elf_CL_bs elf_P5_bs }
+
+    P6_bs [label="Perl 6\nbootstrapped" shape=box];
+
+    { elf_P5_bs elf_CL_bs } -> { "Elf\nbootstrapped" [shape=box]}
+    -> "..." -> P6_bs
+
+    style=filled; color=lightgray;
+    label="bootstrapping"
+  }
+  elf_frontend6 -> p6_frontend [constraint=false]
+
+  label="\n\nsketch of elf vision 2008-Jul-19"
+  fontsize=15;
+}
