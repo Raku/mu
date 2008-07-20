@@ -1,3 +1,6 @@
 perl insert_actions ../../src/perl6/STD.pm pixie_actions5 > STD.pm
+perl ../../util/gen_STD_ctags.pl STD.pm > tags
 vim STD.pm
 perl extract_actions ../../src/perl6/STD.pm STD.pm > pixie_actions5
+perl insert_actions ../../src/perl6/STD.pm pixie_actions5 > roundtriped
+diff roundtriped STD.pm

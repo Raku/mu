@@ -19,7 +19,7 @@ for (@chunks) {
 my $first = shift @chunks;
 $with =~ /^\Q$first\E/gc or die "can't match first chunk\n";
 for my $chunk (@chunks) {
-    die "can't match next chunk:$chunk\n" unless $with =~ /\G\{(.*?)\}\Q$chunk\E/sgc;
+    die "can't match next chunk:$chunk at",substr($with,pos($with),20),"\n" unless $with =~ /\G\{(.*?)\}\Q$chunk\E/sgc;
     my $action = $1;
     my $name = shift @last_token;
     if ($action) {
