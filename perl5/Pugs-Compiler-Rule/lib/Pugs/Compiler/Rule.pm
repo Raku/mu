@@ -4,7 +4,7 @@ use warnings;
 
 package Pugs::Compiler::Rule;
 
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 use base 'Pugs::Compiler::Regex';
 

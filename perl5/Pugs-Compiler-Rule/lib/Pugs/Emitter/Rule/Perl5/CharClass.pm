@@ -32,7 +32,8 @@ sub emit {
     for ( @c ) {
         my ( $op, $cmd ) = /(.)(.*)/;
 
-        $cmd =~ s/\s//g;
+        $cmd =~ s/\s//g
+            unless $cmd =~ /\\c\[/;
 
         #if ( $last_cmd eq '-'
         #    && substr($cmd,0,1) eq '+'

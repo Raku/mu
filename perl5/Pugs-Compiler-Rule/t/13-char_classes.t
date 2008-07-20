@@ -1,5 +1,5 @@
 
-use Test::More tests => 22;
+use Test::More tests => 25;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -122,8 +122,18 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 }
 
 {
+    my $rule = Pugs::Compiler::Regex->compile( 
+        '^<+[\c[LATIN CAPITAL LETTER A]]>$' );
+    is( "".$rule->match( "3" ), "",  '3 unicode regex' );
+    is( "".$rule->match( "A" ), "A", 'A' );
+    is( "".$rule->match( "b" ), "",  'b' );
+}
+
+{
     my $rule = Pugs::Compiler::Regex->compile( '^<+[3]+[a..z]-[bx]>$' );
     is( "".$rule->match( "3" ), "3", '3 ^<+[a..z]-[bx]>$ regex' );
     is( "".$rule->match( "a" ), "a", 'a' );
     is( "".$rule->match( "b" ), "",  'b' );
 }
+
+

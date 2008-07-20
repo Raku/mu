@@ -1,3 +1,6 @@
+0.30  2008-07-20
+- fixed char class with spaces
+
 0.29  2008-07-12
 - minor fix in test output
 
