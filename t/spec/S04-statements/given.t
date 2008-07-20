@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-plan 52;
+plan 48;
 
-=kwid
+=begin pod
 
 Tests the given block, as defined in L<S04/"Switch statements">
 
-=cut
+=end pod
 
 {
     # basic sanity
@@ -21,6 +21,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
     ok(!$f, "given when false");
 };
 
+#?rakudo skip 'continue not implemented'
 {
     # simple case, with fall through
     # L<S04/Switch statements/If the smart match fails, control passes to the next statement>
@@ -39,11 +40,12 @@ Tests the given block, as defined in L<S04/"Switch statements">
     ok(!$unreached, "but didn't do so normally");
 };
 
+#?rakudo skip 'parsefail on regex'
 {
     my $foo;
     given "foo" {
         when "foo" {
-            when m:P5/^f/ {
+            when /^f/ {
                 $foo = 1
             }
         }
@@ -54,6 +56,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
 
 # from apocalypse 4
+#?rakudo skip 'parsefail on each(... ; ...)'
 {
     # simple example L<S04/"Switch statements" /You don't have to use an explicit default/>
     for each(("T", "E", 5) ; (10, 11, 5)) -> $digit, $expected {
@@ -89,14 +92,16 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
     ok($b_one, "interleaved 1");
     ok($b_two, "interleaved 2 is the last one");
+    #?rakudo 2 todo 'exiting given block happens at the wrong time'
     ok(!$b_three, "inteleraved 3 not executed");
-    ok(!$panic, "never ever execute something after a default {}");
+    ok(!$panic, 'never ever execute something after a default {}');
 };
 
+#?rakudo skip 'my($a, $b, $c) = (1, 2, 3) parsefail'
 {
     # topic not given by 'given' L<S04/"Switch statements" /including a for loop/>
     my ($b_one, $b_two, $b_three,$panic) = (0,0,0,0);
-    for (qw[ 1 2 3 ]) {
+    for (<1 2 3>) {
         when 1 {$b_one = 1}
         when 2 {$b_two = 1}
         when 3 {$b_three = 1}
@@ -116,9 +121,11 @@ Tests the given block, as defined in L<S04/"Switch statements">
         when (1) { $foo = 3; }
         default  { $foo = 4; }
     }
+    #?rakudo todo 'changing $_ does not work within given block'
     is($foo, 2, 'Rebind $_ to new lexical');
 }
 
+#?rakudo skip 'my($a, $b, $c) = (1, 2, 3) parsefail'
 {
     my ($foo, $bar) = (1, 0);
     given (1) {
@@ -131,6 +138,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
     ok($bar, 'continue does not prevent default');
 }
 
+#?rakudo skip 'my($a, $b, $c) = (1, 2, 3) parsefail'
 {
     my ($foo, $bar) = (1, 0);
     given (1) {
@@ -143,6 +151,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
     ok(!$bar, 'break prevents default');
 }
 
+#?rakudo skip 'my($a, $b, $c) = (1, 2, 3) parsefail'
 {
     my ($foo, $bar, $baz, $bad) = (0, 0, -1, 0);
     my $quux = 0;
@@ -163,15 +172,16 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
 # given returns the correct value:
 {
-    sub ret_test($arg) {
-      given $arg {
-        when "a" { "A" }
-        when "b" { "B" }
-      }
-    }
+     sub ret_test($arg) {
+       given $arg {
+         when "a" { "A" }
+         when "b" { "B" }
+       }
+     }
 
-   is( ret_test("a"), "A", "given returns the correct value (1)" ); 
-   is( ret_test("b"), "B", "given returns the correct value (2)" ); 
+    #?rakudo todo 'given does not return the correct value'
+    is( ret_test("a"), "A", "given returns the correct value (1)" ); 
+    is( ret_test("b"), "B", "given returns the correct value (2)" ); 
 }
 
 # given/when and junctions
@@ -190,6 +200,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
     }
     is($any, 1, 'when any');
     is($all, 1, 'when all');
+    #?rakudo todo 'junctions with one'
     is($one, 1, 'when one');
 }
 
@@ -199,17 +210,20 @@ Tests the given block, as defined in L<S04/"Switch statements">
     my $passed = 0;
     ok( eval('given TestIt.new { $_.passit; };'), '$_. method calls' );
     ok( eval('given TestIt.new { .passit; };'), '. method calls' );
+    #?rakudo 2 skip 'Null PMC access in type'
     ok( eval('given TestIt.new { $_.testing<a> = 1; };'),'$_. attribute access' );
     ok( eval('given TestIt.new { .testing<a> = 1; };'),  '. attribute access' );
     my $t = TestIt.new;
     given $t { when TestIt { $passed = 1;} };
     is($passed, 1,"when Type {}");
     $passed = 0;
-    given $t { when .isa(TestIt) { $passed = 1;}}
-    is($passed, 1,"when .isa(Type) {}");
+    #?rakudo emit # the line below dies
+    given $t { when .isa(TestIt) { $passed = 1;}};
+    #?rakudo 1 todo 'get_number() not implemented in class "TestIt"'
+    is($passed, 1,'when .isa(Type) {}');
     $passed = 0;
     given $t { when (TestIt) { $passed = 1; }};
-    is($passed, 1,"when (Type) {}");
+    is($passed, 1,'when (Type) {}');
 }
 
 # given + true
@@ -224,9 +238,11 @@ for @input -> $x {
     }
 }
 
-is(@got.join(","), "false,true", q!given { when true { } }!);
+#?rakudo 1 todo '.true in given does not work'
+is(@got.join(","), "false,true", 'given { when .true { } }');
 
 # given + hash deref
+#?rakudo skip 'parsefail on .{"key"} when $_ is a hash'
 {
     my %h;
     given %h { .{'key'} = 'value'; }
@@ -242,10 +258,12 @@ is(@got.join(","), "false,true", q!given { when true { } }!);
         when ({ $_ == 49 }) { diag "this really shouldn't happen"; $x = 49 }
         when ({ $_ == 41 }) { $x++ }
     }
+    #?rakudo todo 'testing closure does not work'
     ok $x, 'given tests 0-arg closures for truth';
 }
 
 # given + 1-arg closure
+#?rakudo skip 'parsefail (-> $var {block})'
 {
     my $x;
     given 41 {
@@ -256,6 +274,7 @@ is(@got.join(","), "false,true", q!given { when true { } }!);
 }
 
 # given + n>1-arg closure (should fail)
+#?rakudo skip 'parsefail (-> $var {block})'
 {
     dies_ok {
         given 41 {
@@ -266,6 +285,7 @@ is(@got.join(","), "false,true", q!given { when true { } }!);
 }
 
 # given + 0-arg sub
+#?rakudo skip 'parsefail (when &sub {block})'
 {
     my $x = 41;
     sub always_true { Bool::True }
@@ -276,6 +296,7 @@ is(@got.join(","), "false,true", q!given { when true { } }!);
 }
 
 # given + 1-arg sub
+#?rakudo skip 'parsefail (when &sub {block})'
 {
     my $x = 41;
     sub maybe_true ($value) { $value eq "mytopic" }
