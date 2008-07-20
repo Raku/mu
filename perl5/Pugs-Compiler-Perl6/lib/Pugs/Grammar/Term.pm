@@ -651,6 +651,10 @@ sub recompile {
                         value => { num => 0 }, 
                 } } }
             ^ ),
+        q(q) => Pugs::Compiler::Token->compile( q^
+                <Pugs::Grammar::Quote.q>
+                { return $/{'Pugs::Grammar::Quote.q'}->() }
+            ^ ),
         q() => Pugs::Compiler::Token->compile( q^
                 ### num/int
                 \d+ 

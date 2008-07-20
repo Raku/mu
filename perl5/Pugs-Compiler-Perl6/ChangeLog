@@ -1,7 +1,8 @@
-0.022
+0.022  2008-07-20
 
 - implemented string interpolations \x[99] and \c[FOUR TEARDROP-SPOKED ASTERISK]
 - fixed interpolated block in string
+- q()
 - updated test list in MANIFEST
 
 0.021  2008-07-12

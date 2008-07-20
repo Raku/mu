@@ -104,9 +104,9 @@ sub yaml {
         }
         elsif ($lang eq 'perl6') {
             require Pugs::Compiler::Perl6;
-            print "COMPILING EVAL: [[ $string ]]\n";
+            #print "COMPILING EVAL: [[ $string ]]\n";
             my $p6 = Pugs::Compiler::Perl6->compile( $string );
-            print "COMPILED: ",$p6->{perl5},"\n";
+            #print "COMPILED: ",$p6->{perl5},"\n";
             Data::Bind::bind_op2(\$eval_string, \$p6->{perl5});
         }
         elsif ($lang ne 'perl5') {
