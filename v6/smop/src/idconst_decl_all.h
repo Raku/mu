@@ -47,6 +47,7 @@ SMOP__Object* SMOP__ID__shift;
 SMOP__Object* SMOP__ID__signature;
 SMOP__Object* SMOP__ID__STORE;
 SMOP__Object* SMOP__ID__outer;
+SMOP__Object* SMOP__ID__perl;
 SMOP__Object* SMOP__ID__HOW_CREATE;
 SMOP__Object* SMOP__ID__HOW_methods;
 SMOP__Object* SMOP__ID__HOW_attributes;

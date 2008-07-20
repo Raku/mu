@@ -67,7 +67,7 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     if (cell) SMOP_RELEASE(interpreter,cell);
 
   } else {
-    fprintf(stderr,"Unknown identifier in lowlevel method object invocation.\n");
+    fprintf(stderr,"Unknown identifier in Scalar method invocation. #TODO delegation\n");
     SMOP_RELEASE(interpreter,capture);
     
   }

@@ -11,6 +11,14 @@ typedef struct smop_s1p_array_struct {
   SMOP__Object** content;
 } smop_s1p_array_struct;
 
+SMOP__Object* SMOP__S1P__Array_create(void) {
+    smop_s1p_array_struct* ret = (smop_s1p_array_struct*) smop_lowlevel_alloc(sizeof(smop_s1p_array_struct));
+    ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Array;
+    ret->size = 0;
+    ret->content = NULL;
+    return (SMOP__Object*) ret;
+}
+
 static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,

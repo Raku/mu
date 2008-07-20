@@ -56,6 +56,7 @@ extern SMOP__Object* SMOP__ID__shift;             /* "shift" */
 extern SMOP__Object* SMOP__ID__signature;         /* "signature" */
 extern SMOP__Object* SMOP__ID__STORE;             /* "STORE" */
 extern SMOP__Object* SMOP__ID__outer;             /* "outer" */
+extern SMOP__Object* SMOP__ID__perl;              /* "perl" */
 
 extern SMOP__Object* SMOP__ID__HOW_CREATE;        /* "^CREATE" */
 extern SMOP__Object* SMOP__ID__HOW_methods;       /* "^methods" */

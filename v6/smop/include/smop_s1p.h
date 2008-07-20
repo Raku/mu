@@ -33,6 +33,7 @@ SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object);
 SMOP__Object* SMOP__S1P__Scalar_STORE(SMOP__Object* object, SMOP__Object* new_value);
 SMOP__Object* SMOP__S1P__IO_create(void);
 SMOP__Object* SMOP__S1P__Hash_create(void);
+SMOP__Object* SMOP__S1P__Array_create(void);
 
 
 
