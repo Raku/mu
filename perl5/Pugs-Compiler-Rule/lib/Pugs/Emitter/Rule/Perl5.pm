@@ -295,6 +295,7 @@ sub variable {
 }
 sub special_char {
     my ($char, $data) = $_[0] =~ /^.(.)(.*)/;
+    $_[1] = '' unless defined $_[1];
 
     return  "$_[1] perl5( '\\N{" . join( "}\\N{", split( /\s*;\s*/, $data ) ) . "}' )\n"
         if $char eq 'c';

@@ -1,6 +1,7 @@
 package Pugs::Emitter::Rule::Perl5::CharClass;
 
 use strict;
+use charnames ();
 use Data::Dumper;
 
 use vars qw( %char_class );
@@ -11,6 +12,24 @@ BEGIN {
         print punct space upper
         word  xdigit
     );
+}
+
+sub vianame {
+    my $c = shift;
+    my $s = charnames::vianame($c);
+    return $s if $s;
+    $s = charnames::vianame("LINE FEED (LF)") 
+        if $c eq "LINE FEED" || $c eq "LF";
+    return $s if $s;
+    $s = charnames::vianame("CARRIAGE RETURN (CR)") 
+        if $c eq "CARRIAGE RETURN" || $c eq "CR";
+    return $s if $s;
+    $s = charnames::vianame("FORM FEED (FF)")  
+        if $c eq "FORM FEED" || $c eq "FF";
+    return $s if $s;
+    $s = charnames::vianame("NEXT LINE (NEL)") 
+        if $c eq "NEXT LINE" || $c eq "NEL";
+    return $s if $s;
 }
 
 # input format:
@@ -32,39 +51,25 @@ sub emit {
     for ( @c ) {
         my ( $op, $cmd ) = /(.)(.*)/;
 
-        $cmd =~ s/\s//g
-            unless $cmd =~ /\\c\[/;
-
-        #if ( $last_cmd eq '-'
-        #    && substr($cmd,0,1) eq '+'
-        #    )
-        #{
-        #    $out .= '|';
-        #}
-        #$last_cmd = substr($cmd,0,1);
-
+        $cmd =~ s/ \\c\[ ([^];]+) \; ([^];]+) \] / 
+                "\\x{" . sprintf("%02X", vianame($1)) . "}"
+              . "\\x{" . sprintf("%02X", vianame($2)) . "}"
+            /xgme;
+        $cmd =~ s/ \\c\[ ([^]]+) \] / "\\x[" . sprintf("%02X", vianame($1)) . ']' /xgme;
+        $cmd =~ s/ \\C\[ ([^]]+) \] / "\\X[" . sprintf("%02X", vianame($1)) . ']' /xgme;
+        $cmd =~ s/ \\o\[ ([^]]+) \] / "\\x[" . sprintf("%02X", oct($1)) . ']' /xgme;
+        $cmd =~ s/ \\O\[ ([^]]+) \] / "\\X[" . sprintf("%02X", oct($1)) . ']' /xgme;
+        $cmd =~ s/\s//g;
+        
         $cmd =~ s/\.\./-/g;  # ranges
 
-        # TODO - \o \O
-
-        if    ( $cmd =~ /^ \[ \\ c \[ (.*) \] \] /x ) {
-            #$cmd = "(?:\\N{" . join( "}|\\N{", split( /\s*;\s*/, $1 ) ) . "})";
-            $cmd = "[\\N{" . join( "}\\N{", split( /\s*;\s*/, $1 ) ) . "}]";
-        }
-        elsif ( $cmd =~ /^ \[ \\ C \[ (.*) \] \] /x ) {
-            #$cmd = "(?!\\N{" . join( "}|\\N{", split( /\s*;\s*/, $1 ) ) . "})\\X";
-            $cmd = "[^\\N{" . join( "}\\N{", split( /\s*;\s*/, $1 ) ) . "}]";
-        }
-
-
-        elsif ( $cmd =~ /^ \[ \\ x \[ (.*) \] \] /x ) {
+        if ( $cmd =~ /^ \[ \\ x \[ (.*) \] \] /x ) {
             $cmd = "(?:\\x{$1})";
         }
         elsif ( $cmd =~ /^ \[ \\ X \[ (.*) \] \] /x ) {
             $cmd = "(?!\\x{$1})\\X";
             #$cmd = "[^\\x{$1}]";
         }
-
 
         elsif ( $cmd =~ /^ \s* \[ (.*) /x ) {
            $cmd = '[' . $1;
@@ -92,7 +97,7 @@ sub emit {
     }
     $out = "(?:$out)\\X";
 
-    #print Dumper( @c ), ' == ', $out, "\n";
+    #print Dumper( \@c ), ' == ', $out, "\n";
 
     return $out;
 }
