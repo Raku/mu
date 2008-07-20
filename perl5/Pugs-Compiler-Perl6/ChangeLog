@@ -1,3 +1,9 @@
+0.022
+
+- implemented string interpolations \x[99] and \c[FOUR TEARDROP-SPOKED ASTERISK]
+- fixed interpolated block in string
+- updated test list in MANIFEST
+
 0.021  2008-07-12
 
 - fixed Test.pm compilation (added 'abs' function)

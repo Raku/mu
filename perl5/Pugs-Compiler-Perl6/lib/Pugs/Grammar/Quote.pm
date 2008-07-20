@@ -102,15 +102,28 @@ sub angle_quoted {
 
 *double_quoted_text = Pugs::Compiler::Token->compile(q(
     (
-        <!before [ '$' | '@' | '%' | '&' | '"' | '{' ] >
-        [ '\\' . | . ]
+        <!before [ '$' | '@' | '%' | '&' | '"' | '{' | '\\\\' ] > .
     )+
     { return { double_quoted => $/() ,} }
 ))->code;
 
+*double_quoted_escape = Pugs::Compiler::Token->compile(q(
+    \\\\
+    [
+    |   x \\[ $hex := (<xdigit>+) \\]
+        { return { hex_char => $/{'hex'}(),} }
+    |   c \\[ $name := ([ <!before \\] > . ]+) \\]
+        { return { named_char => $/{'name'}(),} }
+    |   .
+        { return { double_quoted => $/() ,} }
+    ]
+))->code;
+
 *double_quoted = Pugs::Compiler::Token->compile(q(
      
-    [  $<q1> := <double_quoted_expression>
+    [
+    |  $<q1> := <double_quoted_escape>
+    |  $<q1> := <double_quoted_expression>
     |  $<q1> := <double_quoted_text>
     ]
     

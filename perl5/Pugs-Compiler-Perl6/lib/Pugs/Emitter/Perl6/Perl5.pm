@@ -5,6 +5,7 @@ package Pugs::Emitter::Perl6::Perl5;
 #use Smart::Comments;
 use strict;
 use warnings;
+use charnames ();
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -286,6 +287,12 @@ sub _emit {
 
     return _var_get( $n )
         if exists $n->{hash};
+
+    return sprintf( '"\\x{%s}"', $n->{hex_char} )
+        if exists $n->{hex_char};
+
+    return 'chr(' . charnames::vianame($n->{named_char}) . ')'
+        if exists $n->{named_char};
 
     return _emit_double_quoted( $n->{double_quoted} )
         if exists $n->{double_quoted};
