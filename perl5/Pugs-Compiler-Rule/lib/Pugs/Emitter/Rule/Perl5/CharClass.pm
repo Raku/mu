@@ -16,6 +16,8 @@ BEGIN {
 
 sub vianame {
     my $c = shift;
+    $c =~ s/^\s+//;
+    $c =~ s/\s+$//;
     my $s = charnames::vianame($c);
     return $s if $s;
     $s = charnames::vianame("LINE FEED (LF)") 
@@ -30,6 +32,7 @@ sub vianame {
     $s = charnames::vianame("NEXT LINE (NEL)") 
         if $c eq "NEXT LINE" || $c eq "NEL";
     return $s if $s;
+    die "unknown unicode name: $c";
 }
 
 # input format:
