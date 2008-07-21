@@ -1,3 +1,7 @@
+0.023  2008-07-21
+
+- requires perl 5.8.6
+
 0.022  2008-07-20
 
 - implemented string interpolations \x[99] and \c[FOUR TEARDROP-SPOKED ASTERISK]
