@@ -25,13 +25,25 @@ while (<$input>) {
                 my $next_inline = $. + 1;
                 my $next_outline = $out_count + 2;
                 my $lines = qq{#line $next_outline "$out"\n}
-                               . preprocess($sm0p_code)
+                               . preprocess_sm0p($sm0p_code)
                                . qq{#line $next_inline "$in"\n};
                 print {$output} $lines;
                 $out_count += $lines =~ tr/\n//;
                 next PRINCIPAL;
             };
         }
+    } elsif (/^(\s*)use\s+v6;\s*$/) {
+        my $p6_code = '';
+        my $indent = $1;
+        while (<$input>) {
+            $out_count++;
+            unless (/^$indent/) {
+                print {$output} preprocess_p6($p6_code);
+                last;
+            }
+            $p6_code .= $_;
+        }
+        #next PRINCIPAL;
     }
     $out_count++;
     print {$output} $_;
@@ -41,18 +53,28 @@ while (<$input>) {
 sub preprocess {
     my $code = shift;
     my ($writer, $reader, $error) = map { gensym } 1..3;
-    my $pid = open3($writer, $reader, $error,
-        'perl',"-I$base/../../src/perl6",
-        '-I'.$base.'/sm0p',
-        $base.'/sm0p/sm0p_with_actions') || die "$@";
+    my $pid = open3($writer, $reader, $error,@_) || die "$@";
     print {$writer} $code;
     close $writer;
     print join '', <$error>;
     my $ret = join '', <$reader>;
-    die 'Bad sm0p code at '.$in unless $ret && $ret ne "\n";
+    die 'Bad sm0p|p6 code at '.$in unless $ret && $ret ne "\n";
     close $reader;
     close $error;
     waitpid($pid,0);
     die 'KP6sm0p.pl returned failure '.$? if $?;
     return $ret;
+}
+sub preprocess_p6 {
+    my $code = shift;
+    my ($writer, $reader, $error) = map { gensym } 1..3;
+    my $sm0p = preprocess('','perl',"$base/../../misc/elfish/elfX/elfX",'-C','sm0p','-s','-e',$code);
+    return preprocess_sm0p("frame = q:sm0p {".$sm0p."};");
+}
+sub preprocess_sm0p {
+    my $code = shift;
+    #warn "got sm0p code <$code>\n";
+    return preprocess($code,'perl',"-I$base/../../src/perl6",
+        '-I'.$base.'/sm0p',
+        $base.'/sm0p/sm0p_with_actions');
 }
