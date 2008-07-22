@@ -213,10 +213,12 @@ sub perl5 {
     }
     return sub {
         #use charnames ':full';
-        my $bool = $_[7]{ignorecase}
-            ? substr( $_[0], $_[5] ) =~ m/(?i)$rx/
-            : substr( $_[0], $_[5] ) =~ m/$rx/;
-        $_[3] = Pugs::Runtime::Match->new({ 
+        my $bool;
+        eval {
+            $bool = $_[7]{ignorecase}
+                ? substr( $_[0], $_[5] ) =~ m/(?i)$rx/
+                : substr( $_[0], $_[5] ) =~ m/$rx/;
+            $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \$bool,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
@@ -224,6 +226,12 @@ sub perl5 {
                 named => {},
                 match => [],
             });
+            1;
+        } 
+        or do {
+            die "$@ in perl5 regex: /$rx/";
+        };
+        $_[3];
     };
 }
 

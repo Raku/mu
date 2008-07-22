@@ -19,7 +19,7 @@ sub vianame {
     $c =~ s/^\s+//;
     $c =~ s/\s+$//;
     my $s = charnames::vianame($c);
-    return $s if $s;
+    return $s if defined $s;
     $s = charnames::vianame("LINE FEED (LF)") 
         if $c eq "LINE FEED" || $c eq "LF";
     return $s if $s;
