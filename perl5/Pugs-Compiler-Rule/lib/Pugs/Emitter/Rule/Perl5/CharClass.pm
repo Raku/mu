@@ -4,13 +4,24 @@ use strict;
 use charnames ();
 use Data::Dumper;
 
-use vars qw( %char_class );
+use vars qw( %char_class %extra_unicode );
 BEGIN {
     %char_class = map { $_ => 1 } qw(
         alpha alnum ascii blank
         cntrl digit graph lower
         print punct space upper
         word  xdigit
+    );
+    # XXX this list is broken!!!
+    %extra_unicode = (
+        'isLr'       => '(?:\p{isLl}|\p{isLu}|\p{isLt})',
+        'isBidiL'    => '(?:\p{isLatin})',
+        'isBidiR'    => '(?:\p{isHebrew}|\p{isArabic})',
+        'isBidiEN'   => '(?:\p{isHebrew}|\p{isArabic})',
+        'isBidiES'   => '(?:\p{isHebrew}|\p{isArabic})',
+        'isBidiET'   => '(?:\p{isHebrew}|\p{isArabic})',
+        'isBidiWS'   => '(?:\p{isHebrew}|\p{isArabic})',
+        'isID_Start' => '(?:\p{isHebrew}|\p{isArabic})',
     );
 }
 
@@ -80,8 +91,10 @@ sub emit {
         elsif ( $cmd =~ /^ \s* (.*) /x ) {
            my $name = $1;
            $cmd = ( exists $char_class{$name} )
-                ? "[[:$name:]]"
-                : "\\p{$name}";
+                    ? "[[:$name:]]"
+                    : exists $extra_unicode{$name}
+                        ? $extra_unicode{$name} 
+                        : "\\p{$name}";
         }
 
         if ( $op eq '+' ) {

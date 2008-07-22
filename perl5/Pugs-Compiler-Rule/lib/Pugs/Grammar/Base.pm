@@ -168,14 +168,19 @@ sub DESTROY { }  # avoid autoloading this
         
         # is it a Unicode property? "isL"
         {
-          local $@;
-          my $p5 = '\p{' . $meth . '}';
-             $p5 = '(?:\p{isLl}|\p{isLu}|\p{isLt})' if $meth eq 'isLr';
-          eval ' my $s="a"; $s =~ /$p5/ ';
-          unless ( $@ ) {
-            *{$meth} = Pugs::Compiler::RegexPerl5->compile($p5)->code;
-            return $meth->( @_ );
-          }
+            local $@;
+            my $p5;
+            if ( exists $Pugs::Emitter::Rule::Perl5::CharClass::extra_unicode{$meth} ) {
+                $p5 = $Pugs::Emitter::Rule::Perl5::CharClass::extra_unicode{$meth};
+            }
+            else {
+                $p5 = '\p{' . $meth . '}';
+                eval ' my $s="a"; $s =~ /' . $p5 . '/ ';
+            }
+            unless ( $@ ) {
+                *{$meth} = Pugs::Compiler::RegexPerl5->compile($p5)->code;
+                return $meth->( @_ );
+            }
         }
         
         # is it a char class? "digit"
