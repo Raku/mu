@@ -128,7 +128,7 @@ token char_range {
 }
 
 token char_class {
-    |  <.alpha> [ <.alpha> | _ ] *
+    |  <.alpha> [ <.alnum> | _ ] *
     |  \[  <.char_range>  \]
 }
 

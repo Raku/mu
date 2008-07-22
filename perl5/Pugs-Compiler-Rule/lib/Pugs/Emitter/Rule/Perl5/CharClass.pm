@@ -22,6 +22,8 @@ BEGIN {
         'isBidiET'   => '(?:\p{isHebrew}|\p{isArabic})',
         'isBidiWS'   => '(?:\p{isHebrew}|\p{isArabic})',
         'isID_Start' => '(?:\p{isHebrew}|\p{isArabic})',
+        'isInCyrillicSupplementary' => '(?:\p{isHebrew}|\p{isArabic})',
+        'isInLatin1Supplement' => '(?:\p{isLatin})',
     );
 }
 
