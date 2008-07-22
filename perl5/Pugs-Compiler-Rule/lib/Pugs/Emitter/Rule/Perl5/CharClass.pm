@@ -12,18 +12,18 @@ BEGIN {
         print punct space upper
         word  xdigit
     );
-    # XXX this list is broken!!!
     %extra_unicode = (
         'isLr'       => '(?:\p{isLl}|\p{isLu}|\p{isLt})',
+        'isInLatin1Supplement'      => '[\x{0080}–\x{00FF}]',
+        'isInCyrillicSupplementary' => '[\x{0500}–\x{052F}]',
+        'isID_Start' => '\p{ID_Start}',
+    # XXX the remaining list is broken!!!
         'isBidiL'    => '(?:\p{isLatin})',
         'isBidiR'    => '(?:\p{isHebrew}|\p{isArabic})',
         'isBidiEN'   => '(?:\p{isHebrew}|\p{isArabic})',
         'isBidiES'   => '(?:\p{isHebrew}|\p{isArabic})',
         'isBidiET'   => '(?:\p{isHebrew}|\p{isArabic})',
         'isBidiWS'   => '(?:\p{isHebrew}|\p{isArabic})',
-        'isID_Start' => '(?:\p{isHebrew}|\p{isArabic})',
-        'isInCyrillicSupplementary' => '(?:\p{isHebrew}|\p{isArabic})',
-        'isInLatin1Supplement' => '(?:\p{isLatin})',
     );
 }
 
