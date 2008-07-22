@@ -169,11 +169,11 @@ sub DESTROY { }  # avoid autoloading this
         # is it a Unicode property? "isL"
         {
           local $@;
-          eval ' my $s="a"; $s =~ /\p{' . $meth . '}/ ';
+          my $p5 = '\p{' . $meth . '}';
+             $p5 = '(?:\p{isLl}|\p{isLu}|\p{isLt})' if $meth eq 'isLr';
+          eval ' my $s="a"; $s =~ /$p5/ ';
           unless ( $@ ) {
-            *{$meth} = Pugs::Compiler::RegexPerl5->compile( 
-              '\p{' . $meth . '}'
-            )->code;
+            *{$meth} = Pugs::Compiler::RegexPerl5->compile($p5)->code;
             return $meth->( @_ );
           }
         }
