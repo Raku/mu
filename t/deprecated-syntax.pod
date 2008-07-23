@@ -54,6 +54,14 @@ which means only one argument to C<is()>, but three to C<try>. So don't use
 this if it's not what you want. This is wrongly used in the test suite right
 now in multiple places.
 
+=head2 Interpolation in test descritions
+
+    lives_ok({ $a := $b }, "can bind $b to $a";
+
+is certainly not what you want; remeber that variables in double quoted
+strings are interpolated, and use single quotes as string delimiters where
+appropriate.
+
 =head2 Special Pugs variables
 
 Some tests rely on C<$?PUGS_BACKEND> and similar variables. Since they are not
