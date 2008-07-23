@@ -122,7 +122,8 @@ t/operators/spaceship_and_datatypes.t
 t/packages/reflection.t
 t/regex/from_perl6_rules/anchors.t
 t/regex/from_perl6_rules/inline.t
-t/regex/from_perl6_rules/named_chars.t
+t/regex/from_perl6_rules/named_chars-1.t
+t/regex/from_perl6_rules/named_chars-2.t
 t/regex/from_perl6_rules/noncap.t
 t/regex/rx_perl5_escape.t
 t/regex/smartparse.t

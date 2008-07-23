@@ -33,22 +33,66 @@ requires('YAML::Syck'           => '0');
 recommends('Perl::Tidy'         => '0');
 
 # Parse MANIFEST and copy the tests
+my $rewrite_test;
+$rewrite_test = sub {
+    my ($out, $text) = @_;
+    
+    # split big tests in smaller files
+    if ( $out =~ /\.t$/ && length($text) > 30000 ) {
+        $out =~ s/-?(\d*)\.t$/ "-" . (($1||0)+1) . ".t" /e;
+        my ($part, $text) = $text =~ /^(.{20000,}?\n)(.*)/s;
+        $rewrite_test->($out, $part);
+        $out =~ s/-?(\d*)\.t$/ "-" . (($1||0)+1) . ".t" /e;
+        $rewrite_test->($out, $text);
+        return;
+    }
+
+    # fix problems caused by splitting
+    if ( $out eq 't/regex/from_perl6_rules/named_chars-1.t' ) {
+        $text =~ s/^plan \d+;/plan 200;/m;
+        $text =~ s/^force_todo.*?\n//m;
+        $text .= "}\n";
+    }
+    if ( $out eq 't/regex/from_perl6_rules/named_chars-2.t' ) {
+        $text = 
+              "plan 219\n"
+            . "{\n"
+            . $text;
+    }
+    
+    # add "use Test" to most files
+    if ( $out ne 't/01-sanity/05-sub.t' ) {
+        $text = "use Test;\n" . $text;
+    }
+    
+    # add "use v6-alpha" everywhere
+    # $text =~ s/^use v6;/use v6-alpha;/m;
+    $text = "use v6-alpha;\n" . $text;
+
+    open( my $fh, ">", $out ) || 
+        die "can't create $out $!" ;
+    print $fh $text;
+};
+
 if (@inc) {
-    use File::Copy;
     use File::Path;
     use File::Basename;
 
     open MANIFEST, '< MANIFEST' or die "Cannot open MANIFEST: $!";
+    my %seen;
     while (<MANIFEST>) {
         chomp;
         /^t\// or next;
-        mkpath(dirname($_));
-        my $src = "$inc[-1]/../$_";
+        s/-\d+\.t$/.t/;
+        next if $seen{$_};
+        $seen{$_} = 1;
+        my $out = $_;
+        mkpath(dirname($out));
+        my $src = "$inc[-1]/../$out";
         $src = "$inc[-1]/../ext/Test/lib/Test.pm" if $_ eq 't/Test.pm';
-	next unless -f $src;
-        copy($src => $_);
-        `$^X -i -pe ' s/^use v6;/use v6-alpha;/ ' '$_' `
-            if -f $_;
+        next unless -f $src;
+        my $text = do { local( @ARGV, $/ ) = $src ; <> } ;
+        $rewrite_test->( $out, $text );
     }
 }
 
@@ -76,3 +120,4 @@ eval {
 # see Module::Compile
     # precompile Perl6Prelude.pm and Test.pm
     pmc_support();
+
