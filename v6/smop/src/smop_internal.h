@@ -48,11 +48,13 @@
      smop_native_uint_init();               \
      smop_s1p_scalar_init();                \
      smop_s1p_str_init();                   \
+     smop_s1p_array_destr();                 \
      smop_s1p_hash_init();                  \
      smop_s1p_io_init();
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
      smop_s1p_io_destr();                   \
      smop_s1p_hash_destr();                 \
+     smop_s1p_array_destr();                 \
      smop_s1p_str_destr();                  \
      smop_s1p_scalar_destr();               \
      smop_native_uint_destr();              \

@@ -88,6 +88,8 @@ extern SMOP__Object* SMOP__ID__REPR_properties;   /* "^!properties" */
 extern SMOP__Object* SMOP__ID__REPR_can;          /* "^!can" */
 extern SMOP__Object* SMOP__ID__REPR_has;          /* "^!has" */
 
+extern SMOP__Object* SMOP__ID__elems;          /* "elems" */
 extern SMOP__Object* SMOP__ID__postcircumfix_curly;          /* "postcircumfix:{ }" */
+extern SMOP__Object* SMOP__ID__postcircumfix_square;          /* "postcircumfix:{ }" */
 extern SMOP__Object* SMOP__ID__infix_eq;                    /* "infix:eq" */ 
 #endif

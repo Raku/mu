@@ -14,7 +14,8 @@ my @blocks;
 #i should fix elf instead
 sub un6 {
     local $_ = shift;
-    s/~/./g;
+    s/(?<!~)~(?!~)/./g;
+    s/~~/=~/g;
     s/\$?\$<(\w+)>/adapter(\$_->{$1})/g;
     s/\.(\w+)/->$1/g;
     s/\?\?/?/g;
