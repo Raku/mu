@@ -3,16 +3,15 @@ OVERVIEW
 Elf is a p6 compiler.
 
 The currently recommended version is:
-  elf_f
+  elf_g
 
-elf_f --help  for more info.
+elf_g --help  for more info.
 
-It uses perl from your path.  5.10 is recommended - it can have half
-the startup time of 5.8.8.
+It uses perl from your path.  5.10 is recommended, but 5.8 works too.
 
 P6 scripts:
   $ cat say3
-  #!/usr/bin/env elf_f
+  #!/usr/bin/env elf_g
   say 3;
   $ ./say 3
   3
@@ -33,88 +32,25 @@ STD_red requires ruby 1.9.  See it's README for installation info.
 
 RUNNING TESTS
 
-  See run-tests in elf_f_src.
+  See  make test  in elf_g_src/Makefile.
 
-  You can run a couple of tests with
-    prove --exec 'perl elf_d' - < TESTS
-  If you find that any other tests run please put them into TESTS.
+VERSIONS
+
+See file VERSIONS.
+
+
+----------------------------------------------------------------------
+Other stuff...
 
 TIPS
 
     eval_perl5('sub{print Data::Dumper::Dumper($_[0])}').($n);
 
-VERSIONS
-
-elf_f
-Purpose:
-  Use improved STD_red.
-  Start working on t/ .
-  Create PreludeP5 - p6 with p5 inline (agnostic to exact p5 backend via api).
-  Drop support for compilation by elf_d.
-Maybe:
-  Branches - additional and renamed: Good / Main / Faster.(?)
-Comparison: Like elf_e, but new parser version.
-Written in: elf_f dialect.
-Can be compiled by: elf_f.
-Linkages: none.
-Status: active development.
-
-elf_e
-Purpose: Using IR analysis to clean up the emitted runtime.
-  sub decls no longer global.
-  Start of p6 Prelude.
-  Addressed some other inconvenient implementation limitations.(What?)
-Comparison: Like elf_d.
-Written in: elf_d dialect.
-Can be compiled by: elf_e, elf_d.
-Linkages: uses a couple of files from elf_d.
-  CommandLine.pm EmitNoMooseP5.pm Match.pm Parser.pm
-Status: slushy.
-
-OLD VERSIONS
-
-elf_d
-Purpose: New IR.  New metaprogramming infrastructure.
-Comparison:
-  Like elf_c, but with new IR nodes.
-  @ISA can be incrementally extended.
-Written in: elf_c dialect.
-Can be compiled by: elf_d, elf_c.
-Status: frozen.
-
-elf_c
-Purpose: Refactored with has().  Added use().
-Comparison: Like elf_b, but written in elf_b p6, not elf_a p6 (basically +has).
-Written in: elf_b dialect.
-Emits: Currently same as elf_b, but that may change. (Did it?)
-Can be compiled by: elf_c only.
-Linkages:
-  ast_handlers and ir_nodes are copies of those in std_b.
-  They can't be regenerated, but only recopied by hand.
-  The hope is elf_c won't remain active long enough for that to be a problem.
-Status: frozen.
-
-elf_b
-Purpose: Switch implementation language from p5 to p6.
-Comparison: Like elf_a, but written in p6.
-Written in: p6, elf_a dialect.
-Emits: Slighly less simple and less fast p5 than elf_a.
-Can be compiled by: elf_b, elf_a.
-Linkages:
-  Uses elf_a ast_handlers, mechanically massaged into p6.
-  Uses elf_a's copy of STD_red.
-Status: frozen.
-
-elf_a
-Why: First step.
-Written in: p5
-Emits: Simple and fast p5.
-Status: frozen.
-
-
 OTHER
 
 A development story (a tale of two compilers)
+
+  Bootstraps can be very confusing.  This story may help.
 
   Say someone hands you a working perl6.
   What can you do with it?

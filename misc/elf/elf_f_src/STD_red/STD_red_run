@@ -1,0 +1,174 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+RUBY_VERSION =~ /\A(1\.9|2\.)/ or raise "#{$0} needs ruby 1.9.  See README."
+
+
+class STDRedRun
+  def print_usage_and_exit(msg=nil,code=2)
+    msg += "\n\n" if msg
+    msg ||= ""
+    STDERR.print <<END
+#{msg}#{$0} [-q] [--format=FORMAT] [ --start=RULE ] [ FILENAME | -e CODE ]
+
+If the environment variable STD_RED_CACHEDIR is set, output will be
+saved there, and used in preference to reparsing, when the same code
+is seen again.  -e CODE is not cached.  And when std.rb is changed,
+previous cache entries are ignored.
+
+FORMAT
+ p5a
+ yaml   # depreciated
+
+Other arguments:
+
+ --error-message=MSG
+ What to say when the parse fails.
+
+ --at=POS
+ Start parsing at position POS, instead of at 0.
+ Implies that a partial parse is ok.
+ A speculative feature provided to aid the development of other
+ parsers, by permitting them to delegate some parsing tasks.
+
+END
+    exit(code)
+  end
+
+  def main
+    start = '_UNIT'; at = 0
+    quiet = format = false
+    code = nil
+    error_message = ""
+    if ARGV.empty?
+      print "\nRun #{$0} --help  to get help.\n";
+      $:.push(File.dirname($0))
+      require 'std'
+      Repl.new.parser_rule
+      exit(0)
+    end
+    if ARGV.size == 1 and ARGV[0] == '--help'
+      print_usage_and_exit(nil,0)
+    end
+    if m = ARGV[0].match(/--error-message=(.+)/)
+      ARGV.shift
+      error_message = m[1]+"\n"
+    end
+    if ARGV[0] == '-q'
+      ARGV.shift
+      quiet = true
+    end
+    if m = ARGV[0].match(/--format=(\w+)/)
+      ARGV.shift
+      format = m[1]
+    end
+    if m = ARGV[0].match(/--start=(\w+)/)
+      ARGV.shift
+      start = m[1]
+    end
+    if m = ARGV[0].match(/--at=(\d+)/)
+      ARGV.shift
+      at = m[1].to_i
+    end
+    if ARGV[0] == '-e'
+      ARGV.shift
+      code = ARGV.shift
+      code = code.dup.force_encoding('utf-8')
+    elsif not ARGV.empty?
+      filename = ARGV.shift
+      print_usage_and_exit("File #{filename} doesn't exist.") if not File.exists?(filename)
+      code = File.open(filename,'r:utf-8'){|f|f.read}
+    else
+      print_usage_and_exit
+    end
+    
+    $quiet = quiet
+    $:.push(File.dirname($0))
+    require 'std'
+    
+    output = cached_output_for(code, format ? format : nil)
+    if output; print output; exit end
+
+    # Hacks
+    whiteout = ->(s){s.gsub(/[^ \n]/,' ')};
+    #code = code.gsub(/\n=begin.*?\n=end[^\n]*/um) {|m|whiteout.(m)}
+    code = code.gsub(/\n=kwid.*?\n=cut[^\n]*/um) {|m|whiteout.(m)}
+    code = code.gsub(/\n=pod.*?\n=cut[^\n]*/um) {|m|whiteout.(m)}
+    code = code.gsub(/\n=head1.*?\n=cut[^\n]*/um) {|m|whiteout.(m)}
+
+    kibitz = false
+    pn = Perl.new(code,at)
+    tree=nil
+    STDERR.print "parsing...\n" if kibitz
+    begin 
+      $env_vars.scope_enter(:unitstopper)
+      $env_vars[:unitstopper] = "_EOS"
+      $env_vars.scope_enter(:stop)
+      $env_vars[:stop] = "if you see this dont stop"
+      tree = pn.send(start.to_sym)
+    rescue RuntimeError => e
+      STDERR.print error_message, e.message
+      bt = e.backtrace
+      bt = bt.slice(0,10) if quiet
+      s = "  "+bt.join("\n  ")+"\n"
+      if m = e.backtrace[0].match('^(.*?)STD_red')
+        s = s.gsub(m[1],'')
+      end
+      STDERR.print s
+      exit(1)
+    rescue Interrupt
+      exit(1)
+    end
+    if not tree
+      STDERR.print "Parse failed.\n"
+      exit(1)
+    end
+    if not format
+      STDERR.print "describing...\n" if kibitz
+      print tree.match_describe
+    elsif format == 'p5a'
+      print out(tree.to_dump0)
+    elsif format == 'yaml'
+      require "yaml"
+      tree.prepare_for_yaml_dump if tree
+      STDERR.print "yaml dumping...\n" if kibitz
+      yml = YAML::dump(tree)+"\n"
+      STDERR.print "yaml gsub'ing...\n" if kibitz
+      p5yml = yml
+      p5yml.gsub!(/^(\s*):/,'\1')
+      p5yml.gsub!(/^(\s*rule: ):/,'\1')
+      p5yml.gsub!(/ !ruby\/object:Match/,' !!perl/hash:Match')
+      STDERR.print "done.\n" if kibitz
+      print out(p5yml)
+    else
+      STDERR.print "Unknown format: #{format}\n"
+      print_usage_and_exit
+    end
+  end
+
+  def cached_output_for(code,format)
+    cachedir = ENV['STD_RED_CACHEDIR']
+    return nil if not cachedir or not format
+    input = code+format
+    require 'digest/md5'
+    std_file = File.dirname($0)+"/std.rb"
+    std_code = File.open(std_file,"r"){|f|f.read}
+    std_sig = Digest::MD5.hexdigest(std_code)
+    input_sig = Digest::MD5.hexdigest(input)
+    @cache_file = cachedir+'/parse_'+std_sig.slice(0,8)+'_'+input_sig.slice(0,32)
+    if File.exists? @cache_file
+      File.open(@cache_file,"r:utf-8"){|f|f.read}
+    else
+      nil
+    end
+  end
+  def out(output)
+    output = output.force_encoding('utf-8')
+    File.open(@cache_file,"w"){|f|f.print output} if @cache_file
+    output
+  end
+
+end
+STDRedRun.new.main
+
+

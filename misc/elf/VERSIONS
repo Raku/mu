@@ -1,0 +1,83 @@
+
+elf_g
+Purpose:
+  Use 'temp $x' instead of 'my $^x'.
+  Become parsable by STD.
+Maybe:
+  Get a rx engine (eg, rx_on_re).
+  Begin syncronization with STD grammar.
+  Concentrate and flesh out analysis code (a long pending task).
+Comparison: Like elf_f, but moving towards front-end bootstrap.
+Can be compiled by: elf_g
+Linkages: none.
+Status: "active" development.
+
+elf_f
+Purpose:
+  Used improved STD_red.
+  Started running against t/ .
+  Created Preludes.
+  Dropped support for compilation by elf_d.
+  Disabled use of Moose[1].
+Comparison: Like elf_e, but new parser version, and extensive improvements..
+Written in: elf_f dialect.
+Can be compiled by: elf_f.
+Linkages: none.
+Status: frozen.
+Notes:
+ [1] Given the dearth of developer resources, Moose's skilled handling
+ of inheritance and other things isn't going to be needed any time soon.
+ The faster non-Moose variant was needed for speed, so simplified life
+ by dropping the Moose variant.
+
+elf_e
+Purpose: Using IR analysis to clean up the emitted runtime.
+  sub decls no longer global.
+  Start of p6 Prelude.
+  Addressed some other inconvenient implementation limitations.(What?)
+Comparison: Like elf_d.
+Written in: elf_d dialect.
+Can be compiled by: elf_e, elf_d.
+Linkages: uses a couple of files from elf_d.
+  CommandLine.pm EmitNoMooseP5.pm Match.pm Parser.pm
+Status: frozen.
+
+OLD VERSIONS
+
+elf_d
+Purpose: New IR.  New metaprogramming infrastructure.
+Comparison:
+  Like elf_c, but with new IR nodes.
+  @ISA can be incrementally extended.
+Written in: elf_c dialect.
+Can be compiled by: elf_d, elf_c.
+Status: frozen.
+
+elf_c
+Purpose: Refactored with has().  Added use().
+Comparison: Like elf_b, but written in elf_b p6, not elf_a p6 (basically +has).
+Written in: elf_b dialect.
+Emits: Currently same as elf_b, but that may change. (Did it?)
+Can be compiled by: elf_c only.
+Linkages:
+  ast_handlers and ir_nodes are copies of those in std_b.
+  They can't be regenerated, but only recopied by hand.
+  The hope is elf_c won't remain active long enough for that to be a problem.
+Status: frozen.
+
+elf_b
+Purpose: Switch implementation language from p5 to p6.
+Comparison: Like elf_a, but written in p6.
+Written in: p6, elf_a dialect.
+Emits: Slighly less simple and less fast p5 than elf_a.
+Can be compiled by: elf_b, elf_a.
+Linkages:
+  Uses elf_a ast_handlers, mechanically massaged into p6.
+  Uses elf_a's copy of STD_red.
+Status: frozen.
+
+elf_a
+Why: First step.
+Written in: p5
+Emits: Simple and fast p5.
+Status: frozen.
