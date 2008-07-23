@@ -1,8 +1,8 @@
 
 check:
 	export ELF_STD_RED_RUN=./../../STD_red/STD_red_run
-	../../elf/elf_f test.pm > tst_1 2> tst_2
-	diff tst_1 t_baseline.result
+	../../elf/elf_g test.pm > tst_1 2> tst_2
+	diff t_baseline.result tst_1
 	@echo ok
 
 old_create_baseline:

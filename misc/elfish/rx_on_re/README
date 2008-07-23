@@ -67,3 +67,20 @@ t/rx.t                   536   52  22 60-62 85 223 226 239 246 248 250 258-259
                                    444-445 502 508 513 515-536
 Failed 1/1 test scripts. 52/536 subtests failed.
 Files=1, Tests=536, 17 wallclock secs (17.30 cusr +  0.35 csys = 17.65 CPU)
+
+
+
+NOTES
+
+Comments from EmitRegexYare.pm.
+# Backtracking api changes from a Filter::Simple to a s/// method.
+# Engine core becomes a prelude.
+# Emitters become p6, emitting p5 source.
+# IR analysis becomes p6.
+# The regexp and regex parsers are temporarily retained, as some of the action logic will need to end up in IRx1_FromAST or elsewhere.
+# And the unicode rules will need to be metaprogrammed in p6.
+# Discarded:
+#  Match - no need for painful 'use overload' games.
+#  Functional regex representations - we're bootstrapping on STD.
+#  Api and Filter packages - emitter has understanding and control of the code.
+#  Interactive shell and command line - though may again need something like it for testing.
