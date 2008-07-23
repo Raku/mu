@@ -84,6 +84,27 @@ $rewrite_test = sub {
               : "" )
             . $text;
     }
+    if ( $out =~ m{t/regex/from_perl6_rules/properties-(\d+).t} ) {
+        if ( $1 eq '00' ) {
+            $text =~ s/^\s*plan \d+;//m;
+            $text =~ s/^\s*force_todo.*?\n//m;
+            $text .= "}\n";
+        }
+        $text = "{\n" . $text   if $1 eq '09';
+        $text = 
+              ( $1 eq '00' ? "plan 189;\nforce_todo(4, 11, 99);\n" 
+              : $1 eq '01' ? "plan 199;\n" 
+              : $1 eq '02' ? "plan 216;\nforce_todo(157, 158);\n\n" 
+              : $1 eq '03' ? "plan 219;\n" 
+              : $1 eq '04' ? "plan 213;\nforce_todo(185);\n" 
+              : $1 eq '05' ? "plan 181;\nforce_todo(42, 43, 89, 125, 126, 144, 167, 168);\n\n" 
+              : $1 eq '06' ? "plan 178;\n" 
+              : $1 eq '07' ? "plan 188;\nforce_todo(999);\n" 
+              : $1 eq '08' ? "plan 179;\n" 
+              : $1 eq '09' ? "plan 119;\n" 
+              : "" )
+            . $text;
+    }
     
     # add "use Test" to most files
     if ( $out ne 't/01-sanity/05-sub.t' ) {

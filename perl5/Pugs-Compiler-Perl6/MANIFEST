@@ -138,6 +138,16 @@ t/regex/from_perl6_rules/propcharset-09.t
 t/regex/from_perl6_rules/propcharset-10.t
 t/regex/from_perl6_rules/propcharset-11.t
 t/regex/from_perl6_rules/propcharset-12.t
+t/regex/from_perl6_rules/properties-00.t
+t/regex/from_perl6_rules/properties-01.t
+t/regex/from_perl6_rules/properties-02.t
+t/regex/from_perl6_rules/properties-03.t
+t/regex/from_perl6_rules/properties-04.t
+t/regex/from_perl6_rules/properties-05.t
+t/regex/from_perl6_rules/properties-06.t
+t/regex/from_perl6_rules/properties-07.t
+t/regex/from_perl6_rules/properties-08.t
+t/regex/from_perl6_rules/properties-09.t
 t/regex/rx_perl5_escape.t
 t/regex/smartparse.t
 t/spec/S02-builtin_data_types/array_extending.t
