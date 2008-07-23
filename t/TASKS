@@ -26,7 +26,6 @@ S03
 * Junction tests need fixing. See below.
 
 S09
-* tests for compact arrays
 * more tests for multidimensional arrays (also .shape, see S29)
 * tests for user-defined array indexing
 * tests for PDL
