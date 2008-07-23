@@ -2103,14 +2103,14 @@ if(irbuild_ir($m->{"hash"}->{"arglist"})) {
 }})});
 $main::irbuilder->add_constructor("quote\:q", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
-$s->re_gsub(qr/(?<!\\)\\\\/, "\\");
+$s->re_sub_g("\\\\\(\[\\\\\'\]\)", "\$1");
 IRx1::Buf->newp($m, $s)})});
 $main::irbuilder->add_constructor("quote\:qq", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
 $s->re_gsub(qr/(?<!\\)\\n/, "\
 ");
 $s->re_gsub(qr/(?<!\\)\\t/, "\	");
-$s->re_gsub(qr/(?<!\\)\\\\/, "\\");
+$s->re_sub_g("\\\\\(\.\)", "\$1");
 IRx1::Buf->newp($m, $s)})});
 $main::irbuilder->add_constructor("quote\:regex", sub {my($m)=@_;
 (do{my $s = (irbuild_ir($m->{"hash"}->{"text"}) || irbuild_ir($m->{"hash"}->{"quotesnabber"}->{"hash"}->{"text"}));
@@ -3328,7 +3328,7 @@ my $sig = $param_types->map(sub {my($t)=@_;
 }else {
 (do{$t})
 }})})->join("\ ");
-(((((("Class\:\:Multimethods\:\:multimethod\ " . $enc_name) . "\ \=\>\ split\(\/\\s\+\/\,\'") . $sig) . "\'\)\ \=\>\ ") . $f_emitted) . "\;")})};
+((((((("Class\:\:Multimethods\:\:multimethod\ " . $enc_name) . "\ \=\>\ split\(\/\\s\+\/") . "\,\'") . $sig) . "\'\)\ \=\>\ ") . $f_emitted) . "\;")})};
 sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
 (do{my $body;
 if((($n->traits() && $n->traits()->[0]->expr()) && ($n->traits()->[0]->expr() eq "p5"))) {
@@ -3613,7 +3613,8 @@ sub cb__Hash{my $self=CORE::shift;my($n)=@_;
 (do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 1;
 (("\{" . $self->e(($n->hash() || []))->join("\,")) . "\}")})};
 sub cb__Buf{my $self=CORE::shift;my($n)=@_;
-(do{(("\"" . GLOBAL::quotemeta($n->buf())) . "\"")})};
+(do{my $s = $n->buf();
+(("\"" . GLOBAL::quotemeta($s)) . "\"")})};
 sub cb__Rx{my $self=CORE::shift;my($n)=@_;
 (do{my $pat = ($n->pat() || "");
 (("qr\/" . $pat) . "\/")})};

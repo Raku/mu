@@ -638,7 +638,7 @@ package Main;
       else { $t }
     }).join(' ');
     'Class::Multimethods::multimethod '~$enc_name~
-    " => split(/\s+/,'"~$sig~"') => "~ $f_emitted ~';';
+    ' => split(/\s+/'~",'"~$sig~"') => "~ $f_emitted ~';';
   };
   method cb__MethodDecl ($n) {
     my $body;
@@ -925,7 +925,9 @@ package Main;
     '{'~$.e($n.hash||[]).join(",")~'}'
   };
   method cb__Buf ($n) {
-    '"' ~ quotemeta($n.buf) ~ '"';
+    my $s = $n.buf;
+#    $s.re_sub_g('\\(.)','$1');
+    '"' ~ quotemeta($s) ~ '"';
   };
   method cb__Rx ($n) {
     my $pat = $n.pat || '';
