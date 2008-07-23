@@ -1,3 +1,7 @@
+0.024  2008-07-23
+
+- many more tests added; the bigger tests are now split into smaller files
+
 0.023  2008-07-21
 
 - requires perl 5.8.6
