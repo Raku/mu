@@ -47,7 +47,8 @@ sub test {
             my $err = $@; $err =~ s/^/\# /m;
 	    if($ok =~ /c/) { print "ok\n"; }
 	    else {
-		print "not ok \# Unexpected compilation failure.\n$err\n";
+		print "not ok \# Unexpected compilation failure.\n";
+                print STDERR "$err\n";
 	    }
 	    next;
 	}

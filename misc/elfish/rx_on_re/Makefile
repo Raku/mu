@@ -2,7 +2,8 @@
 check:
 	export ELF_STD_RED_RUN=./../../STD_red/STD_red_run
 	../../elf/elf_f test.pm > tst_1 2> tst_2
-# diff ...
+	diff tst_1 t_baseline.result
+	@echo ok
 
 old_create_baseline:
 	-mkdir qout

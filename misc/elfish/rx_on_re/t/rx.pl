@@ -23,7 +23,10 @@ sub test6 {
 	if (!defined $qr) {
             my $err = $@; $err =~ s/^/\# /m;
 	    if($ok =~ /^\/(?!mob)/) { print "ok\n"; }
-	    else { print "not ok \# Unexpected compilation failure.\n$err\n" }
+	    else {
+              print "not ok \# Unexpected compilation failure.\n";
+              print STDERR "$err\n";
+            }
 	    next;
 	}
 	if($ok =~ /^\/(?!mob)/) {

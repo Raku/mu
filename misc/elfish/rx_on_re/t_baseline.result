@@ -1,0 +1,2992 @@
+re_tests
+
+1..961
+        # abc	abc	y	$&	abc
+ok
+        # abc	abc	y	$-[0]	0
+ok
+        # abc	abc	y	$+[0]	3
+ok
+        # abc	xbc	n	-	-
+ok
+        # abc	axc	n	-	-
+ok
+        # abc	abx	n	-	-
+ok
+        # abc	xabcy	y	$&	abc
+ok
+        # abc	xabcy	y	$-[0]	1
+ok
+        # abc	xabcy	y	$+[0]	4
+ok
+        # abc	ababc	y	$&	abc
+ok
+        # abc	ababc	y	$-[0]	2
+ok
+        # abc	ababc	y	$+[0]	5
+ok
+        # ab*c	abc	y	$&	abc
+ok
+        # ab*c	abc	y	$-[0]	0
+ok
+        # ab*c	abc	y	$+[0]	3
+ok
+        # ab*bc	abc	y	$&	abc
+ok
+        # ab*bc	abc	y	$-[0]	0
+ok
+        # ab*bc	abc	y	$+[0]	3
+ok
+        # ab*bc	abbc	y	$&	abbc
+ok
+        # ab*bc	abbc	y	$-[0]	0
+ok
+        # ab*bc	abbc	y	$+[0]	4
+ok
+        # ab*bc	abbbbc	y	$&	abbbbc
+ok
+        # ab*bc	abbbbc	y	$-[0]	0
+ok
+        # ab*bc	abbbbc	y	$+[0]	6
+ok
+        # .{1}	abbbbc	y	$&	a
+ok
+        # .{1}	abbbbc	y	$-[0]	0
+ok
+        # .{1}	abbbbc	y	$+[0]	1
+ok
+        # .{3,4}	abbbbc	y	$&	abbb
+ok
+        # .{3,4}	abbbbc	y	$-[0]	0
+ok
+        # .{3,4}	abbbbc	y	$+[0]	4
+ok
+        # ab{0,}bc	abbbbc	y	$&	abbbbc
+ok
+        # ab{0,}bc	abbbbc	y	$-[0]	0
+ok
+        # ab{0,}bc	abbbbc	y	$+[0]	6
+ok
+        # ab+bc	abbc	y	$&	abbc
+ok
+        # ab+bc	abbc	y	$-[0]	0
+ok
+        # ab+bc	abbc	y	$+[0]	4
+ok
+        # ab+bc	abc	n	-	-
+ok
+        # ab+bc	abq	n	-	-
+ok
+        # ab{1,}bc	abq	n	-	-
+ok
+        # ab+bc	abbbbc	y	$&	abbbbc
+ok
+        # ab+bc	abbbbc	y	$-[0]	0
+ok
+        # ab+bc	abbbbc	y	$+[0]	6
+ok
+        # ab{1,}bc	abbbbc	y	$&	abbbbc
+ok
+        # ab{1,}bc	abbbbc	y	$-[0]	0
+ok
+        # ab{1,}bc	abbbbc	y	$+[0]	6
+ok
+        # ab{1,3}bc	abbbbc	y	$&	abbbbc
+ok
+        # ab{1,3}bc	abbbbc	y	$-[0]	0
+ok
+        # ab{1,3}bc	abbbbc	y	$+[0]	6
+ok
+        # ab{3,4}bc	abbbbc	y	$&	abbbbc
+ok
+        # ab{3,4}bc	abbbbc	y	$-[0]	0
+ok
+        # ab{3,4}bc	abbbbc	y	$+[0]	6
+ok
+        # ab{4,5}bc	abbbbc	n	-	-
+ok
+        # ab?bc	abbc	y	$&	abbc
+ok
+        # ab?bc	abc	y	$&	abc
+ok
+        # ab{0,1}bc	abc	y	$&	abc
+ok
+        # ab?bc	abbbbc	n	-	-
+ok
+        # ab?c	abc	y	$&	abc
+ok
+        # ab{0,1}c	abc	y	$&	abc
+ok
+        # ^abc$	abc	y	$&	abc
+ok
+        # ^abc$	abcc	n	-	-
+ok
+        # ^abc	abcc	y	$&	abc
+ok
+        # ^abc$	aabc	n	-	-
+ok
+        # abc$	aabc	y	$&	abc
+ok
+        # abc$	aabcd	n	-	-
+ok
+        # ^	abc	y	$&	
+ok
+        # $	abc	y	$&	
+ok
+        # a.c	abc	y	$&	abc
+ok
+        # a.c	axc	y	$&	axc
+ok
+        # a.*c	axyzc	y	$&	axyzc
+ok
+        # a.*c	axyzd	n	-	-
+ok
+        # a[bc]d	abc	n	-	-
+ok
+        # a[bc]d	abd	y	$&	abd
+ok
+        # a[b-d]e	abd	n	-	-
+ok
+        # a[b-d]e	ace	y	$&	ace
+ok
+        # a[b-d]	aac	y	$&	ac
+ok
+        # a[-b]	a-	y	$&	a-
+ok
+        # a[b-]	a-	y	$&	a-
+ok
+        # a[b-a]	-	c	-	Invalid [] range "b-a"
+ok
+        # a[]b	-	c	-	Unmatched [
+ok
+        # a[	-	c	-	Unmatched [
+ok
+        # a]	a]	y	$&	a]
+ok
+        # a[]]b	a]b	y	$&	a]b
+ok
+        # a[^bc]d	aed	y	$&	aed
+ok
+        # a[^bc]d	abd	n	-	-
+ok
+        # a[^-b]c	adc	y	$&	adc
+ok
+        # a[^-b]c	a-c	n	-	-
+ok
+        # a[^]b]c	a]c	n	-	-
+ok
+        # a[^]b]c	adc	y	$&	adc
+ok
+        # \ba\b	a-	y	-	-
+ok
+        # \ba\b	-a	y	-	-
+ok
+        # \ba\b	-a-	y	-	-
+ok
+        # \by\b	xy	n	-	-
+ok
+        # \by\b	yz	n	-	-
+ok
+        # \by\b	xyz	n	-	-
+ok
+        # \Ba\B	a-	n	-	-
+ok
+        # \Ba\B	-a	n	-	-
+ok
+        # \Ba\B	-a-	n	-	-
+ok
+        # \By\b	xy	y	-	-
+ok
+        # \By\b	xy	y	$-[0]	1
+ok
+        # \By\b	xy	y	$+[0]	2
+ok
+        # \By\b	xy	y	-	-
+ok
+        # \by\B	yz	y	-	-
+ok
+        # \By\B	xyz	y	-	-
+ok
+        # \w	a	y	-	-
+ok
+        # \w	-	n	-	-
+ok
+        # \W	a	n	-	-
+ok
+        # \W	-	y	-	-
+ok
+        # a\sb	a b	y	-	-
+ok
+        # a\sb	a-b	n	-	-
+ok
+        # a\Sb	a b	n	-	-
+ok
+        # a\Sb	a-b	y	-	-
+ok
+        # \d	1	y	-	-
+ok
+        # \d	-	n	-	-
+ok
+        # \D	1	n	-	-
+ok
+        # \D	-	y	-	-
+ok
+        # [\w]	a	y	-	-
+ok
+        # [\w]	-	n	-	-
+ok
+        # [\W]	a	n	-	-
+ok
+        # [\W]	-	y	-	-
+ok
+        # a[\s]b	a b	y	-	-
+ok
+        # a[\s]b	a-b	n	-	-
+ok
+        # a[\S]b	a b	n	-	-
+ok
+        # a[\S]b	a-b	y	-	-
+ok
+        # [\d]	1	y	-	-
+ok
+        # [\d]	-	n	-	-
+ok
+        # [\D]	1	n	-	-
+ok
+        # [\D]	-	y	-	-
+ok
+        # ab|cd	abc	y	$&	ab
+ok
+        # ab|cd	abcd	y	$&	ab
+ok
+        # ()ef	def	y	$&-$1	ef-
+ok
+        # ()ef	def	y	$-[0]	1
+ok
+        # ()ef	def	y	$+[0]	3
+ok
+        # ()ef	def	y	$-[1]	1
+ok
+        # ()ef	def	y	$+[1]	1
+ok
+        # *a	-	c	-	Quantifier follows nothing
+ok
+        # (*)b	-	c	-	Quantifier follows nothing
+ok
+        # $b	b	n	-	-
+ok
+        # a\	-	c	-	Search pattern not terminated
+ok
+        # a\(b	a(b	y	$&-$1	a(b-
+ok
+        # a\(*b	ab	y	$&	ab
+ok
+        # a\(*b	a((b	y	$&	a((b
+ok
+        # a\\b	a\b	y	$&	a\b
+ok
+        # abc)	-	c	-	Unmatched )
+ok
+        # (abc	-	c	-	Unmatched (
+ok
+        # ((a))	abc	y	$&-$1-$2	a-a-a
+ok
+        # ((a))	abc	y	$-[0]-$-[1]-$-[2]	0-0-0
+ok
+        # ((a))	abc	y	$+[0]-$+[1]-$+[2]	1-1-1
+ok
+        # ((a))	abc	b	@-	0 0 0
+ok
+        # ((a))	abc	b	@+	1 1 1
+ok
+        # (a)b(c)	abc	y	$&-$1-$2	abc-a-c
+ok
+        # (a)b(c)	abc	y	$-[0]-$-[1]-$-[2]	0-0-2
+ok
+        # (a)b(c)	abc	y	$+[0]-$+[1]-$+[2]	3-1-3
+ok
+        # a+b+c	aabbabc	y	$&	abc
+ok
+        # a{1,}b{1,}c	aabbabc	y	$&	abc
+ok
+        # a**	-	c	-	Nested quantifiers
+ok
+        # a.+?c	abcabc	y	$&	abc
+ok
+        # (a+|b)*	ab	y	$&-$1	ab-b
+ok
+        # (a+|b)*	ab	y	$-[0]	0
+ok
+        # (a+|b)*	ab	y	$+[0]	2
+ok
+        # (a+|b)*	ab	y	$-[1]	1
+ok
+        # (a+|b)*	ab	y	$+[1]	2
+ok
+        # (a+|b){0,}	ab	y	$&-$1	ab-b
+ok
+        # (a+|b)+	ab	y	$&-$1	ab-b
+ok
+        # (a+|b){1,}	ab	y	$&-$1	ab-b
+ok
+        # (a+|b)?	ab	y	$&-$1	a-a
+ok
+        # (a+|b){0,1}	ab	y	$&-$1	a-a
+ok
+        # )(	-	c	-	Unmatched )
+ok
+        # [^ab]*	cde	y	$&	cde
+ok
+        # abc		n	-	-
+ok
+        # a*		y	$&	
+ok
+        # ([abc])*d	abbbcd	y	$&-$1	abbbcd-c
+ok
+        # ([abc])*bcd	abcd	y	$&-$1	abcd-a
+ok
+        # a|b|c|d|e	e	y	$&	e
+ok
+        # (a|b|c|d|e)f	ef	y	$&-$1	ef-e
+ok
+        # (a|b|c|d|e)f	ef	y	$-[0]	0
+ok
+        # (a|b|c|d|e)f	ef	y	$+[0]	2
+ok
+        # (a|b|c|d|e)f	ef	y	$-[1]	0
+ok
+        # (a|b|c|d|e)f	ef	y	$+[1]	1
+ok
+        # abcd*efg	abcdefg	y	$&	abcdefg
+ok
+        # ab*	xabyabbbz	y	$&	ab
+ok
+        # ab*	xayabbbz	y	$&	a
+ok
+        # (ab|cd)e	abcde	y	$&-$1	cde-cd
+ok
+        # [abhgefdc]ij	hij	y	$&	hij
+ok
+        # ^(ab|cd)e	abcde	n	x$1y	xy
+ok
+        # (abc|)ef	abcdef	y	$&-$1	ef-
+ok
+        # (a|b)c*d	abcd	y	$&-$1	bcd-b
+ok
+        # (ab|ab*)bc	abc	y	$&-$1	abc-a
+ok
+        # a([bc]*)c*	abc	y	$&-$1	abc-bc
+ok
+        # a([bc]*)(c*d)	abcd	y	$&-$1-$2	abcd-bc-d
+ok
+        # a([bc]*)(c*d)	abcd	y	$-[0]	0
+ok
+        # a([bc]*)(c*d)	abcd	y	$+[0]	4
+ok
+        # a([bc]*)(c*d)	abcd	y	$-[1]	1
+ok
+        # a([bc]*)(c*d)	abcd	y	$+[1]	3
+ok
+        # a([bc]*)(c*d)	abcd	y	$-[2]	3
+ok
+        # a([bc]*)(c*d)	abcd	y	$+[2]	4
+ok
+        # a([bc]+)(c*d)	abcd	y	$&-$1-$2	abcd-bc-d
+ok
+        # a([bc]*)(c+d)	abcd	y	$&-$1-$2	abcd-b-cd
+ok
+        # a([bc]*)(c+d)	abcd	y	$-[0]	0
+ok
+        # a([bc]*)(c+d)	abcd	y	$+[0]	4
+ok
+        # a([bc]*)(c+d)	abcd	y	$-[1]	1
+ok
+        # a([bc]*)(c+d)	abcd	y	$+[1]	2
+ok
+        # a([bc]*)(c+d)	abcd	y	$-[2]	2
+ok
+        # a([bc]*)(c+d)	abcd	y	$+[2]	4
+ok
+        # a[bcd]*dcdcde	adcdcde	y	$&	adcdcde
+ok
+        # a[bcd]+dcdcde	adcdcde	n	-	-
+ok
+        # (ab|a)b*c	abc	y	$&-$1	abc-ab
+ok
+        # (ab|a)b*c	abc	y	$-[0]	0
+ok
+        # (ab|a)b*c	abc	y	$+[0]	3
+ok
+        # (ab|a)b*c	abc	y	$-[1]	0
+ok
+        # (ab|a)b*c	abc	y	$+[1]	2
+ok
+        # ((a)(b)c)(d)	abcd	y	$1-$2-$3-$4	abc-a-b-d
+ok
+        # ((a)(b)c)(d)	abcd	y	$-[0]	0
+ok
+        # ((a)(b)c)(d)	abcd	y	$+[0]	4
+ok
+        # ((a)(b)c)(d)	abcd	y	$-[1]	0
+ok
+        # ((a)(b)c)(d)	abcd	y	$+[1]	3
+ok
+        # ((a)(b)c)(d)	abcd	y	$-[2]	0
+ok
+        # ((a)(b)c)(d)	abcd	y	$+[2]	1
+ok
+        # ((a)(b)c)(d)	abcd	y	$-[3]	1
+ok
+        # ((a)(b)c)(d)	abcd	y	$+[3]	2
+ok
+        # ((a)(b)c)(d)	abcd	y	$-[4]	3
+ok
+        # ((a)(b)c)(d)	abcd	y	$+[4]	4
+ok
+        # [a-zA-Z_][a-zA-Z0-9_]*	alpha	y	$&	alpha
+ok
+        # ^a(bc+|b[eh])g|.h$	abh	y	$&-$1	bh-
+ok
+        # (bc+d$|ef*g.|h?i(j|k))	effgz	y	$&-$1-$2	effgz-effgz-
+ok
+        # (bc+d$|ef*g.|h?i(j|k))	ij	y	$&-$1-$2	ij-ij-j
+ok
+        # (bc+d$|ef*g.|h?i(j|k))	effg	n	-	-
+ok
+        # (bc+d$|ef*g.|h?i(j|k))	bcdd	n	-	-
+ok
+        # (bc+d$|ef*g.|h?i(j|k))	reffgz	y	$&-$1-$2	effgz-effgz-
+ok
+        # ((((((((((a))))))))))	a	y	$10	a
+ok
+        # ((((((((((a))))))))))	a	y	$-[0]	0
+ok
+        # ((((((((((a))))))))))	a	y	$+[0]	1
+ok
+        # ((((((((((a))))))))))	a	y	$-[10]	0
+ok
+        # ((((((((((a))))))))))	a	y	$+[10]	1
+ok
+        # ((((((((((a))))))))))\10	aa	y	$&	aa
+not ok # Match failed.
+        # ((((((((((a))))))))))${bang}	aa	n	-	-
+ok
+        # ((((((((((a))))))))))${bang}	a!	y	$&	a!
+ok
+        # (((((((((a)))))))))	a	y	$&	a
+ok
+        # multiple words of text	uh-uh	n	-	-
+ok
+        # multiple words	multiple words, yeah	y	$&	multiple words
+ok
+        # (.*)c(.*)	abcde	y	$&-$1-$2	abcde-ab-de
+ok
+        # \((.*), (.*)\)	(a, b)	y	($2, $1)	(b, a)
+ok
+        # [k]	ab	n	-	-
+ok
+        # abcd	abcd	y	$&-\$&-\\$&	abcd-$&-\abcd
+ok
+        # a(bc)d	abcd	y	$1-\$1-\\$1	bc-$1-\bc
+ok
+        # a[-]?c	ac	y	$&	ac
+ok
+        # (abc)\1	abcabc	y	$1	abc
+ok
+        # ([a-c]*)\1	abcabc	y	$1	abc
+ok
+        # \1	-	c	-	Reference to nonexistent group
+ok
+        # \2	-	c	-	Reference to nonexistent group
+ok
+        # (a)|\1	a	y	-	-
+ok
+        # (a)|\1	x	n	-	-
+ok
+        # (a)|\2	-	c	-	Reference to nonexistent group
+ok
+        # (([a-c])b*?\2)*	ababbbcbc	y	$&-$1-$2	ababb-bb-b
+ok
+        # (([a-c])b*?\2){3}	ababbbcbc	y	$&-$1-$2	ababbbcbc-cbc-c
+ok
+        # ((\3|b)\2(a)x)+	aaxabxbaxbbx	n	-	-
+ok
+        # ((\3|b)\2(a)x)+	aaaxabaxbaaxbbax	y	$&-$1-$2-$3	bbax-bbax-b-a
+ok
+        # ((\3|b)\2(a)){2,}	bbaababbabaaaaabbaaaabba	y	$&-$1-$2-$3	bbaaaabba-bba-b-a
+ok
+        # (a)|(b)	b	y	$-[0]	0
+ok
+        # (a)|(b)	b	y	$+[0]	1
+ok
+        # (a)|(b)	b	y	x$-[1]	x
+ok
+        # (a)|(b)	b	y	x$+[1]	x
+ok
+        # (a)|(b)	b	y	$-[2]	0
+ok
+        # (a)|(b)	b	y	$+[2]	1
+ok
+        # 'abc'i	ABC	y	$&	ABC
+ok
+        # 'abc'i	XBC	n	-	-
+ok
+        # 'abc'i	AXC	n	-	-
+ok
+        # 'abc'i	ABX	n	-	-
+ok
+        # 'abc'i	XABCY	y	$&	ABC
+ok
+        # 'abc'i	ABABC	y	$&	ABC
+ok
+        # 'ab*c'i	ABC	y	$&	ABC
+ok
+        # 'ab*bc'i	ABC	y	$&	ABC
+ok
+        # 'ab*bc'i	ABBC	y	$&	ABBC
+ok
+        # 'ab*?bc'i	ABBBBC	y	$&	ABBBBC
+ok
+        # 'ab{0,}?bc'i	ABBBBC	y	$&	ABBBBC
+ok
+        # 'ab+?bc'i	ABBC	y	$&	ABBC
+ok
+        # 'ab+bc'i	ABC	n	-	-
+ok
+        # 'ab+bc'i	ABQ	n	-	-
+ok
+        # 'ab{1,}bc'i	ABQ	n	-	-
+ok
+        # 'ab+bc'i	ABBBBC	y	$&	ABBBBC
+ok
+        # 'ab{1,}?bc'i	ABBBBC	y	$&	ABBBBC
+ok
+        # 'ab{1,3}?bc'i	ABBBBC	y	$&	ABBBBC
+ok
+        # 'ab{3,4}?bc'i	ABBBBC	y	$&	ABBBBC
+ok
+        # 'ab{4,5}?bc'i	ABBBBC	n	-	-
+ok
+        # 'ab??bc'i	ABBC	y	$&	ABBC
+ok
+        # 'ab??bc'i	ABC	y	$&	ABC
+ok
+        # 'ab{0,1}?bc'i	ABC	y	$&	ABC
+ok
+        # 'ab??bc'i	ABBBBC	n	-	-
+ok
+        # 'ab??c'i	ABC	y	$&	ABC
+ok
+        # 'ab{0,1}?c'i	ABC	y	$&	ABC
+ok
+        # '^abc$'i	ABC	y	$&	ABC
+ok
+        # '^abc$'i	ABCC	n	-	-
+ok
+        # '^abc'i	ABCC	y	$&	ABC
+ok
+        # '^abc$'i	AABC	n	-	-
+ok
+        # 'abc$'i	AABC	y	$&	ABC
+ok
+        # '^'i	ABC	y	$&	
+ok
+        # '$'i	ABC	y	$&	
+ok
+        # 'a.c'i	ABC	y	$&	ABC
+ok
+        # 'a.c'i	AXC	y	$&	AXC
+ok
+        # 'a.*?c'i	AXYZC	y	$&	AXYZC
+ok
+        # 'a.*c'i	AXYZD	n	-	-
+ok
+        # 'a[bc]d'i	ABC	n	-	-
+ok
+        # 'a[bc]d'i	ABD	y	$&	ABD
+ok
+        # 'a[b-d]e'i	ABD	n	-	-
+ok
+        # 'a[b-d]e'i	ACE	y	$&	ACE
+ok
+        # 'a[b-d]'i	AAC	y	$&	AC
+ok
+        # 'a[-b]'i	A-	y	$&	A-
+ok
+        # 'a[b-]'i	A-	y	$&	A-
+ok
+        # 'a[b-a]'i	-	c	-	Invalid [] range "b-a"
+ok
+        # 'a[]b'i	-	c	-	Unmatched [
+ok
+        # 'a['i	-	c	-	Unmatched [
+ok
+        # 'a]'i	A]	y	$&	A]
+ok
+        # 'a[]]b'i	A]B	y	$&	A]B
+ok
+        # 'a[^bc]d'i	AED	y	$&	AED
+ok
+        # 'a[^bc]d'i	ABD	n	-	-
+ok
+        # 'a[^-b]c'i	ADC	y	$&	ADC
+ok
+        # 'a[^-b]c'i	A-C	n	-	-
+ok
+        # 'a[^]b]c'i	A]C	n	-	-
+ok
+        # 'a[^]b]c'i	ADC	y	$&	ADC
+ok
+        # 'ab|cd'i	ABC	y	$&	AB
+ok
+        # 'ab|cd'i	ABCD	y	$&	AB
+ok
+        # '()ef'i	DEF	y	$&-$1	EF-
+ok
+        # '*a'i	-	c	-	Quantifier follows nothing
+not ok  # Expected compile to fail.
+        # '(*)b'i	-	c	-	Quantifier follows nothing
+ok
+        # '$b'i	B	n	-	-
+ok
+        # 'a\'i	-	c	-	Search pattern not terminated
+ok
+        # 'a\(b'i	A(B	y	$&-$1	A(B-
+ok
+        # 'a\(*b'i	AB	y	$&	AB
+ok
+        # 'a\(*b'i	A((B	y	$&	A((B
+ok
+        # 'a\\b'i	A\B	y	$&	A\B
+ok
+        # 'abc)'i	-	c	-	Unmatched )
+ok
+        # '(abc'i	-	c	-	Unmatched (
+ok
+        # '((a))'i	ABC	y	$&-$1-$2	A-A-A
+ok
+        # '(a)b(c)'i	ABC	y	$&-$1-$2	ABC-A-C
+ok
+        # 'a+b+c'i	AABBABC	y	$&	ABC
+ok
+        # 'a{1,}b{1,}c'i	AABBABC	y	$&	ABC
+ok
+        # 'a**'i	-	c	-	Nested quantifiers
+ok
+        # 'a.+?c'i	ABCABC	y	$&	ABC
+ok
+        # 'a.*?c'i	ABCABC	y	$&	ABC
+ok
+        # 'a.{0,5}?c'i	ABCABC	y	$&	ABC
+ok
+        # '(a+|b)*'i	AB	y	$&-$1	AB-B
+ok
+        # '(a+|b){0,}'i	AB	y	$&-$1	AB-B
+ok
+        # '(a+|b)+'i	AB	y	$&-$1	AB-B
+ok
+        # '(a+|b){1,}'i	AB	y	$&-$1	AB-B
+ok
+        # '(a+|b)?'i	AB	y	$&-$1	A-A
+ok
+        # '(a+|b){0,1}'i	AB	y	$&-$1	A-A
+ok
+        # '(a+|b){0,1}?'i	AB	y	$&-$1	-
+ok
+        # ')('i	-	c	-	Unmatched )
+ok
+        # '[^ab]*'i	CDE	y	$&	CDE
+ok
+        # 'abc'i		n	-	-
+ok
+        # 'a*'i		y	$&	
+ok
+        # '([abc])*d'i	ABBBCD	y	$&-$1	ABBBCD-C
+ok
+        # '([abc])*bcd'i	ABCD	y	$&-$1	ABCD-A
+ok
+        # 'a|b|c|d|e'i	E	y	$&	E
+ok
+        # '(a|b|c|d|e)f'i	EF	y	$&-$1	EF-E
+ok
+        # 'abcd*efg'i	ABCDEFG	y	$&	ABCDEFG
+ok
+        # 'ab*'i	XABYABBBZ	y	$&	AB
+ok
+        # 'ab*'i	XAYABBBZ	y	$&	A
+ok
+        # '(ab|cd)e'i	ABCDE	y	$&-$1	CDE-CD
+ok
+        # '[abhgefdc]ij'i	HIJ	y	$&	HIJ
+ok
+        # '^(ab|cd)e'i	ABCDE	n	x$1y	XY
+ok
+        # '(abc|)ef'i	ABCDEF	y	$&-$1	EF-
+ok
+        # '(a|b)c*d'i	ABCD	y	$&-$1	BCD-B
+ok
+        # '(ab|ab*)bc'i	ABC	y	$&-$1	ABC-A
+ok
+        # 'a([bc]*)c*'i	ABC	y	$&-$1	ABC-BC
+ok
+        # 'a([bc]*)(c*d)'i	ABCD	y	$&-$1-$2	ABCD-BC-D
+ok
+        # 'a([bc]+)(c*d)'i	ABCD	y	$&-$1-$2	ABCD-BC-D
+ok
+        # 'a([bc]*)(c+d)'i	ABCD	y	$&-$1-$2	ABCD-B-CD
+ok
+        # 'a[bcd]*dcdcde'i	ADCDCDE	y	$&	ADCDCDE
+ok
+        # 'a[bcd]+dcdcde'i	ADCDCDE	n	-	-
+ok
+        # '(ab|a)b*c'i	ABC	y	$&-$1	ABC-AB
+ok
+        # '((a)(b)c)(d)'i	ABCD	y	$1-$2-$3-$4	ABC-A-B-D
+ok
+        # '[a-zA-Z_][a-zA-Z0-9_]*'i	ALPHA	y	$&	ALPHA
+ok
+        # '^a(bc+|b[eh])g|.h$'i	ABH	y	$&-$1	BH-
+ok
+        # '(bc+d$|ef*g.|h?i(j|k))'i	EFFGZ	y	$&-$1-$2	EFFGZ-EFFGZ-
+ok
+        # '(bc+d$|ef*g.|h?i(j|k))'i	IJ	y	$&-$1-$2	IJ-IJ-J
+ok
+        # '(bc+d$|ef*g.|h?i(j|k))'i	EFFG	n	-	-
+ok
+        # '(bc+d$|ef*g.|h?i(j|k))'i	BCDD	n	-	-
+ok
+        # '(bc+d$|ef*g.|h?i(j|k))'i	REFFGZ	y	$&-$1-$2	EFFGZ-EFFGZ-
+ok
+        # '((((((((((a))))))))))'i	A	y	$10	A
+ok
+        # '((((((((((a))))))))))\10'i	AA	y	$&	AA
+not ok # Match failed.
+        # '((((((((((a))))))))))${bang}'i	AA	n	-	-
+ok
+        # '((((((((((a))))))))))${bang}'i	A!	y	$&	A!
+ok
+        # '(((((((((a)))))))))'i	A	y	$&	A
+ok
+        # '(?:(?:(?:(?:(?:(?:(?:(?:(?:(a))))))))))'i	A	y	$1	A
+ok
+        # '(?:(?:(?:(?:(?:(?:(?:(?:(?:(a|b|c))))))))))'i	C	y	$1	C
+ok
+        # 'multiple words of text'i	UH-UH	n	-	-
+ok
+        # 'multiple words'i	MULTIPLE WORDS, YEAH	y	$&	MULTIPLE WORDS
+ok
+        # '(.*)c(.*)'i	ABCDE	y	$&-$1-$2	ABCDE-AB-DE
+ok
+        # '\((.*), (.*)\)'i	(A, B)	y	($2, $1)	(B, A)
+ok
+        # '[k]'i	AB	n	-	-
+ok
+        # 'abcd'i	ABCD	y	$&-\$&-\\$&	ABCD-$&-\ABCD
+ok
+        # 'a(bc)d'i	ABCD	y	$1-\$1-\\$1	BC-$1-\BC
+ok
+        # 'a[-]?c'i	AC	y	$&	AC
+ok
+        # '(abc)\1'i	ABCABC	y	$1	ABC
+ok
+        # '([a-c]*)\1'i	ABCABC	y	$1	ABC
+ok
+        # a(?!b).	abad	y	$&	ad
+ok
+        # a(?=d).	abad	y	$&	ad
+ok
+        # a(?=c|d).	abad	y	$&	ad
+ok
+        # a(?:b|c|d)(.)	ace	y	$1	e
+ok
+        # a(?:b|c|d)*(.)	ace	y	$1	e
+ok
+        # a(?:b|c|d)+?(.)	ace	y	$1	e
+ok
+        # a(?:b|c|d)+?(.)	acdbcdbe	y	$1	d
+ok
+        # a(?:b|c|d)+(.)	acdbcdbe	y	$1	e
+ok
+        # a(?:b|c|d){2}(.)	acdbcdbe	y	$1	b
+ok
+        # a(?:b|c|d){4,5}(.)	acdbcdbe	y	$1	b
+ok
+        # a(?:b|c|d){4,5}?(.)	acdbcdbe	y	$1	d
+ok
+        # ((foo)|(bar))*	foobar	y	$1-$2-$3	bar-foo-bar
+ok
+        # :(?:	-	c	-	Sequence (? incomplete
+ok
+        # a(?:b|c|d){6,7}(.)	acdbcdbe	y	$1	e
+ok
+        # a(?:b|c|d){6,7}?(.)	acdbcdbe	y	$1	e
+ok
+        # a(?:b|c|d){5,6}(.)	acdbcdbe	y	$1	e
+ok
+        # a(?:b|c|d){5,6}?(.)	acdbcdbe	y	$1	b
+ok
+        # a(?:b|c|d){5,7}(.)	acdbcdbe	y	$1	e
+ok
+        # a(?:b|c|d){5,7}?(.)	acdbcdbe	y	$1	b
+ok
+        # a(?:b|(c|e){1,2}?|d)+?(.)	ace	y	$1$2	ce
+ok
+        # ^(.+)?B	AB	y	$1	A
+ok
+        # ^([^a-z])|(\^)$	.	y	$1	.
+ok
+        # ^[<>]&	<&OUT	y	$&	<&
+ok
+        # ^(a\1?){4}$	aaaaaaaaaa	y	$1	aaaa
+not ok # Match failed.
+        # ^(a\1?){4}$	aaaaaaaaa	n	-	-
+ok
+        # ^(a\1?){4}$	aaaaaaaaaaa	n	-	-
+ok
+        # ^(a(?(1)\1)){4}$	aaaaaaaaaa	y	$1	aaaa
+not ok # Match failed.
+        # ^(a(?(1)\1)){4}$	aaaaaaaaa	n	-	-
+ok
+        # ^(a(?(1)\1)){4}$	aaaaaaaaaaa	n	-	-
+ok
+        # ((a{4})+)	aaaaaaaaa	y	$1	aaaaaaaa
+ok
+        # (((aa){2})+)	aaaaaaaaaa	y	$1	aaaaaaaa
+ok
+        # (((a{2}){2})+)	aaaaaaaaaa	y	$1	aaaaaaaa
+ok
+        # (?:(f)(o)(o)|(b)(a)(r))*	foobar	y	$1:$2:$3:$4:$5:$6	f:o:o:b:a:r
+ok
+        # (?<=a)b	ab	y	$&	b
+ok
+        # (?<=a)b	cb	n	-	-
+ok
+        # (?<=a)b	b	n	-	-
+ok
+        # (?<!c)b	ab	y	$&	b
+ok
+        # (?<!c)b	cb	n	-	-
+ok
+        # (?<!c)b	b	y	-	-
+ok
+        # (?<!c)b	b	y	$&	b
+ok
+        # (?<%)b	-	c	-	Sequence (?<%...) not recognized
+ok
+        # (?:..)*a	aba	y	$&	aba
+ok
+        # (?:..)*?a	aba	y	$&	a
+ok
+        # ^(?:b|a(?=(.)))*\1	abc	y	$&	ab
+ok
+        # ^(){3,5}	abc	y	a$1	a
+ok
+        # ^(a+)*ax	aax	y	$1	a
+ok
+        # ^((a|b)+)*ax	aax	y	$1	a
+ok
+        # ^((a|bc)+)*ax	aax	y	$1	a
+ok
+        # (a|x)*ab	cab	y	y$1	y
+ok
+        # (a)*ab	cab	y	y$1	y
+ok
+        # (?:(?i)a)b	ab	y	$&	ab
+ok
+        # ((?i)a)b	ab	y	$&:$1	ab:a
+ok
+        # (?:(?i)a)b	Ab	y	$&	Ab
+ok
+        # ((?i)a)b	Ab	y	$&:$1	Ab:A
+ok
+        # (?:(?i)a)b	aB	n	-	-
+ok
+        # ((?i)a)b	aB	n	-	-
+ok
+        # (?i:a)b	ab	y	$&	ab
+ok
+        # ((?i:a))b	ab	y	$&:$1	ab:a
+ok
+        # (?i:a)b	Ab	y	$&	Ab
+ok
+        # ((?i:a))b	Ab	y	$&:$1	Ab:A
+ok
+        # (?i:a)b	aB	n	-	-
+ok
+        # ((?i:a))b	aB	n	-	-
+ok
+        # '(?:(?-i)a)b'i	ab	y	$&	ab
+ok
+        # '((?-i)a)b'i	ab	y	$&:$1	ab:a
+ok
+        # '(?:(?-i)a)b'i	aB	y	$&	aB
+ok
+        # '((?-i)a)b'i	aB	y	$&:$1	aB:a
+ok
+        # '(?:(?-i)a)b'i	Ab	n	-	-
+ok
+        # '((?-i)a)b'i	Ab	n	-	-
+ok
+        # '(?:(?-i)a)b'i	aB	y	$&	aB
+ok
+        # '((?-i)a)b'i	aB	y	$1	a
+ok
+        # '(?:(?-i)a)b'i	AB	n	-	-
+ok
+        # '((?-i)a)b'i	AB	n	-	-
+ok
+        # '(?-i:a)b'i	ab	y	$&	ab
+ok
+        # '((?-i:a))b'i	ab	y	$&:$1	ab:a
+ok
+        # '(?-i:a)b'i	aB	y	$&	aB
+ok
+        # '((?-i:a))b'i	aB	y	$&:$1	aB:a
+ok
+        # '(?-i:a)b'i	Ab	n	-	-
+ok
+        # '((?-i:a))b'i	Ab	n	-	-
+ok
+        # '(?-i:a)b'i	aB	y	$&	aB
+ok
+        # '((?-i:a))b'i	aB	y	$1	a
+ok
+        # '(?-i:a)b'i	AB	n	-	-
+ok
+        # '((?-i:a))b'i	AB	n	-	-
+ok
+        # '((?-i:a.))b'i	a\nB	n	-	-
+ok
+        # '((?s-i:a.))b'i	a\nB	y	$1	a\n
+ok
+        # '((?s-i:a.))b'i	B\nB	n	-	-
+ok
+        # (?:c|d)(?:)(?:a(?:)(?:b)(?:b(?:))(?:b(?:)(?:b)))	cabbbb	y	$&	cabbbb
+ok
+        # (?:c|d)(?:)(?:aaaaaaaa(?:)(?:bbbbbbbb)(?:bbbbbbbb(?:))(?:bbbbbbbb(?:)(?:bbbbbbbb)))	caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb	y	$&	caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+ok
+        # '(ab)\d\1'i	Ab4ab	y	$1	Ab
+ok
+        # '(ab)\d\1'i	ab4Ab	y	$1	ab
+ok
+        # foo\w*\d{4}baz	foobar1234baz	y	$&	foobar1234baz
+ok
+        # a(?{})b	cabd	y	$&	ab
+ok
+        # a(?{)b	-	c	-	Sequence (?{...}) not terminated or not {}-balanced
+ok
+        # a(?{{})b	-	c	-	Sequence (?{...}) not terminated or not {}-balanced
+ok
+        # a(?{}})b	-	c	-	
+ok
+        # a(?{"{"})b	-	c	-	Sequence (?{...}) not terminated or not {}-balanced
+ok
+        # a(?{"\{"})b	cabd	y	$&	ab
+ok
+        # a(?{"{"}})b	-	c	-	Unmatched right curly bracket
+ok
+        # a(?{$bl="\{"}).b	caxbd	y	$bl	{
+ok
+        # x(~~)*(?:(?:F)?)?	x~~	y	-	-
+ok
+        # ^a(?#xxx){3}c	aaac	y	$&	aaac
+not ok # Unexpected compilation failure.
+        # '^a (?#xxx) (?#yyy) {3}c'x	aaac	y	$&	aaac
+not ok # Unexpected compilation failure.
+        # (?<![cd])b	dbcb	n	-	-
+ok
+        # (?<![cd])[ab]	dbaacb	y	$&	a
+ok
+        # (?<!(c|d))b	dbcb	n	-	-
+ok
+        # (?<!(c|d))[ab]	dbaacb	y	$&	a
+ok
+        # (?<!cd)[ab]	cdaccb	y	$&	b
+ok
+        # ^(?:a?b?)*$	a--	n	-	-
+ok
+        # ((?s)^a(.))((?m)^b$)	a\nb\nc\n	y	$1;$2;$3	a\n;\n;b
+ok
+        # ((?m)^b$)	a\nb\nc\n	y	$1	b
+ok
+        # (?m)^b	a\nb\n	y	$&	b
+ok
+        # (?m)^(b)	a\nb\n	y	$1	b
+ok
+        # ((?m)^b)	a\nb\n	y	$1	b
+ok
+        # \n((?m)^b)	a\nb\n	y	$1	b
+ok
+        # ((?s).)c(?!.)	a\nb\nc\n	y	$1	\n
+ok
+        # ((?s).)c(?!.)	a\nb\nc\n	y	$1:$&	\n:\nc
+ok
+        # ((?s)b.)c(?!.)	a\nb\nc\n	y	$1	b\n
+ok
+        # ((?s)b.)c(?!.)	a\nb\nc\n	y	$1:$&	b\n:b\nc
+ok
+        # ^b	a\nb\nc\n	n	-	-
+ok
+        # ()^b	a\nb\nc\n	n	-	-
+ok
+        # ((?m)^b)	a\nb\nc\n	y	$1	b
+ok
+        # (?(1)a|b)	a	n	-	-
+ok
+        # (?(1)b|a)	a	y	$&	a
+ok
+        # (x)?(?(1)a|b)	a	n	-	-
+ok
+        # (x)?(?(1)b|a)	a	y	$&	a
+ok
+        # ()?(?(1)b|a)	a	y	$&	a
+ok
+        # ()(?(1)b|a)	a	n	-	-
+ok
+        # ()?(?(1)a|b)	a	y	$&	a
+ok
+        # ^(\()?blah(?(1)(\)))$	(blah)	y	$2	)
+ok
+        # ^(\()?blah(?(1)(\)))$	blah	y	($2)	()
+ok
+        # ^(\()?blah(?(1)(\)))$	blah)	n	-	-
+ok
+        # ^(\()?blah(?(1)(\)))$	(blah	n	-	-
+ok
+        # ^(\(+)?blah(?(1)(\)))$	(blah)	y	$2	)
+ok
+        # ^(\(+)?blah(?(1)(\)))$	blah	y	($2)	()
+ok
+        # ^(\(+)?blah(?(1)(\)))$	blah)	n	-	-
+ok
+        # ^(\(+)?blah(?(1)(\)))$	(blah	n	-	-
+ok
+        # (?(1?)a|b)	a	c	-	Switch condition not recognized
+ok
+        # (?(1)a|b|c)	a	c	-	Switch (?(condition)... contains too many branches
+ok
+        # (?(?{0})a|b)	a	n	-	-
+not ok # Unexpected compilation failure.
+        # (?(?{0})b|a)	a	y	$&	a
+not ok # Unexpected compilation failure.
+        # (?(?{1})b|a)	a	n	-	-
+not ok # Unexpected compilation failure.
+        # (?(?{1})a|b)	a	y	$&	a
+not ok # Unexpected compilation failure.
+        # (?(?!a)a|b)	a	n	-	-
+ok
+        # (?(?!a)b|a)	a	y	$&	a
+ok
+        # (?(?=a)b|a)	a	n	-	-
+ok
+        # (?(?=a)a|b)	a	y	$&	a
+ok
+        # (?=(a+?))(\1ab)	aaab	y	$2	aab
+ok
+        # ^(?=(a+?))\1ab	aaab	n	-	-
+ok
+        # (\w+:)+	one:	y	$1	one:
+ok
+        # $(?<=^(a))	a	y	$1	a
+ok
+        # (?=(a+?))(\1ab)	aaab	y	$2	aab
+ok
+        # ^(?=(a+?))\1ab	aaab	n	-	-
+ok
+        # ([\w:]+::)?(\w+)$	abcd:	n	-	-
+ok
+        # ([\w:]+::)?(\w+)$	abcd	y	$1-$2	-abcd
+ok
+        # ([\w:]+::)?(\w+)$	xy:z:::abcd	y	$1-$2	xy:z:::-abcd
+ok
+        # ^[^bcd]*(c+)	aexycd	y	$1	c
+ok
+        # (a*)b+	caab	y	$1	aa
+ok
+        # ([\w:]+::)?(\w+)$	abcd:	n	-	-
+ok
+        # ([\w:]+::)?(\w+)$	abcd	y	$1-$2	-abcd
+ok
+        # ([\w:]+::)?(\w+)$	xy:z:::abcd	y	$1-$2	xy:z:::-abcd
+ok
+        # ^[^bcd]*(c+)	aexycd	y	$1	c
+ok
+        # (?{$a=2})a*aa(?{local$a=$a+1})k*c(?{$b=$a})	yaaxxaaaacd	y	$b	3
+ok
+        # (?{$a=2})(a(?{local$a=$a+1}))*aak*c(?{$b=$a})	yaaxxaaaacd	y	$b	4
+ok
+        # (>a+)ab	aaab	n	-	-
+ok
+        # (?>a+)b	aaab	y	-	-
+ok
+        # ([[:]+)	a:[b]:	y	$1	:[
+ok
+        # ([[=]+)	a=[b]=	y	$1	=[
+ok
+        # ([[.]+)	a.[b].	y	$1	.[
+ok
+        # [a[:xyz:	-	c	-	Unmatched [
+ok
+        # [a[:xyz:]	-	c	-	POSIX class [:xyz:] unknown
+ok
+        # [a[:]b[:c]	abc	y	$&	abc
+ok
+        # ([a[:xyz:]b]+)	pbaq	c	-	POSIX class [:xyz:] unknown
+ok
+        # [a[:]b[:c]	abc	y	$&	abc
+ok
+        # ([[:alpha:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd
+ok
+        # ([[:alnum:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy
+ok
+        # ([[:ascii:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy__--  ${nulnul}
+ok
+        # ([[:cntrl:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	${nulnul}
+ok
+        # ([[:digit:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	01
+ok
+        # ([[:graph:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy__--
+ok
+        # ([[:lower:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	cd
+ok
+        # ([[:print:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy__--  
+ok
+        # ([[:punct:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	__--
+ok
+        # ([[:space:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	  
+ok
+        # ([[:word:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy__
+ok
+        # ([[:upper:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	AB
+ok
+        # ([[:xdigit:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01
+ok
+        # ([[:^alpha:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	01
+ok
+        # ([[:^alnum:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	__--  ${nulnul}${ffff}
+ok
+        # ([[:^ascii:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	${ffff}
+ok
+        # ([[:^cntrl:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy__--  
+ok
+        # ([[:^digit:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd
+ok
+        # ([[:^lower:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	AB
+ok
+        # ([[:^print:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	${nulnul}${ffff}
+not ok
+  # Expected: >  ��<
+  #      Got: >  <  from  "".$m->[0].""
+        # ([[:^punct:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy
+ok
+        # ([[:^space:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy__--
+ok
+        # ([[:^word:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	--  ${nulnul}${ffff}
+ok
+        # ([[:^upper:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	cd01
+ok
+        # ([[:^xdigit:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	Xy__--  ${nulnul}${ffff}
+ok
+        # [[:foo:]]	-	c	-	POSIX class [:foo:] unknown
+ok
+        # [[:^foo:]]	-	c	-	POSIX class [:^foo:] unknown
+ok
+        # ((?>a+)b)	aaab	y	$1	aaab
+ok
+        # (?>(a+))b	aaab	y	$1	aaa
+ok
+        # ((?>[^()]+)|\([^()]*\))+	((abc(ade)ufh()()x	y	$&	abc(ade)ufh()()x
+ok
+        # (?<=x+)y	-	c	-	Variable length lookbehind not implemented
+not ok  # Expected compile to fail.
+        # a{37,17}	-	c	-	Can't do {n,m} with n > m
+ok
+        # \Z	a\nb\n	y	$-[0]	3
+ok
+        # \z	a\nb\n	y	$-[0]	4
+ok
+        # $	a\nb\n	y	$-[0]	3
+ok
+        # \Z	b\na\n	y	$-[0]	3
+ok
+        # \z	b\na\n	y	$-[0]	4
+ok
+        # $	b\na\n	y	$-[0]	3
+ok
+        # \Z	b\na	y	$-[0]	3
+ok
+        # \z	b\na	y	$-[0]	3
+ok
+        # $	b\na	y	$-[0]	3
+ok
+        # '\Z'm	a\nb\n	y	$-[0]	3
+ok
+        # '\z'm	a\nb\n	y	$-[0]	4
+ok
+        # '$'m	a\nb\n	y	$-[0]	1
+ok
+        # '\Z'm	b\na\n	y	$-[0]	3
+ok
+        # '\z'm	b\na\n	y	$-[0]	4
+ok
+        # '$'m	b\na\n	y	$-[0]	1
+ok
+        # '\Z'm	b\na	y	$-[0]	3
+ok
+        # '\z'm	b\na	y	$-[0]	3
+ok
+        # '$'m	b\na	y	$-[0]	1
+ok
+        # a\Z	a\nb\n	n	-	-
+ok
+        # a\z	a\nb\n	n	-	-
+ok
+        # a$	a\nb\n	n	-	-
+ok
+        # a\Z	b\na\n	y	$-[0]	2
+ok
+        # a\z	b\na\n	n	-	-
+ok
+        # a$	b\na\n	y	$-[0]	2
+ok
+        # a\Z	b\na	y	$-[0]	2
+ok
+        # a\z	b\na	y	$-[0]	2
+ok
+        # a$	b\na	y	$-[0]	2
+ok
+        # 'a\Z'm	a\nb\n	n	-	-
+ok
+        # 'a\z'm	a\nb\n	n	-	-
+ok
+        # 'a$'m	a\nb\n	y	$-[0]	0
+ok
+        # 'a\Z'm	b\na\n	y	$-[0]	2
+ok
+        # 'a\z'm	b\na\n	n	-	-
+ok
+        # 'a$'m	b\na\n	y	$-[0]	2
+ok
+        # 'a\Z'm	b\na	y	$-[0]	2
+ok
+        # 'a\z'm	b\na	y	$-[0]	2
+ok
+        # 'a$'m	b\na	y	$-[0]	2
+ok
+        # aa\Z	aa\nb\n	n	-	-
+ok
+        # aa\z	aa\nb\n	n	-	-
+ok
+        # aa$	aa\nb\n	n	-	-
+ok
+        # aa\Z	b\naa\n	y	$-[0]	2
+ok
+        # aa\z	b\naa\n	n	-	-
+ok
+        # aa$	b\naa\n	y	$-[0]	2
+ok
+        # aa\Z	b\naa	y	$-[0]	2
+ok
+        # aa\z	b\naa	y	$-[0]	2
+ok
+        # aa$	b\naa	y	$-[0]	2
+ok
+        # 'aa\Z'm	aa\nb\n	n	-	-
+ok
+        # 'aa\z'm	aa\nb\n	n	-	-
+ok
+        # 'aa$'m	aa\nb\n	y	$-[0]	0
+ok
+        # 'aa\Z'm	b\naa\n	y	$-[0]	2
+ok
+        # 'aa\z'm	b\naa\n	n	-	-
+ok
+        # 'aa$'m	b\naa\n	y	$-[0]	2
+ok
+        # 'aa\Z'm	b\naa	y	$-[0]	2
+ok
+        # 'aa\z'm	b\naa	y	$-[0]	2
+ok
+        # 'aa$'m	b\naa	y	$-[0]	2
+ok
+        # aa\Z	ac\nb\n	n	-	-
+ok
+        # aa\z	ac\nb\n	n	-	-
+ok
+        # aa$	ac\nb\n	n	-	-
+ok
+        # aa\Z	b\nac\n	n	-	-
+ok
+        # aa\z	b\nac\n	n	-	-
+ok
+        # aa$	b\nac\n	n	-	-
+ok
+        # aa\Z	b\nac	n	-	-
+ok
+        # aa\z	b\nac	n	-	-
+ok
+        # aa$	b\nac	n	-	-
+ok
+        # 'aa\Z'm	ac\nb\n	n	-	-
+ok
+        # 'aa\z'm	ac\nb\n	n	-	-
+ok
+        # 'aa$'m	ac\nb\n	n	-	-
+ok
+        # 'aa\Z'm	b\nac\n	n	-	-
+ok
+        # 'aa\z'm	b\nac\n	n	-	-
+ok
+        # 'aa$'m	b\nac\n	n	-	-
+ok
+        # 'aa\Z'm	b\nac	n	-	-
+ok
+        # 'aa\z'm	b\nac	n	-	-
+ok
+        # 'aa$'m	b\nac	n	-	-
+ok
+        # aa\Z	ca\nb\n	n	-	-
+ok
+        # aa\z	ca\nb\n	n	-	-
+ok
+        # aa$	ca\nb\n	n	-	-
+ok
+        # aa\Z	b\nca\n	n	-	-
+ok
+        # aa\z	b\nca\n	n	-	-
+ok
+        # aa$	b\nca\n	n	-	-
+ok
+        # aa\Z	b\nca	n	-	-
+ok
+        # aa\z	b\nca	n	-	-
+ok
+        # aa$	b\nca	n	-	-
+ok
+        # 'aa\Z'm	ca\nb\n	n	-	-
+ok
+        # 'aa\z'm	ca\nb\n	n	-	-
+ok
+        # 'aa$'m	ca\nb\n	n	-	-
+ok
+        # 'aa\Z'm	b\nca\n	n	-	-
+ok
+        # 'aa\z'm	b\nca\n	n	-	-
+ok
+        # 'aa$'m	b\nca\n	n	-	-
+ok
+        # 'aa\Z'm	b\nca	n	-	-
+ok
+        # 'aa\z'm	b\nca	n	-	-
+ok
+        # 'aa$'m	b\nca	n	-	-
+ok
+        # ab\Z	ab\nb\n	n	-	-
+ok
+        # ab\z	ab\nb\n	n	-	-
+ok
+        # ab$	ab\nb\n	n	-	-
+ok
+        # ab\Z	b\nab\n	y	$-[0]	2
+ok
+        # ab\z	b\nab\n	n	-	-
+ok
+        # ab$	b\nab\n	y	$-[0]	2
+ok
+        # ab\Z	b\nab	y	$-[0]	2
+ok
+        # ab\z	b\nab	y	$-[0]	2
+ok
+        # ab$	b\nab	y	$-[0]	2
+ok
+        # 'ab\Z'm	ab\nb\n	n	-	-
+ok
+        # 'ab\z'm	ab\nb\n	n	-	-
+ok
+        # 'ab$'m	ab\nb\n	y	$-[0]	0
+ok
+        # 'ab\Z'm	b\nab\n	y	$-[0]	2
+ok
+        # 'ab\z'm	b\nab\n	n	-	-
+ok
+        # 'ab$'m	b\nab\n	y	$-[0]	2
+ok
+        # 'ab\Z'm	b\nab	y	$-[0]	2
+ok
+        # 'ab\z'm	b\nab	y	$-[0]	2
+ok
+        # 'ab$'m	b\nab	y	$-[0]	2
+ok
+        # ab\Z	ac\nb\n	n	-	-
+ok
+        # ab\z	ac\nb\n	n	-	-
+ok
+        # ab$	ac\nb\n	n	-	-
+ok
+        # ab\Z	b\nac\n	n	-	-
+ok
+        # ab\z	b\nac\n	n	-	-
+ok
+        # ab$	b\nac\n	n	-	-
+ok
+        # ab\Z	b\nac	n	-	-
+ok
+        # ab\z	b\nac	n	-	-
+ok
+        # ab$	b\nac	n	-	-
+ok
+        # 'ab\Z'm	ac\nb\n	n	-	-
+ok
+        # 'ab\z'm	ac\nb\n	n	-	-
+ok
+        # 'ab$'m	ac\nb\n	n	-	-
+ok
+        # 'ab\Z'm	b\nac\n	n	-	-
+ok
+        # 'ab\z'm	b\nac\n	n	-	-
+ok
+        # 'ab$'m	b\nac\n	n	-	-
+ok
+        # 'ab\Z'm	b\nac	n	-	-
+ok
+        # 'ab\z'm	b\nac	n	-	-
+ok
+        # 'ab$'m	b\nac	n	-	-
+ok
+        # ab\Z	ca\nb\n	n	-	-
+ok
+        # ab\z	ca\nb\n	n	-	-
+ok
+        # ab$	ca\nb\n	n	-	-
+ok
+        # ab\Z	b\nca\n	n	-	-
+ok
+        # ab\z	b\nca\n	n	-	-
+ok
+        # ab$	b\nca\n	n	-	-
+ok
+        # ab\Z	b\nca	n	-	-
+ok
+        # ab\z	b\nca	n	-	-
+ok
+        # ab$	b\nca	n	-	-
+ok
+        # 'ab\Z'm	ca\nb\n	n	-	-
+ok
+        # 'ab\z'm	ca\nb\n	n	-	-
+ok
+        # 'ab$'m	ca\nb\n	n	-	-
+ok
+        # 'ab\Z'm	b\nca\n	n	-	-
+ok
+        # 'ab\z'm	b\nca\n	n	-	-
+ok
+        # 'ab$'m	b\nca\n	n	-	-
+ok
+        # 'ab\Z'm	b\nca	n	-	-
+ok
+        # 'ab\z'm	b\nca	n	-	-
+ok
+        # 'ab$'m	b\nca	n	-	-
+ok
+        # abb\Z	abb\nb\n	n	-	-
+ok
+        # abb\z	abb\nb\n	n	-	-
+ok
+        # abb$	abb\nb\n	n	-	-
+ok
+        # abb\Z	b\nabb\n	y	$-[0]	2
+ok
+        # abb\z	b\nabb\n	n	-	-
+ok
+        # abb$	b\nabb\n	y	$-[0]	2
+ok
+        # abb\Z	b\nabb	y	$-[0]	2
+ok
+        # abb\z	b\nabb	y	$-[0]	2
+ok
+        # abb$	b\nabb	y	$-[0]	2
+ok
+        # 'abb\Z'm	abb\nb\n	n	-	-
+ok
+        # 'abb\z'm	abb\nb\n	n	-	-
+ok
+        # 'abb$'m	abb\nb\n	y	$-[0]	0
+ok
+        # 'abb\Z'm	b\nabb\n	y	$-[0]	2
+ok
+        # 'abb\z'm	b\nabb\n	n	-	-
+ok
+        # 'abb$'m	b\nabb\n	y	$-[0]	2
+ok
+        # 'abb\Z'm	b\nabb	y	$-[0]	2
+ok
+        # 'abb\z'm	b\nabb	y	$-[0]	2
+ok
+        # 'abb$'m	b\nabb	y	$-[0]	2
+ok
+        # abb\Z	ac\nb\n	n	-	-
+ok
+        # abb\z	ac\nb\n	n	-	-
+ok
+        # abb$	ac\nb\n	n	-	-
+ok
+        # abb\Z	b\nac\n	n	-	-
+ok
+        # abb\z	b\nac\n	n	-	-
+ok
+        # abb$	b\nac\n	n	-	-
+ok
+        # abb\Z	b\nac	n	-	-
+ok
+        # abb\z	b\nac	n	-	-
+ok
+        # abb$	b\nac	n	-	-
+ok
+        # 'abb\Z'm	ac\nb\n	n	-	-
+ok
+        # 'abb\z'm	ac\nb\n	n	-	-
+ok
+        # 'abb$'m	ac\nb\n	n	-	-
+ok
+        # 'abb\Z'm	b\nac\n	n	-	-
+ok
+        # 'abb\z'm	b\nac\n	n	-	-
+ok
+        # 'abb$'m	b\nac\n	n	-	-
+ok
+        # 'abb\Z'm	b\nac	n	-	-
+ok
+        # 'abb\z'm	b\nac	n	-	-
+ok
+        # 'abb$'m	b\nac	n	-	-
+ok
+        # abb\Z	ca\nb\n	n	-	-
+ok
+        # abb\z	ca\nb\n	n	-	-
+ok
+        # abb$	ca\nb\n	n	-	-
+ok
+        # abb\Z	b\nca\n	n	-	-
+ok
+        # abb\z	b\nca\n	n	-	-
+ok
+        # abb$	b\nca\n	n	-	-
+ok
+        # abb\Z	b\nca	n	-	-
+ok
+        # abb\z	b\nca	n	-	-
+ok
+        # abb$	b\nca	n	-	-
+ok
+        # 'abb\Z'm	ca\nb\n	n	-	-
+ok
+        # 'abb\z'm	ca\nb\n	n	-	-
+ok
+        # 'abb$'m	ca\nb\n	n	-	-
+ok
+        # 'abb\Z'm	b\nca\n	n	-	-
+ok
+        # 'abb\z'm	b\nca\n	n	-	-
+ok
+        # 'abb$'m	b\nca\n	n	-	-
+ok
+        # 'abb\Z'm	b\nca	n	-	-
+ok
+        # 'abb\z'm	b\nca	n	-	-
+ok
+        # 'abb$'m	b\nca	n	-	-
+ok
+        # (^|x)(c)	ca	y	$2	c
+ok
+        # a*abc?xyz+pqr{3}ab{2,}xy{4,5}pq{0,6}AB{0,}zz	x	n	-	-
+ok
+        # a(?{$a=2;$b=3;($b)=$a})b	yabz	y	$b	2
+ok
+        # round\(((?>[^()]+))\)	_I(round(xs * sz),1)	y	$1	xs * sz
+ok
+        # '((?x:.) )'	x 	y	$1-	x -
+ok
+        # '((?-x:.) )'x	x 	y	$1-	x-
+ok
+        # foo.bart	foo.bart	y	-	-
+ok
+        # '^d[x][x][x]'m	abcd\ndxxx	y	-	-
+ok
+        # .X(.+)+X	bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .X(.+)+XX	bbbbXcXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .XX(.+)+X	bbbbXXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .X(.+)+X	bbbbXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # .X(.+)+XX	bbbbXXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # .XX(.+)+X	bbbbXXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # .X(.+)+[X]	bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .X(.+)+[X][X]	bbbbXcXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .XX(.+)+[X]	bbbbXXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .X(.+)+[X]	bbbbXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # .X(.+)+[X][X]	bbbbXXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # .XX(.+)+[X]	bbbbXXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # .[X](.+)+[X]	bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .[X](.+)+[X][X]	bbbbXcXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .[X][X](.+)+[X]	bbbbXXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	y	-	-
+not ok # skipped as problematic
+        # .[X](.+)+[X]	bbbbXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # .[X](.+)+[X][X]	bbbbXXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # .[X][X](.+)+[X]	bbbbXXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	n	-	-
+not ok # skipped as problematic
+        # tt+$	xxxtt	y	-	-
+ok
+        # ([a-\d]+)	za-9z	y	$1	a-9
+ok
+        # ([\d-z]+)	a0-za	y	$1	0-z
+ok
+        # ([\d-\s]+)	a0- z	y	$1	0- 
+ok
+        # ([a-[:digit:]]+)	za-9z	y	$1	a-9
+not ok # Unexpected compilation failure.
+        # ([[:digit:]-z]+)	=0-z=	y	$1	0-z
+ok
+        # ([[:digit:]-[:alpha:]]+)	=0-z=	y	$1	0-z
+not ok # Unexpected compilation failure.
+        # \GX.*X	aaaXbX	n	-	-
+not ok # Unexpected successful match.
+        # (\d+\.\d+)	3.1415926	y	$1	3.1415926
+ok
+        # (\ba.{0,10}br)	have a web browser	y	$1	a web br
+ok
+        # '\.c(pp|xx|c)?$'i	Changes	n	-	-
+ok
+        # '\.c(pp|xx|c)?$'i	IO.c	y	-	-
+ok
+        # '(\.c(pp|xx|c)?$)'i	IO.c	y	$1	.c
+ok
+        # ^([a-z]:)	C:/	n	-	-
+ok
+        # '^\S\s+aa$'m	\nx aa	y	-	-
+ok
+        # (^|a)b	ab	y	-	-
+ok
+        # ^([ab]*?)(b)?(c)$	abac	y	-$2-	--
+ok
+        # (\w)?(abc)\1b	abcab	n	-	-
+ok
+        # ^(?:.,){2}c	a,b,c	y	-	-
+ok
+        # ^(.,){2}c	a,b,c	y	$1	b,
+ok
+        # ^(?:[^,]*,){2}c	a,b,c	y	-	-
+ok
+        # ^([^,]*,){2}c	a,b,c	y	$1	b,
+ok
+        # ^([^,]*,){3}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]*,){3,}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]*,){0,3}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{1,3},){3}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{1,3},){3,}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{1,3},){0,3}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{1,},){3}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{1,},){3,}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{1,},){0,3}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{0,3},){3}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{0,3},){3,}d	aaa,b,c,d	y	$1	c,
+ok
+        # ^([^,]{0,3},){0,3}d	aaa,b,c,d	y	$1	c,
+ok
+        # (?i)		y	-	-
+ok
+        # '(?!\A)x'm	a\nxb\n	y	-	-
+ok
+        # ^(a(b)?)+$	aba	y	-$1-$2-	-a--
+not ok
+  # Expected: >-a--<
+  #      Got: >-a-b-<  from  "-".$m->[0]."-".$m->[1]."-"
+        # ^(aa(bb)?)+$	aabbaa	y	-$1-$2-	-aa--
+not ok
+  # Expected: >-aa--<
+  #      Got: >-aa-bb-<  from  "-".$m->[0]."-".$m->[1]."-"
+        # '^.{9}abc.*\n'm	123\nabcabcabcabc\n	y	-	-
+ok
+        # ^(a)?a$	a	y	-$1-	--
+ok
+        # ^(a)?(?(1)a|b)+$	a	n	-	-
+ok
+        # ^(a\1?)(a\1?)(a\2?)(a\3?)$	aaaaaa	y	$1,$2,$3,$4	a,aa,a,aa
+ok
+        # ^(a\1?){4}$	aaaaaa	y	$1	aa
+not ok # Match failed.
+        # ^(0+)?(?:x(1))?	x1	y	-	-
+ok
+        # ^([0-9a-fA-F]+)(?:x([0-9a-fA-F]+)?)(?:x([0-9a-fA-F]+))?	012cxx0190	y	-	-
+ok
+        # ^(b+?|a){1,2}c	bbbac	y	$1	a
+ok
+        # ^(b+?|a){1,2}c	bbbbac	y	$1	a
+ok
+        # \((\w\. \w+)\)	cd. (A. Tw)	y	-$1-	-A. Tw-
+ok
+        # ((?:aaaa|bbbb)cccc)?	aaaacccc	y	-	-
+ok
+        # ((?:aaaa|bbbb)cccc)?	bbbbcccc	y	-	-
+ok
+        # (a)?(a)+	a	y	$1:$2	:a	-
+ok
+        # (ab)?(ab)+	ab	y	$1:$2	:ab	-
+ok
+        # (abc)?(abc)+	abc	y	$1:$2	:abc	-
+ok
+        # 'b\s^'m	a\nb\n	n	-	-
+ok
+        # \ba	a	y	-	-
+ok
+        # ^(a(??{"(?!)"})|(a)(?{1}))b	ab	y	$2	a	# [ID 20010811.006]
+ok
+        # ab(?i)cd	AbCd	n	-	-	# [ID 20010809.023]
+ok
+        # ab(?i)cd	abCd	y	-	-
+ok
+        # (A|B)*(?(1)(CD)|(CD))	CD	y	$2-$3	-CD
+ok
+        # (A|B)*(?(1)(CD)|(CD))	ABCD	y	$2-$3	CD-
+ok
+        # (A|B)*?(?(1)(CD)|(CD))	CD	y	$2-$3	-CD	# [ID 20010803.016]
+ok
+        # (A|B)*?(?(1)(CD)|(CD))	ABCD	y	$2-$3	CD-
+ok
+        # '^(o)(?!.*\1)'i	Oo	n	-	-
+ok
+        # (.*)\d+\1	abc12bc	y	$1	bc
+ok
+        # (?m:(foo\s*$))	foo\n bar	y	$1	foo
+ok
+        # (.*)c	abcd	y	$1	ab
+ok
+        # (.*)(?=c)	abcd	y	$1	ab
+ok
+        # (.*)(?=c)c	abcd	yB	$1	ab
+ok
+        # (.*)(?=b|c)	abcd	y	$1	ab
+ok
+        # (.*)(?=b|c)c	abcd	y	$1	ab
+ok
+        # (.*)(?=c|b)	abcd	y	$1	ab
+ok
+        # (.*)(?=c|b)c	abcd	y	$1	ab
+ok
+        # (.*)(?=[bc])	abcd	y	$1	ab
+ok
+        # (.*)(?=[bc])c	abcd	yB	$1	ab
+ok
+        # (.*)(?<=b)	abcd	y	$1	ab
+ok
+        # (.*)(?<=b)c	abcd	y	$1	ab
+ok
+        # (.*)(?<=b|c)	abcd	y	$1	abc
+ok
+        # (.*)(?<=b|c)c	abcd	y	$1	ab
+ok
+        # (.*)(?<=c|b)	abcd	y	$1	abc
+ok
+        # (.*)(?<=c|b)c	abcd	y	$1	ab
+ok
+        # (.*)(?<=[bc])	abcd	y	$1	abc
+ok
+        # (.*)(?<=[bc])c	abcd	y	$1	ab
+ok
+        # (.*?)c	abcd	y	$1	ab
+ok
+        # (.*?)(?=c)	abcd	y	$1	ab
+ok
+        # (.*?)(?=c)c	abcd	yB	$1	ab
+ok
+        # (.*?)(?=b|c)	abcd	y	$1	a
+ok
+        # (.*?)(?=b|c)c	abcd	y	$1	ab
+ok
+        # (.*?)(?=c|b)	abcd	y	$1	a
+ok
+        # (.*?)(?=c|b)c	abcd	y	$1	ab
+ok
+        # (.*?)(?=[bc])	abcd	y	$1	a
+ok
+        # (.*?)(?=[bc])c	abcd	yB	$1	ab
+ok
+        # (.*?)(?<=b)	abcd	y	$1	ab
+ok
+        # (.*?)(?<=b)c	abcd	y	$1	ab
+ok
+        # (.*?)(?<=b|c)	abcd	y	$1	ab
+ok
+        # (.*?)(?<=b|c)c	abcd	y	$1	ab
+ok
+        # (.*?)(?<=c|b)	abcd	y	$1	ab
+ok
+        # (.*?)(?<=c|b)c	abcd	y	$1	ab
+ok
+        # (.*?)(?<=[bc])	abcd	y	$1	ab
+ok
+        # (.*?)(?<=[bc])c	abcd	y	$1	ab
+ok
+        # 2(]*)?$\1	2	y	$&	2
+ok
+        # (??{})	x	y	-	-
+ok
+        # a(b)??	abc	y	<$1>	<>	# undef [perl #16773]
+ok
+        # (\d{1,3}\.){3,}	128.134.142.8	y	<$1>	<142.>	# [perl #18019]
+ok
+        # ^.{3,4}(.+)\1\z	foobarbar	y	$1	bar	# 16 tests for [perl #23171]
+ok
+        # ^(?:f|o|b){3,4}(.+)\1\z	foobarbar	y	$1	bar
+ok
+        # ^.{3,4}((?:b|a|r)+)\1\z	foobarbar	y	$1	bar
+ok
+        # ^(?:f|o|b){3,4}((?:b|a|r)+)\1\z	foobarbar	y	$1	bar
+ok
+        # ^.{3,4}(.+?)\1\z	foobarbar	y	$1	bar
+ok
+        # ^(?:f|o|b){3,4}(.+?)\1\z	foobarbar	y	$1	bar
+ok
+        # ^.{3,4}((?:b|a|r)+?)\1\z	foobarbar	y	$1	bar
+ok
+        # ^(?:f|o|b){3,4}((?:b|a|r)+?)\1\z	foobarbar	y	$1	bar
+ok
+        # ^.{2,3}?(.+)\1\z	foobarbar	y	$1	bar
+ok
+        # ^(?:f|o|b){2,3}?(.+)\1\z	foobarbar	y	$1	bar
+ok
+        # ^.{2,3}?((?:b|a|r)+)\1\z	foobarbar	y	$1	bar
+ok
+        # ^(?:f|o|b){2,3}?((?:b|a|r)+)\1\z	foobarbar	y	$1	bar
+ok
+        # ^.{2,3}?(.+?)\1\z	foobarbar	y	$1	bar
+ok
+        # ^(?:f|o|b){2,3}?(.+?)\1\z	foobarbar	y	$1	bar
+ok
+        # ^.{2,3}?((?:b|a|r)+?)\1\z	foobarbar	y	$1	bar
+ok
+        # ^(?:f|o|b){2,3}?((?:b|a|r)+?)\1\z	foobarbar	y	$1	bar
+ok
+        # .*a(?!(b|cd)*e).*f	......abef	n	-	-	# [perl #23030]
+ok
+        # x(?#	x	c	-	Sequence (?#... not terminated
+ok
+        # :x(?#:	x	c	-	Sequence (?#... not terminated
+ok
+        # (WORDS|WORD)S	WORDS	y	$1	WORD
+ok
+        # (X.|WORDS|X.|WORD)S	WORDS	y	$1	WORD
+ok
+        # (WORDS|WORLD|WORD)S	WORDS	y	$1	WORD
+ok
+        # (X.|WORDS|WORD|Y.)S	WORDS	y	$1	WORD
+ok
+        # (foo|fool|x.|money|parted)$	fool	y	$1	fool
+ok
+        # (x.|foo|fool|x.|money|parted|y.)$	fool	y	$1	fool
+ok
+        # (foo|fool|money|parted)$	fool	y	$1	fool
+ok
+        # (foo|fool|x.|money|parted)$	fools	n	-	-
+ok
+        # (x.|foo|fool|x.|money|parted|y.)$	fools	n	-	-
+ok
+        # (foo|fool|money|parted)$	fools	n	-	-
+ok
+        # (a|aa|aaa|aaaa|aaaaa|aaaaaa)(b|c)	aaaaaaaaaaaaaaab	y	$1$2	aaaaaab
+ok
+        # (a|aa|aaa|aaaa|aaaaa|aaaaaa)(??{$1&&""})(b|c)	aaaaaaaaaaaaaaab	y	$1$2	aaaaaab
+ok
+        # (a|aa|aaa|aaaa|aaaaa|aaaaaa)(??{$1&&"foo"})(b|c)	aaaaaaaaaaaaaaab	n	-	-
+ok
+        # ^(a*?)(?!(aa|aaaa)*$)	aaaaaaaaaaaaaaaaaaaa	y	$1	a	# [perl #34195]
+ok
+        # ^(a*?)(?!(aa|aaaa)*$)(?=a\z)	aaaaaaaa	y	$1	aaaaaaa
+ok
+        # ^(.)\s+.$(?(1))	A B	y	$1	A	# [perl #37688]
+ok
+
+
+rx_tests
+
+1..536
+        # a* a			bazaar		y	control
+ok
+        # a*:a			bazaar		n	basic
+ok
+        # ^[a|b]*  aba		abbabbababba	y	control
+ok
+        # ^[a|b]*: aba		abbabbababba	n	outside a group
+ok
+        # \d+:			123abc		y	cut on character class shortcut
+ok
+        # \d+:			abc		n	cut on character class shortcut
+ok
+        # [ if    not | ify ]	verify		y	control
+ok
+        # [ if :: not | ify ]	verify		n	inside a group
+ok
+        #   if :: not | ify	verify		n	the default all group
+ok
+        # [ if :  not | ify ]	verify		y	simple backtrack still works
+ok
+        # [ if :: not | ify ] | verify	verify	y	rule continues
+ok
+        # [ when     ever ] | whence	whence	y	full backtrack failure
+ok
+        # [ when ::: ever ] | whence	whence	n	full backtrack failure
+ok
+        # ab::cd | gh::ij		xyabghij	y	group cut at top
+ok
+        # ab:::cd | gh:::ij	xyabghij	n	rule cut at top
+ok
+        # [ab::cd | gh::ij]	xyabghij	y	group cut in group
+ok
+        # [ab:::cd | gh:::ij]	xyabghij	n	rule cut in group
+ok
+        # [ ab | abc ]: de	xyzabcde	n	no backtrack into group
+ok
+        # ( ab | abc ): de	xyzabcde	n	no backtrack into subpattern
+ok
+        # [ when <commit> ever ] | whence	whence	n	full backtrack failure
+ok
+        # 
+        # :ratchet a* a		bazaar		n	ratchet modifier
+ok
+        # :ratchet a*! a		bazaar		y	force backtracking !
+not ok # Match failed.
+        # 
+        # ## vim: noexpandtab tabstop=4 shiftwidth=4
+        # (a.)..(..)		zzzabcdefzzz	y			basic match
+ok
+        # (a.)..(..)		zzzabcdefzzz	/mob: <abcdef @ 3>/	basic $0
+ok
+        # (a.)..(..)		zzzabcdefzzz	/mob 0: <ab @ 3>/	basic $1
+ok
+        # (a.)..(..)		zzzabcdefzzz	/mob 1: <ef @ 7>/	basic $2
+ok
+        # (a(b(c))(d))		abcd		y			nested match
+ok
+        # (a(b(c))(d))		abcd		/mob: <abcd @ 0>/	nested match
+ok
+        # (a(b(c))(d))		abcd		/mob 0: <abcd @ 0>/	nested match
+ok
+        # (a(b(c))(d))		abcd		/mob 0 0: <bc @ 1>/	nested match
+ok
+        # (a(b(c))(d))		abcd		/mob 0 0 0: <c @ 2>/	nested match
+ok
+        # (a(b(c))(d))		abcd		/mob 0 1: <d @ 3>/	nested match
+ok
+        # ((\w+)+)		abcd		/mob: <abcd @ 0>/	nested match
+ok
+        # ((\w+)+)		abcd		/mob 0: <abcd @ 0>/	nested match
+ok
+        # ((\w+)+)		abcd		/mob 0 0 0: <abcd @ 0>/	nested match
+ok
+        # ((\w+)+)	ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz	/mob: <\w+ @ 0>/	nested match
+ok
+        # ((\w+)+)	ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz	/mob 0: <\w+ @ 0>/	nested match
+ok
+        # ((\w+)+)	ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz	/mob 0 0 0: <\w+ @ 0>/	nested match
+ok
+        # (a) [ (bc) (d) | .* (ef) ] .* (g)	abcdefg	/mob 0: <a @ 0>/	alt subpattern before group
+ok
+        # (a) [ (bc) (d) | .* (ef) ] .* (g)	abcdefg	/mob 1: <bc @ 1>/	alt subpattern in group
+ok
+        # (a) [ (bc) (d) | .* (ef) ] .* (g)	abcdefg	/mob 2: <d @ 3>/	alt subpattern in group
+ok
+        # (a) [ (bc) (d) | .* (ef) ] .* (g)	abcdefg	/mob 3: <g @ 6>/	alt subpattern after group
+ok
+        # (a) [ (bc) (x) | .* (ef) ] .* (g)	abcdefg	/mob 1: <ef @ 4>/	2nd alt subpattern in group
+ok
+        # (a) [ (bc) (x) | .* (ef) ] .* (g)	abcdefg	/mob 3: <g @ 6>/	2nd alt subpattern after group
+ok
+        # ( (.) )*				abc	/mob 0 1 0: <b @ 1>/	nested repeated captures
+ok
+        # [ (.) ]*				abc	/mob 0 1: <b @ 1>/	nested repeated captures
+ok
+        # ( [.] )*				abc	/mob 0 1: <b @ 1>/	nested repeated captures
+ok
+        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 0: <a @ 0>/	numbered aliases $1
+ok
+        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 1: <b @ 1>/	numbered aliases $2
+ok
+        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 7: <c @ 2>/	numbered aliases $7
+ok
+        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 8: <d @ 3>/	numbered aliases $8
+ok
+        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 4: <e @ 4>/	numbered aliases $4
+ok
+        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 1: <abc @ 0>/	perl5 numbered captures $1
+ok
+        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 2: <a @ 0>/	perl5 numbered captures $1
+ok
+        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 3: <b @ 1>/	perl5 numbered captures $1
+ok
+        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 4: <c @ 2>/	perl5 numbered captures $1
+ok
+        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 5: <d @ 3>/	perl5 numbered captures $1
+ok
+        # :s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<key>: <abc @ 1>/	named capture
+ok
+        # :s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<val>: <123 @ 7>/	named capture
+ok
+        # :s (\w+) $<foo>:=(\w+) (\w+)		abc def ghi	/mob<foo>: <def @ 7>/	mixing named and unnamed capture
+not ok
+  # Expected: >def< at 7
+  #      Got: >def< at 4
+        # :s (\w+) $<foo>:=(\w+) (\w+)		abc def ghi	/mob 1: <ghi @ 11>/	mixing named and unnamed capture
+not ok
+  # Expected: >ghi< at 11
+  #      Got: >< at 
+        # <alpha> [ - <alpha> ]?			abc def ghi	/mob<alpha> 0: <a @ 3>/	multiple subrule captures in same scope
+not ok
+  # Expected: >a< at 3
+  #      Got: >a< at 0
+        # [(.)$0]+				bookkeeper	y			backreference
+ok
+        # (\w+) <?ws> $0				hello hello	y			backreference at end of string
+ok
+        # [(.)$0]+				bookkeeper	/mob 0 0: <o @ 1>/	backref $1
+ok
+        # [(.)$0]+				bookkeeper	/mob 0 1: <k @ 3>/	backref $1
+ok
+        # [(.)$0]+				bookkeeper	/mob 0 2: <e @ 5>/	backref $1
+ok
+        # (.)*x					123x		/mob: <123x @ 0>/	repeated dot capture
+ok
+        # 
+        # ## vim: noexpandtab tabstop=4 shiftwidth=4
+        # <[c]>			abcdef		y	character class
+ok
+        # <[dcb]>**{3}		abcdef		y	repeated character class
+ok
+        # ^<[a]>			abcdef		y	anchored character class
+ok
+        # <-[e]>			abcdef		y	negated character class
+ok
+        # ^<[a]>?			abcdef		y	anchored optional character class
+ok
+        # <-[e]>?			abcdef		y	negated optional character class
+ok
+        # <-[dcb]>**{3}		abcdef		n	repeated negated character class
+ok
+        # ^<-[e]>			abcdef		y	anchored negated character class
+ok
+        # ^<-[a]>			abcdef		n	anchored negated character class
+ok
+        # <[b..d]>		abcdef		y	character range
+ok
+        # <[b..d]>		abxxef		y	character range
+ok
+        # <[b..d]>		axcxef		y	character range
+ok
+        # <[b..d]>		axxdef		y	character range
+ok
+        # <[b..d]>		axxxef		n	character range
+ok
+        # <-[b..d]>		abcdef		y	negated character range
+ok
+        # <-[b..d]>		bbccdd		n	negated character range
+ok
+        # <-[d..b]>		bbccdd		n	negated (illegal) character range
+not ok # Unexpected compilation failure.
+        # <[-]>			ab-def		/parse error/	unescaped hyphen
+ok
+        # <[\-]>			ab-def		y	escaped hyphen
+ok
+        # <[\-]>			abcdef		n	escaped hyphen
+ok
+        # <-[\-]>			---x--		y	negated escaped hyphen
+ok
+        # <-[\-]>			------		n	negated escaped hyphen
+ok
+        # <[\-+]>			ab-def		y	escaped hyphen in range
+ok
+        # <[\-+]>			ab+def		y	escaped hyphen in range
+ok
+        # <[\-+]>			abcdef		n	escaped hyphen in range
+ok
+        # <[+\-]>			ab-def		y	escaped hyphen in range
+ok
+        # <[+\-]>			ab+def		y	escaped hyphen in range
+ok
+        # <[+\-]>			abcdef		n	escaped hyphen in range
+ok
+        # <-[\-+]>		---x--		y	negated escaped hyphen in range
+ok
+        # <-[\-+]>		------		n	negated escaped hyphen in range
+ok
+        # <-[+\-]>		---x--		y	negated escaped hyphen in range
+ok
+        # <-[+\-]>		------		n	negated escaped hyphen in range
+ok
+        # <["\\]>			\\			y	escaped backslash
+ok
+        # <[\]]>			]			y	escaped close bracket
+ok
+        # <[\]>			\\]]		/parse error/	unescaped backslash (or no closing brace)
+ok
+        # ^\><[<]>			><		y	lt character class
+ok
+        # ^<[>]>\<			><		y	gt character class
+ok
+        # ^<[><]>**{2}		><		y	gt, lt character class
+ok
+        # ^<[<>]>**{2}		><		y	lt, gt  character class
+ok
+        # ^<-[><]>		><		n	not gt, lt character class
+ok
+        # ^<-[<>]>		><		n	not lt, gt  character class
+ok
+        # <'... --- ...'>		... --- ...	y	literal match (\')
+ok
+        # <'... --- ...'>		...---...	n	literal match (\')
+ok
+        # <'ab\'>cd'>		ab'>cd		y	literal match with quote
+ok
+        # <'ab\\cd'>		ab\x5ccd	y	literal match with backslash
+ok
+        # <[A..Z0..9]>		abcdef		n	two enumerated ranges
+ok
+        # <[A..Z0..9]>		abcDef		y	two enumerated ranges
+ok
+        # 
+        # ## vim: noexpandtab tabstop=4 shiftwidth=4
+        # ## lookarounds
+        # <before .d> a.		abacad		/mob: <ad @ 4>/			lookahead <before>
+ok
+        # <before c> ....		abacad		n				lookahead <before>
+ok
+        # <before> .		abcd		n				null <before>
+ok
+        # <!before ..b> aa	aabaaa		/mob: <aa @ 3>/			negated lookahead
+ok
+        # <after a>b		ab		y				lookbehind <after>
+ok
+        # <after a>b		cb		n				lookbehind <after>
+ok
+        # <after a>b		b		n				lookbehind <after>
+ok
+        # <!after c>b		ab		y				lookbehind <!after>
+ok
+        # <!after c>b		cb		n				lookbehind <!after>
+ok
+        # <!after c>b		b		y				lookbehind <!after>
+ok
+        # <!after <[cd]>>b	dbcb		n				lookbehind <!after>
+ok
+        # <!after <[cd]>><[ab]>	dbaacb		y				lookbehind <!after>
+ok
+        # <!after c|d>b		dbcb		n				lookbehind <!after>
+ok
+        # <!after c|d><[ab]>	dbaacb		y				lookbehind <!after>
+ok
+        # <!after cd><[ab]>	cbaccb		y				lookbehind <!after>
+ok
+        # $ <after ^a>		a		y				lookbehind <after>
+ok
+        # <after x+>y		axxbxxyc	y				lookbehind <after>
+ok
+        # <[a..z]>+		az		y				metasyntax with leading + (<+...>)
+ok
+        # <+[a..z]>+		az		y				metasyntax with leading + (<+...>)
+ok
+        # <+alpha>+		az		y				metasyntax with leading + (<+...>)
+ok
+        # 
+        # <null>			''		y		null pattern (<null>)
+ok
+        # ^ <null>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<null>: < @ 0>/	null pattern (<null>)
+ok
+        # <null> $	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<null>: < @ 65>/	null pattern (<null>)
+ok
+        # abc <null> def	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	y			null pattern (<null>)
+ok
+        # x | y | <null>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	y			null pattern (<null>)
+ok
+        # x | y | <?null>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	y			null pattern (<null>)
+ok
+        # 
+        # a[b}		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/rule error/	mismatched close
+ok
+        # 
+        # c <before .d>		abacad		/mob: <c @ 3>/			one character and lookahead <before>
+ok
+        # .* <before .d>		abacad		/mob: <abac @ 0>/			multiple characters and lookahead <before>
+ok
+        # .* <before .\<>		abaca<d		/mob: <abac @ 0>/			multiple characters and lookahead <before> with a '<'
+ok
+        # 
+        # ## vim: noexpandtab tabstop=4 shiftwidth=4
+        # .			a		y	dot (.)
+ok
+        # .			\n		y	dot (.)
+ok
+        # .			''		n	dot (.)
+ok
+        # a\s+f			abcdef		n	whitespace (\s)
+ok
+        # ab\s+cdef		ab  cdef	y	whitespace (\s)
+ok
+        # a\S+f			abcdef		y	not whitespace (\S)
+ok
+        # a\S+f			ab cdef		n	not whitespace (\S)
+ok
+        # ^ abc			abcdef		y	start and end of string (^)
+ok
+        # ^ abc			abc\ndef	y	start and end of string (^)
+ok
+        # ^ abc			def\nabc	n	start and end of string (^)
+ok
+        # def \n ^ abc		def\nabc	n	start and end of string (^)
+ok
+        # def $			abcdef		y	start and end of string ($)
+ok
+        # def $			abc\ndef	y	start and end of string ($)
+ok
+        # def $			def\nabc	n	start and end of string ($)
+ok
+        # def $ \n abc		def\nabc	n	start and end of string (^)
+ok
+        # abc \n $		abc\n		y	end of string ($)
+ok
+        # abc $			abc\n		n	end of string ($)
+ok
+        # <<def			abc-def		y	left word boundary, beginning of word
+ok
+        # <<bc			abc-def		n	left word boundary, mid-word
+ok
+        # c<<			abc-def		n	left word boundary, end of word
+ok
+        # <<abc			abc-def		y	left word boundary, BOS
+ok
+        # def<<			abc-def		n	left word boundary, EOS
+ok
+        # <<			-------		n	left word boundary, no word chars
+ok
+        # >>def			abc-def		n	right word boundary, beginning of word
+ok
+        # >>bc			abc-def		n	right word boundary, mid-word
+ok
+        # c>>			abc-def		y	right word boundary, end of word
+ok
+        # >>abc			abc-def		n	right word boundary, BOS
+ok
+        # def>>			abc-def		y	right word boundary, EOS
+ok
+        # >>			-------		n	right word boundary, no word chars
+ok
+        # c \n d			abc\ndef	y	logical newline (\n)
+ok
+        # c \n d			abc\x0adef	y	logical newline (\n)
+ok
+        # c \n d			abc\x0ddef	y	logical newline (\n)
+ok
+        # c \n+ d			abc\n\ndef	y	logical newline (\n)
+ok
+        # a\n+f			abcdef		n	logical newline (\n)
+ok
+        # c \n d			abc\x0a\x0ddef	n	logical newline (\n)
+ok
+        # c \n d			abc\x0d\x0adef	y	logical newline (\n)
+ok
+        # b \n c			abc\ndef	n	logical newline (\n)
+ok
+        # \N			a		y	not logical newline (\N)
+ok
+        # a \N c			abc		y	not logical newline (\N)
+ok
+        # \N			''		n	not logical newline (\N)
+ok
+        # c \N d			abc\ndef	n	not logical newline (\N)
+ok
+        # c \N d			abc\x0adef	n	not logical newline (\N)
+ok
+        # c \N d			abc\x0ddef	n	not logical newline (\N)
+ok
+        # c \N+ d			abc\n\ndef	n	not logical newline (\N)
+ok
+        # a\N+f			abcdef		y	not logical newline (\N)
+ok
+        # c \N d			abc\x0a\x0ddef	n	not logical newline (\N)
+ok
+        # c \N d			abc\x0d\x0adef	n	not logical newline (\N)
+ok
+        # b \N \n			abc\ndef	y	not logical newline (\N)
+ok
+        # \Aabc			Aabc		y	retired metachars (\A)
+ok
+        # \Aabc			abc\ndef	n	retired metachars (\A)
+ok
+        # abc\Z			abcZ		y	retired metachars (\Z)
+ok
+        # abc\Z			abc\ndef	n	retired metachars (\Z)
+ok
+        # abc\z			abcz		y	retired metachars (\z)
+ok
+        # def\z			abc\ndef	n	retired metachars (\z)
+ok
+        # abc # def		abc#def		y	comments (#)
+ok
+        # abc # xyz		abc#def		y	comments (#)
+ok
+        # abc # def \n \$		abc#def		y	comments (#)
+ok
+        # abc \# def		abc#def		y	comments (#)
+ok
+        # abc \# xyz		abc#def		n	comments (#)
+ok
+        # ^ abc \# def $		abc#def		y	comments (#)
+ok
+        # ^^ abc \n ^^ def	abc\ndef	y	line beginnings and endings (^^)
+ok
+        # ^^ abc \n ^^ def \n ^^	abc\ndef\n	n	line beginnings and endings (^^)
+ok
+        # ^^ \n			\n		y	line beginnings and endings (^^)
+ok
+        # \n ^^			\n		n	line beginnings and endings (^^)
+ok
+        # abc $$ \n def $$	abc\ndef	y	line beginnings and endings ($$)
+ok
+        # abc $$ \n def $$ \n $$	abc\ndef\n	n	line beginnings and endings ($$)
+ok
+        # $$ \n			\n		y	line beginnings and endings ($$)
+ok
+        # \n $$			\n		n	line beginnings and endings ($$)
+ok
+        # <[a..d]> | <[b..e]>	c		y	alternation (|)
+ok
+        # <[a..d]> | <[d..e]>	c		y	alternation (|)
+ok
+        # <[a..b]> | <[b..e]>	c		y	alternation (|)
+ok
+        # <[a..b]> | <[d..e]>	c		n	alternation (|)
+ok
+        # <[a..d]>+ | <[b..e]>+	bcd		y	alternation (|)
+ok
+        # ^<[a..d]>+ | <[b..e]>+$	bcd		y	alternation (|)
+ok
+        # <[a..c]>+ | <[b..e]>+	bcd		y	alternation (|)
+ok
+        # <[a..d]>+ | <[c..e]>+	bcd		y	alternation (|)
+ok
+        # b|			bcd		/rule error/	alternation (|) - null right arg illegal
+ok
+        # |b			bcd		/Missing term/	alternation (|) - null left arg illegal
+not ok  # Expected compile to fail.
+        # |			bcd		/Missing term/	alternation (|) - null both args illegal
+ok
+        # \|			|		y	alternation (|) - literal must be escaped
+ok
+        # |			|		n	alternation (|) - literal must be escaped
+not ok # Unexpected compilation failure.
+        # <[a..d]> & <[b..e]>	c		y	conjunction (&)
+ok
+        # <[a..d]> & <[d..e]>	c		n	conjunction (&)
+ok
+        # <[a..b]> & <[b..e]>	c		n	conjunction (&)
+ok
+        # <[a..b]> & <[d..e]>	c		n	conjunction (&)
+ok
+        # <[a..d]>+ & <[b..e]>+	bcd		y	conjunction (&)
+ok
+        # ^<[a..d]>+ & <[b..e]>+$	bcd		y	conjunction (&)
+ok
+        # <[a..c]>+ & <[b..e]>+	bcd		y	conjunction (&)
+ok
+        # <[a..d]>+ & <[c..e]>+	bcd		y	conjunction (&)
+ok
+        # b&			bcd		/rule error/	conjunction (&) - null right arg illegal
+ok
+        # &b			bcd		/Missing term/	conjunction (&) - null left arg illegal
+ok
+        # &			bcd		/Missing term/	conjunction (&) - null both args illegal
+ok
+        # \&			&		y	conjunction (&) - literal must be escaped
+ok
+        # &			&		n	conjunction (&) - literal must be escaped
+not ok # Unexpected compilation failure.
+        # a&|b			a&|b		/Missing term/	alternation and conjunction (&|) - parse error
+ok
+        # a|&b			a|&b		/Missing term/	alternation and conjunction (|&) - parse error
+ok
+        # |d|b			abc		y	leading alternation ignored
+ok
+        #  |d|b			abc		y	leading alternation ignored
+ok
+        # |d |b			abc		y	leading alternation ignored
+ok
+        #  | d | b		abc		y	leading alternation ignored
+ok
+        #  b |  | d		abc		n	null pattern invalid
+not ok # Unexpected successful match.
+        # \pabc			pabc		y	retired metachars (\p)
+ok
+        # \p{InConsonant}		a		n	retired metachars (\p)
+not ok # Unexpected compilation failure.
+        # \Pabc			Pabc		y	retired metachars (\P)
+ok
+        # \P{InConsonant}		a		n	retired metachars (\P)
+not ok # Unexpected compilation failure.
+        # \Labc\E			LabcE		y	retired metachars (\L...\E)
+ok
+        # \LABC\E			abc		n	retired metachars (\L...\E)
+ok
+        # \Uabc\E			UabcE		y	retired metachars (\U...\E)
+ok
+        # \Uabc\E			ABC		n	retired metachars (\U...\E)
+ok
+        # \Qabc\E			QabcE		y	retired metachars (\Q...\E)
+ok
+        # \Qabc d?\E		abc d		n	retired metachars (\Q...\E)
+ok
+        # \Gabc			Gabc		y	retired metachars (\G)
+ok
+        # \1abc			1abc		y	retired metachars (\1)
+not ok # Unexpected compilation failure.
+        # ^ \s+ $			\u0009\u0020\u00a0\u000a\u000b\u000c\u000d\u0085	y	0-255 whitespace (\s)
+not ok # Match failed.
+        # ^ \h+ $			\u0009\u0020\u00a0	y	0-255 horizontal whitespace (\h)
+ok
+        # ^ \v+ $			\u000a\u000b\u000c\u000d\u0085	y	0-255 vertical whitespace (\v)
+ok
+        # ^ \h+ $			\u000a\u000b\u000c\u000d\u0085	n	0-255 horizontal whitespace (\h)
+ok
+        # ^ \v+ $			\u0009\u0020\u00a0	n	0-255 vertical whitespace (\v)
+ok
+        # ^ \s+ $			\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2008\u2009\u200a\u202f\u205f\u3000\u000a\u000b\u000c\u000d\u0085	y	unicode whitespace (\s)
+not ok # Match failed.
+        # ^ \h+ $			\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2008\u2009\u200a\u202f\u205f\u3000	y	unicode whitespace (\h)
+ok
+        # ^ \v+ $			\u000a\u000b\u000c\u000d\u0085	y	unicode whitespace (\v)
+ok
+        # ^ \h+ $			\u000a\u000b\u000c\u000d\u0085	n	unicode whitespace (\h)
+ok
+        # ^ \v+ $			\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2008\u2009\u200a\u202f\u205f\u3000	n	unicode whitespace (\v)
+ok
+        # c \t d			abc\tdef	y	horizontal tab (\t)
+ok
+        # c \t d			abc\x09def	y	horizontal tab (\t)
+ok
+        # c \t+ d			abc\t\tdef	y	horizontal tab (\t)
+ok
+        # a \t+ f			abcdef		n	horizontal tab (\t)
+ok
+        # b \t c			abc\tdef	n	horizontal tab (\t)
+ok
+        # \T			a		y	not horizontal tab (\T)
+ok
+        # a \T c			abc		y	not horizontal tab (\T)
+ok
+        # \T			''		n	not horizontal tab (\T)
+ok
+        # c \T d			abc\tdef	n	not horizontal tab (\T)
+ok
+        # c \T d			abc\x09def	n	not horizontal tab (\T)
+ok
+        # c \T+ d			abc\t\tdef	n	not horizontal tab (\T)
+ok
+        # a \T+ f			abcdef		y	not horizontal tab (\T)
+ok
+        # c \r d			abc\rdef	y	return (\r)
+ok
+        # c \r d			abc\x0ddef	y	return (\r)
+ok
+        # c \r+ d			abc\r\rdef	y	return (\r)
+ok
+        # a \r+ f			abcdef		n	return (\r)
+ok
+        # b \r c			abc\rdef	n	return (\r)
+ok
+        # \R			a		y	not return (\R)
+ok
+        # a \R c			abc		y	not return (\R)
+ok
+        # \R			''		n	not return (\R)
+ok
+        # c \R d			abc\rdef	n	not return (\R)
+ok
+        # c \R d			abc\x0ddef	n	not return (\R)
+ok
+        # c \R+ d			abc\r\rdef	n	not return (\R)
+ok
+        # a \R+ f			abcdef		y	not return (\R)
+ok
+        # c \f d			abc\fdef	y	formfeed (\f)
+ok
+        # c \f d			abc\x0cdef	y	formfeed (\f)
+ok
+        # c \f+ d			abc\f\fdef	y	formfeed (\f)
+ok
+        # a \f+ f			abcdef		n	formfeed (\f)
+ok
+        # b \f c			abc\fdef	n	formfeed (\f)
+ok
+        # \F			a		y	not formfeed (\F)
+ok
+        # a \F c			abc		y	not formfeed (\F)
+ok
+        # \F			''		n	not formfeed (\F)
+ok
+        # c \F d			abc\fdef	n	not formfeed (\F)
+ok
+        # c \F d			abc\x0cdef	n	not formfeed (\F)
+ok
+        # c \F+ d			abc\f\fdef	n	not formfeed (\F)
+ok
+        # a \F+ f			abcdef		y	not formfeed (\F)
+ok
+        # c \e d			abc\edef	y	escape (\e)
+ok
+        # c \e d			abc\x1bdef	y	escape (\e)
+ok
+        # c \e+ d			abc\e\edef	y	escape (\e)
+ok
+        # a \e+ f			abcdef		n	escape (\e)
+ok
+        # b \e c			abc\edef	n	escape (\e)
+ok
+        # \E			a		y	not escape (\E)
+ok
+        # a \E c			abc		y	not escape (\E)
+ok
+        # \E			''		n	not escape (\E)
+ok
+        # c \E d			abc\edef	n	not escape (\E)
+ok
+        # c \E d			abc\x1bdef	n	not escape (\E)
+ok
+        # c \E+ d			abc\e\edef	n	not escape (\E)
+ok
+        # a \E+ f			abcdef		y	not escape (\E)
+ok
+        # c \x0021 d		abc!def	y	hex (\x)
+ok
+        # c \x0021 d		abc\x21def	y	hex (\x)
+ok
+        # c \x0021+ d		abc!!def	y	hex (\x)
+ok
+        # a \x0021+ f		abcdef		n	hex (\x)
+ok
+        # b \x0021 c		abc!def		n	hex (\x)
+ok
+        # \X0021			a		y	not hex (\X)
+ok
+        # a \X0021 c		abc		y	not hex (\X)
+ok
+        # \X0021			''		n	not hex (\X)
+ok
+        # c \X0021 d		abc!def		n	not hex (\X)
+ok
+        # c \X0021 d		abc\x21def	n	not hex (\X)
+ok
+        # c \X0021+ d		abc!!def	n	not hex (\X)
+ok
+        # a \X0021+ f		abcdef		y	not hex (\X)
+ok
+        # c \o041 d		abc!def		y	octal (\o)
+not ok # Match failed.
+        # c \o41 d		abc\x21def	y	octal (\o)
+ok
+        # c \o41+ d		abc!!def	y	octal (\o)
+ok
+        # a \o41+ f		abcdef		n	octal (\o)
+ok
+        # b \o41 c		abc!def		n	octal (\o)
+ok
+        # \O41			a		y	not octal (\O)
+ok
+        # a \O41 c		abc		y	not octal (\O)
+ok
+        # \O41			''		n	not octal (\O)
+ok
+        # c \O41 d		abc!def		n	not octal (\O)
+ok
+        # c \O41 d		abc\x21def	n	not octal (\O)
+ok
+        # c \O41+ d		abc!!def	n	not octal (\O)
+ok
+        # a \O41+ f		abcdef		y	not octal (\O)
+ok
+        # a\w+f			a=[ *f		n	word character
+ok
+        # a\w+f			abcdef		y	word character
+ok
+        # a\W+f			a&%- f		y	not word character
+ok
+        # a\W+f			abcdef		n	not word character
+ok
+        # a\d+f			abcdef		n	digit
+ok
+        # ab\d+cdef		ab42cdef	y	digit
+ok
+        # a\D+f			abcdef		y	not digit
+ok
+        # a\D+f			ab0cdef		n	not digit
+ok
+        # 
+        # ## vim: noexpandtab tabstop=4 shiftwidth=4
+        # ##  modifiers
+        # :i bcd			abcdef	y	ignorecase (:i)
+ok
+        # :i bcd			aBcdef	y	ignorecase (:i)
+ok
+        # :i bcd			abCdef	y	ignorecase (:i)
+ok
+        # :i bcd			abcDef	y	ignorecase (:i)
+ok
+        # :i bcd			abc-ef	n	ignorecase (:i)
+ok
+        # :ignorecase bcd		abcdef	y	ignorecase (:ignorecase)
+ok
+        # :ignorecase bcd		aBCDef	y	ignorecase (:ignorecase)
+ok
+        # :ignorecase bcd		abc-ef	n	ignorecase (:ignorecase)
+ok
+        # :i(0) bcd		abcdef	y	ignorecase, repetition (:i(0))
+ok
+        # :i(0) bcd		abCdef	n	ignorecase, repetition (:i(0))
+ok
+        # :i(1) bcd		abcdef	y	ignorecase, repetition (:i(1))
+ok
+        # :i(1) bcd		abCdef	y	ignorecase, repetition (:i(1))
+ok
+        # :i(1) bcd		aBxDef	n	ignorecase, repetition (:i(1))
+ok
+        # :0i bcd			abcdef	y	ignorecase, repetition (:0i)
+ok
+        # :0i bcd			abCdef	n	ignorecase, repetition (:0i)
+ok
+        # :1i bcd			abcdef	y	ignorecase, repetition (:1i)
+ok
+        # :1i bcd			abCdef	y	ignorecase, repetition (:1i)
+not ok # Match failed.
+        # :1i bcd			aBCDef	y	ignorecase, repetition (:1i)
+not ok # Match failed.
+        # :1i bcd			aBxDef	n	ignorecase, repetition (:1i)
+ok
+        # ab [:i cd ] ef		abcdef	y	ignorecase, lexical (:i)
+ok
+        # ab [:i cd ] ef		abCdef	y	ignorecase, lexical (:i)
+ok
+        # ab [:i cd ] ef		abcDef	y	ignorecase, lexical (:i)
+ok
+        # ab [:i cd ] ef		abCDef	y	ignorecase, lexical (:i)
+ok
+        # ab [:i cd ] ef		aBCDef	n	ignorecase, lexical (:i)
+ok
+        # ab [:i cd ] ef		abCDEf	n	ignorecase, lexical (:i)
+ok
+        # :i ab [:i cd ] ef	abCDef	y	ignorecase, lexical (:i)
+ok
+        # :i ab [:i cd ] ef	AbCDeF	y	ignorecase, lexical (:i)
+ok
+        # :i ab [:i cd ] ef	AbcdeF	y	ignorecase, lexical (:i)
+ok
+        # :i a [:i(0) b [:i(1) c [:0i d [:1i e [:i(0) f ] ] ] ] ]		AbCdEf		y	ignorecase, lexical (:i)
+ok
+        # :i aa [:i(0) bb [:i(1) cc [:0i dd [:1i ee [:i(0) ff ] ] ] ] ]	AabbCcddEeff	y	ignorecase, lexical (:i)
+ok
+        # :i a [:i(0) b [:i(1) c [:0i d [:1i e [:i(0) f ] ] ] ] ]		AbCdEF		n	ignorecase, lexical (:i)
+ok
+        # :i aa [:i(0) bb [:i(1) cc [:0i dd [:1i ee [:i(0) ff ] ] ] ] ]	AabbCcddEeFf	n	ignorecase, lexical (:i)
+ok
+        # :i ab [:i(0) cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
+ok
+        # :i ab [:0i cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
+ok
+        # :0i ab [:1i cd ] ef	abCDef	y	ignorecase, lexical repetition (:i)
+not ok # Match failed.
+        # :0i ab [:1i cd ] ef	AbCDeF	n	ignorecase, lexical repetition (:i)
+ok
+        # :0i ab [:1i cd ] ef	AbcdeF	n	ignorecase, lexical repetition (:i)
+ok
+        # :0i ab [:i(0) cd ] ef	abcdef	y	ignorecase, lexical repetition (:i)
+ok
+        # :0i ab [:1i cd ] ef	AbcdeF	n	ignorecase, lexical repetition (:i)
+ok
+        # :i(1) ab [:1i cd ] ef	AbCdeF	y	ignorecase, lexical repetition (:i)
+ok
+        # :i(1) ab [:i(0) cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
+ok
+        # :i(1) ab [:i(0) cd ] ef	AbcDeF	n	ignorecase, lexical repetition (:i)
+ok
+        # :i(2) ab [:i(999) cd ] ef	ABCDEF	y	ignorecase, lexical repetition (:i)
+ok
+        # :1i ab [:i(1) cd ] ef		ABCDEF	y	ignorecase, lexical repetition (:i)
+not ok # Match failed.
+        # :0i ab [:1i cd ] ef		abcDeF	n	ignorecase, lexical repetition (:i)
+ok
+        # :2i ab [:999i cd ] ef		ABCDEF	y	ignorecase, lexical repetition (:i)
+not ok # Match failed.
+        # ab [:ignorecase cd ] ef		abCDef	y	ignorecase, lexical (:ignorecase)
+ok
+        # ab [:ignorecase cd ] ef		aBCDef	n	ignorecase, lexical (:ignorecase)
+ok
+        # :1ignorecase ab [:ignorecase(1) cd ] ef	ABCDEF	y	ignorecase, lexical repetition (:ignorecase)
+not ok # Match failed.
+        # :s bcd			a bcdef		y	sigspace (:s)
+ok
+        # :s bcd			a bcd ef	y	sigspace (:s)
+ok
+        # :s bcd			abcdef		n	sigspace (:s)
+ok
+        # :s bcd			abcd ef		n	sigspace (:s)
+ok
+        # :s bcd			ab cdef		n	sigspace (:s)
+ok
+        # :s b c d		a b c d ef	y	sigspace (:s)
+ok
+        # :s b c d		a b c def	y	sigspace (:s)
+ok
+        # :s b c d		ab c d ef	n	sigspace (:s)
+ok
+        # :s b c d		a bcdef		n	sigspace (:s)
+ok
+        # :s b c d		abcdef		n	sigspace (:s)
+ok
+        # :sigspace bcd		a bcdef		y	sigspace (:sigspace)
+ok
+        # :sigspace bcd		a bcd ef	y	sigspace (:sigspace)
+ok
+        # :sigspace bcd		abcdef		n	sigspace (:sigspace)
+ok
+        # :sigspace b c d		a b c d ef	y	sigspace (:sigspace)
+ok
+        # :sigspace b c d		a b c def	y	sigspace (:sigspace)
+ok
+        # :sigspace b c d		ab c d ef	n	sigspace (:sigspace)
+ok
+        # :s(1) b c [:s(0) d e f ]	a b c def	y	sigspace, lexical repetition (:s)
+ok
+        # :s(0) b c [:s(1) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
+ok
+        # :s(0) b c [:s(0) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
+ok
+        # :s ab 				ab		y	sigspace, trailing ws
+ok
+        # foo\s*-?\s*bar			foo\t \n-\n\t bar	y	basic match
+ok
+        # foo\s*-?\s*bar			foo - bar	y	basic match
+ok
+        # foo\s+-?\s*bar			foo   bar	y	basic match \s+ \s*
+ok
+        # foo\s+-?\s*bar			foo  -bar	y	basic match \s+ \s*
+ok
+        # foo\s*-?\s+bar			foo-  bar	y	basic match \s* \s+
+ok
+        # foo -? bar			foo-bar		y	basic match \s* \s*
+ok
+        # foo -? bar			foobar		y	basic match
+ok
+        # foo -? bar			foo - bar	n	basic non-match
+ok
+        # :s foo -? bar			foo\n \t- \t\t\nbar	y	basic ws match
+ok
+        # :s foo -? bar			foo - bar	y	basic ws match
+ok
+        # :s foo -? bar			foo   bar	y	basic ws match \s+ \s*
+ok
+        # :s foo -? bar			foo  -bar	y	basic ws match \s+ \s*
+ok
+        # :s foo -? bar			foo-  bar	y	basic ws match \s* \s+
+ok
+        # :s foo -? bar			foo-bar		y	basic ws match \s* \s*
+ok
+        # :s foo -? bar			foobar		n	basic ws non-match
+ok
+        # :s()foo -? bar			foo - bar	n	basic ws match
+not ok # Unexpected compilation failure.
+        # :s[]foo -? bar			foo - bar	y	basic ws match
+not ok # Unexpected compilation failure.
+        # :s<?wb>foo -? bar		foo - bar	y	basic ws match with boundary modifier separation
+not ok # Match failed.
+        # :s::foo -? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
+ok
+        # :s::(\w+) \:= (\S+)		dog := spot	/mob 0: <dog @ 0>/	sigspace and capture together
+ok
+        # :s::(\w+) \:= (\S+)		dog := spot	/mob 1: <spot @ 7>/	sigspace and capture together
+ok
+        # :perl5 \A.*? bcd\Q$\E..\z	a bcd$ef	y	perl5 syntax (:perl5)
+not ok # Match failed.
+        # :x(6) \d			123456		y	repetition (:x)
+ok
+        # :x(3) \d			123456		y	repetition (:x)
+ok
+        # :x(0) \d			123456		y	repetition (:x)
+ok
+        # :nth(3) a \d			a1a2a3		y	nth occurance (:nth)
+ok
+        # :nth(4) a \d			a1a2a3		n	nth occurance (:nth)
+not ok # Unexpected successful match.
+        # :nth(0) a \d			a1a2a3		n	nth occurance (:nth)
+not ok # Unexpected successful match.
+        # :s^[\d+ ]* abc			11 12 13 abc	y	<?ws> before closing bracket
+ok
+        # 
+        # ## vim: noexpandtab tabstop=4 shiftwidth=4
+        # abc <fail> def	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	n				<fail>
+ok
+        # 
+        # <?wb>def		abc\ndef\n-==\nghi	y	word boundary \W\w
+ok
+        # abc<?wb>		abc\ndef\n-==\nghi	y	word boundary \w\W
+ok
+        # <?wb>abc		abc\ndef\n-==\nghi	y	BOS word boundary
+ok
+        # ghi<?wb>		abc\ndef\n-==\nghi	y	EOS word boundary
+ok
+        # a<?wb>			abc\ndef\n-==\nghi	n	\w\w word boundary
+ok
+        # -<?wb>			abc\ndef\n-==\nghi	n	\W\W word boundary
+ok
+        # <!wb>def		abc\ndef\n-==\nghi	n	nonword boundary \W\w
+ok
+        # abc<!wb>		abc\ndef\n-==\nghi	n	nonword boundary \w\W
+ok
+        # <!wb>abc		abc\ndef\n-==\nghi	n	BOS nonword boundary
+ok
+        # ghi<!wb>		abc\ndef\n-==\nghi	n	EOS nonword boundary
+ok
+        # a<!wb>			abc\ndef\n-==\nghi	y	\w\w nonword boundary
+ok
+        # -<!wb>			abc\ndef\n-==\nghi	y	\W\W nonword boundary
+ok
+        # 
+        # <upper>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<upper>: <A @ 45>/		<upper>
+ok
+        # <?upper>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <A @ 45>/			<?upper>
+ok
+        # <?upper>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <ABCDEFGHIJ @ 45>/	<?upper>+
+ok
+        # <lower>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<lower>: <a @ 55>/		<lower>
+ok
+        # <?lower>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <a @ 55>/			<?lower>
+ok
+        # <?lower>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <abcdefghij @ 55>/	<?lower>+
+ok
+        # <alpha>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<alpha>: <A @ 45>/		<alpha>
+ok
+        # <?alpha>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <A @ 45>/			<?alpha>
+ok
+        # <?alpha>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <ABCDEFGHIJabcdefghij @ 45>/	<?alpha>+
+ok
+        # <digit>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<digit>: <0 @ 35>/		<digit>
+ok
+        # <?digit>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <0 @ 35>/			<?digit>
+ok
+        # <?digit>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <0123456789 @ 35>/	<?digit>+
+ok
+        # <xdigit>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<xdigit>: <0 @ 35>/		<xdigit>
+ok
+        # <?xdigit>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <0 @ 35>/			<?xdigit>
+ok
+        # <?xdigit>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <0123456789ABCDEF @ 35>/	<?xdigit>+
+ok
+        # <space>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<space>: <\s* @ 0>/		<space>
+ok
+        # <?space>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <\s* @ 0>/		<?space>
+ok
+        # <?space>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <\s* @ 0>/		<?space>+
+ok
+        # <blank>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<blank>: <\t @ 0>/		<blank>
+ok
+        # <?blank>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <\t @ 0>/			<?blank>
+ok
+        # <?blank>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <\t @ 0>/			<?blank>+
+ok
+        # <cntrl>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<cntrl>: <\t @ 0>/		<cntrl>
+ok
+        # <?cntrl>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <\t @ 0>/			<?cntrl>
+ok
+        # <?cntrl>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <\t\n\r @ 0>/		<?cntrl>+
+ok
+        # <punct>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<punct>: <! @ 4>/		<punct>
+ok
+        # <?punct>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <! @ 4>/			<?punct>
+ok
+        # <?punct>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <.*\} @ 4>/		<?punct>+
+ok
+        # <alnum>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<alnum>: <0 @ 35>/		<alnum>
+ok
+        # <?alnum>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <0 @ 35>/	<?alnum>
+ok
+        # <?alnum>+	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <0123456789ABCDEFGHIJabcdefghij @ 35>/	<?alnum>+
+ok
+        # <sp>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<sp>: <  @ 3>/	<sp>
+ok
+        # <?sp>+		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <  @ 3>/	<?sp>+
+ok
+        # <lt>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<lt>: << @ 21>/	<lt>
+ok
+        # <?lt>+		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: << @ 21>/	<?lt>+
+ok
+        # <gt>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<gt>: <> @ 23>/	<gt>
+ok
+        # <?gt>+		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <> @ 23>/	<?gt>+
+ok
+        # <dot>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<dot>: <. @ 17>/	<dot>
+ok
+        # <?dot>+		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <. @ 17>/	<?dot>+
+ok
+        # <ident>			2+3 ab2		/mob<ident>: <ab2 @ 4>/		capturing builtin <ident>
+ok
+        # <name>			ab::cd::x3::42	/mob<name>: <ab::cd::x3 @ 0>/	capturing builtin <name>
+ok
+        # <+alnum+[_]>	ident_1				y	union of character classes
+ok
+        # <+[ab]+[\-]>+	aaa-bbb				y	enumerated character classes
+ok
+        # <+  [ a  b ]+[\-]>+		aaa-bbb		y	whitespace is ignored within square brackets and after the initial +
+not ok # Unexpected compilation failure.
+        # <+[ab]+[\-]>+	-ab-				y	enumerated character classes variant
+ok
+        # <+[ab]+[\-]>+	----				y	enumerated character classes variant
+ok
+        # <+[ab]+[\-]>+	-				y	enumerated character classes variant
+ok
+        # <-[ab]+[cd]>+	ccdd				y	enumerated character classes variant
+ok
+        # ^<-[ab]+[cd]>+$	caad				n	enumerated character classes variant
+ok
+        # <-  [ a  b ]+[cd]>+	ccdd			y	whitespace is ignored within square brackets and after the initial -
+not ok # Unexpected compilation failure.
+        # ^<-upper>dent	ident_1				y	inverted character class
+ok
+        # ^<-upper>dent	Ident_1				n	inverted character class
+ok
+        # <+alpha-[Jj]>+	abc				y	character class with no j
+ok
+        # <alpha-[Jj]>+	abc				y	character class with no j and no leading +
+ok
+        # <+ alpha - [ Jj ]>	abc			y	character class with no j with ws
+not ok # Unexpected compilation failure.
+        # ^<+alpha-[Jj]>+$	aJc			n	character class with no j fail
+ok
+        # 
+        # ## vim: noexpandtab tabstop=4 shiftwidth=4
