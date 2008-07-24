@@ -314,7 +314,9 @@ static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
   // the proto storage is made of a set of containers. No actual value
   // is handled by this object. It simply returns the containers.
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
 
   SMOP__Object* handled = p6opaque_proto_message_handle_scalar(interpreter, invocant, identifier);
   //if (!handled) handled = p6opaque_proto_message_handle_array(interpreter, invocant, identifier);
