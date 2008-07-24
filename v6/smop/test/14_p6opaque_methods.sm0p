@@ -19,7 +19,7 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
       printf("ok 3 - dispatching on the metaclass\n");
 
       SMOP__Object* actualinvocant = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-      SMOP__Object* actualresponder = SMOP_RI(actualinvocant);
+      SMOP__Object* actualresponder = (SMOP__Object*)SMOP_RI(actualinvocant);
       SMOP__Object* actualidentifier = SMOP__NATIVE__capture_positional(interpreter,capture,1);
       SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);
 
@@ -34,16 +34,16 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
       /*
         
       {
-        use v6;
+        #use v6;
         return $actualinvocant.^!methods.{$actualidentifier}.call($actualresponder,$actualidentifier,$actualcapture);
       }
       
       */
       frame = q:sm0p {
-        invocant: $invocant;
-        identifier: $identifier;
+        invocant: $actualinvocant;
+        identifier: $actualidentifier;
         capture: $actualcapture;
-        methproxy: $invocant.$SMOP__ID__REPR_methods();
+        methproxy: $actualinvocant.$SMOP__ID__REPR_methods();
         methproxy2: $SMOP__SLIME__CurrentFrame.copy(`methproxy);
         $SMOP__SLIME__CurrentFrame.move_responder(`methproxy,2);
         $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`methproxy2,(),(),1));
@@ -63,7 +63,7 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
                     SMOP__ID__goto,
                     frame);
       
-      SMOP_RELEASE(interpreter,invocant);
+      SMOP_RELEASE(interpreter,actualinvocant);
       SMOP_RELEASE(interpreter,actualcapture);
     }
     SMOP_RELEASE(interpreter, called);
@@ -130,7 +130,7 @@ int main() {
 
   /*
     {
-      use v6;
+      #use v6;
       $*object.STORE($SMOP__p6opaque__RI.^!CREATE());
       $*object.FETCH().^!methods.{"foo"}.STORE($method);
       $*object.FETCH().^!how.STORE($how);
