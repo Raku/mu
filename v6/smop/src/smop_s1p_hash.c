@@ -29,6 +29,8 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
 
   smop_s1p_hash_struct* invocant = (smop_s1p_hash_struct*)(SMOP__NATIVE__capture_invocant(interpreter, capture));
 
