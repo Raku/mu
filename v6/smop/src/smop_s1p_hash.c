@@ -94,7 +94,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       }
       free(invocant->buckets);
   } else {
-      fprintf(stderr,"unkown method called on Hash\n");
+      ___UNKNOWN_METHOD___
   }
 
   if (invocant) SMOP_RELEASE(interpreter,invocant);

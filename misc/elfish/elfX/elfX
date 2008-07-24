@@ -3540,7 +3540,7 @@ sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 ") . $self->e($n->statements())->join("\;"))})};
 sub capturize{my $self=CORE::shift;my($arguments,$id)=@_;
 (do{my $positionals = $arguments->keys()->map(sub {my($k)=@_;
-(do{("\`pos_" . $k)})})->join("\,");
+(do{((("\`pos_" . $id) . "_") . $k)})})->join("\,");
 (((("SMOP__SLIME__Capturize\.new\(\`i_" . $id) . "\,\(") . $positionals) . "\)\,\(\)\,1\)")})};
 sub cb__Call{my $self=CORE::shift;my($n,$ret)=@_;
 (do{my $id = $self->genid();
@@ -3551,7 +3551,7 @@ if((((($arguments->elems() == 1) && $arguments->[0]->isa("IRx1\:\:Apply")) && ($
 };
 for(($arguments->keys())->flatten){
 sub {my($i)=@_;
-(do{($positionals = ($positionals . $self->e($arguments->[$i], ("pos_" . $i))))})}->($_)
+(do{($positionals = ($positionals . $self->e($arguments->[$i], ((("pos_" . $id) . "_") . $i))))})}->($_)
 };
 ((((((((((((((((((((((((("\#\ method\ call\ " . $id) . "\
 ") . $self->e($n->invocant(), ("i_" . $id))) . "ic_") . $id) . "\:\ \$SMOP__SLIME__CurrentFrame\.copy\(\`i_") . $id) . "\)\;\
@@ -3561,6 +3561,20 @@ sub {my($i)=@_;
 ") . "\$SMOP__SLIME__CurrentFrame\.move_capturize\(") . $self->capturize($arguments, $id)) . "\)\;\
 ") . $ret) . "\:\ \;\
 ")})};
+sub cb__Apply{my $self=CORE::shift;my($n,$ret)=@_;
+(do{my $id = $self->genid();
+if((($n->function() eq "return"))) {
+(do{my $arguments = $n->capture()->arguments();
+my $positionals = "";
+for(($arguments->keys())->flatten){
+sub {my($i)=@_;
+(do{($positionals = ($positionals . $self->e($arguments->[$i], ((("pos_" . $id) . "_") . $i))))})}->($_)
+};
+(((((((((("i_" . $id) . "\:\ \$continuation\;") . "\
+") . $positionals) . "\$SMOP__SLIME__CurrentFrame\.move_capturize\(") . $self->capturize($arguments, $id)) . "\)\;\
+") . $ret) . "\:\ \$continuation\.\$SMOP__ID__setr\(\)\;") . "\
+")})
+}})};
 sub cb__Buf{my $self=CORE::shift;my($n,$label)=@_;
 (do{((((($label . "\:\ ") . "\"") . $n->buf()->re_gsub(qr/\n/, "\\n")) . "\"") . "\;\
 ")})};

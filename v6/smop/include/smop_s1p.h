@@ -48,4 +48,8 @@ SMOP__Object* SMOP__S1P__Array_create(void);
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture); \
     assert(SMOP_RI(invocant) == (SMOP__ResponderInterface*)self)
 
+#define ___UNKNOWN_METHOD___ \
+    fprintf(stderr,"unkown method at %s %d line",__LINE__,__func__); \
+    abort();
+
 #endif
