@@ -82,6 +82,8 @@ extern SMOP__Object* SMOP__ID__REPR_isa;          /* "^!isa" */
 extern SMOP__Object* SMOP__ID__REPR_does;         /* "^!does" */
 extern SMOP__Object* SMOP__ID__REPR_private_storage;                     /* "^!private_storage" */
 extern SMOP__Object* SMOP__ID__REPR_class_storage;                       /* "^!class_storage" */
+extern SMOP__Object* SMOP__ID__REPR_multimethods;      /* "^!multimethods" */
+extern SMOP__Object* SMOP__ID__REPR_multisubmethods;      /* "^!multisubmethods" */
 extern SMOP__Object* SMOP__ID__REPR_methods;      /* "^!methods" */
 extern SMOP__Object* SMOP__ID__REPR_submethods;      /* "^!submethods" */
 extern SMOP__Object* SMOP__ID__REPR_attributes;   /* "^!attributes" */

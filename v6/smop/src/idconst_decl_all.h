@@ -71,6 +71,8 @@ SMOP__Object* SMOP__ID__REPR_isa;
 SMOP__Object* SMOP__ID__REPR_does;
 SMOP__Object* SMOP__ID__REPR_private_storage;
 SMOP__Object* SMOP__ID__REPR_class_storage;
+SMOP__Object* SMOP__ID__REPR_multimethods;
+SMOP__Object* SMOP__ID__REPR_multisubmethods;
 SMOP__Object* SMOP__ID__REPR_methods;
 SMOP__Object* SMOP__ID__REPR_submethods;
 SMOP__Object* SMOP__ID__REPR_attributes;

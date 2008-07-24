@@ -267,6 +267,82 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
   return ret;
 }
 
+static SMOP__Object* p6opaque_proto_message_handle_hash(SMOP__Object* interpreter,
+                                                        SMOP__Object* invocant,
+                                                        SMOP__Object* identifier) {
+  SMOP__Object** pointer = NULL;
+
+  smop_lowlevel_rdlock(invocant);
+  if (identifier == SMOP__ID__REPR_class_storage) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->class_storage);
+  } else if (identifier == SMOP__ID__REPR_attributes) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->attributes);
+  } else if (identifier == SMOP__ID__REPR_methods) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->methods);
+  } else if (identifier == SMOP__ID__REPR_submethods) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->submethods);
+  } else if (identifier == SMOP__ID__REPR_multimethods) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->multimethods);
+  } else if (identifier == SMOP__ID__REPR_multisubmethods) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->multisubmethods);
+  }
+  if (pointer) {
+    if (*pointer) {
+      SMOP__Object* ret = *pointer;
+      smop_lowlevel_unlock(invocant);
+      return SMOP_REFERENCE(interpreter, ret);
+    } else {
+      smop_lowlevel_unlock(invocant);
+
+      SMOP__Object* hash = SMOP__S1P__Hash_create();
+
+      smop_lowlevel_wrlock(invocant);
+      *pointer = hash;
+      smop_lowlevel_unlock(invocant);
+
+
+      return SMOP_REFERENCE(interpreter, hash);
+    }
+  } else {
+    smop_lowlevel_unlock(invocant);
+    return NULL;
+  }
+}
+
+static SMOP__Object* p6opaque_proto_message_handle_array(SMOP__Object* interpreter,
+                                                         SMOP__Object* invocant,
+                                                         SMOP__Object* identifier) {
+  SMOP__Object** pointer = NULL;
+
+  smop_lowlevel_rdlock(invocant);
+  if (identifier == SMOP__ID__REPR_isa) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->isa);
+  } else if (identifier == SMOP__ID__REPR_does) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->does);
+  }
+  if (pointer) {
+    if (*pointer) {
+      SMOP__Object* ret = *pointer;
+      smop_lowlevel_unlock(invocant);
+      return SMOP_REFERENCE(interpreter, ret);
+    } else {
+      smop_lowlevel_unlock(invocant);
+
+      SMOP__Object* array = SMOP__S1P__Array_create();
+
+      smop_lowlevel_wrlock(invocant);
+      *pointer = array;
+      smop_lowlevel_unlock(invocant);
+
+
+      return SMOP_REFERENCE(interpreter, array);
+    }
+  } else {
+    smop_lowlevel_unlock(invocant);
+    return NULL;
+  }
+}
+
 static SMOP__Object* p6opaque_proto_message_handle_scalar(SMOP__Object* interpreter,
                                                           SMOP__Object* invocant,
                                                           SMOP__Object* identifier) {
@@ -299,12 +375,6 @@ static SMOP__Object* p6opaque_proto_message_handle_scalar(SMOP__Object* interpre
     smop_lowlevel_unlock(invocant);
     return NULL;
   }
-  //identifier == SMOP__ID__REPR_isa ||
-  //identifier == SMOP__ID__REPR_does ||
-  //identifier == SMOP__ID__REPR_class_storage ||
-  //identifier == SMOP__ID__REPR_attributes ||
-  //identifier == SMOP__ID__REPR_methods ||
-  //identifier == SMOP__ID__REPR_submethods  
 }
 
 static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
@@ -319,8 +389,8 @@ static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
   ___INVOCANT_RI_SHOULD_MATCH___;
 
   SMOP__Object* handled = p6opaque_proto_message_handle_scalar(interpreter, invocant, identifier);
-  //if (!handled) handled = p6opaque_proto_message_handle_array(interpreter, invocant, identifier);
-  //if (!handled) handled = p6opaque_proto_message_handle_hash(interpreter, invocant, identifier);
+  if (!handled) handled = p6opaque_proto_message_handle_array(interpreter, invocant, identifier);
+  if (!handled) handled = p6opaque_proto_message_handle_hash(interpreter, invocant, identifier);
   
 
   if (handled) {
@@ -335,13 +405,43 @@ static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
     SMOP__Object* who = ((smop_p6opaque_proto_storage*)invocant)->who;
     (((smop_p6opaque_proto_storage*)invocant)->who) = NULL;
 
+    SMOP__Object* isa = ((smop_p6opaque_proto_storage*)invocant)->isa;
+    ((smop_p6opaque_proto_storage*)invocant)->isa = NULL;
+
+    SMOP__Object* does = ((smop_p6opaque_proto_storage*)invocant)->does;
+    ((smop_p6opaque_proto_storage*)invocant)->does = NULL;
+
+    SMOP__Object* class_storage = ((smop_p6opaque_proto_storage*)invocant)->class_storage;
+    ((smop_p6opaque_proto_storage*)invocant)->class_storage = NULL;
+
+    SMOP__Object* attributes = ((smop_p6opaque_proto_storage*)invocant)->attributes;
+    ((smop_p6opaque_proto_storage*)invocant)->attributes = NULL;
+
+    SMOP__Object* methods = ((smop_p6opaque_proto_storage*)invocant)->methods;
+    ((smop_p6opaque_proto_storage*)invocant)->methods = NULL;
+
+    SMOP__Object* submethods = ((smop_p6opaque_proto_storage*)invocant)->submethods;
+    ((smop_p6opaque_proto_storage*)invocant)->submethods = NULL;
+
+    SMOP__Object* multimethods = ((smop_p6opaque_proto_storage*)invocant)->multimethods;
+    ((smop_p6opaque_proto_storage*)invocant)->multimethods = NULL;
+
+    SMOP__Object* multisubmethods = ((smop_p6opaque_proto_storage*)invocant)->multisubmethods;
+    ((smop_p6opaque_proto_storage*)invocant)->multisubmethods = NULL;
+
     smop_lowlevel_unlock(invocant);
 
-    if (how) {
-          SMOP_RELEASE(interpreter,how);
-    }
+    if (how) SMOP_RELEASE(interpreter,how);
     if (who) SMOP_RELEASE(interpreter,who);
-
+    if (isa) SMOP_RELEASE(interpreter,isa);
+    if (does) SMOP_RELEASE(interpreter,does);
+    if (class_storage) SMOP_RELEASE(interpreter,class_storage);
+    if (attributes) SMOP_RELEASE(interpreter,attributes);
+    if (methods) SMOP_RELEASE(interpreter,methods);
+    if (submethods) SMOP_RELEASE(interpreter,submethods);
+    if (multimethods) SMOP_RELEASE(interpreter,multimethods);
+    if (multisubmethods) SMOP_RELEASE(interpreter,multisubmethods);
+    
   } else {
     //todo
     if (SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
