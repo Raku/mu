@@ -4,7 +4,7 @@ To build v6-alpha see INSTALL.v6-alpha
 BUILDING PUGS
 -------------
 
-Pugs needs the Glasgow Haskell Compiler (GHC), version 6.6.1 or above.
+Pugs needs the Glasgow Haskell Compiler (GHC), version 6.8.2 or above.
 
 To install GHC, download a binary build from http://haskell.org/ghc/.
 Although source code for GHC is available, it will take a very long time to
@@ -276,3 +276,7 @@ testing, replace the second command with:
     cabal update
     cabal install Pugs
 
+INSTALLING PUGS ON CYGWIN
+-------------------------
+For installing pugs on cygwin via cabal, please follow these instructions:
+http://use.perl.org/~rurban/journal/36897
