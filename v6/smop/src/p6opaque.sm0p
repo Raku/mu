@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include <smop.h>
 #include <smop_s1p.h>
 #include <smop_oo.h>
@@ -255,6 +256,45 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
   return ret;
 }
 
+static SMOP__Object* p6opaque_proto_message_handle_scalar(SMOP__Object* interpreter,
+                                                          SMOP__Object* invocant,
+                                                          SMOP__Object* identifier) {
+  SMOP__Object** pointer = NULL;
+
+  smop_lowlevel_rdlock(invocant);
+  if (identifier == SMOP__ID__REPR_how) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->how);
+  } else if (identifier == SMOP__ID__REPR_who) {
+    pointer = &(((smop_p6opaque_proto_storage*)invocant)->who);
+  }
+  if (pointer) {
+    if (*pointer) {
+      SMOP__Object* ret = *pointer;
+      smop_lowlevel_unlock(invocant);
+      return SMOP_REFERENCE(interpreter, ret);
+    } else {
+      smop_lowlevel_unlock(invocant);
+
+      SMOP__Object* scalar = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+
+      smop_lowlevel_wrlock(invocant);
+      *pointer = scalar;
+      smop_lowlevel_unlock(invocant);
+
+      return SMOP_REFERENCE(interpreter, scalar);
+    }
+  } else {
+    smop_lowlevel_unlock(invocant);
+    return NULL;
+  }
+  //identifier == SMOP__ID__REPR_isa ||
+  //identifier == SMOP__ID__REPR_does ||
+  //identifier == SMOP__ID__REPR_class_storage ||
+  //identifier == SMOP__ID__REPR_attributes ||
+  //identifier == SMOP__ID__REPR_methods ||
+  //identifier == SMOP__ID__REPR_submethods  
+}
+
 static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
                                             SMOP__ResponderInterface* self,
                                             SMOP__Object* identifier,
@@ -262,21 +302,47 @@ static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
   // the proto storage is made of a set of containers. No actual value
   // is handled by this object. It simply returns the containers.
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
+  SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
 
-  //todo
-  if (SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
-    int u;
-    char* external = SMOP__NATIVE__idconst_fetch(identifier, &u);
-    char* local = malloc(u+1);
-    memcpy(local, external, u);
-    local[u] = 0;
-    fprintf(stderr, "[p6opaque proto] \"%s\" is not implemented.\n", local);
-    free(local);
+  SMOP__Object* handled = p6opaque_proto_message_handle_scalar(interpreter, invocant, identifier);
+  //if (!handled) handled = p6opaque_proto_message_handle_array(interpreter, invocant, identifier);
+  //if (!handled) handled = p6opaque_proto_message_handle_hash(interpreter, invocant, identifier);
+
+
+  if (handled) {
+    ret = handled;
+
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+
+    smop_lowlevel_wrlock(invocant);
+    SMOP__Object* how = (((smop_p6opaque_proto_storage*)invocant)->how);
+    (((smop_p6opaque_proto_storage*)invocant)->how) = NULL;
+
+    SMOP__Object* who = (((smop_p6opaque_proto_storage*)invocant)->who);
+    (((smop_p6opaque_proto_storage*)invocant)->who) = NULL;
+
+    smop_lowlevel_unlock(invocant);
+
+    if (how) SMOP_RELEASE(interpreter,how);
+    if (who) SMOP_RELEASE(interpreter,who);
+
   } else {
-    fprintf(stderr, "[p6opaque proto] unknown method called.\n");
+    //todo
+    if (SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
+      int u;
+      char* external = SMOP__NATIVE__idconst_fetch(identifier, &u);
+      char* local = malloc(u+1);
+      memcpy(local, external, u);
+      local[u] = 0;
+      fprintf(stderr, "[p6opaque proto] \"%s\" is not implemented.\n", local);
+      free(local);
+    } else {
+      fprintf(stderr, "[p6opaque proto] unknown method called.\n");
+    }
   }
  
 
+  SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
   return ret;
 }
