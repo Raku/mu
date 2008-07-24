@@ -53,18 +53,22 @@ is($fud, "Foo::Bar::fud", "returned value is correct");
 # See thread "Quick OO .isa question" on p6l started by Ingo Blechschmidt:
 # L<"http://www.nntp.perl.org/group/perl.perl6.language/22220">
 
+# XXX are these still conforming to S12?
 ok  Foo::Bar.isa(Foo),      "subclass.isa(superclass) is true";
 ok  Foo::Bar.isa(Foo::Bar), "subclass.isa(same_subclass) is true";
-ok  Foo::Bar.isa(Class),    "subclass.isa(Class) is false", :todo<feature>;
-ok  Foo::Bar.does(Class),   "subclass.does(Class) is true", :todo<feature>;
+#?pugs 2 todo "feature"
+ok  Foo::Bar.isa(Class),    "subclass.isa(Class) is false";
+ok  Foo::Bar.does(Class),   "subclass.does(Class) is true";
 ok !Foo::Bar.does(::CLASS),   "subclass.does(CLASS) is false";
 ok !Foo::Bar.isa(::CLASS),    "subclass.isa(CLASS) is false";
-ok !Foo::Bar.HOW.isa(Foo),      "subclass.HOW.isa(superclass) is false";
-ok !Foo::Bar.HOW.isa(Foo::Bar), "subclass.HOW.isa(same_subclass) is false";
-ok !Foo::Bar.HOW.isa(Class),    "subclass.HOW.isa(Class) is false", :todo<bug>;
-ok !Foo::Bar.HOW.does(Class),   "subclass.HOW.does(Class) is false";
-ok !Foo::Bar.HOW.isa(::CLASS),    "subclass.HOW.isa(CLASS) is false";
-ok  Foo::Bar.HOW.does(::CLASS),   "subclass.HOW.does(CLASS) is true", :todo<feature>;
+ok !Foo::Bar.HOW.isa(Foo::BAR, Foo),      "subclass.HOW.isa(superclass) is false";
+ok !Foo::Bar.HOW.isa(Foo::BAR, Foo::Bar), "subclass.HOW.isa(same_subclass) is false";
+#?pugs todo "bug"
+ok !Foo::Bar.HOW.isa(Foo::BAR, Class),    "subclass.HOW.isa(Class) is false";
+ok !Foo::Bar.HOW.does(Foo::BAR, Class),   "subclass.HOW.does(Class) is false";
+ok !Foo::Bar.HOW.isa(Foo::BAR, ::CLASS),  "subclass.HOW.isa(CLASS) is false";
+#?pugs todo "feature"
+ok  Foo::Bar.HOW.does(Foo::BAR, ::CLASS),  "subclass.HOW.does(CLASS) is true";
 
 
 {
