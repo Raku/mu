@@ -111,6 +111,90 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   return ret;
 }
 
+static SMOP__Object* p6opaque_message_REPR_DESTROY(SMOP__Object* interpreter,
+                                                   SMOP__ResponderInterface* self,
+                                                   SMOP__Object* identifier,
+                                                   SMOP__Object* capture) {
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
+  if (SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture) {
+    SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter,capture);
+
+    if (invocant == SMOP__p6opaque__RI) {
+      ret = SMOP__NATIVE__bool_false;
+
+    } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
+      fprintf(stderr, "[SMOP p6opaque] call .^!DESTROY method with non p6opaque invocant\n");
+      ret = SMOP__NATIVE__bool_false;
+
+    } else {
+      smop_lowlevel_wrlock(invocant);
+      SMOP__Object* proto_storage = ((smop_p6opaque*)invocant)->proto_storage;
+      SMOP__Object* instance_storage = ((smop_p6opaque*)invocant)->instance_storage;
+      ((smop_p6opaque*)invocant)->proto_storage = NULL;
+      ((smop_p6opaque*)invocant)->instance_storage = NULL;
+      smop_lowlevel_unlock(invocant);
+
+      if (proto_storage) SMOP_RELEASE(interpreter,proto_storage);
+      if (instance_storage) SMOP_RELEASE(interpreter,instance_storage);
+    }
+
+    SMOP_RELEASE(interpreter,invocant);
+  } else {
+    fprintf(stderr, "[SMOP p6opaque] TODO: non-native captures\n");
+  }
+  return ret;
+}
+
+
+static SMOP__Object* p6opaque_message_DESTROYALL(SMOP__Object* interpreter,
+                                                 SMOP__ResponderInterface* self,
+                                                 SMOP__Object* identifier,
+                                                 SMOP__Object* capture) {
+  SMOP__Object* ret = SMOP__NATIVE__bool_true;
+  SMOP__Object* frame;
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                             SMOP__ID__continuation, 
+                                             SMOP_REFERENCE(interpreter,interpreter));
+
+  frame = q:sm0p {
+    capture: $capture;
+    identifier: $identifier;
+    invocant: $capture.$SMOP__ID__invocant();
+    responder: $self;
+    invocant_copy: $SMOP__SLIME__CurrentFrame.copy(`invocant);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant_copy,(),(),1));
+    how_container: $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
+    how_container_copy: $SMOP__SLIME__CurrentFrame.copy(`how_container);
+    $SMOP__SLIME__CurrentFrame.move_responder(`how_container,2);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_container_copy,(),(),1));
+    how: $SMOP__NATIVE__bool_true.$SMOP__ID__FETCH();
+    how_copy: $SMOP__SLIME__CurrentFrame.copy(`how);
+    identifier_dispatch: $SMOP__ID__dispatch;
+    $SMOP__SLIME__CurrentFrame.move_identifier(`identifier_dispatch,3);
+    $SMOP__SLIME__CurrentFrame.move_responder(`how,2);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_copy,(`responder,`identifier,`capture),(),1));
+    result: ;
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
+    invocant_again: $capture.$SMOP__ID__invocant();
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant_again,(),(),1));
+    $SMOP__p6opaque__RI.$SMOP__ID__REPR_DESTROY();
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
+    $interpreter.goto(|$continuation);
+  };
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                frame);
+  return ret;
+}
+
+static SMOP__Object* p6opaque_proto_create(SMOP__Object* interpreter) {
+  SMOP__Object* proto = smop_lowlevel_alloc(sizeof(smop_p6opaque_proto_storage));
+  proto->RI = (SMOP__ResponderInterface*)SMOP__p6opaque_proto_storage__RI;
+  return proto;
+}
+
 static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                       SMOP__ResponderInterface* self,
                                       SMOP__Object* identifier,
@@ -135,13 +219,32 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
              identifier == SMOP__ID__REPR_attributes ||
              identifier == SMOP__ID__REPR_methods ||
              identifier == SMOP__ID__REPR_submethods) {
+
+    SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
+    if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
+      fprintf(stderr,"[smop p6opaque] REPR method called with non p6opaque invocant\n");
+    } else {
+
+      smop_lowlevel_rdlock(invocant);
+      SMOP__Object* proto_storage = ((smop_p6opaque*)invocant)->proto_storage;
+      smop_lowlevel_unlock(invocant);
+
+      if (!proto_storage) {
+        smop_lowlevel_wrlock(invocant);
+        ((smop_p6opaque*)invocant)->proto_storage = p6opaque_proto_create(interpreter);
+        smop_lowlevel_unlock(invocant);
+      }
+
+      SMOP_DISPATCH(interpreter,SMOP_RI(proto_storage),identifier,SMOP_REFERENCE(interpreter,capture));
+    }
+
     //ret = p6opaque_message_proto_handles(interpreter, self, identifier, capture);
 
   } else if (identifier == SMOP__ID__REPR_DESTROY) {
-    //ret = p6opaque_message_REPR_DESTROY(interpreter, self, identifier, capture);
-
+    ret = p6opaque_message_REPR_DESTROY(interpreter, self, identifier, capture);
+    
   } else if (identifier == SMOP__ID__DESTROYALL) {
-    //ret = p6opaque_message_DESTROYALL(interpreter, self, identifier, capture);
+    ret = p6opaque_message_DESTROYALL(interpreter, self, identifier, capture);
 
   } else {
     ret = p6opaque_message_DISPATCH(interpreter, self, identifier, capture);
@@ -158,6 +261,10 @@ static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
                                             SMOP__Object* capture) {
   // the proto storage is made of a set of containers. No actual value
   // is handled by this object. It simply returns the containers.
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
 }
 
 void smop_p6opaque_init() {
