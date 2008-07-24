@@ -232,14 +232,14 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
       if (!proto_storage) {
         smop_lowlevel_wrlock(invocant);
         ((smop_p6opaque*)invocant)->proto_storage = p6opaque_proto_create(interpreter);
+        proto_storage = ((smop_p6opaque*)invocant)->proto_storage;
         smop_lowlevel_unlock(invocant);
       }
 
-      SMOP_DISPATCH(interpreter,SMOP_RI(proto_storage),identifier,SMOP_REFERENCE(interpreter,capture));
+      ret = SMOP_DISPATCH(interpreter,SMOP_RI(proto_storage),identifier,SMOP_REFERENCE(interpreter,capture));
     }
-
-    //ret = p6opaque_message_proto_handles(interpreter, self, identifier, capture);
-
+    SMOP_RELEASE(interpreter,invocant);
+    
   } else if (identifier == SMOP__ID__REPR_DESTROY) {
     ret = p6opaque_message_REPR_DESTROY(interpreter, self, identifier, capture);
     
@@ -263,6 +263,20 @@ static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
   // is handled by this object. It simply returns the containers.
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
+  //todo
+  if (SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
+    int u;
+    char* external = SMOP__NATIVE__idconst_fetch(identifier, &u);
+    char* local = malloc(u+1);
+    memcpy(local, external, u);
+    local[u] = 0;
+    fprintf(stderr, "[p6opaque proto] \"%s\" is not implemented.\n", local);
+    free(local);
+  } else {
+    fprintf(stderr, "[p6opaque proto] unknown method called.\n");
+  }
+ 
+
   SMOP_RELEASE(interpreter,capture);
   return ret;
 }
@@ -276,10 +290,10 @@ void smop_p6opaque_init() {
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->id = "p6opaque";
 
   SMOP__p6opaque_proto_storage__RI = calloc(1,sizeof(SMOP__ResponderInterface));
-  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->MESSAGE = p6opaque_proto_message;
-  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->REFERENCE = smop_lowlevel_generic_reference;
-  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->RELEASE = smop_lowlevel_generic_release;
-  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->id = "p6opaque proto storage";
+  ((SMOP__ResponderInterface*)SMOP__p6opaque_proto_storage__RI)->MESSAGE = p6opaque_proto_message;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque_proto_storage__RI)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque_proto_storage__RI)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque_proto_storage__RI)->id = "p6opaque proto storage";
 
 }
 
