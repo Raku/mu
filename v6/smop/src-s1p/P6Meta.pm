@@ -24,7 +24,7 @@ This method will alloc an object of the given representation.
 
   method CREATE($how: $prototype, :$repr --> Object) {
       my $obj = ___EMPTY_REPR___($repr).^!CREATE();
-      $obj.^!how($prototype.^!how);
+      $obj.^!how = $prototype.^!how;
   }
 
 =begin
