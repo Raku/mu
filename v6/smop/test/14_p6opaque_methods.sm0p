@@ -31,34 +31,12 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
       SMOP__Object* frame;
 
       // here we'll take the first method and call it.
-      /*
         
       {
-        #use v6;
+        use v6;
         return $actualinvocant.^!methods.{$actualidentifier}.call($actualresponder,$actualidentifier,$actualcapture);
       }
       
-      */
-      frame = q:sm0p {
-        invocant: $actualinvocant;
-        identifier: $actualidentifier;
-        capture: $actualcapture;
-        methproxy: $actualinvocant.$SMOP__ID__REPR_methods();
-        methproxy2: $SMOP__SLIME__CurrentFrame.copy(`methproxy);
-        $SMOP__SLIME__CurrentFrame.move_responder(`methproxy,2);
-        $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`methproxy2,(),(),1));
-        method: $SMOP__NATIVE__bool_true.shift();
-        method2: $SMOP__SLIME__CurrentFrame.copy(`method);
-        $SMOP__SLIME__CurrentFrame.move_responder(`method,2);
-        $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`method2,(`invocant,`identifier,`capture),(),1));
-        result: $SMOP__NATIVE__bool_true.call();
-        continuation: $continuation;
-        $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`continuation,(`result),(),1));
-        $continuation.setr();
-        $SMOP__SLIME__CurrentFrame.forget();
-        $interpreter.goto(|$continuation);
-      };
-
       SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                     SMOP__ID__goto,
                     frame);
@@ -128,15 +106,13 @@ int main() {
   // method into the list of methods and call some method. The how
   // implemented here will take the first method to call.
 
-  /*
     {
-      #use v6;
+      use v6;
       $*object.STORE($SMOP__p6opaque__RI.^!CREATE());
       $*object.FETCH().^!methods.{"foo"}.STORE($method);
       $*object.FETCH().^!how.STORE($how);
       $*object.FETCH().foo();
     }
-  */
 
   frame = q:sm0p {
     method: $method;

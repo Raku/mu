@@ -598,7 +598,7 @@ class Perl < Grammar
           _match_from(b,h,:expect_infix)))
     end
 
-    def_tokens_rest :dotty,:methodcall,%w{ .+ .* .? .= .^ .: .:: },%q{ #R NONSPEC ADDED .::
+    def_tokens_rest :dotty,:methodcall,%w{ .+ .* .? .= .^ .: .:: .^!},%q{ #R NONSPEC ADDED .::
       unspacey and
       op= methodop and
       _match_from(start,{:sym=>'<sym>',:methodop=>op,:O=>op[:O]},:'<sym>') #R NONSPEC name(s)?

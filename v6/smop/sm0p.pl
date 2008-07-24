@@ -77,7 +77,7 @@ sub preprocess_p6 {
 }
 sub preprocess_sm0p {
     my $code = shift;
-    warn "got sm0p code <$code>\n";
+    #warn "got sm0p code <$code>\n";
     return preprocess($code,'perl',"-I$base/../../src/perl6",
         '-I'.$base.'/sm0p',
         $base.'/sm0p/sm0p_with_actions');

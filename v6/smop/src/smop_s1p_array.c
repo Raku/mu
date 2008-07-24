@@ -2,6 +2,8 @@
 #include <smop.h>
 #include <math.h>
 #include <smop_lowlevel.h>
+#include <smop_s1p.h>
+#include <stdio.h>
 
 SMOP__Object* SMOP__S1P__Array;
 static SMOP__Object* SMOP__S1P__ArrayProxy;
@@ -48,6 +50,8 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
   smop_s1p_array_struct* invocant = (smop_s1p_array_struct*)(SMOP__NATIVE__capture_invocant(interpreter, capture));
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   if (identifier == SMOP__ID__new) {
@@ -60,6 +64,8 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
     ret = (SMOP__Object*) proxy;
   } else if (identifier == SMOP__ID__elems) {
     return SMOP__NATIVE__int_create(invocant->elems);
+  } else {
+      ___UNKNOWN_METHOD___
   }
   SMOP_RELEASE(interpreter,capture);
   return ret;
