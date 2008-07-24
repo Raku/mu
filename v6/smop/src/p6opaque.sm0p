@@ -12,10 +12,10 @@
     # see http://www.perlfoundation.org/perl6/index.cgi?smop_p6opaque_implementation
 
     repr p6opaque {
-        has $.^!instanceof; # direct delegation of a single prototype, used by most object instances.
-        has $.^!WHENCE; # autovivication closure, used by autovivification
-        has p6opaque_proto $.^!proto_storage handles *;
-        has Hash of Hash %.^!instance_storage;
+        has $.^!instanceof is rw; # direct delegation of a single prototype, used by most object instances.
+        has $.^!WHENCE is rw; # autovivication closure, used by autovivification
+        has p6opaque_proto $!^!proto_storage handles *;
+        has Hash of Hash %.^!instance_storage is rw;
         default ($ri, $identifier, $capture) {
             $capture.invocant.^!how.dispatch($ri, $identifier, $capture);
         }
@@ -24,16 +24,16 @@
         }
     }
     repr p6opaque_proto {
-        has $.^!how; # the metaclass instance in use
-        has $.^!who; # the package implementing this prototype
-        has @.^!isa; # an array of other protoypes
-        has @.^!does; # an array of other prototypes
-        has %.^!class_storage; # prototype storage (class variables)
-        has %.^!attributes; # attribute definitions
-        has %.^!methods; # methods by name
-        has %.^!submethods; # submethods by name
-        has %.^!multimethods; # hash of hash of method by name,capture
-        has %.^!multisubmethods; # hash of hash of submethod by name,capture
+        has $.^!how is rw; # the metaclass instance in use
+        has $.^!who is rw; # the package implementing this prototype
+        has @.^!isa is rw; # an array of other protoypes
+        has @.^!does is rw; # an array of other prototypes
+        has %.^!class_storage is rw; # prototype storage (class variables)
+        has %.^!attributes is rw; # attribute definitions
+        has %.^!methods is rw; # methods by name
+        has %.^!submethods is rw; # submethods by name
+        has %.^!multimethods is rw; # hash of hash of method by name,capture
+        has %.^!multisubmethods is rw; # hash of hash of submethod by name,capture
     }
 
 */
