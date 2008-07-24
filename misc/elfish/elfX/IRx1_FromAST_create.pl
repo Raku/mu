@@ -77,7 +77,7 @@ dotty:methodop
 Call.newp($+blackboard::expect_term_base,$m<ident>,Capture.newp($m<semilist>||[]))
 
 dotty:.^!
-Call.newp($+blackboard::expect_term_base,'.^!'~$m<methodop><ident>,Capture.newp($m<methodop><semilist>||[]))
+Call.newp($+blackboard::expect_term_base,'^!'~$m<methodop><ident>,Capture.newp($m<methodop><semilist>||[]))
 
 dotty:postcircumfix
 my $s = *text*;

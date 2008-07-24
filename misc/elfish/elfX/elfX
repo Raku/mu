@@ -1921,7 +1921,7 @@ $main::irbuilder->add_constructor("pre", sub {my($m)=@_;
 $main::irbuilder->add_constructor("dotty\:methodop", sub {my($m)=@_;
 (do{IRx1::Call->newp($m, $::es_blackboard__expect_term_base, irbuild_ir($m->{"hash"}->{"ident"}), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"semilist"}) || [])))})});
 $main::irbuilder->add_constructor("dotty\:\.\^\!", sub {my($m)=@_;
-(do{IRx1::Call->newp($m, $::es_blackboard__expect_term_base, ("\.\^\!" . irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"ident"})), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"semilist"}) || [])))})});
+(do{IRx1::Call->newp($m, $::es_blackboard__expect_term_base, ("\^\!" . irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"ident"})), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"semilist"}) || [])))})});
 $main::irbuilder->add_constructor("dotty\:postcircumfix", sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));

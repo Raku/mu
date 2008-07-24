@@ -138,7 +138,7 @@ die "pre without a prefix is unimplemented";
     });
 
     $main::irbuilder.add_constructor('dotty:.^!', sub ($m) {
-      IRx1::Call.newp($m,$+blackboard::expect_term_base,'.^!'~irbuild_ir($m.{'hash'}{'methodop'}.{'hash'}{'ident'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'methodop'}.{'hash'}{'semilist'})||[]));
+      IRx1::Call.newp($m,$+blackboard::expect_term_base,'^!'~irbuild_ir($m.{'hash'}{'methodop'}.{'hash'}{'ident'}),IRx1::Capture.newp($m,irbuild_ir($m.{'hash'}{'methodop'}.{'hash'}{'semilist'})||[]));
     });
 
     $main::irbuilder.add_constructor('dotty:postcircumfix', sub ($m) {
