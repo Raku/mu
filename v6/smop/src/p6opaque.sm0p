@@ -7,61 +7,176 @@
 #include <smop_lowlevel.h>
 
 /*
-class p6opaque {
-  has $.WHENCE;
-  has $.how;
-  has Hash of Hash $.storage;
-}
+
+    # see http://www.perlfoundation.org/perl6/index.cgi?smop_p6opaque_implementation
+
+    repr p6opaque {
+        has $.^!instanceof; # direct delegation of a single prototype, used by most object instances.
+        has $.^!WHENCE; # autovivication closure, used by autovivification
+        has p6opaque_proto $.^!proto_storage handles *;
+        has Hash of Hash %.^!instance_storage;
+        default ($ri, $identifier, $capture) {
+            $capture.invocant.^!how.dispatch($ri, $identifier, $capture);
+        }
+        bool method ^!defined {
+            self.^!instance_storage
+        }
+    }
+    repr p6opaque_proto {
+        has $.^!how; # the metaclass instance in use
+        has $.^!who; # the package implementing this prototype
+        has @.^!isa; # an array of other protoypes
+        has @.^!does; # an array of other prototypes
+        has %.^!class_storage; # prototype storage (class variables)
+        has %.^!attributes; # attribute definitions
+        has %.^!methods; # methods by name
+        has %.^!submethods; # submethods by name
+        has %.^!multimethods; # hash of hash of method by name,capture
+        has %.^!multisubmethods; # hash of hash of submethod by name,capture
+    }
+
 */
+
 SMOP__Object* SMOP__p6opaque__RI;
-static SMOP__Object* SMOP__p6opaque_metadata__RI;
+static SMOP__Object* SMOP__p6opaque_proto_storage__RI;
+
 typedef struct smop_p6opaque {
   SMOP__Object__BASE
+  SMOP__Object* instanceof;
   SMOP__Object* WHENCE;
-  SMOP__Object* storage;
-  SMOP__Object* how;
+  SMOP__Object* proto_storage;
+  SMOP__Object* instance_storage;
 } smop_p6opaque;
+
+typedef struct smop_p6opaque_proto_storage {
+  SMOP__Object__BASE
+  SMOP__Object* how;
+  SMOP__Object* who;
+  SMOP__Object* isa;
+  SMOP__Object* does;
+  SMOP__Object* class_storage;
+  SMOP__Object* attributes;
+  SMOP__Object* methods;
+  SMOP__Object* submethods;
+  SMOP__Object* multimethods;
+  SMOP__Object* multisubmethods;
+} smop_p6opaque_proto_storage;
+
+static SMOP__Object* p6opaque_message_REPR_CREATE(SMOP__Object* interpreter,
+                                                  SMOP__ResponderInterface* self,
+                                                  SMOP__Object* identifier,
+                                                  SMOP__Object* capture) {
+  SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_p6opaque));
+  ret->RI = (SMOP__ResponderInterface*)SMOP__p6opaque__RI;
+  return ret;
+}
+
+static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
+                                               SMOP__ResponderInterface* self,
+                                               SMOP__Object* identifier,
+                                               SMOP__Object* capture) {
+  SMOP__Object* ret = SMOP__NATIVE__bool_true;
+  SMOP__Object* frame;
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                             SMOP__ID__continuation, 
+                                             SMOP_REFERENCE(interpreter,interpreter));
+  frame = q:sm0p {
+    capture: $capture;
+    identifier: $identifier;
+    invocant: $capture.$SMOP__ID__invocant();
+    responder: $self;
+    invocant_copy: $SMOP__SLIME__CurrentFrame.copy(`invocant);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant_copy,(),(),1));
+    how_container: $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
+    how_container_copy: $SMOP__SLIME__CurrentFrame.copy(`how_container);
+    $SMOP__SLIME__CurrentFrame.move_responder(`how_container,2);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_container_copy,(),(),1));
+    how: $SMOP__NATIVE__bool_true.$SMOP__ID__FETCH();
+    how_copy: $SMOP__SLIME__CurrentFrame.copy(`how);
+    identifier_dispatch: $SMOP__ID__dispatch;
+    $SMOP__SLIME__CurrentFrame.move_identifier(`identifier_dispatch,3);
+    $SMOP__SLIME__CurrentFrame.move_responder(`how,2);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_copy,(`responder,`identifier,`capture),(),1));
+    result: ;
+    continuation: $continuation;
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`continuation,(`result),(),1));
+    $continuation.$SMOP__ID__setr();
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
+    $interpreter.goto(|$continuation);
+  };
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                frame);
+
+  return ret;
+}
 
 static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                       SMOP__ResponderInterface* self,
                                       SMOP__Object* identifier,
                                       SMOP__Object* capture) {
-  SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  SMOP__Object* frame;
-  smop_p6opaque* invocant = (smop_p6opaque*) SMOP__NATIVE__capture_invocant(interpreter,capture);
-  SMOP__Object* storage = invocant->storage;
-  SMOP__Object* how = invocant->how;
 
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+  
   if (identifier == SMOP__ID__REPR_CREATE) {
-    invocant->storage = SMOP__S1P__Hash_create();
-    invocant->how = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
-  } else if (identifier == SMOP__ID__REPR_how) {
-    ret = how;
+    ret = p6opaque_message_REPR_CREATE(interpreter, self, identifier, capture);
+
   } else if (identifier == SMOP__ID__REPR_private_storage) {
-    use v6;
-    #TODO $storage{$capture.positionals[0]};
+    //ret = p6opaque_message_REPR_private_storage(interpreter, self, identifier, capture);
+
+  } else if (identifier == SMOP__ID__REPR_defined) {
+    // return true if .^!private_storage
+
+  } else if (identifier == SMOP__ID__REPR_how ||
+             identifier == SMOP__ID__REPR_who ||
+             identifier == SMOP__ID__REPR_isa ||
+             identifier == SMOP__ID__REPR_does ||
+             identifier == SMOP__ID__REPR_class_storage ||
+             identifier == SMOP__ID__REPR_attributes ||
+             identifier == SMOP__ID__REPR_methods ||
+             identifier == SMOP__ID__REPR_submethods) {
+    //ret = p6opaque_message_proto_handles(interpreter, self, identifier, capture);
+
+  } else if (identifier == SMOP__ID__REPR_DESTROY) {
+    //ret = p6opaque_message_REPR_DESTROY(interpreter, self, identifier, capture);
+
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    //ret = p6opaque_message_DESTROYALL(interpreter, self, identifier, capture);
+
   } else {
-    {
-        use v6;
-        #TODO $how.dispatch($identifier,$capture);
-    }
-    if (identifier == SMOP__ID__DESTROYALL) {
-      SMOP_RELEASE(interpreter,storage);
-      SMOP_RELEASE(interpreter,how);
-    }
+    ret = p6opaque_message_DISPATCH(interpreter, self, identifier, capture);
+
   }
+
   SMOP_RELEASE(interpreter,capture);
   return ret;
 }
 
+static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
+                                            SMOP__ResponderInterface* self,
+                                            SMOP__Object* identifier,
+                                            SMOP__Object* capture) {
+  // the proto storage is made of a set of containers. No actual value
+  // is handled by this object. It simply returns the containers.
+}
+
 void smop_p6opaque_init() {
+
   SMOP__p6opaque__RI = calloc(1,sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->MESSAGE = p6opaque_message;
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->REFERENCE = smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->RELEASE = smop_lowlevel_generic_release;
   ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->id = "p6opaque";
+
+  SMOP__p6opaque_proto_storage__RI = calloc(1,sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->MESSAGE = p6opaque_proto_message;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__p6opaque__RI)->id = "p6opaque proto storage";
+
 }
 
 void smop_p6opaque_destr() {
   free(SMOP__p6opaque__RI);
+  free(SMOP__p6opaque_proto_storage__RI);
 }

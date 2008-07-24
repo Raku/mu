@@ -70,6 +70,7 @@ extern SMOP__Object* SMOP__ID__REPR_DESTROY;      /* "^!DESTROY" */
 extern SMOP__Object* SMOP__ID__REPR_clone;        /* "^!clone" */
 extern SMOP__Object* SMOP__ID__REPR_bless;        /* "^!bless" */
 extern SMOP__Object* SMOP__ID__REPR_how;          /* "^!how" */
+extern SMOP__Object* SMOP__ID__REPR_who;          /* "^!who" */
 extern SMOP__Object* SMOP__ID__REPR_initialize_instance_storage;         /* "^!initialize_instance_storage" */
 extern SMOP__Object* SMOP__ID__REPR_initialize_instance_storage_slot;    /* "^!initialize_instance_storage_slot" */
 extern SMOP__Object* SMOP__ID__REPR_destroy_instance_storage;            /* "^!destroy_instance_storage" */
@@ -78,10 +79,11 @@ extern SMOP__Object* SMOP__ID__REPR_defined;      /* "^!defined" */
 extern SMOP__Object* SMOP__ID__REPR_instance;     /* "^!instance" */
 extern SMOP__Object* SMOP__ID__REPR_whence;       /* "^!whence" */
 extern SMOP__Object* SMOP__ID__REPR_isa;          /* "^!isa" */
-extern SMOP__Object* SMOP__ID__REPR_role;         /* "^!role" */
+extern SMOP__Object* SMOP__ID__REPR_does;         /* "^!does" */
 extern SMOP__Object* SMOP__ID__REPR_private_storage;                     /* "^!private_storage" */
 extern SMOP__Object* SMOP__ID__REPR_class_storage;                       /* "^!class_storage" */
 extern SMOP__Object* SMOP__ID__REPR_methods;      /* "^!methods" */
+extern SMOP__Object* SMOP__ID__REPR_submethods;      /* "^!submethods" */
 extern SMOP__Object* SMOP__ID__REPR_attributes;   /* "^!attributes" */
 extern SMOP__Object* SMOP__ID__REPR_package;      /* "^!package" */
 extern SMOP__Object* SMOP__ID__REPR_properties;   /* "^!properties" */
