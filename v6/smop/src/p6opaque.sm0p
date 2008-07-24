@@ -199,6 +199,9 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                       SMOP__ResponderInterface* self,
                                       SMOP__Object* identifier,
                                       SMOP__Object* capture) {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
@@ -222,12 +225,13 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
              identifier == SMOP__ID__REPR_methods ||
              identifier == SMOP__ID__REPR_submethods) {
 
-    SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
-
+    ___INVOCANT_RI_SHOULD_MATCH___;
     if (! invocant) {
       fprintf(stderr,"[smop p6opaque] REPR method called without invocant\n");
     } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
       fprintf(stderr,"[smop p6opaque] REPR method called with non p6opaque invocant\n");
+    } else if (invocant == SMOP__p6opaque__RI) {
+      fprintf(stderr,"[smop p6opaque] REPR method called with p6opaque RI\n");
     } else {
 
       smop_lowlevel_rdlock(invocant);
@@ -247,7 +251,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                                        NULL,NULL));
     }
     SMOP_RELEASE(interpreter,invocant);
-    
+
   } else if (identifier == SMOP__ID__REPR_DESTROY) {
     ret = p6opaque_message_REPR_DESTROY(interpreter, self, identifier, capture);
     
@@ -258,7 +262,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     ret = p6opaque_message_DISPATCH(interpreter, self, identifier, capture);
 
   }
-
+ 
   SMOP_RELEASE(interpreter,capture);
   return ret;
 }

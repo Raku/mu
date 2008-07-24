@@ -36,5 +36,16 @@ SMOP__Object* SMOP__S1P__Hash_create(void);
 SMOP__Object* SMOP__S1P__Array_create(void);
 
 
+#include <assert.h>
+
+#define ___NATIVE_CAPTURE_ONLY___ \
+    assert(SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture)
+
+#define ___CONST_IDENTIFIER_ONLY___ \
+    assert(SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new))
+
+#define ___INVOCANT_RI_SHOULD_MATCH___ \
+    SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture); \
+    assert(SMOP_RI(invocant) == (SMOP__ResponderInterface*)self)
 
 #endif
