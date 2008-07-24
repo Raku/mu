@@ -86,8 +86,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
     identifier: $identifier;
     invocant: $capture.$SMOP__ID__invocant();
     responder: $self;
-    invocant_copy: $SMOP__SLIME__CurrentFrame.copy(`invocant);
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant_copy,(),(),1));
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant,(),(),1));
     how_container: $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
     how_container_copy: $SMOP__SLIME__CurrentFrame.copy(`how_container);
     $SMOP__SLIME__CurrentFrame.move_responder(`how_container,2);
@@ -95,9 +94,10 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
     how: $SMOP__NATIVE__bool_true.$SMOP__ID__FETCH();
     how_copy: $SMOP__SLIME__CurrentFrame.copy(`how);
     identifier_dispatch: $SMOP__ID__dispatch;
-    $SMOP__SLIME__CurrentFrame.move_identifier(`identifier_dispatch,3);
-    $SMOP__SLIME__CurrentFrame.move_responder(`how,2);
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_copy,(`responder,`identifier,`capture),(),1));
+    $SMOP__SLIME__CurrentFrame.move_identifier(`identifier_dispatch,4);
+    $SMOP__SLIME__CurrentFrame.move_responder(`how,3);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_copy,(`responder,`identifier,`capture),(),2));
+    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
     result: ;
     continuation: $continuation;
     $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`continuation,(`result),(),1));
@@ -163,8 +163,7 @@ static SMOP__Object* p6opaque_message_DESTROYALL(SMOP__Object* interpreter,
     identifier: $identifier;
     invocant: $capture.$SMOP__ID__invocant();
     responder: $self;
-    invocant_copy: $SMOP__SLIME__CurrentFrame.copy(`invocant);
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant_copy,(),(),1));
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant,(),(),1));
     how_container: $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
     how_container_copy: $SMOP__SLIME__CurrentFrame.copy(`how_container);
     $SMOP__SLIME__CurrentFrame.move_responder(`how_container,2);
@@ -202,6 +201,8 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                       SMOP__Object* capture) {
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
+
   
   if (identifier == SMOP__ID__REPR_CREATE) {
     ret = p6opaque_message_REPR_CREATE(interpreter, self, identifier, capture);
@@ -222,6 +223,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
              identifier == SMOP__ID__REPR_submethods) {
 
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
+
     if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
       fprintf(stderr,"[smop p6opaque] REPR method called with non p6opaque invocant\n");
     } else {
@@ -237,7 +239,10 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
         smop_lowlevel_unlock(invocant);
       }
 
-      ret = SMOP_DISPATCH(interpreter,SMOP_RI(proto_storage),identifier,SMOP_REFERENCE(interpreter,capture));
+      ret = SMOP_DISPATCH(interpreter,SMOP_RI(proto_storage),identifier,
+                          SMOP__NATIVE__capture_create(interpreter,
+                                                       SMOP_REFERENCE(interpreter,proto_storage),
+                                                       NULL,NULL));
     }
     SMOP_RELEASE(interpreter,invocant);
     
@@ -281,6 +286,7 @@ static SMOP__Object* p6opaque_proto_message_handle_scalar(SMOP__Object* interpre
       *pointer = scalar;
       smop_lowlevel_unlock(invocant);
 
+
       return SMOP_REFERENCE(interpreter, scalar);
     }
   } else {
@@ -307,7 +313,7 @@ static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
   SMOP__Object* handled = p6opaque_proto_message_handle_scalar(interpreter, invocant, identifier);
   //if (!handled) handled = p6opaque_proto_message_handle_array(interpreter, invocant, identifier);
   //if (!handled) handled = p6opaque_proto_message_handle_hash(interpreter, invocant, identifier);
-
+  
 
   if (handled) {
     ret = handled;
@@ -315,15 +321,17 @@ static SMOP__Object* p6opaque_proto_message(SMOP__Object* interpreter,
   } else if (identifier == SMOP__ID__DESTROYALL) {
 
     smop_lowlevel_wrlock(invocant);
-    SMOP__Object* how = (((smop_p6opaque_proto_storage*)invocant)->how);
+    SMOP__Object* how = ((smop_p6opaque_proto_storage*)invocant)->how;
     (((smop_p6opaque_proto_storage*)invocant)->how) = NULL;
 
-    SMOP__Object* who = (((smop_p6opaque_proto_storage*)invocant)->who);
+    SMOP__Object* who = ((smop_p6opaque_proto_storage*)invocant)->who;
     (((smop_p6opaque_proto_storage*)invocant)->who) = NULL;
 
     smop_lowlevel_unlock(invocant);
 
-    if (how) SMOP_RELEASE(interpreter,how);
+    if (how) {
+          SMOP_RELEASE(interpreter,how);
+    }
     if (who) SMOP_RELEASE(interpreter,who);
 
   } else {

@@ -14,7 +14,7 @@ check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
 	04_interpreter.t 05_capture.t 06_native_bool.t 07_native_int.t \
 	08_native_uint.t 09_threads.t 10_lowlevel_methods.t 11_lowlevel_scalar.t \
 	12_p6opaque.t \
-	15_hash.t 16_labels.t 17_sm0p.t 18_root_namespace.t 19_array.t
+	15_hash.t 16_labels.t 17_sm0p.t 18_root_namespace.t 
 
 01_smop_lowlevel_t_SOURCES = 01_smop_lowlevel.c
 02_stack_t_SOURCES = 02_stack.sm0p
