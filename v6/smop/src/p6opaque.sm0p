@@ -81,13 +81,15 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                              SMOP__ID__continuation, 
                                              SMOP_REFERENCE(interpreter,interpreter));
+
+  ___INVOCANT_RI_SHOULD_MATCH___;
+
   frame = q:sm0p {
     capture: $capture;
     identifier: $identifier;
-    invocant: $capture.$SMOP__ID__invocant();
+    invocant: $invocant;
     responder: $self;
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant,(),(),1));
-    how_container: $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
+    how_container: $invocant.$SMOP__ID__REPR_how();
     how_container_copy: $SMOP__SLIME__CurrentFrame.copy(`how_container);
     $SMOP__SLIME__CurrentFrame.move_responder(`how_container,2);
     $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_container_copy,(),(),1));
@@ -105,6 +107,8 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
     $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
     $interpreter.goto(|$continuation);
   };
+
+  SMOP_RELEASE(interpreter,invocant);
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 frame);
@@ -316,8 +320,18 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     ret = p6opaque_message_DESTROYALL(interpreter, self, identifier, capture);
 
   } else {
-    ret = p6opaque_message_DISPATCH(interpreter, self, identifier, capture);
-
+    ___INVOCANT_RI_SHOULD_MATCH___;
+    if (! invocant) {
+      fprintf(stderr,"[smop p6opaque] dispatching called without invocant\n");
+    } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
+      fprintf(stderr,"[smop p6opaque] dispatching with non p6opaque invocant\n");
+    } else if (invocant == SMOP__p6opaque__RI) {
+      fprintf(stderr,"[smop p6opaque] dispatching with p6opaque RI (%s)\n",(char*)(identifier->data + sizeof(int)));
+      abort();
+    } else {
+      ret = p6opaque_message_DISPATCH(interpreter, self, identifier, capture);
+    }
+    SMOP_RELEASE(interpreter,invocant);
   }
  
   SMOP_RELEASE(interpreter,capture);

@@ -112,8 +112,8 @@ int main() {
   {
     use v6;
     $*object.STORE($SMOP__p6opaque__RI.^!CREATE());
+    $*object.FETCH().^!how().STORE($how);
     $*object.FETCH().^!methods.{"foo"}.STORE($method);
-    $*object.FETCH().^!how.STORE($how);
     $*object.FETCH().foo();
   }
 
