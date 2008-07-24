@@ -288,6 +288,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
       fprintf(stderr,"[smop p6opaque] REPR method called with non p6opaque invocant\n");
     } else if (invocant == SMOP__p6opaque__RI) {
       fprintf(stderr,"[smop p6opaque] REPR method called with p6opaque RI (%s)\n",(char*)(identifier->data + sizeof(int)));
+      abort();
     } else {
 
       smop_lowlevel_rdlock(invocant);
