@@ -283,7 +283,9 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
              identifier == SMOP__ID__REPR_class_storage ||
              identifier == SMOP__ID__REPR_attributes ||
              identifier == SMOP__ID__REPR_methods ||
-             identifier == SMOP__ID__REPR_submethods) {
+             identifier == SMOP__ID__REPR_submethods ||
+             identifier == SMOP__ID__REPR_multimethods ||
+             identifier == SMOP__ID__REPR_multisubmethods) {
 
     ___INVOCANT_RI_SHOULD_MATCH___;
     if (! invocant) {
