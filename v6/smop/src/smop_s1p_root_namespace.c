@@ -7,7 +7,7 @@
 
 SMOP__Object* SMOP__S1P__RootNamespace;
 
-void smop_s1p_root_namespace_insert(SMOP__Object* interpreter,char* name,char* obj) {
+void smop_s1p_root_namespace_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj) {
 
   SMOP__Object* cell = SMOP_DISPATCH(interpreter,
                                      SMOP_RI(SMOP__S1P__RootNamespace),
@@ -23,6 +23,7 @@ void smop_s1p_root_namespace_insert(SMOP__Object* interpreter,char* name,char* o
 void smop_s1p_root_namespace_init() {
   SMOP__S1P__RootNamespace = SMOP__S1P__Hash_create();
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Hash",SMOP__S1P__Hash_create());
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Array",SMOP__S1P__Array_create());
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"$*OUT",SMOP__S1P__IO_create());
 }
 

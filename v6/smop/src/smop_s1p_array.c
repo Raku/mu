@@ -4,6 +4,7 @@
 #include <smop_lowlevel.h>
 
 SMOP__Object* SMOP__S1P__Array;
+static SMOP__Object* SMOP__S1P__ArrayProxy;
 
 typedef struct smop_s1p_array_struct {
   SMOP__Object__BASE
@@ -21,6 +22,7 @@ SMOP__Object* SMOP__S1P__Array_create(void) {
     smop_s1p_array_struct* ret = (smop_s1p_array_struct*) smop_lowlevel_alloc(sizeof(smop_s1p_array_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Array;
     ret->size = 0;
+    ret->elems = 0;
     ret->content = NULL;
     return (SMOP__Object*) ret;
 }
@@ -48,9 +50,14 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
                                      SMOP__Object* capture) {
   smop_s1p_array_struct* invocant = (smop_s1p_array_struct*)(SMOP__NATIVE__capture_invocant(interpreter, capture));
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  if (identifier == SMOP__ID__postcircumfix_square) {
+  if (identifier == SMOP__ID__new) {
+  } else if (identifier == SMOP__ID__postcircumfix_curly) {
     int i = SMOP__NATIVE__int_fetch(SMOP__NATIVE__capture_positional(interpreter, capture, 0));
-    ret = invocant->content[i];
+    smop_s1p_array_proxy_struct* proxy = (smop_s1p_array_proxy_struct*) smop_lowlevel_alloc(sizeof(smop_s1p_array_proxy_struct));
+    proxy->RI = (SMOP__ResponderInterface*)SMOP__S1P__ArrayProxy;
+    proxy->index = i;
+    proxy->array = invocant;
+    ret = (SMOP__Object*) proxy;
   } else if (identifier == SMOP__ID__elems) {
     return SMOP__NATIVE__int_create(invocant->elems);
   }
@@ -82,6 +89,12 @@ void smop_s1p_array_init() {
   ((SMOP__ResponderInterface*)SMOP__S1P__Array)->REFERENCE = smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__S1P__Array)->RELEASE = smop_lowlevel_generic_release;
   ((SMOP__ResponderInterface*)SMOP__S1P__Array)->id = "Lowlevel array";
+
+  SMOP__S1P__ArrayProxy = calloc(1,sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)SMOP__S1P__Array)->MESSAGE = smop_s1p_array_proxy_message;
+  ((SMOP__ResponderInterface*)SMOP__S1P__Array)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__S1P__Array)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__S1P__Array)->id = "Lowlevel array proxy";
 }
 
 void smop_s1p_array_destr() {

@@ -46,6 +46,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       //fprintf(stderr,"bucket %p\n",bucket);
       if (bucket) while (1) {
         if (bucket->key == key) {
+          //fprintf(stderr,"found new cell\n");
           SMOP_RELEASE(interpreter,invocant);
           SMOP_REFERENCE(interpreter,bucket->cell);
           SMOP_RELEASE(interpreter,capture);
@@ -92,6 +93,8 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
           }
       }
       free(invocant->buckets);
+  } else {
+      fprintf(stderr,"unkown method called on Hash\n");
   }
 
   if (invocant) SMOP_RELEASE(interpreter,invocant);
