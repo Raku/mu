@@ -18,8 +18,12 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
     } else {
       printf("ok 3 - dispatching on the metaclass\n");
 
-      SMOP__Object* invocant = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+      SMOP__Object* actualinvocant = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+      SMOP__Object* actualresponder = SMOP_RI(actualinvocant);
+      SMOP__Object* actualidentifier = SMOP__NATIVE__capture_positional(interpreter,capture,1);
       SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);
+
+
       SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                                  SMOP__ID__continuation, 
                                                  SMOP_REFERENCE(interpreter,interpreter));
@@ -28,9 +32,12 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
 
       // here we'll take the first method and call it.
       /*
-      frame = q:s1p {
-        return $invocant.^!methods.shift.call($invocant,$identifier,$capture);
+        
+      {
+        use v6;
+        return $actualinvocant.^!methods.{$actualidentifier}.call($actualresponder,$actualidentifier,$actualcapture);
       }
+      
       */
       frame = q:sm0p {
         invocant: $invocant;
@@ -120,6 +127,17 @@ int main() {
   // This sm0p block will create a p6opaque, set the how, push a
   // method into the list of methods and call some method. The how
   // implemented here will take the first method to call.
+
+  /*
+    {
+      use v6;
+      $*object.STORE($SMOP__p6opaque__RI.^!CREATE());
+      $*object.FETCH().^!methods.{"foo"}.STORE($method);
+      $*object.FETCH().^!how.STORE($how);
+      $*object.FETCH().foo();
+    }
+  */
+
   frame = q:sm0p {
     method: $method;
     p6opaque: $SMOP__p6opaque__RI.$SMOP__ID__REPR_CREATE();
