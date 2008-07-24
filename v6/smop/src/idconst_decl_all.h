@@ -66,6 +66,7 @@ SMOP__Object* SMOP__ID__REPR_destroy_instance_storage;
 SMOP__Object* SMOP__ID__REPR_destroy_instance_storage_slot;
 SMOP__Object* SMOP__ID__REPR_defined;
 SMOP__Object* SMOP__ID__REPR_instance;
+SMOP__Object* SMOP__ID__REPR_instanceof;
 SMOP__Object* SMOP__ID__REPR_whence;
 SMOP__Object* SMOP__ID__REPR_isa;
 SMOP__Object* SMOP__ID__REPR_does;

@@ -77,6 +77,7 @@ extern SMOP__Object* SMOP__ID__REPR_destroy_instance_storage;            /* "^!d
 extern SMOP__Object* SMOP__ID__REPR_destroy_instance_storage_slot;       /* "^!destroy_instance_storage_slot" */
 extern SMOP__Object* SMOP__ID__REPR_defined;      /* "^!defined" */
 extern SMOP__Object* SMOP__ID__REPR_instance;     /* "^!instance" */
+extern SMOP__Object* SMOP__ID__REPR_instanceof;     /* "^!instanceof" */
 extern SMOP__Object* SMOP__ID__REPR_whence;       /* "^!whence" */
 extern SMOP__Object* SMOP__ID__REPR_isa;          /* "^!isa" */
 extern SMOP__Object* SMOP__ID__REPR_does;         /* "^!does" */

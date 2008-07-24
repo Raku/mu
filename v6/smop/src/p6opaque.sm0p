@@ -130,12 +130,23 @@ static SMOP__Object* p6opaque_message_REPR_DESTROY(SMOP__Object* interpreter,
 
     } else {
       smop_lowlevel_wrlock(invocant);
+
       SMOP__Object* proto_storage = ((smop_p6opaque*)invocant)->proto_storage;
-      SMOP__Object* instance_storage = ((smop_p6opaque*)invocant)->instance_storage;
       ((smop_p6opaque*)invocant)->proto_storage = NULL;
+
+      SMOP__Object* instance_storage = ((smop_p6opaque*)invocant)->instance_storage;
       ((smop_p6opaque*)invocant)->instance_storage = NULL;
+
+      SMOP__Object* instanceof = ((smop_p6opaque*)invocant)->instanceof;
+      ((smop_p6opaque*)invocant)->instanceof = NULL;
+
+      SMOP__Object* WHENCE = ((smop_p6opaque*)invocant)->WHENCE;
+      ((smop_p6opaque*)invocant)->WHENCE = NULL;
+
       smop_lowlevel_unlock(invocant);
 
+      if (instanceof) SMOP_RELEASE(interpreter, instanceof);
+      if (WHENCE) SMOP_RELEASE(interpreter, WHENCE);
       if (proto_storage) SMOP_RELEASE(interpreter,proto_storage);
       if (instance_storage) SMOP_RELEASE(interpreter,instance_storage);
     }
@@ -210,11 +221,56 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__REPR_CREATE) {
     ret = p6opaque_message_REPR_CREATE(interpreter, self, identifier, capture);
 
-  } else if (identifier == SMOP__ID__REPR_private_storage) {
-    //ret = p6opaque_message_REPR_private_storage(interpreter, self, identifier, capture);
+  } else if (identifier == SMOP__ID__REPR_whence) {
+    ___INVOCANT_RI_SHOULD_MATCH___;
 
-  } else if (identifier == SMOP__ID__REPR_defined) {
-    // return true if .^!private_storage
+    smop_lowlevel_rdlock(invocant);
+    SMOP__Object* whence = ((smop_p6opaque*)invocant)->WHENCE;
+    smop_lowlevel_unlock(invocant);
+
+    if (!whence) {
+      smop_lowlevel_wrlock(invocant);
+      ((smop_p6opaque*)invocant)->WHENCE = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+      whence = ((smop_p6opaque*)invocant)->WHENCE;
+      smop_lowlevel_unlock(invocant);
+    }
+
+    ret = SMOP_REFERENCE(interpreter, whence);
+    SMOP_RELEASE(interpreter, invocant);
+
+  } else if (identifier == SMOP__ID__REPR_instanceof) {
+    ___INVOCANT_RI_SHOULD_MATCH___;
+
+    smop_lowlevel_rdlock(invocant);
+    SMOP__Object* instanceof = ((smop_p6opaque*)invocant)->instanceof;
+    smop_lowlevel_unlock(invocant);
+
+    if (!instanceof) {
+      smop_lowlevel_wrlock(invocant);
+      ((smop_p6opaque*)invocant)->instanceof = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+      instanceof = ((smop_p6opaque*)invocant)->instanceof;
+      smop_lowlevel_unlock(invocant);
+    }
+
+    ret = SMOP_REFERENCE(interpreter, instanceof);
+    SMOP_RELEASE(interpreter, invocant);
+
+  } else if (identifier == SMOP__ID__REPR_private_storage) {
+    ___INVOCANT_RI_SHOULD_MATCH___;
+
+    smop_lowlevel_rdlock(invocant);
+    SMOP__Object* instance_storage = ((smop_p6opaque*)invocant)->instance_storage;
+    smop_lowlevel_unlock(invocant);
+
+    if (!instance_storage) {
+      smop_lowlevel_wrlock(invocant);
+      ((smop_p6opaque*)invocant)->instance_storage = SMOP__S1P__Hash_create();
+      instance_storage = ((smop_p6opaque*)invocant)->instance_storage;
+      smop_lowlevel_unlock(invocant);
+    }
+
+    ret = SMOP_REFERENCE(interpreter, instance_storage);
+    SMOP_RELEASE(interpreter, invocant);
 
   } else if (identifier == SMOP__ID__REPR_how ||
              identifier == SMOP__ID__REPR_who ||
