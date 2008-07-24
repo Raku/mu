@@ -133,8 +133,14 @@ int main() {
     $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`methproxy,(`method),(),1));
     $SMOP__NATIVE__bool_true.push();
     how: $how;
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`p6opaque3,(`how),(),1));
-    $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`p6opaque3,(),(),1));
+    how_container: $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
+    how_container_copy: $SMOP__SLIME__CurrentFrame.copy(`how_container);
+    store_identifier: $SMOP__ID__STORE;
+    $SMOP__SLIME__CurrentFrame.move_identifier(`store_identifier,3);
+    $SMOP__SLIME__CurrentFrame.move_responder(`how_container,2);
+    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_container_copy,(`how),(),1));
+    ;
     $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`p6opaque4,(),(),1));
     $SMOP__p6opaque__RI.store();
     $SMOP__SLIME__CurrentFrame.forget();

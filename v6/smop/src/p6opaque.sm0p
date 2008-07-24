@@ -224,7 +224,9 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
 
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
 
-    if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
+    if (! invocant) {
+      fprintf(stderr,"[smop p6opaque] REPR method called without invocant\n");
+    } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
       fprintf(stderr,"[smop p6opaque] REPR method called with non p6opaque invocant\n");
     } else {
 
