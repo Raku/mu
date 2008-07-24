@@ -1,3 +1,8 @@
+0.025  2008-07-24
+
+- more tests
+- several unicode tests are skipped, from cpan-testers feedback (I can't reproduce these failures - fglock)
+
 0.024  2008-07-23
 
 - many more tests added; the bigger tests are now split into smaller files
