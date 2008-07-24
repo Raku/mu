@@ -73,7 +73,6 @@ int main() {
     $SMOP__SLIME__CurrentFrame.move_responder(`how_scalar,2);
     $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_scalar_copy,(`metaclass),(),1));
     ;
-    $SMOP__SLIME__CurrentFrame.forget();
     $p6opaque.STORE();
     $SMOP__SLIME__CurrentFrame.forget();
   };
