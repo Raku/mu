@@ -8,11 +8,14 @@ The name "SLAVES" for this file was suggested by avar++.
 service                                 nick and email of maintainer
 --------------------------------------------------------------------
 autosmoke on feather                    agentzh
-evalbot                                 diakopter
 irc logs                                moritz, <moritz at faui2k3 dot org>
 run.pugscode.org                        andara, <andara at feather dot perl6 dot nl>
 smartlinks                              agentzh
-svnbot6                                 diakopter
-devbot6                                 diakopter
-specbot6                                diakopter
 p6eval                                  moritz
+pugs_svn                                moritz
+rakudo_svn                              moritz
+speckbot                                moritz
+
+both Auzon and pmurias have access the server on which p6eval and the svn bots
+run, so if something went wrong and moritz_ isn't available, you can prod
+them instead.
