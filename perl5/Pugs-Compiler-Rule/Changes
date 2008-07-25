@@ -1,4 +1,5 @@
-- added unicode 'isGraphemeLink'
+0.34  2008-07-25
+- added unicode 'isGraphemeLink', 'Cn'
 
 0.33  2008-07-23
 - added unicode property 'isLr'
