@@ -14,7 +14,4 @@ int main(int argc, char** argv) {
                                             SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
   SMOP__Object* node = NULL;
-
-  SMOP__Object* io = SMOP__S1P__IO_create();
-  SMOP__Object* hash = SMOP__S1P__Hash_create();
   node = q:sm0p {

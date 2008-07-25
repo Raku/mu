@@ -244,7 +244,7 @@ IRx1::Apply.newp($m,irbuild_ir($m.{'hash'}{'ident'}),IRx1::Capture.newp($m,[]))
 
     $main::irbuilder.add_constructor('quote:q', sub ($m) {
       my $s = irbuild_ir($m.{'hash'}{'text'});
-$s.re_gsub(rx:P5/(?<!\\)\\\\/,"\\");
+$s.re_sub_g('\\\\([\\\\\'])','$1');
 IRx1::Buf.newp($m,$s);
     });
 
@@ -252,7 +252,7 @@ IRx1::Buf.newp($m,$s);
       my $s = irbuild_ir($m.{'hash'}{'text'});
 $s.re_gsub(rx:P5/(?<!\\)\\n/,"\n");
 $s.re_gsub(rx:P5/(?<!\\)\\t/,"\t");
-$s.re_gsub(rx:P5/(?<!\\)\\\\/,"\\");
+$s.re_sub_g('\\\\(.)','$1');
 IRx1::Buf.newp($m,$s);
     });
 

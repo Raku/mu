@@ -39,39 +39,30 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
                                              SMOP__ResponderInterface* responder,
                                              SMOP__Object* identifier,
                                              SMOP__Object* capture) {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  SMOP__Object* scalar = SMOP__NATIVE__capture_invocant(interpreter, capture);
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
   if (SMOP__ID__FETCH == identifier) {
-    SMOP__Object* scalar = SMOP__NATIVE__capture_invocant(interpreter, capture);
-    SMOP__Object* ret = SMOP__S1P__Scalar_FETCH(scalar);
+    ret = SMOP__S1P__Scalar_FETCH(scalar);
     SMOP_REFERENCE(interpreter,ret);
-    SMOP_RELEASE(interpreter,scalar);
-    SMOP_RELEASE(interpreter,capture);
-    return ret;
   } else if (SMOP__ID__STORE == identifier) {
-    SMOP__Object* scalar = SMOP__NATIVE__capture_invocant(interpreter, capture);
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     SMOP__Object* old = SMOP__S1P__Scalar_STORE(scalar,value);
     if (old) SMOP_RELEASE(interpreter,old);
-    SMOP_RELEASE(interpreter,scalar);
-    SMOP_RELEASE(interpreter,capture);
-
   } else if (SMOP__ID__DESTROYALL == identifier) {
-    SMOP__Object* scalar = SMOP__NATIVE__capture_invocant(interpreter, capture);
     SMOP__S1P__Scalar_struct* s = (SMOP__S1P__Scalar_struct*)scalar;
-    
     smop_lowlevel_wrlock(scalar);
     SMOP__Object* cell = s->cell; s->cell = NULL;
     smop_lowlevel_unlock(scalar);
-
-    SMOP_RELEASE(interpreter,scalar);
-    SMOP_RELEASE(interpreter,capture);
     if (cell) SMOP_RELEASE(interpreter,cell);
-
   } else {
-    fprintf(stderr,"Unknown identifier in Scalar method invocation. #TODO delegation\n");
-    SMOP_RELEASE(interpreter,capture);
-    
+    SMOP__Object* value = SMOP__S1P__Scalar_FETCH(scalar);
+    ret = SMOP_DISPATCH(interpreter,SMOP_RI(value),identifier,SMOP__NATIVE__capture_delegate(interpreter,SMOP_REFERENCE(interpreter,value),SMOP_REFERENCE(interpreter,capture)));
   }
-  return SMOP__NATIVE__bool_false;
+  SMOP_RELEASE(interpreter,scalar);
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
 }
 void smop_s1p_scalar_init() {
   SMOP__S1P__Scalar = calloc(1,sizeof(SMOP__ResponderInterface));

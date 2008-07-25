@@ -169,14 +169,14 @@ if $m<arglist> {
 
 quote:q
 my $s = $m<text>;
-$s =~ s/(?<!\\)\\\\/\\/g;
+$s.re_sub_g('\\\\([\\\\\'])','$1');
 Buf.newp($s)
 
 quote:qq
 my $s = $m<text>;
 $s =~ s/(?<!\\)\\n/\n/g;
 $s =~ s/(?<!\\)\\t/\t/g;
-$s =~ s/(?<!\\)\\\\/\\/g;
+$s.re_sub_g('\\\\(.)','$1');
 Buf.newp($s)
 
 quote:regex

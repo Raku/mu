@@ -5,9 +5,6 @@
                 SMOP__ID__goto,
                 node);
 
-  SMOP_RELEASE(interpreter,hash);
-  SMOP_RELEASE(interpreter,io);
-
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
                                                              SMOP_REFERENCE(interpreter,interpreter),
