@@ -57,7 +57,7 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   if (identifier == SMOP__ID__new) {
     ret = SMOP__S1P__Array_create();
-  } else if (identifier == SMOP__ID__postcircumfix_curly) {
+  } else if (identifier == SMOP__ID__postcircumfix_square) {
     SMOP__Object* pos0 = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     int i = SMOP__NATIVE__int_fetch(pos0);
     SMOP_RELEASE(interpreter,pos0);

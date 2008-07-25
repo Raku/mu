@@ -49,7 +49,10 @@ SMOP__Object* SMOP__S1P__Array_create(void);
     assert(SMOP_RI(invocant) == (SMOP__ResponderInterface*)self)
 
 #define ___UNKNOWN_METHOD___ \
-    fprintf(stderr,"unkown method at %s line %d \n",__func__,__LINE__); \
-    abort();
+    { \
+    int identifier_size;\
+    fprintf(stderr,"unkown method %s at %s line %d file %s\n",SMOP__NATIVE__idconst_fetch(identifier,&identifier_size),__func__,__LINE__,__FILE__); \
+    abort(); \
+    } 
 
 #endif

@@ -3557,7 +3557,7 @@ sub {my($i)=@_;
 };
 ((((((((((((((((((((((((("\#\ method\ call\ " . $id) . "\
 ") . $self->e($n->invocant(), ("i_" . $id))) . "ic_") . $id) . "\:\ \$SMOP__SLIME__CurrentFrame\.copy\(\`i_") . $id) . "\)\;\
-") . "id_") . $id) . "\:\ q\:identifier\[") . $n->method()) . "\]\;\
+") . "id_") . $id) . "\:\ q\:identifier\[") . $n->method()->re_gsub(qr/\]/, "\\\]")) . "\]\;\
 ") . $positionals) . "\$SMOP__SLIME__CurrentFrame\.move_responder\(\`ic_") . $id) . "\,3\)\;\
 ") . "\$SMOP__SLIME__CurrentFrame\.move_identifier\(\`id_") . $id) . "\,2\)\;\
 ") . "\$SMOP__SLIME__CurrentFrame\.move_capturize\(") . $self->capturize($arguments, $id)) . "\)\;\

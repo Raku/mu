@@ -52,7 +52,7 @@ class EmitSM0P {
       "# method call " ~ $id ~ "\n" ~
       $.e($n.invocant,'i_'~$id) ~
       'ic_'~$id~': $SMOP__SLIME__CurrentFrame.copy(`i_' ~ $id ~ ");\n" ~
-      'id_'~$id~': q:identifier['~$n.method~"];\n" ~
+      'id_'~$id~': q:identifier['~$n.method.re_gsub(rx:P5/\]/,"\\]") ~"];\n" ~
       $positionals ~
       '$SMOP__SLIME__CurrentFrame.move_responder(`ic_' ~ $id ~ ",3);\n" ~
       '$SMOP__SLIME__CurrentFrame.move_identifier(`id_' ~ $id ~ ",2);\n" ~

@@ -143,7 +143,7 @@ token notbracket_or_backslashed {
 token identifier {
    '$' <name> { make $<name> ~ '' }
  || 'q:identifier[' (<.notbracket_or_backslashed>*) ']'
-     { make 'SMOP__NATIVE__idconst_create("' ~ $_->{0}->item ~ '")' }
+     { my $id=$_->{0}->item;$id ~~ s/\\]/]/g;make 'SMOP__NATIVE__idconst_create("' ~ $id ~ '")' }
  || <idconst> { make $<idconst> ~ ''}
  || <name> { make 'SMOP__NATIVE__idconst_create("' ~ $<name> ~ '")' }
 }
