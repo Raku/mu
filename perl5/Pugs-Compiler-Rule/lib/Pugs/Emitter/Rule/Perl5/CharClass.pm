@@ -16,6 +16,9 @@ BEGIN {
         'isLr'       => '(?:\p{isLl}|\p{isLu}|\p{isLt})',
         'isInLatin1Supplement'      => '[\x{0080}–\x{00FF}]',
         'isInCyrillicSupplementary' => '[\x{0500}–\x{052F}]',
+
+        # http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Grapheme_Link=True:]
+        'isGraphemeLink'  => '[[् ্ ੍ ્ ୍ ் ్ ್ ് ්  ꠆ ꣄ ᮪ 𐨿 ฺ ྄ ᜔ ᜴ ꥓ ္ ်  ្ ᭄]',
         
     # $ perl -MSet::IntSpan -ne ' @x=split/;/; $v=hex($x[0]); push @nums, $v if $x[4] eq "EN"; END{ $set= new Set::IntSpan @nums; $set="$set"; $set =~ s/(\d+)/ sprintf("\\x{%0X}",$1) /ge; print $set,"\n"}'  
     #     /opt/local/lib/perl5/5.8.8/unicore/UnicodeData.txt 
