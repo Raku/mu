@@ -1,5 +1,5 @@
 package v6;
-$v6::VERSION = '0.025';
+$v6::VERSION = '0.026';
 
 # Documentation in the __END__
 use 5.006;

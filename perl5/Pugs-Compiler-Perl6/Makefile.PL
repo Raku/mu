@@ -19,7 +19,7 @@ use File::Spec;
     name('v6');
 all_from('lib/v6.pm');
 
-requires('Pugs::Compiler::Rule' => '0.33');
+requires('Pugs::Compiler::Rule' => '0.34');
 requires('Module::Compile'      => '0.20');
 requires('Scalar::Util'         => '0');
 requires('Devel::Caller'        => '0.10');
