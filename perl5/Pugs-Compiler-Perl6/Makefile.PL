@@ -64,13 +64,17 @@ $rewrite_test = sub {
     if ( $out =~ m{t/regex/from_perl6_rules/propcharset-(\d+).t} ) {
         # I can't reproduce these errors - fglock
         my %cpan_tester_errors = (
-            00 => "112, 113, 139, 140, 147..149, 156..158, 166..170, 177",
-            01 => "1, 2, 10..14, 21..23, 31..35, 42",
-            02 => "108, 109, 141, 142",
-            03 => "1..2, 118, 119, 126, 145..146",
-            04 => "39, 40, 47, 96, 97, 99, 100, 105, 106, 113, 135..136, 143..145, 152..154, 161, 168..169, 207",
-            05 => "1, 8..10, 17, 69..70, 81..82, 93..94, 108..109, 116, 126..127, 132..133, 137, 168..169, 176..178, 185",
-            06 => "4, 5",
+            0 => "112, 113, 139, 140, 147..149, 156..158, 166..170, 177",
+            1 => "1, 2, 10..14, 21..23, 31..35, 42",
+            2 => "108, 109, 141, 142",
+            3 => "1..2, 118, 119, 126, 145..146",
+            4 => "39, 40, 47, 96, 97, 99, 100, 105, 106, 113, 135..136, 143..145, 152..154, 161, 168..169, 207",
+            5 => "1, 8..10, 17, 69..70, 81..82, 93..94, 108..109, 116, 126..127, 132..133, 137, 168..169, 176..178, 185, 201, 202",
+            6 => "4, 5, 52..53, 60, 133..134, 141..143, 150..152, 159, 169..170, 177",
+            7 => "11..12, 50..51, 92..93, 101..103, 110..111, 155..156",
+            8 => "163..164, 171..173",
+            9 => "7",
+            10 => "48, 49",
             );
         if ( $1 eq '00' ) {
             $text =~ s/^\s*plan \d+;//m;
@@ -79,17 +83,17 @@ $rewrite_test = sub {
         }
         $text = "{\n" . $text   if $1 eq '12';
         $text = 
-              ( $1 eq '00' ? "plan 177;\nforce_todo(111, $cpan_tester_errors{00});\n" 
-              : $1 eq '01' ? "plan 190;\nforce_todo($cpan_tester_errors{01});\n" 
-              : $1 eq '02' ? "plan 185;\nforce_todo($cpan_tester_errors{02});\n" 
-              : $1 eq '03' ? "plan 205;\nforce_todo(120, 122, $cpan_tester_errors{03});\n" 
-              : $1 eq '04' ? "plan 207;\nforce_todo(137, 139, 167, $cpan_tester_errors{04});\n" 
-              : $1 eq '05' ? "plan 206;\nforce_todo($cpan_tester_errors{05});\n" 
-              : $1 eq '06' ? "plan 182;\nforce_todo(171, 173, $cpan_tester_errors{06});\n" 
-              : $1 eq '07' ? "plan 172;\nforce_todo(49, 94, 96, 109, 154);\n" 
-              : $1 eq '08' ? "plan 173;\n" 
-              : $1 eq '09' ? "plan 173;\n" 
-              : $1 eq '10' ? "plan 173;\n" 
+              ( $1 eq '00' ? "plan 177;\nforce_todo(111, $cpan_tester_errors{0});\n" 
+              : $1 eq '01' ? "plan 190;\nforce_todo($cpan_tester_errors{1});\n" 
+              : $1 eq '02' ? "plan 185;\nforce_todo($cpan_tester_errors{2});\n" 
+              : $1 eq '03' ? "plan 205;\nforce_todo(120, 122, $cpan_tester_errors{3});\n" 
+              : $1 eq '04' ? "plan 207;\nforce_todo(137, 139, 167, $cpan_tester_errors{4});\n" 
+              : $1 eq '05' ? "plan 206;\nforce_todo($cpan_tester_errors{5});\n" 
+              : $1 eq '06' ? "plan 182;\nforce_todo(171, 173, $cpan_tester_errors{6});\n" 
+              : $1 eq '07' ? "plan 172;\nforce_todo(49, 94, 96, 109, 154, $cpan_tester_errors{7});\n" 
+              : $1 eq '08' ? "plan 173;\nforce_todo($cpan_tester_errors{8});\n" 
+              : $1 eq '09' ? "plan 173;\nforce_todo($cpan_tester_errors{9});\n" 
+              : $1 eq '10' ? "plan 173;\nforce_todo($cpan_tester_errors{10});\n" 
               : $1 eq '11' ? "plan 173;\n" 
               : $1 eq '12' ? "plan 133;\n" 
               : "" )
@@ -103,19 +107,19 @@ $rewrite_test = sub {
         }
         $text = "{\n" . $text   if $1 eq '09';
         $text = 
-              ( $1 eq '00' ? "plan 189;\nforce_todo(4, 11, 99);\n" 
+              ( $1 eq '00' ? "plan 189;\nforce_todo(4, 11, 99, 5..6, 12..13, 100..101, 134..135, 151..152, 168..169);\n" 
               : $1 eq '01' ? "plan 199;\n" 
-              : $1 eq '02' ? "plan 216;\nforce_todo(157, 158);\n\n" 
+              : $1 eq '02' ? "plan 216;\nforce_todo(157, 158, 22..23, 59..60, 156, 162, 204..205);\n\n" 
               : $1 eq '03' ? "plan 219;\n" 
-              : $1 eq '04' ? "plan 213;\nforce_todo(185);\n" 
-              : $1 eq '05' ? "plan 181;\nforce_todo(42, 43, 89, 125, 126, 144, 167, 168);\n\n" 
+              : $1 eq '04' ? "plan 213;\nforce_todo(185, 10..11, 20..21, 30..31, 161, 167, 186..187);\n" 
+              : $1 eq '05' ? "plan 181;\nforce_todo(42, 43, 89, 125, 126, 144, 167, 168, 41, 47, 90..91, 124, 131..133, 145..146, 159..161, 165..166, 170..171, 175);\n\n" 
               : $1 eq '06' ? "plan 178;\n" 
               : $1 eq '07' ? "plan 188;\nforce_todo(999);\n" 
-              : $1 eq '08' ? "plan 179;\n" 
+              : $1 eq '08' ? "plan 179;\nforce_todo(80..81, 118..119, 166..167);" 
               : $1 eq '09' ? "plan 119;\n" 
               : "" )
             . $text;
-    }
+    }    
     
     # add "use Test" to most files
     if ( $out ne 't/01-sanity/05-sub.t' ) {
