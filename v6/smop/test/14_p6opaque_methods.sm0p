@@ -104,9 +104,7 @@ int main() {
   // method into the list of methods and call some method. The how
   // implemented here will take the first method to call.
 
-  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                                             SMOP__ID__continuation, 
-                                             SMOP_REFERENCE(interpreter,interpreter));
+  SMOP__Object* continuation = SMOP__NATIVE__bool_false;
 
   {
     use v6;
@@ -115,6 +113,7 @@ int main() {
     $*object.FETCH().^!how().FETCH();
     $*object.FETCH().^!methods.{"foo"}.STORE($method);
     $*object.FETCH().foo();
+    $*object.STORE($SMOP__NATIVE__bool_false);
   }
 
   if (!frame) printf("not ");
@@ -134,19 +133,16 @@ int main() {
   printf("# before releasing the method\n");
   SMOP_RELEASE(interpreter,method);
 
+
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
                                                              SMOP_REFERENCE(interpreter,interpreter),
                                                              NULL, NULL));
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                SMOP__ID__goto,
-                SMOP__NATIVE__bool_false);
+
+  printf("ok 7 - end interpreter loop.\n");
 
   printf("# before freeing the interpreter\n");
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
-
-
-  printf("ok 7 - interpreter freed.\n");
 
   smop_destr();
   return 0;
