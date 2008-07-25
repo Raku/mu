@@ -905,6 +905,9 @@ sub default {
             if ($n->{method}{dot_bareword} eq 'elems') {
                 return "( scalar "._emit( $n->{self} )." )";
             }
+            if ($n->{method}{bareword} eq '<>') {
+                return _not_implemented("<>", "array method");
+            }
             return _emit( $n->{method} ).' '.
                 ( join( ',',
                     grep { length $_ }
