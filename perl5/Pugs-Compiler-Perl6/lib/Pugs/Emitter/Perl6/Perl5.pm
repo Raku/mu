@@ -580,6 +580,39 @@ sub emit_anon_hash {
         '}';
 }
 
+sub _is_empty_braces {
+    return 1 if
+           ref($_[0]) eq 'HASH'
+        && exists $_[0]{fixity}
+        && !exists $_[0]{exp1}
+        && $_[0]{fixity} eq 'circumfix'
+        && $_[0]{op1} eq '['
+        && $_[0]{op2} eq ']'
+}
+
+sub _is_empty_exp {
+    return 1 if
+           ref($_[0]) eq 'HASH'
+        && !exists $_[0]{exp1}
+}
+
+sub _is_exp_containing {
+    return 1 if
+           ref($_[0]) eq 'HASH'
+        && exists $_[0]{exp1}
+        && $_[1]->( $_[0]{exp1}, @_[2..$#_] )
+}
+
+sub _is_paren_containing {
+    return 1 if
+           ref($_[0]) eq 'HASH'
+        && exists $_[0]{fixity}
+        && $_[0]{fixity} eq 'circumfix'
+        && $_[0]{op1} eq '('
+        && $_[0]{op2} eq ')'
+        && $_[1]->($_[0], @_[2..$#_] )
+}
+
 sub _emit_closure {
     my ($signature, $block) = @_;
     return " Data::Bind->sub_signature( sub {" .
@@ -619,6 +652,16 @@ sub default {
         && exists $n->{sub}{bareword}
         )
     {
+        if (    $n->{sub}{bareword} eq 'push'
+             && $n->{op1} eq 'call'
+             && (  _is_paren_containing($n->{param}, \&_is_empty_exp)
+                || _is_paren_containing($n->{param}, \&_is_exp_containing, \&_is_empty_braces )
+                )
+            ) 
+        {
+            return _not_implemented( "push without parameters", "call" );
+        }
+
         if ( $n->{sub}{bareword} eq 'call' ) {
             # call;
             #warn "super call: ",Dumper $n;
@@ -785,6 +828,16 @@ sub default {
     if ( exists $n->{op1} && $n->{op1} eq 'method_call' ) {
         no warnings 'uninitialized';
         #warn "method_call: ", Dumper( $n );
+        if ( $n->{method}{dot_bareword} eq 'nextwith' ) {
+            if ( exists $n->{self}{code} ) {
+                my ($sub_name) = $n->{self}{code} =~ /^&(.*)$/;
+                return 'return ' . _emit( {
+                        op1   => 'call',
+                        param => $n->{param},
+                        sub   => { bareword => $sub_name },
+                    } );
+            }
+        }
         if ( $n->{method}{dot_bareword} eq 'print' ||
              $n->{method}{dot_bareword} eq 'warn' ) {
             my $s = _emit( $n->{self} );
