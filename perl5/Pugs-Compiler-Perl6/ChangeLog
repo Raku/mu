@@ -1,3 +1,6 @@
+0.027  2008-07-25
+- more unicode tests are skipped
+
 0.026  2008-07-25
 - requires Pugs::Compiler::Rule 0.34 - better unicode support across perl distros
 
