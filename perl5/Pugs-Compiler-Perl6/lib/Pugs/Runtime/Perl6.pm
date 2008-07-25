@@ -245,6 +245,11 @@ package Pugs::Runtime::Perl6::ReadOnly;
 package Pugs::Runtime::Perl6::Scalar;
     use Scalar::Util qw(looks_like_number);
     
+    sub elems {
+        return scalar @{$_[0]} if ref($_[0]) eq 'ARRAY';
+        return 1;
+    }
+    
     sub perl {
         local $Data::Dumper::Terse    = 1;
         local $Data::Dumper::Sortkeys = 1;

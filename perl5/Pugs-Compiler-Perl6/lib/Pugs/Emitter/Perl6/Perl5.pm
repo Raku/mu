@@ -407,6 +407,19 @@ sub assoc_chain {
     return $s . join(" && ", @e) . " }";
 }
 
+sub _emit_array_index {
+    my $n = shift;
+    if (   ref($n) eq 'HASH' 
+        && exists $n->{op1}
+        && $n->{op1} eq '*'
+        && $n->{fixity} eq 'prefix'
+        ) 
+    {
+        return _emit( $n->{exp1} );
+    }
+    return _emit( $n );
+}
+
 sub _emit_parameter_signature {
     my $n = $_[0] or return '';
     return '' unless @$n;
@@ -652,14 +665,13 @@ sub default {
         && exists $n->{sub}{bareword}
         )
     {
-        if (    $n->{sub}{bareword} eq 'push'
-             && $n->{op1} eq 'call'
-             && (  _is_paren_containing($n->{param}, \&_is_empty_exp)
-                || _is_paren_containing($n->{param}, \&_is_exp_containing, \&_is_empty_braces )
-                )
-            ) 
-        {
-            return _not_implemented( "push without parameters", "call" );
+        if ( $n->{sub}{bareword} eq 'push' && $n->{op1} eq 'call' ) {
+            if ( _is_paren_containing($n->{param}, \&_is_empty_exp) ) {
+                return _not_implemented( "push without parameters", "call" );
+            }
+            if ( _is_paren_containing($n->{param}, \&_is_exp_containing, \&_is_empty_braces ) ) {
+                return " # push( [] ) ??? \n";   # See: push.t
+            }
         }
 
         if ( $n->{sub}{bareword} eq 'call' ) {
@@ -770,7 +782,7 @@ sub default {
                 return " (defined $param )";
             }
 
-            if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' || $subname eq 'chomp' || $subname eq 'lc' || $subname eq 'abs' ) {
+            if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'pop' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' || $subname eq 'chomp' || $subname eq 'lc' || $subname eq 'abs' ) {
                 return $subname . emit_parenthesis( $n->{param} );
             }
 
@@ -1643,10 +1655,10 @@ sub postcircumfix {
                        && $n->{exp2}{op1} eq '..'
                        )
                        ;
-            return $name . '[' . _emit( $n->{exp2} ) . ']';
+            return $name . '[' . _emit_array_index( $n->{exp2} ) . ']';
         }
 
-        return _emit( $n->{exp1} ) . '->[' . _emit( $n->{exp2} ) . ']';
+        return _emit( $n->{exp1} ) . '->[' . _emit_array_index( $n->{exp2} ) . ']';
     }
 
     if ( $n->{op1} eq '<' &&
