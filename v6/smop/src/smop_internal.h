@@ -43,6 +43,7 @@
  * See http://www.perlfoundation.org/perl6/index.cgi?smop_boot_sequence
  */
 #define SMOP_INTERNAL_INIT_SEQUENCE         \
+     smop_s1p_code_init();                  \
      smop_lowlevel_method_init();           \
      smop_p6opaque_init();                  \
      smop_native_uint_init();               \
@@ -54,12 +55,13 @@
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
      smop_s1p_io_destr();                   \
      smop_s1p_hash_destr();                 \
-     smop_s1p_array_destr();                 \
+     smop_s1p_array_destr();                \
      smop_s1p_str_destr();                  \
      smop_s1p_scalar_destr();               \
      smop_native_uint_destr();              \
      smop_p6opaque_destr();                 \
-     smop_lowlevel_method_destr();
+     smop_lowlevel_method_destr();          \
+     smop_s1p_code_destr();
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
      smop_s1p_root_namespace_init();        
@@ -93,5 +95,11 @@ void smop_p6opaque_init();
 void smop_p6opaque_destr();
 void smop_s1p_scalar_init();
 void smop_s1p_scalar_destr();
+void smop_s1p_hash_init();
+void smop_s1p_hash_destr();
+void smop_s1p_array_init();
+void smop_s1p_array_destr();
+void smop_s1p_code_init();
+void smop_s1p_code_destr();
 
 #endif

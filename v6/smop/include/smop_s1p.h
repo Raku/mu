@@ -8,6 +8,7 @@ extern SMOP__Object* SMOP__S1P__IO;
 extern SMOP__Object* SMOP__S1P__Str;
 extern SMOP__Object* SMOP__S1P__Hash;
 extern SMOP__Object* SMOP__S1P__Code;
+extern SMOP__Object* SMOP__S1P__Attribute;
 extern SMOP__Object* SMOP__S1P__Package;
 extern SMOP__Object* SMOP__S1P__Method;
 extern SMOP__Object* SMOP__S1P__SubMethod;
