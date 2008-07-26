@@ -1,4 +1,4 @@
-pugs t/ svn revision: 21444
+pugs t/ svn revision: 21550
 -  80%	10  8 2		../../../t/01-sanity/01-tap.t
 ok	4		../../../t/01-sanity/02-counter.t
 ok	4		../../../t/01-sanity/03-equal.t
@@ -185,7 +185,6 @@ X  0%	?  0 		../../../t/examples/examples.t
 X  0%	?  0 		../../../t/examples/golfex.t
 X  0%	10  0 		../../../t/examples/golf.t
 X  0%	17  0 		../../../t/general/atoms.t
--C 0%	15  0 15	../../../t/general/basic.t
 -C 0%	4  0 4		../../../t/general/config.t
 -d 0%	4  0 4		../../../t/junction/abc.t
 -d 0%	1  0 1		../../../t/junction/any_values_infinite_loop.t
@@ -219,7 +218,6 @@ X  0%	12  0 		../../../t/oo/attributes/undeclared_attribute.t
 -d 0%	4  0 4		../../../t/oo/autopair_instantiation.t
 -  0%	2  0 2		../../../t/oo/can.t
 -d 0%	5  0 5		../../../t/oo/class/anonymous.t
--  0%	2  0 2		../../../t/oo/class/declaration-order.t
 -  0%	1  0 1		../../../t/oo/class_inclusion_with_inherited_class.t
 -  0%	1  0 1		../../../t/oo/class_inheritance_become_infinite_loop.t
 -  0%	4  0 4		../../../t/oo/class/inherit_from_role.t
@@ -230,7 +228,6 @@ X  0%	12  0 		../../../t/oo/attributes/undeclared_attribute.t
 -C 0%	13  0 13	../../../t/oo/construction.t
 -  33%	6  2 0 4!	../../../t/oo/destruction.t
 X  0%	3  0 		../../../t/oo/global_destruction.t
-X  0%	32  0 		../../../t/oo/inheritance.t
 -d 0%	2  0 2		../../../t/oo/instantiation.t
 -C 0%	17  0 17	../../../t/oo/magical_vars.t
 X  0%	11  0 		../../../t/oo/meta_class.t
@@ -250,7 +247,6 @@ X  0%	?  0 		../../../t/oo/methods/overload.t
 X  0%	2  0 		../../../t/oo/precedence.t
 -C 0%	18  0 18	../../../t/oo/proxy.t
 -  7%	14  1 0 13!	../../../t/oo/roles/anonymous.t
--C 0%	22  0 22	../../../t/oo/roles/basic.t
 -C 0%	10  0 10	../../../t/oo/roles/conflicts.t
 -  66%	3  2 1		../../../t/oo/roles/instantiation.t
 -d 0%	4  0 4		../../../t/oo/roles/nested_roles.t
@@ -364,7 +360,6 @@ X  0%	535  0 		../../../t/regex/p6regex/p6regex.t
 ok	1		../../../t/regex/rx_perl5_escape.t
 -  0%	4  0 2 2!	../../../t/regex/rx_perl5_g.t
 X  0%	2  0 		../../../t/regex/rx_perl5_match.t
--d 0%	1  0 1		../../../t/regex/smartparse.t
 X  0%	7  0 		../../../t/regex/s_perl5.t
 X  0%	5  0 		../../../t/regex/variable_interpolation.t
 X  0%	4  0 		../../../t/regex/ws_subst.t
@@ -391,10 +386,11 @@ X  0%	97  0 		../../../t/spec/S02-builtin_data_types/array.t
 -d 0%	18  0 18	../../../t/spec/S02-builtin_data_types/bool.t
 -C 0%	18  0 18	../../../t/spec/S02-builtin_data_types/capture.t
 -d 0%	4  0 4		../../../t/spec/S02-builtin_data_types/catch_type_cast_mismatch.t
+-C 0%	10  0 10	../../../t/spec/S02-builtin_data_types/compact.t
 -C 0%	30  0 30	../../../t/spec/S02-builtin_data_types/enum.t
 -d 0%	34  0 34	../../../t/spec/S02-builtin_data_types/flattening.t
 -d 0%	32  0 32	../../../t/spec/S02-builtin_data_types/hash_ref.t
-X  0%	58  0 		../../../t/spec/S02-builtin_data_types/hash.t
+-C 0%	58  0 58	../../../t/spec/S02-builtin_data_types/hash.t
 -C 0%	8  0 8		../../../t/spec/S02-builtin_data_types/infinity.t
 -C 0%	?  0 ?		../../../t/spec/S02-builtin_data_types/int-uint.t
 X  0%	32  0 		../../../t/spec/S02-builtin_data_types/lazy_lists.t
@@ -405,7 +401,7 @@ X  0%	32  0 		../../../t/spec/S02-builtin_data_types/lazy_lists.t
 -d 0%	7  0 7		../../../t/spec/S02-builtin_data_types/nested_pairs.t
 -C 0%	47  0 47	../../../t/spec/S02-builtin_data_types/num.t
 X  0%	97  0 		../../../t/spec/S02-builtin_data_types/pair.t
-X  0%	87  0 		../../../t/spec/S02-builtin_data_types/range.t
+X  0%	79  0 		../../../t/spec/S02-builtin_data_types/range.t
 -  0%	8  0 2 6!	../../../t/spec/S02-builtin_data_types/subscripts_and_context.t
 -  7%	13  1 2 10!	../../../t/spec/S02-builtin_data_types/subtypes.t
 X  0%	25  0 		../../../t/spec/S02-builtin_data_types/type.t
@@ -430,6 +426,7 @@ X  0%	13  0 		../../../t/spec/S02-names_and_variables/signature.t
 -C 0%	4  0 4		../../../t/spec/S02-polymorphic_types/subset-code.t
 -C 0%	6  0 6		../../../t/spec/S02-polymorphic_types/subset-range.t
 -d 0%	8  0 8		../../../t/spec/S02-whitespace_and_comments/minimal-whitespace.t
+-d 0%	1  0 1		../../../t/spec/S02-whitespace_and_comments/one-pass-parsing.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
 X  0%	76  0 		../../../t/spec/S02-whitespace_and_comments/unspace.t
 -C 0%	76  0 76	../../../t/spec/S03-junctions/misc.t
@@ -446,7 +443,7 @@ ok	15		../../../t/spec/S03-operators/equality.t
 -C 0%	13  0 13	../../../t/spec/S03-operators/not.t
 -  31%	35  11 24	../../../t/spec/S03-operators/numeric-context.t
 -C 0%	5  0 5		../../../t/spec/S03-operators/p5arrow.t
--d 0%	51  0 51	../../../t/spec/S03-operators/range.t
+-d 0%	72  0 72	../../../t/spec/S03-operators/range.t
 X  0%	49  0 		../../../t/spec/S03-operators/reduce-le1arg.t
 X  0%	52  0 		../../../t/spec/S03-operators/reduce-metaop.t
 -  57%	64  37 19 8!	../../../t/spec/S03-operators/relational.t
@@ -474,6 +471,9 @@ ok	4		../../../t/spec/S04-statements/until.t
 -C 0%	8  0 8		../../../t/spec/S04-statements/while.t
 -C 0%	21  0 21	../../../t/spec/S05-alternation/longest-alternative.t
 -C 0%	10  0 10	../../../t/spec/S05-alternation/sequential.t
+ok	13		../../../t/spec/S05-metasyntax/changed.t
+-C 0%	11  0 11	../../../t/spec/S05-metasyntax/regex.t
+-  16%	6  1 5		../../../t/spec/S05-metasyntax/unknown.t
 -C 0%	4  0 4		../../../t/spec/S05-modifier/continue.t
 ok	10		../../../t/spec/S05-modifier/ignoreaccent.t
 -C 0%	7  0 7		../../../t/spec/S05-modifier/ignorecase.t
@@ -491,6 +491,8 @@ X  0%	42  0 		../../../t/spec/S05-transliteration/trans.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/named-placeholders.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/positional-placeholders.t
 -C 0%	6  0 6		../../../t/spec/S06-signature/slurpy-placeholders.t
+ok	3		../../../t/spec/S06-traits/is-copy.t
+-C 0%	6  0 6		../../../t/spec/S06-traits/is-rw.t
 -C 0%	38  0 38	../../../t/spec/S09-autovivification/autovivification.t
 -C 0%	24  0 24	../../../t/spec/S09-subscript_slice/slice.t
 -C 0%	7  0 7		../../../t/spec/S10-packages/export.t
@@ -505,7 +507,9 @@ X  0%	23  0 		../../../t/spec/S10-packages/scope.t
 -C 0%	6  0 6		../../../t/spec/S12-class/anonymous.t
 X  0%	9  0 		../../../t/spec/S12-class/attributes.t
 -C 0%	21  0 21	../../../t/spec/S12-class/basic.t
+-  50%	2  1 1		../../../t/spec/S12-class/declaration-order.t
 ok	5		../../../t/spec/S12-class/inheritance-class-methods.t
+-C 0%	32  0 32	../../../t/spec/S12-class/inheritance.t
 X  0%	2  0 		../../../t/spec/S12-class/instantiate.t
 ok	4		../../../t/spec/S12-class/is_also_instead.t
 X  0%	12  0 		../../../t/spec/S12-class/open_closed.t
@@ -523,6 +527,7 @@ X  0%	11  0 		../../../t/spec/S12-methods/calling_syntax.t
 X  0%	3  0 		../../../t/spec/S12-methods/private_methods.t
 X  0%	10  0 		../../../t/spec/S12-methods/what.t
 X  0%	4  0 		../../../t/spec/S12-role/attributes.t
+-C 0%	18  0 18	../../../t/spec/S12-role/basic.t
 ok	8		../../../t/spec/S12-role/composition.t
 -d 0%	11  0 11	../../../t/spec/S12-role/mixin.t
 -C 0%	2  0 2		../../../t/spec/S13-overloading/fallbacks-deep.t
@@ -561,8 +566,8 @@ ok	3		../../../t/spec/S29-any/cmp.t
 -  3%	27  1 0 26!	../../../t/spec/S29-array/shift.t
 -d 0%	33  0 33	../../../t/spec/S29-array/splice.t
 -  1%	53  1 0 52!	../../../t/spec/S29-array/unshift.t
-X  0%	6  0 		../../../t/spec/S29-container/cat.t
-X  0%	8  0 		../../../t/spec/S29-container/roundrobin.t
+-d 0%	6  0 6		../../../t/spec/S29-container/cat.t
+-d 0%	8  0 8		../../../t/spec/S29-container/roundrobin.t
 -d 0%	9  0 9		../../../t/spec/S29-container/zip.t
 -  40%	10  4 6		../../../t/spec/S29-context/die_arg_preservation.t
 X  0%	14  0 		../../../t/spec/S29-context/die.t
@@ -611,7 +616,7 @@ X  0%	11  0 		../../../t/spec/S29-num/log.t
 -C 0%	3  0 3		../../../t/spec/S29-os/system.t
 X  0%	?  0 		../../../t/spec/S29-os/system-with-spaces.t
 -  52%	21  11 0 10!	../../../t/spec/S29-scalar/defined.t
-X  0%	74  0 		../../../t/spec/S29-scalar/undef.t
+-C 0%	74  0 74	../../../t/spec/S29-scalar/undef.t
 -C 0%	7  0 7		../../../t/spec/S29-str/append.t
 -C 0%	11  0 11	../../../t/spec/S29-str/capitalize.t
 -d 0%	35  0 35	../../../t/spec/S29-str/chomp.t
@@ -718,9 +723,7 @@ X  0%	18  0 		../../../t/var/caller.t
 -C 0%	6  0 6		../../../t/var/chained.t
 -  80%	5  4 1		../../../t/var/contextual.t
 -  0%	4  0 1 3!	../../../t/var/default_scalar.t
-ok	3		../../../t/var/is_copy.t
 -C 0%	9  0 9		../../../t/var/is_readonly.t
-X  0%	6  0 		../../../t/var/is_rw.t
 -C 0%	15  0 15	../../../t/var/lazy.t
 -  9%	11  1 4 6!	../../../t/var/let.t
 -  42%	7  3 0 4!	../../../t/var/lvalue_deep_brackets.t
@@ -802,7 +805,7 @@ ok	4		../../../v6/v6-KindaPerl6/t/kp6/35-undef.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/40-hash-keys.t
 -d 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/41-attr-hash-keys.t
 -C 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/42-single-rule-grammar.t
--d 0%	1  0 1		../../../v6/v6-KindaPerl6/t/kp6/43-class-constructor-with-params.t
+-  0%	1  0 0 1!	../../../v6/v6-KindaPerl6/t/kp6/43-class-constructor-with-params.t
 ok	4		../../../v6/v6-KindaPerl6/t/kp6/44-map.t
 ok	4		../../../v6/v6-KindaPerl6/t/kp6/45-for.t
 -C 0%	3  0 3		../../../v6/v6-KindaPerl6/t/kp6/46-hash-item-bind.t
@@ -849,5 +852,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 849.  623 parsed 73%.  367 run 43%.  85 ok 10%.
-Tests: 16953+.  637 ok <3.75%, 16316+ not.
+Files: 852.  632 parsed 74%.  371 run 43%.  86 ok 10%.
+Tests: 16987+.  652 ok <3.83%, 16335+ not.

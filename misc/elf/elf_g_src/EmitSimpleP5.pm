@@ -59,22 +59,6 @@ use warnings;
 }
 '~self.prelude_oo~self.prelude_lexical~'
 
-# Move to the Regexp prelude once that becomes part of the prelude.
-{ package BacktrackMacrosKludge;
-  sub _let_gen {
-    my($vars) = @_;
-    my $nvars = 1+($vars =~ tr/,//);
-    my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
-    push(@SCRATCH::_let_stack,[$vars,$tmpvars]);
-    "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
-  }
-  sub _let_end {
-    my $e = shift(@SCRATCH::_let_stack) || die "LET(){ }LET pairs didnt match up";
-    my($vars,$tmpvars) = @$e;
-    "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
-  }
-}
-
 # Workaround autobox 2.53 api change. :(
 if(!defined(&autobox::universal::type)) {
   eval q{package autobox::universal; sub type { autobox->type($_[0]) }};
@@ -926,7 +910,6 @@ package Main;
   };
   method cb__Buf ($n) {
     my $s = $n.buf;
-#    $s.re_sub_g('\\(.)','$1');
     '"' ~ quotemeta($s) ~ '"';
   };
   method cb__Rx ($n) {

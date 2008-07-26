@@ -76,6 +76,9 @@ if $o<args> {
 dotty:methodop
 Call.newp($+blackboard::expect_term_base,$m<ident>,Capture.newp($m<semilist>||[]))
 
+dotty:.^!
+Call.newp($+blackboard::expect_term_base,'^!'~$m<methodop><ident>,Capture.newp($m<methodop><semilist>||[])) # XXX ^! should be expanded.
+
 dotty:postcircumfix
 my $s = *text*;
 my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
@@ -628,7 +631,7 @@ sub write_ast_handlers {
 
   my %seen;
   for my $para (@paragraphs) {
-    $para =~ /^([\w:]+)\n(.*)/s or die "bug";
+    $para =~ /^(\w+(?::[\S]+)?)\n(.*)/s or die "bug\n$para";
     my($name,$body)=($1,$2);
     die "Saw an AST handler for '$name' twice!\n" if $seen{$name}++;
 
