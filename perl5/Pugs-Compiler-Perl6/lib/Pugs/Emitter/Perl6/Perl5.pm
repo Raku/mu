@@ -665,9 +665,13 @@ sub default {
         && exists $n->{sub}{bareword}
         )
     {
-        if ( $n->{sub}{bareword} eq 'push' && $n->{op1} eq 'call' ) {
+        if ( (  $n->{sub}{bareword} eq 'push' 
+             || $n->{sub}{bareword} eq 'pop' 
+             )
+            && $n->{op1} eq 'call' ) 
+        {
             if ( _is_paren_containing($n->{param}, \&_is_empty_exp) ) {
-                return _not_implemented( "push without parameters", "call" );
+                return _not_implemented( $n->{sub}{bareword} . " without parameters", "call" );
             }
             if ( _is_paren_containing($n->{param}, \&_is_exp_containing, \&_is_empty_braces ) ) {
                 return " # push( [] ) ??? \n";   # See: push.t
@@ -943,9 +947,13 @@ sub default {
                 my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
                 return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit( $n->{self} ).')], {})';
             }
-            if (  $n->{method}{dot_bareword} eq 'delete'
-               || $n->{method}{dot_bareword} eq 'exists'
-               ) {
+            if (  $n->{method}{dot_bareword} eq 'delete' ) {
+                my $self = _emit($n->{self});
+                return '( bless ['
+                    . _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']'
+                    . "], 'Pugs::Runtime::Perl6::Array' )";
+            }
+            if ( $n->{method}{dot_bareword} eq 'exists' ) {
                 my $self = _emit($n->{self});
                 $self =~ s{\@}{\$};
                 return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';

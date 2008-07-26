@@ -354,6 +354,15 @@ package Pugs::Runtime::Perl6::Scalar;
     }
     
 package Pugs::Runtime::Perl6::Array;
+    use overload (
+        '""'     => \&str,
+        '0+'     => sub { scalar @{$_[0]} },
+        'bool'   => sub { scalar @{$_[0]} ? 1 : 0 },
+        fallback => 1,
+    );
+    sub str {
+        join( " ", @{$_[0]} )
+    }
 
     sub map {
         my ($code, @array);

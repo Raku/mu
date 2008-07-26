@@ -159,6 +159,7 @@ t/spec/S12-role/composition.t
 t/spec/S16-filehandles/open.t
 t/spec/S16-io/say.t
 t/spec/S29-any/cmp.t
+t/spec/S29-array/delete.t
 t/spec/S29-array/exists.t
 t/spec/S29-context/exit-in-if.t
 t/spec/S29-context/exit.t
