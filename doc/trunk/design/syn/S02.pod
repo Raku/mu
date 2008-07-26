@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 2 Apr 2008
+  Last Modified: 25 Jul 2008
   Number: 2
-  Version: 132
+  Version: 133
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2174,8 +2174,7 @@ or C<0d> as hex digits, not radix switchers.
 Characters indexed by hex numbers can be interpolated into strings
 by introducing with C<"\x">, followed by either a bare hex number
 (C<"\x263a">) or a hex number in square brackets (C<"\x[263a]">).
-Similarly, C<"\o12"> and C<"\o[12]"> interpolate octals, while
-C<"\d1234"> and C<"\d[1234]"> interpolate decimals--but generally
+Similarly, C<"\o12"> and C<"\o[12]"> interpolate octals--but generally
 you should be using hex in the world of Unicode.  Multiple characters
 may be specified within any of the bracketed forms by separating the
 numbers with comma: C<"\x[41,42,43]">.  You must use the bracketed
@@ -2725,10 +2724,19 @@ a single character:
 
 [Note: none of the official Unicode character names contains comma.]
 
+You may also put one or more decimal numbers inside the square brackets:
+
+    "\c[13,10]"	# CRLF
+
+Any single decimal number may omit the brackets:
+
+    "\c8"	# backspace
+
 (Within a regex you may also use C<\C> to match a character that is
 not the specified character.)
 
-If the character following C<\c> or C<\C> is not a left square bracket,
+If the character following C<\c> or C<\C> is neither a left square bracket
+nor a decimal digit,
 the single following character is turned into a control character by
 the usual trick of XORing the 64 bit.  This allows C<\c@> for NULL
 and C<\c?> for DELETE, but note that the ESCAPE character may not be
@@ -2736,6 +2744,7 @@ represented that way; it must be represented something like:
 
     \e
     \c[ESCAPE]
+    \c27
     \x1B
     \o33
 
