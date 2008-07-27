@@ -413,18 +413,18 @@ package Main;
 
   method cb__CompUnit ($n) {
     $n.do_all_analysis();
-    my $+whiteboard::in_package = [];
-    my $+whiteboard::emit_pairs_inline = 0;
-    my $+whiteboard::compunit_footer = [];
+    temp $whiteboard::in_package = [];
+    temp $whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::compunit_footer = [];
     my $code = (
       "package Main;\n"~
       self.prelude_for_entering_a_package());
     my $stmts = $.e($n.statements);
-    my $foot = $+whiteboard::compunit_footer.join(";\n");
+    my $foot = $whiteboard::compunit_footer.join(";\n");
     $code ~ $stmts.join(";\n")~$foot~";\n";
   };
   method cb__Block ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
     '(do{'~$.e($n.statements).join(";\n")~'})'
   };
@@ -445,12 +445,12 @@ package Main;
     }
   };
   method cb__ClosureTrait ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     $n.kind~'{'~$.e($n.block)~'}'
   };
 
   method cb__PackageDecl ($n) {
-    my $in_package = [$+whiteboard::in_package.flatten,$n.name];
+    my $in_package = [$whiteboard::in_package.flatten,$n.name];
     my $name = $in_package.join('::');
     my $base = 'use base "Any";';
     if $name eq 'Any' { $base = '' }
@@ -465,18 +465,18 @@ package Main;
     }
     $head = $head ~ $base~ self.prelude_for_entering_a_package();
     if $n.block {
-      my $+whiteboard::in_package = $in_package; # my()
+      temp $whiteboard::in_package = $in_package; # my()
       $head ~ $.e($n.traits||[]).join("\n") ~ $.e($n.block) ~ $foot;
     } else {
-      $+whiteboard::in_package = $in_package; # not my()
-      $+whiteboard::compunit_footer.unshift($foot);
+      $whiteboard::in_package = $in_package; # not my()
+      $whiteboard::compunit_footer.unshift($foot);
       $head ~ $.e($n.traits||[]).join("\n") ~ ";\n"
     }
   };
   method cb__Trait ($n) {
     if ($n.verb eq 'is' or $n.verb eq 'does') {
-      my $pkgname = $+whiteboard::in_package.join('::');
-      my $name = $+whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
+      my $pkgname = $whiteboard::in_package.join('::');
+      my $name = $whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
       $name.re_gsub('^::',''); # Moose 0.44 doesn't like these.
       "BEGIN{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
@@ -498,7 +498,7 @@ package Main;
       my $x = '$_[0]{'~"'"~$name~"'"~'}';
       my $code = 'sub '~$name~' { if(@_==2){'~$x~'=$_[1]}else{'~$x~'}}';
       if $default {
-        my $pkg = $+whiteboard::in_package.join('::');
+        my $pkg = $whiteboard::in_package.join('::');
         $code = $code ~";\n"~ $.create_default_for($pkg,$name,$default);
       }
       $code;
@@ -506,7 +506,7 @@ package Main;
   };
 
   method cb__VarDecl ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     if ($n.scope eq 'has') {
       my $default = "";
       my $default_expr = $.e($n.default_expr);
@@ -528,7 +528,7 @@ package Main;
           my $pre = ''; my $post = '';
           if $n.is_array { $pre = '['; $post = ']' }
           if $n.is_hash  { $pre = '{'; $post = '}' }
-          my $+whiteboard::emit_pairs_inline = 1;
+          temp $whiteboard::emit_pairs_inline = 1;
           $default = ' = '~$pre~$.e($n.default_expr)~$post;
         } else {
           $default = ' = '~$.e($n.default_expr);
@@ -537,12 +537,18 @@ package Main;
         if ($n.var.sigil eq '@') { $default = ' = [];' }
         if ($n.var.sigil eq '%') { $default = ' = {};' }
       }
-      if ($n.is_context) {
-        # HACK 
+      if ($n.is_context) { # BOGUS
         my $name = $.e($n.var);
         $name.re_sub_g('^(.)::','$1');
         ("{package main; use vars '"~$name~"'};"~
          'local'~' '~$.e($n.var)~$default)
+      }
+      elsif ($n.is_temp) {
+        my $var = $n.var;
+        my $nam = $.encode_varname($var.sigil,$var.twigil,$var.bare_name);
+        my $pkg = $n.var.package;
+        ("{ package "~$pkg~"; use vars '"~$nam~"'};"~
+        'local'~' '~$.e($n.var)~$default)
       }
       else {
         $n.scope~' '~$.e($n.var)~$default
@@ -644,7 +650,7 @@ package Main;
   };
 
   method cb__SubDecl ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     my $name = $n.name;
     if $name { $name = $.e($name) } else { $name = "" }
     my $sig = $n.multisig;
@@ -666,16 +672,16 @@ package Main;
   method cb__Signature ($n) {
     if ($n.parameters.elems == 0) { "" }
     else {
-      my $+whiteboard::signature_inits = "";
+      temp $whiteboard::signature_inits = "";
       my $pl = $.e($n.parameters).join(",");
-      'my('~$pl~')=@_;'~$+whiteboard::signature_inits~"\n";
+      'my('~$pl~')=@_;'~$whiteboard::signature_inits~"\n";
     }
   };
   method cb__Parameter ($n) {
     my $enc = $.e($n.param_var);
     if $n.quant && $n.quant eq '*' {
       my $tmp = "@"~$n.param_var.name;
-      $+whiteboard::signature_inits = $+whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
+      $whiteboard::signature_inits = $whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
       $tmp;
     } else {
       $enc;
@@ -689,7 +695,7 @@ package Main;
   };
 
   method cb__Call ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
     if ($method =~ 'postcircumfix:< >') {
       $.e($n.invocant)~'->'~"{'"~$.e($n.capture)~"'}";
@@ -709,7 +715,7 @@ package Main;
      $name;
   }
   method cb__Apply ($n) {
-    # my $+whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
+    # temp $whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
     my $fun = $.e($n.function);
     if $n.notes<lexical_bindings>{'&'~$fun} {
        my $fe = $.mangle_function_name($fun);
@@ -827,7 +833,7 @@ package Main;
     }
   };
   method cb__Capture ($n) {
-    # my $+whiteboard::emit_pairs_inline = 0; XXX?
+    # temp $whiteboard::emit_pairs_inline = 0; XXX?
     my $a = $.e($n.arguments||[]).join(",");
     if $n.invocant {
       my $inv = $.e($n.invocant);
@@ -863,8 +869,8 @@ package Main;
     #XXX $pkg::x -> s_pkg::x :(
     my $env = '';
     my $pre = '';
-    if $t eq '+' { $env = 'e' };
-    if $s eq '$' && $env eq 'e' { $pre = 's_' };
+    if $t eq '+' { $env = 'x' };
+    if $s eq '$' && $env eq 'x' { $pre = 's_' };
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
     my $name = $env~$pre~$dsn;
@@ -888,7 +894,7 @@ package Main;
     my $dsn = $.e($n.name);
     my $v = $s~$t~$dsn;
     if $v eq '$?PACKAGE' || $v eq '$?MODULE' || $v eq '$?CLASS' {
-      my $pkgname = $+whiteboard::in_package.join('::'); # XXX should use $n notes instead.
+      my $pkgname = $whiteboard::in_package.join('::'); # XXX should use $n notes instead.
       $pkgname = $pkgname || 'Main';
       "'"~$pkgname~"'"
     } elsif $v eq '$?FILE' {
@@ -905,7 +911,7 @@ package Main;
     $.e($n.text)
   };
   method cb__Hash ($n) {
-    my $+whiteboard::emit_pairs_inline = 1;
+    temp $whiteboard::emit_pairs_inline = 1;
     '{'~$.e($n.hash||[]).join(",")~'}'
   };
   method cb__Buf ($n) {
@@ -917,8 +923,8 @@ package Main;
     'qr/'~$pat~'/'
   };
   method cb__Pair($n) {
-    if $+whiteboard::emit_pairs_inline {
-      my $+whiteboard::emit_pairs_inline = 0;
+    if $whiteboard::emit_pairs_inline {
+      temp $whiteboard::emit_pairs_inline = 0;
       '('~$.e($n.key)~' => '~$.e($n.value)~')'
     } else {
       "Pair->new('key',"~$.e($n.key)~" => 'value',"~$.e($n.value)~")"

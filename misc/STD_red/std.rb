@@ -815,7 +815,7 @@ class Perl < Grammar
              _hkv(h,:type_declarator,td)
              _match_from(b,h,:scoped))
     end
-    def_tokens_rest :scope_declarator,false,%w{ my our state constant has },%q{b=pos; s=scoped and _match_from(b,{:scoped=>s},:<sym>) }
+    def_tokens_rest :scope_declarator,false,%w{ my our state constant has temp },%q{b=pos; s=scoped and _match_from(b,{:scoped=>s},:<sym>) } #R NONSPEC temp added.
     def_tokens_rest :package_declarator,false,%w{ class grammar module role package },%q{b=pos; pd=package_def and _match_from(b,{:package_def=>pd},:<sym>) } #end;end
     def_tokens_rest :package_declarator,false,%w{ require },%q{ module_name and (_EXPR;true) }
     def_tokens_rest :package_declarator,false,%w{ trusts },%q{ module_name }

@@ -45,14 +45,14 @@ class IRx1::Base {
 
 class IRx1::CompUnit {
   method note_parents() {
-    my $+whiteboard::parent = self;
+    temp $whiteboard::parent = self;
     for $.child_nodes {$_.note_parents}
   }
 }
 class IRx1::Base {
   method note_parents() {
-    $.notes<parent> = $+whiteboard::parent;
-    my $+whiteboard::parent = self;
+    $.notes<parent> = $whiteboard::parent;
+    temp $whiteboard::parent = self;
     for $.child_nodes {$_.note_parents}
   }
 }
@@ -62,7 +62,7 @@ class IRx1::Base {
 class IRx1::CompUnit_and_Block {
   method note_block_lexical_variable_decls() {
     my $a = [];
-    my $+whiteboard::lexical_variable_decls = $a;
+    temp $whiteboard::lexical_variable_decls = $a;
     $.notes<lexical_variable_decls> = $a;
     for $.child_nodes {$_.note_block_lexical_variable_decls}
   }
@@ -71,7 +71,7 @@ class IRx1::VarDecl {
   method note_block_lexical_variable_decls() {
 
     if $.is_lexical {
-      $+whiteboard::lexical_variable_decls.push(self);
+      $whiteboard::lexical_variable_decls.push(self);
     }
 
     $.notes<is> = {};
@@ -82,6 +82,7 @@ class IRx1::VarDecl {
       }
     }
     if (self.<var><twigil>||'') eq '+' {$.notes<is><context> = 1}
+    if self.scope eq 'temp' {$.notes<is><temp> = 1}
 
     for $.child_nodes {$_.note_block_lexical_variable_decls}
   }
@@ -89,7 +90,7 @@ class IRx1::VarDecl {
 class IRx1::SubDecl {
   method note_block_lexical_variable_decls() {
     if $_.name {
-      $+whiteboard::lexical_variable_decls.push(self);
+      $whiteboard::lexical_variable_decls.push(self);
     }
     for $.child_nodes {$_.note_block_lexical_variable_decls}
   }
@@ -104,8 +105,8 @@ class IRx1::Base {
 
 class IRx1::CompUnit {
   method note_environment() {
-    my $+whiteboard::package_chain = [];
-    my $+whiteboard::lexical_bindings =
+    temp $whiteboard::package_chain = [];
+    temp $whiteboard::lexical_bindings =
       $.update_lexical_bindings({},
                                 $.notes<lexical_variable_decls>);
     for $.child_nodes {$_.note_environment}
@@ -113,8 +114,8 @@ class IRx1::CompUnit {
 }
 class IRx1::Block {
   method note_environment() {
-    my $+whiteboard::lexical_bindings =
-      $.update_lexical_bindings($+whiteboard::lexical_bindings,
+    temp $whiteboard::lexical_bindings =
+      $.update_lexical_bindings($whiteboard::lexical_bindings,
                                 $.notes<lexical_variable_decls>);
     for $.child_nodes {$_.note_environment}
   }
@@ -135,27 +136,34 @@ class IRx1::PackageDecl {
     if $.path_is_absolute {
       $new_chain = [self];
     } else {
-      $new_chain = [$+whiteboard::package_chain.flatten,self];
+      $new_chain = [$whiteboard::package_chain.flatten,self];
     }
-    my $+whiteboard::package_chain = $new_chain;
+    temp $whiteboard::package_chain = $new_chain;
     for $.child_nodes {$_.note_environment}
   }
 }
 class IRx1::Apply {
   method note_environment() {
-    $.notes<lexical_bindings> = $+whiteboard::lexical_bindings;
+    $.notes<lexical_bindings> = $whiteboard::lexical_bindings;
     for $.child_nodes {$_.note_environment}
   }
 }
 class IRx1::Var {
   method note_environment() {
     my $key = self<sigil> ~ self<name>;
-    $.notes<decl> = $+whiteboard::lexical_bindings{$key};
+    $.notes<decl> = $whiteboard::lexical_bindings{$key};
     if $.notes<decl> {
       $.notes<is> = $.notes<decl>.notes<is>;
     } else {
       $.notes<is> = {};
     }
+    $.notes<crnt_package_chain> = $whiteboard::package_chain;
+    if $.notes<crnt_package_chain>.elems == 0 {$.notes<crnt_package_chain> = ['Main']}
+    $.notes<crnt_package> = $.notes<crnt_package_chain>.join("::");
+    $.name =~ /(?:(.+)::)?([^:]+)$/;
+    $.notes<package> = $1 || $.notes<crnt_package>;
+    #^ TODO resolve non-absolute package names
+    $.notes<bare_name> = $2;
     for $.child_nodes {$_.note_environment}
   }
 }
@@ -170,7 +178,11 @@ class IRx1::Base {
 class IRx1::VarDecl {
   method is_lexical() { $.scope eq 'my' }
   method is_context() { $.notes<is><context> }
+  method is_temp() { $.notes<is><temp> }
   method name () { self.<var><name> }
+  method bare_name() { self.var.bare_name }
+  method package() { self.var.package }
+  method crnt_package() { self.var.crnt_package }
   method sigil() { self.<var><sigil> }
   method is_scalar() { self.<var><sigil> eq '$' }
   method is_array() { self.<var><sigil> eq '@' }
@@ -184,7 +196,11 @@ class IRx1::SubDecl {
 }
 class IRx1::Var {
   method decl() { $.notes<decl> }
+  method bare_name() { self.notes<bare_name> }
+  method package() { self.notes<package> }
+  method crnt_package() { self.notes<crnt_package> }
   method is_context() { (self.<twigil>||'') eq '+' || $.notes<is><context> }
+  method is_temp() { $.notes<is><context> }
 }
 class IRx1::PackageDecl {
   method path_is_absolute() { self.name && self.name =~ /^GLOBAL\b'/ }

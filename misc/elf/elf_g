@@ -1946,10 +1946,10 @@ $main::irbuilder->add_constructor("statement", sub {my($m)=@_;
 (do{my $labels = irbuild_ir($m->{"hash"}->{"label"});
 my $result = (irbuild_ir($m->{"hash"}->{"expr"}) || irbuild_ir($m->{"hash"}->{"control"}));
 if(($m->{"hash"}->{"expr"} && (($m->{"hash"}->{"mod_loop"} || $m->{"hash"}->{"mod_cond"})))) {
-(do{{package main; use vars '$es_blackboard__statement_expr'};local $::es_blackboard__statement_expr = $result;
+(do{{ package blackboard; use vars '$statement_expr'};local $blackboard::statement_expr = $result;
 ($result = (irbuild_ir($m->{"hash"}->{"mod_loop"}) || irbuild_ir($m->{"hash"}->{"mod_cond"})));
 if($m->{"hash"}->{"mod_condloop"}) {
-(do{($::es_blackboard__statement_expr = $result);
+(do{($blackboard::statement_expr = $result);
 ($result = irbuild_ir($m->{"hash"}->{"mod_condloop"}))})
 }})
 };
@@ -1979,7 +1979,7 @@ IRx1::Pair->newp($m, $args->[0], $args->[1])})
 $main::irbuilder->add_constructor("fatarrow", sub {my($m)=@_;
 (do{IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"key"}), irbuild_ir($m->{"hash"}->{"val"}))})});
 $main::irbuilder->add_constructor("expect_term", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = irbuild_ir($m->{"hash"}->{"noun"});
+(do{{ package blackboard; use vars '$expect_term_base'};local $blackboard::expect_term_base = irbuild_ir($m->{"hash"}->{"noun"});
 my $ops = [];
 if($m->{"hash"}->{"pre"}) {
 (do{$ops->push($m->{"hash"}->{"pre"}->flatten())})
@@ -1988,9 +1988,9 @@ if($m->{"hash"}->{"post"}) {
 (do{$ops->push($m->{"hash"}->{"post"}->flatten())})
 };
 for(($ops)->flatten){
-(do{($::es_blackboard__expect_term_base = irbuild_ir($_))})
+(do{($blackboard::expect_term_base = irbuild_ir($_))})
 };
-$::es_blackboard__expect_term_base})});
+$blackboard::expect_term_base})});
 $main::irbuilder->add_constructor("term\:expect_term", sub {my($m)=@_;
 (do{irbuild_ir($m->{"hash"}->{"noun"})})});
 $main::irbuilder->add_constructor("post", sub {my($m)=@_;
@@ -2008,9 +2008,9 @@ $main::irbuilder->add_constructor("pre", sub {my($m)=@_;
 (do{GLOBAL::die("pre\ without\ a\ prefix\ is\ unimplemented")})
 }})});
 $main::irbuilder->add_constructor("dotty\:methodop", sub {my($m)=@_;
-(do{IRx1::Call->newp($m, $::es_blackboard__expect_term_base, irbuild_ir($m->{"hash"}->{"ident"}), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"semilist"}) || [])))})});
+(do{IRx1::Call->newp($m, $blackboard::expect_term_base, irbuild_ir($m->{"hash"}->{"ident"}), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"semilist"}) || [])))})});
 $main::irbuilder->add_constructor("dotty\:\.\^\!", sub {my($m)=@_;
-(do{IRx1::Call->newp($m, $::es_blackboard__expect_term_base, ("\^\!" . irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"ident"})), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"semilist"}) || [])))})});
+(do{IRx1::Call->newp($m, $blackboard::expect_term_base, ("\^\!" . irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"ident"})), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"semilist"}) || [])))})});
 $main::irbuilder->add_constructor("dotty\:postcircumfix", sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
@@ -2019,7 +2019,7 @@ my $args = irbuild_ir($m->{"hash"}->{"kludge_name"});
 if(($args && (($args->ref() ne "ARRAY")))) {
 (do{($args = [$args])})
 };
-IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
+IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
 $main::irbuilder->add_constructor("postcircumfix", sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
@@ -2028,13 +2028,13 @@ my $args = irbuild_ir($m->{"hash"}->{"kludge_name"});
 if(($args && (($args->ref() ne "ARRAY")))) {
 (do{($args = [$args])})
 };
-IRx1::Call->newp($m, $::es_blackboard__expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
+IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
 $main::irbuilder->add_constructor("postfix", sub {my($m)=@_;
 (do{my $op = ($m->match_string());
-IRx1::Apply->newp($m, ("postfix\:" . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))})});
+IRx1::Apply->newp($m, ("postfix\:" . $op), IRx1::Capture->newp($m, [$blackboard::expect_term_base]))})});
 $main::irbuilder->add_constructor("prefix", sub {my($m)=@_;
 (do{my $op = ($m->match_string());
-IRx1::Apply->newp($m, ("prefix\:" . $op), IRx1::Capture->newp($m, [$::es_blackboard__expect_term_base]))})});
+IRx1::Apply->newp($m, ("prefix\:" . $op), IRx1::Capture->newp($m, [$blackboard::expect_term_base]))})});
 $main::irbuilder->add_constructor("infix", sub {my($m)=@_;
 (do{my $op = ($m->match_string());
 IRx1::Apply->newp($m, ("infix\:" . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"left"}), irbuild_ir($m->{"hash"}->{"right"})]))})});
@@ -2102,22 +2102,25 @@ $main::irbuilder->add_constructor("quote\:regex", sub {my($m)=@_;
 (do{my $s = (irbuild_ir($m->{"hash"}->{"text"}) || irbuild_ir($m->{"hash"}->{"quotesnabber"}->{"hash"}->{"text"}));
 IRx1::Rx->newp($m, $s, irbuild_ir($m->{"hash"}->{"quotepair"}))})});
 $main::irbuilder->add_constructor("scope_declarator\:my", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope = "my";
+(do{{ package blackboard; use vars '$scope'};local $blackboard::scope = "my";
 irbuild_ir($m->{"hash"}->{"scoped"})})});
 $main::irbuilder->add_constructor("scope_declarator\:has", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope = "has";
+(do{{ package blackboard; use vars '$scope'};local $blackboard::scope = "has";
 irbuild_ir($m->{"hash"}->{"scoped"})})});
 $main::irbuilder->add_constructor("scope_declarator\:our", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope = "our";
+(do{{ package blackboard; use vars '$scope'};local $blackboard::scope = "our";
+irbuild_ir($m->{"hash"}->{"scoped"})})});
+$main::irbuilder->add_constructor("scope_declarator\:temp", sub {my($m)=@_;
+(do{{ package blackboard; use vars '$scope'};local $blackboard::scope = "temp";
 irbuild_ir($m->{"hash"}->{"scoped"})})});
 $main::irbuilder->add_constructor("scoped", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__typenames'};local $::es_blackboard__typenames = irbuild_ir($m->{"hash"}->{"fulltypename"});
+(do{{ package blackboard; use vars '$typenames'};local $blackboard::typenames = irbuild_ir($m->{"hash"}->{"fulltypename"});
 ((((irbuild_ir($m->{"hash"}->{"variable_decl"}) || irbuild_ir($m->{"hash"}->{"signature"})) || irbuild_ir($m->{"hash"}->{"plurality_declarator"})) || irbuild_ir($m->{"hash"}->{"routine_declarator"})) || irbuild_ir($m->{"hash"}->{"type_declarator"}))})});
 $main::irbuilder->add_constructor("variable_decl", sub {my($m)=@_;
-(do{my $scope = $::es_blackboard__scope;
-{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope;
-my $typenames = $::es_blackboard__typenames;
-{package main; use vars '$es_blackboard__typenames'};local $::es_blackboard__typenames = GLOBAL::undef();
+(do{my $scope = $blackboard::scope;
+{ package blackboard; use vars '$scope'};local $blackboard::scope;
+my $typenames = $blackboard::typenames;
+{ package blackboard; use vars '$typenames'};local $blackboard::typenames = GLOBAL::undef();
 IRx1::VarDecl->newp($m, $scope, $typenames, GLOBAL::undef(), irbuild_ir($m->{"hash"}->{"variable"}), GLOBAL::undef(), irbuild_ir($m->{"hash"}->{"traits"}), "\=", irbuild_ir($m->{"hash"}->{"default_value"}))})});
 $main::irbuilder->add_constructor("variable", sub {my($m)=@_;
 (do{my $tw = irbuild_ir($m->{"hash"}->{"twigil"});
@@ -2131,7 +2134,7 @@ if(($args && (($args->ref() ne "ARRAY")))) {
 IRx1::Call->newp($m, $slf, irbuild_ir($m->{"hash"}->{"desigilname"}), IRx1::Capture->newp($m, ($args || [])))})
 }else {
 (do{my $v = IRx1::Var->newp($m, irbuild_ir($m->{"hash"}->{"sigil"}), $tw, irbuild_ir($m->{"hash"}->{"desigilname"}));
-{package main; use vars '$es_blackboard__expect_term_base'};local $::es_blackboard__expect_term_base = $v;
+{ package blackboard; use vars '$expect_term_base'};local $blackboard::expect_term_base = $v;
 irbuild_ir($m->{"hash"}->{"postcircumfix"})})
 }})
 }else {
@@ -2157,17 +2160,17 @@ IRx1::Apply->newp($m, ("circumfix\:" . $name), IRx1::Capture->newp($m, ($args ||
 $main::irbuilder->add_constructor("statement_control\:for", sub {my($m)=@_;
 (do{IRx1::For->newp($m, irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("statement_mod_loop\:for", sub {my($m)=@_;
-(do{IRx1::For->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $::es_blackboard__statement_expr)})});
+(do{IRx1::For->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr)})});
 $main::irbuilder->add_constructor("statement_control\:while", sub {my($m)=@_;
 (do{IRx1::Loop->newp($m, irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("statement_mod_loop\:while", sub {my($m)=@_;
-(do{IRx1::Loop->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $::es_blackboard__statement_expr)})});
+(do{IRx1::Loop->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr)})});
 $main::irbuilder->add_constructor("statement_control\:until", sub {my($m)=@_;
 (do{my $test = IRx1::Apply->newp($m, "not", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"expr"})]));
 IRx1::Loop->newp($m, $test, irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("statement_mod_loop\:until", sub {my($m)=@_;
 (do{my $test = IRx1::Apply->newp($m, "not", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"modifier_expr"})]));
-IRx1::Loop->newp($m, $test, $::es_blackboard__statement_expr)})});
+IRx1::Loop->newp($m, $test, $blackboard::statement_expr)})});
 $main::irbuilder->add_constructor("statement_control\:loop", sub {my($m)=@_;
 (do{my $e1 = irbuild_ir($m->{"hash"}->{"loop_eee"}->{"hash"}->{"loop_e1"});
 my $e2 = irbuild_ir($m->{"hash"}->{"loop_eee"}->{"hash"}->{"loop_e2"});
@@ -2197,19 +2200,19 @@ for(($m->{"hash"}->keys())->flatten){
 my $one = irbuild_ir($m->{"hash"}->{$key});
 $one})});
 $main::irbuilder->add_constructor("statement_mod_cond\:if", sub {my($m)=@_;
-(do{IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"modifier_expr"}), $::es_blackboard__statement_expr]], GLOBAL::undef())})});
+(do{IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr]], GLOBAL::undef())})});
 $main::irbuilder->add_constructor("statement_control\:unless", sub {my($m)=@_;
 (do{IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"})]], GLOBAL::undef(), 1)})});
 $main::irbuilder->add_constructor("statement_mod_cond\:unless", sub {my($m)=@_;
-(do{IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"modifier_expr"}), $::es_blackboard__statement_expr]], GLOBAL::undef(), 1)})});
+(do{IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr]], GLOBAL::undef(), 1)})});
 $main::irbuilder->add_constructor("statement_control\:given", sub {my($m)=@_;
 (do{IRx1::Given->newp($m, irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("statement_mod_loop\:given", sub {my($m)=@_;
-(do{IRx1::Given->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $::es_blackboard__statement_expr)})});
+(do{IRx1::Given->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr)})});
 $main::irbuilder->add_constructor("statement_control\:when", sub {my($m)=@_;
 (do{IRx1::When->newp($m, irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("statement_mod_cond\:when", sub {my($m)=@_;
-(do{IRx1::When->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $::es_blackboard__statement_expr)})});
+(do{IRx1::When->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr)})});
 $main::irbuilder->add_constructor("statement_control\:default", sub {my($m)=@_;
 (do{IRx1::When->newp($m, GLOBAL::undef(), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("statement_prefix\:do", sub {my($m)=@_;
@@ -2233,13 +2236,13 @@ $main::irbuilder->add_constructor("pblock", sub {my($m)=@_;
 $main::irbuilder->add_constructor("block", sub {my($m)=@_;
 (do{IRx1::Block->newp($m, irbuild_ir($m->{"hash"}->{"statementlist"}))})});
 $main::irbuilder->add_constructor("plurality_declarator\:multi", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality = "multi";
+(do{{ package blackboard; use vars '$plurality'};local $blackboard::plurality = "multi";
 (irbuild_ir($m->{"hash"}->{"pluralized"}) || irbuild_ir($m->{"hash"}->{"routine_def"}))})});
 $main::irbuilder->add_constructor("routine_declarator\:routine_def", sub {my($m)=@_;
-(do{my $scope = $::es_blackboard__scope;
-{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope;
-my $plurality = $::es_blackboard__plurality;
-{package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
+(do{my $scope = $blackboard::scope;
+{ package blackboard; use vars '$scope'};local $blackboard::scope;
+my $plurality = $blackboard::plurality;
+{ package blackboard; use vars '$plurality'};local $blackboard::plurality;
 my $ident = "";
 if($m->{"hash"}->{"ident"}) {
 (do{($ident = irbuild_ir($m->{"hash"}->{"ident"}))})
@@ -2250,10 +2253,10 @@ if(irbuild_ir($m->{"hash"}->{"multisig"})) {
 };
 IRx1::SubDecl->newp($m, $scope, GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{"hash"}->{"trait"}), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("routine_def", sub {my($m)=@_;
-(do{my $scope = $::es_blackboard__scope;
-{package main; use vars '$es_blackboard__scope'};local $::es_blackboard__scope;
-my $plurality = $::es_blackboard__plurality;
-{package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
+(do{my $scope = $blackboard::scope;
+{ package blackboard; use vars '$scope'};local $blackboard::scope;
+my $plurality = $blackboard::plurality;
+{ package blackboard; use vars '$plurality'};local $blackboard::plurality;
 my $ident = "";
 if($m->{"hash"}->{"ident"}) {
 (do{($ident = irbuild_ir($m->{"hash"}->{"ident"}))})
@@ -2264,8 +2267,8 @@ if(irbuild_ir($m->{"hash"}->{"multisig"})) {
 };
 IRx1::SubDecl->newp($m, $scope, GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{"hash"}->{"trait"}), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("routine_declarator\:method_def", sub {my($m)=@_;
-(do{my $plurality = $::es_blackboard__plurality;
-{package main; use vars '$es_blackboard__plurality'};local $::es_blackboard__plurality;
+(do{my $plurality = $blackboard::plurality;
+{ package blackboard; use vars '$plurality'};local $blackboard::plurality;
 my $multisig = irbuild_ir($m->{"hash"}->{"multisig"});
 if(GLOBAL::not($multisig)) {
 (do{($multisig = [IRx1::Signature->newp($m, [], GLOBAL::undef())])})
@@ -2350,22 +2353,22 @@ IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), $value)})});
 $main::irbuilder->add_constructor("quotepair__nth", sub {my($m)=@_;
 (do{IRx1::Pair->newp($m, "nth", irbuild_ir($m->{"hash"}->{"n"}))})});
 $main::irbuilder->add_constructor("package_declarator\:role", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = "role";
+(do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "role";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
 $main::irbuilder->add_constructor("package_declarator\:class", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = "class";
+(do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "class";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
 $main::irbuilder->add_constructor("package_declarator\:module", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = "module";
+(do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "module";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
 $main::irbuilder->add_constructor("package_declarator\:package", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = "package";
+(do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "package";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
 $main::irbuilder->add_constructor("package_declarator\:grammar", sub {my($m)=@_;
-(do{{package main; use vars '$es_blackboard__package_declarator'};local $::es_blackboard__package_declarator = "grammar";
+(do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "grammar";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
 $main::irbuilder->add_constructor("package_def", sub {my($m)=@_;
-(do{IRx1::PackageDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $::es_blackboard__package_declarator, irbuild_ir($m->{"hash"}->{"module_name"})->[0], irbuild_ir($m->{"hash"}->{"traits"}), irbuild_ir($m->{"hash"}->{"block"}))})});
+(do{IRx1::PackageDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $blackboard::package_declarator, irbuild_ir($m->{"hash"}->{"module_name"})->[0], irbuild_ir($m->{"hash"}->{"traits"}), irbuild_ir($m->{"hash"}->{"block"}))})});
 $main::irbuilder->add_constructor("fulltypename", sub {my($m)=@_;
 (do{irbuild_ir($m->{"hash"}->{"typename"})->join("\:\:")})});
 $main::irbuilder->add_constructor("typename", sub {my($m)=@_;
@@ -2494,7 +2497,7 @@ sub child_nodes{my $self=CORE::shift;(do{$self->notes->{'child_nodes'}})}})
 ;
 
 { package IRx1::CompUnit;
-use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
+use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{{ package whiteboard; use vars '$parent'};local $whiteboard::parent = $self;
 for(($self->child_nodes)->flatten){
 (do{$_->note_parents()})
 }})}})
@@ -2502,8 +2505,8 @@ for(($self->child_nodes)->flatten){
 ;
 
 { package IRx1::Base;
-use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{($self->notes->{'parent'} = $::es_whiteboard__parent);
-{package main; use vars '$es_whiteboard__parent'};local $::es_whiteboard__parent = $self;
+use base "Any";(do{sub note_parents{my $self=CORE::shift;(do{($self->notes->{'parent'} = $whiteboard::parent);
+{ package whiteboard; use vars '$parent'};local $whiteboard::parent = $self;
 for(($self->child_nodes)->flatten){
 (do{$_->note_parents()})
 }})}})
@@ -2512,7 +2515,7 @@ for(($self->child_nodes)->flatten){
 
 { package IRx1::CompUnit_and_Block;
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{my $a = [];
-{package main; use vars '$es_whiteboard__lexical_variable_decls'};local $::es_whiteboard__lexical_variable_decls = $a;
+{ package whiteboard; use vars '$lexical_variable_decls'};local $whiteboard::lexical_variable_decls = $a;
 ($self->notes->{'lexical_variable_decls'} = $a);
 for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
@@ -2522,7 +2525,7 @@ for(($self->child_nodes)->flatten){
 
 { package IRx1::VarDecl;
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->is_lexical) {
-(do{$::es_whiteboard__lexical_variable_decls->push($self)})
+(do{$whiteboard::lexical_variable_decls->push($self)})
 };
 ($self->notes->{'is'} = {});
 my $traits = ($self->traits || []);
@@ -2534,6 +2537,9 @@ for(($traits)->flatten){
 if(((($self->{'var'}->{'twigil'} || "")) eq "\+")) {
 (do{($self->notes->{'is'}->{'context'} = 1)})
 };
+if(($self->scope() eq "temp")) {
+(do{($self->notes->{'is'}->{'temp'} = 1)})
+};
 for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
 }})}})
@@ -2542,7 +2548,7 @@ for(($self->child_nodes)->flatten){
 
 { package IRx1::SubDecl;
 use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($_->name()) {
-(do{$::es_whiteboard__lexical_variable_decls->push($self)})
+(do{$whiteboard::lexical_variable_decls->push($self)})
 };
 for(($self->child_nodes)->flatten){
 (do{$_->note_block_lexical_variable_decls()})
@@ -2558,8 +2564,8 @@ use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(d
 ;
 
 { package IRx1::CompUnit;
-use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = [];
-{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings({}, $self->notes->{'lexical_variable_decls'});
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{ package whiteboard; use vars '$package_chain'};local $whiteboard::package_chain = [];
+{ package whiteboard; use vars '$lexical_bindings'};local $whiteboard::lexical_bindings = $self->update_lexical_bindings({}, $self->notes->{'lexical_variable_decls'});
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}})
@@ -2567,7 +2573,7 @@ for(($self->child_nodes)->flatten){
 ;
 
 { package IRx1::Block;
-use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{package main; use vars '$es_whiteboard__lexical_bindings'};local $::es_whiteboard__lexical_bindings = $self->update_lexical_bindings($::es_whiteboard__lexical_bindings, $self->notes->{'lexical_variable_decls'});
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{{ package whiteboard; use vars '$lexical_bindings'};local $whiteboard::lexical_bindings = $self->update_lexical_bindings($whiteboard::lexical_bindings, $self->notes->{'lexical_variable_decls'});
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}})
@@ -2590,9 +2596,9 @@ use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $new_chain;
 if($self->path_is_absolute) {
 (do{($new_chain = [$self])})
 }else {
-(do{($new_chain = [$::es_whiteboard__package_chain->flatten(), $self])})
+(do{($new_chain = [$whiteboard::package_chain->flatten(), $self])})
 };
-{package main; use vars '$es_whiteboard__package_chain'};local $::es_whiteboard__package_chain = $new_chain;
+{ package whiteboard; use vars '$package_chain'};local $whiteboard::package_chain = $new_chain;
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}})
@@ -2600,7 +2606,7 @@ for(($self->child_nodes)->flatten){
 ;
 
 { package IRx1::Apply;
-use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{($self->notes->{'lexical_bindings'} = $::es_whiteboard__lexical_bindings);
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{($self->notes->{'lexical_bindings'} = $whiteboard::lexical_bindings);
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}})
@@ -2609,12 +2615,20 @@ for(($self->child_nodes)->flatten){
 
 { package IRx1::Var;
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->{'sigil'} . $self->{'name'});
-($self->notes->{'decl'} = $::es_whiteboard__lexical_bindings->{$key});
+($self->notes->{'decl'} = $whiteboard::lexical_bindings->{$key});
 if($self->notes->{'decl'}) {
 (do{($self->notes->{'is'} = $self->notes->{'decl'}->notes()->{'is'})})
 }else {
 (do{($self->notes->{'is'} = {})})
 };
+($self->notes->{'crnt_package_chain'} = $whiteboard::package_chain);
+if(($self->notes->{'crnt_package_chain'}->elems() == 0)) {
+(do{($self->notes->{'crnt_package_chain'} = ["Main"])})
+};
+($self->notes->{'crnt_package'} = $self->notes->{'crnt_package_chain'}->join("\:\:"));
+($self->name =~ qr/(?:(.+)::)?([^:]+)$/);
+($self->notes->{'package'} = ($1 || $self->notes->{'crnt_package'}));
+($self->notes->{'bare_name'} = $2);
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}})
@@ -2631,7 +2645,11 @@ use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{for(($self->chi
 { package IRx1::VarDecl;
 use base "Any";(do{sub is_lexical{my $self=CORE::shift;(do{($self->scope eq "my")})};
 sub is_context{my $self=CORE::shift;(do{$self->notes->{'is'}->{'context'}})};
+sub is_temp{my $self=CORE::shift;(do{$self->notes->{'is'}->{'temp'}})};
 sub name{my $self=CORE::shift;(do{$self->{'var'}->{'name'}})};
+sub bare_name{my $self=CORE::shift;(do{$self->var()->bare_name()})};
+sub package{my $self=CORE::shift;(do{$self->var()->package()})};
+sub crnt_package{my $self=CORE::shift;(do{$self->var()->crnt_package()})};
 sub sigil{my $self=CORE::shift;(do{$self->{'var'}->{'sigil'}})};
 sub is_scalar{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\$")})};
 sub is_array{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\@")})};
@@ -2649,7 +2667,11 @@ sub is_hash{my $self=CORE::shift;(do{GLOBAL::undef()})}})
 
 { package IRx1::Var;
 use base "Any";(do{sub decl{my $self=CORE::shift;(do{$self->notes->{'decl'}})};
-sub is_context{my $self=CORE::shift;(do{(((($self->{'twigil'} || "")) eq "\+") || $self->notes->{'is'}->{'context'})})}})
+sub bare_name{my $self=CORE::shift;(do{$self->notes()->{'bare_name'}})};
+sub package{my $self=CORE::shift;(do{$self->notes()->{'package'}})};
+sub crnt_package{my $self=CORE::shift;(do{$self->notes()->{'crnt_package'}})};
+sub is_context{my $self=CORE::shift;(do{(((($self->{'twigil'} || "")) eq "\+") || $self->notes->{'is'}->{'context'})})};
+sub is_temp{my $self=CORE::shift;(do{$self->notes->{'is'}->{'context'}})}})
 }
 ;
 
@@ -3063,19 +3085,19 @@ if(($ref eq "Undef")) {
 }})};
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 (do{$n->do_all_analysis();
-{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = [];
-{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
-{package main; use vars '$es_whiteboard__compunit_footer'};local $::es_whiteboard__compunit_footer = [];
+{ package whiteboard; use vars '$in_package'};local $whiteboard::in_package = [];
+{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
+{ package whiteboard; use vars '$compunit_footer'};local $whiteboard::compunit_footer = [];
 my $code = (("package\ Main\;\
 " . $self->prelude_for_entering_a_package()));
 my $stmts = $self->e($n->statements());
-my $foot = $::es_whiteboard__compunit_footer->join("\;\
+my $foot = $whiteboard::compunit_footer->join("\;\
 ");
 ((($code . $stmts->join("\;\
 ")) . $foot) . "\;\
 ")})};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
-(do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
+(do{{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
 (("\(do\{" . $self->e($n->statements())->join("\;\
 ")) . "\}\)")})};
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
@@ -3098,10 +3120,10 @@ if($self->compiler->hook_for_use_lib($name)) {
 (do{("use\ " . $module)})
 }})};
 sub cb__ClosureTrait{my $self=CORE::shift;my($n)=@_;
-(do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
+(do{{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
 ((($n->kind() . "\{") . $self->e($n->block())) . "\}")})};
 sub cb__PackageDecl{my $self=CORE::shift;my($n)=@_;
-(do{my $in_package = [$::es_whiteboard__in_package->flatten(), $n->name()];
+(do{my $in_package = [$whiteboard::in_package->flatten(), $n->name()];
 my $name = $in_package->join("\:\:");
 my $base = "use\ base\ \"Any\"\;";
 if(($name eq "Any")) {
@@ -3132,20 +3154,20 @@ __PACKAGE__\-\>meta\-\>make_immutable\(\)\;\
 };
 ($head = (($head . $base) . $self->prelude_for_entering_a_package()));
 if($n->block()) {
-(do{{package main; use vars '$es_whiteboard__in_package'};local $::es_whiteboard__in_package = $in_package;
+(do{{ package whiteboard; use vars '$in_package'};local $whiteboard::in_package = $in_package;
 ((($head . $self->e(($n->traits() || []))->join("\
 ")) . $self->e($n->block())) . $foot)})
 }else {
-(do{($::es_whiteboard__in_package = $in_package);
-$::es_whiteboard__compunit_footer->unshift($foot);
+(do{($whiteboard::in_package = $in_package);
+$whiteboard::compunit_footer->unshift($foot);
 (($head . $self->e(($n->traits() || []))->join("\
 ")) . "\;\
 ")})
 }})};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
 (do{if(((($n->verb() eq "is") or ($n->verb() eq "does")))) {
-(do{my $pkgname = $::es_whiteboard__in_package->join("\:\:");
-my $name = (($::es_whiteboard__in_package->splice(0, (-1))->join("\:\:") . "\:\:") . $self->e($n->expr()));
+(do{my $pkgname = $whiteboard::in_package->join("\:\:");
+my $name = (($whiteboard::in_package->splice(0, (-1))->join("\:\:") . "\:\:") . $self->e($n->expr()));
 $name->re_gsub("\^\:\:", "");
 (((("BEGIN\{push\(\@" . $pkgname) . "\:\:ISA\,\'") . $name) . "\'\)\;\}\
 ")})
@@ -3166,14 +3188,14 @@ if($dflt) {
 (do{my $x = (((("\$_\[0\]\{" . "\'") . $name) . "\'") . "\}");
 my $code = (((((("sub\ " . $name) . "\ \{\ if\(\@_\=\=2\)\{") . $x) . "\=\$_\[1\]\}else\{") . $x) . "\}\}");
 if($default) {
-(do{my $pkg = $::es_whiteboard__in_package->join("\:\:");
+(do{my $pkg = $whiteboard::in_package->join("\:\:");
 ($code = (($code . "\;\
 ") . $self->create_default_for($pkg, $name, $default)))})
 };
 $code})
 }})};
 sub cb__VarDecl{my $self=CORE::shift;my($n)=@_;
-(do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
+(do{{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
 if((($n->scope() eq "has"))) {
 (do{my $default = "";
 my $default_expr = $self->e($n->default_expr());
@@ -3202,7 +3224,7 @@ if($n->is_hash()) {
 (do{($pre = "\{");
 ($post = "\}")})
 };
-{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 1;
+{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 1;
 ($default = ((("\ \=\ " . $pre) . $self->e($n->default_expr())) . $post))})
 }else {
 (do{($default = ("\ \=\ " . $self->e($n->default_expr())))})
@@ -3219,6 +3241,11 @@ if(($n->is_context())) {
 (do{my $name = $self->e($n->var());
 $name->re_sub_g("\^\(\.\)\:\:", "\$1");
 ((((((("\{package\ main\;\ use\ vars\ \'" . $name) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
+}elsif(($n->is_temp())) {
+(do{my $var = $n->var();
+my $nam = $self->encode_varname($var->sigil(), $var->twigil(), $var->bare_name());
+my $pkg = $n->var()->package();
+((((((((("\{\ package\ " . $pkg) . "\;\ use\ vars\ \'") . $nam) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
 }else {
 (do{((($n->scope() . "\ ") . $self->e($n->var())) . $default)})
 }})
@@ -3314,7 +3341,7 @@ $self->multi_using_CM($n, 1, $ef)})
 ((((("sub\ " . $enc_name) . "\{my\ \$self\=CORE\:\:shift\;") . $self->e($n->multisig())) . $body) . "\}")})
 }})};
 sub cb__SubDecl{my $self=CORE::shift;my($n)=@_;
-(do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
+(do{{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
 my $name = $n->name();
 if($name) {
 (do{($name = $self->e($name))})
@@ -3344,16 +3371,16 @@ sub cb__Signature{my $self=CORE::shift;my($n)=@_;
 (do{if((($n->parameters()->elems() == 0))) {
 (do{""})
 }else {
-(do{{package main; use vars '$es_whiteboard__signature_inits'};local $::es_whiteboard__signature_inits = "";
+(do{{ package whiteboard; use vars '$signature_inits'};local $whiteboard::signature_inits = "";
 my $pl = $self->e($n->parameters())->join("\,");
-(((("my\(" . $pl) . "\)\=\@_\;") . $::es_whiteboard__signature_inits) . "\
+(((("my\(" . $pl) . "\)\=\@_\;") . $whiteboard::signature_inits) . "\
 ")})
 }})};
 sub cb__Parameter{my $self=CORE::shift;my($n)=@_;
 (do{my $enc = $self->e($n->param_var());
 if(($n->quant() && ($n->quant() eq "\*"))) {
 (do{my $tmp = ("\@" . $n->param_var()->name());
-($::es_whiteboard__signature_inits = ((((($::es_whiteboard__signature_inits . "\
+($whiteboard::signature_inits = ((((($whiteboard::signature_inits . "\
 my\ ") . $enc) . "\ \=\ \\") . $tmp) . "\;"));
 $tmp})
 }else {
@@ -3365,7 +3392,7 @@ my $t = "";
 my $dsn = $self->e($n->name());
 $self->encode_varname($s, $t, $dsn)})};
 sub cb__Call{my $self=CORE::shift;my($n)=@_;
-(do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
+(do{{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
 my $method = $self->e($n->method());
 if((($method =~ "postcircumfix\:\<\ \>"))) {
 (do{(((($self->e($n->invocant()) . "\-\>") . "\{\'") . $self->e($n->capture())) . "\'\}")})
@@ -3533,9 +3560,9 @@ sub encode_varname{my $self=CORE::shift;my($s,$t,$dsn)=@_;
 (do{my $env = "";
 my $pre = "";
 if(($t eq "\+")) {
-(do{($env = "e")})
+(do{($env = "x")})
 };
-if((($s eq "\$") && ($env eq "e"))) {
+if((($s eq "\$") && ($env eq "x"))) {
 (do{($pre = "s_")})
 };
 if(($s eq "\@")) {
@@ -3565,7 +3592,7 @@ if($n->is_context()) {
 my $dsn = $self->e($n->name());
 my $v = (($s . $t) . $dsn);
 if(((($v eq "\$\?PACKAGE") || ($v eq "\$\?MODULE")) || ($v eq "\$\?CLASS"))) {
-(do{my $pkgname = $::es_whiteboard__in_package->join("\:\:");
+(do{my $pkgname = $whiteboard::in_package->join("\:\:");
 ($pkgname = ($pkgname || "Main"));
 (("\'" . $pkgname) . "\'")})
 }elsif(($v eq "\$\?FILE")) {
@@ -3580,7 +3607,7 @@ if(((($v eq "\$\?PACKAGE") || ($v eq "\$\?MODULE")) || ($v eq "\$\?CLASS"))) {
 sub cb__NumInt{my $self=CORE::shift;my($n)=@_;
 (do{$self->e($n->text())})};
 sub cb__Hash{my $self=CORE::shift;my($n)=@_;
-(do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 1;
+(do{{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 1;
 (("\{" . $self->e(($n->hash() || []))->join("\,")) . "\}")})};
 sub cb__Buf{my $self=CORE::shift;my($n)=@_;
 (do{my $s = $n->buf();
@@ -3589,8 +3616,8 @@ sub cb__Rx{my $self=CORE::shift;my($n)=@_;
 (do{my $pat = ($n->pat() || "");
 (("qr\/" . $pat) . "\/")})};
 sub cb__Pair{my $self=CORE::shift;my($n)=@_;
-(do{if($::es_whiteboard__emit_pairs_inline) {
-(do{{package main; use vars '$es_whiteboard__emit_pairs_inline'};local $::es_whiteboard__emit_pairs_inline = 0;
+(do{if($whiteboard::emit_pairs_inline) {
+(do{{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
 (((("\(" . $self->e($n->key())) . "\ \=\>\ ") . $self->e($n->value())) . "\)")})
 }else {
 (do{(((("Pair\-\>new\(\'key\'\," . $self->e($n->key())) . "\ \=\>\ \'value\'\,") . $self->e($n->value())) . "\)")})
