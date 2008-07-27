@@ -1,3 +1,23 @@
+
+sub a_bit_of_p5_for__expand_backtrack_macros() is p5 {'
+{ package BacktrackMacrosKludge;
+  sub _let_gen {
+    my($vars) = @_;
+    my $nvars = 1+($vars =~ tr/,//);
+    my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
+    push(@SCRATCH::_let_stack,[$vars,$tmpvars]);
+    "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
+  }
+  sub _let_end {
+    my $e = shift(@SCRATCH::_let_stack) || die "LET(){ }LET pairs didnt match up";
+    my($vars,$tmpvars) = @$e;
+    "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
+  }
+}
+'};
+a_bit_of_p5_for__expand_backtrack_macros();
+
+
 class EmitRegex {
 
   method expand_backtrack_macros ($code) {
@@ -192,7 +212,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     }
     my $code = $code0."
 #line 2 \"Regexp::ModuleA::AST::BaseClass RMARE_conj\"
-\n subname \'<conj \'.(\$sub_id++).">" => sub {my \$cn = \$_[0];
+\n subname \'<conj \'.(\$sub_id++).\">\" => sub {my \$cn = \$_[0];
   my \$__start__ = \$Regexp::ModuleA::ReentrantEngine::Env::pos;
   my \$__end__ = undef;
   my \$__f__ = ".$code1.$code2.\';
