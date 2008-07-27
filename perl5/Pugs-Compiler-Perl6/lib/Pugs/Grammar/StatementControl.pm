@@ -189,6 +189,10 @@ BEGIN {
         ]
         ) );
     __PACKAGE__->add_rule(
+        'else' =>  q( 
+            { die "bare 'else'" }
+        ) );
+    __PACKAGE__->add_rule(
         'if' =>  q( 
             <?ws> 
             $<exp1> := <Pugs::Grammar::Expression.parse('no_blocks',0)> <?ws>?
@@ -200,12 +204,15 @@ BEGIN {
                     statement => 'if',
                     exp1 => $_[0]{exp1}->(),
                     exp2 => $_[0]{exp2}->(),
-                    exp3 => [ $_[0]{exp3}->() ],
+                    else => $_[0]{exp3}->(),
                 } }
         |
-            <?ws>? elsif <?ws>? 
-            $<exp3> := <Pugs::Grammar::Expression.parse('no_blocks',0)> <?ws>?
-            $<exp4> := <Pugs::Grammar::Perl6.block>
+            [
+                <?ws>? elsif <?ws>? 
+                $<exp3> := <Pugs::Grammar::Expression.parse('no_blocks',0)> <?ws>?
+                $<exp4> := <Pugs::Grammar::Perl6.block>
+            ]+
+            
             [
                 <?ws>? else <?ws>? 
                 $<exp5> := <Pugs::Grammar::Perl6.block>
@@ -213,17 +220,15 @@ BEGIN {
                     statement => 'if',
                     exp1 => $_[0]{exp1}->(),
                     exp2 => $_[0]{exp2}->(),
-                    exp3 => [ [ $_[0]{exp3}->(), $_[0]{exp4}->() ],
-                              $_[0]{exp5}->() ],
+                    elsif => [ $_[0]{exp3}, $_[0]{exp4} ],
+                    else => $_[0]{exp5}->(),
                 } }
-                
-                # TODO: elsif ...
             |
                 { return { 
                     statement => 'if',
                     exp1 => $_[0]{exp1}->(),
                     exp2 => $_[0]{exp2}->(),
-                    exp3 => [ [$_[0]{exp3}->(), $_[0]{exp4}->() ] ],
+                    elsif => [ $_[0]{exp3}, $_[0]{exp4} ],
                 } }
             ]
         |

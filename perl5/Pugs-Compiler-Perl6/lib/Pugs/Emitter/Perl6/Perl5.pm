@@ -1042,7 +1042,8 @@ sub statement {
     #warn "statement: ", Dumper( $n );
 
     if ( # XXX: obsoleted, fix unless to use new structure
-         $n->{statement} eq 'unless' ) {
+         $n->{statement} eq 'unless' ) 
+    {
         return  " " . $n->{statement} .
                 emit_parenthesis( $n->{exp1} ) .
                 emit_block( $n->{exp2} ) . "\n" .
@@ -1052,16 +1053,17 @@ sub statement {
         my $ret = $n->{statement} .
                 emit_parenthesis( $n->{exp1} ) .
                 emit_block( $n->{exp2} ) . "\n";
-	for (@{$n->{exp3} || []}) {
-	    if (ref($_) eq 'ARRAY') {
-		$ret .= 'elsif '.emit_parenthesis( $_->[0] ) .
-		    emit_block( $_->[1] ) . "\n";
-	    }
-	    else {
-		$ret .= 'else '. emit_block( $_ ) . "\n";
-	    }
-	}
-	return $ret;
+        if ( $n->{elsif} ) {
+            my ($exps, $blocks) = @{$n->{elsif}};
+            for (0 .. $#$exps) {
+                $ret .= 'elsif '.emit_parenthesis( ${$exps}[$_]->() ) .
+                            emit_block( ${$blocks}[$_]->() ) . "\n";
+            }
+        }
+        if ( $n->{else} ) {
+            $ret .= 'else '. emit_block( $n->{else} ) . "\n";
+        }
+        return $ret;
     }
 
     if ( $n->{statement} eq 'do' ) {
