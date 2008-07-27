@@ -79,6 +79,7 @@ sub rx {
         $options->{lc($1)} = 1;
         $pos += 1 + length($1);
     }
+    $pos++ while substr($_[0], $pos) =~ /^\s/;
     my $open = substr($_[0], $pos , 1);
     #print "rx options ", keys( %$options ), ", open $open \n";
     my $ret = rx_body($grammar, $_[0], { p => $pos+1, args => { open => $open } });

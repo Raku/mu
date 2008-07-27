@@ -193,6 +193,12 @@ package Pugs::Runtime::Perl6::IO;
 package Pugs::Runtime::Perl6::Routine;
     use B ();
     use Devel::Caller ();
+    use overload (
+        '""'     => sub { "" . $_[0]->code->() },
+        '0+'     => sub { 0 + $_[0]->code->() },
+        'bool'   => sub { $_[0]->code->() ? 1 : 0 },
+        fallback => 1,
+    );
     
     sub new {
         my ($class, $cv) = @_;
