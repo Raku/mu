@@ -23,8 +23,10 @@ is(foo(2), 'Int 2', 'dispatched to the Int sub');
 
 my $num = '4';
 is(foo(+$num), 'Num 4', 'dispatched to the Num sub');
+#?rakudo skip 'unspecced: is 1.5 ~~ Rat ?'
 is(foo(1.5), 'Rat 1.5', 'dispatched to the Rat sub');
 is(foo(1 == 1), 'Bool 1', 'dispatched to the Bool sub');
+#?rakudo skip 'rx:P5'
 is(foo(rx:P5/a/),'Rule Rule','dispatched to the Rule sub', :todo<bug>);
 is(foo(sub { 'baz' }), 'Sub baz', 'dispatched to the Sub sub');
 
