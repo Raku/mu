@@ -1,3 +1,6 @@
+0.35  2008-07-27
+- fixed var name mangler
+
 0.34  2008-07-25
 - added unicode 'isGraphemeLink', 'Cn'
 
