@@ -148,6 +148,7 @@ t/regex/from_perl6_rules/properties-06.t
 t/regex/from_perl6_rules/properties-07.t
 t/regex/from_perl6_rules/properties-08.t
 t/regex/from_perl6_rules/properties-09.t
+t/regex/p6regex/p6regex.t
 t/regex/rx_perl5_escape.t
 t/regex/smartparse.t
 t/spec/S02-builtin_data_types/array_extending.t
