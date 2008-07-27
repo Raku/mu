@@ -801,7 +801,7 @@ sub default {
                 || $subname eq 'push' || $subname eq 'pop' || $subname eq 'shift' || $subname eq 'join' 
                 || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' 
                 || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' 
-                || $subname eq 'chomp' || $subname eq 'lc' || $subname eq 'abs' 
+                || $subname eq 'chomp' || $subname eq 'lc' || $subname eq 'abs' || $subname eq 'sleep' 
                 ) 
             {
                 return $subname . emit_parenthesis( $n->{param} );
@@ -839,6 +839,9 @@ sub default {
             }
             if ($subname eq 'open') {
                 return 'Perl6::Internals::open('. _emit_parameter_capture( $n->{param} ) . ')';
+            }
+            if ($subname eq 'slurp') {
+                return 'Pugs::Runtime::Perl6::IO::slurp'. emit_parenthesis( $n->{param} );
             }
 
             my $sub_name = Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} );

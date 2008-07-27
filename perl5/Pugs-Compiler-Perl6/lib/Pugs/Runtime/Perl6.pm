@@ -22,13 +22,14 @@ use constant NaN => Inf - Inf;
 
 sub perl {
     local $Data::Dumper::Terse    = 1;
-    my $can = UNIVERSAL::can($_[0] => 'perl');
-    if ($can) {
-        $can->($_[0]);
-    }
-    else {
-        Dumper($_[0]);
-    }
+    my $self = shift;
+    my $can = UNIVERSAL::can($self => 'perl');
+    my $v = $can
+        ? $can->($self)
+        : Dumper($self);
+    chomp $v;
+    return $v . ', ' . perl( @_ ) if @_;
+    return $v;
 }
 
 sub yaml {
@@ -183,11 +184,27 @@ package Pugs::Runtime::Perl6::IO;
     }
     
     sub slurp {
-        my $self = $_[0];
-        my $content;
-        local $/; 
-        $content = <$self>;
-        return bless \$content, 'Pugs::Runtime::Perl6::Scalar';
+        if ( wantarray ) {
+            my @a;
+            if ( ref( $_[0] ) eq 'IO::File' ) {
+                my $f = shift;
+                @a = <$f>;
+            }
+            else {
+                local( @ARGV ) = ( @_ ); 
+                @a = <ARGV>;
+            }
+            chomp @a;
+            return @a;
+        }
+
+            if ( ref( $_[0] ) eq 'IO::File' ) {
+                return <$_[0]>;
+            }
+            else {
+                local( $/, @ARGV ) = ( undef, @_ ); 
+                return <ARGV>;
+            }
     }
 
 package Pugs::Runtime::Perl6::Routine;

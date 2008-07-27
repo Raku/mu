@@ -14,13 +14,13 @@ sub true is export {
 sub Inf is export { Pugs::Runtime::Perl6::Inf }
 sub NaN is export { Pugs::Runtime::Perl6::NaN }
 
-sub slurp { ... } # Slurps in an entire file
+# sub slurp { ... } # Slurps in an entire file
 
 module Perl6::Internals;
 
 sub compile_pir($code) { ... }
 sub exit($status)   is export { use v5; CORE::exit($status); use v6; }
-sub sleep($seconds) is export { use v5; CORE::sleep($seconds); use v6; }
+# sub sleep($seconds) is export { use v5; CORE::sleep($seconds); use v6; }
 
 sub open($file) { use v5; my $fh = IO::File->new; $fh->open($file); $fh; use v6; }
 
