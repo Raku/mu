@@ -1,7 +1,0 @@
-This is the start of an elf-based emitter for smop.
-
-It was intended as a "quick demo", but writing it was interrupted.
-Rather than continuing to sit on the code, I check in a snapshot.
-I believe the next step was to be an env var to gather block decls.
-
-The plan was to eventually move this to the smop directory.

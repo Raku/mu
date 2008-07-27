@@ -49,7 +49,7 @@ class EmitSM0P {
       for $arguments.keys -> $i {
           $positionals = $positionals ~ $.e($arguments[$i],"pos_"~$id~"_"~$i);
       }
-      "# method call " ~ $id ~ "\n" ~
+      #"# method call " ~ $id ~ "\n" ~
       $.e($n.invocant,'i_'~$id) ~
       'ic_'~$id~': $SMOP__SLIME__CurrentFrame.copy(`i_' ~ $id ~ ");\n" ~
       'id_'~$id~': q:identifier['~$n.method.re_gsub(rx:P5/\]/,"\\]") ~"];\n" ~
@@ -79,6 +79,9 @@ class EmitSM0P {
   }
   method cb__NumInt ($n,$label) {
       $label ~ ": " ~ $n.text ~ ";\n";
+  }
+  method cb__SubDecl ($n,$label) {
+      $label ~ ": " ~ "q:sm0p {\n"~ $.e($n.block.statements).join(';') ~ "};\n"
   }
   method cb__Var ($n,$label) {
       if $n.sigil eq '$' and $n.twigil ne '*' {
