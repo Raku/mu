@@ -20,7 +20,7 @@ our %quote = (
     '‘'    => '’',
 );
 
-our %perl6_name = (
+my @names = (
     # perl 5        => # perl 6
     '%::ENV'        => '%*ENV',  
     '$^O'           => '$*OS',  
@@ -42,7 +42,8 @@ our %perl6_name = (
     '$::_V6_COMPILER_NAME'    => '$?COMPILER', 
     '$::_V6_COMPILER_VERSION' => '$?VERSION',
 );
-our %perl5_name = reverse %perl6_name;
+our %perl6_name = @names;
+our %perl5_name = reverse @names;
 
 sub mangle_ident {
     my $s = shift;
@@ -53,7 +54,6 @@ sub mangle_ident {
 
 sub mangle_var {
     my $s = $_[0];
-    #warn "mangle: $s";
     return $perl5_name{$s} if exists $perl5_name{$s};
     substr($s,1) =~ s/ ([^a-zA-Z0-9_:] | (?<!:):(?!:)) / '_'.ord($1).'_' /xge;
     return $s;
