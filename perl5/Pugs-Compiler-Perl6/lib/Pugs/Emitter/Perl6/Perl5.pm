@@ -26,9 +26,9 @@ sub _var_get {
     for ( qw( scalar array hash ) ) {
         $s = $n->{$_} if exists $n->{$_};
     }
-
+    
     #print "get: $s\n";
-
+    
     if  (  defined $s
         && $s =~ /\$\? .* POSITION $/x
         ) {
@@ -173,6 +173,16 @@ sub _emit_single_quoted {
     return "q($n)" unless $n =~ /[()]/;
     return "q!$n!" unless $n =~ /[!]/;
     return "q^$n^" unless $n =~ /[\^]/;
+    die "can't quote string [$n]";
+}
+
+sub _emit_qr {
+    my $n = $_[0];
+    return "qr($n)" unless $n =~ /[()]/;
+    return "qr{$n}" unless $n =~ /[{}]/;
+    return "qr[$n]" unless $n =~ /[\[\]]/;
+    return "qr!$n!" unless $n =~ /[!]/;
+    return "qr^$n^" unless $n =~ /[\^]/;
     die "can't quote string [$n]";
 }
 
@@ -1020,7 +1030,8 @@ sub default {
     }
 
     if ( exists $n->{rx} ) {
-        return 'qr{'.$n->{rx}{rx}.'}' if $n->{rx}{options}{perl5};
+        return _emit_qr( $n->{rx}{rx} ) if $n->{rx}{options}{perl5};
+        return _emit_qr( $n->{rx}{rx} )  # TODO: perl6rx\n";
     }
 
     return _not_implemented( $n, "syntax" );
@@ -1067,7 +1078,7 @@ sub statement {
                 {
                     exp1 => { scalar => '$_' },
                     exp2 => $n->{exp1},
-                    op1   => { op => '~~' },
+                    op1   => '~~',
                     fixity => 'infix',
                 }
             ) . ') {' . emit_block_nobraces( $n->{exp2} ) . '; last; V6_CONTINUE: ; } ';
@@ -1458,7 +1469,7 @@ sub infix {
             return _not_implemented( $n, "rule" );
         }
         if ( my $rx = $n->{exp2}{rx} ) {
-            if ( !$rx->{options}{perl5} ) {
+            if ( !$rx->{options}{perl5} && !$rx->{options}{p5} ) {
                 my $regex = $rx->{rx};
                 # XXX: hack for /$pattern/
                 $regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;
