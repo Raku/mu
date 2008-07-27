@@ -786,7 +786,14 @@ sub default {
                 return " (defined $param )";
             }
 
-            if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'pop' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' || $subname eq 'chomp' || $subname eq 'lc' || $subname eq 'abs' ) {
+            if (   $subname eq 'any' || $subname eq 'all'  
+                || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' 
+                || $subname eq 'push' || $subname eq 'pop' || $subname eq 'shift' || $subname eq 'join' 
+                || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' 
+                || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' 
+                || $subname eq 'chomp' || $subname eq 'lc' || $subname eq 'abs' 
+                ) 
+            {
                 return $subname . emit_parenthesis( $n->{param} );
             }
 
@@ -1219,6 +1226,7 @@ sub term {
                 push our \@ISA, 'Exporter';
                 our \@EXPORT;
                 bool->import();  # True, False
+                use Quantum::Superpositions;
                 $attributes ";
 
         return ref( $n->{block} ) && exists $n->{block}{bare_block}
@@ -1582,6 +1590,10 @@ sub infix {
         return '((' . _emit( $n->{exp1} ) . ')+1 .. (' . _emit( $n->{exp2} ) . ')-1)';
     }
     
+    if ( $n->{op1} eq '|' ) {
+        return 'any(' . _emit( $n->{exp1} ) . ', ' . _emit( $n->{exp2} ) . ')';
+    }
+
     return '(' . _emit( $n->{exp1} ) . ' ' .
         $n->{op1} . ' ' . _emit( $n->{exp2} ) . ')';
 }
@@ -1797,7 +1809,7 @@ sub prefix {
         #print "prefix:<~> ", Dumper $n;
         return ' "" . ' . _emit( $n->{exp1} );
     }
-    if ( $n->{op1} eq '!' ) {
+    if ( $n->{op1} eq '!' || $n->{op1} eq 'not' ) {
         return _emit( $n->{exp1} ) . ' ? 0 : 1 ';
     }
     if ($n->{op1} eq '+' ) {
@@ -1816,8 +1828,8 @@ sub prefix {
         return $n->{op1} . _emit( $n->{exp1} );
     }
 
-    if ($n->{op1} eq '?') { # bool
-        return '('._emit($n->{exp1}).' ? 1 : 0 )';
+    if ($n->{op1} eq '?' || $n->{op1} eq 'true') { # bool
+        return '(' . _emit($n->{exp1}) . ' ? 1 : 0 )';
     }
 
     if ($n->{op1} eq '=') { # iterate

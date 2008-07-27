@@ -46,7 +46,7 @@ BEGIN {
         other => 'infix:<*>',
     );
     __PACKAGE__->add_same_precedence_ops( { assoc => 'left'}, 'prefix:<+>', qw(
-        - ? ~ | @ % $ & ! * : = \\
+        - ? ~ | @ % $ & ! * : = \\ 
     ) );
     __PACKAGE__->add_rule( 
         name => '++',
@@ -66,6 +66,18 @@ BEGIN {
         assoc => 'non',
         precedence => 'equal',
         other => 'infix:<+>',
+    );
+    __PACKAGE__->add_rule( 
+        name => 'true',
+        assoc => 'left',
+        precedence => 'looser',
+        other => 'infix:<eq>',
+    );
+    __PACKAGE__->add_rule( 
+        name => 'not',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'prefix:<true>',
     );
 
     __PACKAGE__->recompile;
