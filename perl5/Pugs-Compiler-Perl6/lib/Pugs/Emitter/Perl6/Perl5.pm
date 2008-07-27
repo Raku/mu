@@ -1476,6 +1476,24 @@ sub infix {
                 return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.' )->match('._emit($n->{exp1}).')';
             }
         }
+        if (   exists $n->{exp2}{int} && defined $n->{exp2}{int} 
+            || exists $n->{exp2}{num} && defined $n->{exp2}{num} 
+            ) 
+        {
+            return _emit( {
+                      'assoc' => 'chain',
+                      'chain' => [ $n->{exp1}, '==', $n->{exp2} ]
+                } );
+        }
+        if (   exists $n->{exp2}{single_quoted} && defined $n->{exp2}{single_quoted} 
+            || exists $n->{exp2}{double_quoted} && defined $n->{exp2}{double_quoted} 
+            ) 
+        {
+            return _emit( {
+                      'assoc' => 'chain',
+                      'chain' => [ $n->{exp1}, 'eq', $n->{exp2} ]
+                } );
+        }
         return _emit( $n->{exp1} ) . ' =~ (ref' . emit_parenthesis( $n->{exp2} ).' eq "Regexp" '.
             ' ? '._emit($n->{exp2}).
             ' : quotemeta'.emit_parenthesis($n->{exp2}).

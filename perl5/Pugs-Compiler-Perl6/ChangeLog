@@ -1,4 +1,5 @@
 - all(), any(), true(), not()
+- improved smartmatching, given/when
 
 0.027  2008-07-25
 - more unicode tests are skipped
