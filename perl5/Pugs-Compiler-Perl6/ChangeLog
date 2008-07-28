@@ -1,3 +1,6 @@
+0.029  2008-07-28
+- updated skipped tests
+
 0.028  2008-07-27
 - all(), any(), true(), not()
 - improved smartmatching, given/when
