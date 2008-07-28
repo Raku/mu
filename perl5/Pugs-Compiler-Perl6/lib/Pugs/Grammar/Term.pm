@@ -355,6 +355,9 @@ sub recompile {
                 { return { code  => "\&" . $_[0]->() ,} }
               | { return { bare_sigil => '&' ,} }
             ),
+        '*' => q(
+                { return { bare_sigil => '*' ,} }
+            ),
         '(' => q(
                 <Pugs::Grammar::Term.parenthesis>
                 { return $_[0]{'Pugs::Grammar::Term.parenthesis'}->() }

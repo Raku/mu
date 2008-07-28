@@ -455,7 +455,7 @@ sub lexer {
         # longest token
         $m = undef;
         if ( $m1 && $m2 ) {
-            if ( exists $m2->()->{bare_sigil} && $m2->tail =~ /^[\,\)]/ ) {
+            if ( exists $m2->()->{bare_sigil} && $m2->tail =~ /^\s*[\,\)\}\]]/ ) {
                 $m = $m2
             }
             else {
