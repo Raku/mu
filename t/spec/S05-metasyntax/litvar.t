@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 This file was derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/litvar.t.
@@ -10,13 +10,9 @@ version 0.3 (12 Apr 2004), file t/litvar.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
-=cut
+=end pod
 
 plan 29;
-
-if !eval('("a" ~~ /a/)') {
-  skip_rest "skipped tests - rules support appears to be missing";
-} else {
 
 # L<S05/Variable (non-)interpolation/The default way in which the engine handles a scalar>
 
@@ -48,8 +44,15 @@ ok(!( '1' ~~ m/$href.{b}/ ), 'Hash ref dot B');
 ok(!( '1' ~~ m/$href{b}/ ), 'Hash ref B');
 ok(!( '1' ~~ m/%var{b}/ ), 'Hash B');
 
+# REGEXES
+# However, if $var contains a Regex object, instead of attempting to convert it to a string, it is called as a subrule
+# A simple test for this
+my $rx = rx/foo/;
+ok('foobar' ~~ /$rx bar/,  'regex object in a regex');
+ok('quxbaz' !~~ /$rx baz/, 'nonmatching regex object in a regex');
 
-# ArrayS
+
+# ARRAYS
 # L<S05/Variable (non-)interpolation/An interpolated array:>
 
 ok("a" ~~ m/@var/, 'Simple array interpolation (a)', :todo<feature>);
@@ -73,6 +76,3 @@ ok("====a=====" ~~ m/%var/, 'Nested hash interpolation (a)', :todo<feature>);
 ok(!( "abca" ~~ m/^%var$/ ), 'Simple hash non-matching');
 
 ok("a b c a" ~~ m:s/^[ %var]+$/, 'Simple hash repeated matching', :todo<feature>);
-
-}
-
