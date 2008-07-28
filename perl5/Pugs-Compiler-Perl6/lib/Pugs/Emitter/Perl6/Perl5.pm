@@ -383,6 +383,8 @@ sub assoc_list {
         return join ( ",\n",
             map { exists $_->{null}
                 ? ()
+                : exists $_->{bare_sigil}
+                ? 'undef'
                 : _emit( $_ )
             } @{$n->{list}}
         );

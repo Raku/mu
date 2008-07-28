@@ -275,6 +275,7 @@ sub recompile {
                               'op2' => ']',                    
                         },   
                   } 
+                | { return { bare_sigil => '$' ,} }
             ),
         '$.' => q(
                 <?Pugs::Grammar::Term.ident>
@@ -314,6 +315,7 @@ sub recompile {
             |
                 <?Pugs::Grammar::Term.ident>
                 { return { array => "\@" . $_[0]->() ,} }
+            | { return { bare_sigil => '@' ,} }
             ),
         '::' => q(
                 <?Pugs::Grammar::Term.ident>
@@ -334,6 +336,7 @@ sub recompile {
         '%' => q(
                 <?Pugs::Grammar::Term.ident>
                 { return { hash  => "\%" . $_[0]->() ,} }
+              | { return { bare_sigil => '%' ,} }
             ),
         '%()' => q(
                 { return 
@@ -350,6 +353,7 @@ sub recompile {
         '&' => q(
                 <?Pugs::Grammar::Term.ident>
                 { return { code  => "\&" . $_[0]->() ,} }
+              | { return { bare_sigil => '&' ,} }
             ),
         '(' => q(
                 <Pugs::Grammar::Term.parenthesis>
