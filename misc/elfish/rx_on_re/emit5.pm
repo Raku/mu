@@ -674,3 +674,182 @@ sub {
 };
 
 eval_perl5( EmitRegex.regex_prelude() );
+
+
+#----------------------------------------------------------------------
+# AST to RMARE emitters
+#----------------------------------------------------------------------
+
+package Regexp::ModuleA {
+
+  # any regexp
+  class AST::Pat5 {
+    method RMARE_emit () {
+      my $re = $.RMARE_wrap_re_with_mods(self.<pat>);
+      $.RMARE_eat_regexp($re);
+    }
+  }
+
+  # \Qabc\E
+  class AST::Exact {
+    method RMARE_emit () {
+      my $re = self.<text>;
+      $re.re_sub_g('([^\w\s])','\\\\$1');
+      $re = $.RMARE_wrap_re_with_mods($re);
+      $.RMARE_eat_regexp($re);
+    }
+  }
+
+  # (?imsx-imsx:...)
+  class AST::Mod_expr {
+    method RMARE_emit () {
+      self.<expr>.RMARE_emit;
+    }
+  }
+
+  # (?imsx-imsx)
+  class AST::Mod_inline {
+    method RMARE_emit () {
+      $.RMARE_noop;
+    }
+  }
+
+  # ? * + {n,m} ?? *? etc
+  class AST::Quant {
+    method RMARE_emit () {
+      my $min = self.<min>;
+      my $max = self.<max>;
+      my $nongreedy = self.<nongreedy>;
+      $min = 0 if !defined $min;
+      $max = 1000**1000**1000 if !defined $max; #XXX inf
+      die "assert - Quant min <= max" if $min > $max;
+      my $f = self.<expr>.RMARE_emit;
+      my $f1 = $.RMARE_repeat($f,$min,$max,$nongreedy);
+      if self.<flags><ratchet> {
+        $.RMARE_concat([$f1,$.RMARE_commit_sequence]);
+      } else {
+        $f1;
+      }
+    }
+  }
+
+  # a|b
+  class AST::Alt {
+    method RMARE_emit {
+      my $f1 = $.RMARE_alt(self.<exprs>.map(sub($o){$o.RMARE_emit}));
+      if self.<flags><ratchet> {
+        $.RMARE_concat([$f1,$.RMARE_commit_sequence()]);
+      } else {
+        $f1;
+      }
+    }
+  }
+
+  # a&b
+  class AST::Conj {
+    method RMARE_emit {
+      $.RMARE_conj(self.<exprs>.map(sub($o){$o.RMARE_emit}))
+    }
+  }
+
+  # ab
+  class AST::Seq {
+    method RMARE_emit {
+      $.RMARE_concat(self.<exprs>.map(sub($o){$o.RMARE_emit}))
+    }
+  }  
+
+  # .. := ...
+  class AST::Alias {
+    method RMARE_emit {
+      my $target_spec = self.<target_spec>;
+      my $construct_kind = self.<construct_kind>;
+      my $construct_in_quant = self.<construct_in_quant>;
+      my $f = self.<expr>.RMARE_emit;
+      if ($construct_kind eq 'group'
+          && $construct_in_quant
+          && $target_spec[0] =~ /^\$/)
+      {
+        my $cs = $.RMARE_capture_string($f);
+        $.RMARE_alias_wrap($cs,undef,1,0,0,$target_spec);
+      }
+      else {
+        $f;
+      }
+    }
+  }
+
+  # (?:a)
+  class AST::Grp {
+    method RMARE_emit {
+      my $target_spec = self.<target_spec>;
+      my $in_quant = self.<in_quant>;
+      $.RMARE_group(self.<expr>.RMARE_emit,$target_spec,$in_quant);
+    }
+  }
+
+  # (a)
+  class AST::Cap {
+    method RMARE_emit {
+      my $in_quant = {if self.<in_quant> { 1 } else { 0 }};
+      my $target_spec = self.<target_spec>;
+      my $is6 = not self.<flags><p5>;
+      my $idx = {if $is6
+                 { self.<cap6_idx> } else
+                 { self.<cap5_idx> }};
+      my $f = self.<expr>.RMARE_emit;
+      $.RMARE_capture($idx,$f,$is6,self.<nparen6>,
+                      $in_quant,$target_spec);
+    }
+  }
+
+  # \1
+  class AST::Backref {
+    method RMARE_emit {
+      my $noop = $.RMARE_noop;
+      my $idx = self.<backref_n> -1;
+      $.RMARE_eat_backref($idx,'(?'~$.RMARE_imsx~')');
+    } #XXX move imsx into eat
+  }
+
+
+# gap here
+
+  # (?>)
+  class AST::Independent {
+    method RMARE_emit {
+      my $f = self.<expr>.RMARE_emit;
+      $.RMARE_independent($f);
+    }
+  }
+
+  # nonexistent
+  class AST::CommitSequence {
+    method RMARE_emit {
+      $.RMARE_commit_sequence
+    }
+  }
+
+  # ::
+  class AST::CommitGroup {
+    method RMARE_emit {
+      $.RMARE_commit_group
+    }
+  }
+
+  # :::
+  class AST::CommitRegex {
+    method RMARE_emit {
+      $.RMARE_commit_regex
+    }
+  }
+
+  # <commit>
+  class AST::CommitMatch {
+    method RMARE_emit {
+      $.RMARE_commit_match
+    }
+  }
+
+
+}

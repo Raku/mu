@@ -86,133 +86,6 @@ use strict;
 use warnings;
 
 {
-  # any regexp
-  package Regexp::ModuleA::AST::Pat5;
-  sub RMARE_emit {
-    my($o)=@_;
-    my $re = $o->RMARE_wrap_re_with_mods($o->{pat});
-    $o->RMARE_eat_regexp($re);
-  }
-  
-  # \Qabc\E
-  package Regexp::ModuleA::AST::Exact;
-  sub RMARE_emit {
-    my($o)=@_;
-    my $re = $o->{text};
-    $re =~ s/([^\w\s])/\\$1/g;
-    $re = $o->RMARE_wrap_re_with_mods($re);
-    $o->RMARE_eat_regexp($re);
-  }
-
-  # (?imsx-imsx:...)
-  package Regexp::ModuleA::AST::Mod_expr;
-  sub RMARE_emit {
-    my($o)=@_;
-    $o->{expr}->RMARE_emit;
-  }
-  
-  # (?imsx-imsx)
-  package Regexp::ModuleA::AST::Mod_inline;
-  sub RMARE_emit {
-    my($o)=@_;
-    $o->RMARE_noop;
-  }
-
-  # ? * + {n,m} ?? *? etc
-  package Regexp::ModuleA::AST::Quant;
-  sub RMARE_emit {
-    my($o)=@_;
-    my($min,$max,$nongreedy)= (@$o{'min','max','nongreedy'});
-    $min = 0 if !defined $min;
-    $max = 1000**1000**1000 if !defined $max; #XXX inf
-    die "assert - Quant min <= max" if $min > $max;
-    my $f = $o->{expr}->RMARE_emit;
-    my $f1 = $o->RMARE_repeat($f,$min,$max,$nongreedy);
-    if($o->{flags}{ratchet}) {
-      $o->RMARE_concat([$f1,$o->RMARE_commit_sequence()]);
-    } else {
-      $f1;
-    }
-  }
-
-  # a|b
-  package Regexp::ModuleA::AST::Alt;
-  sub RMARE_emit {
-    my($o)=@_;
-    my $f1 = $o->RMARE_alt([map{$_->RMARE_emit}@{$o->{exprs}}]);
-    if($o->{flags}{ratchet}) {
-      $o->RMARE_concat([$f1,$o->RMARE_commit_sequence()]);
-    } else {
-      $f1;
-    }
-  }
-  
-  # a&b
-  package Regexp::ModuleA::AST::Conj;
-  sub RMARE_emit {
-    my($o)=@_;
-    $o->RMARE_conj([map{$_->RMARE_emit}@{$o->{exprs}}]);
-  }
-  
-  # ab
-  package Regexp::ModuleA::AST::Seq;
-  sub RMARE_emit {
-    my($o)=@_;
-    $o->RMARE_concat([map{$_->RMARE_emit}@{$o->{exprs}}]);
-  }
-  
-  # .. := ...
-  package Regexp::ModuleA::AST::Alias;
-  sub RMARE_emit {
-    my($o)=@_;
-    my $target_spec = $o->{target_spec};
-    my $construct_kind = $o->{construct_kind};
-    my $construct_in_quant = $o->{construct_in_quant};
-    my $f = $o->{expr}->RMARE_emit;
-    if($construct_kind eq 'group'
-       && $construct_in_quant
-       && $target_spec->[0] =~ /^\$/)
-    {
-      my $cs = $o->RMARE_capture_string($f);
-      $o->RMARE_alias_wrap($cs,undef,1,0,0,$target_spec);
-    }
-    else {
-      $f;
-    }
-  }
-
-  # (?:a)
-  package Regexp::ModuleA::AST::Grp;
-  sub RMARE_emit {
-    my($o)=@_;
-    my $target_spec = $o->{target_spec};
-    my $in_quant = $o->{in_quant};
-    $o->RMARE_group($o->{expr}->RMARE_emit,$target_spec,$in_quant);
-  }
-  
-  # (a)
-  package Regexp::ModuleA::AST::Cap;
-  sub RMARE_emit {
-    my($o)=@_;
-    my $in_quant = $o->{in_quant} ? 1 : 0;
-    my $target_spec = $o->{target_spec};
-    my $is6 = !$o->{flags}{'p5'};
-    my $idx = ($is6
-               ? $o->{cap6_idx}
-               : $o->{cap5_idx});
-    my $f = $o->{expr}->RMARE_emit;
-    $o->RMARE_capture($idx,$f,$is6,$o->{nparen6},
-                      $in_quant,$target_spec);
-  }
-  
-  # \1
-  package Regexp::ModuleA::AST::Backref;
-  sub RMARE_emit {
-    my($o)=@_;
-    my $noop = $o->RMARE_noop;
-    my $idx = $o->{'backref_n'} -1;
-    $o->RMARE_eat_backref($idx,'(?'.$o->RMARE_imsx.')');
-  } #XXX move imsx into eat
   
   # <foo>
   package Regexp::ModuleA::AST::Subrule;
@@ -353,14 +226,6 @@ sub{my $__c__ = $_[0];
     $_;
   }
 
-  # (?>)
-  package Regexp::ModuleA::AST::Independent;
-  sub RMARE_emit {
-    my($o)=@_;
-    my $f = $o->{expr}->RMARE_emit;
-    $o->RMARE_independent($f);
-  }
-
   # (?(n)t|f)
   package Regexp::ModuleA::AST::Conditional;
   sub RMARE_emit {
@@ -454,34 +319,6 @@ sub{my $__c__ = $_[0];
       return 1 if not FAILED($v);
     }
     return 0;
-  }
-
-  # nonexistent
-  package Regexp::ModuleA::AST::CommitSequence;
-  sub RMARE_emit {
-    my($o)=@_;
-    $o->RMARE_commit_sequence();
-  }
-
-  # ::
-  package Regexp::ModuleA::AST::CommitGroup;
-  sub RMARE_emit {
-    my($o)=@_;
-    $o->RMARE_commit_group();
-  }
-
-  # :::
-  package Regexp::ModuleA::AST::CommitRegex;
-  sub RMARE_emit {
-    my($o)=@_;
-    $o->RMARE_commit_regex();
-  }
-
-  # <commit>
-  package Regexp::ModuleA::AST::CommitMatch;
-  sub RMARE_emit {
-    my($o)=@_;
-    $o->RMARE_commit_match();
   }
 
 }
