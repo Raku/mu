@@ -25,6 +25,14 @@ S03
 * tests for other range edgecases
 * Junction tests need fixing. See below.
 
+S05
+* check t/regex/p6regex/regex_tests for errors and move into spec
+* mm//, ss/// variants
+* repetition, especially **?
+* switch some "ok" tests to "is" tests to check the exact match
+* modifier tests. These are easy to check if they are missing
+* more of everything. t/regex/p6regex/regex_tests is the majority of the P6 regex tests at present.
+
 S09
 * more tests for multidimensional arrays (also .shape, see S29)
 * tests for user-defined array indexing

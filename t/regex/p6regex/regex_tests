@@ -366,6 +366,8 @@ ab:::cd | gh:::ij	xyabghij	n	rule cut at top
 ^<-[<>]>		><		n	not lt, gt  character class
 '... --- ...'		... --- ...	y	literal match (\')
 '... --- ...'		...---...	n	literal match (\')
+'moose'**2		moosemoose	y	using single quotes for grouping (1)
+'...'**2		......		y	using single quotes for grouping (2)
 # todo :pugs<feature>
 'ab\'>cd'		ab'>cd		y	literal match with quote
 'ab"cd'		ab"cd		y	literal match with quote
