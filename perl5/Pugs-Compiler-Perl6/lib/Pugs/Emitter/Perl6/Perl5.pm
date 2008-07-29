@@ -1490,14 +1490,19 @@ sub infix {
                 return '( $::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.' )->match('._emit($n->{exp1}).') )';
             }
             my $regex = $rx->{rx};
-            $regex =~ s{\\}{\\\\}g;
-            $regex =~ s{/}{\\/}g;
-            # print "Regex: /$regex/\n";
-            my $code = Pugs::Compiler::RegexPerl5->compile( $regex )->{perl5};
+            my $code;
+            eval {
+                $code = Pugs::Compiler::RegexPerl5->compile( $regex, { compile_only => 1 } )->{perl5};
+                # print $code, "# $regex /end\n";
+            }
+            or do {
+                print "Error in perl 5 regex: $regex : $@\n";
+                die   "Error in perl 5 regex: $regex : $@\n";
+            };
             return '( $::_V6_MATCH_ = ' 
                         . $code 
                         . '->( __PACKAGE__, \\('._emit($n->{exp1}).') ) '
-                . ')';
+                 . ')';
         }
         if (   exists $n->{exp2}{int} && defined $n->{exp2}{int} 
             || exists $n->{exp2}{num} && defined $n->{exp2}{num} 
