@@ -1439,6 +1439,13 @@ sub infix {
             ' ? ( ' . _emit( $n->{exp2} ) . ' ) ' .
             ' : $_V6_PAD{'.$id1.'} ) ';
     }
+    if ( $n->{op1} eq '//=' ) {
+        my $id1 = $id++;
+        return
+            ' ( !defined ( $_V6_PAD{'.$id1.'} = ( ' . _emit( $n->{exp1} ) . ' )) ' .
+            ' ? ( ' . _emit( $n->{exp1} ) . ' = ' . _emit( $n->{exp2} ) . ' ) ' .
+            ' : $_V6_PAD{'.$id1.'} ) ';
+    }
     if ( $n->{op1} eq 'does' ) {
         # XXX - fix this when Moose implements '$object does'
         #print Dumper( $n->{exp2} );
@@ -1596,7 +1603,7 @@ sub infix {
                 _emit(
                   {
                     fixity => 'infix',
-                    op1 => { op => '+' },
+                    op1 => '+',
                     exp1 => $n->{exp1},
                     exp2 => $n->{exp2},
                   }
@@ -1691,6 +1698,7 @@ sub postcircumfix {
                )
             && ( exists $n->{exp1}{array}
                 || (  exists $n->{exp1}{op1}
+                   && exists $n->{exp2}{fixity}
                    && $n->{exp1}{fixity} eq 'circumfix'
                    && $n->{exp1}{op1} eq '('
                    && exists $n->{exp1}{exp1}{list}
@@ -1702,6 +1710,7 @@ sub postcircumfix {
                 unless exists $n->{exp2}{list}
                     || exists $n->{exp2}{array}
                     || (  exists $n->{exp2}{op1}
+                       && exists $n->{exp2}{fixity}
                        && $n->{exp2}{fixity} eq 'circumfix'
                        && $n->{exp2}{op1} eq '('
                        && exists $n->{exp2}{exp1}{list}
