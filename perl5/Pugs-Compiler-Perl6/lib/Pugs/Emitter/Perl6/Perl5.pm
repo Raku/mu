@@ -1486,9 +1486,18 @@ sub infix {
             if ( !$rx->{options}{perl5} && !$rx->{options}{p5} ) {
                 my $regex = $rx->{rx};
                 # XXX: hack for /$pattern/
-                $regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;
-                return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.' )->match('._emit($n->{exp1}).')';
+                $regex = _emit_single_quoted( $regex ) unless $regex =~ m/^\$[\w\d]+/;
+                return '( $::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.' )->match('._emit($n->{exp1}).') )';
             }
+            my $regex = $rx->{rx};
+            $regex =~ s{\\}{\\\\}g;
+            $regex =~ s{/}{\\/}g;
+            # print "Regex: /$regex/\n";
+            my $code = Pugs::Compiler::RegexPerl5->compile( $regex )->{perl5};
+            return '( $::_V6_MATCH_ = ' 
+                        . $code 
+                        . '->( __PACKAGE__, \\('._emit($n->{exp1}).') ) '
+                . ')';
         }
         if (   exists $n->{exp2}{int} && defined $n->{exp2}{int} 
             || exists $n->{exp2}{num} && defined $n->{exp2}{num} 

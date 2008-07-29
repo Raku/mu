@@ -150,6 +150,15 @@ t/regex/from_perl6_rules/properties-08.t
 t/regex/from_perl6_rules/properties-09.t
 t/regex/p6regex/p6regex.t
 t/regex/p6regex/regex_tests
+t/regex/perl5_1.t
+# t/regex/perl5_2.t
+# t/regex/perl5_3.t
+# t/regex/perl5_4.t
+t/regex/perl5_5.t
+t/regex/perl5_6.t
+t/regex/perl5_7.t
+t/regex/perl5_8.t
+t/regex/perl5_9.t
 t/regex/rx_perl5_escape.t
 t/regex/smartparse.t
 t/spec/S02-builtin_data_types/array_extending.t
