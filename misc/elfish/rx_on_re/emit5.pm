@@ -44,7 +44,7 @@ class EmitRegex {
 
 
   method regex_prelude () {
-    self.expand_backtrack_macros('
+    my $rmare = self.expand_backtrack_macros('
 
 { package VersionConstraints;
   use Regexp::Common 2.122;
@@ -670,6 +670,192 @@ sub {
 
 }
 ');
+   my $match = '
+
+#======================================================================
+# Match
+#
+{
+  package Regexp::ModuleA::ReentrantEngine::Match2;
+  @Regexp::ModuleA::ReentrantEngine::Match2::ISA =
+    qw(Regexp::ModuleA::ReentrantEngine::Match0);
+
+  use overload
+    \'bool\' => \'match_boolean\',
+    \'""\'   => \'match_string\',
+    \'@{}\'  => \'match_array\',
+    \'%{}\'  => \'match_hash\',
+    ;
+
+  sub _match_enable_overload2 { }
+  sub _match_enable_overload1 { die "assert not reached" }
+
+  package Regexp::ModuleA::ReentrantEngine::Match1;
+  @Regexp::ModuleA::ReentrantEngine::Match1::ISA =
+    qw(Regexp::ModuleA::ReentrantEngine::Match0);
+
+  use overload
+    \'bool\' => \'match_boolean\',
+    \'""\'   => \'match_string\',
+    \'@{}\'  => \'match_array\',
+    \'%{}\'  => \'match_hash\',
+    ;
+
+  # sub _match_enable_overload1 is still required.
+
+  package Regexp::ModuleA::ReentrantEngine::Match0;
+
+  sub _match_enable_overload2 {
+    my($o)=@_;
+    use Carp; Carp::confess if ref($o) !~ /[a-z]/;
+#    eval {print STDERR $o->match_describe,"\n";};
+#    if($@){use Data::Dumper; print STDERR Dumper $o;}
+    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}@{$o->match_array}) { $m->_match_enable_overload2 }
+    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}values %{$o->match_hash}) { $m->_match_enable_overload2 }
+    bless $o, \'Regexp::ModuleA::ReentrantEngine::Match2\';
+  }
+  sub _match_enable_overload1 {
+    my($o)=@_;
+    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}@{$o->match_array}) { $m->_match_enable_overload1 }
+    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}values %{$o->match_hash}) { $m->_match_enable_overload1 }
+    bless $o, \'Regexp::ModuleA::ReentrantEngine::Match1\';
+  }
+
+  sub match_boolean {${$_[0]}->{match_boolean}}
+  sub match_string  {${$_[0]}->{match_string}}
+  sub match_array   {${$_[0]}->{match_array}}
+  sub match_hash    {${$_[0]}->{match_hash}}
+
+  sub from          {${$_[0]}->{match_from}}
+  sub to            {${$_[0]}->{match_to}}
+
+  sub match_value   {${$_[0]}->{match_value}}
+
+  sub new_failed {my($cls)=@_; $cls->new()->match_set_as_failed()}
+  sub new {
+    my($cls)=@_;
+    my $h = {
+      match_boolean => 1,
+      match_string  => "",
+      match_array   => [],
+      match_hash    => {},
+      match_from    => undef,
+      match_to      => undef,
+      match_value   => undef
+      };
+    my $o = \$h;
+    bless $o,$cls;
+    #$o->match_set(1,"",[],{});
+    return $o;
+  }
+  sub match_set {
+    my($o,$b,$s,$a,$h,$from,$to)=@_;
+    $$o->{match_boolean} = $b;
+    $$o->{match_string}  = $s;
+    $$o->{match_array}   = $a;
+    $$o->{match_hash}    = $h;
+    $$o->{match_from}    = $from;
+    $$o->{match_to}      = $to;
+    $$o->{match_value}   = undef;
+    return $o;
+  }
+  sub match_set_as_failed {
+    my($o)=@_;
+    $o->match_set(0,"",[],{});
+    return $o;
+  }
+  sub match_set_value {
+    my($o,$v)=@_;
+    $$o->{match_value} = $v;
+  }
+  
+  sub match_describe {
+    my($o,$verbose_p)=@_;
+    my $vp = $verbose_p;
+    my $os = $o->match_string;
+    $os = $o->match__indent_except_top($os) if $os =~ /\n/;
+    my $s = $verbose_p ? $o->match__describe_name_as : "";
+    $s .= "<".($o->match_boolean?"1":"0").",\"$os\",[";
+    for my $v (@{$o->match_array}) {
+      my $vs = "";
+      if(ref($v) eq \'ARRAY\') {
+        $vs = "[\n".$o->match__indent(join(",\n",map{
+          $_->match_describe($vp)
+          }@$v))."\n]";
+      } else {
+        $vs = $v->match_describe($vp);
+      }
+      $s .= "\n".$o->match__indent($vs).",";
+    }
+    $s .= "\n " if @{$o->match_array};
+    $s .= "],{";
+    for my $k (keys(%{$o->match_hash})) {
+      my $v = $o->match_hash->{$k};
+      my $vs = "";
+      if(ref($v) eq \'ARRAY\') {
+        $vs = "[\n".$o->match__indent(join(",\n",map{
+          $_->match_describe($vp)
+          }@$v))."\n]";
+      } else {
+        $vs = $v->match_describe($vp);
+      }
+      $s .= "\n  $k => " .$o->match__indent_except_top($vs).",";
+    }
+    $s .= "\n " if %{$o->match_hash};
+    $s .= "},";
+    my($from,$to)=($o->from,$o->to);
+    $from = "" if !defined $from;
+    $to   = "" if !defined $to;
+    $s .= "$from,$to";
+    my $val = $o->match_value;
+    $s .= defined $val ? ",$val" : "";
+    $s .= ">";
+    return $s;
+  }
+  sub match__indent {my($o,$s)=@_; $s =~ s/^(?!\Z)/  /mg; $s}
+  sub match__indent_except_top {my($o,$s)=@_; $s =~ s/^(?<!\A)(?!\Z)/  /mg; $s}
+  sub match__describe_name_as {
+    my($o)=@_;
+    my $s = overload::StrVal($o);
+    $s .= "{".$$o->{RULE}."}" if defined $$o->{RULE};
+    $s;
+  }
+
+  sub match_copy {
+    my($o)=@_;
+    my $m = ref($o)->new()->match_set($o->match_boolean,
+                                      $o->match_string,
+                                      $o->match_array,
+                                      $o->match_hash,
+                                      $o->from,
+                                      $o->to);
+    $$m->{match_value} = $$o->{match_value};
+    $$m->{RULE} = $$o->{RULE};
+    $m;
+  }
+
+  sub match_x_process_children {
+    my($o,$fun)=@_;
+    my $a = [map{ref($_)eq\'ARRAY\'?[map{$fun->($_)}@$_]:$fun->($_)} @{$o->match_array}];
+    my $oh = $o->match_hash;
+    my %h = map{
+      my $k = $_;
+      my $v = $oh->{$k};
+      my $v1 = $v;
+      if(ref($v) eq \'ARRAY\') {
+        $v1 = [map{$fun->($_)}@$v];
+      } else {
+        $v1 = $fun->($v);
+      }
+      ($k,$v1);
+    } keys %{$oh};
+    ($a,\%h);
+  }
+
+}
+
+';
+    $rmare ~ "\n" ~ $match;
   };
 };
 
