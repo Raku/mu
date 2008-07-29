@@ -15,7 +15,7 @@ check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
 	08_native_uint.t 09_threads.t 10_lowlevel_methods.t 11_lowlevel_scalar.t \
 	12_p6opaque.t 14_p6opaque_methods.t \
 	15_hash.t 16_labels.t 17_sm0p.t 18_root_namespace.t 19_array.t \
-	20_smop_s1p_code.t \
+	20_smop_s1p_ccode.t \
 	dispatch_benchmark
 
 01_smop_lowlevel_t_SOURCES = 01_smop_lowlevel.c
