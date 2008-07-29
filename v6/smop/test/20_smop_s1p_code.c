@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
                                       SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                    SMOP__INTPTR__InterpreterInstance,NULL,NULL));
 
-  SMOP__Object* code = SMOP__S1P__Code_create(&test_code);
+  SMOP__Object* code = SMOP__S1P__CCode_create(&test_code);
   printf("ok 1 - code created.\n");
 
   SMOP_DISPATCH(intrp,

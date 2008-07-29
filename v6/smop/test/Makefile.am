@@ -36,7 +36,7 @@ check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
 17_sm0p_t_SOURCES = 17_sm0p.sm0p
 18_root_namespace_t_SOURCES = 18_root_namespace.sm0p
 19_array_t_SOURCES = 19_array.p6
-20_smop_s1p_code_t_SOURCES = 20_smop_s1p_code.sm0p
+20_smop_s1p_ccode_t_SOURCES = 20_smop_s1p_ccode.sm0p
 
 
 dispatch_benchmark_SOURCES = dispatch_benchmark.sm0p
