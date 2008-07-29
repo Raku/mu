@@ -38,6 +38,19 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
       frame->nodes[i] = SMOP__NATIVE__capture_positional(interpreter, capture, i);
     }
   
+  } else if (identifier ==  SMOP__ID__clone) {
+    smop_slime_frame_struct* frame = (smop_slime_frame_struct*) SMOP__NATIVE__capture_invocant(interpreter, capture);
+    ret = smop_lowlevel_alloc(sizeof(smop_slime_frame_struct));
+    smop_slime_frame_struct* new_frame = (smop_slime_frame_struct*)ret;
+    new_frame->node_count = frame->node_count;
+    new_frame->nodes = malloc(new_frame->node_count * sizeof(SMOP__Object*));
+    new_frame->lexical = frame->lexical;
+    new_frame->back    = frame->back;
+    int i;
+    for (i = 0; i < frame->node_count; i++) {
+      new_frame->nodes[i] = frame->nodes[i]; //TODO clone nodes
+    }
+
   } else if (identifier ==  SMOP__ID__has_next) {
     SMOP__Object* frame = SMOP__NATIVE__capture_invocant(interpreter, capture);
     if (frame && frame != SMOP__SLIME__Frame) {

@@ -17,11 +17,12 @@ my $out_count = 1;
 print {$output} qq{#line 1 "$in"\n};
 PRINCIPAL:
 while (<$input>) {
-    if (/q:sm0p/) {
+    if (/^(\s*) \w+ \s+ = \s* q:sm0p/x) {
         $sm0p_code = $_;
+        my $indent = $1;
         while (<$input>) {
             $sm0p_code .= $_;
-            if ( $_ =~ /^\s*\}/ ) {
+            if ( $_ =~ /^$indent\}/ ) {
                 my $next_inline = $. + 1;
                 my $next_outline = $out_count + 2;
                 my $lines = qq{#line $next_outline "$out"\n}

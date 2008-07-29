@@ -1,16 +1,21 @@
 grammar sm0p;
+token TOP {
+    <ws> <name>  <ws> '=' <ws> 'q:sm0p' <frame> <ws> ';'?
+    {make $<name> ~ " = " ~ $<frame> ~ ';'}
+}
 token frame {
-    <ws> <name>  <ws> '=' <ws> 'q:sm0p' <ws> '{' <ws> <nodes> <ws> '}' <ws> ';'?
-    { make $<name> ~ ' = SMOP_DISPATCH(interpreter, '
+    <ws> '{' <ws> <nodes> <ws> '}' <ws>
+    { make 'SMOP_DISPATCH(interpreter, '
       ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
       ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
-      ~ $<nodes> ~ ' }, NULL)); ' }
+      ~ $<nodes> ~ ' }, NULL))' }
 }
 
 token nodes {
-    {$smop::node_counter=0;$smop::labels={};}
+    {push(@smop::nodes_stack,[$smop::node_counter,$smop::labels]);$smop::node_counter=0;$smop::labels={};}
     <node>*
     { if ($<node>.elems) { make $<node>.join(', ') ~ ', NULL'} else { make '' }}
+    {my $prev=pop(@smop::nodes_stack);$smop::node_counter=$prev->[0];$smop::labels=$prev->[1];}
 }
 
 token label {
@@ -20,9 +25,9 @@ token label {
 token node {
     <label>?
     [<node_empty> { make $<node_empty> ~ '' }
-    || <node_result> { make $<node_result> ~ '' }
-    || <node_capturized> { make $<node_capturized> ~ '' }
-    || <node_full> { make $<node_full> ~ '' }]
+    ||<node_result> { make $<node_result> ~ '' }
+    ||<node_capturized> { make $<node_capturized> ~ '' }
+    ||<node_full> { make $<node_full> ~ '' }]
     {$smop::node_counter++;}
 }
 
@@ -90,6 +95,7 @@ token nativestring {
 }
 
 token value {
+    || <frame>    { make $<frame> }
     || <nativestring> { make $<nativestring> }
     || <nativeint>    { make $<nativeint> }
     || <capturize>    { make $<capturize> }
@@ -121,7 +127,7 @@ token pairs {
     [
         <ws> \, <ws> <pairs>
         { make $<pair> ~ ', ' ~ $<pairs> }
-   ||  <ws> [ \, <ws> | '' ]
+   ||  <ws> [ \, <ws> || '' ]
         { make $<pair> ~ ', NULL' }
     ]
 }

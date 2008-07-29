@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   SMOP__Object* io   = SMOP__S1P__IO_create();
   node = q:sm0p {
     ;
-    $io.print("1..2\n");
+    $io.print("1..3\n");
     io: $io;
     io_responder: $SMOP__SLIME__CurrentFrame.copy(`io);
     print: print;
@@ -31,9 +31,13 @@ int main(int argc, char** argv) {
     $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`io,(`ok1),(),1));
     ;
     $io.q:identifier[print]("ok 2 - q:identifier works\n");
-    #io2: $io;
-    #ok2: "ok 2 - call works\n"
-    #$SMOP__SLIME__CurrentFrame.call(print,SMOP__SLIME__Capturize(`io2,(),(),1));
+    $io.print("# 1\n");
+    $interpreter.goto({
+        $io.print("ok 3\n");
+    });
+    $io.print("# 2\n");
+    $interpreter.loop();
+    $io.print("# 3\n");
   }
    
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
