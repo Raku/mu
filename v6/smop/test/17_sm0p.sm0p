@@ -31,13 +31,10 @@ int main(int argc, char** argv) {
     $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`io,(`ok1),(),1));
     ;
     $io.q:identifier[print]("ok 2 - q:identifier works\n");
-    $io.print("# 1\n");
     $interpreter.goto({
-        $io.print("ok 3\n");
+        ;
+        $io.print("ok 3 - nested frames work\n");
     });
-    $io.print("# 2\n");
-    $interpreter.loop();
-    $io.print("# 3\n");
   }
    
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
