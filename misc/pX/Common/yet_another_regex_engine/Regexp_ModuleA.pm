@@ -1978,7 +1978,11 @@ use Regexp::Common;
 sub mod_helper {
   my($mod)=@_;
   my $h = {%$Regexp::ModuleA::ReentrantEngine::Env::nested_data};
-  my($on,$off) = split('-',$mod);
+  #my($on,$off) = split('-',$mod); # Can cause segfaults.
+  my $idx = index($mod,"-");
+  my($on,$off);
+  if($idx < 0) { ($on,$off) = ($mod,undef) }
+  else         { ($on,$off) = (substr($mod,0,$idx),substr($mod,$idx+1)) }
   if($on){for my $x (unpack('c*',$on)){$h->{$x}=1}}
   if($off){for my $x (unpack('c*',$off)){$h->{$x}=0}}
   $Regexp::ModuleA::ReentrantEngine::Env::nested_data = $h;
