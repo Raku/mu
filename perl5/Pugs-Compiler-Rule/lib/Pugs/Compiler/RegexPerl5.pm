@@ -14,6 +14,15 @@ use warnings;
 # http://www.foo.be/docs/tpj/issues/vol2_3/tpj0203-0002.html
 # is a good reference on the use of pos()
 
+sub _quote_rule {
+    my $rule_source = shift;
+    return 'm/' . $rule_source . '/' unless $rule_source =~ m{/};
+    return 'm{' . $rule_source . '}' unless $rule_source =~ m/{/ || $rule_source =~ m/}/;
+    return 'm!' . $rule_source . '!' unless $rule_source =~ m/!/;
+    return 'm[' . $rule_source . ']' unless $rule_source =~ m/\[/ || $rule_source =~ m/\]/;
+    return 'm^' . $rule_source . '^' unless $rule_source =~ m/^/;
+}
+
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
     my $self = { source => $rule_source };
@@ -43,7 +52,7 @@ sub compile {
       });
       ';
     $self->{perl5} = 
-q(do {
+q!do {
   my $rule; 
   $rule = sub { # grammar, string, state, args
   no warnings 'uninitialized';
@@ -59,29 +68,41 @@ q(do {
   if( $_[3]{continue} ) {
     pos(${$_[1]}) = $_[3]{p}
       if defined $_[3]{p};
-    $bool = \( ${$_[1]} =~ /) . $rule_source . q(/g \) ? 1 : 0; ) . 
-    $captures . q(
+    $bool = ( ${$_[1]} =~ !
+        . _quote_rule( $rule_source ) 
+        . q(g \) ? 1 : 0; ) 
+        . $captures 
+        . q!
   }
   
   if ( defined $_[3]{p} ) {
       pos(${$_[1]}) = $_[3]{p};
-      $bool = \( ${$_[1]} =~ /\G\(?:) . $rule_source . q(\)/ \) ? 1 : 0; ) . 
-      $captures . q(
+      $bool = ( ${$_[1]} =~ ! 
+        . _quote_rule( 
+                q(\\G\(?:) . $rule_source . ')' 
+          ) 
+        . ' ) ? 1 : 0; ' 
+        . $captures 
+        . q!
   }
   else {
-      $bool = \( ${$_[1]} =~ /) . $rule_source . q(/ \) ? 1 : 0; ) . 
-      $captures . q(
+      $bool = ( ${$_[1]} =~ !
+      . _quote_rule( $rule_source ) 
+      . q( \) ? 1 : 0; ) 
+      . $captures . q(
   }
 };
 }
 );
     # print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
-    local $@;
-    $self->{code} = eval 
-        $self->{perl5};
-    die "Error in evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
-
+    unless ( $param->{compile_only} ) {
+        local $@;
+        $self->{code} = eval 
+            $self->{perl5};
+        die "Error in evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
+    }
+    
     bless $self, 'Pugs::Compiler::Regex';
 }
 

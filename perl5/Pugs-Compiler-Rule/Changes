@@ -1,3 +1,6 @@
+0.36  2008-07-28
+- fixed quoting in perl 5 regex emitter
+
 0.35  2008-07-27
 - fixed var name mangler
 
