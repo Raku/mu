@@ -32,6 +32,7 @@ sub compile {
     $self->{continue} = delete $param->{continue} ||
                         delete $param->{c}        || 
                         0;
+    my $compile_only = delete $param->{compile_only};
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
         
@@ -96,7 +97,7 @@ q!do {
 );
     # print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
-    unless ( $param->{compile_only} ) {
+    unless ( $compile_only ) {
         local $@;
         $self->{code} = eval 
             $self->{perl5};
