@@ -115,7 +115,7 @@ package Evalbot;
             my $str = $1;
             return "Program empty" unless length $str;
             warn "Perl6: $str\n";
-            my $result = '';
+            my %results;
             for my $eval_name qw(elf pugs rakudo){
                 my $e = $impls{$eval_name};
                 my $tmp_res = EvalbotExecuter::run($str, $e, $eval_name);
@@ -123,7 +123,12 @@ package Evalbot;
                 if (reftype($e) eq 'HASH' && $e->{revision}){
                     $revision = ' ' . $e->{revision}->();
                 }
-                $result .= sprintf "%s%s: %s\n", $eval_name, $revision, $tmp_res;
+                push @{$results{$tmp_res}}, "$eval_name$revision";
+            }
+            my $result = '';
+            while (my ($text, $names) = each %results){
+                $result .= join(', ', @$names);
+                $result .= ': ' . $text;
             }
             return $result;
 
