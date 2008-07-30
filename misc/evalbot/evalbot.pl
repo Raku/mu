@@ -128,7 +128,7 @@ package Evalbot;
             my $result = '';
             while (my ($text, $names) = each %results){
                 $result .= join(', ', @$names);
-                $result .= ': ' . $text;
+                $result .= sprintf(": %s\n", $text);
             }
             return $result;
 
