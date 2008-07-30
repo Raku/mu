@@ -400,6 +400,13 @@ The default is '-Bperl5:Pugs::Emitter::Perl6::Perl5'.
 
     $ perl -e 'use v6-alpha' - --compile-only -Bperl5:MyEmitter ' 42.say '
 
+    $ perl -e 'use v6-alpha' - --compile-only -BPugs::Emitter::YAML ' 123 '
+    --- 
+    statements: 
+    - 
+        int: 123
+        pos: 1
+
 The backend module must provide the C<emit($grammar, $ast)> subroutine.
 
 * -G
