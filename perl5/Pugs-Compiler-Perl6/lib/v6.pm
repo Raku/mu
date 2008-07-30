@@ -403,7 +403,7 @@ The default is '-Bperl5:Pugs::Emitter::Perl6::Perl5'.
     $ perl -e 'use v6-alpha' - --compile-only -BPugs::Emitter::YAML ' 123 '
     --- 
     statements: 
-    - 
+      - 
         int: 123
         pos: 1
 
