@@ -132,7 +132,7 @@ sub rx_body {
                 <?ws>? $<invocant> := <Pugs::Grammar::Term.parse> <?ws>? \:
                 [
                     <?ws> 
-                    <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
+                    <Pugs::Grammar::Expression.parse('no_comma', 1)> <?ws>? 
                     ')'
                     { return {
                         op1      => "(",
@@ -662,6 +662,16 @@ sub recompile {
         q(q) => Pugs::Compiler::Token->compile( q^
                 <Pugs::Grammar::Quote.q>
                 { return $/{'Pugs::Grammar::Quote.q'}->() }
+            ^ ),
+        q(WHAT) => Pugs::Compiler::Token->compile( q^
+                <?ws> <Pugs::Grammar::Expression.parse('no_comma',1)> 
+                    { return {
+                        op1      => 'call',
+                        param    => $_[0]{'Pugs::Grammar::Expression.parse'}->(),
+                        sub      => {
+                                        'bareword' => 'WHAT',
+                                    },
+                    } }
             ^ ),
         q() => Pugs::Compiler::Token->compile( q^
                 ### num/int

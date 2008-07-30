@@ -1792,7 +1792,7 @@ sub postcircumfix {
     if ( $n->{op1} eq '[' &&
          $n->{op2} eq ']' ) {
 
-        if ( ! exists $n->{exp2} ) {
+        if ( ! defined $n->{exp2} ) {
             # $array[]
             return '@{ ' . _emit( $n->{exp1} ) . ' }';
         }
