@@ -82,7 +82,7 @@ package Evalbot;
             yap6 => \&exec_yap6,
             std  => {
                 chdir       => '../../src/perl6',
-                cmd_line    => $^X . ' tryfile %program >> %out 2>&1',
+                cmd_line    => $^X . ' tryfile %program >/dev/null 2>%out',
                 revision    => \&get_revision,
                 filter      => \&filter_std,
             },
@@ -201,7 +201,7 @@ package Evalbot;
 
     sub filter_std {
         my $str = shift;
-        if($str =~ /#+ PARSE FAILED #+/) {
+        if($str =~ /PARSE FAILED/) {
             my @lines = split /\n/, $str;
             return $lines[1];
         } else {
