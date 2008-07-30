@@ -80,6 +80,12 @@ package Evalbot;
                 cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/.cabal/bin/pugs %program >> %out 2>&1',
             },
             yap6 => \&exec_yap6,
+            std  => {
+                chdir       => '../../src/perl6',
+                cmd_line    => $^X . ' tryfile %program >> %out 2>&1',
+                revision    => \&get_revision,
+                filter      => \&filter_std,
+            },
     );
 
     my $evalbot_version = get_revision();
@@ -138,7 +144,7 @@ package Evalbot;
     sub exec_yap6 {
         my ($program, $fh, $filename) = @_;
         chdir('../yap6/src')
-            or confess("Can't chdir to elf base dir: $!");
+            or confess("Can't chdir to yap6 base dir: $!");
         my ($tmp_fh, $name) = tempfile();
         if ($program =~ m/\|\|\|/){
             die "Disabled due to security concerns";
@@ -193,7 +199,15 @@ package Evalbot;
         return $str;
     }
 
-
+    sub filter_std {
+        my $str = shift;
+        if($str =~ /#+ PARSE FAILED #+/) {
+            my @lines = split /\n/, $str;
+            return $lines[1];
+        } else {
+            return 'parse ok';
+        }
+    }
 }
 
 package main;
