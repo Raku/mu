@@ -31,6 +31,7 @@ S05
 * repetition, especially **?
 * switch some "ok" tests to "is" tests to check the exact match
 * modifier tests. These are easy to check if they are missing
+* tests for the "special named assertions"
 * more of everything. t/regex/p6regex/regex_tests is the majority of the P6 regex tests at present.
 
 S09

@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 This file was derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/combchar.t.
@@ -10,7 +10,7 @@ version 0.3 (12 Apr 2004), file t/combchar.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
-=cut
+=end pod
 
 plan 3;
 
@@ -23,9 +23,10 @@ if !eval('("a" ~~ /a/)') {
 my $unichar = "\c[GREEK CAPITAL LETTER ALPHA]";
 my $combchar = "\c[LATIN CAPITAL LETTER A]\c[COMBINING ACUTE ACCENT]";
 
-ok("A" ~~ m/^<.>$/, 'ASCII', :todo<feature>);
-ok($combchar ~~ m/^<.>$/, 'Unicode combining', :todo<feature>);
-ok($unichar ~~ m/^<.>$/, 'Unicode', :todo<feature>);
+#?pugs todo 'feature'
+ok("A" ~~ m/^<.>$/, 'ASCII');
+ok($combchar ~~ m/^<.>$/, 'Unicode combining');
+ok($unichar ~~ m/^<.>$/, 'Unicode');
 
 }
 

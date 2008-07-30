@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 This file was derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/charset.t.
@@ -10,7 +10,7 @@ version 0.3 (12 Apr 2004), file t/charset.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
-=cut
+=end pod
 
 plan 24;
 
@@ -40,8 +40,11 @@ ok(!( "y" ~~ m/(<[a..z]-[aeiou]-[y]>)/ ), 'Multi-difference set failure');
 ok("f" ~~ m/(<[a..z]-[aeiou]-[y]>)/, 'Multi-difference set match');
 is($0, 'f', 'Multi-difference set capture');
 
-ok(']' ~~ m/(<[]]>)/, 'LSB match', :todo<feature>);
-is($0, ']', 'LSB capture', :todo<bug>);
+# XXX: Is this a valid regex? - Auzon, 2008-07-29
+#?pugs todo 'feature'
+ok(']' ~~ m/(<[]]>)/, 'LSB match');
+#?pugs todo 'bug'
+is($0, ']', 'LSB capture');
 ok(']' ~~ m/(<[\]]>)/, 'quoted close LSB match');
 is($0, ']', 'quoted close LSB capture');
 ok('[' ~~ m/(<[\[]>)/, 'quoted open LSB match');
