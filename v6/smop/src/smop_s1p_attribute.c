@@ -17,7 +17,19 @@ static SMOP__Object* smop_s1p_attribute_message(SMOP__Object* interpreter,
                                                 SMOP__ResponderInterface* responder,
                                                 SMOP__Object* identifier,
                                                 SMOP__Object* capture) {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
 
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
+  if (identifier == SMOP__ID__new) {
+
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    
+  }
+
+  return ret;
 }
 
 void smop_s1p_scalar_init() {

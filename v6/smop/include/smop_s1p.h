@@ -8,6 +8,7 @@ extern SMOP__Object* SMOP__S1P__IO;
 extern SMOP__Object* SMOP__S1P__Str;
 extern SMOP__Object* SMOP__S1P__Hash;
 extern SMOP__Object* SMOP__S1P__Code;
+extern SMOP__Object* SMOP__S1P__CCode;
 extern SMOP__Object* SMOP__S1P__Attribute;
 extern SMOP__Object* SMOP__S1P__Package;
 extern SMOP__Object* SMOP__S1P__Method;
@@ -25,6 +26,11 @@ SMOP__Object* SMOP__S1P__Method_create(int multi,
                                                               SMOP__Object* responder,
                                                               SMOP__Object* identifier,
                                                               SMOP__Object* capture));
+
+
+SMOP__Object* SMOP__S1P__CCode_create(SMOP__Object* (*code) (SMOP__Object* interpreter,
+                                                             SMOP__Object* code,
+                                                             SMOP__Object* capture));
 
 SMOP__Object* SMOP__S1P__Scalar_create(SMOP__Object* initial_value);
 SMOP__Object* SMOP__S1P__Str_createn(char* data,int len);
