@@ -110,7 +110,7 @@ BEGIN {
         other => '||',
     );
     __PACKAGE__->add_same_precedence_ops({ assoc => 'right'}, qw(
-        = := ::= => += -= 
+        = := ::= => += -= +>= +<= ~>= ~<= 
         *= **= 
         /= //= 
         %= 

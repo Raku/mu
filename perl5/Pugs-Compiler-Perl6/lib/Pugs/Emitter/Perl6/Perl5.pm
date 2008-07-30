@@ -661,6 +661,41 @@ sub default {
     if ( exists $n->{op1} && $n->{op1} eq 'call' ) {
         #warn "call: ",Dumper $n;
 
+        if ( exists $n->{sub}{code} && exists $n->{param} && exists $n->{param}{op1} && $n->{param}{op1} eq 'call' ) {
+            # &infix<=>.(...)
+            my $fixity = $n->{sub}{code};
+            my $operator = $n->{param}{sub}{single_quoted};
+            if ( $fixity && $operator && exists $n->{param}{param}{exp1} ) {
+                $fixity =~ s/^&//;
+                print Dumper( $n->{param}{param} );
+                return _emit(
+                    {
+                      'exp1' => $n->{param}{param}{exp1}{list}[0],
+                      'exp2' => $n->{param}{param}{exp1}{list}[1],
+                      'fixity' => $fixity,
+                      'op1' => $operator,
+                    }                
+                );
+            }
+        }
+        if ( exists $n->{sub}{bareword} && exists $n->{param} && exists $n->{param}{op1} && $n->{param}{op1} eq 'call' ) {
+            # infix<=>(...)
+            my $fixity = $n->{sub}{bareword};
+            my $operator = $n->{param}{sub}{single_quoted};
+            if ( $fixity && $operator && exists $n->{param}{param}{exp1} ) {
+                $fixity =~ s/^&//;
+                print Dumper( $n->{param}{param} );
+                return _emit(
+                    {
+                      'exp1' => $n->{param}{param}{exp1}{list}[0],
+                      'exp2' => $n->{param}{param}{exp1}{list}[1],
+                      'fixity' => $fixity,
+                      'op1' => $operator,
+                    }                
+                );
+            }
+        }
+
         if ($n->{sub}{scalar} || $n->{sub}{exp1} || $n->{sub}{statement}) {
             return _emit($n->{sub}). '->(' .
                 _emit_parameter_capture( $n->{param} ) . ')';
@@ -1428,6 +1463,72 @@ sub infix {
     }
     if ( $n->{op1} eq '~=' ) {
         return _emit( $n->{exp1} ) . ' .= ' . _emit_str( $n->{exp2} );
+    }
+    if ( $n->{op1} eq '+&=' ) {
+        return _emit( $n->{exp1} ) . ' &= ' . _emit_str( $n->{exp2} );
+    }
+    if ( $n->{op1} eq '+|=' ) {
+        return _emit( $n->{exp1} ) . ' |= ' . _emit_str( $n->{exp2} );
+    }
+    if ( $n->{op1} eq '+^=' ) {
+        return _emit( $n->{exp1} ) . ' ^= ' . _emit_str( $n->{exp2} );
+    }
+
+    if ( $n->{op1} eq '~&=' ) {
+        return
+             'do { my $_V6_TMP1 = "" . ' . _emit( $n->{exp1} ) . '; ' 
+                . _emit( $n->{exp1} ) . ' = $_V6_TMP1 & ( "" . ' . _emit( $n->{exp2} ) 
+            . ' ); } ';
+    }
+    if ( $n->{op1} eq '~|=' ) {
+        return
+             'do { my $_V6_TMP1 = "" . ' . _emit( $n->{exp1} ) . '; ' 
+                . _emit( $n->{exp1} ) . ' = $_V6_TMP1 | ( "" . ' . _emit( $n->{exp2} ) 
+            . ' ); } ';
+    }
+    if ( $n->{op1} eq '~^=' ) {
+        return
+             'do { my $_V6_TMP1 = "" . ' . _emit( $n->{exp1} ) . '; ' 
+                . _emit( $n->{exp1} ) . ' = $_V6_TMP1 ^ ( "" . ' . _emit( $n->{exp2} ) 
+            . ' ); } ';
+    }
+
+    if ( $n->{op1} eq '?&=' ) {
+        return
+             'do { my $_V6_TMP1 = ' . _emit( $n->{exp1} ) . '; ' 
+                . _emit( $n->{exp1} ) . ' = ( $_V6_TMP1 && ' . _emit( $n->{exp2} ) 
+            . ' ) ? 1 : 0; } ';
+    }
+    if ( $n->{op1} eq '?|=' ) {
+        return
+             'do { my $_V6_TMP1 = ' . _emit( $n->{exp1} ) . '; ' 
+                . _emit( $n->{exp1} ) . ' = ( $_V6_TMP1 || ' . _emit( $n->{exp2} ) 
+            . ' ) ? 1 : 0; } ';
+    }
+    if ( $n->{op1} eq '?^=' ) {
+        return
+             'do { my $_V6_TMP1 = ' . _emit( $n->{exp1} ) . '; ' 
+                . _emit( $n->{exp1} ) . ' = ( $_V6_TMP1 xor ' . _emit( $n->{exp2} ) 
+            . ' ) ? 1 : 0; } ';
+    }
+
+    if ( $n->{op1} eq '+<=' ) {
+        return _emit( $n->{exp1} ) . ' <= ' . _emit_str( $n->{exp2} );
+    }
+    if ( $n->{op1} eq '+>=' ) {
+        return _emit( $n->{exp1} ) . ' >= ' . _emit_str( $n->{exp2} );
+    }
+
+    if ( $n->{op1} eq '~<=' ) {
+        return _emit( $n->{exp1} ) . ' le ' . _emit_str( $n->{exp2} );
+    }
+    if ( $n->{op1} eq '~>=' ) {
+        return _emit( $n->{exp1} ) . ' ge ' . _emit_str( $n->{exp2} );
+    }
+
+    if ( $n->{op1} eq '^^=' ) {
+        # XXX
+        return _emit( $n->{exp1} ) . ' ^= ' . _emit_str( $n->{exp2} );
     }
     if ( $n->{op1} eq '//'  ||
          $n->{op1} eq 'orelse' ) {
