@@ -1642,6 +1642,14 @@ sub infix {
                       'chain' => [ $n->{exp1}, 'eq', $n->{exp2} ]
                 } );
         }
+        if (   exists $n->{exp2}{pair} 
+            && $n->{exp2}{pair}{key}{single_quoted} eq 'e'
+            && $n->{exp2}{pair}{value}{num} eq 1
+            ) 
+        {
+            #  $filename ~~ :e
+            return "( -e " . _emit( $n->{exp1} ) . ")";
+        }
         return _emit( $n->{exp1} ) . ' =~ (ref' . emit_parenthesis( $n->{exp2} ).' eq "Regexp" '.
             ' ? '._emit($n->{exp2}).
             ' : quotemeta'.emit_parenthesis($n->{exp2}).

@@ -22,7 +22,7 @@ sub compile_pir($code) { ... }
 sub exit($status)   is export { use v5; CORE::exit($status); use v6; }
 # sub sleep($seconds) is export { use v5; CORE::sleep($seconds); use v6; }
 
-sub open($file) { use v5; my $fh = IO::File->new; $fh->open($file) || warn "can't open file $file"; $fh; use v6; }
+sub open($file, :$w? ) { use v5; my $fh = IO::File->new; $fh->open($file, ($w ? 'w' : ()) ) || warn "can't open file $file"; $fh; use v6; }
 
 module Pugs::Internals;
 
