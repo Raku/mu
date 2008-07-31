@@ -82,7 +82,7 @@ package Evalbot;
             yap6 => \&exec_yap6,
             std  => {
                 chdir       => '../../src/perl6',
-                cmd_line    => $^X . ' tryfile %program >/dev/null 2>%out',
+                cmd_line    => $^X . ' tryfile %program 2>%out',
                 revision    => \&get_revision,
                 filter      => \&filter_std,
             },
