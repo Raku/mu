@@ -207,8 +207,8 @@ package Evalbot;
     sub filter_std {
         my $str = shift;
         if($str =~ /PARSE FAILED/) {
-            my @lines = split /\n/, $str;
-            return $lines[1];
+            my @lines = grep {!/-+>/ && !/PARSE FAILED/} split /\n/, $str;
+            return join '', @lines;
         } else {
             return 'parse ok';
         }
