@@ -71,6 +71,8 @@ class EmitSM0P {
           $positionals ~
           '$SMOP__SLIME__CurrentFrame.move_capturize('~self.capturize($arguments,$id)~");\n" ~
           $ret ~ ': $continuation.$SMOP__ID__setr();' ~ "\n"
+      } elsif ($n.function eq 'infix:=') {
+        IRx1::Call.new('invocant',$n.capture.arguments[0],'method','STORE','capture',IRx1::Capture.new('arguments',[$n.capture.arguments[1]])).callback(self,$ret);
       } elsif ($n.function eq 'circumfix:( )') {
           $n.capture.arguments[0].callback(self,$ret);
       } else {

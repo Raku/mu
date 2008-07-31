@@ -3575,6 +3575,8 @@ sub {my($i)=@_;
 ") . $positionals) . "\$SMOP__SLIME__CurrentFrame\.move_capturize\(") . $self->capturize($arguments, $id)) . "\)\;\
 ") . $ret) . "\:\ \$continuation\.\$SMOP__ID__setr\(\)\;") . "\
 ")})
+}elsif((($n->function() eq "infix\:\="))) {
+(do{IRx1::Call->new("invocant", $n->capture()->arguments()->[0], "method", "STORE", "capture", IRx1::Capture->new("arguments", [$n->capture()->arguments()->[1]]))->callback($self, $ret)})
 }elsif((($n->function() eq "circumfix\:\(\ \)"))) {
 (do{$n->capture()->arguments()->[0]->callback($self, $ret)})
 }else {
