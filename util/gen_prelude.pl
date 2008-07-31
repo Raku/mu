@@ -42,8 +42,8 @@ sub touch {
     #      The alternative seems to be to delete them *and* the pugs
     #      executable.
     print STDERR "Triggering rebuild... " if $Config{verbose};
-    unlink "blib6/lib/Prelude.pm.yml";
-    unlink "blib6/lib/Prelude.pm.yml.pm";
+    unlink "blib6/lib/Prelude.pm.bin";
+    unlink "blib6/lib/Prelude.pm.bin.pm";
     #unlink "src/Pugs/PreludePC.hs";
     #unlink "src/Pugs/Run.hi";
     #unlink "src/Pugs/Run.o";
@@ -168,7 +168,7 @@ sub precomp {
     }
 
     if ($Config{verbose}) {
-        print STDERR "# $Config{pugs} -Iext/Math-Basic/lib -C Parse-YAML $TEMP_PRELUDE $output\n";
+        print STDERR "# $Config{pugs} -Iext/Math-Basic/lib -C Parse-Binary $TEMP_PRELUDE $output\n";
         print STDERR "Generating precompiled Prelude";
     }
     
@@ -179,7 +179,7 @@ sub precomp {
 
     close OUT;
 
-    system("$Config{pugs} -Iext/Math-Basic/lib -C Parse-YAML $TEMP_PRELUDE $output");
+    system("$Config{pugs} -Iext/Math-Basic/lib -C Parse-Binary $TEMP_PRELUDE $output");
 
     if ($Config{output}) {
         open IN, '<:crlf', $Config{output} or die "No output found";
@@ -205,13 +205,13 @@ sub usage {
 usage: $0 --inline src/perl6/Prelude.pm [options]
        $0 --precompile src/perl6/Prelude.pm --pugs ./pugs.exe [options]
 
-Creates a Prelude.hs fallback or a Prelude.pm.yml file (written to stdout),
+Creates a Prelude.hs fallback or a Prelude.pm.bin file (written to stdout),
 to be loaded by Run.hs.
 
 When pugs is built, a fallback Prelude.hs that contains only a quoted
 version of the Prelude code is inlined into the executable, to be
 "eval"ed when pugs starts.  After the executable is ready, the Standard
-Prelude is precompiled and stored in YAML format in a (conjecturally)
+Prelude is precompiled and stored in Binary format in a (conjecturally)
 well-defined location for latter runs of pugs to pick up and load quickly.
 
 Additional options:

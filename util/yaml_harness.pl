@@ -279,7 +279,9 @@ sub run_test {
     my $kid  = $self->{_child_num} ? "[$self->{_child_num}] " : "";
     warn "$kid$test\n";
     my $t = timeit( 1, sub {
-        $self->SUPER::run_test($test, @rest);
+        use Time::HiRes;
+        use Time::Out 'timeout';
+        timeout 300 => sub { $self->SUPER::run_test($test, @rest) };
     } );
     warn "    ".timestr($t)."\n";
 }

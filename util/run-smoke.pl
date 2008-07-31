@@ -30,7 +30,7 @@ sub check_prereq {
 }
 
 my $failed = 0;
-for (qw/YAML Test::TAP::Model Test::TAP::HTMLMatrix Best/) {
+for (qw/YAML Test::TAP::Model Test::TAP::HTMLMatrix Best Time::Out/) {
     check_prereq($_) or $failed++;
 }
 
@@ -42,6 +42,7 @@ Please install them from the CPAN and try again.
 This can be accomplished in one go by running:
 
   cpan Task::Smoke
+  cpan Time::Out
 EOF
 
 chdir($pugs_sandbox) or die "Could not change directory to '$pugs_sandbox': $!";
