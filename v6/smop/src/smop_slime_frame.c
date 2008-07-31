@@ -46,6 +46,7 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
     new_frame->nodes = malloc(new_frame->node_count * sizeof(SMOP__Object*));
     new_frame->lexical = frame->lexical;
     new_frame->back    = frame->back;
+    new_frame->RI = (SMOP__ResponderInterface*)SMOP__SLIME__Frame;
     int i;
     for (i = 0; i < frame->node_count; i++) {
       new_frame->nodes[i] = frame->nodes[i]; //TODO clone nodes
