@@ -14,7 +14,7 @@ typedef struct SMOP__S1P__Attribute_struct {
 } SMOP__S1P__Attribute_struct;
 
 static SMOP__Object* smop_s1p_attribute_message(SMOP__Object* interpreter,
-                                                SMOP__ResponderInterface* responder,
+                                                SMOP__ResponderInterface* self,
                                                 SMOP__Object* identifier,
                                                 SMOP__Object* capture) {
   ___NATIVE_CAPTURE_ONLY___;
@@ -32,7 +32,7 @@ static SMOP__Object* smop_s1p_attribute_message(SMOP__Object* interpreter,
   return ret;
 }
 
-void smop_s1p_scalar_init() {
+void smop_s1p_attribute_init() {
   SMOP__S1P__Attribute = calloc(1,sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__S1P__Attribute)->MESSAGE = smop_s1p_attribute_message;
   ((SMOP__ResponderInterface*)SMOP__S1P__Attribute)->REFERENCE = smop_lowlevel_generic_reference;
@@ -40,6 +40,6 @@ void smop_s1p_scalar_init() {
   ((SMOP__ResponderInterface*)SMOP__S1P__Attribute)->id = "S1P Attribute";
 }
 
-void smop_s1p_scalar_destr() {
+void smop_s1p_attribute_destr() {
   free(SMOP__S1P__Attribute);
 }

@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <smop.h>
+#include <smop_lowlevel.h>
+#include <smop_s1p.h>
+#include <unistd.h>
+
+
+int main(int argc, char** argv) {
+  smop_init();
+
+  SMOP__Object* interpreter = SMOP_DISPATCH(SMOP__INTPTR__InterpreterInstance, SMOP_RI(SMOP__INTPTR__InterpreterInstance),
+                                            SMOP__ID__new, 
+                                            SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
+                                                                         SMOP__INTPTR__InterpreterInstance,NULL,NULL));
+
+  SMOP__Object* continuation = SMOP__NATIVE__bool_false;
+  SMOP__Object* frame;
+
+  {
+    use v6;
+    $*att.STORE($SMOP__S1P__Attribute.new());   # name => 'ok 1\n', private_name => 'ok 2\n',
+                                                # container => $SMOP__S1P__Scalar));
+    $*cont.STORE($*att.FETCH.create_container);
+    $*cont.FETCH().STORE('ok 3\n');
+    $*OUT.print("1..3\n");
+    $*OUT.print($*att.FETCH.name);
+    $*OUT.print($*att.FETCH.private_name);
+    $*OUT.print($*cont.FETCH().FETCH());
+  };
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                frame);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
+                                                             SMOP_REFERENCE(interpreter,interpreter),
+                                                             NULL, NULL));
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
+
+  smop_destr();
+
+  return 0;
+}
