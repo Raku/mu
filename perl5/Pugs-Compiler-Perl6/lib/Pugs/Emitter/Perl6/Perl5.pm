@@ -835,6 +835,15 @@ sub default {
         # TODO - other builtins
         my $subname = $n->{sub}{bareword};
         if ( $subname ) {
+            if ($subname eq 'next') {
+                my $param = $n->{param} ? _emit( $n->{param} ) : '';
+                return " next $param ";
+            }
+            if ($subname eq 'redo') {
+                my $param = $n->{param} ? _emit( $n->{param} ) : '';
+                return " redo $param ";
+            }
+
             if ($subname eq 'defined') {
                 my $param = _emit( $n->{param} );
                 # when testing defined-ness of $!, it is testing the emptiness of $@ in perl5.
@@ -1116,7 +1125,7 @@ sub statement {
     }
 
     if ( $n->{statement} eq 'do' ) {
-        return 'do ' . emit_block( $n->{exp1} );
+        return 'do { for($_) ' . emit_block( $n->{exp1} ) . ' }';
     }
     if ( $n->{statement} eq 'given' ) {
         return  'for (1) { local $_ = ' . _emit( $n->{exp1} ) . '; ' .

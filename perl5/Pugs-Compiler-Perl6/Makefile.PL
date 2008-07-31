@@ -142,6 +142,11 @@ $rewrite_test = sub {
         $text =~ s/^\s*plan \d+;/plan 84;/m;
         $text =~ s/^\s*force_todo.*?\n/force_todo(18,34,40,51,57,66,67);\n/m;
     }
+    if ( $out eq 't/spec/S04-statements/do.t' ) {
+        $text = "force_todo(1..8,10..16,20..23);\n" . $text;
+        # redo works in perl5 blocks
+        $text =~ s/^([^\n]*?\; *redo\;)/ok( 0, "redo works in perl5 blocks", :todo ) ; # $1/mg;
+    }
     
     # add "use Test" to most files
     if ( $out ne 't/01-sanity/05-sub.t' ) {

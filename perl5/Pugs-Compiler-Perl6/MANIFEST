@@ -163,6 +163,7 @@ t/regex/rx_perl5_escape.t
 t/regex/smartparse.t
 t/spec/S02-builtin_data_types/array_extending.t
 t/spec/S02-builtin_data_types/nested_arrays.t
+t/spec/S04-statements/do.t
 t/spec/S04-statements/until.t
 t/spec/S10-packages/import.t
 t/spec/S12-class/inheritance-class-methods.t
