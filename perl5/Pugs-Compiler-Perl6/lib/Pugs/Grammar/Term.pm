@@ -674,17 +674,23 @@ sub recompile {
                     } }
             ^ ),
         q() => Pugs::Compiler::Token->compile( q^
-                ### num/int
+                ### num/int/complex
                 \d+ 
                 [
                     \.\d+
                     [ <[Ee]> <[+-]>? \d+ ]?
-                    { return { num => $() ,} } 
+                    [  i  { return { complex => $() ,} } 
+                    |     { return { num     => $() ,} } 
+                    ]
                 |
                     <[Ee]> <[+-]>? \d+ 
-                    { return { num => $() ,} } 
+                    [  i  { return { complex => $() ,} } 
+                    |     { return { num     => $() ,} } 
+                    ]
                 |
-                    { return { int => $() ,} } 
+                    [  i  { return { complex => $() ,} } 
+                    |     { return { int     => $() ,} } 
+                    ]
                 ]
             |
                 <Pugs::Grammar::Perl6.sub_decl>

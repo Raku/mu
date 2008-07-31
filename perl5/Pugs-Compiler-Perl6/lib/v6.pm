@@ -93,6 +93,7 @@ sub pmc_compile {
         ) : '').
         "use Scalar::Util;
          use Quantum::Superpositions;
+         use Math::Complex;
          use Pugs::Runtime::Perl6;
          use Pugs::Runtime::Perl6Prelude;
          use Pugs::Runtime::Perl5Container;

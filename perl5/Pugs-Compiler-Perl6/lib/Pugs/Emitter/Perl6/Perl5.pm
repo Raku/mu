@@ -247,6 +247,12 @@ sub _emit_pair {
     return '{' . _emit( $n->{key} ) . '=>' . $value . '}'
 }
 
+sub _emit_complex {
+    my $n = shift;
+    $n =~ s/i/*i/;
+    "($n)";
+}
+
 sub _emit {
     my $n = $_[0];
     #die "_emit: ", Dumper( $n );
@@ -291,6 +297,9 @@ sub _emit {
 
     return $n->{num}
         if exists $n->{num};
+
+    return _emit_complex( $n->{complex} )
+        if exists $n->{complex};
 
     return _emit_pair( $n->{pair} )
         if exists $n->{pair};
@@ -1280,6 +1289,7 @@ sub term {
                 our \@EXPORT;
                 bool->import();  # True, False
                 use Quantum::Superpositions;
+                use Math::Complex;
                 $attributes ";
 
         return ref( $n->{block} ) && exists $n->{block}{bare_block}
