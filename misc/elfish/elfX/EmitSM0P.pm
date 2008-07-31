@@ -85,7 +85,7 @@ class EmitSM0P {
       $label ~ ": " ~ $n.text ~ ";\n";
   }
   method cb__Block ($n,$label) {
-      $label ~ ": " ~ "{\n"~ $.e($n.statements).join('') ~ "};\n"
+      $label ~ ": " ~ "{\n;\n"~ $.e($n.statements).join('') ~ "};\n"
   }
   method cb__SubDecl ($n,$label) {
       IRx1::Call.new('invocant',IRx1::Var.new('sigil','::','name','Code'),'method','new','capture',IRx1::Capture.new('arguments',[$n.block])).callback(self,$label);

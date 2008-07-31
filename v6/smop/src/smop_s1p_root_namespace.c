@@ -25,6 +25,7 @@ void smop_s1p_root_namespace_init() {
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Hash",SMOP__S1P__Hash_create());
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Array",SMOP__S1P__Array_create());
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"$*OUT",SMOP__S1P__IO_create());
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code",SMOP__S1P__Code_create(SMOP__NATIVE__bool_false));
 }
 
 void smop_s1p_root_namespace_destr() {

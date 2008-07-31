@@ -84,4 +84,5 @@ SMOP__Object* SMOP__ID__REPR_has;
 SMOP__Object* SMOP__ID__elems;
 SMOP__Object* SMOP__ID__postcircumfix_curly;
 SMOP__Object* SMOP__ID__postcircumfix_square;
+SMOP__Object* SMOP__ID__postcircumfix_parens;
 SMOP__Object* SMOP__ID__infix_eq;

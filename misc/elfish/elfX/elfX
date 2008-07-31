@@ -3589,6 +3589,7 @@ sub cb__NumInt{my $self=CORE::shift;my($n,$label)=@_;
 ")})};
 sub cb__Block{my $self=CORE::shift;my($n,$label)=@_;
 (do{(((($label . "\:\ ") . "\{\
+\;\
 ") . $self->e($n->statements())->join("")) . "\}\;\
 ")})};
 sub cb__SubDecl{my $self=CORE::shift;my($n,$label)=@_;
