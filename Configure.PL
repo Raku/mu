@@ -75,11 +75,13 @@ my @cc_options = map { /^-optc(.+)/ ? $1 : () } (split(/\s+/, $embed_flags), spl
 my @ld_options = grep { not /,/ } map { /^-optl(.+)/ ? $1 : () } (split(/\s+/, $embed_flags), split(/\s+/, $ccdlflags));
 
 open INFO, ">Pugs.buildinfo" or die "Cannot write build info: $!";
-print INFO << ".";
+my $info = << ".";
 executable: pugs
 ghc-options: $embed_flags $ccdlflags
 include-dirs: @include_dirs
 cc-options: @cc_options
 ld-options: @ld_options
 .
+$info =~ s/-arch\s+\w+\s*//g;
+print INFO $info;
 close INFO;
