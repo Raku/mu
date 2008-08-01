@@ -9,7 +9,8 @@ import Pugs.Rule
 import {-# SOURCE #-} Pugs.Parser
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import qualified UTF8 as Buf
+import qualified Data.ByteString.UTF8 as Str
+import qualified Data.ByteString.Char8 as Buf -- XXX
 import qualified Data.HashTable as H
 import GHC.Int (Int32(I32#))
 
@@ -29,8 +30,8 @@ newtype OpName = MkOpName ID
     deriving (Show, Eq, Typeable, (:>:) String, (:>:) ByteString, (:<:) ByteString, (:>:) ID, (:<:) String, (:<:) ID)
 
 instance Ord OpName where
-    compare (MkOpName MkID{ idKey = a, idBuf = x }) (MkOpName MkID{ idKey = b, idBuf = y })
-        = compare (Buf.length y) (Buf.length x) `mappend` compare b a
+    compare (MkOpName x) (MkOpName y)
+        = compare (Buf.length (idBuf y)) (Buf.length (idBuf x)) `mappend` compare (idKey y) (idKey x)
 
 instance ((:<:) OpName) ByteString where
     castBack (MkOpName id) = castBack id

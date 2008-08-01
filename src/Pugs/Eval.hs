@@ -27,6 +27,7 @@ module Pugs.Eval (
 import Pugs.Internals
 import Prelude hiding ( exp )
 import qualified Data.Map as Map
+import qualified StringTable.AtomMap as AtomMap
 
 import Pugs.AST
 import Pugs.Junc
@@ -40,7 +41,8 @@ import Pugs.External
 import Pugs.Eval.Var
 import DrIFT.YAML ()
 import GHC.PArr
-import qualified UTF8 as Buf
+import qualified Data.ByteString.UTF8 as Str
+import qualified Data.ByteString.Char8 as Buf
 
 
 {-|
@@ -808,13 +810,19 @@ reduceSyn "rx" [exp, adverbs] = do
     flag_tilde  <- fromAdverb hv ["stringify"] -- XXX hack
     adverbHash  <- reduce adverbs
     let g = ('g' `elem` p5flags || flag_g)
-        p5re = mkRegexWithPCRE (encodeUTF8 str) $
-                    [ pcreUtf8
-                    , ('i' `elem` p5flags || flag_i) `implies` pcreCaseless
-                    , ('m' `elem` p5flags) `implies` pcreMultiline
-                    , ('s' `elem` p5flags) `implies` pcreDotall
-                    , ('x' `elem` p5flags) `implies` pcreExtended
-                    ]
+        mkP5RE = do
+            rv <- compilePCRE compOpts execBlank (encodeUTF8 str)
+            case rv of
+                Left err -> fail (show err)
+                Right rx -> return rx
+            where
+            compOpts = sum
+                [ compUTF8
+                , ('i' `elem` p5flags || flag_i) `implies` compCaseless
+                , ('m' `elem` p5flags) `implies` compMultiline
+                , ('s' `elem` p5flags) `implies` compDotAll
+                , ('x' `elem` p5flags) `implies` compExtended
+                ]
         p6re = combine
             [ if flag_s then (\x -> ":sigspace(1)[" ++ x ++ "]") else id
             , if flag_r then (\x -> ":ratchet(1)[" ++ x ++ "]") else id
@@ -824,10 +832,9 @@ reduceSyn "rx" [exp, adverbs] = do
              | ':':_ <- str  = p6reAdvs ++ str
              | otherwise     = p6reAdvs ++ "::" ++ str
         -}
-        rx | p5 = do ns <- io $ numSubs p5re
-                     return $ MkRulePCRE p5re g ns flag_tilde str adverbHash
+        rx | p5 = mkP5RE >>= \p5re -> return $ MkRulePCRE p5re g (getNumSubs p5re) flag_tilde str adverbHash
            | otherwise = return $ MkRulePGE p6re g flag_tilde adverbHash
-    return . VRule =<< rx
+    io $ fmap VRule rx
     where
     implies True  = id
     implies False = const 0
@@ -1077,7 +1084,7 @@ applyCapture :: VCode -> ValCapt -> Eval Val
 applyCapture sub capt = applyDisplaced sub inv (fromP argsPos ++ argsNam)
     where
     argsPos = mapP (Val . castV) (f_positionals feed)
-    argsNam = [ Syn "named" [Val (VStr (cast k)), Val (castV (vs !: lst))] | (k, vs) <- Map.toList (f_nameds feed), let lst = lengthP vs - 1, lst >= 0 ]
+    argsNam = [ Syn "named" [Val (VStr (cast k)), Val (castV (vs !: lst))] | (k, vs) <- AtomMap.toList (f_nameds feed), let lst = lengthP vs - 1, lst >= 0 ]
     feed = concatFeeds (c_feeds capt)
     inv  = case capt of 
         CaptMeth { c_invocant = val }   -> Just (Val (castV val))
@@ -1114,10 +1121,10 @@ argsFeed fAcc aAcc (argl:als) = do
         unwrapN = unwrap n
         resFeed = feed res
     feed res = maybe emptyFeed id res
-    addNamed :: (Map ID [:a:]) -> VStr -> a -> Map ID [:a:]
+    addNamed :: AtomMap [:a:] -> VStr -> a -> AtomMap [:a:]
     addNamed mp k v =
         let id = cast k in
-        Map.insertWith (flip (+:+)) id [:v:] mp
+        AtomMap.insertWith (flip (+:+)) id [:v:] mp
 
 dummyVar :: Var
 dummyVar = cast "$"
@@ -1170,7 +1177,7 @@ interpolateVal (VRef (MkRef (IPair pv))) = do
     return [ Syn "named" [Val k, Val v] ]
 interpolateVal (VV vv) | Just (CaptSub{ c_feeds = feeds } :: ValCapt) <- castVal vv = return . fromP $
     [: Val (castV v) | v <- concatMapP f_positionals feeds :]
-    +:+ [: Syn "named" [Val (VStr $ cast k), Val (concatNamed v)] | (k, v) <- concatMapP (toP . Map.toList . f_nameds) feeds :]
+    +:+ [: Syn "named" [Val (VStr $ cast k), Val (concatNamed v)] | (k, v) <- concatMapP (toP . AtomMap.toList . f_nameds) feeds :]
     where
     concatNamed [:x:] = castV x
     concatNamed xs    = VList (fromP (mapP castV xs))

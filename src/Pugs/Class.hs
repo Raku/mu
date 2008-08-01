@@ -27,7 +27,7 @@ import MO.Util hiding (traceM, traceShow)
 import Pugs.Internals
 import Pugs.AST.Eval
 import Control.Monad.Fix
-import qualified Data.Map as Map
+import qualified StringTable.AtomMap as AtomMap
 import qualified Data.Typeable as Typeable
 
 type Val = Invocant Eval
@@ -172,6 +172,7 @@ instance ((:>:) Call) String where
 instance ((:>:) Call) ByteString where
     cast = (`MkMethodInvocation` CaptSub{ c_feeds = [::] }) . cast
 
-instance ((:>:) Call (ByteString, [Val], Map ID Val)) where
-    cast (meth, pos, named) = MkMethodInvocation (cast meth) CaptSub{ c_feeds = [: MkFeed (toP pos) (Map.map (\x -> [:x:]) named) :]}
+instance ((:>:) Call (ByteString, [Val], AtomMap Val)) where
+    cast (meth, pos, named) = MkMethodInvocation (cast meth) CaptSub
+        { c_feeds = [: MkFeed (toP pos) (AtomMap.map (\x -> [:x:]) named) :]}
 

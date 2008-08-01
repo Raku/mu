@@ -474,11 +474,10 @@ ruleOperatorName = verbatimRule "operator name" $ do
         sub <- ruleHashSubscript
         -- Not exactly un-evil
         let (Syn "{}" [_, expr]) = sub (Val VUndef)
-        Val (VStr name) <- unsafeEvalExp $
-            App (_Var "&*join") 
-            Nothing 
-            (Val (VStr " ") : [expr])
-        return name
+            exprs = case expr of
+                Syn "," es  -> es
+                e           -> [e]
+        return $ unwords [ str | Val (VStr str) <- exprs ]
     return $ categ ++ name
 
 

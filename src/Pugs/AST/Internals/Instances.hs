@@ -34,6 +34,7 @@ import DrIFT.JSON
 import DrIFT.Perl5
 import DrIFT.Perl6Class
 import Control.Monad
+import qualified Data.IntSet as IntSet
 import qualified Data.ByteString as Buf
 
 import Pugs.AST.Scope
@@ -41,13 +42,16 @@ import Pugs.AST.Pos
 import Pugs.AST.Prag
 import Pugs.AST.SIO
 import Pugs.Types
-import Pugs.Internals
+import Pugs.Internals hiding (get, put)
 import Pugs.Embed.Perl5
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Pugs.Val       as Val
 
 import qualified Data.HashTable    as H
+
+import Data.Binary
+import GHC.Exts (unsafeCoerce#)
 
 {-# NOINLINE _FakeEnv #-}
 _FakeEnv :: Env
@@ -172,7 +176,7 @@ instance YAML ID where
     asYAML x = asYAML (idBuf x)
     fromYAML x = do
         buf <- fromYAML x
-        bufToID buf
+        return $ bufToID buf
  
 instance Perl5 ID where
     showPerl5 x = showPerl5 (cast x :: ByteString)
@@ -907,3 +911,564 @@ instance Perl5 Pragma where
 
 
 #endif
+
+instance Binary VThread
+    where put (MkThread x1 x2) = return () >> (put x1 >> put x2)
+          get = case 0 of
+                    0 -> ap (ap (return MkThread) get) get
+
+instance Binary VSubst
+    where put (MkSubst x1 x2) = putWord8 0 >> (put x1 >> put x2)
+          put (MkTrans x1 x2) = putWord8 1 >> (put x1 >> put x2)
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> ap (ap (return MkSubst) get) get
+                                           1 -> ap (ap (return MkTrans) get) get)
+
+instance Binary VThunk
+    where put (MkThunk x1 x2) = return () >> (put x1 >> put x2)
+          get = case 0 of
+                    0 -> ap (ap (return MkThunk) get) get
+
+instance Binary VProcess
+    where put (MkProcess x1) = return () >> put x1
+          get = case 0 of
+                    0 -> ap (return MkProcess) get
+
+instance Binary VRule
+    where put (MkRulePCRE x1
+                          x2
+                          x3
+                          x4
+                          x5
+                          x6) = putWord8 0 >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> (put x5 >> put x6)))))
+          put (MkRulePGE x1
+                         x2
+                         x3
+                         x4) = putWord8 1 >> (put x1 >> (put x2 >> (put x3 >> put x4)))
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> ap (ap (ap (ap (ap (ap (return MkRulePCRE) get) get) get) get) get) get
+                                           1 -> ap (ap (ap (ap (return MkRulePGE) get) get) get) get)
+
+instance Binary Val
+    where put (VUndef) = putWord8 0
+          put (VBool x1) = putWord8 1 >> put x1
+          put (VInt x1) = putWord8 2 >> put x1
+          put (VRat x1) = putWord8 3 >> put x1
+          put (VNum x1) = putWord8 4 >> put x1
+          put (VComplex x1) = putWord8 5 >> put x1
+          put (VStr x1) = putWord8 6 >> put x1
+          put (VList x1) = putWord8 7 >> put x1
+          put (VType x1) = putWord8 8 >> put x1
+          put (VJunc x1) = putWord8 9 >> put x1
+          put (VError x1 x2) = putWord8 10 >> (put x1 >> put x2)
+          put (VControl x1) = putWord8 11 >> put x1
+          put (VRef x1) = putWord8 12 >> put x1
+          put (VCode x1) = putWord8 13 >> put x1
+          put (VBlock x1) = putWord8 14 >> put x1
+          put (VHandle x1) = putWord8 15 >> put x1
+          put (VSocket x1) = putWord8 16 >> put x1
+          put (VThread x1) = putWord8 17 >> put x1
+          put (VProcess x1) = putWord8 18 >> put x1
+          put (VRule x1) = putWord8 19 >> put x1
+          put (VSubst x1) = putWord8 20 >> put x1
+          put (VMatch x1) = putWord8 21 >> put x1
+          put (VObject x1) = putWord8 22 >> put x1
+          put (VOpaque x1) = putWord8 23 >> put x1
+          put (PerlSV x1) = putWord8 24 >> put x1
+          put (VV x1) = putWord8 25 >> put x1
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return VUndef
+                                           1 -> ap (return VBool) get
+                                           2 -> ap (return VInt) get
+                                           3 -> ap (return VRat) get
+                                           4 -> ap (return VNum) get
+                                           5 -> ap (return VComplex) get
+                                           6 -> ap (return VStr) get
+                                           7 -> ap (return VList) get
+                                           8 -> ap (return VType) get
+                                           9 -> ap (return VJunc) get
+                                           10 -> ap (ap (return VError) get) get
+                                           11 -> ap (return VControl) get
+                                           12 -> ap (return VRef) get
+                                           13 -> ap (return VCode) get
+                                           14 -> ap (return VBlock) get
+                                           15 -> ap (return VHandle) get
+                                           16 -> ap (return VSocket) get
+                                           17 -> ap (return VThread) get
+                                           18 -> ap (return VProcess) get
+                                           19 -> ap (return VRule) get
+                                           20 -> ap (return VSubst) get
+                                           21 -> ap (return VMatch) get
+                                           22 -> ap (return VObject) get
+                                           23 -> ap (return VOpaque) get
+                                           24 -> ap (return PerlSV) get
+                                           25 -> ap (return VV) get)
+
+instance Binary ControlLoop
+    where put (LoopNext) = putWord8 0
+          put (LoopRedo) = putWord8 1
+          put (LoopLast) = putWord8 2
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return LoopNext
+                                           1 -> return LoopRedo
+                                           2 -> return LoopLast)
+
+instance Binary ControlWhen
+    where put (WhenContinue) = putWord8 0
+          put (WhenBreak) = putWord8 1
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return WhenContinue
+                                           1 -> return WhenBreak)
+
+instance Binary SubType
+    where put (SubMethod) = putWord8 0
+          put (SubCoroutine) = putWord8 1
+          put (SubMacro) = putWord8 2
+          put (SubRoutine) = putWord8 3
+          put (SubBlock) = putWord8 4
+          put (SubPointy) = putWord8 5
+          put (SubPrim) = putWord8 6
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return SubMethod
+                                           1 -> return SubCoroutine
+                                           2 -> return SubMacro
+                                           3 -> return SubRoutine
+                                           4 -> return SubBlock
+                                           5 -> return SubPointy
+                                           6 -> return SubPrim)
+
+instance Binary Param
+    where put (MkOldParam x1
+                          x2
+                          x3
+                          x4
+                          x5
+                          x6
+                          x7
+                          x8
+                          x9) = return () >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> (put x5 >> (put x6 >> (put x7 >> (put x8 >> put x9))))))))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (ap (ap (ap (ap (ap (return MkOldParam) get) get) get) get) get) get) get) get) get
+
+instance Binary SubAssoc
+    where put (ANil) = putWord8 0
+          put (AIrrelevantToParsing) = putWord8 1
+          put (A_left) = putWord8 2
+          put (A_right) = putWord8 3
+          put (A_non) = putWord8 4
+          put (A_chain) = putWord8 5
+          put (A_list) = putWord8 6
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return ANil
+                                           1 -> return AIrrelevantToParsing
+                                           2 -> return A_left
+                                           3 -> return A_right
+                                           4 -> return A_non
+                                           5 -> return A_chain
+                                           6 -> return A_list)
+
+instance Binary MPad
+    where put (MkMPad x1 x2) = return () >> (put x1 >> put x2)
+          get = case 0 of
+                    0 -> ap (ap (return MkMPad) get) get
+
+instance Binary VCode
+    where put (MkCode x1
+                      x2
+                      x3
+                      x4
+                      x5
+                      x6
+                      x7
+                      x8
+                      x9
+                      x10
+                      x11
+                      x12
+                      x13
+                      x14
+                      x15
+                      x16) = return () >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> (put x5 >> (put x6 >> (put x7 >> (put x8 >> (put x9 >> (put x10 >> (put x11 >> (put x12 >> (put x13 >> (put x14 >> (put x15 >> put x16)))))))))))))))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (return MkCode) get) get) get) get) get) get) get) get) get) get) get) get) get) get) get) get
+
+instance Binary TraitBlocks
+    where put (MkTraitBlocks x1
+                             x2
+                             x3
+                             x4
+                             x5
+                             x6
+                             x7
+                             x8
+                             x9
+                             x10
+                             x11) = return () >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> (put x5 >> (put x6 >> (put x7 >> (put x8 >> (put x9 >> (put x10 >> put x11))))))))))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (return MkTraitBlocks) get) get) get) get) get) get) get) get) get) get) get
+
+instance Binary Ann
+    where put (Cxt x1) = putWord8 0 >> put x1
+          put (Pos x1) = putWord8 1 >> put x1
+          put (Prag x1) = putWord8 2 >> put x1
+          put (Decl x1) = putWord8 3 >> put x1
+          put (Parens) = putWord8 4
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> ap (return Cxt) get
+                                           1 -> ap (return Pos) get
+                                           2 -> ap (return Prag) get
+                                           3 -> ap (return Decl) get
+                                           4 -> return Parens)
+
+instance Binary Exp
+    where put (Noop) = putWord8 0
+          put (App x1 x2 x3) = putWord8 1 >> (put x1 >> (put x2 >> put x3))
+          put (Syn x1 x2) = putWord8 2 >> (put x1 >> put x2)
+          put (Ann x1 x2) = putWord8 3 >> (put x1 >> put x2)
+          put (Sym x1
+                   x2
+                   x3
+                   x4
+                   x5) = putWord8 4 >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> put x5))))
+          put (Stmts x1 x2) = putWord8 5 >> (put x1 >> put x2)
+          put (Prim x1) = putWord8 6 >> put x1
+          put (Val x1) = putWord8 7 >> put x1
+          put (Var x1) = putWord8 8 >> put x1
+          put (NonTerm x1) = putWord8 9 >> put x1
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return Noop
+                                           1 -> ap (ap (ap (return App) get) get) get
+                                           2 -> ap (ap (return Syn) get) get
+                                           3 -> ap (ap (return Ann) get) get
+                                           4 -> ap (ap (ap (ap (ap (return Sym) get) get) get) get) get
+                                           5 -> ap (ap (return Stmts) get) get
+                                           6 -> ap (return Prim) get
+                                           7 -> ap (return Val) get
+                                           8 -> ap (return Var) get
+                                           9 -> ap (return NonTerm) get)
+
+{-
+instance Binary LexPad
+    where put (PRuntime x1) = putWord8 0 >> put x1
+          put (PCompiling x1) = putWord8 1 >> put x1
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> ap (return PRuntime) get
+                                           1 -> ap (return PCompiling) get)
+-}
+
+instance Binary LexPad where
+    put _ = return ()
+    get = return (PRuntime emptyPad)
+
+instance Binary Env
+    where put (MkEnv x1
+                     x2
+                     x3
+                     x4
+                     x5
+                     x6
+                     x7
+                     x8
+                     x9
+                     x10
+                     x11
+                     x12
+                     x13
+                     x14
+                     x15
+                     x16
+                     x17) = return () >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> (put x5 >> (put x6 >> (put x7 >> (put x8 >> (put x9 >> (put x10 >> (put x11 >> (put x12 >> (put x13 >> (put x14 >> (put x15 >> (put x16 >> put x17))))))))))))))))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (ap (return MkEnv) get) get) get) get) get) get) get) get) get) get) get) get) get) get) get) get) get
+
+instance Binary Frame
+    where put (FrameLoop) = putWord8 0
+          put (FrameWhen) = putWord8 1
+          put (FrameGather) = putWord8 2
+          put (FrameRoutine) = putWord8 3
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return FrameLoop
+                                           1 -> return FrameWhen
+                                           2 -> return FrameGather
+                                           3 -> return FrameRoutine)
+
+instance Binary InitDat
+    where put (MkInitDat x1) = return () >> put x1
+          get = case 0 of
+                    0 -> ap (return MkInitDat) get
+
+instance Binary PadEntry
+    where put (PELexical x1
+                         x2
+                         x3
+                         x4) = putWord8 0 >> (put x1 >> (put x2 >> (put x3 >> put x4)))
+          put (PEStatic x1
+                        x2
+                        x3
+                        x4) = putWord8 1 >> (put x1 >> (put x2 >> (put x3 >> put x4)))
+          put (PEConstant x1
+                          x2
+                          x3) = putWord8 2 >> (put x1 >> (put x2 >> put x3))
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> ap (ap (ap (ap (return PELexical) get) get) get) get
+                                           1 -> ap (ap (ap (ap (return PEStatic) get) get) get) get
+                                           2 -> ap (ap (ap (return PEConstant) get) get) get)
+
+instance Binary Type
+    where put (MkType x1) = putWord8 0 >> put x1
+          put (TypeOr x1 x2) = putWord8 1 >> (put x1 >> put x2)
+          put (TypeAnd x1 x2) = putWord8 2 >> (put x1 >> put x2)
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> ap (return MkType) get
+                                           1 -> ap (ap (return TypeOr) get) get
+                                           2 -> ap (ap (return TypeAnd) get) get)
+
+instance Binary IHashEnv
+    where put (MkHashEnv) = return ()
+          get = case 0 of
+                    0 -> return MkHashEnv
+
+instance Binary IScalarCwd
+    where put (MkScalarCwd) = return ()
+          get = case 0 of
+                    0 -> return MkScalarCwd
+
+instance Binary ObjectId
+    where put (MkObjectId x1) = return () >> put x1
+          get = case 0 of
+                    0 -> ap (return MkObjectId) get
+
+instance Binary VObject
+    where put (MkObject x1
+                        x2
+                        x3
+                        x4) = return () >> (put x1 >> (put x2 >> (put x3 >> put x4)))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (return MkObject) get) get) get) get
+
+instance Binary VMatch
+    where put (MkMatch x1
+                       x2
+                       x3
+                       x4
+                       x5
+                       x6) = return () >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> (put x5 >> put x6)))))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (ap (ap (return MkMatch) get) get) get) get) get) get
+
+instance Binary CompUnit
+    where put (MkCompUnit x1
+                          x2
+                          x3
+                          x4) = return () >> (put x1 >> (put x2 >> (put x3 >> put x4)))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (return MkCompUnit) get) get) get) get
+
+instance Binary IArray
+    where put (MkIArray x1) = return () >> put x1
+          get = case 0 of
+                    0 -> ap (return MkIArray) get
+
+instance Binary VMultiCode
+    where put (MkMultiCode x1
+                           x2
+                           x3
+                           x4
+                           x5) = return () >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> put x5))))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (ap (return MkMultiCode) get) get) get) get) get
+
+instance Binary VJunc
+    where put (MkJunc x1
+                      x2
+                      x3) = return () >> (put x1 >> (put x2 >> put x3))
+          get = case 0 of
+                    0 -> ap (ap (ap (return MkJunc) get) get) get
+
+instance Binary a => Binary (IORef a) where
+    put x = put (unsafePerformIO . readIORef $ x)
+    get = fmap (unsafePerformIO . newIORef) get
+
+instance Binary a => Binary (TVar a) where
+    put x = put (unsafePerformIO . atomically . readTVar $ x)
+    get = fmap (unsafePerformIO . newTVarIO) get
+
+instance Binary a => Binary (TMVar a) where
+    put x = put (unsafePerformIO . atomically . readTMVar $ x)
+    get = fmap (unsafePerformIO . newTMVarIO) get
+
+instance Binary (Eval Val) where
+    put = put . unsafePerformIO . fakeEval
+    get = do
+        val <- get
+        return (return val)
+
+instance Binary ThreadId
+instance Binary ClassTree
+instance Binary Dynamic
+instance Binary ProcessHandle
+instance Binary Regex
+instance Binary Unique
+instance Binary VComplex
+instance Binary VHandle
+instance Binary VControl
+instance Binary VOpaque
+instance Binary VSocket
+instance Binary PerlSV
+
+instance Binary Pos
+    where put (MkPos x1
+                     x2
+                     x3
+                     x4
+                     x5) = return () >> (put x1 >> (put x2 >> (put x3 >> (put x4 >> put x5))))
+          get = case 0 of
+                    0 -> ap (ap (ap (ap (ap (return MkPos) get) get) get) get) get
+
+instance Binary Scope
+    where put (SState) = putWord8 0
+          put (SConstant) = putWord8 1
+          put (SHas) = putWord8 2
+          put (SMy) = putWord8 3
+          put (SOur) = putWord8 4
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return SState
+                                           1 -> return SConstant
+                                           2 -> return SHas
+                                           3 -> return SMy
+                                           4 -> return SOur)
+
+instance Binary Cxt
+    where put (CxtVoid) = putWord8 0
+          put (CxtItem x1) = putWord8 1 >> put x1
+          put (CxtSlurpy x1) = putWord8 2 >> put x1
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return CxtVoid
+                                           1 -> ap (return CxtItem) get
+                                           2 -> ap (return CxtSlurpy) get)
+
+instance Binary Pkg where
+    put = put . (cast :: Pkg -> ByteString)
+    get = fmap (cast :: ByteString -> Pkg) get
+
+instance Binary Var where
+    put = put . (cast :: Var -> ByteString)
+    get = fmap (cast :: ByteString -> Var) get
+
+
+instance Binary Pragma
+    where put (MkPrag x1
+                     x2) = return () >> (put x1 >> put x2)
+          get = case 0 of
+                    0 -> ap (ap (return MkPrag) get) get
+
+instance Binary IHash where
+     put x = do
+        let kvs = unsafePerformIO (H.toList x)
+        length kvs `seq` put (kvs :: [(VStr, IVar VScalar)])
+     get = do
+        (ins :: [(VStr, IVar VScalar)]) <- get
+        length ins `seq` return (unsafePerformIO $ H.fromList H.hashString ins)
+
+instance Binary JuncType
+    where put (JAny) = putWord8 0
+          put (JAll) = putWord8 1
+          put (JNone) = putWord8 2
+          put (JOne) = putWord8 3
+          get = getWord8 >>= (\tag_ -> case tag_ of
+                                           0 -> return JAny
+                                           1 -> return JAll
+                                           2 -> return JNone
+                                           3 -> return JOne)
+
+instance Binary Val.Val
+
+instance Typeable a => Binary (IVar a) where
+    put = put . MkRef
+    get = do
+        MkRef iv <- get
+        return (unsafeCoerce# iv)
+
+instance Binary ([Val] -> Eval Val) where
+    put _ = put ()
+    get = return (const $ return VUndef)
+
+instance Binary (Exp -> Eval Val) where
+    put _ = put ()
+    get = return (const $ return VUndef)
+
+instance Binary [a] => Binary [:a:] where
+    put = put . fromP
+    get = fmap toP get
+
+instance Binary VRef where
+    put (MkRef (ICode cv))
+        | Just (mc :: VMultiCode) <- fromTypeable cv = do
+            putWord8 0x30
+            put (mc :: VMultiCode)
+        | otherwise = do
+            putWord8 0x31
+            let VCode vsub = unsafePerformIO (fakeEval $ fmap VCode (code_fetch cv))
+            put vsub
+    put (MkRef (IScalar sv)) = do
+        putWord8 $ if scalar_iType sv == mkType "Scalar::Const"
+            then 0x32 else 0x33
+        put $ unsafePerformIO (fakeEval $ scalar_fetch sv)
+    put (MkRef (IArray av)) = do
+        putWord8 0x34
+        let VList vals = unsafePerformIO (fakeEval $ fmap VList (array_fetch av))
+        put vals
+    put (MkRef (IPair pv)) = do
+        putWord8 0x35
+        let VList [k, v] = unsafePerformIO (fakeEval $ fmap (\(k, v) -> VList [k, v]) (pair_fetch pv))
+        put (k, v)
+    put (MkRef (IHash hv))
+        | hash_iType hv == mkType "Hash" = do
+            putWord8 0x36
+            let hv' = ((unsafeCoerce# hv) :: IHash)
+            put hv'
+        | hash_iType hv == mkType "Hash::Env" = do
+            putWord8 0x37
+        | hash_iType hv == mkType "Hash::Const" = do
+            putWord8 0xFF
+            let hv' = ((unsafeCoerce# hv) :: VHash)
+            put hv'
+        | otherwise = do
+            putWord8 0xFF
+            -- put (show (typeOf hv)) 
+            -- let VMatch MkMatch{ matchSubNamed = hv } = unsafePerformIO
+            --         ( fakeEval $ fmap (VMatch . MkMatch False 0 0 "" []) (hash_fetch hv) )
+            put (Map.empty :: VHash)
+    put ref = fail ("Not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
+    get = do
+        tag_ <- getWord8
+        case tag_ of
+            0x30 -> fmap codeRef (get :: Get VMultiCode)
+            0x31 -> fmap codeRef (get :: Get VCode)
+            0x32 -> fmap scalarRef (get :: Get VScalar)
+            0x33 -> fmap (MkRef . unsafePerformIO . newScalar') get
+            0x34 -> fmap (MkRef . unsafePerformIO . newArray') get
+            0x35 -> fmap pairRef (get :: Get VPair)
+            0x36 -> do
+                iHash <- get
+                return $ hashRef (iHash :: IHash)
+            0x37 -> return $ hashRef MkHashEnv
+            _    -> fmap hashRef (get :: Get VHash)
+
+newScalar' :: VScalar -> IO (IVar VScalar)
+newScalar' = (fmap IScalar) . newTVarIO
+
+newArray' :: VArray -> IO (IVar VArray)
+newArray' vals = do
+    tvs <- mapM newScalar' vals
+    iv  <- newTVarIO (toP tvs)
+    return $ IArray (MkIArray iv)
+
+instance Binary Pad where
+    put = put . Map.toList . padEntries
+    get = liftM (MkPad . Map.fromList) get
+
+instance Binary EntryFlags where
+    put (MkEntryFlags x) = put x
+    get = fmap MkEntryFlags get
+ 

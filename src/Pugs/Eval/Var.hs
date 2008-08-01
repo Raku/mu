@@ -6,6 +6,7 @@ module Pugs.Eval.Var (
     packageOf, toPackage, toQualified,
 ) where
 import qualified Data.Map as Map
+import qualified StringTable.AtomMap as AtomMap
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
@@ -17,7 +18,7 @@ import Pugs.Config
 import Pugs.Monads
 import Pugs.Class hiding (Val)
 import qualified Pugs.Val as Val
-import qualified UTF8 as Buf
+import qualified Data.ByteString.Char8 as Buf
 
 findVar :: Var -> Eval (Maybe VRef)
 findVar var
@@ -228,7 +229,7 @@ findSub _var _invs _args
                 posVVs  <- fromVals pos     :: Eval [Val.Val]
                 namVVs  <- do
                     list <- fromVal named
-                    fmap Map.fromList $ forM list $ \(k, v) -> do
+                    fmap AtomMap.fromList $ forM list $ \(k, v) -> do
                         key <- fromVal k
                         val <- fromVal v
                         return (key, val)   :: Eval (ID, Val.Val)

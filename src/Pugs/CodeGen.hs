@@ -18,6 +18,7 @@ import Pugs.CodeGen.PIL1 (genPIL1)
 import Pugs.CodeGen.PIR (genPIR, genPIR_YAML)
 import Pugs.CodeGen.Perl5 (genPerl5)
 import Pugs.CodeGen.YAML (genParseYAML, genParseHsYAML, genYAML)
+import Pugs.CodeGen.Binary (genParseBinary)
 import Pugs.CodeGen.JSON (genJSON)
 import Pugs.Compile.Pugs (genPugs)
 -- import Pugs.Compile.Haskell (genGHC)
@@ -43,6 +44,7 @@ generators = Map.fromList $
     , ("Parse-YAML",  genParseYAML)
     , ("Parse-HsYAML",genParseHsYAML)
     , ("Parse-Pretty",const $ fmap (VStr . (++"\n") . pretty) (asks envBody))
+    , ("Parse-Binary",genParseBinary)
 --  , ("XML",         genXML)
     ]
 
@@ -71,6 +73,7 @@ norm = norm' . map toLower . filter isAlphaNum
     norm' "parseyaml"  = "Parse-YAML"
     norm' "parsehsyaml"= "Parse-HsYAML"
     norm' "parsepretty"= "Parse-Pretty"
+    norm' "parsebinary"  = "Parse-Binary"
     norm' "pugs"   = "Pugs"
     -- norm' "xml"    = "XML"
     norm' x        = x

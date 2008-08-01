@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C -optc-w #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -optc-w #-}
 
 #ifndef PUGS_HAVE_PERL5
 module Pugs.Embed.Perl5 
@@ -12,7 +12,7 @@ where
 import Foreign.C.Types
 import System.Directory
 import Pugs.Internals 
-import qualified UTF8 as Str
+import qualified Data.ByteString.UTF8 as Str
 
 evalPCR :: FilePath -> String -> String -> [(String, String)] -> IO String
 evalPCR path match rule subrules = do
@@ -186,7 +186,8 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 import {-# SOURCE #-} Pugs.AST.Internals
-import qualified UTF8 as Str
+import qualified Data.ByteString.UTF8 as Str
+import qualified Data.ByteString.Char8 as Buf
 import qualified Pugs.Val as Val
 
 type PerlInterpreter = Ptr ()
@@ -295,10 +296,10 @@ svUndef :: IO PerlSV
 svUndef = perl5_sv_undef
 
 vstrToSV :: String -> IO PerlSV
-vstrToSV str = Str.useAsCStringLen (cast str) $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
+vstrToSV str = Buf.useAsCStringLen (cast str) $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
 
 bufToSV :: ByteString -> IO PerlSV
-bufToSV str = Str.useAsCStringLen str $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
+bufToSV str = Buf.useAsCStringLen str $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
 
 vintToSV :: (Integral a) => a -> IO PerlSV
 vintToSV int = perl5_newSViv (fromIntegral int)
@@ -329,7 +330,7 @@ invokePerl5 sub inv args env cxt = do
                 return $ Perl5ErrorString str
             
 canPerl5 :: PerlSV -> ByteString -> IO Bool
-canPerl5 sv meth = Str.useAsCString meth $ \cstr -> perl5_can sv cstr
+canPerl5 sv meth = Buf.useAsCString meth $ \cstr -> perl5_can sv cstr
 
 mkSV :: IO PerlSV -> IO PerlSV
 mkSV action = action
@@ -341,7 +342,7 @@ mkSV action = action
 -}
 
 evalPerl5 :: String -> PugsEnv -> CInt -> IO PerlSV
-evalPerl5 str env cxt = mkSV $ Str.useAsCString (cast str) $ \cstr -> perl5_eval cstr env cxt
+evalPerl5 str env cxt = mkSV $ Buf.useAsCString (cast str) $ \cstr -> perl5_eval cstr env cxt
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 my_perl = do

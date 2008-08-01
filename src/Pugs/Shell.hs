@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-|
     Interactive shell.
@@ -16,42 +16,46 @@ module Pugs.Shell (
     initializeShell,
     getCommand,
     readline,
+    module System.Console.Haskeline
 ) where
 import Pugs.Internals
-
-#ifdef PUGS_HAVE_READLINE
-{-# INCLUDE "readline/readline.h" #-}
-import qualified System.Console.Readline as Readline
-#endif
+import Data.Char (isSpace)
+import System.Console.Haskeline
+import System.FilePath
+import System.Directory(getHomeDirectory)
 
 data Command
-   = CmdLoad FilePath
-   | CmdQuit
-   | CmdParse String
-   | CmdParseRaw String
-   | CmdRun { runOpt :: RunOptions, runProg :: String }
-   | CmdHelp
-   | CmdReset
+    = CmdLoad FilePath
+    | CmdQuit
+    | CmdParse String
+    | CmdParseRaw String
+    | CmdRun { runOpt :: RunOptions, runProg :: String }
+    | CmdHelp
+    | CmdReset
+    deriving Eq
 
 data RunOptions = RunOpts { runOptDebug :: Bool
                           , runOptSeparately :: Bool
                           , runOptShowPretty :: Bool}
+    deriving Eq
+
+type Input = InputT IO
 
 -- | read some input from the user
 -- parse the input and return the corresponding command
-getCommand :: IO Command
+getCommand :: Input Command
 getCommand = do
-    input <- readline "pugs> " 
+    input <- fmap (fmap encodeUTF8) $ getInputLine "pugs> " 
     doCommand input
 
-doCommand :: Maybe String -> IO Command
+doCommand :: Maybe String -> Input Command
 doCommand Nothing = return CmdQuit
 doCommand (Just line)
     | all isSpace line  = getCommand
     | (s, _) <- break (== '#') line
     , all isSpace s     = getCommand
     | otherwise         = do
-        addHistory line
+        -- addHistory line
         return $ parseCommandLine line
 
 parseCommandLine :: String -> Command 
@@ -67,30 +71,17 @@ parseCommandLine (':':'r':_)    = CmdReset
 parseCommandLine (':':'l':str)  = CmdLoad $ unwords (words str)
 parseCommandLine str            = CmdRun (RunOpts False False True) str
 
-initializeShell :: IO ()
-initializeShell = do
-#ifdef PUGS_HAVE_READLINE
-#ifdef RL_READLINE_VERSION
-    Readline.setCatchSignals False
-#endif
-    Readline.initialize
-#endif
-    return ()
+initializeShell :: Input a -> IO a
+initializeShell f = (`runInputT` f) =<< pugsSettings
 
 readline :: String -> IO (Maybe String)
-readline prompt = do
-#ifdef PUGS_HAVE_READLINE
-    Readline.readline prompt
-#else
-    putStr prompt
-    input <- getLine
-    return $ Just input
-#endif
+readline prompt = (`runInputT` fmap (fmap encodeUTF8) (getInputLine prompt)) =<< pugsSettings
+
+pugsSettings :: IO (Settings IO)
+pugsSettings = do
+    home <- getHomeDirectory
+    return $ defaultSettings { historyFile = Just (home </> ".pugs_history") }
 
 addHistory :: String -> IO ()
-#ifdef PUGS_HAVE_READLINE
-addHistory str = Readline.addHistory str
-#else
-addHistory _ = return ()
-#endif
+addHistory str = return () -- Readline.addHistory str
 

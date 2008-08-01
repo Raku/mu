@@ -12,11 +12,9 @@ instance Typeable Val
 
 data Env
 data Val
-data VRef
 data VObject
-data PadEntry
 data Exp
--- newtype Pad = MkPad { padEntries :: Map Var PadEntry }
+data VRef
 newtype ObjectId = MkObjectId { unObjectId :: Int }
 
 type VType = Type
@@ -40,3 +38,30 @@ anyFromVal :: Typeable a => Val -> a
 
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
+
+data IVar v
+data VOpaque
+
+instance Show VOpaque
+instance Eq VOpaque
+instance Ord VOpaque
+
+instance Show Val
+instance Eq Val
+instance Ord Val
+
+instance Show Env
+instance Eq Env
+instance Ord Env
+
+instance Show Exp
+instance Eq Exp
+instance Ord Exp
+
+instance Show VRef
+instance Eq VRef
+instance Ord VRef
+
+emptyExp :: Exp
+
+instance Show VObject

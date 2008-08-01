@@ -7,6 +7,7 @@ import Pugs.Embed.Perl5
 import Pugs.Internals
 import Data.Typeable (Typeable)
 import qualified Data.Map as Map
+import qualified StringTable.AtomMap as AtomMap
 import Pugs.AST.Internals (envContext, anyToVal, anyFromVal)
 import Pugs.Types
 
@@ -40,7 +41,7 @@ dispatchPerl5 inv call
         invSV   <- coerceVal inv
         subSV   <- liftIO . bufToSV . cast $ meth
         posSVs  <- mapM coerceVal (fromP $ f_positionals feed)
-        namSVs  <- fmap concat . forM (Map.toList (f_nameds feed)) $ \(key, vals) -> do
+        namSVs  <- fmap concat . forM (AtomMap.toList (f_nameds feed)) $ \(key, vals) -> do
             keySV   <- liftIO (bufToSV $ cast key)
             fmap concat . forM (fromP vals) $ \v -> do
                 valSV   <- coerceVal v

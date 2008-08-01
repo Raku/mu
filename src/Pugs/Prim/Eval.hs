@@ -17,8 +17,10 @@ import Pugs.Pretty
 import Pugs.Config
 import Pugs.Prim.Keyed
 import Pugs.Types
+import Pugs.Prelude
 import DrIFT.YAML
 import Data.Yaml.Syck
+import Data.Binary (decode)
 import qualified Data.ByteString.Char8 as Bytes
 
 type Bytes        = Bytes.ByteString
@@ -49,7 +51,9 @@ opRequire dumpEnv v = do
     loaded      <- existsFromRef seen v
     let file | '.' `elem` mod = mod
              | otherwise      = (concat $ intersperse (getConfig "file_sep") $ split "::" mod) ++ ".pm"
-    pathName    <- requireInc incs file (errMsg file incs)
+    pathName    <- case mod of
+        "Test"  -> return "Test.pm"
+        _       -> requireInc incs file (errMsg file incs)
     if loaded then opEval style pathName "" else do
         -- %*INC{mod} = { relname => file, pathname => pathName }
         evalExp $ Syn "="
@@ -64,12 +68,26 @@ opRequire dumpEnv v = do
         endAV   <- findSymRef (cast "@*END") glob
         ends    <- fromVal =<< readRef endAV
         clearRef endAV
-        rv <- tryFastEval pathName (pathName ++ ".yml")
+        rv <- case mod of
+            "Test"  -> shortcutToTestPM
+            _       -> tryFastEval pathName (pathName ++ ".yml")
         endAV'  <- findSymRef (cast "@*END") glob
         doArray (VRef endAV') (`array_unshift` ends)
         return rv
     where
+    shortcutToTestPM = do
+        globTVar    <- asks envGlobal
+        let MkCompUnit _ _ glob ast = decode (testByteStringLazy)
+        -- Inject the global bindings
+        stm $ do
+            glob' <- readMPad globTVar
+            writeMPad globTVar (glob `unionPads` glob')
+
+        -- | PEStatic   { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef) }
+        evl <- asks envEval
+        evl ast
     tryFastEval pathName pathNameYml = do
+        io $ print pathNameYml
         ok <- io $ doesFileExist pathNameYml
         if not ok then slowEval pathName else do
         isYamlStale <- tryIO False $ do

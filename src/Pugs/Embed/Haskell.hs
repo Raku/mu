@@ -2,7 +2,7 @@
 
 module Pugs.Embed.Haskell where
 
-#include "../pugs_config.h"
+-- #include "../pugs_config.h"
 #if !defined(PUGS_HAVE_HSPLUGINS)
 
 import Pugs.AST

@@ -123,9 +123,8 @@ readStdin = do
     return (ch:rest)
 
 repLoop :: IO ()
-repLoop = do
-    initializeShell
-    tvEnv <- io . newTVarIO . noEnvDebug =<< tabulaRasa defaultProgramName
+repLoop = initializeShell $ do
+    tvEnv <- io . newTVarIO . noEnvDebug =<< io (tabulaRasa defaultProgramName)
     fix $ \loop -> do
         command <- getCommand
         let parseEnv f prog = do
@@ -134,14 +133,16 @@ repLoop = do
             resetEnv = do
                 env <- fmap noEnvDebug (tabulaRasa defaultProgramName)
                 stm (writeTVar tvEnv env)
-        case command of
-            CmdQuit           -> putStrLn "Leaving pugs."
-            CmdLoad fn        -> doLoad tvEnv fn >> loop
-            CmdRun opts prog  -> doRunSingle tvEnv opts prog >> loop
-            CmdParse prog     -> parseEnv pretty prog >> loop
-            CmdParseRaw prog  -> parseEnv show prog >> loop
-            CmdHelp           -> printInteractiveHelp >> loop
-            CmdReset          -> resetEnv >> loop
+        if command == CmdQuit then io $ putStrLn "Leaving pugs." else do
+            io $ case command of
+                CmdLoad fn        -> doLoad tvEnv fn
+                CmdRun opts prog  -> doRunSingle tvEnv opts prog
+                CmdParse prog     -> parseEnv pretty prog
+                CmdParseRaw prog  -> parseEnv show prog
+                CmdHelp           -> printInteractiveHelp
+                CmdReset          -> resetEnv
+                _                 -> return ()
+            loop
 
 mainWith :: ([String] -> IO a) -> IO ()
 mainWith run = do

@@ -35,6 +35,8 @@ import Data.Yaml.Syck
 --import Data.Generics.Schemes
 import System.IO
 import qualified System.FilePath as FilePath (combine)
+import Data.Binary (decode)
+import qualified Data.ByteString.Lazy as L
 
 
 {-|
@@ -241,7 +243,7 @@ initPreludePC env = do
                 IOException ioe
                     | isUserError ioe, not . null $ ioeGetErrorString ioe
                     -> hPrint stderr ioe
-                _ -> return ()
+                _ -> hPrint stderr e
             when dispProgress $ do
                 hPutStr stderr "Reloading Prelude from source..."
             evalPrelude
@@ -255,31 +257,9 @@ initPreludePC env = do
     evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
     loadPreludePC = do  -- XXX: this so wants to reuse stuff from op1EvalP6Y
         -- print "Parsing yaml..."
-        incs     <- io $ fmap ("blib6/lib":) getLibs
-        pathName <- io $ requireInc incs "Prelude.pm.yml" ""
-        yml      <- io $ parseYamlBytes =<< Str.readFile pathName
-        when (n_elem yml == ENil) $ fail ""
-        -- FIXME: this detects an error if a bad version number was found,
-        -- but not if no number was found at all. Then again, if that
-        -- happens surely the fromYAML below will fail?
-        case yml of
-            MkNode{ n_elem=ESeq (v:_) }
-                | MkNode{ n_elem=EStr vnum } <- v
-                , vnum /= (packBuf $ show compUnitVersion) -> do
-                    fail $ unlines
-                        [ "Incompatible version number for compilation unit"
-                        , "Consider removing " ++ pathName ++ " and make it again"
-                        ]
-            _ -> return ()
-        -- print "Parsing done!"
-        -- print "Loading yaml..."
-        --(glob, ast) <- fromYAML yml
-        -- cleanSeen
-        MkCompUnit _ _ glob ast <- io $ fromYAML yml
-        -- print "Loading done!"
-        -- z   <- stm $ join (findSym (cast "&*__fail") glob)
-        -- j   <- showYaml z
-        -- print j
+--        incs     <- io $ fmap ("blib6/lib":) getLibs
+--        pathName <- io $ requireInc incs "Prelude.pm.bin" ""
+        let MkCompUnit _ _ glob ast = decode preludeByteStringLazy
         appendMPad (envGlobal env) glob
         runEnv env{ envBody = ast, envDebug = Nothing }
         --     Right Nothing -> fail ""

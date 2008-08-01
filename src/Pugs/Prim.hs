@@ -29,7 +29,6 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Monads
 import Pugs.Pretty
-import Pugs.DeepSeq
 import Text.Printf
 import Pugs.External
 import Pugs.Embed
@@ -676,7 +675,7 @@ op1 "Pugs::Internals::caller_pragma_value" = \v -> do
         _        -> return $ VUndef
 op1 "eager" = \v -> do
     vlist <- fromVal v
-    return $! VList $! deepSeq vlist vlist
+    return $! length (map valType vlist) `seq` VList vlist
 op1 "Pugs::Internals::emit_yaml" = \v -> do
     glob <- filterPrim =<< asks envGlobal
     yml  <- io $ showYaml (filterUserDefinedPad glob, v)

@@ -23,7 +23,7 @@ import Pugs.Internals
 import Pugs.Types
 import Pugs.Monads
 import Pugs.PIL1
-import Emit.PIR
+import Language.PIR
 import Text.PrettyPrint
 
 tcVoid, tcLValue :: TCxt

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -optc-w -cpp #-}
 
 {-|
     Lexical analyzer.

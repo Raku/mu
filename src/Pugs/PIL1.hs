@@ -20,7 +20,7 @@ module Pugs.PIL1 (
 import Pugs.AST hiding (Prim)
 import Pugs.Internals hiding (get, put)
 import Pugs.Types
-import Emit.PIR
+import Language.PIR
 
 -- import DrIFT.XML
 -- {-! global : Haskell2Xml !-}

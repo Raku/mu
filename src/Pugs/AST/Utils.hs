@@ -4,7 +4,6 @@ module Pugs.AST.Utils where
 import Pugs.Internals
 import Pugs.Types
 import qualified Data.Set       as Set
-import qualified Data.IntMap    as IntMap
 
 import Pugs.AST.SIO
 import Pugs.AST.Eval

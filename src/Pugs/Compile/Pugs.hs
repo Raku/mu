@@ -4,7 +4,8 @@ module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
-import qualified UTF8 as Str
+-- import qualified Data.ByteString.UTF8 as Str
+import qualified Data.ByteString.Char8 as Str -- XXX
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 

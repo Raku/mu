@@ -125,18 +125,20 @@ pugs_MkValRef ( Val *val, char *typeStr )
 Val *pugs_getenv ()
 {
     SV** rv = hv_fetch(PL_modglobal, "PugsEnv", 7, 0);
+    IV tmp;
     if (rv == NULL) {
         Perl_croak(aTHX_ "PugsEnv uninitialized; please call pugs_setenv() first. (hate software so much.)");
     }
-    IV tmp = SvIV((SV*)SvRV(*rv));
+    tmp = SvIV((SV*)SvRV(*rv));
     return ((Val *)tmp);
 }
 
 void pugs_setenv ( Val *env )
 {
+    SV *sv;
     if (env == NULL) { return; }
 
-    SV *sv = newSV(0);
+    sv = newSV(0);
     sv_setref_pv(sv, "pugs", env);
     hv_store(PL_modglobal, "PugsEnv", 7, sv, 0);
 }

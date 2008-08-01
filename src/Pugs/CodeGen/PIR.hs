@@ -17,8 +17,7 @@ import Pugs.Internals
 import Pugs.AST hiding (Sig(..), PureSig)
 import Pugs.Types
 import Pugs.PIL1
-import Emit.PIR.Instances ()
-import Emit.PIR
+import Language.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
 import Pugs.CodeGen.PIR.Prelude (preludeStr)
@@ -26,7 +25,7 @@ import Pugs.Prim.Eval
 import Pugs.Compile
 import Pugs.Run (getLibs)
 import DrIFT.YAML
-import qualified UTF8 as Str
+import qualified Data.ByteString.UTF8 as Str
 
 type CodeGen a = WriterT [Stmt] (ReaderT TEnv IO) a
 type CodeGenMonad = WriterT [Stmt] (ReaderT TEnv IO)
@@ -249,10 +248,10 @@ instance Translate PIL_LValue LValue where
         -}
     trans x = transError x
 
-instance LiteralClass Var Expression where
+instance LiteralClass Var where
     lit = ExpLit . LitStr . cast
 
-instance LiteralClass ByteString Expression where
+instance LiteralClass ByteString where
     lit = ExpLit . LitStr . cast
 
 -- XXX - slow way of implementing "return"

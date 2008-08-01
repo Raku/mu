@@ -102,6 +102,7 @@ encodeKey x = x
 decodeKey x = x
 
 instance HashClass IHash where
+    hash_iType = const $ mkType "Hash"
     hash_clone hv = do
         ps  <- unsafeIOToSTM $ H.toList hv
         ps' <- forM ps $ \(k, sv) -> do

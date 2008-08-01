@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances -fparr #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-deprecations -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances -fparr #-}
 {-|
     Implementation Types.
 

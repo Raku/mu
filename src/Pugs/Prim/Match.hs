@@ -9,6 +9,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Config
 import Pugs.Prim.Code
+import Paths_Pugs
 import qualified Data.Map as Map
 import qualified Data.Array as Array
 import qualified Pugs.Prim.FileTest as FileTest
@@ -31,10 +32,7 @@ ruleWithAdverbs _ = fail "PCRE regexes can't be compiled to PGE regexes"
 
 doMatch :: String -> VRule -> Eval VMatch
 doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
-    let pwd1 = getConfig "installsitelib" ++ "/auto/pugs/perl5/lib"
-        pwd2 = getConfig "sourcedir" ++ "/perl5/Pugs-Compiler-Rule/lib"
-    hasSrc <- io $ doesDirectoryExist pwd2
-    let pwd = if hasSrc then pwd2 else pwd1
+    pwd     <- io $ getDataFileName "blib6/pugs/perl5/lib"
     glob    <- askGlobal
     let syms = [ (cast $ v_name var, entry)
                | (var, entry) <- padToList glob
@@ -69,24 +67,27 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
             return mkMatchFail
 
 doMatch csChars MkRulePCRE{ rxRegex = re } = do
-    rv <- io $ matchRegexWithPCRE re csBytes 0
-    if isNothing rv then return mkMatchFail else do
-    let ((fromBytes, lenBytes):subs) = Array.elems (fromJust rv)
-        substr str from len = take len (drop from str)
-        subsMatch = [
-            VMatch $ if fBytes == -1 then mkMatchFail else mkMatchOk
-                fChars (fChars + lChars)
-                (substr csChars fChars lChars)
-                [] Map.empty
-            | (fBytes, lBytes) <- subs
-            , let fChars = chars $ take fBytes csBytes
-            , let lChars = chars $ substr csBytes fBytes lBytes
-            ]
-        fromChars = chars $ take fromBytes csBytes
-        lenChars  = chars $ substr csBytes fromBytes lenBytes
-        chars = genericLength . decodeUTF8
-
-    return $ mkMatchOk fromChars (fromChars + lenChars) (substr csChars fromChars lenChars) subsMatch Map.empty
+    result <- io $ executePCRE re csBytes
+    case result of
+        Left{} -> return mkMatchFail
+        Right Nothing -> return mkMatchFail
+        Right (Just rv) -> do
+            let ((fromBytes, lenBytes):subs) = Array.elems rv
+                substr str from len = take len (drop from str)
+                subsMatch = [
+                    VMatch $ if fBytes == -1 then mkMatchFail else mkMatchOk
+                        fChars (fChars + lChars)
+                        (substr csChars fChars lChars)
+                        [] Map.empty
+                    | (fBytes, lBytes) <- subs
+                    , let fChars = chars $ take fBytes csBytes
+                    , let lChars = chars $ substr csBytes fBytes lBytes
+                    ]
+                fromChars = chars $ take fromBytes csBytes
+                lenChars  = chars $ substr csBytes fromBytes lenBytes
+                chars = genericLength . decodeUTF8
+            return $ mkMatchOk fromChars (fromChars + lenChars)
+                (substr csChars fromChars lenChars) subsMatch Map.empty
     where
     csBytes = encodeUTF8 csChars
 

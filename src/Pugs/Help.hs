@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-|
     Online help and banner text.
@@ -9,7 +9,7 @@
 >   across so wide a Sea?
 -}
 
-#include "pugs_config.h"
+-- #include "pugs_config.h"
 
 module Pugs.Help (printInteractiveHelp, printCommandLineHelp,
              banner, versnum, version, revnum,

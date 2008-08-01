@@ -1,12 +1,13 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-deprecations #-}
 
 module Pugs.Meta.Str (_StrClass) where
 import Data.Maybe
 import Pugs.Val
 import Pugs.Class
-import qualified UTF8 as Str
+-- import qualified Data.ByteString.UTF8 as Str
 import qualified Data.ByteString.Char8 as Char8
-import Pugs.Internals.String
+import qualified Data.ByteString.Char8 as Str -- XXX
+import Pugs.Internals
 
 instance Boxable PureStr where
     classOf _ = _StrClass
