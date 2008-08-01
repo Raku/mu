@@ -249,8 +249,15 @@ sub _emit_pair {
 
 sub _emit_complex {
     my $n = shift;
-    $n =~ s/i/*i/;
+    $n =~ s/i/*Math::Complex::i/;
     "($n)";
+}
+
+sub _emit_num {
+    my $n = shift;
+    return '$Math::Complex::Inf' if $n eq 'Inf';
+    return '($Math::Complex::Inf - $Math::Complex::Inf)' if $n eq 'NaN';
+    "$n";
 }
 
 sub _emit {
@@ -295,7 +302,7 @@ sub _emit {
     return $n->{int}
         if exists $n->{int};
 
-    return $n->{num}
+    return _emit_num( $n->{num} )
         if exists $n->{num};
 
     return _emit_complex( $n->{complex} )
@@ -851,12 +858,22 @@ sub default {
                 return " (defined $param )";
             }
 
-            if (   $subname eq 'any' || $subname eq 'all'  
-                || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' 
-                || $subname eq 'push' || $subname eq 'pop' || $subname eq 'shift' || $subname eq 'join' 
-                || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' 
-                || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' 
-                || $subname eq 'chomp' || $subname eq 'lc' || $subname eq 'abs' || $subname eq 'sleep' 
+            if ($subname eq 'readline') {
+                my $param = _emit( $n->{param} );
+                return "Pugs::Runtime::Perl6::IO::readline( $param )";
+            }
+
+            if ($subname eq 'pi') {
+                return "Math::Complex::pi()";
+            }
+
+            if (   $subname eq 'any'    || $subname eq 'all'  
+                || $subname eq 'substr' || $subname eq 'split'  || $subname eq 'die'    || $subname eq 'return' 
+                || $subname eq 'push'   || $subname eq 'pop'    || $subname eq 'shift'  || $subname eq 'join' 
+                || $subname eq 'index'  || $subname eq 'undef'  || $subname eq 'rand'   || $subname eq 'int' 
+                || $subname eq 'splice' || $subname eq 'keys'   || $subname eq 'values' || $subname eq 'sort' 
+                || $subname eq 'chomp'  || $subname eq 'lc'     || $subname eq 'abs'    || $subname eq 'sleep' 
+                || $subname eq 'unlink' || $subname eq 'close'  || $subname eq 'sqrt'
                 ) 
             {
                 return $subname . emit_parenthesis( $n->{param} );
@@ -932,15 +949,27 @@ sub default {
         if ( $n->{method}{dot_bareword} eq 'print' ||
              $n->{method}{dot_bareword} eq 'warn' ) {
             my $s = _emit( $n->{self} );
-            if ( $s eq Pugs::Runtime::Common::mangle_var('$*ERR') ) {
-                return " print STDERR '', " . _emit( $n->{param} );
+            if ( exists $n->{self}{scalar} && $n->{self}{scalar} eq '$*ERR' ) {
+                return " print STDERR " . ( $n->{param} ? _emit( $n->{param} ) : "''" );
+            }
+            if ( exists $n->{self}{scalar} && $n->{self}{scalar} eq '$*OUT' ) {
+                return " print STDOUT " . ( $n->{param} ? _emit( $n->{param} ) : "''" );
+            }
+            if ( exists $n->{self}{scalar} && $n->{self}{scalar} ) {
+                return "$s->print" . emit_parenthesis( $n->{param} );
             }
             return " print '', $s";
         }
         if ( $n->{method}{dot_bareword} eq 'say' ) {
             my $s = _emit( $n->{self} );
-            if ( $s eq Pugs::Runtime::Common::mangle_var('$*ERR') ) {
-                return " print STDERR '', " . _emit( $n->{param} ) . ', "\n"';
+            if ( exists $n->{self}{scalar} && $n->{self}{scalar} eq '$*OUT' ) {
+                return " print STDOUT " . ( $n->{param} ? _emit( $n->{param} ) : "''" ) . ', "\n"';
+            }
+            if ( exists $n->{self}{scalar} && $n->{self}{scalar} eq '$*ERR' ) {
+                return " print STDERR " . ( $n->{param} ? _emit( $n->{param} ) : "''" ) . ', "\n"';
+            }
+            if ( exists $n->{self}{scalar} && $n->{self}{scalar} ) {
+                return "$s->say" . emit_parenthesis( $n->{param} );
             }
             return " print '', $s" . ', "\n"';
         }
@@ -1121,11 +1150,15 @@ sub statement {
         if ( $n->{else} ) {
             $ret .= 'else '. emit_block( $n->{else} ) . "\n";
         }
+        else {
+            $ret .= "else { () }\n";
+        }
         return $ret;
     }
 
     if ( $n->{statement} eq 'do' ) {
-        return 'do { for($_) ' . emit_block( $n->{exp1} ) . ' }';
+        # double braces in 'do' allow for 'next/last'
+        return 'do {{ ' . emit_block( $n->{exp1} ) . ' }}';
     }
     if ( $n->{statement} eq 'given' ) {
         return  'for (1) { local $_ = ' . _emit( $n->{exp1} ) . '; ' .
@@ -1298,7 +1331,7 @@ sub term {
                 our \@EXPORT;
                 bool->import();  # True, False
                 use Quantum::Superpositions;
-                use Math::Complex;
+                use Math::Complex ();
                 $attributes ";
 
         return ref( $n->{block} ) && exists $n->{block}{bare_block}

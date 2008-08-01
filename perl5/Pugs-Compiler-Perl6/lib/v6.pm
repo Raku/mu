@@ -1,5 +1,5 @@
 package v6;
-$v6::VERSION = '0.031';
+$v6::VERSION = '0.032';
 
 # Documentation in the __END__
 use 5.006;
@@ -93,7 +93,7 @@ sub pmc_compile {
         ) : '').
         "use Scalar::Util;
          use Quantum::Superpositions;
-         use Math::Complex;
+         use Math::Complex ();
          use Pugs::Runtime::Perl6;
          use Pugs::Runtime::Perl6Prelude;
          use Pugs::Runtime::Perl5Container;

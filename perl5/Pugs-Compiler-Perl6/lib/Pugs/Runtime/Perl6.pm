@@ -182,11 +182,21 @@ package Pugs::Runtime::Perl6::IO;
             warn "Can't open \$*IN";
         }
     }
+
+    sub readline {
+        my $tmp = $_[0]->getline;
+        chomp( $tmp );
+        $tmp;
+    }
+    
+    sub say {
+        (+shift)->print(@_, "\n");
+    }
     
     sub slurp {
         if ( wantarray ) {
             my @a;
-            if ( ref( $_[0] ) eq 'IO::File' ) {
+            if ( UNIVERSAL::isa( $_[0], 'IO::Handle' ) ) {
                 my $f = shift;
                 @a = <$f>;
             }
@@ -198,7 +208,7 @@ package Pugs::Runtime::Perl6::IO;
             return @a;
         }
 
-            if ( ref( $_[0] ) eq 'IO::File' ) {
+            if ( UNIVERSAL::isa( $_[0], 'IO::Handle' ) ) {
                 return <$_[0]>;
             }
             else {
@@ -206,6 +216,12 @@ package Pugs::Runtime::Perl6::IO;
                 return <ARGV>;
             }
     }
+
+
+package Pugs::Runtime::Perl6::IO::File;
+    use base 'IO::File';
+    use base 'Pugs::Runtime::Perl6::IO';
+
 
 package Pugs::Runtime::Perl6::Routine;
     use B ();
