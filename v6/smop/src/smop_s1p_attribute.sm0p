@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <smop.h>
+#include <smop_lowlevel.h>
+#include <smop_s1p.h>
+#include <smop_slime.h>
+
+SMOP__Object* SMOP__S1P__Attribute;
+typedef struct SMOP__S1P__Attribute_struct {
+  SMOP__Object__BASE
+  SMOP__Object* name;
+  SMOP__Object* private_name;
+  SMOP__Object* container_type;
+} SMOP__S1P__Attribute_struct;
+
+static SMOP__Object* smop_s1p_attribute_message(SMOP__Object* interpreter,
+                                                SMOP__ResponderInterface* self,
+                                                SMOP__Object* identifier,
+                                                SMOP__Object* capture) {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
+
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
+  if (identifier == SMOP__ID__new) {
+    
+    SMOP__Object* frame;
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation, 
+                                               SMOP_REFERENCE(interpreter,interpreter));
+
+    SMOP__Object* attribute = smop_lowlevel_alloc(sizeof(SMOP__S1P__Attribute_struct));
+    attribute->RI = (SMOP__ResponderInterface*)SMOP__S1P__Attribute;
+    ((SMOP__S1P__Attribute_struct*)attribute)->name = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    ((SMOP__S1P__Attribute_struct*)attribute)->private_name = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    ((SMOP__S1P__Attribute_struct*)attribute)->container_type = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+
+    {
+      use v6;
+      $attribute.name.STORE($capture.named("name"));
+      $attribute.private_name.STORE($capture.named("private_name"));
+      $attribute.container_type.STORE($capture.named("container_type"));
+      return $attribute;
+    };
+
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  frame);
+
+    SMOP_RELEASE(interpreter, attribute);
+
+  } else if (identifier == SMOP__ID__create_container) {
+
+    SMOP__Object* frame;
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation, 
+                                               SMOP_REFERENCE(interpreter,interpreter));
+
+    {
+      use v6;
+      return $invocant.container_type.FETCH().new();
+    };
+
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  frame);
+
+  } else if (identifier == SMOP__ID__name) {
+
+    smop_lowlevel_rdlock(invocant);
+    ret = ((SMOP__S1P__Attribute_struct*)invocant)->name;
+    smop_lowlevel_unlock(invocant);
+
+    SMOP_REFERENCE(interpreter,ret);
+
+  } else if (identifier == SMOP__ID__private_name) {
+
+    smop_lowlevel_rdlock(invocant);
+    ret = ((SMOP__S1P__Attribute_struct*)invocant)->private_name;
+    smop_lowlevel_unlock(invocant);
+
+    SMOP_REFERENCE(interpreter,ret);
+
+  } else if (identifier == SMOP__ID__container_type) {
+
+    smop_lowlevel_rdlock(invocant);
+    ret = ((SMOP__S1P__Attribute_struct*)invocant)->container_type;
+    smop_lowlevel_unlock(invocant);
+
+    SMOP_REFERENCE(interpreter,ret);
+
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+
+    smop_lowlevel_wrlock(invocant);
+    SMOP__Object* name = ((SMOP__S1P__Attribute_struct*)invocant)->name;
+    ((SMOP__S1P__Attribute_struct*)invocant)->name = NULL;
+    SMOP__Object* private_name = ((SMOP__S1P__Attribute_struct*)invocant)->private_name;
+    ((SMOP__S1P__Attribute_struct*)invocant)->private_name = NULL;
+    SMOP__Object* container_type = ((SMOP__S1P__Attribute_struct*)invocant)->container_type;
+    ((SMOP__S1P__Attribute_struct*)invocant)->container_type = NULL;
+    smop_lowlevel_unlock(invocant);
+
+    if (name) SMOP_RELEASE(interpreter,name);
+    if (private_name) SMOP_RELEASE(interpreter,private_name);
+    if (container_type) SMOP_RELEASE(interpreter,container_type);
+
+  } else {
+    ___UNKNOWN_METHOD___;
+
+  }
+
+  SMOP_RELEASE(interpreter,invocant);
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
+}
+
+void smop_s1p_attribute_init() {
+  SMOP__S1P__Attribute = calloc(1,sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)SMOP__S1P__Attribute)->MESSAGE = smop_s1p_attribute_message;
+  ((SMOP__ResponderInterface*)SMOP__S1P__Attribute)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__S1P__Attribute)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__S1P__Attribute)->id = "S1P Attribute";
+}
+
+void smop_s1p_attribute_destr() {
+  free(SMOP__S1P__Attribute);
+}

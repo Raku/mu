@@ -15,10 +15,12 @@ extern SMOP__Object* SMOP__ID__call;              /* "call" */
 extern SMOP__Object* SMOP__ID__can;               /* "can" */
 extern SMOP__Object* SMOP__ID__capture;           /* "capture" */
 extern SMOP__Object* SMOP__ID__clone;             /* "clone" */
+extern SMOP__Object* SMOP__ID__container_type;    /* "container_type" */
 extern SMOP__Object* SMOP__ID__continuation;      /* "continuation" */
 extern SMOP__Object* SMOP__ID__continues;         /* "continues" */
 extern SMOP__Object* SMOP__ID__copy;              /* "copy" */
 extern SMOP__Object* SMOP__ID__CREATE;            /* "CREATE" */
+extern SMOP__Object* SMOP__ID__create_container;  /* "create_container" */
 extern SMOP__Object* SMOP__ID__current;           /* "current" */
 extern SMOP__Object* SMOP__ID__debug;             /* "debug" */
 extern SMOP__Object* SMOP__ID__defined;           /* "defined" */
@@ -47,6 +49,7 @@ extern SMOP__Object* SMOP__ID__new;               /* "new" */
 extern SMOP__Object* SMOP__ID__next;              /* "next" */
 extern SMOP__Object* SMOP__ID__past;              /* "past" */
 extern SMOP__Object* SMOP__ID__positional;        /* "positional" */
+extern SMOP__Object* SMOP__ID__private_name;      /* "private_name" */
 extern SMOP__Object* SMOP__ID__push;              /* "push" */
 extern SMOP__Object* SMOP__ID__register;          /* "register" */
 extern SMOP__Object* SMOP__ID__responder;         /* "responder" */

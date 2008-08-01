@@ -46,7 +46,8 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
   if (SMOP__ID__FETCH == identifier) {
 
     ret = SMOP__S1P__Scalar_FETCH(scalar);
-    SMOP_REFERENCE(interpreter,ret);
+    if (ret)
+      SMOP_REFERENCE(interpreter,ret);
 
   } else if (SMOP__ID__STORE == identifier) {
 
@@ -61,14 +62,16 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     SMOP__Object* cell = s->cell; s->cell = NULL;
     smop_lowlevel_unlock(scalar);
     if (cell) SMOP_RELEASE(interpreter,cell);
+    
+  } else if (SMOP__ID__new == identifier) {
+
+    ret = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
 
   } else {
-
-    SMOP__Object* value = SMOP__S1P__Scalar_FETCH(scalar);
-    ret = SMOP_DISPATCH(interpreter,SMOP_RI(value),identifier,SMOP__NATIVE__capture_delegate(interpreter,SMOP_REFERENCE(interpreter,value),SMOP_REFERENCE(interpreter,capture)));
+    ___UNKNOWN_METHOD___;
 
   }
-  SMOP_RELEASE(interpreter,scalar);
+  if (scalar) SMOP_RELEASE(interpreter,scalar);
   SMOP_RELEASE(interpreter,capture);
   return ret;
 }

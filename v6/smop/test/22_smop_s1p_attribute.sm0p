@@ -19,14 +19,17 @@ int main(int argc, char** argv) {
 
   {
     use v6;
-    $*att.STORE($SMOP__S1P__Attribute.new());   # name => 'ok 1\n', private_name => 'ok 2\n',
-                                                # container => $SMOP__S1P__Scalar));
+    $*att.STORE($SMOP__S1P__Attribute.new());
+    $*att.FETCH().container_type().STORE($SMOP__S1P__Scalar);
+    #$*att.FETCH().private_name().STORE("ok 2\n");
+    #$*att.FETCH().name().STORE("ok 1\n");
     $*cont.STORE($*att.FETCH.create_container);
-    $*cont.FETCH().STORE('ok 3\n');
+    $*cont.FETCH().STORE("ok 3\n");
     $*OUT.print("1..3\n");
     $*OUT.print($*att.FETCH.name);
     $*OUT.print($*att.FETCH.private_name);
     $*OUT.print($*cont.FETCH().FETCH());
+    $*att.STORE($SMOP__NATIVE__bool_false);
   };
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),

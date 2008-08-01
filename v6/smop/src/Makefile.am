@@ -13,7 +13,7 @@ libsmop_la_SOURCES = smop_lowlevel.sm0p idconst.c						\
     smop_slime_capturize.c smop_slime_currentframe.c smop_slime_frame.c	\
     smop_slime_node.c     lowlevel_method.c smop_s1p_scalar.c smop_s1p_array.c smop_s1p_io.c  \
     smop_s1p_str.c smop_s1p_hash.c smop_s1p_root_namespace.c p6opaque.sm0p \
-    smop_s1p_ccode.c smop_s1p_code.c smop_s1p_attribute.c
+    smop_s1p_ccode.c smop_s1p_code.c smop_s1p_attribute.sm0p 
 
 
 
