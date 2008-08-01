@@ -206,6 +206,10 @@ at the moment, to avoid a dependency on the full parser.
 COMPILING GHC ON DEBIAN ETCH
 ----------------------------
 
+Note (Aug 2008): Pugs requires ghc 6.8 now.  Lenny has this, but you can't
+reasonably build it on Etch - it build-deps Lenny's gcc, which build-deps
+Lenny's dpkg...  Just install the binary package from http://www.haskell.org/ghc/
+
 This is a somewhat tricky procedure at present, because installing a new ghc may
 make old libghc6-* packages uninstallable.  The following procedure should work
 around that, but be warned it hasn't been tested in exactly this way.  Complain
