@@ -69,7 +69,13 @@ sub inline {
     $program =~ s{\r?\n}{\\n" ++\n "}g;
 
     print OUT <<'.';
+{-# LANGUAGE ForeignFunctionInterface #-}
 module Pugs.Prelude where
+import Foreign.C.String
+import Data.ByteString.Unsafe (unsafePackCStringLen)
+import System.IO.Unsafe
+import qualified Data.ByteString as S
+import qualified Data.ByteString.Lazy as L
 
 {-
     Prelude bootstap. 
@@ -85,6 +91,30 @@ module Pugs.Prelude where
 -- Do not modify this file; it is generated automatically by  --
 --                  util/gen_prelude.pl                       --
 ----------------------------------------------------------------
+
+{-# NOINLINE preludeByteString #-}
+preludeByteString :: S.ByteString
+preludeByteString = unsafePerformIO $ unsafePackCStringLen (text__prelude_pm, size__prelude_pm)
+
+preludeByteStringLazy :: L.ByteString
+preludeByteStringLazy = L.fromChunks [preludeByteString]
+
+{-# NOINLINE testByteString #-}
+testByteString :: S.ByteString
+testByteString = unsafePerformIO $ unsafePackCStringLen (text__test_pm, size__test_pm)
+
+testByteStringLazy :: L.ByteString
+testByteStringLazy = L.fromChunks [testByteString]
+
+foreign import ccall unsafe "text__prelude_pm"
+    text__prelude_pm :: CString
+foreign import ccall unsafe "size__prelude_pm"
+    size__prelude_pm :: Int
+
+foreign import ccall unsafe "text__test_pm"
+    text__test_pm :: CString
+foreign import ccall unsafe "size__test_pm"
+    size__test_pm :: Int
 
 preludeStr :: String
 .
