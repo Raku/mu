@@ -24,7 +24,7 @@ my $app_dir = `$setup_exe -d`;
 chomp $app_dir;
 
 die "Cannot find application directory '$app_dir'; check to see if Setup.lhs compiles?\n"
-    unless $app_dir and -d $app_dir;
+    unless $app_dir;
 
 my $bin_dir = File::Spec->catdir($app_dir, 'bin');
 my $cabal   = File::Spec->catfile($bin_dir, "cabal$Config{_exe}");
