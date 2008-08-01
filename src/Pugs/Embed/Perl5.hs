@@ -14,9 +14,9 @@ import System.Directory
 import Pugs.Internals 
 import qualified Data.ByteString.UTF8 as Str
 
-evalPCR :: FilePath -> String -> String -> [(String, String)] -> IO String
-evalPCR path match rule subrules = do
-    (inp, out, err, pid) <- initPCR path
+evalPCR :: [FilePath] -> String -> String -> [(String, String)] -> IO String
+evalPCR [path] match rule subrules = do
+    (inp, out, err, pid) <- initPCR $ head path
     (`mapM` subrules) $ \(name, rule) -> do
         let nameStr = escape name
             ruleStr = escape rule
@@ -356,14 +356,15 @@ nullSV = nullPtr
 nullEnv :: PugsEnv
 nullEnv = unsafePerformIO (newStablePtr (error "undefined environment"))
 
-evalPCR :: FilePath -> String -> String -> [(String, String)] -> IO String
-evalPCR path match rule subrules = do
+evalPCR :: [FilePath] -> String -> String -> [(String, String)] -> IO String
+evalPCR paths match rule subrules = do
     let bridgeMod   = "Pugs::Runtime::Match::HsBridge"
         bridgeFile  = "Pugs/Runtime/Match/HsBridge.pm";
-    inv     <- evalPerl5 (unlines
+        incs        = map (\p -> "    unshift @INC, '"++p++"';") paths
+    inv     <- evalPerl5 (unlines $
         [ "if (!$INC{'"++bridgeFile++"'}) {"
-        , "    unshift @INC, '"++path++"';"
-        , "    eval q[require '"++bridgeFile++"'] or die $@;"
+        ] ++ incs ++
+        [ "    eval q[require '"++bridgeFile++"'] or die $@;"
         , "}"
         , "'"++bridgeMod++"'"
         ]) nullEnv 1

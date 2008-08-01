@@ -32,7 +32,8 @@ ruleWithAdverbs _ = fail "PCRE regexes can't be compiled to PGE regexes"
 
 doMatch :: String -> VRule -> Eval VMatch
 doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
-    pwd     <- io $ getDataFileName "blib6/pugs/perl5/lib"
+    pwd1    <- io $ getDataFileName "perl5/Pugs-Compiler-Rule/lib"
+    pwd2    <- io $ getDataFileName "third-party/Parse-Yapp/lib"
     glob    <- askGlobal
     let syms = [ (cast $ v_name var, entry)
                | (var, entry) <- padToList glob
@@ -48,7 +49,7 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
     rv   <- io $ fmap (fmap (fmap toUpper)) (getEnv "PUGS_REGEX_ENGINE")
     let ruleEngine | Just "PGE" <- rv   = evalPGE
                    | otherwise          = evalPCR
-    pge  <- io $ ruleEngine pwd cs text subrules
+    pge  <- io $ ruleEngine [pwd1, pwd2] cs text subrules
             `catchIO` (\e -> return $ show e)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail
