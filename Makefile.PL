@@ -56,7 +56,7 @@ my @deps = qw(
     HsSyck
 );
 
-#system($cabal => 'update');
+system($cabal => 'update');
 system($cabal => 'install', '--user', @deps);
 
 # XXX - At this point we'd like to fool Cabal into using our own archive.
