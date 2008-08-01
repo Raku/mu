@@ -119,7 +119,7 @@ sub bootstrap_with {
     my ($package, $pattern, $version) = @_;
     my @has_version;
     if ($package eq 'cabal-install') {
-        @has_version = sort map { /^cabal-install version ($pattern.*)/ ? $1 : () } `cabal --version`;
+        @has_version = sort map { /^cabal-install version ($pattern.*)/ ? $1 : () } `$cabal --version`;
     }
     else {
         @has_version = sort map { /^version: ($pattern.*)/ ? $1 : () } `$ghc_pkg describe $package`;
