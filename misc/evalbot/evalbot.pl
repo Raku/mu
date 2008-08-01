@@ -82,7 +82,7 @@ package Evalbot;
             yap6 => \&exec_yap6,
             std  => {
                 chdir       => '../../src/perl6',
-                cmd_line    => $^X . ' tryfile %program 2>%out',
+                cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
                 revision    => \&get_revision,
                 filter      => \&filter_std,
             },
@@ -209,8 +209,12 @@ package Evalbot;
         if($str =~ /PARSE FAILED/) {
             my @lines = grep {!/-+>/ && !/PARSE FAILED/} split /\n/, $str;
             return join '', @lines;
-        } else {
+        } elsif($str =~ /Out of memory!/) {
+            return 'Out of memory!';
+        } elsif($str =~ /--- !!perl/) {
             return 'parse ok';
+        } else {
+            return $str;
         }
     }
 }
