@@ -97,6 +97,7 @@ sub set_postamble {
     postamble(<<".");
 pugs$Config{_exe} ::
 \t\$(RM_F) dist/build/Pugs/pugs$Config{_exe}
+\t$cabal configure --user
 \t$cabal build
 \t\$(CP) dist/build/Pugs/pugs$Config{_exe} .
 
