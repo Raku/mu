@@ -1,7 +1,7 @@
 Name            : Pugs
 Version         : 6.2.13.11
 license         : BSD3
-license-file    : LICENSE
+license-file    : LICENSE/MIT
 cabal-version   : >= 1.2
 copyright       : 2005-2008, The Pugs Contributors
 maintainer      : Audrey Tang <audreyt@audreyt.org>
