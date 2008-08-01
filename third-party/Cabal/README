@@ -1,0 +1,105 @@
+[Cabal home page](http://www.haskell.org/cabal/)
+
+
+Installing as a user (no root or administer access)
+===================================================
+
+    ghc --make Setup
+    ./Setup configure --user
+    ./Setup build
+    ./Setup install
+
+This will install into `$HOME/.cabal/` or the equivalent on Windows.
+If you want to install elsewhere use the `--prefix=` flag at the
+configure step.
+
+
+Installing as root / Administrator
+==================================
+
+    ghc --make Setup
+    ./Setup configure
+    ./Setup build
+    sudo ./Setup install
+
+This will install into `/usr/local` on unix and on Windows it will
+install into `$ProgramFiles/Haskell`. If you want to install
+elsewhere use the `--prefix=` flag at the configure step.
+
+
+Working with older versions of GHC and Cabal
+============================================
+
+It is recommended just to leave any pre-existing version of Cabal
+installed. In particular it is *essential* to keep the version that
+came with GHC itself since other installed packages need it (eg the
+"ghc" api package).
+
+Prior to GHC 6.4.2 however, GHC didn't deal particularly well with
+having multiple versions of packages installed at once. So if you
+are using GHC 6.4.1 or older and you have an older version of Cabal
+installed, you probably just want to remove it:
+
+    ghc-pkg unregister Cabal
+
+or if you had Cabal installed just for your user account then:
+
+    ghc-pkg unregister Cabal --user
+
+
+Your Help
+=========
+
+To help us in the next round of development work it would be
+enormously helpful to know from our users what their most pressing
+problems are with Cabal and Hackage. You probably have a favourite
+Cabal bug or limitation. Take a look at our [bug tracker]. Make sure
+the problem is reported there and properly described. Comment on the
+ticket to tell us how much of a problem the bug is for you. Add
+yourself to the ticket's cc list so we can discuss requirements and
+keep you informed on progress. For feature requests it is very
+helpful if there is a description of how you would expect to
+interact with the new feature.
+
+[bug tracker]: http://hackage.haskell.org/trac/hackage/
+
+
+Code
+=======
+
+You can get the code from the web page; the version control system we
+use is very open and welcoming to new developers.
+
+You can get the main development branch:
+
+> darcs get --partial http://darcs.haskell.org/cabal
+
+and you can get the stable 1.4 branch:
+
+> darcs get --partial http://darcs.haskell.org/cabal-branches/cabal-1.4
+
+
+Credits
+=======
+
+Cabal Coders (in alphabetical order):
+
+- Krasimir Angelov
+- Bjorn Bringert
+- Duncan Coutts
+- Isaac Jones
+- David Himmelstrup (Lemmih)
+- Simon Marlow
+- Ross Patterson
+- Thomas Schilling
+- Martin Sjögren
+- Malcolm Wallace
+- and nearly 30 other people have contributed occasional patches
+
+Cabal spec:
+
+- Isaac Jones
+- Simon Marlow
+- Ross Patterson
+- Simon Peyton Jones
+- Malcolm Wallace
