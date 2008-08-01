@@ -147,6 +147,11 @@ $rewrite_test = sub {
         # redo works in perl5 blocks
         $text =~ s/^([^\n]*?\; *redo\;)/ok( 0, "redo works in perl5 blocks", :todo ) ; # $1/mg;
     }
+    if ( $out eq 't/spec/S03-operators/assign.t' ) {
+        # my @z = ($::('Foo::b')...
+        $text =~ s/^(\s+)my \@z = (\(\$::\(\'Foo::b\'\))/$1my \@z = undef; # TODO namespace problem ... = $2/m;
+        $text =~ s/^(\s+)([^\n]*?lhs treats \$::\(\'Foo::b\'\))/$1Test::ok( 0, "skip", :todo ); # $2/mg;
+    }
     
     # add "use Test" to most files
     if ( $out ne 't/01-sanity/05-sub.t' ) {
