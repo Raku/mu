@@ -16,9 +16,15 @@ exit if @ARGV and $ARGV[0] =~ /^--with/;
 my ($ghc, $ghc_version, $ghc_flags, $ghc_pkg) = assert_ghc();
 
 my $setup_exe  = File::Spec->catfile('.', "Setup$Config{_exe}");
+
+unlink $_ for qw(Setup.hi Setup.o);
+unlink $setup_exe;
 system($ghc, qw(--make -O0), -o => $setup_exe, 'Setup.lhs');
 my $app_dir = `$setup_exe -d`;
 chomp $app_dir;
+
+die "Cannot find application directory '$app_dir'; check to see if Setup.lhs compiles?\n"
+    unless $app_dir and -d $app_dir;
 
 my $bin_dir = File::Spec->catdir($app_dir, 'bin');
 my $cabal   = File::Spec->catfile($bin_dir, "cabal$Config{_exe}");
