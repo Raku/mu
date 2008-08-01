@@ -18,9 +18,7 @@ my ($ghc, $ghc_version, $ghc_flags, $ghc_pkg) = assert_ghc();
 
 my $setup_exe  = File::Spec->catfile('.', "Setup$Config{_exe}");
 
-unlink $_ for qw(Setup.hi Setup.o);
-unlink $setup_exe;
-system($ghc, qw(--make -O0), -o => $setup_exe, 'Setup.lhs');
+rebuild_setup();
 my $app_dir = `$setup_exe -d`;
 chomp $app_dir;
 
@@ -36,10 +34,15 @@ $ENV{PATH} = $bin_dir . $Config{path_sep} . $ENV{PATH};
 print "*** Checking for Haskell dependencies...\n";
 print "[Automatic Installation]\n";
 
-bootstrap_with(Cabal            => qr/1\.4\./, '1.4.0');
-bootstrap_with(HTTP             => qr/300[01]\./, '3000.0');
-bootstrap_with(zlib             => qr/0\.(?:[4-9]|[1-9]\d)\./, '0.4');
-bootstrap_with('cabal-install'  => qr/0\.(?:[5-9]|[1-9]\d)\./, '0.5');
+my $rebuilt;
+$rebuilt ||= bootstrap_with(Cabal            => qr/1\.4\./, '1.4.0');
+$rebuilt ||= bootstrap_with(HTTP             => qr/300[01]\./, '3000.0');
+$rebuilt ||= bootstrap_with(zlib             => qr/0\.(?:[4-9]|[1-9]\d)\./, '0.4');
+$rebuilt ||= bootstrap_with('cabal-install'  => qr/0\.(?:[5-9]|[1-9]\d)\./, '0.5');
+
+if ($rebuilt) {
+    rebuild_setup();
+}
 
 print "[Pugs Dependencies]\n";
 
@@ -195,6 +198,7 @@ following the instructions of README there.
 .
 
     chdir $FindBin::RealBin;
+    return 1;
 }
 
 sub for_perl5 {
@@ -212,4 +216,10 @@ sub for_perl5 {
         push @cmds, $this;
     }
     return join("\n", @cmds);
+}
+
+sub rebuild_setup {
+    unlink $_ for qw(Setup.hi Setup.o);
+    unlink $setup_exe;
+    system($ghc, qw(--make -O0), -o => $setup_exe, 'Setup.lhs');
 }
