@@ -36,6 +36,8 @@ print "[Automatic Installation]\n";
 
 my $rebuilt;
 $rebuilt ||= bootstrap_with(Cabal            => qr/1\.4\./, '1.4.0');
+$rebuilt ||= bootstrap_with(parsec           => qr/2\./, '2.0');
+$rebuilt ||= bootstrap_with(network          => qr/[12]\./, '1.0');
 $rebuilt ||= bootstrap_with(HTTP             => qr/300[01]\./, '3000.0');
 $rebuilt ||= bootstrap_with(zlib             => qr/0\.(?:[4-9]|[1-9]\d)\./, '0.4');
 $rebuilt ||= bootstrap_with('cabal-install'  => qr/0\.(?:[5-9]|[1-9]\d)\./, '0.5');
@@ -47,7 +49,7 @@ if ($rebuilt) {
 print "[Pugs Dependencies]\n";
 
 my @deps = qw(
-    filepath mtl stm network pretty time random process containers bytestring array directory 
+    filepath mtl stm pretty time random process containers bytestring array directory 
 
     utf8-string
     binary
