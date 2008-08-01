@@ -159,7 +159,7 @@ INSTPUGS_LIB = blib6/pugs
 src/Pugs/Config.hs : util/PugsConfig.pm current.build.yml
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
-smoke : $pugs util/run-smoke.pl
+smoke : pugs$Config{_exe} util/run-smoke.pl
 	\$(PERL) util/run-smoke.pl . smoke.html
 
 upload-smoke : smoke.yml
