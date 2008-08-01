@@ -66,10 +66,8 @@ my @deps = qw(
 system($cabal => 'update');
 system($cabal => 'install', '--user', @deps);
 
-# XXX - At this point we'd like to fool Cabal into using our own archive.
+# TODO - At this point we'd like to fool Cabal into using our own archive.
 do "Configure.PL";
-system($cabal => 'configure', '--user');
-
 print "==> Pugs configuration finished.\n";
 
 name            ('Perl6-Pugs');
@@ -143,6 +141,8 @@ sub set_postamble {
     postamble(<<".");
 pugs$Config{_exe} :: src/Pugs/Config.hs
 \t\$(RM_F) dist/build/pugs/pugs$Config{_exe}
+\t\$(RM_F) Pugs.cabal
+\t\$(CP) Pugs.cabal.in Pugs.cabal
 \t$cabal configure --user
 \t$cabal build
 \t\$(CP) dist/build/pugs/pugs$Config{_exe} .
