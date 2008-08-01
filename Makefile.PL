@@ -47,6 +47,8 @@ if ($rebuilt) {
 print "[Pugs Dependencies]\n";
 
 my @deps = qw(
+    filepath mtl stm network pretty time random process containers bytestring array directory 
+
     utf8-string
     binary
     haskeline
