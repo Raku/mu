@@ -138,10 +138,10 @@ sub set_postamble {
     # Ok, now we have Cabal-Install and all the deps.  Let's be lazy and write a simple makefile.
     postamble(<<".");
 pugs$Config{_exe} :: src/Pugs/Config.hs
-\t\$(RM_F) dist/build/Pugs/pugs$Config{_exe}
+\t\$(RM_F) dist/build/pugs/pugs$Config{_exe}
 \t$cabal configure --user
 \t$cabal build
-\t\$(CP) dist/build/Pugs/pugs$Config{_exe} .
+\t\$(CP) dist/build/pugs/pugs$Config{_exe} .
 
 install ::
 \t$cabal install --user
