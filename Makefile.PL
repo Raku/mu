@@ -35,12 +35,13 @@ print "*** Checking for Haskell dependencies...\n";
 print "[Automatic Installation]\n";
 
 my $rebuilt;
-$rebuilt ||= bootstrap_with(Cabal            => qr/1\.4\./, '1.4.0');
-$rebuilt ||= bootstrap_with(parsec           => qr/2\./, '2.0');
-$rebuilt ||= bootstrap_with(network          => qr/[12]\./, '1.0');
-$rebuilt ||= bootstrap_with(HTTP             => qr/300[01]\./, '3000.0');
-$rebuilt ||= bootstrap_with(zlib             => qr/0\.(?:[4-9]|[1-9]\d)\./, '0.4');
-$rebuilt ||= bootstrap_with('cabal-install'  => qr/0\.(?:[5-9]|[1-9]\d)\./, '0.5');
+$rebuilt += bootstrap_with(Cabal            => qr/1\.4\./, '1.4.0');
+#$rebuilt ||= bootstrap_with(bytestring       => qr/0\.9\.[1-9]/, '0.9.1');
+$rebuilt += bootstrap_with(parsec           => qr/2\./, '2.0');
+$rebuilt += bootstrap_with(network          => qr/[12]\./, '1.0');
+$rebuilt += bootstrap_with(HTTP             => qr/300[01]\./, '3000.0');
+$rebuilt += bootstrap_with(zlib             => qr/0\.(?:[4-9]|[1-9]\d)\./, '0.4');
+$rebuilt += bootstrap_with('cabal-install'  => qr/0\.(?:[5-9]|[1-9]\d)\./, '0.5');
 
 if ($rebuilt) {
     rebuild_setup();
@@ -49,7 +50,7 @@ if ($rebuilt) {
 print "[Pugs Dependencies]\n";
 
 my @deps = qw(
-    filepath mtl stm pretty time random process containers bytestring array directory 
+    filepath mtl stm pretty time random process containers array directory 
 
     utf8-string
     binary
@@ -63,7 +64,7 @@ my @deps = qw(
     HsSyck
 );
 
-system($cabal => 'update');
+#system($cabal => 'update');
 system($cabal => 'install', '--user', @deps);
 
 # TODO - At this point we'd like to fool Cabal into using our own archive.
@@ -139,7 +140,7 @@ sub set_postamble {
 
     # Ok, now we have Cabal-Install and all the deps.  Let's be lazy and write a simple makefile.
     postamble(<<".");
-pugs$Config{_exe} :: src/Pugs/Config.hs
+pugs$Config{_exe} :: src/Pugs/Config.hs src/Pugs/Prelude.hs
 \t\$(RM_F) dist/build/pugs/pugs$Config{_exe}
 \t\$(RM_F) Pugs.cabal
 \t\$(CP) Pugs.cabal.in Pugs.cabal
@@ -166,6 +167,9 @@ smoke : pugs$Config{_exe} util/run-smoke.pl
 
 upload-smoke : smoke.yml
 	\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
+
+src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl
+	\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
 .
 
 }
