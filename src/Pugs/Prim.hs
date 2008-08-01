@@ -238,8 +238,8 @@ op1 "require_haskell" = \v -> do
     externRequire "Haskell" name
     return $ VBool True
 op1 "require_parrot" = \v -> do
-    name    <- fromVal v
-    io $ evalParrotFile name
+    -- name    <- fromVal v
+    fail "evalParrotFile has bitrotten." -- io $ evalParrotFile name
     return $ VBool True
 op1 "require_perl5" = \v -> do
     pkg     <- fromVal v
@@ -258,7 +258,9 @@ op1 "require_java" = \v -> do
         evalExp_ (_Sym SOur (':':'*':lastPart) mempty (Val val) (newMetaType lastPart))
     return val
 op1 "Pugs::Internals::eval_parrot" = \v -> do
-    code    <- fromVal v
+    -- code    <- fromVal v
+    fail "evalParrot has bitrotten." 
+    {-
     io . evalParrot $ case code of
         ('.':_) -> code
         _       -> unlines
@@ -267,6 +269,7 @@ op1 "Pugs::Internals::eval_parrot" = \v -> do
             , code
             , ".end"
             ]
+    -}
     return $ VBool True
 
 -- XXX - revert these two to Prelude.pm's ::Disabled version once YAML+Closure is working

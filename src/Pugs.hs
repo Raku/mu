@@ -147,8 +147,8 @@ repLoop = initializeShell $ do
 mainWith :: ([String] -> IO a) -> IO ()
 mainWith run = do
     hSetBuffering stdout NoBuffering
-    when (isJust _DoCompile) $ do
-        writeIORef (fromJust _DoCompile) doCompile
+--    when (isJust _DoCompile) $ do
+--        writeIORef (fromJust _DoCompile) doCompile
     runWithArgs run
     globalFinalize
 
@@ -433,7 +433,8 @@ runPIR :: String -> IO ()
 runPIR prog = do
     pir <- doCompile "PIR" "-" prog
     writeFile "a.pir" pir
-    evalParrotFile "a.pir"
+    fail "evalParrotFile is bitrotten."
+    -- evalParrotFile "a.pir"
 
 {-
 withInlinedIncludes :: String -> IO String

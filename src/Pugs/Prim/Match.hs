@@ -47,7 +47,7 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
         return (name, text)
     text <- ruleWithAdverbs rule
     rv   <- io $ fmap (fmap (fmap toUpper)) (getEnv "PUGS_REGEX_ENGINE")
-    let ruleEngine | Just "PGE" <- rv   = evalPGE
+    let ruleEngine | Just "PGE" <- rv   = error "No PGE support for now" -- evalPGE
                    | otherwise          = evalPCR
     pge  <- io $ ruleEngine [pwd1, pwd2] cs text subrules
             `catchIO` (\e -> return $ show e)
