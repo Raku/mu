@@ -116,6 +116,7 @@ t/examples/99problems/problem94.t
 t/examples/99problems/problem96.t
 t/examples/golf.t
 t/oo/roles/instantiation.t
+t/operators/auto.t
 t/operators/brainos.t
 t/operators/relational.t
 t/operators/spaceship_and_datatypes.t
@@ -148,6 +149,7 @@ t/regex/from_perl6_rules/properties-06.t
 t/regex/from_perl6_rules/properties-07.t
 t/regex/from_perl6_rules/properties-08.t
 t/regex/from_perl6_rules/properties-09.t
+t/regex/from_perl6_rules/stdrules.t
 # t/regex/nonstrings.t
 t/regex/p6regex/p6regex.t
 t/regex/p6regex/regex_tests
@@ -185,6 +187,7 @@ t/statements/modifiers/if.t
 t/statements/modifiers/unless.t
 t/statements/until.t
 t/statements/values_in_bool_context.t
+
 t/syntax/lf_in_list.t
 t/syntax/parsing/braces_in_rules.t
 t/syntax/parsing/braces_in_strings.t
@@ -192,9 +195,18 @@ t/syntax/parsing/filetest.t
 t/syntax/parsing/non-dotted-new-disallowed.t
 t/syntax/parsing/pod_in_multi_line_exprs.t
 t/syntax/parsing/postfix_if_and_is.t
+t/syntax/parsing/sub_calls.t
+t/syntax/parsing/subscript.t
+
 t/syntax/single_quoted_strings.t
+
+t/unspecced/async.t
+t/unspecced/eval_yaml.t
+t/unspecced/tailcall.t
+
 t/var/lvalue_deep_brackets.t
 t/var/passing_the_pair_class_to_a_sub.t
+
 t/xx-uncategorized/empty_kwid.t
 t/xx-uncategorized/lexical-array-in-inner-block.t
 t/xx-uncategorized/return_in_anonymous_subs.t

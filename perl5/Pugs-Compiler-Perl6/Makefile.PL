@@ -50,6 +50,10 @@ $rewrite_test = sub {
 
     # fix problems caused by splitting; update the "todo" lists
     
+    
+    if ( $out eq 't/operators/auto.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(39..43);/m;
+    }
     if ( $out eq 't/regex/from_perl6_rules/named_chars-00.t' ) {
         my $cpan_tester_errors = "148, 149, 158, 160";
         $text =~ s/^\s*plan \d+;/plan 200;/m;
@@ -129,6 +133,9 @@ $rewrite_test = sub {
         $text =~ s/^(ok[^\n]*?GraphemeLink)/ok( 0, "cpan-testers reported GraphemeLink problems", :todo ) ; # $1/mg;
         
     }    
+    if ( $out eq 't/regex/from_perl6_rules/stdrules.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(4,7,10);/m;
+    }
     if ( $out eq 't/regex/p6regex/p6regex.t' ) {
         my $cpan_tester_errors = ', 31..32, 36, 114..115, 117, 121..122, 124, 129..130,
                 143..144, 157..158, 171..172, 185..186, 191..192,
