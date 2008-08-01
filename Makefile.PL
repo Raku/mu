@@ -34,7 +34,7 @@ $ENV{PATH} = $bin_dir . $Config{path_sep} . $ENV{PATH};
 print "*** Checking for Haskell dependencies...\n";
 print "[Automatic Installation]\n";
 
-my $rebuilt;
+my $rebuilt = 0;
 $rebuilt += bootstrap_with(Cabal            => qr/1\.4\./, '1.4.0');
 #$rebuilt ||= bootstrap_with(bytestring       => qr/0\.9\.[1-9]/, '0.9.1');
 $rebuilt += bootstrap_with(parsec           => qr/2\./, '2.0');
@@ -187,7 +187,7 @@ sub bootstrap_with {
     printf "- %-20s ", $package;
     if (@has_version) {
         print "...loaded. ($has_version[0] >= $version)\n";
-        return;
+        return 0;
     }
 
     print "...missing. (would need $version)\n";
