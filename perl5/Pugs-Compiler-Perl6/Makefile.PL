@@ -142,15 +142,21 @@ $rewrite_test = sub {
         $text =~ s/^\s*plan \d+;/plan 84;/m;
         $text =~ s/^\s*force_todo.*?\n/force_todo(18,34,40,51,57,66,67);\n/m;
     }
-    if ( $out eq 't/spec/S04-statements/do.t' ) {
-        $text = "force_todo(1..6,10,11,20..22);\n" . $text;  
-        # redo works in perl5 blocks
-        $text =~ s/^([^\n]*?\; *redo\;)/ok( 0, "redo works in perl5 blocks", :todo ) ; # $1/mg;
+    if ( $out eq 't/spec/S02-builtin_data_types/flattening.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(4,9,12..15);/m;
+    }
+    if ( $out eq 't/spec/S02-literals/autoref.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(9,53..57);/m;
     }
     if ( $out eq 't/spec/S03-operators/assign.t' ) {
         # my @z = ($::('Foo::b')...
         $text =~ s/^(\s+)my \@z = (\(\$::\(\'Foo::b\'\))/$1my \@z = undef; # TODO namespace problem ... = $2/m;
         $text =~ s/^(\s+)([^\n]*?lhs treats \$::\(\'Foo::b\'\))/$1Test::ok( 0, "skip", :todo ); # $2/mg;
+    }
+    if ( $out eq 't/spec/S04-statements/do.t' ) {
+        $text = "force_todo(1..6,10,11,20..22);\n" . $text;  
+        # redo works in perl5 blocks
+        $text =~ s/^([^\n]*?\; *redo\;)/ok( 0, "redo works in perl5 blocks", :todo ) ; # $1/mg;
     }
     
     # add "use Test" to most files
