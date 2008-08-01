@@ -1,8 +1,6 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-unused-binds -fno-warn-unused-imports -fallow-overlapping-instances -optc-DSTABLE_H -optc-w #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-unused-binds -fno-warn-unused-imports -fallow-overlapping-instances -optc-DSTABLE_H -optc-w #-}
 
 module Pugs.Run.Perl5 () where
-
-#ifdef PUGS_HAVE_PERL5
 
 import Pugs.Internals
 import Pugs.AST
@@ -144,5 +142,3 @@ pvnToVal cstr len = do
 
 undefVal :: IO PugsVal
 undefVal = mkValPtr VUndef
-
-#endif
