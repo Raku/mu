@@ -317,14 +317,25 @@ static SMOP__Object* frame_message(SMOP__Object* interpreter,
                                                  (SMOP__Object*[]){SMOP__NATIVE__bool_false, NULL},
                                                  NULL));
 
-      SMOP__Object* responder = SMOP_REFERENCE(interpreter,(SMOP__Object*)SMOP_RI(res));
-      if (res) SMOP_RELEASE(interpreter, res);
+      if (res) {
+        SMOP__Object* responder = SMOP_REFERENCE(interpreter,(SMOP__Object*)SMOP_RI(res));
+        if (res) SMOP_RELEASE(interpreter, res);
 
-      SMOP_RELEASE(interpreter,
-                   SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__responder,
-                                 SMOP__NATIVE__capture_create(interpreter,
-                                                              SMOP_REFERENCE(interpreter,thisnode),
-                                                              (SMOP__Object*[]){responder,NULL},NULL)));
+        SMOP_RELEASE(interpreter,
+                     SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__responder,
+                                   SMOP__NATIVE__capture_create(interpreter,
+                                                                SMOP_REFERENCE(interpreter,thisnode),
+                                                                (SMOP__Object*[]){responder,NULL},NULL)));
+      } else {
+
+        SMOP_RELEASE(interpreter,
+                     SMOP_DISPATCH(interpreter,SMOP_RI(thisnode),SMOP__ID__responder,
+                                   SMOP__NATIVE__capture_create(interpreter,
+                                                                SMOP_REFERENCE(interpreter,thisnode),
+                                                                (SMOP__Object*[]){(SMOP__Object*)SMOP_RI(SMOP__NATIVE__bool_false),
+                                                                                    NULL},NULL)));
+
+      }
 
       ret = SMOP__NATIVE__bool_true;
       SMOP_RELEASE(interpreter,frame);

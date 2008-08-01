@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <smop.h>
+#include <smop_s1p.h>
 #include <smop_native.h>
 
 SMOP__Object* SMOP__NATIVE__bool;
@@ -13,18 +14,7 @@ static SMOP__Object* bool_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
-  //todo
-  if (SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
-    int u;
-    char* external = SMOP__NATIVE__idconst_fetch(identifier, &u);
-    char* local = malloc(u+1);
-    memcpy(local, external, u);
-    local[u] = 0;
-    fprintf(stderr, "[bool] \"%s\" is not implemented in bool.\n", local);
-    free(local);
-  } else {
-    fprintf(stderr, "[bool] unknown method called.\n");
-  }
+  ___UNKNOWN_METHOD___;
 
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
