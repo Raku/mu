@@ -1,6 +1,12 @@
 module Paths_Pugs where
 import System.FilePath
-import System.Environment.FindBin
+import System.Directory
+import Pugs.Version (versnum)
 
 getDataFileName :: FilePath -> IO FilePath
-getDataFileName = return . (__Bin__ </>)
+getDataFileName fn = do
+    _cabal <- getAppUserDataDirectory "cabal"
+    createDirectory $ _cabal
+    createDirectory $ _cabal </> "share"
+    createDirectory $ _cabal </> "Pugs-" ++ versnum
+    return $ _cabal </> "share" </> "Pugs-" ++ versnum </> fn
