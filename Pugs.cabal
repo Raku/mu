@@ -79,7 +79,6 @@ extra-source-files:
     src/Pugs/Cont.hs
     src/Pugs/Embed.hs
     src/Pugs/Embed/Haskell.hs
-    src/Pugs/Embed/Parrot.hs
     src/Pugs/Embed/Perl5.hs
     src/Pugs/Embed/Pugs.hs
     src/Pugs/Eval.hs
