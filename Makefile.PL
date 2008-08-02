@@ -81,7 +81,7 @@ install_script  ('script/pugscc');
 install_script  ('util/prove6');
 build_subdirs   (map fixpaths($_), grep {
                    -f "$_/Makefile.PL" && not -l "$_/Makefile.PL"
-                 } glob("docs/*") # glob("ext/*"), glob("docs/*")
+                 } glob("ext/*"), glob("docs/*")
                 );
 my $version = version();
 $version .= 0 until length($version) >= length('0.123456');
