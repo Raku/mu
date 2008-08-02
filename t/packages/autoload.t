@@ -49,7 +49,7 @@ package OughtaWork {
                    }
     our $m = 0;
     method AUTOMETH($_) { my $x = "{self} {$_}.number {++$m}";
-                     my $method = sub($self:) { "{$self}.$x" };
+                     my $method = sub ($self:) { "{$self}.$x" };
                      eval "our &$_ := \$method";
                      return $method;
                    }

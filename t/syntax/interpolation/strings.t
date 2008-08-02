@@ -67,7 +67,7 @@ is(qa"$world @list[] %hash{}", Q"$world 1 2 %hash{}", "only interpolate array");
 is(qb"$world \\\"\n\t", "\$world \\\"\n\t", "only interpolate backslash");
 is('$world \qq[@list[]] %hash{}', '$world 1 2 %hash{}', "interpolate quoting constructs in ''");
 
-is(" \d[111] \d[107] ", ' o k ', "\\d[] respects whitespaces around it");
+is(" \c[111] \c[107] ", ' o k ', "\\c[] respects whitespaces around it");
 
 # L<S02/Literals/separating the numbers with comma:>
 is("x  \x[41,42,43]  x",     "x  ABC  x",  "\\x[] allows multiple chars (1)");

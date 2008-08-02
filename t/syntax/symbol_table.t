@@ -16,8 +16,6 @@ plan 28;
 
 Namespaces, symbol tables and symbolic references.
 
-#=end obsolete
-
 # flunk("%:: parse", :todo);
 ok(eval('%::'), '%:: parses', :todo);
 my $symhash   = eval '%::';
@@ -88,3 +86,6 @@ ok(try {!defined(%MY::<nosuch>)},              "unknown lexical lookup doesn't a
 
 ok(defined eval('%::') && eval('%::') eq $symhash, "previous package declaration was scoped", :todo);
 is(eval('%::<Other1::$new_global>'),  "It is I.", "Global in other package still visible", :todo);
+
+=end obsolete
+

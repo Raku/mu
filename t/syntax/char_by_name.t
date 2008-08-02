@@ -14,9 +14,9 @@ is "\c[RIGHT WHITE CORNER BRACKET]", "』", '\c[RIGHT WHITE CORNER BRACKET]';
 is "\c[FULLWIDTH RIGHT PARENTHESIS]", "）", '\c[FULLWIDTH RIGHT PARENTHESIS]';
 is "\c[LEFT DOUBLE ANGLE BRACKET]", "《", '\c[LEFT DOUBLE ANGLE BRACKET]';
 
-is("\c[LINE FEED (LF)]", "\d10", '\c[LINE FEED (LF)] works');
-is("\c[LINE FEED]", "\d10", '\c[LINE FEED] works');
-is("\c[LF]", "\d10", '\c[LF] works');
+is("\c[LINE FEED (LF)]", "\c10", '\c[LINE FEED (LF)] works');
+is("\c[LINE FEED]", "\c10", '\c[LINE FEED] works');
+is("\c[LF]", "\c10", '\c[LF] works');
 
 # L<S02/Literals/"Multiple codepoints constituting a single character">
 is eval('"\c[LATIN CAPITAL LETTER A, LATIN CAPITAL LETTER B]"'), 'AB', 'two letters in \c[]';

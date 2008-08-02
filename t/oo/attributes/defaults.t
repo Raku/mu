@@ -23,6 +23,7 @@ sub get_a_code {
 
 my $set_by_code_attr;
 
+class Foo {...}
 eval 'class Foo {
     has $.num  = get_a_num();
     has $.str  = { get_a_str() };

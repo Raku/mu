@@ -6,8 +6,8 @@ plan 8;
 
 #first lets test lexical named subs
 {
-    my String sub myNamedStr() { return 'string' };
-    is myNamedStr(), 'string', 'lexical named sub() return String';
+    my Str sub myNamedStr() { return 'string' };
+    is myNamedStr(), 'string', 'lexical named sub() return Str';
 }
 is eval('myNamedStr()'), '', 'Correct : lexical named sub myNamedStr() should NOT BE available outside its scope';
 
@@ -21,8 +21,8 @@ is eval('myNamedInt()'), '', 'Correct : lexical named sub myNamedInt() should NO
 #packge-scoped named subs
 
 {
-    our String sub ourNamedStr() { return 'string' };
-    is ourNamedStr(), 'string', 'package-scoped named sub() return String';
+    our Str sub ourNamedStr() { return 'string' };
+    is ourNamedStr(), 'string', 'package-scoped named sub() return Str';
 }
 is ourNamedStr(), 'string', 'Correct : package-scoped named sub ourNamedStr() should BE available in the whole package';
 

@@ -81,7 +81,7 @@ plan 28;
 # XXX! When executed in interactive Pugs, the following test works!
 {
   my $a;
-  my $b = sub($arg) { $a := $arg };
+  my $b = sub ($arg) { $a := $arg };
   my $val = 42;
 
   $b($val);
@@ -99,7 +99,7 @@ plan 28;
 
 {
   my $a;
-  my $b = sub($arg is rw) { $a := $arg };
+  my $b = sub ($arg is rw) { $a := $arg };
   my $val = 42;
 
   $b($val);

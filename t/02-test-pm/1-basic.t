@@ -61,7 +61,7 @@ is_deeply({ a => "b", c => "d", nums => [<1 2 3 4 5 6>] },
 
 my @a = "a" .. "z";
 my @b = @a.reverse;
-@b = @b.map(sub($a, $b) { $b, $a });
+@b = @b.map(sub ($a, $b) { $b, $a });
 my %a = @a;
 my %b = @b;
 is_deeply(%a, %b, "is_deeply (test hash key ordering)");

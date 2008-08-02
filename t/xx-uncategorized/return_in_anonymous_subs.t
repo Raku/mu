@@ -42,8 +42,6 @@ sub bar (Code $return) { $return(42) }
   is foo2(&bar), 42, "return() inside anonymous subs works", :todo<bug>; 
 }
 
-=pod
-
 =begin more-discussion-needed
 
 Problem is: How does a plain reference to return know which scope to leave?
@@ -54,3 +52,5 @@ Problem is: How does a plain reference to return know which scope to leave?
 
   is baz(&return), 42, 'calling &return works', :todo<bug>;
 }
+
+=end more-discussion-needed

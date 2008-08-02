@@ -27,4 +27,4 @@ unless "a" ~~ rx:P5/a/ {
 "a" ~~ rx:Perl5/a|(b)/;
 is($0, undef, 'An unmatched capture should be false.');
 my $str = "http://foo.bar/";
-ok(($str ~~ rx:perl5 {http{0,1}}));
+ok(($str ~~ rx:Perl5 {http{0,1}}));

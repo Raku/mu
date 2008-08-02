@@ -14,7 +14,7 @@ plan 4;
 # be possible.
 
 my $filename = "tmpfile.txt";
-my $fh = open $filename :w;
+my $fh = open $filename, :w;
 
 ok $fh, "temp file created successfully";
 

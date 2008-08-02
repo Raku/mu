@@ -46,7 +46,7 @@ for @separators -> $sep {
   my @res = eval $str;
 
   my $vis = sprintf "%02x", ord $sep;
-  is( @res, @list, "'\x$vis\x$vis' is properly parsed as list whitespace")
+  is( @res, @list, "'\\x$vis\\x$vis' is properly parsed as list whitespace")
 };
 
 for @nonseparators -> $sep {
@@ -55,5 +55,5 @@ for @nonseparators -> $sep {
   my @res = eval $str;
 
   my $vis = sprintf "%02x", ord $sep;
-  is( @res, [@list.join($sep)], "'\x$vis' does not split in a whitespace quoted list")
+  is( @res, [@list.join($sep)], "'\\x$vis' does not split in a whitespace quoted list")
 };

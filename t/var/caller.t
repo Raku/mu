@@ -142,7 +142,7 @@ plan 18;
   is $foo, 24,               'rebinding $CALLER:: variables works (3)', :todo<bug>;
 }
 
-=pod
+=begin pod
 
 Larry ruled that as erroneous.
 
@@ -171,3 +171,5 @@ Larry ruled that as erroneous.
     flunk "Test loops infinitely";
   }
 }
+
+=end pod

@@ -12,7 +12,7 @@ use v6;
 #  sub is_prime(Divisible::Int $num) {
 # but "subset" is not working yet.
 
-sub is_prime(Nat $num) returns Bool {
+sub is_prime(Int $num) returns Bool {
     
     # 0 and 1 are not prime by definition
     return False if $num < 2;

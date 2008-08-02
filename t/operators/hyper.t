@@ -72,12 +72,12 @@ plan 56;
 
 { # unary postfix
         my @r = (1, 2, 3);
-        try { @r »++ };
+        try { @r»++ };
         my @e = (2, 3, 4);
         is(~@r, ~@e, "hyper auto increment an array", :todo);
 
         @r = (1, 2, 3);
-        try { @r >>++ };
+        try { @r>>++ };
         @e = (2, 3, 4);
         is(~@r, ~@e, "hyper auto increment an array ASCII notation", :todo);
 };
@@ -192,12 +192,12 @@ plan 56;
 { # distribution for unary postfix autoincrement
         my @r;
         @r = ([1, 2], [3, [4, 5]]);
-        try { @r »++ };
+        try { @r»++ };
         my @e = ([2, 3], [4, [5, 6]]);
         is_deeply(~@r, ~@e, "distribution for unary postfix autoincr", :todo);
 
         @r = ([1, 2], [3, [4, 5]]);
-        try { @r >>++ };
+        try { @r>>++ };
         @e = ([2, 3], [4, [5, 6]]);
         is_deeply(~@r, ~@e, "distribution for unary postfix autoincr, ASCII", :todo);
 };

@@ -10,6 +10,6 @@ plan 1;
 
 my %nw{0..9} = <zero one two three four five six seven eight nine>;
 
-sub numword1 (Int $n) {fail if $n<0; join '-', %nw{split '', ~$n} };
+sub numword1 (Int $n) {fail if $n < 0; join '-', %nw{split '', ~$n} };
 
 is numword1(175),'one-seven-five','Wordify numbers in a specific format.';
