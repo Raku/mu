@@ -20,7 +20,7 @@ import Pugs.PIL1
 import Language.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
-import Pugs.CodeGen.PIR.Prelude (preludeStr)
+import Pugs.CodeGen.PIRPrelude (preludeStr)
 import Pugs.Prim.Eval
 import Pugs.Compile
 import Pugs.Run (getLibs)
