@@ -26,8 +26,8 @@ int main(int argc, char** argv) {
     $*cont.STORE($*att.FETCH.create_container);
     $*cont.FETCH().STORE("ok 3\n");
     $*OUT.FETCH().print("1..3\n");
-    $*OUT.FETCH().print($*att.FETCH.name);
-    $*OUT.FETCH().print($*att.FETCH.private_name);
+    $*OUT.FETCH().print($*att.FETCH.name.FETCH);
+    $*OUT.FETCH().print($*att.FETCH.private_name.FETCH);
     $*OUT.FETCH().print($*cont.FETCH().FETCH());
     $*att.STORE($SMOP__NATIVE__bool_false);
   };
