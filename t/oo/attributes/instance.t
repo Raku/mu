@@ -4,11 +4,11 @@ use Test;
 
 plan 71;
 
-=pod
+=begin pod
 
 Class attributes tests from L<S12/Attributes>
 
-=cut
+=end pod
 
 eval 'has $.x;';
 ok $!, "'has' only works inside of class|role definitions";

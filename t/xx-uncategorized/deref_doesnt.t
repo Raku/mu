@@ -2,12 +2,12 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 We don't have references yet, but that doesn't mean dereferencing should
 be a nop.
 
-=cut
+=end pod
 
 plan 1;
 my $x = 42;

@@ -2,14 +2,14 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Test golf examples
 
 This runs examples/golf/tsanta.pl to test both mad golfer asavige's
 original golf solutions and rg0now's improved solutions.
 
-=cut
+=end kwid
 
 plan 10;
 

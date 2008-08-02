@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 The parser won't do right thing when two(or more) class-es get
 attributes whose name are the same.
@@ -57,7 +57,7 @@ Problems with this test:
 * The last subtest calls c.new(...).update, but there is no &c::update and c
   doesn't inherit from a class providing an "update" method, either.
 
-=cut
+=end pod
 
 plan 3;
 
@@ -96,7 +96,7 @@ plan 3;
         submethod BUILD { a.new( a => $.a ).update; };
     };
 
-=pod
+=begin pod
   pugs> class a { has $.a; method update { $var -= $.a; } };class b { has $.a; submethod BUILD { a.new( a => $.a ).update; };};b.new( a => 20 );
   *** No compatible subroutine found: "&update"
       at <interactive> line 1, column 90-114
@@ -104,7 +104,7 @@ plan 3;
       <interactive> line 1, column 120-136
   pugs>
 
-=cut
+=end pod
 
 ##### will cause pugs hang if uncomment it
 #    b.new( a => 20 );

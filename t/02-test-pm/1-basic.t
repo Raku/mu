@@ -3,7 +3,7 @@ use Test;
 
 plan 60;
 
-=kwid
+=begin kwid
 
 This file /exhaustivily/ tests the Test module. 
 
@@ -20,7 +20,7 @@ a missing feature.
 If there is a bug in the implementation, you will see
 a (non-TODO) failure or an unexpected success.
 
-=cut
+=end kwid
 
 ## ok
 

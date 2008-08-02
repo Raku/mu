@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Context forcing operators
 
-=cut
+=end kwid
 
 plan 40;
 

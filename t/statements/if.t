@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Basic "if" tests.
 
 L<S04/"Conditional statements">
 
-=cut
+=end kwid
 
 plan 24;
 

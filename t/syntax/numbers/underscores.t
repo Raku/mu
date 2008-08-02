@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 _ should be allowed in numbers
 
 But according to L<S02/Literals/"A single underscore is allowed only">, only between two digits.
 
-=cut
+=end pod
 
 plan 19;
 

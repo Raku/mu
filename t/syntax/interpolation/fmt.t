@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 =head1 String interpolation and fmt
 
 These tests exercise a bug found at least in r16241 of Pugs
 
-=cut
+=end kwid
 
 plan 11;
 

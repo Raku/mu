@@ -4,12 +4,12 @@ use Test;
 
 plan 4;
 
-=pod
+=begin pod
 
     $foo(42);  # is sugar for
     $foo.postcircumfix:<( )>(42);
 
-=cut
+=end pod
 
 # Example: Make $foo() a noop.
 {

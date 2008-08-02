@@ -4,7 +4,7 @@ use Test;
 
 plan 10;
 
-=kwid
+=begin kwid
 
 Namespace declarators
 
@@ -13,7 +13,7 @@ TODO:
 * and add tests for the lexical scoping behaviors of these declarations;
 * somebody once mentioned runtime namespaces...?
 
-=cut
+=end kwid
 
 our $GLOBAL = "Main global";
 

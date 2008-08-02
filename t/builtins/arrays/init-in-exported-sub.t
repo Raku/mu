@@ -2,10 +2,10 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Array initialization in subs exported from a module
-=cut
+=end kwid
 
 plan 1;
 

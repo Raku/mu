@@ -3,11 +3,11 @@ use v6;
 use Test;
 force_todo 6;
 
-=pod
+=begin pod
 
 Test that the safemode is really safe.
 
-=cut
+=end pod
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 

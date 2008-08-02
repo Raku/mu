@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 You can specify 'is copy' on an arg and modify it inside a function,
 but this bug prevents it when the argument is optional *and* has a
@@ -10,7 +10,7 @@ default value.
 
 (Note that "is copy = 0" is fine but "= 0 is copy" is not.)
 
-=cut
+=end pod
 
 plan 1;
 sub boom ($arg is copy = 0) { $arg++ }

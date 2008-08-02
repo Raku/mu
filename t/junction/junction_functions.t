@@ -4,13 +4,13 @@ use Test;
 
 plan 23;
 
-=pod
+=begin pod
 
 More Junction Tests
 
 These tests are derived from the Perl6 and Parrot Essentials Chapter 4, page 42
 
-=cut
+=end pod
 
 my $j = any(1, 2, 3);
 is(WHAT($j), 'Junction', '$j is a Junc');

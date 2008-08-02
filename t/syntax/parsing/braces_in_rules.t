@@ -1,7 +1,7 @@
 use v6;
 
 
-=pod
+=begin pod
 
 The parser is confused by rules containing \{ .
 
@@ -18,7 +18,7 @@ a rule, is wandering far far afield, and only backtracking to something
 reasonable when/if it isn't pursuaded by distant things that it isn't
 approaching this all wrong.  But it is approaching it wrong.
 
-=cut
+=end pod
 
 use Test;
 plan 1;

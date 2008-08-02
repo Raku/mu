@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 The spaceship operator parses incorrectly in multiple ways
 
-=cut
+=end kwid
 
 plan 5;
 

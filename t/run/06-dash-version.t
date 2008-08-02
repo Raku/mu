@@ -2,12 +2,12 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test that the C<--version> command in its various incantations
 works.
 
-=cut
+=end pod
 
 my @tests = any(< -v --version >);
 @tests = map -> Junction $_ { $_.values },

@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Bits and Pieces.
 
-=cut
+=end kwid
 
 plan 17;
 

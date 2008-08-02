@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 The value of Pugs::Internals::pi is {obj:Code::Exp} rather than 3.14... .
 This was caused by renaming pi in Prim.hs from "pi" to "Pugs::Internals::pi".
@@ -13,7 +13,7 @@ r13255.
   {obj:Code::Exp}
   pugs> 
 
-=cut
+=end kwid
 
 plan 1;
 

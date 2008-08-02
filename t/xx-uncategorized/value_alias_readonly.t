@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 We ought to be able to change a value when aliasing into it.
 
-=cut
+=end pod
 
 plan 8;
 

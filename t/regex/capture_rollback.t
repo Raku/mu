@@ -4,14 +4,14 @@ use Test;
 
 plan 2;
 
-=pod
+=begin pod
 
 # L<< S05/Return values from matches/"The array elements of a C<Match> object are referred to" >>
 
 Testing capture rollback when an alternation fails.
 
 
-=cut
+=end pod
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";

@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 This file was derived from failing tests in t/rules/from_perl6_rules/subrule.t.
 They work with external parrot, but not with embedded parrot.
@@ -14,7 +14,7 @@ The test succeeds if the cap or mumble rules are commented out.
 In cap, abcnot and alsoabc fail, but with a different name, and with
 many versions of this sentence here, it doesnt.  alsonotabc doesnt.
 
-=cut
+=end pod
 
 plan 1;
 

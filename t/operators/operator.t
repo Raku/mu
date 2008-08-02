@@ -2,10 +2,10 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Tests for Synopsis 3
-=cut
+=end kwid
 
 plan 49;
 

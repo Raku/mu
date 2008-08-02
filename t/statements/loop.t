@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 loop statement tests
 
 L<S04/"The general loop statement">
 
-=cut
+=end kwid
 
 plan 14;
 

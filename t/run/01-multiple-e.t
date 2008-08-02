@@ -2,14 +2,14 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test evaluation of multiple C<-e> switches.
 
 Multiple C<-e> switches are supposed to work just
 like C<join "\n"> concatenation .
 
-=cut
+=end pod
 
 my @examples = (
  '-e print -e qq.Hello -e Pugs.',

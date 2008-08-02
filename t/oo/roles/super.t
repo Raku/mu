@@ -4,11 +4,11 @@ use Test;
 
 plan 2;
 
-=pod
+=begin pod
 
 Tests of roles with SUPER
 
-=cut
+=end pod
 
 my $call_count = 0;
 

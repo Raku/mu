@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Test basic escape continuations obtained from &?CALLER_CONTINUATION
 
-=cut
+=end kwid
 
 plan 16;
 

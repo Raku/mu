@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test handling of C<-Cbackend>.
 
-=cut
+=end pod
 
 sub flatten (Any|Junction $x) {
     ($x.isa(Junction)) ?? map &flatten, $x.values !! $x

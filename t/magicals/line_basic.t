@@ -4,11 +4,11 @@ use Test;
 
 plan 11;
 
-=kwid
+=begin kwid
 
 Basic tests for #line
 
-=cut
+=end kwid
 
 my $file = $?FILE;
 

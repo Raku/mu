@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Parse/eval error :
 
@@ -13,7 +13,7 @@ Pugs enters an infinite loop on:
 This test must be disabled for releases, or
 smoke testing.
 
-=cut
+=end pod
 
 plan 1;
 

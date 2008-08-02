@@ -1,7 +1,7 @@
 use v6;
 
 
-=pod
+=begin pod
 
 Pugs' translation of UTF-8 into unicode strings works in 4k chunks,
 as benchmarks have shown this to be fastest.
@@ -14,7 +14,7 @@ The plan: check a long string literal for integrity. To battle
 Murphy viz. different lineendings, characters represented by three
 bytes is used, and the string is very long indeed.
 
-=cut
+=end pod
 
 use Test;
 

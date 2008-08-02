@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
  Hyper operators L<S03/"Hyper operators">
 
-=cut
+=end pod
 
 plan 56;
 
@@ -257,7 +257,7 @@ plan 56;
 # mixed hyper and reduce metaops -
 # this unveils a spec bug as << recurses into arrays and [+] never gets applied,
 # so we disable the entire chunk for now.
-=todo unspecced
+=begin todo unspecced
 
     is ~([+]<< ([1,2,3], [4,5,6])), "6 15", "mixed hyper and reduce metaop ([+]<<) works";
     ## XXX: Test for [+]<<<< - This is unspecced, commenting it out
@@ -267,7 +267,7 @@ plan 56;
     is ~([+]« [1,2,3], [4,5,6]), "6 15",
       "mixed Unicode hyper and reduce metaop ([+]«) works";
 
-=cut
+=end todo unspecced
 
 { # hyper dereferencing
     my @array = (

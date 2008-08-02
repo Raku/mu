@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Basic tests of C<< %?CONFIG >>, the equivalent to
 C<Config.pm>. Most of this is not yet even decided on,
@@ -54,7 +54,7 @@ following values in C<< %?CONFIG >>:
     sourcedir
     uname
 
-=cut
+=end pod
 
 my @config = <
     archlib

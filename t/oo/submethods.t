@@ -4,11 +4,11 @@ use Test;
 
 plan 26;
 
-=pod
+=begin pod
 
 Basic submethod tests. See L<S12/"Submethods">
 
-=cut
+=end pod
 # L<S12/Submethods>
 {
   my $was_in_foo_build = 0;

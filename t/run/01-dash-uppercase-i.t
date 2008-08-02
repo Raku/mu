@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test handling of -I.
 
@@ -21,7 +21,7 @@ Duplication of directories on the command line is mirrored
 in the C<@INC> variable, so C<pugs -Ilib -Ilib> will have B<two>
 entries C<lib/> in C<@INC>.
 
-=cut
+=end pod
 
 my $fragment = '-e "@INC.perl.say"';
 

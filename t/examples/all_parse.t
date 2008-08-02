@@ -2,14 +2,14 @@ use v6;
 use File::Find;
 use Test;
 
-=pod
+=begin pod
 
 Test examples
 
 This loads all the scripts of the examples/ dir and verifies they
 can compile.  It does not verify run ability or verify output.
 
-=cut
+=end pod
 
 # The following depend on modules that are not universally installed.
 my %suppress;

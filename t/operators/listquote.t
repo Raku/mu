@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 = DESCRIPTION
 
@@ -30,7 +30,7 @@ Hash access:
 Add relevant Sxx and/or Axx references, that
 describe the conflicting cases.
 
-=cut
+=end kwid
 
 plan 13;
 

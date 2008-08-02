@@ -4,11 +4,11 @@ use Test;
 
 plan 11;
 
-=pod
+=begin pod
 
 Very basic meta-class tests from L<S12/Introspection>
 
-=cut
+=end pod
 
 class Foo-0.0.1 { method bar ($param) returns Str { return "baz" ~ $param } };
 

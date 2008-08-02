@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 41;
+plan 40;
 
 # L<S02/"Whitespace and Comments"/"Embedded comments"
 #  "#" plus any bracket>
@@ -157,22 +157,6 @@ plan 41;
 }
 
 # L<S02/"Whitespace and Comments"/POD sections may be>
-{
-    my $a = eval q{
-        my $var = 1;
-
-=begin comment
-
-This is a comment with
-a "=cut".
-
-=cut
-
-        "foo";
-    };
-    is $a, 'foo', '=begin comment with =cut works';
-}
-
 {
     my $a = eval q{
         my $var = 1;

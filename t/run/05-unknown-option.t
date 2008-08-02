@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test rejection of unknown command line switches.
 
@@ -12,7 +12,7 @@ Pugs should output
 
 if called with the (unknown) option C<-foo>
 
-=cut
+=end pod
 
 my @examples = map -> Junction $_ { $_.values },
                map -> Junction $_ { $_.values }, (

@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 = DESCRIPTION
 
@@ -11,7 +11,7 @@ C<sleep>. Ideally, while a C<sleep> call is in progress
 in one thread, other C<async> blocks are still being
 executed.
 
-=cut
+=end kwid
 
 plan 1;
 diag "Running under $*OS";

@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Config Tests
 
@@ -10,7 +10,7 @@ If this test fails because your osname is not listed here, please add it.
 But don't add other osnames just because you know of them. That way we can
 get a list of osnames that have actually passed tests.
 
-=cut
+=end kwid
 
 plan 4;
 

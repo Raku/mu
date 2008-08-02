@@ -14,11 +14,11 @@ token talk { '<small>' <speaker> '</small>' }
 token speaker { \w+ }
 
 
-=pod
+=begin pod
 
 Use rules from a grammar.
 
-=cut
+=end pod
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";

@@ -1,11 +1,11 @@
 use v6;
 
 
-=pod
+=begin pod
 
 Modification of list attributes created with constructor fails
 
-=cut
+=end pod
 
 use Test;
 plan 6;

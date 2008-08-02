@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test handling of C<-V> and C<-V:option>.
 
-=cut
+=end pod
 
 # cf. unspecced/config.t for the same list
 my @config = <

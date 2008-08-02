@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 The ? case definitely shouldn't be a syntax error.  The next question is
 what the correct boolean value is for a Pair; always-true is now assumed
 for consistency with the "one-key hash" semantics.
 
-=cut
+=end pod
 
 plan 6;
 

@@ -4,11 +4,11 @@ use Test;
 
 plan 6;
 
-=pod
+=begin pod
 
 Testing named capture variables nested inside each other. This doesn't appear to be tested by the ported Perl6::Rules tests. That may be because it's not specified in the synopsis, but Autrijus is sure this how it ought to work.
 
-=cut
+=end pod
 
 # At the time of writing, these fail under Win32 so they are marked as bugs
 # I haven't yet run them under UNIX but I believe they will work

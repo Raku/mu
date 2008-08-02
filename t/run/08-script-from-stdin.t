@@ -2,12 +2,12 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test evaluation a script read from STDIN, as
 indicated by the C<-> switch.
 
-=cut
+=end pod
 
 my @examples = map -> Junction $_ { $_.values }, (
    any('say qq.Hello Pugs.',

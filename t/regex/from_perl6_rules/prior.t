@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 This file was derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/prior.t.
@@ -10,7 +10,7 @@ version 0.3 (12 Apr 2004), file t/prior.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
-=cut
+=end pod
 
 plan 31;
 

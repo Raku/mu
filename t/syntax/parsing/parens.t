@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 parens appear to be eating spaces after them
 
@@ -11,7 +11,7 @@ parens appear to be eating spaces after them
   Syn "{}" {1;
             App &say ()}
 
-=cut
+=end pod
 
 plan 1;
 

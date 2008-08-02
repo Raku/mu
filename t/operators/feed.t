@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Tests for the feed operators 
 
@@ -11,7 +11,7 @@ Tests for the feed operators
 L<S06/"Feed operators">
 L<S03/"Feed operators">
 
-=cut
+=end pod
 
 plan 7;
 

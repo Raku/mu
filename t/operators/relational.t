@@ -2,9 +2,9 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
    Relational Operators
-=cut
+=end kwid
 
 plan 39;
 

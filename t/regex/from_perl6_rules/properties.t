@@ -1,12 +1,12 @@
 use v6;
 use Test;
 
-=pod
+=begin pod
 
 This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/properties_slow_to_compile.t.
 
-=cut
+=end pod
 
 plan 1881;
 

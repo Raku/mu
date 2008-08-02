@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Array .end tests
 L<A02/"Other Decisions About Variables" /use \@foo\.end instead\./>
-=cut
+=end kwid
 
 plan 14;
 

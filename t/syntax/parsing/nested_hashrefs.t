@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 The parser has difficulties with nested hash refs.
 my $hash = {
@@ -18,7 +18,7 @@ say '$hash<1><4>.WHAT = ', $hash<1><4>.perl;
 
 Also with array refs nested in hash refs.
 
-=cut
+=end pod
 
 plan 5;
 

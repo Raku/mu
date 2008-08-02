@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Basic test for the ** operator with complex numbers
 
-=cut
+=end pod
 
 plan 3;
 

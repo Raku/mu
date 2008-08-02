@@ -4,12 +4,12 @@ use Test;
 
 plan 4;
 
-=pod
+=begin pod
 
 Autopair tests with class instantiation from
 L<S02/"Literals"/"There is now a generalized adverbial form">
 
-=cut
+=end pod
 
 # L<S02/"Literals"/"There is now a generalized adverbial form">
 {

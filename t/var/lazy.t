@@ -2,6 +2,7 @@ use v6;
 
 use Test;
 
+=begin pod
 =head1 DESCRIPTION
 
 This test tests nothingmuch's C<lazy> proposal.
@@ -17,7 +18,7 @@ L<"http://www.nntp.perl.org/group/perl.perl6.language/22890">:
   > 
   >     sub is cached {...}
 
-=cut
+=end pod
 
 plan 15;
 

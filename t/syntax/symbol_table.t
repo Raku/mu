@@ -16,7 +16,7 @@ plan 28;
 
 Namespaces, symbol tables and symbolic references.
 
-#=cut
+#=end obsolete
 
 # flunk("%:: parse", :todo);
 ok(eval('%::'), '%:: parses', :todo);

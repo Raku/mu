@@ -4,7 +4,7 @@ use Test;
 
 plan 39;
 
-=pod
+=begin pod
 
 C<=:=> is only for containers, not values
 
@@ -17,7 +17,7 @@ ok(("7" == 7), "sanity");
 ok(("7" eq 7), "sanity");
 ok(!("7" =:= 7), "identify checks type mismatch");
 
-=cut
+=end pod
 
 #L<S03/Item assignment precedence/"There is also an identity test">
 

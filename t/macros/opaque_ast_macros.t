@@ -2,13 +2,14 @@ use v6;
 
 use Test;
 
+=begin pod
 =head1 DESCRIPTION
 
 Tests for macros which return q:code but do not do splicing
 
 See L<S06/"Macros">.
 
-=cut
+=end pod
 
 plan 5;
 

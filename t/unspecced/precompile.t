@@ -2,14 +2,14 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Tests to see whether precompiled modules are used correctly:
 1. They should observe @*INC
 2. They should only be used if there's a corresponding source
    module and it is older than the precompiled module
 
-=cut
+=end pod
 
 # XXX - needs porting, only works on Unixen today
 BEGIN {

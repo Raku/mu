@@ -4,11 +4,11 @@ use Test;
 
 plan 4;
 
-=pod
+=begin pod
 
 Tests for the :x[ <list> ] notations
 
-=cut
+=end pod
 
 # L<S02/Literals/"Alternately you can use a list of digits in decimal">
 

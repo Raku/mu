@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Parse problem with //= and hash 
 
-=cut
+=end kwid
 
 plan 3;
 

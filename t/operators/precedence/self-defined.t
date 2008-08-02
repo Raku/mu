@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Tests for precedence of self defined operators
 
 L<S06/Subroutine traits/"relative to an existing">
 
-=cut
+=end pod
 
 plan 10;
 

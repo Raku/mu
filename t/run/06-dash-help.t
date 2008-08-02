@@ -2,12 +2,12 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test that the C<--help> command in its various incantations
 works.
 
-=cut
+=end pod
 
 my @examples = any <-h --help>;
 @examples = map -> Junction $_ { $_.values }, 

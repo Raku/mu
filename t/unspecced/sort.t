@@ -7,7 +7,7 @@ plan 28;
 # This is a perl6 implementation of L<S29/List/"=item sort">
 # based on mergesort.
 
-=comment
+=begin comment
 
   * Existence
      * Clarify why this implementation of a spec'ed feature
@@ -25,7 +25,7 @@ plan 28;
   * Syntax cleanup
      * guidance on making this the builtin sort()
 
-=cut
+=end comment
 
 # L<S29/"List"/"=item sort">
 

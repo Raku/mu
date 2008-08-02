@@ -4,11 +4,11 @@ use Test;
 
 force_todo 4;
 
-=pod
+=begin pod
 
 Test handling of C<-Mmodule>.
 
-=cut
+=end pod
 
 my $dir = "t/run";
 

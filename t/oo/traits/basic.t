@@ -4,11 +4,11 @@ use Test;
 
 plan 9;
 
-=pod
+=begin pod
 
 Basic traits tests, see L<S12/Traits>.
 
-=cut
+=end pod
 
 # L<S12/Traits>
 # Basic definition

@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 calling can on any object fails. 
 
-=cut
+=end pod
 
 plan 2;
 

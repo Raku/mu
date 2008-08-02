@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 In global substitutions, lookbehind information is lost, so some
 patterns with lookbehind yield incorrect results.
 See Prim/Match.hs line 129, r7551.
 
-=cut
+=end pod
 
 plan 1;
 

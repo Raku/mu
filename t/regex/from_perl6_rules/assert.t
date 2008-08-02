@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 This file was derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/assert.t.
@@ -11,7 +11,7 @@ It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 # L<< S05/"Extensible metasyntax (C<< <...> >>)"/"A leading C<?{> or C<!{> indicates a code assertion:" >>
 
-=cut
+=end pod
 
 plan 4;
 

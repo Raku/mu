@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid 
+=begin kwid 
 
 .isa() tests
 
@@ -15,7 +15,7 @@ Further clarification of .isa() can be found here:
 
 L<"http://www.nntp.perl.org/group/perl.perl6.language/20974">
 
-=cut
+=end kwid 
 
 plan 19;
 

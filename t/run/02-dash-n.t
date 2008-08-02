@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test -n implementation
 
@@ -13,7 +13,7 @@ switch, and wraps the whole script in
     ...
   };
 
-=cut
+=end pod
 
 my @examples = (
   '-n -e .say',

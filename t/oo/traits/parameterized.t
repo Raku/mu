@@ -4,11 +4,11 @@ use Test;
 
 plan 7;
 
-=pod
+=begin pod
 
 Parameterized traits tests, see L<S12/"Traits">.
 
-=cut
+=end pod
 
 # L<S12/"Traits">
 # Basic definition

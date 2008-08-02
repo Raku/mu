@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Attribute accessors, applied to the return value of a sub, do not work.
 
@@ -11,7 +11,7 @@ This
 yields
   *** No compatible subroutine found: "&a" where
 
-=cut
+=end kwid
 
 plan 4;
 

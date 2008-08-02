@@ -4,7 +4,7 @@ use Test;
 
 plan 2;
 
-=pod
+=begin pod
 
 $0 should not be defined.
 
@@ -17,7 +17,7 @@ Pcre is doing the right thing:
   data>
 so it looks like a pugs-pcre interface bug.
 
-=cut
+=end pod
 
 unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";

@@ -4,12 +4,12 @@ use Test;
 
 # L<S06/Macros>
 
-=pod
+=begin pod
 
 Unspecced: do macros introduce a new CALLER frame?  It seems like the
 right answer is that closure macros should, but AST macros should not.
 
-=cut
+=end pod
 
 plan 4;
 

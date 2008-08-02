@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 This file was derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/anchors.t.
@@ -12,7 +12,7 @@ be valid perl6.
 
 L<S05/New metacharacters/"^^ and $$ match line beginnings and endings">
 
-=cut
+=end pod
 
 plan 19;
 

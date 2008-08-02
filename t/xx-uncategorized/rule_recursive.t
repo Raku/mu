@@ -1,13 +1,13 @@
 use v6;
 use Test;
 
-=kwid
+=begin kwid
 
   regex r { <null> | x <r> }
 
   "x" ~~ /<r>$/  should match "x", not "".
 
-=cut
+=end kwid
 
 plan 20;
 

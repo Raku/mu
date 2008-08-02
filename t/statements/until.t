@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 until statement tests
 
-=cut
+=end kwid
 
 plan 4;
 

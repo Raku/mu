@@ -4,7 +4,7 @@ use Test;
 
 
 
-=pod
+=begin pod
 
 XXX These should go in Prelude.pm but if defined there they are not visible
 no matter if they are declared as builtin, export, primitive or combinations of the three.
@@ -45,7 +45,7 @@ class Module does Abstraction;
 class Code does Callable;
 
 
-=cut
+=end pod
 
 plan 38;
 

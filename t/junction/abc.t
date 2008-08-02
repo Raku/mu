@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Solves A + B = AC
 
-=cut
+=end kwid
 
 plan 4;
 

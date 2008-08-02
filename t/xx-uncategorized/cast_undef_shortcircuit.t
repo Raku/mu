@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 A conditional statement modifier that tries to avoid calling undef as
 a coderef will instead trip over a pugs cast failure, but only if the
@@ -17,7 +17,7 @@ value is actually undef:
 
 This causes pugs to exit.
 
-=cut
+=end pod
 
 plan 2;
 

@@ -4,11 +4,11 @@ use Test;
 
 plan 19;
 
-=pod
+=begin pod
 
 Very basic instance method tests from L<S12/"Methods">
 
-=cut
+=end pod
 
 # L<S12/"Methods" /"either the dot notation or indirect object notation:">
 class Foo {

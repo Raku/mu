@@ -4,12 +4,12 @@ use Test;
 
 plan 43;
 
-=kwid
+=begin kwid
 
 <S02/Literals/"Characters indexed by" hex numbers
               "\x123" "\x[123]" "\x[41,42,43]">
 
-=cut
+=end kwid
 
 is("\x20", ' ', '\x20 normal space');
 is("\xa0", ' ', '\xa0 non-breaking space');

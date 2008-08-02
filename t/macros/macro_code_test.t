@@ -34,7 +34,7 @@ is($x,   2, '$x incremented once', :todo<unspecced>);
 is($y,   3, '$x incremented once', :todo<unspecced>);
 is($got, 3, '$got incremented max', :todo<unspecced>);
 
-=pod
+=begin pod
 
 =head1 q:code & AST splicing options
 
@@ -142,5 +142,5 @@ $Larry "I don't see why not"
 The AST needs to be rescanned anyway, so perform the appropriate
 actions at that time in the correct scope.
 
-=cut
+=end pod
 # vim: syntax=perl6:

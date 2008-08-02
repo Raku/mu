@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 =head1 String interpolation
 
 These tests derived from comments in L<http://use.perl.org/~autrijus/journal/23398>
 
-=cut
+=end kwid
 
 plan 39;
 

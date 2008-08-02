@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 = DESCRIPTION
 
@@ -10,7 +10,7 @@ This test tests the interaction of C<async {}> and
 C<system>. Ideally, while a C<system> call is in progress,
 C<async> blocks are still being executed.
 
-=cut
+=end kwid
 
 plan 1;
 diag "Running under $*OS";

@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Class Attributes
 
-=cut
+=end pod
 
 #L<S12/Attributes/"Class attributes are declared">
 #L<S12/Class methods/metaclass method always delegated>

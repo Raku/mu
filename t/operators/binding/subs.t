@@ -64,7 +64,7 @@ There're two ways one can argue:
     42                  # 42 is a constant
     sub foo ($a) {...}  # $a is a readonly
 
-=cut
+=end unspecced
 
 {
     my sub foo { my $var = 42; $var }
@@ -108,3 +108,5 @@ constant?
     dies_ok/lives_ok { foo() := 23 },
         "using the constant return value of an 'is rw' sub as the LHS in a binding operation behaves correctly";
 }
+
+=end discussion

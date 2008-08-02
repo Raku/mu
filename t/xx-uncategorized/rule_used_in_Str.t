@@ -4,11 +4,11 @@ use Test;
 
 plan 3;
 
-=kwid
+=begin kwid
 
 Difficulty using a rule in a method of Str.
 
-=cut
+=end kwid
 
 class C is Str {
     method meth1 () {

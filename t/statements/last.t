@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 L<S04/"Loop statements"/last>
 last
 last if <condition>;
@@ -11,7 +11,7 @@ last <label>;
 last in nested loops
 last <label> in nested loops
 
-=cut
+=end kwid
 
 plan 8;
 

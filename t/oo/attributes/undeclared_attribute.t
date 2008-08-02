@@ -2,10 +2,10 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
     access or assgin on undeclared attribute will raise an error.
 
-=cut
+=end pod
 
 plan 12;
 

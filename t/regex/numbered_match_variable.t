@@ -2,10 +2,10 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 
-=cut
+=end pod
 
 plan 2;
 

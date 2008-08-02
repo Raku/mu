@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
   This tests parsing of filetest operators
 
-=cut
+=end pod
 
 
 plan 3;

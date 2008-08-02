@@ -65,7 +65,7 @@ plan 24;
   is $::("äöü"), 42, "symbolic dereferentiation of Unicode vars works";
 }
 
-=pod
+=begin pod
 
 Following re-specced to be invalid:
 
@@ -80,7 +80,7 @@ Following re-specced to be invalid:
     "symbolic dereferentiation does work for lexicals when using MY::", :todo<bug>;
 }
 
-=cut
+=end pod
 
 # Symbolic dereferentiation of globals
 {

@@ -4,11 +4,11 @@ use Test;
 
 plan 1;
 
-=pod
+=begin pod
 
 Tests of roles with submethods
 
-=cut
+=end pod
 
 my $did_build = 0;
 

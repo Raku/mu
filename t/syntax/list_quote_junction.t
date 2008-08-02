@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 = DESCRIPTION
 
@@ -32,7 +32,7 @@ is different from
 
   say( (any <foo bar baz>), "Hello World")
 
-=cut
+=end kwid
 
 my @matching_strings = <foo bar>;
 my @nonmatching_strings = ('fo','foo ', 'foo bar baz', 'oo', 'bar b', 'bar baz');

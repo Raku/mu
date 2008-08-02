@@ -4,13 +4,13 @@ use Test;
 
 plan 7;
 
-=pod
+=begin pod
 
 Really really really minimal s:perl5//// tests.
 
 Please add more!!
 
-=cut
+=end pod
 
 unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";

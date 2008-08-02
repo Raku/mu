@@ -4,13 +4,13 @@ use Test;
 
 plan 35;
 
-=pod
+=begin pod
 
 Testing operator overloading subroutines
 
 L<S06/"Operator overloading">
 
-=cut
+=end pod
 
 # This set of tests is very basic for now.
 

@@ -4,13 +4,13 @@ use Test;
 
 plan 1;
 
-=pod
+=begin pod
 
 Perl 6 has an explicitly declared C<=~> which should die at compile time
 and is intended to catch user "brainos"; it recommends C<~~> or C<~=> to
 the user instead.
 
-=cut
+=end pod
 
 #L<S03/Chaining binary precedence/"To catch">
 

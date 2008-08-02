@@ -4,12 +4,12 @@ use Test;
 
 plan 9;
 
-=pod
+=begin pod
 
     $foo = 42;  # is sugar for
     $foo.infix:<=>(42);
 
-=cut
+=end pod
 
 {
     my $foo = 42;
@@ -41,14 +41,14 @@ plan 9;
     dies_ok { 42.infix:<=>(23) }, ".infix:<=> can't assign to constants";
 }
 
-=pod
+=begin pod
 
     ($foo, $bar) = (23, 42);     # is sugar for
     ($foo, $bar).infix:<=>(42);  # which in turn is sugar for
     infix:<,>($foo, $bar).infix:<=>(42);
     # &infix:<,> returns an appropriate rw proxy object.
 
-=cut
+=end pod
 
 {
     my ($foo, $bar);

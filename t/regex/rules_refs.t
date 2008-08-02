@@ -4,11 +4,11 @@ use Test;
 
 plan 3;
 
-=pod
+=begin pod
 
 Test for rules as references
 
-=cut
+=end pod
 
 unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";

@@ -1,14 +1,14 @@
 use v6;
 
 
-=pod
+=begin pod
 
 Clearing 'has'-attrib hashes with "= ()" messes them up; subsequent
 hash access fails.
 
 This happens to both private and public members.
 
-=cut
+=end pod
 
 use Test;
 

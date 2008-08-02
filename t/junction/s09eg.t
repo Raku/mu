@@ -2,13 +2,13 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Tests autothreading junction example from Synopsis 09 
 
 L<S09/Junctions>
 
-=cut
+=end kwid
 
 plan 3;
 

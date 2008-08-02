@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 role A { method t ( *@a ) { @a }}; class B does A; class C does A { has B $.b; method BUILD { $.b = B.new; $.b.t( 'haha','hehe','xixi');}} C.new
 *** No such method: "&t"
@@ -10,7 +10,7 @@ role A { method t ( *@a ) { @a }}; class B does A; class C does A { has B $.b; m
     <interactive> line 1, column 140-145
     <interactive> line 1, column 140-145
 
-=cut
+=end pod
 
 plan 1;
 

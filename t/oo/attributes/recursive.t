@@ -4,11 +4,11 @@ use Test;
 
 plan 19;
 
-=pod
+=begin pod
 
 Test attributes with recursively typed attributes
 
-=cut
+=end pod
 
 #L<S12/Attributes>
 {

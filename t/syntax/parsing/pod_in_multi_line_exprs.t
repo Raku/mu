@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Parse problem when pod inside a multi-line hash-def expression.
 
-=cut
+=end kwid
 
 plan 3;
 
@@ -14,9 +14,9 @@ my $mysub = {
 
     1;
 
-=pod
+=begin pod
 
-=cut
+=end pod
 
 };
 
@@ -26,9 +26,9 @@ my $myhash = {
 
     'baz' => 3,
 
-=pod
+=begin pod
 
-=cut
+=end pod
 
 };
 
@@ -38,9 +38,9 @@ my $myary = [
 
     4,
 
-=pod
+=begin pod
 
-=cut
+=end pod
 
 ];
 

@@ -4,7 +4,7 @@ use Test;
 
 plan 2;
 
-=pod
+=begin pod
 
 This code shows the bug:
     pugs -e 'my @a = ("one", "two", "three"); sub foo (@a) { my $t = any(@a).pick(); say WHAT($t); say $t }; foo(@a)'
@@ -36,7 +36,7 @@ succeeds:
     Int
     3
 
-=cut
+=end pod
 
 my @test_string = ("one", "two", "three"); 
 my @test_int = 1 .. 10;

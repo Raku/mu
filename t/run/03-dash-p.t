@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test C<-p> implementation
 
@@ -14,7 +14,7 @@ switch, and wraps the whole script in
     say;
   };
 
-=cut
+=end pod
 
 my @examples = (
   '-p',

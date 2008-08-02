@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
     I am not sure about what will ::?CLASS return.
     Hope what I did is correct.
 
-=cut
+=end pod
 
 plan 4;
 

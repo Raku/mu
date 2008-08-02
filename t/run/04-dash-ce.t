@@ -2,14 +2,14 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test evaluation of combination of C<-e> and C<-c> switches.
 
 They should all do a syntax check and never evaluate the
 C<-e> fragments.
 
-=cut
+=end pod
 
 my @examples = (
   '-ce "print qq,Code got interpreted!,"',

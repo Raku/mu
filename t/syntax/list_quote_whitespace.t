@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 = DESCRIPTION
 
@@ -28,7 +28,7 @@ contain whitespace.
 C<\xA0> is specifically an I<nonbreaking> whitespace
 character and thus should B<not> break the list.
 
-=cut
+=end kwid
 
 if $?PUGS_BACKEND ne "BACKEND_PUGS" {
   skip_rest "PIL2JS and PIL-Run do not support eval() yet.";

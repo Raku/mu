@@ -2,14 +2,14 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Test examples
 
 This loads some of the scripts of the examples/ dir and compares their output
 with the expected output (stored in examples/output/).
 
-=cut
+=end pod
 
 my @examples = <
   functional/fp functional/reverse

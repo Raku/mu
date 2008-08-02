@@ -6,13 +6,13 @@ plan 8;
 
 # L<S02/Lists/if an each()>
 
-=pod
+=begin pod
 
 Tests of
 
   our Lazy multi Container::each( Bool :$shortest, Bool :$finite, *@@list );
 
-=cut
+=end pod
 
 ok(each() eqv (), 'each null identity');
 
@@ -42,9 +42,9 @@ ok(each(:shortest, 1..9; [1..3]) eqv (1, 1, 2, 2, 3, 3),
 
 flunk('each(:finite, ...)', :todo<feature>, :depends<lazy each>);
 
-=begin lazy_each
+=begin begin lazy_each
 
 ok(eval('each(:finite, 1..Inf; [1..6])'), 'parse of each(:finite, ...)',
    :todo<feature>);
 
-=cut
+=end begin lazy_each

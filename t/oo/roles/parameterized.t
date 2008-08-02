@@ -4,11 +4,11 @@ use Test;
 
 plan 31;
 
-=pod
+=begin pod
 
 Parameterized role tests, see L<S12/Roles>
 
-=cut
+=end pod
 
 # L<S12/Roles/to be considered part of the long name:>
 # L<A12/Encapsulated Attributes/to be considered part of the long name:>

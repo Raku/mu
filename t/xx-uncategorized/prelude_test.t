@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 There is helper code in Prelude.pm.
 
@@ -12,7 +12,7 @@ time.  However, there are difficulties, some of which this file tests for.
  - our &*f ::= &g; doesn't actually create a global.
  - Global multis behave non-multi, disappearing upon another declaration.
 
-=cut
+=end kwid
 
 plan 11;
 

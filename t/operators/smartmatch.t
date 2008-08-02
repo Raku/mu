@@ -4,7 +4,7 @@ use Test;
 
 plan 56;
 
-=kwid
+=begin kwid
 
 This tests the smartmatch operator, defined in L<S03/"Smart matching">
 
@@ -12,7 +12,7 @@ note that ~~ is currently a stub, and is really eq.
 the reason it's parsed is so that eval '' won't be around everywhere, not for
 emulation.
 
-=cut
+=end kwid
 
 sub eval_elsewhere($code){ eval($code) }
 
@@ -206,14 +206,14 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 };
 
 {
-=begin Explanation
+=begin begin Explanation
 
 You may be wondering what the heck is with all these try blocks.
 Prior to r12503, this test caused a horrible death of Pugs which
 magically went away when used inside an eval.  So the try blocks
 caught that case.
 
-=cut
+=end begin Explanation
 
     #L<S09/"Junctions">
     my @x = 1..20;

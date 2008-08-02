@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Prelude.pm defines
 multi sub infix:<~~> ($x, Rul $r) is primitive is safe is builtin {$r.f.($x)}
@@ -14,7 +14,7 @@ involves creating a class (Rul), which remembers the pattern, and
 serves as a center point of pattern parsing, analysis, and engine
 implementations.
 
-=cut
+=end pod
 
 plan 4;
 skip_rest '"Rul" builtin support is now not part of Prelude anymore';

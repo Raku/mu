@@ -4,11 +4,11 @@ use Test;
 
 plan 10;
 
-=pod
+=begin pod
 
 Conflict resolution role tests, see L<S12/"Roles">
 
-=cut
+=end pod
 
 # L<S12/"Roles">
 my ($was_in_sentry_shake, $was_in_pet_shake, $was_in_general_shake) = (0) xx 3;

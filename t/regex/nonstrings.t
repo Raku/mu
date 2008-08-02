@@ -4,11 +4,11 @@ use Test;
 
 plan 5;
 
-=pod
+=begin pod
 
 L<S05/"Matching against non-strings">
 
-=cut
+=end pod
 
 # String-like things...
 

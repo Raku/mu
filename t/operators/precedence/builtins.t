@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-=pod
+=begin pod
 
 Tests that each level bind tighter than the next by sampling some ops.
 
@@ -11,7 +11,7 @@ proper separation of the two levels.
 
 L<S03/Operator precedence>
 
-=cut
+=end pod
 
 plan 48;
 

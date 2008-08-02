@@ -3,12 +3,12 @@ use v6;
 use Test;
 
 plan 3; 
-=pod
+=begin pod
 
 Testing a non-existent array element for a match creates the 
 array element
 
-=cut
+=end pod
 
 my @empty ;
 is +@empty,0, 'Sanity: empty array, @empty, has 0 elements'; 

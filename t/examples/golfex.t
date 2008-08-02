@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=kwid
+=begin kwid
 
 Test miscellaneous golfish examples.
 
-=cut
+=end kwid
 
 # See L<"http://www.nntp.perl.org/group/perl.perl6.compiler/1135">
 # for discussion of:

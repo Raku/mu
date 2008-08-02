@@ -2,13 +2,14 @@ use v6;
 
 use Test;
 
+=begin pod
 =head1 DESCRIPTION
 
 This test tests for macro support. Note that much of macros isn't specced yet.
 
 See L<A06/"Macros">.
 
-=cut
+=end pod
 
 plan 4;
 
