@@ -69,6 +69,7 @@ static SMOP__Object* idconst_release(SMOP__Object* interpreter, SMOP__ResponderI
 }
 
 char* SMOP__NATIVE__idconst_fetch(SMOP__Object* value, int* retsize) {
+  assert(value->RI == SMOP__NATIVE__idconst_RI);
   *retsize = ((SMOP__NATIVE__idconst_data*)value->data)->size;
   return ((SMOP__NATIVE__idconst_data*)value->data)->content;
 }
