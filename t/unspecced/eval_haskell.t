@@ -20,5 +20,5 @@ is(eval('"haskell"', :lang<haskell>), 'haskell', 'string return');
 
 eval('thisisinvalidhaskellcode', :lang<haskell>);
 ok(1, 'still running after bad haskell code');
-like($!, rx:perl5/thisisinvalidhaskellcode/, 'throws something useful on error');
+like($!, rx:Perl5/thisisinvalidhaskellcode/, 'throws something useful on error');
 

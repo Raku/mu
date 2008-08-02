@@ -39,5 +39,5 @@ for @examples -> $ex {
   my $got      = slurp $out_fn;
   unlink $out_fn;
 
-  like( $got, rx:perl5/^Usage/, "'$ex' displays help");
+  like( $got, rx:Perl5/^Usage/, "'$ex' displays help");
 }

@@ -61,7 +61,7 @@ sub run_pugs ($c) {
 }
 
 my $pugs_config = run_pugs('-V');
-like( $pugs_config, rx:perl5/version.6\.\d+\.\d+,/, "Got some config data");
+like( $pugs_config, rx:Perl5/version.6\.\d+\.\d+,/, "Got some config data");
 
 # Generalize this:
 for @config -> $item {

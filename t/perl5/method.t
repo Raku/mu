@@ -70,7 +70,7 @@ my $obj;
 {
     $obj = eval("FooBar->new", :lang<perl5>);
     isa_ok($obj, 'FooBar', "blessed");
-    like($obj, rx:perl5/FooBar/, "blessed");
+    like($obj, rx:Perl5/FooBar/, "blessed");
 }
 
 {
