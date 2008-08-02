@@ -19,7 +19,7 @@
 -}
  
  
-module Pugs.CodeGen.PIR.Prelude (
+module Pugs.CodeGen.PIR_Prelude (
     preludeStr
 ) where
  
