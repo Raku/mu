@@ -25,7 +25,7 @@ diag "Running under $*OS";
 
 my ($redir,$echo) = (">", "echo");
 
-sub nonce () { return (".$*PID." ~ (int rand 1000) ~ ".tmp") }
+sub nonce () { return (".{$*PID}." ~ ((1..1000).pick) ~ ".tmp") }
 my $tempfile = "temp-ex-output" ~ nonce;
 for @examples -> $ex {
   my $command = qq[$echo $ex | $*EXECUTABLE_NAME - "Hello Pugs" $redir $tempfile];

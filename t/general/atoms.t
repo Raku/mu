@@ -51,7 +51,7 @@ if ($*OS eq "browser") {
     exit;
 }
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 my $filename = "tmpfile" ~ nonce;
 
 my $out = open("$filename", :w);

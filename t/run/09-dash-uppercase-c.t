@@ -59,7 +59,7 @@ diag "Running under $*OS";
 # 2>&1 only works on WinNT upwards (cmd.exe) !
 my $redir_stderr = ">";
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 sub run_pugs ($c) {
   my $tempfile = "temp-ex-output" ~ nonce;
   my $command = "$*EXECUTABLE_NAME $c $redir_stderr $tempfile";

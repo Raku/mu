@@ -34,7 +34,7 @@ diag "Running under $*OS";
 
 # XXX: this $outtmp/slurp will go away when backticks supported.
 # XXX: should also check to verify that nothing is written to stderr.
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 my $outtmp   = 'gtmp'  ~ nonce();
 my $tmpprog  = 'gprog' ~ nonce();
 my $origfile = 'gorig' ~ nonce();

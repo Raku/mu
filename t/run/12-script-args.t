@@ -11,7 +11,7 @@ if $*OS eq "browser" {
 # Win9x breakage:
 my $redir = "2>&1 >";
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 
 sub run_test ($args) {
     my $out_fn = "temp-ex-output" ~ nonce;

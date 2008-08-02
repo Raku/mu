@@ -13,7 +13,7 @@ plan 5;
 
 sub rand_select(int $count, *@list) returns Array {
     # from Larry (on #perl6):  well, pick(3) is specced to do that but is unimplemented.
-    return map { @list[rand(@list.elems).floor] }, 1 .. $count;
+    return map { @list[(@list.elems).rand.floor] }, 1 .. $count;
 }
 my @letters = 'a' .. 'h';
 my @rand = rand_select(3, @letters);

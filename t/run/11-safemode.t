@@ -9,7 +9,7 @@ Test that the safemode is really safe.
 
 =end pod
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 
 my $tmpfile = "temp-test" ~ nonce();
 my @tests = (

@@ -8,7 +8,7 @@ if $?PUGS_BACKEND ne "BACKEND_PUGS" {
   exit;
 }
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 
 my $ignore_errors = q[
   BEGIN {

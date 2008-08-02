@@ -13,7 +13,7 @@ skip_rest("skipping because redirection is not portable"); exit;
 # suite is correct.
 
 # ... copied from t/run/05-unknown-option.t, but it looks wrong :)
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 my $out_fn = "temp-ex-output" ~ nonce;
 my $redir_pre = "2>&1 >";
 my $redir_post = "2>&1";

@@ -24,7 +24,7 @@ diag "Running under $*OS";
 
 my $redir = ">";
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 
 for @tests -> $ex {
   my $out_fn = "temp-ex-output" ~ nonce;

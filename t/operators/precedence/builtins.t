@@ -13,7 +13,7 @@ L<S03/Operator precedence>
 
 =end pod
 
-plan 48;
+plan 47;
 
 
 # terms
@@ -97,7 +97,7 @@ ok(     !(1 & 2 ^ 4) != 3, "blah blah blah");
 # named unary
 
 is((abs -1 .. 3), (1 .. 3), "abs binds tighter than ..");
-is((rand 3 <=> 5), -1, "rand binds tighter than <=>");
+#is((rand 3 <=> 5), -1, "rand binds tighter than <=>");   # XXX rand N is obsolete
 
 # nonchaining
 

@@ -304,12 +304,12 @@ sub sample (:$count, :$resample, *@data)
             my @copy = @data;
 
             loop (my $i = 0; $i < $max; ++$i ) {
-                take( @copy.splice(int rand(+@copy), 1) );
+                take( @copy.splice((1..+@copy).pick), 1) );
             }
         }
         else {
             loop (my $i = 0; $i < $max; ++$i ) {
-                take( @data[rand(+@data)] );
+                take( @data[(1..+@data).pick] );
             }
         }
     }

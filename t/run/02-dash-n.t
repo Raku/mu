@@ -36,7 +36,7 @@ foo
 bar
 ";
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 my($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~<< nonce;
 my $h = open("$in_fn", :w);
 $h.print($str);

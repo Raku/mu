@@ -49,7 +49,7 @@ diag "Running under $*OS";
 
 my $redir = ">";
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 sub run_pugs ($c) {
   my $tempfile = "temp-ex-output" ~ nonce;
   my $command = "$*EXECUTABLE_NAME $c $redir $tempfile";

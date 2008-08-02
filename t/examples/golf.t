@@ -21,7 +21,7 @@ skip_rest "must be run manually"; exit;
 
 # XXX: this $outtmp/slurp will go away when backticks supported.
 # XXX: should also check to verify that nothing is written to stderr.
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 my $outtmp      = 'outgolf' ~ nonce();
 my $golfdir     = 'examples/golf';
 my $tsanta      = "$golfdir/tsanta.pl";
