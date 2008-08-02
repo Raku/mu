@@ -83,5 +83,6 @@ cc-options: @cc_options
 ld-options: @ld_options
 .
 $info =~ s/-arch\s+\w+\s*//g;
+$info =~ s/-optl-arch\s+-optl\w+\s*//g;
 print INFO $info;
 close INFO;
