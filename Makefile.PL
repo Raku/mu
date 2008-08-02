@@ -159,6 +159,9 @@ INST6_MAN1DIR = blib6/man1
 INST6_MAN3DIR = blib6/man3
 INSTPUGS_LIB = blib6/pugs
 
+clean ::
+	./Setup$Config{_exe} clean
+
 src/Pugs/Config.hs : util/PugsConfig.pm current.build.yml
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
