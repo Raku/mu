@@ -48,9 +48,23 @@ $rewrite_test = sub {
         return;
     }
 
-    # fix problems caused by splitting; update the "todo" lists
+    # update the plan and "todo" lists
     
-    
+    if ( $out eq 't/builtins/math/NaN.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(4);/m;
+    }
+    if ( $out eq 't/builtins/my.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(2,4,5,8,9,10,11);/m;
+    }
+    if ( $out eq 't/oo/class/anonymous.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(4,5);/m;
+    }
+    if ( $out eq 't/operators/and_precedence.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(4);/m;
+    }
+    if ( $out eq 't/operators/subscript_adverbs.t' ) {
+        $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(6,7, 13,14, 19,20, 26,27, 33,34, 40,41,46,47, 53,54);/m;
+    }
     if ( $out eq 't/operators/auto.t' ) {
         $text =~ s/^(\s*plan \d+;)/$1\nforce_todo(39..43);/m;
     }
