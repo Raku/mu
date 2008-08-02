@@ -160,19 +160,19 @@ INST6_MAN3DIR = blib6/man3
 INSTPUGS_LIB = blib6/pugs
 
 clean ::
-	./Setup$Config{_exe} clean
+\t./Setup$Config{_exe} clean
 
 src/Pugs/Config.hs : util/PugsConfig.pm current.build.yml
-	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
+\t\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
 smoke : pugs$Config{_exe} util/run-smoke.pl
-	\$(PERL) util/run-smoke.pl . smoke.html
+\t\$(PERL) util/run-smoke.pl . smoke.html
 
 upload-smoke : smoke.yml
-	\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
+\t\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
 
 src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl
-	\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
+\t\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
 .
 
 }
