@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     1,4,5,1,6,0,7,0 //$r7 = $r4.$r5($r6)
   });
   printf("ok 1 - lives after Mold creation\n");
-  SMOP__Object* frame = SMOP__Mold__Frame_create(mold);
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
