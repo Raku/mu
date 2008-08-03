@@ -2,37 +2,48 @@ import Text.ParserCombinators.Parsec
 import System.IO
 type Label = [Char]
 type Register = [Char]
-
-data Stmt = RegisterDecl Register | ConstantDecl Register | Goto Label | Br Register Label Label
+data Value = Var [Char] | IntegerConstant Integer | None
+    deriving Show
+data Capture = Register [Register] [Register]
+    deriving Show
+data Stmt = Decl Register Value | Goto Label | Br Register Label Label | Call Register Capture
     deriving Show
 
 data Mold = Mold [Stmt]
     deriving Show
 
-ws = many1 space
-opt_ws = many space
-register = do 
-    char '$'
-    many1 alphaNum
+identifier = do
+    first <- choice [alphaNum,char '_']
+    rest <- many1 $ choice [alphaNum,char '_',digit]
+    return $ [first] ++ rest
+ws = many1 $ (oneOf "\t\n " >> return () ) <|> (char '#' >> many1(noneOf "\n") >> newline >> return () )
+opt_ws = option [()] ws
 
-stmt = opt_ws >> choice [register_decl,constant_decl]
+register =  char '$' >> identifier
 
-register_decl = do 
+stmt = choice [decl]
+
+value = do
+        char '$'
+        name <- identifier
+        return $ Var name
+    <|> do
+        digits <- many1 digit 
+        return $ IntegerConstant $ read digits
+decl = do 
     string "my"
     ws
     x <- register
-    return (RegisterDecl x)
+    value <- option None $ opt_ws >> char '=' >> opt_ws >> value
+    return (Decl x value)
 
-constant_decl = do
-    string "constant"
-    ws
-    x <- register
-    return (ConstantDecl x)
 
 terminator :: Parser ()
 terminator = opt_ws >> ((char ';' >> opt_ws >> return ()) <|> eof)
 top = do 
+    opt_ws
     stmts <- endBy1 stmt terminator
+    opt_ws
     eof
     return $ Mold stmts
 main = do
