@@ -35,7 +35,7 @@ See L<S02/"Built-in Data Types"> for more information about Code, Routine, Sub, 
 }
 
 {
-    my $foo = -> () { 42 };
+    my $foo = -> { 42 };
     isa_ok($foo, 'Code');
     isa_ok($foo, 'Block');
     is $foo.(), 42,                 "basic invocation of a pointy block";

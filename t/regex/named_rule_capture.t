@@ -31,7 +31,7 @@ if !eval('("a" ~~ /a/)') {
 
 {
   my $not_really_a_mammal;
-  regex fishy2 { $not_really_a_mammal := (.*)shark };
+  regex fishy2 { $not_really_a_mammal = (.*)shark };
   "whaleshark" ~~ m/<fishy2>/;
   is(eval('$/<fishy2><not_really_a_mammal>'), "whale", "named rule named capture", :todo<bug>);
   is(eval('$<fishy2><not_really_a_mammal>'), "whale", "named rule named capture with abbreviated variable", :todo<bug>);
@@ -41,8 +41,8 @@ if !eval('("a" ~~ /a/)') {
 
 {
   regex number {
-    [ $<numeral> := <roman_numeral>  { $<notation> := 'roman' }
-    | $<numeral> := <arabic_numeral> { $<notation> := 'arabic' }
+    [ $<numeral> = <roman_numeral>  { $<notation> = 'roman' }
+    | $<numeral> = <arabic_numeral> { $<notation> = 'arabic' }
     ]
   };
   regex roman_numeral  { I | II | III | IV };

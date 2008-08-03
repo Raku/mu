@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 14;
+plan 12;
 
 =begin description
 
@@ -13,21 +13,13 @@ L<S06/""Pointy blocks"">
 =end description
 
 # L<S06/""Pointy blocks""/the parameter list of a pointy block does not
-# require parentheses>
+# allow parentheses>
 my ($sub, $got);
 
 $got = '';
 $sub = -> $x { $got = "x $x" };
 $sub.(123);
 is $got, 'x 123', 'pointy sub without param parens';
-
-$got = '';
-$sub = -> ($x) { $got = "x $x" }.(123);
-is $got, 'x 123', 'pointy sub with param parens dot called';
-
-$got = '';
-$sub = -> ($x) { $got = "x $x" }(123);
-is $got, 'x 123', 'pointy sub with param parens called';
 
 $got = '';
 -> $x { $got = "x $x" }.(123);

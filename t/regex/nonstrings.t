@@ -23,6 +23,10 @@ ok(eval('! ($stream ~~ /<monster>/)'), 'rules on streams, negative'); # shouldn'
 
 # And arrays...
 
+class Dog {...}
+class Cat {...}
+class Fish {...}
+
 my Dog $a;
 my Cat $b;
 my Fish $c;

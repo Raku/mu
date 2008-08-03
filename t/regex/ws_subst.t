@@ -1,18 +1,14 @@
 use v6;
 use Test;
 
-plan 4;
+plan 3;
 
-# First 3 fail regardless of PGE or Pugs::Compiler::Rule
+# First 2 fail regardless of PGE or Pugs::Compiler::Rule
 # Last one shows that changing the whitspace to a char class succeeds
 
 my $str1 = "Hello world";
 $str1 ~~ s :s/Hello (\w+)/foo/;
 is($str1, 'foo', "white space works in subst");
-
-my $str2 = "Hello world";
-$str2 ~~ s :s :w/Hello (\w+)/foo/;
-is($str2, 'foo', "white space works in subst");
 
 my $str3 = "Hello world";
 $str3 ~~ s/Hello (\w+)/foo/;

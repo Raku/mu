@@ -66,23 +66,23 @@ my @prep = <like>;
 
 ok( "time flies like an arrow" ~~
     m:s:ex/^    [
-                $<adj>  := (@adj)
-                $<subj> := (@noun)
-                $<verb> := (@verb)
-                $<art>  := (@art)
-                $<obj>  := (@noun)
+                $<adj>  = (@adj)
+                $<subj> = (@noun)
+                $<verb> = (@verb)
+                $<art>  = (@art)
+                $<obj>  = (@noun)
               |
-                $<subj> := (@noun)
-                $<verb> := (@verb)
-                $<prep> := (@prep)
-                $<art>  := (@art)
-                $<obj>  := (@noun)
+                $<subj> = (@noun)
+                $<verb> = (@verb)
+                $<prep> = (@prep)
+                $<art>  = (@art)
+                $<obj>  = (@noun)
               |
-                $<verb> := (@verb)
-                $<obj>  := (@noun)
-                $<prep> := (@prep)
-                $<art>  := (@art)
-                $<noun> := (@noun)
+                $<verb> = (@verb)
+                $<obj>  = (@noun)
+                $<prep> = (@prep)
+                $<art>  = (@art)
+                $<noun> = (@noun)
               ]
            /, 'Multiple capturing');
 

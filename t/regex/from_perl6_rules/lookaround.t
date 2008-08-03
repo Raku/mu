@@ -6,7 +6,7 @@ use Test;
 This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/lookaround.t.
 
-=begin pod
+=end pod
 
 plan 10;
 

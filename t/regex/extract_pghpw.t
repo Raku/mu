@@ -52,8 +52,8 @@ token title {
 
 token link {
     '<a href="'
-    $<url> := ([\/]? \w+ [\/ \w+]+ \. \w+) '">'
-    $<label> := (<alpha>+ [<ws> <alpha>+]+) '</a>'
+    $<url> = ([\/]? \w+ [\/ \w+]+ \. \w+) '">'
+    $<label> = (<alpha>+ [<ws> <alpha>+]+) '</a>'
 }
 
 # ------------------------- S O U R C E ------------------------- #

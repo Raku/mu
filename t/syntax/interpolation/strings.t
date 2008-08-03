@@ -72,8 +72,8 @@ is(" \c[111] \c[107] ", ' o k ', "\\c[] respects whitespaces around it");
 # L<S02/Literals/separating the numbers with comma:>
 is("x  \x[41,42,43]  x",     "x  ABC  x",  "\\x[] allows multiple chars (1)");
 is("x  \x[41,42,00043]  x",  "x  ABC  x",  "\\x[] allows multiple chars (2)");
-is("x  \d[65,66,67]  x",     "x  ABC  x",  "\\d[] allows multiple chars (1)");
-is("x  \d[65,66,000067]  x", "x  ABC  x",  "\\d[] allows multiple chars (2)");
+is("x  \c[65,66,67]  x",     "x  ABC  x",  "\\c[] allows multiple chars (1)");
+is("x  \c[65,66,000067]  x", "x  ABC  x",  "\\c[] allows multiple chars (2)");
 
 is("x  \x[41,42,43]]  x",    "x  ABC]  x", "\\x[] should not eat following ]s");
-is("x  \d[65,66,67]]  x",    "x  ABC]  x", "\\d[] should not eat following ]s");
+is("x  \c[65,66,67]]  x",    "x  ABC]  x", "\\c[] should not eat following ]s");
