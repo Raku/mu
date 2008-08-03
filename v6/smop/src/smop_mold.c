@@ -35,11 +35,10 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* mold_object) {
     ret->position = 0;
     ret->back = NULL;
     ret->ctx = SMOP__NATIVE__bool_false;
-    ret->registers = (SMOP__Object**) calloc(mold->registers,sizeof(SMOP__ResponderInterface)); //malloc((mold->registers+4) * sizeof(SMOP__Object*));
+    ret->registers = (SMOP__Object**) calloc(mold->registers,sizeof(SMOP__ResponderInterface)); 
 
     int i;
     for (i = 0;mold->constants[i];i++) {
-      printf("setting %d to %p\n",i+4,mold->constants[i]);
       ret->registers[i+4] = mold->constants[i];
     }
 
@@ -89,22 +88,24 @@ static SMOP__Object* smop_mold_message(SMOP__Object* interpreter,
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }
+static SMOP__Object* get_register(SMOP__Object* interpreter,smop_mold_frame* frame) {
+  smop_mold* mold = (smop_mold*) frame->mold;
+  //printf("reading register %d from position %d\n",mold->opcodes[frame->position],frame->position);
+  SMOP__Object* ret = SMOP_REFERENCE(interpreter,frame->registers[mold->opcodes[frame->position]]);
+  frame->position++;
+  return ret;
+}
 static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
+  int i; 
+
   ___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;
   ___INVOCANT_RI_SHOULD_MATCH___;
 
 
-  {
-    int tmp;
-    //printf("identifier:%s interpreter: %p %s\n",SMOP__NATIVE__idconst_fetch(identifier,&tmp),interpreter,interpreter->RI->id);
-  
-    printf("printing...\n");
-    printf("%p identifier:%s interpreter:%s\n",interpreter,SMOP__NATIVE__idconst_fetch(identifier,&tmp),interpreter->RI->id);
-  }
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   smop_mold_frame* frame = (smop_mold_frame*) invocant;
@@ -118,59 +119,50 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
   } else if (SMOP__ID__next == identifier) {
 
   } else if (SMOP__ID__eval == identifier) {
-    int op = mold->opcodes[frame->position++];
-    printf("op:%d\n",op);
+    int op = mold->opcodes[frame->position];
     if (op) {
+      frame->position++;
       ret = SMOP__NATIVE__bool_true;
       switch (op) {
         case 1:
           ;
-//sorry couldn't resist - pmurias
-#define REG  ({\
-    printf("reading register %d from position %d\n",mold->opcodes[frame->position],frame->position);\
-    frame->position += 1;\
-    SMOP_REFERENCE(interpreter,frame->registers[mold->opcodes[frame->position]]);\
-    })
-//          printf("frame.position = %d %d %p\n",frame->position,mold->opcodes[frame->position],frame->registers[mold->opcodes[frame->position]]);
-          printf("reading invocant (position: %d)\n",frame->position);
-          SMOP__Object* call_invocant = REG;
+          /*
+          for (i = 0;i<mold->registers;i++) {
+            if (frame->registers[i]) {
+              printf("%d:%s\n",i,frame->registers[i]->RI->id);
+            } else {
+              printf("%d:%p\n",i,frame->registers[i]);
+            }
+          }
+          */
+          SMOP__Object* call_invocant = get_register(interpreter,frame);
 
-          printf("reading identifier (position: %d)\n",frame->position);
-          SMOP__Object* call_identifier = REG;
-          printf("call_identifier:%p\n",call_identifier);
+          SMOP__Object* call_identifier = get_register(interpreter,frame);
 
           int pos_n = mold->opcodes[frame->position++];
           SMOP__Object** call_pos = (SMOP__Object**) malloc((pos_n+1) * sizeof(SMOP__Object*));
-          int i;
           for (i=0;i<pos_n;i++) {
-            printf("reading positional\n");
-            call_pos[i] = REG;
+            call_pos[i] = get_register(interpreter,frame);
           }
 
-          printf("pos_n:%d\n",pos_n);
           call_pos[pos_n] = NULL;
 
           int named_n = mold->opcodes[frame->position++];
           SMOP__Object** call_named = (SMOP__Object**) malloc((named_n+1) * sizeof(SMOP__Object*));
           for (i=0;i<named_n;i++) {
-            printf("reading positional\n");
-            call_named[i] = REG;
+            call_named[i] = get_register(interpreter,frame);
           }
           call_named[named_n] = NULL;
-#undef REG
           int target = mold->opcodes[frame->position++];
           int tmp;
-          fprintf(stderr,"# method call (%s).%s(%p...,%p...)\n",
+          /*fprintf(stderr,"# method call (%s).%s(%p...,%p...)\n",
             call_invocant->RI->id,
             SMOP__NATIVE__idconst_fetch(call_identifier,&tmp),
             call_named[0],
             call_pos[0]
-          );
-          printf("creating capture\n");
+          );*/
           SMOP__Object* capture = SMOP__NATIVE__capture_create(interpreter,call_invocant,call_pos,call_named);
-          printf("dispatch\n");
           SMOP_DISPATCH(interpreter,SMOP_RI(call_invocant),call_identifier,capture);
-          printf("after dispatch\n");
           break;
         case 2:
           fprintf(stderr,"unimplemented op %d\n",op);
@@ -188,7 +180,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       ret = SMOP__NATIVE__bool_false;
     }
   } else if (SMOP__ID__DESTROYALL == identifier) {
-    //SMOP_RELEASE(interpreter,frame->mold);
+    SMOP_RELEASE(interpreter,frame->mold);
   } else {
     ___UNKNOWN_METHOD___;
   }
