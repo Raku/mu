@@ -402,6 +402,8 @@ runProgramWith ::
     (Env -> Env) -> (Val -> IO a) -> VStr -> [VStr] -> String -> IO a
 runProgramWith fenv f name args prog = do
     env <- prepareEnv name args
+    -- Cache the compilation tree right here.
+    -- We only really care about envGlobal and envBody here.
     val <- runEnv $ parseProgram (fenv env) name prog
     f val
 
