@@ -8,13 +8,11 @@ version 0.3 (12 Apr 2004), file t/counted.t.
 
 =end pod
 
-plan 172;
+plan 178;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
-
-force_todo(4,5,6,7,8,9,10,11,12,13,17,18,19,20,21,22,23,24,25,26,30,32,34,36,38,43,45,47,49,51,56,58,60,62,64,69,71,73,75,77,82,84,86,88,90,92,96,98,99,100,101,105,106,107,108,109,110,111,112,113,114,115,116,120,121,122,123,124,125,126,127,128,129,133,135,137,139,141,148,150,152,154,156,158,160,162,164,166,168,170);
 
 # L<S05/Modifiers/If the number is followed by an>
 
@@ -56,6 +54,16 @@ ok(!( $data ~~ m:nth(7)/fo+/ ), 'No match nth(7)');
 for (1..6) -> $N {
     ok($data ~~ m:nth($N)/fo+/, "Match nth(\$N) for \$N == $N" );
     is($/, 'f'~'o' x $N, "Matched value for $N" );
+}
+
+# more interesting variations of :nth(...)
+{
+    ok($data ~~ m:nth(2,3)/(fo+)/, 'nth(list) is ok');
+    is(@@(), <foo fooo>, 'nth(list) matched correctly');
+    ok($data ~~ m:nth(2|4)/(fo+)/, 'nth(junction) is ok');
+    is(@@(), <foo foooo>, 'nth(junction) matched correctly');
+    ok($data ~~ m:nth({$_ == 3 || $_ == 4})/(fo+)/, 'nth({code}) is ok');
+    is(@@(), <fooo foooo>, 'nth({code} matched correctly');
 }
 
 
