@@ -148,7 +148,7 @@ sub set_postamble {
 
     # Ok, now we have Cabal-Install and all the deps.  Let's be lazy and write a simple makefile.
     postamble(<<".");
-pugs_requirements : @srcfiles $version_h $config_h config.yml src/Pugs/Config.hs src/Pugs/Prelude.hs
+pugs_requirements : @srcfiles $version_h $config_h src/Pugs/Config.hs src/Pugs/Prelude.hs
 
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
