@@ -144,12 +144,12 @@ pugs$Config{_exe} :: src/Pugs/Config.hs src/Pugs/Prelude.hs
 \t\$(RM_F) dist/build/pugs/pugs$Config{_exe}
 \t\$(RM_F) Pugs.cabal
 \t\$(CP) Pugs.cabal.in Pugs.cabal
-\t$cabal configure --user
-\t$cabal build
+\t./Setup$Config{_exe} configure --user
+\t./Setup$Config{_exe} build
 \t\$(CP) dist/build/pugs/pugs$Config{_exe} .
 
 install ::
-\t$cabal install --user
+\t./Setup$Config{_exe} install --user
 
 INST6_ARCHLIB = blib6/arch
 INST6_SCRIPT = blib6/script
@@ -170,6 +170,8 @@ smoke : pugs$Config{_exe} util/run-smoke.pl
 
 upload-smoke : smoke.yml
 \t\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
+
+smoke-upload : upload-smoke
 
 src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl
 \t\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
