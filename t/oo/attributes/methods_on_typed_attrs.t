@@ -4,6 +4,8 @@ use Test;
 
 plan 7;
 
+class Bar {...}
+
 class Foo {
     has Bar $.bar;
     
