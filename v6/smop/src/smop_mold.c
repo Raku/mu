@@ -135,17 +135,10 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       frame->position++;
       ret = SMOP__NATIVE__bool_true;
       switch (op) {
-        case 1:
-          ;
-          /*
-          for (i = 0;i<mold->registers;i++) {
-            if (frame->registers[i]) {
-              printf("%d:%s\n",i,frame->registers[i]->RI->id);
-            } else {
-              printf("%d:%p\n",i,frame->registers[i]);
-            }
-          }
-          */
+        case 1: ;
+
+          int target = mold->opcodes[frame->position++];
+
           SMOP__Object* call_invocant = get_register(interpreter,frame);
 
           SMOP__Object* call_identifier = get_register(interpreter,frame);
@@ -164,15 +157,6 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
             call_named[i] = get_register(interpreter,frame);
           }
           call_named[named_n] = NULL;
-          int target = mold->opcodes[frame->position++];
-          /*
-            int tmp;
-            fprintf(stderr,"# method call (%s).%s(%p...,%p...)\n",
-            call_invocant->RI->id,
-            SMOP__NATIVE__idconst_fetch(call_identifier,&tmp),
-            call_named[0],
-            call_pos[0]
-          );*/
           SMOP__Object* capture = SMOP__NATIVE__capture_create(interpreter,call_invocant,call_pos,call_named);
           SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_invocant),call_identifier,capture);
           if (frame->registers[target]) {

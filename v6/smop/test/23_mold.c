@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
       SMOP__S1P__Str_create("ok 2 - simple method call works\n"), //$r5
       NULL
     },8,(int[]) {
-    1,4,5,1,6,0,7,0 //$r7 = $r4.$r5($r6)
+    1,7,4,5,1,6,0,0 //$r7 = $r4.$r5($r6)
   });
   printf("ok 1 - lives after Mold creation\n");
   SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
