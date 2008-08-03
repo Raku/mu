@@ -138,15 +138,31 @@ sub set_postamble {
         close $fh;
     }
 
+    my @srcdirs  = grep {-d} glob("src"), glob("src/*"), glob("src/*/*"), glob("src/*/*/*");
+    my @srcfiles = map { glob("$_/*.*hs") } @srcdirs;
+    push @srcfiles, map { glob("$_/*.*hs-boot") } @srcdirs;
+    push @srcfiles, map { map { substr($_, 0, -1) } glob("$_/*.*hsc") } @srcdirs;
+
+    my $version_h = "src/Pugs/pugs_version.h";
+    my $config_h = "src/Pugs/pugs_config.h";
+
     # Ok, now we have Cabal-Install and all the deps.  Let's be lazy and write a simple makefile.
     postamble(<<".");
-pugs$Config{_exe} :: src/Pugs/Config.hs src/Pugs/Prelude.hs
-\t\$(RM_F) dist/build/pugs/pugs$Config{_exe}
-\t\$(RM_F) Pugs.cabal
-\t\$(CP) Pugs.cabal.in Pugs.cabal
-\t./Setup$Config{_exe} configure --user
-\t./Setup$Config{_exe} build
-\t\$(CP) dist/build/pugs/pugs$Config{_exe} .
+pugs_requirements : @srcfiles $version_h $config_h config.yml src/Pugs/Config.hs src/Pugs/Prelude.hs
+
+$config_h : lib/Perl6/Pugs.pm util/config_h.pl
+	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
+
+$version_h :
+	\$(PERL) util/version_h.pl $version_h
+
+pugs$Config{_exe} :: pugs_requirements build_perl5
+	\$(RM_F) dist/build/pugs/pugs$Config{_exe}
+	\$(RM_F) Pugs.cabal
+	\$(CP) Pugs.cabal.in Pugs.cabal
+	./Setup$Config{_exe} configure --user
+	./Setup$Config{_exe} build
+	\$(CP) dist/build/pugs/pugs$Config{_exe} .
 
 install ::
 \t./Setup$Config{_exe} install --user
@@ -175,6 +191,22 @@ smoke-upload : upload-smoke
 
 src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl
 \t\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
+
+build_perl5 ::
+@{[for_perl5("
+	cd __DIR__ && $^X Makefile.PL && \$(MAKE)
+")]}
+
+clean ::
+@{[for_perl5("
+	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
+")]}
+
+realclean ::
+@{[for_perl5("
+	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
+")]}
+
 .
 
 }
@@ -228,6 +260,8 @@ sub for_perl5 {
 
         # Skip XS modules for now
         next if glob("$dir/*.xs") or glob("$dir/*.i") or $dir =~ /-\d+/;
+
+	next unless $dir =~ /Pugs-Compiler-Rule/;
 
         my $this = $cmd;
         $this =~ s{__DIR__}{$dir}g;
