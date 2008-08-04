@@ -14,6 +14,11 @@ sub WritePugs {
     die "Install version must be 5 or 6 for WritePugs"
       unless $install_version =~ /^[56]$/;
 
+    if (($install_version == 6) and -e 'Makefile' and (-M 'Makefile.PL' > -M 'Makefile')) {
+        # Makefile is new here, skip running "Makefile.PL"
+        return;
+    }
+
     $self->setup_perl6_install
       if $install_version eq '6';
 
