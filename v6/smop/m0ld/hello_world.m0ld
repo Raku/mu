@@ -11,4 +11,4 @@ my $r8 = "hello world\n";
 
 #opcodes
 $r9 = $r4.$r5($r6);
-$r10 = $r9.$r7($8);
+$r10 = $r9.$r7($r8);
