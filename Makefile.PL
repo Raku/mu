@@ -27,6 +27,7 @@ die "Cannot find application directory '$app_dir'; check to see if Setup.lhs com
 
 my $bin_dir = File::Spec->catdir($app_dir, 'bin');
 my $cabal   = File::Spec->catfile($bin_dir, "cabal$Config{_exe}");
+my $cabal_config = File::Spec->catfile($app_dir, 'config');
 
 $ENV{PATH} = $bin_dir . $Config{path_sep} . $ENV{PATH};
 
@@ -36,7 +37,6 @@ print "[Automatic Installation]\n";
 
 my $rebuilt = 0;
 $rebuilt += bootstrap_with(Cabal            => qr/1\.4\./, '1.4.0');
-#$rebuilt ||= bootstrap_with(bytestring       => qr/0\.9\.[1-9]/, '0.9.1');
 $rebuilt += bootstrap_with(parsec           => qr/2\./, '2.0');
 $rebuilt += bootstrap_with(network          => qr/[12]\./, '1.0');
 $rebuilt += bootstrap_with(HTTP             => qr/300[01]\./, '3000.0');
@@ -50,24 +50,31 @@ if ($rebuilt) {
 print "[Pugs Dependencies]\n";
 
 my @deps = qw(
-    filepath mtl stm pretty time random process containers array directory 
-
-    utf8-string
-    binary
-    haskeline
-    FindBin
-    MetaObject
-    HsParrot
-    pugs-compat
-    pugs-DrIFT
-    stringtable-atom
-    HsSyck
+    mtl time utf8-string binary haskeline FindBin MetaObject HsParrot
+    pugs-compat pugs-DrIFT stringtable-atom HsSyck
 );
 
-system($cabal => 'update');
-system($cabal => 'install', '--user', @deps);
+# This line is here simply to trick Cabal into creating a default config file.
+my $rv = `cabal list -v0 --installed --simple-output`;
 
-# TODO - At this point we'd like to fool Cabal into using our own archive.
+my $cabal_local_config = "$FindBin::RealBin/third-party/packages/config";
+
+# Ok, now we copy the config file to our tree.
+open IN, '<', $cabal_config or die "Impossible: $cabal_config not found?";
+open OUT, '>', $cabal_local_config;
+print OUT << ".";
+local-repos: "$FindBin::RealBin/third-party/packages/hackage.haskell.org"
+.
+while (<IN>) {
+    next if /^(?:local-)?repos:/;
+    print OUT $_;
+}
+close IN;
+close OUT;
+
+$ENV{CABAL_CONFIG_FILE} = $cabal_local_config;
+system($cabal => 'install', '--user', '-p', @deps);
+
 do "Configure.PL";
 print "==> Pugs configuration finished.\n";
 
@@ -237,7 +244,7 @@ sub bootstrap_with {
     die "Impossible: No Setup?" unless $setup_hs;
 
     system($ghc, qw(--make -O0), -o => $setup_exe, $setup_hs)
-        || system($setup_exe, qw(configure --user))
+        || system($setup_exe, qw(configure --user -p))
         || system($setup_exe, qw(build))
         || system($setup_exe, qw(install --user))
         || system($setup_exe, qw(clean))
