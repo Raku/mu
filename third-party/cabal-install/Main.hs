@@ -13,11 +13,13 @@
 
 module Main where
 
-import Hackage.Setup
-import Hackage.Types
+import Distribution.Client.Setup
+import Distribution.Client.Types
          ( UnresolvedDependency(UnresolvedDependency) )
-import Distribution.Simple.Setup (Flag(..), fromFlag, fromFlagOrDefault,
-                                  flagToMaybe,SDistFlags,sdistCommand)
+
+import Distribution.Simple.Setup
+         ( Flag(..), fromFlag, fromFlagOrDefault, flagToMaybe
+         , SDistFlags, sdistCommand )
 import qualified Distribution.Simple.Setup as Cabal
 import Distribution.Simple.Program (defaultProgramConfiguration)
 import Distribution.Simple.Command
@@ -26,19 +28,20 @@ import Distribution.Simple.Utils (cabalVersion, die, intercalate)
 import Distribution.Text
          ( display )
 
-import Hackage.SetupWrapper
+import Distribution.Client.SetupWrapper
          ( setupWrapper, SetupScriptOptions(..), defaultSetupScriptOptions )
-import Hackage.Config           (SavedConfig(..), savedConfigToConfigFlags,
-                                 defaultConfigFile, loadConfig, configRepos,
-                                 configPackageDB)
-import Hackage.List             (list)
-import Hackage.Install          (install, upgrade)
-import Hackage.Update           (update)
-import Hackage.Fetch            (fetch)
-import Hackage.Check as Check   (check)
---import Hackage.Clean            (clean)
-import Hackage.Upload as Upload (upload, check)
-import Hackage.SrcDist(sdist)
+import Distribution.Client.Config
+         ( SavedConfig(..), savedConfigToConfigFlags, defaultConfigFile
+         , getConfigFile
+         , loadConfig, configRepos, configPackageDB )
+import Distribution.Client.List             (list)
+import Distribution.Client.Install          (install, upgrade)
+import Distribution.Client.Update           (update)
+import Distribution.Client.Fetch            (fetch)
+import Distribution.Client.Check as Check   (check)
+--import Distribution.Client.Clean            (clean)
+import Distribution.Client.Upload as Upload (upload, check)
+import Distribution.Client.SrcDist          (sdist)
 
 import Distribution.Verbosity   (Verbosity, normal)
 import qualified Paths_cabal_install (version)
@@ -128,7 +131,7 @@ wrapperAction command verbosityFlag distPrefFlag =
 
 configureAction :: Cabal.ConfigFlags -> [String] -> IO ()
 configureAction flags extraArgs = do
-  configFile <- defaultConfigFile --FIXME
+  configFile <- getConfigFile
   let verbosity = fromFlagOrDefault normal (Cabal.configVerbosity flags)
   config <- loadConfig verbosity configFile
   let flags' = savedConfigToConfigFlags (Cabal.configUserInstall flags) config
@@ -153,7 +156,7 @@ installAction (cflags,iflags) _
 
 installAction (cflags,iflags) extraArgs = do
   pkgs <- either die return (parsePackageArgs extraArgs)
-  configFile <- defaultConfigFile --FIXME
+  configFile <- getConfigFile
   let verbosity = fromFlagOrDefault normal (Cabal.configVerbosity cflags)
   config <- loadConfig verbosity configFile
   let cflags' = savedConfigToConfigFlags (Cabal.configUserInstall cflags) config
@@ -161,13 +164,15 @@ installAction (cflags,iflags) extraArgs = do
   (comp, conf) <- configCompilerAux cflags'
   install verbosity
           (configPackageDB cflags') (configRepos config)
-          comp conf cflags' iflags
+          comp conf cflags' iflags {
+            installSymlinkBinDir = configSymlinkBinDir config
+          }
           [ UnresolvedDependency pkg (Cabal.configConfigurationsFlags cflags')
           | pkg <- pkgs ]
 
 listAction :: ListFlags -> [String] -> IO ()
 listAction listFlags extraArgs = do
-  configFile <- defaultConfigFile --FIXME
+  configFile <- getConfigFile
   let verbosity = fromFlag (listVerbosity listFlags)
   config <- loadConfig verbosity configFile
   let flags = savedConfigToConfigFlags NoFlag config
@@ -184,7 +189,7 @@ updateAction :: Flag Verbosity -> [String] -> IO ()
 updateAction verbosityFlag extraArgs = do
   unless (null extraArgs) $ do
     die $ "'update' doesn't take any extra arguments: " ++ unwords extraArgs
-  configFile <- defaultConfigFile --FIXME
+  configFile <- getConfigFile
   let verbosity = fromFlag verbosityFlag
   config <- loadConfig verbosity configFile
   update verbosity (configRepos config)
@@ -192,7 +197,7 @@ updateAction verbosityFlag extraArgs = do
 upgradeAction :: (Cabal.ConfigFlags, InstallFlags) -> [String] -> IO ()
 upgradeAction (cflags,iflags) extraArgs = do
   pkgs <- either die return (parsePackageArgs extraArgs)
-  configFile <- defaultConfigFile --FIXME
+  configFile <- getConfigFile
   let verbosity = fromFlagOrDefault normal (Cabal.configVerbosity cflags)
   config <- loadConfig verbosity configFile
   let cflags' = savedConfigToConfigFlags (Cabal.configUserInstall cflags) config
@@ -200,14 +205,16 @@ upgradeAction (cflags,iflags) extraArgs = do
   (comp, conf) <- configCompilerAux cflags'
   upgrade verbosity
           (configPackageDB cflags') (configRepos config)
-          comp conf cflags' iflags
+          comp conf cflags' iflags {
+            installSymlinkBinDir = configSymlinkBinDir config
+          }
           [ UnresolvedDependency pkg (Cabal.configConfigurationsFlags cflags')
           | pkg <- pkgs ]
 
 fetchAction :: Flag Verbosity -> [String] -> IO ()
 fetchAction verbosityFlag extraArgs = do
   pkgs <- either die return (parsePackageArgs extraArgs)
-  configFile <- defaultConfigFile --FIXME
+  configFile <- getConfigFile
   let verbosity = fromFlag verbosityFlag
   config <- loadConfig verbosity configFile
   let flags = savedConfigToConfigFlags NoFlag config
@@ -220,7 +227,7 @@ fetchAction verbosityFlag extraArgs = do
 
 uploadAction :: UploadFlags -> [String] -> IO ()
 uploadAction flags extraArgs = do
-  configFile <- defaultConfigFile --FIXME
+  configFile <- getConfigFile
   let verbosity = fromFlag (uploadVerbosity flags)
   config <- loadConfig verbosity configFile
   -- FIXME: check that the .tar.gz files exist and report friendly error message if not
