@@ -14,65 +14,75 @@ data Mold = Mold [Stmt]
     deriving Show
 
 identifier = do
-    first <- choice [alphaNum,char '_']
-    rest <- many1 $ choice [alphaNum,char '_',digit]
+    first <- choice [alphaNum, char '_']
+    rest <- many1 $ choice [alphaNum, char '_', digit]
     return $ [first] ++ rest
-ws = many1 $ (oneOf "\t\n " >> return () ) <|> (char '#' >> many1(noneOf "\n") >> newline >> return () )
+
+ws = do
+    many1 $ choice
+        [ oneOf "\t\n "
+        , char '#' >> many1 (noneOf "\n") >> newline
+        ]
+    return [()]
+
 opt_ws = option [()] ws
+
+tok r = do
+    res <- r
+    opt_ws
+    return res
+
+lparen = char '('
+rparen = char ')'
 
 register =  char '$' >> identifier
 
 stmt = choice [call,decl]
 
-value = do
-        char '$'
-        name <- identifier
-        return $ Var name
-    <|> do
+value = choice 
+      [ do
+          char '$'
+          name <- identifier
+          return $ Var name
+      , do
         digits <- many1 digit 
         return $ IntegerConstant $ read digits
-    <|> do
-        char '"'
-        content <- many $ noneOf "\"\\" <|> (char '\\' >> anyChar)
-        char '"'
+      , do
+        content <- between (char '"') (char '"') quotedChar
         return $ StringConstant content
+      ]
+      where
+      quotedChar = many $ noneOf "\"\\" <|> (char '\\' >> anyChar)
+
 decl = do 
     string "my"
     ws
-    x <- register
-    value <- option None $ opt_ws >> char '=' >> opt_ws >> value
+    x <- tok register
+    value <- option None $ (tok $ char '=') >> value
     return (Decl x value)
+
 call = do
-    target <- register
-    opt_ws
-    char '='
-    opt_ws
-    invocant <- register
-    opt_ws
+    target <- tok register
+    tok $ char '='
+    invocant <- tok register
     char '.'
     identifier <- register
-    char '('
-    opt_ws
-    many argument
-    opt_ws
-    char ')'
+    between (tok lparen) rparen $ tok $ many argument
+    tok $ many argument
     return $ Call target identifier (Capture invocant [] [])
-argument =
-        do
+
+argument = do
         char ':'
         key <- register
-        char '('
-        value <- register
-        char ')'
+        value <- between (char '(') (char ')') register
         return $ Named key value
     <|> (register >>= return . Pos)
 
 terminator :: Parser ()
-terminator = opt_ws >> ((char ';' >> opt_ws >> return ()) <|> eof)
+terminator = opt_ws >> (((tok $ char ';') >> return ()) <|> eof)
 top = do 
     opt_ws
-    stmts <- endBy1 stmt terminator
-    opt_ws
+    stmts <- tok $ endBy1 stmt terminator
     eof
     return $ Mold stmts
 main = do
