@@ -1,4 +1,5 @@
 import Text.ParserCombinators.Parsec
+import qualified Data.Map
 import System.IO
 type Label = [Char]
 type Register = [Char]
@@ -84,11 +85,41 @@ top = do
     opt_ws
     stmts <- tok $ endBy1 stmt terminator
     eof
-    return $ Mold stmts
+    return $ stmts
+
+type RegMap = Data.Map.Map [Char] Int
+
+toBytecode :: Stmt -> RegMap -> [Int]
+toBytecode _ regs = []
+
+isReg (Decl _ None) = True
+isReg _ = False
+
+countRegister stmts = length $ filter isReg stmts
+
+addRegister :: RegMap -> Stmt -> RegMap
+addRegister regs (Decl reg None) = regs
+addRegister regs (Decl reg value) = Data.Map.insert reg ((Data.Map.size regs)+4)  regs
+addRegister regs _ = regs
+
+registerMap :: [Stmt] -> RegMap
+registerMap stmts = foldl addRegister Data.Map.empty stmts
+
+emit :: [Stmt] -> RegMap -> [Int]
+emit stmts regMap = foldl (++) [] $ map (\op -> toBytecode op regMap) stmts
+
 main = do
     hFlush stdout
     line <- getContents
     putStr $ "input:" ++ line
     case (parse top "" line) of 
         Left err      -> print err
-        Right opcodes -> print opcodes
+        Right stmts -> do 
+            print stmts
+            let regMap = registerMap stmts
+            let freeRegs = countRegister stmts
+            putStr "uninitalised registers: "
+            print freeRegs 
+            putStr "register name->int: "
+            print regMap
+            print $ emit stmts regMap
