@@ -55,7 +55,8 @@ my @deps = qw(
 );
 
 # This line is here simply to trick Cabal into creating a default config file.
-my $rv = `cabal list -v0 --installed --simple-output`;
+delete $ENV{CABAL_CONFIG_FILE};
+my $rv = `$cabal list -v0 --installed --simple-output`;
 
 my $cabal_local_config = "$FindBin::RealBin/third-party/packages/config";
 
