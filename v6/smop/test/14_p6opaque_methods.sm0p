@@ -32,7 +32,7 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
         
       {
         use v6;
-        return $actualinvocant.^!methods.{$actualidentifier}.FETCH().call($actualresponder,$actualidentifier,$actualcapture);
+        return $actualinvocant.^!methods.{$actualidentifier}.FETCH().($actualcapture);
       }
       
       SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
@@ -53,13 +53,9 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
 }
 
 SMOP__Object* test_code(SMOP__Object* interpreter,
-                        SMOP__Object* method,
-                        SMOP__Object* responder,
-                        SMOP__Object* identifier,
+                        SMOP__Object* code,
                         SMOP__Object* capture) {
   printf("ok 4 - method call.\n");
-  SMOP_RELEASE(interpreter,responder);
-  SMOP_RELEASE(interpreter,identifier);
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }
@@ -95,9 +91,11 @@ int main() {
   ((SMOP__ResponderInterface*)how)->RELEASE = &test_release;
   ((SMOP__ResponderInterface*)how)->id = "test metaclass";
 
-  SMOP__Object* method = SMOP__S1P__Method_create(0,SMOP__ID__new,
+
+  SMOP__Object* tcode = SMOP__S1P__CCode_create(test_code);
+  SMOP__Object* method = SMOP__S1P__Method_create(interpreter,0,SMOP__ID__new,
                                                   SMOP__NATIVE__bool_false,
-                                                  test_code);
+                                                  tcode);
 
 
   // This sm0p block will create a p6opaque, set the how, push a

@@ -18,15 +18,11 @@ extern SMOP__Object* SMOP__S1P__RootNamespace;
 extern SMOP__Object* SMOP__GlobalInterpreter;
 
 
-SMOP__Object* SMOP__S1P__Method_create(int multi,
+SMOP__Object* SMOP__S1P__Method_create(SMOP__Object* interpreter,
+                                       int multi,
                                        SMOP__Object* name,
                                        SMOP__Object* signature,
-                                       SMOP__Object* (*code) (SMOP__Object* interpreter,
-                                                              SMOP__Object* method,
-                                                              SMOP__Object* responder,
-                                                              SMOP__Object* identifier,
-                                                              SMOP__Object* capture));
-
+                                       SMOP__Object* code);
 
 SMOP__Object* SMOP__S1P__CCode_create(SMOP__Object* (*code) (SMOP__Object* interpreter,
                                                              SMOP__Object* code,

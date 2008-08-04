@@ -31,7 +31,7 @@ static SMOP__Object* lowlevel_ccode_message(SMOP__Object* interpreter,
   ___CONST_IDENTIFIER_ONLY___;
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  if (SMOP__ID__call == identifier) {
+  if (SMOP__ID__postcircumfix_parens == identifier) {
     ___INVOCANT_RI_SHOULD_MATCH___;
 
     SMOP__S1P__CCode_struct* c = (SMOP__S1P__CCode_struct*)invocant;

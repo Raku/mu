@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
   SMOP_DISPATCH(intrp,
                 SMOP_RI(code),
-                SMOP__ID__call,
+                SMOP__ID__postcircumfix_parens,
                 SMOP__NATIVE__capture_create(intrp,
                                              SMOP_REFERENCE(intrp,code),
                                              (SMOP__Object*[]){ SMOP__NATIVE__bool_true, NULL}, NULL));

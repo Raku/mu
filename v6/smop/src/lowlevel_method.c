@@ -8,24 +8,12 @@
 
 SMOP__Object* SMOP__S1P__Method;
 
-/*
- * SMOP__S1P__Method passes all this items as the ownership of the
- * objects. Which means that the method is responsible for releasing
- * the object.
- *
- * This is important to allow the method to pass the object to another
- * call without having to do an additional call to REFERENCE.
- */
 typedef struct SMOP__S1P__Method_struct {
   SMOP__Object__BASE
   int multi;
   SMOP__Object* name;
   SMOP__Object* signature;
-  SMOP__Object* (*code) (SMOP__Object* interpreter,
-                         SMOP__Object* method,
-                         SMOP__Object* responder,
-                         SMOP__Object* identifier,
-                         SMOP__Object* capture);
+  SMOP__Object* code;
 } SMOP__S1P__Method_struct;
 
 static SMOP__Object* lowlevel_method_message(SMOP__Object* interpreter,
@@ -33,23 +21,22 @@ static SMOP__Object* lowlevel_method_message(SMOP__Object* interpreter,
                                              SMOP__Object* identifier,
                                              SMOP__Object* capture) {
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  if (SMOP__ID__call == identifier) {
+  if (SMOP__ID__postcircumfix_parens == identifier) {
     SMOP__Object* method = SMOP__NATIVE__capture_invocant(interpreter,capture);
     SMOP__S1P__Method_struct* m = (SMOP__S1P__Method_struct*)method;
-
-    SMOP__Object* responder = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-    SMOP__Object* identifier = SMOP__NATIVE__capture_positional(interpreter,capture,1);
-    SMOP__Object* actualcap = SMOP__NATIVE__capture_positional(interpreter,capture,2);
+    
+    SMOP__Object* actualcap = SMOP__NATIVE__capture_positional(interpreter,capture,0);
 
     smop_lowlevel_rdlock(method);
-    SMOP__Object* (*code) (SMOP__Object* interpreter,
-                           SMOP__Object* method,
-                           SMOP__Object* responder,
-                           SMOP__Object* identifier,
-                           SMOP__Object* capture) = m->code;
+    SMOP__Object* code = m->code;
     smop_lowlevel_unlock(method);
 
-    code(interpreter,method,responder,identifier,actualcap);
+    ret = SMOP_DISPATCH(interpreter,SMOP_RI(code),
+                        SMOP__ID__postcircumfix_parens,
+                        SMOP__NATIVE__capture_create(interpreter,
+                                                     SMOP_REFERENCE(interpreter,code),
+                                                     (SMOP__Object*[]){actualcap, NULL },
+                                                     NULL));
 
     SMOP_RELEASE(interpreter,capture);
     SMOP_RELEASE(interpreter,method);
@@ -83,16 +70,18 @@ static SMOP__Object* lowlevel_method_message(SMOP__Object* interpreter,
     smop_lowlevel_wrlock(capture);
     SMOP__Object* name = m->name; m->name = NULL;
     SMOP__Object* signature = m->signature; m->signature = NULL;
+    SMOP__Object* code = m->code; m->code = NULL;
     smop_lowlevel_unlock(capture);
 
     SMOP_RELEASE(interpreter,method);
 
     if (name) SMOP_RELEASE(interpreter,name);
     if (signature) SMOP_RELEASE(interpreter,signature);
+    if (code) SMOP_RELEASE(interpreter,code);
     SMOP_RELEASE(interpreter,capture);
   } else {
-    fprintf(stderr,"Unknown identifier in lowlevel method object invocation.\n");
-    SMOP_RELEASE(interpreter,capture);
+    ___UNKNOWN_METHOD___;
+
   }
   return ret;
 }
@@ -117,14 +106,12 @@ static SMOP__Object* lowlevel_method_release(SMOP__Object* interpreter,
   }
 }
 
-SMOP__Object* SMOP__S1P__Method_create(int multi,
-                                            SMOP__Object* name,
-                                            SMOP__Object* signature,
-                                            SMOP__Object* (*code) (SMOP__Object* interpreter,
-                                                                   SMOP__Object* method,
-                                                                   SMOP__Object* responder,
-                                                                   SMOP__Object* identifier,
-                                                                   SMOP__Object* capture)) {
+SMOP__Object* SMOP__S1P__Method_create(SMOP__Object* interpreter,
+                                       int multi,
+                                       SMOP__Object* name,
+                                       SMOP__Object* signature,
+                                       SMOP__Object* code) {
+
   SMOP__Object* ret = smop_lowlevel_alloc(sizeof(SMOP__S1P__Method_struct));
   ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Method;
 
