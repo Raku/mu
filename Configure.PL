@@ -2,9 +2,24 @@
 
 use 5.006;
 use strict;
+use FindBin;
+BEGIN { chdir $FindBin::RealBin };
+use inc::Module::Install;
+use lib 'inc';
 use Cwd;
 use Config;
 use ExtUtils::Embed;
+use Carp;
+
+my ($ghc, $ghc_version, $ghc_flags, $ghc_pkg) = assert_ghc();
+my $threaded = (try_compile_and_run("main :: IO ()\nmain = return ()", $ghc, "-threaded")) ? '-threaded' : '';
+if ($threaded && $ENV{PUGS_NO_THREADS}) {
+    warn << '.';
+*** Thread support disabled due to explicit request in PUGS_NO_THREADS.
+
+.
+    $threaded = '';
+}
 
 my $embed_flags = "-I" . cwd();
 my $ccdlflags = "";
@@ -77,7 +92,7 @@ my @ld_options = grep { not /,/ } map { /^-optl(.+)/ ? $1 : () } (split(/\s+/, $
 open INFO, ">Pugs.buildinfo" or die "Cannot write build info: $!";
 my $info = << ".";
 executable: pugs
-ghc-options: $embed_flags $ccdlflags
+ghc-options: $embed_flags $ccdlflags $threaded
 include-dirs: @include_dirs
 cc-options: @cc_options
 ld-options: @ld_options
@@ -86,3 +101,41 @@ $info =~ s/-arch\s+\w+\s*//g;
 $info =~ s/-opt[lc]-arch\s+-opt[lc]\w+\s*//g;
 print INFO $info;
 close INFO;
+
+our $do_run;
+sub try_compile_and_run {
+    local $do_run = 1;
+    try_compile(@_);
+}
+
+sub try_compile {
+    my $code = shift;
+    my $temp = "pugs-tmp-$$";
+    my $ghc  = shift or croak "try_compile called without path to ghc";
+
+    eval {
+        open TMP, "> $temp.hs";
+        print TMP $code;
+        close TMP;
+        system(
+            $ghc, @_,
+            "--make", "-v0",
+            -o => "$temp.exe",
+            "$temp.hs"
+        );
+
+    };
+
+    my $ok = -s "$temp.exe";
+
+    if ($do_run) {
+        $ok = 0 unless system(Cwd::abs_path("$temp.exe")) == 0;
+    }
+
+    unlink("$temp.exe");
+    unlink("$temp.hs");
+    unlink("$temp.hi");
+    unlink("$temp.o");
+
+    return $ok;
+}
