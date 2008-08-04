@@ -50,7 +50,7 @@ if ($rebuilt) {
 print "[Pugs Dependencies]\n";
 
 my @deps = qw(
-    mtl time utf8-string binary haskeline FindBin MetaObject HsParrot
+    stm mtl time utf8-string binary haskeline FindBin MetaObject HsParrot
     pugs-compat pugs-DrIFT stringtable-atom HsSyck
 );
 
