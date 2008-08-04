@@ -77,7 +77,7 @@ package Evalbot;
                 filter      => \&filter_pct,
             },
             pugs => {
-                cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/.cabal/bin/pugs %program >> %out 2>&1',
+                cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/pugs/pugs %program >> %out 2>&1',
             },
             yap6 => \&exec_yap6,
             std  => {
