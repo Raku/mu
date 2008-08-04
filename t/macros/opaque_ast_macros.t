@@ -5,7 +5,7 @@ use Test;
 =begin pod
 =head1 DESCRIPTION
 
-Tests for macros which return q:code but do not do splicing
+Tests for macros which return quasi but do not do splicing
 
 See L<S06/"Macros">.
 
@@ -14,11 +14,11 @@ See L<S06/"Macros">.
 plan 5;
 
 # L<S06/Macros>
-macro four () { q:code { 2+2 } } 
+macro four () { quasi { 2+2 } } 
 
-is(four, 4, "macro returning q:code");
+is(four, 4, "macro returning quasi");
 
-macro hi () { q:code(:COMPILING) { "hello $s" } } 
+macro hi () { quasi :COMPILING { "hello $s" } } 
 
 macro hey () { ({ "hello $^s" }.body) } 
 
@@ -30,7 +30,7 @@ is(hi(),"hello paradise","macros but it's a binding only");
 is(hey(),"hello paradise","macros but it's a binding only");
 
 my $x;
-macro noop ()  { $x = "Nothing happened"; q:code { } } 
+macro noop ()  { $x = "Nothing happened"; quasi { } } 
 noop();
 #macro noop2 () { $x ~= ", twice"; return } # unspecced
 #noop2();

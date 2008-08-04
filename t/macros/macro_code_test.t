@@ -18,7 +18,7 @@ plan 3;
 # is EvaluatedOnce
 # is Eager
 macro max ($x is CST, $y is CST) {
-    return q:code { ($x > $y) ?? $x !! $y };
+    return quasi { ($x > $y) ?? $x !! $y };
 }
 
 # Alternatively, the default could be eval once and the special name
@@ -36,22 +36,22 @@ is($got, 3, '$got incremented max', :todo<unspecced>);
 
 =begin pod
 
-=head1 q:code & AST splicing options
+=head1 quasi & AST splicing options
 
 =head2 Splicing Problem
 
-The contents of q:code blocks need to be able to refer to values
+The contents of quasi blocks need to be able to refer to values
 as any other closure does, but also define graft points for
 other asts.
 
 =head2 Solution Space
 
-First principle, adding q:code before a block doesn't change things
+First principle, adding quasi before a block doesn't change things
   - it's still a closure
   - if you mention $var it means the $var in the surrounding lexical scope
     (mentioning new vars may bind at the macro use)
   - subs continue to be bound to the local definitions
-  - macros continue to be expanded at parse time (q:code parse time)
+  - macros continue to be expanded at parse time (quasi parse time)
 
 Second principle, to do something special, say something special.
 
@@ -61,9 +61,9 @@ or are delayed.
 macro parameters may be ASTs, strings, or possibly a singly-evaluated-ASTs,
 the point is to wrap or warp them into the returned AST|string.
 We want an easy way to splice the input AST into the output AST
-The output AST is usually a q:code block somehow using the macro arg asts:
+The output AST is usually a quasi block somehow using the macro arg asts:
 
-  q:code { my $x; $x; $input_ast; $captured_var; $var_at_call }
+  quasi { my $x; $x; $input_ast; $captured_var; $var_at_call }
 
 =head2 Some Suggested Solutions
 
@@ -71,16 +71,16 @@ The output AST is usually a q:code block somehow using the macro arg asts:
    ThunkishASTS and certain strings
    literal($ast) macro to talk about an ast as a value
  
- * signature such as q:code ($ast) { $var; $ast }
+ * signature such as quasi ($ast) { $var; $ast }
    (idea--: duplicates macro's param list, violates sig -> application w/ args 
     expectation with subs)
  
  * twigil used for interpolating AST/strings
 
  * escape meta-syntax (lisp's solution)  
-    q:code { say "Exp (\qq[~$package]) = ", \qq[$package] }
+    quasi { say "Exp (\qq[~$package]) = ", \qq[$package] }
  
- * set of escape macros which only apply in q:code blocks glue($ast)
+ * set of escape macros which only apply in quasi blocks glue($ast)
 
 More complex restructuring of the input AST would require walking
 the AST (or munging the string).  Nothing spec'd for that yet.
@@ -93,10 +93,10 @@ If a tree grammar tool reaches the Perl 6 user space then that can be used
 
 =head2 Current Solution
 
-q:code { } is the quoter and {{{ }}} is the default antiquote
+quasi { } is the quoter and {{{ }}} is the default antiquote
 (the rule is actually the delimiter repeated thrice).
-The use of {{{ ... }}} in a q:code is just like an inline macro.
-Pretending that the body of you program is within a q:code{ }
+The use of {{{ ... }}} in a quasi is just like an inline macro.
+Pretending that the body of you program is within a quasi{ }
 then {{{ }}} can be used for inline macros, compile time
 generation of ASTs which are spliced immediately.
 
@@ -137,7 +137,7 @@ Macros are only macros once
 Can declarations and pragmas be quoted?
 $Larry "I don't see why not"
 
- q:code { sub x { ... }; macro y { ... }; use force; }
+ quasi { sub x { ... }; macro y { ... }; use force; }
 
 The AST needs to be rescanned anyway, so perform the appropriate
 actions at that time in the correct scope.

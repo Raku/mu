@@ -35,13 +35,10 @@ class Case {
         $.x == $c.x and $.y == $c.y;
     }
     
-    method toStr() {
+    method Str() {
         $.x ~ "/" ~ $.y;
     }
 }
-
-# Stringify a case
-multi sub *prefix:<~> (Case $c) { $c.toStr }
 
 # All the moves a Knight can do
 our Case @possible_moves;
@@ -109,7 +106,7 @@ sub searchFrom(Case $first_move, int $n) returns Array {
         }
     }
     my Bool @chessboard[$n][$n];
-    for ( 0..$n-1 ) -> $i {
+    for 0..$n-1 -> $i {
         @chessboard[$i] = [True xx $n];
     }
     @chessboard[$first_move.x][$first_move.y] = False;
@@ -119,5 +116,5 @@ sub searchFrom(Case $first_move, int $n) returns Array {
 # this heuristic allows to find a knight's tour up to a 75x75 chessboard without backtracking
 my $n = 8;
 my @result = searchFrom( Case.new(:x(0),:y(0)), $n );
-# @result.map:{.toStr}.join(", ").say;
+# @result.map:{.Str}.join(", ").say;
 ok check_tour($n, @result), "This knight's tour is valid.";

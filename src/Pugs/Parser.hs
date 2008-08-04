@@ -983,13 +983,13 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
                 putRuleEnv target { envPragmas = prag ++ envPragmas target }
             _ -> fail "no caller env to install pragma in"
 
-{-| Match a @q:code { ... }@ quotation -}
+{-| Match a @quasi { ... }@ quotation -}
 ruleCodeQuotation :: RuleParser Exp
 ruleCodeQuotation = rule "code quotation" $ do
     -- XXX - This is entirely kluge; it drops traits in the body too
-    symbol "q:code" >> optional (symbol "(:COMPILING)")
+    symbol "quasi" >> optional (symbol ":COMPILING")
     block <- ruleBlockBody
-    return (Syn "q:code" [bi_body block])
+    return (Syn "quasi" [bi_body block])
     
 -- | If we've executed code like @BEGIN { exit }@, we've to run all @\@*END@
 --   blocks and then exit. Returns the input expression if there's no need to

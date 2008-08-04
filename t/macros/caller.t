@@ -18,11 +18,11 @@ sub current_line {
 }
 
 macro ast_compiling_current_line () {
-    return q:code(:COMPILING) { current_line() };
+    return quasi :COMPILING { current_line() };
 }
 
 macro ast_current_line () {
-    return q:code { current_line() };
+    return quasi { current_line() };
 }
 
 my $closure_line;

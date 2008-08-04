@@ -898,7 +898,7 @@ reduceSyn syn [lhsExp, rhsExp]
         val <- readRef =<< fromVal lhs
         evalExp $ Syn "=" [Val lhs, App (_Var op) Nothing [Val val, rhsExp]]
 
-reduceSyn "q:code" [ body ] = expToEvalVal body
+reduceSyn "quasi" [ body ] = expToEvalVal body
 
 reduceSyn "CCallDyn" (Val (VStr quant):methExp:invExp:args) = do
     -- Experimental support for .*$meth, assuming single inheritance.

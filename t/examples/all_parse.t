@@ -48,7 +48,7 @@ if $*OS eq "browser" {
 # Specifically, there should be a way to test
 # $! instead of this yucky workaround
 for sort(@files) -> $ex {
-    my $out = `$*EXECUTABLE_NAME -c -Iblib6/lib $ex`;
+    my $out = qqx[$*EXECUTABLE_NAME -c -Iblib6/lib $ex];
 
     if $out ~~ m:P5/syntax OK\s*$/ {
         pass "$ex parsed correctly";
