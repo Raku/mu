@@ -96,7 +96,7 @@ my $ih_pre =
     }
 }
 
-class Bar is Foo{
+class Bar is Foo {
     method test(Num $i){
         PRE {
             $i < -23
@@ -125,7 +125,7 @@ class Foo {
     }
 }
 
-class Bar is Foo{
+class Bar is Foo {
     method test(Num $i){
         return 1;
         POST {
