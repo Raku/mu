@@ -69,15 +69,19 @@ call = do
     invocant <- tok register
     char '.'
     identifier <- register
-    arguments <- between (tok lparen) rparen $ tok $ many argument
-    return $ Call target identifier (Capture invocant [ x | Pos x <- arguments] [])
+    arguments <- between (tok lparen) rparen $ sepBy (tok argument) (tok $ char ',')
+    let pos = [ x | Pos x <- arguments]
+    let named = [x | (Named k v) <- arguments, x <- [k,v]]
+    return $ Call target identifier (Capture invocant pos named)
 
 argument = do
         char ':'
-        key <- register
-        value <- between (char '(') (char ')') register
+        key <- tok register
+        value <- between (tok $ char '(') (tok $ char ')') (tok register)
         return $ Named key value
-    <|> (register >>= return . Pos)
+    <|> do 
+        arg <- tok register
+        return $ Pos arg
 
 terminator :: Parser ()
 terminator = opt_ws >> (((tok $ char ';') >> return ()) <|> eof)
@@ -94,7 +98,8 @@ toBytecode :: Stmt -> RegMap -> [Int]
 
 toBytecode (Call target identifier (Capture invocant positional named)) regs =
     let reg r = Data.Map.findWithDefault (-1) r regs in
-    [reg target,reg invocant,reg identifier,length positional] ++ map reg positional ++ [0]
+    let args x = [length x] ++ map reg x in
+    [1,reg target,reg invocant,reg identifier,length positional] ++ args positional ++ args named
 
 toBytecode x regs = []
 
