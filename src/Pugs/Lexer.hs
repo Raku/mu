@@ -298,10 +298,10 @@ charNum = do
             "0" -> return [0]
             -- "\08..." and "\09..." are treated as "\0" and then "8..." or "9...".
             ('0':xs@(x:_)) | x == '8' || x == '9' -> return (0:map (toInteger . ord) xs)
-            _   -> error ("Error: Invalid escape sequence \\" ++ ds ++ "; write as decimal \\d" ++ ds ++ " or octal \\o" ++ ds ++ " instead") -- return [read ds]
+            _   -> error ("Error: Invalid escape sequence \\" ++ ds ++ "; write as decimal \\c" ++ ds ++ " or octal \\o" ++ ds ++ " instead") -- return [read ds]
         , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
-        , based 'd' 10 digit
+        , based 'c' 10 digit
         ]
     return $ map (toEnum . fromInteger) codes
     where
