@@ -131,6 +131,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
 
   } else if (SMOP__ID__eval == identifier) {
     int op = mold->opcodes[frame->position];
+    //printf("op: %d\n",op);
     if (op) {
       frame->position++;
       ret = SMOP__NATIVE__bool_true;
