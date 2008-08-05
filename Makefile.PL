@@ -74,7 +74,7 @@ close IN;
 close OUT;
 
 $ENV{CABAL_CONFIG_FILE} = $cabal_local_config;
-system($cabal => 'install', '--user', '-p', @deps);
+system($cabal => 'install', '--user', @deps);
 
 do "Configure.PL";
 print "==> Pugs configuration finished.\n";
@@ -165,12 +165,25 @@ $version_h :
 	\$(PERL) util/version_h.pl $version_h
 
 pugs$Config{_exe} :: pugs_requirements build_perl5
+	./Configure.PL
 	\$(RM_F) dist/build/pugs/pugs$Config{_exe}
 	\$(RM_F) Pugs.cabal
 	\$(CP) Pugs.cabal.in Pugs.cabal
 	./Setup$Config{_exe} configure --user
 	./Setup$Config{_exe} build
 	\$(CP) dist/build/pugs/pugs$Config{_exe} .
+
+prof :: pugs-prof$Config{_exe}
+
+pugs-prof$Config{_exe} :: pugs_requirements build_perl5
+	$cabal install --user -p @deps
+	PUGS_NO_THREADS=true ./Configure.PL
+	\$(RM_F) dist/build/pugs/pugs$Config{_exe}
+	\$(RM_F) Pugs.cabal
+	\$(CP) Pugs.cabal.in Pugs.cabal
+	./Setup$Config{_exe} configure --user -p --enable-executable-profiling
+	./Setup$Config{_exe} build
+	\$(CP) dist/build/pugs/pugs$Config{_exe} ./pugs-prof$Config{_exe}
 
 install ::
 \t./Setup$Config{_exe} install --user
