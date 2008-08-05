@@ -44,7 +44,7 @@ my $x = 'test';
     ok($found, 'unless undef is executed');
 }
 
-# with paratheses
+# with parentheses
 {
     my $found = 0;
     unless ($x ne $x) { $found = 1; };

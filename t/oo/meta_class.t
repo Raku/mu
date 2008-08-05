@@ -10,7 +10,7 @@ Very basic meta-class tests from L<S12/Introspection>
 
 =end pod
 
-class Foo-0.0.1 { method bar ($param) returns Str { return "baz" ~ $param } };
+class Foo:ver<0.0.1> { method bar ($param) returns Str { return "baz" ~ $param } };
 
 # L<S12/Introspection/should be called through the meta object>
 

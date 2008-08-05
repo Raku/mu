@@ -26,7 +26,7 @@ plan 29;
         , ':($ : %x)',            'dummy invocant'
         , ':($x :($y))',          'unpacking(1)'
         , ':($x :($y: $z))',      'unpacking(2)'
-        , # add more here.
+        # add more here.
         # We parse these correctly but don't pretty print them correctly yet.
         , ':($x = 42)',           'positional with default'
         , ':(@x = (1, 2))',       'positional array with default'

@@ -2,6 +2,8 @@ use v6;
 
 use Test;
 
+# XXX many of these are not legal syntax!!!
+
 plan 74;
 # L<A03/"Binary :">
 is eval('infix:<..>(1, 10, by => 2)'), <1 3 5 7 9>, 'range operator, :by parameter, long name', :todo<feature>;

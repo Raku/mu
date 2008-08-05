@@ -56,11 +56,11 @@ is($/<first>,  "Jon", 'Captured $first' );
 is($/<family>, "Lee", 'Captured $family' );
 is($/<ident>,  "Lee", 'Captured <?ident>' );
 
-ok("foo => 22" ~~ m:s/$0=(foo) =\> (\d+) | $1=(\d+) \<= $0=(foo) /, 'Pair match' );
+ok("foo => 22" ~~ m:s/$0=(foo) '=>' (\d+) | $1=(\d+) '<=' $0=(foo) /, 'Pair match' );
 is($0, 'foo', 'Key match' );
 is($1, '22', 'Value match' );
 
-ok("22 <= foo" ~~ m:s/$0=(foo) =\> (\d+) | $1=(\d+) \<= $0=(foo) /, 'Pair match', :todo<feature> );
+ok("22 <= foo" ~~ m:s/$0=(foo) '=>' (\d+) | $1=(\d+) '<=' $0=(foo) /, 'Pair match', :todo<feature> );
 is($0, 'foo', 'Reverse key match', :todo<feature> );
 is($1, '22', 'Reverse value match', :todo<feature> );
 

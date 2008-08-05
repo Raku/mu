@@ -30,7 +30,7 @@ unless try({ eval("1", :lang<perl5>) }) {
 use File::Spec;
 
 # XXX - This should be replaced with something Perl 6-native
-use perl5:File::Temp <tempdir>;
+use File::Temp:from<perl5> <tempdir>;
 
 # XXX - Also, CLEANUP does not seem to work, so tempfiles will
 #       remain after test if we do:
