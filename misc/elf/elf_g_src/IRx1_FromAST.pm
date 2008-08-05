@@ -638,7 +638,7 @@ irbuild_ir($m.{'hash'}{'package_def'});
     });
 
     $main::irbuilder.add_constructor('circumfix:pblock', sub ($m) {
-      if $m.{'hash'}{'block'}.{'hash'}{'statementlist'}.elems == 0 or $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].match_string =~ /^:/ {
+      if $m.{'hash'}{'block'}.{'hash'}{'statementlist'}.elems == 0 or $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].match_string.re_matchp('^:') {
 IRx1::Hash.newp($m,irbuild_ir($m.{'hash'}{'block'}.{'hash'}{'statementlist'}))
 } elsif $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'} and $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'}.{'hash'}{'sym'} and $m.{'hash'}{'block'}.{'hash'}{'statementlist'}[0].{'hash'}{'expr'}.{'hash'}{'sym'} eq "," {
 IRx1::Hash.newp($m,irbuild_ir($m.{'hash'}{'block'}.{'hash'}{'statementlist'}))

@@ -160,10 +160,10 @@ class IRx1::Var {
     $.notes<crnt_package_chain> = $whiteboard::package_chain;
     if $.notes<crnt_package_chain>.elems == 0 {$.notes<crnt_package_chain> = ['Main']}
     $.notes<crnt_package> = $.notes<crnt_package_chain>.join("::");
-    $.name =~ /(?:(.+)::)?([^:]+)$/;
-    $.notes<package> = $1 || $.notes<crnt_package>;
+    my $g = $.name.re_groups('(?:(.+)::)?([^:]+)$');
+    $.notes<package> = $g[0] || $.notes<crnt_package>;
     #^ TODO resolve non-absolute package names
-    $.notes<bare_name> = $2;
+    $.notes<bare_name> = $g[1];
     for $.child_nodes {$_.note_environment}
   }
 }
@@ -203,5 +203,5 @@ class IRx1::Var {
   method is_temp() { $.notes<is><context> }
 }
 class IRx1::PackageDecl {
-  method path_is_absolute() { self.name && self.name =~ /^GLOBAL\b'/ }
+  method path_is_absolute() { self.name && self.name.re_matchp('^GLOBAL\b') }
 }

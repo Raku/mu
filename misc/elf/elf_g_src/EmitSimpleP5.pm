@@ -21,7 +21,7 @@ class EmitSimpleP5 {
 
   method using_Moose() { 0 }
   method create_default_for($cls,$field_name,$default) {
-   '$Object::DEFAULTS{'~$cls~"}{'"~$field_name~"'} = sub {"~$default~'};'
+   '$Object::DEFAULTS{'~$cls~"}\{'"~$field_name~"'} = sub \{"~$default~'};'
   }
   method prelude_oo () {
     if $.using_Moose {
@@ -88,6 +88,12 @@ no warnings qw(redefine prototype);
 { package STRING;
   use base "Str";
   sub WHAT { "Str" }
+
+  sub re_matchp { ($_[0] =~ m{$_[1]}) ? 1 : 0 }
+  sub re_groups {
+    my @g = $_[0] =~ m{$_[1]};
+    @g ? \@g : undef;
+  }
 
   # randomness taken from autobox::Core
 
@@ -345,7 +351,7 @@ use warnings;
   our $a_INC = ["."];
   our $h_ENV = \%ENV;
 
-  sub require {
+  sub module_require {
     my($module)=@_;
     my $file = find_required_module($module);
     $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$GLOBAL::a_INC)." ).\n";
@@ -456,7 +462,7 @@ package Main;
     if $name eq 'Any' { $base = '' }
     if $name eq 'Object' { $base = '' }
     if $name eq 'Junction' { $base = '' }
-    my $head = "\n{ package "~$name~";\n";
+    my $head = "\n\{ package "~$name~";\n";
     my $foot = "\n}\n";
     if $.using_Moose {
        $head = $head ~ "use Moose;"~" __PACKAGE__->meta->make_mutable();\n";
@@ -478,7 +484,7 @@ package Main;
       my $pkgname = $whiteboard::in_package.join('::');
       my $name = $whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
       $name.re_gsub('^::',''); # Moose 0.44 doesn't like these.
-      "BEGIN{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
+      "BEGIN\{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n.verb~" has not been implemented.\n";
       "***Trait***"
@@ -547,7 +553,7 @@ package Main;
         my $var = $n.var;
         my $nam = $.encode_varname($var.sigil,$var.twigil,$var.bare_name);
         my $pkg = $n.var.package;
-        ("{ package "~$pkg~"; use vars '"~$nam~"'};"~
+        ("\{ package "~$pkg~"; use vars '"~$nam~"'};"~
         'local'~' '~$.e($n.var)~$default)
       }
       else {
@@ -695,13 +701,14 @@ package Main;
   };
 
   method cb__Call ($n) {
+    my $g;
     temp $whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
-    if ($method =~ 'postcircumfix:< >') {
+    if ($method eq 'postcircumfix:< >') {
       $.e($n.invocant)~'->'~"{'"~$.e($n.capture)~"'}";
     }
-    elsif ($method =~ 'postcircumfix:(.*)') {
-      my $op = $1;
+    elsif $g = $method.re_groups('postcircumfix:(.*)') {
+      my $op = $g[0];
       my $arg = $.e($n.capture);
       $op.re_gsub(' ',$arg);
       $.e($n.invocant)~'->'~$op;
@@ -715,14 +722,15 @@ package Main;
      $name;
   }
   method cb__Apply ($n) {
+    my $g;
     # temp $whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
     my $fun = $.e($n.function);
     if $n.notes<lexical_bindings>{'&'~$fun} {
        my $fe = $.mangle_function_name($fun);
        return ''~$fe~'('~$.e($n.capture)~')'
     }
-    if $fun =~ /^infix:(.+)$/ {
-      my $op = $1;
+    if $g = $fun.re_groups('^infix:(.+)$') {
+      my $op = $g[0];
       my $args = $n.capture.arguments;
       if $args.elems == 1 && $args[0].isa('IRx1::Apply') && $args[0].function eq 'infix:,' {
         $args = $args[0].capture.arguments;
@@ -753,23 +761,23 @@ package Main;
         }
       }
       #XXX := is here temporarily to postpone a regression.
-      if $op =~ /^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$/ {
+      if $op.re_matchp('^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$') {
         return "("~$l~" "~$op~" "~$r~")";
       }
     }
-    elsif $fun =~ /^prefix:(.+)$/ {
-      my $op = $1;
+    elsif $g = $fun.re_groups('^prefix:(.+)$') {
+      my $op = $g[0];
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
       if $op eq '?' {
         return '(('~$x~')?1:0)'
       }
-      if $op =~ /^(-)$/ {
+      if $op.re_matchp('^(-)$') {
         return  "("~$op~""~$x~")"
       }
     }
-    elsif $fun =~ /^statement_prefix:(.+)$/ {
-      my $op = $1;
+    elsif $g = $fun.re_groups('^statement_prefix:(.+)$') {
+      my $op = $g[0];
       if $op eq 'do' {
         return 'do{'~$.e($n.capture.arguments[0])~'}'
       } elsif $op eq 'try' {
@@ -780,16 +788,16 @@ package Main;
         die $fun~': unimplemented';
       }
     }
-    elsif $fun =~ /^postfix:(.+)$/ {
-      my $op = $1;
+    elsif $g = $fun.re_groups('^postfix:(.+)$') {
+      my $op = $g[0];
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
-      if $op =~ /^(\+\+)$/ {
+      if $op.re_matchp('^(\+\+)$') {
         return "("~$x~""~$op~")"
       }
     }
-    elsif $fun =~ /^circumfix:(.+)/ {
-      my $op = $1;
+    elsif $g = $fun.re_groups('^circumfix:(.+)') {
+      my $op = $g[0];
       if $op eq '< >' {
         my $s = $n.capture.arguments[0];
         my $words = $s.split(/\s+/);
@@ -799,7 +807,7 @@ package Main;
           return "['"~$words.join("','")~"']"
         }
       }
-      elsif $op =~ /^(\( \)|\[ \])$/ {
+      elsif $op.re_matchp('^(\( \)|\[ \])$') {
         my $arg = $.e($n.capture);
         return $op.re_gsub(' ',$arg);
       }
@@ -813,10 +821,10 @@ package Main;
     elsif ($fun eq 'return') {
       return 'return('~$.e($n.capture)~')';
     }
-    elsif ($fun =~ /^\$\w+$/) {
+    elsif ($fun.re_matchp('^\$\w+$')) {
       return $fun~'->('~$.e($n.capture)~')';
     }
-    elsif ($fun =~ /^sub\s*{/) {
+    elsif ($fun.re_matchp('^sub\s*{')) {
       return '('~$fun~')->('~$.e($n.capture)~')'
     }
     elsif $fun eq 'eval' {
@@ -824,7 +832,7 @@ package Main;
       return 'GLOBAL::'~$fun~'('~$.e($n.capture)~','~$env~')'
     }
 
-    if $fun =~ /^\w/ {
+    if $fun.re_matchp('^\w') {
       my $fe = $.mangle_function_name($fun);
       return 'GLOBAL::'~$fe~'('~$.e($n.capture)~')'
     }
@@ -848,21 +856,21 @@ package Main;
     if $n.expr.WHAT ne 'IRx1::Apply' { $push = "->flatten"};
     my $pull = "";
     if $n.block.WHAT eq 'IRx1::SubDecl' { $pull = "->($_)"};
-    'for(('~$.e($n.expr)~')'~$push~"){\n"~$.e($n.block)~$pull~"\n}"
+    'for(('~$.e($n.expr)~')'~$push~")\{\n"~$.e($n.block)~$pull~"\n}"
   };
   method cb__Cond ($n) {
     my $els = '';
-    if $n.default { $els = "else {\n"~$.e($n.default)~"\n}" }
+    if $n.default { $els = "else \{\n"~$.e($n.default)~"\n}" }
     my $clauses = $.e($n.clauses);
     my $first = $clauses.shift;
     my $first_test = $first[0];
     if $n.invert_first_test { $first_test = "not("~$first_test~")" }
-    ('if('~$first_test~") {\n"~$first[1]~"\n}"
-    ~$clauses.map(sub($e){'elsif('~$e[0]~") {\n"~$e[1]~"\n}"}).join("")
+    ('if('~$first_test~") \{\n"~$first[1]~"\n}"
+    ~$clauses.map(sub($e){'elsif('~$e[0]~") \{\n"~$e[1]~"\n}"}).join("")
     ~$els)
   };
   method cb__Loop ($n) {
-    'while('~$.e($n.pretest)~") {\n"~$.e($n.block)~"\n}"
+    'while('~$.e($n.pretest)~") \{\n"~$.e($n.block)~"\n}"
   };
 
   method encode_varname($s,$t,$dsn) {

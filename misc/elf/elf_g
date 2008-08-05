@@ -56,6 +56,12 @@ no warnings qw(redefine prototype);
   use base "Str";
   sub WHAT { "Str" }
 
+  sub re_matchp { ($_[0] =~ m{$_[1]}) ? 1 : 0 }
+  sub re_groups {
+    my @g = $_[0] =~ m{$_[1]};
+    @g ? \@g : undef;
+  }
+
   # randomness taken from autobox::Core
 
   sub chomp    { CORE::chomp($_[0]); }
@@ -312,7 +318,7 @@ use warnings;
   our $a_INC = ["."];
   our $h_ENV = \%ENV;
 
-  sub require {
+  sub module_require {
     my($module)=@_;
     my $file = find_required_module($module);
     $file || CORE::die "Cant locate $module in ( ".CORE::join(" ",@$GLOBAL::a_INC)." ).\n";
@@ -2378,7 +2384,7 @@ $main::irbuilder->add_constructor("trait_verb\:is", sub {my($m)=@_;
 $main::irbuilder->add_constructor("trait_verb\:does", sub {my($m)=@_;
 (do{IRx1::Trait->newp($m, "does", irbuild_ir($m->{"hash"}->{"role_name"}))})});
 $main::irbuilder->add_constructor("circumfix\:pblock", sub {my($m)=@_;
-(do{if((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->elems() == 0) or ($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->match_string() =~ qr/^:/))) {
+(do{if((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->elems() == 0) or $m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->match_string()->re_matchp("\^\:"))) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}))})
 }elsif((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"} and $m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"}->{"hash"}->{"sym"}) and ($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"}->{"hash"}->{"sym"} eq "\,"))) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}))})
@@ -2626,9 +2632,9 @@ if(($self->notes->{'crnt_package_chain'}->elems() == 0)) {
 (do{($self->notes->{'crnt_package_chain'} = ["Main"])})
 };
 ($self->notes->{'crnt_package'} = $self->notes->{'crnt_package_chain'}->join("\:\:"));
-($self->name =~ qr/(?:(.+)::)?([^:]+)$/);
-($self->notes->{'package'} = ($1 || $self->notes->{'crnt_package'}));
-($self->notes->{'bare_name'} = $2);
+my $g = $self->name->re_groups("\(\?\:\(\.\+\)\:\:\)\?\(\[\^\:\]\+\)\$");
+($self->notes->{'package'} = ($g->[0] || $self->notes->{'crnt_package'}));
+($self->notes->{'bare_name'} = $g->[1]);
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
 }})}})
@@ -2676,7 +2682,7 @@ sub is_temp{my $self=CORE::shift;(do{$self->notes->{'is'}->{'context'}})}})
 ;
 
 { package IRx1::PackageDecl;
-use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && ($self->name() =~ qr/^GLOBAL\b'/))})}})
+use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && $self->name()->re_matchp("\^GLOBAL\\b"))})}})
 }
 ;
 
@@ -2759,6 +2765,12 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \{\ package\ STRING\;\
 \ \ use\ base\ \"Str\"\;\
 \ \ sub\ WHAT\ \{\ \"Str\"\ \}\
+\
+\ \ sub\ re_matchp\ \{\ \(\$_\[0\]\ \=\~\ m\{\$_\[1\]\}\)\ \?\ 1\ \:\ 0\ \}\
+\ \ sub\ re_groups\ \{\
+\ \ \ \ my\ \@g\ \=\ \$_\[0\]\ \=\~\ m\{\$_\[1\]\}\;\
+\ \ \ \ \@g\ \?\ \\\@g\ \:\ undef\;\
+\ \ \}\
 \
 \ \ \#\ randomness\ taken\ from\ autobox\:\:Core\
 \
@@ -3016,7 +3028,7 @@ use\ warnings\;\
 \ \ our\ \$a_INC\ \=\ \[\"\.\"\]\;\
 \ \ our\ \$h_ENV\ \=\ \\\%ENV\;\
 \
-\ \ sub\ require\ \{\
+\ \ sub\ module_require\ \{\
 \ \ \ \ my\(\$module\)\=\@_\;\
 \ \ \ \ my\ \$file\ \=\ find_required_module\(\$module\)\;\
 \ \ \ \ \$file\ \|\|\ CORE\:\:die\ \"Cant\ locate\ \$module\ in\ \(\ \"\.CORE\:\:join\(\"\ \"\,\@\$GLOBAL\:\:a_INC\)\.\"\ \)\.\\n\"\;\
@@ -3392,12 +3404,13 @@ my $t = "";
 my $dsn = $self->e($n->name());
 $self->encode_varname($s, $t, $dsn)})};
 sub cb__Call{my $self=CORE::shift;my($n)=@_;
-(do{{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
+(do{my $g;
+{ package whiteboard; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
 my $method = $self->e($n->method());
-if((($method =~ "postcircumfix\:\<\ \>"))) {
+if((($method eq "postcircumfix\:\<\ \>"))) {
 (do{(((($self->e($n->invocant()) . "\-\>") . "\{\'") . $self->e($n->capture())) . "\'\}")})
-}elsif((($method =~ "postcircumfix\:\(\.\*\)"))) {
-(do{my $op = $1;
+}elsif(($g = $method->re_groups("postcircumfix\:\(\.\*\)"))) {
+(do{my $op = $g->[0];
 my $arg = $self->e($n->capture());
 $op->re_gsub("\ ", $arg);
 (($self->e($n->invocant()) . "\-\>") . $op)})
@@ -3409,13 +3422,14 @@ sub mangle_function_name{my $self=CORE::shift;my($name)=@_;
 $name->re_sub("\(\[\^\\w\]\)", "\"_\"\.CORE\:\:ord\(\$1\)", "eg");
 $name})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
-(do{my $fun = $self->e($n->function());
+(do{my $g;
+my $fun = $self->e($n->function());
 if($n->notes()->{'lexical_bindings'}->{("\&" . $fun)}) {
 (do{my $fe = $self->mangle_function_name($fun);
 return((((("" . $fe) . "\(") . $self->e($n->capture())) . "\)"))})
 };
-if(($fun =~ qr/^infix:(.+)$/)) {
-(do{my $op = $1;
+if(($g = $fun->re_groups("\^infix\:\(\.\+\)\$"))) {
+(do{my $op = $g->[0];
 my $args = $n->capture()->arguments();
 if(((($args->elems() == 1) && $args->[0]->isa("IRx1\:\:Apply")) && ($args->[0]->function() eq "infix\:\,"))) {
 (do{($args = $args->[0]->capture()->arguments())})
@@ -3444,21 +3458,21 @@ if((($args->[0]->isa("IRx1\:\:Call") && ($args->[0]->capture()->arguments()->ele
 (do{return(((((($self->e($args->[0]->invocant()) . "\-\>") . $self->e($args->[0]->method())) . "\(") . $r) . "\)"))})
 }})
 };
-if(($op =~ qr/^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$/)) {
+if($op->re_matchp("\^\(\<\|\>\|\=\=\|\!\=\|eq\|ne\|\\\+\|\-\|\\\*\|\\\/\|\\\|\\\|\|\\\&\\\&\|and\|or\|\=\|\=\~\|\:\=\)\$")) {
 (do{return((((((("\(" . $l) . "\ ") . $op) . "\ ") . $r) . "\)"))})
 }})
-}elsif(($fun =~ qr/^prefix:(.+)$/)) {
-(do{my $op = $1;
+}elsif(($g = $fun->re_groups("\^prefix\:\(\.\+\)\$"))) {
+(do{my $op = $g->[0];
 my $a = $self->e($n->capture()->arguments());
 my $x = $a->[0];
 if(($op eq "\?")) {
 (do{return((("\(\(" . $x) . "\)\?1\:0\)"))})
 };
-if(($op =~ qr/^(-)$/)) {
+if($op->re_matchp("\^\(\-\)\$")) {
 (do{return((((("\(" . $op) . "") . $x) . "\)"))})
 }})
-}elsif(($fun =~ qr/^statement_prefix:(.+)$/)) {
-(do{my $op = $1;
+}elsif(($g = $fun->re_groups("\^statement_prefix\:\(\.\+\)\$"))) {
+(do{my $op = $g->[0];
 if(($op eq "do")) {
 (do{return((("do\{" . $self->e($n->capture()->arguments()->[0])) . "\}"))})
 }elsif(($op eq "try")) {
@@ -3468,15 +3482,15 @@ if(($op eq "do")) {
 }else {
 (do{GLOBAL::die(($fun . "\:\ unimplemented"))})
 }})
-}elsif(($fun =~ qr/^postfix:(.+)$/)) {
-(do{my $op = $1;
+}elsif(($g = $fun->re_groups("\^postfix\:\(\.\+\)\$"))) {
+(do{my $op = $g->[0];
 my $a = $self->e($n->capture()->arguments());
 my $x = $a->[0];
-if(($op =~ qr/^(\+\+)$/)) {
+if($op->re_matchp("\^\(\\\+\\\+\)\$")) {
 (do{return((((("\(" . $x) . "") . $op) . "\)"))})
 }})
-}elsif(($fun =~ qr/^circumfix:(.+)/)) {
-(do{my $op = $1;
+}elsif(($g = $fun->re_groups("\^circumfix\:\(\.\+\)"))) {
+(do{my $op = $g->[0];
 if(($op eq "\<\ \>")) {
 (do{my $s = $n->capture()->arguments()->[0];
 my $words = $s->split(qr/\s+/);
@@ -3485,7 +3499,7 @@ if(($words->elems() == 0)) {
 }else {
 (do{return((("\[\'" . $words->join("\'\,\'")) . "\'\]"))})
 }})
-}elsif(($op =~ qr/^(\( \)|\[ \])$/)) {
+}elsif($op->re_matchp("\^\(\\\(\ \\\)\|\\\[\ \\\]\)\$")) {
 (do{my $arg = $self->e($n->capture());
 return($op->re_gsub("\ ", $arg))})
 }})
@@ -3495,15 +3509,15 @@ return($op->re_gsub("\ ", $arg))})
 (do{return("last")})
 }elsif((($fun eq "return"))) {
 (do{return((("return\(" . $self->e($n->capture())) . "\)"))})
-}elsif((($fun =~ qr/^\$\w+$/))) {
+}elsif(($fun->re_matchp("\^\\\$\\w\+\$"))) {
 (do{return(((($fun . "\-\>\(") . $self->e($n->capture())) . "\)"))})
-}elsif((($fun =~ qr/^sub\s*{/))) {
+}elsif(($fun->re_matchp("\^sub\\s\*\{"))) {
 (do{return((((("\(" . $fun) . "\)\-\>\(") . $self->e($n->capture())) . "\)"))})
 }elsif(($fun eq "eval")) {
 (do{my $env = "sub\{my\$s\=eval\(\$_\[0\]\)\;Carp\:\:carp\(\$\@\)if\$\@\;\$s\}";
 return((((((("GLOBAL\:\:" . $fun) . "\(") . $self->e($n->capture())) . "\,") . $env) . "\)"))})
 };
-if(($fun =~ qr/^\w/)) {
+if($fun->re_matchp("\^\\w")) {
 (do{my $fe = $self->mangle_function_name($fun);
 return((((("GLOBAL\:\:" . $fe) . "\(") . $self->e($n->capture())) . "\)"))})
 }else {
@@ -3968,7 +3982,7 @@ if($self->is_for_active_runtime) {
 }})};
 sub hook_for_use{my $self=CORE::shift;my($module,$expr)=@_;
 (do{if($self->is_for_active_runtime) {
-(do{GLOBAL::require($module);
+(do{GLOBAL::module_require($module);
 GLOBAL::import($module, $expr)})
 }else {
 (do{my $filename = (GLOBAL::find_required_module($module) || GLOBAL::die((((("Didnt\ find\ " . $module) . "\ in\ \(\ ") . $GLOBAL::a_INC->join("\ ")) . "\ \)\.\

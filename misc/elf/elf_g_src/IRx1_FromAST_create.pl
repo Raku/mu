@@ -478,7 +478,7 @@ Trait.newp('does',$m<role_name>)
 
 
 circumfix:pblock
-if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string =~ /^:/ {
+if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string.re_matchp('^:') {
   Hash.newp($m<block><statementlist>)
 } elsif $o<block><statementlist>[0]<expr> and $o<block><statementlist>[0]<expr><sym> and $o<block><statementlist>[0]<expr><sym> eq "," { # XXX Not p6.  Remove once off elf_e, and Match updated.
   Hash.newp($m<block><statementlist>)
