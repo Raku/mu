@@ -1,6 +1,7 @@
 import Text.ParserCombinators.Parsec
 import qualified Data.Map
 import System.IO
+import Debug.Trace
 type Label = [Char]
 type Register = [Char]
 data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None
@@ -68,9 +69,8 @@ call = do
     invocant <- tok register
     char '.'
     identifier <- register
-    between (tok lparen) rparen $ tok $ many argument
-    tok $ many argument
-    return $ Call target identifier (Capture invocant [] [])
+    arguments <- between (tok lparen) rparen $ tok $ many argument
+    return $ Call target identifier (Capture invocant [ x | Pos x <- arguments] [])
 
 argument = do
         char ':'
@@ -90,7 +90,13 @@ top = do
 type RegMap = Data.Map.Map [Char] Int
 
 toBytecode :: Stmt -> RegMap -> [Int]
-toBytecode _ regs = []
+--(Capture invocant positional named)
+
+toBytecode (Call target identifier (Capture invocant positional named)) regs =
+    let reg r = Data.Map.findWithDefault (-1) r regs in
+    [reg target,reg invocant,reg identifier,length positional] ++ map reg positional ++ [0]
+
+toBytecode x regs = []
 
 isReg (Decl _ None) = True
 isReg _ = False
@@ -102,8 +108,14 @@ addRegister regs (Decl reg None) = regs
 addRegister regs (Decl reg value) = Data.Map.insert reg ((Data.Map.size regs)+4)  regs
 addRegister regs _ = regs
 
+
+addFreeRegister :: RegMap -> Stmt -> RegMap
+addFreeRegister regs (Decl reg None) = Data.Map.insert reg ((Data.Map.size regs)+4)  regs
+addFreeRegister regs (Decl reg _) = regs 
+addFreeRegister regs _ = regs
+
 registerMap :: [Stmt] -> RegMap
-registerMap stmts = foldl addRegister Data.Map.empty stmts
+registerMap stmts = foldl addFreeRegister (foldl addRegister Data.Map.empty stmts) stmts
 
 emit :: [Stmt] -> RegMap -> [Int]
 emit stmts regMap = foldl (++) [] $ map (\op -> toBytecode op regMap) stmts
@@ -122,4 +134,5 @@ main = do
             print freeRegs 
             putStr "register name->int: "
             print regMap
-            print $ emit stmts regMap
+            let bytecode = emit stmts regMap
+            print bytecode
