@@ -278,22 +278,36 @@ sub run_test {
     my @rest = @_;
     my $kid  = $self->{_child_num} ? "[$self->{_child_num}] " : "";
     warn "$kid$test\n";
-    my $t = timeit( 1, sub { $self->SUPER::run_test($test, @rest) } );
+    use Time::HiRes;
+    use Time::Out 'timeout';
+    my $t = timeout(10, sub { timeit( 1,
+        sub { $self->SUPER::run_test($test, @rest) }
+    ) });
+    if ($Test::Harness::Straps::GLOBAL_FH) {
+        warn $Test::Harness::Straps::GLOBAL_FH;
+        die "We really want to kill ths FH child here... but how?";
+        close $Test::Harness::Straps::GLOBAL_FH;
+    }
     warn "    ".timestr($t)."\n";
 }
 
+use Test::Harness::Straps ();
+
+package Test::Harness::Straps;
+use vars '$GLOBAL_FH';
+no warnings 'redefine';
+
 sub analyze_fh {
     my($self, $name, $fh) = @_;
+    $GLOBAL_FH = $fh;
 
     my $it = Test::Harness::Iterator->new($fh);
 
-    use Time::HiRes;
-    use Time::Out 'timeout';
-    my $results = Test::Harness::Results->new;
-    timeout 60 => sub { $results = $self->_analyze_iterator($name, $it) };
+    my $results;
+    $results = $self->_analyze_iterator($name, $it);
+    undef $GLOBAL_FH;
     return $results;
 }
-
 __END__
 # Simple YAML test harness written over Test::Harness::Straps.
 # Hacked up from mini_harness.plx in the Test::Harness dist.
