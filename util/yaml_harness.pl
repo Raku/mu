@@ -278,14 +278,21 @@ sub run_test {
     my @rest = @_;
     my $kid  = $self->{_child_num} ? "[$self->{_child_num}] " : "";
     warn "$kid$test\n";
-    my $t = timeit( 1, sub {
-        use Time::HiRes;
-        use Time::Out 'timeout';
-        timeout 300 => sub { $self->SUPER::run_test($test, @rest) };
-    } );
+    my $t = timeit( 1, sub { $self->SUPER::run_test($test, @rest) } );
     warn "    ".timestr($t)."\n";
 }
 
+sub analyze_fh {
+    my($self, $name, $fh) = @_;
+
+    my $it = Test::Harness::Iterator->new($fh);
+
+    use Time::HiRes;
+    use Time::Out 'timeout';
+    my $results = Test::Harness::Results->new;
+    timeout 10 => sub { $results = $self->_analyze_iterator($name, $it) };
+    return $results;
+}
 
 __END__
 # Simple YAML test harness written over Test::Harness::Straps.
