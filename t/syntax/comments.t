@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 40;
+plan 39;
 
 # L<S02/"Whitespace and Comments"/"Embedded comments"
 #  "#" plus any bracket>
@@ -125,12 +125,8 @@ plan 40;
     }} 'cat', 'embedded comments with nested/unmatched bracket chars';
 }
 
-# L<S02/"Literals"/"# at beginning of line is always a line-end comment">
+# L<S02/"Literals"/"# at beginning of line is illegal">
 {
-    is 31,
-#<this is special cased
-    31, '#< on the left margin is a line-end comment';
-
     ok !eval(" #<this is invalid"),
         'embedded comment not on the left margin';
 

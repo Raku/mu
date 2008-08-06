@@ -84,7 +84,7 @@ Following re-specced to be invalid:
 
 # Symbolic dereferentiation of globals
 {
-  sub *a_global_sub () { 42 }
+  sub GLOBAL::a_global_sub () { 42 }
   is &::("*::a_global_sub")(), 42,
     "symbolic dereferentiation of globals works (1)";
 
