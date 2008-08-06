@@ -1,0 +1,20 @@
+  ;
+
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                frame);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
+                                                             SMOP_REFERENCE(interpreter,interpreter),
+                                                             NULL, NULL));
+
+
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);
+
+  smop_destr();
+
+  return 0;
+}

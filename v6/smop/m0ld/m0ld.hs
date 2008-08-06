@@ -51,10 +51,17 @@ value = choice
         return $ IntegerConstant $ read digits
       , do
         content <- between (char '"') (char '"') quotedChar
-        return $ StringConstant content
+        return $ StringConstant $ concat content
       ]
       where
-      quotedChar = many $ noneOf "\"\\" <|> (char '\\' >> anyChar)
+      quotedChar = many $
+        do
+        c <- noneOf "\"\\"
+        return [c]
+        <|> do 
+            char '\\'
+            c <- anyChar
+            return ['\\',c]
 
 decl = do 
     string "my"
@@ -99,7 +106,7 @@ toBytecode :: Stmt -> RegMap -> [Int]
 toBytecode (Call target identifier (Capture invocant positional named)) regs =
     let reg r = Data.Map.findWithDefault (-1) r regs in
     let args x = [length x] ++ map reg x in
-    [1,reg target,reg invocant,reg identifier,length positional] ++ args positional ++ args named
+    [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
 
 toBytecode x regs = []
 
@@ -123,21 +130,33 @@ registerMap :: [Stmt] -> RegMap
 registerMap stmts = foldl addFreeRegister (foldl addRegister Data.Map.empty stmts) stmts
 
 emit :: [Stmt] -> RegMap -> [Int]
-emit stmts regMap = foldl (++) [] $ map (\op -> toBytecode op regMap) stmts
+emit stmts regMap = concatMap (\op -> toBytecode op regMap) stmts ++ [0]
+
+joinStr sep list = foldl (\a b -> a ++ sep ++ b) (head list) (tail list)
+
+dumpConstantToC :: Value -> [Char]
+dumpConstantToC (StringConstant str) = "SMOP__NATIVE__idconst_createn(\""++str++"\","++(show $ length str) ++ "),"
+dumpConstantToC (IntegerConstant int) = "SMOP__NATIVE__int_create("++(show int)++"),"
+dumpConstantToC (None) = ""
+dumpConstantToC (Var name) = "SMOP_REFERENCE(interpreter,"++name++"),"
+
+dumpConstantsToC stmts = "(SMOP__Object*[]) {" ++
+    concat [dumpConstantToC c | Decl reg c <- stmts] ++ "NULL}"
+dumpToC stmts =
+    let regMap    = registerMap stmts in
+    let freeRegs  = countRegister stmts in
+    let bytecode  = emit stmts regMap in
+    let constants = dumpConstantsToC stmts in
+    "SMOP__Mold_create(" ++ show freeRegs ++ "," ++ constants ++ ","
+    ++ show (length bytecode) ++ ",(int[]) {" ++
+    (joinStr "," $ map show bytecode)
+    ++ "})"
 
 main = do
     hFlush stdout
     line <- getContents
-    putStr $ "input:" ++ line
     case (parse top "" line) of 
         Left err      -> print err
         Right stmts -> do 
-            print stmts
-            let regMap = registerMap stmts
-            let freeRegs = countRegister stmts
-            putStr "uninitalised registers: "
-            print freeRegs 
-            putStr "register name->int: "
-            print regMap
-            let bytecode = emit stmts regMap
-            print bytecode
+            -- print stmts
+            putStrLn $ dumpToC stmts
