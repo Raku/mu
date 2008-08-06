@@ -104,7 +104,7 @@ toBytecode :: Stmt -> RegMap -> [Int]
 --(Capture invocant positional named)
 
 toBytecode (Call target identifier (Capture invocant positional named)) regs =
-    let reg r = Data.Map.findWithDefault (-1) r regs in
+    let reg r = Data.Map.findWithDefault (error $ "undeclared register: $"++r) r regs in
     let args x = [length x] ++ map reg x in
     [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
 
@@ -156,7 +156,7 @@ main = do
     hFlush stdout
     line <- getContents
     case (parse top "" line) of 
-        Left err      -> print err
+        Left err      -> error  $ show err
         Right stmts -> do 
             -- print stmts
             putStrLn $ dumpToC stmts

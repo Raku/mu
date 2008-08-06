@@ -1,0 +1,22 @@
+
+my $NAMESPACE = $SMOP__S1P__RootNamespace;
+my $CURLY = "postcircumfix:{ }";
+my $OUT = "$*OUT";
+#opcodes
+
+my $out_scalar;
+$out_scalar = $NAMESPACE.$CURLY($OUT);
+
+
+my $FETCH = "FETCH";
+
+my $out;
+$out = $out_scalar.$FETCH();
+
+my $ID_PRINT = "print";
+my $void; # we have to store even unused return values somewhere
+
+my $PLAN = "1..1\n";
+$void = $out.$ID_PRINT($PLAN);
+my $OK1 = "ok 1\n";
+$void = $out.$ID_PRINT($OK1);
