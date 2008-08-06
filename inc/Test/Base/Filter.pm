@@ -1,4 +1,3 @@
-#line 1
 #. TODO:
 #.
 
@@ -341,4 +340,300 @@ sub _write_to {
 
 __DATA__
 
-#line 639
+=head1 NAME
+
+Test::Base::Filter - Default Filter Class for Test::Base
+
+=head1 SYNOPSIS
+
+    package MyTestSuite;
+    use Test::Base -Base;
+
+    ... reusable testing code ...
+
+    package MyTestSuite::Filter;
+    use Test::Base::Filter -Base;
+
+    sub my_filter1 {
+        ...
+    }
+
+=head1 DESCRIPTION
+
+Filters are the key to writing effective data driven tests with Test::Base.
+Test::Base::Filter is a class containing a large default set of generic
+filters. You can easily subclass it to add/override functionality.
+
+=head1 FILTERS
+
+This is a list of the default stock filters (in alphabetic order):
+
+=head2 append
+
+list => list
+
+Append a string to each element of a list.
+
+    --- numbers lines chomp append=-#\n join
+    one
+    two
+    three
+
+=head2 array
+
+list => scalar
+
+Turn a list of values into an anonymous array reference.
+
+=head2 base64_decode
+
+scalar => scalar
+
+Decode base64 data. Useful for binary tests.
+
+=head2 base64_encode
+
+scalar => scalar
+
+Encode base64 data. Useful for binary tests.
+
+=head2 chomp
+
+list => list
+
+Remove the final newline from each string value in a list.
+
+=head2 chop
+
+list => list
+
+Remove the final char from each string value in a list.
+
+=head2 dumper
+
+scalar => list
+
+Take a data structure (presumably from another filter like eval) and use
+Data::Dumper to dump it in a canonical fashion.
+
+=head2 escape
+
+scalar => scalar
+
+Unescape all backslash escaped chars.
+
+=head2 eval
+
+scalar => list
+
+Run Perl's C<eval> command against the data and use the returned value
+as the data.
+
+=head2 eval_all
+
+scalar => list
+
+Run Perl's C<eval> command against the data and return a list of 4
+values:
+
+    1) The return value
+    2) The error in $@
+    3) Captured STDOUT
+    4) Captured STDERR
+
+=head2 eval_stderr
+
+scalar => scalar
+
+Run Perl's C<eval> command against the data and return the
+captured STDERR.
+
+=head2 eval_stdout
+
+scalar => scalar
+
+Run Perl's C<eval> command against the data and return the
+captured STDOUT.
+
+=head2 exec_perl_stdout
+
+list => scalar
+
+Input Perl code is written to a temp file and run. STDOUT is captured and
+returned.
+
+=head2 flatten
+
+scalar => list
+
+Takes a hash or array ref and flattens it to a list.
+
+=head2 get_url
+
+scalar => scalar
+
+The text is chomped and considered to be a url. Then LWP::Simple::get is
+used to fetch the contents of the url.
+
+=head2 hash
+
+list => scalar
+
+Turn a list of key/value pairs into an anonymous hash reference.
+
+=head2 head[=number]
+
+list => list
+
+Takes a list and returns a number of the elements from the front of it. The
+default number is one.
+
+=head2 join
+
+list => scalar
+
+Join a list of strings into a scalar.
+
+=head2 Join
+
+Join the list of strings inside a list of array refs and return the
+strings in place of the array refs.
+
+=head2 lines
+
+scalar => list
+
+Break the data into an anonymous array of lines. Each line (except
+possibly the last one if the C<chomp> filter came first) will have a
+newline at the end.
+
+=head2 norm
+
+scalar => scalar
+
+Normalize the data. Change non-Unix line endings to Unix line endings.
+
+=head2 prepend=string
+
+list => list
+
+Prepend a string onto each of a list of strings.
+
+=head2 read_file
+
+scalar => scalar
+
+Read the file named by the current content and return the file's content.
+
+=head2 regexp[=xism]
+
+scalar => scalar
+
+The C<regexp> filter will turn your data section into a regular
+expression object. You can pass in extra flags after an equals sign.
+
+If the text contains more than one line and no flags are specified, then
+the 'xism' flags are assumed.
+
+=head2 reverse
+
+list => list
+
+Reverse the elements of a list.
+
+=head2 Reverse
+
+list => list
+
+Reverse the list of strings inside a list of array refs.
+
+=head2 slice=x[,y]
+
+list => list
+
+Returns the element number x through element number y of a list.
+
+=head2 sort
+
+list => list
+
+Sorts the elements of a list in character sort order.
+
+=head2 Sort
+
+list => list
+
+Sort the list of strings inside a list of array refs.
+
+=head2 split[=string|pattern]
+
+scalar => list
+
+Split a string in into a list. Takes a optional string or regexp as a
+parameter. Defaults to /\s+/. Same as Perl C<split>.
+
+=head2 Split[=string|pattern]
+
+list => list
+
+Split each of a list of strings and turn them into array refs.
+
+=head2 strict
+
+scalar => scalar
+
+Prepend the string:
+
+    use strict; 
+    use warnings;
+
+to the block's text.
+
+=head2 tail[=number]
+
+list => list
+
+Return a number of elements from the end of a list. The default
+number is one.
+
+=head2 trim
+
+list => list
+
+Remove extra blank lines from the beginning and end of the data. This
+allows you to visually separate your test data with blank lines.
+
+=head2 unchomp
+
+list => list
+
+Add a newline to each string value in a list.
+
+=head2 write_file[=filename]
+
+scalar => scalar
+
+Write the content of the section to the named file. Return the filename.
+
+=head2 yaml
+
+scalar => list
+
+Apply the YAML::Load function to the data block and use the resultant
+structure. Requires YAML.pm.
+
+=head1 AUTHOR
+
+Ingy döt Net <ingy@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2006. Ingy döt Net. All rights reserved.
+Copyright (c) 2005. Brian Ingerson. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html
+
+=cut
