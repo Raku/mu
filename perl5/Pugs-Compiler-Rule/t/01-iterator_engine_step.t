@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 58;
+use Test::More tests => 53;
 # use Data::Dumper;
 # $Data::Dumper::Indent = 1;
 # $Data::Dumper::Pad = '# ';
@@ -15,7 +15,7 @@ my ( $rule, $match );
 
 {
   $rule = Pugs::Runtime::Regex::constant( 'a' );
-  $rule->( 'a123', undef, {capture=>1, step=>1}, $match );
+  $rule->( 'a123', undef, {capture=>1, single_step=>1}, $match );
   #print Dumper( $match );
   ok ( $match->bool, "a =~ /a/ #1" );
   is ( $match->tail, '123', "tail is ok" );
@@ -28,39 +28,23 @@ my ( $rule, $match );
 }
 
 {
-  $rule = 
-    Pugs::Runtime::Regex::non_greedy_plus( 
-      Pugs::Runtime::Regex::alternation( [
-        Pugs::Runtime::Regex::constant( 'a' ), 
-        Pugs::Runtime::Regex::constant( 'c' ), 
-      ] ),
-    );
-  $rule->( 'a123', undef, {capture=>1}, $match );
-  ok ( $match->bool, "/[a|c]+?/ #1" );
-  is ( $match->tail, '123', "tail is ok" );
-  $rule->( 'c123', undef, {capture=>1}, $match );
-  ok ( $match->bool, "/[a|c]+?/ #2" );
-  is ( $match->tail, '123', "tail is ok" );
-  #print Dumper( $match );
-  $rule->( 'aa123', undef, {capture=>1}, $match );
-  ok ( $match->bool, "/[a|c]+?/ #3" );
-  is ( $match->tail, 'a123', "tail is ok" );
-}
-
-{
   # -- continuations in alternation()
   $rule = 
       Pugs::Runtime::Regex::alternation( [
+        Pugs::Runtime::Regex::constant( 'x' ), 
         Pugs::Runtime::Regex::constant( 'a' ), 
         Pugs::Runtime::Regex::constant( 'ab' ), 
       ] );
-  $rule->( 'ab', undef, {}, $match );
+  $rule->( 'ab', undef, {single_step => 1}, $match );
   #print "state: ", Dumper($match->state), "\n";
-  is ( $match->str, 'a', "/[a|ab]/ multi-match continuation state #0" );
-  $rule->( 'ab', $match->state, {}, $match );
+  is ( $match->str, '', "/[a|ab]/ multi-match continuation state #0 - no match" );
+  $rule->( 'ab', $match->state, {single_step => 1}, $match );
   #print "state: ", Dumper($match->state), "\n";
-  is ( $match->str, 'ab', "/[a|ab]/ multi-match continuation state #1" );
-  #$rule->( 'ab', $match->state, {}, $match );
+  is ( $match->str, 'a', "/[a|ab]/ multi-match continuation state #1" );
+  $rule->( 'ab', $match->state, {single_step => 1}, $match );
+  #print "state: ", Dumper($match->state), "\n";
+  is ( $match->str, 'ab', "/[a|ab]/ multi-match continuation state #2" );
+  #$rule->( 'ab', $match->state, {single_step => 1}, $match );
   #print "state: ", Dumper($match->state), "\n";
   #is ( $match->str, '', "/[a|ab]/ multi-match state #2" );
   #print Dumper( $match );

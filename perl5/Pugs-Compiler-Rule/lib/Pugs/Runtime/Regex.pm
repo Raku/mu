@@ -16,6 +16,7 @@ use Carp qw(croak);
 sub alternation {
     my $nodes = shift;
     return sub {
+        my $single_step = $_[2]{single_step};
         my @state = $_[1] ? @{$_[1]} : ( 0, undef );
         while ( $state[0] <= $#$nodes ) {
             #print "alternation $state[0] ",Dumper($nodes->[ $state[0] ]);
@@ -23,7 +24,7 @@ sub alternation {
             last unless defined $_[3];  # test case ???
             $state[1] = $_[3]->state;
             $state[0]++ unless $state[1];
-            if ( $_[3] || $_[3]->data->{abort} ) {
+            if ( $_[3] || $_[3]->data->{abort} || $single_step ) {
                 $_[3]->data->{state} = $state[0] > $#$nodes 
                     ? undef
                     : \@state;
@@ -46,6 +47,7 @@ sub concat {
         );
     }
     return sub {
+        my $single_step = $_[2]{single_step};
         my @state = $_[1] ? @{$_[1]} : ( undef, undef );
         #print "enter state ",Dumper(\@state);
         my $m2;
