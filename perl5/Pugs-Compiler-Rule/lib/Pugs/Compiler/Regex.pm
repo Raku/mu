@@ -9,11 +9,10 @@ use warnings;
 
 use Pugs::Grammar::Rule;
 use Pugs::Compiler::RegexPerl5;
-
 use Pugs::Emitter::Rule::Perl5;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
-
 use Pugs::Runtime::Regex;
+use Pugs::AST::Regex;
 
 # complete the dependency circularity
 push @Pugs::Grammar::Rule::ISA, 'Pugs::Grammar::Base';
@@ -100,6 +99,9 @@ sub compile {
             return undef;
         }
         ### rule AST: $ast
+
+        Pugs::AST::Regex::optimize($ast)
+            if $ENV{PCR_OPTIMIZE};
 
         # save the ast for debugging
         $self->{ast} = $ast;

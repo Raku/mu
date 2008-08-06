@@ -26,6 +26,7 @@ inc/Test/Builder.pm
 inc/Test/Builder/Module.pm
 inc/Test/More.pm
 lib/Pugs/AST/Expression.pm
+lib/Pugs/AST/Regex.pm
 lib/Pugs/Compiler/Grammar.pm
 lib/Pugs/Compiler/Regex.pm
 lib/Pugs/Compiler/RegexPerl5.pm
