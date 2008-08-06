@@ -1,4 +1,4 @@
-import Text.ParserCombinators.Parsec
+import Text.ParserCombinators.Parsec hiding (label)
 import qualified Data.Map
 import System.IO
 import Debug.Trace
@@ -8,7 +8,7 @@ data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None
     deriving Show
 data Capture = Capture Register [Register] [Register]
     deriving Show
-data Stmt = Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture
+data Stmt = Labeled Label Stmt | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture
     deriving Show
 data Argument = Pos Register | Named Register Register
 
@@ -39,7 +39,16 @@ rparen = char ')'
 
 register =  char '$' >> identifier
 
-stmt = choice [call,decl]
+label = do
+    id <- tok $ identifier
+    tok $ char ':'
+    return id
+stmt =  do
+        l <- try label
+        labeled <- stmt
+        return $ Labeled l labeled
+    <|> do 
+        choice [call,decl,goto]
 
 value = choice 
       [ do
@@ -70,6 +79,12 @@ decl = do
     value <- option None $ (tok $ char '=') >> value
     return (Decl x value)
 
+goto = do
+    string "goto"
+    ws
+    label <- identifier
+    return (Goto label)
+
 call = do
     target <- tok register
     tok $ char '='
@@ -99,16 +114,20 @@ top = do
     return $ stmts
 
 type RegMap = Data.Map.Map [Char] Int
+type LabelsMap = Data.Map.Map [Char] Int
 
-toBytecode :: Stmt -> RegMap -> [Int]
+toBytecode :: Stmt -> RegMap -> LabelsMap -> [Int]
 --(Capture invocant positional named)
 
-toBytecode (Call target identifier (Capture invocant positional named)) regs =
+toBytecode (Call target identifier (Capture invocant positional named)) regs labels =
     let reg r = Data.Map.findWithDefault (error $ "undeclared register: $"++r) r regs in
     let args x = [length x] ++ map reg x in
     [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
 
-toBytecode x regs = []
+toBytecode (Decl reg value) regs labels = []
+toBytecode (Goto label) regs labels = [3,Data.Map.findWithDefault (error $ "undeclared labels "++label) label labels]
+toBytecode (Br value iftrue iffalse) regs labels = []
+toBytecode (Labeled label stmt) regs labels = error "labels should be striped before being passed to toBytecode"
 
 isReg (Decl _ None) = True
 isReg _ = False
@@ -126,11 +145,24 @@ addFreeRegister regs (Decl reg None) = Data.Map.insert reg ((Data.Map.size regs)
 addFreeRegister regs (Decl reg _) = regs 
 addFreeRegister regs _ = regs
 
-registerMap :: [Stmt] -> RegMap
-registerMap stmts = foldl addFreeRegister (foldl addRegister Data.Map.empty stmts) stmts
+mapRegisters :: [Stmt] -> RegMap
+mapRegisters stmts = foldl addFreeRegister (foldl addRegister Data.Map.empty stmts) stmts
 
-emit :: [Stmt] -> RegMap -> [Int]
-emit stmts regMap = concatMap (\op -> toBytecode op regMap) stmts ++ [0]
+bytecodeLength :: Stmt -> Int
+bytecodeLength (Br _ _ _) = 4
+bytecodeLength (Goto _) = 2
+bytecodeLength (Call target identifier (Capture invocant positional named)) = 6 + length positional + length named
+bytecodeLength (Labeled label stmt) = bytecodeLength stmt
+bytecodeLength _ = 0
+
+addLabel (labels,count) (Labeled label stmt) = (Data.Map.insert label (count) labels,count+bytecodeLength stmt)
+addLabel (labels,count) stmt = (labels,count+bytecodeLength stmt)
+
+mapLabels :: [Stmt] -> LabelsMap
+mapLabels stmts = fst $ foldl addLabel (Data.Map.empty,0) stmts
+
+emit :: [Stmt] -> RegMap -> LabelsMap -> [Int]
+emit stmts regMap labelsMap = concatMap (\op -> toBytecode op regMap labelsMap) stmts ++ [0]
 
 joinStr sep list = foldl (\a b -> a ++ sep ++ b) (head list) (tail list)
 
@@ -142,10 +174,16 @@ dumpConstantToC (Var name) = "SMOP_REFERENCE(interpreter,"++name++"),"
 
 dumpConstantsToC stmts = "(SMOP__Object*[]) {" ++
     concat [dumpConstantToC c | Decl reg c <- stmts] ++ "NULL}"
-dumpToC stmts =
-    let regMap    = registerMap stmts in
+
+stripLabels (Labeled label stmt) = stripLabels stmt
+stripLabels stmt = stmt
+
+dumpToC unstriped_stmts =
+    let labelsMap = mapLabels unstriped_stmts in
+    let stmts = map stripLabels unstriped_stmts in
+    let regMap    = mapRegisters stmts in
     let freeRegs  = countRegister stmts in
-    let bytecode  = emit stmts regMap in
+    let bytecode  = emit stmts regMap labelsMap in
     let constants = dumpConstantsToC stmts in
     "SMOP__Mold_create(" ++ show freeRegs ++ "," ++ constants ++ ","
     ++ show (length bytecode) ++ ",(int[]) {" ++
@@ -158,5 +196,5 @@ main = do
     case (parse top "" line) of 
         Left err      -> error  $ show err
         Right stmts -> do 
-            -- print stmts
+            --print stmts
             putStrLn $ dumpToC stmts

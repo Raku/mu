@@ -16,7 +16,14 @@ $out = $out_scalar.$FETCH();
 my $ID_PRINT = "print";
 my $void; # we have to store even unused return values somewhere
 
-my $PLAN = "1..1\n";
+my $PLAN = "1..2\n";
 $void = $out.$ID_PRINT($PLAN);
+
 my $OK1 = "ok 1\n";
 $void = $out.$ID_PRINT($OK1);
+goto label1;
+my $NOTOK2 = "not ok 2\n";
+$void = $out.$ID_PRINT($NOTOK2);
+label1: my $OK2 = "ok 2\n";
+$void = $out.$ID_PRINT($OK2);
+

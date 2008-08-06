@@ -170,7 +170,10 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           fprintf(stderr,"unimplemented op %d\n",op);
           break;
         case 3:
-          fprintf(stderr,"unimplemented op %d\n",op);
+          /*goto*/
+          ;
+          int where = mold->opcodes[frame->position];
+          frame->position = where;
           break;
         case 4:
           fprintf(stderr,"unimplemented op %d\n",op);
