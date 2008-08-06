@@ -290,7 +290,7 @@ sub analyze_fh {
     use Time::HiRes;
     use Time::Out 'timeout';
     my $results = Test::Harness::Results->new;
-    timeout 10 => sub { $results = $self->_analyze_iterator($name, $it) };
+    timeout 60 => sub { $results = $self->_analyze_iterator($name, $it) };
     return $results;
 }
 
