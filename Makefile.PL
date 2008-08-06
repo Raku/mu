@@ -51,7 +51,7 @@ print "[Pugs Dependencies]\n";
 
 my @deps = qw(
     stm mtl time utf8-string binary haskeline FindBin MetaObject HsParrot
-    pugs-compat pugs-DrIFT stringtable-atom HsSyck
+    pugs-compat pugs-DrIFT stringtable-atom HsSyck control-timeout
 );
 
 # This line is here simply to trick Cabal into creating a default config file.
