@@ -104,7 +104,9 @@ sub compile {
         # save the ast for debugging
         $self->{ast} = $ast;
 
-        #warn "ast: ",Dumper($ast),"\n";
+        warn Dumper( $ast )
+            if $ENV{PCR_DUMP_AST};
+
         #die "Error in rule: '$rule_source' at: '$ast->tail'\n" if $ast->tail;
         #print 'rule ast: ', do{use Data::Dumper; Dumper($ast{capture})};
 
