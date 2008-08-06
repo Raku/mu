@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 53;
+use Test::More tests => 12;
 # use Data::Dumper;
 # $Data::Dumper::Indent = 1;
 # $Data::Dumper::Pad = '# ';
@@ -59,28 +59,35 @@ my ( $rule, $match );
         Pugs::Runtime::Regex::constant( 'ab' ), 
       ] ),
       Pugs::Runtime::Regex::alternation( [
-        Pugs::Runtime::Regex::constant( 'b' ), 
+        Pugs::Runtime::Regex::constant( 'x' ), 
         Pugs::Runtime::Regex::constant( 'bb' ), 
       ] ),
     ] );
   my $str = 'abbb';
-  $rule->( $str, undef, {}, $match );
+  # expected: () (a,bb) () (ab,bb)
+  $rule->( $str, undef, {single_step => 1}, $match );
   #print "state 1: ", Dumper($match->state), "\n";
-  is ( $match->str, 'ab', "/[a|ab][b|bb]/ continuation state #0" );
+  is ( $match->str, '', "/[a|ab][b|bb]/ continuation state #0" );
 
-  $rule->( $str, $match->state, {}, $match );
+  $rule->( $str, $match->state, {single_step => 1}, $match );
   #print "state 2: ", Dumper($match->state), "\n";
   is ( $match->str, 'abb', "state #1" );
 
-  $rule->( $str, $match->state, {}, $match );
-  #print "state 3: ", Dumper($match->state), "\n";
-  is ( $match->str, 'abb', "state #2" );
+TODO: {
+  local $TODO = 'concat single-step not implemented';
 
-  $rule->( $str, $match->state, {}, $match );
+  $rule->( $str, $match->state, {single_step => 1}, $match );
+  #print "state 3: ", Dumper($match->state), "\n";
+  is ( $match->str, '', "state #2" );
+
+  $rule->( $str, $match->state, {single_step => 1}, $match );
   #print "state 4: ", Dumper($match->state), "\n";
   is ( $match->str, 'abbb', "state #3" );
+}
 
 }
+
+__END__
 
 {
   $rule = 
