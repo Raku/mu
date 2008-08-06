@@ -162,6 +162,7 @@ executable pugs
         base, haskell98, filepath, mtl, stm, parsec < 3.0.0, network,
         pretty, time, random, process, containers, bytestring,
         array, directory, utf8-string, binary, haskeline >= 0.2.1, FindBin,
+        control-timeout,
 
         MetaObject       >= 0.0.4,
         HsParrot         >= 0.0.2,

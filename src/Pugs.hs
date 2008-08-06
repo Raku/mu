@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fffi #-}
 
 {-|
     Public API for the Pugs system.
@@ -39,6 +39,7 @@ import Pugs.Types
 import Data.IORef
 import qualified Data.Map as Map
 import qualified System.FilePath as FilePath (combine, splitFileName)
+import Control.Timeout
 
 {-|
 The entry point of Pugs. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
@@ -47,7 +48,15 @@ arguments and pass them to 'run'.
 pugsMain :: IO ()
 pugsMain = do
     let ?debugInfo = Nothing
+    timeout <- getEnv "PUGS_TIMEOUT"
+    case timeout of
+        Just str | [(t, _)] <- reads str -> do
+            addTimeout t (_exit 1)
+            return ()
+        _ -> return ()
     mainWith run
+
+foreign import ccall unsafe _exit :: Int -> IO ()
 
 defaultProgramName :: String
 defaultProgramName = "<interactive>"
