@@ -60,6 +60,7 @@ README
 t/00-pod-coverage.t
 t/00-pod.t
 t/01-iterator_engine.t
+t/01-iterator_engine_step.t
 t/02-grammar.t
 t/03-match.t
 t/04-compiler-grammar.t
