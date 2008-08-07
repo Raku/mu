@@ -1,5 +1,5 @@
 import Text.ParserCombinators.Parsec hiding (label)
-import qualified Data.Map
+import qualified Data.Map as Map
 import System.IO
 import Debug.Trace
 type Label = [Char]
@@ -140,11 +140,11 @@ top = do
     eof
     return $ stmts
 
-type RegMap = Data.Map.Map [Char] Int
-type LabelsMap = Data.Map.Map [Char] Int
+type RegMap = Map.Map [Char] Int
+type LabelsMap = Map.Map [Char] Int
 
-resolveReg r regs = Data.Map.findWithDefault (error $ "undeclared register: $"++r) r regs 
-resolveLabel l labels = Data.Map.findWithDefault (error $ "undeclared label: "++l) l labels
+resolveReg r regs = Map.findWithDefault (error $ "undeclared register: $"++r) r regs 
+resolveLabel l labels = Map.findWithDefault (error $ "undeclared label: "++l) l labels
 
 toBytecode :: Stmt -> RegMap -> LabelsMap -> [Int]
 
@@ -175,18 +175,18 @@ countRegister stmts = length $ filter isReg stmts
 addRegister :: RegMap -> Stmt -> RegMap
 addRegister regs stmt = case stmt of 
     Decl reg None  -> regs
-    Decl reg value -> Data.Map.insert reg ((Data.Map.size regs)+4)  regs
+    Decl reg value -> Map.insert reg ((Map.size regs)+4)  regs
     _ -> regs
 
 
 addFreeRegister :: RegMap -> Stmt -> RegMap
 addFreeRegister regs stmt = case stmt of
-    Decl reg None -> Data.Map.insert reg ((Data.Map.size regs)+4)  regs
+    Decl reg None -> Map.insert reg ((Map.size regs)+4)  regs
     Decl reg _ -> regs 
     _ -> regs
 
 mapRegisters :: [Stmt] -> RegMap
-mapRegisters stmts = foldl addFreeRegister (foldl addRegister Data.Map.empty stmts) stmts
+mapRegisters stmts = foldl addFreeRegister (foldl addRegister Map.empty stmts) stmts
 
 bytecodeLength :: Stmt -> Int
 bytecodeLength stmt = case stmt of
@@ -198,11 +198,11 @@ bytecodeLength stmt = case stmt of
     Call2 _ _ _ _ -> 5
     Decl _ _ -> 0
 
-addLabel (labels,count) (Labeled label stmt) = (Data.Map.insert label (count) labels,count+bytecodeLength stmt)
+addLabel (labels,count) (Labeled label stmt) = (Map.insert label (count) labels,count+bytecodeLength stmt)
 addLabel (labels,count) stmt = (labels,count+bytecodeLength stmt)
 
 mapLabels :: [Stmt] -> LabelsMap
-mapLabels stmts = fst $ foldl addLabel (Data.Map.empty,0) stmts
+mapLabels stmts = fst $ foldl addLabel (Map.empty,0) stmts
 
 emit :: [Stmt] -> RegMap -> LabelsMap -> [Int]
 emit stmts regMap labelsMap = concatMap (\op -> toBytecode op regMap labelsMap) stmts ++ [0]
