@@ -30,7 +30,7 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
         
       {
         use v6;
-        return $actualinvocant.^!methods.{$actualidentifier}.FETCH().call($actualresponder,$actualidentifier,$actualcapture);
+        return $actualinvocant.^!methods.{$actualidentifier}.FETCH().($actualcapture);
       }
       
       SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
@@ -52,7 +52,6 @@ SMOP__Object* test_code(SMOP__Object* interpreter,
                         SMOP__Object* code,
                         SMOP__Object* capture) {
 
-  SMOP_RELEASE(interpreter,code);
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }

@@ -84,28 +84,10 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
 
   ___INVOCANT_RI_SHOULD_MATCH___;
 
-  frame = q:sm0p {
-    capture: $capture;
-    identifier: $identifier;
-    invocant: $invocant;
-    responder: $self;
-    how_container: $invocant.$SMOP__ID__REPR_how();
-    how_container_copy: $SMOP__SLIME__CurrentFrame.copy(`how_container);
-    $SMOP__SLIME__CurrentFrame.move_responder(`how_container,2);
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_container_copy,(),(),1));
-    how: $SMOP__NATIVE__bool_true.$SMOP__ID__FETCH();
-    how_copy: $SMOP__SLIME__CurrentFrame.copy(`how);
-    identifier_dispatch: $SMOP__ID__dispatch;
-    $SMOP__SLIME__CurrentFrame.move_identifier(`identifier_dispatch,4);
-    $SMOP__SLIME__CurrentFrame.move_responder(`how,3);
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_copy,(`responder,`identifier,`capture),(),2));
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
-    result: ;
-    continuation: $continuation;
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`continuation,(`result),(),1));
-    $continuation.$SMOP__ID__setr();
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
-    $interpreter.goto(|$continuation);
+
+  {
+    use v6;
+    return $invocant.^!how.FETCH.dispatch($self, $identifier, $capture);
   };
 
   SMOP_RELEASE(interpreter,invocant);
@@ -173,29 +155,13 @@ static SMOP__Object* p6opaque_message_DESTROYALL(SMOP__Object* interpreter,
                                              SMOP__ID__continuation, 
                                              SMOP_REFERENCE(interpreter,interpreter));
 
-  frame = q:sm0p {
-    capture: $capture;
-    identifier: $identifier;
-    invocant: $capture.$SMOP__ID__invocant();
-    responder: $self;
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant,(),(),1));
-    how_container: $SMOP__p6opaque__RI.$SMOP__ID__REPR_how();
-    how_container_copy: $SMOP__SLIME__CurrentFrame.copy(`how_container);
-    $SMOP__SLIME__CurrentFrame.move_responder(`how_container,2);
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_container_copy,(),(),1));
-    how: $SMOP__NATIVE__bool_true.$SMOP__ID__FETCH();
-    how_copy: $SMOP__SLIME__CurrentFrame.copy(`how);
-    identifier_dispatch: $SMOP__ID__dispatch;
-    $SMOP__SLIME__CurrentFrame.move_identifier(`identifier_dispatch,3);
-    $SMOP__SLIME__CurrentFrame.move_responder(`how,2);
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`how_copy,(`responder,`identifier,`capture),(),1));
-    result: ;
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
-    invocant_again: $capture.$SMOP__ID__invocant();
-    $SMOP__SLIME__CurrentFrame.move_capturize(SMOP__SLIME__Capturize.new(`invocant_again,(),(),1));
-    $SMOP__p6opaque__RI.$SMOP__ID__REPR_DESTROY();
-    $SMOP__SLIME__CurrentFrame.$SMOP__ID__forget();
-    $interpreter.goto(|$continuation);
+  ___INVOCANT_RI_SHOULD_MATCH___;
+
+
+  {
+    use v6;
+    $invocant.^!how.FETCH.dispatch($self, $identifier, $capture);
+    $invocant.^!DESTROY();
   };
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
