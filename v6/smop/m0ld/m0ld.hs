@@ -148,16 +148,24 @@ resolveLabel l labels = Data.Map.findWithDefault (error $ "undeclared label: "++
 
 toBytecode :: Stmt -> RegMap -> LabelsMap -> [Int]
 
-toBytecode (Call target identifier (Capture invocant positional named)) regs labels =
-    let reg r = resolveReg r regs
-        args x = [length x] ++ map reg x
-        in [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
-toBytecode (Call2 target responder identifier capture) regs labels =
-    [2] ++ map (\r -> resolveReg r regs) [target,responder,identifier,capture]
-toBytecode (Goto label) regs labels = [3, resolveLabel label labels]
-toBytecode (Br value iftrue iffalse) regs labels = [4,resolveReg value regs,resolveLabel iftrue labels,resolveLabel iffalse labels]
-toBytecode (Labeled label stmt) regs labels = error "labels should be striped before being passed to toBytecode"
-toBytecode (Decl reg value) regs labels = []
+toBytecode stmt regs labels = case stmt of
+    Call target identifier (Capture invocant positional named) ->
+        let reg r = resolveReg r regs
+            args x = [length x] ++ map reg x
+            in [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
+
+    Call2 target responder identifier capture ->
+        map (\r -> resolveReg r regs) [target,responder,identifier,capture]
+
+    Goto label -> [3, resolveLabel label labels]
+
+    Br value iftrue iffalse ->
+        [4,resolveReg value regs,resolveLabel iftrue labels,resolveLabel iffalse labels]
+
+    Labeled label stmt ->
+        error "labels should be striped before being passed to toBytecode"
+
+    Decl reg value -> []
 
 isReg (Decl _ None) = True
 isReg _ = False
@@ -165,26 +173,30 @@ isReg _ = False
 countRegister stmts = length $ filter isReg stmts
 
 addRegister :: RegMap -> Stmt -> RegMap
-addRegister regs (Decl reg None) = regs
-addRegister regs (Decl reg value) = Data.Map.insert reg ((Data.Map.size regs)+4)  regs
-addRegister regs _ = regs
+addRegister regs stmt = case stmt of 
+    Decl reg None  -> regs
+    Decl reg value -> Data.Map.insert reg ((Data.Map.size regs)+4)  regs
+    _ -> regs
 
 
 addFreeRegister :: RegMap -> Stmt -> RegMap
-addFreeRegister regs (Decl reg None) = Data.Map.insert reg ((Data.Map.size regs)+4)  regs
-addFreeRegister regs (Decl reg _) = regs 
-addFreeRegister regs _ = regs
+addFreeRegister regs stmt = case stmt of
+    Decl reg None -> Data.Map.insert reg ((Data.Map.size regs)+4)  regs
+    Decl reg _ -> regs 
+    _ -> regs
 
 mapRegisters :: [Stmt] -> RegMap
 mapRegisters stmts = foldl addFreeRegister (foldl addRegister Data.Map.empty stmts) stmts
 
 bytecodeLength :: Stmt -> Int
-bytecodeLength (Br _ _ _) = 4
-bytecodeLength (Goto _) = 2
-bytecodeLength (Call target identifier (Capture invocant positional named)) = 6 + length positional + length named
-bytecodeLength (Labeled label stmt) = bytecodeLength stmt
-bytecodeLength (Call2 _ _ _ _) = 5
-bytecodeLength (Decl _ _) = 0
+bytecodeLength stmt = case stmt of
+    Br _ _ _ -> 4
+    Goto _ -> 2
+    Call target identifier (Capture invocant positional named) ->
+        6 + length positional + length named
+    Labeled label stmt -> bytecodeLength stmt
+    Call2 _ _ _ _ -> 5
+    Decl _ _ -> 0
 
 addLabel (labels,count) (Labeled label stmt) = (Data.Map.insert label (count) labels,count+bytecodeLength stmt)
 addLabel (labels,count) stmt = (labels,count+bytecodeLength stmt)
@@ -198,10 +210,12 @@ emit stmts regMap labelsMap = concatMap (\op -> toBytecode op regMap labelsMap) 
 joinStr sep list = foldl (\a b -> a ++ sep ++ b) (head list) (tail list)
 
 dumpConstantToC :: Value -> [Char]
-dumpConstantToC (StringConstant str) = "SMOP__NATIVE__idconst_createn(\""++str++"\","++(show $ length str) ++ "),"
-dumpConstantToC (IntegerConstant int) = "SMOP__NATIVE__int_create("++(show int)++"),"
-dumpConstantToC (None) = ""
-dumpConstantToC (Var name) = "SMOP_REFERENCE(interpreter,"++name++"),"
+dumpConstantToC value = case value of
+    StringConstant str ->
+        "SMOP__NATIVE__idconst_createn(\"" ++ str ++"\"," ++ (show $ length str) ++ "),"
+    IntegerConstant int -> "SMOP__NATIVE__int_create(" ++ show int ++ "),"
+    None -> ""
+    Var name -> "SMOP_REFERENCE(interpreter," ++ name ++ "),"
 
 dumpConstantsToC stmts = "(SMOP__Object*[]) {" ++
     concat [dumpConstantToC c | Decl reg c <- stmts] ++ "NULL}"
