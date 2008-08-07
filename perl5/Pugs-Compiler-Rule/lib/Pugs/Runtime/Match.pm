@@ -32,6 +32,13 @@ sub new {
     return $obj;
 }
 
+sub clone {
+    my $data = { %{ $_[0]->data } };
+    my $obj = bless $data, ref $_[0];
+    $_data{ refaddr $obj } = $data;
+    return $obj;
+}
+
 sub DESTROY {  
     delete $_data{ refaddr $_[0] };
 }

@@ -3,56 +3,66 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
-# use Data::Dumper;
-# $Data::Dumper::Indent = 1;
-# $Data::Dumper::Pad = '# ';
+use Test::More tests => 28;
+use Data::Dumper;
+$Data::Dumper::Indent   = 1;
+$Data::Dumper::Pad      = '# ';
+$Data::Dumper::Sortkeys = 1;
 
 use_ok( 'Pugs::Runtime::Regex' );
 use Pugs::Runtime::Match;
 
-my ( $rule, $match );
-
 {
-  $rule = Pugs::Runtime::Regex::constant( 'a' );
+  my $match;
+  my $rule = Pugs::Runtime::Regex::constant( 'a' );
+  
   $rule->( 'a123', undef, {capture=>1, single_step=>1}, $match );
-  #print Dumper( $match );
-  ok ( $match->bool, "a =~ /a/ #1" );
-  is ( $match->tail, '123', "tail is ok" );
+    #print Dumper( $match );
+    ok ( $match->bool, "a =~ /a/ #1" );
+    is ( $match->tail, '123', "tail is ok" );
+    ok ( !defined($match->state), "no more states" );
+    
   $rule->( 'c', undef, {capture=>1}, $match );
-  ok ( ! $match->bool, "c =~ /a/ #2" );
-  #is ( $match->tail, 'c123', "tail is ok" );
-  #print Dumper( $match );
+    ok ( ! $match->bool, "c =~ /a/ #2" );
+    #is ( $match->tail, 'c123', "tail is ok" );
+    #print Dumper( $match );
+    
   $rule->( 'ca', undef, {}, $match);
-  ok( !$match->bool, "anchored match" );
+    ok( !$match->bool, "anchored match" );
+
 }
 
 {
   # -- continuations in alternation()
-  $rule = 
+  my $match;
+  my $rule = 
       Pugs::Runtime::Regex::alternation( [
         Pugs::Runtime::Regex::constant( 'x' ), 
         Pugs::Runtime::Regex::constant( 'a' ), 
         Pugs::Runtime::Regex::constant( 'ab' ), 
       ] );
+
   $rule->( 'ab', undef, {single_step => 1}, $match );
-  #print "state: ", Dumper($match->state), "\n";
-  is ( $match->str, '', "/[a|ab]/ multi-match continuation state #0 - no match" );
+    #print "state: ", Dumper($match->state), "\n";
+    is ( $match->str, '', "/[a|ab]/ multi-match continuation state #0 - no match" );
+    ok ( defined($match->state), "more states" );
+
   $rule->( 'ab', $match->state, {single_step => 1}, $match );
-  #print "state: ", Dumper($match->state), "\n";
-  is ( $match->str, 'a', "/[a|ab]/ multi-match continuation state #1" );
+    #print "# state: ", Dumper($match->state), "\n";
+    is ( $match->str, 'a', "/[a|ab]/ multi-match continuation state #1" );
+    ok ( defined($match->state), "more states" );
+
   $rule->( 'ab', $match->state, {single_step => 1}, $match );
-  #print "state: ", Dumper($match->state), "\n";
-  is ( $match->str, 'ab', "/[a|ab]/ multi-match continuation state #2" );
-  #$rule->( 'ab', $match->state, {single_step => 1}, $match );
-  #print "state: ", Dumper($match->state), "\n";
-  #is ( $match->str, '', "/[a|ab]/ multi-match state #2" );
-  #print Dumper( $match );
+    #print "# state: ", Dumper($match->state), "\n";
+    is ( $match->str, 'ab', "/[a|ab]/ multi-match continuation state #2" );
+    ok ( !defined($match->state), "no more states" );
+
 }
 
 {
   # -- continuations in concat()
-  $rule = 
+  my $match;
+  my $rule = 
     Pugs::Runtime::Regex::concat( [
       Pugs::Runtime::Regex::alternation( [
         Pugs::Runtime::Regex::constant( 'a' ), 
@@ -64,26 +74,66 @@ my ( $rule, $match );
       ] ),
     ] );
   my $str = 'abbb';
-  # expected: () (a,bb) () (ab,bb)
+  # expected: (a) (fail) (a,bb) (ab) (fail) (ab,bb)
+  
   $rule->( $str, undef, {single_step => 1}, $match );
-  #print "state 1: ", Dumper($match->state), "\n";
-  is ( $match->str, '', "/[a|ab][b|bb]/ continuation state #0" );
+    #print "state 1: ", Dumper($match->state), "\n";
+    is ( $match->str, 'a', "$str ~~ /[a|ab][x|bb]/ continuation state #0" );
+    ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {single_step => 1}, $match );
-  #print "state 2: ", Dumper($match->state), "\n";
-  is ( $match->str, 'abb', "state #1" );
-
-TODO: {
-  local $TODO = 'concat single-step not implemented';
+    #print "state 2: ", Dumper($match->state), "\n";
+    is ( $match->str, '', "state #2" );
+    ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {single_step => 1}, $match );
-  #print "state 3: ", Dumper($match->state), "\n";
-  is ( $match->str, '', "state #2" );
+    #print "state 3: ", Dumper($match->state), "\n";
+    is ( $match->str, 'abb', "state #3" );
+    ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {single_step => 1}, $match );
-  #print "state 4: ", Dumper($match->state), "\n";
-  is ( $match->str, 'abbb', "state #3" );
+    #print "state 4: ", Dumper($match->state), "\n";
+    is ( $match->str, 'ab', "state #4" );
+    ok ( defined($match->state), "more states" );
+
+  $rule->( $str, $match->state, {single_step => 1}, $match );
+    #print "state 5: ", Dumper($match->state), "\n";
+    is ( $match->str, '', "state #5" );
+    ok ( defined($match->state), "more states" );
+
+  $rule->( $str, $match->state, {single_step => 1}, $match );
+    #print "state 6: ", Dumper($match->state), "\n";
+    is ( $match->str, 'abbb', "state #6" );
+    ok ( !defined($match->state), "no more states" );
+
 }
+
+{
+  # -- continuations in parallel_alternation()
+  my $match;
+  my $rule = 
+    Pugs::Runtime::Regex::parallel_alternation( [
+      Pugs::Runtime::Regex::concat( [
+        Pugs::Runtime::Regex::constant( 'a' ), 
+        Pugs::Runtime::Regex::constant( 'bb' ), 
+      ] ),
+      Pugs::Runtime::Regex::concat( [
+        Pugs::Runtime::Regex::constant( 'ab' ), 
+        Pugs::Runtime::Regex::constant( 'bb' ), 
+      ] ),
+    ] );
+  my $str = 'abbb';
+  # expected: (a|ab) (abb|abbb) -> longest token = abbb
+  
+  $rule->( $str, undef, {single_step => 1}, $match );
+    #print "state 1: ", Dumper($match->state), "\n";
+    is ( $match->str, '', "$str ~~ /a bb | ab bb/ parallel_alternation state #0" );
+    ok ( defined($match->state), "more states" );
+
+  $rule->( $str, $match->state, {single_step => 1}, $match );
+    #print "state 2: ", Dumper($match->state), "\n";
+    is ( $match->str, 'abbb', "state #2" );
+    ok ( !defined($match->state), "no more states" );
 
 }
 
