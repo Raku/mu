@@ -8,7 +8,7 @@ data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None
     deriving Show
 data Capture = Capture Register [Register] [Register]
     deriving Show
-data Stmt = Labeled Label Stmt | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture
+data Stmt = Labeled Label Stmt | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture | Call2 Register Register Register Register
     deriving Show
 data Argument = Pos Register | Named Register Register
 
@@ -48,7 +48,7 @@ stmt =  do
         labeled <- stmt
         return $ Labeled l labeled
     <|> do 
-        choice [call,decl,goto,br]
+        choice [(try call2),call,decl,goto,br]
 
 value = choice 
       [ do
@@ -111,6 +111,17 @@ call = do
     let pos = [ x | Pos x <- arguments]
     let named = [x | (Named k v) <- arguments, x <- [k,v]]
     return $ Call target identifier (Capture invocant pos named)
+call2 = do
+    target <- tok register
+    tok $ char '='
+    responder <- tok register
+    char '.'
+    identifier <- register
+    tok $ char '('
+    tok $ char '|'
+    capture <- register
+    tok $ char ')'
+    return $ Call2 target responder identifier capture
 
 argument = do
         char ':'
@@ -141,10 +152,12 @@ toBytecode (Call target identifier (Capture invocant positional named)) regs lab
     let reg r = resolveReg r regs in
     let args x = [length x] ++ map reg x in
     [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
-toBytecode (Decl reg value) regs labels = []
+toBytecode (Call2 target responder identifier capture) regs labels =
+    [2] ++ map (\r -> resolveReg r regs) [target,responder,identifier,capture]
 toBytecode (Goto label) regs labels = [3, resolveLabel label labels]
 toBytecode (Br value iftrue iffalse) regs labels = [4,resolveReg value regs,resolveLabel iftrue labels,resolveLabel iffalse labels]
 toBytecode (Labeled label stmt) regs labels = error "labels should be striped before being passed to toBytecode"
+toBytecode (Decl reg value) regs labels = []
 
 isReg (Decl _ None) = True
 isReg _ = False
@@ -170,7 +183,8 @@ bytecodeLength (Br _ _ _) = 4
 bytecodeLength (Goto _) = 2
 bytecodeLength (Call target identifier (Capture invocant positional named)) = 6 + length positional + length named
 bytecodeLength (Labeled label stmt) = bytecodeLength stmt
-bytecodeLength _ = 0
+bytecodeLength (Call2 _ _ _ _) = 5
+bytecodeLength (Decl _ _) = 0
 
 addLabel (labels,count) (Labeled label stmt) = (Data.Map.insert label (count) labels,count+bytecodeLength stmt)
 addLabel (labels,count) stmt = (labels,count+bytecodeLength stmt)

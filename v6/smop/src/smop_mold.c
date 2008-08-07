@@ -136,7 +136,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       frame->position++;
       ret = SMOP__NATIVE__bool_true;
       switch (op) {
-        case 1: ;
+        case 1: ; /*call*/
 
           int target = mold->opcodes[frame->position++];
 
@@ -166,16 +166,28 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           frame->registers[target] = ret;
           frame->target = target;
           break;
-        case 2:
-          fprintf(stderr,"unimplemented op %d\n",op);
+        case 2: /*call2*/
+          {
+          int target = mold->opcodes[frame->position++];
+          SMOP__Object* call_responder  = get_register(interpreter,frame);
+          SMOP__Object* call_identifier = get_register(interpreter,frame);
+          SMOP__Object* call_capture = get_register(interpreter,frame);
+
+          SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_responder),call_identifier,call_capture);
+          SMOP_RELEASE(interpreter,call_responder);
+          if (frame->registers[target]) {
+            SMOP_RELEASE(interpreter,frame->registers[target]);
+          }
+          frame->registers[target] = ret;
+          frame->target = target;
           break;
-        case 3:
-          /*goto*/
+          }
+        case 3: /*goto*/
           ;
           int where = mold->opcodes[frame->position];
           frame->position = where;
           break;
-        case 4:
+        case 4: /*br*/
           ;
           SMOP__Object* condition = get_register(interpreter,frame);
           int iftrue = mold->opcodes[frame->position++];
