@@ -48,7 +48,7 @@ stmt =  do
         labeled <- stmt
         return $ Labeled l labeled
     <|> do 
-        choice [call,decl,goto]
+        choice [call,decl,goto,br]
 
 value = choice 
       [ do
@@ -79,6 +79,22 @@ decl = do
     value <- option None $ (tok $ char '=') >> value
     return (Decl x value)
 
+branch = do
+    tok $ char '{'
+    string "goto"
+    ws
+    label <- tok $identifier
+    option ' ' $ char ';'
+    tok $ char '}'
+    return label
+br = do
+    string "if"
+    ws
+    cond <- tok register
+    iftrue <- branch
+    tok $ string "else"
+    iffalse <- branch
+    return (Br cond iftrue iffalse)
 goto = do
     string "goto"
     ws
@@ -116,17 +132,18 @@ top = do
 type RegMap = Data.Map.Map [Char] Int
 type LabelsMap = Data.Map.Map [Char] Int
 
+resolveReg r regs = Data.Map.findWithDefault (error $ "undeclared register: $"++r) r regs 
+resolveLabel l labels = Data.Map.findWithDefault (error $ "undeclared label: "++l) l labels
+
 toBytecode :: Stmt -> RegMap -> LabelsMap -> [Int]
---(Capture invocant positional named)
 
 toBytecode (Call target identifier (Capture invocant positional named)) regs labels =
-    let reg r = Data.Map.findWithDefault (error $ "undeclared register: $"++r) r regs in
+    let reg r = resolveReg r regs in
     let args x = [length x] ++ map reg x in
     [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
-
 toBytecode (Decl reg value) regs labels = []
-toBytecode (Goto label) regs labels = [3,Data.Map.findWithDefault (error $ "undeclared labels "++label) label labels]
-toBytecode (Br value iftrue iffalse) regs labels = []
+toBytecode (Goto label) regs labels = [3, resolveLabel label labels]
+toBytecode (Br value iftrue iffalse) regs labels = [4,resolveReg value regs,resolveLabel iftrue labels,resolveLabel iffalse labels]
 toBytecode (Labeled label stmt) regs labels = error "labels should be striped before being passed to toBytecode"
 
 isReg (Decl _ None) = True
