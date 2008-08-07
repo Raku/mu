@@ -109,7 +109,7 @@ call = do
     identifier <- register
     arguments <- between (tok lparen) rparen $ sepBy (tok argument) (tok $ char ',')
     let pos = [ x | Pos x <- arguments]
-    let named = [x | (Named k v) <- arguments, x <- [k,v]]
+        named = [x | (Named k v) <- arguments, x <- [k,v]]
     return $ Call target identifier (Capture invocant pos named)
 call2 = do
     target <- tok register
@@ -149,9 +149,9 @@ resolveLabel l labels = Data.Map.findWithDefault (error $ "undeclared label: "++
 toBytecode :: Stmt -> RegMap -> LabelsMap -> [Int]
 
 toBytecode (Call target identifier (Capture invocant positional named)) regs labels =
-    let reg r = resolveReg r regs in
-    let args x = [length x] ++ map reg x in
-    [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
+    let reg r = resolveReg r regs
+        args x = [length x] ++ map reg x
+        in [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
 toBytecode (Call2 target responder identifier capture) regs labels =
     [2] ++ map (\r -> resolveReg r regs) [target,responder,identifier,capture]
 toBytecode (Goto label) regs labels = [3, resolveLabel label labels]
@@ -210,16 +210,16 @@ stripLabels (Labeled label stmt) = stripLabels stmt
 stripLabels stmt = stmt
 
 dumpToC unstriped_stmts =
-    let labelsMap = mapLabels unstriped_stmts in
-    let stmts = map stripLabels unstriped_stmts in
-    let regMap    = mapRegisters stmts in
-    let freeRegs  = countRegister stmts in
-    let bytecode  = emit stmts regMap labelsMap in
-    let constants = dumpConstantsToC stmts in
-    "SMOP__Mold_create(" ++ show freeRegs ++ "," ++ constants ++ ","
-    ++ show (length bytecode) ++ ",(int[]) {" ++
-    (joinStr "," $ map show bytecode)
-    ++ "})"
+    let labelsMap = mapLabels unstriped_stmts
+        stmts = map stripLabels unstriped_stmts
+        regMap    = mapRegisters stmts
+        freeRegs  = countRegister stmts
+        bytecode  = emit stmts regMap labelsMap
+        constants = dumpConstantsToC stmts
+        in "SMOP__Mold_create(" ++ show freeRegs ++ "," ++ constants ++ ","
+        ++ show (length bytecode) ++ ",(int[]) {"
+        ++ (joinStr "," $ map show bytecode)
+        ++ "})"
 
 main = do
     hFlush stdout
