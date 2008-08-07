@@ -2,9 +2,7 @@ use v6;
 
 use Test;
 
-# XXX many of these are not legal syntax!!!
-
-plan 74;
+plan 54;
 # L<A03/"Binary :">
 is eval('infix:<..>(1, 10, by => 2)'), <1 3 5 7 9>, 'range operator, :by parameter, long name', :todo<feature>;
 is eval('1..10 :by(2)'), <1 3 5 7 9>, 'range operator, :by adverb, space', :todo<feature>;
@@ -22,8 +20,8 @@ sub prefix:<blub> (Str $foo, Int :$times = 1) {
 
 is prefix:<blub>("bar"), 'BLUBbar', 'user-defined prefix operator, long name';
 is prefix:<blub>("bar", times => 2), 'BLUBBLUBbar', 'user-defined prefix operator, long name, optional parameter';
-is prefix:<blub>(:times(2) "bar"), 'BLUBBLUBbar', 'user-defined prefix operator, long name, :times adverb, leading';
-is prefix:<blub>("bar" :times(2)), 'BLUBBLUBbar', 'user-defined prefix operator, long name, :times adverb, trailing';
+is prefix:<blub>(:times(2), "bar"), 'BLUBBLUBbar', 'user-defined prefix operator, long name, :times adverb, leading';
+is prefix:<blub>("bar", :times(2)), 'BLUBBLUBbar', 'user-defined prefix operator, long name, :times adverb, trailing';
 is eval('blub "bar"'), 'BLUBbar', 'user-defined prefix operator, basic call', :todo<feature>;
 is eval('blub "bar" :times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :times adverb, space', :todo<feature>;
 is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :times adverb, no space', :todo<feature>;
@@ -92,28 +90,28 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
   # fXY() fxY() fXy()
 
-  $v = f:x("a"):y("b")();
-  is $v, "ab", 'f:x("a"):y("b")()';
+#  $v = f:x("a"):y("b")();
+#  is $v, "ab", 'f:x("a"):y("b")()';
 
-  $v = f:x:y("b")();
-  is $v, "1b", 'f:x:y("b")()';
+#  $v = f:x:y("b")();
+#  is $v, "1b", 'f:x:y("b")()';
 
-  $v = f:x("a"):y ();
-  is $v, "a1", 'f:x("a"):y ()';
+#  $v = f:x("a"):y ();
+#  is $v, "a1", 'f:x("a"):y ()';
 
   # fX(Y) fY(X) fx(Y) fX(y)
 
-  $v = f:x("a")(:y("b"));
-  is $v, "ab", 'f:x("a")(:y("b"))';
+#  $v = f:x("a")(:y("b"));
+#  is $v, "ab", 'f:x("a")(:y("b"))';
 
-  $v = f:y("b")(:x("a"));
-  is $v, "ab", 'f:y("b")(:x("a"))';
+#  $v = f:y("b")(:x("a"));
+#  is $v, "ab", 'f:y("b")(:x("a"))';
 
-  $v = f:x (:y("b"));
-  is $v, "1b", 'f:x (:y("b"))';
+#  $v = f:x (:y("b"));
+#  is $v, "1b", 'f:x (:y("b"))';
 
-  $v = f:x("a")(:y);
-  is $v, "a1", 'f:x("a")(:y)';
+#  $v = f:x("a")(:y);
+#  is $v, "a1", 'f:x("a")(:y)';
 
   # fXY fxY fXy
 
@@ -162,14 +160,14 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
   # fX()Y fY()X fx()y
 
-  $v = f:x("a")():y("b");
-  is $v, "ab", 'f:x("a")():y("b")';
+#  $v = f:x("a")():y("b");
+#  is $v, "ab", 'f:x("a")():y("b")';
 
-  $v = f:y("b")():x("a");
-  is $v, "ab", 'f:y("b")():x("a")';
+#  $v = f:y("b")():x("a");
+#  is $v, "ab", 'f:y("b")():x("a")';
 
-  $v = f:x ():y;
-  is $v, "11", 'f:x ():y';
+#  $v = f:x ():y;
+#  is $v, "11", 'f:x ():y';
 
   # f_X(Y) f_X_Y() f_X_Y_() f_XY_() f_XY() fXY ()
 
@@ -178,24 +176,24 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   # Since the demagicalizing of pairs, this test shouldn't and doesn't work any
   # longer.
 
-  $v = 'eval failed';
-  eval '$v = f :x("a") :y("b")()';
-  is $v, "ab", 'f :x("a") :y("b")()', :todo<bug>;
+#  $v = 'eval failed';
+#  eval '$v = f :x("a") :y("b")()';
+#  is $v, "ab", 'f :x("a") :y("b")()', :todo<bug>;
 
-  $v = 'eval failed';
-  eval '$v = f :x("a") :y("b") ()';
-  is $v, "ab", 'f :x("a") :y("b") ()', :todo<bug>;
+#  $v = 'eval failed';
+#  eval '$v = f :x("a") :y("b") ()';
+#  is $v, "ab", 'f :x("a") :y("b") ()', :todo<bug>;
 
-  $v = 'eval failed';
-  eval '$v = f :x("a"):y("b") ()';
-  is $v, "ab", 'f :x("a"):y("b") ()', :todo<bug>;
+#  $v = 'eval failed';
+#  eval '$v = f :x("a"):y("b") ()';
+#  is $v, "ab", 'f :x("a"):y("b") ()', :todo<bug>;
 
-  $v = 'eval failed';
-  eval '$v = f :x("a"):y("b")()';
-  is $v, "ab", 'f :x("a"):y("b")()', :todo<bug>;
+#  $v = 'eval failed';
+#  eval '$v = f :x("a"):y("b")()';
+#  is $v, "ab", 'f :x("a"):y("b")()', :todo<bug>;
 
-  $v = f:x("a"):y("b") ();
-  is $v, "ab", 'f:x("a"):y("b") ()';
+#  $v = f:x("a"):y("b") ();
+#  is $v, "ab", 'f:x("a"):y("b") ()';
 
   # 
 
@@ -207,36 +205,36 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   # Exercise mixes of adverbs and positional arguments.
 
   my $v;
-  my sub f(:$x,$s){$x~$s}
-  my sub g($s1,:$x,$s2){$s1~$x~$s2}
-  my sub h(*@a){@a.perl}
-  my sub i(*%h){%h.perl}
-  my sub j($s1,*%h,$s2){$s1~%h.perl~$s2}
+  my sub f($s,:$x) {$x~$s}
+  my sub g($s1,$s2,:$x) {$s1~$x~$s2}
+  my sub h(*@a) {@a.perl}
+  my sub i(*%h) {%h.perl}
+  my sub j($s1,$s2,*%h) {$s1~%h.perl~$s2}
 
   # f(X s) f(Xs) f(s X) f(sX) f(xs) f(sx)
 
-  $v = f(:x("a") "b");
+  $v = f(:x("a"), "b");
   is $v, "ab", 'f(:x("a") "b")';
 
-  $v = f(:x("a")"b");
+  $v = f(:x("a"),"b");
   is $v, "ab", 'f(:x("a")"b")';
 
-  $v = f("b" :x("a"));
+  $v = f("b", :x("a"));
   is $v, "ab", 'f("b" :x("a"))';
 
-  $v = f("b":x("a"));
+  $v = f("b",:x("a"));
   is $v, "ab", 'f("b":x("a"))';
 
-  $v = f(:x "b");
+  $v = f(:x, "b");
   is $v, "1b", 'f(:x "b")';
 
-  $v = f("b" :x);
+  $v = f("b", :x);
   is $v, "1b", 'f("b" :x)';
 
   # fX(s) f(s)X
 
-  $v = f:x("a")("b");
-  is $v, "ab", 'f:x("a")("b")';
+#  $v = f:x("a")("b");
+#  is $v, "ab", 'f:x("a")("b")';
 
   $v = f("b"):x("a");
   is $v, "ab", 'f("b"):x("a")';
@@ -257,17 +255,17 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
   # fs X  fsX  fs x  fsx
 
-  $v = f "b" :x("a");
-  is $v, "ab", 'f "b" :x("a")';
+#  $v = f "b" :x("a");
+#  is $v, "ab", 'f "b" :x("a")';
 
-  $v = f "b":x("a");
-  is $v, "ab", 'f "b":x("a")';
+#  $v = f "b":x("a");
+#  is $v, "ab", 'f "b":x("a")';
 
-  $v = f "b" :x;
-  is $v, "1b", 'f "b" :x';
+#  $v = f "b" :x;
+#  is $v, "1b", 'f "b" :x';
 
-  $v = f "b":x;
-  is $v, "1b", 'f "b":x';
+#  $v = f "b":x;
+#  is $v, "1b", 'f "b":x';
 
   { # adverbs as pairs
 
