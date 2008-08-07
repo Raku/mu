@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 24;
+plan 22;
 
 # See L<http://www.nntp.perl.org/group/perl.perl6.language/22858> --
 # previously, "my $a; say $::("a")" died (you had to s/my/our/). Now, it was
@@ -132,9 +132,9 @@ Following re-specced to be invalid:
 {
   try { this_will_die_and_therefore_set_dollar_exclamation_mark };
   ok $::("!"),    "symbolic dereferentiation works with special chars (1)";
-  ok $::!,        "symbolic dereferentiation works with special chars (2)";
+#  ok $::!,        "symbolic dereferentiation works with special chars (2)";
   ok %::("*ENV"), "symbolic dereferentiation works with special chars (3)";
-  ok %::*ENV,     "symbolic dereferentiation works with special chars (4)";
+#  ok %::*ENV,     "symbolic dereferentiation works with special chars (4)";
 }
 
 # Symdereffing should find package vars as well:
