@@ -1,3 +1,3 @@
 # run sm0p_dump_match like this
-sh brew
+make
 perl sm0p_dump_match test_file
