@@ -9,8 +9,8 @@ $out_scalar = $NAMESPACE.$CURLY($OUT);
 
 my $FETCH = "FETCH";
 
-my $out;
-$out = $out_scalar.$FETCH();
+# testing "inline" my declarations
+my $out = $out_scalar.$FETCH();
 
 my $ID_PRINT = "print";
 my $void; # we have to store even unused return values somewhere

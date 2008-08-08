@@ -99,8 +99,8 @@ goto = do
     ws
     label <- identifier
     return [Goto label]
-
 call = do
+    inline_decl <- option False (tok $ string "my" >> return True)
     target <- tok register
     tok $ char '='
     invocant <- tok register
@@ -109,7 +109,7 @@ call = do
     arguments <- between (tok lparen) rparen $ sepBy (tok argument) (tok $ char ',')
     let pos = [ x | Pos x <- arguments]
         named = [x | (Named k v) <- arguments, x <- [k,v]]
-    return [Call target identifier (Capture invocant pos named)]
+    return $ (if inline_decl then [Decl target None] else []) ++ [Call target identifier (Capture invocant pos named)]
 call2 = do
     target <- tok register
     tok $ char '='
@@ -235,5 +235,5 @@ main = do
     case (parse top "" line) of 
         Left err      -> error  $ show err
         Right stmts -> do 
-            --print stmts
+            -- print stmts
             putStrLn $ dumpToC stmts
