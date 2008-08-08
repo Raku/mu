@@ -258,7 +258,7 @@ sub bootstrap_with {
     die "Impossible: No Setup?" unless $setup_hs;
 
     system($ghc, qw(--make -O0), -o => $setup_exe, $setup_hs)
-        || system($setup_exe, qw(configure --user -p))
+        || system($setup_exe, qw(configure --user))
         || system($setup_exe, qw(build))
         || system($setup_exe, qw(install --user))
         || system($setup_exe, qw(clean))
