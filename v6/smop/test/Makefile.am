@@ -50,6 +50,6 @@ check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
 25_lexical_scope_t_SOURCES = 25_lexical_scope.p6
 26_m0ld_pugs_t_SOURCES = 26_m0ld_pugs.p6
 26_m0ld_pugs.m0ld: 26_m0ld_pugs.p6
-	$(top_srcdir)/../../pugs -Cm0ld $< > $@
+	-$(top_srcdir)/../../pugs -Cm0ld $< > $@
 
 dispatch_benchmark_SOURCES = dispatch_benchmark.sm0p
