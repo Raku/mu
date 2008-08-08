@@ -2,13 +2,13 @@ import Text.ParserCombinators.Parsec hiding (label)
 import qualified Data.Map as Map
 import System.IO
 import Debug.Trace
-type Label = [Char]
 type Register = [Char]
+type Label = [Char]
 data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None
     deriving Show
 data Capture = Capture Register [Register] [Register]
     deriving Show
-data Stmt = Labeled Label Stmt | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture | Call2 Register Register Register Register
+data Stmt = LabelDef Label | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture | Call2 Register Register Register Register
     deriving Show
 data Argument = Pos Register | Named Register Register
 
@@ -42,13 +42,12 @@ register =  char '$' >> identifier
 label = do
     id <- tok $ identifier
     tok $ char ':'
-    return id
-stmt =  do
-        l <- try label
-        labeled <- stmt
-        return $ Labeled l labeled
-    <|> do 
-        choice [(try call2),call,decl,goto,br]
+    return [LabelDef id]
+
+stmt = do 
+    l <- option [] (try label)
+    body <- choice $ map try [label,call2,call,decl,goto,br]
+    return $ l ++ body
 
 value = choice 
       [ do
@@ -77,7 +76,7 @@ decl = do
     ws
     x <- tok register
     value <- option None $ (tok $ char '=') >> value
-    return (Decl x value)
+    return [Decl x value]
 
 branch = do
     tok $ char '{'
@@ -94,12 +93,12 @@ br = do
     iftrue <- branch
     tok $ string "else"
     iffalse <- branch
-    return (Br cond iftrue iffalse)
+    return [Br cond iftrue iffalse]
 goto = do
     string "goto"
     ws
     label <- identifier
-    return (Goto label)
+    return [Goto label]
 
 call = do
     target <- tok register
@@ -110,7 +109,7 @@ call = do
     arguments <- between (tok lparen) rparen $ sepBy (tok argument) (tok $ char ',')
     let pos = [ x | Pos x <- arguments]
         named = [x | (Named k v) <- arguments, x <- [k,v]]
-    return $ Call target identifier (Capture invocant pos named)
+    return [Call target identifier (Capture invocant pos named)]
 call2 = do
     target <- tok register
     tok $ char '='
@@ -121,7 +120,7 @@ call2 = do
     tok $ char '|'
     capture <- register
     tok $ char ')'
-    return $ Call2 target responder identifier capture
+    return [Call2 target responder identifier capture]
 
 argument = do
         char ':'
@@ -138,13 +137,13 @@ top = do
     opt_ws
     stmts <- tok $ endBy stmt terminator
     eof
-    return $ stmts
+    return $ concat $ stmts
 
 type RegMap = Map.Map [Char] Int
 type LabelsMap = Map.Map [Char] Int
 
 resolveReg r regs = Map.findWithDefault (error $ "undeclared register: $"++r) r regs 
-resolveLabel l labels = Map.findWithDefault (error $ "undeclared label: "++l) l labels
+resolveLabelDef l labels = Map.findWithDefault (error $ "undeclared label: "++l) l labels
 
 toBytecode :: Stmt -> RegMap -> LabelsMap -> [Int]
 
@@ -157,13 +156,12 @@ toBytecode stmt regs labels = case stmt of
     Call2 target responder identifier capture ->
         map (\r -> resolveReg r regs) [target,responder,identifier,capture]
 
-    Goto label -> [3, resolveLabel label labels]
+    Goto label -> [3, resolveLabelDef label labels]
 
     Br value iftrue iffalse ->
-        [4,resolveReg value regs,resolveLabel iftrue labels,resolveLabel iffalse labels]
+        [4,resolveReg value regs,resolveLabelDef iftrue labels,resolveLabelDef iffalse labels]
 
-    Labeled label stmt ->
-        error "labels should be striped before being passed to toBytecode"
+    LabelDef label -> []
 
     Decl reg value -> []
 
@@ -194,15 +192,15 @@ bytecodeLength stmt = case stmt of
     Goto _ -> 2
     Call target identifier (Capture invocant positional named) ->
         6 + length positional + length named
-    Labeled label stmt -> bytecodeLength stmt
     Call2 _ _ _ _ -> 5
     Decl _ _ -> 0
+    LabelDef _ -> 0
 
-addLabel (labels,count) (Labeled label stmt) = (Map.insert label (count) labels,count+bytecodeLength stmt)
-addLabel (labels,count) stmt = (labels,count+bytecodeLength stmt)
+addLabelDef (labels,offset) (LabelDef label) = (Map.insert label offset labels,offset)
+addLabelDef (labels,offset) stmt = (labels,offset+bytecodeLength stmt)
 
 mapLabels :: [Stmt] -> LabelsMap
-mapLabels stmts = fst $ foldl addLabel (Map.empty,0) stmts
+mapLabels stmts = fst $ foldl addLabelDef (Map.empty,0) stmts
 
 emit :: [Stmt] -> RegMap -> LabelsMap -> [Int]
 emit stmts regMap labelsMap = concatMap (\op -> toBytecode op regMap labelsMap) stmts ++ [0]
@@ -220,12 +218,8 @@ dumpConstantToC value = case value of
 dumpConstantsToC stmts = "(SMOP__Object*[]) {" ++
     concat [dumpConstantToC c | Decl reg c <- stmts] ++ "NULL}"
 
-stripLabels (Labeled label stmt) = stripLabels stmt
-stripLabels stmt = stmt
-
-dumpToC unstriped_stmts =
-    let labelsMap = mapLabels unstriped_stmts
-        stmts = map stripLabels unstriped_stmts
+dumpToC stmts =
+    let labelsMap = mapLabels stmts
         regMap    = mapRegisters stmts
         freeRegs  = countRegister stmts
         bytecode  = emit stmts regMap labelsMap

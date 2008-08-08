@@ -1,4 +1,3 @@
-
 my $NAMESPACE = $SMOP__S1P__RootNamespace;
 my $CURLY = "postcircumfix:{ }";
 my $OUT = "$*OUT";
