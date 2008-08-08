@@ -57,8 +57,6 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
                                                        SMOP_REFERENCE(interpreter,capture)));
 
   } else if (identifier == SMOP__ID__lookup) {
-    printf("TODO: smop_s1p_lexicalscope lookup!\n");
-    abort();
 
   } else {
     ___UNKNOWN_METHOD___;
