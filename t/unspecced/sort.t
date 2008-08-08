@@ -29,7 +29,7 @@ plan 28;
 
 # L<S29/"List"/"=item sort">
 
-my $prelude_sort = q:to'END_PRELUDE_SORT';
+my $prelude_sort = q:to 'END_PRELUDE_SORT';
     subset KeyExtractor of Code where { .sig === :(Any --> Any) };
     subset Comparator   of Code where { .sig === :(Any, Any --> Int) };
     subset OrderingPair
