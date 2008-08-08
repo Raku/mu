@@ -20,6 +20,7 @@ import Pugs.CodeGen.Perl5 (genPerl5)
 import Pugs.CodeGen.YAML (genParseYAML, genParseHsYAML, genYAML)
 import Pugs.CodeGen.Binary (genParseBinary)
 import Pugs.CodeGen.JSON (genJSON)
+import Pugs.CodeGen.M0ld (genM0ld)
 import Pugs.Compile.Pugs (genPugs)
 -- import Pugs.Compile.Haskell (genGHC)
 -- import Pugs.CodeGen.XML (genXML)
@@ -35,6 +36,7 @@ generators = Map.fromList $
     , ("PIL1-Perl5",  genPerl5)
     , ("PIL1-JSON",   genJSON)
     , ("PIL1-YAML",   genYAML)
+    , ("PIL1-M0ld",   genM0ld)
 --  , ("PIL2",        genPIL2)
 --  , ("PIL2-Perl5",  genPIL2Perl5)
 --  , ("PIL2-JSON",   genPIL2JSON)
@@ -62,6 +64,7 @@ norm = norm' . map toLower . filter isAlphaNum
     norm' "pil1"   = "PIL1"
 --  norm' "pil2"   = "PIL2"
     norm' "perl5"  = "!PIL1-Perl5"
+    norm' "m0ld"  = "PIL1-M0ld"
     norm' "json"   = "!PIL1-JSON"
     norm' "yaml"   = "!PIL1-YAML"
     norm' "pil1perl5"  = "PIL1-Perl5"
