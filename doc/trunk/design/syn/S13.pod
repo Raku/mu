@@ -233,6 +233,4 @@ an anonymous class can only be specified by the destination class:
     $someclass = generate_class();
     $someclass($x);
 
-=cut
-
 =for vim:set expandtab sw=4:

@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 5 Aug 2008
+  Last Modified: 8 Aug 2008
   Number: 2
-  Version: 134
+  Version: 135
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1503,9 +1503,11 @@ postfix forms:
 
 =item *
 
-With multiple dispatch, C<&foo> may not be sufficient to uniquely name a
-specific function.  In that case, the type may be refined by using a
-signature literal as a postfix operator:
+With multiple dispatch, C<&foo> may actually be the name of a set
+of candidate functions (which you can use as if it were an ordinary function).
+However, in that case C<&foo> by itself is not be sufficient to uniquely
+name a specific function.  To do that, the type may be refined by
+using a signature literal as a postfix operator:
 
     &foo:(Int,Num)
 
@@ -2455,7 +2457,7 @@ If you want to abbreviate further, just define a macro:
 
     macro qx { 'qq:x ' }          # equivalent to P5's qx//
     macro qTO { 'qq:x:w:to ' }    # qq:x:w:to//
-    macro quote:<❰ ❱> ($text) { q:code{ $text.quoteharder } }
+    macro quote:<❰ ❱> ($text) { quasi { $text.quoteharder } }
 
 All the uppercase adverbs are reserved for user-defined quotes.
 All Unicode delimiters above Latin-1 are reserved for user-defined quotes.

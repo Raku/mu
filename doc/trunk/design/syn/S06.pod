@@ -2490,10 +2490,10 @@ evaluated again, so the two calls below print the same thing:
 =head2 Quasiquoting
 
 In aid of returning syntax tree, Perl provides a "quasiquoting"
-mechanism using the quote C<q:code>, followed by a block intended to
+mechanism using the quote C<quasi>, followed by a block intended to
 represent an AST:
 
-    return q:code { say "foo" };
+    return quasi { say "foo" };
 
 Modifiers to the C<:code> adverb can modify the operation:
 
@@ -2508,7 +2508,7 @@ errors when the macro is being compiled, I<not> when it's being used.
 To make a symbol resolve to the (partially compiled) scope of the macro
 call, use the C<COMPILING::> pseudo-package:
 
-    macro moose () { q:code { $COMPILING::x } }
+    macro moose () { quasi { $COMPILING::x } }
 
     moose(); # macro-call-time error
     my $x;
@@ -2545,15 +2545,15 @@ to be specially marked or they will be bound normally.  To insert a
 "unquoted" expression of either type within a quasiquote, use the
 quasiquote delimiter tripled, typically a bracketing quote of some sort:
 
-    return q:code { say $a + {{{ $ast }}} }
-    return q:code [ say $a + [[[ $ast ]]] ]
-    return q:code < say $a + <<< $ast >>> >
-    return q:code ( say $a + ((( $ast ))) )
+    return quasi { say $a + {{{ $ast }}} }
+    return quasi [ say $a + [[[ $ast ]]] ]
+    return quasi < say $a + <<< $ast >>> >
+    return quasi ( say $a + ((( $ast ))) )
 
 The delimiters don't have to be bracketing quotes, but the following
 is probably to be construed as Bad Style:
 
-    return q:code / say $a + /// $ast /// /
+    return quasi / say $a + /// $ast /// /
 
 (Note to implementors: this must not be implemented by finding
 the final closing delimiter and preprocessing, or we'll violate our
@@ -2588,17 +2588,17 @@ does not matter for textual macros, however, since the reparse of
 the text determines subsequent expectations.)
 
 Quasiquotes default to hygienic lexical scoping, just like closures.
-The visibility of lexical variables is limited to the q:code expression
+The visibility of lexical variables is limited to the quasi expression
 by default.  A variable declaration can be made externally visible using 
 the C<COMPILING::> pseudo-package.  Individual variables can be made visible,
 or all top-level variable declarations can be exposed using the
-C<q:code(:COMPILING)> form.
+C<quasi :COMPILING> form.
 
 Both examples below will add C<$new_variable> to the lexical scope of
 the macro call:
 
-  q:code {  my $COMPILING::new_variable;   my $private_var; ... }
-  q:code(:COMPILING) { my $new_variable; { my $private_var; ... } }
+  quasi {  my $COMPILING::new_variable;   my $private_var; ... }
+  quasi :COMPILING { my $new_variable; { my $private_var; ... } }
 
 (Note that C<:COMPILING> has additional effects described in L<Macros>.) 
 
