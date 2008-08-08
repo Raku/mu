@@ -1,4 +1,5 @@
 all: sm0p5.pm
+check:
 sm0p5.pm: sm0p.pm
 	touch ../test/*.p6 ../test/*.sm0p ../src/*.sm0p
 	rm -fr lex/

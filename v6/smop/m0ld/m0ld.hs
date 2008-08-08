@@ -136,7 +136,7 @@ terminator :: Parser ()
 terminator = opt_ws >> (((tok $ char ';') >> return ()) <|> eof)
 top = do 
     opt_ws
-    stmts <- tok $ endBy1 stmt terminator
+    stmts <- tok $ endBy stmt terminator
     eof
     return $ stmts
 
