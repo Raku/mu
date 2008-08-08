@@ -48,7 +48,17 @@ eval {
                 }
                 $p6_code .= $_;
             }
-            #next PRINCIPAL;
+        } elsif (/^(\s*)use\s+m0ld;\s*$/) {
+            my $m0ld_code = '';
+            my $indent = $1;
+            while (<$input>) {
+                $out_count++;
+                unless (/^$indent/) {
+                    print {$output} preprocess_m0ld($m0ld_code);
+                    last;
+                }
+                $m0ld_code .= $_;
+            }
         }
         $out_count++;
         print {$output} $_;
@@ -114,4 +124,9 @@ sub preprocess_sm0p {
     return preprocess($code,'perl',"-I$base/../../src/perl6",
         '-I'.$base.'/sm0p',
         $base.'/sm0p/sm0p_with_actions');
+}
+sub preprocess_m0ld {
+    my $code = shift;
+    #warn "got sm0p code <$code>\n";
+    return "mold = ".preprocess($code,"$base/m0ld/m0ld"),";";
 }
