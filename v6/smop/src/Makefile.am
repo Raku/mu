@@ -7,13 +7,14 @@ AM_LDFLAGS = --no-undefined
 # use this to see all eval calls in SLIME -DSMOP_SLIME_DEBUG
 lib_LTLIBRARIES = libsmop.la
 libsmop_la_LIBADD = -lpthread
-libsmop_la_SOURCES = smop_lowlevel.sm0p idconst.c						\
-	native_bool.c native_capture.c native_int.c	native_uint.c			\
-	smop.c smop_internal.h smop_interpreter.c							\
-    smop_slime_capturize.c smop_slime_currentframe.c smop_slime_frame.c	\
-    smop_slime_node.c     lowlevel_method.c smop_s1p_scalar.c smop_s1p_array.c smop_s1p_io.c  \
-    smop_s1p_str.c smop_s1p_hash.c smop_s1p_root_namespace.c p6opaque.sm0p \
-    smop_s1p_ccode.c smop_s1p_code.c smop_s1p_attribute.sm0p smop_mold.c
-
+libsmop_la_SOURCES = smop_lowlevel.sm0p idconst.c							\
+	native_bool.c native_capture.c native_int.c	native_uint.c				\
+	smop.c smop_internal.h smop_interpreter.c								\
+    smop_slime_capturize.c smop_slime_currentframe.c smop_slime_frame.c		\
+    smop_slime_node.c     lowlevel_method.c smop_s1p_scalar.c				\
+	smop_s1p_array.c smop_s1p_io.c											\
+    smop_s1p_str.c smop_s1p_hash.c smop_s1p_root_namespace.c p6opaque.sm0p	\
+    smop_s1p_ccode.c smop_s1p_code.c smop_s1p_attribute.sm0p smop_mold.c    \
+	smop_s1p_lexicalscope.c
 
 

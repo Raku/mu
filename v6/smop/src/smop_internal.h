@@ -43,7 +43,7 @@
  * See http://www.perlfoundation.org/perl6/index.cgi?smop_boot_sequence
  */
 #define SMOP_INTERNAL_INIT_SEQUENCE         \
-     smop_mold_init();                  \
+     smop_mold_init();                      \
      smop_s1p_code_init();                  \
      smop_s1p_ccode_init();                 \
      smop_lowlevel_method_init();           \
@@ -54,8 +54,10 @@
      smop_s1p_array_init();                 \
      smop_s1p_hash_init();                  \
      smop_s1p_io_init();                    \
-     smop_s1p_attribute_init();                 
+     smop_s1p_attribute_init();             \
+     smop_s1p_lexicalscope_init();
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
+     smop_s1p_lexicalscope_destr();         \
      smop_s1p_attribute_destr();            \
      smop_s1p_io_destr();                   \
      smop_s1p_hash_destr();                 \
@@ -107,5 +109,7 @@ void smop_s1p_array_init();
 void smop_s1p_array_destr();
 void smop_s1p_ccode_init();
 void smop_s1p_ccode_destr();
+void smop_s1p_lexicalscope_init();
+void smop_s1p_lexicalscope_destr();
 
 #endif
