@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 8 Aug 2008
   Number: 2
-  Version: 135
+  Version: 136
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1589,7 +1589,8 @@ The C<$#foo> notation is dead.  Use C<@foo.end> or C<@foo[*-1]> instead.
 An I<identifier> is composed of an alphabetic character followed by
 any sequence of alphanumeric characters.  The definitions of alphabetic
 and numeric include appropriate Unicode characters.  Underscore is
-always considered alphabetic.
+always considered alphabetic.  An identifier may also contain isolated
+apostrophes or hyphens provided the next character is alphabetic.
 
 A I<name> is anything that is a legal part of a variable name (not counting
 the sigil).  This includes
