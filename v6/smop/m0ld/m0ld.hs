@@ -1,6 +1,8 @@
 import Text.ParserCombinators.Parsec hiding (label)
 import qualified Data.Map as Map
-import System.IO
+import System.IO hiding (getContents,putStrLn)
+import Prelude hiding (getContents,putStrLn)
+import System.IO.UTF8
 import Debug.Trace
 type Register = [Char]
 type Label = [Char]
@@ -51,7 +53,7 @@ stmt = do
 
 value = choice 
       [ do
-          char '$'
+          char '¢'
           name <- identifier
           return $ Var name
       , do

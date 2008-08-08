@@ -1,4 +1,4 @@
-my $NAMESPACE = $SMOP__S1P__RootNamespace;
+my $NAMESPACE = ¢SMOP__S1P__RootNamespace;
 my $CURLY = "postcircumfix:{ }";
 my $OUT = "$*OUT";
 #opcodes
@@ -27,8 +27,8 @@ $void = $out.$ID_PRINT($NOTOK2);
 label1: my $OK2 = "ok 2 # goto works\n";
 $void = $out.$ID_PRINT($OK2);
 
-my $TRUE = $SMOP__NATIVE__bool_true;
-my $FALSE = $SMOP__NATIVE__bool_false;
+my $TRUE = ¢SMOP__NATIVE__bool_true;
+my $FALSE = ¢SMOP__NATIVE__bool_false;
 
 if $TRUE {goto good_jump} else {goto wrong_jump};
 
