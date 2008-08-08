@@ -11,7 +11,7 @@ require 'mangle.pl';
 package sm0p;
 use strict;
 use warnings;
-no warnings 'qw';
+no warnings 'qw', 'recursion';
 use Cursor; # for base class as well as DEBUG constants
 use Moose ':all' => { -prefix => "moose_" };
 moose_extends('Cursor');
@@ -32,6 +32,26 @@ use YAML::XS;
 #    *::RE = Load($yaml);
 #}
 
+## method lineof ($p)
+sub lineof {
+    my $self = shift;
+    my $p = shift;
+
+
+    return 1 unless defined $p;
+    my $posprops = $self->{'_'};
+    my $line = $posprops->[$p]{'line'};
+    return $line if $line;
+    $line = 1;
+    my $pos = 0;
+    my $orig = $self->orig;
+    my $text = $$orig;
+    while ($text ne '') { # XXX needs to recognize #line?
+        $posprops->[$pos++]{'line'} = $line;
+        $line++ if substr($text,0,1,'') eq "\n";
+    }
+    return $posprops->[$p]{'line'} // 0;
+}
 ## token TOP
 ##      token TOP {
 ##          <ws> <name>  <ws> '=' <ws> 'q:sm0p' <frame> <ws> ';'?

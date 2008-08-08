@@ -1,4 +1,19 @@
 grammar sm0p;
+method lineof ($p) {
+    return 1 unless defined $p;
+    my $posprops = self.<_>;
+    my $line = $posprops.[$p]<line>;
+    return $line if $line;
+    $line = 1;
+    my $pos = 0;
+    my $orig = self.orig;
+    my $text = $$orig;
+    while $text ne '' { # XXX needs to recognize #line?
+        $posprops.[$pos++]<line> = $line;
+        $line++ if substr($text,0,1,'') eq "\n";
+    }
+    return $posprops.[$p]<line> // 0;
+}
 token TOP {
     <ws> <name>  <ws> '=' <ws> 'q:sm0p' <frame> <ws> ';'?
     {make $<name> ~ " = " ~ $<frame> ~ ';'}
