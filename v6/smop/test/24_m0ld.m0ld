@@ -18,8 +18,7 @@ my $void; # we have to store even unused return values somewhere
 my $PLAN = "1..3\n";
 $void = $out.$ID_PRINT($PLAN);
 
-my $OK1 = "ok 1 # simple method call\n";
-$void = $out.$ID_PRINT($OK1);
+$void = $out."print"("ok 1 # simple method call\n");
 
 goto label1;
 my $NOTOK2 = "not ok 2 # goto dosn't work\n";

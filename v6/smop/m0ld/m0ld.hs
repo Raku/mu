@@ -1,13 +1,13 @@
 import Text.ParserCombinators.Parsec hiding (label)
 import qualified Data.Map as Map
-import System.IO hiding (getContents,putStrLn)
-import Prelude hiding (getContents,putStrLn)
+import System.IO hiding (getContents,putStrLn,print)
+import Prelude hiding (getContents,putStrLn,print)
 import System.IO.UTF8
 import Debug.Trace
 type Register = [Char]
 type Label = [Char]
 data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None
-    deriving Show
+    deriving (Show,Eq,Ord)
 data Capture = Capture Register [Register] [Register]
     deriving Show
 data Stmt = LabelDef Label | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture | Call2 Register Register Register Register
@@ -25,7 +25,7 @@ identifier = do
 ws = do
     many1 $ choice
         [ oneOf "\t\n "
-        , char '#' >> many1 (noneOf "\n") >> newline
+        , char '#' >> many (noneOf "\n") >> newline
         ]
     return [()]
 
@@ -52,7 +52,7 @@ stmt = do
     body <- choice $ map try [label,call2,call,decl,goto,br]
     return $ l ++ body
 
-value = choice 
+constant = choice 
       [ do
           char '¢'
           name <- identifier
@@ -74,12 +74,26 @@ value = choice
             c <- anyChar
             return ['\\',c]
 
+-- implicit_decl :: GenParser Char ImplicitDecls [Char]
+implicit_decl = do
+    c <- constant
+    decls <- getState
+    case (Map.lookup c decls) of
+        Just c -> return c
+        Nothing ->
+            do 
+                let new = "xxx"++(show $ Map.size decls)
+                updateState $ Map.insert c new
+                decls <- getState
+                return $ new
+value = tok $ choice [register,implicit_decl]
+
 decl = do 
     string "my"
     ws
     x <- tok register
-    value <- option None $ symbol "=" >> value
-    return [Decl x value]
+    defaultValue <- option None $ symbol "=" >> constant
+    return [Decl x defaultValue]
 
 branch = do
     symbol "{"
@@ -92,7 +106,7 @@ branch = do
 br = do
     string "if"
     ws
-    cond <- tok register
+    cond <- value
     iftrue <- branch
     symbol "else"
     iffalse <- branch
@@ -104,43 +118,43 @@ goto = do
     return [Goto label]
 call = do
     inline_decl <- option False (symbol "my" >> return True)
-    target <- tok register
+    target <- value
     symbol "="
-    invocant <- tok register
+    invocant <- value
     char '.'
-    identifier <- register
+    identifier <- value
     arguments <- between (tok lparen) rparen $ sepBy (tok argument) (symbol ",")
     let pos = [ x | Pos x <- arguments]
         named = [x | (Named k v) <- arguments, x <- [k,v]]
     return $ (if inline_decl then [Decl target None] else []) ++ [Call target identifier (Capture invocant pos named)]
 call2 = do
-    target <- tok register
+    target <- value
     symbol "="
-    responder <- tok register
+    responder <- value
     char '.'
-    identifier <- register
+    identifier <- value
     symbol "("
     symbol "|"
-    capture <- register
+    capture <- value
     symbol ")"
     return [Call2 target responder identifier capture]
 
 argument = do
         char ':'
-        key <- tok register
-        value <- between (symbol "(") (symbol ")") (tok register)
-        return $ Named key value
+        k <- value
+        v <- between (symbol "(") (symbol ")") value
+        return $ Named k v
     <|> do 
-        arg <- tok register
+        arg <- value
         return $ Pos arg
 
-terminator :: Parser ()
 terminator = opt_ws >> ((symbol ";" >> return ()) <|> eof)
 top = do 
     opt_ws
     stmts <- tok $ endBy stmt terminator
     eof
-    return $ concat $ stmts
+    constants <- getState
+    return (concat $ stmts,constants)
 
 type RegMap = Map.Map [Char] Int
 type LabelsMap = Map.Map [Char] Int
@@ -232,11 +246,14 @@ dumpToC stmts =
         ++ (joinStr "," $ map show bytecode)
         ++ "})"
 
+type ImplicitDecls = Map.Map Value [Char]
+implicitDecls = map (\(constant,reg) -> Decl reg constant) . Map.toList
 main = do
     hFlush stdout
     line <- getContents
-    case (parse top "" line) of 
+    case (runParser top (Map.empty :: ImplicitDecls) "" line) of 
         Left err      -> error  $ show err
-        Right stmts -> do 
-            -- print stmts
-            putStrLn $ dumpToC stmts
+        Right (stmts,constants) -> do 
+            -- print constants
+            
+            putStrLn $ dumpToC $ (implicitDecls constants) ++ stmts
