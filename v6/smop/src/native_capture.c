@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <smop.h>
 #include <smop_lowlevel.h>
+#include <smop_s1p.h>
 
 /* The native capture prototype is at the same time a responder
  * interface. And the prototype is not subject to garbage
@@ -105,6 +106,7 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
     }
     ret = NULL;
   } else {
+    ___UNKNOWN_METHOD___;
     SMOP_RELEASE(interpreter,capture);
   }
   return ret;

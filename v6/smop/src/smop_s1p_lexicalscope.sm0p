@@ -57,11 +57,11 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
                                                        SMOP_REFERENCE(interpreter,capture)));
 
   } else if (identifier == SMOP__ID__lookup) {
+    printf("%p\n",SMOP__NATIVE__capture_positional(interpreter,capture,0));
     SMOP__Object* mold;
     {
       use m0ld;
-
-      my $name = ¢capture."positionals"(0);
+      my $name = ¢capture."positional"(0);
       my $back = ¢interpreter."back"();
       my $exists = ¢invocant."exists"($name);
 
