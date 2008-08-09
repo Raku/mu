@@ -57,42 +57,39 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
                                                        SMOP_REFERENCE(interpreter,capture)));
 
   } else if (identifier == SMOP__ID__lookup) {
-    /* TODO add syntax sugar to make this work 
+    SMOP__Object* mold;
+    {
+      use m0ld;
 
-    SMOP__Object* mold = //q:m0ld {
-      my $invocant = $capture.invocant();
-      my $name = $capture.positionals(0);
-      my $back = interpreter."back";
-      my $exists = ¢invocant."exists"(¢name);
-      
+      my $name = ¢capture."positionals"(0);
+      my $back = ¢interpreter."back"();
+      my $exists = ¢invocant."exists"($name);
+
+      my $void;
       my $ret;
-      
+       
       if $exists {goto than} else {goto else};
       than:
-        $ret = $lexical."postcicumfix:{ }"($name);
-        $back."setr"($ret);
-        interpreter."goto"($back);
+        $ret = ¢invocant."postcicumfix:{ }"($name);
+        $void = $back."setr"($ret);
+        $void = ¢interpreter."goto"($back);
       else:
         my $outer = ¢invocant."outer"();
         my $outer_true = $outer."bool"();
         if $outer_true {goto than2} else {goto else2};
         than2:
             $ret = $outer."lookup"($name);
-            $back."setr"($ret);
-            interpreter."goto"($back);
+            $void = $back."setr"($ret);
+            $void = ¢interpreter."goto"($back);
         else2:
             my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcicumfix:{ }"("$*OUT");
             my $OUT = $OUT_SCALAR."FETCH"();
-            my $void = $OUT."print"("no variable in the current scope");
-    };
-
-
+            $void = $OUT."print"("no variable in the current scope");
+    }
     SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 frame);
-
-    */
   } else {
     ___UNKNOWN_METHOD___;
 

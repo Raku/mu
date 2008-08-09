@@ -48,24 +48,16 @@ eval {
                 }
                 $p6_code .= $_;
             }
-
-        } elsif (/^(\s*) (.+) \s+ = \s* q:m0ld/x) {
+        } elsif (/^(\s*)use\s+m0ld;\s*$/) {
             my $m0ld_code = '';
             my $indent = $1;
-            my $assign = $2;
             while (<$input>) {
-                if ( $_ =~ /^$indent\}/ ) {
-                    my $next_inline = $. + 1;
-                    my $next_outline = $out_count + 2;
-                    my $lines = qq{#line $next_outline "$out"\n}
-                      . preprocess_m0ld($m0ld_code)
-                        . qq{#line $next_inline "$in"\n};
-                    print {$output} $assign.' = '.$lines.';';
-                    $out_count += $lines =~ tr/\n//;
-                    next PRINCIPAL;
-                };
-                $m0ld_code .= $_;
                 $out_count++;
+                unless (/^$indent|^$/) {
+                    print {$output} preprocess_m0ld($m0ld_code);
+                    last;
+                }
+                $m0ld_code .= $_;
             }
         }
         $out_count++;
@@ -135,6 +127,6 @@ sub preprocess_sm0p {
 }
 sub preprocess_m0ld {
     my $code = shift;
-    #warn "got m0ld code <$code>\n";
+    #warn "got sm0p code <$code>\n";
     return "mold = ".preprocess($code,"$base/m0ld/m0ld"),";";
 }
