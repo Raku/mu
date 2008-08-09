@@ -12,6 +12,7 @@ typedef struct smop_mold {
   SMOP__Object__BASE
   int registers;
   SMOP__Object** constants;
+  int constants_len;
   int *opcodes;
 } smop_mold;
 
@@ -24,7 +25,11 @@ typedef struct smop_mold_frame {
   SMOP__Object** registers;
   int target;
 } smop_mold_frame;
-
+SMOP__Object* mold_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum, SMOP__Object* value) {
+    smop_mold_frame* frame = (smop_mold_frame*) moldframe;
+    smop_mold* mold = (smop_mold*) frame->mold;
+    frame->registers[mold->constants_len+regnum] = value;
+}
 SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* mold_object) {
     if (mold_object->RI != (SMOP__ResponderInterface*)SMOP__Mold) {
       fprintf(stderr,"argument to SMOP__Mold__Frame_create is not Mold\n");
@@ -163,6 +168,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           }
           call_named[named_n] = NULL;
           SMOP__Object* capture = SMOP__NATIVE__capture_create(interpreter,call_invocant,call_pos,call_named);
+          printf("# %d = ...\n",target);
           SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_invocant),call_identifier,capture);
           if (frame->registers[target]) {
             SMOP_RELEASE(interpreter,frame->registers[target]);
