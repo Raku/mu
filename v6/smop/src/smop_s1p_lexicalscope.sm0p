@@ -57,15 +57,16 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
                                                        SMOP_REFERENCE(interpreter,capture)));
 
   } else if (identifier == SMOP__ID__lookup) {
-    /* TODO add syntax sugar to make this work
-    SMOP__Object* mold = q:m0ld {
+    /* TODO add syntax sugar to make this work 
 
-      my $name = ¢capture.positionals(0);
+    SMOP__Object* mold = //q:m0ld {
+      my $invocant = $capture.invocant();
+      my $name = $capture.positionals(0);
       my $back = interpreter."back";
       my $exists = ¢invocant."exists"(¢name);
-
+      
       my $ret;
-       
+      
       if $exists {goto than} else {goto else};
       than:
         $ret = $lexical."postcicumfix:{ }"($name);
@@ -83,11 +84,14 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
             my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcicumfix:{ }"("$*OUT");
             my $OUT = $OUT_SCALAR."FETCH"();
             my $void = $OUT."print"("no variable in the current scope");
-    }
+    };
+
+
     SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 frame);
+
     */
   } else {
     ___UNKNOWN_METHOD___;
