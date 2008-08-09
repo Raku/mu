@@ -93,6 +93,10 @@ static SMOP__Object* smop_mold_message(SMOP__Object* interpreter,
 static SMOP__Object* get_register(SMOP__Object* interpreter,smop_mold_frame* frame) {
   smop_mold* mold = (smop_mold*) frame->mold;
   //printf("reading register %d from position %d\n",mold->opcodes[frame->position],frame->position);
+  if (!frame->registers[mold->opcodes[frame->position]]) {
+    printf("reading empty register %d\n",mold->opcodes[frame->position]);
+    abort();
+  }
   SMOP__Object* ret = SMOP_REFERENCE(interpreter,frame->registers[mold->opcodes[frame->position]]);
   frame->position++;
   return ret;
@@ -111,7 +115,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   smop_mold_frame* frame = (smop_mold_frame*) invocant;
-    smop_mold* mold = (smop_mold*) frame->mold;
+  smop_mold* mold = (smop_mold*) frame->mold;
   if (SMOP__ID__new == identifier) {
     ___UNKNOWN_METHOD___
   } else if (SMOP__ID__has_next == identifier) {
