@@ -35,6 +35,7 @@ tok r = do
     res <- r
     opt_ws
     return res
+symbol x = tok $ string x
 
 lparen = char '('
 rparen = char ')'
@@ -43,7 +44,7 @@ register =  char '$' >> identifier
 
 label = do
     id <- tok $ identifier
-    tok $ char ':'
+    symbol ":"
     return [LabelDef id]
 
 stmt = do 
@@ -77,23 +78,23 @@ decl = do
     string "my"
     ws
     x <- tok register
-    value <- option None $ (tok $ char '=') >> value
+    value <- option None $ symbol "=" >> value
     return [Decl x value]
 
 branch = do
-    tok $ char '{'
+    symbol "{"
     string "goto"
     ws
-    label <- tok $identifier
+    label <- tok identifier
     option ' ' $ char ';'
-    tok $ char '}'
+    symbol "}"
     return label
 br = do
     string "if"
     ws
     cond <- tok register
     iftrue <- branch
-    tok $ string "else"
+    symbol "else"
     iffalse <- branch
     return [Br cond iftrue iffalse]
 goto = do
@@ -102,39 +103,39 @@ goto = do
     label <- identifier
     return [Goto label]
 call = do
-    inline_decl <- option False (tok $ string "my" >> return True)
+    inline_decl <- option False (symbol "my" >> return True)
     target <- tok register
-    tok $ char '='
+    symbol "="
     invocant <- tok register
     char '.'
     identifier <- register
-    arguments <- between (tok lparen) rparen $ sepBy (tok argument) (tok $ char ',')
+    arguments <- between (tok lparen) rparen $ sepBy (tok argument) (symbol ",")
     let pos = [ x | Pos x <- arguments]
         named = [x | (Named k v) <- arguments, x <- [k,v]]
     return $ (if inline_decl then [Decl target None] else []) ++ [Call target identifier (Capture invocant pos named)]
 call2 = do
     target <- tok register
-    tok $ char '='
+    symbol "="
     responder <- tok register
     char '.'
     identifier <- register
-    tok $ char '('
-    tok $ char '|'
+    symbol "("
+    symbol "|"
     capture <- register
-    tok $ char ')'
+    symbol ")"
     return [Call2 target responder identifier capture]
 
 argument = do
         char ':'
         key <- tok register
-        value <- between (tok $ char '(') (tok $ char ')') (tok register)
+        value <- between (symbol "(") (symbol ")") (tok register)
         return $ Named key value
     <|> do 
         arg <- tok register
         return $ Pos arg
 
 terminator :: Parser ()
-terminator = opt_ws >> (((tok $ char ';') >> return ()) <|> eof)
+terminator = opt_ws >> ((symbol ";" >> return ()) <|> eof)
 top = do 
     opt_ws
     stmts <- tok $ endBy stmt terminator
