@@ -1,0 +1,52 @@
+#!/bin/env perl
+BEGIN {
+  my $mydir = $0;
+  my $mydir =~ s|[^/]+$||;
+  my $p6dir = $mydir."../../../src/perl6";
+  push(@INC,$p6dir);
+}
+
+
+sub print_usage_and_exit {
+    print STDERR <<END;
+$0 [-q] [--format=FORMAT] [ --start=RULE ] [ FILENAME | -e CODE ]
+
+FORMATs
+ p5a
+
+END
+}
+
+# for command line, see ../../STD_red/STD_red_run
+
+
+my $file = shift;
+
+use STD;
+use utf8;
+use YAML::XS; # can be removed once Dump() goes away.
+use Encode;
+
+my $r = STD->parsefile($file);
+
+
+# for to_dump0, see ../../STD_red/match.rb, bottom
+use autobox;
+{ package STD;
+  sub to_dump0 {
+  }
+}
+{ package ARRAY;
+  sub to_dump0 {
+  }
+}
+{ package HASH;
+  sub to_dump0 {
+  }
+}
+{ package SCALAR;
+  sub to_dump0 {
+  }
+}
+
+print Dump($r);
