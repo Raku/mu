@@ -1,5 +1,6 @@
 SMOP__Object* SMOP__ID__back;
 SMOP__Object* SMOP__ID__bless;
+SMOP__Object* SMOP__ID__bool;
 SMOP__Object* SMOP__ID__BUILD;
 SMOP__Object* SMOP__ID__BUILDALL;
 SMOP__Object* SMOP__ID__call;
@@ -21,6 +22,7 @@ SMOP__Object* SMOP__ID__DESTROY;
 SMOP__Object* SMOP__ID__DESTROYALL;
 SMOP__Object* SMOP__ID__dispatch;
 SMOP__Object* SMOP__ID__eval;
+SMOP__Object* SMOP__ID__exists;
 SMOP__Object* SMOP__ID__FETCH;
 SMOP__Object* SMOP__ID__forget;
 SMOP__Object* SMOP__ID__free;

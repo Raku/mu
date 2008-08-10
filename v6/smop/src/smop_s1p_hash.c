@@ -75,6 +75,36 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
     } else {
       fprintf(stderr,"wrong number of arguments to postrcicumfix:<{ }>\n");
     }
+
+  } else if (identifier == SMOP__ID__exists) {
+    if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1) {
+      SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+      int hashing_result = 0;
+      if (SMOP_RI(key) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
+        SMOP__Object* dest = key;
+        key = SMOP__NATIVE__idconst_create(SMOP__S1P__Str_c_str(key));
+        SMOP_RELEASE(interpreter,dest);
+      }
+      hash_bucket* bucket = invocant->buckets[hashing_result];
+      //fprintf(stderr,"bucket %p\n",bucket);
+      if (bucket) while (1) {
+        if (bucket->key == key) {
+          //fprintf(stderr,"found new cell\n");
+          SMOP_RELEASE(interpreter,invocant);
+          SMOP_RELEASE(interpreter,capture);
+          return SMOP__NATIVE__bool_true;
+        } else if (bucket->next) {
+          bucket = bucket->next;
+        } else {
+          break;
+        }
+      }
+
+      ret = SMOP__NATIVE__bool_false;
+    } else {
+      fprintf(stderr,"wrong number of arguments to exists\n");
+    }
+
   } else if (identifier == SMOP__ID__new) {
     ret = SMOP__S1P__Hash_create();
   } else if (identifier == SMOP__ID__DESTROYALL) {

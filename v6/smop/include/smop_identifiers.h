@@ -9,6 +9,7 @@
 
 extern SMOP__Object* SMOP__ID__back;              /* "back" */
 extern SMOP__Object* SMOP__ID__bless;             /* "bless" */
+extern SMOP__Object* SMOP__ID__bool;              /* "bool" */
 extern SMOP__Object* SMOP__ID__BUILD;             /* "BUILD" */
 extern SMOP__Object* SMOP__ID__BUILDALL;          /* "BUILDALL" */
 extern SMOP__Object* SMOP__ID__call;              /* "call" */
@@ -30,6 +31,7 @@ extern SMOP__Object* SMOP__ID__DESTROY;           /* "DESTROY" */
 extern SMOP__Object* SMOP__ID__DESTROYALL;        /* "DESTROYALL" */
 extern SMOP__Object* SMOP__ID__dispatch;          /* "dispatch" */
 extern SMOP__Object* SMOP__ID__eval;              /* "eval" */
+extern SMOP__Object* SMOP__ID__exists;            /* "exists" */
 extern SMOP__Object* SMOP__ID__FETCH;             /* "FETCH" */
 extern SMOP__Object* SMOP__ID__forget;            /* "forget" */
 extern SMOP__Object* SMOP__ID__free;              /* "free" */

@@ -49,6 +49,15 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     if (ret)
       SMOP_REFERENCE(interpreter,ret);
 
+  } else if (SMOP__ID__bool == identifier) {
+    SMOP__Object* cell = SMOP__S1P__Scalar_FETCH(scalar);
+    ret = SMOP_DISPATCH(interpreter, SMOP_RI(cell),
+                        SMOP__ID__bool,
+                        SMOP__NATIVE__capture_delegate(interpreter,
+                                                       SMOP_REFERENCE(interpreter,cell),
+                                                       SMOP_REFERENCE(interpreter,capture)));
+
+
   } else if (SMOP__ID__STORE == identifier) {
 
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
