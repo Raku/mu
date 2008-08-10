@@ -41,7 +41,7 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
     SMOP_REFERENCE(interpreter, ret);
 
   } else if (identifier == SMOP__ID__bool) {
-    ret = SMOP__NATIVE__bool_false;
+    ret = SMOP__NATIVE__bool_true;
 
   } else if (identifier == SMOP__ID__entries) {
     smop_lowlevel_rdlock(invocant);
@@ -69,12 +69,16 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
                                                        SMOP_REFERENCE(interpreter,entries),
                                                        SMOP_REFERENCE(interpreter,capture)));
   } else if (identifier == SMOP__ID__lookup) {
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
+
     //printf("%p\n",SMOP__NATIVE__capture_positional(interpreter,capture,0));
     SMOP__Object* mold;
     {
       use m0ld;
       my $name = ¢capture."positional"(0);
-      my $back = ¢interpreter."back"();
+      my $back = ¢continuation;
       my $exists = ¢invocant."exists"($name);
 
       my $void;
@@ -88,9 +92,10 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
       else:
         my $outer = ¢invocant."outer"();
         my $outer_true = $outer."bool"();
+        my $outer_cell = $outer."FETCH"();
         if $outer_true {goto than2} else {goto else2};
         than2:
-            $ret = $outer."lookup"($name);
+            $ret = $outer_cell."lookup"($name);
             $void = $back."setr"($ret);
             $void = ¢interpreter."goto"($back);
         else2:
