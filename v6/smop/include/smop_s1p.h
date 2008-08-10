@@ -55,7 +55,8 @@ SMOP__Object* SMOP__S1P__Array_create(void);
 #define ___UNKNOWN_METHOD___ \
     { \
     int identifier_size;\
-    fprintf(stderr,"unkown method %s at %s line %d file %s\n",SMOP__NATIVE__idconst_fetch(identifier,&identifier_size),__func__,__LINE__,__FILE__); \
+    char* s = SMOP__NATIVE__idconst_fetch(identifier,&identifier_size);\
+    fprintf(stderr,"unknown method \"%.*s\" at %s line %d file %s\n",identifier_size,s,__func__,__LINE__,__FILE__); \
     abort(); \
     } 
 

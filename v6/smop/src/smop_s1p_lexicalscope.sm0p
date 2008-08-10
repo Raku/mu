@@ -40,6 +40,9 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
     SMOP_REFERENCE(interpreter, ret);
 
+  } else if (identifier == SMOP__ID__bool) {
+    ret = SMOP__NATIVE__bool_false;
+
   } else if (identifier == SMOP__ID__entries) {
     smop_lowlevel_rdlock(invocant);
     ret = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
@@ -79,7 +82,7 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
        
       if $exists {goto than} else {goto else};
       than:
-        $ret = ¢invocant."postcicumfix:{ }"($name);
+        $ret = ¢invocant."postcircumfix:{ }"($name);
         $void = $back."setr"($ret);
         $void = ¢interpreter."goto"($back);
       else:
@@ -91,7 +94,7 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
             $void = $back."setr"($ret);
             $void = ¢interpreter."goto"($back);
         else2:
-            my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcicumfix:{ }"("$*OUT");
+            my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
             my $OUT = $OUT_SCALAR."FETCH"();
             $void = $OUT."print"("no variable in the current scope");
     }
