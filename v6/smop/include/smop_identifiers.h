@@ -47,6 +47,7 @@ extern SMOP__Object* SMOP__ID__move_capturize;    /* "move_capturize" */
 extern SMOP__Object* SMOP__ID__move_identifier;   /* "move_identifier" */
 extern SMOP__Object* SMOP__ID__move_responder;    /* "move_responder" */
 extern SMOP__Object* SMOP__ID__name;              /* "name" */
+extern SMOP__Object* SMOP__ID__named;             /* "named" */
 extern SMOP__Object* SMOP__ID__new;               /* "new" */
 extern SMOP__Object* SMOP__ID__next;              /* "next" */
 extern SMOP__Object* SMOP__ID__past;              /* "past" */

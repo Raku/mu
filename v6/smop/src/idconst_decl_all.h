@@ -38,6 +38,7 @@ SMOP__Object* SMOP__ID__move_capturize;
 SMOP__Object* SMOP__ID__move_identifier;
 SMOP__Object* SMOP__ID__move_responder;
 SMOP__Object* SMOP__ID__name;
+SMOP__Object* SMOP__ID__named;
 SMOP__Object* SMOP__ID__new;
 SMOP__Object* SMOP__ID__next;
 SMOP__Object* SMOP__ID__past;

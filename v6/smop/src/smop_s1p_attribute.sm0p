@@ -25,10 +25,6 @@ static SMOP__Object* smop_s1p_attribute_message(SMOP__Object* interpreter,
 
   if (identifier == SMOP__ID__new) {
     
-    SMOP__Object* frame;
-    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                                               SMOP__ID__continuation, 
-                                               SMOP_REFERENCE(interpreter,interpreter));
 
     SMOP__Object* attribute = smop_lowlevel_alloc(sizeof(SMOP__S1P__Attribute_struct));
     attribute->RI = (SMOP__ResponderInterface*)SMOP__S1P__Attribute;
@@ -36,19 +32,7 @@ static SMOP__Object* smop_s1p_attribute_message(SMOP__Object* interpreter,
     ((SMOP__S1P__Attribute_struct*)attribute)->private_name = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ((SMOP__S1P__Attribute_struct*)attribute)->container_type = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
 
-    {
-      use v6;
-      $attribute.name.STORE($capture.named("name"));
-      $attribute.private_name.STORE($capture.named("private_name"));
-      $attribute.container_type.STORE($capture.named("container_type"));
-      return $attribute;
-    };
-
-    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                  SMOP__ID__goto,
-                  frame);
-
-    SMOP_RELEASE(interpreter, attribute);
+    ret = attribute;
 
   } else if (identifier == SMOP__ID__create_container) {
 
