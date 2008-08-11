@@ -224,10 +224,14 @@ emit stmts regMap labelsMap = concatMap (\op -> toBytecode op regMap labelsMap) 
 
 joinStr sep list = foldl (\a b -> a ++ sep ++ b) (head list) (tail list)
 
+cStrLength ('\\':next:rest) = 1 + cStrLength rest
+cStrLength (c:rest) = 1 + cStrLength rest
+cStrLength [] = 0
+
 dumpConstantToC :: Value -> [Char]
 dumpConstantToC value = case value of
     StringConstant str ->
-        "SMOP__NATIVE__idconst_createn(\"" ++ str ++"\"," ++ (show $ length str) ++ "),"
+        "SMOP__NATIVE__idconst_createn(\"" ++ str ++"\"," ++ (show $ cStrLength str) ++ "),"
     IntegerConstant int -> "SMOP__NATIVE__int_create(" ++ show int ++ "),"
     None -> ""
     Var name -> "SMOP_REFERENCE(interpreter," ++ name ++ "),"

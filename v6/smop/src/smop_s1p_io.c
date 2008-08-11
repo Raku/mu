@@ -40,7 +40,7 @@ static SMOP__Object* smop_s1p_io_message(SMOP__Object* interpreter,
         } else if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
             int len;
             char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
-            printf("%*s",len,str);
+            printf("%.*s",len,str);
         } else {
             fprintf(stderr,"unsupported object passed to S1P::IO.print\n");
         }
