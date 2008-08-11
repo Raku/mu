@@ -39,7 +39,7 @@ static void print_regs_content(smop_mold_frame* frame) {
 SMOP__Object* mold_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum, SMOP__Object* value) {
     smop_mold_frame* frame = (smop_mold_frame*) moldframe;
     smop_mold* mold = (smop_mold*) frame->mold;
-    int where = 4+mold->constants_len+regnum;
+    int where = mold->constants_len+regnum;
     frame->registers[where] = value;
 }
 SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* mold_object) {
@@ -58,7 +58,7 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* m
 
     int i;
     for (i = 0;mold->constants[i];i++) {
-      ret->registers[i+4] = SMOP_REFERENCE(interpreter,mold->constants[i]);
+      ret->registers[i] = SMOP_REFERENCE(interpreter,mold->constants[i]);
     }
 
     return (SMOP__Object*) ret;
@@ -77,7 +77,7 @@ SMOP__Object* SMOP__Mold_create(int registers,SMOP__Object** constants,int opcod
 
     ret->constants_len = i-1;
 
-    ret->registers = registers+i+4;
+    ret->registers = registers+i;
 
     ret->opcodes = malloc(sizeof(int) * opcodes_len);
     memcpy(ret->opcodes,opcodes,sizeof(int) * opcodes_len);

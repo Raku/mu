@@ -190,13 +190,13 @@ countRegister stmts = length $ filter isReg stmts
 addRegister :: RegMap -> Stmt -> RegMap
 addRegister regs stmt = case stmt of 
     Decl reg None  -> regs
-    Decl reg value -> Map.insert reg ((Map.size regs)+4)  regs
+    Decl reg value -> Map.insert reg (Map.size regs)  regs
     _ -> regs
 
 
 addFreeRegister :: RegMap -> Stmt -> RegMap
 addFreeRegister regs stmt = case stmt of
-    Decl reg None -> Map.insert reg ((Map.size regs)+4)  regs
+    Decl reg None -> Map.insert reg (Map.size regs)  regs
     Decl reg _ -> regs 
     _ -> regs
 
