@@ -251,6 +251,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     for (i=0;i<mold->registers;i++) {
       if (frame->registers[i]) SMOP_RELEASE(interpreter,frame->registers[i]);
     }
+    free(frame->registers);
   } else {
     ___UNKNOWN_METHOD___;
   }
