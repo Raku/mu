@@ -183,6 +183,8 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           }
           call_named[named_n] = NULL;
           SMOP__Object* capture = SMOP__NATIVE__capture_create(interpreter,call_invocant,call_pos,call_named);
+          free(call_named);
+          free(call_pos);
           SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_invocant),call_identifier,capture);
           //printf("got %p putting it into %d\n",ret,target);
           if (frame->registers[target]) {

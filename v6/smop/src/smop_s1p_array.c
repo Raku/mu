@@ -123,6 +123,7 @@ void smop_s1p_array_init() {
 
 void smop_s1p_array_destr() {
   free(SMOP__S1P__Array);
+  free(SMOP__S1P__ArrayProxy);
 }
 
 
