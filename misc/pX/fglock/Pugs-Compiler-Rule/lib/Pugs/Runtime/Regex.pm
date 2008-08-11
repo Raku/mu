@@ -14,22 +14,32 @@ use Carp qw(croak);
 # note: the list in @$nodes can be modified at runtime
 # Closure data for alternation:
 #   $nodes => array of regex-node
-# State structure for alternation is an array:
-#   0 - current node index in @$nodes
-#   1 - continuation for the current node
+# State structure for alternation is a hash:
+#   index - current node index in @$nodes
+#   state - continuation for the current node
+#   pos   - 'from' pos in string
 sub alternation {
     my $nodes = shift;
     return sub {
-        my ($index, $state) = defined $_[1] ? @{$_[1]} : ( 0, undef );
-        $nodes->[$index]->( $_[0], 
-                            $state, 
-                            @_[2..7],
+        my %state = $_[1] 
+            ? %{$_[1]} 
+            : ( index => 0, 
+                cont  => undef,
+                pos   => ( $_[5] || 0 ), 
+                node  => 'alt',
+              );        
+        #print "#  alternation $state{index} of $#$nodes, pos=$state{pos} \n";
+        $nodes->[$state{index}]->( $_[0], 
+                            $state{cont}, 
+                            @_[2,3,4],
+                            $state{pos},
+                            @_[6,7],
                           );
-        $state = $_[3]->state;
-        $index++ if !defined($state);
-        $_[3]->data->{state} = $index > $#$nodes || $_[3]->data->{abort}
+        $state{cont} = $_[3]->state;
+        $state{index}++ if !defined($state{cont});
+        $_[3]->data->{state} = $state{index} > $#$nodes || $_[3]->data->{abort}
             ? undef     
-            : [$index, $state];
+            : \%state;
     }
 }
 
@@ -101,39 +111,48 @@ sub concat {
             @$nodes[ 2 .. $#$nodes ],
         );
     }
+    
     return sub {
-        my %state = $_[1] ? %{$_[1]} : ( cont0 => undef, cont1 => undef, index => 0, pos => undef );        
+        #print "concat: ",Dumper( \@_ );
+        my %state = $_[1] 
+            ? %{$_[1]} 
+            : ( states => [ 
+                    { cont => undef, pos => ( $_[5] || 0 ), },
+                ],
+                node  => 'concat',
+              );        
+        #print "#  concat $state{index} of 1, pos=$state{pos0} \n";
         
-        if ( $state{index} == 0 ) {
-            $nodes->[0]->( $_[0], 
-                           $state{cont0}, 
-                           @_[2..7],
-                         );
-            $state{cont0} = $_[3]->state;
-            if ( $_[3] && ! $_[3]->data->{abort} ) {
-                $state{index} = 1;
-                $state{cont1} = undef;
-                $state{pos}   = $_[3]->to;
-            }
-            $_[3]->data->{state} = \%state;
-            # $_[3]->data->{bool}  = \0;
-            return;
-        }
-
-        my $m1;
-        $nodes->[1]->( $_[0], $state{cont1}, 
-                       $_[2], $m1, 
-                       $_[4], $state{pos},  
+        my $states = $state{states};
+        my $index  = scalar @$states - 1;
+        
+        my $m1 = Pugs::Runtime::Match->new({});
+        $nodes->[$index]->( $_[0], 
+                       $states->[$index]{cont}, 
+                       $_[2], 
+                       $m1, 
+                       $_[4], 
+                       $states->[$index]{pos},
                        $_[6], 
-                       { ( defined $_[7] ? %{$_[7]} : () ), p => $state{pos}, } 
+                       { ( defined $_[7] ? %{$_[7]} : () ), p => $states->[$index]{pos}, } 
                      );
-        $state{cont1} = $m1->state;
-        if ( defined $state{cont1} ) {
-            $_[3] = Pugs::Runtime::Match->new({}) if !defined $_[3];
+        $states->[$index]{cont} = $m1->state;
+        if ( $m1 && ! $m1->data->{abort} ) {
+            # matched - go one node ahead
+            push @$states, { cont => undef, pos => $m1->to }
+                unless @$states == @$nodes;
+        }
+        $_[3] = $m1 unless defined $_[3];
+        $_[3]->data->{state} = \%state;
+        $_[3]->data->{bool}  = \0;
+        return;
+
+    #...
+        if ( defined $states->[1]{cont} ) {
             $_[3]->data->{state} = \%state;
         }
-        elsif ( defined $state{cont0} ) {
-            $state{index} = 0;  # backtrack
+        elsif ( defined $states->[1]{cont} ) {
+            pop @$states;  # backtrack
             $_[3]->data->{state} = \%state;
         }
         else {
@@ -189,7 +208,7 @@ sub concat {
                 to      => \($m1->to),
                 capture => $m1->data->{capture} || $_[3]->data->{capture},
                 abort   => $m1->data->{abort},
-                state   => ( defined $state{cont0} || defined $state{cont1} )
+                state   => ( defined $states->[1]{cont} || defined $states->[1]{cont} )
                     ? \%state
                     : undef,   
         );

@@ -24,8 +24,6 @@ use Pugs::Runtime::Match;
     
   $rule->( 'c', undef, {capture=>1}, $match );
     ok ( ! $match->bool, "c =~ /a/ #2" );
-    #is ( $match->tail, 'c123', "tail is ok" );
-    #print Dumper( $match );
     
   $rule->( 'ca', undef, {}, $match);
     ok( !$match->bool, "anchored match" );
@@ -41,20 +39,24 @@ use Pugs::Runtime::Match;
         Pugs::Runtime::Regex::constant( 'a' ), 
         Pugs::Runtime::Regex::constant( 'ab' ), 
       ] );
+  my $str = 'ab';
 
-  $rule->( 'ab', undef, {}, $match );
+  $rule->( $str, undef, {}, $match );
     #print "state: ", Dumper($match->state), "\n";
-    is ( $match->str, '', "/[a|ab]/ multi-match continuation state #0 - no match" );
+    is ( $match->str, '', "/[a|ab]/ alternation continuation state #0 - no match" );
+    ok ( !$match, "don't match" );
     ok ( defined($match->state), "more states" );
 
-  $rule->( 'ab', $match->state, {}, $match );
+  $rule->( $str, $match->state, {}, $match );
     #print "# state: ", Dumper($match->state), "\n";
-    is ( $match->str, 'a', "/[a|ab]/ multi-match continuation state #1" );
+    is ( $match->str, 'a', "state #1" );
+    ok ( $match, "match" );
     ok ( defined($match->state), "more states" );
 
-  $rule->( 'ab', $match->state, {}, $match );
+  $rule->( $str, $match->state, {}, $match );
     #print "# state: ", Dumper($match->state), "\n";
-    is ( $match->str, 'ab', "/[a|ab]/ multi-match continuation state #2" );
+    is ( $match->str, 'ab', "state #2" );
+    ok ( $match, "match" );
     ok ( !defined($match->state), "no more states" );
 
 }
@@ -78,12 +80,14 @@ use Pugs::Runtime::Match;
   
   $rule->( $str, undef, {}, $match );
     #print "state 1: ", Dumper($match->state), "\n";
-    is ( $match->str, 'a', "$str ~~ /[a|ab][x|bb]/ continuation state #0" );
+    is ( $match->str, '', "$str ~~ /[a|ab][x|bb]/ continuation state #0" );
+    ok ( !$match, "don't match" );
     ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {}, $match );
     #print "state 2: ", Dumper($match->state), "\n";
     is ( $match->str, '', "state #2" );
+    ok ( !$match, "don't match" );
     ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {}, $match );
@@ -93,7 +97,8 @@ use Pugs::Runtime::Match;
 
   $rule->( $str, $match->state, {}, $match );
     #print "state 4: ", Dumper($match->state), "\n";
-    is ( $match->str, 'ab', "state #4" );
+    is ( $match->str, '', "state #4" );
+    ok ( !$match, "don't match" );
     ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {}, $match );
@@ -128,6 +133,7 @@ use Pugs::Runtime::Match;
   $rule->( $str, undef, {}, $match );
     #print "state 1: ", Dumper($match->state), "\n";
     is ( $match->str, '', "$str ~~ /a bb | ab bb/ parallel_alternation state #0" );
+    ok ( !$match, "don't match" );
     ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {}, $match );
@@ -138,24 +144,50 @@ use Pugs::Runtime::Match;
 }
 
 {
-  # -- continuations in a*
+  # -- continuations in optional()
   my $match;
   my $rule = 
-    Pugs::Runtime::Regex::greedy_star( 
-      Pugs::Runtime::Regex::constant( 'a' ) 
+    Pugs::Runtime::Regex::optional( 
+      Pugs::Runtime::Regex::constant( 'a' ), 
     );
-  my $str = 'aaa';
+  my $str = 'abbb';
+  # expected: (a) ()
   
   $rule->( $str, undef, {}, $match );
     #print "state 1: ", Dumper($match->state), "\n";
-    is ( $match->str, 'a', "$str ~~ /a*/ state #0" );
-    ok ( $match ? 0 : 1 , "no match yet" );
+    is ( $match->str, 'a', "$str ~~ /a?/ optional state #0" );
+    ok ( $match, "match" );
     ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {}, $match );
     #print "state 2: ", Dumper($match->state), "\n";
-    is ( $match->str, 'aa', "state #2" );
-    ok ( $match ? 0 : 1 , "no match yet" );
+    is ( $match->str, '', "state #2" );
+    ok ( $match, "match" );
+    ok ( !defined($match->state), "no more states" );
+
+}
+
+{
+  # -- continuations in a*
+  my $match;
+  my $rule = 
+    Pugs::Runtime::Regex::greedy_star( 
+      Pugs::Runtime::Regex::constant( 'a' ),
+      0, 
+      3,
+    );
+  my $str = 'aaa';
+  
+  $rule->( $str, undef, {}, $match );
+    print "state 1: ", Dumper($match->state), "\n";
+    is ( $match->str, '', "$str ~~ /a*/ state #0" );
+    ok ( !$match, "don't match" );
+    ok ( defined($match->state), "more states" );
+
+  $rule->( $str, $match->state, {}, $match );
+    #print "state 2: ", Dumper($match->state), "\n";
+    is ( $match->str, '', "state #2" );
+    ok ( !$match, "don't match" );
     ok ( defined($match->state), "more states" );
 
   $rule->( $str, $match->state, {}, $match );
@@ -164,6 +196,14 @@ use Pugs::Runtime::Match;
     ok ( $match ? 1 : 0 , "matched" );
     ok ( defined($match->state), "more states - can backtrack if needed" );
 
+    for my $i ( 4..5 ) {
+      $rule->( $str, $match->state, {}, $match );
+        #print "state $i: ", Dumper($match->state), "\n";
+        print "match: $i '$match'\n";
+        #is ( $match->str, 'aaa', "state #$i" );
+        #ok ( $match ? 1 : 0 , "matched" );
+        #ok ( defined($match->state), "more states - can backtrack if needed" );
+    }
 
 }
 
