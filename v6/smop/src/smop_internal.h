@@ -72,9 +72,11 @@
      smop_mold_destr();                    
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
-     smop_s1p_root_namespace_init();        
+     smop_s1p_root_namespace_init();        \
+     smop_s1p_lexicalscope_mold_init();
 
 #define SMOP_BOOTSTRAP_DESTR_SEQUENCE       \
+     smop_s1p_lexicalscope_mold_destr();    \
      smop_s1p_root_namespace_destr();       
 
 void smop_idconst_init();
@@ -111,5 +113,7 @@ void smop_s1p_ccode_init();
 void smop_s1p_ccode_destr();
 void smop_s1p_lexicalscope_init();
 void smop_s1p_lexicalscope_destr();
+void smop_s1p_lexicalscope_mold_init();
+void smop_s1p_lexicalscope_mold_destr();
 
 #endif

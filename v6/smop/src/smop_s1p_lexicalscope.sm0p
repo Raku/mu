@@ -17,6 +17,8 @@ typedef struct smop_s1p_lexicalscope_struct {
 static SMOP__Object* SMOP__ID__entries;
 static SMOP__Object* SMOP__ID__lookup;
 
+static SMOP__Object* mold_code_lookup;
+
 static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
                                           SMOP__ResponderInterface* self,
                                           SMOP__Object* identifier,
@@ -69,41 +71,15 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
                                                        SMOP_REFERENCE(interpreter,entries),
                                                        SMOP_REFERENCE(interpreter,capture)));
   } else if (identifier == SMOP__ID__lookup) {
+
     SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                                SMOP__ID__continuation,
                                                SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
 
-    //printf("%p\n",SMOP__NATIVE__capture_positional(interpreter,capture,0));
-    SMOP__Object* mold;
-    {
-      use m0ld;
-      my $name = ¢capture."positional"(0);
-      my $back = ¢continuation;
-      my $exists = ¢invocant."exists"($name);
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_code_lookup));
 
-      my $void;
-      my $ret;
-       
-      if $exists {goto than} else {goto else};
-      than:
-        $ret = ¢invocant."postcircumfix:{ }"($name);
-        $void = $back."setr"($ret);
-        $void = ¢interpreter."goto"($back);
-      else:
-        my $outer = ¢invocant."outer"();
-        my $outer_true = $outer."bool"();
-        my $outer_cell = $outer."FETCH"();
-        if $outer_true {goto than2} else {goto else2};
-        than2:
-            $ret = $outer_cell."lookup"($name);
-            $void = $back."setr"($ret);
-            $void = ¢interpreter."goto"($back);
-        else2:
-            my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
-            my $OUT = $OUT_SCALAR."FETCH"();
-            $void = $OUT."print"("no variable in the current scope");
-    }
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
+
+
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 frame);
@@ -128,6 +104,54 @@ void smop_s1p_lexicalscope_init() {
   SMOP__ID__entries = SMOP__NATIVE__idconst_create("entries");
   SMOP__ID__lookup = SMOP__NATIVE__idconst_create("lookup");
 
+};
+
+void smop_s1p_lexicalscope_mold_init() {
+
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+
+  SMOP__Object* mold;
+  {
+    use m0ld;
+    my $capture;
+    my $continuation;
+    my $interpreter;
+
+    my $name = $capture."positional"(0);
+    my $back = $continuation;
+    my $invocant = $capture."invocant"();
+    my $exists = $invocant."exists"($name);
+    
+    my $void;
+    my $ret;
+    
+    if $exists {goto than} else {goto else};
+    than:
+      $ret = $invocant."postcircumfix:{ }"($name);
+      $void = $back."setr"($ret);
+      $void = $interpreter."goto"($back);
+    else:
+      my $outer = $invocant."outer"();
+      my $outer_true = $outer."bool"();
+      my $outer_cell = $outer."FETCH"();
+      if $outer_true {goto than2} else {goto else2};
+      than2:
+        $ret = $outer_cell."lookup"($name);
+        $void = $back."setr"($ret);
+        $void = $interpreter."goto"($back);
+      else2:
+        my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+        my $OUT = $OUT_SCALAR."FETCH"();
+        $void = $OUT."print"("no variable in the current scope");
+  };
+
+  mold_code_lookup = mold;
+
+}
+
+void smop_s1p_lexicalscope_mold_destr() {
+  SMOP_RELEASE(SMOP__GlobalInterpreter, mold_code_lookup);
+  mold_code_lookup = NULL;
 }
 
 void smop_s1p_lexicalscope_destr() {
