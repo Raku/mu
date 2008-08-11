@@ -28,7 +28,7 @@ typedef struct smop_mold_frame {
 SMOP__Object* mold_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum, SMOP__Object* value) {
     smop_mold_frame* frame = (smop_mold_frame*) moldframe;
     smop_mold* mold = (smop_mold*) frame->mold;
-    frame->registers[mold->constants_len+regnum] = value;
+    frame->registers[4+mold->constants_len+regnum] = value;
 }
 SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* mold_object) {
     if (mold_object->RI != (SMOP__ResponderInterface*)SMOP__Mold) {
