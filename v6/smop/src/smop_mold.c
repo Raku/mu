@@ -25,10 +25,22 @@ typedef struct smop_mold_frame {
   SMOP__Object** registers;
   int target;
 } smop_mold_frame;
+static void print_regs_content(smop_mold_frame* frame) {
+    int i;
+    smop_mold* mold = (smop_mold*) frame->mold;
+    for (i=0;i<mold->registers;i++) {
+      if (frame->registers[i]) {
+        printf("%d:%s\n",i,frame->registers[i]->RI->id);
+      } else {
+        printf("%d:(null)\n",i);
+      }
+    }
+}
 SMOP__Object* mold_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum, SMOP__Object* value) {
     smop_mold_frame* frame = (smop_mold_frame*) moldframe;
     smop_mold* mold = (smop_mold*) frame->mold;
-    frame->registers[4+mold->constants_len+regnum] = value;
+    int where = 4+mold->constants_len+regnum;
+    frame->registers[where] = value;
 }
 SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* mold_object) {
     if (mold_object->RI != (SMOP__ResponderInterface*)SMOP__Mold) {
@@ -62,6 +74,8 @@ SMOP__Object* SMOP__Mold_create(int registers,SMOP__Object** constants,int opcod
 
     ret->constants = malloc(sizeof(SMOP__Object*) * i);
     memcpy(ret->constants,constants,sizeof(SMOP__Object*) * i);
+
+    ret->constants_len = i-1;
 
     ret->registers = registers+i+4;
 
