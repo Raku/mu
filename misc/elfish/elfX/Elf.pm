@@ -5,6 +5,7 @@ use IRx1_FromAST;
 use IRx1_Analysis;
 use EmitSimpleP5;
 use EmitSM0P;
+use EmitM0ld;
 use PrimitivesP5;
 use Parser;
 use Compiler;

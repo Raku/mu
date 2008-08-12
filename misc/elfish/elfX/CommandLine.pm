@@ -46,12 +46,13 @@ One can also do
     my $sources = [];
 
     my $create_compilers = sub () {
+        $*compiler0 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',1),'is_for_active_runtime',1);
         if ($backend eq 'perl5') {
-            $*compiler0 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',1),'is_for_active_runtime',1);
             $*compiler1 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',0),'is_for_active_runtime',0);
         } elsif ($backend eq 'sm0p') {
-            $*compiler0 = Compiler.new('emitter',EmitSimpleP5.new(),'parser',Parser.new('is_for_active_runtime',1),'is_for_active_runtime',1);
             $*compiler1 = Compiler.new('emitter',EmitSM0P.new(),'parser',Parser.new('is_for_active_runtime',0),'is_for_active_runtime',0);
+        } elsif ($backend eq 'm0ld') {
+            $*compiler1 = Compiler.new('emitter',EmitM0ld.new(),'parser',Parser.new('is_for_active_runtime',0),'is_for_active_runtime',0);
         } else {
             say "unkown backend:"~$backend;
         }
