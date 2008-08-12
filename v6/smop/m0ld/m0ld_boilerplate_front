@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <smop.h>
 #include <smop_s1p.h>
+#include <smop_mold.h>
 #include <smop_lowlevel.h>
 
 
@@ -13,5 +14,4 @@ int main(int argc, char** argv) {
                                             SMOP__ID__new, 
                                             SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
-  SMOP__Object* node = NULL;
   SMOP__Object* mold = 

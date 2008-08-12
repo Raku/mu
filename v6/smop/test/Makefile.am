@@ -5,8 +5,10 @@ ELFX = $(top_srcdir)/../../misc/elfish/elfX/
 	cat $(top_srcdir)/m0ld/m0ld_boilerplate_front > $@
 	$(top_srcdir)/m0ld/m0ld < $< >> $@
 	cat $(top_srcdir)/m0ld/m0ld_boilerplate_back >> $@
-.p6.pure_sm0p:
-	perl $(ELFX)/elfX -C sm0p -s $< > $@
+.p6.m0ld:
+	perl $(ELFX)/elfX -C m0ld -s $< > $@
+#.p6.pure_sm0p:
+#	perl $(ELFX)/elfX -C sm0p -s $< > $@
 .pure_sm0p.sm0p:
 	cat $(ELFX)/sm0p_boilerplate_front $< $(ELFX)/sm0p_boilerplate_back > $@
 
@@ -40,7 +42,7 @@ check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
 15_hash_t_SOURCES = 15_hash.sm0p
 16_labels_t_SOURCES = 16_labels.sm0p
 17_sm0p_t_SOURCES = 17_sm0p.sm0p
-18_root_namespace_t_SOURCES = 18_root_namespace.sm0p
+18_root_namespace_t_SOURCES = 18_root_namespace.p6
 19_array_t_SOURCES = 19_array.p6
 20_smop_s1p_ccode_t_SOURCES = 20_smop_s1p_ccode.sm0p
 #21_code_t_SOURCES = 21_code.p6
