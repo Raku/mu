@@ -99,4 +99,16 @@ Junctions are unordered assemblies, and C<Junction.values> returns these
 values in an arbitrary order, just like C<keys %hash> and the like. Don't rely
 on that order.
 
+=head2 A note on :todo<bug> and similar
+
+Some tests (mostly outside of t/spec) look like this:
+
+    is(foo(), bar(), 'testing whatever', :todo<bug>);
+
+This form is a todo note for Pugs. Since this test suite is used by multiple
+implementations, this should be replaced with a fudge command:
+
+    #?pugs todo 'bug'
+    is(foo(), bar(), 'testing whatever');
+
 =cut
