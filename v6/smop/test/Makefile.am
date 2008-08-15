@@ -23,8 +23,8 @@ check_PROGRAMS = 01_smop_lowlevel.t 02_stack.t 03_const_identifier.t \
 	15_hash.t 16_labels.t 17_sm0p.t 18_root_namespace.t 19_array.t \
 	20_smop_s1p_ccode.t 22_smop_s1p_attribute.t \
 	23_mold.t 24_m0ld.t 25_lexical_scope.t \
-	dispatch_benchmark 
-#	27_default_block_signature.t
+	dispatch_benchmark \
+	27_default_block_signature.t
 #	26_m0ld_pugs.t
 
 01_smop_lowlevel_t_SOURCES = 01_smop_lowlevel.c

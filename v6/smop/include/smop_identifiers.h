@@ -15,6 +15,7 @@ extern SMOP__Object* SMOP__ID__BUILDALL;          /* "BUILDALL" */
 extern SMOP__Object* SMOP__ID__call;              /* "call" */
 extern SMOP__Object* SMOP__ID__can;               /* "can" */
 extern SMOP__Object* SMOP__ID__capture;           /* "capture" */
+extern SMOP__Object* SMOP__ID__capturize;         /* "capturize" */
 extern SMOP__Object* SMOP__ID__clone;             /* "clone" */
 extern SMOP__Object* SMOP__ID__container_type;    /* "container_type" */
 extern SMOP__Object* SMOP__ID__continuation;      /* "continuation" */

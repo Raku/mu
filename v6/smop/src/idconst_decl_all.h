@@ -6,6 +6,7 @@ SMOP__Object* SMOP__ID__BUILDALL;
 SMOP__Object* SMOP__ID__call;
 SMOP__Object* SMOP__ID__can;
 SMOP__Object* SMOP__ID__capture;
+SMOP__Object* SMOP__ID__capturize;
 SMOP__Object* SMOP__ID__clone;
 SMOP__Object* SMOP__ID__container_type;
 SMOP__Object* SMOP__ID__continuation;

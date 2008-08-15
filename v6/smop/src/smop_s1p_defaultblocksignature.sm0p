@@ -1,0 +1,44 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
+#include <smop.h>
+#include <smop_lowlevel.h>
+#include <smop_s1p.h>
+
+SMOP__Object* SMOP__S1P__DefaultBlockSignature;
+
+static SMOP__Object* defaultblocksignature_message(SMOP__Object* interpreter,
+                                                   SMOP__ResponderInterface* self,
+                                                   SMOP__Object* identifier,
+                                                   SMOP__Object* capture) {
+
+  ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
+
+  SMOP__Object* ret;
+  
+  ___UNKNOWN_METHOD___;
+
+  SMOP_RELEASE(interpreter, invocant);
+  SMOP_RELEASE(interpreter, capture);
+
+  return ret;
+}
+
+void smop_s1p_defaultblocksignature_init() {
+
+  SMOP__S1P__DefaultBlockSignature = calloc(1, sizeof(SMOP__ResponderInterface));
+  assert(SMOP__S1P__DefaultBlockSignature);
+  ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->MESSAGE = defaultblocksignature_message;
+  ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->id = "S1P Default Block Signature";
+
+}
+
+void smop_s1p_defaultblocksignature_destr() {
+
+  free(SMOP__S1P__DefaultBlockSignature);
+
+}

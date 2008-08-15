@@ -15,6 +15,7 @@ libsmop_la_SOURCES = smop_lowlevel.sm0p idconst.c							\
 	smop_s1p_array.c smop_s1p_io.c											\
     smop_s1p_str.c smop_s1p_hash.c smop_s1p_root_namespace.c p6opaque.sm0p	\
     smop_s1p_ccode.c smop_s1p_code.c smop_s1p_attribute.sm0p smop_mold.c    \
-	smop_s1p_lexicalscope.c
+	smop_s1p_lexicalscope.c smop_s1p_capturize.c                            \
+	smop_s1p_defaultblocksignature.c
 
 
