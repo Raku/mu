@@ -106,4 +106,5 @@ extern SMOP__Object* SMOP__ID__postcircumfix_curly;          /* "postcircumfix:{
 extern SMOP__Object* SMOP__ID__postcircumfix_square;          /* "postcircumfix:[ ]" */
 extern SMOP__Object* SMOP__ID__postcircumfix_parens;          /* "postcircumfix:( )" */
 extern SMOP__Object* SMOP__ID__infix_eq;                    /* "infix:eq" */ 
+extern SMOP__Object* SMOP__ID__infix_num_gt;                /* "infix:>" */ 
 #endif

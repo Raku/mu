@@ -94,7 +94,8 @@ SMOP__ID__postcircumfix_curly = SMOP__NATIVE__idconst_create_nolist( "postcircum
 SMOP__ID__postcircumfix_square = SMOP__NATIVE__idconst_create_nolist( "postcircumfix:[ ]" );
 SMOP__ID__postcircumfix_parens = SMOP__NATIVE__idconst_create_nolist( "postcircumfix:( )" );
 SMOP__ID__infix_eq = SMOP__NATIVE__idconst_create_nolist( "infix:eq" );
-constlist_size = 96;
+SMOP__ID__infix_num_gt = SMOP__NATIVE__idconst_create_nolist( "infix:>" );
+constlist_size = 97;
 constlist = calloc(constlist_size,sizeof(SMOP__Object*));
 assert(constlist);
 constlist[0] = SMOP__ID__back;
@@ -193,3 +194,4 @@ constlist[92] = SMOP__ID__postcircumfix_curly;
 constlist[93] = SMOP__ID__postcircumfix_square;
 constlist[94] = SMOP__ID__postcircumfix_parens;
 constlist[95] = SMOP__ID__infix_eq;
+constlist[96] = SMOP__ID__infix_num_gt;

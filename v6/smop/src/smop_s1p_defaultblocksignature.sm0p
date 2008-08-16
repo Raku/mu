@@ -75,7 +75,7 @@ void smop_s1p_defaultblocksignature_mold_init() {
     my $outerscope = $outerscopecontainer."FETCH"();
 
     my $count = $capture."elems"();
-    my $outerbind = $count."infix:«>»"(0);
+    my $outerbind = $count."infix:>"(0);
 
     my $void;
     my $val;
