@@ -69,12 +69,14 @@ void smop_s1p_defaultblocksignature_mold_init() {
     my $back;
     my $interpreter;
 
+    my $scalar = ¢SMOP__S1P__Scalar;
+
     my $actualcapture = $capture."positional"(0);
     my $lexicalscope = $capture."positional"(1);
     my $outerscopecontainer = $lexicalscope."outer"();
     my $outerscope = $outerscopecontainer."FETCH"();
 
-    my $count = $capture."elems"();
+    my $count = $actualcapture."elems"();
     my $outerbind = $count."infix:>"(0);
 
     my $void;
@@ -84,10 +86,11 @@ void smop_s1p_defaultblocksignature_mold_init() {
 
     if $outerbind { goto then } else { goto else };
     then:
-      $val = $outerscope."postcircumfix:{ }"("$_");
+      my $pos = $actualcapture."positional"(0);
+      $val = $scalar."new"($pos);
       goto exit;
     else:
-      $val = $actualcapture."positional"(0);
+      $val = $outerscope."postcircumfix:{ }"("$_");
     exit:
       $void = $container."STORE"($val);
       $void = $interpreter."goto"($back);

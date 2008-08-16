@@ -74,7 +74,8 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     
   } else if (SMOP__ID__new == identifier) {
 
-    ret = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    SMOP__Object* cell = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    ret = SMOP__S1P__Scalar_create(cell);
 
   } else {
     ___UNKNOWN_METHOD___;

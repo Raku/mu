@@ -73,6 +73,7 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
     SMOP__Object* invocant_capture = SMOP__NATIVE__capture_invocant(interpreter, capture);
     
     ret = SMOP__NATIVE__int_create(SMOP__NATIVE__capture_positional_count(interpreter, invocant_capture));
+    //fprintf(stderr,"%d elements in capture\n",SMOP__NATIVE__int_fetch(ret));
 
     SMOP_RELEASE(interpreter, invocant_capture);
     SMOP_RELEASE(interpreter, capture);

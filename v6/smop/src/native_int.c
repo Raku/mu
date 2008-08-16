@@ -27,6 +27,8 @@ static SMOP__Object* int_message(SMOP__Object* interpreter,
 
     SMOP__Object* other = SMOP__NATIVE__capture_positional(interpreter,capture,0);
     if (SMOP_RI(other) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
+      //fprintf(stderr,"native int: %d > %d\n", SMOP__NATIVE__int_fetch(invocant),
+      //        SMOP__NATIVE__int_fetch(other));
       if (SMOP__NATIVE__int_fetch(invocant) > SMOP__NATIVE__int_fetch(other)) {
         ret = SMOP__NATIVE__bool_true;
       } else {
