@@ -150,7 +150,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
   } else if (SMOP__ID__setr == identifier) {
       SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
       if (!value) {
-        printf("got null as a result of a call (reg = %d) via setr\n",frame->target);
+        printf("got null as a result of a call (reg = %d, pos = %d) via setr\n",frame->target, frame->position);
         abort();
       }
 
@@ -200,7 +200,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           }
           if (!ret) {
             print_regs_content(frame);
-            printf("got NULL as a result of a call (reg = %d)\n");
+            printf("got NULL as a result of a call (reg = %d, pos=%d)\n",frame->target, frame->position);
             abort();
           }
           frame->registers[target] = ret;
