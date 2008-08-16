@@ -18,7 +18,7 @@ static SMOP__Object* defaultblocksignature_message(SMOP__Object* interpreter,
   ___CONST_IDENTIFIER_ONLY___;
   ___INVOCANT_RI_SHOULD_MATCH___;
 
-  SMOP__Object* ret;
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
   
   if (identifier == SMOP__ID__BIND) {
     SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),

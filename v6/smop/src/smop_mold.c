@@ -200,7 +200,16 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           }
           if (!ret) {
             print_regs_content(frame);
-            printf("got NULL as a result of a call (reg = %d, pos=%d)\n",frame->target, frame->position);
+            int identifier_size;
+            char *s;
+            if (SMOP_RI(call_identifier) == SMOP_RI(SMOP__ID__new)) {
+              s = SMOP__NATIVE__idconst_fetch(call_identifier,&identifier_size);
+            } else {
+              s = "non-constant-identifier";
+              identifier_size = strlen(s);
+            }
+            printf("got NULL as a result of a call (reg = %d, pos=%d, identifier=\"%.*s\")\n",
+                   frame->target, frame->position, identifier_size, s);
             abort();
           }
           frame->registers[target] = ret;

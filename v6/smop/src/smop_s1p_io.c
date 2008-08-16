@@ -42,7 +42,7 @@ static SMOP__Object* smop_s1p_io_message(SMOP__Object* interpreter,
             char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
             printf("%.*s",len,str);
         } else {
-            fprintf(stderr,"unsupported object passed to S1P::IO.print\n");
+            fprintf(stderr,"unsupported object (%s) passed to S1P::IO.print\n",SMOP_RI(obj)->id);
         }
 
         SMOP_RELEASE(interpreter,obj);

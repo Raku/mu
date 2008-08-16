@@ -63,6 +63,8 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
     
     ret = SMOP__NATIVE__capture_positional(interpreter, invocant_capture, SMOP__NATIVE__int_fetch(intask));
 
+    if (ret == NULL) ret = SMOP__NATIVE__bool_false;
+
     SMOP_RELEASE(interpreter, intask);
     SMOP_RELEASE(interpreter, invocant_capture);
     SMOP_RELEASE(interpreter, capture);
