@@ -6,12 +6,12 @@ $*outer_scope.STORE($SMOP__S1P__LexicalScope.new());
 
 # Here's the value that should be fetched, because it was there at closure
 # creation time.
-$*outer_scope.FETCH.entries.{"$_"}.STORE($SMOP__S1P__Scalar.new("ok 1\n"));
+$*outer_scope.FETCH.entries.{"$_"} = $SMOP__S1P__Scalar.new("ok 1\n");
 
 # when the outer block is executed, the inner scope for the code
 # object is created and linked to the outer scope.
 $*inner_scope.STORE($SMOP__S1P__LexicalScope.new());
-$*inner_scope.FETCH.outer.STORE($*outer_scope.FETCH);
+$*inner_scope.FETCH.outer = $*outer_scope.FETCH;
 
 # The signature is bound at .() time, and at this point the value should be
 # saved in the inner scope.
@@ -20,7 +20,7 @@ $SMOP__S1P__DefaultBlockSignature.BIND($SMOP__S1P__Capturize.capturize(), $*inne
 # To make sure the bind worked as expected, let's change the value in the outer
 # scope. The inner scope should be a different variable, so the lookup should get its
 # own value
-$*outer_scope.FETCH.entries.{"$_"}.STORE($SMOP__S1P__Scalar.new("not ok 1\n"));
+$*outer_scope.FETCH.entries.{"$_"} = $SMOP__S1P__Scalar.new("not ok 1\n");
 
 # Now we make a lookup in the inner scope, to make sure it takes the correct value.
 $*OUT.FETCH.print($*inner_scope.FETCH.lookup("$_").FETCH.FETCH);
