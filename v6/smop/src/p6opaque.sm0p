@@ -85,8 +85,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   ___INVOCANT_RI_SHOULD_MATCH___;
 
 
-  {
-    use v6;
+  frame = q:v6-sm0p {
     return $invocant.^!how.FETCH.dispatch($self, $identifier, $capture);
   };
 
@@ -158,8 +157,7 @@ static SMOP__Object* p6opaque_message_DESTROYALL(SMOP__Object* interpreter,
   ___INVOCANT_RI_SHOULD_MATCH___;
 
 
-  {
-    use v6;
+  frame = q:v6-sm0p {
     $invocant.^!how.FETCH.dispatch($self, $identifier, $capture);
     $invocant.^!DESTROY();
   };

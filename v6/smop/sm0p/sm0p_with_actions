@@ -22,7 +22,7 @@ if ($nocolor) {
     $DumpMatch::NOCOLOR = 1;
 }
 
-my $what = 'TOP';
+my $what = 'frame';
 my $text;
 {
 local $/;

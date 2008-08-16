@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
         ;
         $io.print("ok 3 - nested frames work\n");
     });
-  }
+  };
    
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,

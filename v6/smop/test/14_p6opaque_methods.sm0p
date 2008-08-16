@@ -30,10 +30,9 @@ static SMOP__Object* test_message(SMOP__Object* interpreter,
 
       // here we'll take the first method and call it.
         
-      {
-        use v6;
+      frame = q:v6-sm0p {
         return $actualinvocant.^!methods.{$actualidentifier}.FETCH().($actualcapture);
-      }
+      };
       
       SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                     SMOP__ID__goto,
@@ -104,15 +103,14 @@ int main() {
 
   SMOP__Object* continuation = SMOP__NATIVE__bool_false;
 
-  {
-    use v6;
+  frame = q:v6-sm0p {
     $*object.STORE($SMOP__p6opaque__RI.^!CREATE());
     $*object.FETCH().^!how().STORE($how);
     $*object.FETCH().^!how().FETCH();
     $*object.FETCH().^!methods.{"foo"}.STORE($method);
     $*object.FETCH().foo();
     $*object.STORE($SMOP__NATIVE__bool_false);
-  }
+  };
 
   if (!frame) printf("not ");
   printf("ok 1 - frame created.\n");

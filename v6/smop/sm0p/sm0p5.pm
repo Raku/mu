@@ -54,7 +54,7 @@ sub lineof {
 }
 ## token TOP
 ##      token TOP {
-##          <ws> <name>  <ws> '=' <ws> 'q:sm0p' <frame> <ws> ';'?
+##          <ws> <name>  <ws> '=' <ws> 'q:sm0p' <ws> '{' <frame> <ws> '}' <ws> ';'?
 ##          {*}  #= sm0p_0
 ##      
 ##      }
@@ -80,17 +80,31 @@ sub TOP {
                                 Cursor::lazymap(sub { my $C=$_[0];
                                     Cursor::lazymap(sub { my $C=$_[0];
                                         Cursor::lazymap(sub { my $C=$_[0];
-                                            $C->_REDUCE('TOP sm0p_0')
-                                        }, $C->_OPTr(sub { my $C=shift;
-                                            $C->_EXACT(';')
+                                            Cursor::lazymap(sub { my $C=$_[0];
+                                                Cursor::lazymap(sub { my $C=$_[0];
+                                                    Cursor::lazymap(sub { my $C=$_[0];
+                                                        Cursor::lazymap(sub { my $C=$_[0];
+                                                            $C->_REDUCE('TOP sm0p_0')
+                                                        }, $C->_OPTr(sub { my $C=shift;
+                                                            $C->_EXACT(';')
+                                                        }))
+                                                    }, $C->_SUBSUME(['ws'], sub {
+                                                        my $C = shift()->cursor_fresh;
+                                                        $C->ws
+                                                    }))
+                                                }, $C->_EXACT('}'))
+                                            }, $C->_SUBSUME(['ws'], sub {
+                                                my $C = shift()->cursor_fresh;
+                                                $C->ws
+                                            }))
+                                        }, $C->_SUBSUME(['frame'], sub {
+                                            my $C = shift()->cursor_fresh;
+                                            $C->frame
                                         }))
-                                    }, $C->_SUBSUME(['ws'], sub {
-                                        my $C = shift()->cursor_fresh;
-                                        $C->ws
-                                    }))
-                                }, $C->_SUBSUME(['frame'], sub {
+                                    }, $C->_EXACT('{'))
+                                }, $C->_SUBSUME(['ws'], sub {
                                     my $C = shift()->cursor_fresh;
-                                    $C->frame
+                                    $C->ws
                                 }))
                             }, $C->_EXACT('q:sm0p'))
                         }, $C->_SUBSUME(['ws'], sub {
@@ -114,7 +128,7 @@ sub TOP {
 }
 ## token frame
 ##      token frame {
-##          <ws> '{' <ws> <nodes> <ws> '}' <ws>
+##          <ws> <nodes> <ws>
 ##          {*}  #= sm0p_1
 ##      
 ##      }
@@ -134,29 +148,15 @@ sub frame {
         Cursor::lazymap(sub { my $C=$_[0];
             Cursor::lazymap(sub { my $C=$_[0];
                 Cursor::lazymap(sub { my $C=$_[0];
-                    Cursor::lazymap(sub { my $C=$_[0];
-                        Cursor::lazymap(sub { my $C=$_[0];
-                            Cursor::lazymap(sub { my $C=$_[0];
-                                Cursor::lazymap(sub { my $C=$_[0];
-                                    $C->_REDUCE('frame sm0p_1')
-                                }, $C->_SUBSUME(['ws'], sub {
-                                    my $C = shift()->cursor_fresh;
-                                    $C->ws
-                                }))
-                            }, $C->_EXACT('}'))
-                        }, $C->_SUBSUME(['ws'], sub {
-                            my $C = shift()->cursor_fresh;
-                            $C->ws
-                        }))
-                    }, $C->_SUBSUME(['nodes'], sub {
-                        my $C = shift()->cursor_fresh;
-                        $C->nodes
-                    }))
+                    $C->_REDUCE('frame sm0p_1')
                 }, $C->_SUBSUME(['ws'], sub {
                     my $C = shift()->cursor_fresh;
                     $C->ws
                 }))
-            }, $C->_EXACT('{'))
+            }, $C->_SUBSUME(['nodes'], sub {
+                my $C = shift()->cursor_fresh;
+                $C->nodes
+            }))
         }, $C->_SUBSUME(['ws'], sub {
             my $C = shift()->cursor_fresh;
             $C->ws
@@ -720,7 +720,7 @@ sub nativestring {
 
 ## token value
 ##      token value {
-##          || <frame>    {*}  #= sm0p_20
+##          || '{' <frame> '}'   {*}  #= sm0p_20
 ##      
 ##          || <nativestring> {*}  #= sm0p_21
 ##      
@@ -747,11 +747,15 @@ sub value {
     $self->_MATCHIFY(
         do { my @gather;
                 eval { push @gather, Cursor::lazymap(sub { my $C=$_[0];
-                    $C->_REDUCE('value sm0p_20')
-                }, $C->_SUBSUME(['frame'], sub {
-                    my $C = shift()->cursor_fresh;
-                    $C->frame
-                }))} 
+                    Cursor::lazymap(sub { my $C=$_[0];
+                        Cursor::lazymap(sub { my $C=$_[0];
+                            $C->_REDUCE('value sm0p_20')
+                        }, $C->_EXACT('}'))
+                    }, $C->_SUBSUME(['frame'], sub {
+                        my $C = shift()->cursor_fresh;
+                        $C->frame
+                    }))
+                }, $C->_EXACT('{'))} 
                 or
                 eval { push @gather, Cursor::lazymap(sub { my $C=$_[0];
                     $C->_REDUCE('value sm0p_21')
@@ -1941,11 +1945,11 @@ BEGIN {
 TOP: !!perl/hash:RE
   decl: []
   kind: token
-  min: 74077
+  min: 98769
   re: !!perl/hash:RE_sequence
     a: 0
     i: 0
-    min: 74077
+    min: 98769
     zyg:
     - !!perl/hash:RE_method
       a: 0
@@ -1985,8 +1989,30 @@ TOP: !!perl/hash:RE
       a: 0
       i: 0
       min: 12345
+      name: ws
+      rest: ''
+    - !!perl/hash:RE_string
+      a: 0
+      i: 0
+      min: 1
+      text: '{'
+    - !!perl/hash:RE_method
+      a: 0
+      i: 0
+      min: 12345
       name: frame
       rest: ''
+    - !!perl/hash:RE_method
+      a: 0
+      i: 0
+      min: 12345
+      name: ws
+      rest: ''
+    - !!perl/hash:RE_string
+      a: 0
+      i: 0
+      min: 1
+      text: '}'
     - !!perl/hash:RE_method
       a: 0
       i: 0
@@ -2442,23 +2468,12 @@ digits: !!perl/hash:RE
 frame: !!perl/hash:RE
   decl: []
   kind: token
-  min: 61727
+  min: 37035
   re: !!perl/hash:RE_sequence
     a: 0
     i: 0
-    min: 61727
+    min: 37035
     zyg:
-    - !!perl/hash:RE_method
-      a: 0
-      i: 0
-      min: 12345
-      name: ws
-      rest: ''
-    - !!perl/hash:RE_string
-      a: 0
-      i: 0
-      min: 1
-      text: '{'
     - !!perl/hash:RE_method
       a: 0
       i: 0
@@ -2471,17 +2486,6 @@ frame: !!perl/hash:RE
       min: 12345
       name: nodes
       rest: ''
-    - !!perl/hash:RE_method
-      a: 0
-      i: 0
-      min: 12345
-      name: ws
-      rest: ''
-    - !!perl/hash:RE_string
-      a: 0
-      i: 0
-      min: 1
-      text: '}'
     - !!perl/hash:RE_method
       a: 0
       i: 0
@@ -3916,14 +3920,24 @@ value: !!perl/hash:RE
     - !!perl/hash:RE_sequence
       a: 0
       i: 0
-      min: 12345
+      min: 12347
       zyg:
+      - !!perl/hash:RE_string
+        a: 0
+        i: 0
+        min: 1
+        text: '{'
       - !!perl/hash:RE_method
         a: 0
         i: 0
         min: 12345
         name: frame
         rest: ''
+      - !!perl/hash:RE_string
+        a: 0
+        i: 0
+        min: 1
+        text: '}'
       - !!perl/hash:RE_method_internal
         args: '''value sm0p_20'''
         max: 0

@@ -18,49 +18,38 @@ my $sm0p_code = '';
 my $out_count = 1;
 print {$output} qq{#line 1 "$in"\n};
 
+sub quasi {
+    my %quasi = @_;
+    while ( my ($lang,$processor) = each %quasi) {
+        if (/^(\s*)(.*?)q:\Q$lang\E\s*\{\s*$/) {
+            print {$output} $1.$2;
+            my $code = '';
+            my $indent = $1;
+            #warn "quasi $lang indent<$indent>\n";
+            while (<$input>) {
+                $out_count++;
+                if (/^$indent\}(.*)$/) {
+                    print {$output} $processor->($code);
+                    print {$output} $1;
+                    last;
+                }
+                $code .= $_;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
 eval {
   PRINCIPAL:
     while (<$input>) {
-        if (/^(\s*) \w+ \s+ = \s* q:sm0p/x) {
-            $sm0p_code = $_;
-            my $indent = $1;
-            while (<$input>) {
-                $sm0p_code .= $_;
-                if ( $_ =~ /^$indent\}/ ) {
-                    my $next_inline = $. + 1;
-                    my $next_outline = $out_count + 2;
-                    my $lines = qq{#line $next_outline "$out"\n}
-                      . preprocess_sm0p($sm0p_code)
-                        . qq{#line $next_inline "$in"\n};
-                    print {$output} $lines;
-                    $out_count += $lines =~ tr/\n//;
-                    next PRINCIPAL;
-                };
-            }
-        } elsif (/^(\s*)use\s+v6;\s*$/) {
-            my $p6_code = '';
-            my $indent = $1;
-            while (<$input>) {
-                $out_count++;
-                unless (/^$indent/) {
-                    print {$output} preprocess_p6($p6_code);
-                    last;
-                }
-                $p6_code .= $_;
-            }
-        } elsif (/^(\s*)use\s+m0ld;\s*$/) {
-            my $m0ld_code = '';
-            my $indent = $1;
-            while (<$input>) {
-                $out_count++;
-                unless (/^$indent|^$/) {
-                    print {$output} preprocess_m0ld($m0ld_code);
-                    last;
-                }
-                $m0ld_code .= $_;
-            }
-        }
         $out_count++;
+        quasi(
+            'sm0p' => \&preprocess_sm0p,
+            'm0ld' => \&preprocess_m0ld,
+            'v6-sm0p' => \&preprocess_p6_sm0p,
+            'v6-m0ld' => \&preprocess_p6_m0ld,
+        ) and next;
         print {$output} $_;
     }
 };
@@ -108,15 +97,21 @@ sub preprocess {
     die join(' ',@_).' returned failure '.$? if ($? || !$retbuf || $retbuf eq "\n") ;
     return $retbuf;
 }
-sub preprocess_p6 {
+sub preprocess_p6_sm0p {
     my $code = shift;
     my ($writer, $reader, $error) = map { gensym } 1..3;
     my $sm0p = preprocess('','perl',"$base/../../misc/elfish/elfX/elfX",'-C','sm0p','-s','-e',$code);
-    return preprocess_sm0p("frame = q:sm0p {".
-        $sm0p.
-        "\$SMOP__SLIME__CurrentFrame.\$SMOP__ID__forget();\n".
-        "\$interpreter.goto(|\$continuation);\n".
-        "};\n");
+    return preprocess_sm0p(
+        $sm0p
+        . "\$SMOP__SLIME__CurrentFrame.\$SMOP__ID__forget();\n"
+        . "\$interpreter.goto(|\$continuation);\n"
+        );
+}
+sub preprocess_p6_m0ld {
+    my $code = shift;
+    my ($writer, $reader, $error) = map { gensym } 1..3;
+    my $m0ld = preprocess('','perl',"$base/../../misc/elfish/elfX/elfX",'-C','m0ld','-s','-e',$code);
+    return preprocess_m0ld($m0ld);
 }
 sub preprocess_sm0p {
     my $code = shift;
@@ -127,6 +122,6 @@ sub preprocess_sm0p {
 }
 sub preprocess_m0ld {
     my $code = shift;
-    #warn "got sm0p code <$code>\n";
-    return "mold = ".preprocess($code,"$base/m0ld/m0ld"),";";
+    #warn "got m0ld code <$code>\n";
+    return preprocess($code,"$base/m0ld/m0ld");
 }

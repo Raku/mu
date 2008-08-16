@@ -17,8 +17,7 @@ int main(int argc, char** argv) {
   SMOP__Object* continuation = SMOP__NATIVE__bool_false;
   SMOP__Object* frame;
 
-  {
-    use v6;
+  frame = q:v6-sm0p {
     $*att.STORE($SMOP__S1P__Attribute.new());
     $*att.FETCH().name().STORE("ok 1\n");
     $*att.FETCH().private_name().STORE("ok 2\n");

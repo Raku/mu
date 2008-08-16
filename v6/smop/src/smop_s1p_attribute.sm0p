@@ -41,8 +41,7 @@ static SMOP__Object* smop_s1p_attribute_message(SMOP__Object* interpreter,
                                                SMOP__ID__continuation, 
                                                SMOP_REFERENCE(interpreter,interpreter));
 
-    {
-      use v6;
+    frame = q:v6-sm0p {
       return $invocant.container_type.FETCH().new();
     };
 

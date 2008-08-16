@@ -15,11 +15,11 @@ method lineof ($p) {
     return $posprops.[$p]<line> // 0;
 }
 token TOP {
-    <ws> <name>  <ws> '=' <ws> 'q:sm0p' <frame> <ws> ';'?
+    <ws> <name>  <ws> '=' <ws> 'q:sm0p' <ws> '{' <frame> <ws> '}' <ws> ';'?
     {make $<name> ~ " = " ~ $<frame> ~ ';'}
 }
 token frame {
-    <ws> '{' <ws> <nodes> <ws> '}' <ws>
+    <ws> <nodes> <ws>
     { make 'SMOP_DISPATCH(interpreter, '
       ~ 'SMOP__SLIME__Frame, SMOP__ID__new, SMOP__NATIVE__capture_create('
       ~ 'interpreter, SMOP__SLIME__Frame, (SMOP__Object*[]){ '
@@ -110,7 +110,7 @@ token nativestring {
 }
 
 token value {
-    || <frame>    { make $<frame> }
+    || '{' <frame> '}'   { make $<frame> }
     || <nativestring> { make $<nativestring> }
     || <nativeint>    { make $<nativeint> }
     || <capturize>    { make $<capturize> }
