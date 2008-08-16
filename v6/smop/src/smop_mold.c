@@ -30,7 +30,11 @@ static void print_regs_content(smop_mold_frame* frame) {
     smop_mold* mold = (smop_mold*) frame->mold;
     for (i=0;i<mold->registers;i++) {
       if (frame->registers[i]) {
-        printf("%d:%s\n",i,frame->registers[i]->RI->id);
+        if (frame->registers[i]->RI) {
+          printf("%d:%s\n",i,frame->registers[i]->RI->id);
+        } else {
+          printf("%d:no RI\n",i);
+        }
       } else {
         printf("%d:(null)\n",i);
       }
@@ -195,7 +199,8 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
             SMOP_RELEASE(interpreter,frame->registers[target]);
           }
           if (!ret) {
-            printf("got null as a result of a call (reg = %d)\n",target);
+            print_regs_content(frame);
+            printf("got NULL as a result of a call (reg = %d)\n");
             abort();
           }
           frame->registers[target] = ret;
