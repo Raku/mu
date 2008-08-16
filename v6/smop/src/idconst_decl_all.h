@@ -1,6 +1,7 @@
 SMOP__Object* SMOP__ID__back;
 SMOP__Object* SMOP__ID__bless;
 SMOP__Object* SMOP__ID__bool;
+SMOP__Object* SMOP__ID__BIND;
 SMOP__Object* SMOP__ID__BUILD;
 SMOP__Object* SMOP__ID__BUILDALL;
 SMOP__Object* SMOP__ID__call;

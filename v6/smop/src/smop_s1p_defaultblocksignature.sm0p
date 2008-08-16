@@ -7,18 +7,42 @@
 #include <smop_s1p.h>
 
 SMOP__Object* SMOP__S1P__DefaultBlockSignature;
+static SMOP__Object* defaultblocksignature_bind_code;
 
 static SMOP__Object* defaultblocksignature_message(SMOP__Object* interpreter,
                                                    SMOP__ResponderInterface* self,
                                                    SMOP__Object* identifier,
                                                    SMOP__Object* capture) {
 
+  ___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;
   ___INVOCANT_RI_SHOULD_MATCH___;
 
   SMOP__Object* ret;
   
-  ___UNKNOWN_METHOD___;
+  if (identifier == SMOP__ID__BIND) {
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                   SMOP_REFERENCE(interpreter,
+                                                                  defaultblocksignature_bind_code));
+
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,1,continuation);
+    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  frame);
+
+  } else {
+    ___UNKNOWN_METHOD___;
+
+  }
 
   SMOP_RELEASE(interpreter, invocant);
   SMOP_RELEASE(interpreter, capture);
@@ -27,18 +51,56 @@ static SMOP__Object* defaultblocksignature_message(SMOP__Object* interpreter,
 }
 
 void smop_s1p_defaultblocksignature_init() {
-
   SMOP__S1P__DefaultBlockSignature = calloc(1, sizeof(SMOP__ResponderInterface));
   assert(SMOP__S1P__DefaultBlockSignature);
   ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->MESSAGE = defaultblocksignature_message;
   ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->REFERENCE = smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->RELEASE = smop_lowlevel_generic_release;
   ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->id = "S1P Default Block Signature";
+}
 
+void smop_s1p_defaultblocksignature_mold_init() {
+
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  SMOP__Object* mold;
+  {
+    use m0ld;
+    my $capture;
+    my $back;
+    my $interpreter;
+
+    my $actualcapture = $capture."positional"(0);
+    my $lexicalscope = $capture."positional"(1);
+    my $outerscopecontainer = $lexicalscope."outer"();
+    my $outerscope = $outerscopecontainer."FETCH"();
+
+    my $count = $capture."elems"();
+    my $outerbind = $count."infix:«>»"(0);
+
+    my $void;
+    my $val;
+
+    my $container = $lexicalscope."postcircumfix:{ }"("$_");
+
+    if $outerbind { goto then } else { goto else };
+    then:
+      $val = $outerscope."postcircumfix:{ }"("$_");
+      goto exit;
+    else:
+      $val = $actualcapture."positional"(0);
+    exit:
+      $void = $container."STORE"($val);
+      $void = $interpreter."goto"($back);
+  };
+
+  defaultblocksignature_bind_code = mold;
+}
+
+void smop_s1p_defaultblocksignature_mold_destr() {
+  SMOP_RELEASE(SMOP__GlobalInterpreter, defaultblocksignature_bind_code);
+  defaultblocksignature_bind_code = NULL;
 }
 
 void smop_s1p_defaultblocksignature_destr() {
-
   free(SMOP__S1P__DefaultBlockSignature);
-
 }
