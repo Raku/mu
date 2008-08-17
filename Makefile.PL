@@ -257,6 +257,9 @@ sub bootstrap_with {
     my ($setup_hs) = glob('Setup.*hs');
     die "Impossible: No Setup?" unless $setup_hs;
 
+    use File::Path;
+    File::Path::rmtree(['dist']);
+
     system($ghc, qw(--make -O0), -o => $setup_exe, $setup_hs)
         || system($setup_exe, qw(configure --user))
         || system($setup_exe, qw(build))
