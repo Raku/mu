@@ -45,6 +45,7 @@ class Net::IRC::OO {
   has Str   $.username     is rw;
   has Str   $.ircname      is rw;
   has Str   $.host         is rw;
+  has Str   $.password     is rw;
   has Int   $.port         is rw;
   has Int   $.autoping     is rw;
   has Int   $.live_timeout is rw;
@@ -125,6 +126,7 @@ class Net::IRC::OO {
     Str $.username = $.nick,
     Str $.ircname  = $.nick,
     Str $.host,
+    Str $.password,
     Int $.port         = 6667,
     Int $.autoping     = 90,   # Autoping the server when we haven't seen traffic for 90s
     Int $.live_timeout = 120,  # Drop connection when we haven't seen traffic for 120s
@@ -389,6 +391,9 @@ class Net::IRC::OO {
       # handler can choose a different nick. $in_login_phase is reset to 0
       # when we're successfully logged in.
       $!in_login_phase++;
+      if ($.password) {
+        self!send("PASS $.password");
+      }
       self!send("NICK {$!nickgen.next}");
       self!send("USER $.username * * :$.ircname");
     });

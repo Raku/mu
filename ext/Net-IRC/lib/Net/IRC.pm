@@ -36,6 +36,7 @@ sub new_bot(
   Str $username = $nick,
   Str $ircname  = $nick,
   Str $host,
+  Str $password,
   Int $port          = 6667,
   Int $autoping      = 90,     # Autoping the server when we haven't seen traffic for 90s
   Int $live_timeout  = 120,    # Drop connection when we haven't seen traffic for 120s
@@ -334,6 +335,9 @@ sub new_bot(
           # handler can choose a different nick. $in_login_phase is reset to 0
           # when we're successfully logged in.
           $in_login_phase++;
+          if ($password) {
+            $say("PASS $password");
+          }
           $say("NICK {$nickgen<next>()}");
           $say("USER $username * * :$ircname");
         });
