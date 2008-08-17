@@ -4,6 +4,7 @@ import System.IO hiding (getContents,putStrLn,print)
 import Prelude hiding (getContents,putStrLn,print)
 import System.IO.UTF8
 import Debug.Trace
+
 type Register = [Char]
 type Label = [Char]
 data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None | SubMold [Stmt]
@@ -16,6 +17,8 @@ data Argument = Pos Register | Named Register Register
 
 data Mold = Mold [Stmt]
     deriving Show
+
+type Parser = GenParser Char
 
 identifier = do
     first <- choice [alphaNum, char '_']
@@ -35,10 +38,12 @@ tok r = do
     res <- r
     opt_ws
     return res
+
 symbol x = tok $ string x
 
-lparen = char '('
-rparen = char ')'
+parenthesized = between (symbol "(") (symbol ")")
+
+inBraces = between (symbol "{") (symbol "}")
 
 register =  char '$' >> identifier
 
@@ -87,6 +92,7 @@ implicit_decl = do
                 updateState $ Map.insert c new
                 decls <- getState
                 return $ new
+
 value = tok $ choice [register,implicit_decl]
 
 decl = do 
@@ -96,14 +102,13 @@ decl = do
     defaultValue <- option None $ symbol "=" >> constant
     return [Decl x defaultValue]
 
-branch = do
-    symbol "{"
+branch = inBraces $ do
     string "goto"
     ws
     label <- tok identifier
     option ' ' $ char ';'
-    symbol "}"
     return label
+
 br = do
     string "if"
     ws
@@ -112,11 +117,13 @@ br = do
     symbol "else"
     iffalse <- branch
     return [Br cond iftrue iffalse]
+
 goto = do
     string "goto"
     ws
     label <- identifier
     return [Goto label]
+
 call = do
     inline_decl <- option False (symbol "my" >> return True)
     target <- value
@@ -124,26 +131,26 @@ call = do
     invocant <- value
     char '.'
     identifier <- value
-    arguments <- between (tok lparen) rparen $ sepBy (tok argument) (symbol ",")
+    arguments <- parenthesized $ sepBy (tok argument) (symbol ",")
     let pos = [ x | Pos x <- arguments]
         named = [x | (Named k v) <- arguments, x <- [k,v]]
-    return $ (if inline_decl then [Decl target None] else []) ++ [Call target identifier (Capture invocant pos named)]
+        decl = if inline_decl then [Decl target None] else []
+        call = [Call target identifier (Capture invocant pos named)]
+    return $ decl ++ call
+
 call2 = do
     target <- value
     symbol "="
     responder <- value
     char '.'
     identifier <- value
-    symbol "("
-    symbol "|"
-    capture <- value
-    symbol ")"
+    capture <- parenthesized $ symbol "|" >> value
     return [Call2 target responder identifier capture]
 
 argument = do
         char ':'
         k <- value
-        v <- between (symbol "(") (symbol ")") value
+        v <- parenthesized value
         return $ Named k v
     <|> do 
         arg <- value
@@ -162,21 +169,20 @@ submold = do
     setState Map.empty
 
     symbol "mold"
-    symbol "{"
-    stmts <- tok $ endBy stmt terminator
-    symbol "}"
+    stmts <- inBraces $ tok $ endBy stmt terminator
     constants <- getState
     setState savedState
     return $ SubMold $ (implicitDecls constants) ++ (concat stmts)
 
 type RegMap = Map.Map [Char] Int
+
 type LabelsMap = Map.Map [Char] Int
 
 resolveReg r regs = Map.findWithDefault (error $ "undeclared register: $"++r) r regs 
+
 resolveLabelDef l labels = Map.findWithDefault (error $ "undeclared label: "++l) l labels
 
 toBytecode :: Stmt -> RegMap -> LabelsMap -> [Int]
-
 toBytecode stmt regs labels = case stmt of
     Call target identifier (Capture invocant positional named) ->
         let reg r = resolveReg r regs
@@ -205,7 +211,6 @@ addRegister regs stmt = case stmt of
     Decl reg None  -> regs
     Decl reg value -> Map.insert reg (Map.size regs)  regs
     _ -> regs
-
 
 addFreeRegister :: RegMap -> Stmt -> RegMap
 addFreeRegister regs stmt = case stmt of
@@ -265,7 +270,9 @@ dumpToC stmts =
         ++ "})"
 
 type ImplicitDecls = Map.Map Value [Char]
+
 implicitDecls = map (\(constant,reg) -> Decl reg constant) . Map.toList
+
 main = do
     hFlush stdout
     line <- getContents
