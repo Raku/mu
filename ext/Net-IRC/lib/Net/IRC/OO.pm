@@ -143,7 +143,7 @@ class Net::IRC::OO {
 
   my method send(Str $msg) {
     debug_sent $msg if $.debug_raw;
-    $!socket.print("$msg\d[13,10]");
+    $!socket.print("$msg\c[13,10]");
     $!socket.flush();
   }
 
