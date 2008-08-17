@@ -58,43 +58,43 @@ my Int $len = 8;
 my Bool $changed = False;
 my Hash of Str %pw;
 
-sub help(-->) { warn $=USAGE; }
+sub help(--> Void) { warn $=USAGE; }
 
 my Code &abort := -> Str $err { warn "$err\n"; return; }
 
-sub search(Str $pat -->) {
+sub search(Str $pat --> Void) {
 	for %pw.keys -> $k { say %pw{$k}<user>, "\t", $k if $k ~~ /<$pat>/ }
 }
 
-sub mk(Str $acct, Str $pass is copy, Str $user -->) {
+sub mk(Str $acct, Str $pass is copy, Str $user --> Void) {
 	$changed = True;
 	$pass = randpass if $pass eq 'R';
 	%pw{$acct}<pass user> = $pass, $user;
 }
 
-sub del(Str $acct -->) {
+sub del(Str $acct --> Void) {
 	abort "No account $acct" unless %pw{$acct}.:exists;
 	$changed = True;
 	%pw{$acct}.:delete;
 }
 
-sub pr(Str $acct -->) {
+sub pr(Str $acct --> Void) {
 	abort "No account $acct" unless %pw{$acct}.:exists;
 	say %pw{$acct}<user pass>.join("\t");
 }
 
-sub wxclip(Str $acct -->) {
+sub wxclip(Str $acct --> Void) {
 	abort "No account $acct" unless %pw{$acct}.:exists;
 	xclip %pw{$acct}<pass>;
 }
 
-sub xclip(Str $s -->) {
+sub xclip(Str $s --> Void) {
 	my IO $xclip = Pipe.to: 'xclip' orelse abort 'No xclip - use .p';
 	$xclip.print: $s;
 	$xclip.close;
 }
 
-sub sx(Str $s -->) {
+sub sx(Str $s --> Void) {
 	my Str $pw = %pw{$s}<pass> //
 		first Str, (%pw{$_}<pass> if /$s/ for %pw.keys)
 		orelse abort "Couldn't find account $s";
@@ -115,7 +115,7 @@ sub randpass(--> Str) {
 	return [~] @password;
 }
 
-sub cmt(-->) {
+sub cmt(--> Void) {
 	unlink 'pwd.gpg.old' orelse abort "Couldn't unlink: $!";
 	rename 'pwd.gpg', 'pwd.gpg.old' orelse abort "Couldn't rename: $!";
 	my IO $pwd = Pipe.to: 'gpg --symmetric --force-mdc --cipher-algo AES256 --output pwd.gpg'
@@ -130,22 +130,22 @@ sub cmt(-->) {
 
 regex cmd {
 	^^
-	[ '/' $<pat> := [ \N* ] { search $<pat> }
-	| \s* <!before '.'> $<acct> := [ \T+? ] \s* $$ { sx $<acct> }
-	| '.'	[ n	[ \t $<acct> := [ \T+ ] \t $<pass> := [ \T+ ] \t $<user> := [ \T+ ] $$
+	[ '/' $<pat> = [ \N* ] { search $<pat> }
+	| \s* <!before '.'> $<acct> = [ \T+? ] \s* $$ { sx $<acct> }
+	| '.'	[ n	[ \t $<acct> = [ \T+ ] \t $<pass> = [ \T+ ] \t $<user> = [ \T+ ] $$
 				{ mk $<acct>, $<pass>, $<user> }
 			| { warn ".n [tab] account [tab] password [tab] username\n" } <commit> <fail>
 			]
-		| d	[ \s+ $<acct> := [ \T+? ] \s* $$ { del $<acct> }
+		| d	[ \s+ $<acct> = [ \T+? ] \s* $$ { del $<acct> }
 			| { warn ".d account\n" } <commit> <fail>
 			]
-		| p	[ \s+ $<acct> := [ \T+? ] \s* $$ { pr $<acct> }
+		| p	[ \s+ $<acct> = [ \T+? ] \s* $$ { pr $<acct> }
 			| { warn ".p account\n" } <commit> <fail>
 			]
-		| x	[ \s+ $<acct> := [ \T+? ] \s* $$ { wxclip $<acct> }
+		| x	[ \s+ $<acct> = [ \T+? ] \s* $$ { wxclip $<acct> }
 			| { warn ".x account\n" } <commit> <fail>
 			]
-		| l	[ \s+ $<len> := [ \d+ ] \s* $$ { $len = $<len> }
+		| l	[ \s+ $<len> = [ \d+ ] \s* $$ { $len = $<len> }
 			| { warn ".l length\nlength is $len\n" } <commit> <fail>
 			]
 		| c { cmt }
@@ -162,7 +162,7 @@ regex cmd {
 }
 
 regex pwent {
-	^^ $<acct> := [ \T+ ] \t $<pass> := [ \T+ ] \t $<user> := [ \T+ ] $$
+	^^ $<acct> = [ \T+ ] \t $<pass> = [ \T+ ] \t $<user> = [ \T+ ] $$
 }
 
 %*ENV<PATH> = '/bin:/usr/bin:/usr/bin/X11';

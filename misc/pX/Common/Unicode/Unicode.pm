@@ -5,21 +5,17 @@ use UCD;
 constant Int $unicode_max = 0x10ffff;
 
 #XXX need an option to use Buf64
-class *UBuf is Buf32 { }
+class GLOBAL::UBuf is Buf32 { }
 
-class *AnyChar {
+class GLOBAL::AnyChar {
     # one character - can be a byte, codepoint or grapheme
     has Str $.char;
-    # for AnyChar, each of these needs to be defined differently for each unicode level
-    multi submethod BUILD(Str $s) {...}
-    method STORE(Str $s -->) {...}
-    method FETCH(--> Str) {...}
-    method Str(--> Str) {...}
+    # the rest is per unicode level
 }
 
-class *Byte is AnyChar {
-    multi submethod BUILD(Str $s) { $.char.as_bytes = @$s.as_bytes[0]; }
-    method STORE(Str $s -->)      { $.char.as_bytes = @$s.as_bytes[0]; }
+class GLOBAL::Byte is AnyChar {
+    multi submethod BUILD(Str $s) { $.char.as_bytes = $s.as_bytes[0]; }
+    method STORE(Str $s --> Void)      { $.char.as_bytes = $s.as_bytes[0]; }
     method FETCH(--> Str) {
         my Str $s;
         $s.as_bytes = $.char.as_bytes;
@@ -32,9 +28,9 @@ class *Byte is AnyChar {
     }
 }
 
-class *Codepoint is AnyChar {
-    multi submethod BUILD(Str $s) { $.char.as_codes = @$s.as_codes[0]; }
-    method STORE(Str $s -->)      { $.char.as_codes = @$s.as_codes[0]; }
+class GLOBAL::Codepoint is AnyChar {
+    multi submethod BUILD(Str $s) { $.char.as_codes = $s.as_codes[0]; }
+    method STORE(Str $s --> Void)      { $.char.as_codes = $s.as_codes[0]; }
     method FETCH(--> Str) {
         my Str $s;
         $s.as_codes = $.char.as_codes;
@@ -49,7 +45,7 @@ class *Codepoint is AnyChar {
 
 my Grapheme @graph_ids;
 my Int %seen_graphs;
-class *Grapheme is AnyChar {
+class GLOBAL::Grapheme is AnyChar {
     use codepoints;
     # ID is codepoint or a unique ID > $unicode_max
     has Int $.id;
@@ -99,7 +95,7 @@ class *Grapheme is AnyChar {
             $g := @graph_ids[$id - ($unicode_max+1)];
         }
     }
-    method STORE(Str $s -->) { $.id = @$s.as_graphs[0]; }
+    method STORE(Str $s --> Void) { $.id = @$s.as_graphs[0]; }
     method FETCH(--> Str) {
         my Str $s;
         $s.as_graphs = $.id;
@@ -200,13 +196,10 @@ class *Grapheme is AnyChar {
             goto startover;
         }
         for 1..$s.codes -> my Int $n {
-            my Str $two = $s.as_codes[0].chr ~ $s.as_codes[$n].chr;
+            my Str $two = $s.as_codes[0,$n].chr;
             if exists %composition{$two} {
                 my Str $new = %composition{$two};
-                for 1..$s.codes -> my Int $m {
-                    next if $n == $m;
-                    $new ~= $s.as_codes[$m].chr;
-                }
+                $new ~= $s.as_codes[1 ..^ $n, $n ^.. *];
                 $s = $new;
                 goto startover;
             }
@@ -236,27 +229,27 @@ BEGIN {
     our Str $?ENC;
 }
 
-module *nf {
+class GLOBAL::nf {
     sub EXPORTER(Str $nf is copy) {
         $nf.=lc;
-        $nf ~~ s:g/nf|\W//;
+        $nf ~~ s:g/nf|\W+//;
         die "Unknown Normalization Form: $nf\n"
             unless $nf eq any <c d kc kd>;
         $?NF ::= $nf;
     }
 }
 
-module *encoding {
+class GLOBAL::encoding {
     sub EXPORTER(Str $enc is copy) {
         $enc.=lc;
-        $enc ~~ s:g/utf|\W//;
+        $enc ~~ s:g/utf|\W+//;
         die "Unknown Encoding: $enc\n"
             unless $enc eq any <8 16le 16be 32le 32be>;
         $?ENC ::= $enc;
     }
 }
 
-class *StrPos {
+class GLOBAL::StrPos {
     # this object is only valid for strings === $.s
     has Str $.s;
     # substr of $.s from beginning to our pos
@@ -265,14 +258,14 @@ class *StrPos {
     method codes(--> Int)  { $.sub.codes  }
     method graphs(--> Int) { $.sub.graphs }
 }
-class *StrLen {
+class GLOBAL::StrLen {
     # this is a non-lazy, string-independent length which cannot be converted
     has Int $.bytes;
     has Int $.codes;
     has Int $.graphs;
-    my method clear(-->) { $.bytes = $.codes = $.graphs = undef; }
+    my method clear(--> Void) { $.bytes = $.codes = $.graphs = undef; }
 }
-class *StrDisp is StrLen {
+class GLOBAL::StrDisp is StrLen {
     # this is the "lazy" StrLen, created only by subtracting StrPos
     has Str $.s1;
     has Str $.s2;
@@ -307,7 +300,7 @@ multi *infix:<+>(StrLen $sl, StrPos $sp --> StrPos) {
 multi *infix:<+>(StrLen $s1, StrLen $s2 --> StrLen) {
     StrLenSum.new(:$s1, :$s2);
 }
-multi prefix:<->(StrLen $s --> StrLen) {
+multi *prefix:<->(StrLen $s --> StrLen) {
     StrLenNeg.new(:$s);
 }
 multi *infix:<->(StrLen $s1, StrLen $s2 --> StrLen) {
@@ -324,7 +317,7 @@ class SubstrProxy {
     # STORE and FETCH are per-level
 }
 
-class *Str is also {
+class GLOBAL::Str is also {
     # in general only one of these is defined at a time
     # all conversions are automatic:
     # codes -> graphs is always allowed
@@ -340,12 +333,15 @@ class *Str is also {
     token isGCBLF :codes { \x{000A} }
     token isGCBControl :codes { <+isZl+isZp+isCc+isCf-[\x{000D}\x{000A}\x{200C}\x{200D}]> }
     token isGCBHangulSyllable :codes {
-        | <after <isHSTL>                  >          [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ]
-        |        <isHSTL>                     <before [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ] >
-        | <after [ <isHSTLV> | <isHSTV> ]  >          [ <isHSTV> | <isHSTT> ]
-        |        [ <isHSTLV> | <isHSTV> ]     <before [ <isHSTV> | <isHSTT> ]                          >
-        | <after [ <isHSTLVT> | <isHSTT> ] >          <isHSTV>
-        |        [ <isHSTLVT> | <isHSTT> ]    <before <isHSTV>                                         >
+        [
+            | <after <isHSTL>                  >          [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ]
+            |        <isHSTL>                     <before [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ] >
+            | <after [ <isHSTLV> | <isHSTV> ]  >          [ <isHSTV> | <isHSTT> ]
+            |        [ <isHSTLV> | <isHSTV> ]     <before [ <isHSTV> | <isHSTT> ]                          >
+            | <after [ <isHSTLVT> | <isHSTT> ] >          <isHSTV>
+            |        [ <isHSTLVT> | <isHSTT> ]    <before <isHSTV>                                         >
+        ]+
+        | <+isHSTL+isHSTV+isHSTT+isHSTLV+isHSTLVT>
     }
     # "default" / "locale-independent" grapheme cluster
     # text does not need to be normalized
@@ -353,7 +349,7 @@ class *Str is also {
     token grapheme_cluster :codes {
         | <isGCBCR> <isGCBLF>
         | [ <isGCBCR> | <isGCBLF> | <isGCBControl> ]
-        | <isGCBHangulSyllable>+ <isGrapheme_Extend>*
+        | <isGCBHangulSyllable> <isGrapheme_Extend>*
         | <-isGCBCR-isGCBLF-isGCBControl> <isGrapheme_Extend>*
         | <isGrapheme_Extend>+
     }
@@ -374,7 +370,8 @@ class *Str is also {
     # remember what NF the as_codes is in
     has Str $!cur_nf;
     our method as_codes(--> UBuf) is rw is export {
-        if $?NF ne $!cur_nf {
+        use codepoints;
+        if defined @!as_codes and $?NF ne $!cur_nf {
             @!as_codes = @.normalize.as_codes;
             $!cur_nf = $?NF;
         }
@@ -389,10 +386,11 @@ class *Str is also {
         }
         return @!as_codes;
     }
-    our method as_bytes(--> Buf of int8) is rw is export {
-        return @!as_bytes if defined @!as_bytes;
-        if defined $?ENC {
+    has Str $!cur_enc;
+    our method as_bytes(--> Buf8) is rw is export {
+        if defined $?ENC and $?ENC ne $!cur_enc {
             @!as_bytes = self.unpack($?ENC, 'U*');
+            $!cur_enc = $?ENC;
         }
         return @!as_bytes;
     }
@@ -411,7 +409,7 @@ class *Str is also {
 
     token :codes :nf<d> split_graph {
         $<st>=[ <-isGrapheme_Extend>* ]
-        $<ex>=[ <isGrapheme_Extend>* ]
+        $<ex>=[ <+isGrapheme_Extend>* ]
     }
     our multi method samebase (Str $string: Str $pattern --> Str) is export {
         use graphemes;
@@ -446,16 +444,17 @@ class *Str is also {
     }
 }
 
-module *graphemes {
-    class *Str is also {
+class GLOBAL::graphemes {
+    class GLOBAL::Str is also {
         our multi method graphs(Str $string: --> Int) is export { $string.as_graphs.elems }
         our multi method chars(Str $string: --> Int) is export { $string.graphs }
         multi submethod BUILD(UBuf :@graphs) { @!as_graphs = @graphs; }
-        multi method STORE(Str $s -->) {
+        multi method STORE(Str $s --> Void) {
             @!as_graphs = $s.as_graphs;
             @!as_codes = undef;
             @!as_bytes = undef;
             $!cur_nf = undef;
+            $!cur_enc = undef;
         }
         multi method FETCH(--> Str) {
             my Str $s;
@@ -464,12 +463,12 @@ module *graphemes {
         }
         our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
-            @$s.as_graphs = @$s1.as_graphs[0..*-2];
+            @$s.as_graphs = $s1.as_graphs[0..*-2];
             my Str $mid;
             @$mid.as_codes = Grapheme.new(:id(@$s1.as_graphs[*-1])).as_nfc,
-                Grapheme.new(:id(@$s2.as_graphs[0])).as_nfc;
-            $s.as_graphs.push: @$mid.as_graphs;
-            $s.as_graphs.push: @$s2.as_graphs[1..*];
+                Grapheme.new(:id($s2.as_graphs[0])).as_nfc;
+            $s.as_graphs.push: $mid.as_graphs;
+            $s.as_graphs.push: $s2.as_graphs[1..*];
             return $s;
         }
         our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
@@ -480,12 +479,12 @@ module *graphemes {
         my UBuf @graphs = @grid;
         return Str.new(:@graphs);
     }
-    class *UBuf is also {
+    class GLOBAL::UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:graphs($b)) }
     }
-    class *AnyChar is also {
-        multi submethod BUILD(Str $s) { $.char.as_graphs = @$s.as_graphs[0]; }
-        method STORE(Str $s -->)      { $.char.as_graphs = @$s.as_graphs[0]; }
+    class GLOBAL::AnyChar is also {
+        multi submethod BUILD(Str $s) { @$.char.as_graphs = $s.as_graphs[0]; }
+        method STORE(Str $s --> Void)      { @$.char.as_graphs = $s.as_graphs[0]; }
         method FETCH(--> Str) {
             my Str $s;
             $s.as_graphs = $.char.as_graphs;
@@ -497,15 +496,15 @@ module *graphemes {
             return $s;
         }
     }
-    class *StrLen is also {
-        submethod BUILD(Int $i -->) { $.clear; $.graphs = $i; }
+    class GLOBAL::StrLen is also {
+        submethod BUILD(Int $i --> Void) { $.clear; $.graphs = $i; }
         method Int(--> Int)   { $.graphs }
     }
-    class *StrPos is also {
+    class GLOBAL::StrPos is also {
         submethod BUILD(Str $s, StrLen $len) {
             $.s = $s;
             my Str $sub;
-            @$sub.as_graphs = @$s.as_graphs[0 .. $len.graphs];
+            @$sub.as_graphs = $s.as_graphs[0 .. $len.graphs];
             $.sub = $sub;
         }
         method Int(--> Int) { $.graphs }
@@ -513,29 +512,30 @@ module *graphemes {
     class SubstrProxy is also {
         method FETCH(--> Str) {
             my Str $s;
-            @$s.as_graphs = @$.s.as_graphs[ $.sp.graphs .. ($.sl.graphs+$.sp.graphs // *) ];
+            @$s.as_graphs = $.s.as_graphs[ $.sp.graphs .. ($.sl.graphs+$.sp.graphs // *) ];
             return $s;
         }
-        method STORE(Str $s -->) {
+        method STORE(Str $s --> Void) {
             my Str $s1, $s2, $s3;
-            @$s1.as_graphs = @$.s.as_graphs[ 0 .. $.sp.graphs-1 ];
-            @$s2.as_graphs = @$.s.as_graphs[ ($.sl.graphs+$.sp.graphs+1 // *) .. * ];
+            @$s1.as_graphs = $.s.as_graphs[ 0 .. $.sp.graphs-1 ];
+            @$s2.as_graphs = $.s.as_graphs[ ($.sl.graphs+$.sp.graphs+1 // *) .. * ];
             $s3 = $s1 ~ $s ~ $s2;
             $.s.as_graphs = $s3.as_graphs;
         }
     }
 }
 
-module *codepoints {
-    class *Str is also {
+class GLOBAL::codepoints {
+    class GLOBAL::Str is also {
         our multi method codes(Str $string: --> Int) is export { $string.as_codes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.codes }
         multi submethod BUILD(UBuf :@codes) { @!as_codes = @codes; }
-        multi method STORE(Str $s -->) {
+        multi method STORE(Str $s --> Void) {
             @!as_graphs = undef;
             @!as_codes = $s.as_codes;
             @!as_bytes = undef;
             $!cur_nf = $?NF;
+            $!cur_enc = undef;
         }
         multi method FETCH(--> Str) {
             my Str $s;
@@ -544,8 +544,8 @@ module *codepoints {
         }
         our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
-            $s.as_codes = $s1.as_codes;
-            $s.as_codes.push: @$s2.as_codes;
+            @$s.as_codes = $s1.as_codes;
+            $s.as_codes.push: $s2.as_codes;
             return $s;
         }
         # S02:737 says code Strs should be in "universal form",
@@ -579,12 +579,12 @@ module *codepoints {
         my UBuf @codes = @grid;
         return Str.new(:@codes);
     }
-    class *UBuf is also {
+    class GLOBAL::UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:codes($b)) }
     }
-    class *AnyChar is also {
-        multi submethod BUILD(Str $s) { $.char.as_codes = @$s.as_codes[0]; }
-        method STORE(Str $s -->)      { $.char.as_codes = @$s.as_codes[0]; }
+    class GLOBAL::AnyChar is also {
+        multi submethod BUILD(Str $s) { @$.char.as_codes = $s.as_codes[0]; }
+        method STORE(Str $s --> Void)      { @$.char.as_codes = $s.as_codes[0]; }
         method FETCH(--> Str) {
             my Str $s;
             $s.as_codes = $.char.as_codes;
@@ -596,15 +596,15 @@ module *codepoints {
             return $s;
         }
     }
-    class *StrLen is also {
-        submethod BUILD(Int $i -->) { $.clear; $.codes = $i; }
+    class GLOBAL::StrLen is also {
+        submethod BUILD(Int $i --> Void) { $.clear; $.codes = $i; }
         method Int(--> Int)   { $.codes }
     }
-    class *StrPos is also {
+    class GLOBAL::StrPos is also {
         submethod BUILD(Str $s, StrLen $len) {
             $.s = $s;
             my Str $sub;
-            @$sub.as_codes = @$s.as_codes[0 .. $len.codes];
+            @$sub.as_codes = $s.as_codes[0 .. $len.codes];
             $.sub = $sub;
         }
         method Int(--> Int) { $.codes }
@@ -612,29 +612,30 @@ module *codepoints {
     class SubstrProxy is also {
         method FETCH(--> Str) {
             my Str $s;
-            @$s.as_codes = @$.s.as_codes[ $.sp.codes .. ($.sl.codes+$.sp.codes // *) ];
+            @$s.as_codes = $.s.as_codes[ $.sp.codes .. ($.sl.codes+$.sp.codes // *) ];
             return $s;
         }
-        method STORE(Str $s -->) {
+        method STORE(Str $s --> Void) {
             my Str $s1, $s2, $s3;
-            @$s1.as_codes = @$.s.as_codes[ 0 .. $.sp.codes-1 ];
-            @$s2.as_codes = @$.s.as_codes[ ($.sl.codes+$.sp.codes+1 // *) .. * ];
+            @$s1.as_codes = $.s.as_codes[ 0 .. $.sp.codes-1 ];
+            @$s2.as_codes = $.s.as_codes[ ($.sl.codes+$.sp.codes+1 // *) .. * ];
             $s3 = $s1 ~ $s ~ $s2;
             $.s.as_codes = $s3.as_codes;
         }
     }
 }
 
-module *bytes {
-    class *Str is also {
+class GLOBAL::bytes {
+    class GLOBAL::Str is also {
         our multi method bytes(Str $string: --> Int) is export { $string.as_bytes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.bytes }
         multi submethod BUILD(UBuf :@bytes) { @!as_bytes = @bytes; }
-        multi method STORE(Str $s -->) {
+        multi method STORE(Str $s --> Void) {
             @!as_graphs = undef;
             @!as_codes = undef;
             @!as_bytes = $s.as_bytes;
             $!cur_nf = undef;
+            $!cur_enc = undef;
         }
         multi method FETCH(--> Str) {
             my Str $s;
@@ -644,7 +645,7 @@ module *bytes {
         our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
             $s.as_bytes = $s1.as_bytes;
-            $s.as_bytes.push: @$s2.as_bytes;
+            $s.as_bytes.push: $s2.as_bytes;
             return $s;
         }
         our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_bytes eqv $s2.as_bytes }
@@ -656,12 +657,12 @@ module *bytes {
         my UBuf @bytes = @grid;
         return Str.new(:@bytes);
     }
-    class *UBuf is also {
+    class GLOBAL::UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:bytes($b)) }
     }
-    class *AnyChar is also {
-        multi submethod BUILD(Str $s) { $.char.as_bytes = @$s.as_bytes[0]; }
-        method STORE(Str $s -->)      { $.char.as_bytes = @$s.as_bytes[0]; }
+    class GLOBAL::AnyChar is also {
+        multi submethod BUILD(Str $s) { @$.char.as_bytes = $s.as_bytes[0]; }
+        method STORE(Str $s --> Void)      { @$.char.as_bytes = $s.as_bytes[0]; }
         method FETCH(--> Str) {
             my Str $s;
             $s.as_bytes = $.char.as_bytes;
@@ -673,15 +674,15 @@ module *bytes {
             return $s;
         }
     }
-    class *StrLen is also {
-        submethod BUILD(Int $i -->) { $.clear; $.bytes = $i; }
+    class GLOBAL::StrLen is also {
+        submethod BUILD(Int $i --> Void) { $.clear; $.bytes = $i; }
         method Int(--> Int)   { $.bytes }
     }
-    class *StrPos is also {
+    class GLOBAL::StrPos is also {
         submethod BUILD(Str $s, StrLen $len) {
             $.s = $s;
             my Str $sub;
-            @$sub.as_bytes = @$s.as_bytes[0 .. $len.bytes];
+            @$sub.as_bytes = $s.as_bytes[0 .. $len.bytes];
             $.sub = $sub;
         }
         method Int(--> Int) { $.bytes }
@@ -689,13 +690,13 @@ module *bytes {
     class SubstrProxy is also {
         method FETCH(--> Str) {
             my Str $s;
-            @$s.as_bytes = @$.s.as_bytes[ $.sp.bytes .. ($.sl.bytes+$.sp.bytes // *) ];
+            @$s.as_bytes = $.s.as_bytes[ $.sp.bytes .. ($.sl.bytes+$.sp.bytes // *) ];
             return $s;
         }
-        method STORE(Str $s -->) {
+        method STORE(Str $s --> Void) {
             my Str $s1, $s2, $s3;
-            @$s1.as_bytes = @$.s.as_bytes[ 0 .. $.sp.bytes-1 ];
-            @$s2.as_bytes = @$.s.as_bytes[ ($.sl.bytes+$.sp.bytes+1 // *) .. * ];
+            @$s1.as_bytes = $.s.as_bytes[ 0 .. $.sp.bytes-1 ];
+            @$s2.as_bytes = $.s.as_bytes[ ($.sl.bytes+$.sp.bytes+1 // *) .. * ];
             $s3 = $s1 ~ $s ~ $s2;
             $.s.as_bytes = $s3.as_bytes;
         }

@@ -39,18 +39,18 @@ BEGIN {
 }
 
 # generic processing for UCD .txt files
-multi sub process_file(Str $file, Code &each_line:(Str) -->) {
+multi sub process_file(Str $file, Code &each_line:(Str) --> Void) {
     my $fd = open $file, :r;
-    for =$fd -> my Str $line {
+    for =$fd -> Str $line {
         $line.=ucd::strip_comments;
         next if $line !~~ &ucd::not_empty;
         each_line($line);
     }
     $fd.close;
 }
-multi sub process_file(Str $file, Regex &line_rx, Code &each_line -->) {
+multi sub process_file(Str $file, Regex &line_rx, Code &each_line --> Void) {
     my $fd = open $file, :r;
-    for =$fd -> my Str $line {
+    for =$fd -> Str $line {
         $line.=ucd::strip_comments;
         next if $line !~~ &ucd::not_empty;
         $line ~~ rule { $/=<line_rx> { each_line() } };
@@ -60,18 +60,18 @@ multi sub process_file(Str $file, Regex &line_rx, Code &each_line -->) {
 }
 
 # call like dumphash(:%hash);
-sub dumphash(Pair $thing -->) {
+sub dumphash(Pair $thing --> Void) {
     my Str $name := $thing.k;
     my $hash := $thing.v;
     $+dumpfile.say: "\%$name := " ~ $hash.perl ~ ";\n";
 }
-sub dumputable(Pair $thing -->) {
+sub dumputable(Pair $thing --> Void) {
     my Str $name := $thing.k;
     my $utable := $thing.v;
     $+dumpfile.say: "\$$name := " ~ $utable.perl ~ ";\n";
 }
 
-sub install_token(Str $name, Code &check(Str --> Bool) -->) {
+sub install_token(Str $name, Code &check(Str --> Bool) --> Void) {
     eval "our token $name is export " ~ '{ (.) <?{ &check($0) }> }';
 }
 
@@ -81,7 +81,7 @@ sub install_token(Str $name, Code &check(Str --> Bool) -->) {
 # and executed at the right time
 my Code @dump_init_subs;
 my Code @mktab_subs;
-our sub mktables(-->) {
+our sub mktables(--> Void) {
     # requires .txt files from e.g. http://www.unicode.org/Public/zipped/5.0.0/UCD.zip
     if 'ucd/Proplist.txt' !~~ :e {
         if 'ucd/UCD.zip' !~~ :e {
@@ -115,7 +115,7 @@ my Str @gen_cats = <Lu Ll Lt Lm Lo LC L>, <Mn Mc Me M>, <Nd Nl No N>,
     <Pc Pd Ps Pe Pi Pf Po P>, <Sm Sc Sk So S>,
     <Zs Zl Zp Z>, <Cc Cf Cs Co Cn C>;
 BEGIN {
-    @mktab_ud_subs.push: my sub mktab_ud_isgc(*$code, Str *$name, Str *$gc, Str *@f -->) {
+    @mktab_ud_subs.push: my sub mktab_ud_isgc(*$code, Str *$name, Str *$gc, Str *@f --> Void) {
         $code.=hex;
         %category{$gc}.add($code);
         %category<LC>.add($code) if $gc eq 'Lu'|'Ll'|'Lt';
@@ -138,7 +138,7 @@ my Str @proplist_cats = <ASCII_Hex_Digit Bidi_Control Dash Deprecated Diacritic 
 my Str @perl_cats = <alnum alpha ascii cntrl digit graph lower print>,
     <punct space title upper xdigit word vspace hspace>;
 BEGIN {
-    @mktab_subs.push: my sub mktab_proplist(-->) {
+    @mktab_subs.push: my sub mktab_proplist(--> Void) {
         process_file 'ucd/Proplist.txt', rule { $<cr>=<ucd::code_or_range> ';' $<name>=(\w+) }, {
             my $n := $<cr><ord>;
             %category{$<name>}.add($n);
@@ -156,7 +156,7 @@ BEGIN {
         }
     }
     # back to UnicodeData.txt
-    @mktab_ud_subs.push: my sub mktab_ud_isperl(*$code, Str *$name, Str *$gc, Str *@f -->) {
+    @mktab_ud_subs.push: my sub mktab_ud_isperl(*$code, Str *$name, Str *$gc, Str *@f --> Void) {
         $code.=hex;
         my Str $maj = $gc.substr(0, 1);
         # This is all from Camel3 p.168
@@ -183,11 +183,11 @@ BEGIN {
     }
     #XXX are things like /\w/ automatically hooked up to <word> etc.?
     # the answer is token regex_backslash:w
-    @dump_init_subs.push: my sub dump_init_gc(-->) {
-        for @gen_cats, @proplist_cats -> my Str $cat {
+    @dump_init_subs.push: my sub dump_init_gc(--> Void) {
+        for @gen_cats, @proplist_cats -> Str $cat {
             install_token "is$cat", -> Str $s { %category{$cat}.contains($s.ord) };
         }
-        for @perl_cats -> my Str $cat {
+        for @perl_cats -> Str $cat {
             install_token $cat,     -> Str $s { %category{$cat}.contains($s.ord) };
         }
     }
@@ -220,7 +220,7 @@ my Str %title;
 BEGIN{
     @mktab_ud_subs.push: my sub mktab_ud_rest(Str *$code, Str *$name, Str *$gc,
         Str *$ccc, Str *$bdc, Str *$decomp, Str *$dec, Str *$dig, Str *$num,
-        Str *$bdm, Str *$u1n, Str *$iso, Str *$uc, Str *$lc, Str *$tc, Str *@f -->) {
+        Str *$bdm, Str *$u1n, Str *$iso, Str *$uc, Str *$lc, Str *$tc, Str *@f --> Void) {
             
             $code.=hex.=chr;
             %ccc{$code} = +$ccc if $ccc.chars;
@@ -257,19 +257,19 @@ my Str %open2close;
 my Str %ps_to_pe;
 my Str $all_codes;
 BEGIN {
-    @mktab_ud_subs.push: my sub mktab_ud_open2close(Str *$code, Str *@f -->) {
+    @mktab_ud_subs.push: my sub mktab_ud_open2close(Str *$code, Str *@f --> Void) {
         $all_codes ~= $code.hex.chr;
     }
 }
 # run all the @mktab_ud_subs here
-    @mktab_subs.push: my sub mktab_ud_all(-->) {
+    @mktab_subs.push: my sub mktab_ud_all(--> Void) {
         process_file 'ucd/UnicodeData.txt', -> my Str $line {
             my Str @f = $line.split(';');
             $_.(@f) for @mktab_ud_subs;
         }
 
         # Some special cases added here
-        for «\t \n \r \f»».ord -> my Int $c {
+        for «\t \n \r \f»».ord -> Int $c {
             %category<space>.add($c);
         }
         %category<word>.add('_'.ord);
@@ -294,7 +294,7 @@ BEGIN {
 # 1 mirrored code
 my Str %bidi_mirror;
 BEGIN {
-    @mktab_subs.push: my sub mktab_bidi_mirror(-->) {
+    @mktab_subs.push: my sub mktab_bidi_mirror(--> Void) {
         process_file 'ucd/BidiMirroring.txt', -> my Str $line {
             my $code, $mirrored_code = $line.split(';')».hex.chr;
             %bidi_mirror{$code} = $mirrored_code;
@@ -328,7 +328,7 @@ BEGIN {
 # what do we do with block names?
 my Utable $blockname;
 BEGIN {
-    @mktab_subs.push: my sub mktab_blocks(-->) {
+    @mktab_subs.push: my sub mktab_blocks(--> Void) {
         process_file 'ucd/Blocks.txt', rule { <r=ucd::code_or_range> ';' $<name>=(\S+\N*) }, {
             $blockname.add($<r><ord>, :val($<name>));
         }
@@ -345,7 +345,7 @@ BEGIN {
 # 2 mapping
 my Hash of Str %casefold;
 BEGIN {
-    @mktab_subs.push: my sub mktab_casefold(-->) {
+    @mktab_subs.push: my sub mktab_casefold(--> Void) {
         process_file 'ucd/CaseFolding.txt', rule { <c=ucd::code> ';' (<[FTSC]>) ';' <map=ucd::code_or_seq> ';' }, {
             %casefold{$0}{$<c><str>} = $<map><str>;
         }
@@ -362,14 +362,14 @@ BEGIN {
 # HangulSyllableType.txt
 my Utable $hangul;
 BEGIN {
-    @mktab_subs.push: my sub mktab_hst(-->) {
+    @mktab_subs.push: my sub mktab_hst(--> Void) {
         process_file 'ucd/HangulSyllableType.txt', rule { <n=ucd::code_or_range> ';' $<name>=(\w+) }, {
             $hangul.add($<n><ord>, :val($<name>));
         }
         dumputable(:$hangul);
     }
-    @dump_init_subs.push: my sub dump_init_hst(-->) {
-        for %hst_alias.keys -> my Str $st {
+    @dump_init_subs.push: my sub dump_init_hst(--> Void) {
+        for %hst_alias.keys -> Str $st {
             install_token "isHST$st", -> Str $s       { $hangul.get($s.ord) eq $st                         };
             my Str $sta = %hst_alias{$st};
             install_token "isHST$sta", -> Str $s      { $hangul.get($s.ord) eq $st                         };
@@ -396,7 +396,7 @@ BEGIN {
 # 2 Corrected decomposition
 # 3 version corrected
 BEGIN {
-    @mktab_subs.push: my sub mktab_norm_correct(-->) {
+    @mktab_subs.push: my sub mktab_norm_correct(--> Void) {
         process_file 'ucd/NormalizationCorrections.txt',
             rule { <c=ucd::code> ';' <orig=ucd::code_or_seq> ';' <corr=ucd::code_or_seq> ';' }, {
                 my Str $decomp = $<corr><str>;
@@ -444,7 +444,7 @@ my Str %ccc_abbrev;
 # 3 full name
 my Str %ccc_full;
 BEGIN {
-    @mktab_subs.push: my sub mktab_pva(-->) {
+    @mktab_subs.push: my sub mktab_pva(--> Void) {
         process_file 'ucd/PropertyValueAliases.txt', rule { $<prop>=(\w+) [ ';' @<alias>=(\w+) ]+ }, {
             given $<prop>  {
                 when 'bc'  { %bidi_class_alias{    @<alias>[0]} = @<alias>[1]; }
@@ -467,7 +467,7 @@ BEGIN {
         dumphash(:%ccc_abbrev);
         dumphash(:%ccc_full);
     }
-    @dump_init_subs.push: my sub dump_init_pva(-->) {
+    @dump_init_subs.push: my sub dump_init_pva(--> Void) {
         our token isBidiMirrored is export { (.) <?{ $bidi_mirrored.contains($0.ord)                    }> }
         our token isDecoCanon is export    { (.) <?{ exists %canon_decomp{$0}                           }> }
         our token isDecoCompat is export   { (.) <?{ exists %compat_decomp{$0}                          }> }
@@ -479,21 +479,21 @@ BEGIN {
         our multi token isccc(Str $n) is export      { (.) <?{ ( !exists %ccc{$0} and lc $n eq 'none' )
                                                         or %ccc{$0} ~~ %ccc_abbrev{lc $n}|%ccc_full{lc $n}
                                                                                                         }> }
-        for %decomp_type_alias.keys -> my Str $dc {
+        for %decomp_type_alias.keys -> Str $dc {
             install_token "isDC$dc", -> Str $s     { %compat_decomp_type{$s} eq $dc                     };
             my Str $dca = %decomp_type_alias{$dc};
             install_token "isDC$dca", -> Str $s    { %compat_decomp_type{$s} eq $dc                     };
         }
-        for %bidi_class_alias.keys -> my Str $bc {
+        for %bidi_class_alias.keys -> Str $bc {
             install_token "isBidi$bc", -> Str $s   { $bidi_class.get($s.ord) eq $bc                     };
             my Str $bca = %bidi_class_alias{$bc};
             install_token "isBidi$bca", -> Str $s  { $bidi_class.get($s.ord) eq $bc                     };
         }
-        for %gc_alias.keys -> my Str $gc {
+        for %gc_alias.keys -> Str $gc {
             my Str $gca = %gc_alias{$gc};
             install_token "is$gca", -> Str $s      { %category{$gc}.contains($s.ord)                    };
         }
-        for %numeric_alias.keys -> my Str $nt {
+        for %numeric_alias.keys -> Str $nt {
             install_token "is$nt", -> Str $s       { exists %numeric{$nt}{$s}                           };
             my Str $nta = %numeric_alias{$nt};
             install_token "is$nta", -> Str $s      { exists %numeric{$nt}{$s}                           };
@@ -506,14 +506,14 @@ BEGIN {
 # 1 script name
 my Utable $script;
 BEGIN {
-    @mktab_subs.push: my sub mktab_script(-->) {
+    @mktab_subs.push: my sub mktab_script(--> Void) {
         process_file 'ucd/Scripts.txt', rule { <n=ucd::code_or_range> ';' $<name>=(\w+) }, {
             $script.add($<n><ord>, :val($<name>));
         }
         dumputable(:$script);
     }
-    @dump_init_subs.push: my sub dump_init_script(-->) {
-        for %script_alias.keys -> my Str $sc {
+    @dump_init_subs.push: my sub dump_init_script(--> Void) {
+        for %script_alias.keys -> Str $sc {
             install_token "in$sc", -> Str $s       { $script.get($s.ord) eq $sc                         };
             my Str $sca = %script_alias{$sc};
             install_token "in$sca", -> Str $s      { $script.get($s.ord) eq $sc                         };
@@ -532,7 +532,7 @@ my Str %upper_spec;
 # 4 conditionals
 my List of Hash of Str %case_cond;
 BEGIN {
-    @mktab_subs.push: my sub mktab_spcase(-->) {
+    @mktab_subs.push: my sub mktab_spcase(--> Void) {
         process_file 'ucd/SpecialCasing.txt',
             rule {
                     <c=ucd::code>
@@ -566,7 +566,7 @@ BEGIN {
 
 # DerivedCoreProperties.txt
 BEGIN {
-    @dump_init_subs.push: my sub dump_init_derived_core(-->) {
+    @dump_init_subs.push: my sub dump_init_derived_core(--> Void) {
         our token isMath is export { <+isSm+isOther_Math> }
         our token isAlphabetic is export { <+isLu+isLl+isLt+isLm+isLo+isNl+isOther_Alphabetic> }
         our token isLowercase is export { <+isLl+isOther_Lowercase> }
@@ -588,13 +588,13 @@ BEGIN {
 my Utable $compex;
 my Str %composition;
 BEGIN {
-    @mktab_subs.push: my sub mktab_compex(-->) {
+    @mktab_subs.push: my sub mktab_compex(--> Void) {
         process_file 'ucd/DerivedNormalizationProps.txt', -> my Str $line {
             if $line ~~ rule { <r=ucd::code_or_range> ';' Full_Composition_Exclusion } {
                 $compex.add($<r><ord>);
             }
         }
-        for %canon_decomp.keys -> my Str $s {
+        for %canon_decomp.keys -> Str $s {
             next if $compex.contains($s.ord);
             %composition{%canon_decomp{$s}.nfd} = $s;
         }

@@ -96,7 +96,6 @@ Any is Object does Pattern
     prefix:<\>
     infix:<Z>
     infix:<X>
-    infix:<minmax>
     infix:<x>
     infix:<xx>
     infix:«=>»
@@ -341,11 +340,13 @@ Iterator
 Filetest
 #    .:etc
 Order
+#    enum «:Increase(-1) Same Decrease»
     .succ
     .pred
     .min
     .max
     .minmax
+    infix:<minmax>
     infix:<before>
     infix:<after>
     infix:<cmp>

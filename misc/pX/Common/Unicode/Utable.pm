@@ -31,7 +31,7 @@ multi submethod BUILD(Str $str) {
 method Str(--> Str) {
     # not needed if @@.table.perl DTRT...
     my Str $s;
-    loop my Int $i = 0; $i < @@.table.elems; $i++ {
+    loop my Int $i = 0; $i < @@.table.elems; $i++; {
         my Range $r := @@.table[$i];
         my Any $v := @.val[$i];
         $s ~= ';' if $i;
@@ -101,14 +101,14 @@ method inverse(--> Utable) {
     }
     $u.add(0 .. @@.table[0].from-1);
     # $i < @@.table.elems-1 is intended
-    loop my Int $i = 0; $i < @@.table.elems-1; $i++ {
+    loop my Int $i = 0; $i < @@.table.elems-1; $i++; {
         $u.add(@@.table[$i].to+1 .. @@.table[$i+1].from-1, :!preen);
     }
     $u.add(@@.table[*-1].to+1 .. $unicode_max);
     return $u;
 }
 
-multi method add(Int $x, Any :$val, Bool :$preen = True -->) {
+multi method add(Int $x, Any :$val, Bool :$preen = True --> Void) {
     return if $.contains($x);
     my Range $r = $x .. $x;
     if !+@@.table {
@@ -141,7 +141,7 @@ multi method add(Int $x, Any :$val, Bool :$preen = True -->) {
     die "Utable::add got lost somehow";
 }
 
-multi method add(Range $r, Any :$val, Bool :$preen = True -->) {
+multi method add(Range $r, Any :$val, Bool :$preen = True --> Void) {
     if !+@@.table {
         @@.table[0] = $r;
         @.val[0] = $val if defined $val;
@@ -182,7 +182,7 @@ multi method add(Range $r, Any :$val, Bool :$preen = True -->) {
     die "Utable::add got lost somehow";
 }
 
-method preen(-->) {
+method preen(--> Void) {
     # delete null ranges, fix up range overlaps and contiguities
     loop my Int $i = 0; $i < @@.table.elems; $i++ {
         if @@.table[$i].to < @@.table[$i].from {
