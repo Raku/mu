@@ -6,12 +6,12 @@ import System.IO.UTF8
 import Debug.Trace
 type Register = [Char]
 type Label = [Char]
-data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None
+data Value = Var [Char] | IntegerConstant Integer | StringConstant [Char] | None | SubMold [Stmt]
     deriving (Show,Eq,Ord)
 data Capture = Capture Register [Register] [Register]
-    deriving Show
-data Stmt = LabelDef Label | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture | Call2 Register Register Register Register
-    deriving Show
+    deriving (Show,Eq,Ord)
+data Stmt = LabelDef Label | Decl Register Value | Goto Label | Br Register Label Label | Call Register Register Capture | Call2 Register Register Register Register  
+    deriving (Show,Eq,Ord)
 data Argument = Pos Register | Named Register Register
 
 data Mold = Mold [Stmt]
@@ -63,6 +63,7 @@ constant = choice
       , do
         content <- between (char '"') (char '"') quotedChar
         return $ StringConstant $ concat content
+      , submold
       ]
       where
       quotedChar = many $
@@ -156,6 +157,18 @@ top = do
     constants <- getState
     return (concat $ stmts,constants)
 
+submold = do
+    savedState <- getState
+    setState Map.empty
+
+    symbol "mold"
+    symbol "{"
+    stmts <- tok $ endBy stmt terminator
+    symbol "}"
+    constants <- getState
+    setState savedState
+    return $ SubMold $ (implicitDecls constants) ++ (concat stmts)
+
 type RegMap = Map.Map [Char] Int
 type LabelsMap = Map.Map [Char] Int
 
@@ -235,6 +248,7 @@ dumpConstantToC value = case value of
     IntegerConstant int -> "SMOP__NATIVE__int_create(" ++ show int ++ "),"
     None -> ""
     Var name -> "SMOP_REFERENCE(interpreter," ++ name ++ "),"
+    SubMold stmts -> dumpToC stmts ++ ","
 
 dumpConstantsToC stmts = "(SMOP__Object*[]) {" ++
     concat [dumpConstantToC c | Decl reg c <- stmts] ++ "NULL}"
@@ -258,6 +272,4 @@ main = do
     case (runParser top (Map.empty :: ImplicitDecls) "" line) of 
         Left err      -> error  $ show err
         Right (stmts,constants) -> do 
-            -- print constants
-            
             putStrLn $ dumpToC $ (implicitDecls constants) ++ stmts

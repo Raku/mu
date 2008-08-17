@@ -15,7 +15,7 @@ my $out = $out_scalar.$FETCH();
 my $ID_PRINT = "print";
 my $void; # we have to store even unused return values somewhere
 
-my $PLAN = "1..3\n";
+my $PLAN = "1..4\n";
 $void = $out.$ID_PRINT($PLAN);
 
 $void = $out."print"("ok 1 # simple method call\n");
@@ -37,7 +37,18 @@ $void = $out.$ID_PRINT($NOTOK3a);
 my $NOTOK3b = "not ok 3 # br jumps to the wrong label";
 wrong_jump: $void = $out.$ID_PRINT($NOTOK3b);
 
+# TODO test jump to iffalse
+#
 my $OK3 = "ok 3 # br works\n";
 good_jump: $void = $out.$ID_PRINT($OK3);
 
-# TODO test jump to iffalse
+my $submold = mold {
+    my $out_scalar;
+    $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+    my $void = $out."print"("ok 4 #submold work\n");
+};
+my $MoldFrame_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::MoldFrame");
+my $MoldFrame = $MoldFrame_scalar."FETCH"();
+my $frame = $MoldFrame."new"($submold);
+$void = ¢interpreter."goto"($frame);

@@ -140,7 +140,8 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
   smop_mold_frame* frame = (smop_mold_frame*) invocant;
   smop_mold* mold = (smop_mold*) frame->mold;
   if (SMOP__ID__new == identifier) {
-    ___UNKNOWN_METHOD___
+    SMOP__Object* mold = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    ret = SMOP__Mold__Frame_create(interpreter,mold);
   } else if (SMOP__ID__has_next == identifier) {
     if (mold->opcodes[frame->position]) {
       ret = SMOP__NATIVE__bool_true;

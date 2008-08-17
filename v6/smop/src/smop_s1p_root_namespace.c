@@ -4,6 +4,7 @@
 #include <string.h>
 #include <smop_lowlevel.h>
 #include <smop_s1p.h>
+#include <smop_mold.h>
 
 SMOP__Object* SMOP__S1P__RootNamespace;
 
@@ -25,7 +26,10 @@ void smop_s1p_root_namespace_init() {
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Hash",SMOP__S1P__Hash_create());
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Array",SMOP__S1P__Array_create());
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"$*OUT",SMOP__S1P__IO_create());
-  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code",SMOP__S1P__Code_create(SMOP__NATIVE__bool_false));
+  //smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code",SMOP__S1P__Code_create(SMOP__NATIVE__bool_false));
+  SMOP__Object* mold = SMOP__Mold_create(0,(SMOP__Object*[]) { NULL },1,(int[]) { 0 });
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Mold",SMOP_REFERENCE(SMOP__GlobalInterpreter,mold));
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::MoldFrame",SMOP__Mold__Frame_create(SMOP__GlobalInterpreter,mold));
 }
 
 void smop_s1p_root_namespace_destr() {
