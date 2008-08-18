@@ -13,21 +13,45 @@ include_directories (${smop_SOURCE_DIR}/include)
         COMMAND cp ARGS ${CMAKE_CURRENT_BINARY_DIR}/cabal_dist/build/m0ld/m0ld ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
     )
 
-### libsmop
+### DSL 
+### TODO refactor
 
-file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
+file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src)
 
 macro (compile_sm0p sm0p_file)
     string(REGEX REPLACE ".sm0p$" ".c" c_file ${sm0p_file})
     add_custom_command (
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
         COMMAND perl ARGS ${smop_SOURCE_DIR}/sm0p.pl ${smop_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe ${smop_SOURCE_DIR}/${sm0p_file} ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/src
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
         DEPENDS ${smop_SOURCE_DIR}/sm0p.pl
         DEPENDS ${smop_SOURCE_DIR}/${sm0p_file}
     )
 endmacro(compile_sm0p)
+
+macro (compile_m0ld dsl_file)
+    string(REGEX REPLACE ".m0ld$" ".c" c_file ${dsl_file})
+    add_custom_command (
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
+        COMMAND perl ARGS ${smop_SOURCE_DIR}/tools/dsl m0ld ${smop_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe ${smop_SOURCE_DIR}/${dsl_file} ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
+        DEPENDS ${smop_SOURCE_DIR}/${dsl_file}
+    )
+endmacro(compile_m0ld)
+
+macro (compile_perl6 dsl_file)
+    string(REGEX REPLACE ".p6$" ".m0ld" m0ld_file ${dsl_file})
+    string(REGEX REPLACE ".m0ld$" ".c" c_file ${m0ld_file})
+    add_custom_command (
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${m0ld_file}
+        COMMAND perl ARGS ${smop_SOURCE_DIR}/tools/dsl p6 ${smop_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe ${smop_SOURCE_DIR}/${dsl_file} ${CMAKE_CURRENT_BINARY_DIR}/${m0ld_file}
+        COMMAND perl ARGS ${smop_SOURCE_DIR}/tools/dsl m0ld ${smop_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe ${CMAKE_CURRENT_BINARY_DIR}/${m0ld_file} ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
+        DEPENDS ${smop_SOURCE_DIR}/${dsl_file}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../../misc/elfish/elfX/elfX
+    )
+endmacro(compile_perl6)
 
 foreach (sm0p_file
     src/smop_lowlevel.sm0p
@@ -96,12 +120,10 @@ foreach (test_file
     test/18_root_namespace.p6
     test/19_array.p6
     test/20_smop_s1p_ccode.c
-    test/21_code.p6
     test/22_smop_s1p_attribute.sm0p
     test/23_mold.sm0p
     test/24_m0ld.m0ld
     test/25_lexical_scope.p6
-    test/26_m0ld_pugs.p6
     test/27_default_block_signature.p6
 )
     set(c_file)
@@ -109,7 +131,11 @@ foreach (test_file
         compile_sm0p (${test_file})
         string(REGEX REPLACE ".sm0p$" ".c" c_file ${test_file})
     elseif (test_file MATCHES "\\.m0ld$")
+        compile_m0ld (${test_file})
+        string(REGEX REPLACE ".m0ld$" ".c" c_file ${test_file})
     elseif (test_file MATCHES "\\.p6$")
+        compile_perl6 (${test_file})
+        string(REGEX REPLACE "\\.p6$" ".c" c_file ${test_file})
     elseif (test_file MATCHES "\\.c$")
         set(c_file ${test_file})
     endif (test_file MATCHES "\\.sm0p$")

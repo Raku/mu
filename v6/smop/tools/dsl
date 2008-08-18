@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+my ($dsl,$base,$m0ld,$in, $out) = @ARGV;
+warn "dsl:$dsl base:$base in:$in out:$out\n";
+my $elfX = "$base/../../misc/elfish/elfX/elfX";
+if ($dsl eq 'm0ld') {
+    system("cat $base/m0ld/m0ld_boilerplate_front > $out");
+    system("$m0ld < $in >> $out");
+    system("cat $base/m0ld/m0ld_boilerplate_back >> $out");
+} elsif ($dsl eq 'p6') {
+    system("perl $elfX -C m0ld -s $in > $out");
+} else {
+    die "unknown DSL\n";
+}
+__DATA__
+.sm0p.c:
+	perl $(top_srcdir)/sm0p.pl $(top_srcdir) $< $@
+.m0ld.c:
+	cat $(top_srcdir)/m0ld/m0ld_boilerplate_front > $@
+	$(top_srcdir)/m0ld/m0ld < $< >> $@
+	cat $(top_srcdir)/m0ld/m0ld_boilerplate_back >> $@
+.p6.m0ld:
+	perl $(ELFX)/elfX -C m0ld -s $< > $@
+#.p6.pure_sm0p:
+#	perl $(ELFX)/elfX -C sm0p -s $< > $@
+.pure_sm0p.sm0p:
+	cat $(ELFX)/sm0p_boilerplate_front $< $(ELFX)/sm0p_boilerplate_back > $@
