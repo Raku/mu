@@ -74,7 +74,7 @@ Therefore, last element in an array:
 
     Was:    $array[$#array]
     Now:    @array[@array.end]
-            @array[-1]              # also works
+            @array[*-1]              # beware of the "whatever"-star
 
 For details, see L<S02/"Built-In Data Types">
 
@@ -91,6 +91,26 @@ For details, see L<S02/"Built-In Data Types">
 See L<S02/"double-underscore forms are going away"> for details. The C<?>
 twigil refers to data that is known at compile time.
 
+=head2 Context
+
+There are still three main contexts, void, item (formerly scalar) and list.
+Aditionally there are more specialized contexts, and operators that force that
+context.
+    
+    my @array = 1, 2, 3;
+
+    # generic item context
+    my $a = @array; say $a.WHAT;    # prints Array
+
+    # string context
+    say ~@array;                    # "1 2 3"
+
+    # numeric context
+    say +@array;                    # 3
+    
+    # boolean context
+    my $is_nonempty = ?@array;
+
 =cut 
 
 # S03
@@ -102,7 +122,7 @@ Perl 5 operators"> and L<S03/"New operators">.
 
 Some highlights:
 
-=head2 C<qw()> has a customary form; new interpolating form
+=head2 C<qw()> changes; new interpolating form
 
     Was:    qw(foo)
     Now:    <foo>
@@ -113,6 +133,44 @@ Some highlights:
 Quoting operators now have modifiers that can be used with them (much like
 regexes and substitutions in Perl 5), and you can even define your own quoting
 operators.  See L<S03> for details.
+
+Note that C<()> as a subscript is now a sub call, so instead of C<qw(a b)> you
+would write C<< qw<a b> >> or C<qw[a b]> (if you don't like plain C<< <a b>
+>>), that is).
+
+=head2 Other important operator changes
+
+String concatenation is now done with C<~>.
+
+Regex match is done with the smart match operator C<~~>, the perl 5 match
+operator C<=~> is gone.
+
+    if "abc" ~~ m/a/ { ... }
+
+C<|> and C<&> as infix operators now construct junctions. The binary AND and
+binary OR operators are split into string and numeric operators, that is C<~&>
+is binary string AND, C<+&> is binary numeric AND, C<~|> is binary string OR
+etc.
+
+Parenthesis don't construct lists any more, they merely group. Lists are
+constructed with the comma operator. It has looser precedence than the list
+assignment operator, which allows you to write lists on the right hand side
+wihtout parens:
+    
+    my @list = 1, 2, 3;     # @list really has three elements
+
+The arrow operator C<< -> >> for dereferncing is gone. Since (nearly)
+everything is a reference, you can directly use the apropriate pair of
+parenthesis for either indexing or method calls:
+    
+    my $lol = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+    say $lol[1][0];         # 4
+
+    my $s = sub { say "hi" };
+    $s();
+    # or
+    $s.();
+    $lol.[1][0]
 
 =cut
 
@@ -127,7 +185,8 @@ See L<S04> for the full specification of blocks and statements in Perl6.
     Was:    if ($a < $b) { ... }
     Now:    if  $a < $b  { ... }
 
-Likewise for C<while>, C<for>, etc.
+Likewise for C<while>, C<for>, etc. If you insist on using parens, make sure
+there's a space after the C<if>, otherwise it's a sub call.
 
 =head2 eval {} is now try {}
 
@@ -246,6 +305,24 @@ L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
 
 =head1 Objects
 
+Perl 6 has a "real" object system, with key words for classes, methods and
+attributes. Public attributes have the C<.> twigil, private ones the C<!>
+twigil.
+
+    class YourClass {
+        has $!private;
+        has @.public;
+        
+        # and with write accessor
+        has $.stuff is rw;
+
+        method do_something {
+            if self.can('bark') {
+                say "Something doggy";
+            }
+        }
+    }
+
 =head2 Method invocation changes from -> to .
 
     Was:    $object->method
@@ -261,6 +338,57 @@ L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
 #S13
 
 =head1 Overloading
+
+Since both builtin functions and operators are multi subs and methods,
+changing their behaviour for particular types is a simple as adding the
+appropriate multi subs and methods. If you want these to be globally
+available, you have to but them into the C<GLOBAL> namespace, which is
+indicated by an asterisk.
+
+    multi sub *uc(TurkishStr $str) { ... }
+
+    # "overload" the string concatenation:
+    multi sub infix:<~>(TurkishStr $us, TurkishStr $them) { ... }
+
+If you want to offer a type cast to a particular type, just provide a method
+with the same name as the type you want to cast to.
+
+    sub needs_bar(Bar $x) { ... }
+    class Foo {
+        ...
+        # coercion to type Bar:
+        method Bar { ... }
+    }
+
+    needs_bar(Foo.new);         # coerces to Bar
+
+=head2 Offering Hash and List semantics
+
+If you want to write a class whose objects can be assigned to a variable with
+the C<@> sigil, you have to implement the C<Positional> roles. Likewise for
+the C<%> sigil you need to do the C<Associative> role. The C<&> sigil implies
+C<Callable>. 
+
+The roles provides the operators C<< postcircumfix:<[ ]> >> (Positional; for
+array indexing), C<< postcircumfix:<{ }> >>
+(Associative) and C<< postcircumfix:<()> >> (Callable). The are technically
+just methods with a fancy syntax.
+You should override these to provide meaningful semantics.
+
+    class OrderedHash does Associative {
+        multi method postcircumfix:<{ }>(Int $index) {
+            # code for accessing single hash elements here
+        }
+        multi method postcircumfix:<{ }>(*@@slice) {
+            # code for accessing hash slices here
+        }
+        ...
+    }
+
+    my %orderedHash = OrderedHash.new();
+    say %orderedHash{'a'};
+
+See L<S13> for all the gory details.
 
 =cut 
 
@@ -278,6 +406,8 @@ For details, see L<S03/"Changes to Perl 5 operators"/"The filetest operators now
 =cut 
 
 #S26 
+
+# XXX needs some brave rewrite
 
 =head1 Documentation
 
@@ -375,7 +505,8 @@ C<wantarray> is superseeded by C<want.list>. Also available are C<want.item>
 and C<want.count>, the latter gives the number of expected values, if
 applicable.
 
-
+In general you are encouraged to return objects that do the right thing in
+each possible context instead of asking for your context explicitly.
 
 =head1 Unfiled
 
@@ -412,4 +543,5 @@ You can still say C<sort(@array)> if you prefer the non-OO idiom.
 
 Kirrily "Skud" Robert, <skud@cpan.org>,
 Mark Stosberg,
+Moritz Lenz,
 Trey Harris
