@@ -1,6 +1,11 @@
 project (smop)
 cmake_minimum_required (VERSION 2.6)
 include_directories (${smop_SOURCE_DIR}/include)
+find_program (CABAL cabal)
+
+if(NOT CABAL)
+    message(FATAL "ERROR cabal is not found")
+endif(NOT CABAL)
 
 ### m0ld
 
@@ -8,8 +13,8 @@ include_directories (${smop_SOURCE_DIR}/include)
     add_custom_command (
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
         WORKING_DIRECTORY ${smop_SOURCE_DIR}/m0ld
-        COMMAND cabal ARGS configure --distpref=${CMAKE_CURRENT_BINARY_DIR}/cabal_dist
-        COMMAND cabal ARGS build --distpref=${CMAKE_CURRENT_BINARY_DIR}/cabal_dist
+        COMMAND ${CABAL} ARGS configure --distpref=${CMAKE_CURRENT_BINARY_DIR}/cabal_dist
+        COMMAND ${CABAL} ARGS build --distpref=${CMAKE_CURRENT_BINARY_DIR}/cabal_dist
         COMMAND cp ARGS ${CMAKE_CURRENT_BINARY_DIR}/cabal_dist/build/m0ld/m0ld ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
     )
 
