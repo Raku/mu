@@ -9,7 +9,6 @@ use Symbol;
 
 my ($base, $m0ld, $in, $out) = @ARGV;
 
-warn "base:$base in:$in out:$out\n";
 open my $input, '<', $in or die $!;
 open my $output, '>', $out or die $!;
 

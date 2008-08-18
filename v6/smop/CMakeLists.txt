@@ -4,27 +4,20 @@ include_directories (${smop_SOURCE_DIR}/include)
 
 ### m0ld
 
+    # TODO remove use of copy
     add_custom_command (
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
         WORKING_DIRECTORY ${smop_SOURCE_DIR}/m0ld
-        COMMAND cabal ARGS configure
-        COMMAND cabal ARGS build
-        COMMAND cp ARGS ${smop_SOURCE_DIR}/m0ld/dist/build/m0ld/m0ld ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
+        COMMAND cabal ARGS configure --distpref=${CMAKE_CURRENT_BINARY_DIR}/cabal_dist
+        COMMAND cabal ARGS build --distpref=${CMAKE_CURRENT_BINARY_DIR}/cabal_dist
+        COMMAND cp ARGS ${CMAKE_CURRENT_BINARY_DIR}/cabal_dist/build/m0ld/m0ld ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
     )
 
 ### libsmop
 
-add_custom_command (
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src
-    COMMAND mkdir ARGS ${CMAKE_CURRENT_BINARY_DIR}/src
-)
-foreach (sm0p_file
-    src/smop_lowlevel.sm0p
-    src/smop_s1p_lexicalscope.sm0p
-    src/smop_s1p_defaultblocksignature.sm0p
-    src/p6opaque.sm0p
-    src/smop_s1p_attribute.sm0p
-)
+file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
+
+macro (compile_sm0p sm0p_file)
     string(REGEX REPLACE ".sm0p$" ".c" c_file ${sm0p_file})
     add_custom_command (
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
@@ -34,6 +27,16 @@ foreach (sm0p_file
         DEPENDS ${smop_SOURCE_DIR}/sm0p.pl
         DEPENDS ${smop_SOURCE_DIR}/${sm0p_file}
     )
+endmacro(compile_sm0p)
+
+foreach (sm0p_file
+    src/smop_lowlevel.sm0p
+    src/smop_s1p_lexicalscope.sm0p
+    src/smop_s1p_defaultblocksignature.sm0p
+    src/p6opaque.sm0p
+    src/smop_s1p_attribute.sm0p
+)
+compile_sm0p (${sm0p_file})
 endforeach()
 
 INCLUDE (FindThreads)
@@ -68,7 +71,52 @@ add_library (smop
     src/smop_slime_node.c
 )
 
+file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
+
 ### tests
 INCLUDE (FindThreads)
-add_executable (01_smop_lowlevel.t test/01_smop_lowlevel.c)
-target_link_libraries (01_smop_lowlevel.t ${CMAKE_THREAD_LIBS_INIT} smop)
+foreach (test_file
+    test/01_smop_lowlevel.c
+    test/02_stack.sm0p
+    test/03_const_identifier.c
+    test/04_interpreter.c
+    test/05_capture.c
+    test/06_native_bool.c
+    test/07_int.c
+    test/07_native_int.c
+    test/08_native_uint.c
+    test/09_threads.sm0p
+    test/10_lowlevel_methods.c
+    test/11_lowlevel_scalar.sm0p
+    test/12_p6opaque.sm0p
+    test/14_p6opaque_methods.sm0p
+    test/15_hash.p6
+    test/16_labels.sm0p
+    test/17_sm0p.sm0p
+    test/18_root_namespace.p6
+    test/19_array.p6
+    test/20_smop_s1p_ccode.c
+    test/21_code.p6
+    test/22_smop_s1p_attribute.sm0p
+    test/23_mold.sm0p
+    test/24_m0ld.m0ld
+    test/25_lexical_scope.p6
+    test/26_m0ld_pugs.p6
+    test/27_default_block_signature.p6
+)
+    set(c_file)
+    if (test_file MATCHES "\\.sm0p$")
+        compile_sm0p (${test_file})
+        string(REGEX REPLACE ".sm0p$" ".c" c_file ${test_file})
+    elseif (test_file MATCHES "\\.m0ld$")
+    elseif (test_file MATCHES "\\.p6$")
+    elseif (test_file MATCHES "\\.c$")
+        set(c_file ${test_file})
+    endif (test_file MATCHES "\\.sm0p$")
+
+    if (c_file)
+        string(REGEX REPLACE ".c$" ".t" out ${c_file})
+        add_executable (${out} ${c_file})
+        target_link_libraries (${out} ${CMAKE_THREAD_LIBS_INIT} smop)
+    endif()
+endforeach()
