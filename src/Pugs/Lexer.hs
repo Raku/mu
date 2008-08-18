@@ -272,23 +272,29 @@ interpolatingStringLiteral startRule endRule interpolator = do
 
 -- | Backslashed non-alphanumerics (except for @\^@) translate into themselves.
 escapeCode      :: RuleParser String
-escapeCode      = charNum <|> ch charEsc <|> ch charAscii <|> ch charControl <|> ch anyChar
+escapeCode      = charNum <|> ch charEsc <|> ch charAscii <|> charControl <|> ch anyChar
                 <?> "escape code"
     where
     ch = fmap (:[])
 
-charControl :: RuleParser Char
+charControl :: RuleParser String
 charControl = do
     char 'c'
-    code <- upper <|> oneOf "@["
+    code <- upper <|> oneOf "@[" <|> digit
     case code of
         '[' -> do
-            charName <- many (satisfy (/= ']'))
+            charNames <- many1 (noneOf ",]") `sepBy1` many1 ruleComma
             char ']'
-            case nameToCode charName of
-                Just c  -> return (chr c)
-                _       -> error $ "Invalid unicode character name: " ++ charName
-        _   -> return (toEnum (fromEnum code - fromEnum '@'))
+            forM charNames $ \charName -> do
+                if all isDigit charName
+                    then return $ chr (read charName)
+                    else case nameToCode charName of
+                        Just c  -> return (chr c)
+                        _       -> fail $ "Invalid unicode character name: " ++ charName
+        _ | isDigit code -> do
+            cs <- many digit
+            return [chr $ read (code:cs)]
+        _   -> return [toEnum (fromEnum code - fromEnum '@')]
 
 -- This is currently the only escape that can return multiples.
 charNum :: RuleParser String
@@ -301,7 +307,7 @@ charNum = do
             _   -> error ("Error: Invalid escape sequence \\" ++ ds ++ "; write as decimal \\c" ++ ds ++ " or octal \\o" ++ ds ++ " instead") -- return [read ds]
         , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
-        , based 'c' 10 digit
+--        , based 'c' 10 digit
         ]
     return $ map (toEnum . fromInteger) codes
     where
