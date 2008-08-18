@@ -51,7 +51,7 @@ pugsMain = do
     timeout <- getEnv "PUGS_TIMEOUT"
     case timeout of
         Just str | [(t, _)] <- reads str -> do
-            addTimeout t (_exit 1)
+            addTimeout t (hPutStrLn stderr "*** TIMEOUT" >> _exit 1)
             return ()
         _ -> return ()
     mainWith run
@@ -155,7 +155,7 @@ repLoop = initializeShell $ do
 
 mainWith :: ([String] -> IO a) -> IO ()
 mainWith run = do
-    hSetBuffering stdout NoBuffering
+    hSetBuffering stdout LineBuffering
 --    when (isJust _DoCompile) $ do
 --        writeIORef (fromJust _DoCompile) doCompile
     runWithArgs run

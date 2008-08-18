@@ -60,7 +60,7 @@ runEnv env = runEvalMain env $ evaluateMain (envBody env)
 -- | Run for 'Pugs.Compile.Pugs' backend
 runAST :: Pad -> Exp -> IO Val
 runAST glob ast = do
-    hSetBuffering stdout NoBuffering
+    hSetBuffering stdout (BlockInfo Nothing)
     name    <- getProgName
     args    <- getArgs
     env     <- prepareEnv name args
@@ -72,7 +72,7 @@ runAST glob ast = do
 -- | Run for 'Pugs.Compile.Haskell' backend
 runComp :: Eval Val -> IO Val
 runComp comp = do
-    hSetBuffering stdout NoBuffering
+    hSetBuffering stdout (BlockInfo Nothing)
     name <- getProgName
     args <- getArgs
     env  <- prepareEnv name args
