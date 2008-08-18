@@ -7,10 +7,9 @@ use IO::Handle;
 use IPC::Open3;
 use Symbol;
 
-my ($base, $in, $out) = @ARGV;
+my ($base, $m0ld, $in, $out) = @ARGV;
 
-die 'You need to checkout v6/ and not v6/smop, because smop depends on KP6' unless -d $base.'/../v6-KindaPerl6';
-
+warn "base:$base in:$in out:$out\n";
 open my $input, '<', $in or die $!;
 open my $output, '>', $out or die $!;
 
@@ -123,5 +122,5 @@ sub preprocess_sm0p {
 sub preprocess_m0ld {
     my $code = shift;
     #warn "got m0ld code <$code>\n";
-    return preprocess($code,"$base/m0ld/m0ld");
+    return preprocess($code,"$m0ld");
 }
