@@ -208,6 +208,7 @@ instance Compile Exp PIL_Stmt where
     compile (Ann Prag{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Ann _ rest) = compile rest
     compile Noop = return PNoop
+    {-
     compile (Val val) = do
         cxt     <- asks envContext
         if isVoidCxt cxt
@@ -217,6 +218,8 @@ instance Compile Exp PIL_Stmt where
                     warn "Useless use of a constant in void context" val
                     compile Noop
             else compile val
+    -}
+    compile (Val val) = compile val
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
     compile (Syn "loop" [pre, cond, post, body]) = do

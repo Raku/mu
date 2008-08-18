@@ -60,14 +60,15 @@ class EmitM0ld {
       my $id = self.genid;
       if ($n.function eq 'return') {
           my $arguments = $n.capture.arguments;
-          my $positionals = "";
+          my $positionals_emit = "";
+          my $positionals_args = "";
           for $arguments.keys -> $i {
-              $positionals = $positionals ~ $.e($arguments[$i],"pos_" ~ $id ~ "_" ~ $i);
+              $positionals_args = $positionals ~ $.e($arguments[$i],'pos_' ~ $id ~ "_" ~ $i);
+
           }
-          'i_' ~ $id ~ ': $continuation;' ~ "\n" ~ 
-          $positionals ~
-          '$SMOP__SLIME__CurrentFrame.move_capturize('~self.capturize($arguments,$id)~");\n" ~
-          $ret ~ ': $continuation.$SMOP__ID__setr();' ~ "\n"
+          $positionals_emit ~
+          '$back.setr('~$positionals_args~");\n" ~
+          '$interpreter.goto($back);'
       } elsif ($n.function eq 'infix:=') {
         IRx1::Call.new('invocant',$n.capture.arguments[0],'method','STORE','capture',IRx1::Capture.new('arguments',[$n.capture.arguments[1]])).callback(self,$ret);
       } elsif ($n.function eq 'circumfix:( )') {

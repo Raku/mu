@@ -10,4 +10,4 @@ import Pugs.PIL1
 genM0ld :: FilePath -> Eval Val
 genM0ld filepath = do
     penv <- compile () :: Eval PIL_Environment
-    return $ VStr $ filepath++"\n"
+    return $ VStr $ (show penv)
