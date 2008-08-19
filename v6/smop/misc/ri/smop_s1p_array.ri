@@ -1,0 +1,47 @@
+%{
+static int floor_log2(unsigned int n) {
+  int pos = 0;
+  if (n >= 1<<16) { n >>= 16; pos += 16; }
+  if (n >= 1<< 8) { n >>=  8; pos +=  8; }
+  if (n >= 1<< 4) { n >>=  4; pos +=  4; }
+  if (n >= 1<< 2) { n >>=  2; pos +=  2; }
+  if (n >= 1<< 1) {           pos +=  1; }
+  return ((n == 0) ? (-1) : pos);
+}
+static void resize_array(smop_s1p_array_struct* array,int new_size) {
+  if (new_size > array->size) {
+    int old_size = array->size;
+    array->size = 1<<(floor_log2(new_size));
+    //printf("new size:%d resizing to %d previous size:%d\n",new_size,array->size,old_size);
+    array->content = realloc(array->content,array->size);
+    int i;for (i=old_size;i<array->size;i++) array->content[i] = NULL;
+  }
+}
+%}
+%knows smop_s1p_array_proxy
+%RI.id Lowlevel array
+%field unsigned int elems
+%field unsigned int size
+%field SMOP__Object** content;
+
+%build
+    ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Array;
+    ret->size = 0;
+    ret->elems = 0;
+    ret->content = NULL;
+%method postcircumfix:[ ]
+    SMOP__Object* pos0 = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    int i = SMOP__NATIVE__int_fetch(pos0);
+    SMOP_RELEASE(interpreter,pos0);
+    smop_s1p_array_proxy_struct* proxy = (smop_s1p_array_proxy_struct*) smop_lowlevel_alloc(sizeof(smop_s1p_array_proxy_struct));
+    proxy->RI = (SMOP__ResponderInterface*)SMOP__S1P__ArrayProxy;
+    proxy->index = i;
+    proxy->array = SMOP_REFERENCE(interpreter,invocant);
+    ret = (SMOP__Object*) proxy;
+%method elems
+    ret = SMOP__NATIVE__int_create(invocant->elems);
+%method DESTROYALL
+    int i;for (i=0;i < invocant->elems;i++) {
+      if (invocant->content[i]) SMOP_RELEASE(interpreter,invocant->content[i]);
+    }
+    free(invocant->content);

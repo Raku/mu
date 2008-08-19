@@ -1,0 +1,22 @@
+%prototype IO
+%RI.id lowlevel io
+%method print
+    int pc = SMOP__NATIVE__capture_positional_count(interpreter,capture);
+    int i;
+    for (i=0;i<pc;i++) {
+        SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,i);
+        if (SMOP_RI(obj) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
+            printf("%s",SMOP__S1P__Str_c_str(obj));
+        } else if (SMOP_RI(obj) == (SMOP__ResponderInterface*)SMOP__NATIVE__int){
+            printf("%d",SMOP__NATIVE__int_fetch(obj));
+        } else if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
+            int len;
+            char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
+            printf("%.*s",len,str);
+        } else {
+            fprintf(stderr,"unsupported object (%s) passed to S1P::IO.print\n",SMOP_RI(obj)->id);
+        }
+
+        SMOP_RELEASE(interpreter,obj);
+    }
+%method DESTROYALL
