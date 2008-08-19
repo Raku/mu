@@ -53,7 +53,7 @@ multi sub process_file(Str $file, Regex &line_rx, Code &each_line --> Void) {
     for =$fd -> Str $line {
         $line.=ucd::strip_comments;
         next if $line !~~ &ucd::not_empty;
-        $line ~~ rule { $/=<line_rx> { each_line() } };
+        $line ~~ rule { <line_rx> { $/ := $<line_rx>; each_line(); make $/; } };
             orelse die "Couldn't parse $file line '$line'";
     }
     $fd.close;
@@ -262,32 +262,31 @@ BEGIN {
     }
 }
 # run all the @mktab_ud_subs here
-    @mktab_subs.push: my sub mktab_ud_all(--> Void) {
-        process_file 'ucd/UnicodeData.txt', -> my Str $line {
-            my Str @f = $line.split(';');
-            $_.(@f) for @mktab_ud_subs;
-        }
-
-        # Some special cases added here
-        for «\t \n \r \f»».ord -> Int $c {
-            %category<space>.add($c);
-        }
-        %category<word>.add('_'.ord);
-        # most of these aren't listed in UnicodeData.txt.  is there other stuff like this?
-        # AC00;<Hangul Syllable, First>;Lo;0;L;;;;;N;;;;;
-        # D7A3;<Hangul Syllable, Last>;Lo;0;L;;;;;N;;;;;
-        %category<Lo>.add(0xAC00..0xD7A3);
-        $bidi_class.add(0xAC00..0xD7A3, :val<L>);
-
-        dumphash(  :%category);
-        dumphash(  :%numeric);
-        dumphash(  :%ccc);
-        dumputable(:$bidi_class);
-        dumputable(:$bidi_mirrored);
-        dumphash(  :%upper);
-        dumphash(  :%lower);
-        dumphash(  :%title);
+@mktab_subs.push: my sub mktab_ud_all(--> Void) {
+    process_file 'ucd/UnicodeData.txt', -> Str $line {
+        my Str @f = $line.split(';');
+        $_.(@f) for @mktab_ud_subs;
     }
+
+    # Some special cases added here
+    for «\t \n \r \f»».ord -> Int $c {
+        %category<space>.add($c);
+    }
+    %category<word>.add('_'.ord);
+    # most of these aren't listed in UnicodeData.txt.  is there other stuff like this?
+    # AC00;<Hangul Syllable, First>;Lo;0;L;;;;;N;;;;;
+    # D7A3;<Hangul Syllable, Last>;Lo;0;L;;;;;N;;;;;
+    %category<Lo>.add(0xAC00..0xD7A3);
+    $bidi_class.add(0xAC00..0xD7A3, :val<L>);
+
+    dumphash(  :%category);
+    dumphash(  :%numeric);
+    dumphash(  :%ccc);
+    dumputable(:$bidi_class);
+    dumputable(:$bidi_mirrored);
+    dumphash(  :%upper);
+    dumphash(  :%lower);
+    dumphash(  :%title);
 }
 # BidiMirroring.txt
 # 0 code
@@ -295,7 +294,7 @@ BEGIN {
 my Str %bidi_mirror;
 BEGIN {
     @mktab_subs.push: my sub mktab_bidi_mirror(--> Void) {
-        process_file 'ucd/BidiMirroring.txt', -> my Str $line {
+        process_file 'ucd/BidiMirroring.txt', -> Str $line {
             my $code, $mirrored_code = $line.split(';')».hex.chr;
             %bidi_mirror{$code} = $mirrored_code;
             if $code < $mirrored_code
@@ -317,7 +316,7 @@ BEGIN {
             ]*
         }
         # ps_to_pe take precedence over BidiMirroring mappings
-        %open2close = %(@%open2close, @%ps_to_pe);
+        %open2close = %(@(%open2close), @(%ps_to_pe));
         dumphash(:%open2close);
     }
 }
@@ -546,8 +545,8 @@ BEGIN {
                         :lower($<lower><str>),
                         :title($<title><str>),
                         :upper($<upper><str>),
-                        :cond($<cond>)
-                    }
+                        :cond($<cond>),
+                    };
                 } else {
                     %lower_spec{$<c><str>} = $<lower><str>;
                     %title_spec{$<c><str>} = $<title><str>;
@@ -589,7 +588,7 @@ my Utable $compex;
 my Str %composition;
 BEGIN {
     @mktab_subs.push: my sub mktab_compex(--> Void) {
-        process_file 'ucd/DerivedNormalizationProps.txt', -> my Str $line {
+        process_file 'ucd/DerivedNormalizationProps.txt', -> Str $line {
             if $line ~~ rule { <r=ucd::code_or_range> ';' Full_Composition_Exclusion } {
                 $compex.add($<r><ord>);
             }

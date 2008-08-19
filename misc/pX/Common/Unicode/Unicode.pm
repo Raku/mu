@@ -5,15 +5,15 @@ use UCD;
 constant Int $unicode_max = 0x10ffff;
 
 #XXX need an option to use Buf64
-class GLOBAL::UBuf is Buf32 { }
+class UBuf is Buf32 { }
 
-class GLOBAL::AnyChar {
+class AnyChar {
     # one character - can be a byte, codepoint or grapheme
     has Str $.char;
     # the rest is per unicode level
 }
 
-class GLOBAL::Byte is AnyChar {
+class Byte is AnyChar {
     multi submethod BUILD(Str $s) { $.char.as_bytes = $s.as_bytes[0]; }
     method STORE(Str $s --> Void)      { $.char.as_bytes = $s.as_bytes[0]; }
     method FETCH(--> Str) {
@@ -28,7 +28,7 @@ class GLOBAL::Byte is AnyChar {
     }
 }
 
-class GLOBAL::Codepoint is AnyChar {
+class Codepoint is AnyChar {
     multi submethod BUILD(Str $s) { $.char.as_codes = $s.as_codes[0]; }
     method STORE(Str $s --> Void)      { $.char.as_codes = $s.as_codes[0]; }
     method FETCH(--> Str) {
@@ -45,7 +45,7 @@ class GLOBAL::Codepoint is AnyChar {
 
 my Grapheme @graph_ids;
 my Int %seen_graphs;
-class GLOBAL::Grapheme is AnyChar {
+class Grapheme is AnyChar {
     use codepoints;
     # ID is codepoint or a unique ID > $unicode_max
     has Int $.id;
@@ -126,7 +126,7 @@ class GLOBAL::Grapheme is AnyChar {
         my Str $ret;
         $o -= 0xAC00;
         $ret ~= (($o / 0x2BA4) + 0x1100).chr;
-        $ret ~= (((($o % 0x2BA4) / 28 ) + 0x1161 ).chr;
+        $ret ~= ((($o % 0x2BA4) / 28 ) + 0x1161 ).chr;
         my Int $t = ($o % 28 ) + 0x11A7;
         $ret ~= $t.chr if $t != 0x11A7;
         return $ret;
@@ -137,7 +137,7 @@ class GLOBAL::Grapheme is AnyChar {
         while @old !eqv @new {
             @old = @new;
             @new = ();
-            for @old -> my Int $o {
+            for @old -> Int $o {
                 @new.push: (%canon_decomp{$o.chr} // hangul_decomp($o.chr)).as_codes;
             }
         }
@@ -152,7 +152,7 @@ class GLOBAL::Grapheme is AnyChar {
         while @old !eqv @new {
             @old = @new;
             @new = ();
-            for @old -> my Int $o {
+            for @old -> Int $o {
                 @new.push: (%compat_decomp{$o.chr} // %canon_decomp{$o.chr} // hangul_decomp($o.chr)).as_codes;
             }
         }
@@ -161,7 +161,7 @@ class GLOBAL::Grapheme is AnyChar {
     sub compose_hangul(Str $s --> Str) {
         my Str $ret = $s.as_codes[0].chr;
         my Str $prev = $ret;
-        for 1..$s.codes -> my Int $n {
+        for 1..$s.codes -> Int $n {
             my Str $c = $s.as_codes[$n];
             if $prev ~~ 0x1100..0x1112 
                 and $c ~~ 0x1161..0x1175 {
@@ -175,7 +175,6 @@ class GLOBAL::Grapheme is AnyChar {
                     $prev = $prev + $c - 0x11A7;
                     $ret.as_codes[$ret.codes-1] = $prev;
                     next;
-                }
             }
             $prev = $c;
             $ret ~= $c;
@@ -195,7 +194,7 @@ class GLOBAL::Grapheme is AnyChar {
             $s = $new;
             goto startover;
         }
-        for 1..$s.codes -> my Int $n {
+        for 1..$s.codes -> Int $n {
             my Str $two = $s.as_codes[0,$n].chr;
             if exists %composition{$two} {
                 my Str $new = %composition{$two};
@@ -229,7 +228,7 @@ BEGIN {
     our Str $?ENC;
 }
 
-class GLOBAL::nf {
+class nf {
     sub EXPORTER(Str $nf is copy) {
         $nf.=lc;
         $nf ~~ s:g/nf|\W+//;
@@ -239,7 +238,7 @@ class GLOBAL::nf {
     }
 }
 
-class GLOBAL::encoding {
+class encoding {
     sub EXPORTER(Str $enc is copy) {
         $enc.=lc;
         $enc ~~ s:g/utf|\W+//;
@@ -249,7 +248,7 @@ class GLOBAL::encoding {
     }
 }
 
-class GLOBAL::StrPos {
+class StrPos {
     # this object is only valid for strings === $.s
     has Str $.s;
     # substr of $.s from beginning to our pos
@@ -258,14 +257,14 @@ class GLOBAL::StrPos {
     method codes(--> Int)  { $.sub.codes  }
     method graphs(--> Int) { $.sub.graphs }
 }
-class GLOBAL::StrLen {
+class StrLen {
     # this is a non-lazy, string-independent length which cannot be converted
     has Int $.bytes;
     has Int $.codes;
     has Int $.graphs;
     my method clear(--> Void) { $.bytes = $.codes = $.graphs = undef; }
 }
-class GLOBAL::StrDisp is StrLen {
+class StrDisp is StrLen {
     # this is the "lazy" StrLen, created only by subtracting StrPos
     has Str $.s1;
     has Str $.s2;
@@ -286,27 +285,27 @@ class StrLenSum is StrLen {
     method codes(--> Int)  { $.s1.codes  + $.s2.codes  }
     method graphs(--> Int) { $.s1.graphs + $.s2.graphs }
 }
-multi *infix:<->(StrPos $sp1, StrPos $sp2 --> StrLen) {
+multi infix:<->(StrPos $sp1, StrPos $sp2 --> StrLen) {
     die 'StrPos objects must be from the same Str' unless $sp1.s === $sp2.s;
     return StrDisp.new(:s1($sp1.sub), :s2($sp2.sub));
 }
-multi *infix:<+>(StrPos $sp is copy, StrLen $sl --> StrPos) {
+multi infix:<+>(StrPos $sp is copy, StrLen $sl --> StrPos) {
     $sp.sub ~= $sp.s.substr($sp, $sl);
     return $sp;
 }
-multi *infix:<+>(StrLen $sl, StrPos $sp --> StrPos) {
+multi infix:<+>(StrLen $sl, StrPos $sp --> StrPos) {
     $sp + $sl;
 }
-multi *infix:<+>(StrLen $s1, StrLen $s2 --> StrLen) {
+multi infix:<+>(StrLen $s1, StrLen $s2 --> StrLen) {
     StrLenSum.new(:$s1, :$s2);
 }
-multi *prefix:<->(StrLen $s --> StrLen) {
+multi prefix:<->(StrLen $s --> StrLen) {
     StrLenNeg.new(:$s);
 }
-multi *infix:<->(StrLen $s1, StrLen $s2 --> StrLen) {
+multi infix:<->(StrLen $s1, StrLen $s2 --> StrLen) {
     $s1 + -$s2;
 }
-multi *infix:<->(StrPos $sp is copy, StrLen $sl --> StrPos) {
+multi infix:<->(StrPos $sp is copy, StrLen $sl --> StrPos) {
     $sp + -$sl;
 }
 
@@ -317,7 +316,7 @@ class SubstrProxy {
     # STORE and FETCH are per-level
 }
 
-class GLOBAL::Str is also {
+class Str is also {
     # in general only one of these is defined at a time
     # all conversions are automatic:
     # codes -> graphs is always allowed
@@ -329,9 +328,9 @@ class GLOBAL::Str is also {
     has @!as_bytes is Buf8;
 
     # Grapheme Cluster Boundary Determination        UAX #29
-    token isGCBCR :codes { \x{000D} }
-    token isGCBLF :codes { \x{000A} }
-    token isGCBControl :codes { <+isZl+isZp+isCc+isCf-[\x{000D}\x{000A}\x{200C}\x{200D}]> }
+    token isGCBCR :codes { \x[000D] }
+    token isGCBLF :codes { \x[000A] }
+    token isGCBControl :codes { <+isZl+isZp+isCc+isCf-[\x[000D]\x[000A]\x[200C]\x[200D]]> }
     token isGCBHangulSyllable :codes {
         [
             | <after <isHSTL>                  >          [ <isHSTL> | <isHSTV> | <isHSTLV> | <isHSTLVT> ]
@@ -407,14 +406,14 @@ class GLOBAL::Str is also {
         return $string.substr: StrPos.new($string, StrLen.new($start)), StrLen.new($length);
     }
 
-    token :codes :nf<d> split_graph {
+    token split_graph :codes :nf<d> {
         $<st>=[ <-isGrapheme_Extend>* ]
         $<ex>=[ <+isGrapheme_Extend>* ]
     }
     our multi method samebase (Str $string: Str $pattern --> Str) is export {
         use graphemes;
         my Str $ret;
-        for ^$string.graphs -> my Int $n {
+        for ^$string.graphs -> Int $n {
             $string.substr($n, 1) ~~ &split_graph;
             $ret ~= $<st>;
             $pattern.substr($n, 1) ~~ &split_graph;
@@ -444,8 +443,8 @@ class GLOBAL::Str is also {
     }
 }
 
-class GLOBAL::graphemes {
-    class GLOBAL::Str is also {
+class graphemes {
+    class Str is also {
         our multi method graphs(Str $string: --> Int) is export { $string.as_graphs.elems }
         our multi method chars(Str $string: --> Int) is export { $string.graphs }
         multi submethod BUILD(UBuf :@graphs) { @!as_graphs = @graphs; }
@@ -461,7 +460,7 @@ class GLOBAL::graphemes {
             @$s.as_graphs = @.as_graphs;
             return $s;
         }
-        our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
+        our multi infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
             @$s.as_graphs = $s1.as_graphs[0..*-2];
             my Str $mid;
@@ -471,18 +470,18 @@ class GLOBAL::graphemes {
             $s.as_graphs.push: $s2.as_graphs[1..*];
             return $s;
         }
-        our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
+        our multi infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
         our multi method ord(Str $string: --> Int) is export { @.as_graphs[0] }
         our multi method ord(Str $string: --> List of Int) is export { @.as_graphs }
     }
-    our multi sub *chr(Int *@grid --> Str) {
+    our multi sub chr(Int *@grid --> Str) {
         my UBuf @graphs = @grid;
         return Str.new(:@graphs);
     }
-    class GLOBAL::UBuf is also {
+    class UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:graphs($b)) }
     }
-    class GLOBAL::AnyChar is also {
+    class AnyChar is also {
         multi submethod BUILD(Str $s) { @$.char.as_graphs = $s.as_graphs[0]; }
         method STORE(Str $s --> Void)      { @$.char.as_graphs = $s.as_graphs[0]; }
         method FETCH(--> Str) {
@@ -496,11 +495,11 @@ class GLOBAL::graphemes {
             return $s;
         }
     }
-    class GLOBAL::StrLen is also {
+    class StrLen is also {
         submethod BUILD(Int $i --> Void) { $.clear; $.graphs = $i; }
         method Int(--> Int)   { $.graphs }
     }
-    class GLOBAL::StrPos is also {
+    class StrPos is also {
         submethod BUILD(Str $s, StrLen $len) {
             $.s = $s;
             my Str $sub;
@@ -525,8 +524,8 @@ class GLOBAL::graphemes {
     }
 }
 
-class GLOBAL::codepoints {
-    class GLOBAL::Str is also {
+class codepoints {
+    class Str is also {
         our multi method codes(Str $string: --> Int) is export { $string.as_codes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.codes }
         multi submethod BUILD(UBuf :@codes) { @!as_codes = @codes; }
@@ -542,7 +541,7 @@ class GLOBAL::codepoints {
             @$s.as_codes = @.as_codes;
             return $s;
         }
-        our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
+        our multi infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
             @$s.as_codes = $s1.as_codes;
             $s.as_codes.push: $s2.as_codes;
@@ -550,7 +549,7 @@ class GLOBAL::codepoints {
         }
         # S02:737 says code Strs should be in "universal form",
         # so compare as_graphs (we can always upgrade to graphs)
-        our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
+        our multi infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_graphs eqv $s2.as_graphs }
         our multi method ord(Str $string: --> Int) is export { @.as_codes[0] }
         our multi method ord(Str $string: --> List of Int) is export { @.as_codes }
         our method Buf(--> Buf) { @.as_codes }
@@ -558,7 +557,7 @@ class GLOBAL::codepoints {
         our multi method normalize(Str $string: Str :$nf = $?NF --> Str) is export {
             use :$nf;
             my Str $ret;
-            for @$string.as_graphs -> my Int $o {
+            for @$string.as_graphs -> Int $o {
                 $ret ~= Grapheme.new(:id($o)).normalize;
             }
             return $ret;
@@ -575,14 +574,14 @@ class GLOBAL::codepoints {
         our multi method nfc (Str $string: --> Str) is export { return $string.normalize(:nf<c> ) }
         our multi method nfkc(Str $string: --> Str) is export { return $string.normalize(:nf<kc>) }
     }
-    our multi sub *chr(Int *@grid --> Str) {
+    our multi sub chr(Int *@grid --> Str) {
         my UBuf @codes = @grid;
         return Str.new(:@codes);
     }
-    class GLOBAL::UBuf is also {
+    class UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:codes($b)) }
     }
-    class GLOBAL::AnyChar is also {
+    class AnyChar is also {
         multi submethod BUILD(Str $s) { @$.char.as_codes = $s.as_codes[0]; }
         method STORE(Str $s --> Void)      { @$.char.as_codes = $s.as_codes[0]; }
         method FETCH(--> Str) {
@@ -596,11 +595,11 @@ class GLOBAL::codepoints {
             return $s;
         }
     }
-    class GLOBAL::StrLen is also {
+    class StrLen is also {
         submethod BUILD(Int $i --> Void) { $.clear; $.codes = $i; }
         method Int(--> Int)   { $.codes }
     }
-    class GLOBAL::StrPos is also {
+    class StrPos is also {
         submethod BUILD(Str $s, StrLen $len) {
             $.s = $s;
             my Str $sub;
@@ -625,8 +624,8 @@ class GLOBAL::codepoints {
     }
 }
 
-class GLOBAL::bytes {
-    class GLOBAL::Str is also {
+class bytes {
+    class Str is also {
         our multi method bytes(Str $string: --> Int) is export { $string.as_bytes.elems }
         our multi method chars(Str $string: --> Int) is export { $string.bytes }
         multi submethod BUILD(UBuf :@bytes) { @!as_bytes = @bytes; }
@@ -642,25 +641,25 @@ class GLOBAL::bytes {
             @$s.as_bytes = @.as_bytes;
             return $s;
         }
-        our multi *infix:<~>(Str $s1, Str $s2 --> Str) is export {
+        our multi infix:<~>(Str $s1, Str $s2 --> Str) is export {
             my Str $s;
             $s.as_bytes = $s1.as_bytes;
             $s.as_bytes.push: $s2.as_bytes;
             return $s;
         }
-        our multi *infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_bytes eqv $s2.as_bytes }
+        our multi infix:<eq>(Str $s1, Str $s2 --> Bool) is export { $s1.as_bytes eqv $s2.as_bytes }
         our multi method ord(Str $string: --> Int) is export { @.as_bytes[0] }
         our multi method ord(Str $string: --> List of Int) is export { @.as_bytes }
         our method Buf(--> Buf) { @.as_bytes }
     }
-    our multi sub *chr(Int *@grid --> Str) {
+    our multi sub chr(Int *@grid --> Str) {
         my UBuf @bytes = @grid;
         return Str.new(:@bytes);
     }
-    class GLOBAL::UBuf is also {
+    class UBuf is also {
         our multi method Str(UBuf $b: --> Str) { Str.new(:bytes($b)) }
     }
-    class GLOBAL::AnyChar is also {
+    class AnyChar is also {
         multi submethod BUILD(Str $s) { @$.char.as_bytes = $s.as_bytes[0]; }
         method STORE(Str $s --> Void)      { @$.char.as_bytes = $s.as_bytes[0]; }
         method FETCH(--> Str) {
@@ -674,11 +673,11 @@ class GLOBAL::bytes {
             return $s;
         }
     }
-    class GLOBAL::StrLen is also {
+    class StrLen is also {
         submethod BUILD(Int $i --> Void) { $.clear; $.bytes = $i; }
         method Int(--> Int)   { $.bytes }
     }
-    class GLOBAL::StrPos is also {
+    class StrPos is also {
         submethod BUILD(Str $s, StrLen $len) {
             $.s = $s;
             my Str $sub;
