@@ -2450,7 +2450,7 @@ a single short form adverb, which produces forms like:
 
     qw /a b c/;                         # P5-esque qw// meaning q:w
     Qc '...{$x}...';                    # Q:c//, interpolate only closures
-    qqx/$cmd @args/                     # equivalent to P5's qx//
+    qqx/$cmd @args[]/                   # equivalent to P5's qx//
 
 (Note that C<qx//> doesn't interpolate.)
 
