@@ -4,7 +4,7 @@ include_directories (${smop_SOURCE_DIR}/include)
 find_program (CABAL cabal)
 
 if(NOT CABAL)
-    message(FATAL "ERROR cabal is not found")
+    message(FATAL "ERROR cabal is not found, please install cabal-install, you can find in third-party/cabal-install in the pugs repository or at http://hackage.haskell.org/cgi-bin/hackage-scripts/package/cabal-install")
 endif(NOT CABAL)
 
 ### m0ld
