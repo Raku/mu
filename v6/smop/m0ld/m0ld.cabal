@@ -6,7 +6,7 @@ category:            Development
 license:             BSD3
 author:              Paweł Murias
 maintainer:          pawelmurias@gmail.com
-build-Depends:       base,utf8-string >= 0.3.1.1,containers >= 0.1.0.1,parsec >= 2.1.0.1
+build-Depends:       base,utf8-string >= 0.3.1.1,containers >= 0.1.0.1,parsec >= 2.0.0.0
 Build-type:          Simple
 
 executable:          m0ld
