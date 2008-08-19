@@ -11,7 +11,7 @@
 -}
 
 -- #include "pugs_config.h"
--- #include "pugs_version.h"
+#include "pugs_version.h"
 
 #ifndef PUGS_VERSION
 #define PUGS_VERSION "6.2.13.11"
