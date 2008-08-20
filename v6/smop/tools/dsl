@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 my ($dsl,$base,$m0ld,$in, $out) = @ARGV;
-warn "dsl:$dsl base:$base in:$in out:$out\n";
+#warn "dsl:$dsl base:$base in:$in out:$out\n";
 my $elfX = "$base/../../misc/elfish/elfX/elfX";
 if ($dsl eq 'm0ld') {
     system("cat $base/m0ld/m0ld_boilerplate_front > $out");

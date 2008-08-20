@@ -48,12 +48,21 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
   } else if (SMOP__ID__postcircumfix_parens == identifier) {
     SMOP__S1P__Code_struct* code = (SMOP__S1P__Code_struct*) invocant;
 
-    smop_lowlevel_rdlock(code);
+    smop_lowlevel_rdlock(invocant);
+    SMOP__Object* outer = code->outer;
     SMOP__Object* mold = code->mold;
-    smop_lowlevel_unlock(code);
+    smop_lowlevel_unlock(invocant);
 
     SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold));
+    SMOP__Object* back = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+      SMOP__ID__continuation,
+      SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),
+        NULL,NULL));
 
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,outer));
+    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,back));
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 
 
