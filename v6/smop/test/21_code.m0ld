@@ -12,7 +12,7 @@ my $it_var_cont = ¢SMOP__S1P__Scalar."new"();
 $void = $it_var_slot."STORE"($it_var_cont);
 $void = $it_var_cont."STORE"("ok 3\n");
 
-my $code1 = $Code."new"(:"outer"($lexicalscope),:"signature"(¢SMOP__S1P__DefaultBlockSignature),:"mold"(mold {
+my $code1 = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
     my $interpreter;
     my $lexical;
 

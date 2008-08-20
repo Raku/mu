@@ -47,6 +47,8 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
     code->mold = SMOP__NATIVE__capture_named(interpreter,SMOP_REFERENCE(interpreter,capture),SMOP__ID__mold);
     code->outer = SMOP__NATIVE__capture_named(interpreter,SMOP_REFERENCE(interpreter,capture),SMOP__ID__outer);
     code->signature = SMOP__NATIVE__capture_named(interpreter,SMOP_REFERENCE(interpreter,capture),SMOP__ID__signature);
+    if (!code->signature)
+      code->signature = SMOP__S1P__DefaultBlockSignature;
 
   } else if (SMOP__ID__postcircumfix_parens == identifier) {
     SMOP__S1P__Code_struct* code = (SMOP__S1P__Code_struct*) invocant;
