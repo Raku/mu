@@ -4,9 +4,11 @@ use Test;
 
 plan 12;
 
+
 # L<S04/The gather statement/"A variant of do is gather">
 
 # Standard gather
+#?rakudo eval 'gather not implemented'
 {
     my @a;
     my $i;
@@ -22,10 +24,12 @@ plan 12;
     is(+@a, 5, "5 elements gathered");
     ok($i, "gather code executed");
     is(@a[0], 1, "first elem taken");
+    #?rakudo skip '* not implemented'
     is(@a[*-1], 5, "last elem taken");
 };
 
 # Nested gathers, two levels
+#?rakudo eval 'gather not implemented'
 {
   my @outer = gather {
     for 1..3 -> $i {
@@ -41,6 +45,7 @@ plan 12;
 }
 
 # Nested gathers, three levels
+#?rakudo eval 'gather not implemented'
 {
   my @outer = gather {
     for 1..2 -> $i {
@@ -60,6 +65,7 @@ plan 12;
 }
 
 # take on lists, multiple takes per loop
+#?rakudo eval 'gather not implemented'
 {
   my @outer = gather {
     my @l = (1, 2, 3);
@@ -72,6 +78,7 @@ plan 12;
 }
 
 # gather scopes dynamiclly, not lexically
+#?rakudo eval 'gather not implemented'
 {
     my $dynamic_take = sub { take 7 };
     my @outer = gather {
@@ -83,6 +90,7 @@ plan 12;
 }
 
 # take on array-ref
+#?rakudo eval 'gather not implemented'
 {
   my @list  = gather { take [1,2,3]; take [4,5,6];};
   my @list2 = ([1,2,3],[4,5,6]);
@@ -90,6 +98,7 @@ plan 12;
 }
 
 # gather statement prefix
+#?rakudo eval 'gather not implemented'
 {
     my @out = gather for 1..5 {
         take $_;
@@ -99,6 +108,7 @@ plan 12;
 }
 
 # lazy gather
+#?rakudo eval 'gather not implemented'
 {
     my $count = 0;
     my @list = gather {
