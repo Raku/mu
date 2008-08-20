@@ -125,6 +125,7 @@ foreach (test_file
     test/18_root_namespace.p6
     test/19_array.p6
     test/20_smop_s1p_ccode.c
+    test/21_code.m0ld
     test/22_smop_s1p_attribute.sm0p
     test/23_mold.sm0p
     test/24_m0ld.m0ld

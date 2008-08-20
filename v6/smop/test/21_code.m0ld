@@ -1,0 +1,15 @@
+my $void;
+my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $out = $out_scalar."FETCH"();
+$void = $out."print"("1..1\n");
+
+my $Code_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
+my $Code = $Code_scalar."FETCH"();
+my $code1 = $Code."new"(:"outer"("...outer..."),:"signature"("...signature..."),:"mold"(mold {
+    my $void;
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+    $void = $out."print"("ok 1\n");
+}));
+$void = $code1."postcircumfix:( )"();
+

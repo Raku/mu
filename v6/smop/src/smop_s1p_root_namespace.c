@@ -30,6 +30,7 @@ void smop_s1p_root_namespace_init() {
   SMOP__Object* mold = SMOP__Mold_create(0,(SMOP__Object*[]) { NULL },1,(int[]) { 0 });
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Mold",SMOP_REFERENCE(SMOP__GlobalInterpreter,mold));
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::MoldFrame",SMOP__Mold__Frame_create(SMOP__GlobalInterpreter,mold));
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code",SMOP__S1P__Code_create());
 }
 
 void smop_s1p_root_namespace_destr() {

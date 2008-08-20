@@ -18,10 +18,12 @@ SMOP__Object* SMOP__S1P__Code;
  */
 typedef struct SMOP__S1P__Code_struct {
   SMOP__Object__BASE
-  SMOP__Object* frame;
+  SMOP__Object* mold;
+  SMOP__Object* signature;
+  SMOP__Object* outer ;
 } SMOP__S1P__Code_struct;
 
-SMOP__Object* SMOP__S1P__Code_create(SMOP__Object* frame) {
+SMOP__Object* SMOP__S1P__Code_create() {
     SMOP__Object* ret = smop_lowlevel_alloc(sizeof(SMOP__S1P__Code_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Code;
     return ret;
@@ -33,38 +35,42 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
                                            SMOP__Object* capture) {
   ___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   if (SMOP__ID__new == identifier) {
-
     ret = SMOP__S1P__Code_create(SMOP__NATIVE__bool_false);
     SMOP__S1P__Code_struct* code = (SMOP__S1P__Code_struct*) ret;
-    code->frame = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    code->mold = SMOP__NATIVE__capture_named(interpreter,SMOP_REFERENCE(interpreter,capture),SMOP__ID__mold);
+    code->outer = SMOP__NATIVE__capture_named(interpreter,SMOP_REFERENCE(interpreter,capture),SMOP__ID__outer);
+    code->signature = SMOP__NATIVE__capture_named(interpreter,SMOP_REFERENCE(interpreter,capture),SMOP__ID__signature);
 
   } else if (SMOP__ID__postcircumfix_parens == identifier) {
-
-    ___INVOCANT_RI_SHOULD_MATCH___;
     SMOP__S1P__Code_struct* code = (SMOP__S1P__Code_struct*) invocant;
-    SMOP__Object* frame = code->frame;
 
-/* broken for some reason - pmurias
-    SMOP__Object* capture = SMOP__NATIVE__capture_create(interpreter, SMOP_REFERENCE(interpreter,interpreter), (SMOP__Object*) {SMOP_REFERENCE(interpreter,frame),NULL},(SMOP__Object*) {NULL});*/
+    smop_lowlevel_rdlock(code);
+    SMOP__Object* mold = code->mold;
+    smop_lowlevel_unlock(code);
+
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold));
 
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
-    code->frame = NULL;
-    SMOP_RELEASE(interpreter,invocant);
+
 
   } else if (SMOP__ID__DESTROYALL == identifier) {
 
-    ___INVOCANT_RI_SHOULD_MATCH___;
     SMOP__S1P__Code_struct* code = (SMOP__S1P__Code_struct*) invocant;
-    SMOP__Object* frame = code->frame;
-    //if (frame) printf("frame.RI: %s\n",((SMOP__ResponderInterface*)frame->RI)->id);
-    //else printf("frame.RI: %p\n",frame);
-    //
+
+    smop_lowlevel_rdlock(code);
+    SMOP__Object* mold = code->mold;
+    smop_lowlevel_unlock(code);
+
+    //SMOP_RELEASE(interpreter,mold);
+
   } else {
     ___UNKNOWN_METHOD___;
   }
+  SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
   return ret;
 }
