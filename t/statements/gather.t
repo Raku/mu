@@ -18,7 +18,7 @@ plan 12;
         }
     };
 
-    ok(!$i, "not yet gathered", :todo<unspecced>);
+    ok(!$i, "not yet gathered");
     is(+@a, 5, "5 elements gathered");
     ok($i, "gather code executed");
     is(@a[0], 1, "first elem taken");
@@ -108,5 +108,5 @@ plan 12;
         }
     };
     my $result = @list[2];
-    is($count, 2, "gather is lazy", :todo<unspecced>);	
+    is($count, 2, "gather is lazy");	
 }
