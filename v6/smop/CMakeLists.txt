@@ -64,6 +64,7 @@ foreach (sm0p_file
     src/smop_s1p_defaultblocksignature.sm0p
     src/p6opaque.sm0p
     src/smop_s1p_attribute.sm0p
+    src/smop_s1p_code.sm0p
 )
 compile_sm0p (${sm0p_file})
 endforeach()

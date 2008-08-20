@@ -8,6 +8,9 @@
 SMOP__Object* SMOP__Mold;
 SMOP__Object* SMOP__Mold__Frame;
 
+static SMOP__Object* SMOP__ID__set_reg;
+static SMOP__Object* SMOP__ID__set_back;
+
 typedef struct smop_mold {
   SMOP__Object__BASE
   int registers;
@@ -142,6 +145,29 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
   if (SMOP__ID__new == identifier) {
     SMOP__Object* mold = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     ret = SMOP__Mold__Frame_create(interpreter,mold);
+  } else if (SMOP__ID__set_reg == identifier) {
+
+    SMOP__Object* reg_pos = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+    mold_reg_set(interpreter, invocant, SMOP__NATIVE__int_fetch(reg_pos), value);
+
+  } else if (SMOP__ID__back == identifier) {
+
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (frame->back) {
+      ret = SMOP_REFERENCE(interpreter,frame->back);
+    }
+
+  } else if (SMOP__ID__set_back == identifier) {
+
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (!frame->back) {
+      frame->back = value;
+    } else {
+      printf("trying to set a new back to the frame\n");
+      abort();
+    }
+
   } else if (SMOP__ID__has_next == identifier) {
     if (mold->opcodes[frame->position]) {
       ret = SMOP__NATIVE__bool_true;
@@ -288,6 +314,9 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
 
 
 void smop_mold_init() {
+  SMOP__ID__set_reg = SMOP__NATIVE__idconst_create("set_reg");
+  SMOP__ID__set_back = SMOP__NATIVE__idconst_create("set_back");
+
   SMOP__Mold = calloc(1,sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__Mold)->MESSAGE = smop_mold_message;
   ((SMOP__ResponderInterface*)SMOP__Mold)->REFERENCE = smop_lowlevel_generic_reference;

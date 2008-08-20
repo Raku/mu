@@ -79,8 +79,10 @@
      smop_s1p_root_namespace_init();        \
      smop_s1p_lexicalscope_mold_init();     \
      smop_s1p_defaultblocksignature_mold_init(); \
+     smop_s1p_code_mold_init();             \
 
 #define SMOP_BOOTSTRAP_DESTR_SEQUENCE       \
+     smop_s1p_code_mold_destr();            \
      smop_s1p_defaultblocksignature_mold_destr();\
      smop_s1p_lexicalscope_mold_destr();    \
      smop_s1p_root_namespace_destr();       \

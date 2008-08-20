@@ -1,12 +1,15 @@
 #include <smop.h>
 #include <smop_lowlevel.h>
 #include <smop_identifiers.h>
+#include <smop_mold.h>
 #include <smop_s1p.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 
 SMOP__Object* SMOP__S1P__Code;
+
+static SMOP__Object* smop_s1p_code_mold;
 
 /*
  * SMOP__S1P__Code passes all this items as the ownership of the
@@ -51,9 +54,10 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
     smop_lowlevel_rdlock(invocant);
     SMOP__Object* outer = code->outer;
     SMOP__Object* mold = code->mold;
+    SMOP__Object* signature = code->signature;
     smop_lowlevel_unlock(invocant);
 
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold));
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,smop_s1p_code_mold));
     SMOP__Object* back = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
       SMOP__ID__continuation,
       SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),
@@ -61,8 +65,12 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
 
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
     mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,outer));
-    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,back));
+    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,back));
+    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,code));
+    mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,outer));
+    mold_reg_set(interpreter,frame,5,SMOP_REFERENCE(interpreter,signature));
+    mold_reg_set(interpreter,frame,6,SMOP_REFERENCE(interpreter,mold));
+
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 
 
@@ -97,4 +105,37 @@ void smop_s1p_code_init() {
 
 void smop_s1p_code_destr() {
   free(SMOP__S1P__Code);
+}
+
+void smop_s1p_code_mold_init() {
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  smop_s1p_code_mold = q:m0ld {
+    my $interpreter;
+    my $capture;
+    my $back;
+    my $code;
+    my $outer;
+    my $signature;
+    my $mold;
+
+    my $void;
+
+    my $lexical_proto = ¢SMOP__S1P__LexicalScope;
+    my $lexical = $lexical_proto."new"();
+    my $lexical_outer_container = $lexical."outer"();
+    $void = $lexical_outer_container."STORE"($outer);
+
+    $void = $signature."BIND"($capture,$lexical);
+    my $frame_proto = ¢SMOP__Mold__Frame;
+    my $frame = $frame_proto."new"($mold);
+    $void = $frame."set_reg"(0, $interpreter);
+    $void = $frame."set_reg"(1, $lexical);
+    $void = $frame."set_back"($back);
+    $void = $interpreter."goto"($frame);
+  };
+}
+
+void smop_s1p_code_mold_destr() {
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  SMOP_RELEASE(interpreter, smop_s1p_code_mold);
 }

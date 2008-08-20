@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <smop_s1p.h>
 #include "smop_internal.h"
 
 static SMOP__Object** constlist;
@@ -56,8 +57,7 @@ static SMOP__Object* idconst_message(SMOP__Object* stack,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
-  // TODO
-  return NULL;
+  ___UNKNOWN_METHOD___;
 }
 
 static SMOP__Object* idconst_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
