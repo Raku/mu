@@ -16,7 +16,6 @@ my $code1 = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
     my $interpreter;
     my $lexical;
 
-
     my $it_var_slot = $lexical."postcircumfix:{ }"("$_");
     my $it_var = $it_var_slot."FETCH"();
     my $it  = $it_var."FETCH"();
@@ -30,6 +29,10 @@ my $code1 = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
     my $back = $continuation."back"();
     $void = $interpreter."goto"($back);
 }));
-$void = $code1."postcircumfix:( )"("ok 1\n");
-$void = $code1."postcircumfix:( )"("ok 2\n");
-$void = $code1."postcircumfix:( )"();
+
+my $capture = ¢SMOP__S1P__Capturize."capturize"("ok 1\n");
+$void = $code1."postcircumfix:( )"($capture);
+$capture = ¢SMOP__S1P__Capturize."capturize"("ok 2\n");
+$void = $code1."postcircumfix:( )"($capture);
+$capture = ¢SMOP__S1P__Capturize."capturize"();
+$void = $code1."postcircumfix:( )"($capture);

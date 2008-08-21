@@ -23,7 +23,7 @@ typedef struct SMOP__S1P__Code_struct {
   SMOP__Object__BASE
   SMOP__Object* mold;
   SMOP__Object* signature;
-  SMOP__Object* outer ;
+  SMOP__Object* outer;
 } SMOP__S1P__Code_struct;
 
 SMOP__Object* SMOP__S1P__Code_create() {
@@ -127,7 +127,9 @@ void smop_s1p_code_mold_init() {
     my $lexical_outer_container = $lexical."outer"();
     $void = $lexical_outer_container."STORE"($outer);
 
-    $void = $signature."BIND"($capture,$lexical);
+    my $actualcapture = $capture."positional"(0);
+
+    $void = $signature."BIND"($actualcapture,$lexical);
     my $frame_proto = ¢SMOP__Mold__Frame;
     my $frame = $frame_proto."new"($mold);
     $void = $frame."set_reg"(0, $interpreter);
