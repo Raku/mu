@@ -64,6 +64,10 @@ IO
   as ARRAY(0x8832e28). This might be a bit tricky because we either have to
   capture stdout, or open a pipe to a second script.
 
+SINGLE TESTS
+* spec/S06-advanced_subroutine_features/wrapping.t should be changed to
+  consitently use lives_ok
+
 Junction tests
  Quite some tests in t/junction relay on $junction.values to return the values
  in a particular order. That's bad, because it doesn't seem to be specced (and
