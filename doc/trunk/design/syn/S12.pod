@@ -1062,6 +1062,32 @@ see the multi sub definition unless you C<use> the class in your scope,
 which will import the multi sub lexically, after which you can call it
 using normal subroutine call syntax.
 
+Note that explicit use of a syntactic category as a method name
+overrides the choice of dispatcher, so
+
+    $x.infix:<*>($y)
+
+and
+
+    infix:<*>($x,$y)
+
+are exactly equivalent.  That is, both calls use the subroutine/multi
+dispatcher, not the method/single dispatcher.  Likewise
+
+    foo($bar)
+
+can be written
+
+    $bar.prefix:<foo>()
+
+with the same meaning.  To get single dispatch of that method
+name to a foreign function, you must say:
+
+    $bar.'prefix:<foo>'()
+
+Most foreign languages are not going to understand such a method name,
+however.
+
 =head1 Multi dispatch
 
 Multi submethods work just like multi methods except they are constrained
