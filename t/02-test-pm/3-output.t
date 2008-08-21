@@ -28,7 +28,7 @@ my $cmd = "$*EXECUTABLE_NAME $file $redir_pre $out_fn $redir_post";
 %*ENV<TEST_ALWAYS_CALLER> = 0;
 
 diag($cmd);
-system($cmd);
+run($cmd);
 
 my $output = slurp $out_fn;
 unlink($out_fn);
