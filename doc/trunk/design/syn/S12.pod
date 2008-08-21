@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 5 Aug 2008
+  Last Modified: 21 Aug 2008
   Number: 12
-  Version: 62
+  Version: 63
 
 =head1 Overview
 
@@ -1036,14 +1036,21 @@ This applies to prefix unary operators as well:
 
     !$obj;  # same as $obj.prefix:<!>
 
-A method call first considers methods (including multi-methods and submethods)
-from the class hierarchy of its invocant, and fails over to the subroutine
-dispatcher as a last resort only if no method can be found in the class
-hierarchy.
+A method call considers only methods (including multi-methods and submethods)
+from the class hierarchy of its invocant, and fails if none is found.  The
+object in question is in charge of interpreting the meaning of the method
+name, so if the object is a foreign object, the name will be interpreted
+by that foreign runtime.
 
 A subroutine call considers only visible subroutines (including
-submethods) of that name.  There is no fail-over from subroutine
-to method dispatch.  However, you may use C<is export> on a method
+submethods) of that name.  The object itself has no say in the
+dispatch; the subroutine dispatcher considers only the types the
+arguments involved, along with the name.  Hence foreign objects passed
+to subroutines are forced to follow Perl semantics (to the extent
+foreign types can be coerced into Perl types, otherwise they fail).
+
+There is no fail-over either from subroutine to method dispatch or
+vice versa.  However, you may use C<is export> on a method
 definition to make it available also as a multi sub.  As with indirect
 object syntax, the first argument is still always the invocant,
 but the export allows you to use a comma after the invocant instead of
