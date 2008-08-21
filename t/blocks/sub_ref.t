@@ -68,10 +68,10 @@ See L<S02/"Built-in Data Types"> for more information about Code, Routine, Sub, 
     isa_ok($foo, 'Sub');
     is $foo.(42),      142,    "calling an anonymous sub with a positional param";
     is $foo.(x => 42), 142,    "calling an anonymous sub with a positional param addressed by name";
-    try{ $foo.() };
-    ok($!, "calling an anonymous sub expecting a param without a param dies");
-    try{ $foo.(42, 5) };
-    ok($!, "calling an anonymous sub expecting one param with two params dies");
+    dies_ok { $foo.() }, 
+        "calling an anonymous sub expecting a param without a param dies";
+    dies_ok { $foo.(42, 5) },
+        "calling an anonymous sub expecting one param with two params dies";
 }
 
 # Confirmed by p6l, see thread "Anonymous macros?" by Ingo Blechschmidt
