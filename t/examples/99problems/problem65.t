@@ -34,7 +34,7 @@ my $expected = ['n', 15, 1,
 
 sub height($tree){
     return 0 unless defined($tree);
-    return 1 + max(height($tree[1]), height($tree[2]));
+    return 1 + [max] height($tree[1]), height($tree[2]);
 }
 
 my $max_height =  height($tree);

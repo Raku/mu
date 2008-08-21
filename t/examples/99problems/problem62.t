@@ -40,7 +40,7 @@ is(internals($tree), @expected, "internals() collects internal nodes");
 
 sub atlevel($tree, $level) {
     return () unless defined($tree);
-    return $tree[0], if $level == 1;
+    return $tree[0] if $level == 1;
     return atlevel($tree[1], $level - 1), atlevel($tree[2], $level - 1);
 }
 

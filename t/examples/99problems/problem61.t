@@ -34,7 +34,7 @@ my @expected = ('C', 'D');
 
 sub leaves($tree){
     return () unless defined($tree);
-    return $tree[0], if (not defined($tree[1])) and (not defined($tree[2]));
+    return ($tree[0],) if (not defined($tree[1])) and (not defined($tree[2]));
     return leaves($tree[1]), leaves($tree[2]);
 }
 
