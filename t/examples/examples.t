@@ -47,7 +47,7 @@ for @examples -> $ex {
   my $fn = <temp-ex-output> ~ nonce;
   my $command = "$pugs examples/$ex.pl $redir $fn";
   diag $command;
-  system $command;
+  run $command;
 
   my $expected = slurp "examples/output/$ex";
   my $got      = slurp $fn;

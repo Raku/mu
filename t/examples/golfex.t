@@ -52,7 +52,7 @@ for @examples -> $ex {
     my $exists = $outtmp ~~ :f;
     ok( ! $exists, "file '$outtmp' does not exist" );
     my $cmd = "$*EXECUTABLE_NAME $tmpprog $origfile >$outtmp";
-    ok( system($cmd), "Run '$cmd'" );
+    ok( run($cmd), "Run '$cmd'" );
     ok( $outtmp ~~ :f, "file '$outtmp' exists" );
     my $got = slurp($outtmp);
     is( $got, $reversed, "'$ex' works" );

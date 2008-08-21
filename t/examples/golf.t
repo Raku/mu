@@ -35,7 +35,7 @@ for ($mad_sol, $rg0now_sol) -> $s {
     my $exists = $outtmp ~~ :f;
     ok( ! $exists, "file '$outtmp' does not exist" );
     my $cmd = "$*EXECUTABLE_NAME $tsanta $*EXECUTABLE_NAME $s >$outtmp";
-    ok( system($cmd), "Run '$cmd'" );
+    ok( run($cmd), "Run '$cmd'" );
     ok( $outtmp ~~ :f, "file '$outtmp' exists" );
     my @lines = slurp($outtmp);
     # cmp_ok( +@lines, '==', 28, "output contains 28 lines" );
