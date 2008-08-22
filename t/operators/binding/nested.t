@@ -255,15 +255,15 @@ plan 43;
     ];
 
     try { $bar[1]<key><subkey> := $foo[1]<key> };
-    is try{ $bar[1]<key><subkey><subkey>[1] }, 2,
+    is (try { $bar[1]<key><subkey><subkey>[1] }), 2,
         "binding an element of a structure to an element of another structure works (1)";
 
     try { $foo[1]<key><subkey>[1] = 7 };
-    is try{ $bar[1]<key><subkey><subkey>[1] }, 7,
+    is (try { $bar[1]<key><subkey><subkey>[1] }), 7,
         "binding an element of a structure to an element of another structure works (2)";
 
     try { $bar[1]<key><subkey><subkey>[1] = 8 };
-    is try { $foo[1]<key><subkey>[1] }, 8,
+    is (try { $foo[1]<key><subkey>[1] }), 8,
         "binding an element of a structure to an element of another structure works (3)";
 }
 
@@ -285,7 +285,7 @@ plan 43;
     ];
 
     try { $struct[1]<key><subkey>[1] := $struct[1]<key> };
-    is try { $struct[1]<key><subkey>[1]<foo> }, "bar",
+    is (try { $struct[1]<key><subkey>[1]<foo> }), "bar",
         "binding an element of a structure to an element of the same structure works (1)";
 
     try { $struct[1]<key><subkey>[1]<foo> = "new_value" };
@@ -293,7 +293,7 @@ plan 43;
         "binding an element of a structure to an element of the same structure works (2)";
 
     $struct[1]<key><foo> = "very_new_value";
-    is try { $struct[1]<key><subkey>[1]<foo> }, "very_new_value",
+    is (try { $struct[1]<key><subkey>[1]<foo> }), "very_new_value",
         "binding an element of a structure to an element of the same structure works (3)";
 
     $struct[1]<key><subkey>[1] = 23;
