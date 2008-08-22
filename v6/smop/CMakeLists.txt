@@ -1,4 +1,5 @@
 project (smop)
+SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
 cmake_minimum_required (VERSION 2.6)
 include_directories (${smop_SOURCE_DIR}/include)
 find_program (CABAL cabal ~/.cabal/bin)
@@ -16,6 +17,7 @@ endif(NOT CABAL)
         COMMAND ${CABAL} ARGS configure --distpref=${CMAKE_CURRENT_BINARY_DIR}/cabal_dist
         COMMAND ${CABAL} ARGS build --distpref=${CMAKE_CURRENT_BINARY_DIR}/cabal_dist
         COMMAND cp ARGS ${CMAKE_CURRENT_BINARY_DIR}/cabal_dist/build/m0ld/m0ld ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
+        DEPENDS ${smop_SOURCE_DIR}/m0ld/M0ld.hs
     )
 
 ### DSL 

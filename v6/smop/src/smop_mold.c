@@ -128,7 +128,6 @@ static SMOP__Object* smop_mold_message(SMOP__Object* interpreter,
 }
 static SMOP__Object* get_register(SMOP__Object* interpreter,smop_mold_frame* frame) {
   smop_mold* mold = (smop_mold*) frame->mold;
-  //printf("reading register %d from position %d\n",mold->opcodes[frame->position],frame->position);
   if (!frame->registers[mold->opcodes[frame->position]]) {
     printf("reading empty register %d\n",mold->opcodes[frame->position]);
     abort();
@@ -199,9 +198,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
 
   } else if (SMOP__ID__eval == identifier) {
     int op = mold->opcodes[frame->position];
-    //printf("op: %d\n",op);
     if (op) {
-      //int from = frame->position; //for tracing
       frame->position++;
       ret = SMOP__NATIVE__bool_true;
       switch (op) {
@@ -231,7 +228,6 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           free(call_named);
           free(call_pos);
           SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_invocant),call_identifier,capture);
-          //printf("got %p putting it into %d\n",ret,target);
           if (frame->registers[target]) {
             SMOP_RELEASE(interpreter,frame->registers[target]);
           }
@@ -291,18 +287,6 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           fprintf(stderr,"unknown op %d\n",op);
       }
 
-      /*
-        for (i=from;i<frame->position;i++) {
-        printf("%d ",mold->opcodes[i]);
-      }
-      printf("\n");
-      for (i=0;i<mold->registers;i++) {
-        if (frame->registers[i]) {
-          printf("%d = %s\n",i,frame->registers[i]->RI->id);
-        } else {
-          printf("%d = (null)\n",i,frame->registers[i]);
-        }
-      }*/
     } else {
       ret = SMOP__NATIVE__bool_false;
     }

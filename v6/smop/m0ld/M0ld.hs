@@ -22,7 +22,7 @@ type Parser = GenParser Char
 
 identifier = do
     first <- choice [alphaNum, char '_']
-    rest <- many1 $ choice [alphaNum, char '_', digit, char '^', char '!']
+    rest <- many1 $ choice [alphaNum, char '_', digit , char '!']
     return $ [first] ++ rest
 
 ws = do
@@ -88,7 +88,7 @@ implicit_decl = do
         Just c -> return c
         Nothing ->
             do 
-                let new = "xxx"++(show $ Map.size decls)
+                let new = "___implicit_register___"++(show $ Map.size decls)
                 updateState $ Map.insert c new
                 decls <- getState
                 return $ new
