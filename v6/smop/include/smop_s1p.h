@@ -18,6 +18,7 @@ extern SMOP__Object* SMOP__S1P__RootNamespace;
 extern SMOP__Object* SMOP__S1P__Capturize;
 extern SMOP__Object* SMOP__S1P__LexicalScope;
 extern SMOP__Object* SMOP__S1P__DefaultBlockSignature;
+extern SMOP__Object* SMOP__S1P__PurePrototypeHow;
 extern SMOP__Object* SMOP__GlobalInterpreter;
 
 

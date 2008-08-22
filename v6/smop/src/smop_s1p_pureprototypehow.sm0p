@@ -1,0 +1,102 @@
+#include <smop.h>
+#include <smop_lowlevel.h>
+#include <smop_identifiers.h>
+#include <smop_mold.h>
+#include <smop_s1p.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
+
+SMOP__Object* SMOP__S1P__PurePrototypeHow;
+static SMOP__Object* smop_s1p_pureprototypehow_dispatch_mold;
+
+
+static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter,
+                                                       SMOP__ResponderInterface* self,
+                                                       SMOP__Object* identifier,
+                                                       SMOP__Object* capture) {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
+
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
+  if (SMOP__ID__dispatch == identifier) {
+
+    SMOP__Object* actualresponder = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    SMOP__Object* actualidentifier = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);
+    SMOP__Object* actualinvocant = SMOP__NATIVE__capture_invocant(interpreter,actualcapture);
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation, 
+                                               SMOP_REFERENCE(interpreter,interpreter));
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                   SMOP_REFERENCE(interpreter,
+                                                                  smop_s1p_pureprototypehow_dispatch_mold));
+
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,actualresponder));
+    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,actualidentifier));
+    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,actualcapture));
+    mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,actualinvocant));
+    mold_back_set(interpreter,frame,SMOP_REFERENCE(interpreter,continuation));
+
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
+
+  } else {
+    ___UNKNOWN_METHOD___;
+  }
+
+  SMOP_RELEASE(interpreter, capture);
+  SMOP_RELEASE(interpreter, invocant);
+
+  return ret;
+}
+
+void smop_s1p_pureprototypehow_init() {
+  SMOP__S1P__PurePrototypeHow = malloc(sizeof(SMOP__ResponderInterface));
+  assert(SMOP__S1P__PurePrototypeHow);
+  ((SMOP__ResponderInterface*)SMOP__S1P__PurePrototypeHow)->RI = NULL;
+  ((SMOP__ResponderInterface*)SMOP__S1P__PurePrototypeHow)->MESSAGE = lowlevel_pureprototypehow_message;
+  ((SMOP__ResponderInterface*)SMOP__S1P__PurePrototypeHow)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__S1P__PurePrototypeHow)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__S1P__PurePrototypeHow)->id = "SMOP S1P Pure Prototype How";
+}
+
+void smop_s1p_pureprototypehow_destr() {
+  free(SMOP__S1P__PurePrototypeHow);
+}
+
+void smop_s1p_pureprototypehow_mold_init() {
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  smop_s1p_pureprototypehow_dispatch_mold = q:m0ld {
+    my $interpreter;
+    my $responder;
+    my $identifier;
+    my $capture;
+    my $invocant;
+
+    my $void;
+    my $result = ¢SMOP__NATIVE__bool_false;
+
+    my $methods = $invocant."^!methods"();
+    my $method_exists = $methods."exists"($identifier);
+
+    if $method_exists { goto than } else { goto exit };
+    than:
+      my $method_container = $methods."postcircumfix:{ }"($identifier);
+      my $method = $method_container."FETCH"();
+      $result = $method."postcircumfix:( )"($capture);
+    exit:
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    $void = $back."setr"($result);
+    $void = $interpreter."goto"($back);
+  };
+}
+
+void smop_s1p_pureprototypehow_mold_destr() {
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  SMOP_RELEASE(interpreter, smop_s1p_pureprototypehow_dispatch_mold);
+}
+

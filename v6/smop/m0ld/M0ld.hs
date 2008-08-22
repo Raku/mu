@@ -22,7 +22,7 @@ type Parser = GenParser Char
 
 identifier = do
     first <- choice [alphaNum, char '_']
-    rest <- many1 $ choice [alphaNum, char '_', digit]
+    rest <- many1 $ choice [alphaNum, char '_', digit, char '^', char '!']
     return $ [first] ++ rest
 
 ws = do
