@@ -9,7 +9,7 @@ use Test;
 #   (assuming scalar context, etc.).  And that "@foo[]" and ~[at]foo and 
 #   @foo.as(Str) are the same as join(' ', @foo) where join is effectively:
 
-plan 10;
+plan 12;
 
 {
   my @array = <a b c d>;
@@ -18,6 +18,9 @@ plan 10;
     "arrays whose elements don't contain whitespace stringify correctly (1)";
   is "@array[]", "a b c d",
     "arrays whose elements don't contain whitespace stringify correctly (2)";
+  is "@array.[]", "a b c d",
+    '@array.[] interpolates';
+  is "@array", "@array", '@array (without brackets) doesnt interpolate';
 }
 
 {
