@@ -14,7 +14,7 @@ This file had entries in the past (r16405). Since this file wasn't touched in ov
 OVERALL
 * Add smartlinks to tests without them
 * Continue moving tests from t/ to t/spec/
-* Clean up old POD
+* Clean up old POD (only present in some testing modules)
 * Fudge tests for Rakudo where helpful
 * Improve the Vim syntax highlighting to recognize test keywords
 * Review XXX entries for test corrections
@@ -43,7 +43,7 @@ S09
 S12
 * tests for $object.WALK
 * tests for $object.*@candidates
-* tests for "but" (such as 0 but Bool::True)
+* tests for "but" (such as 0 but Bool::True; should go into S12-enums/)
 * tests for metamethods (under "Introspection" in S12)
 * tests for autovivification
 * more tests for inheritance. Auzon noticed that there were no multiple inheritance tests, so other important things are bound to be missing.
