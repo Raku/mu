@@ -4,6 +4,7 @@ use Test;
 
 plan 9;
 
+# L<S05/Substitution/>
 
 my $str = 'hello';
 
