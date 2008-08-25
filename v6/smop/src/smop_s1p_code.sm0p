@@ -42,7 +42,7 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   if (SMOP__ID__new == identifier) {
-    ret = SMOP__S1P__Code_create(SMOP__NATIVE__bool_false);
+    ret = SMOP__S1P__Code_create();
     SMOP__S1P__Code_struct* code = (SMOP__S1P__Code_struct*) ret;
     code->mold = SMOP__NATIVE__capture_named(interpreter,SMOP_REFERENCE(interpreter,capture),SMOP__ID__mold);
     code->outer = SMOP__NATIVE__capture_named(interpreter,SMOP_REFERENCE(interpreter,capture),SMOP__ID__outer);
@@ -80,9 +80,9 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
 
     SMOP__S1P__Code_struct* code = (SMOP__S1P__Code_struct*) invocant;
 
-    smop_lowlevel_rdlock(code);
+    smop_lowlevel_rdlock(invocant);
     SMOP__Object* mold = code->mold;
-    smop_lowlevel_unlock(code);
+    smop_lowlevel_unlock(invocant);
 
     //SMOP_RELEASE(interpreter,mold);
 

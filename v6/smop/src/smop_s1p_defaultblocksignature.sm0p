@@ -5,6 +5,7 @@
 #include <smop.h>
 #include <smop_lowlevel.h>
 #include <smop_s1p.h>
+#include <smop_mold.h>
 
 SMOP__Object* SMOP__S1P__DefaultBlockSignature;
 static SMOP__Object* defaultblocksignature_bind_code;

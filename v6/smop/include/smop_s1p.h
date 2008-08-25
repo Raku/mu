@@ -41,6 +41,7 @@ SMOP__Object* SMOP__S1P__Scalar_STORE(SMOP__Object* object, SMOP__Object* new_va
 SMOP__Object* SMOP__S1P__IO_create(void);
 SMOP__Object* SMOP__S1P__Hash_create(void);
 SMOP__Object* SMOP__S1P__Array_create(void);
+SMOP__Object* SMOP__S1P__Code_create(void);
 
 
 #include <assert.h>

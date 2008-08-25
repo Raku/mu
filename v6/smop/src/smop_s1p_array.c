@@ -64,7 +64,7 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
     smop_s1p_array_proxy_struct* proxy = (smop_s1p_array_proxy_struct*) smop_lowlevel_alloc(sizeof(smop_s1p_array_proxy_struct));
     proxy->RI = (SMOP__ResponderInterface*)SMOP__S1P__ArrayProxy;
     proxy->index = i;
-    proxy->array = SMOP_REFERENCE(interpreter,invocant);
+    proxy->array = (smop_s1p_array_struct*) SMOP_REFERENCE(interpreter,invocant);
     ret = (SMOP__Object*) proxy;
   } else if (identifier == SMOP__ID__elems) {
     ret = SMOP__NATIVE__int_create(invocant->elems);
