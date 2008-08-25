@@ -1,4 +1,0 @@
-YAP6 was renamed to SMOP after the realization that it is not really
-p6 specific and that it can run other languages and interface to other
-vms. The old yap6 code can be retrieved from revision r19410, and the
-new code is on the smop directory.
