@@ -1,0 +1,20 @@
+// this is a sample compilation of a Perl 6 class. The example code is in src-s1p/P6Meta.pm
+
+#include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include <smop.h>
+#include <smop_s1p.h>
+#include <smop_oo.h>
+#include <smop_lowlevel.h>
+
+void smop_dynaloader_boot(SMOP__Object* interpreter, SMOP__Object* root_namespace) {
+  SMOP__Object* P6Meta = SMOP_DISPATCH(interpreter,
+                                       SMOP__p6opaque__RI,
+                                       SMOP__ID__REPR_CREATE,
+                                       SMOP__NATIVE__capture_create(interpreter,
+                                                                    SMOP__p6opaque__RI,
+                                                                    NULL,NULL));
+  
+}

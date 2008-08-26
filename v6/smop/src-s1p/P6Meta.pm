@@ -1,4 +1,4 @@
-class P6Meta {
+class P6Meta meta ¢SMOP__S1P__PurePrototypeHow {
 
 =begin
 
