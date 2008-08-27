@@ -67,8 +67,8 @@ is $foo, 1, "die should stop execution immediately.";
 # L<S04/Conditional statements/"The unless statement does not allow an elsif">
 
 eval_dies_ok( 
-        q[ unless 1 { 2 } else { 3 } ],
+        ' unless 1 { 2 } else { 3 } ',
         'no else allowed in unless');
 eval_dies_ok( 
-        q[ unless 1 { 2 } elsif 4 { 3 } ], 
+        ' unless 1 { 2 } elsif 4 { 3 } ', 
         'no elsif allowed in unless');
