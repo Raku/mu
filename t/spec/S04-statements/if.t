@@ -116,6 +116,7 @@ is $foo, 1, "die should stop execution immediately.";
 }
 
 # L<S04/"Conditional statements"/The value of the conditional expression may be optionally bound to a closure parameter>
+#?rakudo skip 'Closure parameters for if block'
 {
     my ($got, $a_val, $b_val);
     my sub testa { $a_val };
@@ -148,3 +149,5 @@ is $foo, 1, "die should stop execution immediately.";
     else          -> $c { $got = $c }
     is $got, '', 'else -> $c { } binding previous if';
 }
+
+# vim: ft=perl6
