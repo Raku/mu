@@ -291,12 +291,12 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       ret = SMOP__NATIVE__bool_false;
     }
   } else if (SMOP__ID__DESTROYALL == identifier) {
-    SMOP_RELEASE(interpreter,frame->mold);
     int i;
     for (i=0;i<mold->registers;i++) {
       if (frame->registers[i]) SMOP_RELEASE(interpreter,frame->registers[i]);
     }
     free(frame->registers);
+    SMOP_RELEASE(interpreter,frame->mold);
   } else {
     ___UNKNOWN_METHOD___;
   }

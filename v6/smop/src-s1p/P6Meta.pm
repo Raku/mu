@@ -1,4 +1,4 @@
-class P6Meta meta ¢SMOP__S1P__PurePrototypeHow {
+class P6Meta meta SMOP__S1P__PurePrototypeHow {
 
 =begin
 
@@ -134,20 +134,20 @@ Returns a lazy list with all the methods implemented by this object.
 
   method methods($how: $object --> List of Method) {
       my sub list_methods_recurse($obj) {
-          for ($obj.^!methods) --> $selfdef {
+          for ($obj.^!methods) -> $selfdef {
               take $selfdef;
           }
-          for ($obj.^!isa) --> $isa {
+          for ($obj.^!isa) -> $isa {
               list_methods_recurse($isa);
           }
-          for ($obj.^!role) --> $role {
+          for ($obj.^!role) -> $role {
               list_methods_recurse($role);
           }
       }
 
       List of Method @methods = gather {
           list_methods_recurse($object);
-          for ($object.^!submethods) --> $submethod {
+          for ($object.^!submethods) -> $submethod {
              take $submethod;
           }
       };
@@ -163,15 +163,15 @@ Returns a lazy list with all the attributes of this object.
 
 =end
 
-  method attributes($how: $object, --> List of Attribute) {
+  method attributes($how: $object --> List of Attribute) {
       my sub list_attributes_recurse($obj) {
-          for ($obj.^!attributes) --> $attr {
+          for ($obj.^!attributes) -> $attr {
               take $attr;
           }
-          for ($obj.^!isa) --> $isa {
+          for ($obj.^!isa) -> $isa {
               list_attributes_recurse($isa);
           }
-          for ($obj.^!role) --> $role {
+          for ($obj.^!role) -> $role {
               list_attributes_recurse($role);
           }
       }
@@ -193,7 +193,7 @@ Is this a subclass of the given class?
 
   method isa($how: $object, $superclass --> bool) {
       return true if $object === $superclass;
-      for ($object.^!isa) --> $isa {
+      for ($object.^!isa) -> $isa {
           return true if $isa === $superclass;
           my $res = $isa.^isa($superclass);
           return true if $res;
@@ -211,12 +211,12 @@ Does this object matches the given class?
 
   method does($how: $object, $superclass --> bool) {
       return true if $object === $superclass;
-      for ($object.^!does) --> $isa {
+      for ($object.^!does) -> $isa {
           return true if $isa === $superclass;
           my $res = $isa.^does($superclass);
           return true if $res;
       }
-      for ($object.^!does) --> $does {
+      for ($object.^!does) -> $does {
           return true if $does === $superclass;
           my $res = $does.^does($superclass);
           return true if $res;
