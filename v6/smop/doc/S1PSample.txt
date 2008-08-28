@@ -1,20 +1,17 @@
-// this is a sample compilation of a Perl 6 class. The example code is in src-s1p/P6Meta.pm
+# this is a sample compilation of a Perl 6 class. The example code is in src-s1p/P6Meta.pm
 
-#include <stdlib.h>
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <smop.h>
-#include <smop_s1p.h>
-#include <smop_oo.h>
-#include <smop_lowlevel.h>
 
-void smop_dynaloader_boot(SMOP__Object* interpreter, SMOP__Object* root_namespace) {
-  SMOP__Object* P6Meta = SMOP_DISPATCH(interpreter,
-                                       SMOP__p6opaque__RI,
-                                       SMOP__ID__REPR_CREATE,
-                                       SMOP__NATIVE__capture_create(interpreter,
-                                                                    SMOP__p6opaque__RI,
-                                                                    NULL,NULL));
-  
-}
+# first it needs to create the p6opaque, register in the namespace and
+# set the how to SMOP__S1P__PurePrototypeHow
+
+# we also create a common lexical scope, that should be used as the
+# outer scope of each method
+
+# then it needs to create the mold for the code. it should include the
+# use of the capture present in $_, as we're going to create every
+# method with the bindcapture signature and then going to implement
+# the lexical scope population in the beggining of the block.
+
+
+
+
