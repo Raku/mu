@@ -58,9 +58,11 @@
      smop_s1p_lexicalscope_init();          \
      smop_s1p_capturize_init();             \
      smop_s1p_defaultblocksignature_init(); \
+     smop_s1p_bindcapturesignature_init();  \
      smop_s1p_pureprototypehow_init();
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
      smop_s1p_pureprototypehow_destr();     \
+     smop_s1p_bindcapturesignature_destr(); \
      smop_s1p_defaultblocksignature_destr();\
      smop_s1p_capturize_destr();            \
      smop_s1p_lexicalscope_destr();         \
@@ -81,12 +83,14 @@
      smop_s1p_root_namespace_init();        \
      smop_s1p_lexicalscope_mold_init();     \
      smop_s1p_defaultblocksignature_mold_init(); \
+     smop_s1p_bindcapturesignature_mold_init();  \
      smop_s1p_code_mold_init();             \
      smop_s1p_pureprototypehow_mold_init(); \
 
 #define SMOP_BOOTSTRAP_DESTR_SEQUENCE       \
      smop_s1p_pureprototypehow_mold_destr();\
      smop_s1p_code_mold_destr();            \
+     smop_s1p_bindcapturesignature_mold_destr(); \
      smop_s1p_defaultblocksignature_mold_destr();\
      smop_s1p_lexicalscope_mold_destr();    \
      smop_s1p_root_namespace_destr();       \
@@ -131,6 +135,10 @@ void smop_s1p_defaultblocksignature_init();
 void smop_s1p_defaultblocksignature_destr();
 void smop_s1p_defaultblocksignature_mold_init();
 void smop_s1p_defaultblocksignature_mold_destr();
+void smop_s1p_bindcapturesignature_init();
+void smop_s1p_bindcapturesignature_destr();
+void smop_s1p_bindcapturesignature_mold_init();
+void smop_s1p_bindcapturesignature_mold_destr();
 void smop_s1p_pureprototypehow_init();
 void smop_s1p_pureprototypehow_destr();
 void smop_s1p_pureprototypehow_mold_init();

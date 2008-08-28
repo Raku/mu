@@ -64,6 +64,7 @@ foreach (sm0p_file
     src/smop_lowlevel.sm0p
     src/smop_s1p_lexicalscope.sm0p
     src/smop_s1p_defaultblocksignature.sm0p
+    src/smop_s1p_bindcapturesignature.sm0p
     src/smop_s1p_pureprototypehow.sm0p
     src/p6opaque.sm0p
     src/smop_s1p_attribute.sm0p
@@ -92,6 +93,7 @@ add_library (smop
     src/smop_s1p_ccode.c
     src/smop_s1p_code.c
     src/smop_s1p_pureprototypehow.c
+    src/smop_s1p_bindcapturesignature.c
     src/smop_s1p_defaultblocksignature.c
     src/smop_s1p_hash.c
     src/smop_s1p_io.c
@@ -137,6 +139,7 @@ foreach (test_file
     test/25_lexical_scope.p6
     test/27_default_block_signature.p6
     test/28_pure_prototype_how.sm0p
+    test/29_bind_capture_signature.p6
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")

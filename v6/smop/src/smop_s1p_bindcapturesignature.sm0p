@@ -1,0 +1,93 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
+#include <smop.h>
+#include <smop_lowlevel.h>
+#include <smop_s1p.h>
+#include <smop_mold.h>
+
+SMOP__Object* SMOP__S1P__BindCaptureSignature;
+static SMOP__Object* bindcapturesignature_bind_code;
+
+static SMOP__Object* bindcapturesignature_message(SMOP__Object* interpreter,
+                                                  SMOP__ResponderInterface* self,
+                                                  SMOP__Object* identifier,
+                                                  SMOP__Object* capture) {
+
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
+
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+  
+  if (identifier == SMOP__ID__BIND) {
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                   SMOP_REFERENCE(interpreter,
+                                                                  bindcapturesignature_bind_code));
+
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,1,continuation);
+    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  frame);
+
+  } else {
+    ___UNKNOWN_METHOD___;
+
+  }
+
+  SMOP_RELEASE(interpreter, invocant);
+  SMOP_RELEASE(interpreter, capture);
+
+  return ret;
+}
+
+void smop_s1p_bindcapturesignature_init() {
+  SMOP__S1P__BindCaptureSignature = calloc(1, sizeof(SMOP__ResponderInterface));
+  assert(SMOP__S1P__BindCaptureSignature);
+  ((SMOP__ResponderInterface*)SMOP__S1P__BindCaptureSignature)->MESSAGE = bindcapturesignature_message;
+  ((SMOP__ResponderInterface*)SMOP__S1P__BindCaptureSignature)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__S1P__BindCaptureSignature)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__S1P__BindCaptureSignature)->id = "S1P Default Block Signature";
+}
+
+void smop_s1p_bindcapturesignature_mold_init() {
+
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  SMOP__Object* mold;
+  mold = q:m0ld {
+    my $capture;
+    my $back;
+    my $interpreter;
+
+    my $scalar = ¢SMOP__S1P__Scalar;
+
+    my $actualcapture = $capture."positional"(0);
+    my $lexicalscope = $capture."positional"(1);
+
+    my $container = $lexicalscope."postcircumfix:{ }"("$_");
+    my $val = $scalar."new"($actualcapture);
+    my $void = $container."STORE"($val);
+    $void = $interpreter."goto"($back);
+  };
+
+  bindcapturesignature_bind_code = mold;
+}
+
+void smop_s1p_bindcapturesignature_mold_destr() {
+  SMOP_RELEASE(SMOP__GlobalInterpreter, bindcapturesignature_bind_code);
+  bindcapturesignature_bind_code = NULL;
+}
+
+void smop_s1p_bindcapturesignature_destr() {
+  free(SMOP__S1P__BindCaptureSignature);
+}
