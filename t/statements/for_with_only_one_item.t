@@ -8,14 +8,14 @@ plan 8;
 
 # sanity tests
 {
-  my $res;
+  my $res='';
 
   for <a b c> { $res ~= $_ }
   is $res, "abc", "for works with an <...> array literal";
 }
 
 {
-  my $res;
+  my $res='';
 
   for (<a b c>) { $res ~= $_ }
   is $res, "abc", "for works with an (<...>) array literal";
@@ -23,21 +23,21 @@ plan 8;
 
 # for with only one item, a constant
 {
-  my $res;
+  my $res='';
 
   for ("a",) { $res ~= $_ }
   is $res, "a", "for works with an (a_single_constant,) array literal";
 }
 
 {
-  my $res;
+  my $res='';
 
   for ("a") { $res ~= $_ }
   is $res, "a", "for works with (a_single_constant)";
 }
 
 {
-  my $res;
+  my $res='';
 
   for "a" { $res ~= $_ }
   is $res, "a", "for works with \"a_single_constant\"";
@@ -49,7 +49,7 @@ plan 8;
 {
   my $arrayref = [1,2,3];
 
-  my $count;
+  my $count=0;
   for ($arrayref,) { $count++ }
 
   is $count, 1, 'for ($arrayref,) {...} executes the loop body only once';
@@ -58,7 +58,7 @@ plan 8;
 {
   my $arrayref = [1,2,3];
 
-  my $count;
+  my $count=0;
   for ($arrayref) { $count++ }
 
   is $count, 1, 'for ($arrayref) {...} executes the loop body only once';
@@ -67,7 +67,7 @@ plan 8;
 {
   my $arrayref = [1,2,3];
 
-  my $count;
+  my $count=0;
   for $arrayref { $count++ }
 
   is $count, 1, 'for $arrayref {...} executes the loop body only once';
