@@ -43,11 +43,12 @@ sub takeuchi {
             !! @_[2];
 }
 
-ok(gcd(1147, 1271) == 31);
-ok(gcd(1908, 2016) == 36);
-ok(factorial(10) == 3628800);
-ok(factorial(factorial(3)) == 720);
-ok(fibonacci(10) == 89);
+is(gcd(1147, 1271), 31, 'gcd 1');
+is(gcd(1908, 2016),  36, 'gcd 2');
+is(factorial(10), 3628800, 'simple factorial');
+is(factorial(factorial(3)), 720, 'nested factorial');
+#?rakudo skip 'TODO: &?ROUTINE'
+is(fibonacci(10), 89, 'recursion via &?ROUTINE');
 
 # ok(fibonacci(fibonacci(7)) == 17711);
 # takes too long
@@ -64,13 +65,13 @@ ok(fibonacci(10) == 89);
 #  - 'unnamed' means it uses @_ for parameters
 
 sub countup_nomod_unnamed {
-    my ($num) = @_;
+    my $num = @_.shift;
     return $num if $num <= 0;
     return countup_nomod_unnamed($num-1), $num;
 }
 
 sub countdown_nomod_unnamed {
-    my ($num) = @_;
+    my $num = @_.shift;
     return $num if $num <= 0;
     return $num, countdown_nomod_unnamed($num-1);
 }
@@ -86,14 +87,14 @@ sub countdown_nomod_named ($num) {
 }
 
 sub countup_mod_unnamed {
-    my ($num) = @_;
+    my $num = @_.shift;
     my $n = $num - 1;
     return $num if $num <= 0;
     return countup_mod_unnamed($n), $num;
 }
 
 sub countdown_mod_unnamed {
-    my ($num) = @_;
+    my $num = @_.shift;
     my $n = $num - 1;
     return $num if $num <= 0;
     return $num, countdown_mod_unnamed($n);
