@@ -1,0 +1,43 @@
+my $void;
+my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $out = $out_scalar."FETCH"();
+$void = $out."print"("1..4\n");
+
+my $Code_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
+my $Code = $Code_scalar."FETCH"();
+my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"();
+
+my $it_var_slot = $lexicalscope."postcircumfix:{ }"("$_");
+my $it_var_cont = ¢SMOP__S1P__Scalar."new"();
+$void = $it_var_slot."STORE"($it_var_cont);
+$void = $it_var_cont."STORE"("not ok\n");
+
+my $array = ¢SMOP__S1P__Array."new"();
+my $element = $array."postcircumfix:[ ]"(0);
+$void = $element."STORE"("ok 1\n");
+$element = $array."postcircumfix:[ ]"(1);
+$void = $element."STORE"("ok 2\n");
+$element = $array."postcircumfix:[ ]"(2);
+$void = $element."STORE"("ok 3\n");
+$element = $array."postcircumfix:[ ]"(3);
+$void = $element."STORE"("ok 4\n");
+
+my $code1 = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
+    my $interpreter;
+    my $lexical;
+
+    my $it_var_slot = $lexical."postcircumfix:{ }"("$_");
+    my $it_var = $it_var_slot."FETCH"();
+    my $it  = $it_var."FETCH"();
+   
+    my $void;
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+    $void = $out."print"($it);
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    $void = $interpreter."goto"($back);
+}));
+
+$void = $array."for"($code1);
