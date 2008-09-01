@@ -4,7 +4,7 @@ use Test;
 
 plan(13);
 
-unless try({ eval("1", :lang<perl5>) }) {
+unless (try { eval("1", :lang<perl5>) }) {
     skip_rest;
     exit;
 }

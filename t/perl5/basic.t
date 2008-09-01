@@ -2,7 +2,7 @@ use v6;
 use Test;
 plan 19;
 
-unless try({ eval("1", :lang<perl5>) }) {
+unless (try { eval("1", :lang<perl5>) }) {
     skip_rest;
     exit;
 }

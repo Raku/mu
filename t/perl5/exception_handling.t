@@ -5,7 +5,7 @@ use Test;
 
 BEGIN {
 plan 3;
-unless try({ eval("1", :lang<perl5>) }) {
+unless (try { eval("1", :lang<perl5>) }) {
     skip_rest('no perl 5 support'); exit;
 }
 }
@@ -13,7 +13,7 @@ unless try({ eval("1", :lang<perl5>) }) {
 use perl5:Carp;
 
 my $err;
-lives_ok({ try{ Carp.croak() }; $err = $! }, "Perl 5 exception (die) caught");
+lives_ok({ try { Carp.croak() }; $err = $! }, "Perl 5 exception (die) caught");
 like($err, rx:P5/Carp/, "Exception is propagated to Perl 6 land");
 
 eval(q[

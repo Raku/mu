@@ -20,7 +20,7 @@ if $*OS eq any <MSWin32 mingw msys cygwin browser> {
     skip_rest "tests need to be ported to work on $*OS";
     exit;
 };
-unless try({ eval("1", :lang<perl5>) }) {
+unless (try { eval("1", :lang<perl5>) }) {
     skip_rest "tests require Perl 5 support";
     exit;
 }
@@ -58,7 +58,7 @@ sub precompile (Str $pmfile, Str $destdir) {
     my $out = catpath('', $destdir, (splitpath($pmfile))[2] ~ ".yml");
     @files_created.push($out);
     # XXX - does this work under win32?
-    system($*EXECUTABLE_NAME ~ " -CParse-YAML $pmfile > $out");
+    run($*EXECUTABLE_NAME ~ " -CParse-YAML $pmfile > $out");
 }
 
 sub generate_class (Str $classname, $value) {
@@ -82,7 +82,7 @@ sub write_class ($destdir, Str $classname, Num $value, Bool :$precompile = 0) {
 sub make_old (Str $filename) {
     $filename ~~ :e orelse fail;
     # XXX - not portable, please fix for win32
-    system(«touch -t 200001010000 $filename»);
+    run(«touch -t 200001010000 $filename»);
 }
 
 # XXX - Wrapping in try so we can cleanup; this can go once File::Temp

@@ -68,7 +68,7 @@ for @tests -> $code_to_run, $condition {
   my $command = "$*EXECUTABLE_NAME $tmpfile-src $redir $tmpfile-out";
   diag "Code to be run:\n  $code_to_run";
   diag "Pugs will be started using:\n  $command";
-  system $command;
+  run $command;
 
   my $got     = slurp "$tmpfile-out";
   unlink map { "$tmpfile-$_" }, <src out opened>;

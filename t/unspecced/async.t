@@ -7,7 +7,7 @@ use Test;
 = DESCRIPTION
 
 This test tests the interaction of C<async {}> and
-C<system>. Ideally, while a C<system> call is in progress,
+C<run>. Ideally, while a C<run> call is in progress,
 C<async> blocks are still being executed.
 
 =end kwid
@@ -31,7 +31,7 @@ sub spawn_counter () {
 
 my $redir = ">";
 
-ok(0, "async+system known to be erratic _everywhere_, disable for now", :todo<bug>);
+ok(0, "async+run known to be erratic _everywhere_, disable for now", :todo<bug>);
 exit;
 
 if $?OS eq any <MSWin32 mingw msys cygwin> {
@@ -41,7 +41,7 @@ if $?OS eq any <MSWin32 mingw msys cygwin> {
 
 diag "Spawning counter";
 spawn_counter();
-system( qq!$*EXECUTABLE_NAME -e "sleep(5)"!); 
+run( qq!$*EXECUTABLE_NAME -e "sleep(5)"!); 
 
 if (!ok(@events == $event_count, "Our async counter finished while we were running a subprocess")) {
   diag "Got      " ~ +@events ~ " element(s).";
