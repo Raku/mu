@@ -94,7 +94,7 @@ plan 10;
     $sum = 0;
     my $j = 1;
     my $i;
-    while do{$i = $j; $j++ <= 10} {
+    while do {$i = $j; $j++ <= 10} {
     $sum += $i;
     $i -= 1;
     last if !$stopping--;
