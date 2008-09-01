@@ -2,7 +2,8 @@ use v6;
 
 use Test;
 
-=begin kwid
+=begin description
+
 L<S04/"Loop statements"/last>
 last
 last if <condition>;
@@ -11,7 +12,7 @@ last <label>;
 last in nested loops
 last <label> in nested loops
 
-=end kwid
+=end description
 
 plan 8;
 
@@ -89,3 +90,5 @@ plan 8;
         :todo(1)
     );
 }
+
+# vim: ft=perl6
