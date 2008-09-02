@@ -8,7 +8,7 @@ plan 22;
 
 # XXX tests for fff
 
-sub take (Int $n, Code &f) { (1..$n).map:{ try { f() } } }
+sub take (Int $n, Code &f) { (1..$n).map: { try { f() } } }
 sub always_false { 0 }
 sub always_true  { 1 }
 
