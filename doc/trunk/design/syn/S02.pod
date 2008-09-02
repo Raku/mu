@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 8 Aug 2008
+  Last Modified: 1 Sep 2008
   Number: 2
-  Version: 136
+  Version: 137
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -885,6 +885,7 @@ C<$x.WHICH> eqv C<$y.WHICH>).
     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
     Str         Perl string (finite sequence of Unicode characters)
     Num         Perl number
+    Rat         Perl rational
     Complex     Perl complex number
     Bool        Perl boolean
     Exception   Perl exception
