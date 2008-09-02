@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 16 July 2008
+  Last Modified: 1 Sep 2008
   Number: 4
-  Version: 68
+  Version: 69
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -645,9 +645,10 @@ including C<try>, C<contend>, C<async>, and C<lazy>.  These constructs
 establish a dynamic scope without necessarily establishing a lexical
 scope.  (You can always establish a lexical scope explicitly by using
 the block form of argument.)  As statement introducers, all these
-keywords must be followed by whitespace.  You can say something
-like C<try({...})>, but then you are calling it using function call
-syntax instead, in which case the C<Code> argument must be a block.
+keywords must be followed by whitespace.  (You can say something
+like C<try({...})>, but then you are calling the C<try()> function
+using function call syntax instead, and since Perl does not supply
+such a function, it will be assumed to be a user-defined function.)
 For purposes of flow control, none of these forms are considered loops,
 but they may easily be applied to a normal loop.
 
