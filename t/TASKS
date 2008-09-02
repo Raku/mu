@@ -67,6 +67,8 @@ IO
 SINGLE TESTS
 * spec/S06-advanced_subroutine_features/wrapping.t should be changed to
   consitently use lives_ok
+* blocks/wrap.t should be merged into 
+  spec/S06-advanced_subroutine_features/wrapping.t
 
 Junction tests
  Quite some tests in t/junction relay on $junction.values to return the values
