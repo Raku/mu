@@ -60,6 +60,7 @@ SMOP__Object* SMOP__ID__positional;
 SMOP__Object* SMOP__ID__postcircumfix_curly;
 SMOP__Object* SMOP__ID__postcircumfix_parens;
 SMOP__Object* SMOP__ID__postcircumfix_square;
+SMOP__Object* SMOP__ID__postfix_plusplus;
 SMOP__Object* SMOP__ID__private_name;
 SMOP__Object* SMOP__ID__push;
 SMOP__Object* SMOP__ID__register;

@@ -43,6 +43,25 @@ static SMOP__Object* int_message(SMOP__Object* interpreter,
 
   } else if (identifier == SMOP__ID__DESTROYALL) {
     // notthing
+  } else if (identifier == SMOP__ID__new) {
+
+    SMOP__Object* other = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    if (other && SMOP_RI(other) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
+      return other;
+    } else {
+      if (other) SMOP_RELEASE(interpreter, other);
+      return SMOP__NATIVE__int_create(0);
+    }
+
+  } else if (identifier == SMOP__ID__postfix_plusplus) {
+
+    ___NATIVE_CAPTURE_ONLY___;
+    ___INVOCANT_RI_SHOULD_MATCH___;
+    
+    smop_lowlevel_wrlock(invocant);
+    ((smop_native_int_struct*)invocant)->intvalue++;
+    smop_lowlevel_unlock(invocant);
+    
   } else {
     ___UNKNOWN_METHOD___;
   }

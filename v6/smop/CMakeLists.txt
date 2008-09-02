@@ -141,6 +141,7 @@ foreach (test_file
     test/28_pure_prototype_how.sm0p
     test/29_bind_capture_signature.p6
     test/30_for_operator.m0ld
+    test/31_int_postfix_plusplus.m0ld
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")

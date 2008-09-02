@@ -72,6 +72,7 @@ extern SMOP__Object* SMOP__ID__positional;        /* "positional" */
 extern SMOP__Object* SMOP__ID__postcircumfix_curly;          /* "postcircumfix:{ }" */
 extern SMOP__Object* SMOP__ID__postcircumfix_parens;          /* "postcircumfix:( )" */
 extern SMOP__Object* SMOP__ID__postcircumfix_square;          /* "postcircumfix:[ ]" */
+extern SMOP__Object* SMOP__ID__postfix_plusplus;              /* "postfix:++" */
 extern SMOP__Object* SMOP__ID__private_name;      /* "private_name" */
 extern SMOP__Object* SMOP__ID__push;              /* "push" */
 extern SMOP__Object* SMOP__ID__register;          /* "register" */

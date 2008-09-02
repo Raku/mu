@@ -1,0 +1,21 @@
+my $void;
+my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $out = $out_scalar."FETCH"();
+
+$void = $out."print"("1..3\n");
+
+my $ab = ¢SMOP__NATIVE__int."new"(0);
+$void = $ab."postfix:++"();
+$void = $out."print"("ok ");
+$void = $out."print"($ab);
+$void = $out."print"("\n");
+
+$void = $ab."postfix:++"();
+$void = $out."print"("ok ");
+$void = $out."print"($ab);
+$void = $out."print"("\n");
+
+$void = $ab."postfix:++"();
+$void = $out."print"("ok ");
+$void = $out."print"($ab);
+$void = $out."print"("\n");
