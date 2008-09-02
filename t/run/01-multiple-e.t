@@ -40,7 +40,7 @@ my $out_fn = "temp-ex-output" ~ nonce;
 for @examples -> $ex {
   my $command = "$*EXECUTABLE_NAME $ex $redir $out_fn";
   diag $command;
-  system $command;
+  run $command;
 
   my $expected = "Hello\nPugs";
   my $got      = slurp $out_fn;
@@ -50,7 +50,7 @@ for @examples -> $ex {
 
 my $command = qq[$*EXECUTABLE_NAME -e @ARGS.perl.say -e "" Hello Pugs $redir $out_fn];
 diag $command;
-system $command;
+run $command;
 
 my @expected = <Hello Pugs>;
 my $got      = slurp $out_fn;

@@ -34,7 +34,7 @@ for @examples -> $ex {
   my $out_fn = "temp-ex-output" ~ nonce;
   my $command = "$*EXECUTABLE_NAME $ex $redir $out_fn";
   diag $command;
-  system $command;
+  run $command;
 
   my $got      = slurp $out_fn;
   unlink $out_fn;

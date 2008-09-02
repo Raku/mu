@@ -30,7 +30,7 @@ my $tempfile = "temp-ex-output" ~ nonce;
 for @examples -> $ex {
   my $command = qq[$echo $ex | $*EXECUTABLE_NAME - "Hello Pugs" $redir $tempfile];
   diag $command;
-  system $command;
+  run $command;
 
   my $expected = "Hello Pugs\n";
   my $got      = slurp $tempfile;

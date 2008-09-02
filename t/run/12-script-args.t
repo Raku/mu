@@ -16,7 +16,7 @@ sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
 sub run_test ($args) {
     my $out_fn = "temp-ex-output" ~ nonce;
     my $command = "$*EXECUTABLE_NAME $args $redir $out_fn";
-    system $command;
+    run $command;
 
     my $expected = "Unrecognized switch: -foo  (-h will show valid options).\n";
     my $got      = chomp( slurp $out_fn );

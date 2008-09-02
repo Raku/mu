@@ -54,7 +54,7 @@ sub run_pugs ($c) {
   my $tempfile = "temp-ex-output" ~ nonce;
   my $command = "$*EXECUTABLE_NAME $c $redir $tempfile";
   diag $command;
-  system $command;
+  run $command;
   my $res = slurp $tempfile;
   unlink $tempfile;
   return $res;

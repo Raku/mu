@@ -49,7 +49,7 @@ $h.close();
 for @examples -> $ex {
   my $command = "$*EXECUTABLE_NAME $ex $redir_in $in_fn $redir_out $out_fn";
   diag $command;
-  system $command;
+  run $command;
 
   my $expected = $str;
   my $got      = slurp $out_fn;

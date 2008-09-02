@@ -37,7 +37,7 @@ for @examples -> $ex {
   my $out_fn = "temp-ex-output" ~ nonce;
   my $command = "$*EXECUTABLE $ex $redir $out_fn";
   diag $command;
-  system $command;
+  run $command;
 
   my $expected = "Unrecognized switch: -foo  (-h will show valid options).\n";
   my $got      = slurp $out_fn;

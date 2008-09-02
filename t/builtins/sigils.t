@@ -96,9 +96,9 @@ proto pro {}
 ok &pro.does(Callable), 'a proto does Callable';
 
 # &token, &rule return a Method?
-token bar {}
+token bar {<?>}
 ok &bar.does(Callable), 'a token does Callable', :todo<feature>;
-rule baz {}
+rule baz {<?>}
 ok &baz.does(Callable), 'a rule does Callable', :todo<feature>;
 # &quux returns a Sub ?
 macro quux {}
