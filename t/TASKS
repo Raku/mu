@@ -15,9 +15,13 @@ OVERALL
 * Add smartlinks to tests without them
 * Continue moving tests from t/ to t/spec/
 * Clean up old POD (only present in some testing modules)
-* Fudge tests for Rakudo where helpful
+* Fudge tests for Rakudo where helpful (ie only there where the tested
+  features are already implemented)
 * Improve the Vim syntax highlighting to recognize test keywords
 * Review XXX entries for test corrections
+* rewrite tests with multiple lexical subs of the same name ("my sub foo") to
+  use different names and no "my" (except where testing lexical subs, for
+  course)
 
 S03
 * tests for cmp() and eqv() methods of objects
