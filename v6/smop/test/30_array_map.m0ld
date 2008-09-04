@@ -43,7 +43,9 @@ my $code1 = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
 
 my $iterator = $array."Iterator"();
 
-my $otheriterator = ¢SMOP__S1P__map."map"($code1, $iterator);
+my $iteritem = $iterator."FETCH"();
+
+my $otheriterator = ¢SMOP__S1P__map."map"($code1, $iteritem);
 
 $void = $out."print"("ok 1 - map is lazy\n");
 

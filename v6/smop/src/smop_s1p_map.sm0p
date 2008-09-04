@@ -29,7 +29,7 @@ void smop_s1p_map_init() {
   ((SMOP__ResponderInterface*)SMOP__S1P__map)->MESSAGE = smop_s1p_map_message;
   ((SMOP__ResponderInterface*)SMOP__S1P__map)->REFERENCE = smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__S1P__map)->RELEASE = smop_lowlevel_generic_release;
-  ((SMOP__ResponderInterface*)SMOP__S1P__map)->id = "S1P Map";
+  ((SMOP__ResponderInterface*)SMOP__S1P__map)->id = "S1P Map Iterator";
 }
 
 void smop_s1p_map_mold_init() {
