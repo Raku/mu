@@ -37,13 +37,16 @@ my $code1 = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
 
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
+    $back.setr($void);
     $void = $interpreter."goto"($back);
 }));
 
-my $mapret = $array."map"($code1);
+my $iterator = $array."Iterator"();
+
+my $otheriterator = ¢SMOP__S1P__map."map"($code1, $iterator);
 
 $void = $out."print"("ok 1 - map is lazy\n");
 
-$void = $mapret."Void"();
+$void = $otheriterator."Void"();
 
 $void = $out."print"("ok 6 - map in void context is evaluated eagerly\n");
