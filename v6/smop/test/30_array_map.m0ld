@@ -37,7 +37,7 @@ my $code1 = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
 
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
-    $back.setr($void);
+    $void = $back."setr"($void);
     $void = $interpreter."goto"($back);
 }));
 

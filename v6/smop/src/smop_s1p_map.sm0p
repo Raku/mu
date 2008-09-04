@@ -1,0 +1,80 @@
+#include <stdlib.h>
+#include <smop.h>
+#include <math.h>
+#include <smop_lowlevel.h>
+#include <smop_s1p.h>
+#include <stdio.h>
+
+SMOP__Object* SMOP__S1P__map;
+
+typedef struct smop_s1p_map_iterator_struct {
+  SMOP__Object__BASE
+  SMOP__Object* input_iterator;
+  SMOP__Object* code;
+} smop_s1p_array_struct;
+
+static SMOP__Object* map_iterator_consume_mold;
+
+static SMOP__Object* smop_s1p_map_message(SMOP__Object* interpreter,
+                                          SMOP__ResponderInterface* self,
+                                          SMOP__Object* identifier,
+                                          SMOP__Object* capture) {
+  ___UNKNOWN_METHOD___;
+}
+
+
+void smop_s1p_map_init() {
+  SMOP__S1P__map = calloc(1, sizeof(SMOP__ResponderInterface));
+  assert(SMOP__S1P__map);
+  ((SMOP__ResponderInterface*)SMOP__S1P__map)->MESSAGE = smop_s1p_map_message;
+  ((SMOP__ResponderInterface*)SMOP__S1P__map)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)SMOP__S1P__map)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__S1P__map)->id = "S1P Map";
+}
+
+void smop_s1p_map_mold_init() {
+
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  map_iterator_consume_mold = q:m0ld {
+    my $capture;
+    my $back;
+    my $interpreter;
+
+    my $scalar = ¢SMOP__S1P__Scalar;
+
+    my $actualcapture = $capture."positional"(0);
+    my $lexicalscope = $capture."positional"(1);
+    my $outerscopecontainer = $lexicalscope."outer"();
+    my $outerscope = $outerscopecontainer."FETCH"();
+
+    my $count = $actualcapture."elems"();
+    my $outerbind = $count."infix:>"(0);
+
+    my $void;
+    my $val;
+
+    my $container = $lexicalscope."postcircumfix:{ }"("$_");
+
+    if $outerbind { goto then } else { goto else };
+    then:
+      my $pos = $actualcapture."positional"(0);
+      $val = $scalar."new"($pos);
+      goto exit;
+    else:
+      my $item = $outerscope."postcircumfix:{ }"("$_");
+      $val = $item."FETCH"();
+    exit:
+      $void = $container."STORE"($val);
+      $void = $interpreter."goto"($back);
+  };
+
+}
+
+void smop_s1p_map_mold_destr() {
+  SMOP_RELEASE(SMOP__GlobalInterpreter, map_iterator_consume_mold);
+  map_iterator_consume_mold = NULL;
+}
+
+void smop_s1p_map_destr() {
+  free(SMOP__S1P__map);
+}

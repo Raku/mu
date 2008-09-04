@@ -69,6 +69,7 @@ foreach (sm0p_file
     src/p6opaque.sm0p
     src/smop_s1p_attribute.sm0p
     src/smop_s1p_code.sm0p
+    src/smop_s1p_map.sm0p
 )
 compile_sm0p (${sm0p_file})
 endforeach()
@@ -92,6 +93,7 @@ add_library (smop
     src/smop_s1p_capturize.c
     src/smop_s1p_ccode.c
     src/smop_s1p_code.c
+    src/smop_s1p_map.c
     src/smop_s1p_pureprototypehow.c
     src/smop_s1p_bindcapturesignature.c
     src/smop_s1p_defaultblocksignature.c
