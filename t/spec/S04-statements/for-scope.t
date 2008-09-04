@@ -6,7 +6,7 @@ plan 12;
 
 # Implicit $_
 for 1, 2 {
-    my $inside;
+    my $inside = '';
     for 1 .. 3 { $inside ~= $_; }
     is($inside, "123", "lexical scalar properly initialized, round $_");
 }
@@ -19,7 +19,7 @@ for 1, 2 {
 
 # Explicit $_
 for 1, 2 {
-    my $inside;
+    my $inside = '';
     for 1 .. 3 -> $_ { $inside ~= $_; }
     is($inside, "123", "lexical scalar properly initialized, round $_, explicit \$_");
 }
@@ -32,7 +32,7 @@ for 1, 2 {
 
 # Explicit $_
 for 1, 2 -> $_ {
-    my $inside;
+    my $inside = '';
     for 1 .. 3 -> $_ { $inside ~= $_; }
     is($inside, "123", "lexical scalar properly initialized, round $_, two explicit \$_s");
 }
