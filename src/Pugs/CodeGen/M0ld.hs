@@ -7,6 +7,13 @@ import Pugs.PIL1.Instances ()
 import Pugs.PIL1
 import Control.Monad.State
 
+uniqueId =
+    do
+        modify (+1)
+        id <- get
+        return $ "$id"++(show id)
+void = "$void"
+
 class EmitM0ld a where
     emit :: a -> [Char] -> State Int [Char]
 
@@ -15,34 +22,34 @@ instance EmitM0ld PIL_Environment where
 instance EmitM0ld PIL_Stmts where
     emit PNil r = return "nil"
     emit PPad {} r = return "pad"
-    emit PStmts{pStmt=stmt,pStmts=PNil} r = (emit stmt "void")
+    emit PStmts{pStmt=stmt,pStmts=PNil} r = (emit stmt void)
     emit PStmts{pStmt=stmt,pStmts=rest} r = do 
-        stmt <- emit stmt "void"
-        rest <- emit rest "void"
+        stmt <- emit stmt void
+        rest <- emit rest void
         return $ stmt ++ rest
 
 instance EmitM0ld PIL_Stmt where
-    emit PPos {pNode=stmt} = emit stmt
-    emit PNoop = \_-> return ";\n"
-    emit PStmt {pExpr=expr} = emit expr
+    emit PPos {pNode=stmt} r = emit stmt r
+    emit PNoop r = return "; #noop\n"
+    emit PStmt {pExpr=expr} r = emit expr r
 
 instance EmitM0ld PIL_Expr where
     emit PExp {pLV=lv} r = emit lv r
     emit PCode {pBody=body} r =
      do
-        body <- emit body "void"
-        let ret = "?"
-        return ("my $" ++ r ++ " = $Code.\"new\"(mold {\n"
+        ret <- uniqueId
+        body <- emit body ret
+        return ("my " ++ r ++ " = $Code.\"new\"(mold {\n"
          ++ body
-         ++ "$interpreter.\"return\"($" ++ ret ++ ");\n"
+         ++ void ++ " = $interpreter.\"return\"(" ++ ret ++ ");\n"
          ++ "});\n")
 
 instance EmitM0ld PIL_LValue where
     emit PApp {pFun=fun,pArgs=args,pInv=Nothing} r =
      do
-        let fun_r = "?"
-        fun <- emit fun fun_r
-        return (fun ++ "my $" ++ r ++ " = $" ++ fun_r ++ ".\"postcircumfix:( )\"(" ++ (show args) ++ ");\n")
+        fun_r <- uniqueId
+        fun_code <- emit fun fun_r
+        return (fun_code ++ "my " ++ r ++ " = " ++ fun_r ++ ".\"postcircumfix:( )\"(" ++ (show args) ++ ");\n")
     emit PApp {pFun=fun,pArgs=args,pInv=Just inv} r =
      do
         inv <- emit inv r
@@ -50,7 +57,7 @@ instance EmitM0ld PIL_LValue where
         return (inv ++ ".(" ++ fun ++ ")(" ++ (show args) ++ ")")
     emit PVar {pVarName=name} r =
      do
-        return $ "my $" ++ r ++ " = $scope.\"postcircumfix:{ }\"(\"" ++ name ++ "\");\n"
+        return $ "my " ++ r ++ " = $scope.\"postcircumfix:{ }\"(\"" ++ name ++ "\");\n"
     emit x r = return $ show x
 
 genM0ld :: FilePath -> Eval Val
