@@ -1,17 +1,17 @@
 # this is a sample compilation of a Perl 6 class. The example code is in src-s1p/P6Meta.pm
 
+my $interpreter;
+my $scope;
+
+# we get a get a lexical scope that should be used as the
+# outer scope of each method, and the interpreter object
 
 # first it needs to create the p6opaque, register in the namespace and
 # set the how to SMOP__S1P__PurePrototypeHow
 
-# we also create a common lexical scope, that should be used as the
-# outer scope of each method
 
 # then it needs to create the mold for the code. it should include the
 # use of the capture present in $_, as we're going to create every
 # method with the bindcapture signature and then going to implement
 # the lexical scope population in the beggining of the block.
-
-
-
 

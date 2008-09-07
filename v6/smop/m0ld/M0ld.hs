@@ -18,7 +18,6 @@ data Argument = Pos Register | Named Register Register
 data Mold = Mold [Stmt]
     deriving Show
 
-type Parser = GenParser Char
 
 identifier = do
     first <- choice [alphaNum, char '_']
