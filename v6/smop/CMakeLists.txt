@@ -70,6 +70,7 @@ foreach (sm0p_file
     src/smop_s1p_attribute.sm0p
     src/smop_s1p_code.sm0p
     src/smop_s1p_map.sm0p
+    src/smop_s1p_array_iterator.sm0p
 )
 compile_sm0p (${sm0p_file})
 endforeach()
@@ -89,6 +90,7 @@ add_library (smop
     src/smop_lowlevel.c
     src/smop_mold.c
     src/smop_s1p_array.c
+    src/smop_s1p_array_iterator.c
     src/smop_s1p_attribute.c
     src/smop_s1p_capturize.c
     src/smop_s1p_ccode.c

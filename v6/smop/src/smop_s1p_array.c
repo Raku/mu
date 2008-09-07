@@ -66,6 +66,10 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
     proxy->index = i;
     proxy->array = (smop_s1p_array_struct*) SMOP_REFERENCE(interpreter,invocant);
     ret = (SMOP__Object*) proxy;
+
+  } else if (identifier == SMOP__ID__Iterator) {
+    ret = SMOP__S1P__Array_Iterator_create(SMOP_REFERENCE(interpreter,(SMOP__Object*)invocant));
+
   } else if (identifier == SMOP__ID__elems) {
     ret = SMOP__NATIVE__int_create(invocant->elems);
   } else if (identifier == SMOP__ID__DESTROYALL) {
@@ -99,6 +103,8 @@ static SMOP__Object* smop_s1p_array_proxy_message(SMOP__Object* interpreter,
     if (invocant->array->elems <= invocant->index) invocant->array->elems = invocant->index+1;
   } else if (identifier == SMOP__ID__DESTROYALL) {
     SMOP_RELEASE(interpreter,invocant->array);
+  } else if (identifier == SMOP__ID__bool) {
+    ret = SMOP__NATIVE__bool_true;
   } else {
       ___UNKNOWN_METHOD___
   }

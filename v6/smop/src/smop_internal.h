@@ -60,8 +60,10 @@
      smop_s1p_defaultblocksignature_init(); \
      smop_s1p_bindcapturesignature_init();  \
      smop_s1p_pureprototypehow_init();      \
-     smop_s1p_map_init();
+     smop_s1p_map_init();                   \
+     smop_s1p_array_iterator_init();        
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
+     smop_s1p_array_iterator_destr();       \
      smop_s1p_map_destr();                  \
      smop_s1p_pureprototypehow_destr();     \
      smop_s1p_bindcapturesignature_destr(); \
@@ -89,8 +91,10 @@
      smop_s1p_code_mold_init();             \
      smop_s1p_pureprototypehow_mold_init(); \
      smop_s1p_map_mold_init();              \
+     smop_s1p_array_iterator_mold_init();   \
 
 #define SMOP_BOOTSTRAP_DESTR_SEQUENCE       \
+     smop_s1p_array_iterator_mold_destr();  \
      smop_s1p_map_mold_destr();             \
      smop_s1p_pureprototypehow_mold_destr();\
      smop_s1p_code_mold_destr();            \

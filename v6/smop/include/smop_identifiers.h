@@ -25,6 +25,7 @@ extern SMOP__Object* SMOP__ID__container_type;    /* "container_type" */
 extern SMOP__Object* SMOP__ID__continuation;      /* "continuation" */
 extern SMOP__Object* SMOP__ID__continues;         /* "continues" */
 extern SMOP__Object* SMOP__ID__copy;              /* "copy" */
+extern SMOP__Object* SMOP__ID__count;             /* "count" */
 extern SMOP__Object* SMOP__ID__create_container;  /* "create_container" */
 extern SMOP__Object* SMOP__ID__CREATE;            /* "CREATE" */
 extern SMOP__Object* SMOP__ID__current;           /* "current" */
@@ -35,7 +36,7 @@ extern SMOP__Object* SMOP__ID__DESTROY;           /* "DESTROY" */
 extern SMOP__Object* SMOP__ID__dispatch;          /* "dispatch" */
 extern SMOP__Object* SMOP__ID__does;              /* "does" */
 extern SMOP__Object* SMOP__ID__drop;              /* "drop" */
-extern SMOP__Object* SMOP__ID__elems;          /* "elems" */
+extern SMOP__Object* SMOP__ID__elems;             /* "elems" */
 extern SMOP__Object* SMOP__ID__eval;              /* "eval" */
 extern SMOP__Object* SMOP__ID__exists;            /* "exists" */
 extern SMOP__Object* SMOP__ID__FETCH;             /* "FETCH" */
@@ -50,10 +51,12 @@ extern SMOP__Object* SMOP__ID__HOW_has;           /* "^has" */
 extern SMOP__Object* SMOP__ID__HOW_isa;           /* "^isa" */
 extern SMOP__Object* SMOP__ID__HOW_methods;       /* "^methods" */
 extern SMOP__Object* SMOP__ID__identifier;        /* "identifier" */
-extern SMOP__Object* SMOP__ID__infix_eq;                    /* "infix:eq" */ 
-extern SMOP__Object* SMOP__ID__infix_num_gt;                /* "infix:>" */ 
+extern SMOP__Object* SMOP__ID__infix_eq;          /* "infix:eq" */ 
+extern SMOP__Object* SMOP__ID__infix_num_gt;      /* "infix:>" */ 
+extern SMOP__Object* SMOP__ID__input_array;       /* "input_array" */ 
 extern SMOP__Object* SMOP__ID__invocant;          /* "invocant" */
 extern SMOP__Object* SMOP__ID__isa;               /* "isa" */
+extern SMOP__Object* SMOP__ID__Iterator;          /* "Iterator" */
 extern SMOP__Object* SMOP__ID__jail;              /* "jail" */
 extern SMOP__Object* SMOP__ID__lexical;           /* "lexical" */
 extern SMOP__Object* SMOP__ID__loop;              /* "loop" */
@@ -73,6 +76,7 @@ extern SMOP__Object* SMOP__ID__postcircumfix_curly;          /* "postcircumfix:{
 extern SMOP__Object* SMOP__ID__postcircumfix_parens;          /* "postcircumfix:( )" */
 extern SMOP__Object* SMOP__ID__postcircumfix_square;          /* "postcircumfix:[ ]" */
 extern SMOP__Object* SMOP__ID__postfix_plusplus;              /* "postfix:++" */
+extern SMOP__Object* SMOP__ID__prefix_equal;      /* "prefix:=" */
 extern SMOP__Object* SMOP__ID__private_name;      /* "private_name" */
 extern SMOP__Object* SMOP__ID__push;              /* "push" */
 extern SMOP__Object* SMOP__ID__register;          /* "register" */

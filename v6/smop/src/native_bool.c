@@ -14,8 +14,16 @@ static SMOP__Object* bool_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
-  ___UNKNOWN_METHOD___;
 
+  if (identifier == SMOP__ID__bool) {
+    ___NATIVE_CAPTURE_ONLY___;
+    ___INVOCANT_RI_SHOULD_MATCH___;
+
+    SMOP_RELEASE(interpreter,capture);
+    return invocant;
+  } else {
+    ___UNKNOWN_METHOD___;
+  }
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }
