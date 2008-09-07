@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 21 Jun 2008
+  Last Modified: 6 Jun 2008
   Number: 3
-  Version: 137
+  Version: 138
 
 =head1 Overview
 
@@ -38,7 +38,7 @@ each level:
     L  Additive          + - +| +^ ~| ~^ ?| ?^
     L  Replication       x xx
     X  Concatenation     ~
-    X  Junctive and      &
+    X  Junctive and      & where
     X  Junctive or       | ^
     L  Named unary       sleep abs sin
     N  Nonchaining infix but does <=> leg cmp .. ..^ ^.. ^..^
@@ -946,6 +946,23 @@ C<< infix:<~> >>, string/buffer concatenation
 C<< infix:<&> >>, all() operator
 
     $a & $b & $c ...
+
+=item *
+
+C<< infix:<where> >>, sequential junctional and operator
+
+    EXPR where EXPR where EXPR ...
+
+Can be used to construct ANDed patterns with the same semantics as
+C<< infix:<&> >>, but with left-to-right evaluation guaranteed, for use
+in guarded patterns:
+
+    $target ~~ MyType where .mytest1 where .mytest2
+
+This is useful when later tests might throw exceptions if earlier
+tests don't pass.  This cannot be guaranteed by:
+
+    $target ~~ MyType & .mytest1 & .mytest2
 
 =back
 
