@@ -12,6 +12,7 @@ uniqueId = do
     id <- get
     return $ "$id"++(show id)
 void = "$void"
+placeholder other r = return $ "my "++ r ++ " = " ++ (show other) ++ "; #placeholder\n"
 
 class EmitM0ld a where
     emit :: a -> [Char] -> State Int [Char]
@@ -31,7 +32,7 @@ instance EmitM0ld PIL_Stmts where
 instance EmitM0ld PIL_Stmt where
     emit statement r = case statement of 
         PPos {pNode=stmt}  -> emit stmt r
-        PNoop              -> return "; #noop\n"
+        PNoop              -> return "#noop\n"
         PStmt {pExpr=expr} -> emit expr r
 
 instance EmitM0ld PIL_Expr where
@@ -44,22 +45,31 @@ instance EmitM0ld PIL_Expr where
                 ++ body
                 ++ void ++ " = $interpreter.\"return\"(" ++ ret ++ ");\n"
                 ++ "});\n")
+        PLit {pLit=lit} -> emit lit r
+        other -> placeholder other r
+
+instance EmitM0ld PIL_Literal where
+    emit PVal {pVal=val} r = emit val r
+
+instance EmitM0ld Val where
+    emit (VInt int) r = return $ "my " ++ r ++ " = " ++ (show int) ++ ";\n"
+    emit other r = placeholder other r
 
 instance EmitM0ld PIL_LValue where
     emit lvalue r = case lvalue of
         PApp {pFun=fun,pArgs=args,pInv=Nothing} -> do
             fun_r <- uniqueId
             fun_code <- emit fun fun_r
-            return (fun_code ++ "my " ++ r ++ " = " ++ fun_r ++ ".\"postcircumfix:( )\"(" ++ (show args) ++ ");\n")
-        PApp {pFun=fun,pArgs=args,pInv=Just inv} -> do
-            inv <- emit inv r
-            fun <- emit fun r
-            return (inv ++ ".(" ++ fun ++ ")(" ++ (show args) ++ ")")
+            args <- mapM (\arg -> do
+                id <- uniqueId
+                code <- emit arg id
+                return (code,id)) args
+            return (fun_code ++ (concat $ fmap fst args) ++ "my " ++ r ++ " = " ++ fun_r ++ ".\"postcircumfix:( )\"(" ++ (concat $ fmap snd args) ++ ");\n")
         PVar {pVarName=name} -> do
             return $ "my " ++ r ++ " = $scope.\"postcircumfix:{ }\"(\"" ++ name ++ "\");\n"
-        other -> return $ show other 
+        other -> return $ (show other) ++ ";\n"
 
 genM0ld :: FilePath -> Eval Val
 genM0ld filepath = do
     penv <- compile () :: Eval PIL_Environment
-    return $ VStr $ (evalState (emit penv void) 0) ++ "\n"
+    return $ VStr $ (evalState (emit penv void) 0)
