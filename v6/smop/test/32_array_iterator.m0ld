@@ -1,0 +1,30 @@
+my $array = ¢SMOP__S1P__Array."new"();
+my $element = $array."postcircumfix:[ ]"(0);
+my $void = $element."STORE"("ok 1\n");
+$element = $array."postcircumfix:[ ]"(1);
+$void = $element."STORE"("ok 2\n");
+$element = $array."postcircumfix:[ ]"(2);
+$void = $element."STORE"("ok 3\n");
+$element = $array."postcircumfix:[ ]"(3);
+$void = $element."STORE"("ok 4\n");
+
+my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $out = $out_scalar."FETCH"();
+$void = $out."print"("1..5\n");
+
+my $iterator = $array."Iterator"();
+my $iteritem = $iterator."FETCH"();
+
+while:
+my $result = $iteritem."prefix:="();
+my $bool = $result."bool"();
+
+if $bool { goto iteration } else { goto end };
+
+iteration:
+my $item = $result."FETCH"();
+$void = $out."print"($item);
+goto while;
+
+end:
+$void = $out."print"("ok 5\n");

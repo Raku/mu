@@ -144,6 +144,7 @@ foreach (test_file
     test/29_bind_capture_signature.p6
     test/30_array_map.m0ld
     test/31_int_postfix_plusplus.m0ld
+    test/32_array_iterator.m0ld
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")
