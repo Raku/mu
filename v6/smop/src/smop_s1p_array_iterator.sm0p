@@ -69,6 +69,11 @@ static SMOP__Object* lowlevel_array_iterator_message(SMOP__Object* interpreter,
 
     ret = SMOP_REFERENCE(interpreter,invocant);
 
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+
+    SMOP_RELEASE(interpreter, ((SMOP__S1P__Array_Iterator_struct*)invocant)->input_array);
+    SMOP_RELEASE(interpreter, ((SMOP__S1P__Array_Iterator_struct*)invocant)->count);
+
   } else {
 
     ___UNKNOWN_METHOD___;
