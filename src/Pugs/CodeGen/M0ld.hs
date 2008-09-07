@@ -17,8 +17,16 @@ placeholder other r = return $ "my "++ r ++ " = " ++ (show other) ++ "; #placeho
 class EmitM0ld a where
     emit :: a -> [Char] -> State Int [Char]
 
+lexicalPrelude = "my $interpreter;\n"
+            ++ "my $scope;\n" 
+            ++ "my $void;\n"
+            ++ "my $Code_scalar = $scope.\"postcircumfix:{ }\"(\"Code\");\n"
+            ++ "my $Code = $Code_scalar.\"FETCH\"();\n"
+
 instance EmitM0ld PIL_Environment where
-    emit env r = emit (pilMain env) r
+    emit env r = do
+        main <- emit (pilMain env) r
+        return $ lexicalPrelude ++ main
 instance EmitM0ld PIL_Stmts where
     emit statement r = case statement of
         PNil                           -> return "nil"
@@ -26,7 +34,7 @@ instance EmitM0ld PIL_Stmts where
         PStmts{pStmt=stmt,pStmts=PNil} -> emit stmt r
         PStmts{pStmt=stmt,pStmts=rest} -> do 
             stmt <- emit stmt void
-            rest <- emit rest void
+            rest <- emit rest r
             return $ stmt ++ rest
 
 instance EmitM0ld PIL_Stmt where
@@ -41,10 +49,11 @@ instance EmitM0ld PIL_Expr where
         PCode {pBody=body} -> do
             ret <- uniqueId
             body <- emit body ret
-            return ("my " ++ r ++ " = $Code.\"new\"(mold {\n"
+            return ("my " ++ r ++ " = $Code.\"new\"(:\"outer\"($scope),:\"mold\"(mold {\n"
+                ++ lexicalPrelude
                 ++ body
                 ++ void ++ " = $interpreter.\"return\"(" ++ ret ++ ");\n"
-                ++ "});\n")
+                ++ "}));\n")
         PLit {pLit=lit} -> emit lit r
         other -> placeholder other r
 
