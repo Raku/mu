@@ -81,10 +81,17 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
     SMOP__S1P__Code_struct* code = (SMOP__S1P__Code_struct*) invocant;
 
     smop_lowlevel_rdlock(invocant);
-    SMOP__Object* mold = code->mold;
+    SMOP__Object* mold = code->mold;    
+    code->mold = NULL;
+    SMOP__Object* signature = code->signature;
+    code->signature = NULL;
+    SMOP__Object* outer = code->outer;
+    code->outer = NULL;
     smop_lowlevel_unlock(invocant);
 
-    //SMOP_RELEASE(interpreter,mold);
+    if (mold) SMOP_RELEASE(interpreter,mold);
+    if (signature) SMOP_RELEASE(interpreter,signature);
+    if (outer) SMOP_RELEASE(interpreter,outer);
 
   } else {
     ___UNKNOWN_METHOD___;

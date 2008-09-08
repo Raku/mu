@@ -11,6 +11,23 @@ SMOP__Object* SMOP__Mold__Frame;
 static SMOP__Object* SMOP__ID__set_reg;
 static SMOP__Object* SMOP__ID__set_back;
 
+static SMOP__Object* mold_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
+  //printf("+ %p\n", obj);
+  if ((SMOP__Object*)responder != obj) {
+    smop_lowlevel_refcnt_inc(interpreter, responder, obj);
+  }
+  return obj;
+}
+
+static SMOP__Object* mold_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
+  //printf("- %p\n", obj);
+  if ((SMOP__Object*)responder != obj) {
+    smop_lowlevel_refcnt_dec(interpreter, responder, obj);
+  }
+  return obj;
+}
+
+
 typedef struct smop_mold {
   SMOP__Object__BASE
   int registers;
@@ -86,6 +103,8 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* m
       }
     }
 
+
+    //printf("Mold Frame! %p\n",ret);
     return (SMOP__Object*) ret;
 }
 
@@ -198,6 +217,10 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       abort();
     }
 
+    if (value == invocant) {
+      SMOP_RELEASE(interpreter, value);
+    }
+
     if (!frame->target) fprintf(stderr,"calling setr on a frame not expecting a return value\n");
     if (frame->registers[frame->target]) {
       SMOP_RELEASE(interpreter,frame->registers[frame->target]);
@@ -249,6 +272,9 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           printf("got NULL as a result of a call (reg = %d, pos=%d, identifier=\"%.*s\")\n",
                  frame->target, frame->position, identifier_size, s);
           abort();
+        } else if (ret == invocant) {
+          // this circularity is saved by releasing once...
+          SMOP_RELEASE(interpreter, ret);
         }
 
         if (frame->registers[target]) {
@@ -331,8 +357,8 @@ void smop_mold_init() {
 
   SMOP__Mold__Frame = calloc(1,sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__Mold__Frame)->MESSAGE = smop_mold_frame_message;
-  ((SMOP__ResponderInterface*)SMOP__Mold__Frame)->REFERENCE = smop_lowlevel_generic_reference;
-  ((SMOP__ResponderInterface*)SMOP__Mold__Frame)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__Mold__Frame)->REFERENCE = mold_reference;
+  ((SMOP__ResponderInterface*)SMOP__Mold__Frame)->RELEASE = mold_release;
   ((SMOP__ResponderInterface*)SMOP__Mold__Frame)->id = "mold frame";
 }
 
