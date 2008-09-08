@@ -67,8 +67,8 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
 
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
     mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,back));
-    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,code));
+    mold_reg_set(interpreter,frame,2,back);
+    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,invocant));
     mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,outer));
     mold_reg_set(interpreter,frame,5,SMOP_REFERENCE(interpreter,signature));
     mold_reg_set(interpreter,frame,6,SMOP_REFERENCE(interpreter,mold));
