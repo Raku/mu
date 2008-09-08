@@ -35,11 +35,11 @@ static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter
                                                                   smop_s1p_pureprototypehow_dispatch_mold));
 
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,actualresponder));
-    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,actualidentifier));
-    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,actualcapture));
-    mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,actualinvocant));
-    mold_back_set(interpreter,frame,SMOP_REFERENCE(interpreter,continuation));
+    mold_reg_set(interpreter,frame,1,actualresponder);
+    mold_reg_set(interpreter,frame,2,actualidentifier);
+    mold_reg_set(interpreter,frame,3,actualcapture);
+    mold_reg_set(interpreter,frame,4,actualinvocant);
+    mold_back_set(interpreter,frame,continuation);
 
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 

@@ -28,6 +28,7 @@ typedef struct smop_mold_frame {
   SMOP__Object** registers;
   int target;
 } smop_mold_frame;
+
 static void print_regs_content(smop_mold_frame* frame) {
     int i;
     smop_mold* mold = (smop_mold*) frame->mold;
@@ -53,12 +54,17 @@ SMOP__Object* mold_back_set(SMOP__Object* interpreter,SMOP__Object* moldframe, S
     frame->back = value;
 }
 
-SMOP__Object* mold_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum, SMOP__Object* value) {
+void mold_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum, SMOP__Object* value) {
     smop_mold_frame* frame = (smop_mold_frame*) moldframe;
     smop_mold* mold = (smop_mold*) frame->mold;
     int where = mold->constants_len+regnum;
+    SMOP__Object* old = frame->registers[where];
     frame->registers[where] = value;
+    if (old) {
+      SMOP_RELEASE(interpreter, old);
+    }
 }
+
 SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* mold_object) {
     if (mold_object->RI != (SMOP__ResponderInterface*)SMOP__Mold) {
       fprintf(stderr,"argument to SMOP__Mold__Frame_create is not Mold\n");
@@ -74,8 +80,10 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* m
     ret->target = 0;
 
     int i;
-    for (i = 0;mold->constants[i];i++) {
-      ret->registers[i] = SMOP_REFERENCE(interpreter,mold->constants[i]);
+    for (i = 0; i < mold->constants_len; i++) {
+      if (mold->constants[i]) {
+        ret->registers[i] = SMOP_REFERENCE(interpreter,mold->constants[i]);
+      }
     }
 
     return (SMOP__Object*) ret;
@@ -127,6 +135,7 @@ static SMOP__Object* smop_mold_message(SMOP__Object* interpreter,
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }
+
 static SMOP__Object* get_register(SMOP__Object* interpreter,smop_mold_frame* frame) {
   smop_mold* mold = (smop_mold*) frame->mold;
   if (!frame->registers[mold->opcodes[frame->position]]) {
@@ -137,6 +146,7 @@ static SMOP__Object* get_register(SMOP__Object* interpreter,smop_mold_frame* fra
   frame->position++;
   return ret;
 }
+
 static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
@@ -147,29 +157,25 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
   ___CONST_IDENTIFIER_ONLY___;
   ___INVOCANT_RI_SHOULD_MATCH___;
 
-
-
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   smop_mold_frame* frame = (smop_mold_frame*) invocant;
   smop_mold* mold = (smop_mold*) frame->mold;
+
   if (SMOP__ID__new == identifier) {
     SMOP__Object* mold = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     ret = SMOP__Mold__Frame_create(interpreter,mold);
-  } else if (SMOP__ID__set_reg == identifier) {
 
+  } else if (SMOP__ID__set_reg == identifier) {
     SMOP__Object* reg_pos = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     mold_reg_set(interpreter, invocant, SMOP__NATIVE__int_fetch(reg_pos), value);
 
   } else if (SMOP__ID__back == identifier) {
-
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     if (frame->back) {
       ret = SMOP_REFERENCE(interpreter,frame->back);
     }
 
   } else if (SMOP__ID__set_back == identifier) {
-
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     if (!frame->back) {
       frame->back = value;
@@ -182,20 +188,21 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     if (mold->opcodes[frame->position]) {
       ret = SMOP__NATIVE__bool_true;
     }
+
   } else if (SMOP__ID__next == identifier) {
 
   } else if (SMOP__ID__setr == identifier) {
-      SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
-      if (!value) {
-        printf("got null as a result of a call (reg = %d, pos = %d) via setr\n",frame->target, frame->position);
-        abort();
-      }
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (!value) {
+      printf("got null as a result of a call (reg = %d, pos = %d) via setr\n",frame->target, frame->position);
+      abort();
+    }
 
-      if (!frame->target) fprintf(stderr,"calling setr on a frame not expecting a return value\n");
-      if (frame->registers[frame->target]) {
-        SMOP_RELEASE(interpreter,frame->registers[frame->target]);
-      }
-      frame->registers[frame->target] = value;
+    if (!frame->target) fprintf(stderr,"calling setr on a frame not expecting a return value\n");
+    if (frame->registers[frame->target]) {
+      SMOP_RELEASE(interpreter,frame->registers[frame->target]);
+    }
+    frame->registers[frame->target] = value;
 
   } else if (SMOP__ID__eval == identifier) {
     int op = mold->opcodes[frame->position];
@@ -203,91 +210,92 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       frame->position++;
       ret = SMOP__NATIVE__bool_true;
       switch (op) {
-        case 1: ; /*call*/
+      case 1: { /*call*/
+        
+        int target = mold->opcodes[frame->position++];
+        
+        SMOP__Object* call_invocant = get_register(interpreter,frame);
 
-          int target = mold->opcodes[frame->position++];
+        SMOP__Object* call_identifier = get_register(interpreter,frame);
 
-          SMOP__Object* call_invocant = get_register(interpreter,frame);
+        int pos_n = mold->opcodes[frame->position++];
+        SMOP__Object** call_pos = (SMOP__Object**) malloc((pos_n+1) * sizeof(SMOP__Object*));
+        for (i=0;i<pos_n;i++) {
+          call_pos[i] = get_register(interpreter,frame);
+        }
+        call_pos[pos_n] = NULL;
 
-          SMOP__Object* call_identifier = get_register(interpreter,frame);
+        int named_n = mold->opcodes[frame->position++];
+        SMOP__Object** call_named = (SMOP__Object**) malloc((named_n+1) * sizeof(SMOP__Object*));
+        for (i=0;i<named_n;i++) {
+          call_named[i] = get_register(interpreter,frame);
+        }
+        call_named[named_n] = NULL;
+        SMOP__Object* capture = SMOP__NATIVE__capture_create(interpreter,call_invocant,call_pos,call_named);
+        free(call_named);
+        free(call_pos);
 
-          int pos_n = mold->opcodes[frame->position++];
-          SMOP__Object** call_pos = (SMOP__Object**) malloc((pos_n+1) * sizeof(SMOP__Object*));
-          for (i=0;i<pos_n;i++) {
-            call_pos[i] = get_register(interpreter,frame);
-          }
-
-          call_pos[pos_n] = NULL;
-
-          int named_n = mold->opcodes[frame->position++];
-          SMOP__Object** call_named = (SMOP__Object**) malloc((named_n+1) * sizeof(SMOP__Object*));
-          for (i=0;i<named_n;i++) {
-            call_named[i] = get_register(interpreter,frame);
-          }
-          call_named[named_n] = NULL;
-          SMOP__Object* capture = SMOP__NATIVE__capture_create(interpreter,call_invocant,call_pos,call_named);
-          free(call_named);
-          free(call_pos);
-          SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_invocant),call_identifier,capture);
-          if (frame->registers[target]) {
-            SMOP_RELEASE(interpreter,frame->registers[target]);
-          }
-          if (!ret) {
-            print_regs_content(frame);
-            int identifier_size;
-            char *s;
-            if (SMOP_RI(call_identifier) == SMOP_RI(SMOP__ID__new)) {
-              s = SMOP__NATIVE__idconst_fetch(call_identifier,&identifier_size);
-            } else {
-              s = "non-constant-identifier";
-              identifier_size = strlen(s);
-            }
-            printf("got NULL as a result of a call (reg = %d, pos=%d, identifier=\"%.*s\")\n",
-                   frame->target, frame->position, identifier_size, s);
-            abort();
-          }
-          frame->registers[target] = ret;
-          frame->target = target;
-          break;
-        case 2: /*call2*/
-          {
-          int target = mold->opcodes[frame->position++];
-          SMOP__Object* call_responder  = get_register(interpreter,frame);
-          SMOP__Object* call_identifier = get_register(interpreter,frame);
-          SMOP__Object* call_capture = get_register(interpreter,frame);
-
-          SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_responder),call_identifier,call_capture);
-          SMOP_RELEASE(interpreter,call_responder);
-          if (frame->registers[target]) {
-            SMOP_RELEASE(interpreter,frame->registers[target]);
-          }
-          frame->registers[target] = ret;
-          frame->target = target;
-          break;
-          }
-        case 3: /*goto*/
-          ;
-          int where = mold->opcodes[frame->position];
-          frame->position = where;
-          break;
-        case 4: /*br*/
-          ;
-          SMOP__Object* condition = get_register(interpreter,frame);
-          int iftrue = mold->opcodes[frame->position++];
-          int iffalse = mold->opcodes[frame->position++];
-          if (SMOP__NATIVE__bool_true == condition ) {
-            frame->position = iftrue;
-          } else if (SMOP__NATIVE__bool_false == condition) {
-            frame->position = iffalse;
+        SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_invocant),call_identifier,capture);
+        if (!ret) {
+          print_regs_content(frame);
+          int identifier_size;
+          char *s;
+          if (SMOP_RI(call_identifier) == SMOP_RI(SMOP__ID__new)) {
+            s = SMOP__NATIVE__idconst_fetch(call_identifier,&identifier_size);
           } else {
-            fprintf(stderr,"the condition argument to the br op must be a native bool\n");
-            abort();
+            s = "non-constant-identifier";
+            identifier_size = strlen(s);
           }
-          break;
-        default:
-          fprintf(stderr,"unknown op %d\n",op);
+          printf("got NULL as a result of a call (reg = %d, pos=%d, identifier=\"%.*s\")\n",
+                 frame->target, frame->position, identifier_size, s);
+          abort();
+        }
+
+        if (frame->registers[target]) {
+          SMOP_RELEASE(interpreter,frame->registers[target]);
+        }
+        frame->registers[target] = ret;
+        frame->target = target;
+
+        break;
+      }
+      case 2: {/*call2*/
+        int target = mold->opcodes[frame->position++];
+        SMOP__Object* call_responder  = get_register(interpreter,frame);
+        SMOP__Object* call_identifier = get_register(interpreter,frame);
+        SMOP__Object* call_capture = get_register(interpreter,frame);
+
+        SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_responder),call_identifier,call_capture);
+        SMOP_RELEASE(interpreter,call_responder);
+        if (frame->registers[target]) {
+          SMOP_RELEASE(interpreter,frame->registers[target]);
+        }
+        frame->registers[target] = ret;
+        frame->target = target;
+        break;
+      }
+      case 3: { /*goto*/
+        int where = mold->opcodes[frame->position];
+        frame->position = where;
+        break;
       }
 
+      case 4: {/*br*/
+        SMOP__Object* condition = get_register(interpreter,frame);
+        int iftrue = mold->opcodes[frame->position++];
+        int iffalse = mold->opcodes[frame->position++];
+        if (SMOP__NATIVE__bool_true == condition ) {
+          frame->position = iftrue;
+        } else if (SMOP__NATIVE__bool_false == condition) {
+          frame->position = iffalse;
+        } else {
+          fprintf(stderr,"the condition argument to the br op must be a native bool\n");
+          abort();
+        }
+        break;
+      }
+      default: fprintf(stderr,"unknown op %d\n",op);
+      }
     } else {
       ret = SMOP__NATIVE__bool_false;
     }
@@ -295,9 +303,12 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     int i;
     for (i=0;i<mold->registers;i++) {
       if (frame->registers[i]) SMOP_RELEASE(interpreter,frame->registers[i]);
+      frame->registers[i] = NULL;
     }
     free(frame->registers);
+    frame->registers = NULL;
     SMOP_RELEASE(interpreter,frame->mold);
+    frame->mold = NULL;
   } else {
     ___UNKNOWN_METHOD___;
   }
