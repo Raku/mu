@@ -47,9 +47,11 @@ static SMOP__Object* int_message(SMOP__Object* interpreter,
 
     SMOP__Object* other = SMOP__NATIVE__capture_positional(interpreter,capture,0);
     if (other && SMOP_RI(other) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
+      SMOP_RELEASE(interpreter, capture);
       return other;
     } else {
       if (other) SMOP_RELEASE(interpreter, other);
+      SMOP_RELEASE(interpreter, capture);
       return SMOP__NATIVE__int_create(0);
     }
 
@@ -57,11 +59,13 @@ static SMOP__Object* int_message(SMOP__Object* interpreter,
 
     ___NATIVE_CAPTURE_ONLY___;
     ___INVOCANT_RI_SHOULD_MATCH___;
-    
+
     smop_lowlevel_wrlock(invocant);
     ((smop_native_int_struct*)invocant)->intvalue++;
     smop_lowlevel_unlock(invocant);
-    
+
+    SMOP_RELEASE(interpreter, invocant);
+
   } else {
     ___UNKNOWN_METHOD___;
   }
