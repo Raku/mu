@@ -1,4 +1,5 @@
 project (smop)
+SET( CMAKE_C_FLAGS "-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE" )
 SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
 cmake_minimum_required (VERSION 2.6)
 include_directories (${smop_SOURCE_DIR}/include)

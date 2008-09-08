@@ -41,10 +41,13 @@ static int floor_log2(unsigned int n) {
 static void resize_array(smop_s1p_array_struct* array,int new_size) {
   if (new_size > array->size) {
     int old_size = array->size;
-    array->size = 1<<(floor_log2(new_size));
+    array->size = new_size; // this looks buggy: 1<<(floor_log2(new_size));
     //printf("new size:%d resizing to %d previous size:%d\n",new_size,array->size,old_size);
-    array->content = realloc(array->content,array->size);
-    int i;for (i=old_size;i<array->size;i++) array->content[i] = NULL;
+    array->content = realloc(array->content,(array->size * sizeof(void*)));
+    int i;
+    for ( i = old_size ; i < new_size ; i++) {
+      array->content[i] = NULL;
+    }
   }
 }
 static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
