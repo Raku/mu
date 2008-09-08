@@ -113,8 +113,9 @@ static SMOP__Object* smop_mold_message(SMOP__Object* interpreter,
   smop_mold* mold = (smop_mold*)invocant;
   if (SMOP__ID__DESTROYALL == identifier) {
     int i;
-    for (i=0;mold->constants[i];i++) {
-      SMOP_RELEASE(interpreter,mold->constants[i]);
+    for (i=0;i <= mold->constants_len;i++) {
+      if (mold->constants[i])
+        SMOP_RELEASE(interpreter,mold->constants[i]);
     }
     free(mold->constants);
     free(mold->opcodes);
