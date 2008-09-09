@@ -6,7 +6,7 @@ plan 4;
 
 # L<S04/Closure traits/FIRST "at loop initialization time">
 {
-    my $str;
+    my $str = '';
     for 1..2 {
         FIRST { $str ~= $_ }
     }
@@ -24,7 +24,7 @@ plan 4;
 
 # L<S04/Closure traits/can occur multiple times>
 {
-    my $str;
+    my $str = '';
     for 1..2 {
         FIRST { $str ~= $_ }
         FIRST { $str ~= ':' }
@@ -35,7 +35,7 @@ plan 4;
 
 # L<S04/Closure traits/FIRST "at loop initialization time" "before any ENTER">
 {
-    my $str;
+    my $str = '';
     for 1..2 {
         FIRST { $str ~= 'f1' }
         ENTER { $str ~= 'e' }
