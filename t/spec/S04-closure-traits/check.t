@@ -7,7 +7,7 @@ plan 5;
 # L<S04/"Closure traits"/CHECK "at compile time" ALAP>
 # CHECK {...} block in "void" context
 {
-    my $str;
+    my $str = '';
     BEGIN { $str ~= "begin1 "; }
     CHECK { $str ~= "check "; }
     BEGIN { $str ~= "begin2 "; }
@@ -16,7 +16,7 @@ plan 5;
 }
 
 {
-    my $str;
+    my $str = '';
     CHECK { $str ~= "check1 "; }
     BEGIN { $str ~= "begin "; }
     CHECK { $str ~= "check2 "; }
@@ -26,7 +26,7 @@ plan 5;
 
 # CHECK {...} blocks as rvalues
 {
-    my $str;
+    my $str = '';
     my $handle = { my $retval = CHECK { $str ~= 'C' } };
 
     is $handle(), 'C', 'our CHECK {...} block returned the correct var (1)';

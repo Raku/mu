@@ -4,7 +4,7 @@ use Test;
 plan 3;
 
 sub sanity{
-    my %sane = zip 'a'..'d',1..4;
+    my %sane = 'a'..'d' Z 1..4;
     isa_ok(%sane, Hash, '%sane is a Hash');
 }
 
@@ -13,7 +13,7 @@ sub insanity (Hash %baloney) returns Void{
 }
 
 # sanity 0
-my %h = zip 'a'..'d',1..4;
+my %h = 'a'..'d' Z 1..4;
 is(%h.WHAT,'Hash','%h is a Hash');
 
 #sanity 1;
