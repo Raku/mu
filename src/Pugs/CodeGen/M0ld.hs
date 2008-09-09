@@ -62,18 +62,24 @@ instance EmitM0ld PIL_Literal where
 
 instance EmitM0ld Val where
     emit (VInt int) r = return $ "my " ++ r ++ " = " ++ (show int) ++ ";\n"
+    -- " support
+    emit (VStr str) r = return $ "my " ++ r ++ " = " ++ (show str) ++ ";\n"
     emit other r = placeholder other r
 
+methodCall inv method args r = do
+    inv_r <- uniqueId
+    inv_code <- emit inv inv_r
+    args <- mapM (\arg -> do
+        id <- uniqueId
+        code <- emit arg id
+        return (code,id)) args
+    return (inv_code ++ (concat $ fmap fst args) ++ "my " ++ r ++ " = " ++ inv_r ++ ".\"" ++ method ++ "\"(" ++ (concat $ fmap snd args) ++ ");\n")
 instance EmitM0ld PIL_LValue where
     emit lvalue r = case lvalue of
-        PApp {pFun=fun,pArgs=args,pInv=Nothing} -> do
-            fun_r <- uniqueId
-            fun_code <- emit fun fun_r
-            args <- mapM (\arg -> do
-                id <- uniqueId
-                code <- emit arg id
-                return (code,id)) args
-            return (fun_code ++ (concat $ fmap fst args) ++ "my " ++ r ++ " = " ++ fun_r ++ ".\"postcircumfix:( )\"(" ++ (concat $ fmap snd args) ++ ");\n")
+        PApp {pFun=fun,pArgs=args,pInv=Nothing} ->
+            methodCall fun "postcircumfix:( )" args r
+        PApp {pFun=PExp {pLV = PVar {pVarName = '&':method}},pArgs=args,pInv=Just inv} ->
+            methodCall inv method args r
         PVar {pVarName=name} -> do
             return $ "my " ++ r ++ " = $scope.\"postcircumfix:{ }\"(\"" ++ name ++ "\");\n"
         other -> return $ (show other) ++ ";\n"
