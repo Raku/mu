@@ -5,6 +5,10 @@ use Test;
 #
 # L<S04/Closure traits/"assert precondition at every block ">
 # L<S06/Subroutine traits/"Mark blocks that are to be unconditionally executed">
+#
+# TODO: 
+#  * Multiple inheritance + PRE/POST blocks
+#  * check that the POST block receives the return value as topic ($_)
 
 plan 16;
 
