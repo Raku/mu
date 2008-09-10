@@ -18,7 +18,7 @@ use Test;
 #   foo($pair);      # pair passed positionally
 #   foo([,] $pair);     # named
 
-plan 39;
+plan 40;
 
 sub f1 ($a, $b) { WHAT($a) ~ WHAT($b) }
 {
@@ -67,7 +67,9 @@ sub f3 ($a) { ~WHAT($a) }
     my $pair = (a => 42);
 
     is f3($pair),  "Pair", 'a $pair is not treated magically...';
-    is f3([,] $pair), "Int",    '...but [,] $pair is', :todo<feature>;
+    #?pugs todo '[,]'
+    #?rakudo skip 'reduce meta op'
+    is f3([,] $pair), "Int",    '...but [,] $pair is';
 }
 
 sub f4 ($a)    { ~WHAT($a) }
@@ -75,7 +77,9 @@ sub get_pair () { (a => 42) }
 {
 
     is f4(get_pair()),  "Pair", 'get_pair() is not treated magically...';
-    is f4([,] get_pair()), "Int",    '...but *get_pair() is', :todo<feature>;
+    #?pugs todo '[,]'
+    #?rakudo skip 'reduce meta op'
+    is f4([,] get_pair()), "Int",    '...but *get_pair() is';
 }
 
 sub f5 ($a) { ~WHAT($a) }
@@ -94,7 +98,10 @@ sub f6 ($a) { ~WHAT($a) }
     my %hash_of_pairs = (a => "str");
 
     is f6(%hash_of_pairs),  "Hash", 'a hash is not treated magically...';
-    is f6([,] %hash_of_pairs), "Str",  '...but [,] %hash is', :todo<feature>;
+    #?pugs todo '[,]'
+    #?rakudo skip 'reduce meta op'
+    is f6([,] %hash_of_pairs), "Str",  '...but [,] %hash is';
+    is f6(|%hash_of_pairs,     'Str',  '... and so is |%hash';
 }
 
 sub f7 (:$bar!) { ~WHAT($bar) }
