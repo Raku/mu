@@ -334,6 +334,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     free(frame->registers);
     frame->registers = NULL;
     SMOP_RELEASE(interpreter,frame->mold);
+    if (frame->back) SMOP_RELEASE(interpreter,frame->back);
     frame->mold = NULL;
   } else {
     ___UNKNOWN_METHOD___;
