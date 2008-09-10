@@ -1816,7 +1816,7 @@ Forces the subsequent expression to be evaluated in hash context.
 The expression is evaluated in list context (flattening any C<Capture>s),
 then a hash will be created from the list, taken as a list of C<Pair>s.
 (Any element in the list that is not a C<Pair> will pretend to be a key
-and grab the next value in the last as its value.)  Equivalent to
+and grab the next value in the list as its value.)  Equivalent to
 C<%()> (except that empty C<%()> means C<%($/)>, while
 empty C<hash()> means an empty hash).
 
