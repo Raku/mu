@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 6 Jun 2008
+  Last Modified: 10 Sep 2008
   Number: 3
-  Version: 138
+  Version: 139
 
 =head1 Overview
 
@@ -3979,11 +3979,11 @@ which is just another way to write:
 
     @foo.push(@bar);
 
-Unlike C<[,]>, C<|> does not flatten its argument, but instead directly
+Unlike C<[,]>, C<|> does not turn its argument into an C<Array>, but instead directly
 converts its argument into a C<Capture>:
 
     my @args = \$x, 1, 2, 3;
-    say [,] @args;  # say($x: 1, 2, 3);
+    say [,] @args;  # say([\$x, 1, 2, 3]);
     say |@args;     # say(\$x, 1, 2, 3);
 
 Because of this, C<|%args> always produces named arguments, and
