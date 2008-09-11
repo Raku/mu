@@ -20,8 +20,8 @@ data Mold = Mold [Stmt]
 
 
 identifier = do
-    first <- choice [alphaNum, char '_']
-    rest <- many1 $ choice [alphaNum, char '_', digit , char '!']
+    first <- choice [letter, char '_']
+    rest <- many $ choice [alphaNum, char '_', char '!']
     return $ [first] ++ rest
 
 ws = do
