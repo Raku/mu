@@ -14,23 +14,23 @@ plan 19;
 
 is 1_0, 10, "Single embedded underscore works";
 
-isnt eval('1__0'),  10, "Multiple embedded underscores fail";
+eval_dies_ok '1__0',  "Multiple embedded underscores fail";
 
-isnt eval('_10'),   10, "Leading underscore fails";
+eval_dies_ok '_10',   "Leading underscore fails";
 
-isnt eval('10_'),   10, "Trailing underscore fails";
+eval_dies_ok '10_',   "Trailing underscore fails";
 
-isnt eval('10_.0'), 10, "Underscore before . fails";
+eval_dies_ok '10_.0', "Underscore before . fails";
 
-isnt eval('10._0'), 10, "Underscore after . fails";
+eval_dies_ok '10._0', "Underscore after . fails";
 
-isnt eval('10_e1'), 10, "Underscore before e fails";
+eval_dies_ok '10_e1', "Underscore before e fails";
 
-isnt eval('10e_1'), 10, "Underscore after e fails";
+eval_dies_ok '10e_1', "Underscore after e fails";
 
-isnt eval('10_E1'), 10, "Underscore before E fails";
+eval_dies_ok '10_E1', "Underscore before E fails";
 
-isnt eval('10E_1'), 10, "Underscore after E fails";
+eval_dies_ok '10E_1', "Underscore after E fails";
 
 is 3.1_41, 3.141, "Underscores work with floating point after decimal";
 
