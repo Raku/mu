@@ -1,3 +1,5 @@
+my $interpreter;
+my $scope;
 my $void;
 my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
 my $out = $out_scalar."FETCH"();

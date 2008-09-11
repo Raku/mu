@@ -1,3 +1,5 @@
+my $interpreter;
+my $scope;
 my $array = ¢SMOP__S1P__Array."new"();
 my $element = $array."postcircumfix:[ ]"(0);
 my $void = $element."STORE"("ok 1\n");
