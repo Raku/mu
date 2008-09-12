@@ -4,6 +4,7 @@
 
 #include <smop.h>
 #include <smop_slime.h>
+#include <pthread.h>
 
 /* The lowlevel SMOP API is an additional API that is not included by
  * the smop.h file, because this functions only need to be seen by
@@ -20,6 +21,11 @@
 extern void smop_lowlevel_init();
 extern void smop_lowlevel_destr();
 
+typedef struct SMOP_LOWLEVEL_INTERNAL {
+  int ref_cnt;
+  pthread_rwlock_t* rwlock;
+} SMOP_LOWLEVEL_INTERNAL;
+
 /* This function is the place from where every allocation should
  * happen.
  *
@@ -35,6 +41,20 @@ extern SMOP__Object* smop_lowlevel_alloc(int size);
  * always return the input pointer.
  */
 extern SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value);
+
+SMOP__Object* SMOP__RI__create(
+  SMOP__Object* (*MESSAGE)  (SMOP__Object* interpreter,           
+                             SMOP__ResponderInterface* self,      
+                             SMOP__Object* identifier,            
+                             SMOP__Object* capture),              
+  SMOP__Object* (*REFERENCE)(SMOP__Object* interpreter,           
+                             SMOP__ResponderInterface* self,      
+                             SMOP__Object* object),               
+  SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,           
+                             SMOP__ResponderInterface* self,      
+                             SMOP__Object* object),
+  char *id
+); 
 
 /* This functions decrements the reference count of a value, it should
  * be called whenever one reference to this value is destroyed. It

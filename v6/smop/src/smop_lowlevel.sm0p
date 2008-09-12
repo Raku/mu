@@ -78,10 +78,6 @@ void smop_mem_trace_del(void* address) {
 
 #endif
 
-typedef struct SMOP_LOWLEVEL_INTERNAL {
-  int ref_cnt;
-  pthread_rwlock_t* rwlock;
-} SMOP_LOWLEVEL_INTERNAL;
 
 
 SMOP__Object* smop_lowlevel_alloc(int size) {

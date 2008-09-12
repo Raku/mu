@@ -36,7 +36,7 @@ void smop_destr() {
                                              SMOP_REFERENCE(SMOP__GlobalInterpreter,SMOP__GlobalInterpreter),
                                              NULL, NULL));
 
-  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,SMOP__GlobalInterpreter);
   SMOP_INTERNAL_DESTROY_SEQUENCE;
+  SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,SMOP__GlobalInterpreter);
   SMOP_INTERNAL_SHUTDOWN_SEQUENCE;
 }

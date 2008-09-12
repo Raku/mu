@@ -110,6 +110,7 @@ add_library (smop
     src/smop_slime_currentframe.c
     src/smop_slime_frame.c
     src/smop_slime_node.c
+    src/smop_ri.c
 )
 
 file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)

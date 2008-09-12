@@ -20,10 +20,11 @@
      smop_native_capture_init();      \
      smop_native_int_init();          \
      smop_native_bool_init();         \
+     smop_ri_init();                  \
      smop_slime_frame_init();         \
      smop_slime_currentframe_init();  \
      smop_slime_node_init();          \
-     smop_slime_capturize_init();
+     smop_slime_capturize_init();     
 #define SMOP_INTERNAL_SHUTDOWN_SEQUENCE  \
      smop_slime_capturize_destr();       \
      smop_slime_node_destr();            \
@@ -34,6 +35,7 @@
      smop_native_capture_destr();        \
      smop_interpreter_destr();           \
      smop_lowlevel_destr();              \
+     smop_ri_destr();                    \
      smop_idconst_destr();
 
 /*

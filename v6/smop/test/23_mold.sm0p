@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   printf("1..2\n");
   SMOP__Object* mold = SMOP__Mold_create(1,
     (SMOP__Object*[]) { /* constants */
-      SMOP__S1P__IO_create(), 
+      SMOP__S1P__IO_create(interpreter), 
       SMOP__NATIVE__idconst_create("print"), 
       SMOP__S1P__Str_create("ok 2 - simple method call works\n"), 
       NULL

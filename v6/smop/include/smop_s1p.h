@@ -5,7 +5,6 @@
 extern SMOP__Object* SMOP__S1P__Scalar;
 extern SMOP__Object* SMOP__S1P__Array;
 extern SMOP__Object* SMOP__S1P__Array_Iterator;
-extern SMOP__Object* SMOP__S1P__IO;
 extern SMOP__Object* SMOP__S1P__Str;
 extern SMOP__Object* SMOP__S1P__Hash;
 extern SMOP__Object* SMOP__S1P__Code;
@@ -41,7 +40,7 @@ SMOP__Object* SMOP__S1P__Str_create(char* data);
 char* SMOP__S1P__Str_c_str(SMOP__Object* obj);
 SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object);
 SMOP__Object* SMOP__S1P__Scalar_STORE(SMOP__Object* object, SMOP__Object* new_value);
-SMOP__Object* SMOP__S1P__IO_create(void);
+SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter);
 SMOP__Object* SMOP__S1P__Hash_create(void);
 SMOP__Object* SMOP__S1P__Array_create(void);
 SMOP__Object* SMOP__S1P__Code_create(void);
