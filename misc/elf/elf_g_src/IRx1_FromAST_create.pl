@@ -563,7 +563,6 @@ my $header_code = <<'END_CODE';
 
 class IRx1_Build {
   has $.constructors;
-  $main::irbuilder = IRx1_Build.new;
   method add_constructor($k,$constructor) {
     if $.constructors {} else {
       my $h = {};
@@ -612,6 +611,10 @@ class UNDEF {
   }
 };
 
+
+if not($*ast2ir_0) { $*ast2ir_0 = IRx1_Build.new.init; }
+$*ast2ir_1 = IRx1_Build.new.init;
+
 END_CODE
 
 
@@ -632,6 +635,9 @@ sub write_ast_handlers {
       sub irbuild_ir ($x) {
         $x.make_ir_from_Match_tree()
       };
+
+      method init {
+
   END
 
   my %seen;
@@ -665,13 +671,16 @@ sub write_ast_handlers {
     }
 
     $code .= "\n".unindent(<<"    END","    ");
-      \$main::irbuilder.add_constructor('$name', sub (\$m) {
+      \$.add_constructor('$name', sub (\$m) {
         $body;
       });
     END
 
   }
   $code .= unindent(<<"  END");
+
+      self;
+    }; # end init
   }
   END
   open(F,">$file") or die $!; print F $code; close F;

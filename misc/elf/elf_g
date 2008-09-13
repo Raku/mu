@@ -22,6 +22,10 @@ use warnings;
         }
         $obj;
     }
+    sub become {
+      my($self,$cls)=@_;
+      bless $self,$cls;
+    }
 }
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       
@@ -50,6 +54,7 @@ if(!defined(&autobox::universal::type)) {
 { package Str; our $_tell_use_base_i_am_not_empty_; }
 { package Array; our $_tell_use_base_i_am_not_empty_; }
 { package Hash; our $_tell_use_base_i_am_not_empty_; }
+{ package Code; our $_tell_use_base_i_am_not_empty_; }
 
 no warnings qw(redefine prototype);
 { package STRING;
@@ -207,6 +212,11 @@ no warnings qw(redefine prototype);
 
   sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1} # obsolete
 }
+{ package CODE;
+  use base "Code";
+  sub WHAT {"Code"}
+}
+
 use warnings;
 
 { package Any; sub __make_not_empty_for_use_base{}}
@@ -354,6 +364,8 @@ use warnings;
   our $compiler1;
   our $parser0;
   our $parser1;
+  our $ast2ir_0;
+  our $ast2ir_1;
   our $emitter0;
   our $emitter1;
 
@@ -1890,7 +1902,6 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 
 { package IRx1_Build;
 use base "Any";(do{sub constructors { if(@_==2){$_[0]{'constructors'}=$_[1]}else{$_[0]{'constructors'}}};
-($main::irbuilder = IRx1_Build->new());
 sub add_constructor{my $self=CORE::shift;my($k,$constructor)=@_;
 (do{if($self->constructors) {
 (do{})
@@ -1942,13 +1953,17 @@ use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}
 use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
+if(GLOBAL::not($GLOBAL::ast2ir_0)) {
+(do{($GLOBAL::ast2ir_0 = IRx1_Build->new()->init())})
+};
+($GLOBAL::ast2ir_1 = IRx1_Build->new()->init());
 
 { package IRx1_Build;
 use base "Any";(do{sub irbuild_ir{my($x)=@_;
 (do{$x->make_ir_from_Match_tree()})};
-$main::irbuilder->add_constructor("comp_unit", sub {my($m)=@_;
+sub init{my $self=CORE::shift;(do{$self->add_constructor("comp_unit", sub {my($m)=@_;
 (do{IRx1::CompUnit->newp($m, irbuild_ir($m->{"hash"}->{"statementlist"}))})});
-$main::irbuilder->add_constructor("statement", sub {my($m)=@_;
+$self->add_constructor("statement", sub {my($m)=@_;
 (do{my $labels = irbuild_ir($m->{"hash"}->{"label"});
 my $result = (irbuild_ir($m->{"hash"}->{"expr"}) || irbuild_ir($m->{"hash"}->{"control"}));
 if(($m->{"hash"}->{"expr"} && (($m->{"hash"}->{"mod_loop"} || $m->{"hash"}->{"mod_cond"})))) {
@@ -1964,7 +1979,7 @@ if($labels) {
 }else {
 (do{$result})
 }})});
-$main::irbuilder->add_constructor("expect_infix", sub {my($m)=@_;
+$self->add_constructor("expect_infix", sub {my($m)=@_;
 (do{if(irbuild_ir($m->{"hash"}->{"infix"})) {
 (do{if(irbuild_ir($m->{"hash"}->{"infix_postfix_meta_operator"})) {
 (do{GLOBAL::die("Unimplemented\ infix_postfix_meta_operator")})
@@ -1982,9 +1997,9 @@ IRx1::Pair->newp($m, $args->[0], $args->[1])})
 }else {
 (do{GLOBAL::die("Unimplemented\ infix_prefix_meta_operator\ or\ infix_circumfix_meta_operator")})
 }})});
-$main::irbuilder->add_constructor("fatarrow", sub {my($m)=@_;
+$self->add_constructor("fatarrow", sub {my($m)=@_;
 (do{IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"key"}), irbuild_ir($m->{"hash"}->{"val"}))})});
-$main::irbuilder->add_constructor("expect_term", sub {my($m)=@_;
+$self->add_constructor("expect_term", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$expect_term_base'};local $blackboard::expect_term_base = irbuild_ir($m->{"hash"}->{"noun"});
 my $ops = [];
 if($m->{"hash"}->{"pre"}) {
@@ -1997,15 +2012,15 @@ for(($ops)->flatten){
 (do{($blackboard::expect_term_base = irbuild_ir($_))})
 };
 $blackboard::expect_term_base})});
-$main::irbuilder->add_constructor("term\:expect_term", sub {my($m)=@_;
+$self->add_constructor("term\:expect_term", sub {my($m)=@_;
 (do{irbuild_ir($m->{"hash"}->{"noun"})})});
-$main::irbuilder->add_constructor("post", sub {my($m)=@_;
+$self->add_constructor("post", sub {my($m)=@_;
 (do{if($m->{"hash"}->{"args"}) {
 (do{irbuild_ir($m->{"hash"}->{"args"})->[0]})
 }else {
 (do{(irbuild_ir($m->{"hash"}->{"dotty"}) or irbuild_ir($m->{"hash"}->{"postop"}))})
 }})});
-$main::irbuilder->add_constructor("pre", sub {my($m)=@_;
+$self->add_constructor("pre", sub {my($m)=@_;
 (do{if($m->{"hash"}->{"args"}) {
 (do{irbuild_ir($m->{"hash"}->{"args"})->[0]})
 }elsif($m->{"hash"}->{"prefix"}) {
@@ -2013,11 +2028,11 @@ $main::irbuilder->add_constructor("pre", sub {my($m)=@_;
 }else {
 (do{GLOBAL::die("pre\ without\ a\ prefix\ is\ unimplemented")})
 }})});
-$main::irbuilder->add_constructor("dotty\:methodop", sub {my($m)=@_;
+$self->add_constructor("dotty\:methodop", sub {my($m)=@_;
 (do{IRx1::Call->newp($m, $blackboard::expect_term_base, irbuild_ir($m->{"hash"}->{"ident"}), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"semilist"}) || [])))})});
-$main::irbuilder->add_constructor("dotty\:\.\^\!", sub {my($m)=@_;
+$self->add_constructor("dotty\:\.\^\!", sub {my($m)=@_;
 (do{IRx1::Call->newp($m, $blackboard::expect_term_base, ("\^\!" . irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"ident"})), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"methodop"}->{"hash"}->{"semilist"}) || [])))})});
-$main::irbuilder->add_constructor("dotty\:postcircumfix", sub {my($m)=@_;
+$self->add_constructor("dotty\:postcircumfix", sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $ident = ("postcircumfix\:" . $name);
@@ -2026,7 +2041,7 @@ if(($args && (($args->ref() ne "ARRAY")))) {
 (do{($args = [$args])})
 };
 IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
-$main::irbuilder->add_constructor("postcircumfix", sub {my($m)=@_;
+$self->add_constructor("postcircumfix", sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $ident = ("postcircumfix\:" . $name);
@@ -2035,16 +2050,16 @@ if(($args && (($args->ref() ne "ARRAY")))) {
 (do{($args = [$args])})
 };
 IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
-$main::irbuilder->add_constructor("postfix", sub {my($m)=@_;
+$self->add_constructor("postfix", sub {my($m)=@_;
 (do{my $op = ($m->match_string());
 IRx1::Apply->newp($m, ("postfix\:" . $op), IRx1::Capture->newp($m, [$blackboard::expect_term_base]))})});
-$main::irbuilder->add_constructor("prefix", sub {my($m)=@_;
+$self->add_constructor("prefix", sub {my($m)=@_;
 (do{my $op = ($m->match_string());
 IRx1::Apply->newp($m, ("prefix\:" . $op), IRx1::Capture->newp($m, [$blackboard::expect_term_base]))})});
-$main::irbuilder->add_constructor("infix", sub {my($m)=@_;
+$self->add_constructor("infix", sub {my($m)=@_;
 (do{my $op = ($m->match_string());
 IRx1::Apply->newp($m, ("infix\:" . $op), IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"left"}), irbuild_ir($m->{"hash"}->{"right"})]))})});
-$main::irbuilder->add_constructor("term", sub {my($m)=@_;
+$self->add_constructor("term", sub {my($m)=@_;
 (do{my $text = ($m->match_string());
 if(($text eq "self")) {
 (do{IRx1::Apply->newp($m, "self", IRx1::Capture->newp($m, []))})
@@ -2054,18 +2069,18 @@ if(($text eq "self")) {
 (do{GLOBAL::die("AST\ term\ partially\ unimplemented\.\
 ")})
 }})});
-$main::irbuilder->add_constructor("integer", sub {my($m)=@_;
+$self->add_constructor("integer", sub {my($m)=@_;
 (do{IRx1::NumInt->newp($m, ($m->match_string()))})});
-$main::irbuilder->add_constructor("subcall", sub {my($m)=@_;
+$self->add_constructor("subcall", sub {my($m)=@_;
 (do{my $t = irbuild_ir($m->{"hash"}->{"subshortname"}->{"hash"}->{"twigil"});
 if(($t && ($t eq "\."))) {
 (do{IRx1::Call->newp($m, IRx1::Apply->newp($m, "self", IRx1::Capture->newp($m, [])), irbuild_ir($m->{"hash"}->{"subshortname"}->{"hash"}->{"desigilname"}->{"hash"}->{"ident"}), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"semilist"}) || [])))})
 }else {
 (do{IRx1::Apply->newp($m, irbuild_ir($m->{"hash"}->{"subshortname"}), IRx1::Capture->newp($m, (irbuild_ir($m->{"hash"}->{"semilist"}) || [])))})
 }})});
-$main::irbuilder->add_constructor("name", sub {my($m)=@_;
+$self->add_constructor("name", sub {my($m)=@_;
 (do{($m->match_string())})});
-$main::irbuilder->add_constructor("subshortname", sub {my($m)=@_;
+$self->add_constructor("subshortname", sub {my($m)=@_;
 (do{if($m->{"hash"}->{"category"}) {
 (do{my $cat = $m->{"hash"}->{"category"}->match_string();
 my $op = $m->{"hash"}->{"colonpair"}->[0]->{"hash"}->{"structural"}->{"hash"}->{"kludge_name"};
@@ -2076,59 +2091,59 @@ if(($op->WHAT() eq "Array")) {
 }else {
 (do{($m->match_string())})
 }})});
-$main::irbuilder->add_constructor("statement_control\:use", sub {my($m)=@_;
+$self->add_constructor("statement_control\:use", sub {my($m)=@_;
 (do{IRx1::Use->newp($m, "use", irbuild_ir($m->{"hash"}->{"module_name"}), irbuild_ir($m->{"hash"}->{"EXPR"}))})});
-$main::irbuilder->add_constructor("module_name\:depreciated", sub {my($m)=@_;
+$self->add_constructor("module_name\:depreciated", sub {my($m)=@_;
 (do{($m->match_string())})});
-$main::irbuilder->add_constructor("module_name\:normal", sub {my($m)=@_;
+$self->add_constructor("module_name\:normal", sub {my($m)=@_;
 (do{($m->match_string())})});
-$main::irbuilder->add_constructor("role_name", sub {my($m)=@_;
+$self->add_constructor("role_name", sub {my($m)=@_;
 (do{($m->match_string())})});
-$main::irbuilder->add_constructor("statement_control\:BEGIN", sub {my($m)=@_;
+$self->add_constructor("statement_control\:BEGIN", sub {my($m)=@_;
 (do{IRx1::ClosureTrait->newp($m, "BEGIN", irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("term\:listop", sub {my($m)=@_;
+$self->add_constructor("term\:listop", sub {my($m)=@_;
 (do{my $not_really_an_arglist = irbuild_ir($m->{"hash"}->{"arglist"});
 if(irbuild_ir($m->{"hash"}->{"arglist"})) {
 (do{IRx1::Apply->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), IRx1::Capture->newp($m, [$not_really_an_arglist]))})
 }else {
 (do{IRx1::Apply->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), IRx1::Capture->newp($m, []))})
 }})});
-$main::irbuilder->add_constructor("quote\:q", sub {my($m)=@_;
+$self->add_constructor("quote\:q", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
 $s->re_sub_g("\\\\\(\[\\\\\'\]\)", "\$1");
 IRx1::Buf->newp($m, $s)})});
-$main::irbuilder->add_constructor("quote\:qq", sub {my($m)=@_;
+$self->add_constructor("quote\:qq", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
 $s->re_gsub(qr/(?<!\\)\\n/, "\
 ");
 $s->re_gsub(qr/(?<!\\)\\t/, "\	");
 $s->re_sub_g("\\\\\(\.\)", "\$1");
 IRx1::Buf->newp($m, $s)})});
-$main::irbuilder->add_constructor("quote\:regex", sub {my($m)=@_;
+$self->add_constructor("quote\:regex", sub {my($m)=@_;
 (do{my $s = (irbuild_ir($m->{"hash"}->{"text"}) || irbuild_ir($m->{"hash"}->{"quotesnabber"}->{"hash"}->{"text"}));
 IRx1::Rx->newp($m, $s, irbuild_ir($m->{"hash"}->{"quotepair"}))})});
-$main::irbuilder->add_constructor("scope_declarator\:my", sub {my($m)=@_;
+$self->add_constructor("scope_declarator\:my", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$scope'};local $blackboard::scope = "my";
 irbuild_ir($m->{"hash"}->{"scoped"})})});
-$main::irbuilder->add_constructor("scope_declarator\:has", sub {my($m)=@_;
+$self->add_constructor("scope_declarator\:has", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$scope'};local $blackboard::scope = "has";
 irbuild_ir($m->{"hash"}->{"scoped"})})});
-$main::irbuilder->add_constructor("scope_declarator\:our", sub {my($m)=@_;
+$self->add_constructor("scope_declarator\:our", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$scope'};local $blackboard::scope = "our";
 irbuild_ir($m->{"hash"}->{"scoped"})})});
-$main::irbuilder->add_constructor("scope_declarator\:temp", sub {my($m)=@_;
+$self->add_constructor("scope_declarator\:temp", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$scope'};local $blackboard::scope = "temp";
 irbuild_ir($m->{"hash"}->{"scoped"})})});
-$main::irbuilder->add_constructor("scoped", sub {my($m)=@_;
+$self->add_constructor("scoped", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$typenames'};local $blackboard::typenames = irbuild_ir($m->{"hash"}->{"fulltypename"});
 ((((irbuild_ir($m->{"hash"}->{"variable_decl"}) || irbuild_ir($m->{"hash"}->{"signature"})) || irbuild_ir($m->{"hash"}->{"plurality_declarator"})) || irbuild_ir($m->{"hash"}->{"routine_declarator"})) || irbuild_ir($m->{"hash"}->{"type_declarator"}))})});
-$main::irbuilder->add_constructor("variable_decl", sub {my($m)=@_;
+$self->add_constructor("variable_decl", sub {my($m)=@_;
 (do{my $scope = $blackboard::scope;
 { package blackboard; use vars '$scope'};local $blackboard::scope;
 my $typenames = $blackboard::typenames;
 { package blackboard; use vars '$typenames'};local $blackboard::typenames = GLOBAL::undef();
 IRx1::VarDecl->newp($m, $scope, $typenames, GLOBAL::undef(), irbuild_ir($m->{"hash"}->{"variable"}), GLOBAL::undef(), irbuild_ir($m->{"hash"}->{"traits"}), "\=", irbuild_ir($m->{"hash"}->{"default_value"}))})});
-$main::irbuilder->add_constructor("variable", sub {my($m)=@_;
+$self->add_constructor("variable", sub {my($m)=@_;
 (do{my $tw = irbuild_ir($m->{"hash"}->{"twigil"});
 if($m->{"hash"}->{"postcircumfix"}) {
 (do{if(($tw eq "\.")) {
@@ -2146,16 +2161,16 @@ irbuild_ir($m->{"hash"}->{"postcircumfix"})})
 }else {
 (do{IRx1::Var->newp($m, irbuild_ir($m->{"hash"}->{"sigil"}), $tw, irbuild_ir($m->{"hash"}->{"desigilname"}))})
 }})});
-$main::irbuilder->add_constructor("sigil", sub {my($m)=@_;
+$self->add_constructor("sigil", sub {my($m)=@_;
 (do{($m->match_string())})});
-$main::irbuilder->add_constructor("twigil", sub {my($m)=@_;
+$self->add_constructor("twigil", sub {my($m)=@_;
 (do{($m->match_string())})});
-$main::irbuilder->add_constructor("special_variable", sub {my($m)=@_;
+$self->add_constructor("special_variable", sub {my($m)=@_;
 (do{my $v = ($m->match_string());
 my $s = GLOBAL::substr($v, 0, 1);
 my $n = GLOBAL::substr($v, 1, $v->length());
 IRx1::Var->newp($m, $s, GLOBAL::undef(), $n)})});
-$main::irbuilder->add_constructor("circumfix", sub {my($m)=@_;
+$self->add_constructor("circumfix", sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $args = irbuild_ir($m->{"hash"}->{"kludge_name"});
@@ -2163,36 +2178,36 @@ if(($args && (($args->ref() ne "ARRAY")))) {
 (do{($args = [$args])})
 };
 IRx1::Apply->newp($m, ("circumfix\:" . $name), IRx1::Capture->newp($m, ($args || [])))})});
-$main::irbuilder->add_constructor("statement_control\:for", sub {my($m)=@_;
+$self->add_constructor("statement_control\:for", sub {my($m)=@_;
 (do{IRx1::For->newp($m, irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("statement_mod_loop\:for", sub {my($m)=@_;
+$self->add_constructor("statement_mod_loop\:for", sub {my($m)=@_;
 (do{IRx1::For->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr)})});
-$main::irbuilder->add_constructor("statement_control\:while", sub {my($m)=@_;
+$self->add_constructor("statement_control\:while", sub {my($m)=@_;
 (do{IRx1::Loop->newp($m, irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("statement_mod_loop\:while", sub {my($m)=@_;
+$self->add_constructor("statement_mod_loop\:while", sub {my($m)=@_;
 (do{IRx1::Loop->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr)})});
-$main::irbuilder->add_constructor("statement_control\:until", sub {my($m)=@_;
+$self->add_constructor("statement_control\:until", sub {my($m)=@_;
 (do{my $test = IRx1::Apply->newp($m, "not", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"expr"})]));
 IRx1::Loop->newp($m, $test, irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("statement_mod_loop\:until", sub {my($m)=@_;
+$self->add_constructor("statement_mod_loop\:until", sub {my($m)=@_;
 (do{my $test = IRx1::Apply->newp($m, "not", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"modifier_expr"})]));
 IRx1::Loop->newp($m, $test, $blackboard::statement_expr)})});
-$main::irbuilder->add_constructor("statement_control\:loop", sub {my($m)=@_;
+$self->add_constructor("statement_control\:loop", sub {my($m)=@_;
 (do{my $e1 = irbuild_ir($m->{"hash"}->{"loop_eee"}->{"hash"}->{"loop_e1"});
 my $e2 = irbuild_ir($m->{"hash"}->{"loop_eee"}->{"hash"}->{"loop_e2"});
 my $e3 = irbuild_ir($m->{"hash"}->{"loop_eee"}->{"hash"}->{"loop_e3"});
 my $block = irbuild_ir($m->{"hash"}->{"loop_block"});
 my $body = IRx1::Loop->newp($m, $e2, IRx1::Block->newp($m, [$block, $e3]));
 IRx1::Block->newp($m, [$e1, $body])})});
-$main::irbuilder->add_constructor("statement_control\:if", sub {my($m)=@_;
+$self->add_constructor("statement_control\:if", sub {my($m)=@_;
 (do{my $els = irbuild_ir($m->{"hash"}->{"else"});
 if($els) {
 (do{($els = $els->[0])})
 };
 IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"if_expr"}), irbuild_ir($m->{"hash"}->{"if_block"})]]->push(irbuild_ir($m->{"hash"}->{"elsif"})->flatten()), $els)})});
-$main::irbuilder->add_constructor("elsif", sub {my($m)=@_;
+$self->add_constructor("elsif", sub {my($m)=@_;
 (do{[irbuild_ir($m->{"hash"}->{"elsif_expr"}), irbuild_ir($m->{"hash"}->{"elsif_block"})]})});
-$main::irbuilder->add_constructor("if__else", sub {my($m)=@_;
+$self->add_constructor("if__else", sub {my($m)=@_;
 (do{my $key;
 for(($m->{"hash"}->keys())->flatten){
 (do{if(($_ ne "match")) {
@@ -2205,46 +2220,46 @@ for(($m->{"hash"}->keys())->flatten){
 };
 my $one = irbuild_ir($m->{"hash"}->{$key});
 $one})});
-$main::irbuilder->add_constructor("statement_mod_cond\:if", sub {my($m)=@_;
+$self->add_constructor("statement_mod_cond\:if", sub {my($m)=@_;
 (do{IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr]], GLOBAL::undef())})});
-$main::irbuilder->add_constructor("statement_control\:unless", sub {my($m)=@_;
+$self->add_constructor("statement_control\:unless", sub {my($m)=@_;
 (do{IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"})]], GLOBAL::undef(), 1)})});
-$main::irbuilder->add_constructor("statement_mod_cond\:unless", sub {my($m)=@_;
+$self->add_constructor("statement_mod_cond\:unless", sub {my($m)=@_;
 (do{IRx1::Cond->newp($m, [[irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr]], GLOBAL::undef(), 1)})});
-$main::irbuilder->add_constructor("statement_control\:given", sub {my($m)=@_;
+$self->add_constructor("statement_control\:given", sub {my($m)=@_;
 (do{IRx1::Given->newp($m, irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("statement_mod_loop\:given", sub {my($m)=@_;
+$self->add_constructor("statement_mod_loop\:given", sub {my($m)=@_;
 (do{IRx1::Given->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr)})});
-$main::irbuilder->add_constructor("statement_control\:when", sub {my($m)=@_;
+$self->add_constructor("statement_control\:when", sub {my($m)=@_;
 (do{IRx1::When->newp($m, irbuild_ir($m->{"hash"}->{"expr"}), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("statement_mod_cond\:when", sub {my($m)=@_;
+$self->add_constructor("statement_mod_cond\:when", sub {my($m)=@_;
 (do{IRx1::When->newp($m, irbuild_ir($m->{"hash"}->{"modifier_expr"}), $blackboard::statement_expr)})});
-$main::irbuilder->add_constructor("statement_control\:default", sub {my($m)=@_;
+$self->add_constructor("statement_control\:default", sub {my($m)=@_;
 (do{IRx1::When->newp($m, GLOBAL::undef(), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("statement_prefix\:do", sub {my($m)=@_;
+$self->add_constructor("statement_prefix\:do", sub {my($m)=@_;
 (do{IRx1::Apply->newp($m, "statement_prefix\:do", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"statement"})]))})});
-$main::irbuilder->add_constructor("statement_prefix\:try", sub {my($m)=@_;
+$self->add_constructor("statement_prefix\:try", sub {my($m)=@_;
 (do{IRx1::Apply->newp($m, "statement_prefix\:try", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"statement"})]))})});
-$main::irbuilder->add_constructor("statement_prefix\:gather", sub {my($m)=@_;
+$self->add_constructor("statement_prefix\:gather", sub {my($m)=@_;
 (do{IRx1::Apply->newp($m, "statement_prefix\:gather", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"statement"})]))})});
-$main::irbuilder->add_constructor("statement_prefix\:contend", sub {my($m)=@_;
+$self->add_constructor("statement_prefix\:contend", sub {my($m)=@_;
 (do{IRx1::Apply->newp($m, "statement_prefix\:contend", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"statement"})]))})});
-$main::irbuilder->add_constructor("statement_prefix\:async", sub {my($m)=@_;
+$self->add_constructor("statement_prefix\:async", sub {my($m)=@_;
 (do{IRx1::Apply->newp($m, "statement_prefix\:async", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"statement"})]))})});
-$main::irbuilder->add_constructor("statement_prefix\:lazy", sub {my($m)=@_;
+$self->add_constructor("statement_prefix\:lazy", sub {my($m)=@_;
 (do{IRx1::Apply->newp($m, "statement_prefix\:lazy", IRx1::Capture->newp($m, [irbuild_ir($m->{"hash"}->{"statement"})]))})});
-$main::irbuilder->add_constructor("pblock", sub {my($m)=@_;
+$self->add_constructor("pblock", sub {my($m)=@_;
 (do{if($m->{"hash"}->{"signature"}) {
 (do{IRx1::SubDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), irbuild_ir($m->{"hash"}->{"signature"}), GLOBAL::undef(), irbuild_ir($m->{"hash"}->{"block"}))})
 }else {
 (do{irbuild_ir($m->{"hash"}->{"block"})})
 }})});
-$main::irbuilder->add_constructor("block", sub {my($m)=@_;
+$self->add_constructor("block", sub {my($m)=@_;
 (do{IRx1::Block->newp($m, irbuild_ir($m->{"hash"}->{"statementlist"}))})});
-$main::irbuilder->add_constructor("plurality_declarator\:multi", sub {my($m)=@_;
+$self->add_constructor("plurality_declarator\:multi", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$plurality'};local $blackboard::plurality = "multi";
 (irbuild_ir($m->{"hash"}->{"pluralized"}) || irbuild_ir($m->{"hash"}->{"routine_def"}))})});
-$main::irbuilder->add_constructor("routine_declarator\:routine_def", sub {my($m)=@_;
+$self->add_constructor("routine_declarator\:routine_def", sub {my($m)=@_;
 (do{my $scope = $blackboard::scope;
 { package blackboard; use vars '$scope'};local $blackboard::scope;
 my $plurality = $blackboard::plurality;
@@ -2258,7 +2273,7 @@ if(irbuild_ir($m->{"hash"}->{"multisig"})) {
 (do{($sig = irbuild_ir($m->{"hash"}->{"multisig"})->[0])})
 };
 IRx1::SubDecl->newp($m, $scope, GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{"hash"}->{"trait"}), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("routine_def", sub {my($m)=@_;
+$self->add_constructor("routine_def", sub {my($m)=@_;
 (do{my $scope = $blackboard::scope;
 { package blackboard; use vars '$scope'};local $blackboard::scope;
 my $plurality = $blackboard::plurality;
@@ -2272,7 +2287,7 @@ if(irbuild_ir($m->{"hash"}->{"multisig"})) {
 (do{($sig = irbuild_ir($m->{"hash"}->{"multisig"})->[0])})
 };
 IRx1::SubDecl->newp($m, $scope, GLOBAL::undef(), $plurality, $ident, $sig, irbuild_ir($m->{"hash"}->{"trait"}), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("routine_declarator\:method_def", sub {my($m)=@_;
+$self->add_constructor("routine_declarator\:method_def", sub {my($m)=@_;
 (do{my $plurality = $blackboard::plurality;
 { package blackboard; use vars '$plurality'};local $blackboard::plurality;
 my $multisig = irbuild_ir($m->{"hash"}->{"multisig"});
@@ -2280,13 +2295,13 @@ if(GLOBAL::not($multisig)) {
 (do{($multisig = [IRx1::Signature->newp($m, [], GLOBAL::undef())])})
 };
 IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->{"hash"}->{"ident"}), $multisig->[0], irbuild_ir($m->{"hash"}->{"trait"}), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("signature", sub {my($m)=@_;
+$self->add_constructor("signature", sub {my($m)=@_;
 (do{IRx1::Signature->newp($m, irbuild_ir($m->{"hash"}->{"parsep"}), GLOBAL::undef())})});
-$main::irbuilder->add_constructor("parameter", sub {my($m)=@_;
+$self->add_constructor("parameter", sub {my($m)=@_;
 (do{IRx1::Parameter->newp($m, irbuild_ir($m->{"hash"}->{"type_constraint"}), irbuild_ir($m->{"hash"}->{"quantchar"}), irbuild_ir($m->{"hash"}->{"param_var"}))})});
-$main::irbuilder->add_constructor("param_var", sub {my($m)=@_;
+$self->add_constructor("param_var", sub {my($m)=@_;
 (do{IRx1::ParamVar->newp($m, irbuild_ir($m->{"hash"}->{"sigil"}), irbuild_ir($m->{"hash"}->{"twigil"}), irbuild_ir($m->{"hash"}->{"ident"}))})});
-$main::irbuilder->add_constructor("capture", sub {my($m)=@_;
+$self->add_constructor("capture", sub {my($m)=@_;
 (do{if(GLOBAL::not($m->{"hash"}->{"EXPR"})) {
 (do{IRx1::Capture->newp($m, [])})
 }elsif($m->{"hash"}->{"EXPR"}->{"hash"}->{"noun"}) {
@@ -2310,7 +2325,7 @@ IRx1::Capture->newp($m, (irbuild_ir($args) || []), irbuild_ir($inv))})
 }else {
 (do{GLOBAL::die("capture\ AST\ form\ not\ recognized")})
 }})});
-$main::irbuilder->add_constructor("colonpair", sub {my($m)=@_;
+$self->add_constructor("colonpair", sub {my($m)=@_;
 (do{my $key;
 for(($m->{"hash"}->keys())->flatten){
 (do{if(($_ ne "match")) {
@@ -2323,9 +2338,9 @@ for(($m->{"hash"}->keys())->flatten){
 };
 my $one = irbuild_ir($m->{"hash"}->{$key});
 $one})});
-$main::irbuilder->add_constructor("colonpair__false", sub {my($m)=@_;
+$self->add_constructor("colonpair__false", sub {my($m)=@_;
 (do{IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), IRx1::NumInt->newp($m, 0))})});
-$main::irbuilder->add_constructor("colonpair__value", sub {my($m)=@_;
+$self->add_constructor("colonpair__value", sub {my($m)=@_;
 (do{my $value;
 if($m->{"hash"}->{"postcircumfix"}) {
 (do{($value = irbuild_ir($m->{"hash"}->{"postcircumfix"}->{"hash"}->{"kludge_name"}))})
@@ -2333,7 +2348,7 @@ if($m->{"hash"}->{"postcircumfix"}) {
 (do{($value = IRx1::NumInt->newp($m, 1))})
 };
 IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), $value)})});
-$main::irbuilder->add_constructor("quotepair", sub {my($m)=@_;
+$self->add_constructor("quotepair", sub {my($m)=@_;
 (do{my $key;
 for(($m->{"hash"}->keys())->flatten){
 (do{if(($_ ne "match")) {
@@ -2346,9 +2361,9 @@ for(($m->{"hash"}->keys())->flatten){
 };
 my $one = irbuild_ir($m->{"hash"}->{$key});
 $one})});
-$main::irbuilder->add_constructor("quotepair__false", sub {my($m)=@_;
+$self->add_constructor("quotepair__false", sub {my($m)=@_;
 (do{IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), IRx1::NumInt->newp($m, 0))})});
-$main::irbuilder->add_constructor("quotepair__value", sub {my($m)=@_;
+$self->add_constructor("quotepair__value", sub {my($m)=@_;
 (do{my $value;
 if($m->{"hash"}->{"postcircumfix"}) {
 (do{($value = irbuild_ir($m->{"hash"}->{"postcircumfix"}->{"hash"}->{"kludge_name"}))})
@@ -2356,34 +2371,34 @@ if($m->{"hash"}->{"postcircumfix"}) {
 (do{($value = IRx1::NumInt->newp($m, 1))})
 };
 IRx1::Pair->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), $value)})});
-$main::irbuilder->add_constructor("quotepair__nth", sub {my($m)=@_;
+$self->add_constructor("quotepair__nth", sub {my($m)=@_;
 (do{IRx1::Pair->newp($m, "nth", irbuild_ir($m->{"hash"}->{"n"}))})});
-$main::irbuilder->add_constructor("package_declarator\:role", sub {my($m)=@_;
+$self->add_constructor("package_declarator\:role", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "role";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
-$main::irbuilder->add_constructor("package_declarator\:class", sub {my($m)=@_;
+$self->add_constructor("package_declarator\:class", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "class";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
-$main::irbuilder->add_constructor("package_declarator\:module", sub {my($m)=@_;
+$self->add_constructor("package_declarator\:module", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "module";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
-$main::irbuilder->add_constructor("package_declarator\:package", sub {my($m)=@_;
+$self->add_constructor("package_declarator\:package", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "package";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
-$main::irbuilder->add_constructor("package_declarator\:grammar", sub {my($m)=@_;
+$self->add_constructor("package_declarator\:grammar", sub {my($m)=@_;
 (do{{ package blackboard; use vars '$package_declarator'};local $blackboard::package_declarator = "grammar";
 irbuild_ir($m->{"hash"}->{"package_def"})})});
-$main::irbuilder->add_constructor("package_def", sub {my($m)=@_;
+$self->add_constructor("package_def", sub {my($m)=@_;
 (do{IRx1::PackageDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $blackboard::package_declarator, irbuild_ir($m->{"hash"}->{"module_name"})->[0], irbuild_ir($m->{"hash"}->{"traits"}), irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("fulltypename", sub {my($m)=@_;
+$self->add_constructor("fulltypename", sub {my($m)=@_;
 (do{irbuild_ir($m->{"hash"}->{"typename"})->join("\:\:")})});
-$main::irbuilder->add_constructor("typename", sub {my($m)=@_;
+$self->add_constructor("typename", sub {my($m)=@_;
 (do{($m->match_string())})});
-$main::irbuilder->add_constructor("trait_verb\:is", sub {my($m)=@_;
+$self->add_constructor("trait_verb\:is", sub {my($m)=@_;
 (do{IRx1::Trait->newp($m, "is", irbuild_ir($m->{"hash"}->{"ident"}))})});
-$main::irbuilder->add_constructor("trait_verb\:does", sub {my($m)=@_;
+$self->add_constructor("trait_verb\:does", sub {my($m)=@_;
 (do{IRx1::Trait->newp($m, "does", irbuild_ir($m->{"hash"}->{"role_name"}))})});
-$main::irbuilder->add_constructor("circumfix\:pblock", sub {my($m)=@_;
+$self->add_constructor("circumfix\:pblock", sub {my($m)=@_;
 (do{if((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->elems() == 0) or $m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->match_string()->re_matchp("\^\:"))) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}))})
 }elsif((($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"} and $m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"}->{"hash"}->{"sym"}) and ($m->{"hash"}->{"block"}->{"hash"}->{"statementlist"}->[0]->{"hash"}->{"expr"}->{"hash"}->{"sym"} eq "\,"))) {
@@ -2395,29 +2410,29 @@ $main::irbuilder->add_constructor("circumfix\:pblock", sub {my($m)=@_;
 }else {
 (do{GLOBAL::die("AST\ handler\ circumfix\:pblock\ partially\ unimplemented")})
 }})});
-$main::irbuilder->add_constructor("regex_declarator\:regex_def", sub {my($m)=@_;
+$self->add_constructor("regex_declarator\:regex_def", sub {my($m)=@_;
 (do{IRx1::RegexDef->newp($m, irbuild_ir($m->{"hash"}->{"ident"}), irbuild_ir($m->{"hash"}->{"regex_block"}))})});
-$main::irbuilder->add_constructor("regex_block", sub {my($m)=@_;
+$self->add_constructor("regex_block", sub {my($m)=@_;
 (do{irbuild_ir($m->{"hash"}->{"regex"})})});
-$main::irbuilder->add_constructor("regex", sub {my($m)=@_;
+$self->add_constructor("regex", sub {my($m)=@_;
 (do{IRx1::Regex->newp($m, irbuild_ir($m->{"hash"}->{"pattern"}))})});
-$main::irbuilder->add_constructor("regex_first", sub {my($m)=@_;
+$self->add_constructor("regex_first", sub {my($m)=@_;
 (do{IRx1::RxFirst->newp($m, irbuild_ir($m->{"hash"}->{"patterns"}))})});
-$main::irbuilder->add_constructor("regex_every", sub {my($m)=@_;
+$self->add_constructor("regex_every", sub {my($m)=@_;
 (do{IRx1::RxEvery->newp($m, irbuild_ir($m->{"hash"}->{"patterns"}))})});
-$main::irbuilder->add_constructor("regex_submatch", sub {my($m)=@_;
+$self->add_constructor("regex_submatch", sub {my($m)=@_;
 (do{IRx1::RxSubmatch->newp($m, irbuild_ir($m->{"hash"}->{"patterns"}))})});
-$main::irbuilder->add_constructor("regex_any", sub {my($m)=@_;
+$self->add_constructor("regex_any", sub {my($m)=@_;
 (do{IRx1::RxAny->newp($m, irbuild_ir($m->{"hash"}->{"patterns"}))})});
-$main::irbuilder->add_constructor("regex_all", sub {my($m)=@_;
+$self->add_constructor("regex_all", sub {my($m)=@_;
 (do{IRx1::RxAll->newp($m, irbuild_ir($m->{"hash"}->{"patterns"}))})});
-$main::irbuilder->add_constructor("regex_sequence", sub {my($m)=@_;
+$self->add_constructor("regex_sequence", sub {my($m)=@_;
 (do{IRx1::RxSequence->newp($m, irbuild_ir($m->{"hash"}->{"patterns"}))})});
-$main::irbuilder->add_constructor("regex_quantified_atom", sub {my($m)=@_;
+$self->add_constructor("regex_quantified_atom", sub {my($m)=@_;
 (do{IRx1::RxQuantifiedAtom->newp($m, irbuild_ir($m->{"hash"}->{"regex_atom"}), irbuild_ir($m->{"hash"}->{"regex_quantifier"}))})});
-$main::irbuilder->add_constructor("regex_quantifier", sub {my($m)=@_;
+$self->add_constructor("regex_quantifier", sub {my($m)=@_;
 (do{($m->match_string())})});
-$main::irbuilder->add_constructor("regex_atom", sub {my($m)=@_;
+$self->add_constructor("regex_atom", sub {my($m)=@_;
 (do{my $key;
 for(($m->{"hash"}->keys())->flatten){
 (do{if(($_ ne "match")) {
@@ -2434,26 +2449,27 @@ if(irbuild_ir($m->{"hash"}->{"char"})) {
 }else {
 (do{$one})
 }})});
-$main::irbuilder->add_constructor("regex_metachar\:regex_backslash", sub {my($m)=@_;
+$self->add_constructor("regex_metachar\:regex_backslash", sub {my($m)=@_;
 (do{IRx1::RxBackslash->newp($m, ($m->match_string()))})});
-$main::irbuilder->add_constructor("regex_metachar\:regex_mod_internal", sub {my($m)=@_;
+$self->add_constructor("regex_metachar\:regex_mod_internal", sub {my($m)=@_;
 (do{IRx1::RxModInternal->newp($m, ($m->match_string()))})});
-$main::irbuilder->add_constructor("regex_assertion\:ident", sub {my($m)=@_;
+$self->add_constructor("regex_assertion\:ident", sub {my($m)=@_;
 (do{IRx1::RxAssertion->newp($m, irbuild_ir($m->{"hash"}->{"ident"}))})});
-$main::irbuilder->add_constructor("regex_metachar\:capture", sub {my($m)=@_;
+$self->add_constructor("regex_metachar\:capture", sub {my($m)=@_;
 (do{IRx1::RxCapture->newp($m, irbuild_ir($m->{"hash"}->{"regex"}->{"hash"}->{"pattern"}))})});
-$main::irbuilder->add_constructor("regex_metachar\:group", sub {my($m)=@_;
+$self->add_constructor("regex_metachar\:group", sub {my($m)=@_;
 (do{IRx1::RxGroup->newp($m, irbuild_ir($m->{"hash"}->{"regex"}->{"hash"}->{"pattern"}))})});
-$main::irbuilder->add_constructor("regex_metachar\:block", sub {my($m)=@_;
+$self->add_constructor("regex_metachar\:block", sub {my($m)=@_;
 (do{IRx1::RxBlock->newp($m, irbuild_ir($m->{"hash"}->{"block"}))})});
-$main::irbuilder->add_constructor("regex_metachar\:var", sub {my($m)=@_;
+$self->add_constructor("regex_metachar\:var", sub {my($m)=@_;
 (do{IRx1::RxBind->newp($m, irbuild_ir($m->{"hash"}->{"variable"}), irbuild_ir($m->{"hash"}->{"binding"}))})});
-$main::irbuilder->add_constructor("regex_metachar\:q", sub {my($m)=@_;
+$self->add_constructor("regex_metachar\:q", sub {my($m)=@_;
 (do{IRx1::RxLiteral->newp($m, irbuild_ir($m->{"hash"}->{"text"}), "\'")})});
-$main::irbuilder->add_constructor("regex_metachar\:qq", sub {my($m)=@_;
+$self->add_constructor("regex_metachar\:qq", sub {my($m)=@_;
 (do{IRx1::RxLiteral->newp($m, irbuild_ir($m->{"hash"}->{"text"}), "\"")})});
-$main::irbuilder->add_constructor("regex_metachar", sub {my($m)=@_;
-(do{IRx1::RxSymbol->newp($m, ($m->match_string()))})})})
+$self->add_constructor("regex_metachar", sub {my($m)=@_;
+(do{IRx1::RxSymbol->newp($m, ($m->match_string()))})});
+$self})}})
 }
 ;
 
@@ -2718,6 +2734,10 @@ sub prelude_oo{my $self=CORE::shift;(do{if($self->using_Moose) {
 \ \ \ \ \ \ \ \ \}\
 \ \ \ \ \ \ \ \ \$obj\;\
 \ \ \ \ \}\
+\ \ \ \ sub\ become\ \{\
+\ \ \ \ \ \ my\(\$self\,\$cls\)\=\@_\;\
+\ \ \ \ \ \ bless\ \$self\,\$cls\;\
+\ \ \ \ \}\
 \}\
 "})
 }})};
@@ -2760,6 +2780,7 @@ if\(\!defined\(\&autobox\:\:universal\:\:type\)\)\ \{\
 \{\ package\ Str\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
 \{\ package\ Array\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
 \{\ package\ Hash\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
+\{\ package\ Code\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
 \
 no\ warnings\ qw\(redefine\ prototype\)\;\
 \{\ package\ STRING\;\
@@ -2917,6 +2938,11 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \
 \ \ sub\ dup\ \{\ my\ \$h\ \=\ CORE\:\:shift\;\ my\ \$h1\ \=\ \{\%\$h\}\;\ \$h1\}\ \#\ obsolete\
 \}\
+\{\ package\ CODE\;\
+\ \ use\ base\ \"Code\"\;\
+\ \ sub\ WHAT\ \{\"Code\"\}\
+\}\
+\
 use\ warnings\;\
 \
 \{\ package\ Any\;\ sub\ __make_not_empty_for_use_base\{\}\}\
@@ -3064,6 +3090,8 @@ use\ warnings\;\
 \ \ our\ \$compiler1\;\
 \ \ our\ \$parser0\;\
 \ \ our\ \$parser1\;\
+\ \ our\ \$ast2ir_0\;\
+\ \ our\ \$ast2ir_1\;\
 \ \ our\ \$emitter0\;\
 \ \ our\ \$emitter1\;\
 \
@@ -3505,6 +3533,8 @@ return($op->re_gsub("\ ", $arg))})
 }})
 }elsif((($fun eq "self"))) {
 (do{return("\$self")})
+}elsif((($fun eq "next"))) {
+(do{return("next")})
 }elsif((($fun eq "last"))) {
 (do{return("last")})
 }elsif((($fun eq "return"))) {
@@ -3911,10 +3941,13 @@ my $cached = $self->compile_fragment_cache_get($code, $filename);
 if($cached) {
 (do{$cached})
 }else {
-(do{if($self->is_for_active_runtime) {
-(do{($tree = $GLOBAL::parser0->parse($code, $filename))})
+(do{{ package main; use vars '$irbuilder'};local $main::irbuilder;
+if($self->is_for_active_runtime) {
+(do{($tree = $GLOBAL::parser0->parse($code, $filename));
+($main::irbuilder = $GLOBAL::ast2ir_0)})
 }else {
-(do{($tree = $GLOBAL::parser1->parse($code, $filename))})
+(do{($tree = $GLOBAL::parser1->parse($code, $filename));
+($main::irbuilder = $GLOBAL::ast2ir_1)})
 };
 if($verbose) {
 (do{GLOBAL::say($tree->match_describe())})

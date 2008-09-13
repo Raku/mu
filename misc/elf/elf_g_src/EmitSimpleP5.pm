@@ -40,6 +40,10 @@ class EmitSimpleP5 {
         }
         $obj;
     }
+    sub become {
+      my($self,$cls)=@_;
+      bless $self,$cls;
+    }
 }
 ';
     }
@@ -83,6 +87,7 @@ if(!defined(&autobox::universal::type)) {
 { package Str; our $_tell_use_base_i_am_not_empty_; }
 { package Array; our $_tell_use_base_i_am_not_empty_; }
 { package Hash; our $_tell_use_base_i_am_not_empty_; }
+{ package Code; our $_tell_use_base_i_am_not_empty_; }
 
 no warnings qw(redefine prototype);
 { package STRING;
@@ -240,6 +245,11 @@ no warnings qw(redefine prototype);
 
   sub dup { my $h = CORE::shift; my $h1 = {%$h}; $h1} # obsolete
 }
+{ package CODE;
+  use base "Code";
+  sub WHAT {"Code"}
+}
+
 use warnings;
 
 { package Any; sub __make_not_empty_for_use_base{}}
@@ -387,6 +397,8 @@ use warnings;
   our $compiler1;
   our $parser0;
   our $parser1;
+  our $ast2ir_0;
+  our $ast2ir_1;
   our $emitter0;
   our $emitter1;
 
@@ -814,6 +826,9 @@ package Main;
     }
     elsif ($fun eq 'self') {
       return '$self'
+    }
+    elsif ($fun eq 'next') {
+      return 'next'
     }
     elsif ($fun eq 'last') {
       return 'last'

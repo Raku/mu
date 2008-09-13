@@ -1,4 +1,4 @@
-pugs t/ svn revision: 21792
+pugs t/ svn revision: 22232
 -  80%	10  8 2		../../../t/01-sanity/01-tap.t
 ok	4		../../../t/01-sanity/02-counter.t
 ok	4		../../../t/01-sanity/03-equal.t
@@ -28,35 +28,23 @@ ok	1		../../../t/blocks/bare_block_with_dollar_underscore.t
 -C 0%	2  0 2		../../../t/blocks/code_blocks_as_sub_args.t
 X  0%	13  0 		../../../t/blocks/currying.t
 -C 0%	2  0 2		../../../t/blocks/defaults.t
--C 0%	13  0 13	../../../t/blocks/goto.t
 X  0%	14  0 		../../../t/blocks/implicit_parameters.t
 -C 0%	6  0 6		../../../t/blocks/lexical_subs.t
--C 0%	12  0 12	../../../t/blocks/loopscope.t
 X  0%	14  0 		../../../t/blocks/lvalue_subroutines.t
 -d 0%	3  0 3		../../../t/blocks/meth_vs_sub_call.t
 -  14%	7  1 0 6!	../../../t/blocks/multidimensional_arglists.t
 -  0%	26  0 26	../../../t/blocks/multi_named_vs_pos.t
 -  66%	3  2 1		../../../t/blocks/nested_named.t
 X  0%	1  0 		../../../t/blocks/param_signature.t
-X  0%	12  0 		../../../t/blocks/pointy.t
--  0%	1  0 1		../../../t/blocks/primitive_named_params.t
 X  0%	6  0 		../../../t/blocks/proto.t
--C 0%	13  0 13	../../../t/blocks/recurse.t
 -C 0%	4  0 4		../../../t/blocks/return_function.t
 -C 0%	8  0 8		../../../t/blocks/scoped_named_subs.t
 X  0%	6  0 		../../../t/blocks/slurpy_code_param.t
--d 0%	26  0 26	../../../t/blocks/slurpy_param.t
--  0%	3  0 1 2!	../../../t/blocks/splat_rw.t
 -d 0%	4  0 4		../../../t/blocks/splatty_in_caller_position.t
--  0%	1  0 1		../../../t/blocks/splatty_with_type.t
 -C 0%	1  0 1		../../../t/blocks/statement_control.t
 -d 0%	6  0 6		../../../t/blocks/sub_arg_errors.t
--d 0%	1  0 1		../../../t/blocks/sub_bug.t
--C 0%	63  0 63	../../../t/blocks/sub_named_params.t
--  33%	12  4 8		../../../t/blocks/sub_parameter_traits.t
 -C 0%	33  0 33	../../../t/blocks/sub_ref.t
 -  10%	10  1 0 9!	../../../t/blocks/sub_return_object_method_call.t
--d 0%	63  0 63	../../../t/blocks/sub_return_values.t
 -C 0%	17  0 17	../../../t/blocks/subroutine.t
 -C 0%	3  0 3		../../../t/blocks/unhashify.t
 -C 0%	20  0 20	../../../t/blocks/wrap.t
@@ -71,31 +59,22 @@ X  0%	19  0 		../../../t/builtins/caller.t
 -C 0%	7  0 7		../../../t/builtins/control_flow/return.t
 -d 0%	3  0 3		../../../t/builtins/math/complex_powers.t
 -  33%	6  2 4		../../../t/builtins/math/NaN.t
--  0%	1  0 1		../../../t/builtins/math/pi_internals.t
 -  45%	11  5 6		../../../t/builtins/my.t
 -d 0%	16  0 16	../../../t/builtins/ref.t
 -C 0%	38  0 38	../../../t/builtins/sigils.t
--d 0%	9  0 9		../../../t/builtins/strings/match.t
--C 0%	12  0 12	../../../t/builtins/strings/subst.t
 -d 0%	44  0 44	../../../t/builtins/strings/unicode.t
 -d 0%	3  0 3		../../../t/builtins/system/crypt.t
 -C 0%	8  0 8		../../../t/closure_traits/ascending_order.t
--C 0%	5  0 5		../../../t/closure_traits/check.t
 -C 0%	7  0 7		../../../t/closure_traits/descending_order.t
--C 0%	11  0 11	../../../t/closure_traits/enter_leave.t
 -C 0%	2  0 2		../../../t/closure_traits/exit_in_begin.t
 -C 0%	2  0 2		../../../t/closure_traits/exit_in_check.t
--C 0%	4  0 4		../../../t/closure_traits/first.t
 -C 0%	18  0 18	../../../t/closure_traits/in_eval.t
--C 0%	11  0 11	../../../t/closure_traits/init.t
 -C 0%	2  0 2		../../../t/closure_traits/in_loop.t
 -C 0%	6  0 6		../../../t/closure_traits/interpolate.t
 -C 0%	10  0 10	../../../t/closure_traits/keep_undo.t
 -C 0%	2  0 2		../../../t/closure_traits/multiple.t
 X  0%	13  0 		../../../t/closure_traits/next.t
--C 0%	16  0 16	../../../t/closure_traits/pre_post.t
 -C 0%	10  0 10	../../../t/closure_traits/rvalue.t
-X  0%	21  0 		../../../t/closure_traits/start.t
 ok	2		../../../t/examples/99problems/problem01.t
 -  0%	2  0 2		../../../t/examples/99problems/problem02.t
 ok	4		../../../t/examples/99problems/problem03.t
@@ -151,7 +130,7 @@ X  0%	9  0 		../../../t/examples/99problems/problem56.t
 -  0%	4  0 4		../../../t/examples/99problems/problem62.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem63.t
 -  0%	1  0 1		../../../t/examples/99problems/problem64.t
--C 0%	1  0 1		../../../t/examples/99problems/problem65.t
+X  0%	1  0 		../../../t/examples/99problems/problem65.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem66.t
 -  50%	2  1 0 1!	../../../t/examples/99problems/problem67.t
 -d 0%	1  0 1		../../../t/examples/99problems/problem68.t
@@ -183,12 +162,9 @@ X  0%	10  0 		../../../t/examples/99problems/problem98.t
 X  0%	?  0 		../../../t/examples/examples.t
 -C 0%	?  0 ?		../../../t/examples/golfex.t
 X  0%	10  0 		../../../t/examples/golf.t
-X  0%	17  0 		../../../t/general/atoms.t
--C 0%	4  0 4		../../../t/general/config.t
 -d 0%	4  0 4		../../../t/junction/abc.t
 -d 0%	1  0 1		../../../t/junction/any_values_infinite_loop.t
 -d 0%	1  0 1		../../../t/junction/array_deref.t
--d 0%	14  0 14	../../../t/junction/associative.t
 -d 0%	7  0 7		../../../t/junction/chained_operators.t
 -d 0%	2  0 2		../../../t/junction/junction_any_pick.t
 -d 0%	23  0 23	../../../t/junction/junction_functions.t
@@ -260,34 +236,14 @@ X  0%	9  0 		../../../t/oo/traits/basic.t
 -d 0%	7  0 7		../../../t/oo/traits/parameterized.t
 X  0%	15  0 		../../../t/oo/trusts.t
 -d 0%	5  0 5		../../../t/oo/value_types.t
-X  0%	74  0 		../../../t/operators/adverbial_modifiers.t
+X  0%	54  0 		../../../t/operators/adverbial_modifiers.t
 ok	4		../../../t/operators/and_precedence.t
--  6%	43  3 7 33!	../../../t/operators/auto.t
--C 0%	46  0 46	../../../t/operators/binding/arrays.t
--C 0%	12  0 12	../../../t/operators/binding/attributes.t
-X  0%	37  0 		../../../t/operators/binding/hashes.t
--C 0%	43  0 43	../../../t/operators/binding/nested.t
--C 0%	28  0 28	../../../t/operators/binding/scalars.t
--C 0%	12  0 12	../../../t/operators/binding/subs.t
-X  0%	22  0 		../../../t/operators/bit.t
--d 0%	1  0 1		../../../t/operators/brainos.t
--  12%	41  5 19 17!	../../../t/operators/context_forcers.t
--d 0%	7  0 7		../../../t/operators/feed.t
-X  0%	22  0 		../../../t/operators/flip-flop.t
-X  0%	56  0 		../../../t/operators/hyper.t
-X  0%	39  0 		../../../t/operators/identity.t
+-C 0%	22  0 22	../../../t/operators/flip-flop.t
 X  0%	7  0 		../../../t/operators/iteration.t
 X  0%	13  0 		../../../t/operators/listquote.t
 -C 0%	4  0 4		../../../t/operators/lvalue.t
-ok	1		../../../t/operators/negated_smartmatch.t
 X  0%	35  0 		../../../t/operators/operator_overloading.t
--C 0%	49  0 49	../../../t/operators/operator.t
--C 0%	47  0 47	../../../t/operators/precedence/builtins.t
-X  0%	10  0 		../../../t/operators/precedence/self-defined.t
 -C 0%	2  0 2		../../../t/operators/recursive_definition.t
--  74%	39  29 3 7!	../../../t/operators/relational.t
-X  0%	56  0 		../../../t/operators/smartmatch.t
-ok	6		../../../t/operators/spaceship_and_datatypes.t
 -d 0%	58  0 58	../../../t/operators/subscript_adverbs.t
 X  0%	1  0 		../../../t/packages/autoload.t
 -C 0%	25  0 25	../../../t/packages/lexical_pragmas.t
@@ -305,6 +261,7 @@ X  0%	13  0 		../../../t/perl5/method.t
 -C 0%	1  0 1		../../../t/perl5/modify_inside_p5.t
 X  0%	2  0 		../../../t/perl5/return.t
 X  0%	5  0 		../../../t/perl5/roundtrip.t
+-  0%	1  0 1		../../../t/pugs/builtins/pi_internals.t
 -d 0%	2  0 2		../../../t/regex/capture_rollback.t
 X  0%	?  0 		../../../t/regex/extract_pghpw.t
 -d 0%	19  0 19	../../../t/regex/from_perl6_rules/anchors.t
@@ -398,12 +355,20 @@ X  0%	97  0 		../../../t/spec/S02-builtin_data_types/pair.t
 X  0%	79  0 		../../../t/spec/S02-builtin_data_types/range.t
 -  0%	8  0 2 6!	../../../t/spec/S02-builtin_data_types/subscripts_and_context.t
 -  7%	13  1 2 10!	../../../t/spec/S02-builtin_data_types/subtypes.t
-X  0%	25  0 		../../../t/spec/S02-builtin_data_types/type.t
+X  0%	27  0 		../../../t/spec/S02-builtin_data_types/type.t
+X  0%	30  0 		../../../t/spec/S02-lexical-conventions/unicode.t
+-  8%	12  1 3 8!	../../../t/spec/S02-literals/array-interpolation.t
 -  1%	57  1 1 55!	../../../t/spec/S02-literals/autoref.t
+-  0%	9  0 9		../../../t/spec/S02-literals/char-by-name.t
+-  0%	43  0 3 40!	../../../t/spec/S02-literals/char-by-number.t
+X  0%	10  0 		../../../t/spec/S02-literals/hash-interpolation.t
 -  0%	4  0 8 -4!	../../../t/spec/S02-literals/hex_chars.t
-X  0%	186  0 		../../../t/spec/S02-literals/quoting.t
--C 0%	93  0 93	../../../t/spec/S02-literals/radix.t
+X  0%	40  0 		../../../t/spec/S02-literals/pairs.t
+X  0%	204  0 		../../../t/spec/S02-literals/quoting.t
+-C 0%	97  0 97	../../../t/spec/S02-literals/radix.t
+X  0%	19  0 		../../../t/spec/S02-literals/underscores.t
 -C 0%	1  0 1		../../../t/spec/S02-magicals/block.t
+-C 0%	4  0 4		../../../t/spec/S02-magicals/config.t
 -d 0%	8  0 8		../../../t/spec/S02-magicals/dollar_bang.t
 -  33%	3  1 2		../../../t/spec/S02-magicals/dollar-underscore.t
 X  0%	14  0 		../../../t/spec/S02-magicals/env.t
@@ -417,59 +382,108 @@ X  0%	19  0 		../../../t/spec/S02-names_and_variables/fmt.t
 X  0%	16  0 		../../../t/spec/S02-names_and_variables/names.t
 -C 0%	?  0 ?		../../../t/spec/S02-names_and_variables/perl.t
 X  0%	13  0 		../../../t/spec/S02-names_and_variables/signature.t
+-C 0%	37  0 37	../../../t/spec/S02-names_and_variables/variables-and-packages.t
 -C 0%	4  0 4		../../../t/spec/S02-polymorphic_types/subset-code.t
 -C 0%	6  0 6		../../../t/spec/S02-polymorphic_types/subset-range.t
+X  0%	45  0 		../../../t/spec/S02-whitespace_and_comments/comments.t
 -d 0%	8  0 8		../../../t/spec/S02-whitespace_and_comments/minimal-whitespace.t
 -d 0%	1  0 1		../../../t/spec/S02-whitespace_and_comments/one-pass-parsing.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
 X  0%	76  0 		../../../t/spec/S02-whitespace_and_comments/unspace.t
+-d 0%	14  0 14	../../../t/spec/S03-junctions/associative.t
+-d 0%	37  0 37	../../../t/spec/S03-junctions/boolean-context.t
 -C 0%	76  0 76	../../../t/spec/S03-junctions/misc.t
 X  0%	190  0 		../../../t/spec/S03-operators/arith.t
 ok	8		../../../t/spec/S03-operators/assign-is-not-binding.t
 X  0%	304  0 		../../../t/spec/S03-operators/assign.t
--  6%	45  3 7 35!	../../../t/spec/S03-operators/autoincrement.t
+-  6%	47  3 7 37!	../../../t/spec/S03-operators/autoincrement.t
+-C 0%	46  0 46	../../../t/spec/S03-operators/binding-arrays.t
+-C 0%	12  0 12	../../../t/spec/S03-operators/binding-attributes.t
+X  0%	37  0 		../../../t/spec/S03-operators/binding-hashes.t
+-C 0%	43  0 43	../../../t/spec/S03-operators/binding-nested.t
+-C 0%	28  0 28	../../../t/spec/S03-operators/binding-scalars.t
+-C 0%	12  0 12	../../../t/spec/S03-operators/binding-subs.t
+X  0%	22  0 		../../../t/spec/S03-operators/bit.t
+-d 0%	1  0 1		../../../t/spec/S03-operators/brainos.t
+-C 0%	6  0 6		../../../t/spec/S03-operators/chained-declarators.t
 -  5%	18  1 6 11!	../../../t/spec/S03-operators/comparison.t
+-  12%	41  5 19 17!	../../../t/spec/S03-operators/context-forcers.t
 -C 0%	35  0 35	../../../t/spec/S03-operators/context.t
 X  0%	11  0 		../../../t/spec/S03-operators/cross-metaop.t
 -C 0%	8  0 8		../../../t/spec/S03-operators/eager_hyper.t
 ok	15		../../../t/spec/S03-operators/equality.t
+X  0%	23  0 		../../../t/spec/S03-operators/feed.t
+X  0%	56  0 		../../../t/spec/S03-operators/hyper.t
 -  28%	39  11 7 21!	../../../t/spec/S03-operators/increment.t
+-C 0%	49  0 49	../../../t/spec/S03-operators/misc.t
 -C 0%	13  0 13	../../../t/spec/S03-operators/not.t
 -  31%	35  11 24	../../../t/spec/S03-operators/numeric-context.t
 -C 0%	5  0 5		../../../t/spec/S03-operators/p5arrow.t
+-C 0%	47  0 47	../../../t/spec/S03-operators/precedence.t
 -d 0%	72  0 72	../../../t/spec/S03-operators/range.t
 X  0%	49  0 		../../../t/spec/S03-operators/reduce-le1arg.t
-X  0%	52  0 		../../../t/spec/S03-operators/reduce-metaop.t
--  57%	64  37 19 8!	../../../t/spec/S03-operators/relational.t
+X  0%	50  0 		../../../t/spec/S03-operators/reduce-metaop.t
+-  52%	70  37 19 14!	../../../t/spec/S03-operators/relational.t
 -C 0%	23  0 23	../../../t/spec/S03-operators/repeat.t
 X  0%	34  0 		../../../t/spec/S03-operators/short-circuit.t
+X  0%	52  0 		../../../t/spec/S03-operators/smartmatch.t
+ok	6		../../../t/spec/S03-operators/spaceship-and-containers.t
 -C 0%	15  0 15	../../../t/spec/S03-operators/ternary.t
 -d 0%	11  0 11	../../../t/spec/S03-operators/true.t
 X  0%	51  0 		../../../t/spec/S03-operators/value_equivalence.t
+-  9%	11  1 4 6!	../../../t/spec/S04-blocks-and-statements/let.t
+X  0%	12  0 		../../../t/spec/S04-blocks-and-statements/pointy.t
+X  0%	31  0 		../../../t/spec/S04-blocks-and-statements/temp.t
+-C 0%	5  0 5		../../../t/spec/S04-closure-traits/check.t
+-C 0%	11  0 11	../../../t/spec/S04-closure-traits/enter-leave.t
+-C 0%	4  0 4		../../../t/spec/S04-closure-traits/first.t
+-C 0%	11  0 11	../../../t/spec/S04-closure-traits/init.t
+-C 0%	16  0 16	../../../t/spec/S04-closure-traits/pre-post.t
+X  0%	21  0 		../../../t/spec/S04-closure-traits/start.t
 -  0%	19  0 1 18!	../../../t/spec/S04-declarations/constant.t
 -C 0%	2  0 2		../../../t/spec/S04-declarations/implicit-parameter.t
 -d 0%	3  0 3		../../../t/spec/S04-declarations/multiple.t
 -C 0%	30  0 30	../../../t/spec/S04-declarations/my.t
 X  0%	20  0 		../../../t/spec/S04-declarations/state.t
+-C 0%	10  0 10	../../../t/spec/S04-statement-modifiers/for.t
+-C 0%	5  0 5		../../../t/spec/S04-statement-modifiers/given.t
+X  0%	8  0 		../../../t/spec/S04-statement-modifiers/if.t
+ok	2		../../../t/spec/S04-statement-modifiers/unless.t
+-C 0%	4  0 4		../../../t/spec/S04-statement-modifiers/until.t
+ok	24		../../../t/spec/S04-statement-modifiers/values_in_bool_context.t
+-C 0%	5  0 5		../../../t/spec/S04-statement-modifiers/while.t
 -C 0%	23  0 23	../../../t/spec/S04-statements/do.t
-X  0%	39  0 		../../../t/spec/S04-statements/for.t
+-C 0%	12  0 12	../../../t/spec/S04-statements/for-scope.t
+X  0%	43  0 		../../../t/spec/S04-statements/for.t
+-C 0%	8  0 8		../../../t/spec/S04-statements/for_with_only_one_item.t
+-C 0%	12  0 12	../../../t/spec/S04-statements/gather.t
 X  0%	48  0 		../../../t/spec/S04-statements/given.t
+-C 0%	13  0 13	../../../t/spec/S04-statements/goto.t
+-C 0%	24  0 24	../../../t/spec/S04-statements/if.t
+-  62%	8  5 0 3!	../../../t/spec/S04-statements/last.t
+-C 0%	15  0 15	../../../t/spec/S04-statements/lazy.t
 -C 0%	23  0 23	../../../t/spec/S04-statements/leave.t
+X  0%	11  0 		../../../t/spec/S04-statements/loop.t
+-C 0%	4  0 4		../../../t/spec/S04-statements/map-and-sort-in-for.t
 -C 0%	12  0 12	../../../t/spec/S04-statements/next.t
 -C 0%	12  0 12	../../../t/spec/S04-statements/no-implicit-block.t
+-C 0%	10  0 10	../../../t/spec/S04-statements/redo.t
 X  0%	16  0 		../../../t/spec/S04-statements/repeat.t
--  7%	14  1 4 9!	../../../t/spec/S04-statements/return.t
+-  33%	15  5 0 10!	../../../t/spec/S04-statements/return.t
 -d 0%	9  0 9		../../../t/spec/S04-statements/terminator.t
 -  12%	24  3 3 18!	../../../t/spec/S04-statements/try.t
+X  0%	10  0 		../../../t/spec/S04-statements/unless.t
 ok	4		../../../t/spec/S04-statements/until.t
 -C 0%	8  0 8		../../../t/spec/S04-statements/while.t
+X  0%	745  0 		../../../t/spec/S05-mass/rx.t
+-  29%	17  5 12	../../../t/spec/S05-match/blocks.t
 -C 0%	63  0 63	../../../t/spec/S05-metasyntax/angle-brackets.t
 ok	13		../../../t/spec/S05-metasyntax/changed.t
 -  4%	23  1 1 21!	../../../t/spec/S05-metasyntax/charset.t
 ok	3		../../../t/spec/S05-metasyntax/combchar.t
--C 0%	29  0 29	../../../t/spec/S05-metasyntax/litvar.t
+-C 0%	35  0 35	../../../t/spec/S05-metasyntax/litvar.t
 -C 0%	21  0 21	../../../t/spec/S05-metasyntax/longest-alternative.t
--C 0%	11  0 11	../../../t/spec/S05-metasyntax/regex.t
+-C 0%	14  0 14	../../../t/spec/S05-metasyntax/regex.t
 -C 0%	17  0 17	../../../t/spec/S05-metasyntax/repeat.t
 -C 0%	10  0 10	../../../t/spec/S05-metasyntax/sequential-alternation.t
 X  0%	5  0 		../../../t/spec/S05-metasyntax/single-quotes.t
@@ -483,19 +497,32 @@ X  0%	6  0 		../../../t/spec/S05-modifier/pos.t
 -C 0%	5  0 5		../../../t/spec/S05-modifier/repetition-exhaustive.t
 -  50%	2  1 1		../../../t/spec/S05-modifier/repetition.t
 X  0%	8  0 		../../../t/spec/S05-modifier/sameaccent.t
-X  0%	42  0 		../../../t/spec/S05-transliteration/trans.t
+-d 0%	9  0 9		../../../t/spec/S05-substitution/match.t
+-C 0%	12  0 12	../../../t/spec/S05-substitution/subst.t
+X  0%	49  0 		../../../t/spec/S05-transliteration/trans.t
+-C 0%	13  0 13	../../../t/spec/S06-advanced_subroutine_features/recurse.t
+-d 0%	63  0 63	../../../t/spec/S06-advanced_subroutine_features/return.t
+X  0%	10  0 		../../../t/spec/S06-advanced_subroutine_features/stub.t
 -C 0%	15  0 15	../../../t/spec/S06-advanced_subroutine_features/want.t
 -C 0%	39  0 39	../../../t/spec/S06-advanced_subroutine_features/wrapping.t
 X  0%	3  0 		../../../t/spec/S06-multi/proto.t
 ok	6		../../../t/spec/S06-multi/syntax.t
 X  0%	18  0 		../../../t/spec/S06-multi/type-based.t
+-C 0%	9  0 9		../../../t/spec/S06-signature/closure-parameters.t
 -C 0%	12  0 12	../../../t/spec/S06-signature/mixed-placeholders.t
--  50%	4  2 0 2!	../../../t/spec/S06-signature/named-parameters.t
+-C 0%	67  0 67	../../../t/spec/S06-signature/named-parameters.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/named-placeholders.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/positional-placeholders.t
+-d 0%	26  0 26	../../../t/spec/S06-signature/slurpy-params-2.t
+-  75%	8  6 2		../../../t/spec/S06-signature/slurpy-params.t
 -C 0%	6  0 6		../../../t/spec/S06-signature/slurpy-placeholders.t
+X  0%	20  0 		../../../t/spec/S06-signature/tree-node-parameters.t
 ok	3		../../../t/spec/S06-traits/is-copy.t
+-C 0%	9  0 9		../../../t/spec/S06-traits/is-readonly.t
 -C 0%	6  0 6		../../../t/spec/S06-traits/is-rw.t
+-  33%	12  4 8		../../../t/spec/S06-traits/misc.t
+X  0%	10  0 		../../../t/spec/S06-traits/precedence.t
+-  0%	3  0 1 2!	../../../t/spec/S06-traits/slurpy-is-rw.t
 -C 0%	38  0 38	../../../t/spec/S09-autovivification/autovivification.t
 -C 0%	24  0 24	../../../t/spec/S09-subscript_slice/slice.t
 -C 0%	7  0 7		../../../t/spec/S10-packages/export.t
@@ -509,7 +536,7 @@ X  0%	23  0 		../../../t/spec/S10-packages/scope.t
 -d 0%	2  0 2		../../../t/spec/S12-attributes/class.t
 -C 0%	41  0 41	../../../t/spec/S12-attributes/delegation.t
 -C 0%	6  0 6		../../../t/spec/S12-class/anonymous.t
-X  0%	9  0 		../../../t/spec/S12-class/attributes.t
+X  0%	19  0 		../../../t/spec/S12-class/attributes.t
 -C 0%	21  0 21	../../../t/spec/S12-class/basic.t
 -  50%	2  1 1		../../../t/spec/S12-class/declaration-order.t
 ok	5		../../../t/spec/S12-class/inheritance-class-methods.t
@@ -533,7 +560,8 @@ X  0%	10  0 		../../../t/spec/S12-methods/what.t
 X  0%	4  0 		../../../t/spec/S12-role/attributes.t
 -C 0%	18  0 18	../../../t/spec/S12-role/basic.t
 ok	8		../../../t/spec/S12-role/composition.t
--d 0%	11  0 11	../../../t/spec/S12-role/mixin.t
+-d 0%	13  0 13	../../../t/spec/S12-role/mixin.t
+-C 0%	4  0 4		../../../t/spec/S12-subset/multi-dispatch.t
 -C 0%	2  0 2		../../../t/spec/S13-overloading/fallbacks-deep.t
 -C 0%	5  0 5		../../../t/spec/S13-overloading/multiple-signatures.t
 X  0%	14  0 		../../../t/spec/S13-overloading/typecasting-long.t
@@ -552,7 +580,7 @@ X  0%	6  0 		../../../t/spec/S16-filehandles/unlink.t
 X  0%	1  0 		../../../t/spec/S16-io/getc.t
 -  33%	12  4 0 8!	../../../t/spec/S16-io/print.t
 ok	5		../../../t/spec/S16-io/say.t
--C 0%	1  0 1		../../../t/spec/S16-unfiled/getpeername.t
+-d 0%	1  0 1		../../../t/spec/S16-unfiled/getpeername.t
 -d 0%	3  0 3		../../../t/spec/S16-unfiled/readline.t
 -C 0%	9  0 9		../../../t/spec/S16-unfiled/slurp.t
 X  0%	17  0 		../../../t/spec/S17-async/async.t
@@ -575,15 +603,15 @@ ok	3		../../../t/spec/S29-any/cmp.t
 -d 0%	8  0 8		../../../t/spec/S29-container/roundrobin.t
 -d 0%	9  0 9		../../../t/spec/S29-container/zip.t
 -  40%	10  4 6		../../../t/spec/S29-context/die_arg_preservation.t
-X  0%	14  0 		../../../t/spec/S29-context/die.t
+X  0%	12  0 		../../../t/spec/S29-context/die.t
 X  0%	1  0 		../../../t/spec/S29-context/evalfile.t
 -  44%	9  4 1 4!	../../../t/spec/S29-context/eval.t
 ok	1		../../../t/spec/S29-context/exit-in-if.t
 ok	1		../../../t/spec/S29-context/exit.t
 -C 0%	4  0 4		../../../t/spec/S29-context/sleep.t
 X  0%	?  0 		../../../t/spec/S29-conversions/ord_and_chr.t
--d 0%	11  0 11	../../../t/spec/S29-hash/delete.t
-X  0%	19  0 		../../../t/spec/S29-hash/exists.t
+-  22%	9  2 1 6!	../../../t/spec/S29-hash/delete.t
+-C 0%	19  0 19	../../../t/spec/S29-hash/exists.t
 -d 0%	2  0 2		../../../t/spec/S29-hash/isa.t
 -d 0%	12  0 12	../../../t/spec/S29-hash/keys_values.t
 -C 0%	27  0 27	../../../t/spec/S29-hash/kv.t
@@ -627,7 +655,7 @@ X  0%	?  0 		../../../t/spec/S29-os/system-with-spaces.t
 -d 0%	35  0 35	../../../t/spec/S29-str/chomp.t
 -C 0%	12  0 12	../../../t/spec/S29-str/chop.t
 -C 0%	10  0 10	../../../t/spec/S29-str/comb.t
--d 0%	34  0 34	../../../t/spec/S29-str/index.t
+-d 0%	35  0 35	../../../t/spec/S29-str/index.t
 -C 0%	8  0 8		../../../t/spec/S29-str/lcfirst.t
 -C 0%	12  0 12	../../../t/spec/S29-str/lc.t
 -  3%	55  2 1 52!	../../../t/spec/S29-str/length.t
@@ -635,7 +663,7 @@ X  0%	?  0 		../../../t/spec/S29-os/system-with-spaces.t
 -d 0%	6  0 6		../../../t/spec/S29-str/p5chop.t
 -  50%	2  1 0 1!	../../../t/spec/S29-str/pos.t
 X  0%	11  0 		../../../t/spec/S29-str/quotemeta.t
--d 0%	31  0 31	../../../t/spec/S29-str/rindex.t
+-d 0%	32  0 32	../../../t/spec/S29-str/rindex.t
 -d 0%	7  0 7		../../../t/spec/S29-str/sameaccent.t
 -d 0%	8  0 8		../../../t/spec/S29-str/samecase.t
 X  0%	27  0 		../../../t/spec/S29-str/split.t
@@ -647,45 +675,18 @@ X  0%	10  0 		../../../t/spec/S29-time/time.t
 -d 0%	6  0 6		../../../t/spec/S29-trig/e.t
 -d 0%	53  0 53	../../../t/spec/S29-trig/trig.t
 -C 0%	9  0 9		../../../t/spec/S29-type/declarations.t
--C 0%	8  0 8		../../../t/statements/for_with_only_one_item.t
--C 0%	12  0 12	../../../t/statements/gather.t
--C 0%	3  0 3		../../../t/statements/grep-and-sort-in-for.t
--C 0%	24  0 24	../../../t/statements/if.t
 -C 0%	?  0 ?		../../../t/statements/io_leaking_into_runtime.t
--  62%	8  5 0 3!	../../../t/statements/last.t
-X  0%	14  0 		../../../t/statements/loop.t
--C 0%	3  0 3		../../../t/statements/map-and-sort-in-for.t
--C 0%	12  0 12	../../../t/statements/modifiers/for.t
--C 0%	4  0 4		../../../t/statements/modifiers/given.t
--C 0%	4  0 4		../../../t/statements/modifiers/if2.t
-X  0%	1  0 		../../../t/statements/modifiers/if3.t
-ok	2		../../../t/statements/modifiers/if.t
-ok	2		../../../t/statements/modifiers/unless.t
--C 0%	3  0 3		../../../t/statements/modifiers/until.t
--C 0%	3  0 3		../../../t/statements/modifiers/while.t
--C 0%	10  0 10	../../../t/statements/redo.t
-X  0%	10  0 		../../../t/statements/unless.t
-ok	4		../../../t/statements/until.t
-ok	24		../../../t/statements/values_in_bool_context.t
--  0%	9  0 9		../../../t/syntax/char_by_name.t
--  0%	43  0 3 40!	../../../t/syntax/char_by_number.t
-X  0%	40  0 		../../../t/syntax/comments.t
 -C 0%	6  0 6		../../../t/syntax/decl_vs_assign_prec.t
 -d 0%	40  0 40	../../../t/syntax/force_context.t
 -d 0%	2  0 2		../../../t/syntax/hyper_latin1.t
 X  0%	18  0 		../../../t/syntax/inplace.t
--  0%	10  0 2 8!	../../../t/syntax/interpolation/arrays.t
 -  0%	11  0 8 3!	../../../t/syntax/interpolation/fmt.t
--  14%	7  1 6		../../../t/syntax/interpolation/hash_access.t
 X  0%	39  0 		../../../t/syntax/interpolation/strings.t
 ok	3		../../../t/syntax/lf_in_list.t
 -C 0%	4  0 4		../../../t/syntax/list_comprehension.t
 -d 0%	?  0 ?		../../../t/syntax/list_quote_junction.t
 -C 0%	?  0 ?		../../../t/syntax/list_quote_whitespace.t
--C 0%	4  0 4		../../../t/syntax/numbers/list_of_digits.t
 -C 0%	?  0 ?		../../../t/syntax/numbers/misc.t
-X  0%	19  0 		../../../t/syntax/numbers/underscores.t
--C 0%	39  0 39	../../../t/syntax/pairs.t
 -d 0%	1  0 1		../../../t/syntax/parsing/braces_in_rules.t
 -  0%	6  0 6		../../../t/syntax/parsing/braces_in_strings.t
 -  33%	3  1 2		../../../t/syntax/parsing/filetest.t
@@ -705,7 +706,6 @@ X  0%	5  0 		../../../t/syntax/POD.t
 ok	1		../../../t/syntax/single_quoted_strings.t
 X  0%	3  0 		../../../t/syntax/stmt_or_expr.t
 -  0%	1  0 0 1!	../../../t/syntax/symbol_table.t
-X  0%	30  0 		../../../t/syntax/unicode.t
 -  0%	4  0 2 2!	../../../t/syntax/varnames.t
 X  0%	3  0 		../../../t/types/variables.t
 X  0%	9  0 		../../../t/unspecced/assignment.t
@@ -718,6 +718,7 @@ X  0%	1  0 		../../../t/unspecced/async.t
 -C 0%	17  0 17	../../../t/unspecced/evaluation_order.t
 X  0%	4  0 		../../../t/unspecced/eval_yaml.t
 X  0%	14  0 		../../../t/unspecced/precompile.t
+-  0%	1  0 1		../../../t/unspecced/primitive_named_params.t
 X  0%	28  0 		../../../t/unspecced/sort.t
 -d 0%	4  0 4		../../../t/unspecced/sub_application.t
 -C 0%	3  0 3		../../../t/unspecced/tailcall.t
@@ -725,18 +726,12 @@ X  0%	5  0 		../../../t/unspecced/times.t
 -  16%	18  3 0 15!	../../../t/var/assigning_refs.t
 -d 0%	22  0 22	../../../t/var/autoderef.t
 -C 0%	18  0 18	../../../t/var/caller.t
--C 0%	6  0 6		../../../t/var/chained.t
 -  80%	5  4 1		../../../t/var/contextual.t
 -  0%	4  0 1 3!	../../../t/var/default_scalar.t
--C 0%	9  0 9		../../../t/var/is_readonly.t
--C 0%	15  0 15	../../../t/var/lazy.t
--  9%	11  1 4 6!	../../../t/var/let.t
 -  42%	7  3 0 4!	../../../t/var/lvalue_deep_brackets.t
 ok	2		../../../t/var/passing_the_pair_class_to_a_sub.t
 -C 0%	12  0 12	../../../t/var/refs_point_to_containers.t
-X  0%	24  0 		../../../t/var/symbolic_deref.t
-X  0%	31  0 		../../../t/var/temp.t
--C 0%	37  0 37	../../../t/var/var.t
+X  0%	22  0 		../../../t/var/symbolic_deref.t
 X  0%	6  0 		../../../t/xx-uncategorized/assuming_and_mmd.t
 X  0%	2  0 		../../../t/xx-uncategorized/attribute_hash.t
 -d 0%	4  0 4		../../../t/xx-uncategorized/attribute_of_return_value.t
@@ -857,5 +852,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 857.  652 parsed 76%.  373 run 43%.  87 ok 10%.
-Tests: 17087+.  658 ok <3.85%, 16429+ not.
+Files: 852.  644 parsed 75%.  367 run 43%.  84 ok 9%.
+Tests: 17848+.  634 ok <3.55%, 17214+ not.

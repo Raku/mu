@@ -50,10 +50,13 @@ class Compiler {
       $cached
     }
     else {
+      temp $main::irbuilder;
       if $.is_for_active_runtime {
         $tree = $*parser0.parse($code,$filename);
+        $main::irbuilder = $*ast2ir_0;
       } else {
         $tree = $*parser1.parse($code,$filename);
+        $main::irbuilder = $*ast2ir_1;
       }
       if $verbose { say $tree.match_describe; }
       my $ir = $tree.make_ir_from_Match_tree();
