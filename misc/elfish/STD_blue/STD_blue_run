@@ -2,51 +2,173 @@
 BEGIN {
   my $mydir = $0;
   my $mydir =~ s|[^/]+$||;
-  my $p6dir = $mydir."../../../src/perl6";
-  push(@INC,$p6dir);
+  my $pugsroot = $ENV{PUGS_ROOT} || $mydir."../../..";
+  my $p6dir = $pugsroot."/src/perl6";
+  unshift(@INC,$p6dir);
 }
-
+use strict;
+use warnings;
+use STD;
+use utf8;
+use Encode;
+use File::Temp qw(tempfile);
+use Digest::MD5 qw(md5_hex);
 
 sub print_usage_and_exit {
-    print STDERR <<END;
+  my($msg,$code)=@_;
+  $code = 2 if !defined $code;
+  print $msg,"\n\n" if $msg;
+  print STDERR <<END;
 $0 [-q] [--format=FORMAT] [ --start=RULE ] [ FILENAME | -e CODE ]
+
+--start is ignored.  See src/perl6/try5 for how to do it.
+
+Set STD_RED_CACHEDIR as with STD_red_run.
 
 FORMATs
  p5a
 
 END
+  exit($code);
 }
 
 # for command line, see ../../STD_red/STD_red_run
+my($error_message,$quiet,$format,$start,$filename,$code,$dash_e)=@_;
 
+my $file;
+sub main {
+  print_usage_and_exit if !@_;
+  print_usage_and_exit(undef,0) if @_ == 1 && $_[0] eq '--help';
+  if($_[0] =~ /\A--error-message=(.+)/) {
+    $error_message = $1;
+    shift;
+  }
+  if($_[0] eq '-q') {
+    $quiet = 1;
+    shift; 
+  }
+  if($_[0] =~ /\A--format=(\w+)/) {
+    $format = $1;
+    shift;
+  }
+  if($_[0] =~ /\A--start=(\w+)/) {
+    $start = $1;
+    shift;
+  }
+  if($_[0] eq '-e') {
+    shift;
+    $code = shift;
+    $dash_e = 1;
+  }
+  elsif(@_) {
+    $filename = shift;
+    print_usage_and_exit("File $filename doesn't exist.") if !-e $filename;
+    $code = `cat $filename`;
+  }
+  else {
+    print_usage_and_exit
+  }
 
-my $file = shift;
+  my($cache_file,$output) = cached_output_for($code, $format);
+  if($output && !$dash_e){print $output; exit;}
 
-use STD;
-use utf8;
-use YAML::XS; # can be removed once Dump() goes away.
-use Encode;
+  if(!$filename) {
+    my $fn;
+    ($fn,$filename) = tempfile(undef, UNLINK => 1);
+    print $fn $code;
+    close($fn);
+  }
 
-my $r = STD->parsefile($file);
+  my $r = STD->parsefile($filename);
+
+  if(!$r) {
+    print STDERR "Parse failed.\n";
+    exit(1);
+  }
+
+  if(!$format) {
+    #print STD::Dump($r);
+    #use YAML::XS;
+    #print Dump($r);
+    #use Data::Dumper;
+    #print Dumper($r);
+    use DumpMatch; #src/perl6/STD5_dump_match
+    print dump_match("comp_unit",$r,{vertical=>1});
+  } 
+  elsif($format eq 'p5a') {
+    print out($cache_file,$r->to_dump0);
+  }
+  else {
+    print_usage_and_exit
+  }
+}
+sub cached_output_for {
+  my($code,$format)=@_;
+  my $cachedir = $ENV{STD_RED_CACHEDIR};
+  return undef if !$cachedir || !$format;
+  my $input = $code.$format;
+  my $input_sig = md5_hex($input);
+  my $cache_file = $cachedir.'/parse_blue_'.substr($input_sig,0,32);
+  my $output;
+  if(-e $cache_file) {
+    $output = `cat $cache_file`;
+  }
+  return($cache_file,$output);
+}
+sub out {
+  my($cache_file,$output)=@_;
+  if($cache_file) {
+    open(F,">$cache_file") or die "$cache_file: $!";
+    print F $output;
+    close F;
+  }
+  $output;
+}
 
 
 # for to_dump0, see ../../STD_red/match.rb, bottom
 use autobox;
 { package STD;
+  our $type = 'comp_unit';
   sub to_dump0 {
+    my($o)=@_;
+    my $f = $o->{_from};
+    my $t = $o->{_to};
+    my $str = ${$o->{_orig}};
+    my $s = substr($str,$f,$t-$f);
+    $s =~ s/(\\')/\\$1/g;
+    my $h = join("",map{
+      if(/^_/) { "" } else {
+        my $v = $o->{$_};
+        local $type = $_;
+        my $vs = $v->to_dump0;
+        "\n $_ => $vs,"
+      }
+    }keys(%$o));
+    "match('$type','$s',$f,$t,{$h})"
   }
 }
 { package ARRAY;
   sub to_dump0 {
+    my($o)=@_;
+    '['.join(",",map{$_->to_dump0}@$o).']'
   }
 }
 { package HASH;
   sub to_dump0 {
+    my($o)=@_;
+    '{'.join(",",map{$_.' => '.$o->{$_}->to_dump0}keys(%$o)).'}'
   }
 }
 { package SCALAR;
   sub to_dump0 {
+    my($o)=@_;
+    $o =~ s/([\\'\$\@\%])/\\$1/g;
+    "'".$o."'";
   }
 }
 
-print Dump($r);
+
+main(@ARGV);
+
+

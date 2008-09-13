@@ -1,0 +1,42 @@
+STD_blue is a src/perl6/gimme5 based parser for elf.
+
+QUICKSTART
+
+$ make elfx
+$ ./elfx -s -v -e 'say 3'
+
+STATUS
+
+It cannot quite do -e 'say 3'.
+
+VISION
+
+Flesh out IRx1_FromAST2_create.pl to support bootstrapping elf on STD_blue.
+
+gimme5, and thus STD_blue, is currently too slow to replace STD_red as
+the primary elf parser.
+
+At some point, fork a copy of src/perl6/gimme5 et.al. for stability.
+
+Combine IRx1_FromAST2_create.pl, elf_g, and rx_on_re, and teach them to
+compile and run STD.pm.  Thus permitting the front-end to be bootstrapped.
+
+
+NOTES
+
+There are two approaches to testing IRx1_FromAST2_create.pl progress.
+
+  (1) Rebuild elfx, which is a combination of elf_g plus the new code.
+$ ./IRx1_FromAST2_create.pl
+$ make elfx
+$ ./elfx -s -v -e 'say 3'
+
+  (2) Just eval the new code along with the test.
+$ ./IRx1_FromAST2_create.pl
+$ ../../elf/elf_g Parser2.pm IRx1_FromAST2.pm -s -v -e 'say 3'
+
+Approach (1) takes me ~10 seconds, which is a bit slow for rapid
+edit-test-repeat development.  (2) only takes ~3 seconds.
+But (1) is faster if you are going to run several tests
+(since it avoids recompiling IRx1_FromAST2.pm for each test).
+
