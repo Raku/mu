@@ -45,12 +45,14 @@ class EmitRegex {
 
   method regex_prelude () {
     my $rmare = self.expand_backtrack_macros('
+#line 1 "regex_prelude-rmare"
 
 { package VersionConstraints;
   use Regexp::Common 2.122;
   use Sub::Name 0.03;
   use Filter::Simple 0.82;
 }
+
 
 package Regexp::ModuleA;
 use strict;
@@ -294,10 +296,11 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
 
   sub RMARE_group {
     my($o,$f,$target_spec,$in_quant)=@_;
-    my $foo = subname "<group ".($sub_id++).">" => sub {
+    my $myid = $sub_id++;
+    my $foo = subname "<group ".($myid).">" => sub {
       my $cn = $_[0];
       my $nd = $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
-      my $close = sub {
+      my $close = subname \'<capture-close \'.($myid).">" => sub {
         my($c)=@_;
         $Regexp::ModuleA::ReentrantEngine::Env::nested_data = $nd;
         my $v = eval { $cn->($c) };
@@ -413,7 +416,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     }
     my $array_alias = $root =~ /^\@/;
     my $code = \'
-sub {
+subname "<alias_wrap ".($myid).">" => sub {
   my($c)=@_;
   my $m = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
   if(1 || !defined($m)){#XXXXX
@@ -439,7 +442,7 @@ sub {
   }LET;
 }\';
 #print STDERR $code;
-    my $capf = subname "<alias_wrap ".($myid).">" => eval($code);
+    my $capf = eval($code);
     die "bug $@" if $@;
     $capf;
   }
@@ -465,7 +468,7 @@ sub {
       my $m1 = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
       if(defined($m1)) {
       } else {
-        $m1 = Regexp::ModuleA::ReentrantEngine::Match0->new_failed;
+        $m1 = Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
       }
       $m1->match_set(1,"",[],{},$pos,undef);
       $$m1->{RULE} ||= $name; #EEEP
@@ -545,7 +548,7 @@ sub {
     $o->RMARE_alias_wrap($f1,undef,1,0,$in_quant,$target_spec);
   }
 
-  sub RMARE_aregex {
+  sub RMARE_aregex_create {
     my($o,$f)=@_;
     my $nparenx = $o->{flags}{p5} ? $o->{nparen} : $o->{nparen6};
     $nparenx = 0 if !defined $nparenx; #XXX arguments to subrules.  aregex not seeing an init.
@@ -668,10 +671,275 @@ sub {
     };
   }
 
+
+  #------------------------------------------------------------
+  # These were originally non-core...
+
+  sub RMARE_subrule_fetching_rx {
+    my($o,$pkg,$pkg_override,$name,$exprse,$neg,$nocap,$in_quant,$target_spec)=@_;
+    my $fetch = subname "<subrule-fetch for $name>" => sub {
+      my $pkg9 = ($pkg_override ||
+                  $Regexp::ModuleA::ReentrantEngine::Env::pkg ||
+                  $pkg);
+      die "assert" if !defined $pkg9;
+      no strict;
+      my $f;
+      eval { $f = $pkg9->$name($name)->(\' api0\'); };
+      Carp::confess $@ if $@;
+      die if $@;
+      use strict;
+      die "assert" if !defined $f;
+      $f;
+    };
+    $o->RMARE_subrule($fetch,$pkg,$pkg_override,$name,$exprse,$neg,$nocap,$in_quant,$target_spec);
+  }
+
+
+  sub RMARE_lookaround {
+    my($o,$is_forward,$is_positive,$f)=@_;
+    my $noop = $o->RMARE_noop;
+    if($is_positive) {
+      if($is_forward) {
+        sub {
+          my $c = $_[0];
+          { local($Regexp::ModuleA::ReentrantEngine::Env::pos)=($Regexp::ModuleA::ReentrantEngine::Env::pos);
+            my $v = $f->($noop);
+            FAIL_IF_FAILED($v);
+          }
+          TAILCALL($c,$noop);
+        }
+      } else {
+        sub {
+          my $c = $_[0];
+          FAIL() if not &_is_found_backwards($f);
+          TAILCALL($c,$noop);
+        }
+      }
+    } else {
+      if($is_forward) {
+        sub {
+          my $c = $_[0];
+          my $v;
+          { local($Regexp::ModuleA::ReentrantEngine::Env::pos)=($Regexp::ModuleA::ReentrantEngine::Env::pos);
+            $v = $f->($noop);
+            FAIL() if not FAILED($v);
+          }
+          TAILCALL($c,$noop);
+        };
+      } else {
+        sub {
+          my $c = $_[0];
+          FAIL() if &_is_found_backwards($f);
+          TAILCALL($c,$noop);
+        };
+      }
+    }
+  }
+  sub _is_found_backwards {
+    my($f)=@_;
+    my $pos = $Regexp::ModuleA::ReentrantEngine::Env::pos;
+    local $Regexp::ModuleA::ReentrantEngine::Env::pos = $Regexp::ModuleA::ReentrantEngine::Env::pos;
+    my $at_pos = sub{ FAIL() if $Regexp::ModuleA::ReentrantEngine::Env::pos != $pos; return 1;};
+    for(my $i = $Regexp::ModuleA::ReentrantEngine::Env::pos;$i>=0;$i--) {
+      $Regexp::ModuleA::ReentrantEngine::Env::pos = $i;
+      my $v = $f->($at_pos);
+      return 1 if not FAILED($v);
+    }
+    return 0;
+  }
+
+  sub RMARE_conditional {
+    my($o,$f_test,$idx,$f_then,$f_else)=@_;
+    my $noop = $o->RMARE_noop;
+    if(!$f_else) {
+      $f_else = subname "<conditional else>" => sub {
+        my $c = $_[0]; TAILCALL($c,$noop);
+      };
+    }
+    if(defined($idx)) {
+      $idx = $idx +0;
+      $f_test = subname "<conditional test>" => sub {
+        my $c = $_[0];
+        my $a = $Regexp::ModuleA::ReentrantEngine::Env::current_match->match_array;
+        FAIL() if $idx > @$a;
+        my $m = $a->[$idx-1];
+        FAIL() if !$m->match_boolean;
+        TAILCALL($c,$noop);
+      };
+    }
+    subname "<conditional>" => sub {
+      my $c = $_[0];
+      my $v;
+      { local($Regexp::ModuleA::ReentrantEngine::Env::pos)=($Regexp::ModuleA::ReentrantEngine::Env::pos);
+        $v = $f_test->($noop);
+      }
+      if(not FAILED($v)) {
+        TAILCALL($f_then,$c);
+      } else {
+        TAILCALL($f_else,$c);
+      }
+    };
+  }
+
+  # XXX high klude factor
+  # (?{ ... })
+  sub RMARE_code {
+    my($o,$code)=@_;
+    my $noop = $o->RMARE_noop;
+    $code = "\'\'" if $code =~ /\A\s*\z/; #YYY XXX Why?
+    my $tmp = _rewrite_matchvars($o,$code);
+    my $need_match = $code ne $tmp || $code =~ /\$M\b/;
+    $code = $tmp;
+    my $src = \'
+#line 2 "in Regexp::ModuleA::Code"
+sub{my $__c__ = $_[0];
+\'.(!$need_match ? \'\' :
+\'  my $M = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+  $M->_match_enable_overload1;\').\'
+ \'.$code.\';
+ $__c__->($noop);}\';
+    #print STDERR $src,"\n";
+    eval($src) || die "Error compiling (?{$code}) :\n$@\n";
+  }
+
+   # XXX high klude factor
+   # (??{ ... })
+  sub RMARE_coderx {
+    my($o,$code)=@_;
+     $code = "\'\'" if $code =~ /\A\s*\z/;
+     my $tmp = $o->_rewrite_matchvars($code);
+     my $need_match = $code ne $tmp || $code =~ /\$M\b/;
+     $code = $tmp;
+     #XXX Really need to PPI the code.
+     my $has_local = $code =~ /\blocal\b/;
+     my $has_semi = $code =~ /;/;
+     $code = ($has_semi && !$has_local) ? "do{$code}" : "($code)";
+     warn "(??{...}) currently doesnt support code with multiple statments and local()" if $has_local && $has_semi;
+     my $src = \'
+ #line 2 "in Regexp::ModuleA::CodeRx"
+ sub{my $__c__ = $_[0];
+ \'.(!$need_match ? \'\' :
+ \'  my $M = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+   $M->_match_enable_overload1;\').\'
+   my $__rx__ = \'.$code.\';
+   die "(??{...}) returned undef" if !defined $__rx__;
+ #  $__rx__ = "(?!)" if !defined $__rx__;
+   my $__f__ = (ref($__rx__) eq "Regexp" || !ref($__rx__)) ? $o->RMARE_eat_regexp("$__rx__") : $__rx__->(" api0");
+   $__f__->($__c__) }\';
+     #print STDERR $src,"\n";
+     eval($src) || die "Error compiling (?{$code}) :\n$@\n";
+   }
+   sub _rewrite_matchvars {
+     my($o_ignored,$s)=@_;
+     local $_ = $s;
+     s/\$([1-9])/\'$M->[\'.($1-1).\']\'/eg; #XXX more...
+     $_;
+   }
+
+  sub RMARE_aregex {
+    my($o,$pkg,$name,$f)=@_;
+    # Why the extra sub?  60+% shorter re_text runtime.  sigh.
+    my $matchergen = subname "even with subname used?" => sub {
+      subname "<an aregex-matcher for $o>" => sub {
+        my($pkg9,$name1,$s,$beginat,$minlen)=@_;
+        local $Regexp::ModuleA::ReentrantEngine::Env::pkg = $pkg9;
+        my $m = $o->RMARE_do_match($f,$s,$beginat,$minlen);
+        $m->_match_enable_overload2;
+        $$m->{RULE} = $name1;
+        if($name1) {
+          my $post = $name1."__post_action";
+          $pkg9->$post($m) if UNIVERSAL::can($pkg9,$post);
+        }
+        $m;
+      }
+    };
+    Regexp::ModuleA::Rx->_new_from_ast($o,$pkg,$name,$f,$matchergen);
+  }
+
+  sub RMARE_biind {
+    my($o,$pkg,$name,$fr)=@_;
+    eval("package $pkg; *$name = \$fr"); die "assert" if $@;
+    $fr;
+  }
+
+  sub RMARE_namespace {
+    my($o,$pkg)=@_;
+    eval("package $pkg;"); die "assert" if $@;
+    undef;
+  }
+
 }
 ');
-   my $match = '
+   my $rx = '
+#line 1 "regex_prelude-rx"
+#======================================================================
+# Rx
+#
+#-- copy.
 
+package Regexp::ModuleA::Rx;
+use Sub::Name;
+
+sub _new_from_ast {
+  my($rxclass,$ast,$pkg,$name,$f,$matchergen)=@_;
+  $pkg ||= "";
+  $name ||= "";
+  my $h = {ast=>$ast,pkg=>$pkg,name=>$name,f=>$f,matchergen=>$matchergen};
+  my $self;
+  my $showname = $name || \'*anon*\';
+  $self = subname "<an aregex for $ast $pkg $showname>" => sub {
+    if(@_ == 0) {
+      return $self;
+    }
+    elsif($_[0] !~ /^ /) {
+      my($cls,$method)=@_; Carp::confess "api assert" if @_ > 2;
+      $method ||= $name;
+      if($cls eq $pkg && $method eq $name) {
+        return $self;
+      }
+      else {
+        return $rxclass->_new_from_ast($ast,$cls,$method,$f,$matchergen);
+      }
+    }
+    else {
+      my($request)=@_;
+      if($request eq \' api0\') { return $f }
+      if($request eq \' hash\') { return $h }
+      if($request eq \' match\') {
+        shift @_;
+        return $matchergen->()($pkg,$name,@_);
+      }
+    }
+    Carp::confess("ui assert");
+    die "ui assert";
+  };
+  bless $self, $rxclass;
+}
+sub _init {
+  my($o,$pat,$mods,$re,$mexpr,$ast)=@_;
+  my $h = $o->(\' hash\');
+  $h->{pattern} = $pat;
+  $h->{modifiers} = $mods;
+  $h->{regexp} = $re;
+  $h->{mexpr} = $mexpr;
+  $h->{ast} = $ast;
+  $o;
+}
+
+sub match {
+  my($o,$str)=@_;
+  $o->(\' match\',$str);
+}
+
+sub _mexpr {
+  my($o)=@_;
+  $o->(\' hash\')->{mexpr};
+}
+
+';
+
+   my $match = '
+#line 1 "regexrx-match"
 #======================================================================
 # Match
 #
@@ -855,7 +1123,7 @@ sub {
 }
 
 ';
-    $rmare ~ "\n" ~ $match;
+    $rmare ~ "\n" ~ $match ~ "\n" ~ $rx;
   };
 };
 
@@ -998,8 +1266,53 @@ package Regexp::ModuleA {
     } #XXX move imsx into eat
   }
 
+  # <foo>
+  class AST::Subrule {
+    method RMARE_emit {
+      my $exprs = self.<exprs>;
+      my $pkg = self.<pkg>;
+      my $name = self.<name>;
+      my $neg = self.<neg>;
+      my $nocap = self.<nocap>;
+      my $in_quant = {if self.<in_quant> { 1 } else { 0 }};
+      my $pkg_override = undef;
+      if ($name =~ /^([\w\:\.]+)\.(\w+)$/) {
+        $name = $2;
+        $pkg_override = $1;
+      }
+      my $target_spec = self.<target_spec>;
+      my $exprs1 = self.<exprs>.map(sub($o){$o.RMARE_emit});
+      $.RMARE_subrule_fetching_rx($pkg,$pkg_override,$name,$exprs1,$neg,$nocap,$in_quant,$target_spec);
+    }
+  }
 
-# gap here
+  # (?(n)t|f)
+  class AST::Conditional {
+    method RMARE_emit {
+      my $f_test; my $idx;
+      my $f_then = self.<expr_then>.RMARE_emit;
+      my $f_else;
+      if self.<expr_else> {
+        $f_else = self.<expr_else>.RMARE_emit;
+      }
+      if self.<test>.isa("Int") {
+        $idx = self.<test>;
+      } else {
+        $f_test = self.<test>.RMARE_emit;
+      }
+      $.RMARE_conditional($f_test,$idx,$f_then,$f_else);
+    }
+  }
+
+  # (?=) (?<=) (?!) (?<!)
+  class AST::Lookaround {
+    method RMARE_emit {
+      my $f = self.<expr>.RMARE_emit;
+      my $is_forward = self.<is_forward>;
+      my $is_positive = self.<is_positive>;
+      $.RMARE_lookaround($is_forward,$is_positive,$f);
+    }
+  }
 
   # (?>)
   class AST::Independent {
@@ -1034,6 +1347,55 @@ package Regexp::ModuleA {
   class AST::CommitMatch {
     method RMARE_emit {
       $.RMARE_commit_match
+    }
+  }
+
+  # (?{ ... })
+  # XXX high klude factor
+  # Code is currently p5!
+  class AST::Code {
+    method RMARE_emit {
+      my $code5 = self.<code>;
+      $.RMARE_code($code5);
+    }
+  }
+
+  # (??{ ... })
+  # XXX high klude factor
+  # Code is currently p5!
+  class AST::CodeRx {
+    method RMARE_emit {
+      my $code5 = self.<code>;
+      $.RMARE_coderx($code5);
+    }
+  }
+
+  # rx/a/
+  class AST::ARegex {
+    method  RMARE_emit {
+      my $pkg = self.<pkg>;
+      my $name = self.<name>;
+      my $f = $.RMARE_aregex_create(self.<expr>.RMARE_emit);
+      $.RMARE_aregex($pkg,$name,$f);
+    }
+  }
+
+  # regex foo /a/; rule foo /a/; token foo /a/
+  class AST::Biind {
+    method RMARE_emit {
+      my $pkg = self.<pkg>;
+      my $name = self.<name>;
+      my $fr = self.<expr>.RMARE_emit;
+      $.RMARE_biind($pkg,$name,$fr);
+    }
+  }
+  
+  # grammar Foo::Bar { ... }
+  class AST::Namespace {
+    method RMARE_emit {
+      my $pkg = self.<pkg>;
+      $.RMARE_namespace($pkg);
+      self.<bindings>.map(sub($o){$o.RMARE_emit}).flatten;
     }
   }
 

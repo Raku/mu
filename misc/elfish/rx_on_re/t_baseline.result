@@ -2825,7 +2825,7 @@ not ok # Unexpected compilation failure.
         # :s[]foo -? bar			foo - bar	y	basic ws match
 not ok # Unexpected compilation failure.
         # :s<?wb>foo -? bar		foo - bar	y	basic ws match with boundary modifier separation
-not ok # Match failed.
+not ok # Unexpected compilation failure.
         # :s::foo -? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
 ok
         # :s::(\w+) \:= (\S+)		dog := spot	/mob 0: <dog @ 0>/	sigspace and capture together
