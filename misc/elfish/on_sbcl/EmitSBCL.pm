@@ -8,7 +8,10 @@ class EmitSBCL {
   has $.compiler;
   has $.filename;
 
-  method tidy($source) { $source }
+  method tidy($source) {
+    if $source.re_matchp('^CompUnit\(') { private_tidy($source) }
+    else { $source }
+  }
 
   method prelude_for_entering_a_package () {
     "";
@@ -18,21 +21,30 @@ class EmitSBCL {
     "";
   };
 
+  method using_Moose() { 0 }
+  method create_default_for($cls,$field_name,$default) {
+   ''
+  }
   method prelude_oo () {
-    '
-';
+   '';
   };
   method prelude ($n) {
   '#|
 #fasl=`dirname $0`/`basename $0 .lisp`.fasl
 #[ $fasl -ot $0 ] && sbcl --noinform --eval "(compile-file \"$0\")" --eval "(quit)"
 #exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
-exec sbcl --noinform --load $0 --end-toplevel-options "$@"
+exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 |#
 '~self.prelude_oo~self.prelude_lexical~'
 
-(defun GLOBAL__say (x) (if (stringp x) (write-string x) (write x)) (format t "~%"))
+(defpackage "GLOBAL" (:use common-lisp))
+(defpackage "Main" (:use common-lisp))
 
+(in-package "GLOBAL")
+(defun say (x) (if (stringp x) (write-string x) (write x)) (format t "~%"))
+
+
+(in-package "Main")
 ';
   };
 
@@ -47,18 +59,18 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
 
   method cb__CompUnit ($n) {
     $n.do_all_analysis();
-    my $+whiteboard::in_package = [];
-    my $+whiteboard::emit_pairs_inline = 0;
-    my $+whiteboard::compunit_footer = ['(quit)'];
+    temp $whiteboard::in_package = [];
+    temp $whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::compunit_footer = [];
     my $code = (
-      ";;; todo: -> Main\n"~
+      '(in-package "Main")'~"\n"~
       self.prelude_for_entering_a_package());
     my $stmts = $.e($n.statements);
-    my $foot = $+whiteboard::compunit_footer.join("\n");
+    my $foot = $whiteboard::compunit_footer.join("\n");
     $code ~ $stmts.join("\n")~$foot~"\n";
   };
   method cb__Block ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
     '(progn '~$.e($n.statements).join("\n")~')'
   };
@@ -79,39 +91,40 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
     }
   };
   method cb__ClosureTrait ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     $n.kind~'{'~$.e($n.block)~'}'
   };
 
   method cb__PackageDecl ($n) {
-    my $in_package = [$+whiteboard::in_package.flatten,$n.name];
+    my $in_package = [$whiteboard::in_package.flatten,$n.name];
     my $name = $in_package.join('::');
     my $base = 'use base "Any";';
     if $name eq 'Any' { $base = '' }
     if $name eq 'Object' { $base = '' }
     if $name eq 'Junction' { $base = '' }
-    my $head = "\n{ package "~$name~";\n";
+    my $head = "\n\{ package "~$name~";\n";
     my $foot = "\n}\n";
     if $.using_Moose {
        $head = $head ~ "use Moose;"~" __PACKAGE__->meta->make_mutable();\n";
        $foot = ";\n__PACKAGE__->meta->make_immutable();\n"~ "\n}\n";
+    } else {
     }
     $head = $head ~ $base~ self.prelude_for_entering_a_package();
     if $n.block {
-      my $+whiteboard::in_package = $in_package; # my()
+      temp $whiteboard::in_package = $in_package; # my()
       $head ~ $.e($n.traits||[]).join("\n") ~ $.e($n.block) ~ $foot;
     } else {
-      $+whiteboard::in_package = $in_package; # not my()
-      $+whiteboard::compunit_footer.unshift($foot);
+      $whiteboard::in_package = $in_package; # not my()
+      $whiteboard::compunit_footer.unshift($foot);
       $head ~ $.e($n.traits||[]).join("\n") ~ ";\n"
     }
   };
   method cb__Trait ($n) {
-    if ($n.verb eq 'is') {
-      my $pkgname = $+whiteboard::in_package.join('::');
-      my $name = $+whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
+    if ($n.verb eq 'is' or $n.verb eq 'does') {
+      my $pkgname = $whiteboard::in_package.join('::');
+      my $name = $whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
       $name.re_gsub('^::','');
-      "BEGIN{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
+      "BEGIN\{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n.verb~" has not been implemented.\n";
       "***Trait***"
@@ -119,14 +132,27 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
   };
 
   method do_VarDecl_has ($n,$default) {
-      if ($default) {
-          $default = ", default => sub{ "~$default~" }"
+    my $name = $.e($n.var.name);
+    if $.using_Moose {
+      my $dflt = $default;
+      if $dflt {
+        $dflt = ", default => sub{ "~$default~" }"
       }
-      "has '"~$.e($n.var.name)~"' => (is => 'rw'"~$default~");"
+      "has '"~$name~"' => (is => 'rw'"~$dflt~");"
+    } else {
+      #my $code = "sub "~$name~': lvalue { $_[0]{'~"'"~$name~"'};}\n";
+      my $x = '$_[0]{'~"'"~$name~"'"~'}';
+      my $code = 'sub '~$name~' { if(@_==2){'~$x~'=$_[1]}else{'~$x~'}}';
+      if $default {
+        my $pkg = $whiteboard::in_package.join('::');
+        $code = $code ~";\n"~ $.create_default_for($pkg,$name,$default);
+      }
+      $code;
+    }
   };
 
   method cb__VarDecl ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     if ($n.scope eq 'has') {
       my $default = "";
       my $default_expr = $.e($n.default_expr);
@@ -148,7 +174,7 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
           my $pre = ''; my $post = '';
           if $n.is_array { $pre = '['; $post = ']' }
           if $n.is_hash  { $pre = '{'; $post = '}' }
-          my $+whiteboard::emit_pairs_inline = 1;
+          temp $whiteboard::emit_pairs_inline = 1;
           $default = ' = '~$pre~$.e($n.default_expr)~$post;
         } else {
           $default = ' = '~$.e($n.default_expr);
@@ -157,12 +183,18 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
         if ($n.var.sigil eq '@') { $default = ' = [];' }
         if ($n.var.sigil eq '%') { $default = ' = {};' }
       }
-      if ($n.is_context) {
-        # HACK 
+      if ($n.is_context) { # BOGUS
         my $name = $.e($n.var);
         $name.re_sub_g('^(.)::','$1');
         ("{package main; use vars '"~$name~"'};"~
          'local'~' '~$.e($n.var)~$default)
+      }
+      elsif ($n.is_temp) {
+        my $var = $n.var;
+        my $nam = $.encode_varname($var.sigil,$var.twigil,$var.bare_name);
+        my $pkg = $n.var.package;
+        ("\{ package "~$pkg~"; use vars '"~$nam~"'};"~
+        'local'~' '~$.e($n.var)~$default)
       }
       else {
         $n.scope~' '~$.e($n.var)~$default
@@ -220,6 +252,7 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
   };
   method multi_using_CM ($n,$is_method,$f_emitted) {
     my $name = $.e($n.name);
+    my $enc_name = $.mangle_function_name($name);
     my $param_types = $n.multisig.parameters.map(sub($p){
       my $types = $.e($p.type_constraints);
       if $types {
@@ -240,8 +273,8 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
       elsif $t eq 'Str' { '$' }
       else { $t }
     }).join(' ');
-    'Class::Multimethods::multimethod '~$name~
-    " => split(/\s+/,'"~$sig~"') => "~ $f_emitted ~';';
+    'Class::Multimethods::multimethod '~$enc_name~
+    ' => split(/\s+/'~",'"~$sig~"') => "~ $f_emitted ~';';
   };
   method cb__MethodDecl ($n) {
     my $body;
@@ -257,12 +290,13 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
       self.multi_using_CM($n,1,$ef);
     }
     else {
-      'sub '~$.e($n.name)~'{my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
+      my $enc_name = $.mangle_function_name($.e($n.name));
+      'sub '~$enc_name~'{my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
     }
   };
 
   method cb__SubDecl ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::emit_pairs_inline = 0;
     my $name = $n.name;
     if $name { $name = $.e($name) } else { $name = "" }
     my $sig = $n.multisig;
@@ -277,22 +311,23 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
       my $ef = 'sub {'~$sig~$body~'}';
       self.multi_using_CM($n,0,$ef);
     } else {
-      '(defun '~$name~' ('~$sig~') '~$body~')';
+      my $enc_name = $.mangle_function_name($name);
+      '(defun '~$enc_name~' ('~$sig~') '~$body~')';
     }
   };
   method cb__Signature ($n) {
     if ($n.parameters.elems == 0) { "" }
     else {
-      my $+whiteboard::signature_inits = "";
+      temp $whiteboard::signature_inits = "";
       my $pl = $.e($n.parameters).join(" ");
-      ''~$pl~''~$+whiteboard::signature_inits~"\n";
+      ''~$pl~''~$whiteboard::signature_inits~"\n";
     }
   };
   method cb__Parameter ($n) {
     my $enc = $.e($n.param_var);
     if $n.quant && $n.quant eq '*' {
       my $tmp = "@"~$n.param_var.name;
-      $+whiteboard::signature_inits = $+whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
+      $whiteboard::signature_inits = $whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
       $tmp;
     } else {
       $enc;
@@ -306,13 +341,14 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
   };
 
   method cb__Call ($n) {
-    my $+whiteboard::emit_pairs_inline = 0;
+    my $g;
+    temp $whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
-    if ($method =~ 'postcircumfix:< >') {
+    if ($method eq 'postcircumfix:< >') {
       $.e($n.invocant)~'->'~"{'"~$.e($n.capture)~"'}";
     }
-    elsif ($method =~ 'postcircumfix:(.*)') {
-      my $op = $1;
+    elsif $g = $method.re_groups('postcircumfix:(.*)') {
+      my $op = $g[0];
       my $arg = $.e($n.capture);
       $op.re_gsub(' ',$arg);
       $.e($n.invocant)~'->'~$op;
@@ -320,17 +356,25 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
       $.e($n.invocant)~'->'~$.e($n.method)~'('~$.e($n.capture)~')'
     }
   };
-  method using_Moose() {
-      # $foo.bar = ... turned into $foo.bar(...)
-      # Moose-based class initializers.
-      1;
+  method mangle_function_name($name) {
+     $name.re_sub('^(\w+):(?!:)','${1}_');
+     $name.re_sub('([^\w])','"_".CORE::ord($1)','eg');
+     $name;
   }
   method cb__Apply ($n) {
-    # my $+whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
+    my $g;
+    # temp $whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
     my $fun = $.e($n.function);
-    if $fun =~ /^infix:(.+)$/ {
-      my $op = $1;
+    if $n.notes<lexical_bindings>{'&'~$fun} {
+       my $fe = $.mangle_function_name($fun);
+       return '('~$fe~' '~$.e($n.capture)~')'
+    }
+    if $g = $fun.re_groups('^infix:(.+)$') {
+      my $op = $g[0];
       my $args = $n.capture.arguments;
+      if $args.elems == 1 && $args[0].isa('IRx1::Apply') && $args[0].function eq 'infix:,' {
+        $args = $args[0].capture.arguments;
+      }
       my $a = $.e($args);
       my $l = $a[0];
       my $r = $a[1];
@@ -339,10 +383,11 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
       }
       if ($op eq ',') {
         my $s = $a.shift;
-        while $a.elems { $s = $s ~" "~ $a.shift }
+        while $a.elems { $s = $s ~", "~ $a.shift }
         return $s;
       }
-      if ($op eq '=') && $.using_Moose {
+      if ($op eq '=') {
+        # assignment to field.
         if $args[0].isa("IRx1::Var") {
           my $t = $args[0].twigil;
           if ($t && $t eq '.') {
@@ -355,81 +400,94 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
           return $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
         }
       }
-      "("~$op~" "~$l~" "~$r~")";
+      if ($op eq '==') {
+        return "("~'equal'~" "~$l~" "~$r~")";
+      }
+      #XXX := is here temporarily to postpone a regression.
+      if $op.re_matchp('^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$') {
+        return "("~$op~" "~$l~" "~$r~")";
+      }
     }
-    elsif $fun =~ /^prefix:(.+)$/ {
-      my $op = $1;
+    elsif $g = $fun.re_groups('^prefix:(.+)$') {
+      my $op = $g[0];
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
-      if 0 { }
-      elsif $op eq '?' { '(('~$x~')?1:0)' }
-      elsif $op eq '+' { 'GLOBAL::prefix_plus('~$x~')' }
-      else { "("~$op~""~$x~")" }
+      if $op eq '?' {
+        return '(('~$x~')?1:0)'
+      }
+      if $op.re_matchp('^(-)$') {
+        return  "("~$op~""~$x~")"
+      }
     }
-    elsif $fun =~ /^statement_prefix:(.+)$/ {
-      my $op = $1;
+    elsif $g = $fun.re_groups('^statement_prefix:(.+)$') {
+      my $op = $g[0];
       if $op eq 'do' {
-        'do{'~$.e($n.capture.arguments[0])~'}'
+        return 'do{'~$.e($n.capture.arguments[0])~'}'
       } elsif $op eq 'try' {
-        'eval{'~$.e($n.capture)~'}'
+        return 'eval{'~$.e($n.capture)~'}'
       } elsif $op eq 'gather' {
-        'GLOBAL::gather'~$.e($n.capture)~''
+        return 'GLOBAL::gather'~$.e($n.capture)~''
       } else {
         die $fun~': unimplemented';
       }
     }
-    elsif $fun =~ /^postfix:(.+)$/ {
-      my $op = $1;
+    elsif $g = $fun.re_groups('^postfix:(.+)$') {
+      my $op = $g[0];
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
-      if 0 { }
-      else { "("~$x~""~$op~")" }
+      if $op.re_matchp('^(\+\+)$') {
+        return "("~$x~""~$op~")"
+      }
     }
-    elsif $fun =~ /^circumfix:(.+)/ {
-      my $op = $1;
+    elsif $g = $fun.re_groups('^circumfix:(.+)') {
+      my $op = $g[0];
       if $op eq '< >' {
         my $s = $n.capture.arguments[0];
         my $words = $s.split(/\s+/);
         if $words.elems == 0 {
-          '[]'
+          return '[]'
         } else {
-          "['"~$words.join("','")~"']"
+          return "['"~$words.join("','")~"']"
         }
-      } else {
+      }
+      elsif $op.re_matchp('^(\( \)|\[ \])$') {
         my $arg = $.e($n.capture);
-        $op.re_gsub(' ',$arg);
+        return $op.re_gsub(' ',$arg);
       }
     }
+    elsif ($fun eq 'self') {
+      return '$self'
+    }
+    elsif ($fun eq 'next') {
+      return 'next'
+    }
+    elsif ($fun eq 'last') {
+      return 'last'
+    }
+    elsif ($fun eq 'return') {
+      return 'return('~$.e($n.capture)~')';
+    }
+    elsif ($fun.re_matchp('^\$\w+$')) {
+      return $fun~'->('~$.e($n.capture)~')';
+    }
+    elsif ($fun.re_matchp('^sub\s*{')) {
+      return '('~$fun~')->('~$.e($n.capture)~')'
+    }
+    elsif $fun eq 'eval' {
+      my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
+      return 'GLOBAL::'~$fun~'('~$.e($n.capture)~','~$env~')'
+    }
+
+    if $fun.re_matchp('^\w') {
+      my $fe = $.mangle_function_name($fun);
+      return '(GLOBAL::'~$fe~' '~$.e($n.capture)~')'
+    }
     else {
-      my $f = $fun;
-      if ($f =~ /^\$\w+$/) {
-         $f~'->('~$.e($n.capture)~')';
-      } elsif ($f eq 'self') {
-        '$self'
-      } elsif ($f eq 'last') {
-        'last'
-      } elsif ($f eq 'return') {
-        'return('~$.e($n.capture)~')';
-      } elsif ($f =~ /^sub\s*{/) {
-        '('~$f~')->('~$.e($n.capture)~')'
-      } elsif ($f =~ /^\w/) {
-        if $n.notes<lexical_bindings>{'&'~$f} {
-          '('~$f~' '~$.e($n.capture)~')'
-        } else {
-          if $f eq 'eval' {
-            my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
-            'GLOBAL::'~$f~'('~$.e($n.capture)~','~$env~')'
-          } else {
-            '(GLOBAL__'~$f~' '~$.e($n.capture)~')'
-          }
-        }
-      } else {
-         $f~'('~$.e($n.capture)~')';
-      }
+       return  $fun~'('~$.e($n.capture)~')';
     }
   };
   method cb__Capture ($n) {
-    # my $+whiteboard::emit_pairs_inline = 0; XXX?
+    # temp $whiteboard::emit_pairs_inline = 0; XXX?
     my $a = $.e($n.arguments||[]).join(" ");
     if $n.invocant {
       my $inv = $.e($n.invocant);
@@ -444,29 +502,29 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
     if $n.expr.WHAT ne 'IRx1::Apply' { $push = "->flatten"};
     my $pull = "";
     if $n.block.WHAT eq 'IRx1::SubDecl' { $pull = "->($_)"};
-    'for(('~$.e($n.expr)~')'~$push~"){\n"~$.e($n.block)~$pull~"\n}"
+    'for(('~$.e($n.expr)~')'~$push~")\{\n"~$.e($n.block)~$pull~"\n}"
   };
   method cb__Cond ($n) {
     my $els = '';
-    if $n.default { $els = "else {\n"~$.e($n.default)~"\n}" }
+    if $n.default { $els = "(t \n"~$.e($n.default)~"\n)" }
     my $clauses = $.e($n.clauses);
     my $first = $clauses.shift;
     my $first_test = $first[0];
-    if $n.invert_first_test { $first_test = "not("~$first_test~")" }
-    ('if('~$first_test~") {\n"~$first[1]~"\n}"
-    ~$clauses.map(sub($e){'elsif('~$e[0]~") {\n"~$e[1]~"\n}"}).join("")
-    ~$els)
+    if $n.invert_first_test { $first_test = "(not "~$first_test~")" }
+    ('(cond ('~$first_test~"\n"~$first[1]~")\n"
+    ~$clauses.map(sub($e){'('~$e[0]~"\n"~$e[1]~"\n)"}).join("")
+    ~$els~")\n")
   };
   method cb__Loop ($n) {
-    'while('~$.e($n.pretest)~") {\n"~$.e($n.block)~"\n}"
+    'while('~$.e($n.pretest)~") \{\n"~$.e($n.block)~"\n}"
   };
 
   method encode_varname($s,$t,$dsn) {
     #XXX $pkg::x -> s_pkg::x :(
     my $env = '';
     my $pre = '';
-    if $t eq '+' { $env = 'e' };
-    if $s eq '$' && $env eq 'e' { $pre = 's_' };
+    if $t eq '+' { $env = 'x' };
+    if $s eq '$' && $env eq 'x' { $pre = 's_' };
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
     my $name = $env~$pre~$dsn;
@@ -490,7 +548,7 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
     my $dsn = $.e($n.name);
     my $v = $s~$t~$dsn;
     if $v eq '$?PACKAGE' || $v eq '$?MODULE' || $v eq '$?CLASS' {
-      my $pkgname = $+whiteboard::in_package.join('::'); # XXX should use $n notes instead.
+      my $pkgname = $whiteboard::in_package.join('::'); # XXX should use $n notes instead.
       $pkgname = $pkgname || 'Main';
       "'"~$pkgname~"'"
     } elsif $v eq '$?FILE' {
@@ -507,19 +565,20 @@ exec sbcl --noinform --load $0 --end-toplevel-options "$@"
     $.e($n.text)
   };
   method cb__Hash ($n) {
-    my $+whiteboard::emit_pairs_inline = 1;
+    temp $whiteboard::emit_pairs_inline = 1;
     '{'~$.e($n.hash||[]).join(",")~'}'
   };
   method cb__Buf ($n) {
-    '"' ~ quotemeta($n.buf) ~ '"';
+    my $s = $n.buf;
+    '"' ~ quotemeta($s) ~ '"';
   };
   method cb__Rx ($n) {
     my $pat = $n.pat || '';
     'qr/'~$pat~'/'
   };
   method cb__Pair($n) {
-    if $+whiteboard::emit_pairs_inline {
-      my $+whiteboard::emit_pairs_inline = 0;
+    if $whiteboard::emit_pairs_inline {
+      temp $whiteboard::emit_pairs_inline = 0;
       '('~$.e($n.key)~' => '~$.e($n.value)~')'
     } else {
       "Pair->new('key',"~$.e($n.key)~" => 'value',"~$.e($n.value)~")"
