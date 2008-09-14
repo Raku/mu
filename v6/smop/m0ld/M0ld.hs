@@ -272,7 +272,7 @@ dumpToC stmts =
         ++ "})"
 
 prettyPrintConstant :: [Char] -> Value -> [Char]
-prettyPrintConstant indent value = indent ++ case value of
+prettyPrintConstant indent value = case value of
     StringConstant str -> (show str) ++ "\n"
     IntegerConstant int -> (show int) ++ "\n"
     None -> ""
