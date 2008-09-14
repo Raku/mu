@@ -271,13 +271,22 @@ dumpToC stmts =
         ++ (joinStr "," $ map show bytecode)
         ++ "})"
 
-prettyPrintBytecode stmts =
+prettyPrintConstant :: [Char] -> Value -> [Char]
+prettyPrintConstant indent value = indent ++ case value of
+    StringConstant str -> (show str) ++ "\n"
+    IntegerConstant int -> (show int) ++ "\n"
+    None -> ""
+    Var name -> "¢" ++ name ++ "\n"
+    SubMold stmts -> "{\n" ++ (prettyPrintBytecode ("  " ++ indent) stmts) ++ indent ++ "}\n"
+prettyPrintBytecode indent stmts =
     let labelsMap = mapLabels stmts
         regMap    = mapRegisters stmts
         freeRegs  = countRegister stmts
         prettyPrintOp (Decl _ _) = ""
-        prettyPrintOp op = (joinStr " " $ ( map show (toBytecode op regMap labelsMap))) ++ "\n"
-        in concat $ map prettyPrintOp stmts
+        prettyPrintOp op = indent ++ (joinStr " " $ ( map show (toBytecode op regMap labelsMap))) ++ "\n"
+        decls = [prettyPrintConstant indent c | Decl reg c <- filter (not . isReg) stmts]
+        in (concat $ map (\(i,e) -> indent ++ "$" ++ (show i) ++ " = " ++ e) (zip [0..(length decls - 1)] decls)) ++
+            (concat $ map prettyPrintOp stmts)
 
 type ImplicitDecls = Map.Map Value [Char]
 
@@ -292,5 +301,5 @@ main = do
     case (runParser top (Map.empty :: ImplicitDecls) "" line) of 
         Left err      -> error  $ show err
         Right (stmts,constants) -> do 
-            if elem "print-bytecode" options then putStrLn $ prettyPrintBytecode $ (implicitDecls constants) ++ stmts
+            if elem "print-bytecode" options then putStrLn $ prettyPrintBytecode "" $ (implicitDecls constants) ++ stmts
                 else putStrLn $ dumpToC $ (implicitDecls constants) ++ stmts
