@@ -86,6 +86,7 @@ add_library (smop
     src/native_uint.c
     src/p6opaque.c
     src/smop.c
+    src/smop_haskell_ffi.c
     src/smop_internal.h
     src/smop_interpreter.c
     src/smop_lowlevel.c
@@ -149,6 +150,7 @@ foreach (test_file
     test/30_array_map.m0ld
     test/31_int_postfix_plusplus.m0ld
     test/32_array_iterator.m0ld
+    test/modified_pugs_output.m0ld
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")

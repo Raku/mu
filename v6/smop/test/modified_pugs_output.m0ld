@@ -1,0 +1,52 @@
+my $void;
+my $OUT_root_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $OUT_root = $OUT_root_scalar."FETCH"();
+
+my $void = $OUT_root."print"("creating scope...\n");
+my $scope = ¢SMOP__S1P__LexicalScope."new"();
+
+my $void = $OUT_root."print"("1\n");
+my $Code_scalar = $scope."postcircumfix:{ }"("Code");
+my $void = $OUT_root."print"("2\n");
+my $Code_root_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
+my $void = $OUT_root."print"("3\n");
+my $Code_root = $Code_root_scalar."FETCH"();
+my $void = $OUT_root."print"("4\n");
+$void = $Code_scalar."STORE"($Code_root);
+
+my $void = $OUT_root."print"("5\n");
+my $OUT_scalar = $scope."postcircumfix:{ }"("$*OUT");
+my $void = $OUT_root."print"("6\n");
+$void = $OUT_scalar."STORE"($OUT_root);
+
+my $void = $OUT_root."print"("7\n");
+### 
+
+my $interpreter;
+my $scope;
+#my $void;
+my $Code_scalar = $scope."postcircumfix:{ }"("Code");
+my $Code = $Code_scalar."FETCH"();
+my $id2 = $Code."new"(:"outer"($scope),:"mold"(mold {
+my $interpreter;
+my $scope;
+my $void;
+my $Code_scalar = $scope."postcircumfix:{ }"("Code");
+my $Code = $Code_scalar."FETCH"();
+my $id3 = $Code."new"(:"outer"($scope),:"mold"(mold {
+my $interpreter;
+my $scope;
+my $void;
+my $Code_scalar = $scope."postcircumfix:{ }"("Code");
+my $Code = $Code_scalar."FETCH"();
+#noop
+my $id5 = $scope."postcircumfix:{ }"("$*OUT");
+my $id6 = "Hello World";
+my $id4 = $id5."say"($id6);
+$void = $interpreter."return"($id4);
+}));
+$void = $interpreter."return"($id3);
+}));
+my $id1 = $id2."postcircumfix:( )"();
+my $id7 = $scope."postcircumfix:{ }"("$_");
+my $void = $id1."postcircumfix:( )"($id7);

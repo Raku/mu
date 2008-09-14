@@ -210,12 +210,12 @@ countRegister stmts = length $ filter isReg stmts
 addRegister :: RegMap -> Stmt -> RegMap
 addRegister regs stmt = case stmt of 
     Decl reg None  -> regs
-    Decl reg value -> Map.insert reg (Map.size regs)  regs
+    Decl reg value -> if (Map.member reg regs) then regs else  Map.insert reg (Map.size regs)  regs
     _ -> regs
 
 addFreeRegister :: RegMap -> Stmt -> RegMap
 addFreeRegister regs stmt = case stmt of
-    Decl reg None -> Map.insert reg (Map.size regs)  regs
+    Decl reg None -> if (Map.member reg regs) then regs else Map.insert reg (Map.size regs)  regs
     Decl reg _ -> regs 
     _ -> regs
 
@@ -278,6 +278,7 @@ prettyPrintConstant indent value = case value of
     None -> ""
     Var name -> "¢" ++ name ++ "\n"
     SubMold stmts -> "{\n" ++ (prettyPrintBytecode ("  " ++ indent) stmts) ++ indent ++ "}\n"
+
 prettyPrintBytecode indent stmts =
     let labelsMap = mapLabels stmts
         regMap    = mapRegisters stmts
@@ -285,8 +286,8 @@ prettyPrintBytecode indent stmts =
         prettyPrintOp (Decl _ _) = ""
         prettyPrintOp op = indent ++ (joinStr " " $ ( map show (toBytecode op regMap labelsMap))) ++ "\n"
         decls = [prettyPrintConstant indent c | Decl reg c <- filter (not . isReg) stmts]
-        in (concat $ map (\(i,e) -> indent ++ "$" ++ (show i) ++ " = " ++ e) (zip [0..(length decls - 1)] decls)) ++
-            (concat $ map prettyPrintOp stmts)
+        in (concat $ map (\(i,e) -> indent ++ "$" ++ (show i) ++ " = " ++ e) (zip [0..(length decls - 1)] decls))
+        ++ (concat $ map prettyPrintOp stmts)
 
 type ImplicitDecls = Map.Map Value [Char]
 
