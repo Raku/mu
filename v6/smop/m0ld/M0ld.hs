@@ -1,9 +1,11 @@
 import Text.ParserCombinators.Parsec hiding (label)
 import qualified Data.Map as Map
-import System.IO hiding (getContents,putStrLn,print)
-import Prelude hiding (getContents,putStrLn,print)
+import System.IO hiding (getContents,putStrLn,print,putStr)
+import Prelude hiding (getContents,putStrLn,print,putStr)
 import System.IO.UTF8
 import Debug.Trace
+import System.Console.GetOpt
+import System.Environment
 
 type Register = [Char]
 type Label = [Char]
@@ -239,6 +241,7 @@ mapLabels stmts = fst $ foldl addLabelDef (Map.empty,0) stmts
 emit :: [Stmt] -> RegMap -> LabelsMap -> [Int]
 emit stmts regMap labelsMap = concatMap (\op -> toBytecode op regMap labelsMap) stmts ++ [0]
 
+joinStr sep [] = ""
 joinStr sep list = foldl (\a b -> a ++ sep ++ b) (head list) (tail list)
 
 cStrLength ('\\':next:rest) = 1 + cStrLength rest
@@ -268,14 +271,26 @@ dumpToC stmts =
         ++ (joinStr "," $ map show bytecode)
         ++ "})"
 
+prettyPrintBytecode stmts =
+    let labelsMap = mapLabels stmts
+        regMap    = mapRegisters stmts
+        freeRegs  = countRegister stmts
+        prettyPrintOp (Decl _ _) = ""
+        prettyPrintOp op = (joinStr " " $ ( map show (toBytecode op regMap labelsMap))) ++ "\n"
+        in concat $ map prettyPrintOp stmts
+
 type ImplicitDecls = Map.Map Value [Char]
 
 implicitDecls = map (\(constant,reg) -> Decl reg constant) . Map.toList
 
 main = do
+    args <- getArgs
+    let (options,nonoptions,errors) =  getOpt RequireOrder [Option [] ["print-bytecode"] (NoArg "print-bytecode") "print resulting mold bytecode in a human readable form"] args 
+    mapM putStr errors
     hFlush stdout
     line <- getContents
     case (runParser top (Map.empty :: ImplicitDecls) "" line) of 
         Left err      -> error  $ show err
         Right (stmts,constants) -> do 
-            putStrLn $ dumpToC $ (implicitDecls constants) ++ stmts
+            if elem "print-bytecode" options then putStrLn $ prettyPrintBytecode $ (implicitDecls constants) ++ stmts
+                else putStrLn $ dumpToC $ (implicitDecls constants) ++ stmts
