@@ -134,9 +134,12 @@ void smop_s1p_code_mold_init() {
     my $lexical_outer_container = $lexical."outer"();
     $void = $lexical_outer_container."STORE"($outer);
 
-    my $actualcapture = $capture."positional"(0);
+    # for method postcircumfix:<( )> ($capture) {...} instead of the specced method postcircumfix:<( )> (|$capture) {...}
+    #my $actualcapture = $capture."positional"(0);
+    #$void = $signature."BIND"($actualcapture,$lexical);
 
-    $void = $signature."BIND"($actualcapture,$lexical);
+    $void = $signature."BIND"($capture,$lexical);
+
     my $frame_proto = ¢SMOP__Mold__Frame;
     my $frame = $frame_proto."new"($mold);
     $void = $frame."set_reg"(0, $interpreter);

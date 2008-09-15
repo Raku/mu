@@ -20,7 +20,7 @@ class EmitM0ld a where
 lexicalPrelude = "my $interpreter;\n"
             ++ "my $scope;\n" 
             ++ "my $void;\n"
-            ++ "my $Code_scalar = $scope.\"postcircumfix:{ }\"(\"Code\");\n"
+            ++ "my $Code_scalar = $scope.\"lookup\"(\"Code\");\n"
             ++ "my $Code = $Code_scalar.\"FETCH\"();\n"
 
 instance EmitM0ld PIL_Environment where
@@ -52,7 +52,11 @@ instance EmitM0ld PIL_Expr where
             return ("my " ++ r ++ " = $Code.\"new\"(:\"outer\"($scope),:\"mold\"(mold {\n"
                 ++ lexicalPrelude
                 ++ body
-                ++ void ++ " = $interpreter.\"return\"(" ++ ret ++ ");\n"
+                ++ "my $continuation = $interpreter.\"continuation\"();\n"
+                ++ "my $back = $continuation.\"back\"();\n"
+                ++ "my $void = $back.\"setr\"(" ++ ret ++ ");\n"
+                ++ "$void = $interpreter.\"goto\"($back);\n"
+--                ++ void ++ " = $interpreter.\"return\"(" ++ ret ++ ");\n"
                 ++ "}));\n")
         PLit {pLit=lit} -> emit lit r
         other -> placeholder other r
@@ -81,7 +85,9 @@ instance EmitM0ld PIL_LValue where
         PApp {pFun=PExp {pLV = PVar {pVarName = '&':method}},pArgs=args,pInv=Just inv} ->
             methodCall inv method args r
         PVar {pVarName=name} -> do
-            return $ "my " ++ r ++ " = $scope.\"postcircumfix:{ }\"(\"" ++ name ++ "\");\n"
+            scalar <- uniqueId
+            return $ "my " ++ scalar ++ " = $scope.\"lookup\"(\"" ++ name ++ "\");\n"
+                ++ "my " ++ r ++ " = " ++ scalar ++ ".\"FETCH\"();\n"
         other -> return $ (show other) ++ ";\n"
 
 genM0ld :: FilePath -> Eval Val

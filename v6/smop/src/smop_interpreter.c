@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <smop.h>
+#include <smop_s1p.h>
 #include <smop_lowlevel.h>
 
 /*
@@ -274,6 +275,8 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     SMOP__Object* cont = inst->continuation; inst->continuation = NULL;
     smop_lowlevel_unlock(capture);
     if (cont) SMOP_RELEASE(interpreter,cont);
+  } else {
+    ___UNKNOWN_METHOD___
   }
   SMOP_RELEASE(interpreter, invocant);
   SMOP_RELEASE(interpreter, capture);
