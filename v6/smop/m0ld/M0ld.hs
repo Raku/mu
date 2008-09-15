@@ -60,7 +60,7 @@ stmt = do
 
 constant = choice 
       [ do
-          char '¢'
+          (char '¢') <|> (char '?')
           name <- identifier
           return $ Var name
       , do

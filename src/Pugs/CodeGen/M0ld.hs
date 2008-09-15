@@ -17,6 +17,23 @@ placeholder other r = return $ "my "++ r ++ " = " ++ (show other) ++ "; #placeho
 class EmitM0ld a where
     emit :: a -> [Char] -> State Int [Char]
 
+setupTopmostScope =
+       "my $void;\n"
+    ++ "my $scope = ?SMOP__S1P__LexicalScope.\"new\"();\n"
+    ++ "\n"
+    ++ "my $OUT_root_scalar = ?SMOP__S1P__RootNamespace.\"postcircumfix:{ }\"(\"$*OUT\");\n"
+    ++ "my $OUT_root = $OUT_root_scalar.\"FETCH\"();\n"
+    ++ "my $OUT_scalar = $scope.\"postcircumfix:{ }\"(\"$*OUT\");\n"
+    ++ "$void = $OUT_scalar.\"STORE\"($OUT_root);\n"
+    ++ "\n"
+    ++ "my $Code_scalar = $scope.\"postcircumfix:{ }\"(\"Code\");\n"
+    ++ "my $Code_root_scalar = ?SMOP__S1P__RootNamespace.\"postcircumfix:{ }\"(\"::Code\");\n"
+    ++ "my $Code = $Code_root_scalar.\"FETCH\"();\n"
+    ++ "$void = $Code_scalar.\"STORE\"($Code);\n"
+    ++ "\n"
+    ++ "\n"
+    ++ "##############################################################\n"
+
 lexicalPrelude = "my $interpreter;\n"
             ++ "my $scope;\n" 
             ++ "my $void;\n"
@@ -26,7 +43,7 @@ lexicalPrelude = "my $interpreter;\n"
 instance EmitM0ld PIL_Environment where
     emit env r = do
         main <- emit (pilMain env) r
-        return $ lexicalPrelude ++ main
+        return $ setupTopmostScope ++ main
 instance EmitM0ld PIL_Stmts where
     emit statement r = case statement of
         PNil                           -> return "nil"

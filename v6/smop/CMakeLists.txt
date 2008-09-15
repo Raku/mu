@@ -61,6 +61,20 @@ macro (compile_perl6 dsl_file)
     )
 endmacro(compile_perl6)
 
+macro (compile_perl6_pugs dsl_file)
+    string(REGEX REPLACE ".p6-pugs$" ".m0ld" m0ld_file ${dsl_file})
+    string(REGEX REPLACE ".m0ld$" ".c" c_file ${m0ld_file})
+    add_custom_command (
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${m0ld_file}
+        COMMAND perl ARGS ${smop_SOURCE_DIR}/tools/dsl p6-pugs ${smop_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe ${smop_SOURCE_DIR}/${dsl_file} ${CMAKE_CURRENT_BINARY_DIR}/${m0ld_file}
+        COMMAND perl ARGS ${smop_SOURCE_DIR}/tools/dsl m0ld ${smop_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe ${CMAKE_CURRENT_BINARY_DIR}/${m0ld_file} ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe
+        DEPENDS ${smop_SOURCE_DIR}/${dsl_file}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../../pugs
+    )
+endmacro(compile_perl6_pugs)
+
 foreach (sm0p_file
     src/smop_lowlevel.sm0p
     src/smop_s1p_lexicalscope.sm0p
@@ -150,7 +164,7 @@ foreach (test_file
     test/30_array_map.m0ld
     test/31_int_postfix_plusplus.m0ld
     test/32_array_iterator.m0ld
-    test/modified_pugs_output.m0ld
+    test/33_pugs_simple.p6-pugs
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")
@@ -162,6 +176,9 @@ foreach (test_file
     elseif (test_file MATCHES "\\.p6$")
         compile_perl6 (${test_file})
         string(REGEX REPLACE "\\.p6$" ".c" c_file ${test_file})
+    elseif (test_file MATCHES "\\.p6-pugs$")
+        compile_perl6_pugs (${test_file})
+        string(REGEX REPLACE "\\.p6-pugs$" ".c" c_file ${test_file})
     elseif (test_file MATCHES "\\.c$")
         set(c_file ${test_file})
     endif (test_file MATCHES "\\.sm0p$")

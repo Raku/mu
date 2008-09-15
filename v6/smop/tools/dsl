@@ -10,6 +10,8 @@ if ($dsl eq 'm0ld') {
     system("cat $base/m0ld/m0ld_boilerplate_back >> $out");
 } elsif ($dsl eq 'p6') {
     system("perl $elfX -C m0ld -s $in > $out");
+} elsif ($dsl eq 'p6-pugs') {
+    system("$base/../../pugs -Cm0ld $in > $out");
 } else {
     die "unknown DSL\n";
 }
