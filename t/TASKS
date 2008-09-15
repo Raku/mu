@@ -64,6 +64,18 @@ S29
 * tests for pack and unpack
 * tests to ensure that rand has a bit of entropy
 * test for $number.rand (method form)
+* most (all?) builtins can also be used with named arguments instead of 
+  positional arguments. For example
+        our Str multi method capitalize ( Str $string: ) is export
+  means that you can it like thise:
+        my $x = 'abc def'
+        $x.capitalize
+        capitalize($x)          # because of 'is export'
+        capitalize(:string($x)) # because of 'is export' and $string
+  This last form, with named arguments, is nearly missing from the test suite
+  so far, and needs to be added.
+
+
 
 IO
 * more tests for say() and print(). For example elf prints array references
