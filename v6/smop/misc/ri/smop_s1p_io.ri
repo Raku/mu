@@ -1,5 +1,7 @@
 %prototype IO
 %RI.id lowlevel io
+%prefix smop_s1p_io
+%include <stdlib.h>,<stdio.h>
 %method print
     int pc = SMOP__NATIVE__capture_positional_count(interpreter,capture);
     int i;

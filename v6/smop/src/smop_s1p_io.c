@@ -70,7 +70,6 @@ void smop_s1p_io_init() {
 }
 
 void smop_s1p_io_destr() {
-  SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*) SMOP__S1P__IO;
   SMOP_RELEASE(SMOP__GlobalInterpreter,SMOP__S1P__IO);
 }
 
