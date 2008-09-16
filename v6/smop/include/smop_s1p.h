@@ -1,5 +1,6 @@
 #ifndef SMOP_S1P_H
 #define SMOP_S1P_H
+#include <stdio.h>
 
 
 extern SMOP__Object* SMOP__S1P__Scalar;

@@ -47,6 +47,15 @@ macro (compile_m0ld dsl_file)
     )
 endmacro(compile_m0ld)
 
+macro (compile_ri dsl_file)
+    string(REGEX REPLACE ".ri$" ".c" c_file ${dsl_file})
+    add_custom_command (
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
+        COMMAND perl ARGS ${smop_SOURCE_DIR}/tools/dsl ri ${smop_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe ${smop_SOURCE_DIR}/${dsl_file} ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
+        DEPENDS ${smop_SOURCE_DIR}/${dsl_file}
+    )
+endmacro(compile_ri)
+
 macro (compile_perl6 dsl_file)
     string(REGEX REPLACE ".p6$" ".m0ld" m0ld_file ${dsl_file})
     string(REGEX REPLACE ".m0ld$" ".c" c_file ${m0ld_file})
@@ -90,6 +99,13 @@ foreach (sm0p_file
 compile_sm0p (${sm0p_file})
 endforeach()
 
+foreach (ri_file
+    src/smop_s1p_itemcontext.ri
+    src/smop_s1p_itemrwcontext.ri
+)
+compile_ri (${ri_file})
+endforeach()
+
 INCLUDE (FindThreads)
 add_library (smop
     src/idconst.c
@@ -126,6 +142,8 @@ add_library (smop
     src/smop_slime_frame.c
     src/smop_slime_node.c
     src/smop_ri.c
+    src/smop_s1p_itemcontext.c
+    src/smop_s1p_itemrwcontext.c
 )
 
 file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)

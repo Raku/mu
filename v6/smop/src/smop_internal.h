@@ -155,6 +155,10 @@ void smop_s1p_pureprototypehow_mold_init();
 void smop_s1p_pureprototypehow_mold_destr();
 void smop_s1p_capturize_init();
 void smop_s1p_capturize_destr();
+void smop_s1p_itemcontext_init();
+void smop_s1p_itemcontext_destr();
+void smop_s1p_itemrwcontext_init();
+void smop_s1p_itemrwcontext_destr();
 
 
 #endif

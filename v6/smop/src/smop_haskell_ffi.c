@@ -10,7 +10,7 @@ SMOP__Object* smop_reference(SMOP__Object* interpreter,SMOP__Object* obj) {
   return SMOP_REFERENCE(interpreter,obj);
 }
 SMOP__Object* smop_ri(SMOP__Object* obj) {
-  return SMOP_RI(obj);
+  return (SMOP__Object*) SMOP_RI(obj);
 }
 SMOP__Object* get_SMOP__GlobalInterpreter(void) {
   return SMOP__GlobalInterpreter;
