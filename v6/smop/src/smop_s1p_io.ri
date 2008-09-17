@@ -2,6 +2,20 @@
 %RI.id lowlevel io
 %prefix smop_s1p_io
 %include <stdlib.h>,<stdio.h>
+
+%{
+typedef struct smop_s1p_io_struct {
+  SMOP__Object__BASE
+} smop_s1p_io_struct;
+
+SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter) {
+    SMOP_REFERENCE(interpreter,RI);
+    SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_s1p_io_struct));
+    ret->RI = (SMOP__ResponderInterface*)RI;
+    return ret;
+}
+%}
+
 %method print
     int pc = SMOP__NATIVE__capture_positional_count(interpreter,capture);
     int i;
@@ -22,3 +36,6 @@
         SMOP_RELEASE(interpreter,obj);
     }
 %method DESTROYALL
+    SMOP_RELEASE(interpreter,RI);
+%method new
+    ret = SMOP__S1P__IO_create(interpreter);

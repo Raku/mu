@@ -100,8 +100,7 @@ compile_sm0p (${sm0p_file})
 endforeach()
 
 foreach (ri_file
-#    src/smop_s1p_itemcontext.ri
-#    src/smop_s1p_itemrwcontext.ri
+    src/smop_s1p_io.ri
 )
 compile_ri (${ri_file})
 endforeach()

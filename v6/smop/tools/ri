@@ -4,35 +4,52 @@ use strict;
 
 sub mangle {
     my $id = shift;
-    return 'SMOP__ID__'.$id;
+    return 'ID__'.$id;
 }
 
-my @properties = qw(RI RI.id prefix include);
+my @properties = qw(RI RI.id prefix include prototype);
 my %properties;
 
 my %methods;
 my $method;
 
-# FIX convoluted
-LINE: while (my $line = <>) {
-    if ($method) {
+my $raw = '';
+
+sub debug {
+}
+while (my $line = <>) {
+    if ($line =~ /^\%\{\s*/) {
+         debug "raw start\n";
+         until((my $raw_line = <>) =~ /^\%}\s*$/) {
+             debug "raw $raw_line";
+             $raw .= $raw_line;
+         }
+         debug "raw stop\n";
+    } elsif ($method) {
         if ($line =~ /^%/) {
             undef $method;
+            redo;
         } else {
+            debug "in method $line";
             $methods{$method} .= $line;
             next;
         }
-    }
-    if ($line =~ /^%method\s*(.*)$/) {
+    } elsif ($line =~ /^%method\s*(.*)$/) {
         $method = $1;
-        next;
-    }
-    for my $property (@properties) {
-        if ($line =~ /^% \s* \Q$property\E \s+ (.*)$/x) {
-            $properties{$property} = $1;
-            next LINE;
+        debug "method start:$method\n";
+    } elsif ($line =~ / ^\s*$ | ^\# | ^\/\/ /x) {
+        debug "ws/comment:$line";
+    } else {
+        for my $property (@properties) {
+            if ($line =~ /^% \s* \Q$property\E \s+ (.*)$/x) {
+                $properties{$property} = $1;
+                debug "prop $property = $1\n";
+                goto FOUND;
+            }
         }
-    }
+        die "unrecognised line: $line";
+        FOUND: ;
+    } 
 }
 
 
@@ -56,6 +73,9 @@ my $RI = $properties{RI} || 'RI';
 for (keys %methods) {
     print 'static SMOP__Object* ',mangle($_),";\n";
 }
+
+print $raw;
+
 print q[
 static SMOP__Object* message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
