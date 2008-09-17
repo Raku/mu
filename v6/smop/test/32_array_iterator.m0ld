@@ -19,7 +19,10 @@ my $iteritem = $iterator."FETCH"();
 
 while:
 my $result = $iteritem."prefix:="();
-my $bool = $result."bool"();
+my $list = $result."List"();
+my $elems = $list."elems"();
+my $greater = $elems."infix:>"(0);
+my $bool = $greater."bool"();
 
 if $bool { goto iteration } else { goto end };
 
