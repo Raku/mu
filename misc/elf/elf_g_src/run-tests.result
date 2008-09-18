@@ -1,4 +1,4 @@
-pugs t/ svn revision: 22232
+pugs t/ svn revision: 22272
 -  80%	10  8 2		../../../t/01-sanity/01-tap.t
 ok	4		../../../t/01-sanity/02-counter.t
 ok	4		../../../t/01-sanity/03-equal.t
@@ -363,8 +363,9 @@ X  0%	30  0 		../../../t/spec/S02-lexical-conventions/unicode.t
 -  0%	43  0 3 40!	../../../t/spec/S02-literals/char-by-number.t
 X  0%	10  0 		../../../t/spec/S02-literals/hash-interpolation.t
 -  0%	4  0 8 -4!	../../../t/spec/S02-literals/hex_chars.t
-X  0%	40  0 		../../../t/spec/S02-literals/pairs.t
-X  0%	204  0 		../../../t/spec/S02-literals/quoting.t
+-C 0%	40  0 40	../../../t/spec/S02-literals/pairs.t
+X  0%	134  0 		../../../t/spec/S02-literals/quoting.t
+X  0%	70  0 		../../../t/spec/S02-literals/quoting-unicode.t
 -C 0%	97  0 97	../../../t/spec/S02-literals/radix.t
 X  0%	19  0 		../../../t/spec/S02-literals/underscores.t
 -C 0%	1  0 1		../../../t/spec/S02-magicals/block.t
@@ -396,7 +397,7 @@ X  0%	76  0 		../../../t/spec/S02-whitespace_and_comments/unspace.t
 X  0%	190  0 		../../../t/spec/S03-operators/arith.t
 ok	8		../../../t/spec/S03-operators/assign-is-not-binding.t
 X  0%	304  0 		../../../t/spec/S03-operators/assign.t
--  6%	47  3 7 37!	../../../t/spec/S03-operators/autoincrement.t
+-  21%	47  10 0 37!	../../../t/spec/S03-operators/autoincrement.t
 -C 0%	46  0 46	../../../t/spec/S03-operators/binding-arrays.t
 -C 0%	12  0 12	../../../t/spec/S03-operators/binding-attributes.t
 X  0%	37  0 		../../../t/spec/S03-operators/binding-hashes.t
@@ -414,7 +415,7 @@ X  0%	11  0 		../../../t/spec/S03-operators/cross-metaop.t
 ok	15		../../../t/spec/S03-operators/equality.t
 X  0%	23  0 		../../../t/spec/S03-operators/feed.t
 X  0%	56  0 		../../../t/spec/S03-operators/hyper.t
--  28%	39  11 7 21!	../../../t/spec/S03-operators/increment.t
+-  46%	39  18 0 21!	../../../t/spec/S03-operators/increment.t
 -C 0%	49  0 49	../../../t/spec/S03-operators/misc.t
 -C 0%	13  0 13	../../../t/spec/S03-operators/not.t
 -  31%	35  11 24	../../../t/spec/S03-operators/numeric-context.t
@@ -426,7 +427,7 @@ X  0%	50  0 		../../../t/spec/S03-operators/reduce-metaop.t
 -  52%	70  37 19 14!	../../../t/spec/S03-operators/relational.t
 -C 0%	23  0 23	../../../t/spec/S03-operators/repeat.t
 X  0%	34  0 		../../../t/spec/S03-operators/short-circuit.t
-X  0%	52  0 		../../../t/spec/S03-operators/smartmatch.t
+X  0%	56  0 		../../../t/spec/S03-operators/smartmatch.t
 ok	6		../../../t/spec/S03-operators/spaceship-and-containers.t
 -C 0%	15  0 15	../../../t/spec/S03-operators/ternary.t
 -d 0%	11  0 11	../../../t/spec/S03-operators/true.t
@@ -475,6 +476,7 @@ X  0%	16  0 		../../../t/spec/S04-statements/repeat.t
 X  0%	10  0 		../../../t/spec/S04-statements/unless.t
 ok	4		../../../t/spec/S04-statements/until.t
 -C 0%	8  0 8		../../../t/spec/S04-statements/while.t
+-C 0%	6  0 6		../../../t/spec/S05-grammar/namespace.t
 X  0%	745  0 		../../../t/spec/S05-mass/rx.t
 -  29%	17  5 12	../../../t/spec/S05-match/blocks.t
 -C 0%	63  0 63	../../../t/spec/S05-metasyntax/angle-brackets.t
@@ -630,7 +632,7 @@ X  0%	5  0 		../../../t/spec/S29-list/map_topic.t
 -C 0%	4  0 4		../../../t/spec/S29-list/map_with_signature.t
 -  0%	24  0 1 23!	../../../t/spec/S29-list/minmax.t
 -C 0%	1  0 1		../../../t/spec/S29-list/mutating_listops.t
--C 0%	13  0 13	../../../t/spec/S29-list/pick.t
+-C 0%	15  0 15	../../../t/spec/S29-list/pick.t
 X  0%	11  0 		../../../t/spec/S29-list/reduce.t
 -C 0%	49  0 49	../../../t/spec/S29-list/reverse.t
 X  0%	21  0 		../../../t/spec/S29-list/sort.t
@@ -654,7 +656,7 @@ X  0%	?  0 		../../../t/spec/S29-os/system-with-spaces.t
 -C 0%	11  0 11	../../../t/spec/S29-str/capitalize.t
 -d 0%	35  0 35	../../../t/spec/S29-str/chomp.t
 -C 0%	12  0 12	../../../t/spec/S29-str/chop.t
--C 0%	10  0 10	../../../t/spec/S29-str/comb.t
+-C 0%	18  0 18	../../../t/spec/S29-str/comb.t
 -d 0%	35  0 35	../../../t/spec/S29-str/index.t
 -C 0%	8  0 8		../../../t/spec/S29-str/lcfirst.t
 -C 0%	12  0 12	../../../t/spec/S29-str/lc.t
@@ -852,5 +854,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 852.  644 parsed 75%.  367 run 43%.  84 ok 9%.
-Tests: 17848+.  634 ok <3.55%, 17214+ not.
+Files: 854.  646 parsed 75%.  367 run 42%.  84 ok 9%.
+Tests: 17868+.  648 ok <3.62%, 17220+ not.
