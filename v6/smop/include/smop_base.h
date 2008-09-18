@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #ifndef SMOP_BASE_H
 #define SMOP_BASE_H
 
@@ -82,17 +82,32 @@ struct SMOP__ResponderInterface {
           identifier, capture \
       ))
 
+#ifdef SMOP_LOWLEVEL_MEM_DEBUG
+#define SMOP_REFERENCE(interpreter, object) \
+      (fprintf(stderr,"[32mSMOP_REFERENCE[0m(%p) at %s line %d file %s\n",object,__func__,__LINE__,__FILE__),\
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->REFERENCE( (SMOP__Object*)interpreter, \
+          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+          (SMOP__Object*)object \
+      )))
+
+#define SMOP_RELEASE(interpreter, object) \
+      (fprintf(stderr,"[31mSMOP_RELEASE[0m(%p) at %s line %d file %s\n",object,__func__,__LINE__,__FILE__), \
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->RELEASE( (SMOP__Object*)interpreter, \
+          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+          (SMOP__Object*)object \
+      )))
+#else
 #define SMOP_REFERENCE(interpreter, object) \
       (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->REFERENCE( (SMOP__Object*)interpreter, \
           ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
           (SMOP__Object*)object \
       ))
-
 #define SMOP_RELEASE(interpreter, object) \
       (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->RELEASE( (SMOP__Object*)interpreter, \
           ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
           (SMOP__Object*)object \
       ))
+#endif
 
 
 #endif

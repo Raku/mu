@@ -30,7 +30,7 @@ SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter) {
             char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
             printf("%.*s",len,str);
         } else {
-            fprintf(stderr,"unsupported object (%s) passed to S1P::IO.print\n",SMOP_RI(obj)->id);
+            printf("unsupported object %p (%s) passed to S1P::IO.print\n",obj,SMOP_RI(obj)->id);
         }
 
         SMOP_RELEASE(interpreter,obj);
