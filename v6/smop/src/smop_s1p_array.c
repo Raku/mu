@@ -99,19 +99,30 @@ static SMOP__Object* smop_s1p_array_proxy_message(SMOP__Object* interpreter,
       ret = SMOP_REFERENCE(interpreter,invocant->array->content[invocant->index]);
     } else {
     }
+
   } else if (identifier == SMOP__ID__STORE) {
     resize_array(invocant->array,invocant->index+1);
     SMOP__Object* prev = invocant->array->content[invocant->index];
     if (prev) SMOP_RELEASE(interpreter,prev);
     invocant->array->content[invocant->index] = SMOP__NATIVE__capture_positional(interpreter, capture,0);
     if (invocant->array->elems <= invocant->index) invocant->array->elems = invocant->index+1;
+
   } else if (identifier == SMOP__ID__DESTROYALL) {
     SMOP_RELEASE(interpreter,invocant->array);
+
   } else if (identifier == SMOP__ID__bool) {
     ret = SMOP__NATIVE__bool_true;
+
+  } else if (identifier == SMOP__ID__List) {
+    ret = SMOP_REFERENCE(interpreter,invocant);
+
+  } else if (identifier == SMOP__ID__elems) {
+    ret = SMOP__NATIVE__int_create(1);
+
   } else {
       ___UNKNOWN_METHOD___
   }
+
   SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
   return ret;

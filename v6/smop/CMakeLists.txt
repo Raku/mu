@@ -128,6 +128,7 @@ add_library (smop
     src/smop_s1p_code.c
     src/smop_s1p_map.c
     src/smop_s1p_pureprototypehow.c
+    src/smop_s1p_emptylist.c
     src/smop_s1p_bindcapturesignature.c
     src/smop_s1p_defaultblocksignature.c
     src/smop_s1p_hash.c

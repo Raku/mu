@@ -63,8 +63,10 @@
      smop_s1p_bindcapturesignature_init();  \
      smop_s1p_pureprototypehow_init();      \
      smop_s1p_map_init();                   \
-     smop_s1p_array_iterator_init();        
+     smop_s1p_array_iterator_init();        \
+     smop_s1p_emptylist_init();
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
+     smop_s1p_emptylist_destr();            \
      smop_s1p_array_iterator_destr();       \
      smop_s1p_map_destr();                  \
      smop_s1p_pureprototypehow_destr();     \
@@ -159,6 +161,7 @@ void smop_s1p_itemcontext_init();
 void smop_s1p_itemcontext_destr();
 void smop_s1p_itemrwcontext_init();
 void smop_s1p_itemrwcontext_destr();
-
+void smop_s1p_emptylist_init();
+void smop_s1p_emptylist_destr();
 
 #endif

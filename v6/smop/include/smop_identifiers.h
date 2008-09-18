@@ -53,12 +53,14 @@ extern SMOP__Object* SMOP__ID__HOW_methods;       /* "^methods" */
 extern SMOP__Object* SMOP__ID__identifier;        /* "identifier" */
 extern SMOP__Object* SMOP__ID__infix_eq;          /* "infix:eq" */ 
 extern SMOP__Object* SMOP__ID__infix_num_gt;      /* "infix:>" */ 
+extern SMOP__Object* SMOP__ID__infix_num_ge;      /* "infix:>=" */ 
 extern SMOP__Object* SMOP__ID__input_array;       /* "input_array" */ 
 extern SMOP__Object* SMOP__ID__invocant;          /* "invocant" */
 extern SMOP__Object* SMOP__ID__isa;               /* "isa" */
 extern SMOP__Object* SMOP__ID__Iterator;          /* "Iterator" */
 extern SMOP__Object* SMOP__ID__jail;              /* "jail" */
 extern SMOP__Object* SMOP__ID__lexical;           /* "lexical" */
+extern SMOP__Object* SMOP__ID__List;              /* "List" */
 extern SMOP__Object* SMOP__ID__loop;              /* "loop" */
 extern SMOP__Object* SMOP__ID__mold;              /* "mold" */
 extern SMOP__Object* SMOP__ID__move_capturize;    /* "move_capturize" */

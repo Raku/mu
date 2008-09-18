@@ -114,7 +114,7 @@ void smop_s1p_array_iterator_mold_init() {
     my $count = $iterator."count"();
 
     my $size = $array."elems"();
-    my $bigger = $count."infix:>"($size);
+    my $bigger = $count."infix:>="($size);
 
     if $bigger { goto final } else { goto has_next };
      has_next:
@@ -123,7 +123,7 @@ void smop_s1p_array_iterator_mold_init() {
       $void = $back."setr"($item);
       $void = $interpreter."goto"($back);
      final:
-      $void = $back."setr"(¢SMOP__NATIVE__bool_false);
+      $void = $back."setr"(¢SMOP__S1P__EmptyList);
       $void = $interpreter."goto"($back)
 
   };
