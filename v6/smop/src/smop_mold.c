@@ -188,6 +188,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     SMOP__Object* reg_pos = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     mold_reg_set(interpreter, invocant, SMOP__NATIVE__int_fetch(reg_pos), value);
+    SMOP_RELEASE(interpreter,reg_pos);
 
   } else if (SMOP__ID__back == identifier) {
     if (frame->back) {
