@@ -258,6 +258,21 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         free(call_named);
         free(call_pos);
 
+#ifdef SMOP_MOLD_DEBUG
+        if (identifier && SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
+          int u;
+          char* external = SMOP__NATIVE__idconst_fetch(call_identifier, &u);
+          char* local = malloc(u+1);
+          memcpy(local, external, u);
+          local[u] = 0;
+          fprintf(stderr, "[SMOP_MOLD_DEBUG] eval \"%s\" on \"%s\".\n", local, SMOP_RI(call_invocant)->id);
+          free(local);
+        } else {
+          fprintf(stderr, "[SMOP_MOLD_DEBUG] eval on \"%s\".\n", SMOP_RI(call_invocant)->id);
+        }
+#endif
+        
+
         SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_invocant),call_identifier,capture);
         if (!ret) {
           print_regs_content(frame);
@@ -290,6 +305,20 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         SMOP__Object* call_responder  = get_register(interpreter,frame);
         SMOP__Object* call_identifier = get_register(interpreter,frame);
         SMOP__Object* call_capture = get_register(interpreter,frame);
+
+#ifdef SMOP_MOLD_DEBUG
+        if (identifier && SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
+          int u;
+          char* external = SMOP__NATIVE__idconst_fetch(call_identifier, &u);
+          char* local = malloc(u+1);
+          memcpy(local, external, u);
+          local[u] = 0;
+          fprintf(stderr, "[SMOP_MOLD_DEBUG] eval \"%s\" on \"%s\".\n", local, ((SMOP__ResponderInterface*)call_responder)->id);
+          free(local);
+        } else {
+          fprintf(stderr, "[SMOP_MOLD_DEBUG] eval on \"%s\".\n", ((SMOP__ResponderInterface*)call_responder)->id);
+        }
+#endif
 
         SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_responder),call_identifier,call_capture);
         SMOP_RELEASE(interpreter,call_responder);

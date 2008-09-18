@@ -23,14 +23,12 @@ void smop_s1p_root_namespace_insert(SMOP__Object* interpreter,char* name,SMOP__O
 }
 void smop_s1p_root_namespace_init() {
   SMOP__S1P__RootNamespace = SMOP__S1P__Hash_create();
-  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Hash",SMOP__S1P__Hash_create());
-  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Array",SMOP__S1P__Array_create());
-  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"$*OUT",SMOP__S1P__IO_create(SMOP__GlobalInterpreter));
-  //smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code",SMOP__S1P__Code_create(SMOP__NATIVE__bool_false));
-  SMOP__Object* mold = SMOP__Mold_create(0,(SMOP__Object*[]) { NULL },1,(int[]) { 0 });
-  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Mold",SMOP_REFERENCE(SMOP__GlobalInterpreter,mold));
-  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::MoldFrame",SMOP__Mold__Frame_create(SMOP__GlobalInterpreter,mold));
-  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code",SMOP__S1P__Code_create());
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Hash", SMOP__S1P__Hash);
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Array", SMOP__S1P__Array);
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"$*OUT", SMOP__S1P__IO_create(SMOP__GlobalInterpreter));
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Mold", SMOP__Mold);
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::MoldFrame", SMOP__Mold__Frame);
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code", SMOP__S1P__Code);
 }
 
 void smop_s1p_root_namespace_destr() {

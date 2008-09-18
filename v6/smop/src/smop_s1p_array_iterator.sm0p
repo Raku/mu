@@ -45,7 +45,7 @@ static SMOP__Object* lowlevel_array_iterator_message(SMOP__Object* interpreter,
 
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
     mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
-    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,back));
+    mold_reg_set(interpreter,frame,2,back);
 
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 

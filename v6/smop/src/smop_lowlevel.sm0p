@@ -161,9 +161,6 @@ void smop_lowlevel_destr() {
 }
 
 SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value) {
-#ifdef SMOP_LOWLEVEL_MEM_DEBUG
-  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] refcont_inc: %p\n",value);
-#endif
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt++;
   smop_lowlevel_unlock(value);
@@ -171,9 +168,6 @@ SMOP__Object* smop_lowlevel_refcnt_inc(SMOP__Object* interpreter, SMOP__Responde
 }
 
 SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__ResponderInterface* ri, SMOP__Object* value) {
-#ifdef SMOP_LOWLEVEL_MEM_DEBUG
-  fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] refcont_dec: %p\n",value);
-#endif
   smop_lowlevel_wrlock(value);
   ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt--;
   if (((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt <= 0) {

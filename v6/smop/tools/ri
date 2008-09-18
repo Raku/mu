@@ -95,6 +95,7 @@ print qq[{
     ___UNKNOWN_METHOD___;
   }
 
+  if (invocant) SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
   return ret;
 }

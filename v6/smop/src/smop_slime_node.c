@@ -180,10 +180,10 @@ static SMOP__Object* node_message(SMOP__Object* interpreter,
       char* local = malloc(u+1);
       memcpy(local, external, u);
       local[u] = 0;
-      fprintf(stderr, "[node] eval \"%s\".\n", local);
+      fprintf(stderr, "[SMOP_SLIME_DEBUG] eval \"%s\" on \"%s\".\n", local, ((SMOP__ResponderInterface*)responder));
       free(local);
     } else {
-      fprintf(stderr, "[node] eval.\n");
+      fprintf(stderr, "[SMOP_SLIME_DEBUG] eval on \"%s\".\n", ((SMOP__ResponderInterface*)responder));
     }
 #endif
 
