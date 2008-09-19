@@ -11,9 +11,10 @@ typedef struct smop_s1p_map_iterator_struct {
   SMOP__Object__BASE
   SMOP__Object* input_iterator;
   SMOP__Object* code;
-} smop_s1p_array_struct;
+} smop_s1p_map_iterator_struct;
 
 static SMOP__Object* map_iterator_consume_mold;
+static SMOP__Object* map_iterator_voidcontext_mold;
 
 static SMOP__Object* smop_s1p_map_message(SMOP__Object* interpreter,
                                           SMOP__ResponderInterface* self,
@@ -25,21 +26,56 @@ static SMOP__Object* smop_s1p_map_message(SMOP__Object* interpreter,
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
   if (identifier == SMOP__ID__postcircumfix_parens) {
-    ret = smop_lowlevel_alloc(sizeof(smop_s1p_array_struct));
+    ret = smop_lowlevel_alloc(sizeof(smop_s1p_map_iterator_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__map;
-    ((smop_s1p_array_struct*)ret)->code = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-    ((smop_s1p_array_struct*)ret)->input_iterator = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    ((smop_s1p_map_iterator_struct*)ret)->code = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    ((smop_s1p_map_iterator_struct*)ret)->input_iterator = SMOP__NATIVE__capture_positional(interpreter,capture,1);
 
   } else if (identifier == SMOP__ID__Void) {
     // map in void context should evaluate eagerly.
+
+    SMOP__Object* frame = (SMOP__Object*)SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,map_iterator_voidcontext_mold));
+    SMOP__Object* back = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+      SMOP__ID__continuation,
+      SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),
+        NULL,NULL));
+
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,2,back);
+    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,invocant));
+
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
     
+  } else if (identifier == SMOP__ID__prefix_equal) {
+    // this is the bare iterator without a context applied, which
+    // means that it returns the bare return of the code.
+
+    smop_lowlevel_rdlock(invocant);
+    SMOP__Object* code = ((smop_s1p_map_iterator_struct*)invocant)->code;
+    SMOP__Object* in = ((smop_s1p_map_iterator_struct*)invocant)->input_iterator;
+    smop_lowlevel_unlock(invocant);
+
+    SMOP__Object* frame = (SMOP__Object*)SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,map_iterator_consume_mold));
+    SMOP__Object* back = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+      SMOP__ID__continuation,
+      SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),
+        NULL,NULL));
+
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,2,back);
+    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,code));
+    mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,in));
+
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 
   } else if (identifier == SMOP__ID__DESTROYALL) {
     smop_lowlevel_wrlock(invocant);
-    SMOP__Object* code = ((smop_s1p_array_struct*)invocant)->code;
-    ((smop_s1p_array_struct*)invocant)->code = NULL;
-    SMOP__Object* in = ((smop_s1p_array_struct*)invocant)->input_iterator;
-    ((smop_s1p_array_struct*)invocant)->input_iterator = NULL;
+    SMOP__Object* code = ((smop_s1p_map_iterator_struct*)invocant)->code;
+    ((smop_s1p_map_iterator_struct*)invocant)->code = NULL;
+    SMOP__Object* in = ((smop_s1p_map_iterator_struct*)invocant)->input_iterator;
+    ((smop_s1p_map_iterator_struct*)invocant)->input_iterator = NULL;
     smop_lowlevel_unlock(invocant);
     
     if (code) SMOP_RELEASE(interpreter, code);
@@ -70,14 +106,49 @@ void smop_s1p_map_mold_init() {
 
   SMOP__Object* interpreter = SMOP__GlobalInterpreter;
   map_iterator_consume_mold = q:m0ld {
+    my $interpreter;
     my $capture;
     my $back;
-    my $interpreter;
+    my $code;
+    my $input_iterator;
+    
+    my $next_item = $input_iterator."prefix:="();
+    my $list = $next_item."List"();
+    my $elems = $list."elems"();
+    my $greater = $elems."infix:>"(0);
+    my $bool = $greater."bool"();
+    if $bool { goto iteration } else { goto end };
 
-
-    my $result;
+    iteration:
+    my $item = $next_item."FETCH"();
+    my $result = $code."postcircumfix:( )"($item);
     my $void = $back."setr"($result);
     $void = $interpreter."goto"($back);
+
+    end:
+    $void = $back."setr"(¢SMOP__S1P__EndOfIterator);
+    $void = $interpreter."goto"($back);
+
+  };
+
+  map_iterator_voidcontext_mold = q:m0ld {
+    my $interpreter;
+    my $capture;
+    my $back;
+    my $invocant;
+
+    while:
+    my $result = $invocant."prefix:="();
+    my $defined = $result."defined"();
+    
+    if $defined { goto iteration } else { goto end };
+    
+    iteration:
+    goto while;
+    
+    end:
+    my $void = $interpreter."goto"($back);
+    
   };
 
 }
@@ -85,6 +156,8 @@ void smop_s1p_map_mold_init() {
 void smop_s1p_map_mold_destr() {
   SMOP_RELEASE(SMOP__GlobalInterpreter, map_iterator_consume_mold);
   map_iterator_consume_mold = NULL;
+  SMOP_RELEASE(SMOP__GlobalInterpreter, map_iterator_voidcontext_mold);
+  map_iterator_voidcontext_mold = NULL;
 }
 
 void smop_s1p_map_destr() {

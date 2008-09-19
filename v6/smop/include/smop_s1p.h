@@ -6,6 +6,7 @@
 extern SMOP__Object* SMOP__S1P__Scalar;
 extern SMOP__Object* SMOP__S1P__Array;
 extern SMOP__Object* SMOP__S1P__Array_Iterator;
+extern SMOP__Object* SMOP__S1P__EndOfIterator;
 extern SMOP__Object* SMOP__S1P__Str;
 extern SMOP__Object* SMOP__S1P__Hash;
 extern SMOP__Object* SMOP__S1P__Code;
