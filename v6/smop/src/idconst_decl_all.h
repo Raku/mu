@@ -103,3 +103,4 @@ SMOP__Object* SMOP__ID__setr;
 SMOP__Object* SMOP__ID__shift;
 SMOP__Object* SMOP__ID__signature;
 SMOP__Object* SMOP__ID__STORE;
+SMOP__Object* SMOP__ID__Void;

@@ -19,7 +19,41 @@ static SMOP__Object* smop_s1p_map_message(SMOP__Object* interpreter,
                                           SMOP__ResponderInterface* self,
                                           SMOP__Object* identifier,
                                           SMOP__Object* capture) {
-  ___UNKNOWN_METHOD___;
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
+  if (identifier == SMOP__ID__postcircumfix_parens) {
+    ret = smop_lowlevel_alloc(sizeof(smop_s1p_array_struct));
+    ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__map;
+    ((smop_s1p_array_struct*)ret)->code = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    ((smop_s1p_array_struct*)ret)->input_iterator = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+
+  } else if (identifier == SMOP__ID__Void) {
+    // map in void context should evaluate eagerly.
+    
+
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    smop_lowlevel_wrlock(invocant);
+    SMOP__Object* code = ((smop_s1p_array_struct*)invocant)->code;
+    ((smop_s1p_array_struct*)invocant)->code = NULL;
+    SMOP__Object* in = ((smop_s1p_array_struct*)invocant)->input_iterator;
+    ((smop_s1p_array_struct*)invocant)->input_iterator = NULL;
+    smop_lowlevel_unlock(invocant);
+    
+    if (code) SMOP_RELEASE(interpreter, code);
+    if (in) SMOP_RELEASE(interpreter, in);
+
+  } else {
+    ___UNKNOWN_METHOD___;
+
+  }
+  
+
+  SMOP_RELEASE(interpreter,invocant);
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
 }
 
 

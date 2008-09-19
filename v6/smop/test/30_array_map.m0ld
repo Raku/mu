@@ -47,7 +47,7 @@ my $iterator = $array."Iterator"();
 
 my $iteritem = $iterator."FETCH"();
 
-my $otheriterator = ¢SMOP__S1P__map."map"($code1, $iteritem);
+my $otheriterator = ¢SMOP__S1P__map."postcircumfix:( )"($code1, $iteritem);
 
 $void = $out."print"("ok 1 - map is lazy\n");
 
