@@ -48,6 +48,7 @@ SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter);
 SMOP__Object* SMOP__S1P__Hash_create(void);
 SMOP__Object* SMOP__S1P__Array_create(void);
 SMOP__Object* SMOP__S1P__Code_create(void);
+SMOP__Object* SMOP__S1P__Array_Iterator_create(SMOP__Object* input_array);
 
 
 #include <assert.h>

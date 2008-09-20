@@ -58,7 +58,7 @@ void smop_ri_init() {
   ((SMOP__ResponderInterface*)SMOP__RI)->REFERENCE = ri_reference;//smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__RI)->RELEASE = ri_release;//smop_lowlevel_generic_release;
   ((SMOP__ResponderInterface*)SMOP__RI)->id = "meta RI";
-  SMOP__RI->RI = SMOP__RI;
+  SMOP__RI->RI = (SMOP__ResponderInterface*)SMOP__RI;
 }
 
 void smop_ri_destr() {
@@ -79,8 +79,8 @@ SMOP__Object* SMOP__RI__create(
   char *id
   ) {
     SMOP__Object* ret = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
-    SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*) ret;
-    ri->RI = SMOP__RI;
+    SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)ret;
+    ri->RI = (SMOP__ResponderInterface*)SMOP__RI;
     ri->MESSAGE = MESSAGE;
     ri->REFERENCE = REFERENCE;
     ri->RELEASE = RELEASE;

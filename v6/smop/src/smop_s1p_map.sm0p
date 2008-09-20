@@ -3,6 +3,7 @@
 #include <math.h>
 #include <smop_lowlevel.h>
 #include <smop_s1p.h>
+#include <smop_mold.h>
 #include <stdio.h>
 
 SMOP__Object* SMOP__S1P__map;
