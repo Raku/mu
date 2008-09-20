@@ -123,7 +123,7 @@ void smop_s1p_array_iterator_mold_init() {
       $void = $back."setr"($item);
       $void = $interpreter."goto"($back);
      final:
-      $void = $back."setr"(¢SMOP__S1P__EmptyList);
+      $void = $back."setr"(¢SMOP__S1P__EndOfIterator);
       $void = $interpreter."goto"($back)
 
   };

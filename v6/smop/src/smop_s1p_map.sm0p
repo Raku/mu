@@ -113,10 +113,7 @@ void smop_s1p_map_mold_init() {
     my $input_iterator;
     
     my $next_item = $input_iterator."prefix:="();
-    my $list = $next_item."List"();
-    my $elems = $list."elems"();
-    my $greater = $elems."infix:>"(0);
-    my $bool = $greater."bool"();
+    my $bool = $next_item."defined"();
     if $bool { goto iteration } else { goto end };
 
     iteration:

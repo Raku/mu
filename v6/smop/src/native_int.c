@@ -41,6 +41,14 @@ static SMOP__Object* int_message(SMOP__Object* interpreter,
     SMOP_RELEASE(interpreter, other);
     SMOP_RELEASE(interpreter,invocant);
 
+  } else if (identifier == SMOP__ID__defined) {
+    ret = SMOP__NATIVE__bool_true;
+    
+  } else if (identifier == SMOP__ID__FETCH) {
+    ___NATIVE_CAPTURE_ONLY___;
+    ___INVOCANT_RI_SHOULD_MATCH___;
+    ret = invocant;
+
   } else if (identifier == SMOP__ID__infix_num_ge) {
 
     ___NATIVE_CAPTURE_ONLY___;

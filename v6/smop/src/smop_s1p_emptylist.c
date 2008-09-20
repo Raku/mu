@@ -28,6 +28,9 @@ static SMOP__Object* smop_s1p_emptylist_message(SMOP__Object* interpreter,
   } else if (identifier == SMOP__ID__List) {
     ret = SMOP__S1P__EmptyList;
 
+  } else if (identifier == SMOP__ID__FETCH) {
+    ret = SMOP__S1P__EmptyList;
+
   } else if (identifier == SMOP__ID__elems) {
     ret = SMOP__NATIVE__int_create(0);
 

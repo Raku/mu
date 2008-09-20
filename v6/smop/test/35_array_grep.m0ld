@@ -42,16 +42,14 @@ my $grep_code = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
     
-    if $bool { goto in } else { goto out };
-    
-    out:
-    $void = $back."setr"(¢SMOP__NATIVE__bool_true);
-    goto end;
+    if $bool { goto out } else { goto in };
     
     in:
-    $void = $back."setr"(¢SMOP__NATIVE__bool_false);
+    $void = $back."setr"(¢SMOP__NATIVE__bool_true);
+    $void = $interpreter."goto"($back);
     
-    end:
+    out:
+    $void = $back."setr"(¢SMOP__NATIVE__bool_false);
     $void = $interpreter."goto"($back);
 }));
 
@@ -75,11 +73,11 @@ my $map_code = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
     if $bool { goto out } else { goto in };
 
     in:
-    $void = $out."print"("ok\n");
+    $void = $out."print"("ok - item < 3 \n");
     goto end;
 
     out:
-    $void = $out."print"("not ok\n");
+    $void = $out."print"("not ok - item > 3\n");
 
     end:
     $void = $interpreter."goto"($back);

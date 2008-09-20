@@ -116,23 +116,25 @@ void smop_s1p_grep_mold_init() {
     my $code;
     my $input_iterator;
     
+    fetch_item:
     my $next_item = $input_iterator."prefix:="();
-    my $list = $next_item."List"();
-    my $elems = $list."elems"();
-    my $greater = $elems."infix:>"(0);
-    my $bool = $greater."bool"();
+    my $bool = $next_item."defined"();
     if $bool { goto iteration } else { goto end };
-
+    
     iteration:
     my $item = $next_item."FETCH"();
     my $result = $code."postcircumfix:( )"($item);
-    my $void = $back."setr"($result);
+    my $bool = $result."bool"();
+    if $bool { goto in } else { goto fetch_item };
+    
+    in:
+    my $void = $back."setr"($item);
     $void = $interpreter."goto"($back);
-
+    
     end:
     $void = $back."setr"(¢SMOP__S1P__EndOfIterator);
     $void = $interpreter."goto"($back);
-
+    
   };
 
   grep_iterator_voidcontext_mold = q:m0ld {

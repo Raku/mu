@@ -111,6 +111,10 @@ static SMOP__Object* smop_s1p_array_proxy_message(SMOP__Object* interpreter,
     } else {
     }
 
+  } else if (identifier == SMOP__ID__defined) {
+    // the array container is defined, the value inside it that maybe not.
+    ret = SMOP__NATIVE__bool_true;
+
   } else if (identifier == SMOP__ID__STORE) {
     resize_array(invocant->array,invocant->index+1);
     SMOP__Object* prev = invocant->array->content[invocant->index];
