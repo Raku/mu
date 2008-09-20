@@ -95,6 +95,7 @@ foreach (sm0p_file
     src/smop_s1p_attribute.sm0p
     src/smop_s1p_code.sm0p
     src/smop_s1p_map.sm0p
+    src/smop_s1p_grep.sm0p
     src/smop_s1p_array_iterator.sm0p
 )
 compile_sm0p (${sm0p_file})
@@ -127,6 +128,7 @@ add_library (smop
     src/smop_s1p_capturize.c
     src/smop_s1p_ccode.c
     src/smop_s1p_code.c
+    src/smop_s1p_grep.c
     src/smop_s1p_map.c
     src/smop_s1p_pureprototypehow.c
     src/smop_s1p_emptylist.c
@@ -186,6 +188,7 @@ foreach (test_file
     test/32_array_iterator.m0ld
     test/33_pugs_simple.p6-pugs
     test/34_array_unshift.m0ld
+    test/35_array_grep.m0ld
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")

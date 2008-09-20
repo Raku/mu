@@ -1,0 +1,100 @@
+my $interpreter;
+my $scope;
+my $void;
+my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $out = $out_scalar."FETCH"();
+$void = $out."print"("1..8\n");
+
+my $Code_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
+my $Code = $Code_scalar."FETCH"();
+my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"();
+
+my $it_var_slot = $lexicalscope."postcircumfix:{ }"("$_");
+my $it_var_cont = ¢SMOP__S1P__Scalar."new"();
+$void = $it_var_slot."STORE"($it_var_cont);
+$void = $it_var_cont."STORE"("not ok\n");
+
+my $array = ¢SMOP__S1P__Array."new"();
+my $element = $array."postcircumfix:[ ]"(0);
+$void = $element."STORE"(2);
+$element = $array."postcircumfix:[ ]"(1);
+$void = $element."STORE"(3);
+$element = $array."postcircumfix:[ ]"(2);
+$void = $element."STORE"(4);
+$element = $array."postcircumfix:[ ]"(3);
+$void = $element."STORE"(5);
+
+my $grep_code = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
+    my $interpreter;
+    my $lexical;
+    
+    my $it_var_slot = $lexical."postcircumfix:{ }"("$_");
+    my $it_var = $it_var_slot."FETCH"();
+    my $it  = $it_var."FETCH"();
+    
+    my $greater = $it."infix:>"(3);
+    my $bool = $greater."bool"();
+    
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+    my $void = $out."print"("ok - grep iteration\n");
+    
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    
+    if $bool { goto in } else { goto out };
+    
+    out:
+    $void = $back."setr"(¢SMOP__NATIVE__bool_true);
+    goto end;
+    
+    in:
+    $void = $back."setr"(¢SMOP__NATIVE__bool_false);
+    
+    end:
+    $void = $interpreter."goto"($back);
+}));
+
+my $map_code = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
+    my $interpreter;
+    my $lexical;
+    my $void;
+
+    my $it_var_slot = $lexical."postcircumfix:{ }"("$_");
+    my $it_var = $it_var_slot."FETCH"();
+    my $it  = $it_var."FETCH"();
+   
+    my $greater = $it."infix:>"(3);
+    my $bool = $greater."bool"();
+    
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+
+    if $bool { goto out } else { goto in };
+
+    in:
+    $void = $out."print"("ok\n");
+    goto end;
+
+    out:
+    $void = $out."print"("not ok\n");
+
+    end:
+    $void = $interpreter."goto"($back);
+}));
+
+my $iterator = $array."Iterator"();
+my $iteritem = $iterator."FETCH"();
+
+my $grepiterator = ¢SMOP__S1P__grep."postcircumfix:( )"($grep_code, $iteritem);
+my $grepitem = $grepiterator."FETCH"();
+
+my $mapiterator = ¢SMOP__S1P__map."postcircumfix:( )"($map_code, $grepitem);
+
+$void = $out."print"("ok 1 - map and grep are lazy\n");
+
+$void = $mapiterator."Void"();
+
+$void = $out."print"("ok 8 - map in void context is evaluated eagerly\n");
