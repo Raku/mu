@@ -133,8 +133,9 @@ it gets match the declared parameter list. A mismatch in the number or
 kind of arguments is an error. But since requiring every declared
 parameter to be passed in on every call isn't nearly flexible enough
 for the average programmer, Perl 6 also allows optional parameters.
-Each optional parameter is marked with a C<?> before the parameter
-name:
+Optional parameters can be included or ignored without causing any
+errors. Each optional parameter is marked with a C<?> before the
+parameter name:
 
   sub someopt ($required1, $required2, ?$optional1, ?$optional2) {
       ...
@@ -151,6 +152,12 @@ linear order. All these calls to C<someopt> are fine:
   someopt('req1', 'req2', 'opt1', 'opt2');
   someopt('req1', 'req2', 'opt1');
   someopt('req1', 'req2');
+
+Notice that it will still cause an error to pass too many or too few
+parameters in a list with optional parameters:
+
+  someopt('req1')                                  # WRONG!
+  someopt('req1', 'req2', 'opt1', 'opt2', 'extra') # WRONG!
 
 =head2 Named Parameters
 
@@ -180,6 +187,21 @@ the person maintaining your code will both be profoundly grateful they
 don't have to sort through a mixed bag of positional and named
 parameters to find the positional parameter list.
 
+If it makes more sense to do it, you can also use the alternate key
+syntax for passing parameters:
+
+ namedparams(1, :second(2), :third(3))      # Right
+
+Also, named parameters aren't positional, you can pass them in any
+orderN<Any order, so long as all the named parameters come after all
+the positional parameters, of course>. So, we can pass the second third
+and the third second:
+
+ namedparams(1, third => 3, second => 2)
+
+The point of having a name for your parameter is that you don't have to
+worry about the position of it.
+
 =head2 Variadic Parameters
 
 Z<CHP-5-SECT-2.3>
@@ -192,9 +214,9 @@ These are known as I<variadic> parameters because they can take a
 variable number of arguments.  In Perl 6, an array parameter with a
 C<*> before the parameter name will slurp up all the I<positional>
 arguments that haven't already been bound to another positional
-parameter.N<You may notice that this is the same symbol as the
+parameterN<You may notice that this is the same symbol as the
 flattening/slurping operator in A<CHP-4-SECT-2.12>"Referencing (or
-Not)" in Chapter 4.> So, the following call to C<transport> binds
+Not)" in Chapter 4.>. So, the following call to C<transport> binds
 C<$arthur> to C<@names[0]>, and C<$ford> to C<@names[1]>:
 
   sub transport ($planet, *@names) {
@@ -214,11 +236,11 @@ A hash parameter with a C<*> before the name will slurp up all the
 I<named> arguments that haven't already been bound to another
 parameter. So, the following call to C<transport> binds the value of
 the pair argument with the key C<'planet'> to the parameter
-C<$planet>, but all the other pairs become part of the C<%flags> hash
+C<:$planet>, but all the other pairs become part of the C<%flags> hash
 (more on this in A<CHP-5-SECT-3.1>"Named Argument Passing" later in
 this chapter).
 
-  sub transport ($planet, *%flags) {...}
+  sub transport (:$planet, *%flags) {...}
 
   transport('name'    => 'Arthur',
             'luggage' => 'lost',
@@ -226,8 +248,11 @@ this chapter).
             'towel'   => 'required');
 
 When they're combined with other kinds of parameters, variadic
-parameters must come after all positional parameters in the signature.
-They can either precede or follow the named parameters.
+positional parameters must come after all positional parameters in
+the signature. They can either precede or follow the named parameters.
+Variadic named parameters only slurp up the named parameters that aren't
+bound already, so they can appear anywhere in the signatureN<anywhere
+after all the positionals, of course.>.
 
 =head2 Typed Parameters
 
@@ -237,8 +262,8 @@ X<typed parameters>
 X<parameters;types>
 Signature checking is sensitive not only to the number of arguments
 and the variable type (defined by the C<$>, C<@>, C<%>, or C<&>
-symbol), but also to the value type.N<See A<CHP-4-SECT-1.8>"Types" in
-Chapter 4 for more details on value and variable types.> The parameter
+symbol), but also to the value typeN<See A<CHP-4-SECT-1.8>"Types" in
+Chapter 4 for more details on value and variable types.>. The parameter
 type is defined before the parameter name and before any symbols for
 optional, named, or variadic parameters:
 
@@ -265,15 +290,26 @@ By default, parameters are aliases to the original arguments
 (pass-by-reference), but they're marked as constant so they cannot be
 modified within the body of the subroutine. The C<is rw> property
 marks a parameter as modifiable, so changes to the parameter within
-the body of the sub modify the original variable passed in: 
+the body of the sub modify the original variable passed in:
 
   sub modifyparams ($first is rw, $second is rw) {...}
+
+Be careful about using the C<is rw> property unless it's necessary,
+inadvertent changes in a subroutine can change data values in the
+caller's scope that might not be expecting to be changed. At the
+very least, it's polite to document it when your subroutine is monkeying
+around in somebody else's scope.
 
 The C<is copy> property marks a parameter as pass-by-value, so the
 parameter is a lexically scoped copy of the original value passed in:
 
   sub passbyvalue ($first is copy, $second is copy) {...}
-  
+
+This means that the parameter is not an alias for the value in the
+caller's scope, but it's not read-only either. It's a new variable,
+a copy of the original and free to be used however your subroutine
+sees fit.
+
 =head2 Default Values for Parameters
 
 Z<CHP-5-SECT-2.6>
@@ -281,11 +317,15 @@ Z<CHP-5-SECT-2.6>
 X<parameters;default values>
 Sometimes it is useful to be able to define a default value for an
 optional or named parameter. The C<=> operator marks the default
-value.N<This isn't an assignment, it's only a reuse of the C<=> symbol
-in a different context.> The parameter takes the default value only if
-the call doesn't pass an argument for that parameter.
+valueN<This isn't an assignment, it's only a reuse of the C<=> symbol
+in a different context.>. The parameter takes the default value only
+if the call doesn't pass an argument for that parameter.
 
   sub default_vals ($required, ?$optional = 5) {...}
+
+Default values are only used with optional parameters. This should make
+sense because required positional values are always required, and so
+they always have a value passed.
 
 =head2 Placeholder Variables
 
@@ -300,7 +340,7 @@ lists. They have many of the advantages of ordinary parameters,
 without the inconvenience of declaring a signature. You just use
 variables with a caret after the sigil--C<$^name>, C<@^name>,
 C<%^name>, or C<&^name>--within the subroutine's block, and the
-arguments passed into the subroutine are bound to them. 
+arguments passed into the subroutine are bound to them.
 
   @sorted = sort { $^a <=> $^b } @array;
 
@@ -347,7 +387,7 @@ keyword is usually clearer when the sub has multiple return values:
 Z<CHP-5-SECT-3>
 
 X<arguments>
-X<arguments;passing> 
+X<arguments;passing>
 The standard way of passing arguments is by position. The first
 argument passed in goes to the first parameter, the second to the
 second, and so on:
@@ -385,8 +425,8 @@ Z<CHP-5-SECT-3.2>
 X<flattened arguments>
 To get the Perl 5-style behavior where the elements of an array (or
 the pairs of a hash) flatten out into the parameter list, use the
-flattening operator in the call to the subroutine. Here, C<$first>
-binds to C<@array[0]> and C<$second> binds to C<@array[1]>:
+flattening operator C<*> in the call to the subroutine. Here,
+C<$first> binds to C<@array[0]> and C<$second> binds to C<@array[1]>:
 
   sub flat ($first, $second) {...}
   
@@ -413,7 +453,7 @@ Z<CHP-5-SECT-3.3>
 Arguments to subroutine calls have a standard general order.
 Positional arguments, if there are any, always go first. Named
 arguments go after any positional arguments. Variadic arguments always
-go at the end of the list. 
+go at the end of the list.
 
   order($positional, named => 1, 'va', 'ri', 'ad', 'ic');
 
@@ -538,7 +578,7 @@ require the fully-qualified name everwhere.>
 This example declares two modules, C<My::Module> and C<Other::Module>.
 C<My::Module> declares a subroutine C<firstsub> and calls it from within
 C<secondsub>. C<Other::Module> declares a subroutine C<thirdsub> that
-calls C<firstsub> using its fully qualified name. 
+calls C<firstsub> using its fully qualified name.
 
 =head2 Lexically Scoped Subroutines
 
@@ -560,7 +600,7 @@ subroutine:
       dine($zaphod, "Milliways");
   }
   
-  # dine($arthur, "Nutri-Matic");  # error
+  dine($arthur, "Nutri-Matic");  # error - not in scope!
 
 The first call to the lexically scoped C<dine> is fine, but the second
 would be a compile-time error because C<dine> doesn't exist in the outer
@@ -608,7 +648,7 @@ slurping. The only difference is that they don't define a name. But
 since you can't call a subroutine if you have no way to refer to it,
 they have to get the equivalent of a name somewhere, whether they're
 assigned to a variable, passed as a parameter, or aliased to another
-subroutine. 
+subroutine.
 
   $make_tea = sub ($tealeaves, ?$sugar, ?$milk) {...}
 
@@ -644,12 +684,12 @@ Z<CHP-5-SECT-7>
 X<multi subroutines>
 X<subroutines;multi>
 You can define multiple routines with the same name but different
-signatures. These are known as "multisubs" and defined with the
-C<multi> keyword before C<sub>. They're useful if you want a routine
-that can handle different types of arguments in different ways, but
-still appear as a single subroutine to the user. For example, you
-might define an C<add> multisub with different behavior for integers,
-floats, and certain types of numeric objects:
+signatures in the same scope. These are known as "multisubs" and
+defined with the C<multi> keyword before C<sub>. They're useful if
+you want a routine that can handle different types of arguments in
+different ways, but still appear as a single subroutine to the user.
+For example, you might define an C<add> multisub with different behavior
+for integers, floats, and certain types of numeric objects:
 
   multi sub add (Int $first, Int $second) {...}
   multi sub add (Num $first, Num $second) {...}
@@ -666,11 +706,10 @@ are called I<invocants>.X<invocants> If you want to use a limited set
 of parameters as invocants, mark the boundary between invocant
 parameters and the rest of the signature with a semi-colon:
 
-  multi sub add (Int $first, Int $second: Int $third) {...}
+  multi sub add (Int $first, Int $second; Int $third) {...}
 
 This version of C<add> will dispatch based on the types of the first
 two arguments passed in, and ignore the type of the third.
-
 
 =head1 Curried Subroutines
 
@@ -797,10 +836,14 @@ Macros are a powerful way of manipulating source code at compile time.
 Macros must be declared before they're called. A call to a C<macro>
 routine executes as soon as it's parsed. The parser substitutes the
 return value from the macro into the parse tree in place of the macro
-call. If a macro returns C<undef>, it makes no entry in the parse
-tree. So, the macro C<disappear> takes a single string argument and
-returns C<undef>. Any call to C<disappear> is replaced at compile time
-with nothing, just as if it were commented out.
+callN<This is an important point, because Perl 6's macros are not the
+same plain-text-replacement mechanism that has become common place to
+C and C++ programmers. Perl 6's macros actually manipulate the parse
+tree and have all the power of the full Perl 6 language.>. If a macro
+returns C<undef>, it makes no entry in the parse tree. So, the macro
+C<disappear> takes a single string argument and returns C<undef>.
+Any call to C<disappear> is replaced at compile time with nothing,
+just as if it were commented out.
 
   macro disappear (Str $thinair) {
       return;
@@ -810,10 +853,13 @@ with nothing, just as if it were commented out.
 
   disappear("Some text you'll never see");
 
-If a macro returns a string, the string is parsed as Perl source code,
-and the resulting parse tree replaces the macro call. So, anywhere the
-macro C<twice> is called, it is replaced at compile time by a C<for>
-modifier.
+This technique might seem like a nice way to add custom comment operators,
+but as we will see in A<CHP-7> Chapter 7: "Grammars and Rules", there are
+better ways to add custom commenting operatorsN<custom operators of all
+types, in fact>. If a macro returns a string, the string is parsed as
+Perl source code, and the resulting parse tree replaces the macro call.
+So, anywhere the macro C<twice> is called, it is replaced at compile time
+by a C<for> modifier.
 
   macro twice {
       return "for 1..2";
@@ -825,7 +871,7 @@ modifier.
 
 If a macro returns a block, that block is parsed as a closure, and the
 resulting parse tree replaces the macro call. So, when the
-C<reverse_numeric> macro is called, the parser substitutes the block 
+C<reverse_numeric> macro is called, the parser substitutes the block
 C<< { $^b <=> $^a } >> in place of the call.
 
   macro reverse_numeric {
@@ -855,7 +901,7 @@ will call the C<plain> subroutine with the single argument passed to
 C<funky>.
 
    macro funky (Str $whatever) 
-      is parsed (/:w like (\w+), you know/) 
+      is parsed (/:w like (\w+), you know/)
   {
       return { plain($whatever); };
   }
