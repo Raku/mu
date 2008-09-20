@@ -84,9 +84,9 @@ faced with the task of assembling usable reports from log files
 scattered across the network. The available tools simply weren't up to
 the job. A linguist at heart, Larry set out to create his own
 programming language, which he called I<perl>. He released the first
-version of Perl on December 18, 1987. He made it freely available on
-Usenet (this was before the Internet took over the world, remember),
-and quickly a community of Perl programmers grew.
+version of Perl on December 18, 1987 and made it freely available on
+Usenet (this was before the Internet took over the world, remember).
+Before long, a small community of Perl programmers grew up around it.
 
 The early adopters of Perl were system administrators who had hit the
 wall with shell scripting, I<awk>, and I<sed>. However, in the

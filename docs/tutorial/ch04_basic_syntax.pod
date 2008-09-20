@@ -87,7 +87,7 @@ C<0> index holds the first value. The C<@> sigil is part of the name
 of the variable and stays the same no matter how the variable is used:
 
   @crew = "Zaphod", "Ford", "Trillian";
-  
+
   $second_member = @crew[1]; # Ford
 
 Unlike scalar assignment, assignment to an array parses everything
@@ -141,7 +141,8 @@ passing it a list of anonymous pair objects. For example:
   %hash = "Zaphod" => 362, "Ford" => 1574, "Trillian" => 28;
 
 As with arrays, assignment to a hash parses everything after the C<=>
-as a list, so parentheses are not needed around the list.
+as a list, so parentheses are not needed around the list N<Although
+you can have them too, if you prefer>.
 
 The key for each value may be a string or an object, though there are
 some restrictions on object keys. Hashes that use object keys must be

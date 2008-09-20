@@ -7,20 +7,32 @@
 Z<CHP-5>
 
 X<subroutines>
-Subroutines are reusable units of code. They can be called from just
-about anywhere, and return control to the point of the call when they
-finish executing. They can be passed zero or more argumentsN<Following
-the example set in Apocalypse 6, throughout this chapter we'll use the
-term "argument" for the values passed into a subroutine call and
-"parameter" for the lexical variables declared in the subroutine's
-signature.> and return zero or more results. Subroutines can be named
-or anonymous. They can be lexically scoped, package scoped, or
-globally scoped. "Multi" subs allow multiple subroutines to have the
-same name as long as they have different parameter lists.
+Subroutines are reusable units of code, and one of the fundamental
+building blocks of modern programming languages. They can be called
+from just about anywhere, and return control to the point of the call
+when they finish executing. They can be passed zero or more
+argumentsN<Throughout this chapter we'll use the term "argument" for
+the values passed into a subroutine call and "parameter" for the
+lexical variables declared in the subroutine's signature.> and return
+zero or more results. Some programmers may be more familar with
+languages which only allow a single return value from a subroutine,
+or languages for which subroutines have exactly zero return values and
+"functions" may have one. Perl 6 generalized the concept to allow
+subroutines to return as many, or as few, return values as needed. We
+think it just makes more sense to let the programmer do what they want
+to do in this regard.
 
-Methods have a few significant differences from subroutines. In Perl 6
-they're even distinguished by a separate keyword, C<method>. Because
-of these differences, they'll be discussed in A<CHP-6>Chapter 6.
+Subroutines can be named or anonymous. They can be lexically scoped,
+package scoped, or globally scoped. Subroutines can be "Multi" subs,
+which allow multiple subroutines to have the same name as long as
+they have different parameter lists.
+
+Blocks of reusable code can also be called the "methods" of a particular
+class of object. Methods have a few significant differences from
+subroutines, a few significant differences from those found in Perl 5.
+For instance, in Perl 6 they're distinguished by a separate keyword,
+C<method>. Because of these differences, they'll be discussed in
+A<CHP-6>Chapter 6.
 
 =head1 Using Subroutines
 
@@ -36,7 +48,7 @@ the sub:
   }
 
 The simplest subroutine call is just the subroutine name followed by a
-comma-separated list of variables or values: 
+comma-separated list of variables or values:
 
   $result = sum($a, $b, 42, 57);
 
@@ -47,18 +59,18 @@ Arguments are also sometimes passed as anonymous pairs:
 Parentheses are optional on calls to subroutines that have been
 predeclared, but required for all other calls. Including the C<&>
 sigil before the subroutine name in a call will not turn off signature
-checking. In fact, in most contexts prefixing the subroutine name with
-C<&> will return a reference to the subroutine instead of calling the
-subroutine.
+checking as it did in Perl 5. In fact, in most contexts prefixing
+the subroutine name with C<&> will return a reference to the
+subroutine instead of actually calling the subroutine.
 
 =head1 Parameters
 
 Z<CHP-5-SECT-2>
 
-X<parameters;formal> 
+X<parameters;formal>
 X<formal parameters>
 X<subroutines;signatures>
-X<subroutines;parameters> 
+X<subroutines;parameters>
 One of the most significant additions to subroutines in Perl 6 is
 named formal parameters. The parameter list, often called the
 I<signature> of the subroutine, is part of the subroutine declaration:
@@ -107,7 +119,7 @@ expects a hash or hashref argument:
   sub whole (@names, %flags) {
       ...
   }
-  
+
   whole(@array, %hash);
 
 =head2 Optional Parameters
