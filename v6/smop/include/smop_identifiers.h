@@ -106,7 +106,7 @@ extern SMOP__Object* SMOP__ID__REPR_multisubmethods;      /* "^!multisubmethods"
 extern SMOP__Object* SMOP__ID__REPR_package;      /* "^!package" */
 extern SMOP__Object* SMOP__ID__REPR_private_storage;                     /* "^!private_storage" */
 extern SMOP__Object* SMOP__ID__REPR_properties;   /* "^!properties" */
-extern SMOP__Object* SMOP__ID__REPR_submethods;      /* "^!submethods" */
+extern SMOP__Object* SMOP__ID__REPR_submethods;   /* "^!submethods" */
 extern SMOP__Object* SMOP__ID__REPR_whence;       /* "^!whence" */
 extern SMOP__Object* SMOP__ID__REPR_who;          /* "^!who" */
 extern SMOP__Object* SMOP__ID__responder;         /* "responder" */
@@ -115,6 +115,7 @@ extern SMOP__Object* SMOP__ID__setr;              /* "setr" */
 extern SMOP__Object* SMOP__ID__shift;             /* "shift" */
 extern SMOP__Object* SMOP__ID__signature;         /* "signature" */
 extern SMOP__Object* SMOP__ID__STORE;             /* "STORE" */
-extern SMOP__Object* SMOP__ID__Void;             /* "Void" */
+extern SMOP__Object* SMOP__ID__unshift;           /* "unshift" */
+extern SMOP__Object* SMOP__ID__Void;              /* "Void" */
 
 #endif

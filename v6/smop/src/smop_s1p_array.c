@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <smop.h>
 #include <math.h>
 #include <smop_lowlevel.h>
@@ -74,8 +75,18 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
   } else if (identifier == SMOP__ID__Iterator) {
     ret = SMOP__S1P__Array_Iterator_create(SMOP_REFERENCE(interpreter,(SMOP__Object*)invocant));
 
+  } else if (identifier == SMOP__ID__unshift) {
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (invocant->size < (invocant->elems + 1)) {
+      resize_array(invocant, invocant->size + 1);
+    }
+    memmove(&invocant->content[1], &invocant->content[0], invocant->elems * sizeof(void*));
+    invocant->content[0] = value;
+    invocant->elems++;
+
   } else if (identifier == SMOP__ID__elems) {
     ret = SMOP__NATIVE__int_create(invocant->elems);
+
   } else if (identifier == SMOP__ID__DESTROYALL) {
     int i;for (i=0;i < invocant->elems;i++) {
       if (invocant->content[i]) SMOP_RELEASE(interpreter,invocant->content[i]);
