@@ -6,6 +6,7 @@ import Pugs.Compile
 import Pugs.PIL1.Instances ()
 import Pugs.PIL1
 import Control.Monad.State
+import Data.List
 
 uniqueId = do
     modify (+1)
@@ -96,10 +97,10 @@ methodCall inv method args r = do
     inv_r <- uniqueId
     inv_code <- fetch (emit inv) inv_r
     args <- mapM (\arg -> do
-        arg_id <- uniqueId
-        arg_code <- fetch (emit arg) arg_id
-        return (arg_code,arg_id)) args
-    return (inv_code ++ (concat $ fmap fst args) ++ "my " ++ r ++ " = " ++ inv_r ++ ".\"" ++ method ++ "\"(" ++ (concat $ fmap snd args) ++ ");\n")
+        arg_reg <- uniqueId
+        arg_code <- fetch (emit arg) arg_reg
+        return (arg_code,arg_reg)) args
+    return (inv_code ++ (concat $ fmap fst args) ++ "my " ++ r ++ " = " ++ inv_r ++ ".\"" ++ method ++ "\"(" ++ (concat $ intersperse "," $ fmap snd args) ++ ");\n")
 
 instance EmitM0ld PIL_LValue where
     emit lvalue r = case lvalue of
@@ -108,6 +109,13 @@ instance EmitM0ld PIL_LValue where
         PApp {pFun=PExp {pLV = PVar {pVarName = '&':method}},pArgs=args,pInv=Just inv} ->
             methodCall inv method args r
         PVar {pVarName=name} -> return $ "my " ++ r ++ " = $scope.\"lookup\"(\"" ++ name ++ "\");\n"
+        PAssign {pLHS=[lhs],pRHS=rhs} -> do
+            lhs_reg <- uniqueId
+            lhs_code <- emit lhs lhs_reg 
+            rhs_reg <- uniqueId
+            rhs_code <- fetch (emit rhs) rhs_reg
+            return $ lhs_code ++ rhs_code ++ "my " ++ r ++ " = " ++ lhs_reg ++ ".\"STORE\"(" ++ rhs_reg ++ ");\n"
+
         other -> return $ (show other) ++ ";\n"
 
 genM0ld :: FilePath -> Eval Val
