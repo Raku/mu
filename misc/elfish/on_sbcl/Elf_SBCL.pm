@@ -9,6 +9,6 @@ use Parser;
 use Compiler;
 
 use EmitSBCL;
-use PrimitivesSBCL;
+#use PrimitivesSBCL; #XXX tmp hack because elf_g can't add files after CommandLine.
 
 use CommandLine;

@@ -13,18 +13,10 @@ class EmitSBCL {
     else { $source }
   }
 
-  method prelude_for_entering_a_package () {
-    "";
-  };
-
   method prelude_lexical () {
     "";
   };
 
-  method using_Moose() { 0 }
-  method create_default_for($cls,$field_name,$default) {
-   ''
-  }
   method prelude_oo () {
    '';
   };
@@ -35,16 +27,141 @@ class EmitSBCL {
 #exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
 exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 |#
-'~self.prelude_oo~self.prelude_lexical~'
 
-(defpackage "GLOBAL" (:use common-lisp))
-(defpackage "Main" (:use common-lisp))
+;;------------------------------------------------------------------------------
+;; Multi-methods - avoid generic-function congruence restrictions.
+;; http://www.lispworks.com/documentation/HyperSpec/Body/07_fd.htm
 
-(in-package "GLOBAL")
-(defun say (x) (if (stringp x) (write-string x) (write x)) (format t "~%"))
+(defvar *maximum-number-of-dispatch-affecting-variables* 10)
 
+(defun n-variable-names (n &optional l)
+  (cond ((= 0 n) l)
+        (t (n-variable-names (1- n) (cons (gensym) l)))))
 
-(in-package "Main")
+(defmacro fc (func &rest args)
+  `(ap ,func (list ,@args)))
+
+(defgeneric ap (func args))
+(defmethod ap (func args)
+  (apply func args))
+(defmethod ap ((func standard-generic-function) args)
+  (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
+         (len (length args))
+         (pad-args (make-list (max 0 (- n len))))
+         (real-args (subseq args 0 (min n len)))
+         (dispatch-args (concatenate \'list real-args pad-args)))
+    (apply func (cons args dispatch-args))))
+         
+(defmacro dg (name sig)
+  (declare (ignore sig))
+  (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
+         (vars (n-variable-names n)))
+    `(defgeneric ,name (args ,@vars))))
+
+(defun parameters-in-lambda-list (sig)
+  (let ((pred (lambda(e) (case e
+                               (&optional t)
+                               (&rest t)
+                               ))))
+    (remove-if pred sig))) ;X should stop at &aux, etc.
+
+(defmacro dm (name sig &rest body)
+  (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
+         (n-1 (1- n))
+         (vars (parameters-in-lambda-list sig))
+         (len (length vars))
+         (real-vars (subseq vars 0 (min n-1 len)))
+         (bounds-var (list (if (find \'&rest sig)
+                               (gensym)
+                             `(,(gensym) ,(class-of nil)))))
+         (pad-vars (n-variable-names (max 0 (- n-1 len))))
+         (dispatch-vars (concatenate \'list real-vars bounds-var pad-vars))
+         (typeless-sig (map \'list (lambda (p) (if (listp p) (car p) p)) sig))
+         )
+    `(defmethod ,name (args ,@dispatch-vars)
+       (declare (ignore ,@pad-vars))
+       (destructuring-bind ,typeless-sig args
+         ,@body))))
+
+;;------------------------------------------------------------------------------
+
+(defmacro pkg-init-flag-name (pkg) `(concatenate \'string ,pkg "/initialized"))
+(defmacro pkg-clsname (pkg) `(find-symbol (concatenate \'string ,pkg "/cls")))
+(defmacro pkg-co (pkg) `(find-symbol (concatenate \'string ,pkg "::/co")))
+(defmacro pkg-super (pkg) `(find-symbol (concatenate \'string ,pkg "::/super")))
+(defmacro pkg-slots (pkg) `(find-symbol (concatenate \'string ,pkg "::/slots")))
+  
+(defun cls-sync-definition (pkg)
+  (let ((def 
+   `(defclass
+     ,(pkg-clsname pkg)
+     ,(symbol-value (pkg-super pkg))
+     ,(symbol-value (pkg-slots pkg)))))
+  (eval def)))
+
+(defun pkg-declare (kind pkg base)
+  (unless (find-symbol (pkg-init-flag-name pkg))
+    (set (intern (pkg-init-flag-name pkg)) t)
+    (when (equal kind "class")
+      (intern (concatenate \'string pkg "/cls"))
+      (set (intern (concatenate \'string pkg "::/super")) (if base (list base) nil))
+      (set (intern (concatenate \'string pkg "::/slots")) nil)
+      (cls-sync-definition pkg)
+      (set (intern (concatenate \'string pkg "::/co"))
+        (make-instance (pkg-clsname pkg)))
+      )))
+
+(defun cls-has (pkg new-slot-specifier)
+  (let ((slots-symbol (pkg-slots pkg)))
+    (set slots-symbol (nconc (symbol-value slots-symbol) (list new-slot-specifier)))
+    (cls-sync-definition pkg)))
+
+(defun cls-is (pkg new-super-pkg)
+  (let ((pkg-super-symbol (pkg-super pkg))
+        (new-super-name (pkg-clsname new-super-pkg)))
+    (assert pkg-super-symbol)
+    (assert new-super-name)
+    (if (not (equal new-super-pkg "Any"))
+      (set pkg-super-symbol (cons new-super-name (symbol-value pkg-super-symbol)))
+      (cls-sync-definition pkg))))
+
+;;------------------------------------------------------------------------------
+
+(make-package "M")
+
+(defclass |Any/cls| () ())
+
+(dg |M::new| (cls &rest argl))
+
+(dm |M::new| ((cls |Any/cls|) &rest argl)
+  (declare (ignorable argl))
+  (make-instance cls))
+
+ ;;Array.new is defined here to a avoid cyclic dependency on *@args.
+(pkg-declare "class" "Array" \'|Any/cls|)
+(eval \'(dm |M::new| ((cls |Array/cls|) &rest argl)
+  (declare (ignorable cls))
+  (let ((inst (make-instance \'|Array/cls|)))
+    (setf (slot-value inst \'|Array::._native_|)
+          (make-array (length argl) :adjustable t :initial-contents argl))
+    inst))
+)
+
+;; Hack until Str, Int, Num, etc are p6 objects.
+(eval \'(dm |M::Str| ((s string) &rest argl) (declare (ignorable argl)) s))
+(eval \'(dm |M::Str| ((n number) &rest argl) (declare (ignorable argl)) (write-to-string n)))
+
+;; Muffle warnings at compile and runtimes.
+
+;(declaim (sb-ext:muffle-conditions style-warning))
+(declaim (sb-ext:muffle-conditions warning))
+
+;(defparameter sb-ext:*muffled-warnings* style-warning) ;In sbcl-1.0.20 .
+(if (find-symbol "sb-ext:*muffled-warnings*") ;In sbcl-1.0.20
+;  (eval(read-from-string "(defparameter sb-ext:*muffled-warnings* style-warning)"))
+ nil) 
+
+;;------------------------------------------------------------------------------
 ';
   };
 
@@ -62,17 +179,23 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     temp $whiteboard::in_package = [];
     temp $whiteboard::emit_pairs_inline = 0;
     temp $whiteboard::compunit_footer = [];
-    my $code = (
-      '(in-package "Main")'~"\n"~
-      self.prelude_for_entering_a_package());
+    my $decls = $n.notes<lexical_variable_decls>;
+    my $code = "(let (\n";
+    $decls.map(sub($d){if $d.scope eq 'my' {
+      #$code = $code ~ $.e($d.var)~" "; #X SubDecl :/
+      # ~$d.twigil~ not included because STD_red is using 0 as false,
+      #   and the 0 is mutating into a '0'.  Switch to undef?
+      $code = $code ~ $.qsym($d.sigil~$d.name)~" ";
+    }});
+    $code = $code ~")\n";
     my $stmts = $.e($n.statements);
     my $foot = $whiteboard::compunit_footer.join("\n");
-    $code ~ $stmts.join("\n")~$foot~"\n";
+    $code ~ $stmts.join("\n")~$foot~"\n)\n";
   };
   method cb__Block ($n) {
     temp $whiteboard::emit_pairs_inline = 0;
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
-    '(progn '~$.e($n.statements).join("\n")~')'
+    "(progn\n"~$.e($n.statements).join("\n")~')'
   };
 
   method cb__Use ($n) {
@@ -97,34 +220,30 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 
   method cb__PackageDecl ($n) {
     my $in_package = [$whiteboard::in_package.flatten,$n.name];
+    my $kind = $n.kind;
     my $name = $in_package.join('::');
-    my $base = 'use base "Any";';
-    if $name eq 'Any' { $base = '' }
-    if $name eq 'Object' { $base = '' }
-    if $name eq 'Junction' { $base = '' }
-    my $head = "\n\{ package "~$name~";\n";
-    my $foot = "\n}\n";
-    if $.using_Moose {
-       $head = $head ~ "use Moose;"~" __PACKAGE__->meta->make_mutable();\n";
-       $foot = ";\n__PACKAGE__->meta->make_immutable();\n"~ "\n}\n";
-    } else {
-    }
-    $head = $head ~ $base~ self.prelude_for_entering_a_package();
+    my $base = "'"~$.classname_from_package_name("Any");
+    if $name eq 'Any' { $base = 'nil' }
+    if $name eq 'Object' { $base = 'nil' }
+    if $name eq 'Junction' { $base = 'nil' }
+    my $head = "\n(pkg-declare \""~$kind~"\" \""~$name~"\" "~$base~")\n";
+    my $foot = "\n";
     if $n.block {
       temp $whiteboard::in_package = $in_package; # my()
       $head ~ $.e($n.traits||[]).join("\n") ~ $.e($n.block) ~ $foot;
     } else {
       $whiteboard::in_package = $in_package; # not my()
       $whiteboard::compunit_footer.unshift($foot);
-      $head ~ $.e($n.traits||[]).join("\n") ~ ";\n"
+      $head ~ $.e($n.traits||[]).join("\n") ~ "\n"
     }
   };
   method cb__Trait ($n) {
     if ($n.verb eq 'is' or $n.verb eq 'does') {
       my $pkgname = $whiteboard::in_package.join('::');
-      my $name = $whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
-      $name.re_gsub('^::','');
-      "BEGIN\{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
+      my $super = $whiteboard::in_package.splice(0,-1).join('::');
+      if $super { $super = $super ~'::' }
+      $super = $super ~ $.e($n.expr);
+      "\n(cls-is "~$.qstr($pkgname)~" "~$.qstr($super)~")\n"
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n.verb~" has not been implemented.\n";
       "***Trait***"
@@ -133,34 +252,40 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 
   method do_VarDecl_has ($n,$default) {
     my $name = $.e($n.var.name);
-    if $.using_Moose {
-      my $dflt = $default;
-      if $dflt {
-        $dflt = ", default => sub{ "~$default~" }"
-      }
-      "has '"~$name~"' => (is => 'rw'"~$dflt~");"
-    } else {
-      #my $code = "sub "~$name~': lvalue { $_[0]{'~"'"~$name~"'};}\n";
-      my $x = '$_[0]{'~"'"~$name~"'"~'}';
-      my $code = 'sub '~$name~' { if(@_==2){'~$x~'=$_[1]}else{'~$x~'}}';
-      if $default {
-        my $pkg = $whiteboard::in_package.join('::');
-        $code = $code ~";\n"~ $.create_default_for($pkg,$name,$default);
-      }
-      $code;
+    my $pkg = $whiteboard::in_package.join('::')||'Main';
+    my $cls = $.classname_from_package_name($pkg);
+    my $slotname = '|'~$pkg~'::.'~$name~'|';
+    my $accname = '|M::'~$name~'|';
+    my $code = ('(eval \'(dm '~$accname~' ((self '~$cls~'))'~
+                ' (cl:slot-value self \''~$slotname~')))'~"\n"~
+                '(eval \'(dm (cl:setf '~$accname~') (v (self '~$cls~'))'~
+                ' (cl:setf (cl:slot-value self \''~$slotname~') v)))'~"\n");
+    my $slot_specifier = '('~$slotname;
+    if $default {
+      $slot_specifier = $slot_specifier ~ " :initform "~$default;
     }
+    $slot_specifier = $slot_specifier ~')';
+    $code = $code ~ "(cls-has \""~$pkg~"\" '"~$slot_specifier~")\n\n";
+    $code;
   };
+
+  method emit_array ($contents) {
+    "(fc #'|M::new| |Array::/co| "~$contents~')'
+  }
 
   method cb__VarDecl ($n) {
     temp $whiteboard::emit_pairs_inline = 0;
+    my $pre_a = "(fc #'|M::new| |Array::/co| ";
+    my $pre_h = "(fc #'|M::new| |Hash::/co| ";
     if ($n.scope eq 'has') {
       my $default = "";
       my $default_expr = $.e($n.default_expr);
       if $default_expr {
         $default = $default_expr;
       } else {
-        if ($n.var.sigil eq '@') { $default = '[]' }
-        if ($n.var.sigil eq '%') { $default = '{}' }
+        if ($n.var.sigil eq '$') { $default = 'nil' }#X
+        if ($n.var.sigil eq '@') { $default = $pre_a~')' }
+        if ($n.var.sigil eq '%') { $default = $pre_h~')' }
       }
       self.do_VarDecl_has($n,$default);
     } else {
@@ -172,16 +297,16 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
              $n.default_expr.function eq 'infix:,'))
         {
           my $pre = ''; my $post = '';
-          if $n.is_array { $pre = '['; $post = ']' }
-          if $n.is_hash  { $pre = '{'; $post = '}' }
+          if $n.is_array { $pre = $pre_a; $post = ')' }
+          if $n.is_hash  { $pre = $pre_h; $post = ')' }
           temp $whiteboard::emit_pairs_inline = 1;
-          $default = ' = '~$pre~$.e($n.default_expr)~$post;
+          $default = ''~$pre~$.e($n.default_expr)~$post;
         } else {
-          $default = ' = '~$.e($n.default_expr);
+          $default = ''~$.e($n.default_expr);
         }
       } else {
-        if ($n.var.sigil eq '@') { $default = ' = [];' }
-        if ($n.var.sigil eq '%') { $default = ' = {};' }
+        if ($n.var.sigil eq '@') { $default = ''~$pre_a~')' }
+        if ($n.var.sigil eq '%') { $default = ''~$pre_h~')' }
       }
       if ($n.is_context) { # BOGUS
         my $name = $.e($n.var);
@@ -196,8 +321,11 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
         ("\{ package "~$pkg~"; use vars '"~$nam~"'};"~
         'local'~' '~$.e($n.var)~$default)
       }
+      elsif $default {
+        '(setq '~$.e($n.var)~' '~$default~')'
+      }
       else {
-        $n.scope~' '~$.e($n.var)~$default
+        $.e($n.var)
       }
     }
   };
@@ -278,22 +406,24 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   };
   method cb__MethodDecl ($n) {
     my $body;
-    if $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'p5' {
+    if $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'cl' {
       $body = $n.block.statements[0].buf;
     }
     else {
       $body = $.e($n.block);
     }
-    if $n.plurality && $n.plurality eq 'multi' {
-      #self.multimethods_using_hack($n);
-      my $ef = 'sub {my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
-      self.multi_using_CM($n,1,$ef);
-    }
-    else {
-      my $enc_name = $.mangle_function_name($.e($n.name));
-      'sub '~$enc_name~'{my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
-    }
+    my $cls = $.classname_from_package_name($n.notes<crnt_package>||'Main');
+    my $enc_name = $.qsym('M::'~$.e($n.name));
+    my $sig = $.e($n.multisig);
+    '(eval \'(dm '~$enc_name~' ((self '~$cls~') '~$sig~' (block __f__ '~$body~')))';
   };
+  method classname_from_package_name($pkg) {
+    '|'~$pkg~'/cls|';
+  }
+  method classobject_from_package_name($pkg) {
+    '|'~$pkg~'::/co|';
+  }
+
 
   method cb__SubDecl ($n) {
     temp $whiteboard::emit_pairs_inline = 0;
@@ -302,7 +432,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $sig = $n.multisig;
     if $sig { $sig = $.e($sig) } else { $sig = "" }
     my $body;
-    if $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'p5' {
+    if $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'cl' {
       $body = $n.block.statements[0].buf;
     } else {
       $body = $.e($n.block);
@@ -311,26 +441,42 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $ef = 'sub {'~$sig~$body~'}';
       self.multi_using_CM($n,0,$ef);
     } else {
-      my $enc_name = $.mangle_function_name($name);
-      '(defun '~$enc_name~' ('~$sig~') '~$body~')';
+      my $most = '('~$sig~' (block __f__ '~$body~')';
+      if $n.scope eq 'our' {
+        my $pkg = $n.notes<crnt_package>;
+        my $enc_name = $.qsym($pkg~'::&'~$name);
+        '(defparameter '~$enc_name~' (lambda '~$most~'))';
+      }
+      elsif $name {
+        my $enc_name = $.qsym('&'~$name);
+        '(setq '~$enc_name~' (lambda '~$most~'))';
+      }
+      else {
+        '(lambda '~$most~')';
+      }
     }
   };
   method cb__Signature ($n) {
-    if ($n.parameters.elems == 0) { "" }
+    if ($n.parameters.elems == 0) { ")" }
     else {
       temp $whiteboard::signature_inits = "";
       my $pl = $.e($n.parameters).join(" ");
-      ''~$pl~''~$whiteboard::signature_inits~"\n";
+      ''~$pl~")"~$whiteboard::signature_inits~"\n";
     }
   };
   method cb__Parameter ($n) {
     my $enc = $.e($n.param_var);
+    my $par = $enc;
+    if $n.type_constraints {
+      my $typ = $.classname_from_package_name($n.type_constraints[0]);
+      $par = '('~$par~' '~$typ~')';
+    }
     if $n.quant && $n.quant eq '*' {
-      my $tmp = "@"~$n.param_var.name;
-      $whiteboard::signature_inits = $whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
-      $tmp;
+      my $init = "\n (setq "~$enc~" (ap #'|M::new| (cons |Array::/co| "~$enc~")))";
+      $whiteboard::signature_inits = $whiteboard::signature_inits~$init;
+      " &rest "~$enc;
     } else {
-      $enc;
+      $par;
     }
   };
   method cb__ParamVar ($n) {
@@ -344,30 +490,44 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $g;
     temp $whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
+    my $invocant = $.e($n.invocant);
     if ($method eq 'postcircumfix:< >') {
-      $.e($n.invocant)~'->'~"{'"~$.e($n.capture)~"'}";
+      $invocant~'->'~"{'"~$.e($n.capture)~"'}";
     }
     elsif $g = $method.re_groups('postcircumfix:(.*)') {
       my $op = $g[0];
       my $arg = $.e($n.capture);
       $op.re_gsub(' ',$arg);
-      $.e($n.invocant)~'->'~$op;
+      $invocant~'->'~$op;
     } else {
-      $.e($n.invocant)~'->'~$.e($n.method)~'('~$.e($n.capture)~')'
+      if $invocant.re_matchp('^[A-Z]\w*$') {
+        $invocant = ""~$.classobject_from_package_name($invocant);
+      }
+      my $meth = $.fqsym('M::'~$.e($n.method));
+      '(fc '~$meth~' '~$invocant~' '~$.e($n.capture)~')'
     }
   };
-  method mangle_function_name($name) {
-     $name.re_sub('^(\w+):(?!:)','${1}_');
-     $name.re_sub('([^\w])','"_".CORE::ord($1)','eg');
-     $name;
+  method fqsym ($name) {
+     "#'|"~$name.re_gsub('\|','\\|')~'|';
   }
+  method qsym ($name) {
+     "|"~$name.re_gsub('\|','\\|')~'|';
+  }
+  method qstr ($str) {
+     '"'~$str.re_gsub('\\\\','\\\\\\\\').re_gsub('"','\"')~'"'
+  }
+
   method cb__Apply ($n) {
     my $g;
     # temp $whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
     my $fun = $.e($n.function);
     if $n.notes<lexical_bindings>{'&'~$fun} {
-       my $fe = $.mangle_function_name($fun);
-       return '('~$fe~' '~$.e($n.capture)~')'
+       my $fe = $.qsym('&'~$fun);
+       my $decl = $n.notes<lexical_bindings>{'&'~$fun};
+       if $decl.scope eq 'our' {
+         $fe = $.qsym($decl.notes<crnt_package>~'::&'~$fun);
+       }
+       return '(fc '~$fe~' '~$.e($n.capture)~')'
     }
     if $g = $fun.re_groups('^infix:(.+)$') {
       my $op = $g[0];
@@ -378,12 +538,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $a = $.e($args);
       my $l = $a[0];
       my $r = $a[1];
-      if ($op eq '~') {
-        return "("~$l~" . "~$r~")"
-      }
       if ($op eq ',') {
         my $s = $a.shift;
-        while $a.elems { $s = $s ~", "~ $a.shift }
+        while $a.elems { $s = $s ~" "~ $a.shift }
         return $s;
       }
       if ($op eq '=') {
@@ -400,33 +557,21 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
           return $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
         }
       }
-      if ($op eq '==') {
-        return "("~'equal'~" "~$l~" "~$r~")";
-      }
-      #XXX := is here temporarily to postpone a regression.
-      if $op.re_matchp('^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$') {
-        return "("~$op~" "~$l~" "~$r~")";
-      }
     }
     elsif $g = $fun.re_groups('^prefix:(.+)$') {
-      my $op = $g[0];
-      my $a = $.e($n.capture.arguments);
-      my $x = $a[0];
-      if $op eq '?' {
-        return '(('~$x~')?1:0)'
-      }
-      if $op.re_matchp('^(-)$') {
-        return  "("~$op~""~$x~")"
-      }
+      #my $op = $g[0];
+      #my $a = $.e($n.capture.arguments);
+      #my $x = $a[0];
+      #if $op eq '?' {return '(('~$x~')?1:0)'}
     }
     elsif $g = $fun.re_groups('^statement_prefix:(.+)$') {
       my $op = $g[0];
       if $op eq 'do' {
-        return 'do{'~$.e($n.capture.arguments[0])~'}'
-      } elsif $op eq 'try' {
-        return 'eval{'~$.e($n.capture)~'}'
-      } elsif $op eq 'gather' {
-        return 'GLOBAL::gather'~$.e($n.capture)~''
+        return '(progn '~$.e($n.capture.arguments[0])~')'
+      #} elsif $op eq 'try' {
+      #  return 'eval{'~$.e($n.capture)~'}'
+      #} elsif $op eq 'gather' {
+      #  return 'gather'~$.e($n.capture)~''
       } else {
         die $fun~': unimplemented';
       }
@@ -436,7 +581,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
       if $op.re_matchp('^(\+\+)$') {
-        return "("~$x~""~$op~")"
+        return "(setq "~$x~" (+ 1 "~$x~"))"
       }
     }
     elsif $g = $fun.re_groups('^circumfix:(.+)') {
@@ -445,45 +590,35 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
         my $s = $n.capture.arguments[0];
         my $words = $s.split(/\s+/);
         if $words.elems == 0 {
-          return '[]'
+          return $.emit_array('');
         } else {
-          return "['"~$words.join("','")~"']"
+          return $.emit_array('"'~$words.join('" "')~'"');
         }
-      }
-      elsif $op.re_matchp('^(\( \)|\[ \])$') {
-        my $arg = $.e($n.capture);
-        return $op.re_gsub(' ',$arg);
       }
     }
     elsif ($fun eq 'self') {
-      return '$self'
+      return 'self'
     }
     elsif ($fun eq 'next') {
-      return 'next'
+      return '(return-from __l__)'
     }
     elsif ($fun eq 'last') {
-      return 'last'
+      return '(return)'
     }
     elsif ($fun eq 'return') {
-      return 'return('~$.e($n.capture)~')';
-    }
-    elsif ($fun.re_matchp('^\$\w+$')) {
-      return $fun~'->('~$.e($n.capture)~')';
-    }
-    elsif ($fun.re_matchp('^sub\s*{')) {
-      return '('~$fun~')->('~$.e($n.capture)~')'
+      return '(return-from __f__'~$.e($n.capture)~')';
     }
     elsif $fun eq 'eval' {
-      my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
-      return 'GLOBAL::'~$fun~'('~$.e($n.capture)~','~$env~')'
+      my $env = ''; #XXX harder in CL
+      return '(fc |GLOBAL::&eval| '~$.e($n.capture)~' '~$env~')'
     }
 
     if $fun.re_matchp('^\w') {
-      my $fe = $.mangle_function_name($fun);
-      return '(GLOBAL::'~$fe~' '~$.e($n.capture)~')'
+      my $fe = $.qsym('GLOBAL::&'~$fun);
+      return '(fc '~$fe~' '~$.e($n.capture)~')'
     }
     else {
-       return  $fun~'('~$.e($n.capture)~')';
+       return  '(fc '~$fun~' '~$.e($n.capture)~')';
     }
   };
   method cb__Capture ($n) {
@@ -498,11 +633,11 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   };
 
   method cb__For ($n) {
-    my $push = "";
-    if $n.expr.WHAT ne 'IRx1::Apply' { $push = "->flatten"};
-    my $pull = "";
-    if $n.block.WHAT eq 'IRx1::SubDecl' { $pull = "->($_)"};
-    'for(('~$.e($n.expr)~')'~$push~")\{\n"~$.e($n.block)~$pull~"\n}"
+    my $e = $.e($n.expr);
+    if $n.expr.WHAT ne 'IRx1::Apply' { $e = '(fc #\'|M::values| '~$e~')' };
+    my $b = $.e($n.block);
+    if $n.block.WHAT eq 'IRx1::SubDecl' { $b = '('~$b~' _)' };
+    '(loop for |$_| in '~$e~"\n do (block __l__ \n"~$b~"\n))"
   };
   method cb__Cond ($n) {
     my $els = '';
@@ -516,28 +651,16 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     ~$els~")\n")
   };
   method cb__Loop ($n) {
-    'while('~$.e($n.pretest)~") \{\n"~$.e($n.block)~"\n}"
+    '(loop while '~$.e($n.pretest)~" do (block __l__ \n"~$.e($n.block)~"\n))"
   };
 
   method encode_varname($s,$t,$dsn) {
-    #XXX $pkg::x -> s_pkg::x :(
-    my $env = '';
-    my $pre = '';
-    if $t eq '+' { $env = 'x' };
-    if $s eq '$' && $env eq 'x' { $pre = 's_' };
-    if $s eq '@' { $pre = 'a_' }
-    if $s eq '%' { $pre = 'h_' }
-    my $name = $env~$pre~$dsn;
-    if ($t eq '.') {
-      '$self->'~$name
-    } elsif ($t eq '+') {
-      $name.re_gsub('::','__');
-      '$'~'::'~$name
-    } elsif ($t eq '*') {
-      $name.re_gsub('::','__');
-      '$'~'GLOBAL::'~$name
+    my $t1 = $t.re_gsub('\|','\\|');
+    my $dsn1 = $dsn.re_gsub('\|','\\|');
+    if $t eq '*' {
+      '|'~'GLOBAL::'~$s~$dsn1~'|'
     } else {
-      ''~$name
+      '|'~$s~$t1~$dsn1~'|'
     }
   };
 
@@ -566,11 +689,11 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   };
   method cb__Hash ($n) {
     temp $whiteboard::emit_pairs_inline = 1;
-    '{'~$.e($n.hash||[]).join(",")~'}'
+    '(fc #\'|M::new| |Hash::/co| '~$.e($n.hash||[]).join(" ")~')'
   };
   method cb__Buf ($n) {
     my $s = $n.buf;
-    '"' ~ quotemeta($s) ~ '"';
+    $.qstr($.translate_string($s));
   };
   method cb__Rx ($n) {
     my $pat = $n.pat || '';
@@ -579,11 +702,15 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   method cb__Pair($n) {
     if $whiteboard::emit_pairs_inline {
       temp $whiteboard::emit_pairs_inline = 0;
-      '('~$.e($n.key)~' => '~$.e($n.value)~')'
+      ' '~$.e($n.key)~' '~$.e($n.value)~' '
     } else {
-      "Pair->new('key',"~$.e($n.key)~" => 'value',"~$.e($n.value)~")"
+       "(fc #\'|M::new| |Pair::/co| 'key' "~$.e($n.key)~" 'value' "~$.e($n.value)~")"
     }
   };
+
+  method translate_string($s) {
+    $s.re_gsub('~','~~').re_gsub('\\\\n','~%').re_gsub('\\\\t',"\t").re_gsub('\\\\','\\\\\\\\')
+  }
 
 };
 

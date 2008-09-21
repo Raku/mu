@@ -3,7 +3,7 @@ A SBCL Common-Lisp backend for elf
 QUICKSTART
 
 $ make elfx
-$ ./elfx -v -xr -e 'say 3'
+$ ./elfx -xr PrimitivesSBCL.pm -v -e 'say 3'
 
 STATUS
 
@@ -30,22 +30,28 @@ Use CL-PPCRE for regexps.
 Use PACKAGEs as symbol tables, a flat namespace partitioning symbol space,
 but not for interpackage linkage.
 
-Next steps include compilation of classes, and definition of
-primitives (Array, Hash, etc).
+Next steps include fleshing out language features needed by elf,
+and definition of primitives (Array, Hash, etc).
 
 
 NOTES
 
+  Warnings are sometimes muffled before check in, to improve the
+  experience of causal users.  For real development, comment out
+  the muffle-conditions lines in EmitSBCL.pm.
 
-  ../../elf/elf_g sbcl.pm -v -xr -e 'say 3'
-  ../../elf/elf_g sbcl.pm -xr -e 'sub f($x){say $x+3}; f(4)'
+  
+  ../../elf/elf_g EmitSBCL.pm -xr PrimitivesSBCL.pm -v -e 'say 3'
+  ../../elf/elf_g EmitSBCL.pm -xr PrimitivesSBCL.pm -e 'sub f($x){say $x+3}; f(4)'
 
   make elfx
   export ELF_STD_RED_RUN=../../STD_red/STD_red_run
-  ./elfx -xr -e 'say 3'
+  ./elfx -xr PrimitivesSBCL.pm -e 'say 3'
 
 
   # A note on performance...
-  ../../elf/elf_g sbcl.pm -xr -e 'sub fib($n){if $n==0 {0} elsif $n==1 {1} else {fib($n-1)+fib($n-2)}}; say fib(37)'
+  ../../elf/elf_g EmitSBCL.pm -xr PrimitivesSBCL.pm -e 'sub fib($n){if $n==0 {0} elsif $n==1 {1} else {fib($n-1)+fib($n-2)}}; say fib(37)'
   time ./deleteme_exe
   time perl -e 'sub fib{my($n)=@_;if($n==0){0}elsif($n==1){1}else{fib($n-1)+fib($n-2)}};print fib(37),"\n";'
+  # elf was previously 10x faster than p5, using native + on native integers.
+  # This dropped to 3x with multi infix:<+> on native integers.
