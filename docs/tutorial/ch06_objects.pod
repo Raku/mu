@@ -18,26 +18,25 @@ objects, but we also want to support a larger set of object-oriented
 ideas. Does that sound impossible? The solution is a classically
 Perl-ish one: make the easy things easy and the hard things possible.
 
-With the release of Apocalypse 12, the syntax in this chapter is
-fairly solid, though it's still likely to change somewhat before the
-final implementation. This chapter is only an introduction to the
-concepts. For complete coverage you should read the Apocalypse itself.
-
 =head1 Using Objects
 
 Z<CHP-6-SECT-1>
 
 X<declarations, class>
-X<classes;declarations> 
+X<classes;declarations>
 X<class keyword>
 You can declare a class in one of two ways. The most familiar syntax
 for class declaration ends in a semicolon. The rest of the file after
 the declaration defines the class. With this syntax there can be only
-one C<class> or C<module> declaration in a file. 
+one C<class> or C<module> declaration in a file.
 
   class Heart::Gold;
   # class definition follows
   ...
+
+The class declaration extends to the very end of the file, although in
+Perl 6 the file doesn't need to return a C<1> or a C<true> to indicate
+that the module loaded successfully.
 
 The other syntax for class declaration wraps the definition in a
 block. You can have as many of these as you like in a file, and even
@@ -48,11 +47,25 @@ embed one class within the block of another.
       ...
   }
 
+And an embedded class:
+
+  class Heart::Gold {
+      # class definition here
+
+      class Heart::Gold::InfiniteImprobabilityDrive {
+          # sub-class definition here
+      }
+      
+      class Heart::Gold::Ship {
+          # Another sub-class definition here
+      }
+  }
+
 X<namespaces>
 X<classes;namespaces>
 With a file definition, all code that follows the class declaration is
 defined in the C<Heart::Gold> namespace. With a block definition,
-everything within the block is defined in the class's namespace. 
+everything within the block is defined in the class's namespace.
 
 X<objects;creating new>
 X<Object base class>
@@ -60,12 +73,25 @@ To create a new object from a class, simply call its C<new> method. The
 default C<new> X<new method> method in the universal base class
 C<Object> creates and initializes an object.
 
+  Heart::Gold $ship;
   $ship = Heart::Gold.new(length => 150);
 
 There's a shortcut for typed variables so you don't have to give the
 name of the class twice:
 
   my Heart::Gold $ship .= new(length => 150);
+
+The C<.=> operator is like other assignment operators such as C<+=> and
+C<-=>. The two declarations are equivalent:
+
+  my Heart::Gold $ship;
+  $ship = Heart::Gold.any_method()
+  
+  my Heart::Gold $ship .= any_method()
+
+The C<.> symbol is almost always associated with classes, their methods,
+and their members, so anyplace you see it you can assume it has something
+to do with a classN<Not everywhere, of course. The C<.> is a popular symbol>.
 
 =head1 Classes
 
@@ -78,10 +104,11 @@ in a package. Classes can also contain subroutines, submethods, and
 multimethods. Classes are significantly different than modules,
 though, primarily because they construct objects. Objects don't just
 define functionality, they also hold data. In Perl 5 objects were
-simply hashes (or arrays, or...) bestowed with special powers by
-C<bless>. Perl 6 objects can still be simple blessed data structures,
-but the default is now an object that hides the details of its
-internal representation--a true opaque object.
+simply hashes N<or arrays, or whatever you defined them to be> bestowed
+with special powers by the C<bless> built-in. Perl 6 objects can still
+be simple blessed data structures, but the default is now an object
+that hides the details of its internal representation--a true opaque
+object.
 
 =head2 Attributes
 
@@ -103,8 +130,11 @@ and generally have a "." after the sigil:
       ...
   }
 
-Attributes aren't directly accessible outside the class, but inside
-the class they act just like ordinary variables.
+Remember how we said above that the C<.> symbol was used with classes?
+This is another instance, the dot after the variable sigil indicates that
+the variable is an attribute of the class. Attributes aren't
+directly accessible outside the class, but inside the class they act just
+like ordinary variables.
 
   print $.length;
   $.length = 140;
@@ -117,8 +147,11 @@ or outside the class. By default, accessors are read-only, but the
 C<is rw>X<rw property;on accessors> property marks an accessor as
 read-write.
 
+  my Heart::Gold $obj .= new()
   $value = $obj.height; # returns the value of $.height
   $obj.height = 90;     # sets the value of $.height
+  $value = $obj.height  # Okay, is readable
+  $obj.length = 20      # WRONG! $.length is not rw
 
 =head2 Methods
 
@@ -145,22 +178,24 @@ particularly handy since any method called without an explicit object
 defaults to C<$_>:
 
   method shut_down ($drive) {
-      if .safe {
-          .powerdown($drive);
+      if .safe {                # Same as $_.safe
+          .powerdown($drive);   # Same as $_.powerdown($drive)
       }
-      return .status;
+      return .status;           # Same as $_.status
   }
 
 Method declarations support the same syntax as subroutines for
 optional, named, variadic, and typed parameters, default values for
 parameters, properties on parameters, and return values. Method calls
 support positional and named argument passing just like subroutines.
-See A<CHP-5>Chapter 5 for more details on this syntax. 
+See A<CHP-5>Chapter 5 for more details on this syntax.
 
 X<. (dot);. (method call);operator>
 X<methods;calling (. operator)>
 You can call a method in one of two ways. The standard method call is
-connected to the object with the C<.> operator.
+connected to the object with the C<.> operator. Like we said, The
+C<.> operator is like another way of saying "related to the class or
+object".
 
   $ship.shut_down($infinity);
 
@@ -245,8 +280,8 @@ attribute.
 There are a number of ways to change the default object construction
 and initialization behavior. If you override C<new> so that it passes
 a data structure as the first argument to C<bless>, it will construct
-a traditional blessed hash (or array, or...) object instead of calling
-C<CREATE> to construct an opaque object:
+a traditional blessed hash N<or array, or whatever you want> object
+instead of calling C<CREATE> to construct an opaque object:
 
   $class.bless({answer => '42'});
 
@@ -395,8 +430,7 @@ how the object is used, or perhaps the role's behavior shouldn't be
 available until part-way through the life of an object. The same
 C<does>X<does keyword> keyword adds roles at run time, but operates on
 an object instead of a class. In this example, C<Arthur> starts as an
-ordinary human, and only adds the C<Hitchhiker> role later in life
-(after the Vogons destroy his home planet):
+ordinary human, and only adds the C<Hitchhiker> role later in life:
 
   class Arthur is Human {...}
 
@@ -416,7 +450,7 @@ An I<interface> is a reusable unit that defines what methods a class
 should support, but doesn't provide any implementations for those
 methods. In Perl 6, interfaces are just roles that define only method
 stubs and no attributes. This example defines an interface for
-products shipped by the Sirius Cybernetics corporation: 
+products shipped by the Sirius Cybernetics corporation:
 
   role Sirius::Cybernetics {
       method share {...}

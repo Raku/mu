@@ -29,7 +29,7 @@ X<rules;syntax>
 Rules are a language within a language, with their own syntax and
 conventions. At the highest level, though, they're just another set of
 Perl constructs. So the first thing to learn about rules is the Perl
-"glue" code for creating and using them. 
+"glue" code for creating and using them.
 
 =head2 Immediate Matches
 
@@ -53,6 +53,11 @@ C<{...}> for the standard C</.../>, though C<?...?> and C<(...)> are
 not valid delimiters:
 
   $string ~~ s/\w+/word/
+  $string ~~ s[\w+][word]     # The same
+  $string ~~ s{\w+}{word}     # The same
+  $string ~~ s#\w+#word#      # The same
+  $string ~~ s(\w+)(word)     # Wrong!
+  $string ~~ s?\w?word}       # Wrong!
 
 Modifiers now come in front using I<adverb> syntax, so to do multiple
 substitutions on the same string is:
@@ -60,7 +65,7 @@ substitutions on the same string is:
   $string ~~ s:g/\w+/word/
 
 Also, if you use brackets on the first part of a substitution, the second
-part is specified as a pseudoassignment:
+part can be specified as a pseudoassignment:
 
   $string ~~ s[\w+] = 'word';
 
@@ -68,6 +73,11 @@ This form also allows assignment operators, so if you want to add one to
 all the number within a string, you can say:
 
   $string ~~ s:g[\d+] += 1;
+
+If you want to do some processing on the match, you can call a function
+to prepare the replacement text too:
+
+  $string ~~ s:g[\d+] = build_replacement()
 
 =head2 Deferred Matches
 
@@ -200,9 +210,24 @@ specified:
       send_alert($1);
   }
 
+If you want to match against the entire grammar, you can define a rule
+C<TOP> in that grammar.
+
+  grammar Hitchhikers {
+      rule TOP { <name> <id> }
+      ...
+  }
+
+  $roster ~~ Hitchhikers;           # Calls Hitchhikers.TOP by default
+
 X<parsing text>
 X<text parsing>
-Grammars are especially useful for complex text or data parsing. 
+Grammars are especially useful for complex text or data parsing. In fact,
+overloading grammar rules for the Perl 6 grammar itself is a method to
+change the way the program is parsed. Instead of having to create custom
+complex source filters like was necessary in Perl 5, we can overload the
+rules in the C<Perl6::Grammar> Grammar class to change the very syntax of
+Perl 6 on the fly.
 
 =head1 Building Blocks
 
