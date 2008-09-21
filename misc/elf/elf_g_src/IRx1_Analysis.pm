@@ -89,7 +89,7 @@ class IRx1::VarDecl {
 }
 class IRx1::SubDecl {
   method note_block_lexical_variable_decls() {
-    if $_.name {
+    if $.name {
       $whiteboard::lexical_variable_decls.push(self);
     }
     for $.child_nodes {$_.note_block_lexical_variable_decls}
@@ -142,6 +142,18 @@ class IRx1::PackageDecl {
     for $.child_nodes {$_.note_environment}
   }
 }
+class IRx1::SubDecl {
+  method note_environment() {
+    $.record_crnt_package;
+    for $.child_nodes {$_.note_environment}
+  }
+}
+class IRx1::MethodDecl {
+  method note_environment() {
+    $.record_crnt_package;
+    for $.child_nodes {$_.note_environment}
+  }
+}
 class IRx1::Apply {
   method note_environment() {
     $.notes<lexical_bindings> = $whiteboard::lexical_bindings;
@@ -157,14 +169,20 @@ class IRx1::Var {
     } else {
       $.notes<is> = {};
     }
-    $.notes<crnt_package_chain> = $whiteboard::package_chain;
-    if $.notes<crnt_package_chain>.elems == 0 {$.notes<crnt_package_chain> = ['Main']}
-    $.notes<crnt_package> = $.notes<crnt_package_chain>.join("::");
+    $.record_crnt_package;
     my $g = $.name.re_groups('(?:(.+)::)?([^:]+)$');
     $.notes<package> = $g[0] || $.notes<crnt_package>;
     #^ TODO resolve non-absolute package names
     $.notes<bare_name> = $g[1];
     for $.child_nodes {$_.note_environment}
+  }
+}
+class IRx1::Base {
+  method record_crnt_package() {
+    $.notes<crnt_package_chain> = $whiteboard::package_chain;
+    #if $.notes<crnt_package_chain>.elems == 0 {$.notes<crnt_package_chain> = ['Main']} #XXX no Main PkgDecl yet.
+    $.notes<crnt_package> = $.notes<crnt_package_chain>.map(sub($n){$n.name}).join("::");
+    if $.notes<crnt_package_chain>.elems == 0 {$.notes<crnt_package> = 'Main'} #XXX
   }
 }
 class IRx1::Base {
@@ -184,12 +202,14 @@ class IRx1::VarDecl {
   method package() { self.var.package }
   method crnt_package() { self.var.crnt_package }
   method sigil() { self.<var><sigil> }
+  method twigil() { self.<var><twigil> }
   method is_scalar() { self.<var><sigil> eq '$' }
   method is_array() { self.<var><sigil> eq '@' }
   method is_hash() { self.<var><sigil> eq '%' }
 }
 class IRx1::SubDecl {
   method sigil() { '&' }
+  method twigil() { '' }
   method is_scalar() { undef }
   method is_array() { undef }
   method is_hash() { undef }

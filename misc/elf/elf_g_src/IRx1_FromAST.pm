@@ -476,6 +476,7 @@ irbuild_ir($m.{'hash'}{'pluralized'}) || irbuild_ir($m.{'hash'}{'routine_def'});
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $ident = "";
 if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
+if ($m.{'hash'}{'ident'} && not($scope)) { $scope = "our" };
 my $sig = IRx1::Signature.newp($m,[],undef);
 if irbuild_ir($m.{'hash'}{'multisig'}) { $sig = irbuild_ir($m.{'hash'}{'multisig'}).[0] };
 IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));
@@ -486,6 +487,7 @@ IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $ident = "";
 if $m.{'hash'}{'ident'} { $ident = irbuild_ir($m.{'hash'}{'ident'})  };
+if ($m.{'hash'}{'ident'} && not($scope)) { $scope = "our" };
 my $sig = IRx1::Signature.newp($m,[],undef);
 if irbuild_ir($m.{'hash'}{'multisig'}) { $sig = irbuild_ir($m.{'hash'}{'multisig'}).[0] };
 IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.{'hash'}{'trait'}),irbuild_ir($m.{'hash'}{'block'}));

@@ -101,15 +101,11 @@ package GLOBAL {
 
   sub say(*@a) {
     for @a { print $_.Str; }
-	print "\n";
+    print "\n";
   }
 
   sub infix:<xx>(@a, Int $count){
-	  my @result;
-	  for 1 .. $count {
-		  @result.push(@a)
-	  };
-	  @result;
+    my @result; for 1 .. $count {@result.push(@a)}; @result;
   }
 
 }

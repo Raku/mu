@@ -350,6 +350,7 @@ my $scope = $blackboard::scope; temp $blackboard::scope;
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $ident = "";
 if $o<ident> { $ident = $m<ident>  };
+if ($o<ident> && not($scope)) { $scope = "our" };
 my $sig = Signature.newp([],undef);
 if $m<multisig> { $sig = $m<multisig>.[0] };
 SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
@@ -361,6 +362,7 @@ my $scope = $blackboard::scope; temp $blackboard::scope;
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $ident = "";
 if $o<ident> { $ident = $m<ident>  };
+if ($o<ident> && not($scope)) { $scope = "our" };
 my $sig = Signature.newp([],undef);
 if $m<multisig> { $sig = $m<multisig>.[0] };
 SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)

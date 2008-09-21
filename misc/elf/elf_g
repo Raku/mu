@@ -2268,6 +2268,9 @@ my $ident = "";
 if($m->{"hash"}->{"ident"}) {
 (do{($ident = irbuild_ir($m->{"hash"}->{"ident"}))})
 };
+if((($m->{"hash"}->{"ident"} && GLOBAL::not($scope)))) {
+(do{($scope = "our")})
+};
 my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
 if(irbuild_ir($m->{"hash"}->{"multisig"})) {
 (do{($sig = irbuild_ir($m->{"hash"}->{"multisig"})->[0])})
@@ -2281,6 +2284,9 @@ my $plurality = $blackboard::plurality;
 my $ident = "";
 if($m->{"hash"}->{"ident"}) {
 (do{($ident = irbuild_ir($m->{"hash"}->{"ident"}))})
+};
+if((($m->{"hash"}->{"ident"} && GLOBAL::not($scope)))) {
+(do{($scope = "our")})
 };
 my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
 if(irbuild_ir($m->{"hash"}->{"multisig"})) {
@@ -2569,7 +2575,7 @@ for(($self->child_nodes)->flatten){
 ;
 
 { package IRx1::SubDecl;
-use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($_->name()) {
+use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(do{if($self->name) {
 (do{$whiteboard::lexical_variable_decls->push($self)})
 };
 for(($self->child_nodes)->flatten){
@@ -2627,6 +2633,22 @@ for(($self->child_nodes)->flatten){
 }
 ;
 
+{ package IRx1::SubDecl;
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{$self->record_crnt_package;
+for(($self->child_nodes)->flatten){
+(do{$_->note_environment()})
+}})}})
+}
+;
+
+{ package IRx1::MethodDecl;
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{$self->record_crnt_package;
+for(($self->child_nodes)->flatten){
+(do{$_->note_environment()})
+}})}})
+}
+;
+
 { package IRx1::Apply;
 use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{($self->notes->{'lexical_bindings'} = $whiteboard::lexical_bindings);
 for(($self->child_nodes)->flatten){
@@ -2643,16 +2665,22 @@ if($self->notes->{'decl'}) {
 }else {
 (do{($self->notes->{'is'} = {})})
 };
-($self->notes->{'crnt_package_chain'} = $whiteboard::package_chain);
-if(($self->notes->{'crnt_package_chain'}->elems() == 0)) {
-(do{($self->notes->{'crnt_package_chain'} = ["Main"])})
-};
-($self->notes->{'crnt_package'} = $self->notes->{'crnt_package_chain'}->join("\:\:"));
+$self->record_crnt_package;
 my $g = $self->name->re_groups("\(\?\:\(\.\+\)\:\:\)\?\(\[\^\:\]\+\)\$");
 ($self->notes->{'package'} = ($g->[0] || $self->notes->{'crnt_package'}));
 ($self->notes->{'bare_name'} = $g->[1]);
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
+}})}})
+}
+;
+
+{ package IRx1::Base;
+use base "Any";(do{sub record_crnt_package{my $self=CORE::shift;(do{($self->notes->{'crnt_package_chain'} = $whiteboard::package_chain);
+($self->notes->{'crnt_package'} = $self->notes->{'crnt_package_chain'}->map(sub {my($n)=@_;
+(do{$n->name()})})->join("\:\:"));
+if(($self->notes->{'crnt_package_chain'}->elems() == 0)) {
+(do{($self->notes->{'crnt_package'} = "Main")})
 }})}})
 }
 ;
@@ -2673,6 +2701,7 @@ sub bare_name{my $self=CORE::shift;(do{$self->var()->bare_name()})};
 sub package{my $self=CORE::shift;(do{$self->var()->package()})};
 sub crnt_package{my $self=CORE::shift;(do{$self->var()->crnt_package()})};
 sub sigil{my $self=CORE::shift;(do{$self->{'var'}->{'sigil'}})};
+sub twigil{my $self=CORE::shift;(do{$self->{'var'}->{'twigil'}})};
 sub is_scalar{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\$")})};
 sub is_array{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\@")})};
 sub is_hash{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\%")})}})
@@ -2681,6 +2710,7 @@ sub is_hash{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\%")})}})
 
 { package IRx1::SubDecl;
 use base "Any";(do{sub sigil{my $self=CORE::shift;(do{"\&"})};
+sub twigil{my $self=CORE::shift;(do{""})};
 sub is_scalar{my $self=CORE::shift;(do{GLOBAL::undef()})};
 sub is_array{my $self=CORE::shift;(do{GLOBAL::undef()})};
 sub is_hash{my $self=CORE::shift;(do{GLOBAL::undef()})}})
