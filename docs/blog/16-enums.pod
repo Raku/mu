@@ -1,0 +1,67 @@
+=head1 NAME
+
+"Perl 5 to 6" Lessen 16 - Enums
+
+=head1 SYNOPSIS
+
+  enum bit Bool <False True>;
+  my $value = $arbitrary_value but True;
+  if $value {
+      say "Yes, it's true";       # will be printed
+  }
+
+  enum Day ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun');
+  if custom_get_date().Day == Day::Sat | Day::Sun {
+      say "Weekend";
+  }
+
+=head1 DESCRIPTION
+
+Enums are versatile beasts. They are low-level classes that consist of an
+enummeration of constants, typically integers or strings (but can be
+arbitrary).
+
+These constants can act as subtypes, methods or normal values. They can be
+attached to an object with the C<but> operator, which "mixes" the enum into
+the value:
+
+  my $x = $today but Day::Tue;
+
+You can also use the type name of the Enum as a function, and supply the value
+as an argument:
+
+  $x = $today but Day($weekday);
+
+Afterwards that object has a method with the name of the enum type, here
+C<Day>:
+
+  say $x.Day;             # 1
+
+The value of first constant is 0, the next 1 and so on, unless you explicitly
+provide another value with pair notation:
+
+  Enum Hackers (:Larry<Perl>, :Guido<Python>, :Paul<Lisp>);
+
+You can check if a specific value was mixed in by using the versatile smart
+match operator, or with C<.does>:
+
+  if $today ~~ Day::Fri {
+      say "Thank Christ it's Friday"
+  }
+  if $today.does(Fri) { ... }
+
+Note that you can specify the name of the value only (like C<Fri>) if that's
+unambigous, if it's ambigous you have to provide the full name C<Day::Fri>.
+
+=head1 MOTIVATION
+
+Enums replace both the "magic" that is involved with tainted variables in
+Perl 5 and the C<return "0 but True"> hack (a special case for which no
+warning is emitted if used as a number). Plus they give a C<Bool> type.
+
+Enums also provide the power and flexibility of attaching arbitrary meta
+data for debugging or tracing.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S12.html#Enums>

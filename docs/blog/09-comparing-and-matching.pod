@@ -1,0 +1,63 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 09 - Comparing and Matching
+
+=head1 SYNOPSIS
+
+    "ab"    eq      "ab"    True
+    "1.0"   eq      "1"     False
+    "a"     ==      "b"     True
+    "1"     ==      1.0     True
+    1       ===     1       True
+    [1, 2]  ===     [1, 2]  False
+    $x = [1, 2];
+    $x      ===     $x      True
+    $x      eqv     $x      True
+    [1, 2]  eqv     [1, 2]  True
+    1.0     eqv     1       False
+
+    'abc'   ~~      m/a/    True
+    'abc'   ~~      Str     True
+    'abc'   ~~      Int     False
+    Str     ~~      Any     True
+    Str     ~~      Num     False
+    1       ~~      0..4    True
+    -3      ~~      0..4    False
+
+=head1 DESCRIPTION
+
+Perl 6 still has string comparison operators (C<eq>, C<lt>, C<gt>, C<le>,
+C<ge>, C<ne>; C<cmp> is now called C<leg>) that evaluate their operands in
+string context. Similarly all the numeric operators from Perl 5 are still
+there.
+
+Since objects are more than blessed references, a new way for comparing them
+is needed. C<===> returns only true for identical values. For immutable types
+like numbers or Strings that is a normal equality tests, for other objects it
+only returns C<True> if both variables refer to the same object (like
+comparing memory addresses in C++).
+
+C<eqv> tests if two things are equivalent, ie if they are of the same type and
+have the same value. Two identically constructed data structures are
+equivalent.
+
+=head2 Smart matching
+
+Perl 6 has a "compare everything" operator, called "smart match" operator, and
+spelled C<~~>.
+
+For immutable types it is a simple equality comparison. A smart match against
+a type checks for type conformance. A smart match against a regex matches the
+regex. Matching a scalar against a C<Range> object checks if that scalar is
+included in the range.
+
+There are other, more advanced forms of matching: for example you can check if
+an argument list (C<Capture>) fits to the parameter list (C<Signature>) of a
+subroutine, or apply file test operators (like C<-e> in Perl 5).
+
+What you should remeber is that any "does $x fit to $y?"-Question will be
+formulated as a smart match in Perl 6.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S03.html#Nonchaining_binary_precedence>

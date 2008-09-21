@@ -1,0 +1,195 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 07 - Rules (formerly Regexes)
+
+=head1 SYNOPSIS
+
+    grammar URL {
+        token TOP {
+            <schema> '://' 
+            [<hostname> | <ip> ]
+            [ ':' <port>]?
+            '/' <path>?
+        }
+        token byte {
+            (\d**{1..3}) <?{ $0 < 256 }>
+
+        }
+        token ip {
+            <byte> [\. <byte> ] ** 3
+        }
+        token schema {
+            \w+
+        }
+        token host {
+            (\w+) ( \. \w+ )*
+        }
+        token port {
+            \d+
+        }
+        token path {
+            <[a..zA..Z0..9-_.!~*'():@&=+$,/]>+
+
+        }
+    }
+
+=head1 DESCRIPTION
+
+Regexes are one of the areas that has been improved and revamped most in 
+Perl 6. To honour that, an because they aren't "regular expressions" any more,
+they are now called "rules".
+
+There are three large changes and enhancements to the regexes
+
+=over 4
+
+=item Syntax clean up
+
+Many small changes make rules easier to write. For example the dot C<.>
+matches any character now, the old semantics (anything but newlines) can be
+achieved with C<\N>.
+
+Modifiers now go at the start of a regex, and non-capturing groups are
+C<[..]>, which are a lot easier to write than the old C<(?:...)>.
+
+=item Nested caputures and match object
+
+In perl 5, a regex like this C<(a(b))(c)> would put C<ab> into C<$1>, C<b>
+into C<$2> and C<c> into C<$3> upon successful match. This has changed. Now 
+C<$0> (enumeration starts at zero) contains C<ab>, and C<$0[0]> or C<$/[0][0]>
+contains C<b>. C<$1> holds C<c>.
+
+=item Named Rules and Grammars
+
+You can declare regexes with names just like you can with subs and methods.
+You can refer to these inside other rules with C<< <name> >>. And you can put
+multiple rules into grammars, which are just like classes and support
+inheritance and composition
+
+=back
+
+These changes make rules much easier to write and maintain than Perl 5
+regexes.
+
+All of these changes go quite deep, and only the surface can be scratched
+here.
+
+=head2 Syntax clean up
+
+Letter characters (ie underscore, digits and all Unicode letters) match
+literally, and have a special meaning (they are "metasyntactic") when escaped 
+with a backslash. For all other characters it's the other way round - they are 
+metasyntactic unless escaped. 
+
+    literal         metasyntactic
+    a  b  1  2      \a \b \1 \2
+    \* \: \. \?     *  :  .  ? 
+
+Not all metasyntactic tokens have a meaning (yet). It is illegal to use those
+without a defined meaning.
+
+There is another way to escape strings in regexes: with quotes.
+
+    m/'a literal text: $#@!!'/
+
+The changed semantics of C<.> has already been mentioned, and that C<[...]>
+are now non-capturing groups. Char classes are C<< <[...]> >>, and negated
+char classes C<< <-[...]> >>. C<^> and C<$> always match begin and end of the
+string, to match begin and end of lines use C<^^> and C<$$>. 
+
+This means that that the C</s> and C</m> modifers are gone. Modifiers are now
+given at the start of a regex, and are spelled as pairs.
+
+    if "abc" ~~ m:i/B/ {
+        say "Match";
+    }
+
+Modifiers have a short and a long form. The old C</x> modifier is now the
+default, i.e. white spaces are ignored.
+
+    short   long            meaning
+    -------------------------------
+    :i      :ignorecase     ignore case (formerly /i)
+    :a      :ignoreaccents  ignore accents
+    :g      :global         match as often as possible (/g)
+    :s      :sigspace       Every white space in the regex matches
+                            (optional) white space
+    :P5     :Perl5          Fall back to Perl 5 compatible regex syntax
+    :4x     :x(4)           Match four times (works for other numbers as well)
+    :3rd    :nth(3)         Third match
+    :ov     :overlap        Like :g, but also consider overlapping matches
+    :ex     :exhaustive     Match in all possible ways
+            :ratchet        Don't backtrack
+
+The C<:sigspace> needs a bit more explanation. It replace all whitespaces in
+the pattern with C<< <.ws> >> (that is it calls the rule C<ws> without keeping
+its result). You can override that rule. By default it matches one or more
+white spaces if it's enclosed in word characters, and zero or more otherwise.
+
+(There are more new modifiers, but probably not as important as the listed
+ones).
+
+=head2 The Match Object
+
+Every match generates a so-called match object, which is stored in the special
+variable C<$/>. It is a versatile thing. In boolean context it returns
+C<Bool::True> if the match succeeded. In string context it returns the matched
+string, when used as a list it contains the positional captures, and when used
+as a hash it contains the named captures. The C<.from> and C<.to> methods
+contains the first and last string positions of the match.
+
+    if 'abcdefg' ~~ m/(.(.)) (e | bla ) $<foo> = (.) / {
+        say $/[0][0];           # d
+        say $/[0];              # cd
+        say $/[1];              # e
+        say $/<foo>             # f
+    }
+
+C<$0>, C<$1> etc are just aliases for C<$/[0]>, C<$/[1]> etc. Likewise
+C<< $/<x> >> and C<$/{'x'}> are aliased to C<< $<x> >>.
+
+Note that anything that you access via C<$/[...]> and C<$/{...}> is a match
+object again. This allows you to build real parse trees with rules.
+
+=head2 Named Rules and Grammars
+
+Rules can either be used with the old style C<m/.../>, or be declared like
+subs and methods.
+
+    regex a { ... }
+    token b { ... }
+    rule  c { ... }
+
+The difference is that C<token> implies the C<:ratchet> modifier (which
+means no backtracking, like a C<< (?> ... ) >> group around each part of the
+regex in perl 5), and C<rule> implies both C<:ratchet> and C<:sigspace>.
+
+To call such a rule (we'll call them all rules, independently with which
+keyword they were declared) you put the name in angle brackets: C<< <a> >>.
+This implicitly anchors the sub rule to its current position in the string,
+and stores the result in the match object in C<< $/<a> >>, ie it's a named
+capture. You can also call a rule without capturing its result by prefixing
+its name with a dot: C<< <.a> >>.
+
+A grammar is a group of rules, just like a class (see the SYNOPSIS for an
+example). Grammars can inherit, override rules and so on.
+
+    grammar URL::HTTP is URL {
+        token schema { 'http' }
+    }
+
+=head1 MOTIVATION
+
+Perl 5 regexes are often rather unreadable, the grammars encourage you to
+split a large regex into more readable, short fragments. Named captures make
+the rules more self-documenting, and many things are now much more consistent
+than they were before.
+
+Finally grammars are so powerful that you can parse about every programming
+language with them, including Perl 6 itself. That makes the Perl 6 grammar
+easier to maintain and to change than the perl 5 one, which is written in C and
+not changable at parse time.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S05.html>

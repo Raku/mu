@@ -1,0 +1,52 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 10 - Containers and Values
+
+=head1 Synopsis
+
+    my ($x, $y);
+    $x := $y;
+    $y = 4;
+    say $x;             # 4
+    if $x =:= $y {
+        say '$x and $y are different names for the same thing'
+    }
+
+=head1 DESCRIPTION
+
+Perl 6 distinguishes between containers, and values that can be stored in
+containers.
+
+A normal scalar variable is a container, and can have some properties like
+type constraints, access constraints (for example it can be read only), and
+finally it can be aliased to other containers.
+
+Putting a value into a container is called I<assignment>, and aliasing two
+containers is called C<binding>.
+
+    my @a = 1, 2, 3;
+    my Int $x = 4;
+    @a[0] := $x;     # now @a[0] and $x are the same variable
+    @a[0] = 'Foo';   # Error 'Type check failed'
+
+Types like C<Int> and C<Str> are immutable, ie the objects of that type can't
+be changed; but you can still change the variables (the containers, that is)
+which hold these values:
+
+    my $a = 1;
+    $a = 2;     # no surprise here
+
+Binding can also be done at compile time with the C<::=> operator.
+
+You can check if two things are bound together the the C<=:=> comparison
+operator.
+
+=head1 MOTIVATION
+
+Exporting and importing subs, types and variables is done via aliasing.
+Instead of some hard-to-grasp typeglob aliasing magic, Perl 6 offers a simple
+operator.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S03.html#Item_assignment_precedence>

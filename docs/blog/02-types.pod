@@ -1,0 +1,83 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 02 - Types
+
+=head1 SYNOPSIS
+
+    my Int $x = 3;
+    $x = "foo";         # error
+    say $x.WHAT;        # 'Int'
+ 
+    # check for a type:
+    if $x ~~ Int {
+        say '$x contains an Int'
+    }
+
+=head1 DESCRIPTION
+
+Perl 6 has types. Everything is an Object in some way, and has a type.
+Variables can have type constraints, but they don't need to have one.
+
+There are some basic types that you should know about:
+
+    'a string'      # Str
+    2               # Int
+    3.14            # Num
+    (1, 2, 3)       # List
+
+All "normal" builtin types begin with an upper case letter. All "normal" types
+inherit from C<Any>, and absolutely everything inherits from C<Object>.
+
+You can restrict the type of values that a variable can hold by adding the
+type name to the declaration.
+
+    my Num $x = 3.4;
+    my Int @a = 1, 2, 3;
+
+It is an error to try to put a value into a variable that is of a "wrong" type
+(ie neither the specified type nor a subtype).
+
+A type declaration on an Arrray is used for its contents, so C<my Str @s> is
+an array that can only contain strings.
+
+=head2 Introspection
+
+You can learn about the direct type of a thing by calling its C<.WHAT> method.
+
+    say "foo".WHAT;     # Str
+
+However if you want to check if something is of a specific type, there is a
+different way, which also takes inheritance into account and is therefore
+recommended:
+
+    if $x ~~ Int {
+        say 'Variable $x contains an integer';
+    }
+
+=head1 MOTIVATION
+
+The type system isn't very easy to grok in all its details, but there are good
+reasons why we need types:
+
+=over 4
+
+=item Programming safety
+
+If you declare something to be of a particular type, you can be sure that you
+can perform certain operations on it. No need to check.
+
+=item Optimizability
+
+When you have type informations at compile time, you can perform certain
+optimizations. Perl 6 doesn't have to be slower than C, in principle.
+
+=item Extensibility
+
+With type informations and multiple dispatch you can easily refine operators
+for particular types.
+
+=back
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S02.html#Built-In_Data_Types>,

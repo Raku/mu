@@ -1,0 +1,87 @@
+=head1 NAME
+
+"Perl 5 to 6" - Introduction
+
+=head1 SYNOPSIS
+
+    Learn Perl 6 (if you already know Perl 5)
+    Learn to love Perl 6
+    Understand why
+
+=head1 DESCRIPTION
+
+Perl 6 is underdocumented. That's no surprise, because (apart from the
+specification) writing a compiler for Perl 6 seems to be much more urgent than
+writing documentation that targets the user.
+
+Unfortunately that means that it's not easy to learn Perl 6, and that you have
+to have a profound interest in Perl 6 to actually find the motivation to learn
+it from the specification, IRC channels or from the test suite.
+
+This project, which I'll preliminary call "Perl 5 to 6" (in lack of a better
+name) attempts to fill that gap with a series of short articles.
+
+Each lesson has a rather limited topic, and tries to explain the two or three
+most important points with very short examples. It also tries to explain why
+things changed from Perl 5 to 6, and why this is important. I also hope that
+the knowledge you gain from reading these lessons is enough to basically
+understand the Synopsis, which are the canonical source of all Perl 6 wisdom.
+
+To keep the reading easy, each lesson should not exceed 200 lines or 1000
+words (but it's a soft limit).
+
+Perhaps the lessons are too short to learn a programming language from them,
+but I hope that they draw an outline of the language design, which allows you
+to see its beauty without having to learn the language.
+
+=head1 IT'S NOT
+
+This is not a guide for converting Perl 5 to Perl 6 programs. It is also not a
+comprehensive list of differences. See
+L<http://svn.pugscode.org/pugs/docs/Perl6/Perl5/Differences.pod|Perl6::Perl5::Differences>
+instead if you're looking for something like that.
+
+=head1 ROADMAP
+
+Already written or in preparation:
+
+    00 Intro
+    01 Strings, Arrays, Hashes
+    02 Types
+    03 Control structures
+    04 Subs and Signatures
+    05 Objects and Classes
+    06 Contexts
+    07 Rules
+    08 Junctions
+    09 Comparisons and Smartmatching
+    10 Containers and Binding
+    11 Basic Operators
+    12 Lazyness
+    13 Custom Operators
+    14 the MAIN sub
+    15 Twigils
+    16 Enums
+    17 Unicode
+    18 Scoping
+    19 More Regexes
+    20 A Grammar for XML
+    21 Subset types
+    22 State of the Implementations
+    23 Quoting and Parsing
+
+Things that I want to write about, but which I don't know well enough yet:
+    
+    Macros
+    Meta Object Programming
+    Concurrency
+    IO
+
+Things that I want to mention somewhere, but don't know where
+
+    .perl method
+
+=head1 AUTHOR
+
+Moritz Lenz, L<http://perlgeek.de/>, C<moritz@faui2k3.org>
+

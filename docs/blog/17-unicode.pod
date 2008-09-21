@@ -1,0 +1,95 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 17 - Unicode
+
+=head1 SYNOPSIS
+
+  (none)    
+
+=head1 DESCRIPTION
+
+Perl 5's Unicode model suffers from a big weakness: it uses the same type for
+binary and for text data. For example if your program reads 512 bytes from a
+network socket, it is certainly a byte string. However when (still in Perl 5)
+you call C<uc> on that string, it will be treated as text. The recommended way
+is to decode that string first, but when a subroutine receives a string as an
+argument, it can never surely know if it had been encoded or not, ie if it is
+to be treated as a blob or as a text.
+
+Perl 6 on the other hand offers the type C<buf>, which is just a collection of
+bytes, and C<Str>, which is a collection of logical characters.
+
+I<Logical character> is still a vague term. To be more precise a C<Str> is an
+object that can be viewed at different levels: C<Byte>, C<Codepoint> (anything
+that the Unicode Consortium assigned a number to is a codepoint), C<Grapheme>
+(things that visually appear as a character) and C<CharLingua> (language
+defined characters).
+
+For example the string with the hex bytes C<61 cc 80> consists of three bytes
+(obviously), but can also be viewd as being consisting of two codepoints
+with the names C<LATIN SMALL LETTER A>  (U+0041) and
+C<COMBINING GRAVE ACCENT> (U+0300), or as one grapheme that, if neither my
+blog software nor your browser kill it, looks like this: C<à>.
+
+So you can't simply ask for the length of a string, you have to ask for a
+specific length:
+
+  $str.bytes;
+  $str.codes;
+  $str.graphs;
+
+There's also method named C<chars>, which returns the length in the current
+Unicode level (which can be set by a pragma like C<use bytes>, and which
+defaults to graphemes).
+
+In Perl 5 you sometimes had the problem of accidentially concatenating byte
+strings and text strings. If you should ever suffer from that problem in Perl
+6, you can easily identify where it happens by overloading the concatenation
+operator:
+
+  sub GLOBAL::infix:<~> is deep (Str $a, buf $b)|(buf $b, Str $a) {
+      die "Can't concatenate text string «"
+          ~ $a.encode("UTF-8")
+            "» with byte string «$b»\n";
+  }
+
+=head2 Encoding and Decoding
+
+The specification of the IO system is very basic and does not yet define any
+encoding and decoding layers, which is why this article has no useful SYNOPSIS
+section. I'm sure that there will be such a mechanism, and I could imagine it
+will look something like this:
+
+  my $handle = open($filename, :r, :encoding<UTF-8>);
+
+=head2 Regexes and Unicode
+
+Regexes can take modifiers that specify their Unicode level, so C<m:codes/./>
+will match exactly one codepoint. In the absence of such modifiers the
+current Unicode level will be used.
+
+Character classes like C<\w> (match a word character) behave accordingly to
+the Unicode standard. There are modifiers that ignore case (C<:i>) and accents
+(C<:a>), and modifiers for the substition operators that can carry case
+information to the substition string (C<:samecase> and C<:sameaccent>, short
+C<:ii>, C<:aa>).
+
+=head1 MOTIVATION
+
+It is quite hard to correctly process strings with most tools and most
+programming languages these days. Suppose you have a web application in perl
+5, and you want to break long words automatically so that they don't mess up
+your layout. When you use naiive C<substr> to do that, you might accidentially
+rip graphemes apart.
+
+Perl 6 will be the first mainstream programming language with built in support
+for grapheme level string manipulation, which basically removes most Unicode
+worries, and which (in conjunction with regexes) makes Perl 6 one of the most
+powerful languages for string processing.
+
+The separate data types for text and byte strings make debugging and
+introspection quite easy.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S29.html#Str>

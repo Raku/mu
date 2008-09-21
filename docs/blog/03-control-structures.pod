@@ -1,0 +1,84 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 03 - Basic Control Structures
+
+=head1 SYNOPSIS
+
+    if $percent > 100  {
+        say "weird mathematics";
+    }
+    for 1..3 {
+        # using $_ as loop variable
+        say 2 * $_;
+    }
+    for 1..3 -> $x {
+        # with explicit loop variable
+        say 2 * $x;
+    }
+
+    while $stuff.is_wrong {
+        $stuff.try_to_make_right;
+    }
+
+    die "Access denied" unless $password eq "Secret";
+
+=head1 DESCRIPTION
+
+Most Perl 5 control structures are quite similar in Perl 6. The biggest visual
+difference is that you don't need a pair of parenthesis after C<if>, C<while>,
+C<for> etc.
+
+=head2 Branches
+
+C<if> is mostly unchanged, you can still add C<elsif> and C<else> branches.
+C<unless> is still there, but no C<else> branch is allowed after C<unless>.
+
+    if $sheep == 0 {
+        say "How boring";
+    } elsif $sheep == 1 {
+        say "One lonely sheep";
+    } else {
+        say "A herd, how lovely!";
+    }
+
+You can also use C<if> and C<unless> as a statement modifier, i.e. after a
+statements:
+
+    say "you won" if $answer == 42;
+
+=head2 Loops
+
+You can manipulate loops with C<next> and C<last> just like in Perl 5.
+
+The C<for>-Loop is now only used to iterate over lists. By default the
+standard variable C<$_> is used, unless an explicit loop variable is given.
+
+    for 1..10 -> $x {
+        say $x;
+    }
+
+The C<< -> $x { ... } >> thing is called a "pointy block" and is something
+like an anonymous sub, or a lambda in lisp.
+
+You can also use more than one loop variable:
+
+    for 0..5 -> $even, $odd {
+        say "Even: $even \t Odd: $odd";
+    }
+
+This is also how you iterate over hashes:
+
+    my %h = a => 1, b => 2, c => 3;
+    for %h.kv -> $key, $value {
+        say "$key: $value";
+    }
+
+The C-style for-loop is now called C<loop>:
+
+    loop (my $x = 1; $x < 100; $x = $x**2) {
+        say $x;
+    }
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S04.html#Conditional_statements>

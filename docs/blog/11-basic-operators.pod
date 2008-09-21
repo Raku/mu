@@ -1,0 +1,66 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 11 - Changes to Perl 5 Operators
+
+=head1 SYNOPSIS
+
+    # bit wise operators
+    5   +| 3;       # 7
+    6   +^ 3        # 6
+    5   +& 3;       # 1
+    "b" ~| "d"      # 'f'
+ 
+    # string concatenation
+    'a' ~ 'b'       # 'ab'
+
+    # file tests
+    if '/etc/passwd' ~~ :e { say "exists" }
+
+    # repetition
+    'a' x 3         # 'aaa'
+    'a' xx 3        # 'a', 'a', 'a'
+
+    # ternary op
+    $a == $b ?? 2 * $a !! $b - $a
+
+    # chained comparisons
+    if 0 <= $angle < 2 * pi { ... }
+
+=head1 DESCRIPTION
+
+All the numeric operators (C<+>, C<->, C</>, C<*>, C<**>, C<%>) remain
+unchanged.
+
+Since C<|>, C<^> and C<&> now construct junctions, the bit wise operators have
+a changed syntax. They now contain a data prefix, so for example C<+|> is bit
+wise OR with numeric context, and C<~^> is one's complement on a string. Bit
+shift operators changed in the same way.
+
+String concatenation is now C<~>, the dot C<.> is used for method calls.
+
+File tests are now formulated in C<Pair> notation, Perl 5 C<-e> is now
+C<:e>. If something other than C<$_> should be used as the file name, it can
+be supplied via C<$filename ~~ :e>.
+
+The repetition operator C<x> is now split into two operators: C<x> replicates
+strings, C<xx> lists.
+
+The ternary operator, formerly C<$condition ? $true : $false>, is now spelled
+C<$condition ?? $true !! $false>.
+
+Comparison operators can now be chained, so you can write C<< $a < $b < $c >>
+and it does what you mean.
+
+=head1 MOTIVATION
+
+Many changes to the operators aim at a better Huffman coding, ie give often
+use things short names (like C<.> for method calls) and seldomly used
+operators a longer name (like C<~&> for string bit-wise AND).
+
+The chaining comparison operators are another step towards making the language
+more natural, and allowing things that are commonly used in mathematical
+notation.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S03.html#Changes_to_Perl_5_operators>

@@ -1,0 +1,69 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 06 - Contexts
+
+=head1 SYNOPSIS
+
+    my @a = <a b c>
+    my $x = @a;
+    say $x[2];          # c
+    say (~2).WHAT       # Str
+    say +@a;            # 3
+    if @a < 10 { say "short array"; }
+
+=head1 DESCRIPTION
+
+When you write something like this
+
+    $x = @a
+
+in Perl 5, C<$x> contains less information than C<@a> - it contains only the
+number of items in C<@a>. To preserve all information, you have to explicitly
+take a reference: C<$x = \@a>.
+
+In Perl 6 it's the other way round: by default you don't lose anything, the
+scalar just stores the array. This was made possible by introducing a generic
+item context (called "scalar" in Perl 5) and more specialized numeric, integer
+and string contexts. Void and List context remain unchanged.
+
+You can force contexts with special syntax.
+
+    syntax      context
+    ~stuff      String
+    ?stuff      Bool
+    +stuff      Numeric
+    -stuff      Numeric (also negates)
+    $( stuff )  Generic item context
+    @( stuff )  List Context
+
+=head2 Slice Context
+
+There's also a new context called I<slice context>. It is a list context in
+which lists don't interpolate.
+
+     @( <a b> Z <c d> )     # <a c b d>
+    @@( <a b> Z <c d> )     # (['a', 'c'], ['b', 'd'])
+
+This was introduced after the observation that many built in list functions
+had two versions - one that returned a flat list, and one that returned a list
+of lists.
+
+You can force slice context with C<@@( stuff )>.
+
+=head1 MOTIVATION
+
+More specific contexts are a way to delay design choices. For example it seems
+premature to decide what a list should return in scalar context - a reference
+to the list would preserve all information, but isn't very useful in numeric
+comparisons. So every possible choice disappoints somebody.
+
+With more specifc context you don't need to make this choice - it returns some
+sensible default, and all operators that don't like this choice can simply
+propagate a more specific context.
+
+For some things like the match object the different contexts really enhance
+their usefulness and beauty.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S02.html#Context>

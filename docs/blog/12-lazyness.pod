@@ -1,0 +1,116 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 12 - Laziness
+
+=head1 SYNOPSIS
+
+    my @integers = 0..*;
+    for @integers -> $i {
+        say $i;
+        last if $i % 17 == 0;
+    }
+
+    my @even = map { 2 * $_ }, 0..*;
+    my @stuff = gather {
+        for 0 .. Inf {
+            take 2 ** $_;
+        }
+    }
+
+=head1 DESCRIPTION
+
+Perl programmers tend to be lazy. And so are their lists.
+
+In this case I<lazy> means, that the evaluation is delayed as much as
+possible. When you write something like C<@a = map BLOCK, @b>, the
+block isn't executed at all. Only when you start to access items from C<@a>
+the C<map> actually executes the block and fills C<@a> as much as needed.
+
+Laziness allows you to deal with infinite lists: as long as you don't do
+anything to all of its arguments, they take up only as much space as the items
+need that have already been evaluated.
+
+There are pitfalls, though: determining the length of a list or sorting it
+kills laziness - if the list is infinite, it will likely loop infinitly.
+
+In general all conversions to a scalar (like C<List.join>) are I<eager>, i.e.
+non-lazy.
+
+Laziness prevents unnecessary computations, and can therefor boost performance
+while keeping code simple. 
+
+When you read a file line by line in Perl 5, you don't use 
+C<< for (<HANDLE>) >> because it reads all the file into memory, and only then
+starts iterating. With laziness that's not an issue:
+
+    my $file = open '/etc/passwd', :r;
+    for =$file -> $line {
+        say $line;
+    }
+
+Since C<=$file> is an iterator or a lazy list (it doesn't really matter
+which), the lines are only physically read from disk as needed (besides
+buffering, of course).
+
+=head2 gather/take
+
+A very useful construct for creating lazy lists is C<gather { take }>. It is
+used like this:
+
+    my @list = gather {
+        while 1 {
+            # some computations;
+            take $result;
+        }
+    }
+
+C<gather BLOCK> returns a lazy list. When items from C<@list> are needed, the
+C<BLOCK> is run until C<take> is executed. C<take> is just like return, and
+all C<take>n items are used to construct C<@list>. When more items from
+C<@list> are needed, the execution of the block is resumed after C<take>.
+
+C<gather/take> is dynamically scoped, so this is allowed:
+
+    my @list = gather {
+        for 1..10 {
+            do_some_computation($_);
+        }
+    }
+
+    sub do_some_computation($x) {
+        take $x * ($x + 1);
+    }
+
+=head2 Controlling Laziness
+
+Laziness has its problems (and when you try to learn Haskell you'll notice how
+weird their IO system is because Haskell is both lazy and free of side
+effects), and sometimes you don't want stuff to be lazy. In this case you can
+just prefix it with C<eager>.
+
+    my @list = eager map { $block_with_side_effects }, @list;
+
+On the other hand only lists are lazy by default. But you can also make lazy
+scalars:
+
+    my $ls = lazy { $expansive_computation };
+
+=head1 MOTIVATION
+
+In computer science most problems can be described with a tree of possible
+combinations, in which a solution is being searched for. The key to efficient
+algorithms is not only to find an efficient way to search, but also to
+construct only the interesting parts of the tree.
+
+With lazy lists you can recursively define this tree and search in it, and it
+automatically constructs only these parts of the tree that you're actually
+using.
+
+In general laziness makes programming easier because you don't have to know if
+the result of a computation will be used at all - you just make it lazy, and
+if it's not used the computation isn't executed at all. If it's used, you lost
+nothing.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S02.html#Lists>

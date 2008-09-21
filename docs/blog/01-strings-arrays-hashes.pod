@@ -1,0 +1,119 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 01 - Strings, Arrays, Hashes;
+
+=head1 SYNOPSIS
+
+    my $five = 5;
+    print "an interpolating string, just like in perl $five\n";
+    say 'say() adds a newline to the output, just like in perl 5.10';
+
+    my @array = 1, 2, 3, 'foo';
+    my $sum = @array[0] + @array[1];
+    if $sum > @array[2] {
+        say "not executed";
+    }
+    my $number_of_elems = @array.elems;     # or +@array
+    my $last_item = @array[*-1];
+
+    my %hash = foo => 1, bar => 2, baz => 3;
+    say %hash{'bar'};                       # 2
+    say %hash<bar>;                         # same with auto-quoting
+    # this is an error: %hash{bar}
+
+=head1 DESCRIPTION
+
+Perl 6 is just like perl 5 - only better. Statements are terminated by
+semicolons. The after the last statement in a block and after a closing curly
+brace at the end of a line the semicolon is option.
+
+Variables still begin with a sigil (like C<$>, C<@>, C<%>), and many Perl 5
+builtins are still mostly unchanged in Perl 6.
+
+=head2 Strings
+
+Strings are quoted with double quotes (in which case they are interpolating),
+or with single quotes. Backslash escapes work just like in Perl 5.
+
+However the interpolation rules have changed a bit. The following things
+interpolate
+    
+    my $scalar = 6;
+    my @array = 1, 2, 3;
+    say "Perl $scalar";         # 'Perl 6'
+    say "An @array[]";          # 'An 1 2 3'
+    say "@array[1]";            # '2'
+    say "Code: { $scalar * 2 }" # 'Code: 12'
+
+Arrays and hashes only interpolate if followed by an index, empty indexes
+interpolate the whole data structure.
+
+A block in curly braces is executed as a code block, and the result is
+interpolated.
+
+=head2 Arrays
+
+Arrays variables still begin with the C<@> sigil. And they always do, even if
+an index is present.
+
+    my @a = 5, 1, 2;            # no parens needed anymore
+    say @a[0];                  # yes, it starts with @
+    say @a[0, 2];               # slices also work
+
+Lists are constructed with the Comma operator. C<1,> is a list, C<(1)> isn't.
+
+Since everything is an object, you can call methods on arrays:
+
+    my @b = @a.sort;
+    @b.elems;                   # number of items
+    if @b > 2 { say "yes" }     # still works
+    @b.end                      # number of last index. Replaces $#array
+    my @c = @b.map({$_ * 2 });  # map is also a method, yes
+
+There is a short form for the old C<qw(..)> quoting construct:
+
+    my @methods = <shift unshift push pop end delete sort map>;
+
+=head2 Hashes
+
+While Perl 5 hashes are even sized lists, Perl 6 hashes are lists of pairs. 
+Pairs are also used for other things, like named arguments to subs, but more
+on that later.
+
+Just like with arrays the sigil stays invariant when you index it. And hashes
+also have methods that you can call on them.
+
+    my %drinks =
+        France  => 'Wine',
+        Bavaria => 'Beer',
+        USA     => 'Coke';
+
+    say "The people in France love ",  %drinks{'France'};
+    %drinks.delete('France');
+
+Note that when you access hash elements with C<%hash{...}>, the key is not
+auto quoted like in Perl 5. So C<%hash{foo}> doesn't access index C<"foo">,
+but calls the function C<foo()>. The autoquoting isn't gone, it just has a
+different syntax:
+    
+    say %drinks<Bavaria>;
+
+=head2 Final Notes
+
+Most builtin methods exists both as a method and as a sub. So you can write
+both C<sort @array> and C<@array.sort>.
+
+Finally you should know that both C<[..]> and C<{...}> are just method calls
+with a special syntax, not something tied to arrays and hashes. That means
+that they are also not tied to a particular sigil.
+
+    my $a = [1, 2, 3];
+    say $a[2];          # 3
+
+This means that you don't need special dereferncing syntax, and that you can
+create objects that can act as arrays, hashes and subs at the same time.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S02.html>, 
+L<http://perlcabal.org/syn/S29.html> 

@@ -1,0 +1,85 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 15 - Twigils
+
+=head1 SYNOPSIS
+
+  class Foo {
+      has $.bar;
+      has $!baz;
+  }
+
+  my @stuff = sort { $^b[1] <=> $^a[1]}, [1, 2], [0, 3], [4, 8];
+  my $block = { say "This is the named 'foo' parameter: $:foo" };
+  $block(:foo<bar>);
+
+  say "This is file $?FILE on line $?LINE"
+
+  say "A CGI script" if %*ENV.exists('DOCUMENT_ROOT');
+
+=head1 DESCRIPTION
+
+Some variables have a second sigil, called I<twigil>. It basically means that
+the variable isn't "normal", but differs in some way, for example it could be
+differently scoped.
+
+You've already seen that public and private object attributes have the C<.>
+and C<!> twigil respectively; they are not normal variables, they are tied to
+C<self>.
+
+The C<^> twigil removes a special case from perl 5. To be able to write 
+
+  # beware: perl 5 code
+  sort { $a <=> $b } @array
+
+the variables C<$a> and C<$b> are special cased by the C<strict> pragma. In
+Perl 6, there's a concept named I<self-declared positional parameter>, and
+these parameters have the C<^> twigil. It means that they are positional
+parameters of the current block, without being listed in a signature. The
+variables are filled in lexicographic (alphabetic) order:
+
+  my $block = { say "$^c $a $^b" };
+  $block(1, 2, 3);                # 3 1 2
+
+So now you can write
+    
+  @list = sort { $^b <=> $^a }, @list;
+  # or:
+  @list = sort { $^foo <=> $^bar }, @list;
+
+Without any special cases.
+
+And to keep the symetry between positional and named arguments, the C<:>
+twigil
+does the same for named parameters, so these lines are roughly equivalent:
+
+  my $block = { say $:stuff }
+  my $sub   = sub (:$stuff) { say $stuff }
+
+The C<?> twigil stands for variables and constants that are known at compile
+time, like C<$?LINE> for the current line number (formerly C<__LINE__>), and
+C<$?DATA> is the file handle to the C<DATA> section. 
+
+Global variables can be accessed with the C<*> twigil, so C<%GLOBAL::ENV> can
+be abbreviated to C<%*ENV>, the command line arguments are stored in
+C<@*ARGS>, the current process number is in C<$*PID> and so on.
+
+A pseudo twigil is C<< < >>, which is used in a construct like
+C<< $<capture> >>, where it is a shorthand for C<< $/<capture> >>, which
+accesses the Match object after a regex match.
+
+=head1 MOTIVATION
+
+When you read Perl 5's C<perlvar> document, you can see that it has far too
+many variables, most of them global, that affect your program in various ways.
+
+The twigils try to bring some order in these special variables, and at the
+other hand they remove the need for special cases. In the case of object
+attributes they shorten C<self.var> to C<$.var> (or C<@.var> or whatever).
+
+So all in all the increased "punctuation noise" actually makes the programs
+much more consistent and readable.
+
+=cut
+
+# vim: sw=2

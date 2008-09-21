@@ -1,0 +1,302 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 20 - A grammar for (pseudo) XML
+
+=head1 SYNOPSIS
+
+    grammar XML {
+        token TOP   { ^ <xml> $ };
+        token xml   { <plain> [ <tag> <plain> ]* };
+        token plain {  <-[<>&]>* };
+        rule tag   {
+            '<'(\w+) <attributes>*
+            [
+                | '/>'                 # a single tag
+                | '>'<xml>'</' $0 '>'  # an opening and a closing tag
+            ]
+        };
+        token attributes { \w+ '="' <-["<>]>* '"' };
+    };
+
+=head1 DESCRIPTION
+
+So far the focus of these articles has been the Perl 6 language, independently
+of what has been implemented so far. To show you that it's not a purely
+fantasy language, and to demonstrate the power of grammars, this lesson shows
+you the development of a grammar that parses basic XML, and that runs with
+rakudo todo. I used revision 30633 for this, so in order to reproduce it
+reliably, you should check out the same revision.
+
+On a Unix like OS, this might look like this:
+
+    svn co -r 30633 https://svn.perl.org/parrot/trunk parrot
+    cd parrot
+    perl Configure.pl && make
+    cd languages/perl6/ && make perl6
+
+Windows users have to build C<perl6.exe> in the last step instead.
+
+Now run C<make spectest_regression>, and if you get any failures, please
+send a mail to C<rakudobug@perl.org>.
+
+=head2 Our idea of XML
+
+For our purposes XML is quite simple: it consists of plain text and nested
+tags that can optionally have attributes. So here are few tests for what we
+want to parse as valid "XML", and what not:
+
+    my @tests = (
+        [1, 'abc'                       ],      # 1
+        [1, '<a></a>'                   ],      # 2
+        [1, '..<ab>foo</ab>dd'          ],      # 3
+        [1, '<a><b>c</b></a>'           ],      # 4
+        [1, '<a href="foo"><b>c</b></a>'],      # 5
+        [1, '<a empty="" ><b>c</b></a>' ],      # 6
+        [1, '<a><b>c</b><c></c></a>'    ],      # 7
+        [0, '<'                         ],      # 8
+        [0, '<a>b</b>'                  ],      # 9
+        [0, '<a>b</a'                   ],      # 10
+        [0, '<a>b</a href="">'          ],      # 11
+        [1, '<a/>'                      ],      # 12
+        [1, '<a />'                     ],      # 13
+    );
+
+    my $count = 1;
+    for @tests -> $t {
+        my $s = $t[1];
+        my $M := $s ~~ XML::TOP;
+        if !($M  xor $t[0]) {
+            say "ok $count - '$s'";
+        } else {
+            say "not ok $count - '$s'";
+        }
+        $count++;
+    }
+
+This is a list of both "good" and "bad" XML, and a small test script that runs
+these tests by matching against C<XML::TOP>. By convention the rule that
+matches what the grammar should match is named C<TOP>.
+
+(As you can see from test 1 we don't require a single root tag, but it would
+be trivial to add this restriction).
+
+=head2 Developing the grammar
+
+The examples can be downloaded from
+L<http://perlgeek.de/static/xml-grammar-01.tar.gz>
+
+The essential of XML is surely the nesting of tags, so we'll focus on the
+second test first. Place this at the top of the test script:
+
+    grammar XML {
+        token TOP   { ^ <tag> $ };
+        token tag   {
+            '<' (\w+) '>'
+            '</' $0   '>'
+        };
+    };
+
+(All tokens end with a C<;>. This is not required in Perl 6, but a limitation
+of Rakudo).
+
+Now run the script:
+
+    $ ./perl6 xml-01.pl
+    not ok 1 - 'abc'
+    ok 2 - '<a></a>'
+    not ok 3 - '..<ab>foo</ab>dd'
+    not ok 4 - '<a><b>c</b></a>'
+    not ok 5 - '<a href="foo"><b>c</b></a>'
+    not ok 6 - '<a empty="" ><b>c</b></a>'
+    not ok 7 - '<a><b>c</b><c></c></a>'
+    ok 8 - '<'
+    ok 9 - '<a>b</b>'
+    ok 10 - '<a>b</a'
+    ok 11 - '<a>b</a href="">'
+    not ok 12 - '<a/>'
+    not ok 13 - '<a />'
+
+So this simple rule parses one pair of start tag and end tag, and correctly
+rejects all four examples of invalid xml.
+
+The first test should be easy to pass as well, so let's try this:
+
+   grammar XML {
+       token TOP   { ^ <xml> $ };
+       token xml   { <text> | <tag> };
+       token text  { <-[<>&]>*  };
+       token tag   {
+           '<' (\w+) '>'
+           '</' $0   '>'
+       }
+    };
+
+(Remember, C<< <-[...]> >> is a negated character class.)
+ 
+And run it:
+    
+    $ ./perl6 xml-02.pl
+    Null PMC access in type()
+    current instr.: 'parrot;XML;xml' pc 975 (EVAL_17:282)
+    called from Sub 'parrot;XML;TOP' pc 778 (EVAL_17:202)
+    called from Sub 'parrot;Code;ACCEPTS' pc 5559 (src/gen_builtins.pir:3700)
+    called from Sub '_block87' pc 1621 (EVAL_17:535)
+    ...
+
+Bad surprise, it dies. Let's try to find out where and why.
+
+The stack trace shows that it was in an anonymous block, which doesn't really
+help, because we don't know which. C<Code;ACCEPTS> points us to the regex
+match: the smartmatch C<~~> internally calls C<ACCEPTS>, and regexes are
+compiled down to Code object. It calls C<XML::TOP>, then C<XML::xml>, and then
+dies. Since we haven't changed the C<tag> token, it must be C<text> that's
+causing the problem.
+
+Playing around a bit, asking on C<#perl6> on C<irc.freenode.org> or digging
+through the bug tracker reveals that, due to some weird limitation, you can't
+call a regex C<text> in Rakudo. So changing the name from C<text> to C<plain>
+makes it work again, with this result:
+
+    $ ./perl6 xml-03.pl
+    ok 1 - 'abc'
+    not ok 2 - '<a></a>'
+    (rest unchanged)
+
+Why in the seven hells did the second test stop working? The answer is that
+Rakudo doesn't do longest token matching yet, but matches sequentially.
+C<< <plain> >> matches the empty string (and thus always), so
+C<< <plain> | <tag> >> never even tries to match C<< <tag> >>.
+
+But we don't just want to match either plain text or a tag anyway, but random
+combinations of both of them:
+
+    token xml   { <plain> [ <tag> <plain> ]*  };
+
+(C<[...]> are non-capturing groups, like C<(?: ... )> is in Perl 5).
+
+And low and behold, the first two tests pass both.
+
+The third test, C<< .<ab>foo</ab>dd >>, has text between opening and closing
+tag, so we have to allow that next. But not only text is allowed between tags,
+but arbitrary xml, so let's just call C<< <xml> >> there:
+
+    token tag   {
+        '<' (\w+) '>'
+        <xml>
+        '</' $0   '>'
+    }
+
+    ./perl6 xml-05.pl
+    ok 1 - 'abc'
+    ok 2 - '<a></a>'
+    ok 3 - '..<ab>foo</ab>dd'
+    ok 4 - '<a><b>c</b></a>'
+    not ok 5 - '<a href="foo"><b>c</b></a>'
+    (rest unchanged)
+
+We can now focus attributes (the C<href="foo"> stuff):
+
+    token tag   {
+        '<' (\w+) <attribute>* '>'
+        <xml>
+        '</' $0   '>'
+    };
+    token attribute {
+        \w+ '="' <-["<>]>* \"
+    };
+
+But this doesn't make any new tests pass. The reason is the blank between the
+tag name and the attribute. Instead of adding C<\s+> or C<\s*> in many places
+we'll switch from C<token> to C<rule>, which implies the C<:sigspace>
+modifier:
+
+    rule tag   {
+        '<'(\w+) <attribute>* '>'
+        <xml>
+        '</'$0'>'
+    };
+    token attribute {
+        \w+ '="' <-["<>]>* \"
+    };
+
+Now all tests pass, except the last two:
+
+    ok 1 - 'abc'
+    ok 2 - '<a></a>'
+    ok 3 - '..<ab>foo</ab>dd'
+    ok 4 - '<a><b>c</b></a>'
+    ok 5 - '<a href="foo"><b>c</b></a>'
+    ok 6 - '<a empty="" ><b>c</b></a>'
+    ok 7 - '<a><b>c</b><c></c></a>'
+    ok 8 - '<'
+    ok 9 - '<a>b</b>'
+    ok 10 - '<a>b</a'
+    ok 11 - '<a>b</a href="">'
+    not ok 12 - '<a/>'
+    not ok 13 - '<a />'
+
+These contain un-nested tags that are closed with a single slash C</>. No
+problem to add that to rule C<tag>:
+
+    rule tag   {
+        '<'(\w+) <attribute>* [
+            | '/>'
+            | '>' <xml> '</'$0'>'
+        ]
+    };
+
+All tests pass, we're happy, our first grammar works well.
+
+=head2 More hacking
+
+Playing with grammars is much more fun that reading about playing, so here's
+what you could implement:
+
+=over 4
+
+=item * 
+
+plain text can contain entities like C<&amp;>
+
+=item * 
+
+I don't know if xml tag names are allowed to begin with a number, but  the
+current grammar allows that. You might look it up in the XML specification,
+and adapt the grammar if needed.
+
+=item *
+
+plain text can contain C<< <![CDATA[ ... ]]> >> blocks, in which
+xml-like tags are ignored and C<< < >> and the like don't need to be escaped
+
+=item *
+
+Real xml allows a preample like
+C<< <?xml version="0.9" encoding="utf-8"?> >> and requires one root tag which
+contains the rest (You'd have to change some of the existing test cases)
+
+=item *
+
+You could try to implement a pretty-printer for XML by recursively
+walking through the match object C<$/>. (This is non-trivial; you might have
+to work around a few Rakudo bugs, and maybe also introduce some new captures).
+
+=back
+
+(Please don't post solutions to this as comments in this blog; let others have
+the same fun as you had ;-).
+
+Have fun hacking.
+
+=head1 MOTIVATION
+
+It's powerful and fun
+
+=head1 SEE ALSO
+
+Regexes are specified in great detail in S05:
+L<http://perlcabal.org/syn/S05.html>.
+
+More working (!) examples of regexes and grammars can be found in the
+I<November> project, a wiki engine written in Perl 6. See
+L<http://github.com/viklund/november/>.

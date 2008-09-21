@@ -1,0 +1,174 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 22 - The State of the implementations
+
+=head1 SYNOPSIS
+
+    (none)
+
+=head1 DESCRIPTION
+
+Perl 6 is a language specification, and there are multiple compilers being
+written that aim to implement Perl 6, and partially they already do.
+
+=head2 Pugs
+
+Pugs is a Perl 6 compiler written in Haskell. It was started by Audrey Tang,
+and she also did most of the work. In terms of implemented features it is
+certainly the most advanced implementation today (September 2008).
+
+To build and test pugs, you have to install GHC 6.8 first, and then run
+   
+    svn co http://svn.pugscode.org/pugs
+    cd pugs
+    perl Makefile.PL
+    make
+    make test
+
+That will install some Haskell dependencies locally and then build pugs. For
+C<make test> you might need to install some Perl 5 modules, which you can do
+with C<cpan Task::Smoke>.
+
+Pugs hasn't been developed during the last year, but Audrey announced that she
+would continue its development once GHC 6.10 is released, and already cleaned
+up the build system a lot.
+
+Pugs can parse most common constructs, implements object orientation, basic
+regexes, nearly(?) all control structures, basic user defined operators and
+macros, many builtins, contexts (except slice context), junctions, basic
+multi dispatch and the reduction meta operator. It passes about 16000 tests
+from the Perl 6 test suite.
+
+=head2 Rakudo
+
+Rakudo is a parrot based compiler for Perl 6. The main architect is Patrick
+Michaud, many features were implemented by Jonathan Worthington.
+
+It is hosted in the parrot svn repository, to build it run
+
+    svn co https://svn.perl.org/parrot/trunk parrot
+    perl Configure.pl && make
+    cd languages/perl6/
+    make perl6
+
+Rakudo development is very active. At the time of writing it passes about 2300
+test from the official test suite. Its progress in the test suite is monitored
+on L<http://rakudo.de/>.
+
+It implements most control structures, most syntaxes for number
+literals, interpolation of scalars and closures, chained operators, C<BEGIN>-
+and C<END> blocks, pointy subs, named, optional and slurpy arguments, basic
+junctions and grammars.
+
+=head2 Elf
+
+Mitchell Charity started I<elf>, a bootstrapping compiler written in Perl 6,
+with a grammar written in Ruby. Currently it has a Perl 5 backend, others are
+in planning.
+
+It lives in the pugs repositry, once you've checked it out you can go to
+C<misc/elf/> and run C<./elf_f $filename>. You'll need ruby-1.9 and some perl
+modules, about which elf will complain bitterly when they are not present.
+
+C<elf> is developed in bursts of activity followed by weeks of low activity,
+or even none at all.
+
+It parses more than 70% of the test suite, but implements mostly features that 
+are easy to emulate with Perl 5, and passes about 700 tests from the test
+suite.
+
+=head2 KindaPerl6
+
+Flavio Glock started KindaPerl6 (short kp6), a mostly bootstapped Perl 6
+compiler. Since the bootstrapped version is much too slow to be fun to develop
+with, it is now waiting for a faster backend.
+
+Kp6 implements object orientation, grammars and a few distinct features like
+lazy gather/take. It also implements C<BEGIN> blocks, which was one of the
+design goals.
+
+=head2 v6.pm
+
+C<v6> is a source filter for Perl 5. It was written by Flavio Glock, and
+supports basic Perl 6 plus grammars. It is fairly stable and fast, and is
+occasionally enhanced. It lives on the CPAN and in the pugs repository in
+C<perl5/*/>.
+
+=head2 SMOP
+
+Smop stands for I<Simple Meta Object Programming> and doesn't plan to
+implement all of Perl 6, it is designed as a backend (a little bit like
+parrot, but very different in both design and feature set). Unlike the other
+implements it aims explicitly at implementing Perl 6's powerful meta object
+programming facilities, ie the ability to plug in different object systems.
+
+It is implemented in C and various domain specific languages. It was designed
+and implemented by Daniel Ruoso, with help from Yuval Kogman (design) and
+Paweł Murias (implementation, DSLs). A grant from The Perl Foundation supports
+its development, and it currently approaches the stage where one could begin
+to emit code for it from another compiler.
+
+It will then be used as a backend for either elf or kp6, and perhaps also for
+pugs.
+
+=head2 STD.pm
+
+Larry Wall wrote a grammar for Perl 6 in Perl 6. He also wrote a cheating
+script named C<gimme5>, which translates that grammar to Perl 5. It can parse
+about every written and valid piece of Perl 6 that we know of, including the
+whole test suite (apart from a few failures now and then when Larry
+accidentially broke something).
+ 
+STD.pm lives in the pugs repository, and can be run and tested with
+perl-5.10.0 installed in C</usr/local/bin/perl> and a few perl modules (like
+C<YAML::XS> and C<Moose>):
+
+    cd src/perl6/
+    make
+    make testt      # warning: takes about 80 minutes,
+                    # and generats 3GB of files in lex/
+    ./tryfile $your_file
+    perl STD5_dump_match $your_file
+
+It correctly parses custom operators and warns about non-existant subs.
+
+=head1 MOTIVATION
+
+Many people ask why we need so many different implementations, and if it
+wouldn't be better to focus on one instead.
+
+There are basically three answers to that.
+
+Firstly that's not how programming by volunteers work. People sometimes either
+want to start something with the tools they like, or they think that one
+aspect of Perl 6 is not sufficiently honoured by the design of the existing
+implementations. Then they start a new project.
+
+The second possible answer is that the projects explore different areas of the
+vast Perl 6 language: SMOP explores meta object programming, rakudo and parrot
+care a lot about efficient language interoperability and platform
+independence, kp6 explored BEGIN blocks, and pugs was the first implementation
+to explore the syntax, and many parts of the language for the first time.
+
+The third answer is that we don't want a single point of failure. If we had
+just one implementation, and had severe problems with one of them for
+unforseeable reasons (technical, legal, personal, ...) we have possible
+fallbacks.
+
+=head1 SEE ALSO
+
+Pugs: L<http://www.pugscode.org/>,
+L<http://pugs.blogs.com/pugs/2008/07/pugshs-is-back.html>,
+L<http://pugs.blogspot.com>, source:
+L<http://svn.pugscode.org/pugs>.
+
+Rakudo: L<http://www.parrotcode.org/>, L<http://www.rakudo.org/>, source:
+L<https://svn.perl.org/parrot/trunk>.
+
+Elf: L<http://perl.net.au/wiki/Elf> source: see pugs, C<misc/elf/>.
+
+KindaPerl6: source: see pugs, C<v6/v6-KindaPerl6>.
+
+v6.pm: source: see pugs, C<perl5/>.
+
+STD.pm: source: see pugs, C<src/perl6/>.

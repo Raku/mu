@@ -1,0 +1,132 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 18 - Scoping
+
+=head1 SYNOPSIS
+
+  for 1 .. 10 -> $a {
+      # $a visible here
+  }
+  # $a not visible here
+
+  while my $b = get_stuff() {
+      # $b visible here
+  }
+  # $b still visible here
+
+  my $c = 5;
+  {
+      my $c = $c;
+      # $c is undef here
+  }
+  # $c is 5 here
+
+  my $y;
+  my $x = $y + 2 while $y = calc();
+  # $x still visible
+
+=head1 DESCRIPTION
+
+=head2 Lexical Scoping
+
+Scoping in Perl 6 is quite similar to that of Perl 5. A Block introduces a
+new lexical scope. A variable name is searched in the innermost lexical scope
+first, if it's not found it is then searched for in the next outer scope and
+so on. Just like in Perl 5 a C<my> variable is a proper lexical variable, and
+an C<our> declaration introduces a lexical alias for a package variable.
+
+But there are subtle differences: variables are exactly visible in the rest
+of the block where they are declared, variables declared in block headers (for
+example in the condition of a C<while> loop) are not limited to the block
+afterwards. 
+
+If you want to limit the scope, you can use formal parameters to the block:
+
+  if calc() -> $result {
+      # you can use $result here
+  }
+  # $result not visible here
+
+Variables are visible immediately after they are declared, not at the end of
+the statement as in Perl 5.
+
+  my $x = .... ;
+          ^^^^^
+          $x visible here in Perl 6
+              but not in Perl 5
+
+=head2 Dynamic scoping
+
+The C<local> adjective is now called C<temp>, and if it's not followed by an
+initialization the previous value of that variable is used (not C<undef>).
+
+There's also a new kind of dynamically scoped variable called a
+I<hypothetical> variable. If the block is left with an exception, then the
+previous value of the variable is restored. If not, it is kept.
+
+=head2 Context variables
+
+Some variables that are global in Perl 5 (C<$!>, C<$_>) are I<context>
+variables in Perl 6, that is they are passed between dynamic scopes.
+
+This solves an old Problem in Perl 5. In Perl 5 an C<DESTROY> sub can be
+called at a block exit, and accidentially change the value of a global
+variable, for example one of the error variables:
+
+  # Broken Perl 5 code here:
+  sub DESTROY { eval { 1 }; }
+
+  eval {
+      my $x = bless {};
+      die "Death\n";
+  };
+  print $@ if $@;         # No output here
+
+In Perl 6 this problem is avoided by not implicitly using global variables.
+
+=head2 Pseudo-packages
+
+If a variable is hidden by another lexical variable of the same name, it can
+be accessed with the C<OUTER> pseudo package
+
+    my $x = 3;
+    {
+        my $x = 10;
+        say $x;             # 10
+        say $OUTER::x;      # 3
+        say OUTER::<$x>     # 3
+    }
+
+Likewise a function can access variables from its caller with the C<CALLER>
+and C<CONTEXT> pseudo packages. The difference is that C<CALLER> only accesses
+the scope of the immediate caller, C<CONTEXT> works like UNIX environment
+variables (and should only be used internally by the compiler for handling
+C<$_>, C<$!> and the like). To access variables from the outer dynamic
+scope they must be declared with C<is context>.
+
+=head1 MOTIVATION
+
+It is now common knowledge that global variables are really bad, and cause
+lots of problems. We also have the resources to implement better scoping
+mechanism. Therefor global variables are only used for inherently global data
+(like C<%*ENV> or C<$*PID>).
+
+The block scoping rules haven been greatly simplified.
+
+Here's a quote from Perl 5's C<perlsyn> document; we don't want similar things
+in Perl 6:
+
+ NOTE: The behaviour of a "my" statement modified with a statement
+ modifier conditional or loop construct (e.g. "my $x if ...") is
+ undefined.  The value of the "my" variable may be "undef", any
+ previously assigned value, or possibly anything else.  Don’t rely on
+ it.  Future versions of perl might do something different from the
+ version of perl you try it out on.  Here be dragons.
+
+
+=head1 SEE ALSO
+
+S04 discusses block scoping: L<http://perlcabal.org/syn/S04.html>.
+
+S02 lists all pseudo packages and explains context scoping:
+L<http://perlcabal.org/syn/S02.html#Names>.

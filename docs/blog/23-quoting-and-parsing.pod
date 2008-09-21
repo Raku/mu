@@ -1,0 +1,118 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 23 - Quoting and Parsing
+
+=head1 SYNOPSIS
+
+    my @animals = <dog cat tiger>
+    # or
+    my @animals = qw/dog cat tiger/;
+    # or 
+    
+    my $interface = q{eth0};
+    my $ips = q :s :x /ifconfig $interface/;
+
+    # -----------
+
+    sub if {
+        warn "if() calls a sub\n";
+    }
+    if();
+
+=head1 DESCRIPTION
+
+=head2 Quoting
+
+Perl 6 has a powerful mechanism of quoting strings, you have exact control
+over what features you want in your string.
+
+Perl 5 had single quotes, double quotes and C<qw(...)> (single quotes,
+splitted on whitespaces) as well as the C<q(..)> and C<qq(...)> forms which
+are basically synomyms for single and double quotes.
+
+Perl 6 in turn defines a quote operator named C<Q> that can take various
+modifiers. The C<:b> (I<backslash>) modifier allows interpolation of backslash
+escape sequences like C<\n>, the C<:s> modifier allows interpolation of scalar
+variables, C<:c> allows the interpolation of closures (C<"1 + 2 = { 1 + 2 }">)
+and so on, C<:w> splits on words as C<qw/.../> does.
+
+You can arbitrarily combine those modifiers. For example you might wish a
+form of C<qw/../> that interplates only scalars, but nothing else? No problem:
+
+    my $stuff = "honey";
+    my @list = Q :w :s/milk toast $stuff with\tfunny\nescapes/;
+    say @list[*-1];                     # prints with\nfunny\nescapes
+
+Here's a list of what modifiers are available, mostly stolen from S02
+directly. All of these also have long names, which I ommited here.
+
+    Features:
+        :q          Interpolate \\, \q and \'
+        :b          Other backslash escape sequences like \n, \t
+    Operations:
+        :x          Execute as shell command, return result
+        :w          Split on whitespaces
+        :ww         Split on whitespaces, with quote proection
+    Variable interpolation
+        :s          Interpolate scalars   ($stuff)
+        :a          Interpolate arrays    (@stuff[])
+        :h          Interpolate hashes    (%stuff{})
+        :f          Interpolate functions (&stuff())
+    Other
+        :c          Interpolate closures  ({code})
+        :qq         Interpolate with :s, :a, :h, :f, :c, :b
+        :regex      parse as regex
+    
+There are some short forms which make life easier for you:
+
+    q       Q:q
+    qq      Q:qq
+    m       Q:regex
+
+You can also omit the first colon C<:> if the quoting symbol is a short form,
+and write it as a singe word:
+
+    symbol      short for
+    qw          q:w
+    Qw          Q:w
+    qx          q:x
+    Qc          Q:c
+    # and so on.
+
+However there is one form that does not work, and some Perl 5 programmers will
+miss it: you can't write C<qw(...)> with the round parenthesis in Perl 6. It
+is interpreted as a call to sub C<qw>.
+
+=head2 Parsing
+
+This is where parsing comes into play: Every construct of the form
+C<identifier(...)> is parsed as sub call. Yes, every.
+
+    if($x<3)
+
+is parsed as a call to sub C<if>. You can disambiguate with whitespaces:
+
+    if ($x < 3) { say '<3' }
+
+Or just omit the parens alltogether:
+
+    if $x < 3 { say '<3' }
+
+This implies that Perl 6 has no keywords. Actually there are keywords like
+C<use> or C<if>, but they are only special if used in a special syntax.
+
+=head1 MOTIVATION
+
+Various combinations of the quoting modifiers are already used internally, for
+example C<q:w> to parse C<< <...> >>, and C<:regex> for C<m/.../>. It makes
+sense to expose these also to the user, who gains flexibility, and can very
+easily write macros that provide a shortcut for the exact quoting semantics he
+wants.
+
+And when you limit the speciality of keywords, you have far less troubles 
+with backwards compatibility if you want to change what you consider a
+"keyword".
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S02.html#Literals>

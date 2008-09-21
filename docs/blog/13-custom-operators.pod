@@ -1,0 +1,130 @@
+=head1 NAME 
+
+"Perl 5 to 6" Lesson 13 - Custom Operators
+
+=head1 SYNOPSIS
+
+    multi sub postfix:<!>(Int $x) {
+        my $factorial = 1;
+        $factorial *= $_ for 2..$x;
+        return $factorial;
+    }
+    
+    say 5!;                     # 120
+
+=head1 DESCRIPTION
+
+Operators are functions with unusual names, and a few addtional properties
+like precedence and associativity. Perl 6 usually follows the pattern
+C<term infix term>, where C<term> can be optionally preceeded by prefix
+operators and followed by postfix or postcircumfix operators.
+
+    1 + 1               infix
+    +1                  prefix
+    $x++                postfix
+    <a b c>             circumfix
+    @a[1]               postcircumfix
+
+Operator names are not limited to "special" characters, they can contain
+anything except whitespaces.
+
+The long name of an operator is its type, followed by a colon and a string
+literal or list of the symbol or symbols, for example C<< infix:<+> >> is the
+the operator in C<1+2>. Another example is
+C<< postcircumfix:<[ ]> >>, which is the operator in C<@a[0]>.
+
+With this knowledge you can already define new operators:
+
+    multi sub prefix:<€> (Str $x) {
+        2 *  $x;
+    }
+    say €4;                         # 8
+
+=head2 Precedence
+
+In an expression like C<$a + $b * $c> the C<< infix:<*> >> operator has
+tighter precedence than C<< infix:<+> >>, which is why the expression is
+evaluated as C<$a + ($b * $c)>.
+
+The precedence of a new operator can be specified in comparison to to existing
+operators:
+
+    multi sub infix:<foo> is equiv(&infix:<+>) { ...  }
+    mutli sub infix:<bar> is tighter(&infix:<+>) { ... }
+    mutli sub infix:<baz> is looser(&infix:<+>) { ... }
+
+=head2 Associativity
+
+Most infix operators take only two arguments. In an expression like 
+C<1 / 2 / 4> the I<associativity> of the operator decides the order of
+evaluation. The C<< infix:</> >> operator is left associative, so this
+expression is parsed as C<(1 / 2) / 4>. for a right associative operator like
+C<< infix:<**> >> (exponentation) C<2 ** 2 ** 4> is parsed as
+C<2 ** (2 ** 4)>.
+
+Perl 6 has more associativities: C<non> forbids chaining of operators of the
+same precedence (for example C<< 2 <=> 3 <=> 4 >> is forbidden), and
+C<< infix:<,> >> has C<list> associativity. C<1, 2, 3> is translated to
+C<< infix:<,>(1; 2; 3) >>. Finally there's the C<chain> associativity:
+C<< $a < $b < $c >> translates to C<($a < $b) && ($b < $c)>.
+
+    multi sub infix:<foo> is tighter(&infix:<+>)
+                          is assoc('left')
+                          ($a, $b) {
+        ...
+    }
+
+=head2 Postfcircumfix and Circumfix 
+
+Postfcircumfix operators are method calls:
+
+    class OrderedHash is Hash {
+        method postcircumfix:<{ }>(Str $key) {
+            ...
+        }
+    }
+
+If you call that as C<$object[$stuff]>, C<$stuff> will be passed as an
+argument to the method, and C<$object> is available as C<self>.
+
+Circumfix operators usually imply a different syntax (like in
+C<< my @list = <a b c>; >>), and are thus implemented as macros:
+
+    macro circumfix:«< >»($text) is parsed / <-[>]>+ / {
+        return $text.comb(rx/\S+/);
+    }
+
+The C<is parsed> trait is followed by a regex that parses everything between
+the delimiters. If no such rule is given, it is parsed as normal Perl 6 code
+(which is usually not what you want if you introduce a new syntax).
+C<Str.comb> searches for occurences of a regex and returns a list of the text
+of all matches. 
+
+=head2 "Overload" existing operators
+
+Most (if not all) existing operators are multi subs or methods, and can
+therefore be customized for new types. Adding a multi sub is the way of
+"overloading" operators.
+
+    class MyStr { ... }
+    multi sub infix:<~>(MyStr $this, Str $other) { ... }
+
+This means that you can write objects that behave just like the built in
+"special" objects like C<Str>, C<Int> etc.
+
+=head1 MOTIVATION
+
+Allowing the user to declare new operators and "overload" existing ones makes
+user defined types just as powerful and useful as built in types. If the built
+in ones turn out to be insufficient, you can replace them with new ones that
+better fit your situation, without changing anything in the compiler.
+
+It also removes the gap between using a language and modifying the language.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S06.html#Operator_overloading>
+
+If you are interested in the technical background, ie how Perl 6 can implement
+such operator changes and other grammar changes, read
+L<http://perlgeek.de/en/article/mutable-grammar-for-perl-6>.

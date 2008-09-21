@@ -1,0 +1,65 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 14 - The MAIN sub
+
+=head1 SYNOPSIS
+
+  # file doit.pl
+
+  #!/usr/bin/perl6
+  sub MAIN($path, :$force, :$recursive, :$home = glob("~/")) {
+      # do stuff here
+  }
+
+  # command line
+  $ ./doit.pl --force --home=/home/someoneelse file_to_process
+
+=head1 DESCRIPTION
+
+Calling subs and running a typical unix program from the command line is
+visually very similar: you can have positional, optional and named arguments.
+
+You can benefit from it, because Perl 6 can process the command line for you,
+and turn it into a sub call. Your script is normally executed (at which time
+it can munge the command line arguments stored in C<@*ARGS>), and then the sub
+C<MAIN> is called, if it exists.
+
+If the sub can't be called because the command line arguments don't match the
+formal parameters of the C<MAIN> sub, an automatically generated usage message
+is printed.
+
+Command line options map to subroutine arguments like this:
+
+  -name                   :name
+  -name=value             :name<value>
+
+  # remember, <...> is like qw(...)
+  -hackers=Larry,Damian   :hackers<Larry Damian>  
+
+  --good_language         :good_language
+  --good_lang=Perl        :good_lang<Perl>
+  --bad_lang PHP          :bad_lang<PHP>
+
+  +stuff                  :!stuff
+  +stuff=healty           :stuff<healthy> but False
+
+The C<$x = $obj but False> means that C<$x> is a copy of C<$obj>, but gives
+C<Bool::False> in boolean context.
+
+So for simple (and some not quite simple) cases you don't need an external
+command line processor, but you can just use sub C<MAIN> for that.
+
+=head1 MOTIVATION
+
+The motivation behind this should be quite obvious: it makes simple things
+easier, similar things similar, and in many cases reduces command line
+processing to a single line of code: the signature of C<MAIN>.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S06.html#Declaring_a_MAIN_subroutine> contains the
+specification.
+
+=cut
+
+# vim: ft=pod sw=2

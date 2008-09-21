@@ -1,0 +1,114 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 07 - Junctions
+
+=head1 SYNOPSIS
+
+    if $x eq 3|4 {
+        say '$x is either 3 or 4'
+    }
+    say ((2|3|4)+7).perl        # (9|10|11)
+
+=head1 DESCRIPTION
+
+Junctions are superpositions of unordered values. Operations on junctions are
+executed for each item of the junction separately (and maybe even in
+parallel), and the results are assembled in a junction of the same type.
+
+The junction types only differ when evaluated in boolean context. The types
+are C<any>, C<all>, C<one> and C<none>. 
+
+    Type    Infix operator
+    any     |
+    one     ^
+    all     &
+
+C<1 | 2 | 3> is the same as C<any(1..3)>.
+
+    my Junction $weekday = any <Monday Tuesday Wednesday 
+                                Thursday Friday Saturday Sunday>
+    if $day eq $weekday {
+        say "See you on $day";
+    }
+
+In this example the C<eq> operator is called with each pair C<$day, 'Monday'>,
+C<$day, 'Tuesday'> etc. and the result is put in an C<any>-Junction again. As
+soon as the result is determined (in this case, as soon as one comparison
+returns C<True>) it can abort the execution of the other comparisons.
+
+This works not only for operators, but also for subs:
+
+    if 2 == sqrt(4 | 9 | 16) {
+        say "YaY";
+    }
+
+To make this possible, junctions stand outside the normal type hierarchy (a
+bit): 
+
+                    Object
+                   /      \
+                 Any     Junction
+               /  |  \
+            All other types
+
+If you want to write a sub that takes a junction and doesn't autothread over
+it, you have to declare the type of the parameter either as C<Object> or
+C<Junction>
+
+    sub dump_yaml(Object $stuff) {
+        # we hope that YAML can represent junctions ;-)
+        ....
+    }
+
+A word of warning: Junctions can behave counter-intuitive sometimes. With
+non-junction types C<$a != $b> and C<!($a == $b)> always mean the same thing.
+If one of these variables is a junction, that might be different:
+
+    my Junction $b = 3 | 2;
+    my $a = 2; 
+    say "Yes" if   $a != $b ;       # Yes
+    say "Yes" if !($a == $b);       # no output
+
+C<2 != 3> is true, thus C<$a != 2|3> is also true. On the other hand the 
+C<$a == $b> comparion returns a single Bool value (C<True>), and the negation
+of that is C<False>.
+
+=head1 MOTIVATION
+
+Perl aims to be rather close to natural languages, and in natural language
+you often say things like "if the result is $this or $that" instead of saying
+"if the result is $this or the result $that". Most programming languages only
+allow (a translation of) the latter, which feels a bit clumsy. With junctions
+Perl 6 allows the former as well.
+
+It also allows you to write many comparisons very easily that otherwise
+require loops.
+
+As an example, imagine an array of numbers, and you want to know if all of
+them are non-negative. In Perl 5 you'd write something like this:
+
+    # Perl 5 code:
+    my @items = get_data();
+    my $all_non_neg = 1;
+    for (@items){
+        if ($_ < 0) {
+            $all_non_neg = 0;
+            last;
+        }
+    }
+    if ($all_non_neg) { ... }
+
+Or if you happen to know about C<List::MoreUtils>
+
+    use List::MoreUtils qw(all);
+    my @items = get_data;
+    if (all { $_ >= 0 } @items) { ...  }
+
+In Perl 6 that is short and sweet:
+
+    my @items = get_data();
+    if all(@items) >= 0 { ... }
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S03.html#Junctive_operators>

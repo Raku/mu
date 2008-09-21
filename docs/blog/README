@@ -1,0 +1,9 @@
+This directory contains the POD files from which the blog entries at
+http://perlgeek.de/blog-en/perl-5-to-6/ were generated.
+
+Feel free to use them for your own purposes, under the same terms as perl or
+pugs itself (you may choose).
+
+These files are not automatically synced with the blog, so if you want to push
+some changes to the blog, you have to contact moritz_ on #perl6 (or see the
+AUTHORS file in pugs root dir for the email address).

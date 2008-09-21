@@ -1,0 +1,174 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 05 - Objects and Classes
+
+=head1 SYNOPSIS
+
+    class Shape {
+        method area { ... }    # literal '...'
+        has $.colour is rw;
+
+    }
+
+    class Rectangle is Shape {
+        has Num $.width;
+        has Num $.height;
+
+        method area {
+            $!width * $!height;
+        }
+    }
+
+    my $x = Rectangle.new(
+            width   => 30,
+            height  => 20,
+            colour  => 'black',
+        );
+    say $x.area;                # 600
+    say $x.colour;              # black
+    $x.colour = 'blue';
+
+=head1 DESCRIPTION
+
+Perl 6 has an object model that is much more fleshed out than the Perl 5 one.
+It has keywords for creating classes, roles, attributes and methods, and has
+encapsulated private attributes and methods.
+
+There are two ways to declare classes
+
+    class ClassName;
+    # class definition goes here
+
+The first one begins with C<class ClassName;> and stretches to the end of the
+file. In the second one the class name is followed by a block, and all that is
+inside the blocks is considered to be the class definition.
+
+    class YourClass {
+        # class definition goes here
+    }
+    # more classes or other code here
+
+=head2 Methods
+
+Methods are declared with the C<method> key word. Inside the the method you
+can use the C<self> keyword to refer to the object on which the method is
+called (the invocant).
+
+You can also give the invocant a different name by adding a first parameter to
+the signature list and append a colon C<:> to it.
+
+Public methods can be called with the syntax C<$object.method> if it takes no
+arguments, and C<$object.method(@args)> or C<$object.method: @args> if it
+takes arguments.
+
+    class SomeClass {
+        # these two methods do nothing but return the invocant
+        method foo {
+            return self;
+        }
+        method bar($s: ) {
+            return $s;
+        }
+    }
+    my SomeClass $x .= new;
+    $x.foo.bar                      # same as $x
+
+(The C<my SomeClass $x .= new> is actually a shorthand for 
+C<my SomeClass $x .= SomeClass.new>. It works because the type declaration
+fills the variable with a "proto object" of C<SomeClass>, which is an object
+representation of the the type.)
+
+Methods can also take additional arguments just like subs.
+
+Private methods can be declared with C<my method>, and called with
+C<self!method_name>.
+    
+    class Foo {
+        my method private($frob) {
+            return "Frobbed $frob";
+        }
+
+        method public {
+            say self!private("foo");
+        }
+    }
+
+Private methods can't be called from outside the class.
+
+=head2 Attributes
+
+Attributes are declared with the C<has> key word, and have a "twigil", that is
+a special character after the sigil. For private attributes that's a bang C<!>, 
+for public attributes it's the dot C<.>. Public attributes are just private
+attributes with a public accessor.
+
+    class SomeClass {
+        has $!a;
+        has $.b;
+        has $.c is rw;
+
+        method do_stuff {
+            # you can use the private name instead of the public one
+            # $!b and $.b are really the same thing
+            return $!a + $!b + $!c;
+        }
+    }
+    my $x = SomeClass.new;
+    say $x.a;       # ERROR!
+    say $x.b;       # ok
+    $x.b = 2;       # ERROR!
+    $x.c = 3;       # ok
+
+=head2 Inheritance
+
+Inheritance is done through an C<is> trait.
+
+    class Foo is Bar { 
+        # class Foo inherits from class Bar
+        ...
+    }
+
+All the usual inheritance rules apply - methods are first looked up on the
+direct type, and if that fails, on the parent class (recursively). Likewise
+the type of a child class is conformant to that of a parent class:
+
+        class Bar { }
+        class Foo is Bar { }
+        my Bar $x = Foo.new();
+        
+In this example the type of C<$x> is C<Bar>, and it is allowed to assign an
+object of type C<Foo> to it, because "every C<Foo> is a C<Bar>".
+
+Classes can inherit from multiple other classes:
+
+    class ArrayHash is Hash is Array { 
+        ...
+    }
+
+=head2 Roles and Composition
+
+In general the world isn't hierarchical, and thus sometimes it's hard to press
+everything into an inheritance hierarchy. Which is one of the reasons why Perl
+6 has Roles. Roles are quite similar to classes, except you can't create
+objects directly from them. While classes are intended primarily for type
+conformance, roles are the primary means for code reuse in Perl 6.
+
+    role Paintable {
+        has $.colour is rw;
+        method paint { ... }
+    }
+    class Shape {
+        method area { ... }
+    }
+
+    class Rectangle is Shape does Paintable {
+        has $.width;
+        has $.height;
+        method area {
+            $!width * $!height;
+        }
+    }
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S12.html>

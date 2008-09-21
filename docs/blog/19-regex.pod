@@ -1,0 +1,144 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 19 - Regexes strike back
+
+=head1 SYNOPSIS
+
+    # normal matching:
+    if 'abc' ~~ m/../ {
+        say $/;                 # ab
+    }
+
+    # match with implicit :sigspace modifier
+    if 'ab cd ef'  ~~ mm/ (..) ** 2 / {
+        say $1;                 # cd
+    }
+
+    # substitute with the :sigspace modifier
+    my $x = "abc     defg";
+    $x ~~ ss/c d/x y/;
+    say $x;                     # abx     yefg
+
+=head1 DESCRIPTION
+
+Since the basics of regexes are already covered in lesson 07, here are some
+useful (but not very structured) additional facts about Regexes.
+
+=head2 Matching
+
+You don't need to write grammars to match regexes, the traditional form
+C<m/.../> still works, and has a new brother, the C<mm/.../> form, which
+implies the the C<:sigspace> modifier. Remember, that means that whitespaces
+in the regex are substituted by the C<< <.ws> >> rule. 
+
+The default for the rule is to match C<\s+> if it is surrounded by two
+word-characters (ie those matching those C<\w>), and C<\s*> otherwise.
+
+In substitutions the C<:samespace> modifier takes care that whitespaces
+matched with the C<ws> rule are preserved. Likewise the C<:samecase> modifier,
+short C<:ii> (since it's a variant of C<:i>) preserve case.
+
+    my $x = 'Abcd';
+    $x ~~ s:ii/^../foo/;
+    say $x;                     # Foocd
+    $x = 'ABC'
+    $x ~~ s:ii/^../foo/;
+    say $x                      # FOO
+
+This is very useful if you want to globally rename your module C<Foo>, to
+C<Bar>, but for example in environment variables it is written as all
+uppercase. With the C<:ii> modifier the case is automatically preserved. 
+
+It copies case information on a character by character. But there's also a
+more intelligent version; when combined with the C<:sigspace> (short C<:s>)
+modifier, it tries to find a pattern in the case information of the source
+string. Recognized are C<.lc>, C<.uc>, C<.lc.ucfirst>, C<.uc.lcfirst> and
+C<.lc.capitaliz> (C<Str.capitalize> uppercases the first character of each
+word). If such a pattern is found, it is also applied to the substitution
+string.
+
+    my $x = 'The Quick Brown Fox';
+    $x ~~ s :s :ii /brown.*/perl 6 developer/;
+    # $x is now 'The Quick Perl 6 Developer'
+
+=head2 Alternations
+
+Alternations are still formed with the single bar C<|>, but it means something
+else than in Perl 5. Instead of sequentially matching the alternatives and
+taking the first match, it now matches all alternatives in parallel, and takes
+the longest one.
+
+    'aaaa' ~~ m/ a | aaa | aa /;
+    say $/                          # aaa
+
+While this might seem like a trivial change, it has far reaching conseqeunces,
+and is crucial for extensible grammars. Since Perl 6 is parsed using a Perl 6
+grammar, it is responsible for the fact that in  C<++$a> the C<++> is parsed
+as a single token, not as two C<< prefix:<+> >> tokens.
+
+The old, sequential style is still available with C<||>:
+
+    grammar Math::Expression {
+        token value {
+            | <number>
+            | '(' 
+              <expression> 
+              [ ')' || { fail("Parenthesis not closed") } ]
+        }
+
+        ...
+    }
+
+The C<{ ... }> execute a closure, and calling C<fail> in that closure makes
+the expression fail. That branch is guaranteed to be executed only if the
+previous (here the C<')'>) fails, so it can be used to emit useful error
+messages while parsing.
+
+There are other ways to write alternations, for example if you "interpolate"
+an array, it will match as an alternation of its values:
+
+    $_ = '12 oranges';
+    my @fruits = <apple organge banana kiwi>;
+    if m:i:s/ (\d+) (@fruits)s? / {
+        say "You've got $0 $1, I've got { $0 + 2 } of them. You lost.";
+    }
+
+There is yet another construct that automatically matches the longest
+alternation: mutli regexes. They can be either written as
+C<multi token name> or with a C<proto>:
+
+    grammar Perl {
+        ...
+        proto token sigil { ... }
+        token sigil:sym<$> { <sym> }
+        token sigil:sym<@> { <sym> }
+        token sigil:sym<%> { <sym> }
+        ...
+
+       token variable { <sigil> <twigil>? <identifier> }
+   }
+
+This example shows multiple tokens called C<sigil>, which are parameterized by
+C<sym>. When the short name, ie C<sigil> is used, all of these tokens are
+matched in an alternation. You may think that this is a very inconvenient way
+to write an alternation, but it has a huge advantage over writing
+C<'$'|'@'|'%'>: it is easily extensible:
+
+    grammar AddASigil is Perl {
+        token sigil:sym<!> { <sym> }
+    }
+    # wow, we have a Perl 6 grammar with an additional sigil!
+
+Likewise you can override existing alternatives:
+
+    grammar WeirdSigil is Perl {
+        token sigil:sym<$> { '°' }
+    }
+
+In this grammar the sigil for scalar variables is C<°>, so whenever the
+grammar looks for a sigil it searches for a C<°> instead of a C<$>, but the
+compiler will still know that it was the regex C<< sigil:sym<$> >> that
+matched it.
+
+In the next lesson you'll see the development of a real, working grammar with
+Rakudo.

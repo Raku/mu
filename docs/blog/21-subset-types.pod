@@ -1,0 +1,54 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 21 - Subset Types
+
+=head1 SYNOPSIS
+
+    subset Squares of Int where { .sqrt.int**2 == $_ };
+
+    multi sub square_root(Squares $x --> Int) {
+        return int $x.sqrt;
+    }
+    multi sub square_root(Num $x --> Num) {
+        return $x.sqrt;
+    }
+
+=head1 DESCRIPTION
+
+Java programmers tend to think of a type as either a class or an interface
+(which is something like a crippled class), but that view is too limited for
+Perl 6. A type is more generally a constraint of what a values a container can
+containt. The "classical" constraint is 
+I<it is an object of a class C<X> or of a class that inherits from C<X>>. Perl
+6 also has constraints like I<the class or the object does role C<Y>>, or
+I<this piece of code returns true for our object>. The latter is the most
+general one, and is called a I<subset> type:
+
+    subset Even of Int where { $_ % 2 == 0 }
+    # Even can now be used like every other type name
+
+    my Even $x = 2;
+    my Even $y = 3; # type missmatch error
+
+(Try it out, Rakudo implements subset types already, but not yet mulit
+dispatch based on subset types).
+
+You can also use anonymous subtypes in signatures:
+
+    sub foo (Int where { ... } $x) { ... }
+    # or with the variable at the front:
+    sub foo ($x of Int where { ... } ) { ... }
+
+=head1 MOTIVATION
+
+Allowing arbitrary type constraints in the form of code allows ultimate
+extensibility: if you don't the current type system, you can just roll your
+own based on subset types.
+
+It also makes libraries easier to extend: instead of dying on data that can't
+be handled, the subs and methods can simple declare their types in a way that
+"bad" data is rejected by the multi dispatcher. If somebody wants to handle
+data that the previous implementation rejected as "bad", he can simple add a
+multi sub with the same name that accepts the data. For example a math library
+that handles real numbers could be enhanced this way to also handle complex
+numbers.

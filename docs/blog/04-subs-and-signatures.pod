@@ -1,0 +1,200 @@
+=head1 NAME
+
+"Perl 5 to 6" Lesson 04 - Subroutines and Signatures
+
+=head1 SYNOPSIS
+
+    # sub without a signature - perl 5 like
+    sub print_arguments {
+        say "Arguments:";
+        for @_ {
+            say "\t$_";
+        }
+    }
+
+    # Signature with fixed arity and type:
+    sub distance(Num $x1, Num $y1, Num $x2, Num $y2) {
+        return sqrt ($x2-$x1)**2 + ($y2-$y1)**2;
+    }
+    say distance(3, 5, 0, 1); 
+
+    # Default arguments
+    sub logarithm($num, $base = 2.7183) {
+        return log($num) / log($base)
+    }
+    say logarithm(4);       # uses default second argument
+    say logarithm(4, 2);    # explicit second argument
+
+    # named arguments
+
+    sub doit(:$when, :$what) {
+        say "doing $what at $when";
+    }
+    doit(what => 'stuff', when => 'once');  # 'doing stuff at once'
+    doit(:when<noon>, :what('more stuff')); # 'doing more stuff at noon'
+    # illegal: doit("stuff", "now")
+
+=head1 DESCRIPTION
+
+Subroutines are declared with the C<sub> key word, and can have a list of
+formal parameters, just like in C, Java and most other languages. Optionally
+these parameters can have type constraints.
+
+Parameters are read-only by default. That can be changed with so-called
+"traits":
+
+    sub foo($bar) {
+        $bar = 2;       # forbidden
+    }
+
+    my $x = 2;
+    sub baz($bar is rw) {
+        $bar = 0;         # allowed
+    }
+    baz($x); say $x;    # 0
+
+    sub quox($bar is copy){
+        $bar = 3;
+    }
+    quox($x); say $x    # 0
+
+Parameters can be made optional by adding a question mark C<?> after them, or
+by supplying a default value.
+
+    sub foo($x, $y?) {
+        if $y.defined {
+            say "WE CAN HAZ $y"
+        }
+    }
+
+    sub bar($x, $y = 2 * $x) { 
+        ...
+    }
+
+=head2 Named Parameters
+
+When you invoke a subroutine like this: C<my_sub($first, $second)> the
+C<$first> argument is bound to the first formal parameter, the C<$second>
+argument to the second parameter etc., which is why they are called
+"positional".
+
+Sometimes it's easier to remeber names than numbers, which is why Perl 6 also
+has named parameters:
+
+    my $r = Rectangle.new( 
+            x       => 100, 
+            y       => 200, 
+            height => 23,
+            width  => 42,
+            color  => 'black'
+    );
+
+When you see something like this, you immediately know what the specific
+arguments mean.
+
+To define a named parameter, you simply put a colon C<:> before the parameter
+in the signature list:
+
+    sub area(:$width, :$height) {
+        return $width * $height;
+    }
+    area(width => 2,  height => 3);
+    area(height => 3, width => 2 ); # the same
+    area(:height<3>, :width<2>);    # the same
+
+In these the variable name is used as the name. You can use a different name,
+though:
+
+    sub area(:width($w), :height($h)){
+        return $w * $h;
+    }
+    area(width => 2,  height => 3);
+
+
+Named arguments can only be passed by name, not by position. On the other
+hand, positional arguments can be passed by name by default.
+
+    sub sqrt($number) { ... };
+    sqrt(3);
+    sqrt(number => 3); # also works
+
+=head2 Slurpy Arguments
+
+Just because you give your sub a signature doesn't mean you have to know the
+number of arguments in advance. You can define so-called slurpy parameters
+(after all the regular ones) which use up any remaining arguments:
+
+    sub tail ($first, *@rest){
+        say "First: $first";
+        say "Rest: @rest[]";
+    }
+    tail(1, 2, 3, 4);           # "First: 1\nRest: 2 3 4\n"
+
+=head2 Interpolation
+
+By default arrays aren't interpolated in argument lists, so unlike in Perl 5
+you can write something like this:
+
+    sub a($scalar1, @list, $scalar2){
+        say $scalar2;
+    }
+
+    my @list = "foo", "bar";
+    a(1, @list, 2);                  # 2
+
+That also means that by default you can't use a list as an argument list:
+
+    my @indexes = 1, 4;
+    say "abc".substr(@indexes)       # error!
+
+You can achieve the desired behaviour with a prefix C<|>
+
+    say "abcdefgh".substr(|@indexes) # bcde
+
+=head2 Multi Subs
+
+You can actually define multiple subs with the same name but with different
+parameter lists:
+
+    multi sub my_substr($str) { ... }                          # 1
+    multi sub my_substr($str, $start) { ... }                  # 2
+    multi sub my_substr($str, $start, $end) { ... }            # 3
+    multi sub my_substr($str, $start, $end, $subst) { ... }    # 4
+
+Now whenever you call such a sub, the one with the matching parameter list
+will be chosen.
+
+The multis don't have to differ in the arity (ie number of arguments), they
+can also differ in the type of the parameters:
+
+    multi sub frob(Str $s) { say "Frobbing String $s"  }
+    multi sub frob(Int $i) { say "Frobbing Integer $i" }
+
+    frob("x")       # Frobbing String x
+    frob(2)         # Frobbing Inteteger 2
+
+=head1 MOTIVATION
+
+Nobody will doubt the usefulness of explicit sub signatures: less typing, less
+duplicate argument checks, and more self-documenting code. The value of named
+parameters has also been discussed already.
+
+Multi subs are very useful because they allow builtins to be overridden for
+new types. Let's assume you want a version of Perl 6 which is localized to
+handle turkish strings correctly, which have unsual rules for case
+conversions.
+
+Instead of modifying the language, you can just introduce a new type
+C<TurkishStr>, and add multi subs for the builtin functions:
+
+    sub uc(TurkishStr $s) { ... }
+
+Now all you have to do is to take care that your strings have the type that
+corresponds to their language, and then you can use C<uc> just like the normal
+builtin function.
+
+Since operators are also subs, that refinement works for operators too.
+
+=head1 SEE ALSO
+
+L<http://perlcabal.org/syn/S06.html>
