@@ -41,7 +41,6 @@ typedef struct smop_mold_frame {
   SMOP__Object* mold;
   int position;
   SMOP__Object* back;
-  SMOP__Object* ctx;
   SMOP__Object** registers;
   int target;
 } smop_mold_frame;
@@ -92,7 +91,6 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* m
     ret->mold = mold_object;
     ret->position = 0;
     ret->back = NULL;
-    ret->ctx = SMOP__NATIVE__bool_false;
     ret->registers = (SMOP__Object**) calloc(mold->registers,sizeof(SMOP__ResponderInterface)); 
     ret->target = 0;
 

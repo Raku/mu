@@ -62,6 +62,13 @@ SMOP__Object* SMOP__S1P__Array_Iterator_create(SMOP__Object* input_array);
 #define ___INVOCANT_RI_SHOULD_MATCH___ \
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture); \
     assert(SMOP_RI(invocant) == (SMOP__ResponderInterface*)self)
+#define ___VALUE_FETCH___\
+    ret = invocant;
+#define ___VALUE_STORE___ \
+    { \
+    fprintf(stderr, "can't call STORE or an read-only value at %s line %d file %s\n",__func__,__LINE__,__FILE__); \
+    abort(); \
+    } 
 
 #define ___UNKNOWN_METHOD___ \
     { \

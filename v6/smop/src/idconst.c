@@ -53,11 +53,27 @@ static int cmp_idconst(const void* p1, const void* p2) {
   }
 }
 
-static SMOP__Object* idconst_message(SMOP__Object* stack,
+static SMOP__Object* idconst_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
-  ___UNKNOWN_METHOD___;
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
+
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+
+  if (SMOP__ID__FETCH == identifier) {
+    ___VALUE_FETCH___;
+  } else if (SMOP__ID__STORE == identifier) {
+    ___VALUE_STORE___;
+  } else {
+    ___UNKNOWN_METHOD___;
+  }
+
+  SMOP_RELEASE(interpreter,invocant);
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
 }
 
 static SMOP__Object* idconst_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {

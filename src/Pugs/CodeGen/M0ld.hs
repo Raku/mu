@@ -87,24 +87,27 @@ instance EmitM0ld Val where
     emit (VStr str) r = return $ "my " ++ r ++ " = " ++ (show str) ++ ";\n"
     emit other r = placeholder other r
 
+fetch expr r = do
+    scalar <- uniqueId
+    expr_code <- expr scalar 
+    return $ expr_code ++ "my " ++ r ++ " = " ++ scalar ++ ".\"FETCH\"();\n";
+
 methodCall inv method args r = do
     inv_r <- uniqueId
-    inv_code <- emit inv inv_r
+    inv_code <- fetch (emit inv) inv_r
     args <- mapM (\arg -> do
-        id <- uniqueId
-        code <- emit arg id
-        return (code,id)) args
+        arg_id <- uniqueId
+        arg_code <- fetch (emit arg) arg_id
+        return (arg_code,arg_id)) args
     return (inv_code ++ (concat $ fmap fst args) ++ "my " ++ r ++ " = " ++ inv_r ++ ".\"" ++ method ++ "\"(" ++ (concat $ fmap snd args) ++ ");\n")
+
 instance EmitM0ld PIL_LValue where
     emit lvalue r = case lvalue of
         PApp {pFun=fun,pArgs=args,pInv=Nothing} ->
             methodCall fun "postcircumfix:( )" args r
         PApp {pFun=PExp {pLV = PVar {pVarName = '&':method}},pArgs=args,pInv=Just inv} ->
             methodCall inv method args r
-        PVar {pVarName=name} -> do
-            scalar <- uniqueId
-            return $ "my " ++ scalar ++ " = $scope.\"lookup\"(\"" ++ name ++ "\");\n"
-                ++ "my " ++ r ++ " = " ++ scalar ++ ".\"FETCH\"();\n"
+        PVar {pVarName=name} -> return $ "my " ++ r ++ " = $scope.\"lookup\"(\"" ++ name ++ "\");\n"
         other -> return $ (show other) ++ ";\n"
 
 genM0ld :: FilePath -> Eval Val

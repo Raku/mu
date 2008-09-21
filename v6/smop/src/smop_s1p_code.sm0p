@@ -93,6 +93,10 @@ static SMOP__Object* lowlevel_code_message(SMOP__Object* interpreter,
     if (signature) SMOP_RELEASE(interpreter,signature);
     if (outer) SMOP_RELEASE(interpreter,outer);
 
+  } else if (SMOP__ID__FETCH == identifier) {
+    ___VALUE_FETCH___;
+  } else if (SMOP__ID__STORE == identifier) {
+    ___VALUE_STORE___;
   } else {
     ___UNKNOWN_METHOD___;
   }
