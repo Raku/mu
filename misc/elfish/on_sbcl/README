@@ -27,8 +27,6 @@ Mostly because the p6 oo spec seems still in flux.  Longer-term, with
 CL we have speed to burn, and can spend it on correctness.
 
 Use CL-PPCRE for regexps.
-Use PACKAGEs as symbol tables, a flat namespace partitioning symbol space,
-but not for interpackage linkage.
 
 Next steps include fleshing out language features needed by elf,
 and definition of primitives (Array, Hash, etc).
@@ -54,4 +52,4 @@ NOTES
   time ./deleteme_exe
   time perl -e 'sub fib{my($n)=@_;if($n==0){0}elsif($n==1){1}else{fib($n-1)+fib($n-2)}};print fib(37),"\n";'
   # elf was previously 10x faster than p5, using native + on native integers.
-  # This dropped to 3x with multi infix:<+> on native integers.
+  # This dropped to 3x with non-multi infix:<+> on native integers.
