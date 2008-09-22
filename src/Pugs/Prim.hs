@@ -2011,7 +2011,7 @@ initSyms = seq (length syms) $ do
 \\n   Any       pre     redo    safe   (?Int=1)\
 \\n   Any       pre     continue    safe   (?Int=1)\
 \\n   Any       pre     break    safe   (?Int=1)\
-\\n   Any       pre     exit    unsafe (?Int=0)\
+\\n   Any       pre     exit    safe   (?Int=0)\
 \\n   Any       pre     srand   safe   (?Num)\
 \\n   Num       pre     rand    safe   (?Num=1)\
 \\n   Bool      pre     defined safe   (Any)\
