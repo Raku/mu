@@ -29,6 +29,7 @@ void smop_s1p_root_namespace_init() {
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Mold", SMOP__Mold);
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::MoldFrame", SMOP__Mold__Frame);
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code", SMOP__S1P__Code);
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Scalar", SMOP__S1P__Scalar);
 }
 
 void smop_s1p_root_namespace_destr() {

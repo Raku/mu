@@ -25,6 +25,7 @@ import Pugs.Monads
 import Pugs.PIL1
 import Language.PIR
 import Text.PrettyPrint
+import qualified Data.ByteString.Char8 as BS
 
 tcVoid, tcLValue :: TCxt
 tcVoid      = TCxtVoid
@@ -383,6 +384,7 @@ compConditional exp = compError exp
 _PVar :: Var -> PIL_LValue
 _PVar = PVar . cast
 
+addPad stmt entry = PPad{pStmts=stmt,pScope=SMy,pSyms=[((BS.unpack $ cast $ fst entry),PRawName "...")]}
 {-| Compiles various 'Exp's to 'PIL_Expr's. -}
 instance Compile Exp PIL_Expr where
     compile (Ann Pos{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
@@ -398,12 +400,12 @@ instance Compile Exp PIL_Expr where
         cxt     <- askTCxt
         bodyC   <- compile body
         return $ PExp $ PApp cxt (pBlock bodyC) Nothing []
-    compile (Syn "sub" [Val (VCode sub)]) = do
+    compile (Syn "sub" [Val (VCode sub)]) =  do
         bodyC   <- enter sub $ compile $ case subBody sub of
             Syn "block" [exp]   -> exp
             exp                 -> exp
         paramsC <- compile $ subParams sub
-        return $ PCode (subType sub) paramsC (subLValue sub) (isMulti sub) bodyC
+        return $ PCode (subType sub) paramsC (subLValue sub) (isMulti sub) (foldl addPad bodyC (padToList $ subInnerPad sub))
     compile (Syn "module" _) = compile Noop
     compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
     compile (Syn "//" exp) = compile $ Syn "rx" exp

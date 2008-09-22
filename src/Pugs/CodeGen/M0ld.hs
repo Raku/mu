@@ -27,10 +27,17 @@ setupTopmostScope =
     ++ "my $OUT_scalar = $scope.\"postcircumfix:{ }\"(\"$*OUT\");\n"
     ++ "$void = $OUT_scalar.\"STORE\"($OUT_root);\n"
     ++ "\n"
+
     ++ "my $Code_scalar = $scope.\"postcircumfix:{ }\"(\"Code\");\n"
     ++ "my $Code_root_scalar = ?SMOP__S1P__RootNamespace.\"postcircumfix:{ }\"(\"::Code\");\n"
     ++ "my $Code = $Code_root_scalar.\"FETCH\"();\n"
     ++ "$void = $Code_scalar.\"STORE\"($Code);\n"
+
+    ++ "my $Scalar_scalar = $scope.\"postcircumfix:{ }\"(\"Scalar\");\n"
+    ++ "my $Scalar_root_scalar = ?SMOP__S1P__RootNamespace.\"postcircumfix:{ }\"(\"::Scalar\");\n"
+    ++ "my $Scalar = $Scalar_root_scalar.\"FETCH\"();\n"
+    ++ "$void = $Scalar_scalar.\"STORE\"($Scalar);\n"
+
     ++ "\n"
     ++ "\n"
     ++ "##############################################################\n"
@@ -40,6 +47,8 @@ lexicalPrelude = "my $interpreter;\n"
             ++ "my $void;\n"
             ++ "my $Code_scalar = $scope.\"lookup\"(\"Code\");\n"
             ++ "my $Code = $Code_scalar.\"FETCH\"();\n"
+            ++ "my $Scalar_scalar = $scope.\"lookup\"(\"Scalar\");\n"
+            ++ "my $Scalar = $Scalar_scalar.\"FETCH\"();\n"
 
 instance EmitM0ld PIL_Environment where
     emit env r = do
@@ -48,7 +57,15 @@ instance EmitM0ld PIL_Environment where
 instance EmitM0ld PIL_Stmts where
     emit statement r = case statement of
         PNil                           -> return "nil"
-        PPad {}                        -> return "pad"
+        PPad {pStmts=rest,pScope=SMy,pSyms=[(var,_)]} -> do
+            new_scalar <- uniqueId
+            lexpad_cell <- uniqueId
+            rest <- emit rest r
+            return $
+                "my " ++ new_scalar ++ " = $Scalar.\"new\"();\n"
+                ++  "my " ++ lexpad_cell ++ " = $scope.\"postcircumfix:{ }\"(" ++ (show var) ++ ");\n"
+                ++ "my $void = " ++ lexpad_cell ++ ".\"STORE\"(" ++ new_scalar ++ ");\n"
+                ++ rest
         PStmts{pStmt=stmt,pStmts=PNil} -> emit stmt r
         PStmts{pStmt=stmt,pStmts=rest} -> do 
             stmt <- emit stmt void

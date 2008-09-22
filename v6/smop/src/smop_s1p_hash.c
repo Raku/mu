@@ -73,7 +73,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
 
       ret = SMOP_REFERENCE(interpreter,cell);
     } else {
-      fprintf(stderr,"wrong number of arguments to postrcicumfix:<{ }>\n");
+      fprintf(stderr,"wrong number of arguments to postcircumfix:<{ }>\n");
     }
 
   } else if (identifier == SMOP__ID__exists) {
