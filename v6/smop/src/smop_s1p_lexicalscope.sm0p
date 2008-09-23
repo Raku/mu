@@ -153,7 +153,7 @@ void smop_s1p_lexicalscope_mold_init() {
       else2:
         my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
         my $OUT = $OUT_SCALAR."FETCH"();
-        $void = $OUT."print"("no variable in the current scope");
+        $void = $OUT."print"("no variable ",$name," in the current scope\n");
   };
 
   mold_code_lookup = mold;

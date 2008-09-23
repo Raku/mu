@@ -19,6 +19,9 @@ module Pugs.Embed (
 import Pugs.Embed.Perl5
 import Pugs.Embed.Haskell
 import Pugs.Embed.Pugs
+#ifdef PUGS_HAVE_SMOP
+import Pugs.Embed.M0ld
+#endif
 
 evalEmbedded :: String -> String -> IO ()
 -- evalEmbedded "Pir" = evalParrot
@@ -32,4 +35,7 @@ evalEmbedded "Perl5" = \code -> do
     interp <- initPerl5 "" Nothing
     evalPerl5 code nullEnv 0
     freePerl5 interp
+#ifdef PUGS_HAVE_SMOP
+evalEmbedded "M0ld" = evalM0ld 
+#endif
 evalEmbedded s = const . fail $ "Cannot evaluate in " ++ s

@@ -153,6 +153,9 @@ extra-source-files:
 flag Perl5
     description: Enable Perl 5 Embedding
     default:     True
+flag SMOP
+    description: Enable SMOP Embedding
+    default:     False
 
 executable pugs
     main-is:            Main.hs
@@ -174,6 +177,10 @@ executable pugs
 
     if flag(Perl5)
         cpp-options: -DPUGS_HAVE_PERL5=1
+
+    if flag(SMOP)
+        extra-Libraries: smop
+        cpp-options: -DPUGS_HAVE_SMOP=1
 
     c-sources:
         src/cbits/Prelude_pm.c src/cbits/Test_pm.c
