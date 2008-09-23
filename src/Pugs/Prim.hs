@@ -518,7 +518,7 @@ op1 "Pugs::Internals::check_for_io_leak" = \v -> do
         fail $ "BEGIN and CHECK blocks may not return IO handles,\n" ++
                "as they would be invalid at runtime."
     return rv
-op1 "system" = \v -> do
+op1 "run" = \v -> do
     cmd         <- fromVal v
     exitCode    <- tryIO (ExitFailure (-1)) $ system (encodeUTF8 cmd)
     handleExitCode exitCode
@@ -1129,7 +1129,7 @@ op2 "Pugs::Internals::sprintf" = \x y -> do
        VInt i -> printf str i
        VStr s -> printf str s
        _      -> fail "should never be reached given the type declared below"
-op2 "system" = \x y -> do
+op2 "run" = \x y -> do
     prog        <- fromVal x
     args        <- fromVals y
     exitCode    <- tryIO (ExitFailure (-1)) $
@@ -2051,8 +2051,8 @@ initSyms = seq (length syms) $ do
 \\n   List      pre     slurp   unsafe (Handle)\
 \\n   List      pre     readdir unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::exec    unsafe (Str, Bool, List)\
-\\n   Int       pre     system  unsafe (Str)\
-\\n   Int       pre     system  unsafe (Str: List)\
+\\n   Int       pre     run  unsafe (Str)\
+\\n   Int       pre     run  unsafe (Str: List)\
 \\n   Bool      pre     binmode unsafe (IO: ?Int=1)\
 \\n   Void      pre     return  safe   ()\
 \\n   Void      pre     return  safe   (rw!Any)\
