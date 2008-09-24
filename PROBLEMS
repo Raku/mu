@@ -10,14 +10,14 @@ PROBLEM: "cpan -i Task::Smoke" fails because Test-TAP-Model-0.06 install fails.
 
 WORKAROUND: Force it with "cpan -if Task::TAP::Model".
 
-
+----------------------------------------------------------------------
 
 PROBLEM: Doesn't build under Debian; aborts with
 	"Setup: error reading ./.setup-config"
 
 WORKAROUND: Install libghc6-network-dev
 
-
+----------------------------------------------------------------------
 
 PROBLEM: make pugs fails at link time, with errors like
   "undefined reference to `PL_modglobal'".
@@ -55,3 +55,13 @@ version is very uncommon.
 
 There doesn't seem to be an easy way to detect this problem short of
 the current "try to link and see if it works".
+
+---------------------------------------------------------------------
+
+PROBLEM: perl Makefile.PL fails after "Preprocessing library zlib" 
+	 with an error like "Cannot install zlib: 256"
+
+SOLUTION: Please make sure that your $PATH contains ghc (6.8.2+) binaries 
+	  first, and then run 'perl Makefile.PL' again.
+
+----------------------------------------------------------------------
