@@ -37,5 +37,7 @@ evalEmbedded "Perl5" = \code -> do
     freePerl5 interp
 #ifdef PUGS_HAVE_SMOP
 evalEmbedded "M0ld" = evalM0ld 
+#else
+evalEmbedded "M0ld" = \code -> putStrLn "smop embedding is disabled use ./Setup configure --user --flags=SMOP"
 #endif
 evalEmbedded s = const . fail $ "Cannot evaluate in " ++ s
