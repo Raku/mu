@@ -79,12 +79,14 @@ package Evalbot;
             pugs => {
                 cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/pugs/pugs %program >> %out 2>&1',
             },
-            yap6 => \&exec_yap6,
+            m0ld => {
+                cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/pugs/pugs -Bm0ld %program >> %out 2>&1',
+            },
             std  => {
                 chdir       => '../../src/perl6',
                 cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
                 revision    => \&get_revision,
-                filter      => \&filter_std,
+#                filter      => \&filter_std,
             },
     );
 
