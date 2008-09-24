@@ -5,6 +5,8 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 import Debug.Trace
+import M0ld
+
 foreign import ccall "smop.h smop_init"
       smop_init :: IO ()
 foreign import ccall "smop.h smop_destr"
@@ -55,5 +57,5 @@ evalM0ld code = do
     root <- rootnamespace
     scalar <- call root (idconst "postcircumfix:{ }") [idconst "$*OUT"] []
     io <- call scalar (idconst "FETCH") [] []
-    call io (idconst "print") [idconst "pugs -Bm0ld doesn't fully work yet...\n"] []
+    call io (idconst "print") [idconst (dumpToC $ parseM0ld code)] []
     smop_destr
