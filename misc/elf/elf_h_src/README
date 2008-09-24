@@ -2,4 +2,4 @@ See ../README .
 
 
 # Fastest way to test a modified emitter...
-../elf_g EmitSimpleP5.pm -v -e 'test new emitter'
+../elf_h EmitSimpleP5.pm -v -e 'test new emitter'

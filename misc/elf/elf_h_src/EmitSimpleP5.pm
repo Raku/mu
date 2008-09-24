@@ -354,7 +354,7 @@ use warnings;
     return $e if $e;
     my $f = $0;
     $f =~ s/[^\/]+$//;
-    # $f."elf_g_src/STD_red/STD_red_run"
+    # $f."elf_h_src/STD_red/STD_red_run"
     $f."../STD_red/STD_red_run"
   }
 
@@ -564,7 +564,7 @@ package Main;
       elsif ($n.is_temp) {
         my $var = $n.var;
         my $nam = $.encode_varname($var.sigil,$var.twigil,$var.bare_name);
-        my $pkg = $n.var.package;
+        my $pkg = $n.notes<crnt_package>;
         ("\{ package "~$pkg~"; use vars '"~$nam~"'};"~
         'local'~' '~$.e($n.var)~$default)
       }

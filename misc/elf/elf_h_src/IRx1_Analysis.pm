@@ -154,6 +154,12 @@ class IRx1::MethodDecl {
     for $.child_nodes {$_.note_environment}
   }
 }
+class IRx1::VarDecl {
+  method note_environment() {
+    $.record_crnt_package;
+    for $.child_nodes {$_.note_environment}
+  }
+}
 class IRx1::Apply {
   method note_environment() {
     $.notes<lexical_bindings> = $whiteboard::lexical_bindings;
@@ -169,9 +175,9 @@ class IRx1::Var {
     } else {
       $.notes<is> = {};
     }
-    $.record_crnt_package;
+    $.record_crnt_package; #Caution - only for $?PACKAGE.
     my $g = $.name.re_groups('(?:(.+)::)?([^:]+)$');
-    $.notes<package> = $g[0] || $.notes<crnt_package>;
+    $.notes<package> = $g[0];
     #^ TODO resolve non-absolute package names
     $.notes<bare_name> = $g[1];
     for $.child_nodes {$_.note_environment}
@@ -194,7 +200,7 @@ class IRx1::Base {
 
 # info
 class IRx1::VarDecl {
-  method is_lexical() { $.scope eq 'my' }
+  method is_lexical() { $.scope eq 'my' or not($.var.package) }
   method is_context() { $.notes<is><context> }
   method is_temp() { $.notes<is><temp> }
   method name () { self.<var><name> }
@@ -220,7 +226,7 @@ class IRx1::Var {
   method package() { self.notes<package> }
   method crnt_package() { self.notes<crnt_package> }
   method is_context() { (self.<twigil>||'') eq '+' || $.notes<is><context> }
-  method is_temp() { $.notes<is><context> }
+  method is_temp() { $.notes<is><temp> }
 }
 class IRx1::PackageDecl {
   method path_is_absolute() { self.name && self.name.re_matchp('^GLOBAL\b') }

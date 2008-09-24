@@ -1,4 +1,4 @@
-pugs t/ svn revision: 22272
+pugs t/ svn revision: 22336
 -  80%	10  8 2		../../../t/01-sanity/01-tap.t
 ok	4		../../../t/01-sanity/02-counter.t
 ok	4		../../../t/01-sanity/03-equal.t
@@ -387,7 +387,7 @@ X  0%	13  0 		../../../t/spec/S02-names_and_variables/signature.t
 -C 0%	4  0 4		../../../t/spec/S02-polymorphic_types/subset-code.t
 -C 0%	6  0 6		../../../t/spec/S02-polymorphic_types/subset-range.t
 X  0%	45  0 		../../../t/spec/S02-whitespace_and_comments/comments.t
--d 0%	8  0 8		../../../t/spec/S02-whitespace_and_comments/minimal-whitespace.t
+-d 0%	7  0 7		../../../t/spec/S02-whitespace_and_comments/minimal-whitespace.t
 -d 0%	1  0 1		../../../t/spec/S02-whitespace_and_comments/one-pass-parsing.t
 X  0%	52  0 		../../../t/spec/S02-whitespace_and_comments/unicode-whitespace.t
 X  0%	76  0 		../../../t/spec/S02-whitespace_and_comments/unspace.t
@@ -481,7 +481,7 @@ X  0%	745  0 		../../../t/spec/S05-mass/rx.t
 -  29%	17  5 12	../../../t/spec/S05-match/blocks.t
 -C 0%	63  0 63	../../../t/spec/S05-metasyntax/angle-brackets.t
 ok	13		../../../t/spec/S05-metasyntax/changed.t
--  4%	23  1 1 21!	../../../t/spec/S05-metasyntax/charset.t
+-  4%	22  1 1 20!	../../../t/spec/S05-metasyntax/charset.t
 ok	3		../../../t/spec/S05-metasyntax/combchar.t
 -C 0%	35  0 35	../../../t/spec/S05-metasyntax/litvar.t
 -C 0%	21  0 21	../../../t/spec/S05-metasyntax/longest-alternative.t
@@ -502,6 +502,7 @@ X  0%	8  0 		../../../t/spec/S05-modifier/sameaccent.t
 -d 0%	9  0 9		../../../t/spec/S05-substitution/match.t
 -C 0%	12  0 12	../../../t/spec/S05-substitution/subst.t
 X  0%	49  0 		../../../t/spec/S05-transliteration/trans.t
+-d 0%	6  0 6		../../../t/spec/S05-transliteration/with-closure.t
 -C 0%	13  0 13	../../../t/spec/S06-advanced_subroutine_features/recurse.t
 -d 0%	63  0 63	../../../t/spec/S06-advanced_subroutine_features/return.t
 X  0%	10  0 		../../../t/spec/S06-advanced_subroutine_features/stub.t
@@ -511,6 +512,7 @@ X  0%	3  0 		../../../t/spec/S06-multi/proto.t
 ok	6		../../../t/spec/S06-multi/syntax.t
 X  0%	18  0 		../../../t/spec/S06-multi/type-based.t
 -C 0%	9  0 9		../../../t/spec/S06-signature/closure-parameters.t
+-C 0%	2  0 2		../../../t/spec/S06-signature/code.t
 -C 0%	12  0 12	../../../t/spec/S06-signature/mixed-placeholders.t
 -C 0%	67  0 67	../../../t/spec/S06-signature/named-parameters.t
 -C 0%	3  0 3		../../../t/spec/S06-signature/named-placeholders.t
@@ -604,7 +606,7 @@ ok	3		../../../t/spec/S29-any/cmp.t
 -d 0%	6  0 6		../../../t/spec/S29-container/cat.t
 -d 0%	8  0 8		../../../t/spec/S29-container/roundrobin.t
 -d 0%	9  0 9		../../../t/spec/S29-container/zip.t
--  40%	10  4 6		../../../t/spec/S29-context/die_arg_preservation.t
+-d 0%	10  0 10	../../../t/spec/S29-context/die_arg_preservation.t
 X  0%	12  0 		../../../t/spec/S29-context/die.t
 X  0%	1  0 		../../../t/spec/S29-context/evalfile.t
 -  44%	9  4 1 4!	../../../t/spec/S29-context/eval.t
@@ -617,7 +619,7 @@ X  0%	?  0 		../../../t/spec/S29-conversions/ord_and_chr.t
 -d 0%	2  0 2		../../../t/spec/S29-hash/isa.t
 -d 0%	12  0 12	../../../t/spec/S29-hash/keys_values.t
 -C 0%	27  0 27	../../../t/spec/S29-hash/kv.t
-X  0%	20  0 		../../../t/spec/S29-hash/pairs.t
+X  0%	21  0 		../../../t/spec/S29-hash/pairs.t
 X  0%	25  0 		../../../t/spec/S29-hash/slice.t
 X  0%	11  0 		../../../t/spec/S29-list/classify.t
 X  0%	9  0 		../../../t/spec/S29-list/first.t
@@ -668,6 +670,7 @@ X  0%	11  0 		../../../t/spec/S29-str/quotemeta.t
 -d 0%	32  0 32	../../../t/spec/S29-str/rindex.t
 -d 0%	7  0 7		../../../t/spec/S29-str/sameaccent.t
 -d 0%	8  0 8		../../../t/spec/S29-str/samecase.t
+X  0%	30  0 		../../../t/spec/S29-str/split-simple.t
 X  0%	27  0 		../../../t/spec/S29-str/split.t
 -  94%	37  35 2	../../../t/spec/S29-str/sprintf.t
 -C 0%	42  0 42	../../../t/spec/S29-str/substr.t
@@ -854,5 +857,5 @@ ok	8		../../../v6/v6-KindaPerl6/t/kp6/io/01-dir.t
 ok	6		../../../v6/v6-KindaPerl6/t/kp6/math/01-rand.t
 ok	1		../../../v6/v6-KindaPerl6/t/kp6/math/02-inf.t
 
-Files: 854.  646 parsed 75%.  367 run 42%.  84 ok 9%.
-Tests: 17868+.  648 ok <3.62%, 17220+ not.
+Files: 857.  648 parsed 75%.  368 run 42%.  84 ok 9%.
+Tests: 17905+.  644 ok <3.59%, 17261+ not.
