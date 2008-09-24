@@ -24,7 +24,7 @@ setupTopmostScope =
     ++ "\n"
     ++ "my $OUT_root_scalar = ?SMOP__S1P__RootNamespace.\"postcircumfix:{ }\"(\"$*OUT\");\n"
     ++ "my $OUT_root = $OUT_root_scalar.\"FETCH\"();\n"
-    ++ "my $OUT_scalar = $scope.\"postcircumfix:{ }\"(\"$*OUT\");\n"
+    ++ "my $OUT_scalar = $scope.\"postcircumfix:{ }\"(\"$OUT\");\n"
     ++ "$void = $OUT_scalar.\"STORE\"($OUT_root);\n"
     ++ "\n"
 
