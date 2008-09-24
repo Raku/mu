@@ -1,4 +1,5 @@
-module M0ld (module M0ld.AST,dumpToC,parseM0ld) where
+module M0ld where
+--(module M0ld.AST,dumpToC,parseM0ld) where
 import M0ld.AST
 import M0ld.Parser
 import qualified Data.Map as Map
@@ -116,18 +117,3 @@ prettyPrintConstant indent value = case value of
     None -> ""
     Var name -> "¢" ++ name ++ "\n"
     SubMold stmts -> "{\n" ++ (prettyPrintBytecode ("  " ++ indent) stmts) ++ indent ++ "}\n"
-
-
-{-
-main = do
-    args <- getArgs
-    let (options,nonoptions,errors) =  getOpt RequireOrder [Option [] ["print-bytecode"] (NoArg "print-bytecode") "print resulting mold bytecode in a human readable form"] args 
-    mapM putStr errors
-    hFlush stdout
-    line <- getContents
-    case (runParser top (Map.empty :: ImplicitDecls) "" line) of 
-        Left err      -> error  $ show err
-        Right (stmts,constants) -> do 
-            if elem "print-bytecode" options then putStrLn $ prettyPrintBytecode "" $ (implicitDecls constants) ++ stmts
-                else putStrLn $ dumpToC $ (implicitDecls constants) ++ stmts
--}

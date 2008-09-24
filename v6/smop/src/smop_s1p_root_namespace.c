@@ -9,13 +9,12 @@
 SMOP__Object* SMOP__S1P__RootNamespace;
 
 void smop_s1p_root_namespace_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj) {
-
   SMOP__Object* cell = SMOP_DISPATCH(interpreter,
                                      SMOP_RI(SMOP__S1P__RootNamespace),
                                      SMOP__ID__postcircumfix_curly,
                                      SMOP__NATIVE__capture_create(interpreter,
-                                                                  SMOP__S1P__RootNamespace,
-                                                                  (SMOP__Object*[]) {SMOP__S1P__Str_create(name),NULL},
+                                                                  SMOP_REFERENCE(interpreter,SMOP__S1P__RootNamespace),
+                                                                  (SMOP__Object*[]) {SMOP__NATIVE__idconst_create(name),NULL},
                                                                   NULL));
 
   SMOP_DISPATCH(interpreter,SMOP_RI(cell),SMOP__ID__STORE,
@@ -30,6 +29,7 @@ void smop_s1p_root_namespace_init() {
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::MoldFrame", SMOP__Mold__Frame);
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Code", SMOP__S1P__Code);
   smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::Scalar", SMOP__S1P__Scalar);
+  smop_s1p_root_namespace_insert(SMOP__GlobalInterpreter,"::MoldFrame", SMOP__Mold__Frame);
 }
 
 void smop_s1p_root_namespace_destr() {

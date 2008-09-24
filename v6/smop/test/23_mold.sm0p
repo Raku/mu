@@ -38,10 +38,10 @@ int main(int argc, char** argv) {
      SMOP_REFERENCE(interpreter,interpreter),
      NULL, NULL));
 
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+  /*SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
    SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
      SMOP_REFERENCE(interpreter,interpreter),
-     NULL, NULL));
+     NULL, NULL));*/
 
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,interpreter);

@@ -1,4 +1,4 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE ForeignFunctionInterface,TypeSynonymInstances #-}
 module Pugs.Embed.M0ld (evalM0ld) where 
 
 import Foreign
@@ -35,27 +35,61 @@ foreign import ccall "smop_native.h SMOP__NATIVE__capture_create"
 capture_create :: SMOP__Object -> [SMOP__Object] -> [SMOP__Object] -> SMOP__Object
 capture_create inv pos named = unsafePerformIO $ (withArray0 nullPtr pos (\cpos -> withArray0 nullPtr named (\cnamed -> return $ c_SMOP__NATIVE__capture_create interpreter inv cpos cnamed)))
 
+foreign import ccall "smop_mold.h SMOP__Mold_create"
+    c_SMOP__Mold_create :: Int -> Ptr SMOP__Object -> Int -> Ptr Int -> IO SMOP__Object
+mold regs constants opcodes = withArray0 nullPtr constants (\c_constants -> withArray opcodes (\c_opcodes -> c_SMOP__Mold_create regs c_constants (length opcodes) c_opcodes))
 
 
 -- foreign import ccall "smop_haskell_ffi.h &smop_release_with_global"
 --    p_release :: FunPtr (Ptr a -> IO ())
 -- auto_release ptr = newForeignPtr p_release ptr
+    --obj <- get_SMOP__S1P__RootNamespace
+    -- c_smop_reference interpreter obj
+    -- auto_release obj
 
 foreign import ccall "smop_haskell_ffi.h get_SMOP__S1P__RootNamespace"
       get_SMOP__S1P__RootNamespace :: IO SMOP__Object
 
 rootnamespace = get_SMOP__S1P__RootNamespace
-    --obj <- get_SMOP__S1P__RootNamespace
-    -- c_smop_reference interpreter obj
-    -- auto_release obj
 
-call inv ident pos named = c_smop_dispatch interpreter (c_smop_ri inv) ident (capture_create inv pos named)
+class Smopify a where
+    smopify :: a -> IO SMOP__Object
 
+instance Smopify SMOP__Object where
+    smopify a = return a
+instance Smopify String where
+    smopify a = return (idconst a)
+
+call inv ident pos named = do
+    inv_ <- smopify inv
+    ident_ <- smopify ident
+    pos_ <- mapM smopify pos
+    named_ <- mapM smopify named
+    c_smop_dispatch interpreter (c_smop_ri inv_) ident_ (capture_create inv_ pos_ named_)
+
+
+-- Hack to satisfy the type system
+none :: [SMOP__Object]
+none = []
 
 evalM0ld code = do
     smop_init
     root <- rootnamespace
-    scalar <- call root (idconst "postcircumfix:{ }") [idconst "$*OUT"] []
-    io <- call scalar (idconst "FETCH") [] []
-    call io (idconst "print") [idconst (dumpToC $ parseM0ld code)] []
+
+    c_smop_reference interpreter root
+    out_scalar <- call root "postcircumfix:{ }" ["$*OUT"] none
+    out <- call out_scalar "FETCH" none none
+
+    c_smop_reference interpreter root
+    mold_frame_scalar <- call root "postcircumfix:{ }" ["::MoldFrame"] none
+    mold_frame <- call mold_frame_scalar "FETCH" none none
+
+    test_mold <- mold 8 [out,idconst "print",idconst "embedding from pugs\n"] [1,3,0,1,1,2,0,0]
+    test_frame <- call mold_frame "new" [test_mold] none
+
+    c_smop_reference interpreter interpreter
+    call interpreter "goto" [test_frame] none
+
+    c_smop_reference interpreter interpreter
+    call interpreter "loop" none none
     smop_destr
