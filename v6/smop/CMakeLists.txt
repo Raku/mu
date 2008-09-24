@@ -186,7 +186,7 @@ foreach (test_file
     test/30_array_map.m0ld
     test/31_int_postfix_plusplus.m0ld
     test/32_array_iterator.m0ld
-    test/33_pugs_simple.p6-pugs
+    # test/33_pugs_simple.p6-pugs # would require building pugs twice
     test/34_array_unshift.m0ld
     test/35_array_grep.m0ld
 )
