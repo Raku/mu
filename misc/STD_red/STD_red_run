@@ -17,7 +17,8 @@ is seen again.  -e CODE is not cached.  And when std.rb is changed,
 previous cache entries are ignored.
 
 FORMAT
- p5a
+ p5a    # Dump format for perl5.
+ cl     # Dump format for Common Lisp.
  yaml   # depreciated
 
 Other arguments:
@@ -128,6 +129,8 @@ END
       print tree.match_describe
     elsif format == 'p5a'
       print out(tree.to_dump0)
+    elsif format == 'cl'
+      print out(tree.to_dump1)
     elsif format == 'yaml'
       require "yaml"
       tree.prepare_for_yaml_dump if tree

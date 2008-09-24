@@ -366,7 +366,7 @@ class Grammar
   end
   def self._def_category_member(category,name,leading_re,rest)
     if (eval "@@matcher_for_#{category}").declared?(name)
-      print "# WARNING: #{category}:#{name} redefined.\n" if not $quiet
+      print ";# WARNING: #{category}:#{name} redefined.\n" if not $quiet
     end
     (eval "@@matcher_for_#{category}").declare(name,leading_re,rest)
   end

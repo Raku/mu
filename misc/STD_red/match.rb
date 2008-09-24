@@ -148,3 +148,38 @@ class Match
     "match(#{r},#{s},#{f},#{t},{#{h}})"
   end
 end
+
+class Array
+  def to_dump1; '(array '+map{|e| e.to_dump1}.join(" ")+')'; end
+end
+class Hash
+  def to_dump1; '(hash '+map{|k,v| '"'+k.to_s+'" '+v.to_dump1}.join(" ")+')' end
+end
+class String
+  def to_dump1; inspect.gsub(/\n/,"\n").gsub(/\t/,"\t") end
+end
+class Symbol
+  def to_dump1; to_s.inspect end
+end
+class FalseClass
+  def to_dump1; 'nil' end
+end
+class Fixnum
+  def to_dump1; inspect end
+end
+class Match
+  def to_dump1
+    b = as_b ? '1' : '0'
+    s = '"'+str.gsub(/([\\"])/){|w|"\\#{w}"}+'"'
+    h = as_h.map{|k,v|
+      vs = v.to_dump1
+      "\n  \"#{k}\" #{vs} "
+    }.join("")
+    h += "\n" if h != ""
+    f = match_beg
+    t = match_end
+    r = @rule.to_s.inspect
+    "(match #{r} #{s} #{f} #{t} (hash #{h}))"
+  end
+end
+#(with-open-file (s "dele") (read s))
