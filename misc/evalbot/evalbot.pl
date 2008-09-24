@@ -79,7 +79,7 @@ package Evalbot;
             pugs => {
                 cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/pugs/pugs %program >> %out 2>&1',
             },
-            m0ld => {
+            smop => {
                 cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/pugs/pugs -Bm0ld %program >> %out 2>&1',
             },
             std  => {
