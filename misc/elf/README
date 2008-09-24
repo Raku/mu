@@ -16,7 +16,6 @@ P6 scripts:
   $ ./say 3
   3
 
-
 INSTALL
 
 The elf executable is generic perl 5.
@@ -32,7 +31,7 @@ STD_red requires ruby 1.9.  See it's README for installation info.
 
 RUNNING TESTS
 
-  See  make test  in elf_g_src/Makefile.
+  See  elf_g_src/Makefile.
 
 VERSIONS
 
@@ -47,6 +46,13 @@ TIPS
     eval_perl5('sub{print Data::Dumper::Dumper($_[0])}').($n);
 
 OTHER
+
+Other directories which may be of interest:
+misc/STD_red
+misc/elfish/STD_blue
+misc/elfish/on_sbcl
+misc/elfish/rx_on_re
+
 
 A development story (a tale of two compilers)
 

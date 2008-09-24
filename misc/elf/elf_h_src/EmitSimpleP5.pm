@@ -354,8 +354,8 @@ use warnings;
     return $e if $e;
     my $f = $0;
     $f =~ s/[^\/]+$//;
-    $f."elf_g_src/STD_red/STD_red_run"
-    # $f."../STD_red/STD_red_run"
+    # $f."elf_g_src/STD_red/STD_red_run"
+    $f."../STD_red/STD_red_run"
   }
 
   our $a_INC = ["."];

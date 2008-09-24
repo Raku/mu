@@ -1,16 +1,17 @@
 
+elf_h:
+Purpose:
+  Support common-lisp backend and rx_on_re development.
+Status: unstable.
+
 elf_g
 Purpose:
   Use 'temp $x' instead of 'my $^x'.
   Become parsable by STD.
-Maybe:
-  Get a rx engine (eg, rx_on_re).
-  Begin syncronization with STD grammar.
-  Concentrate and flesh out analysis code (a long pending task).
 Comparison: Like elf_f, but moving towards front-end bootstrap.
 Can be compiled by: elf_g
 Linkages: none.
-Status: "active" development.
+Status: stable.
 
 elf_f
 Purpose:

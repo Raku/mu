@@ -1,39 +1,27 @@
 
 YOU CAN HELP BY...
 
-*** Update ../STD_red/PROBLEMS.
-It's fallen out of sync with what actually parses.
-
-*** Fix or document test failues.
-Go through the run-tests results.
-For each "ran but test failed", look at why.
-If it's a missing or defective bit of prelude, either
- mention it below, or
- fix the prelude.
-If it's an emitter problem, mention it below.
-
-If it's a parser problem or failure ("X"), 
-determine why the parse failed, and add a one-liner which
-replicates it to ../STD_red/PROBLEMS.
-
 *** Flesh out the prelude.
 Go through S29 etc, adding p6 implementations to one of the preludes.
 If it doesn't compile as spec'ed, comment it out so it serves as a todo.
+Simply copying names an signatures would be useful.
 
 BIG PICTURE
 
-() Move to p6, and a full bootstrap.
-   Switch the front-end to p6, and as much as possible of the runtime.
-() Get additional backends working.  javascript, ruby, python, scheme, common lisp.
+() Get elf self-compiling on the common-lisp backend.
+() Finish and merge the rx_on_re.
+() Bootstrap on STD_blue.
+() Compiler STD.pm.
+() Merge parser.
+Milestone - full bootstrap.
+() Improve analysis.  Review compiler organization.
 () Pass more tests.
-() Switch to real p6 oo.
+() Switch to real p6 oo on backends where that's feasible.
 () Move towards full spec conformance.
-
 
 PROJECTS
 
-() Parser - increase t/ coverage (currently 73%).
-() Parser - switch from ruby STD_red to p6 STD_gray.  Then merge with elf.
+() Parser - get STD_blue working.
 
 () Regex - get regex parsing and IR working.
 () Regex - translate yet_another_regex_engine analysis and emitting to p6.
@@ -50,12 +38,12 @@ PROJECTS
    backends.
 
 () Prelude - flesh it out.
-  - Allow fix:<x> to be defined in Prelude.  Make it work with unicode.
+  - (DONE?) Allow fix:<x> to be defined in Prelude.  Make it work with unicode.
   - Create a 'is p5_macro' to replace the emitter doing it.
 
 () Prelude - flesh out unboxed prelude classes.
 
-() Backends - sketch try p6 oo designs for p5, and other backend languages.
+() Backends - sketch p6 oo designs for p5, and other backend languages.
 () Backends - switch p5 to a true p6 oo model.
 () Backends - start several backends, to stay honest and motivate emitter refactoring.
 
@@ -76,8 +64,6 @@ items cannot or should not be addressed at this stage of the bootstrap.
     replace with .subst(rx:g/pattern/)?
 * eval_perl5
 * file_exists
-* =~ 
-    =~ is explicitly forbidden in Perl 6
 * faking named parameters with positional
     .new('foo',1) should be turned into .new(foo=>1)
 * newp
@@ -93,9 +79,6 @@ ASSORTED TODO
 
 () Emitter:
   - add a whole-program IR node?
-
-* Switch from $+foo to temp($foo).
-
 
 * replace cruft like  $.var.sigil eq '$' in Emit with methods in/added-to Analysis.  eg, is_scalar. (http://irclog.perlgeek.de/perl6/2008-05-24#i_309702)
 

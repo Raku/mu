@@ -1,0 +1,83 @@
+A ruby transliteration of src/perl6/STD.pm
+
+INSTALL
+
+The release of ruby 1.9.0 (dated late December '07) is recommended.
+It will not work with ruby 1.8.  ruby svn HEAD is also not the right thing.
+There used to be iffy support for 1.8, but adding utf handling broke it.
+
+http://www.ruby-lang.org/en/news/2007/12/25/ruby-1-9-0-released/
+$ ruby --version
+ruby 1.9.0 (2007-12-25 revision 14709) [...]
+
+Debian:
+ ruby1.9 libreadline-ruby1.9
+ * Debian (testing aka "Lenny") error:
+   `require': no such file to load -- readline (LoadError) from -e:1:in `<main>'
+   Means you don't have libreadline-ruby1.9.
+
+
+EXAMPLE
+  ./STD_red_run -e 42
+
+  time ((find ../../v6/v6-KindaPerl6/t/kp6/ -type f ; find ../../t/ -type f )| grep -v '\.svn' | sort | xargs -n 1 perl -e 'local $_=shift;exit if !/\.t$/;$r=system("./STD_red_run $_ > /dev/null 2>&1");print "",($r == 0 ? "-" : "X")," ",$_,"\n";' > test-status)
+  ~5 minutes
+
+NOTES
+
+STD_red_run is currently much faster in ruby 1.9 than 1.8.
+If you compile large things, you probably want to make sure its #! line finds 1.9.
+Either by having 1.9's "ruby" first in your PATH, or by editing the #! line.
+
+Regex reminders
+  given { <a>+ <b>+ }
+  token: /^ <a>+: <b>+: $/
+  rule:  /^ <.ws> <a>+: <.ws> <b>+: <.ws> $/
+  regex: /^ <a>+ <b>+ $/
+which transliterate as
+  token:  plusTOK{a} and plusTOK{b}
+  rule:   wsp and plusTOK{a} and wsp and plusTOK{b} and wsp  #handwritten rules
+  rule:           plusTOK{a} and wsp and plusTOK{b}          #in token rules #XXX hmm
+  regex:  plusRX(lambda{ a }){ plusRX{ b }}
+    # but note, <a> can't be a regex - we won't backtrack into it.
+
+There are lots of regex ruls.  Only the two noted as backtracking in
+comments actually do.
+
+Re backtracking,
+  plusRX et al, _do not backtrack into their subrules_.
+  We are simplifying implementation by noting there are tokens everywhere.
+  If there turns out to be a case of a regex with backtracking, containing
+  a subrule which is itself a regex with backtracking, then we'll need to
+  hand fudge passing a continuation to that subrule.  Very hopefully, the
+  case won't arise.
+  We're not making a regexp engine, nor a real Grammar.
+  We're simply trying to get the ability to parse static p6, by the
+  easiest possible development path.
+
+
+RUBY YAML
+
+Is not being used now, so you can ignore this section.
+
+--yaml won't work under ruby 1.9 without a patch applied to 1.9's yaml.rb.
+ *** But --yaml isn't being used now, so this is no longer needed.
+Error ruby/1.9.0/yaml.rb:391:in `hash': can't convert Hash into Integer (TypeError)
+ruby 1.9.0 yaml has a bug.  On some of Match objects, (eg, --yaml -e '3'),
+.hash fails with : can't convert Hash into Integer (TypeError).
+But 1.9's lookbehind provides 10x faster parsing than than our current 1.8 workaround.
+So here is a patch to lib/ruby/1.9.0/yaml.rb:
+PATCH_START
+--- yaml.rb.orig        2008-03-20 13:25:42.000000000 -0400
++++ yaml.rb     2008-03-20 13:26:03.000000000 -0400
+@@ -386,6 +386,7 @@
+             end
+         oid =
+             case oid when Fixnum, NilClass; oid
++            when Hash,Array; oid.object_id
+             else oid = "#{oid.object_id}-#{oid.hash}"
+             end
+         out.emit( oid, &e )
+PATCH_END
+
+
