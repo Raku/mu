@@ -89,6 +89,9 @@ SINGLE TESTS
   spec/S06-advanced_subroutine_features/wrapping.t
 * spec/S04-closure-traits/pre-post.t has an up-to-date TODO list that needs
   implementing
+* spec/S29-scalar/undef.t needs to be fudged for rakudo. Most of that is
+  already done, but the fudging skews the test count. A few well-placed
+  '#?DOES $count' directives should fix that.
 
 Junction tests
  Quite some tests in t/junction relay on $junction.values to return the values

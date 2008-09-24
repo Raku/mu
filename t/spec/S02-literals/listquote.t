@@ -32,7 +32,7 @@ describe the conflicting cases.
 
 =end kwid
 
-plan 13;
+plan 11;
 
 # L<S02/"Literals">
 # L<S03/"Chained comparisons">
@@ -40,35 +40,37 @@ plan 13;
 my $s = join 'a', <x y z>;
 is($s, "xayaz", 'list context <list>');
 
+#?rakudo skip 'meta operators'
+{
 my $s = join |<< <a x y z>;
 is($s, "xayaz", 'listop |<< <list>', :todo<bug>);
+}
 
-my $x = try { [1,2,3].join<a b c> };
-ok($!, '.join<abc> parses but semantic error');
-is($x, try { [1,2,3].join()<a b c> }, '.join()<a b c> not treated as argument');
+dies_ok { [1,2,3].join<a b c> }, '.join<abc> parses but semantic error');
 
 my @y = try { ({:a<1>, :b(2)}<a b c>) };
 is(@y, [1,2,undef], '{...}<a b c> is hash subscript');
 
-eval '({:a<1>, :b(2)} <a b c>)';
-ok($!, '{...} <...> parsefail');
+eval_dies_ok '({:a<1>, :b(2)} <a b c>)', '{...} <...> parsefail';
 
-ok((1 | 3) < 3, '(...) < 3 no parsefail');
+ok( ?((1 | 3) < 3), '(...) < 3 no parsefail');
 
-eval '(1 | 3)<3';
-ok($!, '()<3 parsefail', :todo<bug>);
+#?pugs todo 'parsing bug'
+eval_dies_ok '(1 | 3)<3', '()<3 parsefail';
 
-eval 'print < 3';
-ok($!, 'print < 3 parsefail');
+# WRONG: should be parsed as print() < 3 
+# eval 'print < 3';
+# ok($!, 'print < 3 parsefail');
 
-my $z = eval 'reverse<1 2 3>';
-ok($!, 'reverse<1 2 3> parsefail', :todo<bug>);
+# XXX This test is most likely out of date...
+#?pugs todo 'parsing (wrong  test?)
+#?rakudo skip 'unspecced'
+eval_dies_ok 'reverse<1 2 3>', 'reverse<1 2 3> parsefail';
 
-eval ':foo <1 2 3>';
-ok($!, ':foo <1 2 3> parsefail');
+eval_dies_ok ':foo <1 2 3>', ':foo <1 2 3> parsefail';
 
 my $r = eval ':foo <3';
-is($r, Bool::True, ':foo <3 is comparison');
+0k($r, ':foo <3 is comparison');
 
 my $p = eval ':foo<1 2 3>';
 is($p, ~('foo' => (1,2,3)), ':foo<1 2 3> is pair of list');
