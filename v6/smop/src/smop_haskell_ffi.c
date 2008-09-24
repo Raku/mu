@@ -1,10 +1,16 @@
 #include <smop.h>
 #include <smop_s1p.h>
+#include <smop_lowlevel.h>
 SMOP__Object* smop_dispatch(SMOP__Object* interpreter,SMOP__Object* ri,SMOP__Object* identifier,SMOP__Object* capture) {
   return SMOP_DISPATCH(interpreter,ri,identifier,capture);
 }
 SMOP__Object* smop_release(SMOP__Object* interpreter,SMOP__Object* obj) {
   return SMOP_RELEASE(interpreter,obj);
+}
+SMOP__Object* smop_release_with_global(SMOP__Object* obj) {
+//  printf("obj.refcount=%d\n",((SMOP_LOWLEVEL_INTERNAL*)obj->data)->ref_cnt);
+//  printf("interpreter.refcount=%d\n",((SMOP_LOWLEVEL_INTERNAL*)SMOP__GlobalInterpreter->data)->ref_cnt);
+  return SMOP_RELEASE(SMOP__GlobalInterpreter,obj);
 }
 SMOP__Object* smop_reference(SMOP__Object* interpreter,SMOP__Object* obj) {
   return SMOP_REFERENCE(interpreter,obj);
