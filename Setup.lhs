@@ -10,6 +10,6 @@
 >     args <- getArgs
 >     if args == ["-d"] then putStrLn =<< getAppUserDataDirectory "cabal" else do
 >--         writeBuildInfo
->         defaultMainWithHooks autoconfUserHooks
+>         defaultMainWithHooks defaultUserHooks
 >--     where
 >--     writeBuildInfo = rawSystem "perl" ["Configure.PL"]
