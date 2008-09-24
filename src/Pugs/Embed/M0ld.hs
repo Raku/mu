@@ -25,7 +25,7 @@ foreign import ccall "smop_haskell_ffi.h smop_ri"
 
 foreign import ccall "smop_native.h SMOP__NATIVE__idconst_createn"
       c_SMOP__NATIVE__idconst_createn :: Ptr CChar -> Int -> SMOP__Object
-idconst str = unsafePerformIO $ withCStringLen str  (\cstr -> trace ("idconst.len:"++show (snd cstr)++",idconst:"++str) $ return $ c_SMOP__NATIVE__idconst_createn (fst cstr) (snd cstr))
+idconst str = unsafePerformIO $ withCStringLen str  (\cstr -> return $ c_SMOP__NATIVE__idconst_createn (fst cstr) (snd cstr))
 
 foreign import ccall "smop_native.h SMOP__NATIVE__capture_create"
     c_SMOP__NATIVE__capture_create :: SMOP__Object -> SMOP__Object -> Ptr SMOP__Object -> Ptr SMOP__Object -> SMOP__Object
@@ -55,5 +55,5 @@ evalM0ld code = do
     root <- rootnamespace
     scalar <- call root (idconst "postcircumfix:{ }") [idconst "$*OUT"] []
     io <- call scalar (idconst "FETCH") [] []
-    call io (idconst "print") [idconst "Hello World\n"] []
+    call io (idconst "print") [idconst "pugs -Bm0ld doesn't fully work yet...\n"] []
     smop_destr
