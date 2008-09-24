@@ -154,8 +154,7 @@ sub set_postamble {
     my $version_h = "src/Pugs/pugs_version.h";
     my $config_h = "src/Pugs/pugs_config.h";
 
-    my $EMBED_SMOP = '';
-    $EMBED_SMOP='--flags=SMOP' if $ENV{PUGS_EMBED} =~ /\bsmop\b/i; 
+    my $EMBED_SMOP = ($ENV{PUGS_EMBED} // '') ? '--flags=SMOP' : ''; 
     # Ok, now we have Cabal-Install and all the deps.  Let's be lazy and write a simple makefile.
     postamble(<<".");
 pugs_requirements : @srcfiles $version_h $config_h src/Pugs/Config.hs src/Pugs/Prelude.hs
