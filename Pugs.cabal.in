@@ -179,7 +179,8 @@ executable pugs
         cpp-options: -DPUGS_HAVE_PERL5=1
 
     if flag(SMOP)
-        extra-Libraries: smop
+        extra-libraries: smop
+        extra-lib-dirs: v6/smop/build
         cpp-options: -DPUGS_HAVE_SMOP=1
 
     c-sources:

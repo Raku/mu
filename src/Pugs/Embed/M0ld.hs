@@ -6,6 +6,8 @@ import Foreign.C.Types
 import Foreign.C.String
 import Debug.Trace
 import M0ld
+import M0ld.AST
+import M0ld.Parser
 
 foreign import ccall "smop.h smop_init"
       smop_init :: IO ()
@@ -39,13 +41,17 @@ capture_create inv pos named = unsafePerformIO $ (withArray0 nullPtr pos (\cpos 
 
 foreign import ccall "smop_mold.h SMOP__Mold_create"
     c_SMOP__Mold_create :: Int -> Ptr SMOP__Object -> Int -> Ptr Int -> IO SMOP__Object
-mold regs constants opcodes = do
-    constants_ <- mapM smopify constants
-    withArray0 nullPtr constants_ (\c_constants -> withArray opcodes (\c_opcodes -> c_SMOP__Mold_create regs c_constants (length opcodes) c_opcodes))
 
 
 foreign import ccall "smop_haskell_ffi.h &smop_release_with_global"
     p_release :: FunPtr (Ptr a -> IO ())
+
+foreign import ccall "smop_haskell_ffi.h smop_get_cvar"
+    smop_get_cvar :: CString -> IO SMOP__Object
+
+get_cvar str = do
+    obj <- withCString str smop_get_cvar
+    auto_release obj
 
 auto_release :: SMOP__Object -> IO Object
 auto_release ptr = do 
@@ -55,7 +61,9 @@ auto_release ptr = do
 foreign import ccall "smop_haskell_ffi.h get_SMOP__S1P__RootNamespace"
       get_SMOP__S1P__RootNamespace :: IO SMOP__Object
 
-rootnamespace = get_SMOP__S1P__RootNamespace
+rootnamespace = do
+    root <- get_SMOP__S1P__RootNamespace
+    auto_release root
 
 class Smopify a where
     smopify :: a -> IO SMOP__Object
@@ -70,6 +78,12 @@ instance Smopify SMOP__Object where
 instance Smopify String where
     smopify a = return (idconst_ptr a)
 
+mold :: (Smopify a) => Int -> [a] -> [Int] -> IO Object
+mold regs constants opcodes = do
+    constants_ <- mapM smopify constants
+    new_mold <- withArray0 nullPtr constants_ (\c_constants -> withArray opcodes (\c_opcodes -> c_SMOP__Mold_create regs c_constants (length opcodes) c_opcodes))
+    auto_release new_mold
+
 call inv ident pos named = do
     inv_ <- smopify inv
     ident_ <- smopify ident
@@ -82,21 +96,40 @@ call inv ident pos named = do
 none :: [SMOP__Object]
 none = []
 
+metachars :: [Char] -> [Char]
+metachars str = case str of
+    [] -> ""
+    '\\':'n':rest -> '\n' : (metachars rest)
+    '\\':other:rest -> other : (metachars rest)
+    letter:rest -> letter : (metachars rest)
+
+createConstant :: Value -> IO Object
+createConstant constant = case constant of
+    Var var -> get_cvar var
+    IntegerConstant int -> error "integer constant"
+    StringConstant str -> return $ idconst $ metachars $ str
+    SubMold stmts -> createM0ld stmts
+
+compileM0ld = createM0ld . parseM0ld
+
+createM0ld ast = do
+    let labelsMap = mapLabels ast
+        regMap    = mapRegisters ast
+        freeRegs  = countRegister ast
+        bytecode  = emit ast regMap labelsMap
+    constants <- mapM createConstant [c | Decl reg c <- filter (not . isReg) ast]
+    mold freeRegs constants bytecode
 evalM0ld code = do
     smop_init
     root <- rootnamespace
 
-    c_smop_reference interpreter interpreter
-
-    c_smop_reference interpreter root
     out_scalar <- call root "postcircumfix:{ }" ["$*OUT"] none
     out <- call out_scalar "FETCH" none none
 
-    c_smop_reference interpreter root
     mold_frame_scalar <- call root "postcircumfix:{ }" ["::MoldFrame"] none
     mold_frame <- call mold_frame_scalar "FETCH" none none
 
-    test_mold <- mold 8 [out,idconst "print",idconst "embedding from pugs\n"] [1,3,0,1,1,2,0,0]
+    test_mold <- compileM0ld code
     test_frame <- call mold_frame "new" [test_mold] none
 
     c_smop_reference interpreter interpreter
