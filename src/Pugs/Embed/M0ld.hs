@@ -33,6 +33,10 @@ foreign import ccall "smop_native.h SMOP__NATIVE__idconst_createn"
 idconst_ptr str = unsafePerformIO $ withCStringLen str  (\cstr -> return $ c_SMOP__NATIVE__idconst_createn (fst cstr) (snd cstr))
 idconst str = unsafePerformIO $ auto_release $ idconst_ptr str 
 
+foreign import ccall "smop_native.h SMOP__NATIVE__int_create"
+    c_SMOP__NATIVE__int_create :: Int -> IO SMOP__Object
+int_create int = c_SMOP__NATIVE__int_create int >>= auto_release
+
 foreign import ccall "smop_native.h SMOP__NATIVE__capture_create"
     c_SMOP__NATIVE__capture_create :: SMOP__Object -> SMOP__Object -> Ptr SMOP__Object -> Ptr SMOP__Object -> SMOP__Object
 
@@ -106,7 +110,7 @@ metachars str = case str of
 createConstant :: Value -> IO Object
 createConstant constant = case constant of
     Var var -> get_cvar var
-    IntegerConstant int -> error "integer constant"
+    IntegerConstant int -> int_create $ fromInteger int
     StringConstant str -> return $ idconst $ metachars $ str
     SubMold stmts -> createM0ld stmts
 
