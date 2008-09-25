@@ -89,6 +89,8 @@ SINGLE TESTS
   spec/S06-advanced_subroutine_features/wrapping.t
 * spec/S04-closure-traits/pre-post.t has an up-to-date TODO list that needs
   implementing
+* syntax/interpolation/strings.t should be merged into
+  spec/S02-literals/quoting.t (and perhaps other files in that directory)
 
 Junction tests
  Quite some tests in t/junction relay on $junction.values to return the values
