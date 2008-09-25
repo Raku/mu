@@ -86,6 +86,66 @@ package GLOBAL {
   sub circumfix:«[ ]» (*@a) is cl {' |@a| '}
   sub circumfix:«( )» ($a) is cl {' |$a| '}
 
+  sub _pid is cl {' (sb-posix:getpid) '}
+  our $*PID = _pid();
+
+  sub slurp ($filename) is cl {'
+    (with-open-file (stream |$filename|)
+      (let ((str (make-string (file-length stream))))
+        (read-sequence str stream)
+        str))
+  '}
+  sub unslurp ($string,$filename) is cl {'
+    (with-open-file (stream |$filename| :direction :output :if-exists :supersede)
+      (write-sequence str stream))
+  '}
+
+  sub exit ($status) is cl {' (sb-unix:unix-exit |$status|) '}
+  sub die ($msg) { say $msg; exit(1); }
+
+  sub system ($cmd) is cl {'
+    (let ((p (sb-ext:run-program "/bin/sh" (list "-c" |$cmd|) :output t)))
+       (sb-ext:process-wait p)
+       (sb-ext:process-exit-code p))
+  '}
+  sub unlink ($filename) is cl {' (sb-unix:unix-unlink |$filename|) '}
+  sub _init_ () is cl {'
+     (setq |GLOBAL::@ARGV| (ap #\'|M::new| (cons |Array::/co| sb-ext:*posix-argv*)))
+     (defun env ()
+       (mapcan #\'copy-list
+        (mapcar (lambda (str)
+                  (let ((pos (position #\= string :test #\'equal)))
+                    (list (subseq str 0 pos)
+                          (subseq str (1+ pos) (- (length str) pos 1)))))
+                (posix-environ))))
+      (setq |GLOBAL::%ENV| (ap #\'|M::new| (cons |Hash::/co| (env))))
+  '}
+  ;# _init_(); #XXX not quite working yet.
+}
+
+# Elf
+package GLOBAL {
+  our $compiler0;
+  our $compiler1;
+  our $parser0;
+  our $parser1;
+  our $ast2ir_0;
+  our $ast2ir_1;
+  our $emitter0;
+  our $emitter1;
+  sub fastundump ($dump_string) is cl {'
+    (let ((tree (read-from-string |$dump_string|)))
+      (labels
+       ((undump (node)
+           (cond ((listp node)
+                  (let ((args (mapcar #\'undump (cdr node))))
+                    (ecase (car node)
+                           (\'match (ap #\'|M::make_from_rsfth| (cons |Match::/co| args)))
+                           (\'array (ap #\'|M::new| (cons |Array::/co| args)))
+                           (\'hash  (ap #\'|M::new| (cons |Hash::/co| args))))))
+                 (t node))))
+       (undump tree)))
+  '}
 }
 
 package Main {
@@ -105,7 +165,7 @@ class Pair {
 
 class Array {
   has $._native_;
-  method values () is cl {'
+  method flatten () is cl {'
     (coerce (slot-value self \'|Array::._native_|) \'list)
   '}
   method elems () is cl {'
@@ -160,6 +220,7 @@ class Hash  { method Num () { self.keys.elems } }
 class Pair  { method Num () { 2 } }; # so says pugs, the only impl working. 2008-May-24
 
 # .Str()
+class Any   { method Str () { primitive_write_to_string(self) } }
 class Int   { method Str () { primitive_write_to_string(self._native_) } }
 class Num   { method Str () { primitive_write_to_string(self._native_) } }
 class Str   { method Str () { self._native_ } }

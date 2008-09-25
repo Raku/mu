@@ -182,4 +182,3 @@ class Match
     "(match #{r} #{s} #{f} #{t} (hash #{h}))"
   end
 end
-#(with-open-file (s "dele") (read s))
