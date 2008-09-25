@@ -383,6 +383,13 @@ use warnings;
   }
 }
 
+{ package Fastundump;
+  sub match {my($r,$s,$f,$t,$h)=@_; Match->make_from_rsfth($r,$s,$f,$t,$h)}
+}
+{ package GLOBAL;
+  sub fastundump {my($dump)=@_; eval("package Fastundump; ".$dump);}
+}
+
 package Main;
 
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
@@ -3147,6 +3154,13 @@ use\ warnings\;\
 \ \ \}\
 \}\
 \
+\{\ package\ Fastundump\;\
+\ \ sub\ match\ \{my\(\$r\,\$s\,\$f\,\$t\,\$h\)\=\@_\;\ Match\-\>make_from_rsfth\(\$r\,\$s\,\$f\,\$t\,\$h\)\}\
+\}\
+\{\ package\ GLOBAL\;\
+\ \ sub\ fastundump\ \{my\(\$dump\)\=\@_\;\ eval\(\"package\ Fastundump\;\ \"\.\$dump\)\;\}\
+\}\
+\
 package\ Main\;\
 ")})};
 sub e{my $self=CORE::shift;my($x)=@_;
@@ -3916,16 +3930,12 @@ my $cmd = (((((($parser . "\ \-\-error\-message\=\'") . $msg) . "\'\ \-q\ \-\-fo
 ((GLOBAL::system($cmd) == 0) or GLOBAL::die("Parse\ failed\.\
 "));
 my $dump5 = GLOBAL::slurp($output);
-my $tree = GLOBAL::eval_perl5(("package\ Fastdump\;" . $dump5));
+my $tree = GLOBAL::fastundump($dump5);
 GLOBAL::unlink($input, $output);
 $tree})};
 sub parser_name{my $self=CORE::shift;(do{GLOBAL::parser_name()})}})
 }
 ;
-GLOBAL::eval_perl5("\
-\{\ package\ Fastdump\;\
-\ \ sub\ match\ \{my\(\$r\,\$s\,\$f\,\$t\,\$h\)\=\@_\;\ Match\-\>make_from_rsfth\(\$r\,\$s\,\$f\,\$t\,\$h\)\}\
-\}");
 if(GLOBAL::not($GLOBAL::parser0)) {
 (do{($GLOBAL::parser0 = Parser->new("is_for_active_runtime", 1))})
 };

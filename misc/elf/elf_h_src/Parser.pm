@@ -12,7 +12,7 @@ class Parser {
     my $cmd = $parser ~ " --error-message='"~$msg~"' -q --format=p5a "~$input~" > "~$output;
     system($cmd) == 0 or die("Parse failed.\n");
     my $dump5 = slurp($output);
-    my $tree = eval_perl5("package Fastdump;"~$dump5);
+    my $tree = fastundump($dump5);
     unlink($input,$output);
     $tree;
   };
@@ -21,10 +21,6 @@ class Parser {
   };
 
 };
-eval_perl5('
-{ package Fastdump;
-  sub match {my($r,$s,$f,$t,$h)=@_; Match->make_from_rsfth($r,$s,$f,$t,$h)}
-}');
 
 if not($*parser0) { $*parser0 = Parser.new('is_for_active_runtime',1) }
 $*parser1 = Parser.new;

@@ -416,6 +416,13 @@ use warnings;
   }
 }
 
+{ package Fastundump;
+  sub match {my($r,$s,$f,$t,$h)=@_; Match->make_from_rsfth($r,$s,$f,$t,$h)}
+}
+{ package GLOBAL;
+  sub fastundump {my($dump)=@_; eval("package Fastundump; ".$dump);}
+}
+
 package Main;
 ';
   };
