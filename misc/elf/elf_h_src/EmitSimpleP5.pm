@@ -349,6 +349,7 @@ use warnings;
 
 { package GLOBAL;
 
+  sub parser_format {"p5a"}
   sub parser_name{
     my $e = $ENV{ELF_STD_RED_RUN};
     return $e if $e;

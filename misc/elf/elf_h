@@ -316,6 +316,7 @@ use warnings;
 
 { package GLOBAL;
 
+  sub parser_format {"p5a"}
   sub parser_name{
     my $e = $ENV{ELF_STD_RED_RUN};
     return $e if $e;
@@ -770,9 +771,9 @@ if($self->hash->keys()->elems()) {
 };
 ($s = ($s . "\}\>"))})};
 sub indent{my $self=CORE::shift;my($s)=@_;
-(do{$s->re_gsub(qr/(?m:^(?!\Z))/, "\ \ ")})};
+(do{$s->re_gsub("\(\?m\:\^\(\?\!\\Z\)\)", "\ \ ")})};
 sub indent_except_top{my $self=CORE::shift;my($s)=@_;
-(do{$s->re_gsub(qr/(?m:^(?<!\A)(?!\Z))/, "\ \ ")})};
+(do{$s->re_gsub("\(\?m\:\^\(\?\<\!\\A\)\(\?\!\\Z\)\)", "\ \ ")})};
 sub match_string{my $self=CORE::shift;(do{$self->match_str})};
 sub Str{my $self=CORE::shift;(do{$self->match_str->substr($self->from, ($self->to - $self->from))})}})
 }
@@ -2121,9 +2122,9 @@ $s->re_sub_g("\\\\\(\[\\\\\'\]\)", "\$1");
 IRx1::Buf->newp($m, $s)})});
 $self->add_constructor("quote\:qq", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
-$s->re_gsub(qr/(?<!\\)\\n/, "\
+$s->re_gsub("\(\?\<\!\\\\\)\\\\n", "\
 ");
-$s->re_gsub(qr/(?<!\\)\\t/, "\	");
+$s->re_gsub("\(\?\<\!\\\\\)\\\\t", "\	");
 $s->re_sub_g("\\\\\(\.\)", "\$1");
 IRx1::Buf->newp($m, $s)})});
 $self->add_constructor("quote\:regex", sub {my($m)=@_;
@@ -3087,6 +3088,7 @@ use\ warnings\;\
 \
 \{\ package\ GLOBAL\;\
 \
+\ \ sub\ parser_format\ \{\"p5a\"\}\
 \ \ sub\ parser_name\{\
 \ \ \ \ my\ \$e\ \=\ \$ENV\{ELF_STD_RED_RUN\}\;\
 \ \ \ \ return\ \$e\ if\ \$e\;\
@@ -3926,7 +3928,7 @@ GLOBAL::unslurp($p6_code, $input);
 my $parser = $self->parser_name();
 my $msg = (("Parse\ error\ in\:\ " . $claim_as_filename) . "\
 ");
-my $cmd = (((((($parser . "\ \-\-error\-message\=\'") . $msg) . "\'\ \-q\ \-\-format\=p5a\ ") . $input) . "\ \>\ ") . $output);
+my $cmd = (((((((((($parser . "\ \-\-error\-message\=\'") . $msg) . "\'\ \-q\ ") . "\-\-format\=") . GLOBAL::parser_format()) . "\ ") . $input) . "\ \>\ ") . $output));
 ((GLOBAL::system($cmd) == 0) or GLOBAL::die("Parse\ failed\.\
 "));
 my $dump5 = GLOBAL::slurp($output);

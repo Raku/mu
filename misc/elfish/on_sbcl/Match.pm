@@ -36,41 +36,41 @@ class Match {
     $.match_str.substr($.from, $.to-$.from)
   }
 };
-class ARRAY {
-  method match_describe() {
-    ("[\n" ~
-     Match.indent(self.map(sub($e){$e.match_describe}).join(",\n")) ~
-     "\n]")
-  }
-};
-class HASH {
-  method match_describe() {
-    my $s = "{";
-    for self.keys {
-      my $k = $_;
-      my $v = self.{$k};
-      my $vs = 'undef';
-      if defined($v) {
-        $vs = $v.match_describe;
-      }
-      $s = $s ~ "\n  "~$k~" => "~Match.indent_except_top($vs)~",";
-    }
-    if self.keys.elems {$s = $s ~ "\n"}
-    $s ~ "}"
-  };
-};
-class STRING {
-  method match_describe() {
-    "'"~self~"'"
-  }
-}
-class INTEGER {
-  method match_describe() {
-    "'"~self~"'"
-  }
-}
-class FLOAT {
-  method match_describe() {
-    "'"~self~"'"
-  }
-}
+# class ARRAY {
+#   method match_describe() {
+#     ("[\n" ~
+#      Match.indent(self.map(sub($e){$e.match_describe}).join(",\n")) ~
+#      "\n]")
+#   }
+# };
+# class HASH {
+#   method match_describe() {
+#     my $s = "{";
+#     for self.keys {
+#       my $k = $_;
+#       my $v = self.{$k};
+#       my $vs = 'undef';
+#       if defined($v) {
+#         $vs = $v.match_describe;
+#       }
+#       $s = $s ~ "\n  "~$k~" => "~Match.indent_except_top($vs)~",";
+#     }
+#     if self.keys.elems {$s = $s ~ "\n"}
+#     $s ~ "}"
+#   };
+# };
+# class STRING {
+#   method match_describe() {
+#     "'"~self~"'"
+#   }
+# }
+# class INTEGER {
+#   method match_describe() {
+#     "'"~self~"'"
+#   }
+# }
+# class FLOAT {
+#   method match_describe() {
+#     "'"~self~"'"
+#   }
+# }

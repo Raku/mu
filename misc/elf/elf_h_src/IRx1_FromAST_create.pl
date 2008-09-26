@@ -174,8 +174,8 @@ Buf.newp($s)
 
 quote:qq
 my $s = $m<text>;
-$s =~ s/(?<!\\)\\n/\n/g;
-$s =~ s/(?<!\\)\\t/\t/g;
+$s.re_gsub('(?<!\\\\)\\\\n',"\n");
+$s.re_gsub('(?<!\\\\)\\\\t',"\t");
 $s.re_sub_g('\\\\(.)','$1');
 Buf.newp($s)
 
@@ -648,7 +648,7 @@ sub write_ast_handlers {
     my($name,$body)=($1,$2);
     die "Saw an AST handler for '$name' twice!\n" if $seen{$name}++;
 
-    $body =~ s{\s*=~\s*s/((?:[^\\\/]|\\.)*)/((?:[^\\\/]|\\.)*)/g;}{.re_gsub(rx:P5/$1/,"$2");}g;
+    #$body =~ s{\s*=~\s*s/((?:[^\\\/]|\\.)*)/((?:[^\\\/]|\\.)*)/g;}{.re_gsub(rx:P5/$1/,"$2");}g;
 
     $body =~ s/\bir\(/irbuild_ir\(/g;
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;

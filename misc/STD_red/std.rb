@@ -946,6 +946,14 @@ class Perl < Grammar
           _match_from(b,{:desigilname=>dsn},:subshortname))
          )
     end
+    def subshortname_variant_for_method_def
+        #R# Late hack to parse method postcircumfix. 2008-Sep-25
+        b=pos
+        (let_pos{
+             c= category and cp= plusTOK{colonpair} and
+             _match_from(b,{:category=>c,:colonpair=>cp},:subshortname)
+         })
+    end
     
     def sublongname
         subshortname and (sigterm;true)
@@ -1610,7 +1618,18 @@ class Perl < Grammar
         rul{
             b=pos
             i=s=nil
-            (let_pos{i= ident and wsp and s= quesRULE{multisig}} or
+            (let_pos{
+              #R# Late hack to parse method postcircumfix. 2008-Sep-25
+              ((if i= subshortname_variant_for_method_def and i[:category]
+                cat = i[:category][:sym].to_sym
+                cp0 = i[:colonpair][0]
+                v = cp0[:value]
+                n = (v and v[:ident]) || cp0[:structural][:kludge_name]
+                prec = :additive #R XXX NONSPEC default precedence
+                class << self;self;end.def_tokens_simple(cat,prec,[n])
+                true
+               end) or
+              i= ident) and wsp and s= quesRULE{multisig}} or
               let_pos{before{sigil and scan(/\.[\[\{\(]/)} and sigil and postcircumfix }) and wsp and
             t= starRULE{trait} and wsp and
             k= block and

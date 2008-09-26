@@ -256,8 +256,8 @@ IRx1::Buf.newp($m,$s);
 
     $.add_constructor('quote:qq', sub ($m) {
       my $s = irbuild_ir($m.{'hash'}{'text'});
-$s.re_gsub(rx:P5/(?<!\\)\\n/,"\n");
-$s.re_gsub(rx:P5/(?<!\\)\\t/,"\t");
+$s.re_gsub('(?<!\\\\)\\\\n',"\n");
+$s.re_gsub('(?<!\\\\)\\\\t',"\t");
 $s.re_sub_g('\\\\(.)','$1');
 IRx1::Buf.newp($m,$s);
     });

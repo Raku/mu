@@ -111,6 +111,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       (cls-sync-definition pkg)
       (set (intern (concatenate \'string pkg "::/co"))
         (make-instance (pkg-clsname pkg)))
+      (eval `(dm |M::WHAT| ((cls ,(pkg-clsname pkg))) (declare(ignorable cls)) ,pkg))
       )))
 
 (defun cls-has (pkg new-slot-specifier)
@@ -128,6 +129,43 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       (cls-sync-definition pkg))))
 
 ;;------------------------------------------------------------------------------
+;; utility functions
+
+(defun size-n-partition (n seq)
+    (do ((parts nil)
+         (lst (coerce seq \'list)))
+        ((not lst) (reverse parts))
+        (let ((part (subseq lst 0 n))
+              (rest (subseq lst n)))
+          (setq parts (cons part parts))
+          (setq lst rest))))
+
+(defun wrapped-index (len k)
+  (cond ((and (<= 0 k) (< k len)) k)
+        ((> 0 k) (let ((k1 (+ len k)))
+                   (if (<= 0 k1) k1 nil)))
+        (t nil)))
+
+;;------------------------------------------------------------------------------
+;; fake containers
+
+(defmacro rw-able (o k v) `(list ,v ,o ,k))
+(defmacro rw (c) `(car ,c))
+(defsetf rw (c) (v) `(ap #\'|M::STORE| (concatenate \'list (cdr ,c) (list ,v))))
+
+;;------------------------------------------------------------------------------
+;; Prelude & stuff
+
+(defun set-slots (o argl)
+  (let* ((clsname (symbol-name (class-name (class-of o))))
+         (realname (subseq clsname 0 (- (length clsname) (length "/cls")))))
+    (mapcar (lambda (kv)
+              (let* ((k (car kv))
+                     (v (cadr kv))
+                     (sym (find-symbol (concatenate \'string realname "::." k))))
+                (setf (slot-value o sym) v)))
+            (size-n-partition 2 argl)))
+  o)
 
 (make-package "M")
 
@@ -135,14 +173,14 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 
 (dg |M::new| (cls &rest argl))
 
-(dm |M::new| ((cls |Any/cls|) &rest argl)
+(dm |M::new| ((co |Any/cls|) &rest argl)
   (declare (ignorable argl))
-  (make-instance cls))
+  (set-slots (make-instance (class-of co)) argl))
 
  ;;Array.new is defined here to a avoid cyclic dependency on *@args.
 (pkg-declare "class" "Array" \'|Any/cls|)
-(eval \'(dm |M::new| ((cls |Array/cls|) &rest argl)
-  (declare (ignorable cls))
+(eval \'(dm |M::new| ((co |Array/cls|) &rest argl)
+  (declare (ignorable co))
   (let ((inst (make-instance \'|Array/cls|)))
     (setf (slot-value inst \'|Array::._native_|)
           (make-array (length argl) :adjustable t :initial-contents argl))
@@ -152,9 +190,17 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 ;; Hack until Str, Int, Num, etc are p6 objects.
 (eval \'(dm |M::Str| ((s string) &rest argl) (declare (ignorable argl)) s))
 (eval \'(dm |M::Str| ((n number) &rest argl) (declare (ignorable argl)) (write-to-string n)))
+(eval \'(dm |M::WHAT| ((s string) &rest argl) (declare (ignorable s argl)) "str"))
+(eval \'(dm |M::WHAT| ((n number) &rest argl) (declare (ignorable n argl)) "num"))
+
+(eval \'(dm |M::Str| ((x null) &rest argl) (declare (ignorable x argl)) ""))
+(eval \'(dm |M::WHAT| ((x null) &rest argl) (declare (ignorable x argl)) "nil"))
+(eval \'(dm |M::substr| ((s string) from len) (subseq s from (+ from len))))
+
+;; Undef is still being kludged as nil.
+(defmacro undef () nil)
 
 ;; Muffle warnings at compile and runtimes.
-
 ;(declaim (sb-ext:muffle-conditions style-warning))
 (declaim (sb-ext:muffle-conditions warning))
 
@@ -162,6 +208,12 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (if (find-symbol "sb-ext:*muffled-warnings*") ;In sbcl-1.0.20
 ;  (eval(read-from-string "(defparameter sb-ext:*muffled-warnings* style-warning)"))
  nil) 
+
+;; Simplify primitives
+(defun new-array (lst) (ap #\'|M::new| (cons |Array::/co| lst)))
+(defun new-hash  (lst) (ap #\'|M::new| (cons |Hash::/co| lst)))
+(defun new-pair  (k v) (ap #\'|M::new| (list |Pair::/co| k v)))
+
 
 ;;------------------------------------------------------------------------------
 ';
@@ -333,79 +385,6 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   }
 
 
-  method multimethods_using_hack ($n,$name,$param_types) {
-    my $name = $.e($n.name);
-    my $param_types = $n.multisig.parameters.map(sub($p){
-      my $types = $.e($p.type_constraints);
-        if $types {
-          if $types.elems != 1 { die("unsupported: parameter with !=1 type constraint.") }
-          $types[0];
-        } else {
-          undef;
-        }
-    });
-    my $type0 = $param_types[0];
-    if not($type0) {
-      die("implementation limitation: a multi method's first parameter must have a type: "~$name~"\n");
-    }
-    my $stem = '_mmd__'~$name~'__';
-    my $branch_name = $stem~$type0;
-    my $setup_name = '_reset'~$stem;
-    my $code = "";
-    $code = $code ~
-    '
-{ my $setup = sub {
-    my @meths = __PACKAGE__->meta->compute_all_applicable_methods;
-    my $h = {};
-    for my $m (@meths) {
-      next if not $m->{name} =~ /^'~$stem~'(\w+)/;
-      my $type = $1;
-      $h->{$type} = $m->{code}{q{&!body}};
-    };
-    my $s = eval q{sub {
-      my $ref = ref($_[1]) || $_[1]->WHAT;
-      my $f = $h->{$ref}; goto $f if $f;
-      Carp::croak "multi method '~$name~' cant dispatch on type: ".$ref."\n";
-    }};
-    die $@ if $@;
-    eval q{{no warnings; *'~$name~' = $s;}};
-    die $@ if $@;
-    goto &'~$name~';
-  };
-  eval q{{no warnings; *'~$setup_name~' = $setup;}};
-  die $@ if $@;
-  eval q{{no warnings; *'~$name~' = $setup;}};
-  die $@ if $@;
-};
-';
-    'sub '~$branch_name~'{my $self=CORE::shift;'~$.e($n.multisig)~$.e($n.block)~'}' ~ $code;
-  }
-  method multi_using_CM ($n,$is_method,$f_emitted) {
-    my $name = $.e($n.name);
-    my $enc_name = $.mangle_function_name($name);
-    my $param_types = $n.multisig.parameters.map(sub($p){
-      my $types = $.e($p.type_constraints);
-      if $types {
-        if $types.elems != 1 { die("unsupported: parameter with !=1 type constraint.") }
-        $types[0];
-      } else {
-        'Any'
-      }
-    });
-    if $is_method {
-      $param_types.unshift('Any');
-    }
-    my $sig = $param_types.map(sub($t){
-      # XXX C::M needs to be modified to work on both INTEGER and Int. :(
-      if $t eq 'Any' { '*' }
-      elsif $t eq 'Int' { '#' }
-      elsif $t eq 'Num' { '#' }
-      elsif $t eq 'Str' { '$' }
-      else { $t }
-    }).join(' ');
-    'Class::Multimethods::multimethod '~$enc_name~
-    ' => split(/\s+/'~",'"~$sig~"') => "~ $f_emitted ~';';
-  }
   method cb__MethodDecl ($n) {
     my $body;
     if $n.traits && $n.traits[0].expr && $n.traits[0].expr eq 'cl' {
@@ -440,8 +419,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       $body = $.e($n.block);
     }
     if $n.plurality && $n.plurality eq 'multi' {
-      my $ef = 'sub {'~$sig~$body~'}';
-      self.multi_using_CM($n,0,$ef);
+      die("multi subs not yet available");
     } else {
       my $most = '('~$sig~' (block __f__ '~$body~')';
       if $n.scope eq 'our' {
@@ -492,21 +470,16 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $g;
     temp $whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
+    my $meth = $.fqsym('M::'~$method);
     my $invocant = $.e($n.invocant);
-    if ($method eq 'postcircumfix:< >') {
-      $invocant~'->'~"{'"~$.e($n.capture)~"'}";
+    if $invocant.re_matchp('^[A-Z]\w*$') {
+      $invocant = ""~$.classobject_from_package_name($invocant);
     }
-    elsif $g = $method.re_groups('postcircumfix:(.*)') {
-      my $op = $g[0];
-      my $arg = $.e($n.capture);
-      $op.re_gsub(' ',$arg);
-      $invocant~'->'~$op;
+    my $call = '(fc '~$meth~' '~$invocant~' '~$.e($n.capture)~')';
+    if $method.re_matchp('\Apostcircumfix:[[{<] []}>]\z') {
+      '(rw '~$call~')';
     } else {
-      if $invocant.re_matchp('^[A-Z]\w*$') {
-        $invocant = ""~$.classobject_from_package_name($invocant);
-      }
-      my $meth = $.fqsym('M::'~$.e($n.method));
-      '(fc '~$meth~' '~$invocant~' '~$.e($n.capture)~')'
+      $call;
     }
   }
   method fqsym ($name) {
@@ -546,18 +519,10 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
         return $s;
       }
       if ($op eq '=') {
-        # assignment to field.
-        if $args[0].isa("IRx1::Var") {
-          my $t = $args[0].twigil;
-          if ($t && $t eq '.') {
-            return $l~'('~$r~')'
-          }
-        }
-        if ($args[0].isa("IRx1::Call") &&
-            $args[0].capture.arguments.elems == 0)
-        {
-          return $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
-        }
+        return '(setf '~$l~' '~$r~')';
+      }
+      if ($op eq 'or' or $op eq '||') {
+        return '(or '~$l~' '~$r~')';
       }
     }
     elsif $g = $fun.re_groups('^prefix:(.+)$') {
@@ -659,7 +624,8 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   method encode_varname($s,$t,$dsn) {
     if $t eq '*' {
       $.qsym('GLOBAL::'~$s~$dsn);
-    } else {
+    }
+    else {
       $.qsym($s~$t~$dsn);
     }
   }
@@ -671,15 +637,14 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $dsn = $.e($n.name);
     my $v = $s~$t~$dsn;
     if $v eq '$?PACKAGE' || $v eq '$?MODULE' || $v eq '$?CLASS' {
-      my $pkgname = $whiteboard::in_package.join('::'); # XXX should use $n notes instead.
-      $pkgname = $pkgname || 'Main';
-      "'"~$pkgname~"'"
+      my $pkgname = $n.notes<crnt_package>;
+      '"'~$pkgname~'"'
     } elsif $v eq '$?FILE' {
-      "'"~$.filename~"'"
+      '"'~$.filename~'"'
     } elsif $v eq '$?LINE' {
-      '0' # XXX $n notes needs to provide this.
+      "0" # XXX $n notes needs to provide this.
     } elsif $v eq '$?PERLVER' {
-      "'elf / "~ primitive_runtime_version() ~ " / " ~ $.WHAT ~"'"
+      '"elf / '~ primitive_runtime_version() ~ " / " ~ $.WHAT ~'"'
     } else {
       my $decl = $n.notes<decl>;
       if $n.is_temp && not($n.package) && not($t eq '*') {
@@ -689,6 +654,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       elsif $decl && $decl.scope eq 'our' && not($n.package) && not($t eq '*') {
         my $pkg = $decl.notes<crnt_package>;
         $.qsym($pkg~'::'~$s~$t~$dsn);
+      }
+      elsif $t eq '.' {
+        "(fc #'"~$.qsym("M::"~$dsn)~" self)";
       }
       else {
         $.encode_varname($s,$t,$dsn);

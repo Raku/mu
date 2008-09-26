@@ -9,7 +9,8 @@ class Parser {
     unslurp($p6_code,$input);
     my $parser = self.parser_name();
     my $msg = "Parse error in: "~$claim_as_filename~"\n";
-    my $cmd = $parser ~ " --error-message='"~$msg~"' -q --format=p5a "~$input~" > "~$output;
+    my $cmd = ($parser ~ " --error-message='"~$msg~"' -q "~
+               "--format="~parser_format()~" "~$input~" > "~$output);
     system($cmd) == 0 or die("Parse failed.\n");
     my $dump5 = slurp($output);
     my $tree = fastundump($dump5);
