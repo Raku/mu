@@ -16,13 +16,13 @@ rather than users.
 
 =head1 PROBLEM: "cpan -i Task::Smoke" fails because Test-TAP-Model-0.06 install fails.
 
-WORKAROUND: Force it with "cpan -if Task::TAP::Model".
+B<WORKAROUND:> Force it with "cpan -if Task::TAP::Model".
 
 
 =head1 PROBLEM: Doesn't build under Debian; aborts with
 	"Setup: error reading ./.setup-config"
 
-WORKAROUND: Install libghc6-network-dev
+B<WORKAROUND:> Install libghc6-network-dev
 
 
 =head1 PROBLEM: make pugs fails at link time, with errors like
@@ -58,5 +58,5 @@ the current "try to link and see if it works".
 =head1 PROBLEM: perl Makefile.PL fails after "Preprocessing library zlib" 
 	 with an error like "Cannot install zlib: 256"
 
-SOLUTION: Please make sure that your $PATH contains ghc (6.8.2+) binaries 
+B<SOLUTION:> Please make sure that your $PATH contains ghc (6.8.2+) binaries 
 	  first, and then run 'perl Makefile.PL' again.
