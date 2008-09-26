@@ -1,4 +1,4 @@
-=head1 TITLE
+=head1 NAME
 
 Current Problems and workarounds
 

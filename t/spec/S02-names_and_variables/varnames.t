@@ -4,6 +4,8 @@ use Test;
 
 plan 4;
 
+# L<S02/Names and Variables/special variables of Perl 5 are going away>
+
 # things that should be valid
 # these tests are probably going to fail if declaring a magical var ever becomes unallowed
 ok((eval 'my $!; 1'), '$! parses ok');
