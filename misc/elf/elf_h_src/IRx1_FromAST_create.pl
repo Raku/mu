@@ -84,7 +84,7 @@ my $s = *text*;
 my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $ident = "postcircumfix:"~$name;
 my $args = $m<kludge_name>;
-if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
+if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Call.newp($blackboard::expect_term_base,$ident,Capture.newp($args||[]))
 
 postcircumfix
@@ -92,7 +92,7 @@ my $s = *text*;
 my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $ident = "postcircumfix:"~$name;
 my $args = $m<kludge_name>;
-if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
+if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Call.newp($blackboard::expect_term_base,$ident,Capture.newp($args||[]))
 
 postfix
@@ -169,14 +169,14 @@ if $m<arglist> {
 
 quote:q
 my $s = $m<text>;
-$s.re_sub_g('\\\\([\\\\\'])','$1');
+$s.re_gsub_inline('\\\\([\\\\\'])','$1');
 Buf.newp($s)
 
 quote:qq
 my $s = $m<text>;
 $s.re_gsub('(?<!\\\\)\\\\n',"\n");
 $s.re_gsub('(?<!\\\\)\\\\t',"\t");
-$s.re_sub_g('\\\\(.)','$1');
+$s.re_gsub_inline('\\\\(.)','$1');
 Buf.newp($s)
 
 quote:regex
@@ -216,7 +216,7 @@ if $o<postcircumfix> {
   if $tw eq "." {
     my $slf = Apply.newp('self',Capture.newp([]));
     my $args = $m<postcircumfix><kludge_name>;
-    if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
+    if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
     Call.newp($slf,$m<desigilname>,Capture.newp($args||[]))
   } else {
     my $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
@@ -243,7 +243,7 @@ circumfix
 my $s = *text*;
 my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $args = $m<kludge_name>;
-if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
+if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Apply.newp("circumfix:"~$name,Capture.newp($args||[]))
 
 
@@ -587,27 +587,27 @@ class Match {
     $main::irbuilder.make_ir_from_Match_tree(self)
   }
 };
-class ARRAY {
+class Array {
   method make_ir_from_Match_tree() {
     self.map(sub($e){$e.make_ir_from_Match_tree()})
   }
 };
-class STRING {
+class Str {
   method make_ir_from_Match_tree() {
     self
   }
 };
-class INTEGER {
+class Int {
   method make_ir_from_Match_tree() {
     self
   }
 };
-class FLOAT {
+class Num {
   method make_ir_from_Match_tree() {
     self
   }
 };
-class UNDEF {
+class Undef {
   method make_ir_from_Match_tree() {
     self
   }

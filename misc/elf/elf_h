@@ -34,13 +34,8 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 if(!defined(&autobox::universal::type)) {
   eval q{package autobox::universal; sub type { autobox->type($_[0]) }};
 }
-{package UNDEF; sub WHAT {"Undef"}}
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox::universal::type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox::universal::type($_[0]) } }
-
-{ package UNDEF;
-  sub perl { "undef" }
-}
 
 { package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
@@ -54,8 +49,14 @@ if(!defined(&autobox::universal::type)) {
 { package Str; our $_tell_use_base_i_am_not_empty_; }
 { package Array; our $_tell_use_base_i_am_not_empty_; }
 { package Hash; our $_tell_use_base_i_am_not_empty_; }
+{ package Undef; our $_tell_use_base_i_am_not_empty_; }
 { package Code; our $_tell_use_base_i_am_not_empty_; }
 
+{package UNDEF;
+ use base "Undef";
+ sub WHAT {"Undef"}
+ sub perl { "undef" }
+}
 no warnings qw(redefine prototype);
 { package STRING;
   use base "Str";
@@ -66,6 +67,24 @@ no warnings qw(redefine prototype);
     my @g = $_[0] =~ m{$_[1]};
     @g ? \@g : undef;
   }
+
+  sub re_gsub_inline ($$$) { # slower, but needed for $1 in replacement.
+    eval "\$_[0] =~ s/$_[1]/$_[2]/g";
+    Carp::confess($@) if $@;
+    $_[0]
+  }
+  sub re_gsub ($$$) {
+    $_[0] =~ s/$_[1]/$_[2]/g; $_[0]
+  }
+
+  # unused
+  sub re_sub         {
+    my $expr = "\$_[0] =~ s/$_[1]/$_[2]/".($_[3]||"");
+    eval $expr;
+    Carp::confess($@) if $@;
+    $_[0]
+  }
+
 
   # randomness taken from autobox::Core
 
@@ -298,22 +317,6 @@ use warnings;
 
 }
 
-{ package STRING;
-  sub re_sub         {
-    my $expr = "\$_[0] =~ s/$_[1]/$_[2]/".($_[3]||"");
-    eval $expr;
-    Carp::confess($@) if $@;
-    $_[0]
-  }
-  sub re_sub_g ($$$) {
-    eval "\$_[0] =~ s/$_[1]/$_[2]/g";
-    Carp::confess($@) if $@;
-    $_[0]
-  }
-  # legacy
-  sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
-}
-
 { package GLOBAL;
 
   sub parser_format {"p5a"}
@@ -389,6 +392,10 @@ use warnings;
 }
 { package GLOBAL;
   sub fastundump {my($dump)=@_; eval("package Fastundump; ".$dump);}
+  sub mangle_name {my($name)=@_;
+    $name =~ s/([^\w])/"_".CORE::ord($1)/eg;
+    $name;
+  }
 }
 
 package Main;
@@ -779,7 +786,7 @@ sub Str{my $self=CORE::shift;(do{$self->match_str->substr($self->from, ($self->t
 }
 ;
 
-{ package ARRAY;
+{ package Array;
 use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{((("\[\
 " . Match->indent($self->map(sub {my($e)=@_;
 (do{$e->match_describe()})})->join("\,\
@@ -788,7 +795,7 @@ use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{((("\[\
 }
 ;
 
-{ package HASH;
+{ package Hash;
 use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{my $s = "\{";
 for(($self->keys())->flatten){
 (do{my $k = $_;
@@ -808,17 +815,17 @@ if($self->keys()->elems()) {
 }
 ;
 
-{ package STRING;
+{ package Str;
 use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}})
 }
 ;
 
-{ package INTEGER;
+{ package Int;
 use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}})
 }
 ;
 
-{ package FLOAT;
+{ package Num;
 use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) . "\'")})}})
 }
 ;
@@ -827,28 +834,28 @@ use base "Any";(do{sub match_describe{my $self=CORE::shift;(do{(("\'" . $self) .
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 
-{ package ARRAY;
+{ package Array;
 use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{(("\[" . $self->map(sub {my($e)=@_;
 (do{$e->irx1_describe()})})->join("\,")) . "\]")})}})
 }
 ;
 
-{ package STRING;
+{ package Str;
 use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
 }
 ;
 
-{ package INTEGER;
+{ package Int;
 use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
 }
 ;
 
-{ package FLOAT;
+{ package Num;
 use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{($self . "")})}})
 }
 ;
 
-{ package UNDEF;
+{ package Undef;
 use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{"undef"})}})
 }
 ;
@@ -1936,28 +1943,28 @@ use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$main::i
 }
 ;
 
-{ package ARRAY;
+{ package Array;
 use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self->map(sub {my($e)=@_;
 (do{$e->make_ir_from_Match_tree()})})})}})
 }
 ;
 
-{ package STRING;
+{ package Str;
 use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
-{ package INTEGER;
+{ package Int;
 use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
-{ package FLOAT;
+{ package Num;
 use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
 
-{ package UNDEF;
+{ package Undef;
 use base "Any";(do{sub make_ir_from_Match_tree{my $self=CORE::shift;(do{$self})}})
 }
 ;
@@ -2045,7 +2052,7 @@ $self->add_constructor("dotty\:postcircumfix", sub {my($m)=@_;
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $ident = ("postcircumfix\:" . $name);
 my $args = irbuild_ir($m->{"hash"}->{"kludge_name"});
-if(($args && (($args->ref() ne "ARRAY")))) {
+if(($args && (($args->WHAT() ne "Array")))) {
 (do{($args = [$args])})
 };
 IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
@@ -2054,7 +2061,7 @@ $self->add_constructor("postcircumfix", sub {my($m)=@_;
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $ident = ("postcircumfix\:" . $name);
 my $args = irbuild_ir($m->{"hash"}->{"kludge_name"});
-if(($args && (($args->ref() ne "ARRAY")))) {
+if(($args && (($args->WHAT() ne "Array")))) {
 (do{($args = [$args])})
 };
 IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp($m, ($args || [])))})});
@@ -2118,14 +2125,14 @@ if(irbuild_ir($m->{"hash"}->{"arglist"})) {
 }})});
 $self->add_constructor("quote\:q", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
-$s->re_sub_g("\\\\\(\[\\\\\'\]\)", "\$1");
+$s->re_gsub_inline("\\\\\(\[\\\\\'\]\)", "\$1");
 IRx1::Buf->newp($m, $s)})});
 $self->add_constructor("quote\:qq", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
 $s->re_gsub("\(\?\<\!\\\\\)\\\\n", "\
 ");
 $s->re_gsub("\(\?\<\!\\\\\)\\\\t", "\	");
-$s->re_sub_g("\\\\\(\.\)", "\$1");
+$s->re_gsub_inline("\\\\\(\.\)", "\$1");
 IRx1::Buf->newp($m, $s)})});
 $self->add_constructor("quote\:regex", sub {my($m)=@_;
 (do{my $s = (irbuild_ir($m->{"hash"}->{"text"}) || irbuild_ir($m->{"hash"}->{"quotesnabber"}->{"hash"}->{"text"}));
@@ -2157,7 +2164,7 @@ if($m->{"hash"}->{"postcircumfix"}) {
 (do{if(($tw eq "\.")) {
 (do{my $slf = IRx1::Apply->newp($m, "self", IRx1::Capture->newp($m, []));
 my $args = irbuild_ir($m->{"hash"}->{"postcircumfix"}->{"hash"}->{"kludge_name"});
-if(($args && (($args->ref() ne "ARRAY")))) {
+if(($args && (($args->WHAT() ne "Array")))) {
 (do{($args = [$args])})
 };
 IRx1::Call->newp($m, $slf, irbuild_ir($m->{"hash"}->{"desigilname"}), IRx1::Capture->newp($m, ($args || [])))})
@@ -2182,7 +2189,7 @@ $self->add_constructor("circumfix", sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $args = irbuild_ir($m->{"hash"}->{"kludge_name"});
-if(($args && (($args->ref() ne "ARRAY")))) {
+if(($args && (($args->WHAT() ne "Array")))) {
 (do{($args = [$args])})
 };
 IRx1::Apply->newp($m, ("circumfix\:" . $name), IRx1::Capture->newp($m, ($args || [])))})});
@@ -2806,13 +2813,8 @@ use\ warnings\;\
 if\(\!defined\(\&autobox\:\:universal\:\:type\)\)\ \{\
 \ \ eval\ q\{package\ autobox\:\:universal\;\ sub\ type\ \{\ autobox\-\>type\(\$_\[0\]\)\ \}\}\;\
 \}\
-\{package\ UNDEF\;\ sub\ WHAT\ \{\"Undef\"\}\}\
 \{package\ UNIVERSAL\;\ sub\ ref\ \{CORE\:\:ref\(\$_\[0\]\)\ \|\|\ autobox\:\:universal\:\:type\(\$_\[0\]\)\ \}\ \}\ \#\ For\ IRx1_FromAST\.pm\.\
 \{package\ UNIVERSAL\;\ sub\ WHAT\ \{CORE\:\:ref\(\$_\[0\]\)\ \|\|\ autobox\:\:universal\:\:type\(\$_\[0\]\)\ \}\ \}\
-\
-\{\ package\ UNDEF\;\
-\ \ sub\ perl\ \{\ \"undef\"\ \}\
-\}\
 \
 \{\ package\ Any\;\
 \ \ sub\ can\ \{\ UNIVERSAL\:\:can\(\$_\[0\]\,\$_\[1\]\)\ \}\
@@ -2826,8 +2828,14 @@ if\(\!defined\(\&autobox\:\:universal\:\:type\)\)\ \{\
 \{\ package\ Str\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
 \{\ package\ Array\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
 \{\ package\ Hash\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
+\{\ package\ Undef\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
 \{\ package\ Code\;\ our\ \$_tell_use_base_i_am_not_empty_\;\ \}\
 \
+\{package\ UNDEF\;\
+\ use\ base\ \"Undef\"\;\
+\ sub\ WHAT\ \{\"Undef\"\}\
+\ sub\ perl\ \{\ \"undef\"\ \}\
+\}\
 no\ warnings\ qw\(redefine\ prototype\)\;\
 \{\ package\ STRING\;\
 \ \ use\ base\ \"Str\"\;\
@@ -2838,6 +2846,24 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \ \ \ \ my\ \@g\ \=\ \$_\[0\]\ \=\~\ m\{\$_\[1\]\}\;\
 \ \ \ \ \@g\ \?\ \\\@g\ \:\ undef\;\
 \ \ \}\
+\
+\ \ sub\ re_gsub_inline\ \(\$\$\$\)\ \{\ \#\ slower\,\ but\ needed\ for\ \$1\ in\ replacement\.\
+\ \ \ \ eval\ \"\\\$_\[0\]\ \=\~\ s\/\$_\[1\]\/\$_\[2\]\/g\"\;\
+\ \ \ \ Carp\:\:confess\(\$\@\)\ if\ \$\@\;\
+\ \ \ \ \$_\[0\]\
+\ \ \}\
+\ \ sub\ re_gsub\ \(\$\$\$\)\ \{\
+\ \ \ \ \$_\[0\]\ \=\~\ s\/\$_\[1\]\/\$_\[2\]\/g\;\ \$_\[0\]\
+\ \ \}\
+\
+\ \ \#\ unused\
+\ \ sub\ re_sub\ \ \ \ \ \ \ \ \ \{\
+\ \ \ \ my\ \$expr\ \=\ \"\\\$_\[0\]\ \=\~\ s\/\$_\[1\]\/\$_\[2\]\/\"\.\(\$_\[3\]\|\|\"\"\)\;\
+\ \ \ \ eval\ \$expr\;\
+\ \ \ \ Carp\:\:confess\(\$\@\)\ if\ \$\@\;\
+\ \ \ \ \$_\[0\]\
+\ \ \}\
+\
 \
 \ \ \#\ randomness\ taken\ from\ autobox\:\:Core\
 \
@@ -3070,22 +3096,6 @@ use\ warnings\;\
 \
 \}\
 \
-\{\ package\ STRING\;\
-\ \ sub\ re_sub\ \ \ \ \ \ \ \ \ \{\
-\ \ \ \ my\ \$expr\ \=\ \"\\\$_\[0\]\ \=\~\ s\/\$_\[1\]\/\$_\[2\]\/\"\.\(\$_\[3\]\|\|\"\"\)\;\
-\ \ \ \ eval\ \$expr\;\
-\ \ \ \ Carp\:\:confess\(\$\@\)\ if\ \$\@\;\
-\ \ \ \ \$_\[0\]\
-\ \ \}\
-\ \ sub\ re_sub_g\ \(\$\$\$\)\ \{\
-\ \ \ \ eval\ \"\\\$_\[0\]\ \=\~\ s\/\$_\[1\]\/\$_\[2\]\/g\"\;\
-\ \ \ \ Carp\:\:confess\(\$\@\)\ if\ \$\@\;\
-\ \ \ \ \$_\[0\]\
-\ \ \}\
-\ \ \#\ legacy\
-\ \ sub\ re_gsub\ \(\$\$\$\)\ \{\$_\[0\]\ \=\~\ s\/\$_\[1\]\/\$_\[2\]\/g\;\ \$_\[0\]\}\
-\}\
-\
 \{\ package\ GLOBAL\;\
 \
 \ \ sub\ parser_format\ \{\"p5a\"\}\
@@ -3161,6 +3171,10 @@ use\ warnings\;\
 \}\
 \{\ package\ GLOBAL\;\
 \ \ sub\ fastundump\ \{my\(\$dump\)\=\@_\;\ eval\(\"package\ Fastundump\;\ \"\.\$dump\)\;\}\
+\ \ sub\ mangle_name\ \{my\(\$name\)\=\@_\;\
+\ \ \ \ \$name\ \=\~\ s\/\(\[\^\\w\]\)\/\"_\"\.CORE\:\:ord\(\$1\)\/eg\;\
+\ \ \ \ \$name\;\
+\ \ \}\
 \}\
 \
 package\ Main\;\
@@ -3333,7 +3347,7 @@ if((($n->var()->sigil() eq "\%"))) {
 };
 if(($n->is_context())) {
 (do{my $name = $self->e($n->var());
-$name->re_sub_g("\^\(\.\)\:\:", "\$1");
+$name->re_gsub("\^\(\.\)\:\:", "\$1");
 ((((((("\{package\ main\;\ use\ vars\ \'" . $name) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
 }elsif(($n->is_temp())) {
 (do{my $var = $n->var();
@@ -3500,8 +3514,8 @@ $op->re_gsub("\ ", $arg);
 (do{((((($self->e($n->invocant()) . "\-\>") . $self->e($n->method())) . "\(") . $self->e($n->capture())) . "\)")})
 }})};
 sub mangle_function_name{my $self=CORE::shift;my($name)=@_;
-(do{$name->re_sub("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_");
-$name->re_sub("\(\[\^\\w\]\)", "\"_\"\.CORE\:\:ord\(\$1\)", "eg");
+(do{$name->re_gsub_inline("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_");
+($name = GLOBAL::mangle_name($name));
 $name})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 (do{my $g;

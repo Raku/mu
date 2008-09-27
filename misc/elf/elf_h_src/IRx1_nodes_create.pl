@@ -171,27 +171,27 @@ sub write_ir_nodes {
   my($file)=@_;
   my $code = "".unindent(<<'  END');
     # Warning: This file is mechanically written.  Your changes will be overwritten.
-    package ARRAY {
+    package Array {
       method irx1_describe() {
         '[' ~ self.map(sub($e){$e.irx1_describe}).join(",") ~ ']'
       };
     };
-    package STRING {
+    package Str {
       method irx1_describe() {
         self ~ ""
       };
     };
-    package INTEGER {
+    package Int {
       method irx1_describe() {
         self ~ ""
       };
     };
-    package FLOAT {
+    package Num {
       method irx1_describe() {
         self ~ ""
       };
     };
-    package UNDEF {
+    package Undef {
       method irx1_describe() {
         'undef'
       };

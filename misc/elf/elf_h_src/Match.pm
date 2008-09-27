@@ -36,14 +36,14 @@ class Match {
     $.match_str.substr($.from, $.to-$.from)
   }
 };
-class ARRAY {
+class Array {
   method match_describe() {
     ("[\n" ~
      Match.indent(self.map(sub($e){$e.match_describe}).join(",\n")) ~
      "\n]")
   }
 };
-class HASH {
+class Hash {
   method match_describe() {
     my $s = "{";
     for self.keys {
@@ -59,17 +59,17 @@ class HASH {
     $s ~ "}"
   };
 };
-class STRING {
+class Str {
   method match_describe() {
     "'"~self~"'"
   }
 }
-class INTEGER {
+class Int {
   method match_describe() {
     "'"~self~"'"
   }
 }
-class FLOAT {
+class Num {
   method match_describe() {
     "'"~self~"'"
   }

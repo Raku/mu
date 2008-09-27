@@ -67,13 +67,8 @@ use warnings;
 if(!defined(&autobox::universal::type)) {
   eval q{package autobox::universal; sub type { autobox->type($_[0]) }};
 }
-{package UNDEF; sub WHAT {"Undef"}}
 {package UNIVERSAL; sub ref {CORE::ref($_[0]) || autobox::universal::type($_[0]) } } # For IRx1_FromAST.pm.
 {package UNIVERSAL; sub WHAT {CORE::ref($_[0]) || autobox::universal::type($_[0]) } }
-
-{ package UNDEF;
-  sub perl { "undef" }
-}
 
 { package Any;
   sub can { UNIVERSAL::can($_[0],$_[1]) }
@@ -87,8 +82,14 @@ if(!defined(&autobox::universal::type)) {
 { package Str; our $_tell_use_base_i_am_not_empty_; }
 { package Array; our $_tell_use_base_i_am_not_empty_; }
 { package Hash; our $_tell_use_base_i_am_not_empty_; }
+{ package Undef; our $_tell_use_base_i_am_not_empty_; }
 { package Code; our $_tell_use_base_i_am_not_empty_; }
 
+{package UNDEF;
+ use base "Undef";
+ sub WHAT {"Undef"}
+ sub perl { "undef" }
+}
 no warnings qw(redefine prototype);
 { package STRING;
   use base "Str";
@@ -99,6 +100,24 @@ no warnings qw(redefine prototype);
     my @g = $_[0] =~ m{$_[1]};
     @g ? \@g : undef;
   }
+
+  sub re_gsub_inline ($$$) { # slower, but needed for $1 in replacement.
+    eval "\$_[0] =~ s/$_[1]/$_[2]/g";
+    Carp::confess($@) if $@;
+    $_[0]
+  }
+  sub re_gsub ($$$) {
+    $_[0] =~ s/$_[1]/$_[2]/g; $_[0]
+  }
+
+  # unused
+  sub re_sub         {
+    my $expr = "\$_[0] =~ s/$_[1]/$_[2]/".($_[3]||"");
+    eval $expr;
+    Carp::confess($@) if $@;
+    $_[0]
+  }
+
 
   # randomness taken from autobox::Core
 
@@ -331,22 +350,6 @@ use warnings;
 
 }
 
-{ package STRING;
-  sub re_sub         {
-    my $expr = "\$_[0] =~ s/$_[1]/$_[2]/".($_[3]||"");
-    eval $expr;
-    Carp::confess($@) if $@;
-    $_[0]
-  }
-  sub re_sub_g ($$$) {
-    eval "\$_[0] =~ s/$_[1]/$_[2]/g";
-    Carp::confess($@) if $@;
-    $_[0]
-  }
-  # legacy
-  sub re_gsub ($$$) {$_[0] =~ s/$_[1]/$_[2]/g; $_[0]}
-}
-
 { package GLOBAL;
 
   sub parser_format {"p5a"}
@@ -422,6 +425,10 @@ use warnings;
 }
 { package GLOBAL;
   sub fastundump {my($dump)=@_; eval("package Fastundump; ".$dump);}
+  sub mangle_name {my($name)=@_;
+    $name =~ s/([^\w])/"_".CORE::ord($1)/eg;
+    $name;
+  }
 }
 
 package Main;
@@ -565,7 +572,7 @@ package Main;
       }
       if ($n.is_context) { # BOGUS
         my $name = $.e($n.var);
-        $name.re_sub_g('^(.)::','$1');
+        $name.re_gsub('^(.)::','$1');
         ("{package main; use vars '"~$name~"'};"~
          'local'~' '~$.e($n.var)~$default)
       }
@@ -737,8 +744,8 @@ package Main;
     }
   };
   method mangle_function_name($name) {
-     $name.re_sub('^(\w+):(?!:)','${1}_');
-     $name.re_sub('([^\w])','"_".CORE::ord($1)','eg');
+     $name.re_gsub_inline('^(\w+):(?!:)','${1}_');
+     $name = mangle_name($name);
      $name;
   }
   method cb__Apply ($n) {

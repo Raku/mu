@@ -24,27 +24,27 @@ class Match {
     $main::irbuilder.make_ir_from_Match_tree(self)
   }
 };
-class ARRAY {
+class Array {
   method make_ir_from_Match_tree() {
     self.map(sub($e){$e.make_ir_from_Match_tree()})
   }
 };
-class STRING {
+class Str {
   method make_ir_from_Match_tree() {
     self
   }
 };
-class INTEGER {
+class Int {
   method make_ir_from_Match_tree() {
     self
   }
 };
-class FLOAT {
+class Num {
   method make_ir_from_Match_tree() {
     self
   }
 };
-class UNDEF {
+class Undef {
   method make_ir_from_Match_tree() {
     self
   }
@@ -152,7 +152,7 @@ die "pre without a prefix is unimplemented";
 my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $ident = "postcircumfix:"~$name;
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
-if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
+if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 IRx1::Call.newp($m,$blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args||[]));
     });
 
@@ -161,7 +161,7 @@ IRx1::Call.newp($m,$blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$a
 my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $ident = "postcircumfix:"~$name;
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
-if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
+if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 IRx1::Call.newp($m,$blackboard::expect_term_base,$ident,IRx1::Capture.newp($m,$args||[]));
     });
 
@@ -250,7 +250,7 @@ IRx1::Apply.newp($m,irbuild_ir($m.{'hash'}{'ident'}),IRx1::Capture.newp($m,[]))
 
     $.add_constructor('quote:q', sub ($m) {
       my $s = irbuild_ir($m.{'hash'}{'text'});
-$s.re_sub_g('\\\\([\\\\\'])','$1');
+$s.re_gsub_inline('\\\\([\\\\\'])','$1');
 IRx1::Buf.newp($m,$s);
     });
 
@@ -258,7 +258,7 @@ IRx1::Buf.newp($m,$s);
       my $s = irbuild_ir($m.{'hash'}{'text'});
 $s.re_gsub('(?<!\\\\)\\\\n',"\n");
 $s.re_gsub('(?<!\\\\)\\\\t',"\t");
-$s.re_sub_g('\\\\(.)','$1');
+$s.re_gsub_inline('\\\\(.)','$1');
 IRx1::Buf.newp($m,$s);
     });
 
@@ -304,7 +304,7 @@ if $m.{'hash'}{'postcircumfix'} {
 if $tw eq "." {
   my $slf = IRx1::Apply.newp($m,'self',IRx1::Capture.newp($m,[]));
   my $args = irbuild_ir($m.{'hash'}{'postcircumfix'}.{'hash'}{'kludge_name'});
-  if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
+  if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
   IRx1::Call.newp($m,$slf,irbuild_ir($m.{'hash'}{'desigilname'}),IRx1::Capture.newp($m,$args||[]))
 } else {
   my $v = IRx1::Var.newp($m,irbuild_ir($m.{'hash'}{'sigil'}),$tw,irbuild_ir($m.{'hash'}{'desigilname'}));
@@ -335,7 +335,7 @@ IRx1::Var.newp($m,$s,undef,$n);
       my $s = ($m.match_string);
 my $name = substr($s,0,1)~' '~substr($s,-1,1);
 my $args = irbuild_ir($m.{'hash'}{'kludge_name'});
-if $args && ($args.ref ne 'ARRAY')  { $args = [$args] }
+if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp($m,$args||[]));
     });
 
