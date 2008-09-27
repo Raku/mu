@@ -6,8 +6,9 @@
 
 Z<CHP-4>
 
-Perl 6 is a work in progress, so the syntax is rapidly changing. The
-next 4 chapters are likely to be outdated by the time you read them.
+Perl 6 is a work in progress, so the syntax is still changing, but not 
+as fast as it used to be.  The next 4 chapters are likely to be slightly
+outdated by the time you read them.
 Even so, they provide a good baseline. If you start here, you'll only
 have to catch up on a few months of changes (starting with the design
 documents after Apocalypse 12), instead of several years worth.
@@ -188,8 +189,8 @@ creates an array of alternating keys and values that looks like:
 
 X<hashes;.keys method>
 X<hashes;.values method>
-The C<.keys> method returns a flattened list of all the keys in a
-hash. The C<.values> method returns a flattened list of all the
+The C<.keys> method returns a list of all the keys in a
+hash. The C<.values> method returns a list of all the
 values:
 
   @keys = %hash.keys;

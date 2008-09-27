@@ -98,10 +98,11 @@ listen. Work to understand the issues behind each thread of
 discussion. Soon you'll find there are repetitions in the themes,
 guiding principles that shape the debates.
 
-Form a mental map of the new syntax. It's not an easy task. There is
-is only a limited prototype interpreter available for Perl 6, so if
+Form a mental map of the new syntax. It's not an easy task. There
+are only limited prototype interpreters available for Perl 6, so if
 you forget how a particular feature works you can't just experiment.
-Mainly, you'll have to search through the list archives--over, and
+Mainly, you'll have to search through the list archives or the test
+suite--over, and
 over, and over again. And the syntax keeps changing. You'll have a
 perfect grasp on a feature just before it changes. It can be
 frustrating, but it is well worth it.

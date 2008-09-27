@@ -6,8 +6,9 @@
 
 Z<CHP-1>
 
-Perl 6 is the next major version of Perl. It's a complete rewrite of
-the interpreter, and a significant update of the language itself. The
+Perl 6 is the next major version of Perl. It is a significant update of the
+language, and the first version of Perl that is defined by a specification,
+not by a reference implementation.  The
 goal of Perl 6 is to add support for much-needed new features, and
 still be cleaner, faster, and easier to use.
 
