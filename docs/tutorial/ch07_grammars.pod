@@ -2,51 +2,66 @@
 
 =pod
 
-=head0 Grammars and Rules
+=head0 Grammars and Regexes
+
+
+TODO: This chapter is outdated in some ways
+
+  * It uses the old word "rule" instead of "regex" in far too many places
+  * The interpolation rules are outdated
+  * <'...'> and <"..."> are now '...' and "..."
+  * some of the assertion syntax has changed, for example <foo()> means
+    something different now
+  * Modifiers: explain :sigspace and :ratchet modifiers
+  * Modifiers: :u1, :u2... are now :bytes, :codes, :graphemes etc.
+  * Other missing modifiers: :overlap, :ignoreaccent
+  * The match object needs explanation
 
 Z<CHP-7>
 
-X<rules;grammars and>
-X<grammars and rules>
+X<regexes;grammars and>
+X<grammars and regexes>
 X<regular expressions>
 Perl 6 "regular expressions" are so far beyond the formal definition
-of regular expressions that we decided it was time for a more
-meaningful name.N<Regular expressions describe regular languages, and
+of regular expressions that we don't use that name anymore, but simply
+stick to the abbreviation I<Regex>.N<Regular expressions describe regular
+languages, and
 consist of three primitives and a limited set of operations (three or
 so, depending on the formulation). So, even Perl 5 "regular
-expressions" weren't formal regular expressions.> We now call them
-"rules." Perl 6 rules bring the full power of recursive descent
-parsing to the core of Perl, but are comfortably useful even if you
+expressions" weren't formal regular expressions.> 
+Perl 6 regexes bring the full power of recursive descent
+parsingN<A computer scientist would classify the most common usage of Perl 6
+regexes as I<deterministic context-free languages>> to the core of Perl, but are comfortably useful even if you
 don't know anything about recursive descent parsing. In the usual
-case, all you'll ever need to know is that rules are X<patterns>
+case, all you'll ever need to know is that regexes are X<patterns>
 patterns for matching text.
 
-=head1 Using Rules
+=head1 Using Regexes
 
 Z<CHP-7-SECT-1>
 
-X<rules;syntax>
-Rules are a language within a language, with their own syntax and
+X<regexes;syntax>
+Regexes are a language within a language, with their own syntax and
 conventions. At the highest level, though, they're just another set of
-Perl constructs. So the first thing to learn about rules is the Perl
+Perl constructs. So the first thing to learn about regexes is the Perl
 "glue" code for creating and using them.
 
 =head2 Immediate Matches
 
 Z<CHP-7-SECT-1.1>
 
-The simplest way to create and use a rule is an immediate match. A rule
+The simplest way to create and use a regex is an immediate match. A regex
 defined with the C<m//>X<m// (match) operator> operator always
 immediately matches.  Substitutions, defined with the C<s///>
 X<s/// (substitution) operator> operator also immediately match.  A
-rule defined with the C<//>X</ (slash);//;;(see m// operator)>
+regex defined with the C<//>X</ (slash);//;;(see m// operator)>
 operator immediately matches when it's in void, boolean, string, or
 numeric context, or the argument of the smart-match operator (C<~~>).
 X<~ (tilde);~~ (smart match) operator>
 
-  if $string ~~ m/\w+/      {...}
-  if $string ~~ s/\w+/word/ {...}
-  if $string ~~ /\w+/       {...}
+  if $string ~~ m/ \w+ /      {...}
+  if $string ~~ s/ \w+ /word/ {...}
+  if $string ~~ / \w+ /       {...}
 
 You can substitute other delimiters, like C<#...#>, C<[...]>, and
 C<{...}> for the standard C</.../>, though C<?...?> and C<(...)> are
@@ -84,16 +99,16 @@ to prepare the replacement text too:
 Z<CHP-7-SECT-1.2>
 
 Sometimes you want a little more flexibility than an immediate match.
-The C<rx//>X<rx// (anonymous rule) operator> operator defines an
-anonymous rule that can be executed later.
+The C<rx//>X<rx// (anonymous regex) operator> operator defines an
+anonymous regex that can be executed later.
 
   $digits = rx/\d+/;
 
-The simple C<//> operator also defines an anonymous rule in all
+The simple C<//> operator also defines an anonymous regex in all
 contexts other than void, boolean, string, or numeric, or as an
 argument of C<~~>.
 
-  $digits = /\d+/; # store rule
+  $digits = /\d+/; # store regex
 
 You can use the unary context forcing operators, C<+>, C<?>, and C<~>,
 to force the C<//> operator to match immediately in a context where it
@@ -106,18 +121,26 @@ context with C<~//>.
   $count  = +/(\d+\s+)*/; # match $_ and return count
   $string = ~/^\w+/;      # match $_ and return string
 
-Another option for deferred matches is a C<rule> block. The C<rule>
-keyword defines a named or anonymous rule, in much the same way that
+Another option for deferred matches is a C<regex> block. The C<regex>
+keyword defines a named or anonymous regex, in much the same way that
 C<sub> declares a subroutine or C<method> declares a method. But the
-code within the block of a C<rule> is rule syntax, not Perl syntax.
+code within the block of a C<regex> is regex syntax, not Perl syntax.
 
-  $digits = rule {\d+};
+  $digits = regex {\d+};
 
-  rule digits {\d+}
+  regex digits {\d+}
 
-To match a named or anonymous rule, call it as a subrule within
-another rule. Subrules, whether they're named rules or a variable
-containing an anonymous rule, are enclosed in assertion delimiters 
+There are two more keywords that defines regexes similarly to C<regex>, but
+they imply different modifiers. C<token> introduces a regex that does
+not backtrack,N<technically it implies the C<:ratchet> modifier> (more details
+on that below; for now it's enough to know that it matches simple regexes
+faster), and C<rule> is the same as C<token> except that whitespaces in
+regexes also match optional whitespaces in the string.N<it implies both the
+C<:ratchet> and the C<:sigspace> modifer>.
+
+To match a named or anonymous regex, call it as a subregex within
+another regex. Subregexes, whether they're named regexes or a variable
+containing an anonymous regex, are enclosed in assertion delimiters 
 C<< <...> >>. You can read more about assertions in A<CHP-7-SECT-2.4>
 "Assertions" later in this chapter.
 
@@ -165,20 +188,20 @@ Z<CHP-7-TABLE-1>
 
 =cell C</.../>
 
-=cell Immediately match or define an anonymous rule, depending on the
+=cell Immediately match or define an anonymous regex, depending on the
 context.
 
 =row 
 
-=cell C<rule {...}>
+=cell C<regex {...}>
 
-=cell Define an anonymous rule.
+=cell Define an anonymous regex.
 
 =row 
 
-=cell C<rule name {...}>
+=cell C<regex name {...}>
 
-=cell Define a named rule.
+=cell Define a named regex.
 
 =end table
 
@@ -188,33 +211,33 @@ Z<CHP-7-SECT-1.3>
 
 X<grammars>
 
-A grammar is a collection of rules, in much the same way that a class is
+A grammar is a collection of regexes, in much the same way that a class is
 a collection of methods. In fact, grammars are classes, they're just
-classes that inherit from the universal base class C<Rule>X<Rule class>.
+classes that inherit from the universal base class C<Regex>X<Regex class>.
 This means that grammars can inherit from other grammars, and that they
-define a namespace for their rules.
+define a namespace for their regexes.
 
   grammar Hitchhikers {
-      rule name {Zaphod|Ford|Arthur}
+      token name { Zaphod | Ford | Arthur }
   
-      rule id   {\d+}
+      token id   { \d+ }
 
       ...
   }
 
-Any rule in the current grammar or in one of its parents can be called
-directly, but a rule from an external grammar needs to have its package
+Any regex in the current grammar or in one of its parents can be called
+directly, but a regex from an external grammar needs to have its package
 specified:
 
-  if $newsrelease ~~ /E<lt>Hitchhikers.nameE<gt>/ {
+  if $newsrelease ~~ / E<lt>Hitchhikers.nameE<gt> / {
       send_alert($1);
   }
 
-If you want to match against the entire grammar, you can define a rule
+If you want to match against the entire grammar, you can define a regex
 C<TOP> in that grammar.
 
   grammar Hitchhikers {
-      rule TOP { <name> <id> }
+      regex TOP { <name> <id> }
       ...
   }
 
@@ -234,11 +257,11 @@ Perl 6 on the fly.
 Z<CHP-7-SECT-2>
 
 Every language has a set of basic components (words or parts of words)
-and a set of syntax rules for combining them. The "words" in rules are
+and a set of syntax rules for combining them. The "words" in regexes are
 literal characters (or symbols), some X<metacharacters> metacharacters
-(or metasymbols),  and X<rules;escape sequences>X<escape sequences,
-rules> escape sequences, while the combining syntax includes other
-metacharacters, X<quantifiers, rules> X<rules;quantifiers> quantifiers,
+(or metasymbols),  and X<regexes;escape sequences>X<escape sequences,
+regexes> escape sequences, while the combining syntax includes other
+metacharacters, X<quantifiers, regexes> X<regexes;quantifiers> quantifiers,
 bracketing characters, and assertions.
 
 
@@ -249,7 +272,7 @@ Z<CHP-7-SECT-2.1>
 The "word"-like metacharacters are C<.>, C<^>, C<^^>, C<$>, C<$$>. The
 C<.> matches any single character, even a newline character. Actually,
 what it matches by default is a Unicode grapheme, but you can change
-that behavior with a pragma in your code, or a modifier on the rule.
+that behavior with a pragma in your code, or a modifier on the regex.
 We'll talk more about modifiers in A<CHP-7-SECT-2.5>"Modifiers" later
 in this chapter. The C<^> and C<$> metacharacters are zero-width
 matches on the beginning and end of a string. They each have doubled
@@ -263,20 +286,20 @@ length). The C<\> turns literal characters into metacharacters (the
 escape sequences) or turns metacharacters into literal characters. The
 C<#> marks a comment to the end of the line. Whitespace insensitivity
 (the old C</x> modifier) is on by default, so you can start a comment at
-any point on any line in a rule. Just make sure you don't comment out
-the symbol that terminates the rule. The C<:=>
-X<: (colon);:= (binding);in rules> binds a hypothetical variable to
-the result of a subrule or grouped pattern. Hypotheticals are covered
+any point on any line in a regex. Just make sure you don't comment out
+the symbol that terminates the regex. The C<:=>
+X<: (colon);:= (binding);in regex> binds a hypothetical variable to
+the result of a subregex or grouped pattern. Hypotheticals are covered
 in A<CHP-7-SECT-5>"Hypothetical Variables" later in this chapter.
 
 The metacharacters C<()>, C<[]>, C<{}> and C<E<lt>E<gt>> are bracketing
-pairs. The pairs always have to be balanced within the rule, unless they
+pairs. The pairs always have to be balanced within the regex, unless they
 are literal characters (escaped with a C<\>). The brackets C<()> and
 C<[]> group patterns to match as a single atom. They're often used to
 capture a result, mark the boundaries of an alternation, or mark a group
 of patterns with a quantifier, among other things. Parentheses C<()> are
 capturing and square brackets C<[]> are non-capturing. The C<{}>
-brackets define a section of Perl code (a closure) within a rule. These
+brackets define a section of Perl code (a closure) within a regex. These
 closures are always a successful zero-width match, unless the code
 explicitly calls the C<fail> function. The C<E<lt>...E<gt>> brackets
 mark assertions, which handle a variety of constructs including
@@ -304,35 +327,35 @@ Z<CHP-7-TABLE-2>
 =cell C<.>
 
 =cell Match any single character, including a newline.
-X<. (dot);. match single character (rules)>
+X<. (dot);. match single character (regexes)>
 
 =row 
 
 =cell C<^>
 
 =cell Match the beginning of a string.
-X<^ (caret);^ beginning of string (rules)>
+X<^ (caret);^ beginning of string (regexes)>
 
 =row 
 
 =cell C<$>
 
 =cell Match the end of a string.
-X<$ (dollar sign);$ end of string (rules)>
+X<$ (dollar sign);$ end of string (regexes)>
 
 =row 
 
 =cell C<^^>
 
 =cell Match the beginning of a line.
-X<^ (caret);^^ beginning of line (rules)>
+X<^ (caret);^^ beginning of line (regexes)>
 
 =row 
 
 =cell C<$$>
 
 =cell Match the end of a line.
-X<$ (dollar sign);$$ end of line (rules)>
+X<$ (dollar sign);$$ end of line (regexes)>
 
 =row 
 
@@ -352,8 +375,8 @@ X<$ (dollar sign);$$ end of line (rules)>
 
 =cell Escape a metacharacter to get a literal character, or escape a
 literal character to get a metacharacter.
-X<\ (backslash);\ escape sequences (rules)>
-X<\ (backslash);\ to escape metacharacters (rules)>
+X<\ (backslash);\ escape sequences (regexes)>
+X<\ (backslash);\ to escape metacharacters (regexes)>
 
 =row 
 
@@ -366,7 +389,7 @@ X<\ (backslash);\ to escape metacharacters (rules)>
 =cell C<:=>
 
 =cell Bind the result of a match to a hypothetical variable.
-X<: (colon);:= (binding);in rules>
+X<: (colon);:= (binding);in regexes>
 
 =row 
 
@@ -384,7 +407,7 @@ X<: (colon);:= (binding);in rules>
 
 =cell C<{...}>
 
-=cell Execute a closure (Perl 6 code) within a rule.
+=cell Execute a closure (Perl 6 code) within a regex.
 
 =row 
 
@@ -399,9 +422,9 @@ X<: (colon);:= (binding);in rules>
 
 Z<CHP-7-SECT-2.2>
 
-X<escape sequences, rules>
-X<rules;escape sequences>
-X<\ (backslash);\ escape sequences (rules)>
+X<escape sequences, regexes>
+X<regexes;escape sequences>
+X<\ (backslash);\ escape sequences (regexes)>
 The escape sequences are literal characters acting as metacharacters,
 marked with the C<\> escape. Some escape sequences represent single
 characters that are difficult to represent literally, like C<\t> for
@@ -411,12 +434,12 @@ for word characters. Some represent zero-width positions in a match,
 like C<\b> for a word boundary. With all the escape sequences that use
 brackets, C<()>, C<{}>, and C<E<lt>E<gt>> work in place of C<[]>. 
 
-X<variable interpolation in rules>
-X<rules;variable interpolation>
+X<variable interpolation in regexes>
+X<regexes;variable interpolation>
 Note that since an ordinary variable now interpolates as a literal
-string by default, the C<\Q> escape sequence is rarely needed.
+string by default, the C<\Q> escape is rarely needed.
 
-A<CHP-7-TABLE-3>Table 7-3 shows the escape sequences for rules. 
+A<CHP-7-TABLE-3>Table 7-3 shows the escape sequences for regexes. 
 
 =begin table picture Escape sequences
 
@@ -624,14 +647,12 @@ Quantifiers specify the number of times an atom (a single character,
 metacharacter, escape sequence, grouped pattern, assertion, etc) will
 match.
 
-X<. (dot);.. (range);quantifier (rules)>
-X<. (dot);... (infinite range);quantifier (rules)>
-The numeric quantifiers use assertion syntax. A single number
-(C<E<lt>3E<gt>>) requires exactly that many matches. A numeric range
-quantifier (C<E<lt>3C<..>5E<gt>>) succeeds if the number of matches is
-between the minimum and maximum numbers. A range with three trailing
-dots (C<E<lt>2...E<gt>>) is shorthand for C<E<lt>R<n>..InfE<gt>> and
-matches as many times as possible.
+X<. (dot);.. (range);quantifier (regexes)>
+X<. (dot);... (infinite range);quantifier (regexes)>
+The numeric quantifiers use the C<**> operator followed by the number of
+desired matches. For a range of matches you can use a closure that returns
+a range (C<a**{2..4}> matches two to four C<a>'s, (C<a**{2..Inf}>) two or
+more C<a>'s).
 
 Each quantifier has a minimal alternate form, marked with a trailing
 C<?>, that matches the shortest possible sequence first.
@@ -682,17 +703,16 @@ Z<CHP-7-TABLE-4>
 
 =row 
 
-=cell C<E<lt>>R<n>C<E<gt>>
+=cell C**n>
 
-=cell C<E<lt>>R<n>C<E<gt>?>
+=cell C<**?n>
 
 =cell Match exactly R<n> times.
 
 =row 
 
-=cell C<E<lt>>R<n>C<..>R<m>C<E<gt>>
-
-=cell C<E<lt>>R<n>C<..>R<m>C<E<gt>?>
+=cell C<**{n..m}>
+=cell C<**?{n..m}>
 
 =cell Match at least R<n> and no more than R<m> times.
 
@@ -711,17 +731,17 @@ Z<CHP-7-TABLE-4>
 
 Z<CHP-7-SECT-2.4>
 
-X<assertions, rules>
-X<rules;assertions>
+X<assertions, regexes>
+X<regexes;assertions>
 In general, an assertion simply states that some condition or state is
 true and the match fails when that assertion is false. Many different
 constructs with many different purposes use assertion syntax. 
 
-X<variable interpolation in rules>
+X<variable interpolation in regexes>
 X<rules;variable interpolation>
-Assertions match named and anonymous rules, arrays or hashes containing
-anonymous rules, and subroutines or closures that return anonymous
-rules. You have to enclose a variable in assertion delimiters to get it
+Assertions match named and anonymous regexes, arrays or hashes containing
+anonymous regexes, and subroutines or closures that return anonymous
+regexes. You have to enclose a variable in assertion delimiters to get it
 to interpolate as an anonymous rule or rules. A bare scalar in a pattern
 interpolates as a literal string, while a scalar variable in assertion
 brackets interpolates as an anonymous rule. A bare array in a pattern
@@ -976,14 +996,6 @@ or C<\s*>.
 
 =row 
 
-=cell C<:W>
-
-=cell 
-
-=cell Turn off intelligent whitespace matching (return to default).
-
-=row 
-
 =cell 
 
 =cell :R<N>C<x>/C<:x(>R<N>C<)>
@@ -1058,9 +1070,9 @@ possibilities.
 
 =row 
 
-=cell 
+=cell C<:P5>
 
-=cell C<:p5>
+=cell C<:Perl5>
 
 =cell The pattern uses Perl 5 regex syntax.
 
@@ -1241,7 +1253,7 @@ X<hypothetical variables>
 X<rules;captures>
 Hypothetical variables are a powerful way of building up data structures
 from within a match. Ordinary captures with C<()> store the result of
-the captures in C<$1>, C<$2>, etc. The values stored in these variables
+the captures in C<$0>, C<$1>, etc. The values stored in these variables
 will be kept if the match is successful, but thrown away if the match
 fails (hence the term "hypothetical"). The numbered capture variables
 are accessible outside the match, but only within the immediate
@@ -1249,7 +1261,7 @@ surrounding lexical scope:
 
   "Zaphod Beeblebrox" ~~ m:w/ (\w+) (\w+) /;
   
-  print $1; # prints Zaphod
+  print $0; # prints Zaphod
 
 You can also capture into any user-defined variable with the binding
 operator C<:=>. These variables must already be defined in the lexical

@@ -29,7 +29,7 @@ they have different parameter lists.
 
 Blocks of reusable code can also be called the "methods" of a particular
 class of object. Methods have a few significant differences from
-subroutines, a few significant differences from those found in Perl 5.
+subroutines, and a few significant differences from those found in Perl 5.
 For instance, in Perl 6 they're distinguished by a separate keyword,
 C<method>. Because of these differences, they'll be discussed in
 A<CHP-6>Chapter 6.
@@ -72,7 +72,7 @@ X<formal parameters>
 X<subroutines;signatures>
 X<subroutines;parameters>
 One of the most significant additions to subroutines in Perl 6 is
-named formal parameters. The parameter list, often called the
+formal parameters. The parameter list, often called the
 I<signature> of the subroutine, is part of the subroutine declaration:
 
   sub standardize ($text, $method) {
@@ -134,10 +134,10 @@ kind of arguments is an error. But since requiring every declared
 parameter to be passed in on every call isn't nearly flexible enough
 for the average programmer, Perl 6 also allows optional parameters.
 Optional parameters can be included or ignored without causing any
-errors. Each optional parameter is marked with a C<?> before the
+errors. Each optional parameter is marked with a C<?> after the
 parameter name:
 
-  sub someopt ($required1, $required2, ?$optional1, ?$optional2) {
+  sub someopt ($required1, $required2, $optional1?, $optional2?) {
       ...
   }
 
@@ -242,10 +242,10 @@ this chapter).
 
   sub transport (:$planet, *%flags) {...}
 
-  transport('name'    => 'Arthur',
-            'luggage' => 'lost',
-            'planet'  => 'Magrathea',
-            'towel'   => 'required');
+  transport(:name('Arthur'),
+            :luggage('lost'),
+            :planet('Magrathea'),
+            :towel('required'));
 
 When they're combined with other kinds of parameters, variadic
 positional parameters must come after all positional parameters in
@@ -267,7 +267,7 @@ Chapter 4 for more details on value and variable types.>. The parameter
 type is defined before the parameter name and before any symbols for
 optional, named, or variadic parameters:
 
-  sub typedparams (Int $first, Str ?$second) {...}
+  sub typedparams (Int $first, Str $second?) {...}
 
 The parameter type declares the type of argument that can be bound to
 it. The parameter and argument types have to be compatible, but not
@@ -321,7 +321,7 @@ valueN<This isn't an assignment, it's only a reuse of the C<=> symbol
 in a different context.>. The parameter takes the default value only
 if the call doesn't pass an argument for that parameter.
 
-  sub default_vals ($required, ?$optional = 5) {...}
+  sub default_vals ($required, $optional? = 5) {...}
 
 Default values are only used with optional parameters. This should make
 sense because required positional values are always required, and so
@@ -409,7 +409,7 @@ be left out, even if they come in the middle of the parameter list.
 This is particularly useful for subroutines with a large number of
 optional parameters:
 
-  sub namedparams ($first, ?$second, ?$third is rw) {...}
+  sub namedparams ($first, $second?, $third? is rw) {...}
   
   namedparams(third => 'Trillian', first => $name);
 
@@ -425,23 +425,23 @@ Z<CHP-5-SECT-3.2>
 X<flattened arguments>
 To get the Perl 5-style behavior where the elements of an array (or
 the pairs of a hash) flatten out into the parameter list, use the
-flattening operator C<*> in the call to the subroutine. Here,
+flattening operator C<|> in the call to the subroutine. Here,
 C<$first> binds to C<@array[0]> and C<$second> binds to C<@array[1]>:
 
   sub flat ($first, $second) {...}
   
-  flat(*@array);
+  flat(|@array);
 
 A flattened hash argument acts as a list of pairs, which are bound to
 the parameters just like ordinary named arguments. So, C<$first> is
 bound to C<%hash{'first'}>, and C<$second> is bound to
 C<%hash{'second'}>:
 
-  sub flat_hash ($first, $second) {...}
+  sub flat_hash (:$first, :$second) {...}
 
 
   %hash = (first => 1, second => 2);
-  flat_hash(*%hash);
+  flat_hash(|%hash);
 
 Flattened hash arguments are useful for building up hashes of named
 arguments to pass in all at once.
@@ -488,7 +488,7 @@ arguments end. This example binds 'a' to C<$req>, 'opt' to C<$opt>,
 skips C<$another>, and puts the rest of the arguments in the variadic
 array:
 
-  sub mixed ($req, ?$opt, ?$another, *@slurpy) {...}
+  sub mixed ($req, $opt?, $another?, *@slurpy) {...}
 
   mixed('a', 'opt' => 1, 'b', 'c', 'd', 'e');
 
@@ -510,7 +510,7 @@ of optional parameters. Named parameters ignore positional arguments,
 so this version of the subroutine puts 'b' through 'e' in the variadic
 array with or without any named arguments in the call:
 
-  sub mixed ($req, +$opt, +$another, *@slurpy) {...}
+  sub mixed ($req, $opt?, $another?, *@slurpy) {...}
 
   mixed('a', 'opt' => 1, 'b', 'c', 'd', 'e');
   mixed('a', 'b', 'c', 'd', 'e');
@@ -523,16 +523,22 @@ Z<CHP-5-SECT-4>
 
 X<subroutines;stub>
 To declare a subroutine without defining it you give it a body
-consisting of nothing but the C<...> (or "yada, yada, yada") operator.
+consisting of nothing but the C<...> (or "yada, yada, yada") operator,
+optionally followed by a message.
 So, all the preceding examples that look like pseudocode with C<{...}>
 for their body are actually valid subroutine declarations.
 
-  sub stubbly (Str $name, Int ?$days) {...}
+  sub stubbly (Str $name, Int $days?) {...}
+
+You can include a message that appears in the error message if you try to
+execute a stu subroutine.
+
+  sub stubbly (Str $name, Int $days?) { ... "Don't call me" }
 
 When you later define the subroutine, the signature and defined traits
 must exactly match the declaration.
 
-  sub stubbly (Str $name, Int ?$days) {
+  sub stubbly (Str $name, Int $days?) {
       print "$name hasn't shaved in $days day";
       print "s" if $days > 1;
   }
@@ -650,14 +656,14 @@ they have to get the equivalent of a name somewhere, whether they're
 assigned to a variable, passed as a parameter, or aliased to another
 subroutine.
 
-  $make_tea = sub ($tealeaves, ?$sugar, ?$milk) {...}
+  $make_tea = sub ($tealeaves, :$sugar, :$milk) {...}
 
-The arrow operator used with C<for> and C<given> is just another way
-of defining anonymous subroutines. The arrow doesn't require
+The arrow operator used with C<for> and C<given> is just a way
+of defining anonymous blocks. The arrow doesn't require
 parentheses around its parameter list. It can't declare named subs,
 and can't declare a return type.
 
-  $make_tea = -> $tealeaves, ?$sugar, ?$milk {...}
+  $make_tea = -> $tealeaves, :$sugar, :$milk {...}
 
 X<blocks;bare>
 X<bare blocks>
@@ -671,11 +677,23 @@ sub.
   }
 
 
-You can't use the C<return> statement within an arrow sub or bare
-block sub to return from an anonymous sub. Blocks and arrow subs are
+You can't use the C<return> statement within an arrow block or bare
+block sub to return from that block. Blocks and arrow subs are
 commonly used for ordinary control flow, so C<return> ignores them and
 only returns from subroutines defined with C<sub> keyword or
 methods.
+
+Instead you can C<leave> a block:
+
+  my $make_tea {
+      leave unless teamtime();
+      my $tea = boil 'tealeaves';
+      combine $tea, 'sugar', 'milk';
+  }
+
+The simple rule is that everything declared with a C<sub> or C<method>
+keyword use the C<return> statement, blocks declared without such a keyword
+can use C<leave>.
 
 =head1 Multi Subroutines
 
@@ -710,6 +728,9 @@ parameters and the rest of the signature with a semi-colon:
 
 This version of C<add> will dispatch based on the types of the first
 two arguments passed in, and ignore the type of the third.
+
+Multisubs can also differ in the number of arguments as long as no
+ambiguities arise.
 
 =head1 Curried Subroutines
 

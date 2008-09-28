@@ -465,10 +465,10 @@ keyword:
 The C<True> property specifies that the value will evaluate as true in
 a boolean context, no matter what the actual value is. This particular
 property means the Perl 6 C<run> call can be checked with a simple
-conditional. It still returns the same numeric values it always has (0
-on success and a numeric error code on failure), but it flags the
-value with a property as true when the call succeeds and false when it
-fails.
+conditional. It still returns the same numeric values as its Perl 5
+equivalent C<system> did (0 on success and a numeric error code on failure),
+but it flags the value with a property as true when the call succeeds and
+false when it fails.
 
 Properties and traits can also store a value. Both C<constant> and
 C<true> define their own values when they're set. Some properties take
