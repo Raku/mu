@@ -10,6 +10,8 @@ for consistency with the "one-key hash" semantics.
 
 =end pod
 
+#L<S02/Literals/>
+
 plan 6;
 
 # See thread "Stringification, numification, and booleanification of pairs" on
