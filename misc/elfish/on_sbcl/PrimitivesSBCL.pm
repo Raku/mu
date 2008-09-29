@@ -57,8 +57,12 @@ package GLOBAL {
     nil ;XX
   '}
 
-  sub infix:<+> ($a,$b) is cl {' (+ |$a| |$b|) '}
-  sub infix:<-> ($a,$b) is cl {' (- |$a| |$b|) '}
+  multi infix:<-> ($a,$b) is cl {' (- |$a| |$b|) '}
+  multi infix:<+> ($a,$b) is cl {' (+ |$a| |$b|) '}
+  multi infix:<==> ($a,$b) is cl {' (equal |$a| |$b|) '}
+
+#  sub infix:<+> ($a,$b) is cl {' (+ |$a| |$b|) '}
+#  sub infix:<-> ($a,$b) is cl {' (- |$a| |$b|) '}
   sub infix:<*> ($a,$b) is cl {' (* |$a| |$b|) '}
   sub infix:</> ($a,$b) is cl {' (/ |$a| |$b|) '}
 
@@ -66,7 +70,7 @@ package GLOBAL {
   sub infix:«>» ($a,$b) is cl {' (> |$a| |$b|) '}
   sub infix:<<=> ($a,$b) is cl {' (<= |$a| |$b|) '}
   sub infix:«>=» ($a,$b) is cl {' (>= |$a| |$b|) '}
-  sub infix:<==> ($a,$b) is cl {' (equal |$a| |$b|) '}
+#  sub infix:<==> ($a,$b) is cl {' (equal |$a| |$b|) '}
   sub infix:«!=» ($a,$b) is cl {' (not (equal |$a| |$b|)) '}
   sub infix:<eq> ($a,$b) is cl {' (equal |$a| |$b|) '}
   sub infix:<ne> ($a,$b) is cl {' (not (equal |$a| |$b|)) '}
@@ -313,7 +317,8 @@ class Any { method true() { defined(self) }}
 
 package GLOBAL {
   sub _init_ () is cl {'
-     (setq |GLOBAL::@ARGV| (new-array sb-ext:*posix-argv*))
+     (setq |GLOBAL::@ARGS|
+       (new-array (subseq sb-ext:*posix-argv* 1))) ;skip "sbcl"
      (defun env ()
        (mapcan #\'copy-list
         (mapcar (lambda (str)

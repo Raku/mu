@@ -29,6 +29,8 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 |#
 
 (require \'sb-posix)
+(pushnew #p"lib-cl/systems/" asdf:*central-registry*)
+(asdf:operate \'asdf:load-op :cl-ppcre)
 
 ;;------------------------------------------------------------------------------
 ;; Multi-methods - avoid generic-function congruence restrictions.
@@ -40,8 +42,21 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   (cond ((= 0 n) l)
         (t (n-variable-names (1- n) (cons (gensym) l)))))
 
-(defmacro fc (func &rest args)
+(defmacro fc-old (func &rest args)
   `(ap ,func (list ,@args)))
+
+(defmacro fc (func &rest args)
+  (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
+         (len (length args))
+         (syms (loop for n from 1 to len collect (gensym)))
+         (dispatch-syms (subseq syms 0 (min n len)))
+         (dispatch-padding (make-list (max 0 (- n len))))
+         (f (gensym)))
+   `(let ((,f ,func))
+      (multiple-value-bind (,@syms) (values ,@args)
+        (if (not (typep ,f \'standard-generic-function))
+            (funcall ,f ,@syms)
+          (funcall ,f (list ,@syms) ,@dispatch-syms ,@dispatch-padding))))))
 
 (defgeneric ap (func args))
 (defmethod ap (func args)
@@ -177,6 +192,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   (declare (ignorable argl))
   (set-slots (make-instance (class-of co)) argl))
 
+;; Undef is still being kludged as nil.
+(defmacro undef () nil)
+
  ;;Array.new is defined here to a avoid cyclic dependency on *@args.
 (pkg-declare "class" "Array" \'|Any/cls|)
 (eval \'(dm |M::new| ((co |Array/cls|) &rest argl)
@@ -197,8 +215,6 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (eval \'(dm |M::WHAT| ((x null) &rest argl) (declare (ignorable x argl)) "nil"))
 (eval \'(dm |M::substr| ((s string) from len) (subseq s from (+ from len))))
 
-;; Undef is still being kludged as nil.
-(defmacro undef () nil)
 
 ;; Muffle warnings at compile and runtimes.
 ;(declaim (sb-ext:muffle-conditions style-warning))
@@ -213,6 +229,38 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (defun new-array (lst) (ap #\'|M::new| (cons |Array::/co| lst)))
 (defun new-hash  (lst) (ap #\'|M::new| (cons |Hash::/co| lst)))
 (defun new-pair  (k v) (ap #\'|M::new| (list |Pair::/co| k v)))
+
+;; re bootstrap primitives
+
+(dm |M::re_matchp| ((s string) re)
+  (if (ppcre::scan re s) 1 (undef)))
+
+(dm |M::re_groups| ((s string) re)
+  (multiple-value-bind (match_str a) (ppcre::scan-to-strings re s)
+    (declare (ignorable match_str))
+    (new-array a)))
+
+(dm |M::re_gsub| ((s string) re replacement_str)
+  (let ((s1 (ppcre::regex-replace-all re s (list replacement_str))))
+    s1))
+
+; CL-CPCRE doesn\'t do $1, etc.
+(defun parse-replacement (rep) ; XXX kludge
+  (let* ((pat "(?:[^\\\\\\\\$]|\\\\\\\\.|.\\\\z|\\\\$[^{1])+|\\\\$1|\\\\$\\\\{1}")
+         (parts (ppcre::all-matches-as-strings pat rep)))
+    (write rep)(write parts)
+    (assert (equal (length rep)
+                   (length (apply #\'concatenate (cons \'string parts)))))
+    (mapcar
+     (lambda (part)
+       (cond ((equal part "$1") 0)
+             ((equal part "${1}") 0)
+             (t part)))
+     parts)))
+
+(dm |M::re_gsub_pat| ((s string) re replacement_pat)
+  (let ((s1 (ppcre::regex-replace-all re s (parse-replacement replacement_pat))))
+    s1))
 
 
 ;;------------------------------------------------------------------------------
@@ -418,22 +466,24 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     } else {
       $body = $.e($n.block);
     }
-    if $n.plurality && $n.plurality eq 'multi' {
-      die("multi subs not yet available");
-    } else {
-      my $most = '('~$sig~' (block __f__ '~$body~')';
-      if $n.scope eq 'our' {
-        my $pkg = $n.notes<crnt_package>;
-        my $enc_name = $.qsym($pkg~'::&'~$name);
+    my $most = '('~$sig~' (block __f__ '~$body~')';
+    if $n.scope && $n.scope eq 'our' {
+      my $pkg = $n.notes<crnt_package>;
+      my $enc_name = $.qsym($pkg~'::&'~$name);
+      if $n.plurality && $n.plurality eq 'multi' {
+        my $dm_name = $.qsym('MS::'~$pkg~'::&'~$name);
+        ('(dm '~$dm_name~' '~$most~')'~"\n"~
+         '(defparameter '~$enc_name~' #\''~$dm_name~')');
+      } else {
         '(defparameter '~$enc_name~' (lambda '~$most~'))';
       }
-      elsif $name {
-        my $enc_name = $.qsym('&'~$name);
-        '(setq '~$enc_name~' (lambda '~$most~'))';
-      }
-      else {
-        '(lambda '~$most~')';
-      }
+    }
+    elsif $name {
+      my $enc_name = $.qsym('&'~$name);
+      '(setq '~$enc_name~' (lambda '~$most~'))';
+    }
+    else {
+      '(lambda '~$most~')';
     }
   }
   method cb__Signature ($n) {
@@ -472,7 +522,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $method = $.e($n.method);
     my $meth = $.fqsym('M::'~$method);
     my $invocant = $.e($n.invocant);
-    if $invocant.re_matchp('^[A-Z]\w*$') {
+    if $invocant.re_matchp('^[A-Z][\w:]*$') {
       $invocant = ""~$.classobject_from_package_name($invocant);
     }
     my $call = '(fc '~$meth~' '~$invocant~' '~$.e($n.capture)~')';
@@ -573,7 +623,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       return '(return)'
     }
     elsif ($fun eq 'return') {
-      return '(return-from __f__'~$.e($n.capture)~')';
+      return '(return-from __f__ '~$.e($n.capture)~')';
     }
     elsif $fun eq 'eval' {
       my $env = ''; #XXX harder in CL

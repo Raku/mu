@@ -1,11 +1,11 @@
 
 
 elfx:: have_parser_cache
-	ELF_STD_RED_RUN=../../STD_red/STD_red_run ../../elf/elf_g -x -o ./elfx -I ../../elf/elf_g_src Elf_SBCL.pm
+	ELF_STD_RED_RUN=../../STD_red/STD_red_run ../../elf/elf_h -x -o ./elfx -I ../../elf/elf_h_src Elf_SBCL.pm
 
 #XXX no main() call yet, so CommandLine must come after last file...
 # but doesnt here.
-#	ELF_STD_RED_RUN=../../STD_red/STD_red_run ../../elf/elf_g -x -o ./elfx -I ../../elf/elf_g_src Elf.pm EmitSBCL.pm
+#	ELF_STD_RED_RUN=../../STD_red/STD_red_run ../../elf/elf_h -x -o ./elfx -I ../../elf/elf_h_src Elf.pm EmitSBCL.pm
 
 
 

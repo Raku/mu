@@ -2,6 +2,7 @@ A SBCL Common-Lisp backend for elf
 
 QUICKSTART
 
+$ make libraries
 $ make elfx
 $ ./elfx -xr PrimitivesSBCL.pm -v -e 'say 3'
 
@@ -23,8 +24,8 @@ no Containers, native objects without true p6 oo support, etc.  Unlike
 the p5 backend, where this is necessary for acceptable performance (at
 least until the elf compiler gets much more mature and optimizing),
 with this CL backend it's merely a short-term simplicity convenience.
-Mostly because the p6 oo spec seems still in flux.  Longer-term, with
-CL we have speed to burn, and can spend it on correctness.
+Mainly to get to full bootstrap more quickly.  Longer-term, with
+CL we have the potential for speed, and can spend it on correctness.
 
 Use CL-PPCRE for regexps.
 
@@ -38,18 +39,24 @@ NOTES
   experience of causal users.  For real development, comment out
   the muffle-conditions lines in EmitSBCL.pm.
 
-  
-  ../../elf/elf_g EmitSBCL.pm -xr PrimitivesSBCL.pm -v -e 'say 3'
-  ../../elf/elf_g EmitSBCL.pm -xr PrimitivesSBCL.pm -e 'sub f($x){say $x+3}; f(4)'
+  As usual with elf, you probably want to define a STD_RED_CACHEDIR.
 
+  
+  ../../elf/elf_h EmitSBCL.pm -xr PrimitivesSBCL.pm -v -e 'say 3'
+  ../../elf/elf_h EmitSBCL.pm -xr PrimitivesSBCL.pm -e 'sub f($x){say $x+3}; f(4)'
+
+  make libraries
   make elfx
   export ELF_STD_RED_RUN=../../STD_red/STD_red_run
   ./elfx -xr PrimitivesSBCL.pm -e 'say 3'
 
 
   # A note on performance...
-  ../../elf/elf_g EmitSBCL.pm -xr PrimitivesSBCL.pm -e 'sub fib($n){if $n==0 {0} elsif $n==1 {1} else {fib($n-1)+fib($n-2)}}; say fib(37)'
+  ../../elf/elf_h EmitSBCL.pm -xr PrimitivesSBCL.pm -e 'sub fib($n){if $n==0 {0} elsif $n==1 {1} else {fib($n-1)+fib($n-2)}}; say fib(37)'
   time ./deleteme_exe
   time perl -e 'sub fib{my($n)=@_;if($n==0){0}elsif($n==1){1}else{fib($n-1)+fib($n-2)}};print fib(37),"\n";'
   # elf was previously 10x faster than p5, using native + on native integers.
-  # This dropped to 3x with non-multi infix:<+> on native integers.
+  # This dropped to 3x with non-multi infix:<+>, etc, on native integers.
+  # This dropped to 1/5x with multi infix:<+>, etc, on native integers.
+  # This increased to 1x with improved multi dispatch, still on native integers.
+
