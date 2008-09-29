@@ -169,14 +169,14 @@ if $m<arglist> {
 
 quote:q
 my $s = $m<text>;
-$s.re_gsub_inline('\\\\([\\\\\'])','$1');
+$s = $s.re_gsub_pat('\\\\([\\\\\'])','$1');
 Buf.newp($s)
 
 quote:qq
 my $s = $m<text>;
-$s.re_gsub('(?<!\\\\)\\\\n',"\n");
-$s.re_gsub('(?<!\\\\)\\\\t',"\t");
-$s.re_gsub_inline('\\\\(.)','$1');
+$s = $s.re_gsub('(?<!\\\\)\\\\n',"\n");
+$s = $s.re_gsub('(?<!\\\\)\\\\t',"\t");
+$s = $s.re_gsub_pat('\\\\(.)','$1');
 Buf.newp($s)
 
 quote:regex
@@ -647,8 +647,6 @@ sub write_ast_handlers {
     $para =~ /^(\w+(?::[\S]+)?)\n(.*)/s or die "bug\n$para";
     my($name,$body)=($1,$2);
     die "Saw an AST handler for '$name' twice!\n" if $seen{$name}++;
-
-    #$body =~ s{\s*=~\s*s/((?:[^\\\/]|\\.)*)/((?:[^\\\/]|\\.)*)/g;}{.re_gsub(rx:P5/$1/,"$2");}g;
 
     $body =~ s/\bir\(/irbuild_ir\(/g;
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;

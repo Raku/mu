@@ -101,13 +101,16 @@ no warnings qw(redefine prototype);
     @g ? \@g : undef;
   }
 
-  sub re_gsub_inline ($$$) { # slower, but needed for $1 in replacement.
-    eval "\$_[0] =~ s/$_[1]/$_[2]/g";
+  sub re_gsub_pat { # slower, but needed for $1.
+    my($s,$pat,$replace_pat)=@_;
+    eval "\$s =~ s/$pat/$replace_pat/g";
     Carp::confess($@) if $@;
-    $_[0]
+    $s;
   }
-  sub re_gsub ($$$) {
-    $_[0] =~ s/$_[1]/$_[2]/g; $_[0]
+  sub re_gsub {
+    my($s,$pat,$replace_str)=@_;
+    $s =~ s/$pat/$replace_str/g;
+    $s;
   }
 
   # unused
@@ -510,7 +513,7 @@ package Main;
     if ($n.verb eq 'is' or $n.verb eq 'does') {
       my $pkgname = $whiteboard::in_package.join('::');
       my $name = $whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
-      $name.re_gsub('^::',''); # Moose 0.44 doesn't like these.
+      $name = $name.re_gsub('^::',''); # Moose 0.44 doesn't like these.
       "BEGIN\{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n.verb~" has not been implemented.\n";
@@ -572,7 +575,7 @@ package Main;
       }
       if ($n.is_context) { # BOGUS
         my $name = $.e($n.var);
-        $name.re_gsub('^(.)::','$1');
+        $name = $name.re_gsub('^(.)::','$1');
         ("{package main; use vars '"~$name~"'};"~
          'local'~' '~$.e($n.var)~$default)
       }
@@ -737,14 +740,14 @@ package Main;
     elsif $g = $method.re_groups('postcircumfix:(.*)') {
       my $op = $g[0];
       my $arg = $.e($n.capture);
-      $op.re_gsub(' ',$arg);
+      $op = $op.re_gsub(' ',$arg);
       $.e($n.invocant)~'->'~$op;
     } else {
       $.e($n.invocant)~'->'~$.e($n.method)~'('~$.e($n.capture)~')'
     }
   };
   method mangle_function_name($name) {
-     $name.re_gsub_inline('^(\w+):(?!:)','${1}_');
+     $name = $name.re_gsub_pat('^(\w+):(?!:)','${1}_');
      $name = mangle_name($name);
      $name;
   }
@@ -915,10 +918,10 @@ package Main;
     if ($t eq '.') {
       '$self->'~$name
     } elsif ($t eq '+') {
-      $name.re_gsub('::','__');
+      $name = $name.re_gsub('::','__');
       '$'~'::'~$name
     } elsif ($t eq '*') {
-      $name.re_gsub('::','__');
+      $name = $name.re_gsub('::','__');
       '$'~'GLOBAL::'~$name
     } else {
       '$'~$name

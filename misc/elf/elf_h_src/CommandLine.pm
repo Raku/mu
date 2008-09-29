@@ -71,7 +71,7 @@ One can also do
         }
         my $exec_args = $*compiler1.compile_executable($sources,$output_file);
         say "# "~$exec_args.join(" ")~" "~$args.join(" ");
-        exec($exec_args.flatten,$args);
+        exec($exec_args.flatten,$args.flatten);
       }
     };
     while $args.elems {

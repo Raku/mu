@@ -68,13 +68,16 @@ no warnings qw(redefine prototype);
     @g ? \@g : undef;
   }
 
-  sub re_gsub_inline ($$$) { # slower, but needed for $1 in replacement.
-    eval "\$_[0] =~ s/$_[1]/$_[2]/g";
+  sub re_gsub_pat { # slower, but needed for $1.
+    my($s,$pat,$replace_pat)=@_;
+    eval "\$s =~ s/$pat/$replace_pat/g";
     Carp::confess($@) if $@;
-    $_[0]
+    $s;
   }
-  sub re_gsub ($$$) {
-    $_[0] =~ s/$_[1]/$_[2]/g; $_[0]
+  sub re_gsub {
+    my($s,$pat,$replace_str)=@_;
+    $s =~ s/$pat/$replace_str/g;
+    $s;
   }
 
   # unused
@@ -2125,14 +2128,14 @@ if(irbuild_ir($m->{"hash"}->{"arglist"})) {
 }})});
 $self->add_constructor("quote\:q", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
-$s->re_gsub_inline("\\\\\(\[\\\\\'\]\)", "\$1");
+($s = $s->re_gsub_pat("\\\\\(\[\\\\\'\]\)", "\$1"));
 IRx1::Buf->newp($m, $s)})});
 $self->add_constructor("quote\:qq", sub {my($m)=@_;
 (do{my $s = irbuild_ir($m->{"hash"}->{"text"});
-$s->re_gsub("\(\?\<\!\\\\\)\\\\n", "\
-");
-$s->re_gsub("\(\?\<\!\\\\\)\\\\t", "\	");
-$s->re_gsub_inline("\\\\\(\.\)", "\$1");
+($s = $s->re_gsub("\(\?\<\!\\\\\)\\\\n", "\
+"));
+($s = $s->re_gsub("\(\?\<\!\\\\\)\\\\t", "\	"));
+($s = $s->re_gsub_pat("\\\\\(\.\)", "\$1"));
 IRx1::Buf->newp($m, $s)})});
 $self->add_constructor("quote\:regex", sub {my($m)=@_;
 (do{my $s = (irbuild_ir($m->{"hash"}->{"text"}) || irbuild_ir($m->{"hash"}->{"quotesnabber"}->{"hash"}->{"text"}));
@@ -2847,13 +2850,16 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \ \ \ \ \@g\ \?\ \\\@g\ \:\ undef\;\
 \ \ \}\
 \
-\ \ sub\ re_gsub_inline\ \(\$\$\$\)\ \{\ \#\ slower\,\ but\ needed\ for\ \$1\ in\ replacement\.\
-\ \ \ \ eval\ \"\\\$_\[0\]\ \=\~\ s\/\$_\[1\]\/\$_\[2\]\/g\"\;\
+\ \ sub\ re_gsub_pat\ \{\ \#\ slower\,\ but\ needed\ for\ \$1\.\
+\ \ \ \ my\(\$s\,\$pat\,\$replace_pat\)\=\@_\;\
+\ \ \ \ eval\ \"\\\$s\ \=\~\ s\/\$pat\/\$replace_pat\/g\"\;\
 \ \ \ \ Carp\:\:confess\(\$\@\)\ if\ \$\@\;\
-\ \ \ \ \$_\[0\]\
+\ \ \ \ \$s\;\
 \ \ \}\
-\ \ sub\ re_gsub\ \(\$\$\$\)\ \{\
-\ \ \ \ \$_\[0\]\ \=\~\ s\/\$_\[1\]\/\$_\[2\]\/g\;\ \$_\[0\]\
+\ \ sub\ re_gsub\ \{\
+\ \ \ \ my\(\$s\,\$pat\,\$replace_str\)\=\@_\;\
+\ \ \ \ \$s\ \=\~\ s\/\$pat\/\$replace_str\/g\;\
+\ \ \ \ \$s\;\
 \ \ \}\
 \
 \ \ \#\ unused\
@@ -3276,7 +3282,7 @@ sub cb__Trait{my $self=CORE::shift;my($n)=@_;
 (do{if(((($n->verb() eq "is") or ($n->verb() eq "does")))) {
 (do{my $pkgname = $whiteboard::in_package->join("\:\:");
 my $name = (($whiteboard::in_package->splice(0, (-1))->join("\:\:") . "\:\:") . $self->e($n->expr()));
-$name->re_gsub("\^\:\:", "");
+($name = $name->re_gsub("\^\:\:", ""));
 (((("BEGIN\{push\(\@" . $pkgname) . "\:\:ISA\,\'") . $name) . "\'\)\;\}\
 ")})
 }else {
@@ -3347,7 +3353,7 @@ if((($n->var()->sigil() eq "\%"))) {
 };
 if(($n->is_context())) {
 (do{my $name = $self->e($n->var());
-$name->re_gsub("\^\(\.\)\:\:", "\$1");
+($name = $name->re_gsub("\^\(\.\)\:\:", "\$1"));
 ((((((("\{package\ main\;\ use\ vars\ \'" . $name) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
 }elsif(($n->is_temp())) {
 (do{my $var = $n->var();
@@ -3508,13 +3514,13 @@ if((($method eq "postcircumfix\:\<\ \>"))) {
 }elsif(($g = $method->re_groups("postcircumfix\:\(\.\*\)"))) {
 (do{my $op = $g->[0];
 my $arg = $self->e($n->capture());
-$op->re_gsub("\ ", $arg);
+($op = $op->re_gsub("\ ", $arg));
 (($self->e($n->invocant()) . "\-\>") . $op)})
 }else {
 (do{((((($self->e($n->invocant()) . "\-\>") . $self->e($n->method())) . "\(") . $self->e($n->capture())) . "\)")})
 }})};
 sub mangle_function_name{my $self=CORE::shift;my($name)=@_;
-(do{$name->re_gsub_inline("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_");
+(do{($name = $name->re_gsub_pat("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_"));
 ($name = GLOBAL::mangle_name($name));
 $name})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
@@ -3687,10 +3693,10 @@ my $name = (($env . $pre) . $dsn);
 if((($t eq "\."))) {
 (do{("\$self\-\>" . $name)})
 }elsif((($t eq "\+"))) {
-(do{$name->re_gsub("\:\:", "__");
+(do{($name = $name->re_gsub("\:\:", "__"));
 (("\$" . "\:\:") . $name)})
 }elsif((($t eq "\*"))) {
-(do{$name->re_gsub("\:\:", "__");
+(do{($name = $name->re_gsub("\:\:", "__"));
 (("\$" . "GLOBAL\:\:") . $name)})
 }else {
 (do{("\$" . $name)})
@@ -4161,7 +4167,7 @@ my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file)})
 };
 my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file);
 GLOBAL::say(((("\#\ " . $exec_args->join("\ ")) . "\ ") . $args->join("\ ")));
-GLOBAL::exec($exec_args->flatten(), $args)})
+GLOBAL::exec($exec_args->flatten(), $args->flatten())})
 }})};
 while($args->elems()) {
 (do{my $arg = $args->shift();
