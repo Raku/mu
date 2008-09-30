@@ -7,7 +7,7 @@ class Compiler {
     self.eval_fragment($code,'-e',0,$env);
   };
   method eval_file($file) {
-    self.eval_fragment(slurp($file),$file,0);
+    self.eval_fragment(slurp($file),$file,0,undef);
   };
 
   method eval_fragment($code,$filename,$verbose,$env) {

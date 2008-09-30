@@ -46,6 +46,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   `(ap ,func (list ,@args)))
 
 (defmacro fc (func &rest args)
+  `(rw (fc-real ,func ,@args)))
+
+(defmacro fc-real (func &rest args)
   (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
          (len (length args))
          (syms (loop for n from 1 to len collect (gensym)))
@@ -101,6 +104,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
          ,@body))))
 
 ;;------------------------------------------------------------------------------
+;; Classes
+
+(defgeneric UP (x))
 
 (defmacro pkg-init-flag-name (pkg) `(concatenate \'string ,pkg "/initialized"))
 (defmacro pkg-clsname (pkg) `(find-symbol (concatenate \'string ,pkg "/cls")))
@@ -126,7 +132,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       (cls-sync-definition pkg)
       (set (intern (concatenate \'string pkg "::/co"))
         (make-instance (pkg-clsname pkg)))
-      (eval `(dm |M::WHAT| ((cls ,(pkg-clsname pkg))) (declare(ignorable cls)) ,pkg))
+      (eval `(dm |M::WHAT| ((cls ,(pkg-clsname pkg))) (declare(ignorable cls)) (UP ,pkg)))
       )))
 
 (defun cls-has (pkg new-slot-specifier)
@@ -164,18 +170,35 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 ;;------------------------------------------------------------------------------
 ;; fake containers
 
-(defmacro rw-able (o k v) `(list ,v ,o ,k))
-(defmacro rw (c) `(car ,c))
-(defsetf rw (c) (v) `(ap #\'|M::STORE| (concatenate \'list (cdr ,c) (list ,v))))
+(defmacro rw-v (c)
+  `(cadr ,c))
+
+(defmacro rw (c)
+  (let ((cv (gensym)))
+    `(let ((,cv ,c))
+       (if (and (listp ,cv) ,cv (eq (car ,cv) :rw-flag)) (rw-v ,cv) ,cv))))
+
+(defsetf rw (c) (v)
+  (let ((cv (gensym)))
+    `(let ((,cv ,c))
+       (ap (caddr ,cv) (concatenate \'list (cdddr ,cv) (list ,v))))))
+
+(defmacro rw-able (v f &rest args) `(list :rw-flag ,v ,f ,@args))
 
 ;;------------------------------------------------------------------------------
 ;; Prelude & stuff
+
+;; abbreviations
+(defmacro S (x) `(to-s ,x))
+(defmacro N (x) `(to-n ,x))
+(defgeneric to-s (x))
+(defgeneric to-n (x))
 
 (defun set-slots (o argl)
   (let* ((clsname (symbol-name (class-name (class-of o))))
          (realname (subseq clsname 0 (- (length clsname) (length "/cls")))))
     (mapcar (lambda (kv)
-              (let* ((k (car kv))
+              (let* ((k (S (car kv)))
                      (v (cadr kv))
                      (sym (find-symbol (concatenate \'string realname "::." k))))
                 (setf (slot-value o sym) v)))
@@ -185,6 +208,10 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (make-package "M")
 
 (defclass |Any/cls| () ())
+(defclass |Bool/cls| () ())
+(defclass |Int/cls| () ())
+(defclass |Num/cls| () ())
+(defclass |Str/cls| () ())
 
 (dg |M::new| (cls &rest argl))
 
@@ -225,27 +252,42 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 ;  (eval(read-from-string "(defparameter sb-ext:*muffled-warnings* style-warning)"))
  nil) 
 
-;; Simplify primitives
-(defun new-array (lst) (ap #\'|M::new| (cons |Array::/co| lst)))
-(defun new-hash  (lst) (ap #\'|M::new| (cons |Hash::/co| lst)))
-(defun new-pair  (k v) (ap #\'|M::new| (list |Pair::/co| k v)))
+;; UP
+;(defgeneric UP (x))
+(defmethod UP ((x null)) nil)
+(defmethod UP ((x symbol)) x)
+(defmethod UP ((x integer)) (fc #\'|M::new| |Int::/co| x))
+(defmethod UP ((x number)) (fc #\'|M::new| |Num::/co| x))
+(defmethod UP ((x string)) (fc #\'|M::new| |Str::/co| x))
+(defmethod UP ((bug |Str/cls|)) (write (S bug)) (die))
+;; new-
+(defun new-Array (lst) (ap #\'|M::new| (cons |Array::/co| lst)))
+(defun new-Hash  (lst) (ap #\'|M::new| (cons |Hash::/co| lst)))
+(defun new-Pair  (k v) (fc #\'|M::new| |Pair::/co| k v))
+;; to-b
+(defgeneric to-b (x))
+(defmethod to-b ((x null)) nil)
+(defmethod to-b ((x symbol)) t) ;for t. #X should check.
+(defmethod to-b ((x string)) (if (equal x "") nil t))
+(defmethod to-b ((x number)) (if (= x 0) nil t))
+(defmethod to-b ((x |Bool/cls|)) (slot-value x \'|Bool::._native_|))
+(defmethod to-b ((x |Any/cls|)) (to-b (fc #\'|M::Bool| x)))
+;; to-n
+(defgeneric to-n (x))
+(defmethod to-n ((x number)) x)
+(defmethod to-n ((x |Int/cls|)) (slot-value x \'|Int::._native_|))
+(defmethod to-n ((x |Num/cls|)) (slot-value x \'|Num::._native_|))
+(defmethod to-n ((x |Any/cls|)) (to-n (fc #\'|M::Num| x)))
+;; to-s
+(defgeneric to-s (x))
+(defmethod to-s ((x string)) x)
+(defmethod to-s ((x |Str/cls|)) (slot-value x \'|Str::._native_|))
+(defmethod to-s ((x |Any/cls|)) (to-s (fc #\'|M::Str| x)))
 
-;; re bootstrap primitives
-
-(dm |M::re_matchp| ((s string) re)
-  (if (ppcre::scan re s) 1 (undef)))
-
-(dm |M::re_groups| ((s string) re)
-  (multiple-value-bind (match_str a) (ppcre::scan-to-strings re s)
-    (declare (ignorable match_str))
-    (new-array a)))
-
-(dm |M::re_gsub| ((s string) re replacement_str)
-  (let ((s1 (ppcre::regex-replace-all re s (list replacement_str))))
-    s1))
+;; regexp elf bootstrap primitives
 
 ; CL-CPCRE doesn\'t do $1, etc.
-(defun parse-replacement (rep) ; XXX kludge
+(defun parse-re-replacement (rep) ; XXX kludge
   (let* ((pat "(?:[^\\\\\\\\$]|\\\\\\\\.|.\\\\z|\\\\$[^{1])+|\\\\$1|\\\\$\\\\{1}")
          (parts (ppcre::all-matches-as-strings pat rep)))
     (write rep)(write parts)
@@ -258,10 +300,19 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
              (t part)))
      parts)))
 
-(dm |M::re_gsub_pat| ((s string) re replacement_pat)
-  (let ((s1 (ppcre::regex-replace-all re s (parse-replacement replacement_pat))))
-    s1))
-
+;; short-circuiting logicals
+(defmacro or6 (&rest args)
+  (if (null args)
+      \'nil
+    (let ((sym (gensym)))
+      `(let ((,sym ,(car args))) (if (to-b ,sym) ,sym (or6 ,@(cdr args)))))))
+(defmacro and6 (&rest args)
+  (cond ((null args) t)
+        ((null (cdr args)) (car args))
+        (t (let ((sym (gensym)))
+             `(let ((,sym ,(car args))) (if (not (to-b ,sym)) nil (and6 ,@(cdr args))))
+             ))))
+   
 
 ;;------------------------------------------------------------------------------
 ';
@@ -405,10 +456,10 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $cls = $.classname_from_package_name($pkg);
       my $slotname = '|'~$pkg~'::.'~$name~'|';
       my $accname = '|M::'~$name~'|';
-      my $code = ('(eval \'(dm '~$accname~' ((self '~$cls~'))'~
-                  ' (cl:slot-value self \''~$slotname~')))'~"\n"~
-                  '(eval \'(dm (cl:setf '~$accname~') (v (self '~$cls~'))'~
-                  ' (cl:setf (cl:slot-value self \''~$slotname~') v)))'~"\n");
+      my $code =
+        ('(eval \'(dm '~$accname~' ((self '~$cls~'))'~
+         ' (let ((setter (lambda (o v) (setf (slot-value o \''~$slotname~') v))))'~
+         '   (rw-able (slot-value self \''~$slotname~') setter self))))'~"\n");
       my $slot_specifier = '('~$slotname;
       if $default {
         $slot_specifier = $slot_specifier ~ " :initform "~$default;
@@ -452,7 +503,6 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   method classobject_from_package_name($pkg) {
     '|'~$pkg~'::/co|';
   }
-
 
   method cb__SubDecl ($n) {
     temp $whiteboard::emit_pairs_inline = 0;
@@ -526,11 +576,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       $invocant = ""~$.classobject_from_package_name($invocant);
     }
     my $call = '(fc '~$meth~' '~$invocant~' '~$.e($n.capture)~')';
-    if $method.re_matchp('\Apostcircumfix:[[{<] []}>]\z') {
-      '(rw '~$call~')';
-    } else {
-      $call;
-    }
+    $call;
   }
   method fqsym ($name) {
      "#'|"~$name.re_gsub('\|','\\|')~'|';
@@ -539,13 +585,14 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
      "|"~$name.re_gsub('\|','\\|')~'|';
   }
   method qstr ($str) {
-     '"'~$str.re_gsub('\\\\','\\\\\\\\').re_gsub('"','\"')~'"'
+     '"'~$str.re_gsub('\\\\','\\\\').re_gsub('"','\"')~'"'
   }
 
   method cb__Apply ($n) {
     my $g;
     # temp $whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
     my $fun = $.e($n.function);
+    my $e_capture; # avoid exponential time on deeply nested ops.
     if $n.notes<lexical_bindings>{'&'~$fun} {
        my $fe = $.qsym('&'~$fun);
        my $decl = $n.notes<lexical_bindings>{'&'~$fun};
@@ -571,9 +618,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       if ($op eq '=') {
         return '(setf '~$l~' '~$r~')';
       }
-      if ($op eq 'or' or $op eq '||') {
-        return '(or '~$l~' '~$r~')';
-      }
+      if ($op eq 'or' or $op eq '||') {return '(or6 '~$l~' '~$r~')';}
+      if ($op eq 'and' or $op eq '&&') {return '(and6 '~$l~' '~$r~')';}
+      $e_capture = $a.join(" ");
     }
     elsif $g = $fun.re_groups('^prefix:(.+)$') {
       #my $op = $g[0];
@@ -598,8 +645,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
       if $op.re_matchp('^(\+\+)$') {
-        return "(setq "~$x~" (+ 1 "~$x~"))"
+        return "(setq "~$x~" (UP (1+ (N "~$x~"))))"
       }
+      $e_capture = $a.join(" ");
     }
     elsif $g = $fun.re_groups('^circumfix:(.+)') {
       my $op = $g[0];
@@ -632,7 +680,11 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 
     if $fun.re_matchp('^\w') {
       my $fe = $.qsym('GLOBAL::&'~$fun);
-      return '(fc '~$fe~' '~$.e($n.capture)~')'
+      if not(defined($e_capture)) { $e_capture = $.e($n.capture) }
+      return '(fc '~$fe~' '~$e_capture~')'
+    }
+    if $fun.re_matchp('^[$@%&]') {
+       return  '(fc '~$.qsym($fun)~' '~$.e($n.capture)~')';
     }
     else {
        return  '(fc '~$fun~' '~$.e($n.capture)~')';
@@ -661,14 +713,14 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     if $n.default { $els = "(t \n"~$.e($n.default)~"\n)" }
     my $clauses = $.e($n.clauses);
     my $first = $clauses.shift;
-    my $first_test = $first[0];
+    my $first_test = '(to-b '~$first[0]~')';
     if $n.invert_first_test { $first_test = "(not "~$first_test~")" }
     ('(cond ('~$first_test~"\n"~$first[1]~")\n"
-    ~$clauses.map(sub($e){'('~$e[0]~"\n"~$e[1]~"\n)"}).join("")
+    ~$clauses.map(sub($e){'((to-b '~$e[0]~")\n"~$e[1]~"\n)"}).join("")
     ~$els~")\n")
   }
   method cb__Loop ($n) {
-    '(loop while '~$.e($n.pretest)~" do (block __l__ \n"~$.e($n.block)~"\n))"
+    '(loop while (to-b '~$.e($n.pretest)~") do (block __l__ \n"~$.e($n.block)~"\n))"
   }
 
   method encode_varname($s,$t,$dsn) {
@@ -714,7 +766,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     }
   }
   method cb__NumInt ($n) {
-    $.e($n.text)
+    '(UP '~$.e($n.text)~')'
   }
   method cb__Hash ($n) {
     temp $whiteboard::emit_pairs_inline = 1;
@@ -722,7 +774,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   }
   method cb__Buf ($n) {
     my $s = $n.buf;
-    $.qstr($.translate_string($s));
+    '(UP '~$.qstr($s)~')';
   }
   method cb__Rx ($n) {
     my $pat = $n.pat || '';
@@ -733,12 +785,8 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       temp $whiteboard::emit_pairs_inline = 0;
       ' '~$.e($n.key)~' '~$.e($n.value)~' '
     } else {
-       "(fc #\'|M::new| |Pair::/co| 'key' "~$.e($n.key)~" 'value' "~$.e($n.value)~")"
+       '(new-Pair '~$.e($n.key)~' '~$.e($n.value)~")"
     }
-  }
-
-  method translate_string($s) {
-    $s.re_gsub('~','~~').re_gsub('\\\\n','~%').re_gsub('\\\\t',"\t").re_gsub('\\\\','\\\\\\\\')
   }
 
 };

@@ -3972,7 +3972,7 @@ use base "Any";(do{sub is_for_active_runtime { if(@_==2){$_[0]{'is_for_active_ru
 sub eval_perl6{my $self=CORE::shift;my($code,$env)=@_;
 (do{$self->eval_fragment($code, "\-e", 0, $env)})};
 sub eval_file{my $self=CORE::shift;my($file)=@_;
-(do{$self->eval_fragment(GLOBAL::slurp($file), $file, 0)})};
+(do{$self->eval_fragment(GLOBAL::slurp($file), $file, 0, GLOBAL::undef())})};
 sub eval_fragment{my $self=CORE::shift;my($code,$filename,$verbose,$env)=@_;
 (do{my $p5 = $self->compile_fragment($code, $filename, $verbose);
 GLOBAL::eval_perl5($p5, $env)})};
@@ -4144,7 +4144,7 @@ my $output = sub {my($text)=@_;
 my $sources = [];
 my $handle = sub {my($filename,$code)=@_;
 (do{if(($mode eq "r")) {
-(do{$GLOBAL::compiler0->eval_fragment($code, $filename, $verbose)})
+(do{$GLOBAL::compiler0->eval_fragment($code, $filename, $verbose, GLOBAL::undef())})
 }elsif((($mode eq "s0") || ($mode eq "s1"))) {
 (do{my $comp;
 if(($mode eq "s0")) {

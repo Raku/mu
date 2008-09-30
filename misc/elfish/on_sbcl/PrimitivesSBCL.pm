@@ -48,74 +48,60 @@ package GLOBAL {
 
   sub say(*@a) { for @a { print $_; }; print "\n";}
   sub print(*@a) { for @a { primitive_print $_.Str }; }
-  sub primitive_print ($x) is cl {'
-   (cl:if (cl:stringp |$x|) (cl:write-string |$x|) (cl:write |$x|))
-  '}
-  sub primitive_write_to_string ($x) is cl {' (write-to-string |$x|) '}
+  sub primitive_print ($x) is cl {' (cl:write-string (S |$x|)) '}
+  sub primitive_write_to_string ($x) is cl {' (UP (write-to-string |$x|)) '};
 
   sub undef () is cl {'
     nil ;XX
   '}
 
-  multi infix:<-> ($a,$b) is cl {' (- |$a| |$b|) '}
-  multi infix:<+> ($a,$b) is cl {' (+ |$a| |$b|) '}
-  multi infix:<==> ($a,$b) is cl {' (equal |$a| |$b|) '}
+  multi infix:<+> ($a,$b) is cl {' (UP (+ (N |$a|) (N |$b|))) '}
+  multi infix:<-> ($a,$b) is cl {' (UP (- (N |$a|) (N |$b|))) '}
+  multi infix:<*> ($a,$b) is cl {' (UP (* (N |$a|) (N |$b|))) '}
+  multi infix:</> ($a,$b) is cl {' (UP (/ (N |$a|) (N |$b|))) '}
 
-#  sub infix:<+> ($a,$b) is cl {' (+ |$a| |$b|) '}
-#  sub infix:<-> ($a,$b) is cl {' (- |$a| |$b|) '}
-  sub infix:<*> ($a,$b) is cl {' (* |$a| |$b|) '}
-  sub infix:</> ($a,$b) is cl {' (/ |$a| |$b|) '}
+  multi infix:<<> ($a,$b) is cl {' (UP (< (N |$a|) (N |$b|))) '}
+  multi infix:«>» ($a,$b) is cl {' (UP (> (N |$a|) (N |$b|))) '}
+  multi infix:<<=> ($a,$b) is cl {' (UP (<= (N |$a|) (N |$b|))) '}
+  multi infix:«>=» ($a,$b) is cl {' (UP (>= (N |$a|) (N |$b|))) '}
+  multi infix:<==> ($a,$b) is cl {' (UP (equal (N |$a|) (N |$b|))) '}
+  multi infix:«!=» ($a,$b) is cl {' (UP (not (equal (N |$a|) (N |$b|)))) '}
+  multi infix:<eq> ($a,$b) is cl {' (UP (equal (S |$a|) (S |$b|))) '}
+  multi infix:<ne> ($a,$b) is cl {' (UP (not (equal (S |$a|) (S |$b|)))) '}
 
-  sub infix:<<> ($a,$b) is cl {' (< |$a| |$b|) '}
-  sub infix:«>» ($a,$b) is cl {' (> |$a| |$b|) '}
-  sub infix:<<=> ($a,$b) is cl {' (<= |$a| |$b|) '}
-  sub infix:«>=» ($a,$b) is cl {' (>= |$a| |$b|) '}
-#  sub infix:<==> ($a,$b) is cl {' (equal |$a| |$b|) '}
-  sub infix:«!=» ($a,$b) is cl {' (not (equal |$a| |$b|)) '}
-  sub infix:<eq> ($a,$b) is cl {' (equal |$a| |$b|) '}
-  sub infix:<ne> ($a,$b) is cl {' (not (equal |$a| |$b|)) '}
+  multi infix:<~> ($a,$b) { primitive_strcat($a.Str,$b.Str) }
+  multi primitive_strcat ($a,$b) is cl {' (UP (concatenate \'string (S |$a|) (S |$b|))) '}
 
-  sub infix:<&&> ($a,$b) is cl {' (and |$a| |$b|) '}
-  sub infix:<and> ($a,$b) is cl {' (and |$a| |$b|) '}
-  # To short-circuit evaluation, or() can't be a sub.
-  #sub infix:<||> ($a,$b) is cl {' (or |$a| |$b|) '}
-  #sub infix:<or> ($a,$b) is cl {' (or |$a| |$b|) '}
+  multi prefix:<!> ($a) is cl {' (UP (not (to-b |$a|))) '}
+  multi prefix:<-> ($a) is cl {' (UP (- 0 (N |$a|))) '}
+  multi prefix:<?> ($a) is cl {' (UP (to-b |$a|)) '}
 
-  sub infix:<~> ($a,$b) { primitive_strcat($a.Str,$b.Str) }
-  sub primitive_strcat ($a,$b) is cl {' (concatenate \'string |$a| |$b|) '}
+  multi circumfix:«[ ]» (*@a) is cl {' |@a| '}
+  multi circumfix:«( )» ($a) is cl {' |$a| '}
 
-  sub prefix:<!> ($a) is cl {' (not |$a|) '}
-  sub prefix:<-> ($a) is cl {' (- 0 |$a|) '}
-  sub prefix:<?> ($a) is cl {' nil '}
-
-  sub circumfix:«[ ]» (*@a) is cl {' |@a| '}
-  sub circumfix:«( )» ($a) is cl {' |$a| '}
-
-  sub _pid is cl {' (sb-posix:getpid) '}
-  our $*PID = _pid();
-
-  sub slurp ($filename) is cl {'
-    (with-open-file (stream |$filename|)
+  multi slurp ($filename) is cl {'
+    (with-open-file (stream (S |$filename|))
       (let ((str (make-string (file-length stream))))
         (read-sequence str stream)
-        str))
+        (UP str)))
   '}
-  sub unslurp ($string,$filename) is cl {'
-    (with-open-file (stream |$filename| :direction :output :if-exists :supersede)
-      (write-sequence |$string| stream))
+  multi unslurp ($string,$filename) is cl {'
+    (with-open-file (stream (S |$filename|) :direction :output :if-exists :supersede)
+      (write-sequence (S |$string|) stream))
   '}
 
-  sub exit ($status) is cl {' (sb-unix:unix-exit |$status|) '}
-  sub die ($msg) { say $msg; exit(1); }
+  multi exit ($status) is cl {' (sb-unix:unix-exit (N |$status|)) '}
+  multi die ($msg) { say $msg; exit(1); }
 
-  sub system ($cmd) is cl {'
-    (let ((p (sb-ext:run-program "/bin/sh" (list "-c" |$cmd|) :output t)))
+  multi system ($cmd) is cl {'
+    (let ((p (sb-ext:run-program "/bin/sh" (list "-c" (S |$cmd|)) :output t)))
        (sb-ext:process-wait p)
-       (sb-ext:process-exit-code p))
+       (UP (sb-ext:process-exit-code p)))
   '}
-  sub unlink (*@filenames) { @filenames.map(sub($f){unlink_($f)}) }
-  sub unlink_ ($filename) is cl {' (sb-unix:unix-unlink |$filename|) '}
-  sub not ($x) { if $x { 1 } else { undef } }
+  multi unlink (*@filenames) { @filenames.map(sub($f){unlink_($f)}) }
+  multi unlink_ ($filename) is cl {' (sb-unix:unix-unlink (S |$filename|)) '}
+  multi not ($x) { if $x { undef } else { 1 } }
+  multi defined ($x) is cl {' (UP (if |$x| 1 nil)) '} #X undef as nil
 }
 
 # Elf
@@ -129,7 +115,7 @@ package GLOBAL {
   our $emitter0;
   our $emitter1;
   sub fastundump ($dump_string) is cl {'
-    (let ((tree (read-from-string |$dump_string|)))
+    (let ((tree (read-from-string (S |$dump_string|))))
       (labels
        ((undump (node)
            (cond ((listp node)
@@ -138,7 +124,7 @@ package GLOBAL {
                            (\'match (ap #\'|M::make_from_rsfth| (cons |Match::/co| args)))
                            (\'array (ap #\'|M::new| (cons |Array::/co| args)))
                            (\'hash  (ap #\'|M::new| (cons |Hash::/co| args))))))
-                 (t node))))
+                 (t (UP node)))))
        (undump tree)))
   '}
   sub parser_format () { "cl" }
@@ -155,6 +141,22 @@ package GLOBAL {
     }
   }
 }
+# regexp elf bootstrap primitives
+package Str {
+  method re_matchp ($re) is cl {' (UP (ppcre::scan (S |$re|) (S self))) '}
+  method re_groups ($re) is cl {'
+    (multiple-value-bind (match_str a) (ppcre::scan-to-strings (S |$re|) (S self))
+      (declare (ignorable match_str))
+      (new-Array (mapcar #\'UP a)))
+  '}
+  method re_gsub ($re,$replacement_str) is cl {'
+    (UP (ppcre::regex-replace-all (S |$re|) (S self) (list (S |$replacement_str|))))
+  '}
+  method re_gsub_pat ($re,$replacement_pat) is cl {'
+     (UP (ppcre::regex-replace-all (S |$re|) (S self)
+           (parse-re-replacement (S |$replacement_pat|))))
+  '}
+}
 
 package Main {
 }
@@ -169,6 +171,37 @@ class Undef {
 
 class Pair {
   has $.key; has $.value;
+  method new ($k,$v) is cl {'
+    (let ((inst (make-instance \'|Pair/cls|)))
+      (setf (slot-value inst \'|Pair::.key|) |$k|)
+      (setf (slot-value inst \'|Pair::.value|) |$v|)
+      inst)
+  '}
+}
+
+class Int {
+  has $._native_;
+  method new ($n) is cl {'
+    (let ((inst (make-instance \'|Int/cls|)))
+      (setf (slot-value inst \'|Int::._native_|) (N |$n|))
+      inst)
+  '}
+}
+class Num {
+  has $._native_;
+  method new ($n) is cl {'
+    (let ((inst (make-instance \'|Num/cls|)))
+      (setf (slot-value inst \'|Num::._native_|) (N |$n|))
+      inst)
+  '}
+}
+class Str {
+  has $._native_;
+  method new ($s) is cl {'
+    (let ((inst (make-instance \'|Str/cls|)))
+      (setf (slot-value inst \'|Str::._native_|) (S |$s|))
+      inst)
+  '}
 }
 
 class Array {
@@ -177,7 +210,7 @@ class Array {
     (coerce (slot-value self \'|Array::._native_|) \'list)
   '}
   method elems () is cl {'
-    (length (slot-value self \'|Array::._native_|))
+    (UP (length (slot-value self \'|Array::._native_|)))
   '}
   method push (*@a) is cl {'
     (setf (slot-value self \'|Array::._native_|)
@@ -222,17 +255,17 @@ class Array {
     (let* ((a (slot-value self \'|Array::._native_|))
            (len (length a))
            (idx (wrapped-index len |$k|)))
-      (rw-able self |$k| (if idx (aref a idx) (undef))))
+      (rw-able (if idx (aref a idx) (undef)) #\'|M::STORE| self |$k|))
   '}
   method join ($join_str) is cl {'
     (let* ((a (slot-value self \'|Array::._native_|))
            (len (length a))
-           (strs (loop for v across a append (list (fc #\'|M::Str| v) |$join_str|))))
-      (apply #\'concatenate (cons \'string (subseq strs 0 (max 0 (1- (* 2 len)))))))
+           (strs (loop for v across a append (list (S (fc #\'|M::Str| v)) (S |$join_str|)))))
+      (UP (apply #\'concatenate (cons \'string (subseq strs 0 (max 0 (1- (* 2 len))))))))
   '}
   method map ($code) is cl {'
     (let* ((a (slot-value self \'|Array::._native_|)))
-      (new-array (loop for v across a collect (fc |$code| v))))
+      (new-Array (loop for v across a collect (fc |$code| v))))
   '}
 }
 
@@ -250,21 +283,21 @@ class Hash {
 
   method kv () is cl {'
     (let ((h (slot-value self \'|Hash::._native_|)))
-      (new-array (loop for k being the hash-key using (hash-value v) of h
+      (new-Array (loop for k being the hash-key using (hash-value v) of h
                    append (list k v))))
   '}
   method pairs () is cl {'
     (let ((h (slot-value self \'|Hash::._native_|)))
-      (new-array (loop for k being the hash-key using (hash-value v) of h
+      (new-Array (loop for k being the hash-key using (hash-value v) of h
                    collect (new-pair k v))))
   '}
   method keys () is cl {'
     (let ((h (slot-value self \'|Hash::._native_|)))
-      (new-array (loop for k being the hash-key of h collect k)))
+      (new-Array (loop for k being the hash-key of h collect k)))
   '}
   method values () is cl {'
     (let ((h (slot-value self \'|Hash::._native_|)))
-      (new-array (loop for v being the hash-value of h collect v)))
+      (new-Array (loop for v being the hash-value of h collect v)))
   '}
   method exists ($key) is cl {'
     (let ((h (slot-value self \'|Hash::._native_|)))
@@ -286,13 +319,24 @@ class Hash {
   method postcircumfix:<{ }> ($k) is cl {'
     (let ((h (slot-value self \'|Hash::._native_|)))
       (multiple-value-bind (v exists) (gethash |$k| h)
-        (rw-able self |$k| (if exists v (undef)))))
+        (rw-able (if exists v (undef)) #\'|M::STORE| self |$k|)))
   '}
   #method postcircumfix:«< >» ($k) { self.{$k} }
   method postcircumfix:«< >» ($k) is cl {'
     (fc #\'|M::postcircumfix:{ }| self |$k|) ;so rw-able isnt lost.
   '}
 }
+
+# true
+class Any   { method true() { self.Bool }}
+# .Bool()
+class Any   { method Bool () { 0 == 0 } }
+class Bool  { method Bool () { self } }
+class Int   { method Bool () { self != 0 } }
+class Num   { method Bool () { self != 0 } }
+class Str   { method Bool () { self ne "" } }
+class Array { method Bool () { self.elems != 0 } }
+class Hash  { method Bool () { self.keys.elems != 0 } }
 
 # .Num()
 class Int   { method Num () { self } }
@@ -311,20 +355,22 @@ class Array { method Str () { self.join('') } }
 class Hash  { method Str () { self.keys.map(sub($k){$k~"\t"~self.{$k}}).join("\n") } }
 class Pair  { method Str () { $.key~"\t"~$.value } }
 
-# truth
-class Any { method true() { defined(self) }}
 
 
 package GLOBAL {
+  sub _pid is cl {' (UP (sb-posix:getpid)) '}
+  our $*PID = _pid();
+
+  our @*INC = ('.');
   sub _init_ () is cl {'
      (setq |GLOBAL::@ARGS|
-       (new-array (subseq sb-ext:*posix-argv* 1))) ;skip "sbcl"
+       (new-Array (mapcar #\'UP (subseq sb-ext:*posix-argv* 1)))) ;skip "sbcl"
      (defun env ()
        (mapcan #\'copy-list
         (mapcar (lambda (str)
                   (let ((pos (position #\= str :test #\'equal)))
-                    (list (subseq str 0 pos)
-                          (subseq str (1+ pos)))))
+                    (list (UP (subseq str 0 pos))
+                          (UP (subseq str (1+ pos))))))
                 (posix-environ))))
       (setq |GLOBAL::%ENV| (ap #\'|M::new| (cons |Hash::/co| (env))))
   '}

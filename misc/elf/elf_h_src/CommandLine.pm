@@ -43,7 +43,7 @@ One can also do
     my $sources = [];
     my $handle = sub ($filename,$code) {
       if $mode eq 'r' {
-        $*compiler0.eval_fragment($code,$filename,$verbose);
+        $*compiler0.eval_fragment($code,$filename,$verbose,undef);
       }
       elsif $mode eq 's0' || $mode eq 's1' {
         my $comp;
