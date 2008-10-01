@@ -152,14 +152,18 @@ repository) join #perl on irc.freenode.net and ask for one.
 If you merely edited a test file, a simple
 C<svn ci> will do:
 
-    svn ci -m '[spec] added tests for $frobnicate_feature' path/to/file.t
+    svn ci -m '[t/spec] added tests for $frobnicate_feature' path/to/file.t
 
 If you created a new file, you have to call C<svn add> first and set the svn
 properties. Lazy programmers use a shell script for that:
 
     ./util/add-text-file.sh t/spec/S99-weird/very-weird-features.t
-    svn ci -m '[spec] test for very weird features' t/spec/S99-weird/very-weird-features.t
+    svn ci -m '[t/spec] test for very weird features' t/spec/S99-weird/very-weird-features.t
 
-Please always include the C<[spec]> marker at the beginning of your commit
+Please always include the C<[t/spec]> marker at the beginning of your commit
 messages (or C<[t]> if you didn't modify C<t/spec/>), it helps other to
 identify which part of the repository you changed.
+
+=cut
+
+# vim: ft=pod
