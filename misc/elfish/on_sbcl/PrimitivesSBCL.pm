@@ -121,9 +121,9 @@ package GLOBAL {
            (cond ((listp node)
                   (let ((args (mapcar #\'undump (cdr node))))
                     (ecase (car node)
-                           (\'match (ap #\'|M::make_from_rsfth| (cons |Match::/co| args)))
-                           (\'array (ap #\'|M::new| (cons |Array::/co| args)))
-                           (\'hash  (ap #\'|M::new| (cons |Hash::/co| args))))))
+                           (match (ap #\'|M::make_from_rsfth| (cons |Match::/co| args)))
+                           (array (ap #\'|M::new| (cons |Array::/co| args)))
+                           (hash  (ap #\'|M::new| (cons |Hash::/co| args))))))
                  (t (UP node)))))
        (undump tree)))
   '}
@@ -140,6 +140,7 @@ package GLOBAL {
       "../../STD_red/STD_red_run"
     }
   }
+  sub private_tidy ($s) { $s }
 }
 # regexp elf bootstrap primitives
 package Str {
@@ -164,6 +165,7 @@ package Main {
 class Any {
   method say() { say(self) }
   method print() { say(self) }
+  method isa(Str $name) is cl {' (UP (typep self (find-class (pkg-clsname (S |$name|))))) '}
 }
 
 class Undef {
@@ -248,13 +250,13 @@ class Array {
   '}
   method STORE ($k,$v) is cl {'
     (let* ((a (slot-value self \'|Array::._native_|))
-           (idx |$k|)) ;XXX no wrapping, expansion, etc.
+           (idx (N |$k|))) ;XXX no wrapping, expansion, etc.
       (setf (aref a idx) |$v|))
   '}  
   method postcircumfix:<[ ]> ($k) is cl {'
     (let* ((a (slot-value self \'|Array::._native_|))
            (len (length a))
-           (idx (wrapped-index len |$k|)))
+           (idx (wrapped-index len (N |$k|))))
       (rw-able (if idx (aref a idx) (undef)) #\'|M::STORE| self |$k|))
   '}
   method join ($join_str) is cl {'
@@ -270,60 +272,82 @@ class Array {
 }
 
 class Hash {
-  has $._native_;
+  has $._values_;
+  has $._keys_;
   method new (*@a) is cl {'
     (let ((inst (make-instance \'|Hash/cls|))
-          (h (make-hash-table :test #\'equal))
+          (hk (make-hash-table :test #\'equal))
+          (hv (make-hash-table :test #\'equal))
           (args (fc #\'|M::_native_| |@a|)))
-      (setf (slot-value inst \'|Hash::._native_|) h)
-      (loop for kv in (size-n-partition 2 args)
-            do (setf (gethash (car kv) h) (cadr kv)))
+      (setf (slot-value inst \'|Hash::._keys_|) hk)
+      (setf (slot-value inst \'|Hash::._values_|) hv)
+      (loop for kv in (size-n-partition 2 args) do
+        (let* ((k (car kv))
+               (v (cadr kv))
+               (h (cl-hash k)))
+          (setf (gethash h hk) k)
+          (setf (gethash h hv) v)))
       inst)
   '}
 
   method kv () is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (new-Array (loop for k being the hash-key using (hash-value v) of h
-                   append (list k v))))
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|)))
+      (new-Array (loop for h being the hash-key of hk using (hash-value k)
+                       append (list k (gethash h kv)))))
   '}
   method pairs () is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (new-Array (loop for k being the hash-key using (hash-value v) of h
-                   collect (new-pair k v))))
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|)))
+      (new-Array (loop for h being the hash-key of hk using (hash-value k)
+                       collect (new-pair k (gethash h kv)))))
   '}
   method keys () is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (new-Array (loop for k being the hash-key of h collect k)))
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|)))
+      (new-Array (loop for k being the hash-value of hk collect k)))
   '}
   method values () is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (new-Array (loop for v being the hash-value of h collect v)))
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|)))
+      (new-Array (loop for v being the hash-value of hv collect v)))
   '}
   method exists ($key) is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (if (nth-value 1 (gethash |$key| h)) t nil))
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|)))
+      (if (nth-value 1 (gethash (cl-hash |$key|) hk)) t nil))
   '}
   method delete ($key) is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (remhash |$key| h))
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|))
+          (h (cl-hash |$key|)))
+      (remhash h hk)
+      (remhash h hv))
   '}
   method clear () is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (clrhash h)
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|)))
+      (clrhash hk)
+      (clrhash hv)
       self)
   '}
   method STORE ($k,$v) is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (setf (gethash |$k| h) |$v|))
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|))
+          (h (cl-hash |$k|)))
+      (setf (gethash h hk) |$k|)
+      (setf (gethash h hv) |$v|))
   '}  
   method postcircumfix:<{ }> ($k) is cl {'
-    (let ((h (slot-value self \'|Hash::._native_|)))
-      (multiple-value-bind (v exists) (gethash |$k| h)
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|))
+          (h (cl-hash |$k|)))
+      (multiple-value-bind (v exists) (gethash h hv)
         (rw-able (if exists v (undef)) #\'|M::STORE| self |$k|)))
   '}
   #method postcircumfix:«< >» ($k) { self.{$k} }
   method postcircumfix:«< >» ($k) is cl {'
-    (fc #\'|M::postcircumfix:{ }| self |$k|) ;so rw-able isnt lost.
+    (fc-preserving-rw #\'|M::postcircumfix:{ }| self |$k|)
   '}
 }
 

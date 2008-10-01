@@ -20,6 +20,7 @@ class EmitSBCL {
   method prelude_oo () {
    '';
   }
+# (setq |GLOBAL::@ARGS| (new-Array (mapcar #'UP '("-v" "-e" "say 3"))))
   method prelude ($n) {
   '#|
 #fasl=`dirname $0`/`basename $0 .lisp`.fasl
@@ -28,27 +29,35 @@ class EmitSBCL {
 exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 |#
 
+(require \'asdf)
 (require \'sb-posix)
+(eval-when (:compile-toplevel :load-toplevel :execute)
 (pushnew #p"lib-cl/systems/" asdf:*central-registry*)
 (asdf:operate \'asdf:load-op :cl-ppcre)
+)
+
+;(declaim (optimize (debug 2)))
+
 
 ;;------------------------------------------------------------------------------
 ;; Multi-methods - avoid generic-function congruence restrictions.
 ;; http://www.lispworks.com/documentation/HyperSpec/Body/07_fd.htm
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
 (defvar *maximum-number-of-dispatch-affecting-variables* 10)
 
 (defun n-variable-names (n &optional l)
   (cond ((= 0 n) l)
         (t (n-variable-names (1- n) (cons (gensym) l)))))
+)
 
 (defmacro fc-old (func &rest args)
   `(ap ,func (list ,@args)))
 
 (defmacro fc (func &rest args)
-  `(rw (fc-real ,func ,@args)))
+  `(rw (fc-preserving-rw ,func ,@args)))
 
-(defmacro fc-real (func &rest args)
+(defmacro fc-preserving-rw (func &rest args)
   (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
          (len (length args))
          (syms (loop for n from 1 to len collect (gensym)))
@@ -78,12 +87,14 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
          (vars (n-variable-names n)))
     `(defgeneric ,name (args ,@vars))))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
 (defun parameters-in-lambda-list (sig)
   (let ((pred (lambda(e) (case e
                                (&optional t)
                                (&rest t)
                                ))))
     (remove-if pred sig))) ;X should stop at &aux, etc.
+)
 
 (defmacro dm (name sig &rest body)
   (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
@@ -221,6 +232,8 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 
 ;; Undef is still being kludged as nil.
 (defmacro undef () nil)
+(dm |M::make_ir_from_Match_tree| ((self null) ) (block __f__ (let () self)))
+(dm |M::isa| ((x null) s) (equal (S s) "Undef"))
 
  ;;Array.new is defined here to a avoid cyclic dependency on *@args.
 (pkg-declare "class" "Array" \'|Any/cls|)
@@ -266,6 +279,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (defun new-Pair  (k v) (fc #\'|M::new| |Pair::/co| k v))
 ;; to-b
 (defgeneric to-b (x))
+(defmethod to-b (x) t)
 (defmethod to-b ((x null)) nil)
 (defmethod to-b ((x symbol)) t) ;for t. #X should check.
 (defmethod to-b ((x string)) (if (equal x "") nil t))
@@ -283,6 +297,12 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (defmethod to-s ((x string)) x)
 (defmethod to-s ((x |Str/cls|)) (slot-value x \'|Str::._native_|))
 (defmethod to-s ((x |Any/cls|)) (to-s (fc #\'|M::Str| x)))
+
+(defgeneric cl-hash (x))
+(defmethod cl-hash (x) x)
+(defmethod cl-hash ((x |Str/cls|)) (slot-value x \'|Str::._native_|))
+(defmethod cl-hash ((x |Int/cls|)) (slot-value x \'|Int::._native_|))
+(defmethod cl-hash ((x |Num/cls|)) (slot-value x \'|Num::._native_|))
 
 ;; regexp elf bootstrap primitives
 
@@ -329,9 +349,6 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 
   method cb__CompUnit ($n) {
     $n.do_all_analysis();
-    temp $whiteboard::in_package = [];
-    temp $whiteboard::emit_pairs_inline = 0;
-    temp $whiteboard::compunit_footer = [];
     my $decls = $n.notes<lexical_variable_decls>;
     my $code = "(let (\n";
     $decls.map(sub($d){if $d.scope eq 'my' {
@@ -341,12 +358,23 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       $code = $code ~ $.qsym($d.sigil~$d.name)~" ";
     }});
     $code = $code ~")\n";
-    my $stmts = $.e($n.statements);
+    temp $whiteboard::in_package = [];
+    temp $whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::declares = [];
+    temp $whiteboard::compunit_header = [];
+    temp $whiteboard::block_header = [];
+    temp $whiteboard::compunit_footer = [];
+    my $stmts = $.e($n.statements).join("\n");
+    my $declare = $whiteboard::declares.join("");
+    my $head = $whiteboard::compunit_header.join("\n")~"\n\n";
     my $foot = $whiteboard::compunit_footer.join("\n");
-    $code ~ $stmts.join("\n")~$foot~"\n)\n";
+    my $blk_head = $whiteboard::block_header.join("");
+    $code ~ $declare ~ $blk_head ~ $head ~ $stmts ~$foot~"\n)\n";
   }
   method cb__Block ($n) {
     temp $whiteboard::emit_pairs_inline = 0;
+    temp $whiteboard::declares = [];
+    temp $whiteboard::block_header = [];
     my $decls = $n.notes<lexical_variable_decls>;
     my $code = "(let (";
     $decls.map(sub($d){
@@ -356,10 +384,13 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
        }
        elsif $scope eq 'temp' {
          my $v = $.e($d.var);
-         $code = $code ~ "("~$v~" "~$v~") ";
+         $code = $code ~ "("~$v~" (if (boundp '"~$v~") "~$v~")) ";
        }
     });
-    $code~")\n"~$.e($n.statements).join("\n")~')'
+    my $stmts = $.e($n.statements).join("\n");
+    my $declare = $whiteboard::declares.join("");
+    my $blk_head = $whiteboard::block_header.join("");
+    $code~")\n"~$declare~$blk_head~$stmts~')'
   }
 
   method cb__Use ($n) {
@@ -394,11 +425,15 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $foot = "\n";
     if $n.block {
       temp $whiteboard::in_package = $in_package; # my()
-      $head ~ $.e($n.traits||[]).join("\n") ~ $.e($n.block) ~ $foot;
+      my $decl = $head ~ $.e($n.traits||[]).join("\n");
+      $whiteboard::compunit_header.push($decl);
+      $.e($n.block) ~ $foot;
     } else {
       $whiteboard::in_package = $in_package; # not my()
+      my $decl = $head ~ $.e($n.traits||[]).join("\n");
+      $whiteboard::compunit_header.push($decl);
       $whiteboard::compunit_footer.unshift($foot);
-      $head ~ $.e($n.traits||[]).join("\n") ~ "\n"
+      "\n"
     }
   }
   method cb__Trait ($n) {
@@ -472,9 +507,10 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $evar = $.e($n.var);
       my $evar_d = $evar;
       if $default { $evar_d = '(setq '~$evar~' '~$default~')' }
-      ("(unless (boundp '"~$evar~") (setq "~$evar~" nil))\n"~
-       "(locally (declare (special "~$evar~")))\n"~
-       $evar_d);
+      $whiteboard::declares.push("(declare (special "~$evar~"))\n");
+      my $init = "(unless (boundp '"~$evar~") (setq "~$evar~" nil))\n";
+      $whiteboard::block_header.push($init);
+      $evar_d;
     }
     else {
       my $code = $.e($n.var);
@@ -495,7 +531,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $cls = $.classname_from_package_name($n.notes<crnt_package>||'Main');
     my $enc_name = $.qsym('M::'~$.e($n.name));
     my $sig = $.e($n.multisig);
-    '(eval \'(dm '~$enc_name~' ((self '~$cls~') '~$sig~' (block __f__ '~$body~')))';
+    my $decl = '(eval \'(dm '~$enc_name~' ((self '~$cls~') '~$sig~' (block __f__ '~$body~')))';
+    $whiteboard::compunit_header.push($decl);
+    "";
   }
   method classname_from_package_name($pkg) {
     '|'~$pkg~'/cls|';
@@ -517,24 +555,28 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       $body = $.e($n.block);
     }
     my $most = '('~$sig~' (block __f__ '~$body~')';
+    my $decl = "";
+    my $code = "";
     if $n.scope && $n.scope eq 'our' {
       my $pkg = $n.notes<crnt_package>;
       my $enc_name = $.qsym($pkg~'::&'~$name);
       if $n.plurality && $n.plurality eq 'multi' {
         my $dm_name = $.qsym('MS::'~$pkg~'::&'~$name);
-        ('(dm '~$dm_name~' '~$most~')'~"\n"~
-         '(defparameter '~$enc_name~' #\''~$dm_name~')');
+        $decl = ('(dm '~$dm_name~' '~$most~')'~"\n"~
+                 '(defparameter '~$enc_name~' #\''~$dm_name~')');
       } else {
-        '(defparameter '~$enc_name~' (lambda '~$most~'))';
+        $decl = '(defparameter '~$enc_name~' (lambda '~$most~'))';
       }
     }
     elsif $name {
       my $enc_name = $.qsym('&'~$name);
-      '(setq '~$enc_name~' (lambda '~$most~'))';
+      $decl = '(setq '~$enc_name~' (lambda '~$most~'))';
     }
     else {
-      '(lambda '~$most~')';
+      $code = '(lambda '~$most~')';
     }
+    $whiteboard::compunit_header.push($decl);
+    $code;
   }
   method cb__Signature ($n) {
     if ($n.parameters.elems == 0) { ")" }
@@ -563,7 +605,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $s = $n.sigil;
     my $t = '';
     my $dsn = $.e($n.name);
-    $.encode_varname($s,$t,$dsn);
+    $.encode_param_varname($s,$t,$dsn);
   }
 
   method cb__Call ($n) {
@@ -723,20 +765,12 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     '(loop while (to-b '~$.e($n.pretest)~") do (block __l__ \n"~$.e($n.block)~"\n))"
   }
 
-  method encode_varname($s,$t,$dsn) {
-    if $t eq '*' {
-      $.qsym('GLOBAL::'~$s~$dsn);
-    }
-    else {
-      $.qsym($s~$t~$dsn);
-    }
-  }
-
   method cb__Var ($n) {
     my $s = $n.sigil;
     my $t = $n.twigil||'';
     if $n.is_context { $t = '+' }
     my $dsn = $.e($n.name);
+    my $bare = $n.notes<bare_name>;
     my $v = $s~$t~$dsn;
     if $v eq '$?PACKAGE' || $v eq '$?MODULE' || $v eq '$?CLASS' {
       my $pkgname = $n.notes<crnt_package>;
@@ -748,23 +782,29 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     } elsif $v eq '$?PERLVER' {
       '"elf / '~ primitive_runtime_version() ~ " / " ~ $.WHAT ~'"'
     } else {
+      my $t1 = $t;
       my $decl = $n.notes<decl>;
-      if $n.is_temp && not($n.package) && not($t eq '*') {
-        my $pkg = $decl.notes<crnt_package>;
-        $.qsym($pkg~'::'~$s~$t~$dsn);
+      my $path = "";
+      my $vpkg = $n.package;
+      if $vpkg { $path = $vpkg~"::" }
+      if $t eq '*' { $path = 'GLOBAL::'~$path; $t1 = ""; }
+      if not($path) && ($n.is_temp || ($decl && $decl.scope eq 'our')) {
+         my $pkg = $decl.notes<crnt_package>;
+         $path = $pkg~"::";
       }
-      elsif $decl && $decl.scope eq 'our' && not($n.package) && not($t eq '*') {
-        my $pkg = $decl.notes<crnt_package>;
-        $.qsym($pkg~'::'~$s~$t~$dsn);
-      }
-      elsif $t eq '.' {
-        "(fc #'"~$.qsym("M::"~$dsn)~" self)";
+      if $t eq '.' {
+        "(fc #'"~$.qsym("M::"~$bare)~" self)";
       }
       else {
-        $.encode_varname($s,$t,$dsn);
+        $.qsym($path~$s~$t1~$bare);
       }
     }
   }
+  method encode_param_varname($s,$t,$dsn) {
+    $.qsym($s~$t~$dsn);
+  }
+
+
   method cb__NumInt ($n) {
     '(UP '~$.e($n.text)~')'
   }
