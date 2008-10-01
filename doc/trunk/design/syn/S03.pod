@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 10 Sep 2008
+  Last Modified: 1 Oct 2008
   Number: 3
-  Version: 139
+  Version: 140
 
 =head1 Overview
 
@@ -3248,6 +3248,26 @@ does (as in the C<Z> case above).  Hence if you want to say:
 you must instead use a hyperoperator (see below):
 
     ($a,$b,$c) »+=» 1;  # add one to each of three variables
+
+If you apply an assignment operator to a protoobject, it is assumed that
+you are implementing some kind of notional "reduction" to an accumulator
+variable.  To that end, the base operator is dropped and a simple
+assignment is done instead.  Hence you may correctly write:
+
+    my Num $prod;
+    for @factors -> $f {
+	$prod *= $f;
+    }
+
+While this may seem marginally useful in the scalar variable case,
+it's much more important for it to work this way when the modified
+location may have only just been created by autovivificatoin.  In other
+words, if you write:
+
+    %prod{$key} *= $f
+
+you need not worry about whether the hash element exists yet.  If it
+does not, it will simply be initialized with the value of C<$f>.
 
 =head2 Negated relational operators
 
