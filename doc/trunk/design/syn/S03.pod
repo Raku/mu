@@ -3261,7 +3261,7 @@ assignment is done instead.  Hence you may correctly write:
 
 While this may seem marginally useful in the scalar variable case,
 it's much more important for it to work this way when the modified
-location may have only just been created by autovivificatoin.  In other
+location may have only just been created by autovivification.  In other
 words, if you write:
 
     %prod{$key} *= $f
