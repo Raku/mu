@@ -19,6 +19,8 @@ is($j.perl, '\(1 | 2 | 3)', 'got the right stringified junction');
 
 my @values = $j.values;
 is(+@values, 3, 'our junction has three values in it');
+
+# XXX relies on the order of elements in Junction, which is not allowed.
 is(@values[0], 1, 'our junctions first value is 1');
 is(@values[1], 2, 'our junctions second value is 2');
 is(@values[2], 3, 'our junctions third value is 3');
