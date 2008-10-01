@@ -3251,8 +3251,20 @@ you must instead use a hyperoperator (see below):
 
 If you apply an assignment operator to a protoobject, it is assumed that
 you are implementing some kind of notional "reduction" to an accumulator
-variable.  To that end, the base operator is dropped and a simple
-assignment is done instead.  Hence you may correctly write:
+variable.  To that end, the operation is defined in terms
+of the corresponding reduction operator, where the protoobject
+becomes the operator's identify value.  So if you say:
+
+    $x -= 1;
+
+it is more or less equivalent to:
+
+    $x = [-]() unless defined $x;	# 0 for [-]()
+    $x = $x - 1;
+
+and $x ends up with -1 in it, as expected.
+
+Hence you may correctly write:
 
     my Num $prod;
     for @factors -> $f {
