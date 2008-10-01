@@ -5,7 +5,7 @@ use warnings;
 my $output_file = "./IRx1_FromAST.pm";
 my $def = <<'END_DEF';
 comp_unit
-CompUnit.newp($m<statementlist>)
+CompUnit.newp($m<statementlist>,undef)
 
 statement
 my $labels = $m<label>;
@@ -35,7 +35,7 @@ if $m<infix> {
     if $args[2] { die "chained => unimplemented" }
     Pair.newp($args[0],$args[1])
   } else {
-    Apply.newp("infix:"~$op,Capture.newp($m<args>||[]))
+    Apply.newp("infix:"~$op,Capture.newp1($m<args>||[]))
   }
 } else {
   die "Unimplemented infix_prefix_meta_operator or infix_circumfix_meta_operator";
@@ -74,10 +74,10 @@ if $o<args> {
 }
 
 dotty:methodop
-Call.newp($blackboard::expect_term_base,$m<ident>,Capture.newp($m<semilist>||[]))
+Call.newp($blackboard::expect_term_base,$m<ident>,Capture.newp1($m<semilist>||[]))
 
 dotty:.^!
-Call.newp($blackboard::expect_term_base,'^!'~$m<methodop><ident>,Capture.newp($m<methodop><semilist>||[])) # XXX ^! should be expanded.
+Call.newp($blackboard::expect_term_base,'^!'~$m<methodop><ident>,Capture.newp1($m<methodop><semilist>||[])) # XXX ^! should be expanded.
 
 dotty:postcircumfix
 my $s = *text*;
@@ -85,7 +85,7 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $ident = "postcircumfix:"~$name;
 my $args = $m<kludge_name>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
-Call.newp($blackboard::expect_term_base,$ident,Capture.newp($args||[]))
+Call.newp($blackboard::expect_term_base,$ident,Capture.newp1($args||[]))
 
 postcircumfix
 my $s = *text*;
@@ -93,39 +93,39 @@ my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $ident = "postcircumfix:"~$name;
 my $args = $m<kludge_name>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
-Call.newp($blackboard::expect_term_base,$ident,Capture.newp($args||[]))
+Call.newp($blackboard::expect_term_base,$ident,Capture.newp1($args||[]))
 
 postfix
 my $op = *text*;
-Apply.newp("postfix:"~$op,Capture.newp([$blackboard::expect_term_base]))
+Apply.newp("postfix:"~$op,Capture.newp1([$blackboard::expect_term_base]))
 
 prefix
 my $op = *text*;
-Apply.newp("prefix:"~$op,Capture.newp([$blackboard::expect_term_base]))
+Apply.newp("prefix:"~$op,Capture.newp1([$blackboard::expect_term_base]))
 
 infix
 my $op = *text*;
-Apply.newp("infix:"~$op,Capture.newp([$m<left>,$m<right>]))
+Apply.newp("infix:"~$op,Capture.newp1([$m<left>,$m<right>]))
 
 term
 my $text = *text*;
 if $text eq 'self' {
-  Apply.newp('self',Capture.newp([]))
+  Apply.newp('self',Capture.newp1([]))
 } elsif $text eq '*' {
-  Apply.newp('whatever',Capture.newp([]))
+  Apply.newp('whatever',Capture.newp1([]))
 } else {
   die "AST term partially unimplemented.\n";
 }
 
 integer
-NumInt.newp(*text*)
+NumInt.newp(*text*,10)
 
 subcall
 my $t = $m<subshortname><twigil>;
 if $t && $t eq '.' {
-  Call.newp(Apply.newp('self',Capture.newp([])),$m<subshortname><desigilname><ident>,Capture.newp($m<semilist>||[]))
+  Call.newp(Apply.newp('self',Capture.newp1([])),$m<subshortname><desigilname><ident>,Capture.newp1($m<semilist>||[]))
 } else {
-  Apply.newp($m<subshortname>,Capture.newp($m<semilist>||[]))
+  Apply.newp($m<subshortname>,Capture.newp1($m<semilist>||[]))
 }
 
 name
@@ -162,9 +162,9 @@ ClosureTrait.newp('BEGIN',$m<block>)
 term:listop
 my $not_really_an_arglist = $m<arglist>;
 if $m<arglist> {
-  Apply.newp($m<ident>,Capture.newp([$not_really_an_arglist])) #XXX
+  Apply.newp($m<ident>,Capture.newp1([$not_really_an_arglist])) #XXX
 } else {
-  Apply.newp($m<ident>,Capture.newp([]))
+  Apply.newp($m<ident>,Capture.newp1([]))
 }
 
 quote:q
@@ -214,10 +214,10 @@ variable
 my $tw = $m<twigil>;
 if $o<postcircumfix> {
   if $tw eq "." {
-    my $slf = Apply.newp('self',Capture.newp([]));
+    my $slf = Apply.newp('self',Capture.newp1([]));
     my $args = $m<postcircumfix><kludge_name>;
     if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
-    Call.newp($slf,$m<desigilname>,Capture.newp($args||[]))
+    Call.newp($slf,$m<desigilname>,Capture.newp1($args||[]))
   } else {
     my $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
     temp $blackboard::expect_term_base = $v;
@@ -244,7 +244,7 @@ my $s = *text*;
 my $name = substr($s,0,1)~' '~substr($s,-1,1); # XXX :(
 my $args = $m<kludge_name>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
-Apply.newp("circumfix:"~$name,Capture.newp($args||[]))
+Apply.newp("circumfix:"~$name,Capture.newp1($args||[]))
 
 
 statement_control:for
@@ -260,11 +260,11 @@ statement_mod_loop:while
 Loop.newp($m<modifier_expr>,$blackboard::statement_expr)
 
 statement_control:until
-my $test = Apply.newp("not",Capture.newp([$m<expr>]));
+my $test = Apply.newp("not",Capture.newp1([$m<expr>]));
 Loop.newp($test,$m<block>)
 
 statement_mod_loop:until
-my $test = Apply.newp("not",Capture.newp([$m<modifier_expr>]));
+my $test = Apply.newp("not",Capture.newp1([$m<modifier_expr>]));
 Loop.newp($test,$blackboard::statement_expr)
 
 statement_control:loop
@@ -313,22 +313,22 @@ When.newp(undef,$m<block>)
 
 
 statement_prefix:do
-Apply.newp("statement_prefix:do",Capture.newp([$m<statement>]))
+Apply.newp("statement_prefix:do",Capture.newp1([$m<statement>]))
 
 statement_prefix:try
-Apply.newp("statement_prefix:try",Capture.newp([$m<statement>]))
+Apply.newp("statement_prefix:try",Capture.newp1([$m<statement>]))
 
 statement_prefix:gather
-Apply.newp("statement_prefix:gather",Capture.newp([$m<statement>]))
+Apply.newp("statement_prefix:gather",Capture.newp1([$m<statement>]))
 
 statement_prefix:contend
-Apply.newp("statement_prefix:contend",Capture.newp([$m<statement>]))
+Apply.newp("statement_prefix:contend",Capture.newp1([$m<statement>]))
 
 statement_prefix:async
-Apply.newp("statement_prefix:async",Capture.newp([$m<statement>]))
+Apply.newp("statement_prefix:async",Capture.newp1([$m<statement>]))
 
 statement_prefix:lazy
-Apply.newp("statement_prefix:lazy",Capture.newp([$m<statement>]))
+Apply.newp("statement_prefix:lazy",Capture.newp1([$m<statement>]))
 
 
 pblock
@@ -384,10 +384,10 @@ ParamVar.newp($m<sigil>,$m<twigil>,$m<ident>)
 
 capture
 if not($o<EXPR>) {
-  Capture.newp([])
+  Capture.newp1([])
 }
 elsif $o<EXPR><noun> {
-  Capture.newp([$m<EXPR><noun>])
+  Capture.newp1([$m<EXPR><noun>])
 }
 elsif $o<EXPR><sym> && $o<EXPR><sym> eq ':' {
   my $args = $m<EXPR><args>;
@@ -651,14 +651,14 @@ sub write_ast_handlers {
     $body =~ s/\bir\(/irbuild_ir\(/g;
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;
     $body =~ s/\$o((?:<\w+>)+)/\$m$1/g;
-    $body =~ s/<(\w+)>/.{'hash'}{'$1'}/g;
+    $body =~ s/<(\w+)>/.hash{'$1'}/g;
     $body =~ s/([A-Z]\w+\.new\w*)\(/IRx1::$1(\$m,/g;
     $body =~ s/\*text\*/(\$m.match_string)/g;
     if ($body =~ /\*1\*/) {
       $body =~ s/\*1\*/\$one/g;
       $body = unindent(<<'      END',"  ").$body;
         my $key;
-        for $m.{'hash'}.keys {
+        for $m.hash.keys {
           if $_ ne 'match' {
             if $key {
               die("Unexpectedly more than 1 field - dont know which to choose\n")
@@ -666,7 +666,7 @@ sub write_ast_handlers {
             $key = $_;
           }
         }
-        my $one = irbuild_ir($m.{'hash'}{$key});
+        my $one = irbuild_ir($m.hash{$key});
       END
     }
 

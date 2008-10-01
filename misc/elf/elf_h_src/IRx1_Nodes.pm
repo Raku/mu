@@ -25,6 +25,9 @@ package Undef {
   };
 };
 package IRx1 {
+  class Capture {
+    method newp1($m,$a) { $.newp($m,$a,undef) }
+  }
   class Base {
   };
   class CompUnit_and_Block {};
