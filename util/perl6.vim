@@ -31,7 +31,7 @@ syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB contained
 syn keyword p6Attn          todo Todo TODO WTF XXX contained
 " XXX 'subset declares a type, but not a module - how should it be classified?
 syn keyword p6Module        module class role use require package enum grammar subset
-syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi only
+syn keyword p6KeyDecl       macro sub submethod method is but does trusts multi only
 syn keyword p6KeyDecl       rule token regex category
 syn keyword p6KeyScopeDecl  let my our state temp has constant proto
 syn keyword p6KeyFlow       if else elsif unless  
