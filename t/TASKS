@@ -100,3 +100,8 @@ Junction tests
  junctions. An intermediate workaround is to use $junction.values.sort, but
  what we *really* should have is a sub that tests for junction identity.
  That could be an intersting piece of code to write. --moritz
+ 
+ However, based on discussions at the OSCON 2008 hackathon, there's reason
+ to believe that .values won't be a method on Junction (or rather, that
+ .values autothreads overs the members of the Junction set like any other
+ method).  --pmichaud
