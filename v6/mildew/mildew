@@ -1,0 +1,165 @@
+#!/usr/local/bin/perl
+
+use lib '../../src/perl6';
+use lib 'src';
+use STD;
+use AST;
+use DumpMatch;
+use utf8;
+use YAML::XS;
+use Encode;
+use strict;
+use warnings;
+use Getopt::Long;
+use Carp 'confess';
+
+my ($debug,$file);
+GetOptions("file=s"=>\$file,"debug"=>\$debug);
+
+sub XXX {
+    confess 'unimplemented'
+}
+sub integer {
+    my $m = shift;
+    #XXX non-base 10
+    AST::IntegerConstant->new(value=>$m->text);
+}
+sub noun {
+    my $m = shift;
+    if ($m->{variable}) {
+        variable($m->{variable});
+    } elsif ($m->{value}) {
+        value($m->{value});
+    }
+}
+sub value {
+    my $m = shift;
+    if ($m->{number}) {
+        number($m->{number});
+    } if ($m->{quote}) {
+        quote($m->{quote});
+    }
+}
+sub quote {
+    my $m = shift;
+    #XXX
+    my $text = $m->{nibble}->text;
+    AST::StringConstant->new(value=>$text);
+}
+sub number {
+    my $m = shift;
+    if ($m->{integer}) {
+        integer($m->{integer});
+    }
+}
+sub variable {
+    my $m = shift;
+    AST::Call->new(
+        identifier=>AST::StringConstant->new(value=>'lookup'),
+        capture=>AST::Capture->new(invocant=>AST::Reg->new(name=>'scope'),positional=>[AST::StringConstant->new(value=>$m->text)],named=>[]),
+    );
+}
+sub dottyop {
+    my ($noun,$m) = @_;
+    if ($m->{methodop}) {
+        methodop($noun,$m->{methodop});
+    } else {
+        XXX
+    }
+}
+sub dotty {
+    my ($noun,$m) = @_;
+    #XXX .*foo
+    if ($m->{dottyop}) {
+        dottyop($noun,$m->{dottyop});
+    } else {
+        XXX
+    }
+}
+sub FETCH {
+    my $arg = shift;
+    AST::Call->new(capture=>AST::Capture->new(invocant=>$arg),identifier=>AST::StringConstant->new(value=>'FETCH'));
+}
+sub methodop {
+    my ($noun,$m) = @_;
+    if ($m->{longname}) {
+        my $pos0 = $m->{in}[0]{semilist}{statement}[0];
+        AST::Call->new(
+            identifier=>AST::StringConstant->new(value=>$m->{longname}->text),
+            capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[FETCH(EXPR($pos0->{EXPR}))],named=>[]),
+        
+        );
+    } else {
+        XXX
+    }
+}
+sub EXPR {
+    my $m = shift;
+    if ($m->{noun}) {
+        my $noun = noun($m->{noun});
+        if ($m->{post}) {
+            for (@{$m->{post}}) {
+                if ($_->{dotty}) {
+                    $noun = dotty($noun,$_->{dotty});
+                } else {
+                    XXX
+                }
+            }
+            $noun;
+        } else {
+            $noun;
+        }
+    }
+}
+sub statement {
+    my $m = shift;
+    if ($m->{label}) {
+        AST::Label->new(label=>label($m->{label}),stmt=>statement($m->{statement}));
+    } elsif ($m->{statement_control}) {
+    } elsif ($m->{EXPR}) {
+        EXPR($m->{EXPR});
+    } else {
+    }
+}
+sub comp_unit {
+    my $m = shift;
+    AST::Block->new(regs=>['interpreter','scope'],stmts=>statementlist($m->{statementlist}));
+}
+sub statementlist {
+    my $m = shift;
+    [map {statement $_} @{$m->{statement}}]
+}
+unless ($file) {
+    die "usage [--debug] --file filename\n"
+}
+my $r = STD->parsefile($file,'comp_unit');
+print dump_match('comp_unit'=>$r,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+my $mold = comp_unit($r);
+use YAML::XS;
+print Dump($mold) if $debug;
+print <<'BOILERPLATE';
+my $void;
+my $scope = ?SMOP__S1P__LexicalScope."new"();
+
+my $OUT_root_scalar = ?SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $OUT_root = $OUT_root_scalar."FETCH"();
+my $OUT_scalar = $scope."postcircumfix:{ }"("$OUT");
+$void = $OUT_scalar."STORE"($OUT_root);
+
+my $Code_scalar = $scope."postcircumfix:{ }"("Code");
+my $Code_root_scalar = ?SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
+my $Code = $Code_root_scalar."FETCH"();
+$void = $Code_scalar."STORE"($Code);
+
+my $Scalar_scalar = $scope."postcircumfix:{ }"("Scalar");
+my $Scalar_root_scalar = ?SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Scalar");
+my $Scalar = $Scalar_root_scalar."FETCH"();
+$void = $Scalar_scalar."STORE"($Scalar);
+
+BOILERPLATE
+print $mold->emit_('$main');
+print <<'CALL_MAIN';
+my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
+my $void = $main_code."postcircumfix:( )"();
+CALL_MAIN
+
