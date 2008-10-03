@@ -24,9 +24,10 @@ package AST::Block;
 use Moose;
 extends 'AST::Base';
 has 'stmts' => (is=>'ro');
-has 'regs' => (is=>'ro');
+has 'regs' => (is=>'ro',default=>sub {[]});
 sub m0ld {
     my ($self,$ret) = @_;
+    use YAML::XS;
     "my $ret = mold {\n"
         . join('',map {'my $'.$_.";\n"} @{$self->regs})
         . join("",map { $_->emit_('$void') } @{$self->stmts})
@@ -60,6 +61,20 @@ class Call is Emit {
 }
 =cut
 
+package AST::Named;
+use Moose;
+extends 'AST::Base';
+has 'key' => (is=>'ro');
+has 'value' => (is=>'ro');
+
+sub emit {
+    my $self = shift;
+    return ":".$self->key->emit."(".$self->value->emit.")";
+}
+sub m0ld {
+    die "method m0ld is not supported on AST::Named\n"
+}
+
 package AST::Call;
 use Moose;
 extends 'AST::Base';
@@ -68,10 +83,15 @@ has 'identifier' => (is=>'ro');
 sub m0ld {
     my ($self,$ret) = @_;
     if ($self->capture->isa("AST::Capture")) {
+        my @args = @{$self->capture->positional};
+        my @named = @{$self->capture->named};
+        while (@named) {
+            push (@args,AST::Named->new(key=>shift @named,value=>shift @named));
+        }
         "my $ret = "
         . $self->capture->invocant->emit
         . "." . $self->identifier->emit
-        . "(" . join('', map {$_->emit} @{$self->capture->positional}) . ");\n";
+        . "(" . join('', map {$_->emit} @args) . ");\n";
     } else {
     }
 }

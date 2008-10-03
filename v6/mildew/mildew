@@ -30,7 +30,32 @@ sub noun {
         variable($m->{variable});
     } elsif ($m->{value}) {
         value($m->{value});
+    } elsif ($m->{routine_declarator}) {
+        if ($m->{routine_declarator}{routine_def}) {
+            routine_def($m->{routine_declarator}{routine_def});
+        } else {
+            XXX;
+        }
+    } else {
+        XXX;
     }
+}
+sub routine_def {
+    my $m = shift;
+    AST::Call->new(identifier=>AST::StringConstant->new(value => 'new'),
+        capture => AST::Capture->new(
+            invocant => AST::Reg->new(name=>'Code'),
+            positional => [],
+            named => [
+                AST::StringConstant->new(value=>'mold') => block($m->{block}),
+                AST::StringConstant->new(value=>'outer') => AST::Reg->new(name=>'$scope')
+            ]
+        ),
+    );
+}
+sub block {
+    my $m = shift;
+    AST::Block->new(regs=>['interpreter','scope'],stmts=>statementlist($m->{in}{statementlist}));
 }
 sub value {
     my $m = shift;
