@@ -123,8 +123,7 @@ void smop_s1p_lexicalscope_mold_init() {
 
   SMOP__Object* interpreter = SMOP__GlobalInterpreter;
 
-  SMOP__Object* mold;
-  mold = q:m0ld {
+  mold_code_lookup = q:m0ld {
     my $capture;
     my $back;
     my $interpreter;
@@ -155,8 +154,6 @@ void smop_s1p_lexicalscope_mold_init() {
         my $OUT = $OUT_SCALAR."FETCH"();
         $void = $OUT."print"("no variable ",$name," in the current scope\n");
   };
-
-  mold_code_lookup = mold;
 
 }
 

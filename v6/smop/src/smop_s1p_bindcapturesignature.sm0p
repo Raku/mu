@@ -64,7 +64,7 @@ void smop_s1p_bindcapturesignature_mold_init() {
 
   SMOP__Object* interpreter = SMOP__GlobalInterpreter;
   SMOP__Object* mold;
-  mold = q:m0ld {
+  bindcapturesignature_bind_code = q:m0ld {
     my $capture;
     my $back;
     my $interpreter;
@@ -80,7 +80,6 @@ void smop_s1p_bindcapturesignature_mold_init() {
     $void = $interpreter."goto"($back);
   };
 
-  bindcapturesignature_bind_code = mold;
 }
 
 void smop_s1p_bindcapturesignature_mold_destr() {
