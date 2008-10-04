@@ -314,7 +314,7 @@ use warnings;
   }
   sub file_exists{-e $_[0]}
   sub system{CORE::system(@_)}
-  sub eval_perl5{
+  sub eval_runtime_code{
     my($p5,$env)=@_;
     if($env) { $env->($p5) }
     else {
@@ -502,11 +502,11 @@ package Main;
     $head = $head ~ $base~ self.prelude_for_entering_a_package();
     if $n.block {
       temp $whiteboard::in_package = $in_package; # my()
-      $head ~ $.e($n.traits||[]).join("\n") ~ $.e($n.block) ~ $foot;
+      $head ~ $.e($n.traits||[]).reverse.join("\n") ~ $.e($n.block) ~ $foot;
     } else {
       $whiteboard::in_package = $in_package; # not my()
       $whiteboard::compunit_footer.unshift($foot);
-      $head ~ $.e($n.traits||[]).join("\n") ~ ";\n"
+      $head ~ $.e($n.traits||[]).reverse.join("\n") ~ ";\n"
     }
   };
   method cb__Trait ($n) {
@@ -514,7 +514,7 @@ package Main;
       my $pkgname = $whiteboard::in_package.join('::');
       my $name = $whiteboard::in_package.splice(0,-1).join('::')~'::'~$.e($n.expr);
       $name = $name.re_gsub('^::',''); # Moose 0.44 doesn't like these.
-      "BEGIN\{push(@"~$pkgname~"::ISA,'"~$name~"');}\n";
+      "BEGIN\{unshift(@"~$pkgname~"::ISA,'"~$name~"');}\n";
     } else {
       say "ERROR: Emitting p5 for Trait verb "~$n.verb~" has not been implemented.\n";
       "***Trait***"
@@ -830,7 +830,7 @@ package Main;
       my $op = $g[0];
       if $op eq '< >' {
         my $s = $n.capture.arguments[0];
-        my $words = $s.split(/\s+/);
+        my $words = $s.split('\s+');
         if $words.elems == 0 {
           return '[]'
         } else {

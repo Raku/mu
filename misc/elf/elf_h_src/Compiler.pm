@@ -12,7 +12,7 @@ class Compiler {
 
   method eval_fragment($code,$filename,$verbose,$env) {
     my $p5 = self.compile_fragment($code,$filename,$verbose);
-    eval_perl5($p5,$env);
+    eval_runtime_code($p5,$env);
   };
   method compile_fragment_cache_get($code,$filename) { undef };
   method compile_fragment_cache_set($code,$filename,$value) { };

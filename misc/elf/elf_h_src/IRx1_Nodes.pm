@@ -30,9 +30,6 @@ package IRx1 {
   }
   class Base {
   };
-  class CompUnit_and_Block {};
-  class CompUnit is CompUnit_and_Block {};
-  class Block    is CompUnit_and_Block {};
 
   class CompUnit is Base {
     has $.match;
@@ -941,4 +938,8 @@ package IRx1 {
       'RxSymbol('~$.symbol.irx1_describe~')'
     };
   };
-}
+
+      class CompUnit_and_Block {};
+      class CompUnit is CompUnit_and_Block {};
+      class Block    is CompUnit_and_Block {};
+    }

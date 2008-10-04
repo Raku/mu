@@ -202,9 +202,6 @@ sub write_ir_nodes {
       }
       class Base {
       };
-      class CompUnit_and_Block {};
-      class CompUnit is CompUnit_and_Block {};
-      class Block    is CompUnit_and_Block {};
 
   END
 
@@ -235,6 +232,10 @@ sub write_ir_nodes {
     END
   }
   $code .= unindent(<<'  END');
+
+      class CompUnit_and_Block {};
+      class CompUnit is CompUnit_and_Block {};
+      class Block    is CompUnit_and_Block {};
     }
   END
   text2file($code,$file);
