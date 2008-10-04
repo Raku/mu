@@ -20,7 +20,6 @@ class EmitSBCL {
   method prelude_oo () {
    '';
   }
-# (setq |GLOBAL::@ARGS| (new-Array (mapcar #'UP '("-v" "-e" "say 3"))))
   method prelude ($n) {
   '#|
 #fasl=`dirname $0`/`basename $0 .lisp`.fasl
@@ -29,38 +28,31 @@ class EmitSBCL {
 exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 |#
 
-(require \'asdf)
-(require \'sb-posix)
 (eval-when (:compile-toplevel :load-toplevel :execute)
-(pushnew #p"lib-cl/systems/" asdf:*central-registry*)
-(asdf:operate \'asdf:load-op :cl-ppcre)
+  (require \'asdf)
+  (require \'sb-posix)
+)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (pushnew #p"lib-cl/systems/" asdf:*central-registry*)
+  (asdf:operate \'asdf:load-op :cl-ppcre)
 )
 
-;(declaim (optimize (debug 2)))
-
+(declaim (optimize (debug 2)))
 
 ;;------------------------------------------------------------------------------
-;; Multi-methods - avoid generic-function congruence restrictions.
+;; Generic-functions without congruence restrictions.
 ;; http://www.lispworks.com/documentation/HyperSpec/Body/07_fd.htm
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
 (defvar *maximum-number-of-dispatch-affecting-variables* 10)
 
-(defun n-variable-names (n &optional l)
-  (cond ((= 0 n) l)
-        (t (n-variable-names (1- n) (cons (gensym) l)))))
+(defun n-gensyms (n) (loop for i from 1 to n collect (gensym)))
 )
 
-(defmacro fc-old (func &rest args)
-  `(ap ,func (list ,@args)))
-
-(defmacro fc (func &rest args)
-  `(rw (fc-preserving-rw ,func ,@args)))
-
-(defmacro fc-preserving-rw (func &rest args)
+(defmacro ncgf-funcall (func &rest args)
   (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
          (len (length args))
-         (syms (loop for n from 1 to len collect (gensym)))
+         (syms (n-gensyms len))
          (dispatch-syms (subseq syms 0 (min n len)))
          (dispatch-padding (make-list (max 0 (- n len))))
          (f (gensym)))
@@ -70,10 +62,10 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
             (funcall ,f ,@syms)
           (funcall ,f (list ,@syms) ,@dispatch-syms ,@dispatch-padding))))))
 
-(defgeneric ap (func args))
-(defmethod ap (func args)
+(defgeneric ncgf-apply (func args))
+(defmethod ncgf-apply (func args)
   (apply func args))
-(defmethod ap ((func standard-generic-function) args)
+(defmethod ncgf-apply ((func standard-generic-function) args)
   (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
          (len (length args))
          (pad-args (make-list (max 0 (- n len))))
@@ -81,22 +73,23 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
          (dispatch-args (concatenate \'list real-args pad-args)))
     (apply func (cons args dispatch-args))))
          
-(defmacro dg (name sig)
+(defmacro ncgf-defgeneric (name sig)
   (declare (ignore sig))
   (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
-         (vars (n-variable-names n)))
+         (vars (n-gensyms n)))
     `(defgeneric ,name (args ,@vars))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
 (defun parameters-in-lambda-list (sig)
-  (let ((pred (lambda(e) (case e
-                               (&optional t)
-                               (&rest t)
-                               ))))
-    (remove-if pred sig))) ;X should stop at &aux, etc.
+  (let ((not-param
+         (lambda(e) (case e
+                          (&optional t)
+                          (&rest t)
+                          ))))
+    (remove-if not-param sig))) ;X should stop at &aux, etc.
 )
 
-(defmacro dm (name sig &rest body)
+(defmacro ncgf-defmethod (name sig &rest body)
   (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
          (n-1 (1- n))
          (vars (parameters-in-lambda-list sig))
@@ -105,19 +98,18 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
          (bounds-var (list (if (find \'&rest sig)
                                (gensym)
                              `(,(gensym) ,(class-of nil)))))
-         (pad-vars (n-variable-names (max 0 (- n-1 len))))
+         (pad-vars (n-gensyms (max 0 (- n-1 len))))
          (dispatch-vars (concatenate \'list real-vars bounds-var pad-vars))
          (typeless-sig (map \'list (lambda (p) (if (listp p) (car p) p)) sig))
-         )
-    `(defmethod ,name (args ,@dispatch-vars)
-       (declare (ignore ,@pad-vars))
-       (destructuring-bind ,typeless-sig args
-         ,@body))))
+         (def `(defmethod ,name (args ,@dispatch-vars)
+                 (declare (ignore ,@pad-vars))
+                 (destructuring-bind ,typeless-sig args
+                                     ,@body))))
+    def))
+
 
 ;;------------------------------------------------------------------------------
 ;; Classes
-
-(defgeneric UP (x))
 
 (defmacro pkg-init-flag-name (pkg) `(concatenate \'string ,pkg "/initialized"))
 (defmacro pkg-clsname (pkg) `(find-symbol (concatenate \'string ,pkg "/cls")))
@@ -197,14 +189,59 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (defmacro rw-able (v f &rest args) `(list :rw-flag ,v ,f ,@args))
 
 ;;------------------------------------------------------------------------------
+;; can
+
+(defmacro def-can (name sig)
+  (let* ((arg0-type (cond ((not (listp (car sig))) t)
+                          (t (cadar sig))))
+         (sym (intern (concatenate \'string "CAN::" (symbol-name name)))))
+    `(defmethod ,sym ((x ,arg0-type)) nil)))
+
+(defun can-p (name obj)
+  (let* ((sym (intern (concatenate \'string "CAN::" name)))
+         (gf (symbol-function sym))
+         (argl (list obj)))
+    (if (not gf) nil
+      (if (compute-applicable-methods gf argl)
+          t nil))))
+
+;;------------------------------------------------------------------------------
+
+(defmacro fc (func &rest args)
+  `(rw (ncgf-funcall ,func ,@args)))
+
+(defmacro fc-preserving-rw (func &rest args)
+  `(ncgf-funcall ,func ,@args))
+
+(defmacro ap (func args)
+  `(ncgf-apply ,func ,args))
+
+(defmacro dm-without-can (name sig &rest body)
+  `(ncgf-defmethod ,name ,sig ,@body))
+
+(defmacro dm (name sig &rest body)
+  `(progn
+     (def-can ,name ,sig)
+     (ncgf-defmethod ,name ,sig ,@body)))
+
+;;------------------------------------------------------------------------------
 ;; Prelude & stuff
 
 ;; abbreviations
+(defgeneric UP (x))
 (defmacro S (x) `(to-s ,x))
 (defmacro N (x) `(to-n ,x))
 (defgeneric to-s (x))
 (defgeneric to-n (x))
 
+;; predecls
+(defclass |Any/cls| () ())
+(defclass |Bool/cls| () ())
+(defclass |Int/cls| () ())
+(defclass |Num/cls| () ())
+(defclass |Str/cls| () ())
+
+;;
 (defun set-slots (o argl)
   (let* ((clsname (symbol-name (class-name (class-of o))))
          (realname (subseq clsname 0 (- (length clsname) (length "/cls")))))
@@ -216,24 +253,20 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
             (size-n-partition 2 argl)))
   o)
 
-(make-package "M")
-
-(defclass |Any/cls| () ())
-(defclass |Bool/cls| () ())
-(defclass |Int/cls| () ())
-(defclass |Num/cls| () ())
-(defclass |Str/cls| () ())
-
-(dg |M::new| (cls &rest argl))
-
+;;
 (dm |M::new| ((co |Any/cls|) &rest argl)
   (declare (ignorable argl))
   (set-slots (make-instance (class-of co)) argl))
 
-;; Undef is still being kludged as nil.
+(dm |M::can| (self |$method_name|)
+    (let* ((name (concatenate \'string "M::" (S |$method_name|))))
+      (UP (can-p name self))))
+
+;; Undef is still being kludged as nil.  And Bools.
 (defmacro undef () nil)
 (dm |M::make_ir_from_Match_tree| ((self null) ) (block __f__ (let () self)))
-(dm |M::isa| ((x null) s) (equal (S s) "Undef"))
+(dm |M::isa| ((x null) str) (declare (ignorable x)) (equal (S str) "Undef"))
+(dm |M::Str| ((x symbol)) (UP (symbol-name x))) ;X for t
 
  ;;Array.new is defined here to a avoid cyclic dependency on *@args.
 (pkg-declare "class" "Array" \'|Any/cls|)
@@ -531,7 +564,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $cls = $.classname_from_package_name($n.notes<crnt_package>||'Main');
     my $enc_name = $.qsym('M::'~$.e($n.name));
     my $sig = $.e($n.multisig);
-    my $decl = '(eval \'(dm '~$enc_name~' ((self '~$cls~') '~$sig~' (block __f__ '~$body~')))';
+    my $decl = ('(eval \'(dm '~$enc_name~' ((self '~$cls~') '~$sig~
+                ' (declare (ignorable self))'~
+                ' (block __f__ '~$body~')))');
     $whiteboard::compunit_header.push($decl);
     "";
   }
@@ -562,7 +597,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $enc_name = $.qsym($pkg~'::&'~$name);
       if $n.plurality && $n.plurality eq 'multi' {
         my $dm_name = $.qsym('MS::'~$pkg~'::&'~$name);
-        $decl = ('(dm '~$dm_name~' '~$most~')'~"\n"~
+        $decl = ('(dm-without-can '~$dm_name~' '~$most~')'~"\n"~
                  '(defparameter '~$enc_name~' #\''~$dm_name~')');
       } else {
         $decl = '(defparameter '~$enc_name~' (lambda '~$most~'))';
@@ -617,7 +652,17 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     if $invocant.re_matchp('^[A-Z][\w:]*$') {
       $invocant = ""~$.classobject_from_package_name($invocant);
     }
-    my $call = '(fc '~$meth~' '~$invocant~' '~$.e($n.capture)~')';
+    my $e_capture = $.e($n.capture);
+    if $g = $method.re_groups('^postcircumfix:(.+)') {
+      my $op = $g[0];
+      if $op eq '< >' {
+        my $s = $n.capture.arguments[0];
+        my $words = $s.split('\s+');
+        my $self = self;
+        $e_capture = $words.map(sub($x){$self.qstr($x)}).join(" ");
+      }
+    }
+    my $call = '(fc '~$meth~' '~$invocant~' '~$e_capture~')';
     $call;
   }
   method fqsym ($name) {
@@ -695,12 +740,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $op = $g[0];
       if $op eq '< >' {
         my $s = $n.capture.arguments[0];
-        my $words = $s.split(/\s+/);
-        if $words.elems == 0 {
-          return $.emit_array('');
-        } else {
-          return $.emit_array('"'~$words.join('" "')~'"');
-        }
+        my $words = $s.split('\s+');
+        my $self = self;
+        return $.emit_array($words.map(sub($x){$self.qstr($x)}).join(" "));
       }
     }
     elsif ($fun eq 'self') {

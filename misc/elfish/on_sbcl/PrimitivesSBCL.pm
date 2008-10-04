@@ -81,8 +81,10 @@ package GLOBAL {
 
   multi slurp ($filename) is cl {'
     (with-open-file (stream (S |$filename|))
-      (let ((str (make-string (file-length stream))))
-        (read-sequence str stream)
+      (let* ((byte-length (file-length stream))
+             (buf (make-string byte-length)) ; likely too long
+             (char-length (read-sequence buf stream))
+             (str (subseq buf 0 char-length)))
         (UP str)))
   '}
   multi unslurp ($string,$filename) is cl {'
@@ -118,7 +120,8 @@ package GLOBAL {
     (let ((tree (read-from-string (S |$dump_string|))))
       (labels
        ((undump (node)
-           (cond ((listp node)
+           (cond ((null node) (undef))
+                 ((listp node)
                   (let ((args (mapcar #\'undump (cdr node))))
                     (ecase (car node)
                            (match (ap #\'|M::make_from_rsfth| (cons |Match::/co| args)))
@@ -141,10 +144,16 @@ package GLOBAL {
     }
   }
   sub private_tidy ($s) { $s }
+  sub eval_runtime_code($code,$env) is cl {'
+    (eval (read-from-string (S |$code|)))
+  '}
+  sub file_exists ($filename) is cl {'
+    (UP (if (probe-file (S |$filename|)) t nil))
+  '}
 }
 # regexp elf bootstrap primitives
 package Str {
-  method re_matchp ($re) is cl {' (UP (ppcre::scan (S |$re|) (S self))) '}
+  method re_matchp ($re) is cl {' (UP (if (ppcre::scan (S |$re|) (S self)) t nil)) '}
   method re_groups ($re) is cl {'
     (multiple-value-bind (match_str a) (ppcre::scan-to-strings (S |$re|) (S self))
       (declare (ignorable match_str))
@@ -159,6 +168,7 @@ package Str {
   '}
 }
 
+
 package Main {
 }
 
@@ -170,6 +180,7 @@ class Any {
 
 class Undef {
 }
+
 
 class Pair {
   has $.key; has $.value;
@@ -203,6 +214,16 @@ class Str {
     (let ((inst (make-instance \'|Str/cls|)))
       (setf (slot-value inst \'|Str::._native_|) (S |$s|))
       inst)
+  '}
+  method split ($pat) is cl {'
+    (let ((s (slot-value self \'|Str::._native_|)))
+      (new-Array (ppcre::split (S |$pat|) s)))
+  '}
+  method substr ($offset,$length) is cl {'
+    (let* ((s (slot-value self \'|Str::._native_|))
+           (len (length s))
+           (off (wrapped-index len (N |$offset|))))
+      (UP (subseq s off (min len (+ off (N |$length|))))))
   '}
 }
 
@@ -269,6 +290,17 @@ class Array {
     (let* ((a (slot-value self \'|Array::._native_|)))
       (new-Array (loop for v across a collect (fc |$code| v))))
   '}
+  method splice ($from,$to) is cl {'
+    (let* ((a (slot-value self \'|Array::._native_|))
+           (len (length a))
+           (from (wrapped-index len (N |$from|)))
+           (to (wrapped-index len (N |$to|))))
+      (new-Array (subseq a from to)))
+  '}
+  method reverse () is cl {'
+    (let* ((a (slot-value self \'|Array::._native_|)))
+      (new-Array (reverse a)))
+  '}
 }
 
 class Hash {
@@ -287,6 +319,18 @@ class Hash {
                (h (cl-hash k)))
           (setf (gethash h hk) k)
           (setf (gethash h hv) v)))
+      inst)
+  '}
+  method dup () is cl {'
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|))
+          (hk2 (make-hash-table :test #\'equal))
+          (hv2 (make-hash-table :test #\'equal))
+          (inst (make-instance \'|Hash/cls|)))
+      (setf (slot-value inst \'|Hash::._keys_|) hk)
+      (setf (slot-value inst \'|Hash::._values_|) hv)
+      (maphash #\'(lambda (k v) (setf (gethash k hk2) v)) hk)
+      (maphash #\'(lambda (k v) (setf (gethash k hv2) v)) hv)
       inst)
   '}
 
@@ -367,7 +411,7 @@ class Int   { method Num () { self } }
 class Num   { method Num () { self } }
 class Str   { method Num () { self.primitive_Num() } }
 class Array { method Num () { self.elems } }
-class Hash  { method Num () { self.keys.elems } }
+class Hash  { method Num () { self.keys.elems } } ;#X hash-table-count
 class Pair  { method Num () { 2 } }
 
 # .Str()
