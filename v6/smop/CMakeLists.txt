@@ -97,6 +97,7 @@ foreach (sm0p_file
     src/smop_s1p_map.sm0p
     src/smop_s1p_grep.sm0p
     src/smop_s1p_array_iterator.sm0p
+    src/smop_s1p_preludescope.sm0p
 )
 compile_sm0p (${sm0p_file})
 endforeach()
@@ -141,6 +142,7 @@ add_library (smop
     src/smop_s1p_root_namespace.c
     src/smop_s1p_scalar.c
     src/smop_s1p_str.c
+    src/smop_s1p_preludescope.c
     src/smop_slime_capturize.c
     src/smop_slime_currentframe.c
     src/smop_slime_frame.c

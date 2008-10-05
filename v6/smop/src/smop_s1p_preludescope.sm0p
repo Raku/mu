@@ -1,0 +1,52 @@
+#include <stdlib.h>
+#include <string.h>
+#include <smop.h>
+#include <math.h>
+#include <smop_lowlevel.h>
+#include <smop_s1p.h>
+#include <stdio.h>
+
+SMOP__Object* SMOP__S1P__PreludeScope;
+
+void smop_s1p_preludescope_init() {
+  SMOP__S1P__PreludeScope = SMOP_DISPATCH(SMOP__GlobalInterpreter,
+                                          SMOP__S1P__LexicalScope,
+                                          SMOP__ID__new,
+                                          SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
+                                                                       SMOP__S1P__LexicalScope,
+                                                                       NULL, NULL));
+}
+
+void smop_s1p_preludescope_populate() {
+
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  SMOP__Object* mold = q:m0ld {
+    my $interpreter;
+    my $lexical;
+    my $void;
+
+
+  };
+  
+  SMOP__Object* frame = (SMOP__Object*)SMOP__Mold__Frame_create(interpreter,
+                                                                SMOP_REFERENCE(interpreter,
+                                                                               mold));
+  SMOP__Object* back = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                     SMOP__ID__continuation,
+                                     SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),
+                                                                  NULL,NULL));
+
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,SMOP__S1P__PreludeScope));
+
+  SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
+  SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__loop,
+                SMOP__NATIVE__capture_create(interpreter,interpreter,NULL,NULL));
+  SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,back);
+  
+}
+
+void smop_s1p_preludescope_destr() {
+  SMOP_RELEASE(SMOP__GlobalInterpreter, SMOP__S1P__PreludeScope);
+  SMOP__S1P__PreludeScope = NULL;
+}
