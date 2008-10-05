@@ -26,21 +26,22 @@ See L<S02/"Built-in Data Types"> for more information about Code, Routine, Sub, 
 
 {
     my $foo = sub () { 42 };
-    isa_ok($foo, 'Code');
-    isa_ok($foo, 'Routine');
-    isa_ok($foo, 'Sub');
+    isa_ok($foo, Code);
+    #?rakudo 2 todo 'types Sub, Routine'
+    isa_ok($foo, Routine);
+    isa_ok($foo, Sub);
     is $foo.(), 42,                 "basic invocation of an anonymous sub";
-    try { $foo.(23) };
-    ok($!, "invocation of an parameterless anonymous sub with a parameter dies");
+    #?rakudo todo 'signature error checking'
+    dies_ok { $foo.(23) }, "invocation of an parameterless anonymous sub with a parameter dies";
 }
 
+#?rakudo skip 'pointy blocks'
 {
     my $foo = -> { 42 };
-    isa_ok($foo, 'Code');
-    isa_ok($foo, 'Block');
+    isa_ok($foo, Code);
+    isa_ok($foo, Block);
     is $foo.(), 42,                 "basic invocation of a pointy block";
-    try { $foo.(23) };
-    ok($!, "invocation of an parameterless pointy block with a parameter dies");
+    dies_ok { $foo.(23) },  "invocation of an parameterless pointy block with a parameter dies";
 }
 
 {
@@ -48,25 +49,27 @@ See L<S02/"Built-in Data Types"> for more information about Code, Routine, Sub, 
     isa_ok($foo, 'Code');
     isa_ok($foo, 'Block');
     is $foo.(42), 142,              "basic invocation of a pointy block with a param";
-    try { $foo.() };
-    ok($!, "invocation of an parameterized block expecting a param without a param dies");
+    dies_ok { $foo.() }, "invocation of an parameterized block expecting a param without a param dies";
 }
 
 {
     my $foo = sub { 100 + (@_[0] // -1) };
-    isa_ok($foo, 'Code');
-    isa_ok($foo, 'Routine');
-    isa_ok($foo, 'Sub');
+    isa_ok($foo, Code);
+    #?rakudo 2 todo 'types Sub, Routine'
+    isa_ok($foo, Routine);
+    isa_ok($foo, Sub);
     is $foo.(42), 142,              "basic invocation of a perl5-like anonymous sub (1)";
     is $foo.(),    99,              "basic invocation of a perl5-like anonymous sub (2)";
 }
 
 {
     my $foo = sub ($x) { 100 + $x };
-    isa_ok($foo, 'Code');
-    isa_ok($foo, 'Routine');
-    isa_ok($foo, 'Sub');
+    isa_ok($foo, Code);
+    #?rakudo 2 todo 'types Sub, Routine'
+    isa_ok($foo, Routine);
+    isa_ok($foo, Sub);
     is $foo.(42),      142,    "calling an anonymous sub with a positional param";
+    #?rakudo skip 'calling positiona parameters by name'
     is $foo.(x => 42), 142,    "calling an anonymous sub with a positional param addressed by name";
     dies_ok { $foo.() }, 
         "calling an anonymous sub expecting a param without a param dies";
@@ -76,6 +79,7 @@ See L<S02/"Built-in Data Types"> for more information about Code, Routine, Sub, 
 
 # Confirmed by p6l, see thread "Anonymous macros?" by Ingo Blechschmidt
 # L<"http://www.nntp.perl.org/group/perl.perl6.language/21825">
+#?rakudo skip 'macros, compile time binding'
 {
     # We do all this in a eval() not because the code doesn't parse,
     # but because it's safer to only call macro references at compile-time.
@@ -85,21 +89,23 @@ See L<S02/"Built-in Data Types"> for more information about Code, Routine, Sub, 
     # (The macros are subject to MMD thing still needs to be fleshed out, I
     # think.)
     our &foo_macro ::= macro ($x) { "1000 + $x" };
-    isa_ok(&foo_macro, "Code");
-    isa_ok(&foo_macro, "Routine");
-    isa_ok(&foo_macro, "Macro", :todo<feature>);
+    isa_ok(&foo_macro, Code);
+    isa_ok(&foo_macro, Routine);
+    #?pugs todo 'macros'
+    isa_ok(&foo_macro, Macro);
 
     is foo_macro(3), 1003, "anonymous macro worked";
 }
 
+#?rakudo skip 'scoping/closures'
 {
     my $mkinc = sub { my $x = 0; return sub { $x++ }; };
 
     my $inc1 = $mkinc();
     my $inc2 = $mkinc();
 
-    is($inc1(), 0, "inc1 == 0");
-    is($inc1(), 1, "inc1 == 1");
-    is($inc2(), 0, "inc2 == 0");
-    is($inc2(), 1, "inc2 == 1");
+    is($inc1(), 0, "clousures: inc1 == 0");
+    is($inc1(), 1, "clousures: inc1 == 1");
+    is($inc2(), 0, "clousures: inc2 == 0");
+    is($inc2(), 1, "clousures: inc2 == 1");
 }

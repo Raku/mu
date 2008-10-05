@@ -4,35 +4,35 @@ use Test;
 plan 8;
 
 diag "Testing for calling block bindings...";
-ok eval(q[
+is eval(q[
 	my &foo := { "foo" };
 	foo;
-]), "Calling block binding without argument. (Runtime)";
+]), 'foo',  "Calling block binding without argument. (Runtime)";
 
-ok eval(q[
+is eval(q[
 	my &foo ::= { "foo" };
 	foo;
-]), "Calling block binding without argument. (Compile-time)";
+]), 'foo',  "Calling block binding without argument. (Compile-time)";
 
-ok eval(q[
+is eval(q[
 	my &foo := { $^a };
 	foo(1);
-]), "Calling block binding with argument. (Runtime, with parens)";
+]), 1, "Calling block binding with argument. (Runtime, with parens)";
 
-ok eval(q[
+is eval(q[
 	my &foo := { $^a };
 	foo 1;
-]), "Calling block binding with argument. (Runtime, no parens)";
+]), 1,  "Calling block binding with argument. (Runtime, no parens)";
 
-ok eval(q[
+is eval(q[
 	my &foo ::= { $^a };
 	foo(1);
-]), "Calling block binding with argument. (Compile-time, with parens)";
+]), 1,  "Calling block binding with argument. (Compile-time, with parens)";
 
-ok eval(q[
+is eval(q[
 	my &foo ::= { $^a };
 	foo 1;
-]), "Calling block binding with argument. (Compile-time, no parens)";
+]), 1,  "Calling block binding with argument. (Compile-time, no parens)";
 
 
 my &foo_r := { $^a + 5 };

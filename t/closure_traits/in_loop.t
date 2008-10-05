@@ -7,7 +7,7 @@ plan 2;
 # TODO, based on synopsis 4:
 #
 # * KEEP, UNDO, PRE, POST, CONTROL
-#   CATCH is tested in t/base/try.t
+#   CATCH is tested in t/spec/S04-statements/try.t
 #
 # * $var will undo, etc
 #

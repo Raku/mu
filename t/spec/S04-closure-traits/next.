@@ -7,7 +7,7 @@ plan 13;
 # L<S04/Closure traits/NEXT executes "only if" 
 #   "end of the loop block" or "explicit next">
 {
-    my $str;
+    my $str = '';
     for 1..5 {
         NEXT { $str ~= ':' }
         next if $_ % 2 == 1;
@@ -18,7 +18,7 @@ plan 13;
 
 # NEXT is positioned at the bottom:
 {
-    my $str;
+    my $str = '';
     for 1..5 {
         next if $_ % 2 == 1;
         $str ~= $_;
@@ -29,7 +29,7 @@ plan 13;
 
 # NEXT is positioned in the middle:
 {
-    my $str;
+    my $str = '';
     for 1..5 {
         next if $_ % 2 == 1;
         NEXT { $str ~= ':' }
@@ -40,7 +40,7 @@ plan 13;
 
 # NEXT is evaluated even at the last iteration
 {
-    my $str;
+    my $str = '';
     for 1..2 {
         NEXT { $str ~= 'n'; }
         LAST { $str ~= 'l'; }
@@ -52,7 +52,7 @@ plan 13;
 #   "via any exception other than" next>
 
 {
-    my $str;
+    my $str = '';
     try {
         for 1..5 {
             NEXT { $str ~= $_ }
@@ -63,7 +63,7 @@ plan 13;
 }
 
 {
-    my $str;
+    my $str = '';
     try {
         for 1..5 {
             NEXT { $str ~= $_ }
@@ -74,7 +74,7 @@ plan 13;
 }
 
 {
-    my $str;
+    my $str = '';
     my sub foo {
         for 1..5 {
             NEXT { $str ~= $_ }
@@ -87,7 +87,7 @@ plan 13;
 
 # L<S04/Closure traits/last bypasses "NEXT blocks">
 {
-    my $str;
+    my $str = '';
     for 1..5 {
         NEXT { $str ~= $_; }
         last if $_ > 3;
@@ -98,7 +98,7 @@ plan 13;
 # L<S04/Closure traits/NEXT "before any LEAVE">
 
 {
-    my $str;
+    my $str = '';
     for 1..2 {
         NEXT { $str ~= 'n' }
         LEAVE { $str ~= 'l' }
@@ -108,7 +108,7 @@ plan 13;
 
 # reversed order
 {
-    my $str;
+    my $str = '';
     for 1..2 {
         LEAVE { $str ~= 'l' }
         NEXT { $str ~= 'n' }
@@ -121,7 +121,7 @@ plan 13;
 # L<http://groups.google.com/group/perl.perl6.language/msg/07370316d32890dd>
 
 {
-    my $str;
+    my $str = '';
     my $n = 0;
     my $i;
     while $n < 5 {
@@ -133,7 +133,7 @@ plan 13;
 }
 
 {
-    my $str;
+    my $str = '';
     loop (my $n = 0; $n < 5; ++$n) {
        NEXT { $str ~= $n }
     }
@@ -142,7 +142,7 @@ plan 13;
 
 {
     my @x = 0..4;
-    my $str;
+    my $str = '';
     for @x {
         NEXT { $str ~= $_; }
     }
