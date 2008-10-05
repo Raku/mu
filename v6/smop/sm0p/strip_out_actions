@@ -27,7 +27,7 @@ $grammar =~ s[(token \s* (\w+) \s* \{ )($block)( \})][
     my $name = $2;
     my $body = $3;
     my $end = $4;
-    $body =~ s/(?<!')\{ ($block) \}/push(@blocks,["${name}__sm0p_$nr",$1]);'{*}' . "  #= sm0p_" . $nr++ . "\n"
+    $body =~ s/(?<!')\{ ($block) \}/push(@blocks,["${name}_sm0p_$nr",$1]);'{*}' . "  #= sm0p_" . $nr++ . "\n"
 /egx;
     $start.$body.$end;
 ]exg;

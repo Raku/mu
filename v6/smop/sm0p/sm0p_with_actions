@@ -41,8 +41,7 @@ my $actions = sm0p_actions->new();
             {local $_ = $self;$actions->$tag();}
             $self;
         } else {
-            print "no action: $tag\n";
-            {local $_ = $self;$actions->$tag();}
+            #print "no action: $tag\n";
             $self->SUPER::_REDUCE($tag);
         }
     }
