@@ -613,10 +613,6 @@ class Undef {
   }
 };
 
-
-if not($*ast2ir_0) { $*ast2ir_0 = IRx1_Build.new.init; }
-$*ast2ir_1 = IRx1_Build.new.init;
-
 END_CODE
 
 
@@ -638,9 +634,8 @@ sub write_ast_handlers {
         $x.make_ir_from_Match_tree()
       };
 
-      method init {
-
   END
+  my $init = "";
 
   my %seen;
   for my $para (@paragraphs) {
@@ -670,18 +665,34 @@ sub write_ast_handlers {
       END
     }
 
+    my $fname = $name;
+    $fname =~ s/(\W)/"_".ord($1)/eg;
     $code .= "\n".unindent(<<"    END","    ");
-      \$.add_constructor('$name', sub (\$m) {
+      my \$construct_$fname = sub (\$m) {
         $body;
-      });
+      };
+    END
+    $init .= "\n".unindent(<<"    END","    ");
+      \$.add_constructor('$name', \$construct_$fname);
     END
 
   }
   $code .= unindent(<<"  END");
+    method init {
 
+  END
+  $code .= unindent(<<"  END");
+      $init
       self;
     }; # end init
-  }
+  };
+
+  END
+  $code .= unindent(<<'  END');
+
+  if not($*ast2ir_0) { $*ast2ir_0 = IRx1_Build.new.init; }
+  $*ast2ir_1 = IRx1_Build.new.init;
+
   END
   open(F,">$file") or die $!; print F $code; close F;
 }
