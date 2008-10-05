@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <smop_s1p.h>
-#include "smop_internal.h"
+#include "internal.h"
 
 static SMOP__Object** constlist;
 static int constlist_size;

@@ -1,6 +1,6 @@
 #include <smop.h>
 #include <smop_s1p.h>
-#include "smop_internal.h"
+#include "internal.h"
 #include <stdio.h>
 
 SMOP__Object* SMOP__GlobalInterpreter;

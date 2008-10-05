@@ -86,23 +86,23 @@ macro (compile_perl6_pugs dsl_file)
 endmacro(compile_perl6_pugs)
 
 foreach (sm0p_file
-    src/smop_lowlevel.sm0p
-    src/smop_s1p_lexicalscope.sm0p
-    src/smop_s1p_defaultblocksignature.sm0p
-    src/smop_s1p_bindcapturesignature.sm0p
-    src/smop_s1p_pureprototypehow.sm0p
+    src/lowlevel.sm0p
+    src/s1p_lexicalscope.sm0p
+    src/s1p_defaultblocksignature.sm0p
+    src/s1p_bindcapturesignature.sm0p
+    src/s1p_pureprototypehow.sm0p
     src/p6opaque.sm0p
-    src/smop_s1p_attribute.sm0p
-    src/smop_s1p_code.sm0p
-    src/smop_s1p_map.sm0p
-    src/smop_s1p_grep.sm0p
-    src/smop_s1p_array_iterator.sm0p
+    src/s1p_attribute.sm0p
+    src/s1p_code.sm0p
+    src/s1p_map.sm0p
+    src/s1p_grep.sm0p
+    src/s1p_array_iterator.sm0p
 )
 compile_sm0p (${sm0p_file})
 endforeach()
 
 foreach (ri_file
-    src/smop_s1p_io.ri
+    src/s1p_io.ri
 )
 compile_ri (${ri_file})
 endforeach()
@@ -117,37 +117,37 @@ add_library (smop
     src/native_uint.c
     src/p6opaque.c
     src/smop.c
-    src/smop_haskell_ffi.c
-    src/smop_internal.h
-    src/smop_interpreter.c
-    src/smop_lowlevel.c
-    src/smop_mold.c
-    src/smop_s1p_array.c
-    src/smop_s1p_array_iterator.c
-    src/smop_s1p_attribute.c
-    src/smop_s1p_capturize.c
-    src/smop_s1p_ccode.c
-    src/smop_s1p_code.c
-    src/smop_s1p_grep.c
-    src/smop_s1p_map.c
-    src/smop_s1p_pureprototypehow.c
-    src/smop_s1p_emptylist.c
-    src/smop_s1p_endofiterator.c
-    src/smop_s1p_bindcapturesignature.c
-    src/smop_s1p_defaultblocksignature.c
-    src/smop_s1p_hash.c
-    src/smop_s1p_io.c
-    src/smop_s1p_lexicalscope.c
-    src/smop_s1p_root_namespace.c
-    src/smop_s1p_scalar.c
-    src/smop_s1p_str.c
-    src/smop_slime_capturize.c
-    src/smop_slime_currentframe.c
-    src/smop_slime_frame.c
-    src/smop_slime_node.c
-    src/smop_ri.c
-#    src/smop_s1p_itemcontext.c
-#    src/smop_s1p_itemrwcontext.c
+    src/haskell_ffi.c
+    src/internal.h
+    src/interpreter.c
+    src/lowlevel.c
+    src/mold.c
+    src/s1p_array.c
+    src/s1p_array_iterator.c
+    src/s1p_attribute.c
+    src/s1p_capturize.c
+    src/s1p_ccode.c
+    src/s1p_code.c
+    src/s1p_grep.c
+    src/s1p_map.c
+    src/s1p_pureprototypehow.c
+    src/s1p_emptylist.c
+    src/s1p_endofiterator.c
+    src/s1p_bindcapturesignature.c
+    src/s1p_defaultblocksignature.c
+    src/s1p_hash.c
+    src/s1p_io.c
+    src/s1p_lexicalscope.c
+    src/s1p_root_namespace.c
+    src/s1p_scalar.c
+    src/s1p_str.c
+    src/slime_capturize.c
+    src/slime_currentframe.c
+    src/slime_frame.c
+    src/slime_node.c
+    src/ri.c
+#    src_s1p_itemcontext.c
+#    src_s1p_itemrwcontext.c
 )
 
 file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
