@@ -66,13 +66,8 @@
      smop_s1p_grep_init();                  \
      smop_s1p_array_iterator_init();        \
      smop_s1p_emptylist_init();             \
-     smop_s1p_endofiterator_init();         \
-     smop_s1p_preludescope_init();          \
-     /* preludescope_populate should be the last */ \
-     smop_s1p_preludescope_populate();
-
+     smop_s1p_endofiterator_init();
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
-     smop_s1p_preludescope_destr();         \
      smop_s1p_endofiterator_destr();        \
      smop_s1p_emptylist_destr();            \
      smop_s1p_array_iterator_destr();       \
@@ -94,7 +89,7 @@
      smop_lowlevel_method_destr();          \
      smop_s1p_ccode_destr();                \
      smop_s1p_code_destr();                 \
-     smop_mold_destr();                     
+     smop_mold_destr();                    
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
      smop_s1p_root_namespace_init();        \
@@ -124,7 +119,6 @@ void smop_native_capture_init();
 void smop_native_capture_destr();
 void smop_interpreter_init();
 void smop_interpreter_destr(); 
-
 void smop_slime_frame_init();
 void smop_slime_frame_destr();
 void smop_slime_currentframe_init();
@@ -133,19 +127,16 @@ void smop_slime_node_init();
 void smop_slime_node_destr();
 void smop_slime_capturize_init();
 void smop_slime_capturize_destr();
-
 void smop_native_bool_init();
 void smop_native_bool_destr();
 void smop_native_int_init();
 void smop_native_int_destr();
 void smop_native_uint_init();
 void smop_native_uint_destr();
-
 void smop_lowlevel_method_init();
 void smop_lowlevel_method_destr();
 void smop_p6opaque_init();
 void smop_p6opaque_destr();
-
 void smop_s1p_scalar_init();
 void smop_s1p_scalar_destr();
 void smop_s1p_hash_init();
@@ -154,42 +145,31 @@ void smop_s1p_array_init();
 void smop_s1p_array_destr();
 void smop_s1p_ccode_init();
 void smop_s1p_ccode_destr();
-
 void smop_s1p_lexicalscope_init();
 void smop_s1p_lexicalscope_destr();
 void smop_s1p_lexicalscope_mold_init();
 void smop_s1p_lexicalscope_mold_destr();
-
 void smop_s1p_defaultblocksignature_init();
 void smop_s1p_defaultblocksignature_destr();
 void smop_s1p_defaultblocksignature_mold_init();
 void smop_s1p_defaultblocksignature_mold_destr();
-
 void smop_s1p_bindcapturesignature_init();
 void smop_s1p_bindcapturesignature_destr();
 void smop_s1p_bindcapturesignature_mold_init();
 void smop_s1p_bindcapturesignature_mold_destr();
-
 void smop_s1p_pureprototypehow_init();
 void smop_s1p_pureprototypehow_destr();
 void smop_s1p_pureprototypehow_mold_init();
 void smop_s1p_pureprototypehow_mold_destr();
-
 void smop_s1p_capturize_init();
 void smop_s1p_capturize_destr();
 void smop_s1p_itemcontext_init();
 void smop_s1p_itemcontext_destr();
 void smop_s1p_itemrwcontext_init();
 void smop_s1p_itemrwcontext_destr();
-
-
 void smop_s1p_emptylist_init();
 void smop_s1p_emptylist_destr();
 void smop_s1p_endofiterator_init();
 void smop_s1p_endofiterator_destr();
-
-void smop_s1p_preludescope_init();
-void smop_s1p_preludescope_destr();
-void smop_s1p_preludescope_populate();
 
 #endif
