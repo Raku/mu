@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 1 Oct 2008
+  Last Modified: 5 Oct 2008
   Number: 3
-  Version: 140
+  Version: 141
 
 =head1 Overview
 
@@ -49,7 +49,7 @@ each level:
     R  Item assignment   = := ::= => += -= **= xx= .=
     L  Loose unary       true not
     X  Comma operator    , p5=>
-    X  List infix        Z minmax X X~X X*X XeqvX
+    X  List infix        Z minmax X X~X X*X XeqvX ...
     R  List prefix       : print push say die map substr ... [+] [*] any $ @
     X  Loose and         and andthen
     X  Loose or          or xor orelse
@@ -1583,6 +1583,75 @@ Cross hyperoperators
     etc.
 
 See L</Cross operators>.
+
+=item *
+
+C<< infix:<...> >>, the series operator.
+
+This operator takes a concrete list on its left and a function to be
+iterated on its right when the list must be extended.
+
+The value of the operator is the lazy list formed of the
+concrete list followed by the result of applying the function to the
+tail of the list as needed.  The function indicates by its arity
+how many of the preceding values to pay attention to (and which the
+operator must track internally).  Demonstration of this falls to the
+lot of the venerable Fibonacci sequence:
+
+    1, 1 ... { $^y + $^z }	# 1,1,2,3,5,8...
+    1, 1 ... &infix:<+>		# 1,1,2,3,5,8...
+
+More typically the function is unary, in which case any extra values
+in the list may be construed as human-readable documentation:
+
+    0,2,4 ... { $_ + 2 }	# same as 1..*:by(2)
+    <a b c> ... { .succ }	# same as 'a'..*
+
+The function need not be monotonic, of course:
+
+    1 ... { -$_ }		# 1, -1, 1, -1, 1, -1...
+    False ... &prefix:<!>	# False, True, False...
+
+The function can be 0-ary as well:
+
+    () ... &rand		# list of random numbers
+
+If the right operand is C<*> (Whatever) and the sequence is obviously
+arithmetic or geometric, the appropriate function is deduced:
+
+    1, 3, 5 ... *		# odd numbers
+    1. 2. 4 ... *		# powers of 2
+
+Conjecture: other such patterns may be recognized in the future,
+depending on which unrealistic benchmark we want to run faster.  C<:)>
+
+Note: the yada operator is recognized only where a term is expected.
+This operator may only be used where an infix is expected.  If you
+put a comma before the C<...> it will be taken as a yada list operator
+expressing the desire to fail when the list reaches that point:
+
+    1..20, ... "I only know up to 20 so far mister"
+
+If the yada operator finds a closure for its argument at compile time,
+it should probably whine about the fact that it's difficult to turn
+a closure into an error message.  Alternately, we could treat
+an elipsis as special when it follows a comma to better support
+traditional math notation.
+
+The function may choose to terminate its list by returning ().
+Since this operator is list associative, an inner function may be
+followed by a C<...> and another function to continue the list,
+and so on.  Hence,
+
+    1 ... { $_ + 1   if $_ < 10 }
+      ... { $_ + 10  if $_ < 100 }
+      ... { $_ + 100 if $_ < 1000 }
+
+produces
+
+    1,2,3,4,5,6,7,8,9,
+    10,20,30,40,50,60,70,80,90,
+    100,200,300,400,500,600,700,800,900
 
 =back
 
