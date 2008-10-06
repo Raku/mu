@@ -1620,7 +1620,7 @@ If the right operand is C<*> (Whatever) and the sequence is obviously
 arithmetic or geometric, the appropriate function is deduced:
 
     1, 3, 5 ... *		# odd numbers
-    1. 2. 4 ... *		# powers of 2
+    1, 2, 4 ... *		# powers of 2
 
 Conjecture: other such patterns may be recognized in the future,
 depending on which unrealistic benchmark we want to run faster.  C<:)>
@@ -1635,7 +1635,7 @@ expressing the desire to fail when the list reaches that point:
 If the yada operator finds a closure for its argument at compile time,
 it should probably whine about the fact that it's difficult to turn
 a closure into an error message.  Alternately, we could treat
-an elipsis as special when it follows a comma to better support
+an ellipsis as special when it follows a comma to better support
 traditional math notation.
 
 The function may choose to terminate its list by returning ().
