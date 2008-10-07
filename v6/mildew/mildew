@@ -13,6 +13,18 @@ use warnings;
 use Getopt::Long;
 use Carp 'confess';
 
+$::ACTIONS = 'Actions';
+{package Actions;
+    our $AUTOLOAD;
+    sub AUTOLOAD {
+        my $self=shift;
+        my $match=shift;
+        if ($AUTOLOAD =~ /^Actions::scope_declarator.*my/) {
+            warn "action $AUTOLOAD\n";
+            $match->{''} = 'my';
+        }
+    }
+}
 my ($debug,$file);
 GetOptions("file=s"=>\$file,"debug"=>\$debug);
 
@@ -23,6 +35,32 @@ sub integer {
     my $m = shift;
     #XXX non-base 10
     AST::IntegerConstant->new(value=>$m->text);
+}
+sub scope_declarator {
+    my $m = shift;
+    if ($m->{''} eq 'my') {
+        if (my $decl = $m->{scoped}{declarator}) {
+            if (my $var_decl = $decl->{variable_declarator}) {
+                AST::Call->new(
+                    identifier => AST::StringConstant->new(value=>'STORE'),
+                    capture => AST::Capture->new(
+                        invocant => AST::Call->new(
+                            identifier => AST::StringConstant->new(value=>'postcircumfix:{ }'),
+                            capture => AST::Capture->new(invocant=>AST::Reg->new(name=>'scope'),positional=>[AST::StringConstant->new(value=>$m->text)],named=>[])
+                        ),
+                        positional => [
+                            AST::Call->new(
+                                identifier => AST::StringConstant->new(value=>'new'),
+                                invocant => AST::Reg->new(name=>'$Scalar'),
+                            )
+                        ]
+                    ),
+                );
+            }
+        }
+    } else {
+        XXX;
+    }
 }
 sub noun {
     my $m = shift;
@@ -36,9 +74,27 @@ sub noun {
         } else {
             XXX;
         }
+    } elsif ($m->{term}) {
+        term($m->{term});
+    } elsif ($m->{scope_declarator}) {
+        scope_declarator($m->{scope_declarator});
     } else {
         XXX;
     }
+}
+sub term {
+    my $m = shift;
+    if ($m->{identifier} && $m->{args}) {
+        my $func = AST::Call->new(
+            identifier=>AST::StringConstant->new(value=>'lookup'),
+            capture=>AST::Capture->new(invocant=>AST::Reg->new(name=>'scope'),positional=>[AST::StringConstant->new(value=>'&'.$m->{identifier}->text)],named=>[]),
+        );
+        AST::Call->new(identifier=>AST::StringConstant->new(value=>'postcircumfix:( )'),capture=>AST::Capture->new(invocant=>$func,positional=>args($m->{args})));
+    }
+}
+sub args {
+    my $m = shift;
+    return [map {EXPR($_->{EXPR})} @{$m->{arglist}}];
 }
 sub routine_def {
     my $m = shift;
@@ -61,8 +117,12 @@ sub value {
     my $m = shift;
     if ($m->{number}) {
         number($m->{number});
-    } if ($m->{quote}) {
+    } elsif ($m->{quote}) {
         quote($m->{quote});
+    } else {
+        warn Dump($m->{number});
+        warn Dump($m);
+        XXX;
     }
 }
 sub quote {
@@ -75,6 +135,8 @@ sub number {
     my $m = shift;
     if ($m->{integer}) {
         integer($m->{integer});
+    } else {
+        XXX;
     }
 }
 sub variable {
