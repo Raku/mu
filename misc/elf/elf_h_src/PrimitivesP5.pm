@@ -134,3 +134,8 @@ package GLOBAL {
   multi infix:<x>    ($a, $b) is p5 {'($a x $b)'}
   
 }
+
+# Elf
+package GLOBAL {
+  sub elf_main () { Program.new().main(@*ARGS); }
+}

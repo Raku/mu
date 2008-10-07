@@ -81,7 +81,7 @@ class IRx1::VarDecl {
         $.notes<is>{$_.expr} = 1;
       }
     }
-    if (self.<var><twigil>||'') eq '+' {$.notes<is><context> = 1}
+    if (self.var.twigil||'') eq '+' {$.notes<is><context> = 1}
     if self.scope eq 'temp' {$.notes<is><temp> = 1}
 
     for $.child_nodes {$_.note_block_lexical_variable_decls}
@@ -168,7 +168,7 @@ class IRx1::Apply {
 }
 class IRx1::Var {
   method note_environment() {
-    my $key = self<sigil> ~ self<name>;
+    my $key = self.sigil ~ self.name;
     $.notes<decl> = $whiteboard::lexical_bindings{$key};
     if $.notes<decl> {
       $.notes<is> = $.notes<decl>.notes<is>;
@@ -203,15 +203,15 @@ class IRx1::VarDecl {
   method is_lexical() { $.scope eq 'my' or not($.var.package) }
   method is_context() { $.notes<is><context> }
   method is_temp() { $.notes<is><temp> }
-  method name () { self.<var><name> }
+  method name () { self.var.name }
   method bare_name() { self.var.bare_name }
   method package() { self.var.package }
   method crnt_package() { self.var.crnt_package }
-  method sigil() { self.<var><sigil> }
-  method twigil() { self.<var><twigil> }
-  method is_scalar() { self.<var><sigil> eq '$' }
-  method is_array() { self.<var><sigil> eq '@' }
-  method is_hash() { self.<var><sigil> eq '%' }
+  method sigil() { self.var.sigil }
+  method twigil() { self.var.twigil }
+  method is_scalar() { self.var.sigil eq '$' }
+  method is_array() { self.var.sigil eq '@' }
+  method is_hash() { self.var.sigil eq '%' }
 }
 class IRx1::SubDecl {
   method sigil() { '&' }
@@ -225,9 +225,24 @@ class IRx1::Var {
   method bare_name() { self.notes<bare_name> }
   method package() { self.notes<package> }
   method crnt_package() { self.notes<crnt_package> }
-  method is_context() { (self.<twigil>||'') eq '+' || $.notes<is><context> }
+  method is_context() { (self.twigil||'') eq '+' || $.notes<is><context> }
   method is_temp() { $.notes<is><temp> }
 }
 class IRx1::PackageDecl {
   method path_is_absolute() { self.name && self.name.re_matchp('^GLOBAL\b') }
+}
+
+class IRx1::Base {
+  method provides_a_list { undef }
+}
+class IRx1::Call {
+  method provides_a_list { self.method eq "flatten" }
+}
+class IRx1::Capture {
+  method contains_a_list {
+    my $found;
+    $.arguments.map(sub($e){
+      if ($e.isa('IRx1::Base') && $e.provides_a_list) { $found = 1 }});
+    $found;
+  }
 }

@@ -118,4 +118,3 @@ One can also do
   }
 };
 
-Program.new().main(@*ARGS);

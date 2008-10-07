@@ -278,7 +278,7 @@ Block.newp([$e1,$body])
 statement_control:if
 my $els = $m<else>;
 if $els { $els = $els[0] }
-Cond.newp([[$m<if_expr>,$m<if_block>]].push($m<elsif>.flatten),$els)
+Cond.newp([[$m<if_expr>,$m<if_block>]].push($m<elsif>.flatten),$els,undef)
 
 elsif
 [$m<elsif_expr>,$m<elsif_block>]
@@ -287,7 +287,7 @@ if__else
 *1*
 
 statement_mod_cond:if
-Cond.newp([[$m<modifier_expr>,$blackboard::statement_expr]],undef)
+Cond.newp([[$m<modifier_expr>,$blackboard::statement_expr]],undef,undef)
 
 statement_control:unless
 Cond.newp([[$m<expr>,$m<block>]],undef,1)
@@ -377,7 +377,7 @@ signature
 Signature.newp($m<parsep>,undef)
 
 parameter
-Parameter.newp($m<type_constraint>,$m<quantchar>,$m<param_var>)
+Parameter.newp($m<type_constraint>,$m<quantchar>,$m<param_var>,undef,undef,undef,undef)
 
 param_var
 ParamVar.newp($m<sigil>,$m<twigil>,$m<ident>)
@@ -672,7 +672,7 @@ sub write_ast_handlers {
         $body;
       };
     END
-    $init .= "\n".unindent(<<"    END","    ");
+    $init .= "".unindent(<<"    END","    ");
       \$.add_constructor('$name', \$construct_$fname);
     END
 

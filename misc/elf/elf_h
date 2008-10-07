@@ -405,6 +405,20 @@ package Main;
 
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+
+;
+use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
+      package Main;
 
 { package Bit;
 use base "Any";BEGIN{unshift(@Bit::ISA,'Any');}
@@ -731,7 +745,7 @@ use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self->join("")})}})
 
 { package Hash;
 use base "Any";(do{sub Str{my $self=CORE::shift;(do{$self->keys()->map(sub {my($k)=@_;
-(do{(($k . "\	") . $self->{'$k'})})})->join("\
+(do{(($k . "\	") . $self->{$k})})})->join("\
 ")})}})
 }
 ;
@@ -747,7 +761,8 @@ use base "Any";(do{sub Str{my $self=CORE::shift;(do{(($self->key . "\	") . $self
 ;
 
 { package Any;
-(do{sub true{my $self=CORE::shift;(do{GLOBAL::defined($self)})}})
+(do{sub true{my $self=CORE::shift;(do{GLOBAL::defined($self)})};
+sub defined{my $self=CORE::shift;(do{GLOBAL::defined($self)})}})
 }
 ;
 
@@ -2224,7 +2239,7 @@ my $construct_statement_control_58if = sub {my($m)=@_;
 if($els) {
 (do{($els = $els->[0])})
 };
-IRx1::Cond->newp($m, [[irbuild_ir($m->hash()->{"if_expr"}), irbuild_ir($m->hash()->{"if_block"})]]->push(irbuild_ir($m->hash()->{"elsif"})->flatten()), $els)})};
+IRx1::Cond->newp($m, [[irbuild_ir($m->hash()->{"if_expr"}), irbuild_ir($m->hash()->{"if_block"})]]->push(irbuild_ir($m->hash()->{"elsif"})->flatten()), $els, GLOBAL::undef())})};
 my $construct_elsif = sub {my($m)=@_;
 (do{[irbuild_ir($m->hash()->{"elsif_expr"}), irbuild_ir($m->hash()->{"elsif_block"})]})};
 my $construct_if__else = sub {my($m)=@_;
@@ -2241,7 +2256,7 @@ for(($m->hash()->keys())->flatten){
 my $one = irbuild_ir($m->hash()->{$key});
 $one})};
 my $construct_statement_mod_cond_58if = sub {my($m)=@_;
-(do{IRx1::Cond->newp($m, [[irbuild_ir($m->hash()->{"modifier_expr"}), $blackboard::statement_expr]], GLOBAL::undef())})};
+(do{IRx1::Cond->newp($m, [[irbuild_ir($m->hash()->{"modifier_expr"}), $blackboard::statement_expr]], GLOBAL::undef(), GLOBAL::undef())})};
 my $construct_statement_control_58unless = sub {my($m)=@_;
 (do{IRx1::Cond->newp($m, [[irbuild_ir($m->hash()->{"expr"}), irbuild_ir($m->hash()->{"block"})]], GLOBAL::undef(), 1)})};
 my $construct_statement_mod_cond_58unless = sub {my($m)=@_;
@@ -2324,7 +2339,7 @@ IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild
 my $construct_signature = sub {my($m)=@_;
 (do{IRx1::Signature->newp($m, irbuild_ir($m->hash()->{"parsep"}), GLOBAL::undef())})};
 my $construct_parameter = sub {my($m)=@_;
-(do{IRx1::Parameter->newp($m, irbuild_ir($m->hash()->{"type_constraint"}), irbuild_ir($m->hash()->{"quantchar"}), irbuild_ir($m->hash()->{"param_var"}))})};
+(do{IRx1::Parameter->newp($m, irbuild_ir($m->hash()->{"type_constraint"}), irbuild_ir($m->hash()->{"quantchar"}), irbuild_ir($m->hash()->{"param_var"}), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef(), GLOBAL::undef())})};
 my $construct_param_var = sub {my($m)=@_;
 (do{IRx1::ParamVar->newp($m, irbuild_ir($m->hash()->{"sigil"}), irbuild_ir($m->hash()->{"twigil"}), irbuild_ir($m->hash()->{"ident"}))})};
 my $construct_capture = sub {my($m)=@_;
@@ -2700,7 +2715,7 @@ for(($traits)->flatten){
 (do{($self->notes->{'is'}->{$_->expr()} = 1)})
 }})
 };
-if(((($self->{'var'}->{'twigil'} || "")) eq "\+")) {
+if(((($self->var()->twigil() || "")) eq "\+")) {
 (do{($self->notes->{'is'}->{'context'} = 1)})
 };
 if(($self->scope() eq "temp")) {
@@ -2804,7 +2819,7 @@ for(($self->child_nodes)->flatten){
 ;
 
 { package IRx1::Var;
-use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->{'sigil'} . $self->{'name'});
+use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{my $key = ($self->sigil() . $self->name());
 ($self->notes->{'decl'} = $whiteboard::lexical_bindings->{$key});
 if($self->notes->{'decl'}) {
 (do{($self->notes->{'is'} = $self->notes->{'decl'}->notes()->{'is'})})
@@ -2842,15 +2857,15 @@ use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{for(($self->chi
 use base "Any";(do{sub is_lexical{my $self=CORE::shift;(do{(($self->scope eq "my") or GLOBAL::not($self->var->package()))})};
 sub is_context{my $self=CORE::shift;(do{$self->notes->{'is'}->{'context'}})};
 sub is_temp{my $self=CORE::shift;(do{$self->notes->{'is'}->{'temp'}})};
-sub name{my $self=CORE::shift;(do{$self->{'var'}->{'name'}})};
+sub name{my $self=CORE::shift;(do{$self->var()->name()})};
 sub bare_name{my $self=CORE::shift;(do{$self->var()->bare_name()})};
 sub package{my $self=CORE::shift;(do{$self->var()->package()})};
 sub crnt_package{my $self=CORE::shift;(do{$self->var()->crnt_package()})};
-sub sigil{my $self=CORE::shift;(do{$self->{'var'}->{'sigil'}})};
-sub twigil{my $self=CORE::shift;(do{$self->{'var'}->{'twigil'}})};
-sub is_scalar{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\$")})};
-sub is_array{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\@")})};
-sub is_hash{my $self=CORE::shift;(do{($self->{'var'}->{'sigil'} eq "\%")})}})
+sub sigil{my $self=CORE::shift;(do{$self->var()->sigil()})};
+sub twigil{my $self=CORE::shift;(do{$self->var()->twigil()})};
+sub is_scalar{my $self=CORE::shift;(do{($self->var()->sigil() eq "\$")})};
+sub is_array{my $self=CORE::shift;(do{($self->var()->sigil() eq "\@")})};
+sub is_hash{my $self=CORE::shift;(do{($self->var()->sigil() eq "\%")})}})
 }
 ;
 
@@ -2868,13 +2883,33 @@ use base "Any";(do{sub decl{my $self=CORE::shift;(do{$self->notes->{'decl'}})};
 sub bare_name{my $self=CORE::shift;(do{$self->notes()->{'bare_name'}})};
 sub package{my $self=CORE::shift;(do{$self->notes()->{'package'}})};
 sub crnt_package{my $self=CORE::shift;(do{$self->notes()->{'crnt_package'}})};
-sub is_context{my $self=CORE::shift;(do{(((($self->{'twigil'} || "")) eq "\+") || $self->notes->{'is'}->{'context'})})};
+sub is_context{my $self=CORE::shift;(do{(((($self->twigil() || "")) eq "\+") || $self->notes->{'is'}->{'context'})})};
 sub is_temp{my $self=CORE::shift;(do{$self->notes->{'is'}->{'temp'}})}})
 }
 ;
 
 { package IRx1::PackageDecl;
 use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && $self->name()->re_matchp("\^GLOBAL\\b"))})}})
+}
+;
+
+{ package IRx1::Base;
+use base "Any";(do{sub provides_a_list{my $self=CORE::shift;(do{GLOBAL::undef()})}})
+}
+;
+
+{ package IRx1::Call;
+use base "Any";(do{sub provides_a_list{my $self=CORE::shift;(do{($self->method() eq "flatten")})}})
+}
+;
+
+{ package IRx1::Capture;
+use base "Any";(do{sub contains_a_list{my $self=CORE::shift;(do{my $found;
+$self->arguments->map(sub {my($e)=@_;
+(do{if((($e->isa("IRx1\:\:Base") && $e->provides_a_list()))) {
+(do{($found = 1)})
+}})});
+$found})}})
 }
 ;
 
@@ -4054,6 +4089,11 @@ Class::Multimethods::multimethod infix_x => split(/\s+/,'* *') => sub {my($a,$b)
 }
 ;
 
+{ package GLOBAL;
+use base "Any";(do{sub elf_main{(do{Program->new()->main($GLOBAL::a_ARGS)})}})
+}
+;
+
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
@@ -4324,20 +4364,11 @@ $incs->push($dir)})
 $at_end->()})}})
 }
 ;
-Program->new()->main($GLOBAL::a_ARGS);
 
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
 ;
-;
-;
-;
-;
-;
-;
-;
-;
-;
+GLOBAL::elf_main();
 
 ;
