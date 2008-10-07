@@ -145,11 +145,12 @@ package GLOBAL {
   }
   sub private_tidy ($s) { $s }
   sub eval_runtime_code($code,$env) is cl {'
-    (eval (read-from-string (S |$code|)))
+    (eval (read-from-string (concatenate \'string "(progn " (S |$code|) ")")))
   '}
   sub file_exists ($filename) is cl {'
     (UP (if (probe-file (S |$filename|)) t nil))
   '}
+  sub elf_main () { Program.new().main(@*ARGS); }
 }
 # regexp elf bootstrap primitives
 package Str {
@@ -157,7 +158,7 @@ package Str {
   method re_groups ($re) is cl {'
     (multiple-value-bind (match_str a) (ppcre::scan-to-strings (S |$re|) (S self))
       (declare (ignorable match_str))
-      (new-Array (mapcar #\'UP a)))
+      (new-Array (mapcar #\'UP (coerce a \'list))))
   '}
   method re_gsub ($re,$replacement_str) is cl {'
     (UP (ppcre::regex-replace-all (S |$re|) (S self) (list (S |$replacement_str|))))

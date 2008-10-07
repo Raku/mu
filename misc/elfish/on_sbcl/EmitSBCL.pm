@@ -254,6 +254,13 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   o)
 
 ;;
+(defun flatten-lists (args)
+  (reduce #\'append
+          (mapcar (lambda (e) (if (and (listp e) (not (null e)))
+                                  e (list e)))
+                  args)))
+
+;;
 (dm |M::new| ((co |Any/cls|) &rest argl)
   (declare (ignorable argl))
   (set-slots (make-instance (class-of co)) argl))
@@ -270,23 +277,22 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 
  ;;Array.new is defined here to a avoid cyclic dependency on *@args.
 (pkg-declare "class" "Array" \'|Any/cls|)
-(eval \'(dm |M::new| ((co |Array/cls|) &rest argl)
+(dm |M::new| ((co |Array/cls|) &rest argl)
   (declare (ignorable co))
   (let ((inst (make-instance \'|Array/cls|)))
     (setf (slot-value inst \'|Array::._native_|)
           (make-array (length argl) :adjustable t :initial-contents argl))
     inst))
-)
 
 ;; Hack until Str, Int, Num, etc are p6 objects.
-(eval \'(dm |M::Str| ((s string) &rest argl) (declare (ignorable argl)) s))
-(eval \'(dm |M::Str| ((n number) &rest argl) (declare (ignorable argl)) (write-to-string n)))
-(eval \'(dm |M::WHAT| ((s string) &rest argl) (declare (ignorable s argl)) "str"))
-(eval \'(dm |M::WHAT| ((n number) &rest argl) (declare (ignorable n argl)) "num"))
+(dm |M::Str| ((s string) &rest argl) (declare (ignorable argl)) s)
+(dm |M::Str| ((n number) &rest argl) (declare (ignorable argl)) (write-to-string n))
+(dm |M::WHAT| ((s string) &rest argl) (declare (ignorable s argl)) "str")
+(dm |M::WHAT| ((n number) &rest argl) (declare (ignorable n argl)) "num")
 
-(eval \'(dm |M::Str| ((x null) &rest argl) (declare (ignorable x argl)) ""))
-(eval \'(dm |M::WHAT| ((x null) &rest argl) (declare (ignorable x argl)) "nil"))
-(eval \'(dm |M::substr| ((s string) from len) (subseq s from (+ from len))))
+(dm |M::Str| ((x null) &rest argl) (declare (ignorable x argl)) "")
+(dm |M::WHAT| ((x null) &rest argl) (declare (ignorable x argl)) "nil")
+(dm |M::substr| ((s string) from len) (subseq s from (+ from len)))
 
 
 ;; Muffle warnings at compile and runtimes.
@@ -321,12 +327,14 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (defmethod to-b ((x |Any/cls|)) (to-b (fc #\'|M::Bool| x)))
 ;; to-n
 (defgeneric to-n (x))
+(defmethod to-s ((x null)) 0) ;X unboxed Undef
 (defmethod to-n ((x number)) x)
 (defmethod to-n ((x |Int/cls|)) (slot-value x \'|Int::._native_|))
 (defmethod to-n ((x |Num/cls|)) (slot-value x \'|Num::._native_|))
 (defmethod to-n ((x |Any/cls|)) (to-n (fc #\'|M::Num| x)))
 ;; to-s
 (defgeneric to-s (x))
+(defmethod to-s ((x null)) "") ;X unboxed Undef
 (defmethod to-s ((x string)) x)
 (defmethod to-s ((x |Str/cls|)) (slot-value x \'|Str::._native_|))
 (defmethod to-s ((x |Any/cls|)) (to-s (fc #\'|M::Str| x)))
@@ -383,14 +391,16 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   method cb__CompUnit ($n) {
     $n.do_all_analysis();
     my $decls = $n.notes<lexical_variable_decls>;
-    my $code = "(let (\n";
+    my $code = "";
+    my $lexicals = "";
+    my $lexicals_foot = "";
     $decls.map(sub($d){if $d.scope eq 'my' {
-      #$code = $code ~ $.e($d.var)~" "; #X SubDecl :/
-      # ~$d.twigil~ not included because STD_red is using 0 as false,
-      #   and the 0 is mutating into a '0'.  Switch to undef?
-      $code = $code ~ $.qsym($d.sigil~$d.name)~" ";
+      $lexicals = $lexicals ~ $.qsym($d.sigil~$d.name)~" ";
     }});
-    $code = $code ~")\n";
+    if $lexicals {
+      $code = $code~"(let (\n"~$lexicals ~")\n";
+      $lexicals_foot = ")";
+    }
     temp $whiteboard::in_package = [];
     temp $whiteboard::emit_pairs_inline = 0;
     temp $whiteboard::declares = [];
@@ -402,28 +412,34 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $head = $whiteboard::compunit_header.join("\n")~"\n\n";
     my $foot = $whiteboard::compunit_footer.join("\n");
     my $blk_head = $whiteboard::block_header.join("");
-    $code ~ $declare ~ $blk_head ~ $head ~ $stmts ~$foot~"\n)\n";
+    $code ~ $declare ~ $blk_head ~ $head ~ $stmts ~$foot~"\n"~$lexicals_foot~"\n";
   }
   method cb__Block ($n) {
     temp $whiteboard::emit_pairs_inline = 0;
     temp $whiteboard::declares = [];
     temp $whiteboard::block_header = [];
     my $decls = $n.notes<lexical_variable_decls>;
-    my $code = "(let (";
+    my $code = "";
+    my $lexicals = "";
+    my $lexicals_foot = "";
     $decls.map(sub($d){
        my $scope = $d.scope;
        if $scope eq 'my' {
-         $code = $code ~ $.e($d.var)~" ";
+         $lexicals = $lexicals ~ $.e($d.var)~" ";
        }
        elsif $scope eq 'temp' {
          my $v = $.e($d.var);
-         $code = $code ~ "("~$v~" (if (boundp '"~$v~") "~$v~")) ";
+         $lexicals = $lexicals ~ "("~$v~" (if (boundp '"~$v~") "~$v~")) ";
        }
     });
+    if $lexicals {
+      $code = $code~"(let (\n"~$lexicals ~")\n";
+      $lexicals_foot = ")";
+    }
     my $stmts = $.e($n.statements).join("\n");
     my $declare = $whiteboard::declares.join("");
     my $blk_head = $whiteboard::block_header.join("");
-    $code~")\n"~$declare~$blk_head~$stmts~')'
+    $code~$declare~$blk_head~$stmts~$lexicals_foot;
   }
 
   method cb__Use ($n) {
@@ -525,9 +541,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       my $slotname = '|'~$pkg~'::.'~$name~'|';
       my $accname = '|M::'~$name~'|';
       my $code =
-        ('(eval \'(dm '~$accname~' ((self '~$cls~'))'~
+        ('(dm '~$accname~' ((self '~$cls~'))'~
          ' (let ((setter (lambda (o v) (setf (slot-value o \''~$slotname~') v))))'~
-         '   (rw-able (slot-value self \''~$slotname~') setter self))))'~"\n");
+         '   (rw-able (slot-value self \''~$slotname~') setter self)))'~"\n");
       my $slot_specifier = '('~$slotname;
       if $default {
         $slot_specifier = $slot_specifier ~ " :initform "~$default;
@@ -564,10 +580,10 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $cls = $.classname_from_package_name($n.notes<crnt_package>||'Main');
     my $enc_name = $.qsym('M::'~$.e($n.name));
     my $sig = $.e($n.multisig);
-    my $decl = ('(eval \'(dm '~$enc_name~' ((self '~$cls~') '~$sig~
-                ' (declare (ignorable self))'~
-                ' (block __f__ '~$body~')))');
-    $whiteboard::compunit_header.push($decl);
+    my $decl = ('(dm '~$enc_name~' ((self '~$cls~') '~$sig~
+                #' (let () (declare (ignorable self))'~
+                ' (block __f__ '~$body~'))');
+    $whiteboard::block_header.push($decl);
     "";
   }
   method classname_from_package_name($pkg) {
@@ -610,7 +626,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     else {
       $code = '(lambda '~$most~')';
     }
-    $whiteboard::compunit_header.push($decl);
+    $whiteboard::block_header.push($decl);
     $code;
   }
   method cb__Signature ($n) {
@@ -662,8 +678,12 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
         $e_capture = $words.map(sub($x){$self.qstr($x)}).join(" ");
       }
     }
-    my $call = '(fc '~$meth~' '~$invocant~' '~$e_capture~')';
-    $call;
+    if $n.capture.contains_a_list {
+      '(ap '~$meth~' (cons '~$invocant~' (flatten-lists '~$e_capture~')))';
+    }
+    else {
+      '(fc '~$meth~' '~$invocant~' '~$e_capture~')';
+    }
   }
   method fqsym ($name) {
      "#'|"~$name.re_gsub('\|','\\|')~'|';
@@ -762,16 +782,25 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
       return '(fc |GLOBAL::&eval| '~$.e($n.capture)~' '~$env~')'
     }
 
+    if not(defined($e_capture)) { $e_capture = $.e($n.capture) }
+    my $pre = '(fc ';
+    my $mid = ' ';
+    my $post = ')';
+    if $n.capture.contains_a_list {
+      $pre = '(ap ';
+      $mid = ' (flatten-lists ';
+      $post = '))';
+    }
+
     if $fun.re_matchp('^\w') {
       my $fe = $.qsym('GLOBAL::&'~$fun);
-      if not(defined($e_capture)) { $e_capture = $.e($n.capture) }
-      return '(fc '~$fe~' '~$e_capture~')'
+      return $pre~$fe~$mid~$e_capture~$post;
     }
     if $fun.re_matchp('^[$@%&]') {
-       return  '(fc '~$.qsym($fun)~' '~$.e($n.capture)~')';
+       return  $pre~$.qsym($fun)~$mid~$e_capture~$post;
     }
     else {
-       return  '(fc '~$fun~' '~$.e($n.capture)~')';
+       return $pre~$fun~$mid~$e_capture~$post;
     }
   }
   method cb__Capture ($n) {

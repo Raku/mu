@@ -35,6 +35,12 @@ and definition of primitives (Array, Hash, etc).
 
 NOTES
 
+  SBCL is a verbose beast.  Anything which compiles should be run
+  from a fast terminal.  Like xterm, not gnome terminal.  Otherwise,
+  terminal scrolling will determine compile time.
+
+  Compiling the CL elf requires about 2GB of ram.
+
   Warnings are sometimes muffled before check in, to improve the
   experience of causal users.  For real development, comment out
   the muffle-conditions lines in EmitSBCL.pm.
@@ -61,3 +67,4 @@ NOTES
   # This increased to 1x with improved multi dispatch, still on native integers.
   # This remained 1x with general rw-ability added, still native integers.
   # This dropped to 1/2x with Int's.
+  # This dropped to 1/4x while not being watched, for causes unknown.
