@@ -1,7 +1,0 @@
-
-#ifndef SMOP_MACROS_H
-#define SMOP_MACROS_H
-
-SMOP_CORE_MESSAGE
-
-#endif
