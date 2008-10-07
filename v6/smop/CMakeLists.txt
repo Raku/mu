@@ -137,6 +137,7 @@ add_library (smop
     src/s1p_endofiterator.c
     src/s1p_bindcapturesignature.c
     src/s1p_defaultblocksignature.c
+    src/s1p_adhocsignature.c
     src/s1p_hash.c
     src/s1p_io.c
     src/s1p_lexicalscope.c
@@ -192,6 +193,7 @@ foreach (test_file
     # test/33_pugs_simple.p6-pugs # would require building pugs twice
     test/34_array_unshift.m0ld
     test/35_array_grep.m0ld
+    test/36_adhoc_signature.m0ld
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")

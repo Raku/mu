@@ -1,3 +1,4 @@
+SMOP__Object* SMOP__ID__ACCEPTS;
 SMOP__Object* SMOP__ID__back;
 SMOP__Object* SMOP__ID__BIND;
 SMOP__Object* SMOP__ID__bless;

@@ -1,0 +1,79 @@
+my $interpreter;
+my $scope;
+my $void;
+my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $out = $out_scalar."FETCH"();
+$void = $out."print"("1..6\n");
+
+my $Code_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
+my $Code = $Code_scalar."FETCH"();
+my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"();
+
+my $signature = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
+    my $capture;
+    my $back;
+    my $interpreter;
+    my $void;
+
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+    $void = $out."print"("ok 1 - signature.ACCEPTS\n");
+
+    $void = $back."setr"(¢SMOP__NATIVE__bool_true);
+    $void = $interpreter."goto"($back);
+    
+}),:"BIND"(mold {
+    my $capture;
+    my $back;
+    my $interpreter;
+    my $void;
+
+    my $lexical = $capture."positional"(1);
+
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+    $void = $out."print"("ok 3 - signature.BIND\n");
+
+    my $it_var = $lexical."postcircumfix:{ }"("$_");
+    $void  = $it_var."STORE"("ok 4 - variable bound\n"); 
+
+    $void = $interpreter."goto"($back);
+
+}));
+
+my $code1 = $Code."new"(:"outer"($lexicalscope),:"signature"($signature),:"mold"(mold {
+    my $interpreter;
+    my $lexical;
+
+    my $it_var_slot = $lexical."postcircumfix:{ }"("$_");
+    my $it_var = $it_var_slot."FETCH"();
+    my $it  = $it_var."FETCH"();
+   
+    my $void;
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+
+    $void = $out."print"($it);
+    $void = $out."print"("ok 5 - code called\n");
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    $void = $interpreter."goto"($back);
+
+}));
+
+my $accepts = $signature."ACCEPTS"(1);
+my $accepts_bool = $accepts."bool"();
+if $accepts_bool { goto then } else { goto else };
+
+then:
+$void = $out."print"("ok 2 - signature accepts capture\n");
+goto continuing;
+
+else:
+$void = $out."print"("not ok 2 - signature returned false\n");
+
+continuing:
+$void = $code1."postcircumfix:( )"(1);
+$void = $out."print"("ok 6 - everything went fine!\n");
+
