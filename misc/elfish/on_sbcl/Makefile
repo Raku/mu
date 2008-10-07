@@ -10,6 +10,7 @@ elfx:: have_parser_cache
 elfcl:: have_parser_cache
 	${ELF} -I ${ELFDIR} EmitSBCL.pm -x -o elfcl Elf_SBCL.pm
 	time ${SBCL} --eval '(compile-file "elfcl")' --eval '(quit)' >& elfcl.out
+	chmod a+x elfcl
 
 have_parser_cache:
 	@perl -we 'if(!-d shift){print STDERR "\nDefine STD_RED_CACHEDIR for faster compiles.\n\n";}' $(STD_RED_CACHEDIR)

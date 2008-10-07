@@ -20,12 +20,12 @@ class EmitSBCL {
   method prelude_oo () {
    '';
   }
-  method prelude ($n) {
+  method prelude {
   '#|
-#fasl=`dirname $0`/`basename $0 .lisp`.fasl
-#[ $fasl -ot $0 ] && sbcl --noinform --eval "(compile-file \"$0\")" --eval "(quit)"
-#exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
-exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
+fasl=`dirname $0`/`basename $0 .lisp`.fasl
+[ $fasl -ot $0 ] && sbcl --noinform --eval "(compile-file \"$0\")" --eval "(quit)"
+exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
+#exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 |#
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -256,8 +256,12 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 ;;
 (defun flatten-lists (args)
   (reduce #\'append
-          (mapcar (lambda (e) (if (and (listp e) (not (null e)))
-                                  e (list e)))
+          (mapcar (lambda (e)
+                    (if (and (listp e)
+                             ;;(not (null e)) ;#XXX disappears undef args!
+                             ;;# boxing undef is now important. :/
+                             )
+                        e (list e)))
                   args)))
 
 ;;
@@ -291,7 +295,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 (dm |M::WHAT| ((n number) &rest argl) (declare (ignorable n argl)) "num")
 
 (dm |M::Str| ((x null) &rest argl) (declare (ignorable x argl)) "")
-(dm |M::WHAT| ((x null) &rest argl) (declare (ignorable x argl)) "nil")
+(dm |M::WHAT| ((x null) &rest argl) (declare (ignorable x argl)) "Undef")
 (dm |M::substr| ((s string) from len) (subseq s from (+ from len)))
 
 
@@ -366,7 +370,8 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   (if (null args)
       \'nil
     (let ((sym (gensym)))
-      `(let ((,sym ,(car args))) (if (to-b ,sym) ,sym (or6 ,@(cdr args)))))))
+      `(let ((,sym ,(car args)))
+         (if (or ,(null (cdr args)) (to-b ,sym)) ,sym (or6 ,@(cdr args)))))))
 (defmacro and6 (&rest args)
   (cond ((null args) t)
         ((null (cdr args)) (car args))
@@ -379,7 +384,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
 ';
   }
 
-  method e($x) {
+  method e ($x) {
     my $ref = $x.WHAT;
     if $ref eq 'Undef' { $x }
     elsif $ref eq 'Str' || $ref eq 'Int' || $ref eq 'Num' { $x }
@@ -675,11 +680,11 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
         my $s = $n.capture.arguments[0];
         my $words = $s.split('\s+');
         my $self = self;
-        $e_capture = $words.map(sub($x){$self.qstr($x)}).join(" ");
+        $e_capture = $words.map(sub($x){$self.UP_qstr($x)}).join(" ");
       }
     }
     if $n.capture.contains_a_list {
-      '(ap '~$meth~' (cons '~$invocant~' (flatten-lists '~$e_capture~')))';
+      '(ap '~$meth~' (cons '~$invocant~' (flatten-lists (list '~$e_capture~'))))';
     }
     else {
       '(fc '~$meth~' '~$invocant~' '~$e_capture~')';
@@ -693,6 +698,9 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
   }
   method qstr ($str) {
      '"'~$str.re_gsub('\\\\','\\\\').re_gsub('"','\"')~'"'
+  }
+  method UP_qstr ($str) {
+     '(UP "'~$str.re_gsub('\\\\','\\\\').re_gsub('"','\"')~'")'
   }
 
   method cb__Apply ($n) {
@@ -762,7 +770,7 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
         my $s = $n.capture.arguments[0];
         my $words = $s.split('\s+');
         my $self = self;
-        return $.emit_array($words.map(sub($x){$self.qstr($x)}).join(" "));
+        return $.emit_array($words.map(sub($x){$self.UP_qstr($x)}).join(" "));
       }
     }
     elsif ($fun eq 'self') {
@@ -788,8 +796,8 @@ exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
     my $post = ')';
     if $n.capture.contains_a_list {
       $pre = '(ap ';
-      $mid = ' (flatten-lists ';
-      $post = '))';
+      $mid = ' (flatten-lists (list ';
+      $post = ')))';
     }
 
     if $fun.re_matchp('^\w') {

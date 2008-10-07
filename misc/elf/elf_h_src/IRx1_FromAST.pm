@@ -321,7 +321,7 @@ IRx1::Var.newp($m,irbuild_ir($m.hash{'sigil'}),$tw,irbuild_ir($m.hash{'desigilna
     my $construct_special_variable = sub ($m) {
       my $v = ($m.match_string);
 my $s = substr($v,0,1);
-my $n = substr($v,1,$v.length);
+my $n = substr($v,1,$v.chars);
 IRx1::Var.newp($m,$s,undef,$n);
     };
 
@@ -491,7 +491,7 @@ IRx1::SubDecl.newp($m,$scope,undef,$plurality,$ident,$sig,irbuild_ir($m.hash{'tr
       my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $multisig = irbuild_ir($m.hash{'multisig'});
 if not($multisig) { $multisig = [IRx1::Signature.newp($m,[],undef)]; }
-IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.hash{'ident'}),$multisig.[0],irbuild_ir($m.hash{'trait'}),irbuild_ir($m.hash{'block'}));
+IRx1::MethodDecl.newp($m,undef,undef,$plurality,irbuild_ir($m.hash{'ident'}),$multisig.[0],irbuild_ir($m.hash{'trait'}),irbuild_ir($m.hash{'block'}),undef,undef);
     };
 
     my $construct_signature = sub ($m) {

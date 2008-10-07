@@ -8,6 +8,10 @@ sub pi() is p5 {'Math::Trig::pi();'}
 }
 
 $*PID = (sub () is p5 {'$$'}).();
+$*OS = (sub () is p5 {'$^O'}).();
+$*OSVER = (sub () is p5 {'`/bin/uname -a`'}).();
+$*EXECUTABLE_NAME = (sub () is p5 {'$0'}).();
+sub not_used_only_once { [$*OS,$*OSVER,$*EXECUTABLE_NAME] }
 
 package GLOBAL { # sub *f(){} isn't working yet.
 

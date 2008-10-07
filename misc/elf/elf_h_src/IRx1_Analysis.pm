@@ -238,11 +238,16 @@ class IRx1::Base {
 class IRx1::Call {
   method provides_a_list { self.method eq "flatten" }
 }
+class IRx1::Apply {
+  method provides_a_list {
+    $.function eq 'infix:,' && $.capture.contains_a_list;
+  }
+}
 class IRx1::Capture {
   method contains_a_list {
-    my $found;
-    $.arguments.map(sub($e){
-      if ($e.isa('IRx1::Base') && $e.provides_a_list) { $found = 1 }});
-    $found;
+    for $.arguments {
+      if ($_.isa('IRx1::Base') && $_.provides_a_list) { return 1 }
+    }
+    undef;
   }
 }

@@ -132,7 +132,6 @@ no warnings qw(redefine prototype);
   sub lc       { CORE::lc($_[0]); }
   sub lcfirst  { CORE::lcfirst($_[0]); }
 
-  sub length   { CORE::length($_[0]); }
   sub bytes    { use bytes; CORE::length($_[0]); }
   sub chars    { CORE::length($_[0]); }
   sub codes    { my @c = unpack("U*",$_[0]); 0+@c }

@@ -103,7 +103,8 @@ package GLOBAL {
   multi unlink (*@filenames) { @filenames.map(sub($f){unlink_($f)}) }
   multi unlink_ ($filename) is cl {' (sb-unix:unix-unlink (S |$filename|)) '}
   multi not ($x) { if $x { undef } else { 1 } }
-  multi defined ($x) is cl {' (UP (if |$x| 1 nil)) '} #X undef as nil
+  multi defined ($x) is cl {' (UP (if |$x| 1 nil)) '} ;#X undef as nil
+  multi substr($s,$offset,$length) { $s.substr($offset,$length) }
 }
 
 # Elf
@@ -150,7 +151,40 @@ package GLOBAL {
   sub file_exists ($filename) is cl {'
     (UP (if (probe-file (S |$filename|)) t nil))
   '}
-  sub elf_main () { Program.new().main(@*ARGS); }
+  sub elf_main () {
+    Program.new().main(@*ARGS);
+    exit(0);
+  }
+  sub module_require ($module) {
+    my $file = find_required_module($module);
+    $file || die("Cant locate $module in ( "~@*INC.join(" ")~" ).\n");
+    eval_file($file);
+  };
+  sub find_required_module ($module) {
+    my $names = [$module, $module~".pm", $module~".p6"];
+    for @*INC { my $dir = $_;
+      for $names { my $name = $_;
+        my $file = $dir~"/"~$name;
+        if file_exists($file) {
+          return $file;
+        }
+      }
+    }
+    return undef;
+  }
+  sub import ($module,*@args) {
+    undef
+  }
+  sub eval_file ($file) {
+    $*compiler0.eval_file($file);
+  }
+  sub eval_perl6 ($code,$env) {
+    $*compiler0.eval_perl6($code,$env);
+  }
+  sub eval ($code,$env) {
+    eval_perl6($code,$env);
+  }
+
 }
 # regexp elf bootstrap primitives
 package Str {
@@ -226,6 +260,11 @@ class Str {
            (off (wrapped-index len (N |$offset|))))
       (UP (subseq s off (min len (+ off (N |$length|))))))
   '}
+  method chars () is cl {'
+    (let* ((s (slot-value self \'|Str::._native_|))
+           (len (length s)))
+      (UP len))
+  '}
 }
 
 class Array {
@@ -296,7 +335,7 @@ class Array {
            (len (length a))
            (from (wrapped-index len (N |$from|)))
            (to (wrapped-index len (N |$to|))))
-      (new-Array (subseq a from to)))
+      (new-Array (coerce (subseq a from to) \'list)))
   '}
   method reverse () is cl {'
     (let* ((a (slot-value self \'|Array::._native_|)))

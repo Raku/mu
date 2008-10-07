@@ -99,7 +99,6 @@ no warnings qw(redefine prototype);
   sub lc       { CORE::lc($_[0]); }
   sub lcfirst  { CORE::lcfirst($_[0]); }
 
-  sub length   { CORE::length($_[0]); }
   sub bytes    { use bytes; CORE::length($_[0]); }
   sub chars    { CORE::length($_[0]); }
   sub codes    { my @c = unpack("U*",$_[0]); 0+@c }
@@ -2203,7 +2202,7 @@ my $construct_twigil = sub {my($m)=@_;
 my $construct_special_variable = sub {my($m)=@_;
 (do{my $v = ($m->match_string());
 my $s = GLOBAL::substr($v, 0, 1);
-my $n = GLOBAL::substr($v, 1, $v->length());
+my $n = GLOBAL::substr($v, 1, $v->chars());
 IRx1::Var->newp($m, $s, GLOBAL::undef(), $n)})};
 my $construct_circumfix = sub {my($m)=@_;
 (do{my $s = ($m->match_string());
@@ -2335,7 +2334,7 @@ my $multisig = irbuild_ir($m->hash()->{"multisig"});
 if(GLOBAL::not($multisig)) {
 (do{($multisig = [IRx1::Signature->newp($m, [], GLOBAL::undef())])})
 };
-IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->hash()->{"ident"}), $multisig->[0], irbuild_ir($m->hash()->{"trait"}), irbuild_ir($m->hash()->{"block"}))})};
+IRx1::MethodDecl->newp($m, GLOBAL::undef(), GLOBAL::undef(), $plurality, irbuild_ir($m->hash()->{"ident"}), $multisig->[0], irbuild_ir($m->hash()->{"trait"}), irbuild_ir($m->hash()->{"block"}), GLOBAL::undef(), GLOBAL::undef())})};
 my $construct_signature = sub {my($m)=@_;
 (do{IRx1::Signature->newp($m, irbuild_ir($m->hash()->{"parsep"}), GLOBAL::undef())})};
 my $construct_parameter = sub {my($m)=@_;
@@ -2903,13 +2902,18 @@ use base "Any";(do{sub provides_a_list{my $self=CORE::shift;(do{($self->method()
 }
 ;
 
+{ package IRx1::Apply;
+use base "Any";(do{sub provides_a_list{my $self=CORE::shift;(do{(($self->function eq "infix\:\,") && $self->capture->contains_a_list())})}})
+}
+;
+
 { package IRx1::Capture;
-use base "Any";(do{sub contains_a_list{my $self=CORE::shift;(do{my $found;
-$self->arguments->map(sub {my($e)=@_;
-(do{if((($e->isa("IRx1\:\:Base") && $e->provides_a_list()))) {
-(do{($found = 1)})
-}})});
-$found})}})
+use base "Any";(do{sub contains_a_list{my $self=CORE::shift;(do{for(($self->arguments)->flatten){
+(do{if((($_->isa("IRx1\:\:Base") && $_->provides_a_list()))) {
+(do{return(1)})
+}})
+};
+GLOBAL::undef()})}})
 }
 ;
 
@@ -3036,7 +3040,6 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \ \ sub\ lc\ \ \ \ \ \ \ \{\ CORE\:\:lc\(\$_\[0\]\)\;\ \}\
 \ \ sub\ lcfirst\ \ \{\ CORE\:\:lcfirst\(\$_\[0\]\)\;\ \}\
 \
-\ \ sub\ length\ \ \ \{\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
 \ \ sub\ bytes\ \ \ \ \{\ use\ bytes\;\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
 \ \ sub\ chars\ \ \ \ \{\ CORE\:\:length\(\$_\[0\]\)\;\ \}\
 \ \ sub\ codes\ \ \ \ \{\ my\ \@c\ \=\ unpack\(\"U\*\"\,\$_\[0\]\)\;\ 0\+\@c\ \}\
@@ -3913,6 +3916,10 @@ use base "Any";(do{sub pi{Math::Trig::pi();}})
 }
 ;
 ($GLOBAL::PID = (sub {$$})->());
+($GLOBAL::OS = (sub {$^O})->());
+($GLOBAL::OSVER = (sub {`/bin/uname -a`})->());
+($GLOBAL::EXECUTABLE_NAME = (sub {$0})->());
+sub not_used_only_once{(do{[$GLOBAL::OS, $GLOBAL::OSVER, $GLOBAL::EXECUTABLE_NAME]})};
 
 { package GLOBAL;
 use base "Any";(do{sub primitive_runtime_version{CORE::sprintf "perl %vd", $^V}})

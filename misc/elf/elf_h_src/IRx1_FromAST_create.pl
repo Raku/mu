@@ -236,7 +236,7 @@ twigil
 special_variable
 my $v = *text*;
 my $s = substr($v,0,1);
-my $n = substr($v,1,$v.length);
+my $n = substr($v,1,$v.chars);
 Var.newp($s,undef,$n)
 
 circumfix
@@ -371,7 +371,7 @@ routine_declarator:method_def
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $multisig = $m<multisig>;
 if not($multisig) { $multisig = [Signature.newp([],undef)]; }
-MethodDecl.newp(undef,undef,$plurality,$m<ident>,$multisig.[0],$m<trait>,$m<block>)
+MethodDecl.newp(undef,undef,$plurality,$m<ident>,$multisig.[0],$m<trait>,$m<block>,undef,undef)
 
 signature
 Signature.newp($m<parsep>,undef)
