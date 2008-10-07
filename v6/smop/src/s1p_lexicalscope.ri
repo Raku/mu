@@ -1,0 +1,102 @@
+%prefix smop_s1p_lexicalscope
+%prototype SMOP__S1P__LexicalScope
+%RI.id lexical scope
+%attr SMOP__Object* entries
+%attr SMOP__Object* outer
+%getter entries
+%getter outer
+%method new
+  ret = smop_lowlevel_alloc(sizeof(smop_s1p_lexicalscope_struct));
+  SMOP_REFERENCE(interpreter,RI);
+  ret->RI = (SMOP__ResponderInterface*)RI;
+  ((smop_s1p_lexicalscope_struct*)ret)->entries = SMOP__S1P__Hash_create();
+  ((smop_s1p_lexicalscope_struct*)ret)->outer = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+
+%method outer
+  smop_lowlevel_rdlock(invocant);
+  ret = ((smop_s1p_lexicalscope_struct*)invocant)->outer;
+  smop_lowlevel_unlock(invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method bool
+  ret = SMOP__NATIVE__bool_true;
+
+%method entries
+  smop_lowlevel_rdlock(invocant);
+  ret = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+  smop_lowlevel_unlock(invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method postcircumfix:{ }
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+  smop_lowlevel_unlock(invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__postcircumfix_curly,
+                      SMOP__NATIVE__capture_delegate(interpreter,
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     SMOP_REFERENCE(interpreter,capture)));
+
+%method exists
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+  smop_lowlevel_unlock(invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__exists,
+                      SMOP__NATIVE__capture_delegate(interpreter,
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     SMOP_REFERENCE(interpreter,capture)));
+
+%mold mold_code_lookup
+    my $capture;
+    my $back;
+    my $interpreter;
+
+    my $name = $capture."positional"(0);
+    my $invocant = $capture."invocant"();
+    my $exists = $invocant."exists"($name);
+    
+    my $void;
+    my $ret;
+    
+    if $exists {goto than} else {goto else};
+    than:
+      $ret = $invocant."postcircumfix:{ }"($name);
+      $void = $back."setr"($ret);
+      $void = $interpreter."goto"($back);
+    else:
+      my $outer = $invocant."outer"();
+      my $outer_true = $outer."bool"();
+      my $outer_cell = $outer."FETCH"();
+      if $outer_true {goto than2} else {goto else2};
+      than2:
+        $ret = $outer_cell."lookup"($name);
+        $void = $back."setr"($ret);
+        $void = $interpreter."goto"($back);
+      else2:
+        my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+        my $OUT = $OUT_SCALAR."FETCH"();
+        $void = $OUT."print"("no variable ",$name," in the current scope\n");
+
+%method lookup
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_code_lookup));
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+  mold_reg_set(interpreter,frame,1,continuation);
+  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+              SMOP__ID__goto,
+              frame);
+%method DESTROYALL
+    smop_lowlevel_wrlock(invocant);
+    SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+    SMOP__Object* outer = ((smop_s1p_lexicalscope_struct*)invocant)->outer;
+    smop_lowlevel_unlock(invocant);
+    SMOP_RELEASE(interpreter,entries);
+    SMOP_RELEASE(interpreter,outer);
+    SMOP_RELEASE(interpreter,RI);

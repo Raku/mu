@@ -53,7 +53,7 @@ static SMOP__Object* ri_release(SMOP__Object* interpreter, SMOP__ResponderInterf
 
 
 void smop_ri_init() {
-  SMOP__RI = calloc(1,sizeof(SMOP__ResponderInterface));
+  SMOP__RI = malloc(sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__RI)->MESSAGE = message;
   ((SMOP__ResponderInterface*)SMOP__RI)->REFERENCE = ri_reference;//smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__RI)->RELEASE = ri_release;//smop_lowlevel_generic_release;
@@ -62,7 +62,7 @@ void smop_ri_init() {
 }
 
 void smop_ri_destr() {
-  free(SMOP__RI);
+  //free(SMOP__RI);
 }
 
 SMOP__Object* SMOP__RI__create(
@@ -87,4 +87,3 @@ SMOP__Object* SMOP__RI__create(
     ri->id = id;
     return ret;
 }
-

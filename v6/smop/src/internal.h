@@ -33,10 +33,11 @@
      smop_native_int_destr();            \
      smop_native_bool_destr();           \
      smop_native_capture_destr();        \
+     smop_ri_destr();                    \
+     smop_proto_destr();                 \
      smop_interpreter_destr();           \
      smop_lowlevel_destr();              \
-     smop_ri_destr();                    \
-     smop_idconst_destr();
+     smop_idconst_destr();              
 
 /*
  * This is the initialization sequence for other built-in types that
@@ -57,7 +58,6 @@
      smop_s1p_hash_init();                  \
      smop_s1p_io_init();                    \
      smop_s1p_attribute_init();             \
-     smop_s1p_lexicalscope_init();          \
      smop_s1p_capturize_init();             \
      smop_s1p_defaultblocksignature_init(); \
      smop_s1p_bindcapturesignature_init();  \
@@ -77,7 +77,6 @@
      smop_s1p_bindcapturesignature_destr(); \
      smop_s1p_defaultblocksignature_destr();\
      smop_s1p_capturize_destr();            \
-     smop_s1p_lexicalscope_destr();         \
      smop_s1p_attribute_destr();            \
      smop_s1p_io_destr();                   \
      smop_s1p_hash_destr();                 \
@@ -92,8 +91,9 @@
      smop_mold_destr();                    
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
+     smop_proto_init();                  \
      smop_s1p_root_namespace_init();        \
-     smop_s1p_lexicalscope_mold_init();     \
+     smop_s1p_lexicalscope_init();     \
      smop_s1p_defaultblocksignature_mold_init(); \
      smop_s1p_bindcapturesignature_mold_init();  \
      smop_s1p_code_mold_init();             \
@@ -110,7 +110,7 @@
      smop_s1p_code_mold_destr();            \
      smop_s1p_bindcapturesignature_mold_destr(); \
      smop_s1p_defaultblocksignature_mold_destr();\
-     smop_s1p_lexicalscope_mold_destr();    \
+     smop_s1p_lexicalscope_destr();    \
      smop_s1p_root_namespace_destr();       \
 
 void smop_idconst_init();
@@ -147,8 +147,6 @@ void smop_s1p_ccode_init();
 void smop_s1p_ccode_destr();
 void smop_s1p_lexicalscope_init();
 void smop_s1p_lexicalscope_destr();
-void smop_s1p_lexicalscope_mold_init();
-void smop_s1p_lexicalscope_mold_destr();
 void smop_s1p_defaultblocksignature_init();
 void smop_s1p_defaultblocksignature_destr();
 void smop_s1p_defaultblocksignature_mold_init();

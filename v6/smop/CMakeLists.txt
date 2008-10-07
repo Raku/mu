@@ -54,6 +54,7 @@ macro (compile_ri dsl_file)
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
         COMMAND perl ARGS ${smop_SOURCE_DIR}/tools/dsl ri ${smop_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR}/m0ld_exe ${smop_SOURCE_DIR}/${dsl_file} ${CMAKE_CURRENT_BINARY_DIR}/${c_file}
         DEPENDS ${smop_SOURCE_DIR}/${dsl_file}
+        DEPENDS ${smop_SOURCE_DIR}/tools/ri
     )
 endmacro(compile_ri)
 
@@ -87,7 +88,6 @@ endmacro(compile_perl6_pugs)
 
 foreach (sm0p_file
     src/lowlevel.sm0p
-    src/s1p_lexicalscope.sm0p
     src/s1p_defaultblocksignature.sm0p
     src/s1p_bindcapturesignature.sm0p
     src/s1p_pureprototypehow.sm0p
@@ -103,6 +103,8 @@ endforeach()
 
 foreach (ri_file
     src/s1p_io.ri
+    src/s1p_lexicalscope.ri
+    src/proto.ri
 )
 compile_ri (${ri_file})
 endforeach()
@@ -146,6 +148,7 @@ add_library (smop
     src/slime_frame.c
     src/slime_node.c
     src/ri.c
+    src/proto.c
 #    src_s1p_itemcontext.c
 #    src_s1p_itemrwcontext.c
 )

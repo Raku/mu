@@ -1,0 +1,34 @@
+%prefix smop_proto
+%RI.id proto
+%attr SMOP__Object* delegate_to_RI
+%message {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+  smop_proto_struct* invocant = (smop_proto_struct*) SMOP__NATIVE__capture_invocant(interpreter, capture);
+  
+  if (identifier == SMOP__ID__new) {
+    int identifier_size;
+    char* s = SMOP__NATIVE__idconst_fetch(identifier,&identifier_size);
+    SMOP__Object* new_capture = SMOP__NATIVE__capture_delegate(interpreter,SMOP__NATIVE__bool_false,SMOP_REFERENCE(interpreter,capture));
+    ret = SMOP_DISPATCH(interpreter,invocant->delegate_to_RI,identifier,new_capture);
+  } else if (identifier == SMOP__ID__DESTROYALL) {
+    SMOP_RELEASE(interpreter,invocant->delegate_to_RI);
+    SMOP_RELEASE(interpreter,RI);
+  } else {
+    ___UNKNOWN_METHOD___;
+  }
+
+  SMOP_RELEASE(interpreter,invocant);
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
+%}
+%bottom {
+SMOP__Object* SMOP__Proto__create(SMOP__Object* interpreter,SMOP__Object* delegate_to_RI) {
+ SMOP_REFERENCE(interpreter,RI);
+ SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_proto_struct));
+ ((smop_proto_struct*)ret)->delegate_to_RI = delegate_to_RI;
+ ret->RI = RI;
+ return ret;
+}
+%}

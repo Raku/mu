@@ -11,7 +11,7 @@ if ($dsl eq 'm0ld') {
 } elsif ($dsl eq 'p6') {
     system("perl $elfX -C m0ld -s $in > $out");
 } elsif ($dsl eq 'ri') {
-    system("perl $base/tools/ri $in > $out");
+    system("perl -I$base/../../src/perl6 $base/tools/ri $base $m0ld $in > $out");
 } elsif ($dsl eq 'p6-pugs') {
     system("$base/../../pugs -Cm0ld $in > $out");
 } else {
