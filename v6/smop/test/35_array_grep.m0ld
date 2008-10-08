@@ -86,10 +86,12 @@ my $map_code = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
 my $iterator = $array."Iterator"();
 my $iteritem = $iterator."FETCH"();
 
-my $grepiterator = ¢SMOP__S1P__grep."postcircumfix:( )"($grep_code, $iteritem);
+my $capture = ¢SMOP__S1P__Capturize."capturize"($grep_code, $iteritem);
+my $grepiterator = ¢SMOP__S1P__grep."postcircumfix:( )"($capture);
 my $grepitem = $grepiterator."FETCH"();
 
-my $mapiterator = ¢SMOP__S1P__map."postcircumfix:( )"($map_code, $grepitem);
+$capture = ¢SMOP__S1P__Capturize."capturize"($map_code, $grepitem);
+my $mapiterator = ¢SMOP__S1P__map."postcircumfix:( )"($capture);
 
 $void = $out."print"("ok 1 - map and grep are lazy\n");
 

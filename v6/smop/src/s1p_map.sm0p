@@ -29,8 +29,10 @@ static SMOP__Object* smop_s1p_map_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__postcircumfix_parens) {
     ret = smop_lowlevel_alloc(sizeof(smop_s1p_map_iterator_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__map;
-    ((smop_s1p_map_iterator_struct*)ret)->code = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-    ((smop_s1p_map_iterator_struct*)ret)->input_iterator = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    ((smop_s1p_map_iterator_struct*)ret)->code = SMOP__NATIVE__capture_positional(interpreter,actualcapture,0);
+    ((smop_s1p_map_iterator_struct*)ret)->input_iterator = SMOP__NATIVE__capture_positional(interpreter,actualcapture,1);
+    SMOP_RELEASE(interpreter,actualcapture);
 
   } else if (identifier == SMOP__ID__Void) {
     // map in void context should evaluate eagerly.
@@ -119,7 +121,8 @@ void smop_s1p_map_mold_init() {
 
     iteration:
     my $item = $next_item."FETCH"();
-    my $result = $code."postcircumfix:( )"($item);
+    my $capture = ¢SMOP__S1P__Capturize."capturize"($item);
+    my $result = $code."postcircumfix:( )"($capture);
     my $void = $back."setr"($result);
     $void = $interpreter."goto"($back);
 

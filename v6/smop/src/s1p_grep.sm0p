@@ -29,8 +29,10 @@ static SMOP__Object* smop_s1p_grep_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__postcircumfix_parens) {
     ret = smop_lowlevel_alloc(sizeof(smop_s1p_grep_iterator_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__grep;
-    ((smop_s1p_grep_iterator_struct*)ret)->code = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-    ((smop_s1p_grep_iterator_struct*)ret)->input_iterator = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    ((smop_s1p_grep_iterator_struct*)ret)->code = SMOP__NATIVE__capture_positional(interpreter,actualcapture,0);
+    ((smop_s1p_grep_iterator_struct*)ret)->input_iterator = SMOP__NATIVE__capture_positional(interpreter,actualcapture,1);
+    SMOP_RELEASE(interpreter,actualcapture);
 
   } else if (identifier == SMOP__ID__FETCH) {
     // grep is always itemized, there's no slice view on a grep.
@@ -124,7 +126,8 @@ void smop_s1p_grep_mold_init() {
     
     iteration:
     my $item = $next_item."FETCH"();
-    my $result = $code."postcircumfix:( )"($item);
+    my $capture = ¢SMOP__S1P__Capturize."capturize"($item);
+    my $result = $code."postcircumfix:( )"($capture);
     my $bool = $result."bool"();
     if $bool { goto in } else { goto fetch_item };
     

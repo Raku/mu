@@ -22,6 +22,7 @@ static SMOP__Object* ccode (SMOP__Object* interpreter,
   }
   SMOP_RELEASE(interpreter, val);
   SMOP_RELEASE(interpreter, ri);
+  SMOP_RELEASE(interpreter, capture);
   return ret;
 }
 
