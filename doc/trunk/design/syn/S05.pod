@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 6 Oct 2008
+   Last Modified: 8 Oct 2008
    Number: 5
-   Version: 84
+   Version: 85
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -719,11 +719,11 @@ By default the error message uses the name of the current rule as an
 indicator of the abstract goal of the parser at that point.  However,
 often this is not terribly informative, especially when rules are named
 according to an internal scheme that will not make sense to the user.
-The C<:dba> ("doing business as") adverb may be used to set up a more informative name for
+The C<:dba("doing business as")> adverb may be used to set up a more informative name for
 what the following code is trying to  parse:
 
     token postfix:sym<[ ]> {
-	:dba<array subscript>
+	:dba('array subscript')
 	'[' ~ ']' <expression>
     }
 

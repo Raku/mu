@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 2 Nov 2004
-  Last Modified: 21 Sep 2007
+  Last Modified: 8 Oct 2007
   Number: 13
-  Version: 10
+  Version: 11
 
 =head1 Overview
 
@@ -158,13 +158,13 @@ is better written:
 A class may define methods that allow it to respond as if it were a
 routine, array, or hash.  The long forms are as follows:
 
-    method postcircumfix:<( )> (|$capture) {...}
+    method postcircumfix:<( )> ($capture) {...}
     method postcircumfix:<[ ]> (*@@slice) {...}
     method postcircumfix:<{ }> (*@@slice) {...}
 
 Those are a bit unwieldy, so you may also use these short forms:
 
-    method &.( |$capture ) {...}
+    method &.( $capture ) {...}
     method @.[ *@@slice ] {...}
     method %.{ *@@slice } {...}
 

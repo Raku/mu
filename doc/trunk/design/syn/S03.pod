@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 5 Oct 2008
+  Last Modified: 8 Oct 2008
   Number: 3
-  Version: 141
+  Version: 142
 
 =head1 Overview
 
@@ -1589,11 +1589,13 @@ See L</Cross operators>.
 C<< infix:<...> >>, the series operator.
 
 This operator takes a concrete list on its left and a function to be
-iterated on its right when the list must be extended.
+iterated on its right when the list must be extended.  Each time the
+function must be called, it extends the list with the values
+returned by the function (if any).
 
 The value of the operator is the lazy list formed of the
 concrete list followed by the result of applying the function to the
-tail of the list as needed.  The function indicates by its arity
+tail of the list as needed.  The function indicates by its signature
 how many of the preceding values to pay attention to (and which the
 operator must track internally).  Demonstration of this falls to the
 lot of the venerable Fibonacci sequence:
@@ -1616,6 +1618,15 @@ The function can be 0-ary as well:
 
     () ... &rand		# list of random numbers
 
+The function may also be slurpy (*-ary), in which case all the
+preceding values are passed in (which means they must all be cached
+by the operator, so performance may suffer).
+
+The arity of the function need not match the number of return values, but
+if they do match you may interleave unrelated sequences:
+
+    1,1 ... { $^a + 1, $^b * 2 }   # 1,1,2,2,3,4,4,8,5,16,6,32...
+
 If the right operand is C<*> (Whatever) and the sequence is obviously
 arithmetic or geometric, the appropriate function is deduced:
 
@@ -1623,7 +1634,7 @@ arithmetic or geometric, the appropriate function is deduced:
     1, 2, 4 ... *		# powers of 2
 
 Conjecture: other such patterns may be recognized in the future,
-depending on which unrealistic benchmark we want to run faster.  C<:)>
+depending on which unrealistic benchmarks we want to run faster.  C<:)>
 
 Note: the yada operator is recognized only where a term is expected.
 This operator may only be used where an infix is expected.  If you
@@ -1652,6 +1663,10 @@ produces
     1,2,3,4,5,6,7,8,9,
     10,20,30,40,50,60,70,80,90,
     100,200,300,400,500,600,700,800,900
+
+In slice context the function's return value is appended as a capture
+rather than as a flattened list of values, and the argument to each
+function call is the previous capture in the list.
 
 =back
 
