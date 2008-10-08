@@ -1,0 +1,33 @@
+my $interpreter;
+my $scope;
+my $void;
+
+$void = $out."print"("1..3\n");
+
+my $test = ¢SMOP__S1P__ritest."check"(1, ¢SMOP__NATIVE__int);
+my $bool = $test."bool"();
+
+if $bool { goto isint } else { goto notint };
+
+isint:
+$void = $out."print"("ok 1 - check for int\n");
+goto nexttest;
+
+notint:
+$void = $out."print"("not ok 1 - check for int\n");
+
+nexttest:
+$test = ¢SMOP__S1P__ritest."check"("test", ¢SMOP__NATIVE__int);
+$bool = $test."bool"();
+
+if $bool { goto isint2 } else { goto notint2 };
+
+isint2:
+$void = $out."print"("not ok 2 - check for int\n");
+goto nexttest2;
+
+notint2:
+$void = $out."print"("ok 2 - check for int\n");
+
+nexttest2:
+$void = $out."print"("ok 3 - that's all folks\n");
