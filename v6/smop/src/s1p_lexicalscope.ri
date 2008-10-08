@@ -92,6 +92,7 @@
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,
               frame);
+
 %method DESTROYALL
     smop_lowlevel_wrlock(invocant);
     SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;

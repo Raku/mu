@@ -104,6 +104,7 @@ endforeach()
 foreach (ri_file
     src/s1p_io.ri
     src/s1p_lexicalscope.ri
+    src/s1p_adhocsignature.ri
     src/proto.ri
 )
 compile_ri (${ri_file})
