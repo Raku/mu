@@ -145,6 +145,7 @@ add_library (smop
     src/s1p_root_namespace.c
     src/s1p_scalar.c
     src/s1p_str.c
+    src/s1p_ritest.c
     src/slime_capturize.c
     src/slime_currentframe.c
     src/slime_frame.c
@@ -195,6 +196,7 @@ foreach (test_file
     test/34_array_unshift.m0ld
     test/35_array_grep.m0ld
     test/36_adhoc_signature.m0ld
+    test/38_ritest.m0ld
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")

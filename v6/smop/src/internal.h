@@ -102,8 +102,10 @@
      smop_s1p_map_mold_init();              \
      smop_s1p_grep_mold_init();             \
      smop_s1p_array_iterator_mold_init();   \
+     smop_s1p_ritest_init();                \
 
 #define SMOP_BOOTSTRAP_DESTR_SEQUENCE       \
+     smop_s1p_ritest_destr();              \
      smop_s1p_array_iterator_mold_destr();  \
      smop_s1p_grep_mold_destr();            \
      smop_s1p_map_mold_destr();             \
@@ -173,5 +175,7 @@ void smop_s1p_emptylist_init();
 void smop_s1p_emptylist_destr();
 void smop_s1p_endofiterator_init();
 void smop_s1p_endofiterator_destr();
+void smop_s1p_ritest_init();
+void smop_s1p_ritest_destr();
 
 #endif

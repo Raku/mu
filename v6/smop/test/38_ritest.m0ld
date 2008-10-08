@@ -2,6 +2,9 @@ my $interpreter;
 my $scope;
 my $void;
 
+my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $out = $out_scalar."FETCH"();
+
 $void = $out."print"("1..3\n");
 
 my $test = ¢SMOP__S1P__ritest."postcircumfix:( )"(1, ¢SMOP__NATIVE__int);
@@ -17,7 +20,7 @@ notint:
 $void = $out."print"("not ok 1 - check for int\n");
 
 nexttest:
-$test = ¢SMOP__S1P__ritest."postcircumfix:( )("test", ¢SMOP__NATIVE__int);
+$test = ¢SMOP__S1P__ritest."postcircumfix:( )"("test", ¢SMOP__NATIVE__int);
 $bool = $test."bool"();
 
 if $bool { goto isint2 } else { goto notint2 };

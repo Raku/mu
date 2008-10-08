@@ -45,7 +45,7 @@ static SMOP__Object* lowlevel_ccode_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
 
     ret = func(interpreter,invocant,actualcap);
-
+    
     SMOP_RELEASE(interpreter,capture);
     SMOP_RELEASE(interpreter,invocant);
 
