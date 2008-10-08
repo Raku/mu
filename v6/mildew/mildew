@@ -4,6 +4,7 @@ use lib '../../src/perl6';
 use lib 'src';
 use STD;
 use AST;
+use AST::Helpers;
 use DumpMatch;
 use utf8;
 use YAML::XS;
@@ -31,10 +32,10 @@ GetOptions("file=s"=>\$file,"debug"=>\$debug);
 sub XXX {
     confess 'unimplemented'
 }
-sub integer {
+sub integer_ {
     my $m = shift;
     #XXX non-base 10
-    AST::IntegerConstant->new(value=>$m->text);
+    integer $m->text;
 }
 sub scope_declarator {
     my $m = shift;
@@ -42,16 +43,16 @@ sub scope_declarator {
         if (my $decl = $m->{scoped}{declarator}) {
             if (my $var_decl = $decl->{variable_declarator}) {
                 AST::Call->new(
-                    identifier => AST::StringConstant->new(value=>'STORE'),
+                    identifier => string 'STORE',
                     capture => AST::Capture->new(
                         invocant => AST::Call->new(
-                            identifier => AST::StringConstant->new(value=>'postcircumfix:{ }'),
-                            capture => AST::Capture->new(invocant=>AST::Reg->new(name=>'scope'),positional=>[AST::StringConstant->new(value=>$m->text)],named=>[])
+                            identifier => string 'postcircumfix:{ }',
+                            capture => AST::Capture->new(invocant=>reg 'scope',positional=>[string $m->text],named=>[])
                         ),
                         positional => [
                             AST::Call->new(
-                                identifier => AST::StringConstant->new(value=>'new'),
-                                invocant => AST::Reg->new(name=>'$Scalar'),
+                                identifier => string 'new',
+                                invocant => reg '$Scalar',
                             )
                         ]
                     ),
@@ -86,10 +87,10 @@ sub term {
     my $m = shift;
     if ($m->{identifier} && $m->{args}) {
         my $func = AST::Call->new(
-            identifier=>AST::StringConstant->new(value=>'lookup'),
-            capture=>AST::Capture->new(invocant=>AST::Reg->new(name=>'scope'),positional=>[AST::StringConstant->new(value=>'&'.$m->{identifier}->text)],named=>[]),
+            identifier=>string 'lookup',
+            capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string '&'.$m->{identifier}->text],named=>[]),
         );
-        AST::Call->new(identifier=>AST::StringConstant->new(value=>'postcircumfix:( )'),capture=>AST::Capture->new(invocant=>$func,positional=>args($m->{args})));
+        AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(invocant=>$func,positional=>args($m->{args})));
     }
 }
 sub args {
@@ -98,13 +99,13 @@ sub args {
 }
 sub routine_def {
     my $m = shift;
-    AST::Call->new(identifier=>AST::StringConstant->new(value => 'new'),
+    AST::Call->new(identifier=>string 'new',
         capture => AST::Capture->new(
-            invocant => AST::Reg->new(name=>'Code'),
+            invocant => reg 'Code',
             positional => [],
             named => [
-                AST::StringConstant->new(value=>'mold') => block($m->{block}),
-                AST::StringConstant->new(value=>'outer') => AST::Reg->new(name=>'$scope')
+                string 'mold' => block($m->{block}),
+                string 'outer' => reg '$scope'
             ]
         ),
     );
@@ -129,12 +130,12 @@ sub quote {
     my $m = shift;
     #XXX
     my $text = $m->{nibble}->text;
-    AST::StringConstant->new(value=>$text);
+    string $text;
 }
 sub number {
     my $m = shift;
     if ($m->{integer}) {
-        integer($m->{integer});
+        integer_($m->{integer});
     } else {
         XXX;
     }
@@ -142,8 +143,8 @@ sub number {
 sub variable {
     my $m = shift;
     AST::Call->new(
-        identifier=>AST::StringConstant->new(value=>'lookup'),
-        capture=>AST::Capture->new(invocant=>AST::Reg->new(name=>'scope'),positional=>[AST::StringConstant->new(value=>$m->text)],named=>[]),
+        identifier=>string 'lookup',
+        capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string $m->text],named=>[]),
     );
 }
 sub dottyop {
@@ -165,14 +166,14 @@ sub dotty {
 }
 sub FETCH {
     my $arg = shift;
-    AST::Call->new(capture=>AST::Capture->new(invocant=>$arg),identifier=>AST::StringConstant->new(value=>'FETCH'));
+    AST::Call->new(capture=>AST::Capture->new(invocant=>$arg),identifier=>string 'FETCH');
 }
 sub methodop {
     my ($noun,$m) = @_;
     if ($m->{longname}) {
         my $pos0 = $m->{in}[0]{semilist}{statement}[0];
         AST::Call->new(
-            identifier=>AST::StringConstant->new(value=>$m->{longname}->text),
+            identifier=>string $m->{longname}->text,
             capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[FETCH(EXPR($pos0->{EXPR}))],named=>[]),
         
         );
