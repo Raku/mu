@@ -16,46 +16,50 @@
     smop_lowlevel_rdlock(invocant);
     SMOP__Object* mold = ((smop_s1p_adhocsignature_struct*)invocant)->bind_mold;
     smop_lowlevel_unlock(invocant);
-
-    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                                               SMOP__ID__continuation,
-                                               SMOP__NATIVE__capture_create(interpreter,
-                                                                            SMOP_REFERENCE(interpreter,interpreter),
-                                                                            NULL,NULL));
-
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
-                                                   SMOP_REFERENCE(interpreter,mold));
-
-    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
-    mold_reg_set(interpreter,frame,1,continuation);
-    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
-
-    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                  SMOP__ID__goto,
-                  frame);
+    
+    if (mold) {
+        SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                                   SMOP__ID__continuation,
+                                                   SMOP__NATIVE__capture_create(interpreter,
+                                                                                SMOP_REFERENCE(interpreter,interpreter),
+                                                                                NULL,NULL));
+    
+        SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                       SMOP_REFERENCE(interpreter,mold));
+    
+        mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+        mold_reg_set(interpreter,frame,1,continuation);
+        mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+     
+        SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                      SMOP__ID__goto,
+                      frame);
+    }
 
 %method ACCEPTS
     smop_lowlevel_rdlock(invocant);
     SMOP__Object* mold = ((smop_s1p_adhocsignature_struct*)invocant)->accepts_mold;
     smop_lowlevel_unlock(invocant);
 
-    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                                               SMOP__ID__continuation,
-                                               SMOP__NATIVE__capture_create(interpreter,
-                                                                            SMOP_REFERENCE(interpreter,interpreter),
-                                                                            NULL,NULL));
-
-    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
-                                                   SMOP_REFERENCE(interpreter,mold));
-
-    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
-
-    mold_reg_set(interpreter,frame,1,continuation);
-    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
-
-    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                  SMOP__ID__goto,
-                  frame);
+    if (mold) {
+        SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                                   SMOP__ID__continuation,
+                                                   SMOP__NATIVE__capture_create(interpreter,
+                                                                                SMOP_REFERENCE(interpreter,interpreter),
+                                                                                NULL,NULL));
+    
+        SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                       SMOP_REFERENCE(interpreter,mold));
+    
+        mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+    
+        mold_reg_set(interpreter,frame,1,continuation);
+        mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+    
+        SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                      SMOP__ID__goto,
+                      frame);
+    }
 
 %method DESTROYALL
     smop_lowlevel_wrlock(invocant);

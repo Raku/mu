@@ -196,6 +196,7 @@ foreach (test_file
     test/34_array_unshift.m0ld
     test/35_array_grep.m0ld
     test/36_adhoc_signature.m0ld
+    test/37_multisub.m0ld
     test/38_ritest.m0ld
 )
     set(c_file)

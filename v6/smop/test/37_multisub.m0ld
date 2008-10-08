@@ -1,0 +1,118 @@
+my $interpreter;
+my $scope;
+my $void;
+my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $out = $out_scalar."FETCH"();
+$void = $out."print"("1..6\n");
+
+my $Code_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
+my $Code = $Code_scalar."FETCH"();
+my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"();
+
+my $signature1 = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
+    my $capture;
+    my $back;
+    my $interpreter;
+    my $void;
+    
+    my $p1 = $capture."positional"(0);
+    my $p2 = $capture."positional"(2);
+    
+    my $cap = ¢SMOP__S1P__Capturize."capturize"($p1, ¢SMOP__NATIVE__int);
+    my $cmp = ¢SMOP__S1P__ritest."postcircumfix:( )"($cap);
+    my $bool = $cmp."bool"();
+    
+    if $bool { goto nexttest } else { goto false };
+    nexttest:
+    $cap = ¢SMOP__S1P__Capturize."capturize"($p2, ¢SMOP__NATIVE__int);
+    $cmp = ¢SMOP__S1P__ritest."postcircumfix:( )"($cap);
+    $bool = $cmp."bool"();
+    
+    if $bool { goto true } else { goto false };
+    true:
+    $void = $back."setr"(¢SMOP__NATIVE__bool_true);
+    $void = $interpreter."goto"($back);
+        
+    false:
+    $void = $back."setr"(¢SMOP__NATIVE__bool_false);
+    $void = $interpreter."goto"($back);
+    
+}));
+
+my $code1 = $Code."new"(:"outer"($lexicalscope),:"signature"($signature1),:"mold"(mold {
+    my $interpreter;
+    my $lexical;
+
+    my $void;
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+    $void = $out."print"("ok 4 - first variant called!\n");
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    $void = $interpreter."goto"($back);
+}));
+
+my $signature2 = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
+    my $capture;
+    my $back;
+    my $interpreter;
+    my $void;
+    
+    my $p1 = $capture."positional"(0);
+    my $p2 = $capture."positional"(2);
+    
+    my $cap = ¢SMOP__S1P__Capturize."capturize"($p1, ¢SMOP__NATIVE__bool);
+    my $cmp = ¢SMOP__S1P__ritest."postcircumfix:( )"($cap);
+    my $bool = $cmp."bool"();
+    
+    if $bool { goto nexttest } else { goto false };
+    nexttest:
+    $cap = ¢SMOP__S1P__Capturize."capturize"($p2, ¢SMOP__NATIVE__bool);
+    $cmp = ¢SMOP__S1P__ritest."postcircumfix:( )"($cap);
+    $bool = $cmp."bool"();
+    
+    if $bool { goto true } else { goto false };
+    true:
+    $void = $back."setr"(¢SMOP__NATIVE__bool_true);
+    $void = $interpreter."goto"($back);
+        
+    false:
+    $void = $back."setr"(¢SMOP__NATIVE__bool_false);
+    $void = $interpreter."goto"($back);
+    
+}));
+
+my $code2 = $Code."new"(:"outer"($lexicalscope),:"signature"($signature2),:"mold"(mold {
+    my $interpreter;
+    my $lexical;
+
+    my $void;
+    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out = $out_scalar."FETCH"();
+    $void = $out."print"("ok 5 - second variant called!\n");
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    $void = $interpreter."goto"($back);
+}));
+
+$void = $out."print"("ok 1 - initialized\n");
+
+my $Multi_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Multi");
+my $Multi = $Multi_scalar."FETCH"();
+my $m = $Multi."new"();
+
+$void = $out."print"("ok 2 - multi created\n");
+
+$void = $m."push"($code1);
+$void = $m."push"($code2);
+
+$void = $out."print"("ok 3 - variants added\n");
+
+my $cap = ¢SMOP__S1P__Capturize."capturize"(1, 1);
+$void = $m."postcircumfix:( )"($cap);
+$cap = ¢SMOP__S1P__Capturize."capturize"(¢SMOP__NATIVE__bool_true, ¢SMOP__NATIVE__bool_true);
+$void = $m."postcircumfix:( )"($cap);
+
+$void = $out."print"("ok 6 - that's all\n");
