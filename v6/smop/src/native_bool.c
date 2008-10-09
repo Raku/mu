@@ -21,12 +21,16 @@ static SMOP__Object* bool_message(SMOP__Object* interpreter,
 
     SMOP_RELEASE(interpreter,capture);
     return invocant;
-  } else if (identifier = SMOP__ID__defined) {
+
+  } else if (identifier == SMOP__ID__defined) {
     SMOP_RELEASE(interpreter,capture);
     return SMOP__NATIVE__bool_true;
+
   } else {
     ___UNKNOWN_METHOD___;
+
   }
+
   SMOP_RELEASE(interpreter,capture);
   return SMOP__NATIVE__bool_false;
 }
