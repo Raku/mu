@@ -745,26 +745,6 @@ may define such methods to provide a similar mechanism for interrogating
 properties.  (Also note that syntactic category names are reserved for
 calling operators as if they were methods.)
 
-Depending on the class, the pairs in question may have arguments.
-The C<Hash> class in particular makes use of pair syntax for subscript
-modifiers:
-
-    %hash.:exists{$key}
-    %hash.:delete{$key}
-
-This has the advantage that the pair's argument is actually parsed exactly
-as a subscript would be.  A C<.exists()> method could not easily make
-such a guarantee about its arguments.  Plus you can say:
-
-    %hash.:exists<foo>
-    %hash.:delete<foo>
-
-Conjecture, the trailing subscript adverbs could be brought up front as
-well:
-
-    @array.:kv[@slice]
-    %hash.:pairs{@slice}
-
 =head1 Calling sets of methods
 
 For any method name, there may be some number of candidate methods

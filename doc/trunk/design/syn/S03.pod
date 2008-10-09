@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 8 Oct 2008
+  Last Modified: 9 Oct 2008
   Number: 3
-  Version: 142
+  Version: 143
 
 =head1 Overview
 
@@ -47,7 +47,7 @@ each level:
     X  Tight or          || ^^ // min max
     L  Conditional       ?? !! ff fff
     R  Item assignment   = := ::= => += -= **= xx= .=
-    L  Loose unary       true not
+    L  Loose unary       true not :by(2)
     X  Comma operator    , p5=>
     X  List infix        Z minmax X X~X X*X XeqvX ...
     R  List prefix       : print push say die map substr ... [+] [*] any $ @
@@ -1455,6 +1455,60 @@ C<< prefix:<not> >>
 
 =back
 
+While the preceding are parsed as prefix operators, operator adverbs
+are parsed as trailing unary operators at this precedence level,
+just tighter than comma.  (They're not officially "postfix" operators
+because those require the absense of whitespace, and these allow whitespace.
+These adverbs insert themselves in the spot where the parser is
+expecting an infix operator, but the parser continues to look for
+an infix after parsing the adverb and applying it to the previous
+term.)  Thus,
+
+    $a < 1 and $b == 2 :carefully
+
+does the C<==> carefully, while
+
+    $a < 1 && $b == 2 :carefully
+
+does the C<&&> carefully because C<&&> is of
+tighter precedence than "loose unary".  Use
+
+    $a < 1 && ($b == 2 :carefully)
+
+to apply the adverb to the C<==> operator instead.  We say that
+C<==> is the "topmost" operator in the sense that it is at the
+top of the parse tree that the adverb could possibly apply to.
+(It could not apply outside the parens.)  If you are unsure
+what the topmost operator is, just ask yourself which operator
+would be applied last.  For instance, in
+
+    +%hash{$key} :foo
+
+The subscript happens first and the C<+> operator happens last,
+so C<:foo> would apply to that.  Use
+
+    +(%hash{$key} :foo)
+
+to apply C<:foo> to the subscripting operator instead.  Likewise
+
+    $x = 1..10:by(2)
+
+will apply the adverb to the item assignment (and fail), but since
+
+    @x = 1..10:by(2)
+
+is a (looser) list assignment, the adverb applies to the range operator
+as expected.  And in general note that adverbs will attach the way
+you want when you say things like
+
+    1 .. $x+2 :by(2)
+
+The new internal testing syntax makes use of these precedence rules:
+
+    $x eqv $y+2  :ok<$x is equivalent to $y+2>;
+
+Here the adverb is considered to be modifying the C<eqv> operator.
+
 =head2 Comma operator precedence
 
 =over
@@ -2449,8 +2503,8 @@ If there is no whitespace, subsequent parsing depends on the
 syntactic category of the next item.  Parentheses (with or without
 a dot) turn the list operator into a function call instead, and
 all the function's arguments must be passed inside the parentheses
-(with the sole exception of an adverbial block, which may follow the
-parentheses).
+(except for postfix adverbs, which may follow the parentheses provided they
+would not attach to some other operator by the rules of precedence).
 
 Other than various forms of parentheses, all other postfixes are
 disallowed immediately after a list operator, even if there are no
@@ -3232,7 +3286,7 @@ a separate token.  Therefore, under the longest-token rule,
 
     $hacker.feed:xxx('Pizza and cola');
 
-is tokenized as an adverb applying to the method as its "preceding operator":
+is tokenized as an adverb applying to the method as its "toplevel preceding operator":
 
     $hacker.feed :xxx('Pizza and cola');
 
@@ -3246,6 +3300,13 @@ and some positional arguments, you have to put the colon twice:
     $hacker.feed: :xxx('Pizza and cola'), 1,2,3;
 
 (For similar reasons it's required to put whitespace after the colon of a label.)
+
+Note in particular that because of adverbial precedence:
+
+    1 + $hacker.feed :xxx('Pizza and cola');
+
+will apply the C<:xxx> adverb to the C<+> operator, not the method call.
+This is not likely to succeed.
 
 =head1 Feed operators
 

@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 1 Sep 2008
+  Last Modified: 9 Oct 2008
   Number: 2
-  Version: 137
+  Version: 138
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1531,19 +1531,42 @@ appropriate adverb to the subscript.
 
     @array = <A B>;
     @array[0,1,2];      # returns 'A', 'B', undef
-    @array[0,1,2]:p;    # returns 0 => 'A', 1 => 'B'
-    @array[0,1,2]:kv;   # returns 0, 'A', 1, 'B'
-    @array[0,1,2]:k;    # returns 0, 1
-    @array[0,1,2]:v;    # returns 'A', 'B'
+    @array[0,1,2] :p;   # returns 0 => 'A', 1 => 'B'
+    @array[0,1,2] :kv;  # returns 0, 'A', 1, 'B'
+    @array[0,1,2] :k;   # returns 0, 1
+    @array[0,1,2] :v;   # returns 'A', 'B'
 
     %hash = (:a<A>, :b<B>);
     %hash<a b c>;       # returns 'A', 'B', undef
-    %hash<a b c>:p;     # returns a => 'A', b => 'B'
-    %hash<a b c>:kv;    # returns 'a', 'A', 'b', 'B'
-    %hash<a b c>:k;     # returns 'a', 'b'
-    %hash<a b c>:v;     # returns 'A', 'B'
+    %hash<a b c> :p;    # returns a => 'A', b => 'B'
+    %hash<a b c> :kv;   # returns 'a', 'A', 'b', 'B'
+    %hash<a b c> :k;    # returns 'a', 'b'
+    %hash<a b c> :v;    # returns 'A', 'B'
 
-The adverbial forms all weed out non-existing entries.
+These adverbial forms all weed out non-existing entries.  You may also
+perform an existence test, which will return true if all the elements
+of the slice exist:
+
+    if %hash<a b c> :exists {...}
+
+likewise,
+
+    my ($a,$b,$c) = %hash<a b c> :delete;
+
+deletes the entries "en passant" while returning them.  (Of course,
+any of these forms also work in the degenerate case of a slice
+containing a single index.)  Note that these forms work by virtue
+of the fact that the subscript is the topmost previous operator.
+You may have to parenthesize or force list context if some other
+operator that is tighter than comma would appear to be topmost:
+
+    1 + (%hash{$x} :delete);
+    $x = (%hash{$x} :delete);
+    ($x) = %hash{$x} :delete;
+
+(The situation does not often arise for the slice modifiers above
+because they are usually used in list context, which operators
+at comma precedence.)
 
 =item *
 
@@ -2316,11 +2339,12 @@ All of the adverbial forms (including the normal ones with
 identifier keys) are considered special tokens and are recognized
 in various positions in addition to term position.  In particular,
 when used where an infix would be expected they modify the previous
-operator, ignoring the intervening term or parenthesized argument:
+topmost operator that is tighter in precedence than "loose unary"
+(see S03):
 
     1 .. 100 :by(3)     # count to 100 by threes
 
-Within declarations the form is used to rename parameter declarations:
+Within declarations the adverbial form is used to rename parameter declarations:
 
     sub foo ( :externalname($myname) ) {...}
 
@@ -2377,9 +2401,15 @@ between, since that would cause subsequent pairs to look like terms.
 See S06 for the use of adverbs as named arguments.
 
 The negated form (C<:!a>) and the sigiled forms (C<:$a>, C<:@a>,
-C<:%a>) never take an argument and don't care what the next character is.
-They are considered complete.  These forms require an identifier to
-serve as the key.
+C<:%a>) never take an argument and don't care what the next character
+is.  They are considered complete.  These forms require an identifier
+to serve as the key.
+
+For identifiers that take a numeric argument, it is allowed to
+abbreviate, for example, C<:sweet(16)> to C<:16sweet>.  (This is
+distinguishable from the :16<deadbeef> form, which never has an
+alphabetic character following the number.)  Only literal decimal
+numbers may be swapped this way.
 
 The other forms of adverb (including the bare C<:a> form) I<always>
 look for an immediate bracketed argument, and will slurp it up.
