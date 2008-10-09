@@ -90,19 +90,28 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
 )
 
 (defmacro ncgf-defmethod (name sig &rest body)
-  (let* ((n (1+ *maximum-number-of-dispatch-affecting-variables*))
-         (n-1 (1- n))
-         (vars (parameters-in-lambda-list sig))
-         (len (length vars))
-         (real-vars (subseq vars 0 (min n-1 len)))
-         (bounds-var (list (if (find \'&rest sig)
-                               (gensym)
-                             `(,(gensym) ,(class-of nil)))))
-         (pad-vars (n-gensyms (max 0 (- n-1 len))))
-         (dispatch-vars (concatenate \'list real-vars bounds-var pad-vars))
+  (let* ((n *maximum-number-of-dispatch-affecting-variables*)
+         (params (parameters-in-lambda-list sig))
+         (arity (length params))
+         (real-dispatch-params (subseq params 0 (min arity n)))
+         (an-arity-check-var (gensym))
+         (an-arity-check-param (if (find \'&rest sig)
+                                   an-arity-check-var
+                                 (list an-arity-check-var \'null)))
+         (a-noop-var (gensym))
+         (pad-vars (n-gensyms (max 0 (- n arity))))
+         (fake-dispatch-params
+          (cond ((> arity n) (list a-noop-var))
+                (t (cons an-arity-check-param pad-vars))))
+         (fake-vars
+          (cond ((> arity n) (list a-noop-var))
+                (t (cons an-arity-check-var pad-vars))))
+         (dispatch-params (concatenate \'list
+                                       real-dispatch-params
+                                       fake-dispatch-params))
          (typeless-sig (map \'list (lambda (p) (if (listp p) (car p) p)) sig))
-         (def `(defmethod ,name (args ,@dispatch-vars)
-                 (declare (ignore ,@pad-vars))
+         (def `(defmethod ,name (args ,@dispatch-params)
+                 (declare (ignore ,@fake-vars))
                  (destructuring-bind ,typeless-sig args
                                      ,@body))))
     def))
@@ -236,10 +245,26 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
 
 ;; predecls
 (defclass |Any/cls| () ())
+(defclass |Undef/cls| () ())
 (defclass |Bool/cls| () ())
 (defclass |Int/cls| () ())
 (defclass |Num/cls| () ())
 (defclass |Str/cls| () ())
+
+;; Undef
+(defparameter |Undef::/co| nil)
+(defun undef () |Undef::/co|)
+(defgeneric defined-p (x))
+(defmethod defined-p (x) (declare (ignore x)) t)
+(defmethod defined-p ((x |Undef/cls|)) (declare (ignore x)) nil)
+;; Kludge until a Prim::null is available.
+(dm |M::make_ir_from_Match_tree| ((self null)) (undef))
+
+;; Bool
+(pkg-declare "class" "False" \'|Bool/cls|)
+(pkg-declare "class" "True" \'|Bool/cls|)
+(defun true () |True::/co|)
+(defun false () |False::/co|)
 
 ;;
 (defun set-slots (o argl)
@@ -257,51 +282,38 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
 (defun flatten-lists (args)
   (reduce #\'append
           (mapcar (lambda (e)
-                    (if (and (listp e)
-                             ;;(not (null e)) ;#XXX disappears undef args!
-                             ;;# boxing undef is now important. :/
-                             )
-                        e (list e)))
+                    (if (listp e) e (list e)))
                   args)))
 
-;;
+;; Any
 (dm |M::new| ((co |Any/cls|) &rest argl)
-  (declare (ignorable argl))
+  (declare (ignore argl))
   (set-slots (make-instance (class-of co)) argl))
 
 (dm |M::can| (self |$method_name|)
     (let* ((name (concatenate \'string "M::" (S |$method_name|))))
       (UP (can-p name self))))
 
-;; Undef is still being kludged as nil.  And Bools.
-(defmacro undef () nil)
-(dm |M::make_ir_from_Match_tree| ((self null) ) (block __f__ (let () self)))
-(dm |M::isa| ((x null) str) (declare (ignorable x)) (equal (S str) "Undef"))
-(dm |M::Str| ((x symbol)) (UP (symbol-name x))) ;X for t
-
  ;;Array.new is defined here to a avoid cyclic dependency on *@args.
 (pkg-declare "class" "Array" \'|Any/cls|)
 (dm |M::new| ((co |Array/cls|) &rest argl)
-  (declare (ignorable co))
+  (declare (ignore co))
   (let ((inst (make-instance \'|Array/cls|)))
     (setf (slot-value inst \'|Array::._native_|)
           (make-array (length argl) :adjustable t :initial-contents argl))
     inst))
 
-;; Hack until Str, Int, Num, etc are p6 objects.
-(dm |M::Str| ((s string) &rest argl) (declare (ignorable argl)) s)
-(dm |M::Str| ((n number) &rest argl) (declare (ignorable argl)) (write-to-string n))
-(dm |M::WHAT| ((s string) &rest argl) (declare (ignorable s argl)) "str")
-(dm |M::WHAT| ((n number) &rest argl) (declare (ignorable n argl)) "num")
-
-(dm |M::Str| ((x null) &rest argl) (declare (ignorable x argl)) "")
-(dm |M::WHAT| ((x null) &rest argl) (declare (ignorable x argl)) "Undef")
-(dm |M::substr| ((s string) from len) (subseq s from (+ from len)))
-
+;; Primitive Str, Int, Num.
+;(dm |M::WHAT| ((s string)) "str")
+;(dm |M::WHAT| ((n integer)) "int")
+;(dm |M::WHAT| ((n number)) "num")
+;(dm |M::Str| ((s string)) (UP s))
+;(dm |M::Str| ((n number)) (UP (write-to-string n)))
+;(dm |M::substr| ((s string) from len) (subseq s from (+ from len)))
 
 ;; Muffle warnings at compile and runtimes.
 ;(declaim (sb-ext:muffle-conditions style-warning))
-(declaim (sb-ext:muffle-conditions warning))
+;(declaim (sb-ext:muffle-conditions warning))
 
 ;(defparameter sb-ext:*muffled-warnings* style-warning) ;In sbcl-1.0.20 .
 (if (find-symbol "sb-ext:*muffled-warnings*") ;In sbcl-1.0.20
@@ -309,37 +321,38 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
  nil) 
 
 ;; UP
-;(defgeneric UP (x))
-(defmethod UP ((x null)) nil)
-(defmethod UP ((x symbol)) x)
+(defmethod UP ((x null)) |False::/co|)
+(defmethod UP ((x symbol)) (if (eq x t) |True::/co| (trigger-debug)))
 (defmethod UP ((x integer)) (fc #\'|M::new| |Int::/co| x))
 (defmethod UP ((x number)) (fc #\'|M::new| |Num::/co| x))
 (defmethod UP ((x string)) (fc #\'|M::new| |Str::/co| x))
-(defmethod UP ((bug |Str/cls|)) (write (S bug)) (die))
+;(defmethod UP ((x |Any/cls|)) x) ; For eventual mixed boxing.
 ;; new-
 (defun new-Array (lst) (ap #\'|M::new| (cons |Array::/co| lst)))
 (defun new-Hash  (lst) (ap #\'|M::new| (cons |Hash::/co| lst)))
 (defun new-Pair  (k v) (fc #\'|M::new| |Pair::/co| k v))
 ;; to-b
 (defgeneric to-b (x))
-(defmethod to-b (x) t)
-(defmethod to-b ((x null)) nil)
-(defmethod to-b ((x symbol)) t) ;for t. #X should check.
-(defmethod to-b ((x string)) (if (equal x "") nil t))
-(defmethod to-b ((x number)) (if (= x 0) nil t))
-(defmethod to-b ((x |Bool/cls|)) (slot-value x \'|Bool::._native_|))
+(defmethod to-b (x) t) ; Eg, currently unboxed Code.
+(defmethod to-b ((x null)) nil) ;X shouldnt be needed.
+(defmethod to-b ((x string)) (if (equal x "") nil t)) ;X shouldnt be needed.
+(defmethod to-b ((x number)) (if (= x 0) nil t)) ;X shouldnt be needed.
 (defmethod to-b ((x |Any/cls|)) (to-b (fc #\'|M::Bool| x)))
+(defmethod to-b ((x |Undef/cls|)) nil)
+(defmethod to-b ((x |Bool/cls|)) (slot-value x \'|Bool::._native_|))
+(defmethod to-b ((x |False/cls|)) nil)
+(defmethod to-b ((x |True/cls|)) t)
+(defmethod to-b ((x |Int/cls|)) (not (= (slot-value x \'|Int::._native_|) 0)))
+(defmethod to-b ((x |Num/cls|)) (not (= (slot-value x \'|Num::._native_|) 0)))
 ;; to-n
 (defgeneric to-n (x))
-(defmethod to-s ((x null)) 0) ;X unboxed Undef
-(defmethod to-n ((x number)) x)
+(defmethod to-n ((x number)) x) ; For Int.new().
+(defmethod to-n ((x |Any/cls|)) (to-n (fc #\'|M::Num| x)))
 (defmethod to-n ((x |Int/cls|)) (slot-value x \'|Int::._native_|))
 (defmethod to-n ((x |Num/cls|)) (slot-value x \'|Num::._native_|))
-(defmethod to-n ((x |Any/cls|)) (to-n (fc #\'|M::Num| x)))
 ;; to-s
 (defgeneric to-s (x))
-(defmethod to-s ((x null)) "") ;X unboxed Undef
-(defmethod to-s ((x string)) x)
+(defmethod to-s ((x string)) x) ; For Str.new().
 (defmethod to-s ((x |Str/cls|)) (slot-value x \'|Str::._native_|))
 (defmethod to-s ((x |Any/cls|)) (to-s (fc #\'|M::Str| x)))
 
@@ -355,7 +368,6 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
 (defun parse-re-replacement (rep) ; XXX kludge
   (let* ((pat "(?:[^\\\\\\\\$]|\\\\\\\\.|.\\\\z|\\\\$[^{1])+|\\\\$1|\\\\$\\\\{1}")
          (parts (ppcre::all-matches-as-strings pat rep)))
-    (write rep)(write parts)
     (assert (equal (length rep)
                    (length (apply #\'concatenate (cons \'string parts)))))
     (mapcar
@@ -365,18 +377,18 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
              (t part)))
      parts)))
 
-;; short-circuiting logicals
+;; short-circuiting logicals - codomain is actually domain+t,nil. :/
 (defmacro or6 (&rest args)
   (if (null args)
-      \'nil
+      `(undef)
     (let ((sym (gensym)))
       `(let ((,sym ,(car args)))
          (if (or ,(null (cdr args)) (to-b ,sym)) ,sym (or6 ,@(cdr args)))))))
 (defmacro and6 (&rest args)
-  (cond ((null args) t)
+  (cond ((null args) `(true))
         ((null (cdr args)) (car args))
         (t (let ((sym (gensym)))
-             `(let ((,sym ,(car args))) (if (not (to-b ,sym)) nil (and6 ,@(cdr args))))
+             `(let ((,sym ,(car args))) (if (not (to-b ,sym)) (undef) (and6 ,@(cdr args))))
              ))))
    
 
@@ -434,7 +446,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
        }
        elsif $scope eq 'temp' {
          my $v = $.e($d.var);
-         $lexicals = $lexicals ~ "("~$v~" (if (boundp '"~$v~") "~$v~")) ";
+         $lexicals = $lexicals ~ "("~$v~" (if (boundp '"~$v~") "~$v~" (undef))) ";
        }
     });
     if $lexicals {
@@ -534,7 +546,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
       }
     }
     else {
-      if ($sigil eq '$') { $default = 'nil' }#X
+      if ($sigil eq '$') { $default = '(undef)' }
       if ($sigil eq '@') { $default = $.emit_array('') }
       if ($sigil eq '%') { $default = $.emit_hash('') }
     }
@@ -562,7 +574,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
       my $evar_d = $evar;
       if $default { $evar_d = '(setq '~$evar~' '~$default~')' }
       $whiteboard::declares.push("(declare (special "~$evar~"))\n");
-      my $init = "(unless (boundp '"~$evar~") (setq "~$evar~" nil))\n";
+      my $init = "(unless (boundp '"~$evar~") (setq "~$evar~" (undef)))\n";
       $whiteboard::block_header.push($init);
       $evar_d;
     }

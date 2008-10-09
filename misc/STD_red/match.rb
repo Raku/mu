@@ -156,13 +156,13 @@ class Hash
   def to_dump1; '(hash '+map{|k,v| '"'+k.to_s+'" '+v.to_dump1}.join(" ")+')' end
 end
 class String
-  def to_dump1; inspect.gsub(/\n/,"\n").gsub(/\t/,"\t") end
+  def to_dump1; '"'+gsub(/([\\"])/){|w|"\\#{w}"}+'"' end
 end
 class Symbol
   def to_dump1; to_s.inspect end
 end
 class FalseClass
-  def to_dump1; 'nil' end
+  def to_dump1; ':false' end
 end
 class Fixnum
   def to_dump1; inspect end
@@ -170,7 +170,7 @@ end
 class Match
   def to_dump1
     b = as_b ? '1' : '0'
-    s = '"'+str.gsub(/([\\"])/){|w|"\\#{w}"}+'"'
+    s = str.to_dump1
     h = as_h.map{|k,v|
       vs = v.to_dump1
       "\n  \"#{k}\" #{vs} "

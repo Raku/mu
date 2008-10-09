@@ -342,21 +342,21 @@ IRx1::Apply.newp($m,"circumfix:"~$name,IRx1::Capture.newp1($m,$args||[]));
     };
 
     my $construct_statement_control_58while = sub ($m) {
-      IRx1::Loop.newp($m,irbuild_ir($m.hash{'expr'}),irbuild_ir($m.hash{'block'}));
+      IRx1::Loop.newp($m,irbuild_ir($m.hash{'expr'}),irbuild_ir($m.hash{'block'}),undef,undef);
     };
 
     my $construct_statement_mod_loop_58while = sub ($m) {
-      IRx1::Loop.newp($m,irbuild_ir($m.hash{'modifier_expr'}),$blackboard::statement_expr);
+      IRx1::Loop.newp($m,irbuild_ir($m.hash{'modifier_expr'}),$blackboard::statement_expr,undef,undef);
     };
 
     my $construct_statement_control_58until = sub ($m) {
       my $test = IRx1::Apply.newp($m,"not",IRx1::Capture.newp1($m,[irbuild_ir($m.hash{'expr'})]));
-IRx1::Loop.newp($m,$test,irbuild_ir($m.hash{'block'}));
+IRx1::Loop.newp($m,$test,irbuild_ir($m.hash{'block'}),undef,undef);
     };
 
     my $construct_statement_mod_loop_58until = sub ($m) {
       my $test = IRx1::Apply.newp($m,"not",IRx1::Capture.newp1($m,[irbuild_ir($m.hash{'modifier_expr'})]));
-IRx1::Loop.newp($m,$test,$blackboard::statement_expr);
+IRx1::Loop.newp($m,$test,$blackboard::statement_expr,undef,undef);
     };
 
     my $construct_statement_control_58loop = sub ($m) {
@@ -364,7 +364,7 @@ IRx1::Loop.newp($m,$test,$blackboard::statement_expr);
 my $e2 = irbuild_ir($m.hash{'loop_eee'}.hash{'loop_e2'});
 my $e3 = irbuild_ir($m.hash{'loop_eee'}.hash{'loop_e3'});
 my $block = irbuild_ir($m.hash{'loop_block'});
-my $body = IRx1::Loop.newp($m,$e2,IRx1::Block.newp($m,[$block,$e3]));
+my $body = IRx1::Loop.newp($m,$e2,IRx1::Block.newp($m,[$block,$e3]),undef,undef);
 IRx1::Block.newp($m,[$e1,$body]);
     };
 

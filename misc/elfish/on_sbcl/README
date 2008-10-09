@@ -68,3 +68,4 @@ NOTES
   # This remained 1x with general rw-ability added, still native integers.
   # This dropped to 1/2x with Int's.
   # This dropped to 1/4x while not being watched, for causes unknown.
+  # This dropped to 1/5x with boxed undef and booleans.

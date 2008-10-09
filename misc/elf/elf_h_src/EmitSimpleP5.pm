@@ -48,7 +48,7 @@ class EmitSimpleP5 {
 ';
     }
   };
-  method prelude ($n) {
+  method prelude {
   '#!/usr/bin/env perl
 use strict;
 no strict "subs"; # XXX remove once Type-names are quoted. # say Int.isa(Any)
@@ -146,7 +146,6 @@ no warnings qw(redefine prototype);
   sub uc       { CORE::uc($_[0]); }
   sub ucfirst  { CORE::ucfirst($_[0]); }
   sub unpack   { CORE::unpack($_[0], @_[1..$#_]); }
-  sub quotemet { CORE::quotemeta($_[0]); }
   sub undef    { $_[0] = undef }
   sub m        { [ $_[0] =~ m{$_[1]} ] }
   sub nm        { [ $_[0] !~ m{$_[1]} ] }

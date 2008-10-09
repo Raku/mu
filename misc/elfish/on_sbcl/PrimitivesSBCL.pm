@@ -51,9 +51,7 @@ package GLOBAL {
   sub primitive_print ($x) is cl {' (cl:write-string (S |$x|)) '}
   sub primitive_write_to_string ($x) is cl {' (UP (write-to-string |$x|)) '};
 
-  sub undef () is cl {'
-    nil ;XX
-  '}
+  sub undef () is cl {' (undef) '}
 
   multi infix:<+> ($a,$b) is cl {' (UP (+ (N |$a|) (N |$b|))) '}
   multi infix:<-> ($a,$b) is cl {' (UP (- (N |$a|) (N |$b|))) '}
@@ -93,6 +91,7 @@ package GLOBAL {
   '}
 
   multi exit ($status) is cl {' (sb-unix:unix-exit (N |$status|)) '}
+#  multi exit ($status) {}
   multi die ($msg) { say $msg; exit(1); }
 
   multi system ($cmd) is cl {'
@@ -103,7 +102,7 @@ package GLOBAL {
   multi unlink (*@filenames) { @filenames.map(sub($f){unlink_($f)}) }
   multi unlink_ ($filename) is cl {' (sb-unix:unix-unlink (S |$filename|)) '}
   multi not ($x) { if $x { undef } else { 1 } }
-  multi defined ($x) is cl {' (UP (if |$x| 1 nil)) '} ;#X undef as nil
+  multi defined ($x) is cl {' (UP (defined-p |$x|)) '}
   multi substr($s,$offset,$length) { $s.substr($offset,$length) }
 }
 
@@ -121,7 +120,8 @@ package GLOBAL {
     (let ((tree (read-from-string (S |$dump_string|))))
       (labels
        ((undump (node)
-           (cond ((null node) (undef))
+           (cond ((null node) nil)
+                 ((eq :false node) (undef))
                  ((listp node)
                   (let ((args (mapcar #\'undump (cdr node))))
                     (ecase (car node)
@@ -155,6 +155,11 @@ package GLOBAL {
     Program.new().main(@*ARGS);
     exit(0);
   }
+  sub chmod_exe ($file) is cl {'
+    (sb-posix:chmod (S |$file|)
+                    (logior sb-posix::s-irusr sb-posix::s-iwusr sb-posix::s-ixusr))
+  '}
+
   sub module_require ($module) {
     my $file = find_required_module($module);
     $file || die("Cant locate $module in ( "~@*INC.join(" ")~" ).\n");
@@ -184,7 +189,6 @@ package GLOBAL {
   sub eval ($code,$env) {
     eval_perl6($code,$env);
   }
-
 }
 # regexp elf bootstrap primitives
 package Str {
@@ -202,7 +206,22 @@ package Str {
            (parse-re-replacement (S |$replacement_pat|))))
   '}
 }
-
+# For the Elf P5.
+package GLOBAL {
+  sub mangle_name ($name) is cl {'
+     ; $name =~ s/([^\w])/"_".CORE::ord($1)/eg;
+     (UP (ppcre::regex-replace-all "([^\\\\w])" (S |$name|)
+            (lambda (match g1)
+              (concatenate \'string "_" (write-to-string (char-code (aref g1 0)))))
+            :simple-calls t))
+  '}
+  #sub quotemeta ($str) { $str.re_gsub_pat('([^\\w])','\\\\$1') }
+  sub quotemeta ($str) is cl {' ;#XXX flee backslash insanity
+     (UP (ppcre::regex-replace-all "([^\\\\w])" (S |$str|)
+            (lambda (match g1) (concatenate \'string "\\\\" g1))
+            :simple-calls t))
+  '}
+}
 
 package Main {
 }
@@ -252,7 +271,8 @@ class Str {
   '}
   method split ($pat) is cl {'
     (let ((s (slot-value self \'|Str::._native_|)))
-      (new-Array (ppcre::split (S |$pat|) s)))
+      (new-Array (mapcar (lambda (x) (UP x))
+                         (ppcre::split (S |$pat|) s))))
   '}
   method substr ($offset,$length) is cl {'
     (let* ((s (slot-value self \'|Str::._native_|))
@@ -339,7 +359,7 @@ class Array {
   '}
   method reverse () is cl {'
     (let* ((a (slot-value self \'|Array::._native_|)))
-      (new-Array (reverse a)))
+      (new-Array (coerce (reverse a) \'list ))) ;X
   '}
 }
 
@@ -399,7 +419,7 @@ class Hash {
   method exists ($key) is cl {'
     (let ((hk (slot-value self \'|Hash::._keys_|))
           (hv (slot-value self \'|Hash::._values_|)))
-      (if (nth-value 1 (gethash (cl-hash |$key|) hk)) t nil))
+      (UP (if (nth-value 1 (gethash (cl-hash |$key|) hk)) t nil)))
   '}
   method delete ($key) is cl {'
     (let ((hk (slot-value self \'|Hash::._keys_|))
@@ -447,6 +467,7 @@ class Array { method Bool () { self.elems != 0 } }
 class Hash  { method Bool () { self.keys.elems != 0 } }
 
 # .Num()
+class Undef { method Num () { 0 } }
 class Int   { method Num () { self } }
 class Num   { method Num () { self } }
 class Str   { method Num () { self.primitive_Num() } }
@@ -456,6 +477,10 @@ class Pair  { method Num () { 2 } }
 
 # .Str()
 class Any   { method Str () { primitive_write_to_string(self) } }
+class Undef { method Str () { "" } }
+class Bool  { method Str () { if self { "true" } else { "false " } } }
+class True  { method Str () { "true" } }
+class False { method Str () { "false" } }
 class Int   { method Str () { primitive_write_to_string(self._native_) } }
 class Num   { method Str () { primitive_write_to_string(self._native_) } }
 class Str   { method Str () { self._native_ } }

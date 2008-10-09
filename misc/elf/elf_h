@@ -113,7 +113,6 @@ no warnings qw(redefine prototype);
   sub uc       { CORE::uc($_[0]); }
   sub ucfirst  { CORE::ucfirst($_[0]); }
   sub unpack   { CORE::unpack($_[0], @_[1..$#_]); }
-  sub quotemet { CORE::quotemeta($_[0]); }
   sub undef    { $_[0] = undef }
   sub m        { [ $_[0] =~ m{$_[1]} ] }
   sub nm        { [ $_[0] !~ m{$_[1]} ] }
@@ -2217,21 +2216,21 @@ my $construct_statement_control_58for = sub {my($m)=@_;
 my $construct_statement_mod_loop_58for = sub {my($m)=@_;
 (do{IRx1::For->newp($m, irbuild_ir($m->hash()->{"modifier_expr"}), $blackboard::statement_expr)})};
 my $construct_statement_control_58while = sub {my($m)=@_;
-(do{IRx1::Loop->newp($m, irbuild_ir($m->hash()->{"expr"}), irbuild_ir($m->hash()->{"block"}))})};
+(do{IRx1::Loop->newp($m, irbuild_ir($m->hash()->{"expr"}), irbuild_ir($m->hash()->{"block"}), GLOBAL::undef(), GLOBAL::undef())})};
 my $construct_statement_mod_loop_58while = sub {my($m)=@_;
-(do{IRx1::Loop->newp($m, irbuild_ir($m->hash()->{"modifier_expr"}), $blackboard::statement_expr)})};
+(do{IRx1::Loop->newp($m, irbuild_ir($m->hash()->{"modifier_expr"}), $blackboard::statement_expr, GLOBAL::undef(), GLOBAL::undef())})};
 my $construct_statement_control_58until = sub {my($m)=@_;
 (do{my $test = IRx1::Apply->newp($m, "not", IRx1::Capture->newp1($m, [irbuild_ir($m->hash()->{"expr"})]));
-IRx1::Loop->newp($m, $test, irbuild_ir($m->hash()->{"block"}))})};
+IRx1::Loop->newp($m, $test, irbuild_ir($m->hash()->{"block"}), GLOBAL::undef(), GLOBAL::undef())})};
 my $construct_statement_mod_loop_58until = sub {my($m)=@_;
 (do{my $test = IRx1::Apply->newp($m, "not", IRx1::Capture->newp1($m, [irbuild_ir($m->hash()->{"modifier_expr"})]));
-IRx1::Loop->newp($m, $test, $blackboard::statement_expr)})};
+IRx1::Loop->newp($m, $test, $blackboard::statement_expr, GLOBAL::undef(), GLOBAL::undef())})};
 my $construct_statement_control_58loop = sub {my($m)=@_;
 (do{my $e1 = irbuild_ir($m->hash()->{"loop_eee"}->hash()->{"loop_e1"});
 my $e2 = irbuild_ir($m->hash()->{"loop_eee"}->hash()->{"loop_e2"});
 my $e3 = irbuild_ir($m->hash()->{"loop_eee"}->hash()->{"loop_e3"});
 my $block = irbuild_ir($m->hash()->{"loop_block"});
-my $body = IRx1::Loop->newp($m, $e2, IRx1::Block->newp($m, [$block, $e3]));
+my $body = IRx1::Loop->newp($m, $e2, IRx1::Block->newp($m, [$block, $e3]), GLOBAL::undef(), GLOBAL::undef());
 IRx1::Block->newp($m, [$e1, $body])})};
 my $construct_statement_control_58if = sub {my($m)=@_;
 (do{my $els = irbuild_ir($m->hash()->{"else"});
@@ -2956,8 +2955,7 @@ sub prelude_oo{my $self=CORE::shift;(do{if($self->using_Moose) {
 \}\
 "})
 }})};
-sub prelude{my $self=CORE::shift;my($n)=@_;
-(do{((("\#\!\/usr\/bin\/env\ perl\
+sub prelude{my $self=CORE::shift;(do{((("\#\!\/usr\/bin\/env\ perl\
 use\ strict\;\
 no\ strict\ \"subs\"\;\ \#\ XXX\ remove\ once\ Type\-names\ are\ quoted\.\ \#\ say\ Int\.isa\(Any\)\
 use\ warnings\;\
@@ -3054,7 +3052,6 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \ \ sub\ uc\ \ \ \ \ \ \ \{\ CORE\:\:uc\(\$_\[0\]\)\;\ \}\
 \ \ sub\ ucfirst\ \ \{\ CORE\:\:ucfirst\(\$_\[0\]\)\;\ \}\
 \ \ sub\ unpack\ \ \ \{\ CORE\:\:unpack\(\$_\[0\]\,\ \@_\[1\.\.\$\#_\]\)\;\ \}\
-\ \ sub\ quotemet\ \{\ CORE\:\:quotemeta\(\$_\[0\]\)\;\ \}\
 \ \ sub\ undef\ \ \ \ \{\ \$_\[0\]\ \=\ undef\ \}\
 \ \ sub\ m\ \ \ \ \ \ \ \ \{\ \[\ \$_\[0\]\ \=\~\ m\{\$_\[1\]\}\ \]\ \}\
 \ \ sub\ nm\ \ \ \ \ \ \ \ \{\ \[\ \$_\[0\]\ \!\~\ m\{\$_\[1\]\}\ \]\ \}\
