@@ -3,7 +3,7 @@ use lib '../../src/perl6';
 use lib 'src';
 use STD;
 package Mildew;
-require 'viv';
+do 'viv';
 use AST;
 use AST::Helpers;
 use DumpMatch;
