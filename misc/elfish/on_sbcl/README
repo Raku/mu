@@ -8,7 +8,7 @@ $ ./elfx -xr PrimitivesSBCL.pm -v -e 'say 3'
 
 STATUS
 
-Runs 'say 3' and fibonacci.
+Can self-compile.
 
 VISION
 
@@ -19,21 +19,54 @@ performance p6 implementation.  And thus provide an environment for
 bootstrapped p6 compiler development where correctness is not
 inherently incompatible with tolerable performance.
 
-Current plan is to be similar to the current p5 backend.  Which means
-no Containers, native objects without true p6 oo support, etc.  Unlike
-the p5 backend, where this is necessary for acceptable performance (at
-least until the elf compiler gets much more mature and optimizing),
-with this CL backend it's merely a short-term simplicity convenience.
-Mainly to get to full bootstrap more quickly.  Longer-term, with
-CL we have the potential for speed, and can spend it on correctness.
+TODO
 
-Use CL-PPCRE for regexps.
+Issues:
+- Can't correctly compile the p5 backend, so bootstrapping isn't finished.
+- Pragmatics, the primary motivation for this subproject, currently suck.
+-- noisy (warning and cruft messages)
+-- slow (almost 2 minutes to self emit and compile)
 
-Next steps include fleshing out language features needed by elf,
-and definition of primitives (Array, Hash, etc).
+Work:
 
+* Try clisp in place of sbcl.  Faster (though weaker) compiler.
+  We just need a CL backend with good pragmatics.  Doesn't have to be SBCL.
+  And having a second target will help when MOP efforts start.
+  If clisp looks promising, the objective will be to support both.
+  Ie, +clisp Primitives, and dup the libraries.
+  Other CL implementations are *not* near-term goals.
+
+* Become able to correctly compile the p5 backend.
+
+* Improve emitted code - increase compilability and decrease warning messages.
+
+* Address noise - given existent warnings, silence them.
+  Avoid other spew - sbcl is famous for making this difficult/impossible?
+  Milestone is -e 'say 3' printing nothing other than 3.
+  Self compilation can be noisier.
+
+* Address performance - try without debug; profile; explore where the "oops,
+  lost 2x while not watching" went; tweak dispatch.  Document both positive
+  and negative results.
+  Do *not* work on special case or unboxing solutions - we're still looking
+  at whole-system improvements.  Start-times are not yet the pressing
+  issue, so images and native executable schemes aren't yet interesting.
+
+There are also many non-critical path things which might be worked on.
+Some random examples:
+- fleshing out the prelude.  File, etc.
+- start work on a CL runtime which it completely true to the p6 oo model.
+- design a better IR, with multimethod-based analysis and emitting.
+- permit calling cl libraries from p6.
+- setup embedded p5 and permit calling p5 libraries from p6.
+- think about porting Garnet to p6. or simply using it.
+- does contraint propagation (Cell) permit any nice new approaches to
+   compiler design?
+- ...
 
 NOTES
+
+  You can leave questions/comments on http://perl.net.au/wiki/Elf .
 
   SBCL is a verbose beast.  Anything which compiles should be run
   from a fast terminal.  Like xterm, not gnome terminal.  Otherwise,
