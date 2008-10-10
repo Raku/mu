@@ -15,9 +15,6 @@ OVERALL
 * Add smartlinks to tests without them
 * Continue moving tests from t/ to t/spec/
 * Clean up old POD (only present in some testing modules)
-* Fudge tests for Rakudo where helpful (ie only there where the tested
-  features are already implemented)
-* Improve the Vim syntax highlighting to recognize test keywords
 * Review XXX entries for test corrections
 * rewrite tests with multiple lexical subs of the same name ("my sub foo") to
   use different names and no "my" (except where testing lexical subs, for
@@ -33,13 +30,12 @@ S03
   t/spec/S03-operators/bit.t
 
 S05
-* check t/regex/p6regex/regex_tests for errors and move into spec
 * mm//, ss/// variants
 * repetition, especially **?
 * switch some "ok" tests to "is" tests to check the exact match
 * modifier tests. These are easy to check if they are missing
 * tests for the "special named assertions"
-* more of everything. t/regex/p6regex/regex_tests is the majority of the P6 regex tests at present.
+* more of everything.
 
 S09
 * more tests for multidimensional arrays (also .shape, see S29)
@@ -55,7 +51,6 @@ S12
 * more tests for inheritance. Auzon noticed that there were no multiple inheritance tests, so other important things are bound to be missing.
 
 S16
-* Is there a reason that S16-io/say.t doesn't use plan()?
 * tests for glob()
 
 S29
