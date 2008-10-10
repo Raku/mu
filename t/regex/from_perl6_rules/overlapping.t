@@ -36,7 +36,7 @@ for (1..2) -> $rep {
     for (@$/) {
         ok( %expected{$_}, "Matched '$_' ($rep)" );
         ok( %position{$_} == $_.pos, "At correct position of '$_' ($rep)" );
-        delete %expected{$_};
+        %expected{$_} :delete;
     }
     ok(%expected.keys == 0, "No matches missed ($rep)" );
 }
@@ -51,7 +51,7 @@ my %expected; %expected{@expected} = (1) x @expected;
 for (@$/) {
     my %expected; %expected{map {$_[1]}, @expected} = (1) x @expected;
     ok( $_[1] = substr($_[0],1,-1), "Captured within '$_'" );
-    delete %expected{$_};
+    %expected{$_} :delete;
 }
 
 }
