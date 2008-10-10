@@ -1565,7 +1565,7 @@ operator that is tighter than comma would appear to be topmost:
     ($x) = %hash{$x} :delete;
 
 (The situation does not often arise for the slice modifiers above
-because they are usually used in list context, which operators
+because they are usually used in list context, which operates
 at comma precedence.)
 
 =item *
