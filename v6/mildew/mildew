@@ -1,8 +1,9 @@
 #!/usr/local/bin/perl
-
 use lib '../../src/perl6';
 use lib 'src';
 use STD;
+package Mildew;
+require 'viv';
 use AST;
 use AST::Helpers;
 use DumpMatch;
@@ -14,31 +15,20 @@ use warnings;
 use Getopt::Long;
 use Carp 'confess';
 
-$::ACTIONS = 'Actions';
-{package Actions;
-    our $AUTOLOAD;
-    sub AUTOLOAD {
-        my $self=shift;
-        my $match=shift;
-        if ($AUTOLOAD =~ /^Actions::scope_declarator.*my/) {
-            warn "action $AUTOLOAD\n";
-            $match->{''} = 'my';
-        }
-    }
-}
 my ($debug,$file);
 GetOptions("file=s"=>\$file,"debug"=>\$debug);
 
 sub XXX {
     confess 'unimplemented'
 }
-sub integer_ {
+sub VAST::integer::emit_m0ld {
     my $m = shift;
     #XXX non-base 10
-    integer $m->text;
+    integer($m->{TEXT});
 }
-sub scope_declarator {
+sub VAST::scope_declarator::emit_m0ld {
     my $m = shift;
+    die 'not implemented yet';
     if ($m->{''} eq 'my') {
         if (my $decl = $m->{scoped}{declarator}) {
             if (my $var_decl = $decl->{variable_declarator}) {
@@ -63,41 +53,49 @@ sub scope_declarator {
         XXX;
     }
 }
-sub noun {
+sub VAST::noun::emit_m0ld {
     my $m = shift;
     if ($m->{variable}) {
-        variable($m->{variable});
+        $m->{variable}->emit_m0ld;
     } elsif ($m->{value}) {
-        value($m->{value});
+        $m->{value}->emit_m0ld;
     } elsif ($m->{routine_declarator}) {
         if ($m->{routine_declarator}{routine_def}) {
-            routine_def($m->{routine_declarator}{routine_def});
+            $m->{routine_declarator}{routine_def}->emit_m0ld;
         } else {
             XXX;
         }
     } elsif ($m->{term}) {
-        term($m->{term});
+        $m->{term}->emit_m0ld;
     } elsif ($m->{scope_declarator}) {
-        scope_declarator($m->{scope_declarator});
+        $m->{scope_declarator}->emit_m0ld;
     } else {
         XXX;
     }
 }
-sub term {
+sub VAST::term::emit_m0ld {
     my $m = shift;
     if ($m->{identifier} && $m->{args}) {
         my $func = AST::Call->new(
             identifier=>string 'lookup',
-            capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string '&'.$m->{identifier}->text],named=>[]),
+            capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string '&'.$m->{identifier}{TEXT}],named=>[]),
         );
-        AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(invocant=>$func,positional=>args($m->{args})));
+        AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(invocant=>$func,positional=>$m->{args}->emit_m0ld));
     }
 }
-sub args {
+sub VAST::Terminator::emit_m0ld {
     my $m = shift;
-    return [map {EXPR($_->{EXPR})} @{$m->{arglist}}];
+    if ($m->{noun}) {
+        $m->{noun}->emit_m0ld;
+    } else {
+        XXX;
+    }
 }
-sub routine_def {
+sub VAST::args::emit_m0ld {
+    my $m = shift;
+    return [map {$_->{EXPR}->emit_m0ld} @{$m->{arglist}}];
+}
+sub VAST::routine_def::emit_m0ld {
     my $m = shift;
     AST::Call->new(identifier=>string 'new',
         capture => AST::Capture->new(
@@ -110,44 +108,43 @@ sub routine_def {
         ),
     );
 }
-sub block {
+sub VAST::block::emit_m0ld {
     my $m = shift;
     AST::Block->new(regs=>['interpreter','scope'],stmts=>statementlist($m->{in}{statementlist}));
 }
-sub value {
+sub VAST::value::emit_m0ld {
     my $m = shift;
     if ($m->{number}) {
-        number($m->{number});
+        $m->{number}->emit_m0ld;
     } elsif ($m->{quote}) {
-        quote($m->{quote});
+        $m->{quote}->emit_m0ld;
     } else {
-        warn Dump($m->{number});
         warn Dump($m);
         XXX;
     }
 }
-sub quote {
+sub VAST::quote::emit_m0ld {
     my $m = shift;
-    #XXX
-    my $text = $m->{nibble}->text;
-    string $text;
+    # XXX escapes
+    string $m->{nibble}{nibbles}[0];
 }
-sub number {
+sub VAST::number::emit_m0ld {
     my $m = shift;
     if ($m->{integer}) {
-        integer_($m->{integer});
+        $m->{integer}->emit_m0ld;
     } else {
         XXX;
     }
 }
-sub variable {
+sub VAST::variable::emit_m0ld {
     my $m = shift;
+    my $varname = $m->{desigilname}{longname}{name}{identifier}{TEXT};
     AST::Call->new(
         identifier=>string 'lookup',
-        capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string $m->text],named=>[]),
+        capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string $varname],named=>[]),
     );
 }
-sub dottyop {
+sub VAST::dottyop::emit_m0ld {
     my ($noun,$m) = @_;
     if ($m->{methodop}) {
         methodop($noun,$m->{methodop});
@@ -155,7 +152,7 @@ sub dottyop {
         XXX
     }
 }
-sub dotty {
+sub VAST::dotty::emit_m0ld {
     my ($noun,$m) = @_;
     #XXX .*foo
     if ($m->{dottyop}) {
@@ -164,31 +161,31 @@ sub dotty {
         XXX
     }
 }
-sub FETCH {
+sub VAST::FETCH::emit_m0ld {
     my $arg = shift;
     AST::Call->new(capture=>AST::Capture->new(invocant=>$arg),identifier=>string 'FETCH');
 }
-sub methodop {
+sub VAST::methodop::emit_m0ld {
     my ($noun,$m) = @_;
     if ($m->{longname}) {
         my $pos0 = $m->{in}[0]{semilist}{statement}[0];
         AST::Call->new(
             identifier=>string $m->{longname}->text,
-            capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[FETCH(EXPR($pos0->{EXPR}))],named=>[]),
+            capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[FETCH($pos0->{EXPR}->emit_m0ld)],named=>[]),
         
         );
     } else {
         XXX
     }
 }
-sub EXPR {
+sub VAST::TERM::emit_m0ld {
     my $m = shift;
     if ($m->{noun}) {
-        my $noun = noun($m->{noun});
+        my $noun = $m->{noun}->emit_m0ld;
         if ($m->{post}) {
             for (@{$m->{post}}) {
                 if ($_->{dotty}) {
-                    $noun = dotty($noun,$_->{dotty});
+                    $noun = $_->{dotty}->emit_m0ld($noun);
                 } else {
                     XXX
                 }
@@ -199,30 +196,31 @@ sub EXPR {
         }
     }
 }
-sub statement {
+sub VAST::statement::emit_m0ld {
     my $m = shift;
     if ($m->{label}) {
         AST::Label->new(label=>label($m->{label}),stmt=>statement($m->{statement}));
     } elsif ($m->{statement_control}) {
     } elsif ($m->{EXPR}) {
-        EXPR($m->{EXPR});
+        $m->{EXPR}->emit_m0ld;
     } else {
     }
 }
-sub comp_unit {
+sub VAST::comp_unit::emit_m0ld {
     my $m = shift;
-    AST::Block->new(regs=>['interpreter','scope'],stmts=>statementlist($m->{statementlist}));
+    AST::Block->new(regs=>['interpreter','scope'],stmts=>$m->{statementlist}->emit_m0ld);
 }
-sub statementlist {
+sub VAST::statementlist::emit_m0ld {
     my $m = shift;
-    [map {statement $_} @{$m->{statement}}]
+    [map {$_->emit_m0ld} @{$m->{statement}}]
 }
 unless ($file) {
     die "usage [--debug] --file filename\n"
 }
-my $r = STD->parsefile($file,'comp_unit');
-print dump_match('comp_unit'=>$r,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
-my $mold = comp_unit($r);
+my $r = STD->parsefile($file,'comp_unit')->item;
+print Dump($r) if $debug;
+#print dump_match('comp_unit'=>$r,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+my $mold = $r->emit_m0ld;
 use YAML::XS;
 print Dump($mold) if $debug;
 print <<'BOILERPLATE';
