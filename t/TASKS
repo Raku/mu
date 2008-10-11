@@ -33,7 +33,6 @@ S03
 
 S05
 * mm//, ss/// variants
-* repetition, especially **?
 * switch some "ok" tests to "is" tests to check the exact match
 * modifier tests. These are easy to check if they are missing
 * tests for the "special named assertions"
