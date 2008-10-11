@@ -28,6 +28,8 @@ S03
 * Junction tests need fixing. See below.
 * more bitwise tests, for :signed and :unsigned, and uncomment the tests in
   t/spec/S03-operators/bit.t
+* The section "Reduction Operators" mentions the syntax 'proto [foo] ...' for
+  defining both reduction and infix operators. Needs tests.
 
 S05
 * mm//, ss/// variants
@@ -36,6 +38,10 @@ S05
 * modifier tests. These are easy to check if they are missing
 * tests for the "special named assertions"
 * more of everything.
+
+S06
+* Unpacking array/hash parameters, see
+  http://perlcabal.org/syn/S06.html#Unpacking_array_parameters
 
 S09
 * more tests for multidimensional arrays (also .shape, see S29)
