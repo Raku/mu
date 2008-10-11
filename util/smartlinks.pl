@@ -413,6 +413,8 @@ sub gen_html ($$$) {
     my ($pod, $syn_id, $cssfile) = @_;
 
     eval { require Pod::Simple::HTML };
+    $Pod::Simple::HTML::Perldoc_URL_Prefix  = 'http://perlcabal.org/syn/';
+    $Pod::Simple::HTML::Perldoc_URL_Postfix = '.html';
     die "error: Pod::Simple::HTML is not installed on your machine.\n"
         if $@;
 
@@ -711,7 +713,7 @@ sub process_syn ($$$$) {
         }
     }
 
-    # We need this to check invalid smartlinks pointed to unexistent docs:
+    # We need this to check invalid smartlinks pointed to non-existent docs:
     delete $linktree->{"S$syn_id"};
 
     if (!$check) {
