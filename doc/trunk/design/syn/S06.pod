@@ -1381,7 +1381,7 @@ following block's opening curly:
 However, as described in the next section, you can always use a
 sub-signature instead:
 
-    -> (:$name, :$addr, *%guest_data), $room_num {	# WRONG
+    -> (:$name, :$addr, *%guest_data), $room_num {	# note ()'s
 
 In fact, the [...] and {...} forms are really just extra documentation
 about what you expect.
