@@ -99,7 +99,7 @@ sub write_ir_nodes {
     my @all = $node->all_fields;
     
     my $base = 'BaseClass';
-    $base = "${1}_Base" if $name =~ /([^_]+)_/;
+    $base = "Mixin${1}" if $name =~ /([^_]+)_/;
     my $has = join("",map{"has \$.$_;\n        "} @all,'notes');
     my $params = join(',',map{"\$$_"}@all);
     my $init = join(', ',map{"'$_', \$$_"} @all);

@@ -13,6 +13,12 @@ sub a_bit_of_p5_for__expand_backtrack_macros() is p5 {'
     my($vars,$tmpvars) = @$e;
     "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
   }
+  sub replace_LETs {
+    my($s)=@_;
+    $s =~ s/\bLET\(([^\)]+)\)\{/BacktrackMacrosKludge::_let_gen($1)/eg;
+    $s =~ s/\}LET;/BacktrackMacrosKludge::_let_end().";"/eg;
+    $s;
+  }
 }
 '};
 a_bit_of_p5_for__expand_backtrack_macros();
@@ -20,23 +26,21 @@ a_bit_of_p5_for__expand_backtrack_macros();
 
 class EmitRegex {
 
+  method expand_LETs($s) is p5 {' BacktrackMacrosKludge::replace_LETs($s) '}
   method expand_backtrack_macros ($code) {
 
-    $code.re_sub('\bLET\(([^\)]+)\)\{','BacktrackMacrosKludge::_let_gen($1)','eg
-');
-    $code.re_sub('\}LET;','BacktrackMacrosKludge::_let_end().";"','eg');
-
-    $code.re_sub_g('\bFAIL_IF_FAILED\(([^\)]+)\);','return($1) if FAILED($1);');
-    $code.re_sub_g('\bFAIL\(\)','return(undef)');
-    $code.re_sub_g('\bFAILED\(([^\)]+)\)','(!defined($1)||(!ref($1)&&($1<=0)))')
+    $code = $.expand_LETs($code);
+    $code.re_sub('\bFAIL_IF_FAILED\(([^\)]+)\);','return($1) if FAILED($1);','g');
+    $code.re_sub('\bFAIL\(\)','return(undef)','g');
+    $code.re_sub('\bFAILED\(([^\)]+)\)','(!defined($1)||(!ref($1)&&($1<=0)))','g')
 ;
 
-    $code.re_sub_g('\bFAIL_SEQUENCE\(\)','die("fail sequence\\\\n")');
-    $code.re_sub_g('\bFAIL_GROUP\(\)','die("fail group\\\\n")');
-    $code.re_sub_g('\bFAIL_REGEX\(\)','die("fail regex\\\\n")');
-    $code.re_sub_g('\bFAIL_MATCH\(\)','die("fail match\\\\n")');
+    $code.re_sub('\bFAIL_SEQUENCE\(\)','die("fail sequence\\\\n")','g');
+    $code.re_sub('\bFAIL_GROUP\(\)','die("fail group\\\\n")','g');
+    $code.re_sub('\bFAIL_REGEX\(\)','die("fail regex\\\\n")','g');
+    $code.re_sub('\bFAIL_MATCH\(\)','die("fail match\\\\n")','g');
 
-    $code.re_sub_g('\bTAILCALL\(([^,\)]+),?([^\)]*)\);','\@_=($2);goto \&$1;');
+    $code.re_sub('\bTAILCALL\(([^,\)]+),?([^\)]*)\);','\@_=($2);goto \&$1;','g');
 
     #print $code;
     $code;
@@ -1148,7 +1152,7 @@ package Regexp::ModuleA {
   class AST::Exact {
     method RMARE_emit () {
       my $re = self.<text>;
-      $re.re_sub_g('([^\w\s])','\\\\$1');
+      $re.re_sub('([^\w\s])','\\\\$1','g');
       $re = $.RMARE_wrap_re_with_mods($re);
       $.RMARE_eat_regexp($re);
     }

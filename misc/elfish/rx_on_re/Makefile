@@ -1,7 +1,7 @@
 
 check:
 	export ELF_STD_RED_RUN=./../../STD_red/STD_red_run
-	../../elf/elf_g test.pm > tst_1 2> tst_2
+	../../elf/elf_h test.pm > tst_1 2> tst_2
 	diff t_baseline.result tst_1
 	@echo ok
 

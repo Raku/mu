@@ -31,7 +31,7 @@ package Regexp::ModuleA::AST {
     }
 
   }
-  class Mod_expr is Mod_Base {
+  class Mod_expr is MixinMod {
     has $.match;
     has $.mods;
     has $.expr;
@@ -47,7 +47,7 @@ package Regexp::ModuleA::AST {
     }
 
   }
-  class Mod_inline is Mod_Base {
+  class Mod_inline is MixinMod {
     has $.match;
     has $.mods;
     has $.notes;

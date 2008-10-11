@@ -13,16 +13,20 @@ only suitable for p5 backends, then create a version which emits p6.
 
 Milestones:
 
-() Dev environment and regression testing set up.
+(DONE) Dev environment and regression testing set up.
 () P6 version passes t/.
 () P6 version emitting P6 passes t/.
 
 PLAN
 
-() Makefile - a hyrid p6/p5 build; t/ regression test.
-() Node definitions in p6.
-() Migrate analysis methods to p6, one method at a time.
-() Migrate emitter methods to p6.
+Unclear.
+
+OLD PLAN
+
+(DONE) Makefile - a hyrid p6/p5 build; t/ regression test.
+(DONE) Node definitions in p6.
+(...) Migrate analysis methods to p6, one method at a time.
+(...) Migrate emitter methods to p6.
 () Setup for second translation phase.
 () Migrate emitted code from p5 to p6.
 
@@ -32,18 +36,6 @@ then
 () Sync with current regex spec.
 () Implement ratchet.
 () Flesh out and improve.
-
-ISSUES
-
-() Not sure whether to migrate the p5 grammar or not.  STD.pm doesn't
-currently have one.
-
-
-NOTES
-
-/EmitRegexYare.pm is a leftover from a previous attempt in this direction.
-Bits of it may be of use.
-
 
 BASELINE
 
@@ -73,10 +65,6 @@ Files=1, Tests=536, 17 wallclock secs (17.30 cusr +  0.35 csys = 17.65 CPU)
 NOTES
 
 Comments from EmitRegexYare.pm.
-# Backtracking api changes from a Filter::Simple to a s/// method.
-# Engine core becomes a prelude.
-# Emitters become p6, emitting p5 source.
-# IR analysis becomes p6.
 # The regexp and regex parsers are temporarily retained, as some of the action logic will need to end up in IRx1_FromAST or elsewhere.
 # And the unicode rules will need to be metaprogrammed in p6.
 # Discarded:
