@@ -321,6 +321,10 @@ use warnings;
       $res
     }
   }
+  sub eval_perl5{
+    my($p5,$env)=@_;
+    eval_runtime_code($p5,$env);
+  }
   sub die{croak @_}
   sub exit{CORE::exit(@_)}
   sub defined{CORE::defined($_[0])}

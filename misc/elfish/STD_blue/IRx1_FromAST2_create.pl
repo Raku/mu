@@ -68,10 +68,16 @@ class IRx1_Build2 {
   method make_ir_from_Match_tree($m) {
     my $rule = $m.rule;
     my $constructor = $.constructors{$rule};
-    if ($constructor) {
+    if $constructor {
       $constructor.($m);
     } else {
-      die "Unknown rule: "~$rule~"\nIt needs to be added to ast_handlers.\n";
+      my $g = $rule.re_groups('\A([^:]+):');
+      if $g { $constructor = $.constructors{$g[0]} }
+      if $constructor {
+        $constructor.($m);
+      } else {
+        die "Unknown rule: "~$rule~"\nIt needs to be added to ast_handlers.\n";
+      }
     }
   };
 };
@@ -106,10 +112,6 @@ class UNDEF {
   }
 };
 
-
-if not($*ast2ir_0) { $*ast2ir_0 = IRx1_Build2.new.init; }
-$*ast2ir_1 = IRx1_Build2.new.init;
-
 END_CODE
 
 
@@ -131,9 +133,8 @@ sub write_ast_handlers {
         $x.make_ir_from_Match_tree()
       };
 
-      method init {
-
   END
+  my $init = "";
 
   my %seen;
   for my $para (@paragraphs) {
@@ -141,42 +142,56 @@ sub write_ast_handlers {
     my($name,$body)=($1,$2);
     die "Saw an AST handler for '$name' twice!\n" if $seen{$name}++;
 
-    $body =~ s{\s*=~\s*s/((?:[^\\\/]|\\.)*)/((?:[^\\\/]|\\.)*)/g;}{.re_gsub(rx:P5/$1/,"$2");}g;
-
     $body =~ s/\bir\(/irbuild_ir\(/g;
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;
     $body =~ s/\$o((?:<\w+>)+)/\$m$1/g;
-    $body =~ s/<(\w+)>/.{'hash'}{'$1'}/g;
+    $body =~ s/<(\w+)>/.hash{'$1'}/g;
     $body =~ s/([A-Z]\w+\.new\w*)\(/IRx1::$1(\$m,/g;
     $body =~ s/\*text\*/(\$m.match_string)/g;
     if ($body =~ /\*1\*/) {
       $body =~ s/\*1\*/\$one/g;
       $body = unindent(<<'      END',"  ").$body;
         my $key;
-        for $m.{'hash'}.keys {
+        for $m.hash.keys {
           if $_ ne 'match' {
             if $key {
-              die("Unexpectedly more than 1 field in NAME - dont know which to choose\n")
+              die("Unexpectedly more than 1 field - dont know which to choose\n")
             }
             $key = $_;
           }
         }
-        my $one = irbuild_ir($m.{'hash'}{$key});
+        my $one = irbuild_ir($m.hash{$key});
       END
-        $body =~ s/NAME/$name/;
     }
 
+    my $fname = $name;
+    $fname =~ s/(\W)/"_".ord($1)/eg;
     $code .= "\n".unindent(<<"    END","    ");
-      \$.add_constructor('$name', sub (\$m) {
+      my \$construct_$fname = sub (\$m) {
         $body;
-      });
+      };
+    END
+    $init .= "".unindent(<<"    END","    ");
+      \$.add_constructor('$name', \$construct_$fname);
     END
 
   }
   $code .= unindent(<<"  END");
+    method init {
+
+  END
+  $code .= unindent(<<"  END");
+      $init
       self;
     }; # end init
-  }
+  };
+
+  END
+  $code .= unindent(<<'  END');
+
+  if not($*ast2ir_0) { $*ast2ir_0 = IRx1_Build.new.init; }
+  $*ast2ir_1 = IRx1_Build.new.init;
+
   END
   open(F,">$file") or die $!; print F $code; close F;
 }

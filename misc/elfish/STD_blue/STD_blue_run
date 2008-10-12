@@ -143,6 +143,7 @@ use autobox;
   our $max_repetition = 3;
   sub to_dump0 {
     my($o)=@_;
+    local $seen{$o} = $seen{$o};
     if($seen{$o}++ > $max_repetition) { return "LOOP:$o"->to_dump0 }
     my $f = $o->{_from};
     my $t = $o->{_to};
