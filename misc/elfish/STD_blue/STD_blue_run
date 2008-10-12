@@ -125,27 +125,48 @@ sub out {
   $output;
 }
 
-
-# for to_dump0, see ../../STD_red/match.rb, bottom
+# Notes
+# For to_dump0, see ../../STD_red/match.rb, bottom.
+# The STD graph seems generally cyclic. :/
 use autobox;
 { package STD;
-  our $type = 'comp_unit';
+  sub condition_sym {
+    my($o,$sym)=@_;
+    if ($sym !~ /^sym/) { $sym }
+    elsif ($sym =~ /\Asym<\s*(.+?)\s*>\z/) { $1 }
+    elsif ($sym =~ /\Asym«\s*(.+?)\s*»\z/) { $1 }
+    elsif ($sym =~ /\Asym\['(.+?)']\z/) { $1 }
+    else { die "bogus sym: $sym\n" }
+  }
+  our $category = 'comp_unit';
+  our %seen;
+  our $max_repetition = 3;
   sub to_dump0 {
     my($o)=@_;
+    if($seen{$o}++ > $max_repetition) { return "LOOP:$o"->to_dump0 }
     my $f = $o->{_from};
     my $t = $o->{_to};
-    my $str = ${$o->{_orig}};
-    my $s = substr($str,$f,$t-$f);
-    $s =~ s/(\\')/\\$1/g;
+    my $whole_file = ${$o->{_orig}};
+    my $str = substr($whole_file,$f,$t-$f);
+    my $s = $str->to_dump0;
     my $h = join("",map{
-      if(/^_/) { "" } else {
+      if(!/^[a-zA-Z]/) { "" }
+      elsif(/\A(O)\z/) { "" }
+      else {
         my $v = $o->{$_};
-        local $type = $_;
+        local $category = $_;
         my $vs = $v->to_dump0;
         "\n $_ => $vs,"
       }
     }keys(%$o));
-    "match('$type','$s',$f,$t,{$h})"
+    my $rule = $category;
+    my $sym = $o->{sym};
+    if($sym) {
+      my $normalized = $o->condition_sym($sym);
+      $rule .= ":".$normalized if $sym ne $rule;
+    }
+    my $rule_str = $rule->to_dump0;
+    "match($rule_str,$s,$f,$t,{$h})"
   }
 }
 { package ARRAY;
