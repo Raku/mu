@@ -12,11 +12,11 @@ $m<statement>
 
 statement
 my $labels = $m<label>;
-my $result = $m<EXPR> || $m<control>;
-if $o<EXPR> && ($o<mod_loop> || $o<mod_cond>) {
+my $result = $m<EXPR> || $m<statement_control>;
+if $o<EXPR> && ($o<statement_mod_loop>.elems || $o<statement_mod_cond>.elems) {
   temp $blackboard::statement_expr = $result;
-  $result = $m<mod_loop> || $m<mod_cond>;
-  if $o<mod_condloop> {
+  $result = $m<statement_mod_loop>[0] || $m<statement_mod_cond>[0];
+  if $o<mod_condloop> { #XXX still exists?
     $blackboard::statement_expr = $result;
     $result = $m<mod_condloop>;
   }
@@ -28,7 +28,10 @@ if $labels {
 }
 
 EXPR
-if $m<infix> {
+if $o<termish> {
+  $m<termish>[0]
+}
+elsif $o<infix> {
   my $op = $m<infix><sym_name>;
   my $args = [$m<left>,$m<right>];
   if $op eq '=>' {
@@ -37,6 +40,16 @@ if $m<infix> {
   } else {
     Apply.newp("infix:"~$op,Capture.newp1($args))
   }
+}
+elsif $o<chain> {
+  my $op = $o<chain>[1]<sym_name>;
+  my $args = [$m<chain>[0],$m<chain>[2]];
+  Apply.newp("infix:"~$op,Capture.newp1($args))
+}
+elsif $o<list> {
+  my $op = $o<delims>[0]<sym_name>;
+  my $args = $m<list>;
+  Apply.newp("infix:"~$op,Capture.newp1($args))
 }
 else {
   temp $blackboard::expect_term_base = $m<noun>;
@@ -98,6 +111,13 @@ noun
 #Should just be *1*, but all versions of node contain a colonpair too.
 $m<fatarrow> || $m<variable> || $m<package_declarator> || $m<scope_declarator> || $m<multi_declarator> || $m<routine_declarator> || $m<regex_declarator> || $m<type_declarator> || $m<circumfix> || $m<dotty> || $m<value> || $m<capterm> || $m<sigterm> || $m<term> || $m<statement_prefi> || $m<colonpair>
 
+
+desigilname
+$m<longname>
+
+deflongname
+$m<name>
+
 longname
 $m<name>
 
@@ -129,7 +149,7 @@ Pair.newp($m<key>,$m<val>)
 term:identifier
 my $args = $m<args><semilist>;
 if not($args) && $o<args><arglist>[0]<EXPR> {
-  $args = [ irbuild_ir($o<args><arglist>[0]<EXPR>) ];
+  $args = [ ir($o<args><arglist>[0]<EXPR>) ];
 }
 Apply.newp($m<identifier>,Capture.newp1($args||[]))
 
@@ -158,13 +178,21 @@ Apply.newp("circumfix:"~$name,Capture.newp1($args||[]))
 quote
 my $nibs = $m<nibble><nibbles>;
 my $args = $nibs.map(sub($x){if $x.WHAT eq 'Str' {Buf.newp($x);} else {$x}});
-Apply.newp('infix:~',Capture.newp1($args||[]))
+if $args.elems < 2 { $args.push(Buf.newp("")) }
+my $tmp = $args.shift;
+for $args {
+  $tmp = Apply.newp('infix:~',Capture.newp1([$tmp,$_]))
+}
+$tmp;
 
 nibbles:\
 my $which = $m<item><sym_name>;
 if $which eq 'n' { "\n" }
-if $which eq 't' { "\t" }
+elsif $which eq 't' { "\t" }
 else { $which }
+
+nibbles
+$m<variable>
 
 
 scope_declarator:my
@@ -197,8 +225,8 @@ VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<traits>,'=',$m<defaul
 #XXX default_value is going to take some non-local work.
 
 variable
-my $tw = $m<twigil>;
-if $o<postcircumfix> {
+my $tw = $m<twigil>[0];
+if $o<postcircumfix>.elems {
   if $tw eq "." {
     my $slf = Apply.newp('self',Capture.newp1([]));
     my $args = $m<postcircumfix><kludge_name>;
@@ -230,7 +258,7 @@ statement_control:BEGIN
 ClosureTrait.newp('BEGIN',$m<block>)
 
 statement_control:for
-For.newp($m<EXPR>,$m<xblock>)
+For.newp($m<xblock><EXPR>,$m<xblock>)
 
 statement_mod_loop:for
 For.newp($m<modifier_expr>,$blackboard::statement_expr)
@@ -258,9 +286,11 @@ my $body = Loop.newp($e2,Block.newp([$block,$e3]),undef,undef);
 Block.newp([$e1,$body])
 
 statement_control:if
+my $if_expr = $m<xblock><EXPR>;
+my $if_block = $m<xblock><pblock>;
 my $els = $m<else>;
 if $els { $els = $els[0] }
-Cond.newp([[$m<if_expr>,$m<if_block>]].push($m<elsif>.flatten),$els,undef)
+Cond.newp([[$if_expr,$if_block]].push($m<elsif>.flatten),$els,undef)
 
 elsif
 [$m<elsif_expr>,$m<elsif_block>]
@@ -314,8 +344,8 @@ Apply.newp("statement_prefix:lazy",Capture.newp1([$m<statement>]))
 
 
 pblock
-if $o<signature> {
-  SubDecl.newp(undef,undef,undef,undef,$m<signature>,undef,$m<block>)
+if $o<signature>.elems {
+  SubDecl.newp(undef,undef,undef,undef,$m<signature>[0],undef,$m<block>)
 } else {
   $m<block>
 }
@@ -326,46 +356,62 @@ Block.newp($m<statementlist>)
 xblock
 $m<pblock>
 
-plurality_declarator:multi
+multi_declarator:multi
 temp $blackboard::plurality = 'multi';
-$m<pluralized> || $m<routine_def>
+$m<declarator>
 
-routine_declarator:routine_def
-my $scope = $blackboard::scope; temp $blackboard::scope;
+routine_declarator:sub
+$m<routine_def>
+
+routine_declarator:method
+$m<method_def>
+
+method_def
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
-my $ident = "";
-if $o<ident> { $ident = $m<ident>  };
-if ($o<ident> && not($scope)) { $scope = "our" };
-my $sig = Signature.newp([],undef);
-if $m<multisig> { $sig = $m<multisig>.[0] };
-SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
+my $multisig = $m<multisig>;
+if not($multisig) { $multisig = [Signature.newp([],undef)]; }
+MethodDecl.newp(undef,undef,$plurality,$m<longname>,$multisig.[0],maybe($m<trait>),$m<block>,undef,undef)
 
-# routine_def is the same as routine_declarator:routine_def
-# This is a workaround for STD.pm not recognizing  multi f(){} .
 routine_def
 my $scope = $blackboard::scope; temp $blackboard::scope;
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $ident = "";
-if $o<ident> { $ident = $m<ident>  };
-if ($o<ident> && not($scope)) { $scope = "our" };
+if $o<deflongname>.elems { $ident = $m<deflongname>[0]  };
+if ($ident && not($scope)) { $scope = "our" };
 my $sig = Signature.newp([],undef);
-if $m<multisig> { $sig = $m<multisig>.[0] };
-SubDecl.newp($scope,undef,$plurality,$ident,$sig,$m<trait>,$m<block>)
+if $o<multisig> { $sig = $m<multisig>.[0] };
+SubDecl.newp($scope,undef,$plurality,$ident,$sig,maybe($m<trait>),$m<block>)
 
-routine_declarator:method_def
-my $plurality = $blackboard::plurality; temp $blackboard::plurality;
-my $multisig = $m<multisig>;
-if not($multisig) { $multisig = [Signature.newp([],undef)]; }
-MethodDecl.newp(undef,undef,$plurality,$m<ident>,$multisig.[0],$m<trait>,$m<block>,undef,undef)
+multisig
+$m<signature>[0]
 
 signature
-Signature.newp($m<parsep>,undef)
+Signature.newp($m<parameter>,undef)
 
 parameter
-Parameter.newp($m<type_constraint>,$m<quantchar>,$m<param_var>,undef,undef,undef,undef)
+my $var = $m<param_var>;
+my $quantchar;
+if $o<slurp> {
+  $var = $m<slurp><param_var>;
+  $quantchar = '*';
+}
+my $type_constraint = $m<type_constraint>;
+#X gimme5 is emitting two copies of the constraint.
+if $type_constraint && $type_constraint.elems == 2 { $type_constraint.pop }
+Parameter.newp($type_constraint,$quantchar,$var,undef,undef,undef,undef)
 
 param_var
-ParamVar.newp($m<sigil>,$m<twigil>,$m<ident>)
+ParamVar.newp($m<sigil>,$m<twigil>[0],$m<identifier>[0])
+
+type_constraint
+$m<fulltypename>
+
+fulltypename
+$m<typename>[0]
+
+typename
+$m<longname>
+
 
 capture
 if not($o<EXPR>) {
@@ -449,19 +495,16 @@ temp $blackboard::package_declarator = 'grammar';
 $m<package_def>
 
 package_def
-PackageDecl.newp(undef,undef,$blackboard::package_declarator,$m<module_name>.[0],$m<traits>,$m<block>)
+PackageDecl.newp(undef,undef,$blackboard::package_declarator,$m<module_name>.[0],maybe($m<trait>),$m<block>)
 
-fulltypename
-$m<typename>.join("::")
+trait
+$m<trait_auxiliary>
 
-typename
-*text* # $m<name>
+trait_auxiliary:is
+Trait.newp('is',$m<longname>)
 
-trait_verb:is
-Trait.newp('is',$m<ident>)
-
-trait_verb:does
-Trait.newp('does',$m<role_name>)
+trait_auxiliary:does
+Trait.newp('does',$m<module_name>)
 
 
 circumfix:pblock
@@ -631,6 +674,10 @@ sub write_ast_handlers {
       sub irbuild_ir ($x) {
         $x.make_ir_from_Match_tree()
       };
+      sub maybe ($x) {
+        if $x.WHAT eq "Array" && $x.elems == 0 { undef }
+        else { $x }
+      }
 
   END
   my $init = "";

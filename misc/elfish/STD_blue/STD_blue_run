@@ -148,7 +148,7 @@ use autobox;
     local $seen{$o} = $seen{$o};
     if($seen{$o}++ > $max_repetition) { return "LOOP:$o"->to_dump0 }
     my $rule = $category;
-    if($rule =~ /\A(chain|list|arg|left|right)\z/) { $rule = 'EXPR' }
+    if($rule =~ /\A(chain|list|arg|left|right|termish)\z/) { $rule = 'EXPR' }
     my $sym = $o->{sym};
     if($sym) {
       my $normalized = $o->condition_sym($sym);
@@ -167,7 +167,7 @@ use autobox;
       else {
         my $v = $o->{$_};
         local $category = $_;
-        my $vs = $v->to_dump0;
+        my $vs = defined($v) ? $v->to_dump0 : 'undef';
         "\n $_ => $vs,"
       }
     }keys(%$o));
@@ -189,7 +189,7 @@ use autobox;
 { package SCALAR;
   sub to_dump0 {
     my($o)=@_;
-    $o =~ s/([\\'\$\@\%])/\\$1/g;
+    $o =~ s/([\\'])/\\$1/g;
     "'".$o."'";
   }
 }
