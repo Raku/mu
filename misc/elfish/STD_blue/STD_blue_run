@@ -70,6 +70,7 @@ sub main {
   }
 
   my($cache_file,$output) = cached_output_for($code, $format);
+  $output = undef; #XXX disable cache
   if($output && !$dash_e){print $output; exit;}
 
   if(!$filename) {
@@ -132,7 +133,8 @@ use autobox;
 { package STD;
   sub condition_sym {
     my($o,$sym)=@_;
-    if ($sym !~ /^sym/) { $sym }
+    if (ref $sym) { join(" ",@$sym) }
+    elsif ($sym !~ /^sym/) { $sym }
     elsif ($sym =~ /\Asym<\s*(.+?)\s*>\z/) { $1 }
     elsif ($sym =~ /\Asym«\s*(.+?)\s*»\z/) { $1 }
     elsif ($sym =~ /\Asym\['(.+?)']\z/) { $1 }
@@ -140,11 +142,20 @@ use autobox;
   }
   our $category = 'comp_unit';
   our %seen;
-  our $max_repetition = 3;
+  our $max_repetition = 20;
   sub to_dump0 {
     my($o)=@_;
     local $seen{$o} = $seen{$o};
     if($seen{$o}++ > $max_repetition) { return "LOOP:$o"->to_dump0 }
+    my $rule = $category;
+    if($rule =~ /\A(chain|list|arg|left|right)\z/) { $rule = 'EXPR' }
+    my $sym = $o->{sym};
+    if($sym) {
+      my $normalized = $o->condition_sym($sym);
+      $o->{sym_name} = $normalized;
+      $rule .= ":".$normalized if $sym ne $rule && $rule ne 'EXPR';
+    }
+    my $rule_str = $rule->to_dump0;
     my $f = $o->{_from};
     my $t = $o->{_to};
     my $whole_file = ${$o->{_orig}};
@@ -160,13 +171,6 @@ use autobox;
         "\n $_ => $vs,"
       }
     }keys(%$o));
-    my $rule = $category;
-    my $sym = $o->{sym};
-    if($sym) {
-      my $normalized = $o->condition_sym($sym);
-      $rule .= ":".$normalized if $sym ne $rule;
-    }
-    my $rule_str = $rule->to_dump0;
     "match($rule_str,$s,$f,$t,{$h})"
   }
 }
