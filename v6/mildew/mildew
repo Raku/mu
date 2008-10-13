@@ -15,8 +15,8 @@ use warnings;
 use Getopt::Long;
 use Carp 'confess';
 
-my ($debug,$file);
-GetOptions("file=s"=>\$file,"debug"=>\$debug);
+my ($desugar,$file);
+GetOptions("file=s"=>\$file,"desugar"=>\$desugar);
 
 sub XXX {
     confess 'unimplemented'
@@ -37,7 +37,7 @@ sub VAST::scope_declarator::emit_m0ld {
                     capture => AST::Capture->new(
                         invocant => AST::Call->new(
                             identifier => string 'postcircumfix:{ }',
-                            capture => AST::Capture->new(invocant=>reg 'scope',positional=>[string $varname])
+                            capture => AST::Capture->new(invocant=>reg '$scope',positional=>[string $varname])
                         ),
                         positional => [
                             AST::Call->new(
@@ -78,7 +78,7 @@ sub VAST::term::emit_m0ld {
     if ($m->{identifier} && $m->{args}) {
         my $func = AST::Call->new(
             identifier=>string 'lookup',
-            capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string '&'.$m->{identifier}{TEXT}]),
+            capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string '&'.$m->{identifier}{TEXT}]),
         );
         AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(invocant=>$func,positional=>$m->{args}->emit_m0ld));
     }
@@ -99,7 +99,7 @@ sub VAST::routine_def::emit_m0ld {
     my $m = shift;
     AST::Call->new(identifier=>string 'new',
         capture => AST::Capture->new(
-            invocant => reg 'Code',
+            invocant => reg '$Code',
             positional => [],
             named => [
                 string 'mold' => block($m->{block}),
@@ -141,7 +141,7 @@ sub VAST::variable::emit_m0ld {
     my $varname = $m->{desigilname}{longname}{name}{identifier}{TEXT};
     AST::Call->new(
         identifier=>string 'lookup',
-        capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string $varname]),
+        capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $varname]),
     );
 }
 sub VAST::dottyop::emit_m0ld {
@@ -217,14 +217,16 @@ sub VAST::statementlist::emit_m0ld {
     [map {$_->emit_m0ld} @{$m->{statement}}]
 }
 unless ($file) {
-    die "usage [--debug] --file filename\n"
+    die "usage [--desugar] --file filename\n"
 }
 my $m = STD->parsefile($file,'comp_unit');
-print Dump($m->item) if $debug;
-print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+#print Dump($m->item) if $debug;
+#print "#################\n";
+#print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
 my $mold = $m->item->emit_m0ld;
 use YAML::XS;
-print Dump($mold) if $debug;
+print $mold->pretty if $desugar;
+exit if $desugar;
 print <<'BOILERPLATE';
 my $void;
 my $scope = ?SMOP__S1P__LexicalScope."new"();
