@@ -52,9 +52,10 @@ sub terminate_stmt {
 sub pretty {
     use Data::Dump::Streamer;
     my $self = shift;
-    "\{\n"
-    . AST::indent(join("",map { terminate_stmt $_->pretty } @{$self->stmts}),1)
-    . "\}\n"
+    "\{\n". AST::indent(
+        join('',map {'my $'.$_.";\n"} @{$self->regs})
+        . join("",map { terminate_stmt $_->pretty } @{$self->stmts})
+    ) . "\}\n"
 }
 
 package AST::Comment;
@@ -71,18 +72,6 @@ use Moose;
 extends 'AST::Base';
 has 'identifier';
 has 'stmt';
-
-=for comment
-class Call is Emit {
-    has $.capture;
-    has $.identifier;
-    method m0ld($ret) {
-        if $.capture.isa(Capture) {
-            $.capture.invocant.emit ~ '.' ~ $.identifier.emit ~ '()' 
-        }
-    }
-}
-=cut
 
 package AST::Named;
 use Moose;
@@ -118,24 +107,28 @@ sub m0ld {
         "my $ret = "
         . $self->capture->invocant->emit
         . "." . $self->identifier->emit
-        . "(" . join('', map {$_->emit} $self->arguments) . ");\n";
+        . "(" . join('', map {$_->emit} $self->arguments) . ")" . ";\n";
     } else {
+        die 'unimplemented';
     }
 }
 sub pretty {
     my $self = shift;
+
     my $identifier;
     if ($self->identifier->isa("AST::StringConstant")) {
         $identifier = $self->identifier->value;
     } else {
         $identifier = $self->identifier->pretty;
     }
+
+    my $arguments = '';
+    if (my @arguments = $self->arguments) {
+        $arguments = "(" . join('',map {$_->pretty} $self->arguments) . ")";
+    }
+
     if ($self->capture->isa("AST::Capture")) {
-        $self->capture->invocant->pretty
-        . "." . $identifier 
-        . "("
-            . join('',map {$_->pretty} $self->arguments)
-        . ")"
+        $self->capture->invocant->pretty . "." . $identifier .  $arguments;
     } else {
         $self->SUPER::pretty;
     }

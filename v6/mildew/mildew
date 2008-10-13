@@ -15,12 +15,24 @@ use warnings;
 use Getopt::Long;
 use Carp 'confess';
 
-my ($desugar,$file);
-GetOptions("file=s"=>\$file,"desugar"=>\$desugar);
+my ($desugar,$debug,$file);
+GetOptions("file=s"=>\$file,"debug"=>\$debug,"desugar"=>\$desugar);
 
 sub XXX {
     confess 'unimplemented'
 }
+sub FETCH {
+    my $arg = shift;
+    AST::Call->new(capture=>AST::Capture->new(invocant=>$arg),identifier=>string 'FETCH');
+}
+sub lookup {
+    my $thing = shift;
+    AST::Call->new(
+        identifier=>string 'lookup',
+        capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $thing]),
+    );
+}
+
 sub VAST::integer::emit_m0ld {
     my $m = shift;
     #XXX non-base 10
@@ -42,7 +54,7 @@ sub VAST::scope_declarator::emit_m0ld {
                         positional => [
                             AST::Call->new(
                                 identifier => string 'new',
-                                capture => AST::Capture->new(invocant => reg '$Scalar'),
+                                capture => AST::Capture->new(invocant => lookup '$Scalar'),
                             )
                         ]
                     ),
@@ -76,12 +88,17 @@ sub VAST::noun::emit_m0ld {
 sub VAST::term::emit_m0ld {
     my $m = shift;
     if ($m->{identifier} && $m->{args}) {
-        my $func = AST::Call->new(
-            identifier=>string 'lookup',
-            capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string '&'.$m->{identifier}{TEXT}]),
-        );
+        my $func = lookup('&'.$m->{identifier}{TEXT});
         AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(invocant=>$func,positional=>$m->{args}->emit_m0ld));
+    } elsif (my $name = $m->{longname}{name}) {
+        if ($name->{morename} and !$name->{identifier}) {
+            lookup join '',map {$_->{identifier}[0]{TEXT}} @{$name->{morename}};
+            
+        }
     }
+}
+sub VAST::identifier::emit_m0ld {
+    my $m = shift;
 }
 sub VAST::Terminator::emit_m0ld {
     my $m = shift;
@@ -144,40 +161,29 @@ sub VAST::variable::emit_m0ld {
         capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $varname]),
     );
 }
-sub VAST::dottyop::emit_m0ld {
-    my ($m,$noun) = @_;
-    if ($m->{methodop}) {
-        $m->{methodop}->emit_m0ld($noun);
-    } else {
-        XXX
-    }
-}
+
 sub VAST::dotty::emit_m0ld {
     my ($m,$noun) = @_;
-    if ($m->{dottyop}) {
-        $m->{dottyop}->emit_m0ld($noun);
-    } else {
-        XXX
-    }
-}
-sub FETCH {
-    my $arg = shift;
-    AST::Call->new(capture=>AST::Capture->new(invocant=>$arg),identifier=>string 'FETCH');
-}
-sub VAST::methodop::emit_m0ld {
-    my ($m,$noun) = @_;
-    if ($m->{longname}) {
-        my @positional;
-        my $pos0 = $m->{in}[0]{semilist}{statement}[0];
-        if ($pos0) {
-            @positional = (FETCH($pos0->{EXPR}->emit_m0ld));
+    if (my $methodop = $m->{dottyop}{methodop}) {
+        if ($methodop->{longname}) {
+            my @positional;
+            my $pos0 = $methodop->{in}[0]{semilist}{statement}[0];
+            if ($pos0) {
+                @positional = (FETCH($pos0->{EXPR}->emit_m0ld));
+            }
+            my $ident = $methodop->{longname}{name}{identifier}{TEXT};
+            if ($m->{sym} eq '^!') {
+                $ident = '^!' . $ident;
+            }
+            AST::Call->new(
+                identifier=>string $ident,
+                capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional]),
+            );
+        } else {
+            XXX
         }
-        AST::Call->new(
-            identifier=>string $m->{longname}{name}{identifier}{TEXT},
-            capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional]),
-        );
     } else {
-        XXX
+        XXX;
     }
 }
 sub VAST::EXPR::emit_m0ld {
@@ -217,12 +223,14 @@ sub VAST::statementlist::emit_m0ld {
     [map {$_->emit_m0ld} @{$m->{statement}}]
 }
 unless ($file) {
-    die "usage [--desugar] --file filename\n"
+    die "usage [--debug] [--desugar] --file filename\n"
 }
 my $m = STD->parsefile($file,'comp_unit');
+print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+print "#################\n" if $debug;
 #print Dump($m->item) if $debug;
-#print "#################\n";
-#print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+print Dump($m->item->emit_m0ld) if $debug;
+print "#################\n" if $debug;
 my $mold = $m->item->emit_m0ld;
 use YAML::XS;
 print $mold->pretty if $desugar;
