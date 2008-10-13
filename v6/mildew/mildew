@@ -28,21 +28,21 @@ sub VAST::integer::emit_m0ld {
 }
 sub VAST::scope_declarator::emit_m0ld {
     my $m = shift;
-    die 'not implemented yet';
-    if ($m->{''} eq 'my') {
+    if ($m->{'sym'} eq 'my') {
         if (my $decl = $m->{scoped}{declarator}) {
             if (my $var_decl = $decl->{variable_declarator}) {
+                my $varname = $var_decl->{variable}{desigilname}{longname}{name}{identifier}{TEXT};
                 AST::Call->new(
                     identifier => string 'STORE',
                     capture => AST::Capture->new(
                         invocant => AST::Call->new(
                             identifier => string 'postcircumfix:{ }',
-                            capture => AST::Capture->new(invocant=>reg 'scope',positional=>[string $m->text],named=>[])
+                            capture => AST::Capture->new(invocant=>reg 'scope',positional=>[string $varname])
                         ),
                         positional => [
                             AST::Call->new(
                                 identifier => string 'new',
-                                invocant => reg '$Scalar',
+                                capture => AST::Capture->new(invocant => reg '$Scalar'),
                             )
                         ]
                     ),
@@ -78,7 +78,7 @@ sub VAST::term::emit_m0ld {
     if ($m->{identifier} && $m->{args}) {
         my $func = AST::Call->new(
             identifier=>string 'lookup',
-            capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string '&'.$m->{identifier}{TEXT}],named=>[]),
+            capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string '&'.$m->{identifier}{TEXT}]),
         );
         AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(invocant=>$func,positional=>$m->{args}->emit_m0ld));
     }
@@ -141,44 +141,46 @@ sub VAST::variable::emit_m0ld {
     my $varname = $m->{desigilname}{longname}{name}{identifier}{TEXT};
     AST::Call->new(
         identifier=>string 'lookup',
-        capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string $varname],named=>[]),
+        capture=>AST::Capture->new(invocant=>reg 'scope',positional=>[string $varname]),
     );
 }
 sub VAST::dottyop::emit_m0ld {
-    my ($noun,$m) = @_;
+    my ($m,$noun) = @_;
     if ($m->{methodop}) {
-        methodop($noun,$m->{methodop});
+        $m->{methodop}->emit_m0ld($noun);
     } else {
         XXX
     }
 }
 sub VAST::dotty::emit_m0ld {
-    my ($noun,$m) = @_;
-    #XXX .*foo
+    my ($m,$noun) = @_;
     if ($m->{dottyop}) {
-        dottyop($noun,$m->{dottyop});
+        $m->{dottyop}->emit_m0ld($noun);
     } else {
         XXX
     }
 }
-sub VAST::FETCH::emit_m0ld {
+sub FETCH {
     my $arg = shift;
     AST::Call->new(capture=>AST::Capture->new(invocant=>$arg),identifier=>string 'FETCH');
 }
 sub VAST::methodop::emit_m0ld {
-    my ($noun,$m) = @_;
+    my ($m,$noun) = @_;
     if ($m->{longname}) {
+        my @positional;
         my $pos0 = $m->{in}[0]{semilist}{statement}[0];
+        if ($pos0) {
+            @positional = (FETCH($pos0->{EXPR}->emit_m0ld));
+        }
         AST::Call->new(
-            identifier=>string $m->{longname}->text,
-            capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[FETCH($pos0->{EXPR}->emit_m0ld)],named=>[]),
-        
+            identifier=>string $m->{longname}{name}{identifier}{TEXT},
+            capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional]),
         );
     } else {
         XXX
     }
 }
-sub VAST::TERM::emit_m0ld {
+sub VAST::EXPR::emit_m0ld {
     my $m = shift;
     if ($m->{noun}) {
         my $noun = $m->{noun}->emit_m0ld;
@@ -217,10 +219,10 @@ sub VAST::statementlist::emit_m0ld {
 unless ($file) {
     die "usage [--debug] --file filename\n"
 }
-my $r = STD->parsefile($file,'comp_unit')->item;
-print Dump($r) if $debug;
-#print dump_match('comp_unit'=>$r,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
-my $mold = $r->emit_m0ld;
+my $m = STD->parsefile($file,'comp_unit');
+print Dump($m->item) if $debug;
+print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+my $mold = $m->item->emit_m0ld;
 use YAML::XS;
 print Dump($mold) if $debug;
 print <<'BOILERPLATE';
