@@ -36,7 +36,7 @@ sub phi($n) {
   $result;
 }
 
-unless caller {
+unless caller() {
   use Test;
   plan 20;
 

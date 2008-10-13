@@ -112,7 +112,7 @@ sub find_solution(@prefix, @rowspec, @colspec) {
     }
 }
 
-unless caller {
+unless caller() {
     use Test;
     plan 10;
 

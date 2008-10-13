@@ -33,7 +33,7 @@ multi sub right(Array @tree) {
   @tree[2]
 }
 
-unless caller {
+unless caller() {
   use Test;
   plan 9;
 

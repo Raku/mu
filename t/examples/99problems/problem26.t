@@ -25,7 +25,7 @@ sub combination($n, @xs) {
     }
 }
 
-unless caller {
+unless caller() {
     use Test;
     plan 1;
     

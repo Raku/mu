@@ -35,7 +35,7 @@ sub is_prime(Int $num) returns Bool {
     return True;
 }
 
-unless caller {
+unless caller() {
     use Test;
     plan 10;
     ok !is_prime(0), "We should find that 0 is not prime";

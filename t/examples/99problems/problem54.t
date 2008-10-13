@@ -21,7 +21,7 @@ sub istree($obj) returns Bool {
   return +$obj==3 and istree($obj[1]) and istree($obj[2]);
 }
 
-unless caller {
+unless caller() {
   use Test;
   plan 5;
   

@@ -41,7 +41,7 @@ sub group(@sizes, @elems) {
     }, combination(@sizes[0], @elems)
 }
 
-unless caller {
+unless caller() {
     use Test;
     plan 1;
 

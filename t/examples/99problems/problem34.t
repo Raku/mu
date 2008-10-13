@@ -24,7 +24,7 @@ sub totient_phi(Int $num) {
     +grep({gcd($_,$num) == 1}, 1 .. $num);
 }
 
-if !caller {
+if !caller() {
     use Test;
     plan 20;
 

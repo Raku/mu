@@ -27,7 +27,7 @@ sub gray2($n) {
     state @g[$n] //= ('0' >>~<< gray2($n-1), '1' >>~<< gray2($n-1).reverse);
 }
 
-unless caller {
+unless caller() {
     use Test;
     plan 6;
 

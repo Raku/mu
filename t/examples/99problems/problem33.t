@@ -12,7 +12,7 @@ require "problem32.t";
 
 sub coprime(Int $a, Int $b) { gcd($a,$b) == 1}
 
-unless caller {
+unless caller() {
     use Test;
     plan 3;
     ok  coprime(35,64), "We should be able to tell that 35 and 64 are coprime";

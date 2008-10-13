@@ -32,7 +32,7 @@ sub pf2($n) {
     return $n;
 }
 
-unless caller {
+unless caller() {
     use Test;
     plan 1;
 

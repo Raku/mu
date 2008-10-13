@@ -19,7 +19,7 @@ multi sub gcd(Int $a, Int $b){
     return gcd($b,$a % $b);
 }
 
-unless caller {
+unless caller() {
     use Test;
     plan 4;
     is gcd(36,63), 9, "We should be able to find the gcd of 36 and 63";

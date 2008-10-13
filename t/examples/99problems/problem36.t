@@ -31,7 +31,7 @@ sub prime_factors_mult(Int $n is copy){
   }
 }
 
-unless caller {
+unless caller() {
   use Test;
   plan 5;
   is prime_factors_mult(1),[], "We ignore 1";
