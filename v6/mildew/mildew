@@ -209,6 +209,10 @@ sub VAST::EXPR::emit_m0ld {
 sub VAST::termish::emit_m0ld {
     EXPR(shift);
 }
+sub VAST::Methodcall::emit_m0ld {
+    my $m = shift;
+    $m->{arg}->emit_m0ld;
+}
 sub VAST::List_assignment::emit_m0ld {
     my $m = shift;
     if ($m->{infix}{TEXT} eq '=') {
