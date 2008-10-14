@@ -1,4 +1,4 @@
-class P6Meta meta SMOP__S1P__PurePrototypeHow {
+class P6Meta is meta(SMOP__S1P__PurePrototypeHow) {
 
 =begin
 
@@ -64,11 +64,10 @@ This method is called from bless, to actually initialize the values of the objec
           $object.^!initialize_instance_storage($package);
 
           for ($prototype.^!attributes()) -> $att {
-              $object.^!initialize_instance_storage_slot
-                ($package, $att.private_name(), $att.create_container());
+              $object.^!initialize_instance_storage_slot($package, $att.private_name(), $att.create_container());
           }
 
-          my %protoargs = @protoobjects.grep { $_.WHAT === $prototype };
+          my %protoargs = grep @protoobjects, { $_.WHAT === $prototype };
           $prototype.?BUILD($object: |%protoargs, |%initialize);
       }
       fail if not $object.^!instance;
@@ -145,7 +144,7 @@ Returns a lazy list with all the methods implemented by this object.
           }
       }
 
-      List of Method @methods = gather {
+      my List of Method @methods = gather {
           list_methods_recurse($object);
           for ($object.^!submethods) -> $submethod {
              take $submethod;
@@ -157,13 +156,13 @@ Returns a lazy list with all the methods implemented by this object.
 
 =begin
 
-=item method attributes($how: $object, --> List of Attribute)
+=item method attributes($how: $object --> List of Attribute)
 
 Returns a lazy list with all the attributes of this object.
 
 =end
 
-  method attributes($how: $object --> List of Attribute) {
+  method attributes($how: $object) {
       my sub list_attributes_recurse($obj) {
           for ($obj.^!attributes) -> $attr {
               take $attr;
@@ -176,7 +175,7 @@ Returns a lazy list with all the attributes of this object.
           }
       }
 
-      List of Attribute @attributes = gather {
+      my @attributes = gather {
           list_attributes_recurse($object);
       };
       return @attributes;

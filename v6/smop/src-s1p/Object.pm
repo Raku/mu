@@ -45,6 +45,8 @@ Object, it is simply delegated to the metaclass.
   }
 
 
+=begin
+
 =item method clone( --> Object )
 
 Creates a clone of the current object.
@@ -101,7 +103,7 @@ Asks the metaclass if this object can do this method.
 =end
 
   method can($name, $capture? --> List of Method ) {
-      return $object.^can($name, $capture?);
+      return $object.^can($name, $capture);
   }
 
 =begin
