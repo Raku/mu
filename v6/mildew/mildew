@@ -155,7 +155,7 @@ sub VAST::number::emit_m0ld {
 }
 sub VAST::variable::emit_m0ld {
     my $m = shift;
-    my $varname = $m->{desigilname}{longname}{name}{identifier}{TEXT};
+    my $varname = $m->{sigil}{TEXT}.$m->{desigilname}{longname}{name}{identifier}{TEXT};
     AST::Call->new(
         identifier=>string 'lookup',
         capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $varname]),
