@@ -52,7 +52,7 @@ sub terminate_stmt {
 sub pretty {
     use Data::Dump::Streamer;
     my $self = shift;
-    "\{\n". AST::indent(
+    "mold \{\n". AST::indent(
         join('',map {'my $'.$_.";\n"} @{$self->regs})
         . join("",map { terminate_stmt $_->pretty } @{$self->stmts})
     ) . "\}\n"

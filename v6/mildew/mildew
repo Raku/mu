@@ -43,13 +43,12 @@ sub VAST::scope_declarator::emit_m0ld {
     if ($m->{'sym'} eq 'my') {
         if (my $decl = $m->{scoped}{declarator}) {
             if (my $var_decl = $decl->{variable_declarator}) {
-                my $varname = $var_decl->{variable}{desigilname}{longname}{name}{identifier}{TEXT};
                 AST::Call->new(
                     identifier => string 'STORE',
                     capture => AST::Capture->new(
                         invocant => AST::Call->new(
                             identifier => string 'postcircumfix:{ }',
-                            capture => AST::Capture->new(invocant=>reg '$scope',positional=>[string $varname])
+                            capture => AST::Capture->new(invocant=>$var_decl->{variable}->emit_m0ld)
                         ),
                         positional => [
                             AST::Call->new(
