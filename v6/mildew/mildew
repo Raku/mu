@@ -118,7 +118,7 @@ sub VAST::routine_def::emit_m0ld {
             invocant => reg '$Code',
             positional => [],
             named => [
-                string 'mold' => block($m->{block}),
+                string 'mold' => $m->{block}->emit_m0ld,
                 string 'outer' => reg '$scope'
             ]
         ),
@@ -126,7 +126,7 @@ sub VAST::routine_def::emit_m0ld {
 }
 sub VAST::block::emit_m0ld {
     my $m = shift;
-    AST::Block->new(regs=>['interpreter','scope'],stmts=>statementlist($m->{in}{statementlist}));
+    AST::Block->new(regs=>['interpreter','scope'],stmts=>$m->{statementlist}->emit_m0ld);
 }
 sub VAST::value::emit_m0ld {
     my $m = shift;

@@ -46,7 +46,7 @@ sub m0ld {
 }
 sub terminate_stmt {
     my $stmt = shift;
-    return $stmt . ";\n" unless $stmt =~ /\n|;|}$/;
+    return $stmt . ";\n" unless $stmt =~ /(\n|;|})$/;
     return $stmt;
 }
 sub pretty {
@@ -55,7 +55,7 @@ sub pretty {
     "mold \{\n". AST::indent(
         join('',map {'my $'.$_.";\n"} @{$self->regs})
         . join("",map { terminate_stmt $_->pretty } @{$self->stmts})
-    ) . "\}\n"
+    ) . "\}"
 }
 
 package AST::Comment;
@@ -85,6 +85,11 @@ sub emit {
 }
 sub m0ld {
     die "method m0ld is not supported on AST::Named\n"
+}
+
+sub pretty {
+    my $self = shift;
+    $self->key->pretty . " => " . $self->value->pretty;
 }
 
 package AST::Call;
@@ -124,7 +129,7 @@ sub pretty {
 
     my $arguments = '';
     if (my @arguments = $self->arguments) {
-        $arguments = "(" . join('',map {$_->pretty} $self->arguments) . ")";
+        $arguments = "(" . join(',',map {$_->pretty} $self->arguments) . ")";
     }
 
     if ($self->capture->isa("AST::Capture")) {
