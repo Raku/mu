@@ -13,6 +13,7 @@ extern SMOP__Object* SMOP__S1P__Code;
 extern SMOP__Object* SMOP__S1P__CCode;
 extern SMOP__Object* SMOP__S1P__map;
 extern SMOP__Object* SMOP__S1P__grep;
+extern SMOP__Object* SMOP__S1P__Multi;
 extern SMOP__Object* SMOP__S1P__Attribute;
 extern SMOP__Object* SMOP__S1P__Package;
 extern SMOP__Object* SMOP__S1P__Method;

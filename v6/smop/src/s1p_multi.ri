@@ -1,0 +1,70 @@
+%prefix smop_s1p_multi
+%prototype SMOP__S1P__Multi
+%RI.id multi sub
+%attr SMOP__Object* variants
+%getter variants
+%method new
+  ret = smop_lowlevel_alloc(sizeof(smop_s1p_multi_struct));
+  SMOP_REFERENCE(interpreter,RI);
+  ret->RI = (SMOP__ResponderInterface*)RI;
+  ((smop_s1p_multi_struct*)ret)->variants = SMOP__S1P__Array_create();
+
+%method variants
+  smop_lowlevel_rdlock(invocant);
+  ret = ((smop_s1p_multi_struct*)invocant)->variants;
+  smop_lowlevel_unlock(invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method FETCH
+  ret = SMOP_REFERENCE(interpreter, invocant);  
+
+%method push
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,multi_variant_push));
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+  mold_reg_set(interpreter,frame,1,continuation);
+  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+              SMOP__ID__goto,
+              frame);
+
+%method postcircumfix:( )
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,multi_call));
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+  mold_reg_set(interpreter,frame,1,continuation);
+  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+              SMOP__ID__goto,
+              frame);
+
+%mold multi_variant_push
+  my $capture;
+  my $back;
+  my $interpreter;
+  my $invocant = $capture."invocant"();
+  my $variants = $invocant."variants"();
+  my $variant = $capture."positional"(0);
+  my $void = $variants."push"($variant);
+  $void = $interpreter."goto"($back);
+
+%mold multi_call
+  my $capture;
+  my $back;
+  my $interpreter;
+  my $void = $interpreter."goto"($back);
+
+%method DESTROYALL
+  smop_lowlevel_wrlock(invocant);
+  SMOP__Object* variants = ((smop_s1p_multi_struct*)invocant)->variants;
+  smop_lowlevel_unlock(invocant);
+  SMOP_RELEASE(interpreter,variants);
+  SMOP_RELEASE(interpreter,RI);

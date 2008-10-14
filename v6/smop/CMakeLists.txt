@@ -102,6 +102,7 @@ compile_sm0p (${sm0p_file})
 endforeach()
 
 foreach (ri_file
+    src/s1p_multi.ri
     src/s1p_io.ri
     src/s1p_lexicalscope.ri
     src/s1p_adhocsignature.ri
@@ -141,6 +142,7 @@ add_library (smop
     src/s1p_adhocsignature.c
     src/s1p_hash.c
     src/s1p_io.c
+    src/s1p_multi.c
     src/s1p_lexicalscope.c
     src/s1p_root_namespace.c
     src/s1p_scalar.c

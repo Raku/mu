@@ -66,7 +66,8 @@
      smop_s1p_grep_init();                  \
      smop_s1p_array_iterator_init();        \
      smop_s1p_emptylist_init();             \
-     smop_s1p_endofiterator_init();
+     smop_s1p_endofiterator_init();         \
+
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
      smop_s1p_endofiterator_destr();        \
      smop_s1p_emptylist_destr();            \
@@ -88,12 +89,13 @@
      smop_lowlevel_method_destr();          \
      smop_s1p_ccode_destr();                \
      smop_s1p_code_destr();                 \
-     smop_mold_destr();                    
+     smop_mold_destr();
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
-     smop_proto_init();                  \
+     smop_proto_init();                     \
      smop_s1p_root_namespace_init();        \
-     smop_s1p_lexicalscope_init();     \
+     smop_s1p_lexicalscope_init();          \
+     smop_s1p_multi_init();                 \
      smop_s1p_defaultblocksignature_mold_init(); \
      smop_s1p_bindcapturesignature_mold_init();  \
      smop_s1p_adhocsignature_init();        \
@@ -105,7 +107,7 @@
      smop_s1p_ritest_init();                \
 
 #define SMOP_BOOTSTRAP_DESTR_SEQUENCE       \
-     smop_s1p_ritest_destr();              \
+     smop_s1p_ritest_destr();               \
      smop_s1p_array_iterator_mold_destr();  \
      smop_s1p_grep_mold_destr();            \
      smop_s1p_map_mold_destr();             \
@@ -114,7 +116,8 @@
      smop_s1p_adhocsignature_destr();       \
      smop_s1p_bindcapturesignature_mold_destr(); \
      smop_s1p_defaultblocksignature_mold_destr();\
-     smop_s1p_lexicalscope_destr();    \
+     smop_s1p_multi_destr();                \
+     smop_s1p_lexicalscope_destr();         \
      smop_s1p_root_namespace_destr();       \
 
 void smop_idconst_init();
@@ -177,5 +180,7 @@ void smop_s1p_endofiterator_init();
 void smop_s1p_endofiterator_destr();
 void smop_s1p_ritest_init();
 void smop_s1p_ritest_destr();
+void smop_s1p_multi_init();
+void smop_s1p_multi_destr();
 
 #endif

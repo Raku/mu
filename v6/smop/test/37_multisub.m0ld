@@ -99,9 +99,7 @@ my $code2 = $Code."new"(:"outer"($lexicalscope),:"signature"($signature2),:"mold
 
 $void = $out."print"("ok 1 - initialized\n");
 
-my $Multi_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Multi");
-my $Multi = $Multi_scalar."FETCH"();
-my $m = $Multi."new"();
+my $m = ¢SMOP__S1P__Multi."new"();
 
 $void = $out."print"("ok 2 - multi created\n");
 
