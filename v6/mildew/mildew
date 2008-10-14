@@ -186,7 +186,7 @@ sub VAST::dotty::emit_m0ld {
         XXX;
     }
 }
-sub VAST::EXPR::emit_m0ld {
+sub EXPR {
     my $m = shift;
     if ($m->{noun}) {
         my $noun = $m->{noun}->emit_m0ld;
@@ -202,6 +202,23 @@ sub VAST::EXPR::emit_m0ld {
         } else {
             $noun;
         }
+    }
+} 
+sub VAST::EXPR::emit_m0ld {
+    EXPR(shift);
+}
+sub VAST::termish::emit_m0ld {
+    EXPR(shift);
+}
+sub VAST::List_assignment::emit_m0ld {
+    my $m = shift;
+    if ($m->{infix}{TEXT} eq '=') {
+        AST::Call->new(
+            identifier=>string 'STORE',
+            capture=>AST::Capture->new(invocant=>$m->{left}->emit_m0ld,positional=>[FETCH($m->{right}->emit_m0ld)]),
+        );
+    } else {
+        XXX;
     }
 }
 sub VAST::statement::emit_m0ld {
@@ -228,7 +245,7 @@ unless ($file) {
 my $m = STD->parsefile($file,'comp_unit');
 print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
 print "#################\n" if $debug;
-#print Dump($m->item) if $debug;
+print Dump($m->item) if $debug;
 print Dump($m->item->emit_m0ld) if $debug;
 print "#################\n" if $debug;
 my $mold = $m->item->emit_m0ld;
