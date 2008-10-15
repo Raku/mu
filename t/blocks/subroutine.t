@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 17;
+plan 16;
 
 sub foobar ($var) {
     return $var;
@@ -83,10 +83,3 @@ eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 
 my @array = 3..7;
 is(try { unpack_array(@array) }, 3, 'unpacking an array parameter', :todo<feature>);
-
-#L<S06/"Unpacking hash parameters">
-
-eval 'sub unpack_hash({:$yo, *%other}){ return $yo; }';
-
-my %params = yo => 3, nope => 4;
-is(try { unpack_hash(%params) }, 3, 'unpacking a hash parameter', :todo);

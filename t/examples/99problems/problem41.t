@@ -32,7 +32,7 @@ plan 1;
 sub primes($from, $to) {
     my @p = (2);
     for 3..$to -> $x {
-        push @p, $x unless grep { $x % $_ == 0 }, 2..ceil sqrt $x;
+        push @p, $x unless grep { $x % $_ == 0 }, 2..ceiling sqrt $x;
     }
     grep { $_ >= $from }, @p;
 }
