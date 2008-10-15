@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 11 Oct 2008
+  Last Modified: 14 Oct 2008
   Number: 6
-  Version: 95
+  Version: 96
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -713,10 +713,8 @@ an undefined value if they have no default.  (A supplied argument that is
 undefined is not considered to be missing, and hence does not trigger
 the default.  Use C<//=> within the body for that.)
 
-(Conjectural: Within the body you may also use C<exists> on the
-parameter name to determine whether it was passed.  Maybe this will have to
-be restricted to the C<?> form, unless we're willing to admit that a parameter
-could be simultaneously defined and non-existent.)
+You may check whether an optional parameter was bound to anything
+by calling C<VAR($param).defined>.
 
 =head2 Named parameters
 
@@ -1356,39 +1354,9 @@ To match the first element of the slurpy list, use a "slurpy" scalar:
 
     sub quicksort (:$reverse, :$inplace, *$pivot, *@data)
 
-=head2 Unpacking hash parameters
-
-Likewise, a hash argument can be mapped to a hash of parameters, specified
-as named parameters within curlies.  Instead of saying:
-
-    sub register (%guest_data, $room_num) {
-        my $name := delete %guest_data<name>;
-        my $addr := delete %guest_data<addr>;
-        ...
-    }
-
-you can get the same effect with:
-
-    sub register ({:$name, :$addr, *%guest_data}, $room_num) {
-        ...
-    }
-
-Use of the curly form is not allowed where it might be confused with the
-following block's opening curly:
-
-    -> {:$name, :$addr, *%guest_data}, $room_num {	# WRONG
-
-However, as described in the next section, you can always use a
-sub-signature instead:
-
-    -> (:$name, :$addr, *%guest_data), $room_num {	# note ()'s
-
-In fact, the [...] and {...} forms are really just extra documentation
-about what you expect.
-
 =head2 Unpacking tree node parameters
 
-You can unpack tree nodes in various dwimmy ways by enclosing the bindings
+You can unpack hash values and tree nodes in various dwimmy ways by enclosing the bindings
 of child nodes and attributes in parentheses following the declaration of
 the node itself:
 

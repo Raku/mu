@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 17 July 2008
+  Last Modified: 14 Oct 2008
   Number: 9
-  Version: 28
+  Version: 29
 
 =head1 Overview
 
@@ -362,7 +362,7 @@ distinct dimensions:
     @@x <==  %hash.keys.grep: {/^\d+$/};
     @@x <== =<>;
     @@x <== 1..*;
-    @@x <== gather { loop { take rand 100 } };
+    @@x <== gather { loop { take 100.rand } };
 
     @array{@@x}
 
@@ -374,7 +374,7 @@ in contexts that care about the dimensionality:
     @x <==  %hash.keys.grep: {/^\d+$/};
     @x <== =<>;
     @x <== 1..*;
-    @x <== gather { loop { take rand 100 } };
+    @x <== gather { loop { take 100.rand } };
 
     @array{@@x}  # multidimensional
     @array{@x}   # flattened
@@ -1206,7 +1206,7 @@ unintentionally, even when the code looks like a non-destructive test:
 In Perl 6 these read-only operations are indeed non-destructive:
 
     my %hash;
-    exists %hash<foo><bar>; # %hash is still empty
+    %hash<foo><bar> :exists; # %hash is still empty
 
 But these bindings I<do> autovivify:
 

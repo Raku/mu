@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 21 Aug 2008
+  Last Modified: 14 Oct 2008
   Number: 12
-  Version: 63
+  Version: 64
 
 =head1 Overview
 
@@ -1786,6 +1786,26 @@ call the C<.Bool> coercion or the C<true> function or the C<?>
 prefix operator on any built-in type, but the value returned is of
 type C<bit>.  Never compare a value to "C<true>", or even "C<True>".
 Just use it in a boolean context.
+
+Enum types (and perhaps certain other finite, enumerable types such
+as finite ranges) define a C<.pick> method on the protoobject of
+that type.  Hence:
+
+    my enum CoinFace <Heads Tails>;
+    CoinFace.pick
+
+returns C<Heads> or C<Tails> with equal probability, and
+
+    Month.pick(*)
+
+will return the months in random order.  Presumably
+
+    StandardPlayingCards.pick(5)
+
+might return a Royal Flush, but a Full House is much
+more likely.  It can never return Five Aces, since the pick
+is done without replacement.  (If it I<does> return Five Aces,
+it's time to walk away.)
 
 =head1 Open vs Closed Classes
 

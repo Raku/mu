@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 1 Sep 2008
+  Last Modified: 14 Oct 2008
   Number: 4
-  Version: 69
+  Version: 70
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -1080,11 +1080,11 @@ In this statement:
     }
 
 parentheses aren't necessary around C<EXPR> because the whitespace
-between C<EXPR> and the block forces the block to be considered a
-block rather than a subscript.  This works for all control structures,
-not just the new ones in Perl 6.  A top-level bare block
-is always considered a statement block if there's space
-before it:
+between C<EXPR> and the block forces the block to be considered a block
+rather than a subscript, provided the block occurs where an infix
+operator would be expected.  This works for all control structures,
+not just the new ones in Perl 6.  A top-level bare block is always
+considered a statement block if there's a term and a space before it:
 
     if $foo { ... }
     elsif $bar { ... }
@@ -1094,30 +1094,24 @@ before it:
 
 You can still parenthesize the expression argument for old times'
 sake, as long as there's a space between the closing paren and the
-opening brace.  You I<must> parenthesize the expression if there is
-a bare block or pointy block that would be misinterpreted as the statement's
-block.  This is regardless of whether a term or operator is expected where
-the block occurs.  (A block inside brackets, or used as a
-postcircumfix is fine, though.)  Any block with whitespace
-in front of it will be taken as terminating the conditional, even if
-the conditional expression could take another argument.  Therefore
+opening brace.  (Otherwise it will be parsed as a hash subscript.)
 
-    if rand { say "exists" } { extra() }
-    if rand -> $x { say "exists" } { extra() }
+Note that the parser cannot intuit how many arguments a list operator
+is taking, so if you mean 0 arguments, you must parenthesize the
+argument list to force the block to appear after a term:
 
-is always parsed as
+    if caller {...}	# WRONG, parsed as caller({...})
+    if caller() {...}	# okay
+    if (caller) {...}	# okay
 
-    if (rand) { say "exists" }; { extra() }
-    if (rand) -> $x { say "exists" }; { extra() }
+Note that common idioms work as expected though:
 
-rather than
+    for map { $^a + 1 }, @list { .say }
 
-    if (rand { say "exists" }) { extra() }
-    if (rand (-> $x { say "exists" })) { extra() }
-
-Apart from that, it is illegal to use a bare closure where an
-operator is expected.  (Remove the whitespace if you wish it to be
-a postcircumfix.)
+Unless you are parsing a statement that expects a block argument,
+it is illegal to use a bare closure where an operator is expected
+because it will be considered to be two terms in row.
+(Remove the whitespace if you wish it to be a postcircumfix.)
 
 Anywhere a term is expected, a block is taken to be a closure definition
 (an anonymous subroutine).  If the closure is empty, or appears to contain

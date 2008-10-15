@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 9 Oct 2008
+  Last Modified: 14 Oct 2008
   Number: 2
-  Version: 138
+  Version: 139
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1096,8 +1096,8 @@ types to act like an "and" junction:
 
     # Anything assigned to the variable $mitsy must conform
     # to the type Fish and either the Cat or Dog type...
-    my Cat|Dog Fish $mitsy = new Fish but { int rand 2 ?? .does Cat
-                                                       !! .does Dog };
+    my Cat|Dog Fish $mitsy = new Fish but { Bool.pick ?? .does Cat
+                                                      !! .does Dog };
 
 =head2 Parameter types
 
