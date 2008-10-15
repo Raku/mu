@@ -1,4 +1,4 @@
-say "1..1\n";
+say "1..1";
 my $object;
 $object = ::p6opaque.^!CREATE;
 $object.^!how() = ::S1P::PurePrototypeHow;

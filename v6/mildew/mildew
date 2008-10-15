@@ -97,7 +97,16 @@ sub VAST::term::emit_m0ld {
     my $m = shift;
     if ($m->{identifier} && $m->{args}) {
         my $func = lookup('&'.$m->{identifier}{TEXT});
-        AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(invocant=>$func,positional=>$m->{args}->emit_m0ld));
+        AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(
+            invocant=>$func,
+            positional => [AST::Call->new(
+                identifier => string 'new_without_invocant',
+                capture => AST::Capture->new(
+                    invocant => lookup('Capture'),
+                    positional => $m->{args}->emit_m0ld
+                )
+            )]
+        ));
     } elsif (my $name = $m->{longname}->{name}) {
         if ($name->{morename} and !$name->{identifier}) {
             lookup join '',map {$_->{identifier}[0]{TEXT}} @{$name->{morename}};
