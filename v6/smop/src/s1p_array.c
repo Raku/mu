@@ -42,8 +42,8 @@ static int floor_log2(unsigned int n) {
 static void resize_array(smop_s1p_array_struct* array,int new_size) {
   if (new_size > array->size) {
     int old_size = array->size;
-    array->size = new_size; // this looks buggy: 1<<(floor_log2(new_size));
-    //printf("new size:%d resizing to %d previous size:%d\n",new_size,array->size,old_size);
+    array->size = new_size;
+    //printf("new_size:%d amortized size:%d\n",new_size,1<<(floor_log2(new_size))+1);
     array->content = realloc(array->content,(array->size * sizeof(void*)));
     int i;
     for ( i = old_size ; i < new_size ; i++) {
@@ -77,9 +77,7 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
 
   } else if (identifier == SMOP__ID__unshift) {
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
-    if (invocant->size < (invocant->elems + 1)) {
-      resize_array(invocant, invocant->size + 1);
-    }
+    resize_array(invocant, invocant->elems + 1);
     memmove(&invocant->content[1], &invocant->content[0], invocant->elems * sizeof(void*));
     invocant->content[0] = value;
     invocant->elems++;
@@ -89,10 +87,7 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
 
   } else if (identifier == SMOP__ID__push) {
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
-    if (invocant->size < (invocant->elems + 1)) {
-      resize_array(invocant, invocant->size + 1);
-    }
-    printf("setting elem %d to %s\n",invocant->elems,value->RI->id);
+    resize_array(invocant, invocant->elems + 1);
     invocant->content[invocant->elems] = value;
     invocant->elems++;
 
