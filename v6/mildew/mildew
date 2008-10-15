@@ -32,7 +32,16 @@ sub lookup {
         capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $thing]),
     );
 }
-
+sub VAST::longname::canonical {
+    my $m = shift;
+    my $name = $m->{name}{identifier}{TEXT};
+    my $v = $m->{colonpair}[0]{v}{nibble}{nibbles}[0];
+    if ($v) {
+        $name . ':' . $v;
+    } else {
+        $name;
+    }
+}
 sub VAST::integer::emit_m0ld {
     my $m = shift;
     #XXX non-base 10
@@ -53,7 +62,7 @@ sub VAST::scope_declarator::emit_m0ld {
                         positional => [
                             AST::Call->new(
                                 identifier => string 'new',
-                                capture => AST::Capture->new(invocant => lookup '$Scalar'),
+                                capture => AST::Capture->new(invocant => lookup 'Scalar'),
                             )
                         ]
                     ),
@@ -89,7 +98,7 @@ sub VAST::term::emit_m0ld {
     if ($m->{identifier} && $m->{args}) {
         my $func = lookup('&'.$m->{identifier}{TEXT});
         AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(invocant=>$func,positional=>$m->{args}->emit_m0ld));
-    } elsif (my $name = $m->{longname}{name}) {
+    } elsif (my $name = $m->{longname}->{name}) {
         if ($name->{morename} and !$name->{identifier}) {
             lookup join '',map {$_->{identifier}[0]{TEXT}} @{$name->{morename}};
             
@@ -109,13 +118,17 @@ sub VAST::Terminator::emit_m0ld {
 }
 sub VAST::args::emit_m0ld {
     my $m = shift;
-    return [map {$_->{EXPR}->emit_m0ld} @{$m->{arglist}}];
+    if ($m->{listopargs}) {
+        [map {$_->{EXPR}->emit_m0ld} @{$m->{listopargs}}];
+    } else {
+        XXX;
+    }
 }
 sub VAST::routine_def::emit_m0ld {
     my $m = shift;
     AST::Call->new(identifier=>string 'new',
         capture => AST::Capture->new(
-            invocant => reg '$Code',
+            invocant => lookup 'Code',
             positional => [],
             named => [
                 string 'mold' => $m->{block}->emit_m0ld,
@@ -154,7 +167,7 @@ sub VAST::number::emit_m0ld {
 }
 sub VAST::variable::emit_m0ld {
     my $m = shift;
-    my $varname = $m->{sigil}{TEXT}.$m->{desigilname}{longname}{name}{identifier}{TEXT};
+    my $varname = $m->{sigil}{TEXT}.$m->{desigilname}{longname}->canonical;
     AST::Call->new(
         identifier=>string 'lookup',
         capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $varname]),
@@ -170,7 +183,7 @@ sub VAST::dotty::emit_m0ld {
             if ($pos0) {
                 @positional = (FETCH($pos0->{EXPR}->emit_m0ld));
             }
-            my $ident = $methodop->{longname}{name}{identifier}{TEXT};
+            my $ident = $methodop->{longname}->canonical;
             if ($m->{sym} eq '^!') {
                 $ident = '^!' . $ident;
             }
@@ -189,8 +202,8 @@ sub EXPR {
     my $m = shift;
     if ($m->{noun}) {
         my $noun = $m->{noun}->emit_m0ld;
-        if ($m->{post}) {
-            for (@{$m->{post}}) {
+        if ($m->{POST}) {
+            for (@{$m->{POST}}) {
                 if ($_->{dotty}) {
                     $noun = $_->{dotty}->emit_m0ld($noun);
                 } else {
@@ -201,6 +214,8 @@ sub EXPR {
         } else {
             $noun;
         }
+    } else {
+        XXX;
     }
 } 
 sub VAST::EXPR::emit_m0ld {
@@ -249,11 +264,11 @@ my $m = STD->parsefile($file,'comp_unit');
 print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
 print "#################\n" if $debug;
 print Dump($m->item) if $debug;
-print Dump($m->item->emit_m0ld) if $debug;
+#print Dump($m->item->emit_m0ld) if $debug;
 print "#################\n" if $debug;
 my $mold = $m->item->emit_m0ld;
 use YAML::XS;
-print $mold->pretty if $desugar;
+print $mold->pretty,"\n" if $desugar;
 exit if $desugar;
 print <<'BOILERPLATE';
 my $void;

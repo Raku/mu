@@ -112,7 +112,7 @@ sub m0ld {
         "my $ret = "
         . $self->capture->invocant->emit
         . "." . $self->identifier->emit
-        . "(" . join('', map {$_->emit} $self->arguments) . ")" . ";\n";
+        . "(" . join(',', map {$_->emit} $self->arguments) . ")" . ";\n";
     } else {
         die 'unimplemented';
     }
