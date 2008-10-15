@@ -1805,7 +1805,7 @@ will return the months in random order.  Presumably
 might return a Royal Flush, but a Full House is much
 more likely.  It can never return Five Aces, since the pick
 is done without replacement.  (If it I<does> return Five Aces,
-it's time to walk away.)
+it's time to walk away.  Or maybe run.)
 
 =head1 Open vs Closed Classes
 
