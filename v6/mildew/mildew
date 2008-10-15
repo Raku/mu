@@ -128,7 +128,7 @@ sub VAST::routine_def::emit_m0ld {
     my $m = shift;
     AST::Call->new(identifier=>string 'new',
         capture => AST::Capture->new(
-            invocant => lookup 'Code',
+            invocant => lookup('Code'),
             positional => [],
             named => [
                 string 'mold' => $m->{block}->emit_m0ld,
@@ -264,7 +264,7 @@ my $m = STD->parsefile($file,'comp_unit');
 print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
 print "#################\n" if $debug;
 print Dump($m->item) if $debug;
-#print Dump($m->item->emit_m0ld) if $debug;
+print Dump($m->item->emit_m0ld) if $debug;
 print "#################\n" if $debug;
 my $mold = $m->item->emit_m0ld;
 use YAML::XS;
