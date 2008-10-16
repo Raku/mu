@@ -100,11 +100,12 @@ my $code2 = $Code."new"(:"outer"($lexicalscope),:"signature"($signature2),:"mold
 $void = $out."print"("ok 1 - initialized\n");
 
 my $m = ¢SMOP__S1P__Multi."new"();
+my $variants = $m."variants"();
 
 $void = $out."print"("ok 2 - multi created\n");
 
-$void = $m."push"($code1);
-$void = $m."push"($code2);
+$void = $variants."push"($code1);
+$void = $variants."push"($code2);
 
 $void = $out."print"("ok 3 - variants added\n");
 
