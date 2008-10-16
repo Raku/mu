@@ -271,21 +271,9 @@ And the related Exegesis, which explains it more detail:
 
 =head1 Subroutines
 
-=cut 
-
-# S07
-
 =head1 Formats
 
-=cut 
-
-=head2 Formats have been replaced with forms. 
-
-For details see : 
-
-L<http://dev.perl.org/perl6/doc/design/apo/A07.html> Format Apocalypse
-
-L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
+Formats will be handled by external libraries.
 
 =cut 
 
