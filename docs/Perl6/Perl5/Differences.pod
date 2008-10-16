@@ -152,16 +152,16 @@ binary OR operators are split into string and numeric operators, that is C<~&>
 is binary string AND, C<+&> is binary numeric AND, C<~|> is binary string OR
 etc.
 
-Parenthesis don't construct lists any more, they merely group. Lists are
-constructed with the comma operator. It has looser precedence than the list
+Parenthesis don't construct lists, they merely group. Lists are
+constructed with the comma operator. It has tighter precedence than the list
 assignment operator, which allows you to write lists on the right hand side
-wihtout parens:
+without parens:
     
     my @list = 1, 2, 3;     # @list really has three elements
 
-The arrow operator C<< -> >> for dereferncing is gone. Since (nearly)
-everything is a reference, you can directly use the apropriate pair of
-parenthesis for either indexing or method calls:
+The arrow operator C<< -> >> for dereferencing is gone. Since (nearly)
+everything is a reference, you can directly use the appropriate pair of
+parentheses for either indexing or method calls:
     
     my $lol = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
     say $lol[1][0];         # 4
@@ -316,10 +316,11 @@ twigil.
     Was:    $object->method
     Now:    $object.method
 
-=head2 Using code references in dynamic method calls is gone.
+=head2 Dynamic method calls distinguish symbolic refs from hard refs
 
-  Was: $self.$coderef() 
-  Now: $coderef(self:)
+  Was: $self->$method() 
+  Now: $self.$method()		# hard ref
+  Now: $self."$method"()	# symbolic ref
 
 =cut 
 
@@ -330,10 +331,9 @@ twigil.
 Since both builtin functions and operators are multi subs and methods,
 changing their behaviour for particular types is a simple as adding the
 appropriate multi subs and methods. If you want these to be globally
-available, you have to but them into the C<GLOBAL> namespace, which is
-indicated by an asterisk.
+available, you have to but them into the C<GLOBAL> namespace:
 
-    multi sub *uc(TurkishStr $str) { ... }
+    multi sub GLOBAL::uc(TurkishStr $str) { ... }
 
     # "overload" the string concatenation:
     multi sub infix:<~>(TurkishStr $us, TurkishStr $them) { ... }
@@ -397,52 +397,6 @@ For details, see L<S03/"Changes to Perl 5 operators"/"The filetest operators now
 
 # XXX needs some brave rewrite
 
-=head1 Documentation
-
-You now use <em>kwid</em> for documentation instead of POD. Kwid
-is a wiki-like syntax that is easy to write, and pleasant to read directly.
-
-Here is a side-by-side comparison of some of the major features of Pod and
-Kwid:
-
-     =head1 Big Thing                    = Big Thing
-
-     =head4 Small Thing                  ==== Small Thing
-
-     A paragraph of                      A paragraph of
-     plain text.                         plain text.
-
-         # verbatim                          # verbatim
-         sub v {                             sub v {
-             shift;                              shift;
-         }                                   }
-
-
-     =item * foo                         * foo
-     =item * bar                         * bar
-     =item2 N<> barber                   ++ barber
-     =item2 N<> bard                     ++ bard
-
-
-     Something B<strong>!                Something *strong*!
-
-     Something I<emphatic>!              Something /emphatic/!
-
-     Some code C<E = M * C ^ 2>!         Some code `E = M * C ^ 2`!
-
-     Some V<B<escaped>> markup           Some \*escaped\* markup
-
-     =begin Section_type                 .Section_type
-
-     =end Section_type                   !Section_type
-
-     =for Section_type                   :Section_type
-
-See L<S26> for details.
-
-=cut 
-
-#S29
 
 =head1 Builtin Functions
 
@@ -489,7 +443,7 @@ to make part of the language.
 
 =head2 wantarray()
 
-C<wantarray> is superseeded by C<want.list>. Also available are C<want.item>
+C<wantarray> is superseded by C<want.list>. Also available are C<want.item>
 and C<want.count>, the latter gives the number of expected values, if
 applicable.
 
@@ -511,11 +465,11 @@ Hash elements no longer auto-quote:
 The curly-bracket forms still work, but curly-brackets are more
 distinctly block-related now, so in fact what you've got there is a
 block that returns the value "February".  The C<<>> and C<<<>>> forms
-are in fact just quoting mechanisms (see below).
+are in fact just quoting mechanisms being used as subscripts (see below).
 
 =head2 Built-in functions are now methods
 
-Most (all?) built-in functions are now methods of built-in classes such
+Most built-in functions are now methods of built-in classes such
 as C<String>, C<Array>, etc.
 
     Was:    my $len = length($string);
