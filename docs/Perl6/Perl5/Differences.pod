@@ -127,7 +127,7 @@ Some highlights:
     Was:    qw(foo)
     Now:    <foo>
 
-    Was:    ("foo", (split /s+/, $bar), "bat")
+    Was:    ("foo", (split ' ', $bar), "bat")
     Now:    <<foo $bar bat>>
 
 Quoting operators now have modifiers that can be used with them (much like
