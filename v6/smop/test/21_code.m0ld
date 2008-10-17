@@ -1,13 +1,18 @@
-my $interpreter;
-my $scope;
 my $void;
-my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+my $scope = ¢SMOP__S1P__LexicalPrelude;
+my $out_scalar = $scope."lookup"("$OUT");
 my $out = $out_scalar."FETCH"();
 $void = $out."print"("1..3\n");
 
-my $Code_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
+my $Code_scalar = $scope."lookup"("Code");
 my $Code = $Code_scalar."FETCH"();
-my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"();
+
+my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"(:"outer"($scope));
+my $outer_container = $lexicalscope."outer"();
+$void = $outer_container."STORE"($scope);
+
+my $out2_scalar = $lexicalscope."lookup"("$OUT");
+my $out2 = $out_scalar."FETCH"();
 
 my $it_var_slot = $lexicalscope."postcircumfix:{ }"("$_");
 my $it_var_cont = ¢SMOP__S1P__Scalar."new"();
@@ -16,14 +21,14 @@ $void = $it_var_cont."STORE"("ok 3\n");
 
 my $code1 = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
     my $interpreter;
-    my $lexical;
+    my $scope;
 
-    my $it_var_slot = $lexical."postcircumfix:{ }"("$_");
+    my $it_var_slot = $scope."postcircumfix:{ }"("$_");
     my $it_var = $it_var_slot."FETCH"();
     my $it  = $it_var."FETCH"();
    
     my $void;
-    my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $out_scalar = $scope."lookup"("$OUT");
     my $out = $out_scalar."FETCH"();
     $void = $out."print"($it);
 

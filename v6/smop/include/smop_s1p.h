@@ -20,6 +20,7 @@ extern SMOP__Object* SMOP__S1P__Method;
 extern SMOP__Object* SMOP__S1P__SubMethod;
 extern SMOP__Object* SMOP__S1P__Signature;
 extern SMOP__Object* SMOP__S1P__RootNamespace;
+extern SMOP__Object* SMOP__S1P__LexicalPrelude;
 extern SMOP__Object* SMOP__S1P__Capturize;
 extern SMOP__Object* SMOP__S1P__EmptyList;
 extern SMOP__Object* SMOP__S1P__LexicalScope;

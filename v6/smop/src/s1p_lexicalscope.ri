@@ -59,6 +59,8 @@
     my $void;
     my $ret;
     
+    my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+    my $OUT = $OUT_SCALAR."FETCH"();
     if $exists {goto than} else {goto else};
     than:
       $ret = $invocant."postcircumfix:{ }"($name);
@@ -70,6 +72,8 @@
       my $outer_cell = $outer."FETCH"();
       if $outer_true {goto than2} else {goto else2};
       than2:
+        my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
+        my $OUT = $OUT_SCALAR."FETCH"();
         $ret = $outer_cell."lookup"($name);
         $void = $back."setr"($ret);
         $void = $interpreter."goto"($back);

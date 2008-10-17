@@ -145,6 +145,7 @@ add_library (smop
     src/s1p_multi.c
     src/s1p_lexicalscope.c
     src/s1p_root_namespace.c
+    src/s1p_lexical_prelude.c
     src/s1p_scalar.c
     src/s1p_str.c
     src/s1p_ritest.c
