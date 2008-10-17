@@ -10,5 +10,5 @@ build-Depends:       base,utf8-string >= 0.3.1.1,containers >= 0.1.0.1,parsec >=
 Build-type:          Simple
 
 executable:          m0ld
-main-is:             M0ld.hs
+main-is:             m0ld.hs
 ghc-options:         
