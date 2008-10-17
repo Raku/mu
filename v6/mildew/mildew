@@ -281,27 +281,13 @@ print $mold->pretty,"\n" if $desugar;
 exit if $desugar;
 print <<'BOILERPLATE';
 my $void;
-my $scope = ?SMOP__S1P__LexicalScope."new"();
-
-my $OUT_root_scalar = ?SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
-my $OUT_root = $OUT_root_scalar."FETCH"();
-my $OUT_scalar = $scope."postcircumfix:{ }"("$OUT");
-$void = $OUT_scalar."STORE"($OUT_root);
-
-my $Code_scalar = $scope."postcircumfix:{ }"("Code");
-my $Code_root_scalar = ?SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
-my $Code = $Code_root_scalar."FETCH"();
-$void = $Code_scalar."STORE"($Code);
-
-my $Scalar_scalar = $scope."postcircumfix:{ }"("Scalar");
-my $Scalar_root_scalar = ?SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Scalar");
-my $Scalar = $Scalar_root_scalar."FETCH"();
-$void = $Scalar_scalar."STORE"($Scalar);
-
 BOILERPLATE
 print $mold->emit_('$main');
 print <<'CALL_MAIN';
-my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
+my $scope = ?SMOP__S1P__LexicalPrelude;
+my $Code_scalar = $scope."lookup"("Code");
+my $Code = $Code_scalar."FETCH"();
+my $main_code = $Code."new"(:"outer"($Code),:"mold"($main));
 my $void = $main_code."postcircumfix:( )"();
 CALL_MAIN
 

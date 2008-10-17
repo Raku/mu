@@ -6,9 +6,18 @@ category:            Development
 license:             BSD3
 author:              Paweł Murias
 maintainer:          pawelmurias@gmail.com
-build-Depends:       base,utf8-string >= 0.3.1.1,containers >= 0.1.0.1,parsec >= 2.0.0.0
 Build-type:          Simple
+Cabal-Version: >= 1.2
+flag SMOP
+    description: Enable SMOP Embedding
+    default:     False
+library
+    build-Depends:       base,utf8-string >= 0.3.1.1,containers >= 0.1.0.1,parsec >= 2.0.0.0
 
-executable:          m0ld
-main-is:             m0ld.hs
-ghc-options:         
+    exposed-modules:     M0ld,M0ld.Parser,M0ld.AST
+executable m0ld
+    main-is:            m0ld.hs
+    if flag(SMOP)
+        extra-libraries: smop
+        extra-lib-dirs: ../build
+        cpp-options: -DEMBED_SMOP=1
