@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 16 Oct 2008
+  Last Modified: 17 Oct 2008
   Number: 3
-  Version: 144
+  Version: 145
 
 =head1 Overview
 
@@ -949,7 +949,7 @@ C<< infix:<&> >>, all() operator
 
 =item *
 
-C<< infix:<also> >>, sequential junctional and operator
+C<< infix:<also> >>, short-circuit junctional and operator
 
     EXPR also EXPR also EXPR ...
 
