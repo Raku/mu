@@ -2,6 +2,7 @@ module M0ld where
 --(module M0ld.AST,dumpToC,parseM0ld) where
 import M0ld.AST
 import M0ld.Parser
+import Debug.Trace
 import qualified Data.Map as Map
 
 prettyPrintBytecode indent stmts =
@@ -11,7 +12,7 @@ prettyPrintBytecode indent stmts =
         prettyPrintOp (Decl _ _) = ""
         prettyPrintOp op = indent ++ (joinStr " " $ ( map show (toBytecode op regMap labelsMap))) ++ "\n"
         decls = [prettyPrintConstant indent c | Decl reg c <- filter (not . isReg) stmts]
-        in (concat $ map (\(i,e) -> indent ++ "$" ++ (show i) ++ " = " ++ e) (zip [0..(length decls - 1)] decls))
+        in trace (show regMap) (concat $ map (\(i,e) -> indent ++ "$" ++ (show i) ++ " = " ++ e) (zip [0..(length decls - 1)] decls))
         ++ (concat $ map prettyPrintOp stmts)
 
 type RegMap = Map.Map [Char] Int

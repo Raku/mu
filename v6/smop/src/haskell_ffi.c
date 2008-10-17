@@ -25,7 +25,7 @@ SMOP__Object* get_SMOP__S1P__RootNamespace(void) {
   return SMOP__S1P__RootNamespace;
 }
 SMOP__Object* smop_get_cvar(char* var) {
-  //printf("fetching \"%s\"\n",var);
+  printf("fetching \"%s\"\n",var);
   int i;
   if (strcmp(var,"SMOP__S1P__LexicalScope") == 0) {
     return SMOP__S1P__LexicalScope;

@@ -112,7 +112,7 @@ compile_ri (${ri_file})
 endforeach()
 
 INCLUDE (FindThreads)
-add_library (smop 
+add_library (smop SHARED
     src/idconst.c
     src/lowlevel_method.c
     src/native_bool.c
