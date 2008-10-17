@@ -25,9 +25,20 @@ SMOP__Object* get_SMOP__S1P__RootNamespace(void) {
   return SMOP__S1P__RootNamespace;
 }
 SMOP__Object* smop_get_cvar(char* var) {
-  if (strcmp(var,"SMOP__S1P__LexicalScope") == 0) return SMOP__S1P__LexicalScope;
-  else if (strcmp(var,"SMOP__S1P__RootNamespace") == 0) return SMOP__S1P__RootNamespace;
-  else if (strcmp(var,"SMOP__S1P__LexicalPrelude") == 0) return SMOP__S1P__LexicalPrelude;
-  printf("unable to fetch <%s>\n");
-  return SMOP__NATIVE__bool_false;
+  //printf("fetching \"%s\"\n",var);
+  int i;
+  if (strcmp(var,"SMOP__S1P__LexicalScope") == 0) {
+    return SMOP__S1P__LexicalScope;
+  } else if (strcmp(var,"SMOP__S1P__RootNamespace") == 0) {
+    return SMOP__S1P__RootNamespace;
+  } else if (strcmp(var,"SMOP__S1P__LexicalPrelude") == 0) {
+    return SMOP__S1P__LexicalPrelude;
+  } else if (strcmp(var,"SMOP__S1P__Capturize") == 0) {
+    return SMOP__S1P__Capturize;
+  } else if (strcmp(var,"SMOP__S1P__Scalar") == 0) {
+    return SMOP__S1P__Scalar;
+  } else {
+    printf("unable to fetch \"%s\"\n",var);
+    return SMOP__NATIVE__bool_false;
+  }
 }
