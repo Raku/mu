@@ -60,16 +60,16 @@ sub VAST::scope_declarator::emit_m0ld {
         if (my $decl = $m->{scoped}{declarator}) {
             if (my $var_decl = $decl->{variable_declarator}) {
                 AST::Call->new(
-                    identifier => string 'STORE',
+                    identifier => string 'BIND',
                     capture => AST::Capture->new(
                         invocant => AST::Call->new(
                             identifier => string 'postcircumfix:{ }',
-                            capture => AST::Capture->new(invocant=>$var_decl->{variable}->emit_m0ld)
+                            capture => AST::Capture->new(invocant=>reg '$scope',positional=>[string varname($var_decl->{variable})])
                         ),
                         positional => [
                             AST::Call->new(
                                 identifier => string 'new',
-                                capture => AST::Capture->new(invocant => lookup 'Scalar'),
+                                capture => AST::Capture->new(invocant => FETCH(lookup 'Scalar')),
                             )
                         ]
                     ),
@@ -195,12 +195,16 @@ sub VAST::number::emit_m0ld {
         XXX;
     }
 }
+sub varname {
+    my $m = shift;
+    $m->{sigil}{TEXT}.$m->{desigilname}{longname}->canonical;
+}
 sub VAST::variable::emit_m0ld {
     my $m = shift;
     my $varname = $m->{sigil}{TEXT}.$m->{desigilname}{longname}->canonical;
     AST::Call->new(
         identifier=>string 'lookup',
-        capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $varname]),
+        capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string varname($m)]),
     );
 }
 
@@ -294,7 +298,7 @@ my $m = STD->parsefile($file,'comp_unit');
 print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
 print "#################\n" if $debug;
 print Dump($m->item) if $debug;
-#print Dump($m->item->emit_m0ld) if $debug;
+print Dump($m->item->emit_m0ld) if $debug;
 print "#################\n" if $debug;
 my $mold = $m->item->emit_m0ld;
 use YAML::XS;
