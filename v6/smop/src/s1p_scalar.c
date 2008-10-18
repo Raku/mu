@@ -27,14 +27,6 @@ SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
   return val;
 }
 
-SMOP__Object* SMOP__S1P__Scalar_STORE(SMOP__Object* object, SMOP__Object* val) {
-  smop_lowlevel_wrlock(object);
-  SMOP__Object* old = ((SMOP__S1P__Scalar_struct*)object)->cell;
-  ((SMOP__S1P__Scalar_struct*)object)->cell = val;
-  smop_lowlevel_unlock(object);
-  return old;
-}
-
 static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
                                              SMOP__ResponderInterface* responder,
                                              SMOP__Object* identifier,
@@ -61,8 +53,15 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
   } else if (SMOP__ID__STORE == identifier) {
 
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
-    SMOP__Object* old = SMOP__S1P__Scalar_STORE(scalar,value);
+    smop_lowlevel_wrlock(scalar);
+    SMOP__Object* old = ((SMOP__S1P__Scalar_struct*)scalar)->cell;
+    ((SMOP__S1P__Scalar_struct*)scalar)->cell = value;
+    smop_lowlevel_unlock(scalar);
     if (old) SMOP_RELEASE(interpreter,old);
+    ret = value;
+    SMOP_REFERENCE(interpreter,ret);
+    if (value->RI) printf("STORING %s\n",value->RI->id);
+    else printf("STORING (no RI)\n");
 
   } else if (SMOP__ID__DESTROYALL == identifier) {
 

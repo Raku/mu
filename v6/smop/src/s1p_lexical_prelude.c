@@ -17,8 +17,8 @@ void smop_s1p_lexical_prelude_insert(SMOP__Object* interpreter,char* name,SMOP__
                                                                   (SMOP__Object*[]) {SMOP__NATIVE__idconst_create(name),NULL},
                                                                   NULL));
 
-  SMOP_DISPATCH(interpreter,SMOP_RI(cell),SMOP__ID__STORE,
-      SMOP__NATIVE__capture_create(interpreter,cell,(SMOP__Object*[]) {obj,NULL}, NULL));
+  SMOP_RELEASE(interpreter,SMOP_DISPATCH(interpreter,SMOP_RI(cell),SMOP__ID__STORE,
+      SMOP__NATIVE__capture_create(interpreter,cell,(SMOP__Object*[]) {obj,NULL}, NULL)));
 }
 void smop_s1p_lexical_prelude_init() {
   SMOP__Object* interpreter = SMOP__GlobalInterpreter;

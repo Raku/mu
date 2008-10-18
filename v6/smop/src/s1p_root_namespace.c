@@ -17,8 +17,8 @@ void smop_s1p_root_namespace_insert(SMOP__Object* interpreter,char* name,SMOP__O
                                                                   (SMOP__Object*[]) {SMOP__NATIVE__idconst_create(name),NULL},
                                                                   NULL));
 
-  SMOP_DISPATCH(interpreter,SMOP_RI(cell),SMOP__ID__STORE,
-      SMOP__NATIVE__capture_create(interpreter,cell,(SMOP__Object*[]) {obj,NULL}, NULL));
+  SMOP_RELEASE(interpreter,SMOP_DISPATCH(interpreter,SMOP_RI(cell),SMOP__ID__STORE,
+      SMOP__NATIVE__capture_create(interpreter,cell,(SMOP__Object*[]) {obj,NULL}, NULL)));
 }
 void smop_s1p_root_namespace_init() {
   SMOP__S1P__RootNamespace = SMOP__S1P__Hash_create();
