@@ -100,6 +100,7 @@ while (my $line = <>) {
         }
     } elsif ($line =~ /^%method\s*(.*)$/) {
         $method = $1;
+        $methods{$method} = '';
         debug "method start:$method\n";
     } elsif ($line =~ /^%mold\s*(.*)$/) {
         $mold = $1;

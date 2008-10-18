@@ -50,9 +50,8 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
         if (bucket->key == key) {
           //fprintf(stderr,"found new cell\n");
           SMOP_RELEASE(interpreter,invocant);
-          SMOP_REFERENCE(interpreter,bucket->cell);
           SMOP_RELEASE(interpreter,capture);
-          return bucket->cell;
+          return SMOP__S1P__BValue_create(interpreter,&bucket->cell);
         } else if (bucket->next) {
           bucket = bucket->next;
         } else {
@@ -70,8 +69,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       new_bucket->next = NULL;
       if (bucket) bucket->next = new_bucket;
       else invocant->buckets[hashing_result] = new_bucket;
-
-      ret = SMOP_REFERENCE(interpreter,cell);
+      ret = SMOP__S1P__BValue_create(interpreter,&new_bucket->cell);
     } else {
       fprintf(stderr,"wrong number of arguments to postcircumfix:<{ }>\n");
     }

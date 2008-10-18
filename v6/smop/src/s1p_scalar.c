@@ -53,6 +53,7 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
   } else if (SMOP__ID__STORE == identifier) {
 
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (!value) printf("storing null pointer ugh\n");
     smop_lowlevel_wrlock(scalar);
     SMOP__Object* old = ((SMOP__S1P__Scalar_struct*)scalar)->cell;
     ((SMOP__S1P__Scalar_struct*)scalar)->cell = value;
@@ -60,8 +61,6 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     if (old) SMOP_RELEASE(interpreter,old);
     ret = value;
     SMOP_REFERENCE(interpreter,ret);
-    if (value->RI) printf("STORING %s\n",value->RI->id);
-    else printf("STORING (no RI)\n");
 
   } else if (SMOP__ID__DESTROYALL == identifier) {
 

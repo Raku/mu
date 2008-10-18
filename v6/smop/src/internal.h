@@ -93,9 +93,10 @@
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
      smop_proto_init();                     \
+     smop_s1p_bvalue_init();                \
      smop_s1p_root_namespace_init();        \
      smop_s1p_lexicalscope_init();          \
-     smop_s1p_lexical_prelude_init();        \
+     smop_s1p_lexical_prelude_init();       \
      smop_s1p_multi_init();                 \
      smop_s1p_defaultblocksignature_mold_init(); \
      smop_s1p_bindcapturesignature_mold_init();  \
@@ -121,6 +122,7 @@
      smop_s1p_lexicalscope_destr();         \
      smop_s1p_root_namespace_destr();       \
      smop_s1p_lexical_prelude_destr();       \
+     smop_s1p_bvalue_destr();               \
 
 void smop_idconst_init();
 void smop_idconst_destr();
