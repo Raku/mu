@@ -57,6 +57,7 @@ void smop_s1p_defaultblocksignature_init() {
   ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->MESSAGE = defaultblocksignature_message;
   ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->REFERENCE = smop_lowlevel_generic_reference;
   ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->RI = SMOP__S1P__DefaultBlockSignature;
   ((SMOP__ResponderInterface*)SMOP__S1P__DefaultBlockSignature)->id = "S1P Default Block Signature";
 }
 

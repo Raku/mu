@@ -32,6 +32,13 @@ sub lookup {
         capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $thing]),
     );
 }
+{ package VAST::Base;
+    sub as_constant_string {
+        my $m = shift;
+        use YAML::XS;
+        die Dump($m)." can't be represented as a constant string\n";
+    }
+}
 sub VAST::longname::canonical {
     my $m = shift;
     my $name = $m->{name}{identifier}{TEXT};
@@ -164,7 +171,21 @@ sub VAST::value::emit_m0ld {
 sub VAST::quote::emit_m0ld {
     my $m = shift;
     # XXX escapes
-    string $m->{nibble}{nibbles}[0];
+    string join '',map {ref $_ ? $_->as_constant_string : $_} @{$m->{nibble}{nibbles}};
+}
+sub VAST::escape::as_constant_string {
+    my $m = shift;
+    $m->{item}->as_constant_string;
+}
+sub VAST::backslash::as_constant_string {
+    my $m = shift;
+    if ($m->{TEXT} =~ /^[n]$/) {
+        '\\' . $m->{TEXT};
+    } elsif ($m->{TEXT} =~ /^\W$/) {
+        $m->{TEXT};
+    } else {
+        XXX;
+    }
 }
 sub VAST::number::emit_m0ld {
     my $m = shift;
@@ -188,9 +209,9 @@ sub VAST::dotty::emit_m0ld {
     if (my $methodop = $m->{dottyop}{methodop}) {
         if ($methodop->{longname}) {
             my @positional;
-            my $pos0 = $methodop->{in}[0]{semilist}{statement}[0];
+            my $pos0 = $methodop->{semilist}[0]{statement}[0];
             if ($pos0) {
-                @positional = (FETCH($pos0->{EXPR}->emit_m0ld));
+                @positional = (FETCH($pos0->emit_m0ld));
             }
             my $ident = $methodop->{longname}->canonical;
             if ($m->{sym} eq '^!') {
@@ -273,7 +294,7 @@ my $m = STD->parsefile($file,'comp_unit');
 print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
 print "#################\n" if $debug;
 print Dump($m->item) if $debug;
-print Dump($m->item->emit_m0ld) if $debug;
+#print Dump($m->item->emit_m0ld) if $debug;
 print "#################\n" if $debug;
 my $mold = $m->item->emit_m0ld;
 use YAML::XS;
@@ -287,7 +308,8 @@ print <<'CALL_MAIN';
 my $scope = ?SMOP__S1P__LexicalPrelude;
 my $Code_scalar = $scope."lookup"("Code");
 my $Code = $Code_scalar."FETCH"();
-my $main_code = $Code."new"(:"outer"($Code),:"mold"($main));
-my $void = $main_code."postcircumfix:( )"();
+my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
+my $capture = ¢SMOP__S1P__Capturize."capturize"();
+my $void = $main_code."postcircumfix:( )"($capture);
 CALL_MAIN
 
