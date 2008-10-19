@@ -7,15 +7,13 @@
 
 TODO: This chapter is outdated in some ways
 
-  * It uses the old word "rule" instead of "regex" in far too many places
+  * It should be explained when we use "rule" and when "regex", and what
+    a "subrule" is.
   * The interpolation rules are outdated
-  * <'...'> and <"..."> are now '...' and "..."
   * some of the assertion syntax has changed, for example <foo()> means
     something different now
-  * Modifiers: explain :sigspace and :ratchet modifiers
-  * Modifiers: :u1, :u2... are now :bytes, :codes, :graphemes etc.
-  * Other missing modifiers: :overlap, :ignoreaccent
-  * The match object needs explanation
+  * Modifiers: explain :ratchet modifier
+  * The match object needs more explanation
 
 Z<CHP-7>
 
@@ -130,8 +128,8 @@ code within the block of a C<regex> is regex syntax, not Perl syntax.
 
   regex digits {\d+}
 
-There are two more keywords that defines regexes similarly to C<regex>, but
-they imply different modifiers. C<token> introduces a regex that does
+There are two more keywords that defines regexes similarly to C<regex>, which
+imply slightly different behavior. C<token> introduces a regex that does
 not backtrack,N<technically it implies the C<:ratchet> modifier> (more details
 on that below; for now it's enough to know that it matches simple regexes
 faster), and C<rule> is the same as C<token> except that whitespaces in
@@ -271,8 +269,10 @@ Z<CHP-7-SECT-2.1>
 
 The "word"-like metacharacters are C<.>, C<^>, C<^^>, C<$>, C<$$>. The
 C<.> matches any single character, even a newline character. Actually,
-what it matches by default is a Unicode grapheme, but you can change
-that behavior with a pragma in your code, or a modifier on the regex.
+Perl 6 has a the notion of a Unicode level, which determines if string
+manipulation happens on the byte, codepoint or grapheme level. C<.>
+matches a character in the current level, which defaults to grapheme.
+The Unicode level can be adjusted with a pragma or with modifiers.
 We'll talk more about modifiers in A<CHP-7-SECT-2.5>"Modifiers" later
 in this chapter. The C<^> and C<$> metacharacters are zero-width
 matches on the beginning and end of a string. They each have doubled
@@ -415,6 +415,18 @@ X<: (colon);:= (binding);in regexes>
 
 =cell Match an assertion.
 
+=row
+
+=cell C<< <( >>
+
+=cell Begin of capturing
+
+=row
+
+=cell C<< )> >>
+
+=cell End of capturring
+
 =end table
 
 
@@ -437,7 +449,8 @@ brackets, C<()>, C<{}>, and C<E<lt>E<gt>> work in place of C<[]>.
 X<variable interpolation in regexes>
 X<regexes;variable interpolation>
 Note that since an ordinary variable now interpolates as a literal
-string by default, the C<\Q> escape is rarely needed.
+string by default, the C<\Q> escape is rarely needed. An interpolated
+array is interpreted as an alternation of all array elements.
 
 A<CHP-7-TABLE-3>Table 7-3 shows the escape sequences for regexes. 
 
@@ -454,6 +467,20 @@ Z<CHP-7-TABLE-3>
 =cell Meaning
 
 =bodyrows 
+
+=row
+
+=cell  C<'...'>
+
+=cell Tread everyhing between the quotes literally, except the backslash C<\>
+and  single quotes C<'>
+
+=row
+
+=cell  C<"...">
+
+=cell Like C<'...'>, but backslash escape sequences and variable interpolation
+are enabled
 
 =row 
 
@@ -703,7 +730,7 @@ Z<CHP-7-TABLE-4>
 
 =row 
 
-=cell C**n>
+=cell C<**n>
 
 =cell C<**?n>
 
@@ -711,16 +738,17 @@ Z<CHP-7-TABLE-4>
 
 =row 
 
-=cell C<**{n..m}>
-=cell C<**?{n..m}>
+=cell C<**n..m>
+
+=cell C<**?n..m>
 
 =cell Match at least R<n> and no more than R<m> times.
 
 =row 
 
-=cell C<E<lt>>R<n>C<...E<gt>>
+=cell C<**n..*>
 
-=cell C<E<lt>>R<n>C<...E<gt>?>
+=cell C<**?n..*>
 
 =cell Match at least R<n> times.
 
@@ -801,6 +829,12 @@ Z<CHP-7-TABLE-5>
 
 =cell Negate any assertion.
 
+=cell
+
+=row C<< <.rule> >>
+
+=row Match named rule, wihtout capturing.
+
 =row 
 
 =cell C<E<lt>>R<name>C<E<gt>>
@@ -809,7 +843,7 @@ Z<CHP-7-TABLE-5>
 
 =row 
 
-=cell C<E<lt>[...]E<gt>>
+=cell C<E<lt>[...]E<gt>>, C<< <+[...]> >>
 
 =cell Match an enumerated character class.
 
@@ -818,25 +852,6 @@ Z<CHP-7-TABLE-5>
 =cell C<E<lt>-...E<gt>>
 
 =cell Complement a character class (named or enumerated).
-
-=row 
-
-=cell C<E<lt>"..."E<gt>>
-
-=cell Match a literal string (interpolated at match time).
-
-=row 
-
-=cell C<E<lt>'...'E<gt>>
-
-=cell Match a literal string (not interpolated).
-
-=row 
-
-=cell C<E<lt>(...)E<gt>>
-
-=cell Boolean assertion. Execute a closure and match if it returns a true
-result.
 
 =row 
 
@@ -859,9 +874,9 @@ rule).
 
 =row 
 
-=cell C<E<lt>E<amp>sub()E<gt>>
+=cell C<< <rule(...)> >>
 
-=cell Match an anonymous rule returned by a sub.
+=cell Call a named rule with arguments.
 
 =row 
 
@@ -889,25 +904,27 @@ position for modifiers is at the beginning of the rule, right after
 the C<m>, C<s>, or C<rx>, or after the name in a named rule. Modifiers
 cannot attach to the outside of a bare C</.../>. For example:
 
-  m:i/marvin/ # case insensitive
+  m:i /marvin/ # case insensitive
   rule names :i { marvin | ford | arthur }
 
-The single-character modifiers can be grouped, but the others must be
-separated by a colon:
+Multiple modifiers can be chained, short and long names can
+be mixed:
 
-  m:wig/ zaphod /                        # OK
-  m:words:ignorecase:globally / zaphod / # OK
-  m:wordsignorecaseglobally / zaphod /   # Not OK
+  m:s :i :g/ zaphod /
+  m:sigspace :i :global / zaphod /
+
+Modifiers can be negated with the C<:!pair> notation, so C<:!i> forces
+case-sensitive matching.
 
 Most of the modifiers can also go inside the rule, attached to the
 rule delimiters or to grouping delimiters. Internal modifiers are
 lexically scoped to their enclosing delimiters, so you get a temporary
 alteration of the pattern:
 
-  m/:w I saw [:i zaphod] / # only 'zaphod' is case insensitive
+  m/:s I saw [:i zaphod] / # only 'zaphod' is case insensitive
 
-The repetition modifiers (C<:R<N>x>, C<:R<N>th>, C<:once>,
-C<:globally>, and C<:exhaustive>) and the continue modifier (C<:cont>)
+The repetition modifiers (C<:R<N>x>, C<:R<N>th>,
+C<:global>, and C<:exhaustive>) and the continue modifier (C<:cont>)
 can't be lexically scoped, because they alter the return value of the
 entire rule.
 
@@ -916,11 +933,7 @@ the modifier expects more matches than the string has, the match fails.
 It has an alternate form C<:x(R<N>)> that can take a variable in place
 of the number. 
 
-The C<:once> modifier on a rule only allows it to match once. The rule
-will not match again until the you call the C<.reset> method on the rule
-object.
-
-The C<:globally> modifier matches as many times as possible. The
+The C<:global> modifier matches as many times as possible. The
 C<:exhaustive> modifier also matches as many times as possible, but in
 as many different ways as possible.
 
@@ -934,9 +947,13 @@ C<:3th>. Either way is valid, so pick the one that's most comfortable
 for you.
 
 By default, rules ignore literal whitespace within the pattern.  The
-C<:w> modifier makes rules sensitive to literal whitespace, but in an
-intelligent way. Any cluster of literal whitespace acts like an explicit
-C<\s+> when it separates two identifiers and C<\s*> everywhere else.
+C<:s> or C<:sigspace> modifier makes rules sensitive to literal whitespace,
+but in an intelligent way. Any cluster of literal whitespace acts like an
+explicit C<\s+> when it separates two identifiers and C<\s*> everywhere else.
+
+More specifically any literal whitespace in the regex is translated to
+an implict call to C<E<lt>.wsE<gt>>, where the C<ws> rule matches as
+mentioned above, but can also be overridden by the user.
 
 There are no modifiers to alter whether the matched string is treated as
 a single line or multiple lines. That's why the "beginning of string"
@@ -969,27 +986,36 @@ Z<CHP-7-TABLE-6>
 
 =cell Case-insensitive match.
 
-=row 
+=row
 
-=cell C<:I>
+=cell C<:a>
 
-=cell 
+=cell C<:ignoreaccent>
 
-=cell Case-sensitive match (on by default).
-
-=row 
-
-=cell C<:c>
-
-=cell C<:cont>
-
-=cell Continue where the previous match on the string left off.
+=cell Ignore accents and other markings on characters.
 
 =row 
 
-=cell C<:w>
+=cell C<:c($pos)>
 
-=cell C<:words>
+=cell C<:continue($pos)>
+
+=cell Match at position C<$pos> or later. If C<$pos> is ommited, start where
+
+=row
+
+=cell C<:p>
+
+=cell C<:pos>
+
+=cell Match anchored at position C<$pos>. If C<$pos> is ommited, start where
+the previous match left off.
+
+=row 
+
+=cell C<:s>
+
+=cell C<:sigspace>
 
 =cell Literal whitespace in the pattern matches as C<\s+>
 or C<\s*>.
@@ -1012,24 +1038,25 @@ or C<\s*>.
 
 =row 
 
-=cell 
-
-=cell C<:once>
-
-=cell Only match the pattern once.
-
-=row 
-
 =cell C<:g>
 
-=cell C<:globally>
+=cell C<:global>
 
 =cell Match the pattern as many times as possible, but only possibilities
 that don't overlap.
 
+=row
+
+=cell C<:ov>
+
+=cell C<:overlap>
+
+=cell Match the pattern as many timies as possible, and allow overlapping
+matches, but only one match per starting position.
+
 =row 
 
-=cell C<:e>
+=cell C<:ex>
 
 =cell C<:exhaustive>
 
@@ -1040,33 +1067,42 @@ possibilities.
 
 =cell 
 
-=cell C<:u0>
+=cell C<:bytes>
 
-=cell . is a byte.
-
-=row 
-
-=cell 
-
-=cell C<:u1>
-
-=cell . is a Unicode codepoint.
+=cell C<.> is a byte.
 
 =row 
 
 =cell 
 
-=cell C<:u2>
+=cell C<:codes>
 
-=cell . is a Unicode grapheme.
+=cell C<.> is a Unicode codepoint.
 
 =row 
 
 =cell 
 
-=cell C<:u3>
+=cell C<:graphs>
 
-=cell . is language dependent.
+=cell C<.> is a Unicode grapheme.
+
+=row 
+
+=cell 
+
+=cell C<:chars>
+
+=cell C<.> matches whatever the current Unicode level corresponds to
+(this is the default).
+
+=row
+
+=cell
+
+=cell C<:ratchet>
+
+=cell Imply a C<:> after each atom (see "Backtracking Control" below).
 
 =row 
 
@@ -1078,6 +1114,88 @@ possibilities.
 
 =end table
 
+=head2 Substition Modifiers
+
+Special modifiers are available for substitions that do not make sense
+on normal matches.
+
+The C<:samecase>, or short C<:ii> modifier implies the C<:ignorecase>
+modifier, but also carries the case information on a
+character-by-character base
+
+   my $s = 'The Quick Brown Fox';
+   $s ~~ s:ii/brown/blue/;
+   say $s;           # The Quick Blue Fox
+
+If the C<:sigspace> modifier is also present, a slightly more
+intelligent algorithm is used. If the source string follows one of the
+case patterns in $table (XXX: make that a proper cross-link),
+that pattern is recognized and applied onto the
+substitution string.
+
+   $_ = 'All Words Capialized';
+   s:s:ii/.*/other words/;
+   .say;             # Other Words
+
+There's a shortcut for C<s:s> named C<ss>, so you could have written the
+example above aswidth="348" height="300"
+ C<ss:ii/.*/other words/>.
+
+=begin table picture Case patterns for the :samecase modifier
+
+=headrow
+
+=cell Pattern
+
+=cell Corresponding code
+
+=bodyrows
+
+=row
+
+=cell ALL UPPERCASE
+
+=cell C<.uc>
+
+=row
+
+=cell all lowercase
+
+=cell C<.lc>
+
+=row
+
+=cell Every Word Capitalized
+
+=cell C<.lc.capitalize>
+
+=row
+
+=cell First letter upper, rest lower
+
+=cell C<.lc.ucfirst>
+
+=row
+
+=cell fIRST LETTER LOWER, REST UPPER
+
+=cell C<.uc.lcfirst>
+
+=end table
+
+A similar modifier is C<:sameaccent> (short C<:aa>). Instead of carrying
+case information, it carries accent and marking information.
+
+   my $stuff = 'Möhre';
+   $stuff ~~ s:aa/a/o/;
+   say $stuff;          # Mähre
+
+The third substitution modifier is C<:samespace>, short C<:ss>. It preserves
+whitespace that is matched by implicit C<E<lt>.wsE<gt>> rules:
+
+   my $s = "Some   white\t\n spaces";
+   $s ~~ s:ss/\w+ \w+ \w+/Completely different text/;
+   # $s is now "Completely   different\t\n text"
 
 =head1 Built-in Rules
 
@@ -1159,19 +1277,6 @@ Z<CHP-7-TABLE-7>
 
 =cell Zero-width lookbehind. Assert that you're I<after> a pattern.
 
-=row 
-
-=cell C<E<lt>prop ...E<gt>>
-
-=cell Match any character with the named property.
-
-=row 
-
-=cell C<E<lt>replace(...)E<gt>>
-
-=cell Replace everything matched so far in the rule or subrule with the
-given string (under consideration).
-
 =end table
 
 
@@ -1244,55 +1349,151 @@ the string.
 
 =end table
 
-=head1 Hypothetical Variables
+The C<:ratchet> modifier, which is implied by regexes declared with the
+C<token> or C<rule> keyword, disables backtracking in the subrule, which
+is the same as adding a C<:> after every atom.
+
+=head1 The Match Object
 
 Z<CHP-7-SECT-5>
 
-X<variables;hypothetical>
-X<hypothetical variables>
+X<object;match>
 X<rules;captures>
-Hypothetical variables are a powerful way of building up data structures
-from within a match. Ordinary captures with C<()> store the result of
-the captures in C<$0>, C<$1>, etc. The values stored in these variables
-will be kept if the match is successful, but thrown away if the match
-fails (hence the term "hypothetical"). The numbered capture variables
-are accessible outside the match, but only within the immediate
-surrounding lexical scope:
 
-  "Zaphod Beeblebrox" ~~ m:w/ (\w+) (\w+) /;
-  
-  print $0; # prints Zaphod
+A regex match produces a I<Match> object, which contains all information
+about the match, including start and end position, matched string, and all
+captures.
 
-You can also capture into any user-defined variable with the binding
-operator C<:=>. These variables must already be defined in the lexical
-scope surrounding the rule:
+The match object is returned from a regex match, and is also stored in
+the special variable C<$/>.
 
-  my $person;
-  "Zaphod's just this guy." ~~ / ^ $person := (\w+) /;
-  print $person; # prints Zaphod
+   my $match = 'Zaphod Beeblebrox' ~~ m/\w+/;   
+   say $match;    # prints Zaphod
 
-Repeated matches can be captured into an array:
+In string context it evaluates to the text of the matched part of the
+string.
 
-  my @words;
-  "feefifofum" ~~ / @words := (f<-[f]>+)* /;
-  # @words contains ("fee", "fi", "fo", "fum")
+Table A<CHP-7-TABLE-Match> summarises the properties of the match object.
 
-Pairs of repeated matches can be captured into a hash:
+The variables C<$0>, C<$1>, C<$2> etc. are aliases to C<$/[0]>,
+C<$/[1]>, C<$/[2]>, and C<$E<lt>nameE<gt>> is an alias to
+C<$/E<lt>nameE<gt>>. Likewise an empty C<@()> is the same as C<@($/)>,
+and C<%()> stands for C<%($/)>.
 
-  my %customers;
-  $records ~~ m:w/ %customers := [ E<lt>idE<gt> = E<lt>nameE<gt> \n]* /;
+Match variables can also store a different scalar object. A closure in a
+regex can store such an object by calling C<make>, and can be accessed
+by forcing scalar context with C<$( $/ )>:
 
-If you don't need the captured value outside the rule, use a C<$?>
-variable instead. These are only directly accessible within the rule:
+   regex herd :i :s {
+         (\d+)
+         (\w+)s?
+         {
+            make Herd.new(
+                  animal => $1.capitalize
+                  count  => $0,
+                 );
+         }
+   }
+   'Yesterday we saw 4 mooses' ~~ m/ <herd> /;
+   # now $($<herd>) contains the new Herd object
 
-  "Zaphod saw Zaphod" ~~ m:w/ $?name := (\w+) \w+ $?name/;
+This can be used to build object trees directly from regex matches.
 
-A match of a named rule stores the result in a C<$?> variable with the
-same name as the rule. These variables are also accessible only within
-the rule:
+=begin table picture Properties of the Match object
 
-  "Zaphod saw Zaphod" ~~ m:w/ E<lt>nameE<gt> \w+ $?name /;
+Z<CHP-7-TABLE-Match>
 
+=headrow
+
+=cell Property 
+
+=cell Description
+
+=bodyrows
+
+=row
+
+=cell C<?$/>
+
+=cell True if the match was successful.
+
+=row
+
+=cell C<$/.text>
+
+=cell The matched part of the string.
+
+=row
+
+=cell C<$/.from>
+
+=cell Start position of the match.
+
+=row
+
+=cell C<$/.to>
+
+=cell End position of the match.
+
+=row
+
+=cell C<@( $/ )>
+
+=cell List of all positional captures.
+
+=row 
+
+=cell C<%( $/ )>
+
+=cell Hash of all named captures.
+
+=row
+
+=cell C<$/[$n]>
+
+=cell C<$n>th positional capture.
+
+=row
+
+=cell C<$/E<lt>nameE<gt>>
+
+=cell Access to particular named capture.
+
+=end table
+
+Capture variables are always match objects, and contain the information
+of their respective sub matches.
+
+   m/ ( a ( geek ) ( passes ) )  ( many tests ) /
+      |   |      | |        | |  |            |
+      |   $/[0][0] $/[0][1]-+ |  |            |
+      |                       |  |            |
+      $/[0]-------------------+  $/[1] -------+
+
+If a capturing group is quantified, it automatically becomes an array of
+match objects. Subsequent matches are not renumbered:
+
+   '12 45 books' ~~ m:s/ ( \d+ )+ (\w+) /
+   say $0[0];     # 12
+   say $0[1];     # 45
+   say $1;        # books
+
+When a subrule is called with the C<E<lt>subruleE<gt>> syntax, it
+produces a named capture of name C<subrule>. That named can be
+changed with the C<E<lt>newname=subruleE<gt>> syntax.
+
+   token identifier { \w+ }
+   token number     { \d+ }
+   $_ = '24 hours'
+   if m:s/<number> <unit=identifier> / {
+      say "Number: $<number>. Unit: $<unit>";
+   }
+
+These variables are also available iin the regex itself:
+
+  "Zaphod saw Zaphod" ~~ m:s/ E<lt>nameE<gt> \w+ $/<name> /;
 
 
 =cut
+
+# vim: sw=3 ts=3 expandtab ft=pod tw=72

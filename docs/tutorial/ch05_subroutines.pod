@@ -922,7 +922,7 @@ will call the C<plain> subroutine with the single argument passed to
 C<funky>.
 
    macro funky (Str $whatever) 
-      is parsed (/:w like (\w+), you know/)
+      is parsed (/:s like (\w+), you know/)
   {
       return { plain($whatever); };
   }

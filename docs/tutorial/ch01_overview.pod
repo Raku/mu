@@ -252,4 +252,26 @@ neo-vulcan mechanoid scooby-dooby-doos. Even when Larry doesn't
 post, he follows the list and the traffic serves as a valuable
 catalyst for his thoughts.
 
+=head3 The test suite
+
+Z<CHP-1-SECT-3.1.4>
+
+X<Tang, Audrey>
+X<Pugs>
+X<Test suite>
+
+The design documents describe the Perl 6 language in prose, and the test
+suite is intended to translate that specification into code.
+
+In 2005 Audrey Tang started a Perl 6 compiler named I<Pugs>. It is
+written in Haskell, and moved very fast. The test suite began both as
+regression tests and as a feature wish list, and is now slowly being
+translated into an implementation agnostic, offical test suite that can
+be used by all implementations.
+
+Once it is done, every compiler that passes the test suite may name
+itself I<Perl 6>.
+
 =cut
+
+# vim: sw=3 ts=3 expandtab tw=72
