@@ -68,6 +68,7 @@ SMOP__Object* SMOP__S1P__BValue_create(SMOP__Object* interpreter,SMOP__Object** 
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture); \
     assert(SMOP_RI(invocant) == (SMOP__ResponderInterface*)self)
 #define ___VALUE_FETCH___\
+    SMOP_REFERENCE(interpreter,invocant);\
     ret = invocant;
 #define ___VALUE_STORE___ \
     { \

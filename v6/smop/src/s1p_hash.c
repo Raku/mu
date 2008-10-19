@@ -118,6 +118,10 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
           }
       }
       free(invocant->buckets);
+  } else if (identifier == SMOP__ID__FETCH) {
+    ___VALUE_FETCH___;
+  } else if (identifier == SMOP__ID__STORE) {
+    ___VALUE_STORE___;
   } else {
       ___UNKNOWN_METHOD___
   }

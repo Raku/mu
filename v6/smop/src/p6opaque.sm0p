@@ -84,6 +84,21 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
 
   ___INVOCANT_RI_SHOULD_MATCH___;
 
+  SMOP__Object* how_scalar = SMOP_DISPATCH(interpreter,SMOP_RI(invocant),SMOP__ID__REPR_how,SMOP__NATIVE__capture_create(interpreter,invocant,NULL,NULL));
+  SMOP__Object* how = SMOP_DISPATCH(interpreter,SMOP_RI(how_scalar),SMOP__ID__FETCH,SMOP__NATIVE__capture_create(interpreter,how_scalar,NULL,NULL));
+
+  if (how == SMOP__NATIVE__bool_false) {
+    if (identifier == SMOP__ID__FETCH) {
+        ___VALUE_FETCH___
+        return ret;
+    } else if (identifier == SMOP__ID__STORE) {
+        ___VALUE_STORE___
+    } else {
+        printf("calling methods on an repr without a HOW\n");
+        abort();
+    }
+  }
+  SMOP_RELEASE(interpreter,how);
 
   frame = q:v6-sm0p {
     return $invocant.^!how.FETCH.dispatch($self, $identifier, $capture);
@@ -157,10 +172,19 @@ static SMOP__Object* p6opaque_message_DESTROYALL(SMOP__Object* interpreter,
   ___INVOCANT_RI_SHOULD_MATCH___;
 
 
-  frame = q:v6-sm0p {
-    $invocant.^!how.FETCH.dispatch($self, $identifier, $capture);
-    $invocant.^!DESTROY();
-  };
+  SMOP__Object* how_scalar = SMOP_DISPATCH(interpreter,SMOP_RI(invocant),SMOP__ID__REPR_how,SMOP__NATIVE__capture_create(interpreter,invocant,NULL,NULL));
+  SMOP__Object* how = SMOP_DISPATCH(interpreter,SMOP_RI(how_scalar),SMOP__ID__FETCH,SMOP__NATIVE__capture_create(interpreter,how_scalar,NULL,NULL));
+
+  if (how == SMOP__NATIVE__bool_false) {
+    frame = q:v6-sm0p {
+        $invocant.^!DESTROY();
+    };
+  } else {
+    frame = q:v6-sm0p {
+        $invocant.^!DESTROY();
+        $invocant.^!how.FETCH.dispatch($self, $identifier, $capture);
+    };
+  }
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,

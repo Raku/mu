@@ -144,7 +144,7 @@ sub VAST::routine_def::emit_m0ld {
     my $m = shift;
     AST::Call->new(identifier=>string 'new',
         capture => AST::Capture->new(
-            invocant => lookup('Code'),
+            invocant => FETCH(lookup('Code')),
             positional => [],
             named => [
                 string 'mold' => $m->{block}->emit_m0ld,
