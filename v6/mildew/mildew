@@ -15,8 +15,8 @@ use warnings;
 use Getopt::Long;
 use Carp 'confess';
 
-my ($desugar,$debug,$file);
-GetOptions("file=s"=>\$file,"debug"=>\$debug,"desugar"=>\$desugar);
+my ($desugar,$debug,$file,$exec);
+GetOptions("exec"=>\$exec,"file=s"=>\$file,"debug"=>\$debug,"desugar"=>\$desugar);
 
 sub XXX {
     confess 'unimplemented'
@@ -330,11 +330,9 @@ my $mold = $m->item->emit_m0ld;
 use YAML::XS;
 print $mold->pretty,"\n" if $desugar;
 exit if $desugar;
-print <<'BOILERPLATE';
+my $m0ld = <<'BOILERPLATE'.$mold->emit_('$main').<<'CALL_MAIN';
 my $void;
 BOILERPLATE
-print $mold->emit_('$main');
-print <<'CALL_MAIN';
 my $scope = ?SMOP__S1P__LexicalPrelude;
 my $Code_scalar = $scope."lookup"("Code");
 my $Code = $Code_scalar."FETCH"();
@@ -342,4 +340,9 @@ my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
 my $capture = ¢SMOP__S1P__Capturize."capturize"();
 my $void = $main_code."postcircumfix:( )"($capture);
 CALL_MAIN
-
+if ($exec) {
+    local $ENV{LD_LIBRARY_PATH} = '../smop/build';
+    open(my $m0ld_exe,"|../smop/m0ld/dist/build/m0ld/m0ld --exec");
+    print $m0ld_exe encode('utf8',$m0ld);
+} else {
+}
