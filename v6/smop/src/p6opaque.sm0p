@@ -181,10 +181,11 @@ static SMOP__Object* p6opaque_message_DESTROYALL(SMOP__Object* interpreter,
     };
   } else {
     frame = q:v6-sm0p {
-        $invocant.^!DESTROY();
         $invocant.^!how.FETCH.dispatch($self, $identifier, $capture);
+        $invocant.^!DESTROY();
     };
   }
+  SMOP_RELEASE(interpreter,how);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
