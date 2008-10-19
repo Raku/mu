@@ -105,11 +105,11 @@ sub VAST::term::emit_m0ld {
     if ($m->{identifier} && $m->{args}) {
         my $func = lookup('&'.$m->{identifier}{TEXT});
         AST::Call->new(identifier=>string 'postcircumfix:( )',capture=>AST::Capture->new(
-            invocant=>$func,
+            invocant=>FETCH($func),
             positional => [AST::Call->new(
-                identifier => string 'new_without_invocant',
+                identifier => string "capturize",
                 capture => AST::Capture->new(
-                    invocant => lookup('Capture'),
+                    invocant => reg '¢SMOP__S1P__Capturize',
                     positional => $m->{args}->emit_m0ld
                 )
             )]
@@ -153,9 +153,13 @@ sub VAST::routine_def::emit_m0ld {
         ),
     );
 }
+sub trailing_return {
+    my ($stmts,) = @_;
+    [@{$stmts},AST::Call->new(identifier=>string 'goto',capture=>AST::Capture->new(invocant=>reg '$interpreter',positional => [AST::Call->new(identifier=>string 'back',capture=>AST::Capture->new(invocant=>AST::Call->new(identifier=>string 'continuation',capture=>AST::Capture->new(invocant=>reg '$interpreter'))))]))];
+}
 sub VAST::block::emit_m0ld {
     my $m = shift;
-    AST::Block->new(regs=>['interpreter','scope'],stmts=>$m->{statementlist}->emit_m0ld);
+    AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return($m->{statementlist}->emit_m0ld));
 }
 sub VAST::value::emit_m0ld {
     my $m = shift;
@@ -195,13 +199,21 @@ sub VAST::number::emit_m0ld {
         XXX;
     }
 }
+sub VAST::sublongname::canonical {
+    my $m = shift;
+}
 sub varname {
     my $m = shift;
-    $m->{sigil}{TEXT}.$m->{desigilname}{longname}->canonical;
+    if ($m->{desigilname}) {
+        $m->{sigil}{TEXT}.$m->{desigilname}{longname}->canonical;
+    } elsif ($m->{sublongname}) {
+        $m->{sigil}{TEXT}.$m->{sublongname}{subshortname}{desigilname}{longname}->canonical;
+    } else {
+        XXX;
+    }
 }
 sub VAST::variable::emit_m0ld {
     my $m = shift;
-    my $varname = $m->{sigil}{TEXT}.$m->{desigilname}{longname}->canonical;
     AST::Call->new(
         identifier=>string 'lookup',
         capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string varname($m)]),
