@@ -51,7 +51,7 @@ package Evalbot;
 
     our %impls = (
             mildew  => {
-                chdir       => '../../v6/mildew',
+                chdir       => 'umask 002; ../../v6/mildew',
                 cmd_line    => 'perl mildew --exec --file %program >> %out 2>&1',
             },
             elf => {
