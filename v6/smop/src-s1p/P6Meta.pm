@@ -22,20 +22,20 @@ This method will alloc an object of the given representation.
 
 =end
 
-  method CREATE($how: $prototype, :$repr --> Object) {
+  method CREATE($how: $prototype, :$repr) {
       my $obj = ___EMPTY_REPR___($repr).^!CREATE();
       $obj.^!how = $prototype.^!how;
   }
 
 =begin
 
-=item method bless($how: $prototype, $candidate, *@protoobjects, *%initialize --> Object)
+=item method bless($how: $prototype, $candidate, *@protoobjects, *%initialize)
 
 This method will initialize the candidate object.
 
 =end
 
-  method bless($how: $prototype, $candidate, *@protoobjects, *%initialize --> Object) {
+  method bless($how: $prototype, $candidate, *@protoobjects, *%initialize) {
       $candidate.^!bless($prototype);
       @protoobjects.unshift($candidate.^!whence) if
         $candidate.^!whence;
@@ -131,7 +131,7 @@ Returns a lazy list with all the methods implemented by this object.
 
 =end
 
-  method methods($how: $object --> List of Method) {
+  method methods($how: $object) {
       my @methods;
       my sub list_methods_recurse($obj) {
           for ($obj.^!methods) -> $selfdef {
@@ -188,7 +188,7 @@ Is this a subclass of the given class?
 
 =end
 
-  method isa($how: $object, $superclass --> bool) {
+  method isa($how: $object, $superclass) {
       return true if $object === $superclass;
       for ($object.^!isa) -> $isa {
           return true if $isa === $superclass;
@@ -206,7 +206,7 @@ Does this object matches the given class?
 
 =end
 
-  method does($how: $object, $superclass --> bool) {
+  method does($how: $object, $superclass) {
       return true if $object === $superclass;
       for ($object.^!does) -> $isa {
           return true if $isa === $superclass;
@@ -229,7 +229,7 @@ Returns a lazy list of methods that match to this name/capture.
 
 =end
 
-  method can($how: $object, $name, $capture? --> List of Method) {
+  method can($how: $object, $name, $capture?) {
       return grep { .name eq $name &&
                       $capture ?? .signature.ACCEPTS($capture) !! 1 }, @($object.^methods());
   }
