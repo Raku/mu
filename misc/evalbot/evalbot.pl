@@ -50,9 +50,9 @@ package Evalbot;
     my $postfix = ':';
 
     our %impls = (
-            pixie => {
-                chdir       => '../pixie/',
-                cmd_line    => "$^X pixie --quiet \%program >> \%out 2>&1",
+            mildew  => {
+                chdir       => '../../v6/mildew',
+                cmd_line    => 'perl mildew --exec --file %program >> %out 2>&1',
             },
             elf => {
                 chdir       => '../elf',
