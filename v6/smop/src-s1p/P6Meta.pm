@@ -147,7 +147,7 @@ Returns a lazy list with all the methods implemented by this object.
 
       list_methods_recurse($object);
       for ($object.^!submethods) -> $submethod {
-          @method.push($submethod;
+          @method.push($submethod);
       }
       return @methods;
   }
