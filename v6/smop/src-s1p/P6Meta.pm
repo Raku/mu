@@ -132,9 +132,10 @@ Returns a lazy list with all the methods implemented by this object.
 =end
 
   method methods($how: $object --> List of Method) {
+      my @methods;
       my sub list_methods_recurse($obj) {
           for ($obj.^!methods) -> $selfdef {
-              take $selfdef;
+              @methods.push($selfdef);
           }
           for ($obj.^!isa) -> $isa {
               list_methods_recurse($isa);
@@ -144,12 +145,10 @@ Returns a lazy list with all the methods implemented by this object.
           }
       }
 
-      my List of Method @methods = gather {
-          list_methods_recurse($object);
-          for ($object.^!submethods) -> $submethod {
-             take $submethod;
-          }
-      };
+      list_methods_recurse($object);
+      for ($object.^!submethods) -> $submethod {
+          @method.push($submethod;
+      }
       return @methods;
   }
 
@@ -163,9 +162,10 @@ Returns a lazy list with all the attributes of this object.
 =end
 
   method attributes($how: $object) {
+      my @attributes;
       my sub list_attributes_recurse($obj) {
           for ($obj.^!attributes) -> $attr {
-              take $attr;
+              @attributes.push($attr);
           }
           for ($obj.^!isa) -> $isa {
               list_attributes_recurse($isa);
@@ -175,9 +175,7 @@ Returns a lazy list with all the attributes of this object.
           }
       }
 
-      my @attributes = gather {
-          list_attributes_recurse($object);
-      };
+      list_attributes_recurse($object);
       return @attributes;
   }
 
