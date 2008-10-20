@@ -16,6 +16,8 @@ SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter) {
     int i;
     for (i=0;i<pc;i++) {
         SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,i);
+
+        obj = SMOP_DISPATCH(interpreter,SMOP_RI(obj),SMOP__ID__FETCH,SMOP__NATIVE__capture_create(interpreter,obj,NULL,NULL));
         if (SMOP_RI(obj) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
             printf("%s",SMOP__S1P__Str_c_str(obj));
         } else if (SMOP_RI(obj) == (SMOP__ResponderInterface*)SMOP__NATIVE__int){

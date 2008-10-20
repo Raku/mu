@@ -93,7 +93,7 @@ void smop_s1p_defaultblocksignature_mold_init() {
       my $item = $outerscope."postcircumfix:{ }"("$_");
       $val = $item."FETCH"();
     exit:
-      $void = $container."STORE"($val);
+      $void = $container."BIND"($val);
       $void = $interpreter."goto"($back);
   };
 

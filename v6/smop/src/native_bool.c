@@ -15,24 +15,28 @@ static SMOP__Object* bool_message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
 
+  ___NATIVE_CAPTURE_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
   if (identifier == SMOP__ID__bool) {
-    ___NATIVE_CAPTURE_ONLY___;
-    ___INVOCANT_RI_SHOULD_MATCH___;
-
-    SMOP_RELEASE(interpreter,capture);
-    return invocant;
-
+    ret = SMOP_REFERENCE(interpreter,invocant);
   } else if (identifier == SMOP__ID__defined) {
-    SMOP_RELEASE(interpreter,capture);
-    return SMOP__NATIVE__bool_true;
+    ret = SMOP__NATIVE__bool_true;
+
+  } else if (identifier == SMOP__ID__FETCH) {
+    ___VALUE_FETCH___;
+
+  } else if (identifier == SMOP__ID__STORE) {
+    ___VALUE_STORE___;
 
   } else {
     ___UNKNOWN_METHOD___;
 
   }
 
+  SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
-  return SMOP__NATIVE__bool_false;
+  return ret;
 }
 
 static SMOP__Object* bool_reference(SMOP__Object* interpreter,

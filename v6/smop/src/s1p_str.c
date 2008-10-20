@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <smop.h>
 #include <string.h>
+#include <smop_s1p.h>
 #include <smop_lowlevel.h>
 
 SMOP__Object* SMOP__S1P__Str;
@@ -62,6 +63,12 @@ static SMOP__Object* smop_s1p_str_message(SMOP__Object* interpreter,
       } else {
         fprintf(stderr,"eq is supported on two S1P Str's for now, sorry\n");
       }
+  } else if (SMOP__ID__FETCH == identifier) {
+    ___VALUE_FETCH___;
+  } else if (SMOP__ID__STORE == identifier) {
+    ___VALUE_STORE___;
+  } else {
+    ___UNKNOWN_METHOD___;
   }
 
   SMOP_RELEASE(interpreter,capture);
