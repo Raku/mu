@@ -232,13 +232,8 @@ Returns a lazy list of methods that match to this name/capture.
 =end
 
   method can($how: $object, $name, $capture? --> List of Method) {
-      my List of Method @methods = gather {
-          take
-            <=== grep { .name eq $name &&
-                        $capture ?? .signature.ACCEPTS($capture) !! 1 }
-            <=== $object.^methods(); #>
-      };
-      return @methods;
+      return grep { .name eq $name &&
+                      $capture ?? .signature.ACCEPTS($capture) !! 1 }, @($object.^methods());
   }
 
 }
