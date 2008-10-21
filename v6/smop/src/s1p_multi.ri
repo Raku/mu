@@ -2,12 +2,16 @@
 %prototype SMOP__S1P__Multi
 %RI.id multi sub
 %attr SMOP__Object* variants
+%attr SMOP__Object* name
+%attr SMOP__Object* outer
 %getter variants
 %method new
   ret = smop_lowlevel_alloc(sizeof(smop_s1p_multi_struct));
   SMOP_REFERENCE(interpreter,RI);
   ret->RI = (SMOP__ResponderInterface*)RI;
   ((smop_s1p_multi_struct*)ret)->variants = SMOP__S1P__Array_create();
+  ((smop_s1p_multi_struct*)ret)->name = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__name);
+  ((smop_s1p_multi_struct*)ret)->outer = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__outer);
 
 %method variants
   smop_lowlevel_rdlock(invocant);
@@ -24,3 +28,26 @@
   smop_lowlevel_unlock(invocant);
   SMOP_RELEASE(interpreter,variants);
   SMOP_RELEASE(interpreter,RI);
+
+%{
+/*
+%mildew postcircumfix:<( )> ($self: $capture)
+  my @variants;
+  my sub traverse_scopes ($scope) {
+      if $scope.:exists($self.name) {
+          @variants.push($scope.{$self.name}.variants);
+      }
+      if $scope.outer {
+          traverse_scopes($scope.outer);
+      }
+  }
+  traverse_scopes($self.outer);
+  my @candidates = @variants.grep({ .signature.ACCEPTS($capture) });
+  if @candidates.elems > 0 {
+      # this is where the disambiguator should be called!
+      fail "Ambiguous dispatch!";
+  } else {
+      @candidates[0].postcircumfix:<( )>($capture);
+  }
+*/
+%}
