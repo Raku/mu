@@ -227,7 +227,7 @@ sub VAST::dotty::emit_m0ld {
             my @positional;
             my $pos0 = $methodop->{semilist}[0]{statement}[0];
             if ($pos0) {
-                @positional = (FETCH($pos0->emit_m0ld));
+                @positional = ($pos0->emit_m0ld);
             }
             my $ident = $methodop->{longname}->canonical;
             if ($m->{sym} eq '^!') {
@@ -345,4 +345,5 @@ if ($exec) {
     open(my $m0ld_exe,"|../smop/m0ld/dist/build/m0ld/m0ld --exec");
     print $m0ld_exe encode('utf8',$m0ld);
 } else {
+    print encode('utf8',$m0ld);
 }
