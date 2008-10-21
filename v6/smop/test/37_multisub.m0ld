@@ -7,7 +7,9 @@ $void = $out."print"("1..6\n");
 
 my $Code_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("::Code");
 my $Code = $Code_scalar."FETCH"();
+
 my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"();
+my $innerscope = ¢SMOP__S1P__LexicalScope."new"(:"outer"($lexicalscope));
 
 my $signature1 = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
     my $capture;
@@ -39,7 +41,7 @@ my $signature1 = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
     
 }));
 
-my $code1 = $Code."new"(:"outer"($lexicalscope),:"signature"($signature1),:"mold"(mold {
+my $code1 = $Code."new"(:"outer"($innerscope),:"signature"($signature1),:"mold"(mold {
     my $interpreter;
     my $lexical;
 
@@ -99,19 +101,29 @@ my $code2 = $Code."new"(:"outer"($lexicalscope),:"signature"($signature2),:"mold
 
 $void = $out."print"("ok 1 - initialized\n");
 
-my $m = ¢SMOP__S1P__Multi."new"();
-my $variants = $m."variants"();
+my $outer_m = ¢SMOP__S1P__Multi."new"(:"name"("&foo"), :"outer"($lexicalscope));
+my $container = $lexicalscope."postcircumfix:{ }"("&foo");
+$void = $container."STORE"($outer_m);
+my $outer_variants = $outer_m."variants"();
+
+my $inner_m = ¢SMOP__S1P__Multi."new"(:"name"("&foo"), :"outer"($innerscope));
+$container = $innerscope."postcircumfix:{ }"("&foo");
+$void = $container."STORE"($inner_m);
+my $inner_variants = $inner_m."variants"();
 
 $void = $out."print"("ok 2 - multi created\n");
 
-$void = $variants."push"($code1);
-$void = $variants."push"($code2);
+$void = $outer_variants."push"($code1);
+$void = $inner_variants."push"($code2);
 
 $void = $out."print"("ok 3 - variants added\n");
 
+my $sub_container = $innerscope."lookup"("&foo");
+my $sub = $sub_container."FETCH"();
+
 my $cap = ¢SMOP__S1P__Capturize."capturize"(1, 1);
-$void = $m."postcircumfix:( )"($cap);
+$void = $sub."postcircumfix:( )"($cap);
 $cap = ¢SMOP__S1P__Capturize."capturize"(¢SMOP__NATIVE__bool_true, ¢SMOP__NATIVE__bool_true);
-$void = $m."postcircumfix:( )"($cap);
+$void = $sub."postcircumfix:( )"($cap);
 
 $void = $out."print"("ok 6 - that's all\n");
