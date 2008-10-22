@@ -43,9 +43,7 @@ is($foo.noargs(), 42, "... parentheses after method");
 {
     my $val;
     lives_ok {
-        #eval '$val = $foo.noargs.()';
-        #die $! if $!;
-        die 'cannot parse "val = $foo.noargs.()"'
+        $val = $foo.noargs.();
     }, "... '.' + parentheses after method", :todo<bug>;
     is($val, 42, '... we got the value correctly', :todo<feature>);
 }
@@ -53,9 +51,7 @@ is($foo.noargs(), 42, "... parentheses after method");
 {
     my $val;
     lives_ok {
-        #eval '$val = $foo.noargs .()';
-        #die $! if $!;
-        die 'cannot parse "$foo.noargs .()"'
+        $val = $foo.noargs .();
     }, "... <space> + '.' + parentheses after method", :todo<bug>;
     is($val, 42, '... we got the value correctly', :todo<feature>);
 }
@@ -85,7 +81,7 @@ is($foo.noargs(), 42, "... parentheses after method");
         method c () { my %s; b(%s) }
         method b () { 1 }
     }
-    dies_ok( { Zoo.new.a }, "can't call current object methods on lexical data structures", :todo<bug>);
-    dies_ok( { Zoo.new.c }, "meth(%h) is not a valid method call syntax", :todo<bug>);
+    dies_ok( { Zoo.new.a }, "can't call current object methods on lexical data structures");
+    dies_ok( { Zoo.new.c }, "meth(%h) is not a valid method call syntax");
 }
 

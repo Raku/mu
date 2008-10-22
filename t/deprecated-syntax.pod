@@ -66,7 +66,8 @@ appropriate.
 
 Some tests rely on C<$?PUGS_BACKEND> and similar variables. Since they are not
 specced, they cause failures on other implementations. Either remove these
-variables alltogether, or at enclose them in C<eval '...'>.
+variables alltogether, or fudge them by prepending C<#?pugs emit> on every
+such line.
 
 =head2 "my" in pointy block signatures
 
