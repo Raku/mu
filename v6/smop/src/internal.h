@@ -101,6 +101,7 @@
      smop_s1p_multi_init();                 \
      smop_s1p_defaultblocksignature_mold_init(); \
      smop_s1p_bindcapturesignature_mold_init();  \
+     smop_s1p_pureprototypehow_mold_init();  \
      smop_s1p_adhocsignature_init();        \
      smop_s1p_code_mold_init();             \
      smop_s1p_map_mold_init();              \
@@ -113,6 +114,7 @@
      smop_s1p_map_mold_destr();             \
      smop_s1p_code_mold_destr();            \
      smop_s1p_adhocsignature_destr();       \
+     smop_s1p_pureprototypehow_mold_destr();  \
      smop_s1p_bindcapturesignature_mold_destr(); \
      smop_s1p_defaultblocksignature_mold_destr();\
      smop_s1p_multi_destr();                \
