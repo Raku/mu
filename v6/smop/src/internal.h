@@ -20,6 +20,7 @@
      smop_native_capture_init();      \
      smop_native_int_init();          \
      smop_native_bool_init();         \
+     smop_proto_init();               \
      smop_ri_init();                  \
      smop_slime_frame_init();         \
      smop_slime_currentframe_init();  \
@@ -59,9 +60,9 @@
      smop_s1p_io_init();                    \
      smop_s1p_attribute_init();             \
      smop_s1p_capturize_init();             \
+     smop_s1p_pureprototypehow_init();      \
      smop_s1p_defaultblocksignature_init(); \
      smop_s1p_bindcapturesignature_init();  \
-     smop_s1p_pureprototypehow_init();      \
      smop_s1p_map_init();                   \
      smop_s1p_grep_init();                  \
      smop_s1p_array_iterator_init();        \
@@ -74,9 +75,9 @@
      smop_s1p_array_iterator_destr();       \
      smop_s1p_grep_destr();                 \
      smop_s1p_map_destr();                  \
-     smop_s1p_pureprototypehow_destr();     \
      smop_s1p_bindcapturesignature_destr(); \
      smop_s1p_defaultblocksignature_destr();\
+     smop_s1p_pureprototypehow_destr();     \
      smop_s1p_capturize_destr();            \
      smop_s1p_attribute_destr();            \
      smop_s1p_io_destr();                   \
@@ -93,8 +94,7 @@
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
      smop_p6opaque_mold_init();             \
-     smop_proto_init();                     \
-     smop_s1p_bvalue_init();                \
+     smop_s1p_hash_bvalue_init();           \
      smop_s1p_root_namespace_init();        \
      smop_s1p_lexicalscope_init();          \
      smop_s1p_lexical_prelude_init();       \
@@ -103,27 +103,23 @@
      smop_s1p_bindcapturesignature_mold_init();  \
      smop_s1p_adhocsignature_init();        \
      smop_s1p_code_mold_init();             \
-     smop_s1p_pureprototypehow_mold_init(); \
      smop_s1p_map_mold_init();              \
      smop_s1p_grep_mold_init();             \
      smop_s1p_array_iterator_mold_init();   \
-     smop_s1p_ritest_init();                \
 
 #define SMOP_BOOTSTRAP_DESTR_SEQUENCE       \
-     smop_s1p_ritest_destr();               \
      smop_s1p_array_iterator_mold_destr();  \
      smop_s1p_grep_mold_destr();            \
      smop_s1p_map_mold_destr();             \
-     smop_s1p_pureprototypehow_mold_destr();\
      smop_s1p_code_mold_destr();            \
      smop_s1p_adhocsignature_destr();       \
      smop_s1p_bindcapturesignature_mold_destr(); \
      smop_s1p_defaultblocksignature_mold_destr();\
      smop_s1p_multi_destr();                \
+     smop_s1p_lexical_prelude_destr();      \
      smop_s1p_lexicalscope_destr();         \
      smop_s1p_root_namespace_destr();       \
-     smop_s1p_lexical_prelude_destr();      \
-     smop_s1p_bvalue_destr();               \
+     smop_s1p_hash_bvalue_destr();          \
      smop_p6opaque_mold_destr();            \
 
 void smop_idconst_init();
@@ -172,8 +168,6 @@ void smop_s1p_bindcapturesignature_mold_init();
 void smop_s1p_bindcapturesignature_mold_destr();
 void smop_s1p_pureprototypehow_init();
 void smop_s1p_pureprototypehow_destr();
-void smop_s1p_pureprototypehow_mold_init();
-void smop_s1p_pureprototypehow_mold_destr();
 void smop_s1p_capturize_init();
 void smop_s1p_capturize_destr();
 void smop_s1p_itemcontext_init();

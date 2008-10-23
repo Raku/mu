@@ -57,9 +57,12 @@ extern SMOP__Object* SMOP__ID__invocant;          /* "invocant" */
 extern SMOP__Object* SMOP__ID__isa;               /* "isa" */
 extern SMOP__Object* SMOP__ID__Iterator;          /* "Iterator" */
 extern SMOP__Object* SMOP__ID__jail;              /* "jail" */
+extern SMOP__Object* SMOP__ID__key;               /* "key" */
 extern SMOP__Object* SMOP__ID__lexical;           /* "lexical" */
 extern SMOP__Object* SMOP__ID__List;              /* "List" */
 extern SMOP__Object* SMOP__ID__loop;              /* "loop" */
+extern SMOP__Object* SMOP__ID__lookup_key;        /* "lookup_key" */
+extern SMOP__Object* SMOP__ID__bind_key;          /* "bind_key" */
 extern SMOP__Object* SMOP__ID__mold;              /* "mold" */
 extern SMOP__Object* SMOP__ID__move_capturize;    /* "move_capturize" */
 extern SMOP__Object* SMOP__ID__move_identifier;   /* "move_identifier" */
@@ -69,6 +72,7 @@ extern SMOP__Object* SMOP__ID__name;              /* "name" */
 extern SMOP__Object* SMOP__ID__new;               /* "new" */
 extern SMOP__Object* SMOP__ID__next;              /* "next" */
 extern SMOP__Object* SMOP__ID__outer;             /* "outer" */
+extern SMOP__Object* SMOP__ID__owner;             /* "owner" */
 extern SMOP__Object* SMOP__ID__past;              /* "past" */
 extern SMOP__Object* SMOP__ID__perl;              /* "perl" */
 extern SMOP__Object* SMOP__ID__positional;        /* "positional" */

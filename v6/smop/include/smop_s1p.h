@@ -4,7 +4,7 @@
 
 
 extern SMOP__Object* SMOP__S1P__Scalar;
-extern SMOP__Object* SMOP__S1P__BValue;
+extern SMOP__Object* SMOP__S1P__Hash_BValue;
 extern SMOP__Object* SMOP__S1P__Array;
 extern SMOP__Object* SMOP__S1P__Array_Iterator;
 extern SMOP__Object* SMOP__S1P__EndOfIterator;
@@ -54,7 +54,7 @@ SMOP__Object* SMOP__S1P__Hash_create(void);
 SMOP__Object* SMOP__S1P__Array_create(void);
 SMOP__Object* SMOP__S1P__Code_create(void);
 SMOP__Object* SMOP__S1P__Array_Iterator_create(SMOP__Object* input_array);
-SMOP__Object* SMOP__S1P__BValue_create(SMOP__Object* interpreter,SMOP__Object** container);
+SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Object* owner, SMOP__Object* key);
 
 
 #include <assert.h>

@@ -149,7 +149,13 @@ if ($properties{RI}) {
     print "static SMOP__Object* RI;\n";
 }
 my $RI = $properties{RI} || 'RI';
+my %declared_ids;
 for (keys %methods) {
+    next if $declared_ids{mangle($_)}++;
+    print 'static SMOP__Object* ',mangle($_),";\n";
+}
+for (@getters) {
+    next if $declared_ids{mangle($_)}++;
     print 'static SMOP__Object* ',mangle($_),";\n";
 }
 for (keys %mold) {

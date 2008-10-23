@@ -106,7 +106,7 @@ foreach (ri_file
     src/s1p_io.ri
     src/s1p_lexicalscope.ri
     src/s1p_adhocsignature.ri
-    src/s1p_bvalue.ri
+    src/s1p_hash_bvalue.ri
     src/proto.ri
 )
 compile_ri (${ri_file})
@@ -150,7 +150,7 @@ add_library (smop SHARED
     src/s1p_scalar.c
     src/s1p_str.c
     src/s1p_ritest.c
-    src/s1p_bvalue.c
+    src/s1p_hash_bvalue.c
     src/slime_capturize.c
     src/slime_currentframe.c
     src/slime_frame.c

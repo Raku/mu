@@ -3,7 +3,6 @@
 #include <smop.h>
 #include <smop_lowlevel.h>
 #include <smop_s1p.h>
-#include <smop_slime.h>
 
 SMOP__Object* SMOP__S1P__Scalar;
 

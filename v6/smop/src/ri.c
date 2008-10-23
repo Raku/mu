@@ -62,7 +62,7 @@ void smop_ri_init() {
 }
 
 void smop_ri_destr() {
-  //free(SMOP__RI);
+  free(SMOP__RI);
 }
 
 SMOP__Object* SMOP__RI__create(
@@ -80,7 +80,7 @@ SMOP__Object* SMOP__RI__create(
   ) {
     SMOP__Object* ret = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
     SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)ret;
-    ri->RI = (SMOP__ResponderInterface*)SMOP__RI;
+    ri->RI = NULL; //(SMOP__ResponderInterface*)SMOP__RI;
     ri->MESSAGE = MESSAGE;
     ri->REFERENCE = REFERENCE;
     ri->RELEASE = RELEASE;

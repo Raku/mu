@@ -34,8 +34,57 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
 
   smop_s1p_hash_struct* invocant = (smop_s1p_hash_struct*)(SMOP__NATIVE__capture_invocant(interpreter, capture));
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  if (identifier == SMOP__ID__postcircumfix_curly) {
 
+  if (identifier == SMOP__ID__postcircumfix_curly) {
+    if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1) {
+      SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+      ret = SMOP__S1P__Hash_BValue_create(interpreter,SMOP_REFERENCE(interpreter,(SMOP__Object*)invocant),SMOP_REFERENCE(interpreter,key));
+    } else {
+      fprintf(stderr,"wrong number of arguments to postcircumfix:<{ }>\n");
+    }
+
+  } else if (identifier == SMOP__ID__bind_key) {
+    if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 2) {
+      SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+      SMOP__Object* val = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+
+      int hashing_result = 0;
+      if (SMOP_RI(key) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
+        SMOP__Object* dest = key;
+        key = SMOP__NATIVE__idconst_create(SMOP__S1P__Str_c_str(key));
+        SMOP_RELEASE(interpreter,dest);
+      }
+      hash_bucket* bucket = invocant->buckets[hashing_result];
+      //fprintf(stderr,"bucket %p\n",bucket);
+      if (bucket) while (1) {
+        if (bucket->key == key) {
+          //fprintf(stderr,"found new cell\n");
+          SMOP_RELEASE(interpreter,invocant);
+          SMOP_RELEASE(interpreter,capture);
+          SMOP_RELEASE(interpreter,bucket->cell);
+          bucket->cell = val;
+          return SMOP__NATIVE__bool_true;
+        } else if (bucket->next) {
+          bucket = bucket->next;
+        } else {
+          break;
+        }
+      }
+
+      //fprintf(stderr,"creating new cell\n");
+      hash_bucket* new_bucket = (hash_bucket*) calloc(1,sizeof(hash_bucket));
+      new_bucket->key  = key;
+      new_bucket->cell = val;
+      new_bucket->next = NULL;
+      if (bucket) bucket->next = new_bucket;
+      else invocant->buckets[hashing_result] = new_bucket;
+      ret = SMOP__NATIVE__bool_true;
+
+    } else {
+      fprintf(stderr,"wrong number of arguments to bind_key\n");
+    }
+
+  } else if (identifier == SMOP__ID__lookup_key) {
     if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1) {
       SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
       int hashing_result = 0;
@@ -51,7 +100,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
           //fprintf(stderr,"found new cell\n");
           SMOP_RELEASE(interpreter,invocant);
           SMOP_RELEASE(interpreter,capture);
-          return SMOP__S1P__BValue_create(interpreter,&bucket->cell);
+          return SMOP_REFERENCE(interpreter,bucket->cell);
         } else if (bucket->next) {
           bucket = bucket->next;
         } else {
@@ -62,16 +111,14 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       //fprintf(stderr,"creating new cell\n");
       SMOP__Object* cell = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
       hash_bucket* new_bucket = (hash_bucket*) calloc(1,sizeof(hash_bucket));
-
       new_bucket->key  = key;
-
       new_bucket->cell = cell;
       new_bucket->next = NULL;
       if (bucket) bucket->next = new_bucket;
       else invocant->buckets[hashing_result] = new_bucket;
-      ret = SMOP__S1P__BValue_create(interpreter,&new_bucket->cell);
+      ret = SMOP_REFERENCE(interpreter,bucket->cell);
     } else {
-      fprintf(stderr,"wrong number of arguments to postcircumfix:<{ }>\n");
+      fprintf(stderr,"wrong number of arguments to lookup_key\n");
     }
 
   } else if (identifier == SMOP__ID__exists) {
