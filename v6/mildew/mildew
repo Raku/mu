@@ -345,5 +345,5 @@ if ($exec) {
     open(my $m0ld_exe,"|../smop/m0ld/dist/build/m0ld/m0ld --exec");
     print $m0ld_exe encode('utf8',$m0ld);
 } else {
-    print encode('utf8',$m0ld);
+    print $m0ld;#encode('utf8',$m0ld);
 }
