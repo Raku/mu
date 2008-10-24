@@ -231,7 +231,7 @@ while (my ($name,$mold) = each %mold) {
 
 if ($properties{prototype}) {
     print qq[
-  $properties{prototype} = SMOP__Proto__create(interpreter,SMOP_REFERENCE(interpreter,$RI));
+  $properties{prototype} = SMOP__Proto__create($RI);
 ];
 }
 print qq[ 
@@ -242,14 +242,14 @@ void $properties{prefix}_destr() {
 #printf("$properties{prefix}_destr()\\n");
 if ($properties{prototype}) {
     print qq[
- SMOP_RELEASE(SMOP__GlobalInterpreter,$properties{prototype});
+     free($properties{prototype});
     ];
 }
 while (my ($name,$mold) = each %mold) {
     print "SMOP_RELEASE(SMOP__GlobalInterpreter,$name);\n";
 }
 print qq[
-  SMOP_RELEASE(SMOP__GlobalInterpreter,$RI);
+  free($RI);
 }
 ];
 print $raw{'bottom'} || '';
