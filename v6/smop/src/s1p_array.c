@@ -96,6 +96,10 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
       if (invocant->content[i]) SMOP_RELEASE(interpreter,invocant->content[i]);
     }
     free(invocant->content);
+
+  } else if (identifier == SMOP__ID__FETCH) {
+    ___VALUE_FETCH___
+
   } else {
       ___UNKNOWN_METHOD___
   }

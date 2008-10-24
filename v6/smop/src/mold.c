@@ -364,6 +364,12 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     SMOP_RELEASE(interpreter,frame->mold);
     if (frame->back) SMOP_RELEASE(interpreter,frame->back);
     frame->mold = NULL;
+  } else if (identifier == SMOP__ID__FETCH) {
+    ___VALUE_FETCH___;
+
+  } else if (identifier == SMOP__ID__STORE) {
+    ___VALUE_STORE___;
+    
   } else {
     ___UNKNOWN_METHOD___;
   }
