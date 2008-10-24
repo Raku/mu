@@ -578,13 +578,18 @@ sub gen_code_snippet ($) {
     }
 
     my $nlines = $to - $from + 1;
-
+    my $hilited_file = $file;
+    $hilited_file =~ s{t/spec/}{};
+    $hilited_file =~ s{/([^/]+)\.t$}{/_$1.html};
     my $html = <<"_EOC_";
 <p>From $file lines $from&ndash;$to$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span></p>
 <div id="smartlink_${snippet_id}" class="smartlink_snippet">
 $snippet
 </div>
 <span id="smartlink_skipto_${snippet_id}">&nbsp;</span>
+<a href="http://feather.perl6.nl/~azawawi/html/$hilited_file" target="_blank">
+STD_syntax_highlight-ed $file
+</a>
 _EOC_
     $snippets[$snippet_id] = $html;
     "\n\n_SMART_LINK_$snippet_id\n\n";
