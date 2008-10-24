@@ -85,11 +85,10 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
   return ret;
 }
 void smop_s1p_scalar_init() {
-  RI = calloc(1,sizeof(SMOP__ResponderInterface));
-  ((SMOP__ResponderInterface*)RI)->MESSAGE = smop_s1p_scalar_message;
-  ((SMOP__ResponderInterface*)RI)->REFERENCE = smop_lowlevel_generic_reference;
-  ((SMOP__ResponderInterface*)RI)->RELEASE = smop_lowlevel_generic_release;
-  ((SMOP__ResponderInterface*)RI)->id = "S1P Scalar";
+  RI = SMOP__RI__create(smop_s1p_scalar_message,
+                        smop_lowlevel_generic_reference,
+                        smop_lowlevel_generic_release,
+                        "S1P Scalar");
   SMOP__S1P__Scalar = SMOP__Proto__create(RI);
 }
 

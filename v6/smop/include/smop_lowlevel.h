@@ -55,7 +55,7 @@ SMOP__Object* SMOP__RI__create(
                              SMOP__Object* object),
   char *id
 ); 
-SMOP__Object* SMOP__Proto__create(SMOP__Object*,SMOP__Object*);
+SMOP__Object* SMOP__Proto__create(SMOP__Object* object);
 
 /* This functions decrements the reference count of a value, it should
  * be called whenever one reference to this value is destroyed. It
