@@ -234,4 +234,24 @@ Returns a lazy list of methods that match to this name/capture.
                       $capture ?? .signature.ACCEPTS($capture) !! 1 }, @($object.^methods());
   }
 
+=begin
+
+=item method dispatch($how: $responder, $identifier, $capture)
+
+Gets all the possible candidates for this method and invoke one.
+
+=end
+
+  method dispatch($how: $responder, $identifier, $capture) {
+      my $invocant = $$capture;
+      my @candidates = $invocant.^can($identifier, $capture);
+      if (@candidates.elems > 1) {
+          fail 'Ambiguous dispatch!'; # call disambiguator.
+      } elsif (@candidates.elems < 1) {
+          fail 'No method ' ~ $identifier;
+      } else {
+          @candidates[0].($capture);
+      }
+  }
+
 }
