@@ -71,8 +71,10 @@
      smop_s1p_array_iterator_init();        \
      smop_s1p_emptylist_init();             \
      smop_s1p_endofiterator_init();         \
+     smop_s1p_multi_init();                 \
 
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
+     smop_s1p_multi_destr();                \
      smop_s1p_endofiterator_destr();        \
      smop_s1p_emptylist_destr();            \
      smop_s1p_array_iterator_destr();       \
