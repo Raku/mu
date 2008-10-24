@@ -47,6 +47,13 @@
                                                      SMOP_REFERENCE(interpreter,entries),
                                                      SMOP_REFERENCE(interpreter,capture)));
 
+%method lookup_fail
+  SMOP__Object* name = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+  assert(name->RI == SMOP__ID__new->RI);
+  int retsize;
+  fprintf(stderr,"Could not find variable %s in the lexical scope.\n",SMOP__NATIVE__idconst_fetch(name, &retsize));
+  abort();
+
 %mold mold_code_lookup
     my $capture;
     my $back;
@@ -59,8 +66,6 @@
     my $void;
     my $ret;
     
-    my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
-    my $OUT = $OUT_SCALAR."FETCH"();
     if $exists {goto than} else {goto else};
     than:
       $ret = $invocant."postcircumfix:{ }"($name);
@@ -72,15 +77,11 @@
       my $outer_cell = $outer."FETCH"();
       if $outer_true {goto than2} else {goto else2};
       than2:
-        my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
-        my $OUT = $OUT_SCALAR."FETCH"();
         $ret = $outer_cell."lookup"($name);
         $void = $back."setr"($ret);
         $void = $interpreter."goto"($back);
       else2:
-        my $OUT_SCALAR = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
-        my $OUT = $OUT_SCALAR."FETCH"();
-        $void = $OUT."print"("no variable ",$name," in the current scope\n");
+        $void = $invocant."lookup_fail"($name);
 
 %method lookup
   SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_code_lookup));

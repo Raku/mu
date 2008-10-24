@@ -16,7 +16,7 @@ typedef struct SMOP__S1P__Scalar_struct {
 SMOP__Object* SMOP__S1P__Scalar_create(SMOP__Object* initial_value) {
   assert(initial_value);
   SMOP__Object* ret = smop_lowlevel_alloc(sizeof(SMOP__S1P__Scalar_struct));
-  ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Scalar;
+  ret->RI = (SMOP__ResponderInterface*)RI;
   ((SMOP__S1P__Scalar_struct*)ret)->cell = initial_value;
   return ret;
 }

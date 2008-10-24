@@ -20,8 +20,8 @@
      smop_native_capture_init();      \
      smop_native_int_init();          \
      smop_native_bool_init();         \
-     smop_proto_init();               \
      smop_ri_init();                  \
+     smop_proto_init();               \
      smop_slime_frame_init();         \
      smop_slime_currentframe_init();  \
      smop_slime_node_init();          \
@@ -34,8 +34,8 @@
      smop_native_int_destr();            \
      smop_native_bool_destr();           \
      smop_native_capture_destr();        \
-     smop_ri_destr();                    \
      smop_proto_destr();                 \
+     smop_ri_destr();                    \
      smop_interpreter_destr();           \
      smop_lowlevel_destr();              \
      smop_idconst_destr();              
@@ -48,6 +48,7 @@
  */
 #define SMOP_INTERNAL_INIT_SEQUENCE         \
      smop_mold_init();                      \
+     smop_s1p_lexicalscope_init();          \
      smop_s1p_code_init();                  \
      smop_s1p_ccode_init();                 \
      smop_lowlevel_method_init();           \
@@ -90,13 +91,13 @@
      smop_lowlevel_method_destr();          \
      smop_s1p_ccode_destr();                \
      smop_s1p_code_destr();                 \
+     smop_s1p_lexicalscope_destr();         \
      smop_mold_destr();
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
      smop_p6opaque_mold_init();             \
      smop_s1p_hash_bvalue_init();           \
      smop_s1p_root_namespace_init();        \
-     smop_s1p_lexicalscope_init();          \
      smop_s1p_lexical_prelude_init();       \
      smop_s1p_multi_init();                 \
      smop_s1p_defaultblocksignature_mold_init(); \
@@ -119,7 +120,6 @@
      smop_s1p_defaultblocksignature_mold_destr();\
      smop_s1p_multi_destr();                \
      smop_s1p_lexical_prelude_destr();      \
-     smop_s1p_lexicalscope_destr();         \
      smop_s1p_root_namespace_destr();       \
      smop_s1p_hash_bvalue_destr();          \
      smop_p6opaque_mold_destr();            \

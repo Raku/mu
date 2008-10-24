@@ -1,6 +1,6 @@
 project (smop)
-#SET( CMAKE_C_FLAGS "-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE" )
-SET( CMAKE_C_FLAGS "-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE -DSMOP_LOWLEVEL_MEM_DEBUG -DSMOP_MOLD_DEBUG -DSMOP_SLIME_DEBUG" )
+SET( CMAKE_C_FLAGS "-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE" )
+#SET( CMAKE_C_FLAGS "-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE -DSMOP_LOWLEVEL_MEM_DEBUG -DSMOP_MOLD_DEBUG -DSMOP_SLIME_DEBUG" )
 SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
 cmake_minimum_required (VERSION 2.6)
 include_directories (${smop_SOURCE_DIR}/include)
@@ -107,7 +107,6 @@ foreach (ri_file
     src/s1p_lexicalscope.ri
     src/s1p_adhocsignature.ri
     src/s1p_hash_bvalue.ri
-    src/proto.ri
 )
 compile_ri (${ri_file})
 endforeach()
