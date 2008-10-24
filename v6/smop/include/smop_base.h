@@ -76,11 +76,23 @@ struct SMOP__ResponderInterface {
  */
 #define SMOP_RI(object) ((SMOP__ResponderInterface*)((((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)))
 
+#ifdef SMOP_HUNT_NULLS
+#include <assert.h>
+#define SMOP_DISPATCH(interpreter, object, identifier, capture) ({\
+      SMOP__Object* ret = (((SMOP__ResponderInterface*)object)->MESSAGE(  \
+          (SMOP__Object*)interpreter, ((SMOP__ResponderInterface*)object), \
+          identifier, capture \
+      ));\
+      assert(ret);\
+      ret;\
+      })
+#else
 #define SMOP_DISPATCH(interpreter, object, identifier, capture) \
       (((SMOP__ResponderInterface*)object)->MESSAGE(  \
           (SMOP__Object*)interpreter, ((SMOP__ResponderInterface*)object), \
           identifier, capture \
       ))
+#endif
 
 #ifdef SMOP_LOWLEVEL_MEM_DEBUG
 #define SMOP_REFERENCE(interpreter, object) \
