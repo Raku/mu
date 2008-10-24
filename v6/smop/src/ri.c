@@ -26,31 +26,14 @@ static SMOP__Object* message(SMOP__Object* interpreter,
   SMOP_RELEASE(interpreter,capture);
   return ret;
 }
+
 static SMOP__Object* ri_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if ((SMOP__Object*)responder != obj) {
-    smop_lowlevel_wrlock(obj);
-    ((SMOP_LOWLEVEL_INTERNAL*)obj->data)->ref_cnt++;
-    smop_lowlevel_unlock(obj);
-  }
   return obj;
 }
 
 static SMOP__Object* ri_release(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
-  if ((SMOP__Object*)responder != obj) {
-    smop_lowlevel_wrlock(obj);
-    ((SMOP_LOWLEVEL_INTERNAL*)obj->data)->ref_cnt--;
-    int destroy = ((SMOP_LOWLEVEL_INTERNAL*)obj->data)->ref_cnt <= 0;
-    smop_lowlevel_unlock(obj);
-
-    if (destroy) {
-      smop_lowlevel_free(obj);
-#ifdef SMOP_LOWLEVEL_MEM_TRACE
-      smop_mem_trace_del(obj);
-#endif
-    }
-  }
+  return obj;
 }
-
 
 void smop_ri_init() {
   SMOP__RI = malloc(sizeof(SMOP__ResponderInterface));
@@ -78,7 +61,7 @@ SMOP__Object* SMOP__RI__create(
                              SMOP__Object* object),
   char *id
   ) {
-    SMOP__Object* ret = smop_lowlevel_alloc(sizeof(SMOP__ResponderInterface));
+    SMOP__Object* ret = malloc(sizeof(SMOP__ResponderInterface));
     SMOP__ResponderInterface* ri = (SMOP__ResponderInterface*)ret;
     ri->RI = (SMOP__ResponderInterface*)SMOP__RI;
     ri->MESSAGE = MESSAGE;

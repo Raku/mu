@@ -4,6 +4,7 @@
 #include <smop_lowlevel.h>
 #include <smop_s1p.h>
 
+static SMOP__Object* RI;
 SMOP__Object* SMOP__S1P__Scalar;
 
 typedef struct SMOP__S1P__Scalar_struct {
@@ -84,13 +85,15 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
   return ret;
 }
 void smop_s1p_scalar_init() {
-  SMOP__S1P__Scalar = calloc(1,sizeof(SMOP__ResponderInterface));
-  ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->MESSAGE = smop_s1p_scalar_message;
-  ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->REFERENCE = smop_lowlevel_generic_reference;
-  ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->RELEASE = smop_lowlevel_generic_release;
-  ((SMOP__ResponderInterface*)SMOP__S1P__Scalar)->id = "S1P Scalar";
+  RI = calloc(1,sizeof(SMOP__ResponderInterface));
+  ((SMOP__ResponderInterface*)RI)->MESSAGE = smop_s1p_scalar_message;
+  ((SMOP__ResponderInterface*)RI)->REFERENCE = smop_lowlevel_generic_reference;
+  ((SMOP__ResponderInterface*)RI)->RELEASE = smop_lowlevel_generic_release;
+  ((SMOP__ResponderInterface*)RI)->id = "S1P Scalar";
+  SMOP__S1P__Scalar = SMOP__Proto__create(RI);
 }
 
 void smop_s1p_scalar_destr() {
   free(SMOP__S1P__Scalar);
+  free(RI);
 }

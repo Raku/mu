@@ -12,9 +12,17 @@
     char* s = SMOP__NATIVE__idconst_fetch(identifier,&identifier_size);
     SMOP__Object* new_capture = SMOP__NATIVE__capture_delegate(interpreter,SMOP__NATIVE__bool_false,SMOP_REFERENCE(interpreter,capture));
     ret = SMOP_DISPATCH(interpreter,invocant->delegate_to_RI,identifier,new_capture);
+
   } else if (identifier == SMOP__ID__DESTROYALL) {
     SMOP_RELEASE(interpreter,invocant->delegate_to_RI);
     SMOP_RELEASE(interpreter,RI);
+
+  } else if (identifier == SMOP__ID__FETCH) {
+    ___VALUE_FETCH___;
+
+  } else if (identifier == SMOP__ID__STORE) {
+    ___VALUE_STORE___;
+
   } else {
     ___UNKNOWN_METHOD___;
   }
@@ -24,9 +32,8 @@
   return ret;
 %}
 %bottom {
-SMOP__Object* SMOP__Proto__create(SMOP__Object* interpreter,SMOP__Object* delegate_to_RI) {
- SMOP_REFERENCE(interpreter,RI);
- SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_proto_struct));
+SMOP__Object* SMOP__Proto__create(SMOP__Object* delegate_to_RI) {
+ SMOP__Object* ret = malloc(sizeof(smop_proto_struct));
  ((smop_proto_struct*)ret)->delegate_to_RI = delegate_to_RI;
  ret->RI = RI;
  return ret;
