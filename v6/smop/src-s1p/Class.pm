@@ -36,7 +36,8 @@ This method will initialize the candidate object.
 =end
 
   method bless($how: $prototype, $candidate, *@protoobjects, *%initialize) {
-      $candidate.^!bless($prototype);
+      $candidate.^!isa = ($prototype);
+      $candidate.^!does = ();
       @protoobjects.unshift($candidate.^!whence) if
         $candidate.^!whence;
       $candidate.BUILDALL(|@protoobjects, |%initialize);
