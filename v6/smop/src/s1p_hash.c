@@ -114,9 +114,9 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       new_bucket->key  = key;
       new_bucket->cell = cell;
       new_bucket->next = NULL;
+      ret = SMOP_REFERENCE(interpreter,new_bucket->cell);
       if (bucket) bucket->next = new_bucket;
       else invocant->buckets[hashing_result] = new_bucket;
-      ret = SMOP_REFERENCE(interpreter,bucket->cell);
     } else {
       fprintf(stderr,"wrong number of arguments to lookup_key\n");
     }

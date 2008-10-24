@@ -11,14 +11,11 @@ SMOP__Object* SMOP__S1P__RootNamespace;
 void smop_s1p_root_namespace_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj) {
   SMOP__Object* cell = SMOP_DISPATCH(interpreter,
                                      SMOP_RI(SMOP__S1P__RootNamespace),
-                                     SMOP__ID__postcircumfix_curly,
+                                     SMOP__ID__bind_key,
                                      SMOP__NATIVE__capture_create(interpreter,
                                                                   SMOP_REFERENCE(interpreter,SMOP__S1P__RootNamespace),
-                                                                  (SMOP__Object*[]) {SMOP__NATIVE__idconst_create(name),NULL},
+                                                                  (SMOP__Object*[]) {SMOP__NATIVE__idconst_create(name),obj,NULL},
                                                                   NULL));
-
-  SMOP_RELEASE(interpreter,SMOP_DISPATCH(interpreter,SMOP_RI(cell),SMOP__ID__STORE,
-      SMOP__NATIVE__capture_create(interpreter,cell,(SMOP__Object*[]) {obj,NULL}, NULL)));
 }
 void smop_s1p_root_namespace_init() {
   SMOP__S1P__RootNamespace = SMOP__S1P__Hash_create();

@@ -27,26 +27,44 @@
     SMOP_RELEASE(interpreter,SMOP__S1P__Hash_BValue);
 
 %method BIND
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
     SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,bind_mold));
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
     mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,continuation));
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                   SMOP__ID__goto,
                   frame);
 
 
 %method FETCH
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
     SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,fetch_mold));
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
     mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,continuation));
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                   SMOP__ID__goto,
                   frame);
 
 %method STORE
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
     SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,store_mold));
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
     mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,continuation));
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                   SMOP__ID__goto,
                   frame);
@@ -54,38 +72,35 @@
 %mold bind_mold
     my $interpreter;
     my $capture;
+    my $back;
     my $invocant = $capture."invocant"();
     my $owner = $invocant."owner"();
     my $key = $invocant."key"();
     my $val = $capture."positional"(0);
     my $void = $owner."bind_key"($key, $val);
-    my $cont = $interpreter."continuation"();
-    my $back = $cont."back"();
     $void = $interpreter."goto"($back);
 
 %mold store_mold
     my $interpreter;
     my $capture;
+    my $back;
     my $invocant = $capture."invocant"();
     my $owner = $invocant."owner"();
     my $key = $invocant."key"();
     my $val = $capture."positional"(0);
     my $container = $owner."lookup_key"($key);
     my $void = $container."STORE"($val);
-    my $cont = $interpreter."continuation"();
-    my $back = $cont."back"();
     $void = $interpreter."goto"($back);
 
 %mold fetch_mold
     my $interpreter;
     my $capture;
+    my $back;
     my $invocant = $capture."invocant"();
     my $owner = $invocant."owner"();
     my $key = $invocant."key"();
     my $val = $capture."positional"(0);
     my $container = $owner."lookup_key"($key);
     my $res = $container."FETCH"();
-    my $cont = $interpreter."continuation"();
-    my $back = $cont."back"();
     my $void = $back."setr"($res);
     $void = $interpreter."goto"($back);
