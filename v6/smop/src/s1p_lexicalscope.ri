@@ -37,6 +37,16 @@
                                                      SMOP_REFERENCE(interpreter,entries),
                                                      SMOP_REFERENCE(interpreter,capture)));
 
+%method bind_key
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+  smop_lowlevel_unlock(invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__bind_key,
+                      SMOP__NATIVE__capture_delegate(interpreter,
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     SMOP_REFERENCE(interpreter,capture)));
+
 %method exists
   smop_lowlevel_rdlock(invocant);
   SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;

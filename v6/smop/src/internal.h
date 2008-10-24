@@ -49,6 +49,7 @@
 #define SMOP_INTERNAL_INIT_SEQUENCE         \
      smop_mold_init();                      \
      smop_s1p_lexicalscope_init();          \
+     smop_s1p_hash_bvalue_init();           \
      smop_s1p_code_init();                  \
      smop_s1p_ccode_init();                 \
      smop_lowlevel_method_init();           \
@@ -91,19 +92,19 @@
      smop_lowlevel_method_destr();          \
      smop_s1p_ccode_destr();                \
      smop_s1p_code_destr();                 \
+     smop_s1p_hash_bvalue_destr();          \
      smop_s1p_lexicalscope_destr();         \
      smop_mold_destr();
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
-     smop_p6opaque_mold_init();             \
-     smop_s1p_hash_bvalue_init();           \
      smop_s1p_root_namespace_init();        \
      smop_s1p_lexical_prelude_init();       \
-     smop_s1p_multi_init();                 \
+     smop_p6opaque_mold_init();             \
+     smop_s1p_multi_mold_init();            \
      smop_s1p_defaultblocksignature_mold_init(); \
      smop_s1p_bindcapturesignature_mold_init();  \
-     smop_s1p_pureprototypehow_mold_init();  \
-     smop_s1p_adhocsignature_init();        \
+     smop_s1p_pureprototypehow_mold_init(); \
+     smop_s1p_adhocsignature_mold_init();   \
      smop_s1p_code_mold_init();             \
      smop_s1p_map_mold_init();              \
      smop_s1p_grep_mold_init();             \
@@ -114,15 +115,14 @@
      smop_s1p_grep_mold_destr();            \
      smop_s1p_map_mold_destr();             \
      smop_s1p_code_mold_destr();            \
-     smop_s1p_adhocsignature_destr();       \
-     smop_s1p_pureprototypehow_mold_destr();  \
+     smop_s1p_adhocsignature_mold_destr();  \
+     smop_s1p_pureprototypehow_mold_destr();\
      smop_s1p_bindcapturesignature_mold_destr(); \
      smop_s1p_defaultblocksignature_mold_destr();\
-     smop_s1p_multi_destr();                \
-     smop_s1p_lexical_prelude_destr();      \
-     smop_s1p_root_namespace_destr();       \
-     smop_s1p_hash_bvalue_destr();          \
+     smop_s1p_multi_mold_destr();           \
      smop_p6opaque_mold_destr();            \
+     smop_s1p_root_namespace_destr();       \
+     smop_s1p_lexical_prelude_destr();      \
 
 void smop_idconst_init();
 void smop_idconst_destr();

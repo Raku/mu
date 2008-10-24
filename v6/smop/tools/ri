@@ -225,9 +225,6 @@ print "  SMOP__Object* interpreter = SMOP__GlobalInterpreter;\n";
 for (keys %methods) {
     print "  ",mangle($_)," = ","SMOP__NATIVE__idconst_create(\"$_\");\n";
 }
-while (my ($name,$mold) = each %mold) {
-    print "  $name = ",preprocess_m0ld($mold),";\n";
-}
 
 if ($properties{prototype}) {
     print qq[
@@ -236,7 +233,20 @@ if ($properties{prototype}) {
 }
 print qq[ 
 }
-
+void $properties{prefix}_mold_init() {
+];
+while (my ($name,$mold) = each %mold) {
+    print "  $name = ",preprocess_m0ld($mold),";\n";
+}
+print qq[ 
+}
+void $properties{prefix}_mold_destr() {
+];
+while (my ($name,$mold) = each %mold) {
+    print "SMOP_RELEASE(SMOP__GlobalInterpreter,$name);\n";
+}
+print qq[
+}
 void $properties{prefix}_destr() {
 ];
 #printf("$properties{prefix}_destr()\\n");
@@ -244,9 +254,6 @@ if ($properties{prototype}) {
     print qq[
      free($properties{prototype});
     ];
-}
-while (my ($name,$mold) = each %mold) {
-    print "SMOP_RELEASE(SMOP__GlobalInterpreter,$name);\n";
 }
 print qq[
   free($RI);
