@@ -1,10 +1,10 @@
-class P6Meta is meta(SMOP__S1P__PurePrototypeHow) {
+knowhow Class {
 
 =begin
 
 =head1 NAME
 
-P6Meta - Default Perl 6 Metaclass
+Class - Default Perl 6 Metaclass
 
 =head1 DESCRIPTION
 
@@ -23,7 +23,7 @@ This method will alloc an object of the given representation.
 =end
 
   method CREATE($how: $prototype, :$repr) {
-      my $obj = ___EMPTY_REPR___($repr).^!CREATE();
+      my $obj = ::($repr).^!CREATE();
       $obj.^!how = $prototype.^!how;
   }
 
