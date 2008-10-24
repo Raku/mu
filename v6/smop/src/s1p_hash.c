@@ -38,6 +38,11 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__postcircumfix_curly) {
     if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1) {
       SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+      if (SMOP_RI(key) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
+        SMOP__Object* dest = key;
+        key = SMOP__NATIVE__idconst_create(SMOP__S1P__Str_c_str(key));
+        SMOP_RELEASE(interpreter,dest);
+      }
       ret = SMOP__S1P__Hash_BValue_create(interpreter,SMOP_REFERENCE(interpreter,(SMOP__Object*)invocant),SMOP_REFERENCE(interpreter,key));
     } else {
       fprintf(stderr,"wrong number of arguments to postcircumfix:<{ }>\n");

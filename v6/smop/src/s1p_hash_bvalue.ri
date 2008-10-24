@@ -8,7 +8,7 @@
 %{
     SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Object* owner, SMOP__Object* key) {
         smop_s1p_hash_bvalue_struct* bvalue = (smop_s1p_hash_bvalue_struct*) smop_lowlevel_alloc(sizeof(smop_s1p_hash_bvalue_struct));
-        bvalue->RI = (SMOP__ResponderInterface*)(SMOP_REFERENCE(interpreter,SMOP__S1P__Hash_BValue));
+        bvalue->RI = (SMOP__ResponderInterface*)SMOP__S1P__Hash_BValue;
         bvalue->key = key;
         bvalue->owner = owner;
         return (SMOP__Object*) bvalue;
@@ -24,7 +24,6 @@
     smop_lowlevel_unlock(invocant);
     if (owner) SMOP_RELEASE(interpreter,owner);
     if (key) SMOP_RELEASE(interpreter,key);
-    SMOP_RELEASE(interpreter,SMOP__S1P__Hash_BValue);
 
 %method BIND
     SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
