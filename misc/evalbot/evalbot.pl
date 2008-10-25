@@ -39,6 +39,7 @@ use FindBin;
 use lib 'lib';
 use EvalbotExecuter;
 
+$ENV{LD_LIBRARY_PATH} = '/home/evalenv/pugs/v6/smop/build/';
 
 package Evalbot;
 {
