@@ -192,7 +192,7 @@ Is this a subclass of the given class?
           my $res = $isa.^isa($superclass);
           return true if $res;
       }
-      return false;
+      return False;
   }
 
 =begin
@@ -215,7 +215,7 @@ Does this object matches the given class?
           my $res = $does.^does($superclass);
           return true if $res;
       }
-      return false;
+      return False;
   }
 
 =begin

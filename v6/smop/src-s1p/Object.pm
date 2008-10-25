@@ -118,6 +118,7 @@ representation or the default one.
 =end
 
   method CREATE($self: :$repr) {
+      $repr //= 'p6opaque';
       return $self.^CREATE(:$repr)
   }
 
