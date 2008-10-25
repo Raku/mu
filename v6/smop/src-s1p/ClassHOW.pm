@@ -66,7 +66,7 @@ This method is called from bless, to actually initialize the values of the objec
               $object.^!initialize_instance_storage_slot($package, $att.private_name(), $att.create_container());
           }
 
-          my %protoargs = map { $_.() },
+          my %protoargs = map { $_.^!whence.() if $_.^!whence },
             grep { $_.WHAT === $prototype }, @protoobjects;
           $prototype.?BUILD($object: |%protoargs, |%initialize);
       }
