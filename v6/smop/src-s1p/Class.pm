@@ -135,23 +135,19 @@ Returns a lazy list with all the methods implemented by this object.
   method methods($how: $object) {
       my @methods;
       my sub list_methods_recurse($obj) {
-          for ($obj.^!methods) -> $selfdef {
+          for ($obj.^!methods.keys) -> $selfdef {
               @methods.push($selfdef);
           }
           for ($obj.^!isa) -> $isa {
               list_methods_recurse($isa);
           }
-          for ($obj.^!role) -> $role {
-              list_methods_recurse($role);
-          }
       }
-
       list_methods_recurse($object);
       for ($object.^!submethods) -> $submethod {
           @method.push($submethod);
       }
       return @methods;
-  }
+      }
 
 
 =begin
@@ -209,7 +205,7 @@ Does this object matches the given class?
 
   method does($how: $object, $superclass) {
       return true if $object === $superclass;
-      for ($object.^!does) -> $isa {
+      for ($object.^!isa) -> $isa {
           return true if $isa === $superclass;
           my $res = $isa.^does($superclass);
           return true if $res;
@@ -231,8 +227,25 @@ Returns a lazy list of methods that match to this name/capture.
 =end
 
   method can($how: $object, $name, $capture?) {
-      return grep { .name eq $name &&
-                      $capture ?? .signature.ACCEPTS($capture) !! 1 }, @($object.^methods());
+      my @everyone;
+      my sub list_hierarchy {
+          @everyone.push($_);
+          for $_.^!isa -> $isa {
+              list_hierarchy($isa);
+          }
+      }
+      list_hierarchy($object);
+      my @variants;
+      for @everyone {
+          if .^!methods.exists($name) {
+              @variants.push(.^!methods.{$name}.variants());
+              if (! .^!methods.{$name}.multi) {
+                  last;
+              }
+          }
+      }
+      return grep { $capture ?? .signature.ACCEPTS($capture) !! 1 },
+        @variants;
   }
 
 =begin
