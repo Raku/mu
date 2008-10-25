@@ -227,20 +227,25 @@ Returns a lazy list of methods that match to this name/capture.
 =end
 
   method can($how: $object, $name, $capture?) {
-      my @everyone;
-      my sub list_hierarchy {
-          @everyone.push($_);
-          for $_.^!isa -> $isa {
-              list_hierarchy($isa);
-          }
-      }
-      list_hierarchy($object.^!instanceof);
       my @variants;
-      for @everyone {
-          if .^!methods.exists($name) {
-              @variants.push(.^!methods.{$name}.variants());
-              if (! .^!methods.{$name}.multi) {
-                  last;
+      if ($object.^!instanceof.^!submethods.exists($name)) {
+          # check if there's a submethod of the same name.
+          @variants = $object.^!instanceof.^!submethods.{$name}.variants();
+      } else {
+          my @everyone;
+          my sub list_hierarchy {
+              @everyone.push($_);
+              for $_.^!isa -> $isa {
+                  list_hierarchy($isa);
+              }
+          }
+          list_hierarchy($object.^!instanceof);
+          for @everyone {
+              if .^!methods.exists($name) {
+                  @variants.push(.^!methods.{$name}.variants());
+                  if (! .^!methods.{$name}.multi) {
+                      last;
+                  }
               }
           }
       }
