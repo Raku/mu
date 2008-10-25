@@ -161,9 +161,6 @@ Returns a lazy list with all the attributes of this object.
           for ($obj.^!isa) -> $isa {
               list_attributes_recurse($isa);
           }
-          for ($obj.^!role) -> $role {
-              list_attributes_recurse($role);
-          }
       }
 
       list_attributes_recurse($object);
