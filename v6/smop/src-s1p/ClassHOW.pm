@@ -80,7 +80,7 @@ This method is called from bless, to actually initialize the values of the objec
 
 =item method DESTROYALL($how: $object)
 
-This method is called when the object is being destroyed.
+This method is called when the object is being destroyed.my sub list_hierarchy 
 
 =end
 
@@ -234,7 +234,7 @@ Returns a lazy list of methods that match to this name/capture.
               list_hierarchy($isa);
           }
       }
-      list_hierarchy($object);
+      list_hierarchy($object.^!instanceof);
       my @variants;
       for @everyone {
           if .^!methods.exists($name) {
