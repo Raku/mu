@@ -130,8 +130,8 @@ This will traverse the hierarchy calling BUILD in each class.
 =end
 
 
-  method BUILDALL(|$capture) {
-      return self.^BUILDALL(|$capture);
+  method BUILDALL($self: *@protoobjects, *%initialize) {
+      return $self.^BUILDALL(|@protoobjects, |%initialize);
   }
 
 =begin
