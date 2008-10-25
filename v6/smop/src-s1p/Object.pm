@@ -25,8 +25,8 @@ initializes it with the given named parameters and protoobjects.
 
   method new($prototype: *@protoobjects, *%initialize --> Object ) {
       return $prototype.bless($prototype.CREATE(),
-                            |@protoobjects,
-                            |%initialize);
+                              |@protoobjects,
+                              |%initialize);
   };
 
 
@@ -40,8 +40,10 @@ Object, it is simply delegated to the metaclass.
 
 =end
 
-  method bless(|$capture) {
-      return $prototype.^bless(|$capture);
+  method bless($prototype: $candidate, *@protoobjects, *%initialize) {
+      return $prototype.^bless($canidate,
+                               |@protoobjects,
+                               |%initialize);
   }
 
 
@@ -66,7 +68,7 @@ Is this object defined?
 =end
 
   method defined($object:  --> bool ) {
-      return $object.^!defined();
+      return $object.^defined();
   }
 
 =begin
@@ -115,8 +117,8 @@ representation or the default one.
 
 =end
 
-  method CREATE(|$capture) {
-      return self.^CREATE(|$capture)
+  method CREATE($self: :$repr) {
+      return $self.^CREATE(:$repr)
   }
 
 =begin
