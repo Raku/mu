@@ -23,7 +23,8 @@ class Foo {
     my $val;
     # NOTE:
     # this dies for the wrong reason actually
+    #?pugs todo 'class methods'
     dies_ok {
         $val = $foo.bar(42);
-    }, '... class methods should not work for instances', :todo<feature>;
+    }, '... class methods should not work for instances';
 }
