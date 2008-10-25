@@ -1,4 +1,4 @@
-knowhow Class {
+knowhow ClassHOW {
 
 =begin
 
