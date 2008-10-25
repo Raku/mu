@@ -23,6 +23,7 @@ This method will alloc an object of the given representation.
 =end
 
   method CREATE($how: $prototype, :$repr) {
+      $repr //= 'p6opaque';
       my $obj = ::($repr).^!CREATE();
       $obj.^!how = $prototype.^!how;
   }
@@ -57,9 +58,6 @@ This method is called from bless, to actually initialize the values of the objec
           for ($prototype.^!isa()) -> $isa {
               buildall_recurse($object, $isa, |@protoobjects, |%initialize)
           }
-          for ($prototype.^!does()) -> $does {
-              buildall_recurse($object, $does, |@protoobjects, |%initialize)
-          }
 
           my $package = $prototype.^!package();
           $object.^!initialize_instance_storage($package);
@@ -68,10 +66,9 @@ This method is called from bless, to actually initialize the values of the objec
               $object.^!initialize_instance_storage_slot($package, $att.private_name(), $att.create_container());
           }
 
-          my %protoargs = grep @protoobjects, { $_.WHAT === $prototype };
+          my %protoargs = grep @protoobjects, { $_.WHAT ~~ $prototype };
           $prototype.?BUILD($object: |%protoargs, |%initialize);
       }
-      fail if not $object.^!instance;
       return buildall_recurse($object, $object, @protoobjects, %initialize);
   }
 
@@ -89,9 +86,6 @@ This method is called when the object is being destroyed.my sub list_hierarchy
           $prototype.?DESTROY($object: );
           $object.^!destroy_instance_storage($prototype.^!package());
 
-          for ($prototype.^!does()) -> $does {
-              destroyall_recurse($object, $does)
-          }
           for ($prototype.^!isa()) -> $isa {
               destroyall_recurse($object, $isa)
           }
@@ -147,7 +141,7 @@ Returns a lazy list with all the methods implemented by this object.
           @method.push($submethod);
       }
       return @methods;
-      }
+  }
 
 
 =begin
