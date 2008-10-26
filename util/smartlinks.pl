@@ -147,6 +147,20 @@ function toggle_snippet (e) {
 
   return false;
 }
+
+function toggle_hilite(id,url) {
+    var el = document.getElementById(id);
+    if(el) {
+        if(el.style.display == "none") {
+            el.src = url;
+            el.style.display = "block";
+        } else {
+            el.style.display = "none";
+        }
+    }
+    return false;
+}
+
 _EOC_
 
 # LINK GENERATION
@@ -578,18 +592,30 @@ sub gen_code_snippet ($) {
     }
 
     my $nlines = $to - $from + 1;
-    my $hilited_file = $file;
-    $hilited_file =~ s{t/spec/}{};
-    $hilited_file =~ s{/([^/]+)\.t$}{/_$1.html};
+    my $html_file = $file;
+    $html_file =~ s{t/spec/}{};
+    my $simple_html = $html_file . ".simple.html";
+    my $full_html = $html_file . ".html";
+    my $simple_snippet_id = "simple_$snippet_id";
+
     my $html = <<"_EOC_";
 <p>From $file lines $from&ndash;$to$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span></p>
 <div id="smartlink_${snippet_id}" class="smartlink_snippet">
 $snippet
 </div>
 <span id="smartlink_skipto_${snippet_id}">&nbsp;</span>
-<a href="http://feather.perl6.nl/~azawawi/html/$hilited_file" target="_blank">
-STD_syntax_highlight-ed $file
+<div style="color:DarkBlue">Highlight $file 
+<br/>
+<a href="#" 
+onclick="return toggle_hilite('$simple_snippet_id','/~azawawi/html/$simple_html')">
+Small version
 </a>
+&nbsp;|&nbsp;
+<a href="/~azawawi/html/$full_html" target="_blank">
+Full version
+</a>
+</div>
+<iframe id="$simple_snippet_id" style="display:none;" width="100%"></iframe>
 _EOC_
     $snippets[$snippet_id] = $html;
     "\n\n_SMART_LINK_$snippet_id\n\n";
