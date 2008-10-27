@@ -337,7 +337,7 @@ In that order.
       }
       for $role.^!methods -> $meth {
           if $meth.yada {
-              if (! $object.^can($meth.name) {
+              if ! $object.^can($meth.name) {
                   $object.^add_method($meth.name, $meth);
               }
           } else {
