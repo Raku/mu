@@ -156,9 +156,10 @@ named arguments.
 
 =end
 
-  submethod BUILD($object: *%initialize) {
-      for (%initialize.keys) -> $key {
-          $object.?"$key" = %initialize{$key};
+  method BUILD($object: *%initialize) {
+      for $+CLASS.^atttributes(:local) -> $att {
+          my $key = $att.name;
+          $object.::($+CLASS)!"$key" = %initialize{$key};
       }
   }
 

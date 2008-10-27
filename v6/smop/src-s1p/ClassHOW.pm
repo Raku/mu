@@ -55,6 +55,7 @@ This method is called from bless, to actually initialize the values of the objec
 
   method BUILDALL($how: $object, *@protoobjects, *%initialize) {
       my sub buildall_recurse($object, $prototype, *@protoobjects, *%initialize) {
+          my $CLASS is context = $prototype;
           for ($prototype.^!isa()) -> $isa {
               buildall_recurse($object, $isa, |@protoobjects, |%initialize)
           }
@@ -121,18 +122,22 @@ In this metaclass, defined is a direct call on the REPR.
 
 =begin
 
-=item method methods($how: $object --> List of Method)
+=item method methods($how: $object, :$local --> List of Method)
 
 Returns a lazy list with all the methods implemented by this object.
 
+The :$local option specifies that no traversal in the ISA should be
+made, returning only the methods locally defined in this class.
+
 =end
 
-  method methods($how: $object) {
+  method methods($how: $object, :$local) {
       my @methods;
       my sub list_methods_recurse($obj) {
           for ($obj.^!methods.keys) -> $selfdef {
               @methods.push($selfdef);
           }
+          return if $local;
           for ($obj.^!isa) -> $isa {
               list_methods_recurse($isa);
           }
@@ -147,18 +152,22 @@ Returns a lazy list with all the methods implemented by this object.
 
 =begin
 
-=item method attributes($how: $object --> List of Attribute)
+=item method attributes($how: $object, :$local --> List of Attribute)
 
 Returns a lazy list with all the attributes of this object.
 
+The :$local option specifies that no traversal in the ISA should be
+made, returning only the attributes locally defined in this class.
+
 =end
 
-  method attributes($how: $object) {
+  method attributes($how: $object, :$local) {
       my @attributes;
       my sub list_attributes_recurse($obj) {
           for ($obj.^!attributes) -> $attr {
               @attributes.push($attr);
           }
+          return if $local;
           for ($obj.^!isa) -> $isa {
               list_attributes_recurse($isa);
           }
