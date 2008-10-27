@@ -278,12 +278,33 @@ Add this method to this prototype.
           if $object.^!methods.{$name}.multi {
               $object.^!methods.{$name}.variants.push($code);
           } else {
-              warn 'Method ' ~ $name ~ ' redefined.';
+              warn 'Method ', $name, ' redefined.';
               $object.^!methods.{$name} = $code;
           }
       } else {
           $object.^!methods.{$name} = $code;
       }
+  }
+
+=begin
+
+=item method add_attribute($how: $object, $privname, $attribute)
+
+Add this attribute to this prototype, it does not create the
+accessors, it only registers the attribute, the accessor should be
+additionally registered via add_method.
+
+The name passed here should always be the private name, otherwise it
+will not be found by regular syntax. The $attribute object should
+store the declared name anyway, to allow proper introspection.
+
+=end
+
+  method add_attribute($how: $object, $privname, $attribute) {
+      if $object.^!attributes.exists($privname) {
+          warn 'Attribute ', $privname, ' redefined.';
+      }
+      $object.^!attributes.{$privname} = $attribute;
   }
 
 }
