@@ -70,7 +70,7 @@ This method is called from bless, to actually initialize the values of the objec
             grep { $_.WHAT === $prototype }, @protoobjects;
           $prototype.?BUILD($object: |%protoargs, |%initialize);
       }
-      return buildall_recurse($object, $object, @protoobjects, %initialize);
+      return buildall_recurse($object, $object, |@protoobjects, |%initialize);
   }
 
 
