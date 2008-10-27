@@ -256,12 +256,33 @@ Gets all the possible candidates for this method and invoke one.
   method dispatch($how: $responder, $identifier, $capture) {
       my $invocant = $$capture;
       my @candidates = $invocant.^can($identifier, $capture);
-      if (@candidates.elems > 1) {
+      if @candidates.elems > 1 {
           fail 'Ambiguous dispatch!'; # call disambiguator.
-      } elsif (@candidates.elems < 1) {
+      } elsif @candidates.elems < 1 {
           fail 'No method ' ~ $identifier;
       } else {
           @candidates[0].($capture);
+      }
+  }
+
+=begin
+
+=item method add_method($how: $object, $name, $code)
+
+Add this method to this prototype.
+
+=end
+
+  method add_method($how: $object, $name, $code) {
+      if $object.^!methods.exists($name) {
+          if $object.^!methods.{$name}.multi {
+              $object.^!methods.{$name}.variants.push($code);
+          } else {
+              warn 'Method ' ~ $name ~ ' redefined.';
+              $object.^!methods.{$name} = $code;
+          }
+      } else {
+          $object.^!methods.{$name} = $code;
       }
   }
 
