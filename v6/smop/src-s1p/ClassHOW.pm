@@ -277,6 +277,8 @@ Add this method to this prototype.
       if $object.^!methods.exists($name) {
           if $object.^!methods.{$name}.multi {
               $object.^!methods.{$name}.variants.push($code);
+          } elsif $object.^!methods.{$name}.yada {
+              $object.^!methods.{$name} = $code;
           } else {
               warn 'Method ', $name, ' redefined.';
               $object.^!methods.{$name} = $code;
@@ -305,6 +307,43 @@ store the declared name anyway, to allow proper introspection.
           warn 'Attribute ', $privname, ' redefined.';
       }
       $object.^!attributes.{$privname} = $attribute;
+  }
+
+=begin
+
+=item method compose_role($how: $object, $role)
+
+This method composes the given role into this object. This will mean
+copying the following definitions from the role:
+
+  * isa
+  * does (recurse compose_role)
+  * attributes
+  * methods
+
+In that order.
+
+=end
+
+  method compose_role($how: $object, $role) {
+      for $role.^!isa -> $isa {
+          $object.^!isa.push($isa);
+      }
+      for $role.^!does -> $does {
+          $object.^compose_role($does);
+      }
+      for $role.^!attritutes -> $att {
+          $object.^add_attribute($att.private_name, $att);
+      }
+      for $role.^!methods -> $meth {
+          if $meth.yada {
+              if (! $object.^can($meth.name) {
+                  $object.^add_method($meth.name, $meth);
+              }
+          } else {
+              $object.^add_method($meth.name, $meth);
+          }
+      }
   }
 
 }
