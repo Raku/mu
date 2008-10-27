@@ -23,7 +23,7 @@ initializes it with the given named parameters and protoobjects.
 
 =end
 
-  method new($prototype: *@protoobjects, *%initialize --> Object ) {
+  method new($prototype: *@protoobjects, *%initialize) {
       return $prototype.bless($prototype.CREATE(),
                               |@protoobjects,
                               |%initialize);
@@ -55,25 +55,25 @@ Creates a clone of the current object.
 
 =end
 
-  method clone($object:  --> Object ) {
+  method clone($object: ) {
       return $object.^clone();
   }
 
 =begin
 
-=item  method defined($object: --> bool )
+=item  method defined($object: )
 
 Is this object defined?
 
 =end
 
-  method defined($object:  --> bool ) {
+  method defined($object: ) {
       return $object.^defined();
   }
 
 =begin
 
-=item method isa($prototype --> bool )
+=item method isa($object: $prototype )
 
 Is $prototype part of this object hierarchy?
 
@@ -85,7 +85,7 @@ Is $prototype part of this object hierarchy?
 
 =begin
 
-=item  method does($prototype --> bool )
+=item  method does($object: $prototype )
 
 Does this object implement $prototype?
 
@@ -98,7 +98,7 @@ Does this object implement $prototype?
 
 =begin
 
-=item method can($name, $capture? --> List of Method )
+=item method can($object: $name, $capture? )
 
 Asks the metaclass if this object can do this method.
 
@@ -110,16 +110,16 @@ Asks the metaclass if this object can do this method.
 
 =begin
 
-=item method CREATE(:$repr -->  Object )
+=item method CREATE($object: :$repr )
 
 This method will create a new object instance using the given
 representation or the default one.
 
 =end
 
-  method CREATE($self: :$repr) {
+  method CREATE($prototype: :$repr) {
       $repr //= 'p6opaque';
-      return $self.^CREATE(:$repr)
+      return $prototype.^CREATE(:repr($repr))
   }
 
 =begin
