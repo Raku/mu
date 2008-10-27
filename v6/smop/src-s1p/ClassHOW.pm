@@ -22,8 +22,7 @@ This method will alloc an object of the given representation.
 
 =end
 
-  method CREATE($how: $prototype, :$repr) {
-      $repr //= 'p6opaque';
+  method CREATE($how: $prototype, :$repr = 'p6opaque') {
       my $obj = ::($repr).^!CREATE();
       $obj.^!how = $prototype.^!how;
   }

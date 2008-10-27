@@ -117,8 +117,7 @@ representation or the default one.
 
 =end
 
-  method CREATE($prototype: :$repr) {
-      $repr //= 'p6opaque';
+  method CREATE($prototype: :$repr = 'p6opaque') {
       return $prototype.^CREATE(:repr($repr))
   }
 
