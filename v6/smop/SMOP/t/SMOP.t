@@ -1,5 +1,5 @@
 
-use Test::More tests => 8;
+use Test::More tests => 11;
 BEGIN { use_ok('SMOP') };
 
 my $r;
@@ -14,5 +14,9 @@ is(ref($r),'SMOP::Object','returns a SMOP::Object');
 eval '$r = SMOP::NATIVE::int->create(4)';
 ok(!$@,'Can call SMOP::NATIVE::int->create');
 is(ref($r),'SMOP::Object','returns a SMOP::Object');
-
 is($r->SMOP::NATIVE::int::fetch, 4, 'fetches the int');
+
+eval '$r = SMOP::NATIVE::idconst->create("Hello World!")';
+ok(!$@,'Can call SMOP::NATIVE::idconst->create');
+is(ref($r),'SMOP::Object','returns a SMOP::Object');
+is($r->SMOP::NATIVE::idconst::fetch, 'Hello World!', 'fetches the idconst');
