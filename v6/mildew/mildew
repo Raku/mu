@@ -19,7 +19,7 @@ my ($desugar,$debug,$file,$exec);
 GetOptions("exec"=>\$exec,"file=s"=>\$file,"debug"=>\$debug,"desugar"=>\$desugar);
 
 sub XXX {
-    confess 'unimplemented'
+    confess join ' ', 'unimplemented: ', @_;
 }
 sub FETCH {
     my $arg = shift;
@@ -245,10 +245,21 @@ sub VAST::dotty::emit_m0ld {
                 capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional]),
             );
         } else {
-            XXX
+            XXX('unknown methodop');
+        }
+    } elsif (my $postop = $m->{dottyop}{postop}) {
+        if (my $postcircumfix = $postop->{postcircumfix}) {
+            my $positional = $methodop->{semilist}[0]{statement}[0];
+            my @positional = $positional ? $positional->emit_m0ld : ();
+            AST::Call->new(
+                identifier => string 'postcircumfix:'.$postcircumfix->{FIRST}.' '.$postcircumfix->{LAST},
+                capture => AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional]),
+            );
+        } else {
+            XXX('unknown postop');
         }
     } else {
-        XXX;
+        XXX('unknown dotty');
     }
 }
 sub EXPR {
