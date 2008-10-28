@@ -102,6 +102,80 @@ fetch(SV* self)
   OUTPUT:
     RETVAL
 
+MODULE = SMOP       PACKAGE = SMOP::Mold
+
+SV*
+create(SV* p5class, SV* consts, SV* bytecode)
+  CODE:
+    AV* constsav = (AV*)SvRV(consts);
+    int constslen = av_len(constsav);
+    SMOP__Object** consts_arr = calloc(constslen+1,sizeof(void*));
+    int i;
+    for (i = 0; i < constslen; i++) {
+        SV** e = av_fetch(constsav,i,0);
+        SMOP__Object* object;
+        if (SvROK(*e)) {
+            SV* value = SvRV(*e);
+            object = SMOP_REFERENCE(SMOP__GlobalInterpreter, (SMOP__Object*)SvIV(value));
+        } else if (SvIOK(*e)) {
+            object = SMOP__NATIVE__int_create(SvIV(*e));
+        } else if (SvPOK(*e)) {
+            STRLEN len;
+            char* p = SvPV(*e,len);
+            object = SMOP__NATIVE__idconst_createn(p,len);
+        } else {
+            printf("Unknown value sent to mold->create\n");
+            object = SMOP__NATIVE__bool_false;
+        }
+        consts_arr[i] = object;
+    }
+    AV* codeav = (AV*)SvRV(bytecode);
+    int codelen = av_len(codeav);
+    int* code_arr = calloc(codelen+1,sizeof(void*));
+    for (i = 0; i < codelen; i++) {
+        SV** e = av_fetch(codeav,i,0);
+        code_arr[i] = SvIV(*e);
+    }
+    SMOP__Object* mold = SMOP__Mold_create(constslen, consts_arr, codelen, code_arr);
+    SV* pointer = newSViv((int)mold);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+MODULE = SMOP       PACKAGE = SMOP::MoldFrame
+
+SV*
+create(SV* p5class, SV* moldrv)
+  CODE:
+    SV* value = SvRV(moldrv);
+    SMOP__Object* mold = (SMOP__Object*)SvIV(value);
+    SMOP__Object* frame = SMOP__Mold__Frame_create(SMOP__GlobalInterpreter, mold);
+    SV* pointer = newSViv((int)frame);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL    
+
+MODULE = SMOP       PACKAGE = SMOP::Interpreter
+
+SV*
+run(SV* p5class, SV* continuation)
+  CODE:
+    SV* value = SvRV(continuation);
+    SMOP__Object* object = (SMOP__Object*)SvIV(value);
+    SMOP_DISPATCH(SMOP__GlobalInterpreter, SMOP_RI(SMOP__GlobalInterpreter),
+                  SMOP__ID__goto, SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
+                                                               SMOP_REFERENCE(SMOP__GlobalInterpreter, object),
+                                                               NULL, NULL));
+    SMOP_DISPATCH(SMOP__GlobalInterpreter, SMOP_RI(SMOP__GlobalInterpreter),
+                  SMOP__ID__loop, SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
+                                                               SMOP_REFERENCE(SMOP__GlobalInterpreter, SMOP__GlobalInterpreter),
+                                                               NULL, NULL));
+
+
 MODULE = SMOP       PACKAGE = SMOP::S1P
 
 SV*
