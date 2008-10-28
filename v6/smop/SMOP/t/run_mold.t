@@ -3,16 +3,6 @@ use SMOP;
 # this mold code was brought here from the 23_code.m0ld
 # I took the C compiled version and rewritten it.
 
-my $submold = SMOP::Mold->create
-  (10,
-   [ '$OUT','$_','FETCH','back','continuation',
-     'goto','lookup','postcircumfix:{ }','print' ],
-   59,
-   [ 1,11,10,7,1,1,0,1,12,11,2,0,0,1,13,12,2,0,0,1,
-     15,10,6,1,0,0,1,16,15,2,0,0,1,14,16,8,1,13,0,1,
-     17,9,4,0,0,1,18,17,3,0,0,1,14,9,5,1,18,0,0 ]);
-
-
 my $mold = SMOP::Mold->create
   (13,
    [ SMOP::S1P->Capturize,
@@ -22,7 +12,14 @@ my $mold = SMOP::Mold->create
      'capturize','lookup','mold','new',"ok 1\n",
      "ok 2\n","ok 3\n",'outer',
      'postcircumfix:( )','postcircumfix:{ }','print',
-     $submold,
+     SMOP::Mold->create
+     (10,
+      [ '$OUT','$_','FETCH','back','continuation',
+        'goto','lookup','postcircumfix:{ }','print' ],
+      59,
+      [ 1,11,10,7,1,1,0,1,12,11,2,0,0,1,13,12,2,0,0,1,
+        15,10,6,1,0,0,1,16,15,2,0,0,1,14,16,8,1,13,0,1,
+        17,9,4,0,0,1,18,17,3,0,0,1,14,9,5,1,18,0,0 ]),
      SMOP::S1P->LexicalPrelude ],
    146,
    [ 1,23,21,10,1,3,0,1,24,23,7,0,0,1,22,24,19,1,5,0,1,25,21,
