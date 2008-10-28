@@ -37,3 +37,4 @@ my $mold = SMOP::Mold->create
 my $frame = SMOP::MoldFrame->create($mold);
 
 SMOP::Interpreter->run($frame);
+
