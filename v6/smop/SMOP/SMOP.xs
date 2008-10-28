@@ -108,8 +108,8 @@ SV*
 create(SV* p5class, int ccount, SV* consts, int bcount, SV* bytecode)
   CODE:
     AV* constsav = (AV*)SvRV(consts);
-    int constslen = av_len(constsav);
-    SMOP__Object** consts_arr = calloc(constslen+2,sizeof(void*));
+    int constslen = av_len(constsav) + 1;
+    SMOP__Object** consts_arr = calloc(constslen+1,sizeof(void*));
     int i;
     for (i = 0; i <= constslen; i++) {
         SV** e = av_fetch(constsav,i,0);
@@ -130,8 +130,8 @@ create(SV* p5class, int ccount, SV* consts, int bcount, SV* bytecode)
         consts_arr[i] = object;
     }
     AV* codeav = (AV*)SvRV(bytecode);
-    int codelen = av_len(codeav);
-    int* code_arr = calloc(codelen+2,sizeof(void*));
+    int codelen = av_len(codeav) + 1;
+    int* code_arr = calloc(codelen+1,sizeof(void*));
     for (i = 0; i <= codelen; i++) {
         SV** e = av_fetch(codeav,i,0);
         code_arr[i] = SvIV(*e);
