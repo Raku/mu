@@ -319,9 +319,11 @@ sub VAST::statement::emit_m0ld {
     if ($m->{label}) {
         AST::Label->new(label=>label($m->{label}),stmt=>statement($m->{statement}));
     } elsif ($m->{statement_control}) {
+        XXX('statement_control')
     } elsif ($m->{EXPR}) {
         $m->{EXPR}->emit_m0ld;
     } else {
+        XXX('unknown statement')
     }
 }
 sub VAST::comp_unit::emit_m0ld {
