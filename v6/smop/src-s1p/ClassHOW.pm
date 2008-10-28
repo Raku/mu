@@ -38,6 +38,9 @@ This method will initialize the candidate object.
   method bless($how: $prototype, $candidate, *@protoobjects, *%initialize) {
       $candidate.^!isa = $prototype;
       $candidate.^!does = ();
+      $candidate.^!attributes = ();
+      $candidate.^!methods = ();
+      $candidate.^!submethods = ();
       my %whence_eval = $candidate.^!whence.() if
         $candidate.^!whence;
       $candidate.BUILDALL(|@protoobjects, |%whence_eval, |%initialize);
