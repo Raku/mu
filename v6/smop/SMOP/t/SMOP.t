@@ -1,5 +1,5 @@
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 BEGIN { use_ok('SMOP') };
 
 my $r;
@@ -20,3 +20,7 @@ eval '$r = SMOP::NATIVE::idconst->create("Hello World!")';
 ok(!$@,'Can call SMOP::NATIVE::idconst->create');
 is(ref($r),'SMOP::Object','returns a SMOP::Object');
 is($r->SMOP::NATIVE::idconst::fetch, 'Hello World!', 'fetches the idconst');
+
+eval '$r = SMOP::S1P->Scalar()';
+ok(!$@,'Can call SMOP::S1P->Scalar');
+is(ref($r),'SMOP::Object','returns a SMOP::Object');

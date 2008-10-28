@@ -27,11 +27,6 @@ DESTROY(SV* self, ...)
                                                                SMOP_REFERENCE(SMOP__GlobalInterpreter, SMOP__GlobalInterpreter),
                                                                NULL, NULL));
 
-SV*
-__dispatch(char* name, SV* self, AV* positional, HV* named)
-  CODE:
-    printf("TODO!\n");
-
 MODULE = SMOP       PACKAGE = SMOP::NATIVE::bool
 
 SV*
@@ -104,5 +99,247 @@ fetch(SV* self)
         printf("Calling SMOP::NATIVE::int->fetch on a non-native int.\n");
         RETVAL = 0;
     }
+  OUTPUT:
+    RETVAL
+
+MODULE = SMOP       PACKAGE = SMOP::S1P
+
+SV*
+Scalar(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Scalar);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Hash_BValue(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Hash_BValue);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Array(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Array);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Array_Iterator(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Array_Iterator);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+EndOfIterator(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__EndOfIterator);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Str(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Str);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Hash(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Hash);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Code(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Code);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+CCode(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__CCode);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+map(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__map);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+grep(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__grep);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Multi(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Multi);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Attribute(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Attribute);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Method(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Method);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+RootNamespace(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__RootNamespace);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+LexicalPrelude(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__LexicalPrelude);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+Capturize(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__Capturize);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+EmptyList(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__EmptyList);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+LexicalScope(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__LexicalScope);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+DefaultBlockSignature(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__DefaultBlockSignature);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+BindCaptureSignature(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__BindCaptureSignature);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+AdhocSignature(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__AdhocSignature);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+PurePrototypeHow(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__PurePrototypeHow);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
+  OUTPUT:
+    RETVAL
+
+SV*
+ritest(SV* p5class)
+  CODE:
+    SV* pointer = newSViv((int)SMOP__S1P__ritest);
+    SV* object = newRV_noinc(pointer);
+    HV* class = gv_stashpv("SMOP::Object", 0);
+    RETVAL = sv_bless(object, class);
   OUTPUT:
     RETVAL

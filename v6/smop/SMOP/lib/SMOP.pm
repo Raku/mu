@@ -10,17 +10,6 @@ our $VERSION = '0.01';
 require XSLoader;
 XSLoader::load('SMOP', $VERSION);
 
-package SMOP::Object;
-
-our $AUTOLOAD;
-
-sub AUTOLOAD {
-    my $self = shift;
-    my $name = $AUTOLOAD;
-    $name =~ s/.*://;
-    __dispatch($name, $self, [ @_ ], { @_ });
-}
-
 1;
 __END__
 
@@ -35,8 +24,10 @@ SMOP - Perl extension for SMOP
   my $true = SMOP::NATIVE::bool->true;
   my $fals = SMOP::NATIVE::bool->false;
   my $idconst = SMOP::NATIVE::idconst->create('Hello World');
-  my $p6opaque = SMOP::p6opaque->create();
-  my $mold = SMOP::Mold->create([$int, $true, $fals],[1,2,3,1,2,3,1,2,3]);
+  my $rootns = SMOP::S1P->RootNamespace;
+  my $prelud = SMOP::S1P->LexicalPrelude;
+  my $mold = SMOP::Mold->create([$rootns, $int, $true, $fals],
+                                [1,2,3,1,2,3,1,2,3]);
   my $frame = SMOP::MoldFrame->create($mold);
   my $result = SMOP::Interpreter->run($frame);
 
