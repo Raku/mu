@@ -12,7 +12,6 @@ XSLoader::load('SMOP', $VERSION);
 
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
@@ -28,7 +27,7 @@ SMOP - Perl extension for SMOP
   my $p6opaque = SMOP::p6opaque->create();
   my $mold = SMOP::Mold->create([$int, $true, $fals],[1,2,3,1,2,3,1,2,3]);
   my $frame = SMOP::MoldFrame->create($mold);
-  my $result = SMOP::Interpreter->goto($frame);
+  my $result = SMOP::Interpreter->run($frame);
 
 =head1 DESCRIPTION
 

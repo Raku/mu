@@ -21,6 +21,10 @@ DESTROY(SV* self, ...)
     SV* value = SvRV(self);
     SMOP__Object* object = (SMOP__Object*)SvIV(value);    
     SMOP_RELEASE(SMOP__GlobalInterpreter,object);
+    SMOP_DISPATCH(SMOP__GlobalInterpreter, SMOP_RI(SMOP__GlobalInterpreter),
+                  SMOP__ID__loop, SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
+                                                               SMOP_REFERENCE(SMOP__GlobalInterpreter, SMOP__GlobalInterpreter),
+                                                               NULL, NULL));
 
 SV*
 AUTOLOAD(SV* self, ...)
@@ -66,7 +70,7 @@ fetch(SV* self)
   CODE:
     SV* value = SvRV(self);
     SMOP__Object* object = (SMOP__Object*)SvIV(value);
-    if (SMOP_RI(object) == SMOP__NATIVE__int) {
+    if (SMOP_RI(object) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
         RETVAL = SMOP__NATIVE__int_fetch(object);
     } else {
         printf("Calling SMOP::NATIVE::int->fetch on a non-native int.\n");
