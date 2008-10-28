@@ -36,7 +36,7 @@ This method will initialize the candidate object.
 =end
 
   method bless($how: $prototype, $candidate, *@protoobjects, *%initialize) {
-      $candidate.^!isa = ($prototype);
+      $candidate.^!isa = $prototype;
       $candidate.^!does = ();
       my %whence_eval = $candidate.^!whence.() if
         $candidate.^!whence;
