@@ -26,8 +26,8 @@ SMOP - Perl extension for SMOP
   my $idconst = SMOP::NATIVE::idconst->create('Hello World');
   my $rootns = SMOP::S1P->RootNamespace;
   my $prelud = SMOP::S1P->LexicalPrelude;
-  my $mold = SMOP::Mold->create([$rootns, $int, $true, $fals],
-                                [1,2,3,1,2,3,1,2,3]);
+  my $mold = SMOP::Mold->create(12,[$rootns, $int, $true, $fals],
+                                45,[1,2,3,1,2,3,1,2,3]);
   my $frame = SMOP::MoldFrame->create($mold);
   my $result = SMOP::Interpreter->run($frame);
 

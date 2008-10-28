@@ -105,13 +105,13 @@ fetch(SV* self)
 MODULE = SMOP       PACKAGE = SMOP::Mold
 
 SV*
-create(SV* p5class, SV* consts, SV* bytecode)
+create(SV* p5class, int ccount, SV* consts, int bcount, SV* bytecode)
   CODE:
     AV* constsav = (AV*)SvRV(consts);
     int constslen = av_len(constsav);
     SMOP__Object** consts_arr = calloc(constslen+1,sizeof(void*));
     int i;
-    for (i = 0; i < constslen; i++) {
+    for (i = 0; i <= constslen; i++) {
         SV** e = av_fetch(constsav,i,0);
         SMOP__Object* object;
         if (SvROK(*e)) {
@@ -132,11 +132,11 @@ create(SV* p5class, SV* consts, SV* bytecode)
     AV* codeav = (AV*)SvRV(bytecode);
     int codelen = av_len(codeav);
     int* code_arr = calloc(codelen+1,sizeof(void*));
-    for (i = 0; i < codelen; i++) {
+    for (i = 0; i <= codelen; i++) {
         SV** e = av_fetch(codeav,i,0);
         code_arr[i] = SvIV(*e);
     }
-    SMOP__Object* mold = SMOP__Mold_create(constslen, consts_arr, codelen, code_arr);
+    SMOP__Object* mold = SMOP__Mold_create(ccount, consts_arr, bcount, code_arr);
     SV* pointer = newSViv((int)mold);
     SV* object = newRV_noinc(pointer);
     HV* class = gv_stashpv("SMOP::Object", 0);
