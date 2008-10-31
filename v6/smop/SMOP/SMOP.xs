@@ -8,6 +8,7 @@
 #include <smop_native.h>
 #include <smop_s1p.h>
 #include <smop_identifiers.h>
+#include <smop_mold.h>
 
 MODULE = SMOP		PACKAGE = SMOP		
 
@@ -105,7 +106,7 @@ fetch(SV* self)
 MODULE = SMOP       PACKAGE = SMOP::Mold
 
 SV*
-create(SV* p5class, int ccount, SV* consts, int bcount, SV* bytecode)
+create(SV* p5class, int ccount, SV* consts, SV* bytecode)
   CODE:
     AV* constsav = (AV*)SvRV(consts);
     int constslen = av_len(constsav) + 1;
@@ -136,7 +137,7 @@ create(SV* p5class, int ccount, SV* consts, int bcount, SV* bytecode)
         SV** e = av_fetch(codeav,i,0);
         code_arr[i] = SvIV(*e);
     }
-    SMOP__Object* mold = SMOP__Mold_create(ccount, consts_arr, bcount, code_arr);
+    SMOP__Object* mold = SMOP__Mold_create(ccount, consts_arr, codelen, code_arr);
     SV* pointer = newSViv((int)mold);
     SV* object = newRV_noinc(pointer);
     HV* class = gv_stashpv("SMOP::Object", 0);
