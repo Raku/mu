@@ -83,7 +83,16 @@ struct SMOP__ResponderInterface {
           (SMOP__Object*)interpreter, ((SMOP__ResponderInterface*)object), \
           identifier, capture \
       ));\
-      assert(ret);\
+      if (!ret) {\
+        char* id = ((SMOP__ResponderInterface*)object)->id;\
+        if (identifier->RI == SMOP__ID__DESTROYALL->RI) {\
+            int identifier_size;\
+            char* s = SMOP__NATIVE__idconst_fetch(identifier,&identifier_size);\
+            fprintf(stderr,"a NULL from method \"%.*s\" RI:%s is spotted %s:%d\n",identifier_size,s,id,__FILE__,__LINE__);\
+        } else {\
+            fprintf(stderr,"a NULL from nonconstant identifier method RI:%s is spotted %s:%d\n",id,__FILE__,__LINE__);\
+        }\
+      }\
       ret;\
       })
 #else
