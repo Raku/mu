@@ -25,9 +25,9 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
                                     SMOP__ResponderInterface* self,
                                     SMOP__Object* identifier,
                                     SMOP__Object* capture) {
-  if ((int)identifier == 1) {
+  if ((int)identifier == SMOP__ID__new) {
     printf("ok 3 - method 1 should be called early.\n");
-  } else if ((int)identifier == 2) {
+  } else if ((int)identifier == SMOP__ID__invocant) {
     printf("ok 4 - method 2 should be called immediatly afterwards.\n");
   } else if (identifier == SMOP__ID__DESTROYALL) {
     printf("ok 5 - DESTROYALL should be the last one called.\n");
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
   }
   printf("ok 2 - got new interp successfully %p.\n",intrp);
 
-  SMOP_DISPATCH(intrp, ri, (SMOP__Object*)1, NULL);
+  SMOP_DISPATCH(intrp, ri, SMOP__ID__new, NULL);
 
   /* At this point, the destruction code for the object will be put in
    * the stack. That's why we still can call the second method just
@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
    */
   SMOP_RELEASE(intrp, obj);
 
-  SMOP_DISPATCH(intrp, ri, (SMOP__Object*)2, NULL);
+  SMOP_DISPATCH(intrp, ri, SMOP__ID__invocant, NULL);
 
   SMOP_DISPATCH(intrp, SMOP_RI(intrp),
                 SMOP__ID__loop, 
