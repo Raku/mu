@@ -13,13 +13,15 @@ my @k = map { int(abs(sin($_)) * 2**32) } 1..64;
 my ($h0,        $h1,        $h2,        $h3)
  = (0x01234567, 0x89ABCDEF, 0xFEDCBA98, 0x76543210);
 
-my $original_string = "";
+my $original_string = '';
 
 my @bits = split '', unpack 'B*', $original_string;
 my $unpadded_message_bit_length = @bits;
 push @bits, 1;
 push @bits, 0 until @bits % 512 == 448;
-push @bits, split "", sprintf "%064b", $unpadded_message_bit_length;
+push @bits, split "",
+            scalar reverse sprintf "%064b",
+            $unpadded_message_bit_length;
 
 my @chunks;
 push @chunks, [splice(@bits, 0, 512)] while @bits;
@@ -28,7 +30,8 @@ for my $chunkref (@chunks) {
 
     my @chunk = @{$chunkref};
     my @w;
-    push @w, oct(join '', '0b', splice(@chunk, 0, 32)) while @chunk;
+    push @w, oct(join '', '0b', reverse splice(@chunk, 0, 32))
+        while @chunk;
 
     my ($a, $b, $c, $d) = ($h0, $h1, $h2, $h3);
 
@@ -54,7 +57,8 @@ for my $chunkref (@chunks) {
     $h3 = ($h3 + $d) % 2**32;
 }
 
-my $digest = sprintf "%08x"x4, $h0, $h1, $h2, $h3;
+my $digest
+    = join '', map { scalar reverse sprintf "%08x", $_ } $h0, $h1, $h2, $h3;
 print $digest, "\n";
 
 sub leftrotate {
