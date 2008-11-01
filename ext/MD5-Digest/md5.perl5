@@ -1,0 +1,64 @@
+#!perl -w
+use strict;
+
+my @r = (7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
+         5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,
+         4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,
+         6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21);
+
+# we can use &int here instead of &floor, because we've taken the absolute
+# value
+my @k = map { int(abs(sin($_)) * 2**32) } 1..64;
+
+my ($h0,        $h1,        $h2,        $h3)
+ = (0x01234567, 0x89ABCDEF, 0xFEDCBA98, 0x76543210);
+
+my $original_string = "";
+
+my @bits = split '', unpack 'B*', $original_string;
+my $unpadded_message_bit_length = @bits;
+push @bits, 1;
+push @bits, 0 until @bits % 512 == 448;
+push @bits, split "", sprintf "%064b", $unpadded_message_bit_length;
+
+my @chunks;
+push @chunks, [splice(@bits, 0, 512)] while @bits;
+
+for my $chunkref (@chunks) {
+
+    my @chunk = @{$chunkref};
+    my @w;
+    push @w, oct(join '', '0b', splice(@chunk, 0, 32)) while @chunk;
+
+    my ($a, $b, $c, $d) = ($h0, $h1, $h2, $h3);
+
+    for my $i (0..63) {
+
+        my $f =  0 <= $i && $i <= 15 ? ($b & $c) | (~$b & $d)
+              : 16 <= $i && $i <= 31 ? ($d & $b) | (~$d & $c)
+              : 32 <= $i && $i <= 47 ? $b ^ $c ^ $d
+              :                        $c ^ ($b | ~$d);
+
+        my $g =  0 <= $i && $i <= 15 ? $i
+              : 16 <= $i && $i <= 31 ? (5 * $i + 1) % 16
+              : 32 <= $i && $i <= 47 ? (3 * $i + 5) % 16
+              :                        (7 * $i)     % 16;
+
+        my $new_b = $b + leftrotate( $a + $f, $k[0] + $w[$g], $r[$i] );
+        ($a, $b, $c, $d) = ($d, $new_b, $b, $c);
+    }
+
+    $h0 = ($h0 + $a) % 2**32;
+    $h1 = ($h1 + $b) % 2**32;
+    $h2 = ($h2 + $c) % 2**32;
+    $h3 = ($h3 + $d) % 2**32;
+}
+
+my $digest = sprintf "%08x"x4, $h0, $h1, $h2, $h3;
+print $digest, "\n";
+
+sub leftrotate {
+    my ($x, $c) = @_;
+
+    return (($x << $c) % 2**32) | ($x >> (32-$c));
+}
