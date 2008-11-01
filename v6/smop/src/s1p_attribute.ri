@@ -1,0 +1,57 @@
+%prefix smop_s1p_attribute
+%prototype SMOP__S1P__Attribute
+%RI.id attribute
+%attr SMOP__Object* name
+%attr SMOP__Object* private_name
+%attr SMOP__Object* container_type
+%getter name
+%getter private_name
+%getter container_type
+
+%method new
+    SMOP__Object* attribute = smop_lowlevel_alloc(sizeof(smop_s1p_attribute_struct));
+    attribute->RI = (SMOP__ResponderInterface*)SMOP__S1P__Attribute;
+    ((smop_s1p_attribute_struct*)attribute)->name = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    ((smop_s1p_attribute_struct*)attribute)->private_name = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    ((smop_s1p_attribute_struct*)attribute)->container_type = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    ret = attribute;
+
+%method DESTROYALL
+    smop_lowlevel_wrlock(invocant);
+    SMOP__Object* name = ((smop_s1p_attribute_struct*)invocant)->name;
+    ((smop_s1p_attribute_struct*)invocant)->name = NULL;
+    SMOP__Object* private_name = ((smop_s1p_attribute_struct*)invocant)->private_name;
+    ((smop_s1p_attribute_struct*)invocant)->private_name = NULL;
+    SMOP__Object* container_type = ((smop_s1p_attribute_struct*)invocant)->container_type;
+    ((smop_s1p_attribute_struct*)invocant)->container_type = NULL;
+    smop_lowlevel_unlock(invocant);
+    if (name) SMOP_RELEASE(interpreter,name);
+    if (private_name) SMOP_RELEASE(interpreter,private_name);
+    if (container_type) SMOP_RELEASE(interpreter,container_type);
+
+
+%method create_container
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_create_container));
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+  mold_reg_set(interpreter,frame,1,continuation);
+  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+              SMOP__ID__goto,
+              frame);
+
+
+%mold mold_create_container
+    my $capture;
+    my $back;
+    my $interpreter;
+    my $invocant = $capture."invocant"();
+    my $container_type_scalar = $invocant."container_type"();
+    my $container_type = $container_type_scalar."FETCH"();
+    my $new = $container_type."new"();
+    my $void = $back."setr"($new);
+    $void = $interpreter."goto"($back);

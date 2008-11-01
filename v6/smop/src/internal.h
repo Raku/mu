@@ -102,6 +102,7 @@
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
      smop_s1p_ritest_init();                \
+     smop_s1p_attribute_mold_init();        \
      smop_s1p_hash_bvalue_mold_init();      \
      smop_s1p_root_namespace_init();        \
      smop_s1p_lexical_prelude_init();       \
@@ -132,6 +133,7 @@
      smop_s1p_root_namespace_destr();       \
      smop_s1p_lexical_prelude_destr();      \
      smop_s1p_hash_bvalue_mold_destr();     \
+     smop_s1p_attribute_mold_destr();       \
      smop_s1p_ritest_destr();               \
 
 void smop_idconst_init();
