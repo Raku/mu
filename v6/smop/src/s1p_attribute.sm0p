@@ -36,14 +36,22 @@ static SMOP__Object* smop_s1p_attribute_message(SMOP__Object* interpreter,
 
   } else if (identifier == SMOP__ID__create_container) {
 
-    SMOP__Object* frame;
     SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                                SMOP__ID__continuation, 
                                                SMOP_REFERENCE(interpreter,interpreter));
 
-    frame = q:v6-sm0p {
-      return $invocant.container_type.FETCH().new();
+    SMOP__Object* mold = q:m0ld {
+      my $interpreter = ¢interpreter;
+      my $invocant = ¢invocant;
+      my $continuation = ¢continuation;
+      my $container_type_scalar = $invocant."container_type"();
+      my $container_type = $container_type_scalar."FETCH"();
+      my $new = $container_type."new"();
+      my $void = $continuation."setr"($new);
+      $void = $interpreter."goto"($continuation);
     };
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
+    SMOP_RELEASE(interpreter,continuation);
 
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                   SMOP__ID__goto,
