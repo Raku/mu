@@ -46,7 +46,7 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
-  SMOP__Object* ret = NULL;
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
   if (identifier == SMOP__ID__new) {
     ret = smop_native_empty_capture;
@@ -125,7 +125,7 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
       free(o_named);
       free(named);
     }
-    ret = NULL;
+    ret = SMOP__NATIVE__bool_false;
   } else {
     ___UNKNOWN_METHOD___;
     SMOP_RELEASE(interpreter,capture);
