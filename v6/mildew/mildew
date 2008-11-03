@@ -39,6 +39,9 @@ sub lookup {
         die Dump($m)." can't be represented as a constant string\n";
     }
 }
+
+sub VAST::ws::emit_m0ld {}
+
 sub VAST::longname::canonical {
     my $m = shift;
     my $name = $m->{name}{identifier}{TEXT};
