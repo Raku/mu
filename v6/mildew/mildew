@@ -322,7 +322,15 @@ sub VAST::statement::emit_m0ld {
     if ($m->{label}) {
         AST::Label->new(label=>label($m->{label}),stmt=>statement($m->{statement}));
     } elsif ($m->{statement_control}) {
-        XXX('statement_control')
+        my $stm = $m->{statement_control};
+        if ($stm->{sym} eq 'if') {
+            AST::If->new(
+                         cond => $stm->{xblock}{EXPR}->emit_m0ld,
+                         then => $stm->{xblock}{pblock}{block}->emit_m0ld
+                        );
+        } else {
+            XXX('unkown sym in statement_control')
+        }
     } elsif ($m->{EXPR}) {
         $m->{EXPR}->emit_m0ld;
     } else {
