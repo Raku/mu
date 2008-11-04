@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 14 Oct 2008
+  Last Modified: 4 Nov 2008
   Number: 2
-  Version: 139
+  Version: 140
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -860,6 +860,7 @@ C<defined> always returns false.  One can create them with the
 built-in C<undef> and C<fail> functions.  (See S04 for how failures
 are handled.)
 
+    Nil         Empty list viewed as an item
     Object      Uninitialized (derivatives serve as protoobjects of classes)
     Whatever    Wildcard (like undef, but subject to do-what-I-mean via MMD)
     Failure     Failure (lazy exceptions, thrown if not handled properly)
@@ -874,6 +875,13 @@ generic C<Failure> object.  Use C<fail> to return more specific failures.  Use
 C<Object> for the most generic non-failure undefined value.  The C<Any>
 type is also undefined, but excludes C<Junctions> so that autothreading
 may be dispatched using normal multiple dispatch rules.)
+
+The C<Nil> type is officially undefined as an item but interpolates
+as a null list into list context, and an empty capture into slice
+context.  A C<Nil> object may also carry failure information,
+but if so, the object behaves as a failure only in item context.
+Use C<Failure>/C<undef> when you want to return a hard failure that
+will not evaporate in list context.
 
 =head2 Immutable types
 
