@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Carp 'confess';
+use Scalar::Util qw(blessed);
 
 my ($desugar,$debug,$file,$exec);
 GetOptions("exec"=>\$exec,"file=s"=>\$file,"debug"=>\$debug,"desugar"=>\$desugar);
@@ -40,7 +41,17 @@ sub lookup {
     }
 }
 
-sub VAST::ws::emit_m0ld {}
+sub VAST::ws::emit_m0ld {
+    my $m = shift;
+    ( map {
+        warn ' extracting '.$_.' from ws ';
+        $m->{$_}->emit_m0ld
+      } grep { blessed $m->{$_} } keys %{$m} ),
+    ( map {
+        warn ' extracting '.ref($_).' from ws ';
+        $_->emit_m0ld
+      } map { @{$m->{$_}} } grep { ref $m->{$_} eq 'ARRAY' } keys %{$m} ),
+}
 
 sub VAST::longname::canonical {
     my $m = shift;
@@ -77,7 +88,11 @@ sub VAST::scope_declarator::emit_m0ld {
                         ]
                     ),
                 );
+            } else {
+                XXX;
             }
+        } else {
+            XXX;
         }
     } else {
         XXX;
@@ -120,8 +135,11 @@ sub VAST::term::emit_m0ld {
     } elsif (my $name = $m->{longname}->{name}) {
         if ($name->{morename} and !$name->{identifier}) {
             lookup join '',map {$_->{identifier}[0]{TEXT}} @{$name->{morename}};
-            
+        } else {
+            XXX;
         }
+    } else {
+        XXX;
     }
 }
 sub VAST::identifier::emit_m0ld {
@@ -204,6 +222,7 @@ sub VAST::number::emit_m0ld {
 }
 sub VAST::sublongname::canonical {
     my $m = shift;
+    XXX;
 }
 sub varname {
     my $m = shift;
@@ -226,7 +245,9 @@ sub VAST::variable::emit_m0ld {
 #returns a list of nodes
 sub VAST::Comma::emit_m0ld {
     my $m = shift;
-    map {$_->emit_m0ld} @{$m->{list}};
+    AST::List->new(
+        elements => [ map {$_->emit_m0ld} @{$m->{list}} ]
+    );
 }
 sub VAST::nulltermish::emit_m0ld {
     my $m = shift;
@@ -237,26 +258,24 @@ sub VAST::dotty::emit_m0ld {
     my ($m,$noun) = @_;
     if (my $methodop = $m->{dottyop}{methodop}) {
         if ($methodop->{longname}) {
-            my $positional = $methodop->{semilist}[0]{statement}[0];
-            my @positional = $positional ? $positional->emit_m0ld : ();
+            my $positional = [ map { map { $_->emit_m0ld } @{$_->{statement}} } @{$methodop->{semilist}} ];
             my $ident = $methodop->{longname}->canonical;
             if ($m->{sym} eq '^!') {
                 $ident = '^!' . $ident;
             }
             AST::Call->new(
                 identifier=>string $ident,
-                capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional]),
+                capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>$positional),
             );
         } else {
             XXX('unknown methodop');
         }
     } elsif (my $postop = $m->{dottyop}{postop}) {
         if (my $postcircumfix = $postop->{postcircumfix}) {
-            my $positional = $methodop->{semilist}[0]{statement}[0];
-            my @positional = $positional ? $positional->emit_m0ld : ();
+            my $positional = [ map { map { $_->emit_m0ld } @{$_->{statement}} } @{$methodop->{semilist}} ];
             AST::Call->new(
                 identifier => string 'postcircumfix:'.$postcircumfix->{FIRST}.' '.$postcircumfix->{LAST},
-                capture => AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional]),
+                capture => AST::Capture->new(invocant=>FETCH($noun),positional=>$positional),
             );
         } else {
             XXX('unknown postop');
@@ -293,7 +312,7 @@ sub VAST::termish::emit_m0ld {
 }
 sub VAST::Methodcall::emit_m0ld {
     my $m = shift;
-    $m->{arg}->emit_m0ld;
+    $m->{dotty}->emit_m0ld($m->{arg}{noun}->emit_m0ld);
 }
 sub VAST::List_assignment::emit_m0ld {
     my $m = shift;
