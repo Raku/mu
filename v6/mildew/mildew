@@ -361,7 +361,7 @@ my $mold = $m->item->emit_m0ld;
 use YAML::XS;
 print $mold->pretty,"\n" if $desugar;
 exit if $desugar;
-my $m0ld = <<'BOILERPLATE'.$mold->emit_('$main').<<'CALL_MAIN';
+my $m0ld = <<'BOILERPLATE'.$mold->m0ld('$main').<<'CALL_MAIN';
 my $void;
 BOILERPLATE
 my $scope = ?SMOP__S1P__LexicalPrelude;
