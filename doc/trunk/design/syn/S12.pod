@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 14 Oct 2008
+  Last Modified: 7 Nov 2008
   Number: 12
-  Version: 64
+  Version: 65
 
 =head1 Overview
 
@@ -730,20 +730,6 @@ One handy place for an in-place mutator is to call a constructor on a
 variable of a known type:
 
     my Dog $spot .= new(:tail<LONG> :legs<SHORT>);
-
-=head1 Pair query methods
-
-Certain classes such as filehandles allow colon pairs to be used as if they
-were methods.  Method names beginning with a colon:
-
-    $filehandle.:e
-    $filehandle.:!x
-
-are expected to return a value that can be used as a boolean.
-While this is primarily intended for use by file tests, other classes
-may define such methods to provide a similar mechanism for interrogating
-properties.  (Also note that syntactic category names are reserved for
-calling operators as if they were methods.)
 
 =head1 Calling sets of methods
 

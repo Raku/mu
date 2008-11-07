@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 17 Oct 2008
+  Last Modified: 7 Nov 2008
   Number: 3
-  Version: 145
+  Version: 146
 
 =head1 Overview
 
@@ -2169,16 +2169,19 @@ is likewise C<~=>.
 
 =item *
 
-The filetest operators are gone.  We now use a C<Pair> as either a
-pattern or a method name to get the same effect:
+The filetest operators are gone.  We now use a C<Pair> as a
+pattern that calls an object's method:
 
     if $filename ~~ :e { say "exists" }
-    if $filename.:e { say "exists" }
+
+is the same as
+
+    if $filename.e { say "exists" }
 
 The 1st form actually translates to the latter form, so the object's
-class decides how to dispatch pair methods.  It just happens that
+class decides how to dispatch methods.  It just happens that
 C<Str> (filenames), C<IO> (filehandles), and C<Statbuf> (stat buffers)
-default to the expected filetest semantics, but C<$regex.:i> might
+default to the expected filetest semantics, but C<$regex.i> might
 tell you whether the regex is case insensitive, for instance.
 
 Using the pattern form, multiple tests may be combined via junctions:
@@ -2202,11 +2205,11 @@ is equivalent to either of:
 The advantage of the method form is that it can be used in places that
 require tighter precedence than C<~~> provides:
 
-    sort { $^a.:M <=> $^b.:M }, @files
+    sort { $^a.M <=> $^b.M }, @files
 
 though that's a silly example since you could just write:
 
-    sort { .:M }, @files
+    sort { .M }, @files
 
 But that demonstrates the other advantage of the method form, which is
 that it allows the "unary dot" syntax to test the current topic.
@@ -2227,7 +2230,9 @@ object doesn't know its filename but does know its IO handle, then
 C<.file> attempts to return C<.io.file>.
 
 Note that C<:s> still returns the filesize, but C<:!s> is true
-only if the file is of size 0.
+only if the file is of size 0, since it is smartmatched
+against the implicit False argument.  By the same token,
+C<:s(0..1024)> will be true only for files of size 1K or less.
 
 (Inadvertent use of the Perl 5 forms will normally result in treatment
 as a negated postdeclared subroutine, which is likely to produce an
@@ -2996,7 +3001,7 @@ as a default because the more specific types listed above it didn't match.
     Any       Num       numeric equality        +$_ == X
     Any       Str       string equality         ~$_ eq X
 
-    Any       Pair      test object             .:Xkey(Xval) (e.g. filetests)
+    Any       Pair      test object attribute   .Xkey ~~ Xval (e.g. filetests)
 
     Set       Set       identical sets          $_ === X
     Hash      Set       hash keys same set      $_.keys === X
