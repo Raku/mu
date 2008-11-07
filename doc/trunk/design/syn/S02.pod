@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 4 Nov 2008
+  Last Modified: 7 Nov 2008
   Number: 2
-  Version: 140
+  Version: 141
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1967,22 +1967,10 @@ See below for more about the C<COMPILING> pseudo package.
 
 Here are some possibilities:
 
-    $?OS        Which operating system am I compiled for?
-    $?OSVER     Which operating system version am I compiled for?
-    $?PERLVER   Which Perl version am I compiled for?
     $?FILE      Which file am I in?
     $?LINE      Which line am I at?
-    $?PACKAGE   Which package am I in?
-    @?PACKAGE   Which nested packages am I in?
-    $?MODULE    Which module am I in?
-    @?MODULE    Which nested modules am I in?
-    $?CLASS     Which class am I in? (as variable)
-    @?CLASS     Which nested classes am I in?
-    $?ROLE      Which role am I in? (as variable)
-    @?ROLE      Which nested roles am I in?
-    $?GRAMMAR   Which grammar am I in?
-    @?GRAMMAR   Which nested grammars am I in?
     $?PARSER    Which Perl grammar was used to parse this statement?
+    $?LANG      Which Perl parser should embedded closures parse with?
     &?ROUTINE   Which routine am I in?
     @?ROUTINE   Which nested routines am I in?
     &?BLOCK     Which block am I in?
@@ -1993,11 +1981,32 @@ Here are some possibilities:
 All the nested C<@?> variables are ordered from the innermost to the
 outermost, so C<@?BLOCK[0]> is always the same as C<&?BLOCK>.
 
+The following return objects that contain all pertinent info; in
+particular they may be smartmatched against strings for the name and
+against version literals for the version:
+
+    $?OS        Which operating system am I compiled for?
+    $?DISTRO    Which OS distribution am I compiling under
+    $?VM        Which virtual machine am I compiling under
+    $?XVM       Which virtual machine am I cross-compiling for
+    $?PERL      Which Perl am I compiled for?
+    $?PACKAGE   Which package am I in?
+    @?PACKAGE   Which nested packages am I in?
+    $?MODULE    Which module am I in?
+    @?MODULE    Which nested modules am I in?
+    $?CLASS     Which class am I in? (as variable)
+    @?CLASS     Which nested classes am I in?
+    $?ROLE      Which role am I in? (as variable)
+    @?ROLE      Which nested roles am I in?
+    $?GRAMMAR   Which grammar am I in?
+    @?GRAMMAR   Which nested grammars am I in?
+
 Note that some of these things have parallels in the C<*> space at run time:
 
     $*OS        Which OS I'm running under
-    $*OSVER     Which OS version I'm running under
-    $*PERLVER   Which Perl version I'm running under
+    $*DISTRO    Which OS distribution I'm running under
+    $*VM        Which VM I'm running under
+    $*PERL      Which Perl I'm running under
 
 You should not assume that these will have the same value as their
 compile-time cousins.
