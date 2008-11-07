@@ -21,16 +21,8 @@
      smop_native_int_init();          \
      smop_native_bool_init();         \
      smop_ri_init();                  \
-     smop_proto_init();               \
-     smop_slime_frame_init();         \
-     smop_slime_currentframe_init();  \
-     smop_slime_node_init();          \
-     smop_slime_capturize_init();     
+     smop_proto_init();               
 #define SMOP_INTERNAL_SHUTDOWN_SEQUENCE  \
-     smop_slime_capturize_destr();       \
-     smop_slime_node_destr();            \
-     smop_slime_currentframe_destr();    \
-     smop_slime_frame_destr();           \
      smop_native_int_destr();            \
      smop_native_bool_destr();           \
      smop_native_capture_destr();        \
@@ -142,14 +134,6 @@ void smop_native_capture_init();
 void smop_native_capture_destr();
 void smop_interpreter_init();
 void smop_interpreter_destr(); 
-void smop_slime_frame_init();
-void smop_slime_frame_destr();
-void smop_slime_currentframe_init();
-void smop_slime_currentframe_destr();
-void smop_slime_node_init();
-void smop_slime_node_destr();
-void smop_slime_capturize_init();
-void smop_slime_capturize_destr();
 void smop_native_bool_init();
 void smop_native_bool_destr();
 void smop_native_int_init();

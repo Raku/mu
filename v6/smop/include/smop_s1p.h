@@ -63,6 +63,9 @@ SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Obj
     assert(SMOP_RI(capture) == (SMOP__ResponderInterface*)SMOP__NATIVE__capture)
 
 #define ___CONST_IDENTIFIER_ONLY___ \
+    if (SMOP_RI(identifier) != SMOP_RI(SMOP__ID__new)) {\
+        fprintf("%s\n",SMOP_RI(SMOP__ID__new)->id);\
+    }\
     assert(SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new))
 
 #define ___INVOCANT_RI_SHOULD_MATCH___ \

@@ -1,4 +1,5 @@
 project (smop)
+#SET( CMAKE_C_FLAGS "-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE -DSMOP_HUNT_NULLS" )
 SET( CMAKE_C_FLAGS "-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE" )
 #SET( CMAKE_C_FLAGS "-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE -DSMOP_LOWLEVEL_MEM_DEBUG -DSMOP_MOLD_DEBUG -DSMOP_SLIME_DEBUG" )
 SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
@@ -150,10 +151,6 @@ add_library (smop SHARED
     src/s1p_str.c
     src/s1p_ritest.c
     src/s1p_hash_bvalue.c
-    src/slime_capturize.c
-    src/slime_currentframe.c
-    src/slime_frame.c
-    src/slime_node.c
     src/ri.c
     src/proto.c
 #    src_s1p_itemcontext.c
@@ -165,8 +162,21 @@ file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
 ### tests
 INCLUDE (FindThreads)
 foreach (test_file
-    test/01_smop_lowlevel.c
-    test/02_stack.sm0p
+
+    # SLIME tests
+    #test/09_threads.sm0p
+    #test/02_stack.sm0p
+    #test/12_p6opaque.sm0p
+    #test/16_labels.sm0p
+    #test/17_sm0p.sm0p
+
+    # v6-sm0p
+    #test/14_p6opaque_methods.sm0p
+    #test/22_smop_s1p_attribute.sm0p
+    #test/28_pure_prototype_how.sm0p
+
+    #test/01_smop_lowlevel.c
+
     test/03_const_identifier.c
     test/04_interpreter.c
     test/05_capture.c
@@ -174,23 +184,16 @@ foreach (test_file
     test/07_int.c
     test/07_native_int.c
     test/08_native_uint.c
-    test/09_threads.sm0p
     test/10_lowlevel_methods.c
-    test/12_p6opaque.sm0p
-    test/14_p6opaque_methods.sm0p
     test/15_hash.p6
-    test/16_labels.sm0p
-    test/17_sm0p.sm0p
     test/18_root_namespace.p6
     test/19_array.p6
     test/20_smop_s1p_ccode.c
     test/21_code.m0ld
-    test/22_smop_s1p_attribute.sm0p
     test/23_mold.sm0p
     test/24_m0ld.m0ld
     test/25_lexical_scope.p6
     test/27_default_block_signature.p6
-    test/28_pure_prototype_how.sm0p
     test/29_bind_capture_signature.p6
     test/30_array_map.m0ld
     test/31_int_postfix_plusplus.m0ld

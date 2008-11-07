@@ -3,7 +3,6 @@
 #define SMOP_LOWLEVEL_H
 
 #include <smop.h>
-#include <smop_slime.h>
 #include <pthread.h>
 
 /* The lowlevel SMOP API is an additional API that is not included by
