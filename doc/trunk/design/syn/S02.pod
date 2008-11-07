@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 7 Nov 2008
   Number: 2
-  Version: 141
+  Version: 142
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1981,9 +1981,7 @@ Here are some possibilities:
 All the nested C<@?> variables are ordered from the innermost to the
 outermost, so C<@?BLOCK[0]> is always the same as C<&?BLOCK>.
 
-The following return objects that contain all pertinent info; in
-particular they may be smartmatched against strings for the name and
-against version literals for the version:
+The following return objects that contain all pertinent info:
 
     $?OS        Which operating system am I compiled for?
     $?DISTRO    Which OS distribution am I compiling under
@@ -2000,6 +1998,20 @@ against version literals for the version:
     @?ROLE      Which nested roles am I in?
     $?GRAMMAR   Which grammar am I in?
     @?GRAMMAR   Which nested grammars am I in?
+
+It is relatively easy to smartmatch these constant objects
+against pairs to check various attributes such as name,
+version, or authority:
+
+    given $?VM {
+        when :name<Parrot> :ver(v2) { ... }
+        when :name<CLOS>            { ... }
+        when :name<SpiderMonkey>    { ... }
+        when :name<JVM> :ver(v6.*)  { ... }
+    }
+
+Matches of constant pairs on constant objects may all be resolved at
+compile time, so dead code can be eliminated by the optimizer.
 
 Note that some of these things have parallels in the C<*> space at run time:
 
