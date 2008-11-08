@@ -255,7 +255,7 @@ sub VAST::dotty::emit_m0ld {
             my $positional = $methodop->{semilist}[0]{statement}[0];
             my @positional = $positional ? $positional->emit_m0ld : ();
             AST::Call->new(
-                identifier => string 'postcircumfix:'.$postcircumfix->{FIRST}.' '.$postcircumfix->{LAST},
+                identifier => string 'postcircumfix:'.$postcircumfix->{sym}[0].' '.$postcircumfix->{sym}[1],
                 capture => AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional]),
             );
         } else {
@@ -352,7 +352,7 @@ if ($file) {
     $m = STD->parse(join('', <STDIN>), 'comp_unit');
 }
 
-print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+#print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
 print "#################\n" if $debug;
 print Dump($m->item) if $debug;
 print Dump($m->item->emit_m0ld) if $debug;
