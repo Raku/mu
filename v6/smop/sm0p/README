@@ -1,3 +1,0 @@
-# run sm0p_dump_match like this
-make
-perl sm0p_dump_match test_file
