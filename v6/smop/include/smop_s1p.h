@@ -64,7 +64,7 @@ SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Obj
 
 #define ___CONST_IDENTIFIER_ONLY___ \
     if (SMOP_RI(identifier) != SMOP_RI(SMOP__ID__new)) {\
-        fprintf("%s\n",SMOP_RI(SMOP__ID__new)->id);\
+        fprintf(stderr,"%s\n",SMOP_RI(SMOP__ID__new)->id);\
     }\
     assert(SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new))
 
@@ -72,7 +72,7 @@ SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Obj
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture); \
     assert(SMOP_RI(invocant) == (SMOP__ResponderInterface*)self)
 #define ___VALUE_FETCH___\
-    SMOP_REFERENCE(interpreter,invocant);\
+    SMOP_REFERENCE(interpreter,(SMOP__Object*) invocant);\
     ret = invocant;
 #define ___VALUE_STORE___ \
     { \

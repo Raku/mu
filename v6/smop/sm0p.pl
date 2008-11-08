@@ -43,9 +43,7 @@ eval {
     while (<$input>) {
         $out_count++;
         quasi(
-            'sm0p' => \&preprocess_sm0p,
             'm0ld' => \&preprocess_m0ld,
-            'v6-sm0p' => \&preprocess_p6_sm0p,
             'v6-m0ld' => \&preprocess_p6_m0ld,
         ) and next;
         print {$output} $_;
@@ -95,28 +93,11 @@ sub preprocess {
     die join(' ',@_).' returned failure '.$? if ($? || !$retbuf || $retbuf eq "\n") ;
     return $retbuf;
 }
-sub preprocess_p6_sm0p {
-    my $code = shift;
-    my ($writer, $reader, $error) = map { gensym } 1..3;
-    my $sm0p = preprocess('','perl',"$base/../../misc/elfish/elfX/elfX",'-C','sm0p','-s','-e',$code);
-    return preprocess_sm0p(
-        $sm0p
-        . "\$SMOP__SLIME__CurrentFrame.\$SMOP__ID__forget();\n"
-        . "\$interpreter.goto(|\$continuation);\n"
-        );
-}
 sub preprocess_p6_m0ld {
     my $code = shift;
     my ($writer, $reader, $error) = map { gensym } 1..3;
     my $m0ld = preprocess('','perl',"$base/../../misc/elfish/elfX/elfX",'-C','m0ld','-s','-e',$code);
     return preprocess_m0ld($m0ld);
-}
-sub preprocess_sm0p {
-    my $code = shift;
-    #warn "got sm0p code <$code>\n";
-    return preprocess($code,'perl',"-I$base/../../src/perl6",
-        '-I'.$base.'/sm0p',
-        $base.'/sm0p/sm0p_with_actions');
 }
 sub preprocess_m0ld {
     my $code = shift;

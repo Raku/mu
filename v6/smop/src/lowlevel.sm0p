@@ -6,6 +6,7 @@
  */
 
 #include <smop.h>
+#include <smop_mold.h>
 #include <smop_lowlevel.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -169,6 +170,13 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
 #endif
 
       smop_lowlevel_free(value);
+    } else if ((SMOP__Object*)SMOP_RI(value) == SMOP__Mold ||
+               (SMOP__Object*)SMOP_RI(value) == SMOP__Mold__Frame) {
+        SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, SMOP__NATIVE__capture_create(interpreter,value,NULL,NULL));
+#ifdef SMOP_LOWLEVEL_MEM_TRACE
+      smop_mem_trace_del(value);
+#endif
+      smop_lowlevel_free(value);
     } else if ((SMOP__Object*)SMOP_RI(value) == SMOP__INTPTR__InterpreterInstance ||
                (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__capture ||
                (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__int ||
@@ -182,12 +190,25 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
       smop_lowlevel_free(value);
 
     } else {
-       SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, SMOP__NATIVE__capture_create(interpreter,value,NULL,NULL));
+      SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
+                                             SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
+      SMOP__Object* free_obj = q:m0ld {
+        my $interpreter;
+        my $current;
+        my $value;
+        my $void = $value."DESTROYALL"($value);
+        $void = $interpreter."goto"($current);
+      };
+      SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,free_obj));
+      mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+      mold_reg_set(interpreter,frame,1,current);
+      mold_reg_set(interpreter,frame,2,value);
+      SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,  frame);
 #ifdef SMOP_LOWLEVEL_MEM_TRACE
       smop_mem_trace_del(value);
 #endif
-
-      smop_lowlevel_free(value);
+      //smop_lowlevel_free(value);
+      SMOP_RELEASE(interpreter,free_obj);
     }
     return NULL;
   } else {
