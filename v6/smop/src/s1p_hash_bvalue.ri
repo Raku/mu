@@ -67,6 +67,11 @@
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                   SMOP__ID__goto,
                   frame);
+%method DEBUG
+   int identifier_size;
+   SMOP__Object* key = ((smop_s1p_hash_bvalue_struct*)invocant)->key;
+   char* s = SMOP__NATIVE__idconst_fetch(key,&identifier_size);
+   printf("BValue.DEBUG key='%.*s'\n",identifier_size,s); 
 
 %mold bind_mold
     my $interpreter;

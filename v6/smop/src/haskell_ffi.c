@@ -24,6 +24,9 @@ SMOP__Object* get_SMOP__GlobalInterpreter(void) {
 SMOP__Object* get_SMOP__S1P__RootNamespace(void) {
   return SMOP__S1P__RootNamespace;
 }
+void smop_describe_object(SMOP__Object* obj) {
+  printf("RI: %s\n",SMOP_RI(obj)->id);
+}
 SMOP__Object* smop_get_cvar(char* var) {
   //printf("fetching \"%s\"\n",var);
   int i;

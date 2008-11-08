@@ -27,6 +27,12 @@ foreign import ccall "smop_haskell_ffi.h smop_dispatch"
       c_smop_dispatch :: SMOP__Object -> SMOP__Object -> SMOP__Object -> SMOP__Object -> IO SMOP__Object
 foreign import ccall "smop_haskell_ffi.h smop_ri"
       c_smop_ri :: SMOP__Object -> SMOP__Object
+foreign import ccall "smop_haskell_ffi.h smop_describe_object"
+      c_smop_describe_object :: SMOP__Object -> IO ()
+
+describe_object obj = do 
+    ptr <- smopify obj
+    c_smop_describe_object ptr
 
 foreign import ccall "smop_native.h SMOP__NATIVE__idconst_createn"
       c_SMOP__NATIVE__idconst_createn :: Ptr CChar -> Int -> SMOP__Object
@@ -127,10 +133,20 @@ evalM0ld code = do
     smop_init
     root <- rootnamespace
 
-    out_scalar <- call root "postcircumfix:{ }" ["$*OUT"] none
+    -- describe_object root
+
+    -- out_scalar <- call root "postcircumfix:{ }" ["$*OUT"] none
+    out_scalar <- call root "lookup_key" ["$*OUT"] none
+
+    -- describe_object out_scalar
+
+    --call out_scalar "DEBUG" none none
+
     out <- call out_scalar "FETCH" none none
 
-    mold_frame_scalar <- call root "postcircumfix:{ }" ["::MoldFrame"] none
+    -- describe_object out
+
+    mold_frame_scalar <- call root "lookup_key" ["::MoldFrame"] none
     mold_frame <- call mold_frame_scalar "FETCH" none none
 
     test_mold <- compileM0ld code
