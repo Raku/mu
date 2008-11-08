@@ -1,6 +1,5 @@
 {
 package AST;
-use utf8;
 my $id=0;
 sub unique_id {
     '$id'.$id++;
@@ -22,8 +21,15 @@ use Moose;
 sub emit {
     my $self = shift;
     my $id = AST::unique_id;
-    return $self->m0ld($id);
+    $AST::CODE .= do {local $AST::CODE='';$AST::CODE . $self->m0ld($id)};
+    return $id;
 
+}
+sub emit_ {
+    local $AST::CODE = '';
+    my ($self,$ret) = @_;
+    my $mold = $self->m0ld($ret);
+    $AST::CODE . $mold;
 }
 sub pretty {
     use YAML::XS;
@@ -45,7 +51,7 @@ sub m0ld {
     my $cond = $self->cond->m0ld($id_cond);
     my $then = $self->then->m0ld($id_then);
 
-    $cond.
+    $cond.$/.
     'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'.$/.
     'my '.$id_cond.'_bool = '.$id_cond.'_val."bool"();'.$/.
     'if '.$id_cond.'_bool { goto '.$label_then.'; } else { goto '.$label_else.'; };'.$/.
@@ -63,7 +69,7 @@ sub m0ld {
     my ($self,$ret) = @_;
     "my $ret = mold {\n"
         . join('',map {'my $'.$_.";\n"} @{$self->regs})
-        . join("",map { $_->m0ld('$void') } @{$self->stmts})
+        . join("",map { $_->emit_('$void') } @{$self->stmts})
     . "};\n";
 }
 sub terminate_stmt {
@@ -94,23 +100,6 @@ use Moose;
 extends 'AST::Base';
 has 'identifier';
 has 'stmt';
-
-package AST::List;
-use Moose;
-extends 'AST::Base';
-has 'elements' => (is=>'ro');
-
-sub m0ld {
-    my ($self, $ret) = @_;
-    my @args;
-    my $code;
-    for (@{$self->elements}) {
-        my $id = AST::unique_id();
-        $code .= $_->m0ld($id);
-        push @args, $id;
-    }
-    $code .= 'my '.$ret.' = ?SMOP__S1P__List."new"('.join(',',@args).');'.$/;
-}
 
 package AST::Named;
 use Moose;
@@ -148,21 +137,10 @@ sub arguments {
 sub m0ld {
     my ($self,$ret) = @_;
     if ($self->capture->isa("AST::Capture")) {
-        my @args;
-        my $code = '';
-        for ($self->arguments) {
-            my $id = AST::unique_id();
-            $code .= $_->m0ld($id);
-            push @args, $id;
-        }
-        my $invocant = AST::unique_id();
-        $code .= $self->capture->invocant->m0ld($invocant);
-        my $identifier = AST::unique_id();
-        $code .= $self->identifier->m0ld($identifier);
-        $code .= "my $ret = "
-          . $invocant
-          . "." . $identifier
-          . "(" . join(',', @args) . ")" . ";\n";
+        "my $ret = "
+        . $self->capture->invocant->emit
+        . "." . $self->identifier->emit
+        . "(" . join(',', map {$_->emit} $self->arguments) . ")" . ";\n";
     } else {
         die 'unimplemented';
     }
@@ -227,8 +205,7 @@ sub emit {
     $self->name;
 }
 sub m0ld {
-    my ($self,$ret) = @_;
-    "my $ret = ".$self->name."\n";
+    die "method m0ld is not supported on AST::Reg, m0ld doesn't support register aliasing\n"
 }
 sub pretty {
     #XXX metachars
