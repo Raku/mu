@@ -38,6 +38,7 @@
     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                   SMOP__ID__goto,
                   frame);
+    ret = SMOP_REFERENCE(interpreter,invocant);
 
 
 %method FETCH

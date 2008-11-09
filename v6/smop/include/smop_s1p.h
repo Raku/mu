@@ -76,7 +76,7 @@ SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Obj
     ret = invocant;
 #define ___VALUE_STORE___ \
     { \
-    fprintf(stderr, "can't call STORE or an read-only value at %s line %d file %s\n",__func__,__LINE__,__FILE__); \
+    fprintf(stderr, "can't call STORE on an read-only value at %s line %d file %s\n",__func__,__LINE__,__FILE__); \
     abort(); \
     } 
 

@@ -186,9 +186,7 @@ foreach (test_file
     test/07_native_int.c
     test/08_native_uint.c
     test/10_lowlevel_methods.c
-    test/15_hash.p6
     test/18_root_namespace.p6
-    test/19_array.p6
     test/20_smop_s1p_ccode.c
     test/21_code.m0ld
     test/23_mold.sm0p
