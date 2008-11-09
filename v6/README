@@ -9,7 +9,7 @@ There are currently 3 active subprojects:
 
 - v6-KindaPerl6 is a full Perl 6 implementation, currently written mostly in MiniPerl6.
 
-- smop (formerly yap6) is a C implementation of the Perl 6 runtime.
+- smop is a C implementation of the Perl 6 runtime.
 
 
 Inactive projects are under misc/
