@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 23;
+plan 22;
 
 =begin pod
 
@@ -13,21 +13,18 @@ These tests are derived from the Perl6 and Parrot Essentials Chapter 4, page 42
 =end pod
 
 my $j = any(1, 2, 3);
-is(WHAT($j), 'Junction', '$j is a Junc');
+ok $j ~~ Junction, '$j is a Junction';
 
-is($j.perl, '\(1 | 2 | 3)', 'got the right stringified junction');
-
-my @values = $j.values;
+my @values = $j.values.sort;
 is(+@values, 3, 'our junction has three values in it');
 
-# XXX relies on the order of elements in Junction, which is not allowed.
 is(@values[0], 1, 'our junctions first value is 1');
 is(@values[1], 2, 'our junctions second value is 2');
 is(@values[2], 3, 'our junctions third value is 3');
 
 my $sums = $j + 3;
 
-is(WHAT($sums), 'Junction', '$sums is a Junc');
+ok $sums ~~ Junction, '$j + 3 is also a Junction';
 
 my @sums_values = sort $sums.values;
 is(+@sums_values, 3, 'our junction has three values in it');
@@ -37,6 +34,6 @@ is(@sums_values[2], 6, 'our junctions third value is 6');
 
 # loop enough to go through it twice
 for (1 .. 6) {
-    ok((1 ^ 2 ^ 3) == $j.pick, 'it is always at least one');
-    ok((1 | 2 | 3) == $j.pick, 'it is always one of them');
+    ok((1 ^ 2 ^ 3) == $j.values.pick, 'it is always at least one');
+    ok((1 | 2 | 3) == $j.values.pick, 'it is always one of them');
 }
