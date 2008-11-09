@@ -33,7 +33,7 @@ my $grep_code = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
     my $it  = $it_var."FETCH"();
     
     my $greater = $it."infix:>"(3);
-    my $bool = $greater."bool"();
+    my $bool = $greater."true"();
     
     my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
     my $out = $out_scalar."FETCH"();
@@ -63,7 +63,7 @@ my $map_code = $Code."new"(:"outer"($lexicalscope),:"mold"(mold {
     my $it  = $it_var."FETCH"();
    
     my $greater = $it."infix:>"(3);
-    my $bool = $greater."bool"();
+    my $bool = $greater."true"();
     
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();

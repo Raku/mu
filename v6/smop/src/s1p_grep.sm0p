@@ -128,7 +128,7 @@ void smop_s1p_grep_mold_init() {
     my $item = $next_item."FETCH"();
     my $capture = ¢SMOP__S1P__Capturize."capturize"($item);
     my $result = $code."postcircumfix:( )"($capture);
-    my $bool = $result."bool"();
+    my $bool = $result."true"();
     if $bool { goto in } else { goto fetch_item };
     
     in:

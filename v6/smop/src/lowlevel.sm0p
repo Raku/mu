@@ -155,9 +155,7 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
     if (interpreter == SMOP__INTPTR__InterpreterInstance) {
 
       if ((SMOP__Object*)SMOP_RI(value) == SMOP__INTPTR__InterpreterInstance ||
-          (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__capture ||
-          (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__int ||
-          (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__uint) {
+          (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__capture) {
 
         SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, value);
 
@@ -178,9 +176,7 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
 #endif
       smop_lowlevel_free(value);
     } else if ((SMOP__Object*)SMOP_RI(value) == SMOP__INTPTR__InterpreterInstance ||
-               (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__capture ||
-               (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__int ||
-               (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__uint) {
+               (SMOP__Object*)SMOP_RI(value) == SMOP__NATIVE__capture) {
 
       SMOP_DISPATCH(interpreter, SMOP_RI(value), SMOP__ID__DESTROYALL, value);
 #ifdef SMOP_LOWLEVEL_MEM_TRACE

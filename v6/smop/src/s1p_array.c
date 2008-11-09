@@ -133,7 +133,7 @@ static SMOP__Object* smop_s1p_array_proxy_message(SMOP__Object* interpreter,
   } else if (identifier == SMOP__ID__DESTROYALL) {
     SMOP_RELEASE(interpreter,invocant->array);
 
-  } else if (identifier == SMOP__ID__bool) {
+  } else if (identifier == SMOP__ID__true) {
     ret = SMOP__NATIVE__bool_true;
 
   } else if (identifier == SMOP__ID__List) {

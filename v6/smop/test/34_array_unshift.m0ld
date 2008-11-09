@@ -22,7 +22,7 @@ my $result = $iteritem."prefix:="();
 my $list = $result."List"();
 my $elems = $list."elems"();
 my $greater = $elems."infix:>"(0);
-my $bool = $greater."bool"();
+my $bool = $greater."true"();
 
 if $bool { goto iteration } else { goto end };
 

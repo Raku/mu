@@ -43,7 +43,7 @@ static SMOP__Object* lexicalscope_message(SMOP__Object* interpreter,
     smop_lowlevel_unlock(invocant);
     SMOP_REFERENCE(interpreter, ret);
 
-  } else if (identifier == SMOP__ID__bool) {
+  } else if (identifier == SMOP__ID__true) {
     ret = SMOP__NATIVE__bool_true;
 
   } else if (identifier == SMOP__ID__entries) {
@@ -142,7 +142,7 @@ void smop_s1p_lexicalscope_mold_init() {
       $void = $interpreter."goto"($back);
     else:
       my $outer = $invocant."outer"();
-      my $outer_true = $outer."bool"();
+      my $outer_true = $outer."true"();
       my $outer_cell = $outer."FETCH"();
       if $outer_true {goto than2} else {goto else2};
       than2:

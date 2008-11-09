@@ -42,10 +42,10 @@ static SMOP__Object* smop_s1p_scalar_message(SMOP__Object* interpreter,
     if (ret)
       SMOP_REFERENCE(interpreter,ret);
 
-  } else if (SMOP__ID__bool == identifier) {
+  } else if (SMOP__ID__true == identifier) {
     SMOP__Object* cell = SMOP__S1P__Scalar_FETCH(scalar);
     ret = SMOP_DISPATCH(interpreter, SMOP_RI(cell),
-                        SMOP__ID__bool,
+                        SMOP__ID__true,
                         SMOP__NATIVE__capture_delegate(interpreter,
                                                        SMOP_REFERENCE(interpreter,cell),
                                                        SMOP_REFERENCE(interpreter,capture)));

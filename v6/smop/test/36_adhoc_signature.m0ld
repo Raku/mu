@@ -63,7 +63,7 @@ my $code1 = $Code."new"(:"outer"($lexicalscope),:"signature"($signature),:"mold"
 }));
 
 my $accepts = $signature."ACCEPTS"(1);
-my $accepts_bool = $accepts."bool"();
+my $accepts_bool = $accepts."true"();
 if $accepts_bool { goto then } else { goto else };
 
 then:

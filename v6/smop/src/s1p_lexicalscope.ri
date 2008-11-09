@@ -18,7 +18,7 @@
   smop_lowlevel_unlock(invocant);
   SMOP_REFERENCE(interpreter, ret);
 
-%method bool
+%method true
   ret = SMOP__NATIVE__bool_true;
 
 %method entries
@@ -83,7 +83,7 @@
       $void = $interpreter."goto"($back);
     else:
       my $outer = $invocant."outer"();
-      my $outer_true = $outer."bool"();
+      my $outer_true = $outer."true"();
       my $outer_cell = $outer."FETCH"();
       if $outer_true {goto than2} else {goto else2};
       than2:

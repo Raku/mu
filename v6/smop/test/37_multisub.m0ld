@@ -22,13 +22,13 @@ my $signature1 = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
     
     my $cap = ¢SMOP__S1P__Capturize."capturize"($p1, ¢SMOP__NATIVE__int);
     my $cmp = ¢SMOP__S1P__ritest."postcircumfix:( )"($cap);
-    my $bool = $cmp."bool"();
+    my $bool = $cmp."true"();
     
     if $bool { goto nexttest } else { goto false };
     nexttest:
     $cap = ¢SMOP__S1P__Capturize."capturize"($p2, ¢SMOP__NATIVE__int);
     $cmp = ¢SMOP__S1P__ritest."postcircumfix:( )"($cap);
-    $bool = $cmp."bool"();
+    $bool = $cmp."true"();
     
     if $bool { goto true } else { goto false };
     true:
@@ -66,13 +66,13 @@ my $signature2 = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
     
     my $cap = ¢SMOP__S1P__Capturize."capturize"($p1, ¢SMOP__NATIVE__bool);
     my $cmp = ¢SMOP__S1P__ritest."postcircumfix:( )"($cap);
-    my $bool = $cmp."bool"();
+    my $bool = $cmp."true"();
     
     if $bool { goto nexttest } else { goto false };
     nexttest:
     $cap = ¢SMOP__S1P__Capturize."capturize"($p2, ¢SMOP__NATIVE__bool);
     $cmp = ¢SMOP__S1P__ritest."postcircumfix:( )"($cap);
-    $bool = $cmp."bool"();
+    $bool = $cmp."true"();
     
     if $bool { goto true } else { goto false };
     true:

@@ -108,6 +108,7 @@ foreach (ri_file
     src/s1p_adhocsignature.ri
     src/s1p_attribute.ri
     src/s1p_hash_bvalue.ri
+    src/native_int.ri
 )
 compile_ri (${ri_file})
 endforeach()

@@ -18,7 +18,7 @@ static SMOP__Object* bool_message(SMOP__Object* interpreter,
   ___NATIVE_CAPTURE_ONLY___;
   ___INVOCANT_RI_SHOULD_MATCH___;
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-  if (identifier == SMOP__ID__bool) {
+  if (identifier == SMOP__ID__true) {
     ret = SMOP_REFERENCE(interpreter,invocant);
   } else if (identifier == SMOP__ID__defined) {
     ret = SMOP__NATIVE__bool_true;

@@ -11,7 +11,7 @@ extern SMOP__Object* SMOP__ID__ACCEPTS;           /* "ACCEPTS" */
 extern SMOP__Object* SMOP__ID__back;              /* "back" */
 extern SMOP__Object* SMOP__ID__BIND;              /* "BIND" */
 extern SMOP__Object* SMOP__ID__bless;             /* "bless" */
-extern SMOP__Object* SMOP__ID__bool;              /* "bool" */
+extern SMOP__Object* SMOP__ID__true;              /* "true" */
 extern SMOP__Object* SMOP__ID__BUILDALL;          /* "BUILDALL" */
 extern SMOP__Object* SMOP__ID__BUILD;             /* "BUILD" */
 extern SMOP__Object* SMOP__ID__call;              /* "call" */
