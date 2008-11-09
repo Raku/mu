@@ -6,7 +6,7 @@ Please also read t/deprecated-syntax.pod for common mistakes in the test
 suite, and clear them when you update tests.
 
 When you are adding entries here, please put something like this in the commit message:
-Test Suite TASKS: Added to section S02
+[t/TASKS]: Added more tasks for S02.
 This way, people working on the test suite can easily spot these commits in #perl6.
 
 This file had entries in the past (r16405). Since this file wasn't touched in over 4000 commits, I (Auzon) cleared them out.
