@@ -54,10 +54,10 @@ sub m0ld {
     $cond.$/.
     'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'.$/.
     'my '.$id_cond.'_bool = '.$id_cond.'_val."bool"();'.$/.
-    'if '.$id_cond.'_bool { goto '.$label_then.'; } else { goto '.$label_else.'; };'.$/.
+    'if '.$id_cond.'_bool { goto '.$label_then.' } else { goto '.$label_else.' };'.$/.
     $label_then.':'.$/.
     $then.$/.
-    $label_else.':'.$/;
+    $label_else.': noop;'.$/;
 }
 
 package AST::Block;

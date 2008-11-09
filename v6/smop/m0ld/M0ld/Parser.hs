@@ -35,9 +35,10 @@ label = do
     symbol ":"
     return [LabelDef id]
 
+
 stmt = do 
     l <- option [] (try label)
-    body <- choice $ map try [label,call2,call,decl,goto,br]
+    body <- choice $ map try [call2,call,decl,goto,br,noop]
     return $ l ++ body
 
 constant = choice 
@@ -84,6 +85,8 @@ decl = do
     x <- tok register
     defaultValue <- option None $ symbol "=" >> constant
     return [Decl x defaultValue]
+
+noop = string "noop" >> return []
 
 branch = inBraces $ do
     string "goto"
