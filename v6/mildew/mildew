@@ -240,7 +240,7 @@ sub VAST::dotty::emit_m0ld {
             my $positional = $methodop->{semilist}[0]{statement}[0];
             my @positional = $positional ? $positional->emit_m0ld : ();
             my $ident = $methodop->{longname}->canonical;
-            if ($m->{sym} eq '^!') {
+            if ($m->{sym} eq '.^!') {
                 $ident = '^!' . $ident;
             }
             AST::Call->new(
@@ -252,7 +252,7 @@ sub VAST::dotty::emit_m0ld {
         }
     } elsif (my $postop = $m->{dottyop}{postop}) {
         if (my $postcircumfix = $postop->{postcircumfix}) {
-            my $positional = $methodop->{semilist}[0]{statement}[0];
+            my $positional = $postcircumfix->{semilist}{statement}[0];
             my @positional = $positional ? $positional->emit_m0ld : ();
             AST::Call->new(
                 identifier => string 'postcircumfix:'.$postcircumfix->{sym}[0].' '.$postcircumfix->{sym}[1],

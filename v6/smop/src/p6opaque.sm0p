@@ -5,6 +5,7 @@
 #include <smop.h>
 #include <smop_s1p.h>
 #include <smop_oo.h>
+#include <smop_mold.h>
 #include <smop_lowlevel.h>
 
 /*
@@ -304,6 +305,8 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
       fprintf(stderr,"[smop p6opaque] dispatching called without invocant\n");
     } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
       fprintf(stderr,"[smop p6opaque] dispatching with non p6opaque invocant\n");
+    } else if (invocant == SMOP__p6opaque__RI && identifier == SMOP__ID__FETCH) {
+       ___VALUE_FETCH___;
     } else if (invocant == SMOP__p6opaque__RI) {
       fprintf(stderr,"[smop p6opaque] dispatching with p6opaque RI (%s)\n",(char*)(identifier->data + sizeof(int)));
       abort();
@@ -452,7 +455,10 @@ static SMOP__Object* p6opaque_default_how_message(SMOP__Object* interpreter,
       ret = SMOP_REFERENCE(interpreter, actualinvocant);
     } else if (actualidentifier == SMOP__ID__STORE) {
       ___VALUE_STORE___;
+    } else if (actualidentifier == SMOP__ID__DESTROYALL) {
+      
     } else {
+      identifier = actualidentifier;
       ___UNKNOWN_METHOD___;
     }
   } else {

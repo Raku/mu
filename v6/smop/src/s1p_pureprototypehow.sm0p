@@ -43,6 +43,8 @@ static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter
 
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 
+  } else if (SMOP__ID__FETCH == identifier) {
+    ___VALUE_FETCH___;
   } else {
     ___UNKNOWN_METHOD___;
   }
