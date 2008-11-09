@@ -28,6 +28,10 @@
     SMOP_RELEASE(interpreter, other);
 %method defined
     ret = SMOP__NATIVE__bool_true;
+%method true
+    smop_lowlevel_wrlock(invocant);
+    ret = ((smop_native_int_struct*)invocant)->intvalue ? SMOP__NATIVE__bool_true : SMOP__NATIVE__bool_false;
+    smop_lowlevel_unlock(invocant);
 %method FETCH
     ___VALUE_FETCH___;
 %method STORE

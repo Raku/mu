@@ -53,11 +53,17 @@ sub m0ld {
 
     $cond.$/.
     'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'.$/.
-    'my '.$id_cond.'_bool = '.$id_cond.'_val."bool"();'.$/.
+    'my '.$id_cond.'_bool = '.$id_cond.'_val."true"();'.$/.
     'if '.$id_cond.'_bool { goto '.$label_then.' } else { goto '.$label_else.' };'.$/.
     $label_then.':'.$/.
     $then.$/.
     $label_else.': noop;'.$/;
+}
+sub pretty {
+    my ($self) = @_;
+    'if ' . $self->cond->pretty . " {\n"
+        . AST::indent($self->then->pretty) . "\n"
+    . "}\n"
 }
 
 package AST::Block;

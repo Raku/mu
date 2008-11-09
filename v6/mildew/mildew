@@ -324,10 +324,28 @@ sub VAST::statement::emit_m0ld {
     } elsif ($m->{statement_control}) {
         my $stm = $m->{statement_control};
         if ($stm->{sym} eq 'if') {
+            my $then = AST::Call->new(identifier=>string 'postcircumfix:( )',capture => AST::Capture->new(
+                invocant => AST::Call->new(identifier=>string 'new',
+                    capture => AST::Capture->new(
+                        invocant => FETCH(lookup('Code')),
+                        positional => [],
+                        named => [
+                            string 'mold' => $stm->{xblock}{pblock}{block}->emit_m0ld,
+                            string 'outer' => reg '$scope'
+                    ])
+                ),
+                positional => [AST::Call->new(
+                    identifier => string "capturize",
+                    capture => AST::Capture->new(
+                        invocant => reg '¢SMOP__S1P__Capturize',
+                        positional => []
+                    )
+                )]
+            ));
             AST::If->new(
-                         cond => $stm->{xblock}{EXPR}->emit_m0ld,
-                         then => $stm->{xblock}{pblock}{block}->emit_m0ld
-                        );
+                cond => $stm->{xblock}{EXPR}->emit_m0ld,
+                then => $then
+            );
         } else {
             XXX('unkown sym in statement_control')
         }
