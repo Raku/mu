@@ -91,12 +91,14 @@ sub main {
     #print STD::Dump($r);
     #use YAML::XS;
     #print Dump($r);
-    #use Data::Dumper;
-    #print Dumper($r);
-    use DumpMatch; #src/perl6/STD5_dump_match
-    print dump_match("comp_unit",$r,{vertical=>1});
+    use Data::Dumper;
+    print Dumper($r);
+#    use DumpMatch; #src/perl6/STD5_dump_match
+#    print dump_match("comp_unit",$r,{vertical=>1});
   } 
   elsif($format eq 'p5a') {
+    $main::whole_file = $code;
+    $main::whole_file .= " "; # -e '3' dump includes _pos's of 2
     print out($cache_file,$r->to_dump0);
   }
   else {
@@ -140,33 +142,39 @@ use autobox;
     elsif ($sym =~ /\Asym\['(.+?)']\z/) { $1 }
     else { die "bogus sym: $sym\n" }
   }
-  our $category = 'comp_unit';
   our %seen;
   our $max_repetition = 20;
   sub to_dump0 {
     my($o)=@_;
     local $seen{$o} = $seen{$o};
     if($seen{$o}++ > $max_repetition) { return "LOOP:$o"->to_dump0 }
-    my $rule = $category;
-    if($rule =~ /\A(chain|list|arg|left|right|termish)\z/) { $rule = 'EXPR' }
+
+    my $rule = $o->{_reduced} || die;
+
+    my $f = $o->{_from};
+    my $t = $o->{_pos};
+    my $str = substr($main::whole_file,$f,$t-$f);
+
     my $sym = $o->{sym};
+    if($sym && $sym eq ';') {
+      # Workaround bug in STD/gimme5 r22962.
+      # -e 'last;' -> term:sym<;> instead of term:sym<last>.
+      $sym = $str;
+    }
     if($sym) {
       my $normalized = $o->condition_sym($sym);
       $o->{sym_name} = $normalized;
-      $rule .= ":".$normalized if $sym ne $rule && $rule ne 'EXPR';
+      $rule .= ":".$normalized if ($sym ne $rule &&
+                                   $rule ne 'EXPR' &&
+                                   $rule ne 'infixish');
     }
     my $rule_str = $rule->to_dump0;
-    my $f = $o->{_from};
-    my $t = $o->{_to};
-    my $whole_file = ${$o->{_orig}};
-    my $str = substr($whole_file,$f,$t-$f);
     my $s = $str->to_dump0;
     my $h = join("",map{
       if(!/^[a-zA-Z]/) { "" }
       elsif(/\A(O)\z/) { "" }
       else {
         my $v = $o->{$_};
-        local $category = $_;
         my $vs = defined($v) ? $v->to_dump0 : 'undef';
         "\n $_ => $vs,"
       }

@@ -27,14 +27,22 @@ if $labels {
   $result;
 }
 
+nulltermish
+$m<termish>[0]
+
+termish
+my $noun = $m<noun>;
+temp $blackboard::expect_term_base = $noun;
+my $ops = [];
+if $o<PRE> { $ops.push($o<PRE>.flatten) };
+if $o<POST> { $ops.push($o<POST>.flatten) };
+for $ops {
+  $blackboard::expect_term_base = ir($_)
+}
+$blackboard::expect_term_base
+
 EXPR
-if $o<termish> {
-  $m<termish>[0]
-}
-elsif $o<arg> {
-  $m<arg>
-}
-elsif $o<infix> {
+if $o<infix> {
   my $op = $m<infix><sym_name>;
   my $args = [$m<left>,$m<right>];
   if $op eq '=>' {
@@ -50,6 +58,10 @@ elsif $o<infix> {
     Apply.newp("infix:"~$op,Capture.newp1($args))
   }
 }
+elsif $o<prefix> {
+  my $op = $m<prefix><sym_name>;
+  Apply.newp("prefix:"~$op,Capture.newp1([$m<arg>]))
+}
 elsif $o<chain> {
   my $chain = $m<chain>;
   my $op = $o<chain>[1]<sym_name>;
@@ -61,49 +73,26 @@ elsif $o<list> {
   my $args = $m<list>;
   Apply.newp("infix:"~$op,Capture.newp1($args))
 }
-elsif $o<noun> {
-  temp $blackboard::expect_term_base = $m<noun>;
-  my $ops = [];
-  if $o<pre>  {
-    my $pre = $o<pre>;
-    my $kludge;
-    $pre = $pre.map(sub($x){
-      if $x<sym_name> && $x<sym_name> eq 'temp' {
-        my $scope = 'temp';
-        my $typenames = undef;
-        my $variable = $m<noun>;
-        my $traits = undef;
-        my $default_value = undef;
-        $kludge = VarDecl.newp($scope,$typenames,undef,$variable,undef,$traits,'=',$m<default_value>)
-      }
-      $x;
-    });
-    if $kludge { return $kludge }
-    $ops.push($pre.flatten)
-  };
-  if $o<post> { $ops.push($o<post>.flatten) };
-  for $ops {
-    $blackboard::expect_term_base = ir($_)
-  }
-  $blackboard::expect_term_base
+elsif $o<value> {
+  $m<value>
 }
-elsif $o<left> { #XX temp hack for vanished 'infix'.
-  my $args = [$m<left>,$m<right>];
-  my $op = "=";
-  if $op eq '=' && $args[0].WHAT.re_matchp('VarDecl') {
-    # To simplify elf_h STD_red vs STD_blue diffs.
-    $args[0].default_expr = $args[1];
-    $args[0];
-  } else {
-    Apply.newp("infix:"~$op,Capture.newp1($args))
-  }
+elsif $o<noun> {
+  $m<noun>
+}
+elsif $o<dotty> {
+  temp $blackboard::expect_term_base = $m<arg>;
+  $m<dotty>;
+}
+elsif $o<postop> {
+  temp $blackboard::expect_term_base = $m<arg>;
+  $m<postop>;
 }
 else { die "Didn't understand an EXPR node" }
 
-pre
+PRE
 $m<prefix>
 
-post
+POST
 $m<postop> || $m<dotty>
 
 postop
@@ -113,7 +102,16 @@ prefix
 my $op = *text*;
 my $name = "prefix:"~$op;
 if $op.re_matchp('\A\w+\z') { $name = $op }
-Apply.newp($name,Capture.newp1([$blackboard::expect_term_base]))
+if $op eq 'temp' {
+  my $scope = 'temp';
+  my $typenames = undef;
+  my $variable = $blackboard::expect_term_base;
+  my $traits = undef;
+  my $default_value = undef;
+  VarDecl.newp($scope,$typenames,undef,$variable,undef,$traits,'=',$default_value)
+} else {
+  Apply.newp($name,Capture.newp1([$blackboard::expect_term_base]))
+}
 
 postfix
 my $op = *text*;
@@ -122,7 +120,7 @@ Apply.newp("postfix:"~$op,Capture.newp1([$blackboard::expect_term_base]))
 postcircumfix
 my $name = $m<sym_name>;
 my $ident = "postcircumfix:"~$name;
-my $args = $m<semilist>;
+my $args = $m<semilist> || $m<nibble>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Call.newp($blackboard::expect_term_base,$ident,Capture.newp1($args||[]))
 
@@ -131,6 +129,10 @@ my $op = $m<sym_name>;
 my $args = $m<semilist>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Apply.newp("circumfix:"~$op,Capture.newp1($args||[]))
+
+infix
+my $op = $m<sym_name>;
+$op;
 
 semilist
 $m<statement>
@@ -158,6 +160,8 @@ noun
 #Should just be *1*, but all versions of node contain a colonpair too.
 $m<fatarrow> || $m<variable> || $m<package_declarator> || $m<scope_declarator> || $m<multi_declarator> || $m<routine_declarator> || $m<regex_declarator> || $m<type_declarator> || $m<circumfix> || $m<dotty> || $m<value> || $m<capterm> || $m<sigterm> || $m<term> || $m<statement_prefi> || $m<colonpair>
 
+infixish
+$m<colonpair> || $m<infix> || $m<infix_prefix_meta_operator> || $m<infix_circumfix_meta_operator> || $m<infix>
 
 desigilname
 $m<longname>
@@ -187,6 +191,9 @@ number
 *1*
 
 integer
+NumInt.newp(*text*,10)
+
+dec_number
 NumInt.newp(*text*,10)
 
 fatarrow
@@ -347,7 +354,7 @@ if maybe($o<else>) { $els = ir($o<else>[0]<pblock>) }
 my $elsif = $m<elsif>||[];
 Cond.newp([[$if_expr,$if_block]].push($elsif.flatten),$els,undef)
 
-elsif
+statement_control__S_036if_elsif
 [$m<xblock><EXPR>,$m<xblock><pblock>]
 
 
@@ -493,8 +500,18 @@ elsif $o<EXPR><sym> && $o<EXPR><sym> eq ',' {
 }
 else { die "capture AST form not recognized" }
 
+nibbler
+#XXX I've sooo no idea.
+$m<nibbles>[0]
+
 colonpair
-*1*
+my $v = $m<v>;
+if $o<v><nibble> { #XXX :x<2> bypass postcircumfix:< >.
+  $v = $o<v><nibble><nibbles>[0];
+  $v = Buf.newp($v)
+}
+my $k = $m<k>; # or $m<identifier> ?
+Pair.newp($k,$v)
 
 colonpair__false
 Pair.newp($m<ident>,NumInt.newp(0))
