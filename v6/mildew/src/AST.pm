@@ -277,11 +277,10 @@ sub m0ld {
     'my '.$id_mold.'_capture = ¢SMOP__S1P__Capturize."capturize"();'.$/.
     '$void = '.$id_mold.'_code."postcircumfix:( )"('.$id_mold.'_capture);'.$/.
     # store a sub of the same name in the current scope that returns the proper package
-    'my '.$id_type_sub.' = '.$id_mold.'_code_proto."new"(:"outer"('.$id_package_scope.'),:"mold"(mold {'.$/.
+    'my '.$id_type_sub.' = '.$id_mold.'_code_proto."new"(:"outer"($scope),:"mold"(mold {'.$/.
     'my $interpreter;'.$/.
     'my $scope;'.$/.
-    'my $type_c = $scope."lookup"("'.$self->name.'");'.$/.
-    'my $type = $type_c."FETCH"();'.$/.
+    'my $type = $scope."lookup"("'.$self->name.'");'.$/.
     'my $continuation = $interpreter."continuation"();'.$/.
     'my $back = $continuation."back"();'.$/.
     'my $void = $back."setr"($type);'.$/.
