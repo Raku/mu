@@ -9,6 +9,7 @@
 
 SMOP__Object* SMOP__S1P__PurePrototypeHow;
 static SMOP__Object* smop_s1p_pureprototypehow_dispatch_mold;
+static SMOP__Object* smop_s1p_pureprototypehow_add_method_mold;
 
 
 static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter,
@@ -22,7 +23,6 @@ static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
   if (SMOP__ID__dispatch == identifier) {
-
     SMOP__Object* actualresponder = SMOP__NATIVE__capture_positional(interpreter,capture,0);
     SMOP__Object* actualidentifier = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);
@@ -41,6 +41,19 @@ static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter
     mold_reg_set(interpreter,frame,4,actualinvocant);
     mold_back_set(interpreter,frame,continuation);
 
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
+
+  } else if (SMOP__ID__add_method == identifier) {
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation, 
+                                               SMOP_REFERENCE(interpreter,interpreter));
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                   SMOP_REFERENCE(interpreter,
+                                                                  smop_s1p_pureprototypehow_add_method_mold));
+
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_back_set(interpreter,frame,continuation);
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 
   } else if (SMOP__ID__FETCH == identifier) {
@@ -106,6 +119,26 @@ void smop_s1p_pureprototypehow_mold_init() {
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
     $void = $back."setr"($result);
+    $void = $interpreter."goto"($back);
+  };
+
+  smop_s1p_pureprototypehow_add_method_mold = q:m0ld {
+    my $interpreter;
+    my $capture;
+
+    my $void;
+    my $result = ¢SMOP__NATIVE__bool_false;
+
+    my $invocant = $capture."positional"(0);
+    my $name = $capture."positional"(1);
+    my $method = $capture."positional"(2);
+
+    my $methods = $invocant."^!methods"();
+    my $method_container = $methods."postcircumfix:{ }"($name);
+    $void = $method_container."STORE"($method);
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
     $void = $interpreter."goto"($back);
   };
 }

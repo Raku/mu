@@ -8,6 +8,7 @@
  */
 
 extern SMOP__Object* SMOP__ID__ACCEPTS;           /* "ACCEPTS" */
+extern SMOP__Object* SMOP__ID__add_method;        /* "add_method" */
 extern SMOP__Object* SMOP__ID__back;              /* "back" */
 extern SMOP__Object* SMOP__ID__BIND;              /* "BIND" */
 extern SMOP__Object* SMOP__ID__bless;             /* "bless" */

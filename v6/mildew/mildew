@@ -177,7 +177,8 @@ sub VAST::method_def::emit_m0ld {
           capture => AST::Capture->new
           ( invocant => FETCH(lookup('$?CLASS')),
             positional =>
-            [ AST::Call->new
+            [ string $m->{longname}{name}{identifier}{TEXT},
+              AST::Call->new
               ( identifier=>string 'new',
                 capture => AST::Capture->new
                 ( invocant => FETCH(lookup('Code')),
