@@ -287,7 +287,7 @@ sub m0ld {
     '$void = $interpreter."goto"($back);'.$/.
     '}));'.$/.
     $id_package_scope.'_outer_p = $scope."postcircumfix:{ }"("&'.$self->name.'");'.$/.
-    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_package_val.');'.$/
+    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_type_sub.');'.$/
 
 }
 
