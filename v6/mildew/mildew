@@ -370,10 +370,39 @@ sub VAST::statement::emit_m0ld {
                             positional => [] ))]));
             }
 
+            my @elsif;
+            if (ref $stm->{elsif} eq 'ARRAY') {
+                foreach my $elsif_part (@{$stm->{elsif}}) {
+
+                    my $elsif = AST::Call->new
+                      ( identifier => string 'postcircumfix:( )',
+                        capture => AST::Capture->new
+                        ( invocant => AST::Call->new
+                          ( identifier => string 'new',
+                            capture => AST::Capture->new
+                            ( invocant => FETCH(lookup('Code')),
+                              positional => [],
+                              named =>
+                              [ string 'mold' => $elsif_part->{xblock}{pblock}{block}->emit_m0ld,
+                                string 'outer' => reg '$scope' ])),
+                          positional =>
+                          [ AST::Call->new
+                            ( identifier => string "capturize",
+                              capture => AST::Capture->new
+                              ( invocant => reg '¢SMOP__S1P__Capturize',
+                                positional => []))]));
+
+                    push @elsif, AST::If->new
+                      ( cond => $elsif_part->{xblock}{EXPR}->emit_m0ld,
+                        then => $elsif );
+                }
+            }
+
             AST::If->new
                 ( cond => $stm->{xblock}{EXPR}->emit_m0ld,
                   then => $then,
-                  else => $else );
+                  else => $else,
+                  elsif => \@elsif );
 
         } else {
             XXX('unkown sym in statement_control')

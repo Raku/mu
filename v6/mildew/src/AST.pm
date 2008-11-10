@@ -43,6 +43,7 @@ extends 'AST::Base';
 has 'cond' => (is => 'ro');
 has 'then' => (is => 'ro');
 has 'else' => (is => 'ro');
+has 'elsif' => (is => 'ro');
 sub m0ld {
     my ($self) = @_;
     my $id_cond = AST::unique_id;
@@ -57,6 +58,25 @@ sub m0ld {
     if ($self->else) {
         $else = $self->else->m0ld($id_else);
     }
+    my $elsifs = '';
+    if ($self->elsif) {
+        foreach my $part (@{$self->{elsif}}) {
+            my $id_elsif_cond = AST::unique_id;
+            my $id_elsif_then = AST::unique_id;
+            my $label_elsif_then = AST::unique_label;
+            my $label_elsif_else = AST::unique_label;
+            my $elsif_cond = $part->cond->m0ld($id_elsif_cond);
+            my $elsif_then = $part->then->m0ld($id_elsif_then);
+            $elsifs .= $elsif_cond.$/.
+              'my '.$id_elsif_cond.'_val = '.$id_elsif_cond.'."FETCH"();'.$/.
+              'my '.$id_elsif_cond.'_bool = '.$id_elsif_cond.'_val."true"();'.$/.
+              'if '.$id_elsif_cond.'_bool { goto '.$label_elsif_then.' } else { goto '.$label_elsif_else.' };'.$/.
+              $label_elsif_then.':'.$/.
+              $elsif_then.$/.
+              'goto '.$label_endif.';'.$/.
+              $label_elsif_else.': noop;'.$/
+        }
+    }
 
     $cond.$/.
     'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'.$/.
@@ -66,6 +86,7 @@ sub m0ld {
     $then.$/.
     'goto '.$label_endif.';'.$/.
     $label_else.':'.$/.
+    $elsifs.
     $else.$/.
     $label_endif.': noop;'.$/
 }
