@@ -50,6 +50,7 @@ sub m0ld {
     my $id_else = AST::unique_id;
     my $label_then = AST::unique_label;
     my $label_else = AST::unique_label;
+    my $label_endif = AST::unique_label;
     my $cond = $self->cond->m0ld($id_cond);
     my $then = $self->then->m0ld($id_then);
     my $else = 'noop;';
@@ -63,8 +64,10 @@ sub m0ld {
     'if '.$id_cond.'_bool { goto '.$label_then.' } else { goto '.$label_else.' };'.$/.
     $label_then.':'.$/.
     $then.$/.
+    'goto '.$label_endif.';'.$/.
     $label_else.':'.$/.
-    $else.$/;
+    $else.$/.
+    $label_endif.': noop;'.$/
 }
 sub pretty {
     my ($self) = @_;

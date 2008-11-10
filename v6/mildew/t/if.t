@@ -4,4 +4,7 @@ if 0 {
 }
 if 1 {
     $OUT.print("ok 1\n");
+} else {
+    $OUT.print("not ok 1\n");
 }
+
