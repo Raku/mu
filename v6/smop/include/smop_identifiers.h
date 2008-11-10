@@ -61,6 +61,7 @@ extern SMOP__Object* SMOP__ID__key;               /* "key" */
 extern SMOP__Object* SMOP__ID__lexical;           /* "lexical" */
 extern SMOP__Object* SMOP__ID__List;              /* "List" */
 extern SMOP__Object* SMOP__ID__loop;              /* "loop" */
+extern SMOP__Object* SMOP__ID__lookup_fail;       /* "lookup_fail" */
 extern SMOP__Object* SMOP__ID__lookup_key;        /* "lookup_key" */
 extern SMOP__Object* SMOP__ID__bind_key;          /* "bind_key" */
 extern SMOP__Object* SMOP__ID__mold;              /* "mold" */

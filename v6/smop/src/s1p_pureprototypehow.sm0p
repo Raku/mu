@@ -45,6 +45,14 @@ static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter
 
   } else if (SMOP__ID__FETCH == identifier) {
     ___VALUE_FETCH___;
+
+  } else if (SMOP__ID__lookup_fail == identifier) {
+    SMOP__Object* name = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    assert(name->RI == SMOP__ID__new->RI);
+    int retsize;
+    fprintf(stderr,"Could not find method %s.\n",SMOP__NATIVE__idconst_fetch(name, &retsize));
+    abort();
+
   } else {
     ___UNKNOWN_METHOD___;
   }
@@ -84,11 +92,16 @@ void smop_s1p_pureprototypehow_mold_init() {
     my $methods = $invocant."^!methods"();
     my $method_exists = $methods."exists"($identifier);
 
-    if $method_exists { goto than } else { goto exit };
+    if $method_exists { goto than } else { goto fail };
     than:
       my $method_container = $methods."postcircumfix:{ }"($identifier);
       my $method = $method_container."FETCH"();
       $result = $method."postcircumfix:( )"($capture);
+      goto exit;
+    fail:
+      my $how_c = $invocant."^!how"();
+      my $how = $how_c."FETCH"();
+      $void = $how."lookup_fail"($identifier);
     exit:
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
