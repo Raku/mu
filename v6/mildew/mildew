@@ -175,7 +175,7 @@ sub VAST::method_def::emit_m0ld {
     AST::MetaCall->new
         ( identifier => string 'add_method',
           capture => AST::Capture->new
-          ( invocant => FETCH(lookup('$?PACKAGE')),
+          ( invocant => FETCH(lookup('$?CLASS')),
             positional =>
             [ AST::Call->new
               ( identifier=>string 'new',

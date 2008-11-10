@@ -263,8 +263,8 @@ sub m0ld {
     'my '.$id_package_scope.' = ¢SMOP__S1P__LexicalScope."new"();'.$/.
     'my '.$id_package_scope.'_outer = '.$id_package_scope.'."outer"();'.$/.
     '$void = '.$id_package_scope.'_outer."STORE"($scope);'.$/.
-    # store the package in $?PACKAGE
-    'my '.$id_package_scope.'_p = '.$id_package_scope.'."postcircumfix:{ }"("$?PACKAGE");'.$/.
+    # store the protoobject in $?CLASS
+    'my '.$id_package_scope.'_p = '.$id_package_scope.'."postcircumfix:{ }"("$?CLASS");'.$/.
     '$void = '.$id_package_scope.'_p."STORE"('.$id_package_val.');'.$/.
     # set the how
     'my '.$id_package_val.'_how_cont = '.$id_package_val.'."^!how"();'.$/.
