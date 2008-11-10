@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Carp 'confess';
+use Scalar::Util 'blessed';
 
 my ($desugar,$debug,$file,$exec);
 GetOptions("exec"=>\$exec,"file=s"=>\$file,"debug"=>\$debug,"desugar"=>\$desugar);
@@ -323,6 +324,7 @@ sub VAST::statement::emit_m0ld {
         AST::Label->new(label=>label($m->{label}),stmt=>statement($m->{statement}));
     } elsif ($m->{statement_control}) {
         my $stm = $m->{statement_control};
+
         if ($stm->{sym} eq 'if') {
             my $then = AST::Call->new(identifier=>string 'postcircumfix:( )',capture => AST::Capture->new(
                 invocant => AST::Call->new(identifier=>string 'new',
@@ -342,10 +344,37 @@ sub VAST::statement::emit_m0ld {
                     )
                 )]
             ));
-            AST::If->new(
-                cond => $stm->{xblock}{EXPR}->emit_m0ld,
-                then => $then
-            );
+
+            my $else;
+            if (ref $stm->{else} eq 'ARRAY' &&
+                blessed $stm->{else}[0] &&
+                ref $stm->{else}[0]{pblock} &&
+                ref $stm->{else}[0]{pblock}{block}) {
+
+                $else = AST::Call->new
+                  ( identifier=>string 'postcircumfix:( )',
+                    capture => AST::Capture->new
+                    ( invocant => AST::Call->new
+                      ( identifier=>string 'new',
+                        capture => AST::Capture->new
+                        ( invocant => FETCH(lookup('Code')),
+                          positional => [],
+                          named =>
+                          [ string 'mold' => $stm->{else}[0]{pblock}{block}->emit_m0ld,
+                            string 'outer' => reg '$scope' ])),
+                      positional =>
+                      [ AST::Call->new
+                        ( identifier => string "capturize",
+                          capture => AST::Capture->new
+                          ( invocant => reg '¢SMOP__S1P__Capturize',
+                            positional => [] ))]));
+            }
+
+            AST::If->new
+                ( cond => $stm->{xblock}{EXPR}->emit_m0ld,
+                  then => $then,
+                  else => $else );
+
         } else {
             XXX('unkown sym in statement_control')
         }

@@ -42,14 +42,20 @@ use Moose;
 extends 'AST::Base';
 has 'cond' => (is => 'ro');
 has 'then' => (is => 'ro');
+has 'else' => (is => 'ro');
 sub m0ld {
     my ($self) = @_;
     my $id_cond = AST::unique_id;
     my $id_then = AST::unique_id;
+    my $id_else = AST::unique_id;
     my $label_then = AST::unique_label;
     my $label_else = AST::unique_label;
     my $cond = $self->cond->m0ld($id_cond);
     my $then = $self->then->m0ld($id_then);
+    my $else = 'noop;';
+    if ($self->else) {
+        $else = $self->else->m0ld($id_else);
+    }
 
     $cond.$/.
     'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'.$/.
@@ -57,7 +63,8 @@ sub m0ld {
     'if '.$id_cond.'_bool { goto '.$label_then.' } else { goto '.$label_else.' };'.$/.
     $label_then.':'.$/.
     $then.$/.
-    $label_else.': noop;'.$/;
+    $label_else.':'.$/.
+    $else.$/;
 }
 sub pretty {
     my ($self) = @_;
