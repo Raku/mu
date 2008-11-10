@@ -227,6 +227,22 @@ package AST::MetaCall;
 use Moose;
 extends 'AST::Call';
 
+sub m0ld {
+    my ($self, $ret) = @_;
+
+    if ($self->capture->isa("AST::Capture")) {
+        my $id_inv = $self->capture->invocant->emit;
+        my $id_how = AST::unique_id;
+
+        'my '.$id_how.'_cont = '.$id_inv.'."^!how"();'.$/.
+        'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'.$/.
+        'my '.$ret.' = '.$id_how.'.'.$self->identifier->emit.
+         '(' . join(',', $id_inv, map {$_->emit} $self->arguments) . ');'.$/;
+    } else {
+        die 'unimplemented';
+    }
+}
+
 package AST::Package;
 use Moose;
 has 'name'  => (is=>'ro');
