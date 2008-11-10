@@ -1,3 +1,4 @@
+use utf8;
 {
 package AST;
 my $id=0;
@@ -219,6 +220,75 @@ sub pretty {
     } else {
         $self->SUPER::pretty;
     }
+
+}
+
+package AST::MetaCall;
+use Moose;
+extends 'AST::Call';
+
+package AST::Package;
+use Moose;
+has 'name'  => (is=>'ro');
+has 'sym'   => (is=>'ro');
+has 'block' => (is=>'ro');
+extends 'AST::Base';
+
+sub m0ld {
+    my $self = shift;
+    my $id_package_scope = AST::unique_id;
+    my $id_package_val = AST::unique_id;
+    my $id_mold = AST::unique_id;
+    my $id_how = AST::unique_id;
+    my $id_type_sub = AST::unique_id;
+
+    my $how_init = '';
+    if ($self->sym eq 'knowhow') {
+        $how_init =
+          'my '.$id_how.'_cont = $scope."lookup"("PurePrototypeHow");'.$/.
+          'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'.$/
+    } else {
+        die 'unimplemented';
+    }
+
+    $how_init.
+    # initialize the protoobject
+    'my '.$id_package_val.'_proto_cont = $scope."lookup"("p6opaque");'.$/.
+    'my '.$id_package_val.'_proto = '.$id_package_val.'_proto_cont."FETCH"();'.$/.
+    'my '.$id_package_val.' = '.$id_package_val.'_proto."^!CREATE"();'.$/.
+    # store this protoobject in the current scope using its name
+    'my '.$id_package_scope.'_outer_p = $scope."postcircumfix:{ }"("'.$self->name.'");'.$/.
+    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_package_val.');'.$/.
+    # creates the package lexical scope and make it an inner scope
+    'my '.$id_package_scope.' = ¢SMOP__S1P__LexicalScope."new"();'.$/.
+    'my '.$id_package_scope.'_outer = '.$id_package_scope.'."outer"();'.$/.
+    '$void = '.$id_package_scope.'_outer."STORE"($scope);'.$/.
+    # store the package in $?PACKAGE
+    'my '.$id_package_scope.'_p = '.$id_package_scope.'."postcircumfix:{ }"("$?PACKAGE");'.$/.
+    '$void = '.$id_package_scope.'_p."STORE"('.$id_package_val.');'.$/.
+    # set the how
+    'my '.$id_package_val.'_how_cont = '.$id_package_val.'."^!how"();'.$/.
+    '$void = '.$id_package_val.'_how_cont."STORE"('.$id_how.');'.$/.
+    # run the init code
+    $self->block->m0ld($id_mold).
+    'my '.$id_mold.'_code_proto_cont = $scope."lookup"("Code");'.$/.
+    'my '.$id_mold.'_code_proto = '.$id_mold.'_code_proto_cont."FETCH"();'.$/.
+    'my '.$id_mold.'_code = '.$id_mold.'_code_proto."new"(:"outer"('.$id_package_scope.'),:"mold"('.$id_mold.'));'.$/.
+    'my '.$id_mold.'_capture = ¢SMOP__S1P__Capturize."capturize"();'.$/.
+    '$void = '.$id_mold.'_code."postcircumfix:( )"('.$id_mold.'_capture);'.$/.
+    # store a sub of the same name in the current scope that returns the proper package
+    'my '.$id_type_sub.' = '.$id_mold.'_code_proto."new"(:"outer"('.$id_package_scope.'),:"mold"(mold {'.$/.
+    'my $interpreter;'.$/.
+    'my $scope;'.$/.
+    'my $type_c = $scope."lookup"("'.$self->name.'");'.$/.
+    'my $type = $type_c."FETCH"();'.$/.
+    'my $continuation = $interpreter."continuation"();'.$/.
+    'my $back = $continuation."back"();'.$/.
+    'my $void = $back."setr"($type);'.$/.
+    '$void = $interpreter."goto"($back);'.$/.
+    '}));'.$/.
+    $id_package_scope.'_outer_p = $scope."postcircumfix:{ }"("&'.$self->name.'");'.$/.
+    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_package_val.');'.$/
 
 }
 

@@ -84,6 +84,7 @@ sub VAST::scope_declarator::emit_m0ld {
         XXX;
     }
 }
+
 sub VAST::noun::emit_m0ld {
     my $m = shift;
     if ($m->{variable}) {
@@ -93,6 +94,8 @@ sub VAST::noun::emit_m0ld {
     } elsif ($m->{routine_declarator}) {
         if ($m->{routine_declarator}{routine_def}) {
             $m->{routine_declarator}{routine_def}->emit_m0ld;
+        } elsif ($m->{routine_declarator}{method_def}) {
+            $m->{routine_declarator}{method_def}->emit_m0ld;
         } else {
             XXX;
         }
@@ -100,10 +103,17 @@ sub VAST::noun::emit_m0ld {
         $m->{term}->emit_m0ld;
     } elsif ($m->{scope_declarator}) {
         $m->{scope_declarator}->emit_m0ld;
+    } elsif ($m->{package_declarator}) {
+        my $p = $m->{package_declarator};
+        AST::Package->new
+            ( sym => $p->{sym},
+              name => $p->{package_def}{module_name}[0]{longname}{name}{identifier}{TEXT},
+              block => $p->{package_def}{block}->emit_m0ld );
     } else {
         XXX;
     }
 }
+
 sub VAST::term::emit_m0ld {
     my $m = shift;
     if ($m->{identifier} && $m->{args}) {
@@ -144,6 +154,7 @@ sub VAST::args::emit_m0ld {
         XXX;
     }
 }
+
 sub VAST::routine_def::emit_m0ld {
     my $m = shift;
     AST::Call->new(identifier=>string 'new',
@@ -157,6 +168,25 @@ sub VAST::routine_def::emit_m0ld {
         ),
     );
 }
+
+
+sub VAST::method_def::emit_m0ld {
+    my $m = shift;
+    AST::MetaCall->new
+        ( identifier => string 'add_method',
+          capture => AST::Capture->new
+          ( invocant => FETCH(lookup('$?PACKAGE')),
+            positional =>
+            [ AST::Call->new
+              ( identifier=>string 'new',
+                capture => AST::Capture->new
+                ( invocant => FETCH(lookup('Code')),
+                  positional => [],
+                  named =>
+                  [ string 'mold' => $m->{block}->emit_m0ld,
+                    string 'outer' => reg '$scope' ]))]));
+}
+
 sub trailing_return {
     my ($stmts,) = @_;
     [@{$stmts},AST::Call->new(identifier=>string 'goto',capture=>AST::Capture->new(invocant=>reg '$interpreter',positional => [AST::Call->new(identifier=>string 'back',capture=>AST::Capture->new(invocant=>AST::Call->new(identifier=>string 'continuation',capture=>AST::Capture->new(invocant=>reg '$interpreter'))))]))];
@@ -450,7 +480,9 @@ CALL_MAIN
 if ($exec) {
     local $ENV{LD_LIBRARY_PATH} = '../smop/build';
     open(my $m0ld_exe,"|../smop/m0ld/dist/build/m0ld/m0ld --exec");
-    print $m0ld_exe encode('utf8',$m0ld);
+    binmode $m0ld_exe, ':utf8';
+    print $m0ld_exe $m0ld;
 } else {
+    binmode STDOUT, ':utf8';
     print $m0ld;#encode('utf8',$m0ld);
 }
