@@ -104,6 +104,7 @@ endforeach()
 foreach (ri_file
     src/s1p_multi.ri
     src/s1p_io.ri
+    src/s1p_package.ri
     src/s1p_lexicalscope.ri
     src/s1p_adhocsignature.ri
     src/s1p_attribute.ri
@@ -145,6 +146,7 @@ add_library (smop SHARED
     src/s1p_hash.c
     src/s1p_io.c
     src/s1p_multi.c
+    src/s1p_package.c
     src/s1p_lexicalscope.c
     src/s1p_root_namespace.c
     src/s1p_lexical_prelude.c

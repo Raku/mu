@@ -41,6 +41,7 @@
 #define SMOP_INTERNAL_INIT_SEQUENCE         \
      smop_mold_init();                      \
      smop_s1p_lexicalscope_init();          \
+     smop_s1p_package_init();               \
      smop_s1p_hash_bvalue_init();           \
      smop_s1p_code_init();                  \
      smop_s1p_ccode_init();                 \
@@ -90,6 +91,7 @@
      smop_s1p_code_destr();                 \
      smop_s1p_hash_bvalue_destr();          \
      smop_s1p_lexicalscope_destr();         \
+     smop_s1p_package_destr();              \
      smop_mold_destr();
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \

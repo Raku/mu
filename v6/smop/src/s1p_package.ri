@@ -1,0 +1,67 @@
+%prefix smop_s1p_package
+%prototype SMOP__S1P__Package
+%RI.id S1P Package
+%attr SMOP__Object* entries
+%attr SMOP__Object* name
+%getter entries
+%getter name
+%method new
+  ret = smop_lowlevel_alloc(sizeof(smop_s1p_package_struct));
+  SMOP_REFERENCE(interpreter,RI);
+  ret->RI = (SMOP__ResponderInterface*)RI;
+  ((smop_s1p_package_struct*)ret)->entries = SMOP__S1P__Hash_create();
+  ((smop_s1p_package_struct*)ret)->name = SMOP__S1P__Scalar_create(SMOP__NATIVE__idconst_create("ANON"));
+
+%method name
+  smop_lowlevel_rdlock(invocant);
+  ret = ((smop_s1p_package_struct*)invocant)->name;
+  smop_lowlevel_unlock(invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method true
+  ret = SMOP__NATIVE__bool_true;
+
+%method entries
+  smop_lowlevel_rdlock(invocant);
+  ret = ((smop_s1p_package_struct*)invocant)->entries;
+  smop_lowlevel_unlock(invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method postcircumfix:{ }
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
+  smop_lowlevel_unlock(invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__postcircumfix_curly,
+                      SMOP__NATIVE__capture_delegate(interpreter,
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     SMOP_REFERENCE(interpreter,capture)));
+
+%method bind_key
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
+  smop_lowlevel_unlock(invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__bind_key,
+                      SMOP__NATIVE__capture_delegate(interpreter,
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     SMOP_REFERENCE(interpreter,capture)));
+
+%method exists
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
+  smop_lowlevel_unlock(invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__exists,
+                      SMOP__NATIVE__capture_delegate(interpreter,
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     SMOP_REFERENCE(interpreter,capture)));
+
+%method DESTROYALL
+    smop_lowlevel_wrlock(invocant);
+    SMOP__Object* name = ((smop_s1p_package_struct*)invocant)->name;
+    SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
+    smop_lowlevel_unlock(invocant);
+    SMOP_RELEASE(interpreter,name);
+    SMOP_RELEASE(interpreter,entries);
+    SMOP_RELEASE(interpreter,RI);
