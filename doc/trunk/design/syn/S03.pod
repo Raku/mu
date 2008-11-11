@@ -1433,7 +1433,7 @@ Assignment operators
 
     += -= **= xx= .= etc.
 
-See L</Assignment operators>.
+See L</Assignment metaoperators>.
 
 =back
 
