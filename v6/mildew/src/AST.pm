@@ -139,23 +139,6 @@ extends 'AST::Base';
 has 'identifier';
 has 'stmt';
 
-package AST::List;
-use Moose;
-extends 'AST::Base';
-has 'elements' => (is=>'ro');
-
-sub m0ld {
-    my ($self, $ret) = @_;
-    my @args;
-    my $code;
-    for (@{$self->elements}) {
-        my $id = AST::unique_id();
-        $code .= $_->m0ld($id);
-        push @args, $id;
-    }
-    $code .= 'my '.$ret.' = ?SMOP__S1P__Array."new"('.join(',',@args).');'.$/;
-}
-
 package AST::Named;
 use Moose;
 extends 'AST::Base';
