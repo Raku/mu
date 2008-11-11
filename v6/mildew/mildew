@@ -24,14 +24,11 @@ sub XXX {
 }
 sub FETCH {
     my $arg = shift;
-    AST::Call->new(capture=>AST::Capture->new(invocant=>$arg),identifier=>string 'FETCH');
+    call FETCH => $arg
 }
 sub lookup {
     my $thing = shift;
-    AST::Call->new(
-        identifier=>string 'lookup',
-        capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string $thing]),
-    );
+    call lookup => reg '$scope',[string $thing];
 }
 { package VAST::Base;
     sub as_constant_string {
@@ -190,7 +187,7 @@ sub VAST::method_def::emit_m0ld {
 
 sub trailing_return {
     my ($stmts,) = @_;
-    [@{$stmts},AST::Call->new(identifier=>string 'goto',capture=>AST::Capture->new(invocant=>reg '$interpreter',positional => [AST::Call->new(identifier=>string 'back',capture=>AST::Capture->new(invocant=>AST::Call->new(identifier=>string 'continuation',capture=>AST::Capture->new(invocant=>reg '$interpreter'))))]))];
+    [@{$stmts},call(goto => reg '$interpreter',[call back=>call(continuation => reg '$interpreter')])];
 }
 sub VAST::block::emit_m0ld {
     my $m = shift;
