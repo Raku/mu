@@ -1,8 +1,14 @@
 .PHONY : test
-test:
-	rm -fr lex
+
+test: clean prove
+
+prove:
 	prove -r -e 'perl mildew --exec --file' t/
 
-test_:
-	rm -fr lex
+test_: clean prove_
+
+prove_:
 	prove -r --perl 'perl mildew --exec --file' t/
+
+clean:
+	rm -rf lex
