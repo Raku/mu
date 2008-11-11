@@ -258,16 +258,17 @@ sub m0ld {
     my $id_how = AST::unique_id;
     my $id_type_sub = AST::unique_id;
 
-    my $how_init = '';
+    my $how_type = '';
     if ($self->sym eq 'knowhow') {
-        $how_init =
-          'my '.$id_how.'_cont = $scope."lookup"("PurePrototypeHow");'.$/.
-          'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'.$/
+        $how_type = 'PurePrototypeHow';
+    } elsif ($self->sym eq 'class') {
+        $how_type = 'ClassHOW';
     } else {
         die 'unimplemented';
     }
 
-    $how_init.
+    'my '.$id_how.'_cont = $scope."lookup"("'.$how_type.'");'.$/.
+    'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'.$/.
     # initialize the protoobject
     'my '.$id_package_val.'_proto_cont = $scope."lookup"("p6opaque");'.$/.
     'my '.$id_package_val.'_proto = '.$id_package_val.'_proto_cont."FETCH"();'.$/.
