@@ -68,28 +68,28 @@ sub m0ld {
             my $label_elsif_else = AST::unique_label;
             my $elsif_cond = $part->cond->m0ld($id_elsif_cond);
             my $elsif_then = $part->then->m0ld($id_elsif_then);
-            $elsifs .= $elsif_cond.$/.
-              'my '.$id_elsif_cond.'_val = '.$id_elsif_cond.'."FETCH"();'.$/.
-              'my '.$id_elsif_cond.'_bool = '.$id_elsif_cond.'_val."true"();'.$/.
-              'if '.$id_elsif_cond.'_bool { goto '.$label_elsif_then.' } else { goto '.$label_elsif_else.' };'.$/.
-              $label_elsif_then.':'.$/.
-              $elsif_then.$/.
-              'goto '.$label_endif.';'.$/.
-              $label_elsif_else.': noop;'.$/
+            $elsifs .= $elsif_cond."\n".
+              'my '.$id_elsif_cond.'_val = '.$id_elsif_cond.'."FETCH"();'."\n".
+              'my '.$id_elsif_cond.'_bool = '.$id_elsif_cond.'_val."true"();'."\n".
+              'if '.$id_elsif_cond.'_bool { goto '.$label_elsif_then.' } else { goto '.$label_elsif_else.' };'."\n".
+              $label_elsif_then.':'."\n".
+              $elsif_then."\n".
+              'goto '.$label_endif.';'."\n".
+              $label_elsif_else.': noop;'."\n"
         }
     }
 
-    $cond.$/.
-    'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'.$/.
-    'my '.$id_cond.'_bool = '.$id_cond.'_val."true"();'.$/.
-    'if '.$id_cond.'_bool { goto '.$label_then.' } else { goto '.$label_else.' };'.$/.
-    $label_then.':'.$/.
-    $then.$/.
-    'goto '.$label_endif.';'.$/.
-    $label_else.':'.$/.
+    $cond."\n".
+    'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'."\n".
+    'my '.$id_cond.'_bool = '.$id_cond.'_val."true"();'."\n".
+    'if '.$id_cond.'_bool { goto '.$label_then.' } else { goto '.$label_else.' };'."\n".
+    $label_then.':'."\n".
+    $then."\n".
+    'goto '.$label_endif.';'."\n".
+    $label_else.':'."\n".
     $elsifs.
-    $else.$/.
-    $label_endif.': noop;'.$/
+    $else."\n".
+    $label_endif.': noop;'."\n"
 }
 sub pretty {
     my ($self) = @_;
@@ -112,7 +112,7 @@ sub m0ld {
 }
 sub terminate_stmt {
     my $stmt = shift;
-    return $stmt . ";\n" unless $stmt =~ /(\n|;|})$/;
+    return $stmt . ";\n" unless $stmt =~ /(\n|;|})"\n";
     return $stmt;
 }
 sub pretty {
@@ -217,10 +217,10 @@ sub m0ld {
         my $id_inv = $self->capture->invocant->emit;
         my $id_how = AST::unique_id;
 
-        'my '.$id_how.'_cont = '.$id_inv.'."^!how"();'.$/.
-        'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'.$/.
+        'my '.$id_how.'_cont = '.$id_inv.'."^!how"();'."\n".
+        'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'."\n".
         'my '.$ret.' = '.$id_how.'.'.$self->identifier->emit.
-         '(' . join(',', $id_inv, map {$_->emit} $self->arguments) . ');'.$/;
+         '(' . join(',', $id_inv, map {$_->emit} $self->arguments) . ');'."\n";
     } else {
         die 'unimplemented';
     }
@@ -251,66 +251,66 @@ sub m0ld {
         die 'unimplemented';
     }
 
-    'my '.$id_how.'_cont = $scope."lookup"("'.$how_type.'");'.$/.
-    'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'.$/.
+    'my '.$id_how.'_cont = $scope."lookup"("'.$how_type.'");'."\n".
+    'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'."\n".
 
     # initialize the package
-    'my '.$id_package_val.'_proto_cont = $scope."lookup"("Package");'.$/.
-    'my '.$id_package_val.'_proto = '.$id_package_val.'_proto_cont."FETCH"();'.$/.
-    'my '.$id_package_val.' = '.$id_package_val.'_proto."new"();'.$/.
-    'my '.$id_package_val.'_name_cont = '.$id_package_val.'."name"();'.$/.
-    '$void = '.$id_package_val.'_name_cont."STORE"("'.$self->name.'");'.$/.
+    'my '.$id_package_val.'_proto_cont = $scope."lookup"("Package");'."\n".
+    'my '.$id_package_val.'_proto = '.$id_package_val.'_proto_cont."FETCH"();'."\n".
+    'my '.$id_package_val.' = '.$id_package_val.'_proto."new"();'."\n".
+    'my '.$id_package_val.'_name_cont = '.$id_package_val.'."name"();'."\n".
+    '$void = '.$id_package_val.'_name_cont."STORE"("'.$self->name.'");'."\n".
 
     # initialize the protoobject
-    'my '.$id_proto_val.'_proto_cont = $scope."lookup"("p6opaque");'.$/.
-    'my '.$id_proto_val.'_proto = '.$id_proto_val.'_proto_cont."FETCH"();'.$/.
-    'my '.$id_proto_val.' = '.$id_proto_val.'_proto."^!CREATE"();'.$/.
+    'my '.$id_proto_val.'_proto_cont = $scope."lookup"("p6opaque");'."\n".
+    'my '.$id_proto_val.'_proto = '.$id_proto_val.'_proto_cont."FETCH"();'."\n".
+    'my '.$id_proto_val.' = '.$id_proto_val.'_proto."^!CREATE"();'."\n".
 
     # store this protoobject in the current scope using its name
-    'my '.$id_package_scope.'_outer_p = $scope."postcircumfix:{ }"("'.$self->name.'");'.$/.
-    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_proto_val.');'.$/.
+    'my '.$id_package_scope.'_outer_p = $scope."postcircumfix:{ }"("'.$self->name.'");'."\n".
+    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_proto_val.');'."\n".
 
     # creates the package lexical scope and make it an inner scope
-    'my '.$id_package_scope.' = ¢SMOP__S1P__LexicalScope."new"();'.$/.
-    'my '.$id_package_scope.'_outer = '.$id_package_scope.'."outer"();'.$/.
-    '$void = '.$id_package_scope.'_outer."STORE"($scope);'.$/.
+    'my '.$id_package_scope.' = ¢SMOP__S1P__LexicalScope."new"();'."\n".
+    'my '.$id_package_scope.'_outer = '.$id_package_scope.'."outer"();'."\n".
+    '$void = '.$id_package_scope.'_outer."STORE"($scope);'."\n".
 
     # store the package in $?PACKAGE
-    'my '.$id_package_val.'_pp = '.$id_package_scope.'."postcircumfix:{ }"("$?PACKAGE");'.$/.
-    '$void = '.$id_package_val.'_pp."STORE"('.$id_package_val.');'.$/.
+    'my '.$id_package_val.'_pp = '.$id_package_scope.'."postcircumfix:{ }"("$?PACKAGE");'."\n".
+    '$void = '.$id_package_val.'_pp."STORE"('.$id_package_val.');'."\n".
 
     # store the protoobject in $?CLASS
-    'my '.$id_package_scope.'_p = '.$id_package_scope.'."postcircumfix:{ }"("$?CLASS");'.$/.
-    '$void = '.$id_package_scope.'_p."STORE"('.$id_proto_val.');'.$/.
+    'my '.$id_package_scope.'_p = '.$id_package_scope.'."postcircumfix:{ }"("$?CLASS");'."\n".
+    '$void = '.$id_package_scope.'_p."STORE"('.$id_proto_val.');'."\n".
 
     # set the how
-    'my '.$id_proto_val.'_how_cont = '.$id_proto_val.'."^!how"();'.$/.
-    '$void = '.$id_proto_val.'_how_cont."STORE"('.$id_how.');'.$/.
+    'my '.$id_proto_val.'_how_cont = '.$id_proto_val.'."^!how"();'."\n".
+    '$void = '.$id_proto_val.'_how_cont."STORE"('.$id_how.');'."\n".
 
     # set the who
-    'my '.$id_proto_val.'_who_cont = '.$id_proto_val.'."^!who"();'.$/.
-    '$void = '.$id_proto_val.'_who_cont."STORE"('.$id_package_val.');'.$/.
+    'my '.$id_proto_val.'_who_cont = '.$id_proto_val.'."^!who"();'."\n".
+    '$void = '.$id_proto_val.'_who_cont."STORE"('.$id_package_val.');'."\n".
 
     # run the init code
     $self->block->m0ld($id_mold).
-    'my '.$id_mold.'_code_proto_cont = $scope."lookup"("Code");'.$/.
-    'my '.$id_mold.'_code_proto = '.$id_mold.'_code_proto_cont."FETCH"();'.$/.
-    'my '.$id_mold.'_code = '.$id_mold.'_code_proto."new"(:"outer"('.$id_package_scope.'),:"mold"('.$id_mold.'));'.$/.
-    'my '.$id_mold.'_capture = ¢SMOP__S1P__Capturize."capturize"();'.$/.
-    '$void = '.$id_mold.'_code."postcircumfix:( )"('.$id_mold.'_capture);'.$/.
+    'my '.$id_mold.'_code_proto_cont = $scope."lookup"("Code");'."\n".
+    'my '.$id_mold.'_code_proto = '.$id_mold.'_code_proto_cont."FETCH"();'."\n".
+    'my '.$id_mold.'_code = '.$id_mold.'_code_proto."new"(:"outer"('.$id_package_scope.'),:"mold"('.$id_mold.'));'."\n".
+    'my '.$id_mold.'_capture = ¢SMOP__S1P__Capturize."capturize"();'."\n".
+    '$void = '.$id_mold.'_code."postcircumfix:( )"('.$id_mold.'_capture);'."\n".
 
     # store a sub of the same name in the current scope that returns the proper package
-    'my '.$id_type_sub.' = '.$id_mold.'_code_proto."new"(:"outer"($scope),:"mold"(mold {'.$/.
-    'my $interpreter;'.$/.
-    'my $scope;'.$/.
-    'my $type = $scope."lookup"("'.$self->name.'");'.$/.
-    'my $continuation = $interpreter."continuation"();'.$/.
-    'my $back = $continuation."back"();'.$/.
-    'my $void = $back."setr"($type);'.$/.
-    '$void = $interpreter."goto"($back);'.$/.
-    '}));'.$/.
-    $id_package_scope.'_outer_p = $scope."postcircumfix:{ }"("&'.$self->name.'");'.$/.
-    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_type_sub.');'.$/
+    'my '.$id_type_sub.' = '.$id_mold.'_code_proto."new"(:"outer"($scope),:"mold"(mold {'."\n".
+    'my $interpreter;'."\n".
+    'my $scope;'."\n".
+    'my $type = $scope."lookup"("'.$self->name.'");'."\n".
+    'my $continuation = $interpreter."continuation"();'."\n".
+    'my $back = $continuation."back"();'."\n".
+    'my $void = $back."setr"($type);'."\n".
+    '$void = $interpreter."goto"($back);'."\n".
+    '}));'."\n".
+    $id_package_scope.'_outer_p = $scope."postcircumfix:{ }"("&'.$self->name.'");'."\n".
+    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_type_sub.');'."\n"
 
 }
 
