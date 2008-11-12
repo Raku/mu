@@ -36,7 +36,7 @@ print "*** Checking for Haskell dependencies...\n";
 print "[Automatic Installation]\n";
 
 my $rebuilt = 0;
-$rebuilt += bootstrap_with(Cabal            => qr/1\.4\./, '1.4.0');
+$rebuilt += bootstrap_with(Cabal            => qr/1\.[46-9]\./, '1.4.0');
 $rebuilt += bootstrap_with(parsec           => qr/2\./, '2.0');
 $rebuilt += bootstrap_with(network          => qr/[12]\./, '1.0');
 $rebuilt += bootstrap_with(HTTP             => qr/300[01]\./, '3000.0');
