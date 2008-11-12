@@ -7,7 +7,9 @@ import qualified Data.Map as Map
 
 getDataFileName :: FilePath -> IO FilePath
 getDataFileName fn = do
-    dir <- Map.lookup "sourcedir" config
+    dir <- case Map.lookup "sourcedir" config of
+       Just rv -> return rv
+       _       -> fail "Cannot find 'sourcedir' in config!"
     rvf <- doesFileExist $ dir </> fn
     rvd <- doesDirectoryExist $ dir </> fn
     if rvf || rvd then return (dir </> fn) else do

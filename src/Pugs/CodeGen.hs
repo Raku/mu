@@ -87,8 +87,13 @@ doLookup s = do
         ('!':key) -> do
             hPutStrLn stderr $ "*** The backend '" ++ s ++ "' is deprecated."
             hPutStrLn stderr $ "    Please use '" ++ key ++ "' instead."
-            Map.lookup key generators
-        key -> Map.lookup key generators
+            lookupGenerator key
+        key -> lookupGenerator key
+    where
+    lookupGenerator :: String -> IO Generator
+    lookupGenerator k = case Map.lookup k generators of
+        Just g -> return g
+        _      -> fail $ "Cannot find generator: " ++ k
 
 codeGen :: String -> FilePath -> Env -> IO String
 codeGen s file env = do

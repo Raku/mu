@@ -53,10 +53,18 @@ fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
             --spec    <- io . newTVarIO . Map.map lazyScalar $ Map.fromList (vals :: [(String, Val)])
             spec'   <- io . newTVarIO $ Map.fromList (vals :: [(String, Val)])
             spec    <- stm . readTVar $ spec'
-            rule    <- fromVal =<< Map.lookup "rule" spec
-            global  <- fromVal =<< Map.lookup "global" spec
-            stringify <- fromVal =<< Map.lookup "stringify" spec
-            adverbs <- Map.lookup "adverbs" spec
+            rule    <- case Map.lookup "rule" spec of
+                Just v -> fromVal v 
+                _      -> fail "Cannot find the 'rule' spec"
+            global  <- case Map.lookup "global" spec of
+                Just v -> fromVal v 
+                _      -> fail "Cannot find the 'global' spec"
+            stringify <- case Map.lookup "stringify" spec of
+                Just v -> fromVal v 
+                _      -> fail "Cannot find the 'stringify' spec"
+            adverbs <- case Map.lookup "adverbs" spec of
+                Just v -> fromVal v 
+                _      -> fail "Cannot find the 'adverbs' spec"
             return $ VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}
         Just x   -> error ("can't deserialize: " ++ unpackBuf x)
 
