@@ -112,7 +112,7 @@ sub m0ld {
 }
 sub terminate_stmt {
     my $stmt = shift;
-    return $stmt . ";\n" unless $stmt =~ /(\n|;|})"\n";
+    return $stmt . ";\n" unless $stmt =~ /(\n|;|})$/;
     return $stmt;
 }
 sub pretty {
