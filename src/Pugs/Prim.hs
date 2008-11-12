@@ -38,7 +38,6 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Data.IORef
 import System.IO.Error (isEOFError)
-import Control.Exception (ioErrors)
 
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
@@ -216,12 +215,13 @@ op1 "int"  = op1Cast VInt
 op1 "+^"   = op1Cast (VInt . pred . negate) -- Arbitrary precision complement- 0 ==> -1 / 1 ==> -2
 op1 "~^"   = op1Cast (VStr . mapStr complement)
 op1 "?^"   = op1 "!"
-op1 "\\"   = \v -> do
-    return $ case v of
-        (VRef (MkRef (IScalar _))) -> VRef . scalarRef $ v
-        (VRef _)    -> v
-        (VList vs)  -> VRef . arrayRef $ vs
-        _           -> VRef . scalarRef $ v
+op1 "\\"   = return . doCapture
+    where
+    doCapture :: Val -> Val
+    doCapture v@(VRef (MkRef IScalar{})) = VRef . scalarRef $ v
+    doCapture v@VRef{}                   = v
+    doCapture (VList vs)                 = VRef . arrayRef $ vs
+    doCapture v                          = VRef . scalarRef $ v
 op1 "^" = op2RangeExclRight (VNum 0)
 op1 "post:..."  = op1Range
 op1 "not"  = op1 "!"
@@ -842,20 +842,15 @@ op1Readline = \v -> op1Read v (io . getLines) getLine
             Just str    -> return $! VStr $! (length str `seq` str)
             _           -> return undef
     doGetLine :: VHandle -> IO (Maybe VStr)
-    doGetLine fh = guardIOexcept [(isIOError isEOFError, Nothing)] $ do
+    doGetLine fh = guardIOexcept [(isEOFError, Nothing)] $ do
         line <- hGetLine fh
         return . Just . decodeUTF8 $ line
-
-isIOError :: (IOError -> Bool) -> Exception -> Bool
-isIOError f err = case ioErrors err of
-    Just ioe    -> f ioe
-    Nothing     -> False
 
 op1Getc :: Val -> Eval Val
 op1Getc = \v -> op1Read v (getChar) (getChar)
     where
     getChar :: VHandle -> Eval Val
-    getChar fh = guardIOexcept [(isIOError isEOFError, undef)] $ do
+    getChar fh = guardIOexcept [(isEOFError, undef)] $ do
         char <- hGetChar fh
         str  <- getChar' fh char
         return $ VStr $ decodeUTF8 str
