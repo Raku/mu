@@ -76,13 +76,13 @@ instance Compile Pad [PIL_Decl] where
         entries = sortBy padSort [ (cast var, readPadEntry ref) | (var, ref) <- padToList pad ]
         canCompile (name@('&':_) :: String, sym) = do
             (ref :: VRef) <- sym
-            case ref of
+            (case ref of
                 MkRef ICode{} -> do
                     codes <- readCodesFromRef ref
                     fmap concat $ forM codes (doCode name)
                 MkRef (IScalar sv) | scalar_iType sv == mkType "Scalar::Const"
                     -> doCode name =<< fromVal =<< scalar_fetch sv
-                _ -> return []
+                _ -> return []) :: Comp [PIL_Decl]
         canCompile ("@*END", sym) = do
             ref     <- sym
             cvList  <- fromVals =<< readRef ref :: Comp [VCode]

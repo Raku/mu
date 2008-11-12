@@ -193,18 +193,19 @@ mkPadMutator var entry ref (MkPad map)
                 , mc_signature  = code_params c
                 , mc_variants   = Set.singleton var
                 }
-            merge _ old = case old of
-                PEConstant{ pe_proto = MkRef (ICode oldCV) }
-                    | Just (mc :: VMultiCode) <- fromTypeable oldCV -> protoEntry
-                        { pe_proto = MkRef . ICode $ protoCode
-                            { mc_assoc      = code_assoc c `mappend` code_assoc mc
-                            , mc_variants   = Set.insert var (mc_variants mc)
-                            , mc_signature  = if length (mc_signature mc) == length (code_params c)
-                                then code_params c
-                                else [defaultArrayParam]
-                            }
+            merge :: PadEntry -> PadEntry -> PadEntry
+            merge _ PEConstant{ pe_proto = MkRef (ICode oldCV) }
+                | Just (mc :: VMultiCode) <- fromTypeable oldCV
+                = protoEntry
+                    { pe_proto = MkRef . ICode $ protoCode
+                        { mc_assoc      = code_assoc c `mappend` code_assoc mc
+                        , mc_variants   = Set.insert var (mc_variants mc)
+                        , mc_signature  = if length (mc_signature mc) == length (code_params c)
+                            then code_params c
+                            else [defaultArrayParam]
                         }
-                _ -> old -- sub overrides multi -- XXX - error?
+                    }
+            merge _ old = old -- sub overrides multi -- XXX - error?
        in MkPad (Map.insertWith' merge var' protoEntry (Map.insert var entry map))
     | otherwise = MkPad (Map.insert var entry map)
 

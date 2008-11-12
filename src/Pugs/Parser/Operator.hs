@@ -203,23 +203,25 @@ filterFun var entry = var `seq` do
         Just rv -> return rv
         Nothing -> do
             ref <- readPadEntry entry
-            case ref of
-                MkRef (ICode cv)
-                    | relevantToParsing (code_type cv) (code_assoc cv) -> do
-                        let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                            res = seq rv (Just rv)
-                        unsafeIOToSTM (H.insert _RefToFunction entry res)
-                        return res
-                MkRef (IScalar sv)
-                    | Just (VCode cv) <- scalar_const sv
-                    , relevantToParsing (code_type cv) (code_assoc cv) -> do
-                        let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                            res = seq rv (Just rv)
-                        unsafeIOToSTM (H.insert _RefToFunction entry res)
-                        return res
-                _ -> do
-                    unsafeIOToSTM (H.insert _RefToFunction entry Nothing)
-                    return Nothing
+            filterRef ref
+    where
+    filterRef :: VRef -> STM (Maybe CurrentFunction)
+    filterRef (MkRef (ICode cv))
+        | relevantToParsing (code_type cv) (code_assoc cv) = do
+            let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
+                res = seq rv (Just rv)
+            unsafeIOToSTM (H.insert _RefToFunction entry res)
+            return res
+    filterRef (MkRef (IScalar sv))
+        | Just (VCode cv) <- scalar_const sv
+        , relevantToParsing (code_type cv) (code_assoc cv) = do
+            let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
+                res = seq rv (Just rv)
+            unsafeIOToSTM (H.insert _RefToFunction entry res)
+            return res
+    filterRef _ = do
+        unsafeIOToSTM (H.insert _RefToFunction entry Nothing)
+        return Nothing
 
 inScope :: Pkg -> Var -> Bool
 inScope pkg var

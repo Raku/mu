@@ -195,9 +195,9 @@ evalRef ref = do
             when (isCollectionRef && isItemCxt cxt) $ do
                 -- auto-enreference
                 esc $ VRef ref
-            case ref of
+            (case ref of
                 MkRef IPair{}   -> esc (VRef ref)
-                _               -> esc =<< readRef ref
+                _               -> esc =<< readRef ref) :: Eval ()
         -- LValue here
         when isCollectionRef $ esc (castV ref)
         val <- readRef ref
@@ -507,12 +507,12 @@ reduceSyn "for" [list, body] = enterLoop $ do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
     sub   <- fromCodeExp body
     -- XXX this is wrong -- should use Array.next
-    elms  <- case av of
+    elms  <- (case av of
         VRef (MkRef sv@IScalar{})   -> return [sv]
-        VList xs                    -> return . (`map` xs) $ \x -> case x of
+        VList xs                    -> return . (`map` xs) $ \x -> ((case x of
             VRef (MkRef sv@IScalar{})   -> sv
-            _                           -> (IScalar x)
-        _                           -> join $ doArray av array_fetchElemAll
+            _                           -> (IScalar x)) :: IVar VScalar)
+        _                           -> join $ doArray av array_fetchElemAll) :: Eval [IVar VScalar]
     -- This makes "for @x { ... }" into "for @x -> $_ is rw {...}"
     let arity = length (subParams sub)
         runBody [] _ _ = return undef
@@ -1150,6 +1150,7 @@ chainFun p1 f1 p2 f2 (v1:v2:vs) = do
         | name  <- map paramName (prms ++ repeat (last prms))
         | v     <- vals
         ]
+    forceThunk :: Val -> Eval Val
     forceThunk (VRef (MkRef (IThunk tv)))   = thunk_force tv
     forceThunk x                            = return x
 chainFun _ _ _ _ _ = fail "Impossible: Chained function with less than 2 arguments?"
@@ -1490,18 +1491,18 @@ doApply appKind origSub@MkCode{ subCont = cont, subBody = fun, subType = typ } i
                 (True, False)   -> do
                     --- not scalarRef! -- use the new "transparent IType" thing!
                     case showType (typeOfSigilVar var) of
-                        "Hash"  -> ($ v) . fix $ \(redo :: Val -> Eval Val) x -> case x of
+                        "Hash"  -> ($ v) . fix $ \(redo :: Val -> Eval Val) x -> (case x of
                             VRef (MkRef (IHash h)) -> return (VRef $ hashRef h) 
                             VRef ref@(MkRef IScalar{}) -> redo =<< readRef ref
-                            _ -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
-                        "Array" -> ($ v) . fix $ \(redo :: Val -> Eval Val) x -> case x of
+                            _ -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)) :: Eval Val
+                        "Array" -> ($ v) . fix $ \(redo :: Val -> Eval Val) x -> (case x of
                             VRef (MkRef (IArray a)) -> return (VRef $ arrayRef a) 
                             VRef ref@(MkRef IScalar{}) -> redo =<< readRef ref
-                            _ -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)
-                        _       -> case v of
+                            _ -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)) :: Eval Val
+                        _       -> (case v of
                             VRef (MkRef IScalar{}) -> return (VRef $ scalarRef v) 
                             VRef _ -> return v -- XXX - preserving ref
-                            _ -> return (VRef $ scalarRef v) 
+                            _ -> return (VRef $ scalarRef v)) :: Eval Val
                 (False, False)  -> return v -- XXX reduce to val?
                 (False, True)   -> do
                     -- make a copy

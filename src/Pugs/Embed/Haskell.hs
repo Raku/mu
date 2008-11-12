@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -package plugins #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 module Pugs.Embed.Haskell where
 
