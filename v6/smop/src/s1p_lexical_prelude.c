@@ -33,6 +33,7 @@ void smop_s1p_lexical_prelude_init() {
   smop_s1p_lexical_prelude_insert(interpreter,"MoldFrame", SMOP__Mold__Frame);
   smop_s1p_lexical_prelude_insert(interpreter,"Code", SMOP__S1P__Code);
   smop_s1p_lexical_prelude_insert(interpreter,"Package", SMOP__S1P__Package);
+  smop_s1p_lexical_prelude_insert(interpreter,"AdhocSignature", SMOP__S1P__AdhocSignature);
   smop_s1p_lexical_prelude_insert(interpreter,"Scalar", SMOP__S1P__Scalar);
   smop_s1p_lexical_prelude_insert(interpreter,"MoldFrame", SMOP__Mold__Frame);
   smop_s1p_lexical_prelude_insert(interpreter,"p6opaque",SMOP__p6opaque__RI);

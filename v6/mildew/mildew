@@ -185,7 +185,49 @@ sub VAST::method_def::emit_m0ld {
                   positional => [],
                   named =>
                   [ string 'mold' => $m->{block}->emit_m0ld,
-                    string 'outer' => reg '$scope' ]))]));
+                    string 'outer' => reg '$scope',
+                    string 'signature' => $m->{multisig}[0]{signature}[0]->emit_m0ld_ahsig ]))]));
+}
+
+sub VAST::signature::emit_m0ld_ahsig {
+    my $m = shift;
+    my $pc1 = 0;
+    my $pc2 = 0;
+    AST::Call->new
+        ( identifier => string 'new',
+          capture => AST::Capture->new
+          ( invocant => FETCH(lookup('AdhocSignature')),
+            positional => [],
+            named =>
+            [ string 'BIND' => AST::Block->new
+              ( regs => [qw(interpreter scope capture)],
+                stmts => trailing_return([ map { $_->emit_m0ld_ahsig_BIND($pc1++) } @{$m->{parameter}} ])) ]));
+}
+
+sub VAST::parameter::emit_m0ld_ahsig_BIND {
+    my ($m, $count) = @_;
+    if ($m->{param_var}) {
+        AST::Call->new
+            ( identifier => string 'STORE',
+              capture => AST::Capture->new
+              ( invocant => AST::Call->new
+                ( identifier => string 'postcircumfix:{ }',
+                  capture => AST::Capture->new
+                  ( invocant => reg '$scope',
+                    positional => [ string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT} ],
+                    named => [] )),
+                positional =>
+                [ AST::Call->new
+                  ( identifier => string 'FETCH',
+                    capture => AST::Capture->new
+                    ( invocant => AST::Call->new
+                      ( identifier => string 'positional',
+                        capture => AST::Capture->new
+                        ( invocant => reg '$capture',
+                          positional => [ integer($count) ] ) ) ) ) ] ) )
+    } else {
+        XXX;
+    }
 }
 
 sub trailing_return {

@@ -1,7 +1,7 @@
 knowhow Foo {
     method bar ($positional1, $positional2) {
-        $OUT.print($positional1);
-        $OUT.print($positional2);
+        $OUT.print($positional1.FETCH); # the .FETCH here is only
+        $OUT.print($positional2.FETCH); # because of a $OUT bug
     }
 }
 $OUT.print("1..2\n");
