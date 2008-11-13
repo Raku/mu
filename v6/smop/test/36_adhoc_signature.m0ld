@@ -10,9 +10,11 @@ my $Code = $Code_scalar."FETCH"();
 my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"();
 
 my $signature = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
-    my $capture;
-    my $back;
     my $interpreter;
+    my $scope;
+    my $capture;
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
     my $void;
 
     my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
@@ -23,18 +25,18 @@ my $signature = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
     $void = $interpreter."goto"($back);
     
 }),:"BIND"(mold {
-    my $capture;
-    my $back;
     my $interpreter;
+    my $scope;
+    my $capture;
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
     my $void;
-
-    my $lexical = $capture."positional"(1);
 
     my $out_scalar = ¢SMOP__S1P__RootNamespace."postcircumfix:{ }"("$*OUT");
     my $out = $out_scalar."FETCH"();
     $void = $out."print"("ok 3 - signature.BIND\n");
 
-    my $it_var = $lexical."postcircumfix:{ }"("$_");
+    my $it_var = $scope."postcircumfix:{ }"("$_");
     $void  = $it_var."STORE"("ok 4 - variable bound\n"); 
 
     $void = $interpreter."goto"($back);

@@ -12,9 +12,11 @@ my $lexicalscope = ¢SMOP__S1P__LexicalScope."new"();
 my $innerscope = ¢SMOP__S1P__LexicalScope."new"(:"outer"($lexicalscope));
 
 my $signature1 = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
-    my $capture;
-    my $back;
     my $interpreter;
+    my $scope;
+    my $capture;
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
     my $void;
     
     my $p1 = $capture."positional"(0);
@@ -56,9 +58,11 @@ my $code1 = $Code."new"(:"outer"($innerscope),:"signature"($signature1),:"mold"(
 }));
 
 my $signature2 = ¢SMOP__S1P__AdhocSignature."new"(:"ACCEPTS"(mold {
-    my $capture;
-    my $back;
     my $interpreter;
+    my $scope;
+    my $capture;
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
     my $void;
     
     my $p1 = $capture."positional"(0);

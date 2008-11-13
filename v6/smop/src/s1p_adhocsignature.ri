@@ -26,10 +26,10 @@
     
         SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
                                                        SMOP_REFERENCE(interpreter,mold));
-    
-        mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
-        mold_reg_set(interpreter,frame,1,continuation);
-        mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+        mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+        mold_reg_set(interpreter,frame,1,SMOP__NATIVE__capture_positional(interpreter,capture,1));
+        mold_reg_set(interpreter,frame,2,SMOP__NATIVE__capture_positional(interpreter,capture,0));
+        mold_back_set(interpreter,frame,continuation);
      
         SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                       SMOP__ID__goto,
@@ -51,10 +51,10 @@
         SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
                                                        SMOP_REFERENCE(interpreter,mold));
     
-        mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
-    
-        mold_reg_set(interpreter,frame,1,continuation);
-        mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+        mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+        mold_reg_set(interpreter,frame,1,SMOP__NATIVE__capture_positional(interpreter,capture,1));
+        mold_reg_set(interpreter,frame,2,SMOP__NATIVE__capture_positional(interpreter,capture,0));
+        mold_back_set(interpreter,frame,continuation);
     
         SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                       SMOP__ID__goto,
