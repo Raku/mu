@@ -186,7 +186,8 @@ sub VAST::method_def::emit_m0ld {
                   named =>
                   [ string 'mold' => $m->{block}->emit_m0ld,
                     string 'outer' => reg '$scope',
-                    string 'signature' => $m->{multisig}[0]{signature}[0]->emit_m0ld_ahsig ]))]));
+                    ( $m->{multisig}[0]{signature}[0] ?
+                      ( string 'signature' => $m->{multisig}[0]{signature}[0]->emit_m0ld_ahsig ) : () )]))]));
 }
 
 sub VAST::signature::emit_m0ld_ahsig {
