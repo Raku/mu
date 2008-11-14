@@ -593,7 +593,7 @@ sub gen_code_snippet ($) {
 
     my $nlines = $to - $from + 1;
     my $html_file = $file;
-    $html_file =~ s{t/spec/}{};
+    $html_file =~ s{t/}{};
     my $simple_html = $html_file . ".simple.html";
     my $full_html = $html_file . ".html";
     my $simple_snippet_id = "simple_$snippet_id";
