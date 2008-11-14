@@ -261,7 +261,7 @@ sub pretty {
     my $self = shift;
     $self->sym.' '.$self->name.' {'.
       $self->block->pretty.
-    '}';
+    "}\n";
 }
 
 sub m0ld {
