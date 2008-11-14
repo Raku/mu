@@ -210,6 +210,29 @@ package AST::MetaCall;
 use Moose;
 extends 'AST::Call';
 
+sub pretty {
+    my $self = shift;
+
+    my $identifier;
+    if ($self->identifier->isa("AST::StringConstant")) {
+        $identifier = $self->identifier->value;
+    } else {
+        $identifier = $self->identifier->pretty;
+    }
+
+    my $arguments = '';
+    if (my @arguments = $self->arguments) {
+        $arguments = "(" . join(',',map {$_->pretty} $self->arguments) . ")";
+    }
+
+    if ($self->capture->isa("AST::Capture")) {
+        $self->capture->invocant->pretty . ".^" . $identifier .  $arguments;
+    } else {
+        $self->SUPER::pretty;
+    }
+
+}
+
 sub m0ld {
     my ($self, $ret) = @_;
 
@@ -226,12 +249,20 @@ sub m0ld {
     }
 }
 
+
 package AST::Package;
 use Moose;
 has 'name'  => (is=>'ro');
 has 'sym'   => (is=>'ro');
 has 'block' => (is=>'ro');
 extends 'AST::Base';
+
+sub pretty {
+    my $self = shift;
+    $self->sym.' '.$self->name.' {'.
+      $self->block->pretty.
+    '}';
+}
 
 sub m0ld {
     my $self = shift;
