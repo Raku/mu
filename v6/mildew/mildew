@@ -194,8 +194,20 @@ sub VAST::method_def::emit_m0ld {
 
 sub VAST::signature::emit_m0ld_ahsig {
     my $m = shift;
-    my $pc1 = 0;
-    my $pc2 = 0;
+
+    my $pc = 0;
+    my $other = 0;
+    my @stmts;
+    for my $param (@{$m->{parameter}}) {
+        if ($m->{param_sep}[$pc]{TEXT} =~ /\s*:\s*/) {
+            push @stmts, $param->emit_m0ld_ahsig_BIND_invocant();
+        } else {
+            push @stmts, $param->emit_m0ld_ahsig_BIND($other);
+            $other++;
+        }
+        $pc++;
+    }
+
     AST::Call->new
         ( identifier => string 'new',
           capture => AST::Capture->new
@@ -204,7 +216,32 @@ sub VAST::signature::emit_m0ld_ahsig {
             named =>
             [ string 'BIND' => AST::Block->new
               ( regs => [qw(interpreter scope capture)],
-                stmts => trailing_return([ map { $_->emit_m0ld_ahsig_BIND($pc1++) } @{$m->{parameter}} ])) ]));
+                stmts => trailing_return(\@stmts))]));
+}
+
+sub VAST::parameter::emit_m0ld_ahsig_BIND_invocant {
+    my ($m) = @_;
+    if ($m->{param_var}) {
+        AST::Call->new
+            ( identifier => string 'STORE',
+              capture => AST::Capture->new
+              ( invocant => AST::Call->new
+                ( identifier => string 'postcircumfix:{ }',
+                  capture => AST::Capture->new
+                  ( invocant => reg '$scope',
+                    positional => [ string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT} ],
+                    named => [] )),
+                positional =>
+                [ AST::Call->new
+                  ( identifier => string 'FETCH',
+                    capture => AST::Capture->new
+                    ( invocant => AST::Call->new
+                      ( identifier => string 'invocant',
+                        capture => AST::Capture->new
+                        ( invocant => reg '$capture' ) ) ) ) ] ) );
+    } else {
+        XXX;
+    }
 }
 
 sub VAST::parameter::emit_m0ld_ahsig_BIND {
@@ -227,7 +264,7 @@ sub VAST::parameter::emit_m0ld_ahsig_BIND {
                       ( identifier => string 'positional',
                         capture => AST::Capture->new
                         ( invocant => reg '$capture',
-                          positional => [ integer($count) ] ) ) ) ) ] ) )
+                          positional => [ integer($count) ] ) ) ) ) ] ) );
     } else {
         XXX;
     }

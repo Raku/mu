@@ -13,6 +13,8 @@ knowhow ClassHOW {
           $object.^!methods.{$name} = $code;
       }
   }
+  method dispatch($responder, $identifier, $capture) {
+  }
 }
 class Foo {
   method bar {
