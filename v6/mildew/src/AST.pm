@@ -61,7 +61,7 @@ sub m0ld {
     }
     my $elsifs = '';
     if ($self->elsif) {
-        foreach my $part (@{$self->{elsif}}) {
+        foreach my $part (@{$self->elsif}) {
             my $id_elsif_cond = AST::unique_id;
             my $id_elsif_then = AST::unique_id;
             my $label_elsif_then = AST::unique_label;
@@ -93,9 +93,25 @@ sub m0ld {
 }
 sub pretty {
     my ($self) = @_;
-    'if ' . $self->cond->pretty . " {\n"
+    my $code =
+      'if ' . $self->cond->pretty . " {\n"
         . AST::indent($self->then->pretty) . "\n"
-    . "}\n"
+        . "}\n";
+    if ($self->elsif) {
+        foreach my $part (@{$self->elsif}) {
+            $code .=
+              'elsif '.$part->cond->pretty . "{\n"
+                . AST::indent($self->then->pretty). "\n"
+                . "}\n";
+        }
+    }
+    if ($self->else) {
+        $code .=
+          "else {\n"
+            . AST::indent($self->else->pretty). "\n"
+            . "}\n";
+    }
+    return $code;
 }
 
 package AST::Block;
