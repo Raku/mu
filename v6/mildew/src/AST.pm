@@ -100,7 +100,7 @@ sub pretty {
     if ($self->elsif) {
         foreach my $part (@{$self->elsif}) {
             $code .=
-              'elsif '.$part->cond->pretty . "{\n"
+              'elsif '.$part->cond->pretty . " {\n"
                 . AST::indent($self->then->pretty). "\n"
                 . "}\n";
         }
