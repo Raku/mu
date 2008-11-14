@@ -6,3 +6,7 @@ knowhow Foo {
 }
 $OUT.print("1..2\n");
 Foo.bar("ok 1\n", "ok 2\n");
+my $baz = sub ($arg) {
+    $OUT.print($arg.FETCH);
+};
+$baz.("ok 3\n");
