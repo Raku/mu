@@ -26,27 +26,21 @@ static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter
     SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);
     SMOP__Object* actualidentifier = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     SMOP__Object* actualinvocant = SMOP__NATIVE__capture_invocant(interpreter,actualcapture);
+    SMOP__Object* actualresponder = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation, 
+                                               SMOP_REFERENCE(interpreter,interpreter));
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                   SMOP_REFERENCE(interpreter,
+                                                                  smop_s1p_pureprototypehow_dispatch_mold));
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,actualresponder);
+    mold_reg_set(interpreter,frame,2,actualidentifier);
+    mold_reg_set(interpreter,frame,3,actualcapture);
+    mold_reg_set(interpreter,frame,4,actualinvocant);
+    mold_back_set(interpreter,frame,continuation);
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 
-    if (actualidentifier == SMOP__ID__FETCH) {
-      ret = actualinvocant;
-      SMOP_RELEASE(interpreter,actualidentifier);
-      SMOP_RELEASE(interpreter,actualcapture);
-    } else {
-      SMOP__Object* actualresponder = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-      SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                                                 SMOP__ID__continuation, 
-                                                 SMOP_REFERENCE(interpreter,interpreter));
-      SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
-                                                     SMOP_REFERENCE(interpreter,
-                                                                    smop_s1p_pureprototypehow_dispatch_mold));
-      mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-      mold_reg_set(interpreter,frame,1,actualresponder);
-      mold_reg_set(interpreter,frame,2,actualidentifier);
-      mold_reg_set(interpreter,frame,3,actualcapture);
-      mold_reg_set(interpreter,frame,4,actualinvocant);
-      mold_back_set(interpreter,frame,continuation);
-      SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
-    }
   } else if (SMOP__ID__add_method == identifier) {
     SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                                                SMOP__ID__continuation, 
@@ -54,7 +48,6 @@ static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter
     SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
                                                    SMOP_REFERENCE(interpreter,
                                                                   smop_s1p_pureprototypehow_add_method_mold));
-
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
     mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
     mold_back_set(interpreter,frame,continuation);
@@ -64,11 +57,44 @@ static SMOP__Object* lowlevel_pureprototypehow_message(SMOP__Object* interpreter
     ___VALUE_FETCH___;
 
   } else if (SMOP__ID__lookup_fail == identifier) {
-    SMOP__Object* name = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-    assert(name->RI == SMOP__ID__new->RI);
-    int retsize;
-    fprintf(stderr,"Could not find method %s.\n",SMOP__NATIVE__idconst_fetch(name, &retsize));
-    abort();
+
+    SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);
+    SMOP__Object* actualidentifier = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    SMOP__Object* actualinvocant = SMOP__NATIVE__capture_invocant(interpreter,actualcapture);
+
+    if (actualidentifier == SMOP__ID__FETCH) {
+      ret = actualinvocant;
+      SMOP_RELEASE(interpreter,actualidentifier);
+      SMOP_RELEASE(interpreter,actualcapture);
+
+    } else if (actualidentifier == SMOP__ID__dispatch) {
+      SMOP__Object* actual_actualidentifier = SMOP__NATIVE__capture_positional(interpreter,actualcapture,1);
+
+      if (actual_actualidentifier == SMOP__ID__FETCH) {
+        SMOP__Object* actual_actualcapture = SMOP__NATIVE__capture_positional(interpreter,actualcapture,2);
+        SMOP__Object* actual_actualinvocant = SMOP__NATIVE__capture_invocant(interpreter,actual_actualcapture);
+
+        ret = actual_actualinvocant;
+        SMOP_RELEASE(interpreter,actual_actualidentifier);
+        SMOP_RELEASE(interpreter,actual_actualcapture);
+        SMOP_RELEASE(interpreter,actualinvocant);
+        SMOP_RELEASE(interpreter,actualidentifier);
+        SMOP_RELEASE(interpreter,actualcapture);
+
+      } else {
+        assert(actualidentifier->RI == SMOP__ID__new->RI);
+        int retsize;
+        fprintf(stderr,"Could not find method %s.\n",SMOP__NATIVE__idconst_fetch(actualidentifier, &retsize));
+        abort();
+      }
+
+    } else {
+      assert(actualidentifier->RI == SMOP__ID__new->RI);
+      int retsize;
+      fprintf(stderr,"Could not find method %s.\n",SMOP__NATIVE__idconst_fetch(actualidentifier, &retsize));
+      abort();
+
+    }
 
   } else {
     ___UNKNOWN_METHOD___;
@@ -118,7 +144,7 @@ void smop_s1p_pureprototypehow_mold_init() {
     fail:
       my $how_c = $invocant."^!how"();
       my $how = $how_c."FETCH"();
-      $void = $how."lookup_fail"($identifier);
+      $result = $how."lookup_fail"($responder, $identifier, $capture);
     exit:
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
