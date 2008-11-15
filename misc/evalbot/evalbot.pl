@@ -108,9 +108,12 @@ package Evalbot;
         my $self = shift;
         my $e = shift;
         my $message = $e->{body};
+        my $address = $e->{address} // '';
         if ($message =~ m/\A$regex\s+(.*)\z/){
             my ($eval_name, $str) = ($1, $2);
             my $e = $impls{$eval_name};
+            return "Please use /msg $self->{nick} highlight: $str" 
+                if($eval_name eq 'highlight' && $address ne 'msg');
             warn "Eval: $str\n";
             my $result = EvalbotExecuter::run($str, $e, $eval_name);
             my $revision = '';
