@@ -112,8 +112,8 @@ package Evalbot;
         if ($message =~ m/\A$regex\s+(.*)\z/){
             my ($eval_name, $str) = ($1, $2);
             my $e = $impls{$eval_name};
-            return "Please use /msg $self->{nick} highlight: $str" 
-                if($eval_name eq 'highlight' && $address ne 'msg');
+            return "Please use /msg $self->{nick} $str" 
+                if($eval_name eq 'highlight');
             warn "Eval: $str\n";
             my $result = EvalbotExecuter::run($str, $e, $eval_name);
             my $revision = '';
@@ -152,6 +152,17 @@ package Evalbot;
                 return "This is evalbot revision $evalbot_version";
             }
 
+        } elsif ($message =~ m/\A(.+)\z/ && $address eq 'msg') {
+            #a request like /msg evalbot perl6 code
+            my ($eval_name, $str) = ('highlight', $1);
+            my $e = $impls{$eval_name};
+            warn "Highlight: $str\n";
+            my $result = EvalbotExecuter::run($str, $e, $eval_name);
+            my $revision = '';
+            if (reftype($e) eq 'HASH' && $e->{revision}){
+                $revision = ' ' . $e->{revision}->();
+            }
+            return sprintf "%s%s: %s", $eval_name, $revision, $result;           
         }
         return;
     }
