@@ -327,6 +327,8 @@ sub m0ld {
     '$void = '.$id_package_val.'_pp."STORE"('.$id_package_val.');'."\n".
 
     # store the protoobject in $?CLASS
+    # XXX: we're going to store it inside a Scalar to avoid having to support FETCH in the
+    # incomplete class.
     'my '.$id_package_scope.'_p = '.$id_package_scope.'."postcircumfix:{ }"("$?CLASS");'."\n".
     '$void = '.$id_package_scope.'_p."STORE"('.$id_proto_val.');'."\n".
 

@@ -199,7 +199,7 @@ sub VAST::signature::emit_m0ld_ahsig {
     my $other = 0;
     my @stmts;
     for my $param (@{$m->{parameter}}) {
-        if ($m->{param_sep}[$pc]{TEXT} =~ /\s*:\s*/) {
+        if ($m->{param_sep}[$pc]{TEXT} && $m->{param_sep}[$pc]{TEXT} =~ /\s*:\s*/) {
             push @stmts, $param->emit_m0ld_ahsig_BIND_invocant();
         } else {
             push @stmts, $param->emit_m0ld_ahsig_BIND($other);
