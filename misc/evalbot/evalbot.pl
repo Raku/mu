@@ -87,8 +87,12 @@ package Evalbot;
                 chdir       => '../../src/perl6',
                 cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
                 revision    => \&get_revision,
-#                filter      => \&filter_std,
             },
+            highlight  => {
+                chdir       => '../../src/perl6',
+                cmd_line    => $^X . ' STD_syntax_highlight %program >>%out 2>&1',
+                revision    => \&get_revision,
+            }
     );
 
     my $evalbot_version = get_revision();
