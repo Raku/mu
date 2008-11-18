@@ -12,10 +12,15 @@ knowhow ClassHOW {
   }
 }
 class Foo {
+  my $inner_var;
   method bar {
-    $OUT.print("ok 1 - method called.\n");
+    $OUT.print($inner_var.FETCH);
+  }
+  method foo($value) {
+    $inner_var = $value;
   }
 }
 $OUT.print("1..1\n");
+Foo.foo("ok 1 - methods are called.\n");
 Foo.bar;
 1;
