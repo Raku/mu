@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 8 Oct 2008
+   Last Modified: 17 Nov 2008
    Number: 5
-   Version: 85
+   Version: 86
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -2164,11 +2164,15 @@ the longest token prefix.  This may or may not be the alternative
 that comes first lexically.
 
 However, if two alternatives match at the same length, the tie is
+broken first by specificity.  The alternative that starts with the
+longest fixed string wins; that is, an exact match counts as closer
+than a match made using character classes.  If that doesn't work, the tie
 broken by one of two methods.  If the alternatives are in different
 grammars, standard MRO (method resolution order) determines which
-one to try first.  If the alternatives are in the same grammar, the
+one to try first.  If the alternatives are in the same grammar file, the
 textually earlier alternative takes precedence.  (If a grammar's rules
-are defined in more than one file, the results are undefined.)
+are defined in more than one file, the order is undefined, and an explicit
+assertion must be used to force failure if the wrong one is tried first.)
 
 This longest token prefix corresponds roughly to the notion of "token"
 in other parsing systems that use a lexer, but in the case of Perl
