@@ -223,7 +223,8 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
 
-  if (identifier == SMOP__ID__FETCH && is_p6opaque_container(interpreter,invocant)) {
+  if (identifier == SMOP__ID__FETCH && 
+      !is_p6opaque_container(interpreter,invocant)) {
     ___VALUE_FETCH___;
 
   } else if (identifier == SMOP__ID__REPR_CREATE) {
