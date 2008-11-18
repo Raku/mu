@@ -4,9 +4,11 @@ knowhow Foo {
         $OUT.print($positional2.FETCH); # because of a $OUT bug
     }
 }
-$OUT.print("1..3\n");
+$OUT.print("1..4\n");
 Foo.bar("ok 1\n", "ok 2\n");
 my $baz = sub ($arg) {
     $OUT.print($arg.FETCH);
 };
 $baz.("ok 3\n");
+my $foo = "ok 4\n";
+$baz.($foo);

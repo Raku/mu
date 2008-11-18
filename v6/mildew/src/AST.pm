@@ -174,6 +174,23 @@ sub pretty {
     $self->key->pretty . " => " . $self->value->pretty;
 }
 
+package AST::Let;
+use Moose;
+extends 'AST::Base';
+has 'block' => (is=>'ro');
+has 'value' => (is=>'ro');
+sub m0ld {
+    my ($self,$ret) = @_;
+    my $id = AST::unique_id;
+    $self->value->emit_($id) . $self->block->(AST::Reg->new(name => $id))->emit_($ret);
+}
+sub pretty {
+    my ($self,) = @_;
+    my $id = AST::unique_id;
+    'my ' . $id . ' = ' . $self->value->pretty . ";\n"
+    . $self->block->(AST::Reg->new(name => $id))->pretty;
+}
+
 package AST::Call;
 use Moose;
 extends 'AST::Base';
@@ -221,50 +238,6 @@ sub pretty {
     }
 
 }
-
-package AST::MetaCall;
-use Moose;
-extends 'AST::Call';
-
-sub pretty {
-    my $self = shift;
-
-    my $identifier;
-    if ($self->identifier->isa("AST::StringConstant")) {
-        $identifier = $self->identifier->value;
-    } else {
-        $identifier = $self->identifier->pretty;
-    }
-
-    my $arguments = '';
-    if (my @arguments = $self->arguments) {
-        $arguments = "(" . join(',',map {$_->pretty} $self->arguments) . ")";
-    }
-
-    if ($self->capture->isa("AST::Capture")) {
-        $self->capture->invocant->pretty . ".^" . $identifier .  $arguments;
-    } else {
-        $self->SUPER::pretty;
-    }
-
-}
-
-sub m0ld {
-    my ($self, $ret) = @_;
-
-    if ($self->capture->isa("AST::Capture")) {
-        my $id_inv = $self->capture->invocant->emit;
-        my $id_how = AST::unique_id;
-
-        'my '.$id_how.'_cont = '.$id_inv.'."^!how"();'."\n".
-        'my '.$id_how.' = '.$id_how.'_cont."FETCH"();'."\n".
-        'my '.$ret.' = '.$id_how.'.'.$self->identifier->emit.
-         '(' . join(',', $id_inv, map {$_->emit} $self->arguments) . ');'."\n";
-    } else {
-        die 'unimplemented';
-    }
-}
-
 
 package AST::Package;
 use Moose;

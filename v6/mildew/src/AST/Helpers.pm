@@ -14,4 +14,3 @@ sub integer($) {
 sub call {
     AST::Call->new(identifier=>string($_[0]),capture=>AST::Capture->new(invocant => $_[1],positional => $_[2]//[],named => $_[3]//[]));
 }
-
