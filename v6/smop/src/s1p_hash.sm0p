@@ -7,6 +7,12 @@
 
 SMOP__Object* SMOP__S1P__Hash;
 
+static SMOP__Object* id_internal_exists;
+static SMOP__Object* mold_exists;
+
+static SMOP__Object* id_internal_curly;
+static SMOP__Object* mold_curly;
+
 typedef struct hash_bucket {
     struct hash_bucket* next;
     SMOP__Object* key;
@@ -36,6 +42,20 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
   if (identifier == SMOP__ID__postcircumfix_curly) {
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_curly));
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_back_set(interpreter,frame,continuation);
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  frame);
+
+  } else if (identifier == id_internal_curly) {
     if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1) {
       SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
       if (SMOP_RI(key) == (SMOP__ResponderInterface*)SMOP__S1P__Str) {
@@ -127,6 +147,20 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
     }
 
   } else if (identifier == SMOP__ID__exists) {
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_exists));
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_back_set(interpreter,frame,continuation);
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  frame);
+
+  } else if (identifier == id_internal_exists) {
     if (SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1) {
       SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,0);
       int hashing_result = 0;
@@ -192,8 +226,42 @@ void smop_s1p_hash_init() {
   ((SMOP__ResponderInterface*)SMOP__S1P__Hash)->id = "s1p Hash";
 }
 
+void smop_s1p_hash_mold_init() {
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
+  id_internal_exists = SMOP__NATIVE__idconst_create("exists internal implementation");
+  mold_exists = q:m0ld {
+    my $interpreter;
+    my $capture;
+    my $invocant = $capture."invocant"();
+    my $key_c = $capture."positional"(0);
+    my $key = $key_c."FETCH"();
+    my $res = $invocant.¢id_internal_exists($key);
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $void = $back."setr"($res);
+    $void = $interpreter."goto"($back);
+  };
+
+  id_internal_curly = SMOP__NATIVE__idconst_create("postcircumfix:{ } internal implementation");
+  mold_curly = q:m0ld {
+    my $interpreter;
+    my $capture;
+    my $invocant = $capture."invocant"();
+    my $key_c = $capture."positional"(0);
+    my $key = $key_c."FETCH"();
+    my $res = $invocant.¢id_internal_curly($key);
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $void = $back."setr"($res);
+    $void = $interpreter."goto"($back);
+  };
+}
+
+void smop_s1p_hash_mold_destr() {
+  SMOP_RELEASE(SMOP__GlobalInterpreter, mold_exists);
+}
+
 void smop_s1p_hash_destr() {
   free(SMOP__S1P__Hash);
 }
-
 

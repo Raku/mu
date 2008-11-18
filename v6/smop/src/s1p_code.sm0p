@@ -138,7 +138,8 @@ void smop_s1p_code_mold_init() {
     my $lexical_outer_container = $lexical."outer"();
     $void = $lexical_outer_container."STORE"($outer);
 
-    my $actualcapture = $capture."positional"(0);
+    my $actualcapture_c = $capture."positional"(0);
+    my $actualcapture = $actualcapture_c."FETCH"();
     $void = $signature."BIND"($actualcapture,$lexical);
 
     my $frame_proto = ¢SMOP__Mold__Frame;

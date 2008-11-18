@@ -93,6 +93,7 @@ foreach (sm0p_file
     src/s1p_bindcapturesignature.sm0p
     src/s1p_pureprototypehow.sm0p
     src/p6opaque.sm0p
+    src/s1p_hash.sm0p
     src/s1p_code.sm0p
     src/s1p_map.sm0p
     src/s1p_grep.sm0p
