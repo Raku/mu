@@ -7,6 +7,17 @@ elfx:: have_parser_cache
 	./IRx1_FromAST2_create.pl
 	../../elf/elf_h -x -o ./elfx -I ../../elf/elf_h_src -e 'use Elf_wo_main' IRx1_FromAST2.pm Parser2.pm -e elf_main
 
+tst:
+	-rm ${TMP}/x?
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Compiler.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Compiler.pm
+	-diff ${TMP}/x0 ${TMP}/x1
+
+regression_check:
+	-rm ${TMP}/x?
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/CommandLine.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/CommandLine.pm
+	-diff ${TMP}/x0 ${TMP}/x1
 
 check: have_parser_cache
 	# Remove STD.pm/gimme5 cruft.

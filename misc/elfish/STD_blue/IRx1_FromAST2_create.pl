@@ -255,6 +255,12 @@ else { $which }
 nibbles
 $m<variable>
 
+escape
+my $e = *text*;
+if    $e eq '\n' { Buf.newp("\n") }
+elsif $e eq '\t' { Buf.newp("\t") }
+else { die "Unsupported escape: "~$e }
+
 
 scope_declarator:my
 temp $blackboard::scope = 'my';
