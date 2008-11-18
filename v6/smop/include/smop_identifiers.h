@@ -104,6 +104,7 @@ extern SMOP__Object* SMOP__ID__REPR_initialize_instance_storage_slot;    /* "^!i
 extern SMOP__Object* SMOP__ID__REPR_instance;     /* "^!instance" */
 extern SMOP__Object* SMOP__ID__REPR_instanceof;     /* "^!instanceof" */
 extern SMOP__Object* SMOP__ID__REPR_isa;          /* "^!isa" */
+extern SMOP__Object* SMOP__ID__REPR_is_container; /* "^!is_container" */
 extern SMOP__Object* SMOP__ID__REPR_methods;      /* "^!methods" */
 extern SMOP__Object* SMOP__ID__REPR_multimethods;      /* "^!multimethods" */
 extern SMOP__Object* SMOP__ID__REPR_multisubmethods;      /* "^!multisubmethods" */

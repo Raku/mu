@@ -95,6 +95,7 @@ SMOP__Object* SMOP__ID__REPR_initialize_instance_storage_slot;
 SMOP__Object* SMOP__ID__REPR_instance;
 SMOP__Object* SMOP__ID__REPR_instanceof;
 SMOP__Object* SMOP__ID__REPR_isa;
+SMOP__Object* SMOP__ID__REPR_is_container;
 SMOP__Object* SMOP__ID__REPR_methods;
 SMOP__Object* SMOP__ID__REPR_multimethods;
 SMOP__Object* SMOP__ID__REPR_multisubmethods;

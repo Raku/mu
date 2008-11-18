@@ -14,6 +14,7 @@
 
     repr p6opaque {
         has $.^!instanceof is rw; # direct delegation of a single prototype, used by most object instances.
+        has $.^!is_container is rw; # if it is not a container, intercept FETCH calls.
         has $.^!WHENCE is rw; # autovivication closure, used by autovivification
         has p6opaque_proto $!^!proto_storage handles *;
         has Hash of Hash %.^!instance_storage is rw;
@@ -48,6 +49,7 @@ static SMOP__Object* destroyall_mold;
 typedef struct smop_p6opaque {
   SMOP__Object__BASE
   SMOP__Object* instanceof;
+  SMOP__Object* is_container;
   SMOP__Object* WHENCE;
   SMOP__Object* proto_storage;
   SMOP__Object* instance_storage;
@@ -125,6 +127,9 @@ static SMOP__Object* p6opaque_message_REPR_DESTROY(SMOP__Object* interpreter,
     } else {
       smop_lowlevel_wrlock(invocant);
 
+      SMOP__Object* is_container = ((smop_p6opaque*)invocant)->is_container;
+      ((smop_p6opaque*)invocant)->is_container = NULL;
+
       SMOP__Object* proto_storage = ((smop_p6opaque*)invocant)->proto_storage;
       ((smop_p6opaque*)invocant)->proto_storage = NULL;
 
@@ -139,6 +144,7 @@ static SMOP__Object* p6opaque_message_REPR_DESTROY(SMOP__Object* interpreter,
 
       smop_lowlevel_unlock(invocant);
 
+      if (is_container) SMOP_RELEASE(interpreter, is_container);
       if (instanceof) SMOP_RELEASE(interpreter, instanceof);
       if (WHENCE) SMOP_RELEASE(interpreter, WHENCE);
       if (proto_storage) SMOP_RELEASE(interpreter,proto_storage);
@@ -188,23 +194,42 @@ static SMOP__Object* p6opaque_proto_create(SMOP__Object* interpreter) {
   return proto;
 }
 
+static int is_p6opaque_container(SMOP__Object* interpreter,
+                                 SMOP__Object* invocant) {
+
+  if (invocant == SMOP__p6opaque__RI) {
+    return 0;
+  }
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* is_container = ((smop_p6opaque*)invocant)->is_container;
+  smop_lowlevel_unlock(invocant);
+  if (!is_container ||
+      SMOP__S1P__Scalar_FETCH(is_container) == SMOP__NATIVE__bool_false) {
+    return 0;
+  } else {
+    return 1;
+  }
+}
+
 static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                       SMOP__ResponderInterface* self,
                                       SMOP__Object* identifier,
                                       SMOP__Object* capture) {
   ___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;
+  ___INVOCANT_RI_SHOULD_MATCH___;
   
 
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
 
-  
-  if (identifier == SMOP__ID__REPR_CREATE) {
+  if (identifier == SMOP__ID__FETCH && is_p6opaque_container(interpreter,invocant)) {
+    ___VALUE_FETCH___;
+
+  } else if (identifier == SMOP__ID__REPR_CREATE) {
     ret = p6opaque_message_REPR_CREATE(interpreter, self, identifier, capture);
 
   } else if (identifier == SMOP__ID__REPR_whence) {
-    ___INVOCANT_RI_SHOULD_MATCH___;
 
     smop_lowlevel_rdlock(invocant);
     SMOP__Object* whence = ((smop_p6opaque*)invocant)->WHENCE;
@@ -218,10 +243,8 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     }
 
     ret = SMOP_REFERENCE(interpreter, whence);
-    SMOP_RELEASE(interpreter, invocant);
 
   } else if (identifier == SMOP__ID__REPR_instanceof) {
-    ___INVOCANT_RI_SHOULD_MATCH___;
 
     smop_lowlevel_rdlock(invocant);
     SMOP__Object* instanceof = ((smop_p6opaque*)invocant)->instanceof;
@@ -235,10 +258,23 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     }
 
     ret = SMOP_REFERENCE(interpreter, instanceof);
-    SMOP_RELEASE(interpreter, invocant);
+
+  } else if (identifier == SMOP__ID__REPR_is_container) {
+
+    smop_lowlevel_rdlock(invocant);
+    SMOP__Object* is_container = ((smop_p6opaque*)invocant)->is_container;
+    smop_lowlevel_unlock(invocant);
+
+    if (!is_container) {
+      smop_lowlevel_wrlock(invocant);
+      ((smop_p6opaque*)invocant)->is_container = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+      is_container = ((smop_p6opaque*)invocant)->is_container;
+      smop_lowlevel_unlock(invocant);
+    }
+
+    ret = SMOP_REFERENCE(interpreter, is_container);
 
   } else if (identifier == SMOP__ID__REPR_private_storage) {
-    ___INVOCANT_RI_SHOULD_MATCH___;
 
     smop_lowlevel_rdlock(invocant);
     SMOP__Object* instance_storage = ((smop_p6opaque*)invocant)->instance_storage;
@@ -252,7 +288,6 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     }
 
     ret = SMOP_REFERENCE(interpreter, instance_storage);
-    SMOP_RELEASE(interpreter, invocant);
 
   } else if (identifier == SMOP__ID__REPR_how ||
              identifier == SMOP__ID__REPR_who ||
@@ -265,7 +300,6 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
              identifier == SMOP__ID__REPR_multimethods ||
              identifier == SMOP__ID__REPR_multisubmethods) {
 
-    ___INVOCANT_RI_SHOULD_MATCH___;
     if (! invocant) {
       fprintf(stderr,"[smop p6opaque] REPR method called without invocant\n");
     } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
@@ -291,7 +325,6 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
                                                        SMOP_REFERENCE(interpreter,proto_storage),
                                                        NULL,NULL));
     }
-    SMOP_RELEASE(interpreter,invocant);
 
   } else if (identifier == SMOP__ID__REPR_DESTROY) {
     ret = p6opaque_message_REPR_DESTROY(interpreter, self, identifier, capture);
@@ -300,7 +333,6 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     ret = p6opaque_message_DESTROYALL(interpreter, self, identifier, capture);
 
   } else {
-    ___INVOCANT_RI_SHOULD_MATCH___;
     if (! invocant) {
       fprintf(stderr,"[smop p6opaque] dispatching called without invocant\n");
     } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
@@ -313,10 +345,10 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
     } else {
       ret = p6opaque_message_DISPATCH(interpreter, self, identifier, capture);
     }
-    SMOP_RELEASE(interpreter,invocant);
   }
  
   SMOP_RELEASE(interpreter,capture);
+  SMOP_RELEASE(interpreter,invocant);
   return ret;
 }
 
