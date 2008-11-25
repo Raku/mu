@@ -86,6 +86,8 @@ syn region p6CommentPara start="^=for [a-zA-Z0-9_]\+\>" end="^$" contains=p6Attn
 syn match  p6Shebang "^#!.*"
 
 " POD
+
+" Abbreviated blocks
 syn region p6PODAbbrRegion
     \ matchgroup=p6PODType
     \ start="^=\k\+\>"
@@ -98,6 +100,7 @@ syn region p6PODAbbr
     \ contains=p6PODFormat,p6PODComment
     \ contained
 
+" Delimited blocks
 syn region p6PODDelimRegion
     \ matchgroup=p6PODDirective
     \ start="^=begin\>"
@@ -130,6 +133,7 @@ syn region p6PODDelimEndRegion
     \ start="\(^=end\>\)\@<="
     \ end="\k\+"
 
+" Paragraph blocks
 syn region p6PODParaRegion
     \ matchgroup=p6PODDirective
     \ start="^=for\>"
@@ -158,6 +162,7 @@ syn region p6PODPara
     \ contained
     \ extend
 
+" These may appear inside delimited blocks
 syn cluster p6PODNested
     \ add=p6PODAbbrRegion
     \ add=p6PODDelimRegion
@@ -165,22 +170,23 @@ syn cluster p6PODNested
     \ add=p6PODFormat
     \ add=p6POD
 
+" Pod formatting codes
 syn region p6PODFormat
-    \ start="[A-Z]<[^<]"me=e-1
+    \ start="\u<[^<]"me=e-1
     \ end=">"
     \ contains=p6PODFormat
     \ oneline
     \ contained
 
 syn region p6PODFormat
-    \ start="[A-Z]«[^«]"me=e-1
+    \ start="\u«[^«]"me=e-1
     \ end="»"
     \ contains=p6PODFormat
     \ oneline
     \ contained
 
 syn region p6PODFormat
-    \ start="[A-Z]<<\s"
+    \ start="\u<<\s"
     \ end="\s>>"
     \ contains=p6PODFormat
     \ oneline
@@ -188,11 +194,13 @@ syn region p6PODFormat
 
 syn match p6PODFormat  "Z<>" contained
 syn match p6PODFormat  "E<\(\d\+\|\I\i*\)>" contains=p6PODEscape,p6PODEscape2
-syn match p6PODEscape  "\I\i*>"me=e-1 contained
-syn match p6PODEscape2 "\d\+>"me=e-1 contained
-syn match p6PODComment  "#.*" contained
-syn match p6PODConfig  ":[^#]*" contained
-syn match p6PODExtraConfigLeader "^="  contained
+syn match p6PODEscape  "\I\i*>"me=e-1       contained
+syn match p6PODEscape2 "\d\+>"me=e-1        contained
+
+" Pod Misc
+syn match p6PODComment           "#.*"      contained
+syn match p6PODConfig            ":[^#]*"   contained
+syn match p6PODExtraConfigLeader "^="       contained
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6KeyType      "¢[:\.*^?]\?[a-zA-Z_]\w*"
