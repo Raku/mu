@@ -48,6 +48,8 @@ S09
 * tests for PDL
 
 S12
+* tests for multi *method* dispatch (either write new ones, or find and review
+  some under t/oo/)
 * tests for $object.WALK
 * tests for $object.*@candidates
 * tests for "but" (such as 0 but Bool::True; should go into S12-enums/)
