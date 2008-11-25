@@ -81,8 +81,6 @@ syn match   p6Normal        "\w*::\w\+"
 
 " Comments
 syn match  p6Comment "#.*" contains=p6Attn
-syn region p6CommentMline start="^=begin \z([a-zA-Z0-9_]\+\)\>" end="^=end \z1\>" contains=p6Attn 
-syn region p6CommentPara start="^=for [a-zA-Z0-9_]\+\>" end="^$" contains=p6Attn
 syn match  p6Shebang "^#!.*"
 
 " Pod
@@ -93,12 +91,14 @@ syn region p6PodAbbrRegion
     \ start="^=\k\+\>"
     \ end="^\ze\(\s*$\|=\k\)"
     \ contains=p6PodAbbr
+    \ keepend
 
 syn region p6PodAbbr
     \ start=""
     \ end="^\ze\(\s*$\|=\k\)"
     \ contains=p6PodFormat
     \ contained
+    \ keepend
 
 " Delimited blocks
 syn region p6PodDelimRegion
@@ -353,8 +353,6 @@ hi link p6LiteralString p6String
 hi link p6Keyword       Statement
 hi link p6Number        Number
 hi link p6Comment       Comment
-hi link p6CommentMline  Comment
-hi link p6CommentPara   Comment
 hi link p6Variable      Identifier
 hi link p6VarException  Special
 hi link p6String        String
