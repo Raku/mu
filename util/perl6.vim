@@ -27,7 +27,7 @@
 "   * Improve POD formatting codes support (S<>, etc) 
 
 " Recommended formatting options (see pugs::hack)
-setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
+setlocal autoindent expandtab smarttab shiftround shiftwidth=4 softtabstop=4
 
 " Billions of keywords
 syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB contained 
