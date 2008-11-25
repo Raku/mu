@@ -3368,6 +3368,12 @@ sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 my $code = (("package\ Main\;\
 " . $self->prelude_for_entering_a_package()));
 my $stmts = $self->e($n->statements());
+($stmts = $stmts->map(sub {my($x)=@_;
+(do{if(GLOBAL::defined($x)) {
+(do{$x})
+}else {
+(do{""})
+}})}));
 my $foot = $whiteboard::compunit_footer->join("\;\
 ");
 ((($code . $stmts->join("\;\
@@ -3375,7 +3381,14 @@ my $foot = $whiteboard::compunit_footer->join("\;\
 ")})};
 sub cb__Block{my $self=CORE::shift;my($n)=@_;
 (do{{ package EmitSimpleP5; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
-(("\(do\{" . $self->e($n->statements())->join("\;\
+my $stmts = $self->e($n->statements());
+($stmts = $stmts->map(sub {my($x)=@_;
+(do{if(GLOBAL::defined($x)) {
+(do{$x})
+}else {
+(do{""})
+}})}));
+(("\(do\{" . $stmts->join("\;\
 ")) . "\}\)")})};
 sub cb__Use{my $self=CORE::shift;my($n)=@_;
 (do{my $module = $self->e($n->module_name());

@@ -458,13 +458,16 @@ package Main;
       "package Main;\n"~
       self.prelude_for_entering_a_package());
     my $stmts = $.e($n.statements);
+    $stmts = $stmts.map(sub($x){if defined($x) {$x} else {""}}); #XXX
     my $foot = $whiteboard::compunit_footer.join(";\n");
     $code ~ $stmts.join(";\n")~$foot~";\n";
   };
   method cb__Block ($n) {
     temp $whiteboard::emit_pairs_inline = 0;
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
-    '(do{'~$.e($n.statements).join(";\n")~'})'
+    my $stmts = $.e($n.statements);
+    $stmts = $stmts.map(sub($x){if defined($x) {$x} else {""}}); #XXX
+    '(do{'~$stmts.join(";\n")~'})'
   };
 
   method cb__Use ($n) {
@@ -528,7 +531,7 @@ package Main;
     if $.using_Moose {
       my $dflt = $default;
       if $dflt {
-        $dflt = ", default => sub{ "~$default~" }"
+        $dflt = ', default => sub{ '~$default~" }"
       }
       "has '"~$name~"' => (is => 'rw'"~$dflt~");"
     } else {
@@ -578,7 +581,7 @@ package Main;
       if ($n.is_context) { # BOGUS
         my $name = $.e($n.var);
         $name = $name.re_gsub('^(.)::','$1');
-        ("{package main; use vars '"~$name~"'};"~
+        ("\{package main; use vars '"~$name~"'};"~
          'local'~' '~$.e($n.var)~$default)
       }
       elsif ($n.is_temp) {
@@ -737,7 +740,7 @@ package Main;
     temp $whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
     if ($method eq 'postcircumfix:< >') {
-      $.e($n.invocant)~'->'~"{'"~$.e($n.capture)~"'}";
+      $.e($n.invocant)~'->'~"\{'"~$.e($n.capture)~"'}";
     }
     elsif $g = $method.re_groups('postcircumfix:(.*)') {
       my $op = $g[0];
@@ -890,7 +893,7 @@ package Main;
     my $push = "";
     if $n.expr.WHAT ne 'IRx1::Apply' { $push = "->flatten"};
     my $pull = "";
-    if $n.block.WHAT eq 'IRx1::SubDecl' { $pull = "->($_)"};
+    if $n.block.WHAT eq 'IRx1::SubDecl' { $pull = '->($_)'};
     'for(('~$.e($n.expr)~')'~$push~")\{\n"~$.e($n.block)~$pull~"\n}"
   };
   method cb__Cond ($n) {
