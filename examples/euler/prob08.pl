@@ -1,9 +1,11 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 Find the greatest product of five consecutive digits in the 1000-digit
 number.
-=cut
+=end Problem
 
 use v6;
 use Benchmark;

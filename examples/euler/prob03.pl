@@ -1,10 +1,12 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 The prime factors of 13195 are 5, 7, 13 and 29.
 
 What is the largest prime factor of the number 317584931803?
-=cut
+=end Problem
 
 use v6;
 use Benchmark;

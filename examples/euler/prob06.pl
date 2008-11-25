@@ -1,5 +1,7 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 The sum of the squares of the first ten natural numbers is,
 1² + 2² + ... + 10² = 385
@@ -12,7 +14,7 @@ natural numbers and the square of the sum is 3025-385 = 2640.
 
 Find the difference between the sum of the squares of the first one
 hundred natural numbers and the square of the sum.
-=cut
+=end Problem
 
 use v6;
 use Benchmark;

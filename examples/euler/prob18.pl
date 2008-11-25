@@ -1,5 +1,7 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 By starting at the top of the triangle below and moving to adjacent numbers on the row below, the maximum total from top to bottom is 23.
 
@@ -15,7 +17,7 @@ Find the maximum total from top to bottom of the triangle below:
 [triangle omitted]
 
 NOTE: As there are only 16384 routes, it is possible to solve this problem by trying every route. However, Problem 67, is the same challenge with a triangle containing one-hundred rows; it cannot be solved by brute force, and requires a clever method! ;o)
-=cut
+=end Problem
 
 =begin Insight
 This problem is an excellent example of dynamic programming. Instead of searching for the optimal route by starting from the top and going down each possible path, we use some cleverness. Let's instead look at the second to bottom row. 
@@ -32,7 +34,7 @@ From the leftmost cell, 2, we can either go to 8 or 5. Obviously we want to go t
   10  13  15   <--
 
 We can do this repeatedly until we get to the topmost cell. That cell will end up with the optimal path. This method will quickly solve both this 15-row triangle and the 100-row triangle that the note in the problem statement warns us about.
-=cut
+=end Insight
 
 use v6;
 use Benchmark;

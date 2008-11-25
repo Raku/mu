@@ -1,5 +1,7 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 A Pythagorean triplet is a set of three natural numbers, a<b<c, for which,
 
@@ -8,7 +10,7 @@ For example, 3^2 + 4^2 = 9 + 16 = 25 = 5^2.
 
 There exists exactly one Pythagorean triplet for which a + b + c = 1000.
 Find the product abc.
-=cut
+=end Problem
 
 use v6;
 use Benchmark;

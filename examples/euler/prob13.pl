@@ -1,9 +1,11 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 Work out the first ten digits of the sum of the following one-hundred
 50-digit numbers.
-=cut
+=end Problem
 
 use v6;
 use Benchmark;

@@ -1,5 +1,7 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 In the 20x20 grid below, four numbers along a diagonal line have been marked in red.
 
@@ -8,7 +10,7 @@ In the 20x20 grid below, four numbers along a diagonal line have been marked in 
 The product of these numbers is 26 x 63 x 78 x 14 = 1788696.
 
 What is the greatest product of four numbers in any direction (up, down, left, right, or diagonally) in the 2020 grid?
-=cut
+=end Problem
 
 use v6;
 use Benchmark;

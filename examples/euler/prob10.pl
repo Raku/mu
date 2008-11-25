@@ -1,10 +1,12 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 The sum of the primes below 10 is 2 + 3 + 5 + 7 = 17.
 
 Find the sum of all the primes below one million.
-=cut
+=end Problem
 
 use v6;
 use Benchmark;

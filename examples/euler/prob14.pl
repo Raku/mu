@@ -1,5 +1,7 @@
 #!/usr/bin/env pugs
 
+# vim: filetype=perl6
+
 =begin Problem
 The following iterative sequence is defined for the set of positive
 integers:
@@ -19,7 +21,7 @@ Which starting number, under one million, produces the longest chain?
 
 NOTE: Once the chain starts the terms are allowed to go above one
 million.
-=cut
+=end Problem
 
 use v6;
 use Benchmark;
