@@ -1,8 +1,10 @@
 " Vim syntax file
 " Language:     Perl 6
-" Maintainer:   Luke Palmer <fibonaci@babylonia.flatirons.org>
-" Last Change:  ???? ?? ??
-" 
+" Last Change:  Nov 25th 2008
+" Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
+"               Moritz Lenz <moritz@faui2k3.org>
+"               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
+"                
 " This is a big undertaking. Perl 6 is the sort of language that only Perl
 " can parse. But I'll do my best to get vim to.
 "
@@ -15,13 +17,14 @@
 "   finish
 " endif
 "
-" TODO: (added by Moritz Lenz <moritz@faui2k3.org>)
+" TODO:
 "   * syntax for reading from stdin: =<> or from arbitrary file handles:
 "     =<$fh>
 "   * List initialization via the @a = <foo bar> construct brakes when there
 "     is a newline between '<' and '>'
 "   * The regex regex_name { ... } syntax for regexes/tokens seems to be
 "     unsupported
+"   * Improve POD formatting codes support (S<>, etc) 
 
 " Recommended formatting options (see pugs::hack)
 setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
@@ -83,15 +86,113 @@ syn region p6CommentPara start="^=for [a-zA-Z0-9_]\+\>" end="^$" contains=p6Attn
 syn match  p6Shebang "^#!.*"
 
 " POD
-" syn region p6POD start="^=\(cut\)\@!\w\+.\+$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODHeadKwid,p6PODSec,p6PODSecKwid
+syn region p6PODAbbrRegion
+    \ matchgroup=p6PODType
+    \ start="^=\k\+\>"
+    \ end="^\ze\(\s*$\|=\k\)"
+    \ contains=p6PODAbbr
 
-syn match p6PODVerbatim  "^\s.*"      contained 
-syn match p6PODHeadKwid  "^=\{1,2\} " nextgroup=p6PODTitle contained 
-syn match p6PODHead      "^=head[12]" nextgroup=p6PODTitle contained 
-syn match p6PODTitle     ".*$"        contained 
-syn match p6PODSec       "^=head[34]" nextgroup=p6PODSecTitle contained
-syn match p6PODSecKwid   "^=\{3,4\} " nextgroup=p6PODSecTitle contained 
-syn match p6PODSecTitle  ".*$"        contained 
+syn region p6PODAbbr
+    \ start=""
+    \ end="^\ze\(\s*$\|=\k\)"
+    \ contains=p6PODFormat,p6PODComment
+    \ contained
+
+syn region p6PODDelimRegion
+    \ matchgroup=p6PODDirective
+    \ start="^=begin\>"
+    \ end="^=end\>"
+    \ contains=p6PODDelimTypeRegion
+
+syn region p6PODDelimTypeRegion
+    \ matchgroup=p6PODType
+    \ start="\k\+"
+    \ end="^\ze=end\>"
+    \ contains=p6PODDelim,p6PODDelimConfigRegion
+    \ contained
+    \ keepend
+
+syn region p6PODDelimConfigRegion
+    \ matchgroup=p6PODConfig
+    \ start=""
+    \ end="^\ze\([^=]\|=\k\)"
+    \ contains=p6PODConfig,p6PODExtraConfigLeader,p6PODComment
+    \ contained
+
+syn region p6PODDelim
+    \ start="^[^=]"
+    \ end="^\ze=end\>"
+    \ contains=@p6PODNested
+    \ contained
+    \ extend
+
+syn region p6PODDelimEndRegion
+    \ start="\(^=end\>\)\@<="
+    \ end="\k\+"
+
+syn region p6PODParaRegion
+    \ matchgroup=p6PODDirective
+    \ start="^=for\>"
+    \ end="^\ze\(\s*\|=\k\)"
+    \ contains=p6PODParaTypeRegion
+
+syn region p6PODParaTypeRegion
+    \ matchgroup=p6PODType
+    \ start="\k\+"
+    \ end="^\ze\(\s*$\|=\k\)"
+    \ contains=p6PODPara,p6PODParaConfigRegion
+    \ contained
+    \ keepend
+
+syn region p6PODParaConfigRegion
+    \ matchgroup=p6PODConfig
+    \ start=""
+    \ end="^\ze\([^=]\|=\k\)"
+    \ contains=p6PODConfig,p6PODExtraConfigLeader,p6PODComment
+    \ contained
+
+syn region p6PODPara
+    \ start="^[^=]"
+    \ end="^\ze\(\s*$\|=\k\)"
+    \ contains=@p6PODNested
+    \ contained
+    \ extend
+
+syn cluster p6PODNested
+    \ add=p6PODAbbrRegion
+    \ add=p6PODDelimRegion
+    \ add=p6PODParaRegion
+    \ add=p6PODFormat
+    \ add=p6POD
+
+syn region p6PODFormat
+    \ start="[A-Z]<[^<]"me=e-1
+    \ end=">"
+    \ contains=p6PODFormat
+    \ oneline
+    \ contained
+
+syn region p6PODFormat
+    \ start="[A-Z]«[^«]"me=e-1
+    \ end="»"
+    \ contains=p6PODFormat
+    \ oneline
+    \ contained
+
+syn region p6PODFormat
+    \ start="[A-Z]<<\s"
+    \ end="\s>>"
+    \ contains=p6PODFormat
+    \ oneline
+    \ contained
+
+syn match p6PODFormat  "Z<>" contained
+syn match p6PODFormat  "E<\(\d\+\|\I\i*\)>" contains=p6PODEscape,p6PODEscape2
+syn match p6PODEscape  "\I\i*>"me=e-1 contained
+syn match p6PODEscape2 "\d\+>"me=e-1 contained
+syn match p6PODComment  "#.*" contained
+syn match p6PODConfig  ":[^#]*" contained
+syn match p6PODExtraConfigLeader "^="  contained
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6KeyType      "¢[:\.*^?]\?[a-zA-Z_]\w*"
@@ -247,16 +348,21 @@ hi link p6Number        Number
 hi link p6Comment       Comment
 hi link p6CommentMline  Comment
 hi link p6CommentPara   Comment
-hi link p6POD           Comment 
-hi link p6PODHead       Comment
-hi link p6PODHeadKwid   Comment 
-hi link p6PODTitle      Title 
-hi link p6PODSec        Comment
-hi link p6PODSecKwid    Comment 
-hi link p6PODSecTitle   String 
-hi link p6PODVerbatim   Special
 hi link p6Variable      Identifier
 hi link p6VarException  Special
 hi link p6String        String
+
+hi link p6PODPara              p6POD
+hi link p6PODAbbr              p6POD
+hi link p6PODDelim             p6POD
+hi link p6PODDelimEndRegion    p6PODType
+hi link p6PODExtraConfigLeader p6PODDirective
+
+hi link p6POD          PreProc
+hi link p6PODComment   Comment
+hi link p6PODDirective Keyword
+hi link p6PODType      Type
+hi link p6PODConfig    Identifier
+hi link p6PODFormat    Special
 
 let b:current_syntax = "perl6"
