@@ -9,15 +9,19 @@ elfx:: have_parser_cache
 
 tst:
 	-rm ${TMP}/x?
-	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Compiler.pm
-	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Compiler.pm
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/EmitSimpleP5.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/EmitSimpleP5.pm
 	-diff ${TMP}/x0 ${TMP}/x1
 
 regression_check:
 	-rm ${TMP}/x?
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/CommandLine.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/CommandLine.pm
-	-diff ${TMP}/x0 ${TMP}/x1
+	diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Compiler.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Compiler.pm
+	diff ${TMP}/x0 ${TMP}/x1
+	@echo ok
 
 check: have_parser_cache
 	# Remove STD.pm/gimme5 cruft.

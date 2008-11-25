@@ -59,8 +59,8 @@ if $o<infix> {
   }
 }
 elsif $o<prefix> {
-  my $op = $m<prefix><sym_name>;
-  Apply.newp("prefix:"~$op,Capture.newp1([$m<arg>]))
+  temp $blackboard::expect_term_base = $m<arg>;
+  $m<prefix>
 }
 elsif $o<chain> {
   my $chain = $m<chain>;
@@ -101,17 +101,25 @@ $m<postfix> || $m<postcircumfix>
 prefix
 my $op = *text*;
 my $name = "prefix:"~$op;
-if $op.re_matchp('\A\w+\z') { $name = $op }
 if $op eq 'temp' {
   my $scope = 'temp';
   my $typenames = undef;
   my $variable = $blackboard::expect_term_base;
   my $traits = undef;
   my $default_value = undef;
-  VarDecl.newp($scope,$typenames,undef,$variable,undef,$traits,'=',$default_value)
-} else {
-  Apply.newp($name,Capture.newp1([$blackboard::expect_term_base]))
+  return VarDecl.newp($scope,$typenames,undef,$variable,undef,$traits,'=',$default_value)
 }
+if $op.re_matchp('\A\w+\z') { # XXX elf_h compatability kludge.  prefix:not->not
+  $name = $op;
+  my $base = $blackboard::expect_term_base;
+  if ($base.WHAT eq 'IRx1::Apply' &&
+      $base.function eq 'circumfix:( )' &&
+      $base.capture.arguments.elems == 1)
+  {
+    $blackboard::expect_term_base = $base.capture.arguments[0];
+  }
+}
+Apply.newp($name,Capture.newp1([$blackboard::expect_term_base]))
 
 postfix
 my $op = *text*;
@@ -235,31 +243,66 @@ module_name:normal
 role_name
 *text*
 
+quote:/
+die("quote:/ is unimplemented"); #"
 
 quote
+temp $blackboard::quote = $o<sym_name>;
 my $nibs = $m<nibble><nibbles>;
-my $args = $nibs.map(sub($x){if $x.WHAT eq 'Str' {Buf.newp($x);} else {$x}});
+my $args = $nibs.map(sub($x){
+  if $x.WHAT eq 'Str' {Buf.newp($x);}
+  else {$x}
+                     });
 if $args.elems < 2 && $nibs[0].WHAT ne 'Str' { $args.push(Buf.newp("")) }
 my $tmp = $args.shift;
 for $args {
-  $tmp = Apply.newp('infix:~',Capture.newp1([$tmp,$_]))
+  if $tmp.WHAT eq 'IRx1::Buf' && $_.WHAT eq 'IRx1::Buf' {
+    $tmp = Buf.newp($tmp.buf ~ $_.buf);
+  } else {
+    $tmp = Apply.newp('infix:~',Capture.newp1([$tmp,$_]));
+  }
 }
 $tmp
 
-nibbles:\
-my $which = $m<item><sym_name>;
-if $which eq 'n' { "\n" }
-elsif $which eq 't' { "\t" }
-else { $which }
+#nibbles:\
+#my $which = $m<item><sym_name>;
+#if $which eq 'n' { "\n" }
+#elsif $which eq 't' { "\t" }
+#else { $which }
 
-nibbles
-$m<variable>
+#nibbles
+#$m<variable>
 
 escape
 my $e = *text*;
-if    $e eq '\n' { Buf.newp("\n") }
-elsif $e eq '\t' { Buf.newp("\t") }
-else { die "Unsupported escape: "~$e }
+if $blackboard::quote eq "' '" {
+  if    $e eq '\\\\' { Buf.newp('\\') }
+  elsif $e eq '\\\'' { Buf.newp("'") }
+  else { Buf.newp($e) }
+}
+elsif $blackboard::quote eq '" "' {
+  if    $e eq '\n' { Buf.newp("\n") }
+  elsif $e eq '\t' { Buf.newp("\t") }
+  else {
+    my $g = $e.re_groups('\A\\\\(.)\z');
+    if $g { Buf.newp($g[0]) }
+    else { die "Unsupported qq escape: "~$e }
+  }
+}
+else { die "Unsupported quote: "~$blackboard::quote }
+
+nibbler
+#XXX I've sooo no idea.
+$m<nibbles>[0]
+
+colonpair
+my $v = $m<v>;
+if $o<v><nibble> { #XXX :x<2> bypass postcircumfix:< >.
+  $v = $o<v><nibble><nibbles>[0];
+  $v = Buf.newp($v)
+}
+my $k = $m<k>; # or $m<identifier> ?
+Pair.newp($k,$v)
 
 
 scope_declarator:my
@@ -292,18 +335,16 @@ VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<traits>,'=',$m<defaul
 #XXX default_value is going to take some non-local work.
 
 variable
-my $tw = $m<twigil>[0];
+my $tw = $m<twigil>[0] || "";
+if $tw eq "." && $blackboard::variable_postcircumfix {
+  my $slf = Apply.newp('self',Capture.newp1([]));
+  my $args = $m<postcircumfix>;
+  return Call.newp($slf,$m<desigilname>,Capture.newp1($args||[]))
+}
 if $o<postcircumfix>.elems {
-  if $tw eq "." {
-    my $slf = Apply.newp('self',Capture.newp1([]));
-    my $args = $m<postcircumfix><kludge_name>;
-    if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
-    Call.newp($slf,$m<desigilname>,Capture.newp1($args||[]))
-  } else {
-    my $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
-    temp $blackboard::expect_term_base = $v;
-    $m<postcircumfix>;
-  }
+  my $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
+  temp $blackboard::expect_term_base = $v;
+  $m<postcircumfix>;
 } else {
   Var.newp($m<sigil>,$tw,$m<desigilname>);
 }
@@ -467,7 +508,7 @@ if $type_constraint && $type_constraint.elems == 2 { $type_constraint.pop }
 Parameter.newp($type_constraint,$quantchar,$var,undef,undef,undef,undef)
 
 param_var
-ParamVar.newp($m<sigil>,$m<twigil>[0],$m<identifier>[0])
+ParamVar.newp($m<sigil>,$m<twigil>[0]||"",$m<identifier>[0])
 
 type_constraint
 $m<fulltypename>
@@ -506,48 +547,35 @@ elsif $o<EXPR><sym> && $o<EXPR><sym> eq ',' {
 }
 else { die "capture AST form not recognized" }
 
-nibbler
-#XXX I've sooo no idea.
-$m<nibbles>[0]
+#colonpair__false
+#Pair.newp($m<ident>,NumInt.newp(0))
 
-colonpair
-my $v = $m<v>;
-if $o<v><nibble> { #XXX :x<2> bypass postcircumfix:< >.
-  $v = $o<v><nibble><nibbles>[0];
-  $v = Buf.newp($v)
-}
-my $k = $m<k>; # or $m<identifier> ?
-Pair.newp($k,$v)
+#colonpair__value
+#my $value;
+#if $o<postcircumfix> {
+#  $value = $m<postcircumfix><kludge_name>;
+#} else {
+#  $value = NumInt.newp(1);
+#}
+#Pair.newp($m<ident>,$value)
 
-colonpair__false
-Pair.newp($m<ident>,NumInt.newp(0))
+#quotepair
+#*1*
 
-colonpair__value
-my $value;
-if $o<postcircumfix> {
-  $value = $m<postcircumfix><kludge_name>;
-} else {
-  $value = NumInt.newp(1);
-}
-Pair.newp($m<ident>,$value)
+#quotepair__false
+#Pair.newp($m<ident>,NumInt.newp(0))
 
-quotepair
-*1*
+#quotepair__value
+#my $value;
+#if $o<postcircumfix> {
+#  $value = $m<postcircumfix><kludge_name>;
+#} else {
+#  $value = NumInt.newp(1);
+#}
+#Pair.newp($m<ident>,$value)
 
-quotepair__false
-Pair.newp($m<ident>,NumInt.newp(0))
-
-quotepair__value
-my $value;
-if $o<postcircumfix> {
-  $value = $m<postcircumfix><kludge_name>;
-} else {
-  $value = NumInt.newp(1);
-}
-Pair.newp($m<ident>,$value)
-
-quotepair__nth
-Pair.newp('nth',$m<n>)
+#quotepair__nth
+#Pair.newp('nth',$m<n>)
 
 
 package_declarator:role
