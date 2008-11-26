@@ -167,8 +167,11 @@ sub VAST::Terminator::emit_m0ld {
 }
 sub VAST::args::emit_m0ld {
     my $m = shift;
-    if ($m->{listopargs}) {
+    if ($m->{listopargs} && @{$m->{listopargs}}) {
         [map {$_->{EXPR}->emit_m0ld} @{$m->{listopargs}}];
+    } elsif ($m->{semilist}) {
+        my $positional = $m->{semilist}{statement}[0];
+        [ $positional ? $positional->emit_m0ld : () ];
     } else {
         XXX;
     }

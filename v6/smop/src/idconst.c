@@ -67,6 +67,12 @@ static SMOP__Object* idconst_message(SMOP__Object* interpreter,
     ___VALUE_FETCH___;
   } else if (SMOP__ID__STORE == identifier) {
     ___VALUE_STORE___;
+  } else if (SMOP__ID__true == identifier) {
+    if (((SMOP__NATIVE__idconst_data*)invocant->data)->size) {
+      ret = SMOP__NATIVE__bool_true;
+    } else {
+      ret = SMOP__NATIVE__bool_false;
+    }
   } else {
     ___UNKNOWN_METHOD___;
   }
