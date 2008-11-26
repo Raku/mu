@@ -92,7 +92,7 @@ package Evalbot;
                 chdir       => '../../src/perl6',
                 cmd_line    => $^X . ' STD_syntax_highlight %program >>%out 2>&1',
                 revision    => \&get_revision,
-            }
+            },
     );
 
     my $evalbot_version = get_revision();
@@ -109,7 +109,10 @@ package Evalbot;
         my $e = shift;
         my $message = $e->{body};
         my $address = $e->{address} // '';
-        if ($message =~ m/\A$regex\s+(.*)\z/){
+
+        if ($message =~ m/^p6eval:/) {
+            return "Usage: ", join(',', sort keys %impls), ': $code';
+        } elsif ($message =~ m/\A$regex\s+(.*)\z/){
             my ($eval_name, $str) = ($1, $2);
             my $e = $impls{$eval_name};
             return "Please use /msg $self->{nick} $str" 
