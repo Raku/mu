@@ -1,7 +1,7 @@
 $OUT.print("1..3\n");
 my $baz = "ok 1\n";
 my sub bzzt($boing) {
-    if ($boing) {
+    if $boing {
         $baz = $boing;
     } else {
         $baz = "ok 2\n";
