@@ -87,63 +87,89 @@ syn match  p6Shebang "^#!.*"
 
 " Abbreviated blocks
 syn region p6PodAbbrRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=\ze\S\+\>"
+    \ end="^\ze\(\s*$\|=\k\)"
+    \ contains=p6PodAbbrType
+    \ keepend
+
+syn region p6PodAbbrType
     \ matchgroup=p6PodType
-    \ start="^=\k\+\>"
+    \ start="\S\+\>"
     \ end="^\ze\(\s*$\|=\k\)"
     \ contains=p6PodAbbr
-    \ keepend
+    \ contained
 
 syn region p6PodAbbr
     \ start=""
     \ end="^\ze\(\s*$\|=\k\)"
-    \ contains=p6PodFormat
+    \ contains=@p6PodAmbient
     \ contained
+
+" Directives
+syn region p6PodDirectRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=\(config\|use\|encoding\)\>"
+    \ end="^\ze\([^=]\|=\S\|$\)"
+    \ contains=p6PodDirectTypeRegion
     \ keepend
+
+syn region p6PodDirectTypeRegion
+    \ matchgroup=p6PodType
+    \ start="\S\+"
+    \ end="^\ze\([^=]\|=\S\|$\)"
+    \ contains=p6PodDirectConfigRegion
+    \ contained
+
+syn region p6PodDirectConfigRegion
+    \ matchgroup=p6PodConfig
+    \ start=""
+    \ end="^\ze\([^=]\|=\S\|$\)"
+    \ contains=p6PodConfig,p6PodExtraConfigLeader
+    \ contained
 
 " Delimited blocks
 syn region p6PodDelimRegion
-    \ matchgroup=p6PodDirective
+    \ matchgroup=p6PodCommand
     \ start="^=begin\>"
     \ end="^=end\>"
     \ contains=p6PodDelimTypeRegion
 
 syn region p6PodDelimTypeRegion
     \ matchgroup=p6PodType
-    \ start="\k\+"
+    \ start="\S\+"
     \ end="^\ze=end\>"
     \ contains=p6PodDelim,p6PodDelimConfigRegion
     \ contained
-    \ keepend
 
 syn region p6PodDelimConfigRegion
     \ matchgroup=p6PodConfig
     \ start=""
-    \ end="^\ze\([^=]\|=\k\)"
+    \ end="^\ze\([^=]\|=\S\|$\)"
     \ contains=p6PodConfig,p6PodExtraConfigLeader
     \ contained
 
 syn region p6PodDelim
-    \ start="^[^=]"
+    \ start="^"
     \ end="^\ze=end\>"
-    \ contains=@p6PodNested
+    \ contains=@p6PodNested,@p6PodAmbient
     \ contained
-    \ extend
 
 syn region p6PodDelimEndRegion
     \ start="\(^=end\>\)\@<="
-    \ end="\k\+"
+    \ end="\S\+"
 
 " Paragraph blocks
 syn region p6PodParaRegion
-    \ matchgroup=p6PodDirective
+    \ matchgroup=p6PodCommand
     \ start="^=for\>"
-    \ end="^\ze\(\s*\|=\k\)"
+    \ end="^\ze\(\s*\|=\S\)"
     \ contains=p6PodParaTypeRegion
 
 syn region p6PodParaTypeRegion
     \ matchgroup=p6PodType
-    \ start="\k\+"
-    \ end="^\ze\(\s*$\|=\k\)"
+    \ start="\S\+"
+    \ end="^\ze\(\s*$\|=\S\)"
     \ contains=p6PodPara,p6PodParaConfigRegion
     \ contained
     \ keepend
@@ -151,24 +177,28 @@ syn region p6PodParaTypeRegion
 syn region p6PodParaConfigRegion
     \ matchgroup=p6PodConfig
     \ start=""
-    \ end="^\ze\([^=]\|=\k\)"
+    \ end="^\ze\([^=]\|=\S\)"
     \ contains=p6PodConfig,p6PodExtraConfigLeader
     \ contained
 
 syn region p6PodPara
     \ start="^[^=]"
-    \ end="^\ze\(\s*$\|=\k\)"
-    \ contains=@p6PodNested
+    \ end="^\ze\(\s*$\|=\S\)"
+    \ contains=@p6PodAmbient
     \ contained
     \ extend
+
+" Special things one may find in Pod prose
+syn cluster p6PodAmbient
+    \ add=p6PodFormat
+    \ add=p6PodVerbatim
 
 " These may appear inside delimited blocks
 syn cluster p6PodNested
     \ add=p6PodAbbrRegion
+    \ add=p6PodDirectRegion
     \ add=p6PodDelimRegion
     \ add=p6PodParaRegion
-    \ add=p6PodFormat
-    \ add=p6Pod
 
 " Pod formatting codes
 syn region p6PodFormat
@@ -200,6 +230,7 @@ syn match p6PodEscape2 "\d\+>"me=e-1        contained
 " Pod Misc
 syn match p6PodConfig            ":[^#]*"   contained
 syn match p6PodExtraConfigLeader "^="       contained
+syn match p6PodVerbatim          "^\s.*"    contained
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6KeyType      "¢[:\.*^?]\?[a-zA-Z_]\w*"
@@ -361,12 +392,13 @@ hi link p6PodPara              p6Pod
 hi link p6PodAbbr              p6Pod
 hi link p6PodDelim             p6Pod
 hi link p6PodDelimEndRegion    p6PodType
-hi link p6PodExtraConfigLeader p6PodDirective
+hi link p6PodExtraConfigLeader p6PodCommand
 
 hi link p6Pod          Comment
-hi link p6PodDirective Keyword
-hi link p6PodType      Type
+hi link p6PodCommand   Keyword
+hi link p6PodType      Constant
 hi link p6PodConfig    Identifier
 hi link p6PodFormat    Special
+hi link p6PodVerbatim  Special
 
 let b:current_syntax = "perl6"
