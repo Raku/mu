@@ -10,7 +10,7 @@ class Match {
     self.new('rule',$r,'match_str',$s,'from',$f,'to',$t,'hash',$h);
   };
   method match_describe() {
-    my $s = $.rule~"<"~$.from~","~$.to~",'"~$.match_str~"',{";
+    my $s = $.rule~"<"~$.from~","~$.to~",'"~$.match_str~"',\{";
     for $.hash.keys {
       my $k = $_;
       my $v = $.hash{$k};
@@ -45,7 +45,7 @@ class Array {
 };
 class Hash {
   method match_describe() {
-    my $s = "{";
+    my $s = '{';
     for self.keys {
       my $k = $_;
       my $v = self.{$k};

@@ -9,8 +9,32 @@ elfx:: have_parser_cache
 
 tst:
 	-rm ${TMP}/x?
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_Analysis.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_Analysis.pm
+	-diff ${TMP}/x0 ${TMP}/x1
+
+pending_methodcall:
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/EmitSimpleP5.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/EmitSimpleP5.pm
+	-diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_FromAST.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_FromAST.pm
+	-diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_Nodes.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_Nodes.pm
+	-diff ${TMP}/x0 ${TMP}/x1
+
+pending_other:
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_Analysis.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_Analysis.pm
+	-diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Prelude.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Prelude.pm
+	-diff ${TMP}/x0 ${TMP}/x1
+
+pending_memory:
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/PrimitivesP5.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/PrimitivesP5.pm
 	-diff ${TMP}/x0 ${TMP}/x1
 
 regression_check:
@@ -20,6 +44,12 @@ regression_check:
 	diff ${TMP}/x0 ${TMP}/x1
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Compiler.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Compiler.pm
+	diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Match.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Match.pm
+	diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Parser.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Parser.pm
 	diff ${TMP}/x0 ${TMP}/x1
 	@echo ok
 

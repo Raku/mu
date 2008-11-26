@@ -138,6 +138,20 @@ my $args = $m<semilist>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Apply.newp("circumfix:"~$op,Capture.newp1($args||[]))
 
+circumfix:pblock
+if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string.re_matchp('^:') {
+  Hash.newp($m<block><statementlist>)
+} elsif $o<block><statementlist>[0]<EXPR> and $o<block><statementlist>[0]<EXPR><sym> and $o<block><statementlist>[0]<EXPR><sym> eq "," { # XXX Not p6.  Remove once off elf_e, and Match updated.
+  Hash.newp($m<block><statementlist>)
+} elsif $o<block><statementlist>[0]<EXPR> and $o<block><statementlist>[0]<EXPR><sym> and $o<block><statementlist>[0]<EXPR><sym> eq "=>" {
+  Hash.newp($m<block><statementlist>)
+} elsif not($m<lambda>) and not($m<signature>) {
+  $m<block>
+} else {
+  die "AST handler circumfix:pblock partially unimplemented";
+}
+
+
 infix
 my $op = $m<sym_name>;
 $op;
@@ -610,19 +624,6 @@ Trait.newp('is',$m<longname>)
 trait_auxiliary:does
 Trait.newp('does',$m<module_name>)
 
-
-circumfix:pblock
-if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string.re_matchp('^:') {
-  Hash.newp($m<block><statementlist>)
-} elsif $o<block><statementlist>[0]<EXPR> and $o<block><statementlist>[0]<EXPR><sym> and $o<block><statementlist>[0]<EXPR><sym> eq "," { # XXX Not p6.  Remove once off elf_e, and Match updated.
-  Hash.newp($m<block><statementlist>)
-} elsif $o<block><statementlist>[0]<EXPR> and $o<block><statementlist>[0]<EXPR><sym> and $o<block><statementlist>[0]<EXPR><sym> eq "=>" {
-  Hash.newp($m<block><statementlist>)
-} elsif not($m<lambda>) and not($m<signature>) {
-  $m<block>
-} else {
-  die "AST handler circumfix:pblock partially unimplemented";
-}
 
 
 quote:regex
