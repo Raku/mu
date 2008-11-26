@@ -366,9 +366,9 @@ VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<traits>,'=',$m<defaul
 
 variable
 my $tw = $m<twigil>[0] || "";
-if $tw eq "." && $blackboard::variable_postcircumfix {
+if $tw eq "." && $o<postcircumfix>.elems {
   my $slf = Apply.newp('self',Capture.newp1([]));
-  my $args = $m<postcircumfix>;
+  my $args = ir($o<postcircumfix>[0]<semilist>);
   return Call.newp($slf,$m<desigilname>,Capture.newp1($args||[]))
 }
 if $o<postcircumfix>.elems {

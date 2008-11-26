@@ -9,24 +9,14 @@ elfx:: have_parser_cache
 
 tst:
 	-rm ${TMP}/x?
-
-pending_methodcall:
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/EmitSimpleP5.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/EmitSimpleP5.pm
-	-diff ${TMP}/x0 ${TMP}/x1
-	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_Analysis.pm
-	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_Analysis.pm
-	-diff ${TMP}/x0 ${TMP}/x1
-	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_FromAST.pm
-	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_FromAST.pm
-	-diff ${TMP}/x0 ${TMP}/x1
-	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_Nodes.pm
-	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_Nodes.pm
 	-diff ${TMP}/x0 ${TMP}/x1
 
 pending_memory:
 	# parse attempt uses >3GB
 	# eg cd src/perl6; ./viv ../../misc/elf/elf_h_src/PrimitivesP5.pm
+	# Planning to create a kludged PrimitivesP5.pm for STD_blue.
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/PrimitivesP5.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/PrimitivesP5.pm
 	-diff ${TMP}/x0 ${TMP}/x1
@@ -38,6 +28,15 @@ regression_check:
 	diff ${TMP}/x0 ${TMP}/x1
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Compiler.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Compiler.pm
+	diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_Analysis.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_Analysis.pm
+	diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_FromAST.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_FromAST.pm
+	diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_Nodes.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_Nodes.pm
 	diff ${TMP}/x0 ${TMP}/x1
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Match.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Match.pm
