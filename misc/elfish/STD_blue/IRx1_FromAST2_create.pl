@@ -134,6 +134,15 @@ Call.newp($blackboard::expect_term_base,$ident,Capture.newp1($args||[]))
 
 circumfix
 my $op = $m<sym_name>;
+if $op eq '{ }' {
+  if ($o<pblock> &&
+      $o<pblock><lambda>.elems == 0 &&
+      $o<pblock><signature>.elems == 0 &&
+      $o<pblock><block> &&
+      $o<pblock><block><statementlist><statement>.elems == 0) {
+    return Hash.newp($m<pblock><block><statementlist><statement>)
+  }
+}
 my $args = $m<semilist>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Apply.newp("circumfix:"~$op,Capture.newp1($args||[]))
@@ -170,14 +179,6 @@ methodop
 my $args = $m<semilist>[0];
 Call.newp($blackboard::expect_term_base,$m<longname>,Capture.newp1($args||[]))
 
-term
-my $text = $m<sym_name>;
-if $text eq '*' {
-  Apply.newp('whatever',Capture.newp1([]))
-} else {
-  Apply.newp($text,Capture.newp1([]))
-}
-
 noun
 #Should just be *1*, but all versions of node contain a colonpair too.
 $m<fatarrow> || $m<variable> || $m<package_declarator> || $m<scope_declarator> || $m<multi_declarator> || $m<routine_declarator> || $m<regex_declarator> || $m<type_declarator> || $m<circumfix> || $m<dotty> || $m<value> || $m<capterm> || $m<sigterm> || $m<term> || $m<statement_prefi> || $m<colonpair>
@@ -189,7 +190,11 @@ desigilname
 $m<longname>
 
 deflongname
-$m<name>
+my $suffix = "";
+if $o<colonpair> && $o<colonpair>[0] {
+  $suffix = ':'~$o<colonpair>[0]<v><nibble><nibbles>[0];
+}
+$m<name>~$suffix
 
 longname
 $m<name>
@@ -222,14 +227,25 @@ fatarrow
 Pair.newp($m<key>,$m<val>)
 
 
+term
+my $text = $m<sym_name>;
+if $text eq '*' {
+  Apply.newp('whatever',Capture.newp1([]))
+} else {
+  Apply.newp($text,Capture.newp1([]))
+}
+
+term:name
+*text*
+
 term:identifier
 my $ident = $m<identifier>;
 my $args;
 if $o<args><semilist> {
   $args = $m<args><semilist>;
 }
-elsif $o<args><listopargs> {
-  if ($ident.re_matchp('\A[A-Z][:\w]+\z') &&
+elsif defined($o<args><listopargs>) {
+  if ($ident.re_matchp('\A[A-Z][:\w]*\z') &&
       $o<args><listopargs>.elems == 0)
   { # Typenames.  Foo.new();  # STD_red elf_h compatibility.
     return $ident;
@@ -490,7 +506,7 @@ $m<method_def>
 method_def
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $multisig = $m<multisig>;
-if not($multisig) { $multisig = [Signature.newp([],undef)]; }
+if $multisig.elems == 0 { $multisig = [Signature.newp([],undef)]; }
 MethodDecl.newp(undef,undef,$plurality,$m<longname>,$multisig.[0],maybe($m<trait>),$m<block>,undef,undef)
 
 routine_def
@@ -511,11 +527,7 @@ Signature.newp($m<parameter>,undef)
 
 parameter
 my $var = $m<param_var>;
-my $quantchar;
-if $o<slurp> {
-  $var = $m<slurp><param_var>;
-  $quantchar = '*';
-}
+my $quantchar = $m<quant>;
 my $type_constraint = $m<type_constraint>;
 #X gimme5 is emitting two copies of the constraint.
 if $type_constraint && $type_constraint.elems == 2 { $type_constraint.pop }
