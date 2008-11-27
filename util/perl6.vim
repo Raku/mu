@@ -22,6 +22,7 @@
 "   * The regex regex_name { ... } syntax for regexes/tokens seems to be
 "     unsupported
 "   * Improve POD formatting codes support (S<>, etc) 
+"   * Implement a "perl_string_as_statement" feature like perl.vim does
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
