@@ -10,13 +10,10 @@
 "
 " You can associate the extension ".pl" with the filetype "perl6" by setting
 "     autocmd BufNewFile,BufRead *.pl setf perl6
-" in your ~/.vimrc.
+" in your ~/.vimrc. But that will infringe on Perl 5, so you might want to
+" put a modeline near the beginning or end of your Perl 6 files instead:
+"     # vim: filetype=perl6
 
-" Die if there's already a defined syntax
-" if exists("b:current_syntax")
-"   finish
-" endif
-"
 " TODO:
 "   * syntax for reading from stdin: =<> or from arbitrary file handles:
 "     =<$fh>
