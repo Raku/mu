@@ -26,6 +26,14 @@
 "     unsupported
 "   * Improve POD formatting codes support (S<>, etc) 
 
+" For version 5.x: Clear all syntax items
+" For version 6.x: Quit when a syntax file was already loaded
+if version < 600
+    syntax clear
+elseif exists("b:current_syntax")
+    finish
+endif
+
 " Recommended formatting options (see pugs::hack)
 setlocal autoindent expandtab smarttab shiftround shiftwidth=4 softtabstop=4
 
@@ -198,9 +206,9 @@ syn cluster p6PodAmbient
 syn cluster p6PodNested
     \ add=p6PodAbbrRegion
     \ add=p6PodDirectRegion
+    \ add=p6PodParaRegion
     \ add=p6PodDelimRegion
     \ add=p6PodDelimEndRegion
-    \ add=p6PodParaRegion
 
 " Pod formatting codes
 syn region p6PodFormat
