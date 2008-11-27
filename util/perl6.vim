@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Nov 25th 2008
+" Last Change:  Nov 27th 2008
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -156,6 +156,7 @@ syn region p6PodDelim
     \ contained
 
 syn region p6PodDelimEndRegion
+    \ matchgroup=p6PodType
     \ start="\(^=end\>\)\@<="
     \ end="\S\+"
 
@@ -198,6 +199,7 @@ syn cluster p6PodNested
     \ add=p6PodAbbrRegion
     \ add=p6PodDirectRegion
     \ add=p6PodDelimRegion
+    \ add=p6PodDelimEndRegion
     \ add=p6PodParaRegion
 
 " Pod formatting codes
@@ -391,7 +393,6 @@ hi link p6String        String
 hi link p6PodPara              p6Pod
 hi link p6PodAbbr              p6Pod
 hi link p6PodDelim             p6Pod
-hi link p6PodDelimEndRegion    p6PodType
 hi link p6PodExtraConfigLeader p6PodCommand
 
 hi link p6Pod          Comment
