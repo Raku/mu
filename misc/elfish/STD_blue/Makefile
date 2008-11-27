@@ -9,15 +9,7 @@ elfx:: have_parser_cache
 
 tst:
 	-rm ${TMP}/x?
-	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/EmitSimpleP5.pm
-	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/EmitSimpleP5.pm
-	-diff ${TMP}/x0 ${TMP}/x1
-
-pending_memory:
-	# parse attempt uses >3GB
-	# eg cd src/perl6; ./viv ../../misc/elf/elf_h_src/PrimitivesP5.pm
-	# Planning to create a kludged PrimitivesP5.pm for STD_blue.
-	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/PrimitivesP5.pm
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ./PrimitivesP5.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/PrimitivesP5.pm
 	-diff ${TMP}/x0 ${TMP}/x1
 
@@ -28,6 +20,9 @@ regression_check:
 	diff ${TMP}/x0 ${TMP}/x1
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Compiler.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Compiler.pm
+	diff ${TMP}/x0 ${TMP}/x1
+	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/EmitSimpleP5.pm
+	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/EmitSimpleP5.pm
 	diff ${TMP}/x0 ${TMP}/x1
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/IRx1_Analysis.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/IRx1_Analysis.pm
@@ -47,7 +42,14 @@ regression_check:
 	./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/Prelude.pm
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/Prelude.pm
 	diff ${TMP}/x0 ${TMP}/x1
+	#./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/PrimitivesP5.pm
+	#${ELF} -I ${ELFDIR} -x -o ${TMP}/x0 ${ELFDIR}/PrimitivesP5.pm
+	#diff ${TMP}/x0 ${TMP}/x1
 	@echo ok
+
+does_gimme5_memory_problem_still_exist:
+	bash -c "ulimit -v 2000000; ./elfx -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/PrimitivesP5.pm"
+	@echo No! Time to remove workaround kludge.
 
 check: have_parser_cache
 	# Remove STD.pm/gimme5 cruft.

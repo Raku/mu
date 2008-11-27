@@ -495,7 +495,7 @@ $m<pblock>
 
 multi_declarator:multi
 temp $blackboard::plurality = 'multi';
-$m<declarator>
+$m<declarator> || $m<routine_def>
 
 routine_declarator:sub
 $m<routine_def>
@@ -516,7 +516,7 @@ my $ident = "";
 if $o<deflongname>.elems { $ident = $m<deflongname>[0]  };
 if ($ident && not($scope)) { $scope = "our" };
 my $sig = Signature.newp([],undef);
-if $o<multisig> { $sig = $m<multisig>.[0] };
+if $o<multisig>.elems { $sig = ir($o<multisig>[0]) };
 SubDecl.newp($scope,undef,$plurality,$ident,$sig,maybe($m<trait>),$m<block>)
 
 multisig
@@ -531,6 +531,8 @@ my $quantchar = $m<quant>;
 my $type_constraint = $m<type_constraint>;
 #X gimme5 is emitting two copies of the constraint.
 if $type_constraint && $type_constraint.elems == 2 { $type_constraint.pop }
+#XXX elf_h backcompat with STD_red, and elf_h's 'if [] { incorrectly true }'.
+if $type_constraint.elems == 0 { $type_constraint = undef }
 Parameter.newp($type_constraint,$quantchar,$var,undef,undef,undef,undef)
 
 param_var
