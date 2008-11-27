@@ -128,6 +128,35 @@ syn region p6PodDirectConfigRegion
     \ contains=p6PodConfig,p6PodExtraConfigLeader
     \ contained
 
+" Paragraph blocks
+syn region p6PodParaRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=for\>"
+    \ end="^\ze\(\s*\|=\S\)"
+    \ contains=p6PodParaTypeRegion
+
+syn region p6PodParaTypeRegion
+    \ matchgroup=p6PodType
+    \ start="\S\+"
+    \ end="^\ze\(\s*$\|=\S\)"
+    \ contains=p6PodPara,p6PodParaConfigRegion
+    \ contained
+    \ keepend
+
+syn region p6PodParaConfigRegion
+    \ matchgroup=p6PodConfig
+    \ start=""
+    \ end="^\ze\([^=]\|=\S\)"
+    \ contains=p6PodConfig,p6PodExtraConfigLeader
+    \ contained
+
+syn region p6PodPara
+    \ start="^[^=]"
+    \ end="^\ze\(\s*$\|=\S\)"
+    \ contains=@p6PodAmbient
+    \ contained
+    \ extend
+
 " Delimited blocks
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
@@ -159,35 +188,6 @@ syn region p6PodDelimEndRegion
     \ matchgroup=p6PodType
     \ start="\(^=end\>\)\@<="
     \ end="\S\+"
-
-" Paragraph blocks
-syn region p6PodParaRegion
-    \ matchgroup=p6PodCommand
-    \ start="^=for\>"
-    \ end="^\ze\(\s*\|=\S\)"
-    \ contains=p6PodParaTypeRegion
-
-syn region p6PodParaTypeRegion
-    \ matchgroup=p6PodType
-    \ start="\S\+"
-    \ end="^\ze\(\s*$\|=\S\)"
-    \ contains=p6PodPara,p6PodParaConfigRegion
-    \ contained
-    \ keepend
-
-syn region p6PodParaConfigRegion
-    \ matchgroup=p6PodConfig
-    \ start=""
-    \ end="^\ze\([^=]\|=\S\)"
-    \ contains=p6PodConfig,p6PodExtraConfigLeader
-    \ contained
-
-syn region p6PodPara
-    \ start="^[^=]"
-    \ end="^\ze\(\s*$\|=\S\)"
-    \ contains=@p6PodAmbient
-    \ contained
-    \ extend
 
 " Special things one may find in Pod prose
 syn cluster p6PodAmbient
@@ -401,5 +401,13 @@ hi link p6PodType      Constant
 hi link p6PodConfig    Identifier
 hi link p6PodFormat    Special
 hi link p6PodVerbatim  Special
+
+" Syncing to speed up processing
+syn sync maxlines=100
+syn sync match p6SyncPod grouphere  p6PodAbbrRegion    "^=\S\+\>"
+syn sync match p6SyncPod grouphere  p6PodDirectRegion  "^=\(config\|use\|encoding\)\>"
+syn sync match p6SyncPod grouphere  p6PodParaRegion    "^=for\>"
+syn sync match p6SyncPod grouphere  p6PodDelimRegion   "^=begin\>"
+syn sync match p6SyncPod groupthere p6PodDelimRegion   "^=end\>"
 
 let b:current_syntax = "perl6"
