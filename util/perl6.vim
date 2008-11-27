@@ -32,6 +32,7 @@ elseif exists("b:current_syntax")
 endif
 
 " Recommended formatting options (see pugs::hack)
+" These should eventually be put in a $VIMRUNTIME/indent/perl6.vim file
 setlocal autoindent expandtab smarttab shiftround shiftwidth=4 softtabstop=4
 
 " Billions of keywords
@@ -42,11 +43,11 @@ syn keyword p6Module          module class role use require package enum
 syn keyword p6Module          grammar subset
 syn keyword p6Declarator      macro sub submethod method is but does trusts
 syn keyword p6Declarator      multi only rule token regex category
-syn keyword p6ScopeDeclarator let my our state temp has constant proto
-syn keyword p6FlowControl     if else elsif unless  
-syn keyword p6FlowControl     for foreach loop repeat while until when next
-syn keyword p6FlowControl     last redo given not or and andthen orelse xor
-syn keyword p6FlowControl     return default exit make
+syn keyword p6ScopeDeclarator let my our state temp has proto
+syn keyword p6Conditional     if else elsif unless  
+syn keyword p6Repeat          for foreach loop repeat while until
+syn keyword p6FlowControl     when next last redo given not or and andthen
+syn keyword p6FlowControl     orelse xor return default exit make
 syn keyword p6ClosureTrait    BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP
 syn keyword p6ClosureTrait    UNDO NEXT LAST PRE POST END rw signature
 syn keyword p6ClosureTrait    returns of parsed cached readonly ref copy
@@ -58,7 +59,7 @@ syn keyword p6Property        int16 int32 int64 uint1 uint2 uint4 uint8
 syn keyword p6Property        uint16 uint32 uint64 num16 num32 num64
 syn keyword p6Property        complex16 complex32 complex64 complex128 buf8
 syn keyword p6Property        buf16 buf32 buf64
-syn keyword p6Property        WHAT HOW
+syn keyword p6Property        WHAT HOW WHICH
 syn keyword p6Type            Array Bool Class Code Hash Int IO Num NumRange 
 syn keyword p6Type            Str StrRange Sub Role Rule Rat Complex Any
 syn keyword p6Type            Scalar List
@@ -80,11 +81,10 @@ syn keyword p6Function        printf sprintf caller evalfile run runinstead
 syn keyword p6Function        nothing want bless chr ord list item gmtime 
 syn keyword p6Function        localtime time gethost getpw chroot getlogin
 syn keyword p6Function        kill fork wait perl context
-syn keyword p6FunctionIO      print open read write readline say seek close
-syn keyword p6FunctionIO      opendir readdir slurp
-syn keyword p6FunctionSpecial eval operator undef undefine 
-syn keyword p6FunctionSpecial infix postfix prefix cirumfix postcircumfix
-syn keyword p6Compare         eq ne lt le gt ge cmp == != < <= > >=
+syn keyword p6Function        print open read write readline say seek close
+syn keyword p6Function        opendir readdir slurp
+syn keyword p6Function        eval operator undef undefine 
+syn keyword p6Function        infix postfix prefix cirumfix postcircumfix
 
 syn match p6Normal  "\w*::\w\+"
 syn match p6Comment "#.*" contains=p6Attn
@@ -409,37 +409,36 @@ hi link p6SubNonBracket   p6String
 hi link p6SubBracket      p6String
 hi link p6TransNonBracket p6String
 hi link p6Module          p6Keyword
-hi link p6Compare         p6Keyword
 hi link p6Declarator      p6Keyword
 hi link p6ScopeDeclarator p6Keyword
 hi link p6FlowControl     p6Keyword
-hi link p6Function        p6Keyword
-hi link p6FunctionIO      p6Keyword
 hi link p6Pattern         p6Keyword
 hi link p6VarPlain        p6Variable
 hi link p6VarPunctuation  p6Variable
 hi link p6VarCapture      p6Variable
+hi link p6VarException    p6Exception
 
 hi link p6Attn            Todo
 hi link p6Type            Type
 hi link p6Invoke          Type
 hi link p6Property        Type
-hi link p6RegexSpecial    Type
 hi link p6Error           Error
 hi link p6Normal          Normal
 hi link p6Number          Number
 hi link p6String          String
 hi link p6Regex           String
+hi link p6Repeat          Repeat
+hi link p6Keyword         Keyword
 hi link p6Comment         Comment
-hi link p6Exception       Special
-hi link p6VarException    Special
-hi link p6FunctionSpecial Special
 hi link p6CharClass       Special
 hi link p6Shebang         PreProc
 hi link p6ClosureTrait    PreProc
-hi link p6Keyword         Statement
+hi link p6Function        Function
+hi link p6Exception       Exception
 hi link p6Variable        Identifier
 hi link p6RuleCall        Identifier
+hi link p6Conditional     Conditional
+hi link p6RegexSpecial    SpecialChar
 
 " Pod
 
@@ -597,10 +596,10 @@ hi link p6PodExtraConfig  p6PodCommand
 
 hi link p6Pod             Comment
 hi link p6PodCommand      Keyword
-hi link p6PodType         Constant
-hi link p6PodConfig       Identifier
+hi link p6PodType         Type
+hi link p6PodConfig       Function
 hi link p6PodFormat       Special
-hi link p6PodVerbatim     Special
+hi link p6PodVerbatim     SpecialComment
 
 " Syncing to speed up processing
 syn sync maxlines=100
