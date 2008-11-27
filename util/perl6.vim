@@ -108,9 +108,9 @@ syn cluster p6Interp
 " { ... } construct
 syn region p6InterpExpression
     \ matchgroup=p6Variable
-    \ start=+{+
-    \ skip=+\\}+
-    \ end=+}+
+    \ start="{"
+    \ skip="\\}"
+    \ end="}"
     \ contains=TOP
     \ contained
 
@@ -132,12 +132,12 @@ syn region p6InterpString
     \ end=+"+
     \ contains=@p6Interp
 syn region p6InterpString
-    \ start=+«+
-    \ end=+»+
+    \ start="«"
+    \ end="»"
     \ contains=@p6Interp
 syn region p6InterpString
-    \ start=+<<+
-    \ end=+>>+
+    \ start="<<"
+    \ end=">>"
     \ contains=@p6Interp
 
 " Punctuation-delimited strings
@@ -169,12 +169,12 @@ syn region p6InterpString
 
 " Single-quoted, q, '' strings
 syn region p6LiteralString
-    \ start=+'+
-    \ skip=+\\'+
-    \ end=+'+
+    \ start="'"
+    \ skip="\\'"
+    \ end="'"
 syn region p6LiteralString
-    \ start=+<<\@!\(.*>\)\@=+
-    \ end=+>\@<!>+
+    \ start="<<\@!\(.*>\)\@="
+    \ end=">\@<!>"
 
 " Punctuation-delimited strings
 syn region p6LiteralString
@@ -384,8 +384,8 @@ syn match  p6RegexSpecial contained "<\s*\(cut\|commit\)\s*>"
 syn match  p6RegexSpecial contained ":="
 syn region p6CharClass
     \ start=+<\s*!\{0,1}\s*\z(['"]\)+
-    \ skip=+\\\z1+
-    \ end=+\z1\s*>+
+    \ skip="\\\z1"
+    \ end="\z1\s*>"
     \ contained
 "syn region p6TestExpr
 "    \ start="<\s*!\{0,1}\s*("
