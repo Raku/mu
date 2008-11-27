@@ -85,7 +85,7 @@ syn keyword p6Function        kill fork wait perl context
 syn keyword p6Function        print open read write readline say seek close
 syn keyword p6Function        opendir readdir slurp
 syn keyword p6Function        eval operator undef undefine 
-syn keyword p6Function        infix postfix prefix cirumfix postcircumfix
+syn keyword p6Function        infix postfix prefix circumfix postcircumfix
 
 syn match p6Normal  "\w*::\w\+"
 syn match p6Comment "#.*" contains=p6Attn
