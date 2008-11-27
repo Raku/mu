@@ -112,8 +112,8 @@ syn region p6InterpExpression
     \ start="{"
     \ skip="\\}"
     \ end="}"
-    \ contains=TOP
     \ contained
+    \ contains=TOP
 
 " FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
 syn region p6ParenExpression
@@ -331,42 +331,42 @@ syn region p6SubNonBracket
     \ start="\z(\W\)"
     \ skip="\\\z1"
     \ end="\z1"
-    \ contains=@p6Interp
     \ contained
+    \ contains=@p6Interp
 syn region p6SubBracket
     \ matchgroup=p6Keyword
     \ start="\z(\W\)"
     \ skip="\\\z1"
     \ end="\z1"
-    \ contains=@p6Interp
     \ contained
+    \ contains=@p6Interp
 syn region p6SubBracket
     \ matchgroup=p6Keyword
     \ start="\["
     \ skip="\\]"
     \ end="]"
-    \ contains=@p6Interp
     \ contained
+    \ contains=@p6Interp
 syn region p6SubBracket
     \ matchgroup=p6Keyword
     \ start="{"
     \ skip="\\}"
     \ end="}"
-    \ contains=@p6Interp
     \ contained
+    \ contains=@p6Interp
 syn region p6SubBracket
     \ matchgroup=p6Keyword
     \ start="<"
     \ skip="\\>"
     \ end=">"
-    \ contains=@p6Interp
     \ contained
+    \ contains=@p6Interp
 syn region p6TransNonBracket
     \ matchgroup=p6Keyword
-    \ contained
     \ start="\z(\W\)"
     \ skip="\\\z1"
     \ end="\z1"
+    \ contained
 
 syn match  p6RuleCall     contained "<\s*!\{0,1}\s*\w\+"hs=s+1
 syn match  p6CharClass    contained "<\s*!\{0,1}\s*\[\]\{0,1}[^]]*\]\s*>"
@@ -391,13 +391,13 @@ syn region p6CharClass
 "syn region p6TestExpr
 "    \ start="<\s*!\{0,1}\s*("
 "    \ end=")\s*>"
-"    \ contains=TOP
 "    \ contained
+"    \ contains=TOP
 syn region p6TestExpr
     \ start="<\(?\|!\)?{"
     \ end="}\s*>"
-    \ contains=TOP
     \ contained
+    \ contains=TOP
 
 " Hash quoting (sortof a hack)
 " syn match p6InterpString "{\s*\w\+\s*}"ms=s+1,me=e-1
@@ -455,14 +455,14 @@ syn region p6PodAbbrType
     \ matchgroup=p6PodType
     \ start="\S\+\>"
     \ end="^\ze\(\s*$\|=\k\)"
-    \ contains=p6PodAbbr
     \ contained
+    \ contains=p6PodAbbr
 
 syn region p6PodAbbr
     \ start=""
     \ end="^\ze\(\s*$\|=\k\)"
-    \ contains=@p6PodAmbient
     \ contained
+    \ contains=@p6PodAmbient
 
 " Directives
 syn region p6PodDirectRegion
@@ -476,15 +476,15 @@ syn region p6PodDirectTypeRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
     \ end="^\ze\([^=]\|=\S\|$\)"
-    \ contains=p6PodDirectConfigRegion
     \ contained
+    \ contains=p6PodDirectConfigRegion
 
 syn region p6PodDirectConfigRegion
     \ matchgroup=p6PodConfig
     \ start=""
     \ end="^\ze\([^=]\|=\S\|$\)"
-    \ contains=p6PodConfig,p6PodExtraConfig
     \ contained
+    \ contains=p6PodConfig,p6PodExtraConfig
 
 " Paragraph blocks
 syn region p6PodParaRegion
@@ -497,23 +497,23 @@ syn region p6PodParaTypeRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
     \ end="^\ze\(\s*$\|=\S\)"
-    \ contains=p6PodPara,p6PodParaConfigRegion
     \ contained
     \ keepend
+    \ contains=p6PodPara,p6PodParaConfigRegion
 
 syn region p6PodParaConfigRegion
     \ matchgroup=p6PodConfig
     \ start=""
     \ end="^\ze\([^=]\|=\S\)"
-    \ contains=p6PodConfig,p6PodExtraConfig
     \ contained
+    \ contains=p6PodConfig,p6PodExtraConfig
 
 syn region p6PodPara
     \ start="^[^=]"
     \ end="^\ze\(\s*$\|=\S\)"
-    \ contains=@p6PodAmbient
     \ contained
     \ extend
+    \ contains=@p6PodAmbient
 
 " Delimited blocks
 syn region p6PodDelimRegion
@@ -526,21 +526,21 @@ syn region p6PodDelimTypeRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
     \ end="^\ze=end\>"
-    \ contains=p6PodDelim,p6PodDelimConfigRegion
     \ contained
+    \ contains=p6PodDelim,p6PodDelimConfigRegion
 
 syn region p6PodDelimConfigRegion
     \ matchgroup=p6PodConfig
     \ start=""
     \ end="^\ze\([^=]\|=\S\|$\)"
-    \ contains=p6PodConfig,p6PodExtraConfig
     \ contained
+    \ contains=p6PodConfig,p6PodExtraConfig
 
 syn region p6PodDelim
     \ start="^"
     \ end="^\ze=end\>"
-    \ contains=@p6PodNested,@p6PodAmbient
     \ contained
+    \ contains=@p6PodNested,@p6PodAmbient
 
 syn region p6PodDelimEndRegion
     \ matchgroup=p6PodType
@@ -564,23 +564,23 @@ syn cluster p6PodNested
 syn region p6PodFormat
     \ start="\u<[^<]"me=e-1
     \ end=">"
-    \ contains=p6PodFormat
-    \ oneline
     \ contained
+    \ oneline
+    \ contains=p6PodFormat
 
 syn region p6PodFormat
     \ start="\u«[^«]"me=e-1
     \ end="»"
-    \ contains=p6PodFormat
-    \ oneline
     \ contained
+    \ oneline
+    \ contains=p6PodFormat
 
 syn region p6PodFormat
     \ start="\u<<\s"
     \ end="\s>>"
-    \ contains=p6PodFormat
-    \ oneline
     \ contained
+    \ oneline
+    \ contains=p6PodFormat
 
 syn match p6PodFormat      "Z<>"                contained
 syn match p6PodFormat      "E<\(\d\+\|\I\i*\)>" contains=p6PodEscape
