@@ -561,7 +561,7 @@ package Main;
     } else {
       my $default = "";
       if $n.default_expr {
-        if (not($n.var.sigil eq '$') &&
+        if ((not($n.var.sigil eq '$')) &&
             $n.default_expr.isa('IRx1::Apply') &&
             ($n.default_expr.function eq 'circumfix:( )' ||
              $n.default_expr.function eq 'infix:,'))

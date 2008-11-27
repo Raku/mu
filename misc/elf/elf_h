@@ -3503,7 +3503,7 @@ $self->do_VarDecl_has($n, $default)})
 }else {
 (do{my $default = "";
 if($n->default_expr()) {
-(do{if((((GLOBAL::not(($n->var()->sigil() eq "\$")) && $n->default_expr()->isa("IRx1\:\:Apply")) && ((($n->default_expr()->function() eq "circumfix\:\(\ \)") || ($n->default_expr()->function() eq "infix\:\,")))))) {
+(do{if(((((GLOBAL::not(($n->var()->sigil() eq "\$"))) && $n->default_expr()->isa("IRx1\:\:Apply")) && ((($n->default_expr()->function() eq "circumfix\:\(\ \)") || ($n->default_expr()->function() eq "infix\:\,")))))) {
 (do{my $pre = "";
 my $post = "";
 if($n->is_array()) {
