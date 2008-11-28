@@ -205,7 +205,12 @@ IRx1::Apply.newp($m,irbuild_ir($m.hash{'subshortname'}),IRx1::Capture.newp1($m,i
     my $construct_subshortname = sub ($m) {
       if $m.hash{'category'} {
 my $cat = $m.hash{'category'}.match_string;
-my $op = $m.hash{'colonpair'}[0].hash{'structural'}.hash{'kludge_name'};
+my $op;
+if $m.hash{'colonpair'}[0].hash{'structural'} {
+    $op = $m.hash{'colonpair'}[0].hash{'structural'}.hash{'kludge_name'};
+} else {
+    $op = $m.hash{'colonpair'}[0].hash{'value'}.hash{'postcircumfix'}.hash{'kludge_name'};
+}
 if $op.WHAT eq 'Array' { $op = $op.join("") }
 $cat~':'~$op;
 } else {

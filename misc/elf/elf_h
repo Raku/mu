@@ -2120,7 +2120,12 @@ my $construct_name = sub {my($m)=@_;
 my $construct_subshortname = sub {my($m)=@_;
 (do{if($m->hash()->{"category"}) {
 (do{my $cat = $m->hash()->{"category"}->match_string();
-my $op = $m->hash()->{"colonpair"}->[0]->hash()->{"structural"}->hash()->{"kludge_name"};
+my $op;
+if($m->hash()->{"colonpair"}->[0]->hash()->{"structural"}) {
+(do{($op = $m->hash()->{"colonpair"}->[0]->hash()->{"structural"}->hash()->{"kludge_name"})})
+}else {
+(do{($op = $m->hash()->{"colonpair"}->[0]->hash()->{"value"}->hash()->{"postcircumfix"}->hash()->{"kludge_name"})})
+};
 if(($op->WHAT() eq "Array")) {
 (do{($op = $op->join(""))})
 };
