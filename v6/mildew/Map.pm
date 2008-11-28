@@ -16,7 +16,24 @@ knowhow MapIterator {
     }
 
     method prefix:<=> {
-        return $.code(=$.input)
+        if ($.code.signature.arity > 1) {
+            my @inputitems;
+            {
+                for 1..$.code.signature.arity {
+                    @inputitems.push(=$.input);
+                }
+                CATCH {
+                    when OutOfItemsException {
+                        if (! @inputitems.elems) {
+                            .rethrow;
+                        }
+                    }
+                }
+            }
+            return \$.code(|@inputitems);
+        } else {
+            return \$.code(=$.input)
+        }
     }
 
 }
