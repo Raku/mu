@@ -1,7 +1,7 @@
 #!/bin/env perl
 BEGIN {
   my $mydir = $0;
-  my $mydir =~ s|[^/]+$||;
+  $mydir =~ s|[^/]+$||;
   my $pugsroot = $ENV{PUGS_ROOT} || $mydir."../../..";
   my $p6dir = $pugsroot."/src/perl6";
   unshift(@INC,$p6dir);
@@ -13,6 +13,9 @@ use utf8;
 use Encode;
 use File::Temp qw(tempfile);
 use Digest::MD5 qw(md5_hex);
+
+binmode(STDOUT, ":utf8");
+binmode(STDERR, ":utf8");
 
 sub print_usage_and_exit {
   my($msg,$code)=@_;
@@ -30,6 +33,19 @@ FORMATs
 
 END
   exit($code);
+}
+
+sub slurp {
+  my($filename)=@_;
+  open(F,'<:utf8',$filename) or die "Can't open $filename: $!\n";
+  my $text; local $/; $text = <F>; close F;
+  $text;
+}
+sub unslurp {
+  my($filename,$text)=@_;
+  open(F,'>:utf8',$filename) or die "Can't open $filename: $!\n";
+  print F $text; close F;
+  undef;
 }
 
 # for command line, see ../../STD_red/STD_red_run
@@ -58,12 +74,15 @@ sub main {
   if($_[0] eq '-e') {
     shift;
     $code = shift;
+    utf8::is_utf8($code) && die;
+    $code = Encode::decode_utf8($code);
+    utf8::is_utf8($code) || die;
     $dash_e = 1;
   }
   elsif(@_) {
     $filename = shift;
     print_usage_and_exit("File $filename doesn't exist.") if !-e $filename;
-    $code = `cat $filename`;
+    $code = slurp($filename);
   }
   else {
     print_usage_and_exit
@@ -76,6 +95,7 @@ sub main {
   if(!$filename) {
     my $fn;
     ($fn,$filename) = tempfile(undef, UNLINK => 1);
+    binmode($fn,":utf8");
     print $fn $code;
     close($fn);
   }
@@ -114,16 +134,14 @@ sub cached_output_for {
   my $cache_file = $cachedir.'/parse_blue_'.substr($input_sig,0,32);
   my $output;
   if(-e $cache_file) {
-    $output = `cat $cache_file`;
+    $output = slurp($cache_file);
   }
   return($cache_file,$output);
 }
 sub out {
   my($cache_file,$output)=@_;
   if($cache_file) {
-    open(F,">$cache_file") or die "$cache_file: $!";
-    print F $output;
-    close F;
+    unslurp($cache_file,$output);
   }
   $output;
 }

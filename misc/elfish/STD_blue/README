@@ -2,41 +2,42 @@ STD_blue is a src/perl6/gimme5 based parser for elf.
 
 QUICKSTART
 
-$ make elfx
-$ ./elfx -s -v -e 'say 3'
+$ make elfblue
+$ make check
+$ ./elfblue -v -s -e 'say 3'
+$ make does_gimme5_memory_problem_still_exist
+
 
 STATUS
 
-It cannot quite do -e 'say 3'.
+Can self-compile, and compile a tweaked version of elf_h.
+
+Works sufficiently for the next step on the path to bootstrap.
+
+PrimitivesP5.pm is a tweaked copy of elf_h's - gimme5 takes more memory
+than I have available to compile the original.
+
+IRx1_FromAST2_create.pl is a mess, with an unfortunate quantity of broken
+legacy code.  The only objective was "get to self compilation", so general
+p6 support is lacking, even by elf standards.
+
 
 VISION
 
-Flesh out IRx1_FromAST2_create.pl to support bootstrapping elf on STD_blue.
+Combine elfblue, elf_h, and rx_on_re, and teach them to compile and
+run STD.pm.  Thus permitting the front-end to be bootstrapped.
 
-gimme5, and thus STD_blue, is currently too slow to replace STD_red as
+gimme5, and thus STD_blue, is not quite ready to replace STD_red as
 the primary elf parser.
-
-At some point, fork a copy of src/perl6/gimme5 et.al. for stability.
-
-Combine IRx1_FromAST2_create.pl, elf_g, and rx_on_re, and teach them to
-compile and run STD.pm.  Thus permitting the front-end to be bootstrapped.
+ Speed has greatly improved - is it comparable yet?
+ Memory usage on encountering foofix:<bar> decls is a non-starter?
+  (but... could :sym<>-ify elf?).
+ elf IRFromAST2 support for STD_blue's AST needs work.
+ If running STD.pm using rx_on_re in elf works out, then switching isn't
+  critical path.  But if it bogs down, that may change..
 
 
 NOTES
 
-There are two approaches to testing IRx1_FromAST2_create.pl progress.
-
-  (1) Rebuild elfx, which is a combination of elf_g plus the new code.
-$ ./IRx1_FromAST2_create.pl
-$ make elfx
-$ ./elfx -s -v -e 'say 3'
-
-  (2) Just eval the new code along with the test.
-$ ./IRx1_FromAST2_create.pl
-$ ../../elf/elf_g Parser2.pm IRx1_FromAST2.pm -s -v -e 'say 3'
-
-Approach (1) takes me ~10 seconds, which is a bit slow for rapid
-edit-test-repeat development.  (2) only takes ~3 seconds.
-But (1) is faster if you are going to run several tests
-(since it avoids recompiling IRx1_FromAST2.pm for each test).
-
+make check  runtime:
+r24098 takes me 9m35s'user (with STD_red cached, and STD_blue not cached).
