@@ -63,6 +63,33 @@ knowhow Itemiterator {
 
 }
 
+knowhow ArrayIterator {
+    has @.input;
+    has $.count;
+
+
+    # this is also a knowhow
+    method new($proto: :$input) {
+        my $ret = $proto.clone;
+        $ret.input = $input;
+        $ret.count = 0;
+        return $ret;
+    }
+
+    method clone {
+        return self.^clone;
+    }
+
+    method prefix:<=> {
+        if ($.count >= @.input.elems) {
+            fail OutOfItemsException;
+        } else {
+            return @.input[$.count++];
+        }
+    }
+
+}
+
 knowhow LazyList {
     has $.input;
     has @.evaluated;
