@@ -81,7 +81,7 @@ knowhow ArrayIterator {
     }
 
     method prefix:<=> {
-        if ($.count >= @.input.elems) {
+        if (@.input.exists($.count)) {
             fail OutOfItemsException;
         } else {
             return \@.input[$.count++];
@@ -133,6 +133,16 @@ knowhow LazyList {
             }
             return self[$index];
         }
+    }
+
+    method exists($index) {
+        self[$index];
+        return @.evaluated.exists($index);
+    }
+
+    method elems {
+        self[+Inf];
+        return @.evaluated.elems;
     }
 }
 
