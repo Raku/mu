@@ -38,7 +38,7 @@ knowhow MapIterator {
 
 }
 
-knowhow Itemiterator {
+knowhow ItemIterator {
     has $.input;
     has @.prefetch;
 
@@ -82,9 +82,9 @@ knowhow ArrayIterator {
 
     method prefix:<=> {
         if (@.input.exists($.count)) {
-            fail OutOfItemsException;
-        } else {
             return \@.input[$.count++];
+        } else {
+            fail OutOfItemsException;
         }
     }
 
