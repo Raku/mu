@@ -84,7 +84,7 @@ knowhow ArrayIterator {
         if ($.count >= @.input.elems) {
             fail OutOfItemsException;
         } else {
-            return @.input[$.count++];
+            return \@.input[$.count++];
         }
     }
 
