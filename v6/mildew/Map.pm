@@ -12,8 +12,7 @@ knowhow MapIterator {
     }
 
     method clone {
-        # we use the REPR API here, because someone has to!
-        return self.!^clone;
+        return self.^clone;
     }
 
     method prefix:<=> {
@@ -34,8 +33,7 @@ knowhow Itemiterator {
     }
 
     method clone {
-        # we use the REPR API here, because someone has to!
-        return self.!^clone;
+        return self.^clone;
     }
 
     method prefix:<=> {
@@ -62,8 +60,7 @@ knowhow LazyList {
     }
 
     method clone {
-        # we use the REPR API here, because someone has to!
-        return self.!^clone;
+        return self.^clone;
     }
 
     method Iterator {
