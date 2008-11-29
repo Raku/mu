@@ -37,8 +37,8 @@ endif
 setlocal autoindent expandtab smarttab shiftround shiftwidth=4 softtabstop=4
 
 " Billions of keywords
-syn keyword p6Attn            ACHTUNG ATTN ATTENTION FIXME NB contained 
-syn keyword p6Attn            todo Todo TODO TBD WTF XXX contained
+syn keyword p6Attention       ACHTUNG ATTN ATTENTION FIXME NB contained 
+syn keyword p6Attention       TODO TBD WTF XXX NOTE contained
 " XXX subset declares a type, but not a module, how should it be classified?
 syn keyword p6Module          module class role use require package enum
 syn keyword p6Module          grammar subset
@@ -88,8 +88,8 @@ syn keyword p6Function        eval operator undef undefine
 syn keyword p6Function        infix postfix prefix circumfix postcircumfix
 
 syn match p6Normal  "\w*::\w\+"
-syn match p6Comment "#.*" contains=p6Attn
-syn match p6Shebang "^#!.*"
+syn match p6Comment "#.*"       display contains=p6Attention
+syn match p6Shebang "\%^#!.*"   display
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6Type           "¢[:\.*^?]\?[a-zA-Z_]\w*"
@@ -404,43 +404,6 @@ syn region p6TestExpr
 
 syn match p6Normal "//"
 
-hi link p6InterpString    p6String
-hi link p6LiteralString   p6String
-hi link p6SubNonBracket   p6String
-hi link p6SubBracket      p6String
-hi link p6TransNonBracket p6String
-hi link p6Module          p6Keyword
-hi link p6Declarator      p6Keyword
-hi link p6ScopeDeclarator p6Keyword
-hi link p6FlowControl     p6Keyword
-hi link p6Pattern         p6Keyword
-hi link p6VarPlain        p6Variable
-hi link p6VarPunctuation  p6Variable
-hi link p6VarCapture      p6Variable
-hi link p6VarException    p6Exception
-
-hi link p6Attn            Todo
-hi link p6Type            Type
-hi link p6Invoke          Type
-hi link p6Property        Type
-hi link p6Error           Error
-hi link p6Normal          Normal
-hi link p6Number          Number
-hi link p6String          String
-hi link p6Regex           String
-hi link p6Repeat          Repeat
-hi link p6Keyword         Keyword
-hi link p6Comment         Comment
-hi link p6CharClass       Special
-hi link p6Shebang         PreProc
-hi link p6ClosureTrait    PreProc
-hi link p6Function        Function
-hi link p6Exception       Exception
-hi link p6Variable        Identifier
-hi link p6RuleCall        Identifier
-hi link p6Conditional     Conditional
-hi link p6RegexSpecial    SpecialChar
-
 " Pod
 
 " Abbreviated blocks
@@ -590,17 +553,68 @@ syn match p6PodConfig      ":[^#]*"             contained
 syn match p6PodExtraConfig "^="                 contained
 syn match p6PodVerbatim    "^\s.*"              contained
 
-hi link p6PodPara         p6Pod
-hi link p6PodAbbr         p6Pod
-hi link p6PodDelim        p6Pod
-hi link p6PodExtraConfig  p6PodCommand
+" Define the default highlighting.
+" For version 5.7 and earlier: only when not done already
+" For version 5.8 and later: only when an item doesn't have highlighting yet
+if version >= 508 || !exists("did_perl6_syntax_inits")
+    if version < 508
+        let did_perl6_syntax_inits = 1
+        command -nargs=+ HiLink hi link <args>
+    else
+        command -nargs=+ HiLink hi def link <args>
+    endif
 
-hi link p6Pod             Comment
-hi link p6PodCommand      Keyword
-hi link p6PodType         Type
-hi link p6PodConfig       Function
-hi link p6PodFormat       Special
-hi link p6PodVerbatim     SpecialComment
+    HiLink p6InterpString    p6String
+    HiLink p6LiteralString   p6String
+    HiLink p6SubNonBracket   p6String
+    HiLink p6SubBracket      p6String
+    HiLink p6TransNonBracket p6String
+    HiLink p6Module          p6Keyword
+    HiLink p6Declarator      p6Keyword
+    HiLink p6ScopeDeclarator p6Keyword
+    HiLink p6FlowControl     p6Keyword
+    HiLink p6Pattern         p6Keyword
+    HiLink p6VarPlain        p6Variable
+    HiLink p6VarPunctuation  p6Variable
+    HiLink p6VarCapture      p6Variable
+    HiLink p6VarException    p6Exception
+
+    HiLink p6Attention       Todo
+    HiLink p6Type            Type
+    HiLink p6Invoke          Type
+    HiLink p6Property        Type
+    HiLink p6Error           Error
+    HiLink p6Normal          Normal
+    HiLink p6Number          Number
+    HiLink p6String          String
+    HiLink p6Regex           String
+    HiLink p6Repeat          Repeat
+    HiLink p6Keyword         Keyword
+    HiLink p6Comment         Comment
+    HiLink p6CharClass       Special
+    HiLink p6Shebang         PreProc
+    HiLink p6ClosureTrait    PreProc
+    HiLink p6Function        Function
+    HiLink p6Exception       Exception
+    HiLink p6Variable        Identifier
+    HiLink p6RuleCall        Identifier
+    HiLink p6Conditional     Conditional
+    HiLink p6RegexSpecial    SpecialChar
+
+    HiLink p6PodPara         p6Pod
+    HiLink p6PodAbbr         p6Pod
+    HiLink p6PodDelim        p6Pod
+    HiLink p6PodExtraConfig  p6PodCommand
+
+    HiLink p6Pod             Comment
+    HiLink p6PodCommand      Keyword
+    HiLink p6PodType         Type
+    HiLink p6PodConfig       Function
+    HiLink p6PodFormat       Special
+    HiLink p6PodVerbatim     SpecialComment
+
+    delcommand HiLink
+endif
 
 " Syncing to speed up processing
 syn sync maxlines=100
