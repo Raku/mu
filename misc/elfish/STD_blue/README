@@ -2,6 +2,7 @@ STD_blue is a src/perl6/gimme5 based parser for elf.
 
 QUICKSTART
 
+$ make known_working_STD
 $ make elfblue
 $ make check
 $ ./elfblue -v -s -e 'say 3'

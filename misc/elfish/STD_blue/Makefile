@@ -13,6 +13,17 @@ does_gimme5_memory_problem_still_exist:
 	bash -c "ulimit -v 2000000; ./elfblue -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/PrimitivesP5.pm"
 	@echo No! Time to remove the work-around PrimitivesP5.pm mutant.
 
+known_working_STD:
+	# r24080 broke.
+	rm -rf lex
+	(cd ../../../src/perl6; svn up -r24067; make distclean; make)
+	# done.
+
+update_STD:
+	rm -rf lex
+	(cd ../../../src/perl6; svn up; make distclean; make)
+	# done.
+
 check: have_parser_cache
 	# Remove STD.pm/gimme5 cruft.
 	-rm -rf lex
