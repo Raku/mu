@@ -1,0 +1,13 @@
+STD_green is a STD.pm-based parser for elf, written in p6.
+
+It is not clear there will actually be a STD_green_run executable.
+At present, STD_green is instead a project forcing factor.
+
+Success looks like:
+- STD_blue can parse STD.pm.
+- elfblue can generate IR for STD.pm.
+- an elf can run the non-rx portions of STD.pm.
+- rx_on_re can run the rx portions of STD.pm.
+- rx_on_re is integrated into an elf.
+- an elf can run STD.pm
+- an elf can self-compile using STD.pm.
