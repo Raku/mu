@@ -25,7 +25,7 @@ ok(eval("Foo.HOW.name() eq 'Foo'"), '... the name() property is Foo');
 ok(eval("Foo.HOW.version() == 0.0.1"), '... the version() property is 0.0.1', :todo<feature>);
 ok(eval("(Foo.HOW.isa())[0] ~~ Foo"), '... the isa() property returns Foo as the first parent class', :todo<feature>);
 
-# L<S12/Introspection/The .HOW.methods method returns method-descriptors containing:>
+# L<S12/Introspection/"get the method list of MyClass">
 
 # NOTE: I am guessing on some of this here, but it's a start for now
 
