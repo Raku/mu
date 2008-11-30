@@ -27,13 +27,14 @@ my $check;
 my $print_missing;
 my $test_result;
 my $line_anchor;
-my ($syn_rev, $pugs_rev, $smoke_rev);
+my ($pugs_rev, $smoke_rev);
 my ($link_count, $broken_link_count);
 my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
     01 Overview    02 Syntax        03 Operator      04 Block
-    05 Rule        06 Subroutine    09 Structure     10 Package
+    05 Rule        06 Subroutine    07 Iterator
+    09 Structure   10 Package
     11 Module      12 Object        13 Overload      16 IO
     17 Concurrency 22 CPAN          26 Documentation 29 Functions
 );
@@ -632,7 +633,7 @@ Side Effects:
 sub process_syn ($$$$) {
     my ($infile, $out_dir, $cssfile, $linktree) = @_;
     my $syn_id;
-    if ($infile =~ /\bS(\d+)\.pod$/) {
+    if ($infile =~ /\bS(\d+).*\.pod$/) {
         $syn_id = $1;
     } else {
         my $base = basename($infile, '.pod');
@@ -782,7 +783,7 @@ sub gen_preamble {
      ## $smoke_info
     return qq{
             <I>This page was generated at $time.<br/>
-            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
+            (<a href="http://svn.pugscode.org/pugs/docs/Perl6/spec/">syn</a> <strong>$pugs_rev</strong>$smoke_info)</I>
             &nbsp; [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ] <br/>
             <a id='__top'></a>
      };
@@ -806,7 +807,6 @@ Options:
   --out-dir <dir> Specify the output directory for HTML files.
   --css <file>    Specify the CSS file used by the HTML outputs,
                   defaults to http://dev.perl.org/css/perl.css.
-  --fast          Do not update the Synopses from the web.
   --test-res <ymlfile>
                   Set .yml file generated from Test::TAP::Model's
                   ``structure''. Usually <ymlfile> should be set
@@ -866,24 +866,6 @@ sub main () {
 
     my $pugs_syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
     $syn_dir ||= $pugs_syn_dir;
-
-    #warn "$fast";
-    my $update_script = "$syn_dir/update";
-    if (-f $update_script) {
-        #warn "HERE";
-        system "$^X $update_script" if !$fast;
-        my $rev_file = "$syn_dir/.spec-revision";
-        #warn $rev_file;
-        #warn -f $rev_file, "\n";
-        if (open my $in, $rev_file) {
-            $syn_rev = <$in>;
-            chomp $syn_rev;
-            close $in;
-        }
-    }
-
-    $syn_rev = $syn_rev ? "r$syn_rev" : 'unknown';
-    warn "info: synopses are at $syn_rev.\n";
 
     my $stdout = `$^X $FindBin::Bin/version_h.pl`;
     ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
