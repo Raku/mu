@@ -41,26 +41,25 @@ syn keyword p6Attention       ACHTUNG ATTN ATTENTION FIXME NB contained
 syn keyword p6Attention       TODO TBD WTF XXX NOTE contained
 " XXX subset declares a type, but not a module, how should it be classified?
 syn keyword p6Module          module class role use require package enum
-syn keyword p6Module          grammar subset
+syn keyword p6Module          grammar subset self
 syn keyword p6Declarator      macro sub submethod method is but does trusts
 syn keyword p6Declarator      multi only rule token regex category
 syn keyword p6ScopeDeclarator let my our state temp has proto
 syn keyword p6Conditional     if else elsif unless  
-syn keyword p6Repeat          for foreach loop repeat while until
-syn keyword p6FlowControl     when next last redo given not or and andthen
-syn keyword p6FlowControl     orelse xor return default exit make
+syn keyword p6Repeat          for loop repeat while until
+syn keyword p6FlowControl     when next last redo given return default
+syn keyword p6FlowControl     exit make
 syn keyword p6ClosureTrait    BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP
 syn keyword p6ClosureTrait    UNDO NEXT LAST PRE POST END rw signature
 syn keyword p6ClosureTrait    returns of parsed cached readonly ref copy
 syn keyword p6ClosureTrait    inline tighter looser equiv assoc deep also
 syn keyword p6Exception       die fail try CATCH CONTROL warn
 syn keyword p6Property        constant prec key value irs ofs ors pos export
-syn keyword p6Property        float int str true false int1 int2 int4 int8
-syn keyword p6Property        int16 int32 int64 uint1 uint2 uint4 uint8
-syn keyword p6Property        uint16 uint32 uint64 num16 num32 num64
-syn keyword p6Property        complex16 complex32 complex64 complex128 buf8
-syn keyword p6Property        buf16 buf32 buf64
-syn keyword p6Property        WHAT HOW WHICH
+syn keyword p6Type            float int str true false int1 int2 int4 int8
+syn keyword p6Type            int16 int32 int64 uint1 uint2 uint4 uint8
+syn keyword p6Type            uint16 uint32 uint64 num16 num32 num64
+syn keyword p6Type            complex16 complex32 complex64 complex128 buf8
+syn keyword p6Type            buf16 buf32 buf64
 syn keyword p6Type            Array Bool Class Code Hash Int IO Num NumRange 
 syn keyword p6Type            Str StrRange Sub Role Rule Rat Complex Any
 syn keyword p6Type            Scalar List
@@ -84,27 +83,36 @@ syn keyword p6Function        localtime time gethost getpw chroot getlogin
 syn keyword p6Function        kill fork wait perl context
 syn keyword p6Function        print open read write readline say seek close
 syn keyword p6Function        opendir readdir slurp
-syn keyword p6Function        eval operator undef undefine 
+syn keyword p6Function        eval operator undef undefine sleep
 syn keyword p6Function        infix postfix prefix circumfix postcircumfix
+syn keyword p6Operator        x xx div mod also leg cmp
+syn keyword p6Operator        eq ne lt le gt ge eqv ff fff true not Z minmax
+syn keyword p6Operator        X XeqvX and andthen or xor orelse extra
 
-syn match p6Normal  "\w*::\w\+"
-syn match p6Comment "#.*"       display contains=p6Attention
-syn match p6Shebang "\%^#!.*"   display
+" more operators
+syn match p6Operator display "\<\%(<=>\|!eqv\|X\~X\|X\*X\)\>"
+syn match p6Operator display "\<\%(xx=\|p5=>\)"
+syn match p6Operator display "\%(+\|-\|/\|\*\|\~\|?\||\|\\\|=\|\^\|!\|%\|&\)"
+syn match p6Operator display "\%(++\|--\|\*\*\)"
+syn match p6Operator display "\%(+\^\|\~\^\|?\^\)"
+syn match p6Operator display "\%(+&\|+<\|+>\|\~&\|\~<\|\~>\|?&\)"
+syn match p6Operator display "\%(&&\|||\|\^\^\|??\|!!\)"
+syn match p6Operator display "\%(+|\|+\^\|\~|\|\~\^\|?|\)"
+syn match p6Operator display "\%(\.\.\|\.\.\^\|\^\.\.\|\^\.\.\^\)"
+syn match p6Operator display "\%(!=\|==\|<\|<=\|>\|>=\||\~\~\|===\)"
+syn match p6Operator display "\%(:=\|::=\|=>\|+=\|-=\|\*\*=\|\.=\)"
+syn match p6Operator display "\%(\.\.\.\|,\|:\|\$\|@\|\[\S+\]\)"
+syn match p6Operator display "\%(;\|<==\|==>\|<<==\|==>>\|{\.\.\.}\|\.\)"
+
+" misc
+syn match p6Normal  display "\w*::\w\+"
+syn match p6Comment display "#.*" contains=p6Attention
+syn match p6Shebang display "\%^#!.*"
 
 " Variables, arrays, and hashes with ordinary \w+ names
-syn match p6Type           "¢[:\.*^?]\?[a-zA-Z_]\w*"
-syn match p6VarPlain       "\(::?\|[$@%][\!\.*^?]\?\)[a-zA-Z_]\w*"
-syn match p6VarException   "\$![a-zA-Z]\@!"
-syn match p6VarCapture     "\$[0-9\/]"
-syn match p6VarPunctuation "\$\d\+"
-syn match p6Invoke         "\(&\|[.:]/\)[a-zA-Z_]\w*"
-
-syn cluster p6Interp
-    \ add=p6VarPlain
-    \ add=p6InterpExpression
-    \ add=p6VarPunctuation
-    \ add=p6VarException
-    \ add=p6InterpClosure
+"syn match p6Type         display "¢[:.*^?]\?[[:alpha:]_]\w*"
+syn match p6VarPlain     display "\(::?\?\|[$@%][!.*^?]\?\)[[:graph:]_¢]\w*"
+syn match p6VarException display "\$![[:alpha:]]\@!"
 
 " { ... } construct
 syn region p6InterpExpression
@@ -114,6 +122,12 @@ syn region p6InterpExpression
     \ end="}"
     \ contained
     \ contains=TOP
+
+syn cluster p6Interp
+    \ add=p6VarPlain
+    \ add=p6InterpExpression
+    \ add=p6VarException
+    \ add=p6InterpClosure
 
 " FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
 syn region p6ParenExpression
@@ -126,89 +140,123 @@ syn region p6BracketExpression
     \ end="]"
     \ transparent
 
+" contextualizers
+syn region p6Contextualizer
+    \ matchgroup=p6Operator
+    \ start="\$("
+    \ start="@("
+    \ start="%("
+    \ start="&("
+    \ start="@@("
+    \ end=")"
+    \ contains=@p6Interp
+
 " Double-quoted, qq, qw, qx, `` strings
 syn region p6InterpString
+    \ matchgroup=p6Quote
     \ start=+"+
     \ skip=+\\"+
     \ end=+"+
     \ contains=@p6Interp
 syn region p6InterpString
+    \ matchgroup=p6Quote
     \ start="«"
     \ end="»"
     \ contains=@p6Interp
 syn region p6InterpString
+    \ matchgroup=p6Quote
     \ start="<<"
     \ end=">>"
     \ contains=@p6Interp
 
 " Punctuation-delimited strings
 syn region p6InterpString
-    \ start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*\z([^a-zA-Z0-9:#_ ]\)"
+    \ matchgroup=p6Quote
+    \ start="\<q[qwx]\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*\z([^[:alnum:]:#_ ]\)"
     \ skip="\\\z1"
     \ end="\z1"
     \ contains=@p6Interp
 syn region p6InterpString
-    \ start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*{"
+    \ matchgroup=p6Quote
+    \ start="\<q[qwx]\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*{"
     \ skip="\\}"
     \ end="}"
     \ contains=@p6Interp
 syn region p6InterpString
-    \ start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*("
+    \ matchgroup=p6Quote
+    \ start="\<q[qwx]\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*("
     \ skip="\\)"
     \ end=")"
     \ contains=@p6Interp
 syn region p6InterpString
-    \ start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*\["
+    \ matchgroup=p6Quote
+    \ start="\<q[qwx]\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*\["
     \ skip="\\]"
     \ end="]"
     \ contains=@p6Interp
 syn region p6InterpString
-    \ start="\<q[qwx]\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*<"
+    \ matchgroup=p6Quote
+    \ start="\<q[qwx]\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*<"
     \ skip="\\>"
     \ end=">"
     \ contains=@p6Interp
 
 " Single-quoted, q, '' strings
 syn region p6LiteralString
+    \ matchgroup=p6Quote
     \ start="'"
     \ skip="\\'"
     \ end="'"
 syn region p6LiteralString
+    \ matchgroup=p6Quote
     \ start="<<\@!\(.*>\)\@="
+    \ end=">\@<!>"
+" special hack for $<etc>
+syn region p6LiteralString
+    \ matchgroup=p6Quote
+    \ start="\$<\(.*>\)\@="
     \ end=">\@<!>"
 
 " Punctuation-delimited strings
 syn region p6LiteralString
-    \ start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*\z([^a-zA-Z0-9:#_ ]\)"
+    \ matchgroup=p6Quote
+    \ start="\<q\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*\z([^[:alnum:]:#_ ]\)"
     \ skip="\\\z1"
     \ end="\z1"
 syn region p6LiteralString
-    \ start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*{"
+    \ matchgroup=p6Quote
+    \ start="\<q\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*{"
     \ skip="\\}"
     \ end="}"
 syn region p6LiteralString
-    \ start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*("
+    \ matchgroup=p6Quote
+    \ start="\<q\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*("
     \ skip="\\)"
     \ end=")"
 syn region p6LiteralString
-    \ start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*\["
+    \ matchgroup=p6Quote
+    \ start="\<q\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*\["
     \ skip="\\]"
     \ end="]"
 syn region p6LiteralString
-    \ start="\<q\(:\(!\?[A-Za-z0-9]\((\w\+)\)\?\)\+\)\?\s*<"
+    \ matchgroup=p6Quote
+    \ start="\<q\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*<"
     \ skip="\\>"
     \ end=">"
 
 " Numbers
-syn match p6Number "\<\(\d*\.\d\+\|\d\+\.\d*\|\d\+\)\(e\d\+\)\{0,1}"
-syn match p6Number "\<0o[0-7]\+"
-syn match p6Number "\<0x[0-9a-fA-F]\+"
+syn match p6Number display "\<\(\d*\.\d\+\|\d\+\)\(e\d\+\)\{0,1}"
+syn match p6Number display "\<0o[0-7]\+"
+syn match p6Number display "\<0x[0-9a-fA-F]\+"
 
-" => Operator
-syn match p6InterpString "\w\+\s*=>"he=e-2
+" => and p5=> operators
+syn match p6LiteralString display "\w\+\ze\s\+p5=>"
+syn match p6LiteralString display "\w\+\ze\(p5\)\@<!=>"
+syn match p6LiteralString display "\w\+\ze\s\+=>"
+syn match p6LiteralString display "\w\+p5\ze=>"
 
 " :key<val>
-syn match p6InterpString ":\w\+\(\s*\.\)\?\(<[^>]*>\)\?"hs=s+1
+syn match p6LiteralString display ":\@<=\w\+"
 
 " Sexeger!
 syn cluster p6Regexen
@@ -233,7 +281,7 @@ syn region p6Regex
 " m:/.../
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\z([^a-zA-Z0-9_:(]\)"
+    \ start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*\z([^[:alnum:]_:(]\)"
     \ skip="\\\z1"
     \ end="\z1"
     \ contains=@p6Regexen
@@ -241,19 +289,19 @@ syn region p6Regex
 " m:[] m:{} and m:<>
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\["
+    \ start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*\["
     \ skip="\\]"
     \ end="]"
     \ contains=@p6Regexen
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*{"
+    \ start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*{"
     \ skip="\\}"
     \ end="}"
     \ contains=@p6Regexen
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*<"hs=e
+    \ start="\<\(m\|mm\|rx\)\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*<"hs=e
     \ skip="\\>"
     \ end=">"
     \ contains=@p6Regexen
@@ -290,35 +338,35 @@ syn region p6Closure
 " s:///, tr:///,  and all variants
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<s\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\z([^a-zA-Z0-9_:(]\)"
+    \ start="\<s\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*\z([^[:alnum:]_:(]\)"
     \ skip="\\\z1"
     \ end="\z1"me=e-1
     \ contains=@p6Regexen
     \ nextgroup=p6SubNonBracket
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<s\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\["
+    \ start="\<s\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*\["
     \ skip="\\]"
     \ end="]\_s*"
     \ contains=@p6Regexen
     \ nextgroup=p6SubBracket
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<s\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*{"
+    \ start="\<s\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*{"
     \ skip="\\}"
     \ end="}\_s*"
     \ contains=@p6Regexen
     \ nextgroup=p6SubBracket
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<s\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*<"
+    \ start="\<s\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*<"
     \ skip="\\>"
     \ end=">\_s*"
     \ contains=@p6Regexen
     \ nextgroup=p6SubBracket
 syn region p6Regex
     \ matchgroup=p6Keyword
-    \ start="\<tr\_s*\(\_s*:\_s*[a-zA-Z0-9_()]\+\)*\_s*\z([^a-zA-Z0-9_:(]\)"
+    \ start="\<tr\_s*\(\_s*:\_s*[[:alnum:]_()]\+\)*\_s*\z([^[:alnum:]_:(]\)"
     \ skip="\\\z1"
     \ end="\z1"me=e-1
     \ nextgroup=p6TransNonBracket
@@ -399,10 +447,8 @@ syn region p6TestExpr
     \ contained
     \ contains=TOP
 
-" Hash quoting (sortof a hack)
-" syn match p6InterpString "{\s*\w\+\s*}"ms=s+1,me=e-1
-
-syn match p6Normal "//"
+" This is in operator, not a regex
+syn match p6Operator "//"
 
 " Pod
 
@@ -573,15 +619,11 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Declarator      p6Keyword
     HiLink p6ScopeDeclarator p6Keyword
     HiLink p6FlowControl     p6Keyword
-    HiLink p6Pattern         p6Keyword
     HiLink p6VarPlain        p6Variable
-    HiLink p6VarPunctuation  p6Variable
-    HiLink p6VarCapture      p6Variable
     HiLink p6VarException    p6Exception
 
     HiLink p6Attention       Todo
     HiLink p6Type            Type
-    HiLink p6Invoke          Type
     HiLink p6Property        Type
     HiLink p6Error           Error
     HiLink p6Normal          Normal
@@ -594,7 +636,9 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6CharClass       Special
     HiLink p6Shebang         PreProc
     HiLink p6ClosureTrait    PreProc
+    HiLink p6Operator        Operator
     HiLink p6Function        Function
+    HiLink p6Quote           Delimiter
     HiLink p6Exception       Exception
     HiLink p6Variable        Identifier
     HiLink p6RuleCall        Identifier
