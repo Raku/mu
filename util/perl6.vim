@@ -101,7 +101,7 @@ syn match p6Operator display "\%(+|\|+\^\|\~|\|\~\^\|?|\)"
 syn match p6Operator display "\%(\.\.\|\.\.\^\|\^\.\.\|\^\.\.\^\)"
 syn match p6Operator display "\%(!=\|==\|<\|<=\|>\|>=\||\~\~\|===\)"
 syn match p6Operator display "\%(:=\|::=\|=>\|+=\|-=\|\*\*=\|\.=\)"
-syn match p6Operator display "\%(\.\.\.\|,\|:\|\$\|@\|\[\S+\]\)"
+syn match p6Operator display "\%(\.\.\.\|,\|:\|\[\S+\]\)"
 syn match p6Operator display "\%(;\|<==\|==>\|<<==\|==>>\|{\.\.\.}\|\.\)"
 
 " misc
@@ -141,15 +141,15 @@ syn region p6BracketExpression
     \ transparent
 
 " contextualizers
-syn region p6Contextualizer
-    \ matchgroup=p6Operator
+syn region p6ExplicitContext
+    \ matchgroup=p6Contextualizer
     \ start="\$("
     \ start="@("
     \ start="%("
     \ start="&("
     \ start="@@("
     \ end=")"
-    \ contains=@p6Interp
+    \ contains=TOP
 
 " Double-quoted, qq, qw, qx, `` strings
 syn region p6InterpString
@@ -637,6 +637,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Shebang         PreProc
     HiLink p6ClosureTrait    PreProc
     HiLink p6Operator        Operator
+    HiLink p6Contextualizer  Operator
     HiLink p6Function        Function
     HiLink p6Quote           Delimiter
     HiLink p6Exception       Exception
