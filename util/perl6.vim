@@ -149,6 +149,7 @@ syn region p6ExplicitContext
     \ start="&("
     \ start="@@("
     \ end=")"
+    \ transparent
     \ contains=TOP
 
 " Double-quoted, qq, qw, qx, `` strings
