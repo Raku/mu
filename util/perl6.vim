@@ -55,14 +55,22 @@ syn keyword p6ClosureTrait    returns of parsed cached readonly ref copy
 syn keyword p6ClosureTrait    inline tighter looser equiv assoc deep also
 syn keyword p6Exception       die fail try CATCH CONTROL warn
 syn keyword p6Property        constant prec key value irs ofs ors pos export
-syn keyword p6Type            float int str true false int1 int2 int4 int8
-syn keyword p6Type            int16 int32 int64 uint1 uint2 uint4 uint8
-syn keyword p6Type            uint16 uint32 uint64 num16 num32 num64
-syn keyword p6Type            complex16 complex32 complex64 complex128 buf8
-syn keyword p6Type            buf16 buf32 buf64
-syn keyword p6Type            Array Bool Class Code Hash Int IO Num NumRange 
-syn keyword p6Type            Str StrRange Sub Role Rule Rat Complex Any
-syn keyword p6Type            Scalar List
+syn keyword p6Type            Object Any Junction Whatever Capture Match
+syn keyword p6Type            Signature Proxy Matcher Package Module Class
+syn keyword p6Type            Grammar Scalar Array Hash KeyHash KeySet KeyBag
+syn keyword p6Type            Pair List Seq Range Set Bag Mapping Void Undef
+syn keyword p6Type            Failure Exception Code Block Routine Sub Macro
+syn keyword p6Type            Method Submethod Regex Str Blob Char Byte
+syn keyword p6Type            Codepoint Grapheme StrPos StrLen Version Num
+syn keyword p6Type            Complex num complex Bit Bool bit bool Order
+syn keyword p6Type            Increasing Decreasing Ordered Callable
+syn keyword p6Type            Positional Associative Ordering KeyExtractor
+syn keyword p6Type            Comparator OrderingPair IO KitchenSink
+syn keyword p6Type            Int int int1 int2 int4 int8 int16 int32 int64
+syn keyword p6Type            Rat rat rat1 rat2 rat4 rat8 rat16 rat32 rat64
+syn keyword p6Type            UInt uint uint1 uint2 uint4 uint8 uint16
+syn keyword p6Type            uint32 uint64 Buf buf buf1 buf2 buf4 buf8
+syn keyword p6Type            buf16 buf32 buf64 True False
 syn keyword p6Number          NaN Inf
 syn keyword p6Function        substr index rindex
 syn keyword p6Function        grep map sort join split reduce min max reverse
@@ -90,8 +98,6 @@ syn keyword p6Operator        eq ne lt le gt ge eqv ff fff true not Z minmax
 syn keyword p6Operator        X XeqvX and andthen or xor orelse extra
 
 " more operators
-syn match p6Operator display "\<\%(<=>\|!eqv\|X\~X\|X\*X\)\>"
-syn match p6Operator display "\<\%(xx=\|p5=>\)"
 syn match p6Operator display "\%(+\|-\|/\|\*\|\~\|?\||\|\\\|=\|\^\|!\|%\|&\)"
 syn match p6Operator display "\%(++\|--\|\*\*\)"
 syn match p6Operator display "\%(+\^\|\~\^\|?\^\)"
@@ -103,6 +109,10 @@ syn match p6Operator display "\%(!=\|==\|<\|<=\|>\|>=\||\~\~\|===\)"
 syn match p6Operator display "\%(:=\|::=\|=>\|+=\|-=\|\*\*=\|\.=\)"
 syn match p6Operator display "\%(\.\.\.\|,\|:\|\[\S+\]\)"
 syn match p6Operator display "\%(;\|<==\|==>\|<<==\|==>>\|{\.\.\.}\|\.\)"
+" these need end-of-word to the right
+syn match p6Operator display "\<\%(<=>\|!eqv\|X\~X\|X\*X\)\>"
+" these need end-of-word on both sides
+syn match p6Operator display "\<\%(xx=\|p5=>\)"
 
 " misc
 syn match p6Normal  display "\w*::\w\+"
@@ -111,7 +121,7 @@ syn match p6Shebang display "\%^#!.*"
 
 " Variables, arrays, and hashes with ordinary \w+ names
 "syn match p6Type         display "¢[:.*^?]\?[[:alpha:]_]\w*"
-syn match p6VarPlain     display "\(::?\?\|[$@%][!.*^?]\?\)[[:graph:]_¢]\w*"
+syn match p6VarPlain     display "\(\w\@<!::?\?\|[$@%][!.*^?]\?\)[[:graph:]_¢]\w*"
 syn match p6VarException display "\$![[:alpha:]]\@!"
 
 " { ... } construct
