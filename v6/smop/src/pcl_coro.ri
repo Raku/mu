@@ -1,0 +1,17 @@
+%include <pcl.h>
+%prefix smop_pcl_coro
+%attr coroutine_t coro
+%RI.id pcl coroutine
+%method eval
+    coroutine_t c = ((smop_pcl_coro_struct*)invocant)->coro;
+    co_call(c);
+%{
+SMOP__Object* SMOP__S1P__PCLCoro_create(void *func,void *data,void *stack,int stacksize) {
+    smop_pcl_coro_struct* ret = (smop_pcl_coro_struct*) smop_lowlevel_alloc(sizeof(smop_pcl_coro_struct));
+    ret->coro = co_create(func,data,stack,stacksize);
+    ret->RI = (SMOP__ResponderInterface*) RI;
+    return (SMOP__Object*) ret;
+}
+%}
+
+

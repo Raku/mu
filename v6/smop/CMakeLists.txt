@@ -111,6 +111,7 @@ foreach (ri_file
     src/s1p_attribute.ri
     src/s1p_hash_bvalue.ri
     src/native_int.ri
+    src/pcl_coro.ri
 )
 compile_ri (${ri_file})
 endforeach()
@@ -157,6 +158,7 @@ add_library (smop SHARED
     src/s1p_hash_bvalue.c
     src/ri.c
     src/proto.c
+    src/pcl_coro.c
 #    src_s1p_itemcontext.c
 #    src_s1p_itemrwcontext.c
 )
@@ -227,6 +229,6 @@ foreach (test_file
     if (c_file)
         string(REGEX REPLACE ".c$" ".t" out ${c_file})
         add_executable (${out} ${c_file})
-        target_link_libraries (${out} ${CMAKE_THREAD_LIBS_INIT} smop)
+        target_link_libraries (${out} ${CMAKE_THREAD_LIBS_INIT} pcl smop)
     endif()
 endforeach()
