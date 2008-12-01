@@ -633,9 +633,10 @@ Side Effects:
 sub process_syn ($$$$) {
     my ($infile, $out_dir, $cssfile, $linktree) = @_;
     my $syn_id;
-    if ($infile =~ /\bS(\d+).*\.pod$/) {
+    if ($infile =~ /\bS(\d+)(?:-\w+)+.pod$/) {
         $syn_id = $1;
     } else {
+        die "Can't match file '$infile'\n";
         my $base = basename($infile, '.pod');
         $syn_id = $Spec{$base};
     }
