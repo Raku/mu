@@ -19,6 +19,7 @@
 "   * Improve POD formatting codes support (S<>, etc) 
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
+"   * Highlight various things in interpolated strings
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -119,20 +120,6 @@ syn match p6Shebang    display "\%^#!.*"
 syn match p6BlockLabel display "\%(^\s*\)\@<=\h\w*\s*:\s\@="
 syn match p6Variable   display "[$@%][!.*^?]\?[[:graph:]_¢]\w*"
 
-" { ... } construct
-syn region p6InterpExpression
-    \ matchgroup=p6Variable
-    \ start="{"
-    \ skip="\\}"
-    \ end="}"
-    \ contained
-    \ contains=TOP
-
-syn cluster p6Interp
-    \ add=p6Variable
-    \ add=p6InterpExpression
-    \ add=p6InterpClosure
-
 " FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
 syn region p6ParenExpression
     \ start="\(<\s*\)\@<!("
@@ -156,7 +143,19 @@ syn region p6ExplicitContext
     \ transparent
     \ contains=TOP
 
-" Double-quoted, qq, qw, qx, `` strings
+" { ... } closure in interpolated strings
+syn region p6InterpClosure
+    \ matchgroup=p6StringSpecial
+    \ start="{"
+    \ end="}"
+    \ contained
+    \ contains=TOP
+
+syn cluster p6Interp
+    \ add=p6Variable
+    \ add=p6InterpClosure
+
+" Double-quoted strings
 syn region p6InterpString
     \ matchgroup=p6Quote
     \ start=+"+
@@ -174,7 +173,7 @@ syn region p6InterpString
     \ end=">>"
     \ contains=@p6Interp
 
-" Punctuation-delimited strings
+" Punctuation-delimited double-quoted strings
 syn region p6InterpString
     \ matchgroup=p6Quote
     \ start="\<q[qwx]\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*\z([^[:alnum:]:#_ ]\)"
@@ -206,24 +205,29 @@ syn region p6InterpString
     \ end=">"
     \ contains=@p6Interp
 
-" Single-quoted, q, '' strings
+syn match p6EscapedQuote display "\\'" contained
+syn match p6EscapedArrow display "\\>" contained
+
+" Single-quoted strings
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="'"
     \ skip="\\'"
     \ end="'"
+    \ contains=p6EscapedQuote
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="<<\@!"
     \ skip="\\>"
     \ end=">\@<!>"
+    \ contains=p6EscapedRightArrow
 " special case for $<etc>
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="\$<\(.*>\)\@="
     \ end=">\@<!>"
 
-" Punctuation-delimited strings
+" Punctuation-delimited single-quoted strings
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="\<q\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*\z([^[:alnum:]:#_ ]\)"
@@ -465,7 +469,7 @@ syn region p6TestExpr
     \ contained
     \ contains=TOP
 
-" This is in operator, not a regex
+" This is an operator, not a regex
 syn match p6Operator "//"
 
 " Pod
@@ -633,6 +637,10 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6SubNonBracket   p6String
     HiLink p6SubBracket      p6String
     HiLink p6TransNonBracket p6String
+    HiLink p6EscapedQuote    p6StringSpecial
+    HiLink p6EscapedArrow    p6StringSpecial
+    HiLink p6CharClass       p6StringSpecial
+    HiLink p6RegexSpecial    p6StringSpecial
 
     HiLink p6Property        Tag
     HiLink p6Attention       Todo
@@ -661,8 +669,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Variable        Identifier
     HiLink p6RuleCall        Identifier
     HiLink p6Conditional     Conditional
-    HiLink p6CharClass       SpecialChar
-    HiLink p6RegexSpecial    SpecialChar
+    HiLink p6StringSpecial   SpecialChar
 
     HiLink p6PodPara         p6Pod
     HiLink p6PodAbbr         p6Pod
