@@ -637,8 +637,6 @@ sub process_syn ($$$$) {
         $syn_id = $1;
     } else {
         die "Can't match file '$infile'\n";
-        my $base = basename($infile, '.pod');
-        $syn_id = $Spec{$base};
     }
 
     # S26 is in Pod6, we treat it specifically for now.
@@ -675,10 +673,6 @@ sub process_syn ($$$$) {
       print $out $perldochtml;
       close $out;
       return;
-    }
-    if (!$syn_id) {
-        warn "  warning: $infile skipped.\n";
-        return;
     }
     my $podtree = parse_pod($infile);
     #print Dump $podtree if $syn_id eq '29';
