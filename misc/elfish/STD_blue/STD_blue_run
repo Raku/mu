@@ -153,7 +153,7 @@ use autobox;
 { package STD;
   sub condition_sym {
     my($o,$sym)=@_;
-    if (ref $sym) { join(" ",@$sym) }
+    if (ref $sym && ref($sym) eq 'ARRAY') { $sym = join(" ",@$sym) }
     elsif ($sym !~ /^sym/) { $sym }
     elsif ($sym =~ /\Asym<\s*(.+?)\s*>\z/) { $1 }
     elsif ($sym =~ /\Asym«\s*(.+?)\s*»\z/) { $1 }

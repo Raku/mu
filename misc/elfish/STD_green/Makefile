@@ -6,7 +6,7 @@ STDTREE=./tree
 ELFBLUE=../STD_blue/elfblue
 
 tst:
-	${ELFBLUE} -v -s STD.pm
+	ELF_STD_BLUE_RUN=`pwd`/tree_cat ${ELFBLUE} -v -s STD.pm
 
 setup:
 	cp ${STDPM} .
