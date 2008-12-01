@@ -659,7 +659,7 @@ die "AST handler circumfix:pblock partially unimplemented";
     };
 
     my $construct_regex_declarator_58regex_def = sub ($m) {
-      IRx1::RegexDef.newp($m,irbuild_ir($m.hash{'ident'}),irbuild_ir($m.hash{'regex_block'}));
+      IRx1::RegexDef.newp($m,'regex',irbuild_ir($m.hash{'ident'}),undef,undef,irbuild_ir($m.hash{'regex_block'}));
     };
 
     my $construct_regex_block = sub ($m) {

@@ -684,17 +684,20 @@ package IRx1 {
   };
   class RegexDef is Base {
     has $.match;
+    has $.kind;
     has $.ident;
+    has $.signature;
+    has $.traits;
     has $.pattern;
     has $.notes;
     
-    method newp($match,$ident,$pattern) { self.new('match', $match, 'ident', $ident, 'pattern', $pattern) };
+    method newp($match,$kind,$ident,$signature,$traits,$pattern) { self.new('match', $match, 'kind', $kind, 'ident', $ident, 'signature', $signature, 'traits', $traits, 'pattern', $pattern) };
     method callback($emitter) { $emitter.cb__RegexDef(self) };
     method node_name() { 'RegexDef' };
-    method field_names() { ['ident','pattern'] };
-    method field_values() { [$.ident,$.pattern] };
+    method field_names() { ['kind','ident','signature','traits','pattern'] };
+    method field_values() { [$.kind,$.ident,$.signature,$.traits,$.pattern] };
     method irx1_describe() {
-      'RegexDef('~$.ident.irx1_describe~','~$.pattern.irx1_describe~')'
+      'RegexDef('~$.kind.irx1_describe~','~$.ident.irx1_describe~','~$.signature.irx1_describe~','~$.traits.irx1_describe~','~$.pattern.irx1_describe~')'
     };
   };
   class Regex is Base {

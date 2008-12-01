@@ -498,7 +498,7 @@ if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_stri
 }
 
 regex_declarator:regex_def
-RegexDef.newp($m<ident>,$m<regex_block>)
+RegexDef.newp('regex',$m<ident>,undef,undef,$m<regex_block>)
 
 regex_block
 $m<regex>

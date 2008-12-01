@@ -76,7 +76,7 @@ When   expr block
 Label  labels statement
 
 
-RegexDef ident pattern
+RegexDef kind ident signature traits pattern
 Regex patterns
 
 RxFirst patterns
