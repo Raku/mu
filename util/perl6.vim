@@ -19,7 +19,8 @@
 "   * Improve POD formatting codes support (S<>, etc) 
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
-"   * Highlight various things in interpolated strings
+"   * Overhaul Q// and its derivatives
+"   * Overhaul regexes
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -151,29 +152,33 @@ syn region p6InterpClosure
     \ contained
     \ contains=TOP
 
+" Interpolated strings
+
 syn cluster p6Interp
     \ add=p6Variable
     \ add=p6InterpClosure
 
-" Double-quoted strings
+" "string"
 syn region p6InterpString
     \ matchgroup=p6Quote
     \ start=+"+
     \ skip=+\\"+
     \ end=+"+
     \ contains=@p6Interp
+" «string»
 syn region p6InterpString
     \ matchgroup=p6Quote
     \ start="«"
     \ end="»"
     \ contains=@p6Interp
+" <<string>>
 syn region p6InterpString
     \ matchgroup=p6Quote
     \ start="<<"
     \ end=">>"
     \ contains=@p6Interp
 
-" Punctuation-delimited double-quoted strings
+" Punctuation-delimited interpolated strings
 syn region p6InterpString
     \ matchgroup=p6Quote
     \ start="\<q[qwx]\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*\z([^[:alnum:]:#_ ]\)"
@@ -205,29 +210,32 @@ syn region p6InterpString
     \ end=">"
     \ contains=@p6Interp
 
+" Literal strings
+
 syn match p6EscapedQuote display "\\'" contained
 syn match p6EscapedArrow display "\\>" contained
 
-" Single-quoted strings
+" 'string'
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="'"
     \ skip="\\'"
     \ end="'"
     \ contains=p6EscapedQuote
+" <string>
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="<<\@!"
     \ skip="\\>"
     \ end=">\@<!>"
     \ contains=p6EscapedRightArrow
-" special case for $<etc>
+" $<rule>
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="\$<\(.*>\)\@="
     \ end=">\@<!>"
 
-" Punctuation-delimited single-quoted strings
+" Punctuation-delimited literal strings
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="\<q\(:\(!\?[[:alnum:]]\((\w\+)\)\?\)\+\)\?\s*\z([^[:alnum:]:#_ ]\)"
@@ -268,10 +276,10 @@ syn match p6LiteralString display "\w\+p5\ze=>"
 " this is an infix operator, not a quote
 syn match p6Operator display "\s\zs<=>"
 
-" =<> is not a quote
+" =<> is an operator, not a quote
 syn region p6Iterate
     \ matchgroup=p6Operator
-    \ start="=<"
+    \ start="=<<\@!"
     \ end=">"
     \ oneline
     \ display
@@ -280,7 +288,8 @@ syn region p6Iterate
 " :key<val>
 syn match p6LiteralString display ":\@<=\w\+"
 
-" Sexeger!
+" Regexes
+
 syn cluster p6Regexen
     \ add=@p6Interp
     \ add=p6Closure
@@ -290,7 +299,6 @@ syn cluster p6Regexen
     \ add=p6TestExpr
     \ add=p6RegexSpecial
 
-" Here's how we get into regex mode
 " Standard /.../
 syn region p6Regex
     \ matchgroup=p6Keyword
