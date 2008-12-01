@@ -15,14 +15,10 @@
 "     # vim: filetype=perl6
 
 " TODO:
-"   * syntax for reading from stdin: =<> or from arbitrary file handles:
-"     =<$fh>
-"   * List initialization via the @a = <foo bar> construct brakes when there
-"     is a newline between '<' and '>'
-"   * The regex regex_name { ... } syntax for regexes/tokens seems to be
-"     unsupported
+"   * Handle <? ... > and similar constructs in regexes
 "   * Improve POD formatting codes support (S<>, etc) 
-"   * Implement a "perl_string_as_statement" feature like perl.vim does
+"   * Add more support for folding
+"   * Add more syntax syncing hooks
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -42,19 +38,20 @@ syn keyword p6Attention       TODO TBD WTF XXX NOTE contained
 " XXX subset declares a type, but not a module, how should it be classified?
 syn keyword p6Module          module class role use require package enum
 syn keyword p6Module          grammar subset self
-syn keyword p6Declarator      macro sub submethod method is but does trusts
-syn keyword p6Declarator      multi only rule token regex category
-syn keyword p6ScopeDeclarator let my our state temp has proto
+syn keyword p6DeclareRoutine  macro sub submethod method multi only rule
+syn keyword p6DeclareRoutine  token regex category
+syn keyword p6VarStorage      let my our state temp has proto constant
 syn keyword p6Conditional     if else elsif unless  
-syn keyword p6Repeat          for loop repeat while until
-syn keyword p6FlowControl     when next last redo given return default
-syn keyword p6FlowControl     exit make
+syn keyword p6Repeat          for loop repeat while until gather
+syn keyword p6FlowControl     take do when next last redo given return
+syn keyword p6FlowControl     default exit make
+syn keyword p6TypeConstraint  is but does trusts of returns
 syn keyword p6ClosureTrait    BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP
-syn keyword p6ClosureTrait    UNDO NEXT LAST PRE POST END rw signature
-syn keyword p6ClosureTrait    returns of parsed cached readonly ref copy
-syn keyword p6ClosureTrait    inline tighter looser equiv assoc deep also
+syn keyword p6ClosureTrait    UNDO NEXT LAST PRE POST END
 syn keyword p6Exception       die fail try CATCH CONTROL warn
-syn keyword p6Property        constant prec key value irs ofs ors pos export
+syn keyword p6Property        prec key value irs ofs ors pos export deep also
+syn keyword p6Property        rw signature returns of parsed cached readonly
+syn keyword p6Property        ref copy inline tighter looser equiv assoc
 syn keyword p6Type            Object Any Junction Whatever Capture Match
 syn keyword p6Type            Signature Proxy Matcher Package Module Class
 syn keyword p6Type            Grammar Scalar Array Hash KeyHash KeySet KeyBag
@@ -72,48 +69,55 @@ syn keyword p6Type            UInt uint uint1 uint2 uint4 uint8 uint16
 syn keyword p6Type            uint32 uint64 Buf buf buf1 buf2 buf4 buf8
 syn keyword p6Type            buf16 buf32 buf64 True False
 syn keyword p6Number          NaN Inf
-syn keyword p6Function        substr index rindex
-syn keyword p6Function        grep map sort join split reduce min max reverse
-syn keyword p6Function        truncate zip cat roundrobin classify first 
-syn keyword p6Function        keys values pairs defined delete exists elems
-syn keyword p6Function        end kv arity assuming gather take pick
-syn keyword p6Function        any all none one wrap shape classify
-syn keyword p6Function        callsame callwith nextsame nextwith
-syn keyword p6Function        pop push shift splice unshift floor ceiling
-syn keyword p6Function        abs exp log log10 rand sign sqrt sin cos tan
-syn keyword p6Function        round srand roots cis unpolar polar atan2
-syn keyword p6Function        p5chop chop p5chomp chomp lc lcfirst uc ucfirst
-syn keyword p6Function        capitalize normalize pack unpack quotemeta comb
-syn keyword p6Function        samecase sameaccent chars nfd nfc nfkd nfkc
-syn keyword p6Function        printf sprintf caller evalfile run runinstead 
-syn keyword p6Function        nothing want bless chr ord list item gmtime 
-syn keyword p6Function        localtime time gethost getpw chroot getlogin
-syn keyword p6Function        kill fork wait perl context graphs codes bytes
-syn keyword p6Function        print open read write readline say seek close
-syn keyword p6Function        opendir readdir slurp pos fmt vec
-syn keyword p6Function        eval operator undef undefine sleep
-syn keyword p6Function        infix postfix prefix circumfix postcircumfix
+syn keyword p6Routine         WHAT WHICH VAR eager hyper substr index rindex
+syn keyword p6Routine         grep map sort join split reduce min max reverse
+syn keyword p6Routine         truncate zip cat roundrobin classify first 
+syn keyword p6Routine         keys values pairs defined delete exists elems
+syn keyword p6Routine         end kv arity assuming pick slice
+syn keyword p6Routine         any all none one wrap shape classify
+syn keyword p6Routine         callsame callwith nextsame nextwith
+syn keyword p6Routine         pop push shift splice unshift floor ceiling
+syn keyword p6Routine         abs exp log log10 rand sign sqrt sin cos tan
+syn keyword p6Routine         round srand roots cis unpolar polar atan2
+syn keyword p6Routine         p5chop chop p5chomp chomp lc lcfirst uc ucfirst
+syn keyword p6Routine         capitalize normalize pack unpack quotemeta comb
+syn keyword p6Routine         samecase sameaccent chars nfd nfc nfkd nfkc
+syn keyword p6Routine         printf sprintf caller evalfile run runinstead 
+syn keyword p6Routine         nothing want bless chr ord list item gmtime 
+syn keyword p6Routine         localtime time gethost getpw chroot getlogin
+syn keyword p6Routine         kill fork wait perl context graphs codes bytes
+syn keyword p6Routine         print open read write readline say seek close
+syn keyword p6Routine         opendir readdir slurp pos fmt vec link unlink
+syn keyword p6Routine         symlink uniq pair asin acos atan sec cosec
+syn keyword p6Routine         cotan asec acosec acotan sinh cosh tanh asinh
+syn keyword p6Routine         acosh atanh sech cosech cotanh sech acosech
+syn keyword p6Routine         acotanh plan ok dies_ok lives_ok skip todo
+syn keyword p6Routine         pass flunk force_todo use_ok isa_ok cmp_ok
+syn keyword p6Routine         diag is_deeply isnt like skip_rest unlike
+syn keyword p6Routine         nonce skip_rest eval_dies_ok eval_lives_ok
+syn keyword p6Routine         approx is_approx throws_ok version_lt
+syn keyword p6Routine         eval operator undef undefine sleep
+syn keyword p6Routine         infix postfix prefix circumfix postcircumfix
 syn keyword p6Operator        x xx div mod also leg cmp
 syn keyword p6Operator        eq ne lt le gt ge eqv ff fff true not Z minmax
 syn keyword p6Operator        X XeqvX and andthen or xor orelse extra
 
 " more operators (not very smart, allows any combination)
 syn match p6Operator display "\%(+\|-\|/\|\*\|\~\|?\||\|\\\|=\|\^\|!\|%\)"
-syn match p6Operator display "\%(&\|<\|>\|,\|\.\|;\|:\|\[\S\+\]\)"
-" these require end-of-word on the right side
-syn match p6Operator display "\<\%(!eqv\|X\~X\|X\*X\)\>"
-" these require end-of-word on both sides
-syn match p6Operator display "\<\%(xx=\|p5=>\)"
+syn match p6Operator display "\%(&\|<\|>\|,\|\.\|;\)"
+" these require whitespace on the left side
+syn match p6Operator display "\%(^\|\s\)\@<=\%(xx=\|p5=>\|\[\S\+\]\)"
+" these require whitespace on both sides
+syn match p6Operator display "\%(^\|\s\)\@=\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
+" this one can't be combined with itself
+syn match p6Operator display ":\@<!::\@!"
 
 " misc
-syn match p6Normal  display "\w*::\w\+"
-syn match p6Comment display "#.*" contains=p6Attention
-syn match p6Shebang display "\%^#!.*"
-
-" Variables, arrays, and hashes with ordinary \w+ names
-"syn match p6Type         display "¢[:.*^?]\?[[:alpha:]_]\w*"
-syn match p6VarPlain     display "\(\w\@<!::?\?\|[$@%][!.*^?]\?\)[[:graph:]_¢]\w*"
-syn match p6VarException display "\$![[:alpha:]]\@!"
+syn match p6Normal     display "\w*::\w\+"
+syn match p6Comment    display "#.*" contains=p6Attention
+syn match p6Shebang    display "\%^#!.*"
+syn match p6BlockLabel display "\%(^\s*\)\@<=\h\w*\s*:\s\@="
+syn match p6Variable   display "[$@%][!.*^?]\?[[:graph:]_¢]\w*"
 
 " { ... } construct
 syn region p6InterpExpression
@@ -125,9 +129,8 @@ syn region p6InterpExpression
     \ contains=TOP
 
 syn cluster p6Interp
-    \ add=p6VarPlain
+    \ add=p6Variable
     \ add=p6InterpExpression
-    \ add=p6VarException
     \ add=p6InterpClosure
 
 " FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
@@ -211,9 +214,10 @@ syn region p6LiteralString
     \ end="'"
 syn region p6LiteralString
     \ matchgroup=p6Quote
-    \ start="<<\@!\(.*>\)\@="
+    \ start="<<\@!"
+    \ skip="\\>"
     \ end=">\@<!>"
-" special hack for $<etc>
+" special case for $<etc>
 syn region p6LiteralString
     \ matchgroup=p6Quote
     \ start="\$<\(.*>\)\@="
@@ -259,6 +263,15 @@ syn match p6LiteralString display "\w\+p5\ze=>"
 
 " this is an infix operator, not a quote
 syn match p6Operator display "\s\zs<=>"
+
+" =<> is not a quote
+syn region p6Iterate
+    \ matchgroup=p6Operator
+    \ start="=<"
+    \ end=">"
+    \ oneline
+    \ display
+    \ contains=p6Variable
 
 " :key<val>
 syn match p6LiteralString display ":\@<=\w\+"
@@ -620,35 +633,35 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6SubNonBracket   p6String
     HiLink p6SubBracket      p6String
     HiLink p6TransNonBracket p6String
-    HiLink p6Module          p6Keyword
-    HiLink p6Declarator      p6Keyword
-    HiLink p6ScopeDeclarator p6Keyword
-    HiLink p6FlowControl     p6Keyword
-    HiLink p6VarPlain        p6Variable
-    HiLink p6VarException    p6Exception
 
+    HiLink p6Property        Tag
     HiLink p6Attention       Todo
     HiLink p6Type            Type
-    HiLink p6Property        Type
     HiLink p6Error           Error
+    HiLink p6BlockLabel      Label
     HiLink p6Normal          Normal
     HiLink p6Number          Number
     HiLink p6String          String
     HiLink p6Regex           String
     HiLink p6Repeat          Repeat
     HiLink p6Keyword         Keyword
+    HiLink p6Module          Keyword
+    HiLink p6DeclareRoutine  Keyword
+    HiLink p6VarStorage      Keyword
+    HiLink p6FlowControl     Special
     HiLink p6Comment         Comment
-    HiLink p6CharClass       Special
     HiLink p6Shebang         PreProc
     HiLink p6ClosureTrait    PreProc
     HiLink p6Operator        Operator
     HiLink p6Contextualizer  Operator
-    HiLink p6Function        Function
+    HiLink p6Routine         Function
     HiLink p6Quote           Delimiter
+    HiLink p6TypeConstraint  PreCondit
     HiLink p6Exception       Exception
     HiLink p6Variable        Identifier
     HiLink p6RuleCall        Identifier
     HiLink p6Conditional     Conditional
+    HiLink p6CharClass       SpecialChar
     HiLink p6RegexSpecial    SpecialChar
 
     HiLink p6PodPara         p6Pod
