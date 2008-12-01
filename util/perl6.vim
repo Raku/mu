@@ -63,7 +63,7 @@ syn keyword p6Type            Failure Exception Code Block Routine Sub Macro
 syn keyword p6Type            Method Submethod Regex Str Blob Char Byte
 syn keyword p6Type            Codepoint Grapheme StrPos StrLen Version Num
 syn keyword p6Type            Complex num complex Bit Bool bit bool Order
-syn keyword p6Type            Increasing Decreasing Ordered Callable
+syn keyword p6Type            Increasing Decreasing Ordered Callable AnyChar
 syn keyword p6Type            Positional Associative Ordering KeyExtractor
 syn keyword p6Type            Comparator OrderingPair IO KitchenSink
 syn keyword p6Type            Int int int1 int2 int4 int8 int16 int32 int64
@@ -77,41 +77,32 @@ syn keyword p6Function        grep map sort join split reduce min max reverse
 syn keyword p6Function        truncate zip cat roundrobin classify first 
 syn keyword p6Function        keys values pairs defined delete exists elems
 syn keyword p6Function        end kv arity assuming gather take pick
-syn keyword p6Function        any all none one wrap
+syn keyword p6Function        any all none one wrap shape classify
 syn keyword p6Function        callsame callwith nextsame nextwith
-syn keyword p6Function        pop push shift splice unshift  
+syn keyword p6Function        pop push shift splice unshift floor ceiling
 syn keyword p6Function        abs exp log log10 rand sign sqrt sin cos tan
-syn keyword p6Function        floor ceil round srand roots cis unpolar polar
+syn keyword p6Function        round srand roots cis unpolar polar atan2
 syn keyword p6Function        p5chop chop p5chomp chomp lc lcfirst uc ucfirst
 syn keyword p6Function        capitalize normalize pack unpack quotemeta comb
-syn keyword p6Function        nfd nfc nfkd nfkc
+syn keyword p6Function        samecase sameaccent chars nfd nfc nfkd nfkc
 syn keyword p6Function        printf sprintf caller evalfile run runinstead 
 syn keyword p6Function        nothing want bless chr ord list item gmtime 
 syn keyword p6Function        localtime time gethost getpw chroot getlogin
-syn keyword p6Function        kill fork wait perl context
+syn keyword p6Function        kill fork wait perl context graphs codes bytes
 syn keyword p6Function        print open read write readline say seek close
-syn keyword p6Function        opendir readdir slurp
+syn keyword p6Function        opendir readdir slurp pos fmt vec
 syn keyword p6Function        eval operator undef undefine sleep
 syn keyword p6Function        infix postfix prefix circumfix postcircumfix
 syn keyword p6Operator        x xx div mod also leg cmp
 syn keyword p6Operator        eq ne lt le gt ge eqv ff fff true not Z minmax
 syn keyword p6Operator        X XeqvX and andthen or xor orelse extra
 
-" more operators
-syn match p6Operator display "\%(+\|-\|/\|\*\|\~\|?\||\|\\\|=\|\^\|!\|%\|&\)"
-syn match p6Operator display "\%(++\|--\|\*\*\)"
-syn match p6Operator display "\%(+\^\|\~\^\|?\^\)"
-syn match p6Operator display "\%(+&\|+<\|+>\|\~&\|\~<\|\~>\|?&\)"
-syn match p6Operator display "\%(&&\|||\|\^\^\|??\|!!\)"
-syn match p6Operator display "\%(+|\|+\^\|\~|\|\~\^\|?|\)"
-syn match p6Operator display "\%(\.\.\|\.\.\^\|\^\.\.\|\^\.\.\^\)"
-syn match p6Operator display "\%(!=\|==\|<\|<=\|>\|>=\||\~\~\|===\)"
-syn match p6Operator display "\%(:=\|::=\|=>\|+=\|-=\|\*\*=\|\.=\)"
-syn match p6Operator display "\%(\.\.\.\|,\|:\|\[\S+\]\)"
-syn match p6Operator display "\%(;\|<==\|==>\|<<==\|==>>\|{\.\.\.}\|\.\)"
-" these need end-of-word to the right
-syn match p6Operator display "\<\%(<=>\|!eqv\|X\~X\|X\*X\)\>"
-" these need end-of-word on both sides
+" more operators (not very smart, allows any combination)
+syn match p6Operator display "\%(+\|-\|/\|\*\|\~\|?\||\|\\\|=\|\^\|!\|%\)"
+syn match p6Operator display "\%(&\|<\|>\|,\|\.\|;\|:\|\[\S\+\]\)"
+" these require end-of-word on the right side
+syn match p6Operator display "\<\%(!eqv\|X\~X\|X\*X\)\>"
+" these require end-of-word on both sides
 syn match p6Operator display "\<\%(xx=\|p5=>\)"
 
 " misc
@@ -260,11 +251,14 @@ syn match p6Number display "\<\(\d*\.\d\+\|\d\+\)\(e\d\+\)\{0,1}"
 syn match p6Number display "\<0o[0-7]\+"
 syn match p6Number display "\<0x[0-9a-fA-F]\+"
 
-" => and p5=> operators
+" => and p5=> autoquoting
 syn match p6LiteralString display "\w\+\ze\s\+p5=>"
 syn match p6LiteralString display "\w\+\ze\(p5\)\@<!=>"
 syn match p6LiteralString display "\w\+\ze\s\+=>"
 syn match p6LiteralString display "\w\+p5\ze=>"
+
+" this is an infix operator, not a quote
+syn match p6Operator display "\s\zs<=>"
 
 " :key<val>
 syn match p6LiteralString display ":\@<=\w\+"
