@@ -682,7 +682,7 @@ sub process_syn ($$$$) {
     #print Dumper $linktree if $syn_id eq '02';
 
     my $linktree_sections = $linktree->{"S$syn_id"};
-    if (!$linktree_sections) {
+    if (!$linktree_sections && $syn_id != 7) {
         # We won't generate the HTML file if there's no smartlink in it.
         return;
     }
