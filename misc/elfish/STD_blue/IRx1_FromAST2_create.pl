@@ -87,6 +87,9 @@ elsif $o<postop> {
   temp $blackboard::expect_term_base = $m<arg>;
   $m<postop>;
 }
+elsif $o<quantified_atom> {
+  $m<quantified_atom>
+}
 else { die "Didn't understand an EXPR node" }
 
 PRE
@@ -323,7 +326,15 @@ else { die "Unsupported quote: "~$blackboard::quote }
 
 nibbler
 #XXX I've sooo no idea.
-$m<nibbles>[0]
+if $o<nibbles> {
+  $m<nibbles>[0]
+}
+elsif $o<EXPR> {
+  $m<EXPR>
+}
+else {
+  die "nibbler is a work in progress";
+}
 
 colonpair
 my $v = $m<v>;
@@ -640,15 +651,32 @@ Trait.newp('does',$m<module_name>)
 
 
 
+regex_declarator:token
+temp $blackboard::regex_kind = 'token';
+$m<regex_def>
+
+regex_def
+my $kind = $blackboard::regex_kind;
+my $name = $m<deflongname>[0];
+my $sig = $m<signature>; #X
+my $trait = $m<trait>; #X
+my $regex = $m<regex_block>;
+RegexDef.newp($kind,$name,$sig,$trait,$regex)
+
+regex_block
+$m<nibble>
+
+quantified_atom
+RxQuantifiedAtom.newp($m<atom>,$m<quantifier>[0])
+
+atom
+#OLD: if $m<char> { RxLiteral.newp($m<char>,"'") } else { *1* }
+*text*
+
+
 quote:regex
 my $s = $m<text> || $m<quotesnabber><text>;
 Rx.newp($s,$m<quotepair>)
-
-regex_declarator:regex_def
-RegexDef.newp($m<ident>,$m<regex_block>)
-
-regex_block
-$m<regex>
 
 regex
 Regex.newp($m<pattern>)
@@ -676,9 +704,6 @@ RxQuantifiedAtom.newp($m<regex_atom>,$m<regex_quantifier>)
 
 regex_quantifier
 *text*
-
-regex_atom
-if $m<char> { RxLiteral.newp($m<char>,"'") } else { *1* }
 
 regex_metachar:regex_backslash
 RxBackslash.newp(*text*)
