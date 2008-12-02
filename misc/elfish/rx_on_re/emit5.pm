@@ -82,7 +82,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
 #local $Regexp::ModuleA::ReentrantEngine::Env::stop;
 
 {
-  package Regexp::ModuleA::AST::BaseClass;
+  package IRx1::RxBaseClass;
 
   use Sub::Name;
   our $sub_id = 1;
@@ -217,7 +217,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
       $code2 .= ";\ngoto \&\$f$i}";
     }
     my $code = $code0."
-#line 2 \"Regexp::ModuleA::AST::BaseClass RMARE_conj\"
+#line 2 \"IRx1::RxBaseClass RMARE_conj\"
 \n subname \'<conj \'.(\$sub_id++).\">\" => sub {my \$cn = \$_[0];
   my \$__start__ = \$Regexp::ModuleA::ReentrantEngine::Env::pos;
   my \$__end__ = undef;
@@ -246,7 +246,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
       $code2 .= ";goto \&\$f$i}";
     }
     my $code = $code0."
-#line 2 \"Regexp::ModuleA::AST::BaseClass RMARE_concat\"
+#line 2 \"IRx1::RxBaseClass RMARE_concat\"
 \n subname \'<concat \'.(\$sub_id++).\'>\' => sub {my \$cn = \$_[0]; \@_=".$code1."\$cn".$code2.";goto \&\$f0}\n";
     eval($code) || die "$@";
   }   
@@ -1138,10 +1138,10 @@ eval_perl5( EmitRegex.regex_prelude() );
 # AST to RMARE emitters
 #----------------------------------------------------------------------
 
-package Regexp::ModuleA {
+package IRx1 {
 
   # any regexp
-  class AST::Pat5 {
+  class RxPat5 {
     method RMARE_emit () {
       my $re = $.RMARE_wrap_re_with_mods(self.<pat>);
       $.RMARE_eat_regexp($re);
@@ -1149,7 +1149,7 @@ package Regexp::ModuleA {
   }
 
   # \Qabc\E
-  class AST::Exact {
+  class RxExact {
     method RMARE_emit () {
       my $re = self.<text>;
       $re.re_sub('([^\w\s])','\\\\$1','g');
@@ -1159,21 +1159,21 @@ package Regexp::ModuleA {
   }
 
   # (?imsx-imsx:...)
-  class AST::Mod_expr {
+  class RxMod_expr {
     method RMARE_emit () {
       self.<expr>.RMARE_emit;
     }
   }
 
   # (?imsx-imsx)
-  class AST::Mod_inline {
+  class RxMod_inline {
     method RMARE_emit () {
       $.RMARE_noop;
     }
   }
 
   # ? * + {n,m} ?? *? etc
-  class AST::Quant {
+  class RxQuant {
     method RMARE_emit () {
       my $min = self.<min>;
       my $max = self.<max>;
@@ -1192,7 +1192,7 @@ package Regexp::ModuleA {
   }
 
   # a|b
-  class AST::Alt {
+  class RxAlt {
     method RMARE_emit {
       my $f1 = $.RMARE_alt(self.<exprs>.map(sub($o){$o.RMARE_emit}));
       if self.<flags><ratchet> {
@@ -1204,21 +1204,21 @@ package Regexp::ModuleA {
   }
 
   # a&b
-  class AST::Conj {
+  class RxConj {
     method RMARE_emit {
       $.RMARE_conj(self.<exprs>.map(sub($o){$o.RMARE_emit}))
     }
   }
 
   # ab
-  class AST::Seq {
+  class RxSeq {
     method RMARE_emit {
       $.RMARE_concat(self.<exprs>.map(sub($o){$o.RMARE_emit}))
     }
   }  
 
   # .. := ...
-  class AST::Alias {
+  class RxAlias {
     method RMARE_emit {
       my $target_spec = self.<target_spec>;
       my $construct_kind = self.<construct_kind>;
@@ -1238,7 +1238,7 @@ package Regexp::ModuleA {
   }
 
   # (?:a)
-  class AST::Grp {
+  class RxGrp {
     method RMARE_emit {
       my $target_spec = self.<target_spec>;
       my $in_quant = self.<in_quant>;
@@ -1247,7 +1247,7 @@ package Regexp::ModuleA {
   }
 
   # (a)
-  class AST::Cap {
+  class RxCap {
     method RMARE_emit {
       my $in_quant = {if self.<in_quant> { 1 } else { 0 }};
       my $target_spec = self.<target_spec>;
@@ -1262,7 +1262,7 @@ package Regexp::ModuleA {
   }
 
   # \1
-  class AST::Backref {
+  class RxBackref {
     method RMARE_emit {
       my $noop = $.RMARE_noop;
       my $idx = self.<backref_n> -1;
@@ -1271,7 +1271,7 @@ package Regexp::ModuleA {
   }
 
   # <foo>
-  class AST::Subrule {
+  class RxSubrule {
     method RMARE_emit {
       my $exprs = self.<exprs>;
       my $pkg = self.<pkg>;
@@ -1291,7 +1291,7 @@ package Regexp::ModuleA {
   }
 
   # (?(n)t|f)
-  class AST::Conditional {
+  class RxConditional {
     method RMARE_emit {
       my $f_test; my $idx;
       my $f_then = self.<expr_then>.RMARE_emit;
@@ -1309,7 +1309,7 @@ package Regexp::ModuleA {
   }
 
   # (?=) (?<=) (?!) (?<!)
-  class AST::Lookaround {
+  class RxLookaround {
     method RMARE_emit {
       my $f = self.<expr>.RMARE_emit;
       my $is_forward = self.<is_forward>;
@@ -1319,7 +1319,7 @@ package Regexp::ModuleA {
   }
 
   # (?>)
-  class AST::Independent {
+  class RxIndependent {
     method RMARE_emit {
       my $f = self.<expr>.RMARE_emit;
       $.RMARE_independent($f);
@@ -1327,28 +1327,28 @@ package Regexp::ModuleA {
   }
 
   # nonexistent
-  class AST::CommitSequence {
+  class RxCommitSequence {
     method RMARE_emit {
       $.RMARE_commit_sequence
     }
   }
 
   # ::
-  class AST::CommitGroup {
+  class RxCommitGroup {
     method RMARE_emit {
       $.RMARE_commit_group
     }
   }
 
   # :::
-  class AST::CommitRegex {
+  class RxCommitRegex {
     method RMARE_emit {
       $.RMARE_commit_regex
     }
   }
 
   # <commit>
-  class AST::CommitMatch {
+  class RxCommitMatch {
     method RMARE_emit {
       $.RMARE_commit_match
     }
@@ -1357,7 +1357,7 @@ package Regexp::ModuleA {
   # (?{ ... })
   # XXX high klude factor
   # Code is currently p5!
-  class AST::Code {
+  class RxCode {
     method RMARE_emit {
       my $code5 = self.<code>;
       $.RMARE_code($code5);
@@ -1367,7 +1367,7 @@ package Regexp::ModuleA {
   # (??{ ... })
   # XXX high klude factor
   # Code is currently p5!
-  class AST::CodeRx {
+  class RxCodeRx {
     method RMARE_emit {
       my $code5 = self.<code>;
       $.RMARE_coderx($code5);
@@ -1375,7 +1375,7 @@ package Regexp::ModuleA {
   }
 
   # rx/a/
-  class AST::ARegex {
+  class RxARegex {
     method  RMARE_emit {
       my $pkg = self.<pkg>;
       my $name = self.<name>;
@@ -1385,7 +1385,7 @@ package Regexp::ModuleA {
   }
 
   # regex foo /a/; rule foo /a/; token foo /a/
-  class AST::Biind {
+  class RxBiind {
     method RMARE_emit {
       my $pkg = self.<pkg>;
       my $name = self.<name>;
@@ -1395,7 +1395,7 @@ package Regexp::ModuleA {
   }
   
   # grammar Foo::Bar { ... }
-  class AST::Namespace {
+  class RxNamespace {
     method RMARE_emit {
       my $pkg = self.<pkg>;
       $.RMARE_namespace($pkg);

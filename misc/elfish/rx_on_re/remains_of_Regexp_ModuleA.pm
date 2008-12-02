@@ -22,11 +22,11 @@ use Carp;
 #-- translate analysis, leave make0's.
 
 {
-  local $Regexp::ModuleA::AST::Env::pkg;
-  local $Regexp::ModuleA::AST::Env::name;
+  local $whiteboard::rx_pkg;
+  local $whiteboard::rx_name;
 
-  # AST::BaseClass
-  package Regexp::ModuleA::AST::BaseClass;
+  # RxBaseClass
+  package IRx1::RxBaseClass;
   sub newx { shift->newp(undef,@_) }
 
   sub RAST_children {
@@ -59,16 +59,16 @@ use Carp;
     "'$s'";
   }
 
-  # AST::Pat5
-  package Regexp::ModuleA::AST::Pat5;
+  # RxPat5
+  package IRx1::RxPat5;
   sub RAST_to_make0 {my($o)=@_; 'pat5('.($o->RAST_quote($o->{pat})).')';}
 
-  # AST::Exact
-  package Regexp::ModuleA::AST::Exact;
+  # RxExact
+  package IRx1::RxExact;
   sub RAST_to_make0 {my($o)=@_; 'exact('.($o->RAST_quote($o->{text})).')';}
 
-  # AST::MixinMod
-  package Regexp::ModuleA::AST::MixinMod;
+  # RxMixinMod
+  package IRx1::RxMixinMod;
 
   sub _RAST_to_make0_hlp {
     my($o)=@_;
@@ -81,9 +81,9 @@ use Carp;
     $o->RAST_quote($modpat);
   }
 
-  # AST::Mod_expr
-  package Regexp::ModuleA::AST::Mod_expr;
-  @Regexp::ModuleA::AST::Mod_expr::ISA=qw(Regexp::ModuleA::AST::MixinMod Regexp::ModuleA::AST::BaseClass);
+  # RxMod_expr
+  package IRx1::RxMod_expr;
+  @IRx1::RxMod_expr::ISA=qw(IRx1::RxMixinMod IRx1::RxBaseClass);
   sub newx {
     my($cls,$modpat,$expr)=@_; die "api assert" if @_ != 3;
     my $mods = $cls->mods_from_modpat($modpat);
@@ -94,9 +94,9 @@ use Carp;
     'mod_expr('.$o->_RAST_to_make0_hlp.",".$o->RAST_to_make0_children.')';
   }
   
-  # AST::Mod_inline
-  package Regexp::ModuleA::AST::Mod_inline;
-  @Regexp::ModuleA::AST::Mod_inline::ISA=qw(Regexp::ModuleA::AST::MixinMod Regexp::ModuleA::AST::BaseClass);
+  # RxMod_inline
+  package IRx1::RxMod_inline;
+  @IRx1::RxMod_inline::ISA=qw(IRx1::RxMixinMod IRx1::RxBaseClass);
   sub newx {
     my($cls,$modpat)=@_; die "api assert" if @_ != 2;
     my $mods = $cls->mods_from_modpat($modpat);
@@ -107,18 +107,18 @@ use Carp;
     'mod_inline('.$o->_RAST_to_make0_hlp.')';
   }
 
-  # AST::Backref
-  package Regexp::ModuleA::AST::Backref;
+  # RxBackref
+  package IRx1::RxBackref;
   sub RAST_to_make0 {my($o)=@_; 'backref('.$o->{backref_n}.')';}
 
-  # AST::Cap
-  package Regexp::ModuleA::AST::Cap;
+  # RxCap
+  package IRx1::RxCap;
 
-  # AST::Grp
-  package Regexp::ModuleA::AST::Grp;
+  # RxGrp
+  package IRx1::RxGrp;
 
-  # AST::Alias
-  package Regexp::ModuleA::AST::Alias;
+  # RxAlias
+  package IRx1::RxAlias;
   sub newx {
     my($cls,$target,$expr)=@_;
     $target =~ /^([\$\@\%](?:[[:alpha:]_][\w:]+|\/)?)(.*)$/ or die "bug";
@@ -146,8 +146,8 @@ use Carp;
     'alias('.$o->RAST_quote($o->{target}).','.$o->RAST_to_make0_children.')';
   }
 
-  # AST::Quant
-  package Regexp::ModuleA::AST::Quant;
+  # RxQuant
+  package IRx1::RxQuant;
   sub RAST_to_make0 {
     my($o)=@_;
     my $min = $o->{min}; $min = 'undef' if !defined $min;
@@ -157,33 +157,33 @@ use Carp;
     'quant('."$min,$max,$expr$ng".')';
   }
 
-  # AST::Alt
-  package Regexp::ModuleA::AST::Alt;
+  # RxAlt
+  package IRx1::RxAlt;
   sub newx {
     my($cls,@exprs)=@_;
     bless {exprs=>\@exprs}, $cls;
   }
 
-  # AST::Conj
-  package Regexp::ModuleA::AST::Conj;
+  # RxConj
+  package IRx1::RxConj;
   sub newx {
     my($cls,@exprs)=@_;
     bless {exprs=>\@exprs}, $cls;
   }
 
-  # AST::Seq
-  package Regexp::ModuleA::AST::Seq;
+  # RxSeq
+  package IRx1::RxSeq;
   sub newx {
     my($cls,@exprs)=@_;
     bless {exprs=>\@exprs}, $cls;
   }
 
-  # AST::ASpace
-  package Regexp::ModuleA::AST::ASpace;
+  # RxASpace
+  package IRx1::RxASpace;
   sub RAST_to_make0 {my($o)=@_; 'aspace('.($o->RAST_quote($o->{text})).')';}
 
-  # AST::Subrule
-  package Regexp::ModuleA::AST::Subrule;
+  # RxSubrule
+  package IRx1::RxSubrule;
   sub newx {
     my($cls,$inpkg,$fullname,$exprs)=@_; die "api assert" if @_ != 4;
     $fullname =~ /^([?!]*)(.*)$/ or die;
@@ -199,9 +199,9 @@ use Carp;
     'sr('.$o->RAST_quote($o->{name}).$x.')';
   }
 
-  # AST::ARegex
-  package Regexp::ModuleA::AST::ARegex;
-  @Regexp::ModuleA::AST::ARegex::ISA=qw(Regexp::ModuleA::AST::MixinMod Regexp::ModuleA::AST::BaseClass);
+  # RxARegex
+  package IRx1::RxARegex;
+  @IRx1::RxARegex::ISA=qw(IRx1::RxMixinMod IRx1::RxBaseClass);
   sub newx {
     my($cls,$modpat,$expr)=@_; die "api assert" if @_ != 3;
     my $mods = $cls->mods_from_modpat($modpat);
@@ -212,8 +212,8 @@ use Carp;
     'aregexm('.$o->RAST_quote($o->{modpat}).','.$o->RAST_to_make0_children.')';
   }
 
-  # AST::Biind
-  package Regexp::ModuleA::AST::Biind;
+  # RxBiind
+  package IRx1::RxBiind;
   sub newx {
     my($cls,$inpkg,$name,$expr)=@_; die "api assert" if @_ != 4;
     die "api assert $name"  if $name =~ /::/;
@@ -224,8 +224,8 @@ use Carp;
     'biind('.$o->RAST_quote($o->{name}).','.$o->RAST_to_make0_children.')';
   }
 
-  # AST::Namespace
-  package Regexp::ModuleA::AST::Namespace;
+  # RxNamespace
+  package IRx1::RxNamespace;
   sub newx {
     my($cls,$inpkg,$nsname,@bindings)=@_; die "api assert" if @_ < 3;
     my $pkg = ($nsname =~ /\A::(.*)/) ? $1 : $nsname eq '' ? $inpkg : "${inpkg}::$nsname";
@@ -237,26 +237,26 @@ use Carp;
     'namespace('.$o->RAST_quote($o->{nsname}).",\n".$o->RAST_to_make0_children.')';
   }
 
-  # AST::Code
-  package Regexp::ModuleA::AST::Code;
+  # RxCode
+  package IRx1::RxCode;
   sub RAST_to_make0 {
     my($o)=@_;
     'code('.$o->RAST_quote($o->{code}).')';
   }
 
-  # AST::CodeRx
-  package Regexp::ModuleA::AST::CodeRx;
+  # RxCodeRx
+  package IRx1::RxCodeRx;
   sub RAST_to_make0 {
     my($o)=@_;
     'coderx('.$o->RAST_quote($o->{code}).')';
   }
 
-  # AST::Independent
-  package Regexp::ModuleA::AST::Independent;
+  # RxIndependent
+  package IRx1::RxIndependent;
   sub RAST_to_make0 {my($o)=@_; 'independent('.$o->RAST_to_make0_children.')';}
 
-  # AST::Conditional
-  package Regexp::ModuleA::AST::Conditional;
+  # RxConditional
+  package IRx1::RxConditional;
   sub RAST_children { 
     my($o)=@_;
     my @ch;
@@ -272,8 +272,8 @@ use Carp;
     'conditional('."$n".$o->RAST_to_make0_children.')';
   }
 
-  # AST::Lookaround
-  package Regexp::ModuleA::AST::Lookaround;
+  # RxLookaround
+  package IRx1::RxLookaround;
   sub RAST_to_make0 {
     my($o)=@_;
     my $a = $o->{is_forward} ? '1' : '0';
@@ -294,35 +294,35 @@ use Carp;
   @Regexp::ModuleA::AST::Make0::ISA=qw(Exporter);
   @Regexp::ModuleA::AST::Make0::EXPORT_OK = qw(pat5 mod_expr mod_inline exact quant quant_ng alt conj seq cap grp aspace sr alias aregex aregexm biind namespace  backref  ques star plus  ques_ng star_ng plus_ng  inf  code coderx independent conditional lookaround commit_sequence commit_group commit_regex commit_match);
   @Regexp::ModuleA::AST::Make0::EXPORT    = @Regexp::ModuleA::AST::Make0::EXPORT_OK;
-  sub pat5 { Regexp::ModuleA::AST::Pat5->newx(@_) }
-  sub mod_expr { Regexp::ModuleA::AST::Mod_expr->newx(@_) }
-  sub mod_inline { Regexp::ModuleA::AST::Mod_inline->newx(@_) }
-  sub exact { Regexp::ModuleA::AST::Exact->newx(@_) }
-  sub quant { Regexp::ModuleA::AST::Quant->newx(@_) }
-  sub quant_ng { Regexp::ModuleA::AST::Quant->newx(@_,'ng') }
-  sub alt { Regexp::ModuleA::AST::Alt->newx(@_) }
-  sub conj { Regexp::ModuleA::AST::Conj->newx(@_) }
-  sub seq { Regexp::ModuleA::AST::Seq->newx(@_) }
-  sub cap { Regexp::ModuleA::AST::Cap->newx(@_) }
-  sub grp { Regexp::ModuleA::AST::Grp->newx(@_) }
-  sub aspace { my($pkg)=caller; Regexp::ModuleA::AST::ASpace->newx($pkg,@_) }
-  sub sr { my($pkg)=caller; Regexp::ModuleA::AST::Subrule->newx($pkg,shift,[@_]) }
-  sub alias { Regexp::ModuleA::AST::Alias->newx(@_) }
-  sub aregex { Regexp::ModuleA::AST::ARegex->newx('',@_) }
-  sub aregexm { Regexp::ModuleA::AST::ARegex->newx(@_) }
-  sub biind { my($pkg)=caller; Regexp::ModuleA::AST::Biind->newx($pkg,@_) }
-  sub namespace { my($pkg)=caller; Regexp::ModuleA::AST::Namespace->newx($pkg,@_) }
+  sub pat5 { IRx1::RxPat5->newx(@_) }
+  sub mod_expr { IRx1::RxMod_expr->newx(@_) }
+  sub mod_inline { IRx1::RxMod_inline->newx(@_) }
+  sub exact { IRx1::RxExact->newx(@_) }
+  sub quant { IRx1::RxQuant->newx(@_) }
+  sub quant_ng { IRx1::RxQuant->newx(@_,'ng') }
+  sub alt { IRx1::RxAlt->newx(@_) }
+  sub conj { IRx1::RxConj->newx(@_) }
+  sub seq { IRx1::RxSeq->newx(@_) }
+  sub cap { IRx1::RxCap->newx(@_) }
+  sub grp { IRx1::RxGrp->newx(@_) }
+  sub aspace { my($pkg)=caller; IRx1::RxASpace->newx($pkg,@_) }
+  sub sr { my($pkg)=caller; IRx1::RxSubrule->newx($pkg,shift,[@_]) }
+  sub alias { IRx1::RxAlias->newx(@_) }
+  sub aregex { IRx1::RxARegex->newx('',@_) }
+  sub aregexm { IRx1::RxARegex->newx(@_) }
+  sub biind { my($pkg)=caller; IRx1::RxBiind->newx($pkg,@_) }
+  sub namespace { my($pkg)=caller; IRx1::RxNamespace->newx($pkg,@_) }
 
-  sub backref { Regexp::ModuleA::AST::Backref->newx(@_) }
-  sub code { Regexp::ModuleA::AST::Code->newx(@_) }
-  sub coderx { Regexp::ModuleA::AST::CodeRx->newx(@_) }
-  sub independent { Regexp::ModuleA::AST::Independent->newx(@_) }
-  sub conditional { Regexp::ModuleA::AST::Conditional->newx(@_) }
-  sub lookaround { Regexp::ModuleA::AST::Lookaround->newx(@_) }
-  sub commit_sequence { Regexp::ModuleA::AST::CommitSequence->newx(@_) }
-  sub commit_group { Regexp::ModuleA::AST::CommitGroup->newx(@_) }
-  sub commit_regex { Regexp::ModuleA::AST::CommitRegex->newx(@_) }
-  sub commit_match { Regexp::ModuleA::AST::CommitMatch->newx(@_) }
+  sub backref { IRx1::RxBackref->newx(@_) }
+  sub code { IRx1::RxCode->newx(@_) }
+  sub coderx { IRx1::RxCodeRx->newx(@_) }
+  sub independent { IRx1::RxIndependent->newx(@_) }
+  sub conditional { IRx1::RxConditional->newx(@_) }
+  sub lookaround { IRx1::RxLookaround->newx(@_) }
+  sub commit_sequence { IRx1::RxCommitSequence->newx(@_) }
+  sub commit_group { IRx1::RxCommitGroup->newx(@_) }
+  sub commit_regex { IRx1::RxCommitRegex->newx(@_) }
+  sub commit_match { IRx1::RxCommitMatch->newx(@_) }
 
   sub ques { quant(0,1,    (@_ > 1 ? seq(@_) : @_)); }
   sub star { quant(0,undef,(@_ > 1 ? seq(@_) : @_)); }
@@ -336,35 +336,35 @@ use Carp;
 }
 {
   package Regexp::ModuleA::AST::Make1;
-  sub pat5 {shift; Regexp::ModuleA::AST::Pat5->newx(@_) }
-  sub mod_expr {shift; Regexp::ModuleA::AST::Mod_expr->newx(@_) }
-  sub mod_inline {shift; Regexp::ModuleA::AST::Mod_inline->newx(@_) }
-  sub exact {shift; Regexp::ModuleA::AST::Exact->newx(@_) }
-  sub quant {shift; Regexp::ModuleA::AST::Quant->newx(@_) }
-  sub quant_ng {shift; Regexp::ModuleA::AST::Quant->newx(@_,'ng') }
-  sub alt {shift; Regexp::ModuleA::AST::Alt->newx(@_) }
-  sub conj {shift; Regexp::ModuleA::AST::Conj->newx(@_) }
-  sub seq {shift; Regexp::ModuleA::AST::Seq->newx(@_) }
-  sub cap {shift; Regexp::ModuleA::AST::Cap->newx(@_) }
-  sub grp {shift; Regexp::ModuleA::AST::Grp->newx(@_) }
-  sub aspace { my($pkg)=caller; Regexp::ModuleA::AST::ASpace->newx($pkg,@_) }
-  sub sr {my $pkg = shift; Regexp::ModuleA::AST::Subrule->newx($pkg,shift,[@_]) }
-  sub alias {shift; Regexp::ModuleA::AST::Alias->newx(@_) }
-  sub aregex {shift; Regexp::ModuleA::AST::ARegex->newx('',@_) }
-  sub aregexm {shift; Regexp::ModuleA::AST::ARegex->newx(@_) }
-  sub biind {my $pkg = shift; Regexp::ModuleA::AST::Biind->newx($pkg,@_) }
-  sub namespace {my $pkg = shift; Regexp::ModuleA::AST::Namespace->newx($pkg,@_) }
+  sub pat5 {shift; IRx1::RxPat5->newx(@_) }
+  sub mod_expr {shift; IRx1::RxMod_expr->newx(@_) }
+  sub mod_inline {shift; IRx1::RxMod_inline->newx(@_) }
+  sub exact {shift; IRx1::RxExact->newx(@_) }
+  sub quant {shift; IRx1::RxQuant->newx(@_) }
+  sub quant_ng {shift; IRx1::RxQuant->newx(@_,'ng') }
+  sub alt {shift; IRx1::RxAlt->newx(@_) }
+  sub conj {shift; IRx1::RxConj->newx(@_) }
+  sub seq {shift; IRx1::RxSeq->newx(@_) }
+  sub cap {shift; IRx1::RxCap->newx(@_) }
+  sub grp {shift; IRx1::RxGrp->newx(@_) }
+  sub aspace { my($pkg)=caller; IRx1::RxASpace->newx($pkg,@_) }
+  sub sr {my $pkg = shift; IRx1::RxSubrule->newx($pkg,shift,[@_]) }
+  sub alias {shift; IRx1::RxAlias->newx(@_) }
+  sub aregex {shift; IRx1::RxARegex->newx('',@_) }
+  sub aregexm {shift; IRx1::RxARegex->newx(@_) }
+  sub biind {my $pkg = shift; IRx1::RxBiind->newx($pkg,@_) }
+  sub namespace {my $pkg = shift; IRx1::RxNamespace->newx($pkg,@_) }
 
-  sub backref {shift; Regexp::ModuleA::AST::Backref->newx(@_) }
-  sub code {shift; Regexp::ModuleA::AST::Code->newx(@_) }
-  sub coderx {shift; Regexp::ModuleA::AST::CodeRx->newx(@_) }
-  sub independent {shift; Regexp::ModuleA::AST::Independent->newx(@_) }
-  sub conditional {shift; Regexp::ModuleA::AST::Conditional->newx(@_) }
-  sub lookaround {shift; Regexp::ModuleA::AST::Lookaround->newx(@_) }
-  sub commit_sequence {shift; Regexp::ModuleA::AST::CommitSequence->newx(@_) }
-  sub commit_group {shift; Regexp::ModuleA::AST::CommitGroup->newx(@_) }
-  sub commit_regex {shift; Regexp::ModuleA::AST::CommitRegex->newx(@_) }
-  sub commit_match {shift; Regexp::ModuleA::AST::CommitMatch->newx(@_) }
+  sub backref {shift; IRx1::RxBackref->newx(@_) }
+  sub code {shift; IRx1::RxCode->newx(@_) }
+  sub coderx {shift; IRx1::RxCodeRx->newx(@_) }
+  sub independent {shift; IRx1::RxIndependent->newx(@_) }
+  sub conditional {shift; IRx1::RxConditional->newx(@_) }
+  sub lookaround {shift; IRx1::RxLookaround->newx(@_) }
+  sub commit_sequence {shift; IRx1::RxCommitSequence->newx(@_) }
+  sub commit_group {shift; IRx1::RxCommitGroup->newx(@_) }
+  sub commit_regex {shift; IRx1::RxCommitRegex->newx(@_) }
+  sub commit_match {shift; IRx1::RxCommitMatch->newx(@_) }
 
   sub ques {shift->quant(0,1,    (@_ > 1 ? seq(@_) : @_)); }
   sub star {shift->quant(0,undef,(@_ > 1 ? seq(@_) : @_)); }

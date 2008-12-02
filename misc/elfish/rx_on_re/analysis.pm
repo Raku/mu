@@ -1,16 +1,16 @@
 
-package Regexp::ModuleA {
+package IRx1 {
 
-  class AST::BaseClass {
+  class RxBaseClass {
 
     method RAST_pass10 { # flags, mods, and pkg
-      self.<flags> = $Regexp::ModuleA::AST::Env::flags.clone;
+      self.<flags> = $whiteboard::rx_flags.clone;
       $.RAST_children.map(sub($o){$o.RAST_pass10})
     }
     method RAST_pass14 { # in_quant, subrules_seen, alias_construct
-      my $q = $Regexp::ModuleA::AST::Env::in_quant;
+      my $q = $whiteboard::rx_in_quant;
       $q = 1 if $q; # remove 'directly'
-      temp $Regexp::ModuleA::AST::Env::in_quant = $q;
+      temp $whiteboard::rx_in_quant = $q;
       $.RAST_children.map(sub($o){$o.RAST_pass14});
     }
     method RAST_pass15 { # nparen, target_spec (req: RAST_pass14)
@@ -22,13 +22,13 @@ package Regexp::ModuleA {
 
   }
 
-  class AST::Pat5 {
+  class RxPat5 {
   }
 
-  class AST::Exact {
+  class RxExact {
   }
 
-  class AST::MixinMod {
+  class RxMixinMod {
 
     method mods_from_modpat ($modpat) { # class method
       return {} if $modpat eq '';
@@ -55,7 +55,7 @@ package Regexp::ModuleA {
     }
 
     method _add_mods {
-      my $flags = $Regexp::ModuleA::AST::Env::flags.clone;
+      my $flags = $whiteboard::rx_flags.clone;
       self.<mods>.keys.map(sub($key){
         $flags.{$key} = self.<mods>.{$key};
       });
@@ -63,89 +63,89 @@ package Regexp::ModuleA {
     }
   }
 
-  class AST::Mod_expr {
+  class RxMod_expr {
     method RAST_pass10 {
-      temp $Regexp::ModuleA::AST::Env::flags = $._add_mods;
+      temp $whiteboard::rx_flags = $._add_mods;
       $.SUPER::RAST_pass10;
     }
   }
 
-  class AST::Mod_inline {
+  class RxMod_inline {
     method RAST_pass10 { # Not the same as Mod_expr's.
-      $Regexp::ModuleA::AST::Env::flags = $._add_mods;
+      $whiteboard::rx_flags = $._add_mods;
       $.SUPER::RAST_pass10;
     }
   }
 
-  class AST::Backref {
+  class RxBackref {
     method RAST_pass30 {
       my $n = self.<backref_n>;
-      my $total = $Regexp::ModuleA::AST::Env::nparen;
+      my $total = $whiteboard::rx_nparen;
       die "Backreference to nonexistent group $n of $total"
         if $total < $n;
     }
   }
 
-  class AST::Cap {
+  class RxCap {
     method RAST_pass10 {
-      self.<flags> = $Regexp::ModuleA::AST::Env::flags.clone;
-      temp $Regexp::ModuleA::AST::Env::flags = $Regexp::ModuleA::AST::Env::flags.clone;
+      self.<flags> = $whiteboard::rx_flags.clone;
+      temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
       $.SUPER::RAST_pass10;
     }
     method RAST_pass14 {
-      self.<in_quant> = $Regexp::ModuleA::AST::Env::in_quant;
-      temp $Regexp::ModuleA::AST::Env::in_quant = 0;
-      temp $Regexp::ModuleA::AST::Env::subrules_seen = {};
+      self.<in_quant> = $whiteboard::rx_in_quant;
+      temp $whiteboard::rx_in_quant = 0;
+      temp $whiteboard::rx_subrules_seen = {};
       $.SUPER::RAST_pass14;
-      $Regexp::ModuleA::AST::Env::alias_construct = self;
+      $whiteboard::rx_alias_construct = self;
     }
     method RAST_pass15 {
-      self.<cap6_idx> = $Regexp::ModuleA::AST::Env::nparen6_idx++;
-      self.<cap5_idx> = $Regexp::ModuleA::AST::Env::nparen++;
-      $Regexp::ModuleA::AST::Env::nparen6 = $Regexp::ModuleA::AST::Env::nparen6_idx
-        if $Regexp::ModuleA::AST::Env::nparen6 < $Regexp::ModuleA::AST::Env::nparen6_idx;
-      self.<target_spec> = $Regexp::ModuleA::AST::Env::target_spec;
+      self.<cap6_idx> = $whiteboard::rx_nparen6_idx++;
+      self.<cap5_idx> = $whiteboard::rx_nparen++;
+      $whiteboard::rx_nparen6 = $whiteboard::rx_nparen6_idx
+        if $whiteboard::rx_nparen6 < $whiteboard::rx_nparen6_idx;
+      self.<target_spec> = $whiteboard::rx_target_spec;
 
-      temp $Regexp::ModuleA::AST::Env::nparen6 = 0;
-      temp $Regexp::ModuleA::AST::Env::nparen6_idx = 0;
-      temp $Regexp::ModuleA::AST::Env::target_spec = undef;
+      temp $whiteboard::rx_nparen6 = 0;
+      temp $whiteboard::rx_nparen6_idx = 0;
+      temp $whiteboard::rx_target_spec = undef;
       self.<expr>.RAST_pass15;
-      self.<nparen6> = $Regexp::ModuleA::AST::Env::nparen6;
+      self.<nparen6> = $whiteboard::rx_nparen6;
     }
   }
 
-  class AST::Grp {
+  class RxGrp {
     method RAST_pass10 {
-      self.<flags> = $Regexp::ModuleA::AST::Env::flags.clone;
-      temp $Regexp::ModuleA::AST::Env::flags = $Regexp::ModuleA::AST::Env::flags.clone;
+      self.<flags> = $whiteboard::rx_flags.clone;
+      temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
       $.SUPER::RAST_pass10;
     }
     method RAST_pass14 {
-      self.<in_quant> = $Regexp::ModuleA::AST::Env::in_quant;
+      self.<in_quant> = $whiteboard::rx_in_quant;
       $.SUPER::RAST_pass14;
-      $Regexp::ModuleA::AST::Env::alias_construct = self;
+      $whiteboard::rx_alias_construct = self;
     }
     method RAST_pass15 {
-      self.<target_spec> = $Regexp::ModuleA::AST::Env::target_spec;
-      temp $Regexp::ModuleA::AST::Env::target_spec = undef;
+      self.<target_spec> = $whiteboard::rx_target_spec;
+      temp $whiteboard::rx_target_spec = undef;
       self.<expr>.RAST_pass15;
     }
   }
 
-  class AST::Alias {
+  class RxAlias {
     method RAST_pass14 {
       $.RAST_children.map(sub($o){$o.RAST_pass14});
-      my $construct = $Regexp::ModuleA::AST::Env::alias_construct;
-      my $kinds = {'Regexp::ModuleA::AST::Grp'=>'group',
-                   'Regexp::ModuleA::AST::Cap'=>'capture',
-                   'Regexp::ModuleA::AST::Subrule'=>'subrule'};
+      my $construct = $whiteboard::rx_alias_construct;
+      my $kinds = {'IRx1::RxGrp'=>'group',
+                   'IRx1::RxCap'=>'capture',
+                   'IRx1::RxSubrule'=>'subrule'};
       my $kind = $kinds.{$construct.WHAT};
       my $in_quant = $construct.<in_quant>;
       self.<construct_kind> = $kind;
       self.<construct_in_quant> = $in_quant;
     }
     method RAST_pass15 {
-      self.<first_alias> = !defined($Regexp::ModuleA::AST::Env::target_spec);
+      self.<first_alias> = !defined($whiteboard::rx_target_spec);
       my $spec = self.<target_spec>;
       my $idx;
       if ($spec.elems == 3 && $spec[1] eq '[') { $idx = $spec[2] }
@@ -154,44 +154,44 @@ package Regexp::ModuleA {
         my $construct_in_quant = self.<construct_in_quant>;
         my $next_idx = $idx;
         $next_idx++ if $construct_kind eq 'group';
-        $Regexp::ModuleA::AST::Env::nparen6_idx = $next_idx;
-        $Regexp::ModuleA::AST::Env::nparen6 = $next_idx if
-          $Regexp::ModuleA::AST::Env::nparen6 < $next_idx;
+        $whiteboard::rx_nparen6_idx = $next_idx;
+        $whiteboard::rx_nparen6 = $next_idx if
+          $whiteboard::rx_nparen6 < $next_idx;
       }
-      temp $Regexp::ModuleA::AST::Env::target_spec = $spec;
+      temp $whiteboard::rx_target_spec = $spec;
       self.<expr>.RAST_pass15;
     }
   }
 
-  class AST::Quant {
+  class RxQuant {
     method RAST_pass14 {
-      temp $Regexp::ModuleA::AST::Env::in_quant = 'directly';
+      temp $whiteboard::rx_in_quant = 'directly';
       $.RAST_children.map(sub($o){$o.RAST_pass14});
     }
   }
 
-  class AST::Alt {
+  class RxAlt {
     method RAST_pass15 {
-      my $start = $Regexp::ModuleA::AST::Env::nparen6_idx;
+      my $start = $whiteboard::rx_nparen6_idx;
       my $max = $start;
       my $x = self.<exprs>.map(sub($o){
-        temp $Regexp::ModuleA::AST::Env::nparen6_idx = $start;
+        temp $whiteboard::rx_nparen6_idx = $start;
         my $x1 = $o.RAST_pass15;
-        my $np = $Regexp::ModuleA::AST::Env::nparen6_idx;
+        my $np = $whiteboard::rx_nparen6_idx;
         $max = $np if $max < $np;
         $x1;
       });
       self.<cap6_idx_start> = $start;
       self.<nparen6> = $max - $start;
-      $Regexp::ModuleA::AST::Env::nparen6_idx = $max;
+      $whiteboard::rx_nparen6_idx = $max;
       $x;
     }
   }
 
-  class AST::Conj {
+  class RxConj {
   }
 
-  class AST::Seq {
+  class RxSeq {
     method RAST_pass14 {
       if self.<exprs>.elems == 1 {
         # Single item sequence doesn't affect in_quant directness.
@@ -202,12 +202,12 @@ package Regexp::ModuleA {
     }
   }
 
-  class AST::ASpace {
+  class RxASpace {
     method RAST_pass10 {
-      my $flags = $Regexp::ModuleA::AST::Env::flags.clone;
+      my $flags = $whiteboard::rx_flags.clone;
       if $flags.<sigspace> {
-        my $sr = Regexp::ModuleA::AST::Subrule.newx(self.<aspace_inpkg>,'?ws',[]);
-        $.become('Regexp::ModuleA::AST::Subrule');
+        my $sr = IRx1::RxSubrule.newx(self.<aspace_inpkg>,'?ws',[]);
+        $.become('IRx1::RxSubrule');
         # XXX anything else?
         self.<created_in_pkg> = $sr.<created_in_pkg>;
         self.<exprs> = $sr.<exprs>;
@@ -217,94 +217,94 @@ package Regexp::ModuleA {
         self.<inpkg> = $sr.<inpkg>;
         self.<pkg> = $sr.<pkg>;
       } else {
-        $.become('Regexp::ModuleA::AST::Exact');
+        $.become('IRx1::RxExact');
       }
       $.RAST_pass10;
     }
   }
 
-  class AST::Subrule {
+  class RxSubrule {
     method RAST_pass10 {
-      self.<pkg> = $Regexp::ModuleA::AST::Env::pkg || self.<inpkg>;
+      self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
       $.SUPER::RAST_pass10;
     }
     method RAST_pass14 {
-      self.<in_quant> = $Regexp::ModuleA::AST::Env::in_quant;
+      self.<in_quant> = $whiteboard::rx_in_quant;
       if not(self.<nocap>) {
         my $name = self.<name>;
-        my $seen = $Regexp::ModuleA::AST::Env::subrules_seen.{$name};
+        my $seen = $whiteboard::rx_subrules_seen.{$name};
         if $seen {
           $seen.() if $seen.isa('Code');
-          $Regexp::ModuleA::AST::Env::subrules_seen.{$name} = 1;
+          $whiteboard::rx_subrules_seen.{$name} = 1;
           self.<in_quant> = 1 if not(self.<in_quant>);
         } else {
-          $Regexp::ModuleA::AST::Env::subrules_seen.{$name} = sub {
+          $whiteboard::rx_subrules_seen.{$name} = sub {
             self.<in_quant> = 1 if not(self.<in_quant>);
           };
         }
       }
       $.SUPER::RAST_pass14;
-      $Regexp::ModuleA::AST::Env::alias_construct = self;
+      $whiteboard::rx_alias_construct = self;
     }
     method RAST_pass15 {
-      self.<target_spec> = $Regexp::ModuleA::AST::Env::target_spec;
+      self.<target_spec> = $whiteboard::rx_target_spec;
     }
   }
 
-  class AST::ARegex {
+  class RxARegex {
     method RAST_init {
-      self.<pkg> = $Regexp::ModuleA::AST::Env::pkg || self.<inpkg>;
-      self.<name> = $Regexp::ModuleA::AST::Env::name;
-      temp $Regexp::ModuleA::AST::Env::pkg = self.<pkg>;
-      temp $Regexp::ModuleA::AST::Env::flags = self.<mods>.clone;
+      self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
+      self.<name> = $whiteboard::rx_name;
+      temp $whiteboard::rx_pkg = self.<pkg>;
+      temp $whiteboard::rx_flags = self.<mods>.clone;
       $.RAST_pass10;
-      temp $Regexp::ModuleA::AST::Env::in_quant = 0;
-      temp $Regexp::ModuleA::AST::Env::subrules_seen = {};
-      temp $Regexp::ModuleA::AST::Env::alias_construct = undef;
+      temp $whiteboard::rx_in_quant = 0;
+      temp $whiteboard::rx_subrules_seen = {};
+      temp $whiteboard::rx_alias_construct = undef;
       $.RAST_pass14;
-      temp $Regexp::ModuleA::AST::Env::nparen = 0;
-      temp $Regexp::ModuleA::AST::Env::nparen6 = 0;
-      temp $Regexp::ModuleA::AST::Env::nparen6_idx = 0;
-      temp $Regexp::ModuleA::AST::Env::target_spec = undef;
+      temp $whiteboard::rx_nparen = 0;
+      temp $whiteboard::rx_nparen6 = 0;
+      temp $whiteboard::rx_nparen6_idx = 0;
+      temp $whiteboard::rx_target_spec = undef;
       $.RAST_pass15;
-      self.<nparen> = $Regexp::ModuleA::AST::Env::nparen;
-      self.<nparen6> = $Regexp::ModuleA::AST::Env::nparen6;
+      self.<nparen> = $whiteboard::rx_nparen;
+      self.<nparen6> = $whiteboard::rx_nparen6;
       $.RAST_pass30;
       self;
     }
   }
 
-  class AST::Biind {
+  class RxBiind {
     method RAST_init {
-      self.<pkg> = $Regexp::ModuleA::AST::Env::pkg || self.<inpkg>;
-      temp $Regexp::ModuleA::AST::Env::pkg = self.<pkg>;
-      temp $Regexp::ModuleA::AST::Env::name = self.<name>;
+      self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
+      temp $whiteboard::rx_pkg = self.<pkg>;
+      temp $whiteboard::rx_name = self.<name>;
       self.<expr>.RAST_init;
       self;
     }
   }
 
-  class AST::Namespace {
+  class RxNamespace {
     method RAST_init {
-      temp $Regexp::ModuleA::AST::Env::pkg = self.<pkg>;
+      temp $whiteboard::rx_pkg = self.<pkg>;
       $.RAST_children.map(sub($o){$o.RAST_init});
       self;
     }
   }
 
-  class AST::Code {
+  class RxCode {
   }
 
-  class AST::CodeRx {
+  class RxCodeRx {
   }
 
-  class AST::Independent {
+  class RxIndependent {
   }
 
-  class AST::Conditional {
+  class RxConditional {
   }
 
-  class AST::Lookaround {
+  class RxLookaround {
   }
 
 

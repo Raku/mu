@@ -4,32 +4,32 @@ use warnings;
 
 my $def = <<'END_DEF';
 
-Pat5 pat
-Exact text
-Mod_expr mods expr
-Mod_inline mods
-Backref backref_n
-Cap expr
-Grp expr
-Alias target target_spec expr
-Quant min max expr nongreedy
-Alt exprs
-Conj exprs
-Seq exprs
-ASpace aspace_inpkg text
-Subrule created_in_pkg name exprs neg nocap
-ARegex modpat mods expr
-Biind created_in_pkg name expr
-Namespace created_in_pkg nsname bindings pkg
-Code code
-CodeRx code
-Independent expr
-Conditional test expr_then expr_else
-Lookaround is_forward is_positive expr
-CommitSequence
-CommitGroup
-CommitRegex
-CommitMatch
+RxPat5 pat
+RxExact text
+RxMod_expr mods expr
+RxMod_inline mods
+RxBackref backref_n
+RxCap expr
+RxGrp expr
+RxAlias target target_spec expr
+RxQuant min max expr nongreedy
+RxAlt exprs
+RxConj exprs
+RxSeq exprs
+RxASpace aspace_inpkg text
+RxSubrule created_in_pkg name exprs neg nocap
+RxARegex modpat mods expr
+RxBiind created_in_pkg name expr
+RxNamespace created_in_pkg nsname bindings pkg
+RxCode code
+RxCodeRx code
+RxIndependent expr
+RxConditional test expr_then expr_else
+RxLookaround is_forward is_positive expr
+RxCommitSequence
+RxCommitGroup
+RxCommitRegex
+RxCommitMatch
 
 END_DEF
 
@@ -90,7 +90,7 @@ sub write_ir_nodes {
   my($file)=@_;
   my $code = "".unindent(<<'  END');
     # Warning: This file is mechanically written.  Your changes will be overwritten.
-    package Regexp::ModuleA::AST {
+    package IRx1 {
 
   END
 
@@ -98,8 +98,8 @@ sub write_ir_nodes {
     my($name,@fields)=($node->name,$node->fields);
     my @all = $node->all_fields;
     
-    my $base = 'BaseClass';
-    $base = "Mixin${1}" if $name =~ /([^_]+)_/;
+    my $base = 'RxBaseClass';
+    $base = "RxMixin${1}" if $name =~ /Rx([^_]+)_/;
     my $has = join("",map{"has \$.$_;\n        "} @all,'notes');
     my $params = join(',',map{"\$$_"}@all);
     my $init = join(', ',map{"'$_', \$$_"} @all);
