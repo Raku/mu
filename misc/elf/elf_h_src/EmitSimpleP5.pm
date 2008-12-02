@@ -869,6 +869,9 @@ package Main;
       my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
       return 'GLOBAL::'~$fun~'('~$.e($n.capture)~','~$env~')'
     }
+    elsif $fun eq '_inline_p5' { # Use is strongly discouraged.
+      return $n.capture.arguments[0].buf;
+    }
 
     if $fun.re_matchp('^\w') {
       my $fe = $.mangle_function_name($fun);

@@ -7,16 +7,6 @@ sub inline_remains is p5 {'use remains_of_Regexp_ModuleA;
 inline_remains();
 
 sub test is p5 {'
-    if($ARGV[-1] eq "--repl") {
-      shift;
-      Regexp::ModuleA::Interactive::repl();
-      exit;
-    }
-    if($ARGV[-1] eq "--repl6") {
-      shift;
-      Regexp::ModuleA::Interactive::repl(6);
-      exit;
-    }
 
    my $test_target = &Regexp::ModuleA::test_target;
    my $test_target6 = &Regexp::ModuleA::test_target6;

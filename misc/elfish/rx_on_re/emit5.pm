@@ -87,9 +87,9 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
   use Sub::Name;
   our $sub_id = 1;
 
-  sub RMARE_emit {
+  sub RMARE_emit2 {
     my $cls = ref($_[0]);
-    die "bug: $cls RMARE_emit() unimplemented\n";
+    die "bug: $cls RMARE_emit2() unimplemented\n";
   }
 
   # noop
@@ -1142,94 +1142,112 @@ package IRx1 {
 
   # any regexp
   class RxPat5 {
-    method RMARE_emit () {
+    method RMARE_emit2 () {
       my $re = $.RMARE_wrap_re_with_mods(self.<pat>);
-      $.RMARE_eat_regexp($re);
+      #$.RMARE_eat_regexp($re);
+      eval_perl5('IRx1::RxBaseClass->RMARE_eat_regexp("'~quotemeta($re)~'")');
     }
   }
 
   # \Qabc\E
   class RxExact {
-    method RMARE_emit () {
+    method RMARE_emit2 () {
       my $re = self.<text>;
       $re.re_sub('([^\w\s])','\\\\$1','g');
       $re = $.RMARE_wrap_re_with_mods($re);
-      $.RMARE_eat_regexp($re);
+      #$.RMARE_eat_regexp($re);
+      eval_perl5('IRx1::RxBaseClass->RMARE_eat_regexp("'~quotemeta($re)~'")')
     }
   }
 
   # (?imsx-imsx:...)
   class RxMod_expr {
-    method RMARE_emit () {
-      self.<expr>.RMARE_emit;
+    method RMARE_emit2 () {
+      self.<expr>.RMARE_emit2;
     }
   }
 
   # (?imsx-imsx)
   class RxMod_inline {
-    method RMARE_emit () {
-      $.RMARE_noop;
+    method RMARE_emit2 () {
+      #$.RMARE_noop;
+      eval_perl5('IRx1::RxBaseClass->RMARE_noop')
     }
   }
 
   # ? * + {n,m} ?? *? etc
   class RxQuant {
-    method RMARE_emit () {
+    method RMARE_emit2 () {
       my $min = self.<min>;
       my $max = self.<max>;
-      my $nongreedy = self.<nongreedy>;
+      my $nongreedy = 0;
+      if self.<nongreedy> { $nongreedy = 1 }
       $min = 0 if !defined $min;
       $max = 1000**1000**1000 if !defined $max; #XXX inf
       die "assert - Quant min <= max" if $min > $max;
-      my $f = self.<expr>.RMARE_emit;
-      my $f1 = $.RMARE_repeat($f,$min,$max,$nongreedy);
+      my $f = self.<expr>.RMARE_emit2;
       if self.<flags><ratchet> {
-        $.RMARE_concat([$f1,$.RMARE_commit_sequence]);
+        #$.RMARE_concat([$.RMARE_repeat($f,$min,$max,$nongreedy),
+        #                $.RMARE_commit_sequence]);
+        _inline_p5('IRx1::RxBaseClass->RMARE_concat([IRx1::RxBaseClass->RMARE_repeat($f,$min,$max,$nongreedy),
+                        IRx1::RxBaseClass->RMARE_commit_sequence])');
+
       } else {
-        $f1;
+        #$.RMARE_repeat($f,$min,$max,$nongreedy);
+        _inline_p5('IRx1::RxBaseClass->RMARE_repeat($f,$min,$max,$nongreedy)')
       }
     }
   }
 
   # a|b
   class RxAlt {
-    method RMARE_emit {
-      my $f1 = $.RMARE_alt(self.<exprs>.map(sub($o){$o.RMARE_emit}));
+    method RMARE_emit2 {
+      my $exprs = self.<exprs>.map(sub($o){$o.RMARE_emit2}); #join
       if self.<flags><ratchet> {
-        $.RMARE_concat([$f1,$.RMARE_commit_sequence()]);
+        #$.RMARE_concat([$.RMARE_alt($exprs),
+        #                $.RMARE_commit_sequence()]);
+        _inline_p5('IRx1::RxBaseClass->RMARE_concat([IRx1::RxBaseClass->RMARE_alt($exprs),
+                        IRx1::RxBaseClass->RMARE_commit_sequence()])')
       } else {
-        $f1;
+        #$.RMARE_alt($exprs);
+        _inline_p5('IRx1::RxBaseClass->RMARE_alt($exprs)')
       }
     }
   }
 
   # a&b
   class RxConj {
-    method RMARE_emit {
-      $.RMARE_conj(self.<exprs>.map(sub($o){$o.RMARE_emit}))
+    method RMARE_emit2 {
+      my $exprs = self.<exprs>.map(sub($o){$o.RMARE_emit2}); #join
+      #$.RMARE_conj($exprs)
+      _inline_p5('IRx1::RxBaseClass->RMARE_conj($exprs)')
     }
   }
 
   # ab
   class RxSeq {
-    method RMARE_emit {
-      $.RMARE_concat(self.<exprs>.map(sub($o){$o.RMARE_emit}))
+    method RMARE_emit2 {
+      my $exprs = self.<exprs>.map(sub($o){$o.RMARE_emit2}); #join
+      #$.RMARE_concat($exprs)
+      _inline_p5('IRx1::RxBaseClass->RMARE_concat($exprs)')
     }
   }  
 
   # .. := ...
   class RxAlias {
-    method RMARE_emit {
+    method RMARE_emit2 {
       my $target_spec = self.<target_spec>;
       my $construct_kind = self.<construct_kind>;
       my $construct_in_quant = self.<construct_in_quant>;
-      my $f = self.<expr>.RMARE_emit;
+      my $f = self.<expr>.RMARE_emit2;
       if ($construct_kind eq 'group'
           && $construct_in_quant
-          && $target_spec[0] =~ /^\$/)
+          && $target_spec[0].re_matchp('^\$'))
       {
-        my $cs = $.RMARE_capture_string($f);
-        $.RMARE_alias_wrap($cs,undef,1,0,0,$target_spec);
+        #$.RMARE_alias_wrap($.RMARE_capture_string($f),
+        #                   undef,1,0,0,$target_spec);
+        _inline_p5('IRx1::RxBaseClass->RMARE_alias_wrap(IRx1::RxBaseClass->RMARE_capture_string($f),
+                           undef,1,0,0,$target_spec)'); #" quotemeta($target_spec) "
       }
       else {
         $f;
@@ -1239,118 +1257,131 @@ package IRx1 {
 
   # (?:a)
   class RxGrp {
-    method RMARE_emit {
+    method RMARE_emit2 {
       my $target_spec = self.<target_spec>;
-      my $in_quant = self.<in_quant>;
-      $.RMARE_group(self.<expr>.RMARE_emit,$target_spec,$in_quant);
+      my $in_quant = {if self.<in_quant> { 1 } else { 0 }};
+      my $f = self.<expr>.RMARE_emit2;
+      #$.RMARE_group($f,$target_spec,$in_quant);
+      _inline_p5('IRx1::RxBaseClass->RMARE_group($f,$target_spec,$in_quant)');
     }
   }
 
   # (a)
   class RxCap {
-    method RMARE_emit {
+    method RMARE_emit2 {
       my $in_quant = {if self.<in_quant> { 1 } else { 0 }};
       my $target_spec = self.<target_spec>;
-      my $is6 = not self.<flags><p5>;
+      my $is6 = not self.<flags><p5>; #(...) || 'undef';
       my $idx = {if $is6
                  { self.<cap6_idx> } else
                  { self.<cap5_idx> }};
-      my $f = self.<expr>.RMARE_emit;
-      $.RMARE_capture($idx,$f,$is6,self.<nparen6>,
-                      $in_quant,$target_spec);
+      my $nparen6 = self.<nparen6>;
+      my $f = self.<expr>.RMARE_emit2;
+      #$.RMARE_capture($idx,$f,$is6,$nparen6,$in_quant,$target_spec);
+      _inline_p5('IRx1::RxBaseClass->RMARE_capture($idx,$f,$is6,$nparen6,$in_quant,$target_spec)');
     }
   }
 
   # \1
   class RxBackref {
-    method RMARE_emit {
+    method RMARE_emit2 {
       my $noop = $.RMARE_noop;
       my $idx = self.<backref_n> -1;
-      $.RMARE_eat_backref($idx,'(?'~$.RMARE_imsx~')');
+      #$.RMARE_eat_backref($idx,'(?'~$.RMARE_imsx~')');
+      eval_perl5('IRx1::RxBaseClass->RMARE_eat_backref('~$idx~',"'~quotemeta('(?'~$.RMARE_imsx~')')~'")');
     } #XXX move imsx into eat
   }
 
   # <foo>
   class RxSubrule {
-    method RMARE_emit {
-      my $exprs = self.<exprs>;
-      my $pkg = self.<pkg>;
-      my $name = self.<name>;
-      my $neg = self.<neg>;
-      my $nocap = self.<nocap>;
+    method RMARE_emit2 {
+      my $exprs = self.<exprs>.map(sub($o){$o.RMARE_emit2}); #join
+      my $pkg = self.<pkg>; #if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'};
+      my $name = self.<name>; #if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'};
+      my $neg = self.<neg>; #||'undef';
+      my $nocap = self.<nocap>; #||'undef';
       my $in_quant = {if self.<in_quant> { 1 } else { 0 }};
-      my $pkg_override = undef;
-      if ($name =~ /^([\w\:\.]+)\.(\w+)$/) {
-        $name = $2;
-        $pkg_override = $1;
+      my $pkg_override = undef; #'undef';
+      my $g = $name.re_groups('^([\w\:\.]+)\.(\w+)$');
+      if $g {
+        $name = $g[1];
+        $pkg_override = $g[0]; #'"'~quotemeta($g[0])~'"'
       }
-      my $target_spec = self.<target_spec>;
-      my $exprs1 = self.<exprs>.map(sub($o){$o.RMARE_emit});
-      $.RMARE_subrule_fetching_rx($pkg,$pkg_override,$name,$exprs1,$neg,$nocap,$in_quant,$target_spec);
+      my $target_spec = self.<target_spec>; #||'undef';
+      #$.RMARE_subrule_fetching_rx($pkg,$pkg_override,$name,$exprs,$neg,$nocap,$in_quant,$target_spec);
+      _inline_p5('IRx1::RxBaseClass->RMARE_subrule_fetching_rx($pkg,$pkg_override,$name,$exprs,$neg,$nocap,$in_quant,$target_spec)');
     }
   }
 
   # (?(n)t|f)
   class RxConditional {
-    method RMARE_emit {
-      my $f_test; my $idx;
-      my $f_then = self.<expr_then>.RMARE_emit;
-      my $f_else;
+    method RMARE_emit2 {
+      my $f_test;  #= 'undef';
+      my $idx;  #= 'undef';
+      my $f_else;  #= 'undef';
+      my $f_then = self.<expr_then>.RMARE_emit2;
       if self.<expr_else> {
-        $f_else = self.<expr_else>.RMARE_emit;
+        $f_else = self.<expr_else>.RMARE_emit2;
       }
       if self.<test>.isa("Int") {
         $idx = self.<test>;
       } else {
-        $f_test = self.<test>.RMARE_emit;
+        $f_test = self.<test>.RMARE_emit2;
       }
-      $.RMARE_conditional($f_test,$idx,$f_then,$f_else);
+      #$.RMARE_conditional($f_test,$idx,$f_then,$f_else);
+      _inline_p5('IRx1::RxBaseClass->RMARE_conditional($f_test,$idx,$f_then,$f_else)');
     }
   }
 
   # (?=) (?<=) (?!) (?<!)
   class RxLookaround {
-    method RMARE_emit {
-      my $f = self.<expr>.RMARE_emit;
-      my $is_forward = self.<is_forward>;
-      my $is_positive = self.<is_positive>;
-      $.RMARE_lookaround($is_forward,$is_positive,$f);
+    method RMARE_emit2 {
+      my $f = self.<expr>.RMARE_emit2;
+      my $is_forward = 0; if self.<is_forward> { $is_forward = 1 };
+      my $is_positive = 0; if self.<is_positive> { $is_positive = 1 };
+      #$.RMARE_lookaround($is_forward,$is_positive,$f);
+      _inline_p5('IRx1::RxBaseClass->RMARE_lookaround($is_forward,$is_positive,$f)');
     }
   }
 
   # (?>)
   class RxIndependent {
-    method RMARE_emit {
-      my $f = self.<expr>.RMARE_emit;
-      $.RMARE_independent($f);
+    method RMARE_emit2 {
+      my $f = self.<expr>.RMARE_emit2;
+      #$.RMARE_independent($f);
+      _inline_p5('IRx1::RxBaseClass->RMARE_independent($f)');
     }
   }
 
   # nonexistent
   class RxCommitSequence {
-    method RMARE_emit {
-      $.RMARE_commit_sequence
+    method RMARE_emit2 {
+      #$.RMARE_commit_sequence
+      _inline_p5('IRx1::RxBaseClass->RMARE_commit_sequence')
     }
   }
 
   # ::
   class RxCommitGroup {
-    method RMARE_emit {
-      $.RMARE_commit_group
+    method RMARE_emit2 {
+      #$.RMARE_commit_group
+      _inline_p5('IRx1::RxBaseClass->RMARE_commit_group')
     }
   }
 
   # :::
   class RxCommitRegex {
-    method RMARE_emit {
-      $.RMARE_commit_regex
+    method RMARE_emit2 {
+      #$.RMARE_commit_regex
+      _inline_p5('IRx1::RxBaseClass->RMARE_commit_regex')
     }
   }
 
   # <commit>
   class RxCommitMatch {
-    method RMARE_emit {
-      $.RMARE_commit_match
+    method RMARE_emit2 {
+      #$.RMARE_commit_match
+      _inline_p5('IRx1::RxBaseClass->RMARE_commit_match')
     }
   }
 
@@ -1358,9 +1389,10 @@ package IRx1 {
   # XXX high klude factor
   # Code is currently p5!
   class RxCode {
-    method RMARE_emit {
+    method RMARE_emit2 {
       my $code5 = self.<code>;
-      $.RMARE_code($code5);
+      #$.RMARE_code($code5);
+      _inline_p5('IRx1::RxBaseClass->RMARE_code($code5)')
     }
   }
 
@@ -1368,18 +1400,24 @@ package IRx1 {
   # XXX high klude factor
   # Code is currently p5!
   class RxCodeRx {
-    method RMARE_emit {
+    method RMARE_emit2 {
       my $code5 = self.<code>;
-      $.RMARE_coderx($code5);
+      #$.RMARE_coderx($code5);
+      _inline_p5('IRx1::RxBaseClass->RMARE_coderx($code5)')
     }
   }
 
   # rx/a/
   class RxARegex {
-    method  RMARE_emit {
-      my $pkg = self.<pkg>;
-      my $name = self.<name>;
-      my $f = $.RMARE_aregex_create(self.<expr>.RMARE_emit);
+    method RMARE_emit {
+      $.RMARE_emit2
+      #eval_perl5($.RMARE_emit2)
+    }
+    method RMARE_emit2 {
+      my $pkg = self.<pkg>; #if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'};
+      my $name = self.<name>; #if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'};
+      #XXX TODO: RMARE_aregex_create is accessing the node.  Refactor.
+      my $f = $.RMARE_aregex_create(self.<expr>.RMARE_emit2);
       $.RMARE_aregex($pkg,$name,$f);
     }
   }
@@ -1387,9 +1425,13 @@ package IRx1 {
   # regex foo /a/; rule foo /a/; token foo /a/
   class RxBiind {
     method RMARE_emit {
-      my $pkg = self.<pkg>;
-      my $name = self.<name>;
-      my $fr = self.<expr>.RMARE_emit;
+      $.RMARE_emit2
+    }
+    method RMARE_emit2 {
+      my $pkg = self.<pkg>; #if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'};
+      my $name = self.<name>; #if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'};
+      my $fr = self.<expr>.RMARE_emit2;
+      #XXX TODO
       $.RMARE_biind($pkg,$name,$fr);
     }
   }
@@ -1397,9 +1439,13 @@ package IRx1 {
   # grammar Foo::Bar { ... }
   class RxNamespace {
     method RMARE_emit {
-      my $pkg = self.<pkg>;
+      $.RMARE_emit2
+    }
+    method RMARE_emit2 {
+      my $pkg = self.<pkg>; #if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'};
+      #XXX TODO
       $.RMARE_namespace($pkg);
-      self.<bindings>.map(sub($o){$o.RMARE_emit}).flatten;
+      self.<bindings>.map(sub($o){$o.RMARE_emit2}).flatten;
     }
   }
 

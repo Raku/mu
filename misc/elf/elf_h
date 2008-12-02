@@ -3804,6 +3804,8 @@ return($op->re_gsub("\ ", $arg))})
 }elsif(($fun eq "eval")) {
 (do{my $env = "sub\{my\$s\=eval\(\$_\[0\]\)\;Carp\:\:carp\(\$\@\)if\$\@\;\$s\}";
 return((((((("GLOBAL\:\:" . $fun) . "\(") . $self->e($n->capture())) . "\,") . $env) . "\)"))})
+}elsif(($fun eq "_inline_p5")) {
+(do{return($n->capture()->arguments()->[0]->buf())})
 };
 if($fun->re_matchp("\^\\w")) {
 (do{my $fe = $self->mangle_function_name($fun);
