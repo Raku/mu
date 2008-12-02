@@ -88,7 +88,11 @@ elsif $o<postop> {
   $m<postop>;
 }
 elsif $o<quantified_atom> {
-  $m<quantified_atom>
+  my $seq = $m<quantified_atom>;
+  my $n = $seq.elems;
+  if $n == 1 { $seq[0] }
+  elsif $n > 1 { RxSequence.newp($seq) }
+  else { undef }
 }
 else { die "Didn't understand an EXPR node" }
 
@@ -281,11 +285,17 @@ die("quote:/ is unimplemented"); #"
 
 quote
 temp $blackboard::quote = $o<sym_name>;
+if $o<nibble> && $o<nibble><EXPR> { # /a/
+  return $m<nibble>;
+}
+if $o<quibble> && $o<quibble><nibble><EXPR> { # m/a/
+  return $m<quibble><nibble>;
+}
 my $nibs = $m<nibble><nibbles>;
 my $args = $nibs.map(sub($x){
   if $x.WHAT eq 'Str' {Buf.newp($x);}
   else {$x}
-                     });
+});
 if $args.elems < 2 && $nibs[0].WHAT ne 'Str' { $args.push(Buf.newp("")) }
 my $tmp = $args.shift;
 for $args {
@@ -330,7 +340,7 @@ if $o<nibbles> {
   $m<nibbles>[0]
 }
 elsif $o<EXPR> {
-  $m<EXPR>
+  RxARegex.newp("",{},$m<EXPR>);
 }
 else {
   die "nibbler is a work in progress";
@@ -667,10 +677,20 @@ regex_block
 $m<nibble>
 
 quantified_atom
-RxQuantifiedAtom.newp($m<atom>,$m<quantifier>[0])
+my $quant = $m<quantifier>[0];
+my $atom = $m<atom>;
+if not($quant) { return $atom; }
+if $quant eq '?' {
+  RxQuant.newp(0,1,$atom,0)
+} else {
+  die "quantified_atom incompletely implemented";
+}
 
 atom
-#OLD: if $m<char> { RxLiteral.newp($m<char>,"'") } else { *1* }
+my $char = *text*;
+RxExact.newp($char)
+
+quantifier
 *text*
 
 
@@ -698,12 +718,6 @@ RxAll.newp($m<patterns>)
 
 regex_sequence
 RxSequence.newp($m<patterns>)
-
-regex_quantified_atom
-RxQuantifiedAtom.newp($m<regex_atom>,$m<regex_quantifier>)
-
-regex_quantifier
-*text*
 
 regex_metachar:regex_backslash
 RxBackslash.newp(*text*)

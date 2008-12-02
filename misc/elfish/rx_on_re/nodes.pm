@@ -1,6 +1,9 @@
 # Warning: This file is mechanically written.  Your changes will be overwritten.
 package IRx1 {
 
+  class RxBaseClass is Base {
+  }
+
   class RxPat5 is RxBaseClass {
     has $.match;
     has $.pat;

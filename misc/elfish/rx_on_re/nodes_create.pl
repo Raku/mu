@@ -92,6 +92,9 @@ sub write_ir_nodes {
     # Warning: This file is mechanically written.  Your changes will be overwritten.
     package IRx1 {
 
+      class RxBaseClass is Base {
+      }
+
   END
 
   for my $node (IRx1_Info->nodes) {
