@@ -1,13 +1,13 @@
 
 ELF=../../elf/elf_h
 ELFDIR=../../elf/elf_h_src
-ELFBLUECOMP0=-I ../../elf/elf_h_src -e 'use Elf_wo_main' IRx1_FromAST2.pm Parser2.pm -e elf_main
-ELFBLUECOMP=-I . ${ELFBLUECOMP0}
+ELFBLUEDEV=-I ../../elf/elf_h_src -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$*ast2ir_1; $$*parser0=undef' Parser2.pm -e elf_main
+ELFBLUECOMP=-I . -I ../../elf/elf_h_src -e 'use Elf_wo_main' IRx1_FromAST2.pm Parser2.pm -e elf_main
 TMP=deleteme
 
 elfblue:: have_parser_cache
 	./IRx1_FromAST2_create.pl
-	../../elf/elf_h -x -o ./elfblue ${ELFBLUECOMP0}
+	../../elf/elf_h -x -o ./elfblue ${ELFBLUEDEV}
 
 does_gimme5_memory_problem_still_exist:
 	bash -c "ulimit -v 2000000; ./elfblue -I ${ELFDIR} -x -o ${TMP}/x1 ${ELFDIR}/PrimitivesP5.pm"

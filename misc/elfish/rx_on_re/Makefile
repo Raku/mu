@@ -1,9 +1,13 @@
 
 check:
-	export ELF_STD_RED_RUN=./../../STD_red/STD_red_run
 	../../elf/elf_h test.pm > tst_1 2> tst_2
 	diff t_baseline.result tst_1
 	@echo ok
+
+check_blue:
+	ELF_STD_BLUE_RUN=../STD_blue/STD_blue_run ../STD_blue/elfblue test.pm --test-blue > tst_1 2> tst_2
+	diff t_baseline.result tst_1
+
 
 old_create_baseline:
 	-mkdir qout
