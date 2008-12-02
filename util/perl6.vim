@@ -43,7 +43,6 @@ syn keyword p6Module          grammar subset self
 syn keyword p6DeclareRoutine  macro sub submethod method multi only rule
 syn keyword p6DeclareRoutine  token regex category
 syn keyword p6VarStorage      let my our state temp has proto constant
-syn keyword p6Conditional     if else elsif unless  
 syn keyword p6Repeat          for loop repeat while until gather
 syn keyword p6FlowControl     take do when next last redo given return
 syn keyword p6FlowControl     default exit make
@@ -111,8 +110,11 @@ syn match p6Operator display "\%(&\|<\|>\|,\|\.\|;\)"
 syn match p6Operator display "\%(^\|\s\)\@<=\%(xx=\|p5=>\|\[\S\+\]\)"
 " these require whitespace on both sides
 syn match p6Operator display "\%(^\|\s\)\@=\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
-" this one can't be combined with itself
+" only a single colon is an operator
 syn match p6Operator display ":\@<!::\@!"
+
+" conditionals need whitespace to the right
+syn match p6Conditional       "\%(if\|else\|elsif\|unless\)\s\@="
 
 " misc
 syn match p6Normal     display "\w*::\w\+"
