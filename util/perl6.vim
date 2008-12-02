@@ -274,7 +274,7 @@ syn match p6LiteralString display "\w\+\ze\s\+=>"
 syn match p6LiteralString display "\w\+p5\ze=>"
 
 " this is an infix operator, not a quote
-syn match p6Operator display "\s\zs<=>"
+syn match p6Operator display "<=>"
 
 " =<> is an operator, not a quote
 syn region p6Iterate
