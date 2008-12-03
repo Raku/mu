@@ -553,8 +553,7 @@ subname "<alias_wrap ".($myid).">" => sub {
   }
 
   sub RMARE_aregex_create {
-    my($o,$f)=@_;
-    my $nparenx = $o->{flags}{p5} ? $o->{nparen} : $o->{nparen6};
+    my($o,$f,$nparenx)=@_;
     $nparenx = 0 if !defined $nparenx; #XXX arguments to subrules.  aregex not seeing an init.
     subname "<aregex ".($sub_id++).">" => sub {
       my($c)=@_;
@@ -574,8 +573,7 @@ subname "<alias_wrap ".($myid).">" => sub {
   }
 
   sub RMARE_do_match {
-    my($o,$f,$s,$beginat,$minlen)=@_;
-    my $nparen = $o->{nparen};
+    my($o,$f,$s,$beginat,$minlen,$nparen)=@_;
     my $len = length($s);
     $beginat = 0 if !defined($beginat);
     my $noop = $o->RMARE_noop;
@@ -841,13 +839,13 @@ sub{my $__c__ = $_[0];
    }
 
   sub RMARE_aregex {
-    my($o,$pkg,$name,$f)=@_;
+    my($o,$pkg,$name,$f,$nparen)=@_;
     # Why the extra sub?  60+% shorter re_text runtime.  sigh.
     my $matchergen = subname "even with subname used?" => sub {
       subname "<an aregex-matcher for $o>" => sub {
         my($pkg9,$name1,$s,$beginat,$minlen)=@_;
         local $Regexp::ModuleA::ReentrantEngine::Env::pkg = $pkg9;
-        my $m = $o->RMARE_do_match($f,$s,$beginat,$minlen);
+        my $m = $o->RMARE_do_match($f,$s,$beginat,$minlen,$nparen);
         $m->_match_enable_overload2;
         $$m->{RULE} = $name1;
         if($name1) {
@@ -1416,9 +1414,11 @@ package IRx1 {
     method RMARE_emit2 {
       my $pkg = self.<pkg>; #if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'};
       my $name = self.<name>; #if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'};
-      #XXX TODO: RMARE_aregex_create is accessing the node.  Refactor.
-      my $f = $.RMARE_aregex_create(self.<expr>.RMARE_emit2);
-      $.RMARE_aregex($pkg,$name,$f);
+      my $nparenx = {if self.<flags><p5> { self.<nparen> } else { self.<nparen6> }};
+      my $nparen = self.<nparen>; #||'undef';
+      my $expr = self.<expr>.RMARE_emit2;
+      #$.RMARE_aregex($pkg,$name,$.RMARE_aregex_create($expr,$nparenx),$nparen);
+      _inline_p5('IRx1::RxBaseClass->RMARE_aregex($pkg,$name,IRx1::RxBaseClass->RMARE_aregex_create($expr,$nparenx),$nparen)');
     }
   }
 
@@ -1431,8 +1431,8 @@ package IRx1 {
       my $pkg = self.<pkg>; #if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'};
       my $name = self.<name>; #if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'};
       my $fr = self.<expr>.RMARE_emit2;
-      #XXX TODO
       $.RMARE_biind($pkg,$name,$fr);
+      #_inline_p5('IRx1::RxBaseClass->RMARE_biind($pkg,$name,$fr)')
     }
   }
   
@@ -1442,10 +1442,10 @@ package IRx1 {
       $.RMARE_emit2
     }
     method RMARE_emit2 {
-      my $pkg = self.<pkg>; #if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'};
-      #XXX TODO
-      $.RMARE_namespace($pkg);
-      self.<bindings>.map(sub($o){$o.RMARE_emit2}).flatten;
+      my $pkg = self.<pkg>;
+      #$.RMARE_namespace($pkg);
+      eval_perl5('IRx1::RxBaseClass->RMARE_namespace("'~quotemeta($pkg)~'");'); #~
+      self.<bindings>.map(sub($o){$o.RMARE_emit2}).flatten; #join
     }
   }
 
