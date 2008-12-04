@@ -21,6 +21,10 @@
 "   * Add more syntax syncing hooks
 "   * Overhaul Q// and its derivatives
 "   * Overhaul regexes
+"   * Highlight enum declarations correctly
+"   * :key should always be highlighted as a string,
+"     even if it's a known keyword
+"   * Highlight special numbers correctly (1_000, 0b0101, etc)
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -46,12 +50,12 @@ syn keyword p6VarStorage      let my our state temp has proto constant
 syn keyword p6Repeat          for loop repeat while until gather
 syn keyword p6FlowControl     take do when next last redo given return
 syn keyword p6FlowControl     default exit make
-syn keyword p6TypeConstraint  is but does trusts of returns
+syn keyword p6TypeConstraint  is as but does trusts of returns also
 syn keyword p6ClosureTrait    BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP
 syn keyword p6ClosureTrait    UNDO NEXT LAST PRE POST END
 syn keyword p6Exception       die fail try CATCH CONTROL warn
-syn keyword p6Property        prec key value irs ofs ors pos export deep also
-syn keyword p6Property        rw signature returns of parsed cached readonly
+syn keyword p6Property        prec irs ofs ors pos export deep
+syn keyword p6Property        rw signature parsed cached readonly
 syn keyword p6Property        ref copy inline tighter looser equiv assoc
 syn keyword p6Type            Object Any Junction Whatever Capture Match
 syn keyword p6Type            Signature Proxy Matcher Package Module Class
@@ -72,11 +76,11 @@ syn keyword p6Type            buf16 buf32 buf64 True False
 syn keyword p6Number          NaN Inf
 syn keyword p6Routine         WHAT WHICH VAR eager hyper substr index rindex
 syn keyword p6Routine         grep map sort join split reduce min max reverse
-syn keyword p6Routine         truncate zip cat roundrobin classify first 
+syn keyword p6Routine         truncate zip cat roundrobin classify first sum
 syn keyword p6Routine         keys values pairs defined delete exists elems
-syn keyword p6Routine         end kv arity assuming pick slice
-syn keyword p6Routine         any all none one wrap shape classify
-syn keyword p6Routine         callsame callwith nextsame nextwith
+syn keyword p6Routine         end kv arity assuming pick slice clone key
+syn keyword p6Routine         any all none one wrap shape classify value
+syn keyword p6Routine         callsame callwith nextsame nextwith ACCEPTS
 syn keyword p6Routine         pop push shift splice unshift floor ceiling
 syn keyword p6Routine         abs exp log log10 rand sign sqrt sin cos tan
 syn keyword p6Routine         round srand roots cis unpolar polar atan2
@@ -97,7 +101,7 @@ syn keyword p6Routine         pass flunk force_todo use_ok isa_ok cmp_ok
 syn keyword p6Routine         diag is_deeply isnt like skip_rest unlike
 syn keyword p6Routine         nonce skip_rest eval_dies_ok eval_lives_ok
 syn keyword p6Routine         approx is_approx throws_ok version_lt
-syn keyword p6Routine         eval operator undef undefine sleep
+syn keyword p6Routine         eval operator undef undefine sleep from to
 syn keyword p6Routine         infix postfix prefix circumfix postcircumfix
 syn keyword p6Operator        x xx div mod also leg cmp
 syn keyword p6Operator        eq ne lt le gt ge eqv ff fff true not Z minmax
@@ -107,7 +111,7 @@ syn keyword p6Operator        X XeqvX and andthen or xor orelse extra
 syn match p6Operator display "\%(+\|-\|/\|\*\|\~\|?\||\|\\\|=\|\^\|!\|%\)"
 syn match p6Operator display "\%(&\|<\|>\|,\|\.\|;\)"
 " these require whitespace on the left side
-syn match p6Operator display "\%(^\|\s\)\@<=\%(xx=\|p5=>\|\[\S\+\]\)"
+syn match p6Operator display "\%(^\|\s\)\@<=\%(xx=\|p5=>\)"
 " these require whitespace on both sides
 syn match p6Operator display "\%(^\|\s\)\@=\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
 " only a single colon is an operator
@@ -121,9 +125,10 @@ syn match p6Normal     display "\w*::\w\+"
 syn match p6Comment    display "#.*" contains=p6Attention
 syn match p6Shebang    display "\%^#!.*"
 syn match p6BlockLabel display "\%(^\s*\)\@<=\h\w*\s*:\s\@="
-syn match p6Variable   display "[$@%][!.*^?]\?[[:graph:]_¢]\w*"
+syn match p6Variable   display "[$@%][!.*^?]\?[[:alnum:]_¢]*"
 
 " FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
+" E.g. this makes "@()" highlight properly in "@( bla() )"
 syn region p6ParenExpression
     \ start="\(<\s*\)\@<!("
     \ end=")"
@@ -135,6 +140,7 @@ syn region p6BracketExpression
     \ transparent
 
 " contextualizers
+syn match p6Contextualizer display "hash"
 syn region p6ExplicitContext
     \ matchgroup=p6Contextualizer
     \ start="\$("
@@ -143,7 +149,6 @@ syn region p6ExplicitContext
     \ start="&("
     \ start="@@("
     \ end=")"
-    \ transparent
     \ contains=TOP
 
 " { ... } closure in interpolated strings
@@ -159,6 +164,7 @@ syn region p6InterpClosure
 syn cluster p6Interp
     \ add=p6Variable
     \ add=p6InterpClosure
+    \ add=p6ExplicitContext
 
 " "string"
 syn region p6InterpString
@@ -287,7 +293,7 @@ syn region p6Iterate
     \ display
     \ contains=p6Variable
 
-" :key<val>
+" :string
 syn match p6LiteralString display ":\@<=\w\+"
 
 " Regexes
