@@ -24,7 +24,6 @@
 "   * Enum declarations
 "   * :key should always be highlighted as a string,
 "     even if it's a known keyword
-"   * Special numbers (1_000, 0b0101, etc)
 "   * Multiline #[] comments
 
 " For version 5.x: Clear all syntax items
@@ -129,7 +128,8 @@ syn match p6Normal     display "\w*::\w\+"
 syn match p6Comment    display "#.*" contains=p6Attention
 syn match p6Shebang    display "\%^#!.*"
 syn match p6BlockLabel display "\%(^\s*\)\@<=\h\w*\s*:\s\@="
-syn match p6Variable   display "[$@%&][!.*^?]\?\%([[:alnum:]_¢]\|::\)*"
+syn match p6Variable   display "[$@%&][!.*^?]"
+syn match p6Variable   display "[$@%&][!.*^?]\?[[:alnum:]¢]\%([[:alnum:]_¢]\|::\)*"
 
 " FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
 " E.g. this makes "@()" highlight properly in "@( bla() )"
@@ -234,14 +234,14 @@ syn region p6LiteralString
     \ skip="\\\@<!\\'"
     \ end="'"
     \ contains=p6EscapedQuote
-" <string>,  not sure how to distinguish this from "less than" in all
-" cases. The following only matches if whitespace is missing on
+" <string> FIXME: not sure how to distinguish this from "less than" in
+" all cases. The following only matches if whitespace is missing on
 " either side, since people tend to put spaces around "less than".
 syn region p6LiteralString
     \ matchgroup=p6Quote
-    \ start="\s\@<!<"
-    \ start="<\s\@!"
-    \ skip="\\>"
+    \ start="\%([-+~]\|\s\)\@<!<"
+    \ start="[-+~]\@<!<\s\@!"
+    \ skip="\\\@<!\\>"
     \ end=">\@<!>"
     \ contains=p6EscapedRightArrow
 " $<rule>
@@ -278,9 +278,13 @@ syn region p6LiteralString
     \ end=">"
 
 " Numbers
-syn match p6Number display "\<\(\d*\.\d\+\|\d\+\)\(e\d\+\)\{0,1}"
-syn match p6Number display "\<0o[0-7]\+"
-syn match p6Number display "\<0x[0-9a-fA-F]\+"
+syn match p6Number display "\<0\>"
+syn match p6Number display "\<[1-9]\%(\d\|_\)*\%([eE]+\?\%(\d\|_\)\+\)\?"
+syn match p6Float  display "\<[1-9]\%(\d\|_\)*[eE]-\%(\d\|_\)\+"
+syn match p6Float  display "\<\d\%(\d\|_\)*\.\%(\%(\d\|_\)*\%([eE]\%(\d\|_\)\+\)\?\)\?"
+syn match p6Number display "\<0o[0-7][0-7_]*"
+syn match p6Number display "\<0b[01][01_]*"
+syn match p6Number display "\<0x\x[[:xdigit:]_]*"
 
 " :string
 syn match p6LiteralString display ":\@<=\w\+"
@@ -673,6 +677,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Type            Type
     HiLink p6Error           Error
     HiLink p6BlockLabel      Label
+    HiLink p6Float           Float
     HiLink p6Normal          Normal
     HiLink p6Number          Number
     HiLink p6String          String
