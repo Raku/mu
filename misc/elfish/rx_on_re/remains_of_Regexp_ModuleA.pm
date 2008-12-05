@@ -462,7 +462,7 @@ sub mod_x_or_fail {
             ,biind('_conditional',aregex(seq(pat5('\(\?(?=\()'),alt(pat5('\(\d+\)'),sr('_lookaround')),sr('regex_sequence'),ques(exact('|'),sr('regex_sequence')),exact(')'))))
             ,biind('_lookaround',aregex(seq(pat5('\(\?<?[=!]'),sr('pattern'),exact(')'))))
             ,biind('_subrule',aregex(pat5('(?!)')))
-            )->RAST_init->RMARE_emit;
+            )->RAST_init->RMARE_emit_and_eval;
 }
 Regexp::ModuleA::Api::GatherMethodsA->import('gather_methods');
 sub make0_from_match {
@@ -668,8 +668,8 @@ sub new_rx_from_re {
     $ast = eval("namespace('::$inpkg',$mexpr)");
     die if $@;
     $ast->RAST_init;
-#    use Data::Dumper; print STDERR Dumper $ast;##
-    my($rx) = $ast->RMARE_emit;
+    #use Data::Dumper; print STDERR Dumper $ast;##
+    my($rx) = $ast->RMARE_emit_and_eval;
     $rx;
   };
   Carp::confess "compile \"$re\" failed: $@" if !defined $o;
@@ -695,7 +695,7 @@ Regexp::ModuleA::AST::Make0->import;
             ,biind('_subrule',aregex(seq(pat5('\<[?!]*\w+'),ques(seq(pat5('\s+'),plus(sr('pattern')))),exact('>'))))
             ,biind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
             ,biind('test1',aregex(pat5('\w{2}')))
-            )->RAST_init->RMARE_emit;
+            )->RAST_init->RMARE_emit_and_eval;
 }
 
 sub make0_from_node___subrule {
@@ -756,7 +756,7 @@ namespace(""
           ,nrx('name',alt(seq(sr('ident'),sr('_nofat'),star(exact('::'),sr('ident'))),
                           plus(exact('::'),sr('ident'))))
           ,nrx('_nofat',pat5('')) # <!before \h* <?unsp>? =\> >
-          )->RAST_init->RMARE_emit;
+          )->RAST_init->RMARE_emit_and_eval;
 
 my @unicode_classes = (
   #perl-5.9.4/pod/perlunicode.pod
@@ -776,18 +776,18 @@ my @unicode_bidi_classes = (
   qw(L LRE LRO R AL RLE RLO PDF EN ES ET AN CS NSM BN B S WS ON));
 for my $class (@unicode_classes) {
   my $name = "is$class";
-  namespace("",nrx($name,pat5("\\p{$class}")))->RAST_init->RMARE_emit;
+  namespace("",nrx($name,pat5("\\p{$class}")))->RAST_init->RMARE_emit_and_eval;
   push(@Regexp::ModuleA::Api::PreludeA::EXPORT,$name);
   push(@Regexp::ModuleA::Api::PreludeA::EXPORT_OK,$name);
 }
 for my $class (@unicode_bidi_classes) {
   my $name = "isBidi$class";
-  namespace("",nrx($name,pat5("\\p{BidiClass:$class}")))->RAST_init->RMARE_emit;
+  namespace("",nrx($name,pat5("\\p{BidiClass:$class}")))->RAST_init->RMARE_emit_and_eval;
   push(@Regexp::ModuleA::Api::PreludeA::EXPORT,$name);
   push(@Regexp::ModuleA::Api::PreludeA::EXPORT_OK,$name);
 }
 #XXX Lr - it's defined in propcharset.t, but its not in perlunicode.
-namespace("",nrx('isLr',pat5("\\p{Ll}|\\p{Lu}|\\p{Lt}")))->RAST_init->RMARE_emit;
+namespace("",nrx('isLr',pat5("\\p{Ll}|\\p{Lu}|\\p{Lt}")))->RAST_init->RMARE_emit_and_eval;
 push(@Regexp::ModuleA::Api::PreludeA::EXPORT,'isLr');
 push(@Regexp::ModuleA::Api::PreludeA::EXPORT_OK,'isLr');
 
@@ -870,7 +870,7 @@ sub unction1 {
             ,nrx('_word_boundary',pat5('<<|>>|\x{abd}|\x{bbd}'))
             ,nrx('_literal',pat5('<\'(?:[^\'\\\\]|\\\\.)*\'>'))
 
-            )->RAST_init->RMARE_emit;
+            )->RAST_init->RMARE_emit_and_eval;
 }
 
 
