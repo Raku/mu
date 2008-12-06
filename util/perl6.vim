@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Dec 5th 2008
+" Last Change:  Dec 6th 2008
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -59,8 +59,8 @@ syn match p6TypeConstraint display "\k\@<!\%(is\|as\|but\|does\|can\|isa\|trusts
 syn match p6ClosureTrait   display "\k\@<!\%(BEGIN\|CHECK\|INIT\|START\|FIRST\|ENTER\|LEAVE\|KEEP\)\k\@!"
 syn match p6ClosureTrait   display "\k\@<!\%(UNDO\|NEXT\|LAST\|PRE\|POST\|END\|CATCH\|CONTROL\|TEMP\)\k\@!"
 syn match p6Exception      display "\k\@<!\%(die\|fail\|try\|warn\)\k\@!"
-syn match p6Property       display "\k\@<!\%(prec\|irs\|ofs\|ors\|export\|deep\)\k\@!"
-syn match p6Property       display "\k\@<!\%(rw\|parsed\|cached\|readonly\|instead\)\k\@!"
+syn match p6Property       display "\k\@<!\%(prec\|irs\|ofs\|ors\|export\|deep\|binary\|unary\|context\)\k\@!"
+syn match p6Property       display "\k\@<!\%(rw\|parsed\|cached\|readonly\|instead\|defequiv\)\k\@!"
 syn match p6Property       display "\k\@<!\%(ref\|copy\|inline\|tighter\|looser\|equiv\|assoc\)\k\@!"
 syn match p6Type           display "\k\@<!\%(Object\|Any\|Junction\|Whatever\|Capture\|Match\)\k\@!"
 syn match p6Type           display "\k\@<!\%(Signature\|Proxy\|Matcher\|Package\|Module\|Class\)\k\@!"
@@ -96,7 +96,7 @@ syn match p6Routine        display "\k\@<!\%(samecase\|sameaccent\|chars\|nfd\|n
 syn match p6Routine        display "\k\@<!\%(printf\|sprintf\|caller\|evalfile\|run\|runinstead\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(nothing\|want\|bless\|chr\|ord\|list\|item\|gmtime\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(localtime\|time\|gethost\|getpw\|chroot\|getlogin\)\k\@!"
-syn match p6Routine        display "\k\@<!\%(kill\|fork\|wait\|perl\|context\|graphs\|codes\|bytes\)\k\@!"
+syn match p6Routine        display "\k\@<!\%(kill\|fork\|wait\|perl\|graphs\|codes\|bytes\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(print\|open\|read\|write\|readline\|say\|seek\|close\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(opendir\|readdir\|slurp\|pos\|fmt\|vec\|link\|unlink\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(symlink\|uniq\|pair\|asin\|atan\|sec\|cosec\|connect\)\k\@!"
@@ -266,8 +266,8 @@ syn region p6InterpString
 " Literal strings
 
 syn match p6EscapedSlash display "\\\@<!\\\\" contained
-syn match p6EscapedQuote display "\\\@<!\\'" contained
-syn match p6EscapedAngle display "\\\@<!\\>" contained
+syn match p6EscapedQuote display "\\\@<!\\'"  contained
+syn match p6EscapedAngle display "\\\@<!\\>"  contained
 
 " 'string'
 syn region p6LiteralString
@@ -280,7 +280,7 @@ syn region p6LiteralString
 " FIXME: not sure how to distinguish this from the "less than" operator
 " in all cases. For now, it only matches if:
 " * There is whitespace missing on either side of the "<", since
-"    people tend to put spaces around "less than"
+"   people tend to put spaces around "less than"
 " * It comes after "enum" or "for"
 syn region p6LiteralString
     \ matchgroup=p6Quote
