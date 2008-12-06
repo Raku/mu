@@ -208,6 +208,7 @@ foreach (test_file
     test/36_adhoc_signature.m0ld
     test/37_multisub.m0ld
     test/38_ritest.m0ld
+    test/39_pcl.c
 )
     set(c_file)
     if (test_file MATCHES "\\.sm0p$")

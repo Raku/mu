@@ -1,14 +1,32 @@
 %include <pcl.h>
 %prefix smop_pcl_coro
 %attr coroutine_t coro
+%attr int has_next
 %RI.id pcl coroutine
+
 %method eval
     coroutine_t c = ((smop_pcl_coro_struct*)invocant)->coro;
     co_call(c);
+
+%method has_next
+    if (((smop_pcl_coro_struct*)invocant)->has_next) {
+        ret = SMOP__NATIVE__bool_true;
+    } else {
+        ret = SMOP__NATIVE__bool_false;
+    }
+
+%method next
+
+%method finished
+    ((smop_pcl_coro_struct*)invocant)->has_next = 0;
+
+%method DESTROYALL
+    
 %{
-SMOP__Object* SMOP__S1P__PCLCoro_create(void *func,void *data,void *stack,int stacksize) {
+SMOP__Object* SMOP__S1P__PCLCoro_create(SMOP__Object* interpreter,void *func,void *data,void *stack,int stacksize) {
     smop_pcl_coro_struct* ret = (smop_pcl_coro_struct*) smop_lowlevel_alloc(sizeof(smop_pcl_coro_struct));
     ret->coro = co_create(func,data,stack,stacksize);
+    ret->has_next = 1;
     ret->RI = (SMOP__ResponderInterface*) RI;
     return (SMOP__Object*) ret;
 }
