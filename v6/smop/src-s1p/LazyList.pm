@@ -4,6 +4,8 @@ knowhow LazyList {
     has $.intact;
     has $.exhausted;
 
+    use ArrayIterator;
+
     # this is also a knowhow
     method new($proto: :$input) {
         my $ret = $proto.clone;

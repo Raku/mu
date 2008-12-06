@@ -1,5 +1,8 @@
 module Map {
 
+    use ItemIterator;
+    use LazyList;
+
     my knowhow MapIterator {
 	has $.code;
 	has $.input;
