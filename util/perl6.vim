@@ -57,7 +57,7 @@ syn match p6TypeConstraint display "\k\@<!\%(is\|as\|but\|does\|can\|isa\|trusts
 syn match p6ClosureTrait   display "\k\@<!\%(BEGIN\|CHECK\|INIT\|START\|FIRST\|ENTER\|LEAVE\|KEEP\)\k\@!"
 syn match p6ClosureTrait   display "\k\@<!\%(UNDO\|NEXT\|LAST\|PRE\|POST\|END\|CATCH\|CONTROL\|TEMP\)\k\@!"
 syn match p6Exception      display "\k\@<!\%(die\|fail\|try\|warn\)\k\@!"
-syn match p6Property       display "\k\@<!\%(prec\|irs\|ofs\|ors\|export\|deep\|binary\|unary\|context\)\k\@!"
+syn match p6Property       display "\k\@<!\%(prec\|irs\|ofs\|ors\|export\|deep\|binary\|unary\)\k\@!"
 syn match p6Property       display "\k\@<!\%(rw\|parsed\|cached\|readonly\|instead\|defequiv\|will\)\k\@!"
 syn match p6Property       display "\k\@<!\%(ref\|copy\|inline\|tighter\|looser\|equiv\|assoc\|reparsed\)\k\@!"
 syn match p6Type           display "\k\@<!\%(Object\|Any\|Junction\|Whatever\|Capture\|Match\)\k\@!"
@@ -108,7 +108,7 @@ syn match p6Routine        display "\k\@<!\%(approx\|is_approx\|throws_ok\|versi
 syn match p6Routine        display "\k\@<!\%(eval\|operator\|undef\|undefine\|sleep\|from\|to\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(infix\|postfix\|prefix\|circumfix\|postcircumfix\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(minmax\|lazy\|count\|nok_error\|unwrap\|getc\|pi\)\k\@!"
-syn match p6Routine        display "\k\@<!\%(acos\|e\)\k\@!"
+syn match p6Routine        display "\k\@<!\%(acos\|e\|context\|void\|quasi\|body\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(x\|xx\|div\|mod\|also\|leg\|cmp\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(eq\|ne\|lt\|le\|gt\|ge\|eqv\|ff\|fff\|true\|not\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(Z\|X\|XeqvX\|and\|andthen\|or\|xor\|orelse\|extra\)\k\@!"
@@ -145,6 +145,9 @@ syn match p6Number      display "\<0d\d[[:digit:]_]*"
 
 " try to distinguish the "is" function from the "is" trail auxiliary
 syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
+
+" these Routine names are also Properties, if preceded by "is"
+syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\)"
 
 " sigils, twigils, variables and package scope
 
