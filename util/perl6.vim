@@ -15,13 +15,11 @@
 "     # vim: filetype=perl6
 
 " TODO:
-"   * Handle <? ... > and similar constructs in regexes
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
+"   * Highlight « :key<val> » correctly
 "   * Overhaul Q// and its derivatives
 "   * Overhaul regexes
-"   * Highlight « :key<val> » correctly
-"   * Multiline #[] comments
 "
 " Impossible TODO?:
 "   * Unspace
@@ -133,7 +131,6 @@ syn match p6Operator display "»[^[:digit:][:blank:];{(\[]\+«"
 syn match p6Operator display ">>[^[:digit:][:blank:];{(\[]\+<<"
 
 syn match p6Normal      display "::=\@!"
-syn match p6Comment     display "#.*" contains=p6Attention
 syn match p6Shebang     display "\%^#!.*"
 syn match p6BlockLabel  display "\%(^\|\s\)\@<=\h\w*\s*::\@!\%(\s\|$\)\@="
 syn match p6Context     display "\<hash\>"
@@ -149,13 +146,13 @@ syn match p6Number      display "\<0d\d[[:digit:]_]*"
 " try to distinguish the "is" function from the "is" trail auxiliary
 syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
 
-" sigils, twigils, variables and package scope; a little tricky
+" sigils, twigils, variables and package scope
 
 syn match p6Twigil       display contained  "\%([.^*+?=!]\|:\@<!::\@!\)"
 syn match p6Variable     display contained "[[:alnum:]_¢]\+"
 syn match p6PackageScope display contained "[-[:alnum:]_:]\+::"
 
-" FIXME: it matches too much sometimes, e.g. with "$foo.^bar"
+" FIXME: this matches too much sometimes, e.g. with "$foo.^bar"
 syn region p6VariableRegion
     \ matchgroup=p6Sigil
     \ start="\$"
@@ -172,19 +169,34 @@ syn match p6Operator display "&&"
 " the "!" in "$!" is the variable name, not a twigil
 syn match p6Variable display "\%([$@%&]\+\)\@<=\%([.^*+?=!]\|:\@<!::\@!\)\%([-_:¢[:alnum:].^*+?=!]\)\@!"
 
-" FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
+" The following keeps track of nested pairs of matching
+" bracketing characters in various contexts.
 " E.g. this makes "@()" highlight properly in "@( bla() )"
 syn region p6ParenExpression
     \ start="("
     \ end=")"
     \ transparent
-
 syn region p6BracketExpression
     \ start="\["
     \ end="]"
     \ transparent
+syn region p6BraceExpression
+    \ start="{"
+    \ end="}"
+    \ transparent
+syn region p6AngleExpression
+    \ start="<"
+    \ end=">"
+    \ transparent
+syn region p6DoubleAngleExpression
+    \ start="«"
+    \ end="»"
+    \ transparent
+
+" Contextualizers
 
 syn match p6Context display "\%([[:alnum:]]\s*\)\@<!\%(\$\|@\|%\|@@\)\s\@="
+
 syn region p6ParenContext
     \ matchgroup=p6Context
     \ start="\$("
@@ -195,6 +207,38 @@ syn region p6ParenContext
     \ end=")"
     \ transparent
 
+" Comments
+
+syn match p6Comment display "#.*" contains=p6Attention
+
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="#("
+    \ end=")"
+    \ contains=p6ParenExpression,p6Attention
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="#\["
+    \ end="]"
+    \ contains=p6BracketExpression,p6Attention
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="#{"
+    \ end="}"
+    \ contains=p6BraceExpression,p6Attention
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="#<"
+    \ end=">"
+    \ contains=p6AngleExpression,p6Attention
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="#«"
+    \ end="»"
+    \ contains=p6DoubleAngleExpression,p6Attention
+
+" Interpolated strings
+
 " { ... } closure in interpolated strings
 syn region p6InterpClosure
     \ matchgroup=p6StringSpecial
@@ -202,8 +246,6 @@ syn region p6InterpClosure
     \ end="}"
     \ contained
     \ contains=TOP
-
-" Interpolated strings
 
 syn cluster p6Interp
     \ add=p6VariableRegion
