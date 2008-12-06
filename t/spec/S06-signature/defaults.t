@@ -9,7 +9,7 @@ L<S06/Optional parameters/Default values can be calculated at run-time>
 
 =end description
 
-plan 2;
+plan 3;
 
 sub doubler($x) { return 2 * $x }
 
@@ -18,6 +18,7 @@ sub value_v(Code :$func = &doubler) {
 }
 
 is(value_v, 10, "default sub called");
+is value_v({3 * $_ }), 15, "default sub can be overridden";
 
 package MyPack {
 
@@ -29,7 +30,6 @@ package MyPack {
 
 }
 
-use Test;
 
 ok((MyPack::val_v), "default sub called in package namespace");
 
