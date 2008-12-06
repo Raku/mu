@@ -16,7 +16,6 @@
 
 " TODO:
 "   * Handle <? ... > and similar constructs in regexes
-"   * Improve POD formatting codes support (S<>, etc) 
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
 "   * Overhaul Q// and its derivatives
@@ -27,6 +26,7 @@
 " Impossible TODO?:
 "   * Unspace
 "   * Unicode
+"   * Pod's :allow
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -155,6 +155,7 @@ syn match p6Twigil       display contained  "\%([.^*+?=!]\|:\@<!::\@!\)"
 syn match p6Variable     display contained "[[:alnum:]_¢]\+"
 syn match p6PackageScope display contained "[-[:alnum:]_:]\+::"
 
+" FIXME: it matches too much sometimes, e.g. with "$foo.^bar"
 syn region p6VariableRegion
     \ matchgroup=p6Sigil
     \ start="\$"
@@ -539,43 +540,45 @@ syn match p6Operator "//"
 " Abbreviated blocks
 syn region p6PodAbbrRegion
     \ matchgroup=p6PodCommand
-    \ start="^=\ze\S\+\>"
-    \ end="^\ze\(\s*$\|=\k\)"
+    \ start="^=\ze\S\+"
+    \ end="^\ze\%(\s*$\|=\k\)"
     \ contains=p6PodAbbrType
     \ keepend
 
 syn region p6PodAbbrType
     \ matchgroup=p6PodType
-    \ start="\S\+\>"
-    \ end="^\ze\(\s*$\|=\k\)"
+    \ start="\S\+"
+    \ end="^\ze\%(\s*$\|=\k\)"
     \ contained
-    \ contains=p6PodAbbr
+    \ contains=p6PodName,p6PodAbbr
+
+syn match p6PodName ".\+" contained contains=p6PodFormat
 
 syn region p6PodAbbr
-    \ start=""
-    \ end="^\ze\(\s*$\|=\k\)"
+    \ start="^"
+    \ end="^\ze\%(\s*$\|=\k\)"
     \ contained
     \ contains=@p6PodAmbient
 
 " Directives
 syn region p6PodDirectRegion
     \ matchgroup=p6PodCommand
-    \ start="^=\(config\|use\|encoding\)\>"
-    \ end="^\ze\([^=]\|=\S\|$\)"
+    \ start="^=\%(config\|use\|encoding\)\>"
+    \ end="^\ze\%([^=]\|=\S\|$\)"
     \ contains=p6PodDirectTypeRegion
     \ keepend
 
 syn region p6PodDirectTypeRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
-    \ end="^\ze\([^=]\|=\S\|$\)"
+    \ end="^\ze\%([^=]\|=\S\|$\)"
     \ contained
     \ contains=p6PodDirectConfigRegion
 
 syn region p6PodDirectConfigRegion
     \ matchgroup=p6PodConfig
     \ start=""
-    \ end="^\ze\([^=]\|=\S\|$\)"
+    \ end="^\ze\%([^=]\|=\S\|$\)"
     \ contained
     \ contains=p6PodConfig,p6PodExtraConfig
 
@@ -583,13 +586,13 @@ syn region p6PodDirectConfigRegion
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>"
-    \ end="^\ze\(\s*\|=\S\)"
+    \ end="^\ze\%(\s*\|=\S\)"
     \ contains=p6PodParaTypeRegion
 
 syn region p6PodParaTypeRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
-    \ end="^\ze\(\s*$\|=\S\)"
+    \ end="^\ze\%(\s*$\|=\S\)"
     \ contained
     \ keepend
     \ contains=p6PodPara,p6PodParaConfigRegion
@@ -597,13 +600,13 @@ syn region p6PodParaTypeRegion
 syn region p6PodParaConfigRegion
     \ matchgroup=p6PodConfig
     \ start=""
-    \ end="^\ze\([^=]\|=\S\)"
+    \ end="^\ze\%([^=]\|=\S\)"
     \ contained
     \ contains=p6PodConfig,p6PodExtraConfig
 
 syn region p6PodPara
     \ start="^[^=]"
-    \ end="^\ze\(\s*$\|=\S\)"
+    \ end="^\ze\%(\s*$\|=\S\)"
     \ contained
     \ extend
     \ contains=@p6PodAmbient
@@ -625,9 +628,26 @@ syn region p6PodDelimTypeRegion
 syn region p6PodDelimConfigRegion
     \ matchgroup=p6PodConfig
     \ start=""
-    \ end="^\ze\([^=]\|=\S\|$\)"
+    \ end="^\ze\%([^=]\|=\S\|$\)"
     \ contained
     \ contains=p6PodConfig,p6PodExtraConfig
+
+" Delimited code blocks
+syn region p6PodDelimRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=begin\>\%(\s*code\>\)\@="
+    \ end="^=end\>"
+    \ contains=p6PodDelimCodeTypeRegion
+
+syn region p6PodDelimCodeTypeRegion
+    \ matchgroup=p6PodType
+    \ start="\S\+"
+    \ end="^\ze=end\>"
+    \ contained
+    \ contains=p6PodDelimCode,p6PodDelimConfigRegion
+
+syn match p6PodConfig      contained ":.*"
+syn match p6PodExtraConfig contained "^="
 
 syn region p6PodDelim
     \ start="^"
@@ -635,15 +655,23 @@ syn region p6PodDelim
     \ contained
     \ contains=@p6PodNested,@p6PodAmbient
 
+syn region p6PodDelimCode
+    \ start="^"
+    \ end="^\ze=end\>"
+    \ contained
+    \ contains=@p6PodNested
+
 syn region p6PodDelimEndRegion
     \ matchgroup=p6PodType
-    \ start="\(^=end\>\)\@<="
+    \ start="\%(^=end\>\)\@<="
     \ end="\S\+"
 
 " Special things one may find in Pod prose
 syn cluster p6PodAmbient
     \ add=p6PodFormat
-    \ add=p6PodVerbatim
+    \ add=p6PodImplicitCode
+
+syn match p6PodImplicitCode contained "^\s.*"
 
 " These may appear inside delimited blocks
 syn cluster p6PodNested
@@ -654,34 +682,51 @@ syn cluster p6PodNested
     \ add=p6PodDelimEndRegion
 
 " Pod formatting codes
+
 syn region p6PodFormat
-    \ start="\u<[^<]"me=e-1
+    \ matchgroup=p6PodFormatDelim
+    \ start="\u<<\@!"
+    \ skip="<[^>]*>"
     \ end=">"
     \ contained
-    \ oneline
     \ contains=p6PodFormat
 
 syn region p6PodFormat
-    \ start="\u«[^«]"me=e-1
+    \ matchgroup=p6PodFormatDelim
+    \ start="\u<<"
+    \ skip="<[^>]*>"
+    \ end=">>"
+    \ contained
+    \ contains=p6PodFormat
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="\u««\@!"
     \ end="»"
     \ contained
-    \ oneline
     \ contains=p6PodFormat
+
+" C<> and V<> don't allow nested formatting formatting codes
 
 syn region p6PodFormat
-    \ start="\u<<\s"
-    \ end="\s>>"
+    \ matchgroup=p6PodFormatDelim
+    \ start="[CV]<<\@!"
+    \ skip="<[^>]*>"
+    \ end=">"
     \ contained
-    \ oneline
-    \ contains=p6PodFormat
 
-syn match p6PodFormat      "Z<>"                contained
-syn match p6PodFormat      "E<\(\d\+\|\I\i*\)>" contains=p6PodEscape
-syn match p6PodEscape      "\I\i*>"me=e-1       contained
-syn match p6PodEscape      "\d\+>"me=e-1        contained
-syn match p6PodConfig      ":[^#]*"             contained
-syn match p6PodExtraConfig "^="                 contained
-syn match p6PodVerbatim    "^\s.*"              contained
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="[CV]<<"
+    \ skip="<[^>]*>"
+    \ end=">>"
+    \ contained
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="[CV]««\@!"
+    \ end="»"
+    \ contained
 
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already
@@ -738,27 +783,31 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Conditional     Conditional
     HiLink p6StringSpecial   SpecialChar
 
-    HiLink p6PodPara         p6Pod
     HiLink p6PodAbbr         p6Pod
+    HiLink p6PodPara         p6Pod
     HiLink p6PodDelim        p6Pod
+    HiLink p6PodDelimCode    p6PodCode
+    HiLink p6PodImplicitCode p6PodCode
     HiLink p6PodExtraConfig  p6PodCommand
 
-    HiLink p6Pod             Comment
-    HiLink p6PodCommand      Keyword
     HiLink p6PodType         Type
-    HiLink p6PodConfig       Function
+    HiLink p6Pod             Comment
     HiLink p6PodFormat       Special
-    HiLink p6PodVerbatim     SpecialComment
+    HiLink p6PodName         Constant
+    HiLink p6PodConfig       Function
+    HiLink p6PodFormatDelim  Delimiter
+    HiLink p6PodCommand      Statement
+    HiLink p6PodCode         SpecialComment
 
     delcommand HiLink
 endif
 
 " Syncing to speed up processing
 syn sync maxlines=100
-syn sync match p6SyncPod grouphere  p6PodAbbrRegion    "^=\S\+\>"
-syn sync match p6SyncPod grouphere  p6PodDirectRegion  "^=\(config\|use\|encoding\)\>"
-syn sync match p6SyncPod grouphere  p6PodParaRegion    "^=for\>"
-syn sync match p6SyncPod grouphere  p6PodDelimRegion   "^=begin\>"
-syn sync match p6SyncPod groupthere p6PodDelimRegion   "^=end\>"
+syn sync match p6SyncPod grouphere  p6PodAbbrRegion     "^=\S\+\>"
+syn sync match p6SyncPod grouphere  p6PodDirectRegion   "^=\(config\|use\|encoding\)\>"
+syn sync match p6SyncPod grouphere  p6PodParaRegion     "^=for\>"
+syn sync match p6SyncPod grouphere  p6PodDelimRegion    "^=begin\>"
+syn sync match p6SyncPod grouphere  p6PodDelimEndRegion "^=end\>"
 
 let b:current_syntax = "perl6"
