@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Dec 6th 2008
+" Last Change:  Dec 7th 2008
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -453,10 +453,9 @@ syn region p6Regex
 syn region p6Closure
     \ start="\(\(rule\(\_s\+\w\+\)\{0,1}\|s\|rx\)\_s*\)\@<!{"
     \ end="}"
-    \ matchgroup=p6Error
-    \ end="[\])]"
-    \ contains=TOP
+    \ transparent
     \ fold
+    \ keepend
 "syn region p6Closure
 "    \ start="\(\(\(rule\|token\|regex\)\(\_s\+\w\+\)\{0,1}\|s\|rx\)\_s*\)\@<!{"
 "    \ end="}"
