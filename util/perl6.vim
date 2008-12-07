@@ -256,21 +256,21 @@ syn cluster p6Interp
     \ add=p6ParenContext
 
 " "string"
-syn region p6InterpString
+syn region p6InterpStringDoubleQuote
     \ matchgroup=p6Quote
     \ start=+"+
     \ skip=+\\\@<!\\"+
     \ end=+"+
     \ contains=@p6Interp
 " «string»
-syn region p6InterpString
+syn region p6InterpStringDoubleAngle
     \ matchgroup=p6Quote
     \ start="«"
     \ skip="\\\@<!\\»"
     \ end="»"
     \ contains=@p6Interp
 " <<string>>
-syn region p6InterpString
+syn region p6InterpStringAngles
     \ matchgroup=p6Quote
     \ start="<<"
     \ skip="\\\@<!\\>"
@@ -315,7 +315,7 @@ syn match p6EscapedQuote display "\\\@<!\\'"  contained
 syn match p6EscapedAngle display "\\\@<!\\>"  contained
 
 " 'string'
-syn region p6LiteralString
+syn region p6LiteralStringQuote
     \ matchgroup=p6Quote
     \ start="'"
     \ skip="\\\@<!\\'"
@@ -327,7 +327,7 @@ syn region p6LiteralString
 " * There is whitespace missing on either side of the "<", since
 "   people tend to put spaces around "less than"
 " * It comes after "enum" or "for"
-syn region p6LiteralString
+syn region p6LiteralStringAngle
     \ matchgroup=p6Quote
     \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<\%(<\|=\)\@!"
     \ start="\%([-+~!]\|<\)\@<!<\%(<\|\s\|=\)\@!"
@@ -335,7 +335,7 @@ syn region p6LiteralString
     \ end=">\@<!>"
     \ contains=p6EscapedSlash,p6EscapedAngle
 " $<rule>
-syn region p6LiteralString
+syn region p6LiteralStringMatch
     \ matchgroup=p6Quote
     \ start="\$<\(.*>\)\@="
     \ end=">\@<!>"
@@ -620,11 +620,10 @@ syn region p6PodDirectTypeRegion
     \ contains=p6PodDirectConfigRegion
 
 syn region p6PodDirectConfigRegion
-    \ matchgroup=p6PodConfig
     \ start=""
     \ end="^\ze\%([^=]\|=\S\|$\)"
     \ contained
-    \ contains=p6PodConfig,p6PodExtraConfig
+    \ contains=@p6PodConfig
 
 " Paragraph blocks
 syn region p6PodParaRegion
@@ -642,11 +641,10 @@ syn region p6PodParaTypeRegion
     \ contains=p6PodPara,p6PodParaConfigRegion
 
 syn region p6PodParaConfigRegion
-    \ matchgroup=p6PodConfig
     \ start=""
     \ end="^\ze\%([^=]\|=\S\)"
     \ contained
-    \ contains=p6PodConfig,p6PodExtraConfig
+    \ contains=@p6PodConfig
 
 syn region p6PodPara
     \ start="^[^=]"
@@ -670,11 +668,10 @@ syn region p6PodDelimTypeRegion
     \ contains=p6PodDelim,p6PodDelimConfigRegion
 
 syn region p6PodDelimConfigRegion
-    \ matchgroup=p6PodConfig
     \ start=""
     \ end="^\ze\%([^=]\|=\S\|$\)"
     \ contained
-    \ contains=p6PodConfig,p6PodExtraConfig
+    \ contains=@p6PodConfig
 
 " Delimited code blocks
 syn region p6PodDelimRegion
@@ -690,8 +687,14 @@ syn region p6PodDelimCodeTypeRegion
     \ contained
     \ contains=p6PodDelimCode,p6PodDelimConfigRegion
 
-syn match p6PodConfig      contained ":.*"
-syn match p6PodExtraConfig contained "^="
+syn cluster p6PodConfig
+    \ add=p6PodConfigOperator
+    \ add=p6PodExtraConfig
+    \ add=p6Number
+
+syn match p6PodConfigOperator contained ":" nextgroup=p6PodConfigOption
+syn match p6PodConfigOption   contained "[^[:space:](<]\+" nextgroup=p6ParenExpression,p6LiteralStringAngle
+syn match p6PodExtraConfig    contained "^="
 
 syn region p6PodDelim
     \ start="^"
@@ -783,16 +786,22 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
         command -nargs=+ HiLink hi def link <args>
     endif
 
-    HiLink p6InterpString    p6String
-    HiLink p6LiteralString   p6String
-    HiLink p6SubNonBracket   p6String
-    HiLink p6SubBracket      p6String
-    HiLink p6TransNonBracket p6String
-    HiLink p6EscapedSlash    p6StringSpecial
-    HiLink p6EscapedQuote    p6StringSpecial
-    HiLink p6EscapedAngle    p6StringSpecial
-    HiLink p6CharClass       p6StringSpecial
-    HiLink p6RegexSpecial    p6StringSpecial
+    HiLink p6InterpString            p6String
+    HiLink p6InterpStringDoubleQuote p6String
+    HiLink p6InterpStringDoubleAngle p6String
+    HiLink p6InterpStringAngles      p6String
+    HiLink p6LiteralString           p6String
+    HiLink p6LiteralStringQuote      p6String
+    HiLink p6LiteralStringAngle      p6String
+    HiLink p6LiteralStringMatch      p6String
+    HiLink p6SubNonBracket           p6String
+    HiLink p6SubBracket              p6String
+    HiLink p6TransNonBracket         p6String
+    HiLink p6EscapedSlash     p6StringSpecial
+    HiLink p6EscapedQuote     p6StringSpecial
+    HiLink p6EscapedAngle     p6StringSpecial
+    HiLink p6CharClass        p6StringSpecial
+    HiLink p6RegexSpecial     p6StringSpecial
 
     HiLink p6Property        Tag
     HiLink p6Attention       Todo
@@ -834,14 +843,15 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6PodImplicitCode p6PodCode
     HiLink p6PodExtraConfig  p6PodCommand
 
-    HiLink p6PodType         Type
-    HiLink p6Pod             Comment
-    HiLink p6PodFormat       Special
-    HiLink p6PodName         Constant
-    HiLink p6PodConfig       Function
-    HiLink p6PodFormatDelim  Delimiter
-    HiLink p6PodCommand      Statement
-    HiLink p6PodCode         SpecialComment
+    HiLink p6PodType           Type
+    HiLink p6PodConfigOption   String
+    HiLink p6Pod               Comment
+    HiLink p6PodFormat         Special
+    HiLink p6PodConfigOperator Operator
+    HiLink p6PodFormatDelim    Delimiter
+    HiLink p6PodCommand        Statement
+    HiLink p6PodName           Identifier
+    HiLink p6PodCode           SpecialComment
 
     delcommand HiLink
 endif
