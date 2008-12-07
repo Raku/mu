@@ -155,7 +155,7 @@ syn match p6Twigil       display contained  "\%([.^*+?=!]\|:\@<!::\@!\)"
 syn match p6Variable     display contained "[[:alnum:]_¢]\+"
 syn match p6PackageScope display contained "[-[:alnum:]_:]\+::"
 
-" FIXME: this matches too much sometimes, e.g. with "$foo.^bar"
+" FIXME: this matches too much sometimes, e.g. with "$foo.bar"
 syn region p6VariableRegion
     \ matchgroup=p6Sigil
     \ start="\$"
@@ -171,6 +171,9 @@ syn match p6Operator display "&&"
 
 " the "!" in "$!" is the variable name, not a twigil
 syn match p6Variable display "\%([$@%&]\+\)\@<=\%([.^*+?=!]\|:\@<!::\@!\)\%([-_:¢[:alnum:].^*+?=!]\)\@!"
+
+syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\%(\h\|::\)\%(\w\|::\)*"
+syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\%(\h\|::\)\%(\w\|::\)*"
 
 " The following keeps track of nested pairs of matching
 " bracketing characters in various contexts.
@@ -827,6 +830,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Regex           String
     HiLink p6Repeat          Repeat
     HiLink p6Keyword         Keyword
+    HiLink p6Routine         Keyword
     HiLink p6Module          Keyword
     HiLink p6DeclareRoutine  Keyword
     HiLink p6VarStorage      Keyword
@@ -834,10 +838,10 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Comment         Comment
     HiLink p6Shebang         PreProc
     HiLink p6ClosureTrait    PreProc
+    HiLink p6CustomRoutine   Function
     HiLink p6Operator        Operator
     HiLink p6Twigil          Operator
     HiLink p6Context         Operator
-    HiLink p6Routine         Function
     HiLink p6Quote           Delimiter
     HiLink p6TypeConstraint  PreCondit
     HiLink p6Exception       Exception
