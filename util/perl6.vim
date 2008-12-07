@@ -175,23 +175,23 @@ syn match p6Variable display "\%([$@%&]\+\)\@<=\%([.^*+?=!]\|:\@<!::\@!\)\%([-_:
 " The following keeps track of nested pairs of matching
 " bracketing characters in various contexts.
 " E.g. this makes "@()" highlight properly in "@( bla() )"
-syn region p6ParenExpression
+syn region p6Parens
     \ start="("
     \ end=")"
     \ transparent
-syn region p6BracketExpression
+syn region p6Brackets
     \ start="\["
     \ end="]"
     \ transparent
-syn region p6BraceExpression
+syn region p6Braces
     \ start="{"
     \ end="}"
     \ transparent
-syn region p6AngleExpression
+syn region p6Angles
     \ start="<"
     \ end=">"
     \ transparent
-syn region p6DoubleAngleExpression
+syn region p6DoubleAngles
     \ start="«"
     \ end="»"
     \ transparent
@@ -218,27 +218,27 @@ syn region p6Comment
     \ matchgroup=p6Comment
     \ start="#("
     \ end=")"
-    \ contains=p6ParenExpression,p6Attention
+    \ contains=p6Parens,p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="#\["
     \ end="]"
-    \ contains=p6BracketExpression,p6Attention
+    \ contains=p6Brackets,p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="#{"
     \ end="}"
-    \ contains=p6BraceExpression,p6Attention
+    \ contains=p6Braces,p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="#<"
     \ end=">"
-    \ contains=p6AngleExpression,p6Attention
+    \ contains=p6Angles,p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="#«"
     \ end="»"
-    \ contains=p6DoubleAngleExpression,p6Attention
+    \ contains=p6DoubleAngles,p6Attention
 
 " Interpolated strings
 
@@ -314,6 +314,16 @@ syn match p6EscapedSlash display "\\\@<!\\\\" contained
 syn match p6EscapedQuote display "\\\@<!\\'"  contained
 syn match p6EscapedAngle display "\\\@<!\\>"  contained
 
+" Needed by the p6LiteralStringAngle region. We can't use the p6Angles
+" defined above because of a vim bug. For now we need a region that has
+" matchgroup=p6LiteralString, otherwise some angles will have no
+" highlighting at all, even though the region is marked transparent.
+syn region p6StringAngles
+    \ matchgroup=p6LiteralString
+    \ start="<"
+    \ end=">"
+    \ transparent
+
 " 'string'
 syn region p6LiteralStringQuote
     \ matchgroup=p6Quote
@@ -329,11 +339,11 @@ syn region p6LiteralStringQuote
 " * It comes after "enum" or "for"
 syn region p6LiteralStringAngle
     \ matchgroup=p6Quote
-    \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<\%(<\|=\)\@!"
-    \ start="\%([-+~!]\|<\)\@<!<\%(<\|\s\|=\)\@!"
+    \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<\%(=\)\@!"
+    \ start="\%([-+~!]\|<\)\@<!<\%(\s\|=\)\@!"
     \ skip="\\\@<!\\>"
-    \ end=">\@<!>"
-    \ contains=p6EscapedSlash,p6EscapedAngle
+    \ end=">"
+    \ contains=p6EscapedSlash,p6EscapedAngle,p6StringAngles
 " $<rule>
 syn region p6LiteralStringMatch
     \ matchgroup=p6Quote
@@ -691,9 +701,10 @@ syn cluster p6PodConfig
     \ add=p6PodConfigOperator
     \ add=p6PodExtraConfig
     \ add=p6Number
+    \ add=p6LiteralStringQuote
 
 syn match p6PodConfigOperator contained ":" nextgroup=p6PodConfigOption
-syn match p6PodConfigOption   contained "[^[:space:](<]\+" nextgroup=p6ParenExpression,p6LiteralStringAngle
+syn match p6PodConfigOption   contained "[^[:space:](<]\+" nextgroup=p6Parens,p6LiteralStringAngle
 syn match p6PodExtraConfig    contained "^="
 
 syn region p6PodDelim
@@ -857,11 +868,14 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
 endif
 
 " Syncing to speed up processing
+syn sync fromstart
 syn sync maxlines=100
 syn sync match p6SyncPod grouphere  p6PodAbbrRegion     "^=\S\+\>"
 syn sync match p6SyncPod grouphere  p6PodDirectRegion   "^=\(config\|use\|encoding\)\>"
 syn sync match p6SyncPod grouphere  p6PodParaRegion     "^=for\>"
 syn sync match p6SyncPod grouphere  p6PodDelimRegion    "^=begin\>"
 syn sync match p6SyncPod grouphere  p6PodDelimEndRegion "^=end\>"
+
+setlocal foldmethod=syntax
 
 let b:current_syntax = "perl6"
