@@ -870,11 +870,11 @@ endif
 " Syncing to speed up processing
 syn sync fromstart
 syn sync maxlines=100
-syn sync match p6SyncPod grouphere  p6PodAbbrRegion     "^=\S\+\>"
-syn sync match p6SyncPod grouphere  p6PodDirectRegion   "^=\(config\|use\|encoding\)\>"
-syn sync match p6SyncPod grouphere  p6PodParaRegion     "^=for\>"
-syn sync match p6SyncPod grouphere  p6PodDelimRegion    "^=begin\>"
-syn sync match p6SyncPod grouphere  p6PodDelimEndRegion "^=end\>"
+syn sync match p6SyncPod groupthere p6PodAbbrRegion     "^=\S\+\>"
+syn sync match p6SyncPod groupthere p6PodDirectRegion   "^=\%(config\|use\|encoding\)\>"
+syn sync match p6SyncPod groupthere p6PodParaRegion     "^=for\>"
+syn sync match p6SyncPod groupthere p6PodDelimRegion    "^=begin\>"
+syn sync match p6SyncPod groupthere p6PodDelimEndRegion "^=end\>"
 
 setlocal foldmethod=syntax
 
