@@ -20,13 +20,13 @@ Basic submethod tests. See L<S12/"Submethods">
   }, "class definitions were parsed/run/compiled";
 
   my $a;
-  ok eval('$a = Foo.new()'),    "Foo.new() worked (1)";
+  lives_ok {$a = Foo.new()},    "Foo.new() worked (1)";
   is $was_in_foo_build, 1,      "Foo's BUILD was called";
   # is instead of todo_is to avoid unexpected succeedings
   is $was_in_bar_build, 0,      "Bar's BUILD was not called";
 
   my $b;
-  ok eval('$b = Bar.new()'),    "Bar.new() worked";
+  lives_ok {$b = Bar.new()},    "Bar.new() worked";
   is $was_in_foo_build, 2,      "Foo's BUILD was called again";
   is $was_in_bar_build, 1,      "Bar's BUILD was called, too";
 
@@ -35,7 +35,7 @@ Basic submethod tests. See L<S12/"Submethods">
   # Bar.new didn't removed/changed some internal structures which'd prevent
   # Foo.BUILD of getting called.
   my $c;
-  ok eval('my $c = Foo.new()'), "Foo.new() worked (2)";
+  lives_ok {my $c = Foo.new()}, "Foo.new() worked (2)";
   is $was_in_foo_build, 3,      "Foo's BUILD was called again";
   is $was_in_bar_build, 1,      "Bar's BUILD was not called again";
 }
@@ -50,8 +50,8 @@ Basic submethod tests. See L<S12/"Submethods">
   class Grtz is Baz { submethod blarb() { $was_in_grtz_submethod++ } }
 
   my ($baz, $grtz);
-  ok eval('$baz  = Baz.new'),  "Baz.new() worked";
-  ok eval('$grtz = Grtz.new'), "Grtz.new() worked";
+  lives_ok {$baz  = Baz.new},  "Baz.new() worked";
+  lives_ok {$grtz = Grtz.new}, "Grtz.new() worked";
 
   try { $baz.blarb };
   is $was_in_baz_submethod,  1, "Baz's submethod blarb was called";
@@ -60,12 +60,10 @@ Basic submethod tests. See L<S12/"Submethods">
 
   try { $grtz.blarb };
   is $was_in_baz_submethod,  1, "Baz's submethod blarb was not called again";
-  # No :todo to avoid unexpected suceedings
   is $was_in_grtz_submethod, 1, "Grtz's submethod blarb was called now";
 
   try { $grtz.Baz::blarb };
   is $was_in_baz_submethod,  2, "Baz's submethod blarb was called again now";
-  # No :todo to avoid unexpected suceedings
   is $was_in_grtz_submethod, 1, "Grtz's submethod blarb was not called again";
 }
 
@@ -96,7 +94,7 @@ Basic submethod tests. See L<S12/"Submethods">
   is $was_in_b1_build, 0, "roles' BUILD submethods were not yet called (1)";
   is $was_in_b2_build, 0, "roles' BUILD submethods were not yet called (2)";
 
-  eval '$B does RoleB1 does RoleB2';
+  $B does RoleB1 does RoleB2;
   is $was_in_b1_build, 1, "roles' BUILD submethods were called now (1)", :todo<feature>;
   is $was_in_b2_build, 1, "roles' BUILD submethods were called now (2)", :todo<feature>;
 };
@@ -120,3 +118,5 @@ Basic submethod tests. See L<S12/"Submethods">
   my $C2 = ClassC.new( :value(100) );
   is( $C2.double_value, 200, '... or value passed in' );
 }
+
+# vim: ft=perl6
