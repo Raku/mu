@@ -53,7 +53,7 @@ syn match p6Repeat         display "\k\@<!\%(for\|loop\|repeat\|while\|until\|ga
 syn match p6FlowControl    display "\k\@<!\%(take\|do\|when\|next\|last\|redo\|given\|return\|lastcall\)\k\@!"
 syn match p6FlowControl    display "\k\@<!\%(default\|exit\|make\|continue\|break\|goto\|leave\|async\)\k\@!"
 syn match p6FlowControl    display "\k\@<!\%(contend\|maybe\|defer\)\k\@!"
-syn match p6TypeConstraint display "\k\@<!\%(is\|as\|but\|does\|can\|isa\|trusts\|of\|returns\|also\)\k\@!"
+syn match p6TypeConstraint display "\k\@<!\%(is\|as\|but\|does\|can\|isa\|trusts\|of\|returns\|also\|handles\)\k\@!"
 syn match p6ClosureTrait   display "\k\@<!\%(BEGIN\|CHECK\|INIT\|START\|FIRST\|ENTER\|LEAVE\|KEEP\)\k\@!"
 syn match p6ClosureTrait   display "\k\@<!\%(UNDO\|NEXT\|LAST\|PRE\|POST\|END\|CATCH\|CONTROL\|TEMP\)\k\@!"
 syn match p6Exception      display "\k\@<!\%(die\|fail\|try\|warn\)\k\@!"
@@ -82,7 +82,7 @@ syn match p6Routine        display "\k\@<!\%(WHAT\|WHICH\|VAR\|eager\|hyper\|sub
 syn match p6Routine        display "\k\@<!\%(grep\|map\|sort\|join\|split\|reduce\|min\|max\|reverse\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(truncate\|zip\|cat\|roundrobin\|classify\|first\|sum\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(keys\|values\|pairs\|defined\|delete\|exists\|elems\)\k\@!"
-syn match p6Routine        display "\k\@<!\%(end\|kv\|arity\|assuming\|pick\|slice\|clone\|key\|new\)\k\@!"
+syn match p6Routine        display "\k\@<!\%(end\|kv\|arity\|assuming\|pick\|clone\|key\|new\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(any\|all\|none\|one\|wrap\|shape\|value\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(callsame\|callwith\|nextsame\|nextwith\|ACCEPTS\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(pop\|push\|shift\|splice\|unshift\|floor\|ceiling\)\k\@!"
@@ -92,7 +92,7 @@ syn match p6Routine        display "\k\@<!\%(p5chop\|chop\|p5chomp\|chomp\|lc\|l
 syn match p6Routine        display "\k\@<!\%(capitalize\|normalize\|pack\|unpack\|quotemeta\|comb\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(samecase\|sameaccent\|chars\|nfd\|nfc\|nfkd\|nfkc\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(printf\|sprintf\|caller\|evalfile\|run\|runinstead\)\k\@!"
-syn match p6Routine        display "\k\@<!\%(nothing\|want\|bless\|chr\|ord\|list\|item\|gmtime\)\k\@!"
+syn match p6Routine        display "\k\@<!\%(nothing\|want\|bless\|chr\|ord\|gmtime\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(localtime\|time\|gethost\|getpw\|chroot\|getlogin\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(kill\|fork\|wait\|perl\|graphs\|codes\|bytes\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(print\|open\|read\|write\|readline\|say\|seek\|close\)\k\@!"
@@ -133,7 +133,6 @@ syn match p6Operator display ">>[^[:digit:][:blank:];{(\[]\+<<"
 syn match p6Normal      display "::=\@!"
 syn match p6Shebang     display "\%^#!.*"
 syn match p6BlockLabel  display "\%(^\|\s\)\@<=\h\w*\s*::\@!\%(\s\|$\)\@="
-syn match p6Context     display "\<hash\>"
 syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\%($\|\s\)\@="
 syn match p6Number      display "\<_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
 syn match p6Float       display "\<_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
@@ -201,15 +200,25 @@ syn region p6DoubleAngles
 
 " Contextualizers
 
-syn match p6Context display "\%([[:alnum:]]\s*\)\@<!\%(\$\|@\|%\|@@\)\s\@="
+syn match p6Context display "\%(\$\|@\|%\|@@\)\s\@="
+syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 
-syn region p6ParenContext
+syn region p6SigilContext
     \ matchgroup=p6Context
     \ start="\$("
     \ start="@("
     \ start="%("
     \ start="&("
     \ start="@@("
+    \ end=")"
+    \ transparent
+
+syn region p6WordContext
+    \ matchgroup=p6Context
+    \ start="\<item\s*(\%(\s*[^)]\)\@="
+    \ start="\<list\s*(\%(\s*[^)]\)\@="
+    \ start="\<hash\s*(\%(\s*[^)]\)\@="
+    \ start="\<slice\s*(\%(\s*[^)]\)\@="
     \ end=")"
     \ transparent
 
@@ -223,7 +232,7 @@ syn region p6Comment
     \ end=")"
     \ matchgroup=p6Error
     \ start="^#("
-    \ contains=p6Parens,p6Attention
+    \ contains=p6Attention,p6Parens,p6Attention
     \ keepend
 syn region p6Comment
     \ matchgroup=p6Comment
@@ -231,7 +240,7 @@ syn region p6Comment
     \ end="]"
     \ matchgroup=p6Error
     \ start="^#\["
-    \ contains=p6Brackets,p6Attention
+    \ contains=p6Attention,p6Brackets,p6Attention
     \ keepend
 syn region p6Comment
     \ matchgroup=p6Comment
@@ -239,7 +248,7 @@ syn region p6Comment
     \ end="}"
     \ matchgroup=p6Error
     \ start="^#{"
-    \ contains=p6Braces,p6Attention
+    \ contains=p6Attention,p6Braces,p6Attention
     \ keepend
 syn region p6Comment
     \ matchgroup=p6Comment
@@ -247,7 +256,7 @@ syn region p6Comment
     \ end=">"
     \ matchgroup=p6Error
     \ start="^#<"
-    \ contains=p6Angles,p6Attention
+    \ contains=p6Attention,p6Angles,p6Attention
     \ keepend
 syn region p6Comment
     \ matchgroup=p6Comment
@@ -255,7 +264,7 @@ syn region p6Comment
     \ end="»"
     \ matchgroup=p6Error
     \ start="^#«"
-    \ contains=p6DoubleAngles,p6Attention
+    \ contains=p6Attention,p6DoubleAngles,p6Attention
     \ keepend
 
 " Interpolated strings
@@ -271,7 +280,7 @@ syn region p6InterpClosure
 syn cluster p6Interp
     \ add=p6VariableRegion
     \ add=p6InterpClosure
-    \ add=p6ParenContext
+    \ add=p6SigilContext
 
 " "string"
 syn region p6InterpStringDoubleQuote
