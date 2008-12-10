@@ -34,9 +34,11 @@ elseif exists("b:current_syntax")
     finish
 endif
 
-" Recommended formatting options (see pugs::hack)
-" These should eventually be put in a $VIMRUNTIME/indent/perl6.vim file
+" this should eventually be put in a $VIMRUNTIME/indent/perl6.vim file
 setlocal autoindent expandtab smarttab shiftround shiftwidth=4 softtabstop=4
+
+" this belongs in $VIMRUNTIME/ftplugin/perl6.vim
+setlocal iskeyword=@,48-57,_,162-186,192-255
 
 " Billions of keywords
 " Don't use the "syn keyword" construct because that always has a higher
@@ -113,17 +115,16 @@ syn match p6Operator       display "\k\@<!\%(x\|xx\|div\|mod\|also\|leg\|cmp\)\k
 syn match p6Operator       display "\k\@<!\%(eq\|ne\|lt\|le\|gt\|ge\|eqv\|ff\|fff\|true\|not\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(Z\|X\|XeqvX\|and\|andthen\|or\|xor\|orelse\|extra\)\k\@!"
 
-" more operators (not very smart, allows any combination)
-syn match p6Operator display "\%(+\|-\|/\|\*\|\~\|?\||\|\\\|=\|\^\|!\|%\)"
-syn match p6Operator display "\%(&\|,\|<\|>\|\.\|:\|;\)"
+" more operators
+syn match p6Operator display "[-+/*~?|=^!%&,<>.:;\\]\+"
 " these require whitespace on the left side
-syn match p6Operator display "\%(^\|\s\)\@<=\%(xx=\|p5=>\)"
+syn match p6Operator display "[[:graph:]]\@<!\%(xx=\|p5=>\)"
 " these require whitespace on both sides
-syn match p6Operator display "\%(^\|\s\)\@<=\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
+syn match p6Operator display "[[:graph:]]\@<!\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
 " no alphabetic char to the left, no keyword char to the right
 syn match p6Operator display "\a\@<!i\k\@!"
 " reduce
-syn match p6Operator display "\[\%([^[:digit:][:blank:];@$%&]\|[@$&%][-_:¢:[:alnum:]]\@!\)\+]"
+syn match p6Operator display "\[\%(\d\|[[:digit:];]\+]\|[^\]]*\%([@$%&]\+[^\]]\|[^\]]\+([^\]]*)\)\)\@![^\][:space:]]\+]"
 " hyperoperators
 syn match p6Operator display "\%(>>\|»\)[^[:alnum:][:blank:]]\+"
 syn match p6Operator display "[^[:digit:][:blank:];{(\[]\+\%(«\|<<\)"
@@ -132,11 +133,11 @@ syn match p6Operator display ">>[^[:digit:][:blank:];{(\[]\+<<"
 
 syn match p6Normal      display "::=\@!"
 syn match p6Shebang     display "\%^#!.*"
-syn match p6BlockLabel  display "\%(^\|\s\)\@<=\h\w*\s*::\@!\%(\s\|$\)\@="
+syn match p6BlockLabel  display "[[:graph:]]\@<!\h\w*\s*::\@!\%(\s\|$\)\@="
 syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\%($\|\s\)\@="
-syn match p6Number      display "\<_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
-syn match p6Float       display "\<_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
-syn match p6Float       display "_\@<!\%(\d\|__\@!\)*_\@<!\.\@<!\._\@!\.\@!\a\@!\%(\d\|_\)\+_\@<!\%([eE]_\@!\%(\d\|_\)\+\)\?"
+syn match p6Number      display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
+syn match p6Float       display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
+syn match p6Float       display "\k\@<!-\?_\@<!\%(\d\|__\@!\)*_\@<!\.\@<!\._\@!\.\@!\a\@!\%(\d\|_\)\+_\@<!\%([eE]_\@!\%(\d\|_\)\+\)\?"
 syn match p6Number      display "\<0o[0-7][0-7_]*"
 syn match p6Number      display "\<0b[01][01_]*"
 syn match p6Number      display "\<0x\x[[:xdigit:]_]*"
@@ -150,17 +151,17 @@ syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\)"
 
 " sigils, twigils, variables and package scope
 
-syn match p6Twigil       display contained  "\%([.^*+?=!]\|:\@<!::\@!\)"
-syn match p6Variable     display contained "[[:alnum:]_¢]\+"
+syn match p6Twigil       display contained "\%([.^*+?=!]\|:\@<!::\@!\)"
+syn match p6Variable     display contained "\k\+"
 syn match p6PackageScope display contained "[-[:alnum:]_:]\+::"
 
 " FIXME: this matches too much sometimes, e.g. with "$foo.bar"
 syn region p6VariableRegion
     \ matchgroup=p6Sigil
     \ start="\$"
-    \ start="[$&%@]\+\d\@!\%([-_:¢[:alnum:].^*+?=!]\)\@="
-    \ start="\%(@@\|\$\|[&%]\d\@!\)\%([.^*+?=!]\|:\@<!::\@!\)\%([^-_:¢[:alnum:]]\)\@="
-    \ end="\%([-_:¢[:alnum:].^*+?=!]\)\@!"
+    \ start="[$&%@]\+\d\@!\%(\k\|[-:.^*+?=!]\)\@="
+    \ start="\%(@@\|\$\|[&%]\d\@!\)\%([.^*+?=!]\|:\@<!::\@!\)\%(\K\|[^-:]\)\@="
+    \ end="\%(\k\|[-:.^*+?=!]\)\@!"
     \ oneline
     \ display
     \ contains=p6Twigil,p6PackageScope,p6Variable
@@ -169,34 +170,10 @@ syn region p6VariableRegion
 syn match p6Operator display "&&"
 
 " the "!" in "$!" is the variable name, not a twigil
-syn match p6Variable display "\%([$@%&]\+\)\@<=\%([.^*+?=!]\|:\@<!::\@!\)\%([-_:¢[:alnum:].^*+?=!]\)\@!"
+syn match p6Variable display "\%([$@%&]\+\)\@<=\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\|[-:.^*+?=!]\)\@!"
 
 syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\%(\h\|::\)\%(\w\|::\)*"
 syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\%(\h\|::\)\%(\w\|::\)*"
-
-" The following keeps track of nested pairs of matching
-" bracketing characters in various contexts.
-" E.g. this makes "@()" highlight properly in "@( bla() )"
-syn region p6Parens
-    \ start="("
-    \ end=")"
-    \ transparent
-syn region p6Brackets
-    \ start="\["
-    \ end="]"
-    \ transparent
-syn region p6Braces
-    \ start="{"
-    \ end="}"
-    \ transparent
-syn region p6Angles
-    \ start="<"
-    \ end=">"
-    \ transparent
-syn region p6DoubleAngles
-    \ start="«"
-    \ end="»"
-    \ transparent
 
 " Contextualizers
 
@@ -210,6 +187,7 @@ syn region p6SigilContext
     \ start="%("
     \ start="&("
     \ start="@@("
+    \ skip="([^)]*)"
     \ end=")"
     \ transparent
 
@@ -229,50 +207,50 @@ syn match p6Comment display "#.*" contains=p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#("
+    \ skip="([^)]*)"
     \ end=")"
     \ matchgroup=p6Error
     \ start="^#("
-    \ contains=p6Attention,p6Parens,p6Attention
-    \ keepend
+    \ contains=p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#\["
+    \ skip="\[[^\]]*]"
     \ end="]"
     \ matchgroup=p6Error
     \ start="^#\["
-    \ contains=p6Attention,p6Brackets,p6Attention
-    \ keepend
+    \ contains=p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#{"
+    \ skip="{[^}]*}"
     \ end="}"
     \ matchgroup=p6Error
     \ start="^#{"
-    \ contains=p6Attention,p6Braces,p6Attention
-    \ keepend
+    \ contains=p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#<"
+    \ skip="<[^>]*>"
     \ end=">"
     \ matchgroup=p6Error
     \ start="^#<"
-    \ contains=p6Attention,p6Angles,p6Attention
-    \ keepend
+    \ contains=p6Attention
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#«"
+    \ skip="«[^»]*»"
     \ end="»"
     \ matchgroup=p6Error
     \ start="^#«"
-    \ contains=p6Attention,p6DoubleAngles,p6Attention
-    \ keepend
+    \ contains=p6Attention
 
 " Interpolated strings
 
 " { ... } closure in interpolated strings
 syn region p6InterpClosure
-    \ matchgroup=p6StringSpecial
-    \ start="{"
+    \ start="\\\@!{"
+    \ skip="{[^}]*}"
     \ end="}"
     \ contained
     \ contains=TOP
@@ -341,16 +319,6 @@ syn match p6EscapedSlash display "\\\@<!\\\\" contained
 syn match p6EscapedQuote display "\\\@<!\\'"  contained
 syn match p6EscapedAngle display "\\\@<!\\>"  contained
 
-" Needed by the p6LiteralStringAngle region. We can't use the p6Angles
-" defined above because of a vim bug. For now we need a region that has
-" matchgroup=p6LiteralString, otherwise some angles will have no
-" highlighting at all, even though the region is marked transparent.
-syn region p6StringAngles
-    \ matchgroup=p6LiteralString
-    \ start="<"
-    \ end=">"
-    \ transparent
-
 " 'string'
 syn region p6LiteralStringQuote
     \ matchgroup=p6Quote
@@ -368,9 +336,10 @@ syn region p6LiteralStringAngle
     \ matchgroup=p6Quote
     \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<\%(=\)\@!"
     \ start="\%([-+~!]\|<\)\@<!<\%(\s\|=\)\@!"
-    \ skip="\\\@<!\\>"
+    \ skip="\%(\\\@<!\\>\|<[^>]*>\)"
     \ end=">"
-    \ contains=p6EscapedSlash,p6EscapedAngle,p6StringAngles
+    \ contains=p6EscapedSlash,p6EscapedAngle
+
 " $<rule>
 syn region p6LiteralStringMatch
     \ matchgroup=p6Quote
@@ -487,12 +456,13 @@ syn region p6Regex
 " However, don't do what you might _expect_ would work, because it won't.
 " And no variant of it will, either.  I found this out through 4 hours from
 " miniscule tweaking to complete redesign. This is the only way I've found!
-syn region p6Closure
-    \ start="\(\(rule\(\_s\+\w\+\)\{0,1}\|s\|rx\)\_s*\)\@<!{"
-    \ end="}"
-    \ transparent
-    \ fold
-    \ keepend
+"syn region p6Closure
+"    \ start="\(\(rule\(\_s\+\w\+\)\{0,1}\|s\|rx\)\_s*\)\@<!{"
+"    \ end="}"
+"    \ matchgroup=p6Error
+"    \ end="[\])]"
+"    \ contains=TOP
+"    \ fold
 "syn region p6Closure
 "    \ start="\(\(\(rule\|token\|regex\)\(\_s\+\w\+\)\{0,1}\|s\|rx\)\_s*\)\@<!{"
 "    \ end="}"
@@ -621,14 +591,14 @@ syn match p6Operator "//"
 " Abbreviated blocks
 syn region p6PodAbbrRegion
     \ matchgroup=p6PodCommand
-    \ start="^=\ze\S\+"
+    \ start="^=\ze\k\+"
     \ end="^\ze\%(\s*$\|=\k\)"
     \ contains=p6PodAbbrType
     \ keepend
 
 syn region p6PodAbbrType
     \ matchgroup=p6PodType
-    \ start="\S\+"
+    \ start="\k\+"
     \ end="^\ze\%(\s*$\|=\k\)"
     \ contained
     \ contains=p6PodName,p6PodAbbr
@@ -644,48 +614,62 @@ syn region p6PodAbbr
 " Directives
 syn region p6PodDirectRegion
     \ matchgroup=p6PodCommand
-    \ start="^=\%(config\|use\|encoding\)\>"
-    \ end="^\ze\%([^=]\|=\S\|$\)"
-    \ contains=p6PodDirectTypeRegion
+    \ start="^=\%(config\|use\)\>"
+    \ end="^\ze\%([^=]\|=\k\|$\)"
+    \ contains=p6PodDirectArgRegion
     \ keepend
 
-syn region p6PodDirectTypeRegion
+syn region p6PodDirectArgRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
-    \ end="^\ze\%([^=]\|=\S\|$\)"
+    \ end="^\ze\%([^=]\|=\k\|$\)"
     \ contained
     \ contains=p6PodDirectConfigRegion
 
 syn region p6PodDirectConfigRegion
     \ start=""
-    \ end="^\ze\%([^=]\|=\S\|$\)"
+    \ end="^\ze\%([^=]\|=\k\|$\)"
     \ contained
     \ contains=@p6PodConfig
+
+" =encoding is a special directive
+syn region p6PodDirectRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=encoding\>"
+    \ end="^\ze\%([^=]\|=\k\|$\)"
+    \ contains=p6PodEncodingArgRegion
+    \ keepend
+
+syn region p6PodEncodingArgRegion
+    \ matchgroup=p6PodName
+    \ start="\S\+"
+    \ end="^\ze\%([^=]\|=\k\|$\)"
+    \ contained
 
 " Paragraph blocks
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>"
-    \ end="^\ze\%(\s*\|=\S\)"
+    \ end="^\ze\%(\s*\|=\k\)"
     \ contains=p6PodParaTypeRegion
 
 syn region p6PodParaTypeRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
-    \ end="^\ze\%(\s*$\|=\S\)"
+    \ end="^\ze\%(\s*$\|=\k\)"
     \ contained
     \ keepend
     \ contains=p6PodPara,p6PodParaConfigRegion
 
 syn region p6PodParaConfigRegion
     \ start=""
-    \ end="^\ze\%([^=]\|=\S\)"
+    \ end="^\ze\%([^=]\|=\k\)"
     \ contained
     \ contains=@p6PodConfig
 
 syn region p6PodPara
     \ start="^[^=]"
-    \ end="^\ze\%(\s*$\|=\S\)"
+    \ end="^\ze\%(\s*$\|=\k\)"
     \ contained
     \ extend
     \ contains=@p6PodAmbient
@@ -699,14 +683,14 @@ syn region p6PodDelimRegion
 
 syn region p6PodDelimTypeRegion
     \ matchgroup=p6PodType
-    \ start="\S\+"
+    \ start="\k\+"
     \ end="^\ze=end\>"
     \ contained
     \ contains=p6PodDelim,p6PodDelimConfigRegion
 
 syn region p6PodDelimConfigRegion
     \ start=""
-    \ end="^\ze\%([^=]\|=\S\|$\)"
+    \ end="^\ze\%([^=]\|=\k\|$\)"
     \ contained
     \ contains=@p6PodConfig
 
@@ -719,7 +703,7 @@ syn region p6PodDelimRegion
 
 syn region p6PodDelimCodeTypeRegion
     \ matchgroup=p6PodType
-    \ start="\S\+"
+    \ start="\k\+"
     \ end="^\ze=end\>"
     \ contained
     \ contains=p6PodDelimCode,p6PodDelimConfigRegion
@@ -727,8 +711,12 @@ syn region p6PodDelimCodeTypeRegion
 syn cluster p6PodConfig
     \ add=p6PodConfigOperator
     \ add=p6PodExtraConfig
-    \ add=p6Number
-    \ add=p6LiteralStringQuote
+
+syn region p6Parens
+    \ start="("
+    \ end=")"
+    \ contained
+    \ contains=p6Number,p6LiteralStringQuote
 
 syn match p6PodConfigOperator contained ":" nextgroup=p6PodConfigOption
 syn match p6PodConfigOption   contained "[^[:space:](<]\+" nextgroup=p6Parens,p6LiteralStringAngle
