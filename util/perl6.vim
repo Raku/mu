@@ -121,9 +121,9 @@ syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]\+"
 syn match p6Operator display ":\@<!::\@!"
 syn match p6Operator display "::="
 " these require whitespace on the left side
-syn match p6Operator display "[[:graph:]]\@<!\%(xx=\|p5=>\)"
+syn match p6Operator display "\%(\k\|[[:graph:]]\)\@<!\%(xx=\|p5=>\)"
 " these require whitespace on both sides
-syn match p6Operator display "[[:graph:]]\@<!\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
+syn match p6Operator display "\%(\k\|[[:graph:]]\)\@<!\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
 " no alphabetic char to the left, no keyword char to the right
 syn match p6Operator display "\a\@<!i\k\@!"
 " reduce
@@ -135,7 +135,7 @@ syn match p6Operator display "»[^[:digit:][:blank:];{(\[]\+«"
 syn match p6Operator display ">>[^[:digit:][:blank:];{(\[]\+<<"
 
 syn match p6Shebang     display "\%^#!.*"
-syn match p6BlockLabel  display "[[:graph:]]\@<!\h\w*\s*::\@!\%(\s\|$\)\@="
+syn match p6BlockLabel  display "\%(\k\|[[:graph:]]\)\@<!\h\w*\s*::\@!\%(\s\|$\)\@="
 syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\%($\|\s\)\@="
 syn match p6Number      display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
 syn match p6Float       display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
@@ -151,11 +151,16 @@ syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
 " these Routine names are also Properties, if preceded by "is"
 syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\)"
 
-" sigils, twigils, variables and package scope
-syn match p6Sigil        display "[$&%@]\+\%(::\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\%(\d\|_\)\@!\)\)\@=" nextgroup=p6Twigil,p6Variable,p6PackageScope
-syn match p6Variable     display "\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*" contained
-syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\%(\d\|_\)\@!\)\@=" nextgroup=p6Variable contained
-syn match p6PackageScope display "\%(\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*\)\?::" nextgroup=p6PackageScope,p6Variable contained
+syn match p6Sigil        display "[$&%@]\+\%(::\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6Twigil,p6Variable,p6PackageScope
+
+" this is the regex for an identifier, it will show up elsewhere as well
+syn match p6Variable     display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*" contained
+
+syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=" nextgroup=p6Variable contained
+syn match p6PackageScope display "\%(\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\)\?::" nextgroup=p6PackageScope,p6Variable contained
+
+" only allow identifiers as the first thing after "use" et al
+syn match p6Package display "\%(\<\%(use\|module\|class\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
 
 " this is an operator, not a variable
 syn match p6Operator display "&&"
@@ -163,12 +168,12 @@ syn match p6Operator display "&&"
 " the "!" in "$!" is a variable name, not an operator
 syn match p6Variable display "\%([$@%&]\+\)\@<=!"
 
-syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*"
-syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*"
+syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
+syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
 
 " Contextualizers
 
-syn match p6Context display "\%(\$\|@\|%\|@@\)[[:graph:]]\@!"
+syn match p6Context display "\%(\$\|@\|%\|@@\)\%(\k\|[[:graph:]]\)\@!"
 syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 
 syn region p6SigilContext
@@ -181,6 +186,10 @@ syn region p6SigilContext
     \ skip="([^)]*)"
     \ end=")"
     \ transparent
+
+" the "$" place holder in "$var1, $, var2 = @list"
+syn match p6Placeholder display "\%(,\s*\)\@<=\$\%(\k\d\@<!\|\%([.^*+?=!]\|:\@<!::\@!\)\)\@!"
+syn match p6Placeholder display "\$\%(\k\d\@<!\|\%([.^*+?=!]\|:\@<!::\@!\)\)\@!\%(,\s*\)\@="
 
 syn region p6WordContext
     \ matchgroup=p6Context
@@ -368,10 +377,10 @@ syn region p6LiteralString
 syn match p6LiteralString display "\%(:\@<!:!\?\)\@<=\w\+"
 
 " => and p5=> autoquoting
-syn match p6LiteralString display "\w\+\ze\s\+p5=>"
-syn match p6LiteralString display "\w\+\ze\(p5\)\@<!=>"
-syn match p6LiteralString display "\w\+\ze\s\+=>"
-syn match p6LiteralString display "\w\+p5\ze=>"
+syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\s\+p5=>"
+syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\%(p5\)\@<!=>"
+syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\s\+=>"
+syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*p5\ze=>"
 
 " these are operators, not quotes
 syn match p6Operator display "\%(<=>\|<->\)"
@@ -825,7 +834,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Error           Error
     HiLink p6BlockLabel      Label
     HiLink p6Float           Float
-    HiLink p6Normal          Normal
+    HiLink p6Package         Normal
     HiLink p6PackageScope    Normal
     HiLink p6Number          Number
     HiLink p6String          String
@@ -849,6 +858,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Exception       Exception
     HiLink p6Sigil           Identifier
     HiLink p6Variable        Identifier
+    HiLink p6Placeholder     Identifier
     HiLink p6RuleCall        Identifier
     HiLink p6Conditional     Conditional
     HiLink p6StringSpecial   SpecialChar
