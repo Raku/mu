@@ -110,7 +110,7 @@ syn match p6Routine        display "\k\@<!\%(approx\|is_approx\|throws_ok\|versi
 syn match p6Routine        display "\k\@<!\%(eval\|operator\|undef\|undefine\|sleep\|from\|to\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(infix\|postfix\|prefix\|circumfix\|postcircumfix\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(minmax\|lazy\|count\|nok_error\|unwrap\|getc\|pi\)\k\@!"
-syn match p6Routine        display "\k\@<!\%(acos\|e\|context\|void\|quasi\|body\|each\)\k\@!"
+syn match p6Routine        display "\k\@<!\%(acos\|e\|context\|void\|quasi\|body\|each\|contains\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(x\|xx\|div\|mod\|also\|leg\|cmp\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(eq\|ne\|lt\|le\|gt\|ge\|eqv\|ff\|fff\|true\|not\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(Z\|X\|XeqvX\|and\|andthen\|or\|xor\|orelse\|extra\)\k\@!"
