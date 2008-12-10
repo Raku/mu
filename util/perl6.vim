@@ -116,7 +116,10 @@ syn match p6Operator       display "\k\@<!\%(eq\|ne\|lt\|le\|gt\|ge\|eqv\|ff\|ff
 syn match p6Operator       display "\k\@<!\%(Z\|X\|XeqvX\|and\|andthen\|or\|xor\|orelse\|extra\)\k\@!"
 
 " more operators
-syn match p6Operator display "[-+/*~?|=^!%&,<>.:;\\]\+"
+syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]\+"
+" "::" is not an operator unless followed by "="
+syn match p6Operator display ":\@<!::\@!"
+syn match p6Operator display "::="
 " these require whitespace on the left side
 syn match p6Operator display "[[:graph:]]\@<!\%(xx=\|p5=>\)"
 " these require whitespace on both sides
@@ -124,14 +127,13 @@ syn match p6Operator display "[[:graph:]]\@<!\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
 " no alphabetic char to the left, no keyword char to the right
 syn match p6Operator display "\a\@<!i\k\@!"
 " reduce
-syn match p6Operator display "\[\%(\d\|[[:digit:];]\+]\|[^\]]*\%([@$%&]\+[^\]]\|[^\]]\+([^\]]*)\)\)\@![^\][:space:]]\+]"
+syn match p6Operator display "\[\%(\*-\|\d\|[[:digit:];]\+]\|[^\]]*\%([@$%&]\+[^\]]\|[^\]]\+([^\]]*)\)\)\@![^\][:space:]]\+]"
 " hyperoperators
 syn match p6Operator display "\%(>>\|»\)[^[:alnum:][:blank:]]\+"
 syn match p6Operator display "[^[:digit:][:blank:];{(\[]\+\%(«\|<<\)"
 syn match p6Operator display "»[^[:digit:][:blank:];{(\[]\+«"
 syn match p6Operator display ">>[^[:digit:][:blank:];{(\[]\+<<"
 
-syn match p6Normal      display "::=\@!"
 syn match p6Shebang     display "\%^#!.*"
 syn match p6BlockLabel  display "[[:graph:]]\@<!\h\w*\s*::\@!\%(\s\|$\)\@="
 syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\%($\|\s\)\@="
@@ -151,33 +153,23 @@ syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\)"
 
 " sigils, twigils, variables and package scope
 
-syn match p6Twigil       display contained "\%([.^*+?=!]\|:\@<!::\@!\)"
-syn match p6Variable     display contained "\k\+"
-syn match p6PackageScope display contained "[-[:alnum:]_:]\+::"
-
-" FIXME: this matches too much sometimes, e.g. with "$foo.bar"
-syn region p6VariableRegion
-    \ matchgroup=p6Sigil
-    \ start="\$"
-    \ start="[$&%@]\+\d\@!\%(\k\|[-:.^*+?=!]\)\@="
-    \ start="\%(@@\|\$\|[&%]\d\@!\)\%([.^*+?=!]\|:\@<!::\@!\)\%(\K\|[^-:]\)\@="
-    \ end="\%(\k\|[-:.^*+?=!]\)\@!"
-    \ oneline
-    \ display
-    \ contains=p6Twigil,p6PackageScope,p6Variable
+syn match p6Sigil        display "[$&%@]\+\%(::\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\%(\d\|_\)\@!\)\)\@=" nextgroup=p6Twigil,p6Variable,p6PackageScope
+syn match p6Variable     display "\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*" contained
+syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\%(\d\|_\)\@!\)\@=" nextgroup=p6Variable contained
+syn match p6PackageScope display "\%(\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*\)\?::" nextgroup=p6PackageScope,p6Variable contained
 
 " this is an operator, not a variable
 syn match p6Operator display "&&"
 
-" the "!" in "$!" is the variable name, not a twigil
-syn match p6Variable display "\%([$@%&]\+\)\@<=\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\|[-:.^*+?=!]\)\@!"
+" the "!" in "$!" is a variable name, not an operator
+syn match p6Variable display "\%([$@%&]\+\)\@<=!"
 
 syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\%(\h\|::\)\%(\w\|::\)*"
 syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\%(\h\|::\)\%(\w\|::\)*"
 
 " Contextualizers
 
-syn match p6Context display "\%(\$\|@\|%\|@@\)\s\@="
+syn match p6Context display "\%(\$\|@\|%\|@@\)[[:graph:]]\@!"
 syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 
 syn region p6SigilContext
@@ -256,7 +248,7 @@ syn region p6InterpClosure
     \ contains=TOP
 
 syn cluster p6Interp
-    \ add=p6VariableRegion
+    \ add=p6Sigil
     \ add=p6InterpClosure
     \ add=p6SigilContext
 
@@ -389,10 +381,9 @@ syn match p6Operator display "\%(<=>\|<->\)"
 syn region p6Iterate
     \ matchgroup=p6Operator
     \ start="=<<\@!"
+    \ skip="<[^>]>"
     \ end=">"
-    \ oneline
-    \ display
-    \ contains=p6VariableRegion
+    \ contains=TOP
 
 " Regexes
 
@@ -886,7 +877,7 @@ endif
 " Syncing to speed up processing
 syn sync fromstart
 syn sync maxlines=100
-syn sync match p6SyncPod groupthere p6PodAbbrRegion     "^=\S\+\>"
+syn sync match p6SyncPod groupthere p6PodAbbrRegion     "^=\k\+\>"
 syn sync match p6SyncPod groupthere p6PodDirectRegion   "^=\%(config\|use\|encoding\)\>"
 syn sync match p6SyncPod groupthere p6PodParaRegion     "^=for\>"
 syn sync match p6SyncPod groupthere p6PodDelimRegion    "^=begin\>"
