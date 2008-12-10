@@ -124,8 +124,8 @@ syn match p6Operator display "::="
 syn match p6Operator display "\%(\k\|[[:graph:]]\)\@<!\%(xx=\|p5=>\)"
 " these require whitespace on both sides
 syn match p6Operator display "\%(\k\|[[:graph:]]\)\@<!\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
-" no alphabetic char to the left, no keyword char to the right
-syn match p6Operator display "\a\@<!i\k\@!"
+" no alphabetic keyword char to the left, no keyword char to the right
+syn match p6Operator display "\%(\k\d\@<!\)\@<!i\k\@!"
 " reduce
 syn match p6Operator display "\[\%(\*-\|\d\|[[:digit:];]\+]\|[^\]]*\%([@$%&]\+[^\]]\|[^\]]\+([^\]]*)\)\)\@![^\][:space:]]\+]"
 " hyperoperators
@@ -162,7 +162,7 @@ syn match p6PackageScope display "\%(\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\
 " only allow identifiers as the first thing after "use" et al
 syn match p6Package display "\%(\<\%(use\|module\|class\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
 
-" this is an operator, not a variable
+" this is an operator, not a sigil
 syn match p6Operator display "&&"
 
 " the "!" in "$!" is a variable name, not an operator
@@ -187,10 +187,6 @@ syn region p6SigilContext
     \ end=")"
     \ transparent
 
-" the "$" place holder in "$var1, $, var2 = @list"
-syn match p6Placeholder display "\%(,\s*\)\@<=\$\%(\k\d\@<!\|\%([.^*+?=!]\|:\@<!::\@!\)\)\@!"
-syn match p6Placeholder display "\$\%(\k\d\@<!\|\%([.^*+?=!]\|:\@<!::\@!\)\)\@!\%(,\s*\)\@="
-
 syn region p6WordContext
     \ matchgroup=p6Context
     \ start="\<item\s*(\%(\s*[^)]\)\@="
@@ -199,6 +195,10 @@ syn region p6WordContext
     \ start="\<slice\s*(\%(\s*[^)]\)\@="
     \ end=")"
     \ transparent
+
+" the "$" placeholder in "$var1, $, var2 = @list"
+syn match p6Placeholder display "\%(,\s*\)\@<=\$\%(\k\d\@<!\|\%([.^*+?=!]\|:\@<!::\@!\)\)\@!"
+syn match p6Placeholder display "\$\%(\k\d\@<!\|\%([.^*+?=!]\|:\@<!::\@!\)\)\@!\%(,\s*\)\@="
 
 " Comments
 
@@ -334,8 +334,8 @@ syn region p6LiteralStringQuote
 " * It comes after "enum" or "for"
 syn region p6LiteralStringAngle
     \ matchgroup=p6Quote
-    \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<\%(=\)\@!"
-    \ start="\%([-+~!]\|<\)\@<!<\%(\s\|=\)\@!"
+    \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<[-=]\@!"
+    \ start="\%([-+~!]\|<\)\@<!<\%(\s\|[-=]\)\@!"
     \ skip="\%(\\\@<!\\>\|<[^>]*>\)"
     \ end=">"
     \ contains=p6EscapedSlash,p6EscapedAngle
@@ -381,9 +381,6 @@ syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\%(p5\)\@<!=>"
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\s\+=>"
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*p5\ze=>"
-
-" these are operators, not quotes
-syn match p6Operator display "\%(<=>\|<->\)"
 
 " =<> is an operator, not a quote
 syn region p6Iterate
