@@ -152,7 +152,6 @@ syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
 syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\)"
 
 " sigils, twigils, variables and package scope
-
 syn match p6Sigil        display "[$&%@]\+\%(::\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\%(\d\|_\)\@!\)\)\@=" nextgroup=p6Twigil,p6Variable,p6PackageScope
 syn match p6Variable     display "\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*" contained
 syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\%(\d\|_\)\@!\)\@=" nextgroup=p6Variable contained
@@ -164,8 +163,8 @@ syn match p6Operator display "&&"
 " the "!" in "$!" is a variable name, not an operator
 syn match p6Variable display "\%([$@%&]\+\)\@<=!"
 
-syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\%(\h\|::\)\%(\w\|::\)*"
-syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\%(\h\|::\)\%(\w\|::\)*"
+syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*"
+syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\k\%(\d\|_\)\@!\%(\k\|[-']\%(\k\%(\d\|_\)\@!\)\@=\)*"
 
 " Contextualizers
 
