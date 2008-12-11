@@ -10,3 +10,4 @@ use Perl6::Highlight;
 
 my $foo = Perl6::Highlight->new(text => 'my $foo;');
 say $foo->snippet_html;
+say $foo->simple_html;
