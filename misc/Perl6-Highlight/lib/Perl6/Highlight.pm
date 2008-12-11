@@ -41,6 +41,13 @@ sub new($%) {
         croak "'text' option not found in $class->new";
     }
     my $self = bless(\%options, $class);
+ 
+    #XXX- do we need to convert to utf8 or make it a disabled option? 
+    # slurp the file for parsing and redspans
+    $src_text = decode('utf8', $self->{text} );
+    $loc[length($src_text) - 1] = [];
+    $parser = STD->parse($src_text, $self->{rule});
+
     return $self;
 }
 
@@ -52,13 +59,6 @@ Only nodes that have a color are printed. Not optimal but works ;-)
 =cut
 sub snippet_html($) {
     my ($self) = @ARG;
-   
-    #XXX- do we need to convert to utf8 or make it a disabled option? 
-    # slurp the file for parsing and redspans
-    $src_text = decode('utf8', $self->{text} );
-    $loc[length($src_text) - 1] = [];
-    $parser = STD->parse($src_text, $self->{rule});
-
     my $str = "";
     my %colors = ();
 
@@ -243,26 +243,14 @@ HTML
     $str;
 }
 
-
-sub ansi {
-    my ($self) = @ARG;
-    croak "Not implemented";
-}
-
-sub yaml {
-    my ($self) = @ARG;
-    croak "Not implemented";
-}
-
-
-
-
-=item highlight_perl6_ansi
+=item ansi
 
 This is same as C<highlight_perl6_full> when --ansi-text is used.
 No more javascript tree viewer or anything fancy. 
 Only nodes that have a color are printed. Not optimal but works ;-)
-sub highlight_perl6_ansi {
+=cut
+sub ansi {
+    my ($self) = @ARG;
     my $str = "";
     my %colors = ();
 
@@ -287,7 +275,7 @@ sub highlight_perl6_ansi {
         }
     };
 
-    redspans_traverse(\&spit_ansi_text,%colors); 
+    $self->redspans_traverse(\&spit_ansi_text,%colors); 
 
     $str;
 }
@@ -296,7 +284,9 @@ sub highlight_perl6_ansi {
 =item highlight_perl6_yaml
 
 Spits out YAML that can be useful for the future
-sub highlight_perl6_yaml {
+=cut
+sub yaml {
+    my ($self) = @ARG;
     my $str = "";
     my %colors = ();
 
@@ -316,7 +306,7 @@ sub highlight_perl6_yaml {
         push @yaml, @ARG;
     };
 
-    redspans_traverse(\&spit_yaml,%colors); 
+    $self->redspans_traverse(\&spit_yaml,%colors); 
 
     my $dumper = YAML::Dumper->new;
     $dumper->indent_width(4);
@@ -324,7 +314,6 @@ sub highlight_perl6_yaml {
 
     $str;
 }
-
 
 =item redspans_traverse
 
