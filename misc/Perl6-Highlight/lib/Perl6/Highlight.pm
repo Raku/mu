@@ -82,7 +82,7 @@ sub snippet_html($) {
             $str .= $buffer;
         }
     };
-#    $self->redspans_traverse(\&spit_snippet_html,%colors); 
+    $self->redspans_traverse(\&spit_snippet_html,%colors); 
 
     $str .= "</pre>";
 
@@ -333,7 +333,6 @@ sub highlight_perl6_yaml {
 sub redspans_traverse($$%) {
     my ($self, $process_buffer,%colors) = @ARG;
 
-say "redspoans";
     my ($last_tree,$buffer, $last_type) = ("","","");
     for my $i (0 .. @loc-1) {
         next unless defined $loc[$i];
@@ -401,11 +400,9 @@ say "redspoans";
         my $C = shift;
         my $F = $C->{_from};
         my $P = $C->{_pos};
-say "im here $F..$P";  
         $AUTOLOAD =~ s/^Actions:://;
         $loc[$P] = [] if $loc[$P];	# in case we backtracked to here
         my $action = $AUTOLOAD;
-say "$action";
         my $action_ref = $action_refs{$action};
         if(!$action_ref) {
             $action_refs{$action} = $action_ref = \$action;
@@ -413,7 +410,6 @@ say "$action";
         for ($F..$P-1) {
             unshift @{$loc[$_]}, $action_ref;
         }
-    say "finished";
     }
 
     sub stdstopper { }
