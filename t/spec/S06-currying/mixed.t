@@ -4,7 +4,8 @@ use Test;
 
 =begin description
 
-Tests curried subs as defined by L<S06/Currying>
+Tests curried subs as defined by 
+L<S06/Currying>
 
 = TODO
 
