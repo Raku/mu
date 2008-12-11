@@ -1,17 +1,15 @@
 package Perl6::Highlight;
 
+# core modules & directives
 use 5.010000;
 use strict;
 use warnings;
-
+use English;
+use Carp;
 require Exporter;
 
-# core modules
-use Carp;
-
 # cpan modules
-use File::Slurp;
-use Moose;
+use File::Slurp qw(read_file);
 use YAML::Dumper;
 use Term::ANSIColor;
 
@@ -20,58 +18,40 @@ use STD;
 
 our @ISA = qw(Exporter);
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
- 
-# This allows declaration	use Perl6::Highlight ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
+our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
+our @EXPORT = qw();
 
 our $VERSION = '0.01';
 
-
-# Preloaded methods go here.
 sub new {
-    #XXX- implement new
+    my ($class, %options) = @ARG;
+    my $self = bless(\%options, $class);
+    return $self;
 }
 
 sub snippet_html {
-    #XXX- implement snippet_html
-    my $self = shift;
-    croak "Not implemented";
+    my ($self) = @ARG;
+    croak "Not implemented " . $self->{p6code};
 }
 
 sub simple_html {
-    #XXX- implement simple_html
-    my $self = shift;
+    my ($self) = @ARG;
     croak "Not implemented";
 }
 
 sub full_html {
-    #XXX- implement full_html
-    my $self = shift;
+    my ($self) = @ARG;
     croak "Not implemented";
 }
 
 sub ansi {
-    #XXX- implement ansi
-    my $self = shift;
+    my ($self) = @ARG;
     croak "Not implemented";
 }
 
 sub yaml {
-    #XXX- implement yaml
-    my $self = shift;
+    my ($self) = @ARG;
     croak "Not implemented";
 }
 
