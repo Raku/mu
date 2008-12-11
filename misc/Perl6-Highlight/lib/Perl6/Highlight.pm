@@ -31,6 +31,7 @@ our $src_text;
 our $parser;
 our @loc = ();
 
+#XXX- document
 sub new($%) {
     my ($class, %options) = @ARG;
     $options{rule} = $options{rule} // 'comp_unit';
@@ -41,6 +42,8 @@ sub new($%) {
         croak "'text' option not found in $class->new";
     }
     my $self = bless(\%options, $class);
+
+    #XXX- this should be done on-demand (as lazily as possible)
  
     #XXX- do we need to convert to utf8 or make it a disabled option? 
     # slurp the file for parsing and redspans
