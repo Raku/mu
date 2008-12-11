@@ -1,4 +1,4 @@
-package Perl6::Highlight;
+package Syntax::Highlight::Perl6;
 
 # core modules & directives
 use 5.010000;
@@ -434,13 +434,13 @@ __END__
 
 =head1 NAME
 
-Perl6::Highlight - Perl 6 source code highlighter
+Syntax::Highlight::Perl6 - Perl 6 source code highlighter
 
 =head1 SYNOPSIS
 
-  use Perl6::Highlight;
+  use Syntax::Highlight::Perl6;
   
-  my $crayon = Perl6::Highlight->new(
+  my $crayon = Syntax::Highlight::Perl6->new(
     $file => \*STDIN
   );
   print $crayon->snippet_html;

@@ -6,9 +6,9 @@ use feature qw(say);
 
 use lib 'lib';
 use STD;
-use Perl6::Highlight;
+use Syntax::Highlight::Perl6;
 
-my $foo = Perl6::Highlight->new(text => 'my $foo;');
+my $foo = Syntax::Highlight::Perl6->new(text => 'my $foo;');
 say $foo->snippet_html;
 say $foo->simple_html;
 say $foo->full_html;

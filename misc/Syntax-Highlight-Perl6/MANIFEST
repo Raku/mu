@@ -2,8 +2,8 @@ Changes
 Makefile.PL
 MANIFEST
 README
-t/Perl6-Highlight.t
-lib/Perl6/Highlight.pm
+t/00-syntax.t
+lib/Syntax/Highlight/Perl6.pm
 lib/Cursor.pmc
 lib/STD.pmc
 lib/mangle.pl

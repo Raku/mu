@@ -3,8 +3,8 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    NAME              => 'Perl6::Highlight',
-    VERSION_FROM      => 'lib/Perl6/Highlight.pm', # finds $VERSION
+    NAME              => 'Syntax::Highlight::Perl6',
+    VERSION_FROM      => 'lib/Syntax/Highlight/Perl6.pm', # finds $VERSION
     PREREQ_PM         => {
         File::Slurp,
         Moose,        
@@ -13,6 +13,6 @@ WriteMakefile(
         YAML::Dumper
     },
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/Perl6/Highlight.pm', # retrieve abstract from module
+      (ABSTRACT_FROM  => 'lib/Syntax/Highlight/Perl6.pm', # retrieve abstract from module
        AUTHOR         => 'Ahmad Zawawi <ahmad.zawawi@gmail.com>') : ()),
 );

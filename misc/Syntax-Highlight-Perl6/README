@@ -1,8 +1,8 @@
-Perl6-Highlight version 0.01
-============================
+Syntax-Highlight-Perl6 version 0.01
+===================================
 
 Highlights Perl 6 code. For more information, please refer to 
-Perl6::Highlight.
+Syntax::Highlight::Perl6.
 
 INSTALLATION
 
