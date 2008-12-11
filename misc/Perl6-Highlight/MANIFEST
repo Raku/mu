@@ -4,7 +4,7 @@ MANIFEST
 README
 t/Perl6-Highlight.t
 lib/Perl6/Highlight.pm
-lib/Perl6/Cursor.pmc
-lib/Perl6/STD.pmc
-lib/Perl6/mangle.pl
-lib/Perl6/LazyMap.pm
+lib/Cursor.pmc
+lib/STD.pmc
+lib/mangle.pl
+lib/LazyMap.pm
