@@ -31,6 +31,11 @@ S03
 * The section "Reduction Operators" mentions the syntax 'proto [foo] ...' for
   defining both reduction and infix operators. Needs tests.
 
+S04
+* test warnings
+* more tests for excepts and CATCH blocks
+* tests for control exception handlers
+
 S05
 * mm//, ss/// variants
 * switch some "ok" tests to "is" tests to check the exact match
