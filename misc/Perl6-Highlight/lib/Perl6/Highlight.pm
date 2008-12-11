@@ -92,7 +92,7 @@ sub snippet_html($) {
     $str;
 }
 
-=item highlight_perl6_simple
+=item simple_html
 
 This is same as C<highlight_perl6_full> when --simple-html is used.
 No more javascript tree viewer or anything fancy. 
@@ -158,26 +158,13 @@ HTML
    $str;
 }
 
-sub full_html {
-    my ($self) = @ARG;
-    croak "Not implemented";
-}
-
-sub ansi {
-    my ($self) = @ARG;
-    croak "Not implemented";
-}
-
-sub yaml {
-    my ($self) = @ARG;
-    croak "Not implemented";
-}
-
-=item highlight_perl6_full
+=item full_html
 
 Generates the Perl6 highlighted HTML string for STD parse tree provided. 
 The resources can be inlined (by default) or externalized (--clean-html). 
-sub highlight_perl6_full {
+=cut
+sub full_html {
+    my ($self) = @ARG;
     my $str = "";
 
     # slurp libraries and javascript to inline them
@@ -199,7 +186,7 @@ sub highlight_perl6_full {
     my $jquery_js = qq{<script type="text/javascript" src="../$JQUERY_JS"></script>};
     my $js = qq{<script type="text/javascript" src="../$JS"></script>};
     my $css = qq{<link href="../$CSS" rel="stylesheet" type="text/css">};
-    if(!$clean_html) {
+    if(!$self->{clean_html}) {
         $jquery_js = read_file($JQUERY_JS) 
             or die "Error while slurping file: $OS_ERROR\n";    
         $js = read_file($JS) 
@@ -211,6 +198,7 @@ sub highlight_perl6_full {
         $css = qq{<style type="text/css">\n$css\n</style>};
     }
 
+    my $file = $self->{file};
     my $timestamp = localtime;
     $str .= <<"HTML";
 <html>
@@ -244,7 +232,7 @@ HTML
         }
     };
 
-    redspans_traverse(\&spit_full_html,%colors); 
+    $self->redspans_traverse(\&spit_full_html,%colors); 
 
     $str .= <<"HTML";
     </pre>
@@ -253,6 +241,17 @@ HTML
 HTML
 
     $str;
+}
+
+
+sub ansi {
+    my ($self) = @ARG;
+    croak "Not implemented";
+}
+
+sub yaml {
+    my ($self) = @ARG;
+    croak "Not implemented";
 }
 
 
