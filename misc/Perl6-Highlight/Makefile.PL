@@ -5,8 +5,14 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'Perl6::Highlight',
     VERSION_FROM      => 'lib/Perl6/Highlight.pm', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    PREREQ_PM         => {
+        File::Slurp,
+        Moose,        
+        Term::ANSIColor,
+        YAML::Syck,
+        YAML::Dumper
+    },
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Perl6/Highlight.pm', # retrieve abstract from module
-       AUTHOR         => 'Ahmad Zawawi <azawawi@>') : ()),
+       AUTHOR         => 'Ahmad Zawawi <ahmad.zawawi@gmail.com>') : ()),
 );
