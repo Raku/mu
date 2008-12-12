@@ -96,7 +96,7 @@ sub snippet_html($) {
     
     my $CSS = File::Spec->join($SHARED,"p6_style.css");
     open CSS_FILE, $CSS
-        or die "Could not open $CSS: $OS_ERROR\n";
+        or croak "Could not open $CSS: $OS_ERROR\n";
     my $line;
     while($line = <CSS_FILE>) {
         if($line =~ /^\s*\.(\w+)\s*{\s*(.+?)\s*}/) {
@@ -136,7 +136,7 @@ sub simple_html($) {
 
     my $CSS = File::Spec->join($SHARED,"p6_style.css");
     open CSS_FILE, $CSS
-        or die "Could not open $CSS: $OS_ERROR\n";
+        or croak "Could not open $CSS: $OS_ERROR\n";
     my $line;
     while($line = <CSS_FILE>) {
         if($line =~ /^\s*\.(\w+)\s*{\s*color\s*:\s*(\w+)/) {
@@ -149,7 +149,7 @@ sub simple_html($) {
     my $css = qq{<link href="$CSS" rel="stylesheet" type="text/css">};
     if(!$self->{clean_html}) {
         $css = _slurp($CSS)
-            or die "Error while slurping file: $OS_ERROR\n";
+            or croak "Error while slurping file: $OS_ERROR\n";
         $css = qq{<style type="text/css">\n$css\n</style>};
     }
 
@@ -207,7 +207,7 @@ sub full_html($) {
     my %colors = ();
     my $line;
     open CSS_FILE, $CSS
-        or die "Could not open $CSS: $OS_ERROR\n";
+        or croak "Could not open $CSS: $OS_ERROR\n";
     while($line = <CSS_FILE>) {
         if($line =~ /^\s*\.(\w+)\s*{\s*color\s*:\s*(\w+)/) {
             $colors{$1} = $2;
@@ -220,11 +220,11 @@ sub full_html($) {
     my $css = qq{<link href="$CSS" rel="stylesheet" type="text/css">};
     if(!$self->{clean_html}) {
         $jquery_js = _slurp($JQUERY_JS) 
-            or die "Error while slurping file: $OS_ERROR\n";    
+            or croak "Error while slurping file: $OS_ERROR\n";    
         $js = _slurp($JS) 
-            or die "Error while slurping file: $OS_ERROR\n";
+            or croak "Error while slurping file: $OS_ERROR\n";
         $css = _slurp($CSS)
-            or die "Error while slurping file: $OS_ERROR\n";
+            or croak "Error while slurping file: $OS_ERROR\n";
         $jquery_js = qq{<script type="text/javascript">\n$jquery_js\n</script>};
         $js = qq{<script type="text/javascript">\n$js\n</script>};
         $css = qq{<style type="text/css">\n$css\n</style>};
@@ -287,7 +287,7 @@ sub ansi_text($) {
 
     my $ANSI = File::Spec->join($SHARED,"p6_style.ansi");
     open ANSI_FILE, $ANSI
-        or die "Could not open $ANSI: $OS_ERROR\n";
+        or croak "Could not open $ANSI: $OS_ERROR\n";
     my $line;
     while($line = <ANSI_FILE>) {
         if($line =~ /^(\w+)=(.+)$/) {
@@ -325,7 +325,7 @@ sub parse_trees($) {
 
     my $ANSI = File::Spec->join($SHARED,"p6_style.ansi");
     open ANSI_FILE, $ANSI
-        or die "Could not open $ANSI: $OS_ERROR\n";
+        or croak "Could not open $ANSI: $OS_ERROR\n";
     my $line;
     while($line = <ANSI_FILE>) {
         if($line =~ /^(\w+)=(.+)$/) {
