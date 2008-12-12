@@ -317,7 +317,7 @@ sub VAST::sublongname::canonical {
 sub varname {
     my $m = shift;
     if ($m->{desigilname}) {
-        $m->{sigil}{TEXT}.$m->{desigilname}{longname}->canonical;
+        $m->{sigil}{TEXT} . ($m->{twigil}[0]{TEXT} || '') . $m->{desigilname}{longname}->canonical;
     } elsif ($m->{sublongname}) {
         $m->{sigil}{TEXT}.$m->{sublongname}{subshortname}{desigilname}{longname}->canonical;
     } else {
