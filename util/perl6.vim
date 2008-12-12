@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Dec 7th 2008
+" Last Change:  Dec 12th 2008
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -113,26 +113,23 @@ syn match p6Routine        display "\k\@<!\%(minmax\|lazy\|count\|nok_error\|unw
 syn match p6Routine        display "\k\@<!\%(acos\|e\|context\|void\|quasi\|body\|each\|contains\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(x\|xx\|div\|mod\|also\|leg\|cmp\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(eq\|ne\|lt\|le\|gt\|ge\|eqv\|ff\|fff\|true\|not\)\k\@!"
-syn match p6Operator       display "\k\@<!\%(Z\|X\|XeqvX\|and\|andthen\|or\|xor\|orelse\|extra\)\k\@!"
+syn match p6Operator       display "\k\@<!\%(Z\|X\|and\|andthen\|or\|xor\|orelse\|extra\)\k\@!"
 
 " more operators
 syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]\+"
-" "::" is not an operator unless followed by "="
-syn match p6Operator display ":\@<!::\@!"
-syn match p6Operator display "::="
+syn match p6Operator display "\%(:\@<!::\@!\|::=\|\.::\)"
 " these require whitespace on the left side
 syn match p6Operator display "\%(\k\|[[:graph:]]\)\@<!\%(xx=\|p5=>\)"
-" these require whitespace on both sides
-syn match p6Operator display "\%(\k\|[[:graph:]]\)\@<!\%(!eqv\|X\~X\|X\*X\)\@=\%(\s\|$\)"
-" no alphabetic keyword char to the left, no keyword char to the right
-syn match p6Operator display "\%(\k\d\@<!\)\@<!i\k\@!"
+" "i" requires a digit to the left, and a no keyword char to the right
+syn match p6Operator display "\d\@<=i\k\@!"
 " reduce
 syn match p6Operator display "\[\%(\*-\|\d\|[[:digit:];]\+]\|[^\]]*\%([@$%&]\+[^\]]\|[^\]]\+([^\]]*)\)\)\@![^\][:space:]]\+]"
 " hyperoperators
-syn match p6Operator display "\%(>>\|»\)[^[:alnum:][:blank:]]\+"
-syn match p6Operator display "[^[:digit:][:blank:];{(\[]\+\%(«\|<<\)"
-syn match p6Operator display "»[^[:digit:][:blank:];{(\[]\+«"
-syn match p6Operator display ">>[^[:digit:][:blank:];{(\[]\+<<"
+syn match p6Operator display "X[^X[:space:]]\+X"
+syn match p6Operator display "\%(>>\|»\)[^«»<>[:space:]]\+"
+syn match p6Operator display "[^«»<>[:space:]]\+\%(«\|<<\)"
+syn match p6Operator display "»[^«»<>[:space:]]\+«"
+syn match p6Operator display ">>[^«»<>[:space:]]\+<<"
 
 syn match p6Shebang     display "\%^#!.*"
 syn match p6BlockLabel  display "\%(\k\|[[:graph:]]\)\@<!\h\w*\s*::\@!\%(\s\|$\)\@="
