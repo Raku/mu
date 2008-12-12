@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Perl6-Highlight
-version:             0.02
+version:             0.021
 abstract:            Perl6 Syntax Highlighter
 license:             artistic_2
 author:              

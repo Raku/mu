@@ -10,6 +10,7 @@ WriteMakefile(
         Term::ANSIColor,
         YAML::Syck
     },
+    NO_META           => 1,
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Syntax/Highlight/Perl6.pm', # retrieve abstract from module
        AUTHOR         => 'Ahmad M. Zawawi <ahmad.zawawi@gmail.com>') : ()),

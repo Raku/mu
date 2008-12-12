@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.021 Wed Dec 12 2008
+    - META.yml is now copied correctly in 'make dist'
+
 0.02 Wed Dec 12 2008
     - Refactored ugly File::Spec->joins and inlining of js/css code.
     - 'clean_html' option is now 'inline_resources'
