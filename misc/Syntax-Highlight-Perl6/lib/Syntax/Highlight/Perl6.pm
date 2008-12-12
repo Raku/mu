@@ -24,6 +24,12 @@ our @EXPORT_OK = qw();
 our @EXPORT = qw();
 our $VERSION = '0.02';
 
+# filename constants
+use constant FILE_CSS    => "p6_style.css";
+use constant FILE_ANSI   => "p6_style.ansi";
+use constant FILE_JS     => "p6_style.js";
+use constant FILE_JQUERY => "jquery-1.2.6.pack.js";
+ 
 # These are needed for redspans
 $::ACTIONS = 'Actions';
 
@@ -81,7 +87,7 @@ sub _lazy_parse($) {
         $parsed_lazily = 1;
     }
 }
- 
+
 
 #---------------------------------------------------------------------
 # Returns snippet htmls which can embedded without any side effects
@@ -90,21 +96,12 @@ sub _lazy_parse($) {
 sub snippet_html($) {
     my $self = shift;
     my $str = "";
-    my %colors = ();
 
     $self->_lazy_parse();
     
-    my $CSS = File::Spec->join($SHARED,"p6_style.css");
-    open CSS_FILE, $CSS
-        or croak "Could not open $CSS: $OS_ERROR\n";
-    my $line;
-    while($line = <CSS_FILE>) {
-        if($line =~ /^\s*\.(\w+)\s*{\s*(.+?)\s*}/) {
-            $colors{$1} = $2;
-        }
-    }
-    close CSS_FILE;
-
+    my $CSS = File::Spec->join($SHARED,FILE_CSS);
+    my %colors = _read_css_file($CSS);
+    
     $str .= "<pre>";
 
     local *spit_snippet_html = sub {
@@ -130,21 +127,12 @@ sub snippet_html($) {
 sub simple_html($) {
     my $self = shift;
     my $str = "";
-    my %colors = ();
 
     $self->_lazy_parse();
 
-    my $CSS = File::Spec->join($SHARED,"p6_style.css");
-    open CSS_FILE, $CSS
-        or croak "Could not open $CSS: $OS_ERROR\n";
-    my $line;
-    while($line = <CSS_FILE>) {
-        if($line =~ /^\s*\.(\w+)\s*{\s*color\s*:\s*(\w+)/) {
-            $colors{$1} = $2;
-        }
-    }
-    close CSS_FILE;
-
+    my $CSS = File::Spec->join($SHARED,FILE_CSS);
+    my %colors = _read_css_file($CSS);
+ 
     # slurp css inline it
     my $css = qq{<link href="$CSS" rel="stylesheet" type="text/css">};
     if(!$self->{clean_html}) {
@@ -201,20 +189,11 @@ sub full_html($) {
 
     # slurp libraries and javascript to inline them
     my ($JQUERY_JS,$JS,$CSS) = (
-        File::Spec->join($SHARED,'jquery-1.2.6.pack.js'), 
-        File::Spec->join($SHARED,'p6_style.js'),
-        File::Spec->join($SHARED,'p6_style.css'));
-    my %colors = ();
-    my $line;
-    open CSS_FILE, $CSS
-        or croak "Could not open $CSS: $OS_ERROR\n";
-    while($line = <CSS_FILE>) {
-        if($line =~ /^\s*\.(\w+)\s*{\s*color\s*:\s*(\w+)/) {
-            $colors{$1} = $2;
-        }
-    }
-    close CSS_FILE;
-
+        File::Spec->join($SHARED,FILE_JQUERY), 
+        File::Spec->join($SHARED,FILE_JS),
+        File::Spec->join($SHARED,FILE_CSS));
+    my %colors = _read_css_file($CSS);
+   
     my $jquery_js = qq{<script type="text/javascript" src="$JQUERY_JS"></script>};
     my $js = qq{<script type="text/javascript" src="$JS"></script>};
     my $css = qq{<link href="$CSS" rel="stylesheet" type="text/css">};
@@ -281,20 +260,10 @@ HTML
 sub ansi_text($) {
     my $self = shift;
     my $str = "";
-    my %colors = ();
 
     $self->_lazy_parse();
 
-    my $ANSI = File::Spec->join($SHARED,"p6_style.ansi");
-    open ANSI_FILE, $ANSI
-        or croak "Could not open $ANSI: $OS_ERROR\n";
-    my $line;
-    while($line = <ANSI_FILE>) {
-        if($line =~ /^(\w+)=(.+)$/) {
-            $colors{$1} = $2;
-        }
-    }
-    close ANSI_FILE;
+    my %colors = _read_ansi_file();
 
     local *spit_ansi_text = sub {
         my ($i, $buffer, $rule, $tree) = @ARG;
@@ -318,12 +287,48 @@ sub ansi_text($) {
 #---------------------------------------------------------------
 sub parse_trees($) {
     my $self = shift;
-    my $str = "";
-    my %colors = ();
 
     $self->_lazy_parse();
 
-    my $ANSI = File::Spec->join($SHARED,"p6_style.ansi");
+    my %colors = _read_ansi_file();
+    my @parse_trees = (); 
+    local *spit_parse_tree = sub {
+        push @parse_trees, @ARG;
+    };
+
+    _redspans_traverse(\&spit_parse_tree,%colors); 
+
+    @parse_trees;
+}
+
+#--------------------------------------------------------------------
+# Reads the css file and return a hash of colors 
+#-------------------------------------------------------------------- 
+sub _read_css_file($) {
+
+    my $filename = shift;
+    my %colors = ();
+
+    open CSS_FILE, $filename
+        or croak "Could not open $filename: $OS_ERROR\n";
+    my $line;
+    while($line = <CSS_FILE>) {
+        if($line =~ /^\s*\.(\w+)\s*{\s*(.+?)\s*}/) {
+            $colors{$1} = $2;
+        }
+    }
+    close CSS_FILE;
+
+    %colors;
+}
+
+#--------------------------------------------------------------
+# Reads an ANSI rule-name=color property file and stores
+# the color values in a hash of rule-name,color
+#--------------------------------------------------------------
+sub _read_ansi_file {
+    my %colors = ();
+    my $ANSI = File::Spec->join($SHARED,FILE_ANSI);
     open ANSI_FILE, $ANSI
         or croak "Could not open $ANSI: $OS_ERROR\n";
     my $line;
@@ -334,15 +339,9 @@ sub parse_trees($) {
     }
     close ANSI_FILE;
 
-    my @parse_trees = ();
-    local *spit_parse_tree = sub {
-        push @parse_trees, @ARG;
-    };
-
-    _redspans_traverse(\&spit_parse_tree,%colors); 
-
-    @parse_trees;
+    %colors;
 }
+
 
 #---------------------------------------------------------------
 #    Helper private method that traverses STD.pm's parse 
