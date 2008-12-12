@@ -1,0 +1,36 @@
+=head1 NAME
+
+Base - SMOP basic structures
+
+=head1 REVISION
+
+$id$
+
+=head1 SMOP__Object
+
+In SMOP, every single value, including the interpreter and the native
+types, for instance, must be binary-compatible with the SMOP__Object
+struct. This idea came directly from how perl5 works, with the SV
+struct.
+
+But unlike p5, the SMOP__Object struct is absolutely minimalist, it
+defines no flags, no introspection information, it defines only that
+every SMOP__Object has a Responder Interface, which in terms of the
+data structure, means:
+
+  struct SMOP__Object {
+    SMOP__ResponderInterface* RI;
+    void* data;
+  }
+
+This means that you can't really do anything to the object itself, you
+can only talk to its responder interface.
+
+=head1 SMOP__ResponderInterface
+
+The Responder Interface, which is also binary-compatible with
+SMOP__Object implements the lowlevel part of the meta object protocol,
+it's through the Resopnder Interface that you can perform any action
+on the object.
+
+=cut
