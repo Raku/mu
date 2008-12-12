@@ -1,7 +1,16 @@
 Revision history for Syntax::Highlight::Perl6.
 
 0.02 Wed Dec 12 2008
-    - more stable features
+    - Refactored ugly File::Spec->joins and inlining of js/css code.
+    - 'clean_html' option is now 'inline_resources'
+    - Added option 'resource_url' to prefix resources when externalized
+    - 'file' option is now called 'page_title'
+    - Refactored strings into 'use constant'-s
+    - Refactored reading css and ansi files code
+    - No more die-ing just croak-ing ;-)
+    - Removed dependency on YAML::Dumper added by mistake
+    - LazyMap.pm -> LazyMap.pmc and updated MANIFEST
+    - Updated POD documentation
 
 0.01_01  Wed Dec 12 2008
     - Bumped version to 0.01_01 (Developer release)
@@ -13,6 +22,3 @@ Revision history for Syntax::Highlight::Perl6.
 
 0.01  Wed Dec 11 2008
 	- Initial release (really alpha)
-
-
-
