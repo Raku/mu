@@ -119,7 +119,7 @@ syn match p6Operator       display "\k\@<!\%(Z\|X\|and\|andthen\|or\|xor\|orelse
 syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]\+"
 syn match p6Operator display "\%(:\@<!::\@!\|::=\|\.::\)"
 " these require whitespace on the left side
-syn match p6Operator display "\%(\k\|[[:graph:]]\)\@<!\%(xx=\|p5=>\)"
+syn match p6Operator display "\%(\s\|^\)\@<=\%(xx=\|p5=>\)"
 " "i" requires a digit to the left, and a no keyword char to the right
 syn match p6Operator display "\d\@<=i\k\@!"
 " reduce
@@ -132,7 +132,7 @@ syn match p6Operator display "»[^«»<>[:space:]]\+«"
 syn match p6Operator display ">>[^«»<>[:space:]]\+<<"
 
 syn match p6Shebang     display "\%^#!.*"
-syn match p6BlockLabel  display "\%(\k\|[[:graph:]]\)\@<!\h\w*\s*::\@!\%(\s\|$\)\@="
+syn match p6BlockLabel  display "\%(\s\|^\)\@<=\h\w*\s*::\@!\%(\s\|$\)\@="
 syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\%($\|\s\)\@="
 syn match p6Number      display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
 syn match p6Float       display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
@@ -170,7 +170,7 @@ syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(s
 
 " Contextualizers
 
-syn match p6Context display "\%(\$\|@\|%\|@@\)\%(\k\|[[:graph:]]\)\@!"
+syn match p6Context display "\%(\$\|@\|%\|@@\)\%(\s\|$\)\@="
 syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 
 syn region p6SigilContext
