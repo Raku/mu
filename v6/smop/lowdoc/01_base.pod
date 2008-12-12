@@ -30,7 +30,7 @@ can only talk to its responder interface.
 
 The Responder Interface, which is also binary-compatible with
 SMOP__Object implements the lowlevel part of the meta object protocol,
-it's through the Resopnder Interface that you can perform any action
+it's through the Responder Interface that you can perform any action
 on the object.
 
 =cut
