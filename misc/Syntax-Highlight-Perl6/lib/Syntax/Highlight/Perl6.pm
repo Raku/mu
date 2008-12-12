@@ -100,8 +100,7 @@ sub snippet_html($) {
 
     $self->_lazy_parse();
     
-    my $CSS = File::Spec->join($SHARED,FILE_CSS);
-    my %colors = _read_css_file($CSS);
+    my %colors = _read_css_file();
     
     $str .= "<pre>";
 
@@ -131,18 +130,20 @@ sub simple_html($) {
 
     $self->_lazy_parse();
 
-    my $CSS = File::Spec->join($SHARED,FILE_CSS);
-    my %colors = _read_css_file($CSS);
+    my %colors = _read_css_file();
  
     # slurp css inline it
-    my $resource_url = $self->{resource_url};
-    my $css = qq{<link href="$resource_url$CSS" rel="stylesheet" type="text/css">};
+    my $css; 
     if($self->{inline_resources}) {
-        $css = _slurp($CSS)
+        $css = _slurp(_shared(FILE_CSS))
             or croak "Error while slurping file: $OS_ERROR\n";
         $css = qq{<style type="text/css">\n$css\n</style>};
+    } else {
+        my $prefix = $self->{resource_url};
+        $css = qq{<link href="$prefix} . 
+            FILE_CSS . 
+            qq{" rel="stylesheet" type="text/css">};
     }
-
     my $page_title = $self->{page_title};
     my $timestamp = localtime;
     $str .= <<"HTML";
@@ -190,26 +191,31 @@ sub full_html($) {
     $self->_lazy_parse();
 
     # slurp libraries and javascript to inline them
-    my ($JQUERY_JS,$JS,$CSS) = (
-        File::Spec->join($SHARED,FILE_JQUERY), 
-        File::Spec->join($SHARED,FILE_JS),
-        File::Spec->join($SHARED,FILE_CSS));
-    my %colors = _read_css_file($CSS);
-    my $resource_url = $self->{resource_url};  
-    my $jquery_js = 
-        qq{<script type="text/javascript" src="$resource_url$JQUERY_JS"></script>};
-    my $js = qq{<script type="text/javascript" src="$resource_url$JS"></script>};
-    my $css = qq{<link href="$resource_url$CSS" rel="stylesheet" type="text/css">};
+    my %colors = _read_css_file();
+    my ($jquery_js,$js,$css);
     if($self->{inline_resources}) {
-        $jquery_js = _slurp($JQUERY_JS) 
+        my $contents;
+        $contents = _slurp(_shared(FILE_JQUERY)) 
             or croak "Error while slurping file: $OS_ERROR\n";    
-        $js = _slurp($JS) 
+        $jquery_js = qq{<script type="text/javascript">\n$contents\n</script>};
+        $contents = _slurp(_shared(FILE_JS)) 
             or croak "Error while slurping file: $OS_ERROR\n";
-        $css = _slurp($CSS)
+        $js = qq{<script type="text/javascript">\n$contents\n</script>};
+        $contents = _slurp(_shared(FILE_CSS))
             or croak "Error while slurping file: $OS_ERROR\n";
-        $jquery_js = qq{<script type="text/javascript">\n$jquery_js\n</script>};
-        $js = qq{<script type="text/javascript">\n$js\n</script>};
-        $css = qq{<style type="text/css">\n$css\n</style>};
+        $css = qq{<style type="text/css">\n$contents\n</style>};
+    } else {
+        my $prefix = $self->{resource_url};  
+        $jquery_js = 
+            qq{<script type="text/javascript" src="$prefix} . 
+            FILE_JQUERY . 
+            qq{"></script>};
+        $js = qq{<script type="text/javascript" src="$prefix} .
+            FILE_JS . 
+            qq{"></script>};
+        $css = qq{<link href="$prefix} .
+            FILE_CSS . 
+            qq{" rel="stylesheet" type="text/css">};
     }
 
     my $page_title = $self->{page_title};
@@ -307,20 +313,19 @@ sub parse_trees($) {
 #--------------------------------------------------------------------
 # Reads the css file and return a hash of colors 
 #-------------------------------------------------------------------- 
-sub _read_css_file($) {
+sub _read_css_file() {
 
-    my $filename = shift;
     my %colors = ();
-
-    open CSS_FILE, $filename
+    my $filename = _shared(FILE_CSS);
+    open FILE, $filename
         or croak "Could not open $filename: $OS_ERROR\n";
     my $line;
-    while($line = <CSS_FILE>) {
+    while($line = <FILE>) {
         if($line =~ /^\s*\.(\w+)\s*{\s*(.+?)\s*}/) {
             $colors{$1} = $2;
         }
     }
-    close CSS_FILE;
+    close FILE;
 
     %colors;
 }
@@ -331,16 +336,16 @@ sub _read_css_file($) {
 #--------------------------------------------------------------
 sub _read_ansi_file {
     my %colors = ();
-    my $ANSI = File::Spec->join($SHARED,FILE_ANSI);
-    open ANSI_FILE, $ANSI
-        or croak "Could not open $ANSI: $OS_ERROR\n";
+    my $filename = _shared(FILE_ANSI);
+    open FILE, $filename
+        or croak "Could not open $filename: $OS_ERROR\n";
     my $line;
-    while($line = <ANSI_FILE>) {
+    while($line = <FILE>) {
         if($line =~ /^(\w+)=(.+)$/) {
             $colors{$1} = $2;
         }
     }
-    close ANSI_FILE;
+    close FILE;
 
     %colors;
 }
@@ -453,6 +458,14 @@ sub _escape_html($) {
     my $re = join '|', map quotemeta, keys %esc;
     $str =~ s/($re)/$esc{$1}/g;
     return $str;
+}
+
+#-----------------------------------------------------
+# convert to shared package real resource path
+#-----------------------------------------------------
+sub _shared($) {
+    my $path = shift;
+    return File::Spec->join($SHARED, $path);
 }
 
 #-----------------------------------------------------
