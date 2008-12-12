@@ -8,3 +8,7 @@ lib/Cursor.pmc
 lib/STD.pmc
 lib/mangle.pl
 lib/LazyMap.pm
+lib/rsc/p6_style.js
+lib/rsc/p6_style.css
+lib/rsc/p6_style.ansi
+lib/rsc/jquery-1.2.6.pack.js

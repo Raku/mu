@@ -23,7 +23,7 @@ use STD;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw();
 our @EXPORT = qw();
-our $VERSION = '0.02';
+our $VERSION = '0.01_01';
 
 # These are needed for redspans
 $::ACTIONS = 'Actions';
@@ -466,26 +466,48 @@ Syntax::Highlight::Perl6 - Perl 6 source code highlighter
 
 =head1 SYNOPSIS
 
-    use STD;  # NOTE: This is needed and will be removed in future releases
+    ### NOTE: This is needed and will be removed in future releases
+    use STD;
     use Syntax::Highlight::Perl6;
 
+    # Creates the Perl6 syntax highlighter object
     my $p = Syntax::Highlight::Perl6->new(
         text => 'my $foo;'
     );
-    
+
+    # Prints html that can be embedded in your pages
     print $p->snippet_html;
-    
+
+    # Prints html with css (useful for full pages)
     print $p->simple_html;
-    
+
+    # Prints html that has a JavaScript parse tree viewer
     print $p->full_html;
 
+    # Prints ANSI escaped color sequences (useful for console and IRC output)
     print $p->ansi_text;
-    
+
+    # Prints the Perl 5 array of parse trees (useful for building stuff on top of it) 
     print $p->parse_trees;
 
 =head1 DESCRIPTION
 
-Highlights Perl 6 source code using STD.pm into html, ansi-escaped text and YAML.
+Highlights Perl 6 source code. The code is parsed using Larry Wall's STD.pm. 
+
+The available output formats are:
+
+=over
+
+=item *
+    HTML (snippet,simple and full)
+
+=item *
+    ANSI escaped color sequences
+
+=item *
+    Perl 5 array of parse trees
+
+=back
 
 =head1 METHODS
 
@@ -536,11 +558,13 @@ See http://www.nntp.perl.org/group/perl.perl6.users/2008/07/msg788.html
 
 The initial STD tree traversal code was written by Paweł Murias (pmurias).
 
+A gimme5-generated Perl5 STD.pmc is included to parse Perl 6 code.
+
 The redspans traversal code was written by Larry Wall (TimToady).
 redspans stands for C<red> for reductions, and C<spans> from the 
 from/to span calculations"
 
-The browser code was written by Ahmad M. Zawawi (azawawi)
+The javascript jQuery code was written by Ahmad M. Zawawi (azawawi)
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -552,9 +576,7 @@ it under the same terms as the Artistic License 2.0
 This library also includes the following libraries:
 
 STD.pm by Larry Wall (Artistic License 2.0 - same license)
-a gimme5-generated Perl5 STD.pmc is included to parse Perl 6 code.
-
+ 
 JQuery 1.2.6 by John Resig (dual licensed under the MIT and GPL licenses).
-This is used in C<full_html> method and is added for your convenience.
 =cut
 
