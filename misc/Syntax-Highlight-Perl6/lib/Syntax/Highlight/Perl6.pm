@@ -13,7 +13,6 @@ use Cwd qw(realpath);
 require Exporter;
 
 # cpan modules
-use YAML::Dumper;
 use Term::ANSIColor;
 
 # Larry's STD.pm
