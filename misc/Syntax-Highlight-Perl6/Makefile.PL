@@ -9,8 +9,7 @@ WriteMakefile(
         File::Slurp,
         Moose,        
         Term::ANSIColor,
-        YAML::Syck,
-        YAML::Dumper
+        YAML::Syck
     },
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Syntax/Highlight/Perl6.pm', # retrieve abstract from module

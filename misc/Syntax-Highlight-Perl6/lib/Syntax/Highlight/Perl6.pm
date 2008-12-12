@@ -10,6 +10,7 @@ use Encode;
 require Exporter;
 
 # cpan modules
+# XXX-do we need File Slurp?? 
 use File::Slurp qw(read_file);
 use YAML::Dumper;
 use Term::ANSIColor;
@@ -17,12 +18,10 @@ use Term::ANSIColor;
 # Larry's STD.pm
 use STD;
 
+# exports and version
 our @ISA = qw(Exporter);
-
-# exports none
 our @EXPORT_OK = qw();
 our @EXPORT = qw();
-
 our $VERSION = '0.02';
 
 # These are needed for redspans
@@ -33,7 +32,7 @@ my ($src_text,$parser,@loc);
 
 #
 # Contructor
-#
+#XXX-plz document the %options
 sub new($%) {
     my ($class, %options) = @ARG;
     $options{rule} = $options{rule} // 'comp_unit';
@@ -158,6 +157,7 @@ HTML
    $str;
 }
 
+#XXX- document plz
 sub full_html($) {
     my $self = shift;
     my $str = "";
@@ -238,10 +238,8 @@ HTML
     $str;
 }
 
-=item ansi
-
-=cut
-sub ansi {
+#XXX-document plz
+sub ansi_text($) {
     my $self = shift;
     my $str = "";
     my %colors = ();
@@ -272,8 +270,8 @@ sub ansi {
     $str;
 }
 
-
-sub yaml {
+#XXX-document plz
+sub parse_trees($) {
     my $self = shift;
     my $str = "";
     my %colors = ();
@@ -289,25 +287,22 @@ sub yaml {
     }
     close ANSI_FILE;
 
-    my @yaml = ();
-    local *spit_yaml = sub {
-        push @yaml, @ARG;
+    my @parse_trees = ();
+    local *spit_parse_tree = sub {
+        push @parse_trees, @ARG;
     };
 
-    _redspans_traverse(\&spit_yaml,%colors); 
+    _redspans_traverse(\&spit_parse_tree,%colors); 
 
-    my $dumper = YAML::Dumper->new;
-    $dumper->indent_width(4);
-    $str .= $dumper->dump(@yaml);
-
-    $str;
+    @parse_trees;
 }
 
-=item redspans_traverse
-
-    Walk the path that no one wanted to travel ;)
-XXX- Please tell us what is doing exactly and privatize it.
-=cut
+#
+# redspans_traverse
+#
+#    Walk the path that no one wanted to travel ;)
+#XXX- Please tell us what is doing exactly and privatize it.
+#
 sub _redspans_traverse($%) {
     my ($process_buffer,%colors) = @ARG;
 
@@ -427,26 +422,56 @@ Syntax::Highlight::Perl6 - Perl 6 source code highlighter
     use STD;  # NOTE: This is needed and will be removed in future releases
     use Syntax::Highlight::Perl6;
 
-    my $foo = Syntax::Highlight::Perl6->new(text => 'my $foo;');
-    print $foo->snippet_html;
-    print $foo->simple_html;
-    print $foo->full_html;
-    print $foo->ansi;
-    print $foo->yaml;
+    my $p = Syntax::Highlight::Perl6->new(
+        text => 'my $foo;'
+    );
+    
+    print $p->snippet_html;
+    
+    print $p->simple_html;
+    
+    print $p->full_html;
+
+    print $p->ansi_text;
+    
+    print $p->parse_trees;
 
 =head1 DESCRIPTION
 
 Highlights Perl 6 source code using STD.pm into html, ansi-escaped text and YAML.
 
+=head1 METHODS
+
+=over
+
+=item new
+
+
+XXX-plz document
+
+=item snippet_html
+
+XXX-plz document
+
+=item simple_html
+
+XXX-plz document
+
 =item full_html
 
+XXX-plz document
 Generates the Perl6 highlighted HTML string for STD parse tree provided. 
 The resources can be inlined (by default) or externalized (--clean-html). 
-=back
 
-=item highlight_perl6_yaml
+=item ansi_text
 
+XXX-plz document
+
+=item parse_trees
+
+XXX-plz document
 Spits out YAML that can be useful for the future
+
 =back
 
 =head1 SEE ALSO
@@ -465,7 +490,7 @@ See http://www.nntp.perl.org/group/perl.perl6.users/2008/07/msg788.html
 The initial STD tree traversal code was written by Paweł Murias (pmurias).
 
 The redspans traversal code was written by Larry Wall (TimToady).
-redspans stands for "...'red' for "reductions", and 'spans' from the 
+redspans stands for C<red> for reductions, and C<spans> from the 
 from/to span calculations"
 
 The browser code was written by Ahmad M. Zawawi (azawawi)
