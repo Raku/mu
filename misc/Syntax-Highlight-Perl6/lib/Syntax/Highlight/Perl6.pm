@@ -30,6 +30,7 @@ $::ACTIONS = 'Actions';
 
 # my module variables
 my ($src_text,$parser,@loc);
+my $parsed_lazily = 0;
 
 #find out the real path of the rsc directory
 croak "Syntax::Highlight::Perl6 cannot see where it is installed"
@@ -44,23 +45,43 @@ sub new($%) {
     my ($class, %options) = @ARG;
     $options{rule} = $options{rule} // 'comp_unit';
     $options{clean_html} = $options{clean_html} // 1;
-    $options{file} = $options{file} // 'FILE-NAME';
-    #XXX- check when text is zero
-    if(!$options{text}) {
-        croak "'text' option not found in $class->new";
-    }
-    my $self = bless(\%options, $class);
+    $options{file} = $options{file} // qq{option 'file' is not set'};
+    $options{utf8_decode} = $options{utf8_decode} // 1;
 
-    #XXX- this should be done on-demand (as lazily as possible)
- 
-    #XXX- do we need to convert to utf8 or make it a disabled option? 
-    # slurp the file for parsing and redspans
-    $src_text = decode('utf8', $self->{text} );
-    $loc[length($src_text) - 1] = [];
-    $parser = STD->parse($src_text, $self->{rule});
-
-    return $self;
+    #is 'text' undefined?
+    croak "'text' option is not found in $class->new" 
+        if (!$options{text});
+    
+    return bless(\%options, $class);
 }
+
+#
+# Lazily parses the source string using STD.pm (only once)
+# (private)
+#
+sub _lazy_parse($) {
+    my $self = shift;
+    
+    if(!$parsed_lazily) {
+    
+        # utf8-decode if required
+        $src_text = $self->{utf8_decode} ? 
+            decode('utf8', $self->{text} ) : 
+            $self->{text};
+        
+        #grow the loc array while checking for empty strings 
+        my $len = length($src_text);
+        $src_text = " " if $len == 0;
+        $loc[$len - 1] = [];
+
+        #STD parse the text for the rule provided
+        $parser = STD->parse($src_text, $self->{rule});
+
+        #we parsed it lazily...
+        $parsed_lazily = 1;
+    }
+}
+ 
 
 #
 # Returns snippet htmls which can embedded without any side effects
@@ -71,6 +92,8 @@ sub snippet_html($) {
     my $str = "";
     my %colors = ();
 
+    $self->_lazy_parse();
+    
     my $CSS = File::Spec->join($SHARED,"p6_style.css");
     open CSS_FILE, $CSS
         or die "Could not open $CSS: $OS_ERROR\n";
@@ -109,6 +132,8 @@ sub simple_html($) {
     my $str = "";
     my %colors = ();
 
+    $self->_lazy_parse();
+
     my $CSS = File::Spec->join($SHARED,"p6_style.css");
     open CSS_FILE, $CSS
         or die "Could not open $CSS: $OS_ERROR\n";
@@ -121,7 +146,7 @@ sub simple_html($) {
     close CSS_FILE;
 
     # slurp css inline it
-    my $css = qq{<link href="../$CSS" rel="stylesheet" type="text/css">};
+    my $css = qq{<link href="$CSS" rel="stylesheet" type="text/css">};
     if(!$self->{clean_html}) {
         $css = _slurp($CSS)
             or die "Error while slurping file: $OS_ERROR\n";
@@ -169,6 +194,8 @@ sub full_html($) {
     my $self = shift;
     my $str = "";
 
+    $self->_lazy_parse();
+
     # slurp libraries and javascript to inline them
     my ($JQUERY_JS,$JS,$CSS) = (
         File::Spec->join($SHARED,'jquery-1.2.6.pack.js'), 
@@ -185,9 +212,9 @@ sub full_html($) {
     }
     close CSS_FILE;
 
-    my $jquery_js = qq{<script type="text/javascript" src="../$JQUERY_JS"></script>};
-    my $js = qq{<script type="text/javascript" src="../$JS"></script>};
-    my $css = qq{<link href="../$CSS" rel="stylesheet" type="text/css">};
+    my $jquery_js = qq{<script type="text/javascript" src="$JQUERY_JS"></script>};
+    my $js = qq{<script type="text/javascript" src="$JS"></script>};
+    my $css = qq{<link href="$CSS" rel="stylesheet" type="text/css">};
     if(!$self->{clean_html}) {
         $jquery_js = _slurp($JQUERY_JS) 
             or die "Error while slurping file: $OS_ERROR\n";    
@@ -251,6 +278,8 @@ sub ansi_text($) {
     my $str = "";
     my %colors = ();
 
+    $self->_lazy_parse();
+
     my $ANSI = File::Spec->join($SHARED,"p6_style.ansi");
     open ANSI_FILE, $ANSI
         or die "Could not open $ANSI: $OS_ERROR\n";
@@ -282,6 +311,8 @@ sub parse_trees($) {
     my $self = shift;
     my $str = "";
     my %colors = ();
+
+    $self->_lazy_parse();
 
     my $ANSI = File::Spec->join($SHARED,"p6_style.ansi");
     open ANSI_FILE, $ANSI
