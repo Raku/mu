@@ -1,4 +1,4 @@
-Syntax-Highlight-Perl6 version 0.01
+Syntax-Highlight-Perl6 version 0.02
 ===================================
 
 Highlights Perl 6 code. For more information, please refer to 
@@ -12,21 +12,3 @@ To install this module type the following:
    make
    make test
    make install
-
-DEPENDENCIES
-
-This module requires these other modules and libraries:
-
-  blah blah blah
-
-COPYRIGHT AND LICENCE
-
-Put the correct copyright and licence information here.
-
-Copyright (C) 2008 by Ahmad Zawawi
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.0 or,
-at your option, any later version of Perl 5 you may have available.
-
-

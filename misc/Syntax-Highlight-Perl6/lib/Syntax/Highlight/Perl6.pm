@@ -19,19 +19,21 @@ use STD;
 
 our @ISA = qw(Exporter);
 
-our %EXPORT_TAGS = ( 'all' => [ qw() ] );
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+# exports none
+our @EXPORT_OK = qw();
 our @EXPORT = qw();
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # These are needed for redspans
 $::ACTIONS = 'Actions';
-our $src_text;
-our $parser;
-our @loc = ();
 
-#XXX- document
+# my module variables
+my ($src_text,$parser,@loc);
+
+#
+# Contructor
+#
 sub new($%) {
     my ($class, %options) = @ARG;
     $options{rule} = $options{rule} // 'comp_unit';
@@ -54,14 +56,12 @@ sub new($%) {
     return $self;
 }
 
-=item snippet_html
-
-This is same as C<highlight_perl6_full> when --snippet-html is used.
-No more javascript tree viewer or anything fancy. 
-Only nodes that have a color are printed. Not optimal but works ;-)
-=cut
+#
+# Returns snippet htmls which can embedded without any side effects
+# on your page
+#
 sub snippet_html($) {
-    my ($self) = @ARG;
+    my $self = shift;
     my $str = "";
     my %colors = ();
 
@@ -80,7 +80,7 @@ sub snippet_html($) {
 
     local *spit_snippet_html = sub {
         my ($i, $buffer, $rule, $tree) = @ARG;
-        $buffer = escape_html($buffer);
+        $buffer = _escape_html($buffer);
         my $style = $colors{$rule};
         if($rule) {
             $str .= qq{<span style="$style">$buffer</span>};
@@ -88,21 +88,18 @@ sub snippet_html($) {
             $str .= $buffer;
         }
     };
-    $self->redspans_traverse(\&spit_snippet_html,%colors); 
+    _redspans_traverse(\&spit_snippet_html,%colors); 
 
     $str .= "</pre>";
 
     $str;
 }
 
-=item simple_html
-
-This is same as C<highlight_perl6_full> when --simple-html is used.
-No more javascript tree viewer or anything fancy. 
-Only nodes that have a color are printed. Not optimal but works ;-)
-=cut
-sub simple_html {
-    my ($self) = @ARG;
+#
+# Returns simple full html (but without the javascript viewer)
+#
+sub simple_html($) {
+    my $self = shift;
     my $str = "";
     my %colors = ();
 
@@ -142,7 +139,7 @@ HTML
 
     local *spit_simple_html = sub {
         my ($i, $buffer, $rule, $tree) = @ARG;
-        $buffer = escape_html($buffer);
+        $buffer = _escape_html($buffer);
         if($rule) {
             $str .= qq{<span class="$rule">$buffer</span>};
         } else {
@@ -150,7 +147,7 @@ HTML
         }
     };
 
-    $self->redspans_traverse(\&spit_simple_html,%colors); 
+    _redspans_traverse(\&spit_simple_html,%colors); 
 
     $str .= <<"HTML";
     </pre>
@@ -161,13 +158,8 @@ HTML
    $str;
 }
 
-=item full_html
-
-Generates the Perl6 highlighted HTML string for STD parse tree provided. 
-The resources can be inlined (by default) or externalized (--clean-html). 
-=cut
-sub full_html {
-    my ($self) = @ARG;
+sub full_html($) {
+    my $self = shift;
     my $str = "";
 
     # slurp libraries and javascript to inline them
@@ -226,7 +218,7 @@ HTML
 
     local *spit_full_html = sub {
         my ($i, $buffer, $rule, $tree) = @ARG;
-        $buffer = escape_html($buffer);
+        $buffer = _escape_html($buffer);
         $str .= qq{<span id="tree_$i" style="display:none;">$tree</span>};
         if($rule) {
             $str .= qq{<span id="node_$i" class="$rule">$buffer</span>};
@@ -235,7 +227,7 @@ HTML
         }
     };
 
-    $self->redspans_traverse(\&spit_full_html,%colors); 
+    _redspans_traverse(\&spit_full_html,%colors); 
 
     $str .= <<"HTML";
     </pre>
@@ -248,12 +240,9 @@ HTML
 
 =item ansi
 
-This is same as C<highlight_perl6_full> when --ansi-text is used.
-No more javascript tree viewer or anything fancy. 
-Only nodes that have a color are printed. Not optimal but works ;-)
 =cut
 sub ansi {
-    my ($self) = @ARG;
+    my $self = shift;
     my $str = "";
     my %colors = ();
 
@@ -278,18 +267,14 @@ sub ansi {
         }
     };
 
-    $self->redspans_traverse(\&spit_ansi_text,%colors); 
+    _redspans_traverse(\&spit_ansi_text,%colors); 
 
     $str;
 }
 
 
-=item highlight_perl6_yaml
-
-Spits out YAML that can be useful for the future
-=cut
 sub yaml {
-    my ($self) = @ARG;
+    my $self = shift;
     my $str = "";
     my %colors = ();
 
@@ -309,7 +294,7 @@ sub yaml {
         push @yaml, @ARG;
     };
 
-    $self->redspans_traverse(\&spit_yaml,%colors); 
+    _redspans_traverse(\&spit_yaml,%colors); 
 
     my $dumper = YAML::Dumper->new;
     $dumper->indent_width(4);
@@ -321,9 +306,10 @@ sub yaml {
 =item redspans_traverse
 
     Walk the path that no one wanted to travel ;)
+XXX- Please tell us what is doing exactly and privatize it.
 =cut
-sub redspans_traverse($$%) {
-    my ($self, $process_buffer,%colors) = @ARG;
+sub _redspans_traverse($%) {
+    my ($process_buffer,%colors) = @ARG;
 
     my ($last_tree,$buffer, $last_type) = ("","","");
     for my $i (0 .. @loc-1) {
@@ -353,11 +339,7 @@ sub redspans_traverse($$%) {
                     if($last_type ne '') {
                         $rule_to_color = $last_type;
                         $last_type = '';
-                    } #elsif($parser->is_type($buffer)) {
-                        #$rule_to_color = '_type';
-                    #} elsif($parser->is_routine($buffer)) {
-                        #$rule_to_color = '_routine';
-                    #} 
+                    } 
                 } elsif($last_tree =~ /\ssigil/) {
                     given($buffer) {
                         when ('$') { $last_type = '_scalar'; }
@@ -380,6 +362,8 @@ sub redspans_traverse($$%) {
 
 ###################################################################
 # R E D S P A N S
+# XXX- plz refactor and tell us what this is doing exactly
+###################################################################
 { 
     package Actions;
 
@@ -411,11 +395,13 @@ sub redspans_traverse($$%) {
 }
 
 
-=item escape_html
-
-Converts some characters to their equivalent html entities 
-=cut
-sub escape_html {
+#---------------------------------------------------------------
+# _escape_html (this is a private method)
+# 
+# Converts some characters to their equivalent html entities.
+# Since this is a private method, you should not depend on it.
+#----------------------------------------------------------------
+sub _escape_html($) {
     my $str = shift;
     my %esc = (
         '<'     => '&lt;',
@@ -438,24 +424,30 @@ Syntax::Highlight::Perl6 - Perl 6 source code highlighter
 
 =head1 SYNOPSIS
 
-  use Syntax::Highlight::Perl6;
-  
-  my $crayon = Syntax::Highlight::Perl6->new(
-    $file => \*STDIN
-  );
-  print $crayon->snippet_html;
-  print $crayon->simple_html;
-  print $crayon->full_html;
-  print $crayon->ansi;
-  print $crayon->yaml;
+    use STD;  # NOTE: This is needed and will be removed in future releases
+    use Syntax::Highlight::Perl6;
+
+    my $foo = Syntax::Highlight::Perl6->new(text => 'my $foo;');
+    print $foo->snippet_html;
+    print $foo->simple_html;
+    print $foo->full_html;
+    print $foo->ansi;
+    print $foo->yaml;
 
 =head1 DESCRIPTION
 
 Highlights Perl 6 source code using STD.pm into html, ansi-escaped text and YAML.
 
-=head2 EXPORT
+=item full_html
 
-None by default.
+Generates the Perl6 highlighted HTML string for STD parse tree provided. 
+The resources can be inlined (by default) or externalized (--clean-html). 
+=back
+
+=item highlight_perl6_yaml
+
+Spits out YAML that can be useful for the future
+=back
 
 =head1 SEE ALSO
 
