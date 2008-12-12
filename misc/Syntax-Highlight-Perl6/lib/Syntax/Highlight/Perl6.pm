@@ -38,9 +38,10 @@ croak "Syntax::Highlight::Perl6 cannot see where it is installed"
 my $SHARED = realpath(File::Spec->join(
             dirname(__FILE__),"../../rsc"));
 
-#
-# Contructor
-#XXX-plz document the %options
+#----------------------------------------------------------------
+# Returns the syntax highlighting object. It needs a hash 
+# of options.
+#----------------------------------------------------------------
 sub new($%) {
     my ($class, %options) = @ARG;
     $options{rule} = $options{rule} // 'comp_unit';
@@ -55,10 +56,10 @@ sub new($%) {
     return bless(\%options, $class);
 }
 
-#
+#----------------------------------------------------------------
 # Lazily parses the source string using STD.pm (only once)
 # (private)
-#
+#----------------------------------------------------------------
 sub _lazy_parse($) {
     my $self = shift;
     
@@ -83,10 +84,10 @@ sub _lazy_parse($) {
 }
  
 
-#
+#---------------------------------------------------------------------
 # Returns snippet htmls which can embedded without any side effects
 # on your page
-#
+#---------------------------------------------------------------------
 sub snippet_html($) {
     my $self = shift;
     my $str = "";
@@ -123,10 +124,10 @@ sub snippet_html($) {
 
     $str;
 }
-
-#
-# Returns simple full html (but without the javascript viewer)
-#
+#---------------------------------------------------------------
+# Returns the Perl 6 highlighted HTML string 
+# (without the javascript stuff).
+#---------------------------------------------------------------
 sub simple_html($) {
     my $self = shift;
     my $str = "";
@@ -189,7 +190,10 @@ HTML
    $str;
 }
 
-#XXX- document plz
+#-------------------------------------------------------------------
+# Returns the Perl 6 highlighted HTML string. The HTML consists of a
+# JavaScript Parse Tree Viewer along with CSS-styling.
+#-------------------------------------------------------------------
 sub full_html($) {
     my $self = shift;
     my $str = "";
@@ -272,7 +276,9 @@ HTML
     $str;
 }
 
-#XXX-document plz
+#---------------------------------------------------------------
+# Returns a Perl highlighted ANSI escape color string.
+#---------------------------------------------------------------
 sub ansi_text($) {
     my $self = shift;
     my $str = "";
@@ -306,7 +312,11 @@ sub ansi_text($) {
     $str;
 }
 
-#XXX-document plz
+#---------------------------------------------------------------
+# Returns a Perl 5 array containing parse tree records.
+# The array consists of one or more of the following record:
+#   ($position, $buffer, $rule_name, $parse_tree)
+#---------------------------------------------------------------
 sub parse_trees($) {
     my $self = shift;
     my $str = "";
@@ -335,12 +345,11 @@ sub parse_trees($) {
     @parse_trees;
 }
 
-#
-# redspans_traverse
-#
-#    Walk the path that no one wanted to travel ;)
-#XXX- Please tell us what is doing exactly and privatize it.
-#
+#---------------------------------------------------------------
+#    Helper private method that traverses STD.pm's parse 
+# tree array. It needs a callback process_buffer and a 
+# colors hash.
+#---------------------------------------------------------------
 sub _redspans_traverse($%) {
     my ($process_buffer,%colors) = @ARG;
 
@@ -393,10 +402,11 @@ sub _redspans_traverse($%) {
     }
 }
 
-###################################################################
+#------------------------------------------------------------------
 # R E D S P A N S
-# XXX- plz refactor and tell us what this is doing exactly
-###################################################################
+# STD.pm calls this method when you call STD->parse(...)
+# and we populate @loc with action references and parse trees...
+#------------------------------------------------------------------
 { 
     package Actions;
 
@@ -427,12 +437,9 @@ sub _redspans_traverse($%) {
     sub comp_unit { }
 }
 
-
 #---------------------------------------------------------------
-# _escape_html (this is a private method)
-# 
-# Converts some characters to their equivalent html entities.
-# Since this is a private method, you should not depend on it.
+# Private method to converts characters to their equivalent 
+# html entities.
 #----------------------------------------------------------------
 sub _escape_html($) {
     my $str = shift;
@@ -447,22 +454,24 @@ sub _escape_html($) {
     return $str;
 }
 
-#
+#-----------------------------------------------------
 # Load file into a scalar without File::Slurp
 # Thanks ofcourse to this post
 # http://www.perlmonks.org/?node_id=20235
-#
+#-----------------------------------------------------
 sub _slurp($) {
     local $/ =<> if local @ARGV = @_
 }
 
 1;
 
+#------------------ T H E   E N D --------------------
+
 __END__
 
 =head1 NAME
 
-Syntax::Highlight::Perl6 - Perl 6 source code highlighter
+Syntax::Highlight::Perl6 - Perl 6 syntax highlighter
 
 =head1 SYNOPSIS
 
@@ -511,35 +520,62 @@ The available output formats are:
 
 =head1 METHODS
 
-=over
+=over 4
 
-=item new
+=item new(options)
 
+Returns the syntax highlighting object. It needs a hash of options.
 
-XXX-plz document
+=over 4
+
+=item text
+
+This is a B<required> option. 
+This is where you should provide the Perl 6 code.
+
+=item rule
+
+parse rule name for STD.pm to parse against (default: B<comp_unit>)
+
+=item clean_html
+
+Flag to enable/disable CSS/JavaScript HTML inlining. (default: 1)
+
+=item file
+
+file name string in HTML modes (default: a warning message)
+
+=item utf8_decode
+
+Flag to enable/disable utf8 decoding. (default: 1)
+
+=back
 
 =item snippet_html
 
-XXX-plz document
+Returns the Perl 6 highlighted HTML string that can be embedded. 
+No CSS or JavaScript is inside.
 
 =item simple_html
 
-XXX-plz document
+Returns the Perl 6 highlighted HTML string. The HTML is the same as 
+C<full_html> but lacks a JavaScript Parse Tree Viewer. 
 
 =item full_html
 
-XXX-plz document
-Generates the Perl6 highlighted HTML string for STD parse tree provided. 
-The resources can be inlined (by default) or externalized (--clean-html). 
+Returns the Perl 6 highlighted HTML string. The HTML consists of a 
+JavaScript Parse Tree Viewer along with CSS-styling. 
+It can inlined if C<clean_html> option is 0. 
 
 =item ansi_text
 
-XXX-plz document
+Returns a Perl highlighted ANSI escape color string.
 
 =item parse_trees
 
-XXX-plz document
-Spits out YAML that can be useful for the future
+Returns a Perl 5 array containing parse tree records.
+The array consists of one or more of the following record:
+  ($position, $buffer, $rule_name, $parse_tree)
 
 =back
 
@@ -558,11 +594,12 @@ See http://www.nntp.perl.org/group/perl.perl6.users/2008/07/msg788.html
 
 The initial STD tree traversal code was written by Paweł Murias (pmurias).
 
-A gimme5-generated Perl5 STD.pmc is included to parse Perl 6 code.
+A C<gimme5>-generated Perl5 C<STD.pmc> is included to parse Perl 6 code.
 
-The redspans traversal code was written by Larry Wall (TimToady).
-redspans stands for C<red> for reductions, and C<spans> from the 
-from/to span calculations"
+The C<redspans> traversal code was written by Larry Wall (TimToady).
+
+C<redspans> stands for C<red> for reductions, and C<spans> from the 
+from/to span calculations".
 
 The javascript jQuery code was written by Ahmad M. Zawawi (azawawi)
 
@@ -576,7 +613,5 @@ it under the same terms as the Artistic License 2.0
 This library also includes the following libraries:
 
 STD.pm by Larry Wall (Artistic License 2.0 - same license)
- 
-JQuery 1.2.6 by John Resig (dual licensed under the MIT and GPL licenses).
-=cut
 
+JQuery 1.2.6 by John Resig (dual licensed under the MIT and GPL licenses).
