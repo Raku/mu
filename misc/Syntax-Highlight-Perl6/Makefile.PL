@@ -6,7 +6,6 @@ WriteMakefile(
     NAME              => 'Syntax::Highlight::Perl6',
     VERSION_FROM      => 'lib/Syntax/Highlight/Perl6.pm', # finds $VERSION
     PREREQ_PM         => {
-        File::Slurp,
         Moose,        
         Term::ANSIColor,
         YAML::Syck

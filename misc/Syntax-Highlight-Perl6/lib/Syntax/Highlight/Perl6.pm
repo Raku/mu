@@ -10,8 +10,6 @@ use Encode;
 require Exporter;
 
 # cpan modules
-# XXX-do we need File Slurp?? 
-use File::Slurp qw(read_file);
 use YAML::Dumper;
 use Term::ANSIColor;
 
@@ -116,7 +114,7 @@ sub simple_html($) {
     # slurp css inline it
     my $css = qq{<link href="../$CSS" rel="stylesheet" type="text/css">};
     if(!$self->{clean_html}) {
-        $css = read_file($CSS)
+        $css = _slurp($CSS)
             or die "Error while slurping file: $OS_ERROR\n";
         $css = qq{<style type="text/css">\n$css\n</style>};
     }
@@ -182,11 +180,11 @@ sub full_html($) {
     my $js = qq{<script type="text/javascript" src="../$JS"></script>};
     my $css = qq{<link href="../$CSS" rel="stylesheet" type="text/css">};
     if(!$self->{clean_html}) {
-        $jquery_js = read_file($JQUERY_JS) 
+        $jquery_js = _slurp($JQUERY_JS) 
             or die "Error while slurping file: $OS_ERROR\n";    
-        $js = read_file($JS) 
+        $js = _slurp($JS) 
             or die "Error while slurping file: $OS_ERROR\n";
-        $css = read_file($CSS)
+        $css = _slurp($CSS)
             or die "Error while slurping file: $OS_ERROR\n";
         $jquery_js = qq{<script type="text/javascript">\n$jquery_js\n</script>};
         $js = qq{<script type="text/javascript">\n$js\n</script>};
@@ -407,6 +405,15 @@ sub _escape_html($) {
     my $re = join '|', map quotemeta, keys %esc;
     $str =~ s/($re)/$esc{$1}/g;
     return $str;
+}
+
+#
+# Load file into a scalar without File::Slurp
+# Thanks ofcourse to this post
+# http://www.perlmonks.org/?node_id=20235
+#
+sub _slurp($) {
+    local $/ =<> if local @ARGV = @_
 }
 
 1;
