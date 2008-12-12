@@ -23,7 +23,7 @@ use STD;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw();
 our @EXPORT = qw();
-our $VERSION = '0.01_01';
+our $VERSION = '0.02';
 
 # These are needed for redspans
 $::ACTIONS = 'Actions';

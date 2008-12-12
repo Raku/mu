@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.02 Wed Dec 12 2008
+    - more stable features
+
 0.01_01  Wed Dec 12 2008
     - Bumped version to 0.01_01 (Developer release)
     - Privatized some methods that you should not use
