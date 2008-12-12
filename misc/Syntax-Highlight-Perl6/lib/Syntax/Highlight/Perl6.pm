@@ -50,7 +50,8 @@ my $SHARED = realpath(File::Spec->join(
 sub new($%) {
     my ($class, %options) = @ARG;
     $options{rule} = $options{rule} // 'comp_unit';
-    $options{clean_html} = $options{clean_html} // 1;
+    $options{inline_resources} = $options{inline_resources} // 0;
+    $options{resource_url} = $options{resource_url} // qq{};
     $options{page_title} = $options{page_title} // qq{};
     $options{utf8_decode} = $options{utf8_decode} // 1;
 
@@ -134,8 +135,9 @@ sub simple_html($) {
     my %colors = _read_css_file($CSS);
  
     # slurp css inline it
-    my $css = qq{<link href="$CSS" rel="stylesheet" type="text/css">};
-    if(!$self->{clean_html}) {
+    my $resource_url = $self->{resource_url};
+    my $css = qq{<link href="$resource_url$CSS" rel="stylesheet" type="text/css">};
+    if($self->{inline_resources}) {
         $css = _slurp($CSS)
             or croak "Error while slurping file: $OS_ERROR\n";
         $css = qq{<style type="text/css">\n$css\n</style>};
@@ -193,11 +195,12 @@ sub full_html($) {
         File::Spec->join($SHARED,FILE_JS),
         File::Spec->join($SHARED,FILE_CSS));
     my %colors = _read_css_file($CSS);
-   
-    my $jquery_js = qq{<script type="text/javascript" src="$JQUERY_JS"></script>};
-    my $js = qq{<script type="text/javascript" src="$JS"></script>};
-    my $css = qq{<link href="$CSS" rel="stylesheet" type="text/css">};
-    if(!$self->{clean_html}) {
+    my $resource_url = $self->{resource_url};  
+    my $jquery_js = 
+        qq{<script type="text/javascript" src="$resource_url$JQUERY_JS"></script>};
+    my $js = qq{<script type="text/javascript" src="$resource_url$JS"></script>};
+    my $css = qq{<link href="$resource_url$CSS" rel="stylesheet" type="text/css">};
+    if($self->{inline_resources}) {
         $jquery_js = _slurp($JQUERY_JS) 
             or croak "Error while slurping file: $OS_ERROR\n";    
         $js = _slurp($JS) 
@@ -533,19 +536,23 @@ This is where you should provide the Perl 6 code.
 
 =item rule
 
-parse rule name for STD.pm to parse against (default: B<comp_unit>)
+parse rule name for STD.pm to parse against (default: comp_unit)
 
-=item clean_html
+=item inline_resources
 
-Flag to enable/disable CSS/JavaScript HTML inlining. (default: 1)
+Flag to enable/disable CSS/JavaScript HTML inlining. (default: 0 (Disabled))
+
+=item resource_url
+
+HTML resource url that will be appended when resource inlining is disabled.
 
 =item page_title
 
-HTML page title for C<simple_html> and <full_html> (default: empty string)
+HTML page title for C<simple_html> and <full_html> (default: '')
 
 =item utf8_decode
 
-Flag to enable/disable utf8 decoding. (default: 1)
+Flag to enable/disable utf8 decoding. (default: 1 (Enabled))
 
 =back
 
@@ -556,14 +563,14 @@ No CSS or JavaScript is inside.
 
 =item simple_html
 
-Returns the Perl 6 highlighted HTML string. The HTML is the same as 
-C<full_html> but lacks a JavaScript Parse Tree Viewer. 
+Returns the Perl 6 highlighted HTML string. The HTML code is the same 
+as C<full_html> but lacks a JavaScript Parse Tree Viewer. 
 
 =item full_html
 
 Returns the Perl 6 highlighted HTML string. The HTML consists of a 
 JavaScript Parse Tree Viewer along with CSS-styling. 
-It can inlined if C<clean_html> option is 0. 
+It can inlined if C<inline_resources> option is 1. 
 
 =item ansi_text
 
