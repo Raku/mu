@@ -7,7 +7,7 @@ lib/Syntax/Highlight/Perl6.pm
 lib/Cursor.pmc
 lib/STD.pmc
 lib/mangle.pl
-lib/LazyMap.pm
+lib/LazyMap.pmc
 lib/rsc/p6_style.js
 lib/rsc/p6_style.css
 lib/rsc/p6_style.ansi
