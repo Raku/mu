@@ -1,12 +1,15 @@
 package Syntax::Highlight::Perl6;
 
 # core modules & directives
-use 5.010000;
+use 5.010;
 use strict;
 use warnings;
 use English;
 use Carp;
 use Encode;
+use File::Basename qw(dirname);
+use File::Spec;
+use Cwd qw(realpath);
 require Exporter;
 
 # cpan modules
@@ -27,6 +30,12 @@ $::ACTIONS = 'Actions';
 
 # my module variables
 my ($src_text,$parser,@loc);
+
+#find out the real path of the rsc directory
+croak "Syntax::Highlight::Perl6 cannot see where it is installed"
+    unless -f __FILE__;
+my $SHARED = realpath(File::Spec->join(
+            dirname(__FILE__),"../../rsc"));
 
 #
 # Contructor
@@ -62,7 +71,7 @@ sub snippet_html($) {
     my $str = "";
     my %colors = ();
 
-    my $CSS = "STD_syntax_highlight.css";
+    my $CSS = File::Spec->join($SHARED,"p6_style.css");
     open CSS_FILE, $CSS
         or die "Could not open $CSS: $OS_ERROR\n";
     my $line;
@@ -100,7 +109,7 @@ sub simple_html($) {
     my $str = "";
     my %colors = ();
 
-    my $CSS = "STD_syntax_highlight.css";
+    my $CSS = File::Spec->join($SHARED,"p6_style.css");
     open CSS_FILE, $CSS
         or die "Could not open $CSS: $OS_ERROR\n";
     my $line;
@@ -162,9 +171,9 @@ sub full_html($) {
 
     # slurp libraries and javascript to inline them
     my ($JQUERY_JS,$JS,$CSS) = (
-        'jquery-1.2.6.pack.js', 
-        'STD_syntax_highlight.js',
-        'STD_syntax_highlight.css');
+        File::Spec->join($SHARED,'jquery-1.2.6.pack.js'), 
+        File::Spec->join($SHARED,'p6_style.js'),
+        File::Spec->join($SHARED,'p6_style.css'));
     my %colors = ();
     my $line;
     open CSS_FILE, $CSS
@@ -242,7 +251,7 @@ sub ansi_text($) {
     my $str = "";
     my %colors = ();
 
-    my $ANSI = "STD_syntax_highlight.ansi";
+    my $ANSI = File::Spec->join($SHARED,"p6_style.ansi");
     open ANSI_FILE, $ANSI
         or die "Could not open $ANSI: $OS_ERROR\n";
     my $line;
@@ -274,7 +283,7 @@ sub parse_trees($) {
     my $str = "";
     my %colors = ();
 
-    my $ANSI = "STD_syntax_highlight.ansi";
+    my $ANSI = File::Spec->join($SHARED,"p6_style.ansi");
     open ANSI_FILE, $ANSI
         or die "Could not open $ANSI: $OS_ERROR\n";
     my $line;
@@ -507,8 +516,14 @@ The browser code was written by Ahmad M. Zawawi (azawawi)
 Copyright (C) 2008 by Ahmad Zawawi
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms asssssss
-at your option, any later version of Perl 5 you may have available.
+it under the same terms as the Artistic License 2.0
 
+This library also includes the following libraries:
+
+STD.pm by Larry Wall (Artistic License 2.0 - same license)
+a gimme5-generated Perl5 STD.pmc is included to parse Perl 6 code.
+
+JQuery 1.2.6 by John Resig (dual licensed under the MIT and GPL licenses).
+This is used in C<full_html> method and is added for your convenience.
 =cut
 
