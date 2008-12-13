@@ -1,6 +1,6 @@
 #########################
 
-use Test::More tests => 23;
+use Test::More tests => 26;
 use Test::Exception;
 
 #this is needed for now before using my module
@@ -45,6 +45,12 @@ like( $full, '/<pre>/i', 'full_html should have <pre> tags');
 like( $full, '/<html>/i', 'full_html should contain <html>');
 like( $full, '/text\/javascript/i', 'full_html should contain JS');
 like( $full, '/foo/i', 'full_html should contain the word foo');
+
+#tests for vim_html()
+my $vim = $p->vim_html;
+ok( defined $vim, 'vim_html returned something');
+like( $vim, '/"synIdentifier"/i', 'vim_html should contain a synIdentifier');
+like( $vim, '/foo/i', 'vim_html contain the word foo');
 
 #tests for ansi_text()
 my $ansi = $p->ansi_text;

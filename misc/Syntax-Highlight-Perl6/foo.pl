@@ -14,11 +14,13 @@ my $h = Syntax::Highlight::Perl6->new(
 );
 
 say $h->snippet_html;
-
+say "_-_" x 30;
 say $h->simple_html;
-
+say "_-_" x 30;
 say $h->full_html;
-
+say "_-_" x 30;
+say $h->vim_html;
+say "_-_" x 30;
 say $h->ansi_text;
-
+say "_-_" x 30;
 say Dumper($h->parse_trees);

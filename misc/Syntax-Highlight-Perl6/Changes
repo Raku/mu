@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.024 Dec 13 2008
+    - Added vimcolor_html method that uses Text::VimColor and perl6.vim
+
 0.023 Dec 13 2008
     - Added 23 tests
     - POD fixes, diagrams, ..etc
