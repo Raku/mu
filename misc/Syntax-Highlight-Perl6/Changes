@@ -1,12 +1,15 @@
 Revision history for Syntax::Highlight::Perl6.
 
-0.022 Wed Dec 12 2008
+0.022 Dec 13 2008
+
+ 
+0.022 Dec 12 2008
     - Fixed Makefile.PL so that META.yml is generated automatically
 
-0.021 Wed Dec 12 2008
+0.021 Dec 12 2008
     - META.yml is now copied correctly in 'make dist'
 
-0.02 Wed Dec 12 2008
+0.02 Dec 12 2008
     - Refactored ugly File::Spec->joins and inlining of js/css code.
     - 'clean_html' option is now 'inline_resources'
     - Added option 'resource_url' to prefix resources when externalized
@@ -18,7 +21,7 @@ Revision history for Syntax::Highlight::Perl6.
     - LazyMap.pm -> LazyMap.pmc and updated MANIFEST
     - Updated POD documentation
 
-0.01_01  Wed Dec 12 2008
+0.01_01  Dec 12 2008
     - Bumped version to 0.01_01 (Developer release)
     - Privatized some methods that you should not use
     - Removed dependency on File::Slurp and YAML::Dumper
@@ -26,5 +29,5 @@ Revision history for Syntax::Highlight::Perl6.
     - Renamed ansi() method with ansi_text
     - Major refactoring and documentation fixes
 
-0.01  Wed Dec 11 2008
+0.01  Dec 11 2008
 	- Initial release (really alpha)

@@ -22,7 +22,7 @@ use STD;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw();
 our @EXPORT = qw();
-our $VERSION = '0.022';
+our $VERSION = '0.023';
 
 # filename constants
 use constant FILE_CSS    => "p6_style.css";
@@ -516,7 +516,6 @@ Syntax::Highlight::Perl6 - a Perl 6 syntax highlighter
 
 This module parses Perl 6 source code using STD.pm, then matches nodes to colors
 and returns them in different output formats.
-
 It can be used to create web pages with colorful source code samples in its 
 simple and snippet html modes, or it can be used as a learning tool in examining 
 STD.pm's parsing using the JavaScript node viewer in its full html mode.
