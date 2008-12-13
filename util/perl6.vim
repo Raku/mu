@@ -150,7 +150,10 @@ syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
 " these Routine names are also Properties, if preceded by "is"
 syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\)"
 
-syn match p6Sigil        display "[$&%@]\+\%(::\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6Twigil,p6Variable,p6PackageScope
+syn match p6Sigil        display "[$&%@]\+\%(::\|\%(\d\+\|!\|/\)\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6PunctVar,p6Twigil,p6Variable,p6PackageScope
+
+" non-identifier variable names
+syn match p6PunctVar display "\%(\d\+\|!\|/\)\%(\k\d\@<!\)\@!" contained
 
 " this is the regex for an identifier, it will show up elsewhere as well
 syn match p6Variable     display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*" contained
@@ -176,9 +179,6 @@ syn region p6Match
 
 " this is an operator, not a sigil
 syn match p6Operator display "&&"
-
-" the "!" in "$!" is a variable name, not an operator
-syn match p6Variable display "\%([$@%&]\+\)\@<=!"
 
 syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
 syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
@@ -864,17 +864,18 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6DeclareRoutine  Keyword
     HiLink p6VarStorage      Keyword
     HiLink p6FlowControl     Special
+    HiLink p6Twigil          Special
     HiLink p6Comment         Comment
     HiLink p6Shebang         PreProc
     HiLink p6ClosureTrait    PreProc
     HiLink p6CustomRoutine   Function
     HiLink p6Operator        Operator
-    HiLink p6Twigil          Operator
     HiLink p6Context         Operator
     HiLink p6Quote           Delimiter
     HiLink p6TypeConstraint  PreCondit
     HiLink p6Exception       Exception
     HiLink p6Sigil           Identifier
+    HiLink p6PunctVar        Identifier
     HiLink p6Variable        Identifier
     HiLink p6Match           Identifier
     HiLink p6Placeholder     Identifier
