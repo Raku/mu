@@ -132,8 +132,8 @@ syn match p6Operator display "»[^«»<>[:space:]]\+«"
 syn match p6Operator display ">>[^«»<>[:space:]]\+<<"
 
 syn match p6Shebang     display "\%^#!.*"
-syn match p6BlockLabel  display "\%(\s\|^\)\@<=\h\w*\s*::\@!\%(\s\|$\)\@="
-syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\%($\|\s\)\@="
+syn match p6BlockLabel  display "\%(\s\|^\)\@<=\h\w*\s*::\@!\_s\@="
+syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\_s\@="
 syn match p6Number      display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
 syn match p6Float       display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
 syn match p6Float       display "\k\@<!-\?_\@<!\%(\d\|__\@!\)*_\@<!\.\@<!\._\@!\.\@!\a\@!\%(\d\|_\)\+_\@<!\%([eE]_\@!\%(\d\|_\)\+\)\?"
@@ -170,7 +170,7 @@ syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(s
 
 " Contextualizers
 
-syn match p6Context display "\%(\$\|@\|%\|@@\)\%(\s\|$\)\@="
+syn match p6Context display "\%(\$\|@\|%\|@@\)\_s\@="
 syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 
 syn region p6SigilContext
