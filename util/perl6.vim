@@ -18,7 +18,6 @@
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
 "   * Highlight « :key<val> # comment » correctly, line 2259 of S02
-"   * Overhaul :adverb, line 2324 of S02
 "   * Overhaul Q// and its derivatives, line 2475 of S02
 "   * Overhaul regexes, S05
 "
@@ -258,6 +257,8 @@ syn cluster p6Interp
     \ add=p6InterpClosure
     \ add=p6SigilContext
 
+syn match EscapedHash display "\\\@<!\\#" contained
+
 " "string"
 syn region p6InterpStringDoubleQuote
     \ matchgroup=p6Quote
@@ -271,13 +272,14 @@ syn region p6InterpStringDoubleAngle
     \ start="«"
     \ skip="\\\@<!\\»"
     \ end="»"
-    \ contains=@p6Interp
+    \ contains=@p6Interp,p6Comment,p6EscapedHash
 " <<string>>
 syn region p6InterpStringAngles
     \ matchgroup=p6Quote
     \ start="<<"
     \ skip="\\\@<!\\>"
     \ end=">>"
+    \ contains=@p6Interp,p6Comment,p6EscapedHash
 
 " Punctuation-delimited interpolated strings
 syn region p6InterpString
@@ -326,11 +328,14 @@ syn region p6LiteralStringQuote
     \ contains=p6EscapedSlash,p6EscapedQuote
 " <string>
 " FIXME: not sure how to distinguish this from the "less than" operator
-" in all cases. For now, it only matches if:
+" in all cases. For now, it matches if any of the following is true:
+"
 " * There is whitespace missing on either side of the "<", since
 "   people tend to put spaces around "less than"
 " * It comes after "enum" or "for"
+"
 " TODO: only match when there's an operator (excluding <=/=>) on either side?
+" No, that won't work in cases like "func(<some words>)"
 syn region p6LiteralStringAngle
     \ matchgroup=p6Quote
     \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<[-=]\@!"
@@ -373,7 +378,7 @@ syn region p6LiteralString
     \ end=">"
 
 " :string
-syn match p6LiteralString display "\%(:\@<!:!\?\)\@<=\w\+"
+syn match p6LiteralString display "\%(:\@<!:!\?\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
 
 " => and p5=> autoquoting
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\s\+p5=>"
@@ -786,13 +791,21 @@ syn region p6PodFormat
 syn region p6PodFormat
     \ matchgroup=p6PodFormatDelim
     \ start="[CV]<<"
-    \ skip="<[^>]*>"
+    \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatDelim
+    \ start="[CV]<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ contained
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
     \ start="[CV]««\@!"
+    \ skip="«[^»]*»"
     \ end="»"
     \ contained
 
