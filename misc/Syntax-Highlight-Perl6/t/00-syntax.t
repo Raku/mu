@@ -28,7 +28,7 @@ my $snippet = $p->snippet_html;
 ok( defined $snippet, 'snippet_html returned something');
 like( $snippet, '/<pre>/i', 'snippet_html contains <pre> tag'); 
 unlike( $snippet, '/<html>/i', 'snippet_html should not contain any <html>');
-like( $snippet, '/foo/i', 'should contain the word foo');
+like( $snippet, '/foo/i', 'snippet_html should contain the word foo');
 
 #tests for simple_html()
 my $simple = $p->simple_html;
