@@ -22,7 +22,7 @@ use STD;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw();
 our @EXPORT = qw();
-our $VERSION = '0.021';
+our $VERSION = '0.022';
 
 # filename constants
 use constant FILE_CSS    => "p6_style.css";

@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.022 Wed Dec 12 2008
+    - Fixed Makefile.PL so that META.yml is generated automatically
+
 0.021 Wed Dec 12 2008
     - META.yml is now copied correctly in 'make dist'
 
