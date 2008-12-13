@@ -1,26 +1,33 @@
 
 class Match {
-  has $.rule;
-  has $.match_str;
-  has $.from;
-  has $.to;
-  has $.bool;
-  has $.hash;
+  has $.match_rule;
+  has $.match_string;
+  has $.match_from;
+  has $.match_to;
+  has $.match_hash;
+  has $.match_array;
+  has $.match_boolean;
   method make_from_rsfth($r,$s,$f,$t,$h) {
-    self.new('rule',$r,'match_str',$s,'from',$f,'to',$t,'hash',$h);
+    self.new('match_rule',$r,'match_string',$s,'from',$f,'to',$t,'match_hash',$h,'match_array',[],'match_boolean',1);
   };
   method match_describe() {
-    my $s = $.rule~"<"~$.from~","~$.to~",'"~$.match_str~"',\{";
-    for $.hash.keys {
+    my $b = {if $.match_boolean { 't' } else { 'F' }};
+    my $f = $.match_from;
+    my $t = $.match_to;
+    if !defined($f) { $f = "" }
+    if !defined($t) { $t = "" }
+    my $a = {if $.match_array.elems { $.match_array.match_describe } else { '[]' }};
+    my $s = $.match_rule~"<"~$b~','~$f~","~$t~",'"~$.match_string~"',"~$a~",\{";
+    for $.match_hash.keys {
       my $k = $_;
-      my $v = $.hash{$k};
+      my $v = $.match_hash{$k};
       my $vs = 'undef';
       if defined($v) {
         $vs = $v.match_describe;
       }
       $s = $s ~ "\n  "~$k~" => "~self.indent_except_top($vs)~",";
     }
-    if $.hash.keys.elems {$s = $s ~ "\n"}
+    if $.match_hash.keys.elems {$s = $s ~ "\n"}
     $s = $s ~ "}>";
   };
   method indent($s) {
@@ -29,12 +36,8 @@ class Match {
   method indent_except_top($s) {
     $s.re_gsub('(?m:^(?<!\A)(?!\Z))','  ')
   };
-  method match_string() {
-    $.match_str
-  };
-  method Str() {
-    $.match_str.substr($.from, $.to-$.from)
-  }
+  method from { $.match_from }
+  method to { $.match_to }
 };
 class Array {
   method match_describe() {

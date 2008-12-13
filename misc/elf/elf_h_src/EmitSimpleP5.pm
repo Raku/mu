@@ -270,6 +270,34 @@ no warnings qw(redefine prototype);
   sub WHAT {"Code"}
 }
 
+{ package Any; sub Hash { $_[0] } } #X
+{ package Hash; sub Hash { $_[0] } }
+{ package Array; sub Array { $_[0] } }
+
+{ package Any; #X
+  sub postcircumfix__123_32_125 { @_ <= 2 ? $_[0]->{$_[1]} : do{$_[0]->{$_[1]} = $_[2]} }
+  sub postcircumfix__60_32_62 { @_ <= 2 ? $_[0]->{$_[1]} : do{$_[0]->{$_[1]} = $_[2]} }
+}
+{ package HASH;
+  sub postcircumfix__123_32_125 { @_ <= 2 ? $_[0]->{$_[1]} : do{$_[0]->{$_[1]} = $_[2]} }
+  sub postcircumfix__60_32_62 { @_ <= 2 ? $_[0]->{$_[1]} : do{$_[0]->{$_[1]} = $_[2]} }
+}
+{ package ARRAY;
+  sub postcircumfix__91_32_93 { @_ <= 2 ? $_[0]->[$_[1]] : do{$_[0]->[$_[1]] = $_[2]} }
+}
+
+{ package Match;
+  sub postcircumfix__123_32_125 { @_ <= 2 ? $_[0]->{"match_hash"}->{$_[1]} : do{$_[0]->{"match_hash"}->{$_[1]} = $_[2]} }
+  sub postcircumfix__60_32_62 { @_ <= 2 ? $_[0]->{"match_hash"}->{$_[1]} : do{$_[0]->{"match_hash"}->{$_[1]} = $_[2]} }
+  sub postcircumfix__91_32_93 { @_ <= 2 ? $_[0]->{"match_array"}->[$_[1]] : do{$_[0]->{"match_array"}->[$_[1]] = $_[2]} }
+
+  sub Str { $_[0]->{"match_string"} }
+  sub Bool { $_[0]->{"match_boolean"} }
+  sub Hash { $_[0]->{"match_hash"} }
+  sub Array { $_[0]->{"match_array"} }
+}
+
+
 use warnings;
 
 { package Any; sub __make_not_empty_for_use_base{}}
@@ -739,16 +767,13 @@ package Main;
     my $g;
     temp $whiteboard::emit_pairs_inline = 0;
     my $method = $.e($n.method);
+    my $meth = $.mangle_function_name($method);
     if ($method eq 'postcircumfix:< >') {
-      $.e($n.invocant)~'->'~"\{'"~$.e($n.capture)~"'}";
-    }
-    elsif $g = $method.re_groups('postcircumfix:(.*)') {
-      my $op = $g[0];
-      my $arg = $.e($n.capture);
-      $op = $op.re_gsub(' ',$arg);
-      $.e($n.invocant)~'->'~$op;
+      $.e($n.invocant)~'->'~$meth~'('~"'"~$.e($n.capture)~"'"~')';
+    } elsif ($method eq 'postcircumfix:( )') {
+      $.e($n.invocant)~'->'~'('~$.e($n.capture)~')';
     } else {
-      $.e($n.invocant)~'->'~$.e($n.method)~'('~$.e($n.capture)~')'
+      $.e($n.invocant)~'->'~$meth~'('~$.e($n.capture)~')'
     }
   };
   method mangle_function_name($name) {
@@ -789,10 +814,17 @@ package Main;
             return $l~'('~$r~')'
           }
         }
-        if ($args[0].isa("IRx1::Call") &&
-            $args[0].capture.arguments.elems == 0)
+        if ($args[0].isa("IRx1::Call"))
         {
-          return $.e($args[0].invocant)~'->'~$.e($args[0].method)~'('~$r~')'
+          if $args[0].capture.arguments.elems == 0 {
+            my $meth = $.mangle_function_name($args[0].method);
+            return $.e($args[0].invocant)~'->'~$meth~'('~$r~')'
+          } else {
+            my $call = $.e($args[0]);
+            my $lvalue_call = $call.re_gsub('\)$',', '~$r~')');
+            if $call eq $lvalue_call { die "bug" }
+            return $lvalue_call;
+          }
         }
       }
       #XXX := is here temporarily to postpone a regression.

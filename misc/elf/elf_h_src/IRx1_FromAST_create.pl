@@ -578,7 +578,7 @@ class IRx1_Build {
     $.constructors{$k} = $constructor;
   };
   method make_ir_from_Match_tree($m) {
-    my $rule = $m.rule;
+    my $rule = $m.match_rule;
     my $constructor = $.constructors{$rule};
     if ($constructor) {
       $constructor.($m);
@@ -651,14 +651,14 @@ sub write_ast_handlers {
     $body =~ s/\bir\(/irbuild_ir\(/g;
     $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;
     $body =~ s/\$o((?:<\w+>)+)/\$m$1/g;
-    $body =~ s/<(\w+)>/.hash{'$1'}/g;
+    $body =~ s/<(\w+)>/.match_hash{'$1'}/g;
     $body =~ s/([A-Z]\w+\.new\w*)\(/IRx1::$1(\$m,/g;
     $body =~ s/\*text\*/(\$m.match_string)/g;
     if ($body =~ /\*1\*/) {
       $body =~ s/\*1\*/\$one/g;
       $body = unindent(<<'      END',"  ").$body;
         my $key;
-        for $m.hash.keys {
+        for $m.match_hash.keys {
           if $_ ne 'match' {
             if $key {
               die("Unexpectedly more than 1 field - dont know which to choose\n")
@@ -666,7 +666,7 @@ sub write_ast_handlers {
             $key = $_;
           }
         }
-        my $one = irbuild_ir($m.hash{$key});
+        my $one = irbuild_ir($m.match_hash{$key});
       END
     }
 
