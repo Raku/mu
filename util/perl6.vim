@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Dec 12th 2008
+" Last Change:  Dec 13th 2008
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -17,7 +17,7 @@
 " TODO:
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
-"   * Highlight « :key<val> # comment » correctly, line 2259 of S02
+"   * Allow adverbs in «», line 2259 of S02
 "   * Overhaul Q// and its derivatives, line 2475 of S02
 "   * Overhaul regexes, S05
 "
@@ -160,6 +160,19 @@ syn match p6PackageScope display "\%(\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\
 
 " only allow identifiers as the first thing after "use" et al
 syn match p6Package display "\%(\<\%(use\|module\|class\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
+
+" $<match>
+syn region p6MatchSigil
+    \ matchgroup=p6Sigil
+    \ start="\$\%(<<\@!\)\@="
+    \ end=">\@<="
+    \ contains=p6Match
+
+syn region p6Match
+    \ matchgroup=p6Twigil
+    \ start="<"
+    \ end=">"
+    \ contained
 
 " this is an operator, not a sigil
 syn match p6Operator display "&&"
@@ -345,12 +358,6 @@ syn region p6LiteralStringAngle
     \ skip="\%(\\\@<!\\>\|<[^>]*>\)"
     \ end=">"
     \ contains=p6EscapedSlash,p6EscapedAngle
-
-" $<rule>
-syn region p6LiteralStringMatch
-    \ matchgroup=p6Quote
-    \ start="\$<\(.*>\)\@="
-    \ end=">\@<!>"
 
 " Punctuation-delimited literal strings
 syn region p6LiteralString
@@ -869,6 +876,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Exception       Exception
     HiLink p6Sigil           Identifier
     HiLink p6Variable        Identifier
+    HiLink p6Match           Identifier
     HiLink p6Placeholder     Identifier
     HiLink p6RuleCall        Identifier
     HiLink p6Conditional     Conditional
