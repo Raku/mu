@@ -125,7 +125,7 @@ syn match p6Operator display "\%(\s\|^\)\@<=\%(xx=\|p5=>\)"
 " "i" requires a digit to the left, and a no keyword char to the right
 syn match p6Operator display "\d\@<=i\k\@!"
 " reduce
-syn match p6Operator display "\[\%(\*-\|\d\|[[:digit:];]\+]\|[^\]]*\%([@$%&]\+[^\]]\|[^\]]\+([^\]]*)\)\)\@![^\][:space:]]\+]"
+syn match p6Operator display "\[\%(\*\|-\?\d\|[[:digit:];]\+]\|[^\]]*\%([@$%&]\+[^\]]\|[^\]]\+([^\]]*)\)\)\@![^\[\][:space:]]\+]"
 " hyperoperators
 syn match p6Operator display "X[^X[:space:]]\+X"
 syn match p6Operator display "\%(>>\|»\)[^«»<>[:space:]]\+"
