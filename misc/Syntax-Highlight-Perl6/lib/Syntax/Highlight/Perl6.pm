@@ -523,14 +523,14 @@ Syntax::Highlight::Perl6 - a Perl 6 syntax highlighter
     # Prints html that has a JavaScript node viewer
     print $p->full_html;
 
-    # Prints VIM syntax highlighted html
-    print $p->vim_html;
-
     # Prints ANSI escaped color sequences (useful for console and IRC output)
     print $p->ansi_text;
 
     # Prints the Perl 5 array of parse trees (useful for building stuff on top of it) 
     print $p->parse_trees;
+
+    # Prints VIM syntax highlighted html
+    print $p->vim_html;
 
 =head1 DESCRIPTION
 
