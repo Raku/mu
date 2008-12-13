@@ -8,15 +8,15 @@ class Match {
   has $.match_array;
   has $.match_boolean;
   method make_from_rsfth($r,$s,$f,$t,$h) {
-    self.new('match_rule',$r,'match_string',$s,'from',$f,'to',$t,'match_hash',$h,'match_array',[],'match_boolean',1);
+    self.new('match_rule',$r,'match_string',$s,'match_from',$f,'match_to',$t,'match_hash',$h,'match_array',[],'match_boolean',1);
   };
   method match_describe() {
-    my $b = {if $.match_boolean { 't' } else { 'F' }};
+    my $b; if $.match_boolean { $b = 't' } else { $b = 'F' };
     my $f = $.match_from;
     my $t = $.match_to;
     if !defined($f) { $f = "" }
     if !defined($t) { $t = "" }
-    my $a = {if $.match_array.elems { $.match_array.match_describe } else { '[]' }};
+    my $a; if $.match_array.elems { $a = $.match_array.match_describe } else { $a = '[]' };
     my $s = $.match_rule~"<"~$b~','~$f~","~$t~",'"~$.match_string~"',"~$a~",\{";
     for $.match_hash.keys {
       my $k = $_;

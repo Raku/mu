@@ -809,12 +809,13 @@ sub match_hash { if(@_==2){$_[0]{'match_hash'}=$_[1]}else{$_[0]{'match_hash'}}};
 sub match_array { if(@_==2){$_[0]{'match_array'}=$_[1]}else{$_[0]{'match_array'}}};
 sub match_boolean { if(@_==2){$_[0]{'match_boolean'}=$_[1]}else{$_[0]{'match_boolean'}}};
 sub make_from_rsfth{my $self=CORE::shift;my($r,$s,$f,$t,$h)=@_;
-(do{$self->new("match_rule", $r, "match_string", $s, "from", $f, "to", $t, "match_hash", $h, "match_array", [], "match_boolean", 1)})};
-sub match_describe{my $self=CORE::shift;(do{my $b = (do{if($self->match_boolean) {
-(do{"t"})
+(do{$self->new("match_rule", $r, "match_string", $s, "match_from", $f, "match_to", $t, "match_hash", $h, "match_array", [], "match_boolean", 1)})};
+sub match_describe{my $self=CORE::shift;(do{my $b;
+if($self->match_boolean) {
+(do{($b = "t")})
 }else {
-(do{"F"})
-}});
+(do{($b = "F")})
+};
 my $f = $self->match_from;
 my $t = $self->match_to;
 if(GLOBAL::prefix__33(GLOBAL::defined($f))) {
@@ -823,11 +824,12 @@ if(GLOBAL::prefix__33(GLOBAL::defined($f))) {
 if(GLOBAL::prefix__33(GLOBAL::defined($t))) {
 (do{($t = "")})
 };
-my $a = (do{if($self->match_array->elems()) {
-(do{$self->match_array->match_describe()})
+my $a;
+if($self->match_array->elems()) {
+(do{($a = $self->match_array->match_describe())})
 }else {
-(do{"\[\]"})
-}});
+(do{($a = "\[\]")})
+};
 my $s = ((((((((((($self->match_rule . "\<") . $b) . "\,") . $f) . "\,") . $t) . "\,\'") . $self->match_string) . "\'\,") . $a) . "\,\{");
 for(($self->match_hash->keys())->flatten){
 (do{my $k = $_;
