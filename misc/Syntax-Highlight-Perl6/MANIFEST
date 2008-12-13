@@ -2,7 +2,6 @@ Changes
 Makefile.PL
 MANIFEST
 README
-META.yml
 t/00-syntax.t
 lib/Syntax/Highlight/Perl6.pm
 lib/Cursor.pmc
