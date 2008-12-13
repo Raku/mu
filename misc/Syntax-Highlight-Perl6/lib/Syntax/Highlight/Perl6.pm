@@ -122,7 +122,7 @@ sub snippet_html($) {
 }
 #---------------------------------------------------------------
 # Returns the Perl 6 highlighted HTML string 
-# (without the javascript stuff).
+# (without the JavaScript stuff).
 #---------------------------------------------------------------
 sub simple_html($) {
     my $self = shift;
@@ -190,7 +190,7 @@ sub full_html($) {
 
     $self->_lazy_parse();
 
-    # slurp libraries and javascript to inline them
+    # slurp libraries and JavaScript to inline them
     my %colors = _read_css_file();
     my ($jquery_js,$js,$css);
     if($self->{inline_resources}) {
@@ -300,14 +300,14 @@ sub parse_trees($) {
     $self->_lazy_parse();
 
     my %colors = _read_ansi_file();
-    my @parse_trees = (); 
+    my $parse_trees = []; 
     local *spit_parse_tree = sub {
-        push @parse_trees, @ARG;
+        push @$parse_trees, [@ARG];
     };
 
     _redspans_traverse(\&spit_parse_tree,%colors); 
 
-    @parse_trees;
+    $parse_trees;
 }
 
 #--------------------------------------------------------------------
@@ -482,10 +482,9 @@ sub _slurp($) {
 #------------------ T H E   E N D --------------------
 
 __END__
-
 =head1 NAME
 
-Syntax::Highlight::Perl6 - Perl 6 syntax highlighter
+Syntax::Highlight::Perl6 - a Perl 6 syntax highlighter
 
 =head1 SYNOPSIS
 
@@ -504,7 +503,7 @@ Syntax::Highlight::Perl6 - Perl 6 syntax highlighter
     # Prints html with css (useful for full pages)
     print $p->simple_html;
 
-    # Prints html that has a JavaScript parse tree viewer
+    # Prints html that has a JavaScript node viewer
     print $p->full_html;
 
     # Prints ANSI escaped color sequences (useful for console and IRC output)
@@ -515,7 +514,12 @@ Syntax::Highlight::Perl6 - Perl 6 syntax highlighter
 
 =head1 DESCRIPTION
 
-Highlights Perl 6 source code. The code is parsed using Larry Wall's STD.pm. 
+This module parses Perl 6 source code using STD.pm, then matches nodes to colors
+and returns them in different output formats.
+
+It can be used to create web pages with colorful source code samples in its 
+simple and snippet html modes, or it can be used as a learning tool in examining 
+STD.pm's parsing using the JavaScript node viewer in its full html mode.
 
 The available output formats are:
 
@@ -534,17 +538,20 @@ The available output formats are:
 
 =head1 METHODS
 
+The following methods are available:
+
 =over 4
 
 =item new(options)
 
 Returns the syntax highlighting object. It needs a hash of options.
+The following options are available:
 
 =over 4
 
 =item text
 
-This is a B<required> option. 
+I<This is a required option.> 
 This is where you should provide the Perl 6 code.
 
 =item rule
@@ -561,7 +568,7 @@ HTML resource url that will be appended when resource inlining is disabled.
 
 =item page_title
 
-HTML page title for C<simple_html> and <full_html> (default: '')
+HTML page title for C<simple_html> and C<full_html> (default: '')
 
 =item utf8_decode
 
@@ -569,37 +576,85 @@ Flag to enable/disable utf8 decoding. (default: 1 (Enabled))
 
 =back
 
-=item snippet_html
+=item snippet_html()
 
 Returns the Perl 6 highlighted HTML string that can be embedded. 
 No CSS or JavaScript is inside.
 
-=item simple_html
+=item simple_html()
 
 Returns the Perl 6 highlighted HTML string. The HTML code is the same 
 as C<full_html> but lacks a JavaScript Parse Tree Viewer. 
 
-=item full_html
+=item full_html()
 
 Returns the Perl 6 highlighted HTML string. The HTML consists of a 
 JavaScript Parse Tree Viewer along with CSS-styling. 
 It can inlined if C<inline_resources> option is 1. 
 
-=item ansi_text
+=item ansi_text()
 
 Returns a Perl highlighted ANSI escape color string.
 
-=item parse_trees
+=item parse_trees()
 
 Returns a Perl 5 array containing parse tree records.
 The array consists of one or more of the following record:
-  ($position, $buffer, $rule_name, $parse_tree)
+
+    +-----------------------------------------------+
+    | Matched  | Matched | Matched   | Parse tree   |
+    | Start    | string  | rule      | separated    |
+    | Position | buffer  | name      | by spaces    |
+    +-----------------------------------------------+
+
+    #...
+    use Data::Dumper;
+    print Dumper($p->parse_trees);
+
+    #$VAR1 = [
+    #      [
+    #        8,
+    #        ';',
+    #        0,
+    #        'statementlist eat_terminator '
+    #      ]
 
 =back
 
 =head1 SEE ALSO
 
-Discussion about this module is usually in #perl6 @ irc.freenode.net
+Discussion about this module and STD.pm is usually in #perl6 @ irc.freenode.net
+
+Larry Wall's STD.pm lives in http://svn.pugscode.org/pugs/src/perl6/
+
+=head1 BUGS
+
+What's a programmer's life without a few bugs to solve:
+
+=over 4
+
+=item Can't call method "bless" on an undefined value at STD.pm line 5269.
+
+You have to put "use STD;" before using this module.
+
+    use STD; # this must be first for now
+    use Syntax::Highlight::Perl6;
+
+=item A log file is always created when using this module.
+
+This is a bug and im working on it. Most probably it is STD.pm-related
+
+=item Directory 'lex' is created when using this module.
+
+STD.pm caches digraphs and the matched rules in there.
+So this is Pretty Voodoo Stuff. Otherwise it will be pretty slow.
+
+=item Slow startup when using the module for the first time
+
+That is related to the creation of the cached 'lex'ing directory by STD.pm. 
+I<This happens only once.>
+
+=back
 
 =head1 AUTHOR
 
@@ -619,7 +674,7 @@ The C<redspans> traversal code was written by Larry Wall (TimToady).
 C<redspans> stands for C<red> for reductions, and C<spans> from the 
 from/to span calculations".
 
-The javascript jQuery code was written by Ahmad M. Zawawi (azawawi)
+The JavaSript jQuery code was written by Ahmad M. Zawawi (azawawi)
 
 =head1 COPYRIGHT AND LICENSE
 
