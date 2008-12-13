@@ -115,8 +115,10 @@ syn match p6Operator       display "\k\@<!\%(x\|xx\|div\|mod\|also\|leg\|cmp\)\k
 syn match p6Operator       display "\k\@<!\%(eq\|ne\|lt\|le\|gt\|ge\|eqv\|ff\|fff\|true\|not\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(Z\|X\|and\|andthen\|or\|xor\|orelse\|extra\)\k\@!"
 
-" more operators
-syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]\+"
+" More operators
+" Don't put a "\+" at the end of the character class. In that case, the "%"
+" in "+%foo" won't be allowed to match as a sigil, among other things
+syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]"
 syn match p6Operator display "\%(:\@<!::\@!\|::=\|\.::\)"
 " these require whitespace on the left side
 syn match p6Operator display "\%(\s\|^\)\@<=\%(xx=\|p5=>\)"
