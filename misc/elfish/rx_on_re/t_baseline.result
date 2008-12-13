@@ -1176,7 +1176,7 @@ ok
         # ([[:^print:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	${nulnul}${ffff}
 not ok
   # Expected: >  ��<
-  #      Got: >  <  from  "".$m->[0].""
+  #      Got: >  <  from  "".match_or_undef_to_s($m->postcircumfix__91_32_93(0)).""
         # ([[:^punct:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy
 ok
         # ([[:^space:]]+)	ABcd01Xy__--  ${nulnul}${ffff}	y	$1	ABcd01Xy__--
@@ -1724,11 +1724,11 @@ ok
         # ^(a(b)?)+$	aba	y	-$1-$2-	-a--
 not ok
   # Expected: >-a--<
-  #      Got: >-a-b-<  from  "-".$m->[0]."-".$m->[1]."-"
+  #      Got: >-a-b-<  from  "-".match_or_undef_to_s($m->postcircumfix__91_32_93(0))."-".match_or_undef_to_s($m->postcircumfix__91_32_93(1))."-"
         # ^(aa(bb)?)+$	aabbaa	y	-$1-$2-	-aa--
 not ok
   # Expected: >-aa--<
-  #      Got: >-aa-bb-<  from  "-".$m->[0]."-".$m->[1]."-"
+  #      Got: >-aa-bb-<  from  "-".match_or_undef_to_s($m->postcircumfix__91_32_93(0))."-".match_or_undef_to_s($m->postcircumfix__91_32_93(1))."-"
         # '^.{9}abc.*\n'm	123\nabcabcabcabc\n	y	-	-
 ok
         # ^(a)?a$	a	y	-$1-	--

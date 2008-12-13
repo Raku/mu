@@ -5,16 +5,6 @@ use strict;
 use warnings;
 use Carp;
 
-#======================================================================
-# Match
-#
-#-- delete.
-   { package Regexp::ModuleA::ReentrantEngine::Match0;
-#XXX Removing this next line seems to tickle a perlbug.
-# Defer problem until we migrate onto elf's Match class.
-     sub new_failed {my($cls)=@_; $cls->new()->match_set_as_failed()}
-   }
-
 
 #======================================================================
 # AST analysis
@@ -476,7 +466,7 @@ use Carp;
 sub make0_from_node {
   my($cls,$m)=@_;
   Carp::confess "make0_from_node called with match: undef" if !defined $m;
-  my $r = $$m->{RULE};
+  my $r = $m->{match_rule};
   my $map_code = $Regexp::ModuleA::Scratch::make0_from_match::map_code;
   my $meth = $map_code->{$r} || $map_code->{DEFAULT};
   if($meth) {
@@ -488,14 +478,31 @@ sub make0_from_node {
 }
 sub make0_from_children {
   my($cls,$m)=@_;
-  $m->match_x_process_children(sub{$cls->make0_from_node($_[0])});
+  my $match_x_process_children = sub {
+    my($o,$fun)=@_;
+    my $a = [map{ref($_)eq'ARRAY'?[map{$fun->($_)}@$_]:$fun->($_)} @{$o->match_array}];
+    my $oh = $o->match_hash;
+    my %h = map{
+      my $k = $_;
+      my $v = $oh->{$k};
+      my $v1 = $v;
+      if(ref($v) eq 'ARRAY') {
+        $v1 = [map{$fun->($_)}@$v];
+      } else {
+        $v1 = $fun->($v);
+      }
+      ($k,$v1);
+    } keys %{$oh};
+    ($a,\%h);
+  };
+  $match_x_process_children->($m,sub{$cls->make0_from_node($_[0])});
 }
 sub make0_from_node__DEFAULT {
   my($cls,$m)=@_;
   my($a,$h) = $cls->make0_from_children($m);
 #  my $m1 = $m->match_copy();
-#  $$m1->{match_array} = $a;
-#  $$m1->{match_hash} = $h;
+#  $m1->{match_array} = $a;
+#  $m1->{match_hash} = $h;
 #  $m1;
   my @v = values(%{$h});
   $v[0];
@@ -503,20 +510,20 @@ sub make0_from_node__DEFAULT {
 
 sub make0_from_node___nonmeta {
   my($cls,$m)=@_;
-  my $pat = "$m";
+  my $pat = $m->match_string;
   $pat =~ s/\\([\\\'])/\\\\\\$1/g;
   return "exact('$pat')";
 }
 sub make0_from_node___passthru {
   my($cls,$m)=@_;
-  my $pat = "$m";
+  my $pat = $m->match_string;
   $pat =~ s/\\([\\\'])/\\\\\\$1/g;
   return "pat5('$pat')";
 }
 sub make0_from_node__regex_quantified_atom {
   my($cls,$m)=@_;
-  my $s = "$m";
-  my $e = $cls->make0_from_node($m->{regex_atom});
+  my $s = $m->match_string;
+  my $e = $cls->make0_from_node($m->match_hash->{regex_atom});
   if($s =~ /{(\d+)(?:,(\d*))?}(\?)?\z/) {
     my $ng = defined $3 ? '_ng' : '';
     my $min = $1;
@@ -533,7 +540,7 @@ sub make0_from_node__regex_quantified_atom {
 }
 sub make0_from_node___backref_or_char {
   my($cls,$m)=@_;
-  "$m" =~ /\A\\(\d+)\z/ or die "bug";
+  $m->match_string =~ /\A\\(\d+)\z/ or die "bug";
   my $n = $1;
   if($n !~ /\A0/ && $n < 10) {
     return "backref($n)";
@@ -544,72 +551,72 @@ sub make0_from_node___backref_or_char {
 }
 sub make0_from_node___esc {
   my($cls,$m)=@_;
-  my $pat = "$m";
+  my $pat = $m->match_string;
   $pat =~ s/\\([\\\'])/\\\\\\$1/g;
   return "pat5('$pat')";
 }
 sub make0_from_node___charclass {
   my($cls,$m)=@_;
-  my $pat = "$m";
+  my $pat = $m->match_string;
   $pat =~ s/\\([\\\'])/\\\\\\$1/g;
   return "pat5('$pat')";
 }
 sub make0_from_node___grp {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{pattern});
+  my $e = $cls->make0_from_node($m->match_hash->{pattern});
   return "grp($e)";
 }
 sub make0_from_node___cap {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{pattern});
+  my $e = $cls->make0_from_node($m->match_hash->{pattern});
   return "cap($e)";
 }
 sub make0_from_node___mod_expr {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{pattern});
-  "$m" =~ /\A\(\?([imsx]*)(?:-([imsx]*))?/ or die 'bug';
+  my $e = $cls->make0_from_node($m->match_hash->{pattern});
+  $m->match_string =~ /\A\(\?([imsx]*)(?:-([imsx]*))?/ or die 'bug';
   my $on  = join("",map{":perl5_${_}"} split("",$1));
   my $off = join("",map{":perl5_${_}<0>"} split("",defined $2 ? $2 : ""));
   return "mod_expr('$on$off',$e)";
 }
 sub make0_from_node___mod_inline {
   my($cls,$m)=@_;
-  "$m" =~ /\A\(\?([imsx]*)(?:-([imsx]*))?/ or die 'bug';
+  $m->match_string =~ /\A\(\?([imsx]*)(?:-([imsx]*))?/ or die 'bug';
   my $on  = join("",map{":perl5_${_}"} split("",$1));
   my $off = join("",map{":perl5_${_}<0>"} split("",defined $2 ? $2 : ""));
   return "mod_inline('$on$off')";
 }
 sub make0_from_node__regex_sequence {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{regex_quantified_atom}};
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{regex_quantified_atom}};
   return (@v != 1 ? ("seq(".join(",",@v).")") : $v[0]);
 }
 sub make0_from_node__regex_ordered_disjunction {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{regex_sequence}};
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{regex_sequence}};
   return (@v > 1 ? ("alt(".join(",",@v).")") : $v[0]);
 }
 sub make0_from_node___coderx {
   my($cls,$m)=@_;
-  "$m" =~ /\A\((\?\??){(.*?)}\)\z/ or die "bug";
+  $m->match_string =~ /\A\((\?\??){(.*?)}\)\z/ or die "bug";
   my($which,$code) = ($1,$2);
   return "coderx(q{$code})";
 }
 sub make0_from_node___code {
   my($cls,$m)=@_;
-  "$m" =~ /\A\((\?\??){(.*?)}\)\z/ or die "bug";
+  $m->match_string =~ /\A\((\?\??){(.*?)}\)\z/ or die "bug";
   my($which,$code) = ($1,$2);
   return "code(q{$code})";
 }
 sub make0_from_node___independent {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{pattern});
+  my $e = $cls->make0_from_node($m->match_hash->{pattern});
   return "independent($e)";
 }
 sub make0_from_node___conditional {
   my($cls,$m)=@_;
   my($a,$h) = $cls->make0_from_children($m);
-  "$m" =~ /\A\(\?\((.*?)\)/ or die "bug";
+  $m->match_string =~ /\A\(\?\((.*?)\)/ or die "bug";
   my $test_ish = $1;
   my $test;
   if($test_ish =~ /\A\d+\z/) {
@@ -624,8 +631,8 @@ sub make0_from_node___conditional {
 }
 sub make0_from_node___lookaround {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{pattern});
-  "$m" =~ /\A\(\?(<?[=!])/ or die "bug";
+  my $e = $cls->make0_from_node($m->match_hash->{pattern});
+  $m->match_string =~ /\A\(\?(<?[=!])/ or die "bug";
   my $flavor = $1;
   my $args = {'='=>[1,1],
               '!'=>[1,0],
@@ -636,7 +643,7 @@ sub make0_from_node___lookaround {
 }
 sub make0_from_node__regex {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{pattern});
+  my $e = $cls->make0_from_node($m->match_hash->{pattern});
   return "aregexm(':p5',$e)";
 }
 
@@ -656,9 +663,9 @@ sub new_rx_from_re {
   my $o = eval {
     $m = $cls->regex()->match($re);
     print STDERR $m->match_describe,"\n" if $verbose;
-    if(!$m || $m->from != 0 || $m->to != length($re)) {
+    if(!$m->match_boolean || $m->from != 0 || $m->to != length($re)) {
       my $err = "Regexp syntax error:";
-      Carp::confess "$err / <== HERE $re/" if !$m || $m->from != 0; #XX should set beginat
+      Carp::confess "$err / <== HERE $re/" if !$m->match_boolean || $m->from != 0; #XX should set beginat
       my $at = $m->to+1;
       Carp::confess "$err /".substr($re,0,$at)." <== HERE ".substr($re,$at)."/";
     }
@@ -700,8 +707,8 @@ Regexp::ModuleA::AST::Make0->import;
 
 sub make0_from_node___subrule {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{pattern}};
-  "$m" =~ /\A<([?!]*(\w+))/ or die "bug";
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{pattern}};
+  $m->match_string =~ /\A<([?!]*(\w+))/ or die "bug";
   my $name = $1;
   my $args = (@v ? "," : "").join(",",map{"aregex($_)"}@v);
   return "sr('$name'$args)";
@@ -876,12 +883,12 @@ sub unction1 {
 
 sub make0_from_node__regex {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{pattern});
+  my $e = $cls->make0_from_node($m->match_hash->{pattern});
   return "aregex(seq(mod_inline(':perl5_x'),$e))";
 }
 sub make0_from_node___commit {
   my($cls,$m)=@_;
-  my $pat = "$m";
+  my $pat = $m->match_string;
   my $what = {':'=>'sequence',
               '::'=>'group',
               ':::'=>'regex'}->{$pat};
@@ -890,13 +897,13 @@ sub make0_from_node___commit {
 }
 sub make0_from_node__regex_sequence {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{_regex_sequence_thing}};
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{_regex_sequence_thing}};
   return (@v != 1 ? ("seq(".join(",",@v).")") : $v[0]);
 }
 sub make0_from_node___alias {
   my($cls,$m)=@_;
-  my $a = $m->{_alias_target}."";
-  my $e = $cls->make0_from_node($m->{_construct});
+  my $a = $m->match_hash->{_alias_target}->match_string."";
+  my $e = $cls->make0_from_node($m->match_hash->{_construct});
   return "alias('$a',$e)";
 }
 sub make0_from_node___quantified_non_alias_construct {
@@ -904,9 +911,14 @@ sub make0_from_node___quantified_non_alias_construct {
 }
 sub make0_from_node__regex_quantified_atom {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{regex_atom} || $m->{_non_alias_construct});
-  return $e if !$m->{regex_quantifier};
-  my $q = $m->{regex_quantifier}[0]."";
+  #my $e = $cls->make0_from_node($m->{regex_atom} || $m->{_non_alias_construct});
+  my $atom_or_alias = $m->match_hash->{regex_atom};
+  if(!defined($atom_or_alias) || !$atom_or_alias->match_boolean) {
+    $atom_or_alias = $m->match_hash->{_non_alias_construct};
+  }
+  my $e = $cls->make0_from_node($atom_or_alias);
+  return $e if !$m->match_hash->{regex_quantifier};
+  my $q = $m->match_hash->{regex_quantifier}[0]->match_string."";
   if($q =~ /^\*\*{(\d+)(?:,(\d*))?}(\?)?\z/) {
     my $ng = defined $3 ? '_ng' : '';
     my $min = $1;
@@ -924,35 +936,35 @@ sub make0_from_node__regex_quantified_atom {
 }
 sub make0_from_node__regex_ordered_disjunction {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{regex_ordered_conjunction}};
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{regex_ordered_conjunction}};
   return (@v > 1 ? ("alt(".join(",",@v).")") : $v[0]);
 }
 sub make0_from_node__regex_ordered_conjunction {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{regex_unordered_disjunction}};
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{regex_unordered_disjunction}};
   return $v[0] if @v == 1;
   return "conj(".join(",",@v).")";
 }
 sub make0_from_node__regex_unordered_disjunction {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{regex_unordered_conjunction}};
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{regex_unordered_conjunction}};
   return (@v > 1 ? ("alt(".join(",",@v).")") : $v[0]);
 }
 sub make0_from_node__regex_unordered_conjunction {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{regex_sequence}};
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{regex_sequence}};
   return $v[0] if @v == 1;
   return "conj(".join(",",@v).")";
 }
 sub make0_from_node___backref {
   my($cls,$m)=@_;
-  "$m" =~ /\A\$(\d+)\z/ or die "bug";
+  $m->match_string =~ /\A\$(\d+)\z/ or die "bug";
   my $n = $1 +1;
   return "backref($n)";
 }
 sub make0_from_node___esc {
   my($cls,$m)=@_;
-  my $pat = "$m";
+  my $pat = $m->match_string;
   $pat =~ /^\\(.)$/ or die "bug";
   my $ch = $1;
   my $nl = '\x0d\x0a?|(?<!\x0d)\x0a|\x2028\x2029';
@@ -982,7 +994,7 @@ sub make0_from_node___esc {
 }
 sub make0_from_node___esc_code {
   my($cls,$m)=@_;
-  my $pat = "$m";
+  my $pat = $m->match_string;
   $pat =~ /^\\([oOxX])(.+)$/ or die "bug";
   my $neg = ($1 eq 'O' || $1 eq 'X') ? '^' : '';
   my $code = $2;
@@ -996,7 +1008,7 @@ sub make0_from_node___esc_code {
 }
 sub make0_from_node___charclass {
   my($cls,$m)=@_;
-  my @v = map{$cls->make0_from_node($_)} @{$m->{_charset}};
+  my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{_charset}};
   my(@inc,@not);
   for my $opset (@v) {
     $opset =~ /^([-+]?)(.+)/s or die "bug";
@@ -1013,7 +1025,7 @@ sub make0_from_node___charclass {
 }
 sub make0_from_node___charset {
   my($cls,$m)=@_;
-    my $pat = "$m";
+    my $pat = $m->match_string;
     if($pat =~ /^([-+]?)\[(.+)\]$/s) {
       my $op = $1 eq '-' ? '-' : '+';
       my $set = $2;
@@ -1030,17 +1042,17 @@ sub make0_from_node___charset {
   }
 sub make0_from_node___mod_inline {
   my($cls,$m)=@_;
-    my $pat = "$m";
+    my $pat = $m->match_string;
     return "mod_inline('$pat')";
   }
 sub make0_from_node___inline5 {
   my($cls,$m)=@_;
-  my $e = Regexp::ModuleA::P5->make0_from_match($m->{pattern});
+  my $e = Regexp::ModuleA::P5->make0_from_match($m->match_hash->{pattern});
   "mod_expr(':p5',$e)";
 }
 sub make0_from_node___space {
   my($cls,$m)=@_;
-  my $pat = "$m";
+  my $pat = $m->match_string;
   $pat =~ s/\#.*\n?//g;
   $pat =~ s/\\([\\\'])/\\\\\\$1/g;
   return "aspace('$pat')";
@@ -1051,7 +1063,7 @@ sub make0_from_node___dot {
 }
 sub make0_from_node___beosl {
   my($cls,$m)=@_;
-    my $pat = "$m";
+    my $pat = $m->match_string;
     my $npat = { '^' => '\A', '$' => '\z',
                  '^^' => '(?m:^)(?!(?=\z)(?<=\n))',
                  '$$' => '(?m:$)(?!(?=\z)(?<=\n))'
@@ -1060,7 +1072,7 @@ sub make0_from_node___beosl {
   }
 sub make0_from_node___word_boundary {
   my($cls,$m)=@_;
-    my $pat = "$m";
+    my $pat = $m->match_string;
     my $npat = { '<<' => '\b(?=\w)',
                  '>>' => '\b(?<=\w)',
                  "\x{abd}" => '\b(?=\w)',
@@ -1070,7 +1082,7 @@ sub make0_from_node___word_boundary {
   }
 sub make0_from_node___literal {
   my($cls,$m)=@_;
-    my $pat = "$m";
+    my $pat = $m->match_string;
     $pat =~ /^<'(.*)'>$/ or die "bug";
     $pat = $1;
     $pat =~ s/\\([\\\'])/\\\\\\$1/g;

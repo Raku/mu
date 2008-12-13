@@ -107,7 +107,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     my $noop = $o->RMARE_noop;
     subname "<eat_backref ".($sub_id++).">" => sub {
       my $c = $_[0];
-      my $a = $$Regexp::ModuleA::ReentrantEngine::Env::leaf_match->{match_array};
+      my $a = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match->{match_array};
       FAIL() if $idx >= @$a;
       my $m = $a->[$idx];
       $m = $m->[-1] if defined($m) && ref($m) eq "ARRAY";
@@ -335,7 +335,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
       my $close = subname \'<capture_string-close \'.($myid).">" => sub {
         my $c0 = $_[0];
         my $to = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$from,$to-$from),$$m->{match_array},$$m->{match_hash},$from,$to);
+        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$from,$to-$from),$m->{match_array},$m->{match_hash},$from,$to);
         TAILCALL($c0,$c);
       };
 
@@ -361,7 +361,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
         $Regexp::ModuleA::ReentrantEngine::Env::nested_data = $nd;
         $Regexp::ModuleA::ReentrantEngine::Env::leaf_match = $leaf if $is6;
         my $to = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$from,$to-$from),$$m->{match_array},$$m->{match_hash},$from,$to);
+        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$from,$to-$from),$m->{match_array},$m->{match_hash},$from,$to);
         my $v = eval { $c0->($c) };
         if($@) {
           die "jump ".$@ if $@ =~ /^fail /;
@@ -391,7 +391,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     my $myid = $sub_id++;
     my $spec = $target_spec ? [@$target_spec] : [\'$/\',\'[\'=>$idx];
     my $root = shift(@$spec);
-    my $top = \'$$Regexp::ModuleA::ReentrantEngine::Env::leaf_match\';
+    my $top = \'$Regexp::ModuleA::ReentrantEngine::Env::leaf_match\';
     my($copy,$access);
     my $localize = $top;
     for(my $i=0;$i<@$spec;$i+=2){
@@ -422,7 +422,7 @@ subname "<alias_wrap ".($myid).">" => sub {
     $m = Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
     if($is6) {
       my $a = [map{Regexp::ModuleA::ReentrantEngine::Match0->new_failed()} (1..$nparen6)];
-      $$m->{match_array} = $a;
+      $m->{match_array} = $a;
     }
   }
   return LET(\'.$localize.\'){
@@ -431,7 +431,7 @@ subname "<alias_wrap ".($myid).">" => sub {
     if(\'.($is6 && $in_quant ? 1 : 0).\') {
       my $onto = $newa->\'.$access.\';
       $onto = [] if ref($onto) ne "ARRAY";
-      $onto = [@$onto,($array_alias ? @{$$m->{match_array}} : $m)];
+      $onto = [@$onto,($array_alias ? @{$m->{match_array}} : $m)];
       $newa->\'.$access.\' = $onto;
     } else {
       $newa->\'.$access.\' = (\'.($array_alias?1:0).\' ? [$m] : $m);
@@ -470,19 +470,19 @@ subname "<alias_wrap ".($myid).">" => sub {
         $m1 = Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
       }
       $m1->match_set(1,"",[],{},$pos,undef);
-      $$m1->{RULE} ||= $name; #EEEP
+      $m1->{match_rule} ||= $name; #EEEP
 
       my $close = subname "<subrule-close ".($myid)." $name>" => sub {
 	my $cn = $_[0];
 
         $Regexp::ModuleA::ReentrantEngine::Env::nested_data = $nd;
 
-	$$m1->{match_to} = $Regexp::ModuleA::ReentrantEngine::Env::pos; #EEEP
-	$$m1->{match_string} = substr($Regexp::ModuleA::ReentrantEngine::Env::str,$pos,$Regexp::ModuleA::ReentrantEngine::Env::pos-$pos);
+	$m1->{match_to} = $Regexp::ModuleA::ReentrantEngine::Env::pos; #EEEP
+	$m1->{match_string} = substr($Regexp::ModuleA::ReentrantEngine::Env::str,$pos,$Regexp::ModuleA::ReentrantEngine::Env::pos-$pos);
 
         my $post = $name."__post_action";
         if(UNIVERSAL::can($pkg9,$post)) {
-          $m1->_match_enable_overload1;
+          $m1->_prepare_match_for_embedded_code;
           $pkg9->$post($m1);
         }
 
@@ -492,12 +492,12 @@ subname "<alias_wrap ".($myid).">" => sub {
 
 # =pod
 #         if(!$nocap) {
-#           LET($$m0->{match_hash}{$name}){
+#           LET($m0->{match_hash}{$name}){
 #             if($in_quant) {
-#               $$m0->{match_hash}{$name} = [@{$$m0->{match_hash}{$name}||[]}];
-#               push(@{$$m0->{match_hash}{$name}},$m1);
+#               $m0->{match_hash}{$name} = [@{$m0->{match_hash}{$name}||[]}];
+#               push(@{$m0->{match_hash}{$name}},$m1);
 #             } else {
-#               $$m0->{match_hash}{$name} = $m1;
+#               $m0->{match_hash}{$name} = $m1;
 #             }
 #             $neg ? 1 : $cn->($c);
 #           }LET;
@@ -522,13 +522,13 @@ subname "<alias_wrap ".($myid).">" => sub {
       }
       if($neg) {
         if(FAILED($v)) {
-          $$m1->{match_to} = $$m1->{match_from};
-          $$m1->{match_string} = "";
+          $m1->{match_to} = $m1->{match_from};
+          $m1->{match_string} = "";
 
 # =pod
-#           LET($$m0->{match_hash}{$name}){
-#             $$m0->{match_hash}{$name} = [@{$$m0->{match_hash}{$name}||[]}];
-#             push(@{$$m0->{match_hash}{$name}},$m1);
+#           LET($m0->{match_hash}{$name}){
+#             $m0->{match_hash}{$name} = [@{$m0->{match_hash}{$name}||[]}];
+#             push(@{$m0->{match_hash}{$name}},$m1);
 #             $c->($noop);
 #           }LET;
 # =cut
@@ -555,7 +555,7 @@ subname "<alias_wrap ".($myid).">" => sub {
 
       my $m = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match;
       my $a = [map{Regexp::ModuleA::ReentrantEngine::Match0->new_failed()} (1..$nparenx)];
-      $$m->{match_array} = $a;
+      $m->{match_array} = $a;
 
       my $v = eval { $f->($c) }; #try
       if($@) {
@@ -594,7 +594,7 @@ subname "<alias_wrap ".($myid).">" => sub {
         last;
       }
       if(not FAILED($ok)) {
-        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$start,$Regexp::ModuleA::ReentrantEngine::Env::pos-$start),$$m->{match_array},$$m->{match_hash},$start,$Regexp::ModuleA::ReentrantEngine::Env::pos);
+        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$start,$Regexp::ModuleA::ReentrantEngine::Env::pos-$start),$m->{match_array},$m->{match_hash},$start,$Regexp::ModuleA::ReentrantEngine::Env::pos);
         return $m;
       }
     }
@@ -792,7 +792,7 @@ subname "<alias_wrap ".($myid).">" => sub {
 sub{my $__c__ = $_[0];
 \'.(!$need_match ? \'\' :
 \'  my $M = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
-  $M->_match_enable_overload1;\').\'
+  $M->_prepare_match_for_embedded_code;\').\'
  \'.$code.\';
  $__c__->($noop);}\';
     #print STDERR $src,"\n";
@@ -817,7 +817,7 @@ sub{my $__c__ = $_[0];
  sub{my $__c__ = $_[0];
  \'.(!$need_match ? \'\' :
  \'  my $M = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
-   $M->_match_enable_overload1;\').\'
+   $M->_prepare_match_for_embedded_code;\').\'
    my $__rx__ = \'.$code.\';
    die "(??{...}) returned undef" if !defined $__rx__;
  #  $__rx__ = "(?!)" if !defined $__rx__;
@@ -829,7 +829,7 @@ sub{my $__c__ = $_[0];
    sub _rewrite_matchvars {
      my($o_ignored,$s)=@_;
      local $_ = $s;
-     s/\$([1-9])/\'$M->[\'.($1-1).\']\'/eg; #XXX more...
+     s/\$([1-9])/\'$M->match_array->[\'.($1-1).\']\'/eg; #XXX more...
      $_;
    }
 
@@ -841,8 +841,8 @@ sub{my $__c__ = $_[0];
         my($pkg9,$name1,$s,$beginat,$minlen)=@_;
         local $Regexp::ModuleA::ReentrantEngine::Env::pkg = $pkg9;
         my $m = $o->RMARE_do_match($f,$s,$beginat,$minlen,$nparen);
-        $m->_match_enable_overload2;
-        $$m->{RULE} = $name1;
+        $m->_prepare_match_for_return;
+        $m->{match_rule} = $name1;
         if($name1) {
           my $post = $name1."__post_action";
           $pkg9->$post($m) if UNIVERSAL::can($pkg9,$post);
@@ -940,64 +940,33 @@ sub _mexpr {
 #======================================================================
 # Match
 #
-{
-  package Regexp::ModuleA::ReentrantEngine::Match2;
-  @Regexp::ModuleA::ReentrantEngine::Match2::ISA =
-    qw(Regexp::ModuleA::ReentrantEngine::Match0);
 
-  use overload
-    \'bool\' => \'match_boolean\',
-    \'""\'   => \'match_string\',
-    \'@{}\'  => \'match_array\',
-    \'%{}\'  => \'match_hash\',
-    ;
+{ package Regexp::ModuleA::ReentrantEngine::Match2;
+  @Regexp::ModuleA::ReentrantEngine::Match2::ISA = qw(Match);
 
-  sub _match_enable_overload2 { }
-  sub _match_enable_overload1 { die "assert not reached" }
+  sub _prepare_match_for_return { }
+  sub _prepare_match_for_embedded_code { }
 
-  package Regexp::ModuleA::ReentrantEngine::Match1;
+}
+{ package Regexp::ModuleA::ReentrantEngine::Match1;
   @Regexp::ModuleA::ReentrantEngine::Match1::ISA =
-    qw(Regexp::ModuleA::ReentrantEngine::Match0);
+      qw(Match Regexp::ModuleA::ReentrantEngine::Match_internal);
 
-  use overload
-    \'bool\' => \'match_boolean\',
-    \'""\'   => \'match_string\',
-    \'@{}\'  => \'match_array\',
-    \'%{}\'  => \'match_hash\',
-    ;
+  sub _prepare_match_for_embedded_code { }
 
-  # sub _match_enable_overload1 is still required.
+  use overload \'bool\' => \'match_boolean\', ;
 
-  package Regexp::ModuleA::ReentrantEngine::Match0;
+}
+{ package Regexp::ModuleA::ReentrantEngine::Match0;
+  @Regexp::ModuleA::ReentrantEngine::Match0::ISA =
+      qw(Match Regexp::ModuleA::ReentrantEngine::Match_internal);
 
-  sub _match_enable_overload2 {
+  sub _prepare_match_for_embedded_code {
     my($o)=@_;
-    use Carp; Carp::confess if ref($o) !~ /[a-z]/;
-#    eval {print STDERR $o->match_describe,"\n";};
-#    if($@){use Data::Dumper; print STDERR Dumper $o;}
-    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}@{$o->match_array}) { $m->_match_enable_overload2 }
-    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}values %{$o->match_hash}) { $m->_match_enable_overload2 }
-    bless $o, \'Regexp::ModuleA::ReentrantEngine::Match2\';
-  }
-  sub _match_enable_overload1 {
-    my($o)=@_;
-    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}@{$o->match_array}) { $m->_match_enable_overload1 }
-    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}values %{$o->match_hash}) { $m->_match_enable_overload1 }
     bless $o, \'Regexp::ModuleA::ReentrantEngine::Match1\';
   }
 
-  sub match_boolean {${$_[0]}->{match_boolean}}
-  sub match_string  {${$_[0]}->{match_string}}
-  sub match_array   {${$_[0]}->{match_array}}
-  sub match_hash    {${$_[0]}->{match_hash}}
-
-  sub from          {${$_[0]}->{match_from}}
-  sub to            {${$_[0]}->{match_to}}
-
-  sub match_value   {${$_[0]}->{match_value}}
-
-  sub new_failed {my($cls)=@_; $cls->new()->match_set_as_failed()}
-  sub new {
+  sub match_new {
     my($cls)=@_;
     my $h = {
       match_boolean => 1,
@@ -1006,115 +975,39 @@ sub _mexpr {
       match_hash    => {},
       match_from    => undef,
       match_to      => undef,
-      match_value   => undef
-      };
-    my $o = \$h;
+    };
+    my $o = $h;
     bless $o,$cls;
-    #$o->match_set(1,"",[],{});
+    #$o->match_set(1,"",[],{},undef,undef);
     return $o;
   }
+  sub new_failed {my($cls)=@_; $cls->match_new()->match_set_as_failed()}
+
+}
+{ package Regexp::ModuleA::ReentrantEngine::Match_internal;
+
+  sub _prepare_match_for_return {
+    my($o)=@_;
+    use Carp; Carp::confess if ref($o) !~ /[a-z]/;
+    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}@{$o->match_array}) { $m->_prepare_match_for_return }
+    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}values %{$o->match_hash}) { $m->_prepare_match_for_return }
+    bless $o, \'Regexp::ModuleA::ReentrantEngine::Match2\';
+  }
+
   sub match_set {
     my($o,$b,$s,$a,$h,$from,$to)=@_;
-    $$o->{match_boolean} = $b;
-    $$o->{match_string}  = $s;
-    $$o->{match_array}   = $a;
-    $$o->{match_hash}    = $h;
-    $$o->{match_from}    = $from;
-    $$o->{match_to}      = $to;
-    $$o->{match_value}   = undef;
+    $o->{match_boolean} = $b;
+    $o->{match_string}  = $s;
+    $o->{match_array}   = $a;
+    $o->{match_hash}    = $h;
+    $o->{match_from}    = $from;
+    $o->{match_to}      = $to;
     return $o;
   }
   sub match_set_as_failed {
     my($o)=@_;
-    $o->match_set(0,"",[],{});
+    $o->match_set(0,"",[],{},undef,undef);
     return $o;
-  }
-  sub match_set_value {
-    my($o,$v)=@_;
-    $$o->{match_value} = $v;
-  }
-  
-  sub match_describe {
-    my($o,$verbose_p)=@_;
-    my $vp = $verbose_p;
-    my $os = $o->match_string;
-    $os = $o->match__indent_except_top($os) if $os =~ /\n/;
-    my $s = $verbose_p ? $o->match__describe_name_as : "";
-    $s .= "<".($o->match_boolean?"1":"0").",\"$os\",[";
-    for my $v (@{$o->match_array}) {
-      my $vs = "";
-      if(ref($v) eq \'ARRAY\') {
-        $vs = "[\n".$o->match__indent(join(",\n",map{
-          $_->match_describe($vp)
-          }@$v))."\n]";
-      } else {
-        $vs = $v->match_describe($vp);
-      }
-      $s .= "\n".$o->match__indent($vs).",";
-    }
-    $s .= "\n " if @{$o->match_array};
-    $s .= "],{";
-    for my $k (keys(%{$o->match_hash})) {
-      my $v = $o->match_hash->{$k};
-      my $vs = "";
-      if(ref($v) eq \'ARRAY\') {
-        $vs = "[\n".$o->match__indent(join(",\n",map{
-          $_->match_describe($vp)
-          }@$v))."\n]";
-      } else {
-        $vs = $v->match_describe($vp);
-      }
-      $s .= "\n  $k => " .$o->match__indent_except_top($vs).",";
-    }
-    $s .= "\n " if %{$o->match_hash};
-    $s .= "},";
-    my($from,$to)=($o->from,$o->to);
-    $from = "" if !defined $from;
-    $to   = "" if !defined $to;
-    $s .= "$from,$to";
-    my $val = $o->match_value;
-    $s .= defined $val ? ",$val" : "";
-    $s .= ">";
-    return $s;
-  }
-  sub match__indent {my($o,$s)=@_; $s =~ s/^(?!\Z)/  /mg; $s}
-  sub match__indent_except_top {my($o,$s)=@_; $s =~ s/^(?<!\A)(?!\Z)/  /mg; $s}
-  sub match__describe_name_as {
-    my($o)=@_;
-    my $s = overload::StrVal($o);
-    $s .= "{".$$o->{RULE}."}" if defined $$o->{RULE};
-    $s;
-  }
-
-  sub match_copy {
-    my($o)=@_;
-    my $m = ref($o)->new()->match_set($o->match_boolean,
-                                      $o->match_string,
-                                      $o->match_array,
-                                      $o->match_hash,
-                                      $o->from,
-                                      $o->to);
-    $$m->{match_value} = $$o->{match_value};
-    $$m->{RULE} = $$o->{RULE};
-    $m;
-  }
-
-  sub match_x_process_children {
-    my($o,$fun)=@_;
-    my $a = [map{ref($_)eq\'ARRAY\'?[map{$fun->($_)}@$_]:$fun->($_)} @{$o->match_array}];
-    my $oh = $o->match_hash;
-    my %h = map{
-      my $k = $_;
-      my $v = $oh->{$k};
-      my $v1 = $v;
-      if(ref($v) eq \'ARRAY\') {
-        $v1 = [map{$fun->($_)}@$v];
-      } else {
-        $v1 = $fun->($v);
-      }
-      ($k,$v1);
-    } keys %{$oh};
-    ($a,\%h);
   }
 
 }

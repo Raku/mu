@@ -9,6 +9,8 @@ our $bang = sprintf "\\%03o", ord "!"; # \41 would not be portable.
 our $ffff  = chr(0xff) x 2;
 our $nulnul = "\0" x 2;
 
+sub match_or_undef_to_s { my $x = shift; if(defined($x)) { $x->match_string } else { "" } }
+
 my $debug_warnings = 0;
 my @tests = `cat t/re_tests`;
 sub test {
@@ -64,23 +66,23 @@ sub test {
 	my $m = $qr->($strx);
 	my $expr = $thing;
 	$expr =~ s/([^\\])\\\$([1&])/$1\\x{24}$2/g; # work around two uninteresting tests.
-	$expr =~ s/\$&/\".\$m.\"/g;
-	$expr =~ s/\$([0-9]+)/'".$m->['.($1-1).']."'/ge;
+	$expr =~ s/\$&/\".\$m->match_string.\"/g;
+	$expr =~ s/\$([0-9]+)/'".match_or_undef_to_s($m->postcircumfix__91_32_93('.($1-1).'))."'/ge;
 	$expr =~ s/\$\-\[0\]/\".\$m->from.\"/g;
 	$expr =~ s/\$\+\[0\]/\".\$m->to.\"/g;
-	$expr =~ s/\$\-\[([0-9]+)\]/'".$m->['.($1-1).']->from."'/ge;
-	$expr =~ s/\$\+\[([0-9]+)\]/'".$m->['.($1-1).']->to."'/ge;
-	$expr =~ s/\@\-/\".join(" ",\$m->from,map{\$_->from}\@\$m).\"/g;
-	$expr =~ s/\@\+/\".join(" ",\$m->to,map{\$_->to}\@\$m).\"/g;
+	$expr =~ s/\$\-\[([0-9]+)\]/'".$m->postcircumfix__91_32_93('.($1-1).')->from."'/ge;
+	$expr =~ s/\$\+\[([0-9]+)\]/'".$m->postcircumfix__91_32_93('.($1-1).')->to."'/ge;
+	$expr =~ s/\@\-/\".join(" ",\$m->from,map{\$_->from}\@{\$m->match_array}).\"/g;
+	$expr =~ s/\@\+/\".join(" ",\$m->to,map{\$_->to}\@{\$m->match_array}).\"/g;
 	$expr = "\"$expr\"";
 	if ($ok !~ /[ybB]/) {
-	    if ($m) {
+	    if ($m->match_boolean) {
 		print "not ok \# Unexpected successful match.\n";
 	    } else {
 		print "ok\n";
 	    }
 	} else {
-	    if (!$m) {
+	    if (!$m->match_boolean) {
 		print "not ok \# Match failed.\n";
 	    } else {
 		print STDERR "  eval $expr\n" if $debug_warnings;

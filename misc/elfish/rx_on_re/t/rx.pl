@@ -48,31 +48,33 @@ sub test6 {
 
 
 	if($ok eq 'y') {
-	    if ($m) {
+	    if ($m->match_boolean) {
 		print "ok\n";
 	    } else {
 		print "not ok \# Match failed.\n";
 	    }
 	}
 	elsif($ok eq 'n') {
-	    if ($m) {
+	    if ($m->match_boolean) {
 		print "not ok \# Unexpected successful match.\n";
 	    } else {
 		print "ok\n";
 	    }
 	}
 	elsif($ok =~ /^\/mob/) {
-	    if(!$m) {
+	    if(!$m->match_boolean) {
 		print "not ok \# Match failed.\n";
 	    } else {
 		$ok =~ /^\/mob\s*([^:]*):\s*(.+)\/$/ or die "assert";
 		my($subpart,$value)=($1,$2);
 		my $path = join("",map{"->$_"} map{
-		    if(/^\d+$/) {"[$_]"}
-		    elsif(/^<(.+)>$/) {"{$1}"}
+		    if(/^\d+$/) {"postcircumfix__91_32_93($_)"}
+		    elsif(/^<(.+)>$/) {"postcircumfix__60_32_62('$1')"}
 		    else {die "assert"}
 		} split(/\s+/,$subpart));
-		my $subm = eval("\$m$path");
+                my $subm = eval(" # EmitSimpleP5::prelude_lexical
+                  use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
+                  \$m$path");
 		if($@ || !defined $subm) {
 		    print "not ok \# Submatch $path nonexistant.\n";
 		    next;
@@ -84,7 +86,7 @@ sub test6 {
 		}
 		$value =~ /^\<(.*) @ (\d+)>/ or die "assert";
 		my($s,$at)=($1,$2);
-		my $got_s = "$subm";
+		my $got_s = $subm->match_string;
 		my $got_at = $subm->from;
 		my $got_ok = $got_s eq $s;
 		if(!$got_ok && $s =~ /\\/) {
