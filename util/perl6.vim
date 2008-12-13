@@ -330,6 +330,7 @@ syn region p6LiteralStringQuote
 " * There is whitespace missing on either side of the "<", since
 "   people tend to put spaces around "less than"
 " * It comes after "enum" or "for"
+" TODO: only match when there's an operator (excluding <=/=>) on either side?
 syn region p6LiteralStringAngle
     \ matchgroup=p6Quote
     \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<[-=]\@!"
