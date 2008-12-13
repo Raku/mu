@@ -266,27 +266,6 @@ HTML
 }
 
 #---------------------------------------------------------------
-# Returns a Perl 6 VIM syntax highlighted string using 
-# Text::VimColor and perl6.vim 
-#---------------------------------------------------------------
-sub vim_html {
-    my $self = shift;
-
-    #XXX-this should not be hard-coded...
-    my $symlink_exists = eval { 
-        symlink("/home/azawawi/pugs/util/perl6.vim", 
-        _shared(FILE_P6_VIM)) 
-    };
-
-    my $syntax = Text::VimColor->new(
-        string => $self->{text},
-        filetype => 'perl6'
-    );
-
-    $syntax->html;
-}
-
-#---------------------------------------------------------------
 # Returns a Perl highlighted ANSI escape color string.
 #---------------------------------------------------------------
 sub ansi_text($) {
@@ -331,6 +310,21 @@ sub parse_trees($) {
     _redspans_traverse(\&spit_parse_tree,%colors); 
 
     $parse_trees;
+}
+
+#---------------------------------------------------------------
+# Returns a Perl 6 VIM syntax highlighted string using 
+# Text::VimColor and perl6.vim 
+#---------------------------------------------------------------
+sub vim_html {
+    my $self = shift;
+
+    my $syntax = Text::VimColor->new(
+        string => $self->{text},
+        filetype => 'perl6'
+    );
+
+    $syntax->html;
 }
 
 #--------------------------------------------------------------------
@@ -616,11 +610,6 @@ Returns the Perl 6 highlighted HTML string. The HTML consists of a
 JavaScript Parse Tree Viewer along with CSS-styling. 
 It can inlined if C<inline_resources> option is 1. 
 
-=item vim_html()
-
-Returns the Perl 6 highlighted HTML string. This uses C<Text::VimColor>
-to utilize VIM's excellent syntax coloring engine.
-
 =item ansi_text()
 
 Returns a Perl highlighted ANSI escape color string.
@@ -647,6 +636,13 @@ The array consists of one or more of the following record:
     #        0,
     #        'statementlist eat_terminator '
     #      ]
+
+=item vim_html()
+
+Returns the Perl 6 VIM-highlighted HTML string. This uses C<Text::VimColor>
+to utilize VIM's excellent syntax coloring engine. Please remember to copy
+perl6.vim to your .vim/syntax. And remember that this is purely for fun. 
+If you dont have vim, then it wont work.
 
 =back
 
@@ -704,6 +700,8 @@ C<redspans> stands for C<red> for reductions, and C<spans> from the
 from/to span calculations".
 
 The JavaSript jQuery code was written by Ahmad M. Zawawi (azawawi)
+
+Thanks for perl6.vim Luke Palmer, Moritz Lenz, and Hinrik Ãn Sigurðsson
 
 =head1 COPYRIGHT AND LICENSE
 
