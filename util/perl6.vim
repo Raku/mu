@@ -17,14 +17,15 @@
 " TODO:
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
-"   * Highlight « :key<val> » correctly
-"   * Overhaul Q// and its derivatives
-"   * Overhaul regexes
+"   * Highlight « :key<val> # comment » correctly, line 2259 of S02
+"   * Overhaul :adverb, line 2324 of S02
+"   * Overhaul Q// and its derivatives, line 2475 of S02
+"   * Overhaul regexes, S05
 "
 " Impossible TODO?:
 "   * Unspace
-"   * Unicode
-"   * Pod's :allow
+"   * Anything that allows characters outside ascii/latin1
+"   * Selective highlighting Pod formatting codes with the :allow option
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
