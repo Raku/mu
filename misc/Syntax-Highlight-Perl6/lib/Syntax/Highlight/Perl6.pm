@@ -33,7 +33,7 @@ use constant FILE_JQUERY => "jquery-1.2.6.pack.js";
 use constant FILE_P6_VIM => "perl6.vim";
  
 # These are needed for redspans
-$::ACTIONS = 'Actions';
+$::ACTIONS = __PACKAGE__ . '::Actions';
 
 # my module variables
 my ($src_text,$parser,@loc);
@@ -432,7 +432,7 @@ sub _redspans_traverse($%) {
 # and we populate @loc with action references and parse trees...
 #------------------------------------------------------------------
 { 
-    package Actions;
+    package Syntax::Highlight::Perl6::Actions;
 
     our $AUTOLOAD;
 
@@ -443,7 +443,7 @@ sub _redspans_traverse($%) {
         my $C = shift;
         my $F = $C->{_from};
         my $P = $C->{_pos};
-        $AUTOLOAD =~ s/^Actions:://;
+        $AUTOLOAD =~ s/^Syntax::Highlight::Perl6::Actions:://;
         $loc[$P] = [] if $loc[$P];	# in case we backtracked to here
         my $action = $AUTOLOAD;
         my $action_ref = $action_refs{$action};
