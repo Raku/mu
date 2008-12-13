@@ -321,7 +321,8 @@ sub vim_html {
 
     my $syntax = Text::VimColor->new(
         string => $self->{text},
-        filetype => 'perl6'
+        filetype => 'perl6',
+        html_full_page => 1
     );
 
     $syntax->html;
