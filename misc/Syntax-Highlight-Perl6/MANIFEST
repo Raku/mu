@@ -3,6 +3,7 @@ Makefile.PL
 MANIFEST
 README
 t/00-syntax.t
+t/01-vim.t
 lib/Syntax/Highlight/Perl6.pm
 lib/Cursor.pmc
 lib/STD.pmc

@@ -1,5 +1,17 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.025 Dec 14 2008
+    - Updated perl6.vim to r24360
+    - Added missing t/01-vim.t 
+    - Only 35 warnings in perlcritic --brutal or -1
+    - survived perlcritic -3 (--harsh) with 2 unsolved...
+    - Added Readonly dependency, Text::VimColor is optional
+    - More documentation updates
+    - Text::VimColor support is totally optional now.
+        ->vim_html will croak if it is not installed and will 
+        also provide some advice about life in general ;-)
+    - Renamed Actions package to Syntax::Highlight::Perl6::Actions
+ 
 0.024 Dec 13 2008
     - Added vim_html method that uses Text::VimColor and perl6.vim
         to generate VIM CSS-inlined complete htmls
