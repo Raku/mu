@@ -91,7 +91,7 @@ elsif $o<quantified_atom> {
   my $seq = $m<quantified_atom>;
   my $n = $seq.elems;
   if $n == 1 { $seq[0] }
-  elsif $n > 1 { RxSequence.newp($seq) }
+  elsif $n > 1 { RxSeq.newp($seq) }
   else { undef }
 }
 else { die "Didn't understand an EXPR node" }
@@ -679,19 +679,56 @@ $m<nibble>
 quantified_atom
 my $quant = $m<quantifier>[0];
 my $atom = $m<atom>;
+my $g;
 if not($quant) { return $atom; }
-if $quant eq '?' {
-  RxQuant.newp(0,1,$atom,0)
-} else {
+elsif ($g = $quant.re_groups('{(\d+)(?:,(\d*))?}(\?)?\z')) {
+  my $ng = $g[2];
+  my $min = $g[0];
+  my $max = $g[1]; if !defined($max) { $max = 1000**1000**1000 }; #XXX inf
+  RxQuant.newp($min,$max,$atom,$ng)
+}
+elsif ($g = $quant.re_groups('([?*+])(\?)?\z')) {
+  my $ng = $g[1];
+  my $op = $g[0];
+  if    $op eq '?' { RxQuant.newp(0,1,$atom,$ng) }
+  elsif $op eq '*' { RxQuant.newp(0,undef,$atom,$ng) }
+  elsif $op eq '+' { RxQuant.newp(1,undef,$atom,$ng) }
+  else { die "bug" }
+}
+else {
   die "quantified_atom incompletely implemented";
 }
 
 atom
-my $char = *text*;
-RxExact.newp($char)
+if $o<metachar> {
+  $m<metachar>
+}
+else {
+  my $char = *text*;
+  RxExact.newp($char)
+}
 
 quantifier
 *text*
+
+metachar
+my $x = *text*;
+if $o<mod_internal> {
+  my $rest = $m<mod_internal><nibbler><EXPR>;
+  RxSeq.newp([$m<mod_internal>,$rest]);
+} elsif $x eq '.' { RxPat5.newp('.')
+} elsif $x eq '^' { RxPat5.newp('^') #XXX Need to know if we're in p5 or p6.
+} elsif $x eq '$' { RxPat5.newp('$') #XXX Need to know if we're in p5 or p6.
+} else {
+  die "Unimplemented metachar";
+}
+
+mod_internal
+my $after = $o<nibbler>.from;
+my $text = *text*;
+my $modpat = substr($text,0,$after-$m.from);
+my $mods = IRx1::RxMixinMod.mods_from_modpat($modpat);
+RxMod_inline.newp($mods)
 
 
 quote:regex

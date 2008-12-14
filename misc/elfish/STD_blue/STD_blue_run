@@ -27,7 +27,7 @@ $0 [-q] [--format=FORMAT] [ --start=RULE ] [ FILENAME | -e CODE ]
 
 --start is ignored.  See src/perl6/try5 for how to do it.
 
-Set STD_RED_CACHEDIR as with STD_red_run.
+Set STD_BLUE_CACHEDIR to cache parse results.
 
 FORMATs
  p5a
@@ -90,7 +90,7 @@ sub main {
   }
 
   my($cache_file,$output) = cached_output_for($code, $format);
-  $output = undef; #XXX disable cache
+  #$output = undef; #XXX disable cache
   if($output && !$dash_e){print $output; exit;}
 
   if(!$filename) {
@@ -127,7 +127,7 @@ sub main {
 }
 sub cached_output_for {
   my($code,$format)=@_;
-  my $cachedir = $ENV{STD_RED_CACHEDIR};
+  my $cachedir = $ENV{STD_BLUE_CACHEDIR};
   return undef if !$cachedir || !$format;
   my $input = $code.$format;
   my $input_sig = md5_hex($input);
