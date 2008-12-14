@@ -1,9 +1,12 @@
-use Test::More tests => 3;
-use Test::Exception;
+use English qw( -no_match_vars ) ;  # Avoids regex performance penalty
+use Test::More;
 
-#it can be used...
-BEGIN { 
-    use_ok('Syntax::Highlight::Perl6'); 
+#This is an optional package so we're going to test for it
+eval { require Text::VimColor; };
+if($EVAL_ERROR) {
+    plan skip_all => 'Text::VimColor is not installed';
+} else {
+    plan tests => 2;
 }
 
 #tests for vim_html()

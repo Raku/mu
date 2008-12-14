@@ -14,7 +14,6 @@ require Exporter;
 
 # cpan modules
 use Term::ANSIColor;
-use Text::VimColor;
 
 # Larry's STD.pm
 use STD;
@@ -315,10 +314,20 @@ sub parse_trees($) {
 #---------------------------------------------------------------
 # Returns a Perl 6 VIM syntax highlighted string using 
 # Text::VimColor and perl6.vim 
+# Note: works only if Text::VimColor is installed
 #---------------------------------------------------------------
 sub vim_html {
     my $self = shift;
 
+    #This is an optional package so we're going to test for it
+    eval { require Text::VimColor; };
+    if($EVAL_ERROR) {
+        croak "Text::VimColor is not currently installed.\n" .
+              "You may also need to copy perl6.vim manually to ~/.vim/syntax\n" .
+              "perl6.vim is found at:\n" . 
+              _shared(FILE_P6_VIM) . "\n";
+    }
+ 
     my $syntax = Text::VimColor->new(
         string => $self->{text},
         filetype => 'perl6',
@@ -640,10 +649,11 @@ The array consists of one or more of the following record:
 
 =item vim_html()
 
-Returns the Perl 6 VIM-highlighted HTML string. This uses C<Text::VimColor>
-to utilize VIM's excellent syntax coloring engine. Please remember to copy
-perl6.vim to your .vim/syntax. And remember that this is purely for fun. 
-If you dont have vim, then it wont work.
+Returns the Perl 6 highlighted HTML string that was generated using
+VIM's excellent syntax coloring engine. Please remember to copy
+perl6.vim to your ~/.vim/syntax. And remember that this is purely for fun. 
+If you dont have vim, then it wont work. And you need also to have 
+C<Text::VimColor> installed.
 
 =back
 
