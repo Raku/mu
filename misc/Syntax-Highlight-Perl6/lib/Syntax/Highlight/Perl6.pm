@@ -1,3 +1,9 @@
+#
+# Id: $Id$
+# Revision: $Revision$
+# Date: $Date$
+# Author: $Author$
+#
 package Syntax::Highlight::Perl6;
 
 # core modules & directives
@@ -29,7 +35,7 @@ Readonly my $FILE_ANSI   => 'p6_style.ansi';
 Readonly my $FILE_JS     => 'p6_style.js';
 Readonly my $FILE_JQUERY => 'jquery-1.2.6.pack.js';
 Readonly my $FILE_P6_VIM => 'perl6.vim';
- 
+
 # These are needed for redspans
 $::ACTIONS = __PACKAGE__ . '::Actions';
 
@@ -38,29 +44,29 @@ my ($src_text,$parser,@loc);
 my $parsed_lazily = 0;
 
 #find out the real path of the rsc directory
-unless(-f __FILE__) {
+if(! -f __FILE__) {
     croak 'Syntax::Highlight::Perl6 cannot see where it is installed'
 }
 my $SHARED = realpath(File::Spec->join(
-            dirname(__FILE__),"../../rsc"));
+            dirname(__FILE__),'../../rsc'));
 
 #----------------------------------------------------------------
-# Returns the syntax highlighting object. It needs a hash 
+# Returns the syntax highlighting object. It needs a hash
 # of options.
 #----------------------------------------------------------------
 sub new {
     my ($class, %options) = @ARG;
     $options{rule} = $options{rule} // 'comp_unit';
     $options{inline_resources} = $options{inline_resources} // 0;
-    $options{resource_url} = $options{resource_url} // qq{};
-    $options{page_title} = $options{page_title} // qq{};
+    $options{resource_url} = $options{resource_url} // q{};
+    $options{page_title} = $options{page_title} // q{};
     $options{utf8_decode} = $options{utf8_decode} // 1;
 
     #is 'text' undefined?
-    croak "'text' option is not found in $class->new" 
+    croak "'text' option is not found in $class->new"
         if (!$options{text});
-    
-    return bless(\%options, $class);
+
+    return bless \%options, $class;
 }
 
 #----------------------------------------------------------------
@@ -69,18 +75,18 @@ sub new {
 #----------------------------------------------------------------
 sub _lazy_parse {
     my $self = shift;
-    
+
     if(!$parsed_lazily) {
-    
+
         # utf8-decode if required
-        $src_text = $self->{utf8_decode} ? 
-            decode('utf8', $self->{text} ) : 
+        $src_text = $self->{utf8_decode} ?
+            decode('utf8', $self->{text} ) :
             $self->{text};
-        
-        #grow the loc array while checking for empty strings 
-        my $len = length($src_text);
-        if($len == 0) { 
-            $src_text = " ";
+
+        #grow the loc array while checking for empty strings
+        my $len = length $src_text;
+        if($len == 0) {
+            $src_text = q{ };
         }
         $loc[$len - 1] = [];
 
@@ -100,13 +106,13 @@ sub _lazy_parse {
 #---------------------------------------------------------------------
 sub snippet_html {
     my $self = shift;
-    my $str = "";
+    my $str = q{};
 
     $self->_lazy_parse();
-    
+
     my %colors = _read_css_file();
-    
-    $str .= "<pre>";
+
+    $str .= '<pre>';
 
     local *spit_snippet_html = sub {
         my ($i, $buffer, $rule, $tree) = @ARG;
@@ -118,35 +124,33 @@ sub snippet_html {
             $str .= $buffer;
         }
     };
-    _redspans_traverse(\&spit_snippet_html,%colors); 
+    _redspans_traverse(\&spit_snippet_html,%colors);
 
-    $str .= "</pre>";
+    $str .= '</pre>';
 
     return $str;
 }
 #---------------------------------------------------------------
-# Returns the Perl 6 highlighted HTML string 
+# Returns the Perl 6 highlighted HTML string
 # (without the JavaScript stuff).
 #---------------------------------------------------------------
 sub simple_html {
     my $self = shift;
-    my $str = "";
+    my $str = q{};
 
     $self->_lazy_parse();
 
     my %colors = _read_css_file();
- 
+
     # slurp css inline it
-    my $css; 
+    my $css;
     if($self->{inline_resources}) {
         $css = _slurp(_shared($FILE_CSS))
             or croak "Error while slurping file: $OS_ERROR\n";
         $css = qq{<style type="text/css">\n$css\n</style>};
     } else {
         my $prefix = $self->{resource_url};
-        $css = qq{<link href="$prefix} . 
-            $FILE_CSS . 
-            qq{" rel="stylesheet" type="text/css">};
+        $css = qq{<link href="$prefix$FILE_CSS" rel="stylesheet" type="text/css">};
     }
     my $page_title = $self->{page_title};
     my $timestamp = localtime;
@@ -173,9 +177,9 @@ HTML
         }
     };
 
-    _redspans_traverse(\&spit_simple_html,%colors); 
+    _redspans_traverse(\&spit_simple_html,%colors);
 
-    $str .= <<"HTML";
+    $str .= <<'HTML';
     </pre>
 </body>
 </html>
@@ -190,7 +194,7 @@ HTML
 #-------------------------------------------------------------------
 sub full_html {
     my $self = shift;
-    my $str = "";
+    my $str = q{};
 
     $self->_lazy_parse();
 
@@ -199,18 +203,18 @@ sub full_html {
     my ($jquery_js,$js,$css);
     if($self->{inline_resources}) {
         my $contents;
-        $contents = _slurp(_shared($FILE_JQUERY)) 
-            or croak "Error while slurping file: $OS_ERROR\n";    
+        $contents = _slurp(_shared($FILE_JQUERY))
+            or croak "Error while slurping file: $OS_ERROR\n";
         $jquery_js = qq{<script type="text/javascript">\n$contents\n</script>};
-        $contents = _slurp(_shared($FILE_JS)) 
+        $contents = _slurp(_shared($FILE_JS))
             or croak "Error while slurping file: $OS_ERROR\n";
         $js = qq{<script type="text/javascript">\n$contents\n</script>};
         $contents = _slurp(_shared($FILE_CSS))
             or croak "Error while slurping file: $OS_ERROR\n";
         $css = qq{<style type="text/css">\n$contents\n</style>};
     } else {
-        my $prefix = $self->{resource_url};  
-        $jquery_js = 
+        my $prefix = $self->{resource_url};
+        $jquery_js =
             qq{<script type="text/javascript" src="$prefix$FILE_JQUERY"></script>};
         $js = qq{<script type="text/javascript" src="$prefix$FILE_JS"></script>};
         $css = qq{<link href="$prefix$FILE_CSS" rel="stylesheet" type="text/css">};
@@ -250,9 +254,9 @@ HTML
         }
     };
 
-    _redspans_traverse(\&spit_full_html,%colors); 
+    _redspans_traverse(\&spit_full_html,%colors);
 
-    $str .= <<"HTML";
+    $str .= <<'HTML';
     </pre>
 </body>
 </html>
@@ -266,7 +270,7 @@ HTML
 #---------------------------------------------------------------
 sub ansi_text {
     my $self = shift;
-    my $str = "";
+    my $str = q{};
 
     $self->_lazy_parse();
 
@@ -282,7 +286,7 @@ sub ansi_text {
         }
     };
 
-    _redspans_traverse(\&spit_ansi_text,%colors); 
+    _redspans_traverse(\&spit_ansi_text,%colors);
 
     return $str;
 }
@@ -298,19 +302,19 @@ sub parse_trees {
     $self->_lazy_parse();
 
     my %colors = _read_ansi_file();
-    my $parse_trees = []; 
+    my $parse_trees = [];
     local *spit_parse_tree = sub {
-        push @$parse_trees, [@ARG];
+        push @{$parse_trees}, [@ARG];
     };
 
-    _redspans_traverse(\&spit_parse_tree,%colors); 
+    _redspans_traverse(\&spit_parse_tree,%colors);
 
     return $parse_trees;
 }
 
 #---------------------------------------------------------------
-# Returns a Perl 6 VIM syntax highlighted string using 
-# Text::VimColor and perl6.vim 
+# Returns a Perl 6 VIM syntax highlighted string using
+# Text::VimColor and perl6.vim
 # Note: works only if Text::VimColor is installed
 #---------------------------------------------------------------
 sub vim_html {
@@ -320,9 +324,9 @@ sub vim_html {
     eval { require Text::VimColor; 1; }
         or croak "Text::VimColor is not currently installed.\n" .
             "You may also need to copy perl6.vim manually to ~/.vim/syntax\n" .
-            "perl6.vim is found at:\n" . 
+            "perl6.vim is found at:\n" .
             _shared($FILE_P6_VIM) . "\n";
- 
+
     my $syntax = Text::VimColor->new(
         string => $self->{text},
         filetype => 'perl6',
@@ -333,20 +337,20 @@ sub vim_html {
 }
 
 #--------------------------------------------------------------------
-# Reads the css file and return a hash of colors 
-#-------------------------------------------------------------------- 
+# Reads the css file and return a hash of colors
+#--------------------------------------------------------------------
 sub _read_css_file {
 
     my %colors = ();
     my $filename = _shared($FILE_CSS);
-    my $fh = IO::File->new($filename) 
+    my $fh = IO::File->new($filename)
         or croak "Could not open $filename: $OS_ERROR\n";
     my $line;
     while($line = <$fh>) {
         if($line =~ /^\s*           # <whitespace>
                     \.(\w+)\s*      # .<css class>
                     {\s*(.+?)\s*}   # { <css style>* }
-                    /x) 
+                    /x)
         {
             $colors{$1} = $2;
         }
@@ -368,9 +372,9 @@ sub _read_ansi_file {
         or croak "Could not open $filename: $OS_ERROR\n";
     my $line;
     while($line = <$fh>) {
-        if($line =~ /^(\w+)     # <start> <rule-name>
+        if($line =~ m{^(\w+)     # <start> <rule-name>
                     =(.+)$      # <=> <ansi-color> <end>
-                    /x) 
+                    }x)
         {
             $colors{$1} = $2;
         }
@@ -383,59 +387,59 @@ sub _read_ansi_file {
 
 
 #---------------------------------------------------------------
-#    Helper private method that traverses STD.pm's parse 
-# tree array. It needs a callback process_buffer and a 
+#    Helper private method that traverses STD.pm's parse
+# tree array. It needs a callback process_buffer and a
 # colors hash.
 #---------------------------------------------------------------
 sub _redspans_traverse {
     my ($process_buffer,%colors) = @ARG;
 
-    my ($last_tree,$buffer, $last_type) = ("","","");
+    my ($last_tree,$buffer, $last_type) = (q{},q{},q{});
     for my $i (0 .. @loc-1) {
-        unless(defined $loc[$i]) {
+        if(! defined $loc[$i]) {
             next;
         }
-        my $c = substr($src_text,$i,1);
-        my $tree = "";
+        my $c = substr $src_text, $i, 1;
+        my $tree = q{};
         for my $action_ref (@{$loc[$i]}) {
-            $tree .= ${$action_ref} . " ";
+            $tree .= ${$action_ref} . q{ };
         }
         if($tree ne $last_tree) {
             my $rule_to_color = 0;
             $buffer = $buffer;
             my @rules = ();
-            if($last_tree ne '') {
-                @rules = reverse(split / /,$last_tree);
+            if($last_tree ne q{}) {
+                @rules = reverse split / /,$last_tree;
             }
             for my $rule (@rules) {
                 if($rule eq 'unv') {
                     $rule_to_color = '_comment';
                     last;
-                } elsif($colors{$rule} && $buffer ne '') {
+                } elsif($colors{$rule} && $buffer ne q{}) {
                     $rule_to_color = $rule;
                     last;
                 }
             }
             if($rule_to_color) {
                 if($last_tree =~ /\sidentifier/x) {
-                    if($last_type ne '') {
+                    if($last_type ne q{}) {
                         $rule_to_color = $last_type;
-                        $last_type = '';
-                    } 
+                        $last_type = q{};
+                    }
                 } elsif($last_tree =~ /\ssigil/x) {
                     given($buffer) {
                         when ('$') { $last_type = '_scalar'; }
                         when ('@') { $last_type = '_array'; }
                         when ('%') { $last_type = '_hash'; }
-                        default { $last_type = ''; }
+                        default { $last_type = q{}; }
                     };
-                    if($last_type ne '') {      
+                    if($last_type ne q{}) {
                         $rule_to_color = $last_type;
-                    } 
-                }             
+                    }
+                }
             }
             #now delegate printing to a callback
-            $process_buffer->($i, $buffer, $rule_to_color, $last_tree); 
+            $process_buffer->($i, $buffer, $rule_to_color, $last_tree);
             $buffer = $c;
         } else {
             $buffer .= $c;
@@ -450,7 +454,7 @@ sub _redspans_traverse {
 # STD.pm calls this method when you call STD->parse(...)
 # and we populate @loc with action references and parse trees...
 #------------------------------------------------------------------
-{ 
+{
     package Syntax::Highlight::Perl6::Actions;
 
     our $AUTOLOAD;
@@ -465,7 +469,7 @@ sub _redspans_traverse {
         $AUTOLOAD =~ s/^Syntax::Highlight::Perl6::Actions:://x;
         if($loc[$P]) {
             # in case we backtracked to here
-            $loc[$P] = [] 
+            $loc[$P] = []
         }
         my $action = $AUTOLOAD;
         my $action_ref = $action_refs{$action};
@@ -485,7 +489,7 @@ sub _redspans_traverse {
 }
 
 #---------------------------------------------------------------
-# Private method to converts characters to their equivalent 
+# Private method to converts characters to their equivalent
 # html entities.
 #----------------------------------------------------------------
 sub _escape_html {
@@ -494,9 +498,9 @@ sub _escape_html {
         '<'     => '&lt;',
         '>'     => '&gt;',
         '"'     => '&quot;',
-        '&'     => '&amp;'
+        '&'     => '&amp;',
     );
-    my $re = join '|', 
+    my $re = join '|',
         map { quotemeta } keys %esc;
     $str =~ s/($re)      # convert <>"&
              /$esc{$1}   # to their html escape sequences
@@ -521,7 +525,7 @@ sub _slurp {
         or croak "Could not open $filename for reading";
     local $INPUT_RECORD_SEPARATOR = undef;   #enable localized slurp mode
     my $contents = <$fh>;
-    close $fh 
+    close $fh
         or croak "Could not close $filename";
     return $contents;
 }
@@ -558,7 +562,7 @@ Syntax::Highlight::Perl6 - a Perl 6 syntax highlighter
     # Prints ANSI escaped color sequences (useful for console and IRC output)
     print $p->ansi_text;
 
-    # Prints the Perl 5 array of parse trees (useful for building stuff on top of it) 
+    # Prints the Perl 5 array of parse trees (useful for building stuff on top of it)
     print $p->parse_trees;
 
     # Prints VIM syntax highlighted html
@@ -568,8 +572,8 @@ Syntax::Highlight::Perl6 - a Perl 6 syntax highlighter
 
 This module parses Perl 6 source code using STD.pm, then matches nodes to colors
 and returns them in different output formats.
-It can be used to create web pages with colorful source code samples in its 
-simple and snippet html modes, or it can be used as a learning tool in examining 
+It can be used to create web pages with colorful source code samples in its
+simple and snippet html modes, or it can be used as a learning tool in examining
 STD.pm's parsing using the JavaScript node viewer in its full html mode.
 
 The available output formats are:
@@ -587,7 +591,7 @@ The available output formats are:
 
 =back
 
-=head1 METHODS
+=head1 SUBROUTINES/METHODS
 
 The following methods are available:
 
@@ -602,7 +606,7 @@ The following options are available:
 
 =item * text
 
-I<This is a required option.> 
+I<This is a required option.>
 This is where you should provide the Perl 6 code.
 
 =item * rule
@@ -619,7 +623,7 @@ HTML resource url that will be appended when resource inlining is disabled.
 
 =item * page_title
 
-HTML page title for C<simple_html> and C<full_html> (default: '')
+HTML page title for C<simple_html> and C<full_html> (default: q{})
 
 =item * utf8_decode
 
@@ -629,19 +633,19 @@ Flag to enable/disable utf8 decoding. (default: 1 (Enabled))
 
 =item * snippet_html()
 
-Returns the Perl 6 highlighted HTML string that can be embedded. 
+Returns the Perl 6 highlighted HTML string that can be embedded.
 No CSS or JavaScript is inside.
 
 =item * simple_html()
 
-Returns the Perl 6 highlighted HTML string. The HTML code is the same 
-as C<full_html> but lacks a JavaScript Parse Tree Viewer. 
+Returns the Perl 6 highlighted HTML string. The HTML code is the same
+as C<full_html> but lacks a JavaScript Parse Tree Viewer.
 
 =item * full_html()
 
-Returns the Perl 6 highlighted HTML string. The HTML consists of a 
-JavaScript Parse Tree Viewer along with CSS-styling. 
-It can inlined if C<inline_resources> option is 1. 
+Returns the Perl 6 highlighted HTML string. The HTML consists of a
+JavaScript Parse Tree Viewer along with CSS-styling.
+It can inlined if C<inline_resources> option is 1.
 
 =item * ansi_text()
 
@@ -674,7 +678,7 @@ The array consists of one or more of the following record:
 
 Returns the Perl 6 highlighted HTML string that was generated using
 VIM's excellent syntax coloring engine. Please remember to copy
-perl6.vim to your ~/.vim/syntax. 
+perl6.vim to your ~/.vim/syntax.
 
 NOTE: This method needs VIM to work properly along with L<Text::VimColor>.
 
@@ -684,14 +688,14 @@ NOTE: This method needs VIM to work properly along with L<Text::VimColor>.
 
 L<Text::VimColor>
 
-Discussion about this module and STD.pm is usually in #perl6 
-(irc://irc.freenode.net/perl6). Larry Wall's C<STD.pm> lives in 
-http://svn.pugscode.org/pugs/src/perl6 . C<perl6.vim> lives in 
+Discussion about this module and STD.pm is usually in #perl6
+(irc://irc.freenode.net/perl6). Larry Wall's C<STD.pm> lives in
+http://svn.pugscode.org/pugs/src/perl6 . C<perl6.vim> lives in
 http://svn.pugscode.org/pugs/util/perl6.vim .
 
 =head1 BUGS AND LIMITATIONS
 
-If you find any bugs, please submit them to 
+If you find any bugs, please submit them to
 http://rt.cpan.org/NoAuth/Bugs.html?Dist=Syntax::Highlight::Perl6. Thanks.
 
 These are the bugs that i am currently aware of:
@@ -716,7 +720,7 @@ So this is Pretty Voodoo Stuff. Otherwise it will be pretty slow.
 
 =item * Slow startup when using the module for the first time
 
-That is related to the creation of the cached 'lex'ing directory by STD.pm. 
+That is related to the creation of the cached 'lex'ing directory by STD.pm.
 I<This happens only once.>
 
 =back
@@ -725,18 +729,18 @@ I<This happens only once.>
 
 Written by Ahmad M. Zawawi E<lt>ahmad.zawawi@gmail.comE<gt> (aka azawawi in #perl6).
 
-The project idea was inspired by Moritz Lenz (moritz) - 
+The project idea was inspired by Moritz Lenz (moritz) -
 http://www.nntp.perl.org/group/perl.perl6.users/2008/07/msg788.html .
 Larry Wall's C<gimme5>-generated Perl5 C<STD.pmc> is included to parse Perl 6 code.
 The initial STD tree traversal code was written by Paweł Murias (pmurias).
-It was replaced afterwards for performance reasons with Larry Wall's 
-C<redspans> traversal code. C<redspans> stands for C<red> for reductions, 
-and C<spans> from the "from/to span calculations". The included perl6.vim 
+It was replaced afterwards for performance reasons with Larry Wall's
+C<redspans> traversal code. C<redspans> stands for C<red> for reductions,
+and C<spans> from the "from/to span calculations". The included perl6.vim
 is written by Luke Palmer, Moritz Lenz, and Hinrik Ãn Sigurðsson. T
 
 Thanks guys. I could not have done it without you ;-)
 
-=head1 COPYRIGHT AND LICENSE
+=head1 LICENSE AND COPYRIGHT
 
 Copyright (C) 2008 by Ahmad Zawawi
 
