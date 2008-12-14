@@ -4,7 +4,7 @@ use Test;
 
 plan 4;
 
-# Printing a big string causes a stack overflow.
+# Printing a big string caused a stack overflow in pugs.
 #
 # On my system, this happens with 2**20 length strings but
 # not 2*19.
@@ -19,15 +19,13 @@ my $fh = open $filename, :w;
 ok $fh, "temp file created successfully";
 
 lives_ok {
-        say $fh: "a" x (2**19);
+        $fh.say: "a" x (2**19);
     }, "2**19 char string prints"; # works, on my system
 
 lives_ok {
-        say $fh: "a" x (2**20);
+        $fh.say: "a" x (2**20);
     }, "2**20 char string prints"; # dies, on my system
 
 $fh.close;
 
-END {
-    is unlink($filename), 1, "temp file unlinked successfully";
-}
+ok unlink($filename), "temp file unlinked successfully";

@@ -2,11 +2,11 @@ use v6;
 
 use Test;
 
-=begin kwid
+=begin docs
 
 Array .end tests
-L<A02/"Other Decisions About Variables" /use \@foo\.end instead\./>
-=end kwid
+L<S29/Array/=item end>
+=end docs
 
 plan 14;
 

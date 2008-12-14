@@ -21,23 +21,23 @@ force_todo(1..7);
 my $str = "abcabcabc";
 ok($str ~~ m:p/abc/, 'Continued match');
 
-ok(eval(q{$str.pos == 3}), 'Continued match pos');
+ok($/.to == 3, 'Continued match pos');
 
 $str = "abcabcabc";
 my $x = $str ~~ m:i:p/abc/;
-ok(eval(q{$str.pos == 3}), 'Insensitive continued match pos');
+ok($/.to == 3, 'Insensitive continued match pos');
 
 $x = $str ~~ m:i:p/abc/;
-ok(eval(q{$str.pos == 6}), 'Insensitive recontinued match pos');
+ok($/.to == 6, 'Insensitive recontinued match pos');
 
 $str = "abcabcabc";
 my @x = $str ~~ m:i:g:p/abc/;
 is("@x", "abc abc abc", 'Insensitive repeated continued match');
-ok(eval(q{$str.pos == 9}), 'Insensitive repeated continued match pos');
+ok($/.to == 9}, 'Insensitive repeated continued match pos');
 
 $str = "abcabcabc";
 @x = ?($str ~~ m:p:i:g/abc/);
-ok(eval(q{$str.pos == 3}), 'Insensitive scalar repeated continued match pos');
+ok($/.to == 3, 'Insensitive scalar repeated continued match pos');
 
 }
 
