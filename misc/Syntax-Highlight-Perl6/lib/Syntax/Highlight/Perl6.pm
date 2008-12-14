@@ -570,61 +570,61 @@ The following methods are available:
 
 =over 4
 
-=item new(options)
+=item * new(options)
 
 Returns the syntax highlighting object. It needs a hash of options.
 The following options are available:
 
 =over 4
 
-=item text
+=item * text
 
 I<This is a required option.> 
 This is where you should provide the Perl 6 code.
 
-=item rule
+=item * rule
 
 parse rule name for STD.pm to parse against (default: comp_unit)
 
-=item inline_resources
+=item * inline_resources
 
 Flag to enable/disable CSS/JavaScript HTML inlining. (default: 0 (Disabled))
 
-=item resource_url
+=item * resource_url
 
 HTML resource url that will be appended when resource inlining is disabled.
 
-=item page_title
+=item * page_title
 
 HTML page title for C<simple_html> and C<full_html> (default: '')
 
-=item utf8_decode
+=item * utf8_decode
 
 Flag to enable/disable utf8 decoding. (default: 1 (Enabled))
 
 =back
 
-=item snippet_html()
+=item * snippet_html()
 
 Returns the Perl 6 highlighted HTML string that can be embedded. 
 No CSS or JavaScript is inside.
 
-=item simple_html()
+=item * simple_html()
 
 Returns the Perl 6 highlighted HTML string. The HTML code is the same 
 as C<full_html> but lacks a JavaScript Parse Tree Viewer. 
 
-=item full_html()
+=item * full_html()
 
 Returns the Perl 6 highlighted HTML string. The HTML consists of a 
 JavaScript Parse Tree Viewer along with CSS-styling. 
 It can inlined if C<inline_resources> option is 1. 
 
-=item ansi_text()
+=item * ansi_text()
 
 Returns a Perl highlighted ANSI escape color string.
 
-=item parse_trees()
+=item * parse_trees()
 
 Returns a Perl 5 array containing parse tree records.
 The array consists of one or more of the following record:
@@ -647,45 +647,51 @@ The array consists of one or more of the following record:
     #        'statementlist eat_terminator '
     #      ]
 
-=item vim_html()
+=item * vim_html()
 
 Returns the Perl 6 highlighted HTML string that was generated using
 VIM's excellent syntax coloring engine. Please remember to copy
-perl6.vim to your ~/.vim/syntax. And remember that this is purely for fun. 
-If you dont have vim, then it wont work. And you need also to have 
-C<Text::VimColor> installed.
+perl6.vim to your ~/.vim/syntax. 
+
+NOTE: This method needs VIM to work properly along with L<Text::VimColor>.
 
 =back
 
 =head1 SEE ALSO
 
-Discussion about this module and STD.pm is usually in #perl6 @ irc.freenode.net
+L<Text::VimColor>
 
-Larry Wall's STD.pm lives in http://svn.pugscode.org/pugs/src/perl6/
+Discussion about this module and STD.pm is usually in #perl6 
+(irc://irc.freenode.net/perl6). Larry Wall's C<STD.pm> lives in 
+http://svn.pugscode.org/pugs/src/perl6 . C<perl6.vim> lives in 
+http://svn.pugscode.org/pugs/util/perl6.vim .
 
-=head1 BUGS
+=head1 BUGS AND LIMITATIONS
 
-What's a programmer's life without a few bugs to solve:
+If you find any bugs, please submit them to 
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=Syntax::Highlight::Perl6. Thanks.
+
+These are the bugs that i am currently aware of:
 
 =over 4
 
-=item Can't call method "bless" on an undefined value at STD.pm line 5269.
+=item * Can't call method "bless" on an undefined value at STD.pm line 5269.
 
 You have to put "use STD;" before using this module.
 
     use STD; # this must be first for now
     use Syntax::Highlight::Perl6;
 
-=item A log file is always created when using this module.
+=item * A log file is always created when using this module.
 
 This is a bug and im working on it. Most probably it is STD.pm-related
 
-=item Directory 'lex' is created when using this module.
+=item * Directory 'lex' is created when using this module.
 
 STD.pm caches digraphs and the matched rules in there.
 So this is Pretty Voodoo Stuff. Otherwise it will be pretty slow.
 
-=item Slow startup when using the module for the first time
+=item * Slow startup when using the module for the first time
 
 That is related to the creation of the cached 'lex'ing directory by STD.pm. 
 I<This happens only once.>
@@ -694,25 +700,18 @@ I<This happens only once.>
 
 =head1 AUTHOR
 
-Ahmad Zawawi, E<lt>ahmad.zawawi@gmail.comE<gt>
+Written by Ahmad M. Zawawi E<lt>ahmad.zawawi@gmail.comE<gt> (aka azawawi in #perl6).
 
-Written by Ahmad M. Zawawi (azawawi), Moritz Lenz and Paweł Murias (pmurias)
-
-The project idea was inspired by Moritz Lenz (moritz)
-See http://www.nntp.perl.org/group/perl.perl6.users/2008/07/msg788.html
-
+The project idea was inspired by Moritz Lenz (moritz) - 
+http://www.nntp.perl.org/group/perl.perl6.users/2008/07/msg788.html .
+Larry Wall's C<gimme5>-generated Perl5 C<STD.pmc> is included to parse Perl 6 code.
 The initial STD tree traversal code was written by Paweł Murias (pmurias).
+It was replaced afterwards for performance reasons with Larry Wall's 
+C<redspans> traversal code. C<redspans> stands for C<red> for reductions, 
+and C<spans> from the "from/to span calculations". The included perl6.vim 
+is written by Luke Palmer, Moritz Lenz, and Hinrik Ãn Sigurðsson. T
 
-A C<gimme5>-generated Perl5 C<STD.pmc> is included to parse Perl 6 code.
-
-The C<redspans> traversal code was written by Larry Wall (TimToady).
-
-C<redspans> stands for C<red> for reductions, and C<spans> from the 
-from/to span calculations".
-
-The JavaSript jQuery code was written by Ahmad M. Zawawi (azawawi)
-
-Thanks for perl6.vim Luke Palmer, Moritz Lenz, and Hinrik Ãn Sigurðsson
+Thanks guys. I could not have done it without you ;-)
 
 =head1 COPYRIGHT AND LICENSE
 
