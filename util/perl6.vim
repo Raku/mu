@@ -40,6 +40,10 @@ setlocal autoindent expandtab smarttab shiftround shiftwidth=4 softtabstop=4
 " this belongs in $VIMRUNTIME/ftplugin/perl6.vim
 setlocal iskeyword=@,48-57,_,162-186,192-255
 
+" only allow identifiers as the first thing after "use" et al.
+" keep it above the keyword section so that keywords might match
+syn match p6Package display "\%(\<\%(use\|module\|class\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
+
 " Billions of keywords
 " Don't use the "syn keyword" construct because that always has a higher
 " priority than matches/regions, so the words can't be autoquoted with
@@ -85,7 +89,7 @@ syn match p6Routine        display "\k\@<!\%(grep\|map\|sort\|join\|split\|reduc
 syn match p6Routine        display "\k\@<!\%(truncate\|zip\|cat\|roundrobin\|classify\|first\|sum\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(keys\|values\|pairs\|defined\|delete\|exists\|elems\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(end\|kv\|arity\|assuming\|pick\|clone\|key\|new\)\k\@!"
-syn match p6Routine        display "\k\@<!\%(any\|all\|none\|one\|wrap\|shape\|value\)\k\@!"
+syn match p6Routine        display "\k\@<!\%(any\|all\|none\|one\|wrap\|shape\|value\|name\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(callsame\|callwith\|nextsame\|nextwith\|ACCEPTS\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(pop\|push\|shift\|splice\|unshift\|floor\|ceiling\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(abs\|exp\|log\|log10\|rand\|sign\|sqrt\|sin\|cos\|tan\)\k\@!"
@@ -111,7 +115,7 @@ syn match p6Routine        display "\k\@<!\%(eval\|operator\|undef\|undefine\|sl
 syn match p6Routine        display "\k\@<!\%(infix\|postfix\|prefix\|circumfix\|postcircumfix\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(minmax\|lazy\|count\|nok_error\|unwrap\|getc\|pi\)\k\@!"
 syn match p6Routine        display "\k\@<!\%(acos\|e\|context\|void\|quasi\|body\|each\|contains\)\k\@!"
-syn match p6Operator       display "\k\@<!\%(x\|xx\|div\|mod\|also\|leg\|cmp\)\k\@!"
+syn match p6Operator       display "\k\@<!\%(x\|xx\|div\|mod\|also\|leg\|cmp\|before\|after\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(eq\|ne\|lt\|le\|gt\|ge\|eqv\|ff\|fff\|true\|not\)\k\@!"
 syn match p6Operator       display "\k\@<!\%(Z\|X\|and\|andthen\|or\|xor\|orelse\|extra\)\k\@!"
 
@@ -124,21 +128,24 @@ syn match p6Operator display "\%(:\@<!::\@!\|::=\|\.::\)"
 syn match p6Operator display "\%(\s\|^\)\@<=\%(xx=\|p5=>\)"
 " "i" requires a digit to the left, and a no keyword char to the right
 syn match p6Operator display "\d\@<=i\k\@!"
-" reduce
-syn match p6Operator display "\[\%(\*\|-\?\d\|[[:digit:];]\+]\|[^\]]*\%([@$%&]\+[^\]]\|[^\]]\+([^\]]*)\)\)\@![^\[\][:space:]]\+]"
+" reduce, may need to add more to this
+syn match p6Operator display "\[\\\?\%(\*\|\*\*\|/\|%\|x\|xx\|+&\|+<\|+>\|\~&\|\~<\|\~>\|+\|-\|\~\)]"
+syn match p6Operator display "\[\\\?\%(+|\|+\^\|\~|\|\~\^\|&\||\|\^\|!==\|==\|before\|after\|<\|<=\)]"
+syn match p6Operator display "\[\\\?\%(>\|>=\|\~\~\|!\~\~\|eq\|!eq\|lt\|le\|gt\|ge\|=:=\|!=:=\|or\)]"
+syn match p6Operator display "\[\\\?\%(===\|!===\|eqv\|!eqv\|&&\|||\|\^\^\|//\|min\|max\|=\|!=\|,\|Z\)]"
 " hyperoperators
-syn match p6Operator display "X[^X[:space:]]\+X"
-syn match p6Operator display "\%(>>\|»\)[^«»<>[:space:]]\+"
-syn match p6Operator display "[^«»<>[:space:]]\+\%(«\|<<\)"
-syn match p6Operator display "»[^«»<>[:space:]]\+«"
-syn match p6Operator display ">>[^«»<>[:space:]]\+<<"
+syn match p6Operator display "X[^X\[\]()«»<>[:space:]]\+X"
+syn match p6Operator display "\%(>>\|»\)[^\[\]()«»<>[:space:]]\+"
+syn match p6Operator display "[^\[\]()«»<>[:space:]]\+\%(«\|<<\)"
+syn match p6Operator display "»[^\[\]()«»<>[:space:]]\+«"
+syn match p6Operator display ">>[^\[\]()«»<>[:space:]]\+<<"
 
 syn match p6Shebang     display "\%^#!.*"
 syn match p6BlockLabel  display "\%(\s\|^\)\@<=\h\w*\s*::\@!\_s\@="
 syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\_s\@="
-syn match p6Number      display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
-syn match p6Float       display "\k\@<!-\?_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
-syn match p6Float       display "\k\@<!-\?_\@<!\%(\d\|__\@!\)*_\@<!\.\@<!\._\@!\.\@!\a\@!\%(\d\|_\)\+_\@<!\%([eE]_\@!\%(\d\|_\)\+\)\?"
+syn match p6Number      display "\k\@<!_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
+syn match p6Float       display "\k\@<!_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
+syn match p6Float       display "\k\@<!_\@<!\%(\d\|__\@!\)*_\@<!\.\@<!\._\@!\.\@!\a\@!\%(\d\|_\)\+_\@<!\%([eE]_\@!\%(\d\|_\)\+\)\?"
 syn match p6Number      display "\<0o[0-7][0-7_]*"
 syn match p6Number      display "\<0b[01][01_]*"
 syn match p6Number      display "\<0x\x[[:xdigit:]_]*"
@@ -148,21 +155,18 @@ syn match p6Number      display "\<0d\d[[:digit:]_]*"
 syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
 
 " these Routine names are also Properties, if preceded by "is"
-syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\)"
+syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\|also\)"
 
-syn match p6Sigil        display "[$&%@]\+\%(::\|\%(\d\+\|!\|/\)\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6PunctVar,p6Twigil,p6Variable,p6PackageScope
+syn match p6Sigil        display "\%(&\|@@\|[@$%]\$\?\|\$\)\%(::\|\%(&\@<!\d\+\|!\|/\)\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6PunctVar,p6Twigil,p6Variable,p6PackageScope
 
 " non-identifier variable names
-syn match p6PunctVar display "\%(\d\+\|!\|/\)\%(\k\d\@<!\)\@!" contained
+syn match p6PunctVar     display "\%(&\@<!\d\+\|!\|/\)\%(\k\d\@<!\)\@!" contained
 
 " this is the regex for an identifier, it will show up elsewhere as well
-syn match p6Variable     display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*" contained
+syn match p6Variable     display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*" contained
 
 syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=" nextgroup=p6Variable contained
-syn match p6PackageScope display "\%(\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\)\?::" nextgroup=p6PackageScope,p6Variable contained
-
-" only allow identifiers as the first thing after "use" et al
-syn match p6Package display "\%(\<\%(use\|module\|class\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
+syn match p6PackageScope display "\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\?::" nextgroup=p6PackageScope,p6Variable contained
 
 " $<match>
 syn region p6MatchSigil
@@ -180,12 +184,12 @@ syn region p6Match
 " this is an operator, not a sigil
 syn match p6Operator display "&&"
 
-syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
-syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
+syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
+syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 
 " Contextualizers
 
-syn match p6Context display "\%(\$\|@\|%\|@@\)\_s\@="
+syn match p6Context display "\%(\$\|@\|%\|@@\|&\)\_s\@="
 syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 
 syn region p6SigilContext
@@ -214,8 +218,11 @@ syn match p6Placeholder display "\$\%(\k\d\@<!\|\%([.^*+?=!]\|:\@<!::\@!\)\)\@!\
 
 " Comments
 
+" normal end-of-line comment
 syn match p6Comment display "#.*" contains=p6Attention
 
+" Multiline comments. Arbitrary numbers of opening brackets are allowed,
+" but we only define regions for 1 to 3
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#("
@@ -223,7 +230,22 @@ syn region p6Comment
     \ end=")"
     \ matchgroup=p6Error
     \ start="^#("
-    \ contains=p6Attention
+    \ contains=p6Attention,p6Comment
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#(("
+    \ skip="(([^)]*))"
+    \ end="))"
+    \ matchgroup=p6Error
+    \ start="^#(("
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#((("
+    \ skip="((([^)]*)))"
+    \ end=")))"
+    \ matchgroup=p6Error
+    \ start="^#((("
+
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#\["
@@ -231,7 +253,22 @@ syn region p6Comment
     \ end="]"
     \ matchgroup=p6Error
     \ start="^#\["
-    \ contains=p6Attention
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#\[\["
+    \ skip="\[\[[^\]]*]]"
+    \ end="]]"
+    \ matchgroup=p6Error
+    \ start="^#\[\["
+    \ contains=p6Attention,p6Comment
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#\[\[\["
+    \ skip="\[\[\[[^\]]*]]]"
+    \ end="]]]"
+    \ matchgroup=p6Error
+    \ start="^#\[\[\["
+
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#{"
@@ -239,7 +276,22 @@ syn region p6Comment
     \ end="}"
     \ matchgroup=p6Error
     \ start="^#{"
-    \ contains=p6Attention
+    \ contains=p6Attention,p6Comment
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#{{"
+    \ skip="{{[^}]*}}"
+    \ end="}}"
+    \ matchgroup=p6Error
+    \ start="^#{{"
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#{{{"
+    \ skip="{{{[^}]*}}}"
+    \ end="}}}"
+    \ matchgroup=p6Error
+    \ start="^#{{{"
+
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#<"
@@ -247,7 +299,24 @@ syn region p6Comment
     \ end=">"
     \ matchgroup=p6Error
     \ start="^#<"
-    \ contains=p6Attention
+    \ contains=p6Attention,p6Comment
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#<<"
+    \ skip="<<[^>]*>>"
+    \ end=">>"
+    \ matchgroup=p6Error
+    \ start="^#<<"
+    \ contains=p6Attention,p6Comment
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ matchgroup=p6Error
+    \ start="^#<<<"
+    \ contains=p6Attention,p6Comment
+
 syn region p6Comment
     \ matchgroup=p6Comment
     \ start="^\@<!#«"
@@ -255,13 +324,27 @@ syn region p6Comment
     \ end="»"
     \ matchgroup=p6Error
     \ start="^#«"
-    \ contains=p6Attention
+    \ contains=p6Attention,p6Comment
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#««"
+    \ skip="««[^»]*»»"
+    \ end="»»"
+    \ matchgroup=p6Error
+    \ start="^#««"
+syn region p6Comment
+    \ matchgroup=p6Comment
+    \ start="^\@<!#«««"
+    \ skip="«««[^»]*»»»"
+    \ end="»»»"
+    \ matchgroup=p6Error
+    \ start="^#«««"
 
 " Interpolated strings
 
 " { ... } closure in interpolated strings
 syn region p6InterpClosure
-    \ start="\\\@!{"
+    \ start="\\\@<!{"
     \ skip="{[^}]*}"
     \ end="}"
     \ contained
@@ -284,14 +367,14 @@ syn region p6InterpStringDoubleQuote
 " «string»
 syn region p6InterpStringDoubleAngle
     \ matchgroup=p6Quote
-    \ start="«"
+    \ start="\%(\k\d\@<!\|[\[(]\|\s\|^\)\@<=«"
     \ skip="\\\@<!\\»"
     \ end="»"
     \ contains=@p6Interp,p6Comment,p6EscapedHash
 " <<string>>
 syn region p6InterpStringAngles
     \ matchgroup=p6Quote
-    \ start="<<"
+    \ start="\%(\k\d\@<!\|[\[(]\)\@<=<<"
     \ skip="\\\@<!\\>"
     \ end=">>"
     \ contains=@p6Interp,p6Comment,p6EscapedHash
@@ -353,8 +436,8 @@ syn region p6LiteralStringQuote
 " No, that won't work in cases like "func(<some words>)"
 syn region p6LiteralStringAngle
     \ matchgroup=p6Quote
-    \ start="\%([-+~!]\|\%(\%(enum\|for\)\s*\)\@<!\s\|<\)\@<!<[-=]\@!"
-    \ start="\%([-+~!]\|<\)\@<!<\%(\s\|[-=]\)\@!"
+    \ start="\%([-+~!]\|\%(\%(\<enum\|for\>\)\s*\)\@<!\s\|<\)\@<!<\%(<\|[-=]\)\@!"
+    \ start="\%([-+~!]\|<\)\@<!<\%(<\|\s\|[-=]\)\@!"
     \ skip="\%(\\\@<!\\>\|<[^>]*>\)"
     \ end=">"
     \ contains=p6EscapedSlash,p6EscapedAngle
@@ -387,13 +470,13 @@ syn region p6LiteralString
     \ end=">"
 
 " :string
-syn match p6LiteralString display "\%(:\@<!:!\?\)\@<=\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*"
+syn match p6LiteralString display "\%(:\@<!:!\?\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 
 " => and p5=> autoquoting
-syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\s\+p5=>"
-syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\%(p5\)\@<!=>"
-syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*\ze\s\+=>"
-syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k[-'[:digit:]]\@!\)\@=\)*p5\ze=>"
+syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+p5=>"
+syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\%(p5\)\@<!=>"
+syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+=>"
+syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*p5\ze=>"
 
 " =<> is an operator, not a quote
 syn region p6Iterate
