@@ -1,8 +1,5 @@
 #
-# Id: $Id$
-# Revision: $Revision$
-# Date: $Date$
-# Author: $Author$
+# $Id$
 #
 package Syntax::Highlight::Perl6;
 
