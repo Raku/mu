@@ -1,4 +1,4 @@
-use English qw( -no_match_vars ) ;  # Avoids regex performance penalty
+use English '-no_match_vars';  # Avoids regex performance penalty
 use Test::More;
 
 #This is an optional package so we're going to test for it

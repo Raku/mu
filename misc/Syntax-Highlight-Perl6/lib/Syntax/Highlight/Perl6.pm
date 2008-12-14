@@ -4,7 +4,7 @@ package Syntax::Highlight::Perl6;
 use 5.010;
 use strict;
 use warnings;
-use English;
+use English '-no_match_vars';  # Avoids regex performance penalty
 use Carp;
 use Encode;
 use File::Basename qw(dirname);
@@ -13,23 +13,22 @@ use Cwd qw(realpath);
 require Exporter;
 
 # cpan modules
+use Readonly;
 use Term::ANSIColor;
 
 # Larry's STD.pm
 use STD;
 
 # exports and version
-our @ISA = qw(Exporter);
 our @EXPORT_OK = qw();
-our @EXPORT = qw();
 our $VERSION = '0.024';
 
 # filename constants
-use constant FILE_CSS    => "p6_style.css";
-use constant FILE_ANSI   => "p6_style.ansi";
-use constant FILE_JS     => "p6_style.js";
-use constant FILE_JQUERY => "jquery-1.2.6.pack.js";
-use constant FILE_P6_VIM => "perl6.vim";
+Readonly my $FILE_CSS    => 'p6_style.css';
+Readonly my $FILE_ANSI   => 'p6_style.ansi';
+Readonly my $FILE_JS     => 'p6_style.js';
+Readonly my $FILE_JQUERY => 'jquery-1.2.6.pack.js';
+Readonly my $FILE_P6_VIM => 'perl6.vim';
  
 # These are needed for redspans
 $::ACTIONS = __PACKAGE__ . '::Actions';
@@ -39,8 +38,9 @@ my ($src_text,$parser,@loc);
 my $parsed_lazily = 0;
 
 #find out the real path of the rsc directory
-croak "Syntax::Highlight::Perl6 cannot see where it is installed"
-    unless -f __FILE__;
+unless(-f __FILE__) {
+    croak 'Syntax::Highlight::Perl6 cannot see where it is installed'
+}
 my $SHARED = realpath(File::Spec->join(
             dirname(__FILE__),"../../rsc"));
 
@@ -79,7 +79,9 @@ sub _lazy_parse {
         
         #grow the loc array while checking for empty strings 
         my $len = length($src_text);
-        $src_text = " " if $len == 0;
+        if($len == 0) { 
+            $src_text = " ";
+        }
         $loc[$len - 1] = [];
 
         #STD parse the text for the rule provided
@@ -88,6 +90,7 @@ sub _lazy_parse {
         #we parsed it lazily...
         $parsed_lazily = 1;
     }
+    return;
 }
 
 
@@ -119,7 +122,7 @@ sub snippet_html {
 
     $str .= "</pre>";
 
-    $str;
+    return $str;
 }
 #---------------------------------------------------------------
 # Returns the Perl 6 highlighted HTML string 
@@ -136,13 +139,13 @@ sub simple_html {
     # slurp css inline it
     my $css; 
     if($self->{inline_resources}) {
-        $css = _slurp(_shared(FILE_CSS))
+        $css = _slurp(_shared($FILE_CSS))
             or croak "Error while slurping file: $OS_ERROR\n";
         $css = qq{<style type="text/css">\n$css\n</style>};
     } else {
         my $prefix = $self->{resource_url};
         $css = qq{<link href="$prefix} . 
-            FILE_CSS . 
+            $FILE_CSS . 
             qq{" rel="stylesheet" type="text/css">};
     }
     my $page_title = $self->{page_title};
@@ -178,7 +181,7 @@ HTML
 </html>
 HTML
 
-   $str;
+   return $str;
 }
 
 #-------------------------------------------------------------------
@@ -196,27 +199,21 @@ sub full_html {
     my ($jquery_js,$js,$css);
     if($self->{inline_resources}) {
         my $contents;
-        $contents = _slurp(_shared(FILE_JQUERY)) 
+        $contents = _slurp(_shared($FILE_JQUERY)) 
             or croak "Error while slurping file: $OS_ERROR\n";    
         $jquery_js = qq{<script type="text/javascript">\n$contents\n</script>};
-        $contents = _slurp(_shared(FILE_JS)) 
+        $contents = _slurp(_shared($FILE_JS)) 
             or croak "Error while slurping file: $OS_ERROR\n";
         $js = qq{<script type="text/javascript">\n$contents\n</script>};
-        $contents = _slurp(_shared(FILE_CSS))
+        $contents = _slurp(_shared($FILE_CSS))
             or croak "Error while slurping file: $OS_ERROR\n";
         $css = qq{<style type="text/css">\n$contents\n</style>};
     } else {
         my $prefix = $self->{resource_url};  
         $jquery_js = 
-            qq{<script type="text/javascript" src="$prefix} . 
-            FILE_JQUERY . 
-            qq{"></script>};
-        $js = qq{<script type="text/javascript" src="$prefix} .
-            FILE_JS . 
-            qq{"></script>};
-        $css = qq{<link href="$prefix} .
-            FILE_CSS . 
-            qq{" rel="stylesheet" type="text/css">};
+            qq{<script type="text/javascript" src="$prefix$FILE_JQUERY"></script>};
+        $js = qq{<script type="text/javascript" src="$prefix$FILE_JS"></script>};
+        $css = qq{<link href="$prefix$FILE_CSS" rel="stylesheet" type="text/css">};
     }
 
     my $page_title = $self->{page_title};
@@ -261,7 +258,7 @@ HTML
 </html>
 HTML
 
-    $str;
+    return $str;
 }
 
 #---------------------------------------------------------------
@@ -287,7 +284,7 @@ sub ansi_text {
 
     _redspans_traverse(\&spit_ansi_text,%colors); 
 
-    $str;
+    return $str;
 }
 
 #---------------------------------------------------------------
@@ -308,7 +305,7 @@ sub parse_trees {
 
     _redspans_traverse(\&spit_parse_tree,%colors); 
 
-    $parse_trees;
+    return $parse_trees;
 }
 
 #---------------------------------------------------------------
@@ -320,13 +317,11 @@ sub vim_html {
     my $self = shift;
 
     #This is an optional package so we're going to test for it
-    eval { require Text::VimColor; };
-    if($EVAL_ERROR) {
-        croak "Text::VimColor is not currently installed.\n" .
-              "You may also need to copy perl6.vim manually to ~/.vim/syntax\n" .
-              "perl6.vim is found at:\n" . 
-              _shared(FILE_P6_VIM) . "\n";
-    }
+    eval { require Text::VimColor; 1; }
+        or croak "Text::VimColor is not currently installed.\n" .
+            "You may also need to copy perl6.vim manually to ~/.vim/syntax\n" .
+            "perl6.vim is found at:\n" . 
+            _shared($FILE_P6_VIM) . "\n";
  
     my $syntax = Text::VimColor->new(
         string => $self->{text},
@@ -334,7 +329,7 @@ sub vim_html {
         html_full_page => 1
     );
 
-    $syntax->html;
+    return $syntax->html;
 }
 
 #--------------------------------------------------------------------
@@ -343,18 +338,23 @@ sub vim_html {
 sub _read_css_file {
 
     my %colors = ();
-    my $filename = _shared(FILE_CSS);
+    my $filename = _shared($FILE_CSS);
     my $fh = IO::File->new($filename) 
         or croak "Could not open $filename: $OS_ERROR\n";
     my $line;
     while($line = <$fh>) {
-        if($line =~ /^\s*\.(\w+)\s*{\s*(.+?)\s*}/) {
+        if($line =~ /^\s*           # <whitespace>
+                    \.(\w+)\s*      # .<css class>
+                    {\s*(.+?)\s*}   # { <css style>* }
+                    /x) 
+        {
             $colors{$1} = $2;
         }
     }
-    close $fh;
+    close $fh
+        or croak "Could not close $filename";
 
-    %colors;
+    return %colors;
 }
 
 #--------------------------------------------------------------
@@ -363,18 +363,22 @@ sub _read_css_file {
 #--------------------------------------------------------------
 sub _read_ansi_file {
     my %colors = ();
-    my $filename = _shared(FILE_ANSI);
+    my $filename = _shared($FILE_ANSI);
     my $fh = IO::File->new($filename)
         or croak "Could not open $filename: $OS_ERROR\n";
     my $line;
     while($line = <$fh>) {
-        if($line =~ /^(\w+)=(.+)$/) {
+        if($line =~ /^(\w+)     # <start> <rule-name>
+                    =(.+)$      # <=> <ansi-color> <end>
+                    /x) 
+        {
             $colors{$1} = $2;
         }
     }
-    close $fh;
+    close $fh
+        or croak "Could not close $filename";
 
-    %colors;
+    return %colors;
 }
 
 
@@ -388,7 +392,9 @@ sub _redspans_traverse {
 
     my ($last_tree,$buffer, $last_type) = ("","","");
     for my $i (0 .. @loc-1) {
-        next unless defined $loc[$i];
+        unless(defined $loc[$i]) {
+            next;
+        }
         my $c = substr($src_text,$i,1);
         my $tree = "";
         for my $action_ref (@{$loc[$i]}) {
@@ -398,7 +404,9 @@ sub _redspans_traverse {
             my $rule_to_color = 0;
             $buffer = $buffer;
             my @rules = ();
-            @rules = reverse(split / /,$last_tree) if $last_tree ne '';
+            if($last_tree ne '') {
+                @rules = reverse(split / /,$last_tree);
+            }
             for my $rule (@rules) {
                 if($rule eq 'unv') {
                     $rule_to_color = '_comment';
@@ -409,19 +417,21 @@ sub _redspans_traverse {
                 }
             }
             if($rule_to_color) {
-                if($last_tree =~ /\sidentifier/) {
+                if($last_tree =~ /\sidentifier/x) {
                     if($last_type ne '') {
                         $rule_to_color = $last_type;
                         $last_type = '';
                     } 
-                } elsif($last_tree =~ /\ssigil/) {
+                } elsif($last_tree =~ /\ssigil/x) {
                     given($buffer) {
                         when ('$') { $last_type = '_scalar'; }
                         when ('@') { $last_type = '_array'; }
                         when ('%') { $last_type = '_hash'; }
                         default { $last_type = ''; }
-                    }      
-                    $rule_to_color = $last_type if $last_type ne ''; 
+                    };
+                    if($last_type ne '') {      
+                        $rule_to_color = $last_type;
+                    } 
                 }             
             }
             #now delegate printing to a callback
@@ -432,6 +442,7 @@ sub _redspans_traverse {
         }
         $last_tree = $tree;
     }
+    return;
 }
 
 #------------------------------------------------------------------
@@ -451,8 +462,11 @@ sub _redspans_traverse {
         my $C = shift;
         my $F = $C->{_from};
         my $P = $C->{_pos};
-        $AUTOLOAD =~ s/^Syntax::Highlight::Perl6::Actions:://;
-        $loc[$P] = [] if $loc[$P];	# in case we backtracked to here
+        $AUTOLOAD =~ s/^Syntax::Highlight::Perl6::Actions:://x;
+        if($loc[$P]) {
+            # in case we backtracked to here
+            $loc[$P] = [] 
+        }
         my $action = $AUTOLOAD;
         my $action_ref = $action_refs{$action};
         if(!$action_ref) {
@@ -461,6 +475,7 @@ sub _redspans_traverse {
         for ($F..$P-1) {
             unshift @{$loc[$_]}, $action_ref;
         }
+        return;
     }
 
     sub stdstopper { }
@@ -481,8 +496,11 @@ sub _escape_html {
         '"'     => '&quot;',
         '&'     => '&amp;'
     );
-    my $re = join '|', map quotemeta, keys %esc;
-    $str =~ s/($re)/$esc{$1}/g;
+    my $re = join '|', 
+        map { quotemeta } keys %esc;
+    $str =~ s/($re)      # convert <>"&
+             /$esc{$1}   # to their html escape sequences
+             /gx;
     return $str;
 }
 
@@ -495,11 +513,17 @@ sub _shared {
 
 #-----------------------------------------------------
 # Load file into a scalar without File::Slurp
-# Thanks ofcourse to this post
-# http://www.perlmonks.org/?node_id=20235
+# see perlfaq5
 #-----------------------------------------------------
 sub _slurp {
-    local $/ =<> if local @ARGV = @_
+    my $filename = shift;
+    my $fh = IO::File->new($filename)
+        or croak "Could not open $filename for reading";
+    local $INPUT_RECORD_SEPARATOR = undef;   #enable localized slurp mode
+    my $contents = <$fh>;
+    close $fh 
+        or croak "Could not close $filename";
+    return $contents;
 }
 
 1;
