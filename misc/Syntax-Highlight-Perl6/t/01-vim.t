@@ -6,8 +6,10 @@ eval { require Text::VimColor; };
 if($EVAL_ERROR) {
     plan skip_all => 'Text::VimColor is not installed';
 } else {
-    plan tests => 2;
+    plan tests => 3;
 }
+
+use_ok('Syntax::Highlight::Perl6');
 
 #tests for vim_html()
 my $p = Syntax::Highlight::Perl6->new(

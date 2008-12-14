@@ -48,7 +48,7 @@ my $SHARED = realpath(File::Spec->join(
 # Returns the syntax highlighting object. It needs a hash 
 # of options.
 #----------------------------------------------------------------
-sub new($%) {
+sub new {
     my ($class, %options) = @ARG;
     $options{rule} = $options{rule} // 'comp_unit';
     $options{inline_resources} = $options{inline_resources} // 0;
@@ -67,7 +67,7 @@ sub new($%) {
 # Lazily parses the source string using STD.pm (only once)
 # (private)
 #----------------------------------------------------------------
-sub _lazy_parse($) {
+sub _lazy_parse {
     my $self = shift;
     
     if(!$parsed_lazily) {
@@ -95,7 +95,7 @@ sub _lazy_parse($) {
 # Returns snippet htmls which can embedded without any side effects
 # on your page
 #---------------------------------------------------------------------
-sub snippet_html($) {
+sub snippet_html {
     my $self = shift;
     my $str = "";
 
@@ -125,7 +125,7 @@ sub snippet_html($) {
 # Returns the Perl 6 highlighted HTML string 
 # (without the JavaScript stuff).
 #---------------------------------------------------------------
-sub simple_html($) {
+sub simple_html {
     my $self = shift;
     my $str = "";
 
@@ -185,7 +185,7 @@ HTML
 # Returns the Perl 6 highlighted HTML string. The HTML consists of a
 # JavaScript Parse Tree Viewer along with CSS-styling.
 #-------------------------------------------------------------------
-sub full_html($) {
+sub full_html {
     my $self = shift;
     my $str = "";
 
@@ -267,7 +267,7 @@ HTML
 #---------------------------------------------------------------
 # Returns a Perl highlighted ANSI escape color string.
 #---------------------------------------------------------------
-sub ansi_text($) {
+sub ansi_text {
     my $self = shift;
     my $str = "";
 
@@ -295,7 +295,7 @@ sub ansi_text($) {
 # The array consists of one or more of the following record:
 #   ($position, $buffer, $rule_name, $parse_tree)
 #---------------------------------------------------------------
-sub parse_trees($) {
+sub parse_trees {
     my $self = shift;
 
     $self->_lazy_parse();
@@ -340,19 +340,19 @@ sub vim_html {
 #--------------------------------------------------------------------
 # Reads the css file and return a hash of colors 
 #-------------------------------------------------------------------- 
-sub _read_css_file() {
+sub _read_css_file {
 
     my %colors = ();
     my $filename = _shared(FILE_CSS);
-    open FILE, $filename
+    my $fh = IO::File->new($filename) 
         or croak "Could not open $filename: $OS_ERROR\n";
     my $line;
-    while($line = <FILE>) {
+    while($line = <$fh>) {
         if($line =~ /^\s*\.(\w+)\s*{\s*(.+?)\s*}/) {
             $colors{$1} = $2;
         }
     }
-    close FILE;
+    close $fh;
 
     %colors;
 }
@@ -364,15 +364,15 @@ sub _read_css_file() {
 sub _read_ansi_file {
     my %colors = ();
     my $filename = _shared(FILE_ANSI);
-    open FILE, $filename
+    my $fh = IO::File->new($filename)
         or croak "Could not open $filename: $OS_ERROR\n";
     my $line;
-    while($line = <FILE>) {
+    while($line = <$fh>) {
         if($line =~ /^(\w+)=(.+)$/) {
             $colors{$1} = $2;
         }
     }
-    close FILE;
+    close $fh;
 
     %colors;
 }
@@ -383,7 +383,7 @@ sub _read_ansi_file {
 # tree array. It needs a callback process_buffer and a 
 # colors hash.
 #---------------------------------------------------------------
-sub _redspans_traverse($%) {
+sub _redspans_traverse {
     my ($process_buffer,%colors) = @ARG;
 
     my ($last_tree,$buffer, $last_type) = ("","","");
@@ -395,12 +395,11 @@ sub _redspans_traverse($%) {
             $tree .= ${$action_ref} . " ";
         }
         if($tree ne $last_tree) {
-            my $rule;
             my $rule_to_color = 0;
             $buffer = $buffer;
             my @rules = ();
             @rules = reverse(split / /,$last_tree) if $last_tree ne '';
-            for $rule (@rules) {
+            for my $rule (@rules) {
                 if($rule eq 'unv') {
                     $rule_to_color = '_comment';
                     last;
@@ -474,7 +473,7 @@ sub _redspans_traverse($%) {
 # Private method to converts characters to their equivalent 
 # html entities.
 #----------------------------------------------------------------
-sub _escape_html($) {
+sub _escape_html {
     my $str = shift;
     my %esc = (
         '<'     => '&lt;',
@@ -490,7 +489,7 @@ sub _escape_html($) {
 #-----------------------------------------------------
 # convert to shared package real resource path
 #-----------------------------------------------------
-sub _shared($) {
+sub _shared {
     return File::Spec->join($SHARED, shift);
 }
 
@@ -499,7 +498,7 @@ sub _shared($) {
 # Thanks ofcourse to this post
 # http://www.perlmonks.org/?node_id=20235
 #-----------------------------------------------------
-sub _slurp($) {
+sub _slurp {
     local $/ =<> if local @ARGV = @_
 }
 
