@@ -841,9 +841,13 @@ syn region p6Parens
     \ contained
     \ contains=p6Number,p6LiteralStringQuote
 
-syn match p6PodConfigOperator contained ":" nextgroup=p6PodConfigOption
-syn match p6PodConfigOption   contained "[^[:space:](<]\+" nextgroup=p6Parens,p6LiteralStringAngle
-syn match p6PodExtraConfig    contained "^="
+syn match p6PodConfigOperator display contained ":" nextgroup=p6PodConfigOption
+syn match p6PodConfigOption   display contained "[^[:space:](<]\+" nextgroup=p6Parens,p6LiteralStringAngle
+syn match p6PodExtraConfig    display contained "^="
+syn match p6PodVerticalBar    display contained "|"
+syn match p6PodColon          display contained ":"
+syn match p6PodSemicolon      display contained ";"
+syn match p6PodComma          display contained ","
 
 syn region p6PodDelim
     \ start="^"
@@ -932,6 +936,142 @@ syn region p6PodFormat
     \ end="»"
     \ contained
 
+" L<> can have a "|" separator
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="L<<\@!"
+    \ skip="<[^>]*>"
+    \ end=">"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="L<<"
+    \ skip="<<[^>]*>>"
+    \ end=">>"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="L<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="L««\@!"
+    \ skip="«[^»]*»"
+    \ end="»"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar
+
+" M<> can have a ":" separator
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="M<<\@!"
+    \ skip="<[^>]*>"
+    \ end=">"
+    \ contained
+    \ contains=p6PodFormat,p6PodColon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="M<<"
+    \ skip="<<[^>]*>>"
+    \ end=">>"
+    \ contained
+    \ contains=p6PodFormat,p6PodColon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="M<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ contained
+    \ contains=p6PodFormat,p6PodColon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="M««\@!"
+    \ skip="«[^»]*»"
+    \ end="»"
+    \ contained
+    \ contains=p6PodFormat,p6PodColon
+
+" D<> can have "|" and ";" separators
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="D<<\@!"
+    \ skip="<[^>]*>"
+    \ end=">"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="D<<"
+    \ skip="<<[^>]*>>"
+    \ end=">>"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="D<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="D««\@!"
+    \ skip="«[^»]*»"
+    \ end="»"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon
+
+" X<> can have "|", "," and ";" separators
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="X<<\@!"
+    \ skip="<[^>]*>"
+    \ end=">"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon,p6PodComma
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="X<<"
+    \ skip="<<[^>]*>>"
+    \ end=">>"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon,p6PodComma
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="X<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon,p6PodComma
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatDelim
+    \ start="X««\@!"
+    \ skip="«[^»]*»"
+    \ end="»"
+    \ contained
+    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon,p6PodComma
+
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already
 " For version 5.8 and later: only when an item doesn't have highlighting yet
@@ -1006,6 +1146,10 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6PodDelimCode    p6PodCode
     HiLink p6PodImplicitCode p6PodCode
     HiLink p6PodExtraConfig  p6PodCommand
+    HiLink p6PodVerticalBar  p6PodFormatDelim
+    HiLink p6PodColon        p6PodFormatDelim
+    HiLink p6PodSemicolon    p6PodFormatDelim
+    HiLink p6PodComma        p6PodFormatDelim
 
     HiLink p6PodType           Type
     HiLink p6PodConfigOption   String
