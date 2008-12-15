@@ -36,7 +36,8 @@ my %Spec = reverse qw(
     05 Rule        06 Subroutine    07 Iterator
     09 Structure   10 Package
     11 Module      12 Object        13 Overload      16 IO
-    17 Concurrency 22 CPAN          26 Documentation 29 Functions
+    17 Concurrency 19 Commandline   22 CPAN          26 Documentation
+    29 Functions
 );
 
 my $javascript = '';
@@ -682,10 +683,10 @@ sub process_syn ($$$$) {
     #print Dumper $linktree if $syn_id eq '02';
 
     my $linktree_sections = $linktree->{"S$syn_id"};
-    if (!$linktree_sections && $syn_id != 7) {
-        # We won't generate the HTML file if there's no smartlink in it.
-        return;
-    }
+#    if (!$linktree_sections && $syn_id != 7) {
+#        # We won't generate the HTML file if there's no smartlink in it.
+#        return;
+#    }
     $snippet_id = 0;
     while (my ($section_name, $links) = each %$linktree_sections) {
         #warn "checking $section...";
@@ -1252,5 +1253,5 @@ implementation, getting help from many others in the Pugs team.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006, 2007 by the Pugs Team.
+Copyright (c) 2006 - 2008 by the Pugs Team.
 
