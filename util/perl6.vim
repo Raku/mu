@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Dec 13th 2008
+" Last Change:  Dec 15th 2008
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -17,15 +17,14 @@
 " TODO:
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
-"   * Allow adverbs in «», line 2259 of S02
+"   * Allow :ad<verbs> in «», line 2259 of S02
 "   * Overhaul Q// and its derivatives, line 2475 of S02
 "   * Overhaul regexes, S05
-"   * Not all versions of «»/<<>> hyperops are covered
 "
 " Impossible TODO?:
 "   * Unspace
 "   * Anything that allows characters outside ascii/latin1
-"   * Selective highlighting Pod formatting codes with the :allow option
+"   * Selective highlighting of Pod formatting codes with the :allow option
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -39,7 +38,7 @@ endif
 setlocal autoindent expandtab smarttab shiftround shiftwidth=4 softtabstop=4
 
 " this belongs in $VIMRUNTIME/ftplugin/perl6.vim
-setlocal iskeyword=@,48-57,_,162-186,192-255
+setlocal iskeyword=@,48-57,_,192-255
 
 " identifiers
 syn match p6Normal display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
@@ -116,7 +115,7 @@ let s:keywords = [
  \ ["p6Operator",       "and andthen Z X or xor orelse extra"],
 \ ]
 
-" Don't use the "syn keyword" construct because that always has a higher
+" Don't use the "syn keyword" construct because that always has higher
 " priority than matches/regions, so the words can't be autoquoted with
 " the "=>" and "p5=>" operators. All the lookaround stuff is to make sure
 " we don't match them as part of some other identifier.
@@ -140,25 +139,21 @@ syn match p6Type display "\%(::\|\k\|\%(\k\d\@<!\)\@<=[-']\)\@<!\%(Bool\%(::True
 syn match p6Type display "\%(::\|\k\|\%(\k\d\@<!\)\@<=[-']\)\@<!GLOBAL\%(::\)\@="
 
 " More operators
-" Don't put a "\+" at the end of the character class. In that case, the "%"
-" in "+%foo" won't be allowed to match as a sigil, among other things
+" Don't put a "\+" at the end of the character class. That makes it so
+" greedy that the "%" " in "+%foo" won't be allowed to match as a sigil,
+" among other things
 syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]"
 syn match p6Operator display "\%(:\@<!::\@!\|::=\|\.::\)"
 " these require whitespace on the left side
 syn match p6Operator display "\%(\s\|^\)\@<=\%(xx=\|p5=>\)"
-" "i" requires a digit to the left, and a no keyword char to the right
+" "i" requires a digit to the left, and no keyword char to the right
 syn match p6Operator display "\d\@<=i\k\@!"
 " reduce, may need to add more to this
 syn match p6Operator display "\[\\\?\%(\*\|\*\*\|/\|%\|x\|xx\|+&\|+<\|+>\|\~&\|\~<\|\~>\|+\|-\|\~\)]"
 syn match p6Operator display "\[\\\?\%(+|\|+\^\|\~|\|\~\^\|&\||\|\^\|!==\|==\|before\|after\|<\|<=\)]"
 syn match p6Operator display "\[\\\?\%(>\|>=\|\~\~\|!\~\~\|eq\|!eq\|lt\|le\|gt\|ge\|=:=\|!=:=\|or\)]"
 syn match p6Operator display "\[\\\?\%(===\|!===\|eqv\|!eqv\|&&\|||\|\^\^\|//\|min\|max\|=\|!=\|,\|Z\)]"
-" hyperoperators
 syn match p6Operator display "X[^X\[\]()«»<>[:space:]]\+X"
-syn match p6Operator display "\%(>>\|»\)[^\[\]()«»<>[:space:]]\+"
-syn match p6Operator display "[^\[\]()«»<>[:space:]]\+\%(«\|<<\)"
-syn match p6Operator display "»[^\[\]()«»<>[:space:]]\+«"
-syn match p6Operator display ">>[^\[\]()«»<>[:space:]]\+<<"
 
 syn match p6Shebang     display "\%^#!.*"
 syn match p6BlockLabel  display "\%(\s\|^\)\@<=\h\w*\s*::\@!\_s\@="
@@ -180,13 +175,10 @@ syn match p6Routine     display "int\%(\s*\%((\|\d\)\)\@="
 " these Routine names are also Properties, if preceded by "is"
 syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\|also\)"
 
-syn match p6Sigil        display "\%(&\|@@\|[@$%]\$\?\|\$\)\%(::\|\%(&\@<!\d\+\|!\|/\)\|\%([.^*+?=!]\|:\@<!::\@!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6PunctVar,p6Twigil,p6Variable,p6PackageScope
-
-" non-identifier variable names
-syn match p6PunctVar     display "\%(&\@<!\d\+\|!\|/\)\%(\k\d\@<!\)\@!" contained
-
+" $!, $var, $!var, $::var, $package::var $*::package::var, etc
+syn match p6Sigil        display "\%(&\|@@\|[@$%]\$\?\|\$\)\%(::\|\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%([.^*+?=!]\|:\@<!::\@!\)\k\d\@<!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6PunctVar,p6Twigil,p6Variable,p6PackageScope
+syn match p6PunctVar     display "\%(&\@<!\d\+\|!\|/\|¢\)\%(\k\d\@<!\)\@!" contained
 syn match p6Variable     display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*" contained
-
 syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=" nextgroup=p6Variable contained
 syn match p6PackageScope display "\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\?::" nextgroup=p6PackageScope,p6Variable contained
 
@@ -203,15 +195,12 @@ syn region p6Match
     \ end=">"
     \ contained
 
-" this is an operator, not a sigil
-syn match p6Operator display "&&"
-
 syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
-syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
+syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 
 " Contextualizers
 
-syn match p6Context display "\%(\$\|@\|%\|@@\|&\)\_s\@="
+syn match p6Context display "\%([%@%&]\|\k\s*\)\@<!\%(\$\|@\|%\|@@\|&\)\_s\@="
 syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 
 syn region p6SigilContext
@@ -499,6 +488,17 @@ syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\%(p5\)\@<!=>"
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+=>"
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*p5\ze=>"
+
+" Hyperoperators
+syn match p6Operator display "»[^\[\]()«»[:space:]]\+»\?"
+syn match p6Operator display "«\?[^\[\]()«»[:space:]]\+«"
+syn match p6Operator display "»[^\[\]()«»[:space:]]\+«"
+syn match p6Operator display "«[^\[\]()«»[:space:]]\+»"
+
+syn match p6Operator display ">>[^\[\]()<>[:space:]]\+\%(>>\)\?"
+syn match p6Operator display "\%(<<\)\?[^\[\]()<>[:space:]]\+<<"
+syn match p6Operator display ">>[^\[\]()<>[:space:]]\+<<"
+syn match p6Operator display "<<[^\[\]()<>[:space:]]\+>>"
 
 " =<> is an operator, not a quote
 syn region p6Iterate
@@ -977,6 +977,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6CustomRoutine   Function
     HiLink p6Operator        Operator
     HiLink p6Context         Operator
+    HiLink p6Placeholder     Operator
     HiLink p6Quote           Delimiter
     HiLink p6TypeConstraint  PreCondit
     HiLink p6Exception       Exception
@@ -984,7 +985,6 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6PunctVar        Identifier
     HiLink p6Variable        Identifier
     HiLink p6Match           Identifier
-    HiLink p6Placeholder     Identifier
     HiLink p6RuleCall        Identifier
     HiLink p6Conditional     Conditional
     HiLink p6StringSpecial   SpecialChar
