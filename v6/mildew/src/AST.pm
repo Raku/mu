@@ -46,28 +46,25 @@ has 'then' => (is => 'ro');
 has 'else' => (is => 'ro');
 has 'elsif' => (is => 'ro');
 sub m0ld {
-    my ($self) = @_;
+    my ($self,$ret) = @_;
     my $id_cond = AST::unique_id;
-    my $id_then = AST::unique_id;
-    my $id_else = AST::unique_id;
     my $label_then = AST::unique_label;
     my $label_else = AST::unique_label;
     my $label_endif = AST::unique_label;
     my $cond = $self->cond->m0ld($id_cond);
-    my $then = $self->then->m0ld($id_then);
+    my $then = $self->then->m0ld($ret);
     my $else = 'noop;';
     if ($self->else) {
-        $else = $self->else->m0ld($id_else);
+        $else = $self->else->m0ld($ret);
     }
     my $elsifs = '';
     if ($self->elsif) {
         foreach my $part (@{$self->elsif}) {
             my $id_elsif_cond = AST::unique_id;
-            my $id_elsif_then = AST::unique_id;
             my $label_elsif_then = AST::unique_label;
             my $label_elsif_else = AST::unique_label;
             my $elsif_cond = $part->cond->m0ld($id_elsif_cond);
-            my $elsif_then = $part->then->m0ld($id_elsif_then);
+            my $elsif_then = $part->then->m0ld($ret);
             $elsifs .= $elsif_cond."\n".
               'my '.$id_elsif_cond.'_val = '.$id_elsif_cond.'."FETCH"();'."\n".
               'my '.$id_elsif_cond.'_bool = '.$id_elsif_cond.'_val."true"();'."\n".
