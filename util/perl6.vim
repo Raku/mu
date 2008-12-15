@@ -55,15 +55,17 @@ let s:keywords = [
  \ ["p6Repeat",         "for loop repeat while until gather"],
  \ ["p6FlowControl",    "take do when next last redo given return lastcall"],
  \ ["p6FlowControl",    "default exit make continue break goto leave async"],
- \ ["p6FlowControl",    "contend maybe defer"],
- \ ["p6TypeConstraint", "is as but does trusts of returns also handles"],
+ \ ["p6FlowControl",    "contend maybe defer callsame callwith nextsame"],
+ \ ["p6FlowControl",    "nextwith"],
+ \ ["p6TypeConstraint", "is as but does trusts of returns also handles where"],
  \ ["p6ClosureTrait",   "BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP"],
  \ ["p6ClosureTrait",   "UNDO NEXT LAST PRE POST END CATCH CONTROL TEMP"],
  \ ["p6Exception",      "die fail try warn"],
  \ ["p6Property",       "prec irs ofs ors export deep binary unary reparsed"],
  \ ["p6Property",       "rw parsed cached readonly instead defequiv will"],
- \ ["p6Property",       "ref copy inline tighter looser equiv assoc"],
+ \ ["p6Property",       "ref copy inline tighter looser equiv assoc required"],
  \ ["p6Number",         "NaN Inf"],
+ \ ["p6Pragma",         "oo"],
  \ ["p6Type",           "Object Any Junction Whatever Capture Match"],
  \ ["p6Type",           "Signature Proxy Matcher Package Module Class"],
  \ ["p6Type",           "Grammar Scalar Array Hash KeyHash KeySet KeyBag"],
@@ -83,33 +85,33 @@ let s:keywords = [
  \ ["p6Routine",        "grep map sort join split reduce min max reverse"],
  \ ["p6Routine",        "truncate zip cat roundrobin classify first sum"],
  \ ["p6Routine",        "keys values pairs defined delete exists elems"],
- \ ["p6Routine",        "end kv none one wrap shape value name"],
- \ ["p6Routine",        "callsame callwith nextsame nextwith ACCEPTS"],
+ \ ["p6Routine",        "end kv any all one wrap shape key value name"],
  \ ["p6Routine",        "pop push shift splice unshift floor ceiling"],
  \ ["p6Routine",        "abs exp log log10 rand sign sqrt sin cos tan"],
- \ ["p6Routine",        "round srand roots cis unpolar polar atan2"],
+ \ ["p6Routine",        "round srand roots cis unpolar polar atan2 pick"],
  \ ["p6Routine",        "chop p5chop chomp p5chomp lc lcfirst uc ucfirst"],
  \ ["p6Routine",        "capitalize normalize pack unpack quotemeta comb"],
  \ ["p6Routine",        "samecase sameaccent chars nfd nfc nfkd nfkc"],
  \ ["p6Routine",        "printf sprintf caller evalfile run runinstead"],
  \ ["p6Routine",        "nothing want bless chr ord gmtime getpeername"],
  \ ["p6Routine",        "time localtime gethost getpw chroot getlogin"],
- \ ["p6Routine",        "kill fork wait perl graphs codes bytes"],
+ \ ["p6Routine",        "kill fork wait perl graphs codes bytes clone"],
  \ ["p6Routine",        "print open read write readline say seek close"],
  \ ["p6Routine",        "opendir readdir slurp pos fmt vec link unlink"],
  \ ["p6Routine",        "symlink uniq pair asin atan sec cosec connect"],
  \ ["p6Routine",        "cotan asec acosec acotan sinh cosh tanh asinh"],
  \ ["p6Routine",        "acosh atanh sech cosech cotanh sech acosech"],
- \ ["p6Routine",        "acotanh plan ok dies_ok lives_ok skip todo"],
- \ ["p6Routine",        "pass flunk force_todo use_ok isa_ok cmp_ok"],
- \ ["p6Routine",        "diag is_deeply isnt like skip_rest unline"],
+ \ ["p6Routine",        "acotanh plan ok dies_ok lives_ok skip todo new"],
+ \ ["p6Routine",        "pass flunk force_todo use_ok isa_ok cmp_ok eof"],
+ \ ["p6Routine",        "diag is_deeply isnt like skip_rest unlike nonce"],
  \ ["p6Routine",        "none eval_dies_ok eval_lives_ok succ pred times"],
  \ ["p6Routine",        "approx is_approx throws_ok version_lt signature"],
  \ ["p6Routine",        "eval operator undef undefine sleep from to"],
  \ ["p6Routine",        "infix postfix prefix circumfix postcircumfix"],
  \ ["p6Routine",        "minmax lazy count nok_error unwrap getc pi"],
  \ ["p6Routine",        "acos e context void quasi body each contains"],
- \ ["p6Routine",        "HOW WHENCE Who WHERE WALK can isa chmod flush"],
+ \ ["p6Routine",        "HOW WHENCE WHO WHERE WALK can isa chmod flush"],
+ \ ["p6Routine",        "arity assuming hints ACCEPTS subst rewinddir"],
  \ ["p6Operator",       "div x xx mod also leg cmp before after"],
  \ ["p6Operator",       "eq ne lt le gt ge eqv ff fff true not"],
  \ ["p6Operator",       "and andthen Z X or xor orelse extra"],
@@ -136,7 +138,6 @@ syn match p6Normal display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(::\)\@="
 " some standard packages
 syn match p6Type display "\%(::\|\k\|\%(\k\d\@<!\)\@<=[-']\)\@<!\%(Order\%(::Same\|::Increase\|::Decrease\)\?\)\%(\k\|[-']\%(\k\d\@<!\)\@=\)\@!"
 syn match p6Type display "\%(::\|\k\|\%(\k\d\@<!\)\@<=[-']\)\@<!\%(Bool\%(::True\|::False\)\?\)\%(\k\|[-']\%(\k\d\@<!\)\@=\)\@!"
-syn match p6Type display "\%(::\|\k\|\%(\k\d\@<!\)\@<=[-']\)\@<!GLOBAL\%(::\)\@="
 
 " More operators
 " Don't put a "\+" at the end of the character class. That makes it so
@@ -149,11 +150,10 @@ syn match p6Operator display "\%(\s\|^\)\@<=\%(xx=\|p5=>\)"
 " "i" requires a digit to the left, and no keyword char to the right
 syn match p6Operator display "\d\@<=i\k\@!"
 " reduce, may need to add more to this
-syn match p6Operator display "\[\\\?\%(\*\|\*\*\|/\|%\|x\|xx\|+&\|+<\|+>\|\~&\|\~<\|\~>\|+\|-\|\~\)]"
-syn match p6Operator display "\[\\\?\%(+|\|+\^\|\~|\|\~\^\|&\||\|\^\|!==\|==\|before\|after\|<\|<=\)]"
-syn match p6Operator display "\[\\\?\%(>\|>=\|\~\~\|!\~\~\|eq\|!eq\|lt\|le\|gt\|ge\|=:=\|!=:=\|or\)]"
-syn match p6Operator display "\[\\\?\%(===\|!===\|eqv\|!eqv\|&&\|||\|\^\^\|//\|min\|max\|=\|!=\|,\|Z\)]"
-syn match p6Operator display "X[^X\[\]()«»<>[:space:]]\+X"
+syn match p6Operator display "\[\\\?\%(\*\|\*\*\|/\|%\|x\|xx\|+&\|+<\|+>\|\~&\|\~<\|\~>\|+\|-\|\~\)]\%(«\|<<\)\?"
+syn match p6Operator display "\[\\\?\%(+|\|+\^\|\~|\|\~\^\|&\||\|\^\|!==\|==\|before\|after\|<\|<=\)]\%(«\|<<\)\?"
+syn match p6Operator display "\[\\\?\%(>\|>=\|\~\~\|!\~\~\|eq\|!eq\|lt\|le\|gt\|ge\|=:=\|!=:=\|or\)]\%(«\|<<\)\?"
+syn match p6Operator display "\[\\\?\%(===\|!===\|eqv\|!eqv\|&&\|||\|\^\^\|//\|min\|max\|=\|!=\|,\|Z\)]\%(«\|<<\)\?"
 
 syn match p6Shebang     display "\%^#!.*"
 syn match p6BlockLabel  display "\%(\s\|^\)\@<=\h\w*\s*::\@!\_s\@="
@@ -175,11 +175,14 @@ syn match p6Routine     display "int\%(\s*\%((\|\d\)\)\@="
 " these Routine names are also Properties, if preceded by "is"
 syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\|also\)"
 
+" The sigil in ::*Package
+syn match p6PackageTwigil display "\%(::\)\@<=\*"
+
 " $!, $var, $!var, $::var, $package::var $*::package::var, etc
 syn match p6Sigil        display "\%(&\|@@\|[@$%]\$\?\|\$\)\%(::\|\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%([.^*+?=!]\|:\@<!::\@!\)\k\d\@<!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6PunctVar,p6Twigil,p6Variable,p6PackageScope
 syn match p6PunctVar     display "\%(&\@<!\d\+\|!\|/\|¢\)\%(\k\d\@<!\)\@!" contained
 syn match p6Variable     display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*" contained
-syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=" nextgroup=p6Variable contained
+syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=" nextgroup=p6PackageScope,p6Variable contained
 syn match p6PackageScope display "\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\?::" nextgroup=p6PackageScope,p6Variable contained
 
 " $<match>
@@ -378,14 +381,14 @@ syn region p6InterpStringDoubleQuote
 " «string»
 syn region p6InterpStringDoubleAngle
     \ matchgroup=p6Quote
-    \ start="\%(\k\d\@<!\|[\[(]\|\s\|^\)\@<=«"
+    \ start="«"
     \ skip="\\\@<!\\»"
     \ end="»"
     \ contains=@p6Interp,p6Comment,p6EscapedHash
 " <<string>>
 syn region p6InterpStringAngles
     \ matchgroup=p6Quote
-    \ start="\%(\k\d\@<!\|[\[(]\)\@<=<<"
+    \ start="<<=\@!"
     \ skip="\\\@<!\\>"
     \ end=">>"
     \ contains=@p6Interp,p6Comment,p6EscapedHash
@@ -441,14 +444,16 @@ syn region p6LiteralStringQuote
 "
 " * There is whitespace missing on either side of the "<", since
 "   people tend to put spaces around "less than"
-" * It comes after "enum" or "for"
+" * It comes after "enum", "for", "any", "all", or "none"
 "
-" TODO: only match when there's an operator (excluding <=/=>) on either side?
-" No, that won't work in cases like "func(<some words>)"
+" It never matches when:
+"
+" * Preceded by [-+~!<] 
+"
 syn region p6LiteralStringAngle
     \ matchgroup=p6Quote
-    \ start="\%([-+~!]\|\%(\%(\<enum\|for\>\)\s*\)\@<!\s\|<\)\@<!<\%(<\|[-=]\)\@!"
-    \ start="\%([-+~!]\|<\)\@<!<\%(<\|\s\|[-=]\)\@!"
+    \ start="\%([-+~!<]\|\%(\%(\<enum\|for\|any\|all\|none\>\)\s*(\?\s*\)\@<!\s\)\@<!<\%(<\|[-=]\)\@!"
+    \ start="\%([-+~!<]\)\@<!<\%(<\|\s\|[-=]\)\@!"
     \ skip="\%(\\\@<!\\>\|<[^>]*>\)"
     \ end=">"
     \ contains=p6EscapedSlash,p6EscapedAngle
@@ -489,16 +494,20 @@ syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\%(p
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+=>"
 syn match p6LiteralString display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*p5\ze=>"
 
-" Hyperoperators
-syn match p6Operator display "»[^\[\]()«»[:space:]]\+»\?"
-syn match p6Operator display "«\?[^\[\]()«»[:space:]]\+«"
-syn match p6Operator display "»[^\[\]()«»[:space:]]\+«"
-syn match p6Operator display "«[^\[\]()«»[:space:]]\+»"
+" cross operators
+syn match p6Operator display "X[^X\[\]()[:space:]]\+X"
 
-syn match p6Operator display ">>[^\[\]()<>[:space:]]\+\%(>>\)\?"
-syn match p6Operator display "\%(<<\)\?[^\[\]()<>[:space:]]\+<<"
-syn match p6Operator display ">>[^\[\]()<>[:space:]]\+<<"
-syn match p6Operator display "<<[^\[\]()<>[:space:]]\+>>"
+" Hyperoperators, may need to add some more operators here
+let s:hyperops = "\\%(\\%(\\.\\|+\\|-\\|\\*\\|\\*\\*\\|\\~\\|/\\|x\\|xx\\|&\\||\\)=\\?\\|++\\|--\\)"
+exec "syn match p6Operator display \"»"   .s:hyperops."»\\?\""
+exec "syn match p6Operator display \"«\\?".s:hyperops."«\""
+exec "syn match p6Operator display \"»"   .s:hyperops."«\""
+exec "syn match p6Operator display \"«"   .s:hyperops. "»\""
+
+exec "syn match p6Operator display \">>"          .s:hyperops."\\%(>>\\)\\?\""
+exec "syn match p6Operator display \"\\%(<<\\)\\?".s:hyperops."<<\""
+exec "syn match p6Operator display \">>"          .s:hyperops."<<\""
+exec "syn match p6Operator display \"<<"          .s:hyperops.">>\""
 
 " =<> is an operator, not a quote
 syn region p6Iterate
@@ -965,12 +974,14 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Regex           String
     HiLink p6Repeat          Repeat
     HiLink p6Keyword         Keyword
+    HiLink p6Pragma          Keyword
     HiLink p6Routine         Keyword
     HiLink p6Module          Keyword
     HiLink p6DeclareRoutine  Keyword
     HiLink p6VarStorage      Keyword
     HiLink p6FlowControl     Special
     HiLink p6Twigil          Special
+    HiLink p6PackageTwigil   Special
     HiLink p6Comment         Comment
     HiLink p6Shebang         PreProc
     HiLink p6ClosureTrait    PreProc
