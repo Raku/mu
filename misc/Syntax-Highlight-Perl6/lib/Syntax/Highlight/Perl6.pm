@@ -733,7 +733,7 @@ The initial STD tree traversal code was written by Paweł Murias (pmurias).
 It was replaced afterwards for performance reasons with Larry Wall's
 C<redspans> traversal code. C<redspans> stands for C<red> for reductions,
 and C<spans> from the "from/to span calculations". The included perl6.vim
-is written by Luke Palmer, Moritz Lenz, and Hinrik Ãn Sigurðsson. T
+is written by Luke Palmer, Moritz Lenz, and Hinrik Ãn Sigurðsson. 
 
 Thanks guys. I could not have done it without you ;-)
 
