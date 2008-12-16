@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.025';
+our $VERSION = '0.026';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
@@ -700,8 +700,9 @@ for now.
 L<Text::VimColor>
 
 Discussion about this module and STD.pm is usually in #perl6
-(irc://irc.freenode.net/perl6). Larry Wall's C<STD.pm> lives in
-http://svn.pugscode.org/pugs/src/perl6 . C<perl6.vim> lives in
+(irc://irc.freenode.net/perl6). This module lives in 
+http://svn.pugscode.org/pugs/misc/Syntax-Highlight-Perl6 . Larry Wall's 
+C<STD.pm> lives in http://svn.pugscode.org/pugs/src/perl6 . C<perl6.vim> lives in
 http://svn.pugscode.org/pugs/util/perl6.vim .
 
 =head1 BUGS AND LIMITATIONS

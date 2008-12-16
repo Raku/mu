@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.026 Dec 16 2008
+    - More documention updates. No changes to functionality.
+
 0.025 Dec 14 2008
     - Updated perl6.vim to r24360
     - Added missing t/01-vim.t 
