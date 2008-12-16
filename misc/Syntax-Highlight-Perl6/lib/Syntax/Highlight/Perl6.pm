@@ -534,7 +534,7 @@ sub _slurp {
 __END__
 =head1 NAME
 
-Syntax::Highlight::Perl6 - a Perl 6 syntax highlighter
+Syntax::Highlight::Perl6 - a Perl 6 Syntax Highlighter
 
 =head1 SYNOPSIS
 
@@ -562,16 +562,18 @@ Syntax::Highlight::Perl6 - a Perl 6 syntax highlighter
     # Prints the Perl 5 array of parse trees (useful for building stuff on top of it)
     print $p->parse_trees;
 
-    # Prints VIM syntax highlighted html
-    print $p->vim_html;
+    # Prints VIM-generated syntax highlighted html
+    use Text::VimColor;     # This is only needed if you need
+    print $p->vim_html;     # to call this method
 
 =head1 DESCRIPTION
 
-This module parses Perl 6 source code using STD.pm, then matches nodes to colors
-and returns them in different output formats.
+C<Syntax::Highlight::Perl6> parses Perl 6 source code using an embedded STD.pm. 
+It matches parse tree nodes to colors then returns them in different output formats.
 It can be used to create web pages with colorful source code samples in its
 simple and snippet html modes, or it can be used as a learning tool in examining
-STD.pm's parsing using the JavaScript node viewer in its full html mode.
+STD.pm's output using the JavaScript node viewer in its full html mode. Or you can
+use its parse tree Perl 5 records to build your next great idea.
 
 The available output formats are:
 
@@ -590,7 +592,7 @@ The available output formats are:
 
 =head1 SUBROUTINES/METHODS
 
-The following methods are available:
+This is an object-oriented module. The following methods are available:
 
 =over 4
 
@@ -651,7 +653,7 @@ Returns a Perl highlighted ANSI escape color string.
 =item * parse_trees()
 
 Returns a Perl 5 array containing parse tree records.
-The array consists of one or more of the following record:
+The array consists of one or more of the following record structure:
 
     +-----------------------------------------------+
     | Matched  | Matched | Matched   | Parse tree   |
@@ -659,17 +661,23 @@ The array consists of one or more of the following record:
     | Position | buffer  | name      | by spaces    |
     +-----------------------------------------------+
 
-    #...
+An example of the C<parse_trees> method in action:
+
     use Data::Dumper;
     print Dumper($p->parse_trees);
 
-    #$VAR1 = [
-    #      [
-    #        8,
-    #        ';',
-    #        0,
-    #        'statementlist eat_terminator '
-    #      ]
+The shortened output looks like:
+
+    $VAR1 = [
+          ..
+          [
+            5,             # buffer starts at position 5
+            'foo',         # and is a 'foo'
+            '_scalar',     # and a _scalar rule
+            '...blah blah' # parse tree separated by spaces
+          ]
+          ..
+    ];
 
 =item * vim_html()
 
@@ -680,6 +688,12 @@ perl6.vim to your ~/.vim/syntax.
 NOTE: This method needs VIM to work properly along with L<Text::VimColor>.
 
 =back
+
+=head1 INCOMPATIBILITIES
+
+This module is dependent on Perl 5.10 features namely the regex engine 
+and state variables (for STD.pm). So Perl 5.8.x support will NOT be available
+for now.
 
 =head1 SEE ALSO
 
@@ -720,11 +734,17 @@ So this is Pretty Voodoo Stuff. Otherwise it will be pretty slow.
 That is related to the creation of the cached 'lex'ing directory by STD.pm.
 I<This happens only once.>
 
+=item * In win32 platforms, I get the following warning: 'cp' is not recognized
+
+This is an STD.pm bug which is currently under investigation. Do not worry about it
+for now.
+
 =back
 
 =head1 AUTHOR
 
-Written by Ahmad M. Zawawi E<lt>ahmad.zawawi@gmail.comE<gt> (aka azawawi in #perl6).
+Written by Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >> 
+(C<azawawi> in C<#perl6>).
 
 The project idea was inspired by Moritz Lenz (moritz) -
 http://www.nntp.perl.org/group/perl.perl6.users/2008/07/msg788.html .
@@ -748,4 +768,4 @@ This library also includes the following libraries:
 
 STD.pm by Larry Wall (Artistic License 2.0 - same license)
 
-JQuery 1.2.6 by John Resig (dual licensed under the MIT and GPL licenses).
+JQuery by John Resig (dual licensed under the MIT and GPL licenses).
