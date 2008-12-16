@@ -28,7 +28,7 @@ my $print_missing;
 my $test_result;
 my $line_anchor;
 my ($pugs_rev, $smoke_rev);
-my ($link_count, $broken_link_count, $test_file_count);
+my ($link_count, $broken_link_count);
 my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
@@ -329,7 +329,8 @@ sub process_t_file ($$) {
     }
     $setter->($from, $.) if $setter and $from;
     close $in;
-    print "No smartlink found in <$infile>\n" if (defined $print_missing && $found_link == 0);
+#   print "No smartlink found in <$infile>\n" if (defined $print_missing && $found_link == 0);
+    return $found_link;
 }
 
 sub parse_pod ($) {
@@ -799,7 +800,9 @@ Options:
   --help          Show this help.
   --check         Only check the validity of the smartlinks, no
                   HTML outputs.
-  --missing       Print files whitout smartlinks 
+  --missing       Print files whitout smartlinks
+  --wiki          Print out a wiki link to test files missing links
+  --count         Show the count of links per file 
   --out-dir <dir> Specify the output directory for HTML files.
   --css <file>    Specify the CSS file used by the HTML outputs,
                   defaults to http://dev.perl.org/css/perl.css.
@@ -821,10 +824,12 @@ _EOC_
 }
 
 sub main () {
-    my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index, $dir);
+    my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index, $dir,$count,$wiki);
     GetOptions(
         'check'       => \$check,
+        'count'       => \$count,
         'missing'     => \$print_missing,
+        'wiki'        => \$wiki,
         'syn-dir=s'   => \$syn_dir,
         'out-dir=s'   => \$out_dir,
         'css=s'       => \$cssfile,
@@ -843,8 +848,10 @@ sub main () {
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
     $link_count = 0;
-    $test_file_count = 0;
     $broken_link_count = 0;
+   
+    my $test_files_missing_links = 0;
+    my $test_file_count = 0;    
 
     $out_dir ||= '.';
     mkdir $out_dir if !-d $out_dir;
@@ -857,7 +864,14 @@ sub main () {
 
     my $linktree = {};
     for my $t_file (@t_files) {
-        process_t_file($t_file, $linktree);
+        my $links = process_t_file($t_file, $linktree);
+        if ($links) {
+	    print "Found $links links in <$t_file>\n" if defined $count;
+        } else {
+            print "No smartlink found in <$t_file>\n" if defined $print_missing;
+            print "\"$t_file\"<http://svn.pugscode.org/pugs/t/spec/$t_file>\n" if defined $wiki;
+	    $test_files_missing_links++;
+        }
         $test_file_count++;
     }
     #print Dump($linktree);
@@ -935,7 +949,7 @@ sub main () {
         }
     }
 
-    warn "info: $link_count smartlinks found and $broken_link_count broken in $test_file_count test files.\n";
+    warn "info: $link_count smartlinks found and $broken_link_count broken in $test_file_count test files ($test_files_missing_links test files had no links).\n";
     if (!$check and $broken_link_count > 0) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
     }
