@@ -7,58 +7,23 @@ use utf8;
 use feature qw(say switch);
 use English;
 use Getopt::Long;
+use Carp;
 
 # CPAN modules
-use File::Slurp;
 use Term::ANSIColor;
-use YAML::Dumper;
 
 # And finally our modules
 use STD;
 use Syntax::Highlight::Perl6;
 
-=head1 NAME
-
-STD_syntax_highlight - Highlights Perl 6 source code using STD.pm
-
-=head1 SYNOPSIS
-
-    # read from standard input
-    STD_syntax_highlight
-
-    # print ansi-escaped text for 'comp_unit'
-    STD_syntax_highlight foo.pl
-
-    # print separate html, css and javascript files
-    STD_syntax_highlight --full-html=foo.full.html --clean-html foo.pl
-
-    # print ansi-escaped text for with 'statementlist' as the top-level rule
-    STD_syntax_highlight foo.pl statementlist
-
-    # write simple html output to foo.pl.html
-    STD_syntax_highlight --simple-html=foo.pl.html foo.pl
-
-    # write simple snippet html output to foo.pl.html
-    STD_syntax_highlight --snippet-html=foo.pl.html foo.pl
-
-    # write simple ansi-colored output to STDOUT
-    STD_syntax_highlight --ansi-text=- foo.pl
-
-    # write yaml output to STDOUT (can be useful to build filters)
-    STD_syntax_highlight --yaml=- foo.pl
-=head1 SUBROUTINES
-
-=over
-
-=cut
-
+# my variables
 my ($clean_html,$help) = (0,0);
-my ($full_html,$simple_html,$snippet_html,$ansi_text,$yaml) = (0,0,0,0,0);
+my ($full_html,$simple_html,$snippet_html,$ansi_text) = (0,0,0,0);
 my $file; 
 
-=item main
-Your standard main method
-=cut
+#
+# Your standard main method
+#
 sub main {
     #process the command line
     GetOptions(
@@ -67,7 +32,6 @@ sub main {
         "simple-html=s"=>\$simple_html,
         "snippet-html=s"=>\$snippet_html,
         "ansi-text=s"=>\$ansi_text,
-        "yaml=s"=>\$yaml,
         "help"=>\$help
     );
 
@@ -93,14 +57,11 @@ USAGE:
 
     --ansi-text=filename   
         write simple-mode ansi color text to filename (- for STDOUT)
-
-    --yaml=filename
-        writes a dump of redspans to filename (- for STDOUT)
 HELP
     }
 
     #default is --simple-html=- if no option is selected
-    if(!($simple_html || $full_html || $snippet_html || $yaml) && !$ansi_text) {
+    if(!($simple_html || $full_html || $snippet_html) && !$ansi_text) {
         $ansi_text = '-';    
     }
 
@@ -123,10 +84,9 @@ HELP
     highlight_match($file);
 }
 
-=item write_output
-
-Writes the output to a file or STDOUT
-=cut
+#
+# Writes the output to a file or STDOUT
+#
 sub write_output {
     my ($file, $output) = @ARG;
     if($file eq '-') {
@@ -140,15 +100,37 @@ sub write_output {
     }
 }
 
-=item highlight_match
+#-----------------------------------------------------
+# Load file into a scalar without File::Slurp
+# see perlfaq5
+#-----------------------------------------------------
+sub _slurp_special {
+    my $filename = shift;
+    my $fh;
+    if(ref $filename) {    
+        $fh = $filename;
+    } else {
+        $fh = IO::File->new($filename)
+            or croak "Could not open $filename for reading";
+    }
+    local $INPUT_RECORD_SEPARATOR = undef;   #enable localized slurp mode
+    my $contents = <$fh>;
+    if(! ref $filename) {
+        close $fh
+            or croak "Could not close $filename";
+    }
+    return $contents;
+}
 
-Returns the generated Perl6 highlighted HTML.
-=cut
+#
+# Reads the filename and writes to output the generated
+# Perl6 highlighted format.
+#
 sub highlight_match {
     my $filename = shift;
 
     my $p = new Syntax::Highlight::Perl6(
-        text => read_file($filename)
+        text => _slurp_special($filename)
     );
     if($full_html) {
         write_output $full_html, $p->full_html;
@@ -162,29 +144,53 @@ sub highlight_match {
     if($ansi_text) {
         write_output $ansi_text, $p->ansi_text;
     }
-    if($yaml) {
-        my $dumper = YAML::Dumper->new;
-        $dumper->indent_width(4);
-        write_output $yaml, $dumper->dump($p->parse_trees);
-    }
 }
 
-=back
+# exectution start here
+main @ARGV;
+
+__END__
+
+=head1 NAME
+
+syntax-highlight-p6 - A command-line tool to highlight Perl 6 code
+
+=head1 SYNOPSIS
+
+    # read from standard input
+    syntax-highlight-p6
+
+    # print ansi-escaped text for 'comp_unit'
+    syntax-highlight-p6 foo.pl
+
+    # print separate html, css and javascript files
+    syntax-highlight-p6 --full-html=foo.full.html --clean-html foo.pl
+
+    # print ansi-escaped text for with 'statementlist' as the top-level rule
+    syntax-highlight-p6 foo.pl statementlist
+
+    # write simple html output to foo.pl.html
+    syntax-highlight-p6 --simple-html=foo.pl.html foo.pl
+
+    # write simple snippet html output to foo.pl.html
+    syntax-highlight-p6 --snippet-html=foo.pl.html foo.pl
+
+    # write simple ansi-colored output to STDOUT
+    syntax-highlight-p6 --ansi-text=- foo.pl
+
+=head1 DESCRIPTION
+
+The tool uses L<Syntax::Highlight::Perl6> to highlight perl 6 source
+code into html, and ansi escape color sequences.
+
+=head1 SEE ALSO
+
+See L<Syntax::Highlight::Perl6>
 
 =head1 AUTHOR
 
-Written by Ahmad M. Zawawi (azawawi), Moritz Lenz and Paweł Murias (pmurias)
+Written by Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
 
-The project idea was inspired by Moritz Lenz (moritz)
-See http://www.nntp.perl.org/group/perl.perl6.users/2008/07/msg788.html
+=head1 LICENSE
 
-The initial STD tree traversal code was written by Paweł Murias (pmurias).
-
-The redspans traversal code was written by Larry Wall (TimToady).
-redspans stands for "...'red' for "reductions", and 'spans' from the 
-from/to span calculations"
-
-The browser code was written by Ahmad M. Zawawi (azawawi)
-=cut
-
-main @ARGV;
+The same license as L<Syntax::Highlight::Perl6>

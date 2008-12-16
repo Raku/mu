@@ -11,6 +11,7 @@ WriteMakefile(
         'Term::ANSIColor'     => 0,
         'YAML::Syck'          => 0
     },
+    EXE_FILES         => ['syntax-highlight-p6'],
     LICENSE           => 'artistic_2',
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Syntax/Highlight/Perl6.pm', # retrieve abstract from module
