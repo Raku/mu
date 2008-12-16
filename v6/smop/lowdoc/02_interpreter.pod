@@ -1,0 +1,138 @@
+=head1 NAME
+
+Interpreter - The SMOP interpreter instance and implementation
+
+=head1 REVISION
+
+$id$
+
+=head1 Introduction
+
+In order to support the amount of polymorphism that was part of the
+initial design ideas of SMOP, we had to separate the interpreter in
+two layers: the instance and the implementation.
+
+The first layer, the instance, represents an abstract interpreter, in
+the sense that it only holds the current continuation. It would be
+sane to think of it as a thread of execution, but it doesn't implement
+the stack by itself. The second layer, the implementation, represents
+a continuation at a given moment, and is itself responsible for stack
+handling.
+
+As everything in SMOP, the interpreter instance and implementation are
+also SMOP objects, and therefore, you need to use methods to perform
+any action with them. This is an important bootstrap mechanism,
+because, unlike perl5, we can have the interpreter itself available as
+a high-level value, in which methods can be called.
+
+=head1 API
+
+It's important to realize that you are free to use whatever object as
+an interpreter instance of implementation, as long as it implements
+the proper API. SMOP provides a default instance and has already three
+different implementations (and you can use the three at the same
+time).
+
+=head2 Interpreter Instance
+
+The interpreter instance is the object passed as the first argument
+intime).  the SMOP_DISPATCH, SMOP_RELEASE and SMOP_REFERENCE macros,
+representing a specific execution thread. In theory, implementing
+green threads in SMOP is just a matter of creating several instances
+and managing the scheduling between them.
+
+=over
+
+=item continuation
+
+This method returns the current continuation for that interpreter, it
+is often used to store that continuation before making a goto.
+
+=item goto($continuation)
+
+Sets the given $contination as the current continuation of the
+interpreter. This method should simply replace the current
+continuation.
+
+=item has_next, next, eval
+
+This three methods are delegated to the current continuation, in order
+to provide step-by-step execution semantics, 
+
+=item loop
+
+This is the actual runloop, but it's actually just
+
+  while ($continuation.has_next) {
+      $continuation.next;
+      $continuation.eval;
+  }
+
+So it's completely up to the continuation to decide how to handle it.
+
+=back
+
+=head2 Interpreter Implementation
+
+The interpreter implementation deals with the more concrete details of
+how to actually run code, the hability to run different interpreter
+implementations at the same thread of execution is named "Polymorphic
+Eval" and it is the most important feature of SMOP in respect to
+integrating to perl5.
+
+=over
+
+=item has_next
+
+This method returns false if there's nothing else to execute in this
+continuation.
+
+=item next
+
+This method advances one step to be executed, but doesn't yet execute
+it.
+
+=item eval
+
+This method executes one step of the execution. While some
+interpreters may decide to do more than one step at a time in the eval
+call, it's important to understand that this is how a "green threads"
+implementation would be preemptive.
+
+=item back
+
+This returns the continuation that is "in the back" of this
+continuation. It's by calling "back" that SMOP will support the
+"dynamic lookup" of Perl 6 for variables like $+foo.
+
+=item set_back
+
+This sets the back of a continuation, it is usually called by the code
+that creates a new continuation before going to that continuation.
+
+=item setr
+
+This sets a value that was being expected in this continuation,
+usually, a continuation that was openned to handle a method call is
+going to call setr with the result of that method call.
+
+=item lexical
+
+This returns the current lexical scope of the continuation, it is the
+key to make $+foo work.
+
+=item catch
+
+This should return a code object if, and only if, this continuation
+has a failure handling code. The code object will be invoked to handle
+the failure.
+
+=item control
+
+This should return a code object if, and only if, this continuation
+has a control exceptions handling code. The code object will be
+invoked to handle the control exception.
+
+=back
+
+=cut
