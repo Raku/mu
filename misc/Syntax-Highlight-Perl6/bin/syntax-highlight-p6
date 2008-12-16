@@ -1,11 +1,16 @@
-#!/usr/local/bin/perl -Ilib
+#!/usr/bin/perl
+
+#
+# $Id$
+#
 
 # Core modules
+use 5.010;
 use strict;
 use warnings;
 use utf8;
 use feature qw(say switch);
-use English;
+use English qw(-no_match_vars); # to avoid regexp performance penalty
 use Getopt::Long;
 use Carp;
 
@@ -16,10 +21,13 @@ use Term::ANSIColor;
 use STD;
 use Syntax::Highlight::Perl6;
 
+#CPAN version
+our $VERSION = '0.027';
+
 # my variables
 my ($clean_html,$help) = (0,0);
 my ($full_html,$simple_html,$snippet_html,$ansi_text) = (0,0,0,0);
-my $file; 
+my $file;
 
 #
 # Your standard main method
@@ -27,42 +35,42 @@ my $file;
 sub main {
     #process the command line
     GetOptions(
-        "clean-html"=>\$clean_html,
-        "full-html=s"=>\$full_html,
-        "simple-html=s"=>\$simple_html,
-        "snippet-html=s"=>\$snippet_html,
-        "ansi-text=s"=>\$ansi_text,
-        "help"=>\$help
+        'clean-html'=>\$clean_html,
+        'full-html=s'=>\$full_html,
+        'simple-html=s'=>\$simple_html,
+        'snippet-html=s'=>\$snippet_html,
+        'ansi-text=s'=>\$ansi_text,
+        'help'=>\$help
     );
 
     if ($help) {
-        die <<"HELP";
-USAGE: 
+        croak <<"HELP";
+USAGE:
     $PROGRAM_NAME [options] [file] [rule]
 
-    where 'file' is optional; if omitted or is '-' then 
+    where 'file' is optional; if omitted or is '-' then
     STDIN will be used. And 'options' can be one of the following:
 
-    --clean-html    
+    --clean-html
         generates separate html,css and javascript
 
-    --full-html=filename   
+    --full-html=filename
         write full-mode html to filename (- for STDOUT)
 
-    --simple-html=filename   
+    --simple-html=filename
         write simple-mode html to filename (- for STDOUT)
 
     --snippet-html=filename
         This is typically ideal for inline html code. (- for STDOUT)
 
-    --ansi-text=filename   
+    --ansi-text=filename
         write simple-mode ansi color text to filename (- for STDOUT)
 HELP
     }
 
     #default is --simple-html=- if no option is selected
     if(!($simple_html || $full_html || $snippet_html) && !$ansi_text) {
-        $ansi_text = '-';    
+        $ansi_text = q{-};
     }
 
     #start parsing...
@@ -70,18 +78,20 @@ HELP
     my $what = shift @ARGV // 'comp_unit';
 
     #what is the meaning of your input file?
-    if(!$file || $file eq '-') {
+    if(!$file || $file eq q{-}) {
         # i think you mean standard input
-        $file = \*STDIN;        
+        $file = \*STDIN;
     } else {
         # no it is should be a file, let me check
-        unless(-r $file) {
-            die "Could not open '$file' for reading\n";
+        if(! -r $file) {
+            croak "Could not open '$file' for reading\n";
         }
     }
 
     # and finally print out the html code
     highlight_match($file);
+
+    return;
 }
 
 #
@@ -89,15 +99,18 @@ HELP
 #
 sub write_output {
     my ($file, $output) = @ARG;
-    if($file eq '-') {
+    if($file eq q{-}) {
         say $output;
     } else {
         use open OUT => ':utf8';
-        open FILE, ">$file" or
-            die "Cannot open $file for writing: $OS_ERROR\n";
-        say FILE $output;
-        close FILE;
+        my $fh = IO::File->new(">$file") or
+            croak "Cannot open $file for writing: $OS_ERROR\n";
+        say $fh $output;
+        close $fh
+            or croak "Cannot close $file\n";
     }
+
+    return;
 }
 
 #-----------------------------------------------------
@@ -107,7 +120,7 @@ sub write_output {
 sub _slurp_special {
     my $filename = shift;
     my $fh;
-    if(ref $filename) {    
+    if(ref $filename) {
         $fh = $filename;
     } else {
         $fh = IO::File->new($filename)
@@ -144,6 +157,8 @@ sub highlight_match {
     if($ansi_text) {
         write_output $ansi_text, $p->ansi_text;
     }
+
+    return;
 }
 
 # exectution start here
@@ -155,7 +170,7 @@ __END__
 
 syntax-highlight-p6 - A command-line tool to highlight Perl 6 code
 
-=head1 SYNOPSIS
+=head1 USAGE
 
     # read from standard input
     syntax-highlight-p6
@@ -191,6 +206,6 @@ See L<Syntax::Highlight::Perl6>
 
 Written by Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
 
-=head1 LICENSE
+=head1 LICENSE AND COPYRIGHT
 
 The same license as L<Syntax::Highlight::Perl6>

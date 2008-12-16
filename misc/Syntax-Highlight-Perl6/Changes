@@ -1,5 +1,10 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.027 Dec 16 2008
+    - Added bin/syntax-highlight-p6
+    - Updated to latest perl6.vim
+    - Passed most important perlcritic --harsh (-1)
+
 0.026 Dec 16 2008
     - More documention updates. No changes to functionality.
 
