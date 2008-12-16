@@ -28,7 +28,7 @@ my $print_missing;
 my $test_result;
 my $line_anchor;
 my ($pugs_rev, $smoke_rev);
-my ($link_count, $broken_link_count);
+my ($link_count, $broken_link_count, $test_file_count);
 my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
@@ -843,6 +843,7 @@ sub main () {
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
     $link_count = 0;
+    $test_file_count = 0;
     $broken_link_count = 0;
 
     $out_dir ||= '.';
@@ -857,6 +858,7 @@ sub main () {
     my $linktree = {};
     for my $t_file (@t_files) {
         process_t_file($t_file, $linktree);
+        $test_file_count++;
     }
     #print Dump($linktree);
 
@@ -933,7 +935,7 @@ sub main () {
         }
     }
 
-    warn "info: $link_count smartlinks found and $broken_link_count broken.\n";
+    warn "info: $link_count smartlinks found and $broken_link_count broken in $test_file_count test files.\n";
     if (!$check and $broken_link_count > 0) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
     }
