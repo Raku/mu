@@ -1,7 +1,7 @@
 # Warning: This file is mechanically written.  Your changes will be overwritten.
 package Array {
   method irx1_describe() {
-    '[' ~ self.map(sub($e){$e.irx1_describe}).join(",") ~ ']'
+    '[' ~ self.map(sub ($e){$e.irx1_describe}).join(",") ~ ']'
   };
 };
 package Str {

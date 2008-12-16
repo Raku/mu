@@ -292,7 +292,7 @@ if $o<quibble> && $o<quibble><nibble><EXPR> { # m/a/
   return $m<quibble><nibble>;
 }
 my $nibs = $m<nibble><nibbles>;
-my $args = $nibs.map(sub($x){
+my $args = $nibs.map(sub ($x){
   if $x.WHAT eq 'Str' {Buf.newp($x);}
   else {$x}
 });
@@ -855,7 +855,7 @@ class Match {
 };
 class ARRAY {
   method make_ir_from_Match_tree() {
-    self.map(sub($e){$e.make_ir_from_Match_tree()})
+    self.map(sub ($e){$e.make_ir_from_Match_tree()})
   }
 };
 class STRING {

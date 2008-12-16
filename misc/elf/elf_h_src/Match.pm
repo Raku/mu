@@ -42,7 +42,7 @@ class Match {
 class Array {
   method match_describe() {
     ("[\n" ~
-     Match.indent(self.map(sub($e){$e.match_describe}).join(",\n")) ~
+     Match.indent(self.map(sub ($e){$e.match_describe}).join(",\n")) ~
      "\n]")
   }
 };

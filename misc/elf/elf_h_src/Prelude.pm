@@ -123,7 +123,7 @@ class Int   { method Str () { ''~self } }
 class Num   { method Str () { ''~self } }
 class Str   { method Str () { self } }
 class Array { method Str () { self.join('') } }
-class Hash  { method Str () { self.keys.map(sub($k){$k~"\t"~self{$k}}).join("\n") } }
+class Hash  { method Str () { self.keys.map(sub ($k){$k~"\t"~self{$k}}).join("\n") } }
 class Pair  { method Str () { $.key~"\t"~$.value } }
 
 

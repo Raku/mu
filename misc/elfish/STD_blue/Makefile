@@ -14,10 +14,7 @@ does_gimme5_memory_problem_still_exist:
 	@echo No! Time to remove the work-around PrimitivesP5.pm mutant.
 
 known_working_STD:
-	# r24080 broke.
-	rm -rf lex
-	(cd ../../../src/perl6; svn up -r24067; make distclean; make)
-	# done.
+	make update_STD
 
 update_STD:
 	rm -rf lex

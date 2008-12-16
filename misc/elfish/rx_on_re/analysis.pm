@@ -5,19 +5,19 @@ package IRx1 {
 
     method RAST_pass10 { # flags, mods, and pkg
       self.<flags> = $whiteboard::rx_flags.clone;
-      $.RAST_children.map(sub($o){$o.RAST_pass10})
+      $.RAST_children.map(sub ($o){$o.RAST_pass10})
     }
     method RAST_pass14 { # in_quant, subrules_seen, alias_construct
       my $q = $whiteboard::rx_in_quant;
       $q = 1 if $q; # remove 'directly'
       temp $whiteboard::rx_in_quant = $q;
-      $.RAST_children.map(sub($o){$o.RAST_pass14});
+      $.RAST_children.map(sub ($o){$o.RAST_pass14});
     }
     method RAST_pass15 { # nparen, target_spec (req: RAST_pass14)
-      $.RAST_children.map(sub($o){$o.RAST_pass15});
+      $.RAST_children.map(sub ($o){$o.RAST_pass15});
     }
     method RAST_pass30 {
-      $.RAST_children.map(sub($o){$o.RAST_pass30})
+      $.RAST_children.map(sub ($o){$o.RAST_pass30})
     }
 
   }
@@ -39,7 +39,7 @@ package IRx1 {
                        's' => 'sigspace'
                        };
       my $m = {};
-      $modpat.split(":").map(sub($mod){
+      $modpat.split(":").map(sub ($mod){
         if $mod ne '' {
           my $g = $mod.re_groups('\A(\w+)(?:[[(<](.*?)[])>])?\z');
           die "assert" if !$g;
@@ -56,7 +56,7 @@ package IRx1 {
 
     method _add_mods {
       my $flags = $whiteboard::rx_flags.clone;
-      self.<mods>.keys.map(sub($key){
+      self.<mods>.keys.map(sub ($key){
         $flags.{$key} = self.<mods>.{$key};
       });
       $flags;
@@ -134,7 +134,7 @@ package IRx1 {
 
   class RxAlias {
     method RAST_pass14 {
-      $.RAST_children.map(sub($o){$o.RAST_pass14});
+      $.RAST_children.map(sub ($o){$o.RAST_pass14});
       my $construct = $whiteboard::rx_alias_construct;
       my $kinds = {'IRx1::RxGrp'=>'group',
                    'IRx1::RxCap'=>'capture',
@@ -166,7 +166,7 @@ package IRx1 {
   class RxQuant {
     method RAST_pass14 {
       temp $whiteboard::rx_in_quant = 'directly';
-      $.RAST_children.map(sub($o){$o.RAST_pass14});
+      $.RAST_children.map(sub ($o){$o.RAST_pass14});
     }
   }
 
@@ -174,7 +174,7 @@ package IRx1 {
     method RAST_pass15 {
       my $start = $whiteboard::rx_nparen6_idx;
       my $max = $start;
-      my $x = self.<exprs>.map(sub($o){
+      my $x = self.<exprs>.map(sub ($o){
         temp $whiteboard::rx_nparen6_idx = $start;
         my $x1 = $o.RAST_pass15;
         my $np = $whiteboard::rx_nparen6_idx;
@@ -195,7 +195,7 @@ package IRx1 {
     method RAST_pass14 {
       if self.<exprs>.elems == 1 {
         # Single item sequence doesn't affect in_quant directness.
-        $.RAST_children.map(sub($o){$o.RAST_pass14});
+        $.RAST_children.map(sub ($o){$o.RAST_pass14});
       } else {
         $.SUPER::RAST_pass14;
       }
@@ -287,7 +287,7 @@ package IRx1 {
   class RxNamespace {
     method RAST_init {
       temp $whiteboard::rx_pkg = self.<pkg>;
-      $.RAST_children.map(sub($o){$o.RAST_init});
+      $.RAST_children.map(sub ($o){$o.RAST_init});
       self;
     }
   }

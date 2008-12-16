@@ -32,11 +32,11 @@ class FLOAT {
   method perl() { ''~self }
 }
 class ARRAY {
-  method perl() { '[' ~ self.map(sub($e){$e.perl()}).join(",") ~ ']' }
+  method perl() { '[' ~ self.map(sub ($e){$e.perl()}).join(",") ~ ']' }
 }
 class HASH {
   method perl() {
-    '{' ~ self.keys.map(sub($k){$k.perl() ~ ' => ' ~ self.{$k}.perl}).join(", ") ~ '}'
+    '{' ~ self.keys.map(sub ($k){$k.perl() ~ ' => ' ~ self.{$k}.perl}).join(", ") ~ '}'
   }
 }
 

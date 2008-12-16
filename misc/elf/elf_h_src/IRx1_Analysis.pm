@@ -187,7 +187,7 @@ class IRx1::Base {
   method record_crnt_package() {
     $.notes<crnt_package_chain> = $whiteboard::package_chain;
     #if $.notes<crnt_package_chain>.elems == 0 {$.notes<crnt_package_chain> = ['Main']} #XXX no Main PkgDecl yet.
-    $.notes<crnt_package> = $.notes<crnt_package_chain>.map(sub($n){$n.name}).join("::");
+    $.notes<crnt_package> = $.notes<crnt_package_chain>.map(sub ($n){$n.name}).join("::");
     if $.notes<crnt_package_chain>.elems == 0 {$.notes<crnt_package> = 'Main'} #XXX
   }
 }

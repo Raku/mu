@@ -472,7 +472,7 @@ package Main;
     my $ref = $x.WHAT;
     if $ref eq 'Undef' { $x }
     elsif $ref eq 'Str' || $ref eq 'Int' || $ref eq 'Num' { $x }
-    elsif $ref eq 'Array' { $x.map(sub($ae){$.e($ae)}) }
+    elsif $ref eq 'Array' { $x.map(sub ($ae){$.e($ae)}) }
     else {$x.callback(self)}
   };
 
@@ -486,7 +486,7 @@ package Main;
       "package Main;\n"~
       self.prelude_for_entering_a_package());
     my $stmts = $.e($n.statements);
-    $stmts = $stmts.map(sub($x){if defined($x) {$x} else {""}}); #XXX
+    $stmts = $stmts.map(sub ($x){if defined($x) {$x} else {""}}); #XXX
     my $foot = $whiteboard::compunit_footer.join(";\n");
     $code ~ $stmts.join(";\n")~$foot~";\n";
   };
@@ -494,7 +494,7 @@ package Main;
     temp $whiteboard::emit_pairs_inline = 0;
     #'# '~$.e($n.notes<lexical_variable_decls>).join(" ")~"\n"~
     my $stmts = $.e($n.statements);
-    $stmts = $stmts.map(sub($x){if defined($x) {$x} else {""}}); #XXX
+    $stmts = $stmts.map(sub ($x){if defined($x) {$x} else {""}}); #XXX
     '(do{'~$stmts.join(";\n")~'})'
   };
 
@@ -628,7 +628,7 @@ package Main;
 
   method multimethods_using_hack ($n,$name,$param_types) {
     my $name = $.e($n.name);
-    my $param_types = $n.multisig.parameters.map(sub($p){
+    my $param_types = $n.multisig.parameters.map(sub ($p){
       my $types = $.e($p.type_constraints);
         if $types {
           if $types.elems != 1 { die("unsupported: parameter with !=1 type constraint.") }
@@ -676,7 +676,7 @@ package Main;
   method multi_using_CM ($n,$is_method,$f_emitted) {
     my $name = $.e($n.name);
     my $enc_name = $.mangle_function_name($name);
-    my $param_types = $n.multisig.parameters.map(sub($p){
+    my $param_types = $n.multisig.parameters.map(sub ($p){
       my $types = $.e($p.type_constraints);
       if $types {
         if $types.elems != 1 { die("unsupported: parameter with !=1 type constraint.") }
@@ -688,7 +688,7 @@ package Main;
     if $is_method {
       $param_types.unshift('Any');
     }
-    my $sig = $param_types.map(sub($t){
+    my $sig = $param_types.map(sub ($t){
       # XXX C::M needs to be modified to work on both INTEGER and Int. :(
       if $t eq 'Any' { '*' }
       elsif $t eq 'Int' { '#' }
@@ -939,7 +939,7 @@ package Main;
     my $first_test = $first[0];
     if $n.invert_first_test { $first_test = "not("~$first_test~")" }
     ('if('~$first_test~") \{\n"~$first[1]~"\n}"
-    ~$clauses.map(sub($e){'elsif('~$e[0]~") \{\n"~$e[1]~"\n}"}).join("")
+    ~$clauses.map(sub ($e){'elsif('~$e[0]~") \{\n"~$e[1]~"\n}"}).join("")
     ~$els)
   };
   method cb__Loop ($n) {

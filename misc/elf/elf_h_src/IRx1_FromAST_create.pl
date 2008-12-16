@@ -594,7 +594,7 @@ class Match {
 };
 class Array {
   method make_ir_from_Match_tree() {
-    self.map(sub($e){$e.make_ir_from_Match_tree()})
+    self.map(sub ($e){$e.make_ir_from_Match_tree()})
   }
 };
 class Str {

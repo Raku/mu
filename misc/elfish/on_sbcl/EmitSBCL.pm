@@ -400,7 +400,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
     my $ref = $x.WHAT;
     if $ref eq 'Undef' { $x }
     elsif $ref eq 'Str' || $ref eq 'Int' || $ref eq 'Num' { $x }
-    elsif $ref eq 'Array' { $x.map(sub($ae){$.e($ae)}) }
+    elsif $ref eq 'Array' { $x.map(sub ($ae){$.e($ae)}) }
     else {$x.callback(self)}
   }
 
@@ -411,7 +411,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
     my $code = "";
     my $lexicals = "";
     my $lexicals_foot = "";
-    $decls.map(sub($d){if $d.scope eq 'my' {
+    $decls.map(sub ($d){if $d.scope eq 'my' {
       $lexicals = $lexicals ~ $.qsym($d.sigil~$d.name)~" ";
     }});
     if $lexicals {
@@ -439,7 +439,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
     my $code = "";
     my $lexicals = "";
     my $lexicals_foot = "";
-    $decls.map(sub($d){
+    $decls.map(sub ($d){
        my $scope = $d.scope;
        if $scope eq 'my' {
          $lexicals = $lexicals ~ $.e($d.var)~" ";
@@ -692,7 +692,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
         my $s = $n.capture.arguments[0];
         my $words = $s.split('\s+');
         my $self = self;
-        $e_capture = $words.map(sub($x){$self.UP_qstr($x)}).join(" ");
+        $e_capture = $words.map(sub ($x){$self.UP_qstr($x)}).join(" ");
       }
     }
     if $n.capture.contains_a_list {
@@ -782,7 +782,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
         my $s = $n.capture.arguments[0];
         my $words = $s.split('\s+');
         my $self = self;
-        return $.emit_array($words.map(sub($x){$self.UP_qstr($x)}).join(" "));
+        return $.emit_array($words.map(sub ($x){$self.UP_qstr($x)}).join(" "));
       }
     }
     elsif ($fun eq 'self') {
@@ -849,7 +849,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
     my $first_test = '(to-b '~$first[0]~')';
     if $n.invert_first_test { $first_test = "(not "~$first_test~")" }
     ('(cond ('~$first_test~"\n"~$first[1]~")\n"
-    ~$clauses.map(sub($e){'((to-b '~$e[0]~")\n"~$e[1]~"\n)"}).join("")
+    ~$clauses.map(sub ($e){'((to-b '~$e[0]~")\n"~$e[1]~"\n)"}).join("")
     ~$els~")\n")
   }
   method cb__Loop ($n) {

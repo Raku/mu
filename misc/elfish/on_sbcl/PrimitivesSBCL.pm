@@ -99,7 +99,7 @@ package GLOBAL {
        (sb-ext:process-wait p)
        (UP (sb-ext:process-exit-code p)))
   '}
-  multi unlink (*@filenames) { @filenames.map(sub($f){unlink_($f)}) }
+  multi unlink (*@filenames) { @filenames.map(sub ($f){unlink_($f)}) }
   multi unlink_ ($filename) is cl {' (sb-unix:unix-unlink (S |$filename|)) '}
   multi not ($x) { if $x { undef } else { 1 } }
   multi defined ($x) is cl {' (UP (defined-p |$x|)) '}
@@ -485,7 +485,7 @@ class Int   { method Str () { primitive_write_to_string(self._native_) } }
 class Num   { method Str () { primitive_write_to_string(self._native_) } }
 class Str   { method Str () { self._native_ } }
 class Array { method Str () { self.join('') } }
-class Hash  { method Str () { self.keys.map(sub($k){$k~"\t"~self.{$k}}).join("\n") } }
+class Hash  { method Str () { self.keys.map(sub ($k){$k~"\t"~self.{$k}}).join("\n") } }
 class Pair  { method Str () { $.key~"\t"~$.value } }
 
 

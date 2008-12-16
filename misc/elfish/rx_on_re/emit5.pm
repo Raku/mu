@@ -1085,7 +1085,7 @@ package IRx1 {
   # a|b
   class RxAlt {
     method emit_RMARE {
-      my $exprs = self.<exprs>.map(sub($o){$o.emit_RMARE}).join(',');
+      my $exprs = self.<exprs>.map(sub ($o){$o.emit_RMARE}).join(',');
       if self.<flags><ratchet> {
         'IRx1::RxBaseClass->RMARE_concat([IRx1::RxBaseClass->RMARE_alt('~$exprs~'),
                         IRx1::RxBaseClass->RMARE_commit_sequence()])';
@@ -1098,7 +1098,7 @@ package IRx1 {
   # a&b
   class RxConj {
     method emit_RMARE {
-      my $exprs = self.<exprs>.map(sub($o){$o.emit_RMARE}).join(',');
+      my $exprs = self.<exprs>.map(sub ($o){$o.emit_RMARE}).join(',');
       'IRx1::RxBaseClass->RMARE_conj(['~$exprs~'])';
     }
   }
@@ -1106,7 +1106,7 @@ package IRx1 {
   # ab
   class RxSeq {
     method emit_RMARE {
-      my $exprs = self.<exprs>.map(sub($o){$o.emit_RMARE}).join(',');
+      my $exprs = self.<exprs>.map(sub ($o){$o.emit_RMARE}).join(',');
       'IRx1::RxBaseClass->RMARE_concat(['~$exprs~'])';
     }
   }  
@@ -1169,7 +1169,7 @@ package IRx1 {
   # <foo>
   class RxSubrule {
     method emit_RMARE {
-      my $exprs = self.<exprs>.map(sub($o){$o.emit_RMARE}).join(',');
+      my $exprs = self.<exprs>.map(sub ($o){$o.emit_RMARE}).join(',');
       my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'__PACKAGE__'}};
       my $name = {if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'}};
       my $neg = self.<neg> ||'undef';
@@ -1312,7 +1312,7 @@ package IRx1 {
     method emit_RMARE {
       my $pkg = self.<pkg>;
       '(do{ IRx1::RxBaseClass->RMARE_namespace("'~quotemeta($pkg)~'");'~
-      '('~self.<bindings>.map(sub($o){$o.emit_RMARE}).join(",\n")~') })';
+      '('~self.<bindings>.map(sub ($o){$o.emit_RMARE}).join(",\n")~') })';
     }
   }
 
