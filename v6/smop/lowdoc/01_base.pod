@@ -33,4 +33,113 @@ SMOP__Object implements the lowlevel part of the meta object protocol,
 it's through the Responder Interface that you can perform any action
 on the object.
 
+At that level, there's only one operation that can be performed on an
+object, which is to invoke an arbitrary method. It's important to
+realize, however, that this method invocation happens at the same
+level that any high-level language might call, this means that there's
+no distinction between native operators and high-level operators, nor
+between native values and high-level values.
+
+That being said, follows the structure of a responder interface:
+
+  struct SMOP__ResponderInterface {
+    SMOP__ResponderInterface* RI;
+    void* data;
+    SMOP__Object* (*MESSAGE)  (SMOP__Object* interpreter,
+                               SMOP__ResponderInterface* self,
+                               SMOP__Object* identifier,
+                               SMOP__Object* capture);
+    SMOP__Object* (*REFERENCE)(SMOP__Object* interpreter,
+                               SMOP__ResponderInterface* self,
+                               SMOP__Object* object);
+    SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,
+                               SMOP__ResponderInterface* self,
+                               SMOP__Object* object);
+    char* id;
+  }
+
+=over
+
+=item MESSAGE
+
+This is the function that handles the method invocation for the
+objects to which this responder interface is the responsible for. As
+you might have realized, it receives objects as arguments and returns
+an object. We should deal with each of interpreter, identifier and
+capture later.
+
+=item REFERENCE/RELEASE
+
+At start, the choice for a reference counting garbage collector was
+made just looking for simplicity, since it's considerably simpler to
+implement (even if considerably harder to debug and maintain). But as
+SMOP evolved and the interoperability with perl5 became such an
+important target, the choice for a reference count gc became a
+fundamental aspect on how SMOP and perl5 will work together.
+
+One thing that might not be obvious here is that it's up to each
+responder interface to implement its own garbage collector, meaning
+that we can have several garbage collectors coexisting at the same
+process, for instance, the SMOP default lowlevel and the perl5 garbage
+collectors.
+
+The other consequence of this choice is that you can have objects that
+are not subject to garbage collection, and this can be achieved simply
+by making REFERENCE and RELEASE noops.
+
+The policy on the use of REFERENCE and RELEASE is going to be
+described in another document.
+
+=back
+
+=head1 Macros
+
+The SMOP base defines a few macros that should be used when
+interacting with SMOP Objects. While in theory, the use of those
+macros is optional, it's strongly advised that you stick with them, to
+make transitions to newer versions easier.
+
+=over
+
+=item SMOP__Object__BASE
+
+This macro defines the head of every SMOP Object, basically defining
+the members documented in the section above.
+
+=item SMOP__ResponderInterface__BASE
+
+As the above macro, this defines the head of every SMOP Responder
+Interface, with the members documented above.
+
+=item SMOP_RI(value)
+
+Returns the ResponderInterface of a SMOP Object, it's important to
+realize that if a value has no RI defined, it is considered itself its
+own responder interface, and should therefore comply to the Responder
+Interface struct.
+
+=item SMOP_DISPATCH(interpreter, responder, identifier, capture)
+
+Invoke the method "identifier" in an object handled by "responder", in
+the context of the given "interpreter" with the given "capture" (each
+of those concepts should be expanded later).
+
+=item SMOP_REFERENCE(interpreter, value) / SMOP_RELEASE(interpreter, value)
+
+Increments/decrements the reference count of the given "value" in the
+context of the given "interpreter". This macro returns the value
+itself, so you can use the macro in the place of the value itself.
+
+=back
+
+=head1 IMPORTANT SPEC NOTICE
+
+This document describe everything that you can assume on an arbitrary
+object, which means that you can only introspect in more details by
+either calling a method, or by checking if you know the responder
+interface of the given object.
+
+It is erroneous to assume a given internal structure beyond what is
+described in this document.
+
 =cut
