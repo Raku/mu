@@ -4,7 +4,7 @@ Base - SMOP basic structures
 
 =head1 REVISION
 
-$id$
+$Id$
 
 =head1 SMOP__Object
 

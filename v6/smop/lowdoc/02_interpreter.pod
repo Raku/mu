@@ -4,7 +4,7 @@ Interpreter - The SMOP interpreter instance and implementation
 
 =head1 REVISION
 
-$id$
+$Id$
 
 =head1 Introduction
 

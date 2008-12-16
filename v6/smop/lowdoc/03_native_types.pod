@@ -4,7 +4,7 @@ Native Types
 
 =head1 REVISION
 
-$id$
+$Id$
 
 =head1 Introduction
 
