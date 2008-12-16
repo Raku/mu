@@ -5,7 +5,7 @@ my sub bar {
   foo;
   return "not ok 1\n";
   CATCH {
-    given OutOfItemsException {
+    when OutOfItemsException {
       return "ok 1\n";
     }
     return "not ok 1 - caught exception, but couldnt identify it";
