@@ -11,7 +11,7 @@ our $nulnul = "\0" x 2;
 
 sub match_or_undef_to_s { my $x = shift; if(defined($x)) { $x->match_string } else { "" } }
 
-my $debug_warnings = 0;
+my $debug_warnings = 1;
 my @tests = `cat t/re_tests`;
 sub test {
     my($f)=@_;
@@ -50,7 +50,10 @@ sub test {
 	    if($ok =~ /c/) { print "ok\n"; }
 	    else {
 		print "not ok \# Unexpected compilation failure.\n";
-                print STDERR "$err\n";
+                print STDERR "Unexpected compilation failure.\n$err\n";
+                if($debug_warnings && $err =~ /Parse failed/) { # found a STD/gimme5 bug
+                  print STDERR "UNEXPECTED PARSEFAIL FOR P5 RE:   $re   $mods\n";
+                }
 	    }
 	    next;
 	}

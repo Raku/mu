@@ -3,7 +3,7 @@
 package Pkg_re_tests;
 use strict;
 
-my $debug_warnings = 0;
+my $debug_warnings = 1;
 my @tests = `cat t/rx_*`;
 sub test6 {
     my($f)=@_;
@@ -25,7 +25,10 @@ sub test6 {
 	    if($ok =~ /^\/(?!mob)/) { print "ok\n"; }
 	    else {
               print "not ok \# Unexpected compilation failure.\n";
-              print STDERR "$err\n";
+              print STDERR "Unexpected compilation failure.\n$err\n";
+              if($debug_warnings && $err =~ /Parse failed/) { # found a STD/gimme5 bug
+                print STDERR "UNEXPECTED PARSEFAIL FOR RX:   $re   $mods\n";
+              }
             }
 	    next;
 	}

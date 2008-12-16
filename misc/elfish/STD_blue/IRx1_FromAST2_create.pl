@@ -661,9 +661,12 @@ Trait.newp('does',$m<module_name>)
 
 
 
-regex_declarator:token
-temp $blackboard::regex_kind = 'token';
+regex_declarator
+my $kind = $m<sym_name>;
+temp $blackboard::regex_kind = $kind;
 $m<regex_def>
+
+
 
 regex_def
 my $kind = $blackboard::regex_kind;
@@ -671,7 +674,9 @@ my $name = $m<deflongname>[0];
 my $sig = $m<signature>; #X
 my $trait = $m<trait>; #X
 my $regex = $m<regex_block>;
-RegexDef.newp($kind,$name,$sig,$trait,$regex)
+my $rx = RxBiind.newp(undef,$name,$regex);
+RegexDef.newp($kind,$name,$sig,$trait,$rx)
+
 
 regex_block
 $m<nibble>
@@ -711,23 +716,48 @@ else {
 quantifier
 *text*
 
+
 metachar
 my $x = *text*;
+if $o<sym_name> { $x = $m<sym_name> }
 if $o<mod_internal> {
+  temp $blackboard::is_P5 = $blackboard::is_P5;
+  my $mod = $m<mod_internal>;
   my $rest = $m<mod_internal><nibbler><EXPR>;
-  RxSeq.newp([$m<mod_internal>,$rest]);
+  RxSeq.newp([$mod,$rest]);
 } elsif $x eq '.' { RxPat5.newp('.')
-} elsif $x eq '^' { RxPat5.newp('^') #XXX Need to know if we're in p5 or p6.
-} elsif $x eq '$' { RxPat5.newp('$') #XXX Need to know if we're in p5 or p6.
+} elsif $x eq '^' {
+  if $blackboard::is_P5 { RxPat5.newp('^') } else { RxPat5.newp('\A') }
+} elsif $x eq '$' {
+  if $blackboard::is_P5 { RxPat5.newp('$') } else { RxPat5.newp('\z') }
+} elsif $x eq '^^' { RxPat5.newp('(?m:^)(?!(?=\z)(?<=\n))')
+} elsif $x eq '$$' { RxPat5.newp('(?m:$)(?!(?=\z)(?<=\n))')
+} elsif $x eq '< >' {
+  my $pkg = undef;
+  my $name = $m<assertion>;
+  my $exprs = [];
+  my $neg = undef;
+  my $nocap = undef;
+  RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
+} elsif $x eq '[ ]' && $blackboard::is_P5 {
+  RxPat5.newp(*text*)
 } else {
-  die "Unimplemented metachar";
+  die "Unimplemented metachar: "~$x;
 }
 
+assertion
+*text*
+
+
 mod_internal
-my $after = $o<nibbler>.from;
 my $text = *text*;
-my $modpat = substr($text,0,$after-$m.from);
+my $modpat = $text;
+if $o<nibbler> {
+  my $after = $o<nibbler>.from;
+  $modpat = substr($text,0,$after-$m.from);
+}
 my $mods = IRx1::RxMixinMod.mods_from_modpat($modpat);
+if $mods.{'P5'} { $blackboard::is_P5 = 1 }
 RxMod_inline.newp($mods)
 
 

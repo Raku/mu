@@ -406,10 +406,10 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
         }
       } elsif($flag eq \'{\'){
         $localize .= \'->{match_hash}\';
-        $localize .= "{$key}" if !$is_final;
+        $localize .= "{\'$key\'}" if !$is_final;
         if($is_final){
           $copy = \'{%{\'.$localize.\'}}\';
-          $access = "{$key}";
+          $access = "{\'$key\'}";
         }
       } else { die "bug" };
     }
@@ -1170,7 +1170,7 @@ package IRx1 {
   class RxSubrule {
     method emit_RMARE {
       my $exprs = self.<exprs>.map(sub($o){$o.emit_RMARE}).join(',');
-      my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'}};
+      my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'__PACKAGE__'}};
       my $name = {if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'}};
       my $neg = self.<neg> ||'undef';
       my $nocap = self.<nocap> ||'undef';
@@ -1296,7 +1296,7 @@ package IRx1 {
       eval_perl5($src);
     }
     method emit_RMARE {
-      my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'}};
+      my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'__PACKAGE__'}};
       my $name = {if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'}};
       my $fr = self.<expr>.emit_RMARE;
       'IRx1::RxBaseClass->RMARE_biind('~$pkg~','~$name~','~$fr~')';
@@ -1324,4 +1324,9 @@ class EmitSimpleP5 {
   method cb__RxARegex ($n) {
     $n.emit_RMARE;
   }
+  method cb__RegexDef ($n) {
+    $n.<pattern>.emit_RMARE;
+  }
 }
+
+#eval('use rx_prelude;'); #XXX breaks elf_h test.pm .
