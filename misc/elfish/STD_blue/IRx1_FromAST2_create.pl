@@ -741,6 +741,19 @@ if $o<mod_internal> {
   RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
 } elsif $x eq '[ ]' && $blackboard::is_P5 {
   RxPat5.newp(*text*)
+} elsif $x eq '\\' {
+  if $o<backslash> {
+    my $sym = $o<backslash><sym>;
+    if $blackboard::is_P5 && $sym eq 'p' {
+      RxPat5.newp(*text*)
+    }
+    else {
+      die "Unimplemented metachar: "~$x;
+    }
+  }
+  else {
+    die "Unimplemented metachar: "~$x;
+  }
 } else {
   die "Unimplemented metachar: "~$x;
 }

@@ -1329,4 +1329,3 @@ class EmitSimpleP5 {
   }
 }
 
-#eval('use rx_prelude;'); #XXX breaks elf_h test.pm .
