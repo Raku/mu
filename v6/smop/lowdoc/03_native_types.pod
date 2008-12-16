@@ -1,0 +1,73 @@
+=head1 NAME
+
+Native Types
+
+=head1 REVISION
+
+$id$
+
+=head1 Introduction
+
+In all the polymorphism Perl 6 supports, the native types are a
+safe-land for the implementors. While every object might reply "true"
+to .^does(Int), the checking for the native int can be done in terms
+of its representation. The spec is very clear about that:
+
+  You may derive from any built-in type, but the derivation of a
+  low-level type like C<int> may only add behaviors, not change the
+  representation.  Use composition and/or delegation to change the
+  representation.
+
+This means that the native types are free to provide a weaker meta
+object system. For instance, you cannot add a method to the "int"
+type, you cannot "subclass" int. This means that "int" can be a plain
+object that only supports its direct methods.
+
+This document makes a brief presentation of the native types in SMOP,
+they will be documented individually by other documents.
+
+=head1 bool
+
+This type has a special meaning in SMOP, because it is the universal
+way of saying true and false. This type is implemented by the
+SMOP__NATIVE__bool responder interface, and you should always have
+available the C symbols for SMOP__NATIVE__bool_true and
+SMOP__NATIVE__bool_false, so you can return true and false from any
+method.
+
+Both true and false natives are not subject to garbage collection and
+should be available in the entire lifetime of a SMOP process, they are
+also singletons, which means that you can do direct pointer comparison
+to test for true and false, but you should note that it as a general
+policy, you should always test against SMOP__NATIVE__bool_false,
+meaning that any other value should be considered true.
+
+=head1 constant identifier
+
+This is another very special type in SMOP. Considering how complex is
+the Perl 6 Str type, the constant identifier represents a
+simplification on how to use str-like semantics. The constant
+identifier is a type which makes an object universal to that specific
+string, something in the lines of a Lisp Symbol.
+
+Constant identifiers are created using the
+SMOP__NATIVE__idconst_create function. This function will access a
+singleton list of constant identifiers that were previously created,
+and it should return the same pointer if you create a idconst for the
+same string twice.
+
+The most important consequence, is that considering you have a
+constant identifier, you can do a simple pointer comparison to see if
+you have the correct string. This is a key feature in the
+bootstrapping of SMOP. A constant identifier can be used wherever a
+Str object could be used.
+
+=head1 capture
+
+The native capture provides a way to access directly the arguments to
+a method call, including the invocant. Some types only accept native
+captures, but in the high-level non-native captures should also be
+supported.
+
+=cut
+
