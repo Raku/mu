@@ -1,6 +1,6 @@
 #########################
 
-use Test::More tests => 23;
+use Test::More tests => 25;
 use Test::Exception;
 
 #this is needed for now before using my module
@@ -56,3 +56,10 @@ like( $ansi, '/foo/i', 'ansi_text should contain the word foo');
 my $ptree = $p->parse_trees;
 ok( defined $ptree, 'parse_trees returned something');
 isa_ok( $ptree, 'ARRAY', 'parse_trees returned an array');
+
+#tests for static behavior between different instances
+my $q = Syntax::Highlight::Perl6->new(
+    text => 'my $bar;'
+);
+like( $q->snippet_html, '/bar/i', 'second instance worked perfectly');
+like( $p->snippet_html, '/foo/i', 'and first instance is not affected');
