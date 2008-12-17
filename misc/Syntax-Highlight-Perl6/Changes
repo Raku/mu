@@ -1,9 +1,10 @@
 Revision history for Syntax::Highlight::Perl6.
 
 0.029 Dec 17 2008
-    - Fix the lexical scope sharing bug that caused the parser 
+    - Fix the my-variable sharing bug that caused the parser 
       to work once for all instances.
-    - Moose 0.57 -> 0.63 dependency
+    - Added two tests to check for that bug.
+    - Moose 0.57 -> 0.63 dependency.
 
 0.028 Dec 17 2008
     - syntax-highlight-p6 is now hilitep6
