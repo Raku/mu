@@ -163,10 +163,16 @@ syn match p6Conditional display "\%(if\|else\|elsif\|unless\)\_s\@="
 syn match p6Number      display "\k\@<!_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
 syn match p6Float       display "\k\@<!_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
 syn match p6Float       display "\k\@<!_\@<!\%(\d\|__\@!\)*_\@<!\.\@<!\._\@!\.\@!\a\@!\%(\d\|_\)\+_\@<!\%([eE]_\@!\%(\d\|_\)\+\)\?"
-syn match p6Number      display "\<0o[0-7][0-7_]*"
-syn match p6Number      display "\<0b[01][01_]*"
-syn match p6Number      display "\<0x\x[[:xdigit:]_]*"
-syn match p6Number      display "\<0d\d[[:digit:]_]*"
+
+syn match p6NumberBase  display "[obxd]" contained
+syn match p6Number      display "\<0\%(o[0-7][0-7_]*\)\@="     nextgroup=p6NumberBase
+syn match p6Number      display "\<0\%(b[01][01_]*\)\@="       nextgroup=p6NumberBase
+syn match p6Number      display "\<0\%(x\x[[:xdigit:]_]*\)\@=" nextgroup=p6NumberBase
+syn match p6Number      display "\<0\%(d\d[[:digit:]_]*\)\@="  nextgroup=p6NumberBase
+syn match p6Number      display "\%(\<0o\)\@<=[0-7][0-7_]*"
+syn match p6Number      display "\%(\<0b\)\@<=[01][01_]*"
+syn match p6Number      display "\%(\<0x\)\@<=\x[[:xdigit:]_]*"
+syn match p6Number      display "\%(\<0d\)\@<=\d[[:digit:]_]*"
 
 " try to distinguish the "is" function from the "is" trail auxiliary
 syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
@@ -1126,6 +1132,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6DeclareRoutine  Keyword
     HiLink p6VarStorage      Keyword
     HiLink p6FlowControl     Special
+    HiLink p6NumberBase      Special
     HiLink p6Twigil          Special
     HiLink p6PackageTwigil   Special
     HiLink p6Comment         Comment
