@@ -95,6 +95,8 @@ sub _lazy_parse {
 
         #we parsed it lazily...
         $self->{src_text} = $src_text;
+        @{$self->{loc}} = @loc;
+        @loc = ();
         $self->{parsed_lazily} = 1;
     }
     return;
@@ -394,7 +396,7 @@ sub _read_ansi_file {
 #---------------------------------------------------------------
 sub _redspans_traverse {
     my ($self,$process_buffer,%colors) = @ARG;
-
+    my @loc = @{$self->{loc}};
     my ($last_tree,$buffer, $last_type) = (q{},q{},q{});
     for my $i (0 .. @loc-1) {
         if(! defined $loc[$i]) {
