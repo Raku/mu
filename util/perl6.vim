@@ -374,10 +374,17 @@ syn cluster p6Interp
     \ add=p6Sigil
     \ add=p6InterpClosure
     \ add=p6SigilContext
+    \ add=p6EscapedSlash
 
-syn match p6EscapedHash display "\\\@<!\\#" contained
-syn match p6Adverb      display ":!\?" contained nextgroup=p6AdverbKey,p6LiteralStringAngle,p6LiteralStringDoubleAngle,p6LiteralStringAngles,@p6AdverbBrackets
-syn match p6AdverbKey   display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*" contained nextgroup=p6LiteralStringAngle,p6LiteralStringDoubleAngle,p6LiteralStringAngles,@p6AdverbBrackets
+syn match p6EscapedQuote       display "\\'" contained
+syn match p6EscapedDoubleQuote display "\\\"" contained
+syn match p6EscapedAngle       display "\\>" contained
+syn match p6EscapedDoubleAngle display "\\»" contained
+syn match p6EscapedHash        display "\\#" contained
+syn match p6EscapedSlash       display "\\\\" contained
+
+syn match p6Adverb    display ":!\?" contained nextgroup=p6AdverbKey,p6LiteralStringAngle,p6LiteralStringDoubleAngle,p6LiteralStringAngles,@p6AdverbBrackets
+syn match p6AdverbKey display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*" contained nextgroup=p6LiteralStringAngle,p6LiteralStringDoubleAngle,p6LiteralStringAngles,@p6AdverbBrackets
 
 syn cluster p6AdverbBrackets
     \ add=p6Parens
@@ -411,21 +418,21 @@ syn region p6InterpStringDoubleQuote
     \ start=+"+
     \ skip=+\\\@<!\\"+
     \ end=+"+
-    \ contains=@p6Interp
+    \ contains=@p6Interp,p6EscapedDoubleQuote
 " «string»
 syn region p6InterpStringDoubleAngle
     \ matchgroup=p6Quote
     \ start="«"
     \ skip="\\\@<!\\»"
     \ end="»"
-    \ contains=@p6Interp,p6Comment,p6EscapedHash,p6Adverb
+    \ contains=@p6Interp,p6Comment,p6EscapedHash,p6EscapedDoubleAngle,p6Adverb
 " <<string>>
 syn region p6InterpStringAngles
     \ matchgroup=p6Quote
     \ start="<<=\@!"
     \ skip="\\\@<!\\>"
     \ end=">>"
-    \ contains=@p6Interp,p6Comment,p6EscapedHash,p6Adverb
+    \ contains=@p6Interp,p6Comment,p6EscapedHash,p6EscapedAngle,p6Adverb
 
 " Punctuation-delimited interpolated strings
 syn region p6InterpString
@@ -460,10 +467,6 @@ syn region p6InterpString
     \ contains=@p6Interp
 
 " Literal strings
-
-syn match p6EscapedSlash display "\\\@<!\\\\" contained
-syn match p6EscapedQuote display "\\\@<!\\'"  contained
-syn match p6EscapedAngle display "\\\@<!\\>"  contained
 
 " 'string'
 syn region p6LiteralStringQuote
@@ -1122,25 +1125,27 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
         command -nargs=+ HiLink hi def link <args>
     endif
 
-    HiLink p6InterpString            p6String
-    HiLink p6InterpStringDoubleQuote p6String
-    HiLink p6InterpStringDoubleAngle p6String
-    HiLink p6InterpStringAngles      p6String
-    HiLink p6LiteralString           p6String
-    HiLink p6LiteralStringQuote      p6String
-    HiLink p6LiteralStringAngle      p6String
-    HiLink p6LiteralStringMatch      p6String
-    HiLink p6SubNonBracket           p6String
-    HiLink p6SubBracket              p6String
-    HiLink p6TransNonBracket         p6String
-    HiLink p6AdverbKey               p6String
-    HiLink p6Adverb                p6Operator
-    HiLink p6EscapedHash      p6StringSpecial
-    HiLink p6EscapedSlash     p6StringSpecial
-    HiLink p6EscapedQuote     p6StringSpecial
-    HiLink p6EscapedAngle     p6StringSpecial
-    HiLink p6CharClass        p6StringSpecial
-    HiLink p6RegexSpecial     p6StringSpecial
+    HiLink p6InterpString              p6String
+    HiLink p6InterpStringDoubleQuote   p6String
+    HiLink p6InterpStringDoubleAngle   p6String
+    HiLink p6InterpStringAngles        p6String
+    HiLink p6LiteralString             p6String
+    HiLink p6LiteralStringQuote        p6String
+    HiLink p6LiteralStringAngle        p6String
+    HiLink p6LiteralStringMatch        p6String
+    HiLink p6SubNonBracket             p6String
+    HiLink p6SubBracket                p6String
+    HiLink p6TransNonBracket           p6String
+    HiLink p6AdverbKey                 p6String
+    HiLink p6Adverb                  p6Operator
+    HiLink p6EscapedHash        p6StringSpecial
+    HiLink p6EscapedSlash       p6StringSpecial
+    HiLink p6EscapedQuote       p6StringSpecial
+    HiLink p6EscapedAngle       p6StringSpecial
+    HiLink p6EscapedDoubleAngle p6StringSpecial
+    HiLink p6EscapedDoubleQuote p6StringSpecial
+    HiLink p6CharClass          p6StringSpecial
+    HiLink p6RegexSpecial       p6StringSpecial
 
     HiLink p6Property        Tag
     HiLink p6Attention       Todo
