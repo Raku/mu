@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.027';
+our $VERSION = '0.028';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
@@ -534,7 +534,7 @@ sub _slurp {
 __END__
 =head1 NAME
 
-Syntax::Highlight::Perl6 - a Perl 6 Syntax Highlighter
+Syntax::Highlight::Perl6 - Perl 6 Syntax Highlighter
 
 =head1 SYNOPSIS
 
@@ -559,7 +559,7 @@ Syntax::Highlight::Perl6 - a Perl 6 Syntax Highlighter
     # Prints ANSI escaped color sequences (useful for console and IRC output)
     print $p->ansi_text;
 
-    # Prints the Perl 5 array of parse trees (useful for building stuff on top of it)
+    # Prints the Perl 5 array of parse trees (useful for other libraries)
     print $p->parse_trees;
 
     # Prints VIM-generated syntax highlighted html
@@ -594,9 +594,7 @@ The available output formats are:
 
 This is an object-oriented module. The following methods are available:
 
-=over 4
-
-=item * new(options)
+=head2 new(options)
 
 Returns the syntax highlighting object. It needs a hash of options.
 The following options are available:
@@ -630,27 +628,27 @@ Flag to enable/disable utf8 decoding. (default: 1 (Enabled))
 
 =back
 
-=item * snippet_html()
+=head2 snippet_html
 
 Returns the Perl 6 highlighted HTML string that can be embedded.
 No CSS or JavaScript is inside.
 
-=item * simple_html()
+=head2 simple_html
 
 Returns the Perl 6 highlighted HTML string. The HTML code is the same
 as C<full_html> but lacks a JavaScript Parse Tree Viewer.
 
-=item * full_html()
+=head2 full_html
 
 Returns the Perl 6 highlighted HTML string. The HTML consists of a
 JavaScript Parse Tree Viewer along with CSS-styling.
 It can inlined if C<inline_resources> option is 1.
 
-=item * ansi_text()
+=head2 ansi_text
 
 Returns a Perl highlighted ANSI escape color string.
 
-=item * parse_trees()
+=head2 parse_trees
 
 Returns a Perl 5 array containing parse tree records.
 The array consists of one or more of the following record structure:
@@ -679,15 +677,13 @@ The shortened output looks like:
           ..
     ];
 
-=item * vim_html()
+=head2 vim_html
 
 Returns the Perl 6 highlighted HTML string that was generated using
 VIM's excellent syntax coloring engine. Please remember to copy
 perl6.vim to your ~/.vim/syntax.
 
 NOTE: This method needs VIM to work properly along with L<Text::VimColor>.
-
-=back
 
 =head1 INCOMPATIBILITIES
 

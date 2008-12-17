@@ -22,7 +22,7 @@ use STD;
 use Syntax::Highlight::Perl6;
 
 #CPAN version
-our $VERSION = '0.027';
+our $VERSION = '0.028';
 
 # my variables
 my ($clean_html,$help) = (0,0);
@@ -168,30 +168,30 @@ __END__
 
 =head1 NAME
 
-syntax-highlight-p6 - A command-line tool to highlight Perl 6 code
+hilitep6 - command-line interface to highlight Perl 6 code
 
 =head1 USAGE
 
     # read from standard input
-    syntax-highlight-p6
+    hilitep6
 
     # print ansi-escaped text for 'comp_unit'
-    syntax-highlight-p6 foo.pl
+    hilitep6 foo.pl
 
     # print separate html, css and javascript files
-    syntax-highlight-p6 --full-html=foo.full.html --clean-html foo.pl
+    hilitep6 --full-html=foo.full.html --clean-html foo.pl
 
     # print ansi-escaped text for with 'statementlist' as the top-level rule
-    syntax-highlight-p6 foo.pl statementlist
+    hilitep6 foo.pl statementlist
 
     # write simple html output to foo.pl.html
-    syntax-highlight-p6 --simple-html=foo.pl.html foo.pl
+    hilitep6 --simple-html=foo.pl.html foo.pl
 
     # write simple snippet html output to foo.pl.html
-    syntax-highlight-p6 --snippet-html=foo.pl.html foo.pl
+    hilitep6 --snippet-html=foo.pl.html foo.pl
 
     # write simple ansi-colored output to STDOUT
-    syntax-highlight-p6 --ansi-text=- foo.pl
+    hilitep6 --ansi-text=- foo.pl
 
 =head1 DESCRIPTION
 

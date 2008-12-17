@@ -2,7 +2,7 @@ Changes
 Makefile.PL
 MANIFEST
 README
-bin/syntax-highlight-p6
+bin/hilitep6
 t/00-syntax.t
 t/01-vim.t
 lib/Syntax/Highlight/Perl6.pm
