@@ -33,7 +33,7 @@ ok($/.to == 6, 'Insensitive recontinued match pos');
 $str = "abcabcabc";
 my @x = $str ~~ m:i:g:p/abc/;
 is("@x", "abc abc abc", 'Insensitive repeated continued match');
-ok($/.to == 9}, 'Insensitive repeated continued match pos');
+ok($/.to == 9, 'Insensitive repeated continued match pos');
 
 $str = "abcabcabc";
 @x = ?($str ~~ m:p:i:g/abc/);
