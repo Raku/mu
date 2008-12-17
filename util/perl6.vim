@@ -177,7 +177,7 @@ syn match p6Number      display "\%(\<0d\)\@<=\d[[:digit:]_]*"
 syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
 
 " int is a function sometimes
-syn match p6Routine     display "int\%(\s*\%((\|\d\)\)\@="
+syn match p6Routine     display "\<int\%(\s*(\|\s\+\d\)\@="
 
 " these Routine names are also Properties, if preceded by "is"
 syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\|also\|shape\)"
