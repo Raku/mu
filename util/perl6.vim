@@ -17,7 +17,6 @@
 " TODO:
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
-"   * Allow :ad<verbs> in «», line 2259 of S02
 "   * Overhaul Q// and its derivatives, line 2475 of S02
 "   * Overhaul regexes, S05
 "
@@ -376,7 +375,35 @@ syn cluster p6Interp
     \ add=p6InterpClosure
     \ add=p6SigilContext
 
-syn match EscapedHash display "\\\@<!\\#" contained
+syn match p6EscapedHash display "\\\@<!\\#" contained
+syn match p6Adverb      display ":!\?" contained nextgroup=p6AdverbKey,p6LiteralStringAngle,p6LiteralStringDoubleAngle,p6LiteralStringAngles,@p6AdverbBrackets
+syn match p6AdverbKey   display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*" contained nextgroup=p6LiteralStringAngle,p6LiteralStringDoubleAngle,p6LiteralStringAngles,@p6AdverbBrackets
+
+syn cluster p6AdverbBrackets
+    \ add=p6Parens
+    \ add=p6Braces
+    \ add=p6Brackets
+
+syn region p6Parens
+    \ start="("
+    \ skip="([^)]*)"
+    \ end=")"
+    \ contained
+    \ contains=TOP
+
+syn region p6Parens
+    \ start="("
+    \ skip="{[^}]*}"
+    \ end=")"
+    \ contained
+    \ contains=TOP
+
+syn region p6Parens
+    \ start="("
+    \ skip="\[[^\]]*]"
+    \ end=")"
+    \ contained
+    \ contains=TOP
 
 " "string"
 syn region p6InterpStringDoubleQuote
@@ -391,14 +418,14 @@ syn region p6InterpStringDoubleAngle
     \ start="«"
     \ skip="\\\@<!\\»"
     \ end="»"
-    \ contains=@p6Interp,p6Comment,p6EscapedHash
+    \ contains=@p6Interp,p6Comment,p6EscapedHash,p6Adverb
 " <<string>>
 syn region p6InterpStringAngles
     \ matchgroup=p6Quote
     \ start="<<=\@!"
     \ skip="\\\@<!\\>"
     \ end=">>"
-    \ contains=@p6Interp,p6Comment,p6EscapedHash
+    \ contains=@p6Interp,p6Comment,p6EscapedHash,p6Adverb
 
 " Punctuation-delimited interpolated strings
 syn region p6InterpString
@@ -847,14 +874,14 @@ syn cluster p6PodConfig
     \ add=p6PodConfigOperator
     \ add=p6PodExtraConfig
 
-syn region p6Parens
+syn region p6PodParens
     \ start="("
     \ end=")"
     \ contained
     \ contains=p6Number,p6LiteralStringQuote
 
 syn match p6PodConfigOperator display contained ":" nextgroup=p6PodConfigOption
-syn match p6PodConfigOption   display contained "[^[:space:](<]\+" nextgroup=p6Parens,p6LiteralStringAngle
+syn match p6PodConfigOption   display contained "[^[:space:](<]\+" nextgroup=p6PodParens,p6LiteralStringAngle
 syn match p6PodExtraConfig    display contained "^="
 syn match p6PodVerticalBar    display contained "|"
 syn match p6PodColon          display contained ":"
@@ -1106,6 +1133,9 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6SubNonBracket           p6String
     HiLink p6SubBracket              p6String
     HiLink p6TransNonBracket         p6String
+    HiLink p6AdverbKey               p6String
+    HiLink p6Adverb                p6Operator
+    HiLink p6EscapedHash      p6StringSpecial
     HiLink p6EscapedSlash     p6StringSpecial
     HiLink p6EscapedQuote     p6StringSpecial
     HiLink p6EscapedAngle     p6StringSpecial
