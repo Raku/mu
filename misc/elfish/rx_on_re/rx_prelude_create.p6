@@ -26,10 +26,10 @@ sub create_rx_prelude {
 #  regex fail {:P5 (?!)} #X STD.pm/gimme5 is not parsing.
   regex fail {112c19a111d323ab3091f62bfc7fb0de}
 
-  # before - implemented as a primitive.
-  # after - implemented as a primitive.
-
-  regex commit {:::}
+  # Implemented as a primitive:
+  # before
+  # after
+  # commit
 
   #regex ident {:P5 (?:_|[[:alpha:]])\w*} #X STD.pm/gimme5 is not parsing.
   regex ident {<fail>} 

@@ -1021,7 +1021,7 @@ sub _mexpr {
           IRx1::RxBaseClass->RMARE_coderx(
             \'$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/\'))
       ,undef),
-                                    undef));
+    undef));
   IRx1::RxBaseClass->RMARE_biind(__PACKAGE__,  "after",
     IRx1::RxBaseClass->RMARE_aregex(undef,undef,
       IRx1::RxBaseClass->RMARE_aregex_create(
@@ -1029,7 +1029,13 @@ sub _mexpr {
           IRx1::RxBaseClass->RMARE_coderx(
             \'$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/\'))
       ,undef),
-                                    undef));
+    undef));
+  IRx1::RxBaseClass->RMARE_biind(__PACKAGE__,  "commit",
+    IRx1::RxBaseClass->RMARE_aregex(undef,undef,
+      IRx1::RxBaseClass->RMARE_aregex_create(
+        IRx1::RxBaseClass->RMARE_commit_match()
+      ,undef),
+    undef));
 }
 ';
     $rmare ~ "\n" ~ $match ~ "\n" ~ $rx ~ $prelude_regexen;
