@@ -31,6 +31,14 @@ nulltermish
 $m<termish>[0]
 
 termish
+if $o<quantified_atom> {
+  my $atoms = $m<quantified_atom>;
+  if $atoms.elems == 1 {
+    return $atoms[0];
+  } else {
+    return RxSeq.newp($atoms);
+  }
+}
 my $noun = $m<noun>;
 temp $blackboard::expect_term_base = $noun;
 my $ops = [];
@@ -71,7 +79,15 @@ elsif $o<chain> {
 elsif $o<list> {
   my $op = $o<delims>[0]<sym_name>;
   my $args = $m<list>;
-  Apply.newp("infix:"~$op,Capture.newp1($args))
+  if $o<delims>[0]<rxinfix> {
+    if $op eq '|' {
+      RxAlt.newp($args)
+    } else {
+      die "Unimplemented regex list operator: "~$op;
+    }
+  } else {
+    Apply.newp("infix:"~$op,Capture.newp1($args))
+  }
 }
 elsif $o<value> {
   $m<value>
@@ -723,8 +739,12 @@ if $o<sym_name> { $x = $m<sym_name> }
 if $o<mod_internal> {
   temp $blackboard::is_P5 = $blackboard::is_P5;
   my $mod = $m<mod_internal>;
-  my $rest = $m<mod_internal><nibbler><EXPR>;
-  RxSeq.newp([$mod,$rest]);
+  my $exprs = [$mod];
+  if $o<mod_internal><nibbler> {
+    my $rest = $m<mod_internal><nibbler><EXPR>;
+    $exprs.push($rest);
+  }
+  RxSeq.newp($exprs);
 } elsif $x eq '.' { RxPat5.newp('.')
 } elsif $x eq '^' {
   if $blackboard::is_P5 { RxPat5.newp('^') } else { RxPat5.newp('\A') }
@@ -734,13 +754,17 @@ if $o<mod_internal> {
 } elsif $x eq '$$' { RxPat5.newp('(?m:$)(?!(?=\z)(?<=\n))')
 } elsif $x eq '< >' {
   my $pkg = undef;
-  my $name = $m<assertion>;
-  my $exprs = [];
+  my $name = $m<assertion><identifier>;
+  my $args = $m<assertion><nibbler>;#X?
+  my $exprs = $args;
   my $neg = undef;
   my $nocap = undef;
   RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
 } elsif $x eq '[ ]' && $blackboard::is_P5 {
   RxPat5.newp(*text*)
+} elsif $x eq ':::' { RxCommitRegex.newp();
+} elsif $x eq '::' { RxCommitGroup.newp();
+} elsif $x eq ':' { RxCommitSequence.newp();
 } elsif $x eq '\\' {
   if $o<backslash> {
     my $sym = $o<backslash><sym>;
@@ -748,7 +772,7 @@ if $o<mod_internal> {
       RxPat5.newp(*text*)
     }
     else {
-      die "Unimplemented metachar: "~$x;
+      RxPat5.newp(*text*)
     }
   }
   else {

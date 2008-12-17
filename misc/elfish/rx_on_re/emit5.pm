@@ -1011,9 +1011,28 @@ sub _mexpr {
   }
 
 }
-
 ';
-    $rmare ~ "\n" ~ $match ~ "\n" ~ $rx;
+    my $prelude_regexen = '
+{ package Any;
+  IRx1::RxBaseClass->RMARE_biind(__PACKAGE__,  "before",
+    IRx1::RxBaseClass->RMARE_aregex(undef,undef,
+      IRx1::RxBaseClass->RMARE_aregex_create(
+        IRx1::RxBaseClass->RMARE_lookaround(1,1,
+          IRx1::RxBaseClass->RMARE_coderx(
+            \'$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/\'))
+      ,undef),
+                                    undef));
+  IRx1::RxBaseClass->RMARE_biind(__PACKAGE__,  "after",
+    IRx1::RxBaseClass->RMARE_aregex(undef,undef,
+      IRx1::RxBaseClass->RMARE_aregex_create(
+        IRx1::RxBaseClass->RMARE_lookaround(0,1,
+          IRx1::RxBaseClass->RMARE_coderx(
+            \'$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/\'))
+      ,undef),
+                                    undef));
+}
+';
+    $rmare ~ "\n" ~ $match ~ "\n" ~ $rx ~ $prelude_regexen;
   };
 };
 
