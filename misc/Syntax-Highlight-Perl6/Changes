@@ -1,5 +1,10 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.028 Dec 17 2008
+    - syntax-highlight-p6 is now hilitep6
+    - added version prequisites for dependencies
+    - POD fixes (e.g. =item -> =head2 in methods section)
+
 0.027 Dec 16 2008
     - Added bin/syntax-highlight-p6
     - Updated to latest perl6.vim
