@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use feature 'say';
+use Carp;
+use File::Copy;
+
+my $STD = q{../../src/perl6};
+my $P6VIM = q{../../util/};
+my $status;
+
+say "\n--Running 'svn update'";
+$status = system('cd ../..; svn update'); 
+die "Could not svn update pugs\n" if $status != 0;
+
+say "\n--Running 'make clean all' for STD.pm";
+$status = system('make clean all'); 
+die "Could not make STD.pm\n" if $status != 0;
+
+say 'Building and copying STD.pm files';
+copy("$STD/Cursor.pmc",'lib/')
+    or croak "Could not copy $STD/Cursor.pmc";
+copy("$STD/LazyMap.pm", 'lib/LazyMap.pmc')
+    or croak "Could not copy $STD/LazyMap.pm";
+copy("$STD/STD.pmc", 'lib/')
+    or croak "Could not copy $STD/STD.pmc";
+
+say 'Copying perl6.vim';
+copy("$P6VIM/perl6.vim", 'lib/rsc/perl6.vim')
+    or croak "Could not copy $P6VIM/perl6.vim";

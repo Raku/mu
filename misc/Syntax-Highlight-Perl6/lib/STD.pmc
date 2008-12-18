@@ -565,7 +565,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'category') {
-$C->deb("Fate passed to category: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to category: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -655,7 +655,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'sigil') {
-$C->deb("Fate passed to sigil: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to sigil: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -725,7 +725,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'twigil') {
-$C->deb("Fate passed to twigil: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to twigil: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -795,7 +795,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'special_variable') {
-$C->deb("Fate passed to special_variable: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -865,7 +865,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'version') {
-$C->deb("Fate passed to version: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to version: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -935,7 +935,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'module_name') {
-$C->deb("Fate passed to module_name: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to module_name: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1005,7 +1005,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'term') {
-$C->deb("Fate passed to term: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to term: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1075,7 +1075,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'quote') {
-$C->deb("Fate passed to quote: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quote: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1145,7 +1145,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'prefix') {
-$C->deb("Fate passed to prefix: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1215,7 +1215,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'infix') {
-$C->deb("Fate passed to infix: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1285,7 +1285,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'postfix') {
-$C->deb("Fate passed to postfix: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to postfix: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1355,7 +1355,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'dotty') {
-$C->deb("Fate passed to dotty: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to dotty: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1425,7 +1425,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'circumfix') {
-$C->deb("Fate passed to circumfix: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to circumfix: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1495,7 +1495,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'postcircumfix') {
-$C->deb("Fate passed to postcircumfix: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to postcircumfix: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1565,7 +1565,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'quote_mod') {
-$C->deb("Fate passed to quote_mod: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quote_mod: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1635,7 +1635,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'trait_verb') {
-$C->deb("Fate passed to trait_verb: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to trait_verb: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1705,7 +1705,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'trait_auxiliary') {
-$C->deb("Fate passed to trait_auxiliary: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to trait_auxiliary: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1775,7 +1775,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'type_declarator') {
-$C->deb("Fate passed to type_declarator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to type_declarator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1845,7 +1845,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'scope_declarator') {
-$C->deb("Fate passed to scope_declarator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to scope_declarator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1915,7 +1915,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'package_declarator') {
-$C->deb("Fate passed to package_declarator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to package_declarator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -1985,7 +1985,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'multi_declarator') {
-$C->deb("Fate passed to multi_declarator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to multi_declarator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2055,7 +2055,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'routine_declarator') {
-$C->deb("Fate passed to routine_declarator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to routine_declarator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2125,7 +2125,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'regex_declarator') {
-$C->deb("Fate passed to regex_declarator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to regex_declarator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2195,7 +2195,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'statement_prefix') {
-$C->deb("Fate passed to statement_prefix: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_prefix: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2265,7 +2265,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'statement_control') {
-$C->deb("Fate passed to statement_control: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_control: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2335,7 +2335,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'statement_mod_cond') {
-$C->deb("Fate passed to statement_mod_cond: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_mod_cond: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2405,7 +2405,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'statement_mod_loop') {
-$C->deb("Fate passed to statement_mod_loop: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_mod_loop: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2475,7 +2475,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'infix_prefix_meta_operator') {
-$C->deb("Fate passed to infix_prefix_meta_operator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix_prefix_meta_operator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2545,7 +2545,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'infix_postfix_meta_operator') {
-$C->deb("Fate passed to infix_postfix_meta_operator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix_postfix_meta_operator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2615,7 +2615,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'infix_circumfix_meta_operator') {
-$C->deb("Fate passed to infix_circumfix_meta_operator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix_circumfix_meta_operator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2685,7 +2685,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'postfix_prefix_meta_operator') {
-$C->deb("Fate passed to postfix_prefix_meta_operator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to postfix_prefix_meta_operator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2755,7 +2755,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'prefix_postfix_meta_operator') {
-$C->deb("Fate passed to prefix_postfix_meta_operator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_postfix_meta_operator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2825,7 +2825,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'prefix_circumfix_meta_operator') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2895,7 +2895,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'terminator') {
-$C->deb("Fate passed to terminator: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to terminator: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -2969,7 +2969,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'spacey_01') {
-$C->deb("Fate passed to spacey_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to spacey_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -3041,7 +3041,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'nofun_01') {
-$C->deb("Fate passed to nofun_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to nofun_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -3151,7 +3151,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'ws_01') {
-$C->deb("Fate passed to ws_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to ws_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -3258,7 +3258,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'ws_05') {
-$C->deb("Fate passed to ws_05: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to ws_05: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -3357,7 +3357,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'unsp_02') {
-$C->deb("Fate passed to unsp_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to unsp_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -3415,7 +3415,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'unsp_03') {
-$C->deb("Fate passed to unsp_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to unsp_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -3588,7 +3588,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'unv_01') {
-$C->deb("Fate passed to unv_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to unv_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -3659,7 +3659,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'unv_03') {
-$C->deb("Fate passed to unv_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to unv_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -3910,7 +3910,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'pod_comment_01') {
-$C->deb("Fate passed to pod_comment_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to pod_comment_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -4319,7 +4319,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'lambda_00') {
-$C->deb("Fate passed to lambda_00: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to lambda_00: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -4449,7 +4449,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'block_01') {
-$C->deb("Fate passed to block_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to block_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -4651,7 +4651,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'regex_block_04') {
-$C->deb("Fate passed to regex_block_04: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to regex_block_04: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -4852,7 +4852,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'statementlist_01') {
-$C->deb("Fate passed to statementlist_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statementlist_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -5011,7 +5011,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'semilist_01') {
-$C->deb("Fate passed to semilist_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to semilist_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -5280,7 +5280,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'statement_02') {
-$C->deb("Fate passed to statement_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -5366,7 +5366,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'statement_05') {
-$C->deb("Fate passed to statement_05: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_05: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -5647,7 +5647,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'statement_control__S_034use_01') {
-$C->deb("Fate passed to statement_control__S_034use_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_control__S_034use_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -6476,7 +6476,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'statement_control__S_040repeat_01') {
-$C->deb("Fate passed to statement_control__S_040repeat_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_control__S_040repeat_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -6510,7 +6510,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'statement_control__S_040repeat_02') {
-$C->deb("Fate passed to statement_control__S_040repeat_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_control__S_040repeat_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -6606,7 +6606,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'statement_control__S_040repeat_03') {
-$C->deb("Fate passed to statement_control__S_040repeat_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to statement_control__S_040repeat_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -9000,7 +9000,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'vnum_00') {
-$C->deb("Fate passed to vnum_00: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to vnum_00: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -9131,7 +9131,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'PRE_01') {
-$C->deb("Fate passed to PRE_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to PRE_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -9295,7 +9295,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'nulltermish_01') {
-$C->deb("Fate passed to nulltermish_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to nulltermish_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -9389,7 +9389,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'termish_01') {
-$C->deb("Fate passed to termish_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to termish_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -9519,7 +9519,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'noun_01') {
-$C->deb("Fate passed to noun_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to noun_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -9584,7 +9584,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'noun_02') {
-$C->deb("Fate passed to noun_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to noun_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -9854,7 +9854,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'colonpair_01') {
-$C->deb("Fate passed to colonpair_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to colonpair_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -10127,7 +10127,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quotepair_01') {
-$C->deb("Fate passed to quotepair_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quotepair_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -10378,7 +10378,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infixish_01') {
-$C->deb("Fate passed to infixish_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infixish_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -10583,7 +10583,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'dotty__S_079DotStar_02') {
-$C->deb("Fate passed to dotty__S_079DotStar_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to dotty__S_079DotStar_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -10746,7 +10746,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'dottyop_01') {
-$C->deb("Fate passed to dottyop_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to dottyop_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -10856,7 +10856,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'POST_01') {
-$C->deb("Fate passed to POST_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to POST_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -10960,7 +10960,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'POST_05') {
-$C->deb("Fate passed to POST_05: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to POST_05: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11152,7 +11152,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_circumfix_meta_operator__S_081reduce_09') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_09: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_09: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11212,7 +11212,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_circumfix_meta_operator__S_081reduce_02') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11245,7 +11245,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_circumfix_meta_operator__S_081reduce_03') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11312,7 +11312,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_circumfix_meta_operator__S_081reduce_04') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_04: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_04: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11379,7 +11379,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_circumfix_meta_operator__S_081reduce_05') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_05: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_05: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11447,7 +11447,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_circumfix_meta_operator__S_081reduce_06') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_06: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_06: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11516,7 +11516,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_circumfix_meta_operator__S_081reduce_07') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_07: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_07: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11585,7 +11585,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_circumfix_meta_operator__S_081reduce_08') {
-$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_08: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_circumfix_meta_operator__S_081reduce_08: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11691,7 +11691,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'prefix_postfix_meta_operator__S_082Fre_00') {
-$C->deb("Fate passed to prefix_postfix_meta_operator__S_082Fre_00: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to prefix_postfix_meta_operator__S_082Fre_00: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -11764,7 +11764,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'postfix_prefix_meta_operator__S_083Nch_00') {
-$C->deb("Fate passed to postfix_prefix_meta_operator__S_083Nch_00: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to postfix_prefix_meta_operator__S_083Nch_00: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -12041,7 +12041,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infix_circumfix_meta_operator__S_086Fre_Nch_01') {
-$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -12079,7 +12079,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infix_circumfix_meta_operator__S_086Fre_Nch_02') {
-$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -12154,7 +12154,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infix_circumfix_meta_operator__S_086Fre_Nch_03') {
-$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -12229,7 +12229,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infix_circumfix_meta_operator__S_086Fre_Nch_04') {
-$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_04: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_04: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -12304,7 +12304,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infix_circumfix_meta_operator__S_086Fre_Nch_05') {
-$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_05: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix_circumfix_meta_operator__S_086Fre_Nch_05: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -12768,7 +12768,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'postop_00') {
-$C->deb("Fate passed to postop_00: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to postop_00: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -12881,7 +12881,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'methodop_04') {
-$C->deb("Fate passed to methodop_04: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to methodop_04: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -12980,7 +12980,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'methodop_01') {
-$C->deb("Fate passed to methodop_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to methodop_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -13018,7 +13018,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'methodop_02') {
-$C->deb("Fate passed to methodop_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to methodop_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -13157,7 +13157,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'arglist_01') {
-$C->deb("Fate passed to arglist_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to arglist_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -13245,7 +13245,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'circumfix__S_094Cur_Ly_01') {
-$C->deb("Fate passed to circumfix__S_094Cur_Ly_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to circumfix__S_094Cur_Ly_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -13380,7 +13380,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'variable_declarator_02') {
-$C->deb("Fate passed to variable_declarator_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to variable_declarator_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -13546,7 +13546,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'scoped_01') {
-$C->deb("Fate passed to scoped_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to scoped_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -14653,7 +14653,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'declarator_01') {
-$C->deb("Fate passed to declarator_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to declarator_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -15359,7 +15359,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_124DollarTilde_01') {
-$C->deb("Fate passed to special_variable__S_124DollarTilde_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_124DollarTilde_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -15455,7 +15455,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_125DollarGrave_01') {
-$C->deb("Fate passed to special_variable__S_125DollarGrave_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_125DollarGrave_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -15628,7 +15628,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_128DollarDollar_01') {
-$C->deb("Fate passed to special_variable__S_128DollarDollar_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_128DollarDollar_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -15820,7 +15820,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_131DollarCaret_01') {
-$C->deb("Fate passed to special_variable__S_131DollarCaret_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_131DollarCaret_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -15916,7 +15916,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_132DollarAmp_01') {
-$C->deb("Fate passed to special_variable__S_132DollarAmp_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_132DollarAmp_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16009,7 +16009,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_133DollarStar_01') {
-$C->deb("Fate passed to special_variable__S_133DollarStar_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_133DollarStar_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16105,7 +16105,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_134DollarThesis_01') {
-$C->deb("Fate passed to special_variable__S_134DollarThesis_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_134DollarThesis_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16198,7 +16198,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_135DollarMinus_01') {
-$C->deb("Fate passed to special_variable__S_135DollarMinus_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_135DollarMinus_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16294,7 +16294,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_136DollarEqual_01') {
-$C->deb("Fate passed to special_variable__S_136DollarEqual_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_136DollarEqual_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16390,7 +16390,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_137AtPlus_01') {
-$C->deb("Fate passed to special_variable__S_137AtPlus_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_137AtPlus_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16483,7 +16483,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_138PercentPlus_01') {
-$C->deb("Fate passed to special_variable__S_138PercentPlus_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_138PercentPlus_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16675,7 +16675,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_142AtMinus_01') {
-$C->deb("Fate passed to special_variable__S_142AtMinus_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_142AtMinus_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16768,7 +16768,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_143PercentMinus_01') {
-$C->deb("Fate passed to special_variable__S_143PercentMinus_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_143PercentMinus_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -16960,7 +16960,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_147DollarPlus_01') {
-$C->deb("Fate passed to special_variable__S_147DollarPlus_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_147DollarPlus_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -17234,7 +17234,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_151DollarBra_01') {
-$C->deb("Fate passed to special_variable__S_151DollarBra_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_151DollarBra_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -17330,7 +17330,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_152DollarKet_01') {
-$C->deb("Fate passed to special_variable__S_152DollarKet_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_152DollarKet_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -17423,7 +17423,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_153DollarBack_01') {
-$C->deb("Fate passed to special_variable__S_153DollarBack_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_153DollarBack_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -17519,7 +17519,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_154DollarVert_01') {
-$C->deb("Fate passed to special_variable__S_154DollarVert_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_154DollarVert_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -17657,7 +17657,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_156DollarSemi_01') {
-$C->deb("Fate passed to special_variable__S_156DollarSemi_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_156DollarSemi_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -17753,7 +17753,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_157DollarSingle_01') {
-$C->deb("Fate passed to special_variable__S_157DollarSingle_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_157DollarSingle_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -17846,7 +17846,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_158DollarDouble_01') {
-$C->deb("Fate passed to special_variable__S_158DollarDouble_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_158DollarDouble_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -17942,7 +17942,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_159DollarComma_01') {
-$C->deb("Fate passed to special_variable__S_159DollarComma_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_159DollarComma_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -18077,7 +18077,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_161DollarGt_01') {
-$C->deb("Fate passed to special_variable__S_161DollarGt_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_161DollarGt_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -18170,7 +18170,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_162DollarDot_01') {
-$C->deb("Fate passed to special_variable__S_162DollarDot_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_162DollarDot_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -18263,7 +18263,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'special_variable__S_163DollarQuestion_01') {
-$C->deb("Fate passed to special_variable__S_163DollarQuestion_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to special_variable__S_163DollarQuestion_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -18350,7 +18350,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'desigilname_01') {
-$C->deb("Fate passed to desigilname_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to desigilname_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -18554,7 +18554,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'variable_08') {
-$C->deb("Fate passed to variable_08: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to variable_08: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -18709,7 +18709,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'variable_11') {
-$C->deb("Fate passed to variable_11: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to variable_11: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -19225,7 +19225,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'name_01') {
-$C->deb("Fate passed to name_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to name_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -19332,7 +19332,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'morename_03') {
-$C->deb("Fate passed to morename_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to morename_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -19407,7 +19407,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'morename_02') {
-$C->deb("Fate passed to morename_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to morename_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -19489,7 +19489,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'subshortname_01') {
-$C->deb("Fate passed to subshortname_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to subshortname_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -19658,7 +19658,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'value_01') {
-$C->deb("Fate passed to value_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to value_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -19760,7 +19760,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'typename_01') {
-$C->deb("Fate passed to typename_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to typename_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -20002,7 +20002,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'number_01') {
-$C->deb("Fate passed to number_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to number_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -20097,7 +20097,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'integer_01') {
-$C->deb("Fate passed to integer_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to integer_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -20130,7 +20130,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'integer_02') {
-$C->deb("Fate passed to integer_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to integer_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -20394,7 +20394,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'radint_01') {
-$C->deb("Fate passed to radint_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to radint_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -20556,7 +20556,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'dec_number_01') {
-$C->deb("Fate passed to dec_number_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to dec_number_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -21258,7 +21258,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'backslash') {
-$C->deb("Fate passed to backslash: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -21308,7 +21308,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'escape') {
-$C->deb("Fate passed to escape: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to escape: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -22389,7 +22389,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quote__S_184qq_01') {
-$C->deb("Fate passed to quote__S_184qq_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quote__S_184qq_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -22553,7 +22553,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quote__S_185q_01') {
-$C->deb("Fate passed to quote__S_185q_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quote__S_185q_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -22711,7 +22711,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quote__S_186Q_01') {
-$C->deb("Fate passed to quote__S_186Q_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quote__S_186Q_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -24219,7 +24219,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_210c_01') {
-$C->deb("Fate passed to backslash__S_210c_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash__S_210c_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -24371,7 +24371,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_214o_01') {
-$C->deb("Fate passed to backslash__S_214o_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash__S_214o_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -24515,7 +24515,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_217x_01') {
-$C->deb("Fate passed to backslash__S_217x_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash__S_217x_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -25785,7 +25785,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'escape__S_226At_02') {
-$C->deb("Fate passed to escape__S_226At_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to escape__S_226At_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -26049,7 +26049,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'escape__S_228Percent_02') {
-$C->deb("Fate passed to escape__S_228Percent_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to escape__S_228Percent_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -26313,7 +26313,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'escape__S_230Amp_02') {
-$C->deb("Fate passed to escape__S_230Amp_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to escape__S_230Amp_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -27045,7 +27045,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_237misc_01') {
-$C->deb("Fate passed to backslash__S_237misc_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash__S_237misc_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -27680,7 +27680,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'routine_def_01') {
-$C->deb("Fate passed to routine_def_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to routine_def_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -27784,7 +27784,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'routine_def_02') {
-$C->deb("Fate passed to routine_def_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to routine_def_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -27968,7 +27968,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'method_def_01') {
-$C->deb("Fate passed to method_def_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to method_def_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -28012,7 +28012,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'method_def_02') {
-$C->deb("Fate passed to method_def_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to method_def_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -28142,7 +28142,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'method_def_03') {
-$C->deb("Fate passed to method_def_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to method_def_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -28342,7 +28342,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'regex_def_01') {
-$C->deb("Fate passed to regex_def_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to regex_def_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -28446,7 +28446,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'regex_def_02') {
-$C->deb("Fate passed to regex_def_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to regex_def_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -28655,7 +28655,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'macro_def_01') {
-$C->deb("Fate passed to macro_def_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to macro_def_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -28759,7 +28759,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'macro_def_02') {
-$C->deb("Fate passed to macro_def_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to macro_def_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -28927,7 +28927,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'trait_01') {
-$C->deb("Fate passed to trait_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to trait_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -29428,7 +29428,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'capterm_01') {
-$C->deb("Fate passed to capterm_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to capterm_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -29612,7 +29612,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'param_sep_01') {
-$C->deb("Fate passed to param_sep_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to param_sep_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -29727,7 +29727,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'signature_01') {
-$C->deb("Fate passed to signature_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to signature_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -29758,7 +29758,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'signature_02') {
-$C->deb("Fate passed to signature_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to signature_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -30125,7 +30125,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'type_constraint_01') {
-$C->deb("Fate passed to type_constraint_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to type_constraint_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -30264,7 +30264,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'post_constraint_01') {
-$C->deb("Fate passed to post_constraint_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to post_constraint_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -30401,7 +30401,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'named_param_01') {
-$C->deb("Fate passed to named_param_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to named_param_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -30442,7 +30442,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'named_param_02') {
-$C->deb("Fate passed to named_param_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to named_param_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -30612,7 +30612,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'param_var_01') {
-$C->deb("Fate passed to param_var_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to param_var_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -30869,7 +30869,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'parameter_02') {
-$C->deb("Fate passed to parameter_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to parameter_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -30972,7 +30972,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'parameter_03') {
-$C->deb("Fate passed to parameter_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to parameter_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -31048,7 +31048,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'parameter_04') {
-$C->deb("Fate passed to parameter_04: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to parameter_04: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -31128,7 +31128,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'parameter_05') {
-$C->deb("Fate passed to parameter_05: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to parameter_05: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -32243,7 +32243,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'term__S_265rand_03') {
-$C->deb("Fate passed to term__S_265rand_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to term__S_265rand_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -34960,7 +34960,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infix__S_373DotEqual_02') {
-$C->deb("Fate passed to infix__S_373DotEqual_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infix__S_373DotEqual_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -35645,7 +35645,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'args_01') {
-$C->deb("Fate passed to args_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to args_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -35885,7 +35885,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'term__S_390name_06') {
-$C->deb("Fate passed to term__S_390name_06: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to term__S_390name_06: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -36642,7 +36642,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infixstopper_01') {
-$C->deb("Fate passed to infixstopper_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infixstopper_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -36698,7 +36698,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'infixstopper_04') {
-$C->deb("Fate passed to infixstopper_04: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to infixstopper_04: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -36836,7 +36836,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'stdstopper_01') {
-$C->deb("Fate passed to stdstopper_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to stdstopper_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -37078,7 +37078,7 @@ last if $inprec lt $LOOSEST;
 # Equal precedence, so use associativity to decide.
 if ($opstack[-1]{'O'}{'prec'} eq $inprec) {
 do { my $_ = $inO->{assoc}; if ((0)) {}
-elsif ($_ eq 'non') { $here->panic("\"$infix\" is not associative") }
+elsif ($_ eq 'non') { $here->panic('"' . $infix->text . '" is not associative') }
 elsif ($_ eq 'left') { $reduce->() }   # reduce immediately
 elsif ($_ eq 'right') { }            # just shift
 elsif ($_ eq 'chain') { }            # just shift
@@ -37208,7 +37208,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'metachar') {
-$C->deb("Fate passed to metachar: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to metachar: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -37278,7 +37278,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'backslash') {
-$C->deb("Fate passed to backslash: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -37348,7 +37348,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'assertion') {
-$C->deb("Fate passed to assertion: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -37418,7 +37418,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'quantifier') {
-$C->deb("Fate passed to quantifier: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quantifier: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -37488,7 +37488,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'mod_internal') {
-$C->deb("Fate passed to mod_internal: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -37539,7 +37539,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'rxinfix') {
-$C->deb("Fate passed to rxinfix: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to rxinfix: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -37610,7 +37610,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'ws_03') {
-$C->deb("Fate passed to ws_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to ws_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -37698,7 +37698,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'sigspace_01') {
-$C->deb("Fate passed to sigspace_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to sigspace_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -38179,7 +38179,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'atom_01') {
-$C->deb("Fate passed to atom_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to atom_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -39162,7 +39162,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'metachar__S_455Dollar_01') {
-$C->deb("Fate passed to metachar__S_455Dollar_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to metachar__S_455Dollar_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -39576,7 +39576,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_464c_01') {
-$C->deb("Fate passed to backslash__S_464c_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash__S_464c_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -39766,7 +39766,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_470o_01') {
-$C->deb("Fate passed to backslash__S_470o_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash__S_470o_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -40013,7 +40013,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_477x_01') {
-$C->deb("Fate passed to backslash__S_477x_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash__S_477x_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -40296,7 +40296,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_485Question_01') {
-$C->deb("Fate passed to assertion__S_485Question_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion__S_485Question_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -40382,7 +40382,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_486Bang_01') {
-$C->deb("Fate passed to assertion__S_486Bang_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion__S_486Bang_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -40468,7 +40468,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_487Star_01') {
-$C->deb("Fate passed to assertion__S_487Star_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion__S_487Star_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -40630,7 +40630,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_490method_01') {
-$C->deb("Fate passed to assertion__S_490method_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion__S_490method_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -40746,7 +40746,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_491identifier_01') {
-$C->deb("Fate passed to assertion__S_491identifier_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion__S_491identifier_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -40946,7 +40946,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_492name_03') {
-$C->deb("Fate passed to assertion__S_492name_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion__S_492name_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -41264,7 +41264,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_498TildeTilde_01') {
-$C->deb("Fate passed to assertion__S_498TildeTilde_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion__S_498TildeTilde_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -41380,7 +41380,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'cclass_elem_01') {
-$C->deb("Fate passed to cclass_elem_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to cclass_elem_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -41580,7 +41580,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_501Coloni_01') {
-$C->deb("Fate passed to mod_internal__S_501Coloni_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_501Coloni_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -41673,7 +41673,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_502ColonBangi_01') {
-$C->deb("Fate passed to mod_internal__S_502ColonBangi_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_502ColonBangi_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -41766,7 +41766,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_503ColoniParen_Thesis_01') {
-$C->deb("Fate passed to mod_internal__S_503ColoniParen_Thesis_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_503ColoniParen_Thesis_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -41869,7 +41869,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_504Colon0i_02') {
-$C->deb("Fate passed to mod_internal__S_504Colon0i_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_504Colon0i_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -41965,7 +41965,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_505Colona_01') {
-$C->deb("Fate passed to mod_internal__S_505Colona_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_505Colona_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -42058,7 +42058,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_506ColonBanga_01') {
-$C->deb("Fate passed to mod_internal__S_506ColonBanga_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_506ColonBanga_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -42151,7 +42151,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_507ColonaParen_Thesis_01') {
-$C->deb("Fate passed to mod_internal__S_507ColonaParen_Thesis_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_507ColonaParen_Thesis_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -42254,7 +42254,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_508Colon0a_02') {
-$C->deb("Fate passed to mod_internal__S_508Colon0a_02: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_508Colon0a_02: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -42753,7 +42753,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'mod_internal__S_517ColonPerl5_01') {
-$C->deb("Fate passed to mod_internal__S_517ColonPerl5_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal__S_517ColonPerl5_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -43027,7 +43027,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quantifier__S_523StarStar_01') {
-$C->deb("Fate passed to quantifier__S_523StarStar_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quantifier__S_523StarStar_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -43062,7 +43062,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quantifier__S_523StarStar_03') {
-$C->deb("Fate passed to quantifier__S_523StarStar_03: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quantifier__S_523StarStar_03: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -43198,7 +43198,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quantifier__S_524TildeTilde_01') {
-$C->deb("Fate passed to quantifier__S_524TildeTilde_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quantifier__S_524TildeTilde_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -43301,7 +43301,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quantmod_01') {
-$C->deb("Fate passed to quantmod_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quantmod_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -49978,7 +49978,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'metachar') {
-$C->deb("Fate passed to metachar: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to metachar: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -50048,7 +50048,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'backslash') {
-$C->deb("Fate passed to backslash: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -50118,7 +50118,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'assertion') {
-$C->deb("Fate passed to assertion: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to assertion: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -50188,7 +50188,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'quantifier') {
-$C->deb("Fate passed to quantifier: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quantifier: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -50258,7 +50258,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'mod_internal') {
-$C->deb("Fate passed to mod_internal: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to mod_internal: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -50309,7 +50309,7 @@ my @try;
 my $relex;
 if (my $fate = $C->{_fate}) {
 if ($fate->[1] eq 'rxinfix') {
-$C->deb("Fate passed to rxinfix: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to rxinfix: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -50636,7 +50636,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'atom_01') {
-$C->deb("Fate passed to atom_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to atom_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -50876,7 +50876,7 @@ else {
 
 ##     token metachar__S_536Paren_Thesis (:$sym is context<rw> = <( )>)
 ##          token metachar:sym<( )> {
-##              '(' {} [:lang(self.unbalanced(')')) <nibbler>]
+##              '(' {} [:lang(self.unbalanced(')')) <nibbler>]?
 ##              [ ')' || <.panic: "Unable to parse Perl 5 regex; couldn't find right parenthesis"> ]
 ##              { $/<sym> := <( )> }
 ##          }
@@ -50891,6 +50891,7 @@ local $sym = $args{sym} // [qw[( )]];
 
 my $C = $self;
 my $S = $C->{_pos};
+$C->{'nibbler'} = [];
 $C->{'sym'} = $sym;
 
 $self->_MATCHIFYr($S, "metachar__S_536Paren_Thesis", 
@@ -50901,10 +50902,12 @@ if (my ($C) = (scalar(do {
 
 }, $C))) {
 do {
-if (my ($C) = ($C->_BRACKETr( sub { my $C=shift;
+if (my ($C) = ($C->_OPTr(sub { my $C=shift;
+$C->_BRACKETr( sub { my $C=shift;
 my $newlang = ($self->unbalanced(')'));  $C = $C->cursor_fresh($newlang); ;$C->_SUBSUMEr(['nibbler'], sub {
 my $C = shift;
 $C->nibbler
+})
 })
 }))) {
 do {
@@ -51039,7 +51042,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'metachar__S_540Dollar_01') {
-$C->deb("Fate passed to metachar__S_540Dollar_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to metachar__S_540Dollar_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -51364,7 +51367,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_552o_01') {
-$C->deb("Fate passed to backslash__S_552o_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to backslash__S_552o_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -51459,11 +51462,30 @@ else {
 }
 );
 }
-##     token backslash__S_553Q (:$sym is context<rw> = 'Q')
+##     token backslash__S_553p (:$sym is context<rw> = 'p')
+##          token backslash:p { :i <sym> '{' <[\w:]>+ '}' }
+
+sub backslash__S_553p__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_553p',$retree) }
+sub backslash__S_553p {
+my $self = shift;
+local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
+my %args = @_;
+local $sym = $args{sym} // 'p';
+
+
+my $C = $self;
+my $S = $C->{_pos};
+$C->{'sym'} = $sym;
+
+$self->_MATCHIFYr($S, "backslash__S_553p", 
+$C->_PATTERN(qr/\G(?i:p)(?i:\{)((?:(?i:[\w:]))++)(?i:\})/)
+);
+}
+##     token backslash__S_554Q (:$sym is context<rw> = 'Q')
 ##          token backslash:Q { <sym> }
 
-sub backslash__S_553Q__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_553Q',$retree) }
-sub backslash__S_553Q {
+sub backslash__S_554Q__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_554Q',$retree) }
+sub backslash__S_554Q {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51474,15 +51496,15 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_553Q", 
+$self->_MATCHIFYr($S, "backslash__S_554Q", 
 $C->_PATTERN(qr/\GQ/)
 );
 }
-##     token backslash__S_554r (:$sym is context<rw> = 'r')
+##     token backslash__S_555r (:$sym is context<rw> = 'r')
 ##          token backslash:r { :i <sym> }
 
-sub backslash__S_554r__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_554r',$retree) }
-sub backslash__S_554r {
+sub backslash__S_555r__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_555r',$retree) }
+sub backslash__S_555r {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51493,15 +51515,15 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_554r", 
+$self->_MATCHIFYr($S, "backslash__S_555r", 
 $C->_PATTERN(qr/\G(?i:r)/)
 );
 }
-##     token backslash__S_555s (:$sym is context<rw> = 's')
+##     token backslash__S_556s (:$sym is context<rw> = 's')
 ##          token backslash:s { :i <sym> }
 
-sub backslash__S_555s__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_555s',$retree) }
-sub backslash__S_555s {
+sub backslash__S_556s__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_556s',$retree) }
+sub backslash__S_556s {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51512,15 +51534,15 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_555s", 
+$self->_MATCHIFYr($S, "backslash__S_556s", 
 $C->_PATTERN(qr/\G(?i:s)/)
 );
 }
-##     token backslash__S_556t (:$sym is context<rw> = 't')
+##     token backslash__S_557t (:$sym is context<rw> = 't')
 ##          token backslash:t { :i <sym> }
 
-sub backslash__S_556t__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_556t',$retree) }
-sub backslash__S_556t {
+sub backslash__S_557t__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_557t',$retree) }
+sub backslash__S_557t {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51531,15 +51553,15 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_556t", 
+$self->_MATCHIFYr($S, "backslash__S_557t", 
 $C->_PATTERN(qr/\G(?i:t)/)
 );
 }
-##     token backslash__S_557u (:$sym is context<rw> = 'u')
+##     token backslash__S_558u (:$sym is context<rw> = 'u')
 ##          token backslash:u { :i <sym> }
 
-sub backslash__S_557u__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_557u',$retree) }
-sub backslash__S_557u {
+sub backslash__S_558u__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_558u',$retree) }
+sub backslash__S_558u {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51550,15 +51572,15 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_557u", 
+$self->_MATCHIFYr($S, "backslash__S_558u", 
 $C->_PATTERN(qr/\G(?i:u)/)
 );
 }
-##     token backslash__S_558v (:$sym is context<rw> = 'v')
+##     token backslash__S_559v (:$sym is context<rw> = 'v')
 ##          token backslash:v { :i <sym> }
 
-sub backslash__S_558v__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_558v',$retree) }
-sub backslash__S_558v {
+sub backslash__S_559v__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_559v',$retree) }
+sub backslash__S_559v {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51569,15 +51591,15 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_558v", 
+$self->_MATCHIFYr($S, "backslash__S_559v", 
 $C->_PATTERN(qr/\G(?i:v)/)
 );
 }
-##     token backslash__S_559w (:$sym is context<rw> = 'w')
+##     token backslash__S_560w (:$sym is context<rw> = 'w')
 ##          token backslash:w { :i <sym> }
 
-sub backslash__S_559w__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_559w',$retree) }
-sub backslash__S_559w {
+sub backslash__S_560w__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_560w',$retree) }
+sub backslash__S_560w {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51588,15 +51610,15 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_559w", 
+$self->_MATCHIFYr($S, "backslash__S_560w", 
 $C->_PATTERN(qr/\G(?i:w)/)
 );
 }
-##     token backslash__S_560x (:$sym is context<rw> = 'x')
+##     token backslash__S_561x (:$sym is context<rw> = 'x')
 ##          token backslash:x { :i <sym> [ <hexint> | '{' [<.ws><hexint><.ws> ] ** ',' '}' ] }
 
-sub backslash__S_560x__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_560x',$retree) }
-sub backslash__S_560x {
+sub backslash__S_561x__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_561x',$retree) }
+sub backslash__S_561x {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51608,7 +51630,7 @@ my $S = $C->{_pos};
 $C->{'hexint'} = [];
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_560x", 
+$self->_MATCHIFYr($S, "backslash__S_561x", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G(?i:x)/))) {
 $C->_BRACKETr( sub { my $C=shift;
@@ -51620,8 +51642,8 @@ my @try;
 my $relex;
 
 my $fate;
-if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_560x_01') {
-$C->deb("Fate passed to backslash__S_560x_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_561x_01') {
+$C->deb("Fate passed to backslash__S_561x_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -51629,7 +51651,7 @@ $C->deb("Fate passed to backslash__S_560x_01: ", ::fatestr($fate)) if $DEBUG & D
 my @gather = ();
 for (;;) {
 if (not @try) {
-$relex //= $C->cursor_fate('STD::P5Regex', 'backslash__S_560x_01', $retree);
+$relex //= $C->cursor_fate('STD::P5Regex', 'backslash__S_561x_01', $retree);
 @try = $relex->($C, $trystate);
 }
 last unless @try;
@@ -51639,7 +51661,7 @@ if (ref $try eq 'ARRAY') {
 ($C->{_fate}, $tag, $try) = @$try;	# next candidate fate
 }
 
-$C->deb("backslash__S_560x_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+$C->deb("backslash__S_561x_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
 $C->_SUBSUMEr(['hexint'], sub {
@@ -51714,11 +51736,11 @@ else {
 }
 );
 }
-##     token backslash__S_561z (:$sym is context<rw> = 'z')
+##     token backslash__S_562z (:$sym is context<rw> = 'z')
 ##          token backslash:z { :i <sym> }
 
-sub backslash__S_561z__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_561z',$retree) }
-sub backslash__S_561z {
+sub backslash__S_562z__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_562z',$retree) }
+sub backslash__S_562z {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51729,15 +51751,15 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_561z", 
+$self->_MATCHIFYr($S, "backslash__S_562z", 
 $C->_PATTERN(qr/\G(?i:z)/)
 );
 }
-##     token backslash__S_562misc (:$sym is context<rw> = 'misc')
+##     token backslash__S_563misc (:$sym is context<rw> = 'misc')
 ##          token backslash:misc { $<litchar>=(\W) }
 
-sub backslash__S_562misc__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_562misc',$retree) }
-sub backslash__S_562misc {
+sub backslash__S_563misc__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_563misc',$retree) }
+sub backslash__S_563misc {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51748,7 +51770,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_562misc", 
+$self->_MATCHIFYr($S, "backslash__S_563misc", 
 $C->_SUBSUMEr(['litchar'], sub {
 my $C = shift;
 do { $C->_PAREN( sub { my $C=shift;
@@ -51759,11 +51781,11 @@ $C->_PATTERN(qr/\G\w/)
 })
 );
 }
-##     token backslash__S_563oops (:$sym is context<rw> = 'oops')
+##     token backslash__S_564oops (:$sym is context<rw> = 'oops')
 ##          token backslash:oops { <.panic: "Unrecognized Perl 5 regex backslash sequence"> }
 
-sub backslash__S_563oops__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_563oops',$retree) }
-sub backslash__S_563oops {
+sub backslash__S_564oops__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_564oops',$retree) }
+sub backslash__S_564oops {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51774,16 +51796,16 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "backslash__S_563oops", 
+$self->_MATCHIFYr($S, "backslash__S_564oops", 
 $C->panic("Unrecognized Perl 5 regex backslash sequence")
 );
 }
 
-##     token assertion__S_564Question (:$sym is context<rw> = <?>)
+##     token assertion__S_565Question (:$sym is context<rw> = <?>)
 ##          token assertion:sym<?> { <sym> <codeblock> }
 
-sub assertion__S_564Question__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_564Question',$retree) }
-sub assertion__S_564Question {
+sub assertion__S_565Question__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_565Question',$retree) }
+sub assertion__S_565Question {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51794,7 +51816,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_564Question", 
+$self->_MATCHIFYr($S, "assertion__S_565Question", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G\?/))) {
 $C->_SUBSUMEr(['codeblock'], sub {
@@ -51808,11 +51830,11 @@ else {
 }
 );
 }
-##     token assertion__S_565Cur_Ly (:$sym is context<rw> = <{ }>)
+##     token assertion__S_566Cur_Ly (:$sym is context<rw> = <{ }>)
 ##          token assertion:sym<{ }> { <codeblock> }
 
-sub assertion__S_565Cur_Ly__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_565Cur_Ly',$retree) }
-sub assertion__S_565Cur_Ly {
+sub assertion__S_566Cur_Ly__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_566Cur_Ly',$retree) }
+sub assertion__S_566Cur_Ly {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51823,7 +51845,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_565Cur_Ly", 
+$self->_MATCHIFYr($S, "assertion__S_566Cur_Ly", 
 $C->_SUBSUMEr(['codeblock'], sub {
 my $C = shift;
 $C->codeblock
@@ -51831,11 +51853,11 @@ $C->codeblock
 );
 }
 
-##     token assertion__S_566Lt (:$sym is context<rw> = «<»)
+##     token assertion__S_567Lt (:$sym is context<rw> = «<»)
 ##          token assertion:sym«<» { <sym> <?before '=' | '!'> <assertion> }
 
-sub assertion__S_566Lt__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_566Lt',$retree) }
-sub assertion__S_566Lt {
+sub assertion__S_567Lt__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_567Lt',$retree) }
+sub assertion__S_567Lt {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51846,7 +51868,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_566Lt", 
+$self->_MATCHIFYr($S, "assertion__S_567Lt", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G\</))) {
 do {
@@ -51859,8 +51881,8 @@ my @try;
 my $relex;
 
 my $fate;
-if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_566Lt_01') {
-$C->deb("Fate passed to assertion__S_566Lt_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_567Lt_01') {
+$C->deb("Fate passed to assertion__S_567Lt_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -51868,7 +51890,7 @@ $C->deb("Fate passed to assertion__S_566Lt_01: ", ::fatestr($fate)) if $DEBUG & 
 my @gather = ();
 for (;;) {
 if (not @try) {
-$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_566Lt_01', $retree);
+$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_567Lt_01', $retree);
 @try = $relex->($C, $trystate);
 }
 last unless @try;
@@ -51878,7 +51900,7 @@ if (ref $try eq 'ARRAY') {
 ($C->{_fate}, $tag, $try) = @$try;	# next candidate fate
 }
 
-$C->deb("assertion__S_566Lt_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+$C->deb("assertion__S_567Lt_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
 $C->_EXACT('=')
@@ -51922,11 +51944,11 @@ else {
 }
 );
 }
-##     token assertion__S_567Equal (:$sym is context<rw> = <=>)
+##     token assertion__S_568Equal (:$sym is context<rw> = <=>)
 ##          token assertion:sym<=> { <sym> [ <?before ')'> | <rx> ] }
 
-sub assertion__S_567Equal__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_567Equal',$retree) }
-sub assertion__S_567Equal {
+sub assertion__S_568Equal__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_568Equal',$retree) }
+sub assertion__S_568Equal {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -51937,7 +51959,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_567Equal", 
+$self->_MATCHIFYr($S, "assertion__S_568Equal", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G\=/))) {
 $C->_BRACKETr( sub { my $C=shift;
@@ -51949,8 +51971,8 @@ my @try;
 my $relex;
 
 my $fate;
-if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_567Equal_01') {
-$C->deb("Fate passed to assertion__S_567Equal_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_568Equal_01') {
+$C->deb("Fate passed to assertion__S_568Equal_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -51958,7 +51980,7 @@ $C->deb("Fate passed to assertion__S_567Equal_01: ", ::fatestr($fate)) if $DEBUG
 my @gather = ();
 for (;;) {
 if (not @try) {
-$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_567Equal_01', $retree);
+$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_568Equal_01', $retree);
 @try = $relex->($C, $trystate);
 }
 last unless @try;
@@ -51968,7 +51990,7 @@ if (ref $try eq 'ARRAY') {
 ($C->{_fate}, $tag, $try) = @$try;	# next candidate fate
 }
 
-$C->deb("assertion__S_567Equal_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+$C->deb("assertion__S_568Equal_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
 $C->before(sub { my $C=shift;
@@ -52008,24 +52030,24 @@ else {
 }
 );
 }
-##     token assertion__S_568BangEqual (:$sym is context<rw> = <!=>)
-##          token assertion:sym<!=> { <sym> [ <?before ')'> | <rx> ] }
+##     token assertion__S_569Bang (:$sym is context<rw> = <!>)
+##          token assertion:sym<!> { <sym> [ <?before ')'> | <rx> ] }
 
-sub assertion__S_568BangEqual__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_568BangEqual',$retree) }
-sub assertion__S_568BangEqual {
+sub assertion__S_569Bang__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_569Bang',$retree) }
+sub assertion__S_569Bang {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
-local $sym = $args{sym} // q(!=);
+local $sym = $args{sym} // q(!);
 
 
 my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_568BangEqual", 
+$self->_MATCHIFYr($S, "assertion__S_569Bang", 
 do {
-if (my ($C) = ($C->_PATTERN(qr/\G\!\=/))) {
+if (my ($C) = ($C->_PATTERN(qr/\G\!/))) {
 $C->_BRACKETr( sub { my $C=shift;
 do {
 my @result = eval {
@@ -52035,8 +52057,8 @@ my @try;
 my $relex;
 
 my $fate;
-if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_568BangEqual_01') {
-$C->deb("Fate passed to assertion__S_568BangEqual_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_569Bang_01') {
+$C->deb("Fate passed to assertion__S_569Bang_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -52044,7 +52066,7 @@ $C->deb("Fate passed to assertion__S_568BangEqual_01: ", ::fatestr($fate)) if $D
 my @gather = ();
 for (;;) {
 if (not @try) {
-$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_568BangEqual_01', $retree);
+$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_569Bang_01', $retree);
 @try = $relex->($C, $trystate);
 }
 last unless @try;
@@ -52054,7 +52076,7 @@ if (ref $try eq 'ARRAY') {
 ($C->{_fate}, $tag, $try) = @$try;	# next candidate fate
 }
 
-$C->deb("assertion__S_568BangEqual_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+$C->deb("assertion__S_569Bang_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
 $C->before(sub { my $C=shift;
@@ -52094,11 +52116,11 @@ else {
 }
 );
 }
-##     token assertion__S_569Gt (:$sym is context<rw> = «>»)
+##     token assertion__S_570Gt (:$sym is context<rw> = «>»)
 ##          token assertion:sym«>» { <sym> <rx> }
 
-sub assertion__S_569Gt__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_569Gt',$retree) }
-sub assertion__S_569Gt {
+sub assertion__S_570Gt__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_570Gt',$retree) }
+sub assertion__S_570Gt {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -52109,7 +52131,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_569Gt", 
+$self->_MATCHIFYr($S, "assertion__S_570Gt", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G\>/))) {
 $C->_SUBSUMEr(['rx'], sub {
@@ -52127,7 +52149,7 @@ else {
 ##     token rx
 ##          token rx {
 ##              [:lang(self.unbalanced(')')) <nibbler>]
-##              [ ')' || <.panic: "Unable to parse Perl 5 regex; couldn't find right parenthesis"> ]
+##              [ <?before ')'> || <.panic: "Unable to parse Perl 5 regex; couldn't find right parenthesis"> ]
 ##          }
 
 sub rx__PEEK { $_[0]->_AUTOLEXpeek('rx',$retree) }
@@ -52149,7 +52171,9 @@ $C->nibbler
 }))) {
 $C->_BRACKETr( sub { my $C=shift;
 do { my @gather;
-eval { push @gather, $C->_EXACT(')')} 
+eval { push @gather, $C->before(sub { my $C=shift;
+$C->_EXACT(')')
+})} 
 or
 eval { push @gather, $C->panic("Unable to parse Perl 5 regex; couldn't find right parenthesis")} or do { die $@ if $@ };
 @gather;
@@ -52163,7 +52187,7 @@ else {
 );
 }
 
-##     token assertion__S_570identifier (:$sym is context<rw> = 'identifier')
+##     token assertion__S_571identifier (:$sym is context<rw> = 'identifier')
 ##          token assertion:identifier { <identifier> [               # is qq right here?
 ##                                          | <?before ')' >
 ##                                          | <.ws> <nibbler>
@@ -52171,8 +52195,8 @@ else {
 ##      				    [ ':' <rx> ]?
 ##          }
 
-sub assertion__S_570identifier__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_570identifier',$retree) }
-sub assertion__S_570identifier {
+sub assertion__S_571identifier__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_571identifier',$retree) }
+sub assertion__S_571identifier {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -52184,7 +52208,7 @@ my $S = $C->{_pos};
 $C->{'rx'} = [];
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_570identifier", 
+$self->_MATCHIFYr($S, "assertion__S_571identifier", 
 do {
 if (my ($C) = ($C->_SUBSUMEr(['identifier'], sub {
 my $C = shift;
@@ -52200,8 +52224,8 @@ my @try;
 my $relex;
 
 my $fate;
-if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_570identifier_01') {
-$C->deb("Fate passed to assertion__S_570identifier_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_571identifier_01') {
+$C->deb("Fate passed to assertion__S_571identifier_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -52209,7 +52233,7 @@ $C->deb("Fate passed to assertion__S_570identifier_01: ", ::fatestr($fate)) if $
 my @gather = ();
 for (;;) {
 if (not @try) {
-$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_570identifier_01', $retree);
+$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_571identifier_01', $retree);
 @try = $relex->($C, $trystate);
 }
 last unless @try;
@@ -52219,7 +52243,7 @@ if (ref $try eq 'ARRAY') {
 ($C->{_fate}, $tag, $try) = @$try;	# next candidate fate
 }
 
-$C->deb("assertion__S_570identifier_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+$C->deb("assertion__S_571identifier_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
 $C->before(sub { my $C=shift;
@@ -52287,11 +52311,11 @@ else {
 );
 }
 
-##     token assertion__S_571bogus (:$sym is context<rw> = 'bogus')
+##     token assertion__S_572bogus (:$sym is context<rw> = 'bogus')
 ##          token assertion:bogus { <.panic: "Unrecognized Perl 5 regex assertion"> }
 
-sub assertion__S_571bogus__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_571bogus',$retree) }
-sub assertion__S_571bogus {
+sub assertion__S_572bogus__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_572bogus',$retree) }
+sub assertion__S_572bogus {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -52302,16 +52326,16 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_571bogus", 
+$self->_MATCHIFYr($S, "assertion__S_572bogus", 
 $C->panic("Unrecognized Perl 5 regex assertion")
 );
 }
 
-##     token quantifier__S_572Star (:$sym is context<rw> = <*>)
+##     token quantifier__S_573Star (:$sym is context<rw> = <*>)
 ##          token quantifier:sym<*>  { <sym> <quantmod> }
 
-sub quantifier__S_572Star__PEEK { $_[0]->_AUTOLEXpeek('quantifier__S_572Star',$retree) }
-sub quantifier__S_572Star {
+sub quantifier__S_573Star__PEEK { $_[0]->_AUTOLEXpeek('quantifier__S_573Star',$retree) }
+sub quantifier__S_573Star {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -52322,7 +52346,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "quantifier__S_572Star", 
+$self->_MATCHIFYr($S, "quantifier__S_573Star", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G\*/))) {
 $C->_SUBSUMEr(['quantmod'], sub {
@@ -52336,11 +52360,11 @@ else {
 }
 );
 }
-##     token quantifier__S_573Plus (:$sym is context<rw> = <+>)
+##     token quantifier__S_574Plus (:$sym is context<rw> = <+>)
 ##          token quantifier:sym<+>  { <sym> <quantmod> }
 
-sub quantifier__S_573Plus__PEEK { $_[0]->_AUTOLEXpeek('quantifier__S_573Plus',$retree) }
-sub quantifier__S_573Plus {
+sub quantifier__S_574Plus__PEEK { $_[0]->_AUTOLEXpeek('quantifier__S_574Plus',$retree) }
+sub quantifier__S_574Plus {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -52351,7 +52375,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "quantifier__S_573Plus", 
+$self->_MATCHIFYr($S, "quantifier__S_574Plus", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G\+/))) {
 $C->_SUBSUMEr(['quantmod'], sub {
@@ -52365,11 +52389,11 @@ else {
 }
 );
 }
-##     token quantifier__S_574Question (:$sym is context<rw> = <?>)
+##     token quantifier__S_575Question (:$sym is context<rw> = <?>)
 ##          token quantifier:sym<?>  { <sym> <quantmod> }
 
-sub quantifier__S_574Question__PEEK { $_[0]->_AUTOLEXpeek('quantifier__S_574Question',$retree) }
-sub quantifier__S_574Question {
+sub quantifier__S_575Question__PEEK { $_[0]->_AUTOLEXpeek('quantifier__S_575Question',$retree) }
+sub quantifier__S_575Question {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -52380,7 +52404,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "quantifier__S_574Question", 
+$self->_MATCHIFYr($S, "quantifier__S_575Question", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G\?/))) {
 $C->_SUBSUMEr(['quantmod'], sub {
@@ -52394,11 +52418,11 @@ else {
 }
 );
 }
-##     token quantifier__S_575Cur_Ly (:$sym is context<rw> = <{ }>)
+##     token quantifier__S_576Cur_Ly (:$sym is context<rw> = <{ }>)
 ##          token quantifier:sym<{ }> { '{' \d+ [','\d*]? '}' <quantmod> }
 
-sub quantifier__S_575Cur_Ly__PEEK { $_[0]->_AUTOLEXpeek('quantifier__S_575Cur_Ly',$retree) }
-sub quantifier__S_575Cur_Ly {
+sub quantifier__S_576Cur_Ly__PEEK { $_[0]->_AUTOLEXpeek('quantifier__S_576Cur_Ly',$retree) }
+sub quantifier__S_576Cur_Ly {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -52409,7 +52433,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "quantifier__S_575Cur_Ly", 
+$self->_MATCHIFYr($S, "quantifier__S_576Cur_Ly", 
 do {
 if (my ($C) = ($C->_EXACT('{'))) {
 do {
@@ -52480,7 +52504,7 @@ my $relex;
 
 my $fate;
 if ($fate = $C->{_fate} and $fate->[1] eq 'quantmod_01') {
-$C->deb("Fate passed to quantmod_01: ", ::fatestr($fate)) if $DEBUG & DEBUG::fates;
+$C->deb("Fate passed to quantmod_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -52533,7 +52557,7 @@ else {
 BEGIN {
 $retree = YAML::Syck::Load(<<'RETREE_END');
 --- 
-assertion__S_564Question: !!perl/hash:RE 
+assertion__S_565Question: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -52541,7 +52565,7 @@ assertion__S_564Question: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: assertion__S_564Question
+    dba: assertion__S_565Question
     i: 0
     min: 24690
     r: 1
@@ -52549,7 +52573,7 @@ assertion__S_564Question: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_564Question
+        dba: assertion__S_565Question
         i: 0
         min: 12345
         name: sym
@@ -52559,14 +52583,14 @@ assertion__S_564Question: !!perl/hash:RE
         sym: "?"
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_564Question
+        dba: assertion__S_565Question
         i: 0
         min: 12345
         name: codeblock
         r: 1
         rest: ''
         s: 0
-assertion__S_565Cur_Ly: !!perl/hash:RE 
+assertion__S_566Cur_Ly: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -52574,14 +52598,14 @@ assertion__S_565Cur_Ly: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: assertion__S_565Cur_Ly
+    dba: assertion__S_566Cur_Ly
     i: 0
     min: 12345
     name: codeblock
     r: 1
     rest: ''
     s: 0
-assertion__S_566Lt: !!perl/hash:RE 
+assertion__S_567Lt: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -52589,7 +52613,7 @@ assertion__S_566Lt: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: assertion__S_566Lt
+    dba: assertion__S_567Lt
     i: 0
     min: 24690
     r: 1
@@ -52597,7 +52621,7 @@ assertion__S_566Lt: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_566Lt
+        dba: assertion__S_567Lt
         i: 0
         min: 12345
         name: sym
@@ -52610,7 +52634,7 @@ assertion__S_566Lt: !!perl/hash:RE
         min: 0
         re: !!perl/hash:RE_method_re 
           a: 0
-          dba: assertion__S_566Lt
+          dba: assertion__S_567Lt
           i: 0
           min: 0
           name: before
@@ -52620,20 +52644,20 @@ assertion__S_566Lt: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &8 !!perl/hash:RE_any 
+            re: &6 !!perl/hash:RE_any 
               a: 0
-              altname: assertion__S_566Lt_01
-              dba: assertion__S_566Lt
+              altname: assertion__S_567Lt_01
+              dba: assertion__S_567Lt
               i: 0
               min: 1
-              name: assertion__S_566Lt_01
+              name: assertion__S_567Lt_01
               r: 1
               s: 0
               zyg: 
                 - !!perl/hash:RE_string 
                   a: 0
-                  alt: assertion__S_566Lt_01 0
-                  dba: assertion__S_566Lt
+                  alt: assertion__S_567Lt_01 0
+                  dba: assertion__S_567Lt
                   i: 0
                   min: 1
                   r: 1
@@ -52641,8 +52665,8 @@ assertion__S_566Lt: !!perl/hash:RE
                   text: =
                 - !!perl/hash:RE_string 
                   a: 0
-                  alt: assertion__S_566Lt_01 1
-                  dba: assertion__S_566Lt
+                  alt: assertion__S_567Lt_01 1
+                  dba: assertion__S_567Lt
                   i: 0
                   min: 1
                   r: 1
@@ -52651,15 +52675,15 @@ assertion__S_566Lt: !!perl/hash:RE
           s: 0
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_566Lt
+        dba: assertion__S_567Lt
         i: 0
         min: 12345
         name: assertion
         r: 1
         rest: ''
         s: 0
-assertion__S_566Lt_01: *8
-assertion__S_567Equal: !!perl/hash:RE 
+assertion__S_567Lt_01: *6
+assertion__S_568Equal: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -52667,7 +52691,7 @@ assertion__S_567Equal: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: assertion__S_567Equal
+    dba: assertion__S_568Equal
     i: 0
     min: 12345
     r: 1
@@ -52675,7 +52699,7 @@ assertion__S_567Equal: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_567Equal
+        dba: assertion__S_568Equal
         i: 0
         min: 12345
         name: sym
@@ -52687,23 +52711,23 @@ assertion__S_567Equal: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &5 !!perl/hash:RE_any 
+        re: &3 !!perl/hash:RE_any 
           a: 0
-          altname: assertion__S_567Equal_01
-          dba: assertion__S_567Equal
+          altname: assertion__S_568Equal_01
+          dba: assertion__S_568Equal
           i: 0
           min: 0
-          name: assertion__S_567Equal_01
+          name: assertion__S_568Equal_01
           r: 1
           s: 0
           zyg: 
             - !!perl/hash:RE_assertion 
-              alt: assertion__S_567Equal_01 0
+              alt: assertion__S_568Equal_01 0
               assert: "?"
               min: 0
               re: !!perl/hash:RE_method_re 
                 a: 0
-                dba: assertion__S_567Equal
+                dba: assertion__S_568Equal
                 i: 0
                 min: 0
                 name: before
@@ -52715,7 +52739,7 @@ assertion__S_567Equal: !!perl/hash:RE
                   min: 1
                   re: !!perl/hash:RE_string 
                     a: 0
-                    dba: assertion__S_567Equal
+                    dba: assertion__S_568Equal
                     i: 0
                     min: 1
                     r: 1
@@ -52724,16 +52748,16 @@ assertion__S_567Equal: !!perl/hash:RE
                 s: 0
             - !!perl/hash:RE_method 
               a: 0
-              alt: assertion__S_567Equal_01 1
-              dba: assertion__S_567Equal
+              alt: assertion__S_568Equal_01 1
+              dba: assertion__S_568Equal
               i: 0
               min: 12345
               name: rx
               r: 1
               rest: ''
               s: 0
-assertion__S_567Equal_01: *5
-assertion__S_568BangEqual: !!perl/hash:RE 
+assertion__S_568Equal_01: *3
+assertion__S_569Bang: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -52741,7 +52765,7 @@ assertion__S_568BangEqual: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: assertion__S_568BangEqual
+    dba: assertion__S_569Bang
     i: 0
     min: 12345
     r: 1
@@ -52749,35 +52773,35 @@ assertion__S_568BangEqual: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_568BangEqual
+        dba: assertion__S_569Bang
         i: 0
         min: 12345
         name: sym
         r: 1
         rest: ''
         s: 0
-        sym: "!="
+        sym: "!"
       - !!perl/hash:RE_bracket 
         decl: []
 
         min: 0
-        re: &9 !!perl/hash:RE_any 
+        re: &7 !!perl/hash:RE_any 
           a: 0
-          altname: assertion__S_568BangEqual_01
-          dba: assertion__S_568BangEqual
+          altname: assertion__S_569Bang_01
+          dba: assertion__S_569Bang
           i: 0
           min: 0
-          name: assertion__S_568BangEqual_01
+          name: assertion__S_569Bang_01
           r: 1
           s: 0
           zyg: 
             - !!perl/hash:RE_assertion 
-              alt: assertion__S_568BangEqual_01 0
+              alt: assertion__S_569Bang_01 0
               assert: "?"
               min: 0
               re: !!perl/hash:RE_method_re 
                 a: 0
-                dba: assertion__S_568BangEqual
+                dba: assertion__S_569Bang
                 i: 0
                 min: 0
                 name: before
@@ -52789,7 +52813,7 @@ assertion__S_568BangEqual: !!perl/hash:RE
                   min: 1
                   re: !!perl/hash:RE_string 
                     a: 0
-                    dba: assertion__S_568BangEqual
+                    dba: assertion__S_569Bang
                     i: 0
                     min: 1
                     r: 1
@@ -52798,16 +52822,16 @@ assertion__S_568BangEqual: !!perl/hash:RE
                 s: 0
             - !!perl/hash:RE_method 
               a: 0
-              alt: assertion__S_568BangEqual_01 1
-              dba: assertion__S_568BangEqual
+              alt: assertion__S_569Bang_01 1
+              dba: assertion__S_569Bang
               i: 0
               min: 12345
               name: rx
               r: 1
               rest: ''
               s: 0
-assertion__S_568BangEqual_01: *9
-assertion__S_569Gt: !!perl/hash:RE 
+assertion__S_569Bang_01: *7
+assertion__S_570Gt: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -52815,7 +52839,7 @@ assertion__S_569Gt: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: assertion__S_569Gt
+    dba: assertion__S_570Gt
     i: 0
     min: 24690
     r: 1
@@ -52823,7 +52847,7 @@ assertion__S_569Gt: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_569Gt
+        dba: assertion__S_570Gt
         i: 0
         min: 12345
         name: sym
@@ -52833,14 +52857,14 @@ assertion__S_569Gt: !!perl/hash:RE
         sym: ">"
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_569Gt
+        dba: assertion__S_570Gt
         i: 0
         min: 12345
         name: rx
         r: 1
         rest: ''
         s: 0
-assertion__S_570identifier: !!perl/hash:RE 
+assertion__S_571identifier: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -52848,7 +52872,7 @@ assertion__S_570identifier: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: assertion__S_570identifier
+    dba: assertion__S_571identifier
     i: 0
     min: 12345
     r: 1
@@ -52856,7 +52880,7 @@ assertion__S_570identifier: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_570identifier
+        dba: assertion__S_571identifier
         i: 0
         min: 12345
         name: identifier
@@ -52867,23 +52891,23 @@ assertion__S_570identifier: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &2 !!perl/hash:RE_any 
+        re: &1 !!perl/hash:RE_any 
           a: 0
-          altname: assertion__S_570identifier_01
-          dba: assertion__S_570identifier
+          altname: assertion__S_571identifier_01
+          dba: assertion__S_571identifier
           i: 0
           min: 0
-          name: assertion__S_570identifier_01
+          name: assertion__S_571identifier_01
           r: 1
           s: 0
           zyg: 
             - !!perl/hash:RE_assertion 
-              alt: assertion__S_570identifier_01 0
+              alt: assertion__S_571identifier_01 0
               assert: "?"
               min: 0
               re: !!perl/hash:RE_method_re 
                 a: 0
-                dba: assertion__S_570identifier
+                dba: assertion__S_571identifier
                 i: 0
                 min: 0
                 name: before
@@ -52895,7 +52919,7 @@ assertion__S_570identifier: !!perl/hash:RE
                   min: 1
                   re: !!perl/hash:RE_string 
                     a: 0
-                    dba: assertion__S_570identifier
+                    dba: assertion__S_571identifier
                     i: 0
                     min: 1
                     r: 1
@@ -52904,8 +52928,8 @@ assertion__S_570identifier: !!perl/hash:RE
                 s: 0
             - !!perl/hash:RE_sequence 
               a: 0
-              alt: assertion__S_570identifier_01 1
-              dba: assertion__S_570identifier
+              alt: assertion__S_571identifier_01 1
+              dba: assertion__S_571identifier
               i: 0
               min: 24690
               r: 1
@@ -52913,7 +52937,7 @@ assertion__S_570identifier: !!perl/hash:RE
               zyg: 
                 - !!perl/hash:RE_method 
                   a: 0
-                  dba: assertion__S_570identifier
+                  dba: assertion__S_571identifier
                   i: 0
                   min: 12345
                   name: ws
@@ -52923,7 +52947,7 @@ assertion__S_570identifier: !!perl/hash:RE
                   s: 0
                 - !!perl/hash:RE_method 
                   a: 0
-                  dba: assertion__S_570identifier
+                  dba: assertion__S_571identifier
                   i: 0
                   min: 12345
                   name: nibbler
@@ -52937,7 +52961,7 @@ assertion__S_570identifier: !!perl/hash:RE
           min: 12346
           re: !!perl/hash:RE_sequence 
             a: 0
-            dba: assertion__S_570identifier
+            dba: assertion__S_571identifier
             i: 0
             min: 12346
             r: 1
@@ -52945,7 +52969,7 @@ assertion__S_570identifier: !!perl/hash:RE
             zyg: 
               - !!perl/hash:RE_string 
                 a: 0
-                dba: assertion__S_570identifier
+                dba: assertion__S_571identifier
                 i: 0
                 min: 1
                 r: 1
@@ -52953,7 +52977,7 @@ assertion__S_570identifier: !!perl/hash:RE
                 text: ":"
               - !!perl/hash:RE_method 
                 a: 0
-                dba: assertion__S_570identifier
+                dba: assertion__S_571identifier
                 i: 0
                 min: 12345
                 name: rx
@@ -52966,8 +52990,8 @@ assertion__S_570identifier: !!perl/hash:RE
           - ":"
           - ''
           - 0
-assertion__S_570identifier_01: *2
-assertion__S_571bogus: !!perl/hash:RE 
+assertion__S_571identifier_01: *1
+assertion__S_572bogus: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -52988,7 +53012,7 @@ atom: !!perl/hash:RE
     decl: []
 
     min: 1
-    re: &3 !!perl/hash:RE_any 
+    re: &5 !!perl/hash:RE_any 
       a: 0
       altname: atom_01
       dba: atom
@@ -53050,7 +53074,7 @@ atom: !!perl/hash:RE
               r: 1
               s: 0
               text: .
-atom_01: *3
+atom_01: *5
 backslash__S_542A: !!perl/hash:RE 
   decl: []
 
@@ -53267,7 +53291,7 @@ backslash__S_552o: !!perl/hash:RE
           decl: []
 
           min: 12345
-          re: &7 !!perl/hash:RE_any 
+          re: &9 !!perl/hash:RE_any 
             a: 0
             altname: backslash__S_552o_01
             dba: backslash__S_552o
@@ -53363,8 +53387,63 @@ backslash__S_552o: !!perl/hash:RE
           - ":"
           - ''
           - 0
-backslash__S_552o_01: *7
-backslash__S_553Q: !!perl/hash:RE 
+backslash__S_552o_01: *9
+backslash__S_553p: !!perl/hash:RE 
+  decl: []
+
+  kind: token
+  min: 12348
+  pkg: ~
+  re: !!perl/hash:RE_sequence 
+    a: 0
+    dba: backslash__S_553p
+    i: 1
+    min: 12348
+    r: 1
+    s: 0
+    zyg: 
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: backslash__S_553p
+        i: 1
+        min: 12345
+        name: sym
+        r: 1
+        rest: ''
+        s: 0
+        sym: p
+      - !!perl/hash:RE_string 
+        a: 0
+        dba: backslash__S_553p
+        i: 1
+        min: 1
+        r: 1
+        s: 0
+        text: "{"
+      - !!perl/hash:RE_quantified_atom 
+        atom: !!perl/hash:RE_cclass 
+          a: 0
+          dba: backslash__S_553p
+          i: 1
+          min: 1
+          r: 1
+          s: 0
+          text: "[\\w:]"
+        min: 1
+        quant: 
+          - +
+          - ":"
+          - ''
+          - 1
+      - !!perl/hash:RE_string 
+        a: 0
+        dba: backslash__S_553p
+        i: 1
+        min: 1
+        r: 1
+        s: 0
+        text: "}"
+backslash__S_554Q: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53372,7 +53451,7 @@ backslash__S_553Q: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: backslash__S_553Q
+    dba: backslash__S_554Q
     i: 0
     min: 12345
     name: sym
@@ -53380,7 +53459,7 @@ backslash__S_553Q: !!perl/hash:RE
     rest: ''
     s: 0
     sym: Q
-backslash__S_554r: !!perl/hash:RE 
+backslash__S_555r: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53388,7 +53467,7 @@ backslash__S_554r: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: backslash__S_554r
+    dba: backslash__S_555r
     i: 1
     min: 12345
     name: sym
@@ -53396,7 +53475,7 @@ backslash__S_554r: !!perl/hash:RE
     rest: ''
     s: 0
     sym: r
-backslash__S_555s: !!perl/hash:RE 
+backslash__S_556s: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53404,7 +53483,7 @@ backslash__S_555s: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: backslash__S_555s
+    dba: backslash__S_556s
     i: 1
     min: 12345
     name: sym
@@ -53412,7 +53491,7 @@ backslash__S_555s: !!perl/hash:RE
     rest: ''
     s: 0
     sym: s
-backslash__S_556t: !!perl/hash:RE 
+backslash__S_557t: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53420,7 +53499,7 @@ backslash__S_556t: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: backslash__S_556t
+    dba: backslash__S_557t
     i: 1
     min: 12345
     name: sym
@@ -53428,7 +53507,7 @@ backslash__S_556t: !!perl/hash:RE
     rest: ''
     s: 0
     sym: t
-backslash__S_557u: !!perl/hash:RE 
+backslash__S_558u: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53436,7 +53515,7 @@ backslash__S_557u: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: backslash__S_557u
+    dba: backslash__S_558u
     i: 1
     min: 12345
     name: sym
@@ -53444,7 +53523,7 @@ backslash__S_557u: !!perl/hash:RE
     rest: ''
     s: 0
     sym: u
-backslash__S_558v: !!perl/hash:RE 
+backslash__S_559v: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53452,7 +53531,7 @@ backslash__S_558v: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: backslash__S_558v
+    dba: backslash__S_559v
     i: 1
     min: 12345
     name: sym
@@ -53460,7 +53539,7 @@ backslash__S_558v: !!perl/hash:RE
     rest: ''
     s: 0
     sym: v
-backslash__S_559w: !!perl/hash:RE 
+backslash__S_560w: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53468,7 +53547,7 @@ backslash__S_559w: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: backslash__S_559w
+    dba: backslash__S_560w
     i: 1
     min: 12345
     name: sym
@@ -53476,7 +53555,7 @@ backslash__S_559w: !!perl/hash:RE
     rest: ''
     s: 0
     sym: w
-backslash__S_560x: !!perl/hash:RE 
+backslash__S_561x: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53484,7 +53563,7 @@ backslash__S_560x: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: backslash__S_560x
+    dba: backslash__S_561x
     i: 1
     min: 24690
     r: 1
@@ -53492,7 +53571,7 @@ backslash__S_560x: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: backslash__S_560x
+        dba: backslash__S_561x
         i: 1
         min: 12345
         name: sym
@@ -53504,20 +53583,20 @@ backslash__S_560x: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &6 !!perl/hash:RE_any 
+        re: &4 !!perl/hash:RE_any 
           a: 0
-          altname: backslash__S_560x_01
-          dba: backslash__S_560x
+          altname: backslash__S_561x_01
+          dba: backslash__S_561x
           i: 1
           min: 12345
-          name: backslash__S_560x_01
+          name: backslash__S_561x_01
           r: 1
           s: 0
           zyg: 
             - !!perl/hash:RE_method 
               a: 0
-              alt: backslash__S_560x_01 0
-              dba: backslash__S_560x
+              alt: backslash__S_561x_01 0
+              dba: backslash__S_561x
               i: 1
               min: 12345
               name: hexint
@@ -53526,8 +53605,8 @@ backslash__S_560x: !!perl/hash:RE
               s: 0
             - !!perl/hash:RE_sequence 
               a: 0
-              alt: backslash__S_560x_01 1
-              dba: backslash__S_560x
+              alt: backslash__S_561x_01 1
+              dba: backslash__S_561x
               i: 1
               min: 37037
               r: 1
@@ -53535,7 +53614,7 @@ backslash__S_560x: !!perl/hash:RE
               zyg: 
                 - !!perl/hash:RE_string 
                   a: 0
-                  dba: backslash__S_560x
+                  dba: backslash__S_561x
                   i: 1
                   min: 1
                   r: 1
@@ -53548,7 +53627,7 @@ backslash__S_560x: !!perl/hash:RE
                     min: 37035
                     re: !!perl/hash:RE_sequence 
                       a: 0
-                      dba: backslash__S_560x
+                      dba: backslash__S_561x
                       i: 1
                       min: 37035
                       r: 1
@@ -53556,7 +53635,7 @@ backslash__S_560x: !!perl/hash:RE
                       zyg: 
                         - !!perl/hash:RE_method 
                           a: 0
-                          dba: backslash__S_560x
+                          dba: backslash__S_561x
                           i: 1
                           min: 12345
                           name: ws
@@ -53566,7 +53645,7 @@ backslash__S_560x: !!perl/hash:RE
                           s: 0
                         - !!perl/hash:RE_method 
                           a: 0
-                          dba: backslash__S_560x
+                          dba: backslash__S_561x
                           i: 1
                           min: 12345
                           name: hexint
@@ -53575,7 +53654,7 @@ backslash__S_560x: !!perl/hash:RE
                           s: 0
                         - !!perl/hash:RE_method 
                           a: 0
-                          dba: backslash__S_560x
+                          dba: backslash__S_561x
                           i: 1
                           min: 12345
                           name: ws
@@ -53589,7 +53668,7 @@ backslash__S_560x: !!perl/hash:RE
                     - ":"
                     - !!perl/hash:RE_string 
                       a: 0
-                      dba: backslash__S_560x
+                      dba: backslash__S_561x
                       i: 1
                       min: 1
                       r: 1
@@ -53598,14 +53677,14 @@ backslash__S_560x: !!perl/hash:RE
                     - 1
                 - !!perl/hash:RE_string 
                   a: 0
-                  dba: backslash__S_560x
+                  dba: backslash__S_561x
                   i: 1
                   min: 1
                   r: 1
                   s: 0
                   text: "}"
-backslash__S_560x_01: *6
-backslash__S_561z: !!perl/hash:RE 
+backslash__S_561x_01: *4
+backslash__S_562z: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53613,7 +53692,7 @@ backslash__S_561z: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_method 
     a: 0
-    dba: backslash__S_561z
+    dba: backslash__S_562z
     i: 1
     min: 12345
     name: sym
@@ -53621,7 +53700,7 @@ backslash__S_561z: !!perl/hash:RE
     rest: ''
     s: 0
     sym: z
-backslash__S_562misc: !!perl/hash:RE 
+backslash__S_563misc: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53636,19 +53715,19 @@ backslash__S_562misc: !!perl/hash:RE
       nobind: 1
       re: !!perl/hash:RE_meta 
         a: 0
-        dba: backslash__S_562misc
+        dba: backslash__S_563misc
         i: 0
         min: 1
         r: 1
         s: 0
         text: \W
-    dba: backslash__S_562misc
+    dba: backslash__S_563misc
     i: 0
     min: 1
     r: 1
     s: 0
     var: litchar
-backslash__S_563oops: !!perl/hash:RE 
+backslash__S_564oops: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -54107,13 +54186,13 @@ metachar__S_536Paren_Thesis: !!perl/hash:RE
   decl: []
 
   kind: token
-  min: 12346
+  min: 1
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: metachar__S_536Paren_Thesis
     i: 0
-    min: 12346
+    min: 1
     r: 1
     s: 0
     zyg: 
@@ -54134,40 +54213,47 @@ metachar__S_536Paren_Thesis: !!perl/hash:RE
         r: 1
         s: 0
         text: ''
-      - !!perl/hash:RE_bracket 
-        decl: []
+      - !!perl/hash:RE_quantified_atom 
+        atom: !!perl/hash:RE_bracket 
+          decl: []
 
-        min: 12345
-        re: !!perl/hash:RE_sequence 
-          a: 0
-          dba: metachar__S_536Paren_Thesis
-          i: 0
-          lang: ($self->unbalanced(')'))
           min: 12345
-          r: 1
-          s: 0
-          zyg: 
-            - !!perl/hash:RE_decl 
-              a: 0
-              dba: metachar__S_536Paren_Thesis
-              i: 0
-              lang: ($self->unbalanced(')'))
-              max: 0
-              min: 0
-              noquant: 1
-              r: 1
-              s: 0
-              text: "my $newlang = ($self->unbalanced(')'));  $C = $C->cursor_fresh($newlang); "
-            - !!perl/hash:RE_method 
-              a: 0
-              dba: metachar__S_536Paren_Thesis
-              i: 0
-              lang: ($self->unbalanced(')'))
-              min: 12345
-              name: nibbler
-              r: 1
-              rest: ''
-              s: 0
+          re: !!perl/hash:RE_sequence 
+            a: 0
+            dba: metachar__S_536Paren_Thesis
+            i: 0
+            lang: ($self->unbalanced(')'))
+            min: 12345
+            r: 1
+            s: 0
+            zyg: 
+              - !!perl/hash:RE_decl 
+                a: 0
+                dba: metachar__S_536Paren_Thesis
+                i: 0
+                lang: ($self->unbalanced(')'))
+                max: 0
+                min: 0
+                noquant: 1
+                r: 1
+                s: 0
+                text: "my $newlang = ($self->unbalanced(')'));  $C = $C->cursor_fresh($newlang); "
+              - !!perl/hash:RE_method 
+                a: 0
+                dba: metachar__S_536Paren_Thesis
+                i: 0
+                lang: ($self->unbalanced(')'))
+                min: 12345
+                name: nibbler
+                r: 1
+                rest: ''
+                s: 0
+        min: 0
+        quant: 
+          - "?"
+          - ":"
+          - ''
+          - 0
       - !!perl/hash:RE_bracket 
         decl: []
 
@@ -54304,7 +54390,7 @@ metachar__S_540Dollar: !!perl/hash:RE
             decl: []
 
             min: 0
-            re: &4 !!perl/hash:RE_any 
+            re: &8 !!perl/hash:RE_any 
               a: 0
               altname: metachar__S_540Dollar_01
               dba: metachar__S_540Dollar
@@ -54333,7 +54419,7 @@ metachar__S_540Dollar: !!perl/hash:RE
                   s: 0
                   text: $
           s: 0
-metachar__S_540Dollar_01: *4
+metachar__S_540Dollar_01: *8
 metachar__S_541var: !!perl/hash:RE 
   decl: []
 
@@ -54534,7 +54620,7 @@ quantified_atom: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-quantifier__S_572Star: !!perl/hash:RE 
+quantifier__S_573Star: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -54542,7 +54628,7 @@ quantifier__S_572Star: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: quantifier__S_572Star
+    dba: quantifier__S_573Star
     i: 0
     min: 24690
     r: 1
@@ -54550,7 +54636,7 @@ quantifier__S_572Star: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: quantifier__S_572Star
+        dba: quantifier__S_573Star
         i: 0
         min: 12345
         name: sym
@@ -54560,14 +54646,14 @@ quantifier__S_572Star: !!perl/hash:RE
         sym: "*"
       - !!perl/hash:RE_method 
         a: 0
-        dba: quantifier__S_572Star
+        dba: quantifier__S_573Star
         i: 0
         min: 12345
         name: quantmod
         r: 1
         rest: ''
         s: 0
-quantifier__S_573Plus: !!perl/hash:RE 
+quantifier__S_574Plus: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -54575,7 +54661,7 @@ quantifier__S_573Plus: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: quantifier__S_573Plus
+    dba: quantifier__S_574Plus
     i: 0
     min: 24690
     r: 1
@@ -54583,7 +54669,7 @@ quantifier__S_573Plus: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: quantifier__S_573Plus
+        dba: quantifier__S_574Plus
         i: 0
         min: 12345
         name: sym
@@ -54593,14 +54679,14 @@ quantifier__S_573Plus: !!perl/hash:RE
         sym: +
       - !!perl/hash:RE_method 
         a: 0
-        dba: quantifier__S_573Plus
+        dba: quantifier__S_574Plus
         i: 0
         min: 12345
         name: quantmod
         r: 1
         rest: ''
         s: 0
-quantifier__S_574Question: !!perl/hash:RE 
+quantifier__S_575Question: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -54608,7 +54694,7 @@ quantifier__S_574Question: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: quantifier__S_574Question
+    dba: quantifier__S_575Question
     i: 0
     min: 24690
     r: 1
@@ -54616,7 +54702,7 @@ quantifier__S_574Question: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: quantifier__S_574Question
+        dba: quantifier__S_575Question
         i: 0
         min: 12345
         name: sym
@@ -54626,14 +54712,14 @@ quantifier__S_574Question: !!perl/hash:RE
         sym: "?"
       - !!perl/hash:RE_method 
         a: 0
-        dba: quantifier__S_574Question
+        dba: quantifier__S_575Question
         i: 0
         min: 12345
         name: quantmod
         r: 1
         rest: ''
         s: 0
-quantifier__S_575Cur_Ly: !!perl/hash:RE 
+quantifier__S_576Cur_Ly: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -54641,7 +54727,7 @@ quantifier__S_575Cur_Ly: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: quantifier__S_575Cur_Ly
+    dba: quantifier__S_576Cur_Ly
     i: 0
     min: 12348
     r: 1
@@ -54649,7 +54735,7 @@ quantifier__S_575Cur_Ly: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_string 
         a: 0
-        dba: quantifier__S_575Cur_Ly
+        dba: quantifier__S_576Cur_Ly
         i: 0
         min: 1
         r: 1
@@ -54658,7 +54744,7 @@ quantifier__S_575Cur_Ly: !!perl/hash:RE
       - !!perl/hash:RE_quantified_atom 
         atom: !!perl/hash:RE_meta 
           a: 0
-          dba: quantifier__S_575Cur_Ly
+          dba: quantifier__S_576Cur_Ly
           i: 0
           min: 1
           r: 1
@@ -54677,7 +54763,7 @@ quantifier__S_575Cur_Ly: !!perl/hash:RE
           min: 1
           re: !!perl/hash:RE_sequence 
             a: 0
-            dba: quantifier__S_575Cur_Ly
+            dba: quantifier__S_576Cur_Ly
             i: 0
             min: 1
             r: 1
@@ -54685,7 +54771,7 @@ quantifier__S_575Cur_Ly: !!perl/hash:RE
             zyg: 
               - !!perl/hash:RE_string 
                 a: 0
-                dba: quantifier__S_575Cur_Ly
+                dba: quantifier__S_576Cur_Ly
                 i: 0
                 min: 1
                 r: 1
@@ -54694,7 +54780,7 @@ quantifier__S_575Cur_Ly: !!perl/hash:RE
               - !!perl/hash:RE_quantified_atom 
                 atom: !!perl/hash:RE_meta 
                   a: 0
-                  dba: quantifier__S_575Cur_Ly
+                  dba: quantifier__S_576Cur_Ly
                   i: 0
                   min: 1
                   r: 1
@@ -54714,7 +54800,7 @@ quantifier__S_575Cur_Ly: !!perl/hash:RE
           - 0
       - !!perl/hash:RE_string 
         a: 0
-        dba: quantifier__S_575Cur_Ly
+        dba: quantifier__S_576Cur_Ly
         i: 0
         min: 1
         r: 1
@@ -54722,7 +54808,7 @@ quantifier__S_575Cur_Ly: !!perl/hash:RE
         text: "}"
       - !!perl/hash:RE_method 
         a: 0
-        dba: quantifier__S_575Cur_Ly
+        dba: quantifier__S_576Cur_Ly
         i: 0
         min: 12345
         name: quantmod
@@ -54740,7 +54826,7 @@ quantmod: !!perl/hash:RE
       decl: []
 
       min: 1
-      re: &1 !!perl/hash:RE_any 
+      re: &2 !!perl/hash:RE_any 
         a: 0
         altname: quantmod_01
         dba: quantmod
@@ -54774,7 +54860,7 @@ quantmod: !!perl/hash:RE
       - ":"
       - ''
       - 0
-quantmod_01: *1
+quantmod_01: *2
 rx: !!perl/hash:RE 
   decl: []
 
@@ -54835,14 +54921,30 @@ rx: !!perl/hash:RE
           r: 1
           s: 0
           zyg: 
-            - !!perl/hash:RE_string 
-              a: 0
-              dba: rx
-              i: 0
-              min: 1
-              r: 1
-              s: 0
-              text: )
+            - !!perl/hash:RE_assertion 
+              assert: "?"
+              min: 0
+              re: !!perl/hash:RE_method_re 
+                a: 0
+                dba: rx
+                i: 0
+                min: 0
+                name: before
+                nobind: 1
+                r: 1
+                re: !!perl/hash:RE 
+                  decl: []
+
+                  min: 1
+                  re: !!perl/hash:RE_string 
+                    a: 0
+                    dba: rx
+                    i: 0
+                    min: 1
+                    r: 1
+                    s: 0
+                    text: )
+                s: 0
             - !!perl/hash:RE_method 
               min: 0
               name: panic
