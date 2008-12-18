@@ -2,6 +2,7 @@ Revision history for Syntax::Highlight::Perl6.
 
 0.0292 Dec 18 2008
     - Cursor.pmc does not depend on system 'cp', it now uses File::Copy
+    - Updated BUGS section.
 
 0.0291 Dec 18 2008
     - Updated to latest STD.pm.
