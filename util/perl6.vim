@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Dec 15th 2008
+" Last Change:  Dec 18th 2008
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -463,7 +463,7 @@ syn region p6Adverb
 "
 " It never matches when:
 "
-" * Preceded by "<" 
+" * Preceded by [<=]
 " * Followed by [-=]
 "
 syn region p6QWAngle
@@ -481,14 +481,14 @@ syn region p6QWDoubleAngle
     \ start="«"
     \ skip="\\\@<!\\»"
     \ end="»"
-    \ contains=@p6InterpQQ,p6Comment,p6EscHash,p6EscDoubleAngle,p6Adverb
+    \ contains=@p6InterpQQ,p6Comment,p6EscHash,p6EscDoubleAngle,p6Adverb,p6LiteralStringQuote,p6InterpStringDoubleQuote
 " <<words>>
 syn region p6QWAngles
     \ matchgroup=p6Quote
     \ start="<<=\@!"
     \ skip="\\\@<!\\>"
     \ end=">>"
-    \ contains=@p6InterpQQ,p6Comment,p6EscHash,p6EscAngle,p6Adverb
+    \ contains=@p6InterpQQ,p6Comment,p6EscHash,p6EscAngle,p6Adverb,p6LiteralStringQuote,p6InterpStringDoubleQuote
 
 " Interpolated strings
 
