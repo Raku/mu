@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.0291';
+our $VERSION = '0.0292';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
@@ -736,11 +736,6 @@ So this is Pretty Voodoo Stuff. Otherwise it will be pretty slow.
 
 That is related to the creation of the cached 'lex'ing directory by STD.pm.
 I<This happens only once.>
-
-=item * In win32 platforms, I get the following warning: 'cp' is not recognized
-
-This is an STD.pm bug which is currently under investigation. Do not worry about it
-for now.
 
 =back
 
