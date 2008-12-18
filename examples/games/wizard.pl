@@ -34,7 +34,7 @@ class Option {
     has Str $.param is rw ;
 }
 
-class wObject {
+class WObject {
     has Str $.name     is rw;
     has Str $.location is rw;
     has Str $.last_location is rw;
@@ -44,13 +44,13 @@ class wObject {
     };
 }
 
-class Weapon is wObject {
+class Weapon is WObject {
     has Int $.power         is rw;
     has Int $.powerRange    is rw;
     method damage () { random($.power - $.powerRange, $.power + $.powerRange);};
 }
 
-class Room is wObject {
+class Room is WObject {
    has Monster @.monsters is rw;
    has Str     @.exits is rw;
    method are_monsters () { @.monsters // 0 }
@@ -63,7 +63,7 @@ class Room is wObject {
     }
 };
 
-class Mortal is wObject {
+class Mortal is WObject {
     has Int     $.life      is rw;
     has Int     $.max_life  is rw;
 
@@ -149,31 +149,32 @@ class Person is Mortal {
 
 class Monster is Mortal { }
 
-my $person = Person.new(:life(100),:max_life(100),
-    :weapons((Weapon.new(:name<sword>, :power(4), :powerRange(2)),
-              Weapon.new(:name<spell>, :power(0), :powerRange(7)))),
+my $person = Person.new( Mortal{ :life(100),:max_life(100) },
+    :weapons((Weapon.new(WObject{:name<sword>}, :power(4), :powerRange(2)),
+              Weapon.new(WObject{:name<spell>}, :power(0), :powerRange(7)))),
 );
 
 
 my $frogs  = sub {
     my $life = (10..20).pick;
-    Monster.new(:name("Army of frogs"), :gold( (0..100).pick) , :life($life),:max_life($life),
-               :weapon(Weapon.new(:name<froggers>, :power(5), :powerRange(2))) );
+   Monster.new( WObject{ :name("Army of frogs") }, :gold( (0..100).pick) , Mortal{ :life($life),:max_life($life) },
+              :weapon(Weapon.new( WObject{:name<froggers> }, :power(5), :powerRange(2))) );
 };
+
 my $bat    = sub {
     my $life = (20..30).pick;
-    Monster.new(:name("Bat"), :gold( (0..100).pick ), :life($life), :max_life($life),
-               :weapon(Weapon.new(:name<claws>, :power(5), :powerRange(3))) );
+    Monster.new(WObject{:name("Bat")}, :gold( (0..100).pick ), Mortal{ :life($life), :max_life($life) },
+               :weapon( Weapon.new(WObject{ :name<claws>}, :power(5), :powerRange(3))) );
 };
 my $skeleton  = sub {
     my $life = (30..50).pick;
-    Monster.new(:name("Skeleton"), :gold( (0..100).pick ), :life($life),:max_life($life),
-               :weapon(Weapon.new(:name<Fists>, :power(5), :powerRange(10))) );
+    Monster.new(WObject{ :name("Skeleton")}, :gold( (0..100).pick ), Mortal{ :life($life),:max_life($life) },
+               :weapon( Weapon.new(WObject{ :name<Fists> }, :power(5), :powerRange(10))) );
 };
 my %world;
-%world<Lobby>   = Room.new( :name("Lobby")  , :exits("Forest","Dungeon"), :monsters([$frogs()]));
-%world<Forest>  = Room.new( :name("Forest") , :exits("Lobby"), :monsters([$bat()]));
-%world<Dungeon> = Room.new( :name("Dungeon"), :exits("Lobby"), :monsters([$skeleton()]));
+%world<Lobby>   = Room.new( WObject{ :name("Lobby")  }, :exits("Forest","Dungeon"), :monsters([$frogs()]));
+%world<Forest>  = Room.new( WObject{ :name("Forest") }, :exits("Lobby"), :monsters([$bat()]));
+%world<Dungeon> = Room.new( WObject{ :name("Dungeon")}, :exits("Lobby"), :monsters([$skeleton()]));
 $person.last_location = $person.location = "Lobby";
 
 $person.name = capitalize(prompt("What is your name: "));
