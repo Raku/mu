@@ -2,34 +2,31 @@ use v6-alpha;
 
 my $DEBUG = 0;
 
-multi *prompt ($prompt?) {
+multi prompt ($prompt?) {
     print $prompt;
     my $input = =$*IN;
     return $input;
 }
 
-multi *prompt ($prompt, @options is rw) {
-    my $i = 0;
-    .key //= ++$i for @options;
-
+multi prompt ($prompt, @options is rw) {
     my $choice;
-#    until ($choice eq any(@options>>.<key>)) {  # XXX not implemented in pugs yet
-    until ($choice eq any(@options.map:{ .key }) ) {
+    until ($choice ~~ any(@options.key)) {
         say $prompt;
         say "\t$_.key() $_.text()" for @options;
         $choice = prompt;
     }
 
-    my %options_by_key = @options.map:{ .key => $_; };
+    my %options_by_key = @options.kv;
     $choice = %options_by_key.{$choice};
     return $choice.param // $choice.key;
 }
 
-sub *cls { system(($?OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear'); }
 
-#random number between $low and $high, ($low..$high).pick but easier on memory
-sub *random ($low,$high) {int( rand($high - $low) + $low ) + 1; };
-multi sub *infix:<.?.> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
+
+sub cls { system(($?OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear'); }
+
+sub random ($low,$high) {int( rand($high - $low) + $low ) + 1; };
+#multi sub infix:<.?.> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
 
 class Option {
     has Str $.key is rw ;
@@ -104,12 +101,15 @@ class Person is Mortal {
         until ($choice eq 'f' or $enemy.dead) {
             my @options;
             for @.weapons -> $wep {
-                push @options: Option.new(
-                     :text("attack with $wep.name()"),
-                     :param($wep)
+                @options.push( 
+                     Option.new(
+                         :text("attack with $wep.name()"),
+                         :param($wep)
+                     )
                 );
             }
-            push @options: Option.new( :key<f>, :text("flee for your life"));
+            
+            @options.push( Option.new( :key<f>, :text("flee for your life")));
             $choice = prompt("Your choice? ", @options);
             cls;
             given $choice {
@@ -156,18 +156,18 @@ my $person = Person.new(:life(100),:max_life(100),
 
 
 my $frogs  = sub {
-    my $life = 10 .?. 20;
-    Monster.new(:name("Army of frogs"), :gold(0 .?. 100), :life($life),:max_life($life),
+    my $life = (10..20).pick;
+    Monster.new(:name("Army of frogs"), :gold( (0..100).pick) , :life($life),:max_life($life),
                :weapon(Weapon.new(:name<froggers>, :power(5), :powerRange(2))) );
 };
 my $bat    = sub {
-    my $life = 20 .?. 30;
-    Monster.new(:name("Bat"), :gold(0 .?. 100), :life($life), :max_life($life),
+    my $life = (20..30).pick;
+    Monster.new(:name("Bat"), :gold( (0..100).pick ), :life($life), :max_life($life),
                :weapon(Weapon.new(:name<claws>, :power(5), :powerRange(3))) );
 };
 my $skeleton  = sub {
-    my $life = 30 .?. 50;
-    Monster.new(:name("Skeleton"), :gold(0 .?. 100), :life($life),:max_life($life),
+    my $life = (30..50).pick;
+    Monster.new(:name("Skeleton"), :gold( (0..100).pick ), :life($life),:max_life($life),
                :weapon(Weapon.new(:name<Fists>, :power(5), :powerRange(10))) );
 };
 my %world;
@@ -188,7 +188,7 @@ until ($person.dead) {
          $person.location = $person.last_location;
      }
   } else {
-     my @choices = %world.{$person.location}.exits.map:{ Option.new( :text($_), :param($_)) };
+     my @choices = %world.{$person.location}.exits.map: { Option.new( :text($_), :param($_)) };
      $person.last_location = $person.location;
      $person.location = prompt("Go to:" ,@choices);
      cls;
