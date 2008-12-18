@@ -193,7 +193,7 @@ syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\|also\|sha
 syn match p6PackageTwigil display "\%(::\)\@<=\*"
 
 " $!, $var, $!var, $::var, $package::var $*::package::var, etc
-syn match p6Sigil        display "\%(&\|@@\|[@$%]\$\?\|\$\)\%(::\|\%(\$\@<=\d\+\|!\|/\|¢\)\|\%(\%([.^*+?=!]\|:\@<!::\@!\)\k\d\@<!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6PunctVar,p6Twigil,p6Variable,p6PackageScope
+syn match p6Sigil        display "\%(&\|@@\|[@$%]\$*\)\%(::\|\%(\$\@<=\d\+\|!\|/\|¢\)\|\%(\%([.^*+?=!]\|:\@<!::\@!\)\k\d\@<!\)\|\%(\k\d\@<!\)\)\@=" nextgroup=p6PunctVar,p6Twigil,p6Variable,p6PackageScope
 syn match p6PunctVar     display "\%(\$\@<=\d\+\|!\|/\|¢\)\%(\k\d\@<!\)\@!" contained
 syn match p6Variable     display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*" contained
 syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=" nextgroup=p6PackageScope,p6Variable contained
@@ -370,11 +370,11 @@ syn region p6Comment
 " Quoting
 
 syn region p6InterpVar
-    \ start="\ze\z([$@%&]\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(\.\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\+\)\.\?\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)\)"
+    \ start="\ze\z(\%(&\|[$@%]\$*\)\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(\.\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\+\)\.\?\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)\)"
     \ start="\ze\z(\$\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\)\)"
     \ start="\ze\z(&\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\.\?([^)]*)\%(\)*\)\)\)"
-    \ start="\ze\z(@\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\.\?\%(\[[^\]]*]\|<[^>]*>\|«[^»]*»\)\%(\)*\)\)\)"
-    \ start="\ze\z(%\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\.\?\%({[^}]*}\|<[^>]*>\|«[^»]*»\)\%(\)*\)\)\)"
+    \ start="\ze\z(@\$*\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\.\?\%(\[[^\]]*]\|<[^>]*>\|«[^»]*»\)\%(\)*\)\)\)"
+    \ start="\ze\z(%\$*\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\.\?\%({[^}]*}\|<[^>]*>\|«[^»]*»\)\%(\)*\)\)\)"
     \ end="\z1\zs"
     \ contained
     \ contains=TOP
@@ -443,36 +443,13 @@ syn region p6OctSequence
     \ end="]"
     \ contained
 
-syn match p6Adverb    display ":!\?" contained nextgroup=p6AdverbKey,p6QWAngle,p6LiteralStringDoubleAngle,p6QWAngles,@p6AdverbBrackets
-syn match p6AdverbKey display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*" contained nextgroup=p6QWAngle,p6QWDoubleAngle,p6QWAngles,@p6AdverbBrackets
-
-syn cluster p6AdverbBrackets
-    \ add=p6Parens
-    \ add=p6Braces
-    \ add=p6Brackets
-
-syn region p6Parens
-    \ start="("
-    \ skip="([^)]*)"
-    \ end=")"
+syn region p6Adverb
+    \ start="\ze\z(:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\|\[[^\]]*]\|(\[[^\]]*])\|<[^>]*>\|(<[^>]*>)\|«[^»]*»\|(«[^»]*»)\|{[^}]*}\|({[^}]*})\)\?\)"
+    \ start="\ze\z(:!\?[@$%]\$*\%(::\|\%(\$\@<=\d\+\|!\|/\|¢\)\|\%(\%([.^*+?=!]\|:\@<!::\@!\)\k\d\@<!\)\|\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\)\)"
+    \ end="\z1\zs"
     \ contained
     \ contains=TOP
-
-syn region p6Braces
-    \ start="{"
-    \ skip="{[^}]*}"
-    \ end="}"
-    \ contained
-    \ contains=TOP
-
-syn region p6Brackets
-    \ start="\["
-    \ skip="\[[^\]]*]"
-    \ end="]"
-    \ contained
-    \ contains=TOP
-
-" Word quoting
+    \ keepend
 
 " <words>
 " FIXME: not sure how to distinguish this from the "less than" operator
@@ -1192,8 +1169,6 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6SubNonBracket             p6String
     HiLink p6SubBracket                p6String
     HiLink p6TransNonBracket           p6String
-    HiLink p6AdverbKey                 p6String
-    HiLink p6Adverb                  p6Operator
     HiLink p6Escape             p6StringSpecial
     HiLink p6EscHash            p6StringSpecial
     HiLink p6EscQQ              p6StringSpecial
@@ -1204,11 +1179,6 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6EscDoubleQuote     p6StringSpecial
     HiLink p6CharClass          p6StringSpecial
     HiLink p6RegexSpecial       p6StringSpecial
-    HiLink p6InterpScalar       p6Sigil
-    HiLink p6InterpPunctVar     p6PunctVar
-    HiLink p6InterpVariable     p6Variable
-    HiLink p6InterpPackagescope p6PackageScope
-    HiLink p6InterpTwigil       p6Twigil
 
     HiLink p6Property        Tag
     HiLink p6Attention       Todo
