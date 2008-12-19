@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Dec 18th 2008
+" Last Change:  Dec 19th 2008
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -216,7 +216,6 @@ syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|
 syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 
 " Contextualizers
-
 syn match p6Context display "\%([$@%&]\|\k\)\@<!\%(\$\|@\|%\|@@\|&\)\_s\@="
 syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 
@@ -228,8 +227,8 @@ syn region p6SigilContext
     \ start="&(\@="
     \ start="@@(\@="
     \ skip="([^)]*)"
-    \ end=")\@="
-    \ transparent
+    \ end=")\@<="
+    \ contains=TOP
 
 " the "$" placeholder in "$var1, $, var2 = @list"
 syn match p6Placeholder display "\%(,\s*\)\@<=\$\%(\k\d\@<!\|\%([.^*+?=!]\|:\@<!::\@!\)\)\@!"
@@ -369,12 +368,16 @@ syn region p6Comment
 
 " Quoting
 
+" This matches any of the following:
+" 
+"  * A $scalar/@array/%hash/&function followed by any number of
+"    (optional dot + (method name or brackets)), followed by an
+"    optional dot and brackets
+"  * A bare $scalar
+"    
 syn region p6InterpVar
-    \ start="\ze\z(\%(&\|[$@%]\$*\)\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(\.\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\+\)\.\?\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)\)"
+    \ start="\ze\z(\%(&\|[$@%]\$*\)\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(\.\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\|\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)*\)\.\?\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)\)"
     \ start="\ze\z(\$\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\)\)"
-    \ start="\ze\z(&\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\.\?([^)]*)\%(\)*\)\)\)"
-    \ start="\ze\z(@\$*\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\.\?\%(\[[^\]]*]\|<[^>]*>\|«[^»]*»\)\%(\)*\)\)\)"
-    \ start="\ze\z(%\$*\%(\%(&\@<!\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\.\?\%({[^}]*}\|<[^>]*>\|«[^»]*»\)\%(\)*\)\)\)"
     \ end="\z1\zs"
     \ contained
     \ contains=TOP
@@ -393,6 +396,7 @@ syn cluster p6InterpQ
     \ add=p6EscSlash
 
 syn cluster p6InterpQQ
+    \ add=p6SigilContext
     \ add=p6InterpVar
     \ add=p6InterpClosure
     \ add=p6Escape
@@ -443,8 +447,9 @@ syn region p6OctSequence
     \ end="]"
     \ contained
 
+" matches :key, :!key, :$var, :key<var>, etc
 syn region p6Adverb
-    \ start="\ze\z(:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\|\[[^\]]*]\|(\[[^\]]*])\|<[^>]*>\|(<[^>]*>)\|«[^»]*»\|(«[^»]*»)\|{[^}]*}\|({[^}]*})\)\?\)"
+    \ start="\ze\z(:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\?\)"
     \ start="\ze\z(:!\?[@$%]\$*\%(::\|\%(\$\@<=\d\+\|!\|/\|¢\)\|\%(\%([.^*+?=!]\|:\@<!::\@!\)\k\d\@<!\)\|\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\)\)"
     \ end="\z1\zs"
     \ contained
@@ -463,8 +468,8 @@ syn region p6Adverb
 "
 " It never matches when:
 "
-" * Preceded by [<=]
-" * Followed by [-=]
+" * Preceded by [<=] (e.g. <<foo>>, =<$foo>)
+" * Followed by [-=] (e.g. <--, <=, <==)
 "
 syn region p6QWAngle
     \ matchgroup=p6Quote
