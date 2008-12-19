@@ -59,8 +59,9 @@ sub new {
     $options{utf8_decode} = $options{utf8_decode} // 1;
 
     #is 'text' undefined?
-    croak "'text' option is not found in $class->new"
-        if (!$options{text});
+    if(! defined $options{text}) {
+        croak "'text' option is not found in $class->new"
+    }
 
     my $self = bless \%options, $class;
     $self->{parser} = 0;
@@ -87,6 +88,7 @@ sub _lazy_parse {
         my $len = length $src_text;
         if($len == 0) {
             $src_text = q{ };
+            $len = 1;
         }
         $loc[$len - 1] = [];
 

@@ -1,6 +1,6 @@
 #########################
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 use Test::Exception;
 
 #this is needed for now before using my module
@@ -15,6 +15,7 @@ BEGIN {
 
 #text option is a required option in new()
 dies_ok { Syntax::Highlight::Perl6->new(); } 'text option is required in new()';
+ok(defined Syntax::Highlight::Perl6->new(text => q{}), 'text option can be empty');
 
 #check if new(...) works
 my $p = Syntax::Highlight::Perl6->new(

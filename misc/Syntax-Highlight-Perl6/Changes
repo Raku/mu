@@ -1,9 +1,13 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.0294 Dec 19 2008
+    - Fixed ->new croak bug about text => q{}
+    - Added a test to check for text => q{}
+
 0.0293 Dec 19 2008
-    _ Renamed parse_trees to tokens and it now returns an array of hashes
+    - Renamed parse_trees to tokens and it now returns an array of hashes
     - Added more tests to check tokens
-    _ Bundled the latest STD.pm and perl6.vim
+    - Bundled the latest STD.pm and perl6.vim
 
 0.0292 Dec 18 2008
     - Cursor.pmc does not depend on system 'cp', it now uses File::Copy
