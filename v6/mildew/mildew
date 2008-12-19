@@ -22,25 +22,6 @@ GetOptions("exec"=>\$exec,"file=s"=>\$file,"debug"=>\$debug,"desugar"=>\$desugar
 sub XXX {
     confess join ' ', 'unimplemented: ', @_;
 }
-sub FETCH {
-    my $arg = shift;
-    call FETCH => $arg
-}
-sub lookup {
-    my $thing = shift;
-    call lookup => reg '$scope',[string $thing];
-}
-sub capturize {
-    my ($pos,$named) = @_;
-    AST::Call->new(
-        identifier => string "capturize",
-        capture => AST::Capture->new(
-            invocant => reg '¢SMOP__S1P__Capturize',
-            positional => $pos // [],
-            named => $named // []
-        )
-    )
-}
 { package VAST::Base;
     sub as_constant_string {
         my $m = shift;
