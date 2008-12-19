@@ -1,6 +1,6 @@
 #########################
 
-use Test::More tests => 25;
+use Test::More tests => 31;
 use Test::Exception;
 
 #this is needed for now before using my module
@@ -52,10 +52,17 @@ ok( defined $ansi, 'ansi_text returned something');
 like( $ansi, '/\033\[.+?m/i', 'ansi_text should contain ansi color escape sequences');
 like( $ansi, '/foo/i', 'ansi_text should contain the word foo');
 
-#tests for parse_trees()
-my $ptree = $p->parse_trees;
-ok( defined $ptree, 'parse_trees returned something');
-isa_ok( $ptree, 'ARRAY', 'parse_trees returned an array');
+#tests for tokens()
+my @tokens = $p->tokens;
+ok( @tokens, 'tokens returned an array');
+ok( $#tokens > 0, 'and the tokens has some elements in it');  
+isa_ok( $tokens[0], 'HASH', '$tokens[0] returned a hash');
+my %rec = %{$tokens[0]};
+ok(defined keys %rec, '%rec has one or keys');
+ok(defined $rec{buffer}, '%rec has a buffer');
+ok(defined $rec{last_pos}, '%rec has a last_pos');
+ok(defined $rec{rule}, '%rec has a rule');
+ok(defined $rec{tree}, '%rec has a tree');
 
 #tests for static behavior between different instances
 my $q = Syntax::Highlight::Perl6->new(

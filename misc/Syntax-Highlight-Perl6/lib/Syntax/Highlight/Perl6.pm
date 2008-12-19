@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.0292';
+our $VERSION = '0.0293';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
@@ -297,22 +297,26 @@ sub ansi_text {
 #---------------------------------------------------------------
 # Returns a Perl 5 array containing parse tree records.
 # The array consists of one or more of the following record:
-#   ($position, $buffer, $rule_name, $parse_tree)
+#   ($last_pos, $buffer, $rule, $tree)
 #---------------------------------------------------------------
-sub parse_trees {
+sub tokens {
     my $self = shift;
 
     $self->_lazy_parse();
 
     my %colors = _read_ansi_file();
-    my $parse_trees = [];
+    my @tokens = ();
     local *spit_parse_tree = sub {
-        push @{$parse_trees}, [@ARG];
+        push @tokens, {
+            'last_pos'  => $ARG[0],
+            'buffer'    => $ARG[1],
+            'rule'      => $ARG[2],
+            'tree'      => $ARG[3],
+        };
     };
-
     $self->_redspans_traverse(\&spit_parse_tree,%colors);
 
-    return $parse_trees;
+    return @tokens;
 }
 
 #---------------------------------------------------------------
@@ -565,8 +569,8 @@ Syntax::Highlight::Perl6 - Perl 6 Syntax Highlighter
     # Prints ANSI escaped color sequences (useful for console and IRC output)
     print $p->ansi_text;
 
-    # Prints the Perl 5 array of parse trees (useful for other libraries)
-    print $p->parse_trees;
+    # Prints an array of token records (useful for other libraries)
+    print $p->tokens;
 
     # Prints VIM-generated syntax highlighted html
     use Text::VimColor;     # This is only needed if you need
@@ -654,34 +658,44 @@ It can inlined if C<inline_resources> option is 1.
 
 Returns a Perl highlighted ANSI escape color string.
 
-=head2 parse_trees
+=head2 tokens
 
-Returns a Perl 5 array containing parse tree records.
-The array consists of one or more of the following record structure:
+Returns an array of hashes containing parsed token records.
+The hash record is structured as:
 
-    +-----------------------------------------------+
-    | Matched  | Matched | Matched   | Parse tree   |
-    | Start    | string  | rule      | separated    |
-    | Position | buffer  | name      | by spaces    |
-    +-----------------------------------------------+
+    +----------------------------------------------+
+    | Matched   | Matched | Matched   | Parse tree |
+    | Last      | string  | rule      | separated  |
+    | Position  | buffer  | name      | by spaces  |
+    |           |         |           |            |
+    | $last_pos | $buffer | $rule     | $tree      |
+    +----------------------------------------------+
 
-An example of the C<parse_trees> method in action:
+An example of the C<tokens> method in action:
 
     use Data::Dumper;
-    print Dumper($p->parse_trees);
+    print Dumper($p->tokens);
 
 The shortened output looks like:
 
-    $VAR1 = [
-          ..
-          [
-            5,             # buffer starts at position 5
-            'foo',         # and is a 'foo'
-            '_scalar',     # and a _scalar rule
-            '...blah blah' # parse tree separated by spaces
-          ]
-          ..
-    ];
+    $VAR1 = {
+      'tree' => '',
+      'rule' => 0,
+      'buffer' => '',
+      'last_pos' => 0
+    };
+    $VAR2 = {
+      'tree' => 'statementlist statement statement_modexpr statement_expr EXPR termish noun value number integer ',
+      'rule' => 'number',
+      'buffer' => '1',
+      'last_pos' => 1
+    };
+    $VAR3 = {
+      'tree' => 'statementlist eat_terminator ',
+      'rule' => 0,
+      'buffer' => ';',
+      'last_pos' => 2
+    };
 
 =head2 vim_html
 
