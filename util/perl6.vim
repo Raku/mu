@@ -412,8 +412,8 @@ syn match p6EscAngle       display "\\>" contained
 syn match p6EscDoubleAngle display "\\»" contained
 syn match p6EscHash        display "\\#" contained
 syn match p6EscQQ          display "\\qq" contained nextgroup=p6QQSequence
-syn match p6EscCodePoint   display "\%(\\c\)\@<=\S\@=" contained nextgroup=p6CodePoint
-syn match p6EscHexSequnce  display "\%(\\x\)\@<=\x\@=" contained nextgroup=p6HexSequence
+syn match p6EscCodePoint   display "\%(\\c\)\@<=\%(\d\|\[\)\@=" contained nextgroup=p6CodePoint
+syn match p6EscHexSequence display "\%(\\x\)\@<=\x\@=" contained nextgroup=p6HexSequence
 syn match p6EscOctSequence display "\%(\\o\)\@<=\o\@=" contained nextgroup=p6OctSequence
 syn match p6EscSlash       display "\\\\" contained
 
@@ -426,7 +426,7 @@ syn region p6QQSequence
     \ transparent
     \ contains=@p6InterpQQ
 
-syn match p6CodePoint display "\S" contained
+syn match p6CodePoint display "\d" contained
 syn region p6CodePoint
     \ matchgroup=p6Escape
     \ start="\["
