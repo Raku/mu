@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.0294';
+our $VERSION = '0.0295';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
@@ -511,9 +511,7 @@ sub _escape_html {
     );
     my $re = join '|',
         map { quotemeta } keys %esc;
-    $str =~ s/($re)      # convert <>"&
-             /$esc{$1}   # to their html escape sequences
-             /gx;
+    $str =~ s/($re)/$esc{$1}/g;
     return $str;
 }
 

@@ -1,6 +1,6 @@
 #########################
 
-use Test::More tests => 32;
+use Test::More tests => 36;
 use Test::Exception;
 
 #this is needed for now before using my module
@@ -67,7 +67,17 @@ ok(defined $rec{tree}, '%rec has a tree');
 
 #tests for static behavior between different instances
 my $q = Syntax::Highlight::Perl6->new(
-    text => 'my $bar;'
+    text => q{my $bar = "&<>";}
 );
 like( $q->snippet_html, '/bar/i', 'second instance worked perfectly');
 like( $p->snippet_html, '/foo/i', 'and first instance is not affected');
+
+#tests for correct _escape_html behavior
+like( $q->snippet_html, '/&lt;&gt;/', 
+    'snippet_html & _escape_html works');
+like( $q->snippet_html, '/&amp;/', 
+    'snippet_html & _escape_html works');
+like( $q->simple_html, '/&quot;/', 
+    'simple_html html escaping works');
+like( $q->full_html, '/&lt;&gt;/',
+    'full_html html escaping works');
