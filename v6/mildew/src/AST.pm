@@ -188,6 +188,23 @@ sub pretty {
     . $self->block->(AST::Reg->new(name => $id))->pretty;
 }
 
+package AST::Seq;
+use Moose;
+extends 'AST::Base';
+has 'stmts' => (is=>'ro');
+sub pretty {
+    my ($self,) = @_;
+    join('',map {$_->pretty . ";\n"} @{$self->stmts});
+}
+sub m0ld {
+    my ($self,$ret) = @_;
+    my @stmts = @{$self->stmts};
+    my $last = pop @stmts;
+    my $m0ld = join('',map {$_->m0ld(AST::unique_id)} @stmts);
+    $m0ld = $m0ld . $last->m0ld($ret) if $last;
+    return $m0ld;
+}
+
 package AST::Call;
 use Moose;
 extends 'AST::Base';
@@ -233,93 +250,6 @@ sub pretty {
     } else {
         $self->SUPER::pretty;
     }
-
-}
-
-package AST::Package;
-use Moose;
-use AST::Helpers;
-has 'name'  => (is=>'ro');
-has 'sym'   => (is=>'ro');
-has 'block' => (is=>'ro');
-extends 'AST::Base';
-
-sub pretty {
-    my $self = shift;
-    $self->sym.' '.$self->name.' {'.
-      $self->block->pretty.
-    "}\n";
-}
-
-sub m0ld {
-    my $self = shift;
-    my $id_type_sub = AST::unique_id;
-
-    my $how_type = '';
-    if ($self->sym eq 'knowhow') {
-        $how_type = 'PurePrototypeHow';
-    } elsif ($self->sym eq 'class') {
-        $how_type = 'ClassHOW';
-    } else {
-        die 'unimplemented';
-    }
-
-    my $id_how = FETCH(lookup($how_type))->emit;
-
-    # initialize the package
-    my $id_package_val = call(new=>FETCH(lookup("Package")))->emit;
-
-    # initialize the protoobject
-    my $id_proto_val = call("^!CREATE" => FETCH(lookup("p6opaque")))->emit;
-
-    call(STORE => call(name => reg $id_package_val),[string $self->name])->emit;
-
-
-    call(STORE => call("postcircumfix:{ }" => reg '$scope',[string $self->name]),[reg $id_proto_val])->emit;
-
-    # creates the package lexical scope and make it an inner scope
-
-    my $id_package_scope = call(new => reg '¢SMOP__S1P__LexicalScope')->emit;
-    call(STORE => call(outer => reg $id_package_scope),[reg '$scope'])->emit;
-
-    # store the package in $?PACKAGE
-
-    call(STORE => call(reg $id_package_scope => "postcircumfix:{ }",[string '$?PACKAGE']),[$id_package_val]);
-
-    # store the protoobject in $?CLASS
-    # XXX: we're going to store it inside a Scalar to avoid having to support FETCH in the
-    # incomplete class.
-    call(STORE => call("postcircumfix:{ }" => reg $id_package_scope,[string '$?CLASS']),[reg $id_proto_val])->emit;
-
-    # set the how
-
-    call(STORE => call("^!how" => reg $id_proto_val),[reg $id_how])->emit;
-
-    # set the who
-
-    call(STORE => call("^!who" => reg $id_proto_val),[reg $id_package_val])->emit;
-
-    # run the init code
-    my $id_mold = $self->block->emit();
-
-    my $Code = FETCH(lookup('Code'))->emit;
-    call("postcircumfix:( )" =>
-        call(new => reg $Code,[],[string 'outer'=>reg $id_package_scope,string 'mold' => reg $id_mold]),
-        [capturize()]
-    )->emit;
-
-    # store a sub of the same name in the current scope that returns the proper package
-    'my '.$id_type_sub.' = '.$Code.'."new"(:"outer"($scope),:"mold"(mold {'."\n".
-    'my $interpreter;'."\n".
-    'my $scope;'."\n".
-    'my $type = $scope."lookup"("'.$self->name.'");'."\n".
-    'my $continuation = $interpreter."continuation"();'."\n".
-    'my $back = $continuation."back"();'."\n".
-    'my $void = $back."setr"($type);'."\n".
-    '$void = $interpreter."goto"($back);'."\n".
-    '}));'."\n".
-    'my '.$id_package_scope.'_outer_p = $scope."postcircumfix:{ }"("&'.$self->name.'");'."\n".
-    '$void = '.$id_package_scope.'_outer_p."STORE"('.$id_type_sub.');'."\n"
 
 }
 

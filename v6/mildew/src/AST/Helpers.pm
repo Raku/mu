@@ -1,7 +1,8 @@
 package AST::Helpers;
 use Exporter 'import';
-our @EXPORT = qw(string reg integer call FETCH lookup capturize);
+our @EXPORT = qw(string reg integer call FETCH lookup capturize let);
 use AST;
+use strict;
 sub string($) {
     AST::StringConstant->new(value=>$_[0]);
 }
@@ -32,4 +33,8 @@ sub capturize {
             named => $named // []
         )
     )
+}
+sub let {
+    my ($value,$block) = @_;
+    AST::Let->new(value=>$value,block=>$block);
 }
