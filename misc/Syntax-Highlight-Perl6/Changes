@@ -6,6 +6,9 @@ Revision history for Syntax::Highlight::Perl6.
     - Removed all references to 'use STD;'.
     - Removed bug from BUGS section 'Can't call method "bless" on an 
       undefined value at STD.pm line 5269'
+    - Cursor.pmc - Fixed the log file creation even though debug is disabled
+    - Removed bug from BUGS section 'A log file is always created when
+      using this module'.
 
 0.0295 Dec 19 2008
     - Fixed _escape_html to actually work

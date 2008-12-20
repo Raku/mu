@@ -729,10 +729,6 @@ These are the bugs that i am currently aware of:
 
 =over 4
 
-=item * A log file is always created when using this module.
-
-This is a bug and im working on it. Most probably it is STD.pm-related
-
 =item * Directory 'lex' is created when using this module.
 
 STD.pm caches digraphs and the matched rules in there.
