@@ -52,18 +52,18 @@ use YAML::Syck;
 
 
 # should some of these be parser instance attributes?
-local $LANG;
-local $PKGDECL =  "";
-local $PKG =  "";
+local $::LANG;
+local $::PKGDECL =  "";
+local $::PKG =  "";
 my @PKGS;
-local $GOAL =  "(eof)";
-local $PARSER;
-local $ACTIONS;
-local $IN_DECL;
+local $::GOAL =  "(eof)";
+local $::PARSER;
+local $::ACTIONS;
+local $::IN_DECL;
 my %ROUTINES;
-local $ORIG;
-local @MEMOS;
-local $VOID;
+local $::ORIG;
+local @::MEMOS;
+local $::VOID;
 my @PADS;
 
 # random rule for debugging, please ignore
@@ -159,7 +159,7 @@ my $STOP = shift() // undef;
 
 
 if (defined $STOP) {
-local $GOAL =  $STOP;
+local $::GOAL =  $STOP;
 $self->unitstop($STOP)->comp_unit;
 }
 else {
@@ -544,8 +544,8 @@ moose_with(qw(STD::PrecOp));    our %o = %terminator;
 # there's appropriate whitespace.  # Note that endsym isn't called if <sym>
 # isn't called.
 
-local $endsym =  "null";
-local $endargs =  -1;
+local $::endsym =  "null";
+local $::endargs =  -1;
 
 #proto token category { <...> }
 sub category__PEEK { $_[0]->_AUTOLEXpeek('category:*',$retree); }
@@ -4121,14 +4121,14 @@ sub comp_unit__PEEK { $_[0]->_AUTOLEXpeek('comp_unit',$retree) }
 sub comp_unit {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $begin_compunit =  1;
-local $endargs =  -1;
-local $LANG;
-local $PKGDECL =  "";
-local $PKG =  "";
-local $GOAL =  "(eof)";
-local $PARSER;
-local $IN_DECL;
+local $::begin_compunit =  1;
+local $::endargs =  -1;
+local $::LANG;
+local $::PKGDECL =  "";
+local $::PKG =  "";
+local $::GOAL =  "(eof)";
+local $::PARSER;
+local $::IN_DECL;
 
 
 my $C = $self;
@@ -4380,7 +4380,7 @@ sub xblock__PEEK { $_[0]->_AUTOLEXpeek('xblock',$retree) }
 sub xblock {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $GOAL =  '{';
+local $::GOAL =  '{';
 
 
 my $C = $self;
@@ -4588,7 +4588,7 @@ sub regex_block {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my $lang = 'STD::Regex';
-local $GOAL =  '}';
+local $::GOAL =  '}';
 
 
 my $C = $self;
@@ -4828,7 +4828,7 @@ sub statementlist__PEEK { $_[0]->_AUTOLEXpeek('statementlist',$retree) }
 sub statementlist {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $PARSER =  $self;
+local $::PARSER =  $self;
 
 
 my $C = $self;
@@ -5247,7 +5247,7 @@ sub statement__PEEK { $_[0]->_AUTOLEXpeek('statement',$retree) }
 sub statement {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $endargs =  -1;
+local $::endargs =  -1;
 
 
 my $C = $self;
@@ -13219,8 +13219,8 @@ sub arglist__PEEK { $_[0]->_AUTOLEXpeek('arglist',$retree) }
 sub arglist {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $endargs =  0;
-local $GOAL =  'endargs';
+local $::endargs =  0;
+local $::GOAL =  'endargs';
 
 
 my $C = $self;
@@ -13414,7 +13414,7 @@ sub variable_declarator__PEEK { $_[0]->_AUTOLEXpeek('variable_declarator',$retre
 sub variable_declarator {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
+local $::IN_DECL =  1;
 
 
 my $C = $self;
@@ -14048,7 +14048,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'class';
-local $PKGDECL =  'class';
+local $::PKGDECL =  'class';
 
 
 my $C = $self;
@@ -14082,7 +14082,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'grammar';
-local $PKGDECL =  'grammar';
+local $::PKGDECL =  'grammar';
 
 
 my $C = $self;
@@ -14116,7 +14116,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'module';
-local $PKGDECL =  'module';
+local $::PKGDECL =  'module';
 
 
 my $C = $self;
@@ -14150,7 +14150,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'package';
-local $PKGDECL =  'package';
+local $::PKGDECL =  'package';
 
 
 my $C = $self;
@@ -14184,7 +14184,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'role';
-local $PKGDECL =  'role';
+local $::PKGDECL =  'role';
 
 
 my $C = $self;
@@ -14218,7 +14218,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'knowhow';
-local $PKGDECL =  'knowhow';
+local $::PKGDECL =  'knowhow';
 
 
 my $C = $self;
@@ -21308,7 +21308,7 @@ local $CTX = $self->callm if $::DEBUG & DEBUG::trace_call;
 return if $self->peek;
 my $here = $self;
 while (my $herestub = shift @herestub_queue) {
-local $DELIM =  $herestub->delim;
+local $::DELIM =  $herestub->delim;
 my $lang = $herestub->lang->mixin( 'STD::herestop' );
 my $doc;
 if (($doc) = $here->nibble($lang)) {
@@ -22191,7 +22191,7 @@ my $lang = shift;
 
 
 my $outerlang = (ref($self)||$self);
-local $LANG =  $outerlang;
+local $::LANG =  $outerlang;
 $self->cursor_fresh($lang)->nibbler;
 }
 
@@ -27641,7 +27641,7 @@ sub extrapost__PEEK { $_[0]->_AUTOLEXpeek('extrapost',$retree) }
 sub extrapost {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $inquote =  1;
+local $::inquote =  1;
 
 
 my $C = $self;
@@ -27738,7 +27738,7 @@ sub routine_def__PEEK { $_[0]->_AUTOLEXpeek('routine_def',$retree) }
 sub routine_def {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
+local $::IN_DECL =  1;
 
 
 my $C = $self;
@@ -28400,7 +28400,7 @@ sub regex_def__PEEK { $_[0]->_AUTOLEXpeek('regex_def',$retree) }
 sub regex_def {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
+local $::IN_DECL =  1;
 
 
 my $C = $self;
@@ -28713,7 +28713,7 @@ sub macro_def__PEEK { $_[0]->_AUTOLEXpeek('macro_def',$retree) }
 sub macro_def {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
+local $::IN_DECL =  1;
 
 
 my $C = $self;
@@ -29174,7 +29174,7 @@ local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $endsym = $args{endsym} // 'spacey';
 local $sym = $args{sym} // 'does';
-local $PKGDECL =  'role';
+local $::PKGDECL =  'role';
 
 
 my $C = $self;
@@ -29779,8 +29779,8 @@ sub signature__PEEK { $_[0]->_AUTOLEXpeek('signature',$retree) }
 sub signature {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
-local $zone =  'posreq';
+local $::IN_DECL =  1;
+local $::zone =  'posreq';
 
 
 my $C = $self;
@@ -30464,7 +30464,7 @@ sub named_param__PEEK { $_[0]->_AUTOLEXpeek('named_param',$retree) }
 sub named_param {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $GOAL =  ')';
+local $::GOAL =  ')';
 
 
 my $C = $self;
@@ -34805,7 +34805,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // [qw(?? !!)];
-local $GOAL =  '!!';
+local $::GOAL =  '!!';
 
 
 my $C = $self;
@@ -35683,7 +35683,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my $istype = shift() // 0;
 my $listopish = 0;
-local $GOAL =  '';
+local $::GOAL =  '';
 
 
 my $C = $self;
@@ -36376,7 +36376,7 @@ $C->_EXACT(';')
 
 ## token terminator__S_404if (  :$sym is context<rw> = <if> --> Terminator)
 ##      token terminator:sym<if> ( --> Terminator)
-##          { 'if' » }
+##          { 'if' » <.nofun> }
 
 sub terminator__S_404if__PEEK { $_[0]->_AUTOLEXpeek('terminator__S_404if',$retree) }
 sub terminator__S_404if {
@@ -36393,7 +36393,14 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "terminator__S_404if",  map { STD::Terminator->coerce($_) } 
 do {
 if (my ($C) = ($C->_EXACT('if'))) {
-$C->_PATTERN(qr/\G\b/);
+do {
+if (my ($C) = ($C->_PATTERN(qr/\G\b/))) {
+$C->nofun;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -36404,7 +36411,7 @@ else {
 
 ## token terminator__S_405unless (  :$sym is context<rw> = <unless> --> Terminator)
 ##      token terminator:sym<unless> ( --> Terminator)
-##          { 'unless' » }
+##          { 'unless' » <.nofun> }
 
 sub terminator__S_405unless__PEEK { $_[0]->_AUTOLEXpeek('terminator__S_405unless',$retree) }
 sub terminator__S_405unless {
@@ -36421,7 +36428,14 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "terminator__S_405unless",  map { STD::Terminator->coerce($_) } 
 do {
 if (my ($C) = ($C->_EXACT('unless'))) {
-$C->_PATTERN(qr/\G\b/);
+do {
+if (my ($C) = ($C->_PATTERN(qr/\G\b/))) {
+$C->nofun;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -36432,7 +36446,7 @@ else {
 
 ## token terminator__S_406while (  :$sym is context<rw> = <while> --> Terminator)
 ##      token terminator:sym<while> ( --> Terminator)
-##          { 'while' » }
+##          { 'while' » <.nofun> }
 
 sub terminator__S_406while__PEEK { $_[0]->_AUTOLEXpeek('terminator__S_406while',$retree) }
 sub terminator__S_406while {
@@ -36449,7 +36463,14 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "terminator__S_406while",  map { STD::Terminator->coerce($_) } 
 do {
 if (my ($C) = ($C->_EXACT('while'))) {
-$C->_PATTERN(qr/\G\b/);
+do {
+if (my ($C) = ($C->_PATTERN(qr/\G\b/))) {
+$C->nofun;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -36460,7 +36481,7 @@ else {
 
 ## token terminator__S_407until (  :$sym is context<rw> = <until> --> Terminator)
 ##      token terminator:sym<until> ( --> Terminator)
-##          { 'until' » }
+##          { 'until' » <.nofun> }
 
 sub terminator__S_407until__PEEK { $_[0]->_AUTOLEXpeek('terminator__S_407until',$retree) }
 sub terminator__S_407until {
@@ -36477,7 +36498,14 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "terminator__S_407until",  map { STD::Terminator->coerce($_) } 
 do {
 if (my ($C) = ($C->_EXACT('until'))) {
-$C->_PATTERN(qr/\G\b/);
+do {
+if (my ($C) = ($C->_PATTERN(qr/\G\b/))) {
+$C->nofun;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -36488,7 +36516,7 @@ else {
 
 ## token terminator__S_408for (  :$sym is context<rw> = <for> --> Terminator)
 ##      token terminator:sym<for> ( --> Terminator)
-##          { 'for' » }
+##          { 'for' » <.nofun> }
 
 sub terminator__S_408for__PEEK { $_[0]->_AUTOLEXpeek('terminator__S_408for',$retree) }
 sub terminator__S_408for {
@@ -36505,7 +36533,14 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "terminator__S_408for",  map { STD::Terminator->coerce($_) } 
 do {
 if (my ($C) = ($C->_EXACT('for'))) {
-$C->_PATTERN(qr/\G\b/);
+do {
+if (my ($C) = ($C->_PATTERN(qr/\G\b/))) {
+$C->nofun;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -36516,7 +36551,7 @@ else {
 
 ## token terminator__S_409given (  :$sym is context<rw> = <given> --> Terminator)
 ##      token terminator:sym<given> ( --> Terminator)
-##          { 'given' » }
+##          { 'given' » <.nofun> }
 
 sub terminator__S_409given__PEEK { $_[0]->_AUTOLEXpeek('terminator__S_409given',$retree) }
 sub terminator__S_409given {
@@ -36533,7 +36568,14 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "terminator__S_409given",  map { STD::Terminator->coerce($_) } 
 do {
 if (my ($C) = ($C->_EXACT('given'))) {
-$C->_PATTERN(qr/\G\b/);
+do {
+if (my ($C) = ($C->_PATTERN(qr/\G\b/))) {
+$C->nofun;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -36544,7 +36586,7 @@ else {
 
 ## token terminator__S_410when (  :$sym is context<rw> = <when> --> Terminator)
 ##      token terminator:sym<when> ( --> Terminator)
-##          { 'when' » }
+##          { 'when' » <.nofun> }
 
 sub terminator__S_410when__PEEK { $_[0]->_AUTOLEXpeek('terminator__S_410when',$retree) }
 sub terminator__S_410when {
@@ -36561,7 +36603,14 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "terminator__S_410when",  map { STD::Terminator->coerce($_) } 
 do {
 if (my ($C) = ($C->_EXACT('when'))) {
-$C->_PATTERN(qr/\G\b/);
+do {
+if (my ($C) = ($C->_PATTERN(qr/\G\b/))) {
+$C->nofun;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -36987,7 +37036,7 @@ if ($self->peek) {
 return $self->_AUTOLEXpeek('EXPR', $retree);
 }
 my $preclim = $preclvl ? $preclvl->{'prec'} // $LOOSEST : $LOOSEST;
-local $inquote =  0;
+local $::inquote =  0;
 my @termstack;
 my @opstack;
 my $termish = 'termish';
@@ -37849,7 +37898,7 @@ sub codeblock__PEEK { $_[0]->_AUTOLEXpeek('codeblock',$retree) }
 sub codeblock {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $GOAL =  '}';
+local $::GOAL =  '}';
 
 
 my $C = $self;
@@ -37892,10 +37941,10 @@ sub nibbler__PEEK { $_[0]->_AUTOLEXpeek('nibbler',$retree) }
 sub nibbler {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $sigspace =  $::sigspace    // 0;
-local $ratchet =  $::ratchet     // 0;
-local $ignorecase =  $::ignorecase // 0;
-local $ignoreaccent =  $::ignoreaccent    // 0;
+local $::sigspace =  $::sigspace    // 0;
+local $::ratchet =  $::ratchet     // 0;
+local $::ignorecase =  $::ignorecase // 0;
+local $::ignoreaccent =  $::ignoreaccent    // 0;
 
 
 my $C = $self;
@@ -50436,7 +50485,7 @@ sub codeblock__PEEK { $_[0]->_AUTOLEXpeek('codeblock',$retree) }
 sub codeblock {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $GOAL =  '}';
+local $::GOAL =  '}';
 
 
 my $C = $self;
@@ -50475,7 +50524,7 @@ sub nibbler__PEEK { $_[0]->_AUTOLEXpeek('nibbler',$retree) }
 sub nibbler {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $ignorecase =  $::ignorecase // 0;
+local $::ignorecase =  $::ignorecase // 0;
 
 
 my $C = $self;
@@ -85789,13 +85838,13 @@ terminator__S_404if: !!perl/hash:RE
   decl: []
 
   kind: token
-  min: 2
+  min: 12347
   pkg: STD::Terminator
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: terminator__S_404if
     i: 0
-    min: 2
+    min: 12347
     r: 1
     s: 0
     zyg: 
@@ -85815,17 +85864,27 @@ terminator__S_404if: !!perl/hash:RE
         r: 1
         s: 0
         text: »
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: terminator__S_404if
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 0
 terminator__S_405unless: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 6
+  min: 12351
   pkg: STD::Terminator
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: terminator__S_405unless
     i: 0
-    min: 6
+    min: 12351
     r: 1
     s: 0
     zyg: 
@@ -85845,17 +85904,27 @@ terminator__S_405unless: !!perl/hash:RE
         r: 1
         s: 0
         text: »
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: terminator__S_405unless
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 0
 terminator__S_406while: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 5
+  min: 12350
   pkg: STD::Terminator
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: terminator__S_406while
     i: 0
-    min: 5
+    min: 12350
     r: 1
     s: 0
     zyg: 
@@ -85875,17 +85944,27 @@ terminator__S_406while: !!perl/hash:RE
         r: 1
         s: 0
         text: »
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: terminator__S_406while
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 0
 terminator__S_407until: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 5
+  min: 12350
   pkg: STD::Terminator
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: terminator__S_407until
     i: 0
-    min: 5
+    min: 12350
     r: 1
     s: 0
     zyg: 
@@ -85905,17 +85984,27 @@ terminator__S_407until: !!perl/hash:RE
         r: 1
         s: 0
         text: »
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: terminator__S_407until
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 0
 terminator__S_408for: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 3
+  min: 12348
   pkg: STD::Terminator
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: terminator__S_408for
     i: 0
-    min: 3
+    min: 12348
     r: 1
     s: 0
     zyg: 
@@ -85935,17 +86024,27 @@ terminator__S_408for: !!perl/hash:RE
         r: 1
         s: 0
         text: »
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: terminator__S_408for
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 0
 terminator__S_409given: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 5
+  min: 12350
   pkg: STD::Terminator
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: terminator__S_409given
     i: 0
-    min: 5
+    min: 12350
     r: 1
     s: 0
     zyg: 
@@ -85965,17 +86064,27 @@ terminator__S_409given: !!perl/hash:RE
         r: 1
         s: 0
         text: »
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: terminator__S_409given
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 0
 terminator__S_410when: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 4
+  min: 12349
   pkg: STD::Terminator
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: terminator__S_410when
     i: 0
-    min: 4
+    min: 12349
     r: 1
     s: 0
     zyg: 
@@ -85995,6 +86104,16 @@ terminator__S_410when: !!perl/hash:RE
         r: 1
         s: 0
         text: »
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: terminator__S_410when
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 0
 terminator__S_411MinusMinusGt: !!perl/hash:RE 
   decl: []
 
