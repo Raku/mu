@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.0295';
+our $VERSION = '0.0296';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
@@ -549,7 +549,6 @@ Syntax::Highlight::Perl6 - Perl 6 Syntax Highlighter
 =head1 SYNOPSIS
 
     ### NOTE: This is needed and will be removed in future releases
-    use STD;
     use Syntax::Highlight::Perl6;
 
     # Creates the Perl6 syntax highlighter object
@@ -729,13 +728,6 @@ http://rt.cpan.org/NoAuth/Bugs.html?Dist=Syntax::Highlight::Perl6. Thanks.
 These are the bugs that i am currently aware of:
 
 =over 4
-
-=item * Can't call method "bless" on an undefined value at STD.pm line 5269.
-
-You have to put "use STD;" before using this module.
-
-    use STD; # this must be first for now
-    use Syntax::Highlight::Perl6;
 
 =item * A log file is always created when using this module.
 

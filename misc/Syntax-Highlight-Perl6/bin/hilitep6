@@ -18,11 +18,10 @@ use Carp;
 use Term::ANSIColor;
 
 # And finally our modules
-use STD;
 use Syntax::Highlight::Perl6;
 
 #CPAN version
-our $VERSION = '0.0295';
+our $VERSION = '0.0296';
 
 # my variables
 my ($clean_html,$help) = (0,0);

@@ -3,11 +3,6 @@
 use Test::More tests => 36;
 use Test::Exception;
 
-#this is needed for now before using my module
-#STD is should be used first otherwise you'll see this error after new()
-#Can't call method "bless" on an undefined value at
-use STD;
-
 #it can be used...
 BEGIN { 
     use_ok('Syntax::Highlight::Perl6'); 

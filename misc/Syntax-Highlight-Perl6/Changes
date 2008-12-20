@@ -1,5 +1,12 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.0296 Dec 20 2008
+    - Fix localization of "context" vars such as $::PARSER that caused
+      use STD to be needed in your script; TimToady++.
+    - Removed all references to 'use STD;'.
+    - Removed bug from BUGS section 'Can't call method "bless" on an 
+      undefined value at STD.pm line 5269'
+
 0.0295 Dec 19 2008
     - Fixed _escape_html to actually work
     - Added tests to verify that html escaping works

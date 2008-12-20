@@ -6,7 +6,6 @@ use feature qw(say);
 use Data::Dumper;
 
 use lib 'lib';
-use STD;
 use Syntax::Highlight::Perl6;
 
 my $h = Syntax::Highlight::Perl6->new(
@@ -21,6 +20,6 @@ say $h->full_html;
 say "_-_" x 30;
 say $h->ansi_text;
 say "_-_" x 30;
-say Dumper($h->parse_trees);
+say Dumper($h->tokens);
 say "_-_" x 30;
 say $h->vim_html;
