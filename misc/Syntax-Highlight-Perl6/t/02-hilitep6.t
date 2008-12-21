@@ -5,7 +5,10 @@ use feature qw(say);
 use Test::More tests => 30;
 use IPC::Open2;
 use File::Spec;
+use Config;
 use Carp;
+
+my $Perl = $Config{perlpath} . $Config{_exe};
 
 my $hilitep6 = File::Spec->catfile( qw(blib script hilitep6) );
 if (not -e $hilitep6) {
@@ -14,7 +17,7 @@ if (not -e $hilitep6) {
 
 sub run_script {
     my $args = shift;
-    open2(*README, *WRITEME, "perl -Ilib $hilitep6 $args");
+    open2(*README, *WRITEME, "$Perl -Ilib $hilitep6 $args");
     print WRITEME q{my $foo="&<>";};
     close WRITEME;
     local $INPUT_RECORD_SEPARATOR = undef;   #enable localized slurp mode
