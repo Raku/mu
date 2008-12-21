@@ -43,7 +43,7 @@ sub main {
     );
 
     if ($help) {
-        croak <<"HELP";
+        say <<"HELP";
 USAGE:
     $PROGRAM_NAME [options] [file] [rule]
 
@@ -65,6 +65,7 @@ USAGE:
     --ansi-text=filename
         write simple-mode ansi color text to filename (- for STDOUT)
 HELP
+        return; #exit
     }
 
     #default is --simple-html=- if no option is selected
