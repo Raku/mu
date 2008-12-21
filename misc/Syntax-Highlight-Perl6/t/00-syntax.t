@@ -69,9 +69,9 @@ like( $p->snippet_html, '/foo/i', 'and first instance is not affected');
 
 #tests for correct _escape_html behavior
 like( $q->snippet_html, '/&lt;&gt;/', 
-    'snippet_html & _escape_html works');
+    'snippet_html & html escaping works');
 like( $q->snippet_html, '/&amp;/', 
-    'snippet_html & _escape_html works');
+    'snippet_html & html escaping works');
 like( $q->simple_html, '/&quot;/', 
     'simple_html html escaping works');
 like( $q->full_html, '/&lt;&gt;/',
