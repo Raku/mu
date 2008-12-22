@@ -165,7 +165,8 @@ void smop_idconst_init() {
   SMOP__NATIVE__idconst_RI->id = "Constant Identifier";
 
   // initialize the constants
-#include "idconst_init_all.c"
+#include "idconst_init_all.h"
+  IDCONST_INIT_ALL
 
   qsort(constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
 

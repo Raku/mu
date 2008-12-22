@@ -44,7 +44,6 @@ eval {
         $out_count++;
         quasi(
             'm0ld' => \&preprocess_m0ld,
-            'v6-m0ld' => \&preprocess_p6_m0ld,
         ) and next;
         print {$output} $_;
     }
@@ -92,12 +91,6 @@ sub preprocess {
     waitpid($pid,0);
     die join(' ',@_).' returned failure '.$? if ($? || !$retbuf || $retbuf eq "\n") ;
     return $retbuf;
-}
-sub preprocess_p6_m0ld {
-    my $code = shift;
-    my ($writer, $reader, $error) = map { gensym } 1..3;
-    my $m0ld = preprocess('','perl',"$base/../../misc/elfish/elfX/elfX",'-C','m0ld','-s','-e',$code);
-    return preprocess_m0ld($m0ld);
 }
 sub preprocess_m0ld {
     my $code = shift;

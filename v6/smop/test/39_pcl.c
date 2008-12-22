@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
                                             SMOP__NATIVE__capture_create(SMOP__INTPTR__InterpreterInstance,
                                                                          SMOP__INTPTR__InterpreterInstance,NULL,NULL));
 
-  printf("1..2\n");
+  printf("1..5\n");
   SMOP__Object* pcl = SMOP__S1P__PCLCoro_create(interpreter,coro,interpreter,NULL,8192);
   printf("ok 1 - lives after PCL coro creation\n");
 

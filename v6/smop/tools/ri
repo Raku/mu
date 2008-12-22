@@ -12,43 +12,16 @@ require 'mangle.pl';
 my ($base,$m0ld) = (shift @ARGV,shift @ARGV);
 sub preprocess_m0ld {
     my $code = shift;
-    #warn "got m0ld code <$code>\n";
     return preprocess($code,"$m0ld");
 }
 sub preprocess {
     my $code = shift;
-    my ($writer, $reader, $error) = map { gensym } 1..3;
+    my ($writer, $reader, $error);
     my $pid = open3($writer, $reader, $error,@_) || die "$@";
-    print {$writer} $code;
-    close $writer;
-
-    my ($errbuf, $retbuf) = ('','');
-
-    $reader->blocking(0);
-    $error->blocking(0);
-
-    my $select = IO::Select->new();
-    $select->add($reader);
-    $select->add($error);
-
-    while ($select->can_read(10000) && (!eof($reader) || !eof($error))) {
-
-        my $buf = '';
-        my $returncode = read $reader, $buf, 1024;
-        $retbuf .= $buf;
-
-        $buf = '';
-        my $returncode2 = read $error, $buf, 1024;
-        $errbuf .= $buf;
-
-    }
-
-    print $errbuf;
-    close $reader;
-    close $error;
-    waitpid($pid,0);
-    die join(' ',@_).' returned failure '.$? if ($? || !$retbuf || $retbuf eq "\n") ;
-    return $retbuf;
+    print $writer $code;
+    close($writer);
+    my $out = <$reader>;
+    return $out;
 }
 sub mangle {
     my $id = shift;

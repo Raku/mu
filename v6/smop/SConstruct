@@ -1,0 +1,20 @@
+BuildDir('build','src')
+files = Glob('build/*.c')
+env = Environment()
+
+# TODO windowsify
+env.Append(BUILDERS = {'M0ldCompiler' : Builder(action = 'cd m0ld;./Setup configure;./Setup build;cp dist/build/m0ld/m0ld ../$TARGET')})
+m0ld = env.M0ldCompiler('X','m0ld/m0ld.hs')
+m0ld_path = './' + str(m0ld[0])
+env.Append(BUILDERS = {'RI' : Builder(action = 'perl  -I../../src/perl6 tools/ri . %s < $SOURCE > $TARGET' % m0ld_path,suffix='.c',src_suffix = '.ri')})
+
+env.Append(BUILDERS = {'Sm0p' : Builder(action = 'perl sm0p.pl . %s $SOURCE $TARGET' % m0ld_path,suffix='.c',src_suffix = '.sm0p')})
+        
+for file in Glob("build/*.ri"):
+    env.RI(file)
+for file in Glob("build/*.sm0p"):
+    env.Sm0p(file)
+
+SharedLibrary(target = 'smop',source = files,CPPPATH = ['include'])
+Program("test/03_const_identifier.c",CPPPATH = ['include'],LIBPATH='.',LIBS=['smop','pcl','pthread'])
+
