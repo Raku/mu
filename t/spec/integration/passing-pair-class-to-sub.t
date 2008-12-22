@@ -8,13 +8,14 @@ use Test;
 
 plan 2;
 
+# this used to be a pugs regression
 {
     my sub foo ($x) { $x.perl }
 
     my $pair = (a => 1);
     my $Pair = $pair.WHAT;
 
-    ok try { foo($Pair) }, "passing ::Pair to a sub works";
+    lives_ok { foo($Pair) }, "passing ::Pair to a sub works";
 }
 
 # But this works:
@@ -24,5 +25,5 @@ plan 2;
     my $int = 42;
     my $Int = $int.WHAT;
 
-    ok try { foo($Int) }, "passing ::Int to a sub works";
+    lives_ok { foo($Int) }, "passing ::Int to a sub works";
 }

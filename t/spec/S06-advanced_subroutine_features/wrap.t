@@ -5,6 +5,7 @@ use Test;
 # L<S06/Wrapping>
 
 # TODO
+# nextsame, callwith
 # named wrapping/unwrapping
 # unwrap with no args pops the top most
 #
@@ -51,15 +52,16 @@ try {
     $wrapped = &foo.wrap(&wrapper);
 };
 
-isa_ok($wrapped, "Sub", :todo);
+#?pugs 99 todo 'feature: wrapping'
+isa_ok($wrapped, Sub);
 
 $wrapped ||= -> { };
 try { $wrapped.() };
 
-is(+@log, 3, "three events logged", :todo);
-is(@log[0], "wrapper before", "wrapper before", :todo);
-is(@log[1], "foo", "the wrapped sub", :todo);
-is(@log[2], "wrapper after", "wrapper after", :todo);
+is(+@log, 3, "three events logged");
+is(@log[0], "wrapper before", "wrapper before");
+is(@log[1], "foo", "the wrapped sub");
+is(@log[2], "wrapper after", "wrapper after");
 
 @log = ();
 
@@ -68,19 +70,19 @@ try {
     $doublywrapped = $wrapped.wrap(&other_wrapper);
 };
 
-isa_ok($doublywrapped, "Sub", :todo);
+isa_ok($doublywrapped, Sub);
 $doublywrapped ||= -> { };
 try { $doublywrapped.() };
 
-is(+@log, 4, "four events", :todo);
-is(@log[0], "wrapper2", "additional wrapping takes effect", :todo);
-is(@log[1], "wrapper before", "... on top of initial wrapping", :todo);
+is(+@log, 4, "four events");
+is(@log[0], "wrapper2", "additional wrapping takes effect");
+is(@log[1], "wrapper before", "... on top of initial wrapping");
 
 @log = ();
 
 try { $wrapped.() };
-is(+@log, 3, "old wrapped sub was not destroyed", :todo);
-is(@log[0], "wrapper before", "the original wrapper is still in effect", :todo);
+is(+@log, 3, "old wrapped sub was not destroyed");
+is(@log[0], "wrapper before", "the original wrapper is still in effect");
 
 
 @log = ();
@@ -90,10 +92,10 @@ try {
     $unwrapped = $wrapped.unwrap(&wrapper);
 };
 
-isa_ok($unwrapped, "Sub", :todo);
+isa_ok($unwrapped, Sub);
 $unwrapped ||= -> {};
 try { $unwrapped.() };
 
-is(+@log, 2, "two events for unwrapped", :todo);
-is(@log[0], "wrapper2", :todo);
-is(@log[1], "foo", :todo);
+is(+@log, 2, "two events for unwrapped");
+is(@log[0], "wrapper2");
+is(@log[1], "foo");

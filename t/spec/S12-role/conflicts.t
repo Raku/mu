@@ -11,23 +11,21 @@ Conflict resolution role tests, see L<S12/"Roles">
 =end pod
 
 # L<S12/"Roles">
-my ($was_in_sentry_shake, $was_in_pet_shake, $was_in_general_shake) = (0) xx 3;
+my ($was_in_sentry_shake, $was_in_pet_shake, $was_in_general_shake) = 0, 0, 0;
 role Sentry { method shake() { $was_in_sentry_shake++; "A" } }
 role Pet    { method shake() { $was_in_pet_shake++;    "B" } }
 
-class General {
-does Sentry;
-does Pet;
+class General does Sentry does Pet {
 
-method shake(Str $what) {
-    $was_in_general_shake++;
-    given $what {
-        when "sentry" { return self.Sentry::shake() }
-        when "pet"    { return self.Pet::shake()    }
+    method shake(Str $what) {
+        $was_in_general_shake++;
+        given $what {
+            when "sentry" { return self.Sentry::shake() }
+            when "pet"    { return self.Pet::shake()    }
+        }
     }
 }
-}
-ok(Pet.new, "role and class definition worked");
+lives_ok {Pet.new}, "role and class definition worked";
 
 my $a;
 ok(($a = General.new()),      "basic class instantiation works");
@@ -40,3 +38,5 @@ is $a.shake("pet"),    "B", "conflict resolution works (2-1)";
 is      $was_in_general_shake,  2, "conflict resolution works (2-2)";
 is      $was_in_sentry_shake,   1, "conflict resolution works (2-3)";
 is      $was_in_pet_shake,      1, "conflict resolution works (2-4)";
+
+# vim: ft=perl6

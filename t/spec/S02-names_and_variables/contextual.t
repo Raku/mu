@@ -4,6 +4,8 @@ use Test;
 
 plan 5;
 
+# L<S02/Names/it then looks in C<%*ENV> for the identifier of the variable>
+
 %*ENV<THIS_NEVER_EXISTS> = 123;
 
 {

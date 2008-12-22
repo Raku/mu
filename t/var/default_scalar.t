@@ -4,11 +4,7 @@ use Test;
 # This has some tests for $_, but $_ is under-spec'ed now.
 
 
-plan 4;
-
-    my $a := $_; $_ = 30;
-    for 1 .. 3 { $a++ }; 
-    is $a, 33, 'global $_ increments' ;
+plan 2;
 
 if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";
@@ -39,7 +35,5 @@ if $*OS eq "browser" {
     unlink "tmpfile";
 
     isnt $s,"3", 'and global $_ should not be the default topic of "for"'; 
-    my @mutable_array = 1..3;
-    lives_ok { for @mutable_array { $_++ } }, 'default topic is rw by default';
 # #*** Error: cannot modify constant item at 1
 

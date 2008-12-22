@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 31;
+plan 28;
 
 =begin pod
 
@@ -10,69 +10,67 @@ Parameterized role tests, see L<S12/Roles>
 
 =end pod
 
+#?pugs emit skip_rest('parameterized roles'); exit;
+#?pugs emit =begin SKIP
+
 # L<S12/Roles/to be considered part of the long name:>
 # L<A12/Encapsulated Attributes/to be considered part of the long name:>
-ok eval('
   role InitialAttribVal[: $val] {
     has $.attr = $val;
   }
-  1
-'), "parameterized role definition (1)", :todo<feature>;
 
 my $a;
-ok eval('$a does InitialAttribVal[42]'),
-  "imperative does to apply a parametrized role (1)", :todo<feature>;
+lives_ok {$a does InitialAttribVal[42]},
+  "imperative does to apply a parametrized role (1)";
 is try { $a.attr }, 42,
-  "attribute was initialized correctly (1)", :todo<feature>;
+  "attribute was initialized correctly (1)";
 # L<A12/Encapsulated Attributes/In which case all of these are true:>
-ok eval('$a.HOW.does(InitialAttribVal)'),
-  ".HOW.does gives correct information (1-1)", :todo<feature>;
-ok eval('$a.^does(InitialAttribVal)'),
-  ".^does gives correct information (1-1)", :todo<feature>;
+ok $a.HOW.does(InitialAttribVal),
+  ".HOW.does gives correct information (1-1)";
+ok $a.^does(InitialAttribVal),
+  ".^does gives correct information (1-1)";
 # L<A12/Encapsulated Attributes/but this is false:>
-ok eval('!$a.HOW.does(InitialAttribVal[42])'),
-  ".HOW.does gives correct information (1-2)", :todo<feature>;
-ok eval('!$a.^does(InitialAttribVal[42])'),
-  ".^does gives correct information (1-2)", :todo<feature>;
+ok !$a.HOW.does(InitialAttribVal[42]),
+  ".HOW.does gives correct information (1-2)";
+ok !$a.^does(InitialAttribVal[42]),
+  ".^does gives correct information (1-2)";
 
 my $b;
-ok eval('$a does InitialAttribVal[23]'),
-  "imperative does to apply a parametrized role (2)", :todo<feature>;
+ok $a does InitialAttribVal[23],
+  "imperative does to apply a parametrized role (2)";
 is try { $a.attr }, 23,
-  "attribute was initialized correctly (2)", :todo<feature>;
+  "attribute was initialized correctly (2)";
 # L<A12/Encapsulated Attributes/In which case all of these are true:>
-ok eval('$a.HOW.does(InitialAttribVal)'),
-  ".HOW.does gives correct information (2-1)", :todo<feature>;
-ok eval('$a.^does(InitialAttribVal)'),
-  ".^does gives correct information (2-1)", :todo<feature>;
+ok $a.HOW.does(InitialAttribVal),
+  ".HOW.does gives correct information (2-1)";
+ok $a.^does(InitialAttribVal),
+  ".^does gives correct information (2-1)";
 # L<A12/Encapsulated Attributes/but this is false:>
-ok eval('!$a.HOW.does(InitialAttribVal[23])'),
-  ".HOW.does gives correct information (2-2)", :todo<feature>;
-ok eval('!$a.^does(InitialAttribVal[23])'),
-  ".^does gives correct information (2-2)", :todo<feature>;
+ok !$a.HOW.does(InitialAttribVal[23]),
+  ".HOW.does gives correct information (2-2)";
+ok !$a.^does(InitialAttribVal[23]),
+  ".^does gives correct information (2-2)";
 
 
 
 # L<A12/Parametric types/but you can also parameterize other types explicitly:>
 # L<S12/Roles/A role's main type is generic by default>
-ok eval('
-  role InitialAttribType[^vartype:] {
+role InitialAttribType[^vartype:] {
     method hi(vartype $foo) { 42 }
-  }
-'), "parameterized role definition (2)", :todo<feature>;
+}
 my $c;
-ok eval('$c does InitialAttribType[Code]'),
-  "imperative does to apply a parametrized role (3)", :todo<feature>;
-ok eval('$c.HOW.does(InitialAttribType)'),
-  ".HOW.does gives correct information (3-1)", :todo<feature>;
-ok eval('$c.^does(InitialAttribType)'),
-  ".^does gives correct information (3-1)", :todo<feature>;
-ok eval('$c.HOW.does(InitialAttribType[Code])'),
-  ".HOW.does gives correct information (3-2)", :todo<feature>;
-ok eval('$c.^does(InitialAttribType[Code])'),
-  ".^does gives correct information (3-2)", :todo<feature>;
+ok $c does InitialAttribType[Code],
+  "imperative does to apply a parametrized role (3)";
+ok $c.HOW.does(InitialAttribType),
+  ".HOW.does gives correct information (3-1)";
+ok $c.^does(InitialAttribType),
+  ".^does gives correct information (3-1)";
+ok $c.HOW.does(InitialAttribType[Code]),
+  ".HOW.does gives correct information (3-2)";
+ok $c.^does(InitialAttribType[Code]),
+  ".^does gives correct information (3-2)";
 is try { $c.hi(sub {}) }, 42,
-  "type information was processed correctly (1)", :todo<feature>;
+  "type information was processed correctly (1)";
 dies_ok { $c.hi("not a code object") },
   "type information was processed correctly (2)";
 
@@ -93,27 +91,28 @@ dies_ok { $c.hi("not a code object") },
 #   $a ~~ InitialAttribBoth["foo", "bar"]  ==> false
 #   $b ~~ InitialAttribBoth["foo", "grtz"] ==> false
 # Heavy stuff, eh?)
-ok eval('
   role InitialAttribBoth[Str $type: Str $name] {
     has $.type = $type;
     has $.name = $name;
   }
-  1
-'), "parameterized role definition (3)", :todo<feature>;
 my $d;
-ok eval('$d does InitialAttribBoth["type1", "name1"]'),
-  "imperative does to apply a parametrized role (4)", :todo<feature>;
-ok eval('$c.HOW.does(InitialAttribType)'),
-  ".HOW.does gives correct information (4-1)", :todo<feature>;
-ok eval('$c.^does(InitialAttribType)'),
-  ".^does gives correct information (4-1)", :todo<feature>;
-ok eval('$d.HOW.does(InitialAttribType["type1"])'),
-  ".HOW.does gives correct information (4-2)", :todo<feature>;
-ok eval('$d.^does(InitialAttribType["type1"])'),
-  ".^does gives correct information (4-2)", :todo<feature>;
-ok eval('!$d.HOW.does(InitialAttribType["type1", "name1"])'),
+ok $d does InitialAttribBoth["type1", "name1"],
+  "imperative does to apply a parametrized role (4)";
+ok $c.HOW.does(InitialAttribType),
+  ".HOW.does gives correct information (4-1)";
+ok $c.^does(InitialAttribType),
+  ".^does gives correct information (4-1)";
+ok $d.HOW.does(InitialAttribType["type1"]),
+  ".HOW.does gives correct information (4-2)";
+ok $d.^does(InitialAttribType["type1"]),
+  ".^does gives correct information (4-2)";
+ok !$d.HOW.does(InitialAttribType["type1", "name1"]),
   ".HOW.does gives correct information (4-3)";
-ok eval('!$d.^does(InitialAttribType["type1", "name1"])'),
+ok !$d.^does(InitialAttribType["type1", "name1"]),
   ".^does gives correct information (4-3)";
-is try { $d.type }, "type1", ".type works correctly", :todo<feature>;
-is try { $d.name }, "name1", ".name works correctly", :todo<feature>;
+is try { $d.type }, "type1", ".type works correctly";
+is try { $d.name }, "name1", ".name works correctly";
+
+#?pugs emit =end SKIP
+
+# vim: ft=perl6

@@ -14,10 +14,9 @@ role InnerRole {
   has $.inner_role_var_2 is rw;
 };
 
-role OuterRole {
+role OuterRole does InnerRole {
   has $.outer_role_var_1 is rw;
   has $.outer_role_var_2 is rw;
-  does InnerRole;
 };
 
 my $w = new OuterRole;
@@ -31,3 +30,5 @@ $w.inner_role_var_1 = 3;
 $w.inner_role_var_2 = 'dog';
 is $w.inner_role_var_1, 3 , "integer attribute is set in inner role" ; 
 is $w.inner_role_var_2,'dog' , "string attribute is set in inner role" ;
+
+# vim: ft=perl6
