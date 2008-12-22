@@ -1,6 +1,7 @@
 Revision history for Syntax::Highlight::Perl6.
 
-0.0296 Dec 20 2008
+0.0296 Dec ?? 2008
+    - Moved to Module::Install
     - Fix localization of "context" vars such as $::PARSER that caused
       use STD to be needed in your script; TimToady++.
     - Removed all references to 'use STD;'.
@@ -10,7 +11,7 @@ Revision history for Syntax::Highlight::Perl6.
     - Removed bug from BUGS section 'A log file is always created when
       using this module'.
     - Fix Cursor.pmc STD5DEBUG warning message
-    - Added tests for bin/hilitep6 
+    - Added tests for script/hilitep6 
 
 0.0295 Dec 19 2008
     - Fixed _escape_html to actually work
