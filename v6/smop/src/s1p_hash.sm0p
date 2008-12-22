@@ -259,6 +259,7 @@ void smop_s1p_hash_mold_init() {
 
 void smop_s1p_hash_mold_destr() {
   SMOP_RELEASE(SMOP__GlobalInterpreter, mold_exists);
+  SMOP_RELEASE(SMOP__GlobalInterpreter, mold_curly);
 }
 
 void smop_s1p_hash_destr() {
