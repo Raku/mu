@@ -1,5 +1,6 @@
+import re
 BuildDir('build','src')
-files = Glob('build/*.c')
+BuildDir('build-tests','test')
 env = Environment()
 
 # TODO windowsify
@@ -15,6 +16,39 @@ for file in Glob("build/*.ri"):
 for file in Glob("build/*.sm0p"):
     env.Sm0p(file)
 
+files = Glob('build/*.c')
+
 SharedLibrary(target = 'smop',source = files,CPPPATH = ['include'])
-Program("test/03_const_identifier.c",CPPPATH = ['include'],LIBPATH='.',LIBS=['smop','pcl','pthread'])
+
+tests = Split("""
+    build-tests/03_const_identifier.c
+    build-tests/04_interpreter.c
+    build-tests/05_capture.c
+    build-tests/06_native_bool.c
+    build-tests/07_int.c
+    build-tests/07_native_int.c
+    build-tests/08_native_uint.c
+    build-tests/10_lowlevel_methods.c
+    build-tests/18_root_namespace.p6
+    build-tests/20_smop_s1p_ccode.c
+    build-tests/21_code.m0ld
+    build-tests/23_mold.sm0p
+    build-tests/24_m0ld.m0ld
+    build-tests/25_lexical_scope.p6
+    build-tests/27_default_block_signature.p6
+    build-tests/29_bind_capture_signature.p6
+    build-tests/30_array_map.m0ld
+    build-tests/31_int_postfix_plusplus.m0ld
+    build-tests/32_array_iterator.m0ld
+    # build-tests/33_pugs_simple.p6-pugs # would require building pugs twice
+    build-tests/34_array_unshift.m0ld
+    build-tests/35_array_grep.m0ld
+    build-tests/36_adhoc_signature.m0ld
+    build-tests/37_multisub.m0ld
+    build-tests/38_ritest.m0ld
+    build-tests/39_pcl.c""")
+for test in tests:
+    if (re.match(r'^.*\.c',test)):
+        Program(re.sub(r'.c$','.t',test),test,CPPPATH = ['include'],LIBPATH='.',LIBS=['smop','pcl','pthread'])
+        
 
