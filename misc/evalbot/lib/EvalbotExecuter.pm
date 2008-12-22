@@ -84,10 +84,10 @@ sub run {
         if (!length $response){
             $response = "No output (you need to produce output to STDOUT)";
         } else {
-            $response = "RESULT[$response]";
+            $response = "RESULT«$response»";
         }
     } else {
-        $response = "OUTPUT[$response]";
+        $response = "OUTPUT«$response»";
     }
     my $newline = '␤';
     $response =~ s/\n/$newline/g;
