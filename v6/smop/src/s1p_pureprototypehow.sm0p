@@ -176,5 +176,6 @@ void smop_s1p_pureprototypehow_mold_init() {
 void smop_s1p_pureprototypehow_mold_destr() {
   SMOP__Object* interpreter = SMOP__GlobalInterpreter;
   SMOP_RELEASE(interpreter, smop_s1p_pureprototypehow_dispatch_mold);
+  SMOP_RELEASE(interpreter, smop_s1p_pureprototypehow_add_method_mold);
 }
 
