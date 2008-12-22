@@ -129,6 +129,8 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
   } else if (identifier == SMOP__ID__FETCH) {
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
     ___VALUE_FETCH___;
+    SMOP_RELEASE(interpreter, invocant);
+    SMOP_RELEASE(interpreter, capture);
   } else {
     ___UNKNOWN_METHOD___;
     SMOP_RELEASE(interpreter,capture);
