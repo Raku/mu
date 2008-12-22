@@ -8898,7 +8898,7 @@ else {
 ## token module_name__S_076normal (:$sym is context<rw> = 'normal')
 ##      token module_name:normal {
 ##          <longname>
-##          [ <?{ ($+PKGDECL//'') eq 'role' }> <?before '['> <postcircumfix> ]?
+##          [ :dba('generic role') <?{ ($+PKGDECL//'') eq 'role' }> '[' ~ ']' <signature> ]?
 ##      }
 
 sub module_name__S_076normal__PEEK { $_[0]->_AUTOLEXpeek('module_name__S_076normal',$retree) }
@@ -8911,48 +8911,42 @@ local $sym = $args{sym} // 'normal';
 
 my $C = $self;
 my $S = $C->{_pos};
-$C->{'postcircumfix'} = [];
+$C->{'signature'} = [];
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "module_name__S_076normal", 
-do {
-if (my ($C) = ($C->_SUBSUMEr(['longname'], sub {
-my $C = shift;
-$C->longname
-}))) {
+$self->_MATCHIFY($S, "module_name__S_076normal", 
+Cursor::lazymap(sub { my $C=$_[0];
 $C->_OPTr(sub { my $C=shift;
-$C->_BRACKETr( sub { my $C=shift;
-do {
-if (my ($C) = ($C->before( sub { my $C=shift;
+$C->_BRACKET( sub { my $C=shift;
+Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+$C->_BRACKET( sub { my $C=shift;
+do { my @gather;
+eval { push @gather, $C->_EXACT(']')} 
+or
+eval { push @gather, $C->FAILGOAL(']' , 'generic role')} or do { die $@ if $@ };
+@gather;
+}
+})
+}, $C->_SUBSUME(['signature'], sub {
+my $C = shift;
+$C->signature
+}))
+}, $C->_COMMITBRANCH(local $::GOAL = ']' ))
+}, $C->_EXACT('['))
+}, $C->before( sub { my $C=shift;
 (($C) x !!do {
 ($::PKGDECL//'') eq 'role' 
 })
-}))) {
-do {
-if (my ($C) = ($C->before(sub { my $C=shift;
-$C->_EXACT('[')
-}))) {
-$C->_SUBSUMEr(['postcircumfix'], sub {
-my $C = shift;
-$C->postcircumfix
-});
-}
-else {
-();
-}
-};
-}
-else {
-();
-}
-}
+}))
 })
-});
-}
-else {
-();
-}
-}
+})
+}, $C->_SUBSUMEr(['longname'], sub {
+my $C = shift;
+$C->longname
+}))
 );
 }
 
@@ -28006,6 +28000,7 @@ else {
 ##      rule method_def {
 ##          [
 ##          | '!'?<longname> [ <multisig> | <trait> ]*
+##          | <multisig> <trait>*
 ##          | <sigil> '.'
 ##              :dba('subscript signature')
 ##              [
@@ -28181,6 +28176,38 @@ else {
 ();
 }
 };
+}
+else {
+();
+}
+};
+}
+else {
+();
+}
+};
+}
+else {
+();
+}
+}
+},
+sub { my $C=shift;
+do {
+if (my ($C) = ($C->_SUBSUMEr(['multisig'], sub {
+my $C = shift;
+$C->multisig
+}))) {
+do {
+if (my ($C) = ($C->ws)) {
+do {
+if (my ($C) = ($C->_STARr(sub { my $C=shift;
+$C->_SUBSUMEr(['trait'], sub {
+my $C = shift;
+$C->trait
+})
+}))) {
+$C->ws;
 }
 else {
 ();
@@ -29767,7 +29794,7 @@ else {
 ##          :my $zone is context<rw> = 'posreq';
 ##          <.ws>
 ##          [
-##          | <?before '-->' | ')' | '{' >
+##          | <?before '-->' | ')' | '{' | ':' >
 ##          | <parameter>
 ##          ] ** <param_sep>
 ##          <.ws>
@@ -29868,6 +29895,9 @@ $C->_EXACT(')')
 },
 sub { my $C=shift;
 $C->_EXACT('{')
+},
+sub { my $C=shift;
+$C->_EXACT(':')
 },
 )[$try])->($C);
 last if @gather;
@@ -64309,6 +64339,52 @@ method_def: !!perl/hash:RE
             - !!perl/hash:RE_sequence 
               a: 0
               alt: method_def_01 1
+              dba: method_def
+              i: 0
+              min: 12345
+              r: 1
+              s: 1
+              zyg: 
+                - !!perl/hash:RE_method 
+                  a: 0
+                  dba: method_def
+                  i: 0
+                  min: 12345
+                  name: multisig
+                  r: 1
+                  rest: ''
+                  s: 1
+                - !!perl/hash:RE_method 
+                  min: 0
+                  name: ws
+                  nobind: 1
+                  noquant: 1
+                  rest: ''
+                - !!perl/hash:RE_quantified_atom 
+                  atom: !!perl/hash:RE_method 
+                    a: 0
+                    dba: method_def
+                    i: 0
+                    min: 12345
+                    name: trait
+                    r: 1
+                    rest: ''
+                    s: 1
+                  min: 0
+                  quant: 
+                    - "*"
+                    - ":"
+                    - ''
+                    - 0
+                - !!perl/hash:RE_method 
+                  min: 0
+                  name: ws
+                  nobind: 1
+                  noquant: 1
+                  rest: ''
+            - !!perl/hash:RE_sequence 
+              a: 0
+              alt: method_def_01 2
               dba: subscript signature
               i: 0
               min: 24691
@@ -64664,7 +64740,7 @@ method_def: !!perl/hash:RE
                   rest: ''
             - !!perl/hash:RE_sequence 
               a: 0
-              alt: method_def_01 2
+              alt: method_def_01 3
               dba: subscript signature
               i: 0
               min: 0
@@ -65115,12 +65191,12 @@ module_name__S_076normal: !!perl/hash:RE
         atom: !!perl/hash:RE_bracket 
           decl: []
 
-          min: 12345
+          min: 12347
           re: !!perl/hash:RE_sequence 
             a: 0
-            dba: module_name__S_076normal
+            dba: generic role
             i: 0
-            min: 12345
+            min: 12347
             r: 1
             s: 0
             zyg: 
@@ -65130,46 +65206,64 @@ module_name__S_076normal: !!perl/hash:RE
                 re: !!perl/hash:RE_block 
                   a: 0
                   context: bool
-                  dba: module_name__S_076normal
+                  dba: generic role
                   i: 0
                   min: 0
                   nobind: 1
                   r: 1
                   s: 0
                   text: " ($+PKGDECL//'') eq 'role' "
-              - !!perl/hash:RE_assertion 
-                assert: "?"
+              - !!perl/hash:RE_string 
+                a: 0
+                dba: generic role
+                i: 0
+                min: 1
+                r: 1
+                s: 0
+                text: "["
+              - !!perl/hash:RE_meta 
+                a: 0
+                dba: generic role
+                extra: "local $::GOAL = ']' "
+                i: 0
                 min: 0
-                re: !!perl/hash:RE_method_re 
-                  a: 0
-                  dba: module_name__S_076normal
-                  i: 0
-                  min: 0
-                  name: before
-                  nobind: 1
-                  r: 1
-                  re: !!perl/hash:RE 
-                    decl: []
+                r: 1
+                s: 0
+                text: "::"
+              - !!perl/hash:RE_method 
+                a: 0
+                dba: generic role
+                i: 0
+                min: 12345
+                name: signature
+                r: 1
+                rest: ''
+                s: 0
+              - !!perl/hash:RE_bracket 
+                decl: []
 
-                    min: 1
-                    re: !!perl/hash:RE_string 
+                min: 1
+                re: !!perl/hash:RE_first 
+                  a: 0
+                  dba: generic role
+                  i: 0
+                  min: 1
+                  r: 1
+                  s: 0
+                  zyg: 
+                    - !!perl/hash:RE_string 
                       a: 0
-                      dba: module_name__S_076normal
+                      dba: generic role
                       i: 0
                       min: 1
                       r: 1
                       s: 0
-                      text: "["
-                  s: 0
-              - !!perl/hash:RE_method 
-                a: 0
-                dba: module_name__S_076normal
-                i: 0
-                min: 12345
-                name: postcircumfix
-                r: 1
-                rest: ''
-                s: 0
+                      text: "]"
+                    - !!perl/hash:RE_method 
+                      min: 0
+                      name: FAILGOAL
+                      nobind: 1
+                      rest: (']' , 'generic role')
         min: 0
         quant: 
           - "?"
@@ -75866,6 +75960,15 @@ signature: !!perl/hash:RE
                           r: 1
                           s: 0
                           text: "{"
+                        - !!perl/hash:RE_string 
+                          a: 0
+                          alt: signature_02 3
+                          dba: signature
+                          i: 0
+                          min: 1
+                          r: 1
+                          s: 0
+                          text: ":"
                   s: 0
               - !!perl/hash:RE_method 
                 a: 0
