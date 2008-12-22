@@ -12,7 +12,7 @@ my $Perl = $Config{perlpath} . $Config{_exe};
 
 my $hilitep6 = File::Spec->catfile( qw(blib script hilitep6) );
 if (not -e $hilitep6) {
-    $hilitep6 = File::Spec->catfile( qw(bin hilitep6) )
+    $hilitep6 = File::Spec->catfile( qw(script hilitep6) )
 }
 
 sub run_script {
