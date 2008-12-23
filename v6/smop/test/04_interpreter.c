@@ -19,7 +19,7 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
     printf("not ok - unknown method called %p.\n",identifier);
   }
   SMOP_RELEASE(stack,capture);
-  return NULL;
+  return SMOP__NATIVE__bool_false;
 }
 
 
