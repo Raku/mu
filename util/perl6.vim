@@ -511,6 +511,7 @@ syn match p6Escape          display "\\\w" contained
 syn match p6EscQuote        display "\\'" contained
 syn match p6EscDoubleQuote  display "\\\"" contained
 syn match p6EscBackTick     display "\\`" contained
+syn match p6EscPipe         display "\\|" contained
 syn match p6EscForwardSlash display "\\/" contained
 syn match p6EscCloseAngle   display "\\>" contained
 syn match p6EscCloseFrench  display "\\»" contained
@@ -626,6 +627,7 @@ let delims = {
  \ "'":            ["'",    "p6EscQuote"],
  \ "/":            ["/",    "p6EscForwardSlash"],
  \ "`":            ["`",    "p6EscBackTick"],
+ \ "|":            ["|",    "p6EscPipe"],
  \ "{":            ["}",    "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}\\|{[^}]*}\\)"],
  \ "{{":           ["}}",   "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}\\|{{\\%([^}]\\|}}\\@!\\)*}}\\)"],
  \ "{{{":          ["}}}",  "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}}\\|{{{\\%([^}]\\|}\\%(}}\\)\\@!\\)*}}}\\)"],
@@ -652,6 +654,7 @@ for open_delim in [
     \ "'",
     \ "/",
     \ "`",
+    \ "|",
     \ "{", "{{", "{{{",
     \ "«", "««", "«««",
     \ "\\\[", "\\\[\\\[", "\\\[\\\[\\\[",
@@ -699,7 +702,7 @@ for adverb in [
         \ "\\\"",
         \ "'",
         \ "/",
-        \ "`",
+        \ "|",
         \ "{", "{{", "{{{",
         \ "«", "««", "«««",
         \ "\\\[", "\\\[\\\[", "\\\[\\\[\\\[",
