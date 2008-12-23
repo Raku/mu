@@ -1,40 +1,45 @@
-%include <EXTERN.h>,<perl.h>
+%include <smop_p5.h>
 %attr PerlInterpreter* interpreter
 %RI.id p5 interpreter
 %prefix smop_p5interpreter
 %prototype SMOP__P5Interpreter
 
 %method eval
-    PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
-    SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-    if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
-      int len;
-      char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
-      eval_pv(str, TRUE);
-    } else {
-      printf("only constant identifiers can be passed to eval :(\n");
-    }
-    SMOP_RELEASE(interpreter,obj);
+  PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
+  SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+  if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
+    int len;
+    char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
+    ret = SMOP__P5__create(interpreter,my_perl,eval_pv(str, TRUE));
+  } else {
+    printf("only constant identifiers can be passed to eval :(\n");
+  }
+  SMOP_RELEASE(interpreter,obj);
 %method DESTROYALL
-    PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
-    perl_destruct(my_perl);
-    perl_free(my_perl);
-    PERL_SYS_TERM();
+  PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
+  perl_destruct(my_perl);
+  perl_free(my_perl);
+  PERL_SYS_TERM();
 %method FETCH
-    ___VALUE_FETCH___
+  ___VALUE_FETCH___
 %method STORE
-    ___VALUE_STORE___
+  ___VALUE_STORE___
 
 %method new
 
-    ret =  smop_lowlevel_alloc(sizeof(smop_p5interpreter_struct));
-    ret->RI = RI;
-    PERL_SYS_INIT3(0,NULL,NULL);
-    PerlInterpreter* my_perl = perl_alloc();
-    PERL_SET_CONTEXT(my_perl);
-    perl_construct(my_perl);
-    char *embedding[] = { "", "-e", "0" };
-    perl_parse(my_perl, NULL, 3, embedding, NULL);
-    PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
-    perl_run(my_perl);
-    ((smop_p5interpreter_struct*)ret)->interpreter = my_perl;
+  ret =  smop_lowlevel_alloc(sizeof(smop_p5interpreter_struct));
+  ret->RI = RI;
+  PERL_SYS_INIT3(0,NULL,NULL);
+  PerlInterpreter* my_perl = perl_alloc();
+  PERL_SET_CONTEXT(my_perl);
+  perl_construct(my_perl);
+  char *embedding[] = { "", "-e", "0" };
+  perl_parse(my_perl, NULL, 3, embedding, NULL);
+  PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
+  perl_run(my_perl);
+  ((smop_p5interpreter_struct*)ret)->interpreter = my_perl;
+%{
+  PerlInterpreter* SMOP__P5__p5interpreter_unbox(SMOP__Object* interpreter,SMOP__Object* p5interpreter) {
+   return ((smop_p5interpreter_struct*)p5interpreter)->interpreter; 
+  }
+%}

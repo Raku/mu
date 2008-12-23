@@ -66,7 +66,8 @@
      smop_s1p_endofiterator_init();         \
      smop_s1p_multi_init();                 \
      smop_pcl_coro_init();                  \
-     smop_p5interpreter_init();            \
+     smop_p5interpreter_init();             \
+     smop_p5_sv_init();                     \
 
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
      smop_s1p_multi_destr();                \
@@ -97,6 +98,7 @@
      smop_mold_destr();                     \
      smop_pcl_coro_destr();                 \
      smop_p5interpreter_destr();            \
+     smop_p5_sv_destr();                    \
 
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
      smop_s1p_ritest_init();                \

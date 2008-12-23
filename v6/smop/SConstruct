@@ -29,11 +29,9 @@ ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=sub
 flags = '-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE '
 libsmop = env.SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src','include'])
 
-print ldopts
 LIBS = re.compile("-l(\S+)").findall(ldopts)
 LIBPATH = re.compile("-L(\S+)").findall(ldopts)
-print LIBS
-print LIBPATH
+
 
 for test in env.Glob("build-tests/*.m0ld"):
     env.M0ld(test) 

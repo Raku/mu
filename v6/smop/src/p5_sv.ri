@@ -1,0 +1,25 @@
+%include <smop_p5.h>
+%prefix smop_p5_sv
+%attr SV* sv
+%attr SMOP__Object* p5interpreter;
+%method FETCH
+  ___VALUE_FETCH___
+%method STORE
+  ___VALUE_STORE___
+%method Str
+  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
+  STRLEN len;
+  char* str = SvPV(((smop_p5_sv_struct*)invocant)->sv,len);
+  ret = SMOP__NATIVE__idconst_createn(str,len);
+%method DESTROYALL
+  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
+  SvREFCNT_dec(((smop_p5_sv_struct*)invocant)->sv); 
+%{
+  SMOP__Object* SMOP__P5__create(SMOP__Object* interpreter,PerlInterpreter* p5interpreter,SV* sv) {
+    SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));
+    ret->RI = RI;
+    ((smop_p5_sv_struct*)ret)->sv = SvREFCNT_inc(sv);
+    ((smop_p5_sv_struct*)ret)->p5interpreter = p5interpreter;
+    return ret;
+  }
+%}
