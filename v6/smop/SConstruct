@@ -21,45 +21,22 @@ for file in Glob("build/*.ri"):
 for file in Glob("build/*.sm0p"):
     env.Sm0p(file)
 
-files = Glob('build/*.c')
+files = env.Glob('build/*.c')
 
 import subprocess # python has `` in a strange module :\
 ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 flags = '-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE '
-libsmop = SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src','include'])
-
-tests = Split("""
-    build-tests/03_const_identifier.c
-    build-tests/04_interpreter.c
-    build-tests/05_capture.c
-    build-tests/06_native_bool.c
-    build-tests/07_int.c
-    build-tests/07_native_int.c
-    build-tests/08_native_uint.c
-    build-tests/10_lowlevel_methods.c
-    build-tests/20_smop_s1p_ccode.c
-    build-tests/21_code.m0ld
-    build-tests/23_mold.sm0p
-    build-tests/24_m0ld.m0ld
-    build-tests/30_array_map.m0ld
-    build-tests/31_int_postfix_plusplus.m0ld
-    build-tests/32_array_iterator.m0ld
-    build-tests/34_array_unshift.m0ld
-    build-tests/35_array_grep.m0ld
-    build-tests/36_adhoc_signature.m0ld
-    build-tests/37_multisub.m0ld
-    build-tests/38_ritest.m0ld
-    build-tests/39_pcl.c""")
+libsmop = env.SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src','include'])
 
 print ldopts
 LIBS = re.compile("-l(\S+)").findall(ldopts)
 LIBPATH = re.compile("-L(\S+)").findall(ldopts)
 print LIBS
 print LIBPATH
-for test in tests:
-    if re.match(r'^.*\.c',test):
-        env.Program(re.sub(r'.c$','.t',test),test,CPPPATH = ['include'],LIBPATH=LIBPATH+['build'],LIBS=LIBS+['smop','pcl','pthread'])
-    elif re.match(r'^.*\.m0ld',test):
-        env.M0ld(test) 
-        env.Program(re.sub(r'.m0ld$','.t',test),re.sub(r'.m0ld$','.c',test),CPPPATH = ['include'],LIBPATH=LIBPATH+['build'],LIBS=['smop','pcl','pthread']+LIBS)
+
+for test in env.Glob("build-tests/*.m0ld"):
+    env.M0ld(test) 
+for test in env.Glob("build-tests/*.c"):
+    env.Program(re.sub(r'.c$','.t',str(test)),test,CPPPATH = ['include'],LIBPATH=LIBPATH+['build'],LIBS=LIBS+['smop','pcl','pthread'])
+
