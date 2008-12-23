@@ -527,7 +527,7 @@ my $void = $main_code."postcircumfix:( )"($capture);
 CALL_MAIN
 if ($exec) {
     local $ENV{LD_LIBRARY_PATH} = '../smop/build';
-    open(my $m0ld_exe,"|../smop/m0ld/dist/build/m0ld/m0ld --exec");
+    open(my $m0ld_exe,"|../smop/m0ld_exe --exec");
     binmode $m0ld_exe, ':utf8';
     print $m0ld_exe $m0ld;
 } else {
