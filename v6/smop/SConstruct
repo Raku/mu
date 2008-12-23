@@ -4,9 +4,12 @@ BuildDir('build-tests','test')
 env = Environment()
 
 # TODO windowsify
-env.Append(BUILDERS = {'M0ldCompiler' : Builder(action = 'cd m0ld;./Setup configure;./Setup build;cp dist/build/m0ld/m0ld ../$TARGET')})
-m0ld = env.M0ldCompiler('X','m0ld/m0ld.hs')
-m0ld_path = './' + str(m0ld[0])
+
+# SCons runs the command incorrectly
+#m0ld = env.Command('m0ld_exe','m0ld/m0ld.hs','sh -c "cd m0ld;ghc --make Setup.lhs;pwd;./Setup configure;pwd;./Setup build;cp dist/build/m0ld/m0ld ../$TARGET"')
+#m0ld_path = './' + str(m0ld[0])
+m0ld_path = './m0ld_exe'
+
 env.Append(BUILDERS = {'RI' : Builder(action = 'perl  -I../../src/perl6 tools/ri . %s < $SOURCE > $TARGET' % m0ld_path,suffix='.c',src_suffix = '.ri')})
 
 env.Append(BUILDERS = {'Sm0p' : Builder(action = 'perl sm0p.pl . %s $SOURCE $TARGET' % m0ld_path,suffix='.c',src_suffix = '.sm0p')})
@@ -24,7 +27,7 @@ import subprocess # python has `` in a strange module :\
 ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 flags = '-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE '
-SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src','include'])
+libsmop = SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src','include'])
 
 tests = Split("""
     build-tests/03_const_identifier.c
