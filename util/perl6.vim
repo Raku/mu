@@ -149,7 +149,7 @@ let s:routines = [
  \ ["perl graphs codes bytes clone print open read write readline say seek"],
  \ ["close opendir readdir slurp pos fmt vec link unlink symlink uniq pair"],
  \ ["asin atan sec cosec cotan asec acosec acotan sinh cosh tanh asinh"],
- \ ["acos acosh atanh sech cosech cotanh sech acosech acotanh asech"],
+ \ ["acos acosh atanh sech cosech cotanh sech acosech acotanh asech ok"],
  \ ["plan_ok dies_ok lives_ok skip todo pass flunk force_todo use_ok isa_ok"],
  \ ["diag is_deeply isnt like skip_rest unlike cmp_ok eval_dies_ok nok_error"],
  \ ["eval_lives_ok approx is_approx throws_ok version_lt plan eval succ pred"],
@@ -518,9 +518,9 @@ syn match p6EscCloseCurly   display "\\}" contained
 syn match p6EscCloseBracket display "\\\]" contained
 
 " misc escapes
-syn match p6EscCodePoint display "\%(\\c\)\@<=\%(\d\+\|\S\)\@=" contained nextgroup=p6CodePoint
-syn match p6EscHex       display "\%(\\x\)\@<=\x\@=" contained nextgroup=p6HexSequence
-syn match p6EscOct       display "\%(\\o\)\@<=\o\@=" contained nextgroup=p6OctSequence
+syn match p6EscCodePoint display "\%(\\c\)\@<=\%(\d\|\S\|\[\)\@=" contained nextgroup=p6CodePoint
+syn match p6EscHex       display "\%(\\x\)\@<=\%(\x\|\[\)\@=" contained nextgroup=p6HexSequence
+syn match p6EscOct       display "\%(\\o\)\@<=\%(\o\|\[\)\@=" contained nextgroup=p6OctSequence
 syn match p6EscQQ        display "\\qq" contained nextgroup=p6QQSequence
 syn match p6EscOpenCurly display "\\{" contained
 syn match p6EscHash      display "\\#" contained
@@ -622,25 +622,25 @@ syn region p6StringDQ
     \ contains=@p6Interp_qq,p6EscDoubleQuote
 
 let delims = {
- \ "\\\"":         ['"',   "p6EscDoubleQuote"],
- \ "'":            ["'",   "p6EscQuote"],
- \ "/":            ["/",   "p6EscForwardSlash"],
- \ "`":            ["`",   "p6EscBackTick"],
- \ "{":            ["}",   "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}\\|{[^}]*}\\)"],
- \ "{{":           ["}}",  "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}\\|{{\\%([^}]\\|}}\\@!\\)*}}\\)"],
- \ "{{{":          ["}}}", "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}}\\|{{{\\%([^}]\\|}\\%(}}\\)\\@!\\)*}}}\\)"],
- \ "«":            ["»",   "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»\\|«[^»]*»\\)"],
- \ "««":           ["»»",  "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»\\|««\\%([^»]\\|»»\\@!\\)*»»\\)"],
- \ "«««":          ["»»»", "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»»\\|«««\\%([^»]\\|»\\%(»»\\)\\@!\\)*»»»\\)"],
- \ "\\\[":         ["]",   "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]\\|\\[[^\\]]*]\\)"],
- \ "\\\[\\\[":     ["]]",  "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]\\|\\[\\[\\%([^\]]\\|]]\\@!\\)*]]\\)"],
- \ "\\\[\\\[\\\[": ["]]]", "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]]\\|\\[\\[\\[\\%([^\]]\\|]\\%(]]\\)\\@!\\)*]]]\\)"],
- \ "\\s\\@<=(":    [")",   "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\)\\|([^)]*)\\)"],
- \ "\\s\\@<=((":   ["))",  "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\))\\|((\\%([^)]\\|))\\@!\\)*))\\)"],
- \ "\\s\\@<=(((":  [")))", "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\)))\\|(((\\%([^)]\\|)\\%())\\)\\@!\\)*)))\\)"],
- \ "\\s\\@<=<":    [">",   "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>\\|<[^>]*>\\)"],
- \ "\\s\\@<=<<":   [">>",  "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>\\|<<\\%([^>]\\|>>\\@!\\)*>>\\)"],
- \ "\\s\\@<=<<<":  [">>>", "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>>\\|<<<\\%([^>]\\|>\\%(>>\\)\\@!\\)*>>>\\)"],
+ \ "\\\"":         ["\\\"", "p6EscDoubleQuote"],
+ \ "'":            ["'",    "p6EscQuote"],
+ \ "/":            ["/",    "p6EscForwardSlash"],
+ \ "`":            ["`",    "p6EscBackTick"],
+ \ "{":            ["}",    "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}\\|{[^}]*}\\)"],
+ \ "{{":           ["}}",   "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}\\|{{\\%([^}]\\|}}\\@!\\)*}}\\)"],
+ \ "{{{":          ["}}}",  "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}}\\|{{{\\%([^}]\\|}\\%(}}\\)\\@!\\)*}}}\\)"],
+ \ "«":            ["»",    "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»\\|«[^»]*»\\)"],
+ \ "««":           ["»»",   "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»\\|««\\%([^»]\\|»»\\@!\\)*»»\\)"],
+ \ "«««":          ["»»»",  "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»»\\|«««\\%([^»]\\|»\\%(»»\\)\\@!\\)*»»»\\)"],
+ \ "\\\[":         ["]",    "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]\\|\\[[^\\]]*]\\)"],
+ \ "\\\[\\\[":     ["]]",   "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]\\|\\[\\[\\%([^\]]\\|]]\\@!\\)*]]\\)"],
+ \ "\\\[\\\[\\\[": ["]]]",  "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]]\\|\\[\\[\\[\\%([^\]]\\|]\\%(]]\\)\\@!\\)*]]]\\)"],
+ \ "\\s\\@<=(":    [")",    "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\)\\|([^)]*)\\)"],
+ \ "\\s\\@<=((":   ["))",   "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\))\\|((\\%([^)]\\|))\\@!\\)*))\\)"],
+ \ "\\s\\@<=(((":  [")))",  "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\)))\\|(((\\%([^)]\\|)\\%())\\)\\@!\\)*)))\\)"],
+ \ "\\s\\@<=<":    [">",    "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>\\|<[^>]*>\\)"],
+ \ "\\s\\@<=<<":   [">>",   "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>\\|<<\\%([^>]\\|>>\\@!\\)*>>\\)"],
+ \ "\\s\\@<=<<<":  [">>>",  "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>>\\|<<<\\%([^>]\\|>\\%(>>\\)\\@!\\)*>>>\\)"],
 \ }
 
 let prelude = "syn region p6String matchgroup=p6Quote start=\"\\%("
