@@ -19,6 +19,6 @@ executable m0ld
     build-Depends:       base,utf8-string >= 0.3.1.1,containers >= 0.1.0.1,parsec >= 2.0.0.0
     main-is:            m0ld.hs
     if flag(SMOP)
-        extra-libraries: smop pcl
+        extra-libraries: smop pcl perl
         extra-lib-dirs: ../build
         cpp-options: -DEMBED_SMOP=1

@@ -3,7 +3,7 @@ all:
 	scons -Q
 .PHONY : test all
 test: all
-	LD_LIBRARY_PATH='.' $(PROVE) 'valgrind -q' build-tests
+	LD_LIBRARY_PATH='build' $(PROVE) 'valgrind -q' build-tests
 env:
 	env
 

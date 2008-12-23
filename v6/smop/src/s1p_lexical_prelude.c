@@ -6,6 +6,7 @@
 #include <smop_s1p.h>
 #include <smop_mold.h>
 #include <smop_oo.h>
+#include <smop_p5.h>
 
 SMOP__Object* SMOP__S1P__LexicalPrelude;
 
@@ -38,6 +39,7 @@ void smop_s1p_lexical_prelude_init() {
   smop_s1p_lexical_prelude_insert(interpreter,"MoldFrame", SMOP__Mold__Frame);
   smop_s1p_lexical_prelude_insert(interpreter,"p6opaque",SMOP__p6opaque__RI);
   smop_s1p_lexical_prelude_insert(interpreter,"PurePrototypeHow",SMOP_REFERENCE(interpreter,SMOP__S1P__PurePrototypeHow));
+  smop_s1p_lexical_prelude_insert(interpreter,"P5Interpreter",SMOP_REFERENCE(interpreter,SMOP__P5Interpreter));
 }
 
 void smop_s1p_lexical_prelude_destr() {
