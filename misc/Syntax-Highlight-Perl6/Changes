@@ -12,6 +12,7 @@ Revision history for Syntax::Highlight::Perl6.
       using this module'.
     - Fix Cursor.pmc STD5DEBUG warning message
     - Added tests for script/hilitep6 
+    - Updated perl6.vim
 
 0.0295 Dec 19 2008
     - Fixed _escape_html to actually work
