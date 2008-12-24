@@ -11,11 +11,20 @@
   STRLEN len;
   char* str = SvPV(((smop_p5_sv_struct*)invocant)->sv,len);
   ret = SMOP__NATIVE__idconst_createn(str,len);
+%method int
+  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
+  ret = SMOP__NATIVE__int_create(((smop_p5_sv_struct*)invocant));
 %method DESTROYALL
   PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
-  SvREFCNT_dec(((smop_p5_sv_struct*)invocant)->sv); 
+  //printf("KILLING SV\n");
+  //SvREFCNT_dec(((smop_p5_sv_struct*)invocant)->sv); 
+%method postcircumfix:( )
+  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
+  dSP;
+  call_sv(((smop_p5_sv_struct*)invocant)->sv, G_DISCARD|G_NOARGS);
+                                /* pop the return value from stack */
 %{
-  SMOP__Object* SMOP__P5__create(SMOP__Object* interpreter,PerlInterpreter* p5interpreter,SV* sv) {
+  SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
     SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));
     ret->RI = RI;
     ((smop_p5_sv_struct*)ret)->sv = SvREFCNT_inc(sv);

@@ -10,13 +10,20 @@
   if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
     int len;
     char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
-    ret = SMOP__P5__create(interpreter,my_perl,eval_pv(str, TRUE));
+    char* str_with_null = malloc(sizeof(char) * (len+1));
+    strncpy(str_with_null,str,len);
+    str_with_null[len] = '\0';
+
+    ret = SMOP__P5__SV_create(interpreter,invocant,eval_pv(str_with_null, TRUE));
+    free(str_with_null);
   } else {
     printf("only constant identifiers can be passed to eval :(\n");
   }
   SMOP_RELEASE(interpreter,obj);
 %method DESTROYALL
+  printf("DESTROY ALL HUMANS!!!\n");
   PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
+  printf("[%p]\n",my_perl);
   perl_destruct(my_perl);
   perl_free(my_perl);
   PERL_SYS_TERM();
@@ -40,6 +47,7 @@
   ((smop_p5interpreter_struct*)ret)->interpreter = my_perl;
 %{
   PerlInterpreter* SMOP__P5__p5interpreter_unbox(SMOP__Object* interpreter,SMOP__Object* p5interpreter) {
+   assert(p5interpreter->RI == RI);
    return ((smop_p5interpreter_struct*)p5interpreter)->interpreter; 
   }
 %}
