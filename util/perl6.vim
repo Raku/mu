@@ -673,15 +673,15 @@ for [short, long] in [
     \ ]
     " short form with an optional preceding colon
     for [start_delim, end_delim, end_group, skip] in s:delims
-        exec s:prelude ."Q\\s*:\\?".short."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".short
-        exec s:prelude ."q\\s*:\\?".short."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".short
-        exec s:prelude ."qq\\s*:\\?".short."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".short
+        exec s:prelude ."Q\\%([wx]\\s*:\\|\\s*:\\?\\)".short."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".short
+        exec s:prelude ."q\\%([wx]\\s*:\\|\\s*:\\?\\)".short."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".short
+        exec s:prelude ."qq\\%([wx]\\s*:\\|\\s*:\\?\\)".short."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".short
     endfor
     " long form with a required preceding colon
     for [start_delim, end_delim, end_group, skip] in s:delims
-        exec s:prelude ."Q\\s*:".long."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long
-        exec s:prelude ."q\\s*:".long."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".long
-        exec s:prelude ."qq\\s*:".long."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".long
+        exec s:prelude ."Q[wx]\\?\\s*:".long."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long
+        exec s:prelude ."q[wx]\\?\\s*:".long."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".long
+        exec s:prelude ."qq[wx]\\?\\s*:".long."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".long
     endfor
 endfor
 
