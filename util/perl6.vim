@@ -24,7 +24,10 @@
 "   * Unspace
 "   * Anything that allows characters outside ascii/latin1
 "   * Selective highlighting of Pod formatting codes with the :allow option
-"   * Arbitrary number and order of adverbs to Q//, q//, qq//
+"   * Arbitrary number and order of adverbs to Q//, q//, qq//. Currently
+"     only the first adverb is considered significant. Anything more would
+"     require an exponential amount of regexes, making this already slow
+"     syntax file even slower.
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -652,16 +655,16 @@ let s:delims = [
 \ ]
 
 let s:prelude = "syn region p6String matchgroup=p6Quote start=\"\\%("
-let s:middle  = "\\%(\\s*:!\\?\\k\\d\\@<!\\%(\\k\\|[-']\\%(\\k\\d\\@<!\\)\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*\\s*\\)\\@<="
+let s:adverbs  = "\\%(\\s*:!\\?\\k\\d\\@<!\\%(\\k\\|[-']\\%(\\k\\d\\@<!\\)\\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*"
 
 " Q[wx]\?, q[wx]\?, and qq[wx]\? with any number of (ignored) adverbs
 for [start_delim, end_delim, end_group, skip] in s:delims
-    exec s:prelude ."Q[wx]\\?". s:middle . start_delim ."\" end=\"". start_delim ."\""
-    exec s:prelude ."q[wx]\\?". s:middle . start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q"
-    exec s:prelude ."qq[wx]\\?". s:middle . start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq"
+    exec s:prelude ."Q[wx]\\?". s:adverbs ."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\""
+    exec s:prelude ."q[wx]\\?". s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q"
+    exec s:prelude ."qq[wx]\\?". s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq"
 endfor
 
-" Q, q, and qq with one adverb
+" Q[wx]\?, q[wx]\?, and qq[wx]\? with one significant adverb
 for [short, long] in [
     \ ["s", "scalar"],
     \ ["a", "array"],
@@ -673,15 +676,15 @@ for [short, long] in [
     \ ]
     " short form with an optional preceding colon
     for [start_delim, end_delim, end_group, skip] in s:delims
-        exec s:prelude ."Q\\%([wx]\\s*:\\|\\s*:\\?\\)".short."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".short
-        exec s:prelude ."q\\%([wx]\\s*:\\|\\s*:\\?\\)".short."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".short
-        exec s:prelude ."qq\\%([wx]\\s*:\\|\\s*:\\?\\)".short."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".short
+        exec s:prelude ."Q\\%([wx]\\s*:\\|\\s*:\\?\\)".short. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".short
+        exec s:prelude ."q\\%([wx]\\s*:\\|\\s*:\\?\\)".short. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".short
+        exec s:prelude ."qq\\%([wx]\\s*:\\|\\s*:\\?\\)".short. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".short
     endfor
     " long form with a required preceding colon
     for [start_delim, end_delim, end_group, skip] in s:delims
-        exec s:prelude ."Q[wx]\\?\\s*:".long."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long
-        exec s:prelude ."q[wx]\\?\\s*:".long."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".long
-        exec s:prelude ."qq[wx]\\?\\s*:".long."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".long
+        exec s:prelude ."Q[wx]\\?\\s*:".long. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long
+        exec s:prelude ."q[wx]\\?\\s*:".long. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".long
+        exec s:prelude ."qq[wx]\\?\\s*:".long. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".long
     endfor
 endfor
 
