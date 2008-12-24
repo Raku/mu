@@ -1,0 +1,41 @@
+=head1 NAME
+
+Exceptions
+
+=head1 REVISION
+
+$Id$
+
+=head1 Introduction
+
+Exception handling is an unusually important part of the Perl 6
+runtime, that is because Perl 6 defines both Failures and Control
+exceptions, most languages doesn't provide any visible aspect of
+control exceptions, that being handled hard-coded in the compiler.
+
+For instance, the way "return" works is extensible in Perl 6, as the
+following code snippet shows:
+
+  sub foo($code) {
+      say $code.();
+      CONTROL {
+          when ReturnControlException {
+	      # You're trying to scape, uh?
+	      .resume();
+          }
+      }
+  }
+  sub bar {
+      foo({ return "this"; "that" });
+      return "tho";
+  }
+  say bar();
+
+As return is a control exception, it will fall in the dynamic scope
+until someone catches it, every routine contains an implicit CONTROL
+block that only handles the control exceptions generated within the
+lexical scope of that routine, this is how the above code would say
+"this" without the CONTROL block, while saying "that" and "tho" with
+the CONTROL block.
+
+=cut

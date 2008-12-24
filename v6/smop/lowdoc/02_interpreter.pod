@@ -105,11 +105,6 @@ This returns the continuation that is "in the back" of this
 continuation. It's by calling "back" that SMOP will support the
 "dynamic lookup" of Perl 6 for variables like $+foo.
 
-=item set_back
-
-This sets the back of a continuation, it is usually called by the code
-that creates a new continuation before going to that continuation.
-
 =item setr
 
 This sets a value that was being expected in this continuation,
