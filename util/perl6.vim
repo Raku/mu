@@ -654,11 +654,11 @@ let s:delims = [
 let s:prelude = "syn region p6String matchgroup=p6Quote start=\"\\%("
 let s:middle  = "\\%(\\s*:!\\?\\k\\d\\@<!\\%(\\k\\|[-']\\%(\\k\\d\\@<!\\)\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*\\s*\\)\\@<="
 
-" Q, q, and qq with any number of (ignored) adverbs
+" Q[wx]\?, q[wx]\?, and qq[wx]\? with any number of (ignored) adverbs
 for [start_delim, end_delim, end_group, skip] in s:delims
-    exec s:prelude ."Q". s:middle . start_delim ."\" end=\"". start_delim ."\""
-    exec s:prelude ."q". s:middle . start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q"
-    exec s:prelude ."qq". s:middle . start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq"
+    exec s:prelude ."Q[wx]\\?". s:middle . start_delim ."\" end=\"". start_delim ."\""
+    exec s:prelude ."q[wx]\\?". s:middle . start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q"
+    exec s:prelude ."qq[wx]\\?". s:middle . start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq"
 endfor
 
 " Q, q, and qq with one adverb
