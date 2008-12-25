@@ -21,8 +21,8 @@
 %method postcircumfix:( )
   PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
   dSP;
+  PUSHMARK(SP);
   call_sv(((smop_p5_sv_struct*)invocant)->sv, G_DISCARD|G_NOARGS);
-                                /* pop the return value from stack */
 %{
   SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
     SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));
