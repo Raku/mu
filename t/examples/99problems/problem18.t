@@ -13,4 +13,4 @@ plan 1;
 # (C D E F G)
 
 my @array = <a b c d e f g h i j k>;
-is @array.splice(3, 5), <d e f g h>, 'We should be able to splice lists';
+is @array[3..7], <d e f g h>, 'We should be able to splice lists';

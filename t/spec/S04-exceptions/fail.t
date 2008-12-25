@@ -18,15 +18,13 @@ plan 4;
   is $was_after_fail,  0, "fail() causes our sub to return (1)";
 }
 
+#?rakudo skip '"use fatal"'
 {
-  # Explicitly "use fatal"
-  # use fatal; -- Commented as there's no fatal.pm yet.
-  # Instead, we set the magical variable $?FAIL_SHOULD_DIE to a true value.
   my $was_after_fail = 0;
   my $was_after_sub  = 0;
   my $sub = sub { fail 42; $was_after_fail++ };
 
-  $*FAIL_SHOULD_DIE = 1;
+  use fatal;
   try { $sub(); $was_after_sub++ };
 
   is $was_after_fail, 0, "fail() causes our sub to return (2)";

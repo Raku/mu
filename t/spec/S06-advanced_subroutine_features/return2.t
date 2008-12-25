@@ -7,6 +7,7 @@ use Test;
 
 plan 7;
 
+#?rakudo skip 'lexical subs'
 {
   my sub userdefinedcontrol (&block) { &block(); return 24 }
   my sub official {
@@ -15,6 +16,7 @@ plan 7;
   is official(), 42, "bare blocks are invisible to return";
 }
 
+#?rakudo skip 'lexical subs'
 {
   my sub userdefinedcontrol (&block) { &block(); return 24 }
   my sub official {
@@ -27,6 +29,7 @@ plan 7;
   is official(), 42, "nested bare blocks are invisible to return";
 }
 
+#?rakudo skip 'lexical subs'
 {
   my sub userdefinedcontrol ($value, &block) { &block($value); return 24 }
   my sub official($value) {
@@ -40,6 +43,7 @@ plan 7;
 # return should desugar to &?ROUTINE.leave, where &?ROUTINE is lexically scoped
 #    to mean the current "official" subroutine or method.
 
+#?rakudo skip 'lexical subs'
 {
   my sub userdefinedcontrol3 (&block) { &block(); return 36 }
   my sub userdefinedcontrol2 (&block) { userdefinedcontrol3(&block); return 24 }
@@ -66,9 +70,10 @@ class Foo {
   }
 }
 
+#?pugs 3 todo 'return(), blocks and methods'
 is Foo.officialmeth(), 42,
-    "return correctly from official method only", :todo<bug>;
+    "return correctly from official method only";
 is Foo.officialmeth(), 43,
-    "return correctly from official submethod only", :todo<bug>;
+    "return correctly from official submethod only";
 is Foo::official(), 44,
-    "return correctly from official sub only", :todo<bug>;
+    "return correctly from official sub only";

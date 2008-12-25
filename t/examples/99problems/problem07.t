@@ -14,10 +14,11 @@ plan 2;
 # 
 # Hint: Use the predefined functions list and append.
 
-my $flatten = -> $x { $x ~~ List ?? ( map $flatten, $x ) !! $x }; 
+my $flatten = { $_ ~~ List ?? ( map $flatten, @($_) ) !! $_ }; 
 my @flattened = map $flatten, ('a', ['b', ['c', 'd', 'e']]);
 is @flattened, <a b c d e>, 'We should be able to flatten lists';
 
+# XXX this doesn't work that way...
 sub my_flatten (@xs) {
     sub inner_flatten (*@xs) { return @xs; }
 

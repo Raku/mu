@@ -82,5 +82,5 @@ traverse(@c[0][0]);
 #    say "$key: $val";
 #}
 
-is(%res, %expected, "Huffman tree builds correctly");
+is(~%res.sort, ~%expected.sort, "Huffman tree builds correctly");
 

@@ -54,7 +54,7 @@ sub search(@part_solved, @chessboard){
 }
 
 # update the chessboard when a queen is placed at $row,$col
-sub inc_collisions(int $row, int $col, @chessboard){
+sub inc_collisions(Int $row, Int $col, @chessboard){
     for (1..(7-$row)) -> $i {
         @chessboard[$row+$i][$col]++;
         @chessboard[$row+$i][$col-$i]++ if ($col-$i > -1);
@@ -63,7 +63,7 @@ sub inc_collisions(int $row, int $col, @chessboard){
 }
 
 # update the chessboard when a queen is removed from $row,$col
-sub decr_collisions(int $row, int $col, @chessboard){
+sub decr_collisions(Int $row, Int $col, @chessboard){
     for (1..(7-$row)) -> $i {
         @chessboard[$row+$i][$col]--;
         @chessboard[$row+$i][$col-$i]-- if ($col-$i > -1);
@@ -73,7 +73,8 @@ sub decr_collisions(int $row, int $col, @chessboard){
 
 # this chessboard keep track of the number of queens attacking a case 
 # from a row over it
-my int @chessboard[8];
+#my Int @chessboard[8];
+my @chessboard;
 for ( 0..7 ) -> $i {
     @chessboard[$i] = [0 xx 8];
 }
@@ -81,6 +82,6 @@ my @results = search([], @chessboard);
 is(@results.elems, 92, "The 8 Queens Problem has 92 solutions");
 my $i = 1;
 for @results -> $r {
-    is(collision($r), 0, "$i-th solution is correct");
+    is(collision($r), 0, "{$i}-th solution is correct");
     $i++;
 }

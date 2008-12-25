@@ -72,7 +72,7 @@ sub encode_direct2(*@array is copy) returns Str {
     return $packed;
 }
 
-for (&encode_direct,&encode_direct2) ->$ed {
+for (&encode_direct,&encode_direct2) -> $ed {
 is $ed(<>),'', 'We should be able to encode_direct an empty list';
 is $ed(<a>), 'a', '.. or a one-element iist';
 is $ed(<a a>), '2a', '.. or a n-ary list with always same element';

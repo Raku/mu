@@ -8,7 +8,7 @@ plan 1;
 # * (repli '(a b c) 3)
 # (A A A B B B C C C)
 
-sub repli (@list, int $count) returns Array {
+sub repli (@list, Int $count) {
     return map { $_ xx $count }, @list;
 }
 is repli(<a b c>, 3), <a a a b b b c c c>,

@@ -14,7 +14,7 @@ plan 2;
 # Hint: Use the predefined functions length and append, as well as the result of
 # problem P17.
 
-sub rotate (int $times is copy, *@list is copy) returns Array {
+sub rotate (Int $times is copy, *@list is copy) returns Array {
     if $times < 0 {
         $times += @list.elems;
     }

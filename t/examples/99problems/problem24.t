@@ -14,7 +14,7 @@ plan 3;
 # subset Positive::Int of Int where { $_ >= 0 };
 # sub lotto (Positive::Int $count, Positive::Int $range) returns List {
 
-sub lotto (int $count, int $range) returns List {
+sub lotto (Int $count, Int $range) returns List {
     return (1 .. $range).pick($count);
 }
 

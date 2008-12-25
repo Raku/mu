@@ -32,9 +32,7 @@ sub pf2($n) {
     return $n;
 }
 
-unless caller() {
-    use Test;
-    plan 1;
+use Test;
+plan 1;
 
-    is prime_factors(315), (3,3,5,7), 'prime factors of 315 are 3,3,5,7';
-}
+is prime_factors(315), (3,3,5,7), 'prime factors of 315 are 3,3,5,7';

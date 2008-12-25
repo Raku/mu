@@ -8,11 +8,11 @@ plan 2;
 # * (my-but-last '(a b c d))
 # (C D)
 
-is <a b c d>[-2, -1], <c d>,
+is <a b c d>[*-2, *-1], <c d>,
     'We should be able to grab the last two items from a list';
 
 sub my_but_last (@xs) {
-    return @xs[-2,-1];
+    return @xs[*-2,*-1];
 }
 
 is my_but_last(<a b c d>), <c d>,

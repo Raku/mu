@@ -19,6 +19,7 @@ sub pack (*@array is copy) returns Array {
     }
     return @packed;
 }
+
 is pack(<a a a a b c c a a d e e e e>),
     [ [<a a a a>], [<b>], [<c c>], [<a a>], [<d>], [<e e e e>] ],
     'We should be able to pack lists';

@@ -10,7 +10,7 @@ plan 2;
 # * (split '(a b c d e f g h i k) 3)
 # ( (A B C) (D E F G H I K))
 
-sub splitter ( @array is copy, int $length ) {
+sub splitter ( @array is copy, Int $length ) {
     my @head = @array.splice(0, $length);
     return (\@head, \@array);
 }

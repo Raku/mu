@@ -75,7 +75,7 @@ sub column_match(@col, @spec) {
 sub prefix_match(@rows, @spec) {
     return True if @rows == 0;
     for 0..^@rows[0] -> $i {
-        return False unless column_match(@rows.map:{ .[$i] }, @spec[$i]);
+        return False unless column_match(@rows.map({ .[$i] }), @spec[$i]);
         # @rows.map:{ .[$i] }  can also be spelled @rows[*][$i]  or @rows>>.[$i],
         # neither of which work in pugs.
     }

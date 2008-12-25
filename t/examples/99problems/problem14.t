@@ -13,5 +13,7 @@ is map({ $_ xx 2 }, <a b c c d>), <a a b b c c c c d d>,
 
 my @result;
 eval '@result = (<a b c c d> ==> map { $_ xx 2 })';
+#?pugs todo 'feed ops'
+#?rakudo todo 'feed ops'
 is @result, <a a b b c c c c d d>,
-    'We should be able to duplicate the elements of a list', :todo;
+    'We should be able to duplicate the elements of a list';

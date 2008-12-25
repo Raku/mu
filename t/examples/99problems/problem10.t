@@ -13,7 +13,7 @@ plan 1;
 # * (encode '(a a a a b c c a a d e e e e))
 # ((4 A) (1 B) (2 C) (2 A) (1 D)(4 E))
 
-sub encode (*@list) returns Array {
+sub encode (*@list) {
     my $count = 1;
     my ( @encoded, $previous, $x );
     
