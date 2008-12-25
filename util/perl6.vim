@@ -18,16 +18,18 @@
 "   * Add more support for folding
 "   * Add more syntax syncing hooks
 "   * Overhaul regexes, S05
-"   * Q// with :to, :heredoc
+"   * Q//:
+"       :to, :heredoc
+"       interpolate \q:s{$scalar} and such
 "
 " Impossible TODO?:
 "   * Unspace
 "   * Anything that allows characters outside ascii/latin1
 "   * Selective highlighting of Pod formatting codes with the :allow option
-"   * Arbitrary number and order of adverbs to Q//, q//, qq//. Currently
-"     only the first adverb is considered significant. Anything more would
-"     require an exponential amount of regexes, making this already slow
-"     syntax file even slower.
+"   * Arbitrary number, order, and negation of adverbs to Q//, q//, qq//.
+"     Currently only the first adverb is considered significant. Anything
+"     more would require an exponential amount of regexes, making this
+"     already slow syntax file even slower.
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -642,9 +644,9 @@ let s:delims = [
  \ ["«",            "»",    "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»\\|«[^»]*»\\)"],
  \ ["««",           "»»",   "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»\\|««\\%([^»]\\|»»\\@!\\)*»»\\)"],
  \ ["«««",          "»»»",  "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»»\\|«««\\%([^»]\\|»\\%(»»\\)\\@!\\)*»»»\\)"],
- \ ["\\\[",         "]",    "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]\\|\\[[^\\]]*]\\)"],
- \ ["\\\[\\\[",     "]]",   "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]\\|\\[\\[\\%([^\]]\\|]]\\@!\\)*]]\\)"],
- \ ["\\\[\\\[\\\[", "]]]",  "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]]\\|\\[\\[\\[\\%([^\]]\\|]\\%(]]\\)\\@!\\)*]]]\\)"],
+ \ ["\\\[",         "]",    "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]\\|\\[^\\]]*]\\)"],
+ \ ["\\\[\\\[",     "]]",   "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]\\|\\[\\[\\%([^\\]]\\|]]\\@!\\)*]]\\)"],
+ \ ["\\\[\\\[\\\[", "]]]",  "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]]\\|\\[\\[\\[\\%([^\\]]\\|]\\%(]]\\)\\@!\\)*]]]\\)"],
  \ ["\\s\\@<=(",    ")",    "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\)\\|([^)]*)\\)"],
  \ ["\\s\\@<=((",   "))",   "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\))\\|((\\%([^)]\\|))\\@!\\)*))\\)"],
  \ ["\\s\\@<=(((",  ")))",  "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\)))\\|(((\\%([^)]\\|)\\%())\\)\\@!\\)*)))\\)"],
@@ -653,37 +655,56 @@ let s:delims = [
  \ ["\\s\\@<=<<<",  ">>>",  "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>>\\|<<<\\%([^>]\\|>\\%(>>\\)\\@!\\)*>>>\\)"],
 \ ]
 
-let s:prelude = "syn region p6String matchgroup=p6Quote start=\"\\%("
-let s:adverbs  = "\\%(\\s*:!\\?\\k\\d\\@<!\\%(\\k\\|[-']\\%(\\k\\d\\@<!\\)\\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*"
-
-" Q[wx]\?, q[wx]\?, and qq[wx]\? with any number of (ignored) adverbs
-for [start_delim, end_delim, end_group, skip] in s:delims
-    exec s:prelude ."Q[wx]\\?". s:adverbs ."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\""
-    exec s:prelude ."q[wx]\\?". s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q"
-    exec s:prelude ."qq[wx]\\?". s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq"
-endfor
-
-" Q[wx]\?, q[wx]\?, and qq[wx]\? with one significant adverb
-for [short, long] in [
+let s:adverbs = [
     \ ["s", "scalar"],
     \ ["a", "array"],
     \ ["h", "hash"],
     \ ["f", "function"],
     \ ["c", "closure"],
     \ ["b", "backslash"],
+    \ ["w", "words"],
     \ ["ww", "quotewords"],
-    \ ]
-    " short form with an optional preceding colon
-    for [start_delim, end_delim, end_group, skip] in s:delims
-        exec s:prelude ."Q\\%([wx]\\s*:\\|\\s*:\\?\\)".short. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".short
-        exec s:prelude ."q\\%([wx]\\s*:\\|\\s*:\\?\\)".short. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".short
-        exec s:prelude ."qq\\%([wx]\\s*:\\|\\s*:\\?\\)".short. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".short
-    endfor
-    " long form with a required preceding colon
-    for [start_delim, end_delim, end_group, skip] in s:delims
-        exec s:prelude ."Q[wx]\\?\\s*:".long. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long
-        exec s:prelude ."q[wx]\\?\\s*:".long. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".long
-        exec s:prelude ."qq[wx]\\?\\s*:".long. s:adverbs ."\\s*\\)\\@<=". start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".long
+    \ ["x", "exec"],
+\ ]
+
+" these can't be conjoined with q and qq (e.g. as qqq and qqqq)
+let s:q_adverbs = [
+    \ ["q", "single"],
+    \ ["qq", "double"],
+\ ]
+
+let s:before = "syn region p6String matchgroup=p6Quote start=\"\\%("
+let s:after  = "\\%(\\s*:!\\?\\k\\d\\@<!\\%(\\k\\|[-']\\%(\\k\\d\\@<!\\)\\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*\\s*\\)\\@<="
+
+for [start_delim, end_delim, end_group, skip] in s:delims
+    " Q, q, and qq with any number of (ignored) adverbs
+    exec s:before ."Q". s:after .start_delim."\" end=\"". end_delim ."\""
+    exec s:before ."q". s:after .start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q"
+    exec s:before ."qq". s:after .start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq"
+    
+    for [short, long] in s:adverbs
+        " Qs, qs, qqs, Qa, qa, qqa, etc, with ignored adverbs
+        exec s:before ."Q".short. s:after .start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long
+        exec s:before ."q".short. s:after .start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".long
+        exec s:before ."qq".short. s:after .start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".long
+
+        " Q, q, and qq, with one significant adverb
+        exec s:before ."Q\\s*:\\%(".short."\\|".long."\\)". s:after .start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long
+        for [q_short, q_long] in s:q_adverbs
+            exec s:before ."Q\\s*:\\%(".q_short."\\|".q_long."\\)". s:after .start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".q_long
+        endfor
+        exec s:before ."q\\s*:\\%(".short."\\|".long."\\)". s:after .start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".long
+        exec s:before ."qq\\s*:\\%(".short."\\|".long."\\)". s:after .start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".long
+    
+        for [short2, long2] in s:adverbs
+            " Qs, qs, qqs, Qa, qa, qqa, etc, with one significant adverb
+            exec s:before ."Q".short."\\s*:\\%(".short2."\\|".long2."\\)". s:after .start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long.",@p6Interp_".long2
+            for [q_short2, q_long2] in s:q_adverbs
+                exec s:before ."Q".short."\\s*:\\%(".q_short2."\\|".q_long2."\\)". s:after .start_delim ."\" end=\"". end_delim ."\" contains=@p6Interp_".long.",@p6Interp_".q_long2
+            endfor
+            exec s:before ."q".short."\\s*:\\%(".short2."\\|".long2."\\)". s:after .start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_q,@p6Interp_".long.",@p6Interp_".long2
+            exec s:before ."qq".short."\\s*:\\%(".short2."\\|".long2."\\)". s:after .start_delim ."\" skip=\"". skip ."\" end=\"". end_delim ."\" contains=". end_group .",@p6Interp_qq,@p6Interp_".long.",@p6Interp_".long2
+        endfor
     endfor
 endfor
 
