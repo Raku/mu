@@ -432,7 +432,6 @@ syn cluster p6Interp_double
     \ add=@p6Interp_closure
     \ add=@p6Interp_backslash
     \ add=p6EscOpenCurly
-    \ add=p6Escape
     \ add=p6EscCodePoint
     \ add=p6EscHex
     \ add=p6EscOct
