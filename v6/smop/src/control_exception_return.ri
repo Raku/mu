@@ -10,7 +10,7 @@
 
 %method new
     SMOP__Object* exc = smop_lowlevel_alloc(sizeof(control_exception_return_struct));
-    exc->RI = (SMOP__ResponderInterface*)SMOP__ControlExceptionReturn;
+    exc->RI = (SMOP__ResponderInterface*)RI;
     ((control_exception_return_struct*)exc)->handled = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ((control_exception_return_struct*)exc)->context = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ((control_exception_return_struct*)exc)->capture = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
@@ -29,6 +29,9 @@
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,
               frame);
+
+%method FETCH
+  ___VALUE_FETCH___
 
 %method _not_caught
     fprintf(stderr, "Uncaught return control exception.\n");

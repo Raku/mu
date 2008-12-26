@@ -186,6 +186,9 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     SMOP__Object* mold = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     ret = SMOP__Mold__Frame_create(interpreter,mold);
 
+  } else if (SMOP__ID__true == identifier) {
+    ret = SMOP__NATIVE__bool_true;
+
   } else if (SMOP__ID__set_reg == identifier) {
     SMOP__Object* reg_pos = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
