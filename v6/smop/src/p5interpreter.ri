@@ -21,9 +21,7 @@
   }
   SMOP_RELEASE(interpreter,obj);
 %method DESTROYALL
-  printf("P5Interpreter.DESTROY!!! :)\n");
   PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
-  printf("[%p]\n",my_perl);
   perl_destruct(my_perl);
   perl_free(my_perl);
   PERL_SYS_TERM();

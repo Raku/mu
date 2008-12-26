@@ -24,7 +24,7 @@ print <<'HELP';
 Usage: mildew [switches] [--] [programfile] [arguments]
   -Bbackend       execute using the compiler backend
   -Cbackend       compile using the compiler backend
-                  (valid backends are: m0ld, desugar, via-C)
+                  (valid backends are: m0ld, desugar, yaml, via-C)
   -o              output to file
   -h or --help    give this message
 HELP
@@ -552,6 +552,17 @@ sub compile_via_c {
     close($c_fh);
     system("gcc","-xc","-L../smop/build","-I../smop/include","-lperl","-lsmop","-lpcl",$c_file,"-o",$output);
 }
+sub output {
+    my ($what,$where) = @_;
+    if ($where) {
+        open(my $out,">",$where);
+        binmode $out, ':utf8';
+        print $out $what;
+    } else {
+        binmode STDOUT, ':utf8';
+        print $what;
+    }
+}
 my $m;
 die "output=$output too many arguments @ARGV" if scalar @ARGV > 1;
 if (@ARGV) {
@@ -567,10 +578,14 @@ print Dump($m->item->emit_m0ld) if $debug;
 print "#################\n" if $debug;
 my $mold = $m->item->emit_m0ld;
 my $m0ld;
-use YAML::XS;
 $C = '' unless $C;
 if ($C eq 'desugar') {
-    print $mold->pretty,"\n";
+    output($mold->pretty,$output);
+    exit;
+} elsif ($C eq 'ast-yaml') {
+    use YAML::XS;
+    output(Dump($mold),$output);
+    exit;
 } else {
     $m0ld = <<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK';
     my $void;
@@ -590,14 +605,7 @@ if ($C eq 'via-C') {
     die "-o is required when compiling to an executable\n" unless $output;
     compile_via_c($m0ld,$output);
 } elsif ($C eq 'm0ld') {
-    if ($output) {
-        open(my $out,">",$output);
-        binmode $out, ':utf8';
-        print $out $m0ld;
-    } else {
-        binmode STDOUT, ':utf8';
-        print $m0ld;
-    }
+    output($m0ld,$output);
 } elsif ($C) {
     die "unknown backend passed to -C: $C\n";
 }

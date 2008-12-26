@@ -2,6 +2,7 @@
 %prefix smop_p5_sv
 %attr SV* sv
 %attr SMOP__Object* p5interpreter;
+%RI.id Wrapped SV*
 %method FETCH
   ___VALUE_FETCH___
 %method STORE
@@ -16,13 +17,44 @@
   ret = SMOP__NATIVE__int_create(((smop_p5_sv_struct*)invocant));
 %method DESTROYALL
   PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
-  //printf("KILLING SV\n");
-  //SvREFCNT_dec(((smop_p5_sv_struct*)invocant)->sv); 
+  SvREFCNT_dec(((smop_p5_sv_struct*)invocant)->sv); 
 %method postcircumfix:( )
   PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
+
+  assert(SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1);
+  SMOP__Object* real_capture = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+
   dSP;
+  ENTER;
+  SAVETMPS;
+
   PUSHMARK(SP);
-  call_sv(((smop_p5_sv_struct*)invocant)->sv, G_DISCARD|G_NOARGS);
+  int positionals = SMOP__NATIVE__capture_positional_count(interpreter,real_capture);
+  int i;
+  for (i=0;i < positionals;i++) {
+    SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,real_capture,i);
+    SV* ref;
+    if (object->RI == RI) {
+      ref = ((smop_p5_sv_struct*)object)->sv;
+      XPUSHs(ref);
+    } else {
+      SV* pointer = newSViv((int)object);
+      HV* class = gv_stashpv("SMOP::Object", GV_ADD);
+      ref = sv_bless(newRV_noinc(pointer), class);
+      XPUSHs(sv_2mortal(ref));
+    }
+    SMOP_RELEASE(interpreter,object);
+  }
+  PUTBACK;
+
+  call_sv(((smop_p5_sv_struct*)invocant)->sv, G_DISCARD);
+
+  FREETMPS;
+  LEAVE;
+
+  SMOP_RELEASE(interpreter,real_capture);
+
+
 %{
   SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
     SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));

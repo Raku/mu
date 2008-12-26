@@ -273,7 +273,9 @@ has 'value' => (is=>'ro');
 sub m0ld {
     my ($self,$ret) = @_;
     #XXX metachars
-    "my $ret = \"".$self->value."\";\n";
+    my $str = $self->value;
+    $str =~ s/\n/\\n/g;
+    "my $ret = \"".$str."\";\n";
 }
 sub pretty {
     #XXX metachars
