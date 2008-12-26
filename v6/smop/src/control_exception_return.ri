@@ -25,7 +25,7 @@
                                                                             NULL,NULL));
   mold_back_set(interpreter,frame,continuation);
   mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,invocant));
+  mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,invocant));
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,
               frame);
