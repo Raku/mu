@@ -17,8 +17,22 @@ use Carp 'confess';
 use Scalar::Util 'blessed';
 use File::Temp qw(tempfile tmpnam);
 
-my ($desugar,$debug,$file,$exec,$output);
-GetOptions("exec"=>\$exec,"file=s"=>\$file,"debug"=>\$debug,"o=s"=>\$output,"desugar"=>\$desugar);
+#  -e program      one line of program (multiple -e are allowed, omit programfile)
+#  -c              parse the file or -e, but do not run it
+sub help {
+print <<'HELP';
+Usage: mildew [switches] [--] [programfile] [arguments]
+  -Bbackend       execute using the compiler backend
+  -Cbackend       compile using the compiler backend
+                  (valid backends are: m0ld, desugar, via-C)
+  -o              output to file
+  -h or --help    give this message
+HELP
+exit;
+}
+my ($debug,$B,$C,$output,$help);
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'debug'=>\$debug,'h|help'=>\$help) || help;
+help if $help;
 
 sub XXX {
     confess join ' ', 'unimplemented: ', @_;
@@ -500,33 +514,8 @@ sub VAST::statementlist::emit_m0ld {
     my $m = shift;
     [map {$_->emit_m0ld} @{$m->{statement}}]
 }
-my $m;
-if ($file) {
-    $m = STD->parsefile($file,'comp_unit');
-} else {
-    $m = STD->parse(join('', <STDIN>), 'comp_unit');
-}
 
-#print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
-print "#################\n" if $debug;
-print Dump($m->item) if $debug;
-print Dump($m->item->emit_m0ld) if $debug;
-print "#################\n" if $debug;
-my $mold = $m->item->emit_m0ld;
-use YAML::XS;
-print $mold->pretty,"\n" if $desugar;
-exit if $desugar;
-my $m0ld = <<'BOILERPLATE'.$mold->emit_('$main').<<'CALL_MAIN';
-my $void;
-BOILERPLATE
-my $scope = ?SMOP__S1P__LexicalPrelude;
-my $Code_scalar = $scope."lookup"("Code");
-my $Code = $Code_scalar."FETCH"();
-my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
-my $capture = ¢SMOP__S1P__Capturize."capturize"();
-my $void = $main_code."postcircumfix:( )"($capture);
-CALL_MAIN
-sub compile_to_c {
+sub compile_via_c {
     my ($m0ld,$output) = @_;
     use IPC::Open2;
     local $ENV{LD_LIBRARY_PATH} = '../smop/build';
@@ -544,20 +533,72 @@ sub compile_to_c {
     print {$c_fh} <$m0ld_exe_out>;
     print {$c_fh} <$boilerplate_back>;
     close($c_fh);
-    print $c_file,"\n";
     system("gcc","-xc","-L../smop/build","-I../smop/include","-lperl","-lsmop","-lpcl",$c_file,"-o",$output);
 }
-if ($output) {
-    compile_to_c($m0ld,$output);
-} elsif ($exec) {
+my $m;
+die "output=$output too many arguments @ARGV" if scalar @ARGV > 1;
+if (@ARGV) {
+    $m = STD->parsefile($ARGV[0],'comp_unit');
+} else {
+    $m = STD->parse(join('', <STDIN>), 'comp_unit');
+}
+
+#print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+print "#################\n" if $debug;
+print Dump($m->item) if $debug;
+print Dump($m->item->emit_m0ld) if $debug;
+print "#################\n" if $debug;
+my $mold = $m->item->emit_m0ld;
+my $m0ld;
+use YAML::XS;
+$C = '' unless $C;
+if ($C eq 'desugar') {
+    print $mold->pretty,"\n";
+} else {
+    $m0ld = <<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK';
+    my $void;
+BOILERPLATE_FRONT
+    my $scope = ?SMOP__S1P__LexicalPrelude;
+    my $Code_scalar = $scope."lookup"("Code");
+    my $Code = $Code_scalar."FETCH"();
+    my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
+    my $capture = ¢SMOP__S1P__Capturize."capturize"();
+    my $void = $main_code."postcircumfix:( )"($capture);
+BOILERPLATE_BACK
+}
+if ($output and not $C) {
+    $C = 'via-C';
+}
+if ($C eq 'via-C') {
+    die "-o is required when compiling to an executable\n" unless $output;
+    compile_via_c($m0ld,$output);
+} elsif ($C eq 'm0ld') {
+    if ($output) {
+        open(my $out,">",$output);
+        binmode $out, ':utf8';
+        print $out $m0ld;
+    } else {
+        binmode STDOUT, ':utf8';
+        print $m0ld;
+    }
+} elsif ($C) {
+    die "unknown backend passed to -C: $C\n";
+}
+
+if ($B && $C) {
+    die "can't specify both -C and -B\n";
+} elsif (!$B && !$C) {
+    $B = 'via-C';
+} else {
+    exit;
+}
+
+if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = '../smop/build';
     my $tmp = tmpnam;
-    compile_to_c($m0ld,$tmp);
+    compile_via_c($m0ld,$tmp);
     system($tmp);
-    #open(my $m0ld_exe,"|../smop/m0ld_exe --exec");
-    #binmode $m0ld_exe, ':utf8';
-    #print $m0ld_exe $m0ld;
-} else {
-    binmode STDOUT, ':utf8';
-    print $m0ld;#encode('utf8',$m0ld);
+} elsif ($B) {
+    die "unknown backend passed to -B: $C\n";
 }
+
