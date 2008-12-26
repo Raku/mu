@@ -15,9 +15,10 @@ use warnings;
 use Getopt::Long;
 use Carp 'confess';
 use Scalar::Util 'blessed';
+use File::Temp qw(tempfile tmpnam);
 
-my ($desugar,$debug,$file,$exec);
-GetOptions("exec"=>\$exec,"file=s"=>\$file,"debug"=>\$debug,"desugar"=>\$desugar);
+my ($desugar,$debug,$file,$exec,$output);
+GetOptions("exec"=>\$exec,"file=s"=>\$file,"debug"=>\$debug,"o=s"=>\$output,"desugar"=>\$desugar);
 
 sub XXX {
     confess join ' ', 'unimplemented: ', @_;
@@ -525,11 +526,37 @@ my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
 my $capture = ¢SMOP__S1P__Capturize."capturize"();
 my $void = $main_code."postcircumfix:( )"($capture);
 CALL_MAIN
-if ($exec) {
+sub compile_to_c {
+    my ($m0ld,$output) = @_;
+    use IPC::Open2;
     local $ENV{LD_LIBRARY_PATH} = '../smop/build';
-    open(my $m0ld_exe,"|../smop/m0ld_exe --exec");
-    binmode $m0ld_exe, ':utf8';
-    print $m0ld_exe $m0ld;
+    open2(my $m0ld_exe_out,my $m0ld_exe_in,"../smop/m0ld_exe");
+    binmode $m0ld_exe_in, ':utf8';
+    print $m0ld_exe_in $m0ld;
+    close($m0ld_exe_in);
+    local $/;
+    binmode $m0ld_exe_out, ':utf8';
+    my ($c_fh,$c_file) = tempfile();
+    binmode($c_fh,":utf8");
+    open(my $boilerplate_front,"../smop/m0ld/m0ld_boilerplate_front") || die "can't open internal file\n";
+    open(my $boilerplate_back,"../smop/m0ld/m0ld_boilerplate_back") || die "can't open internal file\n";
+    print {$c_fh} <$boilerplate_front>;
+    print {$c_fh} <$m0ld_exe_out>;
+    print {$c_fh} <$boilerplate_back>;
+    close($c_fh);
+    print $c_file,"\n";
+    system("gcc","-xc","-L../smop/build","-I../smop/include","-lperl","-lsmop","-lpcl",$c_file,"-o",$output);
+}
+if ($output) {
+    compile_to_c($m0ld,$output);
+} elsif ($exec) {
+    local $ENV{LD_LIBRARY_PATH} = '../smop/build';
+    my $tmp = tmpnam;
+    compile_to_c($m0ld,$tmp);
+    system($tmp);
+    #open(my $m0ld_exe,"|../smop/m0ld_exe --exec");
+    #binmode $m0ld_exe, ':utf8';
+    #print $m0ld_exe $m0ld;
 } else {
     binmode STDOUT, ':utf8';
     print $m0ld;#encode('utf8',$m0ld);
