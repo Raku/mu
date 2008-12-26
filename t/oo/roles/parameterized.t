@@ -55,7 +55,7 @@ ok !$a.^does(InitialAttribVal[23]),
 
 # L<A12/Parametric types/but you can also parameterize other types explicitly:>
 # L<S12/Roles/A role's main type is generic by default>
-role InitialAttribType[^vartype:] {
+role InitialAttribType[::vartype] {
     method hi(vartype $foo) { 42 }
 }
 my $c;
