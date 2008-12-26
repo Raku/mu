@@ -27,7 +27,7 @@ typedef struct smop_s1p_hash_struct {
 SMOP__Object* SMOP__S1P__Hash_create(void) {
     smop_s1p_hash_struct* ret = (smop_s1p_hash_struct*) smop_lowlevel_alloc(sizeof(smop_s1p_hash_struct));
     ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Hash;
-    ret->buckets = (hash_bucket**) calloc(1,sizeof(hash_bucket*));
+    ret->buckets = (hash_bucket**) smop_calloc(1,sizeof(hash_bucket*));
     ret->size = 1;
     return (SMOP__Object*) ret;
 }
@@ -97,7 +97,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
       }
 
       //fprintf(stderr,"creating new cell\n");
-      hash_bucket* new_bucket = (hash_bucket*) calloc(1,sizeof(hash_bucket));
+      hash_bucket* new_bucket = (hash_bucket*) smop_calloc(1,sizeof(hash_bucket));
       new_bucket->key  = key;
       new_bucket->cell = val;
       new_bucket->next = NULL;
@@ -135,7 +135,7 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
 
       //fprintf(stderr,"creating new cell\n");
       SMOP__Object* cell = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
-      hash_bucket* new_bucket = (hash_bucket*) calloc(1,sizeof(hash_bucket));
+      hash_bucket* new_bucket = (hash_bucket*) smop_calloc(1,sizeof(hash_bucket));
       new_bucket->key  = key;
       new_bucket->cell = cell;
       new_bucket->next = NULL;
@@ -200,10 +200,10 @@ static SMOP__Object* smop_s1p_hash_message(SMOP__Object* interpreter,
               SMOP_RELEASE(interpreter,current->cell);
               hash_bucket* prev = current;
               current = current->next;
-              free(prev);
+              smop_free(prev);
           }
       }
-      free(invocant->buckets);
+      smop_free(invocant->buckets);
   } else if (identifier == SMOP__ID__FETCH) {
     ___VALUE_FETCH___;
   } else if (identifier == SMOP__ID__STORE) {

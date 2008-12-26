@@ -33,7 +33,7 @@ typedef struct SMOP_LOWLEVEL_INTERNAL {
  * your objects that extends the basic SMOP__Object to have more
  * information into your object.
  */
-extern SMOP__Object* smop_lowlevel_alloc(int size);
+extern SMOP__Object* smop_lowlevel_alloc(size_t size);
 
 /* This function increments the reference count of a value, it should
  * be called whenever the value is referenced by another value, and
@@ -134,5 +134,11 @@ extern SMOP__Object* SMOP__LOWLEVEL__Operators;
  * remove the reference to the object in the capture member of the
  * node, as no call to RELEASE should be tried afterwards.
  */
+
+/* This are wrappers for libc functions to enable refcounting checking */
+void *smop_calloc(size_t nmemb, size_t size);
+void *smop_malloc(size_t size);
+void smop_free(void *ptr);
+void *smop_realloc(void *ptr, size_t size);
 
 #endif
