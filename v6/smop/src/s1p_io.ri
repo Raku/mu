@@ -11,6 +11,9 @@ SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter) {
 }
 %}
 
+%method unbuffered
+    setvbuf(stdout,NULL,_IONBF,0);
+    
 %method print
     int pc = SMOP__NATIVE__capture_positional_count(interpreter,capture);
     int i;

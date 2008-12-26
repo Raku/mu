@@ -340,10 +340,13 @@ sub VAST::escape::as_constant_string {
 }
 sub VAST::backslash::as_constant_string {
     my $m = shift;
-    if ($m->{TEXT} =~ /^[n]$/) {
-        '\\' . $m->{TEXT};
-    } elsif ($m->{TEXT} =~ /^\W$/) {
-        $m->{TEXT};
+    my $text = $m->{TEXT} // $m->{text}{TEXT};
+    if ($text =~ /^\w$/ and $m->{text}) {
+        '\\' . $text;
+    } elsif ($text =~ /^[n]$/) {
+        "\n";
+    } elsif ($text =~ /^\W$/) {
+        $text;
     } else {
         XXX;
     }

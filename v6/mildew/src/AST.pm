@@ -274,6 +274,8 @@ sub m0ld {
     my ($self,$ret) = @_;
     #XXX metachars
     my $str = $self->value;
+    $str =~ s/\\/\\\\/g;
+    $str =~ s/"/\\"/g;
     $str =~ s/\n/\\n/g;
     "my $ret = \"".$str."\";\n";
 }
