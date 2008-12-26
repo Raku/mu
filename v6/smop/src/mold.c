@@ -10,6 +10,8 @@ SMOP__Object* SMOP__Mold__Frame;
 
 static SMOP__Object* SMOP__ID__set_reg;
 static SMOP__Object* SMOP__ID__set_back;
+static SMOP__Object* SMOP__ID__set_control;
+static SMOP__Object* SMOP__ID__set_catch;
 
 static SMOP__Object* mold_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
   //printf("+ %p\n", obj);
@@ -41,6 +43,8 @@ typedef struct smop_mold_frame {
   SMOP__Object* mold;
   int position;
   SMOP__Object* back;
+  SMOP__Object* control;
+  SMOP__Object* catch;
   SMOP__Object** registers;
   int target;
 } smop_mold_frame;
@@ -192,6 +196,14 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     if (frame->back) {
       ret = SMOP_REFERENCE(interpreter,frame->back);
     }
+  } else if (SMOP__ID__control == identifier) {
+    if (frame->control) {
+      ret = SMOP_REFERENCE(interpreter,frame->control);
+    }
+  } else if (SMOP__ID__catch == identifier) {
+    if (frame->catch) {
+      ret = SMOP_REFERENCE(interpreter,frame->catch);
+    }
 
   } else if (SMOP__ID__set_back == identifier) {
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
@@ -199,6 +211,24 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       frame->back = value;
     } else {
       printf("trying to set a new back to the frame\n");
+      abort();
+    }
+
+  } else if (SMOP__ID__set_control == identifier) {
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (!frame->control) {
+      frame->control = value;
+    } else {
+      printf("trying to set a new control to the frame\n");
+      abort();
+    }
+
+  } else if (SMOP__ID__set_catch == identifier) {
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (!frame->catch) {
+      frame->catch = value;
+    } else {
+      printf("trying to set a new catch to the frame\n");
       abort();
     }
 
@@ -363,6 +393,8 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     frame->registers = NULL;
     SMOP_RELEASE(interpreter,frame->mold);
     if (frame->back) SMOP_RELEASE(interpreter,frame->back);
+    if (frame->control) SMOP_RELEASE(interpreter,frame->control);
+    if (frame->catch) SMOP_RELEASE(interpreter,frame->catch);
     frame->mold = NULL;
   } else if (identifier == SMOP__ID__FETCH) {
     ___VALUE_FETCH___;
@@ -383,6 +415,8 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
 void smop_mold_init() {
   SMOP__ID__set_reg = SMOP__NATIVE__idconst_create("set_reg");
   SMOP__ID__set_back = SMOP__NATIVE__idconst_create("set_back");
+  SMOP__ID__set_control = SMOP__NATIVE__idconst_create("set_control");
+  SMOP__ID__set_catch = SMOP__NATIVE__idconst_create("set_catch");
 
   SMOP__Mold = calloc(1,sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__Mold)->MESSAGE = smop_mold_message;

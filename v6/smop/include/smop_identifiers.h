@@ -19,10 +19,12 @@ extern SMOP__Object* SMOP__ID__call;              /* "call" */
 extern SMOP__Object* SMOP__ID__can;               /* "can" */
 extern SMOP__Object* SMOP__ID__capture;           /* "capture" */
 extern SMOP__Object* SMOP__ID__capturize;         /* "capturize" */
+extern SMOP__Object* SMOP__ID__catch;             /* "catch" */
 extern SMOP__Object* SMOP__ID__clone;             /* "clone" */
 extern SMOP__Object* SMOP__ID__container_type;    /* "container_type" */
 extern SMOP__Object* SMOP__ID__continuation;      /* "continuation" */
 extern SMOP__Object* SMOP__ID__continues;         /* "continues" */
+extern SMOP__Object* SMOP__ID__control;           /* "control" */
 extern SMOP__Object* SMOP__ID__copy;              /* "copy" */
 extern SMOP__Object* SMOP__ID__count;             /* "count" */
 extern SMOP__Object* SMOP__ID__create_container;  /* "create_container" */
