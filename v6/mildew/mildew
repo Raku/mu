@@ -625,7 +625,7 @@ if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = '../smop/build';
     my $tmp = tmpnam;
     compile_via_c($m0ld,$tmp);
-    system($tmp);
+    exec($tmp);
 } elsif ($B) {
     die "unknown backend passed to -B: $C\n";
 }
