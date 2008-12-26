@@ -207,6 +207,7 @@ if ($properties{prototype}) {
 print qq[ 
 }
 void $properties{prefix}_mold_init() {
+  SMOP__Object* interpreter = SMOP__GlobalInterpreter;
 ];
 while (my ($name,$mold) = each %mold) {
     print "  $name = ",preprocess_m0ld($mold),";\n";
