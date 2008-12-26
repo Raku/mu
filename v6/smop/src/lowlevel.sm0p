@@ -147,7 +147,7 @@ SMOP__Object* smop_lowlevel_refcnt_dec(SMOP__Object* interpreter, SMOP__Responde
   ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt--;
   if (((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt <= 0) {
 #ifdef SMOP_LOWLEVEL_MEM_DEBUG
-    fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] will destroy: %p\n",value);
+    fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] will destroy: %p, %s\n",value,SMOP_RI(value)->id);
 #endif
     ((SMOP_LOWLEVEL_INTERNAL*)value->data)->ref_cnt = 999; // force it as to not getting here again...
     smop_lowlevel_unlock(value);

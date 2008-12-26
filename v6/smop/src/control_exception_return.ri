@@ -28,7 +28,7 @@
   mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,invocant));
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,
-              frame);
+              SMOP_REFERENCE(interpreter,frame));
 
 %method _not_caught
     fprintf(stderr, "Uncaught return control exception.\n");
@@ -37,36 +37,38 @@
 %mold throw_mold
     my $interpreter;
     my $invocant;
-    my $current = $interpreter."continuation"();
+    my $stack = $interpreter."continuation"();
+    my $current = $stack."FETCH"();
     bt_up:
      my $back = $current."back"();
      my $has_back = $back."true"();
      if $has_back { goto check_control } else { goto fail };
     check_control:
-     my $current = $current."back"();
      my $ctrl = $back."control"();
      my $has_ctrl = $ctrl."true"();
-     if $has_ctrl { goto handle } else { goto bt_up };
+     if $has_ctrl { goto handle } else { goto redo_bt_up };
     handle:
      my $capture = ¢SMOP__S1P__Capturize."capturize"($invocant);
      my $result = $ctrl."postcircumfix:( )"($capture);
      my $handled_c = $invocant."handled"();
      my $handled = $handled_c."FETCH"();
      my $has_handled = $handled."true"();
-     if $has_handled { goto finish } else { goto bt_up };
+     if $has_handled { goto finish } else { goto redo_bt_up };
     fail:
      my $void = $invocant."_not_caught"();
     finish:
      my $outer = $back."back"();
      $void = $outer."setr"($result);
      $void = $interpreter."goto"($outer);
+    redo_bt_up:
+     $current = $back."FETCH"();
+     goto bt_up;
 
 %method FETCH
   ___VALUE_FETCH___;
 %method STORE
   ___VALUE_STORE___;
 %method DESTROYALL
-  printf("control exception DESTROYALL!");
   SMOP_RELEASE(interpreter,((control_exception_return_struct*)invocant)->handled);
   SMOP_RELEASE(interpreter,((control_exception_return_struct*)invocant)->context);
   SMOP_RELEASE(interpreter,((control_exception_return_struct*)invocant)->capture);
