@@ -297,6 +297,17 @@ sub trailing_return {
 }
 sub VAST::block::emit_m0ld {
     my $m = shift;
+    # now we need to refactor CONTROL blocks to the beggining of the statement list
+    my $control;
+    @{$m->{statementlist}{statement}} =
+      grep { !( exists $_->{statement_control} &&
+		exists $_->{statement_control}{sym} &&
+		($_->{statement_control}{sym} eq 'CONTROL') &&
+	        ($control = $_) ) }
+	  @{$m->{statementlist}{statement}};
+    if ($control) {
+      unshift @{$m->{statementlist}{statement}}, $control;
+    }
     AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return($m->{statementlist}->emit_m0ld));
 }
 sub VAST::circumfix::emit_m0ld {
@@ -497,6 +508,12 @@ sub VAST::statement::emit_m0ld {
                   else => $else,
                   elsif => \@elsif );
 
+	} elsif ($stm->{sym} eq 'CONTROL') {
+	    # CONTROL blocks are moved to the top of the
+	    # statementlist, so we know that no code was executed
+	    # before this, so we can peacefully delay the setup of the
+	    # control block up to this point.
+	    call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($stm->{block}) ];
         } else {
             XXX('unkown sym in statement_control')
         }

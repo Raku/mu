@@ -5,7 +5,7 @@ PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove 
 test: prove
 
 prove:
-	$(PROVE) 'perl mildew --exec --file' t/
+	$(PROVE) 'perl mildew ' t/
 
 clean:
 	rm -rf lex
