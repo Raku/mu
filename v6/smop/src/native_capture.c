@@ -128,19 +128,17 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
     ret = SMOP__NATIVE__bool_false;
   } else if (identifier == SMOP__ID__FETCH) {
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
-    int c = SMOP__NATIVE__capture_positional_count(interpreter, capture);
+    int c = SMOP__NATIVE__capture_positional_count(interpreter, invocant);
     if (c == 1) {
-      ret = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+      ret = SMOP__NATIVE__capture_positional(interpreter, invocant, 0);
     } else {
       ret = SMOP__S1P__Array_create();
       int i = 0;
       for (i = 0; i < c; i++) {
+	SMOP__Object* element = SMOP__NATIVE__capture_positional(interpreter, invocant, i);
 	SMOP_DISPATCH(interpreter, SMOP_RI(ret), SMOP__ID__push,
-		      SMOP__NATIVE__capture_create(interpreter,ret,
-						   (SMOP__Object*[]){
-						     SMOP__NATIVE__capture_positional(interpreter,
-										      capture,
-										      i), NULL }, NULL));
+		      SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,ret),
+						   (SMOP__Object*[]){ element, NULL }, NULL));
       }
     }
     SMOP_RELEASE(interpreter, invocant);

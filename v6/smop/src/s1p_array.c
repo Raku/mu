@@ -58,6 +58,7 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
   ___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;
   smop_s1p_array_struct* invocant = (smop_s1p_array_struct*)(SMOP__NATIVE__capture_invocant(interpreter, capture));
+
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   if (identifier == SMOP__ID__new) {
     ret = SMOP__S1P__Array_create();
@@ -82,6 +83,11 @@ static SMOP__Object* smop_s1p_array_message(SMOP__Object* interpreter,
     invocant->content[0] = value;
     invocant->elems++;
 
+  } else if (identifier == SMOP__ID__shift) {
+    ret = invocant->content[0];
+    memmove(&invocant->content[0], &invocant->content[1], invocant->elems * sizeof(void*));
+    invocant->elems--;
+    if (!ret) ret = SMOP__NATIVE__bool_false;
   } else if (identifier == SMOP__ID__elems) {
     ret = SMOP__NATIVE__int_create(invocant->elems);
 
