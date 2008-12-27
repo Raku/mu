@@ -73,7 +73,9 @@ sub routine {
 	    ( regs => ['interpreter','scope'],
 	      stmts =>
 	      [ call( handle_return => call('new' => FETCH(lookup('ControlExceptionReturn'))),
-		      [ FETCH(lookup('$_')),FETCH(lookup('&?ROUTINE')) ]) ] ),
+		      [ FETCH(lookup('$_')),FETCH(lookup('&?ROUTINE')) ]),
+		call( "goto" => reg '$interpreter', [ call("back" => call("continuation" => reg '$interpreter'))]) 
+	      ] ),
 	    string 'outer' => reg '$scope' ]
 	 ] );
   call new => FETCH(lookup('Code')),[],

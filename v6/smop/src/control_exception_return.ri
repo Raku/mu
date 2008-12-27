@@ -34,13 +34,12 @@
 
 %method handle_return
   SMOP__Object* it = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+  SMOP__Object* routine_c = ((control_exception_return_struct*)it)->routine;
+  SMOP__Object* routine = SMOP__S1P__Scalar_FETCH(routine_c);
   SMOP__Object* ro = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
   if (SMOP_RI(it) == RI) {
-    if (((control_exception_return_struct*)it)->routine == ro) {
-       printf("Handled!\n");
+    if (routine == ro) {
        ((control_exception_return_struct*)it)->handled = SMOP__NATIVE__bool_true;
-    } else {
-       printf("UnHandled!\n");
     }
   }
 
