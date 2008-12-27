@@ -332,12 +332,15 @@ sub VAST::parameter::emit_m0ld_ahsig_BIND_invocant {
 sub VAST::parameter::emit_m0ld_ahsig_BIND {
     my ($m, $count) = @_;
     if ($m->{param_var}) {
-#        call 'STORE' => (call 'postcircumfix:{ }' => reg '$scope',[
-#            string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT}
-#        ]),[(call 'FETCH' => (call 'positional' => reg '$capture',[integer($count) ]))]
-        call 'BIND' => (call 'postcircumfix:{ }' => reg '$scope',[
-            string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT}
-        ]),[call 'positional' => reg '$capture',[integer($count) ]];
+      if ($m->{quant} eq '|') {
+        call 'STORE' => (call 'postcircumfix:{ }' => reg '$scope',
+			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT}]),
+			  [ reg '$capture' ];
+      } else {
+        call 'STORE' => (call 'postcircumfix:{ }' => reg '$scope',
+			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT}]),
+			  [call 'positional' => reg '$capture',[integer($count) ]];
+      }
     } else {
         XXX;
     }
