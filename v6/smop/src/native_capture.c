@@ -128,7 +128,12 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
     ret = SMOP__NATIVE__bool_false;
   } else if (identifier == SMOP__ID__FETCH) {
     SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, capture);
-    ___VALUE_FETCH___;
+    if (SMOP__NATIVE__capture_positional_count(interpreter, capture) == 1) {
+      ret = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    } else {
+      printf("Item assignment with several or no positional arguments not supported in native capture\n");
+      abort();
+    }
     SMOP_RELEASE(interpreter, invocant);
     SMOP_RELEASE(interpreter, capture);
   } else {

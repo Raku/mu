@@ -312,7 +312,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
           char* local = malloc(u+1);
           memcpy(local, external, u);
           local[u] = 0;
-          fprintf(stderr, "[SMOP_MOLD_DEBUG] eval \"%s\" on \"%s\".\n", local, SMOP_RI(call_invocant)->id);
+          fprintf(stderr, "[SMOP_MOLD_DEBUG] %p eval \"%s\" on \"%s\".\n", frame, local, SMOP_RI(call_invocant)->id);
           free(local);
         } else {
           fprintf(stderr, "[SMOP_MOLD_DEBUG] eval on \"%s\".\n", SMOP_RI(call_invocant)->id);
