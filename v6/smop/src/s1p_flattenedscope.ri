@@ -1,0 +1,27 @@
+%prefix smop_s1p_flattenedscope
+%prototype SMOP__S1P__FlattenedScope
+%RI.id flattened lexical scope
+%attr SMOP__Object* lexical
+%getter lexical
+%method new
+  ret = smop_lowlevel_alloc(sizeof(smop_s1p_flattenedscope_struct));
+  SMOP_REFERENCE(interpreter,RI);
+  ret->RI = (SMOP__ResponderInterface*)RI;
+  ((smop_s1p_flattenedscope_struct*)ret)->lexical = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+
+%method postcircumfix:{ }
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* lexical = ((smop_s1p_flattenedscope_struct*)invocant)->lexical;
+  smop_lowlevel_unlock(invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(lexical),
+                      SMOP__ID__lookup,
+                      SMOP__NATIVE__capture_delegate(interpreter,
+                                                     SMOP_REFERENCE(interpreter,lexical),
+                                                     SMOP_REFERENCE(interpreter,capture)));
+
+%method DESTROYALL
+    smop_lowlevel_wrlock(invocant);
+    SMOP__Object* lexical = ((smop_s1p_flattenedscope_struct*)invocant)->lexical;
+    smop_lowlevel_unlock(invocant);
+    SMOP_RELEASE(interpreter,lexical);
+    SMOP_RELEASE(interpreter,RI);

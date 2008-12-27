@@ -243,7 +243,10 @@ sub VAST::term::emit_m0ld {
     } elsif (my $name = $m->{longname}->{name}) {
         if ($name->{morename} and !$name->{identifier}) {
             lookup join '',map {$_->{identifier}[0]{TEXT}} @{$name->{morename}};
-        }
+        } elsif ($name->{identifier}{TEXT} eq 'CALLER') {
+	    call new => reg '¢SMOP__S1P__FlattenedScope',
+	      [ call lexical => (call back => (call continuation => reg '$interpreter')) ];
+	}
     }
 }
 sub VAST::identifier::emit_m0ld {
@@ -464,8 +467,21 @@ sub EXPR {
             for (@{$m->{POST}}) {
                 if ($_->{dotty}) {
                     $noun = $_->{dotty}->emit_m0ld($noun);
+		} elsif ($_->{postop}) {
+		    if (my $pc = $_->{postop}{postcircumfix}) {
+			if (ref $pc->{sym} eq 'ARRAY' &&
+			    $pc->{sym}[0] eq '<' &&
+			    $pc->{sym}[1] eq '>') {
+			    my $nib = join '', @{$pc->{nibble}{nibbles}};
+			    $noun = call 'postcircumfix:{ }' => $noun, [ string $nib ];
+			} else {
+			    XXX;
+			}
+		    } else {
+			XXX;
+		    }
                 } else {
-                    XXX
+                    XXX;
                 }
             }
             $noun;

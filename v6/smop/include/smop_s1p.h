@@ -24,6 +24,7 @@ extern SMOP__Object* SMOP__S1P__RootNamespace;
 extern SMOP__Object* SMOP__S1P__LexicalPrelude;
 extern SMOP__Object* SMOP__S1P__Capturize;
 extern SMOP__Object* SMOP__S1P__EmptyList;
+extern SMOP__Object* SMOP__S1P__FlattenedScope;
 extern SMOP__Object* SMOP__S1P__LexicalScope;
 extern SMOP__Object* SMOP__S1P__DefaultBlockSignature;
 extern SMOP__Object* SMOP__S1P__BindCaptureSignature;

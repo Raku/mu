@@ -151,6 +151,7 @@ void smop_s1p_code_mold_init() {
     my $frame = $frame_proto."new"($mold);
     $void = $frame."set_reg"(0, $interpreter);
     $void = $frame."set_reg"(1, $lexical);
+    $void = $frame."set_lexical"($lexical);
     $void = $frame."set_back"($back);
     $void = $interpreter."goto"($frame);
   };

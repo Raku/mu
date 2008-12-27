@@ -55,6 +55,7 @@ SMOP__Object* SMOP__ID__key;
 SMOP__Object* SMOP__ID__lexical;
 SMOP__Object* SMOP__ID__List;
 SMOP__Object* SMOP__ID__loop;
+SMOP__Object* SMOP__ID__lookup;
 SMOP__Object* SMOP__ID__lookup_fail;
 SMOP__Object* SMOP__ID__lookup_key;
 SMOP__Object* SMOP__ID__bind_key;

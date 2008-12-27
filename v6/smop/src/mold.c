@@ -12,6 +12,7 @@ static SMOP__Object* SMOP__ID__set_reg;
 static SMOP__Object* SMOP__ID__set_back;
 static SMOP__Object* SMOP__ID__set_control;
 static SMOP__Object* SMOP__ID__set_catch;
+static SMOP__Object* SMOP__ID__set_lexical;
 
 static SMOP__Object* mold_reference(SMOP__Object* interpreter, SMOP__ResponderInterface* responder, SMOP__Object* obj) {
   //printf("+ %p\n", obj);
@@ -45,6 +46,7 @@ typedef struct smop_mold_frame {
   SMOP__Object* back;
   SMOP__Object* control;
   SMOP__Object* catch;
+  SMOP__Object* lexical;
   SMOP__Object** registers;
   int target;
 } smop_mold_frame;
@@ -207,6 +209,10 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     if (frame->catch) {
       ret = SMOP_REFERENCE(interpreter,frame->catch);
     }
+  } else if (SMOP__ID__lexical == identifier) {
+    if (frame->lexical) {
+      ret = SMOP_REFERENCE(interpreter,frame->lexical);
+    }
 
   } else if (SMOP__ID__set_back == identifier) {
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
@@ -231,7 +237,16 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     if (!frame->catch) {
       frame->catch = value;
     } else {
-      printf("trying to set a new catch to the frame\n");
+      printf("trying to set a new lexical to the frame\n");
+      abort();
+    }
+
+  } else if (SMOP__ID__set_lexical == identifier) {
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (!frame->lexical) {
+      frame->lexical = value;
+    } else {
+      printf("trying to set a new lexical to the frame\n");
       abort();
     }
 
@@ -398,6 +413,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     if (frame->back) SMOP_RELEASE(interpreter,frame->back);
     if (frame->control) SMOP_RELEASE(interpreter,frame->control);
     if (frame->catch) SMOP_RELEASE(interpreter,frame->catch);
+    if (frame->lexical) SMOP_RELEASE(interpreter,frame->lexical);
     frame->mold = NULL;
   } else if (identifier == SMOP__ID__FETCH) {
     ___VALUE_FETCH___;
@@ -420,6 +436,7 @@ void smop_mold_init() {
   SMOP__ID__set_back = SMOP__NATIVE__idconst_create("set_back");
   SMOP__ID__set_control = SMOP__NATIVE__idconst_create("set_control");
   SMOP__ID__set_catch = SMOP__NATIVE__idconst_create("set_catch");
+  SMOP__ID__set_lexical = SMOP__NATIVE__idconst_create("set_lexical");
 
   SMOP__Mold = calloc(1,sizeof(SMOP__ResponderInterface));
   ((SMOP__ResponderInterface*)SMOP__Mold)->MESSAGE = smop_mold_message;
