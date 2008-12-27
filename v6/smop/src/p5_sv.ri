@@ -3,23 +3,79 @@
 %attr SV* sv
 %attr SMOP__Object* p5interpreter;
 %RI.id Wrapped SV*
+
+%{
+  SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
+    SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));
+    ret->RI = RI;
+    ((smop_p5_sv_struct*)ret)->sv = SvREFCNT_inc(sv);
+    ((smop_p5_sv_struct*)ret)->p5interpreter = p5interpreter;
+    return ret;
+  }
+
+  static SV* SMOP__Object2SV(PerlInterpreter* my_perl,SMOP__Object* object) {
+    if (object->RI == RI) {
+      return ((smop_p5_sv_struct*)object)->sv;
+    } else {
+      SV* pointer = newSViv((int)object);
+      HV* class = gv_stashpv("SMOP::Object", GV_ADD);
+      return sv_2mortal(sv_bless(newRV_noinc(pointer), class));
+    }
+  }
+%}
+
+%message {
+  ___NATIVE_CAPTURE_ONLY___;
+  ___CONST_IDENTIFIER_ONLY___;
+  SMOP__Object* invocant = (SMOP__Object*) SMOP__NATIVE__capture_invocant(interpreter, capture);
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
+  %%METHODS%%
+  {
+    int len;
+    char* method = SMOP__NATIVE__idconst_fetch(identifier,&len);
+    char* method_with_null = malloc(sizeof(char) * (len+1));
+    strncpy(method_with_null,method,len);
+    method_with_null[len] = '\0';
+
+    dSP;
+    PUSHMARK(SP);
+    XPUSHs(SMOP__Object2SV(my_perl,invocant));
+    int positionals = SMOP__NATIVE__capture_positional_count(interpreter,capture);
+    int i;
+    for (i=0;i < positionals;i++) {
+      SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,capture,i);
+      XPUSHs(SMOP__Object2SV(my_perl,object));
+      SMOP_RELEASE(interpreter,object);
+    }
+    PUTBACK;
+
+    call_method(method_with_null,G_DISCARD);
+
+    free(method_with_null);
+  }
+  if (invocant) SMOP_RELEASE(interpreter,invocant);
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
+%}
 %method FETCH
   ___VALUE_FETCH___
+
 %method STORE
   ___VALUE_STORE___
+
 %method Str
-  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
   STRLEN len;
   char* str = SvPV(((smop_p5_sv_struct*)invocant)->sv,len);
   ret = SMOP__NATIVE__idconst_createn(str,len);
+
 %method int
-  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
-  ret = SMOP__NATIVE__int_create(((smop_p5_sv_struct*)invocant));
+  ret = SMOP__NATIVE__int_create(SvIV(((smop_p5_sv_struct*)invocant)->sv));
+
 %method DESTROYALL
-  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
   SvREFCNT_dec(((smop_p5_sv_struct*)invocant)->sv); 
+
 %method postcircumfix:( )
-  PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
 
   assert(SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1);
   SMOP__Object* real_capture = SMOP__NATIVE__capture_positional(interpreter,capture,0);
@@ -33,16 +89,7 @@
   int i;
   for (i=0;i < positionals;i++) {
     SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,real_capture,i);
-    SV* ref;
-    if (object->RI == RI) {
-      ref = ((smop_p5_sv_struct*)object)->sv;
-      XPUSHs(ref);
-    } else {
-      SV* pointer = newSViv((int)object);
-      HV* class = gv_stashpv("SMOP::Object", GV_ADD);
-      ref = sv_bless(newRV_noinc(pointer), class);
-      XPUSHs(sv_2mortal(ref));
-    }
+    XPUSHs(SMOP__Object2SV(my_perl,object));
     SMOP_RELEASE(interpreter,object);
   }
   PUTBACK;
@@ -55,12 +102,3 @@
   SMOP_RELEASE(interpreter,real_capture);
 
 
-%{
-  SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
-    SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));
-    ret->RI = RI;
-    ((smop_p5_sv_struct*)ret)->sv = SvREFCNT_inc(sv);
-    ((smop_p5_sv_struct*)ret)->p5interpreter = p5interpreter;
-    return ret;
-  }
-%}

@@ -159,29 +159,25 @@ static SMOP__Object* message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
 ];
-
-print '  ';
-if ($raw{message}) {
-    print $raw{message};
-} else {
-print q[
+my $message = $raw{message} || q[
   ___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;
   SMOP__Object* invocant = (SMOP__Object*) SMOP__NATIVE__capture_invocant(interpreter, capture);
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
-];
-    while (my ($method,$body) = each %methods) {
-        print "if (",mangle($method)," == identifier) {\n$body  } else ";
-    }
-    print qq[{
+  %%METHODS%%
+  {
     ___UNKNOWN_METHOD___;
   }
-
   if (invocant) SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
   return ret;
-    ];
+];
+my $methods = '';
+while (my ($method,$body) = each %methods) {
+    $methods .= "if (" . mangle($method) . " == identifier) {\n$body  } else ";
 }
+$message =~ s/%%METHODS%%/$methods/g;
+print $message;
 print q[
 }
 ];
