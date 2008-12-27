@@ -4,14 +4,14 @@ my sub return(|$capture) {
    $e.routine = CALLER::<&?ROUTINE>;
    $e.throw;
 }
-$OUT.print("1..2\n");
+$OUT.print("1..3\n");
 my sub foo($code) {
    $code.();
    $OUT.print("not ok 2 - inside foo\n");
 }
 my sub bar() {
    $OUT.print("ok 1\n");
-   foo({ return "ok 3 - value returned"; });
+   foo({ return "ok 3 - value returned\n"; });
    $OUT.print("not ok 2 - inside bar\n");
 }
 my $a = bar();

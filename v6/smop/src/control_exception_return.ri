@@ -40,6 +40,9 @@
   if (SMOP_RI(it) == RI) {
     if (routine == ro) {
        ((control_exception_return_struct*)it)->handled = SMOP__NATIVE__bool_true;
+       SMOP__Object* capture_c = ((control_exception_return_struct*)it)->capture;
+       SMOP__Object* capture = SMOP__S1P__Scalar_FETCH(capture_c);
+       ret = SMOP_REFERENCE(interpreter, capture);
     }
   }
 

@@ -68,16 +68,19 @@ sub routine {
     call(set_control => call(continuation => reg '$interpreter'),
 	 [
 	  call new => FETCH(lookup('Code')),[],
-	  [ string 'mold' =>
+	  [ string 'outer' => reg '$scope',
+	    string 'mold' =>
 	    AST::Block->new
 	    ( regs => ['interpreter','scope'],
 	      stmts =>
-	      [ call( handle_return => call('new' => FETCH(lookup('ControlExceptionReturn'))),
-		      [ FETCH(lookup('$_')),FETCH(lookup('&?ROUTINE')) ]),
-		call( "goto" => reg '$interpreter', [ call("back" => call("continuation" => reg '$interpreter'))]) 
-	      ] ),
-	    string 'outer' => reg '$scope' ]
-	 ] );
+	      [ call( "setr" =>
+		      ( call "back" => (call "continuation" => reg '$interpreter' )),
+		      [ call( handle_return =>
+			      call('new' => FETCH(lookup('ControlExceptionReturn'))),
+			      [ FETCH(lookup('$_')),FETCH(lookup('&?ROUTINE')) ] )]),
+		call( "goto" => reg '$interpreter',
+		      [ call("back" => call("continuation" => reg '$interpreter'))])])]]);
+
   call new => FETCH(lookup('Code')),[],
     [ string 'mold' => $realcode,
       string 'outer' => reg '$scope',
