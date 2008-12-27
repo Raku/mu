@@ -4,16 +4,18 @@
 %attr SMOP__Object* handled
 %attr SMOP__Object* context
 %attr SMOP__Object* capture
+%attr SMOP__Object* routine
 %getter handled
 %getter context
 %getter capture
-
+%getter routine
 %method new
     SMOP__Object* exc = smop_lowlevel_alloc(sizeof(control_exception_return_struct));
     exc->RI = (SMOP__ResponderInterface*)RI;
     ((control_exception_return_struct*)exc)->handled = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ((control_exception_return_struct*)exc)->context = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ((control_exception_return_struct*)exc)->capture = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    ((control_exception_return_struct*)exc)->routine = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ret = exc;
 
 %method throw
@@ -29,6 +31,18 @@
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,
               SMOP_REFERENCE(interpreter,frame));
+
+%method handle_return
+  SMOP__Object* it = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+  SMOP__Object* ro = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+  if (SMOP_RI(it) == RI) {
+    if (((control_exception_return_struct*)it)->routine == ro) {
+       printf("Handled!\n");
+       ((control_exception_return_struct*)it)->handled = SMOP__NATIVE__bool_true;
+    } else {
+       printf("UnHandled!\n");
+    }
+  }
 
 %method _not_caught
     fprintf(stderr, "Uncaught return control exception.\n");

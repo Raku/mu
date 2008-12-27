@@ -18,6 +18,8 @@ static SMOP__Object* message(SMOP__Object* interpreter,
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
 
   if (identifier == SMOP__ID__DESTROYALL) {
+  } else if (identifier == SMOP__ID__FETCH) {
+    ___VALUE_FETCH___;
   } else {
     ___UNKNOWN_METHOD___;
   }

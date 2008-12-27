@@ -44,7 +44,6 @@ sub move_CONTROL {
 	        ($control = $_) ) }
 	  @{$statementlist};
     if ($control) {
-      warn "unshifiting control\n";
       unshift @statementlist, $control;
     }
     return @statementlist;
@@ -59,12 +58,40 @@ sub XXX {
         die Dump($m)." can't be represented as a constant string\n";
     }
 }
+
+sub routine {
+  my ($mold, $sig) = @_;
+  my $realcode = $mold->emit_m0ld;
+  unshift @{$realcode->stmts},
+    call(STORE => call('postcircumfix:{ }' => reg '$scope', [ string '&?ROUTINE' ]), [ call(continuation => reg '$interpreter') ]),
+    call(STORE => call('postcircumfix:{ }' => reg '$scope', [ string '&?BLOCK' ]), [ call(continuation => reg '$interpreter') ]),
+    call(set_control => call(continuation => reg '$interpreter'),
+	 [
+	  call new => FETCH(lookup('Code')),[],
+	  [ string 'mold' =>
+	    AST::Block->new
+	    ( regs => ['interpreter','scope'],
+	      stmts =>
+	      [ call( handle_return => call('new' => FETCH(lookup('ControlExceptionReturn'))),
+		      [ FETCH(lookup('$_')),FETCH(lookup('&?ROUTINE')) ]) ] ),
+	    string 'outer' => reg '$scope' ]
+	 ] );
+  call new => FETCH(lookup('Code')),[],
+    [ string 'mold' => $realcode,
+      string 'outer' => reg '$scope',
+      ( $sig ? ( string 'signature' => $sig->emit_m0ld_ahsig ) : () )];
+}
+
 sub code {
-    my ($mold,$sig) = @_;
-    call new => FETCH(lookup('Code')),[],[
-        string 'mold' => $mold->emit_m0ld,
-        string 'outer' => reg '$scope',
-        ( $sig ? ( string 'signature' => $sig->emit_m0ld_ahsig ) : () )];
+  my ($mold,$sig) = @_;
+  my $realcode = $mold->emit_m0ld;
+  unshift @{$realcode->stmts},
+    call(STORE=> call('postcircumfix:{ }' => reg '$scope', [ string '&?BLOCK' ]), [ call(continuation => reg '$interpreter') ]);
+
+  call new => FETCH(lookup('Code')),[],
+    [ string 'mold' => $realcode,
+      string 'outer' => reg '$scope',
+      ( $sig ? ( string 'signature' => $sig->emit_m0ld_ahsig ) : () )];
 }
 
 sub VAST::ws::emit_m0ld {}
@@ -241,7 +268,7 @@ sub VAST::args::emit_m0ld {
 
 sub VAST::routine_def::emit_m0ld {
     my $m = shift;
-    code($m->{block},$m->{multisig}[0]{signature}[0]);
+    routine($m->{block},$m->{multisig}[0]{signature}[0]);
 }
 
 
@@ -249,7 +276,7 @@ sub VAST::method_def::emit_m0ld {
     my $m = shift;
     AST::Let->new(value => FETCH(lookup('$?CLASS')), block => sub {
         my $CLASS = shift;
-        call add_method => FETCH(call '^!how' => $CLASS),[$CLASS,string $m->{longname}{name}{identifier}{TEXT}, code($m->{block},$m->{multisig}[0]{signature}[0])];
+        call add_method => FETCH(call '^!how' => $CLASS),[$CLASS,string $m->{longname}{name}{identifier}{TEXT}, routine($m->{block},$m->{multisig}[0]{signature}[0])];
     });
 }
 
@@ -369,9 +396,9 @@ sub VAST::sublongname::canonical {
 sub varname {
     my $m = shift;
     if ($m->{desigilname}) {
-        $m->{sigil}{TEXT} . ($m->{twigil}[0]{TEXT} || '') . $m->{desigilname}{longname}->canonical;
+        $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$m->{desigilname}{longname}->canonical;
     } elsif ($m->{sublongname}) {
-        $m->{sigil}{TEXT}.$m->{sublongname}{subshortname}{desigilname}{longname}->canonical;
+        $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$m->{sublongname}{subshortname}{desigilname}{longname}->canonical;
     } else {
         XXX;
     }
