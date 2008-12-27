@@ -246,6 +246,9 @@ sub VAST::term::emit_m0ld {
         } elsif ($name->{identifier}{TEXT} eq 'CALLER') {
 	    call new => reg '¢SMOP__S1P__FlattenedScope',
 	      [ call lexical => (call back => (call continuation => reg '$interpreter')) ];
+        } elsif ($name->{identifier}{TEXT} eq 'MY') {
+	    call new => reg '¢SMOP__S1P__FlattenedScope',
+	      [ reg '$scope' ];
 	}
     }
 }
