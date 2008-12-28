@@ -13,7 +13,7 @@
 
                      Welcome to the Pugs Test suite.
 
-Pugs is currently being developed in a highly test-driven manner. Tests are 
+Pugs is currently being developed in a highly test-driven manner. Tests are
 written for both implemented and unimplemented features and are based roughly
 on the Perl6 Language Synopsis documents. All are welcome and encouraged to
 contribute to this test suite. The part under spec/ is considered to be the
@@ -24,7 +24,7 @@ Synopsis documents. It is also used by other Perl 6 implementations.
 Getting Started
 -------------------------------------------------------------------------------
 
-Here are some basic guidelines to help you get started writing tests for Pugs. 
+Here are some basic guidelines to help you get started writing tests for Pugs.
 
 - Prerequisites
 
@@ -50,7 +50,7 @@ and asking questions is a good thing.
 
 - What to test
 
-A number of Pugs hackers on #perl6 run regular smoke tests, and you can run 
+A number of Pugs hackers on #perl6 run regular smoke tests, and you can run
 your own using 'make smoke'. The smoke test produces an HTML graph of what tests
 are passing, and what aren't. This can be a good place to start. There's a smoke
 server on the web:
@@ -73,20 +73,20 @@ an hour.
 
 - Use the Test module.
 
-We have created a basic Test module found in ext/Test/lib/Test.pm. It is 
-written in Perl 6 and implements the TAP protocol (and so can be used with 
-Test::Harness). The module has its own documentation and I encourage you to 
-read it. 
+We have created a basic Test module found in ext/Test/lib/Test.pm. It is
+written in Perl 6 and implements the TAP protocol (and so can be used with
+Test::Harness). The module has its own documentation and I encourage you to
+read it.
 
 - Pugs tests should have a non-she-bang line of "use v6;".
 
-This line helps both Test::Harness as well as the 'prove6' utility when 
-running Pugs tests. 
+This line helps both Test::Harness as well as the 'prove6' utility when
+running Pugs tests.
 
 - Place tests in the appropriate folder.
 
-We have recently undergone a re-organization of the test suite in order to 
-make it easier to find what has and has not been tested. It is important as 
+We have recently undergone a re-organization of the test suite in order to
+make it easier to find what has and has not been tested. It is important as
 the test suite grows that we try to keep this organization. If you have a test
 and are unsure of where to put it, ask on #perl6 for help, or put it in the
 general/ folder and email perl6-compiler and let us know.
@@ -128,8 +128,8 @@ util/smartlinks.pl to verify the links' validity:
 
    $ perl util/smartlinks.pl --check t/some/test.t
 
-By default, the freshness of the synopses will checked every time. Use "--fast"
-to skip that step.
+By default, the freshness of the synopses will be checked every time. Use
+"--fast" to skip that step.
 
 - Dealing with parse failures
 
@@ -141,24 +141,24 @@ has been implemented correctly.
 
 Sometimes code is so futuristic, it can even confuse eval. We call this a
 "hard parsefail". When this happens, comment out the failing code, but mark
-it so it doesn't get forgotten, like so:
+it so it doesn't get forgotten, like this:
 
     todo :pugs<6.28.0>, v6_pm<0.110>;
     flunk("FIXME parsefail");
     #ok eval('my code here');
-    
+
 Or another alternate style is as follows:
 
     ok eval('# $code.which(%will, @fail)');
 
     ok eval(q{
-	blah blah blah
+        blah blah blah
     });
 
     is(eval(q{
-	my $val;
-	# some code here...
-	$val;
+        my $val;
+        # some code here...
+        $val;
     }), $expected, 'description');
 
 which essentially comments out your eval, and returns 'undef' to ok().
@@ -172,7 +172,7 @@ The general rule about todo tests is that if the feature is not
 yet implemented, it is TODO. But if a feature is broken, or a bug is found
 then the tests should fail and *not* be TODO.
 
-The only exception to this rule is that we TODO all failing tests before 
+The only exception to this rule is that we TODO all failing tests before
 each point release. This is so 'make test' will succeed :)
 
 Remember, the failing test *is* your bug report.

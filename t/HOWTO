@@ -4,7 +4,7 @@ This is a guide on how to add tests to the official Perl 6 test suite.
 
 =head2 Pro Forma
 
-All file pathes in this directory are relative to the root of the pugs
+All file paths in this directory are relative to the root of the pugs
 repository (unless stated otherwise). You can obtain the pugs SVN repository
 by typing
 
@@ -24,7 +24,7 @@ list of stuff that needs testing.
 =head2 Check the other tests first
 
 Many things are already tested, and it would be waste of time to duplicate the
-effort, and a maintainance burden. So first  check if there are tests for the
+effort, and a maintainance burden. So first check if there are tests for the
 things you want. Usually a very efficient method is to do a full text search
 on the current test suite, either with C<grep> or C<ack> (a perl replacement
 for grep, see L<http://search.cpan.org/dist/ack>).
@@ -72,12 +72,12 @@ hyphens, eg C<S99-weird/very-weird-features.t>.
 
 =head2 Write the Tests
 
-The test suite uses the "Test Anything Protocol" (short TAP), and a module 
-named C<Test> that produces the apropriate output. Perl 5 programmers will
+The test suite uses the "Test Anything Protocol" (short TAP), and a module
+named C<Test> that produces the appropriate output. Perl 5 programmers will
 be familiar with it because it's very much like L<Test::More>.
 
 Suppose you'd want to test the power operator C<**>. Your test file might
-looking something like that:
+be looking something like this:
 
     use v6;
     use Test;
@@ -90,15 +90,15 @@ looking something like that:
 
 Let's go through this line by line.
 
-The first one tells the compiler that is
-a Perl 6 source file, not Perl 5. The second one load the C<Test> module.
+The first line tells the compiler that it is
+a Perl 6 source file, not Perl 5. The second one loads the C<Test> module.
 
 C<plan 4;> says "we're planning to run 4 tests in this file". If for example
 the test silently dies during execution, the TAP parser knows how many tests
 you planned to run, and raises an error if it didn't run that many.
 
 The next line is our first real test. It calls the C<is()> function with three
-arguments: the first is the expression whos value is being tested (C<2**4>),
+arguments: the first is the expression whose value is being tested (C<2**4>),
 the second is the expected value (C<16>), and the third is a short description
 of what the test does.
 
@@ -113,12 +113,12 @@ which parts of the synopsis. Please add at least one smartlink to each test
 file that you write.
 
 Smart links are covered in more detail here:
- 
+
     http://pugs.blogs.com/pugs/2006/08/integrating_the.html
     http://pugs.blogs.com/pugs/2006/09/check_smoke_res.html
     http://pugs.blogs.com/pugs/2006/09/the_benefits_of.html
 
-C<t/README> also contains some information on how smartlinks for.
+C<t/README> also contains some information on how smartlinks work.
 
 In our example we'd go into C<docs/Perl6/Spec> where the synopsis live, and
 search for occurences of C<**>:
@@ -133,11 +133,11 @@ The best match seems to be C<Operator.pod>. Looking at
 L<http://perlcabal.org/syn/> reveals that it's also called S03 for short. So
 we know that our smartlink will start with C<< L<S03/> >>. Next we find out
 which section the best match is. That's C<Exponentiation precedence> in our
-case, so our smartlink looks like this: 
-C<< L<S03/Exponentiation precedence/> >>. 
+case, so our smartlink looks like this:
+C<< L<S03/Exponentiation precedence/> >>.
 
-The only thing missing is to identify the paragraph. Instead of copying 
-the markup, we just use a part of what will be displayed, and put it 
+The only thing missing is to identify the paragraph. Instead of copying
+the markup, we just use a part of what will be displayed, and put it
 in double quotes:
 C<< L<S03/Exponentiation precedence/"infix:<**>"> >>. We place that line
 directly after the C<plan> directive in our test file.
@@ -145,7 +145,7 @@ directly after the C<plan> directive in our test file.
 =head2 Comitting your changes
 
 Once you've written (or edited) a reasonable test file, you should commit the
-changes to the pugs repositoy.
+changes to the pugs repository.
 If you don't have a commit bit (that is the power to commit changes to the
 repository) join #perl on irc.freenode.net and ask for one.
 
@@ -161,7 +161,7 @@ properties. Lazy programmers use a shell script for that:
     svn ci -m '[t/spec] test for very weird features' t/spec/S99-weird/very-weird-features.t
 
 Please always include the C<[t/spec]> marker at the beginning of your commit
-messages (or C<[t]> if you didn't modify C<t/spec/>), it helps other to
+messages (or C<[t]> if you didn't modify C<t/spec/>), it helps others to
 identify which part of the repository you changed.
 
 =cut

@@ -1,15 +1,20 @@
 TASKS for the Perl 6 Test Suite
 
-Add any requested tests or other updates to this file. Please organize them by synopsis (when applicable) or put them in the OVERALL section at the top if they apply to the test suite in general.
+Add any requested tests or other updates to this file. Please organize them
+by synopsis (when applicable) or put them in the OVERALL section at the top
+if they apply to the test suite in general.
 
 Please also read t/deprecated-syntax.pod for common mistakes in the test
 suite, and clear them when you update tests.
 
-When you are adding entries here, please put something like this in the commit message:
+When you are adding entries here, please put something like this in the
+commit message:
 [t/TASKS]: Added more tasks for S02.
-This way, people working on the test suite can easily spot these commits in #perl6.
+This way, people working on the test suite can easily spot these commits
+in #perl6.
 
-This file had entries in the past (r16405). Since this file wasn't touched in over 4000 commits, I (Auzon) cleared them out.
+This file had entries in the past (r16405). Since this file wasn't touched
+in over 4000 commits, I (Auzon) cleared them out.
 
 OVERALL
 * Add smartlinks to tests without them
@@ -17,7 +22,7 @@ OVERALL
 * Clean up old POD (only present in some testing modules)
 * Review XXX entries for test corrections
 * rewrite tests with multiple lexical subs of the same name ("my sub foo") to
-  use different names and no "my" (except where testing lexical subs, for
+  use different names and no "my" (except where testing lexical subs, of
   course)
 
 S02
@@ -119,7 +124,7 @@ Junction tests
  junctions. An intermediate workaround is to use $junction.values.sort, but
  what we *really* should have is a sub that tests for junction identity.
  That could be an intersting piece of code to write. --moritz
- 
+
  However, based on discussions at the OSCON 2008 hackathon, there's reason
  to believe that .values won't be a method on Junction (or rather, that
  .values autothreads overs the members of the Junction set like any other

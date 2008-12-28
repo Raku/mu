@@ -1,6 +1,6 @@
 =head1 NAME
 
-Current Problems and workarounds
+Current Problems and Workarounds
 
 =head1 AUTHOR
 
@@ -10,8 +10,8 @@ Various Perl6 Contributors
 
 It is not uncommon for us to do a release, and find some particular
 system configuration somewhere is having difficulties.  This file is
-intended as a place to accumulate information on symptoms and work
-arounds for the current release.  It is mainly intended for developers,
+intended as a place to accumulate information on symptoms and workarounds
+for the current release.  It is mainly intended for developers,
 rather than users.
 
 =head1 PROBLEM: "cpan -i Task::Smoke" fails because Test-TAP-Model-0.06 install fails.
@@ -20,7 +20,7 @@ B<WORKAROUND:> Force it with "cpan -if Task::TAP::Model".
 
 
 =head1 PROBLEM: Doesn't build under Debian; aborts with
-	"Setup: error reading ./.setup-config"
+  "Setup: error reading ./.setup-config"
 
 B<WORKAROUND:> Install libghc6-network-dev
 
@@ -55,8 +55,8 @@ version is very uncommon.
 There doesn't seem to be an easy way to detect this problem short of
 the current "try to link and see if it works".
 
-=head1 PROBLEM: perl Makefile.PL fails after "Preprocessing library zlib" 
-	 with an error like "Cannot install zlib: 256"
+=head1 PROBLEM: perl Makefile.PL fails after "Preprocessing library zlib"
+  with an error like "Cannot install zlib: 256"
 
-B<SOLUTION:> Please make sure that your $PATH contains ghc (6.8.2+) binaries 
-	  first, and then run 'perl Makefile.PL' again.
+B<SOLUTION:> Please make sure that your $PATH contains ghc (6.8.2+) binaries
+  first, and then run 'perl Makefile.PL' again.

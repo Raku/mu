@@ -5,7 +5,7 @@ To build Pugs see INSTALL
 BUILDING v6
 ------------------
 
-v6 is an implementation of Perl 6 on Perl 5. 
+v6 is an implementation of Perl 6 on Perl 5.
 Its source code also lives in the same repository as Pugs.
 (see <http://perlmonks.org/?node_id=559083>)
 

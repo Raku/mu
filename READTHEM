@@ -31,7 +31,7 @@ HaskellDemo                                     - Shae Erisson (aka "shapr")
     http://www.haskell.org/hawiki/HaskellDemo
 Haskell Tutorial for C Programmers                          - Eric Etheridge
     http://www.haskell.org/~pairwise/intro/intro.html
-Haskell                                                      - Various
+Haskell                                                            - Various
     http://en.wikibooks.org/wiki/Haskell
 Write Yourself a Scheme in 48 Hours                          - Jonathan Tang
     http://halogen.note.amherst.edu/%7Ejdtang/scheme_in_48/tutorial/overview.html
@@ -76,15 +76,15 @@ MinCaml: A Simple and Efficient Compiler                      - Eijiro Sumii
 Databases, Types, and The Relational Model: The Third Manifesto
     3rd edition, Addison-Wesley, 2006 (ISBN: 0-321-39942-0)
     http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html
-                                        - Christopher J. Date, Hugh Darwen
+                                          - Christopher J. Date, Hugh Darwen
 Database in Depth: Relational Theory for Practitioners
     1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)
-    http://www.oreilly.com/catalog/databaseid/          - Christopher J. Date
+    http://www.oreilly.com/catalog/databaseid/         - Christopher J. Date
 
 = Databases - Online
 
 A Relational Model of Data for Large Shared Data Banks
-    http://www.acm.org/classics/nov95/toc.html              - Edgar F. Codd
+    http://www.acm.org/classics/nov95/toc.html               - Edgar F. Codd
     Reprinted from I<Communications of the ACM>,
     Vol. 13, No. 6, June 1970, pp. 377-387.
     Copyright © 1970, Association for Computing Machinery, Inc.
@@ -103,4 +103,4 @@ The Demolished Man                                           - Alfred Bester
 Flow My Tears the Policeman Said                           - Phillip K. Dick
 The Curious Incident of the Dog in the Night-Time              - Mark Haddon
 The Culture series                                           - Iain M. Banks
-The Book of the New Sun tetralogy                            - Gene Wolfe
+The Book of the New Sun tetralogy                               - Gene Wolfe

@@ -16,6 +16,6 @@ pugs_svn                                moritz
 rakudo_svn                              moritz
 speckbot                                moritz
 
-both Auzon and pmurias have access the server on which p6eval and the svn bots
+Both Auzon and pmurias have access the server on which p6eval and the svn bots
 run, so if something went wrong and moritz_ isn't available, you can prod
 them instead.
