@@ -12,22 +12,22 @@
 
 MODULE = SMOP		PACKAGE = SMOP		
 
-BOOT:
-smop_init();
+ # BOOT:
+ # smop_init();
 
 MODULE = SMOP       PACKAGE = SMOP::Object
 
-void
-DESTROY(SV* self, ...)
-  CODE:
-    SV* value = SvRV(self);
-    SMOP__Object* object = (SMOP__Object*)SvIV(value);    
-    SMOP_RELEASE(SMOP__GlobalInterpreter,object);
-    SMOP_DISPATCH(SMOP__GlobalInterpreter, SMOP_RI(SMOP__GlobalInterpreter),
-                  SMOP__ID__loop, SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
-                                                               SMOP_REFERENCE(SMOP__GlobalInterpreter, SMOP__GlobalInterpreter),
-                                                               NULL, NULL));
-
+ # void
+ # DESTROY(SV* self, ...)
+ #   CODE:
+ #     SV* value = SvRV(self);
+ #     SMOP__Object* object = (SMOP__Object*)SvIV(value);    
+ #     SMOP_RELEASE(SMOP__GlobalInterpreter,object);
+ #     SMOP_DISPATCH(SMOP__GlobalInterpreter, SMOP_RI(SMOP__GlobalInterpreter),
+ #                   SMOP__ID__loop, SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
+ #                                                                SMOP_REFERENCE(SMOP__GlobalInterpreter, SMOP__GlobalInterpreter),
+ #                                                                  NULL, NULL));
+   
 MODULE = SMOP       PACKAGE = SMOP::NATIVE::bool
 
 SV*

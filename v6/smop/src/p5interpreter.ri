@@ -4,6 +4,28 @@
 %prefix smop_p5interpreter
 %prototype SMOP__P5Interpreter
 
+%{
+  EXTERN_C void xs_init (pTHX);
+  
+  EXTERN_C void boot_DynaLoader (pTHX_ CV* cv);
+  
+  EXTERN_C void
+  xs_init(pTHX)
+  {
+  	char *file = __FILE__;
+  	dXSUB_SYS;
+  
+  	/* DynaLoader is a special case */
+  	newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
+  }
+
+  PerlInterpreter* SMOP__P5__p5interpreter_unbox(SMOP__Object* interpreter,SMOP__Object* p5interpreter) {
+   assert(p5interpreter->RI == RI);
+   return ((smop_p5interpreter_struct*)p5interpreter)->interpreter; 
+  }
+
+%}
+
 %method eval
   PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
   SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,0);
@@ -39,13 +61,7 @@
   PERL_SET_CONTEXT(my_perl);
   perl_construct(my_perl);
   char *embedding[] = { "", "-e", "0" };
-  perl_parse(my_perl, NULL, 3, embedding, NULL);
+  perl_parse(my_perl, xs_init, 3, embedding, NULL);
   PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
   perl_run(my_perl);
   ((smop_p5interpreter_struct*)ret)->interpreter = my_perl;
-%{
-  PerlInterpreter* SMOP__P5__p5interpreter_unbox(SMOP__Object* interpreter,SMOP__Object* p5interpreter) {
-   assert(p5interpreter->RI == RI);
-   return ((smop_p5interpreter_struct*)p5interpreter)->interpreter; 
-  }
-%}
