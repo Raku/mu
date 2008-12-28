@@ -42,17 +42,10 @@
      if $has_ctch { goto handle } else { goto redo_bt_up };
     handle:
      my $capture = ¢SMOP__S1P__Capturize."capturize"($invocant);
-     my $result = $ctch."postcircumfix:( )"($capture);
-     my $handled_c = $invocant."handled"();
-     my $handled = $handled_c."FETCH"();
-     my $has_handled = $handled."true"();
-     if $has_handled { goto finish } else { goto redo_bt_up };
+     my $outer = $back."back"();
+     my $result = $ctch."postcircumfix:( )"($capture, :"cc"($outer));
     fail:
      my $void = $invocant."_not_caught"();
-    finish:
-     my $outer = $back."back"();
-     $void = $outer."setr"($result);
-     $void = $interpreter."goto"($outer);
     redo_bt_up:
      $current = $back."FETCH"();
      goto bt_up;
