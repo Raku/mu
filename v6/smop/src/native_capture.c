@@ -88,6 +88,8 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
     SMOP_RELEASE(interpreter, invocant_capture);
     SMOP_RELEASE(interpreter, capture);
 
+    if (!ret) ret = SMOP__NATIVE__bool_false;
+
   } else if (identifier == SMOP__ID__DESTROYALL) {
     if (capture && capture != (SMOP__Object*)self
         && capture != smop_native_empty_capture

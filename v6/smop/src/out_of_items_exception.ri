@@ -1,0 +1,65 @@
+%prefix out_of_items_exception
+%prototype SMOP__OutOfItemsException
+%RI.id Out of Items Exception
+%attr SMOP__Object* handled
+%getter handled
+%method new
+    SMOP__Object* exc = smop_lowlevel_alloc(sizeof(out_of_items_exception_struct));
+    exc->RI = (SMOP__ResponderInterface*)RI;
+    ((out_of_items_exception_struct*)exc)->handled = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+    ret = exc;
+
+%method throw
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,throw_mold));
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation,
+                                               SMOP__NATIVE__capture_create(interpreter,
+                                                                            SMOP_REFERENCE(interpreter,interpreter),
+                                                                            NULL,NULL));
+  mold_back_set(interpreter,frame,continuation);
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,invocant));
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+              SMOP__ID__goto,
+              SMOP_REFERENCE(interpreter,frame));
+
+%method _not_caught
+    fprintf(stderr, "Uncaught return control exception.\n");
+    abort();
+
+%mold throw_mold
+    my $interpreter;
+    my $invocant;
+    my $stack = $interpreter."continuation"();
+    my $current = $stack."FETCH"();
+    bt_up:
+     my $back = $current."back"();
+     my $has_back = $back."true"();
+     if $has_back { goto check_control } else { goto fail };
+    check_control:
+     my $ctch = $back."catch"();
+     my $has_ctch = $ctch."true"();
+     if $has_ctch { goto handle } else { goto redo_bt_up };
+    handle:
+     my $capture = ¢SMOP__S1P__Capturize."capturize"($invocant);
+     my $result = $ctch."postcircumfix:( )"($capture);
+     my $handled_c = $invocant."handled"();
+     my $handled = $handled_c."FETCH"();
+     my $has_handled = $handled."true"();
+     if $has_handled { goto finish } else { goto redo_bt_up };
+    fail:
+     my $void = $invocant."_not_caught"();
+    finish:
+     my $outer = $back."back"();
+     $void = $outer."setr"($result);
+     $void = $interpreter."goto"($outer);
+    redo_bt_up:
+     $current = $back."FETCH"();
+     goto bt_up;
+
+%method FETCH
+  ___VALUE_FETCH___;
+%method STORE
+  ___VALUE_STORE___;
+%method DESTROYALL
+  SMOP_RELEASE(interpreter,((out_of_items_exception_struct*)invocant)->handled);

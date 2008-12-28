@@ -36,15 +36,15 @@ help if $help;
 
 sub move_CONTROL {
     my $statementlist = shift;
-    my $control;
+    my @control;
     my @statementlist = 
       grep { !( exists $_->{statement_control} &&
 		exists $_->{statement_control}{sym} &&
-		($_->{statement_control}{sym} eq 'CONTROL') &&
-	        ($control = $_) ) }
+		($_->{statement_control}{sym} =~ /^(CONTROL|CATCH)$/) &&
+	        (push @control, $_) ) }
 	  @{$statementlist};
-    if ($control) {
-      unshift @statementlist, $control;
+    if (@control) {
+      unshift @statementlist, @control;
     }
     return @statementlist;
 }
@@ -575,6 +575,9 @@ sub VAST::statement::emit_m0ld {
 	    # before this, so we can peacefully delay the setup of the
 	    # control block up to this point.
 	    call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($stm->{block}) ];
+	} elsif ($stm->{sym} eq 'CATCH') {
+	    # the same for CATCH blocks.
+	    call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($stm->{block}) ];
         } else {
             XXX('unkown sym in statement_control')
         }

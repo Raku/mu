@@ -47,6 +47,7 @@
      smop_s1p_code_init();                  \
      smop_s1p_ccode_init();                 \
      control_exception_return_init();       \
+     out_of_items_exception_init();         \
      smop_lowlevel_method_init();           \
      smop_p6opaque_init();                  \
      smop_native_uint_init();               \
@@ -93,6 +94,7 @@
      smop_p6opaque_destr();                 \
      smop_lowlevel_method_destr();          \
      control_exception_return_destr();      \
+     out_of_items_exception_destr();        \
      smop_s1p_ccode_destr();                \
      smop_s1p_code_destr();                 \
      smop_s1p_hash_bvalue_destr();          \
@@ -107,6 +109,7 @@
 #define SMOP_BOOTSTRAP_INIT_SEQUENCE        \
      smop_s1p_ritest_init();                \
      control_exception_return_mold_init();  \
+     out_of_items_exception_mold_init();    \
      smop_s1p_attribute_mold_init();        \
      smop_s1p_hash_mold_init();      \
      smop_s1p_hash_bvalue_mold_init();      \
@@ -139,9 +142,10 @@
      smop_s1p_lexical_prelude_destr();      \
      smop_s1p_root_namespace_destr();       \
      smop_s1p_hash_bvalue_mold_destr();     \
-     smop_s1p_hash_mold_destr();     \
+     smop_s1p_hash_mold_destr();            \
      smop_s1p_attribute_mold_destr();       \
      control_exception_return_mold_destr(); \
+     out_of_items_exception_mold_destr();   \
      smop_s1p_ritest_destr();               \
 
 void smop_idconst_init();

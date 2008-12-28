@@ -146,6 +146,12 @@ void smop_s1p_code_mold_init() {
     my $actualcapture_c = $capture."positional"(0);
     $void = $signature."BIND"($actualcapture_c,$lexical);
 
+    my $cc = $capture."named"("cc");
+    my $has_cc = $cc."true"();
+    if $has_cc { goto set_cc } else { goto execute };
+    set_cc:
+     $back = $cc."FETCH"();
+    execute:
     my $frame_proto = ¢SMOP__Mold__Frame;
     my $frame = $frame_proto."new"($mold);
     $void = $frame."set_reg"(0, $interpreter);

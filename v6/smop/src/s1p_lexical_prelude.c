@@ -42,6 +42,8 @@ void smop_s1p_lexical_prelude_init() {
   smop_s1p_lexical_prelude_insert(interpreter,"P5Interpreter",SMOP_REFERENCE(interpreter,SMOP__P5Interpreter));
   smop_s1p_lexical_prelude_insert(interpreter,"ControlExceptionReturn",
 				  SMOP_REFERENCE(interpreter,SMOP__ControlExceptionReturn));
+  smop_s1p_lexical_prelude_insert(interpreter,"OutOfItemsException",
+				  SMOP_REFERENCE(interpreter,SMOP__OutOfItemsException));
 }
 
 void smop_s1p_lexical_prelude_destr() {
