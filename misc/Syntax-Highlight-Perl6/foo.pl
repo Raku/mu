@@ -6,6 +6,7 @@ use feature qw(say);
 use Data::Dumper;
 
 use lib 'lib';
+use STD;
 use Syntax::Highlight::Perl6;
 
 my $h = Syntax::Highlight::Perl6->new(
