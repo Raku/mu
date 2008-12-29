@@ -1,17 +1,13 @@
 Revision history for Syntax::Highlight::Perl6.
 
-0.0296 Dec ?? 2008
+0.0296 Dec 29 2008
     - Moved to Module::Install
-    - Fix localization of "context" vars such as $::PARSER that caused
-      use STD to be needed in your script; TimToady++.
-    - Removed all references to 'use STD;'.
-    - Removed bug from BUGS section 'Can't call method "bless" on an 
-      undefined value at STD.pm line 5269'
     - Cursor.pmc - Fixed the log file creation even though debug is disabled
     - Removed bug from BUGS section 'A log file is always created when
       using this module'.
     - Fix Cursor.pmc STD5DEBUG warning message
     - Added tests for script/hilitep6 
+    - Fix $DELIM warning bug caused by gimme4
     - Updated perl6.vim
 
 0.0295 Dec 19 2008

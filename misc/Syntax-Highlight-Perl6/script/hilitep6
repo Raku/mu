@@ -18,6 +18,7 @@ use Carp;
 use Term::ANSIColor;
 
 # And finally our modules
+use STD;
 use Syntax::Highlight::Perl6;
 
 #CPAN version

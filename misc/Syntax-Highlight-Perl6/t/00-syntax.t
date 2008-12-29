@@ -3,6 +3,8 @@ use warnings;
 use Test::More tests => 36;
 use Test::Exception;
 
+use STD;
+
 #it can be used...
 BEGIN { 
     use_ok('Syntax::Highlight::Perl6'); 
