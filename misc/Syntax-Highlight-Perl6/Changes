@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.02961 Dec 29 2008
+    - Skipped running t/02-hilitep6.t on win32 since test hanged.
+
 0.0296 Dec 29 2008
     - Moved to Module::Install
     - Cursor.pmc - Fixed the log file creation even though debug is disabled

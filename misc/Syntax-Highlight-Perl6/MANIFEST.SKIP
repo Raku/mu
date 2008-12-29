@@ -3,6 +3,8 @@
 \.tar.gz$
 \.tar$
 \bfoo.pl
+\bbar.pl
+\bFoo.pm
 \bcopy_them
 \.log$
 \.swp$
