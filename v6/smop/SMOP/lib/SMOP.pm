@@ -10,6 +10,11 @@ our $VERSION = '0.01';
 require XSLoader;
 XSLoader::load('SMOP', $VERSION);
 
+package SMOP::Object;
+our $AUTOLOAD;
+sub AUTOLOAD {
+    print "AUTOLOAD:",$SMOP::Object::AUTOLOAD,"\n";
+}
 1;
 __END__
 

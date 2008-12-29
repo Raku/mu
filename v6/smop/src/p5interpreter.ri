@@ -19,6 +19,8 @@
   	newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
   }
 
+  SMOP__Object* SMOP__P5__smop_interpreter;
+
   PerlInterpreter* SMOP__P5__p5interpreter_unbox(SMOP__Object* interpreter,SMOP__Object* p5interpreter) {
    assert(p5interpreter->RI == RI);
    return ((smop_p5interpreter_struct*)p5interpreter)->interpreter; 

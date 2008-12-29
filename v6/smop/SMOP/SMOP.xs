@@ -10,6 +10,8 @@
 #include <smop_identifiers.h>
 #include <smop_mold.h>
 
+extern SMOP__Object* SMOP__P5__smop_interpreter;
+
 MODULE = SMOP		PACKAGE = SMOP		
 
  # BOOT:
@@ -17,16 +19,32 @@ MODULE = SMOP		PACKAGE = SMOP
 
 MODULE = SMOP       PACKAGE = SMOP::Object
 
- # void
- # DESTROY(SV* self, ...)
- #   CODE:
- #     SV* value = SvRV(self);
- #     SMOP__Object* object = (SMOP__Object*)SvIV(value);    
- #     SMOP_RELEASE(SMOP__GlobalInterpreter,object);
- #     SMOP_DISPATCH(SMOP__GlobalInterpreter, SMOP_RI(SMOP__GlobalInterpreter),
- #                   SMOP__ID__loop, SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
- #                                                                SMOP_REFERENCE(SMOP__GlobalInterpreter, SMOP__GlobalInterpreter),
- #                                                                  NULL, NULL));
+void
+AUTOLOAD(SV* self, ...)
+  CODE:
+    SV* value = SvRV(self);
+    SMOP__Object* object = (SMOP__Object*)SvIV(value);    
+
+    int len = SvCUR(cv);
+    char* identifier = SvPVX(cv);
+
+    SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
+
+    SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__NATIVE__idconst_createn(identifier,len),SMOP__NATIVE__capture_create(interpreter,object,NULL,NULL));
+
+ 
+void
+DESTROY(SV* self, ...)
+  CODE:
+    SV* value = SvRV(self);
+    SMOP__Object* object = (SMOP__Object*)SvIV(value);    
+
+    SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
+    SMOP_RELEASE(interpreter,object);
+    /* HACK */
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+      SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
+        SMOP_REFERENCE(interpreter, interpreter),NULL, NULL));
    
 MODULE = SMOP       PACKAGE = SMOP::NATIVE::bool
 

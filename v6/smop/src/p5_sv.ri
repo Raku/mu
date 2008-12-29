@@ -5,6 +5,8 @@
 %RI.id Wrapped SV*
 
 %{
+  extern SMOP__Object* SMOP__P5__smop_interpreter;
+
   SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
     SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));
     ret->RI = RI;
@@ -13,9 +15,11 @@
     return ret;
   }
 
-  static SV* SMOP__Object2SV(PerlInterpreter* my_perl,SMOP__Object* object) {
+  static SV* SMOP__Object2SV(SMOP__Object* interpreter,PerlInterpreter* my_perl,SMOP__Object* object) {
     if (object->RI == RI) {
-      return ((smop_p5_sv_struct*)object)->sv;
+      SV* ret = ((smop_p5_sv_struct*)object)->sv;
+      SMOP_RELEASE(interpreter,object);
+      return ret;
     } else {
       SV* pointer = newSViv((int)object);
       HV* class = gv_stashpv("SMOP::Object", GV_ADD);
@@ -27,6 +31,9 @@
 %message {
   ___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;
+
+  SMOP__P5__smop_interpreter  = interpreter;
+
   SMOP__Object* invocant = (SMOP__Object*) SMOP__NATIVE__capture_invocant(interpreter, capture);
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
@@ -40,13 +47,12 @@
 
     dSP;
     PUSHMARK(SP);
-    XPUSHs(SMOP__Object2SV(my_perl,invocant));
+    XPUSHs(SMOP__Object2SV(interpreter,my_perl,invocant));
     int positionals = SMOP__NATIVE__capture_positional_count(interpreter,capture);
     int i;
     for (i=0;i < positionals;i++) {
       SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,capture,i);
-      XPUSHs(SMOP__Object2SV(my_perl,object));
-      SMOP_RELEASE(interpreter,object);
+      XPUSHs(SMOP__Object2SV(interpreter,my_perl,object));
     }
     PUTBACK;
 
@@ -89,8 +95,7 @@
   int i;
   for (i=0;i < positionals;i++) {
     SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,real_capture,i);
-    XPUSHs(SMOP__Object2SV(my_perl,object));
-    SMOP_RELEASE(interpreter,object);
+    XPUSHs(SMOP__Object2SV(interpreter,my_perl,object));
   }
   PUTBACK;
 
