@@ -2,10 +2,9 @@ knowhow ClassHOW {
   method add_method($how: $object, $name, $code) {
       $object.^!methods.{$name} = $code;
   }
-  method dispatch($responder, $identifier, $capture) {  
-      my $invocant = $capture.invocant();
-      if $invocant.^!methods.exists($identifier) {
-         $invocant.^!methods.{$identifier}.postcircumfix:<( )>($capture);
+  method dispatch($object, $identifier, $capture) {  
+      if $object.^!methods.exists($identifier) {
+         $object.^!methods.{$identifier}.postcircumfix:<( )>($capture);
       } else {
          die 'No method ',$identifier;
       }

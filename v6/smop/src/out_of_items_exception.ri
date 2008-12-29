@@ -24,7 +24,7 @@
               SMOP_REFERENCE(interpreter,frame));
 
 %method _not_caught
-    fprintf(stderr, "Uncaught return control exception.\n");
+    fprintf(stderr, "Uncaught OutOfItemsException.\n");
     abort();
 
 %mold throw_mold

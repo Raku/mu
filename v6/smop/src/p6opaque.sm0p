@@ -630,7 +630,7 @@ void smop_p6opaque_mold_init() {
     $invocant = $capture."invocant"();
     my $how_s = $invocant."^!how"();
     my $how = $how_s."FETCH"();
-    my $result = $how."dispatch"($responder, $identifier, $capture);
+    my $result = $how."dispatch"($invocant, $identifier, $capture);
     my $void = $back."setr"($result);
     $void = $interpreter."goto"($back);
   };
