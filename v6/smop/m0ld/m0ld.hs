@@ -7,7 +7,7 @@ import System.IO.UTF8
 import Debug.Trace
 import System.Console.GetOpt
 import System.Environment
-import M0ld
+import M0ld.M0ld
 import M0ld.AST
 import M0ld.Parser
 #ifdef EMBED_SMOP

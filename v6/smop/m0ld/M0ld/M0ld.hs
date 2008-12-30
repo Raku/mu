@@ -1,4 +1,4 @@
-module M0ld where
+module M0ld.M0ld where
 --(module M0ld.AST,dumpToC,parseM0ld) where
 import M0ld.AST
 import M0ld.Parser

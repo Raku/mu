@@ -5,7 +5,7 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 import Debug.Trace
-import M0ld
+import M0ld.M0ld
 import M0ld.AST
 import M0ld.Parser
 
