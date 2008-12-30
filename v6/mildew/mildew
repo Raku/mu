@@ -634,8 +634,8 @@ sub VAST::statementlist::emit_m0ld {
     [map {$_->emit_m0ld} move_CONTROL($m->{statement})]
 }
 
-sub compile_via_c {
-    my ($m0ld,$output) = @_;
+sub m0ld_to_c {
+    my ($m0ld,) = @_;
     use IPC::Open2;
     local $ENV{LD_LIBRARY_PATH} = '../smop/build';
     open2(my $m0ld_exe_out,my $m0ld_exe_in,"../smop/m0ld_exe");
@@ -644,15 +644,46 @@ sub compile_via_c {
     close($m0ld_exe_in);
     local $/;
     binmode $m0ld_exe_out, ':utf8';
+    return <$m0ld_exe_out>;
+}
+sub compile_via_c {
+    my ($m0ld,$output) = @_;
     my ($c_fh,$c_file) = tempfile();
     binmode($c_fh,":utf8");
     open(my $boilerplate_front,"../smop/m0ld/m0ld_boilerplate_front") || die "can't open internal file\n";
     open(my $boilerplate_back,"../smop/m0ld/m0ld_boilerplate_back") || die "can't open internal file\n";
+    local $/;
     print {$c_fh} <$boilerplate_front>;
-    print {$c_fh} <$m0ld_exe_out>;
+    print {$c_fh} m0ld_to_c($m0ld);
     print {$c_fh} <$boilerplate_back>;
     close($c_fh);
     system("gcc","-xc","-L../smop/build","-I../smop/include","-lperl","-lsmop","-lpcl",$c_file,"-o",$output);
+}
+sub compile_to_so {
+    my ($m0ld,$output) = @_;
+    my ($c_fh,$c_file) = tempfile();
+    print {$c_fh} <<'BOILERPLATE_FRONT';
+#include <stdio.h>
+#include <smop.h>
+#include <smop_s1p.h>
+#include <smop_mold.h>
+#include <smop_lowlevel.h>
+void init(SMOP__Object* interpreter,SMOP__Object* scope) {
+    SMOP__Object* mold =
+BOILERPLATE_FRONT
+    print {$c_fh} m0ld_to_c($m0ld);
+    print {$c_fh} <<'BOILERPLATE_BACK';
+;
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
+  mold_reg_set(interpreter,frame,0,scope);
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                frame);
+}
+BOILERPLATE_BACK
+    close($c_fh);
+    system("cat",$c_file);
+    system("gcc","-xc","-L../smop/build","-I../smop/include","-shared",$c_file,"-o",$output);
 }
 sub output {
     my ($what,$where) = @_;
@@ -689,10 +720,15 @@ if ($C eq 'desugar') {
     output(Dump($mold),$output);
     exit;
 } else {
-    $m0ld = <<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK';
+    my $scope;
+    if ($C eq 'so') {
+        $scope = "my \$scope;\n"
+    } else {
+        $scope = "my \$scope = ?SMOP__S1P__LexicalPrelude;\n";
+    }
+    $m0ld = $scope.<<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK';
     my $void;
 BOILERPLATE_FRONT
-    my $scope = ?SMOP__S1P__LexicalPrelude;
     my $Code_scalar = $scope."lookup"("Code");
     my $Code = $Code_scalar."FETCH"();
     my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
@@ -706,6 +742,9 @@ if ($output and not $C) {
 if ($C eq 'via-C') {
     die "-o is required when compiling to an executable\n" unless $output;
     compile_via_c($m0ld,$output);
+} elsif ($C eq 'so') {
+    die "-o is required when compiling to a shared library \n" unless $output;
+    compile_to_so($m0ld,$output);
 } elsif ($C eq 'm0ld') {
     output($m0ld,$output);
 } elsif ($C) {
