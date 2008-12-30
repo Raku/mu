@@ -116,3 +116,9 @@
     SMOP_RELEASE(interpreter,entries);
     SMOP_RELEASE(interpreter,outer);
     SMOP_RELEASE(interpreter,RI);
+
+%method FETCH
+  ___VALUE_FETCH___
+
+%method STORE
+  ___VALUE_STORE___

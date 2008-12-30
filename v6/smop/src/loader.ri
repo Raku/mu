@@ -1,0 +1,43 @@
+%include <dlfcn.h>,<string.h>
+%prefix smop_loader
+%prototype SMOP__Loader
+
+%method load
+    
+  SMOP__Object* filename_idconst = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+  SMOP__Object* scope = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+
+
+  int len;
+  char* filename_nonull =  SMOP__NATIVE__idconst_fetch(filename_idconst,&len);
+
+  char* filename = malloc(sizeof(char) * (len+1));
+  strncpy(filename,filename_nonull,len);
+  filename[len] = '\0';
+  
+
+  void* handle = dlopen(filename,RTLD_LOCAL);
+  free(filename);
+
+  if (!handle) {
+    printf("Loader.load: %s\n",dlerror());
+    abort();
+  }
+  void* (*init)(SMOP__Object*,SMOP__Object*) = dlsym(handle,"init");
+  if (!init) {
+    printf("Loader.load: %s\n",dlerror());
+    abort();
+  }
+  init(interpreter,scope);
+
+%method new
+  ret =  smop_lowlevel_alloc(sizeof(smop_loader_struct));
+  ret->RI = (SMOP__ResponderInterface*) RI;
+
+%method FETCH
+  ___VALUE_FETCH___
+
+%method STORE
+  ___VALUE_STORE___
+
+%method DESTROYALL

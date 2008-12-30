@@ -44,13 +44,16 @@
     printf("only constant identifiers can be passed to eval :(\n");
   }
   SMOP_RELEASE(interpreter,obj);
+
 %method DESTROYALL
   PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
   perl_destruct(my_perl);
   perl_free(my_perl);
   PERL_SYS_TERM();
+
 %method FETCH
   ___VALUE_FETCH___
+
 %method STORE
   ___VALUE_STORE___
 
