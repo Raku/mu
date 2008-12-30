@@ -285,6 +285,7 @@ sub VAST::term::emit_m0ld {
 	while (my $new_outer = shift @morenames) {
 	    my $inner = $outer;
 	    my $name = $new_outer->{identifier}[0]{TEXT};
+	    last unless $name;
 	    if (@morenames) {
 		$name .= '::';
 	    } else {
