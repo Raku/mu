@@ -133,7 +133,7 @@ sub pretty {
     my $self = shift;
     "mold \{\n". AST::indent(
         join('',map {'my $'.$_.";\n"} @{$self->regs})
-        . join("",map { terminate_stmt $_->pretty } @{$self->stmts})
+        . join("",map { ref $_ ? terminate_stmt $_->pretty : confess("$_ is not a reference") } @{$self->stmts})
     ) . "\}"
 }
 

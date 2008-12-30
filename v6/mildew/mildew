@@ -116,41 +116,37 @@ sub VAST::integer::emit_m0ld {
     #XXX non-base 10
     integer($m->{TEXT});
 }
+
 sub VAST::scope_declarator::emit_m0ld {
     my $m = shift;
-    if ($m->{'sym'} eq 'my') {
+    if ($m->{'sym'} eq 'my' || $m->{'sym'} eq 'our') {
         if (my $decl = $m->{scoped}{declarator}) {
             if (my $var_decl = $decl->{variable_declarator}) {
-                AST::Call->new(
-                    identifier => string 'BIND',
-                    capture => AST::Capture->new(
-                        invocant => AST::Call->new(
-                            identifier => string 'postcircumfix:{ }',
-                            capture => AST::Capture->new(invocant=>reg '$scope',positional=>[string varname($var_decl->{variable})])
-                        ),
-                        positional => [
-                            AST::Call->new(
-                                identifier => string 'new',
-                                capture => AST::Capture->new(invocant => FETCH(lookup 'Scalar')),
-                            )
-                        ]
-                    ),
-                );
+		let call(new => FETCH(lookup 'Scalar')), sub {
+		    my $value = shift;
+		    AST::Seq->new(stmts => [
+				      ( $m->{'sym'} eq 'our' ? 
+				      call(BIND => (call 'postcircumfix:{ }' => FETCH(lookup '$?PACKAGE'),
+						    [ string varname($var_decl->{variable}) ]),[$value])
+				      :()),
+				      call(BIND => (call 'postcircumfix:{ }' => reg('$scope'),
+						    [ string varname($var_decl->{variable}) ]),[$value])
+				  ]);
+
+		}
             } elsif (my $routine_decl = $decl->{routine_declarator}) {
-                AST::Call->new(
-                    identifier => string 'BIND',
-                    capture => AST::Capture->new(
-                        invocant => AST::Call->new(
-                            identifier => string 'postcircumfix:{ }',
-                            capture => AST::Capture->new(
-                                 invocant => reg '$scope',
-                                 positional=>[string '&'.$routine_decl->{routine_def}{deflongname}[0]{name}{identifier}{TEXT}])
-                        ),
-                        positional => [
-                            $routine_decl->{routine_def}->emit_m0ld()
-                        ]
-                    ),
-                );
+		my $name = '&'.$routine_decl->{routine_def}{deflongname}[0]{name}{identifier}{TEXT};
+		let $routine_decl->{routine_def}->emit_m0ld(), sub {
+		    my $value = shift;
+		    AST::Seq->new(stmts => [
+				      ( $m->{'sym'} eq 'our' ? 
+				      call(BIND => (call 'postcircumfix:{ }' => FETCH(lookup '$?PACKAGE'),
+						     [ string $name ]),[$value])
+				      : ()),
+				      call(BIND => (call 'postcircumfix:{ }' => reg('$scope'),
+						    [ string $name ]),[$value]),
+				  ]);
+		};
             } else {
                 XXX('unknown scope declarator');
             }
@@ -195,9 +191,10 @@ sub oo_package_declarator {
 			     call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([lookup('$?CLASS')]))])
                                   ]),
                     call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?PACKAGE']),[$package]),
+                    call(STORE => call("postcircumfix:{ }" => FETCH(call lookup => FETCH(call outer => reg '$scope'),[string '$?PACKAGE']),[string $name.'::']),[$package]),
                     call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?CLASS']),[$proto]),
                     call(STORE => call("^!how" => $proto),[FETCH lookup($how_type)]),
-                    call(STORE => call("^!who" => $proto),[$package]),
+                    call(STORE => call("^!who" => $proto),[$package])
                 ]);
             };
         }),
@@ -223,6 +220,7 @@ sub plain_package_declarator {
 		    call(STORE => call(name => $package),[string $name]),
                     call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?PACKAGE']),[$package]),
                     call(STORE => call("postcircumfix:{ }" => FETCH(call outer => reg '$scope'),[string $name.'::']),[$package]),
+                    call(STORE => call("postcircumfix:{ }" => FETCH(call lookup => FETCH(call outer => reg '$scope'),[string '$?PACKAGE']),[string $name.'::']),[$package])
                  ]);
         }),
         @{$init->stmts}
@@ -281,6 +279,20 @@ sub VAST::term::emit_m0ld {
     } elsif ($m->{identifier} && $m->{args}) {
         my $func = lookup('&'.$m->{identifier}{TEXT});
         call 'postcircumfix:( )' => FETCH($func),[capturize($m->{args}->emit_m0ld)];
+    } elsif ($m->{longname} && $m->{args}) {
+	my $outer = FETCH(lookup($m->{longname}{name}{identifier}{TEXT}.'::'));
+	my @morenames = @{$m->{longname}{name}{morename}};
+	while (my $new_outer = shift @morenames) {
+	    my $inner = $outer;
+	    my $name = $new_outer->{identifier}[0]{TEXT};
+	    if (@morenames) {
+		$name .= '::';
+	    } else {
+		$name = '&'.$name;
+	    }
+	    $outer = FETCH(call( 'postcircumfix:{ }' => $inner, [ string $name ]));
+	}
+        call 'postcircumfix:( )' => $outer,[capturize($m->{args}[0]->emit_m0ld)];
     } elsif (my $name = $m->{longname}->{name}) {
         if ($name->{morename} and !$name->{identifier}) {
             lookup join '',map {$_->{identifier}[0]{TEXT}} @{$name->{morename}};
@@ -290,7 +302,11 @@ sub VAST::term::emit_m0ld {
         } elsif ($name->{identifier}{TEXT} eq 'MY') {
 	    call new => reg '¢SMOP__S1P__FlattenedScope',
 	      [ reg '$scope' ];
+	} else {
+	    XXX;
 	}
+    } else {
+	XXX;
     }
 }
 sub VAST::identifier::emit_m0ld {

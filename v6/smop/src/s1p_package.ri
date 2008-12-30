@@ -27,6 +27,9 @@
   smop_lowlevel_unlock(invocant);
   SMOP_REFERENCE(interpreter, ret);
 
+%method FETCH
+  ___VALUE_FETCH___
+
 %method postcircumfix:{ }
   smop_lowlevel_rdlock(invocant);
   SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
