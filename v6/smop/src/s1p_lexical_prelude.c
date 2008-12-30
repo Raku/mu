@@ -46,11 +46,20 @@ void smop_s1p_lexical_prelude_init() {
 				  SMOP_REFERENCE(interpreter,SMOP__OutOfItemsException));
   smop_s1p_lexical_prelude_insert(interpreter,"LexicalScope",
 				  SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalScope));
-  smop_s1p_lexical_prelude_insert(interpreter,"Loader",
-				  SMOP_REFERENCE(interpreter,SMOP__Loader));
+  smop_s1p_lexical_prelude_insert(interpreter,"$LexicalPrelude",
+				  SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalPrelude));
+  smop_s1p_lexical_prelude_insert(interpreter,"MildewSOLoader",
+				  SMOP_REFERENCE(interpreter,SMOP__MildewSOLoader));
 }
 
 void smop_s1p_lexical_prelude_destr() {
+  SMOP_DISPATCH(SMOP__GlobalInterpreter,
+                SMOP_RI(SMOP__S1P__LexicalPrelude),
+                SMOP__ID__bind_key,
+                SMOP__NATIVE__capture_create(SMOP__GlobalInterpreter,
+                                             SMOP_REFERENCE(SMOP__GlobalInterpreter,SMOP__S1P__LexicalPrelude),
+                                             (SMOP__Object*[]) {SMOP__NATIVE__idconst_create("$LexicalPrelude"),SMOP__NATIVE__bool_false,NULL},
+                                             NULL));
   SMOP_RELEASE(SMOP__GlobalInterpreter,SMOP__S1P__LexicalPrelude);
 }
 

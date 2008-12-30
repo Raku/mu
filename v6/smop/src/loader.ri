@@ -1,6 +1,6 @@
 %include <dlfcn.h>,<string.h>
 %prefix smop_loader
-%prototype SMOP__Loader
+%prototype SMOP__MildewSOLoader
 
 %method load
     

@@ -34,7 +34,7 @@ extern SMOP__Object* SMOP__S1P__ritest;
 extern SMOP__Object* SMOP__GlobalInterpreter;
 extern SMOP__Object* SMOP__ControlExceptionReturn;
 extern SMOP__Object* SMOP__OutOfItemsException;
-extern SMOP__Object* SMOP__Loader;
+extern SMOP__Object* SMOP__MildewSOLoader;
 
 SMOP__Object* SMOP__S1P__Method_create(SMOP__Object* interpreter,
                                        int multi,

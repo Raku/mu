@@ -682,7 +682,6 @@ BOILERPLATE_FRONT
 }
 BOILERPLATE_BACK
     close($c_fh);
-    system("cat",$c_file);
     system("gcc","-xc","-L../smop/build","-I../smop/include","-shared",$c_file,"-o",$output);
 }
 sub output {
