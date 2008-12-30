@@ -162,7 +162,7 @@ sub VAST::scope_declarator::emit_m0ld {
     }
 }
 
-sub VAST::package_declarator::emit_m0ld {
+sub oo_package_declarator {
     my $m = shift;
     my $name  = $m->{package_def}{module_name}[0]{longname}{name}{identifier}{TEXT};
     my $id_type_sub = AST::unique_id;
@@ -173,14 +173,11 @@ sub VAST::package_declarator::emit_m0ld {
     } elsif ($m->{sym} eq 'class') {
         $how_type = 'ClassHOW';
     } else {
-        die 'unimplemented';
+        XXX;
     }
 
     
-
     my $init = $m->{package_def}{block}->emit_m0ld;
-
-
 
     my $mold = AST::Block->new(regs => $init->regs,stmts => [
         let(call(new=>FETCH(lookup("Package"))),sub {
@@ -189,7 +186,14 @@ sub VAST::package_declarator::emit_m0ld {
                 my $proto = shift;
                 AST::Seq->new(stmts => [
                     call(STORE => call(name => $package),[string $name]),
-                    call(STORE => call("postcircumfix:{ }" => FETCH(call(outer => reg '$scope')),[string $name]),[$proto]),
+                    call(STORE => call("postcircumfix:{ }" => FETCH(call(outer => reg '$scope')),
+                                  [string $name]),[$proto]),
+                    call(STORE => call("postcircumfix:{ }" => FETCH(call outer => reg '$scope'),
+                                  [string $name.'::']),[$package]),
+                    call(STORE => call("postcircumfix:{ }" => FETCH(call(outer => reg '$scope')),
+                                  [string '&'.$name]),[
+			     call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([lookup('$?CLASS')]))])
+                                  ]),
                     call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?PACKAGE']),[$package]),
                     call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?CLASS']),[$proto]),
                     call(STORE => call("^!how" => $proto),[FETCH lookup($how_type)]),
@@ -199,15 +203,49 @@ sub VAST::package_declarator::emit_m0ld {
         }),
         @{$init->stmts}
     ]);
-    AST::Seq->new(stmts=>[
-        call("postcircumfix:( )" =>
-            call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => $mold]),
-            [capturize()]
-        ),
-        call (STORE=>call("postcircumfix:{ }" => reg '$scope',[string '&'.$name]),
-            [call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([lookup($name)]))])])
-    ]);
+    call("postcircumfix:( )" =>
+	 call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => $mold]),
+	 [capturize()]
+        );
 }
+
+sub plain_package_declarator {
+    my $m = shift;
+    my $name  = $m->{package_def}{module_name}[0]{longname}{name}{identifier}{TEXT};
+    my $id_type_sub = AST::unique_id;
+
+    my $init = $m->{package_def}{block}->emit_m0ld;
+
+    my $mold = AST::Block->new(regs => $init->regs,stmts => [
+        let(call(new=>FETCH(lookup("Package"))),sub {
+            my $package = shift;
+	    AST::Seq->new(stmts => [
+		    call(STORE => call(name => $package),[string $name]),
+                    call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?PACKAGE']),[$package]),
+                    call(STORE => call("postcircumfix:{ }" => FETCH(call outer => reg '$scope'),[string $name.'::']),[$package]),
+                 ]);
+        }),
+        @{$init->stmts}
+    ]);
+    call("postcircumfix:( )" =>
+	 call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => $mold]),
+	 [capturize()]
+        );
+}
+
+sub VAST::package_declarator::emit_m0ld {
+    my $m = shift;
+    if ($m->{sym} eq 'knowhow') {
+        oo_package_declarator($m);
+    } elsif ($m->{sym} eq 'class') {
+        oo_package_declarator($m);
+    } elsif ($m->{sym} eq 'module') {
+	plain_package_declarator($m);
+    } else {
+        XXX;
+    }
+}
+
 sub VAST::noun::emit_m0ld {
     my $m = shift;
     if ($m->{variable}) {
