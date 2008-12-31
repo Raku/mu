@@ -21,6 +21,10 @@ sub emit_m0ld_ahsig_BIND {
         call 'STORE' => (call 'postcircumfix:{ }' => reg '$scope',
 			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT}]),
 			  [ reg '$capture' ];
+      } elsif ($m->{quant} eq '\\') {
+        call 'STORE' => (call 'postcircumfix:{ }' => reg '$scope',
+			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT}]),
+			  [call 'positional' => reg '$capture',[integer($count) ]];;
       } else {
         call 'BIND' => (call 'postcircumfix:{ }' => reg '$scope',
 			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT}]),

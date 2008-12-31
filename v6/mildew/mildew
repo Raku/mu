@@ -34,8 +34,10 @@ my ($debug,$B,$C,$output,$help);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'debug'=>\$debug,'h|help'=>\$help) || help;
 help if $help;
 
-for (<src/VAST/*.pm>) {
-    require $_;
+BEGIN {
+    for (<src/VAST/*.pm>) {
+	require $_;
+    }
 }
 
 sub m0ld_to_c {
