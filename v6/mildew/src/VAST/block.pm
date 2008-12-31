@@ -1,0 +1,12 @@
+package VAST::block;
+use utf8;
+use strict;
+use warnings;
+use AST::Helpers;
+
+sub VAST::block::emit_m0ld {
+    my $m = shift;
+    AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return($m->{statementlist}->emit_m0ld));
+}
+
+1;
