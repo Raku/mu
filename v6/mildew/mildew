@@ -498,6 +498,15 @@ sub VAST::nulltermish::emit_m0ld {
     $m->{termish}[0] ? $m->{termish}[0]->emit_m0ld : ();
 }
 
+sub VAST::Symbolic_unary::emit_m0ld {
+    my $m = shift;
+    if ($m->{sym} eq '|' && $m->{arg}) {
+	FETCH($m->{arg}->emit_m0ld);
+    } else {
+	XXX;
+    }
+}
+
 sub VAST::dotty::emit_m0ld {
     my ($m,$noun) = @_;
     if (my $methodop = $m->{dottyop}{methodop}) {
