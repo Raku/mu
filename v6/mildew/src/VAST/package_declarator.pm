@@ -32,6 +32,17 @@ sub oo_package_declarator {
                                   [string $name]),[$proto]),
                     call(STORE => call("postcircumfix:{ }" => FETCH(call outer => reg '$scope'),
                                   [string $name.'::']),[$package]),
+                    let call(new=>FETCH(lookup("Package"))), sub {
+			my $export = shift;
+			AST::Seq->new(stmts => [
+					  call(STORE => call("postcircumfix:{ }"=>$package,[string 'EXPORT::']),
+					       [ $export ]),
+					  call(STORE => call("postcircumfix:{ }"=>$export,[string 'ALL::']),
+					       [ call(new=>FETCH(lookup('Package'))) ]),
+					  call(STORE => call("postcircumfix:{ }"=>$export,[string 'DEFAULT::']),
+					       [ call(new=>FETCH(lookup('Package'))) ]),
+				      ]);
+		    },
                     call(STORE => call("postcircumfix:{ }" => FETCH(call(outer => reg '$scope')),
                                   [string '&'.$name]),[
 			     call(new => FETCH(lookup('Code')),[],[string 'outer'=>reg '$scope',string 'mold' => AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([lookup('$?CLASS')]))])
@@ -66,6 +77,17 @@ sub plain_package_declarator {
 		    call(STORE => call(name => $package),[string $name]),
                     call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?PACKAGE']),[$package]),
                     call(STORE => call("postcircumfix:{ }" => FETCH(call outer => reg '$scope'),[string $name.'::']),[$package]),
+                    let call(new=>FETCH(lookup("Package"))), sub {
+			my $export = shift;
+			AST::Seq->new(stmts => [
+					  call(STORE => call("postcircumfix:{ }"=>$package,[string 'EXPORT::']),
+					       [ $export ]),
+					  call(STORE => call("postcircumfix:{ }"=>$export,[string 'ALL::']),
+					       [ call(new=>FETCH(lookup('Package'))) ]),
+					  call(STORE => call("postcircumfix:{ }"=>$export,[string 'DEFAULT::']),
+					       [ call(new=>FETCH(lookup('Package'))) ]),
+				      ]);
+		    },
                     call(STORE => call("postcircumfix:{ }" => FETCH(call lookup => FETCH(call outer => reg '$scope'),[string '$?PACKAGE']),[string $name.'::']),[$package])
                  ]);
         }),

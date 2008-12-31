@@ -22,18 +22,7 @@ sub VAST::scope_declarator::emit_m0ld {
 
 		}
             } elsif (my $routine_decl = $decl->{routine_declarator}) {
-		my $name = '&'.$routine_decl->{routine_def}{deflongname}[0]{name}{identifier}{TEXT};
-		let $routine_decl->{routine_def}->emit_m0ld(), sub {
-		    my $value = shift;
-		    AST::Seq->new(stmts => [
-				      ( $m->{'sym'} eq 'our' ? 
-				      call(BIND => (call 'postcircumfix:{ }' => FETCH(lookup '$?PACKAGE'),
-						     [ string $name ]),[$value])
-				      : ()),
-				      call(BIND => (call 'postcircumfix:{ }' => reg('$scope'),
-						    [ string $name ]),[$value]),
-				  ]);
-		};
+		$routine_decl->{routine_def}->emit_m0ld($m->{sym});
             } else {
                 XXX('unknown scope declarator');
             }
