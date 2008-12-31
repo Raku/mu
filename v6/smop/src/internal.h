@@ -71,7 +71,8 @@
      /*smop_pcl_coro_init();*/                 \
      smop_p5interpreter_init();             \
      smop_p5_sv_init();                     \
-     smop_loader_init();                   \
+     smop_p5_coro_init();                   \
+     smop_loader_init();                    \
 
 #define SMOP_INTERNAL_DESTROY_SEQUENCE      \
      smop_loader_destr();                   \
@@ -105,6 +106,7 @@
      smop_s1p_package_destr();              \
      smop_mold_destr();                     \
      /*smop_pcl_coro_destr();*/                 \
+     smop_p5_coro_destr();                  \
      smop_p5interpreter_destr();            \
      smop_p5_sv_destr();                    \
 

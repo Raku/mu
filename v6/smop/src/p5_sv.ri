@@ -80,6 +80,7 @@
 
 %method DESTROYALL
   SvREFCNT_dec(((smop_p5_sv_struct*)invocant)->sv); 
+  SMOP_RELEASE(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter); 
 
 %method postcircumfix:( )
 

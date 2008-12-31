@@ -22,8 +22,15 @@
   SMOP__Object* SMOP__P5__smop_interpreter;
 
   PerlInterpreter* SMOP__P5__p5interpreter_unbox(SMOP__Object* interpreter,SMOP__Object* p5interpreter) {
-   assert(p5interpreter->RI == RI);
+   assert(p5interpreter->RI == (SMOP__ResponderInterface*)RI);
    return ((smop_p5interpreter_struct*)p5interpreter)->interpreter; 
+  }
+
+  static SV* SMOP__Object2SV(SMOP__Object* interpreter,PerlInterpreter* my_perl,SMOP__Object* object) {
+      SV* pointer = newSViv((int)object);
+      HV* class = gv_stashpv("SMOP::Object", GV_ADD);
+      return sv_2mortal(sv_bless(newRV_noinc(pointer), class));
+    
   }
 
 %}
@@ -38,8 +45,43 @@
     strncpy(str_with_null,str,len);
     str_with_null[len] = '\0';
 
-    ret = SMOP__P5__SV_create(interpreter,invocant,eval_pv(str_with_null, TRUE));
+    ret = SMOP__P5__SV_create(interpreter,SMOP_REFERENCE(interpreter,invocant),eval_pv(str_with_null, TRUE));
     free(str_with_null);
+  } else {
+    printf("only constant identifiers can be passed to eval :(\n");
+  }
+  SMOP_RELEASE(interpreter,obj);
+
+%method coro_from_string
+  printf("coro_from_string\n");
+  PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
+  SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+  assert(obj);
+  SMOP__Object* smop_object = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+  assert(smop_object);
+  printf("converting %s...\n",smop_object->RI->id);
+  SV* smop_object_sv = SMOP__Object2SV(interpreter,my_perl,smop_object);
+  printf("getting var...\n");
+  SV* smop_object_var = get_sv("smop_object",TRUE);
+  assert(smop_object_sv);
+  assert(smop_object_var);
+  printf("coping over the objects...\n");
+  SvSetSV_nosteal(smop_object_var,smop_object_sv);
+
+  if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
+    int len;
+    char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
+    char* str_with_null = malloc(sizeof(char) * (len+1));
+    strncpy(str_with_null,str,len);
+    str_with_null[len] = '\0';
+
+    printf("creating p5coro\n");
+    SMOP__Object* coro = SMOP__P5__Coro_create(interpreter,SMOP_REFERENCE(interpreter,invocant),eval_pv(str_with_null, TRUE));
+    free(str_with_null);
+    printf("gotoing to it\n");
+    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                  SMOP__ID__goto,
+                  coro);
   } else {
     printf("only constant identifiers can be passed to eval :(\n");
   }

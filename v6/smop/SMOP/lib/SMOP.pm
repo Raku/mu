@@ -4,16 +4,27 @@ use 5.010000;
 use strict;
 use warnings;
 use Carp;
+use Coro;
+our $main_coro = new Coro::State;
 
 our $VERSION = '0.01';
 
 require XSLoader;
 XSLoader::load('SMOP', $VERSION);
 
+sub from_eval {
+    my $code = shift;
+    Coro::State->new(sub {
+        eval $code;
+    });
+}
 package SMOP::Object;
 our $AUTOLOAD;
 sub AUTOLOAD {
-    print "AUTOLOAD:",$SMOP::Object::AUTOLOAD,"\n";
+    print "AUTOLOAD: ",$SMOP::Object::AUTOLOAD,"\n";
+}
+sub DESTROY {
+    print "DESTROY :)\n";
 }
 1;
 __END__

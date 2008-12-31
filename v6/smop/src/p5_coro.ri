@@ -1,0 +1,71 @@
+%include <smop_p5.h>
+%prefix smop_p5_coro
+%attr SV* coro
+%attr int has_next
+%attr SMOP__Object* p5interpreter
+%attr SMOP__Object* back;
+%RI.id p5 coro
+
+%{
+SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* coro) {
+    printf("in SMOP__P5__Coro_create\n");
+    smop_p5_coro_struct* ret = (smop_p5_coro_struct*) smop_lowlevel_alloc(sizeof(smop_p5_coro_struct));
+    ret->coro = coro;
+    ret->has_next = 1;
+    ret->p5interpreter = p5interpreter;
+    assert(RI);
+    ret->RI = (SMOP__ResponderInterface*) RI;
+    printf("%s\n",SMOP_RI(ret)->id);
+    return (SMOP__Object*) ret;
+}
+%}
+
+%method eval
+    printf("p5 coro eval\n");
+    PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_coro_struct*)invocant)->p5interpreter);
+    SV* coro = ((smop_p5_coro_struct*)invocant)->coro;
+    SV* main = get_sv("SMOP::main_coro",FALSE);
+    assert(main);
+    assert(coro);
+    dSP;
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(main);
+    XPUSHs(coro);
+    PUTBACK;
+    call_method("transfer",G_DISCARD);
+
+    FREETMPS;
+    LEAVE;
+
+%method has_next
+    printf("has_next\n");
+    if (((smop_p5_coro_struct*)invocant)->has_next) {
+        ret = SMOP__NATIVE__bool_true;
+    } else {
+        ret = SMOP__NATIVE__bool_false;
+    }
+
+%method next
+    printf("next\n");
+
+%method finished
+
+%method DESTROYALL
+    if (((smop_p5_coro_struct*)invocant)->back) SMOP_RELEASE(interpreter,((smop_p5_coro_struct*)invocant)->back);
+
+%method back
+    if (((smop_p5_coro_struct*)invocant)->back) {
+      ret = SMOP_REFERENCE(interpreter,((smop_p5_coro_struct*)invocant)->back);
+    }
+%method set_back
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    if (!((smop_p5_coro_struct*)invocant)->back) {
+      ((smop_p5_coro_struct*)invocant)->back = value;
+    } else {
+      printf("trying to set a new back to the frame\n");
+      abort();
+    }
+%method setr
