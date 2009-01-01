@@ -1,5 +1,4 @@
-use ClassHOW;
-class Multi {
+knowhow Multi {
   has $.name;
   has @.variants;
 
