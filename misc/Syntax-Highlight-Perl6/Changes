@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.02962 2009.01.01
+    - Requires Moose 0.64 to fix win32 Class::MOP installation problems
+
 0.02961 Dec 29 2008
     - Skipped running t/02-hilitep6.t on win32 since test hanged.
 
