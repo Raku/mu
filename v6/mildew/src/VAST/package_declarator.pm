@@ -5,7 +5,6 @@ use warnings;
 use AST::Helpers;
 
 sub oo_package_declarator {
-    warn "oo_package_declarator\n";
     my $m = shift;
     my $name  = $m->{package_def}{module_name}[0]{longname}{name}{identifier}{TEXT};
     my $id_type_sub = AST::unique_id;
@@ -65,7 +64,6 @@ sub oo_package_declarator {
 }
 
 sub plain_package_declarator {
-    warn "plain package declarator\n";
     my $m = shift;
     my $name  = $m->{package_def}{module_name}[0]{longname}{name}{identifier}{TEXT};
     my $id_type_sub = AST::unique_id;
