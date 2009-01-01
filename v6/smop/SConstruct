@@ -1,7 +1,8 @@
 import re
+import os
 BuildDir('build','src')
 BuildDir('build-tests','test')
-env = Environment()
+env = Environment(ENV = os.environ)
 
 # TODO windowsify
 
