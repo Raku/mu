@@ -767,13 +767,13 @@ Thanks guys. I could not have done it without you ;-)
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2008 by Ahmad Zawawi
+Copyright (C) 2008-2009 by Ahmad Zawawi
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as the Artistic License 2.0
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 This library also includes the following libraries:
 
-STD.pm by Larry Wall (Artistic License 2.0 - same license)
+STD.pm by Larry Wall (Artistic License 2.0)
 
 JQuery by John Resig (dual licensed under the MIT and GPL licenses).
