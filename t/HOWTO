@@ -24,7 +24,7 @@ list of stuff that needs testing.
 =head2 Check the other tests first
 
 Many things are already tested, and it would be waste of time to duplicate the
-effort, and a maintainance burden. So first check if there are tests for the
+effort, and a maintenance burden. So first check if there are tests for the
 things you want. Usually a very efficient method is to do a full text search
 on the current test suite, either with C<grep> or C<ack> (a perl replacement
 for grep, see L<http://search.cpan.org/dist/ack>).
@@ -84,7 +84,7 @@ be looking something like this:
     plan 4;
 
     is 2**4,    16, 'Can calculate power of integers';
-    is (-2)**3, -8, 'Can calcualte power of negative integers';
+    is (-2)**3, -8, 'Can calculate power of negative integers';
     is_approx 2**0.5, sqrt(2), 'Can use fractional exponents';
     is 0**30,    0, '0**$something is 0 again';
 
@@ -121,7 +121,7 @@ Smart links are covered in more detail here:
 C<t/README> also contains some information on how smartlinks work.
 
 In our example we'd go into C<docs/Perl6/Spec> where the synopsis live, and
-search for occurences of C<**>:
+search for occurrences of C<**>:
 
     ack '\*\*'
 
@@ -142,7 +142,7 @@ in double quotes:
 C<< L<S03/Exponentiation precedence/"infix:<**>"> >>. We place that line
 directly after the C<plan> directive in our test file.
 
-=head2 Comitting your changes
+=head2 Committing your changes
 
 Once you've written (or edited) a reasonable test file, you should commit the
 changes to the pugs repository.
