@@ -36,7 +36,7 @@ class Multi {
 	      # this is where the disambiguator should be called!
 	      fail "Ambiguous dispatch!";
 	    } else {
-	      @candidates[0].postcircumfix:<( )>($capture);
+	      @candidates[0].postcircumfix:<( )>($capture, :cc($cc));
 	    }
 	  } else {
 	    fail "No candidate matching capture.";
