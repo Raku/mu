@@ -7,18 +7,18 @@ class Multi {
     unless $cc {
         $cc = &?ROUTINE.caller();
     }
-    my @variants;
+    my @all_variants;
     my sub traverse_scopes($scope) {
       if $scope.exists(self.name) {
-	@variants.push($scope{self.name}.variants);
+	@all_variants.push($scope{self.name}.variants);
       }
       if $scope.outer {
 	traverse_scopes($scope.outer);
       }
     }
-    traverse_scopes($self.outer);
+    traverse_scopes(&?ROUTINE.lexical);
     my @candidates;
-    my $iterator = @variants.Iterator();
+    my $iterator = @all_variants.Iterator();
     loop {
       my $candidate = =$iterator;
       if $candidate.signature.ACCEPTS($capture) {
