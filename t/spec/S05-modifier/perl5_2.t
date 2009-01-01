@@ -4,6 +4,8 @@ use Test;
 
 plan 100;
 
+#L<S05/Modifiers/"The extended syntax">
+
 unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";
   exit;
