@@ -1,4 +1,4 @@
-$OUT.print("1..9\n");
+$OUT.print("1..13\n");
 my $p5 = ::P5Interpreter.new();
 
 $p5.eval('$| = 1');
@@ -31,3 +31,19 @@ my $p5object = $p5.eval('
 ');
 $p5object.ok8($p5.eval('"some StRiNg"'));
 $OUT.print("ok ",$p5.eval('9').int," # int works\n");
+
+knowhow Foo {
+    method ok10 {
+        $OUT.print("ok 10\n");
+    }
+    method ok12 {
+        $OUT.print("ok 12\n");
+    }
+}
+$p5.eval('sub {$::smop_object = $_[0]}').(Foo.FETCH);
+$p5.eval('
+    $::smop_object->ok10;
+    print "ok 11\n";
+    $::smop_object->ok12;
+');
+$OUT.print("ok 13\n");

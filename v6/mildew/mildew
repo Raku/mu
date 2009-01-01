@@ -166,6 +166,7 @@ if ($B && $C) {
 
 if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = '../smop/build';
+    local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
     my $tmp = tmpnam;
     compile_via_c($m0ld,$tmp);
     exec($tmp);
