@@ -11,12 +11,39 @@
 #include <smop_mold.h>
 
 extern SMOP__Object* SMOP__P5__smop_interpreter;
-extern SMOP__Object* SMOP__P5__current_coro;
+extern SV* SMOP__P5__current_coro_state;
+extern SMOP__Object* SMOP__P5__current_back;
+extern SMOP__Object* SMOP__P5__smop_p5interpreter;
 
 MODULE = SMOP		PACKAGE = SMOP		
 
- # BOOT:
- # smop_init();
+void
+goto_back(SV* ret)
+  CODE:
+    SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
+
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,SMOP_REFERENCE(interpreter,SMOP__P5__current_back));
+
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
+                                             SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
+    SMOP_DISPATCH(interpreter,SMOP_RI(continuation),SMOP__ID__setr,SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,continuation),(SMOP__Object*[]) {SMOP__P5__SV_create(SMOP__P5__smop_interpreter,SMOP__P5__smop_p5interpreter,ret),NULL},NULL));
+
+    SV* current = SMOP__P5__current_coro_state;
+    SV* main = get_sv("SMOP::main_coro",FALSE);
+    assert(main);
+    assert(current);
+    dSP;
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(current);
+    XPUSHs(main);
+    PUTBACK;
+    call_method("transfer",G_DISCARD);
+
+    FREETMPS;
+    LEAVE;
 
 MODULE = SMOP       PACKAGE = SMOP::Object
 
@@ -33,7 +60,7 @@ AUTOLOAD(SV* self, ...)
 
     SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__NATIVE__idconst_createn(identifier,len),SMOP__NATIVE__capture_create(interpreter,object,NULL,NULL));
 
-    SV* current = get_sv("SMOP::current_coro",FALSE);
+    SV* current = SMOP__P5__current_coro_state;
     SV* main = get_sv("SMOP::main_coro",FALSE);
     assert(main);
     assert(current);

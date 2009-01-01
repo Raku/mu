@@ -15,7 +15,7 @@
     return ret;
   }
 
-  static SV* SMOP__Object2SV(SMOP__Object* interpreter,PerlInterpreter* my_perl,SMOP__Object* object) {
+  SV* SMOP__Object2SV(SMOP__Object* interpreter,PerlInterpreter* my_perl,SMOP__Object* object) {
     if (object->RI == RI) {
       SV* ret = ((smop_p5_sv_struct*)object)->sv;
       SMOP_RELEASE(interpreter,object);

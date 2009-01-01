@@ -7,23 +7,33 @@
 %RI.id p5 coro
 
 %{
+SV* SMOP__P5__current_coro_state;
+SMOP__Object* SMOP__P5__current_back;
+
 SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* coro) {
-    printf("in SMOP__P5__Coro_create\n");
     smop_p5_coro_struct* ret = (smop_p5_coro_struct*) smop_lowlevel_alloc(sizeof(smop_p5_coro_struct));
     ret->coro = coro;
     ret->has_next = 1;
     ret->p5interpreter = p5interpreter;
     assert(RI);
     ret->RI = (SMOP__ResponderInterface*) RI;
-    printf("%s\n",SMOP_RI(ret)->id);
     return (SMOP__Object*) ret;
 }
 %}
 
 %method eval
-    printf("p5 coro eval\n");
-    PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_coro_struct*)invocant)->p5interpreter);
+
+    smop_lowlevel_rdlock(invocant);
+    SMOP__Object* p5interpreter = ((smop_p5_coro_struct*)invocant)->p5interpreter;
     SV* coro = ((smop_p5_coro_struct*)invocant)->coro;
+    SV* back = ((smop_p5_coro_struct*)invocant)->back;
+    smop_lowlevel_unlock(invocant);
+
+    PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,p5interpreter);
+
+    SMOP__P5__current_coro_state = coro;
+    SMOP__P5__current_back = back;
+
     SV* main = get_sv("SMOP::main_coro",FALSE);
     assert(main);
     assert(coro);
@@ -40,8 +50,8 @@ SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5in
     FREETMPS;
     LEAVE;
 
+
 %method has_next
-    printf("has_next\n");
     if (((smop_p5_coro_struct*)invocant)->has_next) {
         ret = SMOP__NATIVE__bool_true;
     } else {
@@ -49,7 +59,6 @@ SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5in
     }
 
 %method next
-    printf("next\n");
 
 %method finished
 

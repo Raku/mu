@@ -20,53 +20,21 @@
   }
 
   SMOP__Object* SMOP__P5__smop_interpreter;
+  SMOP__Object* SMOP__P5__smop_p5interpreter;
 
   PerlInterpreter* SMOP__P5__p5interpreter_unbox(SMOP__Object* interpreter,SMOP__Object* p5interpreter) {
    assert(p5interpreter->RI == (SMOP__ResponderInterface*)RI);
    return ((smop_p5interpreter_struct*)p5interpreter)->interpreter; 
   }
 
-  static SV* SMOP__Object2SV(SMOP__Object* interpreter,PerlInterpreter* my_perl,SMOP__Object* object) {
-      SV* pointer = newSViv((int)object);
-      HV* class = gv_stashpv("SMOP::Object", GV_ADD);
-      return sv_2mortal(sv_bless(newRV_noinc(pointer), class));
-    
-  }
-
 %}
 
 %method eval
-  PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
-  SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-  if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
-    int len;
-    char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
-    char* str_with_null = malloc(sizeof(char) * (len+1));
-    strncpy(str_with_null,str,len);
-    str_with_null[len] = '\0';
 
-    ret = SMOP__P5__SV_create(interpreter,SMOP_REFERENCE(interpreter,invocant),eval_pv(str_with_null, TRUE));
-    free(str_with_null);
-  } else {
-    printf("only constant identifiers can be passed to eval :(\n");
-  }
-  SMOP_RELEASE(interpreter,obj);
-
-%method coro_from_string
-  printf("coro_from_string\n");
   PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
+  SMOP__P5__smop_interpreter = interpreter;
+  SMOP__P5__smop_p5interpreter = invocant;
   SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-  assert(obj);
-  SMOP__Object* smop_object = SMOP__NATIVE__capture_positional(interpreter,capture,1);
-  assert(smop_object);
-  printf("converting %s...\n",smop_object->RI->id);
-  SV* smop_object_sv = SMOP__Object2SV(interpreter,my_perl,smop_object);
-  printf("getting var...\n");
-  SV* smop_object_var = get_sv("smop_object",TRUE);
-  assert(smop_object_sv);
-  assert(smop_object_var);
-  printf("coping over the objects...\n");
-  SvSetSV_nosteal(smop_object_var,smop_object_sv);
 
   if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
     int len;
@@ -75,13 +43,39 @@
     strncpy(str_with_null,str,len);
     str_with_null[len] = '\0';
 
-    printf("creating p5coro\n");
-    SMOP__Object* coro = SMOP__P5__Coro_create(interpreter,SMOP_REFERENCE(interpreter,invocant),eval_pv(str_with_null, TRUE));
+    dSP;
+
+    ENTER;
+    SAVETMPS;
+    PUSHMARK(SP);    
+    XPUSHs(sv_2mortal(newSVpvn(str_with_null,len)));
+    PUTBACK;
+
+    int count = call_pv("SMOP::coro_from_eval",G_SCALAR);
+    if (count != 1) croak("Big trouble");
+
+    SPAGAIN;
+ 
+
+    SV* on_stack = POPs;
+    SV* coro_sv = newSVsv(on_stack);
+    assert(coro_sv);
+    
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    SMOP__Object* coro = SMOP__P5__Coro_create(interpreter,SMOP_REFERENCE(interpreter,invocant),coro_sv);
+
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_run_coro));
+    SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
+                                             SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
     free(str_with_null);
-    printf("gotoing to it\n");
-    SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                  SMOP__ID__goto,
-                  coro);
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,coro);
+    mold_reg_set(interpreter,frame,2,current);
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
+
   } else {
     printf("only constant identifiers can be passed to eval :(\n");
   }
@@ -111,4 +105,12 @@
   perl_parse(my_perl, xs_init, 3, embedding, NULL);
   PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
   perl_run(my_perl);
+  eval_pv("use SMOP",TRUE);
   ((smop_p5interpreter_struct*)ret)->interpreter = my_perl;
+
+%mold mold_run_coro
+  my $interpreter;
+  my $coro;
+  my $back;
+  my $void = $coro."set_back"($back);
+  my $void = $interpreter."goto"($coro);
