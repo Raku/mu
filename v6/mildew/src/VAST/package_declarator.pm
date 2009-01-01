@@ -77,7 +77,7 @@ sub plain_package_declarator {
 		    call(STORE => call(name => $package),[string $name]),
                     call(STORE => call("postcircumfix:{ }" => reg '$scope',[string '$?PACKAGE']),[$package]),
                     call(STORE => call("postcircumfix:{ }" => FETCH(call outer => reg '$scope'),[string $name.'::']),[$package]),
-                    let call(new=>FETCH(lookup("Package"))), sub {
+                    let(call(new=>FETCH(lookup("Package"))), sub {
 			my $export = shift;
 			AST::Seq->new(stmts => [
 					  call(STORE => call("postcircumfix:{ }"=>$package,[string 'EXPORT::']),
@@ -87,7 +87,7 @@ sub plain_package_declarator {
 					  call(STORE => call("postcircumfix:{ }"=>$export,[string 'DEFAULT::']),
 					       [ call(new=>FETCH(lookup('Package'))) ]),
 				      ]);
-		    },
+		    }),
                     call(STORE => call("postcircumfix:{ }" => FETCH(call lookup => FETCH(call outer => reg '$scope'),[string '$?PACKAGE']),[string $name.'::']),[$package])
                  ]);
         }),
