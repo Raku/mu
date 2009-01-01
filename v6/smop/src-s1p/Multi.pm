@@ -24,12 +24,14 @@ knowhow Multi {
 	@candidates.push($candidate);
       }
       CONTROL {
-	when ControlExceptionSignatureMatched {
+	if ($_.^does(ControlExceptionSignatureMatched)) {
 	  $candidate.postcircumfix<( )>($capture, :cc($cc));
+	} else {
+	  $_.throw;
 	}
       }
       CATCH {
-	when OutOfItemsException {
+	if ($_.^does(OutOfItemsException)) {
 	  if @candidates {
 	    if @candidates.elems > 1 {
 	      # this is where the disambiguator should be called!
@@ -40,6 +42,8 @@ knowhow Multi {
 	  } else {
 	    fail "No candidate matching capture.";
 	  }
+	} else {
+	  $_.throw;
 	}
       }
     }
