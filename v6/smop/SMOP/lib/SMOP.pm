@@ -31,6 +31,9 @@ sub coro_from_methodcall {
 }
 
 package SMOP::Object;
+use overload fallback=>0,'bool' => sub {
+    SMOP::NATIVE::bool::fetch($_[0]->true);
+};
 our $AUTOLOAD;
 sub AUTOLOAD {
     print "AUTOLOAD: ",$SMOP::Object::AUTOLOAD,"\n";

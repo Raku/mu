@@ -20,11 +20,11 @@
     if (object->RI == RI) {
       SV* ret = ((smop_p5_sv_struct*)object)->sv;
       SMOP_RELEASE(interpreter,object);
-      return ret;
+      return SvREFCNT_inc(ret);
     } else {
       SV* pointer = newSViv((int)object);
       HV* class = gv_stashpv("SMOP::Object", GV_ADD);
-      return sv_2mortal(sv_bless(newRV_noinc(pointer), class));
+      return sv_bless(newRV_noinc(pointer), class);
     }
   }
 %}

@@ -9,6 +9,7 @@
 #include <smop_s1p.h>
 #include <smop_identifiers.h>
 #include <smop_mold.h>
+#include <smop_p5.h>
 
 extern SMOP__Object* SMOP__P5__smop_interpreter;
 extern SV* SMOP__P5__current_coro_state;
@@ -47,7 +48,7 @@ goto_back(SV* ret)
 
 MODULE = SMOP       PACKAGE = SMOP::Object
 
-void
+SV*
 AUTOLOAD(SV* self, ...)
   CODE:
     SV* value = SvRV(self);
@@ -58,7 +59,7 @@ AUTOLOAD(SV* self, ...)
 
     SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
 
-    SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__NATIVE__idconst_createn(identifier,len),SMOP__NATIVE__capture_create(interpreter,object,NULL,NULL));
+    SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__NATIVE__idconst_createn(identifier,len),SMOP__NATIVE__capture_create(interpreter,object,NULL,NULL));
 
     SV* current = SMOP__P5__current_coro_state;
     SV* main = get_sv("SMOP::main_coro",FALSE);
@@ -76,20 +77,10 @@ AUTOLOAD(SV* self, ...)
 
     FREETMPS;
     LEAVE;
+    RETVAL = SMOP__Object2SV(interpreter,my_perl,ret);
+  OUTPUT:
+    RETVAL
  
- # void
- # DESTROY(SV* self, ...)
- #   CODE:
- #     SV* value = SvRV(self);
- #     SMOP__Object* object = (SMOP__Object*)SvIV(value);    
- # 
- #     SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
- #     SMOP_RELEASE(interpreter,object);
- #     /* HACK */
- #     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
- #       SMOP__ID__loop, SMOP__NATIVE__capture_create(interpreter,
- #         SMOP_REFERENCE(interpreter, interpreter),NULL, NULL));
-   
 MODULE = SMOP       PACKAGE = SMOP::NATIVE::bool
 
 SV*
@@ -112,6 +103,14 @@ false(...)
   OUTPUT:
     RETVAL
 
+int fetch(SV* self)
+  CODE:
+    SV* value = SvRV(self);
+    SMOP__Object* object = (SMOP__Object*)SvIV(value);
+    RETVAL = (object != SMOP__NATIVE__bool_false);
+  OUTPUT:
+    RETVAL
+
 MODULE = SMOP       PACKAGE = SMOP::NATIVE::int
 
 SV*
@@ -130,7 +129,9 @@ fetch(SV* self)
     SV* value = SvRV(self);
     SMOP__Object* object = (SMOP__Object*)SvIV(value);
     if (SMOP_RI(object) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
-        RETVAL = SMOP__NATIVE__int_fetch(object);
+        int foo = SMOP__NATIVE__int_fetch(object);
+        printf("fetched int %d\n",foo);
+        RETVAL = foo;
     } else {
         printf("Calling SMOP::NATIVE::int->fetch on a non-native int.\n");
         RETVAL = 0;

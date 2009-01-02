@@ -79,6 +79,7 @@
   SMOP_RELEASE(interpreter,obj);
 
 %method DESTROYALL
+  printf("DESTROYALL on p5interpreter\n");
   PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
   perl_destruct(my_perl);
   perl_free(my_perl);
