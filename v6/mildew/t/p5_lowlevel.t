@@ -25,7 +25,16 @@ sub test2_bool {
         print "ok 2\n";
     }
 }
+sub test3_str {
+    my $str = "$_[1]";
+    if ($str eq "abcdefgh?!") {
+        print "ok 3\n";
+    } else {
+        print "not ok 3\n";
+    }
+}
 bless {},"Foo";
 ');
 $foo.test1_bool(139);
 $foo.test2_bool(0);
+$foo.test3_str("abcdefgh?!");

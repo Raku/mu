@@ -8,6 +8,7 @@
 
 %{
 SV* SMOP__P5__current_coro_state;
+int* SMOP__P5__current_coro_has_next;
 SMOP__Object* SMOP__P5__current_back;
 
 SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* coro) {
@@ -24,15 +25,16 @@ SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5in
 %method eval
 
 
-    smop_lowlevel_rdlock(invocant);
+    //smop_lowlevel_rdlock(invocant);
     SMOP__Object* p5interpreter = ((smop_p5_coro_struct*)invocant)->p5interpreter;
     SV* coro = ((smop_p5_coro_struct*)invocant)->coro;
     SMOP__Object* back = ((smop_p5_coro_struct*)invocant)->back;
-    smop_lowlevel_unlock(invocant);
+    //smop_lowlevel_unlock(invocant);
 
     PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,p5interpreter);
 
     SMOP__P5__current_coro_state = coro;
+    SMOP__P5__current_coro_has_next = &(((smop_p5_coro_struct*)invocant)->has_next);
     SMOP__P5__current_back = back;
 
 
@@ -55,6 +57,7 @@ SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5in
 
 %method has_next
     /* FIXME */
+
     if (((smop_p5_coro_struct*)invocant)->has_next) {
         ret = SMOP__NATIVE__bool_true;
     } else {

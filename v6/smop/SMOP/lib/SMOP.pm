@@ -31,15 +31,23 @@ sub coro_from_methodcall {
 }
 
 package SMOP::Object;
-use overload fallback=>0,'bool' => sub {
-    SMOP::NATIVE::bool::fetch($_[0]->true);
-};
+use overload
+    'fallback' =>0,
+    'bool' => sub {
+        SMOP::NATIVE::bool::fetch($_[0]->true);
+    },
+    '""' => sub {
+         SMOP::NATIVE::idconst::fetch($_[0]);
+    },
+    '0+' => sub {
+         SMOP::NATIVE::int::fetch($_[0]);
+    };
 our $AUTOLOAD;
 sub AUTOLOAD {
     print "AUTOLOAD: ",$SMOP::Object::AUTOLOAD,"\n";
 }
 sub DESTROY {
-    print "DESTROY :)\n";
+    #print "DESTROY :)\n";
 }
 1;
 __END__

@@ -15,6 +15,7 @@ extern SMOP__Object* SMOP__P5__smop_interpreter;
 extern SV* SMOP__P5__current_coro_state;
 extern SMOP__Object* SMOP__P5__current_back;
 extern SMOP__Object* SMOP__P5__smop_p5interpreter;
+extern int* SMOP__P5__current_coro_has_next;
 
 MODULE = SMOP		PACKAGE = SMOP		
 
@@ -22,6 +23,7 @@ void
 goto_back(SV* ret)
   CODE:
     SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
+    *SMOP__P5__current_coro_has_next = 0;
 
 
     SMOP_DISPATCH(interpreter,SMOP_RI(SMOP__P5__current_back),SMOP__ID__setr,SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,SMOP__P5__current_back),(SMOP__Object*[]) {SMOP__P5__SV_create(SMOP__P5__smop_interpreter,SMOP_REFERENCE(interpreter,SMOP__P5__smop_p5interpreter),ret),NULL},NULL));
@@ -130,7 +132,6 @@ fetch(SV* self)
     SMOP__Object* object = (SMOP__Object*)SvIV(value);
     if (SMOP_RI(object) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
         int foo = SMOP__NATIVE__int_fetch(object);
-        printf("fetched int %d\n",foo);
         RETVAL = foo;
     } else {
         printf("Calling SMOP::NATIVE::int->fetch on a non-native int.\n");
@@ -158,9 +159,9 @@ fetch(SV* self)
     SMOP__Object* object = (SMOP__Object*)SvIV(value);
     if (SMOP_RI(object) == SMOP_RI(SMOP__ID__new)) {
         int retsize;
-        RETVAL = SMOP__NATIVE__idconst_fetch(object, &retsize);
+        RETVAL = SMOP__NATIVE__idconst_fetch_with_null(object, &retsize);
     } else {
-        printf("Calling SMOP::NATIVE::int->fetch on a non-native int.\n");
+        printf("Calling SMOP::NATIVE::int->fetch on a non idconst.\n");
         RETVAL = 0;
     }
   OUTPUT:
