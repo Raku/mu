@@ -22,11 +22,11 @@ goto_back(SV* ret)
   CODE:
     SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
 
+
+    SMOP_DISPATCH(interpreter,SMOP_RI(SMOP__P5__current_back),SMOP__ID__setr,SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,SMOP__P5__current_back),(SMOP__Object*[]) {SMOP__P5__SV_create(SMOP__P5__smop_interpreter,SMOP_REFERENCE(interpreter,SMOP__P5__smop_p5interpreter),ret),NULL},NULL));
+
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,SMOP_REFERENCE(interpreter,SMOP__P5__current_back));
 
-    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
-                                             SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
-    SMOP_DISPATCH(interpreter,SMOP_RI(continuation),SMOP__ID__setr,SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,continuation),(SMOP__Object*[]) {SMOP__P5__SV_create(SMOP__P5__smop_interpreter,SMOP__P5__smop_p5interpreter,ret),NULL},NULL));
 
     SV* current = SMOP__P5__current_coro_state;
     SV* main = get_sv("SMOP::main_coro",FALSE);
