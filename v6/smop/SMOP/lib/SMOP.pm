@@ -23,8 +23,10 @@ sub coro_from_eval {
 sub coro_from_methodcall {
     my $invocant = shift;
     my $method = shift;
+    my @args = @_;
     Coro::State->new(sub {
-        $invocant->$method(@_);
+        my $ret = $invocant->$method(@args);
+        SMOP::goto_back($ret);
     });
 }
 

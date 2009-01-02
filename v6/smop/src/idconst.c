@@ -96,6 +96,14 @@ char* SMOP__NATIVE__idconst_fetch(SMOP__Object* value, int* retsize) {
   return ((SMOP__NATIVE__idconst_data*)value->data)->content;
 }
 
+char* SMOP__NATIVE__idconst_fetch_with_null(SMOP__Object* value,int* retsize) {
+    char* str = SMOP__NATIVE__idconst_fetch(value,retsize);
+    char* str_with_null = malloc(sizeof(char) * (*retsize+1));
+    strncpy(str_with_null,str,*retsize);
+    str_with_null[*retsize] = '\0';
+    return str_with_null;
+}
+
 void SMOP__NATIVE__idconst_free(SMOP__Object* value) {
   free(value->data);
   free(value);

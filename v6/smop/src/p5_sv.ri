@@ -6,6 +6,7 @@
 
 %{
   extern SMOP__Object* SMOP__P5__smop_interpreter;
+  SMOP__Object* SMOP__P5__smop_p5interpreter;
 
   SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
     SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));
@@ -39,26 +40,55 @@
   PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter);
   %%METHODS%%
   {
+    SMOP__P5__smop_p5interpreter = ((smop_p5_sv_struct*)invocant)->p5interpreter;
+
     int len;
-    char* method = SMOP__NATIVE__idconst_fetch(identifier,&len);
-    char* method_with_null = malloc(sizeof(char) * (len+1));
-    strncpy(method_with_null,method,len);
-    method_with_null[len] = '\0';
+    char* method = SMOP__NATIVE__idconst_fetch_with_null(identifier,&len);
 
     dSP;
+
+    ENTER;
+    SAVETMPS;
     PUSHMARK(SP);
     XPUSHs(SMOP__Object2SV(interpreter,my_perl,invocant));
+
+    XPUSHs(sv_2mortal(newSVpvn(method,len)));
+
     int positionals = SMOP__NATIVE__capture_positional_count(interpreter,capture);
     int i;
     for (i=0;i < positionals;i++) {
       SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,capture,i);
       XPUSHs(SMOP__Object2SV(interpreter,my_perl,object));
     }
+
     PUTBACK;
 
-    call_method(method_with_null,G_DISCARD);
+    int count = call_pv("SMOP::coro_from_methodcall",G_SCALAR);
+    if (count != 1) croak("Big trouble");
 
-    free(method_with_null);
+
+    SPAGAIN;
+ 
+
+    SV* on_stack = POPs;
+    SV* coro_sv = newSVsv(on_stack);
+    assert(coro_sv);
+    
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    SMOP__Object* coro = SMOP__P5__Coro_create(interpreter,SMOP_REFERENCE(interpreter,SMOP__P5__smop_p5interpreter),coro_sv);
+
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_run_coro));
+    SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
+                                             SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,coro);
+    mold_reg_set(interpreter,frame,2,current);
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
+
+    free(method);
   }
   if (invocant) SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
@@ -106,5 +136,12 @@
   LEAVE;
 
   SMOP_RELEASE(interpreter,real_capture);
+
+%mold mold_run_coro
+  my $interpreter;
+  my $coro;
+  my $back;
+  my $void = $coro."set_back"($back);
+  my $void = $interpreter."goto"($coro);
 
 

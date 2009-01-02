@@ -38,17 +38,14 @@
 
   if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
     int len;
-    char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
-    char* str_with_null = malloc(sizeof(char) * (len+1));
-    strncpy(str_with_null,str,len);
-    str_with_null[len] = '\0';
+    char* str = SMOP__NATIVE__idconst_fetch_with_null(obj,&len);
 
     dSP;
 
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);    
-    XPUSHs(sv_2mortal(newSVpvn(str_with_null,len)));
+    XPUSHs(sv_2mortal(newSVpvn(str,len)));
     PUTBACK;
 
     int count = call_pv("SMOP::coro_from_eval",G_SCALAR);
@@ -70,7 +67,7 @@
     SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_run_coro));
     SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
                                              SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
-    free(str_with_null);
+    free(str);
     mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
     mold_reg_set(interpreter,frame,1,coro);
     mold_reg_set(interpreter,frame,2,current);

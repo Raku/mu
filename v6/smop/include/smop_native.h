@@ -57,14 +57,16 @@ SMOP__Object*   SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,
                                                SMOP__Object* original_capture);
 
 // get methods
+char*           SMOP__NATIVE__idconst_fetch_with_null(SMOP__Object* value, int* retsize);
 char*           SMOP__NATIVE__idconst_fetch(SMOP__Object* value, int* retsize);
+
 char*           SMOP__NATIVE__bytes_fetch(SMOP__Object* value, int* retsize);
 int             SMOP__NATIVE__bit_fetch(SMOP__Object* value);
 int             SMOP__NATIVE__int_fetch(SMOP__Object* value);
 unsigned int    SMOP__NATIVE__uint_fetch(SMOP__Object* value);
 char*           SMOP__NATIVE__buf_fetch(SMOP__Object* value, int* retsize);
 double          SMOP__NATIVE__num_fetch(SMOP__Object* value);
-complex  SMOP__NATIVE__complex_fetch(SMOP__Object* value);
+complex         SMOP__NATIVE__complex_fetch(SMOP__Object* value);
 int             SMOP__NATIVE__bool_fetch(SMOP__Object* value);
 int             SMOP__NATIVE__capture_may_recurse(SMOP__Object* interpreter,
                                                   SMOP__Object* capture);

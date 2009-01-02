@@ -131,8 +131,10 @@
      smop_s1p_grep_mold_init();             \
      smop_s1p_array_iterator_mold_init();   \
      smop_p5interpreter_mold_init();        \
+     smop_p5_sv_mold_init();                \
 
 #define SMOP_BOOTSTRAP_DESTR_SEQUENCE       \
+     smop_p5_sv_mold_destr();               \
      smop_p5interpreter_mold_destr();       \
      smop_s1p_array_iterator_mold_destr();  \
      smop_s1p_grep_mold_destr();            \
