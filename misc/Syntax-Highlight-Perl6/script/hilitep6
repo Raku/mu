@@ -22,7 +22,7 @@ use STD;
 use Syntax::Highlight::Perl6;
 
 #CPAN version
-our $VERSION = '0.02962';
+our $VERSION = '0.02963';
 
 # my variables
 my ($clean_html,$help) = (0,0);
@@ -144,7 +144,8 @@ sub highlight_match {
     my $filename = shift;
 
     my $p = new Syntax::Highlight::Perl6(
-        text => _slurp_special($filename)
+        text => _slurp_special($filename),
+        inline_resources => ! $clean_html,
     );
     if($full_html) {
         write_output $full_html, $p->full_html;
