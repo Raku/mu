@@ -8,14 +8,49 @@
   extern SMOP__Object* SMOP__P5__smop_interpreter;
   SMOP__Object* SMOP__P5__smop_p5interpreter;
 
+  SMOP__Object* SV2SMOP__Object(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
+    return SMOP__P5__SV_create(interpreter,p5interpreter,sv);
+  }
   SMOP__Object* SMOP__P5__SV_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* sv) {
     SMOP__Object* ret =  smop_lowlevel_alloc(sizeof(smop_p5_sv_struct));
-    ret->RI = RI;
+    ret->RI = (SMOP__ResponderInterface*) RI;
     ((smop_p5_sv_struct*)ret)->sv = SvREFCNT_inc(sv);
     ((smop_p5_sv_struct*)ret)->p5interpreter = p5interpreter;
     return ret;
   }
 
+  I32 magic_STORE(pTHX_ IV obj_address,SV* sv) {
+    SMOP__Object* object = (SMOP__Object*) obj_address;
+    SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
+    SMOP__P5__result_sv = NULL;
+    SMOP__P5__transfer_to_main_coro(interpreter,my_perl);
+
+    SMOP__Object* rvalue = SV2SMOP__Object(interpreter,SMOP__P5__smop_p5interpreter,sv);
+
+
+    SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__ID__STORE,SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,object),(SMOP__Object*[]) {rvalue,NULL},NULL));
+    SMOP_RELEASE(interpreter,ret);
+  }
+  I32 magic_FETCH(pTHX_ IV obj_address,SV* sv) {
+
+    SMOP__Object* object = (SMOP__Object*) obj_address;
+    SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
+
+    SMOP__P5__result_sv = sv;
+
+    SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__ID__FETCH,SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,object),NULL,NULL));
+
+    SV* ret_sv = SMOP__Object2SV(interpreter,my_perl,ret);
+
+    /*if (ret->RI == RI) {
+        SvSetSV_nosteal(sv,ret_sv);
+    } else {
+    }*/
+    sv_setsv_flags(sv,ret_sv, SV_NOSTEAL);
+    SMOP__P5__transfer_to_main_coro(interpreter,my_perl);
+
+
+  }
   SV* SMOP__Object2SV(SMOP__Object* interpreter,PerlInterpreter* my_perl,SMOP__Object* object) {
     if (object->RI == RI) {
       SV* ret = ((smop_p5_sv_struct*)object)->sv;
@@ -24,7 +59,13 @@
     } else {
       SV* pointer = newSViv((int)object);
       HV* class = gv_stashpv("SMOP::Object", GV_ADD);
-      return sv_bless(newRV_noinc(pointer), class);
+      struct ufuncs uf;
+      uf.uf_index = (int)object;
+      uf.uf_set = &magic_STORE;
+      uf.uf_val = &magic_FETCH;
+      SV* sv = sv_bless(newRV_noinc(pointer), class);
+      sv_magic(sv,0,PERL_MAGIC_uvar, (char*)&uf,sizeof(uf));
+      return sv;
     }
   }
 %}
@@ -114,6 +155,7 @@
 
 %method postcircumfix:( )
 
+  printf("XXX postcircumfix:( ) on a wrapped SV* is broken atm\n");
   assert(SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1);
   SMOP__Object* real_capture = SMOP__NATIVE__capture_positional(interpreter,capture,0);
 

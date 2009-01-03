@@ -11,12 +11,6 @@
 #include <smop_mold.h>
 #include <smop_p5.h>
 
-extern SMOP__Object* SMOP__P5__smop_interpreter;
-extern SV* SMOP__P5__current_coro_state;
-extern SMOP__Object* SMOP__P5__current_back;
-extern SMOP__Object* SMOP__P5__smop_p5interpreter;
-extern int* SMOP__P5__current_coro_has_next;
-
 MODULE = SMOP		PACKAGE = SMOP		
 
 void
@@ -31,22 +25,7 @@ goto_back(SV* ret)
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,SMOP_REFERENCE(interpreter,SMOP__P5__current_back));
 
 
-    SV* current = SMOP__P5__current_coro_state;
-    SV* main = get_sv("SMOP::main_coro",FALSE);
-    assert(main);
-    assert(current);
-    dSP;
-    ENTER;
-    SAVETMPS;
-
-    PUSHMARK(SP);
-    XPUSHs(current);
-    XPUSHs(main);
-    PUTBACK;
-    call_method("transfer",G_DISCARD);
-
-    FREETMPS;
-    LEAVE;
+    SMOP__P5__transfer_to_main_coro(interpreter,my_perl);
 
 MODULE = SMOP       PACKAGE = SMOP::Object
 
@@ -61,25 +40,14 @@ AUTOLOAD(SV* self, ...)
 
     SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
 
-    SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__NATIVE__idconst_createn(identifier,len),SMOP__NATIVE__capture_create(interpreter,object,NULL,NULL));
+    SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__NATIVE__idconst_createn(identifier,len),SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,object),NULL,NULL));
 
-    SV* current = SMOP__P5__current_coro_state;
-    SV* main = get_sv("SMOP::main_coro",FALSE);
-    assert(main);
-    assert(current);
-    dSP;
-    ENTER;
-    SAVETMPS;
 
-    PUSHMARK(SP);
-    XPUSHs(current);
-    XPUSHs(main);
-    PUTBACK;
-    call_method("transfer",G_DISCARD);
-
-    FREETMPS;
-    LEAVE;
     RETVAL = SMOP__Object2SV(interpreter,my_perl,ret);
+    SMOP__P5__result_sv = RETVAL;
+
+    SMOP__P5__transfer_to_main_coro(interpreter,my_perl);
+
   OUTPUT:
     RETVAL
  
@@ -134,7 +102,7 @@ fetch(SV* self)
         int foo = SMOP__NATIVE__int_fetch(object);
         RETVAL = foo;
     } else {
-        printf("Calling SMOP::NATIVE::int->fetch on a non-native int.\n");
+        printf("Calling SMOP::NATIVE::int::fetch on a non-native int.\n");
         RETVAL = 0;
     }
   OUTPUT:
@@ -161,7 +129,7 @@ fetch(SV* self)
         int retsize;
         RETVAL = SMOP__NATIVE__idconst_fetch_with_null(object, &retsize);
     } else {
-        printf("Calling SMOP::NATIVE::int->fetch on a non idconst.\n");
+        printf("Calling SMOP::NATIVE::idconst::fetch on a non idconst.\n");
         RETVAL = 0;
     }
   OUTPUT:
