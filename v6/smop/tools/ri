@@ -28,7 +28,7 @@ sub mangle {
     return 'ID__'.::mangle($id);
 }
 
-my @properties = qw(RI RI.id prefix include prototype);
+my @properties = qw(RI RI.id prefix include prototype singleton);
 my %properties;
 
 my %methods;
@@ -116,6 +116,9 @@ my $id = defined $properties{"RI.id"} ? $properties{"RI.id"} : "unknown RI";
 if ($properties{prototype}) {
     print "SMOP__Object* $properties{prototype};\n";
 }
+if ($properties{singleton}) {
+    print "SMOP__Object* $properties{singleton};\n";
+}
 if ($properties{RI}) {
     print "SMOP__Object* $properties{RI};\n";
 } else {
@@ -182,14 +185,29 @@ print q[
 }
 ];
 
-print qq[
-void $properties{prefix}_init() {
-  $RI = SMOP__RI__create(
+if ($properties{singleton}) {
+  print qq[
+   static SMOP__Object* noop_refcount(SMOP__Object* interpreter,
+           SMOP__ResponderInterface* responder, SMOP__Object* obj) {
+     return obj;
+   }
+   void $properties{prefix}_init() {
+    $RI = SMOP__RI__create(
+      message,
+      noop_refcount,
+      noop_refcount,
+      "$id");
+  ];
+} else {
+  print qq[
+   void $properties{prefix}_init() {
+    $RI = SMOP__RI__create(
       message,
       smop_lowlevel_generic_reference,
       smop_lowlevel_generic_release,
       "$id");
-];
+  ];
+}
 print "  SMOP__Object* interpreter = SMOP__GlobalInterpreter;\n";
 for (keys %methods) {
     print "  ",mangle($_)," = ","SMOP__NATIVE__idconst_create(\"$_\");\n";
@@ -198,6 +216,12 @@ for (keys %methods) {
 if ($properties{prototype}) {
     print qq[
   $properties{prototype} = SMOP__Proto__create($RI);
+];
+}
+if ($properties{singleton}) {
+    print qq[
+  $properties{singleton} = malloc(sizeof(SMOP__Object));
+  $properties{singleton}->RI = $RI ;
 ];
 }
 print qq[ 
@@ -223,6 +247,11 @@ void $properties{prefix}_destr() {
 if ($properties{prototype}) {
     print qq[
      free($properties{prototype});
+    ];
+}
+if ($properties{singleton}) {
+    print qq[
+     free($properties{singleton});
     ];
 }
 print qq[
