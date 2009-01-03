@@ -82,7 +82,6 @@
   printf("DESTROYALL on p5interpreter\n");
   PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
   eval_pv("$SMOP::main_coro = undef;",TRUE);
-  printf("perl_destruct\n");
   perl_destruct(my_perl);
   perl_free(my_perl);
   PERL_SYS_TERM();
@@ -104,7 +103,7 @@
   char *embedding[] = { "", "-e", "0" };
   perl_parse(my_perl, xs_init, 3, embedding, NULL);
   PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
-  perl_run(my_perl);
+  //perl_run(my_perl);
   eval_pv("use SMOP",TRUE);
   ((smop_p5interpreter_struct*)ret)->interpreter = my_perl;
 

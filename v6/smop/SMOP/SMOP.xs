@@ -51,6 +51,15 @@ AUTOLOAD(SV* self, ...)
   OUTPUT:
     RETVAL
  
+
+void DESTROY(SV* self)
+  CODE:
+    SV* value = SvRV(self);
+    SMOP__Object* object = (SMOP__Object*)SvIV(value);    
+    SMOP__Object* interpreter = SMOP__P5__smop_interpreter;
+    SMOP_RELEASE(interpreter,object);
+    SMOP__P5__transfer_to_main_coro(interpreter,my_perl);
+
 MODULE = SMOP       PACKAGE = SMOP::NATIVE::bool
 
 SV*
