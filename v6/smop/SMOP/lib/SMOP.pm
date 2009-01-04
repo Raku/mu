@@ -32,7 +32,7 @@ sub coro_from_methodcall {
 
 package SMOP::Object;
 use overload
-    'fallback' =>0,
+#'fallback' =>0,
     'bool' => sub {
         SMOP::NATIVE::bool::fetch($_[0]->true);
     },
@@ -41,7 +41,17 @@ use overload
     },
     '0+' => sub {
          SMOP::NATIVE::int::fetch($_[0]);
-    };
+    },
+    '.' => sub {
+        "$_[0]" . "$_[1]";
+    },
+    'eq' => sub {
+        "$_[0]" eq "$_[1]";
+    },
+    'ne' => sub {
+        "$_[0]" eq "$_[1]";
+    }
+    ;
 our $AUTOLOAD;
 sub AUTOLOAD {
     print "AUTOLOAD: ",$SMOP::Object::AUTOLOAD,"\n";

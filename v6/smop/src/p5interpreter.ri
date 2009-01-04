@@ -79,12 +79,16 @@
   SMOP_RELEASE(interpreter,obj);
 
 %method DESTROYALL
-  printf("DESTROYALL on p5interpreter\n");
+/*
+  //printf("DESTROYALL on p5interpreter\n");
   PerlInterpreter* my_perl = ((smop_p5interpreter_struct*)invocant)->interpreter;
-  eval_pv("$SMOP::main_coro = undef;",TRUE);
+  //printf("perl_destruct\n");
   perl_destruct(my_perl);
+  //printf("perl_free\n");
   perl_free(my_perl);
+  //printf("PERL_SYS_TERM\n");
   PERL_SYS_TERM();
+*/
 
 %method FETCH
   ___VALUE_FETCH___
