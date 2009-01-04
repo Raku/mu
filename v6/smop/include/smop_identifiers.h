@@ -112,7 +112,7 @@ extern SMOP__Object* SMOP__ID__REPR_methods;      /* "^!methods" */
 extern SMOP__Object* SMOP__ID__REPR_multimethods;      /* "^!multimethods" */
 extern SMOP__Object* SMOP__ID__REPR_multisubmethods;      /* "^!multisubmethods" */
 extern SMOP__Object* SMOP__ID__REPR_package;      /* "^!package" */
-extern SMOP__Object* SMOP__ID__REPR_private_storage;                     /* "^!private_storage" */
+extern SMOP__Object* SMOP__ID__REPR_instance_storage;                     /* "^!instance_storage" */
 extern SMOP__Object* SMOP__ID__REPR_properties;   /* "^!properties" */
 extern SMOP__Object* SMOP__ID__REPR_submethods;   /* "^!submethods" */
 extern SMOP__Object* SMOP__ID__REPR_whence;       /* "^!whence" */

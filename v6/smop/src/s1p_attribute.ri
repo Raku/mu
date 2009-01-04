@@ -16,6 +16,9 @@
     ((smop_s1p_attribute_struct*)attribute)->container_type = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ret = attribute;
 
+%method FETCH
+    ___VALUE_FETCH___
+
 %method DESTROYALL
     smop_lowlevel_wrlock(invocant);
     SMOP__Object* name = ((smop_s1p_attribute_struct*)invocant)->name;

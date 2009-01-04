@@ -33,6 +33,19 @@
     mold_back_set(interpreter,frame,continuation);
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 
+
+%method add_attribute
+    SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                               SMOP__ID__continuation, 
+                                               SMOP_REFERENCE(interpreter,interpreter));
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                   SMOP_REFERENCE(interpreter,
+                                                                  smop_s1p_pureprototypehow_add_attribute_mold));
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_back_set(interpreter,frame,continuation);
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
+
 %method FETCH
     ___VALUE_FETCH___;
 
@@ -121,4 +134,33 @@
 
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
+    $void = $interpreter."goto"($back);
+
+%mold smop_s1p_pureprototypehow_add_attribute_mold
+    my $interpreter;
+    my $capture;
+    my $object = $capture."positional"(0);
+    my $name = $capture."positional"(1);
+    my $attribute = $capture."positional"(2);
+    my $attrhash = $object."^!attributes"();
+    my $attrcont = $attrhash."postcircumfix:{ }"($name);
+    my $void = $attrcont."STORE"($attribute);
+    my $inststor = $object."^!instance_storage"();
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $backlexical = $back."lexical"();
+    my $packagec = $backlexical."lookup"("$?PACKAGE");
+    my $package = $packagec."FETCH"();
+    my $packnamec = $package."name"();
+    my $packname = $packnamec."FETCH"();
+    my $protost = $inststor."postcircumfix:{ }"($packname);
+    my $thispack = ¢SMOP__S1P__Hash."new"();
+    $void = $protost."STORE"($thispack);
+    my $conttypec = $attribute."container_type"();
+    my $conttype = $conttypec."FETCH"();
+    my $attnamec = $attribute."private_name"();
+    my $attname = $attnamec."FETCH"();
+    my $cont = $conttype."new"();
+    my $thiscont = $thispack."postcircumfix:{ }"($attname);
+    $void = $thiscont."BIND"($cont);
     $void = $interpreter."goto"($back);

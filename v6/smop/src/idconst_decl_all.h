@@ -103,7 +103,7 @@ SMOP__Object* SMOP__ID__REPR_methods;
 SMOP__Object* SMOP__ID__REPR_multimethods;
 SMOP__Object* SMOP__ID__REPR_multisubmethods;
 SMOP__Object* SMOP__ID__REPR_package;
-SMOP__Object* SMOP__ID__REPR_private_storage;
+SMOP__Object* SMOP__ID__REPR_instance_storage;
 SMOP__Object* SMOP__ID__REPR_properties;
 SMOP__Object* SMOP__ID__REPR_submethods;
 SMOP__Object* SMOP__ID__REPR_whence;

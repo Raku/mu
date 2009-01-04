@@ -25,7 +25,8 @@ sub attribute {
 	AST::Seq->new(stmts => [
 			  call(STORE=>call(name=>$attribute),[string $name]),
 			  call(STORE=>call(private_name=>$attribute),[string $private_name]),
-			  call(STORE=>call(container_type=>$attribute),[FETCH(lookup($container_type))])
+			  call(STORE=>call(container_type=>$attribute),[FETCH(lookup($container_type))]),
+			  call(FETCH=>$attribute)
 		      ]);
     };
 }

@@ -275,7 +275,7 @@ static SMOP__Object* p6opaque_message(SMOP__Object* interpreter,
 
     ret = SMOP_REFERENCE(interpreter, is_container);
 
-  } else if (identifier == SMOP__ID__REPR_private_storage) {
+  } else if (identifier == SMOP__ID__REPR_instance_storage) {
 
     smop_lowlevel_rdlock(invocant);
     SMOP__Object* instance_storage = ((smop_p6opaque*)invocant)->instance_storage;
