@@ -1,0 +1,4 @@
+knowhow Foo {
+  has $!bar;
+}
+

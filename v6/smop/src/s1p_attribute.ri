@@ -10,7 +10,7 @@
 
 %method new
     SMOP__Object* attribute = smop_lowlevel_alloc(sizeof(smop_s1p_attribute_struct));
-    attribute->RI = (SMOP__ResponderInterface*)SMOP__S1P__Attribute;
+    attribute->RI = (SMOP__ResponderInterface*)RI;
     ((smop_s1p_attribute_struct*)attribute)->name = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ((smop_s1p_attribute_struct*)attribute)->private_name = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
     ((smop_s1p_attribute_struct*)attribute)->container_type = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);

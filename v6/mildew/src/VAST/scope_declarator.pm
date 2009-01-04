@@ -4,6 +4,37 @@ use strict;
 use warnings;
 use AST::Helpers;
 
+sub attribute {
+    my $var_decl = shift;
+    let call(new=>FETCH(lookup('Attribute'))), sub {
+	my $attribute = shift;
+	my $container_type;
+	my $sigil = $var_decl->{variable}{sigil}{TEXT};
+	if ($sigil eq '$') {
+	    $container_type = 'Scalar';
+	} elsif ($sigil eq '@') {
+	    $container_type = 'Array';
+	} elsif ($sigil eq '%') {
+	    $container_type = 'Hash';
+	} else {
+	    XXX;
+	}
+	my $twigil = $var_decl->{variable}{twigil}[0]{TEXT};
+	my $private_name = $sigil.'!'.$var_decl->{variable}{desigilname}{longname}{name}{identifier}{TEXT};
+	my $name = $sigil.$twigil.$var_decl->{variable}{desigilname}{longname}{name}{identifier}{TEXT};
+	AST::Seq->new(stmts => [
+			  call(STORE=>call(name=>$attribute),[string $name]),
+			  call(STORE=>call(private_name=>$attribute),[string $private_name]),
+			  call(STORE=>call(container_type=>$attribute),[FETCH(lookup($container_type))])
+		      ]);
+    };
+}
+
+sub accessor {
+    my $var_decl = shift;
+    XXX;
+}
+
 sub VAST::scope_declarator::emit_m0ld {
     my $m = shift;
     if ($m->{'sym'} eq 'my' || $m->{'sym'} eq 'our') {
@@ -29,6 +60,32 @@ sub VAST::scope_declarator::emit_m0ld {
         } else {
             XXX('scoped declarator without a declarator');
         }
+    } elsif ($m->{sym} eq 'has') {
+	# attribute!
+	my $var_decl = $m->{scoped}{declarator}{variable_declarator};
+	let FETCH(lookup('$?CLASS')), sub {
+	    my $CLASS = shift;
+
+	    my @additional;
+	    if ($var_decl->{variable}{twigil}[0]{TEXT} eq '.') {
+		# add a public accessor.
+		push @additional,
+		call(add_method => FETCH(call '^!how' => $CLASS),
+		     [$CLASS,
+		      string $var_decl->{variable}{desigilname}{longname}{name}{identifier}{TEXT},
+		      accessor($var_decl)]);
+	    }
+
+	    AST::Seq->new
+		(stmts => [
+		     call(add_attribute =>
+			  FETCH(call '^!how' => $CLASS),
+			  [$CLASS,
+			   string varname($var_decl->{variable}),
+			   attribute($var_decl)]),
+		     @additional
+		 ]);
+	};
     } else {
         XXX('unknown sym in scope declarator');
     }
