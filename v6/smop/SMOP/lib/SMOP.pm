@@ -29,6 +29,14 @@ sub coro_from_methodcall {
         SMOP::goto_back($ret);
     });
 }
+sub coro_from_subcall {
+    my $sub = shift;
+    my $args = \@_;
+    Coro::State->new(sub {
+        my $ret = $sub->(@$args);
+        SMOP::goto_back($ret);
+    });
+}
 
 package SMOP::Object;
 use overload

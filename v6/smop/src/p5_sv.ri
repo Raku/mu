@@ -155,29 +155,51 @@
 
 %method postcircumfix:( )
 
-  printf("XXX postcircumfix:( ) on a wrapped SV* is broken atm\n");
   assert(SMOP__NATIVE__capture_positional_count(interpreter,capture) == 1);
   SMOP__Object* real_capture = SMOP__NATIVE__capture_positional(interpreter,capture,0);
 
   dSP;
+
   ENTER;
   SAVETMPS;
-
   PUSHMARK(SP);
+  XPUSHs(((smop_p5_sv_struct*)invocant)->sv);
+
   int positionals = SMOP__NATIVE__capture_positional_count(interpreter,real_capture);
   int i;
   for (i=0;i < positionals;i++) {
     SMOP__Object* object = SMOP__NATIVE__capture_positional(interpreter,real_capture,i);
     XPUSHs(SMOP__Object2SV(interpreter,my_perl,object));
   }
+
+  SMOP_RELEASE(interpreter,real_capture);
+
   PUTBACK;
 
-  call_sv(((smop_p5_sv_struct*)invocant)->sv, G_DISCARD);
+  int count = call_pv("SMOP::coro_from_subcall",G_SCALAR);
+  if (count != 1) croak("Big trouble");
 
+
+  SPAGAIN;
+ 
+
+  SV* on_stack = POPs;
+  SV* coro_sv = newSVsv(on_stack);
+  assert(coro_sv);
+  
+  PUTBACK;
   FREETMPS;
   LEAVE;
 
-  SMOP_RELEASE(interpreter,real_capture);
+  SMOP__Object* coro = SMOP__P5__Coro_create(interpreter,SMOP_REFERENCE(interpreter,SMOP__P5__smop_p5interpreter),coro_sv);
+
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_run_coro));
+  SMOP__Object* current = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__continuation,
+                                           SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,interpreter),NULL,NULL));
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  mold_reg_set(interpreter,frame,1,coro);
+  mold_reg_set(interpreter,frame,2,current);
+  SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,frame);
 
 %mold mold_run_coro
   my $interpreter;
