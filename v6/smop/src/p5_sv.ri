@@ -25,7 +25,7 @@
     SMOP__P5__result_sv = NULL;
     SMOP__P5__transfer_to_main_coro(interpreter,my_perl);
 
-    SMOP__Object* rvalue = SV2SMOP__Object(interpreter,SMOP__P5__smop_p5interpreter,sv);
+    SMOP__Object* rvalue = SV2SMOP__Object(interpreter,SMOP_REFERENCE(interpreter,SMOP__P5__smop_p5interpreter),sv);
 
 
     SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(object),SMOP__ID__STORE,SMOP__NATIVE__capture_create(interpreter,SMOP_REFERENCE(interpreter,object),(SMOP__Object*[]) {rvalue,NULL},NULL));

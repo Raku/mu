@@ -90,11 +90,27 @@ void SMOP__P5__transfer_to_main_coro(SMOP__Object* interpreter,PerlInterpreter* 
 %method finished
 
 %method DESTROYALL
+
   SMOP__Object* back = ((smop_p5_coro_struct*)invocant)->back;
   SV* coro = ((smop_p5_coro_struct*)invocant)->coro;
   SMOP__Object* p5interpreter = ((smop_p5_coro_struct*)invocant)->p5interpreter;
   PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,p5interpreter);
+
+  dSP;
+  ENTER;
+  SAVETMPS;
+
+  PUSHMARK(SP);
+  XPUSHs(coro);
+  PUTBACK;
+  call_method("cancel",G_DISCARD);
+
+  FREETMPS;
+  LEAVE;
+
+
   SvREFCNT_dec(coro);
+
   if (back) SMOP_RELEASE(interpreter,back);
   SMOP_RELEASE(interpreter,p5interpreter);
 
