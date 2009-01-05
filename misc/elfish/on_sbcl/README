@@ -4,7 +4,11 @@ QUICKSTART
 
 $ make libraries
 $ make elfx
+$ export ELF_STD_RED_RUN=../../STD_red/STD_red_run
 $ ./elfx -xr PrimitivesSBCL.pm -v -e 'say 3'
+$ make elfcl
+$ ./elfcl -e 'say 3'
+$ make check
 
 STATUS
 
