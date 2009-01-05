@@ -188,6 +188,8 @@ no warnings qw(redefine prototype);
   sub max { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
   sub min { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
 
+  sub concat { [map{@$_} @_] }
+
   # Internal
 
   sub flatten  { ( @{$_[0]} ) }
@@ -323,12 +325,13 @@ use warnings;
   sub die{croak @_}
   sub exit{CORE::exit(@_)}
   sub defined{CORE::defined($_[0])}
-  sub substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
+  sub substr {CORE::substr($_[0],$_[1],$_[2])}
   sub not ($){CORE::not $_[0]}
   sub exec{CORE::exec(@_)}
   sub sleep{CORE::sleep(@_)}
 
   sub split{[CORE::split($_[0],$_[1])]}
+  sub push { my $a = CORE::shift; CORE::push(@$a,@_); $a }
 
   sub unlink{CORE::unlink(@_)}
   sub sprintf{CORE::sprintf(shift,@_)}
@@ -830,7 +833,8 @@ if($self->match_array->elems()) {
 }else {
 (do{($a = "\[\]")})
 };
-my $s = ((((((((((($self->match_rule . "\<") . $b) . "\,") . $f) . "\,") . $t) . "\,\'") . $self->match_string) . "\'\,") . $a) . "\,\{");
+my $r = ($self->match_rule || "");
+my $s = ((((((((((($r . "\<") . $b) . "\,") . $f) . "\,") . $t) . "\,\'") . $self->match_string) . "\'\,") . $a) . "\,\{");
 for(($self->match_hash->keys())->flatten){
 (do{my $k = $_;
 my $v = $self->match_hash->postcircumfix__123_32_125($k);
@@ -906,6 +910,12 @@ use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGE
 { package Array;
 use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{(("\[" . $self->map(sub {my($e)=@_;
 (do{$e->irx1_describe()})})->join("\,")) . "\]")})}})
+}
+;
+
+{ package Hash;
+use base "Any";(do{sub irx1_describe{my $self=CORE::shift;(do{(("\{" . $self->kv(sub {my($e)=@_;
+(do{$e->irx1_describe()})})->join("\,")) . "\}")})}})
 }
 ;
 
@@ -3188,6 +3198,8 @@ no\ warnings\ qw\(redefine\ prototype\)\;\
 \ \ sub\ max\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$max\ \=\ \$arr\-\>\[0\]\;\ foreach\ \(\@\$arr\)\ \{\$max\ \=\ \$_\ if\ \$_\ \>\ \$max\ \}\;\ \$max\;\ \}\
 \ \ sub\ min\ \{\ my\ \$arr\ \=\ CORE\:\:shift\;\ my\ \$min\ \=\ \$arr\-\>\[0\]\;\ foreach\ \(\@\$arr\)\ \{\$min\ \=\ \$_\ if\ \$_\ \<\ \$min\ \}\;\ \$min\;\ \}\
 \
+\ \ sub\ concat\ \{\ \[map\{\@\$_\}\ \@_\]\ \}\
+\
 \ \ \#\ Internal\
 \
 \ \ sub\ flatten\ \ \{\ \(\ \@\{\$_\[0\]\}\ \)\ \}\
@@ -3323,12 +3335,13 @@ use\ warnings\;\
 \ \ sub\ die\{croak\ \@_\}\
 \ \ sub\ exit\{CORE\:\:exit\(\@_\)\}\
 \ \ sub\ defined\{CORE\:\:defined\(\$_\[0\]\)\}\
-\ \ sub\ substr\ \(\$\$\$\)\{CORE\:\:substr\(\$_\[0\]\,\$_\[1\]\,\$_\[2\]\)\}\
+\ \ sub\ substr\ \{CORE\:\:substr\(\$_\[0\]\,\$_\[1\]\,\$_\[2\]\)\}\
 \ \ sub\ not\ \(\$\)\{CORE\:\:not\ \$_\[0\]\}\
 \ \ sub\ exec\{CORE\:\:exec\(\@_\)\}\
 \ \ sub\ sleep\{CORE\:\:sleep\(\@_\)\}\
 \
 \ \ sub\ split\{\[CORE\:\:split\(\$_\[0\]\,\$_\[1\]\)\]\}\
+\ \ sub\ push\ \{\ my\ \$a\ \=\ CORE\:\:shift\;\ CORE\:\:push\(\@\$a\,\@_\)\;\ \$a\ \}\
 \
 \ \ sub\ unlink\{CORE\:\:unlink\(\@_\)\}\
 \ \ sub\ sprintf\{CORE\:\:sprintf\(shift\,\@_\)\}\
@@ -3447,6 +3460,10 @@ if(($ref eq "Undef")) {
 }})};
 sub cb__CompUnit{my $self=CORE::shift;my($n)=@_;
 (do{$n->do_all_analysis();
+{ package EmitSimpleP5; use vars '$current_emitter'};local $whiteboard::current_emitter = $self;
+if(0) {
+GLOBAL::say($whiteboard::current_emitter)
+};
 { package EmitSimpleP5; use vars '$in_package'};local $whiteboard::in_package = [];
 { package EmitSimpleP5; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 0;
 { package EmitSimpleP5; use vars '$compunit_footer'};local $whiteboard::compunit_footer = [];
@@ -3613,16 +3630,21 @@ if((($n->var()->sigil() eq "\%"))) {
 }})
 };
 if(($n->is_context())) {
-(do{my $name = $self->e($n->var());
-($name = $name->re_gsub("\^\(\.\)\:\:", "\$1"));
-((((((("\{package\ main\;\ use\ vars\ \'" . $name) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
+(do{my $var = $n->var();
+my $nam = $self->e($n->var());
+($nam = $nam->re_gsub_pat("\^\(\.\+\)\:\:", "\$1"));
+((((((("\{package\ main\;\ use\ vars\ \'" . $nam) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
 }elsif(($n->is_temp())) {
 (do{my $var = $n->var();
 my $nam = $self->encode_varname($var->sigil(), $var->twigil(), $var->bare_name());
 my $pkg = $n->notes()->postcircumfix__60_32_62('crnt_package');
 ((((((((("\{\ package\ " . $pkg) . "\;\ use\ vars\ \'") . $nam) . "\'\}\;") . "local") . "\ ") . $self->e($n->var())) . $default))})
 }else {
-(do{((($n->scope() . "\ ") . $self->e($n->var())) . $default)})
+(do{my $scope = $n->scope();
+if(($scope eq "constant")) {
+(do{($scope = "my")})
+};
+((($scope . "\ ") . $self->e($n->var())) . $default)})
 }})
 }})};
 sub multimethods_using_hack{my $self=CORE::shift;my($n,$name,$param_types)=@_;
@@ -3759,7 +3781,11 @@ if(($n->quant() && ($n->quant() eq "\*"))) {
 my\ ") . $enc) . "\ \=\ \\") . $tmp) . "\;"));
 $tmp})
 }else {
-(do{$enc})
+(do{if($n->default_expr()) {
+(do{($whiteboard::signature_inits = ((((((($whiteboard::signature_inits . "\
+if\(\!defined\(") . $enc) . "\)\)\{\ ") . $enc) . "\ \=\ ") . $self->e($n->default_expr())) . "\ \}"))})
+};
+$enc})
 }})};
 sub cb__ParamVar{my $self=CORE::shift;my($n)=@_;
 (do{my $s = $n->sigil();
@@ -3803,6 +3829,9 @@ if((($op eq "\~"))) {
 };
 if((($op eq "\,"))) {
 (do{my $s = $a->shift();
+if(($a->elems() && GLOBAL::prefix__33(GLOBAL::defined($a->postcircumfix__91_32_93((-1)))))) {
+(do{$a->pop()})
+};
 while($a->elems()) {
 (do{($s = (($s . "\,\ ") . $a->shift()))})
 };
@@ -3960,7 +3989,9 @@ if(($s eq "\@")) {
 if(($s eq "\%")) {
 (do{($pre = "h_")})
 };
-my $name = (($env . $pre) . $dsn);
+my $mn = $dsn->split("\:\:")->map(sub {my($nam)=@_;
+(do{GLOBAL::mangle_name($nam)})})->join("\:\:");
+my $name = (($env . $pre) . $mn);
 if((($t eq "\."))) {
 (do{("\$self\-\>" . $name)})
 }elsif((($t eq "\+"))) {
@@ -3990,6 +4021,8 @@ if(((($v eq "\$\?PACKAGE") || ($v eq "\$\?MODULE")) || ($v eq "\$\?CLASS"))) {
 (do{"0"})
 }elsif(($v eq "\$\?PERLVER")) {
 (do{(((("\'elf\ \/\ " . GLOBAL::primitive_runtime_version()) . "\ \/\ ") . $self->WHAT) . "\'")})
+}elsif(($v eq "\$¢")) {
+(do{$self->encode_varname($s, $t, "GLOBAL\:\:_cursor")})
 }else {
 (do{$self->encode_varname($s, $t, $dsn)})
 }})};
@@ -4205,7 +4238,9 @@ Class::Multimethods::multimethod infix__126_126 => split(/\s+/,'* *') => sub {my
 Class::Multimethods::multimethod infix__126_126 => split(/\s+/,'$ Regexp') => sub {my($a,$b)=@_;
 $a =~ $b};;
 Class::Multimethods::multimethod infix_x => split(/\s+/,'* *') => sub {my($a,$b)=@_;
-($a x $b)};})
+($a x $b)};;
+Class::Multimethods::multimethod infix__47_47 => split(/\s+/,'* *') => sub {my($a,$b)=@_;
+defined($a) ? $a : $b};})
 }
 ;
 
@@ -4278,6 +4313,9 @@ return($str)})
 }elsif(($ast->WHAT() eq "Array")) {
 (do{return((("\[" . $ast->map(sub {my($e)=@_;
 (do{dump_IRx1($e)})})->join("\,")) . "\]"))})
+}elsif(($ast->WHAT() eq "Hash")) {
+(do{return((("\{" . $ast->kv(sub {my($e)=@_;
+(do{dump_IRx1($e)})})->join("\,")) . "\}"))})
 }elsif(($ast->WHAT() eq "Str")) {
 (do{return((("\'" . $ast) . "\'"))})
 }elsif(($ast->WHAT() eq "Undef")) {

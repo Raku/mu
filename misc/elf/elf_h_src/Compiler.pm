@@ -34,6 +34,8 @@ class Compiler {
       return $str;
     } elsif $ast.WHAT eq "Array" {
       return '[' ~ $ast.map(sub ($e) {dump_IRx1($e)}).join(',') ~ ']';
+    } elsif $ast.WHAT eq "Hash" {
+      return '{' ~ $ast.kv(sub ($e) {dump_IRx1($e)}).join(',') ~ '}';
     } elsif $ast.WHAT eq "Str" {
       #TODO: '
       return "'" ~ $ast ~ "'"

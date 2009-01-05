@@ -4,6 +4,12 @@ package Array {
     '[' ~ self.map(sub ($e){$e.irx1_describe}).join(",") ~ ']'
   };
 };
+package Hash {
+  method irx1_describe() {
+    #'{' ~ self.kv(sub ($k,$v){$k~"=>"~$v.irx1_describe}).join(",") ~ '}'
+    '{' ~ self.kv(sub ($e){$e.irx1_describe}).join(",") ~ '}'
+  };
+};
 package Str {
   method irx1_describe() {
     self ~ ""

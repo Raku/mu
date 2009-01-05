@@ -176,6 +176,12 @@ sub write_ir_nodes {
         '[' ~ self.map(sub ($e){$e.irx1_describe}).join(",") ~ ']'
       };
     };
+    package Hash {
+      method irx1_describe() {
+        #X? '{' ~ self.kv(sub ($k,$v){$k~"=>"~$v.irx1_describe}).join(",") ~ '}'
+        '{' ~ self.kv(sub ($e){$e.irx1_describe}).join(",") ~ '}'
+      };
+    };
     package Str {
       method irx1_describe() {
         self ~ ""

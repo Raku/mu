@@ -17,7 +17,8 @@ class Match {
     if !defined($f) { $f = "" }
     if !defined($t) { $t = "" }
     my $a; if $.match_array.elems { $a = $.match_array.match_describe } else { $a = '[]' };
-    my $s = $.match_rule~"<"~$b~','~$f~","~$t~",'"~$.match_string~"',"~$a~",\{";
+    my $r = $.match_rule || "";
+    my $s = $r~"<"~$b~','~$f~","~$t~",'"~$.match_string~"',"~$a~",\{";
     for $.match_hash.keys {
       my $k = $_;
       my $v = $.match_hash{$k};

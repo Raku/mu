@@ -221,6 +221,8 @@ no warnings qw(redefine prototype);
   sub max { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
   sub min { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
 
+  sub concat { [map{@$_} @_] }
+
   # Internal
 
   sub flatten  { ( @{$_[0]} ) }
@@ -356,12 +358,13 @@ use warnings;
   sub die{croak @_}
   sub exit{CORE::exit(@_)}
   sub defined{CORE::defined($_[0])}
-  sub substr ($$$){CORE::substr($_[0],$_[1],$_[2])}
+  sub substr {CORE::substr($_[0],$_[1],$_[2])}
   sub not ($){CORE::not $_[0]}
   sub exec{CORE::exec(@_)}
   sub sleep{CORE::sleep(@_)}
 
   sub split{[CORE::split($_[0],$_[1])]}
+  sub push { my $a = CORE::shift; CORE::push(@$a,@_); $a }
 
   sub unlink{CORE::unlink(@_)}
   sub sprintf{CORE::sprintf(shift,@_)}
@@ -479,6 +482,8 @@ package Main;
 
   method cb__CompUnit ($n) {
     $n.do_all_analysis();
+    temp $whiteboard::current_emitter = self;
+    say $whiteboard::current_emitter if 0; #X avoid "used only once".
     temp $whiteboard::in_package = [];
     temp $whiteboard::emit_pairs_inline = 0;
     temp $whiteboard::compunit_footer = [];
@@ -606,10 +611,11 @@ package Main;
         if ($n.var.sigil eq '@') { $default = ' = [];' }
         if ($n.var.sigil eq '%') { $default = ' = {};' }
       }
-      if ($n.is_context) { # BOGUS
-        my $name = $.e($n.var);
-        $name = $name.re_gsub('^(.)::','$1');
-        ("\{package main; use vars '"~$name~"'};"~
+      if ($n.is_context) {
+        my $var = $n.var;
+        my $nam = $.e($n.var);
+        $nam = $nam.re_gsub_pat('^(.+)::','$1');
+        ("\{package main; use vars '"~$nam~"'};"~
          'local'~' '~$.e($n.var)~$default)
       }
       elsif ($n.is_temp) {
@@ -620,7 +626,9 @@ package Main;
         'local'~' '~$.e($n.var)~$default)
       }
       else {
-        $n.scope~' '~$.e($n.var)~$default
+        my $scope = $n.scope;
+        if $scope eq 'constant' { $scope = 'my' }
+        $scope~' '~$.e($n.var)~$default
       }
     }
   };
@@ -753,6 +761,9 @@ package Main;
       $whiteboard::signature_inits = $whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
       $tmp;
     } else {
+      if $n.default_expr {
+        $whiteboard::signature_inits = $whiteboard::signature_inits~"\nif(!defined("~$enc~')){ '~$enc~' = '~$.e($n.default_expr)~' }';
+      }
       $enc;
     }
   };
@@ -803,6 +814,7 @@ package Main;
       }
       if ($op eq ',') {
         my $s = $a.shift;
+        if $a.elems && !defined($a[-1]) { $a.pop }
         while $a.elems { $s = $s ~", "~ $a.shift }
         return $s;
       }
@@ -954,7 +966,8 @@ package Main;
     if $s eq '$' && $env eq 'x' { $pre = 's_' };
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
-    my $name = $env~$pre~$dsn;
+    my $mn = $dsn.split('::').map(sub ($nam){mangle_name($nam)}).join("::");
+    my $name = $env~$pre~$mn;
     if ($t eq '.') {
       '$self->'~$name
     } elsif ($t eq '+') {
@@ -984,6 +997,8 @@ package Main;
       '0' # XXX $n notes needs to provide this.
     } elsif $v eq '$?PERLVER' {
       "'elf / "~ primitive_runtime_version() ~ " / " ~ $.WHAT ~"'"
+    } elsif $v eq '$¢' {
+      $.encode_varname($s,$t,"GLOBAL::_cursor");
     } else {
       $.encode_varname($s,$t,$dsn);
     }
