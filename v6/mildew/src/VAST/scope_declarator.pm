@@ -33,7 +33,14 @@ sub attribute {
 
 sub accessor {
     my $var_decl = shift;
-    XXX;
+    my $priv = bless { twigil => [ { sym => '!', TEXT => '!' } ],
+		       sigil => { TEXT => $var_decl->{variable}{sigil}{TEXT} },
+		       desigilname => $var_decl->{variable}{desigilname} }, 'VAST::variable';
+    call(new=>FETCH(lookup('Code')),[],
+	 [ string 'outer' => reg '$scope',
+	   string 'mold' => 
+	   AST::Block->new(regs => ['interpreter','scope'],
+			   stmts => trailing_return([ $priv->emit_m0ld ])) ]);
 }
 
 sub VAST::scope_declarator::emit_m0ld {
