@@ -8,8 +8,8 @@ knowhow Multi {
     }
     my @all_variants;
     my sub traverse_scopes($scope) {
-      if $scope.exists(self.name) {
-	@all_variants.push($scope{self.name}.variants);
+      if $scope.exists($.name) {
+	@all_variants.push($scope.{$.name}.variants);
       }
       if $scope.outer {
 	traverse_scopes($scope.outer);
@@ -20,12 +20,12 @@ knowhow Multi {
     my $iterator = @all_variants.Iterator();
     loop {
       my $candidate = =$iterator;
-      if $candidate.signature.ACCEPTS($capture) {
+      if $candidate.signature.ACCEPTS((|$capture)) {
 	@candidates.push($candidate);
       }
       CONTROL {
 	if ($_.^does(ControlExceptionSignatureMatched)) {
-	  $candidate.postcircumfix<( )>($capture, :cc($cc));
+	  $candidate.postcircumfix<( )>((|$capture), :cc($cc));
 	} else {
 	  $_.throw;
 	}
@@ -37,7 +37,7 @@ knowhow Multi {
 	      # this is where the disambiguator should be called!
 	      fail "Ambiguous dispatch!";
 	    } else {
-	      @candidates[0].postcircumfix:<( )>($capture, :cc($cc));
+	      @candidates[0].postcircumfix:<( )>( (|$capture), :cc($cc));
 	    }
 	  } else {
 	    fail "No candidate matching capture.";
