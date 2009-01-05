@@ -39,6 +39,26 @@ sub pretty {
     $yaml;
 }
 
+package AST::Loop;
+use Moose;
+extends 'AST::Base';
+has 'code' => (is => 'ro');
+
+sub m0ld {
+    my ($self,$ret) = @_;
+    my $label = AST::unique_label;
+
+    $label.':'.($self->code->m0ld($ret))."\n".
+    'goto '.$label.';'."\n";
+}
+
+sub pretty {
+    my ($self) = @_;
+    return 'loop {'
+        . AST::indent($self->code->pretty) . "\n"
+        . "}\n";
+}
+
 package AST::If;
 use Moose;
 extends 'AST::Base';

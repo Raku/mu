@@ -56,6 +56,11 @@ sub emit_m0ld {
 	} elsif ($stm->{sym} eq 'CATCH') {
 	    # the same for CATCH blocks.
 	    call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($stm->{block}) ];
+
+	} elsif ($stm->{sym} eq 'loop') {
+	    # the same for CATCH blocks.
+	    AST::Loop->new(code => call('postcircumfix:( )',code($stm->{block}),[capturize([])]));
+
         } else {
             XXX('unkown sym in statement_control')
         }

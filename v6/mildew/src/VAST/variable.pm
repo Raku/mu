@@ -6,17 +6,16 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    if ($m->{twigil} && $m->{twigil}[0] &&
-	$m->{twigil}[0]{sym} &&
-	$m->{twigil}[0]{sym} eq '!') {
+    my $twigil = $m->{twigil}[0]{sym} || '';
+    if ($twigil eq '!') {
 	call('postcircumfix:{ }'=>
 	     FETCH(call('postcircumfix:{ }',
 			FETCH(call('^!instance_storage'=>
 				   FETCH(lookup('$¿self')))),
 		   [FETCH(call(name=>FETCH(lookup('$?PACKAGE'))))])),
              [string varname($m)])
-    } elsif ($m->{twigil}[0]{sym} eq '.') {
-	XXX;
+    } elsif ($twigil eq '.') {
+	call($m->{desigilname}{longname}->canonical,FETCH(lookup('$¿self')));
     } else {
 	AST::Call->new(
 	    identifier=>string 'lookup',
