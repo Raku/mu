@@ -40,6 +40,20 @@ C<length> is gone. Hashes should use C<keys>, C<values>, or the hash in numeric
 context. For arrays, you want C<elems> or the array in numeric context. For
 strings, you want one of C<chars>, C<graphs>, C<codes>, or C<bytes>.
 
+=head2 comparison to undef
+
+Nearly all comparisons of the form
+
+    is $something, undef, '$something is undef';
+
+are wrong, because in Perl 6 there are various undefined values, and usually
+it's legal to return something that's undefined, but not the same as the most
+general C<undef>. The correct comparison is one of those:
+
+    ok !defined($something), 'description';
+    ok !$something.defined,  'description';
+    ok $something ~~ undef,  'description';
+
 =head2 try takes a statement
 
 C<try> is followed by a statement, so
@@ -54,7 +68,10 @@ which means only one argument to C<is()>, but three to C<try>. So don't use
 this if it's not what you want. This is wrongly used in the test suite right
 now in multiple places.
 
-=head2 Interpolation in test descritions
+Use C<lives_ok> or C<dies_ok> where appropriate, or explicit parenthesis if
+C<try> is used as an expression.
+
+=head2 Interpolation in test descriptions
 
     lives_ok({ $a := $b }, "can bind $b to $a";
 

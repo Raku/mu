@@ -16,10 +16,10 @@ plan 1;
 
 # TODO reimplement this class to reuse instances as they're immutable
 class Case { 
-    has int $.x is ro = 0;
-    has int $.y is ro = 0;
+    has Int $.x is ro= 0;
+    has Int $.y is ro= 0;
     
-    method onBoard(int $n){
+    method onBoard(Int $n){
         0 <= $.x < $n and 0 <= $.y < $n;
     }
     
@@ -55,7 +55,7 @@ sub uniq(@array) returns Bool {
 sub valid_moves(Case @moves) returns Bool {
     my sub valid_move(Case $start, Case $end) returns Bool {
         my $move = $end.substract($start);
-        [or] @possible_moves.map:{.equal($move)};
+        [||] @possible_moves.map: {.equal($move)};
     }
     for (0..@moves.elems-2) -> $i {
         return False unless valid_move( @moves[$i], @moves[$i+1] );
@@ -64,7 +64,7 @@ sub valid_moves(Case @moves) returns Bool {
 }
 
 # Check whether a tour is valid
-sub check_tour(int $n, Case @moves) returns Bool {
+sub check_tour(Int $n, Case @moves) returns Bool {
     ([and] @moves.map:{.onBoard($n)}) # all moves are on the n*n chessboard
         and @moves.elems == $n*$n      # there is enough move to fill the whole board
         and uniq(@moves)          # all moves are different
@@ -72,7 +72,7 @@ sub check_tour(int $n, Case @moves) returns Bool {
 }
 
 # How many cases not yet visited are accessible from $case
-sub count_successors(Case $case, Bool @chessboard) returns int {
+sub count_successors(Case $case, Bool @chessboard) returns Int {
     return @possible_moves.map:{.add($case)}\
         .grep:{.onBoard(@chessboard.elems) and @chessboard[.x][.y]}\
         .elems;
@@ -81,7 +81,7 @@ sub count_successors(Case $case, Bool @chessboard) returns int {
 # find ONE knight's tour beginning in $first_move on a $n*$n chessboard
 # finding all solutions with this kind of code is trivial (see P90) but
 # extremely expensive since their numbers is really high even for small value of $n
-sub searchFrom(Case $first_move, int $n) returns Array {
+sub searchFrom(Case $first_move, Int $n) returns Array {
     my $aux = -> Case @moves, Bool @chessboard {
         if @moves.elems == $n*$n {
             return @moves;

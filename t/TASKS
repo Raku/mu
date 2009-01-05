@@ -117,7 +117,7 @@ SINGLE TESTS
 * merge spec/S06-advanced_subroutine_features/{return,return2}.t
 
 Junction tests
- Quite some tests in t/junction relay on $junction.values to return the values
+ Quite some tests in t/junction rely on $junction.values to return the values
  in a particular order. That's bad, because it doesn't seem to be specced (and
  with good reason IMHO).
  For example t/junction/associative.t uses $junction.values to to compare

@@ -44,11 +44,13 @@ sub search(@part_solved, @chessboard){
     if $row == 8 {
         return [@part_solved];
     }
-    gather for (0..7) -> $col {
-        if not @chessboard[$row][$col] {
-            inc_collisions($row,$col,@chessboard);
-            take search([@part_solved, $col], @chessboard);
-            decr_collisions($row,$col,@chessboard);
+    gather {
+        for (0..7) -> $col {
+            if not @chessboard[$row][$col] {
+                inc_collisions($row,$col,@chessboard);
+                take search([@part_solved, $col], @chessboard);
+                decr_collisions($row,$col,@chessboard);
+            }
         }
     }
 }

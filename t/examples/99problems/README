@@ -1,6 +1,9 @@
 Originally borrowed from "99 Lisp Problems", the 84 problems listed here are
 an attempt to solve these problems in Perl 6.
 
+These are being moved to t/spec/integration/99problems*.t now, please help
+moving if you have some spare time.
+
 FAQ.
 
 Q.  99 != 84.  What gives?

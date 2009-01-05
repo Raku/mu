@@ -27,7 +27,7 @@ if !eval('("a" ~~ /a/)') {
   exit;
 }
 
-class Str {
+class Str is also {
     method meth2 () {
         if ("bar" ~~ m:P5/[^a]/) {
             "worked";
@@ -39,7 +39,7 @@ class Str {
 
 is(Str.new.meth2(),"worked",'m:P5/[^a]/ in method in Str');
 
-class Str {
+class Str  is also {
     method meth3 () {
         if ("bar" ~~ m:P5/[a]/) {
             "worked";
