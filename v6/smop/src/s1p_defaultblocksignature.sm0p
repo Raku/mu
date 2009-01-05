@@ -82,6 +82,10 @@ void smop_s1p_defaultblocksignature_mold_init() {
     my $void;
     my $val;
 
+    my $self_c = $lexicalscope."postcircumfix:{ }"("$¿self");
+    my $self = $actualcapture."invocant"();
+    $void = $self_c."BIND"($self);
+
     my $container = $lexicalscope."postcircumfix:{ }"("$_");
 
     if $outerbind { goto then } else { goto else };
