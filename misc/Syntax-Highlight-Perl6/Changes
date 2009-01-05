@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.0297 2009.01.05
+    - Updated to latest STD.pm and perl6.vim
+
 0.02963 2009.01.03
     - hilitep6 was doing --clean-html all the time
 

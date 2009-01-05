@@ -51,18 +51,18 @@ use YAML::Syck;
 
 
 # should some of these be parser instance attributes?
-local $LANG;
-local $PKGDECL =  "";
-local $PKG =  "";
+local $::LANG;
+local $::PKGDECL =  "";
+local $::PKG =  "";
 my @PKGS;
-local $GOAL =  "(eof)";
-local $PARSER;
-local $ACTIONS;
-local $IN_DECL;
+local $::GOAL =  "(eof)";
+local $::PARSER;
+local $::ACTIONS;
+local $::IN_DECL;
 my %ROUTINES;
-local $ORIG;
-local @MEMOS;
-local $VOID;
+local $::ORIG;
+local @::MEMOS;
+local $::VOID;
 my @PADS;
 
 # random rule for debugging, please ignore
@@ -158,7 +158,7 @@ my $STOP = shift() // undef;
 
 
 if (defined $STOP) {
-local $GOAL =  $STOP;
+local $::GOAL =  $STOP;
 $self->unitstop($STOP)->comp_unit;
 }
 else {
@@ -543,8 +543,8 @@ moose_with(qw(STD::PrecOp));    our %o = %terminator;
 # there's appropriate whitespace.  # Note that endsym isn't called if <sym>
 # isn't called.
 
-local $endsym =  "null";
-local $endargs =  -1;
+local $::endsym =  "null";
+local $::endargs =  -1;
 
 #proto token category { <...> }
 sub category__PEEK { $_[0]->_AUTOLEXpeek('category:*',$retree); }
@@ -4120,14 +4120,14 @@ sub comp_unit__PEEK { $_[0]->_AUTOLEXpeek('comp_unit',$retree) }
 sub comp_unit {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $begin_compunit =  1;
-local $endargs =  -1;
-local $LANG;
-local $PKGDECL =  "";
-local $PKG =  "";
-local $GOAL =  "(eof)";
-local $PARSER;
-local $IN_DECL;
+local $::begin_compunit =  1;
+local $::endargs =  -1;
+local $::LANG;
+local $::PKGDECL =  "";
+local $::PKG =  "";
+local $::GOAL =  "(eof)";
+local $::PARSER;
+local $::IN_DECL;
 
 
 my $C = $self;
@@ -4379,7 +4379,7 @@ sub xblock__PEEK { $_[0]->_AUTOLEXpeek('xblock',$retree) }
 sub xblock {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $GOAL =  '{';
+local $::GOAL =  '{';
 
 
 my $C = $self;
@@ -4587,7 +4587,7 @@ sub regex_block {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my $lang = 'STD::Regex';
-local $GOAL =  '}';
+local $::GOAL =  '}';
 
 
 my $C = $self;
@@ -4827,7 +4827,7 @@ sub statementlist__PEEK { $_[0]->_AUTOLEXpeek('statementlist',$retree) }
 sub statementlist {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $PARSER =  $self;
+local $::PARSER =  $self;
 
 
 my $C = $self;
@@ -5246,7 +5246,7 @@ sub statement__PEEK { $_[0]->_AUTOLEXpeek('statement',$retree) }
 sub statement {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $endargs =  -1;
+local $::endargs =  -1;
 
 
 my $C = $self;
@@ -13212,8 +13212,8 @@ sub arglist__PEEK { $_[0]->_AUTOLEXpeek('arglist',$retree) }
 sub arglist {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $endargs =  0;
-local $GOAL =  'endargs';
+local $::endargs =  0;
+local $::GOAL =  'endargs';
 
 
 my $C = $self;
@@ -13407,7 +13407,7 @@ sub variable_declarator__PEEK { $_[0]->_AUTOLEXpeek('variable_declarator',$retre
 sub variable_declarator {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
+local $::IN_DECL =  1;
 
 
 my $C = $self;
@@ -14041,7 +14041,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'class';
-local $PKGDECL =  'class';
+local $::PKGDECL =  'class';
 
 
 my $C = $self;
@@ -14075,7 +14075,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'grammar';
-local $PKGDECL =  'grammar';
+local $::PKGDECL =  'grammar';
 
 
 my $C = $self;
@@ -14109,7 +14109,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'module';
-local $PKGDECL =  'module';
+local $::PKGDECL =  'module';
 
 
 my $C = $self;
@@ -14143,7 +14143,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'package';
-local $PKGDECL =  'package';
+local $::PKGDECL =  'package';
 
 
 my $C = $self;
@@ -14177,7 +14177,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'role';
-local $PKGDECL =  'role';
+local $::PKGDECL =  'role';
 
 
 my $C = $self;
@@ -14211,7 +14211,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // 'knowhow';
-local $PKGDECL =  'knowhow';
+local $::PKGDECL =  'knowhow';
 
 
 my $C = $self;
@@ -21301,7 +21301,7 @@ local $CTX = $self->callm if $::DEBUG & DEBUG::trace_call;
 return if $self->peek;
 my $here = $self;
 while (my $herestub = shift @herestub_queue) {
-local $DELIM =  $herestub->delim;
+local $::DELIM =  $herestub->delim;
 my $lang = $herestub->lang->mixin( 'STD::herestop' );
 my $doc;
 if (($doc) = $here->nibble($lang)) {
@@ -22184,7 +22184,7 @@ my $lang = shift;
 
 
 my $outerlang = (ref($self)||$self);
-local $LANG =  $outerlang;
+local $::LANG =  $outerlang;
 $self->cursor_fresh($lang)->nibbler;
 }
 
@@ -27634,7 +27634,7 @@ sub extrapost__PEEK { $_[0]->_AUTOLEXpeek('extrapost',$retree) }
 sub extrapost {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $inquote =  1;
+local $::inquote =  1;
 
 
 my $C = $self;
@@ -27731,7 +27731,7 @@ sub routine_def__PEEK { $_[0]->_AUTOLEXpeek('routine_def',$retree) }
 sub routine_def {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
+local $::IN_DECL =  1;
 
 
 my $C = $self;
@@ -28424,7 +28424,7 @@ sub regex_def__PEEK { $_[0]->_AUTOLEXpeek('regex_def',$retree) }
 sub regex_def {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
+local $::IN_DECL =  1;
 
 
 my $C = $self;
@@ -28737,7 +28737,7 @@ sub macro_def__PEEK { $_[0]->_AUTOLEXpeek('macro_def',$retree) }
 sub macro_def {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
+local $::IN_DECL =  1;
 
 
 my $C = $self;
@@ -29198,7 +29198,7 @@ local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $endsym = $args{endsym} // 'spacey';
 local $sym = $args{sym} // 'does';
-local $PKGDECL =  'role';
+local $::PKGDECL =  'role';
 
 
 my $C = $self;
@@ -29803,8 +29803,8 @@ sub signature__PEEK { $_[0]->_AUTOLEXpeek('signature',$retree) }
 sub signature {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $IN_DECL =  1;
-local $zone =  'posreq';
+local $::IN_DECL =  1;
+local $::zone =  'posreq';
 
 
 my $C = $self;
@@ -30505,7 +30505,7 @@ sub named_param__PEEK { $_[0]->_AUTOLEXpeek('named_param',$retree) }
 sub named_param {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $GOAL =  ')';
+local $::GOAL =  ')';
 
 
 my $C = $self;
@@ -30895,6 +30895,7 @@ else {
 ##              | <param_var>
 ##              | '*' <param_var>
 ##              | '|' <param_var>
+##              | '\\' <param_var>
 ##              | <named_param>
 ##              ]
 ##          >
@@ -30903,6 +30904,7 @@ else {
 ##          [
 ##          | '*' <param_var>   { $quant = '*'; $kind = '*'; }
 ##          | '|' <param_var>   { $quant = '|'; $kind = '*'; }
+##          | '\\' <param_var>  { $quant = '\\'; $kind = '!'; }
 ##          |   [
 ##              | <param_var>   { $quant = ''; $kind = '!'; }
 ##      	| <named_param> { $quant = ''; $kind = '*'; }
@@ -30924,7 +30926,8 @@ else {
 ##                  given $quant {
 ##                    when '!' { $¢.panic("Can't put a default on a required parameter") }
 ##                    when '*' { $¢.panic("Can't put a default on a slurpy parameter") }
-##                    when '|' { $¢.panic("Can't put a default on a capture parameter") }
+##                    when '|' { $¢.panic("Can't put a default on an slurpy capture parameter") }
+##                    when '\\' { $¢.panic("Can't put a default on a capture parameter") }
 ##                  }
 ##                  $kind = '?';
 ##              }}
@@ -31051,6 +31054,19 @@ else {
 }
 },
 sub { my $C=shift;
+do {
+if (my ($C) = ($C->_EXACT('\\'))) {
+$C->_SUBSUMEr(['param_var'], sub {
+my $C = shift;
+$C->param_var
+});
+}
+else {
+();
+}
+}
+},
+sub { my $C=shift;
 $C->_SUBSUMEr(['named_param'], sub {
 my $C = shift;
 $C->named_param
@@ -31147,6 +31163,28 @@ $C->param_var
 }))) {
 scalar(do {
 $quant = '|'; $kind = '*'; 
+}, $C);
+}
+else {
+();
+}
+};
+}
+else {
+();
+}
+}
+},
+sub { my $C=shift;
+do {
+if (my ($C) = ($C->_EXACT('\\'))) {
+do {
+if (my ($C) = ($C->_SUBSUMEr(['param_var'], sub {
+my $C = shift;
+$C->param_var
+}))) {
+scalar(do {
+$quant = '\\'; $kind = '!'; 
 }, $C);
 }
 else {
@@ -31387,7 +31425,8 @@ scalar(do {
 do { my $_ = $quant; if ((0)) {}
 elsif ($_ eq '!') { $C->panic("Can't put a default on a required parameter") }
 elsif ($_ eq '*') { $C->panic("Can't put a default on a slurpy parameter") }
-elsif ($_ eq '|') { $C->panic("Can't put a default on a capture parameter") }
+elsif ($_ eq '|') { $C->panic("Can't put a default on an slurpy capture parameter") }
+elsif ($_ eq '\\') { $C->panic("Can't put a default on a capture parameter") }
 };
 $kind = '?';
 
@@ -34867,7 +34906,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
 local $sym = $args{sym} // [qw(?? !!)];
-local $GOAL =  '!!';
+local $::GOAL =  '!!';
 
 
 my $C = $self;
@@ -35745,7 +35784,7 @@ my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my $istype = shift() // 0;
 my $listopish = 0;
-local $GOAL =  '';
+local $::GOAL =  '';
 
 
 my $C = $self;
@@ -37098,7 +37137,7 @@ if ($self->peek) {
 return $self->_AUTOLEXpeek('EXPR', $retree);
 }
 my $preclim = $preclvl ? $preclvl->{'prec'} // $LOOSEST : $LOOSEST;
-local $inquote =  0;
+local $::inquote =  0;
 my @termstack;
 my @opstack;
 my $termish = 'termish';
@@ -37960,7 +37999,7 @@ sub codeblock__PEEK { $_[0]->_AUTOLEXpeek('codeblock',$retree) }
 sub codeblock {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $GOAL =  '}';
+local $::GOAL =  '}';
 
 
 my $C = $self;
@@ -38003,10 +38042,10 @@ sub nibbler__PEEK { $_[0]->_AUTOLEXpeek('nibbler',$retree) }
 sub nibbler {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $sigspace =  $::sigspace    // 0;
-local $ratchet =  $::ratchet     // 0;
-local $ignorecase =  $::ignorecase // 0;
-local $ignoreaccent =  $::ignoreaccent    // 0;
+local $::sigspace =  $::sigspace    // 0;
+local $::ratchet =  $::ratchet     // 0;
+local $::ignorecase =  $::ignorecase // 0;
+local $::ignoreaccent =  $::ignoreaccent    // 0;
 
 
 my $C = $self;
@@ -50547,7 +50586,7 @@ sub codeblock__PEEK { $_[0]->_AUTOLEXpeek('codeblock',$retree) }
 sub codeblock {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $GOAL =  '}';
+local $::GOAL =  '}';
 
 
 my $C = $self;
@@ -50586,7 +50625,7 @@ sub nibbler__PEEK { $_[0]->_AUTOLEXpeek('nibbler',$retree) }
 sub nibbler {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-local $ignorecase =  $::ignorecase // 0;
+local $::ignorecase =  $::ignorecase // 0;
 
 
 my $C = $self;
@@ -68333,9 +68372,35 @@ parameter: !!perl/hash:RE
                         r: 1
                         rest: ''
                         s: 0
-                  - !!perl/hash:RE_method 
+                  - !!perl/hash:RE_sequence 
                     a: 0
                     alt: parameter_02 4
+                    dba: parameter
+                    i: 0
+                    min: 12346
+                    r: 1
+                    s: 0
+                    zyg: 
+                      - !!perl/hash:RE_string 
+                        a: 0
+                        dba: parameter
+                        i: 0
+                        min: 1
+                        r: 1
+                        s: 0
+                        text: \
+                      - !!perl/hash:RE_method 
+                        a: 0
+                        dba: parameter
+                        i: 0
+                        min: 12345
+                        name: param_var
+                        r: 1
+                        rest: ''
+                        s: 0
+                  - !!perl/hash:RE_method 
+                    a: 0
+                    alt: parameter_02 5
                     dba: parameter
                     i: 0
                     min: 12345
@@ -68447,6 +68512,41 @@ parameter: !!perl/hash:RE
             - !!perl/hash:RE_sequence 
               a: 0
               alt: parameter_03 2
+              dba: parameter
+              i: 0
+              min: 12346
+              r: 1
+              s: 0
+              zyg: 
+                - !!perl/hash:RE_string 
+                  a: 0
+                  dba: parameter
+                  i: 0
+                  min: 1
+                  r: 1
+                  s: 0
+                  text: \
+                - !!perl/hash:RE_method 
+                  a: 0
+                  dba: parameter
+                  i: 0
+                  min: 12345
+                  name: param_var
+                  r: 1
+                  rest: ''
+                  s: 0
+                - !!perl/hash:RE_block 
+                  a: 0
+                  context: void
+                  dba: parameter
+                  i: 0
+                  min: 0
+                  r: 1
+                  s: 0
+                  text: " $quant = '\\\\'; $kind = '!'; "
+            - !!perl/hash:RE_sequence 
+              a: 0
+              alt: parameter_03 3
               dba: parameter
               i: 0
               min: 12345
@@ -68601,7 +68701,7 @@ parameter: !!perl/hash:RE
                           s: 0
             - !!perl/hash:RE_sequence 
               a: 0
-              alt: parameter_03 3
+              alt: parameter_03 4
               dba: parameter
               i: 0
               min: 0
@@ -68690,7 +68790,7 @@ parameter: !!perl/hash:RE
                 min: 0
                 r: 1
                 s: 0
-                text: "\n            given $quant {\n              when '!' { $¢.panic(\"Can't put a default on a required parameter\") }\n              when '*' { $¢.panic(\"Can't put a default on a slurpy parameter\") }\n              when '|' { $¢.panic(\"Can't put a default on a capture parameter\") }\n            }\n            $kind = '?';\n        "
+                text: "\n            given $quant {\n              when '!' { $¢.panic(\"Can't put a default on a required parameter\") }\n              when '*' { $¢.panic(\"Can't put a default on a slurpy parameter\") }\n              when '|' { $¢.panic(\"Can't put a default on an slurpy capture parameter\") }\n              when '\\\\' { $¢.panic(\"Can't put a default on a capture parameter\") }\n            }\n            $kind = '?';\n        "
         min: 0
         quant: 
           - "?"

@@ -1313,7 +1313,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6EscBackTick     p6StringSpecial
     HiLink p6EscForwardSlash p6StringSpecial
     HiLink p6EscPipe         p6StringSpecial
-    HiLink p6EscEsclamation  p6StringSpecial
+    HiLink p6EscExclamation  p6StringSpecial
     HiLink p6EscDollar       p6StringSpecial
     HiLink p6EscOpenCurly    p6StringSpecial
     HiLink p6EscCloseCurly   p6StringSpecial
