@@ -53,7 +53,8 @@ sub m0ld {
     my $label_else = AST::unique_label;
     my $label_endif = AST::unique_label;
     my $cond = $self->cond->m0ld($id_cond);
-    my $then = $self->then->m0ld($ret);
+    my $then = 'noop;';
+    $then = $self->then->m0ld($ret) if $self->then;
     my $else = 'noop;';
     if ($self->else) {
         $else = $self->else->m0ld($ret);

@@ -12,7 +12,13 @@ sub emit_m0ld {
     } elsif ($m->{statement_control}) {
         my $stm = $m->{statement_control};
 
-        if ($stm->{sym} eq 'if') {
+        if ($stm->{sym} eq 'unless') {
+            my $then = call 'postcircumfix:( )' => code($stm->{xblock}{pblock}{block}),[capturize];
+            AST::If->new
+                ( cond => $stm->{xblock}{EXPR}->emit_m0ld,
+                  else => $then )
+
+        } elsif ($stm->{sym} eq 'if') {
             my $then = call 'postcircumfix:( )' => code($stm->{xblock}{pblock}{block}),[capturize];
             my $else;
             if (ref $stm->{else} eq 'ARRAY' &&
