@@ -1,0 +1,53 @@
+elfparse - getting STD.pm running on elf.
+
+QUICKSTART
+
+$ make all
+$ make check
+$ ./elfblue -v -s -e 'say 3'
+$ make does_gimme5_memory_problem_still_exist
+
+INTRODUCTION
+
+STD_blue is a parser for elf, which uses the p5 src/perl6/gimme5.
+STD_green is a parser for elf, which runs STD.pm on elfgreen.
+
+elfblue is a (tweaked) elf which uses STD_blue instead of STD_red.
+elfgreen is a (tweaked) elf which uses STD_blue instead of STD_red,
+and has regex support.
+
+VISION
+
+Combine elfblue, elf_h, and rx_on_re, and teach them to compile and
+run STD.pm.  Thus permitting the front-end to be bootstrapped.
+
+NOTES
+
+gimme5, and thus STD_blue, is not quite ready to replace STD_red as
+the primary elf parser.
+ Speed has greatly improved - is it comparable yet?
+ Memory usage on encountering foofix:<bar> decls is a non-starter?
+  (but... could :sym<>-ify elf?).
+ elf IRFromAST2 support for STD_blue's AST needs work.
+ If running STD.pm using rx_on_re in elf works out, then switching isn't
+  critical path.  But if it bogs down, that may change..
+
+PrimitivesP5.pm is a tweaked copy of elf_h's - gimme5 takes more memory
+than I have available to compile the original.
+
+IRx1_FromAST2_create.pl is a mess, with an unfortunate quantity of broken
+legacy code.  The only objective was "get to self compilation", so general
+p6 support is lacking, even by elf standards.
+
+
+make check  runtime:
+r24098 takes me 9m35s'user (with STD_red cached, and STD_blue not cached).
+
+Success looks like:
+- STD_blue can parse STD.pm.
+- elfblue can generate IR for STD.pm.
+- an elf can run the non-rx portions of STD.pm.
+- rx_on_re can run the rx portions of STD.pm.
+- rx_on_re is integrated into an elf.
+- an elf can run STD.pm
+- an elf can self-compile using STD.pm.

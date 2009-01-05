@@ -63,7 +63,11 @@ if $o<infix> {
     $args[0];
   }
   else {
-    Apply.newp("infix:"~$op,Capture.newp1($args))
+    my $ret = Apply.newp("infix:"~$op,Capture.newp1($args));
+    if $o<sym_name> eq '=' && $op ne '=' {
+      $ret = Apply.newp("infix:"~"=",Capture.newp1([$args[0],$ret]));
+    }
+    $ret;
   }
 }
 elsif $o<prefix> {
@@ -204,7 +208,7 @@ Call.newp($blackboard::expect_term_base,$m<longname>,Capture.newp1($args||[]))
 
 noun
 #Should just be *1*, but all versions of node contain a colonpair too.
-$m<fatarrow> || $m<variable> || $m<package_declarator> || $m<scope_declarator> || $m<multi_declarator> || $m<routine_declarator> || $m<regex_declarator> || $m<type_declarator> || $m<circumfix> || $m<dotty> || $m<value> || $m<capterm> || $m<sigterm> || $m<term> || $m<statement_prefi> || $m<colonpair>
+$m<fatarrow> || $m<variable> || $m<package_declarator> || $m<scope_declarator> || $m<multi_declarator> || $m<routine_declarator> || $m<regex_declarator> || $m<type_declarator> || $m<circumfix> || $m<dotty> || $m<value> || $m<capterm> || $m<sigterm> || $m<term> || $m<statement_prefix> || $m<colonpair>[0]
 
 infixish
 $m<colonpair> || $m<infix> || $m<infix_prefix_meta_operator> || $m<infix_circumfix_meta_operator> || $m<infix>
@@ -291,7 +295,7 @@ module_name:depreciated
 *text*
 
 module_name:normal
-*text*
+$m<longname>
 
 role_name
 *text*
@@ -299,13 +303,26 @@ role_name
 quote:/
 die("quote:/ is unimplemented"); #"
 
+quote:s
+my $left = RxARegex.newp("",{},$m<pat><left>);
+temp $blackboard::quote = '" "';
+my $right = $m<pat><right>;
+Apply.newp('s',Capture.newp1([$left,$right]));
+
+quote:m
+RxARegex.newp("",{},$m<quibble><nibble>);
+
 quote
 temp $blackboard::quote = $o<sym_name>;
-if $o<nibble> && $o<nibble><EXPR> { # /a/
-  return $m<nibble>;
+my $q = $o<sym_name>;
+if $q eq '/ /' {
+  return RxARegex.newp("",{},$m<nibble>);
 }
-if $o<quibble> && $o<quibble><nibble><EXPR> { # m/a/
-  return $m<quibble><nibble>;
+if $o<quote_mod> && $o<quote_mod><sym_name> eq 'w' {
+  my $s = $m<quibble><nibble><nibbles>[0];
+  my $a = $s.re_gsub('^\s+','').re_gsub('\s+$','').split('\s+');
+  $a = $a.map(sub ($x){Buf.newp($x)});
+  return Apply.newp("circumfix:[ ]",Capture.newp1($a));
 }
 my $nibs = $m<nibble><nibbles>;
 my $args = $nibs.map(sub ($x){
@@ -345,6 +362,7 @@ elsif $blackboard::quote eq '" "' {
   else {
     my $g = $e.re_groups('\A\\\\(.)\z');
     if $g { Buf.newp($g[0]) }
+    elsif $o<variable> { $m<variable> }
     else { die "Unsupported qq escape: "~$e }
   }
 }
@@ -353,10 +371,11 @@ else { die "Unsupported quote: "~$blackboard::quote }
 nibbler
 #XXX I've sooo no idea.
 if $o<nibbles> {
-  $m<nibbles>[0]
+  #X $m<nibbles>[0]
+  *text*
 }
 elsif $o<EXPR> {
-  RxARegex.newp("",{},$m<EXPR>);
+  $m<EXPR>
 }
 else {
   die "nibbler is a work in progress";
@@ -364,7 +383,7 @@ else {
 
 colonpair
 my $v = $m<v>;
-if $o<v><nibble> { #XXX :x<2> bypass postcircumfix:< >.
+if $o<v>.isa('Match') && $o<v><nibble> { #XXX :x<2> bypass postcircumfix:< >.
   $v = $o<v><nibble><nibbles>[0];
   $v = Buf.newp($v)
 }
@@ -388,6 +407,10 @@ scope_declarator:temp
 temp $blackboard::scope = 'temp';
 $m<scoped>
 
+scope_declarator:constant
+temp $blackboard::scope = 'constant';
+$m<scoped>
+
 scoped
 temp $blackboard::typenames = $m<fulltypename>;
 $m<declarator>
@@ -398,7 +421,7 @@ $m<variable_declarator> || $m<signature> || $m<plurality_declarator> || $m<routi
 variable_declarator
 my $scope = $blackboard::scope; temp $blackboard::scope;
 my $typenames = $blackboard::typenames; temp $blackboard::typenames = undef;
-VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<traits>,'=',$m<default_value>)
+VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<trait>,'=',$m<default_value>)
 #XXX default_value is going to take some non-local work.
 
 variable
@@ -408,12 +431,17 @@ if $tw eq "." && $o<postcircumfix>.elems {
   my $args = ir($o<postcircumfix>[0]<semilist>);
   return Call.newp($slf,$m<desigilname>,Capture.newp1($args||[]))
 }
+my $v;
+if $o<desigilname> {
+  $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
+} elsif $o<special_variable> {
+  $v = $m<special_variable>;
+} else { die "Unimplemented variable form" }
 if $o<postcircumfix>.elems {
-  my $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
   temp $blackboard::expect_term_base = $v;
   $m<postcircumfix>;
 } else {
-  Var.newp($m<sigil>,$tw,$m<desigilname>);
+  $v;  
 }
 
 sigil
@@ -425,9 +453,12 @@ twigil
 special_variable
 my $v = *text*;
 my $s = substr($v,0,1);
-my $n = substr($v,1,$v.chars);
+my $n = substr($v,1,$v.chars-1);
 Var.newp($s,undef,$n)
 
+
+modifier_expr
+$m<EXPR>
 
 statement_control:BEGIN
 ClosureTrait.newp('BEGIN',$m<block>)
@@ -570,7 +601,11 @@ my $type_constraint = $m<type_constraint>;
 if $type_constraint && $type_constraint.elems == 2 { $type_constraint.pop }
 #XXX elf_h backcompat with STD_red, and elf_h's 'if [] { incorrectly true }'.
 if $type_constraint.elems == 0 { $type_constraint = undef }
-Parameter.newp($type_constraint,$quantchar,$var,undef,undef,undef,undef)
+my $default_value = $m<default_value>[0];
+Parameter.newp($type_constraint,$quantchar,$var,undef,undef,undef,$default_value)
+
+default_value
+$m<EXPR>
 
 param_var
 ParamVar.newp($m<sigil>,$m<twigil>[0]||"",$m<identifier>[0])
@@ -690,7 +725,7 @@ my $name = $m<deflongname>[0];
 my $sig = $m<signature>; #X
 my $trait = $m<trait>; #X
 my $regex = $m<regex_block>;
-my $rx = RxBiind.newp(undef,$name,$regex);
+my $rx = RxBiind.newp(undef,$name,RxARegex.newp('',{},$regex));
 RegexDef.newp($kind,$name,$sig,$trait,$rx)
 
 
@@ -705,7 +740,7 @@ if not($quant) { return $atom; }
 elsif ($g = $quant.re_groups('{(\d+)(?:,(\d*))?}(\?)?\z')) {
   my $ng = $g[2];
   my $min = $g[0];
-  my $max = $g[1]; if !defined($max) { $max = 1000**1000**1000 }; #XXX inf
+  my $max = $g[1]; if !defined($max) { $max = $min } elsif $max eq '' { $max = 1000**1000**1000 }; #XXX inf
   RxQuant.newp($min,$max,$atom,$ng)
 }
 elsif ($g = $quant.re_groups('([?*+])(\?)?\z')) {
@@ -742,7 +777,8 @@ if $o<mod_internal> {
   my $exprs = [$mod];
   if $o<mod_internal><nibbler> {
     my $rest = $m<mod_internal><nibbler><EXPR>;
-    $exprs.push($rest);
+    if $rest.WHAT ne 'Array' { $rest = [$rest] }
+    $exprs = $exprs.concat($rest);
   }
   RxSeq.newp($exprs);
 } elsif $x eq '.' { RxPat5.newp('.')
@@ -753,15 +789,83 @@ if $o<mod_internal> {
 } elsif $x eq '^^' { RxPat5.newp('(?m:^)(?!(?=\z)(?<=\n))')
 } elsif $x eq '$$' { RxPat5.newp('(?m:$)(?!(?=\z)(?<=\n))')
 } elsif $x eq '< >' {
+  if $o<assertion><sym_name> eq '[' {
+    my $v = $o<assertion><cclass_elem>; #X $o not $m, for $op below.
+    my $inc=[]; my $excl=[];
+    $v.map(sub ($opset){
+      my $op = '+'; #XXX not in tree. :(
+      my $set = irbuild_ir($opset);
+      if $op eq '-' { $excl.push($set) }
+      else { $inc.push($set) }
+    });
+    my $ast;
+    if $inc.elems == 0 {
+      $ast = RxPat5.newp('(?s:.)');
+    } elsif $inc.elems == 1 {
+      $ast = $inc[0];
+    } else {
+      $ast = RxAlt.newp($inc);
+    }
+    if $excl.elems {
+      my $exast;
+      if $excl.elems == 1 {
+        $exast = $excl[0];
+      } else {
+        $exast = RxAlt.newp($excl);
+      }
+      $ast = RxSeq.newp(RxLookaround.newp(1,0,$exast),
+			$ast);
+    }
+    return $ast;
+  }
   my $pkg = undef;
-  my $name = $m<assertion><identifier>;
-  my $args = $m<assertion><nibbler>;#X?
-  my $exprs = $args;
   my $neg = undef;
   my $nocap = undef;
+  my $sr = $o<assertion>;
+  if $sr<sym_name> eq '?' { $nocap = 1; $sr = $sr<assertion>; }
+  if $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; }
+  my $name = irbuild_ir($sr<identifier>);
+  my $args = irbuild_ir($sr<nibbler>);#X?
+  my $exprs = $args;
   RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
-} elsif $x eq '[ ]' && $blackboard::is_P5 {
-  RxPat5.newp(*text*)
+} elsif $x eq '( )' {
+  my $e = $m<nibbler>;
+  my $p;
+  if $e.WHAT ne 'Array' { $p = $e }
+  elsif $e.elems == 0 { $p = RxSeq.newp([]) } #X noop
+  elsif $e.elems == 1 { $p = $e[0] }
+  else { $p = RxSeq.newp($e) }
+  RxCap.newp($p);
+} elsif $x eq '(? )' {
+  my $sym = $m<assertion><sym_name>;
+  my $rx = $m<assertion><rx> || RxSeq.newp([]);
+  if $sym eq ':' { RxGrp.newp($rx) }
+  elsif $sym eq '=' { RxLookaround.newp(1,1,$rx) }
+  elsif $sym eq '!' { RxLookaround.newp(1,0,$rx) }
+  elsif $sym eq '<' {
+    my $sym2 = $m<assertion><assertion><sym_name>;
+    $rx = $m<assertion><assertion><rx> || RxSeq.newp([]);
+    if $sym2 eq '=' { RxLookaround.newp(0,1,$rx) }
+    elsif $sym2 eq '!' { RxLookaround.newp(0,0,$rx) }
+    else { die "(?<X bug"; }
+  }
+  elsif $sym eq 'mod' { $m<assertion> }
+  elsif $sym eq '>' { RxIndependent.newp($rx) }
+  else { die "Unimplemented (? ) assertion: "~$sym }
+} elsif $x eq '[ ]' {
+  if $blackboard::is_P5 {
+    RxPat5.newp(*text*)
+  } else {
+    my $e = $m<nibbler>;
+    my $p;
+    if $e.WHAT ne 'Array' { $p = $e }
+    elsif $e.elems == 1 { $p = $e[0] }
+    else { $p = RxSeq.newp($e) }
+    RxGrp.newp($p);
+  }
+} elsif $x eq '{ }' {
+  my $stmts = $m<codeblock><statementlist>;
+  RxCode.newp(Block.newp($stmts))
 } elsif $x eq ':::' { RxCommitRegex.newp();
 } elsif $x eq '::' { RxCommitGroup.newp();
 } elsif $x eq ':' { RxCommitSequence.newp();
@@ -770,6 +874,16 @@ if $o<mod_internal> {
     my $sym = $o<backslash><sym>;
     if $blackboard::is_P5 && $sym eq 'p' {
       RxPat5.newp(*text*)
+    }
+    elsif $o<backslash><number> {
+      my $num = substr(*text*,1);
+      my $n = $num.Num;
+      if not($num.re_matchp('\A0')) && $n < 10 {
+        RxBackref.newp($n);
+      } else {
+        # XXX kludge. Interpretation of \10 is much more complex.
+        RxPat5.newp(*text*);
+      }
     }
     else {
       RxPat5.newp(*text*)
@@ -782,11 +896,70 @@ if $o<mod_internal> {
   die "Unimplemented metachar: "~$x;
 }
 
+p5mods
+my $mods = {};
+my $normalize = sub ($x,$v) {
+  if $x eq 'i' { $mods{$x} = $v }
+  else { $mods{"perl5_"~$x} = $v }
+};
+$m<on>.split('').map(sub ($x){$normalize.($x,1)});
+if $o<off>.elems {
+  $m<off>[0].split('').map(sub ($x){$normalize.($x,0)});
+}
+$mods;
+
+p5mod
+*text*
+
+assertion:mod
+my $onoff = $m<p5mods>;
+if $o<rx> && $o<rx>.elems {
+  RxMod_expr.newp($onoff,$m<rx>[0]);
+} else {
+  RxMod_inline.newp($onoff);
+}
+
 assertion
 *text*
 
+cclass_elem
+temp $blackboard::quote = "' '";
+my $set = $m<quibble><nibble>;
+my $pat5 = $set.re_gsub('\.\.','-').re_gsub('(?<!\\\\)\s','');
+$pat5 = '['~$pat5~']';
+RxPat5.newp($pat5);
+# my $set = $m<quibble><nibble>
+# my $op = substr(*text*,0,1);
+# if $op ne '-' { $op = '+' }
+# if $set.re_matchp('(^|[^\\])\-') { die "parse error - unescaped hyphen" }
+# my $pat5 = $set.re_gsub('\.\.','-');#.re_gsub_pat('\\([\\\'])','\\\\\\$1');
+# $pat5 = '['~$pat5~']';
+# RxPat5.newp('['~$pat5~']');
+#     my $pat = $m->match_string;
+#     if($pat =~ /^([-+]?)\[(.+)\]$/s) {
+#       my $op = $1 eq '-' ? '-' : '+';
+#       my $set = $2;
+#       die "parse error - unescaped hyphen" if $set =~ /(^|[^\\])\-/;
+#       $set =~ s/\.\./-/g;
+#       $set =~ s/\\([\\\'])/\\\\\\$1/g;
+#       return $op."pat5('[$set]')";
+#     }
+#     elsif($pat =~ /^([-+]?)(\w+)$/) {
+#       my $op = $1 eq '-' ? '-' : '+';
+#       return $op."sr('?$2')";
+#     }
+#     else { die "bug" }
+#   }
+
+
+rx
+$m<nibbler>
 
 mod_internal
+if $o<statement> {
+  my $stmt = $m<statement>;
+  return RxCode.newp($stmt); # no Block.
+}
 my $text = *text*;
 my $modpat = $text;
 if $o<nibbler> {
@@ -794,7 +967,7 @@ if $o<nibbler> {
   $modpat = substr($text,0,$after-$m.from);
 }
 my $mods = IRx1::RxMixinMod.mods_from_modpat($modpat);
-if $mods.{'P5'} { $blackboard::is_P5 = 1 }
+if $mods.{'P5'} { $mods.{'p5'} = 1; $blackboard::is_P5 = 1 }
 RxMod_inline.newp($mods)
 
 

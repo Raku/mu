@@ -1,7 +1,0 @@
-#!/bin/env perl
-# This is a proxy for ../STD_blue/STD_blue_run,
-# but which returns the precomputed parse tree for STD.pm.
-# So I don't have to fiddle with caching.
-
-print STDERR "Using cached ./tree .\n";
-system("cat ./tree");

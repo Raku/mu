@@ -82,7 +82,7 @@ package IRx1 {
       my $n = self.<backref_n>;
       my $total = $whiteboard::rx_nparen;
       die "Backreference to nonexistent group $n of $total"
-        if $total < $n;
+        if $total <= $n;
     }
   }
 
@@ -100,8 +100,8 @@ package IRx1 {
       $whiteboard::rx_alias_construct = self;
     }
     method RAST_pass15 {
-      self.<cap6_idx> = $whiteboard::rx_nparen6_idx++;
-      self.<cap5_idx> = $whiteboard::rx_nparen++;
+      self.notes<cap6_idx> = $whiteboard::rx_nparen6_idx++;
+      self.notes<cap5_idx> = $whiteboard::rx_nparen++;
       $whiteboard::rx_nparen6 = $whiteboard::rx_nparen6_idx
         if $whiteboard::rx_nparen6 < $whiteboard::rx_nparen6_idx;
       self.<target_spec> = $whiteboard::rx_target_spec;
@@ -253,6 +253,7 @@ package IRx1 {
 
   class RxARegex {
     method RAST_init {
+      if !defined(self.notes) { self.initialize_notes }; #X for test
       self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
       self.<name> = $whiteboard::rx_name;
       temp $whiteboard::rx_pkg = self.<pkg>;
@@ -276,6 +277,7 @@ package IRx1 {
 
   class RxBiind {
     method RAST_init {
+      if !defined(self.notes) { self.initialize_notes }; #X for test
       self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
       temp $whiteboard::rx_pkg = self.<pkg>;
       temp $whiteboard::rx_name = self.<name>;
@@ -286,6 +288,7 @@ package IRx1 {
 
   class RxNamespace {
     method RAST_init {
+      if !defined(self.notes) { self.initialize_notes }; #X for test
       temp $whiteboard::rx_pkg = self.<pkg>;
       $.RAST_children.map(sub ($o){$o.RAST_init});
       self;

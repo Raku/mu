@@ -57,6 +57,9 @@ class EmitRegex {
   use Filter::Simple 0.82;
 }
 
+{ package GLOBAL;
+  our $_cursor;
+}
 
 package Regexp::ModuleA;
 use strict;
@@ -781,12 +784,17 @@ subname "<alias_wrap ".($myid).">" => sub {
   # XXX high klude factor
   # (?{ ... })
   sub RMARE_code {
-    my($o,$code)=@_;
+    my($o,$code,$dont_rewrite)=@_;
     my $noop = $o->RMARE_noop;
-    $code = "\'\'" if $code =~ /\A\s*\z/; #YYY XXX Why?
-    my $tmp = _rewrite_matchvars($o,$code);
-    my $need_match = $code ne $tmp || $code =~ /\$M\b/;
-    $code = $tmp;
+    my $need_match;
+    if($dont_rewrite) {
+      $need_match = $code =~ /\$M\b/;
+    } else {
+      $code = "\'\'" if $code =~ /\A\s*\z/; #YYY XXX Why?
+      my $tmp = _rewrite_matchvars($o,$code);
+      $need_match = $code ne $tmp || $code =~ /\$M\b/;
+      $code = $tmp;
+    }
     my $src = \'
 #line 2 "in Regexp::ModuleA::Code"
 sub{my $__c__ = $_[0];
@@ -1173,9 +1181,8 @@ package IRx1 {
       my $target_spec = self.<target_spec>;
       my $is6_ = not self.<flags><p5>;
       my $is6 = $is6_ || 'undef';
-      my $idx = {if $is6_
-                 { self.<cap6_idx> } else
-                 { self.<cap5_idx> }};
+      my $idx = self.notes<cap5_idx>;
+      if $is6_ { $idx = self.notes<cap6_idx> };
       my $nparen6 = self.<nparen6>;
       my $f = self.<expr>.emit_RMARE;
       'IRx1::RxBaseClass->RMARE_capture('~$idx~','~$f~','~$is6~','~$nparen6~','~$in_quant~','~$target_spec.perl~')';
@@ -1186,7 +1193,7 @@ package IRx1 {
   class RxBackref {
     method emit_RMARE {
       my $noop = $.RMARE_noop;
-      my $idx = self.<backref_n> -1;
+      my $idx = self.<backref_n>;
       'IRx1::RxBaseClass->RMARE_eat_backref('~$idx~',"'~quotemeta('(?'~$.RMARE_imsx~')')~'")';
     } #XXX move imsx into eat
   }
@@ -1281,8 +1288,14 @@ package IRx1 {
   # Code is currently p5!
   class RxCode {
     method emit_RMARE {
-      my $code5 = self.<code>;
-      'IRx1::RxBaseClass->RMARE_code("'~quotemeta($code5)~'")'
+      my $code = self.<code>;
+      if $code.WHAT eq 'Str' {
+        'IRx1::RxBaseClass->RMARE_code("'~quotemeta($code)~'")'
+      } else {
+        my $src = $whiteboard::current_emitter.e($code);
+        say $whiteboard::current_emitter if 0; #X avoid "used only once".
+        'IRx1::RxBaseClass->RMARE_code("'~quotemeta($src)~'",1)'
+      }
     }
   }
 
@@ -1347,10 +1360,10 @@ package IRx1 {
 
 class EmitSimpleP5 {
   method cb__RxARegex ($n) {
-    $n.emit_RMARE;
+    $n.RAST_init.emit_RMARE;
   }
   method cb__RegexDef ($n) {
-    $n.<pattern>.emit_RMARE;
+    $n.<pattern>.RAST_init.emit_RMARE;
   }
 }
 

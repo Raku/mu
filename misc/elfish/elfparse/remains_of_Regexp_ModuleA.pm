@@ -543,7 +543,7 @@ sub make0_from_node___backref_or_char {
   $m->match_string =~ /\A\\(\d+)\z/ or die "bug";
   my $n = $1;
   if($n !~ /\A0/ && $n < 10) {
-    return "backref($n)";
+    return "backref(".($n-1).")";
   } else {
     # XXX kludge. Interpretation of \10 is much more complex.
     return "pat5('\\\\$n')";
@@ -959,7 +959,7 @@ sub make0_from_node__regex_unordered_conjunction {
 sub make0_from_node___backref {
   my($cls,$m)=@_;
   $m->match_string =~ /\A\$(\d+)\z/ or die "bug";
-  my $n = $1 +1;
+  my $n = $1 +0;
   return "backref($n)";
 }
 sub make0_from_node___esc {
