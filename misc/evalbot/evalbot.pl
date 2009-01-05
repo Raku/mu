@@ -57,7 +57,7 @@ package Evalbot;
             },
             elf => {
                 chdir       => '../elf',
-                cmd_line    => './elf_f %program >> %out 2>&1',
+                cmd_line    => './elf_h %program >> %out 2>&1',
                 revision    => \&get_revision,
             },
             kp6 => {
