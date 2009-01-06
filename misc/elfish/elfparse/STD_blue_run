@@ -25,8 +25,6 @@ sub print_usage_and_exit {
   print STDERR <<END;
 $0 [-q] [--format=FORMAT] [ --start=RULE ] [ FILENAME | -e CODE ]
 
---start is ignored.  See src/perl6/try5 for how to do it.
-
 Set STD_BLUE_CACHEDIR to cache parse results.
 
 FORMATs
@@ -93,15 +91,25 @@ sub main {
   #$output = undef; #XXX disable cache
   if($output && !$dash_e){print $output; exit;}
 
-  if(!$filename) {
-    my $fn;
-    ($fn,$filename) = tempfile(undef, UNLINK => 1);
-    binmode($fn,":utf8");
-    print $fn $code;
-    close($fn);
+  my $r;
+  if($start) {
+    #X $start TOP wasn't equivalent to STD->parsefile. :(
+    #X   'uninitialized value $HIGHWATER' errors.
+    my $rule = $start || 'TOP';
+    my $perl = STD->new($code);
+    if(!$perl->can($rule)) { die "\nERROR: Unknown rule: $rule\n"; }
+    $r = eval { $perl->${rule}(); };
   }
-
-  my $r = STD->parsefile($filename);
+  else {
+    if(!$filename) {
+      my $fn;
+      ($fn,$filename) = tempfile(undef, UNLINK => 1);
+      binmode($fn,":utf8");
+      print $fn $code;
+      close($fn);
+    }
+    $r = STD->parsefile($filename);
+  }
 
   if(!$r) {
     print STDERR "Parse failed.\n";
@@ -119,7 +127,7 @@ sub main {
   elsif($format eq 'p5a') {
     $main::whole_file = $code;
     $main::whole_file .= " "; # -e '3' dump includes _pos's of 2
-    print out($cache_file,$r->to_dump0);
+    print out($cache_file,$r->to_dump0."\n");
   }
   else {
     print_usage_and_exit
