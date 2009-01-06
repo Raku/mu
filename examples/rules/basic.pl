@@ -1,8 +1,8 @@
-use v6-alpha;
+use v6;
 
 say "Loading BASIC grammar...";
 
-#grammar Basic {
+#Grammar Basic {
    rule var       { <ident> \$ }
    rule string    { <-[\"]>+ }
    rule expr      { <var> | \"<string>\" }
@@ -24,7 +24,7 @@ say "Loading BASIC grammar...";
 
 
 sub expr_to_string (Match $expr) {
-  return %$expr.<string> if defined %$expr.<string>;
+  return $expr<string> if $expr.exists('string');
 }
 
 do {
@@ -34,22 +34,23 @@ do {
   repeat while $line.chars {
    print "{$i++}: ";
    $line = =$*IN;
-#  exit if $line eq "exit";
+   last if $line eq "exit";
    $basic_program ~= $line ~ "\n";
   }  
-  my $parsed = $basic_program ~~ /<program>/;
-  $parsed.perl.say;
-  execute($parsed) if $parsed;
+   $basic_program.say;
+   my $parsed = $basic_program ~~ /<program>/;
+#   $parsed.perl.say;
+   execute($parsed);
 };
 
 sub execute (Match $basic) {
   say "Running...";
   my $i = 0;
   for @($basic<program><line>) -> $line {
-#   say "{$i++}: $line";
+   say "{$i++}: $line";
    for @($line<command>) -> $cmd {
-     for %$cmd.keys {
-       when 'f_print' { print expr_to_string(%$cmd<f_print><expr>) }
+     for $cmd.keys {
+       when 'f_print' { print expr_to_string($cmd<f_print><expr>) }
       }
    }
   }
