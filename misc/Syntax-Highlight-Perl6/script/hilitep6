@@ -22,7 +22,7 @@ use STD;
 use Syntax::Highlight::Perl6;
 
 #CPAN version
-our $VERSION = '0.0297';
+our $VERSION = '0.030';
 
 # my variables
 my ($clean_html,$help) = (0,0);
@@ -81,6 +81,7 @@ HELP
     #what is the meaning of your input file?
     if(!$file || $file eq q{-}) {
         # i think you mean standard input
+        binmode STDIN;
         $file = \*STDIN;
     } else {
         # no it is should be a file, let me check

@@ -51988,7 +51988,7 @@ $C->_PATTERN(qr/\G(?i:z)/)
 );
 }
 ##     token backslash__S_564misc (:$sym is context<rw> = 'misc')
-##          token backslash:misc { $<litchar>=(\W) }
+##          token backslash:misc { $<litchar>=(\W) | $<number>=(\d+) }
 
 sub backslash__S_564misc__PEEK { $_[0]->_AUTOLEXpeek('backslash__S_564misc',$retree) }
 sub backslash__S_564misc {
@@ -52003,6 +52003,36 @@ my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
 $self->_MATCHIFYr($S, "backslash__S_564misc", 
+do {
+my @result = eval {
+my $trystate;
+my ($tag, $try);
+my @try;
+my $relex;
+
+my $fate;
+if ($fate = $C->{_fate} and $fate->[1] eq 'backslash__S_564misc_00') {
+$C->deb("Fate passed to backslash__S_564misc_00: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
+($C->{_fate}, $tag, $try) = @$fate;
+@try = ($try);
+}
+
+my @gather = ();
+for (;;) {
+if (not @try) {
+$relex //= $C->cursor_fate('STD::P5Regex', 'backslash__S_564misc_00', $retree);
+@try = $relex->($C, $trystate);
+}
+last unless @try;
+$try = shift(@try) // next;
+
+if (ref $try eq 'ARRAY') {
+($C->{_fate}, $tag, $try) = @$try;	# next candidate fate
+}
+
+$C->deb("backslash__S_564misc_00 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+push @gather, ((
+sub { my $C=shift;
 $C->_SUBSUMEr(['litchar'], sub {
 my $C = shift;
 do { $C->_PAREN( sub { my $C=shift;
@@ -52011,6 +52041,34 @@ $C->_PATTERN(qr/\G\w/)
 })
 })}
 })
+},
+sub { my $C=shift;
+$C->_SUBSUMEr(['number'], sub {
+my $C = shift;
+do { $C->_PAREN( sub { my $C=shift;
+$C->_PATTERN(qr/\G((?:\d)++)/)
+})}
+})
+},
+)[$try])->($C);
+last if @gather;
+}
+@gather;
+};
+if (@result) {
+@result;
+}
+elsif ($@) {
+my ($first) = $@ =~ /(^.*)/;
+$self->deb("CAUGHT $first") if $::DEBUG & DEBUG::trace_call;
+die $@ if $@ !~ /^ABORTBRANCH/;
+();
+}
+else {
+();
+}
+}
+
 );
 }
 ##     token backslash__S_565oops (:$sym is context<rw> = 'oops')
@@ -52380,7 +52438,8 @@ else {
 
 ##     token rx
 ##          token rx {
-##              [:lang(self.unbalanced(')')) <nibbler>]
+##              #[:lang(self.unbalanced(')')) <nibbler>]
+##              <nibbler>
 ##              [ <?before ')'> || <.panic: "Unable to parse Perl 5 regex; couldn't find right parenthesis"> ]
 ##          }
 
@@ -52395,11 +52454,9 @@ my $S = $C->{_pos};
 
 $self->_MATCHIFYr($S, "rx", 
 do {
-if (my ($C) = ($C->_BRACKETr( sub { my $C=shift;
-my $newlang = ($self->unbalanced(')'));  $C = $C->cursor_fresh($newlang); ;$C->_SUBSUMEr(['nibbler'], sub {
+if (my ($C) = ($C->_SUBSUMEr(['nibbler'], sub {
 my $C = shift;
 $C->nibbler
-})
 }))) {
 $C->_BRACKETr( sub { my $C=shift;
 do { my @gather;
@@ -52419,20 +52476,82 @@ else {
 );
 }
 
-##     token assertion__S_572identifier (:$sym is context<rw> = 'identifier')
-##          token assertion:identifier { <identifier> [               # is qq right here?
-##                                          | <?before ')' >
-##                                          | <.ws> <nibbler>
-##      				    ]
-##      				    [ ':' <rx> ]?
+#token assertion'identifier' => 1 { q(identifier) [               # is qq right here?
+#                                | [qw[?before ')' ]]
+#                                | q(.ws) q(nibbler)
+#				    ]
+#				    [ ':' q(rx) ]?
+#}
+##     token p5mod
+##          token p5mod { <[imox]>* }
+
+sub p5mod__PEEK { $_[0]->_AUTOLEXpeek('p5mod',$retree) }
+sub p5mod {
+my $self = shift;
+local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
+
+
+my $C = $self;
+my $S = $C->{_pos};
+
+$self->_MATCHIFYr($S, "p5mod", 
+$C->_PATTERN(qr/\G((?:[imox])*+)/)
+);
+}
+##     token p5mods
+##          token p5mods { <on=p5mod> [ '-' <off=p5mod> ]? }
+
+sub p5mods__PEEK { $_[0]->_AUTOLEXpeek('p5mods',$retree) }
+sub p5mods {
+my $self = shift;
+local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
+
+
+my $C = $self;
+my $S = $C->{_pos};
+$C->{'off'} = [];
+
+$self->_MATCHIFYr($S, "p5mods", 
+do {
+if (my ($C) = (    $C->_SUBSUMEr(['on'], sub {
+my $C = shift;
+$C->p5mod
+}))) {
+$C->_OPTr(sub { my $C=shift;
+$C->_BRACKETr( sub { my $C=shift;
+do {
+if (my ($C) = ($C->_EXACT('-'))) {
+$C->_SUBSUMEr(['off'], sub {
+my $C = shift;
+$C->p5mod
+});
+}
+else {
+();
+}
+}
+})
+});
+}
+else {
+();
+}
+}
+);
+}
+##     token assertion__S_572mod (:$sym is context<rw> = 'mod')
+##          token assertion:mod { <p5mods> [               # is qq right here?
+##      			           | ':' <rx>?
+##                                         | <?before ')' >
+##                                         ]
 ##          }
 
-sub assertion__S_572identifier__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_572identifier',$retree) }
-sub assertion__S_572identifier {
+sub assertion__S_572mod__PEEK { $_[0]->_AUTOLEXpeek('assertion__S_572mod',$retree) }
+sub assertion__S_572mod {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
-local $sym = $args{sym} // 'identifier';
+local $sym = $args{sym} // 'mod';
 
 
 my $C = $self;
@@ -52440,14 +52559,13 @@ my $S = $C->{_pos};
 $C->{'rx'} = [];
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "assertion__S_572identifier", 
+$self->_MATCHIFYr($S, "assertion__S_572mod", 
 do {
-if (my ($C) = ($C->_SUBSUMEr(['identifier'], sub {
+if (my ($C) = ($C->_SUBSUMEr(['p5mods'], sub {
 my $C = shift;
-$C->identifier
+$C->p5mods
 }))) {
-do {
-if (my ($C) = ($C->_BRACKETr( sub { my $C=shift;
+$C->_BRACKETr( sub { my $C=shift;
 do {
 my @result = eval {
 my $trystate;
@@ -52456,8 +52574,8 @@ my @try;
 my $relex;
 
 my $fate;
-if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_572identifier_01') {
-$C->deb("Fate passed to assertion__S_572identifier_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
+if ($fate = $C->{_fate} and $fate->[1] eq 'assertion__S_572mod_01') {
+$C->deb("Fate passed to assertion__S_572mod_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -52465,7 +52583,7 @@ $C->deb("Fate passed to assertion__S_572identifier_01: ", ::fatestr($fate)) if $
 my @gather = ();
 for (;;) {
 if (not @try) {
-$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_572identifier_01', $retree);
+$relex //= $C->cursor_fate('STD::P5Regex', 'assertion__S_572mod_01', $retree);
 @try = $relex->($C, $trystate);
 }
 last unless @try;
@@ -52475,25 +52593,27 @@ if (ref $try eq 'ARRAY') {
 ($C->{_fate}, $tag, $try) = @$try;	# next candidate fate
 }
 
-$C->deb("assertion__S_572identifier_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+$C->deb("assertion__S_572mod_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
-$C->before(sub { my $C=shift;
-$C->_EXACT(')')
-})
-},
-sub { my $C=shift;
 do {
-if (my ($C) = ($C->ws)) {
-$C->_SUBSUMEr(['nibbler'], sub {
+if (my ($C) = ($C->_EXACT(':'))) {
+$C->_OPTr(sub { my $C=shift;
+$C->_SUBSUMEr(['rx'], sub {
 my $C = shift;
-$C->nibbler
+$C->rx
+})
 });
 }
 else {
 ();
 }
 }
+},
+sub { my $C=shift;
+$C->before(sub { my $C=shift;
+$C->_EXACT(')')
+})
 },
 )[$try])->($C);
 last if @gather;
@@ -52514,27 +52634,7 @@ else {
 }
 }
 
-}))) {
-$C->_OPTr(sub { my $C=shift;
-$C->_BRACKETr( sub { my $C=shift;
-do {
-if (my ($C) = ($C->_EXACT(':'))) {
-$C->_SUBSUMEr(['rx'], sub {
-my $C = shift;
-$C->rx
 });
-}
-else {
-();
-}
-}
-})
-});
-}
-else {
-();
-}
-};
 }
 else {
 ();
@@ -52876,7 +52976,7 @@ assertion__S_568Lt: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &6 !!perl/hash:RE_any 
+            re: &8 !!perl/hash:RE_any 
               a: 0
               altname: assertion__S_568Lt_01
               dba: assertion__S_568Lt
@@ -52914,7 +53014,7 @@ assertion__S_568Lt: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-assertion__S_568Lt_01: *6
+assertion__S_568Lt_01: *8
 assertion__S_569Equal: !!perl/hash:RE 
   decl: []
 
@@ -52943,7 +53043,7 @@ assertion__S_569Equal: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &8 !!perl/hash:RE_any 
+        re: &10 !!perl/hash:RE_any 
           a: 0
           altname: assertion__S_569Equal_01
           dba: assertion__S_569Equal
@@ -52988,7 +53088,7 @@ assertion__S_569Equal: !!perl/hash:RE
               r: 1
               rest: ''
               s: 0
-assertion__S_569Equal_01: *8
+assertion__S_569Equal_01: *10
 assertion__S_570Bang: !!perl/hash:RE 
   decl: []
 
@@ -53017,7 +53117,7 @@ assertion__S_570Bang: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &2 !!perl/hash:RE_any 
+        re: &3 !!perl/hash:RE_any 
           a: 0
           altname: assertion__S_570Bang_01
           dba: assertion__S_570Bang
@@ -53062,7 +53162,7 @@ assertion__S_570Bang: !!perl/hash:RE
               r: 1
               rest: ''
               s: 0
-assertion__S_570Bang_01: *2
+assertion__S_570Bang_01: *3
 assertion__S_571Gt: !!perl/hash:RE 
   decl: []
 
@@ -53096,7 +53196,7 @@ assertion__S_571Gt: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-assertion__S_572identifier: !!perl/hash:RE 
+assertion__S_572mod: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -53104,7 +53204,7 @@ assertion__S_572identifier: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: assertion__S_572identifier
+    dba: assertion__S_572mod
     i: 0
     min: 12345
     r: 1
@@ -53112,10 +53212,10 @@ assertion__S_572identifier: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: assertion__S_572identifier
+        dba: assertion__S_572mod
         i: 0
         min: 12345
-        name: identifier
+        name: p5mods
         r: 1
         rest: ''
         s: 0
@@ -53123,23 +53223,56 @@ assertion__S_572identifier: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &9 !!perl/hash:RE_any 
+        re: &2 !!perl/hash:RE_any 
           a: 0
-          altname: assertion__S_572identifier_01
-          dba: assertion__S_572identifier
+          altname: assertion__S_572mod_01
+          dba: assertion__S_572mod
           i: 0
           min: 0
-          name: assertion__S_572identifier_01
+          name: assertion__S_572mod_01
           r: 1
           s: 0
           zyg: 
+            - !!perl/hash:RE_sequence 
+              a: 0
+              alt: assertion__S_572mod_01 0
+              dba: assertion__S_572mod
+              i: 0
+              min: 1
+              r: 1
+              s: 0
+              zyg: 
+                - !!perl/hash:RE_string 
+                  a: 0
+                  dba: assertion__S_572mod
+                  i: 0
+                  min: 1
+                  r: 1
+                  s: 0
+                  text: ":"
+                - !!perl/hash:RE_quantified_atom 
+                  atom: !!perl/hash:RE_method 
+                    a: 0
+                    dba: assertion__S_572mod
+                    i: 0
+                    min: 12345
+                    name: rx
+                    r: 1
+                    rest: ''
+                    s: 0
+                  min: 0
+                  quant: 
+                    - "?"
+                    - ":"
+                    - ''
+                    - 0
             - !!perl/hash:RE_assertion 
-              alt: assertion__S_572identifier_01 0
+              alt: assertion__S_572mod_01 1
               assert: "?"
               min: 0
               re: !!perl/hash:RE_method_re 
                 a: 0
-                dba: assertion__S_572identifier
+                dba: assertion__S_572mod
                 i: 0
                 min: 0
                 name: before
@@ -53151,78 +53284,14 @@ assertion__S_572identifier: !!perl/hash:RE
                   min: 1
                   re: !!perl/hash:RE_string 
                     a: 0
-                    dba: assertion__S_572identifier
+                    dba: assertion__S_572mod
                     i: 0
                     min: 1
                     r: 1
                     s: 0
                     text: )
                 s: 0
-            - !!perl/hash:RE_sequence 
-              a: 0
-              alt: assertion__S_572identifier_01 1
-              dba: assertion__S_572identifier
-              i: 0
-              min: 24690
-              r: 1
-              s: 0
-              zyg: 
-                - !!perl/hash:RE_method 
-                  a: 0
-                  dba: assertion__S_572identifier
-                  i: 0
-                  min: 12345
-                  name: ws
-                  nobind: 1
-                  r: 1
-                  rest: ''
-                  s: 0
-                - !!perl/hash:RE_method 
-                  a: 0
-                  dba: assertion__S_572identifier
-                  i: 0
-                  min: 12345
-                  name: nibbler
-                  r: 1
-                  rest: ''
-                  s: 0
-      - !!perl/hash:RE_quantified_atom 
-        atom: !!perl/hash:RE_bracket 
-          decl: []
-
-          min: 12346
-          re: !!perl/hash:RE_sequence 
-            a: 0
-            dba: assertion__S_572identifier
-            i: 0
-            min: 12346
-            r: 1
-            s: 0
-            zyg: 
-              - !!perl/hash:RE_string 
-                a: 0
-                dba: assertion__S_572identifier
-                i: 0
-                min: 1
-                r: 1
-                s: 0
-                text: ":"
-              - !!perl/hash:RE_method 
-                a: 0
-                dba: assertion__S_572identifier
-                i: 0
-                min: 12345
-                name: rx
-                r: 1
-                rest: ''
-                s: 0
-        min: 0
-        quant: 
-          - "?"
-          - ":"
-          - ''
-          - 0
-assertion__S_572identifier_01: *9
+assertion__S_572mod_01: *2
 assertion__S_573bogus: !!perl/hash:RE 
   decl: []
 
@@ -53244,7 +53313,7 @@ atom: !!perl/hash:RE
     decl: []
 
     min: 1
-    re: &4 !!perl/hash:RE_any 
+    re: &5 !!perl/hash:RE_any 
       a: 0
       altname: atom_01
       dba: atom
@@ -53306,7 +53375,7 @@ atom: !!perl/hash:RE
               r: 1
               s: 0
               text: .
-atom_01: *4
+atom_01: *5
 backslash__S_543A: !!perl/hash:RE 
   decl: []
 
@@ -53523,7 +53592,7 @@ backslash__S_553o: !!perl/hash:RE
           decl: []
 
           min: 12345
-          re: &3 !!perl/hash:RE_any 
+          re: &4 !!perl/hash:RE_any 
             a: 0
             altname: backslash__S_553o_01
             dba: backslash__S_553o
@@ -53619,7 +53688,7 @@ backslash__S_553o: !!perl/hash:RE
           - ":"
           - ''
           - 0
-backslash__S_553o_01: *3
+backslash__S_553o_01: *4
 backslash__S_554p: !!perl/hash:RE 
   decl: []
 
@@ -53815,7 +53884,7 @@ backslash__S_562x: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &7 !!perl/hash:RE_any 
+        re: &9 !!perl/hash:RE_any 
           a: 0
           altname: backslash__S_562x_01
           dba: backslash__S_562x
@@ -53915,7 +53984,7 @@ backslash__S_562x: !!perl/hash:RE
                   r: 1
                   s: 0
                   text: "}"
-backslash__S_562x_01: *7
+backslash__S_562x_01: *9
 backslash__S_563z: !!perl/hash:RE 
   decl: []
 
@@ -53938,27 +54007,68 @@ backslash__S_564misc: !!perl/hash:RE
   kind: token
   min: 1
   pkg: ~
-  re: !!perl/hash:RE_bindnamed 
+  re: &6 !!perl/hash:RE_any 
     a: 0
-    atom: !!perl/hash:RE_paren 
-      decl: []
-
-      min: 1
-      nobind: 1
-      re: !!perl/hash:RE_meta 
+    altname: backslash__S_564misc_00
+    dba: backslash__S_564misc
+    i: 0
+    min: 1
+    name: backslash__S_564misc_00
+    r: 1
+    s: 0
+    zyg: 
+      - !!perl/hash:RE_bindnamed 
         a: 0
+        alt: backslash__S_564misc_00 0
+        atom: !!perl/hash:RE_paren 
+          decl: []
+
+          min: 1
+          nobind: 1
+          re: !!perl/hash:RE_meta 
+            a: 0
+            dba: backslash__S_564misc
+            i: 0
+            min: 1
+            r: 1
+            s: 0
+            text: \W
         dba: backslash__S_564misc
         i: 0
         min: 1
         r: 1
         s: 0
-        text: \W
-    dba: backslash__S_564misc
-    i: 0
-    min: 1
-    r: 1
-    s: 0
-    var: litchar
+        var: litchar
+      - !!perl/hash:RE_bindnamed 
+        a: 0
+        alt: backslash__S_564misc_00 1
+        atom: !!perl/hash:RE_paren 
+          decl: []
+
+          min: 1
+          nobind: 1
+          re: !!perl/hash:RE_quantified_atom 
+            atom: !!perl/hash:RE_meta 
+              a: 0
+              dba: backslash__S_564misc
+              i: 0
+              min: 1
+              r: 1
+              s: 0
+              text: \d
+            min: 1
+            quant: 
+              - +
+              - ":"
+              - ''
+              - 1
+        dba: backslash__S_564misc
+        i: 0
+        min: 1
+        r: 1
+        s: 0
+        var: number
+backslash__S_564misc_00: *6
 backslash__S_565oops: !!perl/hash:RE 
   decl: []
 
@@ -54622,7 +54732,7 @@ metachar__S_541Dollar: !!perl/hash:RE
             decl: []
 
             min: 0
-            re: &5 !!perl/hash:RE_any 
+            re: &7 !!perl/hash:RE_any 
               a: 0
               altname: metachar__S_541Dollar_01
               dba: metachar__S_541Dollar
@@ -54651,7 +54761,7 @@ metachar__S_541Dollar: !!perl/hash:RE
                   s: 0
                   text: $
           s: 0
-metachar__S_541Dollar_01: *5
+metachar__S_541Dollar_01: *7
 metachar__S_542var: !!perl/hash:RE 
   decl: []
 
@@ -54755,6 +54865,104 @@ nibbler: !!perl/hash:RE
         nobind: 1
         noquant: 1
         rest: ''
+p5mod: !!perl/hash:RE 
+  decl: []
+
+  kind: token
+  min: 0
+  pkg: ~
+  re: !!perl/hash:RE_quantified_atom 
+    atom: !!perl/hash:RE_cclass 
+      a: 0
+      dba: p5mod
+      i: 0
+      min: 1
+      r: 1
+      s: 0
+      text: "[imox]"
+    min: 0
+    quant: 
+      - "*"
+      - ":"
+      - ''
+      - 0
+p5mods: !!perl/hash:RE 
+  decl: []
+
+  kind: token
+  min: 12345
+  pkg: ~
+  re: !!perl/hash:RE_sequence 
+    a: 0
+    dba: p5mods
+    i: 0
+    min: 12345
+    r: 1
+    s: 0
+    zyg: 
+      - !!perl/hash:RE_bindnamed 
+        a: 0
+        atom: !!perl/hash:RE_method 
+          a: 0
+          dba: p5mods
+          i: 0
+          min: 12345
+          name: p5mod
+          nobind: 1
+          r: 1
+          rest: ''
+          s: 0
+        dba: p5mods
+        i: 0
+        min: 12345
+        r: 1
+        s: 0
+        var: 'on'
+      - !!perl/hash:RE_quantified_atom 
+        atom: !!perl/hash:RE_bracket 
+          decl: []
+
+          min: 12346
+          re: !!perl/hash:RE_sequence 
+            a: 0
+            dba: p5mods
+            i: 0
+            min: 12346
+            r: 1
+            s: 0
+            zyg: 
+              - !!perl/hash:RE_string 
+                a: 0
+                dba: p5mods
+                i: 0
+                min: 1
+                r: 1
+                s: 0
+                text: "-"
+              - !!perl/hash:RE_bindnamed 
+                a: 0
+                atom: !!perl/hash:RE_method 
+                  a: 0
+                  dba: p5mods
+                  i: 0
+                  min: 12345
+                  name: p5mod
+                  nobind: 1
+                  r: 1
+                  rest: ''
+                  s: 0
+                dba: p5mods
+                i: 0
+                min: 12345
+                r: 1
+                s: 0
+                var: 'off'
+        min: 0
+        quant: 
+          - "?"
+          - ":"
+          - ''
+          - 0
 quantified_atom: !!perl/hash:RE 
   decl: []
 
@@ -55107,40 +55315,15 @@ rx: !!perl/hash:RE
     r: 1
     s: 0
     zyg: 
-      - !!perl/hash:RE_bracket 
-        decl: []
-
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: rx
+        i: 0
         min: 12345
-        re: !!perl/hash:RE_sequence 
-          a: 0
-          dba: rx
-          i: 0
-          lang: ($self->unbalanced(')'))
-          min: 12345
-          r: 1
-          s: 0
-          zyg: 
-            - !!perl/hash:RE_decl 
-              a: 0
-              dba: rx
-              i: 0
-              lang: ($self->unbalanced(')'))
-              max: 0
-              min: 0
-              noquant: 1
-              r: 1
-              s: 0
-              text: "my $newlang = ($self->unbalanced(')'));  $C = $C->cursor_fresh($newlang); "
-            - !!perl/hash:RE_method 
-              a: 0
-              dba: rx
-              i: 0
-              lang: ($self->unbalanced(')'))
-              min: 12345
-              name: nibbler
-              r: 1
-              rest: ''
-              s: 0
+        name: nibbler
+        r: 1
+        rest: ''
+        s: 0
       - !!perl/hash:RE_bracket 
         decl: []
 
