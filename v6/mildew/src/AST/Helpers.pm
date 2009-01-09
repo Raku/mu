@@ -1,6 +1,6 @@
 package AST::Helpers;
 use Exporter 'import';
-our @EXPORT = qw(string reg integer call FETCH lookup capturize let
+our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall
                  routine code move_CONTROL XXX trailing_return varname EXPR);
 use Carp 'confess';
 use AST;
@@ -32,6 +32,13 @@ sub lookup {
     call lookup => reg '$scope',[string $thing];
 }
 
+sub fcall {
+    my $func = shift;
+    unless (ref $func) {
+        $func = FETCH(lookup($func));
+    }
+    call 'postcircumfix:( )' => $func, [capturize(@_)];
+}
 sub capturize {
     my ($pos,$named) = @_;
     AST::Call->new(
