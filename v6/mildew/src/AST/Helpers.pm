@@ -120,7 +120,7 @@ sub XXX {
         my $back = ${$m}->{POS} > 200 ? 200 : ${$m}->{POS};
         my ($before,) = substr($::ORIG,${$m}->{POS}-$back,$back) =~ /( (?:.*\n)? (?:.*\n)? .* \n? )$/x;
         my ($after,) = substr($::ORIG,${$m}->{POS}) =~ /^(.* (?:\n.*)? (?:\n.*)? \n?)/x;
-        $where = GREEN.$before.RED.$after.RESET."\n\n";
+        $where = GREEN.$before.RED.$after.RESET;
         shift;
     }
     confess  "unimplemented: \n".$where.(join ' ',@_);

@@ -28,11 +28,12 @@ Usage: mildew [switches] [--] [programfile] [arguments]
                   (valid backends are: m0ld, desugar, yaml, via-C)
   -o              output to file
   -h or --help    give this message
+  --valgrind      use valgrind when executing
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help);
-Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'debug'=>\$debug,'h|help'=>\$help) || help;
+my ($debug,$B,$C,$output,$help,$valgrind);
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'debug'=>\$debug,'h|help'=>\$help) || help;
 help if $help;
 
 BEGIN {
@@ -64,7 +65,7 @@ sub compile_via_c {
     print {$c_fh} m0ld_to_c($m0ld);
     print {$c_fh} <$boilerplate_back>;
     close($c_fh);
-    system("gcc","-xc","-L../smop/build","-I../smop/include","-lperl","-lsmop","-lpcl",$c_file,"-o",$output);
+    system("gcc","-g","-xc","-L../smop/build","-I../smop/include","-lperl","-lsmop","-lpcl",$c_file,"-o",$output);
 }
 sub compile_to_so {
     my ($m0ld,$output) = @_;
@@ -75,21 +76,23 @@ sub compile_to_so {
 #include <smop_s1p.h>
 #include <smop_mold.h>
 #include <smop_lowlevel.h>
-void init(SMOP__Object* interpreter,SMOP__Object* scope) {
+void init(SMOP__Object* interpreter,SMOP__Object* scope,SMOP__Object* continuation) {
     SMOP__Object* mold =
 BOILERPLATE_FRONT
     print {$c_fh} m0ld_to_c($m0ld);
     print {$c_fh} <<'BOILERPLATE_BACK';
 ;
   SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
-  mold_reg_set(interpreter,frame,0,scope);
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  mold_reg_set(interpreter,frame,1,scope);
+  mold_reg_set(interpreter,frame,2,continuation);
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__ID__goto,
                 frame);
 }
 BOILERPLATE_BACK
     close($c_fh);
-    system("gcc","-xc","-L../smop/build","-I../smop/include","-shared",$c_file,"-o",$output);
+    system("gcc","-g","-xc","-L../smop/build","-I../smop/include","-shared",$c_file,"-o",$output);
 }
 sub output {
     my ($what,$where) = @_;
@@ -126,13 +129,15 @@ if ($C eq 'desugar') {
     output(Dump($mold),$output);
     exit;
 } else {
-    my $scope;
+    my ($front,$back);
     if ($C eq 'so') {
-        $scope = "my \$scope;\n"
+        $front = "my \$interpreter;\nmy \$scope;\nmy \$back;\n";
+        $back = "my \$void = \$interpreter.\"goto\"(\$back);\n";
     } else {
-        $scope = "my \$scope = ?SMOP__S1P__LexicalPrelude;\n";
+        $front = "my \$scope = ?SMOP__S1P__LexicalPrelude;\n";
+        $back = '';
     }
-    $m0ld = $scope.<<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK';
+    $m0ld = $front.<<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK'.$back;
     my $void;
 BOILERPLATE_FRONT
     my $Code_scalar = $scope."lookup"("Code");
@@ -170,7 +175,11 @@ if ($B eq 'via-C') {
     local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
     my $tmp = tmpnam;
     compile_via_c($m0ld,$tmp);
-    exec($tmp);
+    if ($valgrind) {
+        exec('valgrind',$tmp);
+    } else {
+        exec($tmp);
+    }
 } elsif ($B) {
     die "unknown backend passed to -B: $C\n";
 }

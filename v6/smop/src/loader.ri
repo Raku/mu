@@ -3,7 +3,12 @@
 %prototype SMOP__MildewSOLoader
 
 %method load
-    
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                             SMOP__ID__continuation,
+                                             SMOP__NATIVE__capture_create(interpreter,
+                                                                          SMOP_REFERENCE(interpreter,interpreter),
+                                                                          NULL,NULL));
+
   SMOP__Object* filename_idconst = SMOP__NATIVE__capture_positional(interpreter,capture,0);
   SMOP__Object* scope = SMOP__NATIVE__capture_positional(interpreter,capture,1);
 
@@ -23,12 +28,13 @@
     printf("Loader.load: %s\n",dlerror());
     abort();
   }
-  void* (*init)(SMOP__Object*,SMOP__Object*) = dlsym(handle,"init");
+  void* (*init)(SMOP__Object*,SMOP__Object*,SMOP__Object*) = dlsym(handle,"init");
   if (!init) {
     printf("Loader.load: %s\n",dlerror());
     abort();
   }
-  init(interpreter,scope);
+  init(interpreter,scope,continuation);
+  /*SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,  continuation);*/
 
 %method new
   ret =  smop_lowlevel_alloc(sizeof(smop_loader_struct));
