@@ -117,8 +117,10 @@ sub XXX {
     my $where = '';
     my $m = peek_my(1)->{'$m'};
     if ($m && ref ${$m}) {
-        my $back = ${$m}->{POS} > 20 ? 20 : ${$m}->{POS};
-        $where = GREEN.substr($::ORIG,${$m}->{POS}-$back,$back).RED.substr($::ORIG,${$m}->{POS},20).RESET."\n\n";
+        my $back = ${$m}->{POS} > 200 ? 200 : ${$m}->{POS};
+        my ($before,) = substr($::ORIG,${$m}->{POS}-$back,$back) =~ /( (?:.*\n)? (?:.*\n)? .* \n? )$/x;
+        my ($after,) = substr($::ORIG,${$m}->{POS}) =~ /^(.* (?:\n.*)? (?:\n.*)? \n?)/x;
+        $where = GREEN.$before.RED.$after.RESET."\n\n";
         shift;
     }
     confess  "unimplemented: \n".$where.(join ' ',@_);
