@@ -15,7 +15,7 @@ makemaker_args( PMLIBDIRS => [ grep { -d } glob("[A-Z]*") ]);
 system "$^X Spec/update";
 
 # On Win32 using nmake-1.5 the Makefile produced will die.
-# This is a result of a hueristic in ExtUtils::MM_Any::split_command().
+# This is a result of a heuristic in ExtUtils::MM_Any::split_command().
 # There is a bug open on this
 #
 #   http://rt.cpan.org/Public/Bug/Display.html?id=20145
