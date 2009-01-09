@@ -4,6 +4,8 @@ our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall
                  routine code move_CONTROL XXX trailing_return varname EXPR);
 use Carp 'confess';
 use AST;
+use Term::ANSIColor qw(:constants);
+use PadWalker qw(peek_my);
 use strict;
 
 sub string($) {
@@ -112,7 +114,14 @@ sub move_CONTROL {
 }
 
 sub XXX {
-    confess join ' ', 'unimplemented: ', @_;
+    my $where = '';
+    my $m = peek_my(1)->{'$m'};
+    if ($m && ref ${$m}) {
+        my $back = ${$m}->{POS} > 20 ? 20 : ${$m}->{POS};
+        $where = GREEN.substr($::ORIG,${$m}->{POS}-$back,$back).RED.substr($::ORIG,${$m}->{POS},20).RESET."\n\n";
+        shift;
+    }
+    confess  "unimplemented: \n".$where.(join ' ',@_);
 }
 
 sub trailing_return {

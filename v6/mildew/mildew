@@ -4,6 +4,7 @@ use lib 'src';
 use STD;
 package Mildew;
 do 'viv';
+VIV::SET_OPT('pos'=>1);
 use AST;
 use AST::Helpers;
 use DumpMatch;
