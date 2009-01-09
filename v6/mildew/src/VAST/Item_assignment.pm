@@ -11,6 +11,11 @@ sub emit_m0ld {
             identifier=>string 'BIND',
             capture=>AST::Capture->new(invocant=>$m->{left}->emit_m0ld,positional=>[$m->{right}->emit_m0ld]),
         );
+    } elsif ($m->{infix}{TEXT} eq '=') {
+        AST::Call->new(
+            identifier=>string 'STORE',
+            capture=>AST::Capture->new(invocant=>$m->{left}->emit_m0ld,positional=>[FETCH($m->{right}->emit_m0ld)]),
+        );
     } else {
         XXX;
     }

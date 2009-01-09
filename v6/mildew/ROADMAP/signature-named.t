@@ -5,10 +5,10 @@ knowhow Foo {
     }
 }
 $OUT.print("1..4\n");
-Foo.bar(:named1<ok 1\n>, :named2<ok 2\n>);
+my $foo = "ok 1\n";
+Foo.bar(named1 => $foo, :named2<ok 2\n>);
 my $baz = sub (:$arg) {
     $OUT.print($arg.FETCH);
 };
 $baz.(:arg<ok 3\n>);
-my $foo = "ok 4\n";
 $baz.(:arg($foo));
