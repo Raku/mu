@@ -1,0 +1,40 @@
+%prefix smop_s1p_ccode
+%RI.id SMOP S1P CCode
+%attr  SMOP__Object* (*ccode) (SMOP__Object* interpreter, SMOP__Object* ccode, SMOP__Object* capture)
+
+%method postcircumfix:( )
+  smop_s1p_ccode_struct* c = (smop_s1p_ccode_struct*)invocant;
+
+  SMOP__Object* actualcap = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+
+  smop_lowlevel_rdlock(invocant);
+  SMOP__Object* (*func) (SMOP__Object* interpreter,
+                         SMOP__Object* ccode,
+                         SMOP__Object* capture) = c->ccode;
+  smop_lowlevel_unlock(invocant);
+
+  ret = func(interpreter,invocant,actualcap);
+    
+%method DESTROYALL
+
+%method FETCH
+  ___VALUE_FETCH___
+
+%method STORE
+  ___VALUE_STORE___
+
+%{
+SMOP__Object* SMOP__S1P__CCode_create(SMOP__Object* (*ccode) (SMOP__Object* interpreter,
+                                                            SMOP__Object* ccode,
+                                                            SMOP__Object* capture)) {
+
+  SMOP__Object* ret = smop_lowlevel_alloc(sizeof(smop_s1p_ccode_struct));
+  ret->RI = (SMOP__ResponderInterface*)RI;
+
+  smop_s1p_ccode_struct* m = (smop_s1p_ccode_struct*)ret;
+  m->ccode = ccode;
+
+  return ret;
+
+}
+%}

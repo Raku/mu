@@ -37,7 +37,7 @@ my $method;
 my %mold;
 my $mold;
 
-my %attrs;
+my @attrs;
 my @getters;
 
 my %raw;
@@ -78,8 +78,8 @@ while (my $line = <>) {
     } elsif ($line =~ /^%mold\s*(.*)$/) {
         $mold = $1;
         debug "mold start:$mold\n";
-    } elsif ($line =~ /^%attr\s*(.*?)\s*(\S+)$/) {
-        $attrs{$2} = $1;
+    } elsif ($line =~ /^%attr\s*(.*)\n$/) {
+        push(@attrs,$1);
     } elsif ($line =~ /^%getter\s*(\S+)$/) {
         push(@getters,$1);
     } elsif ($line =~ / ^\s*$ | ^\# | ^\/\/ /x) {
@@ -141,8 +141,8 @@ print qq[
 typedef struct $properties{prefix}_struct {
   SMOP__Object__BASE
 ];
-while (my ($name,$type) = each %attrs) {
-    print "  $type $name;\n";
+for my $attr (@attrs) {
+    print "$attr;\n";
 }
 print "} $properties{prefix}_struct;\n";
 
