@@ -8,7 +8,7 @@ sub emit_m0ld {
     my $m = shift;
     AST::Let->new(value => FETCH(lookup('$?CLASS')), block => sub {
         my $CLASS = shift;
-        call add_method => FETCH(call '^!how' => $CLASS),[$CLASS,string $m->{longname}{name}{identifier}{TEXT}, routine($m->{block},$m->{multisig}[0]{signature}[0])];
+        call add_method => FETCH(call '^!how' => $CLASS),[$CLASS,string $m->{longname}->canonical, routine($m->{block},$m->{multisig}[0]{signature}[0])];
     });
 }
 
