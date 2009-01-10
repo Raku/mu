@@ -112,10 +112,18 @@ sub m0ld {
 }
 sub pretty {
     my ($self) = @_;
-    my $code =
-      'if ' . $self->cond->pretty . " {\n"
-        . AST::indent($self->then->pretty) . "\n"
-        . "}\n";
+    my $code;
+    if ($self->then) {
+        my $code =
+            'if ' . $self->cond->pretty . " {\n"
+            . AST::indent($self->then->pretty) . "\n"
+            . "}\n";
+    } else {
+        my $code =
+            'unless ' . $self->cond->pretty . " {\n"
+            . AST::indent($self->else->pretty) . "\n"
+            . "}\n";
+    }
     if ($self->elsif) {
         foreach my $part (@{$self->elsif}) {
             $code .=

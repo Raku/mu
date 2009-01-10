@@ -1,4 +1,4 @@
-#$OUT.print("1..1\n");
+$OUT.print("1..2\n");
 my sub foo($a,$b) {
     $OUT.print($a.FETCH);
     $OUT.print($b.FETCH);
