@@ -25,7 +25,7 @@ knowhow Multi {
       }
       CONTROL {
 	if ($_.^does(ControlExceptionSignatureMatched)) {
-          $candidate.postcircumfix<( )>((|$capture), :cc($cc));
+          $candidate.postcircumfix:<( )>((|$capture), :cc($cc));
 	} else {
 	  $_.throw;
 	}
