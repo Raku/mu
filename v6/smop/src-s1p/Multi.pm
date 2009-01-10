@@ -4,7 +4,7 @@ knowhow Multi {
 
   method postcircumfix:<( )>(\$capture, :$cc) {
     unless $cc {
-        $cc = &?ROUTINE.caller();
+        $cc = &?ROUTINE.back();
     }
     my @all_variants;
     my sub traverse_scopes($scope) {
@@ -15,7 +15,7 @@ knowhow Multi {
 	traverse_scopes($scope.outer);
       }
     }
-    traverse_scopes(&?ROUTINE.lexical);
+    traverse_scopes(&?ROUTINE.back.lexical);
     my @candidates;
     my $iterator = @all_variants.Iterator();
     loop {
@@ -25,7 +25,7 @@ knowhow Multi {
       }
       CONTROL {
 	if ($_.^does(ControlExceptionSignatureMatched)) {
-	  $candidate.postcircumfix<( )>((|$capture), :cc($cc));
+          $candidate.postcircumfix<( )>((|$capture), :cc($cc));
 	} else {
 	  $_.throw;
 	}
@@ -33,11 +33,12 @@ knowhow Multi {
       CATCH {
 	if ($_.^does(OutOfItemsException)) {
 	  if @candidates {
-	    if @candidates.elems > 1 {
+            my $candidate = @candidates.shift;
+	    if @candidates {
 	      # this is where the disambiguator should be called!
 	      fail "Ambiguous dispatch!";
 	    } else {
-	      @candidates[0].postcircumfix:<( )>( (|$capture), :cc($cc));
+              @candidates[0].postcircumfix:<( )>((|$capture), :cc($cc));
 	    }
 	  } else {
 	    fail "No candidate matching capture.";
