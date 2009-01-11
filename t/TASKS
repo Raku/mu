@@ -32,13 +32,12 @@ S02
   more specs as well
 * some tests in S02 assume that a floating point literal like 1.2 is of typ
   Rat (rational), but it really is of type Num. Same for things like (1/2) (to
-  produce a Rat you need (1 div )). This needs cleanup. Just grep for Rat,
+  produce a Rat you need (1 div 2)). This needs cleanup. Just grep for Rat,
   review the tests and clean them up where appropriate
 
 S03
 * tests for cmp() and eqv() methods of objects
 * test that '@array, *' repeats the final element infinitely
-* tests for other range edgecases
 * tests for feeds using IO objects
 * Junction tests need fixing. See below.
 * more bitwise tests, for :signed and :unsigned, and uncomment the tests in
@@ -47,14 +46,14 @@ S03
   defining both reduction and infix operators. Needs tests.
 
 S04
-* test warnings
+* test warn()
 * more tests for excepts and CATCH blocks
 * tests for control exception handlers
 
 S05
 * mm//, ss/// variants
 * switch some "ok" tests to "is" tests to check the exact match
-* modifier tests. It's easy to if these are missing
+* modifier tests. It's easy to grep to see which are present
 * tests for the "special named assertions"
 * more of everything.
 
