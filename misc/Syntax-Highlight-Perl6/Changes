@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.031 2009.01.11
+    - Updated to latest STD.pm
+
 0.030 2009.01.08
     - Fixes hilitep6 binmode STDIN issue for utf8
     - Updated to latest STD.pm

@@ -9,6 +9,7 @@ our $ORIG;
 our $PARSER;
 our $PKG;
 our $PKGDECL;
+our $SIGIL;
 our $VOID;
 our $begin_compunit;
 our $endargs;
@@ -59,6 +60,7 @@ local $::GOAL =  "(eof)";
 local $::PARSER;
 local $::ACTIONS;
 local $::IN_DECL;
+local $::SIGIL;
 my %ROUTINES;
 local $::ORIG;
 local @::MEMOS;
@@ -365,6 +367,7 @@ our %terminator      = ('prec' => 'a=', 'assoc' => 'list');
 # "epsilon" tighter than terminator
 #constant $LOOSEST = %LOOSEST<prec>;
 my $LOOSEST = "a=!"; # XXX preceding line is busted
+my $item_assignment_prec = 'i=';
 
 
 { package STD::PrecOp;
@@ -9473,7 +9476,7 @@ else {
 ##      token noun {
 ##          [
 ##          | <fatarrow>
-##          | <variable> { $<SIGIL> = $<variable><sigil> }
+##          | <variable>
 ##          | <package_declarator>
 ##          | <scope_declarator>
 ##          | <?before 'multi'|'proto'|'only'> <multi_declarator>
@@ -9539,19 +9542,10 @@ $C->fatarrow
 })
 },
 sub { my $C=shift;
-do {
-if (my ($C) = ($C->_SUBSUMEr(['variable'], sub {
+$C->_SUBSUMEr(['variable'], sub {
 my $C = shift;
 $C->variable
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{variable}{sigil} ;
-}, $C);
-}
-else {
-();
-}
-}
+})
 },
 sub { my $C=shift;
 $C->_SUBSUMEr(['package_declarator'], sub {
@@ -10814,6 +10808,7 @@ else {
 ##          | <privop> { $<O> = $<privop><O> }
 ##          | <postop> { $<O> = $<postop><O> }
 ##          ]
+##          { $+SIGIL = '@' }
 ##      }
 
 sub POST__PEEK { $_[0]->_AUTOLEXpeek('POST',$retree) }
@@ -10943,7 +10938,8 @@ else {
 }
 })
 }))) {
-$C->_BRACKETr( sub { my $C=shift;
+do {
+if (my ($C) = ($C->_BRACKETr( sub { my $C=shift;
 do {
 my @result = eval {
 my $trystate;
@@ -11037,7 +11033,15 @@ else {
 }
 }
 
-});
+}))) {
+scalar(do {
+$::SIGIL = '@' 
+}, $C);
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -13384,7 +13388,7 @@ else {
 ## token variable_declarator
 ##      token variable_declarator {
 ##          :my $IN_DECL is context<rw> = 1;
-##          <variable> { $<SIGIL> = $<variable><sigil> }
+##          <variable>
 ##          { $IN_DECL = 0; }
 ##          [   # Is it a shaped array or hash declaration?
 ##            #  <?{ $<sigil> eq '@' | '%' }>
@@ -13420,7 +13424,6 @@ $C->{'postcircumfix'} = [];
 $C->{'semilist'} = [];
 
 $self->_MATCHIFY($S, "variable_declarator", 
-Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
@@ -13572,9 +13575,6 @@ $C->unsp
 }, scalar(do {
 $IN_DECL = 0; 
 }, $C))
-}, scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{variable}{sigil} ;
-}, $C))
 }, $C->_SUBSUMEr(['variable'], sub {
 my $C = shift;
 $C->variable
@@ -13586,11 +13586,11 @@ $C->variable
 ##      rule scoped {
 ##          :dba('scoped declarator')
 ##          [
-##          | <declarator> { $<SIGIL> = $<declarator><SIGIL> }
+##          | <declarator>
 ##          | <regex_declarator>
 ##          | <package_declarator>
 ##          | <fulltypename>+ <multi_declarator>
-##          | <multi_declarator> { $<SIGIL> = $<multi_declarator><SIGIL> }
+##          | <multi_declarator>
 ##      #    | <?before <[A..Z]> > <name> <.panic("Apparent type name " ~ $<name>.text ~ " is not declared yet")>
 ##          ]
 ##      }
@@ -13647,23 +13647,7 @@ if (my ($C) = ($C->_SUBSUMEr(['declarator'], sub {
 my $C = shift;
 $C->declarator
 }))) {
-do {
-if (my ($C) = ($C->ws)) {
-do {
-if (my ($C) = (scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{declarator}{SIGIL} ;
-}, $C))) {
 $C->ws;
-}
-else {
-();
-}
-};
-}
-else {
-();
-}
-};
 }
 else {
 ();
@@ -13734,23 +13718,7 @@ if (my ($C) = ($C->_SUBSUMEr(['multi_declarator'], sub {
 my $C = shift;
 $C->multi_declarator
 }))) {
-do {
-if (my ($C) = ($C->ws)) {
-do {
-if (my ($C) = (scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{multi_declarator}{SIGIL} ;
-}, $C))) {
 $C->ws;
-}
-else {
-();
-}
-};
-}
-else {
-();
-}
-};
 }
 else {
 ();
@@ -13798,7 +13766,7 @@ else {
 
 
 ## token scope_declarator__S_095my (:$endsym is context = 'nofun', :$sym is context<rw> = 'my')
-##      token scope_declarator:my       { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
+##      token scope_declarator:my       { <sym> <scoped> }
 
 sub scope_declarator__S_095my__PEEK { $_[0]->_AUTOLEXpeek('scope_declarator__S_095my',$retree) }
 sub scope_declarator__S_095my {
@@ -13818,19 +13786,10 @@ do {
 if (my ($C) = ($C->_PATTERN(qr/\Gmy/))) {
 do {
 if (my ($C) = ($C->nofun)) {
-do {
-if (my ($C) = ($C->_SUBSUMEr(['scoped'], sub {
+$C->_SUBSUMEr(['scoped'], sub {
 my $C = shift;
 $C->scoped
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{scoped}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-};
+});
 }
 else {
 ();
@@ -13844,7 +13803,7 @@ else {
 );
 }
 ## token scope_declarator__S_096our (:$endsym is context = 'nofun', :$sym is context<rw> = 'our')
-##      token scope_declarator:our      { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
+##      token scope_declarator:our      { <sym> <scoped> }
 
 sub scope_declarator__S_096our__PEEK { $_[0]->_AUTOLEXpeek('scope_declarator__S_096our',$retree) }
 sub scope_declarator__S_096our {
@@ -13864,19 +13823,10 @@ do {
 if (my ($C) = ($C->_PATTERN(qr/\Gour/))) {
 do {
 if (my ($C) = ($C->nofun)) {
-do {
-if (my ($C) = ($C->_SUBSUMEr(['scoped'], sub {
+$C->_SUBSUMEr(['scoped'], sub {
 my $C = shift;
 $C->scoped
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{scoped}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-};
+});
 }
 else {
 ();
@@ -13890,7 +13840,7 @@ else {
 );
 }
 ## token scope_declarator__S_097state (:$endsym is context = 'nofun', :$sym is context<rw> = 'state')
-##      token scope_declarator:state    { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
+##      token scope_declarator:state    { <sym> <scoped> }
 
 sub scope_declarator__S_097state__PEEK { $_[0]->_AUTOLEXpeek('scope_declarator__S_097state',$retree) }
 sub scope_declarator__S_097state {
@@ -13910,19 +13860,10 @@ do {
 if (my ($C) = ($C->_PATTERN(qr/\Gstate/))) {
 do {
 if (my ($C) = ($C->nofun)) {
-do {
-if (my ($C) = ($C->_SUBSUMEr(['scoped'], sub {
+$C->_SUBSUMEr(['scoped'], sub {
 my $C = shift;
 $C->scoped
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{scoped}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-};
+});
 }
 else {
 ();
@@ -13936,7 +13877,7 @@ else {
 );
 }
 ## token scope_declarator__S_098constant (:$endsym is context = 'nofun', :$sym is context<rw> = 'constant')
-##      token scope_declarator:constant { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
+##      token scope_declarator:constant { <sym> <scoped> }
 
 sub scope_declarator__S_098constant__PEEK { $_[0]->_AUTOLEXpeek('scope_declarator__S_098constant',$retree) }
 sub scope_declarator__S_098constant {
@@ -13956,19 +13897,10 @@ do {
 if (my ($C) = ($C->_PATTERN(qr/\Gconstant/))) {
 do {
 if (my ($C) = ($C->nofun)) {
-do {
-if (my ($C) = ($C->_SUBSUMEr(['scoped'], sub {
+$C->_SUBSUMEr(['scoped'], sub {
 my $C = shift;
 $C->scoped
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{scoped}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-};
+});
 }
 else {
 ();
@@ -13982,7 +13914,7 @@ else {
 );
 }
 ## token scope_declarator__S_099has (:$endsym is context = 'nofun', :$sym is context<rw> = 'has')
-##      token scope_declarator:has      { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
+##      token scope_declarator:has      { <sym> <scoped> }
 
 sub scope_declarator__S_099has__PEEK { $_[0]->_AUTOLEXpeek('scope_declarator__S_099has',$retree) }
 sub scope_declarator__S_099has {
@@ -14002,19 +13934,10 @@ do {
 if (my ($C) = ($C->_PATTERN(qr/\Ghas/))) {
 do {
 if (my ($C) = ($C->nofun)) {
-do {
-if (my ($C) = ($C->_SUBSUMEr(['scoped'], sub {
+$C->_SUBSUMEr(['scoped'], sub {
 my $C = shift;
 $C->scoped
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{scoped}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-};
+});
 }
 else {
 ();
@@ -14699,7 +14622,7 @@ else {
 ## token declarator
 ##      token declarator {
 ##          [
-##          | <variable_declarator> { $<SIGIL> = $<variable_declarator><SIGIL> }
+##          | <variable_declarator>
 ##          | '(' ~ ')' <signature> <trait>*
 ##          | <routine_declarator>
 ##          | <regex_declarator>
@@ -14749,19 +14672,10 @@ if (ref $try eq 'ARRAY') {
 $C->deb("declarator_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
-do {
-if (my ($C) = ($C->_SUBSUMEr(['variable_declarator'], sub {
+$C->_SUBSUMEr(['variable_declarator'], sub {
 my $C = shift;
 $C->variable_declarator
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{variable_declarator}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-}
+})
 },
 sub { my $C=shift;
 Cursor::lazymap(sub { my $C=$_[0];
@@ -14831,7 +14745,7 @@ else {
 }
 
 ## token multi_declarator__S_109multi (:$sym is context<rw> = 'multi')
-##      token multi_declarator:multi { <sym> <.ws> [ <declarator> { $<SIGIL> = $<declarator><SIGIL> } || <routine_def> ] }
+##      token multi_declarator:multi { <sym> <.ws> [ <declarator> || <routine_def> ] }
 
 sub multi_declarator__S_109multi__PEEK { $_[0]->_AUTOLEXpeek('multi_declarator__S_109multi',$retree) }
 sub multi_declarator__S_109multi {
@@ -14852,19 +14766,10 @@ do {
 if (my ($C) = ($C->ws)) {
 $C->_BRACKETr( sub { my $C=shift;
 do { my @gather;
-eval { push @gather, do {
-if (my ($C) = ($C->_SUBSUMEr(['declarator'], sub {
+eval { push @gather, $C->_SUBSUMEr(['declarator'], sub {
 my $C = shift;
 $C->declarator
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{declarator}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-}} 
+})} 
 or
 eval { push @gather, $C->_SUBSUMEr(['routine_def'], sub {
 my $C = shift;
@@ -14886,7 +14791,7 @@ else {
 );
 }
 ## token multi_declarator__S_110proto (:$sym is context<rw> = 'proto')
-##      token multi_declarator:proto { <sym> <.ws> [ <declarator> { $<SIGIL> = $<declarator><SIGIL> } || <routine_def> ] }
+##      token multi_declarator:proto { <sym> <.ws> [ <declarator> || <routine_def> ] }
 
 sub multi_declarator__S_110proto__PEEK { $_[0]->_AUTOLEXpeek('multi_declarator__S_110proto',$retree) }
 sub multi_declarator__S_110proto {
@@ -14907,19 +14812,10 @@ do {
 if (my ($C) = ($C->ws)) {
 $C->_BRACKETr( sub { my $C=shift;
 do { my @gather;
-eval { push @gather, do {
-if (my ($C) = ($C->_SUBSUMEr(['declarator'], sub {
+eval { push @gather, $C->_SUBSUMEr(['declarator'], sub {
 my $C = shift;
 $C->declarator
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{declarator}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-}} 
+})} 
 or
 eval { push @gather, $C->_SUBSUMEr(['routine_def'], sub {
 my $C = shift;
@@ -14941,7 +14837,7 @@ else {
 );
 }
 ## token multi_declarator__S_111only (:$sym is context<rw> = 'only')
-##      token multi_declarator:only  { <sym> <.ws> [ <declarator> { $<SIGIL> = $<declarator><SIGIL> } || <routine_def> ] }
+##      token multi_declarator:only  { <sym> <.ws> [ <declarator> || <routine_def> ] }
 
 sub multi_declarator__S_111only__PEEK { $_[0]->_AUTOLEXpeek('multi_declarator__S_111only',$retree) }
 sub multi_declarator__S_111only {
@@ -14962,19 +14858,10 @@ do {
 if (my ($C) = ($C->ws)) {
 $C->_BRACKETr( sub { my $C=shift;
 do { my @gather;
-eval { push @gather, do {
-if (my ($C) = ($C->_SUBSUMEr(['declarator'], sub {
+eval { push @gather, $C->_SUBSUMEr(['declarator'], sub {
 my $C = shift;
 $C->declarator
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{declarator}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-}} 
+})} 
 or
 eval { push @gather, $C->_SUBSUMEr(['routine_def'], sub {
 my $C = shift;
@@ -14996,7 +14883,7 @@ else {
 );
 }
 ## token multi_declarator__S_112null (:$sym is context<rw> = 'null')
-##      token multi_declarator:null  { <declarator> { $<SIGIL> = $<declarator><SIGIL> } }
+##      token multi_declarator:null  { <declarator> }
 
 sub multi_declarator__S_112null__PEEK { $_[0]->_AUTOLEXpeek('multi_declarator__S_112null',$retree) }
 sub multi_declarator__S_112null {
@@ -15011,19 +14898,10 @@ my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
 $self->_MATCHIFYr($S, "multi_declarator__S_112null", 
-do {
-if (my ($C) = ($C->_SUBSUMEr(['declarator'], sub {
+$C->_SUBSUMEr(['declarator'], sub {
 my $C = shift;
 $C->declarator
-}))) {
-scalar(do {
-my $M = $C;  $M->{SIGIL} = $M->{declarator}{SIGIL} ;
-}, $C);
-}
-else {
-();
-}
-}
+})
 );
 }
 
@@ -18491,7 +18369,7 @@ else {
 
 ## token variable
 ##      token variable {
-##          <?before <sigil> > {}
+##          <?before <sigil> { $+SIGIL ||= $<sigil>.text } > {}
 ##          [
 ##          || '&' <twigil>?  <sublongname> {*}                                   #= subnoun
 ##          || <?before '$::('> '$' <name>?
@@ -18526,10 +18404,19 @@ $C->{'postcircumfix'} = [];
 $self->_MATCHIFYr($S, "variable", 
 do {
 if (my ($C) = ($C->before(sub { my $C=shift;
-$C->_SUBSUMEr(['sigil'], sub {
+do {
+if (my ($C) = ($C->_SUBSUMEr(['sigil'], sub {
 my $C = shift;
 $C->sigil
-})
+}))) {
+scalar(do {
+my $M = $C;  $::SIGIL ||= $M->{sigil}->text ;
+}, $C);
+}
+else {
+();
+}
+}
 }))) {
 do {
 if (my ($C) = (scalar(do {
@@ -27430,7 +27317,7 @@ use Moose ':all' => { -prefix => "moose_" };
 my $retree;
 moose_extends(qw(STD));##     token term__S_238unquote (:$sym is context<rw> = 'unquote')
 ##          token term:unquote {
-##              <starter><starter><starter> <statementlist> <stopper><stopper><stopper>
+##              <starter><starter><starter> <EXPR> <stopper><stopper><stopper>
 ##          }
 
 sub term__S_238unquote__PEEK { $_[0]->_AUTOLEXpeek('term__S_238unquote',$retree) }
@@ -27464,9 +27351,9 @@ my $C = shift;
 $C->starter
 }))) {
 do {
-if (my ($C) = ($C->_SUBSUMEr(['statementlist'], sub {
+if (my ($C) = ($C->_SUBSUMEr(['EXPR'], sub {
 my $C = shift;
-$C->statementlist
+$C->EXPR
 }))) {
 do {
 if (my ($C) = ($C->_SUBSUMEr(['stopper'], sub {
@@ -27586,7 +27473,7 @@ term__S_238unquote: !!perl/hash:RE
         dba: term__S_238unquote
         i: 0
         min: 12345
-        name: statementlist
+        name: EXPR
         r: 1
         rest: ''
         s: 0
@@ -29796,7 +29683,7 @@ else {
 ##          ] ** <param_sep>
 ##          <.ws>
 ##          [ '-->' <.ws> <fulltypename> ]?
-##          { $IN_DECL = 0; }
+##          { $IN_DECL = 0; $+SIGIL = '@' }
 ##      }
 
 sub signature__PEEK { $_[0]->_AUTOLEXpeek('signature',$retree) }
@@ -29984,7 +29871,7 @@ else {
 })
 }))) {
 scalar(do {
-$IN_DECL = 0; 
+$IN_DECL = 0; $::SIGIL = '@' 
 }, $C);
 }
 else {
@@ -32627,7 +32514,7 @@ $C->_PATTERN(qr/\G\*\*/)
 
 ## token circumfix__S_273sigil (  :$sym is context<rw> = 'sigil' --> Term)
 ##      token circumfix:sigil ( --> Term)
-##          { :dba('contextualizer') <sigil> '(' ~ ')' <semilist> }
+##          { :dba('contextualizer') <sigil> '(' ~ ')' <semilist> { $+SIGIL ||= $<sigil>.text } }
 
 sub circumfix__S_273sigil__PEEK { $_[0]->_AUTOLEXpeek('circumfix__S_273sigil',$retree) }
 sub circumfix__S_273sigil {
@@ -32646,14 +32533,18 @@ Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
-$C->_BRACKET( sub { my $C=shift;
+Cursor::lazymap(sub { my $C=$_[0];
+scalar(do {
+my $M = $C;  $::SIGIL ||= $M->{sigil}->text ;
+}, $C)
+}, $C->_BRACKET( sub { my $C=shift;
 do { my @gather;
 eval { push @gather, $C->_EXACT(')')} 
 or
 eval { push @gather, $C->FAILGOAL(')' , 'contextualizer')} or do { die $@ if $@ };
 @gather;
 }
-})
+}))
 }, $C->_SUBSUME(['semilist'], sub {
 my $C = shift;
 $C->semilist
@@ -35029,7 +34920,7 @@ else {
 ##      token infix:sym<=> ()
 ##      {
 ##          <sym>
-##          { $¢ = (self.<SIGIL> // self.<sigil> // '') eq '$' 
+##          { $¢ = $+SIGIL eq '$' 
 ##              ?? STD::Item_assignment.coerce($¢)
 ##              !! STD::List_assignment.coerce($¢);
 ##          }
@@ -35051,7 +34942,7 @@ $self->_MATCHIFYr($S, "infix__S_371Equal",
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G\=/))) {
 scalar(do {
-$C = ($self->{'SIGIL'} // $self->{'sigil'} // '') eq '$' 
+$C = $::SIGIL eq '$' 
 ? STD::Item_assignment->coerce($C)
 : STD::List_assignment->coerce($C);
 
@@ -37138,6 +37029,7 @@ return $self->_AUTOLEXpeek('EXPR', $retree);
 }
 my $preclim = $preclvl ? $preclvl->{'prec'} // $LOOSEST : $LOOSEST;
 local $::inquote =  0;
+local $::SIGIL =  '';
 my @termstack;
 my @opstack;
 my $termish = 'termish';
@@ -37241,6 +37133,7 @@ for (;;) {
 $self->deb("In loop, at ", $here->{_pos}) if $::DEBUG & DEBUG::EXPR;
 my $oldpos = $here->{_pos};
 $here = $here->cursor_fresh();
+$SIGIL = $opstack[-1]{'O'}{'prec'} gt $item_assignment_prec ? '@' : '';
 my @t = $here->$termish;
 
 if (not @t or not $here = $t[0] or ($here->{_pos} == $oldpos and $termish eq 'termish')) {
@@ -55879,6 +55772,15 @@ POST: !!perl/hash:RE
                   r: 1
                   s: 0
                   text: " $<O> = $<postop><O> "
+      - !!perl/hash:RE_block 
+        a: 0
+        context: void
+        dba: postfix
+        i: 0
+        min: 0
+        r: 1
+        s: 0
+        text: " $+SIGIL = '@' "
 POST_01: *20
 POST_05: *21
 PRE: !!perl/hash:RE 
@@ -57832,6 +57734,15 @@ circumfix__S_273sigil: !!perl/hash:RE
               name: FAILGOAL
               nobind: 1
               rest: (')' , 'contextualizer')
+      - !!perl/hash:RE_block 
+        a: 0
+        context: void
+        dba: contextualizer
+        i: 0
+        min: 0
+        r: 1
+        s: 0
+        text: " $+SIGIL ||= $<sigil>.text "
 circumfix__S_274Paren_Thesis: !!perl/hash:RE 
   decl: []
 
@@ -59114,33 +59025,16 @@ declarator: !!perl/hash:RE
       r: 1
       s: 0
       zyg: 
-        - !!perl/hash:RE_sequence 
+        - !!perl/hash:RE_method 
           a: 0
           alt: declarator_01 0
           dba: declarator
           i: 0
           min: 12345
+          name: variable_declarator
           r: 1
+          rest: ''
           s: 0
-          zyg: 
-            - !!perl/hash:RE_method 
-              a: 0
-              dba: declarator
-              i: 0
-              min: 12345
-              name: variable_declarator
-              r: 1
-              rest: ''
-              s: 0
-            - !!perl/hash:RE_block 
-              a: 0
-              context: void
-              dba: declarator
-              i: 0
-              min: 0
-              r: 1
-              s: 0
-              text: " $<SIGIL> = $<variable_declarator><SIGIL> "
         - !!perl/hash:RE_sequence 
           a: 0
           alt: declarator_01 1
@@ -61834,7 +61728,7 @@ infix__S_371Equal: !!perl/hash:RE
         min: 0
         r: 1
         s: 0
-        text: " $¢ = (self.<SIGIL> // self.<sigil> // '') eq '$' \n        ?? STD::Item_assignment.coerce($¢)\n        !! STD::List_assignment.coerce($¢);\n    "
+        text: " $¢ = $+SIGIL eq '$' \n        ?? STD::Item_assignment.coerce($¢)\n        !! STD::List_assignment.coerce($¢);\n    "
 infix__S_372ColonEqual: !!perl/hash:RE 
   decl: []
 
@@ -65772,32 +65666,15 @@ multi_declarator__S_109multi: !!perl/hash:RE
           r: 1
           s: 0
           zyg: 
-            - !!perl/hash:RE_sequence 
+            - !!perl/hash:RE_method 
               a: 0
               dba: multi_declarator__S_109multi
               i: 0
               min: 12345
+              name: declarator
               r: 1
+              rest: ''
               s: 0
-              zyg: 
-                - !!perl/hash:RE_method 
-                  a: 0
-                  dba: multi_declarator__S_109multi
-                  i: 0
-                  min: 12345
-                  name: declarator
-                  r: 1
-                  rest: ''
-                  s: 0
-                - !!perl/hash:RE_block 
-                  a: 0
-                  context: void
-                  dba: multi_declarator__S_109multi
-                  i: 0
-                  min: 0
-                  r: 1
-                  s: 0
-                  text: " $<SIGIL> = $<declarator><SIGIL> "
             - !!perl/hash:RE_method 
               a: 0
               dba: multi_declarator__S_109multi
@@ -65853,32 +65730,15 @@ multi_declarator__S_110proto: !!perl/hash:RE
           r: 1
           s: 0
           zyg: 
-            - !!perl/hash:RE_sequence 
+            - !!perl/hash:RE_method 
               a: 0
               dba: multi_declarator__S_110proto
               i: 0
               min: 12345
+              name: declarator
               r: 1
+              rest: ''
               s: 0
-              zyg: 
-                - !!perl/hash:RE_method 
-                  a: 0
-                  dba: multi_declarator__S_110proto
-                  i: 0
-                  min: 12345
-                  name: declarator
-                  r: 1
-                  rest: ''
-                  s: 0
-                - !!perl/hash:RE_block 
-                  a: 0
-                  context: void
-                  dba: multi_declarator__S_110proto
-                  i: 0
-                  min: 0
-                  r: 1
-                  s: 0
-                  text: " $<SIGIL> = $<declarator><SIGIL> "
             - !!perl/hash:RE_method 
               a: 0
               dba: multi_declarator__S_110proto
@@ -65934,32 +65794,15 @@ multi_declarator__S_111only: !!perl/hash:RE
           r: 1
           s: 0
           zyg: 
-            - !!perl/hash:RE_sequence 
+            - !!perl/hash:RE_method 
               a: 0
               dba: multi_declarator__S_111only
               i: 0
               min: 12345
+              name: declarator
               r: 1
+              rest: ''
               s: 0
-              zyg: 
-                - !!perl/hash:RE_method 
-                  a: 0
-                  dba: multi_declarator__S_111only
-                  i: 0
-                  min: 12345
-                  name: declarator
-                  r: 1
-                  rest: ''
-                  s: 0
-                - !!perl/hash:RE_block 
-                  a: 0
-                  context: void
-                  dba: multi_declarator__S_111only
-                  i: 0
-                  min: 0
-                  r: 1
-                  s: 0
-                  text: " $<SIGIL> = $<declarator><SIGIL> "
             - !!perl/hash:RE_method 
               a: 0
               dba: multi_declarator__S_111only
@@ -65975,32 +65818,15 @@ multi_declarator__S_112null: !!perl/hash:RE
   kind: token
   min: 12345
   pkg: ~
-  re: !!perl/hash:RE_sequence 
+  re: !!perl/hash:RE_method 
     a: 0
     dba: multi_declarator__S_112null
     i: 0
     min: 12345
+    name: declarator
     r: 1
+    rest: ''
     s: 0
-    zyg: 
-      - !!perl/hash:RE_method 
-        a: 0
-        dba: multi_declarator__S_112null
-        i: 0
-        min: 12345
-        name: declarator
-        r: 1
-        rest: ''
-        s: 0
-      - !!perl/hash:RE_block 
-        a: 0
-        context: void
-        dba: multi_declarator__S_112null
-        i: 0
-        min: 0
-        r: 1
-        s: 0
-        text: " $<SIGIL> = $<declarator><SIGIL> "
 multisig: !!perl/hash:RE 
   decl: []
 
@@ -66695,33 +66521,16 @@ noun: !!perl/hash:RE
           r: 1
           rest: ''
           s: 0
-        - !!perl/hash:RE_sequence 
+        - !!perl/hash:RE_method 
           a: 0
           alt: noun_01 1
           dba: noun
           i: 0
           min: 12345
+          name: variable
           r: 1
+          rest: ''
           s: 0
-          zyg: 
-            - !!perl/hash:RE_method 
-              a: 0
-              dba: noun
-              i: 0
-              min: 12345
-              name: variable
-              r: 1
-              rest: ''
-              s: 0
-            - !!perl/hash:RE_block 
-              a: 0
-              context: void
-              dba: noun
-              i: 0
-              min: 0
-              r: 1
-              s: 0
-              text: " $<SIGIL> = $<variable><sigil> "
         - !!perl/hash:RE_method 
           a: 0
           alt: noun_01 2
@@ -75311,15 +75120,6 @@ scope_declarator__S_095my: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-      - !!perl/hash:RE_block 
-        a: 0
-        context: void
-        dba: scope_declarator__S_095my
-        i: 0
-        min: 0
-        r: 1
-        s: 0
-        text: " $<SIGIL> = $<scoped><SIGIL> "
 scope_declarator__S_096our: !!perl/hash:RE 
   decl: []
 
@@ -75364,15 +75164,6 @@ scope_declarator__S_096our: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-      - !!perl/hash:RE_block 
-        a: 0
-        context: void
-        dba: scope_declarator__S_096our
-        i: 0
-        min: 0
-        r: 1
-        s: 0
-        text: " $<SIGIL> = $<scoped><SIGIL> "
 scope_declarator__S_097state: !!perl/hash:RE 
   decl: []
 
@@ -75417,15 +75208,6 @@ scope_declarator__S_097state: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-      - !!perl/hash:RE_block 
-        a: 0
-        context: void
-        dba: scope_declarator__S_097state
-        i: 0
-        min: 0
-        r: 1
-        s: 0
-        text: " $<SIGIL> = $<scoped><SIGIL> "
 scope_declarator__S_098constant: !!perl/hash:RE 
   decl: []
 
@@ -75470,15 +75252,6 @@ scope_declarator__S_098constant: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-      - !!perl/hash:RE_block 
-        a: 0
-        context: void
-        dba: scope_declarator__S_098constant
-        i: 0
-        min: 0
-        r: 1
-        s: 0
-        text: " $<SIGIL> = $<scoped><SIGIL> "
 scope_declarator__S_099has: !!perl/hash:RE 
   decl: []
 
@@ -75523,15 +75296,6 @@ scope_declarator__S_099has: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-      - !!perl/hash:RE_block 
-        a: 0
-        context: void
-        dba: scope_declarator__S_099has
-        i: 0
-        min: 0
-        r: 1
-        s: 0
-        text: " $<SIGIL> = $<scoped><SIGIL> "
 scoped: !!perl/hash:RE 
   decl: []
 
@@ -75590,21 +75354,6 @@ scoped: !!perl/hash:RE
                   r: 1
                   rest: ''
                   s: 1
-                - !!perl/hash:RE_method 
-                  min: 0
-                  name: ws
-                  nobind: 1
-                  noquant: 1
-                  rest: ''
-                - !!perl/hash:RE_block 
-                  a: 0
-                  context: void
-                  dba: scoped declarator
-                  i: 0
-                  min: 0
-                  r: 1
-                  s: 1
-                  text: " $<SIGIL> = $<declarator><SIGIL> "
                 - !!perl/hash:RE_method 
                   min: 0
                   name: ws
@@ -75723,21 +75472,6 @@ scoped: !!perl/hash:RE
                   r: 1
                   rest: ''
                   s: 1
-                - !!perl/hash:RE_method 
-                  min: 0
-                  name: ws
-                  nobind: 1
-                  noquant: 1
-                  rest: ''
-                - !!perl/hash:RE_block 
-                  a: 0
-                  context: void
-                  dba: scoped declarator
-                  i: 0
-                  min: 0
-                  r: 1
-                  s: 1
-                  text: " $<SIGIL> = $<multi_declarator><SIGIL> "
                 - !!perl/hash:RE_method 
                   min: 0
                   name: ws
@@ -76430,7 +76164,7 @@ signature: !!perl/hash:RE
         min: 0
         r: 1
         s: 0
-        text: " $IN_DECL = 0; "
+        text: " $IN_DECL = 0; $+SIGIL = '@' "
 signature_01: *67
 signature_02: *9
 sigterm: !!perl/hash:RE 
@@ -88795,15 +88529,32 @@ variable: !!perl/hash:RE
             decl: []
 
             min: 12345
-            re: !!perl/hash:RE_method 
+            re: !!perl/hash:RE_sequence 
               a: 0
               dba: variable
               i: 0
               min: 12345
-              name: sigil
               r: 1
-              rest: ''
               s: 0
+              zyg: 
+                - !!perl/hash:RE_method 
+                  a: 0
+                  dba: variable
+                  i: 0
+                  min: 12345
+                  name: sigil
+                  r: 1
+                  rest: ''
+                  s: 0
+                - !!perl/hash:RE_block 
+                  a: 0
+                  context: void
+                  dba: variable
+                  i: 0
+                  min: 0
+                  r: 1
+                  s: 0
+                  text: " $+SIGIL ||= $<sigil>.text "
           s: 0
       - !!perl/hash:RE_block 
         a: 0
@@ -89347,15 +89098,6 @@ variable_declarator: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-      - !!perl/hash:RE_block 
-        a: 0
-        context: void
-        dba: variable_declarator
-        i: 0
-        min: 0
-        r: 1
-        s: 0
-        text: " $<SIGIL> = $<variable><sigil> "
       - !!perl/hash:RE_block 
         a: 0
         context: void
