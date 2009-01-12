@@ -8,14 +8,11 @@
     coroutine_t c = ((smop_pcl_coro_struct*)invocant)->coro;
     co_call(c);
 
-%method has_next
     if (((smop_pcl_coro_struct*)invocant)->has_next) {
         ret = SMOP__NATIVE__bool_true;
     } else {
         ret = SMOP__NATIVE__bool_false;
     }
-
-%method next
 
 %method finished
     ((smop_pcl_coro_struct*)invocant)->has_next = 0;

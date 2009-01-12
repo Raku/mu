@@ -82,15 +82,6 @@ integrating to perl5.
 
 =over
 
-=item has_next
-
-This method returns false if there's nothing else to execute in this
-continuation.
-
-=item next
-
-This method advances one step to be executed, but doesn't yet execute
-it.
 
 =item eval
 
@@ -98,6 +89,8 @@ This method executes one step of the execution. While some
 interpreters may decide to do more than one step at a time in the eval
 call, it's important to understand that this is how a "green threads"
 implementation would be preemptive.
+This method returns false if there's nothing else to execute in this
+continuation.
 
 =item back
 

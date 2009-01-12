@@ -1,21 +1,18 @@
 %include <smop_p5.h>
 %prefix smop_p5_coro
 %attr SV* coro
-%attr int has_next
 %attr SMOP__Object* p5interpreter
 %attr SMOP__Object* back;
 %RI.id p5 coro
 
 %{
 SV* SMOP__P5__current_coro_state;
-int* SMOP__P5__current_coro_has_next;
 SMOP__Object* SMOP__P5__current_back;
 SV* SMOP__P5__result_sv;
 
 SMOP__Object* SMOP__P5__Coro_create(SMOP__Object* interpreter,SMOP__Object* p5interpreter,SV* coro) {
     smop_p5_coro_struct* ret = (smop_p5_coro_struct*) smop_lowlevel_alloc(sizeof(smop_p5_coro_struct));
     ret->coro = coro;
-    ret->has_next = 1;
     ret->p5interpreter = p5interpreter;
     assert(RI);
     ret->RI = (SMOP__ResponderInterface*) RI;
@@ -55,7 +52,6 @@ void SMOP__P5__transfer_to_main_coro(SMOP__Object* interpreter,PerlInterpreter* 
   PerlInterpreter* my_perl = SMOP__P5__p5interpreter_unbox(interpreter,p5interpreter);
 
   SMOP__P5__current_coro_state = coro;
-  SMOP__P5__current_coro_has_next = &(((smop_p5_coro_struct*)invocant)->has_next);
   SMOP__P5__current_back = back;
 
 
@@ -75,17 +71,7 @@ void SMOP__P5__transfer_to_main_coro(SMOP__Object* interpreter,PerlInterpreter* 
   FREETMPS;
   LEAVE;
 
-
-%method has_next
-  /* FIXME */
-
-  if (((smop_p5_coro_struct*)invocant)->has_next) {
-      ret = SMOP__NATIVE__bool_true;
-  } else {
-      ret = SMOP__NATIVE__bool_false;
-  }
-
-%method next
+  ret = SMOP__NATIVE__bool_true;
 
 %method finished
 

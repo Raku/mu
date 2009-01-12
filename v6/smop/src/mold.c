@@ -250,13 +250,6 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       abort();
     }
 
-  } else if (SMOP__ID__has_next == identifier) {
-    if (mold->opcodes[frame->position]) {
-      ret = SMOP__NATIVE__bool_true;
-    }
-
-  } else if (SMOP__ID__next == identifier) {
-
   } else if (SMOP__ID__setr == identifier) {
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     if (!value) {
@@ -398,6 +391,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       }
       default: fprintf(stderr,"unknown op %d\n",op);
       }
+      ret = SMOP__NATIVE__bool_true;
     } else {
       ret = SMOP__NATIVE__bool_false;
     }

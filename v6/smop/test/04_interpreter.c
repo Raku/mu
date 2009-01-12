@@ -7,14 +7,10 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
                                     SMOP__ResponderInterface* self,
                                     SMOP__Object* identifier,
                                     SMOP__Object* capture) {
-  if (identifier == SMOP__ID__has_next) {
-    printf("ok 4 - has_next called.\n");
-  } else if (identifier == SMOP__ID__next) {
-    printf("ok 5 - next called.\n");
-  } else if (identifier == SMOP__ID__eval) {
-    printf("ok 6 - eval called.\n");
+  if (identifier == SMOP__ID__eval) {
+    printf("ok 4 - eval called.\n");
   } else if (identifier == SMOP__ID__DESTROYALL) {
-    printf("ok 8 - DESTROYALL called.\n");
+    printf("ok 6 - DESTROYALL called.\n");
   } else {
     printf("not ok - unknown method called %p.\n",identifier);
   }
@@ -24,7 +20,7 @@ static SMOP__Object* custom_MESSAGE(SMOP__Object* stack,
 
 
 int main() {
-  printf("1..9\n");
+  printf("1..7\n");
 
   smop_init();
 
@@ -49,20 +45,12 @@ int main() {
   printf("ok 3 - goto.\n");
 
   SMOP_DISPATCH(intrp, ri,
-                SMOP__ID__has_next,
-                SMOP__NATIVE__capture_create(intrp,SMOP_REFERENCE(intrp,obj),NULL,NULL));
-
-  SMOP_DISPATCH(intrp, ri,
-                SMOP__ID__next,
-                SMOP__NATIVE__capture_create(intrp,SMOP_REFERENCE(intrp,obj),NULL,NULL));
-  
-  SMOP_DISPATCH(intrp, ri,
                 SMOP__ID__eval,
                 SMOP__NATIVE__capture_create(intrp,SMOP_REFERENCE(intrp,obj),NULL,NULL));
 
   SMOP_RELEASE(intrp,obj);
 
-  printf("ok 7 - delegated.\n");
+  printf("ok 5 - delegated.\n");
 
   SMOP_DISPATCH(intrp, SMOP_RI(intrp),
                 SMOP__ID__loop, SMOP__NATIVE__capture_create(intrp,
@@ -73,7 +61,7 @@ int main() {
 
   SMOP_RELEASE(SMOP__INTPTR__InterpreterInstance,intrp);
 
-  printf("ok 9 - should be destroyed.\n");
+  printf("ok 7 - should be destroyed.\n");
 
   smop_destr();
   return 0;
