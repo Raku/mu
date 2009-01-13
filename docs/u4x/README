@@ -1,0 +1,12 @@
+From a blog post:
+
+The official goal of the Userdocs For Christmas project (U4X) shall be to
+provide easy-to-access comprehensive user documentation, through a ridiculously
+easy-to-access command line tool, providing snippets of Perl 6 clarification so
+perfectly worded and so brilliantly illustrative that the unsuspecting reader
+will be brought close to tears.
+
+The documentation writing itself will be done in a controlled manner, where
+"con trolled" means that people with tuits get to make sure that things are
+consisten t. All the documentation will be written in Pod, the Perl 6 version
+of POD.
