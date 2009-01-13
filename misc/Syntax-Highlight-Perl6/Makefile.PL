@@ -9,8 +9,8 @@ requires  'Moose'               => '0.64';
 requires  'Readonly'            => '1.03';
 requires  'Term::ANSIColor'     => '1.12';
 requires  'YAML::Syck'          => '1.05';
-
-test_requires  'Test::More'  => '0.42';
+test_requires  'Test::Exception'     => '0.27';
+test_requires  'Test::More'          => '0.42';
 
 install_script 'script/hilitep6';
 
