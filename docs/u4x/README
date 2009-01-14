@@ -9,7 +9,7 @@ implementations that they will want to ship with the documentation, and to be
 so useful for the Perl 6 community that these docs will be considered the
 'official' Perl 6 documentation, something like the new perldoc.
 
-The documentation writing itself will be done in a controlled manner, where
+The documentation writing will be done in a controlled manner, where
 "controlled" means that people with tuits get to make sure that things are
 consisten t. All the documentation will be written in Pod, the Perl 6 version
 of POD.
@@ -27,6 +27,8 @@ Here are the things that should give appropriate responses by psi:
 * macros, like .WHAT and .HOW
 * special forms, like 'will', which kinda look like operators
 * keywords in general, everything from 'given' to 'enum'
+* special variables (like $*IN and $?ROUTINE)
+* pseudo-package names (MY, GLOBAL etc)
 
 psi will be accomodating and understand the basics of Perl 6 syntax. When the
 following things are requested
