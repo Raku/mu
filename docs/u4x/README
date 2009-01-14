@@ -11,11 +11,10 @@ The documentation writing itself will be done in a controlled manner, where
 consisten t. All the documentation will be written in Pod, the Perl 6 version
 of POD.
 
-The command line tool should be written in Perl 6, because there's no reason
-not to.
+The command line tool (named 'psi') should be written in Perl 6, because
+there's no reason not to.
 
-Here are the things that should give appropriate responses by the command line
-tool:
+Here are the things that should give appropriate responses by psi:
 
 * all core Perl 6 classes
 * all of their methods (with or without a class prefix)
@@ -25,15 +24,15 @@ tool:
 * macros, like .WHAT and .HOW
 * special forms, like 'will', which kinda look like operators
 
-The tool will be accomodating and understand the basics of Perl 6 syntax. When
-the following things are requested
+psi will be accomodating and understand the basics of Perl 6 syntax. When the
+following things are requested
 
   @array>>.trim
   .=abs
   [+]
 
-the tool will understand that the user is actually asking two separate
-questions in each case, and well answer both:
+psi will understand that the user is actually asking two separate questions in
+each case, and will answer both:
 
   the '>>' operator (as applied to method calls), trim
   the '.=' metaoperator, abs
