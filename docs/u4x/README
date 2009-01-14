@@ -4,7 +4,10 @@ The official goal of the Userdocs For Christmas project (U4X) shall be to
 provide easy-to-access comprehensive user documentation, through a ridiculously
 easy-to-access command line tool, providing snippets of Perl 6 clarification so
 perfectly worded and so brilliantly illustrative that the unsuspecting reader
-will be brought close to tears.
+will be brought close to tears. The inofficial goals are to be so desirable for
+implementations that they will want to ship with the documentation, and to be
+so useful for the Perl 6 community that these docs will be considered the
+'official' Perl 6 documentation, something like the new perldoc.
 
 The documentation writing itself will be done in a controlled manner, where
 "controlled" means that people with tuits get to make sure that things are
