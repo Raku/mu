@@ -26,6 +26,7 @@ Here are the things that should give appropriate responses by psi:
 * metaoperators (see below)
 * macros, like .WHAT and .HOW
 * special forms, like 'will', which kinda look like operators
+* keywords in general, everything from 'given' to 'enum'
 
 psi will be accomodating and understand the basics of Perl 6 syntax. When the
 following things are requested
