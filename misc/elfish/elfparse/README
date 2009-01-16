@@ -5,16 +5,25 @@ QUICKSTART
 $ make all
 $ make check
 $ ./elfblue -v -s -e 'say 3'
+$ ./elfgreenstd -v -e 'say /<STD::number>/.match("23").match_describe'
 $ make does_gimme5_memory_problem_still_exist
 
 INTRODUCTION
 
 STD_blue is a parser for elf, which uses the p5 src/perl6/gimme5.
-STD_green is a parser for elf, which runs STD.pm on elfgreen.
+STD_green is a parser for elf, which runs std.pm on elfgreen.
+
+
+elf_h is the foundational elf.  It uses STD_red.
 
 elfblue is a (tweaked) elf which uses STD_blue instead of STD_red.
-elfgreen is a (tweaked) elf which uses STD_blue instead of STD_red,
-and has regex support.
+Purpose: keep STD_blue support working.
+
+elfgreen is like elfblue, and has regex support.
+Purpose: regex development.
+
+elfgreenstd is like elfgreen, and includes std.pm.
+Purpose: std.pm debugging.
 
 VISION
 
@@ -22,6 +31,11 @@ Combine elfblue, elf_h, and rx_on_re, and teach them to compile and
 run STD.pm.  Thus permitting the front-end to be bootstrapped.
 
 NOTES
+
+Dependencies:
+autobox Class::Multimethods Sub::Name #elf
+Regexp::Common #rx_on_re
+Moose #gimme5
 
 gimme5, and thus STD_blue, is not quite ready to replace STD_red as
 the primary elf parser.
@@ -51,3 +65,4 @@ Success looks like:
 - rx_on_re is integrated into an elf.
 - an elf can run STD.pm
 - an elf can self-compile using STD.pm.
+

@@ -3805,9 +3805,9 @@ if((($method eq "postcircumfix\:\<\ \>"))) {
 (do{((((($self->e($n->invocant()) . "\-\>") . $meth) . "\(") . $self->e($n->capture())) . "\)")})
 }})};
 sub mangle_function_name{my $self=CORE::shift;my($name)=@_;
-(do{($name = $name->re_gsub_pat("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_"));
-($name = GLOBAL::mangle_name($name));
-$name})};
+(do{$name->split("\(\?\<\!fix\)\:\:")->map(sub {my($s)=@_;
+(do{my $s1 = $s->re_gsub_pat("\^\(\\w\+\)\:\(\?\!\:\)", "\$\{1\}_");
+GLOBAL::mangle_name($s1)})})->join("\:\:")})};
 sub cb__Apply{my $self=CORE::shift;my($n)=@_;
 (do{my $g;
 my $fun = $self->e($n->function());

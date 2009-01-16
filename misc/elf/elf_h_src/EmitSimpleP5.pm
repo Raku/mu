@@ -788,9 +788,12 @@ package Main;
     }
   };
   method mangle_function_name($name) {
-     $name = $name.re_gsub_pat('^(\w+):(?!:)','${1}_');
-     $name = mangle_name($name);
-     $name;
+     $name.split('(?<!fix)::').map(sub ($s){ #XX infix:<:=> sigh.
+       my $s1 = $s.re_gsub_pat('^(\w+):(?!:)','${1}_'); #XX back compat
+       mangle_name($s1)}).join('::')
+     #$name = $name.re_gsub_pat('^(\w+):(?!:)','${1}_');
+     #$name = mangle_name($name);
+     #$name;
   }
   method cb__Apply ($n) {
     my $g;

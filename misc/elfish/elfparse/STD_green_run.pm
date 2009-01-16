@@ -1,16 +1,4 @@
 #!/usr/bin/env elfblue
-class STD {
-  regex unimplemented_rule { <fail> }
-  _inline_p5('
-  my %unimp_rules_seen;
-  sub AUTOLOAD {
-    my $r = $AUTOLOAD;
-    print STDERR "FAKING unimplemented rule: $r\n"
-      if !$unimp_rules_seen{$r}++;
-    return __PACKAGE__->unimplemented_rule("");
-  }
-');
-}
 
 class STDGreenRun {
   method print_usage_and_exit () {

@@ -18,12 +18,16 @@ ELFGREENDEV_DEPS=${ELF} IRx1_FromAST2.pm Parser2.pm nodes.pm analysis.pm emit5.p
 TMP=deleteme
 
 default:
-	#???
+	perl -ne '/^(\w+):/ && print "make $$1\n"' < Makefile
 
-all: elfblue elfgreen STD_green_run
+
+perl_is_recent_enough: STD_green_run
+	./STD_green_run --start=number -e 3
+
+all: elfblue elfgreen STD_green_run elfgreenstd
 
 clean:
-	rm -rf lex lex.is_current ${TMP} elfblue elfgreen STD_green_run IRx1_FromAST2.pm nodes.pm rx_prelude.pm rx_prelude_p5.pm std.pm.p5 STD_green_run.pm.p5 ${STD_RED_CACHEDIR} ${STD_RED_CACHEDIR}.is_current ${STD_BLUE_CACHEDIR} ${STD_BLUE_CACHEDIR}.is_current
+	rm -rf lex lex.is_current ${TMP} elfblue elfgreen elfgreenstd STD_green_run IRx1_FromAST2.pm nodes.pm rx_prelude.pm rx_prelude_p5.pm std.pm.p5 STD_green_run.pm.p5 ${STD_RED_CACHEDIR} ${STD_RED_CACHEDIR}.is_current ${STD_BLUE_CACHEDIR} ${STD_BLUE_CACHEDIR}.is_current
 
 
 # STD_blue
@@ -91,6 +95,8 @@ STD_green_run.pm.p5: elfgreen STD_green_run.pm
 STD_green_run: elfgreen std.pm STD_green_run.pm std.pm.p5 STD_green_run.pm.p5
 	${ELF} -x -o STD_green_run ${ELFGREENDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e '_inline_p5("require \"./STD_green_run.pm.p5\";")'
 
+elfgreenstd: STD_green_run
+	${ELF} -x -o ./elfgreenstd ${ELFGREENDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e elf_main
 
 # Test
 

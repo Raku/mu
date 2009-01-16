@@ -4744,4 +4744,18 @@ method worryobs (Str $old, Str $new, Str $when = ' in Perl 6') {
 }
 #S#  
 #S#  ## vim: expandtab sw=4 ft=perl6
+
+#X Used for development.
+#class STD {
+  regex unimplemented_rule { <fail> }
+  _inline_p5('
+  my %unimp_rules_seen;
+  sub AUTOLOAD {
+    my $r = $AUTOLOAD;
+    print STDERR "FAKING unimplemented rule: $r\n"
+      if !$unimp_rules_seen{$r}++;
+    return __PACKAGE__->unimplemented_rule("");
+  }
+');
+#}
 1; #XXX needed for independent compilation

@@ -873,6 +873,45 @@ sub{my $__c__ = $_[0];
     undef;
   }
 
+  sub RMARE_category {
+    my($o,$pkg,$info)=@_;
+    subname "<category ".($sub_id++).">" => sub {
+      my $info = $pkg->$info;
+      FAIL();
+    };
+  }
+}
+
+{ package CategoryInfo;
+  use Class::Inspector;
+  sub newp {
+    my($cls,$pkg,$filter)=@_;
+    bless {
+      pkg => $pkg,
+      filter => $filter
+    }, $cls;
+  }
+  sub info {
+    my($o)=@_;
+    $o->{info} ||= $o->_gather_info($o->{pkg},$o->{filter});
+  }
+  sub cache_invalidate {
+    my($o)=@_;
+    $o->{info} = undef;
+  }
+  sub _gather_info {
+    my($o,$pkg,$filter)=@_;
+    my @names = grep{$_ =~ $filter} @{Class::Inspector->methods($pkg)};
+    print Data::Dumper::Dumper(\@names);
+    my @data = map {
+      my $name = $_;
+      my $meth = $pkg->can($name);
+      my $re = $meth->($pkg,\' prefix\');
+      [$re,$name,$meth]
+    } @names;
+    @data = sort { length($a->[0]) <=> length($b->[0]) } @data;
+    [ map {$_} @data];  
+  }
 }
 ');
    my $rx = '
@@ -1203,7 +1242,13 @@ package IRx1 {
     method emit_RMARE {
       my $exprs = self.<exprs>.map(sub ($o){$o.emit_RMARE}).join(',');
       my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'__PACKAGE__'}};
-      my $name = {if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'}};
+      my $name = {if self.<name> {
+          if $whiteboard::current_emitter {
+            '"'~quotemeta($whiteboard::current_emitter.mangle_function_name(self.<name>))~'"'
+          } else { # for testing
+            '"'~quotemeta(self.<name>)~'"'
+          }
+        } else {'undef'}};
       my $neg = self.<neg> ||'undef';
       my $nocap = self.<nocap> ||'undef';
       my $in_quant = {if self.<in_quant> { 1 } else { 0 }};
@@ -1335,7 +1380,7 @@ package IRx1 {
     }
     method emit_RMARE {
       my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'__PACKAGE__'}};
-      my $name = {if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'}};
+      my $name = {if self.<name> {'"'~quotemeta(mangle_name(self.<name>))~'"'} else {'undef'}};
       my $fr = self.<expr>.emit_RMARE;
       'IRx1::RxBaseClass->RMARE_biind('~$pkg~','~$name~','~$fr~')';
     }
@@ -1354,6 +1399,17 @@ package IRx1 {
     }
   }
 
+  # proto token infix { <...> }
+  # NOT TESTED by rx_on_re test suite.
+  class RxCategory {
+    method emit_RMARE {
+      my $name = self.<name>;
+      my $infosub = '__rxcategory_'~$name;
+      my $decl = 'sub '~$infosub~' { $::{\''~$name~'\'} ||=  CategoryInfo->newp(__PACKAGE__,/\A'~quotemeta($name)~'_58/) };'; #XX
+      $whiteboard::regex_category_header = $decl;
+      'IRx1::RxBaseClass->RMARE_category(__PACKAGE__,\''~$infosub~'\')'
+    }
+  }
 
 }
 
@@ -1365,5 +1421,14 @@ class EmitSimpleP5 {
   method cb__RegexDef ($n) {
     $n.<pattern>.RAST_init.emit_RMARE;
   }
+  method cb__RegexCategoryDecl ($n) {
+    my $name = $n<name>;
+    temp $whiteboard::regex_category_header;
+    my $def = $.e($n<rx>);
+    my $info = $whiteboard::regex_category_header;
+    '# category '~$name~"\n"~$info~"\n"~$def;
+  }
 }
 
+class CategoryDef {
+}

@@ -31,6 +31,9 @@ RxCommitGroup
 RxCommitRegex
 RxCommitMatch
 
+RxCategory name
+RegexCategoryDecl name rx
+
 END_DEF
 
 sub write_ir_info5 {
