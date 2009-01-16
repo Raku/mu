@@ -29,6 +29,7 @@ Here are the things that should give appropriate responses by psi:
 * keywords in general, everything from 'given' to 'enum'
 * special variables (like $*IN and $?ROUTINE)
 * pseudo-package names (MY, GLOBAL etc)
+* special Perl 6 or scripting terms, like 'slurpy' or 'autovivify'
 
 psi will be accomodating and understand the basics of Perl 6 syntax. When the
 following things are requested
