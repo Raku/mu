@@ -2,9 +2,11 @@ elfparse - getting STD.pm running on elf.
 
 QUICKSTART
 
-$ make all
+$ make known_working_STD
 $ make check
+$ make all
 $ ./elfblue -v -s -e 'say 3'
+$ make is_perl_recent_enough
 $ ./elfgreenstd -v -e 'say /<STD::number>/.match("23").match_describe'
 $ make does_gimme5_memory_problem_still_exist
 

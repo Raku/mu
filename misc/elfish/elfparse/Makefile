@@ -21,8 +21,10 @@ default:
 	perl -ne '/^(\w+):/ && print "make $$1\n"' < Makefile
 
 
-perl_is_recent_enough: STD_green_run
+is_perl_recent_enough: STD_green_run
+	# is_perl_recent_enough?  If you get a non-terminating deep recursion, then no.
 	./STD_green_run --start=number -e 3
+	@echo ok
 
 all: elfblue elfgreen STD_green_run elfgreenstd
 
@@ -33,11 +35,13 @@ clean:
 # STD_blue
 
 known_working_STD:
-	# HEAD should currently be working.
-	# (cd ../../../src/perl6; svn up -rXXXXX; make distclean; make)
+	# elfparse isn't quite working with STD head. 2009-Jan-16
+	### HEAD should currently be working.
+	### (cd ../../../src/perl6; svn up -rXXXXX; make distclean; make fast)
+	(cd ../../../src/perl6; svn up -r24775; make distclean; make)
 
 ${SRCP6}/STD.pmc: ${SRCP6}/STD.pm ${SRCP6}/gimme5
-	(cd ${SRCP6}; make)
+	(cd ${SRCP6}; make fast)
 
 lex.is_current: ${SRCP6}/STD.pmc ${ELF_STD_BLUE_RUN}
 	rm -rf lex lex.is_current
@@ -102,7 +106,7 @@ elfgreenstd: STD_green_run
 
 check: check_rx_on_re check_STD_blue
 
-check_rx_on_re:
+check_rx_on_re: nodes.pm
 	# check_rx_on_re - The rx_on_re core still passes its test suite.
 	perl -e 'use Regexp::Common;1' # dependency check
 	make ${STD_RED_CACHEDIR}.is_current 
