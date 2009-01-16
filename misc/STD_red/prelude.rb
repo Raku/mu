@@ -460,9 +460,10 @@ $env_vars = EnvVars.new
 
 # Interactive REPL
 
-require 'readline'
+
 class Repl
   def initialize(history_filename="deleteme_hist")
+    require 'readline'
     @histfile = File::expand_path(history_filename)
     if File::exists?(@histfile)
       Readline::HISTORY.push(*(eval(IO.read(@histfile))||[]))

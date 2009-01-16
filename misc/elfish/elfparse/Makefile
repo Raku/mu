@@ -35,10 +35,8 @@ clean:
 # STD_blue
 
 known_working_STD:
-	# elfparse isn't quite working with STD head. 2009-Jan-16
-	### HEAD should currently be working.
-	### (cd ../../../src/perl6; svn up -rXXXXX; make distclean; make fast)
-	(cd ../../../src/perl6; svn up -r24775; make distclean; make)
+	# HEAD should currently be working.
+	### (cd ../../../src/perl6; svn up -r24775; make distclean; make fast)
 
 ${SRCP6}/STD.pmc: ${SRCP6}/STD.pm ${SRCP6}/gimme5
 	(cd ${SRCP6}; make fast)

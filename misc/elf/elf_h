@@ -3824,14 +3824,18 @@ if(((($args->elems() == 1) && $args->postcircumfix__91_32_93(0)->isa("IRx1\:\:Ap
 my $a = $self->e($args);
 my $l = $a->postcircumfix__91_32_93(0);
 my $r = $a->postcircumfix__91_32_93(1);
-if((($op eq "\~"))) {
-(do{return((((("\(" . $l) . "\ \.\ ") . $r) . "\)"))})
-};
-if((($op eq "\,"))) {
-(do{my $s = $a->shift();
 if(($a->elems() && GLOBAL::prefix__33(GLOBAL::defined($a->postcircumfix__91_32_93((-1)))))) {
 (do{$a->pop()})
 };
+if((($op eq "\~"))) {
+(do{my $s = $a->shift();
+while($a->elems()) {
+(do{($s = (((("\(" . $s) . "\ \.\ ") . $a->shift()) . "\)"))})
+};
+return($s)})
+};
+if((($op eq "\,"))) {
+(do{my $s = $a->shift();
 while($a->elems()) {
 (do{($s = (($s . "\,\ ") . $a->shift()))})
 };
@@ -3859,7 +3863,11 @@ return($lvalue_call)})
 }})
 };
 if($op->re_matchp("\^\(\<\|\>\|\=\=\|\!\=\|eq\|ne\|\\\+\|\-\|\\\*\|\\\/\|\\\|\\\|\|\\\&\\\&\|and\|or\|\=\|\=\~\|\:\=\)\$")) {
-(do{return((((((("\(" . $l) . "\ ") . $op) . "\ ") . $r) . "\)"))})
+(do{my $s = $a->shift();
+while($a->elems()) {
+(do{($s = (((((("\(" . $s) . "\ ") . $op) . "\ ") . $a->shift()) . "\)"))})
+};
+return($s)})
 }})
 }elsif(($g = $fun->re_groups("\^prefix\:\(\.\+\)\$"))) {
 (do{my $op = $g->postcircumfix__91_32_93(0);

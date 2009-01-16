@@ -812,12 +812,14 @@ package Main;
       my $a = $.e($args);
       my $l = $a[0];
       my $r = $a[1];
+      if $a.elems && !defined($a[-1]) { $a.pop }
       if ($op eq '~') {
-        return "("~$l~" . "~$r~")"
+        my $s = $a.shift;
+        while $a.elems { $s = "("~$s ~" . "~ $a.shift~")" }
+        return $s;
       }
       if ($op eq ',') {
         my $s = $a.shift;
-        if $a.elems && !defined($a[-1]) { $a.pop }
         while $a.elems { $s = $s ~", "~ $a.shift }
         return $s;
       }
@@ -844,7 +846,9 @@ package Main;
       }
       #XXX := is here temporarily to postpone a regression.
       if $op.re_matchp('^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$') {
-        return "("~$l~" "~$op~" "~$r~")";
+        my $s = $a.shift;
+        while $a.elems { $s = "("~$s ~" "~$op~" "~ $a.shift~")" }
+        return $s;
       }
     }
     elsif $g = $fun.re_groups('^prefix:(.+)$') {
