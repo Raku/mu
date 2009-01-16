@@ -31,7 +31,7 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   my $bar = 123;
   my @many = (4,5);
   sub dostuff(){"stuff"}
-  my($v,$e);
+  my ($v,$e);
   $e = (foo => $bar);
   $v = :foo($bar);
   is ~$v, ~$e, ':foo($bar)';
