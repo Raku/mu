@@ -1,5 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.034 2009.01.17
+    - Updated to jquery 1.3
+    - Updated to latest STD.pm and perl6.vim
+
 0.033 2009.01.13
     - Fixed dependency on Test::Exception (Thanks to jerome quelin)
 

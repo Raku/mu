@@ -196,7 +196,7 @@ Bit Bool
 bit bool
 
 Order Increasing Decreasing
-Ordered Callable Positional Associatve
+Ordered Callable Positional Associative Abstraction
 Ordering KeyExtractor Comparator OrderingPair
 
 IO
@@ -233,8 +233,9 @@ $PADS[-1]{$name} = 'TYPE';
 # XXX likewise for routine defs
 
 my @baseroutinenames = qw[
-WHAT WHICH VAR
+WHAT WHERE meta WHICH VAR WHO WHENCE new
 any all none one
+not true
 
 die exit warn
 caller want
@@ -245,7 +246,7 @@ defined undefine item list slice eager hyper
 cat classify
 quotemeta
 chr ord
-p5chop chop p5chomp chomp
+p5chop chop p5chomp chomp trim
 index rindex substr
 join split comb pack unpack
 uc ucfirst lc lcfirst
@@ -257,6 +258,7 @@ chars graphs codes bytes
 
 say print open close printf sprintf slurp unlink link symlink
 elems grep map first reduce sort uniq push reverse take splice
+lines getc
 
 zip each roundrobin caller
 return leave pop shift unshift reduce
@@ -343,14 +345,14 @@ our %symbolic_unary  = ('prec' => 'v=');
 our %multiplicative  = ('prec' => 'u=', 'assoc' => 'left',  'assign' => 1);
 our %additive        = ('prec' => 't=', 'assoc' => 'left',  'assign' => 1);
 our %replication     = ('prec' => 's=', 'assoc' => 'left',  'assign' => 1);
-our %concatenation   = ('prec' => 'r=', 'assoc' => 'left',  'assign' => 1);
+our %concatenation   = ('prec' => 'r=', 'assoc' => 'list',  'assign' => 1);
 our %junctive_and    = ('prec' => 'q=', 'assoc' => 'list',  'assign' => 1);
 our %junctive_or     = ('prec' => 'p=', 'assoc' => 'list',  'assign' => 1);
 our %named_unary     = ('prec' => 'o=');
 our %nonchaining     = ('prec' => 'n=', 'assoc' => 'non');
 our %chaining        = ('prec' => 'm=', 'assoc' => 'chain', 'bool' => 1);
-our %tight_and       = ('prec' => 'l=', 'assoc' => 'left',  'assign' => 1);
-our %tight_or        = ('prec' => 'k=', 'assoc' => 'left',  'assign' => 1);
+our %tight_and       = ('prec' => 'l=', 'assoc' => 'list',  'assign' => 1);
+our %tight_or        = ('prec' => 'k=', 'assoc' => 'list',  'assign' => 1);
 our %conditional     = ('prec' => 'j=', 'assoc' => 'right');
 our %item_assignment = ('prec' => 'i=', 'assoc' => 'right');
 our %loose_unary     = ('prec' => 'h=');
@@ -358,8 +360,8 @@ our %comma           = ('prec' => 'g=', 'assoc' => 'list', 'nextterm' => 'nullte
 our %list_infix      = ('prec' => 'f=', 'assoc' => 'list',  'assign' => 1);
 our %list_assignment = ('prec' => 'i=', 'sub' => 'e=', 'assoc' => 'right');
 our %list_prefix     = ('prec' => 'e=');
-our %loose_and       = ('prec' => 'd=', 'assoc' => 'left',  'assign' => 1);
-our %loose_or        = ('prec' => 'c=', 'assoc' => 'left',  'assign' => 1);
+our %loose_and       = ('prec' => 'd=', 'assoc' => 'list',  'assign' => 1);
+our %loose_or        = ('prec' => 'c=', 'assoc' => 'list',  'assign' => 1);
 our %sequencer      = ('prec' => 'b=', 'assoc' => 'left', 'nextterm' => 'statement');
 our %LOOSEST         = ('prec' => 'a=!');
 our %terminator      = ('prec' => 'a=', 'assoc' => 'list');
@@ -2319,7 +2321,7 @@ $self->_MATCHIFYr($S, "category__S_025statement_mod_cond",
 $C->_PATTERN(qr/\Gstatement_mod_cond/)
 );
 }
-#proto rule  statement_mod_cond () { <...> }
+#proto rule  statement_mod_cond (:$endsym is context = 'nofun') { <...> }
 sub statement_mod_cond__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_cond:*',$retree); }
 sub statement_mod_cond {
 my $self = shift;
@@ -2389,7 +2391,7 @@ $self->_MATCHIFYr($S, "category__S_026statement_mod_loop",
 $C->_PATTERN(qr/\Gstatement_mod_loop/)
 );
 }
-#proto rule  statement_mod_loop () { <...> }
+#proto rule  statement_mod_loop (:$endsym is context = 'nofun') { <...> }
 sub statement_mod_loop__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_loop:*',$retree); }
 sub statement_mod_loop {
 my $self = shift;
@@ -8495,7 +8497,7 @@ else {
 );
 }
 
-## rule statement_mod_cond__S_069if (:$sym is context<rw> = 'if')
+## rule statement_mod_cond__S_069if (:$endsym is context = 'nofun', :$sym is context<rw> = 'if')
 ##      rule statement_mod_cond:if     {<sym> <modifier_expr> {*} }     #= if
 
 sub statement_mod_cond__S_069if__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_cond__S_069if',$retree) }
@@ -8503,6 +8505,7 @@ sub statement_mod_cond__S_069if {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
+local $endsym = $args{endsym} // 'nofun';
 local $sym = $args{sym} // 'if';
 
 
@@ -8513,6 +8516,8 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "statement_mod_cond__S_069if", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\Gif/))) {
+do {
+if (my ($C) = ($C->nofun)) {
 do {
 if (my ($C) = ($C->ws)) {
 do {
@@ -8549,10 +8554,15 @@ else {
 else {
 ();
 }
+};
+}
+else {
+();
+}
 }
 );
 }
-## rule statement_mod_cond__S_070unless (:$sym is context<rw> = 'unless')
+## rule statement_mod_cond__S_070unless (:$endsym is context = 'nofun', :$sym is context<rw> = 'unless')
 ##      rule statement_mod_cond:unless {<sym> <modifier_expr> {*} }     #= unless
 
 sub statement_mod_cond__S_070unless__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_cond__S_070unless',$retree) }
@@ -8560,6 +8570,7 @@ sub statement_mod_cond__S_070unless {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
+local $endsym = $args{endsym} // 'nofun';
 local $sym = $args{sym} // 'unless';
 
 
@@ -8570,6 +8581,8 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "statement_mod_cond__S_070unless", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\Gunless/))) {
+do {
+if (my ($C) = ($C->nofun)) {
 do {
 if (my ($C) = ($C->ws)) {
 do {
@@ -8606,10 +8619,15 @@ else {
 else {
 ();
 }
+};
+}
+else {
+();
+}
 }
 );
 }
-## rule statement_mod_cond__S_071when (:$sym is context<rw> = 'when')
+## rule statement_mod_cond__S_071when (:$endsym is context = 'nofun', :$sym is context<rw> = 'when')
 ##      rule statement_mod_cond:when   {<sym> <modifier_expr> {*} }     #= when
 
 sub statement_mod_cond__S_071when__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_cond__S_071when',$retree) }
@@ -8617,6 +8635,7 @@ sub statement_mod_cond__S_071when {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
+local $endsym = $args{endsym} // 'nofun';
 local $sym = $args{sym} // 'when';
 
 
@@ -8627,6 +8646,8 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "statement_mod_cond__S_071when", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\Gwhen/))) {
+do {
+if (my ($C) = ($C->nofun)) {
 do {
 if (my ($C) = ($C->ws)) {
 do {
@@ -8663,11 +8684,16 @@ else {
 else {
 ();
 }
+};
+}
+else {
+();
+}
 }
 );
 }
 
-## rule statement_mod_loop__S_072while (:$sym is context<rw> = 'while')
+## rule statement_mod_loop__S_072while (:$endsym is context = 'nofun', :$sym is context<rw> = 'while')
 ##      rule statement_mod_loop:while {<sym> <modifier_expr> {*} }      #= while
 
 sub statement_mod_loop__S_072while__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_loop__S_072while',$retree) }
@@ -8675,6 +8701,7 @@ sub statement_mod_loop__S_072while {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
+local $endsym = $args{endsym} // 'nofun';
 local $sym = $args{sym} // 'while';
 
 
@@ -8685,6 +8712,8 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "statement_mod_loop__S_072while", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\Gwhile/))) {
+do {
+if (my ($C) = ($C->nofun)) {
 do {
 if (my ($C) = ($C->ws)) {
 do {
@@ -8721,10 +8750,15 @@ else {
 else {
 ();
 }
+};
+}
+else {
+();
+}
 }
 );
 }
-## rule statement_mod_loop__S_073until (:$sym is context<rw> = 'until')
+## rule statement_mod_loop__S_073until (:$endsym is context = 'nofun', :$sym is context<rw> = 'until')
 ##      rule statement_mod_loop:until {<sym> <modifier_expr> {*} }      #= until
 
 sub statement_mod_loop__S_073until__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_loop__S_073until',$retree) }
@@ -8732,6 +8766,7 @@ sub statement_mod_loop__S_073until {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
+local $endsym = $args{endsym} // 'nofun';
 local $sym = $args{sym} // 'until';
 
 
@@ -8742,6 +8777,8 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "statement_mod_loop__S_073until", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\Guntil/))) {
+do {
+if (my ($C) = ($C->nofun)) {
 do {
 if (my ($C) = ($C->ws)) {
 do {
@@ -8778,11 +8815,16 @@ else {
 else {
 ();
 }
+};
+}
+else {
+();
+}
 }
 );
 }
 
-## rule statement_mod_loop__S_074for (:$sym is context<rw> = 'for')
+## rule statement_mod_loop__S_074for (:$endsym is context = 'nofun', :$sym is context<rw> = 'for')
 ##      rule statement_mod_loop:for   {<sym> <modifier_expr> {*} }      #= for
 
 sub statement_mod_loop__S_074for__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_loop__S_074for',$retree) }
@@ -8790,6 +8832,7 @@ sub statement_mod_loop__S_074for {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
+local $endsym = $args{endsym} // 'nofun';
 local $sym = $args{sym} // 'for';
 
 
@@ -8800,6 +8843,8 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "statement_mod_loop__S_074for", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\Gfor/))) {
+do {
+if (my ($C) = ($C->nofun)) {
 do {
 if (my ($C) = ($C->ws)) {
 do {
@@ -8836,10 +8881,15 @@ else {
 else {
 ();
 }
+};
+}
+else {
+();
+}
 }
 );
 }
-## rule statement_mod_loop__S_075given (:$sym is context<rw> = 'given')
+## rule statement_mod_loop__S_075given (:$endsym is context = 'nofun', :$sym is context<rw> = 'given')
 ##      rule statement_mod_loop:given {<sym> <modifier_expr> {*} }      #= given
 
 sub statement_mod_loop__S_075given__PEEK { $_[0]->_AUTOLEXpeek('statement_mod_loop__S_075given',$retree) }
@@ -8847,6 +8897,7 @@ sub statement_mod_loop__S_075given {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
+local $endsym = $args{endsym} // 'nofun';
 local $sym = $args{sym} // 'given';
 
 
@@ -8857,6 +8908,8 @@ $C->{'sym'} = $sym;
 $self->_MATCHIFYr($S, "statement_mod_loop__S_075given", 
 do {
 if (my ($C) = ($C->_PATTERN(qr/\Ggiven/))) {
+do {
+if (my ($C) = ($C->nofun)) {
 do {
 if (my ($C) = ($C->ws)) {
 do {
@@ -8869,6 +8922,11 @@ if (my ($C) = ($C->ws)) {
 do {
 if (my ($C) = ($C->_REDUCE($S, 'statement_mod_loop__S_075given_given'))) {
 $C->ws;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -10709,7 +10767,7 @@ else {
 ##          :dba('dotty method or postfix')
 ##          [
 ##          | <methodop>
-##          | <postop>     # forcing postop's precedence to methodcall here
+##          | <!alpha> <postop> # only non-alpha postfixes have dotty form
 ##          ]
 ##      }
 
@@ -10760,10 +10818,19 @@ $C->methodop
 })
 },
 sub { my $C=shift;
+do {
+if (my ($C) = ($C->_NOTBEFORE( sub { my $C=shift;
+$C->_PATTERN(qr/\G[_[:alpha:]]/)
+}))) {
 $C->_SUBSUMEr(['postop'], sub {
 my $C = shift;
 $C->postop
-})
+});
+}
+else {
+();
+}
+}
 },
 )[$try])->($C);
 last if @gather;
@@ -10798,7 +10865,7 @@ else {
 ##          # last whitespace didn't end here
 ##          <!{ @+MEMOS[$¢.pos]<ws> }>
 ##      
-##          [ <.unsp> | '\\' <?before '.'> ]?
+##          [ <.unsp> | '\\' ]?
 ##      
 ##          [ ['.' <.unsp>?]? <postfix_prefix_meta_operator> <.unsp>? ]*
 ##      
@@ -10868,16 +10935,7 @@ sub { my $C=shift;
 $C->unsp
 },
 sub { my $C=shift;
-do {
-if (my ($C) = ($C->_EXACT('\\'))) {
-$C->before(sub { my $C=shift;
-$C->_EXACT('.')
-});
-}
-else {
-();
-}
-}
+$C->_EXACT('\\')
 },
 )[$try])->($C);
 last if @gather;
@@ -10948,8 +11006,8 @@ my @try;
 my $relex;
 
 my $fate;
-if ($fate = $C->{_fate} and $fate->[1] eq 'POST_05') {
-$C->deb("Fate passed to POST_05: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
+if ($fate = $C->{_fate} and $fate->[1] eq 'POST_04') {
+$C->deb("Fate passed to POST_04: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{_fate}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -10957,7 +11015,7 @@ $C->deb("Fate passed to POST_05: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates
 my @gather = ();
 for (;;) {
 if (not @try) {
-$relex //= $C->cursor_fate('STD', 'POST_05', $retree);
+$relex //= $C->cursor_fate('STD', 'POST_04', $retree);
 @try = $relex->($C, $trystate);
 }
 last unless @try;
@@ -10967,7 +11025,7 @@ if (ref $try eq 'ARRAY') {
 ($C->{_fate}, $tag, $try) = @$try;	# next candidate fate
 }
 
-$C->deb("POST_05 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+$C->deb("POST_04 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
 do {
@@ -23352,7 +23410,7 @@ else {
 
 ## token old_rx_mods
 ##      token old_rx_mods {
-##          (< i g s m x c e ] >+) 
+##          (< i g s m x c e >+) 
 ##          {{
 ##              given $0.text {
 ##                  $_ ~~ /i/ and $¢.worryobs('/i',':i');
@@ -23382,7 +23440,7 @@ if (my ($C) = (    $C->_SUBSUMEr(['0'], sub {
 my $C = shift;
 do { $C->_PAREN( sub { my $C=shift;
 $C->_PLUSr(sub { my $C=shift;
-$C->_ARRAY( qw< i g s m x c e ] > )
+$C->_ARRAY( qw< i g s m x c e > )
 })
 })}
 }))) {
@@ -30593,6 +30651,7 @@ else {
 ##      
 ##                  # ordinary parameter name
 ##              || <identifier>
+##              || <[/!]>
 ##      
 ##                  # bare sigil?
 ##              ]?
@@ -30730,7 +30789,9 @@ or
 eval { push @gather, $C->_SUBSUME(['identifier'], sub {
 my $C = shift;
 $C->identifier
-})} or do { die $@ if $@ };
+})} 
+or
+eval { push @gather, $C->_PATTERN(qr/\G[\/!]/)} or do { die $@ if $@ };
 @gather;
 }
 })
@@ -32637,12 +32698,33 @@ $C->semilist
 
 ## methodcall
 
-## token infix__S_276Dot (:$sym is context<rw> = <.>)
+## token postfix__S_276i (  :$sym is context<rw> = <i> --> Methodcall)
+##      token postfix:sym<i> ( --> Methodcall)
+##          { <sym> » }
+
+sub postfix__S_276i__PEEK { $_[0]->_AUTOLEXpeek('postfix__S_276i',$retree) }
+sub postfix__S_276i {
+my $self = shift;
+local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
+my %args = @_;
+local $sym = $args{sym} // q(i);
+
+
+my $C = $self;
+my $S = $C->{_pos};
+$C->{'sym'} = $sym;
+
+$self->_MATCHIFYr($S, "postfix__S_276i",  map { STD::Methodcall->coerce($_) } 
+$C->_PATTERN(qr/\Gi\b/)
+);
+}
+
+## token infix__S_277Dot (:$sym is context<rw> = <.>)
 ##      token infix:sym<.> ()
 ##          { '.' <[\]\)\},:\s\$"']> <obs('. to concatenate strings', '~')> }
 
-sub infix__S_276Dot__PEEK { $_[0]->_AUTOLEXpeek('infix__S_276Dot',$retree) }
-sub infix__S_276Dot {
+sub infix__S_277Dot__PEEK { $_[0]->_AUTOLEXpeek('infix__S_277Dot',$retree) }
+sub infix__S_277Dot {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -32653,7 +32735,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "infix__S_276Dot", 
+$self->_MATCHIFYr($S, "infix__S_277Dot", 
 do {
 if (my ($C) = ($C->_EXACT('.'))) {
 do {
@@ -32675,12 +32757,12 @@ else {
 );
 }
 
-## token postfix__S_277MinusGt (:$sym is context<rw> = ['->'])
+## token postfix__S_278MinusGt (:$sym is context<rw> = ['->'])
 ##      token postfix:sym['->'] ()
 ##          { '->' <obs('-> to call a method', '.')> }
 
-sub postfix__S_277MinusGt__PEEK { $_[0]->_AUTOLEXpeek('postfix__S_277MinusGt',$retree) }
-sub postfix__S_277MinusGt {
+sub postfix__S_278MinusGt__PEEK { $_[0]->_AUTOLEXpeek('postfix__S_278MinusGt',$retree) }
+sub postfix__S_278MinusGt {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -32691,7 +32773,7 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "postfix__S_277MinusGt", 
+$self->_MATCHIFYr($S, "postfix__S_278MinusGt", 
 do {
 if (my ($C) = ($C->_EXACT('->'))) {
 $C->_SUBSUMEr(['obs'], sub {
@@ -32707,12 +32789,12 @@ else {
 }
 
 ## autoincrement
-## token postfix__S_278PlusPlus (  :$sym is context<rw> = <++> --> Autoincrement)
+## token postfix__S_279PlusPlus (  :$sym is context<rw> = <++> --> Autoincrement)
 ##      token postfix:sym<++> ( --> Autoincrement)
 ##          { <sym> }
 
-sub postfix__S_278PlusPlus__PEEK { $_[0]->_AUTOLEXpeek('postfix__S_278PlusPlus',$retree) }
-sub postfix__S_278PlusPlus {
+sub postfix__S_279PlusPlus__PEEK { $_[0]->_AUTOLEXpeek('postfix__S_279PlusPlus',$retree) }
+sub postfix__S_279PlusPlus {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -32723,17 +32805,17 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "postfix__S_278PlusPlus",  map { STD::Autoincrement->coerce($_) } 
+$self->_MATCHIFYr($S, "postfix__S_279PlusPlus",  map { STD::Autoincrement->coerce($_) } 
 $C->_PATTERN(qr/\G\+\+/)
 );
 }
 
-## token postfix__S_279MinusMinus (  :$sym is context<rw> = <--> --> Autoincrement)
+## token postfix__S_280MinusMinus (  :$sym is context<rw> = <--> --> Autoincrement)
 ##      token postfix:sym<--> ( --> Autoincrement)
 ##          { <sym> }
 
-sub postfix__S_279MinusMinus__PEEK { $_[0]->_AUTOLEXpeek('postfix__S_279MinusMinus',$retree) }
-sub postfix__S_279MinusMinus {
+sub postfix__S_280MinusMinus__PEEK { $_[0]->_AUTOLEXpeek('postfix__S_280MinusMinus',$retree) }
+sub postfix__S_280MinusMinus {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -32744,17 +32826,17 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "postfix__S_279MinusMinus",  map { STD::Autoincrement->coerce($_) } 
+$self->_MATCHIFYr($S, "postfix__S_280MinusMinus",  map { STD::Autoincrement->coerce($_) } 
 $C->_PATTERN(qr/\G\-\-/)
 );
 }
 
-## token prefix__S_280PlusPlus (  :$sym is context<rw> = <++> --> Autoincrement)
+## token prefix__S_281PlusPlus (  :$sym is context<rw> = <++> --> Autoincrement)
 ##      token prefix:sym<++> ( --> Autoincrement)
 ##          { <sym> }
 
-sub prefix__S_280PlusPlus__PEEK { $_[0]->_AUTOLEXpeek('prefix__S_280PlusPlus',$retree) }
-sub prefix__S_280PlusPlus {
+sub prefix__S_281PlusPlus__PEEK { $_[0]->_AUTOLEXpeek('prefix__S_281PlusPlus',$retree) }
+sub prefix__S_281PlusPlus {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -32765,17 +32847,17 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "prefix__S_280PlusPlus",  map { STD::Autoincrement->coerce($_) } 
+$self->_MATCHIFYr($S, "prefix__S_281PlusPlus",  map { STD::Autoincrement->coerce($_) } 
 $C->_PATTERN(qr/\G\+\+/)
 );
 }
 
-## token prefix__S_281MinusMinus (  :$sym is context<rw> = <--> --> Autoincrement)
+## token prefix__S_282MinusMinus (  :$sym is context<rw> = <--> --> Autoincrement)
 ##      token prefix:sym<--> ( --> Autoincrement)
 ##          { <sym> }
 
-sub prefix__S_281MinusMinus__PEEK { $_[0]->_AUTOLEXpeek('prefix__S_281MinusMinus',$retree) }
-sub prefix__S_281MinusMinus {
+sub prefix__S_282MinusMinus__PEEK { $_[0]->_AUTOLEXpeek('prefix__S_282MinusMinus',$retree) }
+sub prefix__S_282MinusMinus {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 my %args = @_;
@@ -32786,29 +32868,8 @@ my $C = $self;
 my $S = $C->{_pos};
 $C->{'sym'} = $sym;
 
-$self->_MATCHIFYr($S, "prefix__S_281MinusMinus",  map { STD::Autoincrement->coerce($_) } 
+$self->_MATCHIFYr($S, "prefix__S_282MinusMinus",  map { STD::Autoincrement->coerce($_) } 
 $C->_PATTERN(qr/\G\-\-/)
-);
-}
-
-## token postfix__S_282i (  :$sym is context<rw> = <i> --> Autoincrement)
-##      token postfix:sym<i> ( --> Autoincrement)
-##          { <sym> » }
-
-sub postfix__S_282i__PEEK { $_[0]->_AUTOLEXpeek('postfix__S_282i',$retree) }
-sub postfix__S_282i {
-my $self = shift;
-local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
-my %args = @_;
-local $sym = $args{sym} // q(i);
-
-
-my $C = $self;
-my $S = $C->{_pos};
-$C->{'sym'} = $sym;
-
-$self->_MATCHIFYr($S, "postfix__S_282i",  map { STD::Autoincrement->coerce($_) } 
-$C->_PATTERN(qr/\Gi\b/)
 );
 }
 
@@ -55380,6 +55441,7 @@ else {
 $m .= "\n    expecting @keys";
 }
 }
+$m =~ s|Syntax error|Syntax error (two terms in a row?)| if $m =~ qr/infix|nofun/;
 
 if (@COMPILING::WORRIES) {
 $m .= "\nOther potential difficulties:\n  " . join( "\n  ", @COMPILING::WORRIES);
@@ -55541,7 +55603,7 @@ POST: !!perl/hash:RE
                 r: 1
                 rest: ''
                 s: 0
-              - !!perl/hash:RE_sequence 
+              - !!perl/hash:RE_string 
                 a: 0
                 alt: POST_01 1
                 dba: POST
@@ -55549,39 +55611,7 @@ POST: !!perl/hash:RE
                 min: 1
                 r: 1
                 s: 0
-                zyg: 
-                  - !!perl/hash:RE_string 
-                    a: 0
-                    dba: POST
-                    i: 0
-                    min: 1
-                    r: 1
-                    s: 0
-                    text: \
-                  - !!perl/hash:RE_assertion 
-                    assert: "?"
-                    min: 0
-                    re: !!perl/hash:RE_method_re 
-                      a: 0
-                      dba: POST
-                      i: 0
-                      min: 0
-                      name: before
-                      nobind: 1
-                      r: 1
-                      re: !!perl/hash:RE 
-                        decl: []
-
-                        min: 1
-                        re: !!perl/hash:RE_string 
-                          a: 0
-                          dba: POST
-                          i: 0
-                          min: 1
-                          r: 1
-                          s: 0
-                          text: .
-                      s: 0
+                text: \
         min: 0
         quant: 
           - "?"
@@ -55681,19 +55711,19 @@ POST: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &21 !!perl/hash:RE_any 
+        re: &53 !!perl/hash:RE_any 
           a: 0
-          altname: POST_05
+          altname: POST_04
           dba: postfix
           i: 0
           min: 12345
-          name: POST_05
+          name: POST_04
           r: 1
           s: 0
           zyg: 
             - !!perl/hash:RE_sequence 
               a: 0
-              alt: POST_05 0
+              alt: POST_04 0
               dba: postfix
               i: 0
               min: 12345
@@ -55720,7 +55750,7 @@ POST: !!perl/hash:RE
                   text: " $<O> = $<dotty><O> "
             - !!perl/hash:RE_sequence 
               a: 0
-              alt: POST_05 1
+              alt: POST_04 1
               dba: postfix
               i: 0
               min: 12345
@@ -55747,7 +55777,7 @@ POST: !!perl/hash:RE
                   text: " $<O> = $<privop><O> "
             - !!perl/hash:RE_sequence 
               a: 0
-              alt: POST_05 2
+              alt: POST_04 2
               dba: postfix
               i: 0
               min: 12345
@@ -55782,7 +55812,7 @@ POST: !!perl/hash:RE
         s: 0
         text: " $+SIGIL = '@' "
 POST_01: *20
-POST_05: *21
+POST_04: *53
 PRE: !!perl/hash:RE 
   decl: []
 
@@ -55966,7 +55996,7 @@ arglist: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &30 !!perl/hash:RE_any 
+        re: &29 !!perl/hash:RE_any 
           a: 0
           altname: arglist_01
           dba: argument list
@@ -55995,7 +56025,7 @@ arglist: !!perl/hash:RE
               min: 0
               name: EXPR
               rest: (item %list_prefix)
-arglist_01: *30
+arglist_01: *29
 args: !!perl/hash:RE 
   decl: 
     - !!perl/hash:RE_decl 
@@ -57620,7 +57650,7 @@ circumfix__S_094Cur_Ly: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &44 !!perl/hash:RE_any 
+            re: &43 !!perl/hash:RE_any 
               a: 0
               altname: circumfix__S_094Cur_Ly_01
               dba: circumfix__S_094Cur_Ly
@@ -57659,7 +57689,7 @@ circumfix__S_094Cur_Ly: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-circumfix__S_094Cur_Ly_01: *44
+circumfix__S_094Cur_Ly_01: *43
 circumfix__S_273sigil: !!perl/hash:RE 
   decl: []
 
@@ -58013,7 +58043,7 @@ colonpair: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &34 !!perl/hash:RE_any 
+        re: &33 !!perl/hash:RE_any 
           a: 0
           altname: colonpair_01
           dba: signature
@@ -58408,7 +58438,7 @@ colonpair: !!perl/hash:RE
         r: 1
         s: 0
         text: " $<k> = $key; $<v> = $value; "
-colonpair_01: *34
+colonpair_01: *33
 comp_unit: !!perl/hash:RE 
   decl: 
     - !!perl/hash:RE_decl 
@@ -59538,16 +59568,37 @@ dottyop: !!perl/hash:RE
           r: 1
           rest: ''
           s: 0
-        - !!perl/hash:RE_method 
+        - !!perl/hash:RE_sequence 
           a: 0
           alt: dottyop_01 1
           dba: dotty method or postfix
           i: 0
           min: 12345
-          name: postop
           r: 1
-          rest: ''
           s: 0
+          zyg: 
+            - !!perl/hash:RE_assertion 
+              assert: "!"
+              min: 0
+              re: !!perl/hash:RE_method 
+                a: 0
+                dba: dotty method or postfix
+                i: 0
+                min: 12345
+                name: alpha
+                nobind: 1
+                r: 1
+                rest: ''
+                s: 0
+            - !!perl/hash:RE_method 
+              a: 0
+              dba: dotty method or postfix
+              i: 0
+              min: 12345
+              name: postop
+              r: 1
+              rest: ''
+              s: 0
 dottyop_01: *100
 eat_terminator: !!perl/hash:RE 
   decl: []
@@ -60256,7 +60307,7 @@ identifier: !!perl/hash:RE
           - ":"
           - ''
           - 0
-infix__S_276Dot: !!perl/hash:RE 
+infix__S_277Dot: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -60264,7 +60315,7 @@ infix__S_276Dot: !!perl/hash:RE
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: infix__S_276Dot
+    dba: infix__S_277Dot
     i: 0
     min: 2
     r: 1
@@ -60272,7 +60323,7 @@ infix__S_276Dot: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_string 
         a: 0
-        dba: infix__S_276Dot
+        dba: infix__S_277Dot
         i: 0
         min: 1
         r: 1
@@ -60280,7 +60331,7 @@ infix__S_276Dot: !!perl/hash:RE
         text: .
       - !!perl/hash:RE_cclass 
         a: 0
-        dba: infix__S_276Dot
+        dba: infix__S_277Dot
         i: 0
         min: 1
         r: 1
@@ -62486,7 +62537,7 @@ infix_circumfix_meta_operator__S_086Fre_Nch: !!perl/hash:RE
         decl: []
 
         min: 12347
-        re: &45 !!perl/hash:RE_any 
+        re: &44 !!perl/hash:RE_any 
           a: 0
           altname: infix_circumfix_meta_operator__S_086Fre_Nch_01
           dba: infix_circumfix_meta_operator__S_086Fre_Nch
@@ -62526,7 +62577,7 @@ infix_circumfix_meta_operator__S_086Fre_Nch: !!perl/hash:RE
                   decl: []
 
                   min: 1
-                  re: &51 !!perl/hash:RE_any 
+                  re: &50 !!perl/hash:RE_any 
                     a: 0
                     altname: infix_circumfix_meta_operator__S_086Fre_Nch_02
                     dba: infix_circumfix_meta_operator__S_086Fre_Nch
@@ -62757,8 +62808,8 @@ infix_circumfix_meta_operator__S_086Fre_Nch: !!perl/hash:RE
             name: lex1
             nobind: 1
             rest: ('hyper')
-infix_circumfix_meta_operator__S_086Fre_Nch_01: *45
-infix_circumfix_meta_operator__S_086Fre_Nch_02: *51
+infix_circumfix_meta_operator__S_086Fre_Nch_01: *44
+infix_circumfix_meta_operator__S_086Fre_Nch_02: *50
 infix_circumfix_meta_operator__S_086Fre_Nch_03: *18
 infix_circumfix_meta_operator__S_086Fre_Nch_04: *57
 infix_circumfix_meta_operator__S_086Fre_Nch_05: *5
@@ -63459,7 +63510,7 @@ integer: !!perl/hash:RE
               decl: []
 
               min: 1
-              re: &46 !!perl/hash:RE_any 
+              re: &45 !!perl/hash:RE_any 
                 a: 0
                 altname: integer_02
                 dba: integer
@@ -63907,7 +63958,7 @@ integer: !!perl/hash:RE
                 - ''
                 - 0
 integer_01: *117
-integer_02: *46
+integer_02: *45
 label: !!perl/hash:RE 
   decl: []
 
@@ -66069,7 +66120,7 @@ named_param: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &28 !!perl/hash:RE_any 
+        re: &27 !!perl/hash:RE_any 
           a: 0
           altname: named_param_01
           dba: named_param
@@ -66211,7 +66262,7 @@ named_param: !!perl/hash:RE
               r: 1
               rest: ''
               s: 0
-named_param_01: *28
+named_param_01: *27
 named_param_02: *95
 nibbler: !!perl/hash:RE 
   decl: 
@@ -66452,7 +66503,7 @@ nofun: !!perl/hash:RE
         decl: []
 
         min: 1
-        re: &53 !!perl/hash:RE_any 
+        re: &52 !!perl/hash:RE_any 
           a: 0
           altname: nofun_01
           dba: nofun
@@ -66490,7 +66541,7 @@ nofun: !!perl/hash:RE
               s: 0
               text: \
       s: 0
-nofun_01: *53
+nofun_01: *52
 noun: !!perl/hash:RE 
   decl: []
 
@@ -66575,7 +66626,7 @@ noun: !!perl/hash:RE
                   decl: []
 
                   min: 4
-                  re: &41 !!perl/hash:RE_any 
+                  re: &40 !!perl/hash:RE_any 
                     a: 0
                     altname: noun_02
                     dba: noun
@@ -66762,7 +66813,7 @@ noun: !!perl/hash:RE
             - ''
             - 1
 noun_01: *72
-noun_02: *41
+noun_02: *40
 nullterm: !!perl/hash:RE 
   decl: []
 
@@ -66981,7 +67032,7 @@ old_rx_mods: !!perl/hash:RE
               min: 1
               r: 1
               s: 0
-              text: < i g s m x c e ] >
+              text: < i g s m x c e >
             min: 1
             quant: 
               - +
@@ -68067,12 +68118,12 @@ param_var: !!perl/hash:RE
               atom: !!perl/hash:RE_bracket 
                 decl: []
 
-                min: 12345
+                min: 1
                 re: !!perl/hash:RE_first 
                   a: 0
                   dba: param_var
                   i: 0
-                  min: 12345
+                  min: 1
                   r: 1
                   s: 0
                   zyg: 
@@ -68216,6 +68267,14 @@ param_var: !!perl/hash:RE
                       r: 1
                       rest: ''
                       s: 0
+                    - !!perl/hash:RE_cclass 
+                      a: 0
+                      dba: param_var
+                      i: 0
+                      min: 1
+                      r: 1
+                      s: 0
+                      text: "[/!]"
               min: 0
               quant: 
                 - "?"
@@ -68922,7 +68981,7 @@ pod_comment: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &26 !!perl/hash:RE_any 
+        re: &25 !!perl/hash:RE_any 
           a: 0
           altname: pod_comment_01
           dba: pod_comment
@@ -69406,7 +69465,7 @@ pod_comment: !!perl/hash:RE
                   max: 0
                   min: 0
                   name: _REDUCE
-pod_comment_01: *26
+pod_comment_01: *25
 post_constraint: !!perl/hash:RE 
   decl: []
 
@@ -69973,73 +70032,15 @@ postcircumfix__S_093Fre_Nch: !!perl/hash:RE
               name: panic
               nobind: 1
               rest: ("Unable to parse quote-words subscript; couldn't find right double-angle quote")
-postfix__S_277MinusGt: !!perl/hash:RE 
+postfix__S_276i: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 2
-  pkg: ~
+  min: 12345
+  pkg: STD::Methodcall
   re: !!perl/hash:RE_sequence 
     a: 0
-    dba: postfix__S_277MinusGt
-    i: 0
-    min: 2
-    r: 1
-    s: 0
-    zyg: 
-      - !!perl/hash:RE_string 
-        a: 0
-        dba: postfix__S_277MinusGt
-        i: 0
-        min: 2
-        r: 1
-        s: 0
-        text: ->
-      - !!perl/hash:RE_method 
-        min: 0
-        name: obs
-        rest: ('-> to call a method', '.')
-postfix__S_278PlusPlus: !!perl/hash:RE 
-  decl: []
-
-  kind: token
-  min: 12345
-  pkg: STD::Autoincrement
-  re: !!perl/hash:RE_method 
-    a: 0
-    dba: postfix__S_278PlusPlus
-    i: 0
-    min: 12345
-    name: sym
-    r: 1
-    rest: ''
-    s: 0
-    sym: ++
-postfix__S_279MinusMinus: !!perl/hash:RE 
-  decl: []
-
-  kind: token
-  min: 12345
-  pkg: STD::Autoincrement
-  re: !!perl/hash:RE_method 
-    a: 0
-    dba: postfix__S_279MinusMinus
-    i: 0
-    min: 12345
-    name: sym
-    r: 1
-    rest: ''
-    s: 0
-    sym: --
-postfix__S_282i: !!perl/hash:RE 
-  decl: []
-
-  kind: token
-  min: 12345
-  pkg: STD::Autoincrement
-  re: !!perl/hash:RE_sequence 
-    a: 0
-    dba: postfix__S_282i
+    dba: postfix__S_276i
     i: 0
     min: 12345
     r: 1
@@ -70047,7 +70048,7 @@ postfix__S_282i: !!perl/hash:RE
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
-        dba: postfix__S_282i
+        dba: postfix__S_276i
         i: 0
         min: 12345
         name: sym
@@ -70057,12 +70058,70 @@ postfix__S_282i: !!perl/hash:RE
         sym: i
       - !!perl/hash:RE_meta 
         a: 0
-        dba: postfix__S_282i
+        dba: postfix__S_276i
         i: 0
         min: 0
         r: 1
         s: 0
         text: »
+postfix__S_278MinusGt: !!perl/hash:RE 
+  decl: []
+
+  kind: token
+  min: 2
+  pkg: ~
+  re: !!perl/hash:RE_sequence 
+    a: 0
+    dba: postfix__S_278MinusGt
+    i: 0
+    min: 2
+    r: 1
+    s: 0
+    zyg: 
+      - !!perl/hash:RE_string 
+        a: 0
+        dba: postfix__S_278MinusGt
+        i: 0
+        min: 2
+        r: 1
+        s: 0
+        text: ->
+      - !!perl/hash:RE_method 
+        min: 0
+        name: obs
+        rest: ('-> to call a method', '.')
+postfix__S_279PlusPlus: !!perl/hash:RE 
+  decl: []
+
+  kind: token
+  min: 12345
+  pkg: STD::Autoincrement
+  re: !!perl/hash:RE_method 
+    a: 0
+    dba: postfix__S_279PlusPlus
+    i: 0
+    min: 12345
+    name: sym
+    r: 1
+    rest: ''
+    s: 0
+    sym: ++
+postfix__S_280MinusMinus: !!perl/hash:RE 
+  decl: []
+
+  kind: token
+  min: 12345
+  pkg: STD::Autoincrement
+  re: !!perl/hash:RE_method 
+    a: 0
+    dba: postfix__S_280MinusMinus
+    i: 0
+    min: 12345
+    name: sym
+    r: 1
+    rest: ''
+    s: 0
+    sym: --
 postfix_prefix_meta_operator__S_083Nch: !!perl/hash:RE 
   decl: []
 
@@ -70171,7 +70230,7 @@ postop: !!perl/hash:RE
             s: 0
             text: " $<O> := $<postcircumfix><O> "
 postop_00: *12
-prefix__S_280PlusPlus: !!perl/hash:RE 
+prefix__S_281PlusPlus: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -70179,7 +70238,7 @@ prefix__S_280PlusPlus: !!perl/hash:RE
   pkg: STD::Autoincrement
   re: !!perl/hash:RE_method 
     a: 0
-    dba: prefix__S_280PlusPlus
+    dba: prefix__S_281PlusPlus
     i: 0
     min: 12345
     name: sym
@@ -70187,7 +70246,7 @@ prefix__S_280PlusPlus: !!perl/hash:RE
     rest: ''
     s: 0
     sym: ++
-prefix__S_281MinusMinus: !!perl/hash:RE 
+prefix__S_282MinusMinus: !!perl/hash:RE 
   decl: []
 
   kind: token
@@ -70195,7 +70254,7 @@ prefix__S_281MinusMinus: !!perl/hash:RE
   pkg: STD::Autoincrement
   re: !!perl/hash:RE_method 
     a: 0
-    dba: prefix__S_281MinusMinus
+    dba: prefix__S_282MinusMinus
     i: 0
     min: 12345
     name: sym
@@ -71953,7 +72012,7 @@ quote__S_184qq: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &23 !!perl/hash:RE_any 
+        re: &22 !!perl/hash:RE_any 
           a: 0
           altname: quote__S_184qq_01
           dba: quote__S_184qq
@@ -72091,7 +72150,7 @@ quote__S_184qq: !!perl/hash:RE
                   min: 0
                   name: quibble
                   rest: ($¢.cursor_fresh( ::STD::Q ).tweak(:qq))
-quote__S_184qq_01: *23
+quote__S_184qq_01: *22
 quote__S_185q: !!perl/hash:RE 
   decl: 
     - !!perl/hash:RE_decl 
@@ -72126,7 +72185,7 @@ quote__S_185q: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &52 !!perl/hash:RE_any 
+        re: &51 !!perl/hash:RE_any 
           a: 0
           altname: quote__S_185q_01
           dba: quote__S_185q
@@ -72254,7 +72313,7 @@ quote__S_185q: !!perl/hash:RE
                   min: 0
                   name: quibble
                   rest: ($¢.cursor_fresh( ::STD::Q ).tweak(:q))
-quote__S_185q_01: *52
+quote__S_185q_01: *51
 quote__S_186Q: !!perl/hash:RE 
   decl: 
     - !!perl/hash:RE_decl 
@@ -73146,7 +73205,7 @@ quotepair: !!perl/hash:RE
         decl: []
 
         min: 2
-        re: &37 !!perl/hash:RE_any 
+        re: &36 !!perl/hash:RE_any 
           a: 0
           altname: quotepair_01
           dba: colon pair (restricted)
@@ -73419,7 +73478,7 @@ quotepair: !!perl/hash:RE
         r: 1
         s: 0
         text: " $<k> = $key; $<v> = $value; "
-quotepair_01: *37
+quotepair_01: *36
 rad_number: !!perl/hash:RE 
   decl: []
 
@@ -74061,7 +74120,7 @@ regex_block: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &25 !!perl/hash:RE_any 
+        re: &24 !!perl/hash:RE_any 
           a: 0
           altname: regex_block_04
           dba: regex_block
@@ -74299,7 +74358,7 @@ regex_block: !!perl/hash:RE
                   max: 0
                   min: 0
                   name: _REDUCE
-regex_block_04: *25
+regex_block_04: *24
 regex_declarator__S_117regex: !!perl/hash:RE 
   decl: []
 
@@ -74432,7 +74491,7 @@ regex_def: !!perl/hash:RE
           decl: []
 
           min: 1
-          re: &27 !!perl/hash:RE_any 
+          re: &26 !!perl/hash:RE_any 
             a: 0
             altname: regex_def_01
             dba: regex_def
@@ -74695,7 +74754,7 @@ regex_def: !!perl/hash:RE
         r: 1
         rest: ''
         s: 1
-regex_def_01: *27
+regex_def_01: *26
 regex_def_02: *81
 routine_declarator__S_113sub: !!perl/hash:RE 
   decl: []
@@ -75515,7 +75574,7 @@ semilist: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &48 !!perl/hash:RE_any 
+        re: &47 !!perl/hash:RE_any 
           a: 0
           altname: semilist_01
           dba: semicolon list
@@ -75642,7 +75701,7 @@ semilist: !!perl/hash:RE
         nobind: 1
         noquant: 1
         rest: ''
-semilist_01: *48
+semilist_01: *47
 sibble: !!perl/hash:RE 
   decl: 
     - !!perl/hash:RE_decl 
@@ -76894,7 +76953,7 @@ special_variable__S_128DollarDollar: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &36 !!perl/hash:RE_any 
+            re: &35 !!perl/hash:RE_any 
               a: 0
               altname: special_variable__S_128DollarDollar_01
               dba: special_variable__S_128DollarDollar
@@ -76937,7 +76996,7 @@ special_variable__S_128DollarDollar: !!perl/hash:RE
         min: 0
         name: obs
         rest: ('$$ variable', '$*PID')
-special_variable__S_128DollarDollar_01: *36
+special_variable__S_128DollarDollar_01: *35
 special_variable__S_129DollarPercent: !!perl/hash:RE 
   decl: []
 
@@ -77185,7 +77244,7 @@ special_variable__S_132DollarAmp: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &42 !!perl/hash:RE_any 
+            re: &41 !!perl/hash:RE_any 
               a: 0
               altname: special_variable__S_132DollarAmp_01
               dba: special_variable__S_132DollarAmp
@@ -77228,7 +77287,7 @@ special_variable__S_132DollarAmp: !!perl/hash:RE
         min: 0
         name: obs
         rest: ('$& variable', '$/ or $()')
-special_variable__S_132DollarAmp_01: *42
+special_variable__S_132DollarAmp_01: *41
 special_variable__S_133DollarStar: !!perl/hash:RE 
   decl: []
 
@@ -77667,7 +77726,7 @@ special_variable__S_137AtPlus: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &29 !!perl/hash:RE_any 
+            re: &28 !!perl/hash:RE_any 
               a: 0
               altname: special_variable__S_137AtPlus_01
               dba: special_variable__S_137AtPlus
@@ -77710,7 +77769,7 @@ special_variable__S_137AtPlus: !!perl/hash:RE
         min: 0
         name: obs
         rest: ('@+ variable', '.to method')
-special_variable__S_137AtPlus_01: *29
+special_variable__S_137AtPlus_01: *28
 special_variable__S_138PercentPlus: !!perl/hash:RE 
   decl: []
 
@@ -77758,7 +77817,7 @@ special_variable__S_138PercentPlus: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &50 !!perl/hash:RE_any 
+            re: &49 !!perl/hash:RE_any 
               a: 0
               altname: special_variable__S_138PercentPlus_01
               dba: special_variable__S_138PercentPlus
@@ -77801,7 +77860,7 @@ special_variable__S_138PercentPlus: !!perl/hash:RE
         min: 0
         name: obs
         rest: ('%+ variable', '.to method')
-special_variable__S_138PercentPlus_01: *50
+special_variable__S_138PercentPlus_01: *49
 special_variable__S_139DollarPlusBra_Ket: !!perl/hash:RE 
   decl: []
 
@@ -79423,7 +79482,7 @@ special_variable__S_161DollarGt: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &47 !!perl/hash:RE_any 
+            re: &46 !!perl/hash:RE_any 
               a: 0
               altname: special_variable__S_161DollarGt_01
               dba: special_variable__S_161DollarGt
@@ -79466,7 +79525,7 @@ special_variable__S_161DollarGt: !!perl/hash:RE
         min: 0
         name: obs
         rest: ("$() variable", '$*EUID')
-special_variable__S_161DollarGt_01: *47
+special_variable__S_161DollarGt_01: *46
 special_variable__S_162DollarDot: !!perl/hash:RE 
   decl: []
 
@@ -79605,7 +79664,7 @@ special_variable__S_163DollarQuestion: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &31 !!perl/hash:RE_any 
+            re: &30 !!perl/hash:RE_any 
               a: 0
               altname: special_variable__S_163DollarQuestion_01
               dba: special_variable__S_163DollarQuestion
@@ -79648,7 +79707,7 @@ special_variable__S_163DollarQuestion: !!perl/hash:RE
         min: 0
         name: obs
         rest: ('$? variable as child error', '$!')
-special_variable__S_163DollarQuestion_01: *31
+special_variable__S_163DollarQuestion_01: *30
 starter: !!perl/hash:RE 
   decl: []
 
@@ -79733,7 +79792,7 @@ statement: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &40 !!perl/hash:RE_any 
+        re: &39 !!perl/hash:RE_any 
           a: 0
           altname: statement_02
           dba: statement end
@@ -80038,7 +80097,7 @@ statement: !!perl/hash:RE
                   max: 0
                   min: 0
                   name: _REDUCE
-statement_02: *40
+statement_02: *39
 statement_05: *126
 statement_control__S_034use: !!perl/hash:RE 
   decl: []
@@ -80085,7 +80144,7 @@ statement_control__S_034use: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &32 !!perl/hash:RE_any 
+        re: &31 !!perl/hash:RE_any 
           a: 0
           altname: statement_control__S_034use_01
           dba: statement_control__S_034use
@@ -80180,7 +80239,7 @@ statement_control__S_034use: !!perl/hash:RE
         nobind: 1
         noquant: 1
         rest: ''
-statement_control__S_034use_01: *32
+statement_control__S_034use_01: *31
 statement_control__S_035no: !!perl/hash:RE 
   decl: []
 
@@ -82834,19 +82893,20 @@ statement_mod_cond__S_069if: !!perl/hash:RE
   decl: []
 
   kind: rule
-  min: 24690
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: statement_mod_cond__S_069if
     i: 0
-    min: 24690
+    min: 37035
     r: 1
     s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
         dba: statement_mod_cond__S_069if
+        endsym: nofun
         i: 0
         min: 12345
         name: sym
@@ -82854,6 +82914,16 @@ statement_mod_cond__S_069if: !!perl/hash:RE
         rest: ''
         s: 1
         sym: if
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: statement_mod_cond__S_069if
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 1
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -82890,19 +82960,20 @@ statement_mod_cond__S_070unless: !!perl/hash:RE
   decl: []
 
   kind: rule
-  min: 24690
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: statement_mod_cond__S_070unless
     i: 0
-    min: 24690
+    min: 37035
     r: 1
     s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
         dba: statement_mod_cond__S_070unless
+        endsym: nofun
         i: 0
         min: 12345
         name: sym
@@ -82910,6 +82981,16 @@ statement_mod_cond__S_070unless: !!perl/hash:RE
         rest: ''
         s: 1
         sym: unless
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: statement_mod_cond__S_070unless
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 1
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -82946,19 +83027,20 @@ statement_mod_cond__S_071when: !!perl/hash:RE
   decl: []
 
   kind: rule
-  min: 24690
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: statement_mod_cond__S_071when
     i: 0
-    min: 24690
+    min: 37035
     r: 1
     s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
         dba: statement_mod_cond__S_071when
+        endsym: nofun
         i: 0
         min: 12345
         name: sym
@@ -82966,6 +83048,16 @@ statement_mod_cond__S_071when: !!perl/hash:RE
         rest: ''
         s: 1
         sym: when
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: statement_mod_cond__S_071when
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 1
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -83002,19 +83094,20 @@ statement_mod_loop__S_072while: !!perl/hash:RE
   decl: []
 
   kind: rule
-  min: 24690
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: statement_mod_loop__S_072while
     i: 0
-    min: 24690
+    min: 37035
     r: 1
     s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
         dba: statement_mod_loop__S_072while
+        endsym: nofun
         i: 0
         min: 12345
         name: sym
@@ -83022,6 +83115,16 @@ statement_mod_loop__S_072while: !!perl/hash:RE
         rest: ''
         s: 1
         sym: while
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: statement_mod_loop__S_072while
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 1
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -83058,19 +83161,20 @@ statement_mod_loop__S_073until: !!perl/hash:RE
   decl: []
 
   kind: rule
-  min: 24690
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: statement_mod_loop__S_073until
     i: 0
-    min: 24690
+    min: 37035
     r: 1
     s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
         dba: statement_mod_loop__S_073until
+        endsym: nofun
         i: 0
         min: 12345
         name: sym
@@ -83078,6 +83182,16 @@ statement_mod_loop__S_073until: !!perl/hash:RE
         rest: ''
         s: 1
         sym: until
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: statement_mod_loop__S_073until
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 1
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -83114,19 +83228,20 @@ statement_mod_loop__S_074for: !!perl/hash:RE
   decl: []
 
   kind: rule
-  min: 24690
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: statement_mod_loop__S_074for
     i: 0
-    min: 24690
+    min: 37035
     r: 1
     s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
         dba: statement_mod_loop__S_074for
+        endsym: nofun
         i: 0
         min: 12345
         name: sym
@@ -83134,6 +83249,16 @@ statement_mod_loop__S_074for: !!perl/hash:RE
         rest: ''
         s: 1
         sym: for
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: statement_mod_loop__S_074for
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 1
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -83170,19 +83295,20 @@ statement_mod_loop__S_075given: !!perl/hash:RE
   decl: []
 
   kind: rule
-  min: 24690
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: statement_mod_loop__S_075given
     i: 0
-    min: 24690
+    min: 37035
     r: 1
     s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
         dba: statement_mod_loop__S_075given
+        endsym: nofun
         i: 0
         min: 12345
         name: sym
@@ -83190,6 +83316,16 @@ statement_mod_loop__S_075given: !!perl/hash:RE
         rest: ''
         s: 1
         sym: given
+      - !!perl/hash:RE_method 
+        a: 0
+        dba: statement_mod_loop__S_075given
+        i: 0
+        min: 12345
+        name: nofun
+        nobind: 1
+        r: 1
+        rest: ''
+        s: 1
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -83729,7 +83865,7 @@ statementlist: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &38 !!perl/hash:RE_any 
+        re: &37 !!perl/hash:RE_any 
           a: 0
           altname: statementlist_01
           dba: statement list
@@ -83879,7 +84015,7 @@ statementlist: !!perl/hash:RE
         nobind: 1
         noquant: 1
         rest: ''
-statementlist_01: *38
+statementlist_01: *37
 stdstopper: !!perl/hash:RE 
   decl: 
     - !!perl/hash:RE_decl 
@@ -84029,7 +84165,7 @@ subshortname: !!perl/hash:RE
     decl: []
 
     min: 12345
-    re: &33 !!perl/hash:RE_any 
+    re: &32 !!perl/hash:RE_any 
       a: 0
       altname: subshortname_01
       dba: subshortname
@@ -84128,7 +84264,7 @@ subshortname: !!perl/hash:RE
               r: 1
               s: 0
               text: " $¢.add_routine($<desigilname>.text) if $+IN_DECL; "
-subshortname_01: *33
+subshortname_01: *32
 term__S_063BEGIN: !!perl/hash:RE 
   decl: []
 
@@ -85940,7 +86076,7 @@ term__S_391name: !!perl/hash:RE
                                 decl: []
 
                                 min: 1
-                                re: &43 !!perl/hash:RE_any 
+                                re: &42 !!perl/hash:RE_any 
                                   a: 0
                                   altname: term__S_391name_06
                                   dba: type parameter
@@ -86028,7 +86164,7 @@ term__S_391name: !!perl/hash:RE
                 - ":"
                 - ''
                 - 0
-term__S_391name_06: *43
+term__S_391name_06: *42
 terminator__S_404Semi: !!perl/hash:RE 
   decl: []
 
@@ -86447,7 +86583,7 @@ termish: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &49 !!perl/hash:RE_any 
+        re: &48 !!perl/hash:RE_any 
           a: 0
           altname: termish_01
           dba: prefix or noun
@@ -86542,7 +86678,7 @@ termish: !!perl/hash:RE
                 - ":"
                 - ''
                 - 0
-termish_01: *49
+termish_01: *48
 trait: !!perl/hash:RE 
   decl: []
 
@@ -88020,7 +88156,7 @@ unsp: !!perl/hash:RE
               decl: []
 
               min: 1
-              re: &39 !!perl/hash:RE_any 
+              re: &38 !!perl/hash:RE_any 
                 a: 0
                 altname: unsp_02
                 dba: unsp
@@ -88054,7 +88190,7 @@ unsp: !!perl/hash:RE
           decl: []
 
           min: 0
-          re: &22 !!perl/hash:RE_any 
+          re: &21 !!perl/hash:RE_any 
             a: 0
             altname: unsp_03
             dba: unspace
@@ -88144,8 +88280,8 @@ unsp: !!perl/hash:RE
           - ":"
           - ''
           - 0
-unsp_02: *39
-unsp_03: *22
+unsp_02: *38
+unsp_03: *21
 unspacey: !!perl/hash:RE 
   decl: []
 
@@ -88459,7 +88595,7 @@ value: !!perl/hash:RE
     decl: []
 
     min: 12345
-    re: &24 !!perl/hash:RE_any 
+    re: &23 !!perl/hash:RE_any 
       a: 0
       altname: value_01
       dba: value
@@ -88499,7 +88635,7 @@ value: !!perl/hash:RE
           r: 1
           rest: ''
           s: 0
-value_01: *24
+value_01: *23
 variable: !!perl/hash:RE 
   decl: []
 
@@ -89665,7 +89801,7 @@ ws: !!perl/hash:RE
         decl: []
 
         min: 0
-        re: &35 !!perl/hash:RE_any 
+        re: &34 !!perl/hash:RE_any 
           a: 0
           altname: ws_01
           dba: whitespace
@@ -89920,7 +90056,7 @@ ws: !!perl/hash:RE
             r: 1
             s: 0
             text: "\n        if ($¢.pos == $startpos) {\n            @+MEMOS[$¢.pos]<ws> = undef;\n        }\n        else {\n            @+MEMOS[$¢.pos]<ws> = $startpos;\n            @+MEMOS[$¢.pos]<endstmt> = @+MEMOS[$startpos]<endstmt>\n                if @+MEMOS[$startpos]<endstmt> :exists;\n        }\n    "
-ws_01: *35
+ws_01: *34
 ws_05: *125
 xblock: !!perl/hash:RE 
   decl: 
