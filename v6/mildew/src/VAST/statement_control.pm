@@ -56,8 +56,16 @@ sub emit_m0ld {
         AST::Loop->new(code => call('postcircumfix:( )',code($m->{block}),[capturize([])]));
 
     } elsif ($m->{sym} eq 'use') {
+        my $module = $m->{module_name}{longname};
         if ($m->{version}) {
             # use v6
+        } elsif ($module && $module->{colonpair}[0]{identifier}{TEXT} eq 'from') {
+            my $name = join '::',$module->{name}{identifier}{TEXT},map {
+                $_->{identifier}[0]{TEXT}
+            } @{$module->{name}{morename}};
+            call 'eval' => FETCH(lookup('$P5Interpreter')),[
+                string("use $name;")
+            ];
         } else {
             XXX;
         }
