@@ -10,7 +10,10 @@ sub VAST::term::emit_m0ld {
         lookup('$¿self');
     } elsif ($m->{identifier} && $m->{args}) {
         my $func = lookup('&'.$m->{identifier}{TEXT});
-        call 'postcircumfix:( )' => FETCH($func),[capturize($m->{args}->emit_m0ld)];
+        my @args = @{$m->{args}->emit_m0ld};
+        my @positional = grep { ref $_ ne 'AST::Pair' } @args;
+        my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
+        call 'postcircumfix:( )' => FETCH($func),[capturize([@positional],[@named])];
     } elsif ($m->{longname}) {
 	my $name = $m->{longname}->{name};
 	if ($name->{morename} and !$name->{identifier}) {
@@ -33,9 +36,12 @@ sub VAST::term::emit_m0ld {
 			$outer = FETCH(call( 'postcircumfix:{ }' => $inner, [ string $name ]));
 		    } else {
 			$name = '&'.$name;
+                        my @args = $m->{args}[0]->emit_m0ld;
+                        my @positional = grep { ref $_ ne 'AST::Pair' } @args;
+                        my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
 			$outer = call 'postcircumfix:( )' =>
 			    FETCH(call( 'postcircumfix:{ }' => $inner, [ string $name ])),
-			    [capturize($m->{args}[0]->emit_m0ld)];
+			    [capturize([@positional],[@named])];
 		    }
 		} else {
 		    $outer = $inner;
