@@ -6,6 +6,7 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
+    return string $m->{TEXT};
 }
 
 1;

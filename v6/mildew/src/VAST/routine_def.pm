@@ -8,8 +8,18 @@ sub emit_m0ld {
     my ($m, $visibility) = @_;
     $visibility ||= 'our';
 
-    my $name = '&'.$m->{deflongname}[0]{name}{identifier}{TEXT};
+    my ($anon, $name);
+    if ($m->{deflongname}[0]) {
+        $name = '&'.$m->{deflongname}[0]{name}{identifier}{TEXT};
+    } else {
+        $anon = 1;
+    }
+
     my $rout = routine($m->{block},$m->{multisig}[0]{signature}[0]);
+
+    if ($anon) {
+        return $rout;
+    }
 
     let $rout, sub {
 	my $value = shift;

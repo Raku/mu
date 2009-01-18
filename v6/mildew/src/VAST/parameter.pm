@@ -30,6 +30,12 @@ sub emit_m0ld_ahsig_BIND {
 			[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{identifier}[0]{TEXT}]),
 			  [call 'positional' => reg '$capture',[integer($count) ]];
       }
+    } elsif ($m->{named_param}) {
+        my $ident = $m->{named_param}{param_var}{identifier}[0]{TEXT};
+        my $sigil = $m->{named_param}{param_var}{sigil}{sym};
+        call 'BIND' => (call 'postcircumfix:{ }' => reg '$scope',
+			[ string $sigil.$ident ]),
+			  [call 'named' => reg '$capture',[string $ident ]];
     } else {
         XXX;
     }
