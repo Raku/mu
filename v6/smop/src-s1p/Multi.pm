@@ -24,14 +24,14 @@ knowhow Multi {
 	@candidates.push($candidate);
       }
       CONTROL {
-	if ($_.^does(ControlExceptionSignatureMatched)) {
+	if $_.^does(ControlExceptionSignatureMatched) {
           $candidate.postcircumfix:<( )>((|$capture), :cc($cc));
 	} else {
 	  $_.throw;
 	}
       }
       CATCH {
-	if ($_.^does(OutOfItemsException)) {
+	if $_.^does(OutOfItemsException) {
 	  if @candidates {
             my $candidate = @candidates.shift;
 	    if @candidates {
