@@ -8,6 +8,8 @@ $ make all
 $ ./elfblue -v -s -e 'say 3'
 $ make is_perl_recent_enough
 $ ./elfgreenstd -v -e 'say /<STD::number>/.match("23").match_describe'
+$ ./elfgreen -v -e 'proto token foo {a}; token foo:<+> { \+ }; token foo:<++> { \+\+ }; say /<foo>/.match("a++b").match_describe'
+
 $ make does_gimme5_memory_problem_still_exist
 
 INTRODUCTION

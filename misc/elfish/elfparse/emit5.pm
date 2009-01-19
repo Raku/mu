@@ -842,7 +842,7 @@ sub{my $__c__ = $_[0];
    }
 
   sub RMARE_aregex {
-    my($o,$pkg,$name,$f,$nparen)=@_;
+    my($o,$pkg,$name,$f,$nparen,$prefix_re)=@_;
     # Why the extra sub?  60+% shorter re_text runtime.  sigh.
     my $matchergen = subname "even with subname used?" => sub {
       subname "<an aregex-matcher for $o>" => sub {
@@ -858,7 +858,7 @@ sub{my $__c__ = $_[0];
         $m;
       }
     };
-    Regexp::ModuleA::Rx->_new_from_ast($o,$pkg,$name,$f,$matchergen);
+    Regexp::ModuleA::Rx->_new_from_ast($o,$pkg,$name,$f,$matchergen,$prefix_re);
   }
 
   sub RMARE_biind {
@@ -874,9 +874,22 @@ sub{my $__c__ = $_[0];
   }
 
   sub RMARE_category {
-    my($o,$pkg,$info)=@_;
+    my($o,$pkg,$categoryinfo_method)=@_;
     subname "<category ".($sub_id++).">" => sub {
-      my $info = $pkg->$info;
+      my $c = $_[0];
+      my $obj = $pkg->$categoryinfo_method;
+      my $info = $obj->info;
+      if(!$info){ FAIL() }
+      my $rest = substr($Regexp::ModuleA::ReentrantEngine::Env::str,$Regexp::ModuleA::ReentrantEngine::Env::pos);
+      for my $branch (@$info) {
+        my($prefix,$name,$rulename,$rx_sub) = @$branch;
+        if($rest !~ $prefix) { next }
+        my $f = $rx_sub->(" api0");
+        my $v = $f->($c);
+        if(FAILED($v)) { next }
+        $Regexp::ModuleA::ReentrantEngine::Env::alias_match->{match_rule} = $rulename; #XX kludge
+        return $v;
+      }
       FAIL();
     };
   }
@@ -901,15 +914,18 @@ sub{my $__c__ = $_[0];
   }
   sub _gather_info {
     my($o,$pkg,$filter)=@_;
-    my @names = grep{$_ =~ $filter} @{Class::Inspector->methods($pkg)};
-    print Data::Dumper::Dumper(\@names);
+    my $methods = Class::Inspector->methods($pkg) || [];
+    my @names = grep(/$filter/, @{$methods});
     my @data = map {
       my $name = $_;
-      my $meth = $pkg->can($name);
-      my $re = $meth->($pkg,\' prefix\');
-      [$re,$name,$meth]
+      my $rx_sub = UNIVERSAL::can($pkg,$name);
+      if(!$rx_sub){die "bug: $pkg  $name"}
+      my $prefix = $rx_sub->(\' hash\'){"prefix_re"}; #Note: reaching inside Rx;
+      my $rulename = $rx_sub->(\' hash\'){"name"}; #Note: reaching inside Rx;
+      [$prefix,$name,$rulename,$rx_sub]
     } @names;
-    @data = sort { length($a->[0]) <=> length($b->[0]) } @data;
+    @data = sort { length($b->[0]) <=> length($a->[0]) } @data;
+    #print Data::Dumper::Dumper($methods,$filter,\@names,\@data);
     [ map {$_} @data];  
   }
 }
@@ -925,10 +941,12 @@ package Regexp::ModuleA::Rx;
 use Sub::Name;
 
 sub _new_from_ast {
-  my($rxclass,$ast,$pkg,$name,$f,$matchergen)=@_;
+  my($rxclass,$ast,$pkg,$name,$f,$matchergen,$prefix_re)=@_;
   $pkg ||= "";
   $name ||= "";
-  my $h = {ast=>$ast,pkg=>$pkg,name=>$name,f=>$f,matchergen=>$matchergen};
+  $prefix_re ||= qr/\A/;
+  my $h = {ast=>$ast,pkg=>$pkg,name=>$name,f=>$f,matchergen=>$matchergen,
+           prefix_re=>$prefix_re};
   my $self;
   my $showname = $name || \'*anon*\';
   $self = subname "<an aregex for $ast $pkg $showname>" => sub {
@@ -1362,13 +1380,23 @@ package IRx1 {
     }
     method emit_RMARE {
       my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'}};
-      my $name = {if self.<name> {'"'~quotemeta(self.<name>)~'"'} else {'undef'}};
+      my $prefix_re = 'undef';
+      my $nameq = 'undef';
+      if self.<name> {
+        my $name = self.<name>;
+        $nameq = '"'~quotemeta($name)~'"';
+        my $g;
+        if ($g = $name.re_groups('[^:]:([^:]+)\z')) { #XX kludge
+          $prefix_re = 'qr/'~quotemeta($g[0])~'/';
+        }
+      }
       my $nparenx = {if self.<flags><p5> { self.<nparen> } else { self.<nparen6> }};
       $nparenx = $nparenx || 'undef';
       my $nparen = self.<nparen> ||'undef'; #||undef needed?
       my $expr = self.<expr>.emit_RMARE;
-      ('IRx1::RxBaseClass->RMARE_aregex('~$pkg~','~$name~
-       ',IRx1::RxBaseClass->RMARE_aregex_create('~$expr~','~$nparenx~'),'~$nparen~')');
+      ('IRx1::RxBaseClass->RMARE_aregex('~$pkg~','~$nameq~
+       ',IRx1::RxBaseClass->RMARE_aregex_create('~$expr~','~$nparenx~'),'~
+       $nparen~','~$prefix_re~')');
     }
   }
 
@@ -1400,14 +1428,14 @@ package IRx1 {
   }
 
   # proto token infix { <...> }
-  # NOT TESTED by rx_on_re test suite.
+  # NOT TESTED by the rx_on_re test suite.
   class RxCategory {
     method emit_RMARE {
       my $name = self.<name>;
-      my $infosub = '__rxcategory_'~$name;
-      my $decl = 'sub '~$infosub~' { $::{\''~$name~'\'} ||=  CategoryInfo->newp(__PACKAGE__,/\A'~quotemeta($name)~'_58/) };'; #XX
+      my $categoryinfo_method = '__rxcategory_'~$name;
+      my $decl = 'sub '~$categoryinfo_method~' { no strict; $'~$name~' ||= CategoryInfo->newp(__PACKAGE__,qr/\A'~quotemeta($name)~'_58/) };';
       $whiteboard::regex_category_header = $decl;
-      'IRx1::RxBaseClass->RMARE_category(__PACKAGE__,\''~$infosub~'\')'
+      'IRx1::RxBaseClass->RMARE_category(__PACKAGE__,\''~$categoryinfo_method~'\')'
     }
   }
 
