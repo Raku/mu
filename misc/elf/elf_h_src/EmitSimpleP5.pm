@@ -121,6 +121,7 @@ no warnings qw(redefine prototype);
     $_[0]
   }
 
+  sub hex   { CORE::hex($_[0]); }
 
   # randomness taken from autobox::Core
 
@@ -182,6 +183,8 @@ no warnings qw(redefine prototype);
   sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
   sub upto ($$) { [ $_[0]..$_[1] ] }
   sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
+
+  sub chr      { CORE::chr($_[0]); }
 }
 { package ARRAY;
   use base "Array";

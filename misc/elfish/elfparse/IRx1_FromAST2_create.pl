@@ -374,10 +374,17 @@ elsif $blackboard::quote eq '" "' {
     my $g = $e.re_groups('\A\\\\(.)\z');
     if $g { Buf.newp($g[0]) }
     elsif $o<variable> { $m<variable> }
+    elsif $o<item> { $m<item> }
     else { die "Unsupported qq escape: "~$e }
   }
 }
 else { die "Unsupported quote: "~$blackboard::quote }
+
+backslash:x
+my $xNNNN = *text*;
+my $s = ('0'~$xNNNN).hex.chr;
+Buf.newp($s)
+
 
 nibbler
 #XXX I've sooo no idea.
