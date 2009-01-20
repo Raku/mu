@@ -111,24 +111,7 @@ use Carp;
   package IRx1::RxAlias;
   sub newx {
     my($cls,$target,$expr)=@_;
-    $target =~ /^([\$\@\%](?:[[:alpha:]_][\w:]+|\/)?)(.*)$/ or die "bug";
-    my($root,$rest)=($1,$2);
-    my @parts;
-    if($rest =~ /^(\d+)(.*)/) {
-      push(@parts,'['=>$1);
-      $rest = $2;
-    }
-    while($rest ne ""){
-      $rest =~ /^((<)(\w+)>|(\[)(\d+)\])(.*)/ or die "bug";
-      my $key = $3 || $5;
-      my $kind = $2 || $4;
-      $kind = {'['=>'[','{'=>'{','<'=>'{'}->{$kind};
-      push(@parts,$kind=>$key);
-      $rest = $6;
-    }
-    $root .= '/' if length($root) == 1;
-    unshift(@parts,$root);
-    my $target_spec = \@parts;
+    my $target_spec = undef;
     bless {target=>$target,target_spec=>$target_spec,expr=>$expr}, $cls;
   }
   sub RAST_to_make0 {

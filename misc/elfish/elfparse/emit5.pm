@@ -1201,7 +1201,8 @@ package IRx1 {
     }
   }  
 
-  # .. := ...
+  # .. = ...
+  # .. := ... (formerly)
   class RxAlias {
     method emit_RMARE {
       my $target_spec = self.<target_spec>;

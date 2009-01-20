@@ -716,7 +716,14 @@ my $kind = $blackboard::regex_kind;
 my $name = $m<deflongname>[0];
 my $sig = $m<signature>; #X
 my $trait = $m<trait>; #X
+#
+temp $blackboard::sym;
+my $g;
+if $name && ($g = $name.re_groups('[^:]:([^:]+)\z')) {
+  $blackboard::sym = $g[0];
+}
 my $regex = $m<regex_block>;
+#
 if $blackboard::is_proto { # category decl
   my $regex = RxCategory.newp($name);
   my $rx = RxBiind.newp(undef,$name,RxARegex.newp('',{},$regex));
@@ -779,6 +786,10 @@ if $o<mod_internal> {
     $exprs = $exprs.concat($rest);
   }
   RxSeq.newp($exprs);
+} elsif $o<variable> && $o<binding> {
+  my $target = $o<variable>.match_string;
+  my $expr = $m<binding><quantified_atom>;
+  RxAlias.newp($target,undef,$expr);
 } elsif $x eq '.' { RxPat5.newp('.')
 } elsif $x eq '^' {
   if $blackboard::is_P5 { RxPat5.newp('^') } else { RxPat5.newp('\A') }
@@ -814,6 +825,11 @@ if $o<mod_internal> {
       $ast = RxSeq.newp(RxLookaround.newp(1,0,$exast),
 			$ast);
     }
+    return $ast;
+  }
+  my $sym = '<'~'sym>'; #X dodge preprocessor
+  if *text* eq $sym {
+    my $ast = RxAlias.newp('$'~$sym,undef,RxCap.newp(RxExact.newp($blackboard::sym)));
     return $ast;
   }
   my $pkg = undef;

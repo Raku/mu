@@ -146,6 +146,7 @@ package IRx1 {
     }
     method RAST_pass15 {
       self.<first_alias> = !defined($whiteboard::rx_target_spec);
+      self.<target_spec> = $._create_target_spec_from_target(self.<target>);
       my $spec = self.<target_spec>;
       my $idx;
       if ($spec.elems == 3 && $spec[1] eq '[') { $idx = $spec[2] }
@@ -160,6 +161,31 @@ package IRx1 {
       }
       temp $whiteboard::rx_target_spec = $spec;
       self.<expr>.RAST_pass15;
+    }
+    method _create_target_spec_from_target ($target) {
+      my $g = $target.re_groups('^([\$\@\%](?:[[:alpha:]_][\w:]+|\/)?)(.*)$');
+      if not($g) { die "bug" }
+      my $root = $g[0];
+      my $rest = $g[1];
+      my $parts = [];
+      if ($g = $rest.re_groups('^(\d+)(.*)')) {
+        $parts.push('[',$g[0]);
+        $rest = $g[1];
+      }
+      while ($rest ne "") {
+        $g = $rest.re_groups('^((<)(\w+)>|(\[)(\d+)\])(.*)');
+        if not($g) { die "bug" }
+        my $key = $g[2] || $g[4];
+        my $kind = $g[1] || $g[3];
+        my %normalize = ('['=>'[','{'=>'{','<'=>'{');
+        $kind = %normalize{$kind};
+        $parts.push($kind,$key);
+        $rest = $g[5];
+      }
+      $root = $root ~ '/' if $root.chars == 1;
+      $parts.unshift($root);
+      my $target_spec = $parts;
+      return $target_spec;
     }
   }
 
