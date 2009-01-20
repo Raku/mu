@@ -10,6 +10,7 @@ grammar STD:ver<6.0.0.alpha>:auth<http://perl.org>;
 #S#  my $PARSER is context<rw>;
 #S#  my $ACTIONS is context<rw>;
 #S#  my $IN_DECL is context<rw>;
+#S#  my $SIGIL is context<rw>;
 #S#  my %ROUTINES;
 #S#  my $ORIG is context;
 #S#  my @MEMOS is context;
@@ -23,6 +24,7 @@ my $GOAL is context = "(eof)";
 my $PARSER is context<rw>;
 my $ACTIONS is context<rw>;
 my $IN_DECL is context<rw>;
+my $SIGIL is context<rw>;
 my %ROUTINES;
 my $ORIG is context;
 my @MEMOS is context;
@@ -119,7 +121,7 @@ method TOP ($STOP = undef) {
 #S#      bit bool
 #S#  
 #S#      Order Increasing Decreasing
-#S#      Ordered Callable Positional Associatve
+#S#      Ordered Callable Positional Associative Abstraction
 #S#      Ordering KeyExtractor Comparator OrderingPair
 #S#  
 #S#      IO
@@ -151,7 +153,7 @@ my @basetypenames = qw[
     bit bool
 
     Order Increasing Decreasing
-    Ordered Callable Positional Associatve
+    Ordered Callable Positional Associative Abstraction
     Ordering KeyExtractor Comparator OrderingPair
 
     IO
@@ -192,8 +194,9 @@ method add_type ($name) {
 #S#  # XXX likewise for routine defs
 #S#  
 #S#  my @baseroutinenames = qw[
-#S#      WHAT WHICH VAR
+#S#      WHAT WHERE HOW WHICH VAR WHO WHENCE new
 #S#      any all none one
+#S#      not true
 #S#  
 #S#      die exit warn
 #S#      caller want
@@ -204,7 +207,7 @@ method add_type ($name) {
 #S#      cat classify
 #S#      quotemeta
 #S#      chr ord
-#S#      p5chop chop p5chomp chomp
+#S#      p5chop chop p5chomp chomp trim
 #S#      index rindex substr
 #S#      join split comb pack unpack
 #S#      uc ucfirst lc lcfirst
@@ -216,6 +219,7 @@ method add_type ($name) {
 #S#  
 #S#      say print open close printf sprintf slurp unlink link symlink
 #S#      elems grep map first reduce sort uniq push reverse take splice
+#S#      lines getc
 #S#  
 #S#      zip each roundrobin caller
 #S#      return leave pop shift unshift reduce
@@ -243,8 +247,9 @@ method add_type ($name) {
 #S#  
 #S#  # please don't add: ref length bless delete exists
 my @baseroutinenames = qw[
-    WHAT WHICH VAR
+    WHAT WHERE HOW WHICH VAR WHO WHENCE new
     any all none one
+    not true
 
     die exit warn
     caller want
@@ -255,7 +260,7 @@ my @baseroutinenames = qw[
     cat classify
     quotemeta
     chr ord
-    p5chop chop p5chomp chomp
+    p5chop chop p5chomp chomp trim
     index rindex substr
     join split comb pack unpack
     uc ucfirst lc lcfirst
@@ -267,6 +272,7 @@ my @baseroutinenames = qw[
 
     say print open close printf sprintf slurp unlink link symlink
     elems grep map first reduce sort uniq push reverse take splice
+    lines getc
 
     zip each roundrobin caller
     return leave pop shift unshift reduce
@@ -377,14 +383,14 @@ method add_routine ($name) {
 #S#  constant %multiplicative  = (:prec<u=>, :assoc<left>,  :assign);
 #S#  constant %additive        = (:prec<t=>, :assoc<left>,  :assign);
 #S#  constant %replication     = (:prec<s=>, :assoc<left>,  :assign);
-#S#  constant %concatenation   = (:prec<r=>, :assoc<left>,  :assign);
+#S#  constant %concatenation   = (:prec<r=>, :assoc<list>,  :assign);
 #S#  constant %junctive_and    = (:prec<q=>, :assoc<list>,  :assign);
 #S#  constant %junctive_or     = (:prec<p=>, :assoc<list>,  :assign);
 #S#  constant %named_unary     = (:prec<o=>);
 #S#  constant %nonchaining     = (:prec<n=>, :assoc<non>);
 #S#  constant %chaining        = (:prec<m=>, :assoc<chain>, :bool);
-#S#  constant %tight_and       = (:prec<l=>, :assoc<left>,  :assign);
-#S#  constant %tight_or        = (:prec<k=>, :assoc<left>,  :assign);
+#S#  constant %tight_and       = (:prec<l=>, :assoc<list>,  :assign);
+#S#  constant %tight_or        = (:prec<k=>, :assoc<list>,  :assign);
 #S#  constant %conditional     = (:prec<j=>, :assoc<right>);
 #S#  constant %item_assignment = (:prec<i=>, :assoc<right>);
 #S#  constant %loose_unary     = (:prec<h=>);
@@ -392,8 +398,8 @@ method add_routine ($name) {
 #S#  constant %list_infix      = (:prec<f=>, :assoc<list>,  :assign);
 #S#  constant %list_assignment = (:prec<i=>, :sub<e=>, :assoc<right>);
 #S#  constant %list_prefix     = (:prec<e=>);
-#S#  constant %loose_and       = (:prec<d=>, :assoc<left>,  :assign);
-#S#  constant %loose_or        = (:prec<c=>, :assoc<left>,  :assign);
+#S#  constant %loose_and       = (:prec<d=>, :assoc<list>,  :assign);
+#S#  constant %loose_or        = (:prec<c=>, :assoc<list>,  :assign);
 #S#  constant %sequencer      = (:prec<b=>, :assoc<left>, :nextterm<statement>);
 #S#  constant %LOOSEST         = (:prec<a=!>);
 #S#  constant %terminator      = (:prec<a=>, :assoc<list>);
@@ -405,14 +411,14 @@ constant %symbolic_unary  = (:prec<v=>);
 constant %multiplicative  = (:prec<u=>, :assoc<left>,  :assign);
 constant %additive        = (:prec<t=>, :assoc<left>,  :assign);
 constant %replication     = (:prec<s=>, :assoc<left>,  :assign);
-constant %concatenation   = (:prec<r=>, :assoc<left>,  :assign);
+constant %concatenation   = (:prec<r=>, :assoc<list>,  :assign);
 constant %junctive_and    = (:prec<q=>, :assoc<list>,  :assign);
 constant %junctive_or     = (:prec<p=>, :assoc<list>,  :assign);
 constant %named_unary     = (:prec<o=>);
 constant %nonchaining     = (:prec<n=>, :assoc<non>);
 constant %chaining        = (:prec<m=>, :assoc<chain>, :bool);
-constant %tight_and       = (:prec<l=>, :assoc<left>,  :assign);
-constant %tight_or        = (:prec<k=>, :assoc<left>,  :assign);
+constant %tight_and       = (:prec<l=>, :assoc<list>,  :assign);
+constant %tight_or        = (:prec<k=>, :assoc<list>,  :assign);
 constant %conditional     = (:prec<j=>, :assoc<right>);
 constant %item_assignment = (:prec<i=>, :assoc<right>);
 constant %loose_unary     = (:prec<h=>);
@@ -420,8 +426,8 @@ constant %comma           = (:prec<g=>, :assoc<list>, :nextterm<nulltermish>);
 constant %list_infix      = (:prec<f=>, :assoc<list>,  :assign);
 constant %list_assignment = (:prec<i=>, :sub<e=>, :assoc<right>);
 constant %list_prefix     = (:prec<e=>);
-constant %loose_and       = (:prec<d=>, :assoc<left>,  :assign);
-constant %loose_or        = (:prec<c=>, :assoc<left>,  :assign);
+constant %loose_and       = (:prec<d=>, :assoc<list>,  :assign);
+constant %loose_or        = (:prec<c=>, :assoc<list>,  :assign);
 constant %sequencer      = (:prec<b=>, :assoc<left>, :nextterm<statement>);
 constant %LOOSEST         = (:prec<a=!>);
 constant %terminator      = (:prec<a=>, :assoc<list>);
@@ -429,7 +435,9 @@ constant %terminator      = (:prec<a=>, :assoc<list>);
 #S#  # "epsilon" tighter than terminator
 #S#  #constant $LOOSEST = %LOOSEST<prec>;
 #S#  constant $LOOSEST = "a=!"; # XXX preceding line is busted
+#S#  constant $item_assignment_prec = 'i=';
 constant $LOOSEST = "a=!";
+constant $item_assignment_prec = 'i=';
 #S#  
 #S#  
 #S#  role PrecOp {
@@ -712,10 +720,10 @@ class Terminator does PrecOp {
 #S#  proto rule  statement_control (:$endsym is context = 'spacey') { <...> }
 #S#  
 #S#  token category:statement_mod_cond { <sym> }
-#S#  proto rule  statement_mod_cond () { <...> }
+#S#  proto rule  statement_mod_cond (:$endsym is context = 'nofun') { <...> }
 #S#  
 #S#  token category:statement_mod_loop { <sym> }
-#S#  proto rule  statement_mod_loop () { <...> }
+#S#  proto rule  statement_mod_loop (:$endsym is context = 'nofun') { <...> }
 #S#  
 #S#  token category:infix_prefix_meta_operator { <sym> }
 #S#  proto token infix_prefix_meta_operator is binary { <...> }
@@ -750,10 +758,10 @@ class Terminator does PrecOp {
 #S#  
 #S#      :dba('whitespace')
 #S#      [
-#S#  	| \h+ <![#\s\\]> { @+MEMOS[$¢.pos]<ws> = $startpos; }	# common case
-#S#  	| <?before \w> <?after \w> :::
-#S#  	    { @+MEMOS[$startpos]<ws> = undef; }
-#S#  	    <!>        # must \s+ between words
+#S#          | \h+ <![#\s\\]> { @+MEMOS[$¢.pos]<ws> = $startpos; }   # common case
+#S#          | <?before \w> <?after \w> :::
+#S#              { @+MEMOS[$startpos]<ws> = undef; }
+#S#              <!>        # must \s+ between words
 #S#      ]
 #S#      ||
 #S#      [
@@ -907,11 +915,11 @@ class Terminator does PrecOp {
 #S#      '{' ~ '}' <statementlist>
 #S#  
 #S#      [
-#S#      | <?before \h* $$> 	# (usual case without comments)
-#S#  	{ @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple 
+#S#      | <?before \h* $$>  # (usual case without comments)
+#S#          { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple 
 #S#      | \h* <.unsp>? <?before <[,:]>> {*}                         #= normal 
 #S#      | <.unv>? $$
-#S#  	{ @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex
+#S#          { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex
 #S#      | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; } {*}             #= endargs
 #S#      ]
 #S#  }
@@ -921,11 +929,11 @@ class Terminator does PrecOp {
 #S#      :my $GOAL is context = '}';
 #S#  
 #S#      [ <quotepair> <.ws>
-#S#  	{
-#S#  	    my $kv = $<quotepair>[*-1];
-#S#  	    $lang = $lang.tweak($kv.<k>, $kv.<v>)
+#S#          {
+#S#              my $kv = $<quotepair>[*-1];
+#S#              $lang = $lang.tweak($kv.<k>, $kv.<v>)
 #S#                  or self.panic("Unrecognized adverb :" ~ $kv.<k> ~ '(' ~ $kv.<v> ~ ')');
-#S#  	}
+#S#          }
 #S#      ]*
 #S#  
 #S#      '{'
@@ -933,11 +941,11 @@ class Terminator does PrecOp {
 #S#      [ '}' || <.panic: "Unable to parse regex; couldn't find right brace"> ]
 #S#  
 #S#      [
-#S#      | <?before \h* $$> 	# (usual case without comments)
-#S#  	{ @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple 
+#S#      | <?before \h* $$>  # (usual case without comments)
+#S#          { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple 
 #S#      | \h* <.unsp>? <?before <[,:]>> {*}                         #= normal 
 #S#      | <.unv>? $$
-#S#  	{ @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex
+#S#          { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex
 #S#      | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; }   {*}           #= endargs
 #S#      ]
 #S#  }
@@ -1214,7 +1222,7 @@ token nulltermish {
 #S#      # also queue up any postfixes
 #S#      :dba('postfix')
 #S#      [ <?stdstopper> ||
-#S#  	<POST>*
+#S#          <POST>*
 #S#      ]
 #S#  }
 token termish {
@@ -1227,14 +1235,14 @@ token termish {
     # also queue up any postfixes
     :dba('postfix')
 #XXXTODO    [ <?stdstopper> ||
-#XXXTODO	<POST>*
+#XXXTODO        <POST>*
 #XXXTODO    ]
 }
 #S#  
 #S#  token noun {
 #S#      [
 #S#      | <fatarrow>
-#S#      | <variable> { $<SIGIL> = $<variable><sigil> }
+#S#      | <variable>
 #S#      | <package_declarator>
 #S#      | <scope_declarator>
 #S#      | <?before 'multi'|'proto'|'only'> <multi_declarator>
@@ -1254,7 +1262,7 @@ token termish {
 token noun {
     [
     | <fatarrow>
-#XXXTODO?    | <variable> { $<SIGIL> = $<variable><sigil> }
+    | <variable>
     | <package_declarator>
     | <scope_declarator>
 #XXXTODO?    | <?before 'multi'|'proto'|'only'> <multi_declarator>
@@ -1372,7 +1380,7 @@ token noun {
 #S#      :dba('dotty method or postfix')
 #S#      [
 #S#      | <methodop>
-#S#      | <postop>     # forcing postop's precedence to methodcall here
+#S#      | <!alpha> <postop> # only non-alpha postfixes have dotty form
 #S#      ]
 #S#  }
 #S#  
@@ -1385,7 +1393,7 @@ token noun {
 #S#      # last whitespace didn't end here
 #S#      <!{ @+MEMOS[$¢.pos]<ws> }>
 #S#  
-#S#      [ <.unsp> | '\\' <?before '.'> ]?
+#S#      [ <.unsp> | '\\' ]?
 #S#  
 #S#      [ ['.' <.unsp>?]? <postfix_prefix_meta_operator> <.unsp>? ]*
 #S#  
@@ -1395,6 +1403,7 @@ token noun {
 #S#      | <privop> { $<O> = $<privop><O> }
 #S#      | <postop> { $<O> = $<postop><O> }
 #S#      ]
+#S#      { $+SIGIL = '@' }
 #S#  }
 #S#  
 #S#  regex prefix_circumfix_meta_operator:reduce (--> List_prefix) {
@@ -1532,7 +1541,7 @@ token noun {
 #S#  
 #S#  token variable_declarator {
 #S#      :my $IN_DECL is context<rw> = 1;
-#S#      <variable> { $<SIGIL> = $<variable><sigil> }
+#S#      <variable>
 #S#      { $IN_DECL = 0; }
 #S#      [   # Is it a shaped array or hash declaration?
 #S#        #  <?{ $<sigil> eq '@' | '%' }>
@@ -1554,21 +1563,21 @@ token noun {
 #S#  rule scoped {
 #S#      :dba('scoped declarator')
 #S#      [
-#S#      | <declarator> { $<SIGIL> = $<declarator><SIGIL> }
+#S#      | <declarator>
 #S#      | <regex_declarator>
 #S#      | <package_declarator>
 #S#      | <fulltypename>+ <multi_declarator>
-#S#      | <multi_declarator> { $<SIGIL> = $<multi_declarator><SIGIL> }
+#S#      | <multi_declarator>
 #S#  #    | <?before <[A..Z]> > <name> <.panic("Apparent type name " ~ $<name>.text ~ " is not declared yet")>
 #S#      ]
 #S#  }
 #S#  
 #S#  
-#S#  token scope_declarator:my       { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
-#S#  token scope_declarator:our      { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
-#S#  token scope_declarator:state    { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
-#S#  token scope_declarator:constant { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
-#S#  token scope_declarator:has      { <sym> <scoped> { $<SIGIL> = $<scoped><SIGIL> } }
+#S#  token scope_declarator:my       { <sym> <scoped> }
+#S#  token scope_declarator:our      { <sym> <scoped> }
+#S#  token scope_declarator:state    { <sym> <scoped> }
+#S#  token scope_declarator:constant { <sym> <scoped> }
+#S#  token scope_declarator:has      { <sym> <scoped> }
 #S#  
 #S#  
 #S#  token package_declarator:class {
@@ -1622,7 +1631,7 @@ token noun {
 #S#  rule package_def {
 #S#      :my $longname;
 #S#      [
-#S#  	<module_name>{
+#S#          <module_name>{
 #S#              $longname = $<module_name>[0]<longname>;
 #S#              $¢.add_type($longname.text);
 #S#          }
@@ -1631,27 +1640,27 @@ token noun {
 #S#      [
 #S#         <?before '{'>
 #S#         {{
-#S#  	   # figure out the actual full package name (nested in outer package)
+#S#             # figure out the actual full package name (nested in outer package)
 #S#              my $pkg = $+PKG // "GLOBAL";
-#S#  	    push @PKGS, $pkg;
-#S#  	    if $longname {
-#S#  		my $shortname = $longname.<name>.text;
-#S#  		$+PKG = $pkg ~ '::' ~ $shortname;
-#S#  	    }
-#S#  	    else {
-#S#  		$+PKG = $pkg ~ '::_anon_';
-#S#  	    }
-#S#  	}}
+#S#              push @PKGS, $pkg;
+#S#              if $longname {
+#S#                  my $shortname = $longname.<name>.text;
+#S#                  $+PKG = $pkg ~ '::' ~ $shortname;
+#S#              }
+#S#              else {
+#S#                  $+PKG = $pkg ~ '::_anon_';
+#S#              }
+#S#          }}
 #S#          <block>
-#S#  	{{
-#S#  	    $+PKG = pop(@PKGS);
-#S#  	}}
-#S#  	{*}                                                     #= block
+#S#          {{
+#S#              $+PKG = pop(@PKGS);
+#S#          }}
+#S#          {*}                                                     #= block
 #S#      || <?{ $+begin_compunit }> {} <?before ';'>
 #S#          {
 #S#              $longname orelse $¢.panic("Compilation unit cannot be anonymous");
-#S#  	    my $shortname = $longname.<name>.text;
-#S#  	    $+PKG = $shortname;
+#S#              my $shortname = $longname.<name>.text;
+#S#              $+PKG = $shortname;
 #S#              $+begin_compunit = 0;
 #S#          }
 #S#          {*}                                                     #= semi
@@ -1661,7 +1670,7 @@ token noun {
 #S#  
 #S#  token declarator {
 #S#      [
-#S#      | <variable_declarator> { $<SIGIL> = $<variable_declarator><SIGIL> }
+#S#      | <variable_declarator>
 #S#      | '(' ~ ')' <signature> <trait>*
 #S#      | <routine_declarator>
 #S#      | <regex_declarator>
@@ -1669,10 +1678,10 @@ token noun {
 #S#      ]
 #S#  }
 #S#  
-#S#  token multi_declarator:multi { <sym> <.ws> [ <declarator> { $<SIGIL> = $<declarator><SIGIL> } || <routine_def> ] }
-#S#  token multi_declarator:proto { <sym> <.ws> [ <declarator> { $<SIGIL> = $<declarator><SIGIL> } || <routine_def> ] }
-#S#  token multi_declarator:only  { <sym> <.ws> [ <declarator> { $<SIGIL> = $<declarator><SIGIL> } || <routine_def> ] }
-#S#  token multi_declarator:null  { <declarator> { $<SIGIL> = $<declarator><SIGIL> } }
+#S#  token multi_declarator:multi { <sym> <.ws> [ <declarator> || <routine_def> ] }
+#S#  token multi_declarator:proto { <sym> <.ws> [ <declarator> || <routine_def> ] }
+#S#  token multi_declarator:only  { <sym> <.ws> [ <declarator> || <routine_def> ] }
+#S#  token multi_declarator:null  { <declarator> }
 #S#  
 #S#  token routine_declarator:sub       { <sym> <routine_def> }
 #S#  token routine_declarator:method    { <sym> <method_def> }
@@ -1959,7 +1968,7 @@ token noun {
 #S#  }
 #S#  
 #S#  token variable {
-#S#      <?before <sigil> > {}
+#S#      <?before <sigil> { $+SIGIL ||= $<sigil>.text } > {}
 #S#      [
 #S#      || '&' <twigil>?  <sublongname> {*}                                   #= subnoun
 #S#      || <?before '$::('> '$' <name>?
@@ -1974,7 +1983,7 @@ token noun {
 #S#          | <sigil> \d+ {*}                                           #= $0
 #S#          # Note: $() can also parse as contextualizer in an expression; should have same effect
 #S#          | <sigil> <?before '<' | '('> <postcircumfix> {*}           #= $()
-#S#  	| <sigil> <?{ $+IN_DECL }> {*}				    #= anondecl
+#S#          | <sigil> <?{ $+IN_DECL }> {*}                              #= anondecl
 #S#          ]
 #S#      ]
 #S#  }
@@ -2074,7 +2083,7 @@ token value {
 #S#  
 #S#  token typename {
 #S#      [
-#S#      | '::?'<identifier>			# parse ::?CLASS as special case
+#S#      | '::?'<identifier>                 # parse ::?CLASS as special case
 #S#      | <longname>
 #S#        <?{{
 #S#          my $longname = $<longname>.text;
@@ -2237,11 +2246,11 @@ token hexint {
 #S#  
 #S#      <.ws>
 #S#      [ <quotepair> <.ws>
-#S#  	{
-#S#  	    my $kv = $<quotepair>[*-1];
-#S#  	    $lang = $lang.tweak($kv.<k>, $kv.<v>)
+#S#          {
+#S#              my $kv = $<quotepair>[*-1];
+#S#              $lang = $lang.tweak($kv.<k>, $kv.<v>)
 #S#                  or self.panic("Unrecognized adverb :" ~ $kv.<k> ~ '(' ~ $kv.<v> ~ ')');
-#S#  	}
+#S#          }
 #S#      ]*
 #S#  
 #S#      {
@@ -2278,13 +2287,13 @@ token hexint {
 #S#  
 #S#      $start <left=nibble($lang)> $stop 
 #S#      [ <?{ $start ne $stop }>
-#S#  	<.ws>
+#S#          <.ws>
 #S#          [ '=' || <.panic: "Missing '='"> ]
 #S#          <.ws>
 #S#          <right=EXPR(item %item_assignment)>
 #S#      || 
-#S#  	{ $lang = $lang2.unbalanced($stop); }
-#S#  	<right=nibble($lang)> $stop
+#S#          { $lang = $lang2.unbalanced($stop); }
+#S#          <right=nibble($lang)> $stop
 #S#      ]
 #S#  }
 #S#  
@@ -2295,10 +2304,10 @@ token hexint {
 #S#  
 #S#      $start <left=nibble($lang)> $stop 
 #S#      [ <?{ $start ne $stop }>
-#S#  	<.ws> <quibble($lang2)>
+#S#          <.ws> <quibble($lang2)>
 #S#      || 
-#S#  	{ $lang = $lang2.unbalanced($stop); }
-#S#  	<right=nibble($lang)> $stop
+#S#          { $lang = $lang2.unbalanced($stop); }
+#S#          <right=nibble($lang)> $stop
 #S#      ]
 #S#  }
 #S#  
@@ -2447,7 +2456,7 @@ token hexint {
 #S#  }
 #S#  
 #S#  token old_rx_mods {
-#S#      (< i g s m x c e ] >+) 
+#S#      (< i g s m x c e >+) 
 #S#      {{
 #S#          given $0.text {
 #S#              $_ ~~ /i/ and $¢.worryobs('/i',':i');
@@ -2681,7 +2690,7 @@ constant %open2close = (
 #S#      my $startpos = $pos;
 #S#      my $char = substr($ORIG,$pos++,1);
 #S#      if $char ~~ /^\s$/ {
-#S#  	self.panic("Whitespace not allowed as delimiter");
+#S#          self.panic("Whitespace not allowed as delimiter");
 #S#      }
 #S#  
 #S#  # XXX not defined yet
@@ -2691,10 +2700,10 @@ constant %open2close = (
 #S#  
 #S#      my $rightbrack = %open2close{$char};
 #S#      if not defined $rightbrack {
-#S#  	return $char, $char;
+#S#          return $char, $char;
 #S#      }
 #S#      while substr($ORIG,$pos,1) eq $char {
-#S#  	$pos++;
+#S#          $pos++;
 #S#      }
 #S#      my $len = $pos - $startpos;
 #S#      my $start = $char x $len;
@@ -2915,7 +2924,7 @@ grammar Q is STD {
 #S#  grammar Quasi is STD {
 grammar Quasi is STD {
 #S#      token term:unquote {
-#S#          <starter><starter><starter> <statementlist> <stopper><stopper><stopper>
+#S#          <starter><starter><starter> <EXPR> <stopper><stopper><stopper>
 #S#      }
 #S#  
 #S#      # begin tweaks (DO NOT ERASE)
@@ -2943,7 +2952,7 @@ grammar Quasi is STD {
 #S#  
 #S#  rule multisig {
 #S#      [
-#S#  	':'?'(' ~ ')' <signature>
+#S#          ':'?'(' ~ ')' <signature>
 #S#      ]
 #S#      ** '|'
 #S#  }
@@ -3047,14 +3056,14 @@ grammar Quasi is STD {
 #S#      ] ** <param_sep>
 #S#      <.ws>
 #S#      [ '-->' <.ws> <fulltypename> ]?
-#S#      { $IN_DECL = 0; }
+#S#      { $IN_DECL = 0; $+SIGIL = '@' }
 #S#  }
 #S#  
 #S#  token type_declarator:subset {
 #S#      <sym> :s
 #S#      <longname> { $¢.add_type($<longname>.text); }
 #S#      [ of <fulltypename> ]?
-#S#      [where <EXPR(item %chaining)> ]?	# (EXPR can parse multiple where clauses)
+#S#      [where <EXPR(item %chaining)> ]?    # (EXPR can parse multiple where clauses)
 #S#  }
 #S#  
 #S#  token type_declarator:enum {
@@ -3085,8 +3094,8 @@ grammar Quasi is STD {
 #S#      ':'
 #S#      [
 #S#      | <name=identifier> '(' <.ws>
-#S#  	[ <named_param> | <param_var> <.ws> ]
-#S#  	[ ')' || <.panic: "Unable to parse named parameter; couldn't find right parenthesis"> ]
+#S#          [ <named_param> | <param_var> <.ws> ]
+#S#          [ ')' || <.panic: "Unable to parse named parameter; couldn't find right parenthesis"> ]
 #S#      | <param_var>
 #S#      ]
 #S#  }
@@ -3109,6 +3118,7 @@ grammar Quasi is STD {
 #S#  
 #S#              # ordinary parameter name
 #S#          || <identifier>
+#S#          || <[/!]>
 #S#  
 #S#              # bare sigil?
 #S#          ]?
@@ -3127,6 +3137,7 @@ grammar Quasi is STD {
 #S#          | <param_var>
 #S#          | '*' <param_var>
 #S#          | '|' <param_var>
+#S#          | '\\' <param_var>
 #S#          | <named_param>
 #S#          ]
 #S#      >
@@ -3135,9 +3146,10 @@ grammar Quasi is STD {
 #S#      [
 #S#      | '*' <param_var>   { $quant = '*'; $kind = '*'; }
 #S#      | '|' <param_var>   { $quant = '|'; $kind = '*'; }
+#S#      | '\\' <param_var>  { $quant = '\\'; $kind = '!'; }
 #S#      |   [
 #S#          | <param_var>   { $quant = ''; $kind = '!'; }
-#S#  	| <named_param> { $quant = ''; $kind = '*'; }
+#S#          | <named_param> { $quant = ''; $kind = '*'; }
 #S#          ]
 #S#          [
 #S#          | '?'           { $quant = '?'; $kind = '?' }
@@ -3156,7 +3168,8 @@ grammar Quasi is STD {
 #S#              given $quant {
 #S#                when '!' { $¢.panic("Can't put a default on a required parameter") }
 #S#                when '*' { $¢.panic("Can't put a default on a slurpy parameter") }
-#S#                when '|' { $¢.panic("Can't put a default on a capture parameter") }
+#S#                when '|' { $¢.panic("Can't put a default on an slurpy capture parameter") }
+#S#                when '\\' { $¢.panic("Can't put a default on a capture parameter") }
 #S#              }
 #S#              $kind = '?';
 #S#          }}
@@ -3273,7 +3286,7 @@ grammar Quasi is STD {
 #S#      { <sym> }
 #S#  
 #S#  token circumfix:sigil ( --> Term)
-#S#      { :dba('contextualizer') <sigil> '(' ~ ')' <semilist> }
+#S#      { :dba('contextualizer') <sigil> '(' ~ ')' <semilist> { $+SIGIL ||= $<sigil>.text } }
 #S#  
 #S#  #token circumfix:typecast ( --> Term)
 #S#  #    { <typename> '(' ~ ')' <semilist> }
@@ -3285,6 +3298,9 @@ grammar Quasi is STD {
 #S#      { :dba('array composer') '[' ~ ']' <semilist> }
 #S#  
 #S#  ## methodcall
+#S#  
+#S#  token postfix:sym<i> ( --> Methodcall)
+#S#      { <sym> » }
 #S#  
 #S#  token infix:sym<.> ()
 #S#      { '.' <[\]\)\},:\s\$"']> <obs('. to concatenate strings', '~')> }
@@ -3304,9 +3320,6 @@ grammar Quasi is STD {
 #S#  
 #S#  token prefix:sym<--> ( --> Autoincrement)
 #S#      { <sym> }
-#S#  
-#S#  token postfix:sym<i> ( --> Autoincrement)
-#S#      { <sym> » }
 #S#  
 #S#  ## exponentiation
 #S#  token infix:sym<**> ( --> Exponentiation)
@@ -3619,7 +3632,7 @@ grammar Quasi is STD {
 #S#  token infix:sym<=> ()
 #S#  {
 #S#      <sym>
-#S#      { $¢ = (self.<SIGIL> // self.<sigil> // '') eq '$' 
+#S#      { $¢ = $+SIGIL eq '$' 
 #S#          ?? STD::Item_assignment.coerce($¢)
 #S#          !! STD::List_assignment.coerce($¢);
 #S#      }
@@ -3849,7 +3862,7 @@ grammar Quasi is STD {
 #S#      [
 #S#      | <?terminator>
 #S#      | <?unitstopper>
-#S#      | $					# unlikely, check last (normal LTM behavior)
+#S#      | $                                 # unlikely, check last (normal LTM behavior)
 #S#      ]
 #S#      { @+MEMOS[$¢.pos]<endstmt> ||= 1; }
 #S#  }
@@ -3864,6 +3877,7 @@ grammar Quasi is STD {
 #S#      }
 #S#      my $preclim = $preclvl ?? $preclvl.<prec> // $LOOSEST !! $LOOSEST;
 #S#      my $inquote is context = 0;
+#S#      my $SIGIL is context<rw> = '';
 #S#      my @termstack;
 #S#      my @opstack;
 #S#      my $termish = 'termish';
@@ -3877,7 +3891,7 @@ grammar Quasi is STD {
 #S#      my &reduce := -> {
 #S#          self.deb("entering reduce, termstack == ", +@termstack, " opstack == ", +@opstack) if $*DEBUG +& DEBUG::EXPR;
 #S#          my $op = pop @opstack;
-#S#  	my $sym = $op<sym>;
+#S#          my $sym = $op<sym>;
 #S#          given $op<O><assoc> // 'unary' {
 #S#              when 'chain' {
 #S#                  self.deb("reducing chain") if $*DEBUG +& DEBUG::EXPR;
@@ -3905,20 +3919,20 @@ grammar Quasi is STD {
 #S#                  while @opstack {
 #S#                      self.deb($sym ~ " vs " ~ @opstack[*-1]<sym>) if $*DEBUG +& DEBUG::EXPR;
 #S#                      last if $sym ne @opstack[*-1]<sym>;
-#S#  		    if @termstack and defined @termstack[0] {
-#S#  			push @list, pop(@termstack);
-#S#  		    }
-#S#  		    else {
-#S#  			self.worry("Missing term in " ~ $sym ~ " list");
-#S#  		    }
+#S#                      if @termstack and defined @termstack[0] {
+#S#                          push @list, pop(@termstack);
+#S#                      }
+#S#                      else {
+#S#                          self.worry("Missing term in " ~ $sym ~ " list");
+#S#                      }
 #S#                      push @delims, pop(@opstack);
 #S#                  }
-#S#  		if @termstack and defined @termstack[0] {
-#S#  		    push @list, pop(@termstack);
-#S#  		}
-#S#  		elsif $sym ne ',' {
-#S#  		    self.worry("Missing final term in '" ~ $sym ~ "' list");
-#S#  		}
+#S#                  if @termstack and defined @termstack[0] {
+#S#                      push @list, pop(@termstack);
+#S#                  }
+#S#                  elsif $sym ne ',' {
+#S#                      self.worry("Missing final term in '" ~ $sym ~ "' list");
+#S#                  }
 #S#                  @list = reverse @list if @list > 1;
 #S#                  my $startpos = @list[0].pos;
 #S#                  @delims = reverse @delims if @delims > 1;
@@ -3936,7 +3950,7 @@ grammar Quasi is STD {
 #S#                  self.deb("Termstack size: ", +@termstack) if $*DEBUG +& DEBUG::EXPR;
 #S#  
 #S#                  self.deb($op.dump) if $*DEBUG +& DEBUG::EXPR;
-#S#  		$op<arg> = (pop @termstack);
+#S#                  $op<arg> = (pop @termstack);
 #S#                  if ($op<arg><_from> < $op<_from>) {
 #S#                      $op<_from> = $op<arg><_from>;
 #S#                  }
@@ -3951,10 +3965,10 @@ grammar Quasi is STD {
 #S#                  my @list;
 #S#                  self.deb("Termstack size: ", +@termstack) if $*DEBUG +& DEBUG::EXPR;
 #S#  
-#S#  		$op<right> = (pop @termstack);
-#S#  		$op<left> = (pop @termstack);
-#S#  		$op<_from> = $op<left><_from>;
-#S#  		$op<_pos> = $op<right><_pos>;
+#S#                  $op<right> = (pop @termstack);
+#S#                  $op<left> = (pop @termstack);
+#S#                  $op<_from> = $op<left><_from>;
+#S#                  $op<_pos> = $op<right><_pos>;
 #S#                  $op<_arity> = 'BINARY';
 #S#                  self.deb($op.dump) if $*DEBUG +& DEBUG::EXPR;
 #S#                  push @termstack, $op._REDUCE($op<_from>, 'EXPR');
@@ -3967,6 +3981,7 @@ grammar Quasi is STD {
 #S#          self.deb("In loop, at ", $here.pos) if $*DEBUG +& DEBUG::EXPR;
 #S#          my $oldpos = $here.pos;
 #S#          $here = $here.cursor_fresh();
+#S#          $SIGIL = @opstack[*-1]<O><prec> gt $item_assignment_prec ?? '@' !! '';
 #S#          my @t = $here.$termish;
 #S#  
 #S#          if not @t or not $here = @t[0] or ($here.pos == $oldpos and $termish eq 'termish') {
@@ -3980,7 +3995,7 @@ grammar Quasi is STD {
 #S#  
 #S#          # note that we push loose stuff onto opstack before tight stuff
 #S#          my @pre;
-#S#  	my $tmp;
+#S#          my $tmp;
 #S#          @pre = @$tmp if $tmp = ( $M<PRE> :delete );
 #S#          my @post;
 #S#          @post = reverse @$tmp if $tmp = ( $M<POST> :delete );
@@ -4119,11 +4134,11 @@ grammar Regex is STD {
 #S#  
 #S#      token ws {
 #S#          <?{ $+sigspace }>
-#S#  	|| [ <?before \s | '#'> <nextsame> ]?   # still get all the pod goodness, hopefully
+#S#          || [ <?before \s | '#'> <nextsame> ]?   # still get all the pod goodness, hopefully
 #S#      }
 #S#  
 #S#      token sigspace {
-#S#  	<?before \s | '#'> [ :lang($¢.cursor_fresh($+LANG)) <.ws> ]
+#S#          <?before \s | '#'> [ :lang($¢.cursor_fresh($+LANG)) <.ws> ]
 #S#      }
 #S#  
 #S#      # suppress fancy end-of-line checking
@@ -4143,7 +4158,7 @@ grammar Regex is STD {
 #S#      }
 #S#  
 #S#      token termish {
-#S#  	<.ws>
+#S#          <.ws>
 #S#          <quantified_atom>+
 #S#      }
 #S#      token infixish {
@@ -4170,7 +4185,7 @@ grammar Regex is STD {
 #S#  #            <?{ $<atom>.max_width }>
 #S#  #                || <.panic: "Can't quantify zero-width atom">
 #S#          ]?
-#S#  	<.ws>
+#S#          <.ws>
 #S#      }
 #S#  
 #S#      token atom {
@@ -4196,7 +4211,7 @@ grammar Regex is STD {
 #S#      # "normal" metachars
 #S#  
 #S#      token metachar:sigwhite {
-#S#  	<sigspace>
+#S#          <sigspace>
 #S#      }
 #S#  
 #S#      token metachar:sym<{ }> {
@@ -4270,7 +4285,7 @@ grammar Regex is STD {
 #S#          | ']'
 #S#          | '>'
 #S#          | $
-#S#  	| <stopper>
+#S#          | <stopper>
 #S#          >
 #S#      }
 #S#  
@@ -4346,8 +4361,8 @@ grammar Regex is STD {
 #S#                                      | ':' <.ws>
 #S#                                          [ :lang($¢.cursor_fresh($+LANG).unbalanced('>')) <arglist> ]
 #S#                                      | '(' {}
-#S#  					[ :lang($¢.cursor_fresh($+LANG)) <arglist> ]
-#S#  					[ ')' || <.panic: "Assertion call missing right parenthesis"> ]
+#S#                                          [ :lang($¢.cursor_fresh($+LANG)) <arglist> ]
+#S#                                          [ ')' || <.panic: "Assertion call missing right parenthesis"> ]
 #S#                                      ]?
 #S#      }
 #S#  
@@ -4360,8 +4375,8 @@ grammar Regex is STD {
 #S#                                      | ':' <.ws>
 #S#                                          [ :lang($¢.cursor_fresh($+LANG).unbalanced('>')) <arglist> ]
 #S#                                      | '(' {}
-#S#  					[ :lang($¢.cursor_fresh($+LANG)) <arglist> ]
-#S#  					[ ')' || <.panic: "Assertion call missing right parenthesis"> ]
+#S#                                          [ :lang($¢.cursor_fresh($+LANG)) <arglist> ]
+#S#                                          [ ')' || <.panic: "Assertion call missing right parenthesis"> ]
 #S#                                      ]?
 #S#      }
 #S#  
@@ -4375,13 +4390,13 @@ grammar Regex is STD {
 #S#      token assertion:bogus { <.panic: "Unrecognized regex assertion"> }
 #S#  
 #S#      token cclass_elem {
-#S#  	<.ws>
+#S#          <.ws>
 #S#          :dba('character class element')
 #S#          [
 #S#          | <name>
 #S#          | <before '['> <quibble($¢.cursor_fresh( ::STD::Q ).tweak(:q))> # XXX parse as q[] for now
 #S#          ]
-#S#  	<.ws>
+#S#          <.ws>
 #S#      }
 #S#  
 #S#      token mod_arg { :dba('modifier argument') '(' ~ ')' <semilist> }
@@ -4479,7 +4494,7 @@ grammar P5Regex is STD {
 #S#      }
 #S#  
 #S#      token termish {
-#S#  	<.ws>  # XXX assuming old /x here?
+#S#          <.ws>  # XXX assuming old /x here?
 #S#          <quantified_atom>+
 #S#      }
 #S#      token infixish {
@@ -4502,14 +4517,14 @@ grammar P5Regex is STD {
 #S#  #            <?{ $<atom>.max_width }>
 #S#  #                || <.panic: "Can't quantify zero-width atom">
 #S#          ]?
-#S#  	<.ws>
+#S#          <.ws>
 #S#      }
 #S#  
 #S#      token atom {
 #S#          [
 #S#          | \w
 #S#          | <metachar>
-#S#  	| '\\' :: .
+#S#          | '\\' :: .
 #S#          ]
 #S#      }
 #S#  
@@ -4522,7 +4537,7 @@ grammar P5Regex is STD {
 #S#      # "normal" metachars
 #S#  
 #S#      token metachar:sym<[ ]> {
-#S#  	<before '['> <quibble($¢.cursor_fresh( ::STD::Q ).tweak(:q))> # XXX parse as q[] for now
+#S#          <before '['> <quibble($¢.cursor_fresh( ::STD::Q ).tweak(:q))> # XXX parse as q[] for now
 #S#      }
 #S#  
 #S#      token metachar:sym«(? )» {
@@ -4545,7 +4560,7 @@ grammar P5Regex is STD {
 #S#  
 #S#      token metachar:var {
 #S#          <?before <sigil>\w>
-#S#  	<.panic: "Can't interpolate variable in Perl 5 regex">
+#S#          <.panic: "Can't interpolate variable in Perl 5 regex">
 #S#      }
 #S#  
 #S#      token backslash:A { <sym> }
@@ -4571,7 +4586,7 @@ grammar P5Regex is STD {
 #S#      token backslash:w { :i <sym> }
 #S#      token backslash:x { :i <sym> [ <hexint> | '{' [<.ws><hexint><.ws> ] ** ',' '}' ] }
 #S#      token backslash:z { :i <sym> }
-#S#      token backslash:misc { $<litchar>=(\W) }
+#S#      token backslash:misc { $<litchar>=(\W) | $<number>=(\d+) }
 #S#      token backslash:oops { <.panic: "Unrecognized Perl 5 regex backslash sequence"> }
 #S#  
 #S#      token assertion:sym<?> { <sym> <codeblock> }
@@ -4583,15 +4598,23 @@ grammar P5Regex is STD {
 #S#      token assertion:sym«>» { <sym> <rx> }
 #S#  
 #S#      token rx {
-#S#          [:lang(self.unbalanced(')')) <nibbler>]
+#S#          #[:lang(self.unbalanced(')')) <nibbler>]
+#S#          <nibbler>
 #S#          [ <?before ')'> || <.panic: "Unable to parse Perl 5 regex; couldn't find right parenthesis"> ]
 #S#      }
 #S#  
-#S#      token assertion:identifier { <identifier> [               # is qq right here?
-#S#                                      | <?before ')' >
-#S#                                      | <.ws> <nibbler>
-#S#  				    ]
-#S#  				    [ ':' <rx> ]?
+#S#      #token assertion:identifier { <identifier> [               # is qq right here?
+#S#      #                                | <?before ')' >
+#S#      #                                | <.ws> <nibbler>
+#S#      #                               ]
+#S#      #                               [ ':' <rx> ]?
+#S#      #}
+#S#      token p5mod { <[imox]>* }
+#S#      token p5mods { <on=p5mod> [ '-' <off=p5mod> ]? }
+#S#      token assertion:mod { <p5mods> [               # is qq right here?
+#S#                                     | ':' <rx>?
+#S#                                     | <?before ')' >
+#S#                                     ]
 #S#      }
 #S#  
 #S#      token assertion:bogus { <.panic: "Unrecognized Perl 5 regex assertion"> }
@@ -4663,6 +4686,7 @@ grammar P5Regex is STD {
 #S#              $m ~= "\n    expecting @keys";
 #S#          }
 #S#      }
+#S#      $m ~~ s|Syntax error|Syntax error (two terms in a row?)| if $m ~~ /infix|nofun/;
 #S#  
 #S#      if @COMPILING::WORRIES {
 #S#          $m ~= "\nOther potential difficulties:\n  " ~ join( "\n  ", @COMPILING::WORRIES);
