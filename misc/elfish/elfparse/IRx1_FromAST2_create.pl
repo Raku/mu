@@ -613,7 +613,7 @@ multisig
 $m<signature>[0]
 
 signature
-Signature.newp($m<parameter>,undef)
+Signature.newp($m<parameter>,$m<fulltypename>[0])
 
 parameter
 my $var = $m<param_var>;
@@ -714,7 +714,7 @@ $m<regex_def>
 regex_def
 my $kind = $blackboard::regex_kind;
 my $name = $m<deflongname>[0];
-my $sig = $m<signature>; #X
+my $sig = $m<signature>[0];
 my $trait = $m<trait>; #X
 #
 temp $blackboard::sym;

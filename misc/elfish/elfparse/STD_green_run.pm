@@ -37,8 +37,9 @@ Usage: [-q] [--format=p5a] [--start=RULE] [ FILENAME | -e CODE ]
         $code = @*ARGS.shift || $.print_usage_and_exit();
       }
       else {
-        $filename = @*ARGS.shift;
+        $filename = $arg;
         $code = slurp($filename);
+        if not(defined($code)) { die "File not found: "~$filename~"\n"; }
       }
     }
 
@@ -61,7 +62,7 @@ class Match {
   method condition_sym ($sym) {
     my $g;
     if ($sym.WHAT eq 'Array') { join(" ",$sym) }
-    elsif not($sym.re_matchp('^sym')) { $sym }
+    elsif not($sym.re_matchp('\Asym\b')) { $sym }
     elsif ($g = $sym.re_groups('\Asym<\s*(.+?)\s*>\z')) { $g[0] }
     elsif ($g = $sym.re_groups('\Asym«\s*(.+?)\s*»\z')) { $g[0] }
     elsif ($g = $sym.re_groups('\Asym\[\'(.+?)\']\z')) { $g[0] }

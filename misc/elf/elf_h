@@ -435,6 +435,17 @@ use warnings;
     $name =~ s/([^\w])/"_".CORE::ord($1)/eg;
     $name;
   }
+  sub symbol_lookup : lvalue {
+    my($name)=@_;
+    my @parts = split(/::/,$name);
+    $parts[0] =~ /\A([\$\@\%])(.*)/ || CORE::die("symbol_lookup: no sigil?: $name");
+    $parts[0] = $2;
+    my $sigil = $1;
+    $parts[-1] = {"\$"=>"","\@"=>"a_","\%"=>"h_"}->{$sigil}.$parts[-1];
+    my $var = join("::",@parts);
+    no strict "refs";
+    $$var;
+  }
 }
 
 package Main;
@@ -2851,9 +2862,13 @@ if($self->path_is_absolute) {
 }else {
 (do{($new_chain = [$whiteboard::package_chain->flatten(), $self])})
 };
-{ package IRx1::PackageDecl; use vars '$package_chain'};local $whiteboard::package_chain = $new_chain;
+if(GLOBAL::not(GLOBAL::defined($self->block))) {
+(do{($whiteboard::package_chain = $new_chain)})
+}else {
+(do{{ package IRx1::PackageDecl; use vars '$package_chain'};local $whiteboard::package_chain = $new_chain;
 for(($self->child_nodes)->flatten){
 (do{$_->note_environment()})
+}})
 }})}})
 }
 ;
@@ -3447,6 +3462,17 @@ use\ warnings\;\
 \ \ sub\ mangle_name\ \{my\(\$name\)\=\@_\;\
 \ \ \ \ \$name\ \=\~\ s\/\(\[\^\\w\]\)\/\"_\"\.CORE\:\:ord\(\$1\)\/eg\;\
 \ \ \ \ \$name\;\
+\ \ \}\
+\ \ sub\ symbol_lookup\ \:\ lvalue\ \{\
+\ \ \ \ my\(\$name\)\=\@_\;\
+\ \ \ \ my\ \@parts\ \=\ split\(\/\:\:\/\,\$name\)\;\
+\ \ \ \ \$parts\[0\]\ \=\~\ \/\\A\(\[\\\$\\\@\\\%\]\)\(\.\*\)\/\ \|\|\ CORE\:\:die\(\"symbol_lookup\:\ no\ sigil\?\:\ \$name\"\)\;\
+\ \ \ \ \$parts\[0\]\ \=\ \$2\;\
+\ \ \ \ my\ \$sigil\ \=\ \$1\;\
+\ \ \ \ \$parts\[\-1\]\ \=\ \{\"\\\$\"\=\>\"\"\,\"\\\@\"\=\>\"a_\"\,\"\\\%\"\=\>\"h_\"\}\-\>\{\$sigil\}\.\$parts\[\-1\]\;\
+\ \ \ \ my\ \$var\ \=\ join\(\"\:\:\"\,\@parts\)\;\
+\ \ \ \ no\ strict\ \"refs\"\;\
+\ \ \ \ \$\$var\;\
 \ \ \}\
 \}\
 \

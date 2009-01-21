@@ -484,9 +484,9 @@ subname "<alias_wrap ".($myid).">" => sub {
 	$m1->{match_string} = substr($Regexp::ModuleA::ReentrantEngine::Env::str,$pos,$Regexp::ModuleA::ReentrantEngine::Env::pos-$pos);
 
         my $post = $name."__post_action";
-        if(UNIVERSAL::can($pkg9,$post)) {
+        if(my $meth = UNIVERSAL::can($pkg9,$post)) {
           $m1->_prepare_match_for_embedded_code;
-          $pkg9->$post($m1);
+          $meth->($pkg9,$m1);
         }
 
 	$Regexp::ModuleA::ReentrantEngine::Env::current_match = $m0;
@@ -853,7 +853,10 @@ sub{my $__c__ = $_[0];
         $m->{match_rule} = $name1;
         if($name1) {
           my $post = $name1."__post_action";
-          $pkg9->$post($m) if UNIVERSAL::can($pkg9,$post);
+          if(my $meth = UNIVERSAL::can($pkg9,$post)) {
+            $m->_prepare_match_for_embedded_code;
+            $meth->($pkg9,$m);
+          }
         }
         $m;
       }
@@ -888,6 +891,16 @@ sub{my $__c__ = $_[0];
         my $v = $f->($c);
         if(FAILED($v)) { next }
         $Regexp::ModuleA::ReentrantEngine::Env::alias_match->{match_rule} = $rulename; #XX kludge
+
+        my $pkg_override = undef;
+        my $pkg9 = $pkg_override || $Regexp::ModuleA::ReentrantEngine::Env::pkg || $pkg;
+        my $m = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
+        my $post = $name."__post_action";
+        if(my $meth = UNIVERSAL::can($pkg9,$post)) {
+          $m->_prepare_match_for_embedded_code;
+          $meth->($pkg9,$m);
+        }
+
         return $v;
       }
       FAIL();
@@ -1048,6 +1061,10 @@ sub _mexpr {
   }
   sub new_failed {my($cls)=@_; $cls->match_new()->match_set_as_failed()}
 
+}
+{ package Any;
+  sub _prepare_match_for_return {}
+  sub _prepare_match_for_embedded_code {}
 }
 { package Regexp::ModuleA::ReentrantEngine::Match_internal;
 
@@ -1434,7 +1451,7 @@ package IRx1 {
     method emit_RMARE {
       my $name = self.<name>;
       my $categoryinfo_method = '__rxcategory_'~$name;
-      my $decl = 'sub '~$categoryinfo_method~' { no strict; $'~$name~' ||= CategoryInfo->newp(__PACKAGE__,qr/\A'~quotemeta($name)~'_58/) };';
+      my $decl = 'sub '~$categoryinfo_method~' { no strict; $'~$name~' ||= CategoryInfo->newp(__PACKAGE__,qr/\A'~quotemeta($name)~'_58(?!.*__post_action)/) };';
       $whiteboard::regex_category_header = $decl;
       'IRx1::RxBaseClass->RMARE_category(__PACKAGE__,\''~$categoryinfo_method~'\')'
     }
@@ -1443,12 +1460,29 @@ package IRx1 {
 }
 
 
+class IRx1::RegexDef {
+  method note_environment() {
+    $.record_crnt_package;
+    for $.child_nodes {$_.note_environment}
+  }
+}
+
+
 class EmitSimpleP5 {
   method cb__RxARegex ($n) {
     $n.RAST_init.emit_RMARE;
   }
   method cb__RegexDef ($n) {
-    $n.<pattern>.RAST_init.emit_RMARE;
+    my $code = $n.<pattern>.RAST_init.emit_RMARE;
+    if $n.signature && $n.signature.return_type {
+      my $type = $n.signature.return_type;
+      my $pkg = $n.notes<crnt_package>;
+      $type = $pkg~'::'~$type;
+      my $name = mangle_name($n.ident);
+      my $post = $name~"__post_action";
+      $code = '(do{ sub '~$post~' {my($self,$m)=@_; '~$type~'->coerce($m) }; '~$code~' })';
+    }
+    $code;
   }
   method cb__RegexCategoryDecl ($n) {
     my $name = $n<name>;

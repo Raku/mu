@@ -468,6 +468,17 @@ use warnings;
     $name =~ s/([^\w])/"_".CORE::ord($1)/eg;
     $name;
   }
+  sub symbol_lookup : lvalue {
+    my($name)=@_;
+    my @parts = split(/::/,$name);
+    $parts[0] =~ /\A([\$\@\%])(.*)/ || CORE::die("symbol_lookup: no sigil?: $name");
+    $parts[0] = $2;
+    my $sigil = $1;
+    $parts[-1] = {"\$"=>"","\@"=>"a_","\%"=>"h_"}->{$sigil}.$parts[-1];
+    my $var = join("::",@parts);
+    no strict "refs";
+    $$var;
+  }
 }
 
 package Main;

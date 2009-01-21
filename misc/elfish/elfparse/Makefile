@@ -2,17 +2,17 @@ ELF=../../elf/elf_h
 ELFDIR=../../elf/elf_h_src
 SRCP6=../../../src/perl6
 STDPM=../../../src/perl6/STD.pm
-ELFBLUE=./elfblue
-export ELF_STD_BLUE_RUN  := ./STD_blue_run
 export STD_RED_CACHEDIR  := ./deleteme_cache_red
 export STD_BLUE_CACHEDIR := ./deleteme_cache_blue
 
+DEPS_FOR_STDBLUE_USERS=${SRCP6}/STD.pmc ./STD_blue_run
+
 ELFBLUEDEV=-I ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$*ast2ir_1; $$*parser0=undef' Parser2.pm
 ELFBLUECOMP=-I . -I  ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm Parser2.pm -e elf_main
-ELFBLUEDEV_DEPS=IRx1_FromAST2.pm Parser2.pm
+ELFBLUEDEV_DEPS=${DEPS_FOR_STDBLUE_USERS} ${ELF} IRx1_FromAST2.pm Parser2.pm
 
 ELFGREENDEV=-I . -I ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$*ast2ir_1; $$*parser0=undef' Parser2.pm nodes.pm analysis.pm emit5.pm -e '_inline_p5("require \"./remains_of_Regexp_ModuleA.pm\";")' -e '_inline_p5("require \"./rx_prelude_p5.pm\";")' 
-ELFGREENDEV_DEPS=${ELF} IRx1_FromAST2.pm Parser2.pm nodes.pm analysis.pm emit5.pm remains_of_Regexp_ModuleA.pm rx_prelude.pm
+ELFGREENDEV_DEPS=${ELFBLUEDEV_DEPS} nodes.pm analysis.pm emit5.pm remains_of_Regexp_ModuleA.pm rx_prelude.pm
 # rx_prelude.pm not rx_prelude_p5.pm
 
 TMP=deleteme
@@ -41,12 +41,12 @@ known_working_STD:
 ${SRCP6}/STD.pmc: ${SRCP6}/STD.pm ${SRCP6}/gimme5
 	(cd ${SRCP6}; make fast)
 
-lex.is_current: ${SRCP6}/STD.pmc ${ELF_STD_BLUE_RUN}
+lex.is_current: ${SRCP6}/STD.pmc
 	rm -rf lex lex.is_current
 	mkdir lex
 	touch lex.is_current
 
-${STD_BLUE_CACHEDIR}.is_current: lex.is_current STD_blue_run
+${STD_BLUE_CACHEDIR}.is_current: lex.is_current ${DEPS_FOR_STDBLUE_USERS}
 	rm -rf ${STD_BLUE_CACHEDIR}
 	mkdir ${STD_BLUE_CACHEDIR}
 	touch ${STD_BLUE_CACHEDIR}.is_current
@@ -111,6 +111,8 @@ check_rx_on_re: nodes.pm
 	${ELF} test.pm > tst_1 2> tst_2
 	diff t_baseline.result tst_1
 	@echo ok
+	# check_rx_on_re passed.
+	#
 
 test_rx_on_re_blue: elfgreen
 	rm -rf ${STD_BLUE_CACHEDIR} ${STD_BLUE_CACHEDIR}.is_current

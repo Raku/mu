@@ -171,9 +171,9 @@ push @basetypenames, "True", "False", "Bool::True", "Bool::False";  # in quotes 
 #S#  }
 method is_type ($name) {
     for reverse @PADS {
-        return 1 if $_.{$name}; #XXX  True if $_.{$name};
+        return 1 if $_.{$name}; #ELFXXX  True if $_.{$name};
     }
-    return 0; #XXX  False;
+    return 0; #ELFXXX  False;
 }
 #S#  
 #S#  method add_type ($name) {
@@ -184,11 +184,11 @@ method is_type ($name) {
 #S#      @PADS[*-1]{$name} = 'TYPE';
 #S#  }
 method add_type ($name) {
-    my $typename = main::mangle($name); #XXX??? a cheat?
+    my $typename = main::mangle($name); #ELFXXX??? a cheat?
     my $qualname = ($+PKG // 'GLOBAL') ~ '::' ~ $typename;
-    @PADS[-1]{$typename} = 'TYPE'; #XXX *-1
-    @PADS[-1]{$qualname} = 'TYPE'; #XXX *-1
-    @PADS[-1]{$name} = 'TYPE'; #XXX *-1
+    @PADS[-1]{$typename} = 'TYPE'; #ELFXXX *-1
+    @PADS[-1]{$qualname} = 'TYPE'; #ELFXXX *-1
+    @PADS[-1]{$name} = 'TYPE'; #ELFXXX *-1
 }
 #S#  
 #S#  # XXX likewise for routine defs
@@ -338,10 +338,10 @@ my @routinenames;
 my %routinenames;
 
 sub init_pads {
-    @PKGS = []; #XXX ();
-    %ROUTINES = {}; #XXX ();
+    @PKGS = []; #ELFXXX ();
+    %ROUTINES = {}; #ELFXXX ();
 
-    @PADS = []; #XXX ();
+    @PADS = []; #ELFXXX ();
     @PADS[0] = {};
     for @basetypenames {
         @PADS[0]{$_} = 'TYPE';
@@ -361,14 +361,14 @@ method is_routine ($name) {
         $aname = '&' ~ $name;
     }
     for reverse @PADS {
-        return 1 if $_.{$aname}; #XXX True
-        return 1 if $_.{$name}; # type as routine? #XXX True
+        return 1 if $_.{$aname}; #ELFXXX True
+        return 1 if $_.{$name}; # type as routine? #ELFXXX True
     }
-    return 0; #XXX  False;
+    return 0; #ELFXXX  False;
 }
 
 method add_routine ($name) {
-    @PADS[-1]{'&' ~ $name} = 'CODE'; #XXX *-1
+    @PADS[-1]{'&' ~ $name} = 'CODE'; #ELFXXX *-1
 }
 #S#  
 #S#  # The internal precedence levels are *not* part of the public interface.
@@ -457,6 +457,23 @@ constant $item_assignment_prec = 'i=';
 #S#  
 #S#  } # end role
 role PrecOp {
+
+    # This is hopefully called on a match to mix in operator info by type.
+    method coerce (Match $m) {
+        # $m but= ::?CLASS;
+        #ELFXXX my $var = self.WHAT ~ '::o';
+        #ELFXXX my $d = %::($var); 
+        my $type = self.Str; #ELFXXX not self.WHAT because of p5 type-is-string.
+        my $d = symbol_lookup('%'~$type~'::o'); #ELFXXX %::($var); 
+        $m<O> = {}; #ELFXXX no elf autovivification.
+        if not $d<transparent> {
+            for $d.keys { $m<O>{$_} = $d.{$_} }; #ELFXXX keys(%$d)
+            $m.deb("coercing to " ~ self) if $*DEBUG ;#ELFXXX +& DEBUG::EXPR;
+        }
+        $m<O><kind> = $type; #ELFXXX self.WHAT;
+        return $m;
+    }
+
 } # end role
 #S#  
 #S#  class Hyper does PrecOp {
@@ -644,6 +661,7 @@ class Terminator does PrecOp {
 #S#  my $endargs is context = -1;
 #S#  
 #S#  proto token category { <...> }
+proto token category { <...> }
 #S#  
 #S#  token category:category { <sym> }
 #S#  
@@ -673,6 +691,8 @@ class Terminator does PrecOp {
 #S#  
 #S#  token category:infix { <sym> }
 #S#  proto token infix is binary is defequiv(%additive) { <...> }
+token category:infix { <sym> }
+proto token infix is binary is defequiv(%additive) { <...> }
 #S#  
 #S#  token category:postfix { <sym> }
 #S#  proto token postfix is unary is defequiv(%autoincrement) { <...> }
@@ -1234,9 +1254,9 @@ token termish {
 
     # also queue up any postfixes
     :dba('postfix')
-#XXXTODO    [ <?stdstopper> ||
-#XXXTODO        <POST>*
-#XXXTODO    ]
+#ELFXXXTODO    [ <?stdstopper> ||
+#ELFXXXTODO        <POST>*
+#ELFXXXTODO    ]
 }
 #S#  
 #S#  token noun {
@@ -1265,7 +1285,7 @@ token noun {
     | <variable>
     | <package_declarator>
     | <scope_declarator>
-#XXXTODO?    | <?before 'multi'|'proto'|'only'> <multi_declarator>
+#ELFXXXTODO?    | <?before 'multi'|'proto'|'only'> <multi_declarator>
     | <routine_declarator>
     | <regex_declarator>
     | <type_declarator>
@@ -1276,7 +1296,7 @@ token noun {
     | <sigterm>
     | <term>
     | <statement_prefix>
-#XXXTODO?    | [ <colonpair> <.ws> ]+
+#ELFXXXTODO?    | [ <colonpair> <.ws> ]+
     ]
 }
 #S#  
@@ -3425,6 +3445,29 @@ grammar Quasi is STD {
 #S#  
 #S#  token infix:sym<?^> ( --> Additive)
 #S#      { <sym> }
+token infix:sym<+> ( --> Additive)
+    { <sym> }
+
+token infix:sym<-> ( --> Additive)
+    { <sym> }
+
+token infix:sym<+|> ( --> Additive)
+    { <sym> }
+
+token infix:sym<+^> ( --> Additive)
+    { <sym> }
+
+token infix:sym<~|> ( --> Additive)
+    { <sym> }
+
+token infix:sym<~^> ( --> Additive)
+    { <sym> }
+
+token infix:sym<?|> ( --> Additive)
+    { <sym> }
+
+token infix:sym<?^> ( --> Additive)
+    { <sym> }
 #S#  
 #S#  ## replication
 #S#  # Note: no word boundary check after x, relies on longest token for x2 xx2 etc
@@ -4731,10 +4774,10 @@ method panic (Str $s) {
 
     $m ~= $here.locmess;
 
-    if $highvalid and $*HIGHEXPECT.elems { #XXX  %$*HIGHEXPECT {
-        my @keys = sort keys $*HIGHEXPECT; #XXX  %$*HIGHEXPECT;
+    if $highvalid and $*HIGHEXPECT.elems { #ELFXXX  %$*HIGHEXPECT {
+        my @keys = sort keys $*HIGHEXPECT; #ELFXXX  %$*HIGHEXPECT;
         if @keys > 1 {
-            $m ~= "\n    expecting any of:\n\t" ~ join("\n\t", sort keys $*HIGHEXPECT); #XXX %$*HIGHEXPECT);
+            $m ~= "\n    expecting any of:\n\t" ~ join("\n\t", sort keys $*HIGHEXPECT); #ELFXXX %$*HIGHEXPECT);
         }
         else {
             $m ~= "\n    expecting @keys";
@@ -4833,7 +4876,7 @@ method worryobs (Str $old, Str $new, Str $when = ' in Perl 6') {
 #S#  
 #S#  ## vim: expandtab sw=4 ft=perl6
 
-#X Used for development.
+#ELFX Used for development.
 #class STD {
   regex unimplemented_rule { <fail> }
   _inline_p5('
@@ -4846,4 +4889,4 @@ method worryobs (Str $old, Str $new, Str $when = ' in Perl 6') {
   }
 ');
 #}
-1; #XXX needed for independent compilation
+1; #ELFXXX needed for independent compilation

@@ -138,8 +138,12 @@ class IRx1::PackageDecl {
     } else {
       $new_chain = [$whiteboard::package_chain.flatten,self];
     }
-    temp $whiteboard::package_chain = $new_chain;
-    for $.child_nodes {$_.note_environment}
+    if not(defined($.block)) {
+      $whiteboard::package_chain = $new_chain;
+    } else {
+      temp $whiteboard::package_chain = $new_chain;
+      for $.child_nodes {$_.note_environment}
+    }
   }
 }
 class IRx1::SubDecl {
