@@ -2,6 +2,12 @@ knowhow Multi {
   has $.name;
   has @.variants;
 
+  method new() {
+      $OUT.print("in .new\n");
+      my $new = ::p6opaque.^!CREATE();
+      $new.^!how = ::PurePrototypeHow;
+      $new.^!instanceof = ::Multi;
+  }
   method postcircumfix:<( )>(\$capture, :$cc) {
     unless $cc {
         $cc = &?ROUTINE.back();
@@ -50,3 +56,4 @@ knowhow Multi {
     }
   }
 }
+$LexicalPrelude.{'Multi'} = ::Multi;

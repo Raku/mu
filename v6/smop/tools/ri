@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use IO::Select;
 use IO::Handle;
-use IPC::Open3;
+use IPC::Open2;
 use Symbol;
 require 'mangle.pl';
 
@@ -16,8 +16,8 @@ sub preprocess_m0ld {
 }
 sub preprocess {
     my $code = shift;
-    my ($writer, $reader, $error);
-    my $pid = open3($writer, $reader, $error,@_) || die "$@";
+    my ($writer, $reader);
+    my $pid = open2($reader,$writer,@_) || die "$@";
     print $writer $code;
     close($writer);
     my $out = <$reader>;

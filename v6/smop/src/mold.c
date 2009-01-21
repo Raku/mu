@@ -379,13 +379,10 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         SMOP__Object* condition = get_register(interpreter,frame);
         int iftrue = mold->opcodes[frame->position++];
         int iffalse = mold->opcodes[frame->position++];
-        if (SMOP__NATIVE__bool_true == condition ) {
-          frame->position = iftrue;
-        } else if (SMOP__NATIVE__bool_false == condition) {
+        if (SMOP__NATIVE__bool_false == condition) {
           frame->position = iffalse;
         } else {
-          fprintf(stderr,"the condition argument to the br op must be a native bool\n");
-          abort();
+          frame->position = iftrue;
         }
         break;
       }

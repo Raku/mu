@@ -7,4 +7,12 @@ $object.^!methods.{"foo"} = sub {
     #say "ok 1 #method call";
     $OUT.print("ok 1 #method call\n");
 };
+$object.^!methods.{"bar"} = sub {
+    #say "ok 1 #method call";
+    $OUT.print("ok 2 #method inherited from instanceof called\n");
+};
 $object.foo;
+my $object2 = ::p6opaque.^!CREATE;
+$object2.^!how() = ::PurePrototypeHow;
+$object2.^!instanceof = $object;
+$object2.bar;

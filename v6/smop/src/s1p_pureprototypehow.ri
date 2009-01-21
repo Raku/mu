@@ -98,18 +98,24 @@
     my $void;
     my $result = ¢SMOP__NATIVE__bool_false;
 
-    my $methods = $invocant."^!methods"();
-    my $method_exists = $methods."exists"($identifier);
+    my $how_c = $invocant."^!how"();
+    my $how = $how_c."FETCH"();
 
-    if $method_exists { goto than } else { goto fail };
+    find_method:
+      my $methods = $invocant."^!methods"();
+      my $method_exists = $methods."exists"($identifier);
+
+    if $method_exists { goto than } else { goto no_such };
     than:
       my $method_container = $methods."postcircumfix:{ }"($identifier);
       my $method = $method_container."FETCH"();
       $result = $method."postcircumfix:( )"($capture);
       goto exit;
-    fail:
-      my $how_c = $invocant."^!how"();
-      my $how = $how_c."FETCH"();
+    no_such:
+      my $instanceof_cont = $invocant."^!instanceof"();
+      my $invocant = $instanceof_cont."FETCH"();
+      if $invocant { goto find_method } else { goto fail };
+    fail: noop;
       $result = $how."lookup_fail"($responder, $identifier, $capture);
     exit:
     my $continuation = $interpreter."continuation"();
