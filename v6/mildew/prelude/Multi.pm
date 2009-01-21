@@ -5,7 +5,7 @@ knowhow Multi {
   method new() {
       $OUT.print("in .new\n");
       my $new = ::p6opaque.^!CREATE();
-      $new.^!how = ::PurePrototypeHow;
+      $new.^!how = ::PrototypeHow;
       $new.^!instanceof = ::Multi;
   }
   method postcircumfix:<( )>(\$capture, :$cc) {

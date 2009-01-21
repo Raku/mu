@@ -1,6 +1,6 @@
 %prefix smop_s1p_pureprototypehow
-%singleton SMOP__S1P__PurePrototypeHow
-%RI.id PurePrototypeHOW
+%singleton SMOP__S1P__PrototypeHow
+%RI.id PrototypeHOW
 
 %method dispatch
     SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);

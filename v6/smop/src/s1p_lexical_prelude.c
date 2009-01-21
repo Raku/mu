@@ -43,7 +43,7 @@ void smop_s1p_lexical_prelude_init() {
   smop_s1p_lexical_prelude_insert(interpreter,"MoldFrame", SMOP__Mold__Frame);
   smop_s1p_lexical_prelude_insert(interpreter,"Attribute", SMOP__S1P__Attribute);
   smop_s1p_lexical_prelude_insert(interpreter,"p6opaque",SMOP__p6opaque__RI);
-  smop_s1p_lexical_prelude_insert(interpreter,"PurePrototypeHow",SMOP_REFERENCE(interpreter,SMOP__S1P__PurePrototypeHow));
+  smop_s1p_lexical_prelude_insert(interpreter,"PrototypeHow",SMOP_REFERENCE(interpreter,SMOP__S1P__PrototypeHow));
   smop_s1p_lexical_prelude_insert(interpreter,"P5Interpreter",SMOP_REFERENCE(interpreter,SMOP__P5Interpreter));
   smop_s1p_lexical_prelude_insert(interpreter,"ControlExceptionReturn",
 				  SMOP_REFERENCE(interpreter,SMOP__ControlExceptionReturn));

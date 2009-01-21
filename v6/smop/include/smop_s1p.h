@@ -29,7 +29,7 @@ extern SMOP__Object* SMOP__S1P__LexicalScope;
 extern SMOP__Object* SMOP__S1P__DefaultBlockSignature;
 extern SMOP__Object* SMOP__S1P__BindCaptureSignature;
 extern SMOP__Object* SMOP__S1P__AdhocSignature;
-extern SMOP__Object* SMOP__S1P__PurePrototypeHow;
+extern SMOP__Object* SMOP__S1P__PrototypeHow;
 extern SMOP__Object* SMOP__S1P__ritest;
 extern SMOP__Object* SMOP__GlobalInterpreter;
 extern SMOP__Object* SMOP__ControlExceptionReturn;
