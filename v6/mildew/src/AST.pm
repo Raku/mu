@@ -114,12 +114,12 @@ sub pretty {
     my ($self) = @_;
     my $code;
     if ($self->then) {
-        my $code =
+        $code =
             'if ' . $self->cond->pretty . " {\n"
             . AST::indent($self->then->pretty) . "\n"
             . "}\n";
     } else {
-        my $code =
+        $code =
             'unless ' . $self->cond->pretty . " {\n"
             . AST::indent($self->else->pretty) . "\n"
             . "}\n";

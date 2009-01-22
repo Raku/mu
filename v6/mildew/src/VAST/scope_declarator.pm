@@ -36,8 +36,20 @@ sub accessor {
     my $priv = bless { twigil => [ { sym => '!', TEXT => '!' } ],
 		       sigil => { TEXT => $var_decl->{variable}{sigil}{TEXT} },
 		       desigilname => $var_decl->{variable}{desigilname} }, 'VAST::variable';
+
+    my $sig = AST::Call->new
+        ( identifier => string 'new',
+          capture => AST::Capture->new
+          ( invocant => FETCH(lookup('AdhocSignature')),
+            positional => [],
+            named =>
+            [ string 'BIND' => AST::Block->new
+              ( regs => [qw(interpreter scope capture)],
+                stmts => trailing_return([call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call invocant => reg '$capture']]))]));
+
     call(new=>FETCH(lookup('Code')),[],
 	 [ string 'outer' => reg '$scope',
+           string 'signature' => $sig,
 	   string 'mold' => 
 	   AST::Block->new(regs => ['interpreter','scope'],
 			   stmts => trailing_return([ $priv->emit_m0ld ])) ]);
@@ -78,10 +90,13 @@ sub VAST::scope_declarator::emit_m0ld {
 	    if ($var_decl->{variable}{twigil}[0]{TEXT} eq '.') {
 		# add a public accessor.
 		push @additional,
+
+
 		call(add_method => FETCH(call '^!how' => $CLASS),
 		     [$CLASS,
 		      string $var_decl->{variable}{desigilname}{longname}{name}{identifier}{TEXT},
 		      accessor($var_decl)]);
+
 	    }
 
 	    AST::Seq->new
