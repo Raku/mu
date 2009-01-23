@@ -159,10 +159,10 @@ use Carp;
   package IRx1::RxSubrule;
   sub newx {
     my($cls,$inpkg,$fullname,$exprs)=@_; die "api assert" if @_ != 4;
-    $fullname =~ /^([?!]*)(.*)$/ or die;
+    $fullname =~ /^([.!]*)(.*)$/ or die;
     my($prefix,$name) = ($1,$2);
     my $neg = $prefix =~ /\!/;
-    my $nocap = $prefix =~ /\?/;
+    my $nocap = $prefix =~ /\./;
     bless {created_in_pkg=>$inpkg,name=>$name,exprs=>($exprs||[]),neg=>$neg,nocap=>$nocap}, $cls;
   }
   sub RAST_to_make0 {
@@ -682,7 +682,7 @@ Regexp::ModuleA::AST::Make0->import;
 {
   my $nonmeta = '[^[)({^$?*+\\\\\.|<]';
   namespace(""
-            ,biind('_subrule',aregex(seq(pat5('\<[?!]*\w+'),ques(seq(pat5('\s+'),plus(sr('pattern')))),exact('>'))))
+            ,biind('_subrule',aregex(seq(pat5('\<[.!]*\w+'),ques(seq(pat5('\s+'),plus(sr('pattern')))),exact('>'))))
             ,biind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
             ,biind('test1',aregex(pat5('\w{2}')))
             )->RAST_init->RMARE_emit_and_eval;
@@ -691,7 +691,7 @@ Regexp::ModuleA::AST::Make0->import;
 sub make0_from_node___subrule {
   my($cls,$m)=@_;
   my @v = map{$cls->make0_from_node($_)} @{$m->match_hash->{pattern}};
-  $m->match_string =~ /\A<([?!]*(\w+))/ or die "bug";
+  $m->match_string =~ /\A<([.!]*(\w+))/ or die "bug";
   my $name = $1;
   my $args = (@v ? "," : "").join(",",map{"aregex($_)"}@v);
   return "sr('$name'$args)";
@@ -819,7 +819,7 @@ sub unction1 {
             ,nrx('regex_quantified_atom',
                  seq(sr('regex_atom'),ques(sr('regex_quantifier'))))
             ,nrx('regex_quantifier',
-                 alt(seq(pat5('\*\*'),#<?ws>
+                 alt(seq(pat5('\*\*'),#<.ws>
                          sr('block'),sr('quantmod')),
                      seq(pat5('[\*\+\?](?!\*)'),sr('quantmod'))))
             ,nrx('quantmod',ques(pat5('\? | \! | \: | \+')))
@@ -1001,7 +1001,7 @@ sub make0_from_node___charclass {
     my(@a)=@_; @a == 1 ? $a[0] : "alt(".join(",",@a).")";
   };
   my $code = "";
-  $code .= "sr('!?before',".&$maybe_alt(map{"aregex($_)"}@not).")," if @not;
+  $code .= "sr('!.before',".&$maybe_alt(map{"aregex($_)"}@not).")," if @not;
   $code .= @inc ? &$maybe_alt(@inc) : "pat5('(?s:.)')";
   $code = "seq(".$code.")" if @not;
   return $code;
@@ -1019,7 +1019,7 @@ sub make0_from_node___charset {
     }
     elsif($pat =~ /^([-+]?)(\w+)$/) {
       my $op = $1 eq '-' ? '-' : '+';
-      return $op."sr('?$2')";
+      return $op."sr('.$2')";
     }
     else { die "bug" }
   }

@@ -786,6 +786,9 @@ if $o<mod_internal> {
     $exprs = $exprs.concat($rest);
   }
   RxSeq.newp($exprs);
+} elsif $o<quote> {
+  my $s = $m<quote><nibble>;
+  RxExact.newp($s);
 } elsif $o<variable> && $o<binding> {
   my $target = $o<variable>.match_string;
   my $expr = $m<binding><quantified_atom>;
@@ -835,12 +838,14 @@ if $o<mod_internal> {
   my $pkg = undef;
   my $neg = undef;
   my $nocap = undef;
+  my $zero_width = undef;
   my $name;
   my $args;
   my $exprs = [];
   my $sr = $o<assertion>;
   if $sr<sym_name> {
-    if $sr<sym_name> eq '?' { $nocap = 1; $sr = $sr<assertion>; }
+    if $sr<sym_name> eq '?' { $nocap = 1; $zero_width = 1; $sr = $sr<assertion>; }
+    if $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; } ;#/<.ws>/
     if $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; }
   }
   if $sr<arglist> && not(defined($sr<identifier>)) {
@@ -851,7 +856,12 @@ if $o<mod_internal> {
     $args = irbuild_ir($sr<nibbler>);#X?
     $exprs = $args;
   }
-  RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
+  my $rxsubrule = RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
+  if not($zero_width) {
+    $rxsubrule;
+  } else {
+    RxLookaround.newp(1,1,$rxsubrule);
+  }
 } elsif $x eq '( )' {
   my $e = $m<nibbler>;
   my $p;

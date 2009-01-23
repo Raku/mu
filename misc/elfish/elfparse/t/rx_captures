@@ -39,7 +39,7 @@ $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 5: <d @ 3>/	perl5 numbered captures $1
 :s (\w+) $<foo>:=(\w+) (\w+)		abc def ghi	/mob 1: <ghi @ 11>/	mixing named and unnamed capture
 <alpha> [ - <alpha> ]?			abc def ghi	/mob<alpha> 0: <a @ 3>/	multiple subrule captures in same scope
 [(.)$0]+				bookkeeper	y			backreference
-(\w+) <?ws> $0				hello hello	y			backreference at end of string
+(\w+) <.ws> $0				hello hello	y			backreference at end of string
 [(.)$0]+				bookkeeper	/mob 0 0: <o @ 1>/	backref $1
 [(.)$0]+				bookkeeper	/mob 0 1: <k @ 3>/	backref $1
 [(.)$0]+				bookkeeper	/mob 0 2: <e @ 5>/	backref $1

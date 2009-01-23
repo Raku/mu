@@ -232,7 +232,7 @@ package IRx1 {
     method RAST_pass10 {
       my $flags = $whiteboard::rx_flags.clone;
       if $flags.<sigspace> {
-        my $sr = IRx1::RxSubrule.newx(self.<aspace_inpkg>,'?ws',[]);
+        my $sr = IRx1::RxSubrule.newx(self.<aspace_inpkg>,'.ws',[]);
         $.become('IRx1::RxSubrule');
         # XXX anything else?
         self.<created_in_pkg> = $sr.<created_in_pkg>;

@@ -85,7 +85,7 @@ foo -? bar			foo - bar	n	basic non-match
 :s foo -? bar			foobar		n	basic ws non-match
 :s()foo -? bar			foo - bar	n	basic ws match
 :s[]foo -? bar			foo - bar	y	basic ws match
-:s<?wb>foo -? bar		foo - bar	y	basic ws match with boundary modifier separation
+:s<.wb>foo -? bar		foo - bar	y	basic ws match with boundary modifier separation
 :s::foo -? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
 :s::(\w+) \:= (\S+)		dog := spot	/mob 0: <dog @ 0>/	sigspace and capture together
 :s::(\w+) \:= (\S+)		dog := spot	/mob 1: <spot @ 7>/	sigspace and capture together
@@ -96,6 +96,6 @@ foo -? bar			foo - bar	n	basic non-match
 :nth(3) a \d			a1a2a3		y	nth occurance (:nth)
 :nth(4) a \d			a1a2a3		n	nth occurance (:nth)
 :nth(0) a \d			a1a2a3		n	nth occurance (:nth)
-:s^[\d+ ]* abc			11 12 13 abc	y	<?ws> before closing bracket
+:s^[\d+ ]* abc			11 12 13 abc	y	<.ws> before closing bracket
 
 ## vim: noexpandtab tabstop=4 shiftwidth=4
