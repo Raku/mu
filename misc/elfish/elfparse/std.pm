@@ -16,12 +16,10 @@ my @MEMOS is context;
 my $VOID is context<rw>;
 my @PADS;
 
-=begin pending #ELFBUG <.ws>
 # random rule for debugging, please ignore
 token foo {
    'foo' <.ws> 'bar' <.ws> 'baz'
 }
-=end pending
 
 =begin comment overview
 
@@ -387,14 +385,11 @@ class Terminator does PrecOp {
 # there's appropriate whitespace.  # Note that endsym isn't called if <sym>
 # isn't called.
 
-=begin pending
 my $endsym is context = "null";
 my $endargs is context = -1;
-=end pending
 
 proto token category { <...> }
 
-=begin pending
 token category:category { <sym> }
 
 token category:sigil { <sym> }
@@ -420,12 +415,10 @@ proto token quote () { <...> }
 
 token category:prefix { <sym> }
 proto token prefix is unary is defequiv(%symbolic_unary) { <...> }
-=end pending
 
 token category:infix { <sym> }
 proto token infix is binary is defequiv(%additive) { <...> }
 
-=begin pending
 token category:postfix { <sym> }
 proto token postfix is unary is defequiv(%autoincrement) { <...> }
 
@@ -504,6 +497,7 @@ token nofun { <!before '(' | '.(' | '\\' > }
 
 # Lexical routines
 
+=begin PENDING
 token ws {
     :my @stub = return self if @+MEMOS[self.pos]<ws> :exists;
     :my $startpos = self.pos;
@@ -949,7 +943,7 @@ token PRE {
 token nullterm {
     <?>
 }
-=end pending
+=end PENDING
 
 token nulltermish {
     :dba('null term')
@@ -979,7 +973,7 @@ token noun {
     | <variable>
     | <package_declarator>
     | <scope_declarator>
-#   | <?before 'multi'|'proto'|'only'> <multi_declarator> #ELFXXX what issue?
+#   | <?before 'multi'|'proto'|'only'> <multi_declarator> #ELFBUG <before> NOFIX
     | <routine_declarator>
     | <regex_declarator>
     | <type_declarator>
@@ -990,12 +984,12 @@ token noun {
     | <sigterm>
     | <term>
     | <statement_prefix>
-#   | [ <colonpair> <.ws> ]+ #ELFBUG <.ws> NOFIX
+    | [ <colonpair> <.ws> ]+
     ]
 }
 
 
-=begin pending
+=begin PENDING
 token fatarrow {
     <key=identifier> \h* '=>' <.ws> <val=EXPR(item %item_assignment)>
 }
@@ -1776,7 +1770,7 @@ token sublongname {
 #    <?before [\w+] ** '::' [ '<' | '«' | '{' ]> ::
 #    <name> '::' <postcircumfix> {*}                            #= FOO::<$x>
 #}
-=end pending
+=end PENDING
 
 token value {
     [
@@ -1788,7 +1782,7 @@ token value {
     ]
 }
 
-=begin pending
+=begin PENDING
 token typename {
     [
     | '::?'<identifier>                 # parse ::?CLASS as special case
@@ -1810,7 +1804,7 @@ token typename {
 rule fulltypename {<typename>['|'<typename>]*
     [ of <fulltypename> ]?
 }
-=end pending
+=end PENDING
 
 token number {
     [
@@ -1833,7 +1827,7 @@ token integer {
     ]
 }
 
-=begin pending
+=begin PENDING
 token radint {
     [
     | <integer>
@@ -1844,13 +1838,13 @@ token radint {
                     }>
     ]
 }
-=end pending
+=end PENDING
 
 token escale {
     <[Ee]> <[+\-]>? \d+[_\d+]*
 }
 
-=begin pending
+=begin PENDING
 # careful to distinguish from both integer and 42.method
 token dec_number {
     :dba('decimal number')
@@ -1876,7 +1870,7 @@ token rad_number {
     || <?before '('> <postcircumfix>
     ]
 }
-=end pending
+=end PENDING
 
 token octint {
     <[ 0..7 ]>+ [ _ <[ 0..7 ]>+ ]*
@@ -1886,7 +1880,7 @@ token hexint {
     <[ 0..9 a..f A..F ]>+ [ _ <[ 0..9 a..f A..F ]>+ ]*
 }
 
-=begin pending
+=begin PENDING
 our @herestub_queue;
 
 class Herestub {
@@ -2173,7 +2167,7 @@ token old_tr_mods {
 token quote:quasi {
     <sym> » <!before '('> <quasiquibble($¢.cursor_fresh( ::STD::Quasi ))>
 }
-=end pending
+=end PENDING
 
 # XXX should eventually be derived from current Unicode tables.
 constant %open2close = (
@@ -2241,7 +2235,7 @@ constant %open2close = (
     "\xFF5F" => "\xFF60", "\xFF62" => "\xFF63",
 );
 
-=begin pending
+=begin PENDING
 token opener {
   <[\x0028 \x003C \x005B
     \x007B \x00AB \x0F3A
@@ -2363,11 +2357,11 @@ method truly ($bool,$opt) {
     return self if $bool;
     self.panic("Can't negate $opt adverb");
 }
-=end pending
+=end PENDING
 
 grammar Q is STD {
 
-=begin pending
+=begin PENDING
     role b1 {
         token escape:sym<\\> { <sym> <item=backslash> }
         token backslash:qq { <?before 'q'> { $<quote> = $¢.cursor_fresh($+LANG).quote(); } }
@@ -2541,13 +2535,13 @@ grammar Q is STD {
         self.panic("Unrecognized quote modifier: " ~ @k);
     }
     # end tweaks (DO NOT ERASE)
-=end pending
+=end PENDING
 
 
 } # end grammar
 
 grammar Quasi is STD {
-=begin pending
+=begin PENDING
     token term:unquote {
         <starter><starter><starter> <EXPR> <stopper><stopper><stopper>
     }
@@ -2563,11 +2557,11 @@ grammar Quasi is STD {
         self.panic("Unrecognized quasiquote modifier: " ~ @k);
     }
     # end tweaks (DO NOT ERASE)
-=end pending
+=end PENDING
 
 } # end grammar
 
-=begin pending
+=begin PENDING
 # Note, backtracks!  So POST must not commit to anything permanent.
 regex extrapost {
     :my $inquote is context = 1;
@@ -3028,7 +3022,7 @@ token infix:sym« ~> » ( --> Multiplicative)
 
 
 ## additive
-=end pending
+=end PENDING
 token infix:sym<+> ( --> Additive)
     { <sym> }
 
@@ -3053,7 +3047,7 @@ token infix:sym<?|> ( --> Additive)
 token infix:sym<?^> ( --> Additive)
     { <sym> }
 
-=begin pending
+=begin PENDING
 ## replication
 # Note: no word boundary check after x, relies on longest token for x2 xx2 etc
 token infix:sym<x> ( --> Replication)
@@ -3709,7 +3703,7 @@ method EXPR ($preclvl)
     }
     self._MATCHIFYr($S, "EXPR", @termstack);
 }
-=end pending
+=end PENDING
 
 #################################################
 ## Regex
@@ -3717,7 +3711,7 @@ method EXPR ($preclvl)
 
 grammar Regex is STD {
 
-=begin pending
+=begin PENDING
     # begin tweaks (DO NOT ERASE)
     multi method tweak (:Perl5(:$P5)) { self.cursor_fresh( ::STD::Q ).mixin( ::q ).mixin( ::p5 ) }
     multi method tweak (:overlap(:$ov)) { self }
@@ -4081,13 +4075,13 @@ grammar Regex is STD {
         <sigspace> <quantified_atom> }
 
     token quantmod { ':'? [ '?' | '!' | '+' ]? }
-=end pending
+=end PENDING
 
 } # end grammar
 
 grammar P5Regex is STD {
 
-=begin pending
+=begin PENDING
     # begin tweaks (DO NOT ERASE)
     multi method tweak (:global(:$g)) { self }
     multi method tweak (:ignorecase(:$i)) { self }
@@ -4254,7 +4248,7 @@ grammar P5Regex is STD {
     token quantifier:sym<{ }> { '{' \d+ [','\d*]? '}' <quantmod> }
 
     token quantmod { [ '?' | '+' ]? }
-=end pending
+=end PENDING
 
 } # end grammar
 

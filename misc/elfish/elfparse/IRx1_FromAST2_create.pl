@@ -854,8 +854,9 @@ if $o<mod_internal> {
   else {
     $name = irbuild_ir($sr<identifier>);
     $args = irbuild_ir($sr<nibbler>);#X?
-    $exprs = $args;
+    $exprs = $args || [];#X?
   }
+  $exprs = $exprs.map(sub ($e){RxARegex.newp("",{},$e)});
   my $rxsubrule = RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
   if not($zero_width) {
     $rxsubrule;
