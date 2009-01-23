@@ -232,31 +232,31 @@ method add_routine ($name) {
 # Users should specify precedence only in relation to existing levels.
 
 constant %term            = (:prec<z=>);
-constant %methodcall      = (:prec<y=>);
-constant %autoincrement   = (:prec<x=>);
+constant %methodcall      = (:prec<y=>, :assoc<unary>, :uassoc<left>);
+constant %autoincrement   = (:prec<x=>, :assoc<unary>, :uassoc<non>);
 constant %exponentiation  = (:prec<w=>, :assoc<right>, :assign);
-constant %symbolic_unary  = (:prec<v=>);
+constant %symbolic_unary  = (:prec<v=>, :assoc<unary>, :uassoc<left>);
 constant %multiplicative  = (:prec<u=>, :assoc<left>,  :assign);
 constant %additive        = (:prec<t=>, :assoc<left>,  :assign);
 constant %replication     = (:prec<s=>, :assoc<left>,  :assign);
 constant %concatenation   = (:prec<r=>, :assoc<list>,  :assign);
 constant %junctive_and    = (:prec<q=>, :assoc<list>,  :assign);
 constant %junctive_or     = (:prec<p=>, :assoc<list>,  :assign);
-constant %named_unary     = (:prec<o=>);
+constant %named_unary     = (:prec<o=>, :assoc<unary>, :uassoc<left>);
 constant %nonchaining     = (:prec<n=>, :assoc<non>);
 constant %chaining        = (:prec<m=>, :assoc<chain>, :bool);
 constant %tight_and       = (:prec<l=>, :assoc<list>,  :assign);
 constant %tight_or        = (:prec<k=>, :assoc<list>,  :assign);
 constant %conditional     = (:prec<j=>, :assoc<right>);
 constant %item_assignment = (:prec<i=>, :assoc<right>);
-constant %loose_unary     = (:prec<h=>);
+constant %loose_unary     = (:prec<h=>, :assoc<unary>, :uassoc<left>);
 constant %comma           = (:prec<g=>, :assoc<list>, :nextterm<nulltermish>);
 constant %list_infix      = (:prec<f=>, :assoc<list>,  :assign);
-constant %list_assignment = (:prec<i=>, :sub<e=>, :assoc<right>);
-constant %list_prefix     = (:prec<e=>);
+constant %list_assignment = (:prec<i=>, :assoc<right>, :sub<e=>);
+constant %list_prefix     = (:prec<e=>, :assoc<unary>, :uassoc<left>);
 constant %loose_and       = (:prec<d=>, :assoc<list>,  :assign);
 constant %loose_or        = (:prec<c=>, :assoc<list>,  :assign);
-constant %sequencer      = (:prec<b=>, :assoc<left>, :nextterm<statement>);
+constant %sequencer       = (:prec<b=>, :assoc<list>, :nextterm<statement>);
 constant %LOOSEST         = (:prec<a=!>);
 constant %terminator      = (:prec<a=>, :assoc<list>);
 
@@ -497,7 +497,7 @@ token nofun { <!before '(' | '.(' | '\\' > }
 
 # Lexical routines
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token ws {
     :my @stub = return self if @+MEMOS[self.pos]<ws> :exists;
     :my $startpos = self.pos;
@@ -920,6 +920,7 @@ token vnum {
 token version:sym<v> {
     'v' <?before \d> :: <vnum> ** '.' '+'?
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ###################################################
 
@@ -943,7 +944,6 @@ token PRE {
 token nullterm {
     <?>
 }
-=end PENDING
 
 token nulltermish {
     :dba('null term')
@@ -962,9 +962,9 @@ token termish {
 
     # also queue up any postfixes
     :dba('postfix')
-#   [ <?stdstopper> || #ELFXXX what issue?
-#       <POST>* #ELFXXX what issue?
-#   ] #ELFXXX what issue?
+    [ <?stdstopper> ||
+        <POST>*
+    ]
 }
 
 token noun {
@@ -973,7 +973,7 @@ token noun {
     | <variable>
     | <package_declarator>
     | <scope_declarator>
-#   | <?before 'multi'|'proto'|'only'> <multi_declarator> #ELFBUG <before> NOFIX
+    | <?before 'multi'|'proto'|'only'> <multi_declarator>
     | <routine_declarator>
     | <regex_declarator>
     | <type_declarator>
@@ -989,7 +989,7 @@ token noun {
 }
 
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token fatarrow {
     <key=identifier> \h* '=>' <.ws> <val=EXPR(item %item_assignment)>
 }
@@ -1055,8 +1055,9 @@ token infixish {
     | <colonpair> {
             $<fake> = 1;
             $<sym> = ':';
-            %<O><prec> = %loose_unary<prec>;
-            %<O><assoc> = 'left';
+            %<O><prec> = %comma<prec>;
+            %<O><assoc> = 'unary';
+            %<O><uassoc> = 'left';
         }
     | <infix>
            { $<O> = $<infix>.<O>; $<sym> = $<infix>.<sym>; }
@@ -1089,7 +1090,7 @@ token dottyop {
     :dba('dotty method or postfix')
     [
     | <methodop>
-    | <!alpha> <postop> # only non-alpha postfixes have dotty form
+    | <!alpha> <postop> { $<O> = $<postop><O>; $<sym> = $<postop><sym>; }  # only non-alpha postfixes have dotty form
     ]
 }
 
@@ -1108,9 +1109,9 @@ token POST {
 
     :dba('postfix')
     [
-    | <dotty>  { $<O> = $<dotty><O> }
-    | <privop> { $<O> = $<privop><O> }
-    | <postop> { $<O> = $<postop><O> }
+    | <dotty>  { $<O> = $<dotty><O>; $<sym> = $<dotty><sym>; }
+    | <privop> { $<O> = $<privop><O>; $<sym> = $<privop><sym>; }
+    | <postop> { $<O> = $<postop><O>; $<sym> = $<postop><sym>; }
     ]
     { $+SIGIL = '@' }
 }
@@ -1136,7 +1137,7 @@ regex prefix_circumfix_meta_operator:reduce (--> List_prefix) {
     [ <!{ $<O><prec> eq %conditional<prec> }>
         || <.panic: "Can't reduce a conditional operator"> ]
 
-    { $<O><assoc> = 'unary'; }
+    { $<O><assoc> = 'unary'; $<O><uassoc> = 'left'; }
 
 }
 
@@ -1214,8 +1215,8 @@ token postcircumfix:sym<« »> ( --> Methodcall)
     { '«' <nibble($¢.cursor_fresh( ::STD::Q ).tweak(:qq).tweak(:ww).balanced('«','»'))> [ '»' || <.panic: "Unable to parse quote-words subscript; couldn't find right double-angle quote"> ] }
 
 token postop {
-    | <postfix>         { $<O> := $<postfix><O> }
-    | <postcircumfix>   { $<O> := $<postcircumfix><O> }
+    | <postfix>         { $<O> := $<postfix><O>; $<sym> := $<postfix><sym>; }
+    | <postcircumfix>   { $<O> := $<postcircumfix><O>; $<sym> := $<postcircumfix><sym>; }
 }
 
 token methodop {
@@ -1770,7 +1771,7 @@ token sublongname {
 #    <?before [\w+] ** '::' [ '<' | '«' | '{' ]> ::
 #    <name> '::' <postcircumfix> {*}                            #= FOO::<$x>
 #}
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token value {
     [
@@ -1782,7 +1783,7 @@ token value {
     ]
 }
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token typename {
     [
     | '::?'<identifier>                 # parse ::?CLASS as special case
@@ -1804,7 +1805,7 @@ token typename {
 rule fulltypename {<typename>['|'<typename>]*
     [ of <fulltypename> ]?
 }
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token number {
     [
@@ -1827,7 +1828,7 @@ token integer {
     ]
 }
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token radint {
     [
     | <integer>
@@ -1838,13 +1839,13 @@ token radint {
                     }>
     ]
 }
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token escale {
     <[Ee]> <[+\-]>? \d+[_\d+]*
 }
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # careful to distinguish from both integer and 42.method
 token dec_number {
     :dba('decimal number')
@@ -1870,7 +1871,7 @@ token rad_number {
     || <?before '('> <postcircumfix>
     ]
 }
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token octint {
     <[ 0..7 ]>+ [ _ <[ 0..7 ]>+ ]*
@@ -1880,7 +1881,7 @@ token hexint {
     <[ 0..9 a..f A..F ]>+ [ _ <[ 0..9 a..f A..F ]>+ ]*
 }
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 our @herestub_queue;
 
 class Herestub {
@@ -2167,7 +2168,7 @@ token old_tr_mods {
 token quote:quasi {
     <sym> » <!before '('> <quasiquibble($¢.cursor_fresh( ::STD::Quasi ))>
 }
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # XXX should eventually be derived from current Unicode tables.
 constant %open2close = (
@@ -2235,7 +2236,7 @@ constant %open2close = (
     "\xFF5F" => "\xFF60", "\xFF62" => "\xFF63",
 );
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token opener {
   <[\x0028 \x003C \x005B
     \x007B \x00AB \x0F3A
@@ -2357,11 +2358,11 @@ method truly ($bool,$opt) {
     return self if $bool;
     self.panic("Can't negate $opt adverb");
 }
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 grammar Q is STD {
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     role b1 {
         token escape:sym<\\> { <sym> <item=backslash> }
         token backslash:qq { <?before 'q'> { $<quote> = $¢.cursor_fresh($+LANG).quote(); } }
@@ -2535,13 +2536,13 @@ grammar Q is STD {
         self.panic("Unrecognized quote modifier: " ~ @k);
     }
     # end tweaks (DO NOT ERASE)
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 } # end grammar
 
 grammar Quasi is STD {
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token term:unquote {
         <starter><starter><starter> <EXPR> <stopper><stopper><stopper>
     }
@@ -2557,11 +2558,11 @@ grammar Quasi is STD {
         self.panic("Unrecognized quasiquote modifier: " ~ @k);
     }
     # end tweaks (DO NOT ERASE)
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 } # end grammar
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # Note, backtracks!  So POST must not commit to anything permanent.
 regex extrapost {
     :my $inquote is context = 1;
@@ -2831,6 +2832,7 @@ $¢.panic("Can't put optional positional parameter after variadic parameters");
 rule default_value {
     '=' <EXPR(item %item_assignment)>
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token statement_prefix:do      { <sym> <?before \s> <.ws> <statement> }
 token statement_prefix:try     { <sym> <?before \s> <.ws> <statement> }
@@ -2842,6 +2844,7 @@ token statement_prefix:lazy    { <sym> <?before \s> <.ws> <statement> }
 
 ## term
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token term:sym<::?IDENT> ( --> Term) {
     $<sym> = [ '::?' <identifier> ] »
 }
@@ -2927,6 +2930,7 @@ token infix:sym<.> ()
 
 token postfix:sym['->'] ()
     { '->' <.obs('-> to call a method', '.')> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ## autoincrement
 token postfix:sym<++> ( --> Autoincrement)
@@ -3022,7 +3026,6 @@ token infix:sym« ~> » ( --> Multiplicative)
 
 
 ## additive
-=end PENDING
 token infix:sym<+> ( --> Additive)
     { <sym> }
 
@@ -3047,7 +3050,6 @@ token infix:sym<?|> ( --> Additive)
 token infix:sym<?^> ( --> Additive)
     { <sym> }
 
-=begin PENDING
 ## replication
 # Note: no word boundary check after x, relies on longest token for x2 xx2 etc
 token infix:sym<x> ( --> Replication)
@@ -3077,6 +3079,7 @@ token infix:sym<^> ( --> Junctive_or)
     { <sym> }
 
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ## named unary examples
 # (need \s* to win LTM battle with listops)
 token prefix:sleep ( --> Named_unary)
@@ -3093,6 +3096,7 @@ token prefix:let ( --> Named_unary)
 
 token prefix:temp ( --> Named_unary)
     { <sym> » <?before \s*> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ## nonchaining binary
 token infix:sym« <=> » ( --> Nonchaining)
@@ -3212,10 +3216,8 @@ token infix:sym<&&> ( --> Tight_and)
 token infix:sym<||> ( --> Tight_or)
     { <sym> }
 
-token infix:sym<^^> ( --> Tight_or)  {
-    <sym>
-    { $<O><assoc> := 'list' }  # override Tight_or's 'left' associativity
-}
+token infix:sym<^^> ( --> Tight_or)
+    { <sym> }
 
 token infix:sym<//> ( --> Tight_or)
     { <sym> }
@@ -3227,6 +3229,7 @@ token infix:sym<max> ( --> Tight_or)
     { <sym> }
 
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ## conditional
 token infix:sym<?? !!> ( --> Conditional) {
     :my $GOAL is context = '!!';
@@ -3622,11 +3625,22 @@ method EXPR ($preclvl)
         my @post;
         @post = reverse @$tmp if $tmp = ( $M<POST> :delete );
         while @pre and @post {
-            if @post[0]<O><prec> le @pre[0]<O><prec> {
+            my $postO = @post[0]<O>;
+            my $preO = @pre[0]<O>;
+            if $postO<prec> lt $preO<prec> {
                 push @opstack, shift @post;
             }
-            else {
+            elsif $postO<prec> gt $preO<prec> {
                 push @opstack, shift @pre;
+            }
+            elsif $postO<uassoc> eq 'left' {
+                push @opstack, shift @post;
+            }
+            elsif $postO<uassoc> eq 'right' {
+                push @opstack, shift @pre;
+            }
+            else {
+                $here.panic('"' ~ @pre[0]<sym> ~ '" and "' ~ @post[0]<sym> ~ '" are not associative');
             }
         }
         push @opstack, @pre,@post;
@@ -3670,6 +3684,12 @@ method EXPR ($preclvl)
             # Not much point in reducing the sentinels...
             last if $inprec lt $LOOSEST;
 
+        if $infix<fake> {
+            my $adverbs = @termstack[*-1]<ADV> ||= [];
+            push @$adverbs, $infix<colonpair>;
+            next;  # not really an infix, so keep trying
+        }
+
             # Equal precedence, so use associativity to decide.
             if @opstack[*-1]<O><prec> eq $inprec {
                 given $inO<assoc> {
@@ -3677,22 +3697,17 @@ method EXPR ($preclvl)
                     when 'left'  { reduce() }   # reduce immediately
                     when 'right' { }            # just shift
                     when 'chain' { }            # just shift
+                    when 'unary' { }            # just shift
                     when 'list'  {              # if op differs reduce else shift
                         reduce() if $infix<sym> !eqv @opstack[*-1]<sym>;
                     }
-                    default { $here.panic("Unknown associativity \"$_\" for \"$infix\"") }
+                    default { $here.panic('Unknown associativity "' ~ $_ ~ '" for "' ~ $infix<sym> ~ '"') }
                 }
             }
-            if $infix<fake> {
-                my $adverbs = @termstack[*-1]<ADV> ||= [];
-                push @$adverbs, $infix<colonpair>;
-                next;  # not really an infix, so keep trying
-            }
-            else {
-                $termish = $inO<nextterm> if $inO<nextterm>;
-                push @opstack, $infix;
-                last;
-            }
+
+            $termish = $inO<nextterm> if $inO<nextterm>;
+            push @opstack, $infix;              # The Shift
+            last;
         }
     }
     reduce() while +@opstack > 1;
@@ -3703,7 +3718,7 @@ method EXPR ($preclvl)
     }
     self._MATCHIFYr($S, "EXPR", @termstack);
 }
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #################################################
 ## Regex
@@ -3711,7 +3726,7 @@ method EXPR ($preclvl)
 
 grammar Regex is STD {
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     # begin tweaks (DO NOT ERASE)
     multi method tweak (:Perl5(:$P5)) { self.cursor_fresh( ::STD::Q ).mixin( ::q ).mixin( ::p5 ) }
     multi method tweak (:overlap(:$ov)) { self }
@@ -4075,13 +4090,13 @@ grammar Regex is STD {
         <sigspace> <quantified_atom> }
 
     token quantmod { ':'? [ '?' | '!' | '+' ]? }
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 } # end grammar
 
 grammar P5Regex is STD {
 
-=begin PENDING
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     # begin tweaks (DO NOT ERASE)
     multi method tweak (:global(:$g)) { self }
     multi method tweak (:ignorecase(:$i)) { self }
@@ -4248,7 +4263,7 @@ grammar P5Regex is STD {
     token quantifier:sym<{ }> { '{' \d+ [','\d*]? '}' <quantmod> }
 
     token quantmod { [ '?' | '+' ]? }
-=end PENDING
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 } # end grammar
 

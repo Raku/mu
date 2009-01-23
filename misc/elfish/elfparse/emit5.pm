@@ -1495,3 +1495,7 @@ class EmitSimpleP5 {
 
 class CategoryDef {
 }
+
+class Match {
+  method text { $.match_string } # for STD.pm
+}

@@ -86,6 +86,8 @@ elsif $o<list> {
   if $o<delims>[0]<rxinfix> {
     if $op eq '|' {
       RxAlt.newp($args)
+    } elsif $op eq '||' {
+      RxAlt.newp($args)
     } else {
       die "Unimplemented regex list operator: "~$op;
     }
@@ -454,10 +456,15 @@ if $o<desigilname> {
   $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
 } elsif $o<special_variable> {
   $v = $m<special_variable>;
+} elsif $o<postcircumfix> {
+  #$v = Var.newp('$',undef,'/'); # $/
+  $v = Var.newp('$',undef,'M'); #Temporary rx_on_re compat.
+  temp $blackboard::expect_term_base = $v;
+  return $m<postcircumfix>[0];
 } else { die "Unimplemented variable form" }
 if $o<postcircumfix>.elems {
   temp $blackboard::expect_term_base = $v;
-  $m<postcircumfix>;
+  return $m<postcircumfix>;#X?
 } else {
   $v;  
 }
@@ -843,19 +850,27 @@ if $o<mod_internal> {
   my $args;
   my $exprs = [];
   my $sr = $o<assertion>;
-  if $sr<sym_name> {
+  while $sr && $sr<sym_name> {
     if $sr<sym_name> eq '?' { $nocap = 1; $zero_width = 1; $sr = $sr<assertion>; }
-    if $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; } ;#/<.ws>/
-    if $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; }
+    elsif $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; } #/<.foo>/
+    elsif $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; }
+    else { last; }
   }
-  if $sr<arglist> && not(defined($sr<identifier>)) {
+  if not($sr) && *text* eq '<?>' {
+    $name = 'null'
+  }
+  elsif $sr<arglist> && not(defined($sr<identifier>)) {
     $name = $sr.match_string.re_gsub_pat(':<([^>]+)>\z',':$1').re_gsub_pat(':«([^»]+)»\z',':$1');
   }
-  else {
+  elsif $sr<identifier> {
     $name = irbuild_ir($sr<identifier>);
     $args = irbuild_ir($sr<nibbler>);#X?
     $exprs = $args || [];#X?
   }
+  elsif *text* eq '<...>' {
+    $name = 'not_defined_yet'
+  }
+  else { die "bug" }
   $exprs = $exprs.map(sub ($e){RxARegex.newp("",{},$e)});
   my $rxsubrule = RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
   if not($zero_width) {
@@ -899,6 +914,9 @@ if $o<mod_internal> {
     RxGrp.newp($p);
   }
 } elsif $x eq '{ }' {
+  if *text* eq '{*}' { #X sigh
+    return RxSeq.newp([]);
+  }
   my $stmts = $m<codeblock><statementlist>;
   RxCode.newp(Block.newp($stmts))
 } elsif $x eq ':::' { RxCommitRegex.newp();
