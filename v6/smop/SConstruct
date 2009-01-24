@@ -1,5 +1,6 @@
 import re
 import os
+import glob
 BuildDir('build','src')
 BuildDir('build-tests','test')
 env = Environment(ENV = os.environ)
@@ -28,7 +29,10 @@ import subprocess # python has `` in a strange module :\
 ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 flags = '-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE '
-libsmop = env.SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src','include'])
+
+INCLUDE = ['include'] + glob.glob('smop-*/include')
+
+libsmop = env.SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src'] + INCLUDE)
 
 LIBS = re.compile("-l(\S+)").findall(ldopts)
 LIBPATH = re.compile("-L(\S+)").findall(ldopts)
@@ -37,5 +41,5 @@ LIBPATH = re.compile("-L(\S+)").findall(ldopts)
 for test in env.Glob("build-tests/*.m0ld"):
     env.M0ld(test) 
 for test in env.Glob("build-tests/*.c"):
-    env.Program(re.sub(r'.c$','.t',str(test)),test,CPPPATH = ['include'],LIBPATH=LIBPATH+['build'],LIBS=LIBS+['smop','pcl','pthread'])
+    env.Program(re.sub(r'.c$','.t',str(test)),test,CPPPATH = INCLUDE,LIBPATH=LIBPATH+['build'],LIBS=LIBS+['smop','pcl','pthread'])
 
