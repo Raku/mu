@@ -54,6 +54,7 @@ sub m0ld_to_c {
     binmode $m0ld_exe_out, ':utf8';
     return <$m0ld_exe_out>;
 }
+my @SMOP_INCLUDE = map {"-I".$_} (glob("../smop/smop-*/include"),"../smop/include");
 sub compile_via_c {
     my ($m0ld,$output) = @_;
     my ($c_fh,$c_file) = tempfile();
@@ -65,7 +66,7 @@ sub compile_via_c {
     print {$c_fh} m0ld_to_c($m0ld);
     print {$c_fh} <$boilerplate_back>;
     close($c_fh);
-    system("gcc","-g","-xc","-L../smop/build","-I../smop/include","-lperl","-lsmop","-lpcl",$c_file,"-o",$output);
+    system("gcc","-g","-xc","-L../smop/build",@SMOP_INCLUDE,"-lperl","-lsmop","-lpcl",$c_file,"-o",$output);
 }
 sub compile_to_so {
     my ($m0ld,$output) = @_;
@@ -92,7 +93,7 @@ BOILERPLATE_FRONT
 }
 BOILERPLATE_BACK
     close($c_fh);
-    system("gcc","-g","-xc","-L../smop/build","-I../smop/include","-shared",$c_file,"-o",$output);
+    system("gcc","-g","-xc","-L../smop/build",@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
 }
 sub output {
     my ($what,$where) = @_;

@@ -13,12 +13,6 @@
   ((smop_s1p_multi_struct*)ret)->name = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__name);
   ((smop_s1p_multi_struct*)ret)->outer = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__outer);
 
-%method variants
-  smop_lowlevel_rdlock(invocant);
-  ret = ((smop_s1p_multi_struct*)invocant)->variants;
-  smop_lowlevel_unlock(invocant);
-  SMOP_REFERENCE(interpreter, ret);
-
 %method FETCH
   ret = SMOP_REFERENCE(interpreter, invocant);  
 

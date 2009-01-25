@@ -2,6 +2,8 @@ use 5.010000;
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
+
+my @SMOP_INCLUDE = map {"-I".$_} (glob("../smop-*/include"),"../include");
 WriteMakefile(
     NAME              => 'SMOP',
     VERSION_FROM      => 'lib/SMOP.pm', # finds $VERSION
@@ -11,7 +13,7 @@ WriteMakefile(
        AUTHOR         => 'Daniel Ruoso <daniel@ruoso.com>') : ()),
     LIBS              => ['-L../build -lsmop'], # e.g., '-lm'
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
-    INC               => '-I. -I../include', # e.g., '-I. -I/usr/include/other'
+    INC               => '-I. '.join(' ',@SMOP_INCLUDE), # e.g., '-I. -I/usr/include/other'
 	# Un-comment this if you add C files to link with later:
     # OBJECT            => '$(O_FILES)', # link all the C files too
 );
