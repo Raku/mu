@@ -35,8 +35,8 @@ __LIST__    = _cast "LIST"
 dispatchPerl5 :: Val -> Call -> Eval Val
 dispatchPerl5 inv call
     | meth == nullID    = return inv -- XXX - real HOW support --
-    | meth == __ITEM__  = return inv -- XXX - real rvalue suport --
-    | meth == __LIST__  = return inv -- XXX - real lvalue suport --
+    | meth == __ITEM__  = return inv -- XXX - real rvalue support --
+    | meth == __LIST__  = return inv -- XXX - real lvalue support --
     | otherwise = do
         invSV   <- coerceVal inv
         subSV   <- liftIO . bufToSV . cast $ meth
