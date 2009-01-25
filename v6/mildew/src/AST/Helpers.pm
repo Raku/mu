@@ -1,6 +1,6 @@
 package AST::Helpers;
 use Exporter 'import';
-our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall
+our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components
                  routine code move_CONTROL XXX trailing_return varname EXPR);
 use Carp 'confess';
 use AST;
@@ -140,6 +140,20 @@ sub varname {
         $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$m->{sublongname}{subshortname}{desigilname}{longname}->canonical;
     } else {
         XXX;
+    }
+}
+sub name_components {
+    my $m = shift;
+    if ($m->{sublongname}) {
+        my $longname = $m->{sublongname}{subshortname}{desigilname}{longname};
+        my $nibbles = $longname->{colonpair}[0]{v}{nibble}{nibbles}[0];
+        my @components = ($longname->{name}{identifier}{TEXT},map {$_->{identifier}[0]{TEXT}} @{$longname->{name}{morename}});
+        $components[-1] .= ':' . $nibbles if $nibbles;
+        $components[-1] = $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$components[-1];
+
+        @components;
+    } else {
+        varname($m);
     }
 }
 

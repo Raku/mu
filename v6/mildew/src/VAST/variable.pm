@@ -17,10 +17,17 @@ sub emit_m0ld {
     } elsif ($twigil eq '.') {
 	call($m->{desigilname}{longname}->canonical,FETCH(lookup('$¿self')));
     } else {
-	AST::Call->new(
-	    identifier=>string 'lookup',
-	    capture=>AST::Capture->new(invocant=>reg '$scope',positional=>[string varname($m)]),
-	    );
+        use Data::Dumper;
+        my @name = name_components($m);
+        if (scalar @name > 1) {
+            my $name = lookup($name[0].'::');
+            for my $part (@name[1..-2]) {
+                $name = call('postcircumfix:{ }'=>FETCH($name),[string($part.'::')]);
+            }
+            $name = call('postcircumfix:{ }'=>FETCH($name),[string($name[-1])]);
+        } else {
+            lookup($name[-1]);
+        }
     }
 }
 
