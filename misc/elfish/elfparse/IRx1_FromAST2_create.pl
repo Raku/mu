@@ -842,6 +842,7 @@ if $o<mod_internal> {
     my $ast = RxAlias.newp('$'~$sym,undef,RxCap.newp(RxExact.newp($blackboard::sym)));
     return $ast;
   }
+  # < stuff >
   my $pkg = undef;
   my $neg = undef;
   my $nocap = undef;
@@ -850,25 +851,39 @@ if $o<mod_internal> {
   my $args;
   my $exprs = [];
   my $sr = $o<assertion>;
+  my $methodp;
   while $sr && $sr<sym_name> {
     if $sr<sym_name> eq '?' { $nocap = 1; $zero_width = 1; $sr = $sr<assertion>; }
-    elsif $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; } #/<.foo>/
+    elsif $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; $methodp =1} #/<.foo>/
     elsif $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; }
     else { last; }
   }
-  if not($sr) && *text* eq '<?>' {
+  my $text = *text*;
+  if $text eq '<?>' {
     $name = 'null'
   }
-  elsif $sr<arglist> && not(defined($sr<identifier>)) {
-    $name = $sr.match_string.re_gsub_pat(':<([^>]+)>\z',':$1').re_gsub_pat(':«([^»]+)»\z',':$1');
+  elsif $text eq '<...>' {
+    $name = 'not_defined_yet'
+  }
+  elsif $sr && $sr<arglist> && not(defined($sr<identifier>)) {
+    #XXX gimme5/STD.pm's assertion:identifier(?) isn't capturing the identifier. :(  r25017.
+    #XXX /<.foo: 3>/
+    my $ident = $sr.match_string;
+    $ident = $ident.re_gsub_pat(':<([^>]+)>\z',':$1').re_gsub_pat(':«([^»]+)»\z',':$1');
+    $ident = $ident.re_gsub('(?<=\w):(?!:).+','');
+    $ident = $ident.re_gsub('\(.+','');
+    $name = $ident;
+    if $methodp {
+      my $obj = Var.newp('$',undef,'¢'); #X
+      my $args = irbuild_ir($sr<arglist><EXPR>);
+      my $stmts = [Call.newp($obj,$name,$args)];
+      return RxCode.newp(Block.newp($stmts));
+    }
   }
   elsif $sr<identifier> {
     $name = irbuild_ir($sr<identifier>);
     $args = irbuild_ir($sr<nibbler>);#X?
     $exprs = $args || [];#X?
-  }
-  elsif *text* eq '<...>' {
-    $name = 'not_defined_yet'
   }
   else { die "bug" }
   $exprs = $exprs.map(sub ($e){RxARegex.newp("",{},$e)});
@@ -979,6 +994,7 @@ cclass_elem
 temp $blackboard::quote = "' '";
 my $set = $m<quibble><nibble>;
 my $pat5 = $set.re_gsub('\.\.','-').re_gsub('(?<!\\\\)\s','');
+$pat5 = $pat5.re_gsub_pat('\\\\x([0-9a-fA-F]{4})','\\\\x{$1}');
 $pat5 = '['~$pat5~']';
 RxPat5.newp($pat5);
 # my $set = $m<quibble><nibble>

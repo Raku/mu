@@ -143,7 +143,7 @@ my @baseroutinenames = qw[
     cat classify
     quotemeta
     chr ord
-    p5chop chop p5chomp chomp trim
+    p5chop chop p5chomp chomp trim trim_start trim_end
     index rindex substr
     join split comb pack unpack
     uc ucfirst lc lcfirst
@@ -565,6 +565,7 @@ token unv {
          ]
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token ident {
     <.alpha> \w*
@@ -580,6 +581,7 @@ token identifier {
 
 # XXX We need to parse the pod eventually to support $= variables.
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token pod_comment {
     ^^ '=' <.unsp>?
     [
@@ -699,6 +701,7 @@ token regex_block {
 # statement semantics
 rule statementlist {
     :my $PARSER is context<rw> = self;
+    :my $SEMILIST is context = 0;
     :dba('statement list')
     [
     | $
@@ -709,6 +712,7 @@ rule statementlist {
 
 # embedded semis, context-dependent semantics
 rule semilist {
+    :my $SEMILIST is context = 1;
     :dba('semicolon list')
     [
     | <?before <[\)\]\}]> >
@@ -718,14 +722,15 @@ rule semilist {
 
 
 token label {
+    :my $label;
     <identifier> ':' <?before \s> <.ws>
 
-    [ <?{ $¢.is_type($<identifier>.text) }>
-      <.panic("You tried to use an existing typename as a label")>
+    [ <?{ $¢.is_type($label = $<identifier>.text) }>
+      <.panic("Illegal redeclaration of '$label'")>
     ]?
 
     # add label as a pseudo type
-    {{ $¢.add_type($<identifier>.text); }}
+    {{ $¢.add_type($label); }}
 
 }
 
@@ -867,6 +872,7 @@ token statement_control:when {
     <sym> :s
     <xblock>
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 rule statement_control:default {<sym> <block> }
 
 rule statement_control:BEGIN   {<sym> <block> }
@@ -906,6 +912,7 @@ rule statement_mod_loop:until {<sym> <modifier_expr> {*} }      #= until
 rule statement_mod_loop:for   {<sym> <modifier_expr> {*} }      #= for
 rule statement_mod_loop:given {<sym> <modifier_expr> {*} }      #= given
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token module_name:normal {
     <longname>
     [ :dba('generic role') <?{ ($+PKGDECL//'') eq 'role' }> '[' ~ ']' <signature> ]?
@@ -1170,7 +1177,7 @@ token infix_circumfix_meta_operator:sym<X X> ( --> List_infix) {
     X [
     | <infix> X
     | <infix=infix_prefix_meta_operator> X
-    | <infix=infix_curcumfix_meta_operator> X
+    | <infix=infix_circumfix_meta_operator> X
     ]
     <!!{ $<O> = $<infix><O>; }>
     <!!lex1: 'cross'>
@@ -1387,6 +1394,7 @@ token declarator {
     | <type_declarator>
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token multi_declarator:multi { <sym> <.ws> [ <declarator> || <routine_def> ] }
 token multi_declarator:proto { <sym> <.ws> [ <declarator> || <routine_def> ] }
@@ -1408,6 +1416,7 @@ token special_variable:sym<$¢> { <sym> }
 
 token special_variable:sym<$!> { <sym> <!before \w> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym<$!{ }> {
     # XXX the backslashes are necessary here for bootstrapping, not for P6...
     ( '$!{' :: (.*?) '}' )
@@ -1753,6 +1762,7 @@ token subshortname {
     | <desigilname> { $¢.add_routine($<desigilname>.text) if $+IN_DECL; }
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token sublongname {
     <subshortname> <sigterm>?
@@ -1771,7 +1781,6 @@ token sublongname {
 #    <?before [\w+] ** '::' [ '<' | '«' | '{' ]> ::
 #    <name> '::' <postcircumfix> {*}                            #= FOO::<$x>
 #}
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token value {
     [
@@ -2236,7 +2245,6 @@ constant %open2close = (
     "\xFF5F" => "\xFF60", "\xFF62" => "\xFF63",
 );
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token opener {
   <[\x0028 \x003C \x005B
     \x007B \x00AB \x0F3A
@@ -2304,6 +2312,7 @@ token opener {
 
 # assumes whitespace is eaten already
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 method peek_delimiters {
     my $pos = self.pos;
     my $startpos = $pos;
@@ -2349,6 +2358,7 @@ token unitstopper { $ }
 method balanced ($start,$stop) { self.mixin( ::startstop[$start,$stop] ); }
 method unbalanced ($stop) { self.mixin( ::stop[$stop] ); }
 method unitstop ($stop) { self.mixin( ::unitstop[$stop] ); }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token codepoint {
     '[' {} ( [<!before ']'> .]*? ) ']'
@@ -2358,7 +2368,6 @@ method truly ($bool,$opt) {
     return self if $bool;
     self.panic("Can't negate $opt adverb");
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 grammar Q is STD {
 
@@ -2542,11 +2551,11 @@ grammar Q is STD {
 } # end grammar
 
 grammar Quasi is STD {
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token term:unquote {
         <starter><starter><starter> <EXPR> <stopper><stopper><stopper>
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     # begin tweaks (DO NOT ERASE)
     multi method tweak (:$ast) { self; } # XXX some transformer operating on the normal AST?
     multi method tweak (:$lang) { self.cursor_fresh( $lang ); }
@@ -3410,9 +3419,6 @@ token infix:sym<xor> ( --> Loose_or)
 token infix:sym<orelse> ( --> Loose_or)
      { <sym> }
 
-token infix:sym<;> ( --> Sequencer)
-    { <sym> }
-
 token infix:sym« <== » ( --> Sequencer)
     { <sym> }
 
@@ -4068,6 +4074,7 @@ grammar Regex is STD {
     token mod_internal:adv {
         <?before ':' <identifier> > [ :lang($¢.cursor_fresh($+LANG)) <quotepair> ] { $/<sym> := «: $<quotepair><key>» }
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token mod_internal:oops { ':'\w+ <.panic: "Unrecognized regex modifier"> }
 
@@ -4090,7 +4097,6 @@ grammar Regex is STD {
         <sigspace> <quantified_atom> }
 
     token quantmod { ':'? [ '?' | '!' | '+' ]? }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 } # end grammar
 
@@ -4101,6 +4107,7 @@ grammar P5Regex is STD {
     multi method tweak (:global(:$g)) { self }
     multi method tweak (:ignorecase(:$i)) { self }
     # end tweaks (DO NOT ERASE)
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token category:metachar { <sym> }
     proto token metachar { <...> }
@@ -4119,6 +4126,7 @@ grammar P5Regex is STD {
 
     proto token rxinfix { <...> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     # suppress fancy end-of-line checking
     token codeblock {
         :my $GOAL is context = '}';
@@ -4131,6 +4139,7 @@ grammar P5Regex is STD {
         <EXPR>
     }
 
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token termish {
         <.ws>  # XXX assuming old /x here?
         <quantified_atom>+
@@ -4147,6 +4156,7 @@ grammar P5Regex is STD {
 
     token rxinfix:sym<|> ( --> Junctive_or ) { <sym> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token quantified_atom {
         <!stopper>
         <!rxinfix>
@@ -4157,6 +4167,7 @@ grammar P5Regex is STD {
         ]?
         <.ws>
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token atom {
         [
@@ -4174,6 +4185,7 @@ grammar P5Regex is STD {
 
     # "normal" metachars
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<[ ]> {
         <before '['> <quibble($¢.cursor_fresh( ::STD::Q ).tweak(:q))> # XXX parse as q[] for now
     }
@@ -4190,6 +4202,7 @@ grammar P5Regex is STD {
     }
 
     token metachar:sym<\\> { <sym> <backslash> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token metachar:sym<.>  { <sym> }
     token metachar:sym<^>  { <sym> }
     token metachar:sym<$>  {
@@ -4222,7 +4235,9 @@ grammar P5Regex is STD {
     token backslash:u { :i <sym> }
     token backslash:v { :i <sym> }
     token backslash:w { :i <sym> }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token backslash:x { :i <sym> [ <hexint> | '{' [<.ws><hexint><.ws> ] ** ',' '}' ] }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token backslash:z { :i <sym> }
     token backslash:misc { $<litchar>=(\W) | $<number>=(\d+) }
     token backslash:oops { <.panic: "Unrecognized Perl 5 regex backslash sequence"> }
@@ -4230,6 +4245,7 @@ grammar P5Regex is STD {
     token assertion:sym<?> { <sym> <codeblock> }
     token assertion:sym<{ }> { <codeblock> }
 
+ #ELFXXX missing name in all sym« »'s.
     token assertion:sym«<» { <sym> <?before '=' | '!'> <assertion> }
     token assertion:sym<=> { <sym> [ <?before ')'> | <rx> ] }
     token assertion:sym<!> { <sym> [ <?before ')'> | <rx> ] }
@@ -4248,7 +4264,9 @@ grammar P5Regex is STD {
     #                               [ ':' <rx> ]?
     #}
     token p5mod { <[imox]>* }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token p5mods { <on=p5mod> [ '-' <off=p5mod> ]? }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token assertion:mod { <p5mods> [               # is qq right here?
                                    | ':' <rx>?
                                    | <?before ')' >
@@ -4263,7 +4281,6 @@ grammar P5Regex is STD {
     token quantifier:sym<{ }> { '{' \d+ [','\d*]? '}' <quantmod> }
 
     token quantmod { [ '?' | '+' ]? }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 } # end grammar
 
