@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.035 2009.01.25
+    - Updated to the latest STD.pm
+    
 0.034 2009.01.17
     - Updated to jquery 1.3
     - Updated to latest STD.pm and perl6.vim
