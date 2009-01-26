@@ -168,3 +168,7 @@ the class and through its ancestors should be provided:
 == Expression terminators
 
     ; if unless while until for given when -->
+
+== Special Perl and Perl 6 terms
+
+    slurpy autovivify stringify numify timtowtdi greedy waterbed
