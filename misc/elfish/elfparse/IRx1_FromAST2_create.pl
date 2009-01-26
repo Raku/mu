@@ -116,6 +116,16 @@ elsif $o<quantified_atom> {
   elsif $n > 1 { RxSeq.newp($seq) }
   else { undef }
 }
+elsif $o<left> && $o<rxinfix> && $o<sym_name> eq '~' { #/a ~ b c/
+  my $open = $m<left>;
+  my $rest = $m<right><quantified_atom>;
+  #if $rest.elems != 2 { die "~ grabbed too many arguments" } #XX STD.pm token declarator
+  my $nonspec_excess = $rest.splice(2,$rest.elems-2);
+  my $close = $rest[0];
+  my $center = $rest[1];
+  #RxSeq.newp([$open,$center,$close]);
+  RxSeq.newp([$open,$center,$close].concat($nonspec_excess));
+}
 else { die "Didn't understand an EXPR node" }
 
 PRE
@@ -745,23 +755,32 @@ regex_block
 $m<nibble>
 
 quantified_atom
-my $quant = $m<quantifier>[0];
+my $quant = $o<quantifier>[0];
+my $qtext = $m<quantifier>[0];
 my $atom = $m<atom>;
 my $g;
-if not($quant) { return $atom; }
-elsif ($g = $quant.re_groups('{(\d+)(?:,(\d*))?}(\?)?\z')) {
+if not($qtext) { return $atom; }
+elsif ($g = $qtext.re_groups('{(\d+)(?:,(\d*))?}(\?)?\z')) {
   my $ng = $g[2];
   my $min = $g[0];
   my $max = $g[1]; if !defined($max) { $max = $min } elsif $max eq '' { $max = 1000**1000**1000 }; #XXX inf
   RxQuant.newp($min,$max,$atom,$ng)
 }
-elsif ($g = $quant.re_groups('([?*+])(\?)?\z')) {
+elsif ($g = $qtext.re_groups('([?*+])(\?)?\z')) {
   my $ng = $g[1];
   my $op = $g[0];
   if    $op eq '?' { RxQuant.newp(0,1,$atom,$ng) }
   elsif $op eq '*' { RxQuant.newp(0,undef,$atom,$ng) }
   elsif $op eq '+' { RxQuant.newp(1,undef,$atom,$ng) }
   else { die "bug" }
+}
+elsif $quant && $quant<sym_name> && $quant<sym_name> eq '**' {
+  if $quant<quantified_atom> {
+    my $atom2 = irbuild_ir($quant<quantified_atom>);
+    my $extra = RxSeq.newp([$atom2,$atom]);
+    my $more = RxQuant.newp(0,undef,RxGrp.newp($extra),0);
+    return RxSeq.newp([$atom,$more]);
+  }
 }
 else {
   die "quantified_atom incompletely implemented";
@@ -780,8 +799,17 @@ quantifier
 *text*
 
 
+metachar:sigwhite
+my $pkg;
+my $name = "ws";
+my $exprs = [];
+my $neg = undef;
+my $nocap = 1;
+RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
+
 metachar
-my $x = *text*;
+my $text = *text*;
+my $x = $text;
 if $o<sym_name> { $x = $m<sym_name> }
 if $o<mod_internal> {
   temp $blackboard::is_P5 = $blackboard::is_P5;
@@ -793,21 +821,36 @@ if $o<mod_internal> {
     $exprs = $exprs.concat($rest);
   }
   RxSeq.newp($exprs);
-} elsif $o<quote> {
+}
+elsif $o<quote> {
   my $s = $m<quote><nibble>;
   RxExact.newp($s);
-} elsif $o<variable> && $o<binding> {
+}
+elsif $o<variable> && $o<binding> {
   my $target = $o<variable>.match_string;
   my $expr = $m<binding><quantified_atom>;
   RxAlias.newp($target,undef,$expr);
-} elsif $x eq '.' { RxPat5.newp('.')
-} elsif $x eq '^' {
+}
+elsif $x eq '.' { RxPat5.newp('.') }
+elsif $x eq '^' {
   if $blackboard::is_P5 { RxPat5.newp('^') } else { RxPat5.newp('\A') }
-} elsif $x eq '$' {
+}
+elsif $x eq '$' {
   if $blackboard::is_P5 { RxPat5.newp('$') } else { RxPat5.newp('\z') }
-} elsif $x eq '^^' { RxPat5.newp('(?m:^)(?!(?=\z)(?<=\n))')
-} elsif $x eq '$$' { RxPat5.newp('(?m:$)(?!(?=\z)(?<=\n))')
-} elsif $x eq '< >' {
+}
+elsif $x eq '^^' { RxPat5.newp('(?m:^)(?!(?=\z)(?<=\n))') }
+elsif $x eq '$$' { RxPat5.newp('(?m:$)(?!(?=\z)(?<=\n))') }
+elsif $x eq '»' { RxPat5.newp('(?<=\w)(?:(?=\W)|\z)') }
+elsif $x eq '«' { RxPat5.newp('(?:(?<=\W)|\A)(?=\w)') }
+elsif $x eq ':::' { RxCommitRegex.newp() }
+elsif $x eq '::' { RxCommitGroup.newp() }
+elsif $x eq ':' { RxCommitSequence.newp() }
+elsif $text eq '<?>' { RxPat5.newp('(?=)') }
+elsif $text eq '<!>' { RxPat5.newp('(?!)') }
+elsif $text eq '<'~'sym>' {
+  RxAlias.newp('$'~'<'~'sym>',undef,RxCap.newp(RxExact.newp($blackboard::sym)));
+}
+elsif $x eq '< >' {
   if $o<assertion><sym_name> && $o<assertion><sym_name> eq '[' {
     my $v = $o<assertion><cclass_elem>; #X $o not $m, for $op below.
     my $inc=[]; my $excl=[];
@@ -837,11 +880,6 @@ if $o<mod_internal> {
     }
     return $ast;
   }
-  my $sym = '<'~'sym>'; #X dodge preprocessor
-  if *text* eq $sym {
-    my $ast = RxAlias.newp('$'~$sym,undef,RxCap.newp(RxExact.newp($blackboard::sym)));
-    return $ast;
-  }
   # < stuff >
   my $pkg = undef;
   my $neg = undef;
@@ -852,17 +890,21 @@ if $o<mod_internal> {
   my $exprs = [];
   my $sr = $o<assertion>;
   my $methodp;
+  my $alias;
+  ;
+  if $sr && $sr<identifier> && $sr<assertion>.elems {
+    $alias = irbuild_ir($sr<identifier>);
+    $sr = $sr<assertion>[0];
+  }
+  ;
   while $sr && $sr<sym_name> {
     if $sr<sym_name> eq '?' { $nocap = 1; $zero_width = 1; $sr = $sr<assertion>; }
     elsif $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; $methodp =1} #/<.foo>/
     elsif $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; }
     else { last; }
   }
-  my $text = *text*;
-  if $text eq '<?>' {
-    $name = 'null'
-  }
-  elsif $text eq '<...>' {
+  ;
+  if $text eq '<...>' {
     $name = 'not_defined_yet'
   }
   elsif $sr && $sr<arglist> && not(defined($sr<identifier>)) {
@@ -886,14 +928,20 @@ if $o<mod_internal> {
     $exprs = $args || [];#X?
   }
   else { die "bug" }
+  ;
   $exprs = $exprs.map(sub ($e){RxARegex.newp("",{},$e)});
+  ;
   my $rxsubrule = RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
-  if not($zero_width) {
-    $rxsubrule;
-  } else {
-    RxLookaround.newp(1,1,$rxsubrule);
+  if $zero_width {
+    $rxsubrule = RxLookaround.newp(1,1,$rxsubrule);
   }
-} elsif $x eq '( )' {
+  if $alias {
+    my $target = '$<'~$alias~'>';
+    $rxsubrule = RxAlias.newp($target,undef,$rxsubrule);
+  }
+  $rxsubrule;
+}
+elsif $x eq '( )' {
   my $e = $m<nibbler>;
   my $p;
   if $e.WHAT ne 'Array' { $p = $e }
@@ -901,7 +949,8 @@ if $o<mod_internal> {
   elsif $e.elems == 1 { $p = $e[0] }
   else { $p = RxSeq.newp($e) }
   RxCap.newp($p);
-} elsif $x eq '(? )' {
+}
+elsif $x eq '(? )' {
   my $sym = $m<assertion><sym_name>;
   my $rx = $m<assertion><rx> || RxSeq.newp([]);
   if $sym eq ':' { RxGrp.newp($rx) }
@@ -917,7 +966,8 @@ if $o<mod_internal> {
   elsif $sym eq 'mod' { $m<assertion> }
   elsif $sym eq '>' { RxIndependent.newp($rx) }
   else { die "Unimplemented (? ) assertion: "~$sym }
-} elsif $x eq '[ ]' {
+}
+elsif $x eq '[ ]' {
   if $blackboard::is_P5 {
     RxPat5.newp(*text*)
   } else {
@@ -928,16 +978,15 @@ if $o<mod_internal> {
     else { $p = RxSeq.newp($e) }
     RxGrp.newp($p);
   }
-} elsif $x eq '{ }' {
+}
+elsif $x eq '{ }' {
   if *text* eq '{*}' { #X sigh
     return RxSeq.newp([]);
   }
   my $stmts = $m<codeblock><statementlist>;
   RxCode.newp(Block.newp($stmts))
-} elsif $x eq ':::' { RxCommitRegex.newp();
-} elsif $x eq '::' { RxCommitGroup.newp();
-} elsif $x eq ':' { RxCommitSequence.newp();
-} elsif $x eq '\\' {
+}
+elsif $x eq '\\' {
   if $o<backslash> {
     my $sym = $o<backslash><sym>;
     if $blackboard::is_P5 && $sym eq 'p' {
@@ -960,7 +1009,8 @@ if $o<mod_internal> {
   else {
     die "Unimplemented metachar: "~$x;
   }
-} else {
+}
+else {
   die "Unimplemented metachar: "~$x;
 }
 

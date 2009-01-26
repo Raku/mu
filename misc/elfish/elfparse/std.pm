@@ -778,6 +778,7 @@ token eat_terminator {
         <.panic: "Syntax error">
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token statement_control:use {
     <sym> :s
@@ -872,7 +873,6 @@ token statement_control:when {
     <sym> :s
     <xblock>
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 rule statement_control:default {<sym> <block> }
 
 rule statement_control:BEGIN   {<sym> <block> }
@@ -917,6 +917,7 @@ token module_name:normal {
     <longname>
     [ :dba('generic role') <?{ ($+PKGDECL//'') eq 'role' }> '[' ~ ']' <signature> ]?
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token module_name:deprecated { 'v6-alpha' }
 
@@ -927,7 +928,6 @@ token vnum {
 token version:sym<v> {
     'v' <?before \d> :: <vnum> ** '.' '+'?
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ###################################################
 
@@ -1384,6 +1384,7 @@ rule package_def {
     || <.panic: "Unable to parse " ~ $+PKGDECL ~ " definition">
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token declarator {
     [
@@ -1394,7 +1395,6 @@ token declarator {
     | <type_declarator>
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token multi_declarator:multi { <sym> <.ws> [ <declarator> || <routine_def> ] }
 token multi_declarator:proto { <sym> <.ws> [ <declarator> || <routine_def> ] }
@@ -1431,6 +1431,7 @@ token special_variable:sym<$/> {
              "filehandle's :irs attribute")>
     ]?
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token special_variable:sym<$~> {
     <sym> :: <?before \s | ',' | '=' | <terminator> >
@@ -1447,6 +1448,7 @@ token special_variable:sym<$@> {
     <.obs('$@ variable as eval error', '$!')>
 }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym<$#> {
     <sym> ::
     [
@@ -1454,6 +1456,7 @@ token special_variable:sym<$#> {
     || <.obs('$# variable', '.fmt')>
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token special_variable:sym<$$> {
     <sym> <!alpha> :: <?before \s | ',' | <terminator> >
     <.obs('$$ variable', '$*PID')>
@@ -1554,6 +1557,7 @@ token special_variable:sym<$+> {
     <.obs('$+ variable', 'Form module')>
 }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym<${^ }> {
     ( <sigil> '{^' :: (.*?) '}' )
     <.obscaret($0.text, $<sigil>, $0.{0}.text)>
@@ -1611,6 +1615,7 @@ token special_variable:sym<${ }> {
     ( <[$@%]> '{' :: (.*?) '}' )
     <.obs("" ~ $0.text ~ " variable", "{" ~ $<sigil>.text ~ "}(" ~ $0.{0}.text ~ ")")>
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token special_variable:sym<$[> {
     <sym> :: <?before \s | ',' | '=' | <terminator> >
@@ -1632,10 +1637,12 @@ token special_variable:sym<$|> {
     <.obs('$| variable', 'Form module')>
 }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym<$:> {
     <sym> <?before <[\x20\t\n\],=)}]> >
     <.obs('$: variable', 'Form module')>
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token special_variable:sym<$;> {
     <sym> :: <?before \s | ',' | '=' | <terminator> >
@@ -1657,6 +1664,7 @@ token special_variable:sym<$,> {
     <.obs('$, variable', ".join() method")>
 }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym['$<'] {
     <sym> :: <!before \s* \w+ \s* '>' >
     <.obs('$< variable', '$*UID')>
@@ -1666,6 +1674,7 @@ token special_variable:sym«\$>» {
     <sym> :: <?before \s | ',' | <terminator> >
     <.obs("$() variable", '$*EUID')>
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token special_variable:sym<$.> {
     <sym> :: <?before \s | ',' | <terminator> >
@@ -1686,6 +1695,7 @@ token desigilname {
     ]
 }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token variable {
     <?before <sigil> { $+SIGIL ||= $<sigil>.text } > {}
     [
@@ -1706,6 +1716,7 @@ token variable {
         ]
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Note, don't reduce on a bare sigil unless you don't want a twigil or
 # you otherwise don't care what the longest token is.
@@ -1719,6 +1730,7 @@ token sigil:sym<&>  { <sym> }
 token twigil:sym<.> { <sym> }
 token twigil:sym<!> { <sym> }
 token twigil:sym<^> { <sym> }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token twigil:sym<:> { <sym> <!before ':'> }
 token twigil:sym<*> { <sym> }
 token twigil:sym<+> { <sym> }
@@ -1810,11 +1822,11 @@ token typename {
     # parametric type?
     <.unsp>? [ <?before '['> <postcircumfix> ]?
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 rule fulltypename {<typename>['|'<typename>]*
     [ of <fulltypename> ]?
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token number {
     [
@@ -1923,12 +1935,14 @@ method heredoc () {
     }
     return self.cursor($here.pos);  # return to initial type
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 proto token backslash { <...> }
 proto token escape { <...> }
 token starter { <!> }
 token escape:none { <!> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token babble ($l) {
     :my $lang = $l;
     :my $start;
@@ -2371,11 +2385,12 @@ method truly ($bool,$opt) {
 
 grammar Q is STD {
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     role b1 {
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         token escape:sym<\\> { <sym> <item=backslash> }
         token backslash:qq { <?before 'q'> { $<quote> = $¢.cursor_fresh($+LANG).quote(); } }
         token backslash:sym<\\> { <text=sym> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         token backslash:stopper { <text=stopper> }
         token backslash:a { <sym> }
         token backslash:b { <sym> }
@@ -2396,6 +2411,7 @@ grammar Q is STD {
         token backslash:sym<0> { <sym> }
     } # end role
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     role b0 {
         token escape:sym<\\> { <!> }
     } # end role
@@ -3088,7 +3104,6 @@ token infix:sym<^> ( --> Junctive_or)
     { <sym> }
 
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ## named unary examples
 # (need \s* to win LTM battle with listops)
 token prefix:sleep ( --> Named_unary)
@@ -3105,7 +3120,6 @@ token prefix:let ( --> Named_unary)
 
 token prefix:temp ( --> Named_unary)
     { <sym> » <?before \s*> }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ## nonchaining binary
 token infix:sym« <=> » ( --> Nonchaining)
@@ -4235,9 +4249,7 @@ grammar P5Regex is STD {
     token backslash:u { :i <sym> }
     token backslash:v { :i <sym> }
     token backslash:w { :i <sym> }
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token backslash:x { :i <sym> [ <hexint> | '{' [<.ws><hexint><.ws> ] ** ',' '}' ] }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token backslash:z { :i <sym> }
     token backslash:misc { $<litchar>=(\W) | $<number>=(\d+) }
     token backslash:oops { <.panic: "Unrecognized Perl 5 regex backslash sequence"> }
@@ -4264,9 +4276,7 @@ grammar P5Regex is STD {
     #                               [ ':' <rx> ]?
     #}
     token p5mod { <[imox]>* }
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token p5mods { <on=p5mod> [ '-' <off=p5mod> ]? }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token assertion:mod { <p5mods> [               # is qq right here?
                                    | ':' <rx>?
                                    | <?before ')' >
