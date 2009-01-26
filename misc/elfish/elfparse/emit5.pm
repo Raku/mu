@@ -841,6 +841,22 @@ sub{my $__c__ = $_[0];
      $_;
    }
 
+  # <?{ ... }>
+  # NOT TESTED by the rx_on_re test suite.
+  sub RMARE_codepredicate {
+    my($o,$pred)=@_;
+    my $noop = $o->RMARE_noop;
+    my $src = \'
+#line 2 "generated_by_RMARE_codepredicate"
+    subname "<codepredicate>" => sub {
+      my $__c__ = $_[0];
+      FAIL() if !$pred->($__c__);
+      $__c__->($noop)
+    }\';
+    #print STDERR $src,"\n";
+    eval($src) || die "Error compiling <?{$code}> :\n$@\n";
+  }
+
   sub RMARE_aregex {
     my($o,$pkg,$name,$f,$nparen,$prefix_re)=@_;
     # Why the extra sub?  60+% shorter re_text runtime.  sigh.
@@ -1385,8 +1401,26 @@ package IRx1 {
   # Code is currently p5!
   class RxCodeRx {
     method emit_RMARE {
-      my $code5 = self.<code>;
-      'IRx1::RxBaseClass->RMARE_coderx("'~quotemeta($code5)~'")'
+      my $code = self.<code>;
+      if $code.WHAT ne 'Str' {
+        $code = $whiteboard::current_emitter.e($code);
+      }
+      'IRx1::RxBaseClass->RMARE_coderx("'~quotemeta($code)~'")'
+    }
+  }
+
+  # <?{ ... }>
+  # NOT TESTED by the rx_on_re test suite.
+  class RxCodePredicate {
+    method emit_RMARE {
+      my $code = self.<code>;
+      my $code5 = $whiteboard::current_emitter.e($code);
+      if 1 || $code.uses_match_variable { #XX unimplemented. performance hit.
+        $code5 = 'my $M = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+        $M->_prepare_match_for_embedded_code;'~"\n" ~ $code5;
+      }
+      #XX need to subname the sub to avoid p5 idiocy?
+      'IRx1::RxBaseClass->RMARE_codepredicate(sub{'~$code5~'})'
     }
   }
 

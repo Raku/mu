@@ -175,17 +175,24 @@ use autobox;
     local $seen{$o} = $seen{$o};
     if($seen{$o}++ > $max_repetition) { return "LOOP:$o"->to_dump0 }
 
-    if(not $o->{_reduced}) {
-      return "UNTAGGED_NODE";
-    }
-    my $rule = $o->{_reduced} || do{
-      warn "Untagged Match tree node:\n".Data::Dumper::Dumper($o)."\n";
-      "unknown"
-    };
 
     my $f = $o->{_from};
     my $t = $o->{_pos};
+    if(!defined($f) || !defined($t)) {
+      return "BOGUS_NODE";
+    }
     my $str = substr($main::whole_file,$f,$t-$f);
+    my $rule = $o->{_reduced};
+    if(!defined($rule)) {
+      $rule = "untagged_node";
+      warn("Untagged Match tree node:\n".
+           $str."\n".
+           Data::Dumper::Dumper($o)."\n")
+          unless($f == $t ||
+                 $str eq '.' ||
+                 $str =~ /\A:[i]\z/ ||
+                 $str =~ /\A\d+\z/);
+    };
 
     my $sym = $o->{sym};
     if($sym && $sym eq ';') {

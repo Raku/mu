@@ -466,11 +466,17 @@ if $o<desigilname> {
   $v = Var.newp($m<sigil>,$tw,$m<desigilname>);
 } elsif $o<special_variable> {
   $v = $m<special_variable>;
-} elsif $o<postcircumfix> {
+} elsif $o<postcircumfix>.elems {
   #$v = Var.newp('$',undef,'/'); # $/
   $v = Var.newp('$',undef,'M'); #Temporary rx_on_re compat.
   temp $blackboard::expect_term_base = $v;
   return $m<postcircumfix>[0];
+} elsif $o<index> {
+  #$v = Var.newp('$',undef,'/'); # $/
+  $v = Var.newp('$',undef,'M'); #Temporary rx_on_re compat.
+  my $index = $o<index>.match_string; # untagged_node
+  my $ident = 'postcircumfix:[ ]';
+  return Call.newp($v,$ident,Capture.newp1([NumInt.newp($index,10)]));
 } else { die "Unimplemented variable form" }
 if $o<postcircumfix>.elems {
   temp $blackboard::expect_term_base = $v;
@@ -927,6 +933,12 @@ elsif $x eq '< >' {
     $args = irbuild_ir($sr<nibbler>);#X?
     $exprs = $args || [];#X?
   }
+  elsif $sr<sym_name> eq '{ }' { # <?{ bool }>
+    #XX This is much more expensive than it needs to be.  New CodePred node?
+    my $stmts = irbuild_ir($sr<codeblock><statementlist>);
+    my $pred = Block.newp($stmts);
+    return RxCodePredicate.newp($pred);
+  }
   else { die "bug" }
   ;
   $exprs = $exprs.map(sub ($e){RxARegex.newp("",{},$e)});
@@ -1088,6 +1100,10 @@ if $o<nibbler> {
 my $mods = IRx1::RxMixinMod.mods_from_modpat($modpat);
 if $mods.{'P5'} { $mods.{'p5'} = 1; $blackboard::is_P5 = 1 }
 RxMod_inline.newp($mods)
+
+
+untagged_node
+*text*
 
 
 END_DEF

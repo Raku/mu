@@ -34,9 +34,10 @@ clean:
 
 # STD_blue
 
-known_working_STD:
 	# HEAD should currently be working.
-	### (cd ../../../src/perl6; svn up -r24775; make distclean; make fast)
+known_working_STD:
+	# elfgreenstd doesn't quite work with r25030 - also needs r25041.
+	(cd ../../../src/perl6; svn up -r25030; make distclean; make fast)
 
 ${SRCP6}/STD.pmc: ${SRCP6}/STD.pm ${SRCP6}/gimme5
 	(cd ${SRCP6}; make fast)

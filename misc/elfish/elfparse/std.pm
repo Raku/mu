@@ -1452,7 +1452,7 @@ token special_variable:sym<$@> {
 token special_variable:sym<$#> {
     <sym> ::
     [
-    || (\w+) <.obs("\$#" ~ $0.text ~ " variable", "\@{" ~ $0.text ~ "}.end")>
+    || (\w+) <.obs("\$#" ~ $0.text ~ " variable", "\@\{" ~ $0.text ~ "}.end")>
     || <.obs('$# variable', '.fmt')>
     ]
 }
@@ -1613,7 +1613,7 @@ token special_variable:sym<::{ }> {
 
 token special_variable:sym<${ }> {
     ( <[$@%]> '{' :: (.*?) '}' )
-    <.obs("" ~ $0.text ~ " variable", "{" ~ $<sigil>.text ~ "}(" ~ $0.{0}.text ~ ")")>
+    <.obs("" ~ $0.text ~ " variable", "\{" ~ $<sigil>.text ~ "}(" ~ $0.{0}.text ~ ")")>
 }
 =end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1849,7 +1849,6 @@ token integer {
     ]
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token radint {
     [
     | <integer>
@@ -1860,13 +1859,11 @@ token radint {
                     }>
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token escale {
     <[Ee]> <[+\-]>? \d+[_\d+]*
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # careful to distinguish from both integer and 42.method
 token dec_number {
     :dba('decimal number')
@@ -1892,7 +1889,6 @@ token rad_number {
     || <?before '('> <postcircumfix>
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token octint {
     <[ 0..7 ]>+ [ _ <[ 0..7 ]>+ ]*
