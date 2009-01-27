@@ -413,9 +413,14 @@ else {
 
 colonpair
 my $v = $m<v>;
-if $o<v>.isa('Match') && $o<v><nibble> { #XXX :x<2> bypass postcircumfix:< >.
-  $v = $o<v><nibble><nibbles>[0];
-  $v = Buf.newp($v)
+if $o<v>.isa('Match') {
+  if $o<v><nibble> { #XXX :x<2> bypass postcircumfix:< >.
+    $v = $o<v><nibble><nibbles>[0];
+    $v = Buf.newp($v)
+  }
+  elsif $o<v><semilist> { #XX :x('y') bypass postcircumfix:( ).
+    $v = irbuild_ir($o<v><semilist><statement>[0]<EXPR>);
+  }
 }
 my $k = $m<k>; # or $m<identifier> ?
 Pair.newp($k,$v)
@@ -455,6 +460,7 @@ VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<trait>,'=',$m<default
 #XXX default_value is going to take some non-local work.
 
 variable
+my $text = *text*;
 my $tw = $m<twigil>[0] || "";
 if $tw eq "." && $o<postcircumfix>.elems {
   my $slf = Apply.newp('self',Capture.newp1([]));
@@ -471,10 +477,12 @@ if $o<desigilname> {
   $v = Var.newp('$',undef,'M'); #Temporary rx_on_re compat.
   temp $blackboard::expect_term_base = $v;
   return $m<postcircumfix>[0];
-} elsif $o<index> {
+} elsif $text.re_matchp('\A\$\d+\z') { #X $o<index>
+  my $g = $text.re_groups('\A\$(\d+)\z');
+  #my $index = $o<index>.match_string; # untagged_node
+  my $index = $g[0];
   #$v = Var.newp('$',undef,'/'); # $/
   $v = Var.newp('$',undef,'M'); #Temporary rx_on_re compat.
-  my $index = $o<index>.match_string; # untagged_node
   my $ident = 'postcircumfix:[ ]';
   return Call.newp($v,$ident,Capture.newp1([NumInt.newp($index,10)]));
 } else { die "Unimplemented variable form" }

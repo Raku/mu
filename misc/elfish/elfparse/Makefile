@@ -34,9 +34,8 @@ clean:
 
 # STD_blue
 
-	# HEAD should currently be working.
 known_working_STD:
-	# elfgreenstd doesn't quite work with r25030 - also needs r25041.
+	# We've fallen out of sync with STD.pm head.  Using r25030 for now.
 	(cd ../../../src/perl6; svn up -r25030; make distclean; make fast)
 
 ${SRCP6}/STD.pmc: ${SRCP6}/STD.pm ${SRCP6}/gimme5
