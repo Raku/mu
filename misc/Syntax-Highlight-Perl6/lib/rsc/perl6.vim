@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Jan 16th 2009
+" Last Change:  Jan 26th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -168,6 +168,7 @@ let s:routines = [
  \ ["from to infix postfix prefix circumfix postcircumfix minmax lazy count"],
  \ ["unwrap getc pi e context void quasi body each contains rewinddir subst"],
  \ ["can isa flush arity assuming rewind callwith callsame nextwith nextsame"],
+ \ ["attr eval_elsewhere"],
 \ ]
 
 " q() or whatever() is always a function call
