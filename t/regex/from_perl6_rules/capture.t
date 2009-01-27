@@ -13,10 +13,10 @@ be valid perl6.
 # L<S05/Accessing captured subpatterns/The array elements of the regex's>
 
 Broken:
-## L<S05/Extensible metasyntax (C<< <...> >>)/A leading C<?> causes>
+## L<S05/Extensible metasyntax (C<< <...> >>)/A leading C<.> causes>
 =end pod
 
-plan 64;
+plan 63;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
@@ -25,7 +25,7 @@ if !eval('("a" ~~ /a/)') {
 
 regex dotdot { (.)(.) };
 
-ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
+ok("zzzabcdefzzz" ~~ m/(a.)<.dotdot>(..)/, 'Match');
 ok($/, 'Matched');
 is($/, "abcdef", 'Captured');
 is($/[0], 'ab', '$/[0]');
@@ -72,12 +72,12 @@ ok(eval(' "bookkeeper" ~~ m/<single> ($/<single>)/ '), 'Named backref', :todo<fe
 is($/<single>, 'o', 'Named capture', :todo<feature>);
 is($0, 'o', 'Backref capture', :todo<feature>);
 
-ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref');
+ok("bookkeeper" ~~ m/(<.single>) ($0)/, 'Positional backref');
 is($0, 'o', 'Named capture');
 is($1, 'o', 'Backref capture');
 
-skip 1, "looping test"; # ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
-ok(eval(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) '), 'Failed named backref', :todo<feature>);
+ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
+ok !( "bokeper" ~~ m/<single> ($/<single>)/ ) , 'Failed named backref';
 
 is("\$0", '$'~'0', 'Non-translation of non-interpolated "\\$0"');
 is('$0',  '$'~'0', 'Non-translation of non-interpolated \'$0\'');
@@ -88,7 +88,7 @@ ok(eval(q/ q<$0 <<<>>>> eq '$'~'0 <<<>>>' /), 'Non-translation of nested q<$0>')
 is(q/$0/, '$'~'0', 'Non-translation of non-interpolated q/$0/');
 is(q!$0!, '$'~'0', 'Non-translation of non-interpolated q!$0!');
 is(q|$0|, '$'~'0', 'Non-translation of non-interpolated q|$0|');
-is(eval(q/ q#$0#, '$'~'0' /), 'Non-translation of non-interpolated q#$0#', :todo<feature>);
+is(q#$0#, '$'~'0' , 'Non-translation of non-interpolated q#$0#');
 
 # L<S05/Grammars/Just like the methods of a class, the rule definitions of a grammar are inherited> 
 
@@ -96,24 +96,23 @@ grammar English { regex name { john } }
 grammar French  { regex name { jean } }
 grammar Russian { regex name { ivan } }
 
-ok("john" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'English name', :todo<feature>);
-is($/, "john", 'Match is john', :todo<feature>);
+ok("john" ~~ m/<.English::name> | <.French::name> | <.Russian::name>/, 'English name');
+is(~$/, "john", 'Match is john');
 ok($/ ne "jean", "Match isn't jean");
-is($/<name>, "john", 'Name is john', :todo<feature>);
+is(~$/<name>, "john", 'Name is john');
 
-ok("jean" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'French name', :todo<feature>);
-is($/, "jean", 'Match is jean', :todo<feature>);
-is($/<name>, "jean", 'Name is jean', :todo<feature>);
+ok("jean" ~~ m/<.English::name> | <.French::name> | <.Russian::name>/, 'French name');
+is($/, "jean", 'Match is jean');
+is($/<name>, "jean", 'Name is jean');
 
-ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian name', :todo<feature>);
-is($/, "ivan", 'Match is ivan', :todo<feature>);
-is($/<name>, "ivan", 'Name is ivan', :todo<feature>);
+ok("ivan" ~~ m/<.English::name> | <.French::name> | <.Russian::name>/, 'Russian name');
+is($/, "ivan", 'Match is ivan');
+is($/<name>, "ivan", 'Name is ivan');
 
-regex name { <?English.name> | <?French.name> | <?Russian.name> }
+regex name { <.English::name> | <.French::name> | <.Russian::name> }
  
-ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
-is($/, "john", 'Metaname match is john', :todo<feature>);
+ok("john" ~~ m/<name>/, 'English metaname');
+is($/, "john", 'Metaname match is john');
 ok($/ ne "jean", "Metaname match isn't jean");
-is($/<name>, "john", 'Metaname is john', :todo<feature>);
-is(try { $/<name><name> }, "john", 'Metaname name is john', :todo<feature>);
+is($/<name>, "john", 'Metaname is john');
 
