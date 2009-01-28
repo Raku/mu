@@ -44,7 +44,7 @@ if(! -f __FILE__) {
     croak 'Syntax::Highlight::Perl6 cannot see where it is installed'
 }
 my $SHARED = realpath(File::Spec->join(
-            dirname(__FILE__),'files'));
+            dirname(__FILE__),'Perl6'));
 
 #----------------------------------------------------------------
 # Returns the syntax highlighting object. It needs a hash
