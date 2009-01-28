@@ -169,7 +169,7 @@ let s:keywords = [
  \ ["p6Conditional",    "if else elsif unless"],
  \ ["p6VarStorage",     "let my our state temp has proto constant"],
  \ ["p6Repeat",         "for loop repeat while until gather given"],
- \ ["p6FlowControl",    "take do when next last redo return lastcall"],
+ \ ["p6FlowControl",    "take do when next last redo return"],
  \ ["p6FlowControl",    "default exit make continue break goto leave async"],
  \ ["p6FlowControl",    "contend maybe defer"],
  \ ["p6TypeConstraint", "is as but does trusts of returns also handles where"],
@@ -191,11 +191,12 @@ let s:keywords = [
  \ ["p6Type",           "Complex num complex Bit bit bool True False"],
  \ ["p6Type",           "Increasing Decreasing Ordered Callable AnyChar"],
  \ ["p6Type",           "Positional Associative Ordering KeyExtractor"],
- \ ["p6Type",           "Comparator OrderingPair IO KitchenSink"],
+ \ ["p6Type",           "Comparator OrderingPair IO KitchenSink Role"],
  \ ["p6Type",           "Int int int1 int2 int4 int8 int16 int32 int64"],
  \ ["p6Type",           "Rat rat rat1 rat2 rat4 rat8 rat16 rat32 rat64"],
  \ ["p6Type",           "Buf buf buf1 buf2 buf4 buf8 buf16 buf32 buf64"],
- \ ["p6Type",           "UInt uint1 uint2 uint4 uint8 uint16 uint32 uint64"],
+ \ ["p6Type",           "UInt uint uint1 uint2 uint4 uint8 uint16 uint32"],
+ \ ["p6Type",           "uint64 Abstraction"],
  \ ["p6Operator",       "div x xx mod also leg cmp before after eq ne lt"],
  \ ["p6Operator",       "gt ge eqv ff fff true not and andthen Z X or xor"],
  \ ["p6Operator",       "orelse extra Q Qq Qqq q qq Qw qw qqw Qww qww qqww"],
@@ -260,7 +261,8 @@ let s:routines = [
  \ ["from to infix postfix prefix circumfix postcircumfix minmax lazy count"],
  \ ["unwrap getc pi e context void quasi body each contains rewinddir subst"],
  \ ["can isa flush arity assuming rewind callwith callsame nextwith nextsame"],
- \ ["attr eval_elsewhere"],
+ \ ["attr eval_elsewhere none srand trim trim_start trim_endlastcall WHAT"],
+ \ ["WHERE HOW WHICH VAR WHO WHENCE"],
 \ ]
 
 " q() or whatever() is always a function call
