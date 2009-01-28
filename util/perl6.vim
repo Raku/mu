@@ -169,7 +169,7 @@ let s:routines = [
  \ ["from to infix postfix prefix circumfix postcircumfix minmax lazy count"],
  \ ["unwrap getc pi e context void quasi body each contains rewinddir subst"],
  \ ["can isa flush arity assuming rewind callwith callsame nextwith nextsame"],
- \ ["attr eval_elsewhere none srand trim trim_start trim_endlastcall WHAT"],
+ \ ["attr eval_elsewhere none srand trim trim_start trim_end lastcall WHAT"],
  \ ["WHERE HOW WHICH VAR WHO WHENCE"],
 \ ]
 
