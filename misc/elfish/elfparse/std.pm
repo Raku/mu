@@ -581,13 +581,13 @@ token identifier {
 
 # XXX We need to parse the pod eventually to support $= variables.
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token pod_comment {
     ^^ '=' <.unsp>?
     [
     | 'begin' \h+ <identifier> ::
         [
-        ||  .*? "\n=" <.unsp>? 'end' \h+ $<identifier> » \N*          {*} #= tagged
+#       ||  .*? "\n=" <.unsp>? 'end' \h+ $<identifier> » \N*          {*} #= tagged #ELFBUG variable interpolation
+        ||  .*? "\n=" <.unsp>? 'end' \h+  <identifier> » \N*          {*} #= tagged #ELFFIX
         ||  .*?                                                       {*} #= end
         ]
     | 'begin' » :: \h* [ $$ || '#' || <.panic: "Unrecognized token after =begin"> ]
@@ -602,6 +602,7 @@ token pod_comment {
 
 # Note: we only check for the stopper.  We don't check for ^ because
 # we might be embedded in something else.
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 rule comp_unit {
     :my $begin_compunit is context = 1;
     :my $endargs        is context<rw> = -1;
@@ -3768,6 +3769,7 @@ grammar Regex is STD {
     multi method tweak (:$keepall) { self.panic(":keepall not implemented") }
     multi method tweak (:$panic) { self.panic(":panic not implemented") }
     # end tweaks (DO NOT ERASE)
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token category:metachar { <sym> }
     proto token metachar { <...> }
@@ -3791,6 +3793,7 @@ grammar Regex is STD {
         || [ <?before \s | '#'> <nextsame> ]?   # still get all the pod goodness, hopefully
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token sigspace {
         <?before \s | '#'> [ :lang($¢.cursor_fresh($+LANG)) <.ws> ]
     }
@@ -3810,6 +3813,7 @@ grammar Regex is STD {
         [ \s* < || | && & > ]?
         <EXPR>
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token termish {
         <.ws>
@@ -3868,6 +3872,7 @@ grammar Regex is STD {
         <sigspace>
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<{ }> {
         <?before '{'>
         <codeblock>
@@ -4166,7 +4171,6 @@ grammar P5Regex is STD {
 
     token rxinfix:sym<|> ( --> Junctive_or ) { <sym> }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token quantified_atom {
         <!stopper>
         <!rxinfix>
@@ -4177,7 +4181,6 @@ grammar P5Regex is STD {
         ]?
         <.ws>
     }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token atom {
         [

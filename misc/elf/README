@@ -3,15 +3,15 @@ OVERVIEW
 Elf is a p6 compiler.
 
 The currently recommended version is:
-  elf_g
+  elf_h
 
-elf_g --help  for more info.
+elf_h --help  for more info.
 
 It uses perl from your path.  5.10 is recommended, but 5.8 works too.
 
 P6 scripts:
   $ cat say3
-  #!/usr/bin/env elf_g
+  #!/usr/bin/env elf_h
   say 3;
   $ ./say 3
   3
@@ -31,7 +31,7 @@ STD_red requires ruby 1.9.  See it's README for installation info.
 
 RUNNING TESTS
 
-  See  elf_g_src/Makefile.
+  See  elf_h_src/Makefile.
 
 VERSIONS
 
@@ -49,9 +49,8 @@ OTHER
 
 Other directories which may be of interest:
 misc/STD_red
-misc/elfish/STD_blue
 misc/elfish/on_sbcl
-misc/elfish/rx_on_re
+misc/elfish/elfparse
 
 
 A development story (a tale of two compilers)

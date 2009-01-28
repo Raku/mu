@@ -1022,6 +1022,9 @@ elsif $x eq '\\' {
         RxPat5.newp(*text*);
       }
     }
+    elsif $text eq '\\N' {
+      RxPat5.newp('[^\n]')
+    }
     else {
       RxPat5.newp(*text*)
     }
@@ -1210,7 +1213,7 @@ sub write_ast_handlers {
     die "Saw an AST handler for '$name' twice!\n" if $seen{$name}++;
 
     $body =~ s/\bir\(/irbuild_ir\(/g;
-    $body =~ s/(\$m(?:<\w+>)+)/irbuild_ir($1)/g;
+    $body =~ s/(\$m(?:<\w+>|\[\d+\])+)/irbuild_ir($1)/g;
     $body =~ s/\$o((?:<\w+>)+)/\$m$1/g;
     $body =~ s/<(\w+)>/.match_hash{'$1'}/g;
     $body =~ s/([A-Z]\w+\.new\w*)\(/IRx1::$1(\$m,/g;
