@@ -181,10 +181,10 @@ for @command -> $cmd {
     my $expected = "[" ~ $cmd ~ "][" ~ @args.join("][") ~ "]";
     my $name = "|" ~ @cmd.join("*") ~ "| with [" ~ @args.join("][") ~ "]";
 
-    if (! run($pugs ~ " " ~ $prog ~ "> " ~ $outfile)) {
+    if not run($pugs ~ " " ~ $prog ~ "> " ~ $outfile) {
       fail($name);
       diag slurp $prog;
-      next();
+      next;
     };
 
     my $output = slurp $outfile;
