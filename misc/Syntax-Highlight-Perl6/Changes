@@ -1,5 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.039 2009.01.30
+    - Updated to STD r25123 (smaller lex directory & better startup performance)
+    - Updated to perl6.vim r25100
+
 0.038 2009.01.28
     - Fixed namespace collision issues that was introduced in 0.037
 
