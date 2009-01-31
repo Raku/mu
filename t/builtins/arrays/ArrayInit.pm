@@ -2,11 +2,11 @@ use v6;
 
 module ArrayInit;
 
-=kwid
+=begin kwid
 
 This module is a helper to init-in-exported-sub.t -- masak 2007-09-02
 
-=cut
+=end kwid
 
 sub array_init() is export {
     my @array;
