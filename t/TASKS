@@ -85,17 +85,6 @@ S29
 * tests for pack and unpack
 * tests to ensure that rand has a bit of entropy
 * test for $number.rand (method form)
-* most (all?) builtins can also be used with named arguments instead of 
-  positional arguments. For example
-        our Str multi method capitalize ( Str $string: ) is export
-  means that you can it like this:
-        my $x = 'abc def'
-        $x.capitalize
-        capitalize($x)          # because of 'is export'
-        capitalize(:string($x)) # because of 'is export' and $string
-  This last form, with named arguments, is nearly missing from the test suite
-  so far, and needs to be added.
-
 
 
 IO
@@ -106,7 +95,7 @@ IO
 SINGLE TESTS
 * spec/S06-advanced_subroutine_features/wrapping.t should be changed to
   consitently use lives_ok
-* blocks/wrap.t should be merged into 
+* blocks/wrap.t should be merged into
   spec/S06-advanced_subroutine_features/wrapping.t
 * spec/S04-closure-traits/pre-post.t has an up-to-date TODO list that needs
   implementing
