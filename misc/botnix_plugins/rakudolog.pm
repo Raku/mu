@@ -125,6 +125,7 @@ sub output_item {
 sub put {
     my $line = shift;
     main::send_privmsg("magnet", "#parrot", $line);
+    main::send_privmsg("freenode", "#perl6", $line);
 }
 
 1;
