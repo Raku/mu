@@ -109,6 +109,7 @@ package Evalbot;
         my $e = shift;
         my $message = $e->{body};
         my $address = $e->{address} // '';
+        return if $e->{who} =~ m/^dalek.?$/;
 
         if ($message =~ m/^p6eval:/) {
             return "Usage: ", join(',', sort keys %impls), ': $code';
@@ -170,34 +171,6 @@ package Evalbot;
         return;
     }
 
-    sub exec_yap6 {
-        my ($program, $fh, $filename) = @_;
-        chdir('../yap6/src')
-            or confess("Can't chdir to yap6 base dir: $!");
-        my ($tmp_fh, $name) = tempfile();
-        if ($program =~ m/\|\|\|/){
-            die "Disabled due to security concerns";
-            # 11:28 < pmurias> yap6: >/dev/null;echo ../* |||;
-            # 11:28 < p6eval> yap6: OUTPUT[../CHANGES ../COPYRIGHT  
-            # etc.
-
-            # if you want to allow different commands, please
-            # either limit them to the current directory (if you think
-            # you can do it safely), or better, introduce a whitelist of
-            # allowed programs.
-        }
-        my ($gram,$inp) = split('\|\|\|',$program);
-        my $is_custom = $inp?1:0;
-        $inp ||= $gram;
-        $gram = $is_custom?$gram:'STD_hand';
-        print $tmp_fh $inp;
-        close $tmp_fh;
-        system "perl -Ilib bin/test $gram $name >> $filename 2>&1";
-        unlink $name;
-        chdir $FindBin::Bin;
-        return;
-    }
-
     sub get_revision {
         my $info = qx/svn info/;
         if ($info =~ m/^Revision:\s+(\d+)$/smx){
@@ -235,10 +208,8 @@ package Evalbot;
             return join '', @lines;
         } elsif($str =~ /Out of memory!/) {
             return 'Out of memory!';
-        } elsif($str =~ /--- !!perl/) {
-            return 'parse ok';
         } else {
-            return $str;
+            return "parse OK";
         }
     }
 }
@@ -257,7 +228,7 @@ my $bot = Evalbot->new(
         channels  => [ map { "#$_" } split m/\s+/, $conf{channels} ],
         nick      => $conf{nick},
         alt_nicks => [ split m/\s+/, $conf{alt_nicks} ],
-        username  => "evalbot",
+        username  => "p6eval",
         name      => "combined, experimental evalbot",
         charset   => "utf-8",
         );
