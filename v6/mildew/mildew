@@ -123,7 +123,7 @@ my $mold = $m->item->emit_m0ld;
 my $m0ld;
 $C = '' unless $C;
 if ($C eq 'desugar') {
-    output($mold->pretty,$output);
+    output($mold->pretty."\n",$output);
     exit;
 } elsif ($C eq 'ast-yaml') {
     use YAML::XS;

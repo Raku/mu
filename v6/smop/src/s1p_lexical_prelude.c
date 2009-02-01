@@ -55,6 +55,10 @@ void smop_s1p_lexical_prelude_init() {
 				  SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalPrelude));
   smop_s1p_lexical_prelude_insert(interpreter,"MildewSOLoader",
 				  SMOP_REFERENCE(interpreter,SMOP__MildewSOLoader));
+  smop_s1p_lexical_prelude_insert(interpreter,"True",
+				  SMOP_REFERENCE(interpreter,SMOP__NATIVE__bool_true));
+  smop_s1p_lexical_prelude_insert(interpreter,"False",
+				  SMOP_REFERENCE(interpreter,SMOP__NATIVE__bool_false));
 }
 
 void smop_s1p_lexical_prelude_destr() {

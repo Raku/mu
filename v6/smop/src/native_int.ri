@@ -26,6 +26,40 @@
       ___UNKNOWN_METHOD___;
     }
     SMOP_RELEASE(interpreter, other);
+
+%method infix:==
+    SMOP__Object* other = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    if (SMOP_RI(other) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
+      if (SMOP__NATIVE__int_fetch(invocant) == SMOP__NATIVE__int_fetch(other)) {
+        ret = SMOP__NATIVE__bool_true;
+      } else {
+        ret = SMOP__NATIVE__bool_false;
+      }
+    } else {
+      ___UNKNOWN_METHOD___;
+    }
+    SMOP_RELEASE(interpreter, other);
+
+%method infix:+
+    SMOP__Object* other = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    int x;
+    if (SMOP_RI(other) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
+      ret = SMOP__NATIVE__int_create(SMOP__NATIVE__int_fetch(invocant) + SMOP__NATIVE__int_fetch(other));
+    } else {
+      ___UNKNOWN_METHOD___;
+    }
+    SMOP_RELEASE(interpreter, other);
+
+%method infix:-
+    SMOP__Object* other = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    int x;
+    if (SMOP_RI(other) == (SMOP__ResponderInterface*)SMOP__NATIVE__int) {
+      ret = SMOP__NATIVE__int_create(SMOP__NATIVE__int_fetch(invocant) - SMOP__NATIVE__int_fetch(other));
+    } else {
+      ___UNKNOWN_METHOD___;
+    }
+    SMOP_RELEASE(interpreter, other);
+
 %method defined
     ret = SMOP__NATIVE__bool_true;
 %method true

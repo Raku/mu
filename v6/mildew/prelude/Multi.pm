@@ -1,6 +1,9 @@
 knowhow Multi {
   has $.name;
   has @.variants;
+  my sub say($arg) {
+      $OUT.print($arg,"\n"); 
+  }
 
   method new() {
       my $new = ::p6opaque.^!CREATE();
@@ -29,35 +32,33 @@ knowhow Multi {
         traverse_scopes(&?ROUTINE.back.lexical);
     }
     my $candidates = ::Array.new;
-    my $iterator = $all_variants.Iterator();
     loop {
-      my $candidate = =$iterator;
-      if $candidate.signature.ACCEPTS((|$capture)) {
-	$candidates.push($candidate);
-      }
-      CONTROL {
-	if $_.^does(ControlExceptionSignatureMatched) {
-          $candidate.postcircumfix:<( )>((|$capture), :cc($cc));
-	} else {
-	  $_.throw;
-	}
-      }
-      CATCH {
-	if $_.^does(OutOfItemsException) {
-	  if $candidates {
-            my $candidate = $candidates.shift;
-	    if $candidates {
-	      # this is where the disambiguator should be called!
-	      fail "Ambiguous dispatch!";
-	    } else {
-              $candidate.postcircumfix:<( )>((|$capture), :cc($cc));
-	    }
-	  } else {
-	    fail "No candidate matching capture.";
-	  }
-	} else {
-	  $_.throw;
-	}
+      if ($all_variants.elems.infix:<==>(0)) {
+        if $candidates.elems {
+          my $candidate = $candidates.shift;
+          if $candidates {
+            # this is where the disambiguator should be called!
+            $OUT.print("Ambiguous dispatch!\n");
+            my $e = ::ControlExceptionReturn.new();
+            $e.routine = &?ROUTINE;
+            $e.throw();
+            #fail "Ambiguous dispatch!";
+          } else {
+            $candidate.postcircumfix:<( )>((|$capture), :cc($cc));
+          }
+        } else {
+          $OUT.print("No candidate matching capture.\n");
+          my $e = ::ControlExceptionReturn.new();
+          $e.routine = &?ROUTINE;
+          $e.throw();
+          #fail "No candidate matching capture.";
+        }
+      } else {
+        say "considering variant\n";
+        my $candidate = $all_variants.shift;
+        if $candidate.signature.ACCEPTS((|$capture)) {
+          $candidates.push($candidate);
+        }
       }
     }
   }

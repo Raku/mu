@@ -77,6 +77,9 @@ sub routine {
 		      [ call( handle_return =>
 			      call('new' => FETCH(lookup('ControlExceptionReturn'))),
 			      [ FETCH(lookup('$_')),FETCH(lookup('&?ROUTINE')) ] )]),
+
+                call(STORE => call('postcircumfix:{ }' => reg '$scope', [ string '&?BLOCK' ]), [ lookup("False") ]),
+                call(STORE => call('postcircumfix:{ }' => reg '$scope', [ string '&?ROUTINE' ]), [ lookup("False") ]),
 		call( "goto" => reg '$interpreter',
 		      [ call("back" => call("continuation" => reg '$interpreter'))])])]]);
 
@@ -129,7 +132,7 @@ sub XXX {
 sub trailing_return {
     my ($stmts,) = @_;
     $stmts->[-1] = call(setr => call(back=>call(continuation => reg '$interpreter')),[$stmts->[-1]]) if $stmts->[-1];
-    [@{$stmts},call(goto => reg '$interpreter',[call back=>call(continuation => reg '$interpreter')])];
+    [@{$stmts},call(STORE => call('postcircumfix:{ }' => reg '$scope', [ string '&?BLOCK' ]), [ lookup("False") ]),call(goto => reg '$interpreter',[call back=>call(continuation => reg '$interpreter')])];
 }
 
 sub varname {
