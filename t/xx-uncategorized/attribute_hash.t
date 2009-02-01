@@ -19,9 +19,11 @@ class HashCrash;
 # export works differently and cause the plan() to be hidden
 # (as currently the export only happens at parsing time, and
 # precompilation inhibits the reparsing).
-Test::plan 2;
+#?pugs emit Test::plan 2;
+#?pugs emit #
+plan 2;
 
-has %.pubhash;
+has %.pubhash is rw;
 has %!privhash;
 
 method run_test() {
