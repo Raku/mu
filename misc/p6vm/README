@@ -1,0 +1,97 @@
+﻿
+p6vm
+----
+
+Description:
+Tentatively-named project to create an llvm front-end
+to generate dynamic VMs for Perl 6.  It is stored at
+http://svn.pugscode.org/pugs/misc/p6vm
+
+Rationale:
+
+Perl 6 implementation architectural requirements:
+In order to fully implement Perl 6 as specified (and
+imagined in common use), these features are required:
+
+1) Truly dynamic parsing, which necessitates
+(conditional) multi-depth specialization (also called
+partial evaluation) of not only the program input, 
+but the compiler/interpreter runtime.  The standard
+(official/baseline) Perl 6 grammar (STD.pm) is a kind
+of Parsing Expression Grammar (PEG), which itself is
+integrated into the Perl 6 language proper. While
+parsing a program that specifies new or modified
+parsing rules "inline" (or if the parser encounters a
+symbol that demands immediate specialization, a Perl
+6 compiler/interpreter must evaluate/execute the
+program up to that point, in case the newly specified
+rule (or anything upcoming at parse-time) is dynamic
+(dependent on something nondeterministic at
+compilation time - calculated or inputted previously
+in the program's runtime).  This (perhaps) introduces
+a syntax-check limitation - certain scripts cannot be
+test-parsed past a certain point because their
+language's grammar is (at least partially) runtime-
+dependent (dynamic).
+
+2) Runtime "eval": This is the general case of the
+previous point.  Not only can grammars be effected or
+affected at runtime, but (like most other "dynamic"
+or "scripting" languages) Perl 6 contains an "eval"
+instruction that triggers another compilation phase
+(an end to the currently-being-parsed compilation
+unit), *if necessary*.  Note that (like rule {})
+eval {} isn't necessarily runtime-dependent; that is,
+the code to be evaluated isn't necessary generated or
+affected at runtime in any way, but this would likely
+require more complex analysis to rule out.  This
+suggests that more analysis phases are desirable to
+streamline pairs of successive compilation units
+that are not connected by a runtime dependency, or to
+resolve whether an additional execution phase-loop is
+necessary to proceed with parsing.
+
+3) In order to appease market expectations, a Perl 6
+implementation should be optionally able to compile
+a Perl 6 script "down" to an executable, either
+architecture-specific (or even machine-specific where
+a linked binary is desired) machine code or some
+language of bytecodes/opcodes (for some VM either to
+interpret directly or JIT compile to machine code).
+
+4) A Perl 6 implementation needs to contain (or "be")
+an "interpreter" (or JIT compiler/evaluator; call it
+what you want) in order to continue in the historical
+Perl tradition of enabling in-process integration
+with Apache and other daemons and *-time debugging.
+
+Implications:
+Enabling dynamic parsing by itself does not require
+the generalized partial evaluator, but when combined
+with the requirements of (linked or static)
+compilation and also runtime interpretation, it does
+require the integration of a compiler-generator and,
+more precisely, a virtual-machine/compiler-generator.
+
+Architectural direction of p6vm:
+
+While labeled the "low-level virtual machine", the
+llvm toolkit itself contains more than merely a
+virtual machine (bitcode interpreter), as are the JVM
+or .Net CLR.  It also contains a set of compilers to
+translate source code to its various intermediate
+representations.  Most notably, it supplies C++
+linkable [archives of] libraries comprising the
+toolkit's VM-generation functionality.
+
+Like many compiler(-generator)s, the toolkit is built
+around a particular intermediate representation (IR),
+which itself was designed to support three different
+equivalent representations, each for a different
+viewer (in-memory for the compilers, on-disk as
+"bitcode" for the JITs, and a verbose notation that's
+human-readable).  It contains hooks and APIs, useful
+for customizing/overriding/extending many stages of
+the compilation process.
+
+more to come...
