@@ -12,9 +12,11 @@ be valid perl6.
 
 =end pod
 
-plan 30;
+plan 11;
 
 # L<S05/Nothing is illegal/To match whatever the prior successful regex>
+
+# so rule prior matches a constant substring
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
@@ -25,45 +27,18 @@ ok("A" !~~ m/<.prior>/, 'No prior successful match');
 
 ok("A" ~~ m/<[A-Z]>/, 'Successful match');
 
-ok("B" ~~ m/<.prior>/, 'Prior successful match');
-ok("!" !~~ m/<.prior>/, 'Prior successful non-match');
+ok("ABC" ~~ m/<.prior>/, 'Prior successful match');
+ok("B" !~~ m/<.prior>/, 'Prior successful non-match');
 
-ok("A" !~~ m/B/,  'Unsuccessful match');
+ok("C" !~~ m/B/,  'Unsuccessful match');
 
-ok("B" ~~ m/<.prior>/, 'Still prior successful match');
-ok("B" ~~ m/<.prior>/, 'And still prior successful match');
+ok("A" ~~ m/<.prior>/, 'Still prior successful match');
+ok("A" ~~ m/<.prior>/, 'And still prior successful match');
 
-ok("AB" ~~ m/A <.prior>/, 'Nested prior successful match');
-ok("A" !~~ m/A <.prior>/, 'Nested prior successful non-match');
-ok("B" ~~ m/<.prior>/, 'And even now prior successful match', :todo<feature> );
+ok("BA" ~~ m/B <.prior>/, 'Nested prior successful match');
+# now the prior match is "BA"
+ok("A" !~~ m/B <.prior>/, 'Nested prior successful non-match');
+is ~$/, 'BA', 'matched all we wanted';
 
-ok("!" ~~ m/<-[A-Z]>/, 'New successful match');
-
-ok("B" !~~ m/<.prior>/, 'New prior successful non-match');
-ok("!" ~~ m/<.prior>/, 'New prior successful match' );
-
-ok("A" !~~ m/B/, 'New unsuccessful match');
-
-ok("%" ~~ m/<.prior>/, 'New still prior successful match');
-ok("@" ~~ m/<.prior>/, 'New and still prior successful match');
-
-ok("A!" ~~ m/A <.prior>/, 'New nested prior successful match');
-ok("A" !~~ m/A <.prior>/, 'New nested prior successful non-match');
-ok("^" ~~ m/<.prior>/, 'New and even now prior successful match', :todo<feature> );
-
-
-ok("A" ~~ m/<[A-Z]>/, 'Another successful match');
-ok("AA" ~~ m/^ <.prior>+ $/, 'Repeated prior' );
-is(~$/, "AA", 'Matched fully' );
-
-ok("A" ~~ m/^ <prior> $/, 'Captured prior', :todo<feature> );
-is($/<prior>, "A", 'Captured correctly', :todo<feature> );
-
-ok("AAAA" ~~ m/^ <prior>+ $/, 'Repeatedly captured prior', :todo<feature> );
-is( ~$/<prior>[0], 'A', 'Capture 0', :todo<feature> );
-is( ~$/<prior>[1], 'A', 'Capture 1', :todo<feature> );
-is( ~$/<prior>[2], 'A', 'Capture 2', :todo<feature> );
-is( ~$/<prior>[3], 'A', 'Capture 3', :todo<feature> );
-ok(! defined($/<prior>[4]), 'Capture 4', :todo<feature> );
-
+ok( 'A' !~~ m/<.prior>, 'prior target updated');
 
