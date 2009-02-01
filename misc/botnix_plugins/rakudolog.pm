@@ -114,11 +114,11 @@ sub output_item {
     my @log_lines = split(/[\r\n]+/, $log);
 
     $rev = substr($rev, 0, 7);
-    put("rakudo $rev | $creator++ | $prefix:");
+    put("rakudo: $rev | $creator++ | $prefix:");
     foreach my $line (@log_lines) {
-	put("rakudo $line");
+	put("rakudo: $line");
     }
-    put("rakudo review: $link");
+    put("rakudo: review: $link");
     main::lprint("rakudolog: output_item: output rev $rev");
 }
 
