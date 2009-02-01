@@ -19,7 +19,7 @@ if !eval('("a" ~~ /a/)') {
 } else {
 
 grammar Other {
-    regex abc { a (<?bee>) c }
+    regex abc { a (<.bee>) c }
 
     regex bee { b }
 
