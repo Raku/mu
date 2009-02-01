@@ -11,7 +11,6 @@ my %search = (
    'pugs'               => {},
    'xx-uncategorized'   => {},
    'unspecced'          => {},
-   'examples'           => {},
    '01-sanity'          => {},
    '02-test-pm'         => {},
 );
