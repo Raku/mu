@@ -42,8 +42,6 @@ S03
 * Junction tests need fixing. See below.
 * more bitwise tests, for :signed and :unsigned, and uncomment the tests in
   t/spec/S03-operators/bit.t
-* The section "Reduction Operators" mentions the syntax 'proto [foo] ...' for
-  defining both reduction and infix operators. Needs tests.
 
 S04
 * test warn()
