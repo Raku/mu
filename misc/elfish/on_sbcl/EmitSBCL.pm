@@ -33,7 +33,9 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
   (require \'sb-posix)
 )
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (pushnew #p"lib-cl/systems/" asdf:*central-registry*)
+#+sbcl  (pushnew #p"lib-cl/for-sbcl/systems/"  asdf:*central-registry*)
+#+clisp (pushnew #p"lib-cl/for-clisp/systems/" asdf:*central-registry*)
+#+ccl   (pushnew #p"lib-cl/for-ccl/systems/"   asdf:*central-registry*)
   (asdf:operate \'asdf:load-op :cl-ppcre)
 )
 

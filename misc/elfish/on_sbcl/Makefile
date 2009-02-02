@@ -18,35 +18,42 @@ have_parser_cache:
 
 clean:
 	rm -rf lib-cl/tar
-	rm -rf lib-cl/site
-	rm -rf lib-cl/systems
+	rm -rf lib-cl/for-*
 
 libraries:
 	-mkdir lib-cl
 	-mkdir lib-cl/tar
-	-mkdir lib-cl/site
-	-mkdir lib-cl/systems
+	-rm -rf lib-cl/for-*
 	(cd lib-cl/tar; wget http://common-lisp.net/project/cl-plus-ssl/download/trivial-gray-streams.tar.gz)
 	(cd lib-cl/tar; wget http://weitz.de/files/flexi-streams.tar.gz)
 	(cd lib-cl/tar; wget http://weitz.de/files/cl-interpol.tar.gz)
 	(cd lib-cl/tar; wget http://weitz.de/files/cl-unicode.tar.gz)
 	(cd lib-cl/tar; wget http://weitz.de/files/cl-ppcre.tar.gz)
-	(cd lib-cl/site; tar xzf ../tar/trivial-gray-streams.tar.gz)
-	(cd lib-cl/site; tar xzf ../tar/flexi-streams.tar.gz)
-	(cd lib-cl/site; tar xzf ../tar/cl-interpol.tar.gz)
-	(cd lib-cl/site; tar xzf ../tar/cl-unicode.tar.gz)
-	(cd lib-cl/site; tar xzf ../tar/cl-ppcre.tar.gz)
-	(cd lib-cl/site; mv trivial-gray-streams* trivial-gray-streams)
-	(cd lib-cl/site; mv flexi-streams* flexi-streams)
-	(cd lib-cl/site; mv cl-interpol* cl-interpol)
-	(cd lib-cl/site; mv cl-unicode* cl-unicode)
-	(cd lib-cl/site; mv cl-ppcre* cl-ppcre)
-	(cd lib-cl/systems; ln -s ../site/trivial-gray-streams/trivial-gray-streams.asd)
-	(cd lib-cl/systems; ln -s ../site/flexi-streams/flexi-streams.asd)
-	(cd lib-cl/systems; ln -s ../site/cl-interpol/cl-interpol.asd)
-	(cd lib-cl/systems; ln -s ../site/cl-unicode/cl-unicode.asd)
-	(cd lib-cl/systems; ln -s ../site/cl-ppcre/cl-ppcre.asd)
-	./lib-cl_compile.lisp
+	_IMPL_=sbcl make _libraries_for_IMPL_
+	_IMPL_=clisp make _libraries_for_IMPL_
+	sbcl --noinform --load ./lib-cl_compile.lisp --eval "(quit)"
+	#clisp -norc ./lib-cl_compile.lisp
+
+_libraries_for_IMPL_:
+	-mkdir lib-cl/for-${_IMPL_}
+	-mkdir lib-cl/for-${_IMPL_}/systems
+	-mkdir lib-cl/for-${_IMPL_}/site
+	(cd lib-cl/for-${_IMPL_}/site; tar xzf ../../tar/trivial-gray-streams.tar.gz)
+	(cd lib-cl/for-${_IMPL_}/site; tar xzf ../../tar/flexi-streams.tar.gz)
+	(cd lib-cl/for-${_IMPL_}/site; tar xzf ../../tar/cl-interpol.tar.gz)
+	(cd lib-cl/for-${_IMPL_}/site; tar xzf ../../tar/cl-unicode.tar.gz)
+	(cd lib-cl/for-${_IMPL_}/site; tar xzf ../../tar/cl-ppcre.tar.gz)
+	(cd lib-cl/for-${_IMPL_}/site; mv trivial-gray-streams* trivial-gray-streams)
+	(cd lib-cl/for-${_IMPL_}/site; mv flexi-streams* flexi-streams)
+	(cd lib-cl/for-${_IMPL_}/site; mv cl-interpol* cl-interpol)
+	(cd lib-cl/for-${_IMPL_}/site; mv cl-unicode* cl-unicode)
+	(cd lib-cl/for-${_IMPL_}/site; mv cl-ppcre* cl-ppcre)
+	(cd lib-cl/for-${_IMPL_}/systems; ln -s ../site/trivial-gray-streams/trivial-gray-streams.asd)
+	(cd lib-cl/for-${_IMPL_}/systems; ln -s ../site/flexi-streams/flexi-streams.asd)
+	(cd lib-cl/for-${_IMPL_}/systems; ln -s ../site/cl-interpol/cl-interpol.asd)
+	(cd lib-cl/for-${_IMPL_}/systems; ln -s ../site/cl-unicode/cl-unicode.asd)
+	(cd lib-cl/for-${_IMPL_}/systems; ln -s ../site/cl-ppcre/cl-ppcre.asd)
+
 
 check: have_parser_cache
 	-mkdir ${TMP}

@@ -179,6 +179,7 @@ class Match
     f = match_beg
     t = match_end
     r = @rule.to_s.inspect
-    "(match #{r} #{s.force_encoding("UTF-8")} #{f} #{t} (hash #{h}))"
+    #"(match #{r} #{s} #{f} #{t} (hash #{h}))"
+    "(match #{r} #{s.force_encoding("UTF-8")} #{f} #{t} (hash #{h.force_encoding("UTF-8")}))"
   end
 end

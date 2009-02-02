@@ -37,8 +37,15 @@ Work:
   We just need a CL backend with good pragmatics.  Doesn't have to be SBCL.
   And having a second target will help when MOP efforts start.
   If clisp looks promising, the objective will be to support both.
-  Ie, +clisp Primitives, and dup the libraries.
+  Ie, #+clisp Primitives, and dup the libraries.
   Other CL implementations are *not* near-term goals.
+  Except perhaps ccl (formerly openmcl), but there's no deb or rpm yet.
+  Status:
+    - library asdf directories now permit multiple implementations.
+      Perhaps use common-lisp-controller instead?
+    - Next steps:
+        decide how to organize the executables and fasls.
+        add #+clisp and #+ccl for sbcl-isms.
 
 * Become able to correctly compile the p5 backend.
 
