@@ -775,13 +775,15 @@ syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(s
 
 " /pattern/
 
-" Below some hacks to recognise the // variant. This is virtually impossible to catch in all
-" cases as the / is used in so many other ways, but these should be the most obvious ones.
+" Below some hacks to recognise the // variant. This is virtually impossible
+" to catch in all cases as the / is used in so many other ways, but these
+" should be the most obvious ones.
+" TODO: mostly stolen from perl.vim, might need more work
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%([$@%&*]\@<!\%(\<\%(split\|while\|until\|if\|unless\)\|\.\.\|[-+*!~(\[{=]\)\s*\)\@<=/"
-    \ start="^/"
-    \ start=+\s\@<=/[^[:space:][:digit:]$@%=]\@=\%(/\_s*\%([([{$@%&*[:digit:]"'`]\|\_s\w\|[[:upper:]_abd-fhjklnqrt-wyz]\)\)\@!+
+    \ start="\%([$@%&*]\@<!\%(\<\%(split\|while\|until\|if\|unless\)\|\.\.\|[-+*!~(\[{=]\)\s*\)\@<=//\@!"
+    \ start="^//\@!"
+    \ start=+\s\@<=//\@![^[:space:][:digit:]$@%=]\@=\%(/\_s*\%([([{$@%&*[:digit:]"'`]\|\_s\w\|[[:upper:]_abd-fhjklnqrt-wyz]\)\)\@!+
     \ skip="\\/"
     \ end="/"
     \ contains=p6Regexen,p6EscForwardSlash
@@ -789,7 +791,7 @@ syn region p6Match
 " m//, mm//, rx//
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=/"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=//\@!"
     \ skip="\\/"
     \ end="/"
     \ contains=p6Regexen,p6EscForwardSlash
@@ -797,7 +799,7 @@ syn region p6Match
 " m"", mm"", rx""
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\""
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\"\"\@!"
     \ skip=+\\"+
     \ end=+"+
     \ contains=p6Regexen,p6EscDoubleQuote
@@ -805,7 +807,7 @@ syn region p6Match
 " m'', mm'', rx''
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<='"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=''\@!"
     \ skip="\\'"
     \ end="'"
     \ contains=p6Regexen,p6EscSingleQuote
@@ -813,7 +815,7 @@ syn region p6Match
 " m``, mm``, rx``
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=`"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=``\@!"
     \ skip="\\`"
     \ end="`"
     \ contains=p6Regexen,p6EscBackTick
@@ -821,7 +823,7 @@ syn region p6Match
 " m||, mm||, rx||
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=|"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=||\@!"
     \ skip="\\|"
     \ end="|"
     \ contains=p6Regexen,p6EscPipe
@@ -829,7 +831,7 @@ syn region p6Match
 " m!!, mm!!, rx!!
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=!!\@!"
     \ skip="\\!"
     \ end="!"
     \ contains=p6Regexen,p6EscExclamation
@@ -837,7 +839,7 @@ syn region p6Match
 " m$$, mm$$, rx$$
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\$"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\$$\@!"
     \ skip="\\\$"
     \ end="\$"
     \ contains=p6Regexen,p6EscDollar
@@ -845,15 +847,15 @@ syn region p6Match
 " m (), mm (), rx ()
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s\+\)\@<=("
-    \ skip="\\]"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s\+\)\@<=()\@!"
+    \ skip="\\)"
     \ end=")"
     \ contains=p6Regexen,p6EscCloseParen
 
 " m[], mm[], rx[]
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=["
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\[]\@!"
     \ skip="\\]"
     \ end="]"
     \ contains=p6Regexen,p6EscCloseBracket
@@ -861,7 +863,7 @@ syn region p6Match
 " m{}, mm{}, rx{}
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<={"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<={}\@!"
     \ skip="\\}"
     \ end="}"
     \ contains=p6Regexen,p6EscCloseCurly
@@ -869,7 +871,7 @@ syn region p6Match
 " m<>, mm<>, rx<>
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=>"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=<>\@!"
     \ skip="\\>"
     \ end=">"
     \ contains=p6Regexen,p6EscCloseAngle
@@ -877,13 +879,10 @@ syn region p6Match
 " m«», mm«», rx«»
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=»"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=«»\@!"
     \ skip="\\»"
     \ end="»"
     \ contains=p6Regexen,p6EscCloseFrench
-
-" This is an operator, not a regex
-syn match p6Operator "//"
 
 " Pod
 
