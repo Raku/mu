@@ -431,9 +431,21 @@ syn cluster p6Interp_single
 syn cluster p6Interp_b
     \ add=@p6Interp_q
     \ add=p6Escape
+    \ add=p6EscOpenCurly
+    \ add=p6EscCodePoint
+    \ add=p6EscHex
+    \ add=p6EscOct
+    \ add=p6EscOctOld
+    \ add=p6EscNull
 syn cluster p6Interp_backslash
     \ add=@p6Interp_q
     \ add=p6Escape
+    \ add=p6EscOpenCurly
+    \ add=p6EscCodePoint
+    \ add=p6EscHex
+    \ add=p6EscOct
+    \ add=p6EscOctOld
+    \ add=p6EscNull
 
 syn cluster p6Interp_qq
     \ add=@p6Interp_scalar
@@ -442,12 +454,6 @@ syn cluster p6Interp_qq
     \ add=@p6Interp_function
     \ add=@p6Interp_closure
     \ add=@p6Interp_backslash
-    \ add=p6EscOpenCurly
-    \ add=p6EscCodePoint
-    \ add=p6EscHex
-    \ add=p6EscOct
-    \ add=p6EscOctOld
-    \ add=p6EscNull
 syn cluster p6Interp_double
     \ add=@p6Interp_scalar
     \ add=@p6Interp_array
@@ -455,12 +461,6 @@ syn cluster p6Interp_double
     \ add=@p6Interp_function
     \ add=@p6Interp_closure
     \ add=@p6Interp_backslash
-    \ add=p6EscOpenCurly
-    \ add=p6EscCodePoint
-    \ add=p6EscHex
-    \ add=p6EscOct
-    \ add=p6EscOldOct
-    \ add=p6EscNull
 
 syn region p6InterpScalar
     \ start="\ze\z(\$\%(\%(\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(\.\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\|\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)*\)\.\?\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)\)"
