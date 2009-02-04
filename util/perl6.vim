@@ -113,6 +113,7 @@ let s:keywords = [
  \ ["p6Operator",       "Qc qc qqc Qb qb qqb Qto qto qqto m mm rx"],
 \ ]
 
+" TODO: check if this would be faster as one big regex
 for [group, string] in s:keywords
     let s:word_list = split(string)
     let s:words = join(s:word_list, "\\|")
@@ -178,6 +179,7 @@ let s:routines = [
 syn match p6Normal display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*(\@="
 
 " we want to highlight builtins like split() though, so this comes afterwards
+" TODO: check if this would be faster as one big regex
 for [string] in s:routines
     let s:word_list = split(string)
     let s:words = join(s:word_list, "\\|")
@@ -444,6 +446,8 @@ syn cluster p6Interp_qq
     \ add=p6EscCodePoint
     \ add=p6EscHex
     \ add=p6EscOct
+    \ add=p6EscOctOld
+    \ add=p6EscNull
 syn cluster p6Interp_double
     \ add=@p6Interp_scalar
     \ add=@p6Interp_array
@@ -455,6 +459,8 @@ syn cluster p6Interp_double
     \ add=p6EscCodePoint
     \ add=p6EscHex
     \ add=p6EscOct
+    \ add=p6EscOldOct
+    \ add=p6EscNull
 
 syn region p6InterpScalar
     \ start="\ze\z(\$\%(\%(\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*+?=!]\|:\@<!::\@!\)\%(\k\d\@<!\)\@=\)\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(\.\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\|\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)*\)\.\?\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)\)"
@@ -527,7 +533,7 @@ syn region p6InterpClosure
     \ keepend
 
 " generic escape
-syn match p6Escape          display "\\\w" contained
+syn match p6Escape          display "\\\a" contained
 
 " escaped closing delimiters
 syn match p6EscQuote        display "\\'" contained
@@ -543,6 +549,8 @@ syn match p6EscCloseCurly   display "\\}" contained
 syn match p6EscCloseBracket display "\\\]" contained
 
 " misc escapes
+syn match p6EscOctOld    display "\\\d\{1,3}"
+syn match p6EscNull      display "\\0\d\@!"
 syn match p6EscCodePoint display "\%(\\c\)\@<=\%(\d\|\S\|\[\)\@=" contained nextgroup=p6CodePoint
 syn match p6EscHex       display "\%(\\x\)\@<=\%(\x\|\[\)\@=" contained nextgroup=p6HexSequence
 syn match p6EscOct       display "\%(\\o\)\@<=\%(\o\|\[\)\@=" contained nextgroup=p6OctSequence
@@ -1257,6 +1265,8 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6StringSQ        p6String
     HiLink p6StringDQ        p6String
     HiLink p6Escape          p6StringSpecial
+    HiLink p6EscNull         p6StringSpecial
+    HiLink p6EscOctOld       p6Error
     HiLink p6EscHash         p6StringSpecial
     HiLink p6EscQQ           p6StringSpecial
     HiLink p6EscQuote        p6StringSpecial
