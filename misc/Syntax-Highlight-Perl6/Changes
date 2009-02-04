@@ -1,5 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.040 2009.02.04
+    - Depends on Moose 0.67
+    - Updated to perl6.vim r25186
+ 
 0.039 2009.01.30
     - Updated to STD r25123 (smaller lex directory & better startup performance)
     - Updated to perl6.vim r25100
