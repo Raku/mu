@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Jan 28th 2009
+" Last Change:  Feb 4th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -234,9 +234,6 @@ syn region p6MatchVar
     \ start="<"
     \ end=">"
     \ contained
-
-syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
-syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 
 " Contextualizers
 syn match p6Context display "\%([$@%&]\|\k\)\@<!\%(\$\|@\|%\|@@\|&\)\_s\@="
@@ -761,6 +758,9 @@ exec "syn match p6Operator display \">>"          .s:hyperops."\\%(>>\\)\\?\""
 exec "syn match p6Operator display \"\\%(<<\\)\\?".s:hyperops."<<\""
 exec "syn match p6Operator display \">>"          .s:hyperops."<<\""
 exec "syn match p6Operator display \"<<"          .s:hyperops.">>\""
+
+syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
+syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 
 " Regexes
 
