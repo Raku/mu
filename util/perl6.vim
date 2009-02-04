@@ -15,12 +15,13 @@
 "     # vim: filetype=perl6
 
 " TODO:
-"   * Add more support for folding
-"   * Add more syntax syncing hooks
-"   * Overhaul regexes, S05
+"   * Add more support for folding (:help syn-fold)
+"   * Add more syntax syncing hooks (:help syn-sync)
+"   * Revisit the operators, add reverse ops and other meta variants
+"   * Highlight more grammar/regex stuff
 "   * Q//:
 "       :to, :heredoc
-"       interpolate \q:s{$scalar} and such
+"       interpolate \q:s{$scalar} (though the spec isn't very clear on it)
 "
 " Impossible TODO?:
 "   * Unspace
