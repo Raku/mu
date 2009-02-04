@@ -3804,6 +3804,7 @@ grammar Regex is STD {
         '{' :: [ :lang($¢.cursor_fresh($+LANG)) <statementlist> ]
         [ '}' || <.panic: "Unable to parse statement list; couldn't find right brace"> ]
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     rule nibbler {
         :my $sigspace    is context<rw> = $+sigspace    // 0;
@@ -3813,7 +3814,6 @@ grammar Regex is STD {
         [ \s* < || | && & > ]?
         <EXPR>
     }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token termish {
         <.ws>
@@ -3872,16 +3872,17 @@ grammar Regex is STD {
         <sigspace>
     }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<{ }> {
         <?before '{'>
         <codeblock>
-        {{ $/<sym> := <{ }> }}
+#       {{ $/<sym> := <{ }> }} #ELFBUG
+        { $<sym> = ['{','}'] } #ELFFIX
     }
 
     token metachar:mod {
         <mod_internal>
-        { $/<sym> := $<mod_internal><sym> }
+#       { $/<sym> := $<mod_internal><sym> } #ELFBUG
+        { $<sym> = $<mod_internal><sym> } #ELFFIX
     }
 
     token metachar:sym<:> {
@@ -3896,6 +3897,7 @@ grammar Regex is STD {
         <sym>
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<[ ]> {
         '[' {} [:lang(self.unbalanced(']')) <nibbler>]
         [ ']' || <.panic: "Unable to parse regex; couldn't find right bracket"> ]
@@ -3907,6 +3909,7 @@ grammar Regex is STD {
         [ ')' || <.panic: "Unable to parse regex; couldn't find right parenthesis"> ]
         { $/<sym> := <( )> }
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token metachar:sym« <( » { '<(' }
     token metachar:sym« )> » { ')>' }
@@ -3926,7 +3929,9 @@ grammar Regex is STD {
         [ '>' || <.panic: "regex assertion not terminated by angle bracket"> ]
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<\\> { <sym> <backslash> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token metachar:sym<.>  { <sym> }
     token metachar:sym<^^> { <sym> }
     token metachar:sym<^>  { <sym> }
@@ -3948,6 +3953,7 @@ grammar Regex is STD {
         >
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<' '> { <?before "'"> [:lang($¢.cursor_fresh($+LANG)) <quote>] }
     token metachar:sym<" "> { <?before '"'> [:lang($¢.cursor_fresh($+LANG)) <quote>] }
 
@@ -3960,6 +3966,7 @@ grammar Regex is STD {
     }
 
     token backslash:unspace { <?before \s> <.SUPER::ws> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token backslash:sym<0> { '0' <!before <[0..7]> > }
 
@@ -4001,6 +4008,7 @@ grammar Regex is STD {
 
     token assertion:sym<{ }> { <codeblock> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token assertion:variable {
         <?before <sigil>>  # note: semantics must be determined per-sigil
         [:lang($¢.cursor_fresh($+LANG).unbalanced('>')) <variable=EXPR(item %LOOSEST)>]
@@ -4038,6 +4046,7 @@ grammar Regex is STD {
                                         [ ')' || <.panic: "Assertion call missing right parenthesis"> ]
                                     ]?
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token assertion:sym<[> { <before '[' > <cclass_elem> ** < + - > }
     token assertion:sym<+> { <sym> <cclass_elem> ** < + - > }
@@ -4048,6 +4057,7 @@ grammar Regex is STD {
 
     token assertion:bogus { <.panic: "Unrecognized regex assertion"> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token cclass_elem {
         <.ws>
         :dba('character class element')
@@ -4083,7 +4093,9 @@ grammar Regex is STD {
     token mod_internal:sym<:!r>   { ':!r' 'atchet'? » { $+ratchet = 0 } }
     token mod_internal:sym<:r( )> { ':r' 'atchet'? » <mod_arg> { $+ratchet = eval $<mod_arg>.text } }
     token mod_internal:sym<:0r>   { ':' (\d+) 'r' 'atchet'? » { $+ratchet = $0 } }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token mod_internal:sym<:Perl5>    { [':Perl5' | ':P5'] [ :lang( $¢.cursor_fresh( ::STD::P5Regex ).unbalanced($+GOAL) ) <nibbler> ] }
 
     token mod_internal:adv {
@@ -4141,20 +4153,20 @@ grammar P5Regex is STD {
 
     proto token rxinfix { <...> }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     # suppress fancy end-of-line checking
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token codeblock {
         :my $GOAL is context = '}';
         '{' :: [ :lang($¢.cursor_fresh($+LANG)) <statementlist> ]
         [ '}' || <.panic: "Unable to parse statement list; couldn't find right brace"> ]
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     rule nibbler {
         :my $ignorecase is context<rw> = $+ignorecase // 0;
         <EXPR>
     }
 
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token termish {
         <.ws>  # XXX assuming old /x here?
         <quantified_atom>+
@@ -4202,12 +4214,14 @@ grammar P5Regex is STD {
     token metachar:sym<[ ]> {
         <before '['> <quibble($¢.cursor_fresh( ::STD::Q ).tweak(:q))> # XXX parse as q[] for now
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token metachar:sym«(? )» {
         '(?' {} <assertion>
         [ ')' || <.panic: "Perl 5 regex assertion not terminated by parenthesis"> ]
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<( )> {
         '(' {} [:lang(self.unbalanced(')')) <nibbler>]?
         [ ')' || <.panic: "Unable to parse Perl 5 regex; couldn't find right parenthesis"> ]

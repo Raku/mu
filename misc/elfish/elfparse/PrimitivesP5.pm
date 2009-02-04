@@ -147,6 +147,8 @@ package GLOBAL {
 
   multi infix:sym<x>    ($a, $b) is p5 {'($a x $b)'}
   
+  multi infix:sym<//>   ($a, $b) is p5 {'defined($a) ? $a : $b'}
+
 }
 
 # Elf
