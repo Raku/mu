@@ -549,8 +549,8 @@ syn match p6EscCloseCurly   display "\\}" contained
 syn match p6EscCloseBracket display "\\\]" contained
 
 " misc escapes
-syn match p6EscOctOld    display "\\\d\{1,3}"
-syn match p6EscNull      display "\\0\d\@!"
+syn match p6EscOctOld    display "\\\d\{1,3}" contained
+syn match p6EscNull      display "\\0\d\@!" contained
 syn match p6EscCodePoint display "\%(\\c\)\@<=\%(\d\|\S\|\[\)\@=" contained nextgroup=p6CodePoint
 syn match p6EscHex       display "\%(\\x\)\@<=\%(\x\|\[\)\@=" contained nextgroup=p6HexSequence
 syn match p6EscOct       display "\%(\\o\)\@<=\%(\o\|\[\)\@=" contained nextgroup=p6OctSequence
