@@ -181,8 +181,8 @@ package Evalbot;
     }
 
     sub get_rakudo_revision {
-        my $file = '/home/evalenv/parrot/languages/perl6/rakudo_svn_revision';
-        open my $f, '<', $file or die "Can't open file '$file': $!";
+        my $file = '/home/evalenv/parrot/languages/rakudo/rakudo_revision';
+        open my $f, '<', $file or warn "Can't open file '$file': $!";
         my $res = <$f>;
         close $f;
         chomp $res;
