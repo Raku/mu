@@ -68,7 +68,7 @@ package Evalbot;
             },
             rakudo => {
                 chdir       => '../../../parrot/',
-                cmd_line    => './parrot languages/perl6/perl6.pbc %program >> %out 2>&1',
+                cmd_line    => './parrot languages/rakudo/perl6.pbc %program >> %out 2>&1',
                 revision    => \&get_rakudo_revision,
                 filter      => \&filter_pct,
             },
