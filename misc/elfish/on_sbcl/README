@@ -2,13 +2,14 @@ A SBCL Common-Lisp backend for elf
 
 QUICKSTART
 
-$ make libraries
-$ make elfx
+$ make get-libraries
+$ make setup-sbcl
+$ make elfcl-sbcl
+$ ./elfcl-sbcl -e 'say 3'
+$ make check
+
 $ export ELF_STD_RED_RUN=../../STD_red/STD_red_run
 $ ./elfx -xr PrimitivesSBCL.pm -v -e 'say 3'
-$ make elfcl
-$ ./elfcl -e 'say 3'
-$ make check
 
 STATUS
 
@@ -23,6 +24,24 @@ performance p6 implementation.  And thus provide an environment for
 bootstrapped p6 compiler development where correctness is not
 inherently incompatible with tolerable performance.
 
+
+OTHER LISP IMPLEMENTATIONS
+
+todo:
+* Try clisp in place of sbcl.  Faster (though weaker) compiler.
+  We just need a CL backend with good pragmatics.  Doesn't have to be SBCL.
+  And having a second target will help when MOP efforts start.
+  If clisp looks promising, the objective will be to support both.
+  Other CL implementations are *not* near-term goals.
+  Except perhaps ccl (formerly openmcl), but there's no deb or rpm yet.
+  Fedora's clisp, unlike debians, doesn't come with ASDF built in.
+  Status:
+    - library asdf directories now permit multiple implementations.
+      Perhaps use common-lisp-controller instead?
+    - Next steps:
+        Clisp compilation of the posix library is failing.
+        Add #+clisp and #+ccl for sbcl-isms among primitives.
+
 TODO
 
 Issues:
@@ -32,20 +51,6 @@ Issues:
 -- slow (almost 2 minutes to self emit and compile)
 
 Work:
-
-* Try clisp in place of sbcl.  Faster (though weaker) compiler.
-  We just need a CL backend with good pragmatics.  Doesn't have to be SBCL.
-  And having a second target will help when MOP efforts start.
-  If clisp looks promising, the objective will be to support both.
-  Ie, #+clisp Primitives, and dup the libraries.
-  Other CL implementations are *not* near-term goals.
-  Except perhaps ccl (formerly openmcl), but there's no deb or rpm yet.
-  Status:
-    - library asdf directories now permit multiple implementations.
-      Perhaps use common-lisp-controller instead?
-    - Next steps:
-        decide how to organize the executables and fasls.
-        add #+clisp and #+ccl for sbcl-isms.
 
 * Become able to correctly compile the p5 backend.
 

@@ -3,24 +3,35 @@ ELF=../../elf/elf_h
 ELFDIR=../../elf/elf_h_src
 TMP=deleteme
 SBCL=sbcl --dynamic-space-size 1800
+CLISP=clisp
+
+elfcl.lisp:: have_parser_cache
+	${ELF} -I ${ELFDIR} EmitSBCL.pm -x -o elfcl.lisp Elf_SBCL.pm
+	chmod a+x elfcl.lisp
 
 elfx:: have_parser_cache
 	ELF_STD_RED_RUN=../../STD_red/STD_red_run ../../elf/elf_h -x -o ./elfx -I ../../elf/elf_h_src -e 'use Elf_wo_main' EmitSBCL.pm -e elf_main
+	chmod a+x elfx
 
-elfcl:: have_parser_cache
-	${ELF} -I ${ELFDIR} EmitSBCL.pm -x -o elfcl Elf_SBCL.pm
-	/usr/bin/time ${SBCL} --eval '(compile-file "elfcl")' --eval '(quit)' >& elfcl.out
-	chmod a+x elfcl
+elfcl-sbcl:: elfcl.lisp
+	${SBCL} --eval '(compile-file "elfcl.lisp")' --eval '(quit)'
 
-have_parser_cache:
-	@perl -we 'if(!-d shift){print STDERR "\nDefine STD_RED_CACHEDIR for faster compiles.\n\n";}' $(STD_RED_CACHEDIR)
+elfcl-clisp:: elfcl.lisp
+	${CLISP} -c elfcl.lisp
+
+elfcl-ccl:: elfcl.lisp
+	#ccl???
 
 
 clean:
-	rm -rf lib-cl/tar
-	rm -rf lib-cl/for-*
+	-rm elfx elfcl.lisp
+	-rm elfcl.fasl elfcl.out #sbcl
+	-rm elfcl.fas  #clisp
+	-rm -rf lib-cl/tar
+	-rm -rf lib-cl/for-*
+	-rm -rf deleteme/
 
-libraries:
+get-libraries:
 	-mkdir lib-cl
 	-mkdir lib-cl/tar
 	-rm -rf lib-cl/for-*
@@ -29,10 +40,18 @@ libraries:
 	(cd lib-cl/tar; wget http://weitz.de/files/cl-interpol.tar.gz)
 	(cd lib-cl/tar; wget http://weitz.de/files/cl-unicode.tar.gz)
 	(cd lib-cl/tar; wget http://weitz.de/files/cl-ppcre.tar.gz)
+
+setup-sbcl:
 	_IMPL_=sbcl make _libraries_for_IMPL_
-	_IMPL_=clisp make _libraries_for_IMPL_
 	sbcl --noinform --load ./lib-cl_compile.lisp --eval "(quit)"
-	#clisp -norc ./lib-cl_compile.lisp
+
+setup-clisp:
+	_IMPL_=clisp make _libraries_for_IMPL_
+	clisp -norc ./lib-cl_compile.lisp
+
+setup-ccl:
+	_IMPL_=ccl make _libraries_for_IMPL_
+	#ccl???
 
 _libraries_for_IMPL_:
 	-mkdir lib-cl/for-${_IMPL_}
@@ -75,3 +94,8 @@ check: have_parser_cache
 	${TMP}/b0 -I ${ELFDIR} -e 'use EmitSimpleP5' -x -o ${TMP}/a1 -e 'use Elf' 2>/dev/null
 	# Was it identical?
 	diff ${TMP}/a0 ${TMP}/a1
+
+have_parser_cache:
+	@perl -we 'if(!-d shift){print STDERR "\nDefine STD_RED_CACHEDIR for faster compiles.\n\n";}' $(STD_RED_CACHEDIR)
+
+

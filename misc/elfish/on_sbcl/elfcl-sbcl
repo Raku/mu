@@ -1,0 +1,4 @@
+dn=`dirname $0`
+fasl=${dn}/elfcl.fasl
+[ $fasl -ot ${dn}/elfcl.lisp ] && sbcl --noinform --eval "(compile-file \"$0\")" --eval "(quit)"
+exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
