@@ -67,57 +67,84 @@ let s:before_keyword = " display \"\\%(\\k\\|\\%(\\k\\d\\@<!\\)\\@<=[-']\\)\\@<!
 let s:after_keyword = "\\)\\%(\\k\\|[-']\\%(\\k\\d\\@<!\\)\\@=\\)\\@!\""
 
 " Billions of keywords
-let s:keywords = [
- \ ["p6Attention",      "ACHTUNG ATTN ATTENTION FIXME"],
- \ ["p6Attention",      "NB TODO TBD WTF XXX NOTE"],
- \ ["p6DeclareRoutine", "macro sub submethod method multi only rule"],
- \ ["p6DeclareRoutine", "token regex category"],
- \ ["p6Module",         "module class role use require package enum"],
- \ ["p6Module",         "grammar subset self"],
- \ ["p6Conditional",    "if else elsif unless"],
- \ ["p6VarStorage",     "let my our state temp has proto constant"],
- \ ["p6Repeat",         "for loop repeat while until gather given"],
- \ ["p6FlowControl",    "take do when next last redo return"],
- \ ["p6FlowControl",    "default exit make continue break goto leave async"],
- \ ["p6FlowControl",    "contend maybe defer"],
- \ ["p6TypeConstraint", "is as but does trusts of returns also handles where"],
- \ ["p6ClosureTrait",   "BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP"],
- \ ["p6ClosureTrait",   "UNDO NEXT LAST PRE POST END CATCH CONTROL TEMP"],
- \ ["p6Exception",      "die fail try warn"],
- \ ["p6Property",       "prec irs ofs ors export deep binary unary reparsed"],
- \ ["p6Property",       "rw parsed cached readonly instead defequiv will"],
- \ ["p6Property",       "ref copy inline tighter looser equiv assoc required"],
- \ ["p6Number",         "NaN Inf"],
- \ ["p6Pragma",         "oo"],
- \ ["p6Type",           "Object Any Junction Whatever Capture Match"],
- \ ["p6Type",           "Signature Proxy Matcher Package Module Class"],
- \ ["p6Type",           "Grammar Scalar Array Hash KeyHash KeySet KeyBag"],
- \ ["p6Type",           "Pair List Seq Range Set Bag Mapping Void Undef"],
- \ ["p6Type",           "Failure Exception Code Block Routine Sub Macro"],
- \ ["p6Type",           "Method Submethod Regex Str Blob Char Byte"],
- \ ["p6Type",           "Codepoint Grapheme StrPos StrLen Version Num"],
- \ ["p6Type",           "Complex num complex Bit bit bool True False"],
- \ ["p6Type",           "Increasing Decreasing Ordered Callable AnyChar"],
- \ ["p6Type",           "Positional Associative Ordering KeyExtractor"],
- \ ["p6Type",           "Comparator OrderingPair IO KitchenSink Role"],
- \ ["p6Type",           "Int int int1 int2 int4 int8 int16 int32 int64"],
- \ ["p6Type",           "Rat rat rat1 rat2 rat4 rat8 rat16 rat32 rat64"],
- \ ["p6Type",           "Buf buf buf1 buf2 buf4 buf8 buf16 buf32 buf64"],
- \ ["p6Type",           "UInt uint uint1 uint2 uint4 uint8 uint16 uint32"],
- \ ["p6Type",           "uint64 Abstraction"],
- \ ["p6Operator",       "div x xx mod also leg cmp before after eq ne lt"],
- \ ["p6Operator",       "gt ge eqv ff fff true not and andthen Z X or xor"],
- \ ["p6Operator",       "orelse extra Q Qq Qqq q qq Qw qw qqw Qww qww qqww"],
- \ ["p6Operator",       "Qx qx qqx Qs qs qqs Qa qa qqa Qh qh qqh Qf qf qqf"],
- \ ["p6Operator",       "Qc qc qqc Qb qb qqb Qto qto qqto m mm rx"],
-\ ]
+let s:keywords = {
+ \ "p6Attention": [
+ \   "ACHTUNG ATTN ATTENTION FIXME NB TODO TBD WTF XXX NOTE",
+ \ ],
+ \ "p6DeclareRoutine": [
+ \   "macro sub submethod method multi only rule token regex category",
+ \ ],
+ \ "p6Module": [
+ \   "module class role use require package enum grammar subset self",
+ \ ],
+ \ "p6Conditional": [
+ \   "if else elsif unless",
+ \ ],
+ \ "p6VarStorage": [
+ \   "let my our state temp has proto constant",
+ \ ],
+ \ "p6Repeat": [
+ \   "for loop repeat while until gather given",
+ \ ],
+ \ "p6FlowControl": [
+ \   "take do when next last redo return contend maybe defer",
+ \   "default exit make continue break goto leave async",
+ \ ],
+ \ "p6TypeConstraint": [
+ \   "is as but does trusts of returns also handles where",
+ \ ],
+ \ "p6ClosureTrait": [
+ \   "BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP",
+ \   "UNDO NEXT LAST PRE POST END CATCH CONTROL TEMP",
+ \ ],
+ \ "p6Exception": [
+ \   "die fail try warn",
+ \ ],
+ \ "p6Property": [
+ \   "prec irs ofs ors export deep binary unary reparsed",
+ \   "rw parsed cached readonly instead defequiv will",
+ \   "ref copy inline tighter looser equiv assoc required",
+ \ ],
+ \ "p6Number": [
+ \   "NaN Inf",
+ \ ],
+ \ "p6Pragma": [
+ \   "oo",
+ \ ],
+ \ "p6Type": [
+ \   "Object Any Junction Whatever Capture Match",
+ \   "Signature Proxy Matcher Package Module Class",
+ \   "Grammar Scalar Array Hash KeyHash KeySet KeyBag",
+ \   "Pair List Seq Range Set Bag Mapping Void Undef",
+ \   "Failure Exception Code Block Routine Sub Macro",
+ \   "Method Submethod Regex Str Blob Char Byte",
+ \   "Codepoint Grapheme StrPos StrLen Version Num",
+ \   "Complex num complex Bit bit bool True False",
+ \   "Increasing Decreasing Ordered Callable AnyChar",
+ \   "Positional Associative Ordering KeyExtractor",
+ \   "Comparator OrderingPair IO KitchenSink Role",
+ \   "Int int int1 int2 int4 int8 int16 int32 int64",
+ \   "Rat rat rat1 rat2 rat4 rat8 rat16 rat32 rat64",
+ \   "Buf buf buf1 buf2 buf4 buf8 buf16 buf32 buf64",
+ \   "UInt uint uint1 uint2 uint4 uint8 uint16 uint32",
+ \   "uint64 Abstraction",
+ \ ],
+ \ "p6Operator": [
+ \   "div x xx mod also leg cmp before after eq ne lt",
+ \   "gt ge eqv ff fff true not and andthen Z X or xor",
+ \   "orelse extra Q Qq Qqq q qq Qw qw qqw Qww qww qqww",
+ \   "Qx qx qqx Qs qs qqs Qa qa qqa Qh qh qqh Qf qf qqf",
+ \   "Qc qc qqc Qb qb qqb Qto qto qqto m mm rx",
+ \ ],
+\ }
 
-" TODO: check if this would be faster as one big regex
-for [group, string] in s:keywords
-    let s:word_list = split(string)
-    let s:words = join(s:word_list, "\\|")
+for [group, words] in items(s:keywords)
+    let s:words_space = join(words, " ")
+    let s:temp = split(s:words_space)
+    let s:words = join(s:temp, "\\|")
     exec "syn match ". group ." ". s:before_keyword . s:words . s:after_keyword
 endfor
+unlet s:keywords s:words_space s:temp s:words
 
 " More operators
 " Don't put a "\+" at the end of the character class. That makes it so
@@ -151,29 +178,29 @@ syn match p6Type display "\%(::\|\k\|\%(\k\d\@<!\)\@<=[-']\)\@<!\%(Order\%(::Sam
 syn match p6Type display "\%(::\|\k\|\%(\k\d\@<!\)\@<=[-']\)\@<!\%(Bool\%(::True\|::False\)\?\)\%(\k\|[-']\%(\k\d\@<!\)\@=\)\@!"
 
 let s:routines = [
- \ ["eager hyper substr index rindex grep map sort join lines hints chmod"],
- \ ["split reduce min max reverse truncate zip cat roundrobin classify"],
- \ ["first sum keys values pairs defined delete exists elems end kv any"],
- \ ["all one wrap shape key value name pop push shift splice unshift floor"],
- \ ["ceiling abs exp log log10 rand sign sqrt sin cos tan round strand"],
- \ ["roots cis unpolar polar atan2 pick chop p5chop chomp p5chomp lc"],
- \ ["lcfirst uc ucfirst capitalize normalize pack unpack quotemeta comb"],
- \ ["samecase sameaccent chars nfd nfc nfkd nfkc printf sprintf caller"],
- \ ["evalfile run runinstead nothing want bless chr ord gmtime time eof"],
- \ ["localtime gethost getpw chroot getlogin getpeername kill fork wait"],
- \ ["perl graphs codes bytes clone print open read write readline say seek"],
- \ ["close opendir readdir slurp pos fmt vec link unlink symlink uniq pair"],
- \ ["asin atan sec cosec cotan asec acosec acotan sinh cosh tanh asinh"],
- \ ["acos acosh atanh sech cosech cotanh sech acosech acotanh asech ok"],
- \ ["plan_ok dies_ok lives_ok skip todo pass flunk force_todo use_ok isa_ok"],
- \ ["diag is_deeply isnt like skip_rest unlike cmp_ok eval_dies_ok nok_error"],
- \ ["eval_lives_ok approx is_approx throws_ok version_lt plan eval succ pred"],
- \ ["times nonce once signature new connect operator undef undefine sleep"],
- \ ["from to infix postfix prefix circumfix postcircumfix minmax lazy count"],
- \ ["unwrap getc pi e context void quasi body each contains rewinddir subst"],
- \ ["can isa flush arity assuming rewind callwith callsame nextwith nextsame"],
- \ ["attr eval_elsewhere none srand trim trim_start trim_end lastcall WHAT"],
- \ ["WHERE HOW WHICH VAR WHO WHENCE"],
+ \ "eager hyper substr index rindex grep map sort join lines hints chmod",
+ \ "split reduce min max reverse truncate zip cat roundrobin classify",
+ \ "first sum keys values pairs defined delete exists elems end kv any",
+ \ "all one wrap shape key value name pop push shift splice unshift floor",
+ \ "ceiling abs exp log log10 rand sign sqrt sin cos tan round strand",
+ \ "roots cis unpolar polar atan2 pick chop p5chop chomp p5chomp lc",
+ \ "lcfirst uc ucfirst capitalize normalize pack unpack quotemeta comb",
+ \ "samecase sameaccent chars nfd nfc nfkd nfkc printf sprintf caller",
+ \ "evalfile run runinstead nothing want bless chr ord gmtime time eof",
+ \ "localtime gethost getpw chroot getlogin getpeername kill fork wait",
+ \ "perl graphs codes bytes clone print open read write readline say seek",
+ \ "close opendir readdir slurp pos fmt vec link unlink symlink uniq pair",
+ \ "asin atan sec cosec cotan asec acosec acotan sinh cosh tanh asinh",
+ \ "acos acosh atanh sech cosech cotanh sech acosech acotanh asech ok",
+ \ "plan_ok dies_ok lives_ok skip todo pass flunk force_todo use_ok isa_ok",
+ \ "diag is_deeply isnt like skip_rest unlike cmp_ok eval_dies_ok nok_error",
+ \ "eval_lives_ok approx is_approx throws_ok version_lt plan eval succ pred",
+ \ "times nonce once signature new connect operator undef undefine sleep",
+ \ "from to infix postfix prefix circumfix postcircumfix minmax lazy count",
+ \ "unwrap getc pi e context void quasi body each contains rewinddir subst",
+ \ "can isa flush arity assuming rewind callwith callsame nextwith nextsame",
+ \ "attr eval_elsewhere none srand trim trim_start trim_end lastcall WHAT",
+ \ "WHERE HOW WHICH VAR WHO WHENCE",
 \ ]
 
 " q() or whatever() is always a function call
@@ -181,11 +208,10 @@ syn match p6Normal display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*(\@="
 
 " we want to highlight builtins like split() though, so this comes afterwards
 " TODO: check if this would be faster as one big regex
-for [string] in s:routines
-    let s:word_list = split(string)
-    let s:words = join(s:word_list, "\\|")
-    exec "syn match p6Routine ". s:before_keyword . s:words . s:after_keyword
-endfor
+let s:words_space = join(s:routines, " ")
+let s:temp = split(s:words_space)
+let s:words = join(s:temp, "\\|")
+exec "syn match p6Routine ". s:before_keyword . s:words . s:after_keyword
 
 " packages, must come after all the keywords
 syn match p6Normal display "\%(::\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
@@ -591,6 +617,10 @@ syn region p6OctSequence
     \ contained
 
 " matches :key, :!key, :$var, :key<var>, etc
+" Since we don't know in advance how the adverb ends, we use a trick.
+" Consume nothing with the start pattern (\ze at the beginning),
+" while capturing the whole adverb into \z1 and then putting it before
+" the match start (\zs) of the end pattern.
 syn region p6Adverb
     \ start="\ze\z(:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\?\)"
     \ start="\ze\z(:!\?[@$%]\$*\%(::\|\%(\$\@<=\d\+\|!\|/\|¢\)\|\%(\%([.^*+?=!]\|:\@<!::\@!\)\k\d\@<!\)\|\%(\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\)\)\)"
