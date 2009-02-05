@@ -1052,13 +1052,13 @@ syn region p6PodDelim
     \ start="^"
     \ end="^\ze=end\>"
     \ contained
-    \ contains=@p6PodNested,@p6PodAmbient
+    \ contains=@p6PodNestedBlocks,@p6PodAmbient
 
 syn region p6PodDelimCode
     \ start="^"
     \ end="^\ze=end\>"
     \ contained
-    \ contains=@p6PodNested
+    \ contains=@p6PodNestedBlocks
 
 syn region p6PodDelimEndRegion
     \ matchgroup=p6PodType
@@ -1076,7 +1076,7 @@ syn cluster p6PodAmbient
     \ add=p6PodImplicitCode
 
 " These may appear inside delimited blocks
-syn cluster p6PodNested
+syn cluster p6PodNestedBlocks
     \ add=p6PodAbbrRegion
     \ add=p6PodDirectRegion
     \ add=p6PodParaRegion
