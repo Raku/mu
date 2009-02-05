@@ -17,7 +17,6 @@
 " TODO:
 "   * Add more support for folding (:help syn-fold)
 "   * Add more syntax syncing hooks (:help syn-sync)
-"   * Highlighting arguments to =use Pod directives
 "   * Highlight more grammar/regex stuff
 "   * Q//:
 "       :to, :heredoc
