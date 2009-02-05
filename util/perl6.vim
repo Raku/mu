@@ -750,10 +750,10 @@ endif
 syn match p6String display "\%(:\@<!:!\?\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 
 " => and p5=> autoquoting
-syn match p6String display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+p5=>"
-syn match p6String display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\%(p5\)\@<!=>"
-syn match p6String display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+=>"
-syn match p6String display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*p5\ze=>"
+syn match p6StringP5Auto display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+p5=>"
+syn match p6StringAuto   display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\%(p5\)\@<!=>"
+syn match p6StringAuto   display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+=>"
+syn match p6StringAuto   display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*p5\ze=>"
 
 " Hyperoperators, may need to add some more operators here
 let s:hyperops = "\\%(\\%(\\.\\|+\\|-\\|\\*\\|\\*\\*\\|\\~\\|/\\|x\\|xx\\|&\\||\\)=\\?\\|++\\|--\\)"
@@ -900,8 +900,6 @@ syn region p6PodAbbrType
     \ contained
     \ contains=p6PodName,p6PodAbbr
 
-syn match p6PodName ".\+" contained contains=p6PodFormat
-
 syn region p6PodAbbr
     \ start="^"
     \ end="^\ze\%(\s*$\|=\k\d\@<!\)"
@@ -1008,6 +1006,9 @@ syn region p6PodDelimCodeTypeRegion
 syn cluster p6PodConfig
     \ add=p6PodConfigOperator
     \ add=p6PodExtraConfig
+    \ add=p6StringAuto
+    \ add=p6PodAutoQuote
+    \ add=p6StringSQ
 
 syn region p6PodParens
     \ start="("
@@ -1015,6 +1016,8 @@ syn region p6PodParens
     \ contained
     \ contains=p6Number,p6StringSQ
 
+syn match p6PodName           contained ".\+" contains=p6PodFormat
+syn match p6PodAutoQuote      display contained "=>"
 syn match p6PodConfigOperator display contained ":!\?" nextgroup=p6PodConfigOption
 syn match p6PodConfigOption   display contained "[^[:space:](<]\+" nextgroup=p6PodParens,p6StringAngle
 syn match p6PodExtraConfig    display contained "^="
@@ -1022,6 +1025,7 @@ syn match p6PodVerticalBar    display contained "|"
 syn match p6PodColon          display contained ":"
 syn match p6PodSemicolon      display contained ";"
 syn match p6PodComma          display contained ","
+syn match p6PodImplicitCode   display contained "^\s.*"
 
 syn region p6PodDelim
     \ start="^"
@@ -1044,8 +1048,6 @@ syn region p6PodDelimEndRegion
 syn cluster p6PodAmbient
     \ add=p6PodFormat
     \ add=p6PodImplicitCode
-
-syn match p6PodImplicitCode contained "^\s.*"
 
 " These may appear inside delimited blocks
 syn cluster p6PodNested
@@ -1271,9 +1273,11 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6StringAngles    p6String
     HiLink p6StringSQ        p6String
     HiLink p6StringDQ        p6String
+    HiLink p6StringAuto      p6String
+    HiLink p6StringP5Auto    p6String
+    HiLink p6EscOctOld       p6Error
     HiLink p6Escape          p6StringSpecial
     HiLink p6EscNull         p6StringSpecial
-    HiLink p6EscOctOld       p6Error
     HiLink p6EscHash         p6StringSpecial
     HiLink p6EscQQ           p6StringSpecial
     HiLink p6EscQuote        p6StringSpecial
@@ -1347,6 +1351,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6PodConfigOption   String
     HiLink p6PodCode           PreProc
     HiLink p6Pod               Comment
+    HiLink p6PodAutoQuote      Operator
     HiLink p6PodConfigOperator Operator
     HiLink p6PodCommand        Statement
     HiLink p6PodName           Identifier
