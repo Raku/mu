@@ -970,6 +970,27 @@ syn region p6PodPara
     \ extend
     \ contains=@p6PodAmbient
 
+" Paragraph code blocks
+syn region p6PodParaRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=for\>\%(\s*code\>\)\@="
+    \ end="^\ze\%(\s*\|=\k\d\@<!\)"
+    \ contains=p6PodParaCodeTypeRegion
+
+syn region p6PodParaCodeTypeRegion
+    \ matchgroup=p6PodType
+    \ start="\S\+"
+    \ end="^\ze\%(\s*$\|=\k\d\@<!\)"
+    \ contained
+    \ keepend
+    \ contains=p6PodParaCode,p6PodParaConfigRegion
+
+syn region p6PodParaCode
+    \ start="^[^=]"
+    \ end="^\ze\%(\s*$\|=\k\d\@<!\)"
+    \ contained
+    \ extend
+
 " Delimited blocks
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
@@ -1346,6 +1367,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6PodPara         p6Pod
     HiLink p6PodDelim        p6Pod
     HiLink p6PodDelimCode    p6PodCode
+    HiLink p6PodParaCode     p6PodCode
     HiLink p6PodImplicitCode p6PodCode
     HiLink p6PodExtraConfig  p6PodCommand
     HiLink p6PodVerticalBar  p6PodFormatCode
