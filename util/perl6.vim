@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Feb 4th 2009
+" Last Change:  Feb 5th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -17,7 +17,6 @@
 " TODO:
 "   * Add more support for folding (:help syn-fold)
 "   * Add more syntax syncing hooks (:help syn-sync)
-"   * Revisit the operators, add reverse ops and other meta variants
 "   * Highlight more grammar/regex stuff
 "   * Q//:
 "       :to, :heredoc
@@ -128,6 +127,8 @@ syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]"
 syn match p6Operator display "\%(:\@<!::\@!\|::=\|\.::\)"
 " these require whitespace on the left side
 syn match p6Operator display "\%(\s\|^\)\@<=\%(xx=\|p5=>\)"
+" these don't allow keyword chars on the left
+syn match p6Operator display "\%(\d\@<!\k\)\@<![XR]"
 " "i" requires a digit to the left, and no keyword char to the right
 syn match p6Operator display "\d\@<=i\k\@!"
 " index overloading
@@ -752,9 +753,6 @@ syn match p6String display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+p5=>"
 syn match p6String display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\%(p5\)\@<!=>"
 syn match p6String display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+=>"
 syn match p6String display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*p5\ze=>"
-
-" cross operators
-syn match p6Operator display "X[^X\[\]()[:space:]]\+X"
 
 " Hyperoperators, may need to add some more operators here
 let s:hyperops = "\\%(\\%(\\.\\|+\\|-\\|\\*\\|\\*\\*\\|\\~\\|/\\|x\\|xx\\|&\\||\\)=\\?\\|++\\|--\\)"
