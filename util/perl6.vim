@@ -212,6 +212,7 @@ let s:words_space = join(s:routines, " ")
 let s:temp = split(s:words_space)
 let s:words = join(s:temp, "\\|")
 exec "syn match p6Routine ". s:before_keyword . s:words . s:after_keyword
+unlet s:before_keyword s:after_keyword s:words_space s:temp s:words s:routines
 
 " packages, must come after all the keywords
 syn match p6Normal display "\%(::\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
@@ -773,7 +774,9 @@ else
             endfor
         endfor
     endfor
+    unlet s:adverbs s:q_adverbs
 endif
+unlet s:delims s:before s:after
 
 " :key
 syn match p6String display "\%(:\@<!:!\?\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
@@ -795,6 +798,7 @@ exec "syn match p6Operator display \">>"          .s:hyperops."\\%(>>\\)\\?\""
 exec "syn match p6Operator display \"\\%(<<\\)\\?".s:hyperops."<<\""
 exec "syn match p6Operator display \">>"          .s:hyperops."<<\""
 exec "syn match p6Operator display \"<<"          .s:hyperops.">>\""
+unlet s:hyperops
 
 syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\s\+\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|macro\|rule\|regex\|token\)\>\)\@!\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
