@@ -1058,7 +1058,7 @@ syn cluster p6PodNested
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="\u<<\@!"
+    \ start="\u<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
@@ -1067,14 +1067,23 @@ syn region p6PodFormat
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
     \ start="\u<<"
-    \ skip="<[^>]*>"
+    \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
     \ contains=p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="\u««\@!"
+    \ start="\u<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ contained
+    \ contains=p6PodFormat
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatCode
+    \ start="\u«"
+    \ skip="«[^»]*»"
     \ end="»"
     \ contained
     \ contains=p6PodFormat
@@ -1083,7 +1092,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="[CV]<<\@!"
+    \ start="[CV]<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
@@ -1104,7 +1113,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="[CV]««\@!"
+    \ start="[CV]«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
@@ -1113,7 +1122,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="L<<\@!"
+    \ start="L<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
@@ -1137,7 +1146,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="L««\@!"
+    \ start="L«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
@@ -1147,7 +1156,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="M<<\@!"
+    \ start="M<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
@@ -1171,7 +1180,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="M««\@!"
+    \ start="M«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
@@ -1181,7 +1190,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="D<<\@!"
+    \ start="D<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
@@ -1205,7 +1214,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="D««\@!"
+    \ start="D«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
@@ -1215,7 +1224,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="X<<\@!"
+    \ start="X<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
@@ -1239,7 +1248,7 @@ syn region p6PodFormat
 
 syn region p6PodFormat
     \ matchgroup=p6PodFormatCode
-    \ start="X««\@!"
+    \ start="X«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
