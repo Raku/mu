@@ -1014,7 +1014,7 @@ syn region p6PodParens
     \ contained
     \ contains=p6Number,p6StringSQ
 
-syn match p6PodConfigOperator display contained ":" nextgroup=p6PodConfigOption
+syn match p6PodConfigOperator display contained ":!\?" nextgroup=p6PodConfigOption
 syn match p6PodConfigOption   display contained "[^[:space:](<]\+" nextgroup=p6PodParens,p6StringAngle
 syn match p6PodExtraConfig    display contained "^="
 syn match p6PodVerticalBar    display contained "|"
