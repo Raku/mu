@@ -899,6 +899,8 @@ syn region p6PodAbbrType
     \ contained
     \ contains=p6PodName,p6PodAbbr
 
+syn match p6PodName contained ".\+" contains=p6PodFormat
+
 syn region p6PodAbbr
     \ start="^"
     \ end="^\ze\%(\s*$\|=\k\d\@<!\)"
@@ -1015,7 +1017,6 @@ syn region p6PodParens
     \ contained
     \ contains=p6Number,p6StringSQ
 
-syn match p6PodName           contained ".\+" contains=p6PodFormat
 syn match p6PodAutoQuote      display contained "=>"
 syn match p6PodConfigOperator display contained ":!\?" nextgroup=p6PodConfigOption
 syn match p6PodConfigOption   display contained "[^[:space:](<]\+" nextgroup=p6PodParens,p6StringAngle
