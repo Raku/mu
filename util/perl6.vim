@@ -1043,6 +1043,11 @@ syn region p6PodDelimEndRegion
     \ start="\%(^=end\>\)\@<="
     \ end="\S\+"
 
+syn region p6PodFinalEndRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=END\>"
+    \ end="\%$"
+
 " Special things one may find in Pod prose
 syn cluster p6PodAmbient
     \ add=p6PodFormat
@@ -1055,6 +1060,7 @@ syn cluster p6PodNested
     \ add=p6PodParaRegion
     \ add=p6PodDelimRegion
     \ add=p6PodDelimEndRegion
+    \ add=p6PodFinalEndRegion
 
 " Pod formatting codes
 
