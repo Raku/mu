@@ -38,8 +38,12 @@ todo:
   Status:
     - library asdf directories now permit multiple implementations.
       Perhaps use common-lisp-controller instead?
+    - make setup-clisp is failing on compilation of Weitz's unicode library
+        (an upstream bug, or perhaps a build problem)?.
+    - ./elfcl-clisp is failing on SB-POSIX because that's an sbcl'ism
+        which needs to be #+sbcl/#+clisp'ified.
     - Next steps:
-        Clisp compilation of the posix library is failing.
+        Clisp compilation of the unicode library is failing.
         Add #+clisp and #+ccl for sbcl-isms among primitives.
 
 TODO

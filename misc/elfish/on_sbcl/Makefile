@@ -27,7 +27,7 @@ clean:
 	-rm elfx elfcl.lisp
 	-rm elfcl.fasl elfcl.out #sbcl
 	-rm elfcl.fas  #clisp
-	-rm -rf lib-cl/tar
+	#-rm -rf lib-cl/tar
 	-rm -rf lib-cl/for-*
 	-rm -rf deleteme/
 
