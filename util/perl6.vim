@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Feb 5th 2009
+" Last Change:  Feb 6th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -779,7 +779,7 @@ endif
 unlet s:delims s:before s:after
 
 " :key
-syn match p6String display "\%(:\@<!:!\?\)\@<=\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
+syn match p6String display "\%(:\@<!:!\?\)\@<=\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*"
 
 " => and p5=> autoquoting
 syn match p6StringP5Auto display "\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\ze\s\+p5=>"
@@ -818,104 +818,333 @@ syn region p6Match
     \ start=+\s\@<=//\@![^[:space:][:digit:]$@%=]\@=\%(/\_s*\%([([{$@%&*[:digit:]"'`]\|\_s\w\|[[:upper:]_abd-fhjklnqrt-wyz]\)\)\@!+
     \ skip="\\/"
     \ end="/"
-    \ contains=p6Regexen,p6EscForwardSlash
+    \ contains=@p6Regexen,p6EscForwardSlash
 
 " m//, mm//, rx//
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=//\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=//\@!"
     \ skip="\\/"
     \ end="/"
-    \ contains=p6Regexen,p6EscForwardSlash
+    \ contains=@p6Regexen,p6EscForwardSlash
 
 " m"", mm"", rx""
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\"\"\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\"\"\@!"
     \ skip=+\\"+
     \ end=+"+
-    \ contains=p6Regexen,p6EscDoubleQuote
+    \ contains=@p6Regexen,p6EscDoubleQuote
 
 " m'', mm'', rx''
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=''\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=''\@!"
     \ skip="\\'"
     \ end="'"
-    \ contains=p6Regexen,p6EscSingleQuote
+    \ contains=@p6Regexen,p6EscSingleQuote
 
 " m``, mm``, rx``
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=``\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=``\@!"
     \ skip="\\`"
     \ end="`"
-    \ contains=p6Regexen,p6EscBackTick
+    \ contains=@p6Regexen,p6EscBackTick
 
 " m||, mm||, rx||
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=||\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=||\@!"
     \ skip="\\|"
     \ end="|"
-    \ contains=p6Regexen,p6EscPipe
+    \ contains=@p6Regexen,p6EscPipe
 
 " m!!, mm!!, rx!!
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=!!\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=!!\@!"
     \ skip="\\!"
     \ end="!"
-    \ contains=p6Regexen,p6EscExclamation
+    \ contains=@p6Regexen,p6EscExclamation
 
 " m$$, mm$$, rx$$
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\$$\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\$$\@!"
     \ skip="\\\$"
     \ end="\$"
-    \ contains=p6Regexen,p6EscDollar
+    \ contains=@p6Regexen,p6EscDollar
 
 " m (), mm (), rx ()
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s\+\)\@<=()\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s\+\)\@<=()\@!"
     \ skip="\\)"
     \ end=")"
-    \ contains=p6Regexen,p6EscCloseParen
+    \ contains=@p6Regexen,p6EscCloseParen
 
 " m[], mm[], rx[]
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\[]\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\[]\@!"
     \ skip="\\]"
     \ end="]"
-    \ contains=p6Regexen,p6EscCloseBracket
+    \ contains=@p6Regexen,p6EscCloseBracket
 
 " m{}, mm{}, rx{}
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<={}\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<={}\@!"
     \ skip="\\}"
     \ end="}"
-    \ contains=p6Regexen,p6EscCloseCurly
+    \ contains=@p6Regexen,p6EscCloseCurly
 
 " m<>, mm<>, rx<>
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=<>\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=<>\@!"
     \ skip="\\>"
     \ end=">"
-    \ contains=p6Regexen,p6EscCloseAngle
+    \ contains=@p6Regexen,p6EscCloseAngle
 
 " m«», mm«», rx«»
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\d\@<!\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=«»\@!"
+    \ start="\%(\<\%(m\|mm\|rx\)\%(\s*:!\?\k\%(\k\|[-']\%(\k\d\@<!\)\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=«»\@!"
     \ skip="\\»"
     \ end="»"
-    \ contains=p6Regexen,p6EscCloseFrench
+    \ contains=@p6Regexen,p6EscCloseFrench
 
+" m:P5//
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=//\@!"
+    \ skip="\\/"
+    \ end="/"
+    \ contains=@p6RegexP5,p6EscForwardSlash
+    \ keepend
+
+" m:P5""
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=\"\"\@!"
+    \ skip=+\\"+
+    \ end=+"+
+    \ contains=@p6RegexP5,p6EscDoubleQuote
+    \ keepend
+
+" m:P5''
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=''\@!"
+    \ skip="\\'"
+    \ end="'"
+    \ contains=@p6RegexP5,p6EscSingleQuote
+    \ keepend
+
+" m:P5``
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=``\@!"
+    \ skip="\\`"
+    \ end="`"
+    \ contains=@p6RegexP5,p6EscBackTick
+    \ keepend
+
+" m:P5||
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=||\@!"
+    \ skip="\\|"
+    \ end="|"
+    \ contains=@p6RegexP5,p6EscPipe
+    \ keepend
+
+" m:P5!!
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=!!\@!"
+    \ skip="\\!"
+    \ end="!"
+    \ contains=@p6RegexP5,p6EscExclamation
+    \ keepend
+
+" m:P5$$
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=\$\$\@!"
+    \ skip="\\\$"
+    \ end="\$"
+    \ contains=@p6RegexP5,p6EscDollar
+    \ keepend
+
+" m:P5 ()
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s\+\)\@<=()\@!"
+    \ skip="\\)"
+    \ end=")"
+    \ contains=@p6RegexP5,p6EscCloseParen
+    \ keepend
+
+" m:P5[]
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=[]\@!"
+    \ skip="\\]"
+    \ end="]"
+    \ contains=@p6RegexP5,p6EscCloseBracket
+    \ keepend
+
+" m:P5{}
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<={}\@!"
+    \ skip="\\}"
+    \ end="}"
+    \ contains=@p6RegexP5,p6EscCloseCurly
+    \ keepend
+
+" m:P5<>
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=<>\@!"
+    \ skip="\\>"
+    \ end=">"
+    \ contains=@p6RegexP5,p6EscCloseAngle
+    \ keepend
+
+" m:P5«»
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=«»\@!"
+    \ skip="\\»"
+    \ end="»"
+    \ contains=@p6RegexP5,p6EscCloseFrench
+    \ keepend
+
+" m:P5/(?x)/ should allow comments
+
+syn cluster p6RegexP5Base
+    \ add=p6RxP5Escape
+    \ add=p6RxP5Oct
+    \ add=p6RxP5Hex
+    \ add=p6RxP5EscMeta
+    \ add=p6RxP5CodePoint
+    \ add=p6RxP5Prop
+
+" normal regex stuff
+syn cluster p6RegexP5
+    \ add=@p6RegexP5Base
+    \ add=p6RxP5Quantifier
+    \ add=p6RxP5Meta
+    \ add=p6RxP5QuoteMeta
+    \ add=p6RxP5ParenMod
+    \ add=p6RxP5Verb
+    \ add=p6RxP5Count
+    \ add=p6RxP5Named
+    \ add=p6RxP5ReadRef
+    \ add=p6RxP5WriteRef
+    \ add=p6RxP5CharClass
+    \ add=p6RxP5Anchor
+
+" inside character classes
+syn cluster p6RegexP5Class
+    \ add=@p6RegexP5Base
+    \ add=p6RxP5Posix
+    \ add=p6RxP5Range
+
+syn match p6RxP5Escape     display contained "\\."
+syn match p6RxP5CodePoint  display contained "\\c\S\@=" nextgroup=P6RxP5CPId
+syn match p6RxP5CPId       display contained "\S"
+syn match p6RxP5Oct        display contained "\\\%(\o\{1,3}\)\@=" nextgroup=p6RxP5OctSeq
+syn match p6RxP5OctSeq     display contained "\o\{1,3}"
+syn match p6RxP5Hex        display contained "\\x\%({\x\+}\|\x\{1,2}\)\@=" nextgroup=p6RxP5HexSeq
+syn match p6RxP5HexSeq     display contained "\x\{1,2}"
+syn region p6RxP5HexSeq
+    \ matchgroup=p6RxP5Escape
+    \ start="{"
+    \ end="}"
+    \ contained
+syn region p6RxP5Named
+    \ matchgroup=p6RxP5Escape
+    \ start="\%(\\N\)\@<={"
+    \ end="}"
+    \ contained
+syn match p6RxP5Quantifier display contained "\%([+*]\|(\@<!?\)"
+syn match p6RxP5ReadRef    display contained "\\[1-9]\d\@!"
+syn match p6RxP5ReadRef    display contained "\\k<\@=" nextgroup=p6RxP5ReadRefId
+syn region p6RxP5ReadRefId
+    \ matchgroup=p6RxP5Escape
+    \ start="<"
+    \ end=">"
+    \ contained
+syn match p6RxP5WriteRef   display contained "\\g\%(\d\|{\)\@=" nextgroup=p6RxP5WriteRefId
+syn match p6RxP5WriteRefId display contained "\d\+"
+syn region p6RxP5WriteRefId
+    \ matchgroup=p6RxP5Escape
+    \ start="{"
+    \ end="}"
+    \ contained
+syn match p6RxP5Prop       display contained "\\[pP]\%(\a\|{\)\@=" nextgroup=p6RxP5PropId
+syn match p6RxP5PropId     display contained "\a"
+syn region p6RxP5PropId
+    \ matchgroup=p6RxP5Escape
+    \ start="{"
+    \ end="}"
+    \ contained
+syn match p6RxP5Meta       display contained "[(|).]"
+syn match p6RxP5Anchor     display contained "[\^$]"
+syn match p6RxP5ParenMod   display contained "(\@<=" nextgroup=p6RxP5Mod,p6RxP5ModName,p6RxP5Code
+syn match p6RxP5Mod        display contained "?\%(<\?=\|<\?!\|[#:|]\)"
+syn match p6RxP5Mod        display contained "?-\?[impsx]\+"
+syn match p6RxP5Mod        display contained "?\%([-+]\?\d\+\|R\)"
+syn match p6RxP5Mod        display contained "?\%(&\|P[>=]\)\h\w*"
+syn region p6RxP5ModName
+    \ matchgroup=p6StringSpecial2
+    \ start="?'"
+    \ end="')"
+    \ contained
+syn region p6RxP5ModName
+    \ matchgroup=p6StringSpecial2
+    \ start="?<"
+    \ end=">)"
+    \ contained
+syn region p6RxP5Code
+    \ matchgroup=p6StringSpecial2
+    \ start="??\?{\@="
+    \ end="}\@<=)"
+    \ contained
+    \ extend
+    \ contains=TOP
+syn match p6RxP5EscMeta    display contained "\\[?*.{}()[\]|\^$]"
+syn match p6RxP5Count      display contained "\%({\d\+\%(,\%(\d\+\)\?\)\?}\)\@=" nextgroup=p6RxP5CountId
+syn region p6RxP5CountId
+    \ matchgroup=p6RxP5Escape
+    \ start="{"
+    \ end="}"
+    \ contained
+syn match p6RxP5Verb       display contained "(\@<=\*\%(\%(PRUNE\|SKIP\|THEN\)\%(:[^)]*\)\?\|\%(MARK\|\):[^)]*\|COMMIT\|F\%(AIL\)\?\|ACCEPT\)"
+syn region p6RxP5QuoteMeta
+    \ matchgroup=p6RxP5Escape
+    \ start="\\Q"
+    \ end="\\E"
+    \ contained
+    \ contains=p6Sigil,p6EscBackSlash
+syn region p6RxP5CharClass
+    \ matchgroup=p6StringSpecial2
+    \ start="\[\^\?"
+    \ skip="\\]"
+    \ end="]"
+    \ contains=@p6RegexP5Class
+syn region p6RxP5Posix
+    \ matchgroup=p6RxP5Escape
+    \ start="\[:"
+    \ end=":]"
+    \ contained
+syn match p6RxP5Range      display contained "-"
+    
 " Pod
 
 " Abbreviated blocks
@@ -1329,6 +1558,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
         command -nargs=+ HiLink hi def link <args>
     endif
 
+    HiLink p6EscOctOld       p6Error
     HiLink p6StringAngle     p6String
     HiLink p6StringFrench    p6String
     HiLink p6StringAngles    p6String
@@ -1336,7 +1566,11 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6StringDQ        p6String
     HiLink p6StringAuto      p6String
     HiLink p6StringP5Auto    p6String
-    HiLink p6EscOctOld       p6Error
+    HiLink p6Match           p6String
+    HiLink p6RxP5CharClass   p6String
+    HiLink p6RxP5QuoteMeta   p6String
+    HiLink p6RxP5ModName     p6String
+    HiLink p6RxP5ReadRefId   p6String
     HiLink p6Escape          p6StringSpecial
     HiLink p6EscNull         p6StringSpecial
     HiLink p6EscHash         p6StringSpecial
@@ -1354,6 +1588,31 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6EscCloseAngle   p6StringSpecial
     HiLink p6EscCloseFrench  p6StringSpecial
     HiLink p6EscBackSlash    p6StringSpecial
+    HiLink p6RxP5            p6StringSpecial
+    HiLink p6RxP5ReadRef     p6StringSpecial
+    HiLink p6RxP5Oct         p6StringSpecial
+    HiLink p6RxP5Hex         p6StringSpecial
+    HiLink p6RxP5EscMeta     p6StringSpecial
+    HiLink p6RxP5Meta        p6StringSpecial
+    HiLink p6RxP5Escape      p6StringSpecial
+    HiLink p6RxP5CodePoint   p6StringSpecial
+    HiLink p6RxP5WriteRef    p6StringSpecial
+    HiLink p6RxP5Prop        p6StringSpecial
+    HiLink p6CodePoint       p6StringSpecial2
+    HiLink p6RxP5Range       p6StringSpecial2
+    HiLink p6RxP5CPId        p6StringSpecial2
+    HiLink p6RxP5Posix       p6StringSpecial2
+    HiLink p6RxP5Mod         p6StringSpecial2
+    HiLink p6RxP5HexSeq      p6StringSpecial2
+    HiLink p6RxP5OctSeq      p6StringSpecial2
+    HiLink p6RxP5WriteRefId  p6StringSpecial2
+    HiLink p6HexSequence     p6StringSpecial2
+    HiLink p6OctSequence     p6StringSpecial2
+    HiLink p6RxP5Named       p6StringSpecial2
+    HiLink p6RxP5PropId      p6StringSpecial2
+    HiLink p6RxP5Quantifier  p6StringSpecial2
+    HiLink p6RxP5CountId     p6StringSpecial2
+    HiLink p6RxP5Verb        p6StringSpecial2
 
     HiLink p6Property       Tag
     HiLink p6Attention      Todo
@@ -1377,9 +1636,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6NumberBase     Special
     HiLink p6Twigil         Special
     HiLink p6PackageTwigil  Special
-    HiLink p6CodePoint      Special
-    HiLink p6HexSequence    Special
-    HiLink p6OctSequence    Special
+    HiLink p6StringSpecial2 Special
     HiLink p6Comment        Comment
     HiLink p6Shebang        PreProc
     HiLink p6ClosureTrait   PreProc
