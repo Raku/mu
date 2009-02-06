@@ -460,7 +460,7 @@ syn region p6QQSequence
     \ transparent
     \ contains=@p6Interp_qq
 
-syn match p6CodePoint display "\%(\d\+\|\S\)" contained
+syn match p6CodePoint   display "\%(\d\+\|\S\)" contained
 syn region p6CodePoint
     \ matchgroup=p6Escape
     \ start="\["
@@ -578,20 +578,17 @@ let s:delims = [
 
 " double and triple delimiters too
 if exists("perl6_extended_q") || exists("perl6_extended_all")
-    call add(s:delims, ["««",           "»»",   "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»\\|««\\%([^»]\\|»»\\@!\\)*»»\\)"])
-    call add(s:delims, ["«««",          "»»»",  "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»»\\|«««\\%([^»]\\|»\\%(»»\\)\\@!\\)*»»»\\)"])
-    call add(s:delims, ["{{",           "}}",   "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}\\|{{\\%([^}]\\|}}\\@!\\)*}}\\)"])
-    call add(s:delims, ["{{{",          "}}}",  "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}}\\|{{{\\%([^}]\\|}\\%(}}\\)\\@!\\)*}}}\\)"])
-    call add(s:delims, ["\\\[\\\[",     "]]",   "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]\\|\\[\\[\\%([^\\]]\\|]]\\@!\\)*]]\\)"])
-    call add(s:delims, ["\\\[\\\[\\\[", "]]]",  "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]]\\|\\[\\[\\[\\%([^\\]]\\|]\\%(]]\\)\\@!\\)*]]]\\)"])
-    call add(s:delims, ["\\s\\@<=((",   "))",   "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\))\\|((\\%([^)]\\|))\\@!\\)*))\\)"])
-    call add(s:delims, ["\\s\\@<=(((",  ")))",  "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\)))\\|(((\\%([^)]\\|)\\%())\\)\\@!\\)*)))\\)"])
-    call add(s:delims, ["\\s\\@<=<<",   ">>",   "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>\\|<<\\%([^>]\\|>>\\@!\\)*>>\\)"])
-    call add(s:delims, ["\\s\\@<=<<<",  ">>>",  "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>>\\|<<<\\%([^>]\\|>\\%(>>\\)\\@!\\)*>>>\\)"])
+    call add(s:delims, ["««",           "»»",  "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»\\|««\\%([^»]\\|»»\\@!\\)*»»\\)"])
+    call add(s:delims, ["«««",          "»»»", "p6EscCloseFrench",  "\\%(\\\\\\@<!\\\\»»»\\|«««\\%([^»]\\|»\\%(»»\\)\\@!\\)*»»»\\)"])
+    call add(s:delims, ["{{",           "}}",  "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}\\|{{\\%([^}]\\|}}\\@!\\)*}}\\)"])
+    call add(s:delims, ["{{{",          "}}}", "p6EscCloseCurly",   "\\%(\\\\\\@<!\\\\}}}\\|{{{\\%([^}]\\|}\\%(}}\\)\\@!\\)*}}}\\)"])
+    call add(s:delims, ["\\\[\\\[",     "]]",  "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]\\|\\[\\[\\%([^\\]]\\|]]\\@!\\)*]]\\)"])
+    call add(s:delims, ["\\\[\\\[\\\[", "]]]", "p6EscCloseBracket", "\\%(\\\\\\@<!\\\\]]]\\|\\[\\[\\[\\%([^\\]]\\|]\\%(]]\\)\\@!\\)*]]]\\)"])
+    call add(s:delims, ["\\s\\@<=((",   "))",  "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\))\\|((\\%([^)]\\|))\\@!\\)*))\\)"])
+    call add(s:delims, ["\\s\\@<=(((",  ")))", "p6EscCloseParen",   "\\%(\\\\\\@<!\\\\)))\\|(((\\%([^)]\\|)\\%())\\)\\@!\\)*)))\\)"])
+    call add(s:delims, ["\\s\\@<=<<",   ">>",  "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>\\|<<\\%([^>]\\|>>\\@!\\)*>>\\)"])
+    call add(s:delims, ["\\s\\@<=<<<",  ">>>", "p6EscCloseAngle",   "\\%(\\\\\\@<!\\\\>>>\\|<<<\\%([^>]\\|>\\%(>>\\)\\@!\\)*>>>\\)"])
 endif
-
-let s:before = "syn region p6StringQ matchgroup=p6Quote start=\"\\%("
-let s:after  = "\\%(\\_s*:!\\?\\K\\%(\\k\\|[-']\\K\\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*\\s*\\)\\@<="
 
 if !exists("perl6_extended_q") && !exists("perl6_extended_all")
     " simple version, no special highlighting within the string
@@ -599,6 +596,9 @@ if !exists("perl6_extended_q") && !exists("perl6_extended_all")
         exec "syn region p6StringQ matchgroup=p6Quote start=\"".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=".end_group." contained"
     endfor
 else
+    let s:before = "syn region p6StringQ matchgroup=p6Quote start=\"\\%("
+    let s:after  = "\\%(\\_s*:!\\?\\K\\%(\\k\\|[-']\\K\\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*\\_s*\\)\\@<="
+
     let s:adverbs = [
         \ ["s", "scalar"],
         \ ["a", "array"],
@@ -648,9 +648,9 @@ else
             endfor
         endfor
     endfor
-    unlet s:adverbs s:q_adverbs
+    unlet s:before s:after s:adverbs s:q_adverbs
 endif
-unlet s:delims s:before s:after
+unlet s:delims
 
 " Match these so something else above can't. E.g. the "q" in "role q { }"
 " should not be considered a string
@@ -821,7 +821,7 @@ syn cluster p6Regexen
     \ add=p6Comment
     \ add=p6Sigil
 
-syn match p6RxMeta          display contained ".\%(\k\|\s\)\@<!"
+syn match p6RxMeta        display contained ".\%(\k\|\s\)\@<!"
 syn match p6RxEscape      display contained "\\\S"
 syn match p6RxAnchor      display contained "[\^$]"
 syn match p6RxCapture     display contained "[()]"
