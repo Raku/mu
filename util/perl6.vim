@@ -591,7 +591,7 @@ if exists("perl6_extended_q") || exists("perl6_extended_all")
 endif
 
 let s:before = "syn region p6StringQ matchgroup=p6Quote start=\"\\%("
-let s:after  = "\\%(\\_s*:!\\?\\k\\d\\@<!\\%(\\k\\|[-']\\%(\\k\\d\\@<!\\)\\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*\\s*\\)\\@<="
+let s:after  = "\\%(\\_s*:!\\?\\K\\%(\\k\\|[-']\\K\\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*\\s*\\)\\@<="
 
 if !exists("perl6_extended_q") && !exists("perl6_extended_all")
     " simple version, no special highlighting within the string
