@@ -1312,7 +1312,7 @@ syn region p6PodDirectRegion
 
 syn region p6PodDirectArgRegion
     \ matchgroup=p6PodType
-    \ start="\S\+"
+    \ start="\K\k*"
     \ end="^\ze\%([^=]\|=\K\|\s*$\)"
     \ contained
     \ contains=p6PodDirectConfigRegion
@@ -1341,15 +1341,16 @@ syn region p6PodEncodingArgRegion
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>"
-    \ end="^\ze\%(\s*\|=\K\)"
+    \ end="^\ze\%(\s*$\|=\K\)"
     \ contains=p6PodParaNoCodeTypeRegion
+    \ keepend
+    \ extend
 
 syn region p6PodParaNoCodeTypeRegion
     \ matchgroup=p6PodType
-    \ start="\S\+"
+    \ start="\K\k*"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ keepend
     \ contains=p6PodParaNoCode,p6PodParaConfigRegion
 
 syn region p6PodParaConfigRegion
@@ -1362,50 +1363,49 @@ syn region p6PodParaNoCode
     \ start="^[^=]"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ extend
     \ contains=p6PodFormat
 
 " Paragraph blocks (everything is code)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>\%(\s*code\>\)\@="
-    \ end="^\ze\%(\s*\|=\K\)"
+    \ end="^\ze\%(\s*$\|=\K\)"
     \ contains=p6PodParaCodeTypeRegion
+    \ keepend
+    \ extend
 
 syn region p6PodParaCodeTypeRegion
     \ matchgroup=p6PodType
-    \ start="\S\+"
+    \ start="\K\k*"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ keepend
     \ contains=p6PodParaCode,p6PodParaConfigRegion
 
 syn region p6PodParaCode
     \ start="^[^=]"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ extend
 
 " Paragraph blocks (implicit code allowed)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>\%(\s*\%(pod\|item\|nested\|\u\+\)\>\)\@="
-    \ end="^\ze\%(\s*\|=\K\)"
+    \ end="^\ze\%(\s*$\|=\K\)"
     \ contains=p6PodParaTypeRegion
+    \ keepend
+    \ extend
 
 syn region p6PodParaTypeRegion
     \ matchgroup=p6PodType
-    \ start="\S\+"
+    \ start="\K\k*"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ keepend
     \ contains=p6PodPara,p6PodParaConfigRegion
 
 syn region p6PodPara
     \ start="^[^=]"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ extend
     \ contains=p6PodFormat,p6PodImplicitCode
 
 " Delimited blocks (implicit code forbidden)
@@ -1414,6 +1414,8 @@ syn region p6PodDelimRegion
     \ start="^=begin\>"
     \ end="^=end\>"
     \ contains=p6PodDelimNoCodeTypeRegion
+    \ keepend
+    \ extend
 
 syn region p6PodDelimNoCodeTypeRegion
     \ matchgroup=p6PodType
@@ -1440,6 +1442,8 @@ syn region p6PodDelimRegion
     \ start="^=begin\>\%(\s*code\>\)\@="
     \ end="^=end\>"
     \ contains=p6PodDelimCodeTypeRegion
+    \ keepend
+    \ extend
 
 syn region p6PodDelimCodeTypeRegion
     \ matchgroup=p6PodType
@@ -1460,6 +1464,8 @@ syn region p6PodDelimRegion
     \ start="^=begin\>\%(\s*\%(pod\|item\|nested\|\u\+\)\>\)\@="
     \ end="^=end\>"
     \ contains=p6PodDelimTypeRegion
+    \ keepend
+    \ extend
 
 syn region p6PodDelimTypeRegion
     \ matchgroup=p6PodType
@@ -1500,7 +1506,7 @@ syn match p6PodImplicitCode   display contained "^\s.*"
 syn region p6PodDelimEndRegion
     \ matchgroup=p6PodType
     \ start="\%(^=end\>\)\@<="
-    \ end="\S\+"
+    \ end="\K\k*"
 
 syn region p6PodFinalEndRegion
     \ matchgroup=p6PodCommand
