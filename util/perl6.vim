@@ -1614,6 +1614,40 @@ syn region p6PodFormat
     \ contained
     \ contains=p6PodFormat,p6PodVerticalBar
 
+" E<> can have a ";" separator
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatCode
+    \ start="E<"
+    \ skip="<[^>]*>"
+    \ end=">"
+    \ contained
+    \ contains=p6PodFormat,p6PodSemiColon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatCode
+    \ start="E<<"
+    \ skip="<<[^>]*>>"
+    \ end=">>"
+    \ contained
+    \ contains=p6PodFormat,p6PodSemiColon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatCode
+    \ start="E<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ contained
+    \ contains=p6PodFormat,p6PodSemiColon
+
+syn region p6PodFormat
+    \ matchgroup=p6PodFormatCode
+    \ start="E«"
+    \ skip="«[^»]*»"
+    \ end="»"
+    \ contained
+    \ contains=p6PodFormat,p6PodSemiColon
+
 " M<> can have a ":" separator
 
 syn region p6PodFormat
