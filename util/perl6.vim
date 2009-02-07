@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Feb 6th 2009
+" Last Change:  Feb 7th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -1238,7 +1238,7 @@ endif
 
 " Pod
 
-" Abbreviated blocks
+" Abbreviated blocks (sometimes code)
 syn region p6PodAbbrRegion
     \ matchgroup=p6PodCommand
     \ start="^=\ze\K\k*"
@@ -1259,7 +1259,48 @@ syn region p6PodAbbr
     \ start="^"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=@p6PodAmbient
+    \ contains=p6PodFormat,p6PodImplicitCode
+
+" Abbreviated code blocks (always code)
+syn region p6PodAbbrRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=\zecode\>"
+    \ end="^\ze\%(\s*$\|=\K\)"
+    \ contains=p6PodAbbrCodeType
+    \ keepend
+
+syn region p6PodAbbrCodeType
+    \ matchgroup=p6PodType
+    \ start="\K\k*"
+    \ end="^\ze\%(\s*$\|=\K\)"
+    \ contained
+    \ contains=p6PodName,p6PodAbbrCode
+
+syn region p6PodAbbrCode
+    \ start="^"
+    \ end="^\ze\%(\s*$\|=\K\)"
+    \ contained
+
+" Abbreviated table blocks (never code)
+syn region p6PodAbbrRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=\zetable\>"
+    \ end="^\ze\%(\s*$\|=\K\)"
+    \ contains=p6PodAbbrTableType
+    \ keepend
+
+syn region p6PodAbbrTableType
+    \ matchgroup=p6PodType
+    \ start="\K\k*"
+    \ end="^\ze\%(\s*$\|=\K\)"
+    \ contained
+    \ contains=p6PodName,p6PodAbbrTable
+
+syn region p6PodAbbrTable
+    \ start="^"
+    \ end="^\ze\%(\s*$\|=\K\)"
+    \ contained
+    \ contains=p6PodFormat
 
 " Directives
 syn region p6PodDirectRegion
@@ -1296,7 +1337,7 @@ syn region p6PodEncodingArgRegion
     \ end="^\ze\%([^=]\|=\K\|\s*$\)"
     \ contained
 
-" Paragraph blocks
+" Paragraph blocks (sometimes code)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>"
@@ -1322,9 +1363,9 @@ syn region p6PodPara
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
     \ extend
-    \ contains=@p6PodAmbient
+    \ contains=p6PodFormat,p6PodImplicitCode
 
-" Paragraph code blocks
+" Paragraph code blocks (always code)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>\%(\s*code\>\)\@="
@@ -1345,7 +1386,29 @@ syn region p6PodParaCode
     \ contained
     \ extend
 
-" Delimited blocks
+" Paragraph table blocks (never code)
+syn region p6PodParaRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=for\>\%(\s*table\>\)\@="
+    \ end="^\ze\%(\s*\|=\K\)"
+    \ contains=p6PodParaTableTypeRegion
+
+syn region p6PodParaTableTypeRegion
+    \ matchgroup=p6PodType
+    \ start="\S\+"
+    \ end="^\ze\%(\s*$\|=\K\)"
+    \ contained
+    \ keepend
+    \ contains=p6PodParaTable,p6PodParaConfigRegion
+
+syn region p6PodParaTable
+    \ start="^[^=]"
+    \ end="^\ze\%(\s*$\|=\K\)"
+    \ contained
+    \ extend
+    \ contains=p6PodFormat
+
+" Delimited blocks (sometimes code)
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
     \ start="^=begin\>"
@@ -1365,7 +1428,13 @@ syn region p6PodDelimConfigRegion
     \ contained
     \ contains=@p6PodConfig
 
-" Delimited code blocks
+syn region p6PodDelim
+    \ start="^"
+    \ end="^\ze=end\>"
+    \ contained
+    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
+
+" Delimited code blocks (always code)
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
     \ start="^=begin\>\%(\s*code\>\)\@="
@@ -1378,6 +1447,32 @@ syn region p6PodDelimCodeTypeRegion
     \ end="^\ze=end\>"
     \ contained
     \ contains=p6PodDelimCode,p6PodDelimConfigRegion
+
+syn region p6PodDelimCode
+    \ start="^"
+    \ end="^\ze=end\>"
+    \ contained
+    \ contains=@p6PodNestedBlocks
+
+" Delimited table blocks (never code)
+syn region p6PodDelimRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=begin\>\%(\s*table\>\)\@="
+    \ end="^=end\>"
+    \ contains=p6PodDelimTableTypeRegion
+
+syn region p6PodDelimTableTypeRegion
+    \ matchgroup=p6PodType
+    \ start="\K\k*"
+    \ end="^\ze=end\>"
+    \ contained
+    \ contains=p6PodDelimTable,p6PodDelimConfigRegion
+
+syn region p6PodDelimTable
+    \ start="^"
+    \ end="^\ze=end\>"
+    \ contained
+    \ contains=@p6PodNestedBlocks,p6PodFormat
 
 syn cluster p6PodConfig
     \ add=p6PodConfigOperator
@@ -1402,18 +1497,6 @@ syn match p6PodSemicolon      display contained ";"
 syn match p6PodComma          display contained ","
 syn match p6PodImplicitCode   display contained "^\s.*"
 
-syn region p6PodDelim
-    \ start="^"
-    \ end="^\ze=end\>"
-    \ contained
-    \ contains=@p6PodNestedBlocks,@p6PodAmbient
-
-syn region p6PodDelimCode
-    \ start="^"
-    \ end="^\ze=end\>"
-    \ contained
-    \ contains=@p6PodNestedBlocks
-
 syn region p6PodDelimEndRegion
     \ matchgroup=p6PodType
     \ start="\%(^=end\>\)\@<="
@@ -1423,11 +1506,6 @@ syn region p6PodFinalEndRegion
     \ matchgroup=p6PodCommand
     \ start="^=END\>"
     \ end="\%$"
-
-" Special things one may find in Pod prose
-syn cluster p6PodAmbient
-    \ add=p6PodFormat
-    \ add=p6PodImplicitCode
 
 " These may appear inside delimited blocks
 syn cluster p6PodNestedBlocks
@@ -1761,10 +1839,14 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6StringSpecial  SpecialChar
 
     HiLink p6PodAbbr         p6Pod
+    HiLink p6PodAbbrTable    p6Pod
+    HiLink p6PodAbbrCode     p6PodCode
     HiLink p6PodPara         p6Pod
-    HiLink p6PodDelim        p6Pod
-    HiLink p6PodDelimCode    p6PodCode
+    HiLink p6PodParaTable    p6Pod
     HiLink p6PodParaCode     p6PodCode
+    HiLink p6PodDelim        p6Pod
+    HiLink p6PodDelimTable   p6Pod
+    HiLink p6PodDelimCode    p6PodCode
     HiLink p6PodImplicitCode p6PodCode
     HiLink p6PodExtraConfig  p6PodCommand
     HiLink p6PodVerticalBar  p6PodFormatCode
