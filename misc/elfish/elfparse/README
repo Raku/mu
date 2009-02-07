@@ -2,6 +2,8 @@ elfparse - getting STD.pm running on elf.
 
 QUICKSTART
 
+First, get <pugs>/misc/STD_red working.  See its README.
+
 $ make known_working_STD
 $ make check
 $ make all

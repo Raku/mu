@@ -2,6 +2,8 @@ A SBCL Common-Lisp backend for elf
 
 QUICKSTART
 
+First, get <pugs>/misc/STD_red working.  See its README.
+
 $ make get-libraries
 $ make setup-sbcl
 $ make elfcl-sbcl

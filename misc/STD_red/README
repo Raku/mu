@@ -1,4 +1,4 @@
-A ruby transliteration of src/perl6/STD.pm
+A ruby transliteration of an old src/perl6/STD.pm
 
 INSTALL
 
@@ -6,15 +6,27 @@ The release of ruby 1.9.0 (dated late December '07) is recommended.
 It will not work with ruby 1.8.  ruby svn HEAD is also not the right thing.
 There used to be iffy support for 1.8, but adding utf handling broke it.
 
+Ruby 1.9.1 has now been released, but has not yet been tested.
+
 http://www.ruby-lang.org/en/news/2007/12/25/ruby-1-9-0-released/
 $ ruby --version
 ruby 1.9.0 (2007-12-25 revision 14709) [...]
 
 Debian:
  ruby1.9 libreadline-ruby1.9
- * Debian (testing aka "Lenny") error:
-   `require': no such file to load -- readline (LoadError) from -e:1:in `<main>'
-   Means you don't have libreadline-ruby1.9.
+ But readline is now not required for most users.
+
+Non-debian:
+ After installing ruby 1.9, you may have to create a ruby1.9 alias:
+ # ln -s ruby ruby1.9
+
+
+Quick test:
+  ./STD_red_run -e 42
+
+
+======================================================================
+The rest of this file is quite old, and of little interest.
 
 
 EXAMPLE
@@ -25,9 +37,10 @@ EXAMPLE
 
 NOTES
 
-STD_red_run is currently much faster in ruby 1.9 than 1.8.
-If you compile large things, you probably want to make sure its #! line finds 1.9.
-Either by having 1.9's "ruby" first in your PATH, or by editing the #! line.
+Debian (testing aka "Lenny") error:
+ `require': no such file to load -- readline (LoadError) from -e:1:in `<main>'
+ Means you don't have libreadline-ruby1.9.
+ But readline is now only loaded if you run the repl.
 
 Regex reminders
   given { <a>+ <b>+ }
