@@ -172,4 +172,4 @@ the class and through its ancestors should be provided:
 == Special Perl and Perl 6 terms
 
     slurpy autovivify stringify numify timtowtdi greedy waterbed
-    autothread protoobject metaclass
+    autothread protoobject metaclass positional named anonymous
