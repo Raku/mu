@@ -302,6 +302,12 @@ no warnings qw(redefine prototype);
   sub Array { $_[0]->{"match_array"} }
 }
 
+{ package Any; sub Bool { 1 } }
+{ package UNDEF; sub Bool { undef } }
+{ package ARRAY; sub Bool { @{$_[0]} ? 1 : undef } }
+{ package HASH; sub Bool { %{$_[0]} ? 1 : undef } }
+{ package FLOAT_and_INTEGER; sub Bool { $_[0] ? 1 : undef } }
+{ package STRING; sub Bool { $_[0] ? 1 : undef } }
 
 use warnings;
 
@@ -970,13 +976,14 @@ package Main;
     my $clauses = $.e($n.clauses);
     my $first = $clauses.shift;
     my $first_test = $first[0];
+    $first_test = "("~$first_test~")->Bool";
     if $n.invert_first_test { $first_test = "not("~$first_test~")" }
     ('if('~$first_test~") \{\n"~$first[1]~"\n}"
-    ~$clauses.map(sub ($e){'elsif('~$e[0]~") \{\n"~$e[1]~"\n}"}).join("")
+    ~$clauses.map(sub ($e){'elsif(('~$e[0]~")->Bool) \{\n"~$e[1]~"\n}"}).join("")
     ~$els)
   };
   method cb__Loop ($n) {
-    'while('~$.e($n.pretest)~") \{\n"~$.e($n.block)~"\n}"
+    'while(('~$.e($n.pretest)~")->Bool) \{\n"~$.e($n.block)~"\n}"
   };
 
   method encode_varname($s,$t,$dsn) {
