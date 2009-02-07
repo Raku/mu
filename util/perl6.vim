@@ -1238,30 +1238,30 @@ endif
 
 " Pod
 
-" Abbreviated blocks (sometimes code)
+" Abbreviated blocks (implicit code forbidden)
 syn region p6PodAbbrRegion
     \ matchgroup=p6PodCommand
     \ start="^=\ze\K\k*"
     \ end="^\ze\%(\s*$\|=\K\)"
-    \ contains=p6PodAbbrType
+    \ contains=p6PodAbbrNoCodeType
     \ keepend
 
-syn region p6PodAbbrType
+syn region p6PodAbbrNoCodeType
     \ matchgroup=p6PodType
     \ start="\K\k*"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=p6PodName,p6PodAbbr
+    \ contains=p6PodName,p6PodAbbrNoCode
 
 syn match p6PodName contained ".\+" contains=p6PodFormat
 
-syn region p6PodAbbr
+syn region p6PodAbbrNoCode
     \ start="^"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=p6PodFormat,p6PodImplicitCode
+    \ contains=p6PodFormat
 
-" Abbreviated code blocks (always code)
+" Abbreviated blocks (everything is code)
 syn region p6PodAbbrRegion
     \ matchgroup=p6PodCommand
     \ start="^=\zecode\>"
@@ -1281,26 +1281,26 @@ syn region p6PodAbbrCode
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
 
-" Abbreviated table blocks (never code)
+" Abbreviated blocks (implicit code allowed)
 syn region p6PodAbbrRegion
     \ matchgroup=p6PodCommand
-    \ start="^=\zetable\>"
+    \ start="^=\ze\%(pod\|item\|nested\|\u\+\)\>"
     \ end="^\ze\%(\s*$\|=\K\)"
-    \ contains=p6PodAbbrTableType
+    \ contains=p6PodAbbrType
     \ keepend
 
-syn region p6PodAbbrTableType
+syn region p6PodAbbrType
     \ matchgroup=p6PodType
     \ start="\K\k*"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=p6PodName,p6PodAbbrTable
+    \ contains=p6PodName,p6PodAbbr
 
-syn region p6PodAbbrTable
+syn region p6PodAbbr
     \ start="^"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=p6PodFormat
+    \ contains=p6PodFormat,p6PodImplicitCode
 
 " Directives
 syn region p6PodDirectRegion
@@ -1337,20 +1337,20 @@ syn region p6PodEncodingArgRegion
     \ end="^\ze\%([^=]\|=\K\|\s*$\)"
     \ contained
 
-" Paragraph blocks (sometimes code)
+" Paragraph blocks (implicit code forbidden)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>"
     \ end="^\ze\%(\s*\|=\K\)"
-    \ contains=p6PodParaTypeRegion
+    \ contains=p6PodParaNoCodeTypeRegion
 
-syn region p6PodParaTypeRegion
+syn region p6PodParaNoCodeTypeRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
     \ keepend
-    \ contains=p6PodPara,p6PodParaConfigRegion
+    \ contains=p6PodParaNoCode,p6PodParaConfigRegion
 
 syn region p6PodParaConfigRegion
     \ start=""
@@ -1358,14 +1358,14 @@ syn region p6PodParaConfigRegion
     \ contained
     \ contains=@p6PodConfig
 
-syn region p6PodPara
+syn region p6PodParaNoCode
     \ start="^[^=]"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
     \ extend
-    \ contains=p6PodFormat,p6PodImplicitCode
+    \ contains=p6PodFormat
 
-" Paragraph code blocks (always code)
+" Paragraph blocks (everything is code)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
     \ start="^=for\>\%(\s*code\>\)\@="
@@ -1386,41 +1386,41 @@ syn region p6PodParaCode
     \ contained
     \ extend
 
-" Paragraph table blocks (never code)
+" Paragraph blocks (implicit code allowed)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
-    \ start="^=for\>\%(\s*table\>\)\@="
+    \ start="^=for\>\%(\s*\%(pod\|item\|nested\|\u\+\)\>\)\@="
     \ end="^\ze\%(\s*\|=\K\)"
-    \ contains=p6PodParaTableTypeRegion
+    \ contains=p6PodParaTypeRegion
 
-syn region p6PodParaTableTypeRegion
+syn region p6PodParaTypeRegion
     \ matchgroup=p6PodType
     \ start="\S\+"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
     \ keepend
-    \ contains=p6PodParaTable,p6PodParaConfigRegion
+    \ contains=p6PodPara,p6PodParaConfigRegion
 
-syn region p6PodParaTable
+syn region p6PodPara
     \ start="^[^=]"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
     \ extend
-    \ contains=p6PodFormat
+    \ contains=p6PodFormat,p6PodImplicitCode
 
-" Delimited blocks (sometimes code)
+" Delimited blocks (implicit code forbidden)
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
     \ start="^=begin\>"
     \ end="^=end\>"
-    \ contains=p6PodDelimTypeRegion
+    \ contains=p6PodDelimNoCodeTypeRegion
 
-syn region p6PodDelimTypeRegion
+syn region p6PodDelimNoCodeTypeRegion
     \ matchgroup=p6PodType
     \ start="\K\k*"
     \ end="^\ze=end\>"
     \ contained
-    \ contains=p6PodDelim,p6PodDelimConfigRegion
+    \ contains=p6PodDelimNoCode,p6PodDelimConfigRegion
 
 syn region p6PodDelimConfigRegion
     \ start=""
@@ -1428,13 +1428,13 @@ syn region p6PodDelimConfigRegion
     \ contained
     \ contains=@p6PodConfig
 
-syn region p6PodDelim
+syn region p6PodDelimNoCode
     \ start="^"
     \ end="^\ze=end\>"
     \ contained
-    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
+    \ contains=@p6PodNestedBlocks,p6PodFormat
 
-" Delimited code blocks (always code)
+" Delimited blocks (everything is code)
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
     \ start="^=begin\>\%(\s*code\>\)\@="
@@ -1454,25 +1454,25 @@ syn region p6PodDelimCode
     \ contained
     \ contains=@p6PodNestedBlocks
 
-" Delimited table blocks (never code)
+" Delimited blocks (implicit code allowed)
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
-    \ start="^=begin\>\%(\s*table\>\)\@="
+    \ start="^=begin\>\%(\s*\%(pod\|item\|nested\|\u\+\)\>\)\@="
     \ end="^=end\>"
-    \ contains=p6PodDelimTableTypeRegion
+    \ contains=p6PodDelimTypeRegion
 
-syn region p6PodDelimTableTypeRegion
+syn region p6PodDelimTypeRegion
     \ matchgroup=p6PodType
     \ start="\K\k*"
     \ end="^\ze=end\>"
     \ contained
-    \ contains=p6PodDelimTable,p6PodDelimConfigRegion
+    \ contains=p6PodDelim,p6PodDelimConfigRegion
 
-syn region p6PodDelimTable
+syn region p6PodDelim
     \ start="^"
     \ end="^\ze=end\>"
     \ contained
-    \ contains=@p6PodNestedBlocks,p6PodFormat
+    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
 
 syn cluster p6PodConfig
     \ add=p6PodConfigOperator
@@ -1873,13 +1873,13 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6StringSpecial  SpecialChar
 
     HiLink p6PodAbbr         p6Pod
-    HiLink p6PodAbbrTable    p6Pod
+    HiLink p6PodAbbrNoCode   p6Pod
     HiLink p6PodAbbrCode     p6PodCode
     HiLink p6PodPara         p6Pod
-    HiLink p6PodParaTable    p6Pod
+    HiLink p6PodParaNoCode   p6Pod
     HiLink p6PodParaCode     p6PodCode
     HiLink p6PodDelim        p6Pod
-    HiLink p6PodDelimTable   p6Pod
+    HiLink p6PodDelimNoCode  p6Pod
     HiLink p6PodDelimCode    p6PodCode
     HiLink p6PodImplicitCode p6PodCode
     HiLink p6PodExtraConfig  p6PodCommand
