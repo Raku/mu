@@ -1,0 +1,41 @@
+This is a standalone version of elf on perl5.
+
+
+OBJECTIVE
+
+Make it very easy to "get a taste of elf".
+Just download a single file from the web, install some cpan, and done.
+
+
+QUICKSTART
+
+# cpan XXX
+$ wget XXX
+$ ./elfg5 -e 'say 3'
+
+
+DEVELOPMENT
+
+This is an elfblue, with STD_blue_run and src/perl6/mumbles inlined.
+
+todo:
+|create readme and makefile, and sketch
+build blue
+run gimme5
+wrapper prog
+pull in _run
+build
+self build
+cpan
+doc wget
+ci elfg5
+
+post:
+moritz
+blog?
+
+v2:
+mv lex/ to ~, with creation warning.
+
+v3:
+invalidate lex/ on code change.
