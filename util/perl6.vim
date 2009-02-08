@@ -1253,13 +1253,13 @@ syn region p6PodAbbrNoCodeType
     \ contained
     \ contains=p6PodName,p6PodAbbrNoCode
 
-syn match p6PodName contained ".\+" contains=p6PodFormat
+syn match p6PodName contained ".\+" contains=@p6PodFormat
 
 syn region p6PodAbbrNoCode
     \ start="^"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=p6PodFormat
+    \ contains=@p6PodFormat
 
 " Abbreviated blocks (everything is code)
 syn region p6PodAbbrRegion
@@ -1300,7 +1300,7 @@ syn region p6PodAbbr
     \ start="^"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=p6PodFormat,p6PodImplicitCode
+    \ contains=@p6PodFormat,p6PodImplicitCode
 
 " Abbreviated block to end-of-file
 syn region p6PodAbbrRegion
@@ -1321,7 +1321,7 @@ syn region p6PodAbbrEOF
     \ start="^"
     \ end="\%$"
     \ contained
-    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
+    \ contains=@p6PodNestedBlocks,@p6PodFormat,p6PodImplicitCode
 
 " Directives
 syn region p6PodDirectRegion
@@ -1384,7 +1384,7 @@ syn region p6PodParaNoCode
     \ start="^[^=]"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=p6PodFormat
+    \ contains=@p6PodFormat
 
 " Paragraph blocks (everything is code)
 syn region p6PodParaRegion
@@ -1427,7 +1427,7 @@ syn region p6PodPara
     \ start="^[^=]"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
-    \ contains=p6PodFormat,p6PodImplicitCode
+    \ contains=@p6PodFormat,p6PodImplicitCode
 
 " Paragraph block to end-of-file
 syn region p6PodParaRegion
@@ -1449,7 +1449,7 @@ syn region p6PodParaEOF
     \ start="^[^=]"
     \ end="\%$"
     \ contained
-    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
+    \ contains=@p6PodNestedBlocks,@p6PodFormat,p6PodImplicitCode
 
 " Delimited blocks (implicit code forbidden)
 syn region p6PodDelimRegion
@@ -1477,7 +1477,7 @@ syn region p6PodDelimNoCode
     \ start="^"
     \ end="^\ze=end\>"
     \ contained
-    \ contains=@p6PodNestedBlocks,p6PodFormat
+    \ contains=@p6PodNestedBlocks,@p6PodFormat
 
 " Delimited blocks (everything is code)
 syn region p6PodDelimRegion
@@ -1521,7 +1521,7 @@ syn region p6PodDelim
     \ start="^"
     \ end="^\ze=end\>"
     \ contained
-    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
+    \ contains=@p6PodNestedBlocks,@p6PodFormat,p6PodImplicitCode
 
 " Delimited block to end-of-file
 syn region p6PodDelimRegion
@@ -1542,7 +1542,7 @@ syn region p6PodDelimEOF
     \ start="^"
     \ end="\%$"
     \ contained
-    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
+    \ contains=@p6PodNestedBlocks,@p6PodFormat,p6PodImplicitCode
 
 syn cluster p6PodConfig
     \ add=p6PodConfigOperator
@@ -1582,237 +1582,313 @@ syn cluster p6PodNestedBlocks
 
 " Pod formatting codes
 
-syn region p6PodFormat
+syn cluster p6PodFormat
+    \ add=p6PodFormatOne
+    \ add=p6PodFormatTwo
+    \ add=p6PodFormatThree
+    \ add=p6PodFormatFrench
+
+syn region p6PodFormatOne
     \ matchgroup=p6PodFormatCode
     \ start="\u<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
-    \ contains=p6PodFormat
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne
 
-syn region p6PodFormat
+syn region p6PodFormatTwo
     \ matchgroup=p6PodFormatCode
     \ start="\u<<"
     \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
-    \ contains=p6PodFormat
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo
 
-syn region p6PodFormat
+syn region p6PodFormatThree
     \ matchgroup=p6PodFormatCode
     \ start="\u<<<"
     \ skip="<<<[^>]*>>>"
     \ end=">>>"
     \ contained
-    \ contains=p6PodFormat
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodFormatThree
 
-syn region p6PodFormat
+syn region p6PodFormatFrench
     \ matchgroup=p6PodFormatCode
     \ start="\u«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
-    \ contains=p6PodFormat
+    \ keepend
+    \ contains=p6PodFormatFrench
 
 " C<> and V<> don't allow nested formatting formatting codes
 
-syn region p6PodFormat
+syn region p6PodFormatOne
     \ matchgroup=p6PodFormatCode
     \ start="[CV]<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
+    \ keepend
+    \ contains=p6PodFormatAnglesFrench,p6PodFormatAnglesOne
 
-syn region p6PodFormat
+syn region p6PodFormatTwo
     \ matchgroup=p6PodFormatCode
     \ start="[CV]<<"
     \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
+    \ keepend
+    \ contains=p6PodFormatAnglesFrench,p6PodFormatAnglesOne,p6PodFormatAnglesTwo
 
-syn region p6PodFormat
+syn region p6PodFormatThree
     \ matchgroup=p6PodFormatCode
     \ start="[CV]<<<"
     \ skip="<<<[^>]*>>>"
     \ end=">>>"
     \ contained
+    \ keepend
+    \ contains=p6PodFormatAnglesFrench,p6PodFormatAnglesOne,p6PodFormatAnglesTwo,p6PodFormatAnglesThree
 
-syn region p6PodFormat
+syn region p6PodFormatFrench
     \ matchgroup=p6PodFormatCode
     \ start="[CV]«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
+    \ keepend
+    \ contains=p6PodFormatAnglesFrench
+
+" Balanced angles found inside C<> and V<>. Ensures proper nesting.
+
+syn region p6PodFormatAnglesOne
+    \ start="<"
+    \ skip="<[^>]*>"
+    \ end=">"
+    \ transparent
+    \ contained
+    \ keepend
+    \ contains=p6PodFormatAnglesFrench,p6PodFormatAnglesOne
+
+syn region p6PodFormatAnglesTwo
+    \ start="<<"
+    \ skip="<<[^>]*>>"
+    \ end=">>"
+    \ transparent
+    \ contained
+    \ keepend
+    \ contains=p6PodFormatAnglesFrench,p6PodFormatAnglesOne,p6PodFormatAnglesTwo
+
+syn region p6PodFormatAnglesThree
+    \ start="<<<"
+    \ skip="<<<[^>]*>>>"
+    \ end=">>>"
+    \ transparent
+    \ contained
+    \ keepend
+    \ contains=p6PodFormatAnglesFrench,p6PodFormatAnglesOne,p6PodFormatAnglesTwo,p6PodFormatAnglesThree
+
+syn region p6PodFormatAnglesFrench
+    \ start="«"
+    \ skip="«[^»]*»"
+    \ end="»"
+    \ transparent
+    \ contained
+    \ keepend
+    \ contains=p6PodFormatAnglesFrench,p6PodFormatAnglesOne,p6PodFormatAnglesTwo,p6PodFormatAnglesThree
 
 " L<> can have a "|" separator
 
-syn region p6PodFormat
+syn region p6PodFormatOne
     \ matchgroup=p6PodFormatCode
     \ start="L<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodVerticalBar
 
-syn region p6PodFormat
+syn region p6PodFormatTwo
     \ matchgroup=p6PodFormatCode
     \ start="L<<"
     \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodVerticalBar
 
-syn region p6PodFormat
+syn region p6PodFormatThree
     \ matchgroup=p6PodFormatCode
     \ start="L<<<"
     \ skip="<<<[^>]*>>>"
     \ end=">>>"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodFormatThree,p6PodVerticalBar
 
-syn region p6PodFormat
+syn region p6PodFormatFrench
     \ matchgroup=p6PodFormatCode
     \ start="L«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodVerticalBar
 
 " E<> can have a ";" separator
 
-syn region p6PodFormat
+syn region p6PodFormatOne
     \ matchgroup=p6PodFormatCode
     \ start="E<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
-    \ contains=p6PodFormat,p6PodSemiColon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodSemiColon
 
-syn region p6PodFormat
+syn region p6PodFormatTwo
     \ matchgroup=p6PodFormatCode
     \ start="E<<"
     \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
-    \ contains=p6PodFormat,p6PodSemiColon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodSemiColon
 
-syn region p6PodFormat
+syn region p6PodFormatThree
     \ matchgroup=p6PodFormatCode
     \ start="E<<<"
     \ skip="<<<[^>]*>>>"
     \ end=">>>"
     \ contained
-    \ contains=p6PodFormat,p6PodSemiColon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodFormatThree,p6PodSemiColon
 
-syn region p6PodFormat
+syn region p6PodFormatFrench
     \ matchgroup=p6PodFormatCode
     \ start="E«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
-    \ contains=p6PodFormat,p6PodSemiColon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodSemiColon
 
 " M<> can have a ":" separator
 
-syn region p6PodFormat
+syn region p6PodFormatOne
     \ matchgroup=p6PodFormatCode
     \ start="M<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
-    \ contains=p6PodFormat,p6PodColon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodColon
 
-syn region p6PodFormat
+syn region p6PodFormatTwo
     \ matchgroup=p6PodFormatCode
     \ start="M<<"
     \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
-    \ contains=p6PodFormat,p6PodColon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodColon
 
-syn region p6PodFormat
+syn region p6PodFormatThree
     \ matchgroup=p6PodFormatCode
     \ start="M<<<"
     \ skip="<<<[^>]*>>>"
     \ end=">>>"
     \ contained
-    \ contains=p6PodFormat,p6PodColon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodFormatThree,p6PodColon
 
-syn region p6PodFormat
+syn region p6PodFormatFrench
     \ matchgroup=p6PodFormatCode
     \ start="M«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
-    \ contains=p6PodFormat,p6PodColon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodColon
 
 " D<> can have "|" and ";" separators
 
-syn region p6PodFormat
+syn region p6PodFormatOne
     \ matchgroup=p6PodFormatCode
     \ start="D<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodVerticalBar,p6PodSemiColon
 
-syn region p6PodFormat
+syn region p6PodFormatTwo
     \ matchgroup=p6PodFormatCode
     \ start="D<<"
     \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodVerticalBar,p6PodSemiColon
 
-syn region p6PodFormat
+syn region p6PodFormatThree
     \ matchgroup=p6PodFormatCode
     \ start="D<<<"
     \ skip="<<<[^>]*>>>"
     \ end=">>>"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodFormatThree,p6PodVerticalBar,p6PodSemiColon
 
-syn region p6PodFormat
+syn region p6PodFormatFrench
     \ matchgroup=p6PodFormatCode
     \ start="D«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodVerticalBar,p6PodSemiColon
 
 " X<> can have "|", "," and ";" separators
 
-syn region p6PodFormat
+syn region p6PodFormatOne
     \ matchgroup=p6PodFormatCode
     \ start="X<"
     \ skip="<[^>]*>"
     \ end=">"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon,p6PodComma
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodVerticalBar,p6PodSemiColon,p6PodComma
 
-syn region p6PodFormat
+syn region p6PodFormatTwo
     \ matchgroup=p6PodFormatCode
     \ start="X<<"
     \ skip="<<[^>]*>>"
     \ end=">>"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon,p6PodComma
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodVerticalBar,p6PodSemiColon,p6PodComma
 
-syn region p6PodFormat
+syn region p6PodFormatThree
     \ matchgroup=p6PodFormatCode
     \ start="X<<<"
     \ skip="<<<[^>]*>>>"
     \ end=">>>"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon,p6PodComma
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodFormatOne,p6PodFormatTwo,p6PodFormatThree,p6PodVerticalBar,p6PodSemiColon,p6PodComma
 
-syn region p6PodFormat
+syn region p6PodFormatFrench
     \ matchgroup=p6PodFormatCode
     \ start="X«"
     \ skip="«[^»]*»"
     \ end="»"
     \ contained
-    \ contains=p6PodFormat,p6PodVerticalBar,p6PodSemicolon,p6PodComma
+    \ keepend
+    \ contains=p6PodFormatFrench,p6PodVerticalBar,p6PodSemiColon,p6PodComma
 
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already
@@ -1954,6 +2030,10 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6PodColon        p6PodFormatCode
     HiLink p6PodSemicolon    p6PodFormatCode
     HiLink p6PodComma        p6PodFormatCode
+    HiLink p6PodFormatOne    p6PodFormat
+    HiLink p6PodFormatTwo    p6PodFormat
+    HiLink p6PodFormatThree  p6PodFormat
+    HiLink p6PodFormatFrench p6PodFormat
 
     HiLink p6PodType           Type
     HiLink p6PodConfigOption   String
