@@ -1333,7 +1333,7 @@ syn region p6PodDirectRegion
 
 syn region p6PodDirectArgRegion
     \ matchgroup=p6PodType
-    \ start="\K\k*"
+    \ start="\S\+"
     \ end="^\ze\%([^=]\|=\K\|\s*$\)"
     \ contained
     \ contains=p6PodDirectConfigRegion
