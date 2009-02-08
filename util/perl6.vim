@@ -1302,6 +1302,27 @@ syn region p6PodAbbr
     \ contained
     \ contains=p6PodFormat,p6PodImplicitCode
 
+" Abbreviated block to end-of-file
+syn region p6PodAbbrRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=\zeEND\>"
+    \ end="\%$"
+    \ contains=p6PodAbbrEOFType
+    \ keepend
+
+syn region p6PodAbbrEOFType
+    \ matchgroup=p6PodType
+    \ start="\K\k*"
+    \ end="\%$"
+    \ contained
+    \ contains=p6PodName,p6PodAbbrEOF
+
+syn region p6PodAbbrEOF
+    \ start="^"
+    \ end="\%$"
+    \ contained
+    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
+
 " Directives
 syn region p6PodDirectRegion
     \ matchgroup=p6PodCommand
@@ -1368,7 +1389,7 @@ syn region p6PodParaNoCode
 " Paragraph blocks (everything is code)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
-    \ start="^=for\>\%(\s*code\>\)\@="
+    \ start="^=for\>\ze\s*code\>"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contains=p6PodParaCodeTypeRegion
     \ keepend
@@ -1389,7 +1410,7 @@ syn region p6PodParaCode
 " Paragraph blocks (implicit code allowed)
 syn region p6PodParaRegion
     \ matchgroup=p6PodCommand
-    \ start="^=for\>\%(\s*\%(pod\|item\|nested\|\u\+\)\>\)\@="
+    \ start="^=for\>\ze\s*\%(pod\|item\|nested\|\u\+\)\>"
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contains=p6PodParaTypeRegion
     \ keepend
@@ -1407,6 +1428,28 @@ syn region p6PodPara
     \ end="^\ze\%(\s*$\|=\K\)"
     \ contained
     \ contains=p6PodFormat,p6PodImplicitCode
+
+" Paragraph block to end-of-file
+syn region p6PodParaRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=for\>\ze\s\+END\>"
+    \ end="\%$"
+    \ contains=p6PodParaEOFTypeRegion
+    \ keepend
+    \ extend
+
+syn region p6PodParaEOFTypeRegion
+    \ matchgroup=p6PodType
+    \ start="\K\k*"
+    \ end="\%$"
+    \ contained
+    \ contains=p6PodParaEOF,p6PodParaConfigRegion
+
+syn region p6PodParaEOF
+    \ start="^[^=]"
+    \ end="\%$"
+    \ contained
+    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
 
 " Delimited blocks (implicit code forbidden)
 syn region p6PodDelimRegion
@@ -1439,7 +1482,7 @@ syn region p6PodDelimNoCode
 " Delimited blocks (everything is code)
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
-    \ start="^=begin\>\%(\s*code\>\)\@="
+    \ start="^=begin\>\ze\s*code\>"
     \ end="^=end\>"
     \ contains=p6PodDelimCodeTypeRegion
     \ keepend
@@ -1461,7 +1504,7 @@ syn region p6PodDelimCode
 " Delimited blocks (implicit code allowed)
 syn region p6PodDelimRegion
     \ matchgroup=p6PodCommand
-    \ start="^=begin\>\%(\s*\%(pod\|item\|nested\|\u\+\)\>\)\@="
+    \ start="^=begin\>\ze\s*\%(pod\|item\|nested\|\u\+\)\>"
     \ end="^=end\>"
     \ contains=p6PodDelimTypeRegion
     \ keepend
@@ -1477,6 +1520,27 @@ syn region p6PodDelimTypeRegion
 syn region p6PodDelim
     \ start="^"
     \ end="^\ze=end\>"
+    \ contained
+    \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
+
+" Delimited block to end-of-file
+syn region p6PodDelimRegion
+    \ matchgroup=p6PodCommand
+    \ start="^=begin\>\ze\s\+END\>"
+    \ end="\%$"
+    \ contains=p6PodDelimEOFTypeRegion
+    \ extend
+
+syn region p6PodDelimEOFTypeRegion
+    \ matchgroup=p6PodType
+    \ start="\K\k*"
+    \ end="\%$"
+    \ contained
+    \ contains=p6PodDelimEOF,p6PodDelimConfigRegion
+
+syn region p6PodDelimEOF
+    \ start="^"
+    \ end="\%$"
     \ contained
     \ contains=@p6PodNestedBlocks,p6PodFormat,p6PodImplicitCode
 
@@ -1508,11 +1572,6 @@ syn region p6PodDelimEndRegion
     \ start="\%(^=end\>\)\@<="
     \ end="\K\k*"
 
-syn region p6PodFinalEndRegion
-    \ matchgroup=p6PodCommand
-    \ start="^=END\>"
-    \ end="\%$"
-
 " These may appear inside delimited blocks
 syn cluster p6PodNestedBlocks
     \ add=p6PodAbbrRegion
@@ -1520,7 +1579,6 @@ syn cluster p6PodNestedBlocks
     \ add=p6PodParaRegion
     \ add=p6PodDelimRegion
     \ add=p6PodDelimEndRegion
-    \ add=p6PodFinalEndRegion
 
 " Pod formatting codes
 
@@ -1879,12 +1937,15 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6StringSpecial  SpecialChar
 
     HiLink p6PodAbbr         p6Pod
+    HiLink p6PodAbbrEOF      p6Pod
     HiLink p6PodAbbrNoCode   p6Pod
     HiLink p6PodAbbrCode     p6PodCode
     HiLink p6PodPara         p6Pod
+    HiLink p6PodParaEOF      p6Pod
     HiLink p6PodParaNoCode   p6Pod
     HiLink p6PodParaCode     p6PodCode
     HiLink p6PodDelim        p6Pod
+    HiLink p6PodDelimEOF     p6Pod
     HiLink p6PodDelimNoCode  p6Pod
     HiLink p6PodDelimCode    p6PodCode
     HiLink p6PodImplicitCode p6PodCode
