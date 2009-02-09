@@ -1,0 +1,24 @@
+=begin glossary
+
+=head1 Autothreading
+
+Autothreading is what happens if you pass a junction to a sub that
+expects a parameter of type C<Any> or a subtype thereof. The call is
+executed multiple times, each time with a different eigenstate of the
+junction. The result of these calls is assembled in a junction of the
+same type as the original junction.
+
+    sub f($x) { 2 * $x };
+    if f(1|2|3) == 4 {
+        say success
+    }
+
+Here C<f()> is a sub with one parameter, and since it has no explicit
+type is implicitly typed as C<Any>.  The call C<f(1|2|3)> is
+internally re-written as C<f(1)|f(2)|f(3)>, and the resulting junction
+is C<2|4|6>. This process of re-writing is what we call
+I<autothreading>.
+
+=end glossary
+
+# vim: ft=perl6 tw=70
