@@ -827,6 +827,7 @@ syn match p6RxAnchor      display contained "[\^$]"
 syn match p6RxCapture     display contained "[()]"
 syn match p6RxGroup       display contained "[[\]]"
 syn match p6RxAlternation display contained "|"
+syn match p6RxRange       display contained "\.\."
 syn region p6RxClosure
     \ matchgroup=p6Normal
     \ start="{"
@@ -845,7 +846,7 @@ syn region p6RxCharClass
     \ skip="\\]"
     \ end="]"
     \ contained
-    \ contains=p6RxEscape
+    \ contains=p6RxRange,p6RxEscape
 syn region p6RxQuoteWords
     \ matchgroup=p6StringSpecial2
     \ start="< "
@@ -1895,6 +1896,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6RxP5ReadRefId   p6String
     HiLink p6RxCharClass     p6String
     HiLink p6RxQuoteWords    p6String
+    HiLink p6RxRange         p6StringSpecial
     HiLink p6RxAnchor        p6StringSpecial
     HiLink p6RxP5Anchor      p6StringSpecial
     HiLink p6CodePoint       p6StringSpecial
