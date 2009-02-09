@@ -15,6 +15,7 @@
 "     # vim: filetype=perl6
 
 " TODO:
+"   * Optimization: use nextgroup instead of lookaround (:help syn-nextgroup)
 "   * Add more support for folding (:help syn-fold)
 "   * Add more syntax syncing hooks (:help syn-sync)
 "   * subst(), trans(), etc
@@ -160,18 +161,45 @@ syn match p6Operator display "[-+/*~?|=^!%&,<>.;\\]"
 syn match p6Operator display "\%(:\@<!::\@!\|::=\|\.::\)"
 " these require whitespace on the left side
 syn match p6Operator display "\%(\s\|^\)\@<=\%(xx=\|p5=>\)"
-" these don't allow keyword chars on the left
-" FIXME: this matches in package names as well, like the R in Regexp::Common
-syn match p6Operator display "\%(\d\@<!\k\)\@<![XR]"
 " "i" requires a digit to the left, and no keyword char to the right
 syn match p6Operator display "\d\@<=i\k\@!"
 " index overloading
 syn match p6Operator display "\%(&\.(\@=\|@\.\[\@=\|%\.{\@=\)"
-" reduce, may need to add more to this
-syn match p6Operator display "\k\@<!\[\\\?\%(\*\|\*\*\|/\|%\|x\|xx\|+&\|+<\|+>\|\~&\|\~<\|\~>\|+\|-\|\~\|=>\)]\%(«\|<<\)\?"
-syn match p6Operator display "\k\@<!\[\\\?\%(+|\|+\^\|\~|\|\~\^\|&\||\|\^\|!==\|==\|before\|after\|<\|<=\|p5=>\)]\%(«\|<<\)\?"
-syn match p6Operator display "\k\@!\[\\\?\%(>\|>=\|\~\~\|!\~\~\|eq\|!eq\|ne\|lt\|le\|gt\|ge\|=:=\|!=:=\|or\)]\%(«\|<<\)\?"
-syn match p6Operator display "\k\@!\[\\\?\%(===\|!===\|eqv\|!eqv\|&&\|||\|\^\^\|//\|min\|max\|=\|!=\|,\|Z\)]\%(«\|<<\)\?"
+
+" all infix operators except nonassocative ones
+let s:infix_a = [
+    \ "\\* \\*\\* / div % mod +& +< +> \\~& ?& \\~< \\~> + - +| +\\^ \\~|",
+    \ "\\~\\^ ?| ?\\^ xx x \\~ & also | \\~ <== ==> <<== ==>> == != < <= > >=",
+    \ "\\~\\~ eq ne lt le gt ge =:= === eqv before after && || \\^\\^ // min",
+    \ "max ff \\^ff ff\\^ \\^ff\\^ fff \\^fff fff\\^ \\^fff\\^ ::= := \\.=",
+    \ "=> , : p5=> Z minmax \\.\\.\\. and andthen or orelse xor",
+\ ]
+" nonassociative infix operators
+let s:infix_n = "but does <=> leg cmp \\.\\. \\.\\.\\^\\^ \\^\\.\\. \\^\\.\\.\\^"
+
+let s:infix_a_long = join(s:infix_a, " ")
+let s:infix_a_words = split(s:infix_a_long)
+let s:infix_a_pattern = join(s:infix_a_words, "\\|")
+
+let s:infix_n_words = split(s:infix_n)
+let s:infix_n_pattern = join(s:infix_n_words, "\\|")
+
+let s:both = [s:infix_a_pattern, s:infix_n_pattern]
+let s:infix = join(s:both, "\\|")
+
+let s:infix_assoc = "\\%(" . s:infix_a_pattern . "\\)"
+let s:infix = "\\%(" . s:infix . "\\)"
+
+unlet s:infix_a s:infix_a_long s:infix_a_words s:infix_a_pattern
+unlet s:infix_n s:infix_n_pattern s:both
+
+" [+] reduce
+exec "syn match p6Operator display \"\\k\\@<!\\[\\\\\\?". s:infix_assoc ."]\\%(«\\|<<\\)\\?\""
+unlet s:infix_assoc
+
+" Reverse and cross operators (Rop, Xop)
+exec "syn match p6Operator display \"[RX]". s:infix ."\""
+
 " the =<> operator
 syn region p6Iterate
     \ matchgroup=p6Operator
@@ -666,18 +694,17 @@ syn match p6StringAuto   display "\K\%(\k\|[-']\K\@=\)*\ze\%(p5\)\@<!=>"
 syn match p6StringAuto   display "\K\%(\k\|[-']\K\@=\)*\ze\s\+=>"
 syn match p6StringAuto   display "\K\%(\k\|[-']\K\@=\)*p5\ze=>"
 
-" Hyperoperators, may need to add some more operators here
-let s:hyperops = "\\%(\\%(\\.\\|+\\|-\\|\\*\\|\\*\\*\\|\\~\\|/\\|x\\|xx\\|&\\||\\)=\\?\\|++\\|--\\)"
-exec "syn match p6Operator display \"»"   .s:hyperops."»\\?\""
-exec "syn match p6Operator display \"«\\?".s:hyperops."«\""
-exec "syn match p6Operator display \"»"   .s:hyperops."«\""
-exec "syn match p6Operator display \"«"   .s:hyperops. "»\""
+" Hyperoperators. Needs to come after the quoting operators (<>, «», etc)
+exec "syn match p6Operator display \"»"   .s:infix."»\\?\""
+exec "syn match p6Operator display \"«\\?".s:infix."«\""
+exec "syn match p6Operator display \"»"   .s:infix."«\""
+exec "syn match p6Operator display \"«"   .s:infix. "»\""
 
-exec "syn match p6Operator display \">>"          .s:hyperops."\\%(>>\\)\\?\""
-exec "syn match p6Operator display \"\\%(<<\\)\\?".s:hyperops."<<\""
-exec "syn match p6Operator display \">>"          .s:hyperops."<<\""
-exec "syn match p6Operator display \"<<"          .s:hyperops.">>\""
-unlet s:hyperops
+exec "syn match p6Operator display \">>"          .s:infix."\\%(>>\\)\\?\""
+exec "syn match p6Operator display \"\\%(<<\\)\\?".s:infix."<<\""
+exec "syn match p6Operator display \">>"          .s:infix."<<\""
+exec "syn match p6Operator display \"<<"          .s:infix.">>\""
+unlet s:infix
 
 " TODO: maybe adjust/merge these
 syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\)\s\+\)\@<=\K\%(\k\|[-']\K\@=\)*"
