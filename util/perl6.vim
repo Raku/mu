@@ -16,10 +16,9 @@
 
 " TODO:
 "   * Optimization: use nextgroup instead of lookaround (:help syn-nextgroup)
-"   * Find out why s''' substitutions don't highlight correctly
+"   * Fix s''' substitutions being matched as package names
 "   * Add more support for folding (:help syn-fold)
 "   * Add more syntax syncing hooks (:help syn-sync)
-"   * subst(), trans(), etc
 "   * Q//:
 "       :to, :heredoc
 "       interpolate \q:s{$scalar} (though the spec isn't very clear on it)
