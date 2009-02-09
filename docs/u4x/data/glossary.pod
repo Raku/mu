@@ -1,5 +1,15 @@
 =begin glossary
 
+=head1 Anonymous
+
+A construct is called I<anonymous> if it doesn't have a name.
+
+    # named subroutine
+    sub double($x) { 2 * $x };
+
+    # anonymous subroutine, stored in a named scalar
+    my $double = sub ($x) { 2 * $x };
+
 =head1 Autothreading
 
 Autothreading is what happens if you pass a junction to a sub that
@@ -18,6 +28,18 @@ type is implicitly typed as C<Any>.  The call C<f(1|2|3)> is
 internally re-written as C<f(1)|f(2)|f(3)>, and the resulting junction
 is C<2|4|6>. This process of re-writing is what we call
 I<autothreading>.
+
+=head1 Slurpy
+
+A parameter of a sub or method is said to be I<slurpy> if it can
+consume an arbitrary number of arguments. It is indicated by an
+asterisk C<*> in front of the parameter name.
+
+    sub sum (*@numbers) {
+        return [+] @numbers;
+    }
+
+
 
 =end glossary
 
