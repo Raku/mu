@@ -17,6 +17,7 @@
 " TODO:
 "   * Optimization: use nextgroup instead of lookaround (:help syn-nextgroup)
 "   * Fix s''' substitutions being matched as package names
+"   * Match s/// and m/// better, so things like "$s/" won't match
 "   * Add more support for folding (:help syn-fold)
 "   * Add more syntax syncing hooks (:help syn-sync)
 "   * Q//:
@@ -523,7 +524,7 @@ syn region p6Adverb
 " * There is whitespace missing on either side of the "<", since
 "   people tend to put spaces around "less than"
 " * It comes after "enum", "for", "any", "all", or "none"
-" * It's followed by optional whitespace plus a newline
+" * It's the first or last thing on a line (ignoring whitespace)
 " * It's preceded by whitespace plus a "="
 "
 " It never matches when:
@@ -532,9 +533,10 @@ syn region p6Adverb
 " * Followed by [-=] (e.g. <--, <=, <==)
 syn region p6StringAngle
     \ matchgroup=p6Quote
-    \ start="\%([<+~]\|\%(\%(\<enum\|for\|any\|all\|none\>\)\s*(\?\s*\)\@<!\s\)\@<!<\%(<\|=>\|[-=]\{1,2}\_s\)\@!"
-    \ start="[<+~=]\@<!<\%(<\|=>\|[-=]\{1,2}\_s\)\@!"
-    \ start="[<+~=]\@<!<\%(<\|\s\|=>\|[-=]\)\@!"
+    \ start="\%(\<\%(enum\|for\|any\|all\|none\)\>\s*(\?\s*\)\@<=<\%(<\|=>\|[-=]\{1,2}\)\@!"
+    \ start="\%(\s\|[<+~=]\)\@<!<\%(<\|=>\|[-=]\{1,2}\)\@!"
+    \ start="[<+~=]\@<!<\%(\s\|<\|=>\|[-=]\{1,2}\)\@!"
+    \ start="\%(^\s*\)\@<=<\%(<\|=>\|[-=]\{1,2}\)\@!"
     \ start="[<+~=]\@<!<\%(\s*$\)\@="
     \ start="\%(=\s\+\)\@=<\%(<\|=>\|[-=]\)\@!"
     \ skip="\\\@<!\\>"
