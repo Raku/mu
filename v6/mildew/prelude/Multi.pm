@@ -20,16 +20,7 @@ knowhow Multi {
       if ($all_variants.elems.infix:<==>(0)) {
         if $candidates.elems {
           my $candidate = $candidates.shift;
-          if $candidates {
-            # this is where the disambiguator should be called!
-            $OUT.print("Ambiguous dispatch!\n");
-            my $e = ::ControlExceptionReturn.new();
-            $e.routine = &?ROUTINE;
-            $e.throw();
-            #fail "Ambiguous dispatch!";
-          } else {
-            $candidate.postcircumfix:<( )>((|$capture), :cc($cc));
-          }
+          $candidate.postcircumfix:<( )>((|$capture), :cc($cc));
         } else {
           $OUT.print("No candidate matching capture.\n");
           my $e = ::ControlExceptionReturn.new();
