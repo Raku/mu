@@ -12,25 +12,9 @@ knowhow Multi {
       $new.^!instance_storage.{'Multi'} = ::Hash.new;
       $new;
   }
-  method postcircumfix:<( )>(\$capture, :$cc_) {
-    my $cc;
-    if ($cc_) {
-        $cc = $cc_;
-    } else {
-        $cc = &?ROUTINE.back();
-    }
+  method postcircumfix:<( )>(\$capture, :$cc) {
     my $all_variants = ::Array.new;
-    my sub traverse_scopes($scope) {
-      if $scope.exists($.name) {
-	$all_variants.push($scope.{$.name}.variants);
-      }
-      if $scope.outer {
-        traverse_scopes($scope.outer);
-      }
-    }
-    if &?ROUTINE.back.lexical {
-        traverse_scopes(&?ROUTINE.back.lexical);
-    }
+    $all_variants.push(self.variants);
     my $candidates = ::Array.new;
     loop {
       if ($all_variants.elems.infix:<==>(0)) {
