@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Feb 9th 2009
+" Last Change:  Feb 10th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -58,14 +58,6 @@ setlocal iskeyword=@,48-57,_,192-255
 
 " identifiers
 syn match p6Normal display "\K\%(\k\|[-']\K\@=\)*"
-
-syn region p6Block
-    \ matchgroup=p6Normal
-    \ start="{"
-    \ end="}"
-    \ keepend
-    \ extend
-    \ transparent
 
 " This is used in the for loops below
 " Don't use the "syn keyword" construct because that always has higher
@@ -136,7 +128,7 @@ let s:keywords = {
  \   "Rat rat rat1 rat2 rat4 rat8 rat16 rat32 rat64",
  \   "Buf buf buf1 buf2 buf4 buf8 buf16 buf32 buf64",
  \   "UInt uint uint1 uint2 uint4 uint8 uint16 uint32",
- \   "uint64 Abstraction",
+ \   "uint64 Abstraction utf8 utf16 utf32",
  \ ],
  \ "p6Operator": [
  \   "div x xx mod also leg cmp before after eq ne lt",
@@ -235,7 +227,7 @@ let s:routines = [
  \ "unwrap getc pi e context void quasi body each contains rewinddir subst",
  \ "can isa flush arity assuming rewind callwith callsame nextwith nextsame",
  \ "attr eval_elsewhere none srand trim trim_start trim_end lastcall WHAT",
- \ "WHERE HOW WHICH VAR WHO WHENCE",
+ \ "WHERE HOW WHICH VAR WHO WHENCE ACCEPTS does",
 \ ]
 
 " q() or whatever() is always a function call
@@ -536,17 +528,17 @@ syn region p6Adverb
 "
 " It never matches when:
 "
-" * Preceded by [<=] (e.g. <<foo>>, =<$foo>)
+" * Preceded by [<+~=] (e.g. <<foo>>, =<$foo>)
 " * Followed by [-=] (e.g. <--, <=, <==)
 syn region p6StringAngle
     \ matchgroup=p6Quote
-    \ start="\%(<\|\%(\%(\<enum\|for\|any\|all\|none\>\)\s*(\?\s*\)\@<!\s\)\@<!<\%(<\|=>\|[-=]\{1,2}\_s\)\@!"
-    \ start="\%(=\s\+\)\@<=<\%(<\|=>\|[-=]\{1,2}\_s\)\@!"
-    \ start="<\@<!<\%(<\|\s\|=>\|[-=]\)\@!"
-    \ start="<\@<!<\%(\s*$\)\@="
-    \ skip="\%(\\\@<!\\>\|<[^>]*>\)"
+    \ start="\%([<+~]\|\%(\%(\<enum\|for\|any\|all\|none\>\)\s*(\?\s*\)\@<!\s\)\@<!<\%(<\|=>\|[-=]\{1,2}\_s\)\@!"
+    \ start="[<+~=]\@<!<\%(<\|=>\|[-=]\{1,2}\_s\)\@!"
+    \ start="[<+~=]\@<!<\%(<\|\s\|=>\|[-=]\)\@!"
+    \ start="[<+~=]\@<!<\%(\s*$\)\@="
+    \ start="\%(=\s\+\)\@=<\%(<\|=>\|[-=]\)\@!"
+    \ skip="\\\@<!\\>"
     \ end=">"
-    \ extend
     \ contains=p6EscBackSlash,p6EscCloseAngle
 
 " <<words>>
@@ -555,8 +547,7 @@ syn region p6StringAngles
     \ start="<<=\@!"
     \ skip="\\\@<!\\>"
     \ end=">>"
-    \ extend
-    \ contains=@p6Interp_qq,p6Comment,p6EscHash,p6EscCloseAngle,p6Adverb,p6StringSQ,p6StringDQ
+    \ contains=@p6Interp_qq,p6Comment,p6EscHash,p6EscCloseAngle,p6Adverbp6StringSQ,p6StringDQ
 
 " «words»
 syn region p6StringFrench
@@ -564,7 +555,6 @@ syn region p6StringFrench
     \ start="«"
     \ skip="\\\@<!\\»"
     \ end="»"
-    \ extend
     \ contains=@p6Interp_qq,p6Comment,p6EscHash,p6EscCloseFrench,p6Adverb,p6StringSQ,p6StringDQ
 
 " 'string'
@@ -573,7 +563,6 @@ syn region p6StringSQ
     \ start="'"
     \ skip="\\\@<!\\'"
     \ end="'"
-    \ extend
     \ contains=@p6Interp_q,p6EscQuote
 
 " "string"
@@ -582,7 +571,6 @@ syn region p6StringDQ
     \ start=+"+
     \ skip=+\\\@<!\\"+
     \ end=+"+
-    \ extend
     \ contains=@p6Interp_qq,p6EscDoubleQuote
 
 " Q// and friends.
@@ -723,7 +711,7 @@ syn region p6RegexBlock
     \ start="{"
     \ end="}"
     \ contained
-    \ contains=@p6Regexen,p6RxColonCode
+    \ contains=@p6Regexen,@p6Variables,p6RxColonCode
 
 " Perl 6 regex bits
 
@@ -743,7 +731,6 @@ syn cluster p6Regexen
     \ add=p6RxStringSQ
     \ add=p6RxStringDQ
     \ add=p6Comment
-    \ add=p6Variable
 
 syn match p6RxMeta        display contained ".\%(\k\|\s\)\@<!"
 syn match p6RxAnchor      display contained "[$^]"
@@ -757,13 +744,14 @@ syn region p6RxClosure
     \ start="{"
     \ end="}"
     \ contained
+    \ containedin=p6RxClosure
     \ contains=TOP
 syn region p6RxAssertion
     \ matchgroup=p6StringSpecial2
     \ start="<"
     \ end=">"
     \ contained
-    \ contains=@p6Regexen,p6RxCharClass
+    \ contains=@p6Regexen,@p6Variables,p6RxCharClass
 syn region p6RxCharClass
     \ matchgroup=p6StringSpecial2
     \ start="\%(<[!-+]\?\)\@<=\["
@@ -807,7 +795,6 @@ syn cluster p6RegexP5
     \ add=p6RxP5WriteRef
     \ add=p6RxP5CharClass
     \ add=p6RxP5Anchor
-    \ add=p6Variable
 
 " inside character classes
 syn cluster p6RegexP5Class
@@ -890,7 +877,7 @@ syn region p6RxP5QuoteMeta
     \ start="\\Q"
     \ end="\\E"
     \ contained
-    \ contains=p6Variable,p6EscBackSlash
+    \ contains=@p6Variables,p6EscBackSlash
 syn region p6RxP5CharClass
     \ matchgroup=p6StringSpecial
     \ start="\[\^\?"
@@ -926,8 +913,17 @@ syn region p6RxStringDQ
 " $!, $var, $!var, $::var, $package::var $*::package::var, etc
 " Thus must come after the matches for the "$" regex anchor, but before
 " the match for the $ regex delimiter
-syn match p6Variable     display "\$[!/¢]\K\@!"
-syn match p6Variable     display "\$\d\+\K\@!"
+syn cluster p6Variables
+    \ add=p6VarSlash
+    \ add=p6VarExclam
+    \ add=p6VarMatch
+    \ add=p6VarNum
+    \ add=p6Variable
+
+syn match p6VarSlash     display "\$/"
+syn match p6VarExclam    display "\$!"
+syn match p6VarMatch     display "\$¢"
+syn match p6VarNum       display "\$\d\+"
 syn match p6Variable     display "\%(&\|@@\|[@$%]\$*\)\%(::\|\%(\%([.^*+?=!]\|:\@<!::\@!\)\K\)\|\K\)\@=" nextgroup=p6Twigil,p6VarName,p6PackageScope
 syn match p6VarName      display "\K\%(\k\|[-']\K\@=\)*" contained
 syn match p6Twigil       display "\%([.^*+?=!]\|:\@<!::\@!\)\K\@=" nextgroup=p6PackageScope,p6VarName contained
@@ -947,16 +943,34 @@ syn region p6Match
     \ start=+\s\@<=/[^[:space:][:digit:]$@%=]\@=\%(/\_s*\%([([{$@%&*[:digit:]"'`]\|\_s\w\|[[:upper:]_abd-fhjklnqrt-wyz]\)\)\@!+
     \ skip="\\/"
     \ end="/"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,p6Variable,p6VarExclam,p6VarMatch,p6VarNum
 
-" m/foo/, mm/foo/, rx/foo/, m|foo|, mm|foo|, rx|foo|, etc
+" m/foo/, mm/foo/, rx/foo/
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\z([/\"'`|!,$]\)"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=/"
+    \ skip="\\/"
+    \ end="/"
+    \ keepend
+    \ contains=@p6Regexen,p6Variable,p6VarExclam,p6VarMatch,p6VarNum
+
+" m!foo!, mm!foo!, rx!foo!
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=!"
+    \ skip="\\!"
+    \ end="!"
+    \ keepend
+    \ contains=@p6Regexen,p6Variable,p6VarSlash,p6VarMatch,p6VarNum
+
+" m$foo$, mm$foo$, rx$foo$, m|foo|, mm|foo|, rx|foo|, etc
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\z([\"'`|,$]\)"
     \ skip="\\\z1"
     \ end="\z1"
     \ keepend
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " m (foo), mm (foo), rx (foo)
 syn region p6Match
@@ -964,7 +978,7 @@ syn region p6Match
     \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s\+\)\@<=()\@!"
     \ skip="\\)"
     \ end=")"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " m[foo], mm[foo], rx[foo]
 syn region p6Match
@@ -972,7 +986,7 @@ syn region p6Match
     \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\[]\@!"
     \ skip="\\]"
     \ end="]"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " m{foo}, mm{foo}, rx{foo}
 syn region p6Match
@@ -980,7 +994,7 @@ syn region p6Match
     \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<={}\@!"
     \ skip="\\}"
     \ end="}"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " m<foo>, mm<foo>, rx<foo>
 syn region p6Match
@@ -988,7 +1002,7 @@ syn region p6Match
     \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=<>\@!"
     \ skip="\\>"
     \ end=">"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " m«foo», mm«foo», rx«foo»
 syn region p6Match
@@ -996,25 +1010,65 @@ syn region p6Match
     \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=«»\@!"
     \ skip="\\»"
     \ end="»"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " Substitutions
 
-" s/foo/bar/, s|foo|bar, etc
+" s/foo/bar/
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\z([/\"'`|!,$]\)"
-    \ skip="\\\z1"
-    \ end="\z1"me=e-1
-    \ contains=@p6Regexen
+    \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=/"
+    \ skip="\\/"
+    \ end="/"me=e-1
+    \ keepend
+    \ contains=@p6Regexen,p6Variable,p6VarExclam,p6VarMatch,p6VarNum
     \ nextgroup=p6Substitution
 
 syn region p6Substitution
     \ matchgroup=p6Quote
-    \ start="\z([/\"'`|!,$]\)"
+    \ start="/"
+    \ skip="\\/"
+    \ end="/"
+    \ contained
+    \ keepend
+    \ contains=@p6Interp_qq
+
+" s!foo!bar!
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=!"
+    \ skip="\\!"
+    \ end="!"me=e-1
+    \ keepend
+    \ contains=@p6Regexen,p6Variable,p6VarSlash,p6VarMatch,p6VarNum
+    \ nextgroup=p6Substitution
+
+syn region p6Substitution
+    \ matchgroup=p6Quote
+    \ start="!"
+    \ skip="\\!"
+    \ end="!"
+    \ contained
+    \ keepend
+    \ contains=@p6Interp_qq
+
+" s$foo$bar$, s|foo|bar, etc
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\z([\"'`|,$]\)"
+    \ skip="\\\z1"
+    \ end="\z1"me=e-1
+    \ keepend
+    \ contains=@p6Regexen,@p6Variables
+    \ nextgroup=p6Substitution
+
+syn region p6Substitution
+    \ matchgroup=p6Quote
+    \ start="\z([\"'`|,$]\)"
     \ skip="\\\z1"
     \ end="\z1"
     \ contained
+    \ keepend
     \ contains=@p6Interp_qq
 
 " s{foo}
@@ -1023,7 +1077,7 @@ syn region p6Match
     \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<={}\@!"
     \ skip="\\}"
     \ end="}"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " s[foo]
 syn region p6Match
@@ -1031,7 +1085,7 @@ syn region p6Match
     \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\[]\@!"
     \ skip="\\]"
     \ end="]"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " s<foo>
 syn region p6Match
@@ -1039,7 +1093,7 @@ syn region p6Match
     \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=<>\@!"
     \ skip="\\>"
     \ end=">"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " s«foo»
 syn region p6Match
@@ -1047,7 +1101,7 @@ syn region p6Match
     \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=«»\@!"
     \ skip="\\»"
     \ end="»"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " s (foo)
 syn region p6Match
@@ -1055,17 +1109,33 @@ syn region p6Match
     \ start="\%(\<s\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s\+\)\@<=()\@!"
     \ skip="\\)"
     \ end=")"
-    \ contains=@p6Regexen
+    \ contains=@p6Regexen,@p6Variables
 
 " Perl 5 regex regions
 
-" m:P5//, m:P5||, etc
+" m:P5//
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=\z([/\"'`|!,$]\)"
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=/"
+    \ skip="\\/"
+    \ end="/"
+    \ contains=@p6RegexP5,p6Variable,p6VarExclam,p6VarMatch,p6VarNum
+
+" m:P5!!
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=!"
+    \ skip="\\!"
+    \ end="!"
+    \ contains=@p6RegexP5,p6Variable,p6VarSlash,p6VarMatch,p6VarNum
+
+" m:P5$$, m:P5||, etc
+syn region p6Match
+    \ matchgroup=p6Quote
+    \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=\z([\"'`|,$]\)"
     \ skip="\\\z1"
     \ end="\z1"
-    \ contains=@p6RegexP5
+    \ contains=@p6RegexP5,@p6Variables
 
 " m:P5 ()
 syn region p6Match
@@ -1073,7 +1143,7 @@ syn region p6Match
     \ start="\%(\<m\s*:P\%(erl\)\?5\s\+\)\@<=()\@!"
     \ skip="\\)"
     \ end=")"
-    \ contains=@p6RegexP5
+    \ contains=@p6RegexP5,@p6Variables
 
 " m:P5[]
 syn region p6Match
@@ -1081,7 +1151,7 @@ syn region p6Match
     \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=[]\@!"
     \ skip="\\]"
     \ end="]"
-    \ contains=@p6RegexP5
+    \ contains=@p6RegexP5,@p6Variables
 
 " m:P5{}
 syn region p6Match
@@ -1089,7 +1159,7 @@ syn region p6Match
     \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<={}\@!"
     \ skip="\\}"
     \ end="}"
-    \ contains=@p6RegexP5
+    \ contains=@p6RegexP5,p6Variables
 
 " m:P5<>
 syn region p6Match
@@ -1097,7 +1167,7 @@ syn region p6Match
     \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=<>\@!"
     \ skip="\\>"
     \ end=">"
-    \ contains=@p6RegexP5
+    \ contains=@p6RegexP5,p6Variables
 
 " m:P5«»
 syn region p6Match
@@ -1105,7 +1175,7 @@ syn region p6Match
     \ start="\%(\<m\s*:P\%(erl\)\?5\s*\)\@<=«»\@!"
     \ skip="\\»"
     \ end="»"
-    \ contains=@p6RegexP5
+    \ contains=@p6RegexP5,p6Variables
 
 " Transliteration
 
@@ -2009,7 +2079,10 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6TypeConstraint PreCondit
     HiLink p6Exception      Exception
     HiLink p6Variable       Identifier
-    HiLink p6PunctVar       Identifier
+    HiLink p6VarSlash       Identifier
+    HiLink p6VarNum         Identifier
+    HiLink p6VarExclam      Identifier
+    HiLink p6VarMatch       Identifier
     HiLink p6VarName        Identifier
     HiLink p6MatchVar       Identifier
     HiLink p6Conditional    Conditional
