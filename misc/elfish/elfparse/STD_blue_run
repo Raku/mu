@@ -158,6 +158,7 @@ sub out {
 # For to_dump0, see ../../STD_red/match.rb, bottom.
 # The STD graph seems generally cyclic. :/
 use autobox;
+#MARK_for_elfg5(
 { package STD;
   sub condition_sym {
     my($o,$sym)=@_;
@@ -240,6 +241,7 @@ use autobox;
     "'".$o."'";
   }
 }
+#MARK_for_elfg5)
 
 
 main(@ARGV);

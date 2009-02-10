@@ -1,34 +1,28 @@
 This is a standalone version of elf on perl5.
 
+It is assembled from the gimme5/STD.pm parser (in src/perl6/),
+stdblue (elf_h plus AST handling for above), and a piece of STD_blue_run.
+
+QUICKSTART
+
+$ sudo cpan -i YAML::Syck Moose  Carp File::Copy LazyMap Term::ANSIColor Encode Storable
+$ wget http://svn.pugscode.org/pugs/misc/elfish/gimme_elf/elfg5 #XXX too big
+$ chmod a+x elfg5
+$ ./elfg5 -e 'say 3'
+$ ./elfg5 -e 'say 3'
 
 OBJECTIVE
 
 Make it very easy to "get a taste of elf".
 Just download a single file from the web, install some cpan, and done.
 
-
-QUICKSTART
-
-# cpan XXX
-$ wget XXX
-$ ./elfg5 -e 'say 3'
-
-
 DEVELOPMENT
 
 This is an elfblue, with STD_blue_run and src/perl6/mumbles inlined.
 
 todo:
-|create readme and makefile, and sketch
-build blue
-run gimme5
-wrapper prog
-pull in _run
 build
 self build
-cpan
-doc wget
-ci elfg5
 
 post:
 moritz
