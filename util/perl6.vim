@@ -15,6 +15,8 @@
 "     # vim: filetype=perl6
 
 " TODO:
+"   * Deal with s:Perl5//
+"   * Allow more keywords to match as function calls(leave(), etc)
 "   * Optimization: use nextgroup instead of lookaround (:help syn-nextgroup)
 "   * Fix s''' substitutions being matched as package names
 "   * Match s/// and m/// better, so things like "$s/" won't match
@@ -93,7 +95,7 @@ let s:keywords = {
  \   "default exit make continue break goto leave async",
  \ ],
  \ "p6TypeConstraint": [
- \   "is as but does trusts of returns also handles where",
+ \   "is as but trusts of returns also handles where",
  \ ],
  \ "p6ClosureTrait": [
  \   "BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP",
@@ -111,7 +113,7 @@ let s:keywords = {
  \   "NaN Inf",
  \ ],
  \ "p6Pragma": [
- \   "oo",
+ \   "oo fatal",
  \ ],
  \ "p6Type": [
  \   "Object Any Junction Whatever Capture Match",
@@ -132,8 +134,8 @@ let s:keywords = {
  \   "uint64 Abstraction utf8 utf16 utf32",
  \ ],
  \ "p6Operator": [
- \   "div x xx mod also leg cmp before after eq ne lt",
- \   "gt ge eqv ff fff true not and andthen Z X or xor",
+ \   "div x xx mod also leg cmp before after eq ne le lt",
+ \   "gt ge eqv ff fff and andthen Z X or xor",
  \   "orelse extra m mm rx s tr",
  \ ],
 \ }
@@ -165,7 +167,7 @@ let s:infix_a = [
     \ "\\~\\^ ?| ?\\^ xx x \\~ & also | \\~ <== ==> <<== ==>> == != < <= > >=",
     \ "\\~\\~ eq ne lt le gt ge =:= === eqv before after && || \\^\\^ // min",
     \ "max ff \\^ff ff\\^ \\^ff\\^ fff \\^fff fff\\^ \\^fff\\^ ::= := \\.=",
-    \ "=> , : p5=> Z minmax \\.\\.\\. and andthen or orelse xor",
+    \ "=> , : p5=> Z minmax \\.\\.\\. and andthen or orelse xor \\^",
 \ ]
 " nonassociative infix operators
 let s:infix_n = "but does <=> leg cmp \\.\\. \\.\\.\\^\\^ \\^\\.\\. \\^\\.\\.\\^"
@@ -180,14 +182,14 @@ let s:infix_n_pattern = join(s:infix_n_words, "\\|")
 let s:both = [s:infix_a_pattern, s:infix_n_pattern]
 let s:infix = join(s:both, "\\|")
 
-let s:infix_assoc = "\\%(" . s:infix_a_pattern . "\\)"
-let s:infix = "\\%(" . s:infix . "\\)"
+let s:infix_assoc = "!\\?\\%(" . s:infix_a_pattern . "\\)"
+let s:infix = "!\\?\\%(" . s:infix . "\\)"
 
 unlet s:infix_a s:infix_a_long s:infix_a_words s:infix_a_pattern
 unlet s:infix_n s:infix_n_pattern s:both
 
 " [+] reduce
-exec "syn match p6Operator display \"\\k\\@<!\\[\\\\\\?". s:infix_assoc ."]\\%(«\\|<<\\)\\?\""
+exec "syn match p6Operator display \"\\k\\@<!\\[\\\\\\?!\\?". s:infix_assoc ."]\\%(«\\|<<\\)\\?\""
 unlet s:infix_assoc
 
 " Reverse and cross operators (Rop, Xop)
@@ -201,10 +203,10 @@ syn region p6Iterate
     \ end=">"
     \ transparent
 
-" some standard packages
-syn match p6Type display "\%(::\|\k\|\K\@<=[-']\)\@<!\%(Order\%(::Same\|::Increase\|::Decrease\)\?\)\%(\k\|[-']\K\@=\)\@!"
-syn match p6Type display "\%(::\|\k\|\K\@<=[-']\)\@<!\%(Bool\%(::True\|::False\)\?\)\%(\k\|[-']\K\@=\)\@!"
+" q() or whatever() is always a function call
+syn match p6Normal display "\K\%(\k\|[-']\K\@=\)*(\@="
 
+" basically all builtins that can be followed by parentheses
 let s:routines = [
  \ "eager hyper substr index rindex grep map sort join lines hints chmod",
  \ "split reduce min max reverse truncate zip cat roundrobin classify",
@@ -228,11 +230,8 @@ let s:routines = [
  \ "unwrap getc pi e context void quasi body each contains rewinddir subst",
  \ "can isa flush arity assuming rewind callwith callsame nextwith nextsame",
  \ "attr eval_elsewhere none srand trim trim_start trim_end lastcall WHAT",
- \ "WHERE HOW WHICH VAR WHO WHENCE ACCEPTS does",
+ \ "WHERE HOW WHICH VAR WHO WHENCE ACCEPTS does not true int",
 \ ]
-
-" q() or whatever() is always a function call
-syn match p6Normal display "\K\%(\k\|[-']\K\@=\)*(\@="
 
 " we want to highlight builtins like split() though, so this comes afterwards
 " TODO: check if this would be faster as one big regex
@@ -245,6 +244,11 @@ unlet s:before_keyword s:after_keyword s:words_space s:temp s:words s:routines
 " packages, must come after all the keywords
 syn match p6Normal display "\%(::\)\@<=\K\%(\k\|[-']\K\@=\)*"
 syn match p6Normal display "\K\%(\k\|[-']\K\@=\)*\%(::\)\@="
+
+" some standard packages
+syn match p6Type display "\%(::\|\k\|\K\@<=[-']\)\@<!\%(Order\%(::Same\|::Increase\|::Decrease\)\?\)\%(\k\|[-']\K\@=\)\@!"
+syn match p6Type display "\%(::\|\k\|\K\@<=[-']\)\@<!\%(Bool\%(::True\|::False\)\?\)\%(\k\|[-']\K\@=\)\@!"
+
 
 syn match p6Shebang    display "\%^#!.*"
 syn match p6BlockLabel display "\%(\s\|^\)\@<=\h\w*\s*::\@!\_s\@="
@@ -263,10 +267,13 @@ syn match p6Number     display "\%(\<0x\)\@<=\x[[:xdigit:]_]*"
 syn match p6Number     display "\%(\<0d\)\@<=\d[[:digit:]_]*"
 
 " try to distinguish the "is" function from the "is" trail auxiliary
-syn match p6Routine     display "\%(\%(^\|{\)\s*\)\@<=is\k\@!"
+syn match p6Routine     display "\%(\%(\S\k\@<!\|^\)\s*\)\@<=is\>"
 
-" int is a function sometimes
-syn match p6Routine     display "\<int\%(\s*(\|\s\+\d\)\@="
+" does is a type constraint sometimes
+syn match p6TypeConstraint display "does\%(\s*\%(\k\|[-']\K\@=\)\)\@="
+
+" int is a type sometimes
+syn match p6Type        display "\<int\>\%(\s*(\|\s\+\d\)\@!"
 
 " these Routine names are also Properties, if preceded by "is"
 syn match p6Property    display "\%(is\s\+\)\@<=\%(signature\|context\|also\|shape\)"
@@ -577,7 +584,7 @@ syn region p6StringDQ
 
 " Q// and friends.
 
-syn match p6Operator display "\%([Qq]\%([qwxsahfcb]\|ww\|to\)\?\)" nextgroup=p6QPairs skipwhite skipempty
+syn match p6Operator display "\%([Qq]\%(ww\|to\|[qwxsahfcb]\)\?\)" nextgroup=p6QPairs skipwhite skipempty
 syn match p6QPairs contained transparent skipwhite skipempty nextgroup=p6StringQ "\%(\_s*:!\?\K\%(\k\|[-']\K\@=\)*\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\?\)*"
 
 " hardcoded set of delimiters
