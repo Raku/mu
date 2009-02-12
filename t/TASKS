@@ -82,7 +82,6 @@ S29
 * tests for complex: polar
 * tests for pack and unpack
 * tests to ensure that rand has a bit of entropy
-* test for $number.rand (method form)
 
 
 IO
