@@ -347,7 +347,7 @@ sub pretty {
 package AST::Capture;
 use Moose;
 has 'invocant' => (is=>'ro');
-has 'positional' => (is=>'ro',default=>sub {[]});
+has 'positional' => (is=>'ro',default=>sub {[]},isa=>'ArrayRef[AST::Base]');
 has 'named' => (is=>'ro',default=>sub {[]});
 has 'ctx' => (is=>'ro');
 1;

@@ -10,12 +10,13 @@ sub VAST::term::emit_m0ld {
         lookup('$¿self');
     } elsif ($m->{identifier} && $m->{args}) {
         my $func = lookup('&'.$m->{identifier}{TEXT});
-        my @args = @{$m->{args}->emit_m0ld};
+        my @args = $m->{args}->emit_m0ld;
         my @positional = grep { ref $_ ne 'AST::Pair' } @args;
         my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
         call 'postcircumfix:( )' => FETCH($func),[capturize(\@positional,\@named)];
     } elsif ($m->{longname}) {
 	my $name = $m->{longname}->{name};
+        use YAML::XS;
 	if ($name->{morename} and !$name->{identifier}) {
             lookup join '',map {$_->{identifier}[0]{TEXT}} @{$name->{morename}};
         } elsif ($name->{identifier}{TEXT} eq 'CALLER') {
@@ -24,7 +25,7 @@ sub VAST::term::emit_m0ld {
         } elsif ($name->{identifier}{TEXT} eq 'MY') {
 	    call new => reg '¢SMOP__S1P__FlattenedScope',
 	      [ reg '$scope' ];
-	} elsif ($m->{args}[0]) {
+	} elsif ($m->{args}) {
 	    my $outer = FETCH(lookup($m->{longname}{name}{identifier}{TEXT}.'::'));
 	    my @morenames = @{$m->{longname}{name}{morename}};
 	    while (my $new_outer = shift @morenames) {
@@ -36,7 +37,7 @@ sub VAST::term::emit_m0ld {
 			$outer = FETCH(call( 'postcircumfix:{ }' => $inner, [ string $name ]));
 		    } else {
 			$name = '&'.$name;
-                        my @args = $m->{args}[0]->emit_m0ld;
+                        my @args = $m->{args}->emit_m0ld;
                         my @positional = grep { ref $_ ne 'AST::Pair' } @args;
                         my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
 			$outer = call 'postcircumfix:( )' =>

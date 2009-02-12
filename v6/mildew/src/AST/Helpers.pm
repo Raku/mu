@@ -60,6 +60,7 @@ sub let {
 
 sub routine {
   my ($mold, $sig) = @_;
+  use YAML::XS;
   my $realcode = $mold->emit_m0ld;
   unshift @{$realcode->stmts},
     call(STORE => call('postcircumfix:{ }' => reg '$scope', [ string '&?ROUTINE' ]), [ call(continuation => reg '$interpreter') ]),

@@ -47,13 +47,13 @@ sub emit_m0ld {
         # statementlist, so we know that no code was executed
         # before this, so we can peacefully delay the setup of the
         # control block up to this point.
-        call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($m->{blockoid}) ];
+        call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];
     } elsif ($m->{sym} eq 'CATCH') {
         # the same for CATCH blocks.
-        call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($m->{blockoid}) ];
+        call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];
 
     } elsif ($m->{sym} eq 'loop') {
-        AST::Loop->new(code => call('postcircumfix:( )',code($m->{blockoid}),[capturize([])]));
+        AST::Loop->new(code => call('postcircumfix:( )',code($m->{block}),[capturize([])]));
 
     } elsif ($m->{sym} eq 'use') {
         my $module = $m->{module_name}{longname};
