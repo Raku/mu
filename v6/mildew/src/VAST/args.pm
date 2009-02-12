@@ -6,12 +6,7 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    if ($m->{listopargs}) {
-        my $positional = $m->{semilist}{statement}[0];
-        [(map {$_->{EXPR}->emit_m0ld} @{$m->{listopargs}}),($positional ? $positional->emit_m0ld : ())];
-    } else {
-        XXX;
-    }
+    $m->{semiarglist} ? $m->{semiarglist}->emit_m0ld : ();
 }
 
 1;

@@ -8,8 +8,7 @@ sub emit_m0ld {
     my ($m,$noun) = @_;
     if (my $methodop = $m->{dottyop}{methodop}) {
         if ($methodop->{longname}) {
-            my $positional = $methodop->{semilist}[0]{statement}[0];
-            my @args = $positional ? $positional->emit_m0ld : ();
+            my @args = $methodop->{args}[0] ? $methodop->{args}[0]->emit_m0ld : ();
             my @positional = grep { ref $_ ne 'AST::Pair' } @args;
             my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
             my $ident = $methodop->{longname}->canonical;
