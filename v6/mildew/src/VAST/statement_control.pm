@@ -8,27 +8,27 @@ use Scalar::Util qw(blessed);
 sub emit_m0ld {
     my $m = shift;
     if ($m->{sym} eq 'unless') {
-        my $then = call 'postcircumfix:( )' => code($m->{xblock}{pblock}{block}),[capturize];
+        my $then = call 'postcircumfix:( )' => code($m->{xblock}{pblock}{blockoid}),[capturize];
         AST::If->new
             ( cond => $m->{xblock}{EXPR}->emit_m0ld,
               else => $then )
 
     } elsif ($m->{sym} eq 'if') {
-        my $then = call 'postcircumfix:( )' => code($m->{xblock}{pblock}{block}),[capturize];
+        my $then = call 'postcircumfix:( )' => code($m->{xblock}{pblock}{blockoid}),[capturize];
         my $else;
         if (ref $m->{else} eq 'ARRAY' &&
             blessed $m->{else}[0] &&
             ref $m->{else}[0]{pblock} &&
-            ref $m->{else}[0]{pblock}{block}) {
+            ref $m->{else}[0]{pblock}{blockoid}) {
 
-            $else = call 'postcircumfix:( )' => code($m->{else}[0]{pblock}{block}),[capturize];
+            $else = call 'postcircumfix:( )' => code($m->{else}[0]{pblock}{blockoid}),[capturize];
         }
 
         my @elsif;
         if (ref $m->{elsif} eq 'ARRAY') {
             foreach my $elsif_part (@{$m->{elsif}}) {
 
-                my $elsif = call 'postcircumfix:( )' => code($elsif_part->{xblock}{pblock}{block}),[capturize];
+                my $elsif = call 'postcircumfix:( )' => code($elsif_part->{xblock}{pblock}{blockoid}),[capturize];
 
                 push @elsif, AST::If->new
                   ( cond => $elsif_part->{xblock}{EXPR}->emit_m0ld,
@@ -47,13 +47,13 @@ sub emit_m0ld {
         # statementlist, so we know that no code was executed
         # before this, so we can peacefully delay the setup of the
         # control block up to this point.
-        call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];
+        call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($m->{blockoid}) ];
     } elsif ($m->{sym} eq 'CATCH') {
         # the same for CATCH blocks.
-        call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];
+        call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($m->{blockoid}) ];
 
     } elsif ($m->{sym} eq 'loop') {
-        AST::Loop->new(code => call('postcircumfix:( )',code($m->{block}),[capturize([])]));
+        AST::Loop->new(code => call('postcircumfix:( )',code($m->{blockoid}),[capturize([])]));
 
     } elsif ($m->{sym} eq 'use') {
         my $module = $m->{module_name}{longname};
