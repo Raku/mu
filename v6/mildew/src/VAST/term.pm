@@ -13,7 +13,7 @@ sub VAST::term::emit_m0ld {
         my @args = @{$m->{args}->emit_m0ld};
         my @positional = grep { ref $_ ne 'AST::Pair' } @args;
         my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
-        call 'postcircumfix:( )' => FETCH($func),[capturize([@positional],[@named])];
+        call 'postcircumfix:( )' => FETCH($func),[capturize(\@positional,\@named)];
     } elsif ($m->{longname}) {
 	my $name = $m->{longname}->{name};
 	if ($name->{morename} and !$name->{identifier}) {
@@ -41,7 +41,7 @@ sub VAST::term::emit_m0ld {
                         my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
 			$outer = call 'postcircumfix:( )' =>
 			    FETCH(call( 'postcircumfix:{ }' => $inner, [ string $name ])),
-			    [capturize([@positional],[@named])];
+			    [capturize(\@positional,\@named)];
 		    }
 		} else {
 		    $outer = $inner;
