@@ -3885,6 +3885,7 @@ grammar Regex is STD {
         { $<sym> = $<mod_internal><sym> } #ELFFIX
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<:> {
         <sym>
     }
@@ -3897,7 +3898,6 @@ grammar Regex is STD {
         <sym>
     }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<[ ]> {
         '[' {} [:lang(self.unbalanced(']')) <nibbler>]
         [ ']' || <.panic: "Unable to parse regex; couldn't find right bracket"> ]
