@@ -192,7 +192,8 @@ use autobox;
           unless($f == $t ||
                  $str eq '.' ||
                  $str =~ /\A:[i]\z/ ||
-                 $str =~ /\A\d+\z/);
+                 $str =~ /\A\d+\z/ ||
+                 $str eq '\\');
     };
 
     my $sym = $o->{sym};

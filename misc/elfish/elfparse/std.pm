@@ -528,6 +528,7 @@ token ws {
         }
     }}
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token unsp {
     \\ <?before [\s|'#'] >
@@ -535,7 +536,7 @@ token unsp {
     [
     | <.vws>                     {*}                             #= vwhite
     | <.unv>                  {*}                                #= unv
-    | $ { $¢.moreinput }
+#    | $ { $¢.moreinput } #ELFXXX
     ]*
 }
 
@@ -545,12 +546,14 @@ token vws {
     [ '#DEBUG -1' { say "DEBUG"; $STD::DEBUG = $*DEBUG = -1; } ]?
 }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # We provide two mechanisms here:
 # 1) define $+moreinput, or
 # 2) override moreinput method
 method moreinput () {
     $+moreinput.() if $+moreinput;
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token unv {
    :dba('horizontal whitespace')
@@ -560,12 +563,11 @@ token unv {
    | \h* '#' [
          |  <?opener>
             [ <!after ^^ . > || <.panic: "Can't use embedded comments in column 1"> ]
-            <.quibble($¢.cursor_fresh( ::STD::Q ))>   {*}                               #= embedded
+#            <.quibble($¢.cursor_fresh( ::STD::Q ))>   {*}                               #= embedded #ELFXXX
          | {} \N*            {*}                                 #= end
          ]
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token ident {
     <.alpha> \w*
@@ -602,7 +604,6 @@ token pod_comment {
 
 # Note: we only check for the stopper.  We don't check for ^ because
 # we might be embedded in something else.
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 rule comp_unit {
     :my $begin_compunit is context = 1;
     :my $endargs        is context<rw> = -1;
@@ -614,28 +615,30 @@ rule comp_unit {
     :my $PARSER is context<rw>;
     :my $IN_DECL is context<rw>;
 
-    { init_pads(); }
+    #{ init_pads(); } #ELFBUG
+    { STD::init_pads(); } #ELFFIX
 
     <statementlist>
     [ <?unitstopper> || <.panic: "Can't understand next input--giving up"> ]
-    # "CHECK" time...
-    {{
-        if @COMPILING::WORRIES {
-            warn "Potential difficulties:\n  " ~ join( "\n  ", @COMPILING::WORRIES) ~ "\n";
-        }
-
-        my %UNKNOWN;
-        for keys(%ROUTINES) {
-            next if $¢.is_routine($_);
-            %UNKNOWN{$_} = %ROUTINES{$_};
-        }
-        if %UNKNOWN {
-            warn "Unknown routines:\n";
-            for sort keys(%UNKNOWN) {
-                warn "\t$_ called at ", %UNKNOWN{$_}, "\n";
-            }
-        }
-    }}
+#ELFXXX
+#    # "CHECK" time...
+#    {{
+#        if @COMPILING::WORRIES {
+#            warn "Potential difficulties:\n  " ~ join( "\n  ", @COMPILING::WORRIES) ~ "\n";
+#        }
+#
+#        my %UNKNOWN;
+#        for keys(%ROUTINES) {
+#            next if $¢.is_routine($_);
+#            %UNKNOWN{$_} = %ROUTINES{$_};
+#        }
+#        if %UNKNOWN {
+#            warn "Unknown routines:\n";
+#            for sort keys(%UNKNOWN) {
+#                warn "\t$_ called at ", %UNKNOWN{$_}, "\n";
+#            }
+#        }
+#    }}
 }
 
 # Note: because of the possibility of placeholders we can't determine arity of
@@ -660,6 +663,7 @@ token xblock {
     <pblock>
 }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token block {
     '{' ~ '}' <statementlist>
 
@@ -698,10 +702,11 @@ token regex_block {
     | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; }   {*}           #= endargs
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # statement semantics
 rule statementlist {
-    :my $PARSER is context<rw> = self;
+    #:my $PARSER is context<rw> = self; #ELFXXX
     :my $SEMILIST is context = 0;
     :dba('statement list')
     [
@@ -726,12 +731,13 @@ token label {
     :my $label;
     <identifier> ':' <?before \s> <.ws>
 
-    [ <?{ $¢.is_type($label = $<identifier>.text) }>
-      <.panic("Illegal redeclaration of '$label'")>
-    ]?
-
-    # add label as a pseudo type
-    {{ $¢.add_type($label); }}
+#ELFXXX
+#    [ <?{ $¢.is_type($label = $<identifier>.text) }>
+#      <.panic("Illegal redeclaration of '$label'")>
+#    ]?
+#
+#    # add label as a pseudo type
+#    {{ $¢.add_type($label); }}
 
 }
 
@@ -741,7 +747,7 @@ token statement {
 
     # this could either be a statement that follows a declaration
     # or a statement that is within the block of a code declaration
-    <!!{ $¢ = $+PARSER.bless($¢); }>
+#    <!!{ $¢ = $+PARSER.bless($¢); }> #ELFXXX
 
     [
     | <label> <statement>                        {*}            #= label
@@ -749,7 +755,7 @@ token statement {
     | <EXPR> {*}                                                #= expr
         :dba('statement end')
         [
-        || <?{ (@+MEMOS[$¢.pos]<endstmt> // 0) == 2 }>   # no mod after end-line curly
+#        || <?{ (@+MEMOS[$¢.pos]<endstmt> // 0) == 2 }>   # no mod after end-line curly #ELFXXX
         ||
             :dba('statement modifier')
             <.ws>
@@ -758,7 +764,7 @@ token statement {
             | <statement_mod_cond> {*}                              #= mod cond
                 :dba('statement modifier loop')
                 [
-                || <?{ (@+MEMOS[$¢.pos]<endstmt> // 0) == 2 }>
+#                || <?{ (@+MEMOS[$¢.pos]<endstmt> // 0) == 2 }> #ELFXXX
                 || <.ws> <statement_mod_loop>? {*}                  #= mod condloop
                 ]
             ]?
@@ -772,14 +778,14 @@ token statement {
 token eat_terminator {
     [
     || ';'
-    || <?{ @+MEMOS[$¢.pos]<endstmt> }> <.ws>
+#    || <?{ @+MEMOS[$¢.pos]<endstmt> }> <.ws> #ELFXXX
     || <?terminator>
     || $
-    || {{ if @+MEMOS[$¢.pos]<ws> { $¢.pos = @+MEMOS[$¢.pos]<ws>; } }}   # undo any line transition
+#    || {{ if @+MEMOS[$¢.pos]<ws> { $¢.pos = @+MEMOS[$¢.pos]<ws>; } }}   # undo any line transition #ELFXXX
+    || #ELFXXX partial fix
         <.panic: "Syntax error">
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token statement_control:use {
     <sym> :s
@@ -2363,9 +2369,11 @@ role stop[$stop] {
 role unitstop[$stop] {
     token unitstopper { $stop }
 } # end role
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token unitstopper { $ }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 method balanced ($start,$stop) { self.mixin( ::startstop[$start,$stop] ); }
 method unbalanced ($stop) { self.mixin( ::stop[$stop] ); }
 method unitstop ($stop) { self.mixin( ::unitstop[$stop] ); }
