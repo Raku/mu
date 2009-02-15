@@ -101,3 +101,46 @@ Success looks like:
 - an elf can run STD.pm
 - an elf can self-compile using STD.pm.
 
+
+DEV NOTES
+
+Todo:
+ - <noun> <?na>?  bug
+   ./elfdev -e 'package STD{rule bug {<noun><?fake>?};say /<bug>/.match("3").match_describe}'
+ - do tokenness, inserting commits.
+ - recheck performance of '3;'
+ - extract '3;' parser rules into isolated and more easily recompiled file.
+ - profile.
+ - explore speedups.
+  - is <?-ness propagated?
+    **properly propagate-stopped when there are code blocks?
+  - re aggregation
+  - inline tok subs ala STD_red
+ - create elfrx "keep the optimizations unbugged" infrastructure.
+
+ - let elfdev eval6 code.
+   requires pulling in code from STD_green.
+    lib? $0 ~~ __FILE__ ?  gimme_elf's hack?
+
+ - EXPR
+
+
+# since we're not faking $¢ yet.
+package Undef {
+  method panic($msg) is p5 {'
+my $str = $Regexp::ModuleA::ReentrantEngine::Env::str;
+my $pos = $Regexp::ModuleA::ReentrantEngine::Env::pos;
+my $m1 = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+my $m2 = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match;
+my $m3 = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
+my $pkg = $Regexp::ModuleA::ReentrantEngine::Env::pkg;
+my $data = $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
+print STDERR $msg,"\n";
+print STDERR "pos: ",$pos,"\n";
+Carp::croak if $ENV{VERBOSE};
+exit(1);
+'}
+}
+
+2009-Feb-15 :)
+./elfdev -e 'package STD{regex EXPR{<termish>}; say /<comp_unit>/.match("3").match_describe}'

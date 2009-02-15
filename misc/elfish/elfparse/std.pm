@@ -497,16 +497,16 @@ token nofun { <!before '(' | '.(' | '\\' > }
 
 # Lexical routines
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token ws {
-    :my @stub = return self if @+MEMOS[self.pos]<ws> :exists;
-    :my $startpos = self.pos;
+#    :my @stub = return self if @+MEMOS[self.pos]<ws> :exists; #ELFXXX
+#    :my $startpos = self.pos; #ELFXXX
 
     :dba('whitespace')
     [
-        | \h+ <![#\s\\]> { @+MEMOS[$¢.pos]<ws> = $startpos; }   # common case
+#        | \h+ <![#\s\\]> { @+MEMOS[$¢.pos]<ws> = $startpos; }   # common case #ELFXXX
+        | \h+ <![#\s\\]> #ELFXXX partial fix
         | <?before \w> <?after \w> :::
-            { @+MEMOS[$startpos]<ws> = undef; }
+#            { @+MEMOS[$startpos]<ws> = undef; } #ELFXXX
             <!>        # must \s+ between words
     ]
     ||
@@ -514,21 +514,21 @@ token ws {
     | <.unsp>
     | <.vws> <.heredoc>
     | <.unv>
-    | $ { $¢.moreinput }
+#    | $ { $¢.moreinput } #ELFXXX
     ]*
 
-    {{
-        if ($¢.pos == $startpos) {
-            @+MEMOS[$¢.pos]<ws> = undef;
-        }
-        else {
-            @+MEMOS[$¢.pos]<ws> = $startpos;
-            @+MEMOS[$¢.pos]<endstmt> = @+MEMOS[$startpos]<endstmt>
-                if @+MEMOS[$startpos]<endstmt> :exists;
-        }
-    }}
+#ELFXXX
+#    {{
+#        if ($¢.pos == $startpos) {
+#            @+MEMOS[$¢.pos]<ws> = undef;
+#        }
+#        else {
+#            @+MEMOS[$¢.pos]<ws> = $startpos;
+#            @+MEMOS[$¢.pos]<endstmt> = @+MEMOS[$startpos]<endstmt>
+#                if @+MEMOS[$startpos]<endstmt> :exists;
+#        }
+#    }}
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token unsp {
     \\ <?before [\s|'#'] >
@@ -3450,11 +3450,13 @@ token infix:sym« <<== » ( --> Sequencer)
 token infix:sym« ==>> » ( --> Sequencer)
     { <sym> {*} }              #'
 
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## expression terminator
 # Note: must always be called as <?terminator> or <?before ...<terminator>...>
 
 token terminator:sym<;> ( --> Terminator)
     { ';' }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 token terminator:sym<if> ( --> Terminator)
     { 'if' » <.nofun> }
@@ -3480,6 +3482,7 @@ token terminator:sym<when> ( --> Terminator)
 token terminator:sym« --> » ( --> Terminator)
     { '-->' {*} }              #'
 
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token terminator:sym<)> ( --> Terminator)
     { <sym> }
 
@@ -3488,6 +3491,7 @@ token terminator:sym<]> ( --> Terminator)
 
 token terminator:sym<}> ( --> Terminator)
     { '}' }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 token terminator:sym<!!> ( --> Terminator)
     { '!!' <?{ $+GOAL eq '!!' }> }
@@ -3501,24 +3505,26 @@ regex infixstopper {
     | <?{ $+GOAL eq 'endargs' and @+MEMOS[$¢.pos]<endargs> }>
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # overridden in subgrammars
 token stopper { <!> }
 
 # hopefully we can include these tokens in any outer LTM matcher
 regex stdstopper {
-    :my @stub = return self if @+MEMOS[self.pos]<endstmt> :exists;
+#    :my @stub = return self if @+MEMOS[self.pos]<endstmt> :exists; #ELFXXX
     :dba('standard stopper')
     [
     | <?terminator>
     | <?unitstopper>
     | $                                 # unlikely, check last (normal LTM behavior)
     ]
-    { @+MEMOS[$¢.pos]<endstmt> ||= 1; }
+#    { @+MEMOS[$¢.pos]<endstmt> ||= 1; } #ELFXXX
 }
 
 # A fairly complete operator precedence parser
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 method EXPR ($preclvl)
 {
     temp $CTX = self.callm if $*DEBUG +& DEBUG::trace_call;

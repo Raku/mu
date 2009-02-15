@@ -2,15 +2,16 @@
 use strict;
 use warnings;
 
+#- Rules
 my $output_file = "./IRx1_FromAST2.pm";
 my $def = <<'END_DEF';
-comp_unit
+#--- comp_unit
 CompUnit.newp($m<statementlist>)
 
-statementlist
+#--- statementlist
 $m<statement>
 
-statement
+#--- statement
 my $labels = $m<label>;
 my $result = $m<EXPR> || $m<statement_control>;
 if $o<EXPR> && ($o<statement_mod_loop>.elems || $o<statement_mod_cond>.elems) {
@@ -27,10 +28,10 @@ if $labels {
   $result;
 }
 
-nulltermish
+#--- nulltermish
 $m<termish>[0]
 
-termish
+#--- termish
 if $o<quantified_atom> {
   my $atoms = $m<quantified_atom>;
   if $atoms.elems == 1 {
@@ -49,7 +50,7 @@ for $ops {
 }
 $blackboard::expect_term_base
 
-EXPR
+#--- EXPR
 if $o<infix> {
   my $op = $m<infix><sym_name>;
   my $args = [$m<left>,$m<right>];
@@ -128,16 +129,16 @@ elsif $o<left> && $o<rxinfix> && $o<sym_name> eq '~' { #/a ~ b c/
 }
 else { die "Didn't understand an EXPR node" }
 
-PRE
+#--- PRE
 $m<prefix>
 
-POST
+#--- POST
 $m<postop> || $m<dotty>
 
-postop
+#--- postop
 $m<postfix> || $m<postcircumfix>
 
-prefix
+#--- prefix
 my $op = *text*;
 my $name = "prefix:"~$op;
 if $op eq 'temp' {
@@ -160,18 +161,18 @@ if $op.re_matchp('\A\w+\z') { # XXX elf_h compatability kludge.  prefix:not->not
 }
 Apply.newp($name,Capture.newp1([$blackboard::expect_term_base]))
 
-postfix
+#--- postfix
 my $op = *text*;
 Apply.newp("postfix:"~$op,Capture.newp1([$blackboard::expect_term_base]))
 
-postcircumfix
+#--- postcircumfix
 my $name = $m<sym_name>;
 my $ident = "postcircumfix:"~$name;
 my $args = $m<semilist> || $m<nibble>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Call.newp($blackboard::expect_term_base,$ident,Capture.newp1($args||[]))
 
-circumfix
+#--- circumfix
 my $op = $m<sym_name>;
 if $op eq '{ }' {
   if ($o<pblock> &&
@@ -186,7 +187,7 @@ my $args = $m<semilist>;
 if $args && ($args.WHAT ne 'Array')  { $args = [$args] }
 Apply.newp("circumfix:"~$op,Capture.newp1($args||[]))
 
-circumfix:pblock
+#--- circumfix:pblock
 if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_string.re_matchp('^:') {
   Hash.newp($m<block><statementlist>)
 } elsif $o<block><statementlist>[0]<EXPR> and $o<block><statementlist>[0]<EXPR><sym> and $o<block><statementlist>[0]<EXPR><sym> eq "," { # XXX Not p6.  Remove once off elf_e, and Match updated.
@@ -200,36 +201,36 @@ if $o<block><statementlist>.elems == 0 or $o<block><statementlist>[0].match_stri
 }
 
 
-infix
+#--- infix
 my $op = $m<sym_name>;
 $op;
 
-semilist
+#--- semilist
 $m<statement>
 
-dotty
+#--- dotty
 #temp $blackboard::dottyop = $m<sym_name>;
 $m<dottyop>
 
-dottyop
+#--- dottyop
 $m<methodop> || $m<postop>
 
-methodop
+#--- methodop
 my $args = $m<semilist>[0];
 Call.newp($blackboard::expect_term_base,$m<longname>,Capture.newp1($args||[]))
 
-noun
+#--- noun
 temp $blackboard::is_proto; #X placement uncertain.
 #Should just be *1*, but all versions of node contain a colonpair too.
 $m<fatarrow> || $m<variable> || $m<package_declarator> || $m<scope_declarator> || $m<multi_declarator> || $m<routine_declarator> || $m<regex_declarator> || $m<type_declarator> || $m<circumfix> || $m<dotty> || $m<value> || $m<capterm> || $m<sigterm> || $m<term> || $m<statement_prefix> || $m<colonpair>[0]
 
-infixish
+#--- infixish
 $m<colonpair> || $m<infix> || $m<infix_prefix_meta_operator> || $m<infix_circumfix_meta_operator> || $m<infix>
 
-desigilname
+#--- desigilname
 $m<longname>
 
-deflongname
+#--- deflongname
 my $suffix = "";
 if $o<colonpair> && $o<colonpair>[0] {
   my $k = $o<colonpair>[0]<k>;
@@ -246,38 +247,38 @@ if $o<colonpair> && $o<colonpair>[0] {
 }
 $m<name>~$suffix
 
-longname
+#--- longname
 $m<name>
 
-name
+#--- name
 my $parts = [$m<identifier>];
 if $m<morename> { $parts.push($m<morename>.flatten) }
 $parts.join("::")
 
-morename
+#--- morename
 $m<identifier>[0]
 
-identifier
+#--- identifier
 *text*
 
 
-value
+#--- value
 *1*
 
-number
+#--- number
 *1*
 
-integer
+#--- integer
 NumInt.newp(*text*,10)
 
-dec_number
+#--- dec_number
 NumInt.newp(*text*,10)
 
-fatarrow
+#--- fatarrow
 Pair.newp($m<key>,$m<val>)
 
 
-term
+#--- term
 my $text = $m<sym_name>;
 if $text eq '*' {
   Apply.newp('whatever',Capture.newp1([]))
@@ -285,10 +286,10 @@ if $text eq '*' {
   Apply.newp($text,Capture.newp1([]))
 }
 
-term:name
+#--- term:name
 *text*
 
-term:identifier
+#--- term:identifier
 my $ident = $m<identifier>;
 my $args;
 if $o<args><semilist> {
@@ -311,31 +312,31 @@ else { die "Didn't understand a term:identifier node" }
 Apply.newp($ident,Capture.newp1($args||[]))
 
 
-statement_control:use
+#--- statement_control:use
 Use.newp('use',$m<module_name>,$m<EXPR>)
 
-module_name:depreciated
+#--- module_name:depreciated
 *text*
 
-module_name:normal
+#--- module_name:normal
 $m<longname>
 
-role_name
+#--- role_name
 *text*
 
-quote:/
+#--- quote:/
 die("quote:/ is unimplemented"); #"
 
-quote:s
+#--- quote:s
 my $left = RxARegex.newp("",{},$m<pat><left>);
 temp $blackboard::quote = '" "';
 my $right = $m<pat><right>;
 Apply.newp('s',Capture.newp1([$left,$right]));
 
-quote:m
+#--- quote:m
 RxARegex.newp("",{},$m<quibble><nibble>);
 
-quote
+#--- quote
 temp $blackboard::quote = $o<sym_name>;
 my $q = $o<sym_name>;
 if $q eq '/ /' {
@@ -363,16 +364,16 @@ for $args {
 }
 $tmp
 
-#nibbles:\
+#--- #nibbles:\
 #my $which = $m<item><sym_name>;
 #if $which eq 'n' { "\n" }
 #elsif $which eq 't' { "\t" }
 #else { $which }
 
-#nibbles
+#--- #nibbles
 #$m<variable>
 
-escape
+#--- escape
 my $e = *text*;
 if $blackboard::quote eq "' '" {
   if    $e eq '\\\\' { Buf.newp('\\') }
@@ -392,13 +393,13 @@ elsif $blackboard::quote eq '" "' {
 }
 else { die "Unsupported quote: "~$blackboard::quote }
 
-backslash:x
+#--- backslash:x
 my $xNNNN = *text*;
 my $s = ('0'~$xNNNN).hex.chr;
 Buf.newp($s)
 
 
-nibbler
+#--- nibbler
 #XXX I've sooo no idea.
 if $o<nibbles> {
   #X $m<nibbles>[0]
@@ -411,7 +412,7 @@ else {
   die "nibbler is a work in progress";
 }
 
-colonpair
+#--- colonpair
 my $v = $m<v>;
 if $o<v>.isa('Match') {
   if $o<v><nibble> { #XXX :x<2> bypass postcircumfix:< >.
@@ -426,40 +427,40 @@ my $k = $m<k>; # or $m<identifier> ?
 Pair.newp($k,$v)
 
 
-scope_declarator:my
+#--- scope_declarator:my
 temp $blackboard::scope = 'my';
 $m<scoped>
 
-scope_declarator:has
+#--- scope_declarator:has
 temp $blackboard::scope = 'has';
 $m<scoped>
 
-scope_declarator:our
+#--- scope_declarator:our
 temp $blackboard::scope = 'our';
 $m<scoped>
 
-scope_declarator:temp
+#--- scope_declarator:temp
 temp $blackboard::scope = 'temp';
 $m<scoped>
 
-scope_declarator:constant
+#--- scope_declarator:constant
 temp $blackboard::scope = 'constant';
 $m<scoped>
 
-scoped
+#--- scoped
 temp $blackboard::typenames = $m<fulltypename>;
 $m<declarator>
 
-declarator
+#--- declarator
 $m<variable_declarator> || $m<signature> || $m<routine_declarator> || $m<regex_declarator> || $m<type_declarator>
 
-variable_declarator
+#--- variable_declarator
 my $scope = $blackboard::scope; temp $blackboard::scope;
 my $typenames = $blackboard::typenames; temp $blackboard::typenames = undef;
 VarDecl.newp($scope,$typenames,undef,$m<variable>,undef,$m<trait>,'=',$m<default_value>)
 #XXX default_value is going to take some non-local work.
 
-variable
+#--- variable
 my $text = *text*;
 my $tw = $m<twigil>[0] || "";
 if $tw eq "." && $o<postcircumfix>.elems {
@@ -493,46 +494,46 @@ if $o<postcircumfix>.elems {
   $v;  
 }
 
-sigil
+#--- sigil
 *text*
 
-twigil
+#--- twigil
 *text*
 
-special_variable
+#--- special_variable
 my $v = *text*;
 my $s = substr($v,0,1);
 my $n = substr($v,1,$v.chars-1);
 Var.newp($s,undef,$n)
 
 
-modifier_expr
+#--- modifier_expr
 $m<EXPR>
 
-statement_control:BEGIN
+#--- statement_control:BEGIN
 ClosureTrait.newp('BEGIN',$m<block>)
 
-statement_control:for
+#--- statement_control:for
 For.newp($m<xblock><EXPR>,$m<xblock>)
 
-statement_mod_loop:for
+#--- statement_mod_loop:for
 For.newp($m<modifier_expr>,$blackboard::statement_expr)
 
-statement_control:while
+#--- statement_control:while
 Loop.newp($m<xblock><EXPR>,$m<xblock><pblock>,undef,undef)
 
-statement_mod_loop:while
+#--- statement_mod_loop:while
 Loop.newp($m<modifier_expr>,$blackboard::statement_expr,undef,undef)
 
-statement_control:until
+#--- statement_control:until
 my $test = Apply.newp("not",Capture.newp1([$m<EXPR>]));
 Loop.newp($test,$m<block>,undef,undef)
 
-statement_mod_loop:until
+#--- statement_mod_loop:until
 my $test = Apply.newp("not",Capture.newp1([$m<modifier_expr>]));
 Loop.newp($test,$blackboard::statement_expr,undef,undef)
 
-statement_control:loop
+#--- statement_control:loop
 my $e1 = $m<loop_eee><loop_e1>;
 my $e2 = $m<loop_eee><loop_e2>;
 my $e3 = $m<loop_eee><loop_e3>;
@@ -540,7 +541,7 @@ my $block = $m<loop_block>;
 my $body = Loop.newp($e2,Block.newp([$block,$e3]),undef,undef);
 Block.newp([$e1,$body])
 
-statement_control:if
+#--- statement_control:if
 my $if_expr = $m<xblock><EXPR>;
 my $if_block = $m<xblock><pblock>;
 my $els;
@@ -548,89 +549,89 @@ if maybe($o<else>) { $els = ir($o<else>[0]<pblock>) }
 my $elsif = $m<elsif>||[];
 Cond.newp([[$if_expr,$if_block]].push($elsif.flatten),$els,undef)
 
-statement_control__S_036if_elsif
+#--- statement_control__S_036if_elsif
 [$m<xblock><EXPR>,$m<xblock><pblock>]
 
 
-statement_mod_cond:if
+#--- statement_mod_cond:if
 Cond.newp([[$m<modifier_expr>,$blackboard::statement_expr]],undef,undef)
 
-statement_control:unless
+#--- statement_control:unless
 Cond.newp([[$m<EXPR>,$m<block>]],undef,1)
 
-statement_mod_cond:unless
+#--- statement_mod_cond:unless
 Cond.newp([[$m<modifier_expr>,$blackboard::statement_expr]],undef,1)
 
 
-statement_control:given
+#--- statement_control:given
 Given.newp($m<EXPR>,$m<block>)
 
-statement_mod_loop:given
+#--- statement_mod_loop:given
 Given.newp($m<modifier_expr>,$blackboard::statement_expr)
 
-statement_control:when
+#--- statement_control:when
 When.newp($m<EXPR>,$m<block>)
 
-statement_mod_cond:when
+#--- statement_mod_cond:when
 When.newp($m<modifier_expr>,$blackboard::statement_expr)
 
-statement_control:default
+#--- statement_control:default
 When.newp(undef,$m<block>)
 
 
-statement_prefix:do
+#--- statement_prefix:do
 Apply.newp("statement_prefix:do",Capture.newp1([$m<statement>]))
 
-statement_prefix:try
+#--- statement_prefix:try
 Apply.newp("statement_prefix:try",Capture.newp1([$m<statement>]))
 
-statement_prefix:gather
+#--- statement_prefix:gather
 Apply.newp("statement_prefix:gather",Capture.newp1([$m<statement>]))
 
-statement_prefix:contend
+#--- statement_prefix:contend
 Apply.newp("statement_prefix:contend",Capture.newp1([$m<statement>]))
 
-statement_prefix:async
+#--- statement_prefix:async
 Apply.newp("statement_prefix:async",Capture.newp1([$m<statement>]))
 
-statement_prefix:lazy
+#--- statement_prefix:lazy
 Apply.newp("statement_prefix:lazy",Capture.newp1([$m<statement>]))
 
 
-pblock
+#--- pblock
 if $o<signature>.elems {
   SubDecl.newp(undef,undef,undef,undef,$m<signature>[0],undef,$m<block>)
 } else {
   $m<block>
 }
 
-block
+#--- block
 Block.newp($m<statementlist>)
 
-xblock
+#--- xblock
 $m<pblock>
 
-multi_declarator:multi
+#--- multi_declarator:multi
 temp $blackboard::plurality = 'multi';
 $m<declarator> || $m<routine_def>
 
-multi_declarator:proto
+#--- multi_declarator:proto
 temp $blackboard::is_proto = 1;
 $m<declarator>
 
-routine_declarator:sub
+#--- routine_declarator:sub
 $m<routine_def>
 
-routine_declarator:method
+#--- routine_declarator:method
 $m<method_def>
 
-method_def
+#--- method_def
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $multisig = $m<multisig>;
 if $multisig.elems == 0 { $multisig = [Signature.newp([],undef)]; }
 MethodDecl.newp(undef,undef,$plurality,$m<longname>,$multisig.[0],maybe($m<trait>),$m<block>,undef,undef)
 
-routine_def
+#--- routine_def
 my $scope = $blackboard::scope; temp $blackboard::scope;
 my $plurality = $blackboard::plurality; temp $blackboard::plurality;
 my $ident = "";
@@ -640,13 +641,13 @@ my $sig = Signature.newp([],undef);
 if $o<multisig>.elems { $sig = ir($o<multisig>[0]) };
 SubDecl.newp($scope,undef,$plurality,$ident,$sig,maybe($m<trait>),$m<block>)
 
-multisig
+#--- multisig
 $m<signature>[0]
 
-signature
+#--- signature
 Signature.newp($m<parameter>,$m<fulltypename>[0])
 
-parameter
+#--- parameter
 my $var = $m<param_var>;
 my $quantchar = $m<quant>;
 my $type_constraint = $m<type_constraint>;
@@ -657,23 +658,23 @@ if $type_constraint.elems == 0 { $type_constraint = undef }
 my $default_value = $m<default_value>[0];
 Parameter.newp($type_constraint,$quantchar,$var,undef,undef,undef,$default_value)
 
-default_value
+#--- default_value
 $m<EXPR>
 
-param_var
+#--- param_var
 ParamVar.newp($m<sigil>,$m<twigil>[0]||"",$m<identifier>[0])
 
-type_constraint
+#--- type_constraint
 $m<fulltypename>
 
-fulltypename
+#--- fulltypename
 $m<typename>[0]
 
-typename
+#--- typename
 $m<longname>
 
 
-capture
+#--- capture
 if not($o<EXPR>) {
   Capture.newp1([])
 }
@@ -701,48 +702,48 @@ elsif $o<EXPR><sym> && $o<EXPR><sym> eq ',' {
 else { die "capture AST form not recognized" }
 
 
-package_declarator:role
+#--- package_declarator:role
 temp $blackboard::package_declarator = 'role';
 $m<package_def>
 
-package_declarator:class
+#--- package_declarator:class
 temp $blackboard::package_declarator = 'class';
 $m<package_def>
 
-package_declarator:module
+#--- package_declarator:module
 temp $blackboard::package_declarator = 'module';
 $m<package_def>
 
-package_declarator:package
+#--- package_declarator:package
 temp $blackboard::package_declarator = 'package';
 $m<package_def>
 
-package_declarator:grammar
+#--- package_declarator:grammar
 temp $blackboard::package_declarator = 'grammar';
 $m<package_def>
 
-package_def
+#--- package_def
 PackageDecl.newp(undef,undef,$blackboard::package_declarator,$m<module_name>.[0],maybe($m<trait>),$m<block>)
 
-trait
+#--- trait
 $m<trait_auxiliary>
 
-trait_auxiliary:is
+#--- trait_auxiliary:is
 Trait.newp('is',$m<longname>)
 
-trait_auxiliary:does
+#--- trait_auxiliary:does
 Trait.newp('does',$m<module_name>)
 
 
 
-regex_declarator
+#--- regex_declarator
 my $kind = $m<sym_name>;
 temp $blackboard::regex_kind = $kind;
 $m<regex_def>
 
 
 
-regex_def
+#--- regex_def
 my $kind = $blackboard::regex_kind;
 my $name = $m<deflongname>[0];
 my $sig = $m<signature>[0];
@@ -765,10 +766,10 @@ my $rx = RxBiind.newp(undef,$name,RxARegex.newp('',{},$regex));
 RegexDef.newp($kind,$name,$sig,$trait,$rx)
 
 
-regex_block
+#--- regex_block
 $m<nibble>
 
-quantified_atom
+#--- quantified_atom
 my $quant = $o<quantifier>[0];
 my $qtext = $m<quantifier>[0];
 my $atom = $m<atom>;
@@ -800,7 +801,7 @@ else {
   die "quantified_atom incompletely implemented";
 }
 
-atom
+#--- atom
 if $o<metachar> {
   $m<metachar>
 }
@@ -809,11 +810,11 @@ else {
   RxExact.newp($char)
 }
 
-quantifier
+#--- quantifier
 *text*
 
 
-metachar:sigwhite
+#--- metachar:sigwhite
 my $pkg;
 my $name = "ws";
 my $exprs = [];
@@ -821,7 +822,7 @@ my $neg = undef;
 my $nocap = 1;
 RxSubrule.newp($pkg,$name,$exprs,$neg,$nocap);
 
-metachar
+#--- metachar
 my $text = *text*;
 my $x = $text;
 if $o<sym_name> { $x = $m<sym_name> }
@@ -865,8 +866,35 @@ elsif $text eq '<'~'sym>' {
   RxAlias.newp('$'~'<'~'sym>',undef,RxCap.newp(RxExact.newp($blackboard::sym)));
 }
 elsif $x eq '< >' {
-  if $o<assertion><sym_name> && $o<assertion><sym_name> eq '[' {
-    my $v = $o<assertion><cclass_elem>; #X $o not $m, for $op below.
+  # < stuff >
+  my $pkg = undef;
+  my $neg = undef;
+  my $nocap = undef;
+  my $zero_width = undef;
+  my $name;
+  my $args;
+  my $exprs = [];
+  my $sr = $o<assertion>;
+  my $methodp;
+  my $alias;
+  ;
+  # <mumble=foo>
+  if $sr && $sr<identifier> && $sr<assertion>.elems {
+    $alias = irbuild_ir($sr<identifier>);
+    $sr = $sr<assertion>[0];
+  }
+  ;
+  # <? > <! > <.foo>
+  while $sr && $sr<sym_name> {
+    if $sr<sym_name> eq '?' { $nocap = 1; $zero_width = 1; $sr = $sr<assertion>; } # <? >
+    elsif $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; $methodp =1} # <.foo>
+    elsif $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; } # <! >
+    else { last; }
+  }
+  ;
+  # <[ ]> <+[ ]> <-[ ]>
+  if $sr<sym_name> && $sr<sym_name> eq '[' {
+    my $v = $sr<cclass_elem>; #X $o not $m, for $op below.
     my $inc=[]; my $excl=[];
     $v.map(sub ($opset){
       my $op = '+'; #XXX not in tree. :(
@@ -874,6 +902,7 @@ elsif $x eq '< >' {
       if $op eq '-' { $excl.push($set) }
       else { $inc.push($set) }
     });
+    if $neg { my $tmp = $inc; $inc = $excl; $excl = $tmp }
     my $ast;
     if $inc.elems == 0 {
       $ast = RxPat5.newp('(?s:.)');
@@ -889,33 +918,10 @@ elsif $x eq '< >' {
       } else {
         $exast = RxAlt.newp($excl);
       }
-      $ast = RxSeq.newp(RxLookaround.newp(1,0,$exast),
-			$ast);
+      $ast = RxSeq.newp([RxLookaround.newp(1,0,$exast),
+			$ast]);
     }
     return $ast;
-  }
-  # < stuff >
-  my $pkg = undef;
-  my $neg = undef;
-  my $nocap = undef;
-  my $zero_width = undef;
-  my $name;
-  my $args;
-  my $exprs = [];
-  my $sr = $o<assertion>;
-  my $methodp;
-  my $alias;
-  ;
-  if $sr && $sr<identifier> && $sr<assertion>.elems {
-    $alias = irbuild_ir($sr<identifier>);
-    $sr = $sr<assertion>[0];
-  }
-  ;
-  while $sr && $sr<sym_name> {
-    if $sr<sym_name> eq '?' { $nocap = 1; $zero_width = 1; $sr = $sr<assertion>; }
-    elsif $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; $methodp =1} #/<.foo>/
-    elsif $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; }
-    else { last; }
   }
   ;
   if $text eq '<...>' {
@@ -1037,7 +1043,7 @@ else {
   die "Unimplemented metachar: "~$x;
 }
 
-p5mods
+#--- p5mods
 my $mods = {};
 my $normalize = sub ($x,$v) {
   if $x eq 'i' { $mods{$x} = $v }
@@ -1049,10 +1055,10 @@ if $o<off>.elems {
 }
 $mods;
 
-p5mod
+#--- p5mod
 *text*
 
-assertion:mod
+#--- assertion:mod
 my $onoff = $m<p5mods>;
 if $o<rx> && $o<rx>.elems {
   RxMod_expr.newp($onoff,$m<rx>[0]);
@@ -1060,10 +1066,10 @@ if $o<rx> && $o<rx>.elems {
   RxMod_inline.newp($onoff);
 }
 
-assertion
+#--- assertion
 *text*
 
-cclass_elem
+#--- cclass_elem
 temp $blackboard::quote = "' '";
 my $set = $m<quibble><nibble>;
 my $pat5 = $set.re_gsub('\.\.','-').re_gsub('(?<!\\\\)\s','');
@@ -1094,10 +1100,10 @@ RxPat5.newp($pat5);
 #   }
 
 
-rx
+#--- rx
 $m<nibbler>
 
-mod_internal
+#--- mod_internal
 if $o<statement> {
   my $stmt = $m<statement>;
   return RxCode.newp($stmt); # no Block.
@@ -1113,11 +1119,12 @@ if $mods.{'P5'} { $mods.{'p5'} = 1; $blackboard::is_P5 = 1 }
 RxMod_inline.newp($mods)
 
 
-untagged_node
+#--- untagged_node
 *text*
 
 
 END_DEF
+#- End of rules.
 
 my $header_code = <<'END_CODE';
 # Warning: This file is mechanically written.  Your changes will be overwritten.
@@ -1185,6 +1192,7 @@ sub write_ast_handlers {
   my($def,$file)=@_;
   my $paragraphs = sub {
     my($text)=@_;
+    $text =~ s/^#-+ {1,2}//mg;
     $text =~ s/^[ ]*#.*\n//mg;
     $text =~ s/[ ]*#.*//g;
     $text =~ s/^([ \t]*\n)*//;
@@ -1279,3 +1287,14 @@ sub unindent {
 }
 
 write_ast_handlers($def,$output_file);
+
+#- Footer
+#; Local Variables:
+#; mode: outline-minor
+#; outline-regexp: "#[-]+"
+#; perl-indent-level: 2
+#; perl-continued-statement-offset: 2
+#; perl-continued-brace-offset: -2
+#; indent-tabs-mode: nil
+#; End:
+#; vim: shiftwidth=2:
