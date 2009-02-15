@@ -124,10 +124,10 @@ plan 18;
 }
 
 {
-  my sub get_foo { try { $+foo } }
+  my sub get_foo { try { $*foo } }
   my $foo is context = 42;
 
-  is get_foo(), 42, '$+ is short for $CALLER::';
+  is get_foo(), 42, '$* is short for $CONTEXT::';
 }
 
 # Rebinding caller's variables -- legal?

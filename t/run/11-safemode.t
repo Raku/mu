@@ -15,7 +15,7 @@ my $tmpfile = "temp-test" ~ nonce();
 my @tests = (
     # Test that open() doesn't work.
     'my $fh = eval \'open("' ~ $tmpfile ~ '-opened", :w)\'; eval \'close $fh\'',
-    { $^a; "$tmpfile-opened" !~~ :e },
+    { $^a; "{$tmpfile}-opened" !~~ :e },
     
     # %*ENV, %?CONFIG, and $*OS should be hidden, too.
     'Pugs::Safe::safe_print("[%*ENV{}] [%?CONFIG{}] [$*OS]")',
@@ -63,17 +63,17 @@ for @tests -> $code_to_run, $condition {
   state $i; $i++;
 
   {
-      my $fh = open("$tmpfile-src", :w);
+      my $fh = open("{$tmpfile}-src", :w);
       say $fh: $code_to_run;
       close $fh;
   }
 
-  my $command = "$*EXECUTABLE_NAME $tmpfile-src $redir $tmpfile-out";
+  my $command = "$*EXECUTABLE_NAME {$tmpfile}-src $redir {$tmpfile}-out";
   diag "Code to be run under safemode:\n  $code_to_run";
   diag "Pugs will be started using:\n  $command";
   run $command;
 
-  my $got     = slurp "$tmpfile-out";
+  my $got     = slurp "{$tmpfile}-out";
   unlink map { "$tmpfile-$_" }, <src out opened>;
   diag "The code wrote to STDOUT:\n  $got";
 
