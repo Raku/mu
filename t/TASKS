@@ -79,7 +79,6 @@ S16
 
 S29
 * tests for array: shape
-* tests for complex: polar
 * tests for pack and unpack
 * tests to ensure that rand has a bit of entropy
 
