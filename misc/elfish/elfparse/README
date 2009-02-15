@@ -4,37 +4,66 @@ QUICKSTART
 
 First, get <pugs>/misc/STD_red working.  See its README.
 
+$ sudo cpan -i autobox Class::Multimethods Sub::Name  Regexp::Common
+$ sudo cpan -i Moose Term::ANSIColor  #...others...?
 $ make known_working_STD
+$ make elfblue
+$ ./elfblue -v -s -e 'say 3'
 $ make check
 $ make all
-$ ./elfblue -v -s -e 'say 3'
+$ ./elfrx -v -e 'proto token foo {a}; token foo:<+> { \+ }; token foo:<++> { \+\+ }; say /<foo>/.match("a++b").match_describe'
 $ make is_perl_recent_enough
-$ ./elfgreenstd -v -e 'say /<STD::number>/.match("23").match_describe'
-$ ./elfgreen -v -e 'proto token foo {a}; token foo:<+> { \+ }; token foo:<++> { \+\+ }; say /<foo>/.match("a++b").match_describe'
+$ ./elfdev -v -e 'say /<STD::number>/.match("23").match_describe'
 
 $ make does_gimme5_memory_problem_still_exist
 
 INTRODUCTION
 
-STD_blue is a parser for elf, which uses the p5 src/perl6/gimme5.
-STD_green is a parser for elf, which runs std.pm on elfgreen.
+Parser
+------
 
+Elf currently uses an external parser, of which there are several.
+
+STD_red
+The fast and stable parser used by elf_h.
+It is handwritten ruby1.9, based on a rather old STD.pm.
+<pugs>/misc/STD_red/
+
+STD_blue
+The reference and bootstrap parser used by elfblue and elfrx.
+It uses Larry's Perl 5 src/perl6/gimme5 STD.pmc.
+Its parse tree is different than STD_red's (thus ./IRx1_FromAST2.pm),
+and closer to what elf will have when it can run STD.pm directly.
+STD_blue/elfblue works well enough to self-compile elfblue.
+
+STD_green
+The development parser.
+It uses std.pm (a tweaked STD.pm) on elfrx (elfblue plus rx engine).
+Its parse tree is similar to STD_blue's (so elfblue and elfrx may use it).
+It can't parse even "3" yet.  
+
+Compiler
+--------
+
+There are several versions of elf.
 
 elf_h is the foundational elf.  It uses STD_red.
 
-elfblue is a (tweaked) elf which uses STD_blue instead of STD_red.
-Purpose: keep STD_blue support working.
+elfblue is a (tweaked) elf_h which uses STD_blue instead of STD_red.
+Purpose: keep STD_blue elf working.
 
-elfgreen is like elfblue, and has regex support.
+elfrx is like elfblue, but also has regex support.
 Purpose: regex development.
 
-elfgreenstd is like elfgreen, and includes std.pm.
+elfdev is elfrx with std.pm preloaded.
 Purpose: std.pm debugging.
+
 
 VISION
 
-Combine elfblue, elf_h, and rx_on_re, and teach them to compile and
-run STD.pm.  Thus permitting the front-end to be bootstrapped.
+Teach elfrx to to compile and run STD.pm.
+Thus permitting the front-end to be bootstrapped.
+
 
 NOTES
 

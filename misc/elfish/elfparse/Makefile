@@ -11,8 +11,8 @@ ELFBLUEDEV=-I ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$
 ELFBLUECOMP=-I . -I  ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm Parser2.pm -e elf_main
 ELFBLUEDEV_DEPS=${DEPS_FOR_STDBLUE_USERS} ${ELF} IRx1_FromAST2.pm Parser2.pm
 
-ELFGREENDEV=-I . -I ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$*ast2ir_1; $$*parser0=undef' Parser2.pm nodes.pm analysis.pm emit5.pm -e '_inline_p5("require \"./remains_of_Regexp_ModuleA.pm\";")' -e '_inline_p5("require \"./rx_prelude_p5.pm\";")' 
-ELFGREENDEV_DEPS=${ELFBLUEDEV_DEPS} nodes.pm analysis.pm emit5.pm remains_of_Regexp_ModuleA.pm rx_prelude.pm
+ELFRXDEV=-I . -I ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$*ast2ir_1; $$*parser0=undef' Parser2.pm nodes.pm analysis.pm emit5.pm -e '_inline_p5("require \"./remains_of_Regexp_ModuleA.pm\";")' -e '_inline_p5("require \"./rx_prelude_p5.pm\";")' 
+ELFRXDEV_DEPS=${ELFBLUEDEV_DEPS} nodes.pm analysis.pm emit5.pm remains_of_Regexp_ModuleA.pm rx_prelude.pm
 # rx_prelude.pm not rx_prelude_p5.pm
 
 TMP=deleteme
@@ -26,10 +26,10 @@ is_perl_recent_enough: STD_green_run
 	./STD_green_run --start=number -e 3
 	@echo ok
 
-all: elfblue elfgreen STD_green_run elfgreenstd
+all: elfblue elfrx STD_green_run elfdev
 
 clean:
-	rm -rf lex lex.is_current ${TMP} elfblue elfgreen elfgreenstd STD_green_run IRx1_FromAST2.pm nodes.pm rx_prelude.pm rx_prelude_p5.pm std.pm.p5 STD_green_run.pm.p5 ${STD_RED_CACHEDIR} ${STD_RED_CACHEDIR}.is_current ${STD_BLUE_CACHEDIR} ${STD_BLUE_CACHEDIR}.is_current
+	rm -rf lex lex.is_current ${TMP} elfblue elfrx elfdev STD_green_run IRx1_FromAST2.pm nodes.pm rx_prelude.pm rx_prelude_p5.pm std.pm.p5 STD_green_run.pm.p5 ${STD_RED_CACHEDIR} ${STD_RED_CACHEDIR}.is_current ${STD_BLUE_CACHEDIR} ${STD_BLUE_CACHEDIR}.is_current
 
 
 # STD_blue
@@ -67,14 +67,14 @@ elfblue: ${ELF} ${ELFBLUEDEV_DEPS}
 	${ELF} -x -o ./elfblue ${ELFBLUEDEV} -e elf_main
 	make ${STD_BLUE_CACHEDIR}.is_current 
 
-# elfgreen
+# elfrx
 
-elfgreen: ${ELF} ${ELFGREENDEV_DEPS}
+elfrx: ${ELF} ${ELFRXDEV_DEPS}
 	make ${STD_RED_CACHEDIR}.is_current 
 	make ${STD_BLUE_CACHEDIR}.is_current 
 	echo "1;" > rx_prelude_p5.pm
-	${ELF} -x -o ./elfgreen ${ELFGREENDEV} -e elf_main
-	./elfgreen -o rx_prelude_p5.pm -s rx_prelude.pm
+	${ELF} -x -o ./elfrx ${ELFRXDEV} -e elf_main
+	./elfrx -o rx_prelude_p5.pm -s rx_prelude.pm
 
 nodes.pm: nodes_create.pl
 	./nodes_create.pl
@@ -83,22 +83,22 @@ rx_prelude.pm: ${ELF} rx_prelude_create.p6
 	make ${STD_RED_CACHEDIR}.is_current
 	${ELF} rx_prelude_create.p6 > rx_prelude.pm
 
-rx_prelude_p5.pm: elfgreen rx_prelude.pm
-	./elfgreen -o rx_prelude_p5.pm -s rx_prelude.pm
+rx_prelude_p5.pm: elfrx rx_prelude.pm
+	./elfrx -o rx_prelude_p5.pm -s rx_prelude.pm
 
 # STD_green
 
-std.pm.p5: elfgreen std.pm
-	./elfgreen -s -o std.pm.p5 std.pm
+std.pm.p5: elfrx std.pm
+	./elfrx -s -o std.pm.p5 std.pm
 
-STD_green_run.pm.p5: elfgreen STD_green_run.pm
-	./elfgreen -s -o STD_green_run.pm.p5 STD_green_run.pm
+STD_green_run.pm.p5: elfrx STD_green_run.pm
+	./elfrx -s -o STD_green_run.pm.p5 STD_green_run.pm
 
-STD_green_run: elfgreen std.pm STD_green_run.pm std.pm.p5 STD_green_run.pm.p5
-	${ELF} -x -o STD_green_run ${ELFGREENDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e '_inline_p5("require \"./STD_green_run.pm.p5\";")'
+STD_green_run: elfrx std.pm STD_green_run.pm std.pm.p5 STD_green_run.pm.p5
+	${ELF} -x -o STD_green_run ${ELFRXDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e '_inline_p5("require \"./STD_green_run.pm.p5\";")'
 
-elfgreenstd: STD_green_run
-	${ELF} -x -o ./elfgreenstd ${ELFGREENDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e elf_main
+elfdev: STD_green_run
+	${ELF} -x -o ./elfdev ${ELFRXDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e elf_main
 
 # Test
 
@@ -114,18 +114,18 @@ check_rx_on_re: nodes.pm
 	# check_rx_on_re passed.
 	#
 
-test_rx_on_re_blue: elfgreen
+test_rx_on_re_blue: elfrx
 	rm -rf ${STD_BLUE_CACHEDIR} ${STD_BLUE_CACHEDIR}.is_current
 	# Create cache dirs.  This is WRONG.  Env vars should be unset instead.
 	make ${STD_BLUE_CACHEDIR}.is_current  #XXX
 	if [ "${STD_BLUE_CACHEDIR}" != "" ];then echo;echo "WARNING: Using STD_BLUE_CACHEDIR: " ${STD_BLUE_CACHEDIR};echo; fi
 	-rm -rf lex  # Reset gimme5.
-	ulimit -v 1000000; ./elfgreen test_blue.pm > tst_1b 2> tst_2b
+	ulimit -v 1000000; ./elfrx test_blue.pm > tst_1b 2> tst_2b
 	diff t_test_blue.result tst_1b
 	#diff t_baseline.result tst_1b
 
 run_test_blue:
-	ulimit -v 1000000; ./elfgreen test_blue.pm > tst_1b 2> tst_2b
+	ulimit -v 1000000; ./elfrx test_blue.pm > tst_1b 2> tst_2b
 
 
 check_STD_blue: ${ELF} ${ELFBLUEDEV_DEPS}
