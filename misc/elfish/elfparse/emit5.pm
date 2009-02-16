@@ -1152,6 +1152,13 @@ package IRx1 {
   class RxBaseClass {
   }
 
+  # space - may be <ws> or ' '.
+  class RxASpace {
+    method emit_RMARE () {
+      $.notes<delegate>.emit_RMARE;
+    }
+  }
+
   # any regexp
   class RxPat5 {
     method emit_RMARE () {

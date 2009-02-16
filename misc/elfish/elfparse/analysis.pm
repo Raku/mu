@@ -22,6 +22,33 @@ package IRx1 {
 
   }
 
+  class RxASpace {
+    method RAST_pass10 {
+      self.notes<flags> = $whiteboard::rx_flags.clone;
+      my $sigspace = $.notes<flags><sigspace>;
+      my $p6 = not($.notes<flags><p5>);
+      my $perl5_x = $.notes<flags><x>;
+      my $delegate;
+      if $p6 {
+        if $sigspace {
+          $delegate = IRx1::RxSubrule.newp(undef,self.<aspace_inpkg>,'ws',[],undef,1);
+        }
+      } else { #p5
+        if not($perl5_x) {
+          # note even if we fail to catch //x, RxExact may apply the x flag itself.
+          $delegate = IRx1::RxExact.newp(undef,$.text);
+        }
+      }
+      if not(defined($delegate)) {
+        $delegate = IRx1::RxSeq.newp(undef,[]); # do nothing
+      }
+      $.notes<delegate> = $delegate;
+      $delegate.RAST_pass10;
+    }
+    method RAST_children { [$.notes<delegate>] }
+    method RAST_pass14 { $.notes<delegate>.RAST_pass14 } #dont stomp on quant directness
+  }
+
   class RxPat5 {
   }
 
@@ -225,27 +252,6 @@ package IRx1 {
       } else {
         $.SUPER::RAST_pass14;
       }
-    }
-  }
-
-  class RxASpace {
-    method RAST_pass10 {
-      my $flags = $whiteboard::rx_flags.clone;
-      if $flags.<sigspace> {
-        my $sr = IRx1::RxSubrule.newx(self.<aspace_inpkg>,'.ws',[]);
-        $.become('IRx1::RxSubrule');
-        # XXX anything else?
-        self.<created_in_pkg> = $sr.<created_in_pkg>;
-        self.<exprs> = $sr.<exprs>;
-        self.<name> = $sr.<name>;
-        self.<neg> = $sr.<neg>;
-        self.<nocap> = $sr.<nocap>;
-        self.<inpkg> = $sr.<inpkg>;
-        self.<pkg> = $sr.<pkg>;
-      } else {
-        $.become('IRx1::RxExact');
-      }
-      $.RAST_pass10;
     }
   }
 

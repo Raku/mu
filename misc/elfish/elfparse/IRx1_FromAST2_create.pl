@@ -777,19 +777,22 @@ my $quant = $o<quantifier>[0];
 my $qtext = $m<quantifier>[0];
 my $atom = $m<atom>;
 my $g;
-if not($qtext) { return $atom; }
+my $irs;
+if not($qtext) {
+  $irs = $atom;
+}
 elsif ($g = $qtext.re_groups('{(\d+)(?:,(\d*))?}(\?)?\z')) {
   my $ng = $g[2];
   my $min = $g[0];
   my $max = $g[1]; if !defined($max) { $max = $min } elsif $max eq '' { $max = 1000**1000**1000 }; #XXX inf
-  RxQuant.newp($min,$max,$atom,$ng)
+  $irs = RxQuant.newp($min,$max,$atom,$ng);
 }
 elsif ($g = $qtext.re_groups('([?*+])(\?)?\z')) {
   my $ng = $g[1];
   my $op = $g[0];
-  if    $op eq '?' { RxQuant.newp(0,1,$atom,$ng) }
-  elsif $op eq '*' { RxQuant.newp(0,undef,$atom,$ng) }
-  elsif $op eq '+' { RxQuant.newp(1,undef,$atom,$ng) }
+  if    $op eq '?' { $irs = RxQuant.newp(0,1,$atom,$ng) }
+  elsif $op eq '*' { $irs = RxQuant.newp(0,undef,$atom,$ng) }
+  elsif $op eq '+' { $irs = RxQuant.newp(1,undef,$atom,$ng) }
   else { die "bug" }
 }
 elsif $quant && $quant<sym_name> && $quant<sym_name> eq '**' {
@@ -797,12 +800,18 @@ elsif $quant && $quant<sym_name> && $quant<sym_name> eq '**' {
     my $atom2 = irbuild_ir($quant<quantified_atom>);
     my $extra = RxSeq.newp([$atom2,$atom]);
     my $more = RxQuant.newp(0,undef,RxGrp.newp($extra),0);
-    return RxSeq.newp([$atom,$more]);
+    $irs = RxSeq.newp([$atom,$more]);
   }
 }
-else {
+if !defined($irs) {
   die "quantified_atom incompletely implemented";
 }
+if $o<nextsame> && $o<nextsame>.elems && $o<nextsame>[0].match_rule eq 'ws' {
+  my $pkg; #XXX concequences?
+  my $ws = $o<nextsame>[0].match_string;
+  $irs = RxSeq.newp([$irs,RxASpace.newp($pkg,$ws)]);
+}
+$irs;
 
 #--- atom
 if $o<metachar> {
@@ -818,7 +827,7 @@ else {
 
 
 #--- metachar:sigwhite
-my $pkg;
+my $pkg; #XXX concequences?
 my $name = "ws";
 my $exprs = [];
 my $neg = undef;
@@ -906,13 +915,13 @@ elsif $x eq '< >' {
       else { $inc.push($set) }
     });
     if $neg { my $tmp = $inc; $inc = $excl; $excl = $tmp }
-    my $ast;
+    my $irs;
     if $inc.elems == 0 {
-      $ast = RxPat5.newp('(?s:.)');
+      $irs = RxPat5.newp('(?s:.)');
     } elsif $inc.elems == 1 {
-      $ast = $inc[0];
+      $irs = $inc[0];
     } else {
-      $ast = RxAlt.newp($inc);
+      $irs = RxAlt.newp($inc);
     }
     if $excl.elems {
       my $exast;
@@ -921,10 +930,10 @@ elsif $x eq '< >' {
       } else {
         $exast = RxAlt.newp($excl);
       }
-      $ast = RxSeq.newp([RxLookaround.newp(1,0,$exast),
-			$ast]);
+      $irs = RxSeq.newp([RxLookaround.newp(1,0,$exast),
+			$irs]);
     }
-    return $ast;
+    return $irs;
   }
   ;
   if $text eq '<...>' {

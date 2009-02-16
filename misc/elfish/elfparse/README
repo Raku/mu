@@ -107,7 +107,6 @@ DEV NOTES
 Todo:
  - <noun> <?na>?  bug
    ./elfdev -e 'package STD{rule bug {<noun><?fake>?};say /<bug>/.match("3").match_describe}'
- - get sigspace working.
  - extract '3;' parser rules into isolated and more easily recompiled file.
  - profile.
  - explore speedups.
@@ -122,6 +121,12 @@ Todo:
     lib? $0 ~~ __FILE__ ?  gimme_elf's hack?
 
  - EXPR
+
+Implementation problems:
+ - Missing .Bool in fastpath boolean ops.
+   elf_h -v -e 'if 3 && 4 { }'
+   if(((3 && 4))->Bool) {}
+   So still don't know full cost of .Bool-ification.
 
 
 # since we're not faking $¢ yet.
