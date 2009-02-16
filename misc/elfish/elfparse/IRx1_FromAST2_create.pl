@@ -762,7 +762,10 @@ if $blackboard::is_proto { # category decl
   my $def = RegexDef.newp($kind,$name,$sig,$trait,$rx);
   return RegexCategoryDecl.newp($name,$def);
 }
-my $rx = RxBiind.newp(undef,$name,RxARegex.newp('',{},$regex));
+my $mods = {};
+if $kind eq 'token' || $kind eq 'rule' { $mods{'ratchet'} = 1 }
+if $kind eq 'rule' { $mods{'sigspace'} = 1 }
+my $rx = RxBiind.newp(undef,$name,RxARegex.newp('',$mods,$regex));
 RegexDef.newp($kind,$name,$sig,$trait,$rx)
 
 

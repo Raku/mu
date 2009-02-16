@@ -1210,7 +1210,7 @@ package IRx1 {
     method emit_RMARE {
       my $exprs = self.<exprs>.map(sub ($o){$o.emit_RMARE}).join(',');
       if self.notes<flags><ratchet> {
-        'IRx1::RxBaseClass->RMARE_concat([IRx1::RxBaseClass->RMARE_alt('~$exprs~'),
+        'IRx1::RxBaseClass->RMARE_concat([IRx1::RxBaseClass->RMARE_alt(['~$exprs~']),
                         IRx1::RxBaseClass->RMARE_commit_sequence()])';
       } else {
         'IRx1::RxBaseClass->RMARE_alt(['~$exprs~'])';
