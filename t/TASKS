@@ -58,6 +58,7 @@ S05
 S06
 * Unpacking array/hash parameters, see
   http://perlcabal.org/syn/S06.html#Unpacking_array_parameters
+* tests for re-named parameters, eg sub f(:newname($oldname))
 
 S09
 * more tests for multidimensional arrays (also .shape, see S29)
