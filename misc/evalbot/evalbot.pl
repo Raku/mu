@@ -67,13 +67,13 @@ package Evalbot;
                 filter      => \&filter_kp6,
             },
             rakudo => {
-                chdir       => '../../../built-parrot/',
+                chdir       => '../../../parrot/',
                 cmd_line    => './parrot languages/rakudo/perl6.pbc %program >> %out 2>&1',
                 revision    => \&get_rakudo_revision,
                 filter      => \&filter_pct,
             },
             nqp   => {
-                chdir       => '../../../built-parrot/',
+                chdir       => '../../../parrot/',
                 cmd_line    => './parrot compilers/nqp/nqp.pbc %program >> %out 2>&1',
                 filter      => \&filter_pct,
             },
@@ -181,7 +181,7 @@ package Evalbot;
     }
 
     sub get_rakudo_revision {
-        my $file = '/home/evalenv/built-parrot/languages/rakudo/rakudo_revision';
+        my $file = '/home/evalenv/parrot/languages/rakudo/rakudo_revision';
         open my $f, '<', $file or warn "Can't open file '$file': $!";
         my $res = <$f>;
         close $f;
