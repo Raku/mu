@@ -4,6 +4,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
  /*
   * This are the types defined in the SMOP initialization.
   *
+  * gray nodes mean nodes that are going to be defined in C.
   * Red nodes mean nodes defined in C or C+m0ld.
   * Red links mean C symbol lookup, instead of lexical lookup.
   */
@@ -63,5 +64,34 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
  native_bool_true [shape=circle, color=red, label="True"];
  native_bool_false [shape=circle, color=red, label="False"];
 
+ s1p_rolehow [shape=circle, color=gray, label="RoleHOW"];
+ s1p_rolehow -> s1p_prototypehow [color=red];
+
+ s1p_return [shape=circle, color=gray, label="&return"];
+ s1p_return -> controlexceptionreturn [color=red];
+
+ /*
+  * now we start defining types in a higher level
+  *
+  * nodes written in regular Perl 6 are in blue
+  * nodes simplified for bootstrapping are in black
+  *
+  * Links in red are C symbol lookup,
+  * in black are simplified lookup (multi variants by long name, for instance)
+  * in blue are regular lookups
+  *
+  */
+
+
+  // Multi should be reinitted some times...
+  Multi_s0 [shape=circle, color=blue, label="Multi"];
+  Multi_s0 -> s1p_rolehow [color=blue];
+  Multi_s0 -> s1p_package [color=blue];
+  Multi_s0 -> outer_package [color=blue];
+  Multi_s0 -> s1p_adhoc_signature [color=blue];
+  Multi_s0 -> s1p_attribute [color=blue];
+  Multi_s0 -> s1p_array [color=blue];
+  Multi_s0 -> s1p_code [color=blue];
+  Multi_s0 -> s1p_return [color=blue];
 
 }
