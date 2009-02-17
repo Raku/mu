@@ -1152,7 +1152,7 @@ package IRx1 {
   class RxBaseClass {
   }
 
-  # space - may be <ws> or ' '.
+  # space - may be a no-op, literal, or <ws>.
   class RxASpace {
     method emit_RMARE () {
       $.notes<delegate>.emit_RMARE;

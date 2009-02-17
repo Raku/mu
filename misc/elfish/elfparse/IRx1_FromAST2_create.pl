@@ -34,11 +34,7 @@ $m<termish>[0]
 #--- termish
 if $o<quantified_atom> {
   my $atoms = $m<quantified_atom>;
-  if $atoms.elems == 1 {
-    return $atoms[0];
-  } else {
-    return RxSeq.newp($atoms);
-  }
+  return rxseq($m,$atoms);
 }
 my $noun = $m<noun>;
 temp $blackboard::expect_term_base = $noun;
@@ -111,11 +107,9 @@ elsif $o<postop> {
   $m<postop>;
 }
 elsif $o<quantified_atom> {
-  my $seq = $m<quantified_atom>;
-  my $n = $seq.elems;
-  if $n == 1 { $seq[0] }
-  elsif $n > 1 { RxSeq.newp($seq) }
-  else { undef }
+  my $atoms = $m<quantified_atom>;
+  if $atoms.elems == 0 { undef }
+  else { rxseq($m,$atoms) }
 }
 elsif $o<left> && $o<rxinfix> && $o<sym_name> eq '~' { #/a ~ b c/
   my $open = $m<left>;
@@ -124,8 +118,8 @@ elsif $o<left> && $o<rxinfix> && $o<sym_name> eq '~' { #/a ~ b c/
   my $nonspec_excess = $rest.splice(2,$rest.elems-2);
   my $close = $rest[0];
   my $center = $rest[1];
-  #RxSeq.newp([$open,$center,$close]);
-  RxSeq.newp([$open,$center,$close].concat($nonspec_excess));
+  #rxseq($m,[$open,$center,$close]);
+  rxseq($m,[$open,$center,$close].concat($nonspec_excess));
 }
 else { die "Didn't understand an EXPR node" }
 
@@ -798,9 +792,9 @@ elsif ($g = $qtext.re_groups('([?*+])(\?)?\z')) {
 elsif $quant && $quant<sym_name> && $quant<sym_name> eq '**' {
   if $quant<quantified_atom> {
     my $atom2 = irbuild_ir($quant<quantified_atom>);
-    my $extra = RxSeq.newp([$atom2,$atom]);
+    my $extra = rxseq($m,[$atom2,$atom]);
     my $more = RxQuant.newp(0,undef,RxGrp.newp($extra),0);
-    $irs = RxSeq.newp([$atom,$more]);
+    $irs = rxseq($m,[$atom,$more]);
   }
 }
 if !defined($irs) {
@@ -809,7 +803,7 @@ if !defined($irs) {
 if $o<nextsame> && $o<nextsame>.elems && $o<nextsame>[0].match_rule eq 'ws' {
   my $pkg; #XXX concequences?
   my $ws = $o<nextsame>[0].match_string;
-  $irs = RxSeq.newp([$irs,RxASpace.newp($pkg,$ws)]);
+  $irs = rxseq($m,[$irs,RxASpace.newp($pkg,$ws)]);
 }
 $irs;
 
@@ -847,7 +841,7 @@ if $o<mod_internal> {
     if $rest.WHAT ne 'Array' { $rest = [$rest] }
     $exprs = $exprs.concat($rest);
   }
-  RxSeq.newp($exprs);
+  rxseq($m,$exprs);
 }
 elsif $o<quote> {
   my $s = $m<quote><nibble>;
@@ -930,7 +924,7 @@ elsif $x eq '< >' {
       } else {
         $exast = RxAlt.newp($excl);
       }
-      $irs = RxSeq.newp([RxLookaround.newp(1,0,$exast),
+      $irs = rxseq($m,[RxLookaround.newp(1,0,$exast),
 			$irs]);
     }
     return $irs;
@@ -983,20 +977,20 @@ elsif $x eq '( )' {
   my $e = $m<nibbler>;
   my $p;
   if $e.WHAT ne 'Array' { $p = $e }
-  elsif $e.elems == 0 { $p = RxSeq.newp([]) } #X noop
+  elsif $e.elems == 0 { $p = rxseq($m,[]) } #X noop
   elsif $e.elems == 1 { $p = $e[0] }
-  else { $p = RxSeq.newp($e) }
+  else { $p = rxseq($m,$e) }
   RxCap.newp($p);
 }
 elsif $x eq '(? )' {
   my $sym = $m<assertion><sym_name>;
-  my $rx = $m<assertion><rx> || RxSeq.newp([]);
+  my $rx = $m<assertion><rx> || rxseq($m,[]);
   if $sym eq ':' { RxGrp.newp($rx) }
   elsif $sym eq '=' { RxLookaround.newp(1,1,$rx) }
   elsif $sym eq '!' { RxLookaround.newp(1,0,$rx) }
   elsif $sym eq '<' {
     my $sym2 = $m<assertion><assertion><sym_name>;
-    $rx = $m<assertion><assertion><rx> || RxSeq.newp([]);
+    $rx = $m<assertion><assertion><rx> || rxseq($m,[]);
     if $sym2 eq '=' { RxLookaround.newp(0,1,$rx) }
     elsif $sym2 eq '!' { RxLookaround.newp(0,0,$rx) }
     else { die "(?<X bug"; }
@@ -1013,13 +1007,13 @@ elsif $x eq '[ ]' {
     my $p;
     if $e.WHAT ne 'Array' { $p = $e }
     elsif $e.elems == 1 { $p = $e[0] }
-    else { $p = RxSeq.newp($e) }
+    else { $p = rxseq($m,$e) }
     RxGrp.newp($p);
   }
 }
 elsif $x eq '{ }' {
   if *text* eq '{*}' { #X sigh
-    return RxSeq.newp([]);
+    return rxseq($m,[]);
   }
   my $stmts = $m<codeblock><statementlist>;
   RxCode.newp(Block.newp($stmts))
@@ -1136,7 +1130,45 @@ RxMod_inline.newp($mods)
 
 
 END_DEF
-#- End of rules.
+#- Helpers:
+  my $helpers = <<'END_CODE';
+
+      sub maybe ($x) {
+        if $x.WHAT eq "Array" && $x.elems == 0 { undef }
+        else { $x }
+      }
+
+      sub rxseq($m,$exprs) {
+        if $exprs.elems == 1 {
+          $exprs[0];
+        } else {
+          IRx1::RxSeq.newp($m,_rxseq_simplify($exprs));
+        }
+      }
+      sub _rxseq_simplify($exprs) {
+        my $a = [];
+        my $rest = $exprs.clone;
+        while $rest.elems {
+          my $e = $rest.shift;
+          my $what = $e.WHAT;
+          # flatten sequences
+          if $what eq 'IRx1::RxSeq' {
+            $rest = $e.exprs.concat($rest);
+          }
+          # combine atoms
+          elsif $what eq 'IRx1::RxExact' && $a[-1].WHAT eq 'IRx1::RxExact' {
+            my $prev = $a[-1];
+            $prev.text = $prev.text ~ $e.text;
+          }
+          else {
+            $a.push($e);
+          }
+        }
+        $a;
+      }
+
+END_CODE
+#- End of spec.
 
 my $header_code = <<'END_CODE';
 # Warning: This file is mechanically written.  Your changes will be overwritten.
@@ -1213,17 +1245,13 @@ sub write_ast_handlers {
   };
   my @paragraphs = $paragraphs->($def);
 
-  my $code = $header_code.unindent(<<'  END');
+  my $code = $header_code . unindent(<<'  END');
     package IRx1_Build2 {
       sub irbuild_ir ($x) {
         $x.make_ir_from_Match_tree()
       };
-      sub maybe ($x) {
-        if $x.WHAT eq "Array" && $x.elems == 0 { undef }
-        else { $x }
-      }
-
   END
+  $code = $code . unindent($helpers);
   my $init = "";
 
   my %seen;
@@ -1258,12 +1286,12 @@ sub write_ast_handlers {
     $fname =~ s/(\W)/"_".ord($1)/eg;
     my $qname = $name;
     $qname =~ s/([\\'])/\\$1/g;
-    $code .= "\n".unindent(<<"    END","    ");
+    $code .= "\n" . unindent(<<"    END","    ");
       my \$construct_$fname = sub (\$m) {
         $body;
       };
     END
-    $init .= "".unindent(<<"    END","    ");
+    $init .= "" . unindent(<<"    END","    ");
       \$.add_constructor('$qname', \$construct_$fname);
     END
 
