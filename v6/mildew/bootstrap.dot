@@ -9,66 +9,68 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
   * Red links mean C symbol lookup, instead of lexical lookup.
   */
 
- s1p_hash [shape=circle, color=red, label=Hash]; s1p_array [shape=circle,
- color=red, label=Array]; s1p_io [shape=circle, color=red,
- label="$OUT"]; mold [shape=circle, color=red, label=Mold];
- mold_frame[shape=circle, color=red, label=MoldFrame];
+ s1p_hash [color=red, label=Hash]; s1p_array [shape=circle,
+ color=red, label=Array]; s1p_io [color=red,
+ label="$OUT"]; mold [color=red, label=Mold];
+ mold_frame[color=red, label=MoldFrame];
 
  mold -> mold_frame [color=red];
 
- s1p_code [shape=circle, color=red, label=Code];
- s1p_package [shape=circle, color=red, label=Package];
- outer_package [shape=circle, color=red, label="$?PACKAGE"];
+ s1p_code [color=red, label=Code];
+ s1p_package [color=red, label=Package];
+ outer_package [color=red, label="$?PACKAGE"];
 
  outer_package -> s1p_package [color=red];
  s1p_package -> s1p_hash [color=red];
  s1p_code -> mold [color=red];
  
- s1p_adhoc_signature [shape=circle, color=red, label="AdhocSignature"];
+ s1p_adhoc_signature [color=red, label="AdhocSignature"];
 
  s1p_adhoc_signature -> mold [color=red];
 
- s1p_scalar [shape=circle, color=red, label="Scalar"];
+ s1p_scalar [color=red, label="Scalar"];
 
  s1p_hash -> s1p_scalar [color=red];
  s1p_array -> s1p_scalar [color=red];
 
- s1p_attribute [shape=circle, color=red, label=Attribute];
+ s1p_attribute [color=red, label=Attribute];
 
- p6opaque [shape=circle, color=red]
+ p6opaque [color=red]
 
  p6opaque -> s1p_hash [color=red];
  p6opaque -> s1p_scalar [color=red];
  p6opaque -> s1p_array [color=red];
 
- s1p_prototypehow [shape=circle, color=red, label=PrototypeHOW];
+ s1p_prototypehow [color=red, label=PrototypeHOW];
 
  s1p_prototypehow -> p6opaque [color=red]
 
- controlexceptionreturn [shape=circle, color=red, label=ControlExceptionReturn];
+ controlexceptionreturn [color=red, label=ControlExceptionReturn];
 
- outofitemsexception [shape=circle, color=red, label=OutOfItemsException];
+ outofitemsexception [color=red, label=OutOfItemsException];
 
- p5interpreter [shape=circle, color=red, label=P5Interpreter];
+ p5interpreter [color=red, label=P5Interpreter];
 
- s1p_lexicalscope [shape=circle, color=red, label=LexicalScope];
+ s1p_lexicalscope [color=red, label=LexicalScope];
 
  s1p_lexicalscope -> s1p_hash [color=red];
 
- lexical_prelude_var [shape=circle, color=red, label="$LexicalPrelude"];
+ lexical_prelude_var [color=red, label="$LexicalPrelude"];
 
  lexical_prelude_var -> s1p_lexicalscope [color=red];
 
- MildewSOLoader [shape=circle, color=red, label="MildewSOLoader"];
+ mildewsoloader [color=red, label="MildewSOLoader"];
 
- native_bool_true [shape=circle, color=red, label="True"];
- native_bool_false [shape=circle, color=red, label="False"];
+ native_bool_true [color=red, label="True"];
+ native_bool_false [color=red, label="False"];
 
- s1p_rolehow [shape=circle, color=gray, label="RoleHOW"];
+ s1p_rolehow [color=gray, label="RoleHOW"];
  s1p_rolehow -> s1p_prototypehow [color=red];
 
- s1p_return [shape=circle, color=gray, label="&return"];
+ s1p_return [color=gray, label="&return"];
  s1p_return -> controlexceptionreturn [color=red];
+
+ ambiguousdispatchfailure [color=gray, label="AmbiguousDispatchFailure"];
 
  /*
   * now we start defining types in a higher level
@@ -84,7 +86,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
 
 
   // Multi should be reinitted some times...
-  Multi_s0 [shape=circle, color=blue, label="Multi"];
+  Multi_s0 [color=blue, label="Multi"];
   Multi_s0 -> s1p_rolehow [color=blue];
   Multi_s0 -> s1p_package [color=blue];
   Multi_s0 -> outer_package [color=blue];
@@ -93,5 +95,14 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
   Multi_s0 -> s1p_array [color=blue];
   Multi_s0 -> s1p_code [color=blue];
   Multi_s0 -> s1p_return [color=blue];
+  Multi_s0 -> ambiguousdispatchfailure [color=blue];
+  Multi_s0 -> native_bool_false [color=blue];
+  Multi_s0 -> native_bool_true [color=blue];
+
+  Prelude [color=blue, label="Mildew Prelude Loader"];
+  Prelude -> mildewsoloader [color=blue];
+  Prelude -> Multi_s0 [color=blue];
+
+
 
 }
