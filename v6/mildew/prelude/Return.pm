@@ -1,4 +1,4 @@
-my sub return(|$capture) is export {
+my sub return(|$capture) {
     my $e = ::ControlExceptionReturn.new();
     $e.capture = $capture;
     $e.routine = CALLER::<&?ROUTINE>;
