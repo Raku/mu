@@ -67,9 +67,6 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
  s1p_rolehow [color=gray, label="RoleHOW"];
  s1p_rolehow -> s1p_prototypehow [color=red];
 
- s1p_return [color=gray, label="&return"];
- s1p_return -> controlexceptionreturn [color=red];
-
  ambiguousdispatchfailure [color=gray, label="AmbiguousDispatchFailure"];
  signaturemismatchfailure [color=gray, label="SignatureMismatchFailure"];
  infixeqeqintint [color=gray, label="&infix:<==>(int,int)"];
@@ -86,6 +83,9 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
   *
   */
 
+  return_s0 [color=black, label="&return"];
+  return_s0 -> controlexceptionreturn [color=blue];
+  
 
   // Multi should be reinitted some times...
   Multi_s0 [color=blue, label="Multi"];
@@ -97,7 +97,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
   Multi_s0 -> s1p_array [color=blue];
   Multi_s0 -> s1p_scalar [color=blue];
   Multi_s0 -> s1p_code [color=blue];
-  Multi_s0 -> s1p_return [color=blue];
+  Multi_s0 -> return_s0 [color=blue];
   Multi_s0 -> ambiguousdispatchfailure [color=blue];
   Multi_s0 -> signaturemismatchfailure [color=blue];
   Multi_s0 -> native_bool_false [color=blue];
@@ -106,6 +106,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
 
   Prelude [color=blue, label="Mildew Prelude Loader"];
   Prelude -> mildewsoloader [color=blue];
+  Prelude -> return_s0 [color=blue];
   Prelude -> Multi_s0 [color=blue];
   Prelude -> lexical_prelude_var [color=blue];
 
