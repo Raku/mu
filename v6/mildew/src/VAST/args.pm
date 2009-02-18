@@ -6,7 +6,13 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    $m->{semiarglist} ? $m->{semiarglist}->emit_m0ld : ();
+    if ($m->{semiarglist}) {
+        $m->{semiarglist}->emit_m0ld;
+    } elsif ($m->{arglist}[0]) {
+        $m->{arglist}[0]->emit_m0ld;
+    } else {
+        #???
+    }
 }
 
 1;

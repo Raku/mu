@@ -185,6 +185,8 @@ sub EXPR {
 			    my $nib = join '', @{$pc->{nibble}{nibbles}};
 			    $noun = call 'postcircumfix:{ }' => $noun, [ string $nib ];
 			} else {
+                            use YAML::XS;
+                            die Dump($_);
 			    XXX;
 			}
 		    } else {

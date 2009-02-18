@@ -4,4 +4,4 @@ my sub return(|$capture) {
     $e.routine = CALLER::<&?ROUTINE>;
     $e.throw;
 }
-$LexicalPrelude.<&return> := &return;
+$LexicalPrelude.{'&return'} := &return;
