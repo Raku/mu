@@ -85,7 +85,9 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
 
   return_s0 [color=black, label="&return"];
   return_s0 -> controlexceptionreturn [color=blue];
-  
+  return_s0 -> s1p_scalar [color=blue]; 
+  return_s0 -> native_bool_false [color=blue];
+  return_s0 -> native_bool_true [color=blue];
 
   // Multi should be reinitted some times...
   Multi_s0 [color=blue, label="Multi"];

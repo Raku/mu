@@ -14,6 +14,8 @@ sub oo_package_declarator {
         $how_type = 'PrototypeHow';
     } elsif ($m->{sym} eq 'class') {
         $how_type = 'ClassHOW';
+    } elsif ($m->{sym} eq 'role') {
+        $how_type = 'RoleHOW';
     } else {
         XXX;
     }
@@ -104,6 +106,8 @@ sub emit_m0ld {
     if ($m->{sym} eq 'knowhow') {
         oo_package_declarator($m);
     } elsif ($m->{sym} eq 'class') {
+        oo_package_declarator($m);
+    } elsif ($m->{sym} eq 'role') {
         oo_package_declarator($m);
     } elsif ($m->{sym} eq 'module') {
 	plain_package_declarator($m);
