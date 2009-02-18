@@ -214,8 +214,8 @@ sub m0ld {
 sub pretty {
     my ($self,) = @_;
     my $id = AST::unique_id;
-    'my ' . $id . ' = ' . $self->value->pretty . ";\n"
-    . $self->block->(AST::Reg->new(name => $id))->pretty;
+    '{my ' . $id . ' = ' . $self->value->pretty . ";\n"
+    . $self->block->(AST::Reg->new(name => $id))->pretty.'}';
 }
 
 package AST::Seq;

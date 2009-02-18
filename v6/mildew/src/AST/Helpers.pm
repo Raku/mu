@@ -149,13 +149,21 @@ sub varname {
 sub name_components {
     my $m = shift;
     if ($m->{sublongname}) {
-        my $longname = $m->{sublongname}{subshortname}{desigilname}{longname};
-        my $nibbles = $longname->{colonpair}[0]{v}{nibble}{nibbles}[0];
-        my @components = ($longname->{name}{identifier}{TEXT},map {$_->{identifier}[0]{TEXT}} @{$longname->{name}{morename}});
-        $components[-1] .= ':' . $nibbles if $nibbles;
-        $components[-1] = $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$components[-1];
+        my $shortname = $m->{sublongname}{subshortname};
+        if ($shortname->{desigilname}) {
+            my $longname = $shortname->{desigilname}{longname};
+            my $nibbles = $longname->{colonpair}[0]{v}{nibble}{nibbles}[0];
+            my @components = ($longname->{name}{identifier}{TEXT},map {$_->{identifier}[0]{TEXT}} @{$longname->{name}{morename}});
+            $components[-1] .= ':' . $nibbles if $nibbles;
+            $components[-1] = $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$components[-1];
 
-        @components;
+            @components;
+        } elsif ($shortname->{category}) {
+            use YAML::XS;
+            warn Dump($shortname);
+            return $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0];
+
+        }
     } else {
         varname($m);
     }
