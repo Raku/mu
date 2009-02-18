@@ -32,8 +32,8 @@ Usage: mildew [switches] [--] [programfile] [arguments]
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help,$valgrind);
-Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'debug'=>\$debug,'h|help'=>\$help) || help;
+my ($debug,$B,$C,$output,$help,$valgrind,$no_prelude);
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'no-prelude'=>\$no_prelude,'debug'=>\$debug,'h|help'=>\$help) || help;
 help if $help;
 
 BEGIN {
@@ -120,6 +120,13 @@ print Dump($m->item) if $debug;
 print Dump($m->item->emit_m0ld) if $debug;
 print "#################\n" if $debug;
 my $mold = $m->item->emit_m0ld;
+
+unless ($no_prelude) {
+    my $load_prelude = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
+    [string 'Prelude.mildew.so',FETCH(lookup('$LexicalPrelude'))]);
+    unshift @{$mold->stmts},$load_prelude;
+}
+
 my $m0ld;
 $C = '' unless $C;
 if ($C eq 'desugar') {

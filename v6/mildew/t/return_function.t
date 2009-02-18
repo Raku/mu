@@ -1,4 +1,3 @@
-::MildewSOLoader.new.load('Prelude.mildew.so',$LexicalPrelude.FETCH);
 say "1..5";
 my sub foo($code) {
    $code.();
