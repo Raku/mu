@@ -72,6 +72,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
 
  ambiguousdispatchfailure [color=gray, label="AmbiguousDispatchFailure"];
  signaturemismatchfailure [color=gray, label="SignatureMismatchFailure"];
+ infixeqeqintint [color=gray, label="&infix:<==>(int,int)"];
 
  /*
   * now we start defining types in a higher level
@@ -101,6 +102,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
   Multi_s0 -> signaturemismatchfailure [color=blue];
   Multi_s0 -> native_bool_false [color=blue];
   Multi_s0 -> native_bool_true [color=blue];
+  Multi_s0 -> infixeqeqintint [color=black];
 
   Prelude [color=blue, label="Mildew Prelude Loader"];
   Prelude -> mildewsoloader [color=blue];
