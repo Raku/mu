@@ -1262,16 +1262,6 @@ package IRx1 {
     }
   }
 
-  # (?:a)
-  class RxGrp {
-    method emit_RMARE {
-      my $target_spec = self.notes<target_spec>;
-      my $in_quant = {if self.notes<in_quant> { 1 } else { 0 }};
-      my $f = self.<expr>.emit_RMARE;
-      'IRx1::RxBaseClass->RMARE_group('~$f~','~$target_spec.perl~','~$in_quant~')';
-    }
-  }
-
   # (a)
   class RxCap {
     method emit_RMARE {
@@ -1284,6 +1274,16 @@ package IRx1 {
       my $nparen6 = self.<nparen6>;
       my $f = self.<expr>.emit_RMARE;
       'IRx1::RxBaseClass->RMARE_capture('~$idx~','~$f~','~$is6~','~$nparen6~','~$in_quant~','~$target_spec.perl~')';
+    }
+  }
+
+  # (?:a)
+  class RxGrp {
+    method emit_RMARE {
+      my $target_spec = self.notes<target_spec>;
+      my $in_quant = {if self.notes<in_quant> { 1 } else { 0 }};
+      my $f = self.<expr>.emit_RMARE;
+      'IRx1::RxBaseClass->RMARE_group('~$f~','~$target_spec.perl~','~$in_quant~')';
     }
   }
 
@@ -1389,7 +1389,7 @@ package IRx1 {
 
   # (?{ ... })
   # XXX high klude factor
-  # Code is currently p5!
+  # A Str is considered p5, an IR node as p6.
   class RxCode {
     method emit_RMARE {
       my $code = self.<code>;

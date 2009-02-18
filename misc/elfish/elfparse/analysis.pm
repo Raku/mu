@@ -16,10 +16,18 @@ package IRx1 {
     method RAST_pass15 { # nparen, target_spec (req: RAST_pass14)
       $.RAST_children.map(sub ($o){$o.RAST_pass15});
     }
-    method RAST_pass30 {
+    method RAST_pass30 { # backref
       $.RAST_children.map(sub ($o){$o.RAST_pass30})
     }
-
+    method RAST_pass40 { # equivalent_re
+      $.RAST_children.map(sub ($o){$o.RAST_pass40});
+      $.notes<all_kids_have_equivalent_re> = 1;
+      for $.RAST_children {
+        $.notes<match_read> = 1 if $_.notes<match_read>;
+        $.notes<match_written> = 1 if $_.notes<match_written>;
+        $.notes<all_kids_have_equivalent_re> = 0 if not(defined($_.notes<equivalent_re>));
+      }
+    }
   }
 
   class RxASpace {
@@ -46,13 +54,23 @@ package IRx1 {
       $delegate.RAST_pass10;
     }
     method RAST_children { [$.notes<delegate>] }
-    method RAST_pass14 { $.notes<delegate>.RAST_pass14 } #dont stomp on quant directness
+    method RAST_pass14 { $.notes<delegate>.RAST_pass14 } ;#dont stomp on quant directness
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      $.notes<equivalent_re> = $.notes<delegate>.notes<equivalent_re>;
+    }
   }
 
   class RxPat5 {
+    method RAST_pass40 { 
+      $.notes<equivalent_re> = $.pat;
+    }
   }
 
   class RxExact {
+    method RAST_pass40 { 
+      $.notes<equivalent_re> = quotemeta($.text);
+    }
   }
 
   class RxMixinMod {
@@ -88,12 +106,24 @@ package IRx1 {
       });
       $flags;
     }
+
+    method _mods_as_re {
+      undef; #XXX
+    }
   }
 
   class RxMod_expr {
     method RAST_pass10 {
       temp $whiteboard::rx_flags = $._add_mods;
       $.SUPER::RAST_pass10;
+    }
+    method RAST_pass40 { 
+      $.SUPER::RAST_pass40;
+      my $re = $.expr.notes<equivalent_re>;
+      my $mods = $._mods_as_re;
+      if defined($re) && $mods {
+        $.notes<equivalent_re> = '(?'~$mods~':'~$re~')';
+      }
     }
   }
 
@@ -102,60 +132,87 @@ package IRx1 {
       $whiteboard::rx_flags = $._add_mods;
       $.SUPER::RAST_pass10;
     }
-  }
-
-  class RxBackref {
-    method RAST_pass30 {
-      my $n = self.backref_n;
-      my $total = $whiteboard::rx_nparen;
-      die "Backreference to nonexistent group $n of $total"
-        if $total <= $n;
+    method RAST_pass40 { 
+      my $mods = $._mods_as_re;
+      if $mods {
+        $.notes<equivalent_re> = '(?'~$mods~')';
+      }
     }
   }
 
-  class RxCap {
-    method RAST_pass10 {
-      self.notes<flags> = $whiteboard::rx_flags.clone;
-      temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
-      $.SUPER::RAST_pass10;
-    }
+  class RxQuant {
     method RAST_pass14 {
-      self.notes<in_quant> = $whiteboard::rx_in_quant;
-      temp $whiteboard::rx_in_quant = 0;
-      temp $whiteboard::rx_subrules_seen = {};
-      $.SUPER::RAST_pass14;
-      $whiteboard::rx_alias_construct = self;
+      temp $whiteboard::rx_in_quant = 'directly';
+      $.RAST_children.map(sub ($o){$o.RAST_pass14});
     }
-    method RAST_pass15 {
-      self.notes<cap6_idx> = $whiteboard::rx_nparen6_idx++;
-      self.notes<cap5_idx> = $whiteboard::rx_nparen++;
-      $whiteboard::rx_nparen6 = $whiteboard::rx_nparen6_idx
-        if $whiteboard::rx_nparen6 < $whiteboard::rx_nparen6_idx;
-      self.notes<target_spec> = $whiteboard::rx_target_spec;
-
-      temp $whiteboard::rx_nparen6 = 0;
-      temp $whiteboard::rx_nparen6_idx = 0;
-      temp $whiteboard::rx_target_spec = undef;
-      self.<expr>.RAST_pass15;
-      self.<nparen6> = $whiteboard::rx_nparen6;
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      my $re = $.expr.notes<equivalent_re>;
+      if defined($re) && $.notes<flags><ratchet> {
+        $.notes<equivalent_re> = '(?>(?:'~$re~')'~$._quantifier_as_re~')';
+      }
+    }
+    method _quantifier_as_re {
+      my $min = $.min || 0;
+      my $max = $.max;
+      my $q = "";
+      if $max && $max == 1 && $min == 0 { $q = '?' }
+      elsif $max { $q = '{'~$min~','~$max~'}' }
+      elsif $min == 0 { $q = '*' }
+      elsif $min == 1 { $q = '+' }
+      else { die "bug" }
+      if $.nongreedy { $q = $q ~ '?' }
+      $q;
     }
   }
 
-  class RxGrp {
-    method RAST_pass10 {
-      self.notes<flags> = $whiteboard::rx_flags.clone;
-      temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
-      $.SUPER::RAST_pass10;
-    }
-    method RAST_pass14 {
-      self.notes<in_quant> = $whiteboard::rx_in_quant;
-      $.SUPER::RAST_pass14;
-      $whiteboard::rx_alias_construct = self;
-    }
+  class RxAlt {
     method RAST_pass15 {
-      self.notes<target_spec> = $whiteboard::rx_target_spec;
-      temp $whiteboard::rx_target_spec = undef;
-      self.<expr>.RAST_pass15;
+      my $start = $whiteboard::rx_nparen6_idx;
+      my $max = $start;
+      my $x = self.<exprs>.map(sub ($o){
+        temp $whiteboard::rx_nparen6_idx = $start;
+        my $x1 = $o.RAST_pass15;
+        my $np = $whiteboard::rx_nparen6_idx;
+        $max = $np if $max < $np;
+        $x1;
+      });
+      self.<cap6_idx_start> = $start;
+      self.<nparen6> = $max - $start;
+      $whiteboard::rx_nparen6_idx = $max;
+      $x;
+    }
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      if $.notes<all_kids_have_equivalent_re> {
+        my $re = $.exprs.map(sub ($o){$o.notes<equivalent_re>}).join("|");
+        $.notes<equivalent_re> = $re;
+      }
+    }
+  }
+
+  class RxConj {
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      #X unimplemented
+    }
+  }
+
+  class RxSeq {
+    method RAST_pass14 {
+      if self.<exprs>.elems == 1 {
+        # Single item sequence doesn't affect in_quant directness.
+        $.RAST_children.map(sub ($o){$o.RAST_pass14});
+      } else {
+        $.SUPER::RAST_pass14;
+      }
+    }
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      if $.notes<all_kids_have_equivalent_re> {
+        my $re = $.exprs.map(sub ($o){$o.notes<equivalent_re>}).join("");
+        $.notes<equivalent_re> = $re;
+      }
     }
   }
 
@@ -214,44 +271,83 @@ package IRx1 {
       my $target_spec = $parts;
       return $target_spec;
     }
-  }
-
-  class RxQuant {
-    method RAST_pass14 {
-      temp $whiteboard::rx_in_quant = 'directly';
-      $.RAST_children.map(sub ($o){$o.RAST_pass14});
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      $.notes<match_written> = 1;
+      $.notes<equivalent_re> = $.expr.notes<equivalent_re>;
     }
   }
 
-  class RxAlt {
+  class RxCap {
+    method RAST_pass10 {
+      self.notes<flags> = $whiteboard::rx_flags.clone;
+      temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
+      $.SUPER::RAST_pass10;
+    }
+    method RAST_pass14 {
+      self.notes<in_quant> = $whiteboard::rx_in_quant;
+      temp $whiteboard::rx_in_quant = 0;
+      temp $whiteboard::rx_subrules_seen = {};
+      $.SUPER::RAST_pass14;
+      $whiteboard::rx_alias_construct = self;
+    }
     method RAST_pass15 {
-      my $start = $whiteboard::rx_nparen6_idx;
-      my $max = $start;
-      my $x = self.<exprs>.map(sub ($o){
-        temp $whiteboard::rx_nparen6_idx = $start;
-        my $x1 = $o.RAST_pass15;
-        my $np = $whiteboard::rx_nparen6_idx;
-        $max = $np if $max < $np;
-        $x1;
-      });
-      self.<cap6_idx_start> = $start;
-      self.<nparen6> = $max - $start;
-      $whiteboard::rx_nparen6_idx = $max;
-      $x;
+      self.notes<cap6_idx> = $whiteboard::rx_nparen6_idx++;
+      self.notes<cap5_idx> = $whiteboard::rx_nparen++;
+      $whiteboard::rx_nparen6 = $whiteboard::rx_nparen6_idx
+        if $whiteboard::rx_nparen6 < $whiteboard::rx_nparen6_idx;
+      self.notes<target_spec> = $whiteboard::rx_target_spec;
+
+      temp $whiteboard::rx_nparen6 = 0;
+      temp $whiteboard::rx_nparen6_idx = 0;
+      temp $whiteboard::rx_target_spec = undef;
+      self.<expr>.RAST_pass15;
+      self.<nparen6> = $whiteboard::rx_nparen6;
+    }
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      $.notes<match_written> = 1;
+      my $re = $.expr.notes<equivalent_re>;
+      if defined($re) {
+        $.notes<equivalent_re> = '(?:'~$re~')'; # (?:a) not (a)
+      }
     }
   }
 
-  class RxConj {
+  class RxGrp {
+    method RAST_pass10 {
+      self.notes<flags> = $whiteboard::rx_flags.clone;
+      temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
+      $.SUPER::RAST_pass10;
+    }
+    method RAST_pass14 {
+      self.notes<in_quant> = $whiteboard::rx_in_quant;
+      $.SUPER::RAST_pass14;
+      $whiteboard::rx_alias_construct = self;
+    }
+    method RAST_pass15 {
+      self.notes<target_spec> = $whiteboard::rx_target_spec;
+      temp $whiteboard::rx_target_spec = undef;
+      self.<expr>.RAST_pass15;
+    }
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      my $re = $.expr.notes<equivalent_re>;
+      if defined($re) {
+        $.notes<equivalent_re> = '(?:'~$re~')';
+      }
+    }
   }
 
-  class RxSeq {
-    method RAST_pass14 {
-      if self.<exprs>.elems == 1 {
-        # Single item sequence doesn't affect in_quant directness.
-        $.RAST_children.map(sub ($o){$o.RAST_pass14});
-      } else {
-        $.SUPER::RAST_pass14;
-      }
+  class RxBackref {
+    method RAST_pass30 {
+      my $n = self.backref_n;
+      my $total = $whiteboard::rx_nparen;
+      die "Backreference to nonexistent group $n of $total"
+        if $total <= $n;
+    }
+    method RAST_pass40 {
+      $.notes<match_read> = 1;
     }
   }
 
@@ -281,6 +377,66 @@ package IRx1 {
     method RAST_pass15 {
       self.notes<target_spec> = $whiteboard::rx_target_spec;
     }
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      $.notes<match_written> = 1 if not($.nocap);
+    }
+  }
+
+  class RxConditional {
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      $.notes<match_read> = 1; #X only sometimes
+    }
+  }
+
+  class RxLookaround {
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      my $re = $.expr.notes<equivalent_re>;
+      if defined($re) {
+        my $x1; my $x2;
+        if $.is_forward { $x1 = "" } else { $x1 = "<" }
+        if $.is_positive { $x2 = "=" } else { $x2 = "!" }
+        $.notes<equivalent_re> = '(?'~$x1~$x2~$re~')';
+      }
+    }
+  }
+
+  class RxIndependent {
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      my $re = $.expr.notes<equivalent_re>;
+      if defined($re) {
+        $.notes<equivalent_re> = '(?>'~$re~')';
+      }
+    }
+  }
+
+  class RxCommitSequence {
+  }
+
+  class RxCommitGroup {
+  }
+
+  class RxCommitRegex {
+  }
+
+  class RxCommitMatch {
+  }
+
+  class RxCode {
+    method RAST_pass40 {
+      $.notes<match_read> = 1; #X only sometimes
+      $.notes<match_written> = 1; #X only sometimes
+    }
+  }
+
+  class RxCodeRx {
+    method RAST_pass40 {
+      $.notes<match_read> = 1; #X only sometimes
+      $.notes<match_written> = 1; #X only sometimes
+    }
   }
 
   class RxARegex {
@@ -303,6 +459,7 @@ package IRx1 {
       self.<nparen> = $whiteboard::rx_nparen;
       self.<nparen6> = $whiteboard::rx_nparen6;
       $.RAST_pass30;
+      $.RAST_pass40;
       self;
     }
   }
@@ -326,21 +483,5 @@ package IRx1 {
       self;
     }
   }
-
-  class RxCode {
-  }
-
-  class RxCodeRx {
-  }
-
-  class RxIndependent {
-  }
-
-  class RxConditional {
-  }
-
-  class RxLookaround {
-  }
-
 
 }

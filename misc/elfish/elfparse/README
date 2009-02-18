@@ -110,9 +110,10 @@ Todo:
  - extract '3;' parser rules into isolated and more easily recompiled file.
  - profile.
  - explore speed and space.
-  - is <?-ness propagated?
+  - is <.-ness propagated?
     **properly propagate-stopped when there are code blocks?
-  - re aggregation
+  - re aggregation.
+  - acceptors and/or inter-regex inlining.
   - inline tok subs ala STD_red
  - create elfrx "keep the optimizations unbugged" infrastructure.
 
@@ -145,6 +146,50 @@ Carp::croak if $ENV{VERBOSE};
 exit(1);
 '}
 }
+
+# fast pseudo <ws>
+_inline_p5('
+my $wsre = q{(?:(?<!\w)|(?!=\w))\s*|\s+};
+print STDERR $wsx,"\n";;
+IRx1::RxBaseClass->RMARE_biind(__PACKAGE__,"ws",IRx1::RxBaseClass->RMARE_aregex2(undef,"ws",IRx1::RxBaseClass->RMARE_aregex_create(IRx1::RxBaseClass->RMARE_eat_regexp($wsre),undef),undef,undef));
+');
+
+# cumulative time
+use Time::HiRes qw();
+{package IRx1::RxBaseClass;
+ our $stats = {};
+ sub RMARE_aregex2 {
+   my($cls,@args)=@_;
+   my $name = $args[1];
+   my $f0 = $args[2];
+   my $noop = $cls->RMARE_noop;
+   my $f = Sub::Name::subname "time regex" => sub {
+     my($c)=@_;
+     my $t0 = [Time::HiRes::gettimeofday];
+     my $t1 = undef;
+     my $stop_timer = Sub::Name::subname "bar" => sub {
+       my($c2)=@_;
+       $t1 = [Time::HiRes::gettimeofday];
+       $c->($c2);
+     };
+     my $v = $f0->($stop_timer);
+     my $te = Time::HiRes::tv_interval($t0,$t1);
+     $stats->{$name}[0]++;
+     $stats->{$name}[1] += $te;  
+     return $v;
+   };
+   $args[2] = $f;
+   $cls->RMARE_aregex(@args);
+ }
+}
+_inline_p5('
+{
+ my $x = $IRx1::RxBaseClass::stats;
+ my @k = keys(%$x);
+ @k = sort { $x->{$a}[1] <=> $x->{$b}[1] } @k;
+ for my $k (@k) { print $x->{$k}[1],"\t",$x->{$k}[0],"\t",$k,"\n"; }
+}
+');
 
 2009-Feb-15 :)
 ./elfdev -e 'package STD{regex EXPR{<termish>}; say /<comp_unit>/.match("3").match_describe}'
