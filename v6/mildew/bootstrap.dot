@@ -93,6 +93,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
   Multi_s0 -> s1p_adhoc_signature [color=blue];
   Multi_s0 -> s1p_attribute [color=blue];
   Multi_s0 -> s1p_array [color=blue];
+  Multi_s0 -> s1p_scalar [color=blue];
   Multi_s0 -> s1p_code [color=blue];
   Multi_s0 -> s1p_return [color=blue];
   Multi_s0 -> ambiguousdispatchfailure [color=blue];
@@ -102,6 +103,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
   Prelude [color=blue, label="Mildew Prelude Loader"];
   Prelude -> mildewsoloader [color=blue];
   Prelude -> Multi_s0 [color=blue];
+  Prelude -> lexical_prelude_var [color=blue];
 
 
 
