@@ -24,8 +24,12 @@ sub emit_m0ld {
         }
     } elsif (my $postop = $m->{dottyop}{postop}) {
         if (my $postcircumfix = $postop->{postcircumfix}) {
-            my $positional = $postcircumfix->{semilist}{statement}[0];
-            my @args = $positional ? $positional->emit_m0ld : ();
+            my @args;
+            if (my $positional = $postcircumfix->{semilist}{statement}[0]) {
+                @args = $positional->emit_m0ld;
+            } elsif ($postcircumfix->{semiarglist}) {
+                @args = $postcircumfix->{semiarglist}->emit_m0ld;
+            }
             my @positional = grep { ref $_ ne 'AST::Pair' } @args;
             my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
             if ($postcircumfix->{sym}[0] eq '(' && $postcircumfix->{sym}[1] eq ')') {
