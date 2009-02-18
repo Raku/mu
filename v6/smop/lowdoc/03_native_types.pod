@@ -38,7 +38,7 @@ method.
 Both true and false natives are not subject to garbage collection and
 should be available in the entire lifetime of a SMOP process, they are
 also singletons, which means that you can do direct pointer comparison
-to test for true and false, but you should note that it as a general
+to test for true and false, but you should note that as a general
 policy, you should always test against SMOP__NATIVE__bool_false,
 meaning that any other value should be considered true.
 

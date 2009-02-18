@@ -4,7 +4,7 @@ knowhow ClassHOW {
 
 =head1 NAME
 
-Class - Default Perl 6 Metaclass
+ClassHOW - Default Perl 6 Metaclass
 
 =head1 DESCRIPTION
 

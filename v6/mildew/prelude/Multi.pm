@@ -1,35 +1,26 @@
-knowhow Multi {
-  has $.name;
+role Multi {
   has @.variants;
-  my sub say($arg) {
-      $OUT.print($arg,"\n"); 
-  }
 
-  method new() {
-      my $new = ::p6opaque.^!CREATE();
-      $new.^!how = ::PrototypeHow;
-      $new.^!instanceof = ::Multi;
-      $new.^!instance_storage.{'Multi'} = ::Hash.new;
-      $new;
-  }
   method postcircumfix:<( )>(\$capture, :$cc) {
-    my $all_variants = ::Array.new;
-    $all_variants.push(self.variants);
+    my $all_variants = @.variants.clone;
     my $candidates = ::Array.new;
     loop {
-      if ($all_variants.elems.infix:<==>(0)) {
-        if $candidates.elems {
-          my $candidate = $candidates.shift;
-          $candidate.postcircumfix:<( )>((|$capture), :cc($cc));
+      if &infix:<==>(int,int)($all_variants.elems,0) {
+        if &infix:<==>(int,int)($candidates.elems,1) {
+          return $candidates[0].postcircumfix:<( )>((|$capture), :cc($cc));
+        } elsif &infix:<==>(int,int)($candidates.elems,0) {
+          my $e = ::SignatureMismatchFailure.new();
+          $e.multi = self;
+          $e.capture = $capture;
+          $e.throw;
         } else {
-          $OUT.print("No candidate matching capture.\n");
-          my $e = ::ControlExceptionReturn.new();
-          $e.routine = &?ROUTINE;
-          $e.throw();
-          #fail "No candidate matching capture.";
+          my $e = ::AmbiguousDispatchFailure.new();
+          $e.multi = self;
+          $e.capture = $capture;
+          $e.candidates = $candidates;
+          $e.throw;
         }
       } else {
-        say "considering variant\n";
         my $candidate = $all_variants.shift;
         if $candidate.signature.ACCEPTS((|$capture)) {
           $candidates.push($candidate);
@@ -37,5 +28,5 @@ knowhow Multi {
       }
     }
   }
+
 }
-$LexicalPrelude.{'Multi'} = ::Multi;

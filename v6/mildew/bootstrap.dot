@@ -71,6 +71,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
  s1p_return -> controlexceptionreturn [color=red];
 
  ambiguousdispatchfailure [color=gray, label="AmbiguousDispatchFailure"];
+ signaturemismatchfailure [color=gray, label="SignatureMismatchFailure"];
 
  /*
   * now we start defining types in a higher level
@@ -97,6 +98,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
   Multi_s0 -> s1p_code [color=blue];
   Multi_s0 -> s1p_return [color=blue];
   Multi_s0 -> ambiguousdispatchfailure [color=blue];
+  Multi_s0 -> signaturemismatchfailure [color=blue];
   Multi_s0 -> native_bool_false [color=blue];
   Multi_s0 -> native_bool_true [color=blue];
 

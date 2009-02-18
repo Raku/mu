@@ -54,18 +54,11 @@ Sets the given $contination as the current continuation of the
 interpreter. This method should simply replace the current
 continuation.
 
-=item has_next, next, eval
-
-This three methods are delegated to the current continuation, in order
-to provide step-by-step execution semantics, 
-
 =item loop
 
 This is the actual runloop, but it's actually just
 
-  while ($continuation.has_next) {
-      $continuation.next;
-      $continuation.eval;
+  while ($continuation.eval) {
   }
 
 So it's completely up to the continuation to decide how to handle it.
@@ -82,15 +75,13 @@ integrating to perl5.
 
 =over
 
-
 =item eval
 
 This method executes one step of the execution. While some
 interpreters may decide to do more than one step at a time in the eval
 call, it's important to understand that this is how a "green threads"
-implementation would be preemptive.
-This method returns false if there's nothing else to execute in this
-continuation.
+implementation would be preemptive.  This method returns false if
+there's nothing else to execute in this continuation.
 
 =item back
 
