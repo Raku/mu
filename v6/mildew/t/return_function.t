@@ -1,27 +1,23 @@
-$OUT.print("1..5\n");
-my sub return(|$capture) {
-   my $e = ::ControlExceptionReturn.new();
-   $e.capture = $capture;
-   $e.routine = CALLER::<&?ROUTINE>;
-   $e.throw;
-}
+::MildewSOLoader.new.load('Prelude.mildew.so',$LexicalPrelude.FETCH);
+say "1..5";
 my sub foo($code) {
    $code.();
-   $OUT.print("not ok 2 - inside foo\n");
+   $OUT.print("not ok 2 - inside foo");
+   say "not ok 2 - inside foo";
 }
 my sub bar() {
-   $OUT.print("ok 1\n");
-   foo({ return "ok 3 - value returned\n"; });
-   $OUT.print("not ok 2 - inside bar\n");
+   say "ok 1";
+   foo({ return "ok 3 - value returned"; });
+   say "not ok 2 - inside bar";
 }
 my sub baz() {
-   return "ok 4 - one item\n", "ok 5 - other item\n";
+   return "ok 4 - one item", "ok 5 - other item";
 }
 my $a = bar();
-$OUT.print("ok 2 - outside bar\n");
-$OUT.print($a.FETCH);
+say "ok 2 - outside bar";
+say $a;
 my $b = baz();
-$OUT.print("# baz returned ");
-$OUT.print($b.elems, "\n");
-$OUT.print($b.shift);
-$OUT.print($b.shift);
+print "# baz returned ";
+say $b.elems;
+say $b.shift;
+say $b.shift;
