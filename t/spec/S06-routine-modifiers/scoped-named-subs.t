@@ -15,7 +15,7 @@ is eval('myNamedStr()'), '', 'Correct : lexical named sub myNamedStr() should NO
     my Int sub myNamedInt() { return 55 };
     is myNamedInt(), 55, 'lexical named sub() return Int';
 }
-is eval('myNamedInt()'), '', 'Correct : lexical named sub myNamedInt() should NOT BE available outside its scope';
+eval_dies_ok('myNamedInt()'), 'Correct : lexical named sub myNamedInt() should NOT BE available outside its scope';
 
 
 #packge-scoped named subs
