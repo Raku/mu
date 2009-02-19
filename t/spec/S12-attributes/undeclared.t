@@ -3,6 +3,7 @@ use v6;
 use Test;
 
 =begin pod
+
     access or assgin on undeclared attribute will raise an error.
 
 =end pod
