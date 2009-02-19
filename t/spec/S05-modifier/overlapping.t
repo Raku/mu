@@ -6,13 +6,15 @@ use Test;
 This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/overlapping.t.
 
+It probably needs a few syntax updates to remove p5isms
+
 =end pod
 
 plan 10;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
-} else {
+}
 
 force_todo(2,3,5,6,10);
 
@@ -21,10 +23,10 @@ force_todo(2,3,5,6,10);
 my $str = "abrAcadAbbra";
 
 my @expected = (
-    [ 0 => 'abrAcadAbbra' ],
-    [ 3 =>    'AcadAbbra' ],
-    [ 5 =>      'adAbbra' ],
-    [ 7 =>        'Abbra' ],
+    [ 0, 'abrAcadAbbra' ],
+    [ 3,    'AcadAbbra' ],
+    [ 5,      'adAbbra' ],
+    [ 7,        'Abbra' ],
 );
 
 for (1..2) -> $rep {
@@ -35,7 +37,7 @@ for (1..2) -> $rep {
     my %position; %position{map {$_[1]}, @expected} = map {$_[0]}, @expected;
     for (@$/) {
         ok( %expected{$_}, "Matched '$_' ($rep)" );
-        ok( %position{$_} == $_.pos, "At correct position of '$_' ($rep)" );
+        ok( %position{$_} == $_.to, "At correct position of '$_' ($rep)" );
         %expected{$_} :delete;
     }
     ok(%expected.keys == 0, "No matches missed ($rep)" );
@@ -52,7 +54,5 @@ for (@$/) {
     my %expected; %expected{map {$_[1]}, @expected} = (1) x @expected;
     ok( $_[1] = substr($_[0],1,-1), "Captured within '$_'" );
     %expected{$_} :delete;
-}
-
 }
 
