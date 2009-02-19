@@ -185,9 +185,10 @@ sub EXPR {
 			    my $nib = join '', @{$pc->{nibble}{nibbles}};
 			    $noun = call 'postcircumfix:{ }' => $noun, [ string $nib ];
 			} else {
-                            use YAML::XS;
-                            die Dump($_);
-			    XXX;
+                            my @args = $pc->{semiarglist}->emit_m0ld;
+                            my @positional = grep { ref $_ ne 'AST::Pair' } @args;
+                            my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
+                            $noun = call 'postcircumfix:( )' => FETCH($noun),[capturize(\@positional,\@named)];
 			}
 		    } else {
 			XXX;
