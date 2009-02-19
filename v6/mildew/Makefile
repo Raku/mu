@@ -1,17 +1,17 @@
 .PHONY : prove
-all: prelude
+all: CORE
 
-prelude: prelude/Prelude.mildew.so prelude/Return.mildew.so prelude/Multi.mildew.so
+CORE: CORE/CORE.mildew.so CORE/Return.mildew.so CORE/Multi.mildew.so
 
 
-prelude/Prelude.mildew.so : prelude/Prelude.pm
-	perl mildew -Cso --no-prelude -o prelude/Prelude.mildew.so prelude/Prelude.pm
+CORE/CORE.mildew.so : CORE/CORE.pm
+	perl mildew -Cso --no-CORE -o CORE/CORE.mildew.so CORE/CORE.pm
 
-prelude/Return.mildew.so : prelude/Return.pm
-	perl mildew -Cso --no-prelude -o prelude/Return.mildew.so prelude/Return.pm
+CORE/Return.mildew.so : CORE/Return.pm
+	perl mildew -Cso --no-CORE -o CORE/Return.mildew.so CORE/Return.pm
 
-prelude/Multi.mildew.so : prelude/Multi.pm
-	perl mildew -Cso  -o prelude/Multi.mildew.so prelude/Multi.pm
+CORE/Multi.mildew.so : CORE/Multi.pm
+	perl mildew -Cso  -o CORE/Multi.mildew.so CORE/Multi.pm
 
 PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove -r --perl'; else echo 'prove -r -e'; fi)
 
