@@ -21,7 +21,7 @@ class Foo {
 }
 
 my $foo = Foo.new(:num<10>);
-isa_ok($foo, 'Foo');
+isa_ok($foo, Foo);
 
 # do some sanity checking to make sure it does 
 # all that we expect it too first.
@@ -29,13 +29,13 @@ isa_ok($foo, 'Foo');
 is($foo.num(), 10, '... got the right num value');
 
 my $_foo1 = $foo.bar(20);
-isa_ok($_foo1, 'Foo');
+isa_ok($_foo1, Foo);
 ok($_foo1 === $foo, '... $_foo1 and $foo are the same instances');
 
 is($foo.num(), 20, '... got the right num value');
 
 my $_foo2 = $foo.baz(20);
-isa_ok($_foo2, 'Foo');
+isa_ok($_foo2, Foo);
 ok( ([===]($foo, $_foo2, $_foo1)), '... $_foo1, $_foo2 and $foo are the same instances');
 
 is($foo.num(), 40, '... got the right num value');
@@ -47,7 +47,7 @@ lives_ok {
     $_foo3 = $foo.bar(10).baz(5);
 }, '... method chaining works';
 
-isa_ok($_foo3, 'Foo');
+isa_ok($_foo3, Foo);
 ok( ([===]($_foo3, $_foo2, $_foo1, $foo)),
     '... $_foo3, $_foo1, $_foo2 and $foo are the same instances');
 
@@ -61,6 +61,7 @@ eval_dies_ok('$foo->num', 'Perl 5 -> is dead (method call)');
 
 # L<S03/"Changes to Perl 5 operators"/"-> becomes .">
 # L<S12/"Open vs Closed Classes"/"though you have to be explicit">
+#?rakudo skip 'parsing [=>]'
 {
     class Pair is also {
         our      method car () { self.key; }
