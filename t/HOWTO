@@ -66,7 +66,7 @@ the synopsis where the feature is described, it can be found at
 L<http://perlcabal.org/syn/S29.html>. C<list> is the section within S29 where
 the feature is described, and C<map> is the feature being tested.
 
-Please adhere to this style as best as possible, when you are in doubt, ask on
+Please adhere to this style as good as possible, when you are in doubt, ask on
 #perl6 on irc.freenode.org. Words in test file names should be separated by
 hyphens, eg C<S99-weird/very-weird-features.t>.
 
@@ -123,7 +123,7 @@ C<t/README> also contains some information on how smartlinks work.
 In our example we'd go into C<docs/Perl6/Spec> where the synopsis live, and
 search for occurrences of C<**>:
 
-    ack '\*\*'
+    ack -Q '**'
 
 This returns many results. The ones from C<Rule.pod> are mostly unrelated
 to the operator we just tested, because C<Rule.pod> describes regular
