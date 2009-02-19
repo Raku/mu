@@ -173,3 +173,8 @@ the class and through its ancestors should be provided:
 
     autovivify stringify numify timtowtdi greedy waterbed
     protoobject metaclass positional named 
+
+== Misc
+
+* A really, really good guide to blocks and closures. Specifically to explain
+  the (possibly unintuitive) behavior of 'return' in blocks.
