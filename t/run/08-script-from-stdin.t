@@ -9,7 +9,7 @@ indicated by the C<-> switch.
 
 =end pod
 
-my @examples = map -> Junction $_ { $_.values }, (
+my @examples = map -> Junction $_ { $_.eigenstates }, (
    any('say qq.Hello Pugs.',
        'say @*ARGS',
    )

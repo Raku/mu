@@ -14,8 +14,8 @@ if called with the (unknown) option C<-foo>
 
 =end pod
 
-my @examples = map -> Junction $_ { $_.values },
-               map -> Junction $_ { $_.values }, (
+my @examples = map -> Junction $_ { $_.eigenstates },
+               map -> Junction $_ { $_.eigenstates }, (
     any('-foo ', '-e "print" -foo ', '-c -foo ', '-eprint -foo ')
   ~ any("", '-e "print" ', '-c '),
 );

@@ -10,7 +10,7 @@ works.
 =end pod
 
 my @examples = any <-h --help>;
-@examples = map -> Junction $_ { $_.values }, 
+@examples = map -> Junction $_ { $_.eigenstates }, 
             map -> Junction $_ { $_, "-w $_", "$_ -w", "-w $_ -w" },
             @examples;
 

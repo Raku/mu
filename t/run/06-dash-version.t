@@ -10,7 +10,7 @@ works.
 =end pod
 
 my @tests = any(< -v --version >);
-@tests = map -> Junction $_ { $_.values },
+@tests = map -> Junction $_ { $_.eigenstates },
          map -> Junction $_ { $_, "-w $_", "$_ -w", "-w $_ -w" },
          @tests;
 

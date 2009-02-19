@@ -10,6 +10,8 @@ Pugs enters an infinite loop on:
 
   say +(any(1).values)
 
+(.values is spelled .eigenstates these days)
+
 This test must be disabled for releases, or
 smoke testing.
 
@@ -17,5 +19,5 @@ smoke testing.
 
 plan 1;
 
-my $count = +(any(1).values);
+my $count = +(any(1).eigenstates);
 is( $count, 1, "The test does not enter an infinite loop" );
