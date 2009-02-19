@@ -34,7 +34,7 @@ Please read the Perl 6 Spec first, namely, the Synopses:
 
 or directly from the SVN repos:
 
-  http://svn.perl.org/perl6/doc/trunk/design/syn
+  http://svn.pugscode.org/pugs/docs/Perl6/Spec/
 
 A good grasp of the Perl 6 language itself is very important to writing good
 tests.
