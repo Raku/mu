@@ -1,7 +1,7 @@
-$OUT.print("1..2\n");
+say "1..2";
 my sub foo($a,$b) {
-    $OUT.print($a.FETCH);
-    $OUT.print($b.FETCH);
+    say $a;
+    say $b;
 }
 knowhow Foo {
     method postcircumfix:<( )>(\$capture) {

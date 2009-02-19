@@ -1,4 +1,4 @@
-$OUT.print("1..3\n");
+say "1..3";
 my $baz = "ok 1\n";
 my sub bzzt($boing) {
     if $boing {
@@ -7,8 +7,8 @@ my sub bzzt($boing) {
         bzzt("ok 2\n");
     }
 }
-$OUT.print($baz.FETCH);
+say $baz;
 bzzt();
-$OUT.print($baz.FETCH);
+say $baz;
 bzzt("ok 3\n");
-$OUT.print($baz.FETCH);
+say $baz;

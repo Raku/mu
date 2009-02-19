@@ -1,4 +1,4 @@
-$OUT.print("1..3\n");
+say "1..3";
 my $p5 = ::P5Interpreter.new();
 
 $p5.eval('$| = 1');

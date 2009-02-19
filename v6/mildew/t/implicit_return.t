@@ -8,7 +8,7 @@ my sub cond_value($arg) {
         "ok 3\n";
     }
 }
-$OUT.print("1..3\n");
-$OUT.print(foo().FETCH);
-$OUT.print(cond_value(1).FETCH);
-$OUT.print(cond_value(0).FETCH);
+say "1..3";
+say foo;
+say cond_value(1);
+say cond_value(0);

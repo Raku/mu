@@ -1,13 +1,13 @@
 module Foo {	
     our sub bar($arg) {
-        $OUT.print($arg.FETCH);
+        say $arg;
     }
     module Bla {
     	our sub bar() {
-	   $OUT.print("ok 1\n");
+	   say "ok 1";
         }
     }
 }
-$OUT.print("1..2\n");
+say "1..2";
 Foo::Bla::bar();
 Foo::bar("ok 2\n");

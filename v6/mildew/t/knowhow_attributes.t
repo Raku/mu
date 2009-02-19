@@ -8,8 +8,8 @@ knowhow Foo {
     $.baz;
   }
 }
-$OUT.print("1..2\n");
+say "1..2";
 Foo.bar = "ok 1\n";
 Foo.baz = "ok 2\n";
-$OUT.print(Foo.bar.FETCH);
-$OUT.print(Foo.ble.FETCH);
+say Foo.bar;
+say Foo.ble;

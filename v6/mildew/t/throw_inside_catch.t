@@ -1,13 +1,13 @@
-$OUT.print("1..2\n");
+say "1..2";
 {
    {
        ::OutOfItemsException.new().throw();
    }.();
    CATCH {
-       $OUT.print("ok 1 - Caught, but will retrhow.\n");
+       say "ok 1 - Caught, but will retrhow.";
        $_.throw();
    }
 }.();
 CATCH {
-    $OUT.print("ok 2 - Caught the rethrow\n");
+    say "ok 2 - Caught the rethrow";
 }

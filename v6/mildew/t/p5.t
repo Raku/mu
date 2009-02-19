@@ -1,4 +1,4 @@
-$OUT.print("1..13\n");
+say "1..13";
 my $p5 = ::P5Interpreter.new();
  
 $p5.eval('$| = 1');
@@ -6,11 +6,11 @@ $OUT.unbuffered;
 
 $p5.eval('print "ok 1\n"');
 my $foo = $p5.eval('"ok 2\n";');
-$OUT.print($foo.Str);
+say $foo.Str;
 my $closure = $p5.eval('print "ok 3\n";sub {print "ok 5 # from p5 sub\n"}');
-$OUT.print("ok 4 # smop lives after p5 sub is defined\n");
+say "ok 4 # smop lives after p5 sub is defined";
 $closure.();
-$OUT.print("ok 6 # smop lives\n");
+say "ok 6 # smop lives";
 my $closure2 = $p5.eval('
     sub {
         print "ok 7 # passing SV* values back and forth works\n" if $_[0] eq "abc" && $_[1] eq "123";
@@ -30,14 +30,14 @@ my $p5object = $p5.eval('
     bless {attr => 175},"Foo";
 ');
 $p5object.ok8($p5.eval('"some StRiNg"'));
-$OUT.print("ok ",$p5.eval('9').int," # int works\n");
+say "ok ",$p5.eval('9').int," # int works";
 
 knowhow Foo {
     method ok10 {
-        $OUT.print("ok 10\n");
+        say "ok 10";
     }
     method ok12 {
-        $OUT.print("ok 12\n");
+        say "ok 12";
     }
 }
 $p5.eval('sub {$::smop_object = $_[0]}').(Foo.FETCH);
@@ -46,4 +46,4 @@ $p5.eval('
     print "ok 11\n";
     $::smop_object->ok12;
 ');
-$OUT.print("ok 13\n");
+say "ok 13";

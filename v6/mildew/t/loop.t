@@ -6,9 +6,9 @@ sub return(|$capture) {
 }
 sub foo {
    loop {
-       $OUT.print("ok\n");
+       say "ok";
        return;
    }
 }
-$OUT.print("1..1\n");
+say "1..1";
 foo();

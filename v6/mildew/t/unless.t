@@ -1,7 +1,7 @@
-$OUT.print("1..1\n");
+say "1..1";
 unless 1 {
-   $OUT.print("not ok 1\n");
+   say "not ok 1";
 }
 unless 0 {
-   $OUT.print("ok 1\n");
+   say "ok 1";
 }

@@ -1,11 +1,11 @@
-$OUT.print("1..2\n");
+say "1..2";
 knowhow Foo {
     method ok1($foo) {
-        $OUT.print("ok 1\n");
+        say "ok 1";
         self.ok2;
     }
     method ok2 {
-        $OUT.print("ok 2\n");
+        say "ok 2";
     }
 }
 Foo.ok1();

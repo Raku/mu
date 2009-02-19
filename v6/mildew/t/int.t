@@ -1,23 +1,23 @@
-$OUT.print("1..4\n");
+say "1..4";
 if 1788.infix:<==>(1788) {
-    $OUT.print("ok 1 # infix:<==>\n");
+    say "ok 1 # infix:<==>";
 } else {
-    $OUT.print("not ok 1 # infix:<==>\n");
+    say "not ok 1 # infix:<==>";
 }
 
 if 1788.infix:<==>(1787) {
-    $OUT.print("not ok 2 # infix:<==>\n");
+    say "not ok 2 # infix:<==>";
 } else {
-    $OUT.print("ok 2 # infix:<==>\n");
+    say "ok 2 # infix:<==>";
 }
 
 if 1788.infix:<+>(2).infix:<==>(1790) {
-    $OUT.print("ok 3 # infix:<+>\n");
+    say "ok 3 # infix:<+>";
 } else {
-    $OUT.print("not ok 3 # infix:<+>\n",);
+    say "not ok 3 # infix:<+>\n",;
 }
 if 1600.infix:<->(100).infix:<==>(1500) {
-    $OUT.print("ok 4 # infix:<->\n");
+    say "ok 4 # infix:<->";
 } else {
-    $OUT.print("not ok 4 # infix:<->\n",);
+    say "not ok 4 # infix:<->\n",;
 }

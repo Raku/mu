@@ -1,4 +1,4 @@
-$OUT.print("1..3\n");
+say "1..3";
 
 my $hash;
 $hash = ::Hash.new;
@@ -8,6 +8,6 @@ $hash.{'bar'} = "ok 1\n";
 my $scalar;
 $hash.{'baz'} := $scalar;
 $scalar = "ok 3\n";
-$OUT.print($hash.{'bar'}.FETCH);
-$OUT.print($hash.{'foo'}.FETCH);
-$OUT.print($hash.{'baz'}.FETCH);
+say $hash.{'bar'};
+say $hash.{'foo'};
+say $hash.{'baz'};

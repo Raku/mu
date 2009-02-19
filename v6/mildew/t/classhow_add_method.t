@@ -1,10 +1,10 @@
-$OUT.print("1..2\n");
+say "1..2";
 knowhow ClassHOW {
   method add_method {
-    $OUT.print("ok 1 - method called.\n");
+    say "ok 1 - method called.";
   }
   method dispatch {
-    $OUT.print("ok 2 - method dispatch.\n");
+    say "ok 2 - method dispatch.";
   }
 }
 class Foo {

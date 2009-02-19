@@ -1,6 +1,6 @@
-$OUT.print("1..3\n");
+say "1..3";
 sub foo($foo) {
-    $OUT.print($foo.FETCH);
+    say $foo;
 }
 foo("ok 1\n");
 foo "ok 2\n";

@@ -1,12 +1,12 @@
-$OUT.print("1..2\n");
+say "1..2";
 {
   {
-     $OUT.print("ok 1\n");
+     say "ok 1";
      ::ControlExceptionReturn.new().throw();
   }.();
-  $OUT.print("not ok 2\n");
+  say "not ok 2";
 }.();
 CONTROL {
   $_.handled = 1;
-  $OUT.print("ok 2\n");
+  say "ok 2";
 }

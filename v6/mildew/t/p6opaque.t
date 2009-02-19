@@ -1,3 +1,3 @@
-$OUT.print("1..1\n");
+say "1..1";
 ::p6opaque.^!CREATE;
-$OUT.print("ok 1 # lives after destroying p6opaque without a HOW\n");
+say "ok 1 # lives after destroying p6opaque without a HOW";

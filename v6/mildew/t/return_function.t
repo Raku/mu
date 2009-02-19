@@ -1,7 +1,7 @@
 say "1..5";
 my sub foo($code) {
    $code.();
-   $OUT.print("not ok 2 - inside foo");
+   say "not ok 2 - inside foo";
    say "not ok 2 - inside foo";
 }
 my sub bar() {

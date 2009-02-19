@@ -1,7 +1,7 @@
 knowhow Foo {
     method bar {
-        $OUT.print("ok 1\n");
+        say "ok 1";
     }
 }
-$OUT.print("1..1\n");
+say "1..1";
 Foo.bar;

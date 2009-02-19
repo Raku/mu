@@ -1,15 +1,15 @@
 #say "1..1";
-$OUT.print("1..2\n");
+say "1..2";
 my $object;
 $object = ::p6opaque.^!CREATE;
 $object.^!how() = ::PrototypeHow;
 $object.^!methods.{"foo"} = sub {
     #say "ok 1 #method call";
-    $OUT.print("ok 1 #method call\n");
+    say "ok 1 #method call";
 };
 $object.^!methods.{"bar"} = sub {
     #say "ok 1 #method call";
-    $OUT.print("ok 2 #method inherited from instanceof called\n");
+    say "ok 2 #method inherited from instanceof called";
 };
 $object.foo;
 my $object2 = ::p6opaque.^!CREATE;
