@@ -4,30 +4,28 @@ use Test;
 
 plan 7;
 
-class Bar {...}
+class Bar {
+    method baz returns Str { 'Baz' }
+}
 
 class Foo {
     has Bar $.bar;
     
-    method call_bar returns Void {
+    method call_bar {
         return $.bar.baz();
     }
 
-    method call_bar_indirectly returns Void {
+    method call_bar_indirectly {
         my $bar = $.bar;
         return $bar.baz();
     }
 }
 
-class Bar {
-    method baz returns Str { 'Baz' }
-}
-
 my $bar = Bar.new();
-isa_ok($bar, 'Bar');
+isa_ok($bar, Bar);
 
 my $foo = Foo.new(:bar($bar));
-isa_ok($foo, 'Foo');
+isa_ok($foo, Foo);
 
 # sanity test
 is($bar.baz(), 'Baz', '... sanity test, this works as we expect');
