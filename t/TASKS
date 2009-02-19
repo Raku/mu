@@ -26,8 +26,7 @@ OVERALL
   course)
 
 S02
-* tests for KeySet, KeyBag. See spec/S02-builtin_data_types/keyhash.t for
-  inspiration
+* tests for KeySet. See spec/S02-builtin_data_types/keyhash.t for inspiration
 * tests for Implementation types (the Perl 6 equiv. of tie()), probably need
   more specs as well
 * some tests in S02 assume that a floating point literal like 1.2 is of typ
