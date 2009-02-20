@@ -4,15 +4,24 @@ use strict;
 use warnings;
 use AST::Helpers;
 
+
 sub canonical {
     my $m = shift;
+    my $single_variant = '';
+    if ($m->{colonpair}[1]) {
+       if ($m->{colonpair}[1]{signature}) {
+           # TODO handle whitespace sensibly
+           $single_variant = ':(' . $m->{colonpair}[1]{signature}->{MATCH}->text . ')';
+       } else {
+           XXX;
+       } 
+    }
     my $name = $m->{name}{identifier}{TEXT};
     my $v = $m->{colonpair}[0]{v}{nibble}{nibbles}[0];
     if ($v) {
-        $name . ':' . $v;
+        $name . ':' . $v . $single_variant;
     } else {
         $name;
     }
 }
-
 1;

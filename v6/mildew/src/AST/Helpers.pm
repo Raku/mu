@@ -138,13 +138,9 @@ sub trailing_return {
 
 sub varname {
     my $m = shift;
-    if ($m->{desigilname}) {
-        $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$m->{desigilname}{longname}->canonical;
-    } elsif ($m->{sublongname}) {
-        $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$m->{sublongname}{subshortname}{desigilname}{longname}->canonical;
-    } else {
-        XXX;
-    }
+    my @components = name_components($m);
+    my $ret = @components[-1];
+    $ret;
 }
 sub name_components {
     my $m = shift;
@@ -169,11 +165,13 @@ sub name_components {
                    XXX;
                } 
             }
-            return $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0] . $single_variant;
-
+            my $ret = $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0] . $single_variant;
+            return $ret;
         }
+    } elsif ($m->{desigilname}) {
+        $m->{sigil}{TEXT}.($m->{twigil}[0]{TEXT} || '').$m->{desigilname}{longname}->canonical;
     } else {
-        varname($m);
+        XXX;
     }
 }
 
