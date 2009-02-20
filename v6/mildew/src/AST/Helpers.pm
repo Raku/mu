@@ -160,7 +160,6 @@ sub name_components {
             @components;
         } elsif ($shortname->{category}) {
             use YAML::XS;
-            warn Dump($shortname);
             return $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0];
 
         }
@@ -184,7 +183,9 @@ sub EXPR {
 			    $pc->{sym}[1] eq '>') {
 			    my $nib = join '', @{$pc->{nibble}{nibbles}};
 			    $noun = call 'postcircumfix:{ }' => $noun, [ string $nib ];
-			} else {
+			} elsif (ref $pc->{sym} eq 'ARRAY' &&
+			    $pc->{sym}[0] eq '(' &&
+			    $pc->{sym}[1] eq ')')  {
                             my @args = $pc->{semiarglist}->emit_m0ld;
                             my @positional = grep { ref $_ ne 'AST::Pair' } @args;
                             my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
