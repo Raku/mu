@@ -1150,6 +1150,16 @@ eval_perl5( EmitRegex.regex_prelude() );
 package IRx1 {
 
   class RxBaseClass {
+    method emit_RMARE_optimized {
+      if ($.notes<flags><ratchet> &&
+          $.notes<equivalent_re> &&
+          not($.notes<match_written>))
+      {
+        my $re = $.notes<equivalent_re>;
+        'IRx1::RxBaseClass->RMARE_eat_regexp("'~quotemeta($re)~'")';
+      }
+      else { undef }
+    }
   }
 
   # space - may be a no-op, literal, or <ws>.
@@ -1453,6 +1463,8 @@ package IRx1 {
       $nparenx = $nparenx || 'undef';
       my $nparen = self.<nparen> ||'undef'; #||undef needed?
       my $expr = self.<expr>.emit_RMARE;
+      my $opt = $.emit_RMARE_optimized;
+      $expr = $opt if $opt; #XXX should be disabled by default;
       ('IRx1::RxBaseClass->RMARE_aregex('~$pkg~','~$nameq~
        ',IRx1::RxBaseClass->RMARE_aregex_create('~$expr~','~$nparenx~'),'~
        $nparen~','~$prefix_re~')');
@@ -1514,7 +1526,9 @@ class EmitSimpleP5 {
     $n.RAST_init.emit_RMARE;
   }
   method cb__RegexDef ($n) {
-    my $code = $n.<pattern>.RAST_init.emit_RMARE;
+    my $ir = $n.<pattern>.RAST_init;
+    #say $ir.irx1_describe;
+    my $code = $ir.emit_RMARE;
     if $n.signature && $n.signature.return_type {
       my $type = $n.signature.return_type;
       my $pkg = $n.notes<crnt_package>;

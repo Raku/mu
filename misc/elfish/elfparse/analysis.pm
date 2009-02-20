@@ -28,6 +28,14 @@ package IRx1 {
         $.notes<all_kids_have_equivalent_re> = 0 if not(defined($_.notes<equivalent_re>));
       }
     }
+    method RAST_pass45 { # regex_uses_its_own_match
+      temp $whiteboard::regex_uses_its_own_match = $whiteboard::regex_uses_its_own_match;
+      if $whiteboard::regex_uses_its_own_match || $.notes<match_read> {
+        $whiteboard::regex_uses_its_own_match = 1;
+        $.notes<regex_uses_its_own_match> = 1;
+      }
+      $.RAST_children.map(sub ($o){$o.RAST_pass45});
+    }
   }
 
   class RxASpace {
@@ -58,6 +66,8 @@ package IRx1 {
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
       $.notes<equivalent_re> = $.notes<delegate>.notes<equivalent_re>;
+      $.notes<match_written> = $.notes<delegate>.notes<match_written>; #spec'ed as <.ws> or <ws>?
+      # match_read is false
     }
   }
 
@@ -108,7 +118,10 @@ package IRx1 {
     }
 
     method _mods_as_re {
-      undef; #XXX
+      #XXX unfinished
+      my $flags = $.notes<flags>;
+      my $mods = "";
+      $mods = $mods ~ "i" if $flags<i>;
     }
   }
 
@@ -121,7 +134,7 @@ package IRx1 {
       $.SUPER::RAST_pass40;
       my $re = $.expr.notes<equivalent_re>;
       my $mods = $._mods_as_re;
-      if defined($re) && $mods {
+      if defined($re) && defined($mods) {
         $.notes<equivalent_re> = '(?'~$mods~':'~$re~')';
       }
     }
@@ -134,7 +147,7 @@ package IRx1 {
     }
     method RAST_pass40 { 
       my $mods = $._mods_as_re;
-      if $mods {
+      if defined($mods) {
         $.notes<equivalent_re> = '(?'~$mods~')';
       }
     }
@@ -184,9 +197,9 @@ package IRx1 {
     }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
-      if $.notes<all_kids_have_equivalent_re> {
+      if $.notes<all_kids_have_equivalent_re> && $.notes<flags><ratchet> {
         my $re = $.exprs.map(sub ($o){$o.notes<equivalent_re>}).join("|");
-        $.notes<equivalent_re> = $re;
+        $.notes<equivalent_re> = '(?>'~$re~')';
       }
     }
   }
@@ -209,7 +222,7 @@ package IRx1 {
     }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
-      if $.notes<all_kids_have_equivalent_re> {
+      if $.notes<all_kids_have_equivalent_re> && $.notes<flags><ratchet> {
         my $re = $.exprs.map(sub ($o){$o.notes<equivalent_re>}).join("");
         $.notes<equivalent_re> = $re;
       }
@@ -460,6 +473,7 @@ package IRx1 {
       self.<nparen6> = $whiteboard::rx_nparen6;
       $.RAST_pass30;
       $.RAST_pass40;
+      $.RAST_pass45;
       self;
     }
   }

@@ -122,7 +122,8 @@ sub write_ir_nodes {
         method field_names() { [$field_names] }
         method field_values() { [$field_values] }
         method irx1_describe() {
-          @{["'".$name."('~".join("','~",(map{'$.'.$_.'.irx1_describe~'}@fields))."')'"]}
+          my \$s = @{["'".$name."('~".join("','~",(map{'$.'.$_.'.irx1_describe~'}@fields))."')'"]};
+          \$s #~ \$.notes.irx1_describe;
         }
 
       }
