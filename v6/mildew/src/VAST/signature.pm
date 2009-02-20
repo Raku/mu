@@ -31,5 +31,4 @@ sub emit_m0ld_ahsig {
               ( regs => [qw(interpreter scope capture)],
                 stmts => trailing_return(\@stmts))]));
 }
-
 1;

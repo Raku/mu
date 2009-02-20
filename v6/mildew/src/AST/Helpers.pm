@@ -160,7 +160,16 @@ sub name_components {
             @components;
         } elsif ($shortname->{category}) {
             use YAML::XS;
-            return $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0];
+            my $single_variant = '';
+            if ($shortname->{colonpair}[1]) {
+               if ($shortname->{colonpair}[1]{signature}) {
+                   # TODO handle whitespace sensibly
+                   $single_variant = ':(' . $shortname->{colonpair}[1]{signature}->{MATCH}->text . ')';
+               } else {
+                   XXX;
+               } 
+            }
+            return $m->{sigil}{TEXT}.$shortname->{category}{TEXT}.':'.$shortname->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0] . $single_variant;
 
         }
     } else {
