@@ -112,7 +112,6 @@ Todo:
  - explore speed and space.
   - is <.-ness propagated?
     **properly propagate-stopped when there are code blocks?
-  - re aggregation.
   - acceptors and/or inter-regex inlining.
   - inline tok subs ala STD_red
  - create elfrx "keep the optimizations unbugged" infrastructure.
@@ -147,13 +146,12 @@ exit(1);
 '}
 }
 
-# fast pseudo <ws>
-_inline_p5('
-my $wsre = q{(?:(?<!\w)|(?!=\w))\s*|\s+};
-print STDERR $wsx,"\n";;
-IRx1::RxBaseClass->RMARE_biind(__PACKAGE__,"ws",IRx1::RxBaseClass->RMARE_aregex2(undef,"ws",IRx1::RxBaseClass->RMARE_aregex_create(IRx1::RxBaseClass->RMARE_eat_regexp($wsre),undef),undef,undef));
-');
+./elfdev -e 'package STD{regex EXPR{<termish>}; token ws {:P5 (?:(?<!\w)|(?!\w))\s*|\s+}; say /<comp_unit>/.match("3").match_describe}'
 
+#For timing:
+# In std.pm.p5 and rx_prelude_p5.pm,
+#  s///g IRx1::RxBaseClass->RMARE_aregex( to IRx1::RxBaseClass->RMARE_aregex2(
+# then add this to the top of rx_prelude_p5.pm:
 # cumulative time
 use Time::HiRes qw();
 {package IRx1::RxBaseClass;
@@ -182,6 +180,7 @@ use Time::HiRes qw();
    $cls->RMARE_aregex(@args);
  }
 }
+# And this in your test file.
 _inline_p5('
 {
  my $x = $IRx1::RxBaseClass::stats;

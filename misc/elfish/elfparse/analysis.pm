@@ -59,6 +59,7 @@ package IRx1 {
         $delegate = IRx1::RxSeq.newp(undef,[]); # do nothing
       }
       $.notes<delegate> = $delegate;
+      $delegate.initialize_notes;#XXX incomplete - delegate remains a mutant.
       $delegate.RAST_pass10;
     }
     method RAST_children { [$.notes<delegate>] }
@@ -122,6 +123,7 @@ package IRx1 {
       my $flags = $.notes<flags>;
       my $mods = "";
       $mods = $mods ~ "i" if $flags<i>;
+      $mods;
     }
   }
 
@@ -475,6 +477,10 @@ package IRx1 {
       $.RAST_pass40;
       $.RAST_pass45;
       self;
+    }
+    method RAST_pass40 {
+      $.SUPER::RAST_pass40;
+      $.notes<equivalent_re> = $.expr.notes<equivalent_re>;
     }
   }
 

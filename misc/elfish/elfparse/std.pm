@@ -711,7 +711,7 @@ rule statementlist {
     :dba('statement list')
     [
     | $
-    | <?before <[\)\]\}]> >
+    | <?before <[\)\]\}]> > #ELF# trailing ws in before is useless, but doesn't matter.
     | [<statement><eat_terminator> ]*
     ]
 }
@@ -1850,7 +1850,7 @@ token integer {
         | x <[0..9a..fA..F]>+ [ _ <[0..9a..fA..F]>+ ]*
         | d \d+               [ _ \d+]*
         | \d+[_\d+]*
-            { $¢.worry("Leading 0 does not indicate octal in Perl 6") }
+#           { $¢.worry("Leading 0 does not indicate octal in Perl 6") } #ELFXXX scares optimizer
         ]
     | \d+[_\d+]*
     ]
