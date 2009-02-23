@@ -59,6 +59,7 @@ class EmitRegex {
 
 { package GLOBAL;
   our $_cursor;
+  sub parser_pos { $Regexp::ModuleA::ReentrantEngine::Env::pos }
 }
 
 package Regexp::ModuleA;
