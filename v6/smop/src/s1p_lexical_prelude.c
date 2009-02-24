@@ -17,7 +17,7 @@ static SMOP__Object* primitive_int_add(SMOP__Object* interpreter,SMOP__Object* c
     SMOP__Object* ret = SMOP__NATIVE__int_create(SMOP__NATIVE__int_fetch(a) + SMOP__NATIVE__int_fetch(b));
     SMOP_RELEASE(interpreter, a);
     SMOP_RELEASE(interpreter, b);
-
+    return ret;
 }
 static void insert_primitive(SMOP__Object* interpreter,SMOP__Object* package,char* name,SMOP__Object* obj) {
   SMOP_DISPATCH(interpreter,
