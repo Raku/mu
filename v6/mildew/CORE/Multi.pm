@@ -29,3 +29,4 @@ role Multi {
     }
   }
 }
+$LexicalPrelude.{'Multi'} := ::Multi;

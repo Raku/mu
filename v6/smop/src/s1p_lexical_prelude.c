@@ -7,8 +7,29 @@
 #include <smop_mold.h>
 #include <smop_oo.h>
 #include <smop_p5.h>
+#include <smop_native.h>
 
 SMOP__Object* SMOP__S1P__LexicalPrelude;
+
+static SMOP__Object* primitive_int_add(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
+    SMOP__Object* a = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    SMOP__Object* b = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    SMOP__Object* ret = SMOP__NATIVE__int_create(SMOP__NATIVE__int_fetch(a) + SMOP__NATIVE__int_fetch(b));
+    SMOP_RELEASE(interpreter, a);
+    SMOP_RELEASE(interpreter, b);
+
+}
+static void insert_primitive(SMOP__Object* interpreter,SMOP__Object* package,char* name,SMOP__Object* obj) {
+  SMOP_DISPATCH(interpreter,
+                SMOP_RI(SMOP__S1P__LexicalPrelude),
+                SMOP__ID__bind_key,
+                SMOP__NATIVE__capture_create(interpreter, package,
+                                             (SMOP__Object*[]) {SMOP__NATIVE__idconst_create(name),obj,NULL},
+                                             NULL));
+}
+static void insert_primitives(SMOP__Object* interpreter,SMOP__Object* package) {
+  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&int_add",SMOP__S1P__CCode_create(primitive_int_add));
+}
 
 void smop_s1p_lexical_prelude_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj) {
   SMOP_DISPATCH(interpreter,
@@ -59,6 +80,13 @@ void smop_s1p_lexical_prelude_init() {
 				  SMOP_REFERENCE(interpreter,SMOP__NATIVE__bool_true));
   smop_s1p_lexical_prelude_insert(interpreter,"False",
 				  SMOP_REFERENCE(interpreter,SMOP__NATIVE__bool_false));
+
+
+  SMOP__Object* primitives = SMOP_DISPATCH(interpreter,SMOP_RI(SMOP__S1P__Package),SMOP__ID__new,
+						SMOP__NATIVE__capture_create(interpreter,
+									     SMOP__S1P__Package,NULL,NULL));
+  insert_primitives(interpreter,primitives);
+  smop_s1p_lexical_prelude_insert(interpreter,"PRIMITIVES::",primitives);
 }
 
 void smop_s1p_lexical_prelude_destr() {
