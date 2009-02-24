@@ -170,6 +170,11 @@ the class and through its ancestors should be provided:
 
     ; if unless while until for given when -->
 
+== Grammar/regex builtin rules
+
+  ident null fail upper lower alpha digit xdigit space print
+  graph blank cntrl punct alnum sp lt gt dot ws wb before after
+
 == Special Perl and Perl 6 terms
 
     autovivify stringify numify timtowtdi greedy waterbed
