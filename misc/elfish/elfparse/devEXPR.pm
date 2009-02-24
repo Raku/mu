@@ -61,42 +61,44 @@ method EXPR ($preclvl)
                 my $nop = $op.cursor_fresh();
                 $nop<chain> = [@chain];
                 $nop<_arity> = 'CHAIN';
-                push @termstack, $nop._REDUCE($startpos, 'EXPR');
+                @termstack.push($nop._REDUCE($startpos, 'EXPR'));
             }
-            when 'list' {
+#            when 'list' {
+        elsif $assoc eq 'list' {
 #                self.deb("reducing list") if $*DEBUG +& DEBUG::EXPR;
                 my @list;
                 my @delims = $op;
-                push @list, pop(@termstack);
+                @list.push(@termstack.pop);
                 while @opstack {
 #                    self.deb($sym ~ " vs " ~ @opstack[*-1]<sym>) if $*DEBUG +& DEBUG::EXPR;
-                    last if $sym ne @opstack[*-1]<sym>;
+                    last if $sym ne @opstack[-1]<sym>;
                     if @termstack and defined @termstack[0] {
-                        push @list, pop(@termstack);
+                        @list.push(@termstack.pop);
                     }
                     else {
                         self.worry("Missing term in " ~ $sym ~ " list");
                     }
-                    push @delims, pop(@opstack);
+                    @delims.push(@opstack.pop);
                 }
                 if @termstack and defined @termstack[0] {
-                    push @list, pop(@termstack);
+                    @list.push(@termstack.pop);
                 }
                 elsif $sym ne ',' {
                     self.worry("Missing final term in '" ~ $sym ~ "' list");
                 }
-                @list = reverse @list if @list > 1;
+                @list = @list.reverse() if @list > 1;
                 my $startpos = @list[0].pos;
-                @delims = reverse @delims if @delims > 1;
+                @delims = @delims.reverse() if @delims > 1;
                 my $nop = $op.cursor_fresh();
                 $nop<sym> = $sym;
                 $nop<O> = $op<O>;
                 $nop<list> = [@list];
                 $nop<delims> = [@delims];
                 $nop<_arity> = 'LIST';
-                push @termstack, $nop._REDUCE($startpos, 'EXPR');
+                @termstack.push($nop._REDUCE($startpos, 'EXPR'));
             }
-            when 'unary' {
+#            when 'unary' {
+        elsif $assoc eq 'unary' {
 #                self.deb("reducing") if $*DEBUG +& DEBUG::EXPR;
                 my @list;
 #                self.deb("Termstack size: ", +@termstack) if $*DEBUG +& DEBUG::EXPR;
@@ -110,9 +112,10 @@ method EXPR ($preclvl)
                     $op<_pos> = $op<arg><_pos>;
                 }
                 $op<_arity> = 'UNARY';
-                push @termstack, $op._REDUCE($op<_from>, 'EXPR');
+                @termstack.push($op._REDUCE($op<_from>, 'EXPR'));
             }
-            default {
+#            default {
+        else {
 #                self.deb("reducing") if $*DEBUG +& DEBUG::EXPR;
                 my @list;
 #                self.deb("Termstack size: ", +@termstack) if $*DEBUG +& DEBUG::EXPR;
@@ -123,7 +126,7 @@ method EXPR ($preclvl)
                 $op<_pos> = $op<right><_pos>;
                 $op<_arity> = 'BINARY';
 #                self.deb($op.dump) if $*DEBUG +& DEBUG::EXPR;
-                push @termstack, $op._REDUCE($op<_from>, 'EXPR');
+                @termstack.push($op._REDUCE($op<_from>, 'EXPR'));
             }
         }
     };
@@ -133,7 +136,7 @@ method EXPR ($preclvl)
 #        self.deb("In loop, at ", $here.pos) if $*DEBUG +& DEBUG::EXPR;
         my $oldpos = $here.pos;
         $here = $here.cursor_fresh();
-        $SIGIL = @opstack[*-1]<O><prec> gt $item_assignment_prec ?? '@' !! '';
+        $SIGIL = @opstack[-1]<O><prec> gt $item_assignment_prec ?? '@' !! '';
         my @t = $here.$termish;
 
         if not @t or not $here = @t[0] or ($here.pos == $oldpos and $termish eq 'termish') {
@@ -150,29 +153,29 @@ method EXPR ($preclvl)
         my $tmp;
         @pre = @$tmp if $tmp = ( $M<PRE> :delete );
         my @post;
-        @post = reverse @$tmp if $tmp = ( $M<POST> :delete );
+        @post = @$tmp.reverse() if $tmp = ( $M<POST> :delete );
         while @pre and @post {
             my $postO = @post[0]<O>;
             my $preO = @pre[0]<O>;
             if $postO<prec> lt $preO<prec> {
-                push @opstack, shift @post;
+                @opstack.push(@post.shift);
             }
             elsif $postO<prec> gt $preO<prec> {
-                push @opstack, shift @pre;
+                @opstack.push(@pre.shift);
             }
             elsif $postO<uassoc> eq 'left' {
-                push @opstack, shift @post;
+                @opstack.push(@post.shift);
             }
             elsif $postO<uassoc> eq 'right' {
-                push @opstack, shift @pre;
+                @opstack.push(@pre.shift);
             }
             else {
                 $here.panic('"' ~ @pre[0]<sym> ~ '" and "' ~ @post[0]<sym> ~ '" are not associative');
             }
         }
-        push @opstack, @pre,@post;
+        @opstack.push(@pre.flatten,@post.flatten);
 
-        push @termstack, $here;
+        @termstack.push($here);
 #        self.deb("after push: " ~ (0+@termstack)) if $*DEBUG +& DEBUG::EXPR;
 
         loop {     # while we see adverbs
@@ -204,7 +207,7 @@ method EXPR ($preclvl)
             $inO<prec> = $inO<sub> if $inO<sub>;
 
             # Does new infix (or terminator) force any reductions?
-            while @opstack[*-1]<O><prec> gt $inprec {
+            while @opstack[-1]<O><prec> gt $inprec {
                 reduce();
             }
 
@@ -212,34 +215,42 @@ method EXPR ($preclvl)
             last if $inprec lt $LOOSEST;
 
         if $infix<fake> {
-            my $adverbs = @termstack[*-1]<ADV> ||= [];
+            my $adverbs = @termstack[-1]<ADV> ||= [];
             push @$adverbs, $infix<colonpair>;
             next;  # not really an infix, so keep trying
         }
 
             # Equal precedence, so use associativity to decide.
-            if @opstack[*-1]<O><prec> eq $inprec {
-                given $inO<assoc> {
-                    when 'non'   { $here.panic('"' ~ $infix.text ~ '" is not associative') }
-                    when 'left'  { reduce() }   # reduce immediately
-                    when 'right' { }            # just shift
-                    when 'chain' { }            # just shift
-                    when 'unary' { }            # just shift
-                    when 'list'  {              # if op differs reduce else shift
-                        reduce() if $infix<sym> !eqv @opstack[*-1]<sym>;
+            if @opstack[-1]<O><prec> eq $inprec {
+              my $assoc = $inO<assoc>;
+#                given $inO<assoc> {
+#                    when 'non'   { $here.panic('"' ~ $infix.text ~ '" is not associative') }
+              if $assoc eq 'non' { $here.panic('"' ~ $infix.text ~ '" is not associative') }
+#                    when 'left'  { reduce() }   # reduce immediately
+              elsif $assoc eq 'left' { $reduce.() }
+#                    when 'right' { }            # just shift
+              elsif $assoc eq 'right' { }
+#                    when 'chain' { }            # just shift
+              elsif $assoc eq 'chain' { }
+#                    when 'unary' { }            # just shift
+              elsif $assoc eq 'unary' { }
+#                    when 'list'  {              # if op differs reduce else shift
+              elsif $assoc eq 'list' {
+                        $reduce.() if not($infix<sym> eq @opstack[-1]<sym>);
                     }
-                    default { $here.panic('Unknown associativity "' ~ $_ ~ '" for "' ~ $infix<sym> ~ '"') }
+#                    default { $here.panic('Unknown associativity "' ~ $_ ~ '" for "' ~ $infix<sym> ~ '"') }
+              else { $here.panic('Unknown associativity "' ~ $assoc ~ '" for "' ~ $infix<sym> ~ '"') }
                 }
             }
 
             $termish = $inO<nextterm> if $inO<nextterm>;
-            push @opstack, $infix;              # The Shift
+            @opstack.push($infix);              # The Shift
             last;
         }
     }
-    reduce() while +@opstack > 1;
-    if @termstack {
-        +@termstack == 1 or $here.panic("Internal operator parser error, termstack == " ~ (+@termstack));
+    reduce() while @opstack.elems > 1;
+    if @termstack.elems {
+        #@termstack.elems == 1 or $here.panic("Internal operator parser error, termstack == " ~ (+@termstack));
         @termstack[0]<_from> = self.pos;
         @termstack[0]<_pos> = $here.pos;
     }
