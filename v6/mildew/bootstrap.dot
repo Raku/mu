@@ -69,7 +69,7 @@ digraph "SMOP and Mildew Typesystem Bootstrap"
 
  ambiguousdispatchfailure [color=gray, label="AmbiguousDispatchFailure"];
  signaturemismatchfailure [color=gray, label="SignatureMismatchFailure"];
- infixeqeqintint [color=gray, label="&infix:<==>(int,int)"];
+ infixeqeqintint [color=red, label="&infix:<==>(int,int)"];
 
  /*
   * now we start defining types in a higher level
