@@ -189,7 +189,7 @@ unlet s:infix_a s:infix_a_long s:infix_a_words s:infix_a_pattern
 unlet s:infix_n s:infix_n_pattern s:both
 
 " [+] reduce
-exec "syn match p6Operator display \"\\k\\@<!\\[\\\\\\?!\\?". s:infix_assoc ."]\\%(«\\|<<\\)\\?\""
+exec "syn match p6Operator display \"\\k\\@<!\\[[R\\\\]\\?!\\?". s:infix_assoc ."]\\%(«\\|<<\\)\\?\""
 unlet s:infix_assoc
 
 " Reverse and cross operators (Rop, Xop)
