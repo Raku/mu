@@ -4,9 +4,9 @@ ELFDIR=../../elf/elf_h_src
 ELFBLUEDIR=../elfparse
 SRCP6=../../../src/perl6
 ELFBLUEDEV=-I ${ELFDIR} -I ${ELFBLUEDIR} -e 'use Elf_wo_main' ${ELFBLUEDIR}/IRx1_FromAST2.pm -e '$$*ast2ir_0=$$*ast2ir_1; $$*parser0=undef' ParserGimme5.pm
-ELFG5COMP=${ELFBLUEDEV} ParseWithGimme5.pm -e elf_main
+ELFG5COMP=${ELFBLUEDEV} -e elf_main
 
-elfg5:: ParseWithGimme5.pm
+elfg5:: ParseWithGimme5.pm STD.pmc
 	${ELF} -x -o ./elfg5 ${ELFG5COMP}
 
 ParseWithGimme5.pm: STD.pmc
@@ -17,6 +17,7 @@ STD.pmc:
 	cp ${SRCP6}/STD.pmc .
 	cp ${SRCP6}/Cursor.pmc .
 	cp ${SRCP6}/mangle.pl .
+	cp ${SRCP6}/LazyMap.pm .
 	cp ${ELFBLUEDIR}/STD_blue_run .
 
 clean:

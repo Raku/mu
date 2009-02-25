@@ -11,6 +11,13 @@ $ chmod a+x elfg5
 $ ./elfg5 -e 'say 3'
 $ ./elfg5 -e 'say 3'
 
+DEVELOPMENT QUICKSTART
+
+$ make
+$ perl -cw test.pl  # why isn't this working?
+
+#for faster compiles, don't forget to  export STD_RED_CACHEDIR=./somedir
+
 OBJECTIVE
 
 Make it very easy to "get a taste of elf".

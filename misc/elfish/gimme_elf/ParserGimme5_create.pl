@@ -6,35 +6,21 @@ use utf8;
 my $std = slurp("STD.pmc");
 my $cursor = slurp("Cursor.pmc");
 my $mangle = slurp("mangle.pl");
+my $lazymap = slurp("LazyMap.pm");
 my $bluerun = slurp("STD_blue_run");
 
+$std =~ s/use Cursor;/BEGIN { Cursor->import(); };/ || die "bug";
+
 $cursor =~ s/require 'mangle.pl';// || die "bug";
-$cursor .= <<'END';
-$INC{"Cursor"} = "avoid_loading_Cursor";
-END
+$cursor =~ s/use LazyMap (.*?);/BEGIN { LazyMap->import($1); };/ || die "bug";
 
 my $bluerun_extract = "";
 while($bluerun =~ /\n#MARK_for_elfg5\((.*?\n)#MARK_for_elfg5\)/gcs) {
   $bluerun_extract .= $1;
 }
 
-my $kludge = <<'END';
-sub parse_code {
-  my($code)=@_;
-  my($fn,$filename) = tempfile(undef, UNLINK => 1);
-  binmode($fn,":utf8");
-  print $fn $code;
-  close($fn);
-  my $r = STD->parsefile($filename);
-  return undef if !$r;
-  $main::whole_file = $code;
-  $main::whole_file .= " "; # -e '3' dump includes _pos's of 2
-  my $ast = $r->to_dump0."\n";
-  return $ast;
-}
-END
-
-my $code = join("\n",map{ "{no strict;\n".$_."\n}\n" } ($mangle,$cursor,$std,$bluerun_extract,$kludge));
+my $code = join("\n",map{ "\n#FILEMARK\n{package main;\nno strict;\n".$_."\n}\n" }
+                ($mangle,$lazymap,$cursor,$std,$bluerun_extract));
 
 unslurp("test.pl",$code);
 
@@ -46,12 +32,26 @@ $code_string = "'".$code_string."'";
 my $parser = <<'END';
 class Parser2 is Parser {
 
-  method parser($p6_code,$claim_as_filename) {
+  method parse($p6_code,$claim_as_filename) {
     my $msg = "Parse error in: "~$claim_as_filename~"\n";
-    my $ast = parse_code($p6_code);
-    if not($ast) { die($msg) }
-    fastundump($dump5);
+    my $dump = $.parse_code($p6_code);
+    if not($dump) { die($msg) }
+    fastundump($dump);
   };
+
+  method parse_code ($code) is p5 {' #kludge
+    use File::Temp qw{tempfile};
+    my($fn,$filename) = tempfile(undef, UNLINK => 1);
+    binmode($fn,":utf8");
+    print $fn $code;
+    close($fn);
+    my $r = STD->parsefile($filename);
+    return undef if !$r;
+    $main::whole_file = $code;
+    $main::whole_file .= " "; # -e "3" dump includes some _pos of 2
+    my $ast = $r->to_dump0."\n";
+    return $ast;
+  '}
 
 };
 
@@ -66,8 +66,11 @@ class EmitSimpleP5 {
   }
 }
 ';
+my $runtime = <<'END';
+_inline_p5('eval(EmitSimpleP5->prelude_extras1()); die $@ if $@;');
+END
 
-my $src = $emitter.$parser;
+my $src = $parser.$emitter.$runtime;
 
 unslurp("ParserGimme5.pm",$src);
 
