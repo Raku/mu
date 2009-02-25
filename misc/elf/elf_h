@@ -4569,7 +4569,9 @@ $incs->push($dir)})
 }elsif((($arg eq "\-\-"))->Bool) {
 (do{last})
 }else {
-(do{$self->print_usage_and_die()})
+(do{GLOBAL::say((("ERROR\:\ Not\ a\ file\ or\ command\-line\ option\:\ " . $arg) . "\
+"));
+$self->print_usage_and_die()})
 }})
 };
 $at_end->()})}})

@@ -111,6 +111,7 @@ One can also do
         last;
       }
       else {
+        say "ERROR: Not a file or command-line option: "~$arg~"\n";
         self.print_usage_and_die;
       }
     }
