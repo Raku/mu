@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Feb 24th 2009
+" Last Change:  Feb 25th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -548,7 +548,16 @@ syn region p6StringAngle
     \ start="\%(=\s\+\)\@=<\%(<\|=>\|[-=]\)\@!"
     \ skip="\\\@<!\\>"
     \ end=">"
-    \ contains=p6EscBackSlash,p6EscCloseAngle
+    \ contains=p6InnerAnglesOne,p6EscBackSlash,p6EscCloseAngle
+
+syn region p6InnerAnglesOne
+    \ matchgroup=p6StringAngle
+    \ start="<"
+    \ skip="\\\@<!\\>"
+    \ end=">"
+    \ transparent
+    \ contained
+    \ contains=p6InnerAnglesOne
 
 " <<words>>
 syn region p6StringAngles
@@ -556,7 +565,16 @@ syn region p6StringAngles
     \ start="<<=\@!"
     \ skip="\\\@<!\\>"
     \ end=">>"
-    \ contains=@p6Interp_qq,p6Comment,p6EscHash,p6EscCloseAngle,p6Adverbp6StringSQ,p6StringDQ
+    \ contains=p6InnerAnglesTwo,@p6Interp_qq,p6Comment,p6EscHash,p6EscCloseAngle,p6Adverbp6StringSQ,p6StringDQ
+
+syn region p6InnerAnglesTwo
+    \ matchgroup=p6StringAngles
+    \ start="<<"
+    \ skip="\\\@<!\\>"
+    \ end=">>"
+    \ transparent
+    \ contained
+    \ contains=p6InnerAnglesTwo
 
 " «words»
 syn region p6StringFrench
@@ -564,7 +582,16 @@ syn region p6StringFrench
     \ start="«"
     \ skip="\\\@<!\\»"
     \ end="»"
-    \ contains=@p6Interp_qq,p6Comment,p6EscHash,p6EscCloseFrench,p6Adverb,p6StringSQ,p6StringDQ
+    \ contains=p6InnerFrench,@p6Interp_qq,p6Comment,p6EscHash,p6EscCloseFrench,p6Adverb,p6StringSQ,p6StringDQ
+
+syn region p6InnerFrench
+    \ matchgroup=p6StringFrench
+    \ start="«"
+    \ skip="\\\@<!\\»"
+    \ end="»"
+    \ transparent
+    \ contained
+    \ contains=p6InnerFrench
 
 " 'string'
 syn region p6StringSQ
