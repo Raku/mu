@@ -196,8 +196,8 @@ package IRx1 {
         $max = $np if $max < $np;
         $x1;
       });
-      self.<cap6_idx_start> = $start;
-      self.<nparen6> = $max - $start;
+      self.notes<cap6_idx_start> = $start;
+      self.notes<nparen6> = $max - $start;
       $whiteboard::rx_nparen6_idx = $max;
       $x;
     }
@@ -247,18 +247,18 @@ package IRx1 {
                    'IRx1::RxSubrule'=>'subrule'};
       my $kind = $kinds.{$construct.WHAT};
       my $in_quant = $construct.notes<in_quant>;
-      self.<construct_kind> = $kind;
-      self.<construct_in_quant> = $in_quant;
+      self.notes<construct_kind> = $kind;
+      self.notes<construct_in_quant> = $in_quant;
     }
     method RAST_pass15 {
-      self.<first_alias> = !defined($whiteboard::rx_target_spec);
+      #self.notes<first_alias> = !defined($whiteboard::rx_target_spec); #X unused
       self.notes<target_spec> = $._create_target_spec_from_target(self.<target>);
       my $spec = self.notes<target_spec>;
       my $idx;
       if ($spec.elems == 3 && $spec[1] eq '[') { $idx = $spec[2] }
       if defined($idx) {
-        my $construct_kind = self.<construct_kind>;
-        my $construct_in_quant = self.<construct_in_quant>;
+        my $construct_kind = self.notes<construct_kind>;
+        my $construct_in_quant = self.notes<construct_in_quant>;
         my $next_idx = $idx;
         $next_idx++ if $construct_kind eq 'group';
         $whiteboard::rx_nparen6_idx = $next_idx;
@@ -325,7 +325,7 @@ package IRx1 {
       temp $whiteboard::rx_nparen6_idx = 0;
       temp $whiteboard::rx_target_spec = undef;
       self.<expr>.RAST_pass15;
-      self.<nparen6> = $whiteboard::rx_nparen6;
+      self.notes<nparen6> = $whiteboard::rx_nparen6;
     }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
@@ -480,7 +480,7 @@ package IRx1 {
     method RAST_init {
       if !defined(self.notes) { self.initialize_notes }; #X for test
       self.notes<pkg> = $whiteboard::rx_pkg || self.<created_in_pkg>;
-      self.<name> = $whiteboard::rx_name;
+      self.notes<name> = $whiteboard::rx_name;
       temp $whiteboard::rx_pkg = self.notes<pkg>;
       temp $whiteboard::rx_flags = self.mods.clone;
       $.RAST_pass10;
@@ -493,8 +493,8 @@ package IRx1 {
       temp $whiteboard::rx_nparen6_idx = 0;
       temp $whiteboard::rx_target_spec = undef;
       $.RAST_pass15;
-      self.<nparen> = $whiteboard::rx_nparen;
-      self.<nparen6> = $whiteboard::rx_nparen6;
+      self.notes<nparen> = $whiteboard::rx_nparen;
+      self.notes<nparen6> = $whiteboard::rx_nparen6;
       $.RAST_pass30;
       $.RAST_pass40;
       $.RAST_pass45;

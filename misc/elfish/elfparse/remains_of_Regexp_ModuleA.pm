@@ -98,8 +98,7 @@ use Carp;
   package IRx1::RxAlias;
   sub newx {
     my($cls,$target,$expr)=@_;
-    my $target_spec = undef;
-    bless {target=>$target,target_spec=>$target_spec,expr=>$expr}, $cls;
+    bless {target=>$target,expr=>$expr}, $cls;
   }
   sub RAST_to_make0 {
     my($o)=@_;

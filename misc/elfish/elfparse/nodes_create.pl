@@ -11,7 +11,7 @@ RxMod_inline mods
 RxBackref backref_n
 RxCap expr
 RxGrp expr
-RxAlias target target_spec expr
+RxAlias target expr
 RxQuant min max expr nongreedy
 RxAlt exprs
 RxConj exprs

@@ -1257,8 +1257,8 @@ package IRx1 {
   class RxAlias {
     method emit_RMARE {
       my $target_spec = self.notes<target_spec>;
-      my $construct_kind = self.<construct_kind>;
-      my $construct_in_quant = self.<construct_in_quant>;
+      my $construct_kind = self.notes<construct_kind>;
+      my $construct_in_quant = self.notes<construct_in_quant>;
       my $f = self.<expr>.emit_RMARE;
       if ($construct_kind eq 'group'
           && $construct_in_quant
@@ -1282,7 +1282,7 @@ package IRx1 {
       my $is6 = $is6_ || 'undef';
       my $idx = self.notes<cap5_idx>;
       if $is6_ { $idx = self.notes<cap6_idx> };
-      my $nparen6 = self.<nparen6>;
+      my $nparen6 = self.notes<nparen6>;
       my $f = self.<expr>.emit_RMARE;
       'IRx1::RxBaseClass->RMARE_capture('~$idx~','~$f~','~$is6~','~$nparen6~','~$in_quant~','~$target_spec.perl~')';
     }
@@ -1452,17 +1452,17 @@ package IRx1 {
       my $pkg = {if self.notes<pkg> {'"'~quotemeta(self.notes<pkg>)~'"'} else {'undef'}};
       my $prefix_re = 'undef';
       my $nameq = 'undef';
-      if self.<name> {
-        my $name = self.<name>;
+      if self.notes<name> {
+        my $name = self.notes<name>;
         $nameq = '"'~quotemeta($name)~'"';
         my $g;
         if ($g = $name.re_groups('[^:]:([^:]+)\z')) { #XX kludge
           $prefix_re = 'qr/'~quotemeta($g[0])~'/';
         }
       }
-      my $nparenx = {if self.notes<flags><p5> { self.<nparen> } else { self.<nparen6> }};
+      my $nparenx = {if self.notes<flags><p5> { self.notes<nparen> } else { self.notes<nparen6> }};
       $nparenx = $nparenx || 'undef';
-      my $nparen = self.<nparen> ||'undef'; #||undef needed?
+      my $nparen = self.notes<nparen> ||'undef'; #||undef needed?
       my $expr = self.<expr>.emit_RMARE;
       my $opt = $.emit_RMARE_optimized;
       $expr = $opt if $opt; #XXX should be disabled by default;
