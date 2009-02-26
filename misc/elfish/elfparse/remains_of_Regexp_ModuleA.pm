@@ -19,19 +19,6 @@ use Carp;
   package IRx1::RxBaseClass;
   sub newx { shift->newp(undef,@_) }
 
-  sub RAST_children {
-    my($o)=@_;
-    (exists($o->{expr})
-     ? [$o->{expr}]
-     : exists($o->{exprs})
-     ? $o->{exprs}
-     : []);
-  }
-  sub RAST_tell_children {
-    my($o,$meth,@args)=@_;
-    [map { $_->$meth(@args) } @{$o->RAST_children}];
-  }
-
   sub RAST_to_make0 {
     my($o)=@_;
     my($cls) = ref($o) =~ /([^:]+)$/;
@@ -40,7 +27,7 @@ use Carp;
   }
   sub RAST_to_make0_children {
     my($o)=@_;
-    my $args = $o->RAST_tell_children('RAST_to_make0');
+    my $args = [map { $_->RAST_to_make0() } @{$o->RAST_children}];
     join(",\n",@$args);
   }
   sub RAST_quote {
@@ -204,7 +191,6 @@ use Carp;
     my $pkg = ($nsname =~ /\A::(.*)/) ? $1 : $nsname eq '' ? $inpkg : "${inpkg}::$nsname";
     bless {created_in_pkg=>$inpkg,nsname=>$nsname,bindings=>\@bindings,pkg=>$pkg}, $cls;
   }
-  sub RAST_children { [@{shift->{bindings}}] }
   sub RAST_to_make0 {
     my($o)=@_;
     'namespace('.$o->RAST_quote($o->{nsname}).",\n".$o->RAST_to_make0_children.')';
@@ -230,14 +216,6 @@ use Carp;
 
   # RxConditional
   package IRx1::RxConditional;
-  sub RAST_children { 
-    my($o)=@_;
-    my @ch;
-    push(@ch,$o->{test}) if $o->{test} !~ /\A\d+\z/;
-    push(@ch,$o->{expr_then});
-    push(@ch,$o->{expr_else}) if $o->{expr_else};
-    \@ch;
-  }
   sub RAST_to_make0 {
     my($o)=@_;
     my $test = $o->{test};

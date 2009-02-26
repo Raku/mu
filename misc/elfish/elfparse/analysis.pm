@@ -3,6 +3,7 @@ package IRx1 {
 
   class RxBaseClass {
 
+    method RAST_children { [] }
     method RAST_pass10 { # flags, mods, and pkg
       self.notes<flags> = $whiteboard::rx_flags.clone;
       $.RAST_children.map(sub ($o){$o.RAST_pass10})
@@ -128,6 +129,7 @@ package IRx1 {
   }
 
   class RxMod_expr {
+    method RAST_children { [$.expr] }
     method RAST_pass10 {
       temp $whiteboard::rx_flags = $._add_mods;
       $.SUPER::RAST_pass10;
@@ -156,6 +158,7 @@ package IRx1 {
   }
 
   class RxQuant {
+    method RAST_children { [$.expr] }
     method RAST_pass14 {
       temp $whiteboard::rx_in_quant = 'directly';
       $.RAST_children.map(sub ($o){$o.RAST_pass14});
@@ -182,6 +185,7 @@ package IRx1 {
   }
 
   class RxAlt {
+    method RAST_children { $.exprs }
     method RAST_pass15 {
       my $start = $whiteboard::rx_nparen6_idx;
       my $max = $start;
@@ -207,6 +211,7 @@ package IRx1 {
   }
 
   class RxConj {
+    method RAST_children { $.exprs }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
       #X unimplemented
@@ -214,6 +219,7 @@ package IRx1 {
   }
 
   class RxSeq {
+    method RAST_children { $.exprs }
     method RAST_pass14 {
       if self.<exprs>.elems == 1 {
         # Single item sequence doesn't affect in_quant directness.
@@ -232,6 +238,7 @@ package IRx1 {
   }
 
   class RxAlias {
+    method RAST_children { [$.expr] }
     method RAST_pass14 {
       $.RAST_children.map(sub ($o){$o.RAST_pass14});
       my $construct = $whiteboard::rx_alias_construct;
@@ -294,6 +301,7 @@ package IRx1 {
   }
 
   class RxCap {
+    method RAST_children { [$.expr] }
     method RAST_pass10 {
       self.notes<flags> = $whiteboard::rx_flags.clone;
       temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
@@ -330,6 +338,7 @@ package IRx1 {
   }
 
   class RxGrp {
+    method RAST_children { [$.expr] }
     method RAST_pass10 {
       self.notes<flags> = $whiteboard::rx_flags.clone;
       temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
@@ -367,6 +376,7 @@ package IRx1 {
   }
 
   class RxSubrule {
+    method RAST_children { $.exprs }
     method RAST_pass10 {
       self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
       $.SUPER::RAST_pass10;
@@ -399,6 +409,15 @@ package IRx1 {
   }
 
   class RxConditional {
+    method RAST_children {
+      my $a = [];
+      my $test = $.test;
+      $a.push($test) if $test.isa("IRx1::RxBaseClass");#X (was !/\A\d+\z/)
+      $a.push($.expr_then);
+      my $expr_else = $.expr_else;
+      $a.push($expr_else) if defined($expr_else);
+      $a;
+    }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
       $.notes<match_read> = 1; #X only sometimes
@@ -406,6 +425,7 @@ package IRx1 {
   }
 
   class RxLookaround {
+    method RAST_children { [$.expr] }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
       my $re = $.expr.notes<equivalent_re>;
@@ -419,6 +439,7 @@ package IRx1 {
   }
 
   class RxIndependent {
+    method RAST_children { [$.expr] }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
       my $re = $.expr.notes<equivalent_re>;
@@ -455,6 +476,7 @@ package IRx1 {
   }
 
   class RxARegex {
+    method RAST_children { [$.expr] }
     method RAST_init {
       if !defined(self.notes) { self.initialize_notes }; #X for test
       self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
@@ -485,6 +507,7 @@ package IRx1 {
   }
 
   class RxBiind {
+    method RAST_children { [$.expr] }
     method RAST_init {
       if !defined(self.notes) { self.initialize_notes }; #X for test
       self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
@@ -496,6 +519,7 @@ package IRx1 {
   }
 
   class RxNamespace {
+    method RAST_children { [$.bindings.flatten] }
     method RAST_init {
       if !defined(self.notes) { self.initialize_notes }; #X for test
       temp $whiteboard::rx_pkg = self.<pkg>;
