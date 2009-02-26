@@ -99,6 +99,13 @@ sub write_ir_nodes {
       class RxBaseClass is Base {
       }
 
+      class RxMixinMod {
+      }
+
+      class RxMod_expr is RxMixinMod {}
+      class RxMod_inline is RxMixinMod {}
+      class RxARegex is RxMixinMod {}
+
   END
 
   for my $node (IRx1_Info->nodes) {
@@ -106,7 +113,7 @@ sub write_ir_nodes {
     my @all = $node->all_fields;
     
     my $base = 'RxBaseClass';
-    $base = "RxMixin${1}" if $name =~ /Rx([^_]+)_/;
+    #$base = "RxMixin${1}" if $name =~ /Rx([^_]+)_/;
     my $has = join("",map{"has \$.$_;\n        "} @all,'notes');
     my $params = join(',',map{"\$$_"}@all);
     my $init = join(', ',map{"'$_', \$$_"} @all);

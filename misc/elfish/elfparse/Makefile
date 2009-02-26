@@ -11,7 +11,7 @@ ELFBLUEDEV=-I ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$
 ELFBLUECOMP=-I . -I  ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm Parser2.pm -e elf_main
 ELFBLUEDEV_DEPS=${DEPS_FOR_STDBLUE_USERS} ${ELF} IRx1_FromAST2.pm Parser2.pm
 
-ELFRXDEV=-I . -I ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$*ast2ir_1; $$*parser0=undef' Parser2.pm nodes.pm analysis.pm emit5.pm -e '_inline_p5("require \"./remains_of_Regexp_ModuleA.pm\";")' -e '_inline_p5("require \"./rx_prelude_p5.pm\";")' 
+ELFRXDEV=-I . -I ${ELFDIR} -e 'use Elf_wo_main' IRx1_FromAST2.pm -e '$$*ast2ir_0=$$*ast2ir_1; $$*parser0=undef' Parser2.pm nodes.pm analysis.pm emit5.pm -e '_inline_p5("require \"./rx_prelude_p5.pm\";")' 
 ELFRXDEV_DEPS=${ELFBLUEDEV_DEPS} nodes.pm analysis.pm emit5.pm remains_of_Regexp_ModuleA.pm rx_prelude.pm
 # rx_prelude.pm not rx_prelude_p5.pm
 
@@ -104,7 +104,7 @@ elfdev: STD_green_run
 
 check: check_rx_on_re check_STD_blue
 
-check_rx_on_re: nodes.pm
+check_rx_on_re: nodes.pm rx_prelude_p5.pm
 	# check_rx_on_re - The rx_on_re core still passes its test suite.
 	perl -e 'use Regexp::Common;1' # dependency check
 	make ${STD_RED_CACHEDIR}.is_current 

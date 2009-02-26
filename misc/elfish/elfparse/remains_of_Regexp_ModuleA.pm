@@ -9,7 +9,7 @@ use Carp;
 #======================================================================
 # AST analysis
 #
-#-- translate analysis, leave make0's.
+#-- For testing and reference.
 
 {
   local $whiteboard::rx_pkg;
@@ -60,7 +60,6 @@ use Carp;
 
   # RxMod_expr
   package IRx1::RxMod_expr;
-  @IRx1::RxMod_expr::ISA=qw(IRx1::RxMixinMod IRx1::RxBaseClass);
   sub newx {
     my($cls,$modpat,$expr)=@_; die "api assert" if @_ != 3;
     my $mods = $cls->mods_from_modpat($modpat);
@@ -73,7 +72,6 @@ use Carp;
   
   # RxMod_inline
   package IRx1::RxMod_inline;
-  @IRx1::RxMod_inline::ISA=qw(IRx1::RxMixinMod IRx1::RxBaseClass);
   sub newx {
     my($cls,$modpat)=@_; die "api assert" if @_ != 2;
     my $mods = $cls->mods_from_modpat($modpat);
@@ -160,7 +158,6 @@ use Carp;
 
   # RxARegex
   package IRx1::RxARegex;
-  @IRx1::RxARegex::ISA=qw(IRx1::RxMixinMod IRx1::RxBaseClass);
   sub newx {
     my($cls,$modpat,$expr)=@_; die "api assert" if @_ != 3;
     my $mods = $cls->mods_from_modpat($modpat);
@@ -679,7 +676,7 @@ sub make0_from_node___subrule {
 # P6 Regexps
 #
 #======================================================================
-#-- translate.
+#-- For testing only.
 
 package Regexp::ModuleA::Api::PreludeA;
 require Exporter;

@@ -2955,9 +2955,9 @@ ok
         # <.dot>+		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <. @ 17>/	<.dot>+
 ok
         # <ident>			2+3 ab2		/mob<ident>: <ab2 @ 4>/		capturing builtin <ident>
-not ok # Match failed.
+ok
         # <name>			ab::cd::x3::42	/mob<name>: <ab::cd::x3 @ 0>/	capturing builtin <name>
-not ok # Match failed.
+ok
         # <+alnum+[_]>	ident_1				y	union of character classes
 not ok # Unexpected compilation failure.
         # <+[ab]+[\-]>+	aaa-bbb				y	enumerated character classes
