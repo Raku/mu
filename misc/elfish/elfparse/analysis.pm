@@ -378,7 +378,7 @@ package IRx1 {
   class RxSubrule {
     method RAST_children { $.exprs }
     method RAST_pass10 {
-      self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
+      self.notes<pkg> = $whiteboard::rx_pkg || self.<created_in_pkg>;
       $.SUPER::RAST_pass10;
     }
     method RAST_pass14 {
@@ -479,9 +479,9 @@ package IRx1 {
     method RAST_children { [$.expr] }
     method RAST_init {
       if !defined(self.notes) { self.initialize_notes }; #X for test
-      self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
+      self.notes<pkg> = $whiteboard::rx_pkg || self.<created_in_pkg>;
       self.<name> = $whiteboard::rx_name;
-      temp $whiteboard::rx_pkg = self.<pkg>;
+      temp $whiteboard::rx_pkg = self.notes<pkg>;
       temp $whiteboard::rx_flags = self.mods.clone;
       $.RAST_pass10;
       temp $whiteboard::rx_in_quant = 0;
@@ -510,8 +510,8 @@ package IRx1 {
     method RAST_children { [$.expr] }
     method RAST_init {
       if !defined(self.notes) { self.initialize_notes }; #X for test
-      self.<pkg> = $whiteboard::rx_pkg || self.<inpkg>;
-      temp $whiteboard::rx_pkg = self.<pkg>;
+      self.notes<pkg> = $whiteboard::rx_pkg || self.<created_in_pkg>;
+      temp $whiteboard::rx_pkg = self.notes<pkg>;
       temp $whiteboard::rx_name = self.<name>;
       self.<expr>.RAST_init;
       self;

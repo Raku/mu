@@ -1311,7 +1311,7 @@ package IRx1 {
   class RxSubrule {
     method emit_RMARE {
       my $exprs = self.<exprs>.map(sub ($o){$o.emit_RMARE}).join(',');
-      my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'__PACKAGE__'}};
+      my $pkg = {if self.notes<pkg> {'"'~quotemeta(self.notes<pkg>)~'"'} else {'__PACKAGE__'}};
       my $name = {if self.<name> {
           if $whiteboard::current_emitter {
             '"'~quotemeta($whiteboard::current_emitter.mangle_function_name(self.<name>))~'"'
@@ -1449,7 +1449,7 @@ package IRx1 {
       eval_perl5($src);
     }
     method emit_RMARE {
-      my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'undef'}};
+      my $pkg = {if self.notes<pkg> {'"'~quotemeta(self.notes<pkg>)~'"'} else {'undef'}};
       my $prefix_re = 'undef';
       my $nameq = 'undef';
       if self.<name> {
@@ -1479,7 +1479,7 @@ package IRx1 {
       eval_perl5($src);
     }
     method emit_RMARE {
-      my $pkg = {if self.<pkg> {'"'~quotemeta(self.<pkg>)~'"'} else {'__PACKAGE__'}};
+      my $pkg = {if self.notes<pkg> {'"'~quotemeta(self.notes<pkg>)~'"'} else {'__PACKAGE__'}};
       my $name = {if self.<name> {'"'~quotemeta(mangle_name(self.<name>))~'"'} else {'undef'}};
       my $fr = self.<expr>.emit_RMARE;
       'IRx1::RxBaseClass->RMARE_biind('~$pkg~','~$name~','~$fr~')';
