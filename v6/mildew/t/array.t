@@ -1,4 +1,4 @@
-say "1..4";
+say "1..6";
 my $array = ::Array.new;
 $array.[1] = "ok 1";
 $array.push("ok 2");
