@@ -5,7 +5,7 @@ package IRx1 {
 
     method RAST_children { [] }
     method RAST_pass10 { # flags, mods, and pkg
-      self.notes<flags> = $whiteboard::rx_flags.clone;
+      $.notes<flags> = $whiteboard::rx_flags.clone;
       $.RAST_children.map(sub ($o){$o.RAST_pass10})
     }
     method RAST_pass14 { # in_quant, subrules_seen, alias_construct
@@ -41,14 +41,14 @@ package IRx1 {
 
   class RxASpace {
     method RAST_pass10 {
-      self.notes<flags> = $whiteboard::rx_flags.clone;
+      $.notes<flags> = $whiteboard::rx_flags.clone;
       my $sigspace = $.notes<flags><sigspace>;
       my $p6 = not($.notes<flags><p5>);
       my $perl5_x = $.notes<flags><x>;
       my $delegate;
       if $p6 {
         if $sigspace {
-          $delegate = IRx1::RxSubrule.newp(undef,self.<aspace_inpkg>,'ws',[],undef,1);
+          $delegate = IRx1::RxSubrule.newp(undef,$.aspace_inpkg,'ws',[],undef,1);
         }
       } else { #p5
         if not($perl5_x) {
@@ -113,8 +113,8 @@ package IRx1 {
 
     method _add_mods {
       my $flags = $whiteboard::rx_flags.clone;
-      self.mods.keys.map(sub ($key){
-        $flags.{$key} = self.mods.{$key};
+      $.mods.keys.map(sub ($key){
+        $flags.{$key} = $.mods.{$key};
       });
       $flags;
     }
@@ -189,15 +189,15 @@ package IRx1 {
     method RAST_pass15 {
       my $start = $whiteboard::rx_nparen6_idx;
       my $max = $start;
-      my $x = self.<exprs>.map(sub ($o){
+      my $x = $.exprs.map(sub ($o){
         temp $whiteboard::rx_nparen6_idx = $start;
         my $x1 = $o.RAST_pass15;
         my $np = $whiteboard::rx_nparen6_idx;
         $max = $np if $max < $np;
         $x1;
       });
-      self.notes<cap6_idx_start> = $start;
-      self.notes<nparen6> = $max - $start;
+      $.notes<cap6_idx_start> = $start;
+      $.notes<nparen6> = $max - $start;
       $whiteboard::rx_nparen6_idx = $max;
       $x;
     }
@@ -221,7 +221,7 @@ package IRx1 {
   class RxSeq {
     method RAST_children { $.exprs }
     method RAST_pass14 {
-      if self.<exprs>.elems == 1 {
+      if $.exprs.elems == 1 {
         # Single item sequence doesn't affect in_quant directness.
         $.RAST_children.map(sub ($o){$o.RAST_pass14});
       } else {
@@ -247,18 +247,18 @@ package IRx1 {
                    'IRx1::RxSubrule'=>'subrule'};
       my $kind = $kinds.{$construct.WHAT};
       my $in_quant = $construct.notes<in_quant>;
-      self.notes<construct_kind> = $kind;
-      self.notes<construct_in_quant> = $in_quant;
+      $.notes<construct_kind> = $kind;
+      $.notes<construct_in_quant> = $in_quant;
     }
     method RAST_pass15 {
-      #self.notes<first_alias> = !defined($whiteboard::rx_target_spec); #X unused
-      self.notes<target_spec> = $._create_target_spec_from_target(self.<target>);
-      my $spec = self.notes<target_spec>;
+      #$.notes<first_alias> = !defined($whiteboard::rx_target_spec); #X unused
+      $.notes<target_spec> = $._create_target_spec_from_target($.target);
+      my $spec = $.notes<target_spec>;
       my $idx;
       if ($spec.elems == 3 && $spec[1] eq '[') { $idx = $spec[2] }
       if defined($idx) {
-        my $construct_kind = self.notes<construct_kind>;
-        my $construct_in_quant = self.notes<construct_in_quant>;
+        my $construct_kind = $.notes<construct_kind>;
+        my $construct_in_quant = $.notes<construct_in_quant>;
         my $next_idx = $idx;
         $next_idx++ if $construct_kind eq 'group';
         $whiteboard::rx_nparen6_idx = $next_idx;
@@ -266,7 +266,7 @@ package IRx1 {
           $whiteboard::rx_nparen6 < $next_idx;
       }
       temp $whiteboard::rx_target_spec = $spec;
-      self.<expr>.RAST_pass15;
+      $.expr.RAST_pass15;
     }
     method _create_target_spec_from_target ($target) {
       my $g = $target.re_groups('^([\$\@\%](?:[[:alpha:]_][\w:]+|\/)?)(.*)$');
@@ -303,29 +303,29 @@ package IRx1 {
   class RxCap {
     method RAST_children { [$.expr] }
     method RAST_pass10 {
-      self.notes<flags> = $whiteboard::rx_flags.clone;
+      $.notes<flags> = $whiteboard::rx_flags.clone;
       temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
       $.SUPER::RAST_pass10;
     }
     method RAST_pass14 {
-      self.notes<in_quant> = $whiteboard::rx_in_quant;
+      $.notes<in_quant> = $whiteboard::rx_in_quant;
       temp $whiteboard::rx_in_quant = 0;
       temp $whiteboard::rx_subrules_seen = {};
       $.SUPER::RAST_pass14;
       $whiteboard::rx_alias_construct = self;
     }
     method RAST_pass15 {
-      self.notes<cap6_idx> = $whiteboard::rx_nparen6_idx++;
-      self.notes<cap5_idx> = $whiteboard::rx_nparen++;
+      $.notes<cap6_idx> = $whiteboard::rx_nparen6_idx++;
+      $.notes<cap5_idx> = $whiteboard::rx_nparen++;
       $whiteboard::rx_nparen6 = $whiteboard::rx_nparen6_idx
         if $whiteboard::rx_nparen6 < $whiteboard::rx_nparen6_idx;
-      self.notes<target_spec> = $whiteboard::rx_target_spec;
+      $.notes<target_spec> = $whiteboard::rx_target_spec;
 
       temp $whiteboard::rx_nparen6 = 0;
       temp $whiteboard::rx_nparen6_idx = 0;
       temp $whiteboard::rx_target_spec = undef;
-      self.<expr>.RAST_pass15;
-      self.notes<nparen6> = $whiteboard::rx_nparen6;
+      $.expr.RAST_pass15;
+      $.notes<nparen6> = $whiteboard::rx_nparen6;
     }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
@@ -340,19 +340,19 @@ package IRx1 {
   class RxGrp {
     method RAST_children { [$.expr] }
     method RAST_pass10 {
-      self.notes<flags> = $whiteboard::rx_flags.clone;
+      $.notes<flags> = $whiteboard::rx_flags.clone;
       temp $whiteboard::rx_flags = $whiteboard::rx_flags.clone;
       $.SUPER::RAST_pass10;
     }
     method RAST_pass14 {
-      self.notes<in_quant> = $whiteboard::rx_in_quant;
+      $.notes<in_quant> = $whiteboard::rx_in_quant;
       $.SUPER::RAST_pass14;
       $whiteboard::rx_alias_construct = self;
     }
     method RAST_pass15 {
-      self.notes<target_spec> = $whiteboard::rx_target_spec;
+      $.notes<target_spec> = $whiteboard::rx_target_spec;
       temp $whiteboard::rx_target_spec = undef;
-      self.<expr>.RAST_pass15;
+      $.expr.RAST_pass15;
     }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
@@ -365,7 +365,7 @@ package IRx1 {
 
   class RxBackref {
     method RAST_pass30 {
-      my $n = self.backref_n;
+      my $n = $.backref_n;
       my $total = $whiteboard::rx_nparen;
       die "Backreference to nonexistent group $n of $total"
         if $total <= $n;
@@ -378,21 +378,21 @@ package IRx1 {
   class RxSubrule {
     method RAST_children { $.exprs }
     method RAST_pass10 {
-      self.notes<pkg> = $whiteboard::rx_pkg || self.<created_in_pkg>;
+      $.notes<pkg> = $whiteboard::rx_pkg || $.created_in_pkg;
       $.SUPER::RAST_pass10;
     }
     method RAST_pass14 {
-      self.notes<in_quant> = $whiteboard::rx_in_quant;
-      if not(self.<nocap>) {
-        my $name = self.<name>;
+      $.notes<in_quant> = $whiteboard::rx_in_quant;
+      if not($.nocap) {
+        my $name = $.name;
         my $seen = $whiteboard::rx_subrules_seen.{$name};
         if $seen {
           $seen.() if $seen.isa('Code');
           $whiteboard::rx_subrules_seen.{$name} = 1;
-          self.notes<in_quant> = 1 if not(self.notes<in_quant>);
+          $.notes<in_quant> = 1 if not($.notes<in_quant>);
         } else {
           $whiteboard::rx_subrules_seen.{$name} = sub {
-            self.notes<in_quant> = 1 if not(self.notes<in_quant>);
+            $.notes<in_quant> = 1 if not($.notes<in_quant>);
           };
         }
       }
@@ -400,7 +400,7 @@ package IRx1 {
       $whiteboard::rx_alias_construct = self;
     }
     method RAST_pass15 {
-      self.notes<target_spec> = $whiteboard::rx_target_spec;
+      $.notes<target_spec> = $whiteboard::rx_target_spec;
     }
     method RAST_pass40 {
       $.SUPER::RAST_pass40;
@@ -478,11 +478,11 @@ package IRx1 {
   class RxARegex {
     method RAST_children { [$.expr] }
     method RAST_init {
-      if !defined(self.notes) { self.initialize_notes }; #X for test
-      self.notes<pkg> = $whiteboard::rx_pkg || self.<created_in_pkg>;
-      self.notes<name> = $whiteboard::rx_name;
-      temp $whiteboard::rx_pkg = self.notes<pkg>;
-      temp $whiteboard::rx_flags = self.mods.clone;
+      if !defined($.notes) { $.initialize_notes }; #X for test
+      $.notes<pkg> = $whiteboard::rx_pkg;
+      $.notes<name> = $whiteboard::rx_name;
+      temp $whiteboard::rx_pkg = $.notes<pkg>;
+      temp $whiteboard::rx_flags = $.mods.clone;
       $.RAST_pass10;
       temp $whiteboard::rx_in_quant = 0;
       temp $whiteboard::rx_subrules_seen = {};
@@ -493,8 +493,8 @@ package IRx1 {
       temp $whiteboard::rx_nparen6_idx = 0;
       temp $whiteboard::rx_target_spec = undef;
       $.RAST_pass15;
-      self.notes<nparen> = $whiteboard::rx_nparen;
-      self.notes<nparen6> = $whiteboard::rx_nparen6;
+      $.notes<nparen> = $whiteboard::rx_nparen;
+      $.notes<nparen6> = $whiteboard::rx_nparen6;
       $.RAST_pass30;
       $.RAST_pass40;
       $.RAST_pass45;
@@ -509,11 +509,11 @@ package IRx1 {
   class RxBiind {
     method RAST_children { [$.expr] }
     method RAST_init {
-      if !defined(self.notes) { self.initialize_notes }; #X for test
-      self.notes<pkg> = $whiteboard::rx_pkg || self.<created_in_pkg>;
-      temp $whiteboard::rx_pkg = self.notes<pkg>;
-      temp $whiteboard::rx_name = self.<name>;
-      self.<expr>.RAST_init;
+      if !defined($.notes) { $.initialize_notes }; #X for test
+      $.notes<pkg> = $whiteboard::rx_pkg || $.created_in_pkg;
+      temp $whiteboard::rx_pkg = $.notes<pkg>;
+      temp $whiteboard::rx_name = $.name;
+      $.expr.RAST_init;
       self;
     }
   }
@@ -521,8 +521,8 @@ package IRx1 {
   class RxNamespace {
     method RAST_children { [$.bindings.flatten] }
     method RAST_init {
-      if !defined(self.notes) { self.initialize_notes }; #X for test
-      temp $whiteboard::rx_pkg = self.<pkg>;
+      if !defined($.notes) { $.initialize_notes }; #X for test
+      temp $whiteboard::rx_pkg = $.pkg;
       $.RAST_children.map(sub ($o){$o.RAST_init});
       self;
     }

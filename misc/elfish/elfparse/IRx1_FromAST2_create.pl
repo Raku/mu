@@ -850,7 +850,7 @@ elsif $o<quote> {
 elsif $o<variable> && $o<binding> {
   my $target = $o<variable>.match_string;
   my $expr = $m<binding><quantified_atom>;
-  RxAlias.newp($target,undef,$expr);
+  RxAlias.newp($target,$expr);
 }
 elsif $x eq '.' { RxPat5.newp('.') }
 elsif $x eq '^' {
@@ -869,7 +869,7 @@ elsif $x eq ':' { RxCommitSequence.newp() }
 elsif $text eq '<?>' { RxPat5.newp('(?=)') }
 elsif $text eq '<!>' { RxPat5.newp('(?!)') }
 elsif $text eq '<'~'sym>' {
-  RxAlias.newp('$'~'<'~'sym>',undef,RxCap.newp(RxExact.newp($blackboard::sym)));
+  RxAlias.newp('$'~'<'~'sym>',RxCap.newp(RxExact.newp($blackboard::sym)));
 }
 elsif $x eq '< >' {
   # < stuff >
@@ -969,7 +969,7 @@ elsif $x eq '< >' {
   }
   if $alias {
     my $target = '$<'~$alias~'>';
-    $rxsubrule = RxAlias.newp($target,undef,$rxsubrule);
+    $rxsubrule = RxAlias.newp($target,$rxsubrule);
   }
   $rxsubrule;
 }
