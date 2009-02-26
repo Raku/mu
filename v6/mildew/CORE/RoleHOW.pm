@@ -6,7 +6,7 @@ knowhow RoleHOW {
     $object.^!methods.{$name} = $code
   }
   method dispatch($object, $identifier, \$capture) {
-    if PRIMITIVES::idconst_eq($identifier,'FETCH') {
+    if PRIMITIVES::idconst_eq($identifier.FETCH,'FETCH') {
       # in item context, returns itself.
       return $object;
     } else {
