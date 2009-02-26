@@ -11,7 +11,7 @@ sub oo_package_declarator {
 
     my $how_type = '';
     if ($m->{sym} eq 'knowhow') {
-        $how_type = 'PrototypeHow';
+        $how_type = 'PrototypeHOW';
     } elsif ($m->{sym} eq 'class') {
         $how_type = 'ClassHOW';
     } elsif ($m->{sym} eq 'role') {

@@ -40,6 +40,14 @@ static SMOP__Object* primitive_int_equal(SMOP__Object* interpreter,SMOP__Object*
     return ret;
 }
 
+static void primitive_idconst_eq(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
+    SMOP__Object* a = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    SMOP__Object* b = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+
+    SMOP__Object* ret =  a == b ? SMOP__NATIVE__bool_true : SMOP__NATIVE__bool_false;
+
+}
+
 static void insert_primitive(SMOP__Object* interpreter,SMOP__Object* package,char* name,SMOP__Object* obj) {
   SMOP_DISPATCH(interpreter,
                 SMOP_RI(SMOP__S1P__LexicalPrelude),
@@ -49,10 +57,12 @@ static void insert_primitive(SMOP__Object* interpreter,SMOP__Object* package,cha
                                              NULL));
 }
 
+
 static void insert_primitives(SMOP__Object* interpreter,SMOP__Object* package) {
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&int_add",SMOP__S1P__CCode_create(primitive_int_add));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&int_equal",SMOP__S1P__CCode_create(primitive_int_equal));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&int_substract",SMOP__S1P__CCode_create(primitive_int_substract));
+  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&idconst_eq",SMOP__S1P__CCode_create(primitive_idconst_eq));
 }
 
 void smop_s1p_lexical_prelude_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj) {
@@ -88,7 +98,7 @@ void smop_s1p_lexical_prelude_init() {
   smop_s1p_lexical_prelude_insert(interpreter,"MoldFrame", SMOP__Mold__Frame);
   smop_s1p_lexical_prelude_insert(interpreter,"Attribute", SMOP__S1P__Attribute);
   smop_s1p_lexical_prelude_insert(interpreter,"p6opaque",SMOP__p6opaque__RI);
-  smop_s1p_lexical_prelude_insert(interpreter,"PrototypeHow",SMOP_REFERENCE(interpreter,SMOP__S1P__PrototypeHow));
+  smop_s1p_lexical_prelude_insert(interpreter,"PrototypeHOW",SMOP_REFERENCE(interpreter,SMOP__S1P__PrototypeHow));
   smop_s1p_lexical_prelude_insert(interpreter,"P5Interpreter",SMOP_REFERENCE(interpreter,SMOP__P5Interpreter));
   smop_s1p_lexical_prelude_insert(interpreter,"ControlExceptionReturn",
 				  SMOP_REFERENCE(interpreter,SMOP__ControlExceptionReturn));
