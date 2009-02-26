@@ -33,7 +33,32 @@ static SMOP__Object* primitive_int_equal(SMOP__Object* interpreter,SMOP__Object*
     SMOP__Object* a = SMOP__NATIVE__capture_positional(interpreter,capture,0);
     SMOP__Object* b = SMOP__NATIVE__capture_positional(interpreter,capture,1);
 
-    SMOP__Object* ret = SMOP__NATIVE__int_fetch(a) == SMOP__NATIVE__int_fetch(b) ? SMOP__NATIVE__bool_false : SMOP__NATIVE__bool_true;
+    SMOP__Object* ret = SMOP__NATIVE__int_fetch(a) == SMOP__NATIVE__int_fetch(b) ? SMOP__NATIVE__bool_true : SMOP__NATIVE__bool_false;
+
+    SMOP_RELEASE(interpreter, a);
+    SMOP_RELEASE(interpreter, b);
+    return ret;
+}
+
+static SMOP__Object* primitive_idconst_concat(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
+    SMOP__Object* a = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    SMOP__Object* b = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+
+
+    int left_len,right_len;
+    char *left = SMOP__NATIVE__idconst_fetch(a,&left_len);
+    char *right = SMOP__NATIVE__idconst_fetch(b,&right_len);
+    char *new_str = malloc(sizeof(char) * (right_len+left_len));
+    int i;
+    for (i=0;i<left_len;i++) {
+      new_str[i] = left[i];
+    }
+    for (i=0;i<right_len;i++) {
+      new_str[left_len+i] = right[i];
+    }
+    SMOP__Object* ret = SMOP__NATIVE__idconst_createn(new_str,left_len+right_len);
+
+    free(new_str);
 
     SMOP_RELEASE(interpreter, a);
     SMOP_RELEASE(interpreter, b);
@@ -62,6 +87,7 @@ static void insert_primitives(SMOP__Object* interpreter,SMOP__Object* package) {
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&int_add",SMOP__S1P__CCode_create(primitive_int_add));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&int_equal",SMOP__S1P__CCode_create(primitive_int_equal));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&int_substract",SMOP__S1P__CCode_create(primitive_int_substract));
+  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&idconst_concat",SMOP__S1P__CCode_create(primitive_idconst_concat));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&idconst_eq",SMOP__S1P__CCode_create(primitive_idconst_eq));
 }
 

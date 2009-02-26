@@ -1,5 +1,14 @@
-sub say($arg) {
-    $OUT.print($arg.FETCH,"\n");
+sub say(|$capture) {
+    my $i = 0;
+    loop {
+        if &infix:<==>:(int,int)($i.FETCH,$capture.elems) {
+            $OUT.print("\n");
+            return;
+        } else {
+           $OUT.print($capture.positional($i.FETCH).FETCH);
+           $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
 }
 sub print($arg) {
     $OUT.print($arg.FETCH);
@@ -17,6 +26,9 @@ $LexicalPrelude.{'&infix:-:(int,int)'} := sub ($a,$b) {
 
 $LexicalPrelude.{'&infix:==:(int,int)'} := sub ($a,$b) {
     PRIMITIVES::int_equal($a.FETCH,$b.FETCH);
+}
+$LexicalPrelude.{'&infix:~'} := sub ($a,$b) {
+    PRIMITIVES::idconst_concat($a.FETCH,$b.FETCH);
 }
 
 ::MildewSOLoader.new.load('Return.mildew.so',$LexicalPrelude.FETCH);

@@ -1,4 +1,4 @@
-say "1..4";
+say "1..6";
 if &infix:<==>:(int,int)(1788,1788) {
     say "ok 1 # infix:<==>";
 } else {
@@ -16,8 +16,20 @@ if &infix:<==>:(int,int)(&infix:<+>:(int,int)(1788,2),1790) {
 } else {
     say "not ok 3 # infix:<+>",;
 }
-if &infix:<==>:(int,int)(&infix:<+>:(int,int)(600,100),500) {
+
+if &infix:<==>:(int,int)(&infix:<->:(int,int)(600,100),500) {
     say "ok 4 # infix:<->";
 } else {
     say "not ok 4 # infix:<->",;
+}
+
+if &infix:<==>:(int,int)(4,5) {
+    say "not ok 5";
+} else {
+    say "ok 5";
+}
+if &infix:<==>:(int,int)(6,6) {
+    say "ok 6";
+} else {
+    say "not ok 6";
 }

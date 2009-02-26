@@ -6,8 +6,8 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    if ($m->{infix}{TEXT} eq '~') {
-        fcall '&infix:~',[$m->{left}->emit_m0ld,$m->{right}->emit_m0ld];
+    if ($m->{sym} eq '~') {
+        fcall '&infix:~',[map {$_->emit_m0ld} @{$m->{list}}];
     } else {
         use YAML::XS;
         die Dump($m);
