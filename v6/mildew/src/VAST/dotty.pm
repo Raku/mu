@@ -14,11 +14,23 @@ sub emit_m0ld {
             my $ident = $methodop->{longname}->canonical;
             if ($m->{sym} eq '.^!') {
                 $ident = '^!' . $ident;
+                AST::Call->new(
+                    identifier=>string $ident,
+                    capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional],named=>[@named]),
+                    );
+            } elsif ($m->{sym} eq '.^') {
+                let FETCH($noun), sub {
+                    my $object = shift;
+                    return call($ident => FETCH(call '^!how' => $object), [$object, @positional], [@named]);
+                }
+            } elsif ($m->{sym} eq '.') {
+                AST::Call->new(
+                    identifier=>string $ident,
+                    capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional],named=>[@named]),
+                    );
+            } else {
+                XXX('unknown dotty sym');
             }
-            AST::Call->new(
-                identifier=>string $ident,
-                capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional],named=>[@named]),
-            );
         } else {
             XXX('unknown methodop');
         }
