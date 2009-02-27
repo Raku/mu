@@ -95,7 +95,7 @@ let s:keywords = {
  \   "default exit make continue break goto leave async",
  \ ],
  \ "p6TypeConstraint": [
- \   "is as but trusts of returns also handles where augment supersede",
+ \   "is as but trusts of returns handles where augment supersede",
  \ ],
  \ "p6ClosureTrait": [
  \   "BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP",
