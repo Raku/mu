@@ -28,7 +28,7 @@ files = env.Glob('build/*.c')
 import subprocess # python has `` in a strange module :\
 ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
-flags = '-O0 -g3 -DSMOP_LOWLEVEL_MEM_TRACE '
+flags = '-O0 -g3 '
 
 INCLUDE = ['include'] + glob.glob('smop-*/include')
 
