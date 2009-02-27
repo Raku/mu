@@ -121,6 +121,7 @@ extern SMOP__Object* SMOP__ID__setr;              /* "setr" */
 extern SMOP__Object* SMOP__ID__shift;             /* "shift" */
 extern SMOP__Object* SMOP__ID__signature;         /* "signature" */
 extern SMOP__Object* SMOP__ID__STORE;             /* "STORE" */
+extern SMOP__Object* SMOP__ID__Str;             /* "Str" */
 extern SMOP__Object* SMOP__ID__unshift;           /* "unshift" */
 extern SMOP__Object* SMOP__ID__Void;              /* "Void" */
 

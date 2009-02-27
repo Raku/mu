@@ -1,10 +1,9 @@
 say "1..3";
-my $p5 = ::P5Interpreter.new();
 
-$p5.eval('$| = 1');
+EXTERNAL::eval_perl5('$| = 1');
 $OUT.unbuffered;
 
-my $foo = $p5.eval('
+my $foo = EXTERNAL::eval_perl5('
 package Foo;
 use strict;
 sub test_fetch {
@@ -19,7 +18,7 @@ sub test_store {
 bless {},"Foo";
 ');
 my $var1 = "ok 1\n";
-my $var2 = $p5.eval('"ok 2\n"');
+my $var2 = EXTERNAL::eval_perl5('"ok 2\n"');
 my $var3;
 $foo.test_fetch($var1);
 $foo.test_fetch($var2);

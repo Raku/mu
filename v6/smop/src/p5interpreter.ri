@@ -90,6 +90,9 @@
 %method STORE
   ___VALUE_STORE___
 
+%method true
+    ret = SMOP__NATIVE__bool_true;
+
 %method new
 
   ret =  smop_lowlevel_alloc(sizeof(smop_p5interpreter_struct));

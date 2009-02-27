@@ -7,7 +7,21 @@ use AST::Helpers;
 sub emit_m0ld {
     my $m = shift;
     # XXX escapes
-    string join '',map {ref $_ ? $_->as_constant_string : $_} @{$m->{nibble}{nibbles}};
+    my @things;
+    for (@{$m->{nibble}{nibbles}}) {
+        if (ref $_) {
+            push(@things,$_->emit_m0ld);
+        } elsif ($_) {
+            push(@things,string $_);
+        }
+    }
+    if (scalar @things == 1) {
+        $things[0];
+    } elsif (scalar @things) {
+        fcall '&infix:~',[@things];
+    } else {
+        string '';
+    }
 }
 
 1;

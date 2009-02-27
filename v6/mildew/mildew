@@ -4,7 +4,6 @@ use lib 'src';
 use STD;
 package Mildew;
 do 'viv';
-VIV::SET_OPT('match'=>1,'pos'=>1);
 use AST;
 use AST::Helpers;
 use DumpMatch;
@@ -35,6 +34,7 @@ exit;
 my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'empty-setting'=>\$empty_setting,'debug'=>\$debug,'h|help'=>\$help) || help;
 help if $help;
+VIV::SET_OPT('match'=>!$debug,'pos'=>1);
 
 BEGIN {
     for (<src/VAST/*.pm>) {
@@ -116,9 +116,10 @@ if (@ARGV) {
 
 #print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
 print "#################\n" if $debug;
-print Dump($m->item) if $debug;
-print Dump($m->item->emit_m0ld) if $debug;
-print "#################\n" if $debug;
+if ($debug) {
+    print Dump($m->item);
+    exit;
+}
 my $mold = $m->item->emit_m0ld;
 
 unless ($empty_setting) {

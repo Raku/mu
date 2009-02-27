@@ -113,9 +113,10 @@ SMOP__ID__setr = SMOP__NATIVE__idconst_create_nolist( "setr" );\
 SMOP__ID__shift = SMOP__NATIVE__idconst_create_nolist( "shift" );\
 SMOP__ID__signature = SMOP__NATIVE__idconst_create_nolist( "signature" );\
 SMOP__ID__STORE = SMOP__NATIVE__idconst_create_nolist( "STORE" );\
+SMOP__ID__Str = SMOP__NATIVE__idconst_create_nolist( "Str" );\
 SMOP__ID__unshift = SMOP__NATIVE__idconst_create_nolist( "unshift" );\
 SMOP__ID__Void = SMOP__NATIVE__idconst_create_nolist( "Void" );\
-constlist_size = 116;\
+constlist_size = 117;\
 constlist = calloc(constlist_size,sizeof(SMOP__Object*));\
 assert(constlist);\
 constlist[0] = SMOP__ID__ACCEPTS;\
@@ -232,6 +233,7 @@ constlist[110] = SMOP__ID__setr;\
 constlist[111] = SMOP__ID__shift;\
 constlist[112] = SMOP__ID__signature;\
 constlist[113] = SMOP__ID__STORE;\
-constlist[114] = SMOP__ID__unshift;\
-constlist[115] = SMOP__ID__Void;\
+constlist[114] = SMOP__ID__Str;\
+constlist[115] = SMOP__ID__unshift;\
+constlist[116] = SMOP__ID__Void;\
 

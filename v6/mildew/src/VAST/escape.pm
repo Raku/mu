@@ -4,9 +4,15 @@ use strict;
 use warnings;
 use AST::Helpers;
 
-sub as_constant_string {
+sub emit_m0ld {
     my $m = shift;
-    $m->{item}->as_constant_string;
+    if ($m->{variable}) {
+        $m->{variable}->emit_m0ld;
+    } elsif ($m->{item}) {
+        string $m->{item}->as_constant_string;
+    } else {
+        XXX;
+    }
 }
 
 1;

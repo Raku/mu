@@ -1,10 +1,9 @@
 say "1..3";
-my $p5 = ::P5Interpreter.new();
 
-$p5.eval('$| = 1');
+EXTERNAL::eval_perl5('$| = 1');
 $OUT.unbuffered;
 
-my $foo = $p5.eval('
+my $foo = EXTERNAL::eval_perl5('
 package Foo;
 use strict;
 sub pass_through {

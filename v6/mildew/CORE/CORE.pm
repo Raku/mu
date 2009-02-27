@@ -27,8 +27,20 @@ $LexicalPrelude.{'&infix:-:(int,int)'} := sub ($a,$b) {
 $LexicalPrelude.{'&infix:==:(int,int)'} := sub ($a,$b) {
     PRIMITIVES::int_equal($a.FETCH,$b.FETCH);
 }
-$LexicalPrelude.{'&infix:~'} := sub ($a,$b) {
-    PRIMITIVES::idconst_concat($a.FETCH,$b.FETCH);
+$LexicalPrelude.{'&infix:~'} := sub (|$capture) {
+    my $i = 0;
+    my $str = '';
+    loop {
+        if &infix:<==>:(int,int)($i.FETCH,$capture.elems) {
+            return $str.FETCH;
+        } else {
+           $str = PRIMITIVES::idconst_concat($str.FETCH,$capture.positional($i.FETCH).FETCH.Str);
+           $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
+}
+$LexicalPrelude.{'&postfix:++'} := sub ($a) {
+    $a = &infix:<+>:(int,int)($a,1);
 }
 
 ::MildewSOLoader.new.load('Return.mildew.so',$LexicalPrelude.FETCH);
