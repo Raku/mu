@@ -59,13 +59,17 @@ sub emit_m0ld {
         my $module = $m->{module_name}{longname};
         if ($m->{version}) {
             # use v6
-        } elsif ($module && $module->{colonpair}[0]{identifier}{TEXT} eq 'from') {
+        } elsif ($module
+                 && $module->{colonpair}[0]{identifier}{TEXT} eq 'from'
+                 && $module->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0] eq 'perl5') {
             my $name = join '::',$module->{name}{identifier}{TEXT},map {
                 $_->{identifier}[0]{TEXT}
             } @{$module->{name}{morename}};
-            call 'eval' => FETCH(lookup('$P5Interpreter')),[
-                string("use $name;")
-            ];
+
+            call('BIND', call('postcircumfix:{ }' => reg '$scope', [string $name]),
+                 [ call('postcircumfix:( )' =>
+                    FETCH(call('postcircumfix:{ }' => FETCH(lookup('EXTERNAL::')), [string '&use_from_perl5'])),
+                    [capturize([string $name])]) ]);
         } else {
             XXX;
         }
