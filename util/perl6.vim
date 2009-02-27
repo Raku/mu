@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Feb 25th 2009
+" Last Change:  Feb 27th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -95,7 +95,7 @@ let s:keywords = {
  \   "default exit make continue break goto leave async",
  \ ],
  \ "p6TypeConstraint": [
- \   "is as but trusts of returns also handles where",
+ \   "is as but trusts of returns also handles where augment supersede",
  \ ],
  \ "p6ClosureTrait": [
  \   "BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP",
