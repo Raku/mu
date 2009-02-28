@@ -105,6 +105,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     return 1 if !defined($c) || $c eq $noop;
     return 0;
   }
+  our $our_noop = $noop;
 
   sub RMARE_eat_backref {
     my($o,$idx,$mod5_re)=@_;
@@ -923,7 +924,6 @@ sub{my $__c__ = $_[0];
       FAIL();
     };
   }
-}
 
 { package CategoryInfo;
   use Class::Inspector;
@@ -958,6 +958,120 @@ sub{my $__c__ = $_[0];
     #print Data::Dumper::Dumper($methods,$filter,\@names,\@data);
     [ map {$_} @data];  
   }
+}
+
+  sub RMARE_return_current_match {
+    my($o)=@_;
+    my $noop = $o->RMARE_noop;
+    subname "<return_current_match ".($sub_id++).">" => sub {
+      my $c = $_[0];
+      my $v = $c->($noop);
+      FAIL_IF_FAILED($v);
+      my $current_match = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+      return $v if FAILED($current_match); #X die instead?
+      return $current_match;
+    };
+  }
+  our $our_return_current_match = __PACKAGE__->RMARE_return_current_match;
+
+  sub RMARE_return_pos1 { # pos+1 because 0 is FAIL.
+    my($o)=@_;
+    my $noop = $o->RMARE_noop;
+    subname "<return_current_match ".($sub_id++).">" => sub {
+      my $c = $_[0];
+      my $v = $c->($noop);
+      FAIL_IF_FAILED($v);
+      return ($Regexp::ModuleA::ReentrantEngine::Env::pos +1);
+    };
+  }
+  our $our_return_pos1 = __PACKAGE__->RMARE_return_pos1;
+
+  #----------------------------------------------------------------------
+  # RATCHET
+  # These are all _compile time_, unlike most RMARE_foo.
+  # They could/should be p6 instead of p5.
+  # state: $__str__, pos($__str__), $__ok__
+  # on fail: leave pos unchanged, false $__ok__.
+  # differs from RMARE: $Regexp::ModuleA::ReentrantEngine::Env::pos is unspecified.
+  #   Why?  More for code clarity than performance.  LETs and such.
+  #----------------------------------------------------------------------
+
+  #XX probably have to gensym vars to avoid a masking warning?
+
+  sub RATCHET_wrap_for_RMARE {
+    my($o,$src)=@_;
+    ("do{Sub::Name::subname \"<ratchet ".($sub_id++).">\" => sub { my \$__c__ = \$_[0];\n".
+     "  my \$__str__ = \$Regexp::ModuleA::ReentrantEngine::Env::str;\n".
+     "  pos(\$__str__) = \$Regexp::ModuleA::ReentrantEngine::Env::pos;\n".
+     "  my \$__ok__=1;\n".
+     $src."\n".
+     \'  FAIL() if !$__ok__;\'."\n".
+     "  local \$Regexp::ModuleA::ReentrantEngine::Env::pos = pos(\$__str__);\n".
+     "  my \$__v = \$__c__->(\$IRx1::RxBaseClass::our_noop);\n".
+     \'  FAIL_IF_FAILED(\$__v);\'."\n".
+     "  return \$__v;\n".
+     "}}")
+  }
+  sub RATCHET_eat_regexp {
+    my($o,$re)=@_;
+    my $gre = \'\G\'."(?:$re)";
+    "\$__str__ =~ /$gre/gc or do{\$__ok__=undef};"
+  }
+  sub RATCHET_alt {
+    my($o,$aref)=@_;
+    die "bug $aref" if ref($aref) ne "ARRAY";
+    my @srcs = @$aref;
+    my $src_last = pop(@srcs);
+    my $code = "# alt\nwhile(1){\n";
+    for my $src (@srcs) {
+      $code .= $src."\n"."if(\$__ok__){last}else{\$__ok__=1};\n";
+    }
+    $code .= $src_last."\n";
+    $code .= "last;\n}\n";
+    $code;
+  }
+  sub RATCHET_concat {
+    my($o,$aref)=@_;
+    die "bug $aref" if ref($aref) ne "ARRAY";
+    my @srcs = @$aref;
+    return "" if @srcs == 0;
+    return $srcs[0] if @srcs == 1;
+    my $code = "# concat\n{ my \$__old_pos = pos(\$__str__);\n";
+    for my $src (@srcs) { #X could nest
+      $code .= "if(\$__ok__) {\n".$src."\n}\n";
+    }
+    $code .= "if(!\$__ok__) { pos(\$__str__) = \$__old_pos }\n}\n";
+    $code;
+  }
+  sub RATCHET_repeat {
+    my($o,$r,$min,$max,$ng)=@_;
+    my $mins = "".($min||0);
+    my $maxs = defined($max) ? $max : "10**10**10";
+    return "" if $ng && ($min||0) == 0;
+    my $code = ("# repeat\n{ my \$__old_pos = pos(\$__str__); ".
+                " my \$__i = 0;\n".
+                " my \$__min = $mins;\n".
+                " my \$__max = $maxs;\n".
+                " while(\$__i < \$__max && \$__ok__) {\n".$r."\n");
+    if($ng) {
+      $code .=  "  last if \$__i == \$__min || !\$__ok__;\n";
+    } else {
+      $code .=  "  if(!\$__ok__) { \$__ok__=1 if \$__i >= \$__min; last; }\n";
+    }
+    $code .=   (" pos(\$__str__) = \$__old_pos if !\$__ok__;\n".
+                "}\n");
+    $code;
+  }
+  sub RATCHET_wrap_subrule {
+    my($o,$subrule_var)=@_;
+    ("{ my \$__old_pos = pos(\$__str__);\n".
+     "  local \$Regexp::ModuleA::ReentrantEngine::Env::pos = \$__old_pos;\n".
+     "  my \$__v = do{ $subrule_var }->(\$IRx1::RxBaseClass::our_return_pos1);\n".
+     "  if(FAILED(\$__v)) { \$__ok__=undef; pos(\$__str__)=\$__old_pos; }\n".
+     "  else { pos(\$__str__) = \$__v-1 }\n".
+     "}\n")
+  }
+
 }
 ');
    my $rx = '
@@ -1161,6 +1275,7 @@ package IRx1 {
       }
       else { undef }
     }
+    method emit_RATCHET { undef }
   }
 
   # space - may be a no-op, literal, or <ws>.
@@ -1168,23 +1283,36 @@ package IRx1 {
     method emit_RMARE () {
       $.notes<delegate>.emit_RMARE;
     }
+    method emit_RATCHET {
+      $.notes<delegate>.emit_RATCHET;
+    }
   }
 
   # any regexp
   class RxPat5 {
+    method _as_re {
+      $.RMARE_wrap_re_with_mods($.pat,$.notes<flags>);
+    }
     method emit_RMARE () {
-      my $re = $.RMARE_wrap_re_with_mods($.pat,$.notes<flags>);
-      'IRx1::RxBaseClass->RMARE_eat_regexp("'~quotemeta($re)~'")';
+      'IRx1::RxBaseClass->RMARE_eat_regexp("'~quotemeta($._as_re)~'")';
+    }
+    method emit_RATCHET {
+      $.RATCHET_eat_regexp($._as_re);
     }
   }
 
   # \Qabc\E
   class RxExact {
-    method emit_RMARE () {
+    method _as_re {
       my $re = $.text;
       $re.re_sub('([^\w\s])','\\\\$1','g');
-      $re = $.RMARE_wrap_re_with_mods($re,$.notes<flags>);
-      'IRx1::RxBaseClass->RMARE_eat_regexp("'~quotemeta($re)~'")';
+      $.RMARE_wrap_re_with_mods($re,$.notes<flags>);
+    }
+    method emit_RMARE () {
+      'IRx1::RxBaseClass->RMARE_eat_regexp("'~quotemeta($._as_re)~'")';
+    }
+    method emit_RATCHET {
+      $.RATCHET_eat_regexp($._as_re);
     }
   }
 
@@ -1193,12 +1321,18 @@ package IRx1 {
     method emit_RMARE () {
       $.expr.emit_RMARE;
     }
+    method emit_RATCHET {
+      $.expr.emit_RATCHET;
+    }
   }
 
   # (?imsx-imsx)
   class RxMod_inline {
     method emit_RMARE () {
       'IRx1::RxBaseClass->RMARE_noop()';
+    }
+    method emit_RATCHET {
+      "";
     }
   }
 
@@ -1221,6 +1355,14 @@ package IRx1 {
         'IRx1::RxBaseClass->RMARE_repeat('~$f~','~$min~','~$maxs~','~$nongreedy~')';
       }
     }
+    method emit_RATCHET {
+      if $.notes<flags><ratchet> {
+        my $r = $.expr.emit_RATCHET;
+        return undef if !defined($r);
+        $.RATCHET_repeat($r,$.min||0,$.max,$.nongreedy);
+      }
+      else { undef }
+    }
   }
 
   # a|b
@@ -1233,6 +1375,15 @@ package IRx1 {
       } else {
         'IRx1::RxBaseClass->RMARE_alt(['~$exprs~'])';
       }
+    }
+    method emit_RATCHET {
+      if $.notes<flags><ratchet> {
+        my $ok = 1;
+        my $exprs = $.exprs.map(sub ($o){my $r = $o.emit_RATCHET; $ok=0 if !defined($r); $r});
+        return undef if !$ok;
+        $.RATCHET_alt($exprs);
+      }
+      else { undef }
     }
   }
 
@@ -1247,8 +1398,58 @@ package IRx1 {
   # ab
   class RxSeq {
     method emit_RMARE {
-      my $exprs = $.exprs.map(sub ($o){$o.emit_RMARE}).join(',');
-      'IRx1::RxBaseClass->RMARE_concat(['~$exprs~'])';
+      if $.notes<flags><ratchet> && $.exprs.elems > 1 && 0 { #XXX DISABLED
+        #XX calling emit_RATCHET and then emit_RMARE is exponential.  cache?
+        my $es = $._RATCHET_to_RMARE.join(',');
+        'IRx1::RxBaseClass->RMARE_concat(['~$es~'])';
+      }
+      else {
+        my $es = $.exprs.map(sub ($o){$o.emit_RMARE}).join(',');
+        'IRx1::RxBaseClass->RMARE_concat(['~$es~'])';
+      }
+    }
+    method emit_RATCHET {
+      if $.notes<flags><ratchet> {
+        my $ok = 1;
+        my $exprs = $.exprs.map(sub ($o){my $r = $o.emit_RATCHET; $ok=0 if !defined($r); $r});
+        return undef if !$ok;
+        $.RATCHET_alt($exprs);
+      }
+      else { undef }
+    }
+    method _RATCHET_to_RMARE {
+      my $partition = [];
+      my $tmp = [0];
+      my $exprs = $.exprs.clone;
+      while $exprs.elems {
+        my $e = $exprs.shift;
+        if $e.WHAT eq 'IRx1::RxSeq' { $exprs.unshift($e.exprs.flatten); next } ;#X
+        my $type = $tmp[0];
+        my $r = $e.emit_RATCHET;
+        if defined($r) {
+          if $type == 0 { $tmp[0] = 2 }
+          elsif $type == 1 { $partition.push($tmp); $tmp = [2] }
+          $tmp.push($r);
+        } else {
+          if $type == 0 { $tmp[0] = 1 }
+          elsif $type == 2 { $partition.push($tmp); $tmp = [1] }
+          my $em = $e.emit_RMARE;
+          $tmp.push($em);
+        }
+      }
+      $partition.push($tmp);
+
+      my $exprs_RMARE = [];
+      for $partition {
+        my $type = $_.shift;
+        if $type == 1 { 
+          $exprs_RMARE.push($_.flatten);
+        }
+        else {
+          $exprs_RMARE.push($.RATCHET_wrap_for_RMARE($_));
+        }
+      }
+      $exprs_RMARE;
     }
   }  
 
@@ -1295,6 +1496,12 @@ package IRx1 {
       my $in_quant = {if $.notes<in_quant> { 1 } else { 0 }};
       my $f = $.expr.emit_RMARE;
       'IRx1::RxBaseClass->RMARE_group('~$f~','~$target_spec.perl~','~$in_quant~')';
+    }
+    method emit_RATCHET {
+      if $.notes<flags><ratchet> {
+        $.expr.emit_RATCHET;
+      }
+      else { undef }
     }
   }
 
@@ -1374,6 +1581,12 @@ package IRx1 {
   class RxCommitSequence {
     method emit_RMARE {
       'IRx1::RxBaseClass->RMARE_commit_sequence'
+    }
+    method emit_RATCHET {
+      if $.notes<flags><ratchet> {
+        "";
+      }
+      else { undef }
     }
   }
 
