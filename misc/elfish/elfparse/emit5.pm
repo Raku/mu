@@ -1417,36 +1417,59 @@ package IRx1 {
       }
       else { undef }
     }
-    method _RATCHET_to_RMARE {
+    method _RATCHET_to_RMARE { #XX painful varnames
       my $partition = [];
+
       my $tmp = [0];
+      my $subrules = "";
+      my $doing = sub ($n) {
+        my $tmp0 = $tmp[0];
+        if $tmp0 == $n { }
+        elsif $tmp0 == 0 { $tmp[0] = $n; }
+        elsif $tmp0 == 1 { $partition.push($tmp); $tmp = [$n]; }
+        elsif $tmp0 == 2 { $tmp.push($subrules); $subrules = "";
+                           $partition.push($tmp); $tmp = [$n]; }
+        else { die "bug" }
+      };
       my $exprs = $.exprs.clone;
       while $exprs.elems {
         my $e = $exprs.shift;
         if $e.WHAT eq 'IRx1::RxSeq' { $exprs.unshift($e.exprs.flatten); next } ;#X
-        my $type = $tmp[0];
         my $r = $e.emit_RATCHET;
         if defined($r) {
-          if $type == 0 { $tmp[0] = 2 }
-          elsif $type == 1 { $partition.push($tmp); $tmp = [2] }
+          $doing.(2);
           $tmp.push($r);
-        } else {
-          if $type == 0 { $tmp[0] = 1 }
-          elsif $type == 2 { $partition.push($tmp); $tmp = [1] }
+        }
+        elsif $e.WHAT eq 'IRx1::RxSubrule' {
+          $doing.(2);
+          my $var = gensym; #XX unimp
+          my $er = $e.emit_RMARE;
+          $subrules = $subrules~" my "~$var~" = "~$er~";\n";
+          $r = $.RATCHET_wrap_subrule($var);
+          $tmp.push($r);
+        }
+        else {
+          $doing.(1);
           my $em = $e.emit_RMARE;
           $tmp.push($em);
         }
       }
-      $partition.push($tmp);
+      $doing.(-42);
 
       my $exprs_RMARE = [];
       for $partition {
-        my $type = $_.shift;
-        if $type == 1 { 
+        my $tmp0 = $_.shift;
+        if $tmp0 == 1 { 
           $exprs_RMARE.push($_.flatten);
         }
         else {
-          $exprs_RMARE.push($.RATCHET_wrap_for_RMARE($_));
+          my $subrules = $_.pop;
+          my $ratch = $_.join("\n");#XX ;?
+          my $code = $.RATCHET_wrap_for_RMARE($ratch);
+          if $subrules {
+            $code = "(do{\n"~$subrules~$code~"})";
+          }
+          $exprs_RMARE.push($code);
         }
       }
       $exprs_RMARE;
