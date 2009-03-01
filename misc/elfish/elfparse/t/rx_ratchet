@@ -1,0 +1,32 @@
+:ratchet a* a		bazaar		n	ratchet modifier
+:ratchet a*! a		bazaar		y	force backtracking !
+:ratchet xa*y			xaaaay		/mob: <xaaaay @ 0>/	star ratchet 2+
+:ratchet xa*y			xay		/mob: <xay @ 0>/	star ratchet 1
+:ratchet xa*y			xy		/mob: <xy @ 0>/	star ratchet 0
+:ratchet xa*a			xaaaay		n		star ratchet 2+
+:ratchet xa*a			xay		n		star ratchet 1
+:ratchet xa+y			xaaaay		/mob: <xaaaay @ 0>/	plus ratchet 2+
+:ratchet xa+y			xay		/mob: <xay @ 0>/	plus ratchet 1
+:ratchet xa+y			xy		n		plus ratchet 0
+:ratchet xa+a			xaaaay		n		plus ratchet 2+
+:ratchet xa+a			xay		n		plus ratchet 1
+:ratchet xa?y			xaaaay		n		ques ratchet 2+
+:ratchet xa?y			xay		/mob: <xay @ 0>/	ques ratchet 1
+:ratchet xa?y			xy		/mob: <xy @ 0>/	ques ratchet 0
+:ratchet xa?a			xaaaay		/mob: <xaa @ 0>/	ques ratchet 2+
+:ratchet xa?a			xay		n		ques ratchet 1
+:ratchet xa*!y			xaaaay		/mob: <xaaaay @ 0>/	star ratchet greedy 2+
+:ratchet xa*!y			xay		/mob: <xay @ 0>/	star ratchet greedy 1
+:ratchet xa*!y			xy		/mob: <xy @ 0>/	star ratchet greedy 0
+:ratchet xa*!a			xaaaay		/mob: <xaaaa @ 0>/	star ratchet greedy 2+
+:ratchet xa*!a			xay		/mob: <xa @ 0>/	star ratchet greedy 1
+:ratchet xa+!y			xaaaay		/mob: <xaaaay @ 0>/	plus ratchet greedy 2+
+:ratchet xa+!y			xay		/mob: <xay @ 0>/	plus ratchet greedy 1
+:ratchet xa+!y			xy		n		plus ratchet greedy 0
+:ratchet xa+!a			xaaaay		/mob: <xaaaa @ 0>/	plus ratchet greedy 2+
+:ratchet xa+!a			xay		n		plus ratchet greedy 1
+:ratchet xa?!y			xaaaay		n		ques ratchet greedy 2+
+:ratchet xa?!y			xay		/mob: <xay @ 0>/	ques ratchet greedy 1
+:ratchet xa?!y			xy		/mob: <xy @ 0>/	ques ratchet greedy 0
+:ratchet xa?!a			xaaaay		/mob: <xaa @ 0>/	ques ratchet greedy 2+
+:ratchet xa?!a			xay		/mob: <xa @ 0>/	ques ratchet greedy 1
