@@ -27,7 +27,15 @@ sub test is p5 {'
      $test_target6 =
        sub {
          my($mods,$re)=@_;
-         my $code = "m/$mods"."::$re/";
+
+         # terminate $mods
+         if($mods ne "" &&
+            $mods !~ /[>}\]: ]\z/ &&
+            $re !~ /\A[: ]/) {
+           $mods .= "::";
+         }
+
+         my $code = "m/$mods$re/";
          print STDERR $code,"\n";
          my $o = GLOBAL::eval($code,$env);
          sub{my($s)=@_;$o->match($s)}

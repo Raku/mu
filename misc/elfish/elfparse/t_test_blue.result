@@ -1961,13 +1961,13 @@ ok
         # [ if :  not | ify ]	verify		y	simple backtrack still works
 ok
         # [ if :: not | ify ] | verify	verify	y	rule continues
-not ok # Match failed.
+ok
         # [ when     ever ] | whence	whence	y	full backtrack failure
-not ok # Match failed.
+ok
         # [ when ::: ever ] | whence	whence	n	full backtrack failure
 ok
         # ab::cd | gh::ij		xyabghij	y	group cut at top
-not ok # Match failed.
+ok
         # ab:::cd | gh:::ij	xyabghij	n	rule cut at top
 ok
         # [ab::cd | gh::ij]	xyabghij	y	group cut in group
@@ -2228,9 +2228,9 @@ ok
         # abc <null> def	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	y			null pattern (<null>)
 ok
         # x | y | <null>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	y			null pattern (<null>)
-not ok # Match failed.
+ok
         # x | y | <.null>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	y			null pattern (<null>)
-not ok # Match failed.
+ok
         # 
         # a[b}		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/rule error/	mismatched close
 ok
@@ -2384,7 +2384,7 @@ ok
         # <[a..d]> | <[d..e]>	c		y	alternation (|)
 ok
         # <[a..b]> | <[b..e]>	c		y	alternation (|)
-not ok # Match failed.
+ok
         # <[a..b]> | <[d..e]>	c		n	alternation (|)
 ok
         # <[a..d]>+ | <[b..e]>+	bcd		y	alternation (|)
@@ -2424,7 +2424,7 @@ not ok # Unexpected compilation failure.
         # b&			bcd		/rule error/	conjunction (&) - null right arg illegal
 ok
         # &b			bcd		/Missing term/	conjunction (&) - null left arg illegal
-ok
+not ok  # Expected compile to fail.
         # &			bcd		/Missing term/	conjunction (&) - null both args illegal
 ok
         # \&			&		y	conjunction (&) - literal must be escaped
@@ -2653,37 +2653,37 @@ ok
         # ## vim: noexpandtab tabstop=4 shiftwidth=4
         # ##  modifiers
         # :i bcd			abcdef	y	ignorecase (:i)
-not ok # Match failed.
+ok
         # :i bcd			aBcdef	y	ignorecase (:i)
-not ok # Match failed.
+ok
         # :i bcd			abCdef	y	ignorecase (:i)
-not ok # Match failed.
+ok
         # :i bcd			abcDef	y	ignorecase (:i)
-not ok # Match failed.
+ok
         # :i bcd			abc-ef	n	ignorecase (:i)
 ok
         # :ignorecase bcd		abcdef	y	ignorecase (:ignorecase)
-not ok # Match failed.
+ok
         # :ignorecase bcd		aBCDef	y	ignorecase (:ignorecase)
-not ok # Match failed.
+ok
         # :ignorecase bcd		abc-ef	n	ignorecase (:ignorecase)
 ok
         # :i(0) bcd		abcdef	y	ignorecase, repetition (:i(0))
-not ok # Match failed.
+ok
         # :i(0) bcd		abCdef	n	ignorecase, repetition (:i(0))
 ok
         # :i(1) bcd		abcdef	y	ignorecase, repetition (:i(1))
-not ok # Match failed.
+ok
         # :i(1) bcd		abCdef	y	ignorecase, repetition (:i(1))
-not ok # Match failed.
+ok
         # :i(1) bcd		aBxDef	n	ignorecase, repetition (:i(1))
 ok
         # :0i bcd			abcdef	y	ignorecase, repetition (:0i)
-not ok # Match failed.
+ok
         # :0i bcd			abCdef	n	ignorecase, repetition (:0i)
 ok
         # :1i bcd			abcdef	y	ignorecase, repetition (:1i)
-not ok # Match failed.
+ok
         # :1i bcd			abCdef	y	ignorecase, repetition (:1i)
 not ok # Match failed.
         # :1i bcd			aBCDef	y	ignorecase, repetition (:1i)
@@ -2703,23 +2703,23 @@ ok
         # ab [:i cd ] ef		abCDEf	n	ignorecase, lexical (:i)
 ok
         # :i ab [:i cd ] ef	abCDef	y	ignorecase, lexical (:i)
-not ok # Match failed.
+ok
         # :i ab [:i cd ] ef	AbCDeF	y	ignorecase, lexical (:i)
-not ok # Match failed.
+ok
         # :i ab [:i cd ] ef	AbcdeF	y	ignorecase, lexical (:i)
-not ok # Match failed.
+ok
         # :i a [:i(0) b [:i(1) c [:0i d [:1i e [:i(0) f ] ] ] ] ]		AbCdEf		y	ignorecase, lexical (:i)
-not ok # Match failed.
+ok
         # :i aa [:i(0) bb [:i(1) cc [:0i dd [:1i ee [:i(0) ff ] ] ] ] ]	AabbCcddEeff	y	ignorecase, lexical (:i)
-not ok # Match failed.
+ok
         # :i a [:i(0) b [:i(1) c [:0i d [:1i e [:i(0) f ] ] ] ] ]		AbCdEF		n	ignorecase, lexical (:i)
 ok
         # :i aa [:i(0) bb [:i(1) cc [:0i dd [:1i ee [:i(0) ff ] ] ] ] ]	AabbCcddEeFf	n	ignorecase, lexical (:i)
 ok
         # :i ab [:i(0) cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
-not ok # Match failed.
+ok
         # :i ab [:0i cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
-not ok # Match failed.
+ok
         # :0i ab [:1i cd ] ef	abCDef	y	ignorecase, lexical repetition (:i)
 not ok # Match failed.
         # :0i ab [:1i cd ] ef	AbCDeF	n	ignorecase, lexical repetition (:i)
@@ -2727,17 +2727,17 @@ ok
         # :0i ab [:1i cd ] ef	AbcdeF	n	ignorecase, lexical repetition (:i)
 ok
         # :0i ab [:i(0) cd ] ef	abcdef	y	ignorecase, lexical repetition (:i)
-not ok # Match failed.
+ok
         # :0i ab [:1i cd ] ef	AbcdeF	n	ignorecase, lexical repetition (:i)
 ok
         # :i(1) ab [:1i cd ] ef	AbCdeF	y	ignorecase, lexical repetition (:i)
-not ok # Match failed.
+ok
         # :i(1) ab [:i(0) cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
-not ok # Match failed.
+ok
         # :i(1) ab [:i(0) cd ] ef	AbcDeF	n	ignorecase, lexical repetition (:i)
 ok
         # :i(2) ab [:i(999) cd ] ef	ABCDEF	y	ignorecase, lexical repetition (:i)
-not ok # Match failed.
+ok
         # :1i ab [:i(1) cd ] ef		ABCDEF	y	ignorecase, lexical repetition (:i)
 not ok # Match failed.
         # :0i ab [:1i cd ] ef		abcDeF	n	ignorecase, lexical repetition (:i)
@@ -2751,9 +2751,9 @@ ok
         # :1ignorecase ab [:ignorecase(1) cd ] ef	ABCDEF	y	ignorecase, lexical repetition (:ignorecase)
 not ok # Match failed.
         # :s bcd			a bcdef		y	sigspace (:s)
-not ok # Match failed.
+ok
         # :s bcd			a bcd ef	y	sigspace (:s)
-not ok # Match failed.
+ok
         # :s bcd			abcdef		n	sigspace (:s)
 ok
         # :s bcd			abcd ef		n	sigspace (:s)
@@ -2761,9 +2761,9 @@ ok
         # :s bcd			ab cdef		n	sigspace (:s)
 ok
         # :s b c d		a b c d ef	y	sigspace (:s)
-not ok # Match failed.
+ok
         # :s b c d		a b c def	y	sigspace (:s)
-not ok # Match failed.
+ok
         # :s b c d		ab c d ef	n	sigspace (:s)
 ok
         # :s b c d		a bcdef		n	sigspace (:s)
@@ -2771,25 +2771,25 @@ ok
         # :s b c d		abcdef		n	sigspace (:s)
 ok
         # :sigspace bcd		a bcdef		y	sigspace (:sigspace)
-not ok # Match failed.
+ok
         # :sigspace bcd		a bcd ef	y	sigspace (:sigspace)
-not ok # Match failed.
+ok
         # :sigspace bcd		abcdef		n	sigspace (:sigspace)
 ok
         # :sigspace b c d		a b c d ef	y	sigspace (:sigspace)
-not ok # Match failed.
+ok
         # :sigspace b c d		a b c def	y	sigspace (:sigspace)
-not ok # Match failed.
+ok
         # :sigspace b c d		ab c d ef	n	sigspace (:sigspace)
 ok
         # :s(1) b c [:s(0) d e f ]	a b c def	y	sigspace, lexical repetition (:s)
-not ok # Match failed.
+ok
         # :s(0) b c [:s(1) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
 ok
         # :s(0) b c [:s(0) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
 ok
         # :s ab 				ab		y	sigspace, trailing ws
-not ok # Match failed.
+ok
         # foo\s*-?\s*bar			foo\t \n-\n\t bar	y	basic match
 not ok # Unexpected compilation failure.
         # foo\s*-?\s*bar			foo - bar	y	basic match
@@ -2835,19 +2835,19 @@ not ok # Unexpected compilation failure.
         # :perl5 \A.*? bcd\Q$\E..\z	a bcd$ef	y	perl5 syntax (:perl5)
 not ok # Unexpected compilation failure.
         # :x(6) \d			123456		y	repetition (:x)
-not ok # Match failed.
+ok
         # :x(3) \d			123456		y	repetition (:x)
-not ok # Match failed.
+ok
         # :x(0) \d			123456		y	repetition (:x)
-not ok # Match failed.
+ok
         # :nth(3) a \d			a1a2a3		y	nth occurance (:nth)
-not ok # Match failed.
+ok
         # :nth(4) a \d			a1a2a3		n	nth occurance (:nth)
-ok
+not ok # Unexpected successful match.
         # :nth(0) a \d			a1a2a3		n	nth occurance (:nth)
-ok
+not ok # Unexpected successful match.
         # :s^[\d+ ]* abc			11 12 13 abc	y	<.ws> before closing bracket
-not ok # Match failed.
+ok
         # 
         # ## vim: noexpandtab tabstop=4 shiftwidth=4
         # :ratchet a* a		bazaar		n	ratchet modifier
@@ -2855,19 +2855,19 @@ ok
         # :ratchet a*! a		bazaar		y	force backtracking !
 not ok # Unexpected compilation failure.
         # :ratchet xa*y			xaaaay		/mob: <xaaaay @ 0>/	star ratchet 2+
-not ok # Match failed.
+ok
         # :ratchet xa*y			xay		/mob: <xay @ 0>/	star ratchet 1
-not ok # Match failed.
+ok
         # :ratchet xa*y			xy		/mob: <xy @ 0>/	star ratchet 0
-not ok # Match failed.
+ok
         # :ratchet xa*a			xaaaay		n		star ratchet 2+
 ok
         # :ratchet xa*a			xay		n		star ratchet 1
 ok
         # :ratchet xa+y			xaaaay		/mob: <xaaaay @ 0>/	plus ratchet 2+
-not ok # Match failed.
+ok
         # :ratchet xa+y			xay		/mob: <xay @ 0>/	plus ratchet 1
-not ok # Match failed.
+ok
         # :ratchet xa+y			xy		n		plus ratchet 0
 ok
         # :ratchet xa+a			xaaaay		n		plus ratchet 2+
@@ -2877,11 +2877,11 @@ ok
         # :ratchet xa?y			xaaaay		n		ques ratchet 2+
 ok
         # :ratchet xa?y			xay		/mob: <xay @ 0>/	ques ratchet 1
-not ok # Match failed.
+ok
         # :ratchet xa?y			xy		/mob: <xy @ 0>/	ques ratchet 0
-not ok # Match failed.
+ok
         # :ratchet xa?a			xaaaay		/mob: <xaa @ 0>/	ques ratchet 2+
-not ok # Match failed.
+ok
         # :ratchet xa?a			xay		n		ques ratchet 1
 ok
         # :ratchet xa*!y			xaaaay		/mob: <xaaaay @ 0>/	star ratchet greedy 2+
