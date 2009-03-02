@@ -1,0 +1,3 @@
+../../t/01-sanity/01-tap.t
+../../t/01-sanity/02-counter.t
+../../t/01-sanity/05-sub.t
