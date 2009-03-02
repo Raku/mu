@@ -28,8 +28,12 @@ is_perl_recent_enough: STD_green_run
 
 all: elfblue elfrx STD_green_run elfdev
 
-clean:
-	rm -rf lex lex.is_current ${TMP} elfblue elfrx elfdev STD_green_run IRx1_FromAST2.pm nodes.pm rx_prelude.pm rx_prelude_p5.pm std.pm.p5 STD_green_run.pm.p5 ${STD_RED_CACHEDIR} ${STD_RED_CACHEDIR}.is_current ${STD_BLUE_CACHEDIR} ${STD_BLUE_CACHEDIR}.is_current
+
+clean:: clean_not_caches
+	rm -rf lex lex.is_current ${STD_RED_CACHEDIR} ${STD_RED_CACHEDIR}.is_current ${STD_BLUE_CACHEDIR} ${STD_BLUE_CACHEDIR}.is_current
+
+clean_not_caches:
+	rm -rf ${TMP} elfblue elfrx elfdev STD_green_run IRx1_FromAST2.pm nodes.pm rx_prelude.pm rx_prelude_p5.pm std.pm.p5 STD_green_run.pm.p5
 
 
 # STD_blue
@@ -121,7 +125,6 @@ check_std_rx_on_re: elfrx
 	if [ "${STD_BLUE_CACHEDIR}" != "" ];then echo;echo "WARNING: Using STD_BLUE_CACHEDIR: " ${STD_BLUE_CACHEDIR};echo; fi
 	-rm -rf lex  # Reset gimme5.
 	ulimit -v 1000000; ./elfrx test_blue.pm > tst_1b 2> tst_2b
-	#XXX t_test_blue.result should be renamed.
 	diff t_test_blue.result tst_1b
 	#diff t_baseline.result tst_1b
 

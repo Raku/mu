@@ -105,8 +105,9 @@ Success looks like:
 DEV NOTES
 
 Todo:
- - <noun> <?na>?  bug
-   ./elfdev -e 'package STD{rule bug {<noun><?fake>?};say /<bug>/.match("3").match_describe}'
+
+ - It seems a patch before r25655 introduced a bad non-linearity in
+   "3;3;3;..." statementlist length.
  - extract '3;' parser rules into isolated and more easily recompiled file.
  - profile.
  - explore speed and space.
@@ -128,23 +129,6 @@ Implementation problems:
    if(((3 && 4))->Bool) {}
    So still don't know full cost of .Bool-ification.
 
-
-# since we're not faking $¢ yet.
-package Undef {
-  method panic($msg) is p5 {'
-my $str = $Regexp::ModuleA::ReentrantEngine::Env::str;
-my $pos = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-my $m1 = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
-my $m2 = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match;
-my $m3 = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
-my $pkg = $Regexp::ModuleA::ReentrantEngine::Env::pkg;
-my $data = $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
-print STDERR $msg,"\n";
-print STDERR "pos: ",$pos,"\n";
-Carp::croak if $ENV{VERBOSE};
-exit(1);
-'}
-}
 
 ./elfdev -e 'package STD{regex EXPR{<termish>}; token ws {:P5 (?:(?<!\w)|(?!\w))\s*|\s+}; say /<comp_unit>/.match("3").match_describe}'
 

@@ -364,7 +364,7 @@ Regexp::ModuleA::AST::Make0->import;
 use Regexp::Common;
 sub mod_helper {
   my($mod)=@_;
-  my $h = {%$Regexp::ModuleA::ReentrantEngine::Env::nested_data};
+  my $h = {%$RXX::nested_data};
   #my($on,$off) = split('-',$mod); # Can cause segfaults.
   my $idx = index($mod,"-");
   my($on,$off);
@@ -372,10 +372,10 @@ sub mod_helper {
   else         { ($on,$off) = (substr($mod,0,$idx),substr($mod,$idx+1)) }
   if($on){for my $x (unpack('c*',$on)){$h->{$x}=1}}
   if($off){for my $x (unpack('c*',$off)){$h->{$x}=0}}
-  $Regexp::ModuleA::ReentrantEngine::Env::nested_data = $h;
+  $RXX::nested_data = $h;
 }
 sub mod_x_or_fail {
-  $Regexp::ModuleA::ReentrantEngine::Env::nested_data->{x} ? qr// : qr/(?!)/;  
+  $RXX::nested_data->{x} ? qr// : qr/(?!)/;  
 }
 {
   my $nonmeta = '[^[)({^$?*+\\\\\.|]';
@@ -704,8 +704,8 @@ namespace(""
                word xdigit))
           ,nrx('commit',commit_match())
           ,nrx('null',pat5(''))
-          ,nrx('before',lookaround(1,1,coderx(q{$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/})))
-          ,nrx('after',lookaround(0,1,coderx(q{$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/})))
+          ,nrx('before',lookaround(1,1,coderx(q{$RXX::nested_data->{args}[0]||qr/(?!)/})))
+          ,nrx('after',lookaround(0,1,coderx(q{$RXX::nested_data->{args}[0]||qr/(?!)/})))
           ,nrx('sp',pat5('[ ]'))
           ,nrx('lt',pat5('<'))
           ,nrx('gt',pat5('>'))

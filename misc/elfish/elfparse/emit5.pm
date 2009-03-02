@@ -1,32 +1,24 @@
 
-sub a_bit_of_p5_for__expand_backtrack_macros() is p5 {'
-{ package BacktrackMacrosKludge;
-  sub _let_gen {
-    my($vars) = @_;
-    my $nvars = 1+($vars =~ tr/,//);
-    my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
-    push(@SCRATCH::_let_stack,[$vars,$tmpvars]);
-    "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
-  }
-  sub _let_end {
-    my $e = shift(@SCRATCH::_let_stack) || die "LET(){ }LET pairs didnt match up";
-    my($vars,$tmpvars) = @$e;
-    "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
-  }
-  sub replace_LETs {
-    my($s)=@_;
-    $s =~ s/\bLET\(([^\)]+)\)\{/BacktrackMacrosKludge::_let_gen($1)/eg;
-    $s =~ s/\}LET;/BacktrackMacrosKludge::_let_end().";"/eg;
-    $s;
-  }
-}
-'};
-a_bit_of_p5_for__expand_backtrack_macros();
-
-
 class EmitRegex {
 
-  method expand_LETs($s) is p5 {' BacktrackMacrosKludge::replace_LETs($s) '}
+  method expand_LETs($s) is p5 {'
+    my $_let_gen = sub {
+      my($vars) = @_;
+      my $nvars = 1+($vars =~ tr/,//);
+      my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
+      push(@SCRATCH::_let_stack,[$vars,$tmpvars]);
+      "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
+    };
+    my $_let_end = sub {
+      my $e = shift(@SCRATCH::_let_stack) || die "LET(){ }LET pairs didnt match up";
+      my($vars,$tmpvars) = @$e;
+      "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
+    };
+    $s =~ s/\bLET\(([^\)]+)\)\{/$_let_gen->($1)/eg;
+    $s =~ s/\}LET;/$_let_end->().";"/eg;
+    $s;
+  '}
+
   method expand_backtrack_macros ($code) {
 
     $code = $.expand_LETs($code);
@@ -51,47 +43,34 @@ class EmitRegex {
     my $rmare = $.expand_backtrack_macros('
 #line 1 "regex_prelude-rmare"
 
+#======================================================================
+# Core Regexp Engine
+#
+# NOTE: WAY past time to refactor.  A perlbug used to prevent it.  Better be ok now.
+
 { package VersionConstraints;
   use Regexp::Common 2.122;
   use Sub::Name 0.03;
-  use Filter::Simple 0.82;
 }
 
-{ package GLOBAL;
-  our $_cursor;
-  sub parser_pos { $Regexp::ModuleA::ReentrantEngine::Env::pos }
-}
+local $RXX::str;
+local $RXX::pos;
+local $RXX::current_match;
+local $RXX::leaf_match;
+local $RXX::pkg;
+local $RXX::nested_data;
+local $RXX::alias_match;
 
-package Regexp::ModuleA;
-use strict;
-use warnings;
-use Carp;
-
-#======================================================================
-# Core Regexp Engine ("RMARE")
-#
-# NOTE: Time to refactor.  A perlbug used to prevent it.  Should be ok now.
-
-package Regexp::ModuleA::ReentrantEngine;
-use strict;
-use warnings;
-
-local $Regexp::ModuleA::ReentrantEngine::Env::str;
-local $Regexp::ModuleA::ReentrantEngine::Env::pos;
-local $Regexp::ModuleA::ReentrantEngine::Env::current_match;
-local $Regexp::ModuleA::ReentrantEngine::Env::leaf_match;
-local $Regexp::ModuleA::ReentrantEngine::Env::pkg;
-local $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
-local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
-#local $Regexp::ModuleA::ReentrantEngine::Env::stop;
+# $RXX::current_match; - regex-level $/ .
+# $RXX::leaf_match; - $/ .
+# $RXX::nested_data; - hash.  before modifying, set to shallow copy of hash.
+# $RXX::alias_match; - only used between RMARE_alias_wrap and its wrapees.
 
 {
   package IRx1::RxBaseClass;
 
   use Sub::Name;
   our $sub_id = 1;
-
-  # noop
 
   my $noop;
   $noop = subname "<noop ".($sub_id++).">" => sub {
@@ -105,28 +84,8 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     return 1 if !defined($c) || $c eq $noop;
     return 0;
   }
-  our $our_noop = $noop;
+  our $our_noop = $noop; #X
 
-  sub RMARE_eat_backref {
-    my($o,$idx,$mod5_re)=@_;
-    my $noop = $o->RMARE_noop;
-    subname "<eat_backref ".($sub_id++).">" => sub {
-      my $c = $_[0];
-      my $a = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match->{match_array};
-      FAIL() if $idx >= @$a;
-      my $m = $a->[$idx];
-      $m = $m->[-1] if defined($m) && ref($m) eq "ARRAY";
-      FAIL() if !defined($m) || !$m->match_boolean;
-      my $re = $m->match_string;
-      $re =~ s/(\W)/\\$1/g;
-
-      my($str) = $Regexp::ModuleA::ReentrantEngine::Env::str;
-      pos($str) = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-      $str =~ /\G$mod5_re($re)/ or FAIL();
-      $Regexp::ModuleA::ReentrantEngine::Env::pos += length($1);
-      TAILCALL($c,$noop);
-    };
-  }
 
   { use re "eval";
   sub RMARE_eat_regexp {
@@ -135,14 +94,34 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     my $qr = qr/\G($re)/;
     subname "<eat_regexp ".($sub_id++).">" => sub {
       my $c = $_[0];
-
-      my($str) = $Regexp::ModuleA::ReentrantEngine::Env::str;
-      pos($str) = $Regexp::ModuleA::ReentrantEngine::Env::pos;
+      my $str = $RXX::str;
+      pos($str) = $RXX::pos;
       $str =~ $qr or FAIL();
-      $Regexp::ModuleA::ReentrantEngine::Env::pos += length($1);
+      $RXX::pos += length($1);
       TAILCALL($c,$noop);
     }
   }
+  }
+
+  sub RMARE_eat_backref {
+    my($o,$idx,$mod5_re)=@_;
+    my $noop = $o->RMARE_noop;
+    subname "<eat_backref ".($sub_id++).">" => sub {
+      my $c = $_[0];
+      my $a = $RXX::leaf_match->{match_array};
+      FAIL() if $idx >= @$a;
+      my $m = $a->[$idx];
+      $m = $m->[-1] if defined($m) && ref($m) eq "ARRAY";
+      FAIL() if !defined($m) || !$m->match_boolean;
+      my $re = $m->match_string;
+      $re =~ s/(\W)/\\$1/g;
+
+      my $str = $RXX::str;
+      pos($str) = $RXX::pos;
+      $str =~ /\G$mod5_re($re)/ or FAIL();
+      $RXX::pos += length($1);
+      TAILCALL($c,$noop);
+    };
   }
 
   sub RMARE_imsx {
@@ -169,7 +148,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     subname "<alt ".($sub_id++).">" => sub {
       my $c = $_[0];
       for my $f (@fs) {
-        my $v = LET($Regexp::ModuleA::ReentrantEngine::Env::pos){
+        my $v = LET($RXX::pos){
           my $v1 = eval { $f->($c) }; #try
           if($@) {
             next if $@ eq "fail sequence\n";
@@ -196,39 +175,38 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     { my $i = $#fs;
       $code0 .= "";
       $code1 = \'sub {
-  FAIL() if $__end__ != $Regexp::ModuleA::ReentrantEngine::Env::pos;
+  FAIL() if $__end__ != $RXX::pos;
   @_=\'.$code1;
       $code2 .= ";\ngoto \&\$cn}";
     }
     for my $i (reverse(2..$#fs)) {
       $code0 .= "my \$f$i = \$fs[$i]; ";
       $code1 = \'sub {
-  FAIL() if $__end__ != $Regexp::ModuleA::ReentrantEngine::Env::pos;
-  $Regexp::ModuleA::ReentrantEngine::Env::pos = $__start__;
+  FAIL() if $__end__ != $RXX::pos;
+  $RXX::pos = $__start__;
   @_=\'.$code1;
       $code2 .= ";\ngoto \&\$f$i}";
     }
     { my $i = 1;
       $code0 .= "my \$f$i = \$fs[$i]; ";
       $code1 = \'sub {
-  $__end__ = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-  $Regexp::ModuleA::ReentrantEngine::Env::pos = $__start__;
+  $__end__ = $RXX::pos;
+  $RXX::pos = $__start__;
   @_=\'.$code1;
       $code2 .= ";\ngoto \&\$f$i}";
     }
     my $code = $code0."
 #line 2 \"IRx1::RxBaseClass RMARE_conj\"
 \n subname \'<conj \'.(\$sub_id++).\">\" => sub {my \$cn = \$_[0];
-  my \$__start__ = \$Regexp::ModuleA::ReentrantEngine::Env::pos;
+  my \$__start__ = \$RXX::pos;
   my \$__end__ = undef;
   my \$__f__ = ".$code1.$code2.\';
-    LET($Regexp::ModuleA::ReentrantEngine::Env::pos){
+    LET($RXX::pos){
       $f0->($__f__);
     }LET;
   \'."}\n";
     #print STDERR $code;
-    # Currently expanded in the string itself. :/
-    # $code = Regexp::ModuleA::ReentrantEngine::BacktrackMacros::filter_string($code);
+    # Currently the macros are expanded in the string itself. :/
     eval($code) || die "$@";
   }   
 
@@ -276,15 +254,15 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
         }
       };
       $try_getting_more = subname "try_getting_more" => sub {
-        if( !($repeat_previous_pos{$rid} < $Regexp::ModuleA::ReentrantEngine::Env::pos) ||
+        if( !($repeat_previous_pos{$rid} < $RXX::pos) ||
             !($repeat_count{$rid} < $max))
         {
           TAILCALL($c,$noop);
         }
-        local $repeat_previous_pos{$rid} = $Regexp::ModuleA::ReentrantEngine::Env::pos;
+        local $repeat_previous_pos{$rid} = $RXX::pos;
         local $repeat_count{$rid} = $repeat_count{$rid} +1;
         
-        my $v = LET($Regexp::ModuleA::ReentrantEngine::Env::pos){
+        my $v = LET($RXX::pos){
           $greedy ? $f->($try_getting_more) : $c->($noop);
         }LET;
         return $v if not FAILED($v);
@@ -303,10 +281,10 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     my $myid = $sub_id++;
     my $foo = subname "<group ".($myid).">" => sub {
       my $cn = $_[0];
-      my $nd = $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
+      my $nd = $RXX::nested_data;
       my $close = subname \'<capture-close \'.($myid).">" => sub {
         my($c)=@_;
-        $Regexp::ModuleA::ReentrantEngine::Env::nested_data = $nd;
+        local $RXX::nested_data = $nd;
         my $v = eval { $cn->($c) };
         if($@) {
           die "jump ".$@ if $@ =~ /^fail /;
@@ -334,17 +312,17 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     subname \'<capture_string \'.($myid).">" => sub {
       my($c)=@_;
 
-      my $m = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
-      my $from = $Regexp::ModuleA::ReentrantEngine::Env::pos;
+      my $from = $RXX::pos;
+
+      my $m = $RXX::alias_match;
+      local $RXX::alias_match;
 
       my $close = subname \'<capture_string-close \'.($myid).">" => sub {
         my $c0 = $_[0];
-        my $to = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$from,$to-$from),$m->{match_array},$m->{match_hash},$from,$to);
+        my $to = $RXX::pos;
+        $m->match_set(1,substr($RXX::str,$from,$to-$from),$m->{match_array},$m->{match_hash},$from,$to);
         TAILCALL($c0,$c);
       };
-
-      local $Regexp::ModuleA::ReentrantEngine::Env::alias_match = undef;
 
       $f->($close);
     };
@@ -356,17 +334,22 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
     my $foo = subname \'<capture \'.($myid).">" => sub {
       my($c)=@_;
 
-      my $m = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
-      my $from = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-      my $nd = $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
-      my $leaf = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match;
+      my $from = $RXX::pos;
+
+      my $m = $RXX::alias_match;
+      local $RXX::alias_match;
+
+      my $nd = $RXX::nested_data;
+
+      my $leaf = $RXX::leaf_match;
+      local $RXX::leaf_match = $is6 ? $m : $leaf;
 
       my $close = subname \'<capture-close \'.($myid).">" => sub {
         my $c0 = $_[0];
-        $Regexp::ModuleA::ReentrantEngine::Env::nested_data = $nd;
-        $Regexp::ModuleA::ReentrantEngine::Env::leaf_match = $leaf if $is6;
-        my $to = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$from,$to-$from),$m->{match_array},$m->{match_hash},$from,$to);
+        local $RXX::nested_data = $nd;
+        local $RXX::leaf_match = $leaf;
+        my $to = $RXX::pos;
+        $m->match_set(1,substr($RXX::str,$from,$to-$from),$m->{match_array},$m->{match_hash},$from,$to);
         my $v = eval { $c0->($c) };
         if($@) {
           die "jump ".$@ if $@ =~ /^fail /;
@@ -374,9 +357,6 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
         }
         return $v;
       };
-
-      local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
-      local $Regexp::ModuleA::ReentrantEngine::Env::leaf_match = $is6 ? $m : $leaf;
 
       my $v = eval { $f->($close) }; #try
       if($@) {
@@ -393,12 +373,11 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
 
   sub RMARE_alias_wrap {
     my($o,$f,$idx,$is6,$nparen6,$in_quant,$target_spec)=@_;
-    my $myid = $sub_id++;
+
     my $spec = $target_spec ? [@$target_spec] : [\'$/\',\'[\'=>$idx];
     my $root = shift(@$spec);
-    my $top = \'$Regexp::ModuleA::ReentrantEngine::Env::leaf_match\';
+    my $localize = \'$RXX::leaf_match\'; # root match
     my($copy,$access);
-    my $localize = $top;
     for(my $i=0;$i<@$spec;$i+=2){
       my($flag,$key)=($spec->[$i],$spec->[$i+1]);
       my $is_final = $i == (@$spec - 2);
@@ -419,17 +398,22 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
       } else { die "bug" };
     }
     my $array_alias = $root =~ /^\@/;
+
     my $code = \'
-subname "<alias_wrap ".($myid).">" => sub {
+subname "<alias_wrap ".($sub_id++).">" => sub {
   my($c)=@_;
-  my $m = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
-  if(1 || !defined($m)){#XXXXX
-    $m = Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
+
+  my $m = $RXX::alias_match;
+  local $RXX::alias_match;
+
+  if(1 || !defined($m)){#XXXXX Punt multi-stage aliasing for now.
+    $m = RXZ::Match0->new_failed();
     if($is6) {
-      my $a = [map{Regexp::ModuleA::ReentrantEngine::Match0->new_failed()} (1..$nparen6)];
+      my $a = [map{RXZ::Match0->new_failed()} (1..$nparen6)];
       $m->{match_array} = $a;
     }
   }
+
   return LET(\'.$localize.\'){
     my $newa = \'.$copy.\';
     \'.$localize.\' = $newa;
@@ -441,7 +425,7 @@ subname "<alias_wrap ".($myid).">" => sub {
     } else {
       $newa->\'.$access.\' = (\'.($array_alias?1:0).\' ? [$m] : $m);
     }
-    local $Regexp::ModuleA::ReentrantEngine::Env::alias_match = $m;
+    local $RXX::alias_match = $m;
     $f->($c);
   }LET;
 }\';
@@ -459,31 +443,35 @@ subname "<alias_wrap ".($myid).">" => sub {
       my($c)=@_;
       my $f = $fetch->(@$args);
 
-      my $pkg0 = $Regexp::ModuleA::ReentrantEngine::Env::pkg;
+      my $pkg0 = $RXX::pkg;
       my $pkg2 = $pkg_override || $pkg0;
-      my $pkg9 = $pkg_override || $Regexp::ModuleA::ReentrantEngine::Env::pkg || $pkg;
+      my $pkg9 = $pkg_override || $RXX::pkg || $pkg;
 
-      my $pos = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-      my $m0 = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
-      my $m0b = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match;
+      my $pos = $RXX::pos;
+      my $m0 = $RXX::current_match;
+      my $m0b = $RXX::leaf_match;
 
-      my $nd = $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
+      my $nd = $RXX::nested_data;
 
-      my $m1 = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
+      my $m1 = $RXX::alias_match;
+      local $RXX::alias_match;
+
       if(defined($m1)) {
+        $m1->match_set(1,"",$m1->{match_array},$m1->{match_hash},$pos,undef);
       } else {
-        $m1 = Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
+        $m1 = RXZ::Match0->new_failed();
+        $m1->match_set(1,"",[],{},$pos,undef);
       }
-      $m1->match_set(1,"",[],{},$pos,undef);
+
       $m1->{match_rule} ||= $name; #EEEP
 
       my $close = subname "<subrule-close ".($myid)." $name>" => sub {
 	my $cn = $_[0];
 
-        $Regexp::ModuleA::ReentrantEngine::Env::nested_data = $nd;
+        local $RXX::nested_data = $nd;
 
-	$m1->{match_to} = $Regexp::ModuleA::ReentrantEngine::Env::pos; #EEEP
-	$m1->{match_string} = substr($Regexp::ModuleA::ReentrantEngine::Env::str,$pos,$Regexp::ModuleA::ReentrantEngine::Env::pos-$pos);
+	$m1->{match_to} = $RXX::pos; #EEEP
+	$m1->{match_string} = substr($RXX::str,$pos,$RXX::pos-$pos);
 
         my $post = $name."__post_action";
         if(my $meth = UNIVERSAL::can($pkg9,$post)) {
@@ -491,33 +479,20 @@ subname "<alias_wrap ".($myid).">" => sub {
           $meth->($pkg9,$m1);
         }
 
-	$Regexp::ModuleA::ReentrantEngine::Env::current_match = $m0;
-	$Regexp::ModuleA::ReentrantEngine::Env::leaf_match = $m0b;
-	local $Regexp::ModuleA::ReentrantEngine::Env::pkg = $pkg0;
+	local $RXX::current_match = $m0;
+	local $RXX::leaf_match = $m0b;
+	local $RXX::pkg = $pkg0;
 
-# =pod
-#         if(!$nocap) {
-#           LET($m0->{match_hash}{$name}){
-#             if($in_quant) {
-#               $m0->{match_hash}{$name} = [@{$m0->{match_hash}{$name}||[]}];
-#               push(@{$m0->{match_hash}{$name}},$m1);
-#             } else {
-#               $m0->{match_hash}{$name} = $m1;
-#             }
-#             $neg ? 1 : $cn->($c);
-#           }LET;
-#         } else {
-#             $neg ? 1 : $cn->($c);
-#         }
-# =cut
-            $neg ? 1 : $cn->($c);
+        #( subrule outake 1 )
+        $neg ? 1 : $cn->($c);
       };
 
       my $v;
-      { local $Regexp::ModuleA::ReentrantEngine::Env::current_match = $m1;
-        local $Regexp::ModuleA::ReentrantEngine::Env::leaf_match = $m1;
-        local $Regexp::ModuleA::ReentrantEngine::Env::pkg = $pkg2;
-        local $Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args} = $args;
+      { local $RXX::current_match = $m1;
+        local $RXX::leaf_match = $m1;
+        local $RXX::pkg = $pkg2;
+        my $nd_with_args = 
+        local $RXX::nested_data = {%$RXX::nested_data,"args"=>$args};
 	$v = eval { $f->($close) };
         if($@) {
           die $@ unless $@ eq "fail regex\n";
@@ -529,16 +504,8 @@ subname "<alias_wrap ".($myid).">" => sub {
         if(FAILED($v)) {
           $m1->{match_to} = $m1->{match_from};
           $m1->{match_string} = "";
-
-# =pod
-#           LET($m0->{match_hash}{$name}){
-#             $m0->{match_hash}{$name} = [@{$m0->{match_hash}{$name}||[]}];
-#             push(@{$m0->{match_hash}{$name}},$m1);
-#             $c->($noop);
-#           }LET;
-# =cut
-            $c->($noop);
-
+          #( subrule outake 2 )
+          $c->($noop);
         } else {
           FAIL();
         }
@@ -554,12 +521,12 @@ subname "<alias_wrap ".($myid).">" => sub {
 
   sub RMARE_aregex_create {
     my($o,$f,$nparenx)=@_;
-    $nparenx = 0 if !defined $nparenx; #XXX arguments to subrules.  aregex not seeing an init.
+    $nparenx = 0 if !defined $nparenx;
     subname "<aregex ".($sub_id++).">" => sub {
       my($c)=@_;
 
-      my $m = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match;
-      my $a = [map{Regexp::ModuleA::ReentrantEngine::Match0->new_failed()} (1..$nparenx)];
+      my $m = $RXX::leaf_match;
+      my $a = [map{RXZ::Match0->new_failed()} (1..$nparenx)];
       $m->{match_array} = $a;
 
       my $v = eval { $f->($c) }; #try
@@ -580,17 +547,16 @@ subname "<alias_wrap ".($myid).">" => sub {
     my $atend = $noop;
     if(defined $minlen) {
       my $min_end = $minlen + $beginat;
-      $atend = subname "<atend ".($sub_id++).">" => sub {return undef if $Regexp::ModuleA::ReentrantEngine::Env::pos < $min_end;return 1;}
+      $atend = subname "<atend ".($sub_id++).">" => sub {return undef if $RXX::pos < $min_end;return 1;}
     }
     for my $start ($beginat..$len) {
-      local $Regexp::ModuleA::ReentrantEngine::Env::str = $s;
-      local $Regexp::ModuleA::ReentrantEngine::Env::pos = $start;
-      my $m = Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
-      local $Regexp::ModuleA::ReentrantEngine::Env::current_match = $m;
-      local $Regexp::ModuleA::ReentrantEngine::Env::leaf_match = $m;
-      local $Regexp::ModuleA::ReentrantEngine::Env::nested_data = {};
-      local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
-      $Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args} = [];
+      local $RXX::str = $s;
+      local $RXX::pos = $start;
+      my $m = RXZ::Match0->new_failed();
+      local $RXX::current_match = $m;
+      local $RXX::leaf_match = $m;
+      local $RXX::nested_data = {"args"=>[]};
+      local $RXX::alias_match;
       
       my $ok = eval { $f->($atend) }; #try
       if($@) {
@@ -599,11 +565,34 @@ subname "<alias_wrap ".($myid).">" => sub {
         last;
       }
       if(not FAILED($ok)) {
-        $m->match_set(1,substr($Regexp::ModuleA::ReentrantEngine::Env::str,$start,$Regexp::ModuleA::ReentrantEngine::Env::pos-$start),$m->{match_array},$m->{match_hash},$start,$Regexp::ModuleA::ReentrantEngine::Env::pos);
+        $m->match_set(1,substr($RXX::str,$start,$RXX::pos-$start),$m->{match_array},$m->{match_hash},$start,$RXX::pos);
         return $m;
       }
     }
-    return Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
+    return RXZ::Match0->new_failed();
+  }
+
+  sub RMARE_aregex {
+    my($o,$pkg,$name,$f,$nparen,$prefix_re)=@_;
+    # Why the extra sub?  60+% shorter re_text runtime.  sigh.
+    my $matchergen = subname "even with subname used?" => sub {
+      subname "<an aregex-matcher for $o>" => sub {
+        my($pkg9,$name1,$s,$beginat,$minlen)=@_;
+        local $RXX::pkg = $pkg9;
+        my $m = $o->RMARE_do_match($f,$s,$beginat,$minlen,$nparen);
+        $m->_prepare_match_for_return;
+        $m->{match_rule} = $name1;
+        if($name1) {
+          my $post = $name1."__post_action";
+          if(my $meth = UNIVERSAL::can($pkg9,$post)) {
+            $m->_prepare_match_for_embedded_code;
+            $meth->($pkg9,$m);
+          }
+        }
+        $m;
+      }
+    };
+    Regexp::ModuleA::Rx->_new_from_ast($o,$pkg,$name,$f,$matchergen,$prefix_re);
   }
 
   # Commits
@@ -681,7 +670,7 @@ subname "<alias_wrap ".($myid).">" => sub {
     my($o,$pkg,$pkg_override,$name,$exprse,$neg,$nocap,$in_quant,$target_spec)=@_;
     my $fetch = subname "<subrule-fetch for $name>" => sub {
       my $pkg9 = ($pkg_override ||
-                  $Regexp::ModuleA::ReentrantEngine::Env::pkg ||
+                  $RXX::pkg ||
                   $pkg);
       die "assert" if !defined $pkg9;
       no strict;
@@ -704,7 +693,7 @@ subname "<alias_wrap ".($myid).">" => sub {
       if($is_forward) {
         sub {
           my $c = $_[0];
-          { local($Regexp::ModuleA::ReentrantEngine::Env::pos)=($Regexp::ModuleA::ReentrantEngine::Env::pos);
+          { local($RXX::pos)=($RXX::pos);
             my $v = $f->($noop);
             FAIL_IF_FAILED($v);
           }
@@ -722,7 +711,7 @@ subname "<alias_wrap ".($myid).">" => sub {
         sub {
           my $c = $_[0];
           my $v;
-          { local($Regexp::ModuleA::ReentrantEngine::Env::pos)=($Regexp::ModuleA::ReentrantEngine::Env::pos);
+          { local($RXX::pos)=($RXX::pos);
             $v = $f->($noop);
             FAIL() if not FAILED($v);
           }
@@ -739,11 +728,11 @@ subname "<alias_wrap ".($myid).">" => sub {
   }
   sub _is_found_backwards {
     my($f)=@_;
-    my $pos = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-    local $Regexp::ModuleA::ReentrantEngine::Env::pos = $Regexp::ModuleA::ReentrantEngine::Env::pos;
-    my $at_pos = sub{ FAIL() if $Regexp::ModuleA::ReentrantEngine::Env::pos != $pos; return 1;};
-    for(my $i = $Regexp::ModuleA::ReentrantEngine::Env::pos;$i>=0;$i--) {
-      $Regexp::ModuleA::ReentrantEngine::Env::pos = $i;
+    my $pos = $RXX::pos;
+    local $RXX::pos = $RXX::pos;
+    my $at_pos = sub{ FAIL() if $RXX::pos != $pos; return 1;};
+    for(my $i = $RXX::pos;$i>=0;$i--) {
+      $RXX::pos = $i;
       my $v = $f->($at_pos);
       return 1 if not FAILED($v);
     }
@@ -762,7 +751,7 @@ subname "<alias_wrap ".($myid).">" => sub {
       $idx = $idx +0;
       $f_test = subname "<conditional test>" => sub {
         my $c = $_[0];
-        my $a = $Regexp::ModuleA::ReentrantEngine::Env::current_match->match_array;
+        my $a = $RXX::current_match->match_array;
         FAIL() if $idx > @$a;
         my $m = $a->[$idx-1];
         FAIL() if !$m->match_boolean;
@@ -772,7 +761,7 @@ subname "<alias_wrap ".($myid).">" => sub {
     subname "<conditional>" => sub {
       my $c = $_[0];
       my $v;
-      { local($Regexp::ModuleA::ReentrantEngine::Env::pos)=($Regexp::ModuleA::ReentrantEngine::Env::pos);
+      { local($RXX::pos)=($RXX::pos);
         $v = $f_test->($noop);
       }
       if(not FAILED($v)) {
@@ -801,7 +790,7 @@ subname "<alias_wrap ".($myid).">" => sub {
 #line 2 "in Regexp::ModuleA::Code"
 sub{my $__c__ = $_[0];
 \'.(!$need_match ? \'\' :
-\'  my $M = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+\'  my $M = $RXX::current_match;
   $M->_prepare_match_for_embedded_code;\').\'
  \'.$code.\';
  $__c__->($noop);}\';
@@ -826,7 +815,7 @@ sub{my $__c__ = $_[0];
  #line 2 "in Regexp::ModuleA::CodeRx"
  sub{my $__c__ = $_[0];
  \'.(!$need_match ? \'\' :
- \'  my $M = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+ \'  my $M = $RXX::current_match;
    $M->_prepare_match_for_embedded_code;\').\'
    my $__rx__ = \'.$code.\';
    die "(??{...}) returned undef" if !defined $__rx__;
@@ -859,29 +848,6 @@ sub{my $__c__ = $_[0];
     eval($src) || die "Error compiling <?{$code}> :\n$@\n";
   }
 
-  sub RMARE_aregex {
-    my($o,$pkg,$name,$f,$nparen,$prefix_re)=@_;
-    # Why the extra sub?  60+% shorter re_text runtime.  sigh.
-    my $matchergen = subname "even with subname used?" => sub {
-      subname "<an aregex-matcher for $o>" => sub {
-        my($pkg9,$name1,$s,$beginat,$minlen)=@_;
-        local $Regexp::ModuleA::ReentrantEngine::Env::pkg = $pkg9;
-        my $m = $o->RMARE_do_match($f,$s,$beginat,$minlen,$nparen);
-        $m->_prepare_match_for_return;
-        $m->{match_rule} = $name1;
-        if($name1) {
-          my $post = $name1."__post_action";
-          if(my $meth = UNIVERSAL::can($pkg9,$post)) {
-            $m->_prepare_match_for_embedded_code;
-            $meth->($pkg9,$m);
-          }
-        }
-        $m;
-      }
-    };
-    Regexp::ModuleA::Rx->_new_from_ast($o,$pkg,$name,$f,$matchergen,$prefix_re);
-  }
-
   sub RMARE_biind {
     my($o,$pkg,$name,$fr)=@_;
     eval("package $pkg; *$name = \$fr"); die "assert" if $@;
@@ -901,18 +867,18 @@ sub{my $__c__ = $_[0];
       my $obj = $pkg->$categoryinfo_method;
       my $info = $obj->info;
       if(!$info){ FAIL() }
-      my $rest = substr($Regexp::ModuleA::ReentrantEngine::Env::str,$Regexp::ModuleA::ReentrantEngine::Env::pos);
+      my $rest = substr($RXX::str,$RXX::pos);
       for my $branch (@$info) {
         my($prefix,$name,$rulename,$rx_sub) = @$branch;
         if($rest !~ $prefix) { next }
         my $f = $rx_sub->(" api0");
         my $v = $f->($c);
         if(FAILED($v)) { next }
-        $Regexp::ModuleA::ReentrantEngine::Env::alias_match->{match_rule} = $rulename; #XX kludge
+        $RXX::alias_match->{match_rule} = $rulename; #XX kludge
 
         my $pkg_override = undef;
-        my $pkg9 = $pkg_override || $Regexp::ModuleA::ReentrantEngine::Env::pkg || $pkg;
-        my $m = $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
+        my $pkg9 = $pkg_override || $RXX::pkg || $pkg;
+        my $m = $RXX::alias_match;
         my $post = $name."__post_action";
         if(my $meth = UNIVERSAL::can($pkg9,$post)) {
           $m->_prepare_match_for_embedded_code;
@@ -967,7 +933,7 @@ sub{my $__c__ = $_[0];
       my $c = $_[0];
       my $v = $c->($noop);
       FAIL_IF_FAILED($v);
-      my $current_match = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+      my $current_match = $RXX::current_match;
       return $v if FAILED($current_match); #X die instead?
       return $current_match;
     };
@@ -981,7 +947,7 @@ sub{my $__c__ = $_[0];
       my $c = $_[0];
       my $v = $c->($noop);
       FAIL_IF_FAILED($v);
-      return ($Regexp::ModuleA::ReentrantEngine::Env::pos +1);
+      return ($RXX::pos +1);
     };
   }
   our $our_return_pos1 = __PACKAGE__->RMARE_return_pos1;
@@ -992,7 +958,7 @@ sub{my $__c__ = $_[0];
   # They could/should be p6 instead of p5.
   # state: $__str__, pos($__str__), $__ok__
   # on fail: leave pos unchanged, false $__ok__.
-  # differs from RMARE: $Regexp::ModuleA::ReentrantEngine::Env::pos is unspecified.
+  # differs from RMARE: $RXX::pos is unspecified.
   #   Why?  More for code clarity than performance.  LETs and such.
   #----------------------------------------------------------------------
 
@@ -1001,15 +967,13 @@ sub{my $__c__ = $_[0];
   sub RATCHET_wrap_for_RMARE {
     my($o,$src)=@_;
     ("do{Sub::Name::subname \"<ratchet ".($sub_id++).">\" => sub { my \$__c__ = \$_[0];\n".
-     "  my \$__str__ = \$Regexp::ModuleA::ReentrantEngine::Env::str;\n".
-     "  pos(\$__str__) = \$Regexp::ModuleA::ReentrantEngine::Env::pos;\n".
+     "  my \$__str__ = \$RXX::str;\n".
+     "  pos(\$__str__) = \$RXX::pos;\n".
      "  my \$__ok__=1;\n".
      $src."\n".
-     \'  FAIL() if !$__ok__;\'."\n".
-     "  local \$Regexp::ModuleA::ReentrantEngine::Env::pos = pos(\$__str__);\n".
-     "  my \$__v = \$__c__->(\$IRx1::RxBaseClass::our_noop);\n".
-     \'  FAIL_IF_FAILED(\$__v);\'."\n".
-     "  return \$__v;\n".
+     "  FAIL() if !\$__ok__;\n".
+     "  local \$RXX::pos = pos(\$__str__);\n".
+     "  \$__c__->(\$IRx1::RxBaseClass::our_noop);\n". #X tailcall?
      "}}")
   }
   sub RATCHET_eat_regexp {
@@ -1020,6 +984,7 @@ sub{my $__c__ = $_[0];
   sub RATCHET_alt {
     my($o,$aref)=@_;
     die "bug $aref" if ref($aref) ne "ARRAY";
+    return "" if @$aref == 0; #XX or fail?
     my @srcs = @$aref;
     my $src_last = pop(@srcs);
     my $code = "# alt\nwhile(1){\n";
@@ -1039,6 +1004,7 @@ sub{my $__c__ = $_[0];
     my $code = "# concat\n{ my \$__old_pos = pos(\$__str__);\n";
     for my $src (@srcs) { #X could nest
       $code .= "if(\$__ok__) {\n".$src."\n}\n";
+      #$code .= \'print STDERR "\n-------------\n",Data::Dumper::Dumper($RXX::current_match,$RXX::leaf_match,$RXX::alias_match),"\n";\'."\n";
     }
     $code .= "if(!\$__ok__) { pos(\$__str__) = \$__old_pos }\n}\n";
     $code;
@@ -1058,14 +1024,14 @@ sub{my $__c__ = $_[0];
     } else {
       $code .=  "  if(!\$__ok__) { \$__ok__=1 if \$__i >= \$__min; last; }\n";
     }
-    $code .=   (" pos(\$__str__) = \$__old_pos if !\$__ok__;\n".
+    $code .=   (" }\n pos(\$__str__) = \$__old_pos if !\$__ok__;\n".
                 "}\n");
     $code;
   }
   sub RATCHET_wrap_subrule {
     my($o,$subrule_var)=@_;
     ("{ my \$__old_pos = pos(\$__str__);\n".
-     "  local \$Regexp::ModuleA::ReentrantEngine::Env::pos = \$__old_pos;\n".
+     "  local \$RXX::pos = \$__old_pos;\n".
      "  my \$__v = do{ $subrule_var }->(\$IRx1::RxBaseClass::our_return_pos1);\n".
      "  if(FAILED(\$__v)) { \$__ok__=undef; pos(\$__str__)=\$__old_pos; }\n".
      "  else { pos(\$__str__) = \$__v-1 }\n".
@@ -1079,7 +1045,6 @@ sub{my $__c__ = $_[0];
 #======================================================================
 # Rx
 #
-#-- copy.
 
 package Regexp::ModuleA::Rx;
 use Sub::Name;
@@ -1089,8 +1054,14 @@ sub _new_from_ast {
   $pkg ||= "";
   $name ||= "";
   $prefix_re ||= qr/\A/;
-  my $h = {ast=>$ast,pkg=>$pkg,name=>$name,f=>$f,matchergen=>$matchergen,
-           prefix_re=>$prefix_re};
+  my $h = {
+    ast=>$ast,
+    pkg=>$pkg,
+    name=>$name,
+    f=>$f,
+    matchergen=>$matchergen,
+    prefix_re=>$prefix_re
+  };
   my $self;
   my $showname = $name || \'*anon*\';
   $self = subname "<an aregex for $ast $pkg $showname>" => sub {
@@ -1121,7 +1092,7 @@ sub _new_from_ast {
   };
   bless $self, $rxclass;
 }
-sub _init {
+sub _init { #XXX only used by remains.  should go away in Rx cleanup.
   my($o,$pat,$mods,$re,$mexpr,$ast)=@_;
   my $h = $o->(\' hash\');
   $h->{pattern} = $pat;
@@ -1137,10 +1108,9 @@ sub match {
   $o->(\' match\',$str);
 }
 
-sub _mexpr {
-  my($o)=@_;
-  $o->(\' hash\')->{mexpr};
-}
+#Commented out until someone needs them.
+#sub ast {shift->(\' hash\')->{ast}}
+#sub name {shift->(\' hash\')->{name}}
 
 ';
 
@@ -1150,29 +1120,29 @@ sub _mexpr {
 # Match
 #
 
-{ package Regexp::ModuleA::ReentrantEngine::Match2;
-  @Regexp::ModuleA::ReentrantEngine::Match2::ISA = qw(Match);
+{ package RXZ::Match2;
+  @RXZ::Match2::ISA = qw(Match);
 
   sub _prepare_match_for_return { }
   sub _prepare_match_for_embedded_code { }
 
 }
-{ package Regexp::ModuleA::ReentrantEngine::Match1;
-  @Regexp::ModuleA::ReentrantEngine::Match1::ISA =
-      qw(Match Regexp::ModuleA::ReentrantEngine::Match_internal);
+{ package RXZ::Match1;
+  @RXZ::Match1::ISA =
+      qw(Match RXZ::Match_internal);
 
   sub _prepare_match_for_embedded_code { }
 
   use overload \'bool\' => \'match_boolean\', ;
 
 }
-{ package Regexp::ModuleA::ReentrantEngine::Match0;
-  @Regexp::ModuleA::ReentrantEngine::Match0::ISA =
-      qw(Match Regexp::ModuleA::ReentrantEngine::Match_internal);
+{ package RXZ::Match0;
+  @RXZ::Match0::ISA =
+      qw(Match RXZ::Match_internal);
 
   sub _prepare_match_for_embedded_code {
     my($o)=@_;
-    bless $o, \'Regexp::ModuleA::ReentrantEngine::Match1\';
+    bless $o, \'RXZ::Match1\';
   }
 
   sub match_new {
@@ -1197,14 +1167,14 @@ sub _mexpr {
   sub _prepare_match_for_return {}
   sub _prepare_match_for_embedded_code {}
 }
-{ package Regexp::ModuleA::ReentrantEngine::Match_internal;
+{ package RXZ::Match_internal;
 
   sub _prepare_match_for_return {
     my($o)=@_;
     use Carp; Carp::confess if ref($o) !~ /[a-z]/;
     for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}@{$o->match_array}) { $m->_prepare_match_for_return }
     for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}values %{$o->match_hash}) { $m->_prepare_match_for_return }
-    bless $o, \'Regexp::ModuleA::ReentrantEngine::Match2\';
+    bless $o, \'RXZ::Match2\';
   }
 
   sub match_set {
@@ -1232,7 +1202,7 @@ sub _mexpr {
       IRx1::RxBaseClass->RMARE_aregex_create(
         IRx1::RxBaseClass->RMARE_lookaround(1,1,
           IRx1::RxBaseClass->RMARE_coderx(
-            \'$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/\'))
+            \'$RXX::nested_data->{args}[0]||qr/(?!)/\'))
       ,undef),
     undef));
   IRx1::RxBaseClass->RMARE_biind(__PACKAGE__,  "after",
@@ -1240,7 +1210,7 @@ sub _mexpr {
       IRx1::RxBaseClass->RMARE_aregex_create(
         IRx1::RxBaseClass->RMARE_lookaround(0,1,
           IRx1::RxBaseClass->RMARE_coderx(
-            \'$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/\'))
+            \'$RXX::nested_data->{args}[0]||qr/(?!)/\'))
       ,undef),
     undef));
   IRx1::RxBaseClass->RMARE_biind(__PACKAGE__,  "commit",
@@ -1251,7 +1221,13 @@ sub _mexpr {
     undef));
 }
 ';
-    $rmare ~ "\n" ~ $match ~ "\n" ~ $rx ~ $prelude_regexen;
+    my $cruft = '
+{ package GLOBAL;
+  our $_cursor;
+  sub parser_pos { $RXX::pos }
+}
+';
+    $rmare ~ "\n" ~ $match ~ "\n" ~ $rx ~ $prelude_regexen ~ $cruft;
   };
 };
 
@@ -1276,6 +1252,13 @@ package IRx1 {
       else { undef }
     }
     method emit_RATCHET { undef }
+
+    our $gensym_counter_ = 0; #X STD_red misparses $_gen .
+    method gensym {
+      $gensym_counter_ = $gensym_counter_+1;
+      "gensym"~$gensym_counter_
+    }
+
   }
 
   # space - may be a no-op, literal, or <ws>.
@@ -1398,7 +1381,9 @@ package IRx1 {
   # ab
   class RxSeq {
     method emit_RMARE {
-      if $.notes<flags><ratchet> && $.exprs.elems > 1 && 0 { #XXX DISABLED
+      if ($.notes<flags><ratchet> && $.exprs.elems > 1 &&
+          %*ENV<ELF_PRAGMA_RXRATCHET>)
+      { 
         #XX calling emit_RATCHET and then emit_RMARE is exponential.  cache?
         my $es = $._RATCHET_to_RMARE.join(',');
         'IRx1::RxBaseClass->RMARE_concat(['~$es~'])';
@@ -1413,7 +1398,7 @@ package IRx1 {
         my $ok = 1;
         my $exprs = $.exprs.map(sub ($o){my $r = $o.emit_RATCHET; $ok=0 if !defined($r); $r});
         return undef if !$ok;
-        $.RATCHET_alt($exprs);
+        $.RATCHET_concat($exprs);
       }
       else { undef }
     }
@@ -1442,7 +1427,7 @@ package IRx1 {
         }
         elsif $e.WHAT eq 'IRx1::RxSubrule' {
           $doing.(2);
-          my $var = gensym; #XX unimp
+          my $var = '$'~$.gensym;
           my $er = $e.emit_RMARE;
           $subrules = $subrules~" my "~$var~" = "~$er~";\n";
           $r = $.RATCHET_wrap_subrule($var);
@@ -1464,7 +1449,7 @@ package IRx1 {
         }
         else {
           my $subrules = $_.pop;
-          my $ratch = $_.join("\n");#XX ;?
+          my $ratch = $.RATCHET_concat($_);
           my $code = $.RATCHET_wrap_for_RMARE($ratch);
           if $subrules {
             $code = "(do{\n"~$subrules~$code~"})";
@@ -1670,7 +1655,7 @@ package IRx1 {
       my $code = $.code;
       my $code5 = $whiteboard::current_emitter.e($code);
       if 1 || $code.uses_match_variable { #XX unimplemented. performance hit.
-        $code5 = 'my $M = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+        $code5 = 'my $M = $RXX::current_match;
         $M->_prepare_match_for_embedded_code;'~"\n" ~ $code5;
       }
       #XX need to subname the sub to avoid p5 idiocy?
@@ -1790,4 +1775,22 @@ class CategoryDef {
 
 class Match {
   method text { $.match_string } # for STD.pm
+}
+
+# since we're not faking $¢ yet.
+package Undef {
+  method panic($msg) is p5 {'
+no warnings;
+my $str = $RXX::str;
+my $pos = $RXX::pos;
+my $m1 = $RXX::current_match;
+my $m2 = $RXX::leaf_match;
+my $m3 = $RXX::alias_match;
+my $pkg = $RXX::pkg;
+my $data = $RXX::nested_data;
+print STDERR $msg,"\n";
+print STDERR "pos: ",$pos,"\n";
+Carp::croak if $ENV{VERBOSE};
+exit(1);
+'}
 }
