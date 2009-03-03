@@ -15,9 +15,9 @@ knowhow RoleHOW {
       # new class every time, then we'll think in some sort of caching.
       my $class = ::p6opaque.^!CREATE;
       $class.^!how = ::PrototypeHOW;
-      $class.^compose_role(::LowObject);
-      $class.^compose_role($object);
-      return $class.^dispatch($identifier, (|$capture));
+#      $class.^compose_role(::LowObject);
+#      $class.^compose_role($object);
+      return $class.^dispatch($identifier.FETCH, $capture.delegate($class.FETCH));
     }
   }
 }

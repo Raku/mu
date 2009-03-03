@@ -124,5 +124,6 @@ extern SMOP__Object* SMOP__ID__STORE;             /* "STORE" */
 extern SMOP__Object* SMOP__ID__Str;             /* "Str" */
 extern SMOP__Object* SMOP__ID__unshift;           /* "unshift" */
 extern SMOP__Object* SMOP__ID__Void;              /* "Void" */
+extern SMOP__Object* SMOP__ID__delegate;              /* "delegate" */
 
 #endif

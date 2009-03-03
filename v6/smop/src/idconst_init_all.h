@@ -116,7 +116,8 @@ SMOP__ID__STORE = SMOP__NATIVE__idconst_create_nolist( "STORE" );\
 SMOP__ID__Str = SMOP__NATIVE__idconst_create_nolist( "Str" );\
 SMOP__ID__unshift = SMOP__NATIVE__idconst_create_nolist( "unshift" );\
 SMOP__ID__Void = SMOP__NATIVE__idconst_create_nolist( "Void" );\
-constlist_size = 117;\
+SMOP__ID__delegate = SMOP__NATIVE__idconst_create_nolist( "delegate" );\
+constlist_size = 118;\
 constlist = calloc(constlist_size,sizeof(SMOP__Object*));\
 assert(constlist);\
 constlist[0] = SMOP__ID__ACCEPTS;\
@@ -236,4 +237,5 @@ constlist[113] = SMOP__ID__STORE;\
 constlist[114] = SMOP__ID__Str;\
 constlist[115] = SMOP__ID__unshift;\
 constlist[116] = SMOP__ID__Void;\
+constlist[117] = SMOP__ID__delegate;\
 
