@@ -526,10 +526,12 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
 
   sub RMARE_wrap_foreign_method {
     my($o,$meth,$pkg9,$name)=@_;
+    my $noop = $o->RMARE_noop;
     subname "<fetch_wrap_foreign_method ".($sub_id++).">" => sub {
       subname "<wrap_foreign_method ".($sub_id++).">" => sub {      
+        my($c)=@_;
         my @args = @{$RXX::nested_data->{args}};
-        my $m = $RXX::leaf_match;
+        my $m = $RXX::leaf_match; # set by subrule
         #XXX setup cursor
         my $result = $meth->(@args);
         my $result_is_Match = UNIVERSAL::isa($result,"Match");
@@ -538,20 +540,19 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
           $m->set_as_failed();
           FAIL();
         }
-        elsif($result_is_Match) {
+        if($result_is_Match) {
           my $from = $result->{match_from}; # may be different than $m\'s from;
           my $to = $result->{match_to};
           my $str = $result->{match_string}; #X
           $m->match_set(1,$str,$result->{match_array},$result->{match_hash},$from,$to);
-          return 1;
         }
         else {
           my $from = $m->{match_from};
           my $to = $RXX::pos;
           my $str = substr($RXX::str,$from,$to-$from);
-          $m->match_set(1,$str,$m->{match_array},$m->{match_hash},$from,$to);
-          return 1;
+          $m->match_set(1,$str,[],{},$from,$to);
         }
+        TAILCALL($c,$noop);
       };
     };
   }
@@ -1006,8 +1007,6 @@ sub{my $__c__ = $_[0];
   # differs from RMARE: $RXX::pos is unspecified.
   #   Why?  More for code clarity than performance.  LETs and such.
   #----------------------------------------------------------------------
-
-  #XX probably have to gensym vars to avoid a masking warning?
 
   sub RATCHET_wrap_for_RMARE {
     my($o,$src)=@_;
