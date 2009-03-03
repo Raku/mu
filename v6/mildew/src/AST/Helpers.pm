@@ -207,6 +207,12 @@ sub EXPR {
         } else {
             $noun;
         }
+    } elsif ($m->{chain}) {
+        if (scalar @{$m->{chain}} == 3) {
+           fcall '&infix:'.$m->{chain}[1]{infix}{sym},[$m->{chain}[0]->emit_m0ld,$m->{chain}[2]->emit_m0ld];
+        } else {
+            XXX;
+        }
     } else {
         XXX;
     }
