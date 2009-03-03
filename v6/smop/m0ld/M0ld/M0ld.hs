@@ -42,6 +42,8 @@ toBytecode stmt regs labels = case stmt of
 
     Decl reg value -> []
 
+    Assign lvalue rvalue -> [5,resolveReg lvalue regs,resolveReg rvalue regs]
+
 isReg (Decl _ None) = True
 isReg _ = False
 
@@ -71,6 +73,7 @@ bytecodeLength stmt = case stmt of
     Call2 _ _ _ _ -> 5
     Decl _ _ -> 0
     LabelDef _ -> 0
+    Assign _ _ -> 3
 
 addLabelDef (labels,offset) (LabelDef label) = (Map.insert label offset labels,offset)
 addLabelDef (labels,offset) stmt = (labels,offset+bytecodeLength stmt)

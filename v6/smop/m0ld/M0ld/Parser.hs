@@ -38,7 +38,7 @@ label = do
 
 stmt = do 
     l <- option [] (try label)
-    body <- choice $ map try [call2,call,decl,goto,br,noop]
+    body <- choice $ map try [call2,call,assign,decl,goto,br,noop]
     return $ l ++ body
 
 constant = choice 
@@ -123,6 +123,16 @@ call = do
         decl = if inline_decl then [Decl target None] else []
         call = [Call target identifier (Capture invocant pos named)]
     return $ decl ++ call
+
+assign = do
+    inline_decl <- option False (symbol "my" >> return True)
+    lvalue <- value
+    symbol "="
+    rvalue <- value
+    let 
+        decl = if inline_decl then [Decl lvalue None] else []
+        assignment = [Assign lvalue rvalue]
+    return $ decl ++ assignment
 
 call2 = do
     target <- value

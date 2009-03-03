@@ -386,6 +386,12 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         }
         break;
       }
+      case 5: {/*assigment*/
+        int lvalue = mold->opcodes[frame->position++];
+        int rvalue = mold->opcodes[frame->position++];
+        frame->registers[lvalue] = frame->registers[rvalue];
+        break;
+      }
       default: fprintf(stderr,"unknown op %d\n",op);
       }
       ret = SMOP__NATIVE__bool_true;
