@@ -46,7 +46,13 @@ class EmitRegex {
 #======================================================================
 # Core Regexp Engine
 #
-# NOTE: WAY past time to refactor.  A perlbug used to prevent it.  Better be ok now.
+# NOTE: This code is derived from a p5 CPANish module.  One which perlbugs
+# prevented ever refactoring.  Hopefully that is over now.
+# Lots of refactoring to do.  And since its no longer a general module,
+# and doesnt have to cope with uncontrolled p5 code, there is legacy clutter
+# and architecture to move away from.
+# On the other hand, improving this code isnt project critical path,
+# so in some places the cruft is getting deeper.  2009-Mar-02
 
 { package VersionConstraints;
   use Regexp::Common 2.122;
@@ -491,7 +497,6 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
       { local $RXX::current_match = $m1;
         local $RXX::leaf_match = $m1;
         local $RXX::pkg = $pkg2;
-        my $nd_with_args = 
         local $RXX::nested_data = {%$RXX::nested_data,"args"=>$args};
 	$v = eval { $f->($close) };
         if($@) {
@@ -517,6 +522,38 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
     return $f1 if $nocap;
     $target_spec ||= [\'$/\',\'{\'=>$name];
     $o->RMARE_alias_wrap($f1,undef,1,0,$in_quant,$target_spec);
+  }
+
+  sub RMARE_wrap_foreign_method {
+    my($o,$meth,$pkg9,$name)=@_;
+    subname "<fetch_wrap_foreign_method ".($sub_id++).">" => sub {
+      subname "<wrap_foreign_method ".($sub_id++).">" => sub {      
+        my @args = @{$RXX::nested_data->{args}};
+        my $m = $RXX::leaf_match;
+        #XXX setup cursor
+        my $result = $meth->(@args);
+        my $result_is_Match = UNIVERSAL::isa($result,"Match");
+        my $failed = $result_is_Match ? !$result->match_boolean() : !$result;
+        if($failed) {
+          $m->set_as_failed();
+          FAIL();
+        }
+        elsif($result_is_Match) {
+          my $from = $result->{match_from}; # may be different than $m\'s from;
+          my $to = $result->{match_to};
+          my $str = $result->{match_string}; #X
+          $m->match_set(1,$str,$result->{match_array},$result->{match_hash},$from,$to);
+          return 1;
+        }
+        else {
+          my $from = $m->{match_from};
+          my $to = $RXX::pos;
+          my $str = substr($RXX::str,$from,$to-$from);
+          $m->match_set(1,$str,$m->{match_array},$m->{match_hash},$from,$to);
+          return 1;
+        }
+      };
+    };
   }
 
   sub RMARE_aregex_create {
@@ -669,13 +706,21 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
   sub RMARE_subrule_fetching_rx {
     my($o,$pkg,$pkg_override,$name,$exprse,$neg,$nocap,$in_quant,$target_spec)=@_;
     my $fetch = subname "<subrule-fetch for $name>" => sub {
+      #my(@args)=@_; # Args provided to permit compilation or memoization - ignored.
       my $pkg9 = ($pkg_override ||
                   $RXX::pkg ||
                   $pkg);
       die "assert" if !defined $pkg9;
       no strict;
       my $f;
-      eval { $f = $pkg9->$name($name)->(\' api0\'); };
+      eval {
+        my $meth = UNIVERSAL::can($pkg9,$name);
+        if(ref($meth) eq "Regexp::ModuleA::Rx") {
+          $f = $meth->($pkg9,$name)->(\' api0\');
+        } else {
+          $f = IRx1::RxBaseClass->RMARE_wrap_foreign_method($meth,$pkg9,$name);
+        }
+      };
       Carp::confess $@ if $@;
       die if $@;
       use strict;
