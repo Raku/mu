@@ -1,0 +1,26 @@
+body {
+    margin: 1em;
+    background-color: #FFFFBB;
+    max-width: 80em;
+}
+
+.box {
+    width: 20em;
+    float: left;
+    padding: 1ex;
+    margin: 1em;
+}
+
+#specification  { background-color: #FFCC33; }
+#compilers      { background-color: #33FF00; }
+#documentation  { background-color: #0088FF; }
+#blogs          { background-color: #FF7777; }
+
+a {
+    font-weight: bold;
+    color: black;
+}
+
+#meta {
+    font-size: 80%;
+}
