@@ -578,7 +578,7 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
   }
 
   sub RMARE_do_match {
-    my($o,$f,$s,$beginat,$minlen,$nparen)=@_;
+    my($o,$f,$s,$beginat,$scanp,$minlen,$nparen)=@_;
     my $len = length($s);
     $beginat = 0 if !defined($beginat);
     my $noop = $o->RMARE_noop;
@@ -606,6 +606,7 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
         $m->match_set(1,substr($RXX::str,$start,$RXX::pos-$start),$m->{match_array},$m->{match_hash},$start,$RXX::pos);
         return $m;
       }
+      last if $scanp;
     }
     return RXZ::Match0->new_failed();
   }
@@ -615,9 +616,9 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
     # Why the extra sub?  60+% shorter re_text runtime.  sigh.
     my $matchergen = subname "even with subname used?" => sub {
       subname "<an aregex-matcher for $o>" => sub {
-        my($pkg9,$name1,$s,$beginat,$minlen)=@_;
+        my($pkg9,$name1,$s,$beginat,$scanp,$minlen)=@_;
         local $RXX::pkg = $pkg9;
-        my $m = $o->RMARE_do_match($f,$s,$beginat,$minlen,$nparen);
+        my $m = $o->RMARE_do_match($f,$s,$beginat,$scanp,$minlen,$nparen);
         $m->_prepare_match_for_return;
         $m->{match_rule} = $name1;
         if($name1) {
@@ -1136,7 +1137,7 @@ sub _new_from_ast {
   };
   bless $self, $rxclass;
 }
-sub _init { #XXX only used by remains.  should go away in Rx cleanup.
+sub _init { #XXX only used in remains_of_Regexp_ModuleA.pm.  should go away in Rx cleanup.
   my($o,$pat,$mods,$re,$mexpr,$ast)=@_;
   my $h = $o->(\' hash\');
   $h->{pattern} = $pat;
@@ -1150,6 +1151,11 @@ sub _init { #XXX only used by remains.  should go away in Rx cleanup.
 sub match {
   my($o,$str)=@_;
   $o->(\' match\',$str);
+}
+sub scan {
+  my($o,$str,$beginat)=@_;
+  $beginat ||= 0;
+  $o->(\' match\',$str,$beginat,1);
 }
 
 #Commented out until someone needs them.
@@ -1819,7 +1825,34 @@ class CategoryDef {
 
 class Match {
   method text { $.match_string } # for STD.pm
+  method _REDUCE ($from,$rule) { # for STD.pm
+    $.match_rule = $rule;
+    $.match_from = $from;
+    $.match_to = $RXX::pos;
+    $.match_str = substr($RXX::str,$from,$RXX::pos-$from);
+    $.match_bool = 1;
+    self;
+  }
 }
+
+class FakeCursor {
+  method pos { $RXX::pos }
+  method advance_by_rule ($rulename) is p5 {'
+    my $m = $RXX::pkg->$rulename()->scan($RXX::str,$RXX::pos)
+    if($m->match_bool) { $RXX::pos = $m->match_to; }
+    $m;
+  '}
+  method panic($msg) is p5 {'
+no warnings;
+print STDERR $msg,"\n";
+print STDERR "pos: ",$pos,"\n";
+Carp::croak if $ENV{VERBOSE};
+exit(1);
+'}
+}
+class STD is FakeCursor {
+}
+
 
 # since we're not faking $¢ yet.
 package Undef {
