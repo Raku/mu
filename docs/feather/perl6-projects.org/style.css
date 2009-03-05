@@ -14,6 +14,7 @@ h1 {
     padding: 1ex;
     margin: 1em;
     border: 1px solid;
+    background-color: #ee8;
 }
 
 .box h2 {
@@ -21,11 +22,11 @@ h1 {
     border-bottom: 1px dotted;
 }
 
-#specification  { background-color: #FFCC33; }
-#compilers      { background-color: #33FF00; }
-#documentation  { background-color: #0088FF; }
-#blogs          { background-color: #FF7777; }
-#misc           { background-color: #66ffcc; }
+#specification  { border-top: solid 3px #861; }
+#compilers      { border-top: solid 3px #380; }
+#documentation  { border-top: solid 3px #048; }
+#blogs          { border-top: solid 3px #844; }
+#misc           { border-top: solid 3px #268; }
 
 a {
     font-weight: bold;
