@@ -368,7 +368,7 @@ use warnings;
   sub exit{CORE::exit(@_)}
   sub defined{CORE::defined($_[0])}
   sub substr {CORE::substr($_[0],$_[1],$_[2])}
-  sub not ($){CORE::not $_[0]}
+  sub not{$_[0] ? !($_[0]->Bool) : 1}
   sub exec{CORE::exec(@_)}
   sub sleep{CORE::sleep(@_)}
 
@@ -865,9 +865,24 @@ package Main;
         }
       }
       #XXX := is here temporarily to postpone a regression.
-      if $op.re_matchp('^(<|>|==|!=|eq|ne|\+|-|\*|\/|\|\||\&\&|and|or|=|=~|:=)$') {
+      if $op.re_matchp('^(<|>|==|!=|eq|ne|\+|-|\*|\/|=|=~|:=)$') {
         my $s = $a.shift;
         while $a.elems { $s = "("~$s ~" "~$op~" "~ $a.shift~")" }
+        return $s;
+      }
+      if $op.re_matchp('^(\|\||\&\&|and|or)$') {
+        my $s1 = "";
+        my $s2 = "";
+        my $stop = ""; if $op eq '&&' || $op eq 'and' { $stop = '!' }
+        my $a_end = $a.pop;
+        while $a.elems {
+          $s1 = ($s1~'$__tmp__=('~$a.shift~');if('~
+                 $stop~'$__tmp__->Bool){no warnings "void";$__tmp__}else{');
+          $s2 = $s2~'}';
+        }
+        my $s = ('(do{my '~$s1~
+                 '$__tmp__=('~$a_end~');no warnings "void";$__tmp__'~
+                 $s2~'})');
         return $s;
       }
     }
@@ -875,9 +890,6 @@ package Main;
       my $op = $g[0];
       my $a = $.e($n.capture.arguments);
       my $x = $a[0];
-      if $op eq '?' {
-        return '(('~$x~')?1:0)'
-      }
       if $op.re_matchp('^(-)$') {
         return  "("~$op~""~$x~")"
       }

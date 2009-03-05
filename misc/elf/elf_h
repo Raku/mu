@@ -335,7 +335,7 @@ use warnings;
   sub exit{CORE::exit(@_)}
   sub defined{CORE::defined($_[0])}
   sub substr {CORE::substr($_[0],$_[1],$_[2])}
-  sub not ($){CORE::not $_[0]}
+  sub not{$_[0] ? !($_[0]->Bool) : 1}
   sub exec{CORE::exec(@_)}
   sub sleep{CORE::sleep(@_)}
 
@@ -853,7 +853,7 @@ if(($self->match_array->elems())->Bool) {
 }else {
 (do{($a = "\[\]")})
 };
-my $r = ($self->match_rule || "");
+my $r = (do{my $__tmp__=($self->match_rule);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}});
 my $s = ((((((((((($r . "\<") . $b) . "\,") . $f) . "\,") . $t) . "\,\'") . $self->match_string) . "\'\,") . $a) . "\,\{");
 for(($self->match_hash->keys())->flatten){
 (do{my $k = $_;
@@ -2084,10 +2084,10 @@ my $construct_comp_unit = sub {my($m)=@_;
 (do{IRx1::CompUnit->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("statementlist")), GLOBAL::undef())})};
 my $construct_statement = sub {my($m)=@_;
 (do{my $labels = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("label"));
-my $result = (irbuild_ir($m->match_hash()->postcircumfix__123_32_125("expr")) || irbuild_ir($m->match_hash()->postcircumfix__123_32_125("control")));
-if((($m->match_hash()->postcircumfix__123_32_125("expr") && (($m->match_hash()->postcircumfix__123_32_125("mod_loop") || $m->match_hash()->postcircumfix__123_32_125("mod_cond")))))->Bool) {
+my $result = (do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("expr")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("control")));no warnings "void";$__tmp__}});
+if(((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("expr"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("mod_loop"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("mod_cond"));no warnings "void";$__tmp__}})));no warnings "void";$__tmp__}}))->Bool) {
 (do{{ package IRx1_Build; use vars '$statement_expr'};local $blackboard::statement_expr = $result;
-($result = (irbuild_ir($m->match_hash()->postcircumfix__123_32_125("mod_loop")) || irbuild_ir($m->match_hash()->postcircumfix__123_32_125("mod_cond"))));
+($result = (do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("mod_loop")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("mod_cond")));no warnings "void";$__tmp__}}));
 if(($m->match_hash()->postcircumfix__123_32_125("mod_condloop"))->Bool) {
 (do{($blackboard::statement_expr = $result);
 ($result = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("mod_condloop")))})
@@ -2111,7 +2111,7 @@ if(($args->postcircumfix__91_32_93(2))->Bool) {
 };
 IRx1::Pair->newp($m, $args->postcircumfix__91_32_93(0), $args->postcircumfix__91_32_93(1))})
 }else {
-(do{IRx1::Apply->newp($m, ("infix\:" . $op), IRx1::Capture->newp1($m, (irbuild_ir($m->match_hash()->postcircumfix__123_32_125("args")) || [])))})
+(do{IRx1::Apply->newp($m, ("infix\:" . $op), IRx1::Capture->newp1($m, (do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("args")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})
 }})
 }else {
 (do{GLOBAL::die("Unimplemented\ infix_prefix_meta_operator\ or\ infix_circumfix_meta_operator")})
@@ -2137,7 +2137,7 @@ my $construct_post = sub {my($m)=@_;
 (do{if(($m->match_hash()->postcircumfix__123_32_125("args"))->Bool) {
 (do{irbuild_ir($m->match_hash()->postcircumfix__123_32_125("args"))->postcircumfix__91_32_93(0)})
 }else {
-(do{(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("dotty")) or irbuild_ir($m->match_hash()->postcircumfix__123_32_125("postop")))})
+(do{(do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("dotty")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("postop")));no warnings "void";$__tmp__}})})
 }})};
 my $construct_pre = sub {my($m)=@_;
 (do{if(($m->match_hash()->postcircumfix__123_32_125("args"))->Bool) {
@@ -2148,27 +2148,27 @@ my $construct_pre = sub {my($m)=@_;
 (do{GLOBAL::die("pre\ without\ a\ prefix\ is\ unimplemented")})
 }})};
 my $construct_dotty_58methodop = sub {my($m)=@_;
-(do{IRx1::Call->newp($m, $blackboard::expect_term_base, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("ident")), IRx1::Capture->newp1($m, (irbuild_ir($m->match_hash()->postcircumfix__123_32_125("semilist")) || [])))})};
+(do{IRx1::Call->newp($m, $blackboard::expect_term_base, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("ident")), IRx1::Capture->newp1($m, (do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("semilist")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})};
 my $construct_dotty_58_46_94_33 = sub {my($m)=@_;
-(do{IRx1::Call->newp($m, $blackboard::expect_term_base, ("\^\!" . irbuild_ir($m->match_hash()->postcircumfix__123_32_125("methodop")->match_hash()->postcircumfix__123_32_125("ident"))), IRx1::Capture->newp1($m, (irbuild_ir($m->match_hash()->postcircumfix__123_32_125("methodop")->match_hash()->postcircumfix__123_32_125("semilist")) || [])))})};
+(do{IRx1::Call->newp($m, $blackboard::expect_term_base, ("\^\!" . irbuild_ir($m->match_hash()->postcircumfix__123_32_125("methodop")->match_hash()->postcircumfix__123_32_125("ident"))), IRx1::Capture->newp1($m, (do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("methodop")->match_hash()->postcircumfix__123_32_125("semilist")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})};
 my $construct_dotty_58postcircumfix = sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $ident = ("postcircumfix\:" . $name);
 my $args = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("kludge_name"));
-if((($args && (($args->WHAT() ne "Array"))))->Bool) {
+if(((do{my $__tmp__=($args);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=((($args->WHAT() ne "Array")));no warnings "void";$__tmp__}}))->Bool) {
 (do{($args = [$args])})
 };
-IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp1($m, ($args || [])))})};
+IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp1($m, (do{my $__tmp__=($args);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})};
 my $construct_postcircumfix = sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $ident = ("postcircumfix\:" . $name);
 my $args = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("kludge_name"));
-if((($args && (($args->WHAT() ne "Array"))))->Bool) {
+if(((do{my $__tmp__=($args);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=((($args->WHAT() ne "Array")));no warnings "void";$__tmp__}}))->Bool) {
 (do{($args = [$args])})
 };
-IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp1($m, ($args || [])))})};
+IRx1::Call->newp($m, $blackboard::expect_term_base, $ident, IRx1::Capture->newp1($m, (do{my $__tmp__=($args);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})};
 my $construct_postfix = sub {my($m)=@_;
 (do{my $op = ($m->match_string());
 IRx1::Apply->newp($m, ("postfix\:" . $op), IRx1::Capture->newp1($m, [$blackboard::expect_term_base]))})};
@@ -2192,10 +2192,10 @@ my $construct_integer = sub {my($m)=@_;
 (do{IRx1::NumInt->newp($m, ($m->match_string()), 10)})};
 my $construct_subcall = sub {my($m)=@_;
 (do{my $t = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("subshortname")->match_hash()->postcircumfix__123_32_125("twigil"));
-if((($t && ($t eq "\.")))->Bool) {
-(do{IRx1::Call->newp($m, IRx1::Apply->newp($m, "self", IRx1::Capture->newp1($m, [])), irbuild_ir($m->match_hash()->postcircumfix__123_32_125("subshortname")->match_hash()->postcircumfix__123_32_125("desigilname")->match_hash()->postcircumfix__123_32_125("ident")), IRx1::Capture->newp1($m, (irbuild_ir($m->match_hash()->postcircumfix__123_32_125("semilist")) || [])))})
+if(((do{my $__tmp__=($t);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($t eq "\."));no warnings "void";$__tmp__}}))->Bool) {
+(do{IRx1::Call->newp($m, IRx1::Apply->newp($m, "self", IRx1::Capture->newp1($m, [])), irbuild_ir($m->match_hash()->postcircumfix__123_32_125("subshortname")->match_hash()->postcircumfix__123_32_125("desigilname")->match_hash()->postcircumfix__123_32_125("ident")), IRx1::Capture->newp1($m, (do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("semilist")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})
 }else {
-(do{IRx1::Apply->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("subshortname")), IRx1::Capture->newp1($m, (irbuild_ir($m->match_hash()->postcircumfix__123_32_125("semilist")) || [])))})
+(do{IRx1::Apply->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("subshortname")), IRx1::Capture->newp1($m, (do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("semilist")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})
 }})};
 my $construct_name = sub {my($m)=@_;
 (do{($m->match_string())})};
@@ -2244,7 +2244,7 @@ my $construct_quote_58qq = sub {my($m)=@_;
 ($s = $s->re_gsub_pat("\\\\\(\.\)", "\$1"));
 IRx1::Buf->newp($m, $s)})};
 my $construct_quote_58regex = sub {my($m)=@_;
-(do{my $s = (irbuild_ir($m->match_hash()->postcircumfix__123_32_125("text")) || irbuild_ir($m->match_hash()->postcircumfix__123_32_125("quotesnabber")->match_hash()->postcircumfix__123_32_125("text")));
+(do{my $s = (do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("text")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("quotesnabber")->match_hash()->postcircumfix__123_32_125("text")));no warnings "void";$__tmp__}});
 IRx1::Rx->newp($m, $s, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("quotepair")))})};
 my $construct_scope_declarator_58my = sub {my($m)=@_;
 (do{{ package IRx1_Build; use vars '$scope'};local $blackboard::scope = "my";
@@ -2260,7 +2260,7 @@ my $construct_scope_declarator_58temp = sub {my($m)=@_;
 irbuild_ir($m->match_hash()->postcircumfix__123_32_125("scoped"))})};
 my $construct_scoped = sub {my($m)=@_;
 (do{{ package IRx1_Build; use vars '$typenames'};local $blackboard::typenames = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("fulltypename"));
-((((irbuild_ir($m->match_hash()->postcircumfix__123_32_125("variable_decl")) || irbuild_ir($m->match_hash()->postcircumfix__123_32_125("signature"))) || irbuild_ir($m->match_hash()->postcircumfix__123_32_125("plurality_declarator"))) || irbuild_ir($m->match_hash()->postcircumfix__123_32_125("routine_declarator"))) || irbuild_ir($m->match_hash()->postcircumfix__123_32_125("type_declarator")))})};
+(do{my $__tmp__=((do{my $__tmp__=((do{my $__tmp__=((do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("variable_decl")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("signature")));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("plurality_declarator")));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("routine_declarator")));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("type_declarator")));no warnings "void";$__tmp__}})})};
 my $construct_variable_decl = sub {my($m)=@_;
 (do{my $scope = $blackboard::scope;
 { package IRx1_Build; use vars '$scope'};local $blackboard::scope;
@@ -2273,10 +2273,10 @@ if(($m->match_hash()->postcircumfix__123_32_125("postcircumfix"))->Bool) {
 (do{if((($tw eq "\."))->Bool) {
 (do{my $slf = IRx1::Apply->newp($m, "self", IRx1::Capture->newp1($m, []));
 my $args = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("postcircumfix")->match_hash()->postcircumfix__123_32_125("kludge_name"));
-if((($args && (($args->WHAT() ne "Array"))))->Bool) {
+if(((do{my $__tmp__=($args);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=((($args->WHAT() ne "Array")));no warnings "void";$__tmp__}}))->Bool) {
 (do{($args = [$args])})
 };
-IRx1::Call->newp($m, $slf, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("desigilname")), IRx1::Capture->newp1($m, ($args || [])))})
+IRx1::Call->newp($m, $slf, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("desigilname")), IRx1::Capture->newp1($m, (do{my $__tmp__=($args);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})
 }else {
 (do{my $v = IRx1::Var->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("sigil")), $tw, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("desigilname")));
 { package IRx1_Build; use vars '$expect_term_base'};local $blackboard::expect_term_base = $v;
@@ -2298,10 +2298,10 @@ my $construct_circumfix = sub {my($m)=@_;
 (do{my $s = ($m->match_string());
 my $name = ((GLOBAL::substr($s, 0, 1) . "\ ") . GLOBAL::substr($s, (-1), 1));
 my $args = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("kludge_name"));
-if((($args && (($args->WHAT() ne "Array"))))->Bool) {
+if(((do{my $__tmp__=($args);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=((($args->WHAT() ne "Array")));no warnings "void";$__tmp__}}))->Bool) {
 (do{($args = [$args])})
 };
-IRx1::Apply->newp($m, ("circumfix\:" . $name), IRx1::Capture->newp1($m, ($args || [])))})};
+IRx1::Apply->newp($m, ("circumfix\:" . $name), IRx1::Capture->newp1($m, (do{my $__tmp__=($args);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}})))})};
 my $construct_statement_control_58for = sub {my($m)=@_;
 (do{IRx1::For->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("expr")), irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block")))})};
 my $construct_statement_mod_loop_58for = sub {my($m)=@_;
@@ -2382,7 +2382,7 @@ my $construct_block = sub {my($m)=@_;
 (do{IRx1::Block->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("statementlist")))})};
 my $construct_plurality_declarator_58multi = sub {my($m)=@_;
 (do{{ package IRx1_Build; use vars '$plurality'};local $blackboard::plurality = "multi";
-(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("pluralized")) || irbuild_ir($m->match_hash()->postcircumfix__123_32_125("routine_def")))})};
+(do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("pluralized")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("routine_def")));no warnings "void";$__tmp__}})})};
 my $construct_routine_declarator_58routine_def = sub {my($m)=@_;
 (do{my $scope = $blackboard::scope;
 { package IRx1_Build; use vars '$scope'};local $blackboard::scope;
@@ -2392,7 +2392,7 @@ my $ident = "";
 if(($m->match_hash()->postcircumfix__123_32_125("ident"))->Bool) {
 (do{($ident = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("ident")))})
 };
-if(((($m->match_hash()->postcircumfix__123_32_125("ident") && GLOBAL::not($scope))))->Bool) {
+if((((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("ident"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(GLOBAL::not($scope));no warnings "void";$__tmp__}})))->Bool) {
 (do{($scope = "our")})
 };
 my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
@@ -2409,7 +2409,7 @@ my $ident = "";
 if(($m->match_hash()->postcircumfix__123_32_125("ident"))->Bool) {
 (do{($ident = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("ident")))})
 };
-if(((($m->match_hash()->postcircumfix__123_32_125("ident") && GLOBAL::not($scope))))->Bool) {
+if((((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("ident"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(GLOBAL::not($scope));no warnings "void";$__tmp__}})))->Bool) {
 (do{($scope = "our")})
 };
 my $sig = IRx1::Signature->newp($m, [], GLOBAL::undef());
@@ -2436,22 +2436,22 @@ my $construct_capture = sub {my($m)=@_;
 (do{IRx1::Capture->newp1($m, [])})
 }elsif(($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("noun"))->Bool) {
 (do{IRx1::Capture->newp1($m, [irbuild_ir($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("noun"))])})
-}elsif((($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("sym") && ($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("sym") eq "\:")))->Bool) {
+}elsif(((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("sym"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("sym") eq "\:"));no warnings "void";$__tmp__}}))->Bool) {
 (do{my $args = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("args"));
 my $inv = $args->shift();
-IRx1::Capture->newp($m, ($args || []), $inv)})
-}elsif((($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("sym") && ($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("sym") eq "\,")))->Bool) {
+IRx1::Capture->newp($m, (do{my $__tmp__=($args);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}}), $inv)})
+}elsif(((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("sym"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("sym") eq "\,"));no warnings "void";$__tmp__}}))->Bool) {
 (do{my $args = $m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("args");
-my $arg0 = ($args && $args->postcircumfix__91_32_93(0));
+my $arg0 = (do{my $__tmp__=($args);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($args->postcircumfix__91_32_93(0));no warnings "void";$__tmp__}});
 my $inv = GLOBAL::undef();
-if(((($arg0 && $arg0->match_hash()->postcircumfix__123_32_125("sym")) && ($arg0->match_hash()->postcircumfix__123_32_125("sym") eq "\:")))->Bool) {
+if(((do{my $__tmp__=((do{my $__tmp__=($arg0);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($arg0->match_hash()->postcircumfix__123_32_125("sym"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($arg0->match_hash()->postcircumfix__123_32_125("sym") eq "\:"));no warnings "void";$__tmp__}}))->Bool) {
 (do{$args->shift();
 ($inv = $arg0->match_hash()->postcircumfix__123_32_125("args")->postcircumfix__91_32_93(0));
 if(($arg0->match_hash()->postcircumfix__123_32_125("args")->postcircumfix__91_32_93(1))->Bool) {
 (do{$args->unshift($arg0->match_hash()->postcircumfix__123_32_125("args")->postcircumfix__91_32_93(1))})
 }})
 };
-IRx1::Capture->newp($m, (irbuild_ir($args) || []), irbuild_ir($inv))})
+IRx1::Capture->newp($m, (do{my $__tmp__=(irbuild_ir($args));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}}), irbuild_ir($inv))})
 }else {
 (do{GLOBAL::die("capture\ AST\ form\ not\ recognized")})
 }})};
@@ -2529,13 +2529,13 @@ my $construct_trait_verb_58is = sub {my($m)=@_;
 my $construct_trait_verb_58does = sub {my($m)=@_;
 (do{IRx1::Trait->newp($m, "does", irbuild_ir($m->match_hash()->postcircumfix__123_32_125("role_name")))})};
 my $construct_circumfix_58pblock = sub {my($m)=@_;
-(do{if(((($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->elems() == 0) or $m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_string()->re_matchp("\^\:")))->Bool) {
+(do{if(((do{my $__tmp__=(($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->elems() == 0));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_string()->re_matchp("\^\:"));no warnings "void";$__tmp__}}))->Bool) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")))})
-}elsif(((($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr") and $m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym")) and ($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym") eq "\,")))->Bool) {
+}elsif(((do{my $__tmp__=((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym") eq "\,"));no warnings "void";$__tmp__}}))->Bool) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")))})
-}elsif(((($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr") and $m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym")) and ($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym") eq "\=\>")))->Bool) {
+}elsif(((do{my $__tmp__=((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym") eq "\=\>"));no warnings "void";$__tmp__}}))->Bool) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")))})
-}elsif(((GLOBAL::not(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("lambda"))) and GLOBAL::not(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("signature")))))->Bool) {
+}elsif(((do{my $__tmp__=(GLOBAL::not(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("lambda"))));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(GLOBAL::not(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("signature"))));no warnings "void";$__tmp__}}))->Bool) {
 (do{irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block"))})
 }else {
 (do{GLOBAL::die("AST\ handler\ circumfix\:pblock\ partially\ unimplemented")})
@@ -2798,13 +2798,13 @@ use base "Any";(do{sub note_block_lexical_variable_decls{my $self=CORE::shift;(d
 (do{$whiteboard::lexical_variable_decls->push($self)})
 };
 $self->notes->postcircumfix__60_32_62('is', {});
-my $traits = ($self->traits || []);
+my $traits = (do{my $__tmp__=($self->traits);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}});
 for(($traits)->flatten){
 (do{if((($_->verb() eq "is"))->Bool) {
 (do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__123_32_125($_->expr(), 1)})
 }})
 };
-if((((($self->var()->twigil() || "")) eq "\+"))->Bool) {
+if(((((do{my $__tmp__=($self->var()->twigil());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}})) eq "\+"))->Bool) {
 (do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('context', 1)})
 };
 if((($self->scope() eq "temp"))->Bool) {
@@ -2947,7 +2947,7 @@ use base "Any";(do{sub note_environment{my $self=CORE::shift;(do{for(($self->chi
 ;
 
 { package IRx1::VarDecl;
-use base "Any";(do{sub is_lexical{my $self=CORE::shift;(do{(($self->scope eq "my") or GLOBAL::not($self->var->package()))})};
+use base "Any";(do{sub is_lexical{my $self=CORE::shift;(do{(do{my $__tmp__=(($self->scope eq "my"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(GLOBAL::not($self->var->package()));no warnings "void";$__tmp__}})})};
 sub is_context{my $self=CORE::shift;(do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('context')})};
 sub is_temp{my $self=CORE::shift;(do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('temp')})};
 sub name{my $self=CORE::shift;(do{$self->var()->name()})};
@@ -2976,13 +2976,13 @@ use base "Any";(do{sub decl{my $self=CORE::shift;(do{$self->notes->postcircumfix
 sub bare_name{my $self=CORE::shift;(do{$self->notes()->postcircumfix__60_32_62('bare_name')})};
 sub package{my $self=CORE::shift;(do{$self->notes()->postcircumfix__60_32_62('package')})};
 sub crnt_package{my $self=CORE::shift;(do{$self->notes()->postcircumfix__60_32_62('crnt_package')})};
-sub is_context{my $self=CORE::shift;(do{(((($self->twigil() || "")) eq "\+") || $self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('context'))})};
+sub is_context{my $self=CORE::shift;(do{(do{my $__tmp__=((((do{my $__tmp__=($self->twigil());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}})) eq "\+"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('context'));no warnings "void";$__tmp__}})})};
 sub is_temp{my $self=CORE::shift;(do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('temp')})}})
 }
 ;
 
 { package IRx1::PackageDecl;
-use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{($self->name() && $self->name()->re_matchp("\^GLOBAL\\b"))})}})
+use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;(do{(do{my $__tmp__=($self->name());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->name()->re_matchp("\^GLOBAL\\b"));no warnings "void";$__tmp__}})})}})
 }
 ;
 
@@ -2997,13 +2997,13 @@ use base "Any";(do{sub provides_a_list{my $self=CORE::shift;(do{($self->method()
 ;
 
 { package IRx1::Apply;
-use base "Any";(do{sub provides_a_list{my $self=CORE::shift;(do{(($self->function eq "infix\:\,") && $self->capture->contains_a_list())})}})
+use base "Any";(do{sub provides_a_list{my $self=CORE::shift;(do{(do{my $__tmp__=(($self->function eq "infix\:\,"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->capture->contains_a_list());no warnings "void";$__tmp__}})})}})
 }
 ;
 
 { package IRx1::Capture;
 use base "Any";(do{sub contains_a_list{my $self=CORE::shift;(do{for(($self->arguments)->flatten){
-(do{if(((($_->isa("IRx1\:\:Base") && $_->provides_a_list())))->Bool) {
+(do{if((((do{my $__tmp__=($_->isa("IRx1\:\:Base"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($_->provides_a_list());no warnings "void";$__tmp__}})))->Bool) {
 (do{return(1)})
 }})
 };
@@ -3369,7 +3369,7 @@ use\ warnings\;\
 \ \ sub\ exit\{CORE\:\:exit\(\@_\)\}\
 \ \ sub\ defined\{CORE\:\:defined\(\$_\[0\]\)\}\
 \ \ sub\ substr\ \{CORE\:\:substr\(\$_\[0\]\,\$_\[1\]\,\$_\[2\]\)\}\
-\ \ sub\ not\ \(\$\)\{CORE\:\:not\ \$_\[0\]\}\
+\ \ sub\ not\{\$_\[0\]\ \?\ \!\(\$_\[0\]\-\>Bool\)\ \:\ 1\}\
 \ \ sub\ exec\{CORE\:\:exec\(\@_\)\}\
 \ \ sub\ sleep\{CORE\:\:sleep\(\@_\)\}\
 \
@@ -3494,7 +3494,7 @@ sub e{my $self=CORE::shift;my($x)=@_;
 (do{my $ref = $x->WHAT();
 if((($ref eq "Undef"))->Bool) {
 (do{$x})
-}elsif((((($ref eq "Str") || ($ref eq "Int")) || ($ref eq "Num")))->Bool) {
+}elsif(((do{my $__tmp__=((do{my $__tmp__=(($ref eq "Str"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($ref eq "Int"));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($ref eq "Num"));no warnings "void";$__tmp__}}))->Bool) {
 (do{$x})
 }elsif((($ref eq "Array"))->Bool) {
 (do{$x->map(sub {my($ae)=@_;
@@ -3591,17 +3591,17 @@ __PACKAGE__\-\>meta\-\>make_immutable\(\)\;\
 ($head = (($head . $base) . $self->prelude_for_entering_a_package()));
 if(($n->block())->Bool) {
 (do{{ package EmitSimpleP5; use vars '$in_package'};local $whiteboard::in_package = $in_package;
-((($head . $self->e(($n->traits() || []))->reverse()->join("\
+((($head . $self->e((do{my $__tmp__=($n->traits());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}}))->reverse()->join("\
 ")) . $self->e($n->block())) . $foot)})
 }else {
 (do{($whiteboard::in_package = $in_package);
 $whiteboard::compunit_footer->unshift($foot);
-(($head . $self->e(($n->traits() || []))->reverse()->join("\
+(($head . $self->e((do{my $__tmp__=($n->traits());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}}))->reverse()->join("\
 ")) . "\;\
 ")})
 }})};
 sub cb__Trait{my $self=CORE::shift;my($n)=@_;
-(do{if((((($n->verb() eq "is") or ($n->verb() eq "does"))))->Bool) {
+(do{if((((do{my $__tmp__=(($n->verb() eq "is"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->verb() eq "does"));no warnings "void";$__tmp__}})))->Bool) {
 (do{my $pkgname = $whiteboard::in_package->join("\:\:");
 my $name = (($whiteboard::in_package->splice(0, (-1))->join("\:\:") . "\:\:") . $self->e($n->expr()));
 ($name = $name->re_gsub("\^\:\:", ""));
@@ -3649,7 +3649,7 @@ $self->do_VarDecl_has($n, $default)})
 }else {
 (do{my $default = "";
 if(($n->default_expr())->Bool) {
-(do{if((((((GLOBAL::not(($n->var()->sigil() eq "\$"))) && $n->default_expr()->isa("IRx1\:\:Apply")) && ((($n->default_expr()->function() eq "circumfix\:\(\ \)") || ($n->default_expr()->function() eq "infix\:\,"))))))->Bool) {
+(do{if((((do{my $__tmp__=((do{my $__tmp__=((GLOBAL::not(($n->var()->sigil() eq "\$"))));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->default_expr()->isa("IRx1\:\:Apply"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(((do{my $__tmp__=(($n->default_expr()->function() eq "circumfix\:\(\ \)"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->default_expr()->function() eq "infix\:\,"));no warnings "void";$__tmp__}})));no warnings "void";$__tmp__}})))->Bool) {
 (do{my $pre = "";
 my $post = "";
 if(($n->is_array())->Bool) {
@@ -3769,12 +3769,12 @@ my $sig = $param_types->map(sub {my($t)=@_;
 ((((((("Class\:\:Multimethods\:\:multimethod\ " . $enc_name) . "\ \=\>\ split\(\/\\s\+\/") . "\,\'") . $sig) . "\'\)\ \=\>\ ") . $f_emitted) . "\;")})};
 sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
 (do{my $body;
-if(((($n->traits() && $n->traits()->postcircumfix__91_32_93(0)->expr()) && ($n->traits()->postcircumfix__91_32_93(0)->expr() eq "p5")))->Bool) {
+if(((do{my $__tmp__=((do{my $__tmp__=($n->traits());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->traits()->postcircumfix__91_32_93(0)->expr());no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->traits()->postcircumfix__91_32_93(0)->expr() eq "p5"));no warnings "void";$__tmp__}}))->Bool) {
 (do{($body = $n->block()->statements()->postcircumfix__91_32_93(0)->buf())})
 }else {
 (do{($body = $self->e($n->block()))})
 };
-if((($n->plurality() && ($n->plurality() eq "multi")))->Bool) {
+if(((do{my $__tmp__=($n->plurality());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->plurality() eq "multi"));no warnings "void";$__tmp__}}))->Bool) {
 (do{my $ef = ((("sub\ \{my\ \$self\=CORE\:\:shift\;" . $self->e($n->multisig())) . $body) . "\}");
 $self->multi_using_CM($n, 1, $ef)})
 }else {
@@ -3796,12 +3796,12 @@ if(($sig)->Bool) {
 (do{($sig = "")})
 };
 my $body;
-if(((($n->traits() && $n->traits()->postcircumfix__91_32_93(0)->expr()) && ($n->traits()->postcircumfix__91_32_93(0)->expr() eq "p5")))->Bool) {
+if(((do{my $__tmp__=((do{my $__tmp__=($n->traits());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->traits()->postcircumfix__91_32_93(0)->expr());no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->traits()->postcircumfix__91_32_93(0)->expr() eq "p5"));no warnings "void";$__tmp__}}))->Bool) {
 (do{($body = $n->block()->statements()->postcircumfix__91_32_93(0)->buf())})
 }else {
 (do{($body = $self->e($n->block()))})
 };
-if((($n->plurality() && ($n->plurality() eq "multi")))->Bool) {
+if(((do{my $__tmp__=($n->plurality());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->plurality() eq "multi"));no warnings "void";$__tmp__}}))->Bool) {
 (do{my $ef = ((("sub\ \{" . $sig) . $body) . "\}");
 $self->multi_using_CM($n, 0, $ef)})
 }else {
@@ -3819,7 +3819,7 @@ my $pl = $self->e($n->parameters())->join("\,");
 }})};
 sub cb__Parameter{my $self=CORE::shift;my($n)=@_;
 (do{my $enc = $self->e($n->param_var());
-if((($n->quant() && ($n->quant() eq "\*")))->Bool) {
+if(((do{my $__tmp__=($n->quant());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->quant() eq "\*"));no warnings "void";$__tmp__}}))->Bool) {
 (do{my $tmp = ("\@" . $n->param_var()->name());
 ($whiteboard::signature_inits = ((((($whiteboard::signature_inits . "\
 my\ ") . $enc) . "\ \=\ \\") . $tmp) . "\;"));
@@ -3862,13 +3862,13 @@ return((((("" . $fe) . "\(") . $self->e($n->capture())) . "\)"))})
 if((($g = $fun->re_groups("\^infix\:\(\.\+\)\$")))->Bool) {
 (do{my $op = $g->postcircumfix__91_32_93(0);
 my $args = $n->capture()->arguments();
-if((((($args->elems() == 1) && $args->postcircumfix__91_32_93(0)->isa("IRx1\:\:Apply")) && ($args->postcircumfix__91_32_93(0)->function() eq "infix\:\,")))->Bool) {
+if(((do{my $__tmp__=((do{my $__tmp__=(($args->elems() == 1));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($args->postcircumfix__91_32_93(0)->isa("IRx1\:\:Apply"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($args->postcircumfix__91_32_93(0)->function() eq "infix\:\,"));no warnings "void";$__tmp__}}))->Bool) {
 (do{($args = $args->postcircumfix__91_32_93(0)->capture()->arguments())})
 };
 my $a = $self->e($args);
 my $l = $a->postcircumfix__91_32_93(0);
 my $r = $a->postcircumfix__91_32_93(1);
-if((($a->elems() && GLOBAL::prefix__33(GLOBAL::defined($a->postcircumfix__91_32_93((-1))))))->Bool) {
+if(((do{my $__tmp__=($a->elems());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(GLOBAL::prefix__33(GLOBAL::defined($a->postcircumfix__91_32_93((-1)))));no warnings "void";$__tmp__}}))->Bool) {
 (do{$a->pop()})
 };
 if(((($op eq "\~")))->Bool) {
@@ -3888,7 +3888,7 @@ return($s)})
 if(((($op eq "\=")))->Bool) {
 (do{if(($args->postcircumfix__91_32_93(0)->isa("IRx1\:\:Var"))->Bool) {
 (do{my $t = $args->postcircumfix__91_32_93(0)->twigil();
-if(((($t && ($t eq "\."))))->Bool) {
+if((((do{my $__tmp__=($t);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($t eq "\."));no warnings "void";$__tmp__}})))->Bool) {
 (do{return(((($l . "\(") . $r) . "\)"))})
 }})
 };
@@ -3906,20 +3906,32 @@ return($lvalue_call)})
 }})
 }})
 };
-if(($op->re_matchp("\^\(\<\|\>\|\=\=\|\!\=\|eq\|ne\|\\\+\|\-\|\\\*\|\\\/\|\\\|\\\|\|\\\&\\\&\|and\|or\|\=\|\=\~\|\:\=\)\$"))->Bool) {
+if(($op->re_matchp("\^\(\<\|\>\|\=\=\|\!\=\|eq\|ne\|\\\+\|\-\|\\\*\|\\\/\|\=\|\=\~\|\:\=\)\$"))->Bool) {
 (do{my $s = $a->shift();
 while(($a->elems())->Bool) {
 (do{($s = (((((("\(" . $s) . "\ ") . $op) . "\ ") . $a->shift()) . "\)"))})
 };
+return($s)})
+};
+if(($op->re_matchp("\^\(\\\|\\\|\|\\\&\\\&\|and\|or\)\$"))->Bool) {
+(do{my $s1 = "";
+my $s2 = "";
+my $stop = "";
+if(((do{my $__tmp__=(($op eq "\&\&"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($op eq "and"));no warnings "void";$__tmp__}}))->Bool) {
+(do{($stop = "\!")})
+};
+my $a_end = $a->pop();
+while(($a->elems())->Bool) {
+(do{($s1 = (((((($s1 . "\$__tmp__\=\(") . $a->shift()) . "\)\;if\(") . $stop) . "\$__tmp__\-\>Bool\)\{no\ warnings\ \"void\"\;\$__tmp__\}else\{")));
+($s2 = ($s2 . "\}"))})
+};
+my $s = ((((((("\(do\{my\ " . $s1) . "\$__tmp__\=\(") . $a_end) . "\)\;no\ warnings\ \"void\"\;\$__tmp__") . $s2) . "\}\)"));
 return($s)})
 }})
 }elsif((($g = $fun->re_groups("\^prefix\:\(\.\+\)\$")))->Bool) {
 (do{my $op = $g->postcircumfix__91_32_93(0);
 my $a = $self->e($n->capture()->arguments());
 my $x = $a->postcircumfix__91_32_93(0);
-if((($op eq "\?"))->Bool) {
-(do{return((("\(\(" . $x) . "\)\?1\:0\)"))})
-};
 if(($op->re_matchp("\^\(\-\)\$"))->Bool) {
 (do{return((((("\(" . $op) . "") . $x) . "\)"))})
 }})
@@ -3980,7 +3992,7 @@ return((((("GLOBAL\:\:" . $fe) . "\(") . $self->e($n->capture())) . "\)"))})
 (do{return(((($fun . "\(") . $self->e($n->capture())) . "\)"))})
 }})};
 sub cb__Capture{my $self=CORE::shift;my($n)=@_;
-(do{my $a = $self->e(($n->arguments() || []))->join("\,");
+(do{my $a = $self->e((do{my $__tmp__=($n->arguments());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}}))->join("\,");
 if(($n->invocant())->Bool) {
 (do{my $inv = $self->e($n->invocant());
 if(($a)->Bool) {
@@ -4033,7 +4045,7 @@ my $pre = "";
 if((($t eq "\+"))->Bool) {
 (do{($env = "x")})
 };
-if(((($s eq "\$") && ($env eq "x")))->Bool) {
+if(((do{my $__tmp__=(($s eq "\$"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($env eq "x"));no warnings "void";$__tmp__}}))->Bool) {
 (do{($pre = "s_")})
 };
 if((($s eq "\@"))->Bool) {
@@ -4058,15 +4070,15 @@ if(((($t eq "\.")))->Bool) {
 }})};
 sub cb__Var{my $self=CORE::shift;my($n)=@_;
 (do{my $s = $n->sigil();
-my $t = ($n->twigil() || "");
+my $t = (do{my $__tmp__=($n->twigil());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}});
 if(($n->is_context())->Bool) {
 (do{($t = "\+")})
 };
 my $dsn = $self->e($n->name());
 my $v = (($s . $t) . $dsn);
-if((((($v eq "\$\?PACKAGE") || ($v eq "\$\?MODULE")) || ($v eq "\$\?CLASS")))->Bool) {
+if(((do{my $__tmp__=((do{my $__tmp__=(($v eq "\$\?PACKAGE"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($v eq "\$\?MODULE"));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($v eq "\$\?CLASS"));no warnings "void";$__tmp__}}))->Bool) {
 (do{my $pkgname = $whiteboard::in_package->join("\:\:");
-($pkgname = ($pkgname || "Main"));
+($pkgname = (do{my $__tmp__=($pkgname);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("Main");no warnings "void";$__tmp__}}));
 (("\'" . $pkgname) . "\'")})
 }elsif((($v eq "\$\?FILE"))->Bool) {
 (do{(("\'" . $self->filename) . "\'")})
@@ -4083,12 +4095,12 @@ sub cb__NumInt{my $self=CORE::shift;my($n)=@_;
 (do{$self->e($n->text())})};
 sub cb__Hash{my $self=CORE::shift;my($n)=@_;
 (do{{ package EmitSimpleP5; use vars '$emit_pairs_inline'};local $whiteboard::emit_pairs_inline = 1;
-(("\{" . $self->e(($n->hash() || []))->join("\,")) . "\}")})};
+(("\{" . $self->e((do{my $__tmp__=($n->hash());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=([]);no warnings "void";$__tmp__}}))->join("\,")) . "\}")})};
 sub cb__Buf{my $self=CORE::shift;my($n)=@_;
 (do{my $s = $n->buf();
 (("\"" . GLOBAL::quotemeta($s)) . "\"")})};
 sub cb__Rx{my $self=CORE::shift;my($n)=@_;
-(do{my $pat = ($n->pat() || "");
+(do{my $pat = (do{my $__tmp__=($n->pat());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}});
 (("qr\/" . $pat) . "\/")})};
 sub cb__Pair{my $self=CORE::shift;my($n)=@_;
 (do{if(($whiteboard::emit_pairs_inline)->Bool) {
@@ -4193,7 +4205,7 @@ CORE::rmdir($dirname)}})
 use base "Any";(do{Class::Multimethods::multimethod prefix__63 => split(/\s+/,'*') => sub {my($a)=@_;
 (do{$a->Bool()})};;
 Class::Multimethods::multimethod prefix__33 => split(/\s+/,'*') => sub {my($a)=@_;
-!$a};;
+(do{GLOBAL::not($a)})};;
 Class::Multimethods::multimethod prefix__43 => split(/\s+/,'*') => sub {my($a)=@_;
 (do{$a->Num()})};;
 Class::Multimethods::multimethod prefix__43 => split(/\s+/,'#') => sub {my($a)=@_;
@@ -4317,8 +4329,8 @@ my $parser = $self->parser_name();
 my $msg = (("Parse\ error\ in\:\ " . $claim_as_filename) . "\
 ");
 my $cmd = (((((((((($parser . "\ \-\-error\-message\=\'") . $msg) . "\'\ \-q\ ") . "\-\-format\=") . GLOBAL::parser_format()) . "\ ") . $input) . "\ \>\ ") . $output));
-((GLOBAL::system($cmd) == 0) or GLOBAL::die("Parse\ failed\.\
-"));
+(do{my $__tmp__=((GLOBAL::system($cmd) == 0));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(GLOBAL::die("Parse\ failed\.\
+"));no warnings "void";$__tmp__}});
 my $dump5 = GLOBAL::slurp($output);
 my $tree = GLOBAL::fastundump($dump5);
 GLOBAL::unlink($input, $output);
@@ -4459,8 +4471,8 @@ sub hook_for_use{my $self=CORE::shift;my($module,$expr)=@_;
 (do{GLOBAL::module_require($module);
 GLOBAL::import($module, $expr)})
 }else {
-(do{my $filename = (GLOBAL::find_required_module($module) || GLOBAL::die((((("Didnt\ find\ " . $module) . "\ in\ \(\ ") . $GLOBAL::a_INC->join("\ ")) . "\ \)\.\
-")));
+(do{my $filename = (do{my $__tmp__=(GLOBAL::find_required_module($module));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(GLOBAL::die((((("Didnt\ find\ " . $module) . "\ in\ \(\ ") . $GLOBAL::a_INC->join("\ ")) . "\ \)\.\
+")));no warnings "void";$__tmp__}});
 $self->todo->push($filename)})
 };
 1})}})
@@ -4516,7 +4528,7 @@ my $sources = [];
 my $handle = sub {my($filename,$code)=@_;
 (do{if((($mode eq "r"))->Bool) {
 (do{$GLOBAL::compiler0->eval_fragment($code, $filename, $verbose, GLOBAL::undef())})
-}elsif(((($mode eq "s0") || ($mode eq "s1")))->Bool) {
+}elsif(((do{my $__tmp__=(($mode eq "s0"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($mode eq "s1"));no warnings "void";$__tmp__}}))->Bool) {
 (do{my $comp;
 if((($mode eq "s0"))->Bool) {
 (do{($comp = $GLOBAL::compiler0)})
@@ -4527,12 +4539,12 @@ $output->($comp->compile_fragment($code, $filename, $verbose))})
 }else {
 (do{$sources->push([$code, $filename, $verbose])})
 }})};
-my $at_end = sub {(do{if(((($mode eq "x") && ($sources->elems() != 0)))->Bool) {
+my $at_end = sub {(do{if(((do{my $__tmp__=(($mode eq "x"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($sources->elems() != 0));no warnings "void";$__tmp__}}))->Bool) {
 (do{if((GLOBAL::not($output_file))->Bool) {
 (do{($output_file = "\-")})
 };
 my $exec_args = $GLOBAL::compiler1->compile_executable($sources, $output_file)})
-}elsif(((($mode eq "xr") && ($sources->elems() != 0)))->Bool) {
+}elsif(((do{my $__tmp__=(($mode eq "xr"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($sources->elems() != 0));no warnings "void";$__tmp__}}))->Bool) {
 (do{if((GLOBAL::not($output_file))->Bool) {
 (do{($output_file = "\.\/deleteme_exe")})
 };
@@ -4553,18 +4565,18 @@ if((($arg eq "\-v"))->Bool) {
 }elsif((($arg eq "\-xr"))->Bool) {
 (do{($mode = "xr")})
 }elsif((($arg eq "\-o"))->Bool) {
-(do{($output_file = ($args->shift() || $self->print_usage_and_die()))})
+(do{($output_file = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die());no warnings "void";$__tmp__}}))})
 }elsif((($arg eq "\-e"))->Bool) {
 (do{$GLOBAL::a_INC->unshift($incs->flatten());
 ($incs = []);
-my $p6_code = ($args->shift() || $self->print_usage_and_die());
+my $p6_code = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die());no warnings "void";$__tmp__}});
 $handle->("\-e", $p6_code)})
 }elsif((GLOBAL::file_exists($arg))->Bool) {
 (do{$GLOBAL::a_INC->unshift($incs->flatten());
 ($incs = []);
 $handle->($arg, GLOBAL::slurp($arg))})
 }elsif((($arg eq "\-I"))->Bool) {
-(do{my $dir = ($args->shift() || $self->print_usage_and_die());
+(do{my $dir = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die());no warnings "void";$__tmp__}});
 $incs->push($dir)})
 }elsif((($arg eq "\-\-"))->Bool) {
 (do{last})
