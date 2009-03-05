@@ -1,6 +1,6 @@
 body {
     margin: 1em;
-    background-color: #FFFFBB;
+    background-color: #FFC;
     max-width: 80em;
 }
 
@@ -14,7 +14,7 @@ h1 {
     padding: 1ex;
     margin: 1em;
     border: 1px solid;
-    background-color: #ee8;
+    background-color: white;
 }
 
 .box h2 {
