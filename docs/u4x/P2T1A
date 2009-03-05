@@ -67,8 +67,8 @@ qq: (Stable enough. Involved enough.)
 
 == Infix operators
 
-ff (Because Stevey complained about the corresponding documentation, calling
-it insane. We can do better, and then we'll blog about it.)
+ff (Because Stevey complained about the corresponding Perl 5 documentation,
+calling it insane. We can do better, and then we'll blog about it.)
 
 == Expression terminators
 
