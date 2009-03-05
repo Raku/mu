@@ -1824,7 +1824,7 @@ class CategoryDef {
 }
 
 class Match {
-  method text { $.match_string } # for STD.pm
+  method text { $.match_string } ;# for STD.pm
   method _REDUCE ($from,$rule) { # for STD.pm
     $.match_rule = $rule;
     $.match_from = $from;
@@ -1838,14 +1838,14 @@ class Match {
 class FakeCursor {
   method pos { $RXX::pos }
   method advance_by_rule ($rulename) is p5 {'
-    my $m = $RXX::pkg->$rulename()->scan($RXX::str,$RXX::pos)
+    my $m = $RXX::pkg->$rulename()->scan($RXX::str,$RXX::pos);
     if($m->match_bool) { $RXX::pos = $m->match_to; }
     $m;
   '}
   method panic($msg) is p5 {'
 no warnings;
 print STDERR $msg,"\n";
-print STDERR "pos: ",$pos,"\n";
+print STDERR "pos: ",$RXX::pos,"\n";
 Carp::croak if $ENV{VERBOSE};
 exit(1);
 '}
