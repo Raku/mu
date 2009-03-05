@@ -63,7 +63,7 @@ package GLOBAL {
 
 
   multi prefix:<?> (Any $a) { $a.Bool }
-  multi prefix:<!> (Any $a) is p5 {'!$a'}
+  multi prefix:<!> (Any $a) { not($a) }
 
   multi prefix:<+> (Any $a) { $a.Num }
   multi prefix:<+> (Num $a) { $a }
