@@ -4,11 +4,21 @@ body {
     max-width: 80em;
 }
 
+h1 {
+    border-bottom: 1px solid;
+}
+
 .box {
     width: 20em;
     float: left;
     padding: 1ex;
     margin: 1em;
+    border: 1px solid;
+}
+
+.box h2 {
+    margin-top: 0px;
+    border-bottom: 1px dotted;
 }
 
 #specification  { background-color: #FFCC33; }
@@ -23,4 +33,5 @@ a {
 
 #meta {
     font-size: 80%;
+    border-top: 1px solid;
 }
