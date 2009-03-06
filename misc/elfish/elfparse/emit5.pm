@@ -90,7 +90,7 @@ local $RXX::alias_match;
     return 1 if !defined($c) || $c eq $noop;
     return 0;
   }
-  our $our_noop = $noop; #X
+  {package RXY; our $noop = IRx1::RxBaseClass->RMARE_noop(); }
 
 
   { use re "eval";
@@ -412,10 +412,10 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
   my $m = $RXX::alias_match;
   local $RXX::alias_match;
 
-  if(1 || !defined($m)){#XXXXX Punt multi-stage aliasing for now.
-    $m = RXZ::Match0->new_failed();
+  if(1 || !defined($m)){#XX Punt multi-stage aliasing for now.
+    $m = Match->match_new_failed();
     if($is6) {
-      my $a = [map{RXZ::Match0->new_failed()} (1..$nparen6)];
+      my $a = [map{Match->match_new_failed()} (1..$nparen6)];
       $m->{match_array} = $a;
     }
   }
@@ -465,7 +465,7 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
       if(defined($m1)) {
         $m1->match_set(1,"",$m1->{match_array},$m1->{match_hash},$pos,undef);
       } else {
-        $m1 = RXZ::Match0->new_failed();
+        $m1 = Match->match_new_failed();
         $m1->match_set(1,"",[],{},$pos,undef);
       }
 
@@ -481,7 +481,6 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
 
         my $post = $name."__post_action";
         if(my $meth = UNIVERSAL::can($pkg9,$post)) {
-          $m1->_prepare_match_for_embedded_code;
           $meth->($pkg9,$m1);
         }
 
@@ -561,7 +560,7 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
       my($c)=@_;
 
       my $m = $RXX::leaf_match;
-      my $a = [map{RXZ::Match0->new_failed()} (1..$nparenx)];
+      my $a = [map{Match->match_new_failed()} (1..$nparenx)];
       $m->{match_array} = $a;
 
       my $v = eval { $f->($c) }; #try
@@ -587,7 +586,7 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
     for my $start ($beginat..$len) {
       local $RXX::str = $s;
       local $RXX::pos = $start;
-      my $m = RXZ::Match0->new_failed();
+      my $m = Match->match_new_failed();
       local $RXX::current_match = $m;
       local $RXX::leaf_match = $m;
       local $RXX::nested_data = {"args"=>[]};
@@ -605,7 +604,7 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
       }
       last if $scanp;
     }
-    return RXZ::Match0->new_failed();
+    return Match->match_new_failed();
   }
 
   sub RMARE_aregex {
@@ -616,12 +615,10 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
         my($pkg9,$name1,$s,$beginat,$scanp,$minlen)=@_;
         local $RXX::pkg = $pkg9;
         my $m = $o->RMARE_do_match($f,$s,$beginat,$scanp,$minlen,$nparen);
-        $m->_prepare_match_for_return;
         $m->{match_rule} = $name1;
         if($name1) {
           my $post = $name1."__post_action";
           if(my $meth = UNIVERSAL::can($pkg9,$post)) {
-            $m->_prepare_match_for_embedded_code;
             $meth->($pkg9,$m);
           }
         }
@@ -833,15 +830,12 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
       $code = $tmp;
     }
     my $src = \'
-#line 2 "in Regexp::ModuleA::Code"
 sub{my $__c__ = $_[0];
 \'.(!$need_match ? \'\' :
-\'  my $M = $RXX::current_match;
-  $M->_prepare_match_for_embedded_code;\').\'
+\'  my $M = $RXX::current_match;\').\'
  \'.$code.\';
- $__c__->($noop);}\';
-    #print STDERR $src,"\n";
-    eval($src) || die "Error compiling (?{$code}) :\n$@\n";
+ $__c__->($RXY::noop);}\';
+    $src;
   }
 
    # XXX high klude factor
@@ -861,8 +855,7 @@ sub{my $__c__ = $_[0];
  #line 2 "in Regexp::ModuleA::CodeRx"
  sub{my $__c__ = $_[0];
  \'.(!$need_match ? \'\' :
- \'  my $M = $RXX::current_match;
-   $M->_prepare_match_for_embedded_code;\').\'
+ \'  my $M = $RXX::current_match;\').\'
    my $__rx__ = \'.$code.\';
    die "(??{...}) returned undef" if !defined $__rx__;
  #  $__rx__ = "(?!)" if !defined $__rx__;
@@ -927,7 +920,6 @@ sub{my $__c__ = $_[0];
         my $m = $RXX::alias_match;
         my $post = $name."__post_action";
         if(my $meth = UNIVERSAL::can($pkg9,$post)) {
-          $m->_prepare_match_for_embedded_code;
           $meth->($pkg9,$m);
         }
 
@@ -1169,63 +1161,25 @@ sub scan {
 # Match
 #
 
-{ package RXZ::Match2;
-  @RXZ::Match2::ISA = qw(Match);
+{ package Match;
 
-  sub _prepare_match_for_return { }
-  sub _prepare_match_for_embedded_code { }
-
-}
-{ package RXZ::Match1;
-  @RXZ::Match1::ISA =
-      qw(Match RXZ::Match_internal);
-
-  sub _prepare_match_for_embedded_code { }
-
-  use overload \'bool\' => \'match_boolean\', ;
-
-}
-{ package RXZ::Match0;
-  @RXZ::Match0::ISA =
-      qw(Match RXZ::Match_internal);
-
-  sub _prepare_match_for_embedded_code {
-    my($o)=@_;
-    bless $o, \'RXZ::Match1\';
-  }
-
-  sub match_new0 {
+  sub match_new_failed {
     my($cls)=@_;
     my $h = {
-      match_boolean => 1,
+      match_boolean => 0,
       match_string  => "",
       match_array   => [],
       match_hash    => {},
       match_from    => undef,
       match_to      => undef,
     };
-    my $o = $h;
-    bless $o,$cls;
-    #$o->match_set(1,"",[],{},undef,undef);
+    bless $h,$cls;
+  }
+  sub match_set_as_failed {
+    my($o)=@_;
+    $o->match_set(0,"",[],{},undef,undef);
     return $o;
   }
-  sub new_failed {my($cls)=@_; $cls->match_new0()->match_set_as_failed()}
-
-}
-{ package Any;
-  sub _prepare_match_for_return {}
-  sub _prepare_match_for_embedded_code {}
-}
-{ package RXZ::Match_internal;
-
-  sub _prepare_match_for_return {
-    my($o)=@_;
-    use Carp; Carp::confess if ref($o) !~ /[a-z]/;
-    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}@{$o->match_array}) { $m->_prepare_match_for_return }
-    for my $m (map{ref($_)eq\'ARRAY\'?@$_:$_}values %{$o->match_hash}) { $m->_prepare_match_for_return }
-    bless $o, \'RXZ::Match2\';
-  }
-
   sub match_set {
     my($o,$b,$s,$a,$h,$from,$to)=@_;
     $o->{match_boolean} = $b;
@@ -1236,12 +1190,6 @@ sub scan {
     $o->{match_to}      = $to;
     return $o;
   }
-  sub match_set_as_failed {
-    my($o)=@_;
-    $o->match_set(0,"",[],{},undef,undef);
-    return $o;
-  }
-
 }
 ';
     my $prelude_regexen = '
@@ -1675,11 +1623,11 @@ package IRx1 {
     method emit_RMARE {
       my $code = $.code;
       if $code.WHAT eq 'Str' {
-        'IRx1::RxBaseClass->RMARE_code("'~quotemeta($code)~'")'
+        $.RMARE_code($code,0)
       } else {
         my $src = $whiteboard::current_emitter.e($code);
         say $whiteboard::current_emitter if 0; #X avoid "used only once".
-        'IRx1::RxBaseClass->RMARE_code("'~quotemeta($src)~'",1)'
+        $.RMARE_code($src,1)
       }
     }
   }
@@ -1704,8 +1652,7 @@ package IRx1 {
       my $code = $.code;
       my $code5 = $whiteboard::current_emitter.e($code);
       if 1 || $code.uses_match_variable { #XX unimplemented. performance hit.
-        $code5 = 'my $M = $RXX::current_match;
-        $M->_prepare_match_for_embedded_code;'~"\n" ~ $code5;
+        $code5 = 'my $M = $RXX::current_match;'~"\n" ~ $code5;
       }
       #XX need to subname the sub to avoid p5 idiocy?
       'IRx1::RxBaseClass->RMARE_codepredicate(sub{'~$code5~'})'
@@ -1842,7 +1789,7 @@ class FakeCursor {
     $m;
   '}
   method new_Match is p5 {'
-    RXZ::Match0->new_failed();
+    Match->match_new_failed();
   '}
   method panic($msg) is p5 {'
 no warnings;
