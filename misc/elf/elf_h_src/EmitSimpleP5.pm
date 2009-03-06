@@ -864,10 +864,18 @@ package Main;
           }
         }
       }
-      #XXX := is here temporarily to postpone a regression.
-      if $op.re_matchp('^(<|>|==|!=|eq|ne|\+|-|\*|\/|=|=~|:=)$') {
+      if $op.re_matchp('^(\+|-|\*|\/)$') {
         my $s = $a.shift;
         while $a.elems { $s = "("~$s ~" "~$op~" "~ $a.shift~")" }
+        return $s;
+      }
+      if $op.re_matchp('^(!=|ne|=|=~)$') && $a.elems == 2 {
+        my $s = "("~$a.shift~" "~$op~" "~$a.shift~")";
+        return $s;
+      }
+      if $op.re_matchp('^(<|>|==|lt|gt|eq)$')  && $a.elems == 2 {
+        #X arity > 2 is obvious but unimplemented.
+        my $s = "("~$a.shift~" "~$op~" "~$a.shift~")";
         return $s;
       }
       if $op.re_matchp('^(\|\||\&\&|and|or)$') {

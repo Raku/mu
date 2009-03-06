@@ -10,6 +10,9 @@ class Match {
   method make_from_rsfth($r,$s,$f,$t,$h) {
     self.new('match_rule',$r,'match_string',$s,'match_from',$f,'match_to',$t,'match_hash',$h,'match_array',[],'match_boolean',1);
   };
+  method match_new($b,$s,$a,$h,$f,$t) {
+    self.new('match_bool',$b,'match_string',$s,'match_array',$a,'match_hash',$h,'match_from',$f,'match_to',$t);
+  }
   method match_describe() {
     my $b; if $.match_boolean { $b = 't' } else { $b = 'F' };
     my $f = $.match_from;

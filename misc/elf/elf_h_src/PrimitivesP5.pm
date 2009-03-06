@@ -140,6 +140,9 @@ package GLOBAL {
 
   multi infix:<//>   ($a, $b) is p5 {'defined($a) ? $a : $b'}
   
+  multi infix:<+&>   (Any $a, Any $b) { $a.Int +& $b.Int }
+  multi infix:<+&>   (Int $a, Int $b) is p5 {'$a & $b'}
+
 }
 
 # Elf
