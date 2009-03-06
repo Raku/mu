@@ -186,6 +186,15 @@ package IRx1 {
 
   class RxAlt {
     method RAST_children { $.exprs }
+    method RAST_pass14 {
+      my $q = $whiteboard::rx_in_quant;
+      $q = 1 if $q; # remove 'directly'
+      temp $whiteboard::rx_in_quant = $q;
+      $.RAST_children.map(sub ($o){
+        temp $whiteboard::rx_subrules_seen = {};
+        $o.RAST_pass14
+      });
+    }
     method RAST_pass15 {
       my $start = $whiteboard::rx_nparen6_idx;
       my $max = $start;

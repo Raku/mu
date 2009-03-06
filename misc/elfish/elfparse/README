@@ -13,7 +13,7 @@ $ make check
 $ make all
 $ ./elfrx -v -e 'proto token foo {a}; token foo:<+> { \+ }; token foo:<++> { \+\+ }; say /<foo>/.match("a++b").match_describe'
 $ make is_perl_recent_enough
-$ ./elfdev -v -e 'say /<STD::number>/.match("23").match_describe'
+$ ./elfdev -v -e 'package STD { say /<comp_unit>/.match("23").match_describe }'
 
 $ make does_gimme5_memory_problem_still_exist
 
@@ -106,15 +106,8 @@ DEV NOTES
 
 Todo:
 
- - It seems a patch before r25655 introduced a bad non-linearity in
-   "3;3;3;..." statementlist length.
- - extract '3;' parser rules into isolated and more easily recompiled file.
- - profile.
- - explore speed and space.
-  - is <.-ness propagated?
-    **properly propagate-stopped when there are code blocks?
-  - acceptors and/or inter-regex inlining.
-  - inline tok subs ala STD_red
+ - bug: ./elfrx -v -e 'token foo { $<sym>=(a) }'
+   analysis capture miscounting, creating a bogus $0.
  - create elfrx "keep the optimizations unbugged" infrastructure.
 
  - let elfdev eval6 code.

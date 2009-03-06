@@ -906,23 +906,29 @@ sub{my $__c__ = $_[0];
       my $obj = $pkg->$categoryinfo_method;
       my $info = $obj->info;
       if(!$info){ FAIL() }
+
+      my $m = $RXX::alias_match || $RXX::leaf_match;
+      my $pkg_override = undef;
+      my $pkg9 = $pkg_override || $RXX::pkg || $pkg;
+
       my $rest = substr($RXX::str,$RXX::pos);
       for my $branch (@$info) {
         my($prefix,$name,$rulename,$rx_sub) = @$branch;
         if($rest !~ $prefix) { next }
+
+        my $c1 = subname "<category-close ".($sub_id++).">" => sub {
+          my $c2 = $_[0];
+          $m->{match_rule} = $rulename;
+          my $post = $name."__earlypost_action";
+          if(my $meth = UNIVERSAL::can($pkg9,$post)) {
+            $meth->($pkg9,$m);
+          }
+          TAILCALL($c2,$c);
+        };
+
         my $f = $rx_sub->(" api0");
-        my $v = $f->($c);
+        my $v = $f->($c1);
         if(FAILED($v)) { next }
-        $RXX::alias_match->{match_rule} = $rulename; #XX kludge
-
-        my $pkg_override = undef;
-        my $pkg9 = $pkg_override || $RXX::pkg || $pkg;
-        my $m = $RXX::alias_match;
-        my $post = $name."__post_action";
-        if(my $meth = UNIVERSAL::can($pkg9,$post)) {
-          $meth->($pkg9,$m);
-        }
-
         return $v;
       }
       FAIL();
@@ -1722,7 +1728,7 @@ package IRx1 {
     method emit_RMARE {
       my $name = $.name;
       my $categoryinfo_method = '__rxcategory_'~$name;
-      my $decl = 'sub '~$categoryinfo_method~' { no strict; $'~$name~' ||= CategoryInfo->newp(__PACKAGE__,qr/\A'~quotemeta($name)~'_58(?!.*__post_action)/) };';
+      my $decl = 'sub '~$categoryinfo_method~' { no strict; $'~$name~' ||= CategoryInfo->newp(__PACKAGE__,qr/\A'~quotemeta($name)~'_58(?!.*__(?:early)?post_action)/) };';
       $whiteboard::regex_category_header = $decl;
       'IRx1::RxBaseClass->RMARE_category(__PACKAGE__,\''~$categoryinfo_method~'\')'
     }
@@ -1752,7 +1758,7 @@ class EmitSimpleP5 {
       my $pkg = $n.notes<crnt_package>;
       $type = $pkg~'::'~$type;
       my $name = mangle_name($n.ident);
-      my $post = $name~"__post_action";
+      my $post = $name~"__earlypost_action";
       $code = '(do{ sub '~$post~' {my($self,$m)=@_; '~$type~'->coerce($m) }; '~$code~' })';
     }
     $code;

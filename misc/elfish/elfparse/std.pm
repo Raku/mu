@@ -1060,6 +1060,7 @@ token quotepair {
     ]
     { $<k> = $key; $<v> = $value; }
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token infixish {
     <!stdstopper>
@@ -1069,6 +1070,7 @@ token infixish {
     | <colonpair> {
             $<fake> = 1;
             $<sym> = ':';
+            %<O> = {}; #ELFFIX
             %<O><prec> = %comma<prec>;
             %<O><assoc> = 'unary';
             %<O><uassoc> = 'left';
@@ -1086,6 +1088,7 @@ token infixish {
     ]
 }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # doing fancy as one rule simplifies LTM
 token dotty:sym<.*> ( --> Methodcall) {
     ('.' [ <[+*?=:]> | '^' '!'? ]) :: <.unspacey> <dottyop>
