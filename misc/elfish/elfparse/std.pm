@@ -3524,7 +3524,7 @@ regex stdstopper {
 
 # A fairly complete operator precedence parser
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+=begin ELFBUG #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 method EXPR ($preclvl)
 {
     temp $CTX = self.callm if $*DEBUG +& DEBUG::trace_call;
@@ -3749,7 +3749,10 @@ method EXPR ($preclvl)
     }
     self._MATCHIFYr($S, "EXPR", @termstack);
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=end ELFBUG #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#ELFFIX #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+_inline_p5('require("devEXPR.pm.p5");');
+#ELFFIX #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #################################################
 ## Regex

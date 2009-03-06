@@ -527,33 +527,30 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
   sub RMARE_wrap_foreign_method {
     my($o,$meth,$pkg9,$name)=@_;
     my $noop = $o->RMARE_noop;
-    subname "<fetch_wrap_foreign_method ".($sub_id++).">" => sub {
-      subname "<wrap_foreign_method ".($sub_id++).">" => sub {      
-        my($c)=@_;
-        my @args = @{$RXX::nested_data->{args}};
-        my $m = $RXX::leaf_match; # set by subrule
-        #XXX setup cursor
-        my $result = $meth->(@args);
-        my $result_is_Match = UNIVERSAL::isa($result,"Match");
-        my $failed = $result_is_Match ? !$result->match_boolean() : !$result;
-        if($failed) {
-          $m->set_as_failed();
-          FAIL();
-        }
-        if($result_is_Match) {
-          my $from = $result->{match_from}; # may be different than $m\'s from;
-          my $to = $result->{match_to};
-          my $str = $result->{match_string}; #X
-          $m->match_set(1,$str,$result->{match_array},$result->{match_hash},$from,$to);
-        }
-        else {
-          my $from = $m->{match_from};
-          my $to = $RXX::pos;
-          my $str = substr($RXX::str,$from,$to-$from);
-          $m->match_set(1,$str,[],{},$from,$to);
-        }
-        TAILCALL($c,$noop);
-      };
+    subname "<wrap_foreign_method ".($sub_id++).">" => sub {      
+      my($c)=@_;
+      my @args = @{$RXX::nested_data->{args}};
+      my $m = $RXX::leaf_match; # set by subrule
+      my $result = $meth->($pkg9,@args);
+      my $result_is_Match = UNIVERSAL::isa($result,"Match");
+      my $failed = $result_is_Match ? !$result->match_boolean() : !$result;
+      if($failed) {
+        $m->match_set_as_failed();
+        FAIL();
+      }
+      if($result_is_Match) {
+        my $from = $result->{match_from}; # may be different than $m\'s from;
+        my $to = $result->{match_to};
+        my $str = $result->{match_string}; #X
+        $m->match_set(1,$str,$result->{match_array},$result->{match_hash},$from,$to);
+      }
+      else {
+        my $from = $m->{match_from};
+        my $to = $RXX::pos;
+        my $str = substr($RXX::str,$from,$to-$from);
+        $m->match_set(1,$str,[],{},$from,$to);
+      }
+      TAILCALL($c,$noop);
     };
   }
 
@@ -719,6 +716,8 @@ subname "<alias_wrap ".($sub_id++).">" => sub {
         my $meth = UNIVERSAL::can($pkg9,$name);
         if(ref($meth) eq "Regexp::ModuleA::Rx") {
           $f = $meth->($pkg9,$name)->(\' api0\');
+        } elsif(!defined $meth) {
+          $f = $pkg9->$name($name)->(\' api0\'); #invoke any AUTOLOAD
         } else {
           $f = IRx1::RxBaseClass->RMARE_wrap_foreign_method($meth,$pkg9,$name);
         }
@@ -1195,7 +1194,7 @@ sub scan {
     bless $o, \'RXZ::Match1\';
   }
 
-  sub match_new {
+  sub match_new0 {
     my($cls)=@_;
     my $h = {
       match_boolean => 1,
@@ -1210,7 +1209,7 @@ sub scan {
     #$o->match_set(1,"",[],{},undef,undef);
     return $o;
   }
-  sub new_failed {my($cls)=@_; $cls->match_new()->match_set_as_failed()}
+  sub new_failed {my($cls)=@_; $cls->match_new0()->match_set_as_failed()}
 
 }
 { package Any;
@@ -1827,10 +1826,10 @@ class Match {
   method text { $.match_string } ;# for STD.pm
   method _REDUCE ($from,$rule) { # for STD.pm
     $.match_rule = $rule;
+    $.match_boolean = 1;
+    $.match_string = substr($RXX::str,$from,$RXX::pos-$from);
     $.match_from = $from;
     $.match_to = $RXX::pos;
-    $.match_str = substr($RXX::str,$from,$RXX::pos-$from);
-    $.match_bool = 1;
     self;
   }
 }
@@ -1838,9 +1837,12 @@ class Match {
 class FakeCursor {
   method pos { $RXX::pos }
   method advance_by_rule ($rulename) is p5 {'
-    my $m = $RXX::pkg->$rulename()->scan($RXX::str,$RXX::pos);
-    if($m->match_bool) { $RXX::pos = $m->match_to; }
+    my $m = $self->$rulename()->scan($RXX::str,$RXX::pos);
+    if($m->match_boolean) { $RXX::pos = $m->match_to; }
     $m;
+  '}
+  method new_Match is p5 {'
+    RXZ::Match0->new_failed();
   '}
   method panic($msg) is p5 {'
 no warnings;

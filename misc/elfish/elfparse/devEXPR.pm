@@ -1,8 +1,8 @@
+package STD { #XXX
 # Porting gimme5 EXPR to elf.
 # Derived from <pugs>/src/perl6/STD.pm r25030 .
-# Todo:
-# Match constructors - Match.new_failed notok.
-# check Matchs and Cursors have been properly disentangled.
+#my $LOOSEST; my %terminator; my $item_assignment_prec;
+#
 method EXPR ($preclvl)
 {
 #ELF
@@ -25,23 +25,23 @@ method EXPR ($preclvl)
 
     my $here = self;
     my $S = $here.pos();
-#    self.deb("In EXPR, at $S") if $*DEBUG +& DEBUG::EXPR;
+    self.deb("In EXPR, at $S") if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
     my $self_pos = self.pos;#ELF# self.pos for below
 
     my $reduce = sub {
-#        self.deb("entering reduce, termstack == ", +@termstack, " opstack == ", +@opstack) if $*DEBUG +& DEBUG::EXPR;
+        self.deb("entering reduce, termstack == ", +$termstack, " opstack == ", +$opstack) if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
         my $op = $opstack.pop;
         my $sym = $op<sym>;
 #       given $op<O><assoc> // 'unary' {
         my $assoc = $op<O><assoc> || 'unary';
 #            when 'chain' {
         if $assoc eq 'chain' {
-#                self.deb("reducing chain") if $*DEBUG +& DEBUG::EXPR;
+                self.deb("reducing chain") if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
                 my $chain = [];
                 $chain.push($termstack.pop);
                 $chain.push($op);
                 while $opstack {
-                    last if $op<O><prec> ne $opstack[-1]<O><prec>;
+                    if $op<O><prec> ne $opstack[-1]<O><prec> {last;} #ELF#STDBUG last if (fixed in HEAD)
                     $chain.push($termstack.pop);
                     $chain.push($opstack.pop);
                 }
@@ -50,20 +50,20 @@ method EXPR ($preclvl)
 #               my $startpos = $chain[0].pos;
                 my $startpos = $chain[0].match_to;
 #               my $nop = $op.cursor_fresh();
-                my $nop = Match.new_failed();
+                my $nop = $.new_Match;
                 $nop<chain> = $chain.clone;
                 $nop<_arity> = 'CHAIN';
                 $termstack.push($nop._REDUCE($startpos, 'EXPR'));
             }
 #            when 'list' {
         elsif $assoc eq 'list' {
-#                self.deb("reducing list") if $*DEBUG +& DEBUG::EXPR;
+                self.deb("reducing list") if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
                 my $list = [];
                 my $delims = [$op];
                 $list.push($termstack.pop);
                 while $opstack {
-#                    self.deb($sym ~ " vs " ~ @opstack[*-1]<sym>) if $*DEBUG +& DEBUG::EXPR;
-                    last if $sym ne $opstack[-1]<sym>;
+                    self.deb($sym ~ " vs " ~ $opstack[-1]<sym>) if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
+                    if $sym ne $opstack[-1]<sym> {last;}  #ELF#STDBUG last if
                     if $termstack and defined $termstack[0] {
                         $list.push($termstack.pop);
                     }
@@ -83,7 +83,7 @@ method EXPR ($preclvl)
                 my $startpos = $list[0].match_to;
                 $delims = $delims.reverse if $delims.elems > 1;
 #               my $nop = $op.cursor_fresh();
-                my $nop = Match.new_failed();
+                my $nop = $.new_Match;
                 $nop<sym> = $sym;
                 $nop<O> = $op<O>;
                 $nop<list> = $list.clone;
@@ -93,11 +93,11 @@ method EXPR ($preclvl)
             }
 #            when 'unary' {
         elsif $assoc eq 'unary' {
-#                self.deb("reducing") if $*DEBUG +& DEBUG::EXPR;
-                #my $list = []; #ELF# yes, it's unused - removed r25717.
-#                self.deb("Termstack size: ", +@termstack) if $*DEBUG +& DEBUG::EXPR;
+                self.deb("reducing") if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
+                #my $list = []; #ELF# unused - removed r25717.
+                self.deb("Termstack size: ", +$termstack) if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
 
-#                self.deb($op.dump) if $*DEBUG +& DEBUG::EXPR;
+#                self.deb($op.dump) if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
                 $op<arg> = ($termstack.pop);
                 if ($op<arg>.match_from < $op.match_from) {
                     $op.match_from = $op<arg>.match_from;
@@ -110,23 +110,22 @@ method EXPR ($preclvl)
             }
 #            default {
         else {
-#                self.deb("reducing") if $*DEBUG +& DEBUG::EXPR;
-                #my $list = []; #ELF# yes, it's unused - removed r25717.
-#                self.deb("Termstack size: ", +@termstack) if $*DEBUG +& DEBUG::EXPR;
+                self.deb("reducing") if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
+                #my $list = []; #ELF# unused - removed r25717.
+                self.deb("Termstack size: ", +$termstack) if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
 
                 $op<right> = ($termstack.pop);
                 $op<left> = ($termstack.pop);
                 $op.match_from = $op<left>.match_from;
                 $op.match_to = $op<right>.match_to;
                 $op<_arity> = 'BINARY';
-#                self.deb($op.dump) if $*DEBUG +& DEBUG::EXPR;
+#                self.deb($op.dump) if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
                 $termstack.push($op._REDUCE($op.match_from, 'EXPR'));
             }
-        }
     };
 
     while 1 {
-#        self.deb("In loop, at ", $here.pos) if $*DEBUG +& DEBUG::EXPR;
+        self.deb("In loop, at ", $here.pos) if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
         my $oldpos = $here.pos;
 #       $here = $here.cursor_fresh();
         $SIGIL = ''; if $opstack[-1]<O><prec> gt $item_assignment_prec { $SIGIL = '@' }
@@ -135,7 +134,7 @@ method EXPR ($preclvl)
 
 #        if not @t or not $here = @t[0] or ($here.pos == $oldpos and $termish eq 'termish') {
         if not($M) or ($M.match_to == $oldpos and $termish eq 'termish') {
-            return undef;
+            return undef; #ELF# failed match
             # $here.panic("Failed to parse a required term");
         }
         $termish = 'termish';
@@ -149,8 +148,8 @@ method EXPR ($preclvl)
 #       @pre = @$tmp if $tmp = ( $M<PRE> :delete );
 #       my @post;
 #       @post = @$tmp.reverse() if $tmp = ( $M<POST> :delete );
-        my $pre;
-        my $post;
+        my $pre = [];
+        my $post = [];
         if $M<PRE> { $pre = $M<PRE>.clone; $M.match_hash.delete('PRE'); }
         if $M<POST> { $post = $M<POST>.reverse(); $M.match_hash.delete('POST'); }
         while $pre and $post {
@@ -176,13 +175,14 @@ method EXPR ($preclvl)
 
 #       @termstack.push($here);
         $termstack.push($M);#
-#        self.deb("after push: " ~ (0+@termstack)) if $*DEBUG +& DEBUG::EXPR;
+        self.deb("after push: " ~ (+$termstack)) if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
 
         my $last_TERM = undef;
-        while 1 {     # while we see adverbs
+        while 2 {     # while we see adverbs
             $oldpos = $here.pos;
 #           if (@+MEMOS[$oldpos]<endstmt> // 0) == 2 { $last_TERM = 1; last; }
-            my $memo = $STD::MEMOS[$oldpos];
+            my $memos = @+MEMOS; $memos = [] if not defined $memos; #ELF# @+MEMOS got smashed elsewhere.
+            my $memo = $memos[$oldpos];
             if $memo && $memo<endstmt> && $memo<endstmt> == 2 { $last_TERM = 1; last; }
 #           $here = $here.cursor_fresh.ws;
             $here.advance_by_rule("ws");#
@@ -195,15 +195,15 @@ method EXPR ($preclvl)
             if not $infix.match_to > $oldpos { $last_TERM = 1; last; } #
             
             if not $infix<sym> {
-#                die $infix.dump if $*DEBUG +& DEBUG::EXPR;
+#                die $infix.dump if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
             }
 
             my $inO = $infix<O>;
 #           my Str $inprec = $inO<prec>;
             my $inprec = $inO<prec>;
             if not defined $inprec {
-#                self.deb("No prec given in infix!") if $*DEBUG +& DEBUG::EXPR;
-#                die $infix.dump if $*DEBUG +& DEBUG::EXPR;
+                self.deb("No prec given in infix!") if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
+#                die $infix.dump if $*DEBUG ;#ELFSPEED# +& $DEBUG::EXPR;
                 $inprec = %terminator<prec>;
             }
 
@@ -222,7 +222,7 @@ method EXPR ($preclvl)
             }
 
             # Not much point in reducing the sentinels...
-            last if $inprec lt $LOOSEST;
+            if $inprec lt $LOOSEST {last;} #ELF#STDBUG last if
 
             if $infix<fake> {
 #             my $adverbs = @termstack[*-1]<ADV> ||= [];
@@ -253,19 +253,18 @@ method EXPR ($preclvl)
                     }
 #                    default { $here.panic('Unknown associativity "' ~ $_ ~ '" for "' ~ $infix<sym> ~ '"') }
               else { $here.panic('Unknown associativity "' ~ $assoc ~ '" for "' ~ $infix<sym> ~ '"') }
-                }
-            } ;#ELF# end of inner loop {}
-            last if $last_TERM;#
+            }
 
             $termish = $inO<nextterm> if $inO<nextterm>;
             $opstack.push($infix);              # The Shift
             last;
-        } ;#ELF# end of outer TERM: loop {}
-    }
+        } ;#ELF# end of inner loop {}
+        if $last_TERM {last;}#
+    } ;#ELF# end of outer TERM: loop {}
     $reduce.() while $opstack.elems > 1;
     if $termstack {
         #@termstack.elems == 1 or $here.panic("Internal operator parser error, termstack == " ~ (+@termstack));
-        if $termstack.elems != 1 { $here.panic("Internal operator parser error, termstack == " ~ ($termstack.elems)); }
+        if $termstack.elems != 1 { $here.panic("Internal operator parser error, termstack == " ~ (+$termstack)); }
         $termstack[0].match_from = $self_pos;
         $termstack[0].match_to = $here.pos;
     }
@@ -273,6 +272,9 @@ method EXPR ($preclvl)
     if $termstack {
       $termstack[0]._REDUCE($S, "EXPR");
     } else {
-      Match.new_failed;
+      return undef; #ELF# failed match
     }    
 }
+
+
+1;}; #XXX

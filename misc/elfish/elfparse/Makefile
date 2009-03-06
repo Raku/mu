@@ -103,6 +103,7 @@ STD_green_run: elfrx std.pm STD_green_run.pm std.pm.p5 STD_green_run.pm.p5
 
 elfdev: STD_green_run
 	${ELF} -x -o ./elfdev ${ELFRXDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e elf_main
+	./elfrx -o devEXPR.pm.p5 -s devEXPR.pm
 
 # Test
 
