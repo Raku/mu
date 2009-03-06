@@ -54,8 +54,28 @@ and Pugs test suite from their respective SVN repositories.  </p>
 
 <p>When we say ``S05'', we mean ``spec'' as well as ``synopsis''.</p>
 
+<p>Note that documents marked DRAFT are really just that.  They are often
+written by random people, and have not been approved of as part of the 
+official spec.  </p>
+
+<p>The documents here mostly correspond with the chapters in the Camel Book, 
+that is, &quot;Programming Perl, 3rd Edition&quot;.  However, a few chapters
+of that book will no longer be relevant, and those numbers will be resused 
+for other things.  At the moment, this refers to section 7, whose synopsis is
+"Iterators", but whose Exegesis is about the module Form.pm.  Apocalypses and
+Exegeses were only written for some of the early sections; the later sections
+have no corresponding apocalypse/exegesis.  </p>
+
+<p>Most changes to these specifications have been discussed on the 
+<a href="http://dev.perl.org/perl6/lists/">perl6-language mailing list</a> or the #perl6 
+FreeNode channel on 
+IRC.  Additionally, Larry Wall has created an implementation of the parser 
+for Perl 6 (but it doesn't do any of the backend stuff), and that is usually
+regarded as authoritative.  </p>
+
 <p><em>While the Apocalypses and Exegeses are linked here for reference, note
-that the Synopses are kept very much more up-to-date and are the primary recommended reference.</em></p>
+that they are historical documents, whereas the Synopses are kept more 
+up-to-date and are the primary recommended reference.</em></p>
 
 <table>
     <tr>
@@ -269,7 +289,7 @@ that the Synopses are kept very much more up-to-date and are the primary recomme
     </tr>
     <tr>
         <td></td>
-        <td>Basics&nbsp;[DRAFT]</td>
+        <td>Basics+&nbsp;[DRAFT]</td>
         <td><!-- a href="S32/Basics.html"><strong>Synopsis</strong></a --></td>
 	<td><a href="http://svn.pugscode.org/pugs/docs/Perl6/Spec/S32-setting-library/Basics.pod">Basics.pod</a></td>
 	<td></td>
@@ -342,7 +362,12 @@ that the Synopses are kept very much more up-to-date and are the primary recomme
     <tr><td>33</td><td>Diagnostic messages</td><td colspan="4">(TBD)</td></tr>
 </table>
 
-* = A star next to the S32 document means that they document related types as well
+<h3>S32 Key</h3>
+
+<dl>
+  <dt>* = Document related types as well</dt>
+  <dt>+ = Not a type name, but documents a group of types</dt>
+</dl>
 
 <h2>DRAFT specifications</h2>
 <p>
