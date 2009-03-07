@@ -1015,7 +1015,7 @@ sub{my $__c__ = $_[0];
      $src."\n".
      "  FAIL() if !\$__ok__;\n".
      "  local \$RXX::pos = pos(\$__str__);\n".
-     "  \$__c__->(\$IRx1::RxBaseClass::our_noop);\n". #X tailcall?
+     "  \$__c__->(\$RXY::noop);\n". #X tailcall?
      "}}")
   }
   sub RATCHET_eat_regexp {
