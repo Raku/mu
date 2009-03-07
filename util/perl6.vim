@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Feb 27th 2009
+" Last Change:  Mar 7th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -105,9 +105,9 @@ let s:keywords = {
  \   "die fail try warn",
  \ ],
  \ "p6Property": [
- \   "prec irs ofs ors export deep binary unary reparsed",
- \   "rw parsed cached readonly instead defequiv will",
- \   "ref copy inline tighter looser equiv assoc required",
+ \   "prec irs ofs ors export deep binary unary reparsed rw parsed cached",
+ \   "readonly defequiv will ref copy inline tighter looser equiv assoc",
+ \   "required",
  \ ],
  \ "p6Number": [
  \   "NaN Inf",
