@@ -166,7 +166,7 @@ for @command -> $cmd {
 };
 ok(1,"Created test files");
 
-my $counter = 0;
+$counter = 0;
 for @command -> $cmd {
   my @cmd = $cmd;
   for @av -> $arg {

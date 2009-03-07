@@ -12,13 +12,14 @@ my $y = 'case';
  {
     # Smoke does not complete because of this
     # Uncomment the following two lines when this is fixed
-    #use v6;
-    #$y ~= 'book';
+    #?pugs emit #
+    use v6;
+    #?pugs emit #
+    $y ~= 'book';
   };
 };
 
 is $x, 'testing', "scalar modified inside perl5 block";
 
-# Also uncomment this and remove flunk
-#is $y, 'casebook', "scalar modified inside perl6 block inside perl5 block";
-flunk("Hangs: scalar modified inside perl6 block inside perl5 block");
+#?pugs todo 'nested p5/p6 embedding'
+is $y, 'casebook', "scalar modified inside perl6 block inside perl5 block";

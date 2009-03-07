@@ -9,10 +9,10 @@ exit;
 
 plan 38;
 
-if $?PUGS_BACKEND ne "BACKEND_PUGS" {
-  skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
-  exit;
-}
+#?pugs emit if $?PUGS_BACKEND ne "BACKEND_PUGS" {
+#?pugs emit   skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
+#?pugs emit   exit;
+#?pugs emit }
 
 package OughtaLoad {
     sub AUTOLOAD(*@args) {

@@ -70,7 +70,7 @@ for @config -> $item {
   is( $pugs_config, $local_sep, "-V:$item works" );
 
   $pugs_config = run_pugs("-eprint -eq.code_was_run. -V:$item");
-  my $local_sep = "\t$item: %?CONFIG{$item}\n";
+  $local_sep = "\t$item: %?CONFIG{$item}\n";
   is( $pugs_config, $local_sep, "-V:$item works even if other stuff is specified" );
 };
 

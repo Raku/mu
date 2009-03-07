@@ -88,9 +88,9 @@ for @tests -> $t {
     $got = substr($got, 1, -1);
   };
   
-  my @got = eval $got;
+  @got = eval $got;
   @got = @got[ 0..@dirs-1 ];
-  my @expected = @dirs;
+  @expected = @dirs;
 
   is @got, @expected, "'" ~ @dirs ~ "' works (with a space delimiting -I)";
 }
