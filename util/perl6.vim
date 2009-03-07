@@ -92,7 +92,7 @@ let s:keywords = {
  \ ],
  \ "p6FlowControl": [
  \   "take do when next last redo return contend maybe defer",
- \   "default exit make continue break goto leave async",
+ \   "default exit make continue break goto leave async lift",
  \ ],
  \ "p6TypeConstraint": [
  \   "is as but trusts of returns handles where augment supersede",
