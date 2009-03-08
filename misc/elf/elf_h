@@ -2262,7 +2262,7 @@ my $construct_scope_declarator_58temp = sub {my($m)=@_;
 irbuild_ir($m->match_hash()->postcircumfix__123_32_125("scoped"))})};
 my $construct_scoped = sub {my($m)=@_;
 (do{{ package IRx1_Build; use vars '$typenames'};local $blackboard::typenames = irbuild_ir($m->match_hash()->postcircumfix__123_32_125("fulltypename"));
-(do{my $__tmp__=((do{my $__tmp__=((do{my $__tmp__=((do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("variable_decl")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("signature")));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("plurality_declarator")));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("routine_declarator")));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("type_declarator")));no warnings "void";$__tmp__}})})};
+(do{my $__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("variable_decl")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("signature")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("plurality_declarator")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("routine_declarator")));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("type_declarator")));no warnings "void";$__tmp__}}}}})})};
 my $construct_variable_decl = sub {my($m)=@_;
 (do{my $scope = $blackboard::scope;
 { package IRx1_Build; use vars '$scope'};local $blackboard::scope;
@@ -2446,7 +2446,7 @@ IRx1::Capture->newp($m, (do{my $__tmp__=($args);if($__tmp__->Bool){no warnings "
 (do{my $args = $m->match_hash()->postcircumfix__123_32_125("EXPR")->match_hash()->postcircumfix__123_32_125("args");
 my $arg0 = (do{my $__tmp__=($args);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($args->postcircumfix__91_32_93(0));no warnings "void";$__tmp__}});
 my $inv = GLOBAL::undef();
-if(((do{my $__tmp__=((do{my $__tmp__=($arg0);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($arg0->match_hash()->postcircumfix__123_32_125("sym"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($arg0->match_hash()->postcircumfix__123_32_125("sym") eq "\:"));no warnings "void";$__tmp__}}))->Bool) {
+if(((do{my $__tmp__=($arg0);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($arg0->match_hash()->postcircumfix__123_32_125("sym"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($arg0->match_hash()->postcircumfix__123_32_125("sym") eq "\:"));no warnings "void";$__tmp__}}}))->Bool) {
 (do{$args->shift();
 ($inv = $arg0->match_hash()->postcircumfix__123_32_125("args")->postcircumfix__91_32_93(0));
 if(($arg0->match_hash()->postcircumfix__123_32_125("args")->postcircumfix__91_32_93(1))->Bool) {
@@ -2533,9 +2533,9 @@ my $construct_trait_verb_58does = sub {my($m)=@_;
 my $construct_circumfix_58pblock = sub {my($m)=@_;
 (do{if(((do{my $__tmp__=(($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->elems() == 0));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_string()->re_matchp("\^\:"));no warnings "void";$__tmp__}}))->Bool) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")))})
-}elsif(((do{my $__tmp__=((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym") eq "\,"));no warnings "void";$__tmp__}}))->Bool) {
+}elsif(((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym") eq "\,"));no warnings "void";$__tmp__}}}))->Bool) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")))})
-}elsif(((do{my $__tmp__=((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym") eq "\=\>"));no warnings "void";$__tmp__}}))->Bool) {
+}elsif(((do{my $__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")->postcircumfix__91_32_93(0)->match_hash()->postcircumfix__123_32_125("expr")->match_hash()->postcircumfix__123_32_125("sym") eq "\=\>"));no warnings "void";$__tmp__}}}))->Bool) {
 (do{IRx1::Hash->newp($m, irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block")->match_hash()->postcircumfix__123_32_125("statementlist")))})
 }elsif(((do{my $__tmp__=(GLOBAL::not(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("lambda"))));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(GLOBAL::not(irbuild_ir($m->match_hash()->postcircumfix__123_32_125("signature"))));no warnings "void";$__tmp__}}))->Bool) {
 (do{irbuild_ir($m->match_hash()->postcircumfix__123_32_125("block"))})
@@ -3496,7 +3496,7 @@ sub e{my $self=CORE::shift;my($x)=@_;
 (do{my $ref = $x->WHAT();
 if((($ref eq "Undef"))->Bool) {
 (do{$x})
-}elsif(((do{my $__tmp__=((do{my $__tmp__=(($ref eq "Str"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($ref eq "Int"));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($ref eq "Num"));no warnings "void";$__tmp__}}))->Bool) {
+}elsif(((do{my $__tmp__=(($ref eq "Str"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($ref eq "Int"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($ref eq "Num"));no warnings "void";$__tmp__}}}))->Bool) {
 (do{$x})
 }elsif((($ref eq "Array"))->Bool) {
 (do{$x->map(sub {my($ae)=@_;
@@ -3651,7 +3651,7 @@ $self->do_VarDecl_has($n, $default)})
 }else {
 (do{my $default = "";
 if(($n->default_expr())->Bool) {
-(do{if((((do{my $__tmp__=((do{my $__tmp__=((GLOBAL::not(($n->var()->sigil() eq "\$"))));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->default_expr()->isa("IRx1\:\:Apply"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(((do{my $__tmp__=(($n->default_expr()->function() eq "circumfix\:\(\ \)"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->default_expr()->function() eq "infix\:\,"));no warnings "void";$__tmp__}})));no warnings "void";$__tmp__}})))->Bool) {
+(do{if((((do{my $__tmp__=((GLOBAL::not(($n->var()->sigil() eq "\$"))));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->default_expr()->isa("IRx1\:\:Apply"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(((do{my $__tmp__=(($n->default_expr()->function() eq "circumfix\:\(\ \)"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->default_expr()->function() eq "infix\:\,"));no warnings "void";$__tmp__}})));no warnings "void";$__tmp__}}})))->Bool) {
 (do{my $pre = "";
 my $post = "";
 if(($n->is_array())->Bool) {
@@ -3771,7 +3771,7 @@ my $sig = $param_types->map(sub {my($t)=@_;
 ((((((("Class\:\:Multimethods\:\:multimethod\ " . $enc_name) . "\ \=\>\ split\(\/\\s\+\/") . "\,\'") . $sig) . "\'\)\ \=\>\ ") . $f_emitted) . "\;")})};
 sub cb__MethodDecl{my $self=CORE::shift;my($n)=@_;
 (do{my $body;
-if(((do{my $__tmp__=((do{my $__tmp__=($n->traits());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->traits()->postcircumfix__91_32_93(0)->expr());no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->traits()->postcircumfix__91_32_93(0)->expr() eq "p5"));no warnings "void";$__tmp__}}))->Bool) {
+if(((do{my $__tmp__=($n->traits());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->traits()->postcircumfix__91_32_93(0)->expr());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->traits()->postcircumfix__91_32_93(0)->expr() eq "p5"));no warnings "void";$__tmp__}}}))->Bool) {
 (do{($body = $n->block()->statements()->postcircumfix__91_32_93(0)->buf())})
 }else {
 (do{($body = $self->e($n->block()))})
@@ -3798,7 +3798,7 @@ if(($sig)->Bool) {
 (do{($sig = "")})
 };
 my $body;
-if(((do{my $__tmp__=((do{my $__tmp__=($n->traits());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->traits()->postcircumfix__91_32_93(0)->expr());no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->traits()->postcircumfix__91_32_93(0)->expr() eq "p5"));no warnings "void";$__tmp__}}))->Bool) {
+if(((do{my $__tmp__=($n->traits());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($n->traits()->postcircumfix__91_32_93(0)->expr());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($n->traits()->postcircumfix__91_32_93(0)->expr() eq "p5"));no warnings "void";$__tmp__}}}))->Bool) {
 (do{($body = $n->block()->statements()->postcircumfix__91_32_93(0)->buf())})
 }else {
 (do{($body = $self->e($n->block()))})
@@ -3864,7 +3864,7 @@ return((((("" . $fe) . "\(") . $self->e($n->capture())) . "\)"))})
 if((($g = $fun->re_groups("\^infix\:\(\.\+\)\$")))->Bool) {
 (do{my $op = $g->postcircumfix__91_32_93(0);
 my $args = $n->capture()->arguments();
-if(((do{my $__tmp__=((do{my $__tmp__=(($args->elems() == 1));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($args->postcircumfix__91_32_93(0)->isa("IRx1\:\:Apply"));no warnings "void";$__tmp__}}));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($args->postcircumfix__91_32_93(0)->function() eq "infix\:\,"));no warnings "void";$__tmp__}}))->Bool) {
+if(((do{my $__tmp__=(($args->elems() == 1));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($args->postcircumfix__91_32_93(0)->isa("IRx1\:\:Apply"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($args->postcircumfix__91_32_93(0)->function() eq "infix\:\,"));no warnings "void";$__tmp__}}}))->Bool) {
 (do{($args = $args->postcircumfix__91_32_93(0)->capture()->arguments())})
 };
 my $a = $self->e($args);
@@ -3924,7 +3924,12 @@ if(((do{my $__tmp__=($op->re_matchp("\^\(\<\|\>\|\=\=\|lt\|gt\|eq\)\$"));if(!$__
 return($s)})
 };
 if(($op->re_matchp("\^\(\\\|\\\|\|\\\&\\\&\|and\|or\)\$"))->Bool) {
-(do{my $s1 = "";
+(do{my $argsf = $args->clone();
+while(((do{my $__tmp__=(($argsf->postcircumfix__91_32_93(0)->WHAT() eq "IRx1\:\:Apply"));if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($argsf->postcircumfix__91_32_93(0)->function() eq $n->function()));no warnings "void";$__tmp__}}))->Bool) {
+(do{$argsf->unshift($argsf->shift()->capture()->arguments()->flatten())})
+};
+my $a = $self->e($argsf);
+my $s1 = "";
 my $s2 = "";
 my $stop = "";
 if(((do{my $__tmp__=(($op eq "\&\&"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($op eq "and"));no warnings "void";$__tmp__}}))->Bool) {
@@ -4086,7 +4091,7 @@ if(($n->is_context())->Bool) {
 };
 my $dsn = $self->e($n->name());
 my $v = (($s . $t) . $dsn);
-if(((do{my $__tmp__=((do{my $__tmp__=(($v eq "\$\?PACKAGE"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($v eq "\$\?MODULE"));no warnings "void";$__tmp__}}));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($v eq "\$\?CLASS"));no warnings "void";$__tmp__}}))->Bool) {
+if(((do{my $__tmp__=(($v eq "\$\?PACKAGE"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($v eq "\$\?MODULE"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($v eq "\$\?CLASS"));no warnings "void";$__tmp__}}}))->Bool) {
 (do{my $pkgname = $whiteboard::in_package->join("\:\:");
 ($pkgname = (do{my $__tmp__=($pkgname);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("Main");no warnings "void";$__tmp__}}));
 (("\'" . $pkgname) . "\'")})

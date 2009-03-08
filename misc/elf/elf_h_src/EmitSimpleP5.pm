@@ -879,6 +879,13 @@ package Main;
         return $s;
       }
       if $op.re_matchp('^(\|\||\&\&|and|or)$') {
+        # Flatten args - STD_red gives &&(&&(2,3),4) vs STD's &&(2,3,4).
+        my $argsf = $args.clone;
+        while $argsf[0].WHAT eq 'IRx1::Apply' && $argsf[0].function eq $n.function {
+          $argsf.unshift($argsf.shift.capture.arguments.flatten);
+        }
+        my $a = $.e($argsf);
+
         my $s1 = "";
         my $s2 = "";
         my $stop = ""; if $op eq '&&' || $op eq 'and' { $stop = '!' }
