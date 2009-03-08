@@ -1,0 +1,6 @@
+This is a temporary fork of the STD/gimme5 parser in <pugs>/src/perl6/ .
+Elf fell behind HEAD.  This directory allows more flexible and easier chasing
+after HEAD, than would working linearly through the revisions since then.
+
+*LOG*
+r25030  Baseline.

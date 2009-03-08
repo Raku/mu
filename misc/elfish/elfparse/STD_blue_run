@@ -3,7 +3,8 @@ BEGIN {
   my $mydir = $0;
   $mydir =~ s|[^/]+$||;
   my $pugsroot = $ENV{PUGS_ROOT} || $mydir."../../..";
-  my $p6dir = $pugsroot."/src/perl6";
+  #my $p6dir = $pugsroot."/src/perl6";
+  my $p6dir = $mydir."/pugs_src_perl6";
   unshift(@INC,$p6dir);
 }
 use strict;

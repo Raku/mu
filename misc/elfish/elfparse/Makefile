@@ -1,7 +1,7 @@
 ELF=../../elf/elf_h
 ELFDIR=../../elf/elf_h_src
-SRCP6=../../../src/perl6
-STDPM=../../../src/perl6/STD.pm
+SRCP6=./pugs_src_perl6
+STDPM=./pugs_src_perl6/STD.pm
 export STD_RED_CACHEDIR  := ./deleteme_cache_red
 export STD_BLUE_CACHEDIR := ./deleteme_cache_blue
 
@@ -37,10 +37,6 @@ clean_not_caches:
 
 
 # STD_blue
-
-known_working_STD:
-	# We've fallen out of sync with STD.pm head.  Using r25030 for now.
-	(cd ../../../src/perl6; svn up -r25030; make distclean; make fast)
 
 ${SRCP6}/STD.pmc: ${SRCP6}/STD.pm ${SRCP6}/gimme5
 	(cd ${SRCP6}; make fast)
