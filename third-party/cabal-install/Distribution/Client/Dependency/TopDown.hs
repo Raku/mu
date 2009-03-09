@@ -22,10 +22,10 @@ import qualified Distribution.Client.InstallPlan as InstallPlan
 import Distribution.Client.InstallPlan
          ( PlanPackage(..) )
 import Distribution.Client.Types
-         ( UnresolvedDependency(..), AvailablePackage(..)
-         , ConfiguredPackage(..) )
+         ( AvailablePackage(..), ConfiguredPackage(..) )
 import Distribution.Client.Dependency.Types
-         ( PackageName, DependencyResolver, PackageVersionPreference(..)
+         ( DependencyResolver, PackageConstraint(..)
+         , PackagePreferences(..), InstalledPreference(..)
          , Progress(..), foldProgress )
 
 import qualified Distribution.Simple.PackageIndex as PackageIndex
@@ -33,26 +33,28 @@ import Distribution.Simple.PackageIndex (PackageIndex)
 import Distribution.InstalledPackageInfo
          ( InstalledPackageInfo )
 import Distribution.Package
-         ( PackageIdentifier, Package(packageId), packageVersion, packageName
+         ( PackageName(..), PackageIdentifier, Package(packageId), packageVersion, packageName
          , Dependency(Dependency), thisPackageVersion, notThisPackageVersion
          , PackageFixedDeps(depends) )
 import Distribution.PackageDescription
          ( PackageDescription(buildDepends) )
 import Distribution.PackageDescription.Configuration
          ( finalizePackageDescription, flattenPackageDescription )
+import Distribution.Version
+         ( VersionRange(AnyVersion), withinRange )
 import Distribution.Compiler
          ( CompilerId )
 import Distribution.System
-         ( OS, Arch )
+         ( Platform(Platform) )
 import Distribution.Simple.Utils
          ( equating, comparing )
 import Distribution.Text
          ( display )
 
 import Data.List
-         ( foldl', maximumBy, minimumBy, deleteBy, nub, sort )
+         ( foldl', maximumBy, minimumBy, nub, sort, groupBy )
 import Data.Maybe
-         ( fromJust, fromMaybe )
+         ( fromJust, fromMaybe, catMaybes )
 import Data.Monoid
          ( Monoid(mempty) )
 import Control.Monad
@@ -62,6 +64,8 @@ import Data.Set (Set)
 import qualified Data.Map as Map
 import qualified Data.Graph as Graph
 import qualified Data.Array as Array
+import Control.Exception
+         ( assert )
 
 -- ------------------------------------------------------------
 -- * Search state types
@@ -83,34 +87,43 @@ data SearchSpace inherited pkg
 -- * Traverse a search tree
 -- ------------------------------------------------------------
 
-explore :: (PackageName -> PackageVersionPreference)
-        -> SearchSpace a SelectablePackage
-        -> Progress Log Failure a
+explore :: (PackageName -> PackagePreferences)
+        -> SearchSpace (SelectedPackages, Constraints, SelectionChanges)
+                       SelectablePackage
+        -> Progress Log Failure (SelectedPackages, Constraints)
 
-explore _    (Failure failure)      = Fail failure
-explore _explore    (ChoiceNode result []) = Done result
-explore pref (ChoiceNode _ choices) =
+explore _    (Failure failure)       = Fail failure
+explore _    (ChoiceNode (s,c,_) []) = Done (s,c)
+explore pref (ChoiceNode _ choices)  =
   case [ choice | [choice] <- choices ] of
-    ((pkg, node'):_) -> Step (Select pkg [])    (explore pref node')
-    []               -> seq pkgs' -- avoid retaining defaultChoice
-                      $ Step (Select pkg pkgs') (explore pref node')
+    ((_, node'):_) -> Step (logInfo node') (explore pref node')
+    []             -> Step (logInfo node') (explore pref node')
       where
-        choice       = minimumBy (comparing topSortNumber) choices
-        pkgname      = packageName . fst . head $ choice
-        (pkg, node') = maximumBy (bestByPref pkgname) choice
-        pkgs' = deleteBy (equating packageId) pkg (map fst choice)
-
+        choice     = minimumBy (comparing topSortNumber) choices
+        pkgname    = packageName . fst . head $ choice
+        (_, node') = maximumBy (bestByPref pkgname) choice
   where
     topSortNumber choice = case fst (head choice) of
       InstalledOnly           (InstalledPackage    _ i _) -> i
       AvailableOnly           (UnconfiguredPackage _ i _) -> i
       InstalledAndAvailable _ (UnconfiguredPackage _ i _) -> i
 
-    bestByPref pkgname = case pref pkgname of
-      PreferLatest    -> comparing (\(p,_) ->                 packageId p)
-      PreferInstalled -> comparing (\(p,_) -> (isInstalled p, packageId p))
-      where isInstalled (AvailableOnly _) = False
-            isInstalled _                 = True
+    bestByPref pkgname = case packageInstalledPreference of
+        PreferLatest    ->
+          comparing (\(p,_) -> (               isPreferred p, packageId p))
+        PreferInstalled ->
+          comparing (\(p,_) -> (isInstalled p, isPreferred p, packageId p))
+      where
+        isInstalled (AvailableOnly _) = False
+        isInstalled _                 = True
+        isPreferred p = packageVersion p `withinRange` preferredVersions
+        (PackagePreferences preferredVersions packageInstalledPreference)
+          = pref pkgname
+
+    logInfo node = Select selected discarded
+      where (selected, discarded) = case node of
+              Failure    _               -> ([], [])
+              ChoiceNode (_,_,changes) _ -> changes
 
 -- ------------------------------------------------------------
 -- * Generate a search tree
@@ -120,13 +133,18 @@ type ConfigurePackage = PackageIndex SelectablePackage
                      -> SelectablePackage
                      -> Either [Dependency] SelectedPackage
 
+-- | (packages selected, packages discarded)
+type SelectionChanges = ([SelectedPackage], [PackageIdentifier])
+
 searchSpace :: ConfigurePackage
             -> Constraints
             -> SelectedPackages
+            -> SelectionChanges
             -> Set PackageName
-            -> SearchSpace (SelectedPackages, Constraints) SelectablePackage
-searchSpace configure constraints selected next =
-  ChoiceNode (selected, constraints)
+            -> SearchSpace (SelectedPackages, Constraints, SelectionChanges)
+                           SelectablePackage
+searchSpace configure constraints selected changes next =
+  ChoiceNode (selected, constraints, changes)
     [ [ (pkg, select name pkg)
       | pkg <- PackageIndex.lookupPackageName available name ]
     | name <- Set.elems next ]
@@ -137,19 +155,28 @@ searchSpace configure constraints selected next =
       Left missing -> Failure $ ConfigureFailed pkg
                         [ (dep, Constraints.conflicting constraints dep)
                         | dep <- missing ]
-      Right pkg' ->
-        let selected' = PackageIndex.insert pkg' selected
-            newPkgs   = [ name'
-                        | dep <- packageConstraints pkg'
-                        , let (Dependency name' _) = untagDependency dep
-                        , null (PackageIndex.lookupPackageName selected' name') ]
-            newDeps   = packageConstraints pkg'
-            next'     = Set.delete name
-                      $ foldl' (flip Set.insert) next newPkgs
-         in case constrainDeps pkg' newDeps constraints of
-              Left failure       -> Failure failure
-              Right constraints' -> searchSpace configure
-                                      constraints' selected' next'
+      Right pkg' -> case constrainDeps pkg' newDeps constraints [] of
+        Left failure       -> Failure failure
+        Right (constraints', newDiscarded) ->
+          searchSpace configure
+            constraints' selected' (newSelected, newDiscarded) next'
+        where
+          selected' = foldl' (flip PackageIndex.insert) selected newSelected
+          newSelected =
+            case Constraints.isPaired constraints (packageId pkg) of
+              Nothing     -> [pkg']
+              Just pkgid' -> [pkg', pkg'']
+                where
+                  Just pkg'' = fmap (\(InstalledOnly p) -> InstalledOnly p)
+                    (PackageIndex.lookupPackageId available pkgid')
+
+          newPkgs   = [ name'
+                      | dep <- newDeps
+                      , let (Dependency name' _) = untagDependency dep
+                      , null (PackageIndex.lookupPackageName selected' name') ]
+          newDeps   = concatMap packageConstraints newSelected
+          next'     = Set.delete name
+                    $ foldl' (flip Set.insert) next newPkgs
 
 packageConstraints :: SelectedPackage -> [TaggedDependency]
 packageConstraints = either installedConstraints availableConstraints
@@ -165,16 +192,17 @@ packageConstraints = either installedConstraints availableConstraints
       [ TaggedDependency NoInstalledConstraint dep | dep <- deps ]
 
 constrainDeps :: SelectedPackage -> [TaggedDependency] -> Constraints
-              -> Either Failure Constraints
-constrainDeps pkg []         cs =
+              -> [PackageIdentifier]
+              -> Either Failure (Constraints, [PackageIdentifier])
+constrainDeps pkg []         cs discard =
   case addPackageSelectConstraint (packageId pkg) cs of
-    Satisfiable cs' -> Right cs'
-    _               -> impossible
-constrainDeps pkg (dep:deps) cs =
+    Satisfiable cs' discard' -> Right (cs', discard' ++ discard)
+    _                        -> impossible
+constrainDeps pkg (dep:deps) cs discard =
   case addPackageDependencyConstraint (packageId pkg) dep cs of
-    Satisfiable cs' -> constrainDeps pkg deps cs'
-    Unsatisfiable   -> impossible
-    ConflictsWith conflicts ->
+    Satisfiable cs' discard' -> constrainDeps pkg deps cs' (discard' ++ discard)
+    Unsatisfiable            -> impossible
+    ConflictsWith conflicts  ->
       Left (DependencyConflict pkg dep conflicts)
 
 -- ------------------------------------------------------------
@@ -182,12 +210,12 @@ constrainDeps pkg (dep:deps) cs =
 -- ------------------------------------------------------------
 
 search :: ConfigurePackage
-       -> (PackageName -> PackageVersionPreference)
+       -> (PackageName -> PackagePreferences)
        -> Constraints
        -> Set PackageName
        -> Progress Log Failure (SelectedPackages, Constraints)
 search configure pref constraints =
-  explore pref . searchSpace configure constraints mempty
+  explore pref . searchSpace configure constraints mempty ([], [])
 
 -- ------------------------------------------------------------
 -- * The top level resolver
@@ -196,7 +224,7 @@ search configure pref constraints =
 -- | The main exported resolver, with string logging and failure types to fit
 -- the standard 'DependencyResolver' interface.
 --
-topDownResolver :: DependencyResolver a
+topDownResolver :: DependencyResolver
 topDownResolver = ((((((mapMessages .).).).).).) . topDownResolver'
   where
     mapMessages :: Progress Log Failure a -> Progress String String a
@@ -204,45 +232,65 @@ topDownResolver = ((((((mapMessages .).).).).).) . topDownResolver'
 
 -- | The native resolver with detailed structured logging and failure types.
 --
-topDownResolver' :: OS -> Arch -> CompilerId
+topDownResolver' :: Platform -> CompilerId
                  -> PackageIndex InstalledPackageInfo
                  -> PackageIndex AvailablePackage
-                 -> (PackageName -> PackageVersionPreference)
-                 -> [UnresolvedDependency]
-                 -> Progress Log Failure [PlanPackage a]
-topDownResolver' os arch comp installed available pref deps =
+                 -> (PackageName -> PackagePreferences)
+                 -> [PackageConstraint]
+                 -> [PackageName]
+                 -> Progress Log Failure [PlanPackage]
+topDownResolver' platform comp installed available
+                 preferences constraints targets =
       fmap (uncurry finalise)
-    . (\cs -> search configure pref cs initialPkgNames)
-  =<< constrainTopLevelDeps deps constraints
+    . (\cs -> search configure preferences cs initialPkgNames)
+  =<< addTopLevelConstraints constraints constraintSet
 
   where
-    configure   = configurePackage os arch comp
-    constraints = Constraints.empty
-                    (annotateInstalledPackages      topSortNumber installed')
-                    (annotateAvailablePackages deps topSortNumber available')
+    configure   = configurePackage platform comp
+    constraintSet = Constraints.empty
+      (annotateInstalledPackages             topSortNumber installed')
+      (annotateAvailablePackages constraints topSortNumber available')
     (installed', available') = selectNeededSubset installed available
                                                   initialPkgNames
     topSortNumber = topologicalSortNumbering installed' available'
 
-    initialDeps     = [ dep  | UnresolvedDependency dep _ <- deps ]
-    initialPkgNames = Set.fromList [ name | Dependency name _ <- initialDeps ]
+    initialPkgNames = Set.fromList targets
 
-    finalise selected = PackageIndex.allPackages
-                      . improvePlan installed'
-                      . PackageIndex.fromList
-                      . finaliseSelectedPackages selected
+    finalise selected' constraints' =
+        PackageIndex.allPackages
+      . fst . improvePlan installed' constraints'
+      . PackageIndex.fromList
+      $ finaliseSelectedPackages preferences selected' constraints'
 
-constrainTopLevelDeps :: [UnresolvedDependency] -> Constraints
-                      -> Progress a Failure Constraints
-constrainTopLevelDeps []                                cs = Done cs
-constrainTopLevelDeps (UnresolvedDependency dep _:deps) cs =
-  case addTopLevelDependencyConstraint dep cs of
-    Satisfiable cs'         -> constrainTopLevelDeps deps cs'
-    Unsatisfiable           -> Fail (TopLevelDependencyUnsatisfiable dep)
-    ConflictsWith conflicts -> Fail (TopLevelDependencyConflict dep conflicts)
+addTopLevelConstraints :: [PackageConstraint] -> Constraints
+                       -> Progress a Failure Constraints
+addTopLevelConstraints []                                      cs = Done cs
+addTopLevelConstraints (PackageFlagsConstraint   _   _  :deps) cs =
+  addTopLevelConstraints deps cs
 
-configurePackage :: OS -> Arch -> CompilerId -> ConfigurePackage
-configurePackage os arch comp available spkg = case spkg of
+addTopLevelConstraints (PackageVersionConstraint pkg ver:deps) cs =
+  case addTopLevelVersionConstraint pkg ver cs of
+    Satisfiable cs' _       ->
+      addTopLevelConstraints deps cs'
+
+    Unsatisfiable           ->
+      Fail (TopLevelVersionConstraintUnsatisfiable pkg ver)
+
+    ConflictsWith conflicts ->
+      Fail (TopLevelVersionConstraintConflict pkg ver conflicts)
+
+addTopLevelConstraints (PackageInstalledConstraint pkg:deps) cs =
+  case addTopLevelInstalledConstraint pkg cs of
+    Satisfiable cs' _       -> addTopLevelConstraints deps cs'
+
+    Unsatisfiable           ->
+      Fail (TopLevelInstallConstraintUnsatisfiable pkg)
+
+    ConflictsWith conflicts ->
+      Fail (TopLevelInstallConstraintConflict pkg conflicts)
+
+configurePackage :: Platform -> CompilerId -> ConfigurePackage
+configurePackage (Platform arch os) comp available spkg = case spkg of
   InstalledOnly         ipkg      -> Right (InstalledOnly ipkg)
   AvailableOnly              apkg -> fmap AvailableOnly (configure apkg)
   InstalledAndAvailable ipkg apkg -> fmap (InstalledAndAvailable ipkg)
@@ -265,19 +313,19 @@ annotateInstalledPackages dfsNumber installed = PackageIndex.fromList
   | pkg <- PackageIndex.allPackages installed ]
   where
     transitiveDepends :: InstalledPackageInfo -> [PackageIdentifier]
-    transitiveDepends = map toPkgid . tail . Graph.reachable graph
+    transitiveDepends = map (packageId . toPkg) . tail . Graph.reachable graph
                       . fromJust . toVertex . packageId
-    (graph, toPkgid, toVertex) = PackageIndex.dependencyGraph installed
+    (graph, toPkg, toVertex) = PackageIndex.dependencyGraph installed
 
 
 -- | Annotate each available packages with its topological sort number and any
 -- user-supplied partial flag assignment.
 --
-annotateAvailablePackages :: [UnresolvedDependency]
+annotateAvailablePackages :: [PackageConstraint]
                           -> (PackageName -> TopologicalSortNumber)
                           -> PackageIndex AvailablePackage
                           -> PackageIndex UnconfiguredPackage
-annotateAvailablePackages deps dfsNumber available = PackageIndex.fromList
+annotateAvailablePackages constraints dfsNumber available = PackageIndex.fromList
   [ UnconfiguredPackage pkg (dfsNumber name) (flagsFor name)
   | pkg <- PackageIndex.allPackages available
   , let name = packageName pkg ]
@@ -285,7 +333,7 @@ annotateAvailablePackages deps dfsNumber available = PackageIndex.fromList
     flagsFor = fromMaybe [] . flip Map.lookup flagsMap
     flagsMap = Map.fromList
       [ (name, flags)
-      | UnresolvedDependency (Dependency name _) flags <- deps ]
+      | PackageFlagsConstraint name flags <- constraints ]
 
 -- | One of the heuristics we use when guessing which path to take in the
 -- search space is an ordering on the choices we make. It's generally better
@@ -352,7 +400,10 @@ selectNeededSubset installed available = select mempty mempty
         (next, remaining') = Set.deleteFindMin remaining
         moreInstalled = PackageIndex.lookupPackageName installed next
         moreAvailable = PackageIndex.lookupPackageName available next
-        moreRemaining = nub
+        moreRemaining = -- we filter out packages already included in the indexes
+                        -- this avoids an infinite loop if a package depends on itself
+                        -- like base-3.0.3.0 with base-4.0.0.0
+                        filter notAlreadyIncluded
                       $ [ packageName dep
                         | pkg <- moreInstalled
                         , dep <- depends pkg ]
@@ -360,82 +411,138 @@ selectNeededSubset installed available = select mempty mempty
                         | AvailablePackage _ pkg _ <- moreAvailable
                         , Dependency name _ <-
                             buildDepends (flattenPackageDescription pkg) ]
-        installed''   = foldr PackageIndex.insert installed' moreInstalled
-        available''   = foldr PackageIndex.insert available' moreAvailable
-        remaining''   = foldr          Set.insert remaining' moreRemaining
+        installed''   = foldl' (flip PackageIndex.insert) installed' moreInstalled
+        available''   = foldl' (flip PackageIndex.insert) available' moreAvailable
+        remaining''   = foldl' (flip         Set.insert) remaining' moreRemaining
+        notAlreadyIncluded name = null (PackageIndex.lookupPackageName installed' name)
+                                  && null (PackageIndex.lookupPackageName available' name)
 
 -- ------------------------------------------------------------
 -- * Post processing the solution
 -- ------------------------------------------------------------
 
-finaliseSelectedPackages :: SelectedPackages
+finaliseSelectedPackages :: (PackageName -> PackagePreferences)
+                         -> SelectedPackages
                          -> Constraints
-                         -> [PlanPackage a]
-finaliseSelectedPackages selected constraints =
+                         -> [PlanPackage]
+finaliseSelectedPackages pref selected constraints =
   map finaliseSelected (PackageIndex.allPackages selected)
   where
     remainingChoices = Constraints.choices constraints
     finaliseSelected (InstalledOnly         ipkg     ) = finaliseInstalled ipkg
-    finaliseSelected (AvailableOnly              apkg) = finaliseAvailable apkg
+    finaliseSelected (AvailableOnly              apkg) = finaliseAvailable Nothing apkg
     finaliseSelected (InstalledAndAvailable ipkg apkg) =
       case PackageIndex.lookupPackageId remainingChoices (packageId ipkg) of
         Nothing                          -> impossible --picked package not in constraints
         Just (AvailableOnly _)           -> impossible --to constrain to avail only
         Just (InstalledOnly _)           -> finaliseInstalled ipkg
-        Just (InstalledAndAvailable _ _) -> finaliseAvailable apkg
+        Just (InstalledAndAvailable _ _) -> finaliseAvailable (Just ipkg) apkg
 
     finaliseInstalled (InstalledPackage pkg _ _) = InstallPlan.PreExisting pkg
-    finaliseAvailable (SemiConfiguredPackage pkg flags deps) =
+    finaliseAvailable mipkg (SemiConfiguredPackage pkg flags deps) =
       InstallPlan.Configured (ConfiguredPackage pkg flags deps')
-      where deps' = [ packageId pkg'
-                    | dep <- deps
-                    , let pkg' = case PackageIndex.lookupDependency selected dep of
-                                   [pkg''] -> pkg''
-                                   _ -> impossible ]
+      where
+        deps' = map (packageId . pickRemaining) deps
+        pickRemaining dep =
+          case PackageIndex.lookupDependency remainingChoices dep of
+            []        -> impossible
+            [pkg']    -> pkg'
+            remaining -> assert (checkIsPaired remaining)
+                       $ maximumBy bestByPref remaining
+        -- We order candidate packages to pick for a dependency by these
+        -- three factors. The last factor is just highest version wins.
+        bestByPref =
+          comparing (\p -> (isCurrent p, isPreferred p, packageVersion p))
+        -- Is the package already used by the installed version of this
+        -- package? If so we should pick that first. This stops us from doing
+        -- silly things like deciding to rebuild haskell98 against base 3.
+        isCurrent = case mipkg :: Maybe InstalledPackage of
+          Nothing   -> \_ -> False
+          Just ipkg -> \p -> packageId p `elem` depends ipkg
+        -- Is this package a preferred version acording to the hackage or
+        -- user's suggested version constraints
+        isPreferred p = packageVersion p `withinRange` preferredVersions
+          where (PackagePreferences preferredVersions _) = pref (packageName p)
+
+        -- We really only expect to find more than one choice remaining when
+        -- we're finalising a dependency on a paired package.
+        checkIsPaired [p1, p2] =
+          case Constraints.isPaired constraints (packageId p1) of
+            Just p2'   -> packageId p2' == packageId p2
+            Nothing    -> False
+        checkIsPaired _ = False
 
 -- | Improve an existing installation plan by, where possible, swapping
 -- packages we plan to install with ones that are already installed.
+-- This may add additional constraints due to the dependencies of installed
+-- packages on other installed packages.
 --
 improvePlan :: PackageIndex InstalledPackageInfo
-            -> PackageIndex (PlanPackage a)
-            -> PackageIndex (PlanPackage a)
-improvePlan installed selected = foldl' improve selected
-                               $ reverseTopologicalOrder selected
+            -> Constraints
+            -> PackageIndex PlanPackage
+            -> (PackageIndex PlanPackage, Constraints)
+improvePlan installed constraints0 selected0 =
+  foldl' improve (selected0, constraints0) (reverseTopologicalOrder selected0)
   where
-    improve selected' = maybe selected' (flip PackageIndex.insert selected')
-                      . improvePkg selected'
+    improve (selected, constraints) = fromMaybe (selected, constraints)
+                                    . improvePkg selected constraints
 
     -- The idea is to improve the plan by swapping a configured package for
     -- an equivalent installed one. For a particular package the condition is
     -- that the package be in a configured state, that a the same version be
     -- already installed with the exact same dependencies and all the packages
     -- in the plan that it depends on are in the installed state
-    improvePkg selected' pkgid = do
-      Configured pkg  <- PackageIndex.lookupPackageId selected' pkgid
+    improvePkg selected constraints pkgid = do
+      Configured pkg  <- PackageIndex.lookupPackageId selected  pkgid
       ipkg            <- PackageIndex.lookupPackageId installed pkgid
-      guard $ sort (depends pkg) == nub (sort (depends ipkg))
-      guard $ all (isInstalled selected') (depends pkg)
-      return (PreExisting ipkg)
+      guard $ all (isInstalled selected) (depends pkg)
+      tryInstalled selected constraints [ipkg]
 
-    isInstalled selected' pkgid =
-      case PackageIndex.lookupPackageId selected' pkgid of
+    isInstalled selected pkgid =
+      case PackageIndex.lookupPackageId selected pkgid of
         Just (PreExisting _) -> True
         _                    -> False
 
-    reverseTopologicalOrder :: PackageFixedDeps pkg => PackageIndex pkg
-                            -> [PackageIdentifier]
-    reverseTopologicalOrder index = map toPkgId
+    tryInstalled :: PackageIndex PlanPackage -> Constraints
+                 -> [InstalledPackageInfo]
+                 -> Maybe (PackageIndex PlanPackage, Constraints)
+    tryInstalled selected constraints [] = Just (selected, constraints)
+    tryInstalled selected constraints (pkg:pkgs) =
+      case constraintsOk (packageId pkg) (depends pkg) constraints of
+        Nothing           -> Nothing
+        Just constraints' -> tryInstalled selected' constraints' pkgs'
+          where
+            selected' = PackageIndex.insert (PreExisting pkg) selected
+            pkgs'      = catMaybes (map notSelected (depends pkg)) ++ pkgs
+            notSelected pkgid =
+              case (PackageIndex.lookupPackageId installed pkgid
+                   ,PackageIndex.lookupPackageId selected  pkgid) of
+                (Just pkg', Nothing) -> Just pkg'
+                _                    -> Nothing
+
+    constraintsOk _     []              constraints = Just constraints
+    constraintsOk pkgid (pkgid':pkgids) constraints =
+      case addPackageDependencyConstraint pkgid dep constraints of
+        Satisfiable constraints' _ -> constraintsOk pkgid pkgids constraints'
+        _                          -> Nothing
+      where
+        dep = TaggedDependency InstalledConstraint (thisPackageVersion pkgid')
+
+    reverseTopologicalOrder :: PackageFixedDeps pkg
+                            => PackageIndex pkg -> [PackageIdentifier]
+    reverseTopologicalOrder index = map (packageId . toPkg)
                                   . Graph.topSort
                                   . Graph.transposeG
                                   $ graph
-      where (graph, toPkgId, _) = PackageIndex.dependencyGraph index
+      where (graph, toPkg, _) = PackageIndex.dependencyGraph index
 
 -- ------------------------------------------------------------
 -- * Adding and recording constraints
 -- ------------------------------------------------------------
 
 addPackageSelectConstraint :: PackageIdentifier -> Constraints
-                           -> Satisfiable Constraints ExclusionReason
+                           -> Satisfiable Constraints
+                                [PackageIdentifier] ExclusionReason
 addPackageSelectConstraint pkgid constraints =
   Constraints.constrain dep reason constraints
   where
@@ -443,7 +550,8 @@ addPackageSelectConstraint pkgid constraints =
     reason = SelectedOther pkgid
 
 addPackageExcludeConstraint :: PackageIdentifier -> Constraints
-                     -> Satisfiable Constraints ExclusionReason
+                            -> Satisfiable Constraints
+                                 [PackageIdentifier] ExclusionReason
 addPackageExcludeConstraint pkgid constraints =
   Constraints.constrain dep reason constraints
   where
@@ -452,19 +560,34 @@ addPackageExcludeConstraint pkgid constraints =
     reason = ExcludedByConfigureFail
 
 addPackageDependencyConstraint :: PackageIdentifier -> TaggedDependency -> Constraints
-                               -> Satisfiable Constraints ExclusionReason
+                               -> Satisfiable Constraints
+                                    [PackageIdentifier] ExclusionReason
 addPackageDependencyConstraint pkgid dep constraints =
   Constraints.constrain dep reason constraints
   where
     reason = ExcludedByPackageDependency pkgid dep
 
-addTopLevelDependencyConstraint :: Dependency -> Constraints
-                                -> Satisfiable Constraints ExclusionReason
-addTopLevelDependencyConstraint dep constraints =
+addTopLevelVersionConstraint :: PackageName -> VersionRange
+                             -> Constraints
+                             -> Satisfiable Constraints
+                                  [PackageIdentifier] ExclusionReason
+addTopLevelVersionConstraint pkg ver constraints =
   Constraints.constrain taggedDep reason constraints
   where
+    dep       = Dependency pkg ver
     taggedDep = TaggedDependency NoInstalledConstraint dep
-    reason = ExcludedByTopLevelDependency dep
+    reason    = ExcludedByTopLevelDependency dep
+
+addTopLevelInstalledConstraint :: PackageName
+                               -> Constraints
+                               -> Satisfiable Constraints
+                                    [PackageIdentifier] ExclusionReason
+addTopLevelInstalledConstraint pkg constraints =
+  Constraints.constrain taggedDep reason constraints
+  where
+    dep       = Dependency pkg AnyVersion
+    taggedDep = TaggedDependency InstalledConstraint dep
+    reason    = ExcludedByTopLevelDependency dep
 
 -- ------------------------------------------------------------
 -- * Reasons for constraints
@@ -514,7 +637,7 @@ showExclusionReason pkgid (ExcludedByTopLevelDependency dep) =
 -- * Logging progress and failures
 -- ------------------------------------------------------------
 
-data Log = Select SelectablePackage [SelectablePackage]
+data Log = Select [SelectedPackage] [PackageIdentifier]
 data Failure
    = ConfigureFailed
        SelectablePackage
@@ -522,24 +645,42 @@ data Failure
    | DependencyConflict
        SelectedPackage TaggedDependency
        [(PackageIdentifier, [ExclusionReason])]
-   | TopLevelDependencyConflict
-       Dependency
+   | TopLevelVersionConstraintConflict
+       PackageName VersionRange
        [(PackageIdentifier, [ExclusionReason])]
-   | TopLevelDependencyUnsatisfiable
-       Dependency
+   | TopLevelVersionConstraintUnsatisfiable
+       PackageName VersionRange
+   | TopLevelInstallConstraintConflict
+       PackageName
+       [(PackageIdentifier, [ExclusionReason])]
+   | TopLevelInstallConstraintUnsatisfiable
+       PackageName
 
 showLog :: Log -> String
-showLog (Select selected discarded) =
-     "selecting " ++ displayPkg selected ++ " " ++ kind selected
-  ++ case discarded of
-       []  -> ""
-       [d] -> " and discarding version " ++ display (packageVersion d)
-       _   -> " and discarding versions "
-           ++ listOf (display . packageVersion) discarded
+showLog (Select selected discarded) = case (selectedMsg, discardedMsg) of
+  ("", y) -> y
+  (x, "") -> x
+  (x,  y) -> x ++ " and " ++ y
+
   where
+    selectedMsg  = "selecting " ++ case selected of
+      []     -> ""
+      [s]    -> display (packageId s) ++ " " ++ kind s
+      (s:ss) -> listOf id
+              $ (display (packageId s) ++ " " ++ kind s)
+              : [ display (packageVersion s') ++ " " ++ kind s'
+                | s' <- ss ]
+
     kind (InstalledOnly _)           = "(installed)"
     kind (AvailableOnly _)           = "(hackage)"
     kind (InstalledAndAvailable _ _) = "(installed or hackage)"
+
+    discardedMsg = case discarded of
+      []  -> ""
+      _   -> "discarding " ++ listOf id
+        [ element
+        | (pkgid:pkgids) <- groupBy (equating packageName) (sort discarded)
+        , element <- display pkgid : map (display . packageVersion) pkgids ]
 
 showFailure :: Failure -> String
 showFailure (ConfigureFailed pkg missingDeps) =
@@ -549,7 +690,7 @@ showFailure (ConfigureFailed pkg missingDeps) =
 
   where
     whyNot (Dependency name ver) [] =
-         "There is no available version of " ++ name
+         "There is no available version of " ++ display name
       ++ " that satisfies " ++ display ver
 
     whyNot dep conflicts =
@@ -567,15 +708,24 @@ showFailure (DependencyConflict pkg (TaggedDependency _ dep) conflicts) =
   ++ unlines [ showExclusionReason (packageId pkg') reason
              | (pkg', reasons) <- conflicts, reason <- reasons ]
 
-showFailure (TopLevelDependencyConflict dep conflicts) =
-     "dependencies conflict: "
-  ++ "top level dependency " ++ display dep ++ " however\n"
+showFailure (TopLevelVersionConstraintConflict name ver conflicts) =
+     "constraints conflict: "
+  ++ "top level constraint " ++ display (Dependency name ver) ++ " however\n"
   ++ unlines [ showExclusionReason (packageId pkg') reason
              | (pkg', reasons) <- conflicts, reason <- reasons ]
 
-showFailure (TopLevelDependencyUnsatisfiable (Dependency name ver)) =
-     "There is no available version of " ++ name
+showFailure (TopLevelVersionConstraintUnsatisfiable name ver) =
+     "There is no available version of " ++ display name
       ++ " that satisfies " ++ display ver
+
+showFailure (TopLevelInstallConstraintConflict name conflicts) =
+     "constraints conflict: "
+  ++ "top level constraint " ++ display name ++ "-installed however\n"
+  ++ unlines [ showExclusionReason (packageId pkg') reason
+             | (pkg', reasons) <- conflicts, reason <- reasons ]
+
+showFailure (TopLevelInstallConstraintUnsatisfiable name) =
+     "There is no installed version of " ++ display name
 
 -- ------------------------------------------------------------
 -- * Utils

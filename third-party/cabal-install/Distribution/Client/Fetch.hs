@@ -23,17 +23,25 @@ module Distribution.Client.Fetch (
 
 import Distribution.Client.Types
          ( UnresolvedDependency (..), AvailablePackage(..)
-         , AvailablePackageSource(..)
+         , AvailablePackageSource(..), AvailablePackageDb(..)
          , Repo(..), RemoteRepo(..), LocalRepo(..) )
 import Distribution.Client.Dependency
-         ( resolveDependencies, PackagesVersionPreference(..) )
+         ( resolveDependenciesWithProgress
+         , dependencyConstraints, dependencyTargets
+         , PackagesPreference(..), PackagesPreferenceDefault(..)
+         , PackagePreference(..) )
+import Distribution.Client.Dependency.Types
+         ( foldProgress )
 import Distribution.Client.IndexUtils as IndexUtils
          ( getAvailablePackages, disambiguateDependencies )
 import qualified Distribution.Client.InstallPlan as InstallPlan
-import Distribution.Client.HttpUtils (getHTTP)
+import Distribution.Client.HttpUtils (getHTTP, isOldHackageURI)
+import Distribution.Client.Utils
+         ( writeFileAtomic )
 
 import Distribution.Package
-         ( PackageIdentifier(..) )
+         ( PackageIdentifier, packageName, packageVersion, Dependency(..) )
+import qualified Distribution.Simple.PackageIndex as PackageIndex
 import Distribution.Simple.Compiler
          ( Compiler(compilerId), PackageDB )
 import Distribution.Simple.Program
@@ -41,25 +49,30 @@ import Distribution.Simple.Program
 import Distribution.Simple.Configure
          ( getInstalledPackages )
 import Distribution.Simple.Utils
-         ( die, notice, debug, setupMessage, intercalate
-         , copyFileVerbose, writeFileAtomic )
+         ( die, notice, info, debug, setupMessage
+         , copyFileVerbose )
 import Distribution.System
-         ( buildOS, buildArch )
+         ( buildPlatform )
 import Distribution.Text
          ( display )
 import Distribution.Verbosity
          ( Verbosity )
 
+import qualified Data.Map as Map
 import Control.Monad
-         ( filterM )
+         ( when, filterM )
 import System.Directory
          ( doesFileExist, createDirectoryIfMissing )
 import System.FilePath
          ( (</>), (<.>) )
+import qualified System.FilePath.Posix as FilePath.Posix
+         ( combine, joinPath )
 import Network.URI
-         ( URI(uriScheme, uriPath) )
+         ( URI(uriPath, uriScheme) )
 import Network.HTTP
-         ( ConnError(..), Response(..) )
+         ( Response(..) )
+import Network.Stream
+         ( ConnError(..) )
 
 
 downloadURI :: Verbosity
@@ -75,11 +88,16 @@ downloadURI verbosity path uri = do
     Left err -> return (Just err)
     Right rsp
       | rspCode rsp == (2,0,0)
-     -> writeFileAtomic path (rspBody rsp)
+     -> do info verbosity ("Downloaded to " ++ path)
+           writeFileAtomic path (rspBody rsp)
+     --FIXME: check the content-length header matches the body length.
+     --TODO: stream the download into the file rather than buffering the whole
+     --      thing in memory.
+     --      remember the ETag so we can not re-download if nothing changed.
      >> return Nothing
 
       | otherwise
-     -> return (Just (ErrorMisc ("Invalid HTTP code: " ++ show (rspCode rsp))))
+     -> return (Just (ErrorMisc ("Unsucessful HTTP code: " ++ show (rspCode rsp))))
 
 -- Downloads a package to [config-dir/packages/package-id] and returns the path to the package.
 downloadPackage :: Verbosity -> Repo -> PackageIdentifier -> IO String
@@ -103,7 +121,7 @@ downloadIndex :: Verbosity -> RemoteRepo -> FilePath -> IO FilePath
 downloadIndex verbosity repo cacheDir = do
   let uri = (remoteRepoURI repo) {
               uriPath = uriPath (remoteRepoURI repo)
-                     ++ "/" ++ "00-index.tar.gz"
+                          `FilePath.Posix.combine` "00-index.tar.gz"
             }
       path = cacheDir </> "00-index" <.> "tar.gz"
   createDirectoryIfMissing True cacheDir
@@ -123,7 +141,7 @@ fetchPackage :: Verbosity -> Repo -> PackageIdentifier -> IO String
 fetchPackage verbosity repo pkgid = do
   fetched <- doesFileExist (packageFile repo pkgid)
   if fetched
-    then do notice verbosity $ "'" ++ display pkgid ++ "' is cached."
+    then do info verbosity $ display pkgid ++ " has already been downloaded."
             return (packageFile repo pkgid)
     else do setupMessage verbosity "Downloading" pkgid
             downloadPackage verbosity repo pkgid
@@ -138,16 +156,41 @@ fetch :: Verbosity
       -> IO ()
 fetch verbosity packageDB repos comp conf deps = do
   installed <- getInstalledPackages verbosity comp packageDB conf
-  available <- getAvailablePackages verbosity repos
+  AvailablePackageDb available availablePrefs
+            <- getAvailablePackages verbosity repos
   deps' <- IndexUtils.disambiguateDependencies available deps
-  case resolveDependencies buildOS buildArch (compilerId comp)
-         installed available PreferLatestForSelected deps' of
+
+  let -- Hide the packages given on the command line so that the dep resolver
+      -- will decide that they need fetching, even if they're already
+      -- installed. Sicne we want to get the source packages of things we might
+      -- have installed (but not have the sources for).
+      installed' = fmap (hideGivenDeps deps') installed
+      hideGivenDeps pkgs index =
+        foldr PackageIndex.deletePackageName index
+          [ name | UnresolvedDependency (Dependency name _) _ <- pkgs ]
+
+  let  progress = resolveDependenciesWithProgress
+                   buildPlatform (compilerId comp)
+                   installed' available
+                   (PackagesPreference PreferLatestForSelected
+                     [ PackageVersionPreference name ver
+                     | (name, ver) <- Map.toList availablePrefs ])
+                   (dependencyConstraints deps')
+                   (dependencyTargets deps')
+  notice verbosity "Resolving dependencies..."
+  maybePlan <- foldProgress (\message rest -> info verbosity message >> rest)
+                            (return . Left) (return . Right) progress
+  case maybePlan of
     Left message -> die message
     Right pkgs   -> do
       ps <- filterM (fmap not . isFetched)
               [ pkg | (InstallPlan.Configured
                         (InstallPlan.ConfiguredPackage pkg _ _))
                           <- InstallPlan.toList pkgs ]
+      when (null ps) $
+        notice verbosity $ "No packages need to be fetched. "
+                        ++ "All the requested packages are already cached."
+
       sequence_ 
         [ fetchPackage verbosity repo pkgid
         | (AvailablePackage pkgid _ (RepoTarballPackage repo)) <- ps ]
@@ -163,15 +206,24 @@ packageFile repo pkgid = packageDir repo pkgid
 -- the tarball for a given @PackageIdentifer@ is stored.
 packageDir :: Repo -> PackageIdentifier -> FilePath
 packageDir repo pkgid = repoLocalDir repo
-                    </> pkgName pkgid
-                    </> display (pkgVersion pkgid)
+                    </> display (packageName    pkgid)
+                    </> display (packageVersion pkgid)
 
 -- | Generate the URI of the tarball for a given package.
 packageURI :: RemoteRepo -> PackageIdentifier -> URI
+packageURI repo pkgid | isOldHackageURI (remoteRepoURI repo) =
+  (remoteRepoURI repo) {
+    uriPath = FilePath.Posix.joinPath
+      [uriPath (remoteRepoURI repo)
+      ,display (packageName    pkgid)
+      ,display (packageVersion pkgid)
+      ,display pkgid <.> "tar.gz"]
+  }
 packageURI repo pkgid =
   (remoteRepoURI repo) {
-    uriPath = intercalate "/"
-      [uriPath (remoteRepoURI repo) ,
-       pkgName pkgid, display (pkgVersion pkgid),
-       display pkgid ++ ".tar.gz"]
+    uriPath = FilePath.Posix.joinPath
+      [uriPath (remoteRepoURI repo)
+      ,"packages"
+      ,display pkgid
+      ,"tarball"]
   }

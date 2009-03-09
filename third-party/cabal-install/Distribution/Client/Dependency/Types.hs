@@ -11,29 +11,36 @@
 -- Common types for dependency resolution.
 -----------------------------------------------------------------------------
 module Distribution.Client.Dependency.Types (
-    PackageName,
     DependencyResolver,
-    PackageVersionPreference(..),
+
+    PackageConstraint(..),
+    PackagePreferences(..),
+    InstalledPreference(..),
+
     Progress(..),
     foldProgress,
   ) where
 
 import Distribution.Client.Types
-         ( UnresolvedDependency(..), AvailablePackage(..) )
+         ( AvailablePackage(..) )
 import qualified Distribution.Client.InstallPlan as InstallPlan
 
 import Distribution.InstalledPackageInfo
          ( InstalledPackageInfo )
+import Distribution.PackageDescription
+         ( FlagAssignment )
 import Distribution.Simple.PackageIndex
          ( PackageIndex )
+import Distribution.Package
+         ( PackageName )
+import Distribution.Version
+         ( VersionRange )
 import Distribution.Compiler
          ( CompilerId )
 import Distribution.System
-         ( OS, Arch )
+         ( Platform )
 
 import Prelude hiding (fail)
-
-type PackageName  = String
 
 -- | A dependency resolver is a function that works out an installation plan
 -- given the set of installed and available packages and a set of deps to
@@ -43,22 +50,41 @@ type PackageName  = String
 -- solving the package dependency problem and we want to make it easy to swap
 -- in alternatives.
 --
-type DependencyResolver a = OS
-                         -> Arch
-                         -> CompilerId
-                         -> PackageIndex InstalledPackageInfo
-                         -> PackageIndex AvailablePackage
-                         -> (PackageName -> PackageVersionPreference)
-                         -> [UnresolvedDependency]
-                         -> Progress String String [InstallPlan.PlanPackage a]
+type DependencyResolver = Platform
+                       -> CompilerId
+                       -> PackageIndex InstalledPackageInfo
+                       -> PackageIndex AvailablePackage
+                       -> (PackageName -> PackagePreferences)
+                       -> [PackageConstraint]
+                       -> [PackageName]
+                       -> Progress String String [InstallPlan.PlanPackage]
+
+-- | Per-package constraints. Package constraints must be respected by the
+-- solver. Multiple constraints for each package can be given, though obviously
+-- it is possible to construct conflicting constraints (eg impossible version
+-- range or inconsistent flag assignment).
+--
+data PackageConstraint
+   = PackageVersionConstraint   PackageName VersionRange
+   | PackageInstalledConstraint PackageName
+   | PackageFlagsConstraint     PackageName FlagAssignment
 
 -- | A per-package preference on the version. It is a soft constraint that the
--- 'DependencyResolver' should try to respect where possible.
+-- 'DependencyResolver' should try to respect where possible. It consists of
+-- a 'InstalledPreference' which says if we prefer versions of packages
+-- that are already installed. It also hase a 'PackageVersionPreference' which
+-- is a suggested constraint on the version number. The resolver should try to
+-- use package versions that satisfy the suggested version constraint.
 --
 -- It is not specified if preferences on some packages are more important than
 -- others.
 --
-data PackageVersionPreference = PreferInstalled | PreferLatest
+data PackagePreferences = PackagePreferences VersionRange InstalledPreference
+
+-- | Wether we prefer an installed version of a package or simply the latest
+-- version.
+--
+data InstalledPreference = PreferInstalled | PreferLatest
 
 -- | A type to represent the unfolding of an expensive long running
 -- calculation that may fail. We may get intermediate steps before the final

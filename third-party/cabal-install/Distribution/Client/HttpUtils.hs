@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- | Separate module for HTTP actions, using a proxy server if one exists 
 -----------------------------------------------------------------------------
-module Distribution.Client.HttpUtils (getHTTP, proxy) where
+module Distribution.Client.HttpUtils (getHTTP, proxy, isOldHackageURI) where
 
 import Network.HTTP
          ( Request (..), Response (..), RequestMethod (..)
@@ -14,7 +14,9 @@ import Network.Browser
          ( Proxy (..), Authority (..), browse
          , setOutHandler, setErrHandler, setProxy, request)
 import Control.Monad
-         ( mplus, join )
+         ( mplus, join, liftM2 )
+import qualified Data.ByteString.Lazy as ByteString
+import Data.ByteString.Lazy (ByteString)
 #ifdef WIN32
 import System.Win32.Types
          ( DWORD, HKEY )
@@ -25,25 +27,26 @@ import Control.Exception
          ( handle, bracket )
 import Foreign
          ( toBool, Storable(peek, sizeOf), castPtr, alloca )
-#else
-import System.Environment (getEnvironment)
 #endif
+import System.Environment (getEnvironment)
 
 import qualified Paths_cabal_install (version)
 import Distribution.Verbosity (Verbosity)
 import Distribution.Simple.Utils (warn, debug)
 import Distribution.Text
          ( display )
+import qualified System.FilePath.Posix as FilePath.Posix
+         ( splitDirectories )
 
 -- FIXME: all this proxy stuff is far too complicated, especially parsing
 -- the proxy strings. Network.Browser should have a way to pick up the
 -- proxy settings hiding all this system-dependent stuff below.
 
 -- try to read the system proxy settings on windows or unix
-proxyString :: IO (Maybe String)
+proxyString, envProxyString, registryProxyString :: IO (Maybe String)
 #ifdef WIN32
 -- read proxy settings from the windows registry
-proxyString = handle (\_ -> return Nothing) $
+registryProxyString = handle (\_ -> return Nothing) $
   bracket (regOpenKey hive path) regCloseKey $ \hkey -> do
     enable <- fmap toBool $ regQueryValueDWORD hkey "ProxyEnable"
     if enable
@@ -63,11 +66,16 @@ proxyString = handle (\_ -> return Nothing) $
       regQueryValueEx hkey name (castPtr ptr) (sizeOf (undefined :: DWORD))
       peek ptr
 #else
+registryProxyString = return Nothing
+#endif
+
 -- read proxy settings by looking for an env var
-proxyString = do
+envProxyString = do
   env <- getEnvironment
   return (lookup "http_proxy" env `mplus` lookup "HTTP_PROXY" env)
-#endif
+
+proxyString = liftM2 mplus envProxyString registryProxyString
+
 
 -- |Get the local proxy settings  
 proxy :: Verbosity -> IO Proxy
@@ -99,9 +107,17 @@ parseHttpProxy str = join
   where
     parseHttpURI str' = case parseAbsoluteURI str' of
       Just uri@URI { uriAuthority = Just _ }
-         -> Just uri
+         -> Just (fixUserInfo uri)
       _  -> Nothing
 
+fixUserInfo :: URI -> URI
+fixUserInfo uri = uri{ uriAuthority = f `fmap` uriAuthority uri }
+    where
+      f a@URIAuth{ uriUserInfo = s } =
+          a{ uriUserInfo = case reverse s of
+                             '@':s' -> reverse s'
+                             _      -> s
+           }
 uri2proxy :: URI -> Maybe Proxy
 uri2proxy uri@URI{ uriScheme = "http:"
                  , uriAuthority = Just (URIAuth auth' host port)
@@ -115,15 +131,15 @@ uri2proxy uri@URI{ uriScheme = "http:"
                        _      -> pwd'
 uri2proxy _ = Nothing
 
-mkRequest :: URI -> Request
+mkRequest :: URI -> Request ByteString
 mkRequest uri = Request{ rqURI     = uri
                        , rqMethod  = GET
                        , rqHeaders = [Header HdrUserAgent userAgent]
-                       , rqBody    = "" }
+                       , rqBody    = ByteString.empty }
   where userAgent = "cabal-install/" ++ display Paths_cabal_install.version
 
 -- |Carry out a GET request, using the local proxy settings
-getHTTP :: Verbosity -> URI -> IO (Result Response)
+getHTTP :: Verbosity -> URI -> IO (Result (Response ByteString))
 getHTTP verbosity uri = do
                  p   <- proxy verbosity
                  let req = mkRequest uri
@@ -133,3 +149,11 @@ getHTTP verbosity uri = do
                                 setProxy p
                                 request req
                  return (Right resp)
+
+-- Utility function for legacy support.
+isOldHackageURI :: URI -> Bool
+isOldHackageURI uri
+    = case uriAuthority uri of
+        Just (URIAuth {uriRegName = "hackage.haskell.org"}) ->
+            FilePath.Posix.splitDirectories (uriPath uri) == ["/","packages","archive"]
+        _ -> False

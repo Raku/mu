@@ -23,15 +23,16 @@ module Distribution.Client.InstallSymlink (
 
 #if mingw32_HOST_OS || mingw32_TARGET_OS
 
-import Distribution.Client.Types (BuildResult)
+import Distribution.Package (PackageIdentifier)
 import Distribution.Client.InstallPlan (InstallPlan)
 import Distribution.Client.Setup (InstallFlags)
 import Distribution.Simple.Setup (ConfigFlags)
 
 symlinkBinaries :: ConfigFlags
                 -> InstallFlags
-                -> InstallPlan BuildResult -> IO ()
-symlinkBinaries _ _ = symlinkBinary undefined undefined undefined undefined
+                -> InstallPlan
+                -> IO [(PackageIdentifier, String, FilePath)]
+symlinkBinaries _ _ _ = return []
 
 symlinkBinary :: FilePath -> FilePath -> String -> String -> IO Bool
 symlinkBinary _ _ _ _ = fail "Symlinking feature not available on Windows"
@@ -39,7 +40,7 @@ symlinkBinary _ _ _ _ = fail "Symlinking feature not available on Windows"
 #else
 
 import Distribution.Client.Types
-         ( AvailablePackage(..), ConfiguredPackage(..), BuildResult )
+         ( AvailablePackage(..), ConfiguredPackage(..) )
 import Distribution.Client.Setup
          ( InstallFlags(installSymlinkBinDir) )
 import qualified Distribution.Client.InstallPlan as InstallPlan
@@ -58,6 +59,8 @@ import Distribution.Simple.Setup
          ( ConfigFlags(..), fromFlag, fromFlagOrDefault, flagToMaybe )
 import qualified Distribution.Simple.InstallDirs as InstallDirs
 import Distribution.Simple.PackageIndex (PackageIndex)
+import Distribution.System
+         ( Platform(Platform) )
 
 import System.Posix.Files
          ( getSymbolicLinkStatus, isSymbolicLink, readSymbolicLink
@@ -95,32 +98,39 @@ import Data.Maybe
 --
 symlinkBinaries :: ConfigFlags
                 -> InstallFlags
-                -> InstallPlan BuildResult
+                -> InstallPlan
                 -> IO [(PackageIdentifier, String, FilePath)]
 symlinkBinaries configFlags installFlags plan =
   case flagToMaybe (installSymlinkBinDir installFlags) of
     Nothing            -> return []
-    Just symlinkBinDir -> do
+    Just symlinkBinDir
+           | null exes -> return []
+           | otherwise -> do
       publicBinDir  <- canonicalizePath symlinkBinDir
+--    TODO: do we want to do this here? :
+--      createDirectoryIfMissing True publicBinDir
       fmap catMaybes $ sequence
-        [ let publicExeName  = PackageDescription.exeName exe
+        [ do privateBinDir <- pkgBinDir pkg
+             ok <- symlinkBinary
+                     publicBinDir  privateBinDir
+                     publicExeName privateExeName
+             if ok
+               then return Nothing
+               else return (Just (pkgid, publicExeName,
+                                  privateBinDir </> privateExeName))
+        | (pkg, exe) <- exes
+        , let publicExeName  = PackageDescription.exeName exe
               privateExeName = prefix ++ publicExeName ++ suffix
+              pkgid  = packageId pkg
               prefix = substTemplate pkgid prefixTemplate
-              suffix = substTemplate pkgid suffixTemplate
-          in do privateBinDir <- pkgBinDir pkg
-                ok <- symlinkBinary
-                        publicBinDir  privateBinDir
-                        publicExeName privateExeName
-                if ok
-                  then return Nothing
-                  else return (Just (pkgid, publicExeName,
-                                     privateBinDir </> privateExeName))
-        | InstallPlan.Installed cpkg <- InstallPlan.toList plan
-        , let pkg   = pkgDescription cpkg
-              pkgid = packageId pkg
-        , exe <- PackageDescription.executables pkg
-        , PackageDescription.buildable (PackageDescription.buildInfo exe) ]
+              suffix = substTemplate pkgid suffixTemplate ]
   where
+    exes =
+      [ (pkg, exe)
+      | InstallPlan.Installed cpkg _ <- InstallPlan.toList plan
+      , let pkg   = pkgDescription cpkg
+      , exe <- PackageDescription.executables pkg
+      , PackageDescription.buildable (PackageDescription.buildInfo exe) ]
 
     pkgDescription :: ConfiguredPackage -> PackageDescription
     pkgDescription (ConfiguredPackage (AvailablePackage _ pkg _) flags _) =
@@ -152,8 +162,7 @@ symlinkBinaries configFlags installFlags plan =
     fromFlagTemplate = fromFlagOrDefault (InstallDirs.toPathTemplate "")
     prefixTemplate   = fromFlagTemplate (configProgPrefix configFlags)
     suffixTemplate   = fromFlagTemplate (configProgSuffix configFlags)
-    os   = InstallPlan.planOS plan
-    arch = InstallPlan.planArch plan
+    (Platform arch os) = InstallPlan.planPlatform plan
     compilerId@(CompilerId compilerFlavor _) = InstallPlan.planCompiler plan
 
 symlinkBinary :: FilePath -- ^ The canonical path of the public bin dir

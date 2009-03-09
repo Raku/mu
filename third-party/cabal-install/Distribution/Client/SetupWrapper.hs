@@ -25,10 +25,13 @@ import qualified Distribution.Simple as Simple
 import Distribution.Version
          ( Version(..), VersionRange(..), withinRange )
 import Distribution.Package
-         ( PackageIdentifier(..), packageName, packageVersion, Dependency(..) )
+         ( PackageIdentifier(..), PackageName(..), Package(..), packageName
+         , packageVersion, Dependency(..) )
 import Distribution.PackageDescription
          ( GenericPackageDescription(packageDescription)
-         , PackageDescription(..), BuildType(..), readPackageDescription )
+         , PackageDescription(..), BuildType(..) )
+import Distribution.PackageDescription.Parse
+         ( readPackageDescription )
 import Distribution.InstalledPackageInfo
          ( InstalledPackageInfo )
 import Distribution.Simple.Configure
@@ -48,20 +51,20 @@ import qualified Distribution.Simple.PackageIndex as PackageIndex
 import Distribution.Simple.PackageIndex (PackageIndex)
 import Distribution.Simple.Utils
          ( die, debug, info, cabalVersion, findPackageDesc, comparing
-         , createDirectoryIfMissingVerbose, inDir )
+         , createDirectoryIfMissingVerbose )
+import Distribution.Client.Utils
+         ( moreRecentFile, rewriteFile, inDir )
 import Distribution.Text
          ( display )
 import Distribution.Verbosity
          ( Verbosity )
 
-import System.Directory  ( doesFileExist, getModificationTime, getCurrentDirectory )
+import System.Directory  ( doesFileExist, getCurrentDirectory )
 import System.FilePath   ( (</>), (<.>) )
-import System.IO.Error   ( isDoesNotExistError )
 import System.IO         ( Handle )
 import System.Exit       ( ExitCode(..), exitWith )
 import System.Process    ( runProcess, waitForProcess )
 import Control.Monad     ( when, unless )
-import Control.Exception ( evaluate )
 import Data.List         ( maximumBy )
 import Data.Maybe        ( fromMaybe, isJust )
 import Data.Monoid       ( Monoid(mempty) )
@@ -70,6 +73,7 @@ import Data.Char         ( isSpace )
 data SetupScriptOptions = SetupScriptOptions {
     useCabalVersion  :: VersionRange,
     useCompiler      :: Maybe Compiler,
+    usePackageDB     :: PackageDB,
     usePackageIndex  :: Maybe (PackageIndex InstalledPackageInfo),
     useProgramConfig :: ProgramConfiguration,
     useDistPref      :: FilePath,
@@ -81,6 +85,7 @@ defaultSetupScriptOptions :: SetupScriptOptions
 defaultSetupScriptOptions = SetupScriptOptions {
     useCabalVersion  = AnyVersion,
     useCompiler      = Nothing,
+    usePackageDB     = UserPackageDB,
     usePackageIndex  = Nothing,
     useProgramConfig = emptyProgramConfiguration,
     useDistPref      = defaultDistPref,
@@ -107,7 +112,7 @@ setupWrapper verbosity options mpkg cmd flags extraArgs = do
       mkArgs cabalLibVersion = commandName cmd
                              : commandShowOptions cmd (flags cabalLibVersion)
                             ++ extraArgs
-  setupMethod verbosity options pkg buildType' mkArgs
+  setupMethod verbosity options' (packageId pkg) buildType' mkArgs
   where
     getPkg = findPackageDesc (fromMaybe "." (useWorkingDir options))
          >>= readPackageDescription verbosity
@@ -127,7 +132,7 @@ determineSetupMethod options buildType'
 
 type SetupMethod = Verbosity
                 -> SetupScriptOptions
-                -> PackageDescription
+                -> PackageIdentifier
                 -> BuildType
                 -> (Version -> [String]) -> IO ()
 
@@ -167,7 +172,9 @@ externalSetupMethod verbosity options pkg bt mkargs = do
   invokeSetupScript (mkargs cabalLibVersion)
 
   where
-  workingDir       = fromMaybe "" (useWorkingDir options)
+  workingDir       = case fromMaybe "" (useWorkingDir options) of
+                       []  -> "."
+                       dir -> dir
   setupDir         = workingDir </> useDistPref options </> "setup"
   setupVersionFile = setupDir </> "setup" <.> "version"
   setupProgFile    = setupDir </> "setup" <.> exeExtension
@@ -191,16 +198,16 @@ externalSetupMethod verbosity options pkg bt mkargs = do
 
   installedCabalVersion :: SetupScriptOptions -> Compiler
                         -> ProgramConfiguration -> IO Version
-  installedCabalVersion _ _ _ | packageName pkg == "Cabal" =
+  installedCabalVersion _ _ _ | packageName pkg == PackageName "Cabal" =
     return (packageVersion pkg)
   installedCabalVersion options' comp conf = do
     index <- case usePackageIndex options' of
       Just index -> return index
       Nothing    -> fromMaybe mempty
-             `fmap` getInstalledPackages verbosity comp UserPackageDB conf
-                    -- user packages are *allowed* here, no portability problem
+             `fmap` getInstalledPackages verbosity
+                      comp (usePackageDB options') conf
 
-    let cabalDep = Dependency "Cabal" (useCabalVersion options)
+    let cabalDep = Dependency (PackageName "Cabal") (useCabalVersion options)
     case PackageIndex.lookupDependency index cabalDep of
       []   -> die $ "The package requires Cabal library version "
                  ++ display (useCabalVersion options)
@@ -273,11 +280,17 @@ externalSetupMethod verbosity options pkg bt mkargs = do
       rawSystemProgramConf verbosity ghcProgram conf $
           ghcVerbosityOptions verbosity
        ++ ["--make", setupHsFile, "-o", setupProgFile
-          ,"-odir", setupDir, "-hidir", setupDir]
-       ++ if packageName pkg == "Cabal"
-            then ["-i", "-i."]
-            else ["-package", display cabalPkgid ]
-    where cabalPkgid = PackageIdentifier "Cabal" cabalLibVersion
+          ,"-odir", setupDir, "-hidir", setupDir
+          ,"-i", "-i" ++ workingDir ]
+       ++ (case usePackageDB options' of
+             GlobalPackageDB      -> ["-no-user-package-conf"]
+             UserPackageDB        -> []
+             SpecificPackageDB db -> ["-no-user-package-conf"
+                                     ,"-package-conf", db])
+       ++ if packageName pkg == PackageName "Cabal"
+            then []
+            else ["-package", display cabalPkgid]
+    where cabalPkgid = PackageIdentifier (PackageName "Cabal") cabalLibVersion
 
   invokeSetupScript :: [String] -> IO ()
   invokeSetupScript args = do
@@ -292,36 +305,3 @@ externalSetupMethod verbosity options pkg bt mkargs = do
                  Nothing (useLoggingHandle options) (useLoggingHandle options)
     exitCode <- waitForProcess process
     unless (exitCode == ExitSuccess) $ exitWith exitCode
-
--- ------------------------------------------------------------
--- * Utils
--- ------------------------------------------------------------
-
--- | Compare the modification times of two files to see if the first is newer
--- than the second. The first file must exist but the second need not.
--- The expected use case is when the second file is generated using the first.
--- In this use case, if the result is True then the second file is out of date.
---
-moreRecentFile :: FilePath -> FilePath -> IO Bool
-moreRecentFile a b = do
-  exists <- doesFileExist b
-  if not exists
-    then return True
-    else do tb <- getModificationTime b
-            ta <- getModificationTime a
-            return (ta > tb)
-
--- | Write a file but only if it would have new content. If we would be writing
--- the same as the existing content then leave the file as is so that we do not
--- update the file's modification time.
---
-rewriteFile :: FilePath -> String -> IO ()
-rewriteFile path newContent =
-  flip catch mightNotExist $ do
-    existingContent <- readFile path
-    evaluate (length existingContent)
-    unless (existingContent == newContent) $
-      writeFile path newContent
-  where
-    mightNotExist e | isDoesNotExistError e = writeFile path newContent
-                    | otherwise             = ioError e

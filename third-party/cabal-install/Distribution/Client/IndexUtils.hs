@@ -12,85 +12,209 @@
 -----------------------------------------------------------------------------
 module Distribution.Client.IndexUtils (
   getAvailablePackages,
-  readRepoIndex,
+
+  readPackageIndexFile,
+  parseRepoIndex,
+
   disambiguatePackageName,
   disambiguateDependencies
   ) where
 
-import Distribution.Client.Tar
+import qualified Distribution.Client.Tar as Tar
 import Distribution.Client.Types
          ( UnresolvedDependency(..), AvailablePackage(..)
-         , AvailablePackageSource(..), Repo(..) )
+         , AvailablePackageSource(..), Repo(..), RemoteRepo(..)
+         , AvailablePackageDb(..) )
 
 import Distribution.Package
-         ( PackageIdentifier(..), Package(..), Dependency(Dependency) )
+         ( PackageId, PackageIdentifier(..), PackageName(..), Package(..)
+         , Dependency(Dependency) )
 import Distribution.Simple.PackageIndex (PackageIndex)
 import qualified Distribution.Simple.PackageIndex as PackageIndex
 import Distribution.PackageDescription
+         ( GenericPackageDescription )
+import Distribution.PackageDescription.Parse
          ( parsePackageDescription )
 import Distribution.ParseUtils
          ( ParseResult(..) )
+import Distribution.Version
+         ( VersionRange(IntersectVersionRanges) )
 import Distribution.Text
-         ( simpleParse )
+         ( display, simpleParse )
 import Distribution.Verbosity (Verbosity)
 import Distribution.Simple.Utils (die, warn, info, intercalate, fromUTF8)
 
-import Prelude hiding (catch)
-import Data.Monoid (Monoid(mconcat))
-import Control.Exception (evaluate, catch, Exception(IOException))
+import Data.Maybe  (catMaybes, fromMaybe)
+import Data.List   (isPrefixOf)
+import Data.Monoid (Monoid(..))
+import qualified Data.Map as Map
+import Control.Monad (MonadPlus(mplus), when)
+import Control.Exception (evaluate)
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as BS.Char8
 import Data.ByteString.Lazy (ByteString)
+import qualified Codec.Compression.GZip as GZip (decompress)
 import System.FilePath ((</>), takeExtension, splitDirectories, normalise)
+import System.FilePath.Posix as FilePath.Posix
+         ( takeFileName )
 import System.IO.Error (isDoesNotExistError)
+import System.Directory
+         ( getModificationTime )
+import System.Time
+         ( getClockTime, diffClockTimes, normalizeTimeDiff, TimeDiff(tdDay) )
 
-
-getAvailablePackages :: Verbosity -> [Repo]
-                     -> IO (PackageIndex AvailablePackage)
+-- | Read a repository index from disk, from the local files specified by
+-- a list of 'Repo's.
+--
+-- All the 'AvailablePackage's are marked as having come from the appropriate
+-- 'Repo'.
+--
+-- This is a higher level wrapper used internally in cabal-install.
+--
+getAvailablePackages :: Verbosity -> [Repo] -> IO AvailablePackageDb
+getAvailablePackages verbosity [] = do
+  warn verbosity $ "No remote package servers have been specified. Usually "
+                ++ "you would have one specified in the config file."
+  return AvailablePackageDb {
+    packageIndex       = mempty,
+    packagePreferences = mempty
+  }
 getAvailablePackages verbosity repos = do
   info verbosity "Reading available packages..."
   pkgss <- mapM (readRepoIndex verbosity) repos
-  evaluate (mconcat pkgss)
+  let (pkgs, prefs) = mconcat pkgss
+      prefs' = Map.fromListWith IntersectVersionRanges
+                 [ (name, range) | Dependency name range <- prefs ]
+  evaluate pkgs
+  evaluate prefs'
+  return AvailablePackageDb {
+    packageIndex       = pkgs,
+    packagePreferences = prefs'
+  }
 
 -- | Read a repository index from disk, from the local file specified by
 -- the 'Repo'.
 --
-readRepoIndex :: Verbosity -> Repo -> IO (PackageIndex AvailablePackage)
-readRepoIndex verbosity repo =
+-- All the 'AvailablePackage's are marked as having come from the given 'Repo'.
+--
+-- This is a higher level wrapper used internally in cabal-install.
+--
+readRepoIndex :: Verbosity -> Repo
+              -> IO (PackageIndex AvailablePackage, [Dependency])
+readRepoIndex verbosity repo = handleNotFound $ do
   let indexFile = repoLocalDir repo </> "00-index.tar"
-   in fmap parseRepoIndex (BS.readFile indexFile)
-          `catch` (\e -> do case e of
-                              IOException ioe | isDoesNotExistError ioe ->
-                                warn verbosity "The package list does not exist. Run 'cabal update' to download it."
-                              _ -> warn verbosity (show e)
-                            return (PackageIndex.fromList []))
+  (pkgs, prefs) <- either fail return
+                 . foldlTarball extract ([], [])
+               =<< BS.readFile indexFile
+
+  pkgIndex <- evaluate $ PackageIndex.fromList
+    [ AvailablePackage {
+        packageInfoId      = pkgid,
+        packageDescription = pkg,
+        packageSource      = RepoTarballPackage repo
+      }
+    | (pkgid, pkg) <- pkgs]
+
+  warnIfIndexIsOld indexFile
+  return (pkgIndex, prefs)
 
   where
-    -- | Parse a repository index file from a 'ByteString'.
-    --
-    -- All the 'AvailablePackage's are marked as having come from the given 'Repo'.
-    --
-    parseRepoIndex :: ByteString -> PackageIndex AvailablePackage
-    parseRepoIndex s = PackageIndex.fromList $ do
-      (hdr, content) <- readTarArchive s
-      if takeExtension (tarFileName hdr) == ".cabal"
-        then case splitDirectories (normalise (tarFileName hdr)) of
-               [pkgname,vers,_] ->
-                 let parsed = parsePackageDescription
-                                (fromUTF8 . BS.Char8.unpack $ content)
-                     descr  = case parsed of
-                       ParseOk _ d -> d
-                       _           -> error $ "Couldn't read cabal file "
-                                           ++ show (tarFileName hdr)
-                  in case simpleParse vers of
-                       Just ver -> return AvailablePackage {
-                           packageInfoId = PackageIdentifier pkgname ver,
-                           packageDescription = descr,
-                           packageSource = RepoTarballPackage repo
-                         }
-                       _ -> []
-               _ -> []
-        else []
+    extract (pkgs, prefs) entry = fromMaybe (pkgs, prefs) $
+              (do pkg <- extractPkg entry; return (pkg:pkgs, prefs))
+      `mplus` (do prefs' <- extractPrefs entry; return (pkgs, prefs'++prefs))
+
+    extractPrefs :: Tar.Entry -> Maybe [Dependency]
+    extractPrefs entry
+      | takeFileName (Tar.fileName entry) == "preferred-versions"
+      = Just . parsePreferredVersions
+      . BS.Char8.unpack . Tar.fileContent $ entry
+      | otherwise = Nothing
+
+    handleNotFound action = catch action $ \e -> if isDoesNotExistError e
+      then do
+        case repoKind repo of
+          Left  remoteRepo -> warn verbosity $
+               "The package list for '" ++ remoteRepoName remoteRepo
+            ++ "' does not exist. Run 'cabal update' to download it."
+          Right _localRepo -> warn verbosity $
+               "The package list for the local repo '" ++ repoLocalDir repo
+            ++ "' is missing. The repo is invalid."
+        return mempty
+      else ioError e
+
+    isOldThreshold = 15 --days
+    warnIfIndexIsOld indexFile = do
+      indexTime   <- getModificationTime indexFile
+      currentTime <- getClockTime
+      let diff = normalizeTimeDiff (diffClockTimes currentTime indexTime)
+      when (tdDay diff >= isOldThreshold) $ case repoKind repo of
+        Left  remoteRepo -> warn verbosity $
+             "The package list for '" ++ remoteRepoName remoteRepo
+          ++ "' is " ++ show (tdDay diff)  ++ " days old.\nRun "
+          ++ "'cabal update' to get the latest list of available packages."
+        Right _localRepo -> return ()
+
+parsePreferredVersions :: String -> [Dependency]
+parsePreferredVersions = catMaybes
+                       . map simpleParse
+                       . filter (not . isPrefixOf "--")
+                       . lines
+
+-- | Read a compressed \"00-index.tar.gz\" file into a 'PackageIndex'.
+--
+-- This is supposed to be an \"all in one\" way to easily get at the info in
+-- the hackage package index.
+--
+-- It takes a function to map a 'GenericPackageDescription' into any more
+-- specific instance of 'Package' that you might want to use. In the simple
+-- case you can just use @\_ p -> p@ here.
+--
+readPackageIndexFile :: Package pkg
+                     => (PackageId -> GenericPackageDescription -> pkg)
+                     -> FilePath -> IO (PackageIndex pkg)
+readPackageIndexFile mkPkg indexFile = do
+  pkgs <- either fail return
+        . parseRepoIndex
+        . GZip.decompress
+      =<< BS.readFile indexFile
+  
+  evaluate $ PackageIndex.fromList
+   [ mkPkg pkgid pkg | (pkgid, pkg) <- pkgs]
+
+-- | Parse an uncompressed \"00-index.tar\" repository index file represented
+-- as a 'ByteString'.
+--
+parseRepoIndex :: ByteString
+               -> Either String [(PackageId, GenericPackageDescription)]
+parseRepoIndex = foldlTarball (\pkgs -> maybe pkgs (:pkgs) . extractPkg) []
+
+extractPkg :: Tar.Entry -> Maybe (PackageId, GenericPackageDescription)
+extractPkg entry
+  | takeExtension fileName == ".cabal"
+  = case splitDirectories (normalise fileName) of
+      [pkgname,vers,_] -> case simpleParse vers of
+        Just ver -> Just (pkgid, descr)
+          where
+            pkgid  = PackageIdentifier (PackageName pkgname) ver
+            parsed = parsePackageDescription . fromUTF8 . BS.Char8.unpack
+                                             . Tar.fileContent $ entry
+            descr  = case parsed of
+              ParseOk _ d -> d
+              _           -> error $ "Couldn't read cabal file "
+                                  ++ show fileName
+        _ -> Nothing
+      _ -> Nothing
+  | otherwise = Nothing
+  where
+    fileName = Tar.fileName entry
+
+foldlTarball :: (a -> Tar.Entry -> a) -> a
+             -> ByteString -> Either String a
+foldlTarball f z = either Left (Right . foldl f z) . check [] . Tar.read
+  where
+    check _  (Tar.Fail err)  = Left  err
+    check ok Tar.Done        = Right ok
+    check ok (Tar.Next e es) = check (e:ok) es
 
 -- | Disambiguate a set of packages using 'disambiguatePackage' and report any
 -- ambiguities to the user.
@@ -108,9 +232,9 @@ disambiguateDependencies index deps = do
              (_, Left name)) <- zip deps names ]
         ambigious -> die $ unlines
           [ if null matches
-              then "There is no package named " ++ name
-              else "The package name " ++ name ++ "is ambigious. "
-                ++ "It could be: " ++ intercalate ", " matches
+              then "There is no package named " ++ display name
+              else "The package name " ++ display name ++ "is ambigious. "
+                ++ "It could be: " ++ intercalate ", " (map display matches)
           | (name, matches) <- ambigious ]
 
 -- | Given an index of known packages and a package name, figure out which one it
@@ -120,9 +244,9 @@ disambiguateDependencies index deps = do
 -- that case it is ambigious.
 --
 disambiguatePackageName :: PackageIndex AvailablePackage
-                        -> String
-                        -> Either String [String]
-disambiguatePackageName index name =
+                        -> PackageName
+                        -> Either PackageName [PackageName]
+disambiguatePackageName index (PackageName name) =
     case PackageIndex.searchByName index name of
       PackageIndex.None              -> Right []
       PackageIndex.Unambiguous pkgs  -> Left (pkgName (packageId (head pkgs)))

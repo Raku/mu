@@ -16,14 +16,15 @@ module Distribution.Client.Dependency.Bogus (
   ) where
 
 import Distribution.Client.Types
-         ( UnresolvedDependency(..), AvailablePackage(..)
-         , ConfiguredPackage(..) )
+         ( AvailablePackage(..), ConfiguredPackage(..) )
 import Distribution.Client.Dependency.Types
-         ( DependencyResolver, Progress(..) )
+         ( DependencyResolver, Progress(..)
+         , PackageConstraint(..), PackagePreferences(..) )
 import qualified Distribution.Client.InstallPlan as InstallPlan
 
 import Distribution.Package
-         ( PackageIdentifier(..), Dependency(..), Package(..) )
+         ( PackageName, PackageIdentifier(..), Dependency(..)
+         , Package(..), packageVersion )
 import Distribution.PackageDescription
          ( GenericPackageDescription(..), CondTree(..), FlagAssignment )
 import Distribution.PackageDescription.Configuration
@@ -31,27 +32,34 @@ import Distribution.PackageDescription.Configuration
 import qualified Distribution.Simple.PackageIndex as PackageIndex
 import Distribution.Simple.PackageIndex (PackageIndex)
 import Distribution.Version
-         ( VersionRange(IntersectVersionRanges) )
+         ( VersionRange(AnyVersion, IntersectVersionRanges), withinRange )
 import Distribution.Simple.Utils
-         ( equating, comparing )
+         ( comparing )
 import Distribution.Text
          ( display )
+import Distribution.System
+         ( Platform(Platform) )
 
 import Data.List
-         ( maximumBy, sortBy, groupBy )
+         ( maximumBy )
+import Data.Maybe
+         ( fromMaybe )
+import qualified Data.Map as Map
 
 -- | This resolver thinks that every package is already installed.
 --
 -- We need this for hugs and nhc98 which do not track installed packages.
 -- We just pretend that everything is installed and hope for the best.
 --
-bogusResolver :: DependencyResolver a
-bogusResolver os arch comp _ available _ = resolveFromAvailable []
-                                         . combineDependencies
+bogusResolver :: DependencyResolver
+bogusResolver (Platform arch os) comp _ available
+              preferences constraints targets =
+    resolveFromAvailable []
+      (combineConstraints preferences constraints targets)
   where
     resolveFromAvailable chosen [] = Done chosen
-    resolveFromAvailable chosen (UnresolvedDependency dep flags : deps) =
-      case latestAvailableSatisfying available dep of
+    resolveFromAvailable chosen ((name, verConstraint, flags, verPref): deps) =
+      case latestAvailableSatisfying available name verConstraint verPref of
         Nothing  -> Fail ("Unresolved dependency: " ++ display dep)
         Just apkg@(AvailablePackage _ pkg _) ->
           case finalizePackageDescription flags none os arch comp [] pkg of
@@ -64,6 +72,8 @@ bogusResolver os arch comp _ available _ = resolveFromAvailable []
           where
             none :: Maybe (PackageIndex PackageIdentifier)
             none = Nothing
+      where
+        dep = Dependency name verConstraint
 
 fudgeChosenPackage :: AvailablePackage -> FlagAssignment -> ConfiguredPackage
 fudgeChosenPackage (AvailablePackage pkgid pkg source) flags =
@@ -87,23 +97,35 @@ fudgeChosenPackage (AvailablePackage pkgid pkg source) flags =
       where
         g (cnd, t, me) = (cnd, mapTreeConstrs f t, fmap (mapTreeConstrs f) me)
 
-combineDependencies :: [UnresolvedDependency] -> [UnresolvedDependency]
-combineDependencies = map combineGroup
-                    . groupBy (equating depName)
-                    . sortBy  (comparing depName)
+combineConstraints :: (PackageName -> PackagePreferences)
+                   -> [PackageConstraint]
+                   -> [PackageName]
+                   -> [(PackageName, VersionRange, FlagAssignment, VersionRange)]
+combineConstraints preferences constraints targets =
+  [ (name, ver, flags, pref)
+  | name <- targets
+  , let ver   = fromMaybe AnyVersion (Map.lookup name versionConstraints)
+        flags = fromMaybe []         (Map.lookup name flagsConstraints)
+        PackagePreferences pref _ = preferences name ]
   where
-    combineGroup deps = UnresolvedDependency (Dependency name ver) flags
-      where name  = depName (head deps)
-            ver   = foldr1 IntersectVersionRanges . map depVer $ deps
-            flags = concatMap depFlags deps
-    depName (UnresolvedDependency (Dependency name _) _) = name
-    depVer  (UnresolvedDependency (Dependency _ ver)  _) = ver
+    versionConstraints = Map.fromListWith IntersectVersionRanges
+      [ (name, versionRange)
+      | PackageVersionConstraint name versionRange <- constraints ]
 
--- | Gets the latest available package satisfying a dependency.
+    flagsConstraints =  Map.fromListWith (++)
+      [ (name, flags)
+      | PackageFlagsConstraint name flags <- constraints ]
+
+-- | Gets the best available package satisfying a dependency.
+--
 latestAvailableSatisfying :: PackageIndex AvailablePackage
-                          -> Dependency
+                          -> PackageName -> VersionRange -> VersionRange
                           -> Maybe AvailablePackage
-latestAvailableSatisfying index dep =
+latestAvailableSatisfying index name versionConstraint versionPreference =
   case PackageIndex.lookupDependency index dep of
     []   -> Nothing
-    pkgs -> Just (maximumBy (comparing (pkgVersion . packageId)) pkgs)
+    pkgs -> Just (maximumBy best pkgs)
+  where
+    dep  = Dependency name versionConstraint
+    best = comparing (\p -> (isPreferred p, packageVersion p))
+    isPreferred p = packageVersion p `withinRange` versionPreference

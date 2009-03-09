@@ -13,13 +13,20 @@
 -- Top level interface to dependency resolution.
 -----------------------------------------------------------------------------
 module Distribution.Client.Dependency (
+    module Distribution.Client.Dependency.Types,
     resolveDependencies,
     resolveDependenciesWithProgress,
-    PackagesVersionPreference(..),
+
+    dependencyConstraints,
+    dependencyTargets,
+
+    PackagesPreference(..),
+    PackagesPreferenceDefault(..),
+    PackagePreference(..),
+
     upgradableDependencies,
   ) where
 
---import Distribution.Client.Dependency.Naive (naiveResolver)
 import Distribution.Client.Dependency.Bogus (bogusResolver)
 import Distribution.Client.Dependency.TopDown (topDownResolver)
 import qualified Distribution.Simple.PackageIndex as PackageIndex
@@ -30,33 +37,56 @@ import Distribution.Client.InstallPlan (InstallPlan)
 import Distribution.Client.Types
          ( UnresolvedDependency(..), AvailablePackage(..) )
 import Distribution.Client.Dependency.Types
-         ( PackageName, DependencyResolver, PackageVersionPreference(..)
+         ( DependencyResolver, PackageConstraint(..)
+         , PackagePreferences(..), InstalledPreference(..)
          , Progress(..), foldProgress )
 import Distribution.Package
-         ( PackageIdentifier(..), packageVersion, packageName
+         ( PackageIdentifier(..), PackageName(..), packageVersion, packageName
          , Dependency(..), Package(..), PackageFixedDeps(..) )
 import Distribution.Version
-         ( VersionRange(LaterVersion) )
+         ( VersionRange(AnyVersion), orLaterVersion, isAnyVersion )
 import Distribution.Compiler
-         ( CompilerId )
+         ( CompilerId(..) )
 import Distribution.System
-         ( OS, Arch )
+         ( Platform )
 import Distribution.Simple.Utils (comparing)
 import Distribution.Client.Utils (mergeBy, MergeResult(..))
 
 import Data.List (maximumBy)
 import Data.Monoid (Monoid(mempty))
+import Data.Maybe (fromMaybe)
+import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Control.Exception (assert)
 
-defaultResolver :: DependencyResolver a
+defaultResolver :: DependencyResolver
 defaultResolver = topDownResolver
---for the brave: try the new topDownResolver, but only with --dry-run !!!
 
 -- | Global policy for the versions of all packages.
 --
-data PackagesVersionPreference =
+data PackagesPreference = PackagesPreference
+       PackagesPreferenceDefault
+       [PackagePreference]
+
+dependencyConstraints :: [UnresolvedDependency] -> [PackageConstraint]
+dependencyConstraints deps =
+     [ PackageVersionConstraint name versionRange
+     | UnresolvedDependency (Dependency name versionRange) _ <- deps
+     , not (isAnyVersion versionRange) ]
+
+  ++ [ PackageFlagsConstraint name flags
+     | UnresolvedDependency (Dependency name _) flags <- deps
+     , not (null flags) ]
+
+dependencyTargets :: [UnresolvedDependency] -> [PackageName]
+dependencyTargets deps =
+  [ name | UnresolvedDependency (Dependency name _) _ <- deps ]
+
+-- | Global policy for all packages to say if we prefer package versions that
+-- are already installed locally or if we just prefer the latest available.
+--
+data PackagesPreferenceDefault =
 
      -- | Always prefer the latest version irrespective of any existing
      -- installed version.
@@ -77,31 +107,37 @@ data PackagesVersionPreference =
      --
    | PreferLatestForSelected
 
-resolveDependencies :: OS
-                    -> Arch
+data PackagePreference
+   = PackageVersionPreference   PackageName VersionRange
+   | PackageInstalledPreference PackageName InstalledPreference
+
+resolveDependencies :: Platform
                     -> CompilerId
                     -> Maybe (PackageIndex InstalledPackageInfo)
                     -> PackageIndex AvailablePackage
-                    -> PackagesVersionPreference
-                    -> [UnresolvedDependency]
-                    -> Either String (InstallPlan a)
-resolveDependencies os arch comp installed available pref deps =
+                    -> PackagesPreference
+                    -> [PackageConstraint]
+                    -> [PackageName]
+                    -> Either String InstallPlan
+resolveDependencies platform comp installed available
+                    preferences constraints targets =
   foldProgress (flip const) Left Right $
-    resolveDependenciesWithProgress os arch comp installed available pref deps
+    resolveDependenciesWithProgress platform comp installed available
+                                    preferences constraints targets
 
-resolveDependenciesWithProgress :: OS
-                                -> Arch
+resolveDependenciesWithProgress :: Platform
                                 -> CompilerId
                                 -> Maybe (PackageIndex InstalledPackageInfo)
                                 -> PackageIndex AvailablePackage
-                                -> PackagesVersionPreference
-                                -> [UnresolvedDependency]
-                                -> Progress String String (InstallPlan a)
-resolveDependenciesWithProgress os arch comp (Just installed) =
-  dependencyResolver defaultResolver os arch comp installed
+                                -> PackagesPreference
+                                -> [PackageConstraint]
+                                -> [PackageName]
+                                -> Progress String String InstallPlan
+resolveDependenciesWithProgress platform comp (Just installed) =
+  dependencyResolver defaultResolver platform comp installed
 
-resolveDependenciesWithProgress os arch comp Nothing =
-  dependencyResolver bogusResolver os arch comp mempty
+resolveDependenciesWithProgress platform comp Nothing =
+  dependencyResolver bogusResolver platform comp mempty
 
 hideBrokenPackages :: PackageFixedDeps p => PackageIndex p -> PackageIndex p
 hideBrokenPackages index =
@@ -113,52 +149,70 @@ hideBrokenPackages index =
   where
     check p x = assert (p x) x
 
-hideBasePackage :: Package p => PackageIndex p -> PackageIndex p
-hideBasePackage = PackageIndex.deletePackageName "base"
-                . PackageIndex.deletePackageName "ghc-prim"
-
 dependencyResolver
-  :: DependencyResolver a
-  -> OS -> Arch -> CompilerId
+  :: DependencyResolver
+  -> Platform -> CompilerId
   -> PackageIndex InstalledPackageInfo
   -> PackageIndex AvailablePackage
-  -> PackagesVersionPreference
-  -> [UnresolvedDependency]
-  -> Progress String String (InstallPlan a)
-dependencyResolver resolver os arch comp installed available pref deps =
+  -> PackagesPreference
+  -> [PackageConstraint]
+  -> [PackageName]
+  -> Progress String String InstallPlan
+dependencyResolver resolver platform comp installed available
+                            pref constraints targets =
   let installed' = hideBrokenPackages installed
-      available' = hideBasePackage available
+      -- If the user is not explicitly asking to upgrade base then lets
+      -- prevent that from happening accidentally since it is usually not what
+      -- you want and it probably does not work anyway. We do it by adding a
+      -- constraint to only pick an installed version of base and ghc-prim.
+      extraConstraints =
+        [ PackageInstalledConstraint pkgname
+        | all (/=PackageName "base") targets
+        , pkgname <-  [ PackageName "base", PackageName "ghc-prim" ]
+        , not (null (PackageIndex.lookupPackageName installed pkgname)) ]
+      preferences = interpretPackagesPreference (Set.fromList targets) pref
    in fmap toPlan
-    $ resolver os arch comp installed' available' preference deps
+    $ resolver platform comp installed' available
+               preferences (extraConstraints ++ constraints) targets
 
   where
     toPlan pkgs =
-      case InstallPlan.new os arch comp (PackageIndex.fromList pkgs) of
+      case InstallPlan.new platform comp (PackageIndex.fromList pkgs) of
         Right plan     -> plan
         Left  problems -> error $ unlines $
             "internal error: could not construct a valid install plan."
           : "The proposed (invalid) plan contained the following problems:"
           : map InstallPlan.showPlanProblem problems
 
-    preference = interpretPackagesVersionPreference initialPkgNames pref
-    initialPkgNames = Set.fromList
-      [ name | UnresolvedDependency (Dependency name _) _ <- deps ]
-
--- | Give an interpretation to the global 'PackagesVersionPreference' as
+-- | Give an interpretation to the global 'PackagesPreference' as
 --  specific per-package 'PackageVersionPreference'.
 --
-interpretPackagesVersionPreference :: Set PackageName
-                                   -> PackagesVersionPreference
-                                   -> (PackageName -> PackageVersionPreference)
-interpretPackagesVersionPreference selected pref = case pref of
-  PreferAllLatest         -> const PreferLatest
-  PreferAllInstalled      -> const PreferInstalled
-  PreferLatestForSelected -> \pkgname ->
-    -- When you say cabal install foo, what you really mean is, prefer the
-    -- latest version of foo, but the installed version of everything else:
-    if pkgname `Set.member` selected
-      then PreferLatest
-      else PreferInstalled
+interpretPackagesPreference :: Set PackageName
+                            -> PackagesPreference
+                            -> (PackageName -> PackagePreferences)
+interpretPackagesPreference selected (PackagesPreference defaultPref prefs) =
+  \pkgname -> PackagePreferences (versionPref pkgname) (installPref pkgname)
+
+  where
+    versionPref pkgname =
+      fromMaybe AnyVersion (Map.lookup pkgname versionPrefs)
+    versionPrefs = Map.fromList
+      [ (pkgname, pref)
+      | PackageVersionPreference pkgname pref <- prefs ]
+
+    installPref pkgname =
+      fromMaybe (installPrefDefault pkgname) (Map.lookup pkgname installPrefs)
+    installPrefs = Map.fromList
+      [ (pkgname, pref)
+      | PackageInstalledPreference pkgname pref <- prefs ]
+    installPrefDefault = case defaultPref of
+      PreferAllLatest         -> \_       -> PreferLatest
+      PreferAllInstalled      -> \_       -> PreferInstalled
+      PreferLatestForSelected -> \pkgname ->
+        -- When you say cabal install foo, what you really mean is, prefer the
+        -- latest version of foo, but the installed version of everything else
+        if pkgname `Set.member` selected then PreferLatest
+                                         else PreferInstalled
 
 -- | Given the list of installed packages and available packages, figure
 -- out which packages can be upgraded.
@@ -167,7 +221,7 @@ upgradableDependencies :: PackageIndex InstalledPackageInfo
                        -> PackageIndex AvailablePackage
                        -> [Dependency]
 upgradableDependencies installed available =
-  [ Dependency name (LaterVersion latestVersion)
+  [ Dependency name (orLaterVersion latestVersion)
     -- This is really quick (linear time). The trick is that we're doing a
     -- merge join of two tables. We can do it as a merge because they're in
     -- a comparable order because we're getting them from the package indexs.

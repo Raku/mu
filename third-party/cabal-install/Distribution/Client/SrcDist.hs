@@ -5,16 +5,21 @@ module Distribution.Client.SrcDist (
          sdist
   )  where
 import Distribution.Simple.SrcDist
-         ( printPackageProblems, prepareTree, prepareSnapshotTree )
+         ( printPackageProblems, prepareTree
+         , prepareSnapshotTree, snapshotPackage )
 import Distribution.Client.Tar (createTarGzFile)
 
 import Distribution.Package
          ( Package(..) )
 import Distribution.PackageDescription
-         ( PackageDescription, readPackageDescription )
+         ( PackageDescription )
+import Distribution.PackageDescription.Parse
+         ( readPackageDescription )
 import Distribution.Simple.Utils
-         ( withTempDirectory , defaultPackageDesc
-         , die, warn, notice, setupMessage )
+         ( defaultPackageDesc, warn, notice, setupMessage
+         , createDirectoryIfMissingVerbose )
+import Distribution.Client.Utils
+         ( withTempDirectory )
 import Distribution.Simple.Setup (SDistFlags(..), fromFlag)
 import Distribution.Verbosity (Verbosity)
 import Distribution.Simple.PreProcess (knownSuffixHandlers)
@@ -26,7 +31,6 @@ import Distribution.Text
 
 import System.Time (getClockTime, toCalendarTime)
 import System.FilePath ((</>), (<.>))
-import System.Directory (doesDirectoryExist)
 import Control.Monad (when)
 import Data.Maybe (isNothing)
 
@@ -37,28 +41,25 @@ sdist flags = do
      =<< readPackageDescription verbosity
      =<< defaultPackageDesc verbosity
   mb_lbi <- maybeGetPersistBuildConfig distPref
-  let tmpDir = srcPref distPref
+  let tmpTargetDir = srcPref distPref
 
   -- do some QA
   printPackageProblems verbosity pkg
 
-  exists <- doesDirectoryExist tmpDir
-  when exists $
-    die $ "Source distribution already in place. please move or remove: "
-       ++ tmpDir
-
   when (isNothing mb_lbi) $
     warn verbosity "Cannot run preprocessors. Run 'configure' command first."
 
-  withTempDirectory verbosity tmpDir $ do
+  createDirectoryIfMissingVerbose verbosity True tmpTargetDir
+  withTempDirectory tmpTargetDir "sdist." $ \tmpDir -> do
 
-    setupMessage verbosity "Building source dist for" (packageId pkg)
+    date <- toCalendarTime =<< getClockTime
+    let pkg' | snapshot  = snapshotPackage date pkg
+             | otherwise = pkg
+    setupMessage verbosity "Building source dist for" (packageId pkg')
+
     if snapshot
-      then getClockTime >>= toCalendarTime
-       >>= prepareSnapshotTree verbosity pkg mb_lbi
-                               distPref tmpDir knownSuffixHandlers
-      else prepareTree         verbosity pkg mb_lbi
-                               distPref tmpDir knownSuffixHandlers
+      then prepareSnapshotTree verbosity pkg' mb_lbi distPref tmpDir pps
+      else prepareTree         verbosity pkg' mb_lbi distPref tmpDir pps
     targzFile <- createArchive verbosity pkg tmpDir distPref
     notice verbosity $ "Source tarball created: " ++ targzFile
 
@@ -66,6 +67,7 @@ sdist flags = do
     verbosity = fromFlag (sDistVerbosity flags)
     snapshot  = fromFlag (sDistSnapshot flags)
     distPref  = fromFlag (sDistDistPref flags)
+    pps       = knownSuffixHandlers
 
 -- |Create an archive from a tree of source files, and clean up the tree.
 createArchive :: Verbosity
