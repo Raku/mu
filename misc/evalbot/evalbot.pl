@@ -57,7 +57,7 @@ package Evalbot;
             },
             elf => {
                 chdir       => '../elf',
-                cmd_line    => './elf_h %program >> %out 2>&1',
+                cmd_line    => 'echo | ./elf_h %program >> %out 2>&1',
                 revision    => \&get_revision,
             },
             kp6 => {
@@ -68,7 +68,7 @@ package Evalbot;
             },
             rakudo => {
                 chdir       => '../../../rakudo/',
-                cmd_line    => './perl6 %program >> %out 2>&1',
+                cmd_line    => 'echo | ./perl6 %program >> %out 2>&1',
                 revision    => \&get_rakudo_revision,
                 filter      => \&filter_pct,
             },
