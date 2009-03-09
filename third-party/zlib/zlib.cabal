@@ -1,5 +1,5 @@
 name:            zlib
-version:         0.4.0.4
+version:         0.5.0.0
 copyright:       (c) 2006-2008 Duncan Coutts
 license:         BSD3
 license-file:    LICENSE
@@ -36,6 +36,7 @@ library
                    Codec.Compression.Zlib.Internal
   other-modules:   Codec.Compression.Zlib.Stream
   extensions:      CPP, ForeignFunctionInterface
+  build-depends: base < 5
   if flag(bytestring-in-base)
     -- bytestring was in base-2.0 and 2.1.1
     build-depends: base >= 2.0 && < 2.2

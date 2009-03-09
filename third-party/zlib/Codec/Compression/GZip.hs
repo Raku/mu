@@ -1,9 +1,9 @@
 -----------------------------------------------------------------------------
 -- |
--- Copyright   :  (c) 2006 Duncan Coutts
+-- Copyright   :  (c) 2006-2008 Duncan Coutts
 -- License     :  BSD-style
 --
--- Maintainer  :  duncan.coutts@worc.ox.ac.uk
+-- Maintainer  :  duncan@haskell.org
 -- Stability   :  provisional
 -- Portability :  portable (H98 + FFI)
 --
@@ -18,8 +18,8 @@
 module Codec.Compression.GZip (
 
   -- | This module provides pure functions for compressing and decompressing
-  -- streams of data represented by lazy 'ByteString's. This makes it easy to
-  -- use either in memory or with disk or network IO.
+  -- streams of data in the gzip format and represented by lazy 'ByteString's.
+  -- This makes it easy to use either in memory or with disk or network IO.
   --
   -- For example a simple gzip compression program is just:
   --
@@ -33,19 +33,30 @@ module Codec.Compression.GZip (
   -- > content <- fmap GZip.decompress (readFile file)
   --
 
-  -- * Compression
+  -- * Simple compression and decompression
   compress,
-  compressWith,
-  CompressionLevel(..),
+  decompress,
 
-  -- * Decompression
-  decompress
+  -- * Extended api with control over compression parameters
+  compressWith,
+  decompressWith,
+
+  CompressParams(..), defaultCompressParams,
+  DecompressParams(..), defaultDecompressParams,
+
+  -- ** The compression parameter types
+  CompressionLevel(..),
+  Method(..),
+  WindowBits(..),
+  MemoryLevel(..),
+  CompressionStrategy(..),
 
   ) where
 
 import Data.ByteString.Lazy (ByteString)
 
-import Codec.Compression.Zlib.Internal as Internal
+import qualified Codec.Compression.Zlib.Internal as Internal
+import Codec.Compression.Zlib.Internal hiding (compress, decompress)
 
 
 -- | Decompress a stream of data in the gzip format.
@@ -66,24 +77,39 @@ import Codec.Compression.Zlib.Internal as Internal
 -- stream before doing any IO action that depends on it.
 --
 decompress :: ByteString -> ByteString
-decompress = Internal.decompressDefault GZip
+decompress = Internal.decompress GZip defaultDecompressParams
+
+
+-- | Like 'decompress' but with the ability to specify various decompression
+-- parameters. Typical usage:
+--
+-- > decompressWith defaultCompressParams { ... }
+--
+decompressWith :: DecompressParams -> ByteString -> ByteString
+decompressWith = Internal.decompress GZip
 
 
 -- | Compress a stream of data into the gzip format.
 --
--- This uses the default compression level which favours a higher compression
--- ratio over compression speed. Use 'compressWith' to adjust the compression
--- level.
+-- This uses the default compression parameters. In partiular it uses the
+-- default compression level which favours a higher compression ratio over
+-- compression speed, though it does not use the maximum compression level.
+--
+-- Use 'compressWith' to adjust the compression level or other compression
+-- parameters.
 --
 compress :: ByteString -> ByteString
-compress = Internal.compressDefault GZip DefaultCompression
+compress = Internal.compress GZip defaultCompressParams
 
 
--- | Like 'compress' but with an extra parameter to specify the compression
--- level.
+-- | Like 'compress' but with the ability to specify various compression
+-- parameters. Typical usage:
 --
--- There are a number of additional compression parameters which are rarely
--- necessary to change but if you need to you can do so using 'compressFull'.
+-- > compressWith defaultCompressParams { ... }
 --
-compressWith ::CompressionLevel -> ByteString -> ByteString
-compressWith = Internal.compressDefault GZip
+-- In particular you can set the compression level:
+--
+-- > compressWith defaultCompressParams { compressLevel = BestCompression }
+--
+compressWith :: CompressParams -> ByteString -> ByteString
+compressWith = Internal.compress GZip

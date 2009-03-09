@@ -1,11 +1,11 @@
-{-# OPTIONS_GHC -fno-warn-missing-methods #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (c) 2006-2008 Duncan Coutts
 -- License     :  BSD-style
 --
--- Maintainer  :  duncan.coutts@worc.ox.ac.uk
--- Stability   :  experimental
+-- Maintainer  :  duncan@haskell.org
+-- Stability   :  provisional
 -- Portability :  portable (H98 + FFI)
 --
 -- Zlib wrapper layer
@@ -58,11 +58,16 @@ module Codec.Compression.Zlib.Stream (
   ) where
 
 import Foreign
+         ( Word8, Ptr, nullPtr, plusPtr, peekByteOff, pokeByteOff, mallocBytes
+         , ForeignPtr, FinalizerPtr, newForeignPtr_, addForeignPtrFinalizer
+	 , finalizeForeignPtr, withForeignPtr, touchForeignPtr
+	 , unsafeForeignPtrToPtr, unsafePerformIO )
 import Foreign.C
+         ( CInt, CUInt, CChar, CString, withCAString, peekCAString )
 #ifdef BYTESTRING_IN_BASE
-import Data.ByteString.Base
+import Data.ByteString.Base (nullForeignPtr)
 #else
-import Data.ByteString.Internal
+import Data.ByteString.Internal (nullForeignPtr)
 #endif
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.IO (hPutStrLn, stderr)
@@ -370,12 +375,12 @@ data Status =
                 --   'BuferError' is not fatal, and 'inflate' can be called
                 --   again with more input and more output space to continue.
 
-instance Enum Status where
-  toEnum (#{const Z_OK})         = Ok
-  toEnum (#{const Z_STREAM_END}) = StreamEnd
-  toEnum (#{const Z_NEED_DICT})  = NeedDict
-  toEnum (#{const Z_BUF_ERROR})  = BufferError
-  toEnum other = error ("unexpected zlib status: " ++ show other)
+toStatus :: CInt -> Status
+toStatus (#{const Z_OK})         = Ok
+toStatus (#{const Z_STREAM_END}) = StreamEnd
+toStatus (#{const Z_NEED_DICT})  = NeedDict
+toStatus (#{const Z_BUF_ERROR})  = BufferError
+toStatus other = error ("unexpected zlib status: " ++ show other)
 
 failIfError :: CInt -> Stream ()
 failIfError errno
@@ -387,7 +392,7 @@ getErrorMessage :: CInt -> Stream String
 getErrorMessage errno = do
   msgPtr <- withStreamPtr (#{peek z_stream, msg})
   if msgPtr /= nullPtr
-    then unsafeLiftIO (peekCString msgPtr)
+    then unsafeLiftIO (peekCAString msgPtr)
     else return $ case errno of
       #{const Z_ERRNO}         -> "file error"
       #{const Z_STREAM_ERROR}  -> "stream error"
@@ -403,54 +408,89 @@ data Flush =
   | Finish
 --  | Block -- only available in zlib 1.2 and later, uncomment if you need it.
 
-instance Enum Flush where
-  fromEnum NoFlush   = #{const Z_NO_FLUSH}
-  fromEnum SyncFlush = #{const Z_SYNC_FLUSH}
-  fromEnum FullFlush = #{const Z_FULL_FLUSH}
-  fromEnum Finish    = #{const Z_FINISH}
---  fromEnum Block     = #{const Z_BLOCK}
+fromFlush :: Flush -> CInt
+fromFlush NoFlush   = #{const Z_NO_FLUSH}
+fromFlush SyncFlush = #{const Z_SYNC_FLUSH}
+fromFlush FullFlush = #{const Z_FULL_FLUSH}
+fromFlush Finish    = #{const Z_FINISH}
+--  fromFlush Block     = #{const Z_BLOCK}
 
+-- | The format used for compression or decompression. There are three
+-- variations.
+--
 data Format =
-    GZip       -- ^ Encode or decode with the gzip header format.
-  | Zlib       -- ^ Encode or decode with the zlib header format.
-  | Raw        -- ^ Encode or decode a raw data stream without any header.
-  | GZipOrZlib -- ^ Enable zlib or gzip decoding with automatic header
-               --   detection. This only makes sense for decompression.
+    GZip -- ^ The gzip format uses a header with a checksum and some optional
+         -- meta-data about the compressed file. It is intended primarily for
+         -- compressing individual files but is also sometimes used for network
+         -- protocols such as HTTP. The format is described in detail in RFC
+         -- #1952 <http://www.ietf.org/rfc/rfc1952.txt>
+
+  | Zlib -- | The zlib format uses a minimal header with a checksum but no
+         -- other meta-data. It is especially designed for use in network
+         -- protocols. The format is described in detail in RFC #1950
+         -- <http://www.ietf.org/rfc/rfc1950.txt>
+
+  | Raw  -- | The \'raw\' format is just the compressed data stream without any
+         -- additional header, meta-data or data-integrity checksum. The format
+         -- is described in detail in RFC #1951
+         -- <http://www.ietf.org/rfc/rfc1951.txt>
+
+  | GZipOrZlib -- ^ This is not a format as such. It enabled zlib or gzip
+               -- decoding with automatic header detection. This only makes
+               -- sense for decompression.
+  deriving Eq
 
 -- | The compression method
-data Method = Deflated -- ^ \'Deflate\' is the only one supported in this
-                       -- version of zlib.
+--
+data Method = Deflated -- ^ \'Deflate\' is the only method supported in this
+                       -- version of zlib. Indeed it is likely to be the only
+                       -- method that ever will be supported.
 
-instance Enum Method where
-  fromEnum Deflated = #{const Z_DEFLATED}
+fromMethod :: Method -> CInt
+fromMethod Deflated = #{const Z_DEFLATED}
 
--- | Control amount of compression. This is a trade-off between the amount
--- of compression and the time and memory required to do the compression.
+-- | The compression level parameter controls the amount of compression. This
+-- is a trade-off between the amount of compression and the time required to do
+-- the compression.
+--
 data CompressionLevel = 
     DefaultCompression   -- ^ The default compression level is 6 (that is, 
-                         --   biased towards high compression at expense of speed).
+                         --   biased towards higher compression at expense of
+			 -- speed).
   | NoCompression        -- ^ No compression, just a block copy.
   | BestSpeed            -- ^ The fastest compression method (less compression) 
   | BestCompression      -- ^ The slowest compression method (best compression).
   | CompressionLevel Int -- ^ A specific compression level between 1 and 9.
 
-instance Enum CompressionLevel where
-  fromEnum DefaultCompression = -1
-  fromEnum NoCompression      = 0
-  fromEnum BestSpeed          = 1
-  fromEnum BestCompression    = 9
-  fromEnum (CompressionLevel n)
-           | n >= 1 && n <= 9 = n
+fromCompressionLevel :: CompressionLevel -> CInt
+fromCompressionLevel DefaultCompression   = -1
+fromCompressionLevel NoCompression        = 0
+fromCompressionLevel BestSpeed            = 1
+fromCompressionLevel BestCompression      = 9
+fromCompressionLevel (CompressionLevel n)
+           | n >= 1 && n <= 9 = fromIntegral n
            | otherwise        = error "CompressLevel must be in the range 1..9"
 
+-- | This specifies the size of the compression window. Larger values of this
+-- parameter result in better compression at the expense of higher memory
+-- usage.
+--
+-- The compression window size is the value of the the window bits raised to
+-- the power 2. The window bits must be in the range @8..15@ which corresponds
+-- to compression window sizes of 256b to 32Kb. The default is 15 which is also
+-- the maximum size.
+--
+-- The total amount of memory used depends on the window bits and the
+-- 'MemoryLevel'. See the 'MemoryLevel' for the details.
+--
 data WindowBits = DefaultWindowBits
                 | WindowBits Int
 
-windowBits :: Format -> WindowBits-> Int
+windowBits :: Format -> WindowBits-> CInt
 windowBits format bits = (formatModifier format) (checkWindowBits bits)
   where checkWindowBits DefaultWindowBits = 15
         checkWindowBits (WindowBits n)
-          | n >= 8 && n <= 15 = n
+          | n >= 8 && n <= 15 = fromIntegral n
           | otherwise         = error "WindowBits must be in the range 8..15"
         formatModifier Zlib       = id
         formatModifier GZip       = (+16)
@@ -458,7 +498,25 @@ windowBits format bits = (formatModifier format) (checkWindowBits bits)
         formatModifier Raw        = negate
 
 -- | The 'MemoryLevel' parameter specifies how much memory should be allocated
--- for the internal compression state.
+-- for the internal compression state. It is a tradoff between memory usage,
+-- compression ratio and compression speed. Using more memory allows faster
+-- compression and a better compression ratio.
+--
+-- The total amount of memory used for compression depends on the 'WindowBits'
+-- and the 'MemoryLevel'. For decompression it depends only on the
+-- 'WindowBits'. The totals are given by the functions:
+--
+-- > compressTotal windowBits memLevel = 4 * 2^windowBits + 512 * 2^memLevel
+-- > decompressTotal windowBits = 2^windowBits
+--
+-- For example, for compression with the default @windowBits = 15@ and
+-- @memLevel = 8@ uses @256Kb@. So for example a network server with 100
+-- concurrent compressed streams would use @25Mb@. The memory per stream can be
+-- halved (at the cost of somewhat degraded and slower compressionby) by
+-- reducing the @windowBits@ and @memLevel@ by one.
+--
+-- Decompression takes less memory, the default @windowBits = 15@ corresponds
+-- to just @32Kb@.
 --
 data MemoryLevel =
     DefaultMemoryLevel -- ^ The default. (Equivalent to @'MemoryLevel' 8@)
@@ -466,15 +524,15 @@ data MemoryLevel =
                        --   compression ratio. (Equivalent to @'MemoryLevel' 1@)
   | MaxMemoryLevel     -- ^ Use maximum memory for optimal compression speed.
                        --   (Equivalent to @'MemoryLevel' 9@)
-  | MemoryLevel Int    -- ^ Use a specific level in the range 1..9
+  | MemoryLevel Int    -- ^ Use a specific level in the range @1..9@
 
-instance Enum MemoryLevel where
-  fromEnum DefaultMemoryLevel = 8
-  fromEnum MinMemoryLevel     = 1
-  fromEnum MaxMemoryLevel     = 9
-  fromEnum (MemoryLevel n)
-           | n >= 1 && n <= 9 = n
-           | otherwise        = error "MemoryLevel must be in the range 1..9"
+fromMemoryLevel :: MemoryLevel -> CInt
+fromMemoryLevel DefaultMemoryLevel = 8
+fromMemoryLevel MinMemoryLevel     = 1
+fromMemoryLevel MaxMemoryLevel     = 9
+fromMemoryLevel (MemoryLevel n)
+         | n >= 1 && n <= 9 = fromIntegral n
+         | otherwise        = error "MemoryLevel must be in the range 1..9"
 
 
 -- | The strategy parameter is used to tune the compression algorithm.
@@ -505,12 +563,12 @@ data CompressionStrategy =
                     --   allowing for a simpler decoder for special applications.
 -}
 
-instance Enum CompressionStrategy where
-  fromEnum DefaultStrategy = #{const Z_DEFAULT_STRATEGY}
-  fromEnum Filtered        = #{const Z_FILTERED}
-  fromEnum HuffmanOnly     = #{const Z_HUFFMAN_ONLY}
---  fromEnum RLE             = #{const Z_RLE}
---  fromEnum Fixed           = #{const Z_FIXED}
+fromCompressionStrategy :: CompressionStrategy -> CInt
+fromCompressionStrategy DefaultStrategy = #{const Z_DEFAULT_STRATEGY}
+fromCompressionStrategy Filtered        = #{const Z_FILTERED}
+fromCompressionStrategy HuffmanOnly     = #{const Z_HUFFMAN_ONLY}
+--fromCompressionStrategy RLE             = #{const Z_RLE}
+--fromCompressionStrategy Fixed           = #{const Z_FIXED}
 
 withStreamPtr :: (Ptr StreamState -> IO a) -> Stream a
 withStreamPtr f = do
@@ -552,6 +610,7 @@ getOutNext = withStreamPtr (#{peek z_stream, next_out})
 
 inflateInit :: Format -> WindowBits -> Stream ()
 inflateInit format bits = do
+  checkFormatSupported format
   err <- withStreamState $ \zstream ->
     c_inflateInit2 zstream (fromIntegral (windowBits format bits))
   failIfError err
@@ -565,29 +624,30 @@ deflateInit :: Format
             -> CompressionStrategy
             -> Stream ()
 deflateInit format compLevel method bits memLevel strategy = do
+  checkFormatSupported format
   err <- withStreamState $ \zstream ->
     c_deflateInit2 zstream
-                  (fromIntegral (fromEnum compLevel))
-                  (fromIntegral (fromEnum method))
-                  (fromIntegral (windowBits format bits))
-                  (fromIntegral (fromEnum memLevel))
-                  (fromIntegral (fromEnum strategy))
+                  (fromCompressionLevel compLevel)
+                  (fromMethod method)
+                  (windowBits format bits)
+                  (fromMemoryLevel memLevel)
+                  (fromCompressionStrategy strategy)
   failIfError err
   getStreamState >>= unsafeLiftIO . addForeignPtrFinalizer c_deflateEnd
 
 inflate_ :: Flush -> Stream Status
 inflate_ flush = do
   err <- withStreamState $ \zstream ->
-    c_inflate zstream (fromIntegral (fromEnum flush))
+    c_inflate zstream (fromFlush flush)
   failIfError err
-  return (toEnum (fromIntegral err))
+  return (toStatus err)
 
 deflate_ :: Flush -> Stream Status
 deflate_ flush = do
   err <- withStreamState $ \zstream ->
-    c_deflate zstream (fromIntegral (fromEnum flush))
+    c_deflate zstream (fromFlush flush)
   failIfError err
-  return (toEnum (fromIntegral err))
+  return (toStatus err)
 
 -- | This never needs to be used as the stream's resources will be released
 -- automatically when no longer needed, however this can be used to release
@@ -596,6 +656,18 @@ deflate_ flush = do
 --
 finalise :: Stream ()
 finalise = getStreamState >>= unsafeLiftIO . finalizeForeignPtr
+
+checkFormatSupported :: Format -> Stream ()
+checkFormatSupported format = do
+  version <- unsafeLiftIO (peekCAString =<< c_zlibVersion)
+  case version of
+    ('1':'.':'1':'.':_)
+       | format == GZip
+      || format == GZipOrZlib
+      -> fail $ "version 1.1.x of the zlib C library does not support the"
+             ++ " 'gzip' format via the in-memory api, only the 'raw' and "
+	     ++ " 'zlib' formats."
+    _ -> return ()
 
 ----------------------
 -- The foreign imports
@@ -621,7 +693,7 @@ foreign import ccall unsafe "zlib.h inflateInit2_"
 
 c_inflateInit2 :: StreamState -> CInt -> IO CInt
 c_inflateInit2 z n =
-  withCString #{const_str ZLIB_VERSION} $ \versionStr ->
+  withCAString #{const_str ZLIB_VERSION} $ \versionStr ->
     c_inflateInit2_ z n versionStr (#{const sizeof(z_stream)} :: CInt)
 
 foreign import ccall unsafe "zlib.h inflate"
@@ -640,7 +712,7 @@ foreign import ccall unsafe "zlib.h deflateInit2_"
 c_deflateInit2 :: StreamState
                -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
 c_deflateInit2 z a b c d e =
-  withCString #{const_str ZLIB_VERSION} $ \versionStr ->
+  withCAString #{const_str ZLIB_VERSION} $ \versionStr ->
     c_deflateInit2_ z a b c d e versionStr (#{const sizeof(z_stream)} :: CInt)
 
 foreign import ccall unsafe "zlib.h deflate"
@@ -648,3 +720,6 @@ foreign import ccall unsafe "zlib.h deflate"
 
 foreign import ccall unsafe "zlib.h &deflateEnd"
   c_deflateEnd :: FinalizerPtr StreamState
+
+foreign import ccall unsafe "zlib.h zlibVersion"
+  c_zlibVersion :: IO CString
