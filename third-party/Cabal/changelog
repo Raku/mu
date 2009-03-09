@@ -1,6 +1,53 @@
 -*-change-log-*-
 
-1.5.x (current development version)
+1.6.0.2 Duncan Coutts <duncan@haskell.org> February 2009
+	* New configure-time check for C headers and libraries
+	* Added language extensions present in ghc-6.10
+	* Added support for NamedFieldPuns extension in ghc-6.8
+	* Fix in configure step for ghc-6.6 on Windows
+	* Fix warnings in Path_pkgname.hs module on Windows
+	* Fix for exotic flags in ld-options field
+	* Fix for using pkg-config in a package with a lib and an executable
+	* Fix for building haddock docs for exes that use the Paths module
+	* Fix for installing header files in subdirectories
+	* Fix for the case of building profiling libs but not ordinary libs
+	* Fix read-only attribute of installed files on Windows
+	* Ignore ghc -threaded flag when profiling in ghc-6.8 and older
+
+1.6.0.1 Duncan Coutts <duncan@haskell.org> October 2008
+	* Export a compat function to help alex and happy
+
+1.6.0.0 Duncan Coutts <duncan@haskell.org> October 2008
+	* Support for ghc-6.10
+	* Source control repositories can now be specified in .cabal files
+	* Bug report URLs can be now specified in .cabal files
+	* Wildcards now allowed in data-files and extra-source-files fields
+	* New syntactic sugar for dependencies "build-depends: foo ==1.2.*"
+	* New cabal_macros.h provides macros to test versions of dependencies
+	* Relocatable bindists now possible on unix via env vars
+	* New 'exposed' field allows packages to be not exposed by default
+	* Install dir flags can now use $os and $arch variables
+	* New --builddir flag allows multiple builds from a single sources dir
+	* cc-options now only apply to .c files, not for -fvia-C
+	* cc-options are not longer propagated to dependent packages
+	* The cpp/cc/ld-options fields no longer use ',' as a separator
+	* hsc2hs is now called using gcc instead of using ghc as gcc
+	* New api for manipulating sets and graphs of packages
+	* Internal api improvements and code cleanups
+	* Minor improvements to the user guide
+	* Miscellaneous minor bug fixes
+
+1.4.0.2 Duncan Coutts <duncan@haskell.org> August 2008
+	* Fix executable stripping default
+	* Fix striping exes on OSX that export dynamic symbols (like ghc)
+	* Correct the order of arguments given by --prog-options=
+	* Fix corner case with overlapping user and global packages
+	* Fix for modules that use pre-processing and .hs-boot files
+	* Clarify some points in the user guide and readme text
+	* Fix verbosity flags passed to sub-command like haddock
+	* Fix sdist --snapshot
+	* Allow meta-packages that contain no modules or C code
+	* Make the generated Paths module -Wall clean on Windows
 
 1.4.0.1 Duncan Coutts <duncan@haskell.org> June 2008
 	* Fix a bug which caused '.' to always be in the sources search path

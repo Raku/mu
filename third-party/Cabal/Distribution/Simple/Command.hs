@@ -2,13 +2,17 @@
 -- |
 -- Module      :  Distribution.Simple.Command
 -- Copyright   :  Duncan Coutts 2007
--- 
--- Maintainer  :  Duncan Coutts <duncan@haskell.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Explanation: Data types and parser for the standard command-line
--- setup.
+-- This is to do with command line handling. The Cabal command line is
+-- organised into a number of named sub-commands (much like darcs). The
+-- 'CommandUI' abstraction represents one of these sub-commands, with a name,
+-- description, a set of flags. Commands can be associated with actions and
+-- run. It handles some common stuff automatically, like the @--help@ and
+-- command line completion flags. It is designed to allow other tools make
+-- derived commands. This feature is used heavily in @cabal-install@.
 
 {- All rights reserved.
 
@@ -45,7 +49,7 @@ module Distribution.Simple.Command (
   -- * Command interface
   CommandUI(..),
   commandShowOptions,
-    
+
   -- ** Constructing commands
   ShowOrParseArgs(..),
   makeCommand,
@@ -54,7 +58,7 @@ module Distribution.Simple.Command (
   Command,
   commandAddAction,
   noExtraFlags,
-  
+
   -- ** Running commands
   CommandParse(..),
   commandsRun,
@@ -402,24 +406,33 @@ addCommonFlags showOrParseArgs options =
 
 commandParseArgs :: CommandUI flags -> Bool -> [String]
                  -> CommandParse (flags -> flags, [String])
-commandParseArgs command ordered args =
+commandParseArgs command global args =
   let options = addCommonFlags ParseArgs
               $ commandGetOpts ParseArgs command
-      order | ordered   = GetOpt.RequireOrder
+      order | global    = GetOpt.RequireOrder
             | otherwise = GetOpt.Permute
-  in case GetOpt.getOpt order options args of
-    (flags, _,    _)
-      | not (null [ () | Left ListOptionsFlag <- flags ])
-                      -> CommandList (commandListOptions command)
-      | not (null [ () | Left HelpFlag <- flags ])
-                      -> CommandHelp (commandHelp command)
-    (flags, opts, []) -> CommandReadyToGo (accumFlags flags , opts)
-    (_,     _,  errs) -> CommandErrors errs
+  in case GetOpt.getOpt' order options args of
+    (flags, _, _,  _)
+      | any listFlag flags -> CommandList (commandListOptions command)
+      | any helpFlag flags -> CommandHelp (commandHelp command)
+      where listFlag (Left ListOptionsFlag) = True; listFlag _ = False
+            helpFlag (Left HelpFlag)        = True; helpFlag _ = False
+    (flags, opts, opts', [])
+      | global || null opts' -> CommandReadyToGo (accum flags, mix opts opts')
+      | otherwise            -> CommandErrors (unrecognised opts')
+    (_, _, _, errs)          -> CommandErrors errs
 
   where -- Note: It is crucial to use reverse function composition here or to
         -- reverse the flags here as we want to process the flags left to right
         -- but data flow in function compsition is right to left.
-        accumFlags flags = foldr (flip (.)) id [ f | Right f <- flags ]
+        accum flags = foldr (flip (.)) id [ f | Right f <- flags ]
+        unrecognised opts = [ "unrecognized option `" ++ opt ++ "'\n"
+                            | opt <- opts ]
+        -- For unrecognised global flags we put them in the position just after
+        -- the command, if there is one. This gives us a chance to parse them
+        -- as sub-command rather than global flags.
+        mix []     ys = ys
+        mix (x:xs) ys = x:ys++xs
 
 data CommandParse flags = CommandHelp (String -> String)
                         | CommandList [String]
@@ -434,8 +447,7 @@ instance Functor CommandParse where
 
 data Command action = Command String String ([String] -> CommandParse action)
 
-commandAddAction :: Monoid flags
-                 => CommandUI flags
+commandAddAction :: CommandUI flags
                  -> (flags -> [String] -> action)
                  -> Command action
 commandAddAction command action =
@@ -445,8 +457,7 @@ commandAddAction command action =
          . commandParseArgs command False)
 
   where applyDefaultArgs mkflags args =
-          let flags = commandDefaultFlags command
-                      `mappend` mkflags mempty
+          let flags = mkflags (commandDefaultFlags command)
            in action flags args
 
 commandsRun :: CommandUI a
@@ -476,8 +487,11 @@ commandsRun globalCommand commands args =
     commandNames   = [ name | Command name _ _ <- commands' ]
     globalCommand' = globalCommand {
       commandUsage = \pname ->
-           "Usage: " ++ pname ++ " [GLOBAL FLAGS]\n"
-        ++ "   or: " ++ pname ++ " COMMAND [FLAGS]\n\n"
+           (case commandUsage globalCommand pname of
+             ""       -> ""
+             original -> original ++ "\n")
+        ++ "Usage: " ++ pname ++ " COMMAND [FLAGS]\n"
+        ++ "   or: " ++ pname ++ " [GLOBAL FLAGS]\n\n"
         ++ "Global flags:",
       commandDescription = Just $ \pname ->
            "Commands:\n"

@@ -2,12 +2,14 @@
 -- |
 -- Module      :  Distribution.Package
 -- Copyright   :  Isaac Jones 2003-2004
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Packages are fundamentally just a name and a version.
+-- Defines a package identifier along with a parser and pretty printer for it.
+-- 'PackageIdentifier's consist of a name and an exact version. It also defines
+-- a 'Dependency' data type. A dependency is a package name and a version
+-- range, like @\"foo >= 1.2 && < 2\"@.
 
 {- All rights reserved.
 
@@ -40,27 +42,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -}
 
 module Distribution.Package (
-	-- * Package ids
-	PackageIdentifier(..),
-        parsePackageName,
+        -- * Package ids
+        PackageName(..),
+        PackageIdentifier(..),
+        PackageId,
 
         -- * Package dependencies
         Dependency(..),
         thisPackageVersion,
         notThisPackageVersion,
 
-	-- * Package classes
-	Package(..), packageName, packageVersion,
-	PackageFixedDeps(..),
-
-  -- * Deprecated compat stuff
-  showPackageId,
+        -- * Package classes
+        Package(..), packageName, packageVersion,
+        PackageFixedDeps(..),
   ) where
 
 import Distribution.Version
          ( Version(..), VersionRange(AnyVersion,ThisVersion), notThisVersion )
 
-import Distribution.Text (Text(..), display)
+import Distribution.Text (Text(..))
 import qualified Distribution.Compat.ReadP as Parse
 import Distribution.Compat.ReadP ((<++))
 import qualified Text.PrettyPrint as Disp
@@ -68,45 +68,54 @@ import Text.PrettyPrint ((<>), (<+>))
 import qualified Data.Char as Char ( isDigit, isAlphaNum )
 import Data.List ( intersperse )
 
+newtype PackageName = PackageName String
+    deriving (Read, Show, Eq, Ord)
+
+instance Text PackageName where
+  disp (PackageName n) = Disp.text n
+  parse = do
+    ns <- Parse.sepBy1 component (Parse.char '-')
+    return (PackageName (concat (intersperse "-" ns)))
+    where
+      component = do
+        cs <- Parse.munch1 Char.isAlphaNum
+        if all Char.isDigit cs then Parse.pfail else return cs
+        -- each component must contain an alphabetic character, to avoid
+        -- ambiguity in identifiers like foo-1 (the 1 is the version number).
+
+-- | Type alias so we can use the shorter name PackageId.
+type PackageId = PackageIdentifier
+
 -- | The name and version of a package.
 data PackageIdentifier
     = PackageIdentifier {
-	pkgName    :: String, -- ^The name of this package, eg. foo
-	pkgVersion :: Version -- ^the version of this package, eg 1.2
+        pkgName    :: PackageName, -- ^The name of this package, eg. foo
+        pkgVersion :: Version -- ^the version of this package, eg 1.2
      }
      deriving (Read, Show, Eq, Ord)
 
 instance Text PackageIdentifier where
   disp (PackageIdentifier n v) = case v of
-    Version [] _ -> Disp.text n -- if no version, don't show version.
-    _            -> Disp.text n <> Disp.char '-' <> disp v
+    Version [] _ -> disp n -- if no version, don't show version.
+    _            -> disp n <> Disp.char '-' <> disp v
 
   parse = do
-    n <- parsePackageName
+    n <- parse
     v <- (Parse.char '-' >> parse) <++ return (Version [] [])
     return (PackageIdentifier n v)
-
-parsePackageName :: Parse.ReadP r String
-parsePackageName = do ns <- Parse.sepBy1 component (Parse.char '-')
-                      return (concat (intersperse "-" ns))
-  where component = do 
-	   cs <- Parse.munch1 Char.isAlphaNum
-	   if all Char.isDigit cs then Parse.pfail else return cs
-	-- each component must contain an alphabetic character, to avoid
-	-- ambiguity in identifiers like foo-1 (the 1 is the version number).
 
 -- ------------------------------------------------------------
 -- * Package dependencies
 -- ------------------------------------------------------------
 
-data Dependency = Dependency String VersionRange
+data Dependency = Dependency PackageName VersionRange
                   deriving (Read, Show, Eq)
 
 instance Text Dependency where
   disp (Dependency name ver) =
-    Disp.text name <+> disp ver
+    disp name <+> disp ver
 
-  parse = do name <- parsePackageName
+  parse = do name <- parse
              Parse.skipSpaces
              ver <- parse <++ return AnyVersion
              Parse.skipSpaces
@@ -129,7 +138,7 @@ notThisPackageVersion (PackageIdentifier n v) =
 class Package pkg where
   packageId :: pkg -> PackageIdentifier
 
-packageName    :: Package pkg => pkg -> String
+packageName    :: Package pkg => pkg -> PackageName
 packageName     = pkgName    . packageId
 
 packageVersion :: Package pkg => pkg -> Version
@@ -147,10 +156,3 @@ instance Package PackageIdentifier where
 --
 class Package pkg => PackageFixedDeps pkg where
   depends :: pkg -> [PackageIdentifier]
-
--- ---------------------------------------------------------------------------
--- Deprecated compat stuff
-
-{-# DEPRECATED showPackageId "use the Text class instead" #-}
-showPackageId :: PackageIdentifier -> String
-showPackageId = display

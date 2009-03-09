@@ -1,3 +1,18 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Distribution.System
+-- Copyright   :  Duncan Coutts 2007-2008
+--
+-- Maintainer  :  cabal-devel@haskell.org
+-- Portability :  portable
+--
+-- Cabal often needs to do slightly different things on specific platforms. You
+-- probably know about the 'System.Info.os' however using that is very
+-- inconvenient because it is a string and different Haskell implementations
+-- do not agree on using the same strings for the same platforms! (In
+-- particular see the controversy over "windows" vs "ming32"). So to make it
+-- more consistent and easy to use we have an 'OS' enumeration.
+--
 module Distribution.System (
   -- * Operating System
   OS(..),
@@ -6,6 +21,10 @@ module Distribution.System (
   -- * Machine Architecture
   Arch(..),
   buildArch,
+
+  -- * Platform is a pair of arch and OS
+  Platform(..),
+  buildPlatform,
   ) where
 
 import qualified System.Info (os, arch)
@@ -14,6 +33,7 @@ import qualified Data.Char as Char (toLower, isAlphaNum)
 import Distribution.Text (Text(..), display)
 import qualified Distribution.Compat.ReadP as Parse
 import qualified Text.PrettyPrint as Disp
+import Text.PrettyPrint ((<>))
 
 -- | How strict to be when classifying strings into the 'OS' and 'Arch' enums.
 --
@@ -82,7 +102,7 @@ buildOS = classifyOS Permissive System.Info.os
 
 data Arch = I386  | X86_64 | PPC | PPC64 | Sparc
           | Arm   | Mips   | SH
-          | IA64  | S390 
+          | IA64  | S390
           | Alpha | Hppa   | Rs6000
           | M68k  | Vax
           | OtherArch String
@@ -91,7 +111,7 @@ data Arch = I386  | X86_64 | PPC | PPC64 | Sparc
 knownArches :: [Arch]
 knownArches = [I386, X86_64, PPC, PPC64, Sparc
               ,Arm, Mips, SH
-              ,IA64, S390 
+              ,IA64, S390
               ,Alpha, Hppa, Rs6000
               ,M68k, Vax]
 
@@ -123,6 +143,26 @@ classifyArch strictness s =
 
 buildArch :: Arch
 buildArch = classifyArch Permissive System.Info.arch
+
+-- ------------------------------------------------------------
+-- * Platform
+-- ------------------------------------------------------------
+
+data Platform = Platform Arch OS
+  deriving (Eq, Ord, Show, Read)
+
+instance Text Platform where
+  disp (Platform arch os) = disp arch <> Disp.char '-' <> disp os
+  parse = do
+    arch <- parse
+    Parse.char '-'
+    os   <- parse
+    return (Platform arch os)
+
+buildPlatform :: Platform
+buildPlatform = Platform buildArch buildOS
+
+-- Utils:
 
 ident :: Parse.ReadP r String
 ident = Parse.munch1 (\c -> Char.isAlphaNum c || c == '_' || c == '-')

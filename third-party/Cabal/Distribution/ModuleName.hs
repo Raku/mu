@@ -1,15 +1,14 @@
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Distribution.ReadE
--- Copyright   :  Jose Iborra 2008
+-- Module      :  Distribution.ModuleName
+-- Copyright   :  Duncan Coutts 2008
 --
 -- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Simple parsing with failure
+-- Data type for Haskell module names.
 
-{- Copyright (c) 2007, Jose Iborra
-All rights reserved.
+{- All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -39,44 +38,54 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -}
 
-module Distribution.ReadE (
-   -- * ReadE
-   ReadE(..), succeedReadE, failReadE,
-   -- * Projections
-   parseReadE, readEOrFail,
-   readP_to_E
+module Distribution.ModuleName (
+        ModuleName,
+        simple,
+        components,
+        toFilePath,
+        main,
   ) where
 
-import Data.Either (either)
-import Distribution.Compat.ReadP
-import Data.Char ( isSpace )
+import Distribution.Text
+         ( Text(..) )
 
--- | Parser with simple error reporting
-newtype ReadE a = ReadE {runReadE :: String -> Either ErrorMsg a}
-type ErrorMsg   = String
+import qualified Distribution.Compat.ReadP as Parse
+import qualified Text.PrettyPrint as Disp
+import qualified Data.Char as Char
+         ( isAlphaNum, isUpper )
+import System.FilePath
+         ( pathSeparator )
+import Data.List
+         ( intersperse )
+import Control.Exception
+         ( assert )
 
-instance Functor ReadE where
-  fmap f (ReadE p) = ReadE $ \txt -> case p txt of
-                                       Right a  -> Right (f a)
-                                       Left err -> Left err
+newtype ModuleName = ModuleName [String]
+  deriving (Eq, Ord, Read, Show)
 
-succeedReadE :: (String -> a) -> ReadE a
-succeedReadE f = ReadE (Right . f)
+instance Text ModuleName where
+  disp (ModuleName ms) =
+    Disp.hcat (intersperse (Disp.char '.') (map Disp.text ms))
 
-failReadE :: ErrorMsg -> ReadE a
-failReadE = ReadE . const Left
+  parse = do
+    ms <- Parse.sepBy1 component (Parse.char '.')
+    return (ModuleName ms)
 
-parseReadE :: ReadE a -> ReadP r a
-parseReadE (ReadE p) = do
-  txt <- look
-  either fail return (p txt)
+    where
+      component = do
+        c  <- Parse.satisfy Char.isUpper
+        cs <- Parse.munch (\x -> Char.isAlphaNum x || x == '_' || x == '\'')
+        return (c:cs)
 
-readEOrFail :: ReadE a -> (String -> a)
-readEOrFail r = either error id . runReadE r
+simple :: String -> ModuleName
+simple name = assert (all (/='.') name)
+              (ModuleName [name])
 
-readP_to_E :: (String -> ErrorMsg) -> ReadP a a -> ReadE a
-readP_to_E err r =
-    ReadE $ \txt -> case [ p | (p, s) <- readP_to_S r txt
-                         , all isSpace s ]
-                    of [] -> Left (err txt)
-                       (p:_) -> Right p
+main :: ModuleName
+main = ModuleName ["Main"]
+
+components :: ModuleName -> [String]
+components (ModuleName ms) = ms
+
+toFilePath :: ModuleName -> FilePath
+toFilePath = concat . intersperse [pathSeparator] . components

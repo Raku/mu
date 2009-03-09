@@ -2,14 +2,19 @@
 -- |
 -- Module      :  Distribution.Simple.Haddock
 -- Copyright   :  Isaac Jones 2003-2005
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Invokes haddock to generate api documentation for libraries and optinally
--- executables in this package. Also has support for generating
--- syntax-highlighted source with HsColour and linking the haddock docs to it.
+-- This module deals with the @haddock@ and @hscolour@ commands. Sadly this is
+-- a rather complicated module. It deals with two versions of haddock (0.x and
+-- 2.x). It has to do pre-processing for haddock 0.x which involves
+-- \'unlit\'ing and using @-DHADDOCK@ for any source code that uses @cpp@. It
+-- uses information about installed packages (from @ghc-pkg@) to find the
+-- locations of documentation for dependent packages, so it can create links.
+--
+-- The @hscolour@ support allows generating html versions of the original
+-- source, with coloured syntax highlighting.
 
 {- All rights reserved.
 
@@ -48,13 +53,14 @@ module Distribution.Simple.Haddock (
 -- local
 import Distribution.Package
          ( PackageIdentifier, Package(..) )
+import qualified Distribution.ModuleName as ModuleName
 import Distribution.PackageDescription as PD
          (PackageDescription(..), BuildInfo(..), hcOptions,
           Library(..), hasLibs, withLib,
           Executable(..), withExe)
 import Distribution.Simple.Compiler
          ( Compiler(..), CompilerFlavor(..), compilerVersion
-	 , extensionsToFlags )
+         , extensionsToFlags )
 import Distribution.Simple.Program
          ( ConfiguredProgram(..), requireProgram
          , rawSystemProgram, rawSystemProgramStdoutConf, rawSystemProgramStdout
@@ -70,7 +76,9 @@ import Distribution.Simple.InstallDirs (InstallDirs(..), PathTemplate,
                                         initialPathTemplateEnv)
 import Distribution.Simple.LocalBuildInfo ( LocalBuildInfo(..) )
 import Distribution.Simple.BuildPaths ( haddockPref, haddockName,
-                                        hscolourPref, autogenModulesDir )
+                                        hscolourPref, autogenModulesDir,
+                                        cppHeaderName )
+import Distribution.Simple.PackageIndex (dependencyClosure, allPackages)
 import qualified Distribution.Simple.PackageIndex as PackageIndex
          ( lookupPackageId )
 import qualified Distribution.InstalledPackageInfo as InstalledPackageInfo
@@ -78,7 +86,7 @@ import qualified Distribution.InstalledPackageInfo as InstalledPackageInfo
 import Distribution.Simple.Utils
          ( die, warn, notice, intercalate, setupMessage
          , createDirectoryIfMissingVerbose, withTempFile
-         , findFileWithExtension, findFile, dotToSep )
+         , findFileWithExtension, findFile )
 import Distribution.Text
          ( display, simpleParse )
 
@@ -86,8 +94,9 @@ import Distribution.Verbosity
 import Language.Haskell.Extension
 -- Base
 import System.Directory(removeFile, doesFileExist,
-                        removeDirectoryRecursive, copyFile)
-
+                        removeDirectoryRecursive)
+import Distribution.Compat.CopyFile
+         ( copyFile )
 import Control.Monad ( when, unless )
 import Data.Maybe    ( isJust, fromJust, listToMaybe )
 import Data.Char     (isSpace)
@@ -107,8 +116,7 @@ haddock pkg_descr _ _ haddockFlags
     && not (fromFlag $ haddockExecutables haddockFlags) =
       warn (fromFlag $ haddockVerbosity haddockFlags) $
            "No documentation was generated as this package does not contain "
-        ++ "a library. Perhaps you want to use the haddock command with the "
-        ++ "--executables."
+        ++ "a library. Perhaps you want to use the --executables flag."
 
 haddock pkg_descr lbi suffixes flags = do
     let distPref = fromFlag (haddockDistPref flags)
@@ -127,7 +135,7 @@ haddock pkg_descr lbi suffixes flags = do
     createDirectoryIfMissingVerbose verbosity True tmpDir
     createDirectoryIfMissingVerbose verbosity True $
         haddockPref distPref pkg_descr
-    preprocessSources pkg_descr lbi False verbosity suffixes
+    initialBuildSteps distPref pkg_descr lbi verbosity suffixes
 
     setupMessage verbosity "Running Haddock for" (packageId pkg_descr)
 
@@ -154,7 +162,7 @@ haddock pkg_descr lbi suffixes flags = do
     let cssFileFlag = case flagToMaybe $ haddockCss flags of
                         Nothing -> []
                         Just cssFile -> ["--css=" ++ cssFile]
-    let verboseFlags = if verbosity > deafening then ["--verbose"] else []
+    let verboseFlags = if verbosity >= deafening then ["--verbose"] else []
     when (hsColour && not have_src_hyperlink_flags) $
          die "haddock --hyperlink-source requires Haddock version 0.8 or later"
     let linkToHscolour = if hsColour
@@ -188,9 +196,6 @@ haddock pkg_descr lbi suffixes flags = do
           then ("-B" ++ ghcLibDir) : map ("--optghc=" ++) (ghcSimpleOptions lbi bi preprocessDir)
           else []
 
-    when isVersion2 $
-        initialBuildSteps distPref pkg_descr lbi verbosity suffixes
-
     withLib pkg_descr () $ \lib -> do
         let bi = libBuildInfo lib
             modules = PD.exposedModules lib ++ otherModules bi
@@ -207,13 +212,14 @@ haddock pkg_descr lbi suffixes flags = do
           hPutStrLn prologFileHandle prolog
           hClose prologFileHandle
           let targets
-                | isVersion2 = modules
+                | isVersion2 = map display modules
                 | otherwise  = replaceLitExts inFiles
           let haddockFile = haddockPref distPref pkg_descr
                         </> haddockName pkg_descr
           -- FIX: replace w/ rawSystemProgramConf?
           let hideArgs | fromFlag (haddockInternal flags) = []
-                       | otherwise                        = map ("--hide=" ++) (otherModules bi)
+                       | otherwise = [ "--hide=" ++ display m
+                                     | m <- otherModules bi ]
           let exportsFlags | fromFlag (haddockInternal flags) = ["--ignore-all-exports"]
                            | otherwise                        = []
           rawSystemProgram verbosity confHaddock
@@ -226,7 +232,6 @@ haddock pkg_descr lbi suffixes flags = do
                    ++ cssFileFlag
                    ++ linkToHscolour
                    ++ packageFlags
-                   ++ programArgs confHaddock
                    ++ verboseFlags
                    ++ hideArgs
                    ++ exportsFlags
@@ -251,7 +256,7 @@ haddock pkg_descr lbi suffixes flags = do
           hPutStrLn prologFileHandle prolog
           hClose prologFileHandle
           let targets
-                | isVersion2 = srcMainPath : otherModules bi
+                | isVersion2 = srcMainPath : map display (otherModules bi)
                 | otherwise = replaceLitExts inFiles
           let preprocessDir = buildDir lbi </> exeName exe </> exeName exe ++ "-tmp"
           let exportsFlags | fromFlag (haddockInternal flags) = ["--ignore-all-exports"]
@@ -263,7 +268,6 @@ haddock pkg_descr lbi suffixes flags = do
                    , "--prologue=" ++ prologFileName ]
                    ++ linkToHscolour
                    ++ packageFlags
-                   ++ programArgs confHaddock
                    ++ verboseFlags
                    ++ exportsFlags
                    ++ haddock2options bi preprocessDir
@@ -300,6 +304,11 @@ haddockPackageFlags :: LocalBuildInfo
                     -> Maybe PathTemplate
                     -> IO ([String], Maybe String)
 haddockPackageFlags lbi htmlTemplate = do
+  let allPkgs = installedPkgs lbi
+      directDeps = packageDeps lbi
+  transitiveDeps <- case dependencyClosure allPkgs directDeps of
+                    Left x -> return x
+                    Right _ -> die "Can't find transitive deps for haddock"
   interfaces <- sequence
     [ case interfaceAndHtmlPath pkgid of
         Nothing -> return (pkgid, Nothing)
@@ -308,7 +317,7 @@ haddockPackageFlags lbi htmlTemplate = do
           if exists
             then return (pkgid, Just (interface, html))
             else return (pkgid, Nothing)
-    | pkgid <- packageDeps lbi ]
+    | pkgid <- map InstalledPackageInfo.package $ allPackages transitiveDeps ]
 
   let missing = [ pkgid | (pkgid, Nothing) <- interfaces ]
       warning = "The documentation for the following packages are not "
@@ -345,6 +354,8 @@ ghcSimpleOptions lbi bi mockDir
   ++ ["-i" ++ autogenModulesDir lbi]
   ++ ["-i" ++ mockDir]
   ++ ["-I" ++ dir | dir <- PD.includeDirs bi]
+  ++ ["-optP" ++ opt | opt <- cppOptions bi]
+  ++ [ "-optP-include", "-optP"++ (autogenModulesDir lbi </> cppHeaderName) ]
   ++ ["-odir", mockDir]
   ++ ["-hidir", mockDir]
   ++ extensionsToFlags c (extensions bi)
@@ -365,29 +376,30 @@ hscolour pkg_descr lbi suffixes flags = do
     preprocessSources pkg_descr lbi False verbosity suffixes
 
     setupMessage verbosity "Running hscolour for" (packageId pkg_descr)
-    let replaceDot = map (\c -> if c == '.' then '-' else c)
+    let moduleNameToHtmlFilePath mn =
+          intercalate "-" (ModuleName.components mn) <.> "html"
 
     withLib pkg_descr () $ \lib -> when (isJust $ library pkg_descr) $ do
         let bi = libBuildInfo lib
             modules = PD.exposedModules lib ++ otherModules bi
-	    outputDir = hscolourPref distPref pkg_descr </> "src"
-	createDirectoryIfMissingVerbose verbosity True outputDir
-	copyCSS hscolourProg outputDir
+            outputDir = hscolourPref distPref pkg_descr </> "src"
+        createDirectoryIfMissingVerbose verbosity True outputDir
+        copyCSS hscolourProg outputDir
         inFiles <- getLibSourceFiles lbi lib
         flip mapM_ (zip modules inFiles) $ \(mo, inFile) ->
-            let outFile = outputDir </> replaceDot mo <.> "html"
+            let outFile = outputDir </> moduleNameToHtmlFilePath mo
              in rawSystemProgram verbosity hscolourProg
                      ["-css", "-anchor", "-o" ++ outFile, inFile]
 
     withExe pkg_descr $ \exe -> when doExes $ do
         let bi = buildInfo exe
-            modules = "Main" : otherModules bi
+            modules = ModuleName.main : otherModules bi
             outputDir = hscolourPref distPref pkg_descr </> exeName exe </> "src"
         createDirectoryIfMissingVerbose verbosity True outputDir
         copyCSS hscolourProg outputDir
         inFiles <- getExeSourceFiles lbi exe
         flip mapM_ (zip modules inFiles) $ \(mo, inFile) ->
-            let outFile = outputDir </> replaceDot mo <.> "html"
+            let outFile = outputDir </> moduleNameToHtmlFilePath mo
             in rawSystemProgram verbosity hscolourProg
                      ["-css", "-anchor", "-o" ++ outFile, inFile]
 
@@ -404,25 +416,25 @@ hscolour pkg_descr lbi suffixes flags = do
 
 getLibSourceFiles :: LocalBuildInfo -> Library -> IO [FilePath]
 getLibSourceFiles lbi lib = sequence
-  [ findFileWithExtension ["hs", "lhs"] (preprocessDir : hsSourceDirs bi)
-      (dotToSep module_) >>= maybe (notFound module_) (return . normalise)
+  [ findFileWithExtension ["hs", "lhs"] (autogenModulesDir lbi: preprocessDir : hsSourceDirs bi)
+      (ModuleName.toFilePath module_) >>= maybe (notFound module_) (return . normalise)
   | module_ <- modules ]
   where
     bi               = libBuildInfo lib
     modules          = PD.exposedModules lib ++ otherModules bi
     preprocessDir    = buildDir lbi
-    notFound module_ = die $ "can't find source for module " ++ module_
+    notFound module_ = die $ "can't find source for module " ++ display module_
 
 getExeSourceFiles :: LocalBuildInfo -> Executable -> IO [FilePath]
 getExeSourceFiles lbi exe = do
   srcMainPath <- findFile (hsSourceDirs bi) (modulePath exe)
   moduleFiles <- sequence
-    [ findFileWithExtension ["hs", "lhs"] (preprocessDir : hsSourceDirs bi)
-        (dotToSep module_) >>= maybe (notFound module_) (return . normalise)
+    [ findFileWithExtension ["hs", "lhs"] (autogenModulesDir lbi : preprocessDir : hsSourceDirs bi)
+        (ModuleName.toFilePath module_) >>= maybe (notFound module_) (return . normalise)
     | module_ <- modules ]
   return (srcMainPath : moduleFiles)
   where
     bi               = buildInfo exe
     modules          = otherModules bi
     preprocessDir    = buildDir lbi </> exeName exe </> exeName exe ++ "-tmp"
-    notFound module_ = die $ "can't find source for module " ++ module_
+    notFound module_ = die $ "can't find source for module " ++ display module_

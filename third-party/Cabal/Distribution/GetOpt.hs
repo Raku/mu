@@ -3,13 +3,12 @@
 -- Module      :  Distribution.GetOpt
 -- Copyright   :  (c) Sven Panne 2002-2005
 -- License     :  BSD-style (see the file libraries/base/LICENSE)
--- 
+--
 -- Maintainer  :  libraries@haskell.org
--- Stability   :  experimental
 -- Portability :  portable
 --
 -- This library provides facilities for parsing the command-line options
--- in a standalone program.  It is essentially a Haskell port of the GNU 
+-- in a standalone program.  It is essentially a Haskell port of the GNU
 -- @getopt@ library.
 --
 -----------------------------------------------------------------------------
@@ -33,7 +32,7 @@ Other differences between GNU's getopt and this implementation:
   compliant... :-(
 
 And a final Haskell advertisement: The GNU C implementation uses well
-over 1100 lines, we need only 195 here, including a 46 line example! 
+over 1100 lines, we need only 195 here, including a 46 line example!
 :-)
 -}
 
@@ -93,7 +92,7 @@ data OptKind a                -- kind of cmd line arg (internal use only):
    | OptErr    String           --    something went wrong...
 
 -- | Return a string describing the usage of a command, derived from
--- the header (first argument) and the options described by the 
+-- the header (first argument) and the options described by the
 -- second argument.
 usageInfo :: String                    -- header
           -> [OptDescr a]              -- option descriptors
@@ -104,15 +103,15 @@ usageInfo header optDescr = unlines (header:table)
                                ,d)
                              | Option sos los ad d <- optDescr ]
          ssWidth    = (maximum . map length) ss
-	 lsWidth    = (maximum . map length) ls
-	 dsWidth    = 30 `max` (80 - (ssWidth + lsWidth + 3))
+         lsWidth    = (maximum . map length) ls
+         dsWidth    = 30 `max` (80 - (ssWidth + lsWidth + 3))
          table      = [ " " ++ padTo ssWidth so' ++
                         " " ++ padTo lsWidth lo' ++
                         " " ++ d'
                       | (so,lo,d) <- zip3 ss ls ds
                       , (so',lo',d') <- fmtOpt dsWidth so lo d ]
          padTo n x  = take n (x ++ repeat ' ')
-	 sepBy s    = concat . intersperse s
+         sepBy s    = concat . intersperse s
 
 fmtOpt :: Int -> String -> String -> String -> [(String, String, String)]
 fmtOpt descrWidth so lo descr =
@@ -153,7 +152,7 @@ Process the command-line, and return the list of values that matched
 
 * The option descriptions (see 'OptDescr')
 
-* The actual command line arguments (presumably got from 
+* The actual command line arguments (presumably got from
   'System.Environment.getArgs').
 
 'getOpt' returns a triple consisting of the option arguments, a list
@@ -234,7 +233,7 @@ shortOpt y ys rs optDescr = short ads ys rs
         short (OptArg f _:_) [] rest     = (Opt (f Nothing),rest)
         short (OptArg f _:_) xs rest     = (Opt (f (Just xs)),rest)
         short []             [] rest     = (UnreqOpt optStr,rest)
-        short []             xs rest     = (UnreqOpt optStr,('-':xs):rest)
+        short []             xs rest     = (UnreqOpt (optStr++xs),rest)
 
 -- miscellaneous error formatting
 
@@ -288,11 +287,11 @@ test order cmdline = case getOpt order options cmdline of
 -- putStr (test Permute ["--ver","foo"])
 --    ==> option `--ver' is ambiguous; could be one of:
 --          -v      --verbose             verbosely list files
---          -V, -?  --version, --release  show version info   
+--          -V, -?  --version, --release  show version info
 --        Usage: foobar [OPTION...] files...
---          -v        --verbose             verbosely list files  
---          -V, -?    --version, --release  show version info     
---          -o[FILE]  --output[=FILE]       use FILE for dump     
+--          -v        --verbose             verbosely list files
+--          -V, -?    --version, --release  show version info
+--          -o[FILE]  --output[=FILE]       use FILE for dump
 --          -n USER   --name=USER           only dump USER's files
 -----------------------------------------------------------------------------------------
 -}
@@ -304,15 +303,15 @@ structures, here\'s the command-line options for a (very simple)
 compiler:
 
 >    module Opts where
->    
+>
 >    import Distribution.GetOpt
 >    import Data.Maybe ( fromMaybe )
->    
->    data Flag 
->     = Verbose  | Version 
+>
+>    data Flag
+>     = Verbose  | Version
 >     | Input String | Output String | LibDir String
 >       deriving Show
->    
+>
 >    options :: [OptDescr Flag]
 >    options =
 >     [ Option ['v']     ["verbose"] (NoArg Verbose)       "chatty output on stderr"
@@ -321,13 +320,13 @@ compiler:
 >     , Option ['c']     []          (OptArg inp  "FILE")  "input FILE"
 >     , Option ['L']     ["libdir"]  (ReqArg LibDir "DIR") "library directory"
 >     ]
->    
+>
 >    inp,outp :: Maybe String -> Flag
 >    outp = Output . fromMaybe "stdout"
 >    inp  = Input  . fromMaybe "stdin"
->    
+>
 >    compilerOpts :: [String] -> IO ([Flag], [String])
->    compilerOpts argv = 
+>    compilerOpts argv =
 >       case getOpt Permute options argv of
 >          (o,n,[]  ) -> return (o,n)
 >          (_,_,errs) -> ioError (userError (concat errs ++ usageInfo header options))

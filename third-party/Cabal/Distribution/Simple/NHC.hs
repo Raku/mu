@@ -2,11 +2,12 @@
 -- |
 -- Module      :  Distribution.Simple.NHC
 -- Copyright   :  Isaac Jones 2003-2006
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
+-- This module contains most of the NHC-specific code for configuring, building
+-- and installing packages.
 
 {- Copyright (c) 2003-2005, Isaac Jones
 All rights reserved.
@@ -50,6 +51,8 @@ import Distribution.Package
 import Distribution.PackageDescription
         ( PackageDescription(..), BuildInfo(..), Library(..), Executable(..),
           withLib, withExe, hcOptions )
+import Distribution.ModuleName (ModuleName)
+import qualified Distribution.ModuleName as ModuleName
 import Distribution.Simple.LocalBuildInfo
         ( LocalBuildInfo(..) )
 import Distribution.Simple.BuildPaths
@@ -59,25 +62,28 @@ import Distribution.Simple.Compiler
         , Flag, extensionsToFlags )
 import Language.Haskell.Extension
         ( Extension(..) )
-import Distribution.Simple.Program 
+import Distribution.Simple.Program
         ( ProgramConfiguration, userMaybeSpecifyPath, requireProgram,
           lookupProgram, ConfiguredProgram(programVersion), programPath,
           nhcProgram, hmakeProgram, ldProgram, arProgram,
           rawSystemProgramConf )
 import Distribution.Simple.Utils
-        ( die, info, findFileWithExtension, dotToSep,
+        ( die, info, findFileWithExtension,
           createDirectoryIfMissingVerbose, copyFileVerbose, smartCopySources )
 import Distribution.Version
         ( Version(..), VersionRange(..), orLaterVersion )
 import Distribution.Verbosity
+import Distribution.Text
+        ( display )
+
 import System.FilePath
         ( (</>), (<.>), normalise, takeDirectory, dropExtension )
 import System.Directory
         ( removeFile )
 
-import Control.Exception (try)
 import Data.List ( nub )
 import Control.Monad ( when, unless )
+import Distribution.Compat.Exception
 
 -- -----------------------------------------------------------------------------
 -- Configuring
@@ -147,13 +153,14 @@ build pkg_descr lbi verbosity = do
       ++ extensionFlags
       ++ maybe [] (hcOptions NHC . libBuildInfo)
                              (library pkg_descr)
-      ++ concat [ ["-package", packageName pkg] | pkg <- packageDeps lbi ]
+      ++ concat [ ["-package", display (packageName pkg) ]
+                | pkg <- packageDeps lbi ]
       ++ inFiles
 {-
     -- build any C sources
     unless (null (cSources bi)) $ do
        info verbosity "Building C Sources..."
-       let commonCcArgs = (if verbosity > deafening then ["-v"] else [])
+       let commonCcArgs = (if verbosity >= deafening then ["-v"] else [])
                        ++ ["-I" ++ dir | dir <- includeDirs bi]
                        ++ [opt | opt <- ccOptions bi]
                        ++ (if withOptimization lbi then ["-O2"] else [])
@@ -168,11 +175,12 @@ build pkg_descr lbi verbosity = do
     let --cObjs = [ targetDir </> cFile `replaceExtension` objExtension
         --        | cFile <- cSources bi ]
         libFilePath = targetDir </> mkLibName (packageId pkg_descr)
-        hObjs = [ targetDir </> dotToSep m <.> objExtension
+        hObjs = [ targetDir </> ModuleName.toFilePath m <.> objExtension
                 | m <- modules ]
 
     unless (null hObjs {-&& null cObjs-}) $ do
-      try (removeFile libFilePath) -- first remove library if it exists
+      -- first remove library if it exists
+      removeFile libFilePath `catchIO` \_ -> return ()
 
       let arVerbosity | verbosity >= deafening = "v"
                       | verbosity >= normal = ""
@@ -205,7 +213,8 @@ build pkg_descr lbi verbosity = do
       ++ extensionFlags
       ++ maybe [] (hcOptions NHC . libBuildInfo)
                              (library pkg_descr)
-      ++ concat [ ["-package", packageName pkg] | pkg <- packageDeps lbi ]
+      ++ concat [ ["-package", display (packageName pkg) ]
+                | pkg <- packageDeps lbi ]
       ++ inFiles
       ++ [exeName exe]
 
@@ -216,12 +225,12 @@ nhcVerbosityOptions verbosity
      | otherwise              = ["-q"]
 
 --TODO: where to put this? it's duplicated in .Simple too
-getModulePaths :: LocalBuildInfo -> BuildInfo -> [String] -> IO [FilePath]
+getModulePaths :: LocalBuildInfo -> BuildInfo -> [ModuleName] -> IO [FilePath]
 getModulePaths lbi bi modules = sequence
    [ findFileWithExtension ["hs", "lhs"] (buildDir lbi : hsSourceDirs bi)
-       (dotToSep module_) >>= maybe (notFound module_) (return . normalise)
+       (ModuleName.toFilePath module_) >>= maybe (notFound module_) (return . normalise)
    | module_ <- modules ]
-   where notFound module_ = die $ "can't find source for module " ++ module_
+   where notFound module_ = die $ "can't find source for module " ++ display module_
 
 -- -----------------------------------------------------------------------------
 -- Installing

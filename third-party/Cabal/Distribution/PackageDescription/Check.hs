@@ -3,11 +3,21 @@
 -- Module      :  Distribution.PackageDescription.Check
 -- Copyright   :  Lennart Kolmodin 2008
 --
--- Maintainer  :  Lennart Kolmodin <kolmodin@gentoo.org>
--- Stability   :  alpha
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- This module provides functionality to check for common mistakes.
+-- This has code for checking for various problems in packages. There is one
+-- set of checks that just looks at a 'PackageDescription' in isolation and
+-- another set of checks that also looks at files in the package. Some of the
+-- checks are basic sanity checks, others are portability standards that we'd
+-- like to encourage. There is a 'PackageCheck' type that distinguishes the
+-- different kinds of check so we can see which ones are appropriate to report
+-- in different situations. This code gets uses when configuring a package when
+-- we consider only basic problems. The higher standard is uses when when
+-- preparing a source tarball and by hackage when uploading new packages. The
+-- reason for this is that we want to hold packages that are expected to be
+-- distributed to a higher standard than packages that are only ever expected
+-- to be used on the author's own environment.
 
 {- All rights reserved.
 
@@ -44,15 +54,22 @@ module Distribution.PackageDescription.Check (
         PackageCheck(..),
         checkPackage,
         checkConfiguredPackage,
-        checkPackageFiles
+
+        -- ** Checking package contents
+        checkPackageFiles,
+        checkPackageContent,
+        CheckPackageContentOps(..),
+        checkPackageFileNames,
   ) where
 
 import Data.Maybe (isNothing, catMaybes, fromMaybe)
 import Data.List  (sort, group, isPrefixOf)
-import Control.Monad (filterM)
-import System.Directory (doesFileExist, doesDirectoryExist)
+import Control.Monad
+         ( filterM, liftM )
+import qualified System.Directory as System
+         ( doesFileExist, doesDirectoryExist )
 
-import Distribution.PackageDescription hiding (freeVars)
+import Distribution.PackageDescription
 import Distribution.PackageDescription.Configuration
          ( flattenPackageDescription )
 import Distribution.Compiler
@@ -67,11 +84,15 @@ import Distribution.Simple.Utils
 import Distribution.Version
          ( Version(..), withinRange )
 import Distribution.Package
-         ( packageName, packageVersion )
+         ( PackageName(PackageName), packageName, packageVersion )
 import Distribution.Text
          ( display, simpleParse )
 import Language.Haskell.Extension (Extension(..))
-import System.FilePath (takeExtension, isRelative, splitDirectories, (</>))
+import System.FilePath
+         ( (</>), takeExtension, isRelative, isAbsolute
+         , splitDirectories,  splitPath )
+import System.FilePath.Windows as FilePath.Windows
+         ( isValid )
 
 -- | Results of some kind of failed package check.
 --
@@ -146,6 +167,7 @@ checkConfiguredPackage pkg =
     checkSanity pkg
  ++ checkFields pkg
  ++ checkLicense pkg
+ ++ checkSourceRepos pkg
  ++ checkGhcOptions pkg
  ++ checkCCOptions pkg
  ++ checkPaths pkg
@@ -161,7 +183,7 @@ checkSanity :: PackageDescription -> [PackageCheck]
 checkSanity pkg =
   catMaybes [
 
-    check (null . packageName $ pkg) $
+    check (null . (\(PackageName n) -> n) . packageName $ pkg) $
       PackageBuildImpossible "No 'name' field."
 
   , check (null . versionBranch . packageVersion $ pkg) $
@@ -194,7 +216,7 @@ checkLibrary lib =
          "Duplicate modules in library: " ++ commaSep moduleDuplicates
   ]
 
-  where moduleDuplicates = [ module_
+  where moduleDuplicates = [ display module_
                            | let modules = exposedModules lib
                                         ++ otherModules (libBuildInfo lib)
                            , (module_:_:_) <- group (sort modules) ]
@@ -219,7 +241,7 @@ checkExecutable exe =
          ++ commaSep moduleDuplicates
   ]
 
-  where moduleDuplicates = [ module_
+  where moduleDuplicates = [ display module_
                            | let modules = otherModules (buildInfo exe)
                            , (module_:_:_) <- group (sort modules) ]
 
@@ -231,7 +253,14 @@ checkFields :: PackageDescription -> [PackageCheck]
 checkFields pkg =
   catMaybes [
 
-    check (isNothing (buildType pkg)) $
+    check (not . FilePath.Windows.isValid . display . packageName $ pkg) $
+      PackageDistInexcusable $
+           "Unfortunately, the package name '" ++ display (packageName pkg)
+        ++ "' is one of the reserved system file names on Windows. Many tools "
+        ++ "need to convert package names to file names so using this name "
+        ++ "would cause problems."
+
+  , check (isNothing (buildType pkg)) $
       PackageBuildWarning $
            "No 'build-type' specified. If you do not need a custom Setup.hs or "
         ++ "./configure script then use 'build-type: Simple'."
@@ -256,13 +285,16 @@ checkFields pkg =
   , check (null (category pkg)) $
       PackageDistSuspicious "No 'category' field."
 
-  , check (null (description pkg)) $
-      PackageDistSuspicious "No 'description' field."
-
   , check (null (maintainer pkg)) $
       PackageDistSuspicious "No 'maintainer' field."
 
-  , check (null (synopsis pkg)) $
+  , check (null (synopsis pkg) && null (description pkg)) $
+      PackageDistInexcusable $ "No 'synopsis' or 'description' field."
+
+  , check (null (description pkg) && not (null (synopsis pkg))) $
+      PackageDistSuspicious "No 'description' field."
+
+  , check (null (synopsis pkg) && not (null (description pkg))) $
       PackageDistSuspicious "No 'synopsis' field."
 
   , check (length (synopsis pkg) >= 80) $
@@ -301,19 +333,57 @@ checkLicense pkg =
       PackageDistSuspicious "A 'license-file' is not specified."
   ]
 
+checkSourceRepos :: PackageDescription -> [PackageCheck]
+checkSourceRepos pkg =
+  catMaybes $ concat [[
+
+    case repoKind repo of
+      RepoKindUnknown kind -> Just $ PackageDistInexcusable $
+        quote kind ++ " is not a recognised kind of source-repository. "
+                   ++ "The repo kind is usually 'head' or 'this'"
+      _ -> Nothing
+
+  , check (repoType repo == Nothing) $
+      PackageDistInexcusable
+        "The source-repository 'type' is a required field."
+
+  , check (repoLocation repo == Nothing) $
+      PackageDistInexcusable
+        "The source-repository 'location' is a required field."
+
+  , check (repoType repo == Just CVS && repoModule repo == Nothing) $
+      PackageDistInexcusable
+        "For a CVS source-repository, the 'module' is a required field."
+
+  , check (repoKind repo == RepoThis && repoTag repo == Nothing) $
+      PackageDistInexcusable $
+           "For the 'this' kind of source-repository, the 'tag' is a required "
+        ++ "field. It should specify the tag corresponding to this version "
+        ++ "or release of the package."
+
+  , check (maybe False System.FilePath.isAbsolute (repoSubdir repo)) $
+      PackageDistInexcusable
+        "The 'subdir' field of a source-repository must be a relative path."
+  ]
+  | repo <- sourceRepos pkg ]
+
+--TODO: check location looks like a URL for some repo types.
+
 checkGhcOptions :: PackageDescription -> [PackageCheck]
 checkGhcOptions pkg =
   catMaybes [
 
     check has_WerrorWall $
       PackageDistInexcusable $
-           "'ghc-options: -Wall -Werror' makes the package "
-        ++ "very easy to break with future GHC versions."
+           "'ghc-options: -Wall -Werror' makes the package very easy to "
+        ++ "break with future GHC versions because new GHC versions often "
+        ++ "add new warnings. Use just 'ghc-options: -Wall' instead."
 
   , check (not has_WerrorWall && has_Werror) $
       PackageDistSuspicious $
            "'ghc-options: -Werror' makes the package easy to "
-        ++ "break with future GHC versions."
+        ++ "break with future GHC versions because new GHC versions often "
+        ++ "add new warnings."
 
   , checkFlags ["-fasm"] $
       PackageDistInexcusable $
@@ -322,7 +392,10 @@ checkGhcOptions pkg =
 
   , checkFlags ["-fvia-C"] $
       PackageDistSuspicious $
-        "'ghc-options: -fvia-C' is usually unnecessary."
+           "'ghc-options: -fvia-C' is usually unnecessary. If your package "
+        ++ "needs -via-C for correctness rather than performance then it "
+        ++ "is using the FFI incorrectly and will probably not work with GHC "
+        ++ "6.10 or later."
 
   , checkFlags ["-fhpc"] $
       PackageDistInexcusable $
@@ -344,12 +417,16 @@ checkGhcOptions pkg =
       PackageDistInexcusable $
            "'ghc-options: -hide-package' is never needed. Cabal hides all packages."
 
+  , checkFlags ["--make"] $
+      PackageDistInexcusable $
+        "'ghc-options: --make' is never needed. Cabal uses this automatically."
+
   , checkFlags ["-main-is"] $
       PackageDistSuspicious $
            "'ghc-options: -main-is' is not portable."
 
   , checkFlags ["-O0", "-Onot"] $
-      PackageDistInexcusable $
+      PackageDistSuspicious $
         "'ghc-options: -O0' is not needed. Use the --disable-optimization configure flag."
 
   , checkFlags [ "-O", "-O1"] $
@@ -366,8 +443,8 @@ checkGhcOptions pkg =
       PackageDistInexcusable $
         "'ghc-options: -split-objs' is not needed. Use the --enable-split-objs configure flag."
 
-  , checkFlags ["-optl-Wl,-s"] $
-      PackageDistSuspicious $
+  , checkFlags ["-optl-Wl,-s", "-optl-s"] $
+      PackageDistInexcusable $
            "'ghc-options: -optl-Wl,-s' is not needed and is not portable to all"
         ++ " operating systems. Cabal 1.4 and later automatically strip"
         ++ " executables. Cabal also has a flag --disable-executable-stripping"
@@ -377,6 +454,11 @@ checkGhcOptions pkg =
   , checkFlags ["-fglasgow-exts"] $
       PackageDistSuspicious $
         "Instead of 'ghc-options: -fglasgow-exts' it is preferable to use the 'extensions' field."
+
+  , check ("-threaded" `elem` lib_ghc_options) $
+      PackageDistSuspicious $
+           "'ghc-options: -threaded' has no effect for libraries. It should "
+        ++ "only be used for executables."
 
   , checkAlternatives "ghc-options" "extensions"
       [ (flag, display extension) | flag <- all_ghc_options
@@ -414,6 +496,7 @@ checkGhcOptions pkg =
     ghc_options = [ strs | bi <- allBuildInfo pkg
                          , (GHC, strs) <- options bi ]
     all_ghc_options = concat ghc_options
+    lib_ghc_options = maybe [] (hcOptions GHC . libBuildInfo) (library pkg)
 
     checkFlags :: [String] -> PackageCheck -> Maybe PackageCheck
     checkFlags flags = check (any (`elem` flags) all_ghc_options)
@@ -505,6 +588,9 @@ checkPaths pkg =
                               "..":_ -> True
                               _      -> False
 
+--TODO: check for absolute and outside-of-tree paths in extra-src-files,
+-- data-files, hs-src-dirs, etc.
+
 -- ------------------------------------------------------------
 -- * Checks on the GenericPackageDescription
 -- ------------------------------------------------------------
@@ -544,27 +630,55 @@ checkConditionals pkg =
       CAnd c1 c2 -> condfv c1 ++ condfv c2
 
 -- ------------------------------------------------------------
--- * Checks in IO
+-- * Checks involving files in the package
 -- ------------------------------------------------------------
 
--- | Sanity check things that requires IO. It looks at the files in the package
--- and expects to find the package unpacked in at the given filepath.
+-- | Sanity check things that requires IO. It looks at the files in the
+-- package and expects to find the package unpacked in at the given filepath.
 --
 checkPackageFiles :: PackageDescription -> FilePath -> IO [PackageCheck]
-checkPackageFiles pkg root = do
-    licenseError   <- checkLicenseExists pkg root
-    setupError     <- checkSetupExists pkg root
-    configureError <- checkConfigureExists pkg root
-    localPathErrors <- checkLocalPathsExist pkg root
+checkPackageFiles pkg root = checkPackageContent checkFilesIO pkg
+  where
+    checkFilesIO = CheckPackageContentOps {
+      doesFileExist      = System.doesFileExist      . relative,
+      doesDirectoryExist = System.doesDirectoryExist . relative
+    }
+    relative path = root </> path
 
-    return $ catMaybes [licenseError, setupError, configureError]
-                    ++ localPathErrors
+-- | A record of operations needed to check the contents of packages.
+-- Used by 'checkPackageContent'.
+--
+data CheckPackageContentOps m = CheckPackageContentOps {
+    doesFileExist      :: FilePath -> m Bool,
+    doesDirectoryExist :: FilePath -> m Bool
+  }
 
-checkLicenseExists :: PackageDescription -> FilePath -> IO (Maybe PackageCheck)
-checkLicenseExists pkg root
+-- | Sanity check things that requires looking at files in the package.
+-- This is a generalised version of 'checkPackageFiles' that can work in any
+-- monad for which you can provide 'CheckPackageContentOps' operations.
+--
+-- The point of this extra generality is to allow doing checks in some virtual
+-- file system, for example a tarball in memory.
+--
+checkPackageContent :: Monad m => CheckPackageContentOps m
+                    -> PackageDescription
+                    -> m [PackageCheck]
+checkPackageContent ops pkg = do
+  licenseError    <- checkLicenseExists   ops pkg
+  setupError      <- checkSetupExists     ops pkg
+  configureError  <- checkConfigureExists ops pkg
+  localPathErrors <- checkLocalPathsExist ops pkg
+
+  return $ catMaybes [licenseError, setupError, configureError]
+        ++ localPathErrors
+
+checkLicenseExists :: Monad m => CheckPackageContentOps m
+                   -> PackageDescription
+                   -> m (Maybe PackageCheck)
+checkLicenseExists ops pkg
   | null (licenseFile pkg) = return Nothing
   | otherwise = do
-    exists <- doesFileExist (root </> file)
+    exists <- doesFileExist ops file
     return $ check (not exists) $
       PackageBuildWarning $
            "The 'license-file' field refers to the file " ++ quote file
@@ -573,24 +687,30 @@ checkLicenseExists pkg root
   where
     file = licenseFile pkg
 
-checkSetupExists :: PackageDescription -> FilePath -> IO (Maybe PackageCheck)
-checkSetupExists _ root = do
-  hsexists  <- doesFileExist (root </> "Setup.hs")
-  lhsexists <- doesFileExist (root </> "Setup.lhs")
+checkSetupExists :: Monad m => CheckPackageContentOps m
+                 -> PackageDescription
+                 -> m (Maybe PackageCheck)
+checkSetupExists ops _ = do
+  hsexists  <- doesFileExist ops "Setup.hs"
+  lhsexists <- doesFileExist ops "Setup.lhs"
   return $ check (not hsexists && not lhsexists) $
     PackageDistInexcusable $
       "The package is missing a Setup.hs or Setup.lhs script."
 
-checkConfigureExists :: PackageDescription -> FilePath -> IO (Maybe PackageCheck)
-checkConfigureExists PackageDescription { buildType = Just Configure } root = do
-  exists <- doesFileExist (root </> "configure")
+checkConfigureExists :: Monad m => CheckPackageContentOps m
+                     -> PackageDescription
+                     -> m (Maybe PackageCheck)
+checkConfigureExists ops PackageDescription { buildType = Just Configure } = do
+  exists <- doesFileExist ops "configure"
   return $ check (not exists) $
     PackageBuildWarning $
       "The 'build-type' is 'Configure' but there is no 'configure' script."
 checkConfigureExists _ _ = return Nothing
 
-checkLocalPathsExist :: PackageDescription -> FilePath -> IO [PackageCheck]
-checkLocalPathsExist pkg root = do
+checkLocalPathsExist :: Monad m => CheckPackageContentOps m
+                     -> PackageDescription
+                     -> m [PackageCheck]
+checkLocalPathsExist ops pkg = do
   let dirs = [ (dir, kind)
              | bi <- allBuildInfo pkg
              , (dir, kind) <-
@@ -598,12 +718,103 @@ checkLocalPathsExist pkg root = do
                ++ [ (dir, "include-dirs")   | dir <- includeDirs  bi ]
                ++ [ (dir, "hs-source-dirs") | dir <- hsSourceDirs bi ]
              , isRelative dir ]
-  missing <- filterM (fmap not . doesDirectoryExist . (root </>) . fst) dirs
+  missing <- filterM (liftM not . doesDirectoryExist ops . fst) dirs
   return [ PackageBuildWarning {
              explanation = quote (kind ++ ": " ++ dir)
                         ++ " directory does not exist."
            }
          | (dir, kind) <- missing ]
+
+-- ------------------------------------------------------------
+-- * Checks involving files in the package
+-- ------------------------------------------------------------
+
+-- | Check the names of all files in a package for portability problems. This
+-- should be done for example when creating or validating a package tarball.
+--
+checkPackageFileNames :: [FilePath] -> [PackageCheck]
+checkPackageFileNames files =
+     (take 1 . catMaybes . map checkWindowsPath $ files)
+  ++ (take 1 . catMaybes . map checkTarPath     $ files)
+      -- If we get any of these checks triggering then we're likely to get
+      -- many, and that's probably not helpful, so return at most one.
+
+checkWindowsPath :: FilePath -> Maybe PackageCheck
+checkWindowsPath path =
+  check (not $ FilePath.Windows.isValid path') $
+    PackageDistInexcusable $
+         "Unfortunately, the file " ++ quote path ++ " is not a valid file "
+      ++ "name on Windows which would cause portability problems for this "
+      ++ "package. Windows file names cannot contain any of the characters "
+      ++ "\":*?<>|\" and there are a few reserved names including \"aux\", "
+      ++ "\"nul\", \"con\", \"prn\", \"com1-9\", \"lpt1-9\" and \"clock$\"."
+  where
+    path' = ".\\" ++ path
+    -- force a relative name to catch invalid file names like "f:oo" which
+    -- otherwise parse as file "oo" in the current directory on the 'f' drive.
+
+-- | Check a file name is valid for the portable POSIX tar format.
+--
+-- The POSIX tar format has a restriction on the length of file names. It is
+-- unfortunately not a simple restriction like a maximum length. The exact
+-- restriction is that either the whole path be 100 characters or less, or it
+-- be possible to split the path on a directory separator such that the first
+-- part is 155 characters or less and the second part 100 characters or less.
+--
+checkTarPath :: FilePath -> Maybe PackageCheck
+checkTarPath path
+  | length path > 255   = Just longPath
+  | otherwise = case pack nameMax (reverse (splitPath path)) of
+    Left err           -> Just err
+    Right []           -> Nothing
+    Right (first:rest) -> case pack prefixMax remainder of
+      Left err         -> Just err
+      Right []         -> Nothing
+      Right (_:_)      -> Just noSplit
+      where
+        -- drop the '/' between the name and prefix:
+        remainder = init first : rest
+
+  where
+    nameMax, prefixMax :: Int
+    nameMax   = 100
+    prefixMax = 155
+
+    pack _   []     = Left emptyName
+    pack maxLen (c:cs)
+      | n > maxLen  = Left longName
+      | otherwise   = Right (pack' maxLen n cs)
+      where n = length c
+
+    pack' maxLen n (c:cs)
+      | n' <= maxLen = pack' maxLen n' cs
+      where n' = n + length c
+    pack' _     _ cs = cs
+
+    longPath = PackageDistInexcusable $
+         "The following file name is too long to store in a portable POSIX "
+      ++ "format tar archive. The maximum length is 255 ASCII characters.\n"
+      ++ "The file in question is:\n  " ++ path
+    longName = PackageDistInexcusable $
+         "The following file name is too long to store in a portable POSIX "
+      ++ "format tar archive. The maximum length for the name part (including "
+      ++ "extension) is 100 ASCII characters. The maximum length for any "
+      ++ "individual directory component is 155.\n"
+      ++ "The file in question is:\n  " ++ path
+    noSplit = PackageDistInexcusable $
+         "The following file name is too long to store in a portable POSIX "
+      ++ "format tar archive. While the total length is less than 255 ASCII "
+      ++ "characters, there are unfortunately further restrictions. It has to "
+      ++ "be possible to split the file path on a directory separator into "
+      ++ "two parts such that the first part fits in 155 characters or less "
+      ++ "and the second part fits in 100 characters or less. Basically you "
+      ++ "have to make the file name or directory names shorter, or you could "
+      ++ "split a long directory name into nested subdirectories with shorter "
+      ++ "names.\nThe file in question is:\n  " ++ path
+    emptyName = PackageDistInexcusable $
+         "Encountered a file with an empty name, something is very wrong! "
+      ++ "Files with an empty name cannot be stored in a tar archive or in "
+      ++ "standard file systems."
 
 -- ------------------------------------------------------------
 -- * Utils

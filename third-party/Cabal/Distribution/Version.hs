@@ -2,12 +2,13 @@
 -- |
 -- Module      :  Distribution.Version
 -- Copyright   :  Isaac Jones, Simon Marlow 2003-2004
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Versions for packages, based on the 'Version' datatype.
+-- Exports the 'Version' type along with a parser and pretty printer. A version
+-- is something like @\"1.3.3\"@. It also defines the 'VersionRange' data
+-- types. Version ranges are like @\">= 1.2 && < 2\"@.
 
 {- Copyright (c) 2003-2004, Isaac Jones
 All rights reserved.
@@ -51,18 +52,16 @@ module Distribution.Version (
   withinRange,
   isAnyVersion,
 
-  -- * Deprecated compat stuff
-  showVersion,
-  parseVersion,
  ) where
 
-import Data.Version	( Version(..) )
+import Data.Version     ( Version(..) )
 
-import Distribution.Text ( Text(..), display )
+import Distribution.Text ( Text(..) )
 import qualified Distribution.Compat.ReadP as Parse
 import Distribution.Compat.ReadP ((+++))
 import qualified Text.PrettyPrint as Disp
 import Text.PrettyPrint ((<>), (<+>))
+import qualified Data.Char as Char (isDigit)
 
 -- -----------------------------------------------------------------------------
 -- Version ranges
@@ -72,10 +71,10 @@ import Text.PrettyPrint ((<>), (<+>))
 
 data VersionRange
   = AnyVersion
-  | ThisVersion		   Version -- = version
-  | LaterVersion	   Version -- > version  (NB. not >=)
-  | EarlierVersion	   Version -- < version
-	-- ToDo: are these too general?
+  | ThisVersion            Version -- = version
+  | LaterVersion           Version -- > version  (NB. not >=)
+  | EarlierVersion         Version -- < version
+        -- ToDo: are these too general?
   | UnionVersionRanges      VersionRange VersionRange
   | IntersectVersionRanges  VersionRange VersionRange
   deriving (Show,Read,Eq)
@@ -107,12 +106,12 @@ v1 `earlierVersion` v2 = versionBranch v1 < versionBranch v2
 -- |Does this version fall within the given range?
 withinRange :: Version -> VersionRange -> Bool
 withinRange _  AnyVersion                = True
-withinRange v1 (ThisVersion v2) 	 = v1 == v2
+withinRange v1 (ThisVersion v2)          = v1 == v2
 withinRange v1 (LaterVersion v2)         = v1 `laterVersion` v2
 withinRange v1 (EarlierVersion v2)       = v1 `earlierVersion` v2
-withinRange v1 (UnionVersionRanges v2 v3) 
+withinRange v1 (UnionVersionRanges v2 v3)
    = v1 `withinRange` v2 || v1 `withinRange` v3
-withinRange v1 (IntersectVersionRanges v2 v3) 
+withinRange v1 (IntersectVersionRanges v2 v3)
    = v1 `withinRange` v2 && v1 `withinRange` v3
 
 instance Text VersionRange where
@@ -130,6 +129,11 @@ instance Text VersionRange where
     | v1 == v2 = Disp.text "<=" <> disp v1
   disp (UnionVersionRanges r1 r2)
     = disp r1 <+> Disp.text "||" <+> disp r2
+  disp (IntersectVersionRanges
+          (UnionVersionRanges (ThisVersion  v1) (LaterVersion v2))
+          (EarlierVersion v3))
+    | v1 == v2 && isWildcardRange (versionBranch v1) (versionBranch v3)
+    = Disp.text "==" <> disp (VersionWildcard (versionBranch v1))
   disp (IntersectVersionRanges r1 r2)
     = disp r1 <+> Disp.text "&&" <+> disp r2
 
@@ -142,16 +146,20 @@ instance Text VersionRange where
        f2 <- factor
        return (UnionVersionRanges f1 f2)
      +++
-     do    
+     do
        Parse.string "&&"
        Parse.skipSpaces
        f2 <- factor
        return (IntersectVersionRanges f1 f2)
      +++
      return f1)
-   where 
-        factor   = Parse.choice ((Parse.string "-any" >> return AnyVersion) :
-                                    map parseRangeOp rangeOps)
+   where
+        factor   = Parse.choice $ parseAnyVersion
+                                : parseWildcardRange
+                                : map parseRangeOp rangeOps
+        parseAnyVersion    = Parse.string "-any" >> return AnyVersion
+        parseWildcardRange = Parse.string "==" >> Parse.skipSpaces
+                                               >> fmap wildcardRange parse
         parseRangeOp (s,f) = Parse.string s >> Parse.skipSpaces >> fmap f parse
         rangeOps = [ ("<",  EarlierVersion),
                      ("<=", orEarlierVersion),
@@ -159,13 +167,35 @@ instance Text VersionRange where
                      (">=", orLaterVersion),
                      ("==", ThisVersion) ]
 
--- ---------------------------------------------------------------------------
--- Deprecated compat stuff
+newtype VersionWildcard = VersionWildcard [Int]
 
-{-# DEPRECATED showVersion "use the Text class instead" #-}
-showVersion :: Version -> String
-showVersion = display
+instance Text VersionWildcard where
+  disp (VersionWildcard branch) =
+      Disp.hcat (Disp.punctuate (Disp.char '.') (map Disp.int branch))
+   <> Disp.text ".*"
+  parse = do
+      branch <- Parse.sepBy1 digits (Parse.char '.')
+      Parse.char '.'
+      Parse.char '*'
+      return (VersionWildcard branch)
+    where
+      digits = do
+        first <- Parse.satisfy Char.isDigit
+        if first == '0'
+          then return 0
+          else do rest <- Parse.munch Char.isDigit
+                  return (read (first : rest))
 
-{-# DEPRECATED parseVersion "use the Text class instead" #-}
-parseVersion :: Parse.ReadP r Version
-parseVersion = parse
+-- | @x.y.*@  becomes  @>= x.y && < x.(y+1)@
+wildcardRange :: VersionWildcard -> VersionRange
+wildcardRange (VersionWildcard branch) = orLaterVersion lowerBound
+                `IntersectVersionRanges` EarlierVersion upperBound
+  where
+    lowerBound = Version branch []
+    upperBound = Version (init branch ++ [last branch + 1]) []
+
+-- | isWildcardRange [x,y] [x,y+1] = True
+isWildcardRange :: [Int] -> [Int] -> Bool
+isWildcardRange (n:[]) (m:[]) | n+1 == m = True
+isWildcardRange (n:ns) (m:ms) | n   == m = isWildcardRange ns ms
+isWildcardRange _      _                 = False

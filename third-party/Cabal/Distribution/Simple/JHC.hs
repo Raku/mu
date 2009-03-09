@@ -2,12 +2,12 @@
 -- |
 -- Module      :  Distribution.Simple.JHC
 -- Copyright   :  Isaac Jones 2003-2006
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Build and install functionality for the JHC compiler.
+-- This module contains most of the JHC-specific code for configuring, building
+-- and installing packages.
 
 {- Copyright (c) 2003-2005, Isaac Jones
 All rights reserved.
@@ -41,24 +41,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -}
 
 module Distribution.Simple.JHC (
-	configure, getInstalledPackages, build, installLib, installExe
+        configure, getInstalledPackages, build, installLib, installExe
  ) where
 
 import Distribution.PackageDescription as PD
-				( PackageDescription(..), BuildInfo(..),
-				  withLib,
-				  Executable(..), withExe, Library(..),
-				  libModules, hcOptions )
+                                ( PackageDescription(..), BuildInfo(..),
+                                  withLib,
+                                  Executable(..), withExe, Library(..),
+                                  libModules, hcOptions )
 import Distribution.InstalledPackageInfo
-				( InstalledPackageInfo, emptyInstalledPackageInfo )
+                                ( InstalledPackageInfo, emptyInstalledPackageInfo )
 import qualified Distribution.InstalledPackageInfo as InstalledPackageInfo
-				( InstalledPackageInfo_(package) )
+                                ( InstalledPackageInfo_(package) )
 import Distribution.Simple.PackageIndex (PackageIndex)
 import qualified Distribution.Simple.PackageIndex as PackageIndex
 import Distribution.Simple.LocalBuildInfo
-				( LocalBuildInfo(..) )
+                                ( LocalBuildInfo(..) )
 import Distribution.Simple.BuildPaths
-				( autogenModulesDir, exeExtension )
+                                ( autogenModulesDir, exeExtension )
 import Distribution.Simple.Compiler
          ( CompilerFlavor(..), CompilerId(..), Compiler(..)
          , PackageDB, Flag, extensionsToFlags )
@@ -67,11 +67,11 @@ import Distribution.Simple.Program     ( ConfiguredProgram(..), jhcProgram,
                                   ProgramConfiguration, userMaybeSpecifyPath,
                                   requireProgram, lookupProgram,
                                   rawSystemProgram, rawSystemProgramStdoutConf )
-import Distribution.Version	( VersionRange(AnyVersion) )
+import Distribution.Version     ( VersionRange(AnyVersion) )
 import Distribution.Package
          ( Package(..) )
 import Distribution.Simple.Utils
-        ( createDirectoryIfMissingVerbose, copyFileVerbose
+        ( createDirectoryIfMissingVerbose, copyFileVerbose, writeFileAtomic
         , die, info, intercalate )
 import System.FilePath          ( (</>) )
 import Distribution.Verbosity
@@ -80,8 +80,8 @@ import Distribution.Text
 import Distribution.Compat.ReadP
     ( readP_to_S, many, skipSpaces )
 
-import Data.List		( nub )
-import Data.Char		( isSpace )
+import Data.List                ( nub )
+import Data.Char                ( isSpace )
 
 
 
@@ -138,11 +138,12 @@ build pkg_descr lbi verbosity = do
       info verbosity "Building library..."
       let libBi = libBuildInfo lib
       let args  = constructJHCCmdLine lbi libBi (buildDir lbi) verbosity
-      rawSystemProgram verbosity jhcProg (["-c"] ++ args ++ libModules pkg_descr)
+      rawSystemProgram verbosity jhcProg $
+        ["-c"] ++ args ++ map display (libModules pkg_descr)
       let pkgid = display (packageId pkg_descr)
           pfile = buildDir lbi </> "jhc-pkg.conf"
           hlfile= buildDir lbi </> (pkgid ++ ".hl")
-      writeFile pfile $ jhcPkgConf pkg_descr
+      writeFileAtomic pfile $ jhcPkgConf pkg_descr
       rawSystemProgram verbosity jhcProg ["--build-hl="++pfile, "-o", hlfile]
   withExe pkg_descr $ \exe -> do
       info verbosity ("Building executable "++exeName exe)
@@ -166,7 +167,7 @@ jhcPkgConf :: PackageDescription -> String
 jhcPkgConf pd =
   let sline name sel = name ++ ": "++sel pd
       Just lib = library pd
-      comma = intercalate ","
+      comma = intercalate "," . map display
   in unlines [sline "name" (display . packageId)
              ,"exposed-modules: " ++ (comma (PD.exposedModules lib))
              ,"hidden-modules: " ++ (comma (otherModules $ libBuildInfo lib))

@@ -2,9 +2,8 @@
 -- |
 -- Module      :  Language.Haskell.Extension
 -- Copyright   :  Isaac Jones 2003-2004
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  libraries@haskell.org
 -- Portability :  portable
 --
 -- Haskell language extensions
@@ -40,7 +39,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -}
 
 module Language.Haskell.Extension (
-	Extension(..),
+        Extension(..),
         knownExtensions
   ) where
 
@@ -61,8 +60,8 @@ import Data.Array (Array, accumArray, bounds, Ix(inRange), (!))
 --
 -- * also to the 'knownExtensions' list below.
 --
--- * If the first character of the new extension is outside the range 'A' - 'U'
---   (ie 'V'-'Z' or any non-uppercase-alphabetical char) then update the bounds
+-- * If the first character of the new extension is outside the range 'A' - 'V'
+--   (ie 'W'-'Z' or any non-uppercase-alphabetical char) then update the bounds
 --   of the 'extensionTable' below.
 
 -- |This represents language extensions beyond Haskell 98 that are
@@ -125,6 +124,19 @@ data Extension
   | DeriveDataTypeable
   | ConstrainedClassMethods
 
+  -- | Allow imports to be qualified by the package name that the module
+  -- is intended to be imported from, e.g.
+  --
+  -- > import "network" Network.Socket
+  | PackageImports
+
+  | ImpredicativeTypes
+  | NewQualifiedOperators
+  | PostfixOperators
+  | QuasiQuotes
+  | TransformListComp
+  | ViewPatterns
+
   | UnknownExtension String
   deriving (Show, Read, Eq)
 
@@ -185,6 +197,13 @@ knownExtensions =
   , UnboxedTuples
   , DeriveDataTypeable
   , ConstrainedClassMethods
+  , PackageImports
+  , ImpredicativeTypes
+  , NewQualifiedOperators
+  , PostfixOperators
+  , QuasiQuotes
+  , TransformListComp
+  , ViewPatterns
   ]
 
 instance Text Extension where
@@ -214,7 +233,7 @@ classifyExtension string = UnknownExtension string
 
 extensionTable :: Array Char [(String, Extension)]
 extensionTable =
-  accumArray (flip (:)) [] ('A', 'U')
+  accumArray (flip (:)) [] ('A', 'V')
     [ (head str, (str, extension))
     | extension <- knownExtensions
     , let str = show extension ]

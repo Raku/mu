@@ -2,13 +2,25 @@
 -- |
 -- Module      :  Distribution.Simple.Register
 -- Copyright   :  Isaac Jones 2003-2004
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Explanation: Perform the \"@.\/setup register@\" action.
--- Uses a drop-file for HC-PKG.  See also "Distribution.InstalledPackageInfo".
+-- This module deals with registering and unregistering packages. There are a
+-- couple ways it can do this, one is to do it directly. Another is to generate
+-- a script that can be run later to do it. The idea here being that the user
+-- is shielded from the details of what command to use for package registration
+-- for a particular compiler. In practice this aspect was not especially
+-- popular so we also provide a way to simply generate the package registration
+-- file which then must be manually passed to @ghc-pkg@. It is possible to
+-- generate registration information for where the package is to be installed,
+-- or alternatively to register the package inplace in the build tree. The
+-- latter is occasionally handy, and will become more important when we try to
+-- build multi-package systems.
+--
+-- This module does not delegate anything to the per-compiler modules but just
+-- mixes it all in in this module, which is rather unsatisfactory. The script
+-- generation and the unregister feature are not well used or tested.
 
 {- Copyright (c) 2003-2004, Isaac Jones
 All rights reserved.
@@ -42,16 +54,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -}
 
 module Distribution.Simple.Register (
-	register,
-	unregister,
+        register,
+        unregister,
         writeInstalledConfig,
-	removeInstalledConfig,
+        removeInstalledConfig,
         removeRegScripts,
   ) where
 
 import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
                                            InstallDirs(..),
-					   absoluteInstallDirs)
+                                           absoluteInstallDirs)
 import Distribution.Simple.BuildPaths (haddockName)
 import Distribution.Simple.Compiler
          ( CompilerFlavor(..), compilerFlavor, PackageDB(..) )
@@ -66,11 +78,11 @@ import Distribution.PackageDescription (PackageDescription(..),
 import Distribution.Package
          ( Package(..), packageName )
 import Distribution.InstalledPackageInfo
-	(InstalledPackageInfo, showInstalledPackageInfo, 
-	 emptyInstalledPackageInfo)
+         ( InstalledPackageInfo, InstalledPackageInfo_(InstalledPackageInfo)
+         , showInstalledPackageInfo )
 import qualified Distribution.InstalledPackageInfo as IPI
 import Distribution.Simple.Utils
-         ( createDirectoryIfMissingVerbose, copyFileVerbose
+         ( createDirectoryIfMissingVerbose, copyFileVerbose, writeFileAtomic
          , die, info, notice, setupMessage )
 import Distribution.System
          ( OS(..), buildOS )
@@ -81,7 +93,7 @@ import System.FilePath ((</>), (<.>), isAbsolute)
 import System.Directory (removeFile, getCurrentDirectory,
                          removeDirectoryRecursive,
                          setPermissions, getPermissions,
-			 Permissions(executable))
+                         Permissions(executable))
 import System.IO.Error (try)
 
 import Control.Monad (when)
@@ -118,7 +130,7 @@ register pkg_descr lbi regFlags
                                      (fromFlag (regGenPkgConf regFlags))
         verbosity = fromFlag (regVerbosity regFlags)
         packageDB = fromFlagOrDefault (withPackageDB lbi) (regPackageDB regFlags)
-	inplace  = fromFlag (regInPlace regFlags)
+        inplace  = fromFlag (regInPlace regFlags)
         message | genPkgConf = "Writing package registration file: "
                             ++ genPkgConfigFile ++ " for"
                 | genScript = "Writing registration script: "
@@ -127,23 +139,23 @@ register pkg_descr lbi regFlags
     setupMessage verbosity message (packageId pkg_descr)
 
     case compilerFlavor (compiler lbi) of
-      GHC -> do 
-	config_flags <- case packageDB of
+      GHC -> do
+        config_flags <- case packageDB of
           GlobalPackageDB      -> return []
           UserPackageDB        -> return ["--user"]
           SpecificPackageDB db -> return ["--package-conf=" ++ db]
 
-	let instConf | genPkgConf = genPkgConfigFile
+        let instConf | genPkgConf = genPkgConfigFile
                      | inplace    = inplacePkgConfigFile distPref
-		     | otherwise  = installedPkgConfigFile distPref
+                     | otherwise  = installedPkgConfigFile distPref
 
         when (genPkgConf || not genScript) $ do
           info verbosity ("create " ++ instConf)
           writeInstalledConfig distPref pkg_descr lbi inplace (Just instConf)
 
         let register_flags   = let conf = if genScript && not isWindows
-		                             then ["-"]
-		                             else [instConf]
+                                             then ["-"]
+                                             else [instConf]
                                 in "update" : conf
 
         let allFlags = config_flags ++ register_flags
@@ -157,11 +169,11 @@ register pkg_descr lbi regFlags
           _ -> rawSystemProgram verbosity pkgTool allFlags
 
       Hugs -> do
-	when inplace $ die "--inplace is not supported with Hugs"
+        when inplace $ die "--inplace is not supported with Hugs"
         let installDirs = absoluteInstallDirs pkg_descr lbi NoCopyDest
-	createDirectoryIfMissingVerbose verbosity True (libdir installDirs)
-	copyFileVerbose verbosity (installedPkgConfigFile distPref)
-	    (libdir installDirs </> "package.conf")
+        createDirectoryIfMissingVerbose verbosity True (libdir installDirs)
+        copyFileVerbose verbosity (installedPkgConfigFile distPref)
+            (libdir installDirs </> "package.conf")
       JHC -> notice verbosity "registering for JHC (nothing to do)"
       NHC -> notice verbosity "registering nhc98 (nothing to do)"
       _   -> die "only registering with GHC/Hugs/jhc/nhc98 is implemented"
@@ -178,7 +190,7 @@ writeInstalledConfig distPref pkg_descr lbi inplace instConfOverride = do
   let instConfDefault | inplace   = inplacePkgConfigFile distPref
                       | otherwise = installedPkgConfigFile distPref
       instConf = fromMaybe instConfDefault instConfOverride
-  writeFile instConf (pkg_config ++ "\n")
+  writeFileAtomic instConf (pkg_config ++ "\n")
 
 -- |Create a string suitable for writing out to the package config file
 showInstalledConfig :: FilePath -> PackageDescription -> LocalBuildInfo -> Bool
@@ -209,28 +221,28 @@ inplacePkgConfigFile distPref = distPref </> "inplace-pkg-config"
 -- Making the InstalledPackageInfo
 
 mkInstalledPackageInfo
-	:: FilePath
-    -> PackageDescription
-	-> LocalBuildInfo
-	-> Bool
-	-> IO InstalledPackageInfo
-mkInstalledPackageInfo distPref pkg_descr lbi inplace = do 
+        :: FilePath
+        -> PackageDescription
+        -> LocalBuildInfo
+        -> Bool
+        -> IO InstalledPackageInfo
+mkInstalledPackageInfo distPref pkg_descr lbi inplace = do
   pwd <- getCurrentDirectory
-  let 
-	lib = fromJust (library pkg_descr) -- checked for Nothing earlier
+  let
+        lib = fromJust (library pkg_descr) -- checked for Nothing earlier
         bi = libBuildInfo lib
-	build_dir = pwd </> buildDir lbi
+        build_dir = pwd </> buildDir lbi
         installDirs = absoluteInstallDirs pkg_descr lbi NoCopyDest
-	inplaceDirs = (absoluteInstallDirs pkg_descr lbi NoCopyDest) {
+        inplaceDirs = (absoluteInstallDirs pkg_descr lbi NoCopyDest) {
                         datadir    = pwd,
                         datasubdir = distPref,
                         docdir     = inplaceDocdir,
                         htmldir    = inplaceHtmldir,
                         haddockdir = inplaceHtmldir
                       }
-	  where inplaceDocdir  = pwd </> distPref </> "doc"
-	        inplaceHtmldir = inplaceDocdir </> "html"
-		                               </> packageName pkg_descr
+          where inplaceDocdir  = pwd </> distPref </> "doc"
+                inplaceHtmldir = inplaceDocdir </> "html"
+                                               </> display (packageName pkg_descr)
         (absinc,relinc) = partition isAbsolute (includeDirs bi)
         installIncludeDir | null (installIncludes bi) = []
                           | otherwise = [includedir installDirs]
@@ -243,37 +255,47 @@ mkInstalledPackageInfo distPref pkg_descr lbi inplace = do
         libraryDir
          | inplace   = build_dir
          | otherwise = libdir installDirs
+        hasModules = not $ null (exposedModules lib)
+                        && null (otherModules bi)
+        hasLibrary = hasModules || not (null (cSources bi))
     in
-    return emptyInstalledPackageInfo{
+    return InstalledPackageInfo {
         IPI.package           = packageId pkg_descr,
         IPI.license           = license pkg_descr,
         IPI.copyright         = copyright pkg_descr,
         IPI.maintainer        = maintainer pkg_descr,
-	IPI.author	      = author pkg_descr,
+        IPI.author            = author pkg_descr,
         IPI.stability         = stability pkg_descr,
-	IPI.homepage	      = homepage pkg_descr,
-	IPI.pkgUrl	      = pkgUrl pkg_descr,
-	IPI.description	      = description pkg_descr,
-	IPI.category	      = category pkg_descr,
-        IPI.exposed           = True,
-	IPI.exposedModules    = exposedModules lib,
-	IPI.hiddenModules     = otherModules bi,
-        IPI.importDirs        = [libraryDir],
-        IPI.libraryDirs       = libraryDir : extraLibDirs bi,
-        IPI.hsLibraries       = ["HS" ++ display (packageId pkg_descr)],
+        IPI.homepage          = homepage pkg_descr,
+        IPI.pkgUrl            = pkgUrl pkg_descr,
+        IPI.description       = description pkg_descr,
+        IPI.category          = category pkg_descr,
+        IPI.exposed           = libExposed lib,
+        IPI.exposedModules    = exposedModules lib,
+        IPI.hiddenModules     = otherModules bi,
+        IPI.importDirs        = [ libraryDir | hasModules ],
+        IPI.libraryDirs       = if hasLibrary
+                                  then libraryDir : extraLibDirs bi
+                                  else              extraLibDirs bi,
+        IPI.hsLibraries       = ["HS" ++ display (packageId pkg_descr)
+                                | hasLibrary ],
         IPI.extraLibraries    = extraLibs bi,
+        IPI.extraGHCiLibraries= [],
         IPI.includeDirs       = absinc ++ if inplace
                                             then map (pwd </>) relinc
                                             else installIncludeDir,
-        IPI.includes	      = includes bi,
+        IPI.includes          = includes bi,
         IPI.depends           = packageDeps lbi,
         IPI.hugsOptions       = concat [opts | (Hugs,opts) <- options bi],
-        IPI.ccOptions         = ccOptions bi,
+        IPI.ccOptions         = [], -- NB. NOT ccOptions bi!
+                                    -- We don't want cc-options to be
+                                    -- propagated to C ompilations in other
+                                    -- packages.
         IPI.ldOptions         = ldOptions bi,
         IPI.frameworkDirs     = [],
         IPI.frameworks        = frameworks bi,
-	IPI.haddockInterfaces = [haddockInterfaceDir </> haddockName pkg_descr],
-	IPI.haddockHTMLs      = [haddockHtmlDir]
+        IPI.haddockInterfaces = [haddockInterfaceDir </> haddockName pkg_descr],
+        IPI.haddockHTMLs      = [haddockHtmlDir]
         }
 
 -- -----------------------------------------------------------------------------
@@ -288,7 +310,7 @@ unregister pkg_descr lbi regFlags = do
   setupMessage verbosity "Unregistering" (packageId pkg_descr)
   case compilerFlavor (compiler lbi) of
     GHC -> do
-	config_flags <- case packageDB of
+        config_flags <- case packageDB of
           GlobalPackageDB      -> return []
           UserPackageDB        -> return ["--user"]
           SpecificPackageDB db -> return ["--package-conf=" ++ db]
@@ -296,17 +318,17 @@ unregister pkg_descr lbi regFlags = do
         let removeCmd = ["unregister", display (packageId pkg_descr)]
         let Just pkgTool = lookupProgram ghcPkgProgram (withPrograms lbi)
             allArgs      = removeCmd ++ config_flags
-	if genScript
+        if genScript
           then rawSystemEmit pkgTool unregScriptLocation allArgs
           else rawSystemProgram verbosity pkgTool allArgs
     Hugs -> do
         try $ removeDirectoryRecursive (libdir installDirs)
-	return ()
+        return ()
     NHC -> do
         try $ removeDirectoryRecursive (libdir installDirs)
-	return ()
+        return ()
     _ ->
-	die ("only unregistering with GHC and Hugs is implemented")
+        die ("only unregistering with GHC and Hugs is implemented")
 
 -- |Like rawSystemProgram, but emits to a script instead of exiting.
 -- FIX: chmod +x?
@@ -317,8 +339,8 @@ rawSystemEmit :: ConfiguredProgram  -- ^Program to run
 rawSystemEmit prog scriptName extraArgs
  = case buildOS of
        Windows ->
-           writeFile scriptName ("@" ++ path ++ concatMap (' ':) args)
-       _ -> do writeFile scriptName ("#!/bin/sh\n\n"
+           writeFileAtomic scriptName ("@" ++ path ++ concatMap (' ':) args)
+       _ -> do writeFileAtomic scriptName ("#!/bin/sh\n\n"
                                   ++ (path ++ concatMap (' ':) args)
                                   ++ "\n")
                p <- getPermissions scriptName
@@ -335,8 +357,8 @@ rawSystemPipe :: ConfiguredProgram
 rawSystemPipe prog scriptName pipeFrom extraArgs
  = case buildOS of
        Windows ->
-           writeFile scriptName ("@" ++ path ++ concatMap (' ':) args)
-       _ -> do writeFile scriptName ("#!/bin/sh\n\n"
+           writeFileAtomic scriptName ("@" ++ path ++ concatMap (' ':) args)
+       _ -> do writeFileAtomic scriptName ("#!/bin/sh\n\n"
                                   ++ "echo '" ++ escapeForShell pipeFrom
                                   ++ "' | "
                                   ++ (path ++ concatMap (' ':) args)

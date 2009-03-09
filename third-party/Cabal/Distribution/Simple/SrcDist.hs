@@ -2,14 +2,19 @@
 -- |
 -- Module      :  Distribution.Simple.SrcDist
 -- Copyright   :  Simon Marlow 2004
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Implements the \"@.\/setup sdist@\" command, which creates a source
--- distribution for this package.  That is, packs up the source code
--- into a tarball.
+-- This handles the @sdist@ command. The module exports an 'sdist' action but
+-- also some of the phases that make it up so that other tools can use just the
+-- bits they need. In particular the preparation of the tree of files to go
+-- into the source tarball is separated from actually building the source
+-- tarball.
+--
+-- The 'createArchive' action uses the external @tar@ program and assumes that
+-- it accepts the @-z@ flag. Neither of these assumptions are valid on Windows.
+-- The 'sdist' action now also does some distribution QA checks.
 
 {- Copyright (c) 2003-2004, Simon Marlow
 All rights reserved.
@@ -56,6 +61,7 @@ module Distribution.Simple.SrcDist (
 
   -- ** Snaphots
   prepareSnapshotTree,
+  snapshotPackage,
   snapshotVersion,
   dateToSnapshotNumber,
   )  where
@@ -63,15 +69,19 @@ module Distribution.Simple.SrcDist (
 import Distribution.PackageDescription
          ( PackageDescription(..), BuildInfo(..), Executable(..), Library(..) )
 import Distribution.PackageDescription.Check
+         ( PackageCheck(..), checkConfiguredPackage, checkPackageFiles )
 import Distribution.Package
-         ( PackageIdentifier(pkgVersion), Package(..) )
+         ( PackageIdentifier(pkgVersion), Package(..), packageVersion )
+import Distribution.ModuleName (ModuleName)
+import qualified Distribution.ModuleName as ModuleName
 import Distribution.Version
          ( Version(versionBranch), VersionRange(AnyVersion) )
 import Distribution.Simple.Utils
-         ( createDirectoryIfMissingVerbose, readUTF8File, writeUTF8File
-         , copyFiles, copyFileVerbose, findFile, findFileWithExtension
-         , withTempDirectory, dotToSep, defaultPackageDesc
-         , die, warn, notice, setupMessage )
+         ( createDirectoryIfMissingVerbose, withUTF8FileContents, writeUTF8File
+         , copyFiles
+         , findFile, findFileWithExtension, matchFileGlob
+         , withTempDirectory, defaultPackageDesc
+         , die, warn, notice, setupMessage, info )
 import Distribution.Simple.Setup (SDistFlags(..), fromFlag)
 import Distribution.Simple.PreProcess (PPSuffixHandler, ppSuffixes, preprocessSources)
 import Distribution.Simple.LocalBuildInfo ( LocalBuildInfo(..) )
@@ -86,7 +96,7 @@ import Data.Char (toLower)
 import Data.List (partition, isPrefixOf)
 import Data.Maybe (isNothing, catMaybes)
 import System.Time (getClockTime, toCalendarTime, CalendarTime(..))
-import System.Directory (doesFileExist, doesDirectoryExist)
+import System.Directory (doesFileExist, doesDirectoryExist, copyFile)
 import Distribution.Verbosity (Verbosity)
 import System.FilePath
          ( (</>), (<.>), takeDirectory, dropExtension, isAbsolute )
@@ -116,12 +126,15 @@ sdist pkg mb_lbi flags mkTmpDir pps = do
 
   withTempDirectory verbosity tmpDir $ do
 
-    setupMessage verbosity "Building source dist for" (packageId pkg)
+    date <- toCalendarTime =<< getClockTime
+    let pkg' | snapshot  = snapshotPackage date pkg
+             | otherwise = pkg
+    setupMessage verbosity "Building source dist for" (packageId pkg')
+
     if snapshot
-      then getClockTime >>= toCalendarTime
-       >>= prepareSnapshotTree verbosity pkg mb_lbi distPref tmpDir pps
-      else prepareTree         verbosity pkg mb_lbi distPref tmpDir pps
-    targzFile <- createArchive verbosity pkg mb_lbi tmpDir targetPref
+      then prepareSnapshotTree verbosity pkg' mb_lbi distPref tmpDir pps
+      else prepareTree         verbosity pkg' mb_lbi distPref tmpDir pps
+    targzFile <- createArchive verbosity pkg' mb_lbi tmpDir targetPref
     notice verbosity $ "Source tarball created: " ++ targzFile
 
   where
@@ -137,7 +150,7 @@ prepareTree :: Verbosity          -- ^verbosity
             -> [PPSuffixHandler]  -- ^extra preprocessors (includes suffixes)
             -> IO FilePath        -- ^the name of the dir created and populated
 
-prepareTree verbosity pkg_descr mb_lbi distPref tmpDir pps = do
+prepareTree verbosity pkg_descr0 mb_lbi distPref tmpDir pps = do
   let targetDir = tmpDir </> tarBallName pkg_descr
   createDirectoryIfMissingVerbose verbosity True targetDir
   -- maybe move the library files into place
@@ -153,15 +166,17 @@ prepareTree verbosity pkg_descr mb_lbi distPref tmpDir pps = do
         Just pp -> return pp
     copyFileTo verbosity targetDir srcMainFile
   flip mapM_ (dataFiles pkg_descr) $ \ filename -> do
-    let file = dataDir pkg_descr </> filename
-        dir = takeDirectory file
+    files <- matchFileGlob (dataDir pkg_descr </> filename)
+    let dir = takeDirectory (dataDir pkg_descr </> filename)
     createDirectoryIfMissingVerbose verbosity True (targetDir </> dir)
-    copyFileVerbose verbosity file (targetDir </> file)
+    sequence_ [ copyFileVerbose verbosity file (targetDir </> file)
+              | file <- files ]
 
   when (not (null (licenseFile pkg_descr))) $
     copyFileTo verbosity targetDir (licenseFile pkg_descr)
   flip mapM_ (extraSrcFiles pkg_descr) $ \ fpath -> do
-    copyFileTo verbosity targetDir fpath
+    files <- matchFileGlob fpath
+    sequence_ [ copyFileTo verbosity targetDir file | file <- files ]
 
   -- copy the install-include files
   withLib $ \ l -> do
@@ -193,6 +208,12 @@ prepareTree verbosity pkg_descr mb_lbi distPref tmpDir pps = do
   return targetDir
 
   where
+    pkg_descr = mapAllBuildInfo filterAutogenModule pkg_descr0
+    filterAutogenModule bi = bi {
+      otherModules = filter (/=autogenModule) (otherModules bi)
+    }
+    autogenModule = autogenModuleName pkg_descr0
+
     findInc [] f = die ("can't find include file " ++ f)
     findInc (d:ds) f = do
       let path = (d </> f)
@@ -204,8 +225,9 @@ prepareTree verbosity pkg_descr mb_lbi distPref tmpDir pps = do
     withLib action = maybe (return ()) action (library pkg_descr)
     withExe action = mapM_ action (executables pkg_descr)
 
--- | Prepare a directory tree of source files for a snapshot version with the
--- given date.
+-- | Prepare a directory tree of source files for a snapshot version.
+-- It is expected that the appropriate snapshot version has already been set
+-- in the package description, eg using 'snapshotPackage' or 'snapshotVersion'.
 --
 prepareSnapshotTree :: Verbosity          -- ^verbosity
                     -> PackageDescription -- ^info from the cabal file
@@ -213,30 +235,36 @@ prepareSnapshotTree :: Verbosity          -- ^verbosity
                     -> FilePath           -- ^dist dir
                     -> FilePath           -- ^source tree to populate
                     -> [PPSuffixHandler]  -- ^extra preprocessors (includes suffixes)
-                    -> CalendarTime       -- ^snapshot date
                     -> IO FilePath        -- ^the resulting temp dir
-prepareSnapshotTree verbosity pkg mb_lbi distPref tmpDir pps date = do
-  let pkgid   = packageId pkg
-      pkgver' = snapshotVersion date (pkgVersion pkgid)
-      pkg'    = pkg { package = pkgid { pkgVersion = pkgver' } }
-  targetDir <- prepareTree verbosity pkg' mb_lbi distPref tmpDir pps
-  overwriteSnapshotPackageDesc pkgver' targetDir
+prepareSnapshotTree verbosity pkg mb_lbi distPref tmpDir pps = do
+  targetDir <- prepareTree verbosity pkg mb_lbi distPref tmpDir pps
+  overwriteSnapshotPackageDesc (packageVersion pkg) targetDir
   return targetDir
-  
+
   where
     overwriteSnapshotPackageDesc version targetDir = do
       -- We could just writePackageDescription targetDescFile pkg_descr,
       -- but that would lose comments and formatting.
       descFile <- defaultPackageDesc verbosity
-      writeUTF8File (targetDir </> descFile)
+      withUTF8FileContents descFile $
+        writeUTF8File (targetDir </> descFile)
           . unlines . map (replaceVersion version) . lines
-        =<< readUTF8File descFile
 
     replaceVersion :: Version -> String -> String
     replaceVersion version line
       | "version:" `isPrefixOf` map toLower line
                   = "version: " ++ display version
       | otherwise = line
+
+-- | Modifies a 'PackageDescription' by appending a snapshot number
+-- corresponding to the given date.
+--
+snapshotPackage :: CalendarTime -> PackageDescription -> PackageDescription
+snapshotPackage date pkg =
+  pkg {
+    package = pkgid { pkgVersion = snapshotVersion date (pkgVersion pkgid) }
+  }
+  where pkgid = packageId pkg
 
 -- | Modifies a 'Version' by appending a snapshot number corresponding
 -- to the given date.
@@ -286,23 +314,18 @@ prepareDir :: Verbosity -- ^verbosity
            -> FilePath           -- ^dist dir
            -> FilePath  -- ^TargetPrefix
            -> [PPSuffixHandler]  -- ^ extra preprocessors (includes suffixes)
-           -> [String]  -- ^Exposed modules
+           -> [ModuleName]  -- ^Exposed modules
            -> BuildInfo
            -> IO ()
-prepareDir verbosity pkg distPref inPref pps modules bi
-    = do let searchDirs = hsSourceDirs bi ++ [autogenModulesDir]
-             autogenModulesDir = distPref </> "build" </> "autogen"
-             autogenFile = autogenModulesDir </> autogenModuleName pkg <.> "hs"
-         -- the Paths_$pkgname module might be in the modules list. If it
-         -- turns out that resolves to the actual autogen file then we filter
-         -- it out because we do not want to put it into the tarball.
-         sources <- filter (/=autogenFile) `fmap` sequence
-           [ let file = dotToSep module_
+prepareDir verbosity _pkg _distPref inPref pps modules bi
+    = do let searchDirs = hsSourceDirs bi
+         sources <- sequence
+           [ let file = ModuleName.toFilePath module_
               in findFileWithExtension suffixes searchDirs file
              >>= maybe (notFound module_) return
            | module_ <- modules ++ otherModules bi ]
          bootFiles <- sequence
-           [ let file = dotToSep module_
+           [ let file = ModuleName.toFilePath module_
               in findFileWithExtension ["hs-boot"] (hsSourceDirs bi) file
            | module_ <- modules ++ otherModules bi ]
 
@@ -310,7 +333,7 @@ prepareDir verbosity pkg distPref inPref pps modules bi
          copyFiles verbosity inPref (zip (repeat []) allSources)
 
     where suffixes = ppSuffixes pps ++ ["hs", "lhs"]
-          notFound m = die $ "Error: Could not find module: " ++ m
+          notFound m = die $ "Error: Could not find module: " ++ display m
                           ++ " with any suffix: " ++ show suffixes
 
 copyFileTo :: Verbosity -> FilePath -> FilePath -> IO ()
@@ -318,6 +341,14 @@ copyFileTo verbosity dir file = do
   let targetFile = dir </> file
   createDirectoryIfMissingVerbose verbosity True (takeDirectory targetFile)
   copyFileVerbose verbosity file targetFile
+
+copyFileVerbose :: Verbosity -> FilePath -> FilePath -> IO ()
+copyFileVerbose verbosity src dest = do
+  info verbosity ("copy " ++ src ++ " to " ++ dest)
+  --Note: This is the standard copyFile that *does* copy file permissions.
+  --      In particular it will copy executable permissions which we need
+  --      eg to copy ./configure scripts into the tarball src tree.
+  copyFile src dest
 
 printPackageProblems :: Verbosity -> PackageDescription -> IO ()
 printPackageProblems verbosity pkg_descr = do
@@ -331,10 +362,10 @@ printPackageProblems verbosity pkg_descr = do
                       ++ unlines (map explanation errors)
   unless (null warnings) $
       notice verbosity $ "Distribution quality warnings:\n"
-    	              ++ unlines (map explanation warnings)
+                      ++ unlines (map explanation warnings)
   unless (null errors) $
       notice verbosity
-	"Note: the public hackage server would reject this package."
+        "Note: the public hackage server would reject this package."
 
 ------------------------------------------------------------
 
@@ -342,3 +373,13 @@ printPackageProblems verbosity pkg_descr = do
 --
 tarBallName :: PackageDescription -> String
 tarBallName = display . packageId
+
+mapAllBuildInfo :: (BuildInfo -> BuildInfo)
+                -> (PackageDescription -> PackageDescription)
+mapAllBuildInfo f pkg = pkg {
+    library     = fmap mapLibBi (library pkg),
+    executables = fmap mapExeBi (executables pkg)
+  }
+  where
+    mapLibBi lib = lib { libBuildInfo = f (libBuildInfo lib) }
+    mapExeBi exe = exe { buildInfo    = f (buildInfo exe) }

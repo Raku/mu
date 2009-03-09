@@ -1,3 +1,16 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Distribution.Text
+-- Copyright   :  Duncan Coutts 2007
+--
+-- Maintainer  :  cabal-devel@haskell.org
+-- Portability :  portable
+--
+-- This defines a 'Text' class which is a bit like the 'Read' and 'Show'
+-- classes. The difference is that is uses a modern pretty printer and parser
+-- system and the format is not expected to be Haskell concrete syntax but
+-- rather the external human readable representation used by Cabal.
+--
 module Distribution.Text (
   Text(..),
   display,
@@ -15,7 +28,12 @@ class Text a where
   parse :: Parse.ReadP r a
 
 display :: Text a => a -> String
-display = Disp.render . disp
+display = Disp.renderStyle style . disp
+  where style = Disp.Style {
+          Disp.mode            = Disp.PageMode,
+          Disp.lineLength      = 79,
+          Disp.ribbonsPerLine  = 1.0
+        }
 
 simpleParse :: Text a => String -> Maybe a
 simpleParse str = case [ p | (p, s) <- Parse.readP_to_S parse str

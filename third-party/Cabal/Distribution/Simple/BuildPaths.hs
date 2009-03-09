@@ -4,8 +4,7 @@
 -- Copyright   :  Isaac Jones 2003-2004,
 --                Duncan Coutts 2008
 --
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
 -- A bunch of dirs, paths and file names used for intermediate build steps.
@@ -47,6 +46,7 @@ module Distribution.Simple.BuildPaths (
     autogenModulesDir,
 
     autogenModuleName,
+    cppHeaderName,
     haddockName,
 
     mkLibName,
@@ -64,6 +64,8 @@ import System.FilePath (FilePath, (</>), (<.>))
 
 import Distribution.Package
          ( PackageIdentifier, packageName )
+import Distribution.ModuleName (ModuleName)
+import qualified Distribution.ModuleName as ModuleName
 import Distribution.Compiler
          ( CompilerId(..) )
 import Distribution.PackageDescription (PackageDescription)
@@ -84,22 +86,24 @@ hscolourPref = haddockPref
 
 haddockPref :: FilePath -> PackageDescription -> FilePath
 haddockPref distPref pkg_descr
-    = distPref </> "doc" </> "html" </> packageName pkg_descr
+    = distPref </> "doc" </> "html" </> display (packageName pkg_descr)
 
 -- |The directory in which we put auto-generated modules
 autogenModulesDir :: LocalBuildInfo -> String
 autogenModulesDir lbi = buildDir lbi </> "autogen"
 
+cppHeaderName :: String
+cppHeaderName = "cabal_macros.h"
 
 -- |The name of the auto-generated module associated with a package
-autogenModuleName :: PackageDescription -> String
+autogenModuleName :: PackageDescription -> ModuleName
 autogenModuleName pkg_descr =
-    "Paths_" ++ map fixchar (packageName pkg_descr)
+  ModuleName.simple $ "Paths_" ++ map fixchar (display (packageName pkg_descr))
   where fixchar '-' = '_'
         fixchar c   = c
 
 haddockName :: PackageDescription -> FilePath
-haddockName pkg_descr = packageName pkg_descr <.> "haddock"
+haddockName pkg_descr = display (packageName pkg_descr) <.> "haddock"
 
 -- ---------------------------------------------------------------------------
 -- Library file names
@@ -120,7 +124,7 @@ mkSharedLibName lib (CompilerId compilerFlavor compilerVersion)
 
 -- ------------------------------------------------------------
 -- * Platform file extensions
--- ------------------------------------------------------------ 
+-- ------------------------------------------------------------
 
 -- ToDo: This should be determined via autoconf (AC_EXEEXT)
 -- | Extension for executable files

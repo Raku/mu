@@ -2,13 +2,29 @@
 -- |
 -- Module      :  Distribution.Simple.Setup
 -- Copyright   :  Isaac Jones 2003-2004
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--                Duncan Coutts 2007
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Explanation: Data types and parser for the standard command-line
--- setup.  Will also return commands it doesn't know about.
+-- This is a big module, but not very complicated. The code is very regular
+-- and repetitive. It defines the command line interface for all the Cabal
+-- commands. For each command (like @configure@, @build@ etc) it defines a type
+-- that holds all the flags, the default set of flags and a 'CommandUI' that
+-- maps command line flags to and from the corresponding flags type.
+--
+-- All the flags types are instances of 'Monoid', see
+-- <http://www.haskell.org/pipermail/cabal-devel/2007-December/001509.html>
+-- for an explanation.
+--
+-- The types defined here get used in the front end and especially in
+-- @cabal-install@ which has to do quite a bit of manipulating sets of command
+-- line flags.
+--
+-- This is actually relatively nice, it works quite well. The main change it
+-- needs is to unify it with the code for managing sets of fields that can be
+-- read and written from files. This would allow us to save configure flags in
+-- config files.
 
 {- All rights reserved.
 
@@ -49,6 +65,7 @@ module Distribution.Simple.Setup (
   HaddockFlags(..),  emptyHaddockFlags,  defaultHaddockFlags,  haddockCommand,
   HscolourFlags(..), emptyHscolourFlags, defaultHscolourFlags, hscolourCommand,
   BuildFlags(..),    emptyBuildFlags,    defaultBuildFlags,    buildCommand,
+  buildVerbose,
   CleanFlags(..),    emptyCleanFlags,    defaultCleanFlags,    cleanCommand,
   MakefileFlags(..), emptyMakefileFlags, defaultMakefileFlags, makefileCommand,
   RegisterFlags(..), emptyRegisterFlags, defaultRegisterFlags, registerCommand,
@@ -57,6 +74,7 @@ module Distribution.Simple.Setup (
   TestFlags(..),     emptyTestFlags,     defaultTestFlags,     testCommand,
   CopyDest(..),
   configureArgs, configureOptions,
+  installDirsOptions,
 
   defaultDistPref,
 
@@ -82,7 +100,9 @@ import Distribution.Simple.Compiler
 import Distribution.Simple.Utils
          ( wrapLine, lowercase )
 import Distribution.Simple.Program (Program(..), ProgramConfiguration,
-                             knownPrograms)
+                             knownPrograms,
+                             addKnownProgram, emptyProgramConfiguration,
+                             haddockProgram)
 import Distribution.Simple.InstallDirs
          ( InstallDirs(..), CopyDest(..),
            PathTemplate, toPathTemplate, fromPathTemplate )
@@ -185,19 +205,20 @@ defaultGlobalFlags  = GlobalFlags {
   }
 
 globalCommand :: CommandUI GlobalFlags
-globalCommand = makeCommand name shortDesc longDesc defaultGlobalFlags options
-  where
-    name       = ""
-    shortDesc  = ""
-    longDesc   = Just $ \pname ->
-         "Typical steps for installing Cabal packages:\n"
-      ++ unlines [ "  " ++ pname ++ " " ++ x
-                 | x <- ["configure", "build", "install"]]
-      ++ "\nFor more information about a command, try '"
-          ++ pname ++ " COMMAND --help'."
-      ++ "\nThis Setup program uses the Haskell Cabal Infrastructure."
-      ++ "\nSee http://www.haskell.org/cabal/ for more information.\n"
-    options _  =
+globalCommand = CommandUI {
+    commandName         = "",
+    commandSynopsis     = "",
+    commandUsage        = \_ ->
+         "This Setup program uses the Haskell Cabal Infrastructure.\n"
+      ++ "See http://www.haskell.org/cabal/ for more information.\n",
+    commandDescription  = Just $ \pname ->
+         "For more information about a command use\n"
+      ++ "  " ++ pname ++ " COMMAND --help\n\n"
+      ++ "Typical steps for installing Cabal packages:\n"
+      ++ concat [ "  " ++ pname ++ " " ++ x ++ "\n"
+                | x <- ["configure", "build", "install"]],
+    commandDefaultFlags = defaultGlobalFlags,
+    commandOptions      = \_ ->
       [option ['V'] ["version"]
          "Print version information"
          globalVersion (\v flags -> flags { globalVersion = v })
@@ -207,6 +228,7 @@ globalCommand = makeCommand name shortDesc longDesc defaultGlobalFlags options
          globalNumericVersion (\v flags -> flags { globalNumericVersion = v })
          trueArg
       ]
+  }
 
 emptyGlobalFlags :: GlobalFlags
 emptyGlobalFlags = mempty
@@ -253,7 +275,6 @@ data ConfigFlags = ConfigFlags {
     configExtraIncludeDirs :: [FilePath],   -- ^ path to search for header files
 
     configDistPref :: Flag FilePath, -- ^"dist" prefix
-    configVerbose   :: Verbosity, -- ^verbosity level (deprecated)
     configVerbosity :: Flag Verbosity, -- ^verbosity level
     configUserInstall :: Flag Bool,    -- ^The --user\/--global flag
     configPackageDB :: Flag PackageDB, -- ^Which package DB to use
@@ -278,7 +299,6 @@ defaultConfigFlags progConf = emptyConfigFlags {
     configProgPrefix   = Flag (toPathTemplate ""),
     configProgSuffix   = Flag (toPathTemplate ""),
     configDistPref     = Flag defaultDistPref,
-    configVerbose      = normal,
     configVerbosity    = Flag normal,
     configUserInstall  = Flag False,           --TODO: reverse this
     configGHCiLib      = Flag True,
@@ -293,7 +313,7 @@ configureCommand progConf = makeCommand name shortDesc longDesc defaultFlags opt
     shortDesc  = "Prepare to build the package."
     longDesc   = Just (\_ -> programFlagsDescription progConf)
     defaultFlags = defaultConfigFlags progConf
-    options showOrParseArgs = 
+    options showOrParseArgs =
          configureOptions showOrParseArgs
       ++ programConfigurationPaths   progConf showOrParseArgs
            configProgramPaths (\v fs -> fs { configProgramPaths = v })
@@ -304,7 +324,9 @@ configureCommand progConf = makeCommand name shortDesc longDesc defaultFlags opt
 configureOptions :: ShowOrParseArgs -> [OptionField ConfigFlags]
 configureOptions showOrParseArgs =
       [optionVerbosity configVerbosity (\v flags -> flags { configVerbosity = v })
-      ,optionDistPref configDistPref (\d flags -> flags { configDistPref = d })
+      ,optionDistPref
+         configDistPref (\d flags -> flags { configDistPref = d })
+         showOrParseArgs
 
       ,option [] ["compiler"] "compiler"
          configHcFlavor (\v flags -> flags { configHcFlavor = v })
@@ -322,65 +344,16 @@ configureOptions showOrParseArgs =
          "give the path to the package tool"
          configHcPkg (\v flags -> flags { configHcPkg = v })
          (reqArgFlag "PATH")
-
-      ,option "" ["prefix"]
-         "bake this prefix in preparation of installation"
-         prefix (\v flags -> flags { prefix = v })
-         installDirArg
-
-      ,option "" ["bindir"]
-         "installation directory for executables"
-         bindir (\v flags -> flags { bindir = v })
-         installDirArg
-
-      ,option "" ["libdir"]
-         "installation directory for libraries"
-         libdir (\v flags -> flags { libdir = v })
-         installDirArg
-
-      ,option "" ["libsubdir"]
-	 "subdirectory of libdir in which libs are installed"
-         libsubdir (\v flags -> flags { libsubdir = v })
-         installDirArg
-
-      ,option "" ["libexecdir"]
-	 "installation directory for program executables"
-         libexecdir (\v flags -> flags { libexecdir = v })
-         installDirArg
-
-      ,option "" ["datadir"]
-	 "installation directory for read-only data"
-         datadir (\v flags -> flags { datadir = v })
-         installDirArg
-
-      ,option "" ["datasubdir"]
-	 "subdirectory of datadir in which data files are installed"
-         datasubdir (\v flags -> flags { datasubdir = v })
-         installDirArg
-
-      ,option "" ["docdir"]
-	 "installation directory for documentation"
-         docdir (\v flags -> flags { docdir = v })
-         installDirArg
-
-      ,option "" ["htmldir"]
-	 "installation directory for HTML documentation"
-         htmldir (\v flags -> flags { htmldir = v })
-         installDirArg
-
-      ,option "" ["haddockdir"]
-	 "installation directory for haddock interfaces"
-         haddockdir (\v flags -> flags { haddockdir = v })
-         installDirArg
-
-      ,option "b" ["scratchdir"]
+      ]
+   ++ map liftInstallDirs installDirsOptions
+   ++ [option "b" ["scratchdir"]
          "directory to receive the built package [dist/scratch]"
          configScratchDir (\v flags -> flags { configScratchDir = v })
          (reqArgFlag "DIR")
 
       ,option "" ["program-prefix"]
           "prefix to be applied to installed executables"
-          configProgPrefix 
+          configProgPrefix
           (\v flags -> flags { configProgPrefix = v })
           (reqPathTemplateArgFlag "PREFIX")
 
@@ -477,28 +450,83 @@ configureOptions showOrParseArgs =
       ,option "" ["constraint"]
          "A list of additional constraints on the dependencies."
          configConstraints (\v flags -> flags { configConstraints = v})
-         (reqArg "DEPENDENCY" 
+         (reqArg "DEPENDENCY"
                  (readP_to_E (const "dependency expected") ((\x -> [x]) `fmap` parse))
                  (map (\x -> display x)))
       ]
-  where     
+  where
     readFlagList :: String -> FlagAssignment
     readFlagList = map tagWithValue . words
       where tagWithValue ('-':fname) = (FlagName (lowercase fname), False)
             tagWithValue fname       = (FlagName (lowercase fname), True)
-    
+
     showFlagList :: FlagAssignment -> [String]
     showFlagList fs = [ if not set then '-':fname else fname
                       | (FlagName fname, set) <- fs]
 
-    installDirArg _sf _lf d get set = reqArgFlag "DIR" _sf _lf d
-      (fmap fromPathTemplate.get.configInstallDirs)
-      (\v flags -> flags { configInstallDirs =
-                             set (fmap toPathTemplate v) (configInstallDirs flags)})
+    liftInstallDirs =
+      liftOption configInstallDirs (\v flags -> flags { configInstallDirs = v })
 
-    reqPathTemplateArgFlag title _sf _lf d get set = reqArgFlag title _sf _lf d
-      (fmap fromPathTemplate.get)
-      (\v flags -> set (fmap toPathTemplate v) flags)
+    reqPathTemplateArgFlag title _sf _lf d get set =
+      reqArgFlag title _sf _lf d
+        (fmap fromPathTemplate . get) (set . fmap toPathTemplate)
+
+installDirsOptions :: [OptionField (InstallDirs (Flag PathTemplate))]
+installDirsOptions =
+  [ option "" ["prefix"]
+      "bake this prefix in preparation of installation"
+      prefix (\v flags -> flags { prefix = v })
+      installDirArg
+
+  , option "" ["bindir"]
+      "installation directory for executables"
+      bindir (\v flags -> flags { bindir = v })
+      installDirArg
+
+  , option "" ["libdir"]
+      "installation directory for libraries"
+      libdir (\v flags -> flags { libdir = v })
+      installDirArg
+
+  , option "" ["libsubdir"]
+      "subdirectory of libdir in which libs are installed"
+      libsubdir (\v flags -> flags { libsubdir = v })
+      installDirArg
+
+  , option "" ["libexecdir"]
+      "installation directory for program executables"
+      libexecdir (\v flags -> flags { libexecdir = v })
+      installDirArg
+
+  , option "" ["datadir"]
+      "installation directory for read-only data"
+      datadir (\v flags -> flags { datadir = v })
+      installDirArg
+
+  , option "" ["datasubdir"]
+      "subdirectory of datadir in which data files are installed"
+      datasubdir (\v flags -> flags { datasubdir = v })
+      installDirArg
+
+  , option "" ["docdir"]
+      "installation directory for documentation"
+      docdir (\v flags -> flags { docdir = v })
+      installDirArg
+
+  , option "" ["htmldir"]
+      "installation directory for HTML documentation"
+      htmldir (\v flags -> flags { htmldir = v })
+      installDirArg
+
+  , option "" ["haddockdir"]
+      "installation directory for haddock interfaces"
+      haddockdir (\v flags -> flags { haddockdir = v })
+      installDirArg
+  ]
+  where
+    installDirArg _sf _lf d get set =
+      reqArgFlag "DIR" _sf _lf d
+        (fmap fromPathTemplate . get) (set . fmap toPathTemplate)
 
 emptyConfigFlags :: ConfigFlags
 emptyConfigFlags = mempty
@@ -522,7 +550,6 @@ instance Monoid ConfigFlags where
     configInstallDirs   = mempty,
     configScratchDir    = mempty,
     configDistPref      = mempty,
-    configVerbose       = normal,
     configVerbosity     = mempty,
     configUserInstall   = mempty,
     configPackageDB     = mempty,
@@ -535,7 +562,7 @@ instance Monoid ConfigFlags where
     configConfigurationsFlags = mempty
   }
   mappend a b =  ConfigFlags {
-    configPrograms      = configPrograms a,
+    configPrograms      = configPrograms b,
     configProgramPaths  = combine configProgramPaths,
     configProgramArgs   = combine configProgramArgs,
     configHcFlavor      = combine configHcFlavor,
@@ -552,13 +579,12 @@ instance Monoid ConfigFlags where
     configInstallDirs   = combine configInstallDirs,
     configScratchDir    = combine configScratchDir,
     configDistPref      = combine configDistPref,
-    configVerbose       = fromFlagOrDefault (configVerbose a) (configVerbosity b),
     configVerbosity     = combine configVerbosity,
     configUserInstall   = combine configUserInstall,
     configPackageDB     = combine configPackageDB,
     configGHCiLib       = combine configGHCiLib,
     configSplitObjs     = combine configSplitObjs,
-    configStripExes     = combine configSplitObjs,
+    configStripExes     = combine configStripExes,
     configExtraLibDirs  = combine configExtraLibDirs,
     configConstraints   = combine configConstraints,
     configExtraIncludeDirs    = combine configExtraIncludeDirs,
@@ -572,20 +598,20 @@ instance Monoid ConfigFlags where
 
 -- | Flags to @copy@: (destdir, copy-prefix (backwards compat), verbosity)
 data CopyFlags = CopyFlags {
-    copyDest      :: CopyDest,
-    copyDest'     :: Flag CopyDest,
+    copyDest      :: Flag CopyDest,
     copyDistPref  :: Flag FilePath,
-    copyVerbose   :: Verbosity,
+    copyUseWrapper :: Flag Bool,
+    copyInPlace    :: Flag Bool,
     copyVerbosity :: Flag Verbosity
   }
   deriving Show
 
 defaultCopyFlags :: CopyFlags
 defaultCopyFlags  = CopyFlags {
-    copyDest      = NoCopyDest,
-    copyDest'     = Flag NoCopyDest,
+    copyDest      = Flag NoCopyDest,
     copyDistPref  = Flag defaultDistPref,
-    copyVerbose   = normal,
+    copyUseWrapper = Flag False,
+    copyInPlace    = Flag False,
     copyVerbosity = Flag normal
   }
 
@@ -597,19 +623,32 @@ copyCommand = makeCommand name shortDesc longDesc defaultCopyFlags options
     longDesc   = Just $ \_ ->
           "Does not call register, and allows a prefix at install time\n"
        ++ "Without the --destdir flag, configure determines location.\n"
-    options _  =
+    options showOrParseArgs =
       [optionVerbosity copyVerbosity (\v flags -> flags { copyVerbosity = v })
-      ,optionDistPref copyDistPref (\d flags -> flags { copyDistPref = d })
+
+      ,option "" ["shell-wrappers"]
+         "using shell script wrappers around executables"
+         copyUseWrapper (\v flags -> flags { copyUseWrapper = v })
+         (boolOpt [] [])
+
+      ,optionDistPref
+         copyDistPref (\d flags -> flags { copyDistPref = d })
+         showOrParseArgs
+
+      ,option "" ["inplace"]
+         "copy the package in the install subdirectory of the dist prefix, so it can be used without being installed"
+         copyInPlace (\v flags -> flags { copyInPlace = v })
+         trueArg
 
       ,option "" ["destdir"]
          "directory to copy files to, prepended to installation directories"
-         copyDest' (\v flags -> flags { copyDest' = v })
+         copyDest (\v flags -> flags { copyDest = v })
          (reqArg "DIR" (succeedReadE (Flag . CopyTo))
                        (\f -> case f of Flag (CopyTo p) -> [p]; _ -> []))
 
       ,option "" ["copy-prefix"]
          "[DEPRECATED, directory to copy files to instead of prefix]"
-         copyDest' (\v flags -> flags { copyDest' = v })
+         copyDest (\v flags -> flags { copyDest = v })
          (reqArg' "DIR" (Flag . CopyPrefix)
                        (\f -> case f of Flag (CopyPrefix p) -> [p]; _ -> []))
 
@@ -620,17 +659,17 @@ emptyCopyFlags = mempty
 
 instance Monoid CopyFlags where
   mempty = CopyFlags {
-    copyDest      = NoCopyDest,
-    copyDest'     = mempty,
+    copyDest      = mempty,
     copyDistPref  = mempty,
-    copyVerbose   = normal,
+    copyUseWrapper = mempty,
+    copyInPlace    = mempty,
     copyVerbosity = mempty
   }
   mappend a b = CopyFlags {
-    copyDest      = fromFlagOrDefault (copyDest a) (copyDest' b),
-    copyDest'     = combine copyDest',
+    copyDest      = combine copyDest,
     copyDistPref  = combine copyDistPref,
-    copyVerbose   = fromFlagOrDefault (copyVerbose a) (copyVerbosity b),
+    copyUseWrapper = combine copyUseWrapper,
+    copyInPlace    = combine copyInPlace,
     copyVerbosity = combine copyVerbosity
   }
     where combine field = field a `mappend` field b
@@ -643,7 +682,8 @@ instance Monoid CopyFlags where
 data InstallFlags = InstallFlags {
     installPackageDB :: Flag PackageDB,
     installDistPref  :: Flag FilePath,
-    installVerbose   :: Verbosity,
+    installUseWrapper :: Flag Bool,
+    installInPlace    :: Flag Bool,
     installVerbosity :: Flag Verbosity
   }
   deriving Show
@@ -652,7 +692,8 @@ defaultInstallFlags :: InstallFlags
 defaultInstallFlags  = InstallFlags {
     installPackageDB = NoFlag,
     installDistPref  = Flag defaultDistPref,
-    installVerbose   = normal,
+    installUseWrapper = Flag False,
+    installInPlace    = Flag False,
     installVerbosity = Flag normal
   }
 
@@ -665,11 +706,23 @@ installCommand = makeCommand name shortDesc longDesc defaultInstallFlags options
          "Unlike the copy command, install calls the register command.\n"
       ++ "If you want to install into a location that is not what was\n"
       ++ "specified in the configure step, use the copy command.\n"
-    options _  =
+    options showOrParseArgs =
       [optionVerbosity installVerbosity (\v flags -> flags { installVerbosity = v })
-      ,optionDistPref installDistPref (\d flags -> flags { installDistPref = d })
+      ,optionDistPref
+         installDistPref (\d flags -> flags { installDistPref = d })
+         showOrParseArgs
 
-      ,option "" ["packageDB"] ""
+      ,option "" ["inplace"]
+         "install the package in the install subdirectory of the dist prefix, so it can be used without being installed"
+         installInPlace (\v flags -> flags { installInPlace = v })
+         trueArg
+
+      ,option "" ["shell-wrappers"]
+         "using shell script wrappers around executables"
+         installUseWrapper (\v flags -> flags { installUseWrapper = v })
+         (boolOpt [] [])
+
+      ,option "" ["package-db"] ""
          installPackageDB (\v flags -> flags { installPackageDB = v })
          (choiceOpt [ (Flag UserPackageDB, ([],["user"]),
                       "upon configuration register this package in the user's local package database")
@@ -684,13 +737,15 @@ instance Monoid InstallFlags where
   mempty = InstallFlags{
     installPackageDB = mempty,
     installDistPref  = mempty,
-    installVerbose   = normal,
+    installUseWrapper = mempty,
+    installInPlace    = mempty,
     installVerbosity = mempty
   }
   mappend a b = InstallFlags{
     installPackageDB = combine installPackageDB,
     installDistPref  = combine installDistPref,
-    installVerbose   = fromFlagOrDefault (installVerbose a) (installVerbosity b),
+    installUseWrapper = combine installUseWrapper,
+    installInPlace    = combine installInPlace,
     installVerbosity = combine installVerbosity
   }
     where combine field = field a `mappend` field b
@@ -703,7 +758,6 @@ instance Monoid InstallFlags where
 data SDistFlags = SDistFlags {
     sDistSnapshot  :: Flag Bool,
     sDistDistPref  :: Flag FilePath,
-    sDistVerbose   :: Verbosity,
     sDistVerbosity :: Flag Verbosity
   }
   deriving Show
@@ -712,7 +766,6 @@ defaultSDistFlags :: SDistFlags
 defaultSDistFlags = SDistFlags {
     sDistSnapshot  = Flag False,
     sDistDistPref  = Flag defaultDistPref,
-    sDistVerbose   = normal,
     sDistVerbosity = Flag normal
   }
 
@@ -722,9 +775,11 @@ sdistCommand = makeCommand name shortDesc longDesc defaultSDistFlags options
     name       = "sdist"
     shortDesc  = "Generate a source distribution file (.tar.gz)."
     longDesc   = Nothing
-    options _  =
+    options showOrParseArgs =
       [optionVerbosity sDistVerbosity (\v flags -> flags { sDistVerbosity = v })
-      ,optionDistPref sDistDistPref (\d flags -> flags { sDistDistPref = d })
+      ,optionDistPref
+         sDistDistPref (\d flags -> flags { sDistDistPref = d })
+         showOrParseArgs
 
       ,option "" ["snapshot"]
          "Produce a snapshot source distribution"
@@ -739,13 +794,11 @@ instance Monoid SDistFlags where
   mempty = SDistFlags {
     sDistSnapshot  = mempty,
     sDistDistPref  = mempty,
-    sDistVerbose   = normal,
     sDistVerbosity = mempty
   }
   mappend a b = SDistFlags {
     sDistSnapshot  = combine sDistSnapshot,
     sDistDistPref  = combine sDistDistPref,
-    sDistVerbose   = fromFlagOrDefault (sDistVerbose a) (sDistVerbosity b),
     sDistVerbosity = combine sDistVerbosity
   }
     where combine field = field a `mappend` field b
@@ -762,7 +815,6 @@ data RegisterFlags = RegisterFlags {
     regGenPkgConf  :: Flag (Maybe FilePath),
     regInPlace     :: Flag Bool,
     regDistPref    :: Flag FilePath,
-    regVerbose     :: Verbosity,
     regVerbosity   :: Flag Verbosity
   }
   deriving Show
@@ -774,7 +826,6 @@ defaultRegisterFlags = RegisterFlags {
     regGenPkgConf  = NoFlag,
     regInPlace     = Flag False,
     regDistPref    = Flag defaultDistPref,
-    regVerbose     = normal,
     regVerbosity   = Flag normal
   }
 
@@ -784,9 +835,11 @@ registerCommand = makeCommand name shortDesc longDesc defaultRegisterFlags optio
     name       = "register"
     shortDesc  = "Register this package with the compiler."
     longDesc   = Nothing
-    options _  =
+    options showOrParseArgs =
       [optionVerbosity regVerbosity (\v flags -> flags { regVerbosity = v })
-      ,optionDistPref regDistPref (\d flags -> flags { regDistPref = d })
+      ,optionDistPref
+         regDistPref (\d flags -> flags { regDistPref = d })
+         showOrParseArgs
 
       ,option "" ["packageDB"] ""
          regPackageDB (\v flags -> flags { regPackageDB = v })
@@ -817,9 +870,11 @@ unregisterCommand = makeCommand name shortDesc longDesc defaultRegisterFlags opt
     name       = "unregister"
     shortDesc  = "Unregister this package with the compiler."
     longDesc   = Nothing
-    options _  =
+    options showOrParseArgs =
       [optionVerbosity regVerbosity (\v flags -> flags { regVerbosity = v })
-      ,optionDistPref regDistPref (\d flags -> flags { regDistPref = d })
+      ,optionDistPref
+         regDistPref (\d flags -> flags { regDistPref = d })
+          showOrParseArgs
 
       ,option "" ["user"] ""
          regPackageDB (\v flags -> flags { regPackageDB = v })
@@ -844,7 +899,6 @@ instance Monoid RegisterFlags where
     regGenPkgConf  = mempty,
     regInPlace     = mempty,
     regDistPref    = mempty,
-    regVerbose     = normal,
     regVerbosity   = mempty
   }
   mappend a b = RegisterFlags {
@@ -853,7 +907,6 @@ instance Monoid RegisterFlags where
     regGenPkgConf  = combine regGenPkgConf,
     regInPlace     = combine regInPlace,
     regDistPref    = combine regDistPref,
-    regVerbose     = fromFlagOrDefault (regVerbose a) (regVerbosity b),
     regVerbosity   = combine regVerbosity
   }
     where combine field = field a `mappend` field b
@@ -866,7 +919,6 @@ data HscolourFlags = HscolourFlags {
     hscolourCSS         :: Flag FilePath,
     hscolourExecutables :: Flag Bool,
     hscolourDistPref    :: Flag FilePath,
-    hscolourVerbose     :: Verbosity,
     hscolourVerbosity   :: Flag Verbosity
   }
   deriving Show
@@ -879,7 +931,6 @@ defaultHscolourFlags = HscolourFlags {
     hscolourCSS         = NoFlag,
     hscolourExecutables = Flag False,
     hscolourDistPref    = Flag defaultDistPref,
-    hscolourVerbose     = normal,
     hscolourVerbosity   = Flag normal
   }
 
@@ -888,14 +939,12 @@ instance Monoid HscolourFlags where
     hscolourCSS         = mempty,
     hscolourExecutables = mempty,
     hscolourDistPref    = mempty,
-    hscolourVerbose     = normal,
     hscolourVerbosity   = mempty
   }
   mappend a b = HscolourFlags {
     hscolourCSS         = combine hscolourCSS,
     hscolourExecutables = combine hscolourExecutables,
     hscolourDistPref    = combine hscolourDistPref,
-    hscolourVerbose     = fromFlagOrDefault (hscolourVerbose a) (hscolourVerbosity b),
     hscolourVerbosity   = combine hscolourVerbosity
   }
     where combine field = field a `mappend` field b
@@ -905,10 +954,12 @@ hscolourCommand = makeCommand name shortDesc longDesc defaultHscolourFlags optio
   where
     name       = "hscolour"
     shortDesc  = "Generate HsColour colourised code, in HTML format."
-    longDesc   = Just (\_ -> "Requires hscolour.")
-    options _  =
+    longDesc   = Just (\_ -> "Requires hscolour.\n")
+    options showOrParseArgs =
       [optionVerbosity hscolourVerbosity (\v flags -> flags { hscolourVerbosity = v })
-      ,optionDistPref hscolourDistPref (\d flags -> flags { hscolourDistPref = d })
+      ,optionDistPref
+         hscolourDistPref (\d flags -> flags { hscolourDistPref = d })
+         showOrParseArgs
 
       ,option "" ["executables"]
          "Run hscolour for Executables targets"
@@ -926,6 +977,8 @@ hscolourCommand = makeCommand name shortDesc longDesc defaultHscolourFlags optio
 -- ------------------------------------------------------------
 
 data HaddockFlags = HaddockFlags {
+    haddockProgramPaths :: [(String, FilePath)],
+    haddockProgramArgs  :: [(String, [String])],
     haddockHoogle       :: Flag Bool,
     haddockHtmlLocation :: Flag String,
     haddockExecutables  :: Flag Bool,
@@ -934,13 +987,14 @@ data HaddockFlags = HaddockFlags {
     haddockHscolour     :: Flag Bool,
     haddockHscolourCss  :: Flag FilePath,
     haddockDistPref     :: Flag FilePath,
-    haddockVerbose      :: Verbosity,
     haddockVerbosity    :: Flag Verbosity
   }
   deriving Show
 
 defaultHaddockFlags :: HaddockFlags
 defaultHaddockFlags  = HaddockFlags {
+    haddockProgramPaths = mempty,
+    haddockProgramArgs  = [],
     haddockHoogle       = Flag False,
     haddockHtmlLocation = NoFlag,
     haddockExecutables  = Flag False,
@@ -949,7 +1003,6 @@ defaultHaddockFlags  = HaddockFlags {
     haddockHscolour     = Flag False,
     haddockHscolourCss  = NoFlag,
     haddockDistPref     = Flag defaultDistPref,
-    haddockVerbose      = normal,
     haddockVerbosity    = Flag normal
   }
 
@@ -958,10 +1011,12 @@ haddockCommand = makeCommand name shortDesc longDesc defaultHaddockFlags options
   where
     name       = "haddock"
     shortDesc  = "Generate Haddock HTML documentation."
-    longDesc   = Just (\_ -> "Requires cpphs and haddock.\n")
-    options _  =
+    longDesc   = Just $ \_ -> "Requires the program haddock, either version 0.x or 2.x.\n"
+    options showOrParseArgs =
       [optionVerbosity haddockVerbosity (\v flags -> flags { haddockVerbosity = v })
-      ,optionDistPref haddockDistPref (\d flags -> flags { haddockDistPref = d })
+      ,optionDistPref
+         haddockDistPref (\d flags -> flags { haddockDistPref = d })
+         showOrParseArgs
 
       ,option "" ["hoogle"]
          "Generate a hoogle database"
@@ -998,12 +1053,20 @@ haddockCommand = makeCommand name shortDesc longDesc defaultHaddockFlags options
          haddockHscolourCss (\v flags -> flags { haddockHscolourCss = v })
          (reqArgFlag "PATH")
       ]
+      ++ programConfigurationPaths   progConf ParseArgs
+             haddockProgramPaths (\v flags -> flags { haddockProgramPaths = v})
+      ++ programConfigurationOptions progConf ParseArgs
+             haddockProgramArgs  (\v flags -> flags { haddockProgramArgs = v})
+    progConf = addKnownProgram haddockProgram
+               emptyProgramConfiguration
 
 emptyHaddockFlags :: HaddockFlags
 emptyHaddockFlags = mempty
 
 instance Monoid HaddockFlags where
   mempty = HaddockFlags {
+    haddockProgramPaths = mempty,
+    haddockProgramArgs  = mempty,
     haddockHoogle       = mempty,
     haddockHtmlLocation = mempty,
     haddockExecutables  = mempty,
@@ -1012,10 +1075,11 @@ instance Monoid HaddockFlags where
     haddockHscolour     = mempty,
     haddockHscolourCss  = mempty,
     haddockDistPref     = mempty,
-    haddockVerbose      = normal,
     haddockVerbosity    = mempty
   }
   mappend a b = HaddockFlags {
+    haddockProgramPaths = combine haddockProgramPaths,
+    haddockProgramArgs  = combine haddockProgramArgs,
     haddockHoogle       = combine haddockHoogle,
     haddockHtmlLocation = combine haddockHtmlLocation,
     haddockExecutables  = combine haddockExecutables,
@@ -1024,7 +1088,6 @@ instance Monoid HaddockFlags where
     haddockHscolour     = combine haddockHscolour,
     haddockHscolourCss  = combine haddockHscolourCss,
     haddockDistPref     = combine haddockDistPref,
-    haddockVerbose      = fromFlagOrDefault (haddockVerbose a) (haddockVerbosity b),
     haddockVerbosity    = combine haddockVerbosity
   }
     where combine field = field a `mappend` field b
@@ -1036,7 +1099,6 @@ instance Monoid HaddockFlags where
 data CleanFlags = CleanFlags {
     cleanSaveConf  :: Flag Bool,
     cleanDistPref  :: Flag FilePath,
-    cleanVerbose   :: Verbosity,
     cleanVerbosity :: Flag Verbosity
   }
   deriving Show
@@ -1045,7 +1107,6 @@ defaultCleanFlags :: CleanFlags
 defaultCleanFlags  = CleanFlags {
     cleanSaveConf  = Flag False,
     cleanDistPref  = Flag defaultDistPref,
-    cleanVerbose   = normal,
     cleanVerbosity = Flag normal
   }
 
@@ -1055,9 +1116,11 @@ cleanCommand = makeCommand name shortDesc longDesc defaultCleanFlags options
     name       = "clean"
     shortDesc  = "Clean up after a build."
     longDesc   = Just (\_ -> "Removes .hi, .o, preprocessed sources, etc.\n")
-    options _  =
+    options showOrParseArgs =
       [optionVerbosity cleanVerbosity (\v flags -> flags { cleanVerbosity = v })
-      ,optionDistPref cleanDistPref (\d flags -> flags { cleanDistPref = d })
+      ,optionDistPref
+         cleanDistPref (\d flags -> flags { cleanDistPref = d })
+         showOrParseArgs
 
       ,option "s" ["save-configure"]
          "Do not remove the configuration file (dist/setup-config) during cleaning.  Saves need to reconfigure."
@@ -1072,13 +1135,11 @@ instance Monoid CleanFlags where
   mempty = CleanFlags {
     cleanSaveConf  = mempty,
     cleanDistPref  = mempty,
-    cleanVerbose   = normal,
     cleanVerbosity = mempty
   }
   mappend a b = CleanFlags {
     cleanSaveConf  = combine cleanSaveConf,
     cleanDistPref  = combine cleanDistPref,
-    cleanVerbose   = fromFlagOrDefault (cleanVerbose a) (cleanVerbosity b),
     cleanVerbosity = combine cleanVerbosity
   }
     where combine field = field a `mappend` field b
@@ -1088,18 +1149,22 @@ instance Monoid CleanFlags where
 -- ------------------------------------------------------------
 
 data BuildFlags = BuildFlags {
+    buildProgramPaths :: [(String, FilePath)],
     buildProgramArgs :: [(String, [String])],
     buildDistPref    :: Flag FilePath,
-    buildVerbose     :: Verbosity,
     buildVerbosity   :: Flag Verbosity
   }
   deriving Show
 
+{-# DEPRECATED buildVerbose "Use buildVerbosity instead" #-}
+buildVerbose :: BuildFlags -> Verbosity
+buildVerbose = fromFlagOrDefault normal . buildVerbosity
+
 defaultBuildFlags :: BuildFlags
 defaultBuildFlags  = BuildFlags {
+    buildProgramPaths = mempty,
     buildProgramArgs = [],
     buildDistPref    = Flag defaultDistPref,
-    buildVerbose     = normal,
     buildVerbosity   = Flag normal
   }
 
@@ -1111,9 +1176,14 @@ buildCommand progConf = makeCommand name shortDesc longDesc defaultBuildFlags op
     longDesc   = Nothing
     options showOrParseArgs =
       optionVerbosity buildVerbosity (\v flags -> flags { buildVerbosity = v })
-      : optionDistPref buildDistPref (\d flags -> flags { buildDistPref = d })
+      : optionDistPref
+          buildDistPref (\d flags -> flags { buildDistPref = d })
+          showOrParseArgs
 
-      : programConfigurationOptions progConf showOrParseArgs
+      : programConfigurationPaths   progConf showOrParseArgs
+          buildProgramPaths (\v flags -> flags { buildProgramPaths = v})
+
+     ++ programConfigurationOptions progConf showOrParseArgs
           buildProgramArgs (\v flags -> flags { buildProgramArgs = v})
 
 emptyBuildFlags :: BuildFlags
@@ -1121,14 +1191,14 @@ emptyBuildFlags = mempty
 
 instance Monoid BuildFlags where
   mempty = BuildFlags {
+    buildProgramPaths = mempty,
     buildProgramArgs = mempty,
-    buildVerbose     = normal,
-    buildVerbosity   = Flag normal,
+    buildVerbosity   = mempty,
     buildDistPref    = mempty
   }
   mappend a b = BuildFlags {
+    buildProgramPaths = combine buildProgramPaths,
     buildProgramArgs = combine buildProgramArgs,
-    buildVerbose     = fromFlagOrDefault (buildVerbose a) (buildVerbosity b),
     buildVerbosity   = combine buildVerbosity,
     buildDistPref    = combine buildDistPref
   }
@@ -1141,7 +1211,6 @@ instance Monoid BuildFlags where
 data MakefileFlags = MakefileFlags {
     makefileFile      :: Flag FilePath,
     makefileDistPref  :: Flag FilePath,
-    makefileVerbose   :: Verbosity,
     makefileVerbosity :: Flag Verbosity
   }
   deriving Show
@@ -1150,7 +1219,6 @@ defaultMakefileFlags :: MakefileFlags
 defaultMakefileFlags  = MakefileFlags {
     makefileFile      = NoFlag,
     makefileDistPref  = Flag defaultDistPref,
-    makefileVerbose   = normal,
     makefileVerbosity = Flag normal
   }
 
@@ -1160,9 +1228,11 @@ makefileCommand = makeCommand name shortDesc longDesc defaultMakefileFlags optio
     name       = "makefile"
     shortDesc  = "Generate a makefile (only for GHC libraries)."
     longDesc   = Nothing
-    options _  =
+    options showOrParseArgs =
       [optionVerbosity makefileVerbosity (\v flags -> flags { makefileVerbosity = v })
-      ,optionDistPref makefileDistPref (\d flags -> flags { makefileDistPref = d })
+      ,optionDistPref
+         makefileDistPref (\d flags -> flags { makefileDistPref = d })
+         showOrParseArgs
 
       ,option "f" ["file"]
          "Filename to use (default: Makefile)."
@@ -1177,13 +1247,11 @@ instance Monoid MakefileFlags where
   mempty = MakefileFlags {
     makefileFile      = mempty,
     makefileDistPref  = mempty,
-    makefileVerbose   = normal,
     makefileVerbosity = mempty
   }
   mappend a b = MakefileFlags {
     makefileFile      = combine makefileFile,
     makefileDistPref  = combine makefileDistPref,
-    makefileVerbose   = fromFlagOrDefault (makefileVerbose a) (makefileVerbosity b),
     makefileVerbosity = combine makefileVerbosity
   }
     where combine field = field a `mappend` field b
@@ -1210,9 +1278,11 @@ testCommand = makeCommand name shortDesc longDesc defaultTestFlags options
     name       = "test"
     shortDesc  = "Run the test suite, if any (configure with UserHooks)."
     longDesc   = Nothing
-    options _  =
+    options showOrParseArgs =
       [optionVerbosity testVerbosity (\v flags -> flags { testVerbosity = v })
-      ,optionDistPref testDistPref (\d flags -> flags { testDistPref = d })
+      ,optionDistPref
+         testDistPref (\d flags -> flags { testDistPref = d })
+         showOrParseArgs
       ]
 
 emptyTestFlags :: TestFlags
@@ -1286,7 +1356,7 @@ programConfigurationOptions progConf showOrParseArgs get set =
         get set
         (reqArg' "OPT" (\arg -> [(prog, [arg])])
            (\progArgs -> concat [ args | (prog', args) <- progArgs, prog==prog' ]))
-                
+
 
 -- ------------------------------------------------------------
 -- * GetOpt Utils
@@ -1309,13 +1379,17 @@ reqArgFlag ad = reqArg ad (succeedReadE Flag) flagToList
 
 optionDistPref :: (flags -> Flag FilePath)
                -> (Flag FilePath -> flags -> flags)
+               -> ShowOrParseArgs
                -> OptionField flags
-optionDistPref get set =
-  option "" ["distpref"]
-    (   "Control which directory Cabal puts its generated files in "
+optionDistPref get set = \showOrParseArgs ->
+  option "" (distPrefFlagName showOrParseArgs)
+    (   "The directory where Cabal puts generated build files "
      ++ "(default " ++ defaultDistPref ++ ")")
     get set
     (reqArgFlag "DIR")
+  where
+    distPrefFlagName ShowArgs  = ["builddir"]
+    distPrefFlagName ParseArgs = ["builddir", "distdir", "distpref"]
 
 optionVerbosity :: (flags -> Flag Verbosity)
                 -> (Flag Verbosity -> flags -> flags)
@@ -1352,7 +1426,7 @@ configureArgs bcHack flags
         hc_flag_name
             --TODO kill off thic bc hack when defaultUserHooks is removed.
             | bcHack    = "--with-hc="
-	    | otherwise = "--with-compiler="
+            | otherwise = "--with-compiler="
         optFlag name config_field = case config_field flags of
                         Flag p -> ["--" ++ name ++ "=" ++ p]
                         NoFlag -> []

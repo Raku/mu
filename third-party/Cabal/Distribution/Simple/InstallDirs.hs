@@ -9,15 +9,17 @@
 -- Module      :  Distribution.Simple.InstallDirs
 -- Copyright   :  Isaac Jones 2003-2004
 --
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Definition of the 'LocalBuildInfo' data type.  This is basically
--- the information that is gathered by the end of the configuration
--- step which could include package information from ghc-pkg, flags
--- the user passed to configure, and the location of tools in the
--- PATH.
+-- This manages everything to do with where files get installed (though does
+-- not get involved with actually doing any installation). It provides an
+-- 'InstallDirs' type which is a set of directories for where to install
+-- things. It also handles the fact that we use templates in these install
+-- dirs. For example most install dirs are relative to some @$prefix@ and by
+-- changing the prefix all other dirs still end up changed appropriately. So it
+-- provides a 'PathTemplate' type and functions for substituting for these
+-- templates.
 
 {- All rights reserved.
 
@@ -64,6 +66,7 @@ module Distribution.Simple.InstallDirs (
         fromPathTemplate,
         substPathTemplate,
         initialPathTemplateEnv,
+        fullPathTemplateEnv,
   ) where
 
 
@@ -79,7 +82,7 @@ import System.FilePath (dropDrive)
 import Distribution.Package
          ( PackageIdentifier, packageName, packageVersion )
 import Distribution.System
-         ( OS(..), buildOS )
+         ( OS(..), buildOS, buildArch )
 import Distribution.Compiler
          ( CompilerId, CompilerFlavor(..) )
 import Distribution.Text
@@ -105,15 +108,15 @@ data InstallDirs dir = InstallDirs {
         prefix       :: dir,
         bindir       :: dir,
         libdir       :: dir,
-	libsubdir    :: dir,
+        libsubdir    :: dir,
         dynlibdir    :: dir,
         libexecdir   :: dir,
         progdir      :: dir,
         includedir   :: dir,
         datadir      :: dir,
-	datasubdir   :: dir,
+        datasubdir   :: dir,
         docdir       :: dir,
-	mandir       :: dir,
+        mandir       :: dir,
         htmldir      :: dir,
         haddockdir   :: dir
     } deriving (Read, Show)
@@ -157,8 +160,8 @@ instance Monoid dir => Monoid (InstallDirs dir) where
 
 combineInstallDirs :: (a -> b -> c)
                    -> InstallDirs a
-		   -> InstallDirs b
-		   -> InstallDirs c
+                   -> InstallDirs b
+                   -> InstallDirs c
 combineInstallDirs combine a b = InstallDirs {
     prefix       = prefix a     `combine` prefix b,
     bindir       = bindir a     `combine` bindir b,
@@ -184,7 +187,7 @@ appendSubdirs append dirs = dirs {
     datasubdir = error "internal error InstallDirs.datasubdir"
   }
 
--- | The installation dirctories in terms of 'PathTemplate's that contain
+-- | The installation directories in terms of 'PathTemplate's that contain
 -- variables.
 --
 -- The defaults for most of the directories are relative to each other, in
@@ -196,10 +199,10 @@ appendSubdirs append dirs = dirs {
 --
 -- A few of these installation directories are split into two components, the
 -- dir and subdir. The full installation path is formed by combining the two
--- together with @\/@. The reason for this is compatability with other unix
+-- together with @\/@. The reason for this is compatibility with other unix
 -- build systems which also support @--libdir@ and @--datadir@. We would like
 -- users to be able to configure @--libdir=\/usr\/lib64@ for example but
--- because by default we want to support installing multiplve versions of
+-- because by default we want to support installing multiple versions of
 -- packages and building the same package for multiple compilers we append the
 -- libsubdir to get: @\/usr\/lib64\/$pkgid\/$compiler@.
 --
@@ -242,7 +245,7 @@ defaultInstallDirs comp userInstall hasLibs = do
       datasubdir   = "$pkgid",
       docdir       = case buildOS of
         Windows   -> "$prefix"  </> "doc" </> "$pkgid"
-	_other    -> "$datadir" </> "doc" </> "$pkgid",
+        _other    -> "$datadir" </> "doc" </> "$pkgid",
       mandir       = "$datadir" </> "man",
       htmldir      = "$docdir"  </> "html",
       haddockdir   = "$htmldir"
@@ -280,7 +283,7 @@ substituteTemplates pkgId compilerId dirs = dirs'
       datadir    = subst datadir    prefixBinLibVars,
       datasubdir = subst datasubdir [],
       docdir     = subst docdir     prefixBinLibDataVars,
-      mandir     = subst docdir     (prefixBinLibDataVars ++ [docdirVar]),
+      mandir     = subst mandir     (prefixBinLibDataVars ++ [docdirVar]),
       htmldir    = subst htmldir    (prefixBinLibDataVars ++ [docdirVar]),
       haddockdir = subst haddockdir (prefixBinLibDataVars ++
                                       [docdirVar, htmldirVar])
@@ -314,7 +317,7 @@ absoluteInstallDirs pkgId compilerId copydest dirs =
   $ substituteTemplates pkgId compilerId dirs {
       prefix = case copydest of
         -- possibly override the prefix
-	CopyPrefix p -> toPathTemplate p
+        CopyPrefix p -> toPathTemplate p
         _            -> prefix dirs
     }
 
@@ -378,6 +381,9 @@ data PathTemplateVariable =
      | PkgVerVar     -- ^ The @$version@ package version path variable
      | PkgIdVar      -- ^ The @$pkgid@ package Id path variable, eg @foo-1.0@
      | CompilerVar   -- ^ The compiler name and version, eg @ghc-6.6.1@
+     | OSVar         -- ^ The operating system name, eg @windows@ or @linux@
+     | ArchVar       -- ^ The cpu architecture name, eg @i386@ or @x86_64@
+     | ExecutableNameVar -- ^ The executable name; used in shell wrappers
   deriving Eq
 
 -- | Convert a 'FilePath' to a 'PathTemplate' including any template vars.
@@ -410,10 +416,33 @@ initialPathTemplateEnv :: PackageIdentifier -> CompilerId
                        -> [(PathTemplateVariable, PathTemplate)]
 initialPathTemplateEnv pkgId compilerId =
   map (\(v,s) -> (v, PathTemplate [Ordinary s]))
-  [(PkgNameVar,  packageName pkgId)
+  [(PkgNameVar,  display (packageName pkgId))
   ,(PkgVerVar,   display (packageVersion pkgId))
   ,(PkgIdVar,    display pkgId)
-  ,(CompilerVar, display compilerId)]
+  ,(CompilerVar, display compilerId)
+  ,(OSVar,       display buildOS)    --these should be params if we want to be
+  ,(ArchVar,     display buildArch)  --able to do cross-platform configuation
+  ]
+
+fullPathTemplateEnv :: PackageIdentifier -> CompilerId
+                    -> InstallDirs FilePath
+                    -> [(PathTemplateVariable, PathTemplate)]
+fullPathTemplateEnv pkgId compilerId dirs = env ++ dirEnv
+    where -- The initial environment has all the static stuff but no paths
+          env = initialPathTemplateEnv pkgId compilerId
+          -- And here are all the paths
+          dirEnv = [(PrefixVar,     toPathTemplate $ prefix     dirs),
+                    (BindirVar,     toPathTemplate $ bindir     dirs),
+                    (LibdirVar,     toPathTemplate $ libdir     dirs),
+                    -- This isn't defined in an InstallDirs FilePath
+                    -- as its value has already been appended to libdir:
+                    -- (LibsubdirVar,  toPathTemplate $ libsubdir  dirs),
+                    (DatadirVar,    toPathTemplate $ datadir    dirs),
+                    -- This isn't defined in an InstallDirs FilePath
+                    -- as its value has already been appended to datadir:
+                    -- (DatasubdirVar, toPathTemplate $ datasubdir dirs),
+                    (DocdirVar,     toPathTemplate $ docdir     dirs),
+                    (HtmldirVar,    toPathTemplate $ htmldir    dirs)]
 
 -- ---------------------------------------------------------------------------
 -- Parsing and showing path templates:
@@ -437,6 +466,9 @@ instance Show PathTemplateVariable where
   show PkgVerVar     = "version"
   show PkgIdVar      = "pkgid"
   show CompilerVar   = "compiler"
+  show OSVar         = "os"
+  show ArchVar       = "arch"
+  show ExecutableNameVar = "executablename"
 
 instance Read PathTemplateVariable where
   readsPrec _ s =
@@ -445,17 +477,20 @@ instance Read PathTemplateVariable where
     | (varStr, var) <- vars
     , varStr `isPrefixOf` s ]
     where vars = [("prefix",     PrefixVar)
-	         ,("bindir",     BindirVar)
-	         ,("libdir",     LibdirVar)
-	         ,("libsubdir",  LibsubdirVar)
-	         ,("datadir",    DatadirVar)
-	         ,("datasubdir", DatasubdirVar)
-	         ,("docdir",     DocdirVar)
-		 ,("htmldir",    HtmldirVar)
-	         ,("pkgid",      PkgIdVar)
-	         ,("pkg",        PkgNameVar)
-	         ,("version",    PkgVerVar)
-	         ,("compiler",   CompilerVar)]
+                 ,("bindir",     BindirVar)
+                 ,("libdir",     LibdirVar)
+                 ,("libsubdir",  LibsubdirVar)
+                 ,("datadir",    DatadirVar)
+                 ,("datasubdir", DatasubdirVar)
+                 ,("docdir",     DocdirVar)
+                 ,("htmldir",    HtmldirVar)
+                 ,("pkgid",      PkgIdVar)
+                 ,("pkg",        PkgNameVar)
+                 ,("version",    PkgVerVar)
+                 ,("compiler",   CompilerVar)
+                 ,("os",         OSVar)
+                 ,("arch",       ArchVar)
+                 ,("executablename", ExecutableNameVar)]
 
 instance Show PathComponent where
   show (Ordinary path) = path
@@ -469,8 +504,8 @@ instance Read PathComponent where
           lex0 ('$':'$':s') = lex0 ('$':s')
           lex0 ('$':s') = case [ (Variable var, s'')
                                | (var, s'') <- reads s' ] of
-		            [] -> lex1 "$" s'
-		            ok -> ok
+                            [] -> lex1 "$" s'
+                            ok -> ok
           lex0 s' = lex1 [] s'
           lex1 ""  ""      = []
           lex1 acc ""      = [(Ordinary (reverse acc), "")]
@@ -511,8 +546,8 @@ shGetFolderPath n =
   allocaBytes long_path_size $ \pPath -> do
      r <- c_SHGetFolderPath nullPtr n nullPtr 0 pPath
      if (r /= 0)
-	then return Nothing
-	else do s <- peekCString pPath; return (Just s)
+        then return Nothing
+        else do s <- peekCString pPath; return (Just s)
   where
     long_path_size      = 1024
 # endif

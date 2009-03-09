@@ -1,19 +1,20 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Distribution.Simple.PreProcess
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+-- Copyright   :  (c) 2003-2005, Isaac Jones, Malcolm Wallace
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
---
--- PreProcessors are programs or functions which input a filename and
--- output a Haskell file.  The general form of a preprocessor is input
--- Foo.pp and output Foo.hs (where /pp/ is a unique extension that
--- tells us which preprocessor to use eg. gc, ly, cpphs, x, y, etc.).
--- Once a PreProcessor has been added to Cabal, either here or with
--- 'Distribution.Simple.UserHooks', if Cabal finds a Foo.pp, it'll run the given
--- preprocessor which should output a Foo.hs.
+-- This defines a 'PreProcessor' abstraction which represents a pre-processor
+-- that can transform one kind of file into another. There is also a
+-- 'PPSuffixHandler' which is a combination of a file extension and a function
+-- for configuring a 'PreProcessor'. It defines a bunch of known built-in
+-- preprocessors like @cpp@, @cpphs@, @c2hs@, @hsc2hs@, @happy@, @alex@ etc and
+-- lists them in 'knownSuffixHandlers'. On top of this it provides a function
+-- for actually preprocessing some sources given a bunch of known suffix
+-- handlers. This module is not as good as it could be, it could really do with
+-- a rewrite to address some of the problems we have with pre-processors.
 
 {- Copyright (c) 2003-2005, Isaac Jones, Malcolm Wallace
 All rights reserved.
@@ -50,42 +51,50 @@ module Distribution.Simple.PreProcess (preprocessSources, knownSuffixHandlers,
                                 ppSuffixes, PPSuffixHandler, PreProcessor(..),
                                 mkSimplePreProcessor, runSimplePreProcessor,
                                 ppCpp, ppCpp', ppGreenCard, ppC2hs, ppHsc2hs,
-				ppHappy, ppAlex, ppUnlit
+                                ppHappy, ppAlex, ppUnlit
                                )
     where
 
 
 import Distribution.Simple.PreProcess.Unlit (unlit)
-import Distribution.PackageDescription (PackageDescription(..),
-                                        BuildInfo(..), Executable(..), withExe,
-					Library(..), withLib, libModules)
 import Distribution.Package
-         ( Package(..) )
+         ( Package(..), PackageName(..) )
+import Distribution.ModuleName (ModuleName)
+import qualified Distribution.ModuleName as ModuleName
+import Distribution.PackageDescription as PD
+         ( PackageDescription(..), BuildInfo(..), Executable(..), withExe
+         , Library(..), withLib, libModules )
+import qualified Distribution.InstalledPackageInfo as Installed
+         ( InstalledPackageInfo_(..) )
+import qualified Distribution.Simple.PackageIndex as PackageIndex
+         ( topologicalOrder, lookupPackageName, insert )
 import Distribution.Simple.Compiler
          ( CompilerFlavor(..), Compiler(..), compilerFlavor, compilerVersion )
 import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..))
-import Distribution.Simple.BuildPaths (autogenModulesDir)
+import Distribution.Simple.BuildPaths (autogenModulesDir,cppHeaderName)
 import Distribution.Simple.Utils
-         ( createDirectoryIfMissingVerbose, readUTF8File, writeUTF8File
-         , die, setupMessage, intercalate
-         , findFileWithExtension, findFileWithExtension', dotToSep )
-import Distribution.Simple.Program (Program(..), ConfiguredProgram(..),
-                             lookupProgram, programPath,
-                             rawSystemProgramConf, rawSystemProgram,
-                             greencardProgram, cpphsProgram, hsc2hsProgram,
-                             c2hsProgram, happyProgram, alexProgram,
-                             haddockProgram, ghcProgram)
+         ( createDirectoryIfMissingVerbose, withUTF8FileContents, writeUTF8File
+         , die, setupMessage, intercalate, copyFileVerbose
+         , findFileWithExtension, findFileWithExtension' )
+import Distribution.Simple.Program
+         ( Program(..), ConfiguredProgram(..), lookupProgram, programPath
+         , rawSystemProgramConf, rawSystemProgram
+         , greencardProgram, cpphsProgram, hsc2hsProgram, c2hsProgram
+         , happyProgram, alexProgram, haddockProgram, ghcProgram, gccProgram )
+import Distribution.System
+         ( OS(OSX), buildOS )
 import Distribution.Version (Version(..))
 import Distribution.Verbosity
 import Distribution.Text
          ( display )
 
-import Control.Monad (when, unless, join)
+import Control.Monad (when, unless)
 import Data.Maybe (fromMaybe)
-import System.Directory (getModificationTime)
+import Data.List (nub)
+import System.Directory (getModificationTime, doesFileExist)
 import System.Info (os, arch)
 import System.FilePath (splitExtension, dropExtensions, (</>), (<.>),
-                        takeDirectory, normalise)
+                        takeDirectory, normalise, replaceExtension)
 
 -- |The interface to a preprocessor, which may be implemented using an
 -- external program, but need not be.  The arguments are the name of
@@ -130,7 +139,7 @@ data PreProcessor = PreProcessor {
   -- This matters since only platform independent generated code can be
   -- inlcuded into a source tarball.
   platformIndependent :: Bool,
-                              
+
   -- TODO: deal with pre-processors that have implementaion dependent output
   --       eg alex and happy have --ghc flags. However we can't really inlcude
   --       ghc-specific code into supposedly portable source tarballs.
@@ -187,13 +196,14 @@ preprocessSources pkg_descr lbi forSDist verbosity handlers = do
                                      modu verbosity builtinSuffixes biHandlers
                   | modu <- otherModules bi]
         preprocessModule (hsSourceDirs bi) exeDir forSDist
-                         (dropExtensions (modulePath theExe))
+                          --FIXME: we should not pretend it's a module name:
+                         (ModuleName.simple (dropExtensions (modulePath theExe)))
                          verbosity builtinSuffixes biHandlers
   where hc = compilerFlavor (compiler lbi)
-	builtinSuffixes
-	  | hc == NHC = ["hs", "lhs", "gc"]
-	  | otherwise = ["hs", "lhs"]
-	localHandlers bi = [(ext, h bi lbi) | (ext, h) <- handlers]
+        builtinSuffixes
+          | hc == NHC = ["hs", "lhs", "gc"]
+          | otherwise = ["hs", "lhs"]
+        localHandlers bi = [(ext, h bi lbi) | (ext, h) <- handlers]
 
 -- |Find the first extension of the file that exists, and preprocess it
 -- if required.
@@ -201,7 +211,7 @@ preprocessModule
     :: [FilePath]               -- ^source directories
     -> FilePath                 -- ^build directory
     -> Bool                     -- ^preprocess for sdist
-    -> String                   -- ^module name
+    -> ModuleName               -- ^module name
     -> Verbosity                -- ^verbosity
     -> [String]                 -- ^builtin suffixes
     -> [(String, PreProcessor)] -- ^possible preprocessors
@@ -209,21 +219,23 @@ preprocessModule
 preprocessModule searchLoc buildLoc forSDist modu verbosity builtinSuffixes handlers = do
     -- look for files in the various source dirs with this module name
     -- and a file extension of a known preprocessor
-    psrcFiles <- findFileWithExtension' (map fst handlers) searchLoc (dotToSep modu)
+    psrcFiles <- findFileWithExtension' (map fst handlers) searchLoc
+                   (ModuleName.toFilePath modu)
     case psrcFiles of
         -- no preprocessor file exists, look for an ordinary source file
       Nothing -> do
-                 bsrcFiles <- findFileWithExtension builtinSuffixes searchLoc (dotToSep modu)
+                 bsrcFiles <- findFileWithExtension builtinSuffixes searchLoc
+                                (ModuleName.toFilePath modu)
                  case bsrcFiles of
-	          Nothing -> die ("can't find source for " ++ modu ++ " in "
-		                   ++ intercalate ", " searchLoc)
-	          _       -> return ()
+                  Nothing -> die $ "can't find source for " ++ display modu
+                                ++ " in " ++ intercalate ", " searchLoc
+                  _       -> return ()
         -- found a pre-processable file in one of the source dirs
       Just (psrcLoc, psrcRelFile) -> do
             let (srcStem, ext) = splitExtension psrcRelFile
                 psrcFile = psrcLoc </> psrcRelFile
-	        pp = fromMaybe (error "Internal error in preProcess module: Just expected")
-	                       (lookup (tailNotNull ext) handlers)
+                pp = fromMaybe (error "Internal error in preProcess module: Just expected")
+                               (lookup (tailNotNull ext) handlers)
             -- Preprocessing files for 'sdist' is different from preprocessing
             -- for 'build'.  When preprocessing for sdist we preprocess to
             -- avoid that the user has to have the preprocessors available.
@@ -235,13 +247,14 @@ preprocessModule searchLoc buildLoc forSDist modu verbosity builtinSuffixes hand
             when (not forSDist || forSDist && platformIndependent pp) $ do
               -- look for existing pre-processed source file in the dest dir to
               -- see if we really have to re-run the preprocessor.
-	      ppsrcFiles <- findFileWithExtension builtinSuffixes [buildLoc] (dotToSep modu)
-	      recomp <- case ppsrcFiles of
-	                  Nothing -> return True
-	                  Just ppsrcFile -> do
+              ppsrcFiles <- findFileWithExtension builtinSuffixes [buildLoc]
+                              (ModuleName.toFilePath modu)
+              recomp <- case ppsrcFiles of
+                          Nothing -> return True
+                          Just ppsrcFile -> do
                               btime <- getModificationTime ppsrcFile
-	                      ptime <- getModificationTime psrcFile
-	                      return (btime < ptime)
+                              ptime <- getModificationTime psrcFile
+                              return (btime < ptime)
               when recomp $ do
                 let destDir = buildLoc </> dirName srcStem
                 createDirectoryIfMissingVerbose verbosity True destDir
@@ -272,9 +285,9 @@ ppUnlit :: PreProcessor
 ppUnlit =
   PreProcessor {
     platformIndependent = True,
-    runPreProcessor = mkSimplePreProcessor $ \inFile outFile _verbosity -> do
-      contents <- readUTF8File inFile
-      either (writeUTF8File outFile) die (unlit inFile contents)
+    runPreProcessor = mkSimplePreProcessor $ \inFile outFile _verbosity ->
+      withUTF8FileContents inFile $ \contents ->
+        either (writeUTF8File outFile) die (unlit inFile contents)
   }
 
 ppCpp :: BuildInfo -> LocalBuildInfo -> PreProcessor
@@ -306,6 +319,7 @@ ppGhcCpp extraArgs _bi lbi =
           -- using cpphs --unlit instead.
        ++ (if ghcVersion >= Version [6,6] [] then ["-x", "hs"] else [])
        ++ (if use_optP_P lbi then ["-optP-P"] else [])
+       ++ [ "-optP-include", "-optP"++ (autogenModulesDir lbi </> cppHeaderName) ]
        ++ ["-o", outFile, inFile]
        ++ extraArgs
   }
@@ -317,11 +331,16 @@ ppCpphs extraArgs _bi lbi =
   PreProcessor {
     platformIndependent = False,
     runPreProcessor = mkSimplePreProcessor $ \inFile outFile verbosity ->
-      rawSystemProgramConf verbosity cpphsProgram (withPrograms lbi) $
+      rawSystemProgram verbosity cpphsProg $
           ("-O" ++ outFile) : inFile
         : "--noline" : "--strip"
-        : extraArgs
+        : (if cpphsVersion >= Version [1,6] []
+             then ["--include="++ (autogenModulesDir lbi </> cppHeaderName)]
+             else [])
+        ++ extraArgs
   }
+  where Just cpphsProg = lookupProgram cpphsProgram (withPrograms lbi)
+        Just cpphsVersion = programVersion cpphsProg
 
 -- Haddock versions before 0.8 choke on #line and #file pragmas.  Those
 -- pragmas are necessary for correct links when we preprocess.  So use
@@ -334,34 +353,61 @@ use_optP_P lbi
      _                               -> True
 
 ppHsc2hs :: BuildInfo -> LocalBuildInfo -> PreProcessor
-ppHsc2hs bi lbi = pp
-  where pp = standardPP lbi hsc2hsProgram flags
-        flags = case fmap versionTags . join . fmap programVersion
-                   . lookupProgram hsc2hsProgram . withPrograms $ lbi of
-	  -- Just to make things complicated, the hsc2hs bundled with
-	  -- ghc uses ghc as the C compiler, so to pass C flags we
-	  -- have to use an additional layer of escaping. Grrr.
-	  Just ["ghc"] ->
-             let Just ghcProg = lookupProgram ghcProgram (withPrograms lbi)
-              in [ "--cc=" ++ programPath ghcProg
-                 , "--ld=" ++ programPath ghcProg ]
-              ++ [ "--cflag=-optc" ++ opt | opt <- ccOptions bi
-	                                        ++ cppOptions bi ]
-              ++ [ "--cflag="      ++ opt | pkg <- packageDeps lbi
-                                          , opt <- ["-package"
-                                                   ,display pkg] ]
-              ++ [ "--cflag=-I"    ++ dir | dir <- includeDirs bi]
-              ++ [ "--lflag=-optl" ++ opt | opt <- getLdOptions bi ]
+ppHsc2hs bi lbi = standardPP lbi hsc2hsProgram $
+    [ "--cc=" ++ programPath gccProg
+    , "--ld=" ++ programPath gccProg ]
 
-          _   -> [ "--cflag="   ++ opt | opt <- hcDefines (compiler lbi) ]
-	      ++ [ "--cflag="   ++ opt | opt <- ccOptions    bi ]
-	      ++ [ "--cflag=-I" ++ dir | dir <- includeDirs  bi ]
-              ++ [ "--lflag="   ++ opt | opt <- getLdOptions bi ]
+    -- Additional gcc options
+ ++ [ "--cflag=" ++ opt | opt <- programArgs gccProg ]
+ ++ [ "--lflag=" ++ opt | opt <- programArgs gccProg ]
+
+    -- OSX frameworks:
+ ++ [ what ++ "=-F" ++ opt
+    | isOSX
+    , opt <- nub (concatMap Installed.frameworkDirs pkgs)
+    , what <- ["--cflag", "--lflag"] ]
+ ++ [ "--lflag=" ++ arg
+    | isOSX
+    , opt <- PD.frameworks bi ++ concatMap Installed.frameworks pkgs
+    , arg <- ["-framework", opt] ]
+
+    -- Options from the current package:
+ ++ [ "--cflag="   ++ opt | opt <- hcDefines (compiler lbi) ]
+ ++ [ "--cflag=-I" ++ dir | dir <- PD.includeDirs  bi ]
+ ++ [ "--cflag="   ++ opt | opt <- PD.ccOptions    bi
+                                ++ PD.cppOptions   bi ]
+ ++ [ "--lflag="   ++ opt | opt <-    getLdOptions bi ]
+
+    -- Options from dependent packages
+ ++ [ "--cflag=" ++ opt
+    | pkg <- pkgs
+    , opt <- [ "-I" ++ opt | opt <- Installed.includeDirs pkg ]
+          ++ [         opt | opt <- Installed.ccOptions   pkg ] ]
+ ++ [ "--lflag=" ++ opt
+    | pkg <- pkgs
+    , opt <- [ "-L" ++ opt | opt <- Installed.libraryDirs    pkg ]
+          ++ [ "-l" ++ opt | opt <- Installed.extraLibraries pkg ]
+          ++ [         opt | opt <- Installed.ldOptions      pkg ] ]
+  where
+    pkgs = PackageIndex.topologicalOrder (packageHacks (installedPkgs lbi))
+    Just gccProg = lookupProgram  gccProgram (withPrograms lbi)
+    isOSX = case buildOS of OSX -> True; _ -> False
+    packageHacks = case compilerFlavor (compiler lbi) of
+      GHC -> hackRtsPackage
+      _   -> id
+    -- We don't link in the actual Haskell libraries of our dependencies, so
+    -- the -u flags in the ldOptions of the rts package mean linking fails on
+    -- OS X (it's ld is a tad stricter than gnu ld). Thus we remove the
+    -- ldOptions for GHC's rts package:
+    hackRtsPackage index =
+      case PackageIndex.lookupPackageName index (PackageName "rts") of
+        [rts] -> PackageIndex.insert rts { Installed.ldOptions = [] } index
+        _ -> error "No (or multiple) ghc rts package is registered!!"
 
 getLdOptions :: BuildInfo -> [String]
 getLdOptions bi = map ("-L" ++) (extraLibDirs bi)
                ++ map ("-l" ++) (extraLibs bi)
-               ++ ldOptions bi
+               ++ PD.ldOptions bi
 
 ppC2hs :: BuildInfo -> LocalBuildInfo -> PreProcessor
 ppC2hs bi lbi
@@ -380,8 +426,8 @@ ppC2hs bi lbi
 getCppOptions :: BuildInfo -> LocalBuildInfo -> [String]
 getCppOptions bi lbi
     = hcDefines (compiler lbi)
-   ++ ["-I" ++ dir | dir <- includeDirs bi]
-   ++ [opt | opt@('-':c:_) <- ccOptions bi, c `elem` "DIU"]
+   ++ ["-I" ++ dir | dir <- PD.includeDirs bi]
+   ++ [opt | opt@('-':c:_) <- PD.ccOptions bi, c `elem` "DIU"]
 
 hcDefines :: Compiler -> [String]
 hcDefines comp =
@@ -400,29 +446,49 @@ versionInt :: Version -> String
 versionInt (Version { versionBranch = [] }) = "1"
 versionInt (Version { versionBranch = [n] }) = show n
 versionInt (Version { versionBranch = n1:n2:_ })
-  = show n1 ++ take 2 ('0' : show n2)
+  = -- 6.8.x -> 608
+    -- 6.10.x -> 610
+    let s1 = show n1
+        s2 = show n2
+        middle = case s2 of
+                 _ : _ : _ -> ""
+                 _         -> "0"
+    in s1 ++ middle ++ s2
 
 ppHappy :: BuildInfo -> LocalBuildInfo -> PreProcessor
 ppHappy _ lbi = pp { platformIndependent = True }
   where pp = standardPP lbi happyProgram (hcFlags hc)
         hc = compilerFlavor (compiler lbi)
-	hcFlags GHC = ["-agc"]
-	hcFlags _ = []
+        hcFlags GHC = ["-agc"]
+        hcFlags _ = []
 
 ppAlex :: BuildInfo -> LocalBuildInfo -> PreProcessor
 ppAlex _ lbi = pp { platformIndependent = True }
   where pp = standardPP lbi alexProgram (hcFlags hc)
         hc = compilerFlavor (compiler lbi)
-	hcFlags GHC = ["-g"]
-	hcFlags _ = []
+        hcFlags GHC = ["-g"]
+        hcFlags _ = []
 
 standardPP :: LocalBuildInfo -> Program -> [String] -> PreProcessor
 standardPP lbi prog args =
   PreProcessor {
     platformIndependent = False,
     runPreProcessor = mkSimplePreProcessor $ \inFile outFile verbosity ->
-      rawSystemProgramConf verbosity prog (withPrograms lbi)
-        (args ++ ["-o", outFile, inFile])
+      do rawSystemProgramConf verbosity prog (withPrograms lbi)
+                              (args ++ ["-o", outFile, inFile])
+         -- XXX This is a nasty hack. GHC requires that hs-boot files
+         -- be in the same place as the hs files, so if we put the hs
+         -- file in dist/... then we need to copy the hs-boot file
+         -- there too. This should probably be done another way, e.g.
+         -- by preprocessing all files, with and "id" preprocessor if
+         -- nothing else, so the hs-boot files automatically get copied
+         -- into the right place.
+         -- Possibly we should also be looking for .lhs-boot files, but
+         -- I think that preprocessors only produce .hs files.
+         let inBoot  = replaceExtension inFile  "hs-boot"
+             outBoot = replaceExtension outFile "hs-boot"
+         exists <- doesFileExist inBoot
+         when exists $ copyFileVerbose verbosity inBoot outBoot
   }
 
 -- |Convenience function; get the suffixes of these preprocessors.

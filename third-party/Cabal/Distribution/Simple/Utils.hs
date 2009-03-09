@@ -9,13 +9,15 @@
 -- Module      :  Distribution.Simple.Utils
 -- Copyright   :  Isaac Jones, Simon Marlow 2003-2004
 --                portions Copyright (c) 2007, Galois Inc.
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Explanation: Misc. Utilities, especially file-related utilities.
--- Stuff used by multiple modules that doesn't fit elsewhere.
+-- A large and somewhat miscellaneous collection of utility functions used
+-- throughout the rest of the Cabal lib and in other tools that use the Cabal
+-- lib like @cabal-install@. It has a very simple set of logging actions. It
+-- has low level functions for running programs, a bunch of wrappers for
+-- various directory and file functions that do extra logging.
 
 {- All rights reserved.
 
@@ -56,15 +58,13 @@ module Distribution.Simple.Utils (
         dieWithLocation,
         warn, notice, setupMessage, info, debug,
         chattyTry,
-        breaks,
 
         -- * running programs
         rawSystemExit,
         rawSystemStdout,
-	rawSystemStdout',
+        rawSystemStdout',
         maybeExit,
         xargs,
-        inDir,
 
         -- * copying files
         smartCopySources,
@@ -75,12 +75,15 @@ module Distribution.Simple.Utils (
 
         -- * file names
         currentDir,
-        dotToSep,
 
         -- * finding files
-	findFile,
+        findFile,
         findFileWithExtension,
         findFileWithExtension',
+
+        -- * simple file globbing
+        matchFileGlob,
+        matchDirFileGlob,
 
         -- * temp files and dirs
         withTempFile,
@@ -89,12 +92,13 @@ module Distribution.Simple.Utils (
         -- * .cabal and .buildinfo files
         defaultPackageDesc,
         findPackageDesc,
-	defaultHookedPackageDesc,
-	findHookedPackageDesc,
+        defaultHookedPackageDesc,
+        findHookedPackageDesc,
 
         -- * reading and writing files safely
         withFileContents,
         writeFileAtomic,
+        rewriteFile,
 
         -- * Unicode
         fromUTF8,
@@ -123,8 +127,8 @@ import Data.Bits
     ( Bits((.|.), (.&.), shiftL, shiftR) )
 
 import System.Directory
-    ( getDirectoryContents, getCurrentDirectory, setCurrentDirectory, doesDirectoryExist
-    , doesFileExist, removeFile )
+    ( getDirectoryContents, doesDirectoryExist, doesFileExist, removeFile
+    , copyFile )
 import System.Environment
     ( getProgName )
 import System.Cmd
@@ -132,35 +136,44 @@ import System.Cmd
 import System.Exit
     ( exitWith, ExitCode(..) )
 import System.FilePath
-    ( takeDirectory, splitFileName, splitExtension, normalise
-    , (</>), (<.>), pathSeparator )
+    ( normalise, (</>), (<.>), takeDirectory, splitFileName
+    , splitExtension, splitExtensions )
 import System.Directory
-    ( copyFile, createDirectoryIfMissing, renameFile, removeDirectoryRecursive )
+    ( createDirectoryIfMissing, renameFile, removeDirectoryRecursive )
 import System.IO
     ( Handle, openFile, openBinaryFile, IOMode(ReadMode), hSetBinaryMode
     , hGetContents, stderr, stdout, hPutStr, hFlush, hClose )
 import System.IO.Error as IO.Error
-    ( try )
+    ( try, isDoesNotExistError )
 import qualified Control.Exception as Exception
-    ( bracket, bracket_, catch, handle, finally, throwIO )
 
 import Distribution.Text
     ( display )
 import Distribution.Package
     ( PackageIdentifier )
+import Distribution.ModuleName (ModuleName)
+import qualified Distribution.ModuleName as ModuleName
 import Distribution.Version
     (Version(..))
 
+import Control.Exception (evaluate)
+
 #ifdef __GLASGOW_HASKELL__
 import Control.Concurrent (forkIO)
-import Control.Exception (evaluate)
 import System.Process (runInteractiveProcess, waitForProcess)
 #else
 import System.Cmd (system)
 import System.Directory (getTemporaryDirectory)
 #endif
 
-import Distribution.Compat.TempFile (openTempFile, openBinaryTempFile)
+import Distribution.Compat.CopyFile
+         ( copyOrdinaryFile )
+import Distribution.Compat.TempFile (openTempFile,
+                                     openNewBinaryFile)
+import Distribution.Compat.Exception (catchIO, onException)
+#if mingw32_HOST_OS || mingw32_TARGET_OS
+import Distribution.Compat.Exception (throwIOIO)
+#endif
 import Distribution.Verbosity
 
 -- We only get our own version number when we're building with ourselves
@@ -198,7 +211,7 @@ die msg = do
 -- We display these at the 'normal' verbosity level.
 --
 warn :: Verbosity -> String -> IO ()
-warn verbosity msg = 
+warn verbosity msg =
   when (verbosity >= normal) $ do
     hFlush stdout
     hPutStr stderr (wrapText ("Warning: " ++ msg))
@@ -220,7 +233,7 @@ setupMessage verbosity msg pkgid =
     notice verbosity (msg ++ ' ': display pkgid ++ "...")
 
 -- | More detail on the operation of some action.
--- 
+--
 -- We display these messages when the verbosity level is 'verbose'
 --
 info :: Verbosity -> String -> IO ()
@@ -234,8 +247,9 @@ info verbosity msg =
 --
 debug :: Verbosity -> String -> IO ()
 debug verbosity msg =
-  when (verbosity >= deafening) $
+  when (verbosity >= deafening) $ do
     putStr (wrapText msg)
+    hFlush stdout
 
 -- | Perform an IO action, catching any IO exceptions and printing an error
 --   if one occurs.
@@ -243,19 +257,11 @@ chattyTry :: String  -- ^ a description of the action we were attempting
           -> IO ()   -- ^ the action itself
           -> IO ()
 chattyTry desc action =
-  Exception.catch action $ \exception ->
+  catchIO action $ \exception ->
     putStrLn $ "Error while " ++ desc ++ ": " ++ show exception
 
 -- -----------------------------------------------------------------------------
 -- Helper functions
-
-breaks :: (a -> Bool) -> [a] -> [[a]]
-breaks _ [] = []
-breaks f xs = case span f xs of
-                  (_, xs') ->
-                      case break f xs' of
-                          (v, xs'') ->
-                              v : breaks f xs''
 
 -- | Wraps text to the default line width. Existing newlines are preserved.
 wrapText :: String -> String
@@ -332,7 +338,7 @@ rawSystemStdout' verbosity path args = do
       -- NB. do the hGetContents synchronously, otherwise the outer
       -- bracket can exit before this thread has run, and hGetContents
       -- will fail.
-      err <- hGetContents errh 
+      err <- hGetContents errh
       forkIO $ do evaluate (length err); return ()
 
       -- wait for all the output
@@ -364,7 +370,7 @@ rawSystemStdout' verbosity path args = do
 -- need to invoke a command multiple times to get all the args in.
 --
 -- Use it with either of the rawSystem variants above. For example:
--- 
+--
 -- > xargs (32*1024) (rawSystemExit verbosity) prog fixedArgs bigArgs
 --
 xargs :: Int -> ([String] -> IO ())
@@ -383,14 +389,6 @@ xargs maxSize rawSystemFun fixedArgs bigArgs =
           | len' < len = chunk (s:acc) (len-len'-1) ss
           | otherwise  = (reverse acc, s:ss)
           where len' = length s
-
--- | Executes the action in the specified directory.
-inDir :: Maybe FilePath -> IO () -> IO ()
-inDir Nothing m = m
-inDir (Just d) m = do
-  old <- getCurrentDirectory
-  setCurrentDirectory d
-  m `Exception.finally` setCurrentDirectory old
 
 -- ------------------------------------------------------------
 -- * File Utilities
@@ -433,11 +431,44 @@ findFirstFile file = findFirst
                                 then return (Just x)
                                 else findFirst xs
 
-dotToSep :: String -> String
-dotToSep = map dts
-  where
-    dts '.' = pathSeparator
-    dts c   = c
+data FileGlob
+   -- | No glob at all, just an ordinary file
+   = NoGlob FilePath
+
+   -- | dir prefix and extension, like @\"foo\/bar\/\*.baz\"@ corresponds to
+   --    @FileGlob \"foo\/bar\" \".baz\"@
+   | FileGlob FilePath String
+
+parseFileGlob :: FilePath -> Maybe FileGlob
+parseFileGlob filepath = case splitExtensions filepath of
+  (filepath', ext) -> case splitFileName filepath' of
+    (dir, "*") | '*' `elem` dir
+              || '*' `elem` ext
+              || null ext            -> Nothing
+               | null dir            -> Just (FileGlob "." ext)
+               | otherwise           -> Just (FileGlob dir ext)
+    _          | '*' `elem` filepath -> Nothing
+               | otherwise           -> Just (NoGlob filepath)
+
+matchFileGlob :: FilePath -> IO [FilePath]
+matchFileGlob = matchDirFileGlob "."
+
+matchDirFileGlob :: FilePath -> FilePath -> IO [FilePath]
+matchDirFileGlob dir filepath = case parseFileGlob filepath of
+  Nothing -> die $ "invalid file glob '" ++ filepath
+                ++ "'. Wildcards '*' are only allowed in place of the file"
+                ++ " name, not in the directory name or file extension."
+                ++ " If a wildcard is used it must be with an file extension."
+  Just (NoGlob filepath') -> return [filepath']
+  Just (FileGlob dir' ext) -> do
+    files <- getDirectoryContents (dir </> dir')
+    case   [ dir' </> file
+           | file <- files
+           , let (name, ext') = splitExtensions file
+           , not (null name) && ext' == ext ] of
+      []      -> die $ "filepath wildcard '" ++ filepath
+                    ++ "' does not match any files."
+      matches -> return matches
 
 -- |Copy the source files into the right directory.  Looks in the
 -- build prefix for files that look like the input modules, based on
@@ -447,16 +478,16 @@ dotToSep = map dts
 smartCopySources :: Verbosity -- ^verbosity
             -> [FilePath] -- ^build prefix (location of objects)
             -> FilePath -- ^Target directory
-            -> [String] -- ^Modules
+            -> [ModuleName] -- ^Modules
             -> [String] -- ^search suffixes
             -> IO ()
 smartCopySources verbosity srcDirs targetDir sources searchSuffixes
     = mapM moduleToFPErr sources >>= copyFiles verbosity targetDir
 
     where moduleToFPErr m
-              = findFileWithExtension' searchSuffixes srcDirs (dotToSep m)
+              = findFileWithExtension' searchSuffixes srcDirs (ModuleName.toFilePath m)
             >>= maybe notFound return
-            where notFound = die $ "Error: Could not find module: " ++ m
+            where notFound = die $ "Error: Could not find module: " ++ display m
                                 ++ " with any suffix: " ++ show searchSuffixes
 
 createDirectoryIfMissingVerbose :: Verbosity -> Bool -> FilePath -> IO ()
@@ -468,7 +499,7 @@ createDirectoryIfMissingVerbose verbosity parentsToo dir = do
 copyFileVerbose :: Verbosity -> FilePath -> FilePath -> IO ()
 copyFileVerbose verbosity src dest = do
   info verbosity ("copy " ++ src ++ " to " ++ dest)
-  copyFile src dest
+  copyOrdinaryFile src dest
 
 -- | Copies a bunch of files to a target directory, preserving the directory
 -- structure in the target location. The target directories are created if they
@@ -501,7 +532,8 @@ copyFiles verbosity targetDir srcFiles = do
   -- Copy all the files
   sequence_ [ let src  = srcBase   </> srcFile
                   dest = targetDir </> srcFile
-               in copyFileVerbose verbosity src dest
+               in info verbosity ("copy " ++ src ++ " to " ++ dest)
+               >> copyFile src dest
             | (srcBase, srcFile) <- srcFiles ]
 
 -- adaptation of removeDirectoryRecursive
@@ -582,16 +614,13 @@ withFileContents name action =
 --
 writeFileAtomic :: FilePath -> String -> IO ()
 writeFileAtomic targetFile content = do
-  (tmpFile, tmpHandle) <- openBinaryTempFile targetDir template
-  Exception.handle (\err -> do hClose tmpHandle
-                               removeFile tmpFile
-                               Exception.throwIO err) $ do
-      hPutStr tmpHandle content
+  (tmpFile, tmpHandle) <- openNewBinaryFile targetDir template
+  do  hPutStr tmpHandle content
       hClose tmpHandle
 #if mingw32_HOST_OS || mingw32_TARGET_OS
       renameFile tmpFile targetFile
         -- If the targetFile exists then renameFile will fail
-        `Exception.catch` \err -> do
+        `catchIO` \err -> do
           exists <- doesFileExist targetFile
           if exists
             then do removeFile targetFile
@@ -599,10 +628,12 @@ writeFileAtomic targetFile content = do
                     renameFile tmpFile targetFile
                     -- If the removeFile succeeds and the renameFile fails
                     -- then we've lost the atomic property.
-            else Exception.throwIO err
+            else throwIOIO err
 #else
       renameFile tmpFile targetFile
 #endif
+   `onException` do hClose tmpHandle
+                    removeFile tmpFile
   where
     template = targetName <.> "tmp"
     targetDir | null targetDir_ = currentDir
@@ -611,6 +642,20 @@ writeFileAtomic targetFile content = do
     --      to always return a valid dir
     (targetDir_,targetName) = splitFileName targetFile
 
+-- | Write a file but only if it would have new content. If we would be writing
+-- the same as the existing content then leave the file as is so that we do not
+-- update the file's modification time.
+--
+rewriteFile :: FilePath -> String -> IO ()
+rewriteFile path newContent =
+  flip catch mightNotExist $ do
+    existingContent <- readFile path
+    evaluate (length existingContent)
+    unless (existingContent == newContent) $
+      writeFileAtomic path newContent
+  where
+    mightNotExist e | isDoesNotExistError e = writeFileAtomic path newContent
+                    | otherwise             = ioError e
 
 -- | The path name that represents the current directory.
 -- In Unix, it's @\".\"@, but this is system-specific.
@@ -661,8 +706,8 @@ defaultHookedPackageDesc = findHookedPackageDesc currentDir
 -- |Find auxiliary package information in the given directory.
 -- Looks for @.buildinfo@ files.
 findHookedPackageDesc
-    :: FilePath			-- ^Directory to search
-    -> IO (Maybe FilePath)	-- ^/dir/@\/@/pkgname/@.buildinfo@, if present
+    :: FilePath                 -- ^Directory to search
+    -> IO (Maybe FilePath)      -- ^/dir/@\/@/pkgname/@.buildinfo@, if present
 findHookedPackageDesc dir = do
     files <- getDirectoryContents dir
     buildInfoFiles <- filterM doesFileExist
@@ -671,9 +716,9 @@ findHookedPackageDesc dir = do
                         , let (name, ext) = splitExtension file
                         , not (null name) && ext == buildInfoExt ]
     case buildInfoFiles of
-	[] -> return Nothing
-	[f] -> return (Just f)
-	_ -> die ("Multiple files with extension " ++ buildInfoExt)
+        [] -> return Nothing
+        [f] -> return (Just f)
+        _ -> die ("Multiple files with extension " ++ buildInfoExt)
 
 buildInfoExt  :: String
 buildInfoExt = ".buildinfo"

@@ -2,18 +2,19 @@
 -- |
 -- Module      :  Distribution.License
 -- Copyright   :  Isaac Jones 2003-2005
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
 -- The License datatype.  For more information about these and other
 -- open-source licenses, you may visit <http://www.opensource.org/>.
 --
--- I am not a lawyer, but as a general guideline, most Haskell
--- software seems to be released under a BSD3 license, which is very
--- open and free.  If you don't want to restrict the use of your
--- software or its source code, use BSD3 or PublicDomain.
+-- The @.cabal@ file allows you to specify a license file. Of course you can
+-- use any license you like but people often pick common open source licenses
+-- and it's useful if we can automatically recognise that (eg so we can display
+-- it on the hackage web pages). So you can also specify the license itself in
+-- the @.cabal@ file from a short enumeration defined in this module. It
+-- includes 'GPL', 'LGPL' and 'BSD3' licenses.
 
 {- All rights reserved.
 
@@ -46,7 +47,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -}
 
 module Distribution.License (
-	License(..)
+        License(..)
   ) where
 
 import Distribution.Version (Version)
@@ -115,7 +116,7 @@ instance Text License where
     name    <- Parse.munch1 Char.isAlphaNum
     version <- Parse.option Nothing (Parse.char '-' >> fmap Just parse)
     -- We parse an optional version but do not yet allow it on any known
-    -- license. However parsing the version will allow forwards compatability
+    -- license. However parsing the version will allow forwards compatibility
     -- for when we do introduce optional (L)GPL license versions.
     return $ case (name, version :: Maybe Version) of
       ("GPL",               Nothing) -> GPL

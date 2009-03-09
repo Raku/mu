@@ -8,12 +8,15 @@
 -- |
 -- Module      :  Distribution.Configuration
 -- Copyright   :  Thomas Schilling, 2007
--- 
--- Maintainer  :  Isaac Jones <ijones@syntaxpolice.org>
--- Stability   :  alpha
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
--- Configurations
+-- This is about the cabal configurations feature. It exports
+-- 'finalizePackageDescription' and 'flattenPackageDescription' which are
+-- functions for converting 'GenericPackageDescription's down to
+-- 'PackageDescription's. It has code for working with the tree of conditions
+-- and resolving or flattening conditions.
 
 {- All rights reserved.
 
@@ -48,9 +51,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -}
 module Distribution.PackageDescription.Configuration (
     finalizePackageDescription,
     flattenPackageDescription,
+
+    -- Utils
+    parseCondition,
+    freeVars,
   ) where
 
-import Distribution.Package (Package, Dependency(..))
+import Distribution.Package
+         ( PackageName, Package, Dependency(..) )
 import Distribution.PackageDescription
          ( GenericPackageDescription(..), PackageDescription(..)
          , Library(..), Executable(..), BuildInfo(..)
@@ -64,8 +72,14 @@ import Distribution.Compiler
          ( CompilerId(CompilerId) )
 import Distribution.System
          ( OS, Arch )
-import Distribution.Simple.Utils (currentDir)
+import Distribution.Simple.Utils (currentDir, lowercase)
 
+import Distribution.Text
+         ( Text(parse) )
+import Distribution.Compat.ReadP as ReadP hiding ( char )
+import qualified Distribution.Compat.ReadP as ReadP ( char )
+
+import Data.Char ( isAlphaNum )
 import Data.Maybe ( catMaybes, maybeToList )
 import Data.List  ( nub )
 import Data.Map ( Map, fromListWith, toList )
@@ -143,9 +157,34 @@ simplifyWithSysParams os arch (CompilerId comp compVer) cond = (cond', flags)
 --     hasLits _ = False
 --
 
+-- | Parse a configuration condition from a string.
+parseCondition :: ReadP r (Condition ConfVar)
+parseCondition = condOr
+  where
+    condOr   = sepBy1 condAnd (oper "||") >>= return . foldl1 COr
+    condAnd  = sepBy1 cond (oper "&&")>>= return . foldl1 CAnd
+    cond     = sp >> (boolLiteral +++ inparens condOr +++ notCond +++ osCond
+                      +++ archCond +++ flagCond +++ implCond )
+    inparens   = between (ReadP.char '(' >> sp) (sp >> ReadP.char ')' >> sp)
+    notCond  = ReadP.char '!' >> sp >> cond >>= return . CNot
+    osCond   = string "os" >> sp >> inparens osIdent >>= return . Var
+    archCond = string "arch" >> sp >> inparens archIdent >>= return . Var
+    flagCond = string "flag" >> sp >> inparens flagIdent >>= return . Var
+    implCond = string "impl" >> sp >> inparens implIdent >>= return . Var
+    boolLiteral   = fmap Lit  parse
+    archIdent     = fmap Arch parse
+    osIdent       = fmap OS   parse
+    flagIdent     = fmap (Flag . FlagName . lowercase) (munch1 isIdentChar)
+    isIdentChar c = isAlphaNum c || c == '_' || c == '-'
+    oper s        = sp >> string s >> sp
+    sp            = skipSpaces
+    implIdent     = do i <- parse
+                       vr <- sp >> option AnyVersion parse
+                       return $ Impl i vr
+
 ------------------------------------------------------------------------------
 
-mapCondTree :: (a -> b) -> (c -> d) -> (Condition v -> Condition w) 
+mapCondTree :: (a -> b) -> (c -> d) -> (Condition v -> Condition w)
             -> CondTree v c a -> CondTree w d b
 mapCondTree fa fc fcnd (CondNode a c ifs) =
     CondNode (fa a) (fc c) (map g ifs)
@@ -164,7 +203,7 @@ mapTreeData f = mapCondTree f id id
 
 -- | Result of dependency test. Isomorphic to @Maybe d@ but renamed for
 --   clarity.
-data DepTestRslt d = DepOk | MissingDeps d 
+data DepTestRslt d = DepOk | MissingDeps d
 
 instance Monoid d => Monoid (DepTestRslt d) where
     mempty = DepOk
@@ -195,7 +234,7 @@ data BT a = BTN a | BTB (BT a) (BT a)  -- very simple binary tree
 --
 -- This would require some sort of SAT solving, though, thus it's not
 -- implemented unless we really need it.
---   
+--
 resolveWithFlags :: Monoid a =>
      [(FlagName,[Bool])]
         -- ^ Domain for each flag name, will be tested in order.
@@ -203,7 +242,7 @@ resolveWithFlags :: Monoid a =>
   -> Arch    -- ^ Arch as returned by Distribution.System.buildArch
   -> CompilerId -- ^ Compiler flavour + version
   -> [Dependency]  -- ^ Additional constraints
-  -> [CondTree ConfVar [Dependency] a]    
+  -> [CondTree ConfVar [Dependency] a]
   -> ([Dependency] -> DepTestRslt [Dependency])  -- ^ Dependency test function.
   -> Either [Dependency] -- missing dependencies
        ([a], [Dependency], FlagAssignment)
@@ -212,9 +251,9 @@ resolveWithFlags dom os arch impl constrs trees checkDeps =
     case try dom [] of
       Right r -> Right r
       Left dbt -> Left $ findShortest dbt
-  where 
+  where
     extraConstrs = toDepMap constrs
- 
+
     -- simplify trees by (partially) evaluating all conditions and converting
     -- dependencies to dependency maps.
     simplifiedTrees = map ( mapTreeConstrs toDepMap  -- convert to maps
@@ -238,16 +277,16 @@ resolveWithFlags dom os arch impl constrs trees checkDeps =
     -- either succeeds or returns a binary tree with the missing dependencies
     -- encountered in each run.  Since the tree is constructed lazily, we
     -- avoid some computation overhead in the successful case.
-    try [] flags = 
-        let (depss, as) = unzip 
-                         . map (simplifyCondTree (env flags)) 
+    try [] flags =
+        let (depss, as) = unzip
+                         . map (simplifyCondTree (env flags))
                          $ simplifiedTrees
             deps = fromDepMap $ leftJoin (mconcat depss)
                                          extraConstrs
         in case (checkDeps deps, deps) of
              (DepOk, ds) -> Right (as, ds, flags)
              (MissingDeps mds, _) -> Left (BTN mds)
-    try ((n, vals):rest) flags = 
+    try ((n, vals):rest) flags =
         tryAll $ map (\v -> try rest ((n, v):flags)) vals
 
     tryAll = foldr mp mz
@@ -265,7 +304,7 @@ resolveWithFlags dom os arch impl constrs trees checkDeps =
     -- for the error case we inspect our lazy tree of missing dependencies and
     -- pick the shortest list of missing dependencies
     findShortest (BTN x) = x
-    findShortest (BTB lt rt) = 
+    findShortest (BTB lt rt) =
         let l = findShortest lt
             r = findShortest rt
         in case (l,r) of
@@ -274,7 +313,7 @@ resolveWithFlags dom os arch impl constrs trees checkDeps =
              ([x], _) -> [x] -- single elem is optimum
              (_, [x]) -> [x]
              (xs, ys) -> if lazyLengthCmp xs ys
-                         then xs else ys 
+                         then xs else ys
     -- lazy variant of @\xs ys -> length xs <= length ys@
     lazyLengthCmp [] _ = True
     lazyLengthCmp _ [] = False
@@ -282,7 +321,7 @@ resolveWithFlags dom os arch impl constrs trees checkDeps =
 
 -- | A map of dependencies.  Newtyped since the default monoid instance is not
 --   appropriate.  The monoid instance uses 'IntersectVersionRanges'.
-newtype DependencyMap = DependencyMap { unDependencyMap :: Map String VersionRange }
+newtype DependencyMap = DependencyMap { unDependencyMap :: Map PackageName VersionRange }
 #if !defined(__GLASGOW_HASKELL__) || (__GLASGOW_HASKELL__ >= 606)
   deriving (Show, Read)
 #else
@@ -314,36 +353,48 @@ instance Read DependencyMap where
 
 instance Monoid DependencyMap where
     mempty = DependencyMap M.empty
-    (DependencyMap a) `mappend` (DependencyMap b) = 
+    (DependencyMap a) `mappend` (DependencyMap b) =
         DependencyMap (M.unionWith IntersectVersionRanges a b)
 
 toDepMap :: [Dependency] -> DependencyMap
-toDepMap ds = 
+toDepMap ds =
   DependencyMap $ fromListWith IntersectVersionRanges [ (p,vr) | Dependency p vr <- ds ]
 
 fromDepMap :: DependencyMap -> [Dependency]
 fromDepMap m = [ Dependency p vr | (p,vr) <- toList (unDependencyMap m) ]
 
 simplifyCondTree :: (Monoid a, Monoid d) =>
-                    (v -> Either v Bool) 
-                 -> CondTree v d a 
+                    (v -> Either v Bool)
+                 -> CondTree v d a
                  -> (d, a)
 simplifyCondTree env (CondNode a d ifs) =
     foldr mappend (d, a) $ catMaybes $ map simplifyIf ifs
   where
-    simplifyIf (cnd, t, me) = 
+    simplifyIf (cnd, t, me) =
         case simplifyCondition cnd env of
           (Lit True, _) -> Just $ simplifyCondTree env t
           (Lit False, _) -> fmap (simplifyCondTree env) me
-          _ -> error $ "Environment not defined for all free vars" 
+          _ -> error $ "Environment not defined for all free vars"
 
 -- | Flatten a CondTree.  This will resolve the CondTree by taking all
 --  possible paths into account.  Note that since branches represent exclusive
 --  choices this may not result in a \"sane\" result.
 ignoreConditions :: (Monoid a, Monoid c) => CondTree v c a -> (a, c)
 ignoreConditions (CondNode a c ifs) = (a, c) `mappend` mconcat (concatMap f ifs)
-  where f (_, t, me) = ignoreConditions t 
+  where f (_, t, me) = ignoreConditions t
                        : maybeToList (fmap ignoreConditions me)
+
+freeVars :: CondTree ConfVar c a  -> [FlagName]
+freeVars t = [ f | Flag f <- freeVars' t ]
+  where
+    freeVars' (CondNode _ _ ifs) = concatMap compfv ifs
+    compfv (c, ct, mct) = condfv c ++ freeVars' ct ++ maybe [] freeVars' mct
+    condfv c = case c of
+      Var v      -> [v]
+      Lit _      -> []
+      CNot c'    -> condfv c'
+      COr c1 c2  -> condfv c1 ++ condfv c2
+      CAnd c1 c2 -> condfv c1 ++ condfv c2
 
 ------------------------------------------------------------------------------
 -- Convert GenericPackageDescription to PackageDescription
@@ -379,7 +430,7 @@ instance Monoid PDTagged where
 -- explicitly specified flags.)  In case of failure it will return a /minimum/
 -- number of dependencies that could not be satisfied.  On success, it will
 -- return the package description and the full flag assignment chosen.
--- 
+--
 finalizePackageDescription ::
      Package pkg
   => FlagAssignment  -- ^ Explicitly specified flag assignments
@@ -392,8 +443,8 @@ finalizePackageDescription ::
   -> GenericPackageDescription
   -> Either [Dependency]
             (PackageDescription, FlagAssignment)
-	     -- ^ Either missing dependencies or the resolved package
-	     -- description along with the flag assignments chosen.
+             -- ^ Either missing dependencies or the resolved package
+             -- description along with the flag assignments chosen.
 finalizePackageDescription userflags mpkgs os arch impl constraints
         (GenericPackageDescription pkg flags mlib0 exes0) =
     case resolveFlags of
@@ -427,8 +478,12 @@ finalizePackageDescription userflags mpkgs os arch impl constraints
                      ds, fs)
           Left missing      -> Left missing
 
-    flagChoices  = map (\(MkFlag n _ d) -> (n, d2c n d)) flags
-    d2c n b      = maybe [b, not b] (\x -> [x]) $ lookup n userflags
+    flagChoices    = map (\(MkFlag n _ d manual) -> (n, d2c manual n d)) flags
+    d2c manual n b = case lookup n userflags of
+                     Just val -> [val]
+                     Nothing
+                      | manual -> [b]
+                      | otherwise -> [b, not b]
     --flagDefaults = map (\(n,x:_) -> (n,x)) flagChoices
     check ds     = if all satisfyDep ds
                    then DepOk

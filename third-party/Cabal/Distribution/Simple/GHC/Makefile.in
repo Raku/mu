@@ -1,24 +1,12 @@
 # -----------------------------------------------------------------------------
 # Makefile template starts here.
 
+default: all
+
 GHC_OPTS += -i$(odir)
 
 # For adding options on the command-line
 GHC_OPTS += $(EXTRA_HC_OPTS)
-
-WAY_p_OPTS = -prof
-WAY_dyn_OPTS = -fPIC -dynamic
-WAY_dyn_CC_OPTS = -fPIC
-
-ifneq "$(way)" ""
-way_ := $(way)_
-_way := _$(way)
-GHC_OPTS += $(WAY_$(way)_OPTS)
-GHC_OPTS += -hisuf $(way_)hi -hcsuf $(way_)hc -osuf $(osuf)
-GHC_CC_OPTS += $(WAY_$(way)_CC_OPTS)
-endif
-osuf  = $(way_)o
-hisuf = $(way_)hi
 
 HS_OBJS = $(patsubst %,$(odir)/%.$(osuf),$(subst .,/,$(modules)))
 HS_IFS  = $(patsubst %,$(odir)/%.$(hisuf),$(subst .,/,$(modules)))
@@ -38,13 +26,17 @@ RM = rm -f
 # Rules follow:
 
 MKSTUBOBJS = find $(odir) -name "*_stub.$(osuf)" -print
-# HACK ^^^ we tried to use $(wildcard), but apparently it fails due to 
+# HACK ^^^ we tried to use $(wildcard), but apparently it fails due to
 # make using cached directory contents, or something.
 
+# We have to jump through some hoops if we don't want the vanilla way,
+# as it's handled specially
+ifneq "$(way) $(VANILLA_WAY)" " NO"
 all :: $(odir)/.depend $(LIB)
+endif
 
 $(odir)/.depend : $(MAKEFILE)
-	$(GHC) -M -optdep-f -optdep$(odir)/.depend $(foreach way,$(WAYS),-optdep-s -optdep$(way)) $(foreach obj,$(MKDEPENDHS_OBJ_SUFFICES),-osuf $(obj)) $(filter-out -split-objs, $(GHC_OPTS)) $(modules)
+	$(GHC) -M $(GENERATE_DOT_DEPEND) $(foreach way,$(WAYS),-optdep-s -optdep$(way)) $(foreach obj,$(MKDEPENDHS_OBJ_SUFFICES),-osuf $(obj)) $(filter-out -split-objs, $(GHC_OPTS)) $(modules)
 	for dir in $(sort $(foreach mod,$(HS_OBJS) $(C_OBJS),$(dir $(mod)))); do \
 		if test ! -d $$dir; then mkdir -p $$dir; fi \
 	done
@@ -54,12 +46,12 @@ include $(odir)/.depend
 ifeq "$(way:%dyn=YES)" "YES"
 $(LIB) : $(HS_OBJS) $(C_OBJS)
 	@$(RM) $@
-	$(GHC) -shared -dynamic -o $@ $(C_OBJS) $(HS_OBJS) `$(MKSTUBOBJS)` $(LIB_LD_OPTS)
+	$(GHC) -shared -dynamic -no-auto-link-packages -o $@ $(C_OBJS) $(HS_OBJS) `$(MKSTUBOBJS)` $(LIB_LD_OPTS)
 else
 ifneq "$(filter -split-objs, $(GHC_OPTS))" ""
 $(LIB) : $(HS_OBJS) $(C_OBJS)
 	@$(RM) $@
-	(echo $(C_OBJS) `$(MKSTUBOBJS)`; find $(patsubst %.$(osuf),%_split,$(HS_OBJS)) -name '*.$(way_)o' -print) | xargs $(AR) q $(EXTRA_AR_ARGS) $@ 
+	(echo $(C_OBJS) `$(MKSTUBOBJS)`; find $(patsubst %.$(osuf),%_split,$(HS_OBJS)) -name '*.$(way_)o' -print) | xargs $(AR) q $(EXTRA_AR_ARGS) $@
 else
 $(LIB) : $(HS_OBJS) $(C_OBJS)
 	@$(RM) $@
@@ -79,18 +71,6 @@ endif
 
 # suffix rules
 
-ifneq "$(odir)" ""
-odir_ = $(odir)/
-else
-odir_ =
-endif
-
-$(odir_)%.$(osuf) : $(srcdir)/%.hs
-	$(GHC) $(GHC_OPTS) -c $< -o $@  -ohi $(basename $@).$(hisuf)
-
-$(odir_)%.$(osuf) : $(srcdir)/%.lhs	 
-	$(GHC) $(GHC_OPTS) -c $< -o $@  -ohi $(basename $@).$(hisuf)
-
 # The .hs files might be in $(odir) if they were preprocessed
 $(odir_)%.$(osuf) : $(odir_)%.hs
 	$(GHC) $(GHC_OPTS) -c $< -o $@  -ohi $(basename $@).$(hisuf)
@@ -98,27 +78,13 @@ $(odir_)%.$(osuf) : $(odir_)%.hs
 $(odir_)%.$(osuf) : $(odir_)%.lhs
 	$(GHC) $(GHC_OPTS) -c $< -o $@  -ohi $(basename $@).$(hisuf)
 
-$(odir_)%.$(osuf) : $(srcdir)/%.c
+$(odir_)%.$(osuf) : %.c
 	@$(RM) $@
 	$(GHC) $(GHC_CC_OPTS) -c $< -o $@
 
-$(odir_)%.$(osuf) : $(srcdir)/%.$(way_)s
-	@$(RM) $@
-	$(GHC) $(GHC_CC_OPTS) -c $< -o $@
-
-$(odir_)%.$(osuf) : $(srcdir)/%.S
-	@$(RM) $@
-	$(GHC) $(GHC_CC_OPTS) -c $< -o $@
-
-$(odir_)%.$(way_)s : $(srcdir)/%.c
+$(odir_)%.$(way_)s : %.c
 	@$(RM) $@
 	$(GHC) $(GHC_CC_OPTS) -S $< -o $@
-
-$(odir_)%.$(osuf)-boot : $(srcdir)/%.hs-boot
-	$(GHC) $(GHC_OPTS) -c $< -o $@ -ohi $(basename $@).$(way_)hi-boot
-
-$(odir_)%.$(osuf)-boot : $(srcdir)/%.lhs-boot
-	$(GHC) $(GHC_OPTS) -c $< -o $@ -ohi $(basename $@).$(way_)hi-boot
 
 %.$(hisuf) : %.$(osuf)
 	@if [ ! -f $@ ] ; then \

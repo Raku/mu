@@ -2,9 +2,8 @@
 -- |
 -- Module      :  Distribution.Simple.PreProcess.Unlit
 -- Copyright   :  ...
--- 
--- Maintainer  :  Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
--- Stability   :  Stable
+--
+-- Maintainer  :  cabal-devel@haskell.org
 -- Portability :  portable
 --
 -- Remove the \"literal\" markups from a Haskell source file, including
