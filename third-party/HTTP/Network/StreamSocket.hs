@@ -32,52 +32,58 @@ import Network.Socket
    , ShutdownCmd(ShutdownBoth), SocketOption(SoError)
    )
 
+import Network.HTTP.Base ( catchIO )
 import Control.Monad (liftM)
-import Control.Exception as Exception (Exception, catch, throw)
+import Control.Exception as Exception (IOException)
 import System.IO.Error (catch, isEOFError)
 
 -- | Exception handler for socket operations.
-handleSocketError :: Socket -> Exception -> IO (Result a)
+handleSocketError :: Socket -> IOException -> IO (Result a)
 handleSocketError sk e =
     do se <- getSocketOption sk SoError
        case se of
-          0     -> throw e
+          0     -> ioError e
           10054 -> return $ Left ErrorReset  -- reset
           _     -> return $ Left $ ErrorMisc $ show se
-
-instance Stream Socket where
-    readBlock sk n = (liftM Right $ fn n) `Exception.catch` (handleSocketError sk)
-        where
-            fn x = do { str <- myrecv sk x
-                      ; let len = length str
-                      ; if len < x
-                          then ( fn (x-len) >>= \more -> return (str++more) )                        
-                          else return str
-                      }
-
-    -- Use of the following function is discouraged.
-    -- The function reads in one character at a time, 
-    -- which causes many calls to the kernel recv()
-    -- hence causes many context switches.
-    readLine sk = (liftM Right $ fn "") `Exception.catch` (handleSocketError sk)
-            where
-                fn str =
-                    do { c <- myrecv sk 1 -- like eating through a straw.
-                       ; if null c || c == "\n"
-                           then return (reverse str++c)
-                           else fn (head c:str)
-                       }
-    
-    writeBlock sk str = (liftM Right $ fn str) `Exception.catch` (handleSocketError sk)
-        where
-            fn [] = return ()
-            fn x  = send sk x >>= \i -> fn (drop i x)
-
-    -- This slams closed the connection (which is considered rude for TCP\/IP)
-    close sk = shutdown sk ShutdownBoth >> sClose sk
 
 myrecv :: Socket -> Int -> IO String
 myrecv sock len =
     let handler e = if isEOFError e then return [] else ioError e
         in System.IO.Error.catch (recv sock len) handler
+
+instance Stream Socket where
+    readBlock sk n    = readBlockSocket sk n
+    readLine sk       = readLineSocket sk
+    writeBlock sk str = writeBlockSocket sk str
+    close sk          = shutdown sk ShutdownBoth >> sClose sk
+      -- This slams closed the connection (which is considered rude for TCP\/IP)
+
+readBlockSocket :: Socket -> Int -> IO (Result String)
+readBlockSocket sk n = (liftM Right $ fn n) `catchIO` (handleSocketError sk)
+  where
+   fn x = do { str <- myrecv sk x
+             ; let len = length str
+             ; if len < x
+                then ( fn (x-len) >>= \more -> return (str++more) )
+                else return str
+             }
+
+-- Use of the following function is discouraged.
+-- The function reads in one character at a time, 
+-- which causes many calls to the kernel recv()
+-- hence causes many context switches.
+readLineSocket :: Socket -> IO (Result String)
+readLineSocket sk = (liftM Right $ fn "") `catchIO` (handleSocketError sk)
+  where
+   fn str = do
+     c <- myrecv sk 1 -- like eating through a straw.
+     if null c || c == "\n"
+      then return (reverse str++c)
+      else fn (head c:str)
+    
+writeBlockSocket :: Socket -> String -> IO (Result ())
+writeBlockSocket sk str = (liftM Right $ fn str) `catchIO` (handleSocketError sk)
+  where
+   fn [] = return ()
+   fn x  = send sk x >>= \i -> fn (drop i x)
 

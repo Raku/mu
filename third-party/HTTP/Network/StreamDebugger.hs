@@ -18,12 +18,14 @@
 module Network.StreamDebugger
    ( StreamDebugger
    , debugStream
+   , debugByteStream
    ) where
 
 import Network.Stream (Stream(..))
 import System.IO
    ( Handle, hFlush, hPutStrLn, IOMode(AppendMode), hClose, openFile
    )
+import Network.TCP ( HandleStream, StreamHooks(..), HStream, setStreamHooks )
 
 -- | Allows stream logging.  Refer to 'debugStream' below.
 data StreamDebugger x
@@ -57,3 +59,26 @@ debugStream file stream =
        hPutStrLn h ("File \"" ++ file ++ "\" opened for appending.")
        return (Dbg h stream)
 
+debugByteStream :: HStream ty => FilePath -> HandleStream ty -> IO (HandleStream ty)
+debugByteStream file stream = 
+    do h <- openFile file AppendMode
+       hPutStrLn h ("File \"" ++ file ++ "\" opened for appending.")
+       setStreamHooks stream (debugStreamHooks h)
+       return stream
+
+debugStreamHooks :: HStream ty => Handle -> StreamHooks ty
+debugStreamHooks h = 
+  StreamHooks
+    { hook_readBlock = \ toStr n val -> do
+       let eval = case val of { Left e -> Left e ; Right v -> Right $ toStr v}
+       hPutStrLn h ("readBlock " ++ show n ++ ' ' : show eval)
+    , hook_readLine = \ toStr val -> do
+	   let eval = case val of { Left e -> Left e ; Right v -> Right $ toStr v}
+           hPutStrLn h ("readLine " ++ show eval)
+    , hook_writeBlock = \ toStr str val -> do
+           hPutStrLn h ("writeBlock " ++ show val ++ ' ' : toStr str)
+    , hook_close = do
+           hPutStrLn h "closing..."
+           hFlush h
+           hClose h
+    }

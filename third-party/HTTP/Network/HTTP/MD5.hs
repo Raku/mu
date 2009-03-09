@@ -21,7 +21,6 @@ module Network.HTTP.MD5
    , Octet
    ) where
 
-import Data.Char (chr)
 import Data.List (unfoldr)
 import Data.Word (Word8)
 import Numeric (readHex)
@@ -36,8 +35,9 @@ type Octet = Word8
 
 hash :: [Octet] -> [Octet]
 hash xs = 
-   unfoldr f $ md5s $ Str $ map (chr . fromIntegral) xs
+   unfoldr f $ md5s $ Str $ map (toEnum . fromIntegral) xs
       where f :: String -> Maybe (Octet,String)
             f []       = Nothing
-            f (x:y:zs) = Just (fromIntegral a,zs)
+	    f [x]      = f ['0',x]
+            f (x:y:zs) = Just (a,zs)
                          where [(a,_)] = readHex (x:y:[])

@@ -47,6 +47,7 @@ module Network.HTTP.Headers
    ( HasHeaders(..)
    , Header(..)
    , HeaderName(..)
+
    , insertHeader
    , insertHeaderIfMissing
    , insertHeaders
@@ -55,33 +56,18 @@ module Network.HTTP.Headers
    , findHeader
    , lookupHeader
    , parseHeaders
+
    ) where
 
-import Data.Char (isSpace, toLower)
-import Data.List (elemIndex)
-import Network.Stream (Result, ConnError(ErrorParse))
+import Data.Char (toLower)
+import Network.Stream (Result, failParse)
+import Network.HTTP.Utils ( trim, split, crlf )
 
--- remove leading and trailing whitespace.
-trim :: String -> String
-trim = let dropspace = dropWhile isSpace in
-       reverse . dropspace . reverse . dropspace
-
--- Split a list into two parts, the delimiter occurs
--- at the head of the second list.  Nothing is returned
--- when no occurance of the delimiter is found.
-split :: Eq a => a -> [a] -> Maybe ([a],[a])
-split delim list = case delim `elemIndex` list of
-    Nothing -> Nothing
-    Just x  -> Just $ splitAt x list
-
-crlf :: String
-crlf = "\r\n"
-
--- | The Header data type pairs header names & values.
+-- | The @Header@ data type pairs header names & values.
 data Header = Header HeaderName String
 
 instance Show Header where
-    show (Header key value) = show key ++ ": " ++ value ++ crlf
+    show (Header key value) = shows key (':':' ':value ++ crlf)
 
 -- | HTTP Header Name type:
 --  Why include this at all?  I have some reasons
@@ -93,123 +79,122 @@ instance Show Header where
 --   1) makes customising header names laborious
 --   2) increases code volume.
 --
-data HeaderName = 
-                 -- Generic Headers --
-                  HdrCacheControl
-                | HdrConnection
-                | HdrDate
-                | HdrPragma
-                | HdrTransferEncoding        
-                | HdrUpgrade                
-                | HdrVia
-
-                -- Request Headers --
-                | HdrAccept
-                | HdrAcceptCharset
-                | HdrAcceptEncoding
-                | HdrAcceptLanguage
-                | HdrAuthorization
-                | HdrCookie
-                | HdrExpect
-                | HdrFrom
-                | HdrHost
-                | HdrIfModifiedSince
-                | HdrIfMatch
-                | HdrIfNoneMatch
-                | HdrIfRange
-                | HdrIfUnmodifiedSince
-                | HdrMaxForwards
-                | HdrProxyAuthorization
-                | HdrRange
-                | HdrReferer
-                | HdrUserAgent
-
-                -- Response Headers
-                | HdrAge
-                | HdrLocation
-                | HdrProxyAuthenticate
-                | HdrPublic
-                | HdrRetryAfter
-                | HdrServer
-                | HdrSetCookie
-                | HdrVary
-                | HdrWarning
-                | HdrWWWAuthenticate
-
-                -- Entity Headers
-                | HdrAllow
-                | HdrContentBase
-                | HdrContentEncoding
-                | HdrContentLanguage
-                | HdrContentLength
-                | HdrContentLocation
-                | HdrContentMD5
-                | HdrContentRange
-                | HdrContentType
-                | HdrETag
-                | HdrExpires
-                | HdrLastModified
-
-                -- Mime entity headers (for sub-parts)
-                | HdrContentTransferEncoding
-
-                -- | Allows for unrecognised or experimental headers.
-                | HdrCustom String -- not in header map below.
+-- Long discussions can be had on this topic!
+-- 
+data HeaderName 
+    -- Generic Headers --
+ = HdrCacheControl
+ | HdrConnection
+ | HdrDate
+ | HdrPragma
+ | HdrTransferEncoding        
+ | HdrUpgrade                
+ | HdrVia
+    -- Request Headers --
+ | HdrAccept
+ | HdrAcceptCharset
+ | HdrAcceptEncoding
+ | HdrAcceptLanguage
+ | HdrAuthorization
+ | HdrCookie
+ | HdrExpect
+ | HdrFrom
+ | HdrHost
+ | HdrIfModifiedSince
+ | HdrIfMatch
+ | HdrIfNoneMatch
+ | HdrIfRange
+ | HdrIfUnmodifiedSince
+ | HdrMaxForwards
+ | HdrProxyAuthorization
+ | HdrRange
+ | HdrReferer
+ | HdrUserAgent
+    -- Response Headers
+ | HdrAge
+ | HdrLocation
+ | HdrProxyAuthenticate
+ | HdrPublic
+ | HdrRetryAfter
+ | HdrServer
+ | HdrSetCookie
+ | HdrVary
+ | HdrWarning
+ | HdrWWWAuthenticate
+    -- Entity Headers
+ | HdrAllow
+ | HdrContentBase
+ | HdrContentEncoding
+ | HdrContentLanguage
+ | HdrContentLength
+ | HdrContentLocation
+ | HdrContentMD5
+ | HdrContentRange
+ | HdrContentType
+ | HdrETag
+ | HdrExpires
+ | HdrLastModified
+    -- | MIME entity headers (for sub-parts)
+ | HdrContentTransferEncoding
+    -- | Allows for unrecognised or experimental headers.
+ | HdrCustom String -- not in header map below.
     deriving(Eq)
 
 -- Translation between header names and values,
 -- good candidate for improvement.
 headerMap :: [ (String,HeaderName) ]
-headerMap 
- = [  ("Cache-Control"        ,HdrCacheControl      )
-	, ("Connection"           ,HdrConnection        )
-	, ("Date"                 ,HdrDate              )    
-	, ("Pragma"               ,HdrPragma            )
-	, ("Transfer-Encoding"    ,HdrTransferEncoding  )        
-	, ("Upgrade"              ,HdrUpgrade           )                
-	, ("Via"                  ,HdrVia               )
-	, ("Accept"               ,HdrAccept            )
-	, ("Accept-Charset"       ,HdrAcceptCharset     )
-	, ("Accept-Encoding"      ,HdrAcceptEncoding    )
-	, ("Accept-Language"      ,HdrAcceptLanguage    )
-	, ("Authorization"        ,HdrAuthorization     )
-	, ("From"                 ,HdrFrom              )
-	, ("Host"                 ,HdrHost              )
-	, ("If-Modified-Since"    ,HdrIfModifiedSince   )
-	, ("If-Match"             ,HdrIfMatch           )
-	, ("If-None-Match"        ,HdrIfNoneMatch       )
-	, ("If-Range"             ,HdrIfRange           ) 
-	, ("If-Unmodified-Since"  ,HdrIfUnmodifiedSince )
-	, ("Max-Forwards"         ,HdrMaxForwards       )
-	, ("Proxy-Authorization"  ,HdrProxyAuthorization)
-	, ("Range"                ,HdrRange             )   
-	, ("Referer"              ,HdrReferer           )
-	, ("User-Agent"           ,HdrUserAgent         )
-	, ("Age"                  ,HdrAge               )
-	, ("Location"             ,HdrLocation          )
-	, ("Proxy-Authenticate"   ,HdrProxyAuthenticate )
-	, ("Public"               ,HdrPublic            )
-	, ("Retry-After"          ,HdrRetryAfter        )
-	, ("Server"               ,HdrServer            )
-	, ("Vary"                 ,HdrVary              )
-	, ("Warning"              ,HdrWarning           )
-	, ("WWW-Authenticate"     ,HdrWWWAuthenticate   )
-	, ("Allow"                ,HdrAllow             )
-	, ("Content-Base"         ,HdrContentBase       )
-	, ("Content-Encoding"     ,HdrContentEncoding   )
-	, ("Content-Language"     ,HdrContentLanguage   )
-	, ("Content-Length"       ,HdrContentLength     )
-	, ("Content-Location"     ,HdrContentLocation   )
-	, ("Content-MD5"          ,HdrContentMD5        )
-	, ("Content-Range"        ,HdrContentRange      )
-	, ("Content-Type"         ,HdrContentType       )
-	, ("ETag"                 ,HdrETag              )
-	, ("Expires"              ,HdrExpires           )
-	, ("Last-Modified"        ,HdrLastModified      )
-   	, ("Set-Cookie"           ,HdrSetCookie         )
-	, ("Cookie"               ,HdrCookie            )
-    , ("Expect"               ,HdrExpect            ) ]
-
+headerMap =
+   [ p "Cache-Control"        HdrCacheControl
+   , p "Connection"           HdrConnection
+   , p "Date"                 HdrDate
+   , p "Pragma"               HdrPragma
+   , p "Transfer-Encoding"    HdrTransferEncoding
+   , p "Upgrade"              HdrUpgrade
+   , p "Via"                  HdrVia
+   , p "Accept"               HdrAccept
+   , p "Accept-Charset"       HdrAcceptCharset
+   , p "Accept-Encoding"      HdrAcceptEncoding
+   , p "Accept-Language"      HdrAcceptLanguage
+   , p "Authorization"        HdrAuthorization
+   , p "From"                 HdrFrom
+   , p "Host"                 HdrHost
+   , p "If-Modified-Since"    HdrIfModifiedSince
+   , p "If-Match"             HdrIfMatch
+   , p "If-None-Match"        HdrIfNoneMatch
+   , p "If-Range"             HdrIfRange
+   , p "If-Unmodified-Since"  HdrIfUnmodifiedSince
+   , p "Max-Forwards"         HdrMaxForwards
+   , p "Proxy-Authorization"  HdrProxyAuthorization
+   , p "Range"                HdrRange
+   , p "Referer"              HdrReferer
+   , p "User-Agent"           HdrUserAgent
+   , p "Age"                  HdrAge
+   , p "Location"             HdrLocation
+   , p "Proxy-Authenticate"   HdrProxyAuthenticate
+   , p "Public"               HdrPublic
+   , p "Retry-After"          HdrRetryAfter
+   , p "Server"               HdrServer
+   , p "Vary"                 HdrVary
+   , p "Warning"              HdrWarning
+   , p "WWW-Authenticate"     HdrWWWAuthenticate
+   , p "Allow"                HdrAllow
+   , p "Content-Base"         HdrContentBase
+   , p "Content-Encoding"     HdrContentEncoding
+   , p "Content-Language"     HdrContentLanguage
+   , p "Content-Length"       HdrContentLength
+   , p "Content-Location"     HdrContentLocation
+   , p "Content-MD5"          HdrContentMD5
+   , p "Content-Range"        HdrContentRange
+   , p "Content-Type"         HdrContentType
+   , p "ETag"                 HdrETag
+   , p "Expires"              HdrExpires
+   , p "Last-Modified"        HdrLastModified
+   , p "Set-Cookie"           HdrSetCookie
+   , p "Cookie"               HdrCookie
+   , p "Expect"               HdrExpect
+   ]
+ where
+  p a b = (a,b)
 
 instance Show HeaderName where
     show (HdrCustom s) = s
@@ -227,7 +212,6 @@ class HasHeaders x where
 insertHeader, replaceHeader, insertHeaderIfMissing
     :: HasHeaders a => HeaderName -> String -> a -> a
 
-
 -- | Inserts a header with the given name and value.
 -- Allows duplicate header names.
 insertHeader name value x = setHeaders x newHeaders
@@ -244,9 +228,9 @@ insertHeaderIfMissing name value x = setHeaders x (newHeaders $ getHeaders x)
         newHeaders [] = [Header name value]
 
 -- | Removes old headers with duplicate name.
-replaceHeader name value x = setHeaders x newHeaders
+replaceHeader name value h = setHeaders h newHeaders
     where
-        newHeaders = Header name value : [ x | x@(Header n v) <- getHeaders x, name /= n ]
+        newHeaders = Header name value : [ x | x@(Header n _) <- getHeaders h, name /= n ]
           
 -- | Inserts multiple headers.
 insertHeaders :: HasHeaders a => [Header] -> a -> a
@@ -273,8 +257,8 @@ lookupHeader _ _  =  Nothing
 parseHeader :: String -> Result Header
 parseHeader str =
     case split ':' str of
-        Nothing -> Left (ErrorParse $ "Unable to parse header: " ++ str)
-        Just (k,v) -> Right $ Header (fn k) (trim $ drop 1 v)
+        Nothing -> failParse ("Unable to parse header: " ++ str)
+        Just (k,v) -> return $ Header (fn k) (trim $ drop 1 v)
     where
         fn k = case map snd $ filter (match k . fst) headerMap of
                  [] -> (HdrCustom k)
@@ -289,17 +273,19 @@ parseHeaders =
    where
         -- Joins consecutive lines where the second line
         -- begins with ' ' or '\t'.
+        joinExtended old      [] = [old]
         joinExtended old (h : t)
-            | not (null h) && (head h == ' ' || head h == '\t')
-                = joinExtended (old ++ ' ' : tail h) t
-            | otherwise = old : joinExtended h t
-        joinExtended old [] = [old]
+	  | isLineExtension h    = joinExtended (old ++ ' ' : tail h) t
+          | otherwise            = old : joinExtended h t
+	
+	isLineExtension (x:_) = x == ' ' || x == '\t'
+	isLineExtension _ = False
 
         clean [] = []
         clean (h:t) | h `elem` "\t\r\n" = ' ' : clean t
                     | otherwise = h : clean t
 
-        -- tollerant of errors?  should parse
+        -- tolerant of errors?  should parse
         -- errors here be reported or ignored?
         -- currently ignored.
         catRslts :: [a] -> [Result a] -> Result [a]

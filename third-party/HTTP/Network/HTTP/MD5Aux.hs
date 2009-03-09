@@ -7,7 +7,9 @@ import Data.Char (ord, chr)
 import Data.Bits (rotateL, shiftL, shiftR, (.&.), (.|.), xor, complement)
 import Data.Word (Word32, Word64)
 
+rotL :: Word32 -> Int -> Word32
 rotL x = rotateL x
+
 type Zord64 = Word64
 
 -- ===================== TYPES AND CLASS DEFINTIONS ========================
@@ -18,7 +20,7 @@ type Rotation = Int
 newtype ABCD = ABCD (Word32, Word32, Word32, Word32) deriving (Eq, Show)
 newtype Str = Str String
 newtype BoolList = BoolList [Bool]
-newtype WordList = WordList ([Word32], Zord64)
+newtype WordList = WordList ([Word32], Word64)
 
 -- Anything we want to work out the MD5 of must be an instance of class MD5
 
@@ -27,7 +29,7 @@ class MD5 a where
  --                     \      \   \------ the rest of the input
  --                      \      \--------- the number of bits returned
  --                       \--------------- the bits returned in 32bit words
- len_pad :: Zord64 -> a -> a         -- append the padding and length
+ len_pad :: Word64 -> a -> a         -- append the padding and length
  finished :: a -> Bool               -- Have we run out of input yet?
 
 
@@ -89,7 +91,10 @@ instance MD5 WordList where
 instance Num ABCD where
  ABCD (a1, b1, c1, d1) + ABCD (a2, b2, c2, d2) = ABCD (a1 + a2, b1 + b2, c1 + c2, d1 + d2)
 
-
+ (*)         = error "(*){ABCD}: no instance method defined"
+ signum      = error "signum{ABCD}: no instance method defined"
+ fromInteger = error "fromInteger{ABCD}: no instance method defined"
+ abs         = error "abs{ABCD}: no instance method defined"
 -- ===================== EXPORTED FUNCTIONS ========================
 
 
@@ -121,7 +126,7 @@ md5i = abcd_to_integer . md5
 
 md5_main :: (MD5 a) =>
             Bool   -- Have we added padding yet?
-         -> Zord64 -- The length so far mod 2^64
+         -> Word64 -- The length so far mod 2^64
          -> ABCD   -- The initial state
          -> a      -- The non-processed portion of the message
          -> ABCD   -- The resulting state
@@ -330,7 +335,7 @@ bools_to_word32s bs = this:bools_to_word32s rest
 -- Convert the size into a list of characters used by the len_pad function
 -- for strings
 
-length_to_chars :: Int -> Zord64 -> String
+length_to_chars :: Int -> Word64 -> String
 length_to_chars 0 _ = []
 length_to_chars p n = this:length_to_chars (p-1) (shiftR n 8)
          where this = chr $ fromIntegral $ n .&. 255
