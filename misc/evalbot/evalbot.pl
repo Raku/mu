@@ -127,7 +127,7 @@ package Evalbot;
                 $revision = ' ' . $e->{revision}->();
             }
             return sprintf "%s%s: %s", $eval_name, $revision, $result;
-        } elsif ( $message =~ m/\Aperl6:\s+(.+)\z/ ){
+        } elsif ( $message =~ m/\Aperl6:\s+(.+)\z/s ){
             my $str = $1;
             return "Program empty" unless length $str;
             warn "Perl6: $str\n";
@@ -158,7 +158,7 @@ package Evalbot;
                 return "This is evalbot revision $evalbot_version";
             }
 
-        } elsif ($message =~ m/\A(.+)\z/ && $address eq 'msg') {
+        } elsif ($message =~ m/\A(.+)\z/s && $address eq 'msg') {
             #a request like /msg evalbot perl6 code
             my ($eval_name, $str) = ('highlight', $1);
             my $e = $impls{$eval_name};
