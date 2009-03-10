@@ -69,7 +69,7 @@
     my $back;
     my $interpreter;
 
-    my $name = $capture."positional"(1);
+    my $name = $capture."positional"(0);
     my $invocant = $capture."invocant"();
     my $exists = $invocant."exists"($name);
     

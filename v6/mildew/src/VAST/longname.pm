@@ -11,7 +11,7 @@ sub canonical {
     if ($m->{colonpair}[1]) {
        if ($m->{colonpair}[1]{signature}) {
            # TODO handle whitespace sensibly
-           $single_variant = ':(' . $m->{colonpair}[1]{signature}->{MATCH}->text . ')';
+           $single_variant = ':(' . $m->{colonpair}[1]{signature}->{MATCH}->Str . ')';
        } else {
            XXX;
        } 

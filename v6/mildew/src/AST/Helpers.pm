@@ -158,7 +158,7 @@ sub name_components {
             if ($shortname->{colonpair}[1]) {
                if ($shortname->{colonpair}[1]{signature}) {
                    # TODO handle whitespace sensibly
-                   $single_variant = ':(' . $shortname->{colonpair}[1]{signature}->{MATCH}->text . ')';
+                   $single_variant = ':(' . $shortname->{colonpair}[1]{signature}->{MATCH}->Str . ')';
                } else {
                    XXX;
                } 

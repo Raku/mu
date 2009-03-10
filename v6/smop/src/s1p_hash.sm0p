@@ -233,7 +233,7 @@ void smop_s1p_hash_mold_init() {
     my $interpreter;
     my $capture;
     my $invocant = $capture."invocant"();
-    my $key_c = $capture."positional"(1);
+    my $key_c = $capture."positional"(0);
     my $key = $key_c."FETCH"();
     my $res = $invocant.¢id_internal_exists($key);
     my $continuation = $interpreter."continuation"();
@@ -247,7 +247,7 @@ void smop_s1p_hash_mold_init() {
     my $interpreter;
     my $capture;
     my $invocant = $capture."invocant"();
-    my $key_c = $capture."positional"(1);
+    my $key_c = $capture."positional"(0);
     my $key = $key_c."FETCH"();
     my $res = $invocant.¢id_internal_curly($key);
     my $continuation = $interpreter."continuation"();

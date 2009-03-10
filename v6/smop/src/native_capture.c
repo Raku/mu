@@ -65,20 +65,9 @@ static SMOP__Object* capture_message(SMOP__Object* interpreter,
 
   } else if (identifier == SMOP__ID__positional) {
     SMOP__Object* invocant_capture = SMOP__NATIVE__capture_invocant(interpreter, capture);
-
     SMOP__Object* intask = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
-
-    SMOP__Object* invocant = SMOP__NATIVE__capture_invocant(interpreter, invocant_capture);
     
-    if (invocant) {
-      if (intask == 0) {
-        ret = invocant;
-      } else {
-        ret = SMOP__NATIVE__capture_positional(interpreter, invocant_capture, SMOP__NATIVE__int_fetch(intask)-1);
-      }
-    } else {
-      ret = SMOP__NATIVE__capture_positional(interpreter, invocant_capture, SMOP__NATIVE__int_fetch(intask));
-    }
+    ret = SMOP__NATIVE__capture_positional(interpreter, invocant_capture, SMOP__NATIVE__int_fetch(intask));
 
     if (ret == NULL) ret = SMOP__NATIVE__bool_false;
 

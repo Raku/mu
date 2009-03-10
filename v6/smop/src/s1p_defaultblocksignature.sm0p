@@ -71,8 +71,8 @@ void smop_s1p_defaultblocksignature_mold_init() {
 
     my $scalar = ¢SMOP__S1P__Scalar;
 
-    my $actualcapture = $capture."positional"(1);
-    my $lexicalscope = $capture."positional"(2);
+    my $actualcapture = $capture."positional"(0);
+    my $lexicalscope = $capture."positional"(1);
     my $outerscopecontainer = $lexicalscope."outer"();
     my $outerscope = $outerscopecontainer."FETCH"();
 
@@ -90,7 +90,7 @@ void smop_s1p_defaultblocksignature_mold_init() {
 
     if $outerbind { goto then } else { goto else };
     then:
-      my $pos = $actualcapture."positional"(1);
+      my $pos = $actualcapture."positional"(0);
       $val = $scalar."new"($pos);
       goto exit;
     else:

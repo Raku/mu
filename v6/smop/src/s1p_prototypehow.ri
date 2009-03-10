@@ -130,9 +130,9 @@
     my $void;
     my $result = ¢SMOP__NATIVE__bool_false;
 
-    my $invocant = $capture."positional"(1);
-    my $name = $capture."positional"(2);
-    my $method = $capture."positional"(3);
+    my $invocant = $capture."positional"(0);
+    my $name = $capture."positional"(1);
+    my $method = $capture."positional"(2);
 
     my $methods = $invocant."^!methods"();
     my $method_container = $methods."postcircumfix:{ }"($name);
@@ -145,9 +145,9 @@
 %mold smop_s1p_pureprototypehow_add_attribute_mold
     my $interpreter;
     my $capture;
-    my $object = $capture."positional"(1);
-    my $name = $capture."positional"(2);
-    my $attribute = $capture."positional"(3);
+    my $object = $capture."positional"(0);
+    my $name = $capture."positional"(1);
+    my $attribute = $capture."positional"(2);
     my $attrhash = $object."^!attributes"();
     my $attrcont = $attrhash."postcircumfix:{ }"($name);
     my $void = $attrcont."STORE"($attribute);
