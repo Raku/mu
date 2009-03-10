@@ -11,4 +11,8 @@ so that the entirety of the .cs does not need to be built every
 time.  The build time for me is only a few seconds, but it would
 be nice to reduce that to less than a second.
 
-4. Add more items to this list. :)
+4. Do some performance tests of swapping out all the (very many)
+usages of Dictionary<K,V> for the Goletas.Collections 
+SortedDictionary<K,V>, which claims to be much more efficient.
+
+5. Add more items to this list. :)
