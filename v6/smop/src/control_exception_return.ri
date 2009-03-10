@@ -62,8 +62,8 @@
 %mold handle_return_mold
     my $interpreter;
     my $capture;
-    my $exception = $capture."positional"(0);
-    my $this_routine = $capture."positional"(1);
+    my $exception = $capture."positional"(1);
+    my $this_routine = $capture."positional"(2);
     my $ritest_exc = ¢SMOP__S1P__Capturize."capturize"($exception, ¢RI);
     my $ritest = ¢SMOP__S1P__ritest."postcircumfix:( )"($ritest_exc);
     my $ritest_t = $ritest."true"();

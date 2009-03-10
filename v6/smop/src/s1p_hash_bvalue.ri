@@ -81,7 +81,7 @@
     my $invocant = $capture."invocant"();
     my $owner = $invocant."owner"();
     my $key = $invocant."key"();
-    my $val = $capture."positional"(0);
+    my $val = $capture."positional"(1);
     my $void = $owner."bind_key"($key, $val);
     $void = $interpreter."goto"($back);
 
@@ -92,7 +92,7 @@
     my $invocant = $capture."invocant"();
     my $owner = $invocant."owner"();
     my $key = $invocant."key"();
-    my $val = $capture."positional"(0);
+    my $val = $capture."positional"(1);
     my $container = $owner."lookup_key"($key);
     my $void = $container."STORE"($val);
     $void = $interpreter."goto"($back);
@@ -104,7 +104,7 @@
     my $invocant = $capture."invocant"();
     my $owner = $invocant."owner"();
     my $key = $invocant."key"();
-    my $val = $capture."positional"(0);
+    my $val = $capture."positional"(1);
     my $container = $owner."lookup_key"($key);
     my $res = $container."FETCH"();
     my $void = $back."setr"($res);
