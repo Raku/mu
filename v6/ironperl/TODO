@@ -1,0 +1,14 @@
+Please, anyone claim these tasks by committing your IRC
+name next to them...
+
+1. redo compile sh script as a Makefile (generator, if you like)
+
+2. Or, make a Configure.pl, with an option --gen-mono that builds
+mono from svn.  (see rakudo's --gen-parrot for inspiration)
+
+3. Refactor out the gmcs compile command to build separate DLLs,
+so that the entirety of the .cs does not need to be built every
+time.  The build time for me is only a few seconds, but it would
+be nice to reduce that to less than a second.
+
+4. Add more items to this list. :)

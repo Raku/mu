@@ -1,0 +1,30 @@
+﻿parser expression
+	quote "quote" expression
+	assignment target :: schema "=" source
+	if "if" condition "{" then ";" ... "}" [ [ ";" ] "else" "{" else ";" ... "}" ]
+	while "while" condition "{" loop ",;" ... "}"
+	method-call object+ "." name "(" arguments ",;" ... ")"
+	function-call function "(" arguments ",;" ... ")"
+	property expression+ "." name
+	sub-expression "(" expression ")"
+	structure "{" fields :: structure ",;" ... "}"
+	list "[" items ",;" ... "]"
+	set "set" "{" items ",;" ... "}"
+	map "map" "{" (key "=>" value) ",;" ... "}"
+	symbol "symbol" symbol
+	index expression "[" index ",;" ... "]"
+	closure ("(" parameters :: schema ",;" ... ")" [ "::" type ] | parameters :: schema "," ...) "=>" "{" body ",;" ... "}"
+	etc "..."
+
+parser schema
+	structure "{" fields :: structure-schema ",;" ... "}"
+	list "[" items ",;" ... "]"
+	match variable "::" schema
+	property-assignment expression+ "." name
+	etc "..."
+
+parser structure-schema
+	field name "=" value :: expression
+
+parser structure
+	field name "=" value :: expression

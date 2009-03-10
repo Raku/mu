@@ -1,0 +1,15 @@
+#!/bin/sh
+curr=`pwd`
+mono=`which mono`
+
+gmcs -unsafe -recurse:'*.cs' -r:Mono.CompilerServices.SymbolWriter,Mono.Cecil,Mono.Data.Sqlite,System.Data,System.Data.Linq,System.Core,System.Xml,nunit.framework -lib:lib -nowarn:0169,0414,0219,0659,0168,0675,0162 -out:build/ironperl.exe -main:IronPerl.Program
+#mono --aot build/ironperl.exe >/dev/null
+#mono --aot=full build/ironperl.exe
+cat <<EOF >ironperl
+#!/bin/sh
+# when this works...
+#$mono --full-aot $curr/build/ironperl.exe "\$@"
+$mono $curr/build/ironperl.exe "\$@"
+EOF
+chmod +x ironperl
+./ironperl

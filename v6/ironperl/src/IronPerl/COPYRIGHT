@@ -1,0 +1,10 @@
+This software is partially a fork of Tim Macfarlane's tycho project
+(see the copyright notice in that directory), and so those portions
+are redistributed under the GPLv2 (see www.opensource.org).
+
+Those portions original to the authors (the Perl 6 community, as
+listed in the AUTHORS file in the pugscode repository) are copyrighted
+by the authors and licensed to you under the Artistic License 2
+("AL2").  A copy of the AL2 can be found in the LICENSE file and also
+on the website www.opensource.org.
+

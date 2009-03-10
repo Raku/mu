@@ -1,0 +1,99 @@
+﻿parser expression
+	namespace-import "import" target "as" alias
+	quote "quote" expression
+	print "print" expression
+	field "field" (name "=" value) "," ...
+	property "property" name "{" accessors :: property-accessor ",;" ... "}"
+	method "method" name "(" parameters :: schema ",;" ... ")" "=>" body
+	implements "implements" protocols "," ...
+	exported-assignment "export" target :: schema ":=" source
+	assignment target :: schema "=" source
+	readonly-assignment target :: schema ":=" source
+	inherit "inherit" constructor "(" arguments ",;" ... ")"
+	if "if" condition 1 then [ [ ";" ] "else" 1 else ]
+	while "while" condition 1 loop
+	switch "switch" expression "{" case :: switch ",;" ... "}"
+	constructor "constructor" "(" parameters ",;" ... ")" "=>" body
+	closure ("(" parameters :: schema ",;" ... ")" [ "::" type ] | parameters :: schema "," ...) "=>" body
+	schema "schema" schema :: schema
+	new "new" constructor "(" arguments ",;" ... ")"
+	not "not" expression
+		#expression.tycho:runtime:not ()
+	protocol "protocol"
+		tycho:runtime:new-protocol ()
+	less-than left "<" right
+	greater-than left ">" right
+	less-than-equal-to left "<=" right
+	greater-than-equal-to left ">=" right
+	equals left "==" right
+	not-equals left "!=" right
+		not #left == #right
+	reference-equals left "===" right
+	or left "or" right
+		#left.tycho:runtime:or (#right)
+	xor left "xor" right
+		#left.tycho:runtime:xor (#right)
+	and left "and" right
+		#left.tycho:runtime:and (#right)
+	plus left "+" right
+		#left.tycho:runtime:plus (#right)
+	minus left "-" right
+		#left.tycho:runtime:minus (#right)
+	negative "-" number
+		#number.tycho:runtime:negative ()
+	multiply left "*" right
+		#left.tycho:runtime:multiply (#right)
+	divide left "/" right
+		#left.tycho:runtime:divide (#right)
+	to-power left "^" right
+		#left.tycho:runtime:to-power (#right)
+	schema-match expression "::" schema
+		#schema.tycho:runtime:match (tycho:runtime:null, #expression)
+	method-call object+ "." name "(" arguments ",;" ... ")" [ "{" additional-arguments ",;" ... "}" ]
+	function-call function "(" arguments ",;" ... ")" [ "{" additional-arguments ",;" ... "}" ]
+	structure "struct" "{" fields :: structure ",;" ... "}"
+	list "list" "[" items ",;" ... "]"
+	set "set" "{" items ",;" ... "}"
+	map "map" "{" (key "=>" value) ",;" ... "}"
+	index expression "[" index ",;" ... "]"
+	property-get expression+ "." name
+	sub-expression "(" expression ")"
+	sub-expression-block "{" expression ";" ... "}"
+	symbol "symbol" symbol
+	true "true"
+		tycho:runtime:true
+	false "false"
+		tycho:runtime:false
+	object "object"
+		tycho:runtime:object
+	null "null"
+		tycho:runtime:null
+	exit "exit"
+		tycho:runtime:exit ()
+	self "self"
+		tycho:runtime:self
+	etc "..."
+	retry "retry"
+		tycho:runtime:retry ()
+	
+
+parser schema
+	structure "{" fields :: structure-schema ",;" ... "}"
+	list "[" items ",;" ... "]"
+	match variable "::" schema
+	property-assignment expression+ "." name
+	index expression "[" index :: expression ",;" ... "]"
+	etc "..."
+
+parser structure-schema
+	field name "=" value :: expression
+
+parser structure
+	field name "=" value :: expression
+
+parser switch
+	case "case" schema :: schema "=>" expression :: expression
+
+parser property-accessor
+	getter "get" "=>" body :: expression
+	setter "set" "=>" body :: expression

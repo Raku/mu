@@ -1,0 +1,26 @@
+This Yaml library is redistributed from a section of the IronRuby
+project (see http://www.ironruby.net).  The IronRuby software was
+released by Microsoft under the Microsoft Public License (Ms-PL),
+which can be found in the file LICENSE_Ms-PL.
+
+However, some portions of this software carry the below copyright
+notice, and for your convenience you can find a copy of the CPL
+1.0 in the file LICENSE_CPL_1
+
+/***** BEGIN LICENSE BLOCK *****
+ * Version: CPL 1.0
+ *
+ * The contents of this file are subject to the Common Public
+ * License Version 1.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.eclipse.org/legal/cpl-v10.html
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ *
+ * Copyright (C) 2007 Ola Bini <ola@ologix.com>
+ * Copyright (c) Microsoft Corporation.
+ * 
+ ***** END LICENSE BLOCK *****/
