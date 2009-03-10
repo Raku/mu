@@ -71,7 +71,7 @@ This method is called from bless, to actually initialize the values of the objec
 
           my %protoargs = map { $_.^!whence.() if $_.^!whence },
             grep { $_.^!instanceof === $prototype }, @protoobjects;
-          $prototype.?BUILD($object: |%protoargs, |%initialize);
+          $prototype.?BUILD($object, |%protoargs, |%initialize);
       }
       return buildall_recurse($object, $object, |@protoobjects, |%initialize);
   }
@@ -87,7 +87,7 @@ This method is called when the object is being destroyed.my sub list_hierarchy
 
   method DESTROYALL($how: $object) {
       my sub destroyall_recurse($object, $prototype) {
-          $prototype.?DESTROY($object: );
+          $prototype.?DESTROY($object);
           $object.^!destroy_instance_storage($prototype.^!package());
 
           for ($prototype.^!isa()) -> $isa {
