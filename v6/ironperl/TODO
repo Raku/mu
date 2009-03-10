@@ -15,4 +15,7 @@ be nice to reduce that to less than a second.
 usages of Dictionary<K,V> for the Goletas.Collections 
 SortedDictionary<K,V>, which claims to be much more efficient.
 
-5. Add more items to this list. :)
+5. Rework the event processor to accept nodes from mildew
+instead of from STD/viv directory...
+
+6. Add more items to this list. :)
