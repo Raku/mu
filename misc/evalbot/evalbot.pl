@@ -38,6 +38,7 @@ use Data::Dumper;
 use FindBin;
 use lib 'lib';
 use EvalbotExecuter;
+use utf8;
 
 $ENV{LD_LIBRARY_PATH} = '/home/evalenv/pugs/v6/smop/build/';
 
@@ -110,6 +111,7 @@ package Evalbot;
         my $message = $e->{body};
         my $address = $e->{address} // '';
         return if $e->{who} =~ m/^dalek.?$/;
+        $message =~ s/␤/\n/g;
 
         if ($message =~ m/^p6eval:/) {
             return "Usage: ", join(',', sort keys %impls), ': $code';
