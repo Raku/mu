@@ -173,7 +173,7 @@ the class and through its ancestors should be provided:
 == Grammar/regex builtin rules
 
   ident upper lower alpha digit xdigit space print
-  graph blank cntrl punct alnum ws wb before after word
+  graph blank cntrl punct alnum ws wb before after ww
 
 == Special Perl and Perl 6 terms
 
