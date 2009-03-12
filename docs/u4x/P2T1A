@@ -15,6 +15,15 @@ feel free to add it.
 
 Pair (fairly stable, not too large, a few different use cases)
 
+== A method
+
+.pick (fun, and krunen++ already contributed a nice example of it)
+
+my %cards = <ace two three four five six seven eight nine ten jack queen king>
+            X~ (" of " X~ <spades hearts diamonds clubs>)
+            Z (1|11,2..13 X* 1,1,1,1);
+%cards.pick(5).perl.say
+
 == Predeclared constants
 
 False (What else? No, actually, True and False should probably go on the
