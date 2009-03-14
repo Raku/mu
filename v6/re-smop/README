@@ -1,0 +1,39 @@
+This is the refactored repository for SMOP. This refactory was needed
+because of the huge amount of polymorphism supported by SMOP, the
+previous structure didn't actually allow us to take much advantage of
+it, because we got everything too much coupled in the build process.
+
+We're also using this refactoring to solve two issues:
+
+ 1) The concept of invocant no longer exists in the capture at
+ runtime, the invocant is the first positional parameter.
+
+ 2) The "data" member in SMOP__Object* can be factored out to the
+ types that actually use it, this makes the overhead of SMOP__Object*
+ just a single pointer as first member.
+
+SMOP should then be divided into the following modules
+
+ base - This module is actually composed only of the basic
+   headers that define SMOP__Object* and SMOP__ResponderInterface*
+   along with its respective macros. Theoretically, two SMOP objects
+   can interoperate even without linking the same libraries.
+
+ s0native - This module contains the stage 0 native types, they are
+   packaged separated because they are not subject to garbage
+   collection, and because of its importance to everything else, it
+   builds libsmop-s0native. It contains bool, idconst, empty capture,
+   interpreter capture (the current interpreter as first positional
+   argument), stage 0 interpreter (recurses on goto, should only be
+   used for creating and destroying an actual interpreter).
+
+ gc - This is the implementation of the default SMOP garbage
+   collector. It is a fairly standard refcounting gc that invokes
+   DESTROYALL on the object when the refcount reaches 0 (TODO: weak
+   references). It includes a very low-level continuation class
+   implementation that is used to invoke DESTROYALL.
+
+ mold - This is the continuation class used by smop most of the time.
+
+ native - This module contains the regular native types, subject to
+   garbage collection.
