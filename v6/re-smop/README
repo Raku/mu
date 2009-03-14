@@ -1,5 +1,5 @@
 This is the refactored repository for SMOP. This refactory was needed
-because of the huge amount of polymorphism supported by SMOP, the
+because despite the huge amount of polymorphism supported by SMOP, the
 previous structure didn't actually allow us to take much advantage of
 it, because we got everything too much coupled in the build process.
 
