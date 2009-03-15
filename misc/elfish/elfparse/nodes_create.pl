@@ -8,6 +8,7 @@ RxPat5 pat
 RxExact text
 RxMod_expr mods expr
 RxMod_inline mods
+RxMod_my code
 RxBackref backref_n
 RxCap expr
 RxGrp expr
@@ -104,6 +105,7 @@ sub write_ir_nodes {
 
       class RxMod_expr is RxMixinMod {}
       class RxMod_inline is RxMixinMod {}
+      class RxMod_my is RxMixinMod {}
       class RxARegex is RxMixinMod {}
 
   END

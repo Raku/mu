@@ -1322,6 +1322,8 @@ package IRx1 {
     }
   }
 
+  # RxMod_my is below.
+
   # ? * + {n,m} ?? *? etc
   class RxQuant {
     method emit_RMARE () {
@@ -1622,6 +1624,25 @@ package IRx1 {
     }
   }
 
+  # :my $mumble...;
+  class RxMod_my {
+    method emit_RMARE () {
+      my $decl = $.code;
+      my $var = $decl.var;
+      my $key = $var.sigil ~ $var.name;
+      #X key should be gensym if it's not a context var.
+      my $emit = '$RXX::nested_data->{"'~quotemeta($key)~'"}';
+      $decl.notes<EmitSimpleP5_rx_var_emit> = $emit;
+      my $value = "undef";
+      if $decl.default_expr {
+        $value = $whiteboard::current_emitter.e($decl.default_expr);
+      }
+      my $src = ('local $RXX::nested_data = {%$RXX::nested_data};'~
+                 $emit~' = '~$value~';');
+      $.RMARE_code($src,1)
+    }
+  }
+
   # (?{ ... })
   # XXX high klude factor
   # A Str is considered p5, an IR node as p6.
@@ -1632,7 +1653,6 @@ package IRx1 {
         $.RMARE_code($code,0)
       } else {
         my $src = $whiteboard::current_emitter.e($code);
-        say $whiteboard::current_emitter if 0; #X avoid "used only once".
         $.RMARE_code($src,1)
       }
     }
@@ -1769,6 +1789,17 @@ class EmitSimpleP5 {
     my $def = $.e($n<rx>);
     my $info = $whiteboard::regex_category_header;
     '# category '~$name~"\n"~$info~"\n"~$def;
+  }
+}
+
+
+class EmitSimpleP5 {
+  method cb__Var_selective_override ($n) {
+    my $decl = $n.notes<decl>;
+    if defined($decl) && $decl.notes<EmitSimpleP5_rx_var_emit> {
+      return $decl.notes<EmitSimpleP5_rx_var_emit>
+    }
+    undef;
   }
 }
 

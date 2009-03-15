@@ -126,6 +126,7 @@ check_std_rx_on_re: elfrx
 
 rerun_std_rx_on_re:
 	ulimit -v 1000000; ./elfrx test_blue.pm > tst_1b 2> tst_2b
+	diff t_test_blue.result tst_1b
 
 
 check_STD_blue: ${ELF} ${ELFBLUEDEV_DEPS}

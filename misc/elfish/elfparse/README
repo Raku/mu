@@ -6,7 +6,6 @@ First, get <pugs>/misc/STD_red working.  See its README.
 
 $ sudo cpan -i autobox Class::Multimethods Sub::Name  Regexp::Common
 $ sudo cpan -i Moose Term::ANSIColor  #...others...?
-$ make known_working_STD
 $ make elfblue
 $ ./elfblue -v -s -e 'say 3'
 $ make check

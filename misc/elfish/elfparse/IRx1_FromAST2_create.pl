@@ -1112,7 +1112,7 @@ $m<nibbler>
 #--- mod_internal
 if $o<statement> {
   my $stmt = $m<statement>;
-  return RxCode.newp($stmt); # no Block.
+  return RxMod_my.newp($stmt); # no Block.
 }
 my $text = *text*;
 my $modpat = $text;

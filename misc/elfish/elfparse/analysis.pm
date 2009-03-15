@@ -157,6 +157,8 @@ package IRx1 {
     }
   }
 
+  # RxMod_my is below.
+
   class RxQuant {
     method RAST_children { [$.expr] }
     method RAST_pass14 {
@@ -470,20 +472,18 @@ package IRx1 {
   class RxCommitMatch {
   }
 
-  class RxCode {
+  class RxCode_common {
     method RAST_pass40 {
       $.notes<match_read> = 1; #X only sometimes
       $.notes<match_written> = 1; #X only sometimes
     }
   }
+  class RxMod_my is RxCode_common {} ;#X STD.pm's :my's may not use match?
+  class RxCode is RxCode_common {}
+  class RxCodePredicate is RxCode_common {}
+  class RxCodeRx is RxCode_common {}
 
-  class RxCodeRx {
-    method RAST_pass40 {
-      $.notes<match_read> = 1; #X only sometimes
-      $.notes<match_written> = 1; #X only sometimes
-    }
-  }
-
+  class RxARegex is Block {} ;# IRx1::Block
   class RxARegex {
     method RAST_children { [$.expr] }
     method RAST_init {
