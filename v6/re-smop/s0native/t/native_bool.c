@@ -5,4 +5,5 @@ int main() {
   smop_s0native_init();
   printf("ok 1\n");
   smop_s0native_destr();
+  return 0;
 }
