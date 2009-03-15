@@ -1,0 +1,57 @@
+import re
+import os
+import glob
+BuildDir('build','src')
+BuildDir('build-tests','test')
+env = Environment(ENV = os.environ)
+
+# TODO windowsify
+
+# SCons runs the command incorrectly
+#m0ld = env.Command('m0ld_exe','m0ld/m0ld.hs','sh -c "cd m0ld;ghc --make Setup.lhs;pwd;./Setup configure;pwd;./Setup build;cp dist/build/m0ld/m0ld ../$TARGET"')
+#m0ld_path = './' + str(m0ld[0])
+m0ld_path = './m0ld_exe'
+
+env.Append(BUILDERS = {'RI' : Builder(action = 'perl  -I../../src/perl6 tools/ri . %s < $SOURCE > $TARGET' % m0ld_path,suffix='.c',src_suffix = '.ri')})
+
+env.Append(BUILDERS = {'Sm0p' : Builder(action = 'perl sm0p.pl . %s $SOURCE $TARGET' % m0ld_path,suffix='.c',src_suffix = '.sm0p')})
+
+env.Append(BUILDERS = {'M0ld' : Builder(action = 'cat m0ld/m0ld_boilerplate_front > $TARGET;%s < $SOURCE >> $TARGET;cat m0ld/m0ld_boilerplate_back >> $TARGET' % m0ld_path,suffix='.c',src_suffix = '.m0ld')})
+        
+#for file in Glob("build/*.ri"):
+#    env.RI(file)
+#for file in Glob("build/*.sm0p"):
+#    env.Sm0p(file)
+
+
+import subprocess # python has `` in a strange module :\
+ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
+ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
+flags = '-O0 -g3 '
+
+
+
+s0native_files = env.Glob('s0native/src/*.c')
+
+lib_s0native = env.SharedLibrary(target = 'build/s0native',source = s0native_files,CFLAGS=flags+ccopts,CPPPATH = ['s0native/src'] + ['base/include','s0native/include'])
+
+LIBPATH = []
+LIBS = []
+
+BuildDir('s0native-tests','s0native/t')
+for test in env.Glob("s0native-tests/*.c"):
+    env.Program(re.sub(r'.c$','.t',str(test)),test,CPPPATH = ['base/include','s0native/include'],LIBPATH=LIBPATH+['build'],LIBS=LIBS+['s0native','pcl','pthread'])
+
+#INCLUDE = ['include'] + glob.glob('smop-*/include')
+#
+#libsmop = env.SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src'] + INCLUDE)
+#
+#LIBS = re.compile("-l(\S+)").findall(ldopts)
+#LIBPATH = re.compile("-L(\S+)").findall(ldopts)
+#
+#
+#for test in env.Glob("build-tests/*.m0ld"):
+#    env.M0ld(test) 
+#for test in env.Glob("build-tests/*.c"):
+#    env.Program(re.sub(r'.c$','.t',str(test)),test,CPPPATH = INCLUDE,LIBPATH=LIBPATH+['build'],LIBS=LIBS+['smop','pcl','pthread'])
+#
