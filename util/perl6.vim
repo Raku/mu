@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Mar 7th 2009
+" Last Change:  Mar 15th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -839,7 +839,7 @@ syn cluster p6RegexP5Class
     \ add=p6RxP5Range
 
 syn match p6RxP5Escape     display contained "\\\S"
-syn match p6RxP5CodePoint  display contained "\\c\S\@=" nextgroup=P6RxP5CPId
+syn match p6RxP5CodePoint  display contained "\\c\S\@=" nextgroup=p6RxP5CPId
 syn match p6RxP5CPId       display contained "\S"
 syn match p6RxP5Oct        display contained "\\\%(\o\{1,3}\)\@=" nextgroup=p6RxP5OctSeq
 syn match p6RxP5OctSeq     display contained "\o\{1,3}"
