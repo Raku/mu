@@ -4083,8 +4083,14 @@ if(((($t eq "\.")))->Bool) {
 }else {
 (do{("\$" . $name)})
 }})};
+sub cb__Var_selective_override{my $self=CORE::shift;my($n)=@_;
+(do{GLOBAL::undef()})};
 sub cb__Var{my $self=CORE::shift;my($n)=@_;
-(do{my $s = $n->sigil();
+(do{my $override = $self->cb__Var_selective_override($n);
+if((GLOBAL::defined($override))->Bool) {
+(do{return($override)})
+};
+my $s = $n->sigil();
 my $t = (do{my $__tmp__=($n->twigil());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}});
 if(($n->is_context())->Bool) {
 (do{($t = "\+")})

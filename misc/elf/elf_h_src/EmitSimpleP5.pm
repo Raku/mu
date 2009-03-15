@@ -1036,7 +1036,11 @@ package Main;
     }
   };
 
+  method cb__Var_selective_override ($n) { undef }
+
   method cb__Var ($n) {
+    my $override = $.cb__Var_selective_override($n);
+    if defined($override) { return $override; }
     my $s = $n.sigil;
     my $t = $n.twigil||'';
     if $n.is_context { $t = '+' }
