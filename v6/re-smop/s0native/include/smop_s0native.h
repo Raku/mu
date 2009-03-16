@@ -4,6 +4,12 @@
 void smop_s0native_init(void);
 void smop_s0native_destr(void);
 
+void smop_idconst_init(void);
+void smop_idconst_destr(void);
+
+void smop_native_bool_init(void);
+void smop_native_bool_destr(void);
+
 extern SMOP__Object* SMOP__NATIVE__bool_true;
 extern SMOP__Object* SMOP__NATIVE__bool_false;
 

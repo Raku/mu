@@ -8,10 +8,7 @@ struct SMOP__ResponderInterface; typedef struct SMOP__ResponderInterface SMOP__R
 
 /*
  * The SMOP__Object struct represents any object in the SMOP
- * runtime.  The data of this object should be opaque for the users,
- * the only one that should know about it is the responder
- * interface. Every object must have a responder interface. If it
- * doesn't, it is considered itself as one.
+ * runtime.   Every object must have a responder interface.
  */
 #define SMOP__Object__BASE        \
   SMOP__ResponderInterface* RI;   
