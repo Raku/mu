@@ -957,7 +957,7 @@ elsif $x eq '< >' {
     #XX This is much more expensive than it needs to be.  New CodePred node?
     my $stmts = irbuild_ir($sr<codeblock><statementlist>);
     my $pred = Block.newp($stmts);
-    return RxCodePredicate.newp($pred);
+    return RxCodePredicate.newp($pred,$neg);
   }
   else { die "bug" }
   ;

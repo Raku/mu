@@ -615,8 +615,7 @@ rule comp_unit {
     :my $PARSER is context<rw>;
     :my $IN_DECL is context<rw>;
 
-    #{ init_pads(); } #ELFBUG
-    { STD::init_pads(); } #ELFFIX
+    { init_pads(); }
 
     <statementlist>
     [ <?unitstopper> || <.panic: "Can't understand next input--giving up"> ]
@@ -1251,16 +1250,20 @@ token methodop {
     ]?
 }
 
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token arglist {
-    :my StrPos $endargs is context<rw> = 0;
+#   :my StrPos $endargs is context<rw> = 0; #ELFBUG
+    :my $endargs is context<rw> = 0; #ELFFIX
     :my $GOAL is context = 'endargs';
     <.ws>
     :dba('argument list')
     [
     | <?stdstopper>
-    | <EXPR(item %list_prefix)>
+#   | <EXPR(item %list_prefix)> #ELFBUG
+    | <EXPR> #ELFXXX
     ]
 }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 token circumfix:sym<{ }> ( --> Term) {
     <?before '{' | <lambda> > <pblock>
@@ -3360,15 +3363,18 @@ token term:sigil ( --> List_prefix)
 #     { <typename> <?spacey> <arglist> { $<sym> = $<typename>.item; } }
 
 # force identifier(), identifier.(), etc. to be a function call always
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token term:identifier ( --> Term )
 {
     :my $t;
     <identifier> <?before ['.'?'(']?>
     { $t = $<identifier>.text; }
-    <args( $¢.is_type($t) )>
-    {{
-        %ROUTINES{$t} ~= $¢.lineof($¢.pos) ~ ' ' unless $¢.is_routine($t);
-    }}
+#ELFBUG
+#    <args( $¢.is_type($t) )>
+#    {{
+#        %ROUTINES{$t} ~= $¢.lineof($¢.pos) ~ ' ' unless $¢.is_routine($t);
+#    }}
+    <args> #ELFXXX
 }
 
 token term:opfunc ( --> Term )
@@ -3377,22 +3383,26 @@ token term:opfunc ( --> Term )
 }
 
 token args ($istype = 0) {
+    :my $istype = 0; #ELFXXX
     :my $listopish = 0;
     :my $GOAL is context = '';
     [
     | :dba('argument list') '.(' ~ ')' <semilist> {*}             #= func args
     | :dba('argument list') '(' ~ ')' <semilist> {*}              #= func args
     | :dba('argument list') <.unsp> '.'? '(' ~ ')' <semilist> {*} #= func args
-    | {} [<?before \s> <!{ $istype }> <.ws> <!infixstopper> <listopargs=arglist> { $listopish = 1 }]?
+#   | {} [<?before \s> <!{ $istype }> <.ws> <!infixstopper> <listopargs=arglist> { $listopish = 1 }]? #ELFBUG
+    |    [<?before \s> <!{ $istype }> <.ws> <!infixstopper> <listopargs=arglist> { $listopish = 1 }]? #ELFFIX
     ]
 
-    :dba('extra arglist after (...):')
+#   :dba('extra arglist after (...):') #ELFBUG
     [
     || <?{ $listopish }>
     || ':' <?before \s> <listopargs=arglist>    # either switch to listopiness
-    || {{ $<O> = {}; }}   # or allow adverbs (XXX needs hoisting?)
+#   || {{ $<O> = {}; }}   # or allow adverbs (XXX needs hoisting?) #ELFBUG {{ }}
+    || { $<O> = {}; }   # or allow adverbs (XXX needs hoisting?) #ELFFIX
     ]
 }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 # names containing :: may or may not be function calls
 # bare identifier without parens also handled here if no other rule parses it

@@ -874,13 +874,14 @@ sub{my $__c__ = $_[0];
   # <?{ ... }>
   # NOT TESTED by the rx_on_re test suite.
   sub RMARE_codepredicate {
-    my($o,$pred)=@_;
+    my($o,$pred,$neg)=@_;
     my $noop = $o->RMARE_noop;
+    my $not = $neg ? "" : "!";
     my $src = \'
 #line 2 "generated_by_RMARE_codepredicate"
     subname "<codepredicate>" => sub {
       my $__c__ = $_[0];
-      FAIL() if !$pred->($__c__);
+      FAIL() if \'.$not.\'$pred->($noop);
       $__c__->($noop)
     }\';
     #print STDERR $src,"\n";
@@ -1255,13 +1256,13 @@ package IRx1 {
       else { undef }
     }
     method emit_RATCHET { undef }
+    method prefix_kludge { undef }
 
     our $gensym_counter_ = 0; #X STD_red misparses $_gen .
     method gensym {
       $gensym_counter_ = $gensym_counter_+1;
       "gensym"~$gensym_counter_
     }
-
   }
 
   # space - may be a no-op, literal, or <ws>.
@@ -1271,6 +1272,9 @@ package IRx1 {
     }
     method emit_RATCHET {
       $.notes<delegate>.emit_RATCHET;
+    }
+    method prefix_kludge {
+      $.notes<delegate>.prefix_kludge;
     }
   }
 
@@ -1284,6 +1288,9 @@ package IRx1 {
     }
     method emit_RATCHET {
       $.RATCHET_eat_regexp($._as_re);
+    }
+    method prefix_kludge {
+      $._as_re
     }
   }
 
@@ -1299,6 +1306,9 @@ package IRx1 {
     }
     method emit_RATCHET {
       $.RATCHET_eat_regexp($._as_re);
+    }
+    method prefix_kludge {
+      $._as_re
     }
   }
 
@@ -1463,6 +1473,17 @@ package IRx1 {
         }
       }
       $exprs_RMARE;
+    }
+    method prefix_kludge {
+      my $prefix = undef;
+      for $.exprs {
+        next if $_.WHAT eq 'IRx1::RxMod_my';
+        my $pk = $_.prefix_kludge;
+        if not defined $pk { return $prefix }
+        if not defined $prefix { $prefix = $pk }
+        else { $prefix = $prefix ~ $pk }
+      }
+      return $prefix;
     }
   }  
 
@@ -1676,12 +1697,13 @@ package IRx1 {
   class RxCodePredicate {
     method emit_RMARE {
       my $code = $.code;
+      my $neg = '0'; if $.neg { $neg = '1' }
       my $code5 = $whiteboard::current_emitter.e($code);
       if 1 || $code.uses_match_variable { #XX unimplemented. performance hit.
         $code5 = 'my $M = $RXX::current_match;'~"\n" ~ $code5;
       }
       #XX need to subname the sub to avoid p5 idiocy?
-      'IRx1::RxBaseClass->RMARE_codepredicate(sub{'~$code5~'})'
+      'IRx1::RxBaseClass->RMARE_codepredicate(sub{'~$code5~'},'~$neg~')'
     }
   }
 
@@ -1700,8 +1722,11 @@ package IRx1 {
         $nameq = '"'~quotemeta($name)~'"';
         my $g;
         if ($g = $name.re_groups('[^:]:([^:]+)\z')) { #XX kludge
-          $prefix_re = 'qr/'~quotemeta($g[0])~'/';
-        }
+          my $prefix = $.expr.prefix_kludge;
+          if defined($prefix) {
+            $prefix_re = 'qr/'~$prefix~'/';
+          }
+      }
       }
       my $nparenx = {if $.notes<flags><p5> { $.notes<nparen> } else { $.notes<nparen6> }};
       $nparenx = $nparenx || 'undef';

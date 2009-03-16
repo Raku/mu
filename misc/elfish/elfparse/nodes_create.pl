@@ -23,7 +23,7 @@ RxARegex modpat mods expr
 RxBiind created_in_pkg name expr
 RxNamespace created_in_pkg nsname bindings pkg
 RxCode code
-RxCodePredicate code
+RxCodePredicate code neg
 RxCodeRx code
 RxIndependent expr
 RxConditional test expr_then expr_else
