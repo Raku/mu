@@ -70,7 +70,7 @@ struct SMOP__ResponderInterface {
 /* 
  * Here follows the basic macros for that triade.
  */
-#define SMOP_RI(object) ((SMOP__ResponderInterface*)((((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)))
+#define SMOP_RI(object) ((SMOP__Object*)object)->RI
 
 #ifdef SMOP_HUNT_NULLS
 #include <assert.h>
