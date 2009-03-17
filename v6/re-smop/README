@@ -22,7 +22,7 @@ SMOP should then be divided into the following modules
  s0native - This module contains the stage 0 native types, they are
    packaged separated because they are not subject to garbage
    collection, and because of its importance to everything else, it
-   builds libsmop-s0native. It contains bool, idconst, empty capture,
+   builds libsmop-s0native. It contains bool, idconst,
    interpreter capture (the current interpreter as first positional
    argument), stage 0 interpreter (recurses on goto, should only be
    used for creating and destroying an actual interpreter).
