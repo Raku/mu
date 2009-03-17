@@ -26,4 +26,8 @@ SMOP__Object* smop_noop_reference(SMOP__Object* interpreter,
 SMOP__Object* smop_noop_release(SMOP__Object* interpreter,
                                   SMOP__ResponderInterface* responder,
                                   SMOP__Object* obj); 
+
+SMOP__Object* smop_noop_weakref(SMOP__Object* interpreter,
+                                  SMOP__ResponderInterface* responder,
+                                  SMOP__Object* obj); 
 #endif

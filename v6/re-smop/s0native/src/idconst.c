@@ -120,6 +120,7 @@ void smop_idconst_init() {
   SMOP__NATIVE__idconst_RI->MESSAGE = smop_placeholder_message;
   SMOP__NATIVE__idconst_RI->REFERENCE = smop_noop_reference;
   SMOP__NATIVE__idconst_RI->RELEASE = smop_noop_release;
+  SMOP__NATIVE__idconst_RI->WEAKREF = smop_noop_weakref;
   SMOP__NATIVE__idconst_RI->id = "Constant Identifier";
 
   qsort(constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
