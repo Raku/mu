@@ -39,9 +39,38 @@ SMOP should then be divided into the following modules
    garbage collection.
 
  s1p - This module contains simplification of Perl 6 types that exist
-   for bootstrapping purposes, such as Scalar, Array, Package, Code,
-   PrototypeHOW, RoleHOW etc
+   for bootstrapping purposes:
+   * SMOP::S1P::Scalar
+   * SMOP::S1P::Array
+   * SMOP::S1P::Array::BValue
+   * SMOP::S1P::Hash
+   * SMOP::S1P::Hash::BValue
+   * SMOP::S1P::LexicalScope
+   * SMOP::S1P::LexicalScope::Flattened
+   * SMOP::S1P::Package
+   * SMOP::S1P::Signature::Adhoc
+   * SMOP::S1P::Signature::BindCapture
+   * SMOP::S1P::Signature::BlockDefault
+   * SMOP::S1P::Code
+   * SMOP::S1P::Code::NativeC
+   * SMOP::S1P::Capturize
+   * SMOP::S1P::RITest
+   * SMOP::S1P::ControlExceptionReturn
+   * SMOP::S1p::OutOfItemsException
 
  p6opaque - This is the default representation for Perl 6 objects. It
    should support storing all kinds of meta information required by
    the Perl 6 default object system.
+
+ s1p-oo - This module contains types that aid OO bootstrapping
+   * SMOP::S1P::PrototypeHOW
+   * SMOP::S1P::RoleHOW
+   * SMOP::S1P::Attribute
+   * SMOP::S1P::Signature::MethodDefault
+
+ core - This module contains the code for the core loading.
+   * SMOP::S1P::MildewSOLoader
+
+ pcl - libpcl integration
+
+ p5 - embedded p5
