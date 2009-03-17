@@ -37,3 +37,11 @@ SMOP should then be divided into the following modules
 
  native - This module contains the regular native types, subject to
    garbage collection.
+
+ s1p - This module contains simplification of Perl 6 types that exist
+   for bootstrapping purposes, such as Scalar, Array, Package, Code,
+   PrototypeHOW, RoleHOW etc
+
+ p6opaque - This is the default representation for Perl 6 objects. It
+   should support storing all kinds of meta information required by
+   the Perl 6 default object system.

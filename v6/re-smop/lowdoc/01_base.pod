@@ -53,6 +53,9 @@ That being said, follows the structure of a responder interface:
     SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,
                                SMOP__ResponderInterface* self,
                                SMOP__Object* object);
+    SMOP__Object* (*WEAKREF)  (SMOP__Object* interpreter,
+                               SMOP__ResponderInterface* self,
+                               SMOP__Object* object);
     char* id;
   }
 
@@ -87,6 +90,14 @@ by making REFERENCE and RELEASE noops.
 
 The policy on the use of REFERENCE and RELEASE is going to be
 described in another document.
+
+=item WEAKREF
+
+This can be used wherever you would normally use a REFERENCE to tell
+that you want a weak reference, this call is allowed to return you a
+different pointer, and you are supposed to use that. The
+implementation of the weak-reference per se is private to the object's
+gc implementation.
 
 =back
 
@@ -124,6 +135,10 @@ of those concepts should be expanded later).
 Increments/decrements the reference count of the given "value" in the
 context of the given "interpreter". This macro returns the value
 itself, so you can use the macro in the place of the value itself.
+
+=item SMOP_WEAKREF(interpreter, value)
+
+Returns a weak reference to value.
 
 =back
 

@@ -33,6 +33,8 @@ struct SMOP__Object {
  *
  * RELEASE is called every time an reference is released.
  *
+ * WEAKREF is used to return a weak reference to this object.
+ *
  * This doesn't mean that every object need to be refcounted, but
  * without it it would be impossible to implement a refcount gc. Both
  * methods return the input pointer.
@@ -46,6 +48,9 @@ struct SMOP__Object {
                              SMOP__ResponderInterface* self,      \
                              SMOP__Object* object);               \
   SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,           \
+                             SMOP__ResponderInterface* self,      \
+                             SMOP__Object* object);               \
+  SMOP__Object* (*WEAKREF)  (SMOP__Object* interpreter,           \
                              SMOP__ResponderInterface* self,      \
                              SMOP__Object* object);               \
   char* id;
@@ -113,6 +118,12 @@ struct SMOP__ResponderInterface {
           ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
           (SMOP__Object*)object \
       )))
+#define SMOP_WEAKREF(interpreter, object) \
+      (fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] ## (%p) %s:%d (%s)\n",object,__FILE__,__LINE__,__func__),\
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->WEAKREF( (SMOP__Object*)interpreter, \
+          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+          (SMOP__Object*)object \
+      )))
 #else
 #define SMOP_REFERENCE(interpreter, object) \
       (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->REFERENCE( (SMOP__Object*)interpreter, \
@@ -121,6 +132,11 @@ struct SMOP__ResponderInterface {
       ))
 #define SMOP_RELEASE(interpreter, object) \
       (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->RELEASE( (SMOP__Object*)interpreter, \
+          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+          (SMOP__Object*)object \
+      ))
+#define SMOP_WEAKREF(interpreter, object) \
+      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->WEAKREF( (SMOP__Object*)interpreter, \
           ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
           (SMOP__Object*)object \
       ))
