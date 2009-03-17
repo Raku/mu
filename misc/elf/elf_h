@@ -4523,6 +4523,7 @@ Use\ \-\-\ to\ stop\.\
 \ \-v\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ verbose\.\
 \
 \ default\ \ Compile0\ and\ eval\.\
+\ \-r1\ \ \ \ \ \ Compile1\ and\ eval\.\
 \ \-s0\ \ \ \ \ \ Compile0\ and\ show\ the\ resulting\ framgent\.\
 \ \-s\ \ \ \ \ \ \ Compile1\ and\ show\ the\ resulting\ fragment\.\
 \ \-x\ \ \ \ \ \ \ Compile1\ to\ an\ executable\ form\.\
@@ -4553,6 +4554,8 @@ my $sources = [];
 my $handle = sub {my($filename,$code)=@_;
 (do{if((($mode eq "r"))->Bool) {
 (do{$GLOBAL::compiler0->eval_fragment($code, $filename, $verbose, GLOBAL::undef())})
+}elsif((($mode eq "r1"))->Bool) {
+(do{$GLOBAL::compiler1->eval_fragment($code, $filename, $verbose, GLOBAL::undef())})
 }elsif(((do{my $__tmp__=(($mode eq "s0"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=(($mode eq "s1"));no warnings "void";$__tmp__}}))->Bool) {
 (do{my $comp;
 if((($mode eq "s0"))->Bool) {
@@ -4581,6 +4584,8 @@ while(($args->elems())->Bool) {
 (do{my $arg = $args->shift();
 if((($arg eq "\-v"))->Bool) {
 (do{($verbose = 1)})
+}elsif((($arg eq "\-r1"))->Bool) {
+(do{($mode = "r1")})
 }elsif((($arg eq "\-s0"))->Bool) {
 (do{($mode = "s0")})
 }elsif((($arg eq "\-s"))->Bool) {

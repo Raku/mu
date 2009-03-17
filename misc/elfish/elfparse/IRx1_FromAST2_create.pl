@@ -14,7 +14,7 @@ $m<statement>
 #--- statement
 my $labels = $m<label>;
 my $result = $m<EXPR> || $m<statement_control>;
-if $o<EXPR> && ($o<statement_mod_loop>.elems || $o<statement_mod_cond>.elems) {
+if $o<EXPR> && ($o<statement_mod_loop> || $o<statement_mod_cond>) {
   temp $blackboard::statement_expr = $result;
   $result = $m<statement_mod_loop>[0] || $m<statement_mod_cond>[0];
   if $o<mod_condloop> { #XXX still exists?

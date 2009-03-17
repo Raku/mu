@@ -97,8 +97,11 @@ STD_green_run.pm.p5: elfrx STD_green_run.pm
 STD_green_run: elfrx std.pm STD_green_run.pm std.pm.p5 STD_green_run.pm.p5
 	${ELF} -x -o STD_green_run ${ELFRXDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e '_inline_p5("require \"./STD_green_run.pm.p5\";")'
 
-elfdev: STD_green_run
-	${ELF} -x -o ./elfdev ${ELFRXDEV} -e '_inline_p5("require \"./std.pm.p5\";")' -e elf_main
+elfdev: Parser3.pm STD_green_run
+	${ELF} -x -o ./elfdev ${ELFRXDEV} Parser3.pm -e '_inline_p5("require \"./std.pm.p5\";")' -e elf_main
+
+elfdev1: Parser3.pm STD_green_run
+	./elfrx -x -o ./elfdev1 ${ELFRXDEV} Parser3.pm -e '_inline_p5("require \"./std.pm.p5\";")' -e elf_main
 
 # Test
 

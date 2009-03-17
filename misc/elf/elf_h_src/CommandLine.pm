@@ -11,6 +11,7 @@ Use -- to stop.
  -v                verbose.
 
  default  Compile0 and eval.
+ -r1      Compile1 and eval.
  -s0      Compile0 and show the resulting framgent.
  -s       Compile1 and show the resulting fragment.
  -x       Compile1 to an executable form.
@@ -45,6 +46,9 @@ One can also do
       if $mode eq 'r' {
         $*compiler0.eval_fragment($code,$filename,$verbose,undef);
       }
+      elsif $mode eq 'r1' {
+        $*compiler1.eval_fragment($code,$filename,$verbose,undef);
+      }
       elsif $mode eq 's0' || $mode eq 's1' {
         my $comp;
         if $mode eq 's0' {
@@ -78,6 +82,9 @@ One can also do
       my $arg = $args.shift;
       if $arg eq '-v' {
         $verbose = 1;
+      }
+      elsif $arg eq '-r1' {
+        $mode = 'r1';
       }
       elsif $arg eq '-s0' {
         $mode = 's0';

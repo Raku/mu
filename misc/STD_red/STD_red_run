@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env ruby1.9
 # encoding: utf-8
 
 RUBY_VERSION =~ /\A(1\.9|2\.)/ or raise "#{$0} needs ruby 1.9.  See README."

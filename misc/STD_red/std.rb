@@ -2408,7 +2408,7 @@ class Perl
     StrPos StrLen Version P6opaque
     bit int uint buf num complex bool rat
     Scalar Array Hash KeyHash KeySet KeyBag Buf IO Routine Sub Method
-    Submethod Macro Regex Match Package Module Class Role Grammar Any Object }
+    Submethod Macro Regex Match Package Module Class Role Grammar Any Object STD }
     HTypenames = Hash[ *Typenames.map{|n|[n,1]}.flatten ]
     #R XXX NONSPEC - added 'starts with a capital letter' test.
     #R Which probably breaks something.

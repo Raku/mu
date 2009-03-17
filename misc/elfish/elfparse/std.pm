@@ -4717,6 +4717,12 @@ method worryobs (Str $old, Str $new, Str $when = ' in Perl 6') {
 }
 
 ## vim: expandtab sw=4 ft=perl6
+#ELFHACK
+method parse6 ($p6_code) {
+  my $tree = /^<comp_unit>/.match($p6_code);
+  return $tree if not $tree;
+  $tree<comp_unit>;
+}
 #ELFDEV Development aids.
 regex unimplemented_rule { <fail> } #ELFDEV
 _inline_p5(' my %unimp_rules_seen; sub AUTOLOAD {my $r = $AUTOLOAD; print STDERR "FAKING unimplemented rule: $r\n" if !$unimp_rules_seen{$r}++; __PACKAGE__->unimplemented_rule("");} '); #ELFDEV

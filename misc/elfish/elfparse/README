@@ -13,6 +13,7 @@ $ make all
 $ ./elfrx -v -e 'proto token foo {a}; token foo:<+> { \+ }; token foo:<++> { \+\+ }; say /<foo>/.match("a++b").match_describe'
 $ make is_perl_recent_enough
 $ ./elfdev -v -e 'package STD { say /<comp_unit>/.match("23").match_describe }'
+$ ./elfdev -v -r1 -e 'say 3'  #buggy
 
 $ make does_gimme5_memory_problem_still_exist
 
