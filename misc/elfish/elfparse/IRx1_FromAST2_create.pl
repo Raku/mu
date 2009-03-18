@@ -894,7 +894,7 @@ elsif $x eq '< >' {
   while $sr && $sr<sym_name> {
     if $sr<sym_name> eq '?' { $nocap = 1; $zero_width = 1; $sr = $sr<assertion>; } # <? >
     elsif $sr<sym_name> eq 'method' { $nocap = 1; $sr = $sr<assertion>; $methodp =1} # <.foo>
-    elsif $sr<sym_name> eq '!' { $neg = 1; $sr = $sr<assertion>; } # <! >
+    elsif $sr<sym_name> eq '!' { $neg = 1; $zero_width = 1; $sr = $sr<assertion>; } # <! >
     else { last; }
   }
   ;
@@ -926,6 +926,9 @@ elsif $x eq '< >' {
       }
       $irs = rxseq($m,[RxLookaround.newp(1,0,$exast),
 			$irs]);
+    }
+    if $zero_width {
+      $irs = RxLookaround.newp(1,1,$irs);
     }
     return $irs;
   }
