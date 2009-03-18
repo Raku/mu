@@ -50,7 +50,7 @@ SMOP should then be divided into the following modules
    - junction
    - (S02 built-in types)
 
- gc - This is the implementation of the default SMOP garbage
+ p6gc - This is the implementation of the default SMOP garbage
    collector. It is a fairly standard refcounting gc that invokes
    DESTROYALL on the object when the refcount reaches 0.
 
