@@ -101,6 +101,7 @@ PrimitivesP5.pm is a tweaked copy of elf_h's - gimme5 takes more memory
 than I have available to compile the original.
 
 Success looks like:
+ - elf can compile all of std.pm (not necessarily correctly).
  - elf can self-compile using std.pm on rx_on_re.
 
 

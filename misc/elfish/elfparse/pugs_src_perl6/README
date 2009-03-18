@@ -4,3 +4,5 @@ after HEAD, than would working linearly through the revisions since then.
 
 *LOG*
 r25030  Baseline.
+ -      Removed duplicate defs of infix:sym<andthen> and infix:sym<orelse>.
+        Also fixed in HEAD.

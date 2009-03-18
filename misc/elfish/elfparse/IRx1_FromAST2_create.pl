@@ -745,8 +745,11 @@ my $trait = $m<trait>; #X
 #
 temp $blackboard::sym;
 my $g;
-if $name && ($g = $name.re_groups('[^:]:([^:]+)\z')) {
-  $blackboard::sym = $g[0];
+if $name && ($g = $name.re_groups('\A([^:]+):([^:]+)\z')) {
+  my $sym = $g[1];
+  $sym = $sym.re_gsub('\A\s+','').re_gsub('\s+\z','');
+  $blackboard::sym = $sym;
+  $name = $g[0]~':'~$sym;
 }
 my $regex = $m<regex_block>;
 #

@@ -3353,9 +3353,6 @@ token infix:sym<and> ( --> Loose_and)
 token infix:sym<andthen> ( --> Loose_and)
     { <sym> }
 
-token infix:sym<andthen> ( --> Loose_and)
-    { <sym> }
-
 ## loose or
 token infix:sym<or> ( --> Loose_or)
     { <sym> }
@@ -3365,9 +3362,6 @@ token infix:sym<orelse> ( --> Loose_or)
 
 token infix:sym<xor> ( --> Loose_or)
     { <sym> }
-
-token infix:sym<orelse> ( --> Loose_or)
-     { <sym> }
 
 token infix:sym« <== » ( --> Sequencer)
     { <sym> }

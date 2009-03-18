@@ -918,12 +918,10 @@ rule statement_mod_loop:until {<sym> <modifier_expr> {*} }      #= until
 rule statement_mod_loop:for   {<sym> <modifier_expr> {*} }      #= for
 rule statement_mod_loop:given {<sym> <modifier_expr> {*} }      #= given
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token module_name:normal {
     <longname>
-    [ :dba('generic role') <?{ ($+PKGDECL//'') eq 'role' }> '[' ~ ']' <signature> ]?
+#   [ :dba('generic role') <?{ ($+PKGDECL//'') eq 'role' }> '[' ~ ']' <signature> ]? #ELFXXX
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token module_name:deprecated { 'v6-alpha' }
 
@@ -1002,7 +1000,6 @@ token noun {
 }
 
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token fatarrow {
     <key=identifier> \h* '=>' <.ws> <val=EXPR(item %item_assignment)>
 }
@@ -1059,7 +1056,6 @@ token quotepair {
     ]
     { $<k> = $key; $<v> = $value; }
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token infixish {
     <!stdstopper>
@@ -1087,7 +1083,6 @@ token infixish {
     ]
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # doing fancy as one rule simplifies LTM
 token dotty:sym<.*> ( --> Methodcall) {
     ('.' [ <[+*?=:]> | '^' '!'? ]) :: <.unspacey> <dottyop>
@@ -1117,7 +1112,7 @@ token POST {
     <!stdstopper>
 
     # last whitespace didn't end here
-    <!{ @+MEMOS[$¢.pos]<ws> }>
+#   <!{ @+MEMOS[$¢.pos]<ws> }> #ELFXXX
 
     [ <.unsp> | '\\' ]?
 
@@ -1161,6 +1156,7 @@ token prefix_postfix_meta_operator:sym< « >    { <sym> | '<<' }
 
 token postfix_prefix_meta_operator:sym< » >    { <sym> | '>>' }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token infix_prefix_meta_operator:sym<!> ( --> Chaining) {
     <sym> <!before '!'> <infix>
 
@@ -1211,6 +1207,7 @@ token infix_postfix_meta_operator:sym<=> ($op --> Item_assignment) {
     [ <?{ ($<O><assoc> // '') eq 'chain' }> <.panic: "Can't make assignment op of boolean operator"> ]?
     [ <?{ ($<O><assoc> // '') eq 'non'   }> <.panic: "Can't make assignment op of non-associative operator"> ]?
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token postcircumfix:sym<( )> ( --> Methodcall)
     { :dba('argument list') '(' ~ ')' <semilist> }
@@ -1221,6 +1218,7 @@ token postcircumfix:sym<[ ]> ( --> Methodcall)
 token postcircumfix:sym<{ }> ( --> Methodcall)
     { :dba('subscript') '{' ~ '}' <semilist> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token postcircumfix:sym«< >» ( --> Methodcall)
     { '<' <nibble($¢.cursor_fresh( ::STD::Q ).tweak(:q).tweak(:w).balanced('<','>'))> [ '>' || <.panic: "Unable to parse quote-words subscript; couldn't find right angle quote"> ] }
 
@@ -1229,6 +1227,7 @@ token postcircumfix:sym«<< >>» ( --> Methodcall)
 
 token postcircumfix:sym<« »> ( --> Methodcall)
     { '«' <nibble($¢.cursor_fresh( ::STD::Q ).tweak(:qq).tweak(:ww).balanced('«','»'))> [ '»' || <.panic: "Unable to parse quote-words subscript; couldn't find right double-angle quote"> ] }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token postop {
     | <postfix>         { $<O> := $<postfix><O>; $<sym> := $<postfix><sym>; }
@@ -1250,20 +1249,17 @@ token methodop {
     ]?
 }
 
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token arglist {
 #   :my StrPos $endargs is context<rw> = 0; #ELFBUG
-    :my $endargs is context<rw> = 0; #ELFFIX
+    :my        $endargs is context<rw> = 0; #ELFFIX
     :my $GOAL is context = 'endargs';
     <.ws>
     :dba('argument list')
     [
     | <?stdstopper>
-#   | <EXPR(item %list_prefix)> #ELFBUG
-    | <EXPR> #ELFXXX
+    | <EXPR(item %list_prefix)>
     ]
 }
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 token circumfix:sym<{ }> ( --> Term) {
     <?before '{' | <lambda> > <pblock>
@@ -1369,7 +1365,8 @@ rule package_def {
     <trait>*
     [
        <?before '{'>
-       {{
+#      {{ #ELFBUG {{ }}
+       {  #ELFFIX
            # figure out the actual full package name (nested in outer package)
             my $pkg = $+PKG // "GLOBAL";
             push @PKGS, $pkg;
@@ -1380,11 +1377,14 @@ rule package_def {
             else {
                 $+PKG = $pkg ~ '::_anon_';
             }
-        }}
+#       }} #ELFBUG
+        }  #ELFFIX
         <block>
-        {{
+#       {{ #ELFBUG {{ }}
+        {  #ELFFIX
             $+PKG = pop(@PKGS);
-        }}
+#       }} #ELFBUG
+        }  #ELFFIX
         {*}                                                     #= block
     || <?{ $+begin_compunit }> {} <?before ';'>
         {
@@ -1397,7 +1397,6 @@ rule package_def {
     || <.panic: "Unable to parse " ~ $+PKGDECL ~ " definition">
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token declarator {
     [
@@ -1745,6 +1744,7 @@ token twigil:sym<!> { <sym> }
 token twigil:sym<^> { <sym> }
 =begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token twigil:sym<:> { <sym> <!before ':'> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token twigil:sym<*> { <sym> }
 token twigil:sym<+> { <sym> }
 token twigil:sym<?> { <sym> }
@@ -1754,8 +1754,8 @@ token deflongname {
     :dba('name to be defined')
     <name>
     # XXX too soon
-    [ <colonpair>+ { $¢.add_macro($<name>) if $+IN_DECL; } ]?
-    { $¢.add_routine($<name>.text) if $+IN_DECL; }
+#   [ <colonpair>+ { $¢.add_macro($<name>) if $+IN_DECL; } ]? #ELFXXX
+#   { $¢.add_routine($<name>.text) if $+IN_DECL; } #ELFXXX
 }
 
 token longname {
@@ -1783,11 +1783,12 @@ token morename {
 token subshortname {
     [
     | <category>
-        [ <colonpair>+ { $¢.add_macro($<category>) if $+IN_DECL; } ]?
-    | <desigilname> { $¢.add_routine($<desigilname>.text) if $+IN_DECL; }
+#       [ <colonpair>+ { $¢.add_macro($<category>) if $+IN_DECL; } ]? #ELFBUG
+        [ <colonpair>+ ]? #ELFXXX
+#   | <desigilname> { $¢.add_routine($<desigilname>.text) if $+IN_DECL; } #ELFBUG
+    | <desigilname> #ELFXXX
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token sublongname {
     <subshortname> <sigterm>?
@@ -3231,8 +3232,10 @@ token infix:sym<gt> ( --> Chaining)
 token infix:sym<ge> ( --> Chaining)
     { <sym> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token infix:sym<=:=> ( --> Chaining)
     { <sym> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token infix:sym<===> ( --> Chaining)
     { <sym> }
@@ -3428,11 +3431,9 @@ token term:name ( --> Term)
     ]
 }
 
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## loose and
 token infix:sym<and> ( --> Loose_and)
-    { <sym> }
-
-token infix:sym<andthen> ( --> Loose_and)
     { <sym> }
 
 token infix:sym<andthen> ( --> Loose_and)
@@ -3448,9 +3449,6 @@ token infix:sym<orelse> ( --> Loose_or)
 token infix:sym<xor> ( --> Loose_or)
     { <sym> }
 
-token infix:sym<orelse> ( --> Loose_or)
-     { <sym> }
-
 token infix:sym« <== » ( --> Sequencer)
     { <sym> }
 
@@ -3463,13 +3461,11 @@ token infix:sym« <<== » ( --> Sequencer)
 token infix:sym« ==>> » ( --> Sequencer)
     { <sym> {*} }              #'
 
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## expression terminator
 # Note: must always be called as <?terminator> or <?before ...<terminator>...>
 
 token terminator:sym<;> ( --> Terminator)
     { ';' }
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 token terminator:sym<if> ( --> Terminator)
     { 'if' » <.nofun> }
@@ -3495,7 +3491,6 @@ token terminator:sym<when> ( --> Terminator)
 token terminator:sym« --> » ( --> Terminator)
     { '-->' {*} }              #'
 
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token terminator:sym<)> ( --> Terminator)
     { <sym> }
 
@@ -3504,10 +3499,10 @@ token terminator:sym<]> ( --> Terminator)
 
 token terminator:sym<}> ( --> Terminator)
     { '}' }
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 token terminator:sym<!!> ( --> Terminator)
     { '!!' <?{ $+GOAL eq '!!' }> }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 regex infixstopper {
     :dba('infix stopper')
