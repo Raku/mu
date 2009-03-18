@@ -25,6 +25,21 @@ OVERALL
   use different names and no "my" (except where testing lexical subs, of
   course)
 
+UPDATING TASKS
+sometimes the spec changes, and the test suite must be updated accordingly.
+Here's a list of what needs to be done, along with the revisions that changed
+the spec (newest first)
+
+* (r25891) Junction -> junction, eigenstates method is now private
+* (r25890) 'int 2' is now forbidden 
+* (r25849) blocks don't autothread
+* (r25830) named parameters to open()
+* (r25821) bare values in signatures
+* (r25774) ~ and + act on the matched string, not the abstract object
+* (r25770) .text is now .Str
+* (r25767) updates to builtin regexes
+* (r25715) lists in item context autopromote to captures
+
 S02
 * tests for KeySet. See spec/S02-builtin_data_types/keyhash.t for inspiration
 * tests for Implementation types (the Perl 6 equiv. of tie()), probably need
