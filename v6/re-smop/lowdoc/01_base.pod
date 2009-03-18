@@ -88,8 +88,7 @@ The other consequence of this choice is that you can have objects that
 are not subject to garbage collection, and this can be achieved simply
 by making REFERENCE and RELEASE noops.
 
-The policy on the use of REFERENCE and RELEASE is going to be
-described in another document.
+The policy on the use of REFERENCE and RELEASE is described below.
 
 =item WEAKREF
 
@@ -139,6 +138,60 @@ itself, so you can use the macro in the place of the value itself.
 =item SMOP_WEAKREF(interpreter, value)
 
 Returns a weak reference to value.
+
+=back
+
+=head1 REFERENCE/RELEASE Policy
+
+Even if not all object systems use reference counting garbage
+collection, the possible existance of some object system that does,
+requires us to implement the mechanisms that make it possible. That is
+why, besides MESSAGE, three other functions are defined in the
+responder interface lowlevel type. The REFERENCE, RELEASE and WEAKREF
+functions. This functions are supposed to be the hooks for
+implementing a refcount garbage collector.
+
+=head2 Who owns the object?
+
+This is the most important question in the matter of when to call
+REFERENCE and when to call RELEASE. And a simple policy shall describe
+this decision:
+
+=over
+
+=item
+
+When an object is created, it's owned by the code who called the
+method that creates it.
+
+=item
+
+Passing an object to a capture implies transfering the ownership of
+the object.
+
+=item
+
+Passing an object as the capture of a MESSAGE transfer the ownership
+to the code implementing that.
+
+=item
+
+A call to REFERENCE defines an additional owner to the object.
+
+=item
+
+A call to RELEASE implies that this owner no longer wants the object.
+
+=item
+
+Using an object as Intepreter, Responder Interface or Identifier of a
+MESSAGE doesn't transfer the ownership.
+
+=item
+
+WEAKREF is used to return a weak reference to that object, it returns
+a different pointer, owned by the code that called it. Calling WEAKREF
+doesn't change the refcount.
 
 =back
 
