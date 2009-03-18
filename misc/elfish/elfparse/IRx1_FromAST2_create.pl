@@ -759,6 +759,16 @@ if $blackboard::is_proto { # category decl
 my $mods = {};
 if $kind eq 'token' || $kind eq 'rule' { $mods{'ratchet'} = 1 }
 if $kind eq 'rule' { $mods{'sigspace'} = 1 }
+if $kind eq 'rule' && $o<regex_block><nibble>.match_string.re_matchp(/^\s/) {
+  # rule foo { a } eqv regex foo { <.ws> a <.ws> }
+  # but the leading space isn't showing up in the parse tree, so kludge. #XX
+  my $sp = RxASpace.newp(undef,' '); #X
+  if $regex.WHAT eq 'IRx1::RxSeq' {
+    $regex.exprs.unshift($sp);
+  } else {
+    $regex = RxSeq.newp([$sp, $regex]);
+  }
+}
 my $rx = RxBiind.newp(undef,$name,RxARegex.newp('',$mods,$regex));
 RegexDef.newp($kind,$name,$sig,$trait,$rx)
 

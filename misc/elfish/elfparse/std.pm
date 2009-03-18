@@ -662,19 +662,19 @@ token xblock {
     <pblock>
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token block {
     '{' ~ '}' <statementlist>
 
     [
     | <?before \h* $$>  # (usual case without comments)
-        { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple 
+#       { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple #ELFXXX
     | \h* <.unsp>? <?before <[,:]>> {*}                         #= normal 
     | <.unv>? $$
-        { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex
-    | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; } {*}             #= endargs
+#       { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex #ELFXXX
+#   | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; } {*}             #= endargs #ELFXXX
     ]
 }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 token regex_block {
     :my $lang = ::Regex;
