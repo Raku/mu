@@ -852,7 +852,9 @@ elsif $o<variable> && $o<binding> {
   my $expr = $m<binding><quantified_atom>;
   RxAlias.newp($target,$expr);
 }
-elsif $x eq '.' { RxPat5.newp('.') }
+elsif $x eq '.' {
+  if $blackboard::is_P5 { RxPat5.newp('.') } else { RxPat5.newp('(?s:.)') }
+}
 elsif $x eq '^' {
   if $blackboard::is_P5 { RxPat5.newp('^') } else { RxPat5.newp('\A') }
 }
@@ -957,7 +959,6 @@ elsif $x eq '< >' {
     $exprs = $args || [];#X?
   }
   elsif $sr<sym_name> eq '{ }' { # <?{ bool }>
-    #XX This is much more expensive than it needs to be.  New CodePred node?
     my $stmts = irbuild_ir($sr<codeblock><statementlist>);
     my $pred = Block.newp($stmts);
     return RxCodePredicate.newp($pred,$neg);
@@ -1037,9 +1038,11 @@ elsif $x eq '\\' {
         RxPat5.newp(*text*);
       }
     }
-    elsif $text eq '\\N' {
-      RxPat5.newp('[^\n]')
-    }
+    elsif $text eq '\\T' { RxPat5.newp('[^\t]') }
+    elsif $text eq '\\N' { RxPat5.newp('[^\n]') }
+    elsif $text eq '\\R' { RxPat5.newp('[^\r]') }
+    elsif $text eq '\\F' { RxPat5.newp('[^\f]') }
+    elsif $text eq '\\E' { RxPat5.newp('[^\e]') }
     else {
       RxPat5.newp(*text*)
     }

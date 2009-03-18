@@ -5,13 +5,13 @@ abc<.wb>		abc\ndef\n-==\nghi	y	word boundary \w\W
 <.wb>abc		abc\ndef\n-==\nghi	y	BOS word boundary
 ghi<.wb>		abc\ndef\n-==\nghi	y	EOS word boundary
 a<.wb>			abc\ndef\n-==\nghi	n	\w\w word boundary
--<.wb>			abc\ndef\n-==\nghi	n	\W\W word boundary
+\-<.wb>			abc\ndef\n-==\nghi	n	\W\W word boundary
 <!wb>def		abc\ndef\n-==\nghi	n	nonword boundary \W\w
 abc<!wb>		abc\ndef\n-==\nghi	n	nonword boundary \w\W
 <!wb>abc		abc\ndef\n-==\nghi	n	BOS nonword boundary
 ghi<!wb>		abc\ndef\n-==\nghi	n	EOS nonword boundary
 a<!wb>			abc\ndef\n-==\nghi	y	\w\w nonword boundary
--<!wb>			abc\ndef\n-==\nghi	y	\W\W nonword boundary
+\-<!wb>			abc\ndef\n-==\nghi	y	\W\W nonword boundary
 
 <upper>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<upper>: <A @ 45>/		<upper>
 <.upper>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <A @ 45>/			<.upper>

@@ -13,7 +13,7 @@ $ make all
 $ ./elfrx -v -e 'proto token foo {a}; token foo:<+> { \+ }; token foo:<++> { \+\+ }; say /<foo>/.match("a++b").match_describe'
 $ make is_perl_recent_enough
 $ ./elfdev -v -e 'package STD { say /<comp_unit>/.match("23").match_describe }'
-$ ./elfdev -v -r1 -e 'say 3'  #buggy
+$ ./elfdev -v -r1 -e 'say 3'
 
 $ make does_gimme5_memory_problem_still_exist
 
@@ -68,9 +68,25 @@ Thus permitting the front-end to be bootstrapped.
 NOTES
 
 Dependencies:
-autobox Class::Multimethods Sub::Name #elf
-Regexp::Common #rx_on_re
-Moose #gimme5
+ autobox Class::Multimethods Sub::Name   #for elf
+ Regexp::Common   #for rx_on_re tests
+ Moose   #for gimme5
+
+Running  make check_std_rx_on_re  takes a loonngg time.
+Caching the STD_blue parses of the rx test suite speeds it.
+So you probably want to:
+  $ make check_std_rx_on_re
+  $ mkdir whatever; cp -p deleteme_cache_blue/* whatever/
+And on subsequent runs,
+if the cache is still loaded:
+  $ make rerun_std_rx_on_re
+and when the cache has been wiped:
+  $ make check_std_rx_on_re &
+  $ cp whatever/* deleteme_cache_blue/
+  $ fg
+But if you've changed pugs_src_perl6/STD.pm or gimme5,
+then you *want* to discard all your old parses.
+- 2009-Mar-18
 
 gimme5, and thus STD_blue, is not quite ready to replace STD_red as
 the primary elf parser.
@@ -84,25 +100,9 @@ the primary elf parser.
 PrimitivesP5.pm is a tweaked copy of elf_h's - gimme5 takes more memory
 than I have available to compile the original.
 
-IRx1_FromAST2_create.pl is a mess, with an unfortunate quantity of broken
-legacy code.  The only objective was "get to self compilation", so general
-p6 support is lacking, even by elf standards.
-
-
-make check  runtime:
-r24098 takes me 9m35s'user (with STD_red cached, and STD_blue not cached).
-
 Success looks like:
-- STD_blue can parse STD.pm.
-- elfblue can generate IR for STD.pm.
-- an elf can run the non-rx portions of STD.pm.
-- rx_on_re can run the rx portions of STD.pm.
-- rx_on_re is integrated into an elf.
-- an elf can run STD.pm
-- an elf can self-compile using STD.pm.
+ - elf can self-compile using std.pm on rx_on_re.
 
-
-DEV NOTES
 
 Todo:
 
@@ -110,20 +110,8 @@ Todo:
    analysis capture miscounting, creating a bogus $0.
  - create elfrx "keep the optimizations unbugged" infrastructure.
 
- - let elfdev eval6 code.
-   requires pulling in code from STD_green.
-    lib? $0 ~~ __FILE__ ?  gimme_elf's hack?
+ - unpodding std.pm, extending parser coverage.
 
- - EXPR
-
-Implementation problems:
- - Missing .Bool in fastpath boolean ops.
-   elf_h -v -e 'if 3 && 4 { }'
-   if(((3 && 4))->Bool) {}
-   So still don't know full cost of .Bool-ification.
-
-
-./elfdev -e 'package STD{regex EXPR{<termish>}; token ws {:P5 (?:(?<!\w)|(?!\w))\s*|\s+}; say /<comp_unit>/.match("3").match_describe}'
 
 #For timing:
 # In std.pm.p5 and rx_prelude_p5.pm,
@@ -166,6 +154,3 @@ _inline_p5('
  for my $k (@k) { print $x->{$k}[1],"\t",$x->{$k}[0],"\t",$k,"\n"; }
 }
 ');
-
-2009-Feb-15 :)
-./elfdev -e 'package STD{regex EXPR{<termish>}; say /<comp_unit>/.match("3").match_describe}'

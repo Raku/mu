@@ -2037,36 +2037,38 @@ ok
 ok
         # ( [.] )*				abc	/mob 0 1: <b @ 1>/	nested repeated captures
 ok
-        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 0: <a @ 0>/	numbered aliases $1
-not ok # Unexpected compilation failure.
-        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 1: <b @ 1>/	numbered aliases $2
-not ok # Unexpected compilation failure.
-        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 7: <c @ 2>/	numbered aliases $7
-not ok # Unexpected compilation failure.
-        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 8: <d @ 3>/	numbered aliases $8
-not ok # Unexpected compilation failure.
-        # (.) (.) $7:=(.) (.) $4:=(.)		abcdefg	/mob 4: <e @ 4>/	numbered aliases $4
-not ok # Unexpected compilation failure.
-        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 1: <abc @ 0>/	perl5 numbered captures $1
-not ok # Unexpected compilation failure.
-        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 2: <a @ 0>/	perl5 numbered captures $1
-not ok # Unexpected compilation failure.
-        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 3: <b @ 1>/	perl5 numbered captures $1
-not ok # Unexpected compilation failure.
-        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 4: <c @ 2>/	perl5 numbered captures $1
-not ok # Unexpected compilation failure.
-        # $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 5: <d @ 3>/	perl5 numbered captures $1
-not ok # Unexpected compilation failure.
-        # :s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<key>: <abc @ 1>/	named capture
-not ok # Unexpected compilation failure.
-        # :s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<val>: <123 @ 7>/	named capture
-not ok # Unexpected compilation failure.
-        # :s (\w+) $<foo>:=(\w+) (\w+)		abc def ghi	/mob<foo>: <def @ 7>/	mixing named and unnamed capture
-not ok # Unexpected compilation failure.
-        # :s (\w+) $<foo>:=(\w+) (\w+)		abc def ghi	/mob 1: <ghi @ 11>/	mixing named and unnamed capture
-not ok # Unexpected compilation failure.
-        # <alpha> [ - <alpha> ]?			abc def ghi	/mob<alpha> 0: <a @ 3>/	multiple subrule captures in same scope
-not ok # Unexpected compilation failure.
+        # (.) (.) $7=(.) (.) $4=(.)		abcdefg	/mob 0: <a @ 0>/	numbered aliases $1
+ok
+        # (.) (.) $7=(.) (.) $4=(.)		abcdefg	/mob 1: <b @ 1>/	numbered aliases $2
+ok
+        # (.) (.) $7=(.) (.) $4=(.)		abcdefg	/mob 7: <c @ 2>/	numbered aliases $7
+ok
+        # (.) (.) $7=(.) (.) $4=(.)		abcdefg	/mob 8: <d @ 3>/	numbered aliases $8
+ok
+        # (.) (.) $7=(.) (.) $4=(.)		abcdefg	/mob 4: <e @ 4>/	numbered aliases $4
+ok
+        # $1=[ (.) (.) (.) ] (.)			abcdefg	/mob 1: <abc @ 0>/	perl5 numbered captures $1
+ok
+        # $1=[ (.) (.) (.) ] (.)			abcdefg	/mob 2: <a @ 0>/	perl5 numbered captures $1
+ok
+        # $1=[ (.) (.) (.) ] (.)			abcdefg	/mob 3: <b @ 1>/	perl5 numbered captures $1
+ok
+        # $1=[ (.) (.) (.) ] (.)			abcdefg	/mob 4: <c @ 2>/	perl5 numbered captures $1
+ok
+        # $1=[ (.) (.) (.) ] (.)			abcdefg	/mob 5: <d @ 3>/	perl5 numbered captures $1
+ok
+        # :s $<key>=[\w+] \= $<val>=[\S+]	 abc = 123	/mob<key>: <abc @ 1>/	named capture
+ok
+        # :s $<key>=[\w+] \= $<val>=[\S+]	 abc = 123	/mob<val>: <123 @ 7>/	named capture
+ok
+        # :s (\w+) $<foo>=(\w+) (\w+)		abc def ghi	/mob<foo>: <def @ 4>/	mixing named and unnamed capture
+ok
+        # :s (\w+) $<foo>=(\w+) (\w+)		abc def ghi	/mob 1: <ghi @ 8>/	mixing named and unnamed capture
+not ok
+  # Expected: >ghi< at 8
+  #      Got: >< at 
+        # <alpha> [ \- <alpha> ]?			abc def ghi	/mob<alpha> 0: <a @ 0>/	multiple subrule captures in same scope
+ok
         # [(.)$0]+				bookkeeper	y			backreference
 not ok # Unexpected compilation failure.
         # (\w+) <.ws> $0				hello hello	y			backreference at end of string
@@ -2246,7 +2248,7 @@ ok
         # .			a		y	dot (.)
 ok
         # .			\n		y	dot (.)
-not ok # Match failed.
+ok
         # .			''		n	dot (.)
 ok
         # a\s+f			abcdef		n	whitespace (\s)
@@ -2339,18 +2341,18 @@ ok
 ok
         # b \N \n			abc\ndef	y	not logical newline (\N)
 ok
-        # \Aabc			Aabc		y	retired metachars (\A)
-not ok # Unexpected compilation failure.
-        # \Aabc			abc\ndef	n	retired metachars (\A)
-not ok # Unexpected compilation failure.
-        # abc\Z			abcZ		y	retired metachars (\Z)
-not ok # Unexpected compilation failure.
-        # abc\Z			abc\ndef	n	retired metachars (\Z)
-not ok # Unexpected compilation failure.
-        # abc\z			abcz		y	retired metachars (\z)
-not ok # Unexpected compilation failure.
-        # def\z			abc\ndef	n	retired metachars (\z)
-not ok # Unexpected compilation failure.
+        # \Aabc			Aabc		c	retired metachars (\A)
+ok
+        # \Aabc			abc\ndef	c	retired metachars (\A)
+ok
+        # abc\Z			abcZ		c	retired metachars (\Z)
+ok
+        # abc\Z			abc\ndef	c	retired metachars (\Z)
+ok
+        # abc\z			abcz		c	retired metachars (\z)
+ok
+        # def\z			abc\ndef	c	retired metachars (\z)
+ok
         # abc # def		abc#def		y	comments (#)
 not ok # Unexpected compilation failure.
         # abc # xyz		abc#def		y	comments (#)
@@ -2445,30 +2447,30 @@ ok
 ok
         #  b |  | d		abc		n	null pattern invalid
 not ok # Unexpected compilation failure.
-        # \pabc			pabc		y	retired metachars (\p)
-not ok # Unexpected compilation failure.
-        # \p{InConsonant}		a		n	retired metachars (\p)
-not ok # Unexpected compilation failure.
-        # \Pabc			Pabc		y	retired metachars (\P)
-not ok # Unexpected compilation failure.
-        # \P{InConsonant}		a		n	retired metachars (\P)
-not ok # Unexpected compilation failure.
-        # \Labc\E			LabcE		y	retired metachars (\L...\E)
-not ok # Unexpected compilation failure.
-        # \LABC\E			abc		n	retired metachars (\L...\E)
-not ok # Unexpected compilation failure.
-        # \Uabc\E			UabcE		y	retired metachars (\U...\E)
-not ok # Unexpected compilation failure.
-        # \Uabc\E			ABC		n	retired metachars (\U...\E)
-not ok # Unexpected compilation failure.
-        # \Qabc\E			QabcE		y	retired metachars (\Q...\E)
-not ok # Unexpected compilation failure.
-        # \Qabc d?\E		abc d		n	retired metachars (\Q...\E)
-not ok # Unexpected compilation failure.
-        # \Gabc			Gabc		y	retired metachars (\G)
-not ok # Unexpected compilation failure.
-        # \1abc			1abc		y	retired metachars (\1)
-not ok # Unexpected compilation failure.
+        # \pabc			pabc		c	retired metachars (\p)
+ok
+        # \p{InConsonant}		a		c	retired metachars (\p)
+ok
+        # \Pabc			Pabc		c	retired metachars (\P)
+ok
+        # \P{InConsonant}		a		c	retired metachars (\P)
+ok
+        # \Labc\E			LabcE		c	retired metachars (\L...\E)
+ok
+        # \LABC\E			abc		c	retired metachars (\L...\E)
+ok
+        # \Uabc\E			UabcE		c	retired metachars (\U...\E)
+ok
+        # \Uabc\E			ABC		c	retired metachars (\U...\E)
+ok
+        # \Qabc\E			QabcE		c	retired metachars (\Q...\E)
+ok
+        # \Qabc d?\E		abc d		c	retired metachars (\Q...\E)
+ok
+        # \Gabc			Gabc		c	retired metachars (\G)
+ok
+        # \1abc			1abc		c	retired metachars (\1)
+ok
         # ^ \s+ $			\u0009\u0020\u00a0\u000a\u000b\u000c\u000d\u0085	y	0-255 whitespace (\s)
 not ok # Match failed.
         # ^ \h+ $			\u0009\u0020\u00a0	y	0-255 horizontal whitespace (\h)
@@ -2500,9 +2502,9 @@ ok
         # b \t c			abc\tdef	n	horizontal tab (\t)
 ok
         # \T			a		y	not horizontal tab (\T)
-not ok # Match failed.
+ok
         # a \T c			abc		y	not horizontal tab (\T)
-not ok # Match failed.
+ok
         # \T			''		n	not horizontal tab (\T)
 ok
         # c \T d			abc\tdef	n	not horizontal tab (\T)
@@ -2512,7 +2514,7 @@ ok
         # c \T+ d			abc\t\tdef	n	not horizontal tab (\T)
 ok
         # a \T+ f			abcdef		y	not horizontal tab (\T)
-not ok # Match failed.
+ok
         # c \r d			abc\rdef	y	return (\r)
 ok
         # c \r d			abc\x0ddef	y	return (\r)
@@ -2524,19 +2526,19 @@ ok
         # b \r c			abc\rdef	n	return (\r)
 ok
         # \R			a		y	not return (\R)
-not ok # Match failed.
+ok
         # a \R c			abc		y	not return (\R)
-not ok # Match failed.
+ok
         # \R			''		n	not return (\R)
 ok
         # c \R d			abc\rdef	n	not return (\R)
-not ok # Unexpected successful match.
+ok
         # c \R d			abc\x0ddef	n	not return (\R)
-not ok # Unexpected successful match.
+ok
         # c \R+ d			abc\r\rdef	n	not return (\R)
-not ok # Unexpected successful match.
+ok
         # a \R+ f			abcdef		y	not return (\R)
-not ok # Match failed.
+ok
         # c \f d			abc\fdef	y	formfeed (\f)
 ok
         # c \f d			abc\x0cdef	y	formfeed (\f)
@@ -2548,9 +2550,9 @@ ok
         # b \f c			abc\fdef	n	formfeed (\f)
 ok
         # \F			a		y	not formfeed (\F)
-not ok # Match failed.
+ok
         # a \F c			abc		y	not formfeed (\F)
-not ok # Match failed.
+ok
         # \F			''		n	not formfeed (\F)
 ok
         # c \F d			abc\fdef	n	not formfeed (\F)
@@ -2560,7 +2562,7 @@ ok
         # c \F+ d			abc\f\fdef	n	not formfeed (\F)
 ok
         # a \F+ f			abcdef		y	not formfeed (\F)
-not ok # Match failed.
+ok
         # c \e d			abc\edef	y	escape (\e)
 ok
         # c \e d			abc\x1bdef	y	escape (\e)
@@ -2572,9 +2574,9 @@ ok
         # b \e c			abc\edef	n	escape (\e)
 ok
         # \E			a		y	not escape (\E)
-not ok # Match failed.
+ok
         # a \E c			abc		y	not escape (\E)
-not ok # Match failed.
+ok
         # \E			''		n	not escape (\E)
 ok
         # c \E d			abc\edef	n	not escape (\E)
@@ -2584,7 +2586,7 @@ ok
         # c \E+ d			abc\e\edef	n	not escape (\E)
 ok
         # a \E+ f			abcdef		y	not escape (\E)
-not ok # Match failed.
+ok
         # c \x0021 d		abc!def	y	hex (\x)
 not ok # Match failed.
         # c \x0021 d		abc\x21def	y	hex (\x)
@@ -2790,48 +2792,48 @@ ok
 ok
         # :s ab 				ab		y	sigspace, trailing ws
 ok
-        # foo\s*-?\s*bar			foo\t \n-\n\t bar	y	basic match
+        # foo\s*\-?\s*bar			foo\t \n-\n\t bar	y	basic match
+ok
+        # foo\s*\-?\s*bar			foo - bar	y	basic match
+ok
+        # foo\s+\-?\s*bar			foo   bar	y	basic match \s+ \s*
+ok
+        # foo\s+\-?\s*bar			foo  -bar	y	basic match \s+ \s*
+ok
+        # foo\s*\-?\s+bar			foo-  bar	y	basic match \s* \s+
+ok
+        # foo \-? bar			foo-bar		y	basic match \s* \s*
+ok
+        # foo \-? bar			foobar		y	basic match
+ok
+        # foo \-? bar			foo - bar	n	basic non-match
+ok
+        # :s foo \-? bar			foo\n \t- \t\t\nbar	y	basic ws match
+ok
+        # :s foo \-? bar			foo - bar	y	basic ws match
+ok
+        # :s foo \-? bar			foo   bar	y	basic ws match \s+ \s*
+ok
+        # :s foo \-? bar			foo  -bar	y	basic ws match \s+ \s*
+ok
+        # :s foo \-? bar			foo-  bar	y	basic ws match \s* \s+
+ok
+        # :s foo \-? bar			foo-bar		y	basic ws match \s* \s*
+ok
+        # :s foo \-? bar			foobar		n	basic ws non-match
+ok
+        # :s()foo \-? bar			foo - bar	n	basic ws match
+ok
+        # :s[]foo \-? bar			foo - bar	y	basic ws match
 not ok # Unexpected compilation failure.
-        # foo\s*-?\s*bar			foo - bar	y	basic match
-not ok # Unexpected compilation failure.
-        # foo\s+-?\s*bar			foo   bar	y	basic match \s+ \s*
-not ok # Unexpected compilation failure.
-        # foo\s+-?\s*bar			foo  -bar	y	basic match \s+ \s*
-not ok # Unexpected compilation failure.
-        # foo\s*-?\s+bar			foo-  bar	y	basic match \s* \s+
-not ok # Unexpected compilation failure.
-        # foo -? bar			foo-bar		y	basic match \s* \s*
-not ok # Unexpected compilation failure.
-        # foo -? bar			foobar		y	basic match
-not ok # Unexpected compilation failure.
-        # foo -? bar			foo - bar	n	basic non-match
-not ok # Unexpected compilation failure.
-        # :s foo -? bar			foo\n \t- \t\t\nbar	y	basic ws match
-not ok # Unexpected compilation failure.
-        # :s foo -? bar			foo - bar	y	basic ws match
-not ok # Unexpected compilation failure.
-        # :s foo -? bar			foo   bar	y	basic ws match \s+ \s*
-not ok # Unexpected compilation failure.
-        # :s foo -? bar			foo  -bar	y	basic ws match \s+ \s*
-not ok # Unexpected compilation failure.
-        # :s foo -? bar			foo-  bar	y	basic ws match \s* \s+
-not ok # Unexpected compilation failure.
-        # :s foo -? bar			foo-bar		y	basic ws match \s* \s*
-not ok # Unexpected compilation failure.
-        # :s foo -? bar			foobar		n	basic ws non-match
-not ok # Unexpected compilation failure.
-        # :s()foo -? bar			foo - bar	n	basic ws match
-not ok # Unexpected compilation failure.
-        # :s[]foo -? bar			foo - bar	y	basic ws match
-not ok # Unexpected compilation failure.
-        # :s<.wb>foo -? bar		foo - bar	y	basic ws match with boundary modifier separation
-not ok # Unexpected compilation failure.
-        # :s::foo -? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
-not ok # Unexpected compilation failure.
-        # :s::(\w+) \:= (\S+)		dog := spot	/mob 0: <dog @ 0>/	sigspace and capture together
-not ok # Unexpected compilation failure.
-        # :s::(\w+) \:= (\S+)		dog := spot	/mob 1: <spot @ 7>/	sigspace and capture together
-not ok # Unexpected compilation failure.
+        # :s<.wb>foo \-? bar		foo - bar	y	basic ws match with boundary modifier separation
+ok
+        # :s::foo \-? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
+ok
+        # :s::(\w+) \= (\S+)		dog = spot	/mob 0: <dog @ 0>/	sigspace and capture together
+ok
+        # :s::(\w+) \= (\S+)		dog = spot	/mob 1: <spot @ 6>/	sigspace and capture together
+ok
         # :perl5 \A.*? bcd\Q$\E..\z	a bcd$ef	y	perl5 syntax (:perl5)
 not ok # Unexpected compilation failure.
         # :x(6) \d			123456		y	repetition (:x)
@@ -2927,8 +2929,8 @@ ok
 ok
         # a<.wb>			abc\ndef\n-==\nghi	n	\w\w word boundary
 ok
-        # -<.wb>			abc\ndef\n-==\nghi	n	\W\W word boundary
-not ok # Unexpected compilation failure.
+        # \-<.wb>			abc\ndef\n-==\nghi	n	\W\W word boundary
+ok
         # <!wb>def		abc\ndef\n-==\nghi	n	nonword boundary \W\w
 ok
         # abc<!wb>		abc\ndef\n-==\nghi	n	nonword boundary \w\W
@@ -2939,8 +2941,8 @@ ok
 ok
         # a<!wb>			abc\ndef\n-==\nghi	y	\w\w nonword boundary
 ok
-        # -<!wb>			abc\ndef\n-==\nghi	y	\W\W nonword boundary
-not ok # Unexpected compilation failure.
+        # \-<!wb>			abc\ndef\n-==\nghi	y	\W\W nonword boundary
+ok
         # 
         # <upper>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<upper>: <A @ 45>/		<upper>
 ok

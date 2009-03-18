@@ -68,27 +68,27 @@ ab [:ignorecase cd ] ef		aBCDef	n	ignorecase, lexical (:ignorecase)
 :s(0) b c [:s(1) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
 :s(0) b c [:s(0) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
 :s ab 				ab		y	sigspace, trailing ws
-foo\s*-?\s*bar			foo\t \n-\n\t bar	y	basic match
-foo\s*-?\s*bar			foo - bar	y	basic match
-foo\s+-?\s*bar			foo   bar	y	basic match \s+ \s*
-foo\s+-?\s*bar			foo  -bar	y	basic match \s+ \s*
-foo\s*-?\s+bar			foo-  bar	y	basic match \s* \s+
-foo -? bar			foo-bar		y	basic match \s* \s*
-foo -? bar			foobar		y	basic match
-foo -? bar			foo - bar	n	basic non-match
-:s foo -? bar			foo\n \t- \t\t\nbar	y	basic ws match
-:s foo -? bar			foo - bar	y	basic ws match
-:s foo -? bar			foo   bar	y	basic ws match \s+ \s*
-:s foo -? bar			foo  -bar	y	basic ws match \s+ \s*
-:s foo -? bar			foo-  bar	y	basic ws match \s* \s+
-:s foo -? bar			foo-bar		y	basic ws match \s* \s*
-:s foo -? bar			foobar		n	basic ws non-match
-:s()foo -? bar			foo - bar	n	basic ws match
-:s[]foo -? bar			foo - bar	y	basic ws match
-:s<.wb>foo -? bar		foo - bar	y	basic ws match with boundary modifier separation
-:s::foo -? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
-:s::(\w+) \:= (\S+)		dog := spot	/mob 0: <dog @ 0>/	sigspace and capture together
-:s::(\w+) \:= (\S+)		dog := spot	/mob 1: <spot @ 7>/	sigspace and capture together
+foo\s*\-?\s*bar			foo\t \n-\n\t bar	y	basic match
+foo\s*\-?\s*bar			foo - bar	y	basic match
+foo\s+\-?\s*bar			foo   bar	y	basic match \s+ \s*
+foo\s+\-?\s*bar			foo  -bar	y	basic match \s+ \s*
+foo\s*\-?\s+bar			foo-  bar	y	basic match \s* \s+
+foo \-? bar			foo-bar		y	basic match \s* \s*
+foo \-? bar			foobar		y	basic match
+foo \-? bar			foo - bar	n	basic non-match
+:s foo \-? bar			foo\n \t- \t\t\nbar	y	basic ws match
+:s foo \-? bar			foo - bar	y	basic ws match
+:s foo \-? bar			foo   bar	y	basic ws match \s+ \s*
+:s foo \-? bar			foo  -bar	y	basic ws match \s+ \s*
+:s foo \-? bar			foo-  bar	y	basic ws match \s* \s+
+:s foo \-? bar			foo-bar		y	basic ws match \s* \s*
+:s foo \-? bar			foobar		n	basic ws non-match
+:s()foo \-? bar			foo - bar	n	basic ws match
+:s[]foo \-? bar			foo - bar	y	basic ws match
+:s<.wb>foo \-? bar		foo - bar	y	basic ws match with boundary modifier separation
+:s::foo \-? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
+:s::(\w+) \= (\S+)		dog = spot	/mob 0: <dog @ 0>/	sigspace and capture together
+:s::(\w+) \= (\S+)		dog = spot	/mob 1: <spot @ 6>/	sigspace and capture together
 :perl5 \A.*? bcd\Q$\E..\z	a bcd$ef	y	perl5 syntax (:perl5)
 :x(6) \d			123456		y	repetition (:x)
 :x(3) \d			123456		y	repetition (:x)

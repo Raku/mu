@@ -55,7 +55,6 @@ class EmitRegex {
 # so in some places the cruft is getting deeper.  2009-Mar-02
 
 { package VersionConstraints;
-  use Regexp::Common 2.122;
   use Sub::Name 0.03;
 }
 

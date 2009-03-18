@@ -361,7 +361,7 @@ sub gather_methods {
 #-- For testing and reference.
 package Regexp::ModuleA::P5;
 Regexp::ModuleA::AST::Make0->import;
-use Regexp::Common;
+use Regexp::Common 2.122;
 sub mod_helper {
   my($mod)=@_;
   my $h = {%$RXX::nested_data};
@@ -742,7 +742,7 @@ sub unction1 {
 }
 
 {
-  my $nonmeta = '(?:(?!\s)[^][)(><}{&|^$?*+\\\\\.:\#])';
+  my $nonmeta = '(?:[\w_]|\\[^\w_])';
   namespace(""
             ,biind('regex',aregex(seq(mod_inline(':perl5_x'),sr('pattern'))))
             ,nrx('pattern',sr('regex_ordered_disjunction'))
@@ -763,7 +763,7 @@ sub unction1 {
                  alt(seq(pat5('\*\*'),#<.ws>
                          sr('block'),sr('quantmod')),
                      seq(pat5('[\*\+\?](?!\*)'),sr('quantmod'))))
-            ,nrx('quantmod',ques(pat5('\? | \! | \: | \+')))
+            ,nrx('quantmod',ques(pat5('[\?\!\:\+]')))
             ,nrx('block',pat5('\{[\d\.]+\}'))
             ,biind('regex_atom',aregex(alt(sr('_mod_inline'),sr('_inline5'),sr('_mod_expr'),sr('_code'),sr('_coderx'),sr('_independent'),sr('_conditional'),sr('_lookaround'),sr('_cap'),sr('_grp'),sr('_charclass'),sr('_backref'),sr('_esc'),sr('_nonmeta'),sr('_space'),sr('_dot'),sr('_beosl'),sr('_subrule'),
                                           sr('_commit'),sr('_esc_code'),sr('_word_boundary'),sr('_literal'))))
@@ -784,7 +784,7 @@ sub unction1 {
             ,nrx('_dot',pat5('\\.'))
             ,nrx('_beosl',pat5('[\^\$]{1,2}'))
 
-            ,nrx('_alias',seq(sr('_alias_target'),pat5('\s*:=\s*'),sr('_construct')))
+            ,nrx('_alias',seq(sr('_alias_target'),pat5('\s*=\s*'),sr('_construct')))
             ,nrx('_alias_target',seq(alt(seq(pat5('[\$\@\%]<'),sr('name'),pat5('>')),
                                          pat5('[\$\@\%]\d+'),
                                          pat5('[\$\@\%]\/'),
@@ -855,7 +855,7 @@ sub make0_from_node__regex_quantified_atom {
     $e = "star${ng}($e)" if $1 eq '*';
     $e = "plus${ng}($e)" if $1 eq '+';
   }
-  else { die "bug >>$q<<" }
+  else { die "Unimplemented quantifier: $q" }
   return $e;
 }
 sub make0_from_node__regex_ordered_disjunction {
@@ -895,24 +895,24 @@ sub make0_from_node___esc {
   my $h = '\x{0009}\x{0020}\x{00a0}\x{1680}\x{180e}\x{2000}\x{2001}\x{2002}\x{2003}\x{2004}\x{2005}\x{2006}\x{2007}\x{2008}\x{2008}\x{2009}\x{200a}\x{202f}\x{205f}\x{3000}';
   my $v = '\x{000a}\x{000b}\x{000c}\x{000d}\x{0085}';
   my $pat1 = {
-    T => '[^\t]',
-    n => $nl,
-    N => "(?!$nl)(?s:.)",
-    R => '[^\r]',
-    F => '[^\f]',
-    E => '[^\e]',
-    v => "[$v]",
-    V => "[^$v]",
-    h => "[$h]",
-    H => "[^$h]",
-    Q => 'Q', L => 'L', U => 'U',
-    z => 'z', Z => 'Z', A => 'A',
-    p => 'p', P => 'P', G => 'G',
-    b => 'b', B => 'B'
+    t => '\t', T => '[^\t]',
+    n => $nl, N => "(?!$nl)(?s:.)",
+    r => '\r', R => '[^\r]',
+    f => '\f', F => '[^\f]',
+    e => '\e', E => '[^\e]',
+    v => "[$v]", V => "[^$v]",
+    h => "[$h]", H => "[^$h]",
+    d => '\d', D => '[^\d]',
+    s => '\s', S => '\S',
+    w => '\w', W => '[^\w]',
     }->{$ch};
   if(!defined($pat1)){
-    $pat1 = $pat;
-    $pat1 =~ s/\\([\\\'])/\\\\\\$1/g;
+    if($ch =~ /[^\w_]/) {
+      $pat1 = $pat;
+      $pat1 =~ s/\\([\\\'])/\\\\\\$1/g;
+    } else {
+      die "Undefined metachar: $pat";
+    }
   }
   return "pat5('$pat1')";
 }
