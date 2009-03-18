@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <smop_base.h>
-#include <smop_s0native.h>
+#include <smop/base.h>
+#include <smop/s0native.h>
 
 SMOP__Object*  SMOP__EmptyInterpreter;
 

@@ -1,5 +1,5 @@
 #ifndef SMOP_S0NATIVE_H
-#include <smop_base.h>
+#include <smop/base.h>
 #define SMOP_S0NATIVE_H
 void smop_s0native_init(void);
 void smop_s0native_destr(void);

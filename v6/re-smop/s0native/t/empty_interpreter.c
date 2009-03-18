@@ -1,4 +1,4 @@
-#include <smop_s0native.h>
+#include <smop/s0native.h>
 #include <stdio.h>
 int main() {
   printf("1..1\n");

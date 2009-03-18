@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <smop_base.h>
-#include <smop_s0native.h>
+#include <smop/base.h>
+#include <smop/s0native.h>
 
 /* This test will create a constant identifier using a lowlevel C
  * string. For now, this type can only be used for identity checking

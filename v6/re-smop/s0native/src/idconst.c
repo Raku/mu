@@ -2,8 +2,8 @@
  * create the pool of constant identifiers that are needed to
  * bootstrap smop.
  */
-#include <smop_base.h>
-#include <smop_s0native.h>
+#include <smop/base.h>
+#include <smop/s0native.h>
 
 #include <stdlib.h>
 #include <string.h>

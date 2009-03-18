@@ -1,5 +1,5 @@
-#include <smop_base.h>
-#include <smop_s0native.h>
+#include <smop/base.h>
+#include <smop/s0native.h>
 #include <stdlib.h>
 
 void smop_s0native_init(void) {
