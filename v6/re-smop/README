@@ -29,6 +29,10 @@ SMOP should then be divided into the following modules
    - empty interpreter
      (used as a short-circuit so you know there isn't one)
 
+ capture - This module contains the native capture, which implements a
+   private garbage collector in order to simply release all the values
+   it holds and free the pointer.
+
  gc - This is the implementation of the default SMOP garbage
    collector. It is a fairly standard refcounting gc that invokes
    DESTROYALL on the object when the refcount reaches 0 (TODO: weak
