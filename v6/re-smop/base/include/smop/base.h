@@ -1,4 +1,3 @@
-#include <stdio.h>
 #ifndef SMOP_BASE_H
 #define SMOP_BASE_H
 
@@ -78,6 +77,7 @@ struct SMOP__ResponderInterface {
 #define SMOP_RI(object) ((SMOP__Object*)object)->RI
 
 #ifdef SMOP_HUNT_NULLS
+#include <stdio.h>
 #include <assert.h>
 #define SMOP_DISPATCH(interpreter, object, identifier, capture) ({\
       SMOP__Object* ret = (((SMOP__ResponderInterface*)object)->MESSAGE(  \
@@ -105,6 +105,7 @@ struct SMOP__ResponderInterface {
 #endif
 
 #ifdef SMOP_LOWLEVEL_MEM_DEBUG
+#include <stdio.h>
 #define SMOP_REFERENCE(interpreter, object) \
       (fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] ++ (%p) %s:%d (%s)\n",object,__FILE__,__LINE__,__func__),\
       (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->REFERENCE( (SMOP__Object*)interpreter, \
