@@ -8,7 +8,7 @@
    and release it, seeing if it gets destroyed accordingly. */
 static void custom_destroyall(SMOP__Object* interpreter,
                               SMOP__Object* value) {
-  printf("ok 2 - Object destroyed.\n");
+  printf("ok 4 - Object destroyed.\n");
 }
 static SMOP__Object* placeholder(SMOP__Object* interpreter,
                                  SMOP__ResponderInterface* self,
@@ -21,7 +21,7 @@ static SMOP__Object* placeholder(SMOP__Object* interpreter,
 
 int main() {
 
-  printf("1..3\n");
+  printf("1..6\n");
 
   SMOP__NAGC__ResponderInterface ri;
   ri.MESSAGE = placeholder;
@@ -36,9 +36,23 @@ int main() {
 
   printf("ok 1 - object created.\n");
 
+  SMOP__Object* ref = SMOP_WEAKREF(SMOP__EmptyInterpreter, obj);
+
+  printf("ok 2 - weakref created.\n");
+
+  if (((SMOP__NAGC__WeakRef*)ref)->ref != obj) {
+    printf("not ");
+  }
+  printf("ok 3 - weakref points to object.\n");
+
   SMOP_RELEASE(SMOP__EmptyInterpreter, obj);
 
-  printf("ok 3 - after object destruction\n");
+  printf("ok 5 - after object destruction\n");
+
+  if (((SMOP__NAGC__WeakRef*)ref)->ref != SMOP__NATIVE__bool_false) {
+    printf("not ");
+  }
+  printf("ok 6 - weakref points to false.\n");
 
   return 0;
 }

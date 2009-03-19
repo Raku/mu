@@ -21,6 +21,8 @@ typedef struct SMOP__NAGC__Object {
   SMOP__NAGC__Object__BASE
 } SMOP__NAGC__Object;
 
+extern SMOP__NAGC__ResponderInterface* SMOP__NAGC__WeakRef__RI;
+
 extern SMOP__Object* smop_nagc_alloc(size_t size);
 
 

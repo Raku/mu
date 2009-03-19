@@ -4,16 +4,17 @@
 
 typedef struct SMOP__NAGC__WeakRef {
   SMOP__NAGC__Object__BASE
-  int lost;
   SMOP__NAGC__Object* ref;
 } SMOP__NAGC__WeakRef;
 
-static SMOP__NAGC__ResponderInterface* ri;
+SMOP__NAGC__ResponderInterface* SMOP__NAGC__WeakRef__RI;
+static SMOP__Object* idconst_ref;
+static SMOP__Object* idconst_redispatch;
 
 // this creates a new weakref pointing to value
 SMOP__Object* smop_nagc_weakref_create(SMOP__NAGC__Object* value) {
   SMOP__NAGC__WeakRef wr = smop_nagc_alloc(sizeof(SMOP__NAGC__WeakRef));
-  wr->RI = (SMOP__ResponderInterface*)ri;
+  wr->RI = (SMOP__ResponderInterface*)SMOP__NAGC__WeakRef__RI;
   wr->ref = value;
   
   smop_nagc_wrlock(value);
@@ -30,7 +31,6 @@ void smop_nagc_weakref_dereg(SMOP__NAGC__Object* value) {
   smop_nagc_wrlock(value);
   SMOP__NAGC__Object* original = value->ref;
   value->ref = SMOP__NATIVE__bool_false;
-  value->lost = 1;
   smop_nagc_unlock(value);
 
   smop_nagc_wrlock(original);
@@ -50,9 +50,7 @@ void smop_nagc_weakref_dereg(SMOP__NAGC__Object* value) {
 // this is used to notify that the original value no longer exists
 void smop_nagc_weakref_lostref(SMOP__NAGC__Object* value) {
   smop_nagc_wrlock(value);
-  SMOP__NAGC__Object* original = value->ref;
   value->ref = SMOP__NATIVE__bool_false;
-  value->lost = 1;
   smop_nagc_unlock(value);
 }
 
@@ -72,25 +70,16 @@ void weakref_destroy(SMOP__Object* interpreter, SMOP__Object* obj) {
   smop_nagc_weakref_dereg(obj);
 }
 
-SMOP__Object* weakref_message(SMOP__Object* interpreter,
-                              SMOP__ResponderInterface* self,
-                              SMOP__Object* identifier,
-                              SMOP__Object* capture) {
-  // hmm... we need capture here... 
-  pritnf("unimplemented!\n");
-  abort();
-}
-
 void smop_nagc_weakref_init() {
-  ri = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
-  ri->REFERENCE = smop_nagc_reference;
-  ri->RELEASE = smop_nagc_release;
-  ri->WEAKREF = smop_nagc_weakref;
-  ri->id = "Weak Reference";
-  ri->DESTROYALL = weakref_destroy;
-  ri->MESSAGE = weakref_message;
+  SMOP__NAGC__WeakRef__RI = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
+  SMOP__NAGC__WeakRef__RI->REFERENCE = smop_nagc_reference;
+  SMOP__NAGC__WeakRef__RI->RELEASE = smop_nagc_release;
+  SMOP__NAGC__WeakRef__RI->WEAKREF = smop_nagc_weakref;
+  SMOP__NAGC__WeakRef__RI->id = "Weak Reference";
+  SMOP__NAGC__WeakRef__RI->DESTROYALL = weakref_destroy;
+  SMOP__NAGC__WeakRef__RI->MESSAGE = smop_placeholder_message;
 }
 
 void smop_nagc_weakref_destr() {
-  free(ri);
+  free(SMOP__NAGC__WeakRef__RI);
 }
