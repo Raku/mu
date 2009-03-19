@@ -255,3 +255,5 @@ class IRx1::Capture {
     undef;
   }
 }
+class IRx1::Apply { method is_whatever {$.function eq 'whatever'} }
+class IRx1::Base  { method is_whatever {undef} }

@@ -674,8 +674,8 @@ token block {
 #   | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; } {*}             #= endargs #ELFXXX
     ]
 }
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token regex_block {
     :my $lang = ::Regex;
     :my $GOAL is context = '}';
@@ -730,13 +730,12 @@ token label {
     :my $label;
     <identifier> ':' <?before \s> <.ws>
 
-#ELFXXX
-#    [ <?{ $¢.is_type($label = $<identifier>.text) }>
-#      <.panic("Illegal redeclaration of '$label'")>
-#    ]?
-#
-#    # add label as a pseudo type
-#    {{ $¢.add_type($label); }}
+    [ <?{ $¢.is_type($label = $<identifier>.text) }>
+      <.panic("Illegal redeclaration of '$label'")>
+    ]?
+
+    # add label as a pseudo type
+    {{ $¢.add_type($label); }}
 
 }
 
@@ -1365,8 +1364,7 @@ rule package_def {
     <trait>*
     [
        <?before '{'>
-#      {{ #ELFBUG {{ }}
-       {  #ELFFIX
+       {{
            # figure out the actual full package name (nested in outer package)
             my $pkg = $+PKG // "GLOBAL";
             push @PKGS, $pkg;
@@ -1377,14 +1375,11 @@ rule package_def {
             else {
                 $+PKG = $pkg ~ '::_anon_';
             }
-#       }} #ELFBUG
-        }  #ELFFIX
+        }}
         <block>
-#       {{ #ELFBUG {{ }}
-        {  #ELFFIX
+        {{
             $+PKG = pop(@PKGS);
-#       }} #ELFBUG
-        }  #ELFFIX
+        }}
         {*}                                                     #= block
     || <?{ $+begin_compunit }> {} <?before ';'>
         {
@@ -1428,7 +1423,6 @@ token special_variable:sym<$¢> { <sym> }
 
 token special_variable:sym<$!> { <sym> <!before \w> }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym<$!{ }> {
     # XXX the backslashes are necessary here for bootstrapping, not for P6...
     ( '$!{' :: (.*?) '}' )
@@ -1443,7 +1437,6 @@ token special_variable:sym<$/> {
              "filehandle's :irs attribute")>
     ]?
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token special_variable:sym<$~> {
     <sym> :: <?before \s | ',' | '=' | <terminator> >
@@ -1460,7 +1453,6 @@ token special_variable:sym<$@> {
     <.obs('$@ variable as eval error', '$!')>
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym<$#> {
     <sym> ::
     [
@@ -1468,7 +1460,6 @@ token special_variable:sym<$#> {
     || <.obs('$# variable', '.fmt')>
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token special_variable:sym<$$> {
     <sym> <!alpha> :: <?before \s | ',' | <terminator> >
     <.obs('$$ variable', '$*PID')>
@@ -1569,7 +1560,6 @@ token special_variable:sym<$+> {
     <.obs('$+ variable', 'Form module')>
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym<${^ }> {
     ( <sigil> '{^' :: (.*?) '}' )
     <.obscaret($0.text, $<sigil>, $0.{0}.text)>
@@ -1627,7 +1617,6 @@ token special_variable:sym<${ }> {
     ( <[$@%]> '{' :: (.*?) '}' )
     <.obs("" ~ $0.text ~ " variable", "\{" ~ $<sigil>.text ~ "}(" ~ $0.{0}.text ~ ")")>
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token special_variable:sym<$[> {
     <sym> :: <?before \s | ',' | '=' | <terminator> >
@@ -1649,12 +1638,10 @@ token special_variable:sym<$|> {
     <.obs('$| variable', 'Form module')>
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym<$:> {
     <sym> <?before <[\x20\t\n\],=)}]> >
     <.obs('$: variable', 'Form module')>
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token special_variable:sym<$;> {
     <sym> :: <?before \s | ',' | '=' | <terminator> >
@@ -1676,7 +1663,6 @@ token special_variable:sym<$,> {
     <.obs('$, variable', ".join() method")>
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token special_variable:sym['$<'] {
     <sym> :: <!before \s* \w+ \s* '>' >
     <.obs('$< variable', '$*UID')>
@@ -1686,7 +1672,6 @@ token special_variable:sym«\$>» {
     <sym> :: <?before \s | ',' | <terminator> >
     <.obs("$() variable", '$*EUID')>
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token special_variable:sym<$.> {
     <sym> :: <?before \s | ',' | <terminator> >
@@ -1707,7 +1692,6 @@ token desigilname {
     ]
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token variable {
     <?before <sigil> { $+SIGIL ||= $<sigil>.text } > {}
     [
@@ -1717,7 +1701,8 @@ token variable {
     || '$:' <name>? # XXX
     || [
         | <sigil> <twigil>? <desigilname> {*}                                    #= desigilname
-            [ <?{ my $t = $<twigil>; @$t and $t.[0].text eq '.' }>
+#           [ <?{ my $t = $<twigil>; @$t and $t.[0].text eq '.' }> #ELFBUG
+            [ <?{ my $t = $<twigil>; $t and $t.[0].text eq '.' }>  #ELFFIX
                 <.unsp>? <?before '('> <postcircumfix> {*}          #= methcall
             ]?
         | <special_variable> {*}                                    #= special
@@ -1728,7 +1713,6 @@ token variable {
         ]
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Note, don't reduce on a bare sigil unless you don't want a twigil or
 # you otherwise don't care what the longest token is.
@@ -1742,9 +1726,7 @@ token sigil:sym<&>  { <sym> }
 token twigil:sym<.> { <sym> }
 token twigil:sym<!> { <sym> }
 token twigil:sym<^> { <sym> }
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token twigil:sym<:> { <sym> <!before ':'> }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token twigil:sym<*> { <sym> }
 token twigil:sym<+> { <sym> }
 token twigil:sym<?> { <sym> }
@@ -1818,7 +1800,6 @@ token value {
     ]
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token typename {
     [
     | '::?'<identifier>                 # parse ::?CLASS as special case
@@ -1836,7 +1817,6 @@ token typename {
     # parametric type?
     <.unsp>? [ <?before '['> <postcircumfix> ]?
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 rule fulltypename {<typename>['|'<typename>]*
     [ of <fulltypename> ]?
@@ -1912,7 +1892,6 @@ token hexint {
     <[ 0..9 a..f A..F ]>+ [ _ <[ 0..9 a..f A..F ]>+ ]*
 }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 our @herestub_queue;
 
 class Herestub {
@@ -1921,6 +1900,7 @@ class Herestub {
     has $.lang;
 } # end class
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 role herestop {
     token stopper { ^^ {*} $<ws>=(\h*?) $+DELIM \h* <.unv>?? $$ \v? }
 } # end role
@@ -2123,6 +2103,7 @@ token quote:Q {
     | » <!before '('> <.ws> <quibble($¢.cursor_fresh( ::STD::Q ))>
     ]
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token quote_mod:w  { <sym> }
 token quote_mod:ww { <sym> }
@@ -2135,6 +2116,7 @@ token quote_mod:f  { <sym> }
 token quote_mod:c  { <sym> }
 token quote_mod:b  { <sym> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token quote:rx {
     <sym> » <!before '('>
     <quibble( $¢.cursor_fresh( ::Regex ) )>
@@ -2168,6 +2150,7 @@ token quote:tr {
     <sym> » <!before '('> <pat=tribble( $¢.cursor_fresh( ::STD::Q ).tweak(:q))>
     <!old_tr_mods>
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token old_rx_mods {
     (< i g s m x c e >+) 
@@ -2198,6 +2181,7 @@ token old_tr_mods {
 }
 
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token quote:quasi {
     <sym> » <!before '('> <quasiquibble($¢.cursor_fresh( ::STD::Quasi ))>
 }
@@ -2398,11 +2382,11 @@ method truly ($bool,$opt) {
 grammar Q is STD {
 
     role b1 {
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         token escape:sym<\\> { <sym> <item=backslash> }
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         token backslash:qq { <?before 'q'> { $<quote> = $¢.cursor_fresh($+LANG).quote(); } }
-        token backslash:sym<\\> { <text=sym> }
 =end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        token backslash:sym<\\> { <text=sym> }
         token backslash:stopper { <text=stopper> }
         token backslash:a { <sym> }
         token backslash:b { <sym> }
@@ -2423,13 +2407,14 @@ grammar Q is STD {
         token backslash:sym<0> { <sym> }
     } # end role
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     role b0 {
         token escape:sym<\\> { <!> }
     } # end role
 
     role c1 {
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         token escape:sym<{ }> { <?before '{'> [ :lang($+LANG) <block> ] }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     } # end role
 
     role c0 {
@@ -2437,7 +2422,9 @@ grammar Q is STD {
     } # end role
 
     role s1 {
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         token escape:sym<$> { <?before '$'> [ :lang($+LANG) <variable> <extrapost>? ] || <.panic: "Non-variable \$ must be backslashed"> }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         token special_variable:sym<$"> {
             '$' <stopper>
             <.panic: "Can't use a \$ in the last position of an interpolating string">
@@ -2450,6 +2437,7 @@ grammar Q is STD {
         token special_variable:sym<$"> { <!> }
     } # end role
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     role a1 {
         token escape:sym<@> { <?before '@'> [ :lang($+LANG) <variable> <extrapost> | <!> ] } # trap ABORTBRANCH from variable's ::
     } # end role
@@ -2599,7 +2587,6 @@ grammar Quasi is STD {
 
 } # end grammar
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # Note, backtracks!  So POST must not commit to anything permanent.
 regex extrapost {
     :my $inquote is context = 1;
@@ -2619,10 +2606,11 @@ rule routine_def {
     :my $IN_DECL is context<rw> = 1;
     [ '&'<deflongname>? | <deflongname> ]? [ <multisig> | <trait> ]*
     <!{
-        $¢ = $+PARSER.bless($¢);
+#       $¢ = $+PARSER.bless($¢); #ELFXXX
         $IN_DECL = 0;
     }>
-    <block>:!s
+#   <block>:!s #ELFBUG
+    <block> #ELFXXX
 }
 
 rule method_def {
@@ -2640,7 +2628,8 @@ rule method_def {
         <trait>*
     | <?>
     ]
-    <block>:!s
+#   <block>:!s #ELFBUG
+    <block>    #ELFXXX
 }
 
 rule regex_def {
@@ -2648,7 +2637,8 @@ rule regex_def {
     [ '&'<deflongname>? | <deflongname> ]?
     [ [ ':'?'(' <signature> ')'] | <trait> ]*
     { $IN_DECL = 0; }
-    <regex_block>:!s
+#   <regex_block>:!s #ELFBUG
+    <regex_block>    #ELFXXX
 }
 
 rule macro_def {
@@ -2658,7 +2648,8 @@ rule macro_def {
         $¢ = $+PARSER.bless($¢);
         $IN_DECL = 0;
     }>
-    <block>:!s
+#   <block>:!s #ELFBUG
+    <block>    #ELFXXX
 }
 
 rule trait {
@@ -2727,7 +2718,8 @@ token type_declarator:subset {
 token type_declarator:enum {
     :my $l;
     <sym> <.ws>
-    [ $l = <longname> :: { $¢.add_type($l.text); } <.ws> ]?
+#   [ $l = <longname> :: { $¢.add_type($l.text); } <.ws> ]? #ELFBUG
+    [ <longname> :: { $¢.add_type($<longname>.text); } <.ws> ]? #ELFFIX
     <EXPR> <.ws>
 }
 
@@ -2839,37 +2831,37 @@ token parameter {
     }
 
     # enforce zone constraints
-    {{
-        given $kind {
-            when '!' {
-                given $+zone {
-                    when 'posopt' {
-$¢.panic("Can't put required parameter after optional parameters");
-                    }
-                    when 'var' {
-$¢.panic("Can't put required parameter after variadic parameters");
-                    }
-                }
-            }
-            when '?' {
-                given $+zone {
-                    when 'posreq' { $+zone = 'posopt' }
-                    when 'var' {
-$¢.panic("Can't put optional positional parameter after variadic parameters");
-                    }
-                }
-            }
-            when '*' {
-                $+zone = 'var';
-            }
-        }
-    }}
+#ELFXXX
+#    {{
+#        given $kind {
+#            when '!' {
+#                given $+zone {
+#                    when 'posopt' {
+#$¢.panic("Can't put required parameter after optional parameters");
+#                    }
+#                    when 'var' {
+#$¢.panic("Can't put required parameter after variadic parameters");
+#                    }
+#                }
+#            }
+#            when '?' {
+#                given $+zone {
+#                    when 'posreq' { $+zone = 'posopt' }
+#                    when 'var' {
+#$¢.panic("Can't put optional positional parameter after variadic parameters");
+#                    }
+#                }
+#            }
+#            when '*' {
+#                $+zone = 'var';
+#            }
+#        }
+#    }}
 }
 
 rule default_value {
     '=' <EXPR(item %item_assignment)>
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token statement_prefix:do      { <sym> <?before \s> <.ws> <statement> }
 token statement_prefix:try     { <sym> <?before \s> <.ws> <statement> }
@@ -2885,6 +2877,7 @@ token statement_prefix:lazy    { <sym> <?before \s> <.ws> <statement> }
 token term:sym<::?IDENT> ( --> Term) {
     $<sym> = [ '::?' <identifier> ] »
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token term:sym<undef> ( --> Term) {
     <sym> »
@@ -2967,7 +2960,6 @@ token infix:sym<.> ()
 
 token postfix:sym['->'] ()
     { '->' <.obs('-> to call a method', '.')> }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ## autoincrement
 token postfix:sym<++> ( --> Autoincrement)
@@ -3232,10 +3224,8 @@ token infix:sym<gt> ( --> Chaining)
 token infix:sym<ge> ( --> Chaining)
     { <sym> }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token infix:sym<=:=> ( --> Chaining)
     { <sym> }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token infix:sym<===> ( --> Chaining)
     { <sym> }
@@ -3266,7 +3256,6 @@ token infix:sym<max> ( --> Tight_or)
     { <sym> }
 
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ## conditional
 token infix:sym<?? !!> ( --> Conditional) {
     :my $GOAL is context = '!!';
@@ -3291,6 +3280,7 @@ token infix:sym<?> ( --> Conditional)
 # There is no "--> type" because assignment may be coerced to either
 # item assignment or list assignment at "make" time.
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 token infix:sym<=> ()
 {
     <sym>
@@ -3299,6 +3289,7 @@ token infix:sym<=> ()
         !! STD::List_assignment.coerce($¢);
     }
 }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 token infix:sym<:=> ( --> Item_assignment)
     { <sym> }
@@ -3366,7 +3357,6 @@ token term:sigil ( --> List_prefix)
 #     { <typename> <?spacey> <arglist> { $<sym> = $<typename>.item; } }
 
 # force identifier(), identifier.(), etc. to be a function call always
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 token term:identifier ( --> Term )
 {
     :my $t;
@@ -3393,16 +3383,14 @@ token args ($istype = 0) {
     | :dba('argument list') '.(' ~ ')' <semilist> {*}             #= func args
     | :dba('argument list') '(' ~ ')' <semilist> {*}              #= func args
     | :dba('argument list') <.unsp> '.'? '(' ~ ')' <semilist> {*} #= func args
-#   | {} [<?before \s> <!{ $istype }> <.ws> <!infixstopper> <listopargs=arglist> { $listopish = 1 }]? #ELFBUG
-    |    [<?before \s> <!{ $istype }> <.ws> <!infixstopper> <listopargs=arglist> { $listopish = 1 }]? #ELFFIX
+    | {} [<?before \s> <!{ $istype }> <.ws> <!infixstopper> <listopargs=arglist> { $listopish = 1 }]?
     ]
 
 #   :dba('extra arglist after (...):') #ELFBUG
     [
     || <?{ $listopish }>
     || ':' <?before \s> <listopargs=arglist>    # either switch to listopiness
-#   || {{ $<O> = {}; }}   # or allow adverbs (XXX needs hoisting?) #ELFBUG {{ }}
-    || { $<O> = {}; }   # or allow adverbs (XXX needs hoisting?) #ELFFIX
+    || {{ $<O> = {}; }}   # or allow adverbs (XXX needs hoisting?)
     ]
 }
 =begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -3502,18 +3490,16 @@ token terminator:sym<}> ( --> Terminator)
 
 token terminator:sym<!!> ( --> Terminator)
     { '!!' <?{ $+GOAL eq '!!' }> }
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 regex infixstopper {
     :dba('infix stopper')
     [
     | <?before <stopper> >
     | <?before '!!' > <?{ $+GOAL eq '!!' }>
-    | <?before '{' | <lambda> > <?{ ($+GOAL eq '{' or $+GOAL eq 'endargs') and @+MEMOS[$¢.pos]<ws> }>
-    | <?{ $+GOAL eq 'endargs' and @+MEMOS[$¢.pos]<endargs> }>
+#   | <?before '{' | <lambda> > <?{ ($+GOAL eq '{' or $+GOAL eq 'endargs') and @+MEMOS[$¢.pos]<ws> }> #ELFXXX
+#   | <?{ $+GOAL eq 'endargs' and @+MEMOS[$¢.pos]<endargs> }> #ELFXXX
     ]
 }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # overridden in subgrammars
 token stopper { <!> }
@@ -4173,7 +4159,7 @@ grammar Regex is STD {
         <?before '{'>
         <codeblock>
 #       {{ $/<sym> := <{ }> }} #ELFBUG
-        { $<sym> = ['{','}'] } #ELFFIX
+        {{ $<sym> = ['{','}'] }} #ELFFIX
     }
 
     token metachar:mod {
@@ -4182,7 +4168,6 @@ grammar Regex is STD {
         { $<sym> = $<mod_internal><sym> } #ELFFIX
     }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<:> {
         <sym>
     }
@@ -4195,6 +4180,7 @@ grammar Regex is STD {
         <sym>
     }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<[ ]> {
         '[' {} [:lang(self.unbalanced(']')) <nibbler>]
         [ ']' || <.panic: "Unable to parse regex; couldn't find right bracket"> ]
@@ -4226,9 +4212,7 @@ grammar Regex is STD {
         [ '>' || <.panic: "regex assertion not terminated by angle bracket"> ]
     }
 
-=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token metachar:sym<\\> { <sym> <backslash> }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token metachar:sym<.>  { <sym> }
     token metachar:sym<^^> { <sym> }
     token metachar:sym<^>  { <sym> }
@@ -4364,10 +4348,13 @@ grammar Regex is STD {
         ]
         <.ws>
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token mod_arg { :dba('modifier argument') '(' ~ ')' <semilist> }
 
+=begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token mod_internal:sym<:my>    { ':' <?before 'my' \s > [:lang($¢.cursor_fresh($+LANG)) <statement> <eat_terminator> ] }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     # XXX needs some generalization
 
@@ -4390,7 +4377,6 @@ grammar Regex is STD {
     token mod_internal:sym<:!r>   { ':!r' 'atchet'? » { $+ratchet = 0 } }
     token mod_internal:sym<:r( )> { ':r' 'atchet'? » <mod_arg> { $+ratchet = eval $<mod_arg>.text } }
     token mod_internal:sym<:0r>   { ':' (\d+) 'r' 'atchet'? » { $+ratchet = $0 } }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
 =begin PENDING #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     token mod_internal:sym<:Perl5>    { [':Perl5' | ':P5'] [ :lang( $¢.cursor_fresh( ::STD::P5Regex ).unbalanced($+GOAL) ) <nibbler> ] }
@@ -4524,9 +4510,9 @@ grammar P5Regex is STD {
         [ ')' || <.panic: "Unable to parse Perl 5 regex; couldn't find right parenthesis"> ]
         { $/<sym> := <( )> }
     }
+=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     token metachar:sym<\\> { <sym> <backslash> }
-=end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     token metachar:sym<.>  { <sym> }
     token metachar:sym<^>  { <sym> }
     token metachar:sym<$>  {

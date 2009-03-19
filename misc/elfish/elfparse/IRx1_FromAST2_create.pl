@@ -232,11 +232,11 @@ if $o<colonpair> && $o<colonpair>[0] {
   if $v eq '1' { # infix:foo
     $suffix = ':'~$k;
   }
-  elsif $k eq 'sym' {  # infix:sym<foo>
-    $suffix = ':'~$o<colonpair>[0]<v><nibble><nibbles>[0];
+  elsif $v<sym_name> eq '[ ]' { # infix:sym['foo'] #XX ['a','b'] case unimplemented.
+    $suffix = ':'~$o<colonpair>[0]<v><semilist>.match_string;
   }
-  else { # infix:<foo>
-    $suffix = ':'~$o<colonpair>[0]<v><nibble><nibbles>[0];
+  else { # infix:<foo> infix:sym<foo>
+    $suffix = ':'~$o<colonpair>[0]<v><nibble>.match_string;
   }
 }
 $m<name>~$suffix
@@ -558,13 +558,13 @@ Cond.newp([[$m<modifier_expr>,$blackboard::statement_expr]],undef,1)
 
 
 #--- statement_control:given
-Given.newp($m<EXPR>,$m<block>)
+Given.newp($m<xblock><EXPR>,$m<xblock><pblock>)
 
 #--- statement_mod_loop:given
 Given.newp($m<modifier_expr>,$blackboard::statement_expr)
 
 #--- statement_control:when
-When.newp($m<EXPR>,$m<block>)
+When.newp($m<xblock><EXPR>,$m<xblock><pblock>)
 
 #--- statement_mod_cond:when
 When.newp($m<modifier_expr>,$blackboard::statement_expr)
@@ -745,7 +745,7 @@ my $trait = $m<trait>; #X
 #
 temp $blackboard::sym;
 my $g;
-if $name && ($g = $name.re_groups('\A([^:]+):([^:]+)\z')) {
+if $name && ($g = $name.re_groups('\A([^:]+):(.+)\z')) {
   my $sym = $g[1];
   $sym = $sym.re_gsub('\A\s+','').re_gsub('\s+\z','');
   $blackboard::sym = $sym;
@@ -1029,11 +1029,23 @@ elsif $x eq '[ ]' {
   }
 }
 elsif $x eq '{ }' {
-  if *text* eq '{*}' { #X sigh
+  my $text = *text*;
+  if $text eq '{*}' { #X sigh
     return rxseq($m,[]);
   }
-  my $stmts = $m<codeblock><statementlist>;
-  RxCode.newp(Block.newp($stmts))
+  if $text eq '{}' { #X
+    return rxseq($m,[]);
+  }
+  my $stmts;
+  if $text.re_matchp('\A{{') { # {{ }}
+    # {{ }} shows up as a circumfix:{ }.  #XX
+    my $circum = $o<codeblock><statementlist><statement>[0]<EXPR><noun><circumfix>;
+    $stmts = irbuild_ir($circum<pblock>);
+  } else {
+    $stmts = $m<codeblock><statementlist>;
+    $stmts = Block.newp($stmts);
+  }
+  RxCode.newp($stmts)
 }
 elsif $x eq '\\' {
   if $o<backslash> {

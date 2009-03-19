@@ -352,6 +352,7 @@ use warnings;
   sub private_tidy {
     eval("use Perl::Tidy");
     if ($@) { $_[0] }
+    elsif ($ENV{ELF_DEV_NO_TIDY}) { $_[0] }
     else {
       my $source = $_[0];
       my $dest;
@@ -3013,6 +3014,16 @@ GLOBAL::undef()})}})
 }
 ;
 
+{ package IRx1::Apply;
+use base "Any";(do{sub is_whatever{my $self=CORE::shift;(do{($self->function eq "whatever")})}})
+}
+;
+
+{ package IRx1::Base;
+use base "Any";(do{sub is_whatever{my $self=CORE::shift;(do{GLOBAL::undef()})}})
+}
+;
+
 ;
 use autobox ARRAY => 'ARRAY', HASH => 'HASH', CODE => 'CODE', INTEGER => 'INTEGER', FLOAT => 'FLOAT', STRING => 'STRING', UNDEF => 'UNDEF';  use encoding 'utf8';
       package Main;
@@ -3388,6 +3399,7 @@ use\ warnings\;\
 \ \ sub\ private_tidy\ \{\
 \ \ \ \ eval\(\"use\ Perl\:\:Tidy\"\)\;\
 \ \ \ \ if\ \(\$\@\)\ \{\ \$_\[0\]\ \}\
+\ \ \ \ elsif\ \(\$ENV\{ELF_DEV_NO_TIDY\}\)\ \{\ \$_\[0\]\ \}\
 \ \ \ \ else\ \{\
 \ \ \ \ \ \ my\ \$source\ \=\ \$_\[0\]\;\
 \ \ \ \ \ \ my\ \$dest\;\
@@ -4030,6 +4042,10 @@ if((($n->block()->WHAT() eq "IRx1\:\:SubDecl"))->Bool) {
 ((((((("for\(\(" . $self->e($n->expr())) . "\)") . $push) . "\)\{\
 ") . $self->e($n->block())) . $pull) . "\
 \}")})};
+sub cb__Loop{my $self=CORE::shift;my($n)=@_;
+(do{(((("while\(\(" . $self->e($n->pretest())) . "\)\-\>Bool\)\ \{\
+") . $self->e($n->block())) . "\
+\}")})};
 sub cb__Cond{my $self=CORE::shift;my($n)=@_;
 (do{my $els = "";
 if(($n->default())->Bool) {
@@ -4050,10 +4066,31 @@ if(($n->invert_first_test())->Bool) {
 (do{(((("elsif\(\(" . $e->postcircumfix__91_32_93(0)) . "\)\-\>Bool\)\ \{\
 ") . $e->postcircumfix__91_32_93(1)) . "\
 \}")})})->join("")) . $els))})};
-sub cb__Loop{my $self=CORE::shift;my($n)=@_;
-(do{(((("while\(\(" . $self->e($n->pretest())) . "\)\-\>Bool\)\ \{\
-") . $self->e($n->block())) . "\
-\}")})};
+sub cb__Given{my $self=CORE::shift;my($n)=@_;
+(do{my $expr = $self->e($n->expr());
+my $stmts = $self->e($n->block()->statements())->map(sub {my($s)=@_;
+(do{if(($s->re_matchp("\\\)\\z"))->Bool) {
+(do{($s . "\;")})
+}else {
+(do{$s})
+}})})->join("\
+");
+(((((("\(do\{\ local\ \$_\ \=\ " . $expr) . "\;\
+") . "if\(0\)\{\}") . "\
+") . $stmts) . "\
+\}\)")})};
+sub cb__When{my $self=CORE::shift;my($n)=@_;
+(do{my $expr = $self->e($n->expr());
+my $test;
+if((GLOBAL::not(GLOBAL::defined($expr)))->Bool) {
+(do{($test = "1")})
+}elsif(($n->expr()->is_whatever())->Bool) {
+(do{($test = "1")})
+}else {
+(do{($test = (("\$_\ eq\ " . $expr) . ""))})
+};
+my $block = $self->e($n->block());
+(((("elsif\(" . $test) . "\)\ \{") . $block) . "\}")})};
 sub encode_varname{my $self=CORE::shift;my($s,$t,$dsn)=@_;
 (do{my $env = "";
 my $pre = "";

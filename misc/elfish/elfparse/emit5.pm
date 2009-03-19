@@ -1226,7 +1226,7 @@ sub scan {
 ';
     my $cruft = '
 { package GLOBAL;
-  our $_cursor;
+  our $_cursor = STD;
   sub parser_pos { $RXX::pos }
 }
 ';
@@ -1880,4 +1880,8 @@ print STDERR "pos: ",$pos,"\n";
 Carp::croak if $ENV{VERBOSE};
 exit(1);
 '}
+}
+
+package GLOBAL {
+  multi infix:<~~>   (Str $a, Regexp::ModuleA::Rx $b) { $b.match($a) }
 }

@@ -385,6 +385,7 @@ use warnings;
   sub private_tidy {
     eval("use Perl::Tidy");
     if ($@) { $_[0] }
+    elsif ($ENV{ELF_DEV_NO_TIDY}) { $_[0] }
     else {
       my $source = $_[0];
       my $dest;
@@ -997,6 +998,9 @@ package Main;
     if $n.block.WHAT eq 'IRx1::SubDecl' { $pull = '->($_)'};
     'for(('~$.e($n.expr)~')'~$push~")\{\n"~$.e($n.block)~$pull~"\n}"
   };
+  method cb__Loop ($n) {
+    'while(('~$.e($n.pretest)~")->Bool) \{\n"~$.e($n.block)~"\n}"
+  };
   method cb__Cond ($n) {
     my $els = '';
     if $n.default { $els = "else \{\n"~$.e($n.default)~"\n}" }
@@ -1009,9 +1013,21 @@ package Main;
     ~$clauses.map(sub ($e){'elsif(('~$e[0]~")->Bool) \{\n"~$e[1]~"\n}"}).join("")
     ~$els)
   };
-  method cb__Loop ($n) {
-    'while(('~$.e($n.pretest)~")->Bool) \{\n"~$.e($n.block)~"\n}"
-  };
+  method cb__Given ($n) {
+    my $expr = $.e($n.expr);
+    my $stmts = $.e($n.block.statements).map(sub ($s) {  #XX so When's elsif's work.
+      if $s.re_matchp('\)\z') {$s~';'} else {$s} }).join("\n");
+    '(do{ local $_ = '~$expr~";\n"~'if(0){}'~"\n"~$stmts~"\n})";
+  }
+  method cb__When ($n) {
+    my $expr = $.e($n.expr);
+    my $test;
+    if not defined $expr { $test = "1" } # default {}
+    elsif $n.expr.is_whatever { $test = "1" } # when * {}
+    else { $test = '$_ eq '~$expr~'' }
+    my $block = $.e($n.block);
+    'elsif('~$test~') {'~$block~"}";
+  }
 
   method encode_varname($s,$t,$dsn) {
     #XXX $pkg::x -> s_pkg::x :(
