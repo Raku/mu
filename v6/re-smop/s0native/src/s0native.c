@@ -1,6 +1,7 @@
 #include <smop/base.h>
 #include <smop/s0native.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void smop_s0native_init(void) {
   smop_native_bool_init();

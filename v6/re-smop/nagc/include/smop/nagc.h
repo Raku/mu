@@ -1,12 +1,14 @@
 #ifndef SMOP_NAGC_H
 #define SMOP_NAGC_H
 
+#include <pthread.h>
 #define SMOP__NAGC__ResponderInterface__BASE     \
   SMOP__ResponderInterface__BASE                 \
   void (*DESTROYALL) (SMOP__Object* interpreter, \
                       SMOP__Object* object);
 
 typedef struct SMOP__NAGC__ResponderInterface {
+  SMOP__Object__BASE
   SMOP__NAGC__ResponderInterface__BASE
 } SMOP__NAGC__ResponderInterface;
 
@@ -15,11 +17,17 @@ typedef struct SMOP__NAGC__ResponderInterface {
   SMOP__Object__BASE                  \
   int ref_cnt;                        \
   pthread_rwlock_t* rwlock;           \
-  void* weakrefs;
+  void** weakrefs;
   
 typedef struct SMOP__NAGC__Object {
   SMOP__NAGC__Object__BASE
 } SMOP__NAGC__Object;
+
+typedef struct SMOP__NAGC__WeakRef {
+  SMOP__NAGC__Object__BASE
+  SMOP__NAGC__Object* ref;
+  int lost;
+} SMOP__NAGC__WeakRef;
 
 extern SMOP__NAGC__ResponderInterface* SMOP__NAGC__WeakRef__RI;
 

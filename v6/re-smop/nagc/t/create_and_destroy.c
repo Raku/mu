@@ -1,3 +1,4 @@
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <smop/base.h>
@@ -23,7 +24,11 @@ int main() {
 
   printf("1..6\n");
 
+  smop_s0native_init();
+  smop_nagc_init();
+
   SMOP__NAGC__ResponderInterface ri;
+  ri.RI = NULL;
   ri.MESSAGE = placeholder;
   ri.REFERENCE = smop_nagc_reference;
   ri.RELEASE = smop_nagc_release;
@@ -38,9 +43,12 @@ int main() {
 
   SMOP__Object* ref = SMOP_WEAKREF(SMOP__EmptyInterpreter, obj);
 
+  if (!ref) {
+    printf("not ");
+  }
   printf("ok 2 - weakref created.\n");
 
-  if (((SMOP__NAGC__WeakRef*)ref)->ref != obj) {
+  if (((SMOP__NAGC__WeakRef*)ref)->ref != (SMOP__NAGC__Object*)obj) {
     printf("not ");
   }
   printf("ok 3 - weakref points to object.\n");
@@ -49,10 +57,15 @@ int main() {
 
   printf("ok 5 - after object destruction\n");
 
-  if (((SMOP__NAGC__WeakRef*)ref)->ref != SMOP__NATIVE__bool_false) {
+  if (((SMOP__Object*)(((SMOP__NAGC__WeakRef*)ref)->ref)) != SMOP__NATIVE__bool_false) {
     printf("not ");
   }
   printf("ok 6 - weakref points to false.\n");
+
+  SMOP_RELEASE(SMOP__EmptyInterpreter, ref);
+
+  smop_nagc_destr();
+  smop_s0native_destr();
 
   return 0;
 }

@@ -21,5 +21,6 @@ void smop_empty_interpreter_init() {
 }
 
 void smop_empty_interpreter_destr() {
+  free(SMOP__EmptyInterpreter->RI);
   free(SMOP__EmptyInterpreter);
 }

@@ -17,10 +17,10 @@ SMOP__Object* smop_nagc_alloc(size_t size) {
   y->rwlock = calloc(1,sizeof(pthread_rwlock_t));
   if (!y->rwlock)
     abort();
-  if (pthread_rwlock_init(internal->rwlock, NULL))
+  if (pthread_rwlock_init(y->rwlock, NULL))
     abort();
 
-  return y;
+  return (SMOP__Object*)y;
 }
 
 void smop_nagc_rdlock(SMOP__NAGC__Object* value) {
@@ -35,7 +35,7 @@ void smop_nagc_wrlock(SMOP__NAGC__Object* value) {
   }
 }
 
-void smop_nagc_unlock(SMOP__Object* value) {
+void smop_nagc_unlock(SMOP__NAGC__Object* value) {
   if (pthread_rwlock_unlock(value->rwlock)) {
     abort();
   }
@@ -67,9 +67,11 @@ SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
     smop_nagc_unlock((SMOP__NAGC__Object*)obj);
 
     if (destroy) {
-      SMOP__NAGC__ResponderInterface* ri = SMOP_RI(obj);
-      smop_nagc_weakref_cleanup(obj);
+      SMOP__NAGC__ResponderInterface* ri = (SMOP__NAGC__ResponderInterface*)SMOP_RI(obj);
+      smop_nagc_weakref_cleanup((SMOP__NAGC__Object*)obj);
       ri->DESTROYALL(interpreter, obj);
+      pthread_rwlock_destroy(((SMOP__NAGC__Object*)obj)->rwlock);
+      free(((SMOP__NAGC__Object*)obj)->rwlock);
       free(obj);
       return NULL;
     } else {
@@ -83,7 +85,7 @@ SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
 SMOP__Object* smop_nagc_weakref(SMOP__Object* interpreter,
                                 SMOP__ResponderInterface* responder,
                                 SMOP__Object* obj) {
-  return smop_nagc_weakref_create(obj);
+  return smop_nagc_weakref_create((SMOP__NAGC__Object*)obj);
 }
 
 void smop_nagc_init() {
