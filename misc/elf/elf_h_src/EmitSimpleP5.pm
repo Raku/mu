@@ -466,6 +466,12 @@ use warnings;
   }
 }
 
+{ package CallApi::Marker;
+  package CallApi;
+  our $mark = bless {}, CallApi::Marker;
+  our $id = undef;
+}
+
 { package Fastundump;
   sub match {my($r,$s,$f,$t,$h)=@_; Match->make_from_rsfth($r,$s,$f,$t,$h)}
 }
@@ -768,18 +774,29 @@ package Main;
     }
   };
   method cb__Signature ($n) {
-    if ($n.parameters.elems == 0) { "" }
-    else {
-      temp $whiteboard::signature_inits = "";
-      my $pl = $.e($n.parameters).join(",");
-      'my('~$pl~')=@_;'~$whiteboard::signature_inits~"\n";
+    temp $whiteboard::signature_declare_vars = [];
+    temp $whiteboard::signature_inits = "";
+    my $pl = $.e($n.parameters).join(",");
+    my $decl = 'my('~$whiteboard::signature_declare_vars.join(",")~');';
+    my $assign = '('~$pl~')=@_;'~$whiteboard::signature_inits~"\n";
+    if ($n.parameters.elems == 0) { $decl = ""; $assign = ""; }
+    if 0 { # use CallApi
+      my $testv1 = '($CallApi::id)';
+      my $testv2 = '(CORE::ref($_[-1]) eq "CallApi::Marker" && do{ CORE::pop; $CallApi::id = CORE::pop })';
+      my $testv3 = '('~$testv1~' || '~$testv2~')';
+      my $reset = '$CallApi::id = undef;';
+      $decl~'if'~$testv3~'{'~"\n#...\n"~'}else{'~$assign~'}';
+    } else {
+      $decl~$assign;
     }
   };
   method cb__Parameter ($n) {
     my $enc = $.e($n.param_var);
+    $whiteboard::signature_declare_vars.push($enc);
     if $n.quant && $n.quant eq '*' {
       my $tmp = "@"~$n.param_var.name;
-      $whiteboard::signature_inits = $whiteboard::signature_inits~"\nmy "~$enc~" = \\"~$tmp~";";
+      $whiteboard::signature_declare_vars.push($tmp);
+      $whiteboard::signature_inits = $whiteboard::signature_inits~"\n"~$enc~" = \\"~$tmp~";";
       $tmp;
     } else {
       if $n.default_expr {
