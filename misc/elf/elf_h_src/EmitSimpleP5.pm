@@ -466,11 +466,7 @@ use warnings;
   }
 }
 
-{ package CallApi::Marker;
-  package CallApi;
-  our $mark = bless {}, CallApi::Marker;
-  our $id = undef;
-}
+{ package Call; our $Api = 0; } # CallApi
 
 { package Fastundump;
   sub match {my($r,$s,$f,$t,$h)=@_; Match->make_from_rsfth($r,$s,$f,$t,$h)}
@@ -514,6 +510,7 @@ package Main;
     temp $whiteboard::in_package = [];
     temp $whiteboard::emit_pairs_inline = 0;
     temp $whiteboard::compunit_footer = [];
+    temp $whiteboard::current_CallApi = 0;
     my $code = (
       "package Main;\n"~
       self.prelude_for_entering_a_package());
@@ -773,6 +770,7 @@ package Main;
       'sub '~$enc_name~'{'~$sig~$body~'}';
     }
   };
+  method signature_CallApi_handler ($n,$api_variable) { "" }
   method cb__Signature ($n) {
     temp $whiteboard::signature_declare_vars = [];
     temp $whiteboard::signature_inits = "";
@@ -780,15 +778,11 @@ package Main;
     my $decl = 'my('~$whiteboard::signature_declare_vars.join(",")~');';
     my $assign = '('~$pl~')=@_;'~$whiteboard::signature_inits~"\n";
     if ($n.parameters.elems == 0) { $decl = ""; $assign = ""; }
-    if 0 { # use CallApi
-      my $testv1 = '($CallApi::id)';
-      my $testv2 = '(CORE::ref($_[-1]) eq "CallApi::Marker" && do{ CORE::pop; $CallApi::id = CORE::pop })';
-      my $testv3 = '('~$testv1~' || '~$testv2~')';
-      my $reset = '$CallApi::id = undef;';
-      $decl~'if'~$testv3~'{'~"\n#...\n"~'}else{'~$assign~'}';
-    } else {
-      $decl~$assign;
-    }
+    ($decl~
+     'if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;'~
+     $.signature_CallApi_handler($n,'$__api__')~
+     '}else{'~"\n"~
+     $assign~"}\n");
   };
   method cb__Parameter ($n) {
     my $enc = $.e($n.param_var);
@@ -818,11 +812,11 @@ package Main;
     my $method = $.e($n.method);
     my $meth = $.mangle_function_name($method);
     if ($method eq 'postcircumfix:< >') {
-      $.e($n.invocant)~'->'~$meth~'('~"'"~$.e($n.capture)~"'"~')';
+      $.wrap_in_CallApi(0,$.e($n.invocant)~'->'~$meth~'('~"'"~$.e($n.capture)~"'"~')');
     } elsif ($method eq 'postcircumfix:( )') {
-      $.e($n.invocant)~'->'~'('~$.e($n.capture)~')';
+      $.wrap_in_CallApi(0,$.e($n.invocant)~'->'~'('~$.e($n.capture)~')');
     } else {
-      $.e($n.invocant)~'->'~$meth~'('~$.e($n.capture)~')'
+      $.wrap_in_CallApi(0,$.e($n.invocant)~'->'~$meth~'('~$.e($n.capture)~')');
     }
   };
   method mangle_function_name($name) {
@@ -833,13 +827,29 @@ package Main;
      #$name = mangle_name($name);
      #$name;
   }
+  method wrap_in_CallApi ($api,$src) {
+    #CAUTION: In perl 5.10.0, this
+    #   return(do{local $buggy;$s->re_gsub(...)})  and this
+    #   return(do{             $s->re_gsub(...)})
+    # will occasionally behave differently.  For both local and my.
+    # To reproduce, set $optimize_away = 0, and rebuild.  The symptom
+    # is "Use of uninitialized value in concatenation (.) or string"
+    # warnings and self-compilation failure.
+    my $optimize_away = 1;
+    if $api eq $whiteboard::current_CallApi && $optimize_away {
+      $src
+    } else {
+      #X The \t is used in the "assignment to field" hack.
+      '(do{local $Call::Api='~$api~';'~$src~"\t})";
+    }
+  }
   method cb__Apply ($n) {
     my $g;
     # temp $whiteboard::emit_pairs_inline = 0; #XXX depends on function :/
     my $fun = $.e($n.function);
     if $n.notes<lexical_bindings>{'&'~$fun} {
        my $fe = $.mangle_function_name($fun);
-       return ''~$fe~'('~$.e($n.capture)~')'
+       return $.wrap_in_CallApi(0,''~$fe~'('~$.e($n.capture)~')');
     }
     if $g = $fun.re_groups('^infix:(.+)$') {
       my $op = $g[0];
@@ -873,10 +883,12 @@ package Main;
         {
           if $args[0].capture.arguments.elems == 0 {
             my $meth = $.mangle_function_name($args[0].method);
-            return $.e($args[0].invocant)~'->'~$meth~'('~$r~')'
+            return $.wrap_in_CallApi(0,$.e($args[0].invocant)~'->'~$meth~'('~$r~')');
           } else {
             my $call = $.e($args[0]);
-            my $lvalue_call = $call.re_gsub('\)$',', '~$r~')');
+            my $g = $call.re_groups('\A((?s:.)*?)((?:\)\t\})?\))\z');
+            if not $g { die "bug" }
+            my $lvalue_call = $g[0]~', '~$r~$g[1];
             if $call eq $lvalue_call { die "bug" }
             return $lvalue_call;
           }
@@ -976,10 +988,10 @@ package Main;
       return 'return('~$.e($n.capture)~')';
     }
     elsif ($fun.re_matchp('^\$\w+$')) {
-      return $fun~'->('~$.e($n.capture)~')';
+      return $.wrap_in_CallApi(0,$fun~'->('~$.e($n.capture)~')');
     }
     elsif ($fun.re_matchp('^sub\s*{')) {
-      return '('~$fun~')->('~$.e($n.capture)~')'
+      return $.wrap_in_CallApi(0,'('~$fun~')->('~$.e($n.capture)~')');
     }
     elsif $fun eq 'eval' {
       my $env = 'sub{my$s=eval($_[0]);Carp::carp($@)if$@;$s}';
@@ -991,10 +1003,10 @@ package Main;
 
     if $fun.re_matchp('^\w') {
       my $fe = $.mangle_function_name($fun);
-      return 'GLOBAL::'~$fe~'('~$.e($n.capture)~')'
+      return $.wrap_in_CallApi(0,'GLOBAL::'~$fe~'('~$.e($n.capture)~')');
     }
     else {
-       return  $fun~'('~$.e($n.capture)~')';
+      return $.wrap_in_CallApi(0,$fun~'('~$.e($n.capture)~')');
     }
   };
   method cb__Capture ($n) {
