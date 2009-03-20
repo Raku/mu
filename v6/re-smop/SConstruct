@@ -30,14 +30,12 @@ ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=sub
 flags = '-O0 -g3 '
 
 
-BuildDir('build/s0native/','s0native/')
-s0native_files = env.Glob('build/s0native/src/*.c')
-
-lib_s0native = env.SharedLibrary(target = 'build/lib/smop-s0native',source = s0native_files,CFLAGS=flags+ccopts,CPPPATH = ['s0native/src'] + ['base/include','s0native/include'])
-
-BuildDir('build/nagc/','nagc/')
-nagc_files = env.Glob('build/nagc/src/*.c')
-lib_nagc = env.SharedLibrary(target = 'build/lib/smop-nagc', source = nagc_files, CFLAGS=flags+ccopts, CPPPATH=['nagc/src'] + ['base/include', 's0native/include', 'nagc/include'])
+INCLUDE = ['base/include']
+for module in ['s0native','nagc']:
+    BuildDir('build/'+module,module)
+    INCLUDE.append(module + '/include')
+    files = env.Glob('build/' + module + '/src/*.c')
+    env.SharedLibrary(target = 'build/lib/smop-'+module, source = files, CFLAGS=flags+ccopts, CPPPATH=[module+'/src'] + INCLUDE)
 
 LIBPATH = []
 
