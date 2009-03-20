@@ -34,6 +34,10 @@ SMOP should then be divided into the following modules
    the types that use it that is called during destruction, as opposed
    to calling the DESTROYALL method.
 
+ capture - This module implements the native capture which is the base
+   for the implementation of smop method calls. It is packaged
+   separatedly because it is needed for far too many types.
+
  interpreter - In SMOP the interpreter is really just the container
    for the current continuation. It delegates the runloop to the
    continuation classes.
@@ -44,18 +48,15 @@ SMOP should then be divided into the following modules
    c code that doesn't recurse in the C stack in a reasonable and
    portable way.
 
+ mold - This is the default continuation class. It is a register-based
+   bytecode interpreter.
+
  native - This module contains the regular native types, subject to
    garbage collection.
-   - capture
-   - junction
-   - (S02 built-in types)
 
  p6gc - This is the implementation of the default SMOP garbage
    collector. It is a fairly standard refcounting gc that invokes
    DESTROYALL on the object when the refcount reaches 0.
-
- mold - This is the default continuation class. It is a register-based
-   bytecode interpreter.
 
  s1p - This module contains simplification of Perl 6 types that exist
    for bootstrapping purposes:
