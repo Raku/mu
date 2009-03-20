@@ -48,10 +48,6 @@ SMOP should then be divided into the following modules
  native - This module contains the regular native types, subject to
    garbage collection.
 
- p6gc - This is the implementation of the default SMOP garbage
-   collector. It is a fairly standard refcounting gc that invokes
-   DESTROYALL on the object when the refcount reaches 0.
-
  s1p - This module contains simplification of Perl 6 types that exist
    for bootstrapping purposes:
    * SMOP::S1P::Scalar
@@ -71,6 +67,10 @@ SMOP should then be divided into the following modules
    * SMOP::S1P::RITest
    * SMOP::S1P::ControlExceptionReturn
    * SMOP::S1p::OutOfItemsException
+
+ p6gc - This is the implementation of the default SMOP garbage
+   collector. It is a fairly standard refcounting gc that invokes
+   DESTROYALL on the object when the refcount reaches 0.
 
  p6opaque - This is the default representation for Perl 6 objects. It
    should support storing all kinds of meta information required by
