@@ -42,12 +42,6 @@ SMOP should then be divided into the following modules
    for the current continuation. It delegates the runloop to the
    continuation classes.
 
- lost - LOw-level STate machine. This is a continuation class that
-   contains a simple array of function pointers and data space that is
-   used as "frame data" for that execution. It allows writing regular
-   c code that doesn't recurse in the C stack in a reasonable and
-   portable way.
-
  mold - This is the default continuation class. It is a register-based
    bytecode interpreter.
 
