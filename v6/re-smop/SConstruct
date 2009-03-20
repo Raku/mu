@@ -31,31 +31,26 @@ flags = '-O0 -g3 '
 
 s0native_files = env.Glob('s0native/src/*.c')
 
-lib_s0native = env.SharedLibrary(target = 'build/s0native',source = s0native_files,CFLAGS=flags+ccopts,CPPPATH = ['s0native/src'] + ['base/include','s0native/include'])
+lib_s0native = env.SharedLibrary(target = 'build/lib/s0native',source = s0native_files,CFLAGS=flags+ccopts,CPPPATH = ['s0native/src'] + ['base/include','s0native/include'])
 
 nagc_files = env.Glob('nagc/src/*.c')
-lib_nagc = env.SharedLibrary(target = 'build/nagc', source = nagc_files, CFLAGS=flags+ccopts, CPPPATH=['nagc/src'] + ['base/include', 's0native/include', 'nagc/include'])
+lib_nagc = env.SharedLibrary(target = 'build/lib/nagc', source = nagc_files, CFLAGS=flags+ccopts, CPPPATH=['nagc/src'] + ['base/include', 's0native/include', 'nagc/include'])
 
 LIBPATH = []
 LIBS = []
 
-BuildDir('s0native-tests','s0native/t')
-for test in env.Glob("s0native-tests/*.c"):
-    env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = ['base/include','s0native/include'],LIBPATH=LIBPATH+['build'],LIBS=LIBS+['s0native','pcl','pthread'])
+BuildDir('build/t/s0native','s0native/t')
+for test in env.Glob("build/t/s0native/*.c"):
+    env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = ['base/include','s0native/include'],LIBPATH=LIBPATH+['build/lib'],LIBS=LIBS+['s0native','pcl','pthread'])
 
-BuildDir('nagc-tests','nagc/t')
-for test in env.Glob("nagc-tests/*.c"):
-    env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = ['base/include','s0native/include','nagc/include'],LIBPATH=LIBPATH+['build'],LIBS=LIBS+['s0native','pthread','nagc'])
+BuildDir('build/t/nagc','nagc/t')
+for test in env.Glob("build/t/nagc/*.c"):
+    env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = ['base/include','s0native/include','nagc/include'],LIBPATH=LIBPATH+['build/lib'],LIBS=LIBS+['s0native','pthread','nagc'])
 
 
-#INCLUDE = ['include'] + glob.glob('smop-*/include')
-#
-#libsmop = env.SharedLibrary(target = 'build/smop',source = files,CFLAGS=flags+ccopts,CPPPATH = ['src'] + INCLUDE)
-#
 #LIBS = re.compile("-l(\S+)").findall(ldopts)
 #LIBPATH = re.compile("-L(\S+)").findall(ldopts)
-#
-#
+
 #for test in env.Glob("build-tests/*.m0ld"):
 #    env.M0ld(test) 
 #for test in env.Glob("build-tests/*.c"):
