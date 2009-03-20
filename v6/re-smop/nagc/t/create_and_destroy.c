@@ -11,14 +11,6 @@ static void custom_destroyall(SMOP__Object* interpreter,
                               SMOP__Object* value) {
   printf("ok 4 - Object destroyed.\n");
 }
-static SMOP__Object* placeholder(SMOP__Object* interpreter,
-                                 SMOP__ResponderInterface* self,
-                                 SMOP__Object* identifier,
-                                 SMOP__Object* capture) {
-  printf("unimplemented!\n");
-  abort();
-}
-
 
 int main() {
 
@@ -29,7 +21,7 @@ int main() {
 
   SMOP__NAGC__ResponderInterface ri;
   ri.RI = NULL;
-  ri.MESSAGE = placeholder;
+  ri.MESSAGE = smop_placeholder_message;
   ri.REFERENCE = smop_nagc_reference;
   ri.RELEASE = smop_nagc_release;
   ri.WEAKREF = smop_nagc_weakref;
