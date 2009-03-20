@@ -1,6 +1,7 @@
 #ifndef SMOP_NAGC_H
 #define SMOP_NAGC_H
 
+#include <smop/base.h>
 #include <pthread.h>
 #define SMOP__NAGC__ResponderInterface__BASE     \
   SMOP__ResponderInterface__BASE                 \

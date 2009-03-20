@@ -31,7 +31,7 @@ flags = '-O0 -g3 '
 
 
 INCLUDE = ['base/include']
-for module in ['s0native','nagc']:
+for module in ['s0native','nagc','capture']:
     BuildDir('build/'+module,module)
     INCLUDE.append(module + '/include')
     files = env.Glob('build/' + module + '/src/*.c')
@@ -42,7 +42,7 @@ LIBPATH = []
 LIBS = ['pthread']
 INCLUDE = ['base/include']
 
-for module in ['s0native','nagc']:
+for module in ['s0native','nagc','capture']:
     BuildDir('build/t/'+module,module+'/t')
     INCLUDE.append(module + '/include')
     LIBS.append('smop-'+module)
