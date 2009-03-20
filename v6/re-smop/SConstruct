@@ -29,23 +29,28 @@ ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=sub
 ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 flags = '-O0 -g3 '
 
-s0native_files = env.Glob('s0native/src/*.c')
 
-lib_s0native = env.SharedLibrary(target = 'build/lib/s0native',source = s0native_files,CFLAGS=flags+ccopts,CPPPATH = ['s0native/src'] + ['base/include','s0native/include'])
+BuildDir('build/s0native/','s0native/')
+s0native_files = env.Glob('build/s0native/src/*.c')
 
-nagc_files = env.Glob('nagc/src/*.c')
-lib_nagc = env.SharedLibrary(target = 'build/lib/nagc', source = nagc_files, CFLAGS=flags+ccopts, CPPPATH=['nagc/src'] + ['base/include', 's0native/include', 'nagc/include'])
+lib_s0native = env.SharedLibrary(target = 'build/lib/smop-s0native',source = s0native_files,CFLAGS=flags+ccopts,CPPPATH = ['s0native/src'] + ['base/include','s0native/include'])
+
+BuildDir('build/nagc/','nagc/')
+nagc_files = env.Glob('build/nagc/src/*.c')
+lib_nagc = env.SharedLibrary(target = 'build/lib/smop-nagc', source = nagc_files, CFLAGS=flags+ccopts, CPPPATH=['nagc/src'] + ['base/include', 's0native/include', 'nagc/include'])
 
 LIBPATH = []
-LIBS = []
 
-BuildDir('build/t/s0native','s0native/t')
-for test in env.Glob("build/t/s0native/*.c"):
-    env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = ['base/include','s0native/include'],LIBPATH=LIBPATH+['build/lib'],LIBS=LIBS+['s0native','pcl','pthread'])
+LIBS = ['pthread']
+INCLUDE = ['base/include']
 
-BuildDir('build/t/nagc','nagc/t')
-for test in env.Glob("build/t/nagc/*.c"):
-    env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = ['base/include','s0native/include','nagc/include'],LIBPATH=LIBPATH+['build/lib'],LIBS=LIBS+['s0native','pthread','nagc'])
+for module in ['s0native','nagc']:
+    BuildDir('build/t/'+module,module+'/t')
+    INCLUDE.append(module + '/include')
+    LIBS.append('smop-'+module)
+    for test in env.Glob("build/t/" + module + "/*.c"):
+        env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = INCLUDE,LIBPATH=LIBPATH+['build/lib'],LIBS=LIBS)
+
 
 
 #LIBS = re.compile("-l(\S+)").findall(ldopts)
