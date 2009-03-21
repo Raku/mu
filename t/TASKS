@@ -93,6 +93,7 @@ S12
 
 S16
 * tests for glob()
+* tests for lines($filehandle) and lines($filename)
 
 S29
 * tests for array: shape
