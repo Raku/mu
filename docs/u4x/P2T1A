@@ -17,12 +17,20 @@ Pair (fairly stable, not too large, a few different use cases)
 
 == A method
 
-.pick (fun, and krunen++ already contributed a nice example of it)
+.subst
 
-my %cards = <ace two three four five six seven eight nine ten jack queen king>
-            X~ (" of " X~ <spades hearts diamonds clubs>)
-            Z (1|11,2..13 X* 1,1,1,1);
-%cards.pick(5).perl.say
+Mention that the second argument is not special-cased in any way, so
+substitutions using $/ would have to surround that expression in a block.
+
+That is,
+
+$string.subst(/(\S+)/, ucfirst($0), :g)
+
+should really be
+
+$string.subst(/(\S+)/, { ucfirst($0) }, :g)
+
+otherwise the $0 will evaluate too early.
 
 == Predeclared constants
 
@@ -78,6 +86,15 @@ qq: (Stable enough. Involved enough.)
 
 ff (Because Stevey complained about the corresponding Perl 5 documentation,
 calling it insane. We can do better, and then we'll blog about it.)
+
+== Meta operators
+
+X (fun, and krunen++ already contributed a nice example of it)
+
+my %cards = <ace two three four five six seven eight nine ten jack queen king>
+            X~ (" of " X~ <spades hearts diamonds clubs>)
+            Z (1|11,2..13 X* 1,1,1,1);
+%cards.pick(5).perl.say
 
 == Expression terminators
 
