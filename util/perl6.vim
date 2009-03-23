@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Mar 15th 2009
+" Last Change:  Mar 23rd 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -230,7 +230,7 @@ let s:routines = [
  \ "unwrap getc pi e context void quasi body each contains rewinddir subst",
  \ "can isa flush arity assuming rewind callwith callsame nextwith nextsame",
  \ "attr eval_elsewhere none srand trim trim_start trim_end lastcall WHAT",
- \ "WHERE HOW WHICH VAR WHO WHENCE ACCEPTS does not true int",
+ \ "WHERE HOW WHICH VAR WHO WHENCE ACCEPTS does not true iterator",
 \ ]
 
 " we want to highlight builtins like split() though, so this comes afterwards
@@ -382,7 +382,6 @@ syn cluster p6Interp_double
     \ add=@p6Interp_closure
     \ add=@p6Interp_backslash
 
-"="\%(\d\+\|!\|/\|¢\)"
 syn region p6InterpScalar
     \ start="\ze\z(\$\%(\%(\%(\d\+\|!\|/\|¢\)\|\%(\%(\%([.^*?=!]\|:\@<!::\@!\)\K\@=\)\?\K\%(\k\|[-']\K\@=\)*\)\%(\.\%(\K\%(\k\|[-']\K\@=\)*\)\|\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)*\)\.\?\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\)\)"
     \ start="\ze\z(\$\%(\%(\%(\%([.^*?=!]\|:\@<!::\@!\)\K\@=\)\?\K\%(\k\|[-']\K\@=\)*\)\|\%(\d\+\|!\|/\|¢\)\)\)"
@@ -612,7 +611,8 @@ syn region p6StringDQ
 " Q// and friends.
 
 syn match p6Operator display "\%([Qq]\%(ww\|to\|[qwxsahfcb]\)\?\)" nextgroup=p6QPairs skipwhite skipempty
-syn match p6QPairs contained transparent skipwhite skipempty nextgroup=p6StringQ "\%(\_s*:!\?\K\%(\k\|[-']\K\@=\)*\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\?\)*"
+syn match p6QPairs contained transparent skipwhite skipempty nextgroup=p6StringQ,p6StringQ_PIR "\%(\_s*:!\?\K\%(\k\|[-']\K\@=\)*\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\?\)*"
+syn include @p6PIR syntax/pir.vim 
 
 " hardcoded set of delimiters
 let s:delims = [
@@ -649,6 +649,11 @@ if !exists("perl6_extended_q") && !exists("perl6_extended_all")
     " simple version, no special highlighting within the string
     for [start_delim, end_delim, end_group, skip] in s:delims
         exec "syn region p6StringQ matchgroup=p6Quote start=\"".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=".end_group." contained"
+    endfor
+
+    " highlight embedded PIR code
+    for [start_delim, end_delim, end_group, skip] in s:delims
+        exec "syn region p6StringQ_PIR matchgroup=p6Quote start=\"\\%(Q\\s*:PIR\\s*\\)\\@<=".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=@p6PIR,".end_group." contained"
     endfor
 else
     let s:before = "syn region p6StringQ matchgroup=p6Quote start=\"\\%("
