@@ -251,7 +251,7 @@ syn match p6Type display "\%(::\|\k\|\K\@<=[-']\)\@<!\%(Bool\%(::True\|::False\)
 
 
 syn match p6Shebang    display "\%^#!.*"
-syn match p6BlockLabel display "\%(\s\|^\)\@<=\h\w*\s*::\@!\_s\@="
+syn match p6BlockLabel display "\%(^\s*\)\@<=\h\w*\s*::\@!\_s\@="
 syn match p6Number     display "\k\@<!_\@!\%(\d\|__\@!\)\+_\@<!\%([eE]_\@!+\?\%(\d\|_\)\+\)\?_\@<!"
 syn match p6Float      display "\k\@<!_\@!\%(\d\|__\@!\)\+_\@<![eE]_\@!-\%(\d\|_\)\+"
 syn match p6Float      display "\k\@<!_\@<!\%(\d\|__\@!\)*_\@<!\.\@<!\._\@!\.\@!\a\@!\%(\d\|_\)\+_\@<!\%([eE]_\@!\%(\d\|_\)\+\)\?"
