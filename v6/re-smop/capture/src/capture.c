@@ -23,11 +23,37 @@ typedef struct capture_struct {
   smop_hash* named;
 } capture_struct;
 
-smop_hash* smop_hash_create(void) {
+smop_hash* smop_hash_create(SMOP__Object* interpreter,int size) {
   smop_hash* ret = malloc(sizeof(smop_hash));
-  ret->size = 20;
-  ret->content = malloc(sizeof(smop_hash_bucket*) * 20);
+  ret->size = size;
+  ret->content = calloc(ret->size,sizeof(smop_hash_bucket*));
   return ret;
+}
+
+void smop_hash_set(SMOP__Object* interpreter,smop_hash* hash,SMOP__Object* key,SMOP__Object* value) {
+  int hash_value = 0;
+  smop_hash_bucket* bucket = hash->content[hash_value % hash->size];
+  while (bucket) {
+    if (bucket->key == key) {
+      SMOP_RELEASE(interpreter,bucket->value);
+      bucket->value = value;
+      return;
+    }
+    bucket = bucket->next;
+  } 
+  smop_hash_bucket* new_bucket = (smop_hash_bucket*) malloc(sizeof(smop_hash_bucket));
+  new_bucket->next = hash->content[hash_value % hash->size];
+  hash->content[hash_value % hash->size] = new_bucket;
+  bucket->next = new_bucket;
+}
+
+SMOP__Object* smop_hash_get(SMOP__Object* interpreter,smop_hash* hash,SMOP__Object* key) {
+  int hash_value = 0;
+  smop_hash_bucket* bucket = hash->content[hash_value % hash->size];
+  while (bucket) {
+    if (bucket->key == key) return bucket->value;
+  }
+  return 0;
 }
 
 static void DESTROYALL(SMOP__Object* interpreter,
@@ -43,7 +69,7 @@ SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Objec
   capture_struct* ret = (capture_struct*) smop_nagc_alloc(sizeof(capture_struct));
   ret->RI = RI;
 
-  ret->named = smop_hash_create();
+  ret->named = smop_hash_create(interpreter,20);
 
   SMOP__Object** p = positional;
   while (*p) p++;
@@ -53,6 +79,12 @@ SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Objec
   int i;
   for (i=0;i<ret->positional_count;i++) {
     ret->positional[i] = positional[i];
+  }
+
+  SMOP__Object** n = named;
+  while (*n) {
+    smop_hash_set(interpreter,ret->named,*n,*(n+1));
+    n += 2;
   }
 
   return (SMOP__Object*) ret;

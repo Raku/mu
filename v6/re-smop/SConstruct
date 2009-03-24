@@ -30,8 +30,10 @@ ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=sub
 flags = '-O0 -g3 '
 
 
-INCLUDE = ['base/include']
-for module in ['s0native','nagc','capture']:
+modules = ['s0native','nagc','capture','interpreter','mold']
+
+INCLUDE = ['base/include','util/include']
+for module in modules:
     BuildDir('build/'+module,module)
     INCLUDE.append(module + '/include')
     files = env.Glob('build/' + module + '/src/*.c')
@@ -42,7 +44,7 @@ LIBPATH = []
 LIBS = ['pthread']
 INCLUDE = ['base/include']
 
-for module in ['s0native','nagc','capture']:
+for module in modules:
     BuildDir('build/t/'+module,module+'/t')
     INCLUDE.append(module + '/include')
     LIBS.append('smop-'+module)
