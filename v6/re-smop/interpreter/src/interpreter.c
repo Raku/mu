@@ -32,7 +32,7 @@ typedef struct interpreter_struct {
 
 static void DESTROYALL(SMOP__Object* interpreter,
                               SMOP__Object* value) {
-    smop_nagc_rwlock((SMOP__NAGC__Object*)value);
+    smop_nagc_wrlock((SMOP__NAGC__Object*)value);
     SMOP__Object* cont = ((interpreter_struct*)value)->continuation;
     smop_nagc_unlock((SMOP__NAGC__Object*)value);
     if (cont) SMOP_RELEASE(interpreter,cont);
@@ -43,8 +43,10 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
 
+  printf("at interpreter message\n");
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   SMOP__Object* invocant = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+  printf("invocant = %s\n",invocant->RI->id);
 
   if (identifier == SMOP__ID__new) {
     abort();
@@ -56,16 +58,19 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
      * released.
      */
     SMOP__Object* continuation = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    printf("cont = %s\n",continuation->RI->id);
     if (continuation == SMOP__NATIVE__bool_false) {
       continuation = NULL;
     }
 
-    smop_nagc_rwlock((SMOP__NAGC__Object*)invocant);
+    smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
     SMOP__Object* cont = ((interpreter_struct*)invocant)->continuation;
     ((interpreter_struct*)invocant)->continuation = continuation;
     smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
     
     if (cont) SMOP_RELEASE(interpreter,cont);
+
+    printf("after goto\n");
 
   } else if (identifier == SMOP__ID__continuation) {
     /* continuation $interpreter: ;
@@ -98,11 +103,21 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
   } else {
     printf("unknown method identifier\n");
   }
+  printf("relesasing capture\n");
   SMOP_RELEASE(interpreter, capture);
+  printf("after message\n");
 }
 
 
+SMOP__Object* SMOP_interpreter_create(SMOP__Object* interpreter) {
+  interpreter_struct* ret = (interpreter_struct*) smop_nagc_alloc(sizeof(interpreter_struct));
+  ret->continuation = NULL;
+  ret->RI = RI;
+  return (SMOP__Object*) ret;
+}
+
 void smop_interpreter_init() {
+  printf("interpreter init\n");
 
   RI = malloc(sizeof(SMOP__NAGC__ResponderInterface));
   RI->MESSAGE = interpreter_message;

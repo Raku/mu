@@ -105,4 +105,5 @@ void smop_capture_init() {
 }
 
 void smop_capture_destr() {
+  free(RI);
 }
