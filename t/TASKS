@@ -40,7 +40,7 @@ the spec (newest first)
 * (r25767) updates to builtin regexes
 * (r25715) lists in item context autopromote to captures
 * (r25626) 'lift' statement
-* (r25607) 'is also' -> 'augment'
+* (r25607) 'is also' -> 'augment' (RT #64170)
 * (r25591) 1-ary values for chaining operators should always be True even if negated
 
 S02
