@@ -97,7 +97,7 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* m
       fprintf(stderr,"argument to SMOP__Mold__Frame_create is not Mold\n");
     }
     smop_mold* mold = (smop_mold*) mold_object;
-    smop_mold_frame* ret = (smop_mold_frame*) smop_lowlevel_alloc(sizeof(smop_mold_frame));
+    smop_mold_frame* ret = (smop_mold_frame*) smop_nagc_alloc(sizeof(smop_mold_frame));
     ret->RI = (SMOP__ResponderInterface*)SMOP__Mold__Frame;
     ret->mold = mold_object;
     ret->position = 0;
@@ -118,7 +118,7 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* m
 }
 
 SMOP__Object* SMOP__Mold_create(int registers,SMOP__Object** constants,int opcodes_len,int *opcodes) {
-    smop_mold* ret = (smop_mold*) smop_lowlevel_alloc(sizeof(smop_mold));
+    smop_mold* ret = (smop_mold*) smop_nagc_alloc(sizeof(smop_mold));
     ret->RI = (SMOP__ResponderInterface*)SMOP__Mold;
 
     int i;
@@ -196,11 +196,11 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
   } else if (SMOP__ID__true == identifier) {
     ret = SMOP__NATIVE__bool_true;
 
-  } else if (SMOP__ID__set_reg == identifier) {
+  /*} else if (SMOP__ID__set_reg == identifier) {
     SMOP__Object* reg_pos = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     mold_reg_set(interpreter, invocant, SMOP__NATIVE__int_fetch(reg_pos), value);
-    SMOP_RELEASE(interpreter,reg_pos);
+    SMOP_RELEASE(interpreter,reg_pos);*/
 
   } else if (SMOP__ID__back == identifier) {
     if (frame->back) {
@@ -292,7 +292,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         for (i=0;i<pos_n;i++) {
           call_pos[i+1] = get_register(interpreter,frame);
         }
-        call_pos[pos_n] = NULL;
+        call_pos[pos_n+1] = NULL;
 
         int named_n = mold->opcodes[frame->position++];
         SMOP__Object** call_named = (SMOP__Object**) malloc((named_n+1) * sizeof(SMOP__Object*));
@@ -442,6 +442,27 @@ static void smop_mold_frame_DESTROYALL(SMOP__Object* interpreter,
 void smop_mold_init() {
 
   /*XXX create idconsts*/
+
+  SMOP__ID__set_reg = SMOP__NATIVE__idconst_create("set_reg");
+
+  SMOP__ID__set_back = SMOP__NATIVE__idconst_create("set_back");
+  SMOP__ID__back = SMOP__NATIVE__idconst_create("back");
+  SMOP__ID__set_control = SMOP__NATIVE__idconst_create("set_control");
+  SMOP__ID__control = SMOP__NATIVE__idconst_create("control");
+  SMOP__ID__set_catch = SMOP__NATIVE__idconst_create("set_catch");
+  SMOP__ID__catch = SMOP__NATIVE__idconst_create("catch");
+  SMOP__ID__set_lexical = SMOP__NATIVE__idconst_create("set_lexical");
+  SMOP__ID__lexical = SMOP__NATIVE__idconst_create("lexical");
+
+  SMOP__ID__setr = SMOP__NATIVE__idconst_create("setr");
+
+  SMOP__ID__new = SMOP__NATIVE__idconst_create("new");
+  SMOP__ID__eval = SMOP__NATIVE__idconst_create("eval");
+
+  SMOP__ID__STORE = SMOP__NATIVE__idconst_create("STORE");
+  SMOP__ID__FETCH = SMOP__NATIVE__idconst_create("FETCH");
+  SMOP__ID__true = SMOP__NATIVE__idconst_create("true");
+
 
   SMOP__Mold = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->MESSAGE = smop_mold_message;
