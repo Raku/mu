@@ -81,6 +81,9 @@ static SMOP__Object* SMOP__NATIVE__idconst_createn_nolist(const char* value, int
   return (SMOP__Object*) ret;
 }
 
+SMOP__Object* SMOP__NATIVE__idconst_create(const char* value) {
+  return SMOP__NATIVE__idconst_createn(value,strlen(value));
+}
 SMOP__Object* SMOP__NATIVE__idconst_createn(const char* value, int size) {
   SMOP__Object* candidate = SMOP__NATIVE__idconst_createn_nolist(value,size);
 

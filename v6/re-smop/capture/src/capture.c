@@ -43,8 +43,9 @@ void smop_hash_set(SMOP__Object* interpreter,smop_hash* hash,SMOP__Object* key,S
   } 
   smop_hash_bucket* new_bucket = (smop_hash_bucket*) malloc(sizeof(smop_hash_bucket));
   new_bucket->next = hash->content[hash_value % hash->size];
+  new_bucket->key = key;
+  new_bucket->value = value;
   hash->content[hash_value % hash->size] = new_bucket;
-  bucket->next = new_bucket;
 }
 
 SMOP__Object* smop_hash_get(SMOP__Object* interpreter,smop_hash* hash,SMOP__Object* key) {
@@ -52,6 +53,7 @@ SMOP__Object* smop_hash_get(SMOP__Object* interpreter,smop_hash* hash,SMOP__Obje
   smop_hash_bucket* bucket = hash->content[hash_value % hash->size];
   while (bucket) {
     if (bucket->key == key) return bucket->value;
+    bucket = bucket->next;
   }
   return 0;
 }
@@ -88,6 +90,10 @@ SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Objec
   }
 
   return (SMOP__Object*) ret;
+}
+
+SMOP__Object* SMOP__NATIVE__capture_named(SMOP__Object* interpreter,SMOP__Object* capture,SMOP__Object* key,int i) {
+  return smop_hash_get(interpreter,((capture_struct*)capture)->named,key);
 }
 
 SMOP__Object* SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,SMOP__Object* capture,int i) {

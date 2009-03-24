@@ -31,6 +31,7 @@ SMOP__Object* smop_noop_release(SMOP__Object* interpreter,
                                   SMOP__ResponderInterface* responder,
                                   SMOP__Object* obj); 
 SMOP__Object* SMOP__NATIVE__idconst_createn(const char* value, int size);
+SMOP__Object* SMOP__NATIVE__idconst_create(const char* value);
 
 char* SMOP__NATIVE__idconst_fetch(SMOP__Object* value, int* retsize);
 char* SMOP__NATIVE__idconst_fetch_with_null(SMOP__Object* value,int* retsize);
