@@ -35,7 +35,9 @@ static void DESTROYALL(SMOP__Object* interpreter,
     smop_nagc_wrlock((SMOP__NAGC__Object*)value);
     SMOP__Object* cont = ((interpreter_struct*)value)->continuation;
     smop_nagc_unlock((SMOP__NAGC__Object*)value);
-    if (cont) SMOP_RELEASE(interpreter,cont);
+    if (cont) {
+      SMOP_RELEASE(interpreter,cont);
+    }
 }
 
 static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
@@ -43,10 +45,8 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
 
-  printf("at interpreter message\n");
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   SMOP__Object* invocant = SMOP__NATIVE__capture_positional(interpreter,capture,0);
-  printf("invocant = %s\n",invocant->RI->id);
 
   if (identifier == SMOP__ID__new) {
     abort();
@@ -58,7 +58,6 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
      * released.
      */
     SMOP__Object* continuation = SMOP__NATIVE__capture_positional(interpreter,capture,1);
-    printf("cont = %s\n",continuation->RI->id);
     if (continuation == SMOP__NATIVE__bool_false) {
       continuation = NULL;
     }
@@ -70,7 +69,6 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     
     if (cont) SMOP_RELEASE(interpreter,cont);
 
-    printf("after goto\n");
 
   } else if (identifier == SMOP__ID__continuation) {
     /* continuation $interpreter: ;
@@ -103,9 +101,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
   } else {
     printf("unknown method identifier\n");
   }
-  printf("relesasing capture\n");
   SMOP_RELEASE(interpreter, capture);
-  printf("after message\n");
 }
 
 
@@ -117,7 +113,6 @@ SMOP__Object* SMOP_interpreter_create(SMOP__Object* interpreter) {
 }
 
 void smop_interpreter_init() {
-  printf("interpreter init\n");
 
   RI = malloc(sizeof(SMOP__NAGC__ResponderInterface));
   RI->MESSAGE = interpreter_message;
