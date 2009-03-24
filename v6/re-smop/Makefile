@@ -8,4 +8,5 @@ test: all
 env:
 	env
 
-
+clean:
+	scons --clean

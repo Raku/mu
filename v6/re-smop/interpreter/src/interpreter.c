@@ -101,6 +101,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
   } else {
     printf("unknown method identifier\n");
   }
+  SMOP_RELEASE(interpreter, invocant);
   SMOP_RELEASE(interpreter, capture);
 }
 
