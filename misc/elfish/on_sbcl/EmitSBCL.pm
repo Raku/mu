@@ -21,15 +21,30 @@ class EmitSBCL {
    '';
   }
   method prelude {
-  '#|
+    my $lisp_name;
+    if defined %*ENV<ELFCL_LISP_NAME> { $lisp_name = %*ENV<ELFCL_LISP_NAME> }
+    elsif defined $*lisp_name { $lisp_name = $*lisp_name }
+    else { $lisp_name = "sbcl" }
+    my $invoke;
+    if $lisp_name eq 'sbcl' {
+      $invoke = '#|
 fasl=`dirname $0`/`basename $0 .lisp`.fasl
 [ $fasl -ot $0 ] && sbcl --noinform --eval "(compile-file \"$0\")" --eval "(quit)"
 exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
 #exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
-|#
+|#'
+    } elsif $lisp_name eq 'ccl' {
+      $invoke = '#|
+fasl=`dirname $0`/`basename $0 .lisp`.lx64fsl
+[ $fasl -ot $0 ] && ccl --no-init --eval "(compile-file \"$0\")" --eval "(quit)"
+exec ccl --no-init -l $fasl -- "$@"
+|#'
+    } else { die "Unknown lisp implementation: "~$lisp_name; }
+    $invoke ~'
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (require \'asdf)
+#+sbcl
   (require \'sb-posix)
 )
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -265,8 +280,8 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
 ;; Bool
 (pkg-declare "class" "False" \'|Bool/cls|)
 (pkg-declare "class" "True" \'|Bool/cls|)
-(defun true () |True::/co|)
-(defun false () |False::/co|)
+(defun true6 () |True::/co|)
+(defun false6 () |False::/co|)
 
 ;;
 (defun set-slots (o argl)
@@ -318,6 +333,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
 ;(declaim (sb-ext:muffle-conditions warning))
 
 ;(defparameter sb-ext:*muffled-warnings* style-warning) ;In sbcl-1.0.20 .
+#+sbcl
 (if (find-symbol "sb-ext:*muffled-warnings*") ;In sbcl-1.0.20
 ;  (eval(read-from-string "(defparameter sb-ext:*muffled-warnings* style-warning)"))
  nil) 
@@ -387,7 +403,7 @@ exec sbcl --noinform --load $fasl --end-toplevel-options "$@"
       `(let ((,sym ,(car args)))
          (if (or ,(null (cdr args)) (to-b ,sym)) ,sym (or6 ,@(cdr args)))))))
 (defmacro and6 (&rest args)
-  (cond ((null args) `(true))
+  (cond ((null args) `(true6))
         ((null (cdr args)) (car args))
         (t (let ((sym (gensym)))
              `(let ((,sym ,(car args))) (if (not (to-b ,sym)) (undef) (and6 ,@(cdr args))))

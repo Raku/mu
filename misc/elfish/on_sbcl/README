@@ -1,10 +1,17 @@
-A SBCL Common-Lisp backend for elf
+A Common-Lisp backend for elf
+
 
 QUICKSTART
 
 First, get <pugs>/misc/STD_red working.  See its README.
 
 $ make get-libraries
+
+$ make setup-ccl
+$ make elfcl-ccl 
+$ ./elfcl-ccl -e 'say 3'
+$ make check-ccl
+
 $ make setup-sbcl
 $ make elfcl-sbcl
 $ ./elfcl-sbcl -e 'say 3'
@@ -13,9 +20,12 @@ $ make check
 $ export ELF_STD_RED_RUN=../../STD_red/STD_red_run
 $ ./elfx -xr PrimitivesSBCL.pm -v -e 'say 3'
 
+
 STATUS
 
 Can self-compile.
+When cross-compiling the p5 elf, there are still some diffs.
+
 
 VISION
 
@@ -27,26 +37,62 @@ bootstrapped p6 compiler development where correctness is not
 inherently incompatible with tolerable performance.
 
 
+DEBUGGING
+
+One of the advantages of elfcl over elfp5 is one can use a real debugger.
+Slime works well with elfcl.
+ () make elfcl.lisp
+ () Edit elfcl.lisp:
+   - Comment out the (fc |GLOBAL::&elf_main| ) at its end.
+   - Add (defun |GLOBAL::&exit| (&rest x) (boom))
+ () Run slime on elfcl.lisp.
+ () Useful expressions:
+   (setq |GLOBAL::@ARGS| (new-Array (mapcar #'UP '("-e" "say 3"))))
+   (fc |GLOBAL::&elf_main|)
+   (load "elfcl.lisp")
+
+
 OTHER LISP IMPLEMENTATIONS
 
-todo:
-* Try clisp in place of sbcl.  Faster (though weaker) compiler.
-  We just need a CL backend with good pragmatics.  Doesn't have to be SBCL.
-  And having a second target will help when MOP efforts start.
-  If clisp looks promising, the objective will be to support both.
-  Other CL implementations are *not* near-term goals.
-  Except perhaps ccl (formerly openmcl), but there's no deb or rpm yet.
-  Fedora's clisp, unlike debians, doesn't come with ASDF built in.
-  Status:
-    - library asdf directories now permit multiple implementations.
-      Perhaps use common-lisp-controller instead?
-    - make setup-clisp is failing on compilation of Weitz's unicode library
-        (an upstream bug, or perhaps a build problem)?.
-    - ./elfcl-clisp is failing on SB-POSIX because that's an sbcl'ism
-        which needs to be #+sbcl/#+clisp'ified.
-    - Next steps:
-        Clisp compilation of the unicode library is failing.
-        Add #+clisp and #+ccl for sbcl-isms among primitives.
+We just need a CL backend with good pragmatics.  Doesn't have to be SBCL.
+And having a second target will help when MOP efforts start.
+
+* SBCL
+
+  Self-compiles.
+
+* CCL aka CLOZURE aka OPENMCL
+
+  Self-compiles.
+  The assumption of x86_64 is hardwired in some .lx64fsl filenames.
+  The specific diff on compiling elfp5 suggests unicode isn't working.
+
+  Compared with SBCL, the CCL compile is much quieter (even without
+  --quiet), and somewhat faster (still several x slower than elfp5),
+  though its fib() is 4x slower (~6x elfp5, ~20x perl5, ~~200x unboxed
+  non-multi generic CL).
+
+* CLISP
+
+ Fedora's clisp, unlike debians, doesn't come with ASDF built in.
+   Symptom: clisp -norc ./lib-cl_compile.lisp
+              *** - LOAD: A file with name ASDF does not exist
+
+ make setup-clisp is failing on compilation of Weitz's unicode library
+   (an upstream bug, or perhaps a build problem)?.
+
+ Varios #+clisp'isms are needed.
+
+
+Planning:
+  - Next steps:
+      Get elf-ccl working.
+      Generalize the Makefile to permit ccl bootstrap testing.
+      Clisp compilation of the unicode library is failing.
+      Add #+clisp for sbcl-isms among primitives.
+  - library asdf directories now permit multiple implementations.
+    Perhaps use common-lisp-controller instead?
+
 
 TODO
 
@@ -86,6 +132,7 @@ Some random examples:
    compiler design?
 - ...
 
+
 NOTES
 
   You can leave questions/comments on http://perl.net.au/wiki/Elf .
@@ -94,7 +141,7 @@ NOTES
   from a fast terminal.  Like xterm, not gnome terminal.  Otherwise,
   terminal scrolling will determine compile time.
 
-  Compiling the CL elf requires about 2GB of ram.
+  Compiling the sbcl elf requires about 2GB of ram.
 
   Warnings are sometimes muffled before check in, to improve the
   experience of causal users.  For real development, comment out
@@ -124,3 +171,11 @@ NOTES
   # This dropped to 1/2x with Int's.
   # This dropped to 1/4x while not being watched, for causes unknown.
   # This dropped to 1/5x with boxed undef and booleans.
+
+2009-Mar-25
+-e 'sub fib{my($n)=@_;if($n==0){0}elsif($n==1){1}else{fib($n-1)+fib($n-2)}};print fib(32),"\n";'
+perl 5.10.0        6 s
+-e 'sub fib($n){if $n==0 {0} elsif $n==1 {1} else {fib($n-1)+fib($n-2)}}; say fib(32)'
+../../elf/elf_h   20 s
+./elfcl-sbcl      32 s
+./elfcl-ccl      118 s

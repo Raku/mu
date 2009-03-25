@@ -4,6 +4,7 @@ ELFDIR=../../elf/elf_h_src
 TMP=deleteme
 SBCL=sbcl --dynamic-space-size 1800
 CLISP=clisp
+CCL=ccl
 
 elfcl.lisp:: have_parser_cache
 	${ELF} -I ${ELFDIR} EmitSBCL.pm -x -o elfcl.lisp Elf_SBCL.pm
@@ -20,7 +21,7 @@ elfcl-clisp:: elfcl.lisp
 	${CLISP} -c elfcl.lisp
 
 elfcl-ccl:: elfcl.lisp
-	#ccl???
+	${CCL} --eval '(compile-file "elfcl.lisp")' --eval '(quit)'
 
 
 clean:
@@ -43,15 +44,15 @@ get-libraries:
 
 setup-sbcl:
 	_IMPL_=sbcl make _libraries_for_IMPL_
-	sbcl --noinform --load ./lib-cl_compile.lisp --eval "(quit)"
+	${SBCL} --noinform --load ./lib-cl_compile.lisp --eval '(quit)'
 
 setup-clisp:
 	_IMPL_=clisp make _libraries_for_IMPL_
-	clisp -norc ./lib-cl_compile.lisp
+	${CLISP} -norc ./lib-cl_compile.lisp
 
 setup-ccl:
 	_IMPL_=ccl make _libraries_for_IMPL_
-	#ccl???
+	${CCL} --no-init -l ./lib-cl_compile.lisp --eval '(quit)'
 
 _libraries_for_IMPL_:
 	-mkdir lib-cl/for-${_IMPL_}
@@ -74,15 +75,13 @@ _libraries_for_IMPL_:
 	(cd lib-cl/for-${_IMPL_}/systems; ln -s ../site/cl-ppcre/cl-ppcre.asd)
 
 
-check: have_parser_cache
+check_part0: have_parser_cache
 	-mkdir ${TMP}
 	-rm ${TMP}/[ab]*
 	# Create a p5 elf.
 	${ELF} -I ${ELFDIR} -x -o ${TMP}/a0 ${ELFDIR}/Elf.pm
-	# Create a CL elf.
-	${ELF} -I ${ELFDIR} EmitSBCL.pm -x -o ${TMP}/b0 Elf_SBCL.pm
-	# Compile the CL elf.
-	${SBCL} --disable-debugger --eval '(compile-file "${TMP}/b0")' --eval '(quit)' > ${TMP}/b0.log 2>&1
+
+check_part2:
 	# Run the CL elf.
 	chmod a+x ${TMP}/b0
 	${TMP}/b0 -e 'say "hello"' 2>/dev/null
@@ -95,7 +94,24 @@ check: have_parser_cache
 	# Was it identical?
 	diff ${TMP}/a0 ${TMP}/a1
 
+check: have_parser_cache
+	make check_part0
+	# Create a CL elf.
+	${ELF} -I ${ELFDIR} EmitSBCL.pm -x -o ${TMP}/b0 Elf_SBCL.pm
+	# Compile the CL elf.
+	${SBCL} --disable-debugger --eval '(compile-file "${TMP}/b0")' --eval '(quit)' > ${TMP}/b0.log 2>&1
+	make check_part2
+
+check-ccl:
+	make check_part0
+	# Create a CL elf.
+	ELFCL_LISP_NAME=ccl ${ELF} -I ${ELFDIR} EmitSBCL.pm -x -o ${TMP}/b0 Elf_SBCL.pm
+	# Compile the CL elf.
+	${CCL} --no-init --eval '(compile-file "${TMP}/b0")' --eval '(quit)' > ${TMP}/b0.log 2>&1
+	make check_part2
+
+
 have_parser_cache:
-	@perl -we 'if(!-d shift){print STDERR "\nDefine STD_RED_CACHEDIR for faster compiles.\n\n";}' $(STD_RED_CACHEDIR)
+	@perl -e 'if(!-d shift){print STDERR "\nDefine STD_RED_CACHEDIR for faster compiles.\n\n";}' $(STD_RED_CACHEDIR)
 
 

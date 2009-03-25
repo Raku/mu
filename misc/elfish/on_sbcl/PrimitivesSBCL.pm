@@ -90,17 +90,27 @@ package GLOBAL {
       (write-sequence (S |$string|) stream))
   '}
 
-  multi exit ($status) is cl {' (sb-unix:unix-exit (N |$status|)) '}
+  multi exit ($status) is cl {'
+#+sbcl (sb-unix:unix-exit (N |$status|))
+#+ccl  (quit (N |$status|))
+  '}
 #  multi exit ($status) {}
   multi die ($msg) { say $msg; exit(1); }
 
   multi system ($cmd) is cl {'
+#+sbcl
     (let ((p (sb-ext:run-program "/bin/sh" (list "-c" (S |$cmd|)) :output t)))
        (sb-ext:process-wait p)
        (UP (sb-ext:process-exit-code p)))
+#+ccl
+    (let ((p (ccl:run-program "/bin/sh" (list "-c" (S |$cmd|)) :wait t :output t)))
+       (UP (nth-value 1 (ccl:external-process-status p))))
   '}
   multi unlink (*@filenames) { @filenames.map(sub ($f){unlink_($f)}) }
-  multi unlink_ ($filename) is cl {' (sb-unix:unix-unlink (S |$filename|)) '}
+  multi unlink_ ($filename) is cl {'
+#+sbcl (sb-unix:unix-unlink (S |$filename|))
+#+(or :ccl :clisp) (delete-file (S |$filename|))
+  '}
   multi not ($x) { if $x { undef } else { 1 } }
   multi defined ($x) is cl {' (UP (defined-p |$x|)) '}
   multi substr($s,$offset,$length) { $s.substr($offset,$length) }
@@ -156,8 +166,11 @@ package GLOBAL {
     exit(0);
   }
   sub chmod_exe ($file) is cl {'
+#+sbcl
     (sb-posix:chmod (S |$file|)
                     (logior sb-posix::s-irusr sb-posix::s-iwusr sb-posix::s-ixusr))
+#+ccl
+    (run-program "/bin/chmod" (list "a+x" (S |$file|)) :wait t :output t)
   '}
 
   sub module_require ($module) {
@@ -361,6 +374,10 @@ class Array {
     (let* ((a (slot-value self \'|Array::._native_|)))
       (new-Array (coerce (reverse a) \'list ))) ;X
   '}
+  method clone () is cl {'
+    (let* ((a (slot-value self \'|Array::._native_|)))
+      (new-Array (coerce a \'list )))
+  '}
 }
 
 class Hash {
@@ -453,6 +470,12 @@ class Hash {
   method postcircumfix:«< >» ($k) is cl {'
     (fc-preserving-rw #\'|M::postcircumfix:{ }| self |$k|)
   '}
+  method clone () is cl {'
+    (let ((hk (slot-value self \'|Hash::._keys_|))
+          (hv (slot-value self \'|Hash::._values_|)))
+      (new-Hash (loop for h being the hash-key of hk using (hash-value k)
+                 append (list k (gethash h hv)))))
+  '}
 }
 
 # true
@@ -470,7 +493,7 @@ class Hash  { method Bool () { self.keys.elems != 0 } }
 class Undef { method Num () { 0 } }
 class Int   { method Num () { self } }
 class Num   { method Num () { self } }
-class Str   { method Num () { self.primitive_Num() } }
+class Str   { method Num () { self.primitive_Num } }
 class Array { method Num () { self.elems } }
 class Hash  { method Num () { self.keys.elems } } ;#X hash-table-count
 class Pair  { method Num () { 2 } }
@@ -491,21 +514,42 @@ class Pair  { method Str () { $.key~"\t"~$.value } }
 
 
 package GLOBAL {
-  sub _pid is cl {' (UP (sb-posix:getpid)) '}
+  sub _pid is cl {'
+#+sbcl (UP (sb-posix:getpid))
+#+ccl  (UP (ccl::getpid))
+  '}
   our $*PID = _pid();
 
   our @*INC = ('.');
   sub _init_ () is cl {'
+
      (setq |GLOBAL::@ARGS|
-       (new-Array (mapcar #\'UP (subseq sb-ext:*posix-argv* 1)))) ;skip "sbcl"
+       (new-Array (mapcar #\'UP
+#+sbcl  (subseq sb-ext:*posix-argv* 1) ;skip "sbcl"
+#+ccl   ccl::*unprocessed-command-line-arguments*
+        )))
+
      (defun env ()
        (mapcan #\'copy-list
         (mapcar (lambda (str)
                   (let ((pos (position #\= str :test #\'equal)))
                     (list (UP (subseq str 0 pos))
                           (UP (subseq str (1+ pos))))))
-                (posix-environ))))
+#+sbcl          (posix-environ)
+#+ccl           (let ((envstr (with-output-to-string (stream)
+                               (run-program "/usr/bin/printenv" nil
+                                :wait t :output stream))))
+                   (with-input-from-string (s envstr)
+                     (loop for line = (read-line s nil nil)
+                      while line collect line)))
+         )))
       (setq |GLOBAL::%ENV| (ap #\'|M::new| (cons |Hash::/co| (env))))
+
+      (setq |GLOBAL::$lisp_name| (UP
+#+sbcl "sbcl"
+#+ccl  "ccl"
+#+clisp "clisp"
+      ))
   '}
   _init_();
 }

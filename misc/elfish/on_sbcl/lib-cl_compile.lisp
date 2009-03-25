@@ -1,6 +1,3 @@
-#|
-exec sbcl --noinform --load $0 --eval "(quit)" --end-toplevel-options "$@"
-|#
 
 (require 'asdf)
 #+sbcl  (pushnew #p"lib-cl/for-sbcl/systems/"  asdf:*central-registry*)
