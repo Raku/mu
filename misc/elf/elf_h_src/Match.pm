@@ -8,10 +8,10 @@ class Match {
   has $.match_array;
   has $.match_boolean;
   method make_from_rsfth($r,$s,$f,$t,$h) {
-    self.new('match_rule',$r,'match_string',$s,'match_from',$f,'match_to',$t,'match_hash',$h,'match_array',[],'match_boolean',1);
+    $.new('match_rule',$r,'match_string',$s,'match_from',$f,'match_to',$t,'match_hash',$h,'match_array',[],'match_boolean',1);
   };
   method match_new($b,$s,$a,$h,$f,$t) {
-    self.new('match_bool',$b,'match_string',$s,'match_array',$a,'match_hash',$h,'match_from',$f,'match_to',$t);
+    $.new('match_bool',$b,'match_string',$s,'match_array',$a,'match_hash',$h,'match_from',$f,'match_to',$t);
   }
   method match_describe() {
     my $b; if $.match_boolean { $b = 't' } else { $b = 'F' };
@@ -29,7 +29,7 @@ class Match {
       if defined($v) {
         $vs = $v.match_describe;
       }
-      $s = $s ~ "\n  "~$k~" => "~self.indent_except_top($vs)~",";
+      $s = $s ~ "\n  "~$k~" => "~$.indent_except_top($vs)~",";
     }
     if $.match_hash.keys.elems {$s = $s ~ "\n"}
     $s = $s ~ "}>";
@@ -46,14 +46,14 @@ class Match {
 class Array {
   method match_describe() {
     ("[\n" ~
-     Match.indent(self.map(sub ($e){$e.match_describe}).join(",\n")) ~
+     Match.indent($.map(sub ($e){$e.match_describe}).join(",\n")) ~
      "\n]")
   }
 };
 class Hash {
   method match_describe() {
     my $s = '{';
-    for self.keys {
+    for $.keys {
       my $k = $_;
       my $v = self.{$k};
       my $vs = 'undef';
@@ -62,7 +62,7 @@ class Hash {
       }
       $s = $s ~ "\n  "~$k~" => "~Match.indent_except_top($vs)~",";
     }
-    if self.keys.elems {$s = $s ~ "\n"}
+    if $.keys.elems {$s = $s ~ "\n"}
     $s ~ "}"
   };
 };

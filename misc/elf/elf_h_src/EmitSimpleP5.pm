@@ -2,7 +2,7 @@
 class EmitSimpleP5 {
 
   method new_emitter($ignore,$compiler,$ignore2,$filename) {
-    self.new('compiler',$compiler,'filename',$filename);
+    $.new('compiler',$compiler,'filename',$filename);
   };
 
   has $.compiler;
@@ -61,7 +61,7 @@ use warnings;
   use Class::Multimethods;
   use Data::Dumper;
 }
-'~self.prelude_oo~self.prelude_lexical~'
+'~$.prelude_oo~$.prelude_lexical~'
 
 # Workaround autobox 2.53 api change. :(
 if(!defined(&autobox::universal::type)) {
@@ -513,7 +513,7 @@ package Main;
     temp $whiteboard::current_CallApi = 0;
     my $code = (
       "package Main;\n"~
-      self.prelude_for_entering_a_package());
+      $.prelude_for_entering_a_package());
     my $stmts = $.e($n.statements);
     $stmts = $stmts.map(sub ($x){if defined($x) {$x} else {""}}); #XXX
     my $foot = $whiteboard::compunit_footer.join(";\n");
@@ -561,7 +561,7 @@ package Main;
        $foot = ";\n__PACKAGE__->meta->make_immutable();\n"~ "\n}\n";
     } else {
     }
-    $head = $head ~ $base~ self.prelude_for_entering_a_package();
+    $head = $head ~ $base~ $.prelude_for_entering_a_package();
     if $n.block {
       temp $whiteboard::in_package = $in_package; # my()
       $head ~ $.e($n.traits||[]).reverse.join("\n") ~ $.e($n.block) ~ $foot;
@@ -614,7 +614,7 @@ package Main;
         if ($n.var.sigil eq '@') { $default = '[]' }
         if ($n.var.sigil eq '%') { $default = '{}' }
       }
-      self.do_VarDecl_has($n,$default);
+      $.do_VarDecl_has($n,$default);
     } else {
       my $default = "";
       if $n.default_expr {
@@ -740,9 +740,9 @@ package Main;
       $body = $.e($n.block);
     }
     if $n.plurality && $n.plurality eq 'multi' {
-      #self.multimethods_using_hack($n);
+      #$.multimethods_using_hack($n);
       my $ef = 'sub {my $self=CORE::shift;'~$.e($n.multisig)~$body~'}';
-      self.multi_using_CM($n,1,$ef);
+      $.multi_using_CM($n,1,$ef);
     }
     else {
       my $enc_name = $.mangle_function_name($.e($n.name));
@@ -764,7 +764,7 @@ package Main;
     }
     if $n.plurality && $n.plurality eq 'multi' {
       my $ef = 'sub {'~$sig~$body~'}';
-      self.multi_using_CM($n,0,$ef);
+      $.multi_using_CM($n,0,$ef);
     } else {
       my $enc_name = $.mangle_function_name($name);
       'sub '~$enc_name~'{'~$sig~$body~'}';

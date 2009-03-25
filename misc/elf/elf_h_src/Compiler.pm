@@ -4,14 +4,14 @@ class Compiler {
   has $.is_for_active_runtime;
 
   method eval_perl6($code,$env) {
-    self.eval_fragment($code,'-e',0,$env);
+    $.eval_fragment($code,'-e',0,$env);
   };
   method eval_file($file) {
-    self.eval_fragment(slurp($file),$file,0,undef);
+    $.eval_fragment(slurp($file),$file,0,undef);
   };
 
   method eval_fragment($code,$filename,$verbose,$env) {
-    my $p5 = self.compile_fragment($code,$filename,$verbose);
+    my $p5 = $.compile_fragment($code,$filename,$verbose);
     eval_runtime_code($p5,$env);
   };
   method compile_fragment_cache_get($code,$filename) { undef };
@@ -47,7 +47,7 @@ class Compiler {
   }
   method compile_fragment($code,$filename,$verbose) {
     my $tree;
-    my $cached = self.compile_fragment_cache_get($code,$filename);
+    my $cached = $.compile_fragment_cache_get($code,$filename);
     if $cached {
       $cached
     }
@@ -61,7 +61,7 @@ class Compiler {
         $main::irbuilder = $*ast2ir_1;
       }
       if $verbose { say $tree.match_describe; }
-      my $ir = $tree.make_ir_from_Match_tree();
+      my $ir = $tree.make_ir_from_Match_tree;
       if $verbose { say $*emitter1.tidy(dump_IRx1($ir)) }
 
       my $p5;
@@ -80,7 +80,7 @@ class Compiler {
               say $*emitter1.tidy($p5);
           }
       }
-      self.compile_fragment_cache_set($code,$filename,$p5);
+      $.compile_fragment_cache_set($code,$filename,$p5);
       $p5;
     }
   };
@@ -88,15 +88,15 @@ class Compiler {
   has $.todo = [];
   method compile_executable($sources,$output_file) {
     $.todo = [];
-    my $p5 = self.prelude ~ "\n";
+    my $p5 = $.prelude ~ "\n";
     for $sources {
       my $code = $_.[0];
       my $file = $_.[1];
       my $verbose = $_.[2];
-      my $more_p5 = self.compile_fragment($code,$file,$verbose);
+      my $more_p5 = $.compile_fragment($code,$file,$verbose);
       while $.todo.elems > 0 {
         my $filename = $.todo.shift;
-        my $module_p5 = self.compile_fragment(slurp($filename),$filename,$verbose);
+        my $module_p5 = $.compile_fragment(slurp($filename),$filename,$verbose);
         $p5 = $p5 ~ $module_p5 ~ "\n;\n";
       }
       $p5 = $p5 ~ $more_p5 ~ "\n;\n";
@@ -110,7 +110,7 @@ class Compiler {
     [$output_file];
   };
 
-  method prelude() {
+  method prelude {
     if $.is_for_active_runtime {
       $*emitter0.prelude
     } else {
@@ -136,5 +136,3 @@ class Compiler {
 
 if not($*compiler0) { $*compiler0 = Compiler.new('is_for_active_runtime',1) }
 $*compiler1 = Compiler.new;
-
-

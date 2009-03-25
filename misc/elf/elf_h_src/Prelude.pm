@@ -113,17 +113,17 @@ package GLOBAL {
 # .Num()
 class Int   { method Num () { self } }
 class Num   { method Num () { self } }
-class Str   { method Num () { self.primitive_Num() } }
-class Array { method Num () { self.elems } }
-class Hash  { method Num () { self.keys.elems } }
+class Str   { method Num () { $.primitive_Num() } }
+class Array { method Num () { $.elems } }
+class Hash  { method Num () { $.keys.elems } }
 class Pair  { method Num () { 2 } }; # so says pugs, the only impl working. 2008-May-24
 
 # .Str()
 class Int   { method Str () { ''~self } }
 class Num   { method Str () { ''~self } }
 class Str   { method Str () { self } }
-class Array { method Str () { self.join('') } }
-class Hash  { method Str () { self.keys.map(sub ($k){$k~"\t"~self{$k}}).join("\n") } }
+class Array { method Str () { $.join('') } }
+class Hash  { method Str () { $.keys.map(sub ($k){$k~"\t"~self{$k}}).join("\n") } }
 class Pair  { method Str () { $.key~"\t"~$.value } }
 
 

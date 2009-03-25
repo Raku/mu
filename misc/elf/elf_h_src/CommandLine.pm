@@ -1,6 +1,6 @@
 
 class Program {
-  method print_usage_and_die() {
+  method print_usage_and_die {
     say "
 Usage: [-v] [-s0|-s|-x|-xr] [-o OUTPUT_FILE] [-I dir]
          [ P6_FILE | -e P6_CODE ]+ [ -- ARGS* ]
@@ -24,16 +24,17 @@ One can also do
 
 ";
     exit(2);
-  };
+  }
   method main ($args) {
     if $args.elems == 0 {
-      self.print_usage_and_die;
+      $.print_usage_and_die;
     }
 
     my $verbose;
     my $mode = 'r';
     my $output_file;
     my $incs = [];
+
     my $output = sub ($text) {
       if $output_file {
         unslurp($text,$output_file);
@@ -41,6 +42,7 @@ One can also do
         say $text;
       }
     };
+
     my $sources = [];
     my $handle = sub ($filename,$code) {
       if $mode eq 'r' {
@@ -56,7 +58,7 @@ One can also do
         } else {
           $comp = $*compiler1;
         }
-        $output.($comp.compile_fragment($code,$filename,$verbose));
+        $output($comp.compile_fragment($code,$filename,$verbose));
       }
       else {
         $sources.push([$code,$filename,$verbose]);
@@ -78,6 +80,7 @@ One can also do
         exec($exec_args.flatten,$args.flatten);
       }
     };
+
     while $args.elems {
       my $arg = $args.shift;
       if $arg eq '-v' {
@@ -99,19 +102,19 @@ One can also do
         $mode = 'xr';
       }
       elsif $arg eq '-o' {
-        $output_file = $args.shift || self.print_usage_and_die;
+        $output_file = $args.shift || $.print_usage_and_die;
       }
       elsif $arg eq '-e' {
         @*INC.unshift($incs.flatten); $incs = [];
-        my $p6_code = $args.shift || self.print_usage_and_die;
-        $handle.('-e',$p6_code);
+        my $p6_code = $args.shift || $.print_usage_and_die;
+        $handle('-e',$p6_code);
       }
       elsif file_exists($arg) {
         @*INC.unshift($incs.flatten); $incs = [];
-        $handle.($arg,slurp($arg));
+        $handle($arg,slurp($arg));
       }
       elsif $arg eq '-I' {
-        my $dir = $args.shift || self.print_usage_and_die;
+        my $dir = $args.shift || $.print_usage_and_die;
         $incs.push($dir);
       }
       elsif $arg eq '--' {
@@ -119,10 +122,9 @@ One can also do
       }
       else {
         say "ERROR: Not a file or command-line option: "~$arg~"\n";
-        self.print_usage_and_die;
+        $.print_usage_and_die;
       }
     }
-    $at_end.();
+    $at_end();
   }
-};
-
+}

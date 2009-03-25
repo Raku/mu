@@ -173,13 +173,13 @@ sub write_ir_nodes {
     # Warning: This file is mechanically written.  Your changes will be overwritten.
     package Array {
       method irx1_describe() {
-        '[' ~ self.map(sub ($e){$e.irx1_describe}).join(",") ~ ']'
+        '[' ~ $.map(sub ($e){$e.irx1_describe}).join(",") ~ ']'
       };
     };
     package Hash {
       method irx1_describe() {
-        #X? '{' ~ self.kv(sub ($k,$v){$k~"=>"~$v.irx1_describe}).join(",") ~ '}'
-        '{' ~ self.kv(sub ($e){$e.irx1_describe}).join(",") ~ '}'
+        #X? '{' ~ $.kv(sub ($k,$v){$k~"=>"~$v.irx1_describe}).join(",") ~ '}'
+        '{' ~ $.kv(sub ($e){$e.irx1_describe}).join(",") ~ '}'
       };
     };
     package Str {
@@ -226,7 +226,7 @@ sub write_ir_nodes {
     $code .= unindent(<<"    END",'  ');
       class $name is $base {
         $has
-        method newp($params) { self.new($init) };
+        method newp($params) { \$.new($init) };
         method callback(\$emitter) { \$emitter.cb__$name(self) };
         method node_name() { '$name' };
         method field_names() { [$field_names] };

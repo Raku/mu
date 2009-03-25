@@ -20,7 +20,7 @@ package GLOBAL { # sub *f(){} isn't working yet.
 }
 
 class Any {
-  method perl() { self.WHAT ~ '.new(!!!)' }
+  method perl() { $.WHAT ~ '.new(!!!)' }
 }
 class STRING {
   method perl() is p5 {'q{"} . CORE::quotemeta($self) . q{"}'}
@@ -32,11 +32,11 @@ class FLOAT {
   method perl() { ''~self }
 }
 class ARRAY {
-  method perl() { '[' ~ self.map(sub ($e){$e.perl()}).join(",") ~ ']' }
+  method perl() { '[' ~ $.map(sub ($e){$e.perl()}).join(",") ~ ']' }
 }
 class HASH {
   method perl() {
-    '{' ~ self.keys.map(sub ($k){$k.perl() ~ ' => ' ~ self.{$k}.perl}).join(", ") ~ '}'
+    '{' ~ $.keys.map(sub ($k){$k.perl() ~ ' => ' ~ self.{$k}.perl}).join(", ") ~ '}'
   }
 }
 
@@ -84,8 +84,7 @@ package GLOBAL {
 
 
   # infix < > == != eq ne + - || && and or = =~   # Not called.
-
-  # XXX fixme...
+  # See EmitSimpleP5.pm cb__Apply.
 
   multi infix:<+>    ($a,$b) is p5 {'($a + $b)'}
   multi infix:<*>    ($a,$b) is p5 {'($a * $b)'}
