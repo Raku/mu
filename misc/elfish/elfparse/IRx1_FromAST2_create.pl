@@ -81,14 +81,23 @@ elsif $o<list> {
   my $op = $o<delims>[0]<sym_name>;
   my $args = $m<list>;
   if $o<delims>[0]<rxinfix> {
-    if $op eq '|' {
-      RxAlt.newp($args)
-    } elsif $op eq '||' {
-      RxAlt.newp($args)
+    my $op_expr;
+    #X Kludge around /:my $x; a | b/ parsing as /[:my $x; a] | b/.
+    my $mys = [];
+    if $args[0].WHAT eq 'IRx1::RxSeq' && $args[0].exprs[0].WHAT eq 'IRx1::RxMod_my' {
+      my $exprs = $args.shift.exprs;
+      while $exprs && $exprs[0].WHAT eq 'IRx1::RxMod_my' { $mys.push($exprs.shift) }
+      $args.unshift(RxSeq.newp($exprs));
+    }
+    if $op eq '|' || $op eq '||' {
+      $op_expr = RxAlt.newp($args);
     } else {
       die "Unimplemented regex list operator: "~$op;
     }
-  } else {
+    if $mys { RxSeq.newp($mys.concat([$op_expr])) }
+    else { $op_expr }
+  }
+  else {
     Apply.newp("infix:"~$op,Capture.newp1($args))
   }
 }
