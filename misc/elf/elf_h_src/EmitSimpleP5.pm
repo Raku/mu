@@ -74,6 +74,15 @@ if(!defined(&autobox::universal::type)) {
   sub can { UNIVERSAL::can($_[0],$_[1]) }
   sub isa { UNIVERSAL::isa($_[0],$_[1]) }
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
+  sub object_id {
+    my $o = $_[0];
+    if(ref($o)) {
+      ("".$_[0]) =~ /\(0x(.+?)\)/ or die "bug";
+      "o".$1;
+    } else {
+      (~$o&$o) eq 0 ? $o : "s".$o;
+    }
+  }
 }  
 
 # Avoid "use base" error: Base class package "Xxx" is empty. :/

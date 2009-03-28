@@ -10,4 +10,6 @@ When clicking in the IR pane, clicking on field values seems to work best.
 Yes, the code is blecherous.  It was all a one evening hack.
 
 TODO
-- Include the IR analysis info.  Which was the primary motivation for this hack.
+- Debug clicking.
+- Clean up JS.  jquery?
+- Move lexical bindings to a popup?

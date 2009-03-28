@@ -103,6 +103,7 @@ $Main::match_counter = 1;
 $Main::ir_counter = 1;
 $Main::matches = [];
 $Main::irnodes = [];
+$Main::irnode_ids = {};
 my $tree = $*parser1.parse($code,$filename);
 temp $main::irbuilder = $*ast2ir_1;
 my $ir = $tree.make_ir_from_Match_tree();
@@ -145,22 +146,28 @@ function find_asts_at(n) {
   return res
 }
 var old_color_ast_elems = []
-function color_asts(n) {
+function uncolor_asts () {
   var i
   for(i in old_color_ast_elems) {
     var e = old_color_ast_elems[i]
     e.style.backgroundColor = "#fff"
   }
   old_color_ast_elems = []
+}
+function color_ast_id(id) {
+  var e = document.getElementById(id)
+  old_color_ast_elems = [e]
+  e.style.backgroundColor = "#fef"
+  var pos = findPos(e)[1] - 300
+  if(pos < 0) { pos = 0 }
+  window.scroll(0,pos)
+}
+function color_asts(n) {
+  uncolor_asts()
   asts = find_asts_at(n).reverse()
   ast = asts[0]
   if(ast) {
-    var e = document.getElementById(ast.id)
-    old_color_ast_elems = [e]
-    e.style.backgroundColor = "#fef"
-    var pos = findPos(e)[1] - 300
-    if(pos < 0) { pos = 0 }
-    window.scroll(0,pos)
+    color_ast_id(ast.id)
   }
 }
 function findPos(obj) {
@@ -205,15 +212,17 @@ function mClick(ev) {
 }
 
 sub ir_pane () {
+  $ir.irx1_foo0;
   my $s = '
 <head>
 <style type="text/css">
 SPAN.ir {z-index:1000}
 SPAN.irnn {font-weight:bold; color:#ee0000; z-index:0}
 SPAN.irfn {font-style:italic; color:#333333; z-index:0}
+SPAN.irnh {font-size:8}
 </style>
 </head>
-<small><pre>'~$ir.irx1_foo~'</pre></small>';
+<small><pre>'~$ir.irx1_foo1~'</pre></small>';
   my $id2r = '
 range_from_id = []
 '~ $Main::irnodes.map(sub ($e){
@@ -407,69 +416,133 @@ class UNDEF {
 
 package IRx1 {
   class Base {
-    method irx1_foo() {
+    method irx1_foo0 {
       my $id = 'i'~$Main::ir_counter++;
       $Main::irnodes.push([$id,self]);
+      $Main::irnode_ids{$.object_id} = $id;
+      for $.field_values { $_.irx1_foo0 }
+    }
+    method irx1_foo1 {
+      my $id = $Main::irnode_ids{$.object_id};
       my $s = '<span id='~$id~' class=ir onclick="iClick(event,null)">';
       # multiple onclick shouldn't be needed, but z-index doesn't seem to doing it.
       $s = $s ~ '<span class=irnn onclick="iClick(event,'~$id~')">'~$.node_name()~'</span>';
       $s = $s ~ "\n";
+
+      my $notes = $.notes;
+      my $ns = "";
+      my $line ="";
+      $notes.keys.map(sub ($k){
+        if $k eq 'child_nodes' {
+          ""
+        }
+        else {
+          my $v = $notes{$k};
+          my $xs;
+          if $v.isa('IRx1::Base') {
+            my $oid = $v.object_id;
+            my $nam = $v.node_name~'('~$oid~')';
+            my $id = $Main::irnode_ids{$oid};
+            $xs = $nam;
+          } else {
+            $xs = $v.irx1_foo1_notes;
+          }
+          my $txt = $k~":"~$xs~", ";
+          if $line.chars + $txt.chars > 100 {
+            $ns = $ns ~ $line ~ "\n";
+            $line = "";
+          }
+          $line = $line ~ $txt;
+        }
+      });
+      $ns = ('<span class=irnh>' ~
+             $.irx1_foo1_notes~'  ' ~
+             $ns ~
+             $line ~
+             '</span>'~"\n");
+      $s =  $s ~ $ns;
+
       my $vs = "";
       my $names = $.field_names();
-      my $values = $.field_values().map(sub ($e){$e.irx1_foo()});
+      my $values = $.field_values().map(sub ($e){$e.irx1_foo1()});
       loop (my $i=0; $i < $names.elems; $i++) {
         $vs = $vs ~ '<span class=irfn onclick="iClick(event,'~$id~')">'~$names[$i]~'</span>  '~Match.indent_except_top($values[$i])~"\n";
       }
-      # Need to deal with recursion
-      # $vs = $vs ~ 'notes  ' ~Match.indent_except_top($.notes.irx1_foo)~"\n";
       $s = $s ~ Match.indent($vs);
+
       $s = $s ~ '</span>';
       $s;
     }
+    method irx1_foo1_notes {
+      $.node_name~'('~$.object_id~')'
+    }
   }
 }
-class HASH {
-  method irx1_foo() {
+class Hash {
+  method irx1_foo0 { for $.values { $_.irx1_foo0 } }
+  method irx1_foo1 {
     my $s = "{";
     for self.keys {
       my $k = $_;
       my $v = self.{$k};
       my $vs = 'undef';
       if defined($v) {
-        $vs = $v.irx1_foo;
+        $vs = $v.irx1_foo1;
       }
       $s = $s ~ "\n  "~$k~" =&gt; "~Match.indent_except_top($vs)~",";
     }
     if self.keys.elems {$s = $s ~ "\n"}
     $s ~ "}"
-  };
-};
-package ARRAY {
-  method irx1_foo() {
+  }
+  method irx1_foo1_notes {
+    my $s = "{";
+    for self.keys {
+      my $k = $_;
+      my $v = self.{$k};
+      my $vs = 'undef';
+      if defined($v) {
+        $vs = $v.irx1_foo1_notes;
+      }
+      $s = $s ~ "\n  "~$k~" =&gt; "~Match.indent_except_top($vs)~",";
+    }
+    if self.keys.elems {$s = $s ~ "\n"}
+    $s ~ "}"
+  }
+}
+package Array {
+  method irx1_foo0 { $.map(sub ($e){ $_.irx1_foo0 }); undef }
+  method irx1_foo1 {
     ("[\n" ~
-     Match.indent(self.map(sub ($e){$e.irx1_foo}).join(",\n")) ~
+     Match.indent(self.map(sub ($e){$e.irx1_foo1}).join(",\n")) ~
      "\n]")
-  };
-};
-package STRING {
-  method irx1_foo() {
+  }
+  method irx1_foo1_notes {
+    ("[" ~
+     $.map(sub ($e){$e.irx1_foo1_notes}).join(",") ~
+     "]")
+  }
+}
+package Str {
+  method irx1_foo0 {  }
+  method irx1_foo1 {
     my $s = self;
     if $s.chars > 30 { $s = $s.substr(0,20)~"..."; }
     "'"~quote($s)~"'"
-  };
-};
-package INTEGER {
-  method irx1_foo() {
-    self ~ ""
-  };
-};
-package FLOAT {
-  method irx1_foo() {
-    self ~ ""
-  };
-};
-package UNDEF {
-  method irx1_foo() {
-    'undef'
-  };
-};
+  }
+  method irx1_foo1_notes { $.irx1_foo1 }
+}
+package Int {
+  method irx1_foo0 {  }
+  method irx1_foo1 { self.Str }
+  method irx1_foo1_notes { $.irx1_foo1 }
+}
+package Num {
+  method irx1_foo0 {  }
+  method irx1_foo1 { self.Str }
+  method irx1_foo1_notes { $.irx1_foo1 }
+}
+package Undef {
+  method irx1_foo0 {  }
+  method irx1_foo1 { 'undef' }
+  method irx1_foo1_notes { '<i>undef</i>' }
+}

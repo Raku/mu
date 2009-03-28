@@ -41,6 +41,15 @@ if(!defined(&autobox::universal::type)) {
   sub can { UNIVERSAL::can($_[0],$_[1]) }
   sub isa { UNIVERSAL::isa($_[0],$_[1]) }
   sub does { UNIVERSAL::isa($_[0],$_[1]) }
+  sub object_id {
+    my $o = $_[0];
+    if(ref($o)) {
+      ("".$_[0]) =~ /\(0x(.+?)\)/ or die "bug";
+      "o".$1;
+    } else {
+      (~$o&$o) eq 0 ? $o : "s".$o;
+    }
+  }
 }  
 
 # Avoid "use base" error: Base class package "Xxx" is empty. :/
@@ -779,14 +788,14 @@ use base "Any";(do{sub Num{my $self=CORE::shift;if($Call::Api){my $__api__=$Call
 { package Array;
 use base "Any";(do{sub Num{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->elems()})}})
+(do{$self->elems})}})
 }
 ;
 
 { package Hash;
 use base "Any";(do{sub Num{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->keys()->elems()})}})
+(do{$self->keys->elems()})}})
 }
 ;
 
@@ -828,7 +837,7 @@ use base "Any";(do{sub Str{my $self=CORE::shift;if($Call::Api){my $__api__=$Call
 { package Hash;
 use base "Any";(do{sub Str{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->keys()->map(sub {my($k);if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
+(do{$self->keys->map(sub {my($k);if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 ($k)=@_;
 }
 (do{(($k . "\	") . $self->postcircumfix__123_32_125($k))})})->join("\
@@ -953,7 +962,7 @@ use base "Any";(do{sub match_describe{my $self=CORE::shift;if($Call::Api){my $__
 use base "Any";(do{sub match_describe{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
 (do{my $s = "\{";
-for(($self->keys())->flatten){
+for(($self->keys)->flatten){
 (do{my $k = $_;
 my $v = $self->postcircumfix__123_32_125($k);
 my $vs = "undef";
@@ -963,7 +972,7 @@ if((GLOBAL::defined($v))->Bool) {
 ($s = ((((($s . "\
 \ \ ") . $k) . "\ \=\>\ ") . Match->indent_except_top($vs)) . "\,"))})
 };
-if(($self->keys()->elems())->Bool) {
+if(($self->keys->elems())->Bool) {
 (do{($s = ($s . "\
 "))})
 };
@@ -3867,10 +3876,10 @@ for(($traits)->flatten){
 (do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__123_32_125($_->expr(), 1)})
 }})
 };
-if(((((do{my $__tmp__=($self->var()->twigil());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}})) eq "\+"))->Bool) {
+if(((((do{my $__tmp__=($self->var->twigil());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}})) eq "\+"))->Bool) {
 (do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('context', 1)})
 };
-if((($self->scope() eq "temp"))->Bool) {
+if((($self->scope eq "temp"))->Bool) {
 (do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('temp', 1)})
 };
 for(($self->child_nodes)->flatten){
@@ -3997,7 +4006,7 @@ for(($self->child_nodes)->flatten){
 { package IRx1::Var;
 use base "Any";(do{sub note_environment{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{my $key = ($self->sigil() . $self->name());
+(do{my $key = ($self->sigil . $self->name);
 $self->notes->postcircumfix__60_32_62('decl', $whiteboard::lexical_bindings->postcircumfix__123_32_125($key));
 if(($self->notes->postcircumfix__60_32_62('decl'))->Bool) {
 (do{$self->notes->postcircumfix__60_32_62('is', $self->notes->postcircumfix__60_32_62('decl')->notes()->postcircumfix__60_32_62('is'))})
@@ -4049,31 +4058,31 @@ sub is_temp{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Ap
 (do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('temp')})};
 sub name{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->var()->name()})};
+(do{$self->var->name()})};
 sub bare_name{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->var()->bare_name()})};
+(do{$self->var->bare_name()})};
 sub package{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->var()->package()})};
+(do{$self->var->package()})};
 sub crnt_package{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->var()->crnt_package()})};
+(do{$self->var->crnt_package()})};
 sub sigil{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->var()->sigil()})};
+(do{$self->var->sigil()})};
 sub twigil{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->var()->twigil()})};
+(do{$self->var->twigil()})};
 sub is_scalar{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{($self->var()->sigil() eq "\$")})};
+(do{($self->var->sigil() eq "\$")})};
 sub is_array{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{($self->var()->sigil() eq "\@")})};
+(do{($self->var->sigil() eq "\@")})};
 sub is_hash{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{($self->var()->sigil() eq "\%")})}})
+(do{($self->var->sigil() eq "\%")})}})
 }
 ;
 
@@ -4102,16 +4111,16 @@ use base "Any";(do{sub decl{my $self=CORE::shift;if($Call::Api){my $__api__=$Cal
 (do{$self->notes->postcircumfix__60_32_62('decl')})};
 sub bare_name{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->notes()->postcircumfix__60_32_62('bare_name')})};
+(do{$self->notes->postcircumfix__60_32_62('bare_name')})};
 sub package{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->notes()->postcircumfix__60_32_62('package')})};
+(do{$self->notes->postcircumfix__60_32_62('package')})};
 sub crnt_package{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{$self->notes()->postcircumfix__60_32_62('crnt_package')})};
+(do{$self->notes->postcircumfix__60_32_62('crnt_package')})};
 sub is_context{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{(do{my $__tmp__=((((do{my $__tmp__=($self->twigil());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}})) eq "\+"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('context'));no warnings "void";$__tmp__}})})};
+(do{(do{my $__tmp__=((((do{my $__tmp__=($self->twigil);if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=("");no warnings "void";$__tmp__}})) eq "\+"));if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('context'));no warnings "void";$__tmp__}})})};
 sub is_temp{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
 (do{$self->notes->postcircumfix__60_32_62('is')->postcircumfix__60_32_62('temp')})}})
@@ -4121,7 +4130,7 @@ sub is_temp{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Ap
 { package IRx1::PackageDecl;
 use base "Any";(do{sub path_is_absolute{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{(do{my $__tmp__=($self->name());if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->name()->re_matchp("\^GLOBAL\\b"));no warnings "void";$__tmp__}})})}})
+(do{(do{my $__tmp__=($self->name);if(!$__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->name->re_matchp("\^GLOBAL\\b"));no warnings "void";$__tmp__}})})}})
 }
 ;
 
@@ -4135,7 +4144,7 @@ use base "Any";(do{sub provides_a_list{my $self=CORE::shift;if($Call::Api){my $_
 { package IRx1::Call;
 use base "Any";(do{sub provides_a_list{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{($self->method() eq "flatten")})}})
+(do{($self->method eq "flatten")})}})
 }
 ;
 
@@ -4239,7 +4248,7 @@ use\ warnings\;\
 \ \ use\ Class\:\:Multimethods\;\
 \ \ use\ Data\:\:Dumper\;\
 \}\
-" . $self->prelude_oo()) . $self->prelude_lexical()) . "\
+" . $self->prelude_oo) . $self->prelude_lexical) . "\
 \
 \#\ Workaround\ autobox\ 2\.53\ api\ change\.\ \:\(\
 if\(\!defined\(\&autobox\:\:universal\:\:type\)\)\ \{\
@@ -4252,6 +4261,15 @@ if\(\!defined\(\&autobox\:\:universal\:\:type\)\)\ \{\
 \ \ sub\ can\ \{\ UNIVERSAL\:\:can\(\$_\[0\]\,\$_\[1\]\)\ \}\
 \ \ sub\ isa\ \{\ UNIVERSAL\:\:isa\(\$_\[0\]\,\$_\[1\]\)\ \}\
 \ \ sub\ does\ \{\ UNIVERSAL\:\:isa\(\$_\[0\]\,\$_\[1\]\)\ \}\
+\ \ sub\ object_id\ \{\
+\ \ \ \ my\ \$o\ \=\ \$_\[0\]\;\
+\ \ \ \ if\(ref\(\$o\)\)\ \{\
+\ \ \ \ \ \ \(\"\"\.\$_\[0\]\)\ \=\~\ \/\\\(0x\(\.\+\?\)\\\)\/\ or\ die\ \"bug\"\;\
+\ \ \ \ \ \ \"o\"\.\$1\;\
+\ \ \ \ \}\ else\ \{\
+\ \ \ \ \ \ \(\~\$o\&\$o\)\ eq\ 0\ \?\ \$o\ \:\ \"s\"\.\$o\;\
+\ \ \ \ \}\
+\ \ \}\
 \}\ \ \
 \
 \#\ Avoid\ \"use\ base\"\ error\:\ Base\ class\ package\ \"Xxx\"\ is\ empty\.\ \:\/\
@@ -5491,7 +5509,7 @@ CORE::sprintf "perl %vd", $^V}})
 { package Any;
 (do{sub perl{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{($self->WHAT() . "\.new\(\!\!\!\)")})}})
+(do{($self->WHAT . "\.new\(\!\!\!\)")})}})
 }
 ;
 
@@ -5529,7 +5547,7 @@ use base "Any";(do{sub perl{my $self=CORE::shift;if($Call::Api){my $__api__=$Cal
 { package HASH;
 use base "Any";(do{sub perl{my $self=CORE::shift;if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 }
-(do{(("\{" . $self->keys()->map(sub {my($k);if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
+(do{(("\{" . $self->keys->map(sub {my($k);if($Call::Api){my $__api__=$Call::Api;$Call::Api=undef;}else{
 ($k)=@_;
 }
 (do{(($k->perl() . "\ \=\>\ ") . $self->postcircumfix__123_32_125($k)->perl())})})->join("\,\ ")) . "\}")})}})
@@ -5948,7 +5966,7 @@ sub compile_executable{my $self=CORE::shift;my($sources,$output_file);if($Call::
 ($sources,$output_file)=@_;
 }
 (do{$self->todo([]);
-my $p5 = ($self->prelude() . "\
+my $p5 = ($self->prelude . "\
 ");
 for(($sources)->flatten){
 (do{my $code = $_->postcircumfix__91_32_93(0);
@@ -6042,7 +6060,7 @@ sub main{my $self=CORE::shift;my($args);if($Call::Api){my $__api__=$Call::Api;$C
 ($args)=@_;
 }
 (do{if((($args->elems() == 0))->Bool) {
-(do{$self->print_usage_and_die()})
+(do{$self->print_usage_and_die})
 };
 my $verbose;
 my $mode = "r";
@@ -6105,25 +6123,25 @@ if((($arg eq "\-v"))->Bool) {
 }elsif((($arg eq "\-xr"))->Bool) {
 (do{($mode = "xr")})
 }elsif((($arg eq "\-o"))->Bool) {
-(do{($output_file = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die());no warnings "void";$__tmp__}}))})
+(do{($output_file = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die);no warnings "void";$__tmp__}}))})
 }elsif((($arg eq "\-e"))->Bool) {
 (do{$GLOBAL::a_INC->unshift($incs->flatten());
 ($incs = []);
-my $p6_code = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die());no warnings "void";$__tmp__}});
+my $p6_code = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die);no warnings "void";$__tmp__}});
 $handle->("\-e", $p6_code)})
 }elsif((GLOBAL::file_exists($arg))->Bool) {
 (do{$GLOBAL::a_INC->unshift($incs->flatten());
 ($incs = []);
 $handle->($arg, GLOBAL::slurp($arg))})
 }elsif((($arg eq "\-I"))->Bool) {
-(do{my $dir = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die());no warnings "void";$__tmp__}});
+(do{my $dir = (do{my $__tmp__=($args->shift());if($__tmp__->Bool){no warnings "void";$__tmp__}else{$__tmp__=($self->print_usage_and_die);no warnings "void";$__tmp__}});
 $incs->push($dir)})
 }elsif((($arg eq "\-\-"))->Bool) {
 (do{last})
 }else {
 (do{GLOBAL::say((("ERROR\:\ Not\ a\ file\ or\ command\-line\ option\:\ " . $arg) . "\
 "));
-$self->print_usage_and_die()})
+$self->print_usage_and_die})
 }})
 };
 $at_end->()})}})

@@ -44,13 +44,15 @@ Other stuff...
 
 TIPS
 
-    eval_perl5('sub{print Data::Dumper::Dumper($_[0])}').($n);
+- eval_perl5('sub{print Data::Dumper::Dumper($_[0])}').($n);
+- Install Perl::Tidy for a prettier -v .
+
 
 OTHER
 
 Other directories which may be of interest:
 misc/STD_red
-misc/elfish/on_sbcl
+misc/elfish/on_lisp
 misc/elfish/elfparse
 
 
