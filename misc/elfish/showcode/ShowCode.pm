@@ -4,7 +4,7 @@ my $code = slurp($filename);
 
 package GLOBAL { #sigh
   sub quote ($s) {
-    $s.re_gsub(/ /,'&nbsp;').re_gsub(/</,'&lt;').re_gsub(/>/,'&gt;');
+    $s.re_gsub(' ','&nbsp;').re_gsub('<','&lt;').re_gsub('>','&gt;');
   }
 }
 sub text_pane () {
@@ -14,12 +14,12 @@ sub text_pane () {
     $line++;
     my $s = '<span id=line'~$line~' class=ln>';
     my $num = sprintf('%3d  ',$line);
-    $num.re_gsub(/ /,'&nbsp;');
+    $num.re_gsub(' ','&nbsp;');
     '<span id=lnN'~$line~' class=lineNum>'~$num~'</span>'~$s;
   };
   my $txt = "";
   $txt = $txt~$line_start.();
-  $txt = $txt ~ $code.split(//).map(sub($e){
+  $txt = $txt ~ $code.split('').map(sub ($e){
     $n++;
     my $pre = "";
     my $post = "";
@@ -103,15 +103,16 @@ $Main::match_counter = 1;
 $Main::ir_counter = 1;
 $Main::matches = [];
 $Main::irnodes = [];
-my $parse = $*parser1.parse($code,$filename);
-my $ir = $parse.make_ir_from_Match_tree();
+my $tree = $*parser1.parse($code,$filename);
+temp $main::irbuilder = $*ast2ir_1;
+my $ir = $tree.make_ir_from_Match_tree();
 $ir.do_all_analysis();
 
 sub ast_pane {
-  my $s = '<small><pre>'~$parse.match_foo~'</pre></small>';
+  my $s = '<small><pre>'~$tree.match_foo~'</pre></small>';
   my $id2r = '
 range_from_id = []
-'~ $Main::matches.map(sub($e){
+'~ $Main::matches.map(sub ($e){
   my $id = $e[0];
   my $m = $e[1];
   'range_from_id["'~$id~'"] = ['~$m.from~','~$m.to~']'
@@ -125,7 +126,7 @@ function Ast(id,from,to) {
 }
 //Ast.prototype.covers = function(n) { return (this.from <= n && n <= this.to) }
 var all_asts = [
-'~ $Main::matches.map(sub($e){
+'~ $Main::matches.map(sub ($e){
   my $id = $e[0];
   my $m = $e[1];
   '(new Ast("'~$id~'",'~$m.from~','~$m.to~'))'
@@ -215,7 +216,7 @@ SPAN.irfn {font-style:italic; color:#333333; z-index:0}
 <small><pre>'~$ir.irx1_foo~'</pre></small>';
   my $id2r = '
 range_from_id = []
-'~ $Main::irnodes.map(sub($e){
+'~ $Main::irnodes.map(sub ($e){
   my $id = $e[0];
   my $ir = $e[1];
   my $m = $ir.match;
@@ -230,7 +231,7 @@ function Ir(id,from,to) {
 }
 //Ir.prototype.covers = function(n) { return (this.from <= n && n <= this.to) }
 var all_asts = [
-'~ $Main::irnodes.map(sub($e){
+'~ $Main::irnodes.map(sub ($e){
   my $id = $e[0];
   my $ir = $e[1];
   my $m = $ir.match;
@@ -343,24 +344,24 @@ class Match {
     #my $s = $.rule~"<"~$.from~","~$.to~",'"~$.str~"',{";
     my $id = 'm'~$Main::match_counter++;
     $Main::matches.push([$id,self]);
-    my $s = "<span id="~$id~' class=m onclick="mClick(event)">'~$.rule~"&lt;"~$.from~","~$.to~",'...',{";
-    for $.hash.keys {
+    my $s = "<span id="~$id~' class=m onclick="mClick(event)">'~$.match_rule~"&lt;"~$.from~","~$.to~",'...',{";
+    for $.match_hash.keys {
       my $k = $_;
-      my $v = $.hash{$k};
+      my $v = $.match_hash{$k};
       my $vs = 'undef';
       if defined($v) {
         $vs = $v.match_foo;
       }
       $s = $s ~ "\n  "~$k~" =&gt; "~self.indent_except_top($vs)~",";
     }
-    if $.hash.keys.elems {$s = $s ~ "\n"}
+    if $.match_hash.keys.elems {$s = $s ~ "\n"}
     $s = $s ~ "}&gt;</span>";
   }
 }
 class ARRAY {
   method match_foo() {
     ("[\n" ~
-     Match.indent(self.map(sub($e){$e.match_foo}).join(",\n")) ~
+     Match.indent(self.map(sub ($e){$e.match_foo}).join(",\n")) ~
      "\n]")
   }
 };
@@ -383,7 +384,7 @@ class HASH {
 class STRING {
   method match_foo() {
     my $s = self;
-    if $s.length > 30 { $s = $s.substr(0,20)~"..."; }
+    if $s.chars > 30 { $s = $s.substr(0,20)~"..."; }
     "'"~quote($s)~"'"
   }
 }
@@ -415,7 +416,7 @@ package IRx1 {
       $s = $s ~ "\n";
       my $vs = "";
       my $names = $.field_names();
-      my $values = $.field_values().map(sub($e){$e.irx1_foo()});
+      my $values = $.field_values().map(sub ($e){$e.irx1_foo()});
       loop (my $i=0; $i < $names.elems; $i++) {
         $vs = $vs ~ '<span class=irfn onclick="iClick(event,'~$id~')">'~$names[$i]~'</span>  '~Match.indent_except_top($values[$i])~"\n";
       }
@@ -446,14 +447,14 @@ class HASH {
 package ARRAY {
   method irx1_foo() {
     ("[\n" ~
-     Match.indent(self.map(sub($e){$e.irx1_foo}).join(",\n")) ~
+     Match.indent(self.map(sub ($e){$e.irx1_foo}).join(",\n")) ~
      "\n]")
   };
 };
 package STRING {
   method irx1_foo() {
     my $s = self;
-    if $s.length > 30 { $s = $s.substr(0,20)~"..."; }
+    if $s.chars > 30 { $s = $s.substr(0,20)~"..."; }
     "'"~quote($s)~"'"
   };
 };

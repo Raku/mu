@@ -3,5 +3,11 @@ make demo
 
 click.
 
+
+Clicking in one pane should highlight all three.
+On a firefox 3.0, things are a bit flakey, and firebug flags an error.
+When clicking in the IR pane, clicking on field values seems to work best.
+Yes, the code is blecherous.  It was all a one evening hack.
+
 TODO
 - Include the IR analysis info.  Which was the primary motivation for this hack.
