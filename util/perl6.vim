@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Mar 23rd 2009
+" Last Change:  Mar 28th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -79,7 +79,10 @@ let s:keywords = {
  \   "macro sub submethod method multi only rule token regex category",
  \ ],
  \ "p6Module": [
- \   "module class role use require package enum grammar subset self",
+ \   "module class role package enum grammar subset self",
+ \ ],
+ \ "p6Include": [
+ \   "use require",
  \ ],
  \ "p6Conditional": [
  \   "if else elsif unless",
@@ -2109,6 +2112,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6PackageTwigil  Special
     HiLink p6StringSpecial2 Special
     HiLink p6Comment        Comment
+    HiLink p6Include        Include
     HiLink p6Shebang        PreProc
     HiLink p6ClosureTrait   PreProc
     HiLink p6CustomRoutine  Function
