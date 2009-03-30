@@ -105,8 +105,8 @@ sub move_CONTROL {
     my @control;
     my @statementlist = 
       grep { !( exists $_->{statement_control} &&
-		exists $_->{statement_control}{sym} &&
-		($_->{statement_control}{sym} =~ /^(CONTROL|CATCH)$/) &&
+		exists $_->{statement_control}{SYM} &&
+		($_->{statement_control}{SYM} =~ /^(CONTROL|CATCH)$/) &&
 	        (push @control, $_) ) }
 	  @{$statementlist};
     if (@control) {
@@ -183,14 +183,14 @@ sub EXPR {
                     $noun = $_->{dotty}->emit_m0ld($noun);
 		} elsif ($_->{postop}) {
 		    if (my $pc = $_->{postop}{postcircumfix}) {
-			if (ref $pc->{sym} eq 'ARRAY' &&
-			    $pc->{sym}[0] eq '<' &&
-			    $pc->{sym}[1] eq '>') {
+			if (ref $pc->{SYM} eq 'ARRAY' &&
+			    $pc->{SYM}[0] eq '<' &&
+			    $pc->{SYM}[1] eq '>') {
 			    my $nib = join '', @{$pc->{nibble}{nibbles}};
 			    $noun = call 'postcircumfix:{ }' => $noun, [ string $nib ];
-			} elsif (ref $pc->{sym} eq 'ARRAY' &&
-			    $pc->{sym}[0] eq '(' &&
-			    $pc->{sym}[1] eq ')')  {
+			} elsif (ref $pc->{SYM} eq 'ARRAY' &&
+			    $pc->{SYM}[0] eq '(' &&
+			    $pc->{SYM}[1] eq ')')  {
                             my @args = $pc->{semiarglist}->emit_m0ld;
                             my @positional = grep { ref $_ ne 'AST::Pair' } @args;
                             my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
@@ -209,10 +209,14 @@ sub EXPR {
         }
     } elsif ($m->{chain}) {
         if (scalar @{$m->{chain}} == 3) {
-           fcall '&infix:'.$m->{chain}[1]{infix}{sym},[$m->{chain}[0]->emit_m0ld,$m->{chain}[2]->emit_m0ld];
+           fcall '&infix:'.$m->{chain}[1]{infix}{SYM},[$m->{chain}[0]->emit_m0ld,$m->{chain}[2]->emit_m0ld];
         } else {
             XXX;
         }
+    } elsif ($m->{value}) {
+        $m->{value}->emit_m0ld;
+    } elsif ($m->{term}) {
+        $m->{term}->emit_m0ld;
     } else {
         XXX;
     }

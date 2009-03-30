@@ -15,11 +15,11 @@ sub emit_m0ld {
 
     my $value;
     if (ref $m->{v} eq 'VAST::postcircumfix') {
-        if ($m->{v}{sym}[0] eq '(' &&
-            $m->{v}{sym}[1] eq ')') {
+        if ($m->{v}{SYM}[0] eq '(' &&
+            $m->{v}{SYM}[1] eq ')') {
             $value = $m->{v}{semiarglist}->emit_m0ld;
-        } elsif ($m->{v}{sym}[0] eq '<' &&
-                 $m->{v}{sym}[1] eq '>') {
+        } elsif ($m->{v}{SYM}[0] eq '<' &&
+                 $m->{v}{SYM}[1] eq '>') {
             $value = $m->{v}{nibble}->emit_m0ld;
         } else {
             XXX;

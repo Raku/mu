@@ -6,7 +6,7 @@ use AST::Helpers;
 
 sub VAST::term::emit_m0ld {
     my $m = shift;
-    if ($m->{sym} eq 'self') {
+    if ($m->{SYM} eq 'self') {
         lookup('$¿self');
     } elsif ($m->{identifier} && $m->{args}) {
         my $func = lookup('&'.$m->{identifier}{TEXT});

@@ -12,24 +12,24 @@ sub emit_m0ld {
             my @positional = grep { ref $_ ne 'AST::Pair' } @args;
             my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
             my $ident = $methodop->{longname}->canonical;
-            if ($m->{sym} eq '.^!') {
+            if ($m->{SYM} eq '.^!') {
                 $ident = '^!' . $ident;
                 AST::Call->new(
                     identifier=>string $ident,
                     capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional],named=>[@named]),
                     );
-            } elsif ($m->{sym} eq '.^') {
+            } elsif ($m->{SYM} eq '.^') {
                 let FETCH($noun), sub {
                     my $object = shift;
                     return call($ident => FETCH(call '^!how' => $object), [$object, @positional], [@named]);
                 }
-            } elsif ($m->{sym} eq '.') {
+            } elsif ($m->{SYM} eq '.') {
                 AST::Call->new(
                     identifier=>string $ident,
                     capture=>AST::Capture->new(invocant=>FETCH($noun),positional=>[@positional],named=>[@named]),
                     );
             } else {
-                XXX('unknown dotty sym');
+                XXX('unknown dotty SYM');
             }
         } else {
             XXX('unknown methodop');
@@ -44,10 +44,10 @@ sub emit_m0ld {
             }
             my @positional = grep { ref $_ ne 'AST::Pair' } @args;
             my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
-            if ($postcircumfix->{sym}[0] eq '(' && $postcircumfix->{sym}[1] eq ')') {
+            if ($postcircumfix->{SYM}[0] eq '(' && $postcircumfix->{sym}[1] eq ')') {
                 call 'postcircumfix:( )' => FETCH($noun),[capturize([@positional],[@named])];
             } else {
-                call ('postcircumfix:'.$postcircumfix->{sym}[0].' '.$postcircumfix->{sym}[1] => FETCH($noun),[@positional],[@named]);
+                call ('postcircumfix:'.$postcircumfix->{SYM}[0].' '.$postcircumfix->{sym}[1] => FETCH($noun),[@positional],[@named]);
             }
         } else {
             XXX('unknown postop');

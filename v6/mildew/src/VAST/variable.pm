@@ -6,7 +6,7 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    my $twigil = $m->{twigil}[0]{sym} || '';
+    my $twigil = $m->{twigil}[0]{SYM} || '';
     if ($twigil eq '!') {
 	call('postcircumfix:{ }'=>
 	     FETCH(call('postcircumfix:{ }',

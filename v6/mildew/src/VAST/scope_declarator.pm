@@ -33,7 +33,7 @@ sub attribute {
 
 sub accessor {
     my $var_decl = shift;
-    my $priv = bless { twigil => [ { sym => '!', TEXT => '!' } ],
+    my $priv = bless { twigil => [ { SYM => '!', TEXT => '!' } ],
 		       sigil => { TEXT => $var_decl->{variable}{sigil}{TEXT} },
 		       desigilname => $var_decl->{variable}{desigilname} }, 'VAST::variable';
 
@@ -57,13 +57,13 @@ sub accessor {
 
 sub VAST::scope_declarator::emit_m0ld {
     my $m = shift;
-    if ($m->{'sym'} eq 'my' || $m->{'sym'} eq 'our') {
+    if ($m->{'SYM'} eq 'my' || $m->{'sym'} eq 'our') {
         if (my $decl = $m->{scoped}{declarator}) {
             if (my $var_decl = $decl->{variable_declarator}) {
 		let call(new => FETCH(lookup 'Scalar')), sub {
 		    my $value = shift;
 		    AST::Seq->new(stmts => [
-				      ( $m->{'sym'} eq 'our' ? 
+				      ( $m->{'SYM'} eq 'our' ? 
 				      call(BIND => (call 'postcircumfix:{ }' => FETCH(lookup '$?PACKAGE'),
 						    [ string varname($var_decl->{variable}) ]),[$value])
 				      :()),
@@ -73,14 +73,14 @@ sub VAST::scope_declarator::emit_m0ld {
 
 		}
             } elsif (my $routine_decl = $decl->{routine_declarator}) {
-		$routine_decl->{routine_def}->emit_m0ld($m->{sym});
+		$routine_decl->{routine_def}->emit_m0ld($m->{SYM});
             } else {
                 XXX('unknown scope declarator');
             }
         } else {
             XXX('scoped declarator without a declarator');
         }
-    } elsif ($m->{sym} eq 'has') {
+    } elsif ($m->{SYM} eq 'has') {
 	# attribute!
 	my $var_decl = $m->{scoped}{declarator}{variable_declarator};
 	let FETCH(lookup('$?CLASS')), sub {
@@ -110,7 +110,9 @@ sub VAST::scope_declarator::emit_m0ld {
 		 ]);
 	};
     } else {
-        XXX('unknown sym in scope declarator');
+        use YAML::XS;
+        die Dump($m);
+        XXX('unknown SYM in scope declarator');
     }
 }
 

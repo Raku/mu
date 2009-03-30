@@ -27,7 +27,7 @@ sub emit_m0ld {
 	if (ref $m->{trait} eq 'ARRAY') {
 	    foreach my $trait (@{$m->{trait}}) {
 		my $aux = $trait->{trait_auxiliary};
-		if ($aux->{sym} eq 'is') {
+		if ($aux->{SYM} eq 'is') {
 		    if ($aux->{longname}{name}{identifier}{TEXT} eq 'export') {
 			push @trait_statement,
 			call(BIND =>
