@@ -644,16 +644,11 @@ package Main;
         if ($n.var.sigil eq '@') { $default = ' = [];' }
         if ($n.var.sigil eq '%') { $default = ' = {};' }
       }
-      if ($n.is_context) {
+      if $n.is_context || $n.is_temp {
         my $var = $n.var;
-        my $nam = $.e($n.var);
-        $nam = $nam.re_gsub_pat('^(.+)::','$1');
-        ("\{package main; use vars '"~$nam~"'};"~
-         'local'~' '~$.e($n.var)~$default)
-      }
-      elsif ($n.is_temp) {
-        my $var = $n.var;
-        my $nam = $.encode_varname($var.sigil,$var.twigil,$var.bare_name);
+        my $t = $var.twigil;
+        if $n.is_context { $t = '+' }
+        my $nam = $.encode_varname($var.sigil,$t,$var.bare_name);
         my $pkg = $n.notes<crnt_package>;
         ("\{ package "~$pkg~"; use vars '"~$nam~"'};"~
         'local'~' '~$.e($n.var)~$default)
@@ -1068,20 +1063,17 @@ package Main;
   }
 
   method encode_varname($s,$t,$dsn) {
-    #XXX $pkg::x -> s_pkg::x :(
     my $env = '';
     my $pre = '';
     if $t eq '+' { $env = 'x' };
     if $s eq '$' && $env eq 'x' { $pre = 's_' };
     if $s eq '@' { $pre = 'a_' }
     if $s eq '%' { $pre = 'h_' }
-    my $mn = $dsn.split('::').map(sub ($nam){mangle_name($nam)}).join("::");
-    my $name = $env~$pre~$mn;
+    my $mns = $dsn.split('::').map(sub ($nam){mangle_name($nam)});
+    $mns[-1] = $env~$pre~$mns[-1];
+    my $name = $mns.join("::");
     if ($t eq '.') {
       '$self->'~$name
-    } elsif ($t eq '+') {
-      $name = $name.re_gsub('::','__');
-      '$'~'::'~$name
     } elsif ($t eq '*') {
       $name = $name.re_gsub('::','__');
       '$'~'GLOBAL::'~$name
@@ -1099,6 +1091,15 @@ package Main;
     my $t = $n.twigil||'';
     if $n.is_context { $t = '+' }
     my $dsn = $.e($n.name);
+    if $n.is_context && not($dsn.re_matchp('::')) {
+      my $decl = $n.notes<decl>;
+      if $decl {
+        my $decl_pkg = $decl.notes<crnt_package>;
+        if $decl_pkg ne $n.notes<crnt_package> {
+          $dsn = $decl_pkg~'::'~$dsn;
+        }
+      }
+    }
     my $v = $s~$t~$dsn;
     if $v eq '$?PACKAGE' || $v eq '$?MODULE' || $v eq '$?CLASS' {
       my $pkgname = $whiteboard::in_package.join('::'); # XXX should use $n notes instead.

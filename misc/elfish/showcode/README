@@ -3,11 +3,14 @@ make demo
 
 click.
 
-
 Clicking in one pane should highlight all three.
 On a firefox 3.0, things are a bit flakey, and firebug flags an error.
 When clicking in the IR pane, clicking on field values seems to work best.
 Yes, the code is blecherous.  It was all a one evening hack.
+
+$ export ELF_STD_RED_RUN=../../STD_red/STD_red_run
+$ ./showcode whatever.pl > tmp.html
+
 
 TODO
 - Debug clicking.
