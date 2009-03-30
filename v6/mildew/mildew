@@ -2,6 +2,7 @@
 use lib '../../src/perl6';
 use lib 'src';
 use STD;
+use YAML::Syck; # viv seems to expect ::Dump to be there...
 package Mildew;
 do 'viv';
 use AST;
