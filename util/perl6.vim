@@ -38,6 +38,9 @@
 " If you want to have Pir code inside Q:PIR// strings highlighted, do:
 "  let perl6_embedded_pir=1
 "
+" The above requires pir.vim, which you can find in Parrot's repository:
+" https://svn.parrot.org/parrot/trunk/editor/
+"
 " Some less than crucial things have been made optional to speed things up.
 " Look at the comments near the if/else branches in this file to see exactly
 " which features are affected. "perl6_extended_all" enables everything.
