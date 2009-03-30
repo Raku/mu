@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Mar 28th 2009
+" Last Change:  Mar 30th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -35,15 +35,18 @@
 "     more would require an exponential amount of regexes, making this
 "     already slow syntax file even slower.
 "
+" If you want to have Pir code inside Q:PIR// strings highlighted, do:
+"  let perl6_embedded_pir=1
+"
 " Some less than crucial things have been made optional to speed things up.
 " Look at the comments near the if/else branches in this file to see exactly
 " which features are affected. "perl6_extended_all" enables everything.
 " 
 " The defaults are:
 "
-" unlet perl6_extended_comments
-" unlet perl6_extended_q
-" unlet perl6_extended_all
+"  unlet perl6_extended_comments
+"  unlet perl6_extended_q
+"  unlet perl6_extended_all
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -615,7 +618,10 @@ syn region p6StringDQ
 
 syn match p6Operator display "\%([Qq]\%(ww\|to\|[qwxsahfcb]\)\?\)" nextgroup=p6QPairs skipwhite skipempty
 syn match p6QPairs contained transparent skipwhite skipempty nextgroup=p6StringQ,p6StringQ_PIR "\%(\_s*:!\?\K\%(\k\|[-']\K\@=\)*\%(([^)]*)\|\[[^\]]*]\|<[^>]*>\|«[^»]*»\|{[^}]*}\)\?\)*"
-syn include @p6PIR syntax/pir.vim 
+
+if exists("perl6_embedded_pir")
+    syn include @p6PIR syntax/pir.vim 
+endif
 
 " hardcoded set of delimiters
 let s:delims = [
@@ -654,10 +660,12 @@ if !exists("perl6_extended_q") && !exists("perl6_extended_all")
         exec "syn region p6StringQ matchgroup=p6Quote start=\"".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=".end_group." contained"
     endfor
 
-    " highlight embedded PIR code
-    for [start_delim, end_delim, end_group, skip] in s:delims
-        exec "syn region p6StringQ_PIR matchgroup=p6Quote start=\"\\%(Q\\s*:PIR\\s*\\)\\@<=".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=@p6PIR,".end_group." contained"
-    endfor
+    if exists("perl6_embedded_pir")
+        " highlight embedded PIR code
+        for [start_delim, end_delim, end_group, skip] in s:delims
+            exec "syn region p6StringQ_PIR matchgroup=p6Quote start=\"\\%(Q\\s*:PIR\\s*\\)\\@<=".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=@p6PIR,".end_group." contained"
+        endfor
+    endif
 else
     let s:before = "syn region p6StringQ matchgroup=p6Quote start=\"\\%("
     let s:after  = "\\%(\\_s*:!\\?\\K\\%(\\k\\|[-']\\K\\@=\\)*\\%(([^)]*)\\|\\[[^\\]]*]\\|<[^>]*>\\|«[^»]*»\\|{[^}]*}\\)\\?\\)*\\_s*\\)\\@<="
