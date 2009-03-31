@@ -24,8 +24,7 @@ PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove 
 test: prove
 
 prove:
-	$(PROVE) 'perl mildew ' `cat TESTS`
-	$(PROVE) 'perl mildew ' t/
+	$(PROVE) 'perl mildew ' `cat TESTS` t/
 
 clean:
 	rm -rf lex
