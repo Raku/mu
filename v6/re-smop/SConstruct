@@ -18,8 +18,6 @@ env.Append(BUILDERS = {'Sm0p' : Builder(action = 'perl sm0p.pl . %s $SOURCE $TAR
 
 env.Append(BUILDERS = {'M0ld' : Builder(action = 'cat m0ld/m0ld_boilerplate_front > $TARGET;%s < $SOURCE >> $TARGET;cat m0ld/m0ld_boilerplate_back >> $TARGET' % m0ld_path,suffix='.c',src_suffix = '.m0ld')})
         
-#for file in Glob("build/*.ri"):
-#    env.RI(file)
 #for file in Glob("build/*.sm0p"):
 #    env.Sm0p(file)
 
@@ -27,21 +25,23 @@ env.Append(BUILDERS = {'M0ld' : Builder(action = 'cat m0ld/m0ld_boilerplate_fron
 import subprocess # python has `` in a strange module :\
 ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
-flags = '-O0 -g3 '
+flags = '-O0 -g3 -Wall'
 
 
-modules = ['s0native','nagc','capture','interpreter','mold']
+modules = ['s0native','nagc','capture','interpreter','mold','native']
 
 INCLUDE = ['base/include','util/include']
 for module in modules:
     BuildDir('build/'+module,module)
     INCLUDE.append(module + '/include')
+    for file in Glob('build/' + module + '/src/*.ri'):
+        env.RI(file)
     files = env.Glob('build/' + module + '/src/*.c')
     env.SharedLibrary(target = 'build/lib/smop-'+module, source = files, CFLAGS=flags+ccopts, CPPPATH=[module+'/src'] + INCLUDE)
 
 LIBPATH = []
 
-LIBS = ['pthread']
+LIBS = ['pthread','m']
 INCLUDE = ['base/include']
 
 for module in modules:
