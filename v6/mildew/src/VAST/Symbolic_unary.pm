@@ -6,9 +6,9 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    if ($m->{SYM} eq '|' && $m->{arg}) {
+    if ($m->{sym} eq '|' && $m->{arg}) {
 	FETCH($m->{arg}->emit_m0ld);
-    } elsif ($m->{SYM} eq '=' && $m->{arg}) {
+    } elsif ($m->{sym} eq '=' && $m->{arg}) {
 	call('prefix:=' => FETCH($m->{arg}->emit_m0ld));
     } else {
 	XXX;

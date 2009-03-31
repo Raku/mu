@@ -13,8 +13,14 @@ sub emit_m0ld {
 sub as_constant_string {
     my $m = shift;
     my $str = '';
-
-    return $m->{TEXT};
+    foreach my $nib (@{$m->{nibbles}}) {
+        if (blessed $nib) {
+            $str .= $nib->as_constant_string;
+        } else {
+            $str .= $nib;
+        }
+    }
+    return $str;
 }
 
 1;

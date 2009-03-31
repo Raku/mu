@@ -10,11 +10,11 @@ sub oo_package_declarator {
     my $id_type_sub = AST::unique_id;
 
     my $how_type = '';
-    if ($m->{SYM} eq 'knowhow') {
+    if ($m->{sym} eq 'knowhow') {
         $how_type = 'PrototypeHOW';
-    } elsif ($m->{SYM} eq 'class') {
+    } elsif ($m->{sym} eq 'class') {
         $how_type = 'ClassHOW';
-    } elsif ($m->{SYM} eq 'role') {
+    } elsif ($m->{sym} eq 'role') {
         $how_type = 'RoleHOW';
     } else {
         XXX;
@@ -103,13 +103,13 @@ sub plain_package_declarator {
 
 sub emit_m0ld {
     my $m = shift;
-    if ($m->{SYM} eq 'knowhow') {
+    if ($m->{sym} eq 'knowhow') {
         oo_package_declarator($m);
-    } elsif ($m->{SYM} eq 'class') {
+    } elsif ($m->{sym} eq 'class') {
         oo_package_declarator($m);
-    } elsif ($m->{SYM} eq 'role') {
+    } elsif ($m->{sym} eq 'role') {
         oo_package_declarator($m);
-    } elsif ($m->{SYM} eq 'module') {
+    } elsif ($m->{sym} eq 'module') {
 	plain_package_declarator($m);
     } else {
         XXX;

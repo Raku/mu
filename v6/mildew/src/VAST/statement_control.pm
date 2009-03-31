@@ -7,13 +7,13 @@ use Scalar::Util qw(blessed);
 
 sub emit_m0ld {
     my $m = shift;
-    if ($m->{SYM} eq 'unless') {
+    if ($m->{sym} eq 'unless') {
         my $then = call 'postcircumfix:( )' => code($m->{xblock}{pblock}{blockoid}),[capturize];
         AST::If->new
             ( cond => $m->{xblock}{EXPR}->emit_m0ld,
               else => $then )
 
-    } elsif ($m->{SYM} eq 'if') {
+    } elsif ($m->{sym} eq 'if') {
         my $then = call 'postcircumfix:( )' => code($m->{xblock}{pblock}{blockoid}),[capturize];
         my $else;
         if (ref $m->{else} eq 'ARRAY' &&
@@ -42,20 +42,20 @@ sub emit_m0ld {
               else => $else,
               elsif => \@elsif );
 
-    } elsif ($m->{SYM} eq 'CONTROL') {
+    } elsif ($m->{sym} eq 'CONTROL') {
         # CONTROL blocks are moved to the top of the
         # statementlist, so we know that no code was executed
         # before this, so we can peacefully delay the setup of the
         # control block up to this point.
         call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];
-    } elsif ($m->{SYM} eq 'CATCH') {
+    } elsif ($m->{sym} eq 'CATCH') {
         # the same for CATCH blocks.
         call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];
 
-    } elsif ($m->{SYM} eq 'loop') {
+    } elsif ($m->{sym} eq 'loop') {
         AST::Loop->new(code => call('postcircumfix:( )',code($m->{block}),[capturize([])]));
 
-    } elsif ($m->{SYM} eq 'use') {
+    } elsif ($m->{sym} eq 'use') {
         my $module = $m->{module_name}{longname};
         if ($m->{version}) {
             # use v6
@@ -74,7 +74,7 @@ sub emit_m0ld {
             XXX;
         }
     } else {
-        XXX('unkown SYM in statement_control')
+        XXX('unkown sym in statement_control')
     }
 }
 

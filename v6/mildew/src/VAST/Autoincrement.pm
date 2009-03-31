@@ -6,7 +6,7 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    if ($m->{SYM} eq '++') {
+    if ($m->{sym} eq '++') {
         fcall '&postfix:++',[$m->{arg}{noun}->emit_m0ld];
     } else {
         XXX;

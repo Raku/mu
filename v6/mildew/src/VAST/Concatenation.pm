@@ -6,7 +6,7 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    if ($m->{SYM} eq '~') {
+    if ($m->{sym} eq '~') {
         fcall '&infix:~',[map {$_->emit_m0ld} @{$m->{list}}];
     } else {
         use YAML::XS;
