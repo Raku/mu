@@ -66,7 +66,7 @@ SMOP should then be divided into the following modules
    * SMOP::S1P::Capturize
    * SMOP::S1P::RITest
    * SMOP::S1P::ControlExceptionReturn
-   * SMOP::S1p::OutOfItemsException
+   * SMOP::S1P::OutOfItemsException
 
  p6opaque - This is the default representation for Perl 6 objects. It
    should support storing all kinds of meta information required by
