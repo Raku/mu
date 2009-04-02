@@ -13,9 +13,9 @@ ws = do
         [ oneOf "\t\n "
         , char '#' >> many (noneOf "\n") >> newline
         ]
-    return [()]
+    return ()
 
-opt_ws = option [()] ws
+opt_ws = option () ws
 
 tok r = do
     res <- r
