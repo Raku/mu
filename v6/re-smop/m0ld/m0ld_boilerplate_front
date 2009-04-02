@@ -1,0 +1,18 @@
+#include <smop/base.h>
+#include <smop/s0native.h>
+#include <smop/nagc.h>
+#include <smop/interpreter.h>
+#include <smop/capture.h>
+#include <smop/native.h>
+#include <smop/mold.h>
+#include <stdio.h>
+
+int main(int argc, char** argv) {
+  smop_s0native_init();
+  smop_nagc_init();
+  smop_capture_init();
+  smop_interpreter_init();
+  smop_mold_init();
+
+  SMOP__Object* interpreter = SMOP_interpreter_create(SMOP__EmptyInterpreter);
+  SMOP__Object* mold = 

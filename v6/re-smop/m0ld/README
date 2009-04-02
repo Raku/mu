@@ -1,0 +1,7 @@
+This is m0ld a compiler for the DSL Mold
+
+Compilation:
+ghc --make m0ld.hs
+Run with:
+./m0ld < input
+
