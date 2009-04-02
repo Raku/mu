@@ -5,6 +5,7 @@
 #include <smop/capture.h>
 #include <smop/native.h>
 #include <smop/mold.h>
+#include <smop/s1p.h>
 #include <stdio.h>
 
 int main(int argc, char** argv) {
@@ -15,4 +16,8 @@ int main(int argc, char** argv) {
   smop_mold_init();
 
   SMOP__Object* interpreter = SMOP_interpreter_create(SMOP__EmptyInterpreter);
+
+  smop_native_init(interpreter);
+  smop_s1p_init(interpreter);
+
   SMOP__Object* mold = 

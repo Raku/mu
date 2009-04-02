@@ -1,0 +1,197 @@
+#!/usr/local/bin/perl
+use lib 'perl6-snapshot';
+use lib 'src';
+use STD;
+package Mildew;
+do 'viv';
+use AST;
+use AST::Helpers;
+use DumpMatch;
+use utf8;
+use YAML::XS;
+use Encode;
+use strict;
+use warnings;
+use Getopt::Long;
+use Carp 'confess';
+use Scalar::Util 'blessed';
+use File::Temp qw(tempfile tmpnam);
+
+#  -e program      one line of program (multiple -e are allowed, omit programfile)
+#  -c              parse the file or -e, but do not run it
+sub help {
+print <<'HELP';
+Usage: mildew [switches] [--] [programfile] [arguments]
+  -Bbackend       execute using the compiler backend
+  -Cbackend       compile using the compiler backend
+                  (valid backends are: m0ld, desugar, yaml, via-C)
+  -o              output to file
+  -h or --help    give this message
+  --valgrind      use valgrind when executing
+HELP
+exit;
+}
+my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting);
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'empty-setting'=>\$empty_setting,'debug'=>\$debug,'h|help'=>\$help) || help;
+help if $help;
+VIV::SET_OPT('match'=>!$debug,'pos'=>1);
+
+BEGIN {
+    for (<src/VAST/*.pm>) {
+	require $_;
+    }
+}
+
+sub m0ld_to_c {
+    my ($m0ld,) = @_;
+    use IPC::Open2;
+    local $ENV{LD_LIBRARY_PATH} = '../re-smop/build/lib';
+    open2(my $m0ld_exe_out,my $m0ld_exe_in,"../re-smop/m0ld_exe");
+    binmode $m0ld_exe_in, ':utf8';
+    print $m0ld_exe_in $m0ld;
+    close($m0ld_exe_in);
+    local $/;
+    binmode $m0ld_exe_out, ':utf8';
+    return <$m0ld_exe_out>;
+}
+my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include"),;
+sub compile_via_c {
+    my ($m0ld,$output) = @_;
+    my ($c_fh,$c_file) = tempfile();
+    binmode($c_fh,":utf8");
+    open(my $boilerplate_front,"../re-smop/m0ld/m0ld_boilerplate_front") || die "can't open internal file\n";
+    open(my $boilerplate_back,"../re-smop/m0ld/m0ld_boilerplate_back") || die "can't open internal file\n";
+    local $/;
+    print {$c_fh} <$boilerplate_front>;
+    print {$c_fh} m0ld_to_c($m0ld);
+    print {$c_fh} <$boilerplate_back>;
+    close($c_fh);
+    system("gcc","-g","-xc","-L../re-smop/build/lib",@SMOP_INCLUDE,"-lperl","-lmildew","-lpcl",$c_file,"-o",$output);
+}
+sub compile_to_so {
+    my ($m0ld,$output) = @_;
+    my ($c_fh,$c_file) = tempfile();
+    print {$c_fh} <<'BOILERPLATE_FRONT';
+#include <stdio.h>
+#include <smop.h>
+#include <smop_s1p.h>
+#include <smop_mold.h>
+#include <smop_lowlevel.h>
+void init(SMOP__Object* interpreter,SMOP__Object* scope,SMOP__Object* continuation) {
+    SMOP__Object* mold =
+BOILERPLATE_FRONT
+    print {$c_fh} m0ld_to_c($m0ld);
+    print {$c_fh} <<'BOILERPLATE_BACK';
+;
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  mold_reg_set(interpreter,frame,1,scope);
+  mold_reg_set(interpreter,frame,2,continuation);
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                frame);
+}
+BOILERPLATE_BACK
+    close($c_fh);
+    system("gcc","-g","-xc","-L../smop/build",@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
+}
+sub output {
+    my ($what,$where) = @_;
+    if ($where) {
+        open(my $out,">",$where);
+        binmode $out, ':utf8';
+        print $out $what;
+    } else {
+        binmode STDOUT, ':utf8';
+        print $what;
+    }
+}
+my $m;
+die "output=$output too many arguments @ARGV" if scalar @ARGV > 1;
+if (@ARGV) {
+    $m = STD->parsefile($ARGV[0],actions=>'Actions');
+} else {
+    $m = STD->parse(join('', <STDIN>), actions=>'Actions');
+}
+
+#print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+print "#################\n" if $debug;
+if ($debug) {
+    print Dump($m->{'?'});
+    exit;
+}
+my $mold = $m->{'?'}->emit_m0ld;
+
+unless ($empty_setting) {
+    my $load_CORE = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
+    [string 'CORE.mildew.so',FETCH(lookup('$LexicalPrelude'))]);
+    unshift @{$mold->stmts},$load_CORE;
+}
+
+my $m0ld;
+$C = '' unless $C;
+if ($C eq 'desugar') {
+    output($mold->pretty."\n",$output);
+    exit;
+} elsif ($C eq 'ast-yaml') {
+    use YAML::XS;
+    output(Dump($mold),$output);
+    exit;
+} else {
+    my ($front,$back);
+    if ($C eq 'so') {
+        $front = "my \$interpreter;\nmy \$scope;\nmy \$back;\n";
+        $back = "my \$void = \$interpreter.\"goto\"(\$back);\n";
+    } else {
+        $front = "my \$scope = ?SMOP__S1P__LexicalPrelude;\n";
+        $back = '';
+    }
+    $m0ld = $front.<<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK'.$back;
+    my $void;
+BOILERPLATE_FRONT
+    my $Code_scalar = $scope."lookup"("Code");
+    my $Code = $Code_scalar."FETCH"();
+    my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
+    my $Capture_scalar = $scope."lookup"("capture");
+    my $Capture = $Capture_scalar."FETCH"();
+    my $capture = $Capture."new"();
+    my $void = $main_code."postcircumfix:( )"($capture);
+BOILERPLATE_BACK
+}
+if ($output and not $C) {
+    $C = 'via-C';
+}
+if ($C eq 'via-C') {
+    die "-o is required when compiling to an executable\n" unless $output;
+    compile_via_c($m0ld,$output);
+} elsif ($C eq 'so') {
+    die "-o is required when compiling to a shared library \n" unless $output;
+    compile_to_so($m0ld,$output);
+} elsif ($C eq 'm0ld') {
+    output($m0ld,$output);
+} elsif ($C) {
+    die "unknown backend passed to -C: $C\n";
+}
+
+if ($B && $C) {
+    die "can't specify both -C and -B\n";
+} elsif (!$B && !$C) {
+    $B = 'via-C';
+} else {
+    exit;
+}
+
+if ($B eq 'via-C') {
+    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
+    local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+    my $tmp = tmpnam;
+    compile_via_c($m0ld,$tmp);
+    if ($valgrind) {
+        exec('valgrind',$tmp);
+    } else {
+        exec($tmp);
+    }
+} elsif ($B) {
+    die "unknown backend passed to -B: $C\n";
+}
+

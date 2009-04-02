@@ -32,6 +32,7 @@
 
   SMOP_RELEASE(SMOP__EmptyInterpreter,interpreter);
 
+  smop_s1p_destr(interpreter);
   smop_native_destr(interpreter);
 
   smop_mold_destr();

@@ -28,7 +28,7 @@ ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=sub
 flags = '-O0 -g3 -Wall'
 
 
-modules = ['s0native','nagc','capture','interpreter','mold','native']
+modules = ['s0native','nagc','capture','interpreter','mold','native','s1p']
 
 INCLUDE = ['base/include','util/include']
 for module in modules:
@@ -44,6 +44,7 @@ LIBPATH = []
 LIBS = ['pthread','m']
 INCLUDE = ['base/include']
 
+
 for module in modules:
     BuildDir('build/t/'+module,module+'/t')
     INCLUDE.append(module + '/include')
@@ -52,6 +53,7 @@ for module in modules:
         env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = INCLUDE,LIBPATH=LIBPATH+['build/lib'],LIBS=LIBS)
 
 
+env.SharedLibrary(target = 'build/lib/mildew', source = [], CFLAGS=flags+ccopts, LIBPATH=LIBPATH+['build/lib'], LIBS=LIBS)
 
 #LIBS = re.compile("-l(\S+)").findall(ldopts)
 #LIBPATH = re.compile("-L(\S+)").findall(ldopts)
