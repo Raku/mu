@@ -74,7 +74,7 @@ struct SMOP__ResponderInterface {
 /* 
  * Here follows the basic macros for that triade.
  */
-#define SMOP_RI(object) ((SMOP__Object*)object)->RI
+#define SMOP_RI(object) ((SMOP__ResponderInterface*) ((SMOP__Object*)object)->RI)
 
 #ifdef SMOP_HUNT_NULLS
 #include <stdio.h>
@@ -108,37 +108,38 @@ struct SMOP__ResponderInterface {
 #include <stdio.h>
 #define SMOP_REFERENCE(interpreter, object) \
       (fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] ++ (%p) %s:%d (%s)\n",object,__FILE__,__LINE__,__func__),\
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->REFERENCE( (SMOP__Object*)interpreter, \
-          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+      SMOP_RI(object)->REFERENCE( (SMOP__Object*)interpreter, \
+          SMOP_RI(object), \
           (SMOP__Object*)object \
-      )))
+      ))
 
 #define SMOP_RELEASE(interpreter, object) \
       (fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] -- (%p) %s:%d (%s)\n",object,__FILE__,__LINE__,__func__),\
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->RELEASE( (SMOP__Object*)interpreter, \
-          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+      SMOP_RI(object)->RELEASE( (SMOP__Object*)interpreter, \
+          SMOP_RI(object), \
           (SMOP__Object*)object \
-      )))
+      ))
 #define SMOP_WEAKREF(interpreter, object) \
       (fprintf(stderr,"[SMOP_LOWLEVEL_MEM_DEBUG] ## (%p) %s:%d (%s)\n",object,__FILE__,__LINE__,__func__),\
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->WEAKREF( (SMOP__Object*)interpreter, \
-          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
-          (SMOP__Object*)object \
-      )))
-#else
-#define SMOP_REFERENCE(interpreter, object) \
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->REFERENCE( (SMOP__Object*)interpreter, \
-          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+      SMOP_RI(object)->WEAKREF( (SMOP__Object*)interpreter, \
+          SMOP_RI(object), \
           (SMOP__Object*)object \
       ))
+#else
+#define SMOP_REFERENCE(interpreter, object) \
+      (SMOP_RI(object)->REFERENCE( (SMOP__Object*)interpreter, \
+          SMOP_RI(object), \
+          (SMOP__Object*)object \
+      ))
+
 #define SMOP_RELEASE(interpreter, object) \
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->RELEASE( (SMOP__Object*)interpreter, \
-          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+      (SMOP_RI(object)->RELEASE( (SMOP__Object*)interpreter, \
+          SMOP_RI(object), \
           (SMOP__Object*)object \
       ))
 #define SMOP_WEAKREF(interpreter, object) \
-      (((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object))->WEAKREF( (SMOP__Object*)interpreter, \
-          ((SMOP__ResponderInterface*)(((SMOP__Object*)object)->RI)?(((SMOP__Object*)object)->RI):((SMOP__ResponderInterface*)object)), \
+      (SMOP_RI(object)->WEAKREF( (SMOP__Object*)interpreter, \
+          SMOP_RI(object), \
           (SMOP__Object*)object \
       ))
 #endif
