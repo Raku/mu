@@ -1,0 +1,148 @@
+%include <assert.h>
+%prefix smop_s1p_lexicalscope
+%prototype SMOP__S1P__LexicalScope
+%RI.id lexical scope
+%attr SMOP__Object* entries
+%attr SMOP__Object* outer
+%getter entries
+%getter outer
+%{
+  static SMOP__Object* SMOP__ID__postcircumfix_curly;
+  static SMOP__Object* SMOP__ID__goto;
+  static SMOP__Object* SMOP__ID__bind_key;
+  static SMOP__Object* SMOP__ID__exists;
+  static SMOP__Object* SMOP__ID__new;
+  static SMOP__Object* SMOP__ID__continuation;
+%}
+
+%init {
+  SMOP__Object* SMOP__ID__postcircumfix_curly = SMOP__NATIVE__idconst_create("postcircumfix:{ }");
+  SMOP__Object* SMOP__ID__goto = SMOP__NATIVE__idconst_create("goto");
+  SMOP__Object* SMOP__ID__bind_key = SMOP__NATIVE__idconst_create("bind_key"),
+  SMOP__Object* SMOP__ID__exists = SMOP__NATIVE__idconst_create("exists");
+  SMOP__Object* SMOP__ID__new = SMOP__NATIVE__idconst_create("new");
+  SMOP__Object* SMOP__ID__continuation = SMOP__NATIVE__idconst_create("continuation");
+%}
+
+%method new
+  ret = smop_nagc_alloc(sizeof(smop_s1p_lexicalscope_struct));
+  SMOP_REFERENCE(interpreter,RI);
+  ret->RI = (SMOP__ResponderInterface*)RI;
+  ((smop_s1p_lexicalscope_struct*)ret)->entries = SMOP__S1P__Hash_create();
+  ((smop_s1p_lexicalscope_struct*)ret)->outer = SMOP__S1P__Scalar_create(SMOP__NATIVE__bool_false);
+
+%method outer
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  ret = ((smop_s1p_lexicalscope_struct*)invocant)->outer;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method true
+  ret = SMOP__NATIVE__bool_true;
+
+%method entries
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  ret = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method postcircumfix:{ }
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+    SMOP__ID__postcircumfix_curly,
+    SMOP__NATIVE__capture_create(interpreter,
+     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,entries),SMOP__NATIVE__capture_positional(interpreter,capture,1),NULL},
+     (SMOP__Object*[]) {NULL})
+  );
+
+%method bind_key
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+    SMOP__ID__bind_key,
+    SMOP__NATIVE__capture_create(interpreter,
+     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,entries),SMOP__NATIVE__capture_positional(interpreter,capture,1),NULL},
+     (SMOP__Object*[]) {NULL})
+  );
+
+%method exists
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+    SMOP__ID__exists,
+    SMOP__NATIVE__capture_create(interpreter,
+     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,entries),SMOP__NATIVE__capture_positional(interpreter,capture,1),NULL},
+     (SMOP__Object*[]) {NULL})
+  );
+
+%method lookup_fail
+  SMOP__Object* name = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+  assert(name->RI == SMOP__ID__new->RI);
+  int retsize;
+  fprintf(stderr,"Could not find variable %s in the lexical scope.\n",SMOP__NATIVE__idconst_fetch_with_null(name, &retsize));
+  abort();
+
+%mold mold_code_lookup
+    my $capture;
+    my $back;
+    my $interpreter;
+
+    my $name = $capture."positional"(1);
+    my $invocant = $capture."invocant"();
+    my $exists = $invocant."exists"($name);
+    
+    my $void;
+    my $ret;
+    
+    if $exists {goto than} else {goto else};
+    than:
+      $ret = $invocant."postcircumfix:{ }"($name);
+      $void = $back."setr"($ret);
+      $void = $interpreter."goto"($back);
+    else:
+      my $outer = $invocant."outer"();
+      my $outer_true = $outer."true"();
+      my $outer_cell = $outer."FETCH"();
+      if $outer_true {goto than2} else {goto else2};
+      than2:
+        $ret = $outer_cell."lookup"($name);
+        $void = $back."setr"($ret);
+        $void = $interpreter."goto"($back);
+      else2:
+        $void = $invocant."lookup_fail"($name);
+
+%method lookup
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_code_lookup));
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+    SMOP__ID__continuation,
+    SMOP__NATIVE__capture_create(interpreter,
+     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+     (SMOP__Object*[]) {NULL})
+  );
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+  mold_reg_set(interpreter,frame,1,continuation);
+  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+              SMOP__ID__goto,
+              frame);
+
+%method DESTROYALL
+    smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+    SMOP__Object* outer = ((smop_s1p_lexicalscope_struct*)invocant)->outer;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+    SMOP_RELEASE(interpreter,entries);
+    SMOP_RELEASE(interpreter,outer);
+    SMOP_RELEASE(interpreter,RI);
+
+%method FETCH
+  ___VALUE_FETCH___
+
+%method STORE
+  ___VALUE_STORE___
