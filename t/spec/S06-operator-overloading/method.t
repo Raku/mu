@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 9*2;
+plan 18;
 
 # L<S06/"Operator overloading">
 # Later, we want to run the same tests with two classes, Foo and Bar.
@@ -11,19 +11,22 @@ plan 9*2;
 # stubclass, which is then given to &run_tests_with.
 # But if the class does compile, $foo_class and $bar_class will be set to the
 # correct classes (Foo and Bar), and the tests have a chance to succeed.
+
+#?pugs 99 todo 'operator overloading'
+
 class StubClass {}
 my ($foo_class, $bar_class) = (StubClass, StubClass);
 
     class Foo {
-    has $.bar is rw;
-    multi method prefix:<~> ($self)  { return $.bar }
-    multi method infix:<+>  ($a, $b) { return "$a $b" }
+        has $.bar is rw;
+        multi method prefix:<~> ($self)  { return $.bar }
+        multi method infix:<+>  ($a, $b) { return "$a $b" }
     }
 
     $foo_class = Foo;
 
     class Bar {
-    has $.bar is rw;
+        has $.bar is rw;
     }
 
     multi sub prefix:<~> (Bar $self)      { return $self.bar }
@@ -41,15 +44,15 @@ sub run_tests_with($class) {
         my $foo = $class.new();
         $foo.bar = 'software';
         $val = "$foo"
-    }, '... class methods work for class', :todo<feature>;
-    is($val, 'software', '... basic prefix operator overloading worked', :todo<feature>);
+    }, '... class methods work for class';
+    is($val, 'software', '... basic prefix operator overloading worked');
 
     lives_ok {
         my $foo = $class.new();
         $foo.bar = 'software';
         $val = $foo + $foo;
-    }, '... class methods work for class', :todo<feature>;
-    is($val, 'software software', '... basic infix operator overloading worked', :todo<feature>);
+    }, '... class methods work for class';
+    is($val, 'software software', '... basic infix operator overloading worked');
     }
 
     # Test that the object is correctly stringified when it is in an array.
@@ -59,14 +62,14 @@ sub run_tests_with($class) {
       lives_ok {
       $obj     = $class.new;
       $obj.bar = "pugs";
-      }, "instantiating a class which defines operators worked", :todo<feature>;
+      }, "instantiating a class which defines operators worked";
 
       my @foo = ($obj, $obj, $obj);
       my $res;
-      lives_ok { $res = ~@foo }, "stringification didn't die", :todo<feature>;
-      is $res, "pugs pugs pugs", "stringification overloading worked in array stringification", :todo<feature>;
+      lives_ok { $res = ~@foo }, "stringification didn't die";
+      is $res, "pugs pugs pugs", "stringification overloading worked in array stringification";
 
-      lives_ok { $res = ~[@foo »~« "!"] }, "stringification with hyperization didn't die", :todo<feature>;
-      is $res, "pugs! pugs! pugs!", "stringification overloading was hyperized correctly", :todo<feature>;
+      lives_ok { $res = ~[@foo »~« "!"] }, "stringification with hyperization didn't die";
+      is $res, "pugs! pugs! pugs!", "stringification overloading was hyperized correctly";
     }
 }
