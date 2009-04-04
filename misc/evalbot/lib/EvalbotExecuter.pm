@@ -115,7 +115,7 @@ sub _fork_and_eval {
     close $fh;
     open ($fh, '<:encoding(UTF-8)', $filename) or confess "Can't open temp file <$filename>: $!";
     my $result = do { local $/; <$fh> };
-    unlink $filename;
+    unlink $filename or warn "couldn't delete '$filename': $!";
     if (reftype($executer) eq 'HASH' && $executer->{filter}){
         return $executer->{filter}->($result);
     } 
