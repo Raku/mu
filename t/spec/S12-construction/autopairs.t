@@ -13,12 +13,12 @@ L<S02/"Literals"/"There is now a generalized adverbial form">
 
 # L<S02/"Literals"/"There is now a generalized adverbial form">
 {
-    ok(eval('my $a; class b { has $.a }; my b $c .= new(:$a)'),
+    eval_lives_ok('my $a; class Ta { has $.a }; my Ta $c .= new(:$a)',
             'class instantiation with autopair, no spaces');
-    ok(eval('my $a; class b { has $.a }; my b $c .= new(:$a )'),
+    eval_lives_ok('my $a; class Tb { has $.a }; my Tb $Tb .= new(:$a )',
             'class instantiation with autopair, spaces');
-    ok(eval('my $a; role b { has $.a }; my b $c .= new(:$a)'),
+    eval_lives_ok('my $a; role Tc { has $.a }; my Tc $c .= new(:$a)',
             'role instantiation with autopair, no spaces');
-    ok(eval('my $a; role b { has $.a }; my b $c .= new(:$a )'),
+    eval_lives_ok('my $a; role Td { has $.a }; my Td $c .= new(:$a )',
             'role instantiation with autopair, spaces');
 }
