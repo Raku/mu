@@ -1,0 +1,16 @@
+%RI.id s1p Hash
+%prefix smop_s1p_hash
+%{
+SMOP__Object* SMOP__S1P__Hash_create(void) {
+    smop_s1p_hash_struct* ret = (smop_s1p_hash_struct*) smop_nagc_alloc(sizeof(smop_s1p_hash_struct));
+    ret->RI = RI;
+    return (SMOP__Object*) ret;
+}
+%}
+%method new
+    ret = SMOP__S1P__Hash_create();
+
+%method FETCH
+    ___VALUE_FETCH___;
+%method STORE
+    ___VALUE_STORE___;

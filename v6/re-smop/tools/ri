@@ -206,6 +206,7 @@ void $properties{prefix}_init(SMOP__Object* interpreter) {
     DESTROYALL,
     "$id");
 ];
+
 for (keys %methods) {
     print "  ",mangle($_)," = ","SMOP__NATIVE__idconst_create(\"$_\");\n";
 }
@@ -218,6 +219,7 @@ if ($properties{prototype}) {
   $properties{prototype} = SMOP__Proto__create($RI);
 ];
 }
+print $raw{'init'} || '';
 
 print "}\n";
 

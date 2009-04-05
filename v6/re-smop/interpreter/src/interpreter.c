@@ -5,6 +5,7 @@
 #include <smop/capture.h>
 #include <smop/nagc.h>
 #include <smop/s0native.h>
+#include <smop/util.h>
 
 static SMOP__Object* SMOP__ID__new;
 static SMOP__Object* SMOP__ID__goto;
@@ -99,7 +100,7 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
       smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
     }
   } else {
-    printf("unknown method identifier\n");
+    ___UNKNOWN_METHOD___;
   }
   SMOP_RELEASE(interpreter, invocant);
   SMOP_RELEASE(interpreter, capture);

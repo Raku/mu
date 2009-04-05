@@ -127,9 +127,13 @@
   mold_reg_set(interpreter,frame,1,continuation);
   mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
 
+
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
               SMOP__ID__goto,
-              frame);
+    SMOP__NATIVE__capture_create(interpreter,
+     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
+     (SMOP__Object*[]) {NULL})
+  );
 
 %DESTROYALL {
     smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);

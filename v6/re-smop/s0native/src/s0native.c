@@ -20,7 +20,7 @@ SMOP__Object* smop_placeholder_message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
   int retsize;
-  fprintf(stderr,"MESSAGE is not filled in yet: %s\n",SMOP__NATIVE__idconst_fetch_with_null(identifier,&retsize));
+  fprintf(stderr,"MESSAGE is not filled in yet: %s RI: %s\n",SMOP__NATIVE__idconst_fetch_with_null(identifier,&retsize),self->id);
   abort();
 }
 
