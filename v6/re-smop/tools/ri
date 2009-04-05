@@ -190,7 +190,7 @@ print q[
 
 print qq[
 static void DESTROYALL(SMOP__Object* interpreter,
-                              SMOP__Object* value) {
+                              SMOP__Object* invocant) {
 ];
 print $raw{'DESTROYALL'} || '';
 print qq[

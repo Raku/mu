@@ -1,0 +1,64 @@
+%prefix smop_s1p_scalar
+%include <assert.h>,<smop/s1p.h>
+%attr  SMOP__Object* cell;
+
+%{
+static SMOP__Object* SMOP__ID__true;
+SMOP__Object* SMOP__S1P__Scalar_create(SMOP__Object* interpreter,SMOP__Object* initial_value) {
+  assert(initial_value);
+  SMOP__Object* ret = smop_nagc_alloc(sizeof(smop_s1p_scalar_struct));
+  ret->RI = (SMOP__ResponderInterface*)RI;
+  ((smop_s1p_scalar_struct*)ret)->cell = initial_value;
+  return ret;
+}
+
+static SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
+ smop_nagc_rdlock((SMOP__NAGC__Object*)object);
+  SMOP__Object* val = ((smop_s1p_scalar_struct*)object)->cell;
+ smop_nagc_unlock((SMOP__NAGC__Object*)object);
+  return val;
+}
+%}
+
+%init {
+  SMOP__ID__true = SMOP__NATIVE__idconst_create("true");
+%}
+
+%method FETCH
+    ret = SMOP__S1P__Scalar_FETCH(invocant);
+    if (ret)
+      SMOP_REFERENCE(interpreter,ret);
+
+%method true
+    SMOP__Object* cell = SMOP__S1P__Scalar_FETCH(invocant);
+    ret = SMOP_DISPATCH(interpreter, SMOP_RI(cell),
+      SMOP__ID__true,
+      SMOP__NATIVE__capture_create(interpreter,
+        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,cell),NULL},
+        (SMOP__Object*[]) {NULL}
+      )
+    );
+
+%method STORE
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+    if (!value) printf("storing null pointer ugh\n");
+    smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object* old = ((smop_s1p_scalar_struct*)invocant)->cell;
+    ((smop_s1p_scalar_struct*)invocant)->cell = value;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+    if (old) SMOP_RELEASE(interpreter,old);
+    ret = value;
+    SMOP_REFERENCE(interpreter,ret);
+
+%method new
+    SMOP__Object* cell = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+    if (!cell) cell = SMOP__NATIVE__bool_false;
+    ret = SMOP__S1P__Scalar_create(interpreter,cell);
+
+%DESTROYALL {
+    smop_s1p_scalar_struct* s = (smop_s1p_scalar_struct*)invocant;
+    smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object* cell = s->cell; s->cell = NULL;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+    if (cell) SMOP_RELEASE(interpreter,cell);
+%}
