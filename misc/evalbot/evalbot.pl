@@ -61,12 +61,6 @@ package Evalbot;
                 cmd_line    => 'echo | ./elf_h %program >> %out 2>&1',
                 revision    => \&get_revision,
             },
-            kp6 => {
-                chdir       => '../../v6/v6-KindaPerl6/',
-                cmd_line    => "$^X script/kp6 --secure < \%program >\%out 2>&1",
-                revision    => \&get_revision,
-                filter      => \&filter_kp6,
-            },
             rakudo => {
                 chdir       => '../../../rakudo/',
                 cmd_line    => 'echo | ./perl6 %program >> %out 2>&1',

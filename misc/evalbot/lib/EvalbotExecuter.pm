@@ -145,10 +145,9 @@ sub _auto_execute {
 
 sub _set_resource_limits {
 # stolen from evalhelper-p5.pl
-# 5s-7s CPU time, 100 MiB RAM, maximum of 500 bytes output.
-    setrlimit RLIMIT_CPU,   15, 20                   or confess "Couldn't setrlimit: $!\n";
+    setrlimit RLIMIT_CPU,   5, 20                   or confess "Couldn't setrlimit: $!\n";
     setrlimit RLIMIT_VMEM,  180 * 2**20, 200 * 2**20 or confess "Couldn't setrlimit: $!\n";
-# STD.pm has a lexing subdir, about 2MB in size, so allow 5MB
+# STD.pm has a lexing subdir, varying in size, so allow 15MB
     my $size_limit = 15 * 1024**2;
     setrlimit RLIMIT_FSIZE, $size_limit, $size_limit or confess "Couldn't setrlimit: $!\n";
 }
