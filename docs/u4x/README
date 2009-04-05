@@ -14,10 +14,10 @@ The documentation writing will be done in a controlled manner, where
 consistent. All the documentation will be written in Pod, the Perl 6 version
 of POD.
 
-The command line tool (named 'psi') should be written in Perl 6, because
+The command line tool (named 'grok') should be written in Perl 6, because
 there's no reason not to.
 
-Here are the things that should give appropriate responses by psi:
+Here are the things that should give appropriate responses by grok:
 
 * all core Perl 6 classes
 * all of their methods (with or without a class prefix)
@@ -33,14 +33,14 @@ Here are the things that should give appropriate responses by psi:
 
 See TODO for a more comprehensive listing of things that need to be documented.
 
-psi will be accomodating and understand the basics of Perl 6 syntax. When the
+grok will be accomodating and understand the basics of Perl 6 syntax. When the
 following things are requested
 
   @array>>.trim
   .=abs
   [+]
 
-psi will understand that the user is actually asking two separate questions in
+grok will understand that the user is actually asking two separate questions in
 each case, and will answer both:
 
   the '>>' operator (as applied to method calls), trim
