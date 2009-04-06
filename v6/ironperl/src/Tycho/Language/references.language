@@ -1,8 +1,0 @@
-﻿parser references
-	reference namespaces "," ... "=>" module-loader :: module-loader
-
-parser module-loader
-	http "http" url
-	file-system "file-system" path
-	native "native" assembly-names "," ...
-	assembly "assembly" assembly-name
