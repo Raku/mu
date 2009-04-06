@@ -14,3 +14,6 @@ SMOP__Object* SMOP__S1P__Hash_create(void) {
     ___VALUE_FETCH___;
 %method STORE
     ___VALUE_STORE___;
+
+%method postcircumfix:{ }
+    printf("Hash.{}\n");

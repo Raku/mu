@@ -96,7 +96,9 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
 
     while (cont && SMOP_DISPATCH(invocant, SMOP_RI(cont), SMOP__ID__eval,SMOP__NATIVE__capture_create(invocant,(SMOP__Object*[]) {SMOP_REFERENCE(invocant,cont), NULL}, (SMOP__Object*[]) {NULL})) == SMOP__NATIVE__bool_true) {
       smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
-      SMOP__Object* cont = ((interpreter_struct*)invocant)->continuation;
+      if (cont != ((interpreter_struct*)invocant)->continuation) {
+      }
+      cont = ((interpreter_struct*)invocant)->continuation;
       smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
     }
   } else {
