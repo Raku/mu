@@ -106,6 +106,15 @@ However it's result isn't guarantued to be of any canonical form, for example
 C<Str.perl> might return any legal quoting syntax. Testing for the exact value
 of C<$anything.perl> is most likely an error
 
+=head2 Type contraints on containers
+
+Use type constraints only where they are needed to test what you want to test.
+Especially be aware that C<my Int @a> declares an Array of Int values, and by
+the same token C<my Array @a> actually declares an Array of Arrays. Most of
+the time that's not what you want. The same goes for variables with the C<%>
+and C<&> sigil: an additional type constraint acts on the values (or the
+return value in case of C<&>).
+
 =head2 Junction.values is now Junction.eigenstates
 
 Calling C<.values> on a junction ordinarily autothreads. To get the values,
@@ -130,3 +139,5 @@ implementations, this should be replaced with a fudge command:
     is(foo(), bar(), 'testing whatever');
 
 =cut
+
+# vim: spell spelllang=en_us
