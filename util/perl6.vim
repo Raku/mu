@@ -82,7 +82,7 @@ let s:keywords = {
  \   "ACHTUNG ATTN ATTENTION FIXME NB TODO TBD WTF XXX NOTE",
  \ ],
  \ "p6DeclareRoutine": [
- \   "macro sub submethod method multi only rule token regex category",
+ \   "macro sub submethod method multi proto only rule token regex category",
  \ ],
  \ "p6Module": [
  \   "module class role package enum grammar subset self",
@@ -94,7 +94,7 @@ let s:keywords = {
  \   "if else elsif unless",
  \ ],
  \ "p6VarStorage": [
- \   "let my our state temp has proto constant",
+ \   "let my our state temp has constant",
  \ ],
  \ "p6Repeat": [
  \   "for loop repeat while until gather given",
