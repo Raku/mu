@@ -3,7 +3,7 @@
 %{
 SMOP__Object* SMOP__S1P__Hash_create(void) {
     smop_s1p_hash_struct* ret = (smop_s1p_hash_struct*) smop_nagc_alloc(sizeof(smop_s1p_hash_struct));
-    ret->RI = RI;
+    ret->RI = (SMOP__ResponderInterface*)RI;
     return (SMOP__Object*) ret;
 }
 %}
@@ -17,3 +17,5 @@ SMOP__Object* SMOP__S1P__Hash_create(void) {
 
 %method postcircumfix:{ }
     printf("Hash.{}\n");
+%method exists
+    printf("Hash.exists\n");

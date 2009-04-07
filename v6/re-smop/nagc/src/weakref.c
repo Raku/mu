@@ -5,8 +5,6 @@
 
 
 SMOP__NAGC__ResponderInterface* SMOP__NAGC__WeakRef__RI;
-static SMOP__Object* idconst_ref;
-static SMOP__Object* idconst_redispatch;
 
 // this creates a new weakref pointing to value
 SMOP__Object* smop_nagc_weakref_create(SMOP__NAGC__Object* value) {

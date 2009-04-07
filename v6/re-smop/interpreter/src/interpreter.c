@@ -106,13 +106,14 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
   }
   SMOP_RELEASE(interpreter, invocant);
   SMOP_RELEASE(interpreter, capture);
+  return ret;
 }
 
 
 SMOP__Object* SMOP_interpreter_create(SMOP__Object* interpreter) {
   interpreter_struct* ret = (interpreter_struct*) smop_nagc_alloc(sizeof(interpreter_struct));
   ret->continuation = NULL;
-  ret->RI = RI;
+  ret->RI = (SMOP__ResponderInterface*)RI;
   return (SMOP__Object*) ret;
 }
 

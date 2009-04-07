@@ -72,7 +72,7 @@ static void print_regs_content(smop_mold_frame* frame) {
     }
 }
 
-SMOP__Object* mold_back_set(SMOP__Object* interpreter,SMOP__Object* moldframe, SMOP__Object* value) {
+void mold_back_set(SMOP__Object* interpreter,SMOP__Object* moldframe, SMOP__Object* value) {
     smop_mold_frame* frame = (smop_mold_frame*) moldframe;
     if (frame->back) {
       printf("Cannot redefine mold back!");

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <smop/capture.h>
 #include <smop/s0native.h>
+#include <smop/nagc.h>
 int main() {
   printf("1..5\n");
   smop_s0native_init();

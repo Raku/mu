@@ -69,7 +69,7 @@ static void DESTROYALL(SMOP__Object* interpreter,
 
 SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Object** positional,SMOP__Object** named) {
   capture_struct* ret = (capture_struct*) smop_nagc_alloc(sizeof(capture_struct));
-  ret->RI = SMOP__capture__RI;
+  ret->RI = (SMOP__ResponderInterface*)SMOP__capture__RI;
 
   ret->named = smop_hash_create(interpreter,20);
 
