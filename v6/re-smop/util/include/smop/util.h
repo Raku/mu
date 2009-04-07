@@ -1,5 +1,7 @@
 #ifndef SMOP_UTIL_H
 #define SMOP_UTIL_H
+#include <stdio.h>
+#include <stdlib.h>
 #define ___VALUE_FETCH___\
         SMOP_REFERENCE(interpreter,(SMOP__Object*) invocant);\
     ret = invocant;

@@ -27,5 +27,7 @@ void smop_native_int_init(SMOP__Object* interpreter);
 void smop_native_int_destr(SMOP__Object* interpreter);
 void smop_nagc_ri_init();
 void smop_nagc_ri_destr();
+void smop_capture_message_init();
+void smop_capture_message_destr();
 
 #endif

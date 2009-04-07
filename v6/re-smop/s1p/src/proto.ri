@@ -1,0 +1,19 @@
+%prefix smop_s1p_proto
+%attr SMOP__Object* delegate_to_RI
+%RI.id prototype
+%{
+SMOP__Object* SMOP__Proto__create(SMOP__Object* delegate_to_RI) {
+ SMOP__Object* ret = smop_nagc_alloc(sizeof(smop_s1p_proto_struct));
+ ((smop_s1p_proto_struct*)ret)->delegate_to_RI = delegate_to_RI;
+ ret->RI = (SMOP__ResponderInterface*)RI;
+ return ret;
+}
+%}
+%method new
+    ret = SMOP_DISPATCH(interpreter,((smop_s1p_proto_struct*)invocant)->delegate_to_RI,identifier,SMOP_REFERENCE(interpreter,capture));
+%method FETCH
+  ___VALUE_FETCH___;
+%method STORE ___VALUE_STORE___;
+
+
+

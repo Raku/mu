@@ -92,7 +92,7 @@
     my $interpreter;
 
     my $name = $capture."positional"(1);
-    my $invocant = $capture."invocant"();
+    my $invocant = $capture."positional"(0);
     my $exists = $invocant."exists"($name);
     
     my $void;

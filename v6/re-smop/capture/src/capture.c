@@ -3,7 +3,7 @@
 #include <smop/nagc.h>
 #include <smop/s0native.h>
 
-static SMOP__NAGC__ResponderInterface* RI;
+SMOP__NAGC__ResponderInterface* SMOP__capture__RI;
 
 typedef struct smop_hash_bucket {
   struct smop_hash_bucket* next;
@@ -69,7 +69,7 @@ static void DESTROYALL(SMOP__Object* interpreter,
 
 SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Object** positional,SMOP__Object** named) {
   capture_struct* ret = (capture_struct*) smop_nagc_alloc(sizeof(capture_struct));
-  ret->RI = RI;
+  ret->RI = SMOP__capture__RI;
 
   ret->named = smop_hash_create(interpreter,20);
 
@@ -101,15 +101,15 @@ SMOP__Object* SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,SMOP__O
 }
 
 void smop_capture_init() {
-  RI = malloc(sizeof(SMOP__NAGC__ResponderInterface));
-  RI->MESSAGE = smop_placeholder_message;
-  RI->REFERENCE = smop_nagc_reference;
-  RI->RELEASE = smop_nagc_release;
-  RI->WEAKREF = smop_nagc_weakref;
-  RI->id = "Native Capture";
-  RI->DESTROYALL = DESTROYALL;
+  SMOP__capture__RI = malloc(sizeof(SMOP__NAGC__ResponderInterface));
+  SMOP__capture__RI->MESSAGE = smop_placeholder_message;
+  SMOP__capture__RI->REFERENCE = smop_nagc_reference;
+  SMOP__capture__RI->RELEASE = smop_nagc_release;
+  SMOP__capture__RI->WEAKREF = smop_nagc_weakref;
+  SMOP__capture__RI->id = "capture";
+  SMOP__capture__RI->DESTROYALL = DESTROYALL;
 }
 
 void smop_capture_destr() {
-  free(RI);
+  free(SMOP__capture__RI);
 }
