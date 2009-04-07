@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Mar 30th 2009
+" Last Change:  Apr 7th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -239,7 +239,7 @@ let s:routines = [
  \ "unwrap getc pi e context void quasi body each contains rewinddir subst",
  \ "can isa flush arity assuming rewind callwith callsame nextwith nextsame",
  \ "attr eval_elsewhere none srand trim trim_start trim_end lastcall WHAT",
- \ "WHERE HOW WHICH VAR WHO WHENCE ACCEPTS does not true iterator",
+ \ "WHERE HOW WHICH VAR WHO WHENCE ACCEPTS does not true iterator by",
 \ ]
 
 " we want to highlight builtins like split() though, so this comes afterwards
@@ -2116,7 +2116,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Routine        Keyword
     HiLink p6Module         Keyword
     HiLink p6DeclareRoutine Keyword
-    HiLink p6VarStorage     Keyword
+    HiLink p6VarStorage     Special
     HiLink p6FlowControl    Special
     HiLink p6NumberBase     Special
     HiLink p6Twigil         Special
