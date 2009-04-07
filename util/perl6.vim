@@ -15,6 +15,8 @@
 "     # vim: filetype=perl6
 
 " TODO:
+"   * Maybe color subscript characters as part of the variable name
+"     to distinguish them from blocks, like perl.vim does
 "   * Deal with s:Perl5//
 "   * Allow more keywords to match as function calls(leave(), etc)
 "   * Optimization: use nextgroup instead of lookaround (:help syn-nextgroup)
