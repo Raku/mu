@@ -94,7 +94,7 @@ void mold_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum,
 
 SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* mold_object) {
     if (mold_object->RI != (SMOP__ResponderInterface*)SMOP__Mold) {
-      fprintf(stderr,"argument to SMOP__Mold__Frame_create is not Mold\n");
+      fprintf(stderr,"argument to SMOP__Mold__Frame_create is not Mold <%s>\n",SMOP_RI(mold_object)->id);
     }
     smop_mold* mold = (smop_mold*) mold_object;
     smop_mold_frame* ret = (smop_mold_frame*) smop_nagc_alloc(sizeof(smop_mold_frame));
@@ -190,7 +190,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
   smop_mold* mold = (smop_mold*) frame->mold;
 
   if (SMOP__ID__new == identifier) {
-    SMOP__Object* mold = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    SMOP__Object* mold = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     ret = SMOP__Mold__Frame_create(interpreter,mold);
 
   } else if (SMOP__ID__true == identifier) {
@@ -220,7 +220,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     }
 
   } else if (SMOP__ID__set_back == identifier) {
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     if (!frame->back) {
       frame->back = value;
     } else {
@@ -229,7 +229,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     }
 
   } else if (SMOP__ID__set_control == identifier) {
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     if (!frame->control) {
       frame->control = value;
     } else {
@@ -238,7 +238,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     }
 
   } else if (SMOP__ID__set_catch == identifier) {
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     if (!frame->catch) {
       frame->catch = value;
     } else {
@@ -247,7 +247,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     }
 
   } else if (SMOP__ID__set_lexical == identifier) {
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     if (!frame->lexical) {
       frame->lexical = value;
     } else {
@@ -256,7 +256,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     }
 
   } else if (SMOP__ID__setr == identifier) {
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 0);
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     if (!value) {
       printf("got null as a result of a call (reg = %d, pos = %d) via setr\n",frame->target, frame->position);
       abort();

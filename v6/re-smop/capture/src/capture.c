@@ -97,7 +97,12 @@ SMOP__Object* SMOP__NATIVE__capture_named(SMOP__Object* interpreter,SMOP__Object
 }
 
 SMOP__Object* SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,SMOP__Object* capture,int i) {
-  return SMOP_REFERENCE(interpreter,((capture_struct*)capture)->positional[i]);
+  if (i < ((capture_struct*)capture)->positional_count) {
+    return SMOP_REFERENCE(interpreter,((capture_struct*)capture)->positional[i]);
+  } else {
+    printf("positional_count = %d i = %d\n",((capture_struct*)capture)->positional_count,i);
+    abort();
+  }
 }
 
 void smop_capture_init() {

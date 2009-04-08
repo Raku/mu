@@ -20,8 +20,12 @@ void smop_s1p_scalar_init(SMOP__Object* interpreter);
 void smop_s1p_hash_init(SMOP__Object* interpreter);
 void smop_s1p_hash_destr(SMOP__Object* interpreter);
 
+void smop_s1p_hash_bvalue_init(SMOP__Object* interpreter);
+void smop_s1p_hash_bvalue_destr(SMOP__Object* interpreter);
+
 SMOP__Object* SMOP__S1P__Scalar_create(SMOP__Object* interpreter,SMOP__Object* initial_value);
 
 SMOP__Object* SMOP__Proto__create(SMOP__Object* delegate_to_RI);
 SMOP__Object* SMOP__S1P__Hash_create();
+SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Object* owner, SMOP__Object* key);
 #endif

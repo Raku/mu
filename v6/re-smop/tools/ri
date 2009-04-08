@@ -6,6 +6,7 @@ use IO::Select;
 use IO::Handle;
 use IPC::Open2;
 use Symbol;
+use List::MoreUtils qw(uniq);
 require 'mangle.pl';
 
 
@@ -25,7 +26,7 @@ sub preprocess {
 }
 sub mangle {
     my $id = shift;
-    return 'ID__'.::mangle($id);
+    return 'SMOP__ID__'.::mangle($id);
 }
 
 my @properties = qw(RI RI.id prefix include prototype singleton);
@@ -39,6 +40,7 @@ my $mold;
 
 my @attrs;
 my @getters;
+my @idconsts;
 
 my %raw;
 
@@ -80,6 +82,8 @@ while (my $line = <>) {
         debug "mold start:$mold\n";
     } elsif ($line =~ /^%attr\s*(.*)\n$/) {
         push(@attrs,$1);
+    } elsif ($line =~ /^%idconst\s*(.*)\n$/) {
+        push(@idconsts,$1);
     } elsif ($line =~ /^%getter\s*(\S+)$/) {
         push(@getters,$1);
     } elsif ($line =~ / ^\s*$ | ^\# | ^\/\/ /x) {
@@ -128,15 +132,12 @@ if ($properties{RI}) {
     print "static SMOP__Object* RI;\n";
 }
 my $RI = $properties{RI} || 'RI';
-my %declared_ids;
-for (keys %methods) {
-    next if $declared_ids{mangle($_)}++;
+@idconsts = uniq(keys %methods,@getters,@idconsts);
+
+for (@idconsts) {
     print 'static SMOP__Object* ',mangle($_),";\n";
 }
-for (@getters) {
-    next if $declared_ids{mangle($_)}++;
-    print 'static SMOP__Object* ',mangle($_),";\n";
-}
+
 for (keys %mold) {
     print 'static SMOP__Object* ',$_,";\n";
 }
@@ -207,7 +208,7 @@ void $properties{prefix}_init(SMOP__Object* interpreter) {
     "$id");
 ];
 
-for (keys %methods) {
+for (@idconsts) {
     print "  ",mangle($_)," = ","SMOP__NATIVE__idconst_create(\"$_\");\n";
 }
 while (my ($name,$mold) = each %mold) {

@@ -1,6 +1,7 @@
 %prefix smop_s1p_scalar
 %include <assert.h>,<smop/s1p.h>
 %attr  SMOP__Object* cell;
+%RI.id Scalar
 
 %{
 static SMOP__Object* SMOP__ID__true;

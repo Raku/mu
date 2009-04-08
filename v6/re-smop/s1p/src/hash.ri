@@ -16,6 +16,8 @@ SMOP__Object* SMOP__S1P__Hash_create(void) {
     ___VALUE_STORE___;
 
 %method postcircumfix:{ }
-    printf("Hash.{}\n");
+    SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    ret = SMOP__S1P__Hash_BValue_create(interpreter,SMOP_REFERENCE(interpreter,(SMOP__Object*)invocant),SMOP_REFERENCE(interpreter,key));
 %method exists
     printf("Hash.exists\n");
+    ret = SMOP__NATIVE__bool_true;
