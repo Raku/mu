@@ -755,10 +755,6 @@ exec "syn match p6Operator display \">>"          .s:infix."<<\""
 exec "syn match p6Operator display \"<<"          .s:infix.">>\""
 unlet s:infix
 
-" TODO: maybe adjust/merge these
-syn match p6CustomRoutine display "\%(\<\%(sub\|method\|submethod\|macro\)\s\+\)\@<=\K\%(\k\|[-']\K\@=\)*"
-syn match p6CustomRoutine display "\%(\<\%(multi\|proto\|only\)\s\+\)\@<=\%(\%(sub\|method\|submethod\|rule\|regex\|token\)\>\)\@!\K\%(\k\|[-']\K\@=\)*"
-
 " Regexes and grammars
 
 syn match p6RegexName display "\%(\<\%(regex\|rule\|token\)\s\+\)\@<=\K\%(\k\|[-']\K\@=\)*" nextgroup=p6RegexBlockCrap skipwhite skipempty
@@ -2116,7 +2112,6 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Repeat         Repeat
     HiLink p6Keyword        Keyword
     HiLink p6Pragma         Keyword
-    HiLink p6Routine        Keyword
     HiLink p6Module         Keyword
     HiLink p6DeclareRoutine Keyword
     HiLink p6VarStorage     Special
@@ -2129,8 +2124,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Include        Include
     HiLink p6Shebang        PreProc
     HiLink p6ClosureTrait   PreProc
-    HiLink p6CustomRoutine  Function
-    HiLink p6RegexName      Function
+    HiLink p6Routine        Function
     HiLink p6Operator       Operator
     HiLink p6Context        Operator
     HiLink p6Placeholder    Operator
