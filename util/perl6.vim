@@ -16,6 +16,8 @@
 
 " TODO:
 "   * Deal with s:Perl5//
+"   * Make these highlight as strings, not operators:
+"       <==> <=:=> <===> <=~>
 "   * Allow more keywords to match as function calls(leave() is export(), etc)
 "   * Optimization: use nextgroup instead of lookaround (:help syn-nextgroup)
 "   * Fix s''' substitutions being matched as package names
