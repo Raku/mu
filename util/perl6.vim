@@ -29,6 +29,9 @@
 " Impossible TODO?:
 "   * Unspace
 "   * Unicode bracketing characters for quoting (there are so many)
+"   * Various tricks depending on context. I.e. we can't know when Perl 
+"     expects «*» to be a string or a hyperoperator. The latter is presumably
+"     more common, so that's what we assume.
 "   * Selective highlighting of Pod formatting codes with the :allow option
 "   * Arbitrary number, order, and negation of adverbs to Q//, q//, qq//.
 "     Currently only the first adverb is considered significant. Anything
@@ -175,11 +178,12 @@ syn match p6Operator display "\%(&\.(\@=\|@\.\[\@=\|%\.{\@=\)"
 
 " all infix operators except nonassocative ones
 let s:infix_a = [
-    \ "\\* \\*\\* / div % mod +& +< +> \\~& ?& \\~< \\~> + - +| +\\^ \\~|",
-    \ "\\~\\^ ?| ?\\^ xx x \\~ & also | \\~ <== ==> <<== ==>> == != < <= > >=",
-    \ "\\~\\~ eq ne lt le gt ge =:= === eqv before after && || \\^\\^ // min",
-    \ "max ff \\^ff ff\\^ \\^ff\\^ fff \\^fff fff\\^ \\^fff\\^ ::= := \\.=",
-    \ "=> , : p5=> Z minmax \\.\\.\\. and andthen or orelse xor \\^",
+    \ "div % mod +& +< +> \\~& ?& \\~< \\~> +| +\\^ \\~| \\~\\^ ?| ?\\^ xx x",
+    \ "\\~ && & also <== ==> <<== ==>> == != < <= > >= \\~\\~ eq ne lt le gt",
+    \ "ge =:= === eqv before after \\^\\^ min max \\^ff ff\\^ \\^ff\\^",
+    \ "\\^fff fff\\^ \\^fff\\^ fff ff ::= := \\.= => , : p5=> Z minmax",
+    \ "\\.\\.\\. and andthen or orelse xor \\^ += -= /= \\*= \\~= //= ||=",
+    \ "+ - \\*\\* \\* // / \\~ || |",
 \ ]
 " nonassociative infix operators
 let s:infix_n = "but does <=> leg cmp \\.\\. \\.\\.\\^\\^ \\^\\.\\. \\^\\.\\.\\^"
@@ -543,7 +547,7 @@ syn region p6Adverb
 "   people tend to put spaces around "less than"
 " * It comes after "enum", "for", "any", "all", or "none"
 " * It's the first or last thing on a line (ignoring whitespace)
-" * It's preceded by whitespace plus a "="
+" * It's preceded by "= "
 "
 " It never matches when:
 "
@@ -551,12 +555,12 @@ syn region p6Adverb
 " * Followed by [-=] (e.g. <--, <=, <==)
 syn region p6StringAngle
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(enum\|for\|any\|all\|none\)\>\s*(\?\s*\)\@<=<\%(<\|=>\|[-=]\{1,2}\)\@!"
-    \ start="\%(\s\|[<+~=]\)\@<!<\%(<\|=>\|[-=]\{1,2}\)\@!"
-    \ start="[<+~=]\@<!<\%(\s\|<\|=>\|[-=]\{1,2}\)\@!"
-    \ start="\%(^\s*\)\@<=<\%(<\|=>\|[-=]\{1,2}\)\@!"
+    \ start="\%(\<\%(enum\|for\|any\|all\|none\)\>\s*(\?\s*\)\@<=<\%(<\|=>\|[-=]\{1,2}>\@!\)\@!"
+    \ start="\%(\s\|[<+~=]\)\@<!<\%(<\|=>\|[-=]\{1,2}>\@!\)\@!"
+    \ start="[<+~=]\@<!<\%(\s\|<\|=>\|[-=]\{1,2}>\@!\)\@!"
+    \ start="\%(^\s*\)\@<=<\%(<\|=>\|[-=]\{1,2}>\@!\)\@!"
     \ start="[<+~=]\@<!<\%(\s*$\)\@="
-    \ start="\%(=\s\+\)\@=<\%(<\|=>\|[-=]\)\@!"
+    \ start="\%(=\s\+\)\@=<\%(<\|=>\|[-=]\{1,2}>\@!\)\@!"
     \ skip="\\\@<!\\>"
     \ end=">"
     \ contains=p6InnerAnglesOne,p6EscBackSlash,p6EscCloseAngle
