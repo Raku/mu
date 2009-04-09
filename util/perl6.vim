@@ -995,9 +995,9 @@ syn match p6PackageScope display "\%(\K\%(\k\|[-']\K\@=\)*\)\?::" nextgroup=p6Pa
 " TODO: mostly stolen from perl.vim, might need more work
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%([$@%&*]\@<!\%(\<\%(split\|while\|until\|if\|unless\)\|\.\.\|[-+*!~(\[{=]\)\s*\)\@<=/"
-    \ start="^/"
-    \ start=+\s\@<=/[^[:space:][:digit:]$@%=]\@=\%(/\_s*\%([([{$@%&*[:digit:]"'`]\|\_s\w\|[[:upper:]_abd-fhjklnqrt-wyz]\)\)\@!+
+    \ start="\%([$@%&*]\@<!\%(\<\%(split\|while\|until\|if\|unless\)\|\.\.\|[-+*!~(\[{=]\)\s*\)\@<=//\@!"
+    \ start="^//\@!"
+    \ start=+\s\@<=/[^[:space:][:digit:]$@%=]\@=\%(/\_s*\%([([{$@%&*[:digit:]"'`]\|\_s\w\|[[:upper:]_abd-fhjklnqrt-wyz]\)\)\@!/\@!+
     \ skip="\\/"
     \ end="/"
     \ contains=@p6Regexen,p6Variable,p6VarExclam,p6VarMatch,p6VarNum
@@ -1005,7 +1005,7 @@ syn region p6Match
 " m/foo/, mm/foo/, rx/foo/
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=/"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=//\@!"
     \ skip="\\/"
     \ end="/"
     \ keepend
@@ -1014,7 +1014,7 @@ syn region p6Match
 " m!foo!, mm!foo!, rx!foo!
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=!"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=!!\@!"
     \ skip="\\!"
     \ end="!"
     \ keepend
@@ -1023,7 +1023,7 @@ syn region p6Match
 " m$foo$, mm$foo$, rx$foo$, m|foo|, mm|foo|, rx|foo|, etc
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\z([\"'`|,$]\)"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\z([\"'`|,$]\)\$\@!"
     \ skip="\\\z1"
     \ end="\z1"
     \ keepend
@@ -1032,7 +1032,7 @@ syn region p6Match
 " m (foo), mm (foo), rx (foo)
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s\+\)\@<=()\@!"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s\+\)\@<=()\@!)\@!"
     \ skip="\\)"
     \ end=")"
     \ contains=@p6Regexen,@p6Variables
@@ -1040,7 +1040,7 @@ syn region p6Match
 " m[foo], mm[foo], rx[foo]
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\[]\@!"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=\[]\@!]\@!"
     \ skip="\\]"
     \ end="]"
     \ contains=@p6Regexen,@p6Variables
@@ -1048,7 +1048,7 @@ syn region p6Match
 " m{foo}, mm{foo}, rx{foo}
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<={}\@!"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<={}\@!}\@!"
     \ skip="\\}"
     \ end="}"
     \ contains=@p6Regexen,@p6Variables
@@ -1056,7 +1056,7 @@ syn region p6Match
 " m<foo>, mm<foo>, rx<foo>
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=<>\@!"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=<>\@!>\@!"
     \ skip="\\>"
     \ end=">"
     \ contains=@p6Regexen,@p6Variables
@@ -1064,7 +1064,7 @@ syn region p6Match
 " m«foo», mm«foo», rx«foo»
 syn region p6Match
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=«»\@!"
+    \ start="\%(\<\%(mm\?\|rx\)\%(\s*:!\?\k\%(\k\|[-']\K\@=\)*\%(([^)]*)\)\?\)*\s*\)\@<=«»\@!»\@!"
     \ skip="\\»"
     \ end="»"
     \ contains=@p6Regexen,@p6Variables
