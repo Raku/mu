@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Apr 7th 2009
+" Last Change:  Apr 9th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -15,8 +15,6 @@
 "     # vim: filetype=perl6
 
 " TODO:
-"   * Maybe color subscript characters as part of the variable name
-"     to distinguish them from blocks, like perl.vim does
 "   * Deal with s:Perl5//
 "   * Allow more keywords to match as function calls(leave(), etc)
 "   * Optimization: use nextgroup instead of lookaround (:help syn-nextgroup)
