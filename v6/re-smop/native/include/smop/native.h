@@ -29,5 +29,7 @@ void smop_nagc_ri_init();
 void smop_nagc_ri_destr();
 void smop_capture_message_init();
 void smop_capture_message_destr();
+void smop_bool_message_init();
+void smop_bool_message_destr();
 
 #endif

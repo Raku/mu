@@ -34,6 +34,8 @@ SMOP should then be divided into the following modules
    the types that use it that is called during destruction, as opposed
    to calling the DESTROYALL method.
 
+ util
+
  capture - This module implements the native capture which is the base
    for the implementation of smop method calls. It is packaged
    separatedly because it is needed for far too many types.

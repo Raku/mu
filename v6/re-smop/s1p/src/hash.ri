@@ -1,14 +1,17 @@
 %RI.id s1p Hash
+%include <smop/s1p.h>
 %prefix smop_s1p_hash
+%attr smop_util_hash* hash
 %{
-SMOP__Object* SMOP__S1P__Hash_create(void) {
+SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
     smop_s1p_hash_struct* ret = (smop_s1p_hash_struct*) smop_nagc_alloc(sizeof(smop_s1p_hash_struct));
+    ret->hash = smop_util_hash_create(interpreter,20);
     ret->RI = (SMOP__ResponderInterface*)RI;
     return (SMOP__Object*) ret;
 }
 %}
 %method new
-    ret = SMOP__S1P__Hash_create();
+    ret = SMOP__S1P__Hash_create(interpreter);
 
 %method FETCH
     ___VALUE_FETCH___;
@@ -17,7 +20,25 @@ SMOP__Object* SMOP__S1P__Hash_create(void) {
 
 %method postcircumfix:{ }
     SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
-    ret = SMOP__S1P__Hash_BValue_create(interpreter,SMOP_REFERENCE(interpreter,(SMOP__Object*)invocant),SMOP_REFERENCE(interpreter,key));
+    ret = SMOP__S1P__Hash_BValue_create(interpreter,SMOP_REFERENCE(interpreter,invocant),SMOP_REFERENCE(interpreter,key));
 %method exists
-    printf("Hash.exists\n");
-    ret = SMOP__NATIVE__bool_true;
+    SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    smop_util_hash* hash = ((smop_s1p_hash_struct*)invocant)->hash;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+    ret = smop_util_hash_get(interpreter,hash,key) ? SMOP__NATIVE__bool_true : SMOP__NATIVE__bool_false;
+
+%method lookup_key
+    SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    smop_util_hash* hash = ((smop_s1p_hash_struct*)invocant)->hash;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+    ret = smop_util_hash_get(interpreter,hash,key);
+    if (!ret) {
+      ret = SMOP__S1P__Scalar_create(interpreter,SMOP__NATIVE__bool_false);
+      smop_util_hash_set(interpreter,hash,key,ret);
+    }
