@@ -85,7 +85,10 @@ let s:keywords = {
  \   "macro sub submethod method multi proto only rule token regex category",
  \ ],
  \ "p6Module": [
- \   "module class role package enum grammar subset self",
+ \   "module class role package enum grammar subset",
+ \ ],
+ \ "p6Variable": [
+ \   "self",
  \ ],
  \ "p6Include": [
  \   "use require",
