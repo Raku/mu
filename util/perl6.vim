@@ -16,7 +16,7 @@
 
 " TODO:
 "   * Deal with s:Perl5//
-"   * Allow more keywords to match as function calls(leave(), etc)
+"   * Allow more keywords to match as function calls(leave() is export(), etc)
 "   * Optimization: use nextgroup instead of lookaround (:help syn-nextgroup)
 "   * Fix s''' substitutions being matched as package names
 "   * Match s/// and m/// better, so things like "$s/" won't match
@@ -28,7 +28,7 @@
 "
 " Impossible TODO?:
 "   * Unspace
-"   * Anything that allows characters outside ascii/latin1
+"   * Unicode bracketing characters for quoting (there are so many)
 "   * Selective highlighting of Pod formatting codes with the :allow option
 "   * Arbitrary number, order, and negation of adverbs to Q//, q//, qq//.
 "     Currently only the first adverb is considered significant. Anything
@@ -73,8 +73,8 @@ syn match p6Normal display "\K\%(\k\|[-']\K\@=\)*"
 " priority than matches/regions, so the words can't be autoquoted with
 " the "=>" and "p5=>" operators. All the lookaround stuff is to make sure
 " we don't match them as part of some other identifier.
-let s:before_keyword = " display \"\\%(\\k\\|\\%(\\k\\d\\@<!\\)\\@<=[-']\\)\\@<!\\%("
-let s:after_keyword = "\\)\\%(\\k\\|[-']\\%(\\k\\d\\@<!\\)\\@=\\)\\@!\""
+let s:before_keyword = " display \"\\%(\\k\\|\\K\\@<=[-']\\)\\@<!\\%("
+let s:after_keyword = "\\)\\%(\\k\\|[-']\\K\\@=\\)\\@!\""
 
 " Billions of keywords
 let s:keywords = {
