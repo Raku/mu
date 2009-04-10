@@ -40,10 +40,12 @@
   ret = SMOP__NATIVE__bool_true;
 
 %method entries
+  fprintf(stderr,"entries {\n");
   smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
   ret = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
   smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
   SMOP_REFERENCE(interpreter, ret);
+  fprintf(stderr,"entries }\n");
 
 %method postcircumfix:{ }
   smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
@@ -52,17 +54,6 @@
 
   ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
     SMOP__ID__postcircumfix_curly,
-    SMOP__NATIVE__capture_create(interpreter,
-     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,entries),SMOP__NATIVE__capture_positional(interpreter,capture,1),NULL},
-     (SMOP__Object*[]) {NULL})
-  );
-
-%method bind_key
-  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
-  SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
-  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
-  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
-    SMOP__ID__bind_key,
     SMOP__NATIVE__capture_create(interpreter,
      (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,entries),SMOP__NATIVE__capture_positional(interpreter,capture,1),NULL},
      (SMOP__Object*[]) {NULL})

@@ -21,6 +21,7 @@ SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
 %method postcircumfix:{ }
     SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     ret = SMOP__S1P__Hash_BValue_create(interpreter,SMOP_REFERENCE(interpreter,invocant),SMOP_REFERENCE(interpreter,key));
+
 %method exists
     SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
 
@@ -42,3 +43,15 @@ SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
       ret = SMOP__S1P__Scalar_create(interpreter,SMOP__NATIVE__bool_false);
       smop_util_hash_set(interpreter,hash,key,ret);
     }
+
+%method bind_key
+    printf("bind key {\n");
+    SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter,capture,2);
+
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    smop_util_hash* hash = ((smop_s1p_hash_struct*)invocant)->hash;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+    smop_util_hash_set(interpreter,hash,key,value);
+    printf("bind key }\n");

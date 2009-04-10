@@ -10,6 +10,7 @@ SMOP__Object* SMOP__Proto__create(SMOP__Object* delegate_to_RI) {
 }
 %}
 %method new
+    fprintf(stderr,"[forwarding new to %s]\n",((SMOP__ResponderInterface*)((smop_s1p_proto_struct*)invocant)->delegate_to_RI)->id);
     ret = SMOP_DISPATCH(interpreter,((smop_s1p_proto_struct*)invocant)->delegate_to_RI,identifier,SMOP_REFERENCE(interpreter,capture));
 %method FETCH
   ___VALUE_FETCH___;

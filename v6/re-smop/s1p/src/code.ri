@@ -1,0 +1,124 @@
+%include <smop/s1p.h>
+%prototype SMOP__S1P__Code
+%RI.id S1P Code
+%attr SMOP__Object* mold;
+%attr SMOP__Object* signature;
+%attr SMOP__Object* outer;
+%prefix smop_s1p_code
+
+%idconst continuation
+%idconst goto
+%idconst signature
+%idconst mold
+%idconst outer
+
+%{
+SMOP__Object* SMOP__S1P__Code_create() {
+    SMOP__Object* ret = smop_nagc_alloc(sizeof(smop_s1p_code_struct));
+    ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Code;
+    return ret;
+}
+%}
+
+%method new
+    ret = SMOP__S1P__Code_create();
+    smop_s1p_code_struct* code = (smop_s1p_code_struct*) ret;
+    code->mold = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__mold);
+    code->outer = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__outer);
+    code->signature = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__signature);
+    /*if (!code->signature)
+      code->signature = SMOP__S1P__DefaultBlockSignature;*/
+
+%method postcircumfix:( )
+    smop_s1p_code_struct* code = (smop_s1p_code_struct*) invocant;
+
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object* outer = code->outer;
+    SMOP__Object* mold = code->mold;
+    SMOP__Object* signature = code->signature;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+    SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,smop_s1p_code_mold));
+
+    SMOP__Object* back = SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__continuation,
+      SMOP__NATIVE__capture_create(interpreter,
+        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
+        (SMOP__Object*[]) {NULL}
+    ));
+
+    mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+    mold_reg_set(interpreter,frame,1,SMOP_REFERENCE(interpreter,capture));
+    mold_reg_set(interpreter,frame,2,back);
+    mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,invocant));
+    mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,outer));
+    mold_reg_set(interpreter,frame,5,SMOP_REFERENCE(interpreter,signature));
+    mold_reg_set(interpreter,frame,6,SMOP_REFERENCE(interpreter,mold));
+
+    printf("calling Code!\n");
+    SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,
+      SMOP__NATIVE__capture_create(interpreter,
+        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
+        (SMOP__Object*[]) {NULL}
+    ));
+
+
+%DESTROYALL {
+
+    smop_s1p_code_struct* code = (smop_s1p_code_struct*) invocant;
+
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object* mold = code->mold;    
+    code->mold = NULL;
+    SMOP__Object* signature = code->signature;
+    code->signature = NULL;
+    SMOP__Object* outer = code->outer;
+    code->outer = NULL;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+    if (mold) SMOP_RELEASE(interpreter,mold);
+    if (signature) SMOP_RELEASE(interpreter,signature);
+    if (outer) SMOP_RELEASE(interpreter,outer);
+%}
+
+%method true
+    ret = SMOP__NATIVE__bool_true;
+%method FETCH
+    ___VALUE_FETCH___;
+
+%method STORE
+    ___VALUE_STORE___;
+
+%mold smop_s1p_code_mold
+  my $interpreter;
+  my $capture;
+  my $back;
+  my $code;
+  my $outer;
+  my $signature;
+  my $mold;
+
+  my $void;
+
+  my $lexical_proto = ¢SMOP__S1P__LexicalScope;
+  my $lexical = $lexical_proto."new"();
+  my $lexical_outer_container = $lexical."outer"();
+  $void = $lexical_outer_container."STORE"($outer);
+
+  my $actualcapture_c = $capture."positional"(1);
+  
+  # TODO
+  #$void = $signature."BIND"($actualcapture_c,$lexical);
+
+  my $cc = $capture."named"("cc");
+  my $has_cc = $cc."true"();
+  if $has_cc { goto set_cc } else { goto execute };
+  set_cc:
+   $back = $cc."FETCH"();
+  execute:
+  my $frame_proto = ¢SMOP__Mold__Frame;
+  my $frame = $frame_proto."new"($mold);
+  $void = $frame."set_reg"(0, $interpreter);
+  $void = $frame."set_reg"(1, $lexical);
+  $void = $frame."set_lexical"($lexical);
+  $void = $frame."set_back"($back);
+  $void = $interpreter."goto"($frame);

@@ -4,7 +4,7 @@ all:
 	scons -Q
 .PHONY : test all
 test: all
-	LD_LIBRARY_PATH='build/lib' $(PROVE) 'valgrind -q' build/t
+	LD_LIBRARY_PATH='build/lib' $(PROVE) 'valgrind -q --leak-check=full' build/t
 env:
 	env
 
