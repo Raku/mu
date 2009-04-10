@@ -4,6 +4,7 @@
 #include <smop/interpreter.h>
 #include <smop/capture.h>
 #include <smop/native.h>
+#include <smop/mold.h>
 #include <stdio.h>
 
 int main(int argc, char** argv) {
@@ -14,6 +15,7 @@ int main(int argc, char** argv) {
   smop_capture_init();
   smop_interpreter_init();
 
+  smop_mold_init();
 
   // For starts, there will be some functions to
   // wrap the dispatch, after the list is built,
@@ -32,11 +34,13 @@ int main(int argc, char** argv) {
 
 
   SMOP_RELEASE(interpreter, myint);
+  SMOP_RELEASE(interpreter, interpreter);
 
+  smop_mold_destr();
+  smop_interpreter_destr();
   smop_native_destr(interpreter);
   smop_capture_destr();
   smop_nagc_destr();
-  smop_interpreter_destr();
   smop_s0native_destr();
   return 0;
 }

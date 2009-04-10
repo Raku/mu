@@ -68,6 +68,7 @@ char* SMOP__NATIVE__idconst_fetch_with_null(SMOP__Object* value,int* retsize) {
 }
 
 void SMOP__NATIVE__idconst_free(SMOP__Object* value) {
+  free(((SMOP__NATIVE__idconst_struct*)value)->content);
   free(value);
 }
 

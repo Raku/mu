@@ -24,7 +24,9 @@ static SMOP__Object* custom_message(SMOP__Object* interpreter,
   } else if (identifier == SMOP__NATIVE__idconst_create("print")) {
     SMOP__Object* pos1 = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     int len;
-    printf("%s\n",SMOP__NATIVE__idconst_fetch_with_null(pos1,&len));
+    char* s = SMOP__NATIVE__idconst_fetch_with_null(pos1,&len);
+    printf("%s\n",s);
+    free(s);
   } else {
     printf("not ok\n");
   }
@@ -34,7 +36,7 @@ static SMOP__Object* custom_message(SMOP__Object* interpreter,
 
 int main() {
 
-  printf("1..3\n");
+  printf("1..4\n");
 
   smop_s0native_init();
   smop_nagc_init();
@@ -77,8 +79,11 @@ int main() {
 
   SMOP_DISPATCH(SMOP__EmptyInterpreter, SMOP_RI(interpreter), SMOP__NATIVE__idconst_createn("loop",4),SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), NULL}, (SMOP__Object*[]) {NULL}));
 
+  SMOP_RELEASE(interpreter,interpreter);
 
-  smop_interpreter_init();
+
+  smop_interpreter_destr();
+  smop_mold_destr();
   smop_capture_destr();
   smop_nagc_destr();
   smop_s0native_destr();

@@ -32,6 +32,7 @@ typedef struct smop_util_hash {
 } smop_util_hash;
 
 smop_util_hash* smop_util_hash_create(SMOP__Object* interpreter,int size);
+void smop_util_hash_destr(SMOP__Object* interpreter,smop_util_hash* hash);
 void smop_util_hash_set(SMOP__Object* interpreter,smop_util_hash* hash,SMOP__Object* key,SMOP__Object* value);
 SMOP__Object* smop_util_hash_get(SMOP__Object* interpreter,smop_util_hash* hash,SMOP__Object* key);
 

@@ -22,6 +22,8 @@ static void DESTROYALL(SMOP__Object* interpreter,
   for (i=0;i<c->positional_count;i++) {
     SMOP_RELEASE(interpreter,c->positional[i]);
   }
+  free(c->positional);
+  smop_util_hash_destr(interpreter,c->named);
 }
 
 SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Object** positional,SMOP__Object** named) {
