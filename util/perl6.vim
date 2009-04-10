@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     Perl 6
-" Last Change:  Apr 9th 2009
+" Last Change:  Apr 10th 2009
 " Contributors: Luke Palmer <fibonaci@babylonia.flatirons.org>
 "               Moritz Lenz <moritz@faui2k3.org>
 "               Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
@@ -313,7 +313,6 @@ syn region p6MatchVar
     \ contained
 
 " Contextualizers
-syn match p6Context display "\%([$@%&]\|\k\)\@<!\%(\$\|@\|%\|@@\|&\)\_s\@="
 syn match p6Context display "\<\%(item\|list\|slice\|hash\)\>"
 syn match p6Context display "\%(\$\|@\|%\|&\|@@\)(\@="
 
@@ -2133,10 +2132,10 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6Routine        Function
     HiLink p6Operator       Operator
     HiLink p6Context        Operator
-    HiLink p6Placeholder    Operator
     HiLink p6Quote          Delimiter
     HiLink p6TypeConstraint PreCondit
     HiLink p6Exception      Exception
+    HiLink p6Placeholder    Identifier
     HiLink p6Variable       Identifier
     HiLink p6VarSlash       Identifier
     HiLink p6VarNum         Identifier
