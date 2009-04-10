@@ -45,7 +45,6 @@ SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
     }
 
 %method bind_key
-    printf("bind key {\n");
     SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter,capture,2);
 
@@ -54,4 +53,3 @@ SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
     smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
 
     smop_util_hash_set(interpreter,hash,key,value);
-    printf("bind key }\n");
