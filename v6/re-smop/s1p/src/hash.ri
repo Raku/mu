@@ -53,3 +53,8 @@ SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
     smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
 
     smop_util_hash_set(interpreter,hash,key,value);
+
+%DESTORYALL {
+    smop_util_hash* hash = ((smop_s1p_hash_struct*)invocant)->hash;
+    smop_util_hash_destr(interpreter,hash);
+%}

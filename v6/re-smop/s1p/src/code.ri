@@ -13,11 +13,17 @@
 %idconst outer
 
 %{
+static SMOP__Object* SMOP__Mold__Frame_proto;
 SMOP__Object* SMOP__S1P__Code_create() {
     SMOP__Object* ret = smop_nagc_alloc(sizeof(smop_s1p_code_struct));
-    ret->RI = (SMOP__ResponderInterface*)SMOP__S1P__Code;
+    ret->RI = (SMOP__ResponderInterface*)RI;
     return ret;
 }
+%}
+
+%init {
+    printf("%p\n",SMOP__Mold__Frame);
+    SMOP__Mold__Frame_proto = SMOP__Proto__create(SMOP__Mold__Frame);
 %}
 
 %method new
@@ -26,8 +32,9 @@ SMOP__Object* SMOP__S1P__Code_create() {
     code->mold = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__mold);
     code->outer = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__outer);
     code->signature = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__signature);
-    /*if (!code->signature)
-      code->signature = SMOP__S1P__DefaultBlockSignature;*/
+    if (!code->signature)
+        code->signature = SMOP__NATIVE__bool_false;
+    /* TODO  code->signature = SMOP__S1P__DefaultBlockSignature;*/
 
 %method postcircumfix:( )
     smop_s1p_code_struct* code = (smop_s1p_code_struct*) invocant;
@@ -75,9 +82,11 @@ SMOP__Object* SMOP__S1P__Code_create() {
     code->outer = NULL;
     smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
 
-    if (mold) SMOP_RELEASE(interpreter,mold);
+    //if (mold) SMOP_RELEASE(interpreter,mold);
     if (signature) SMOP_RELEASE(interpreter,signature);
     if (outer) SMOP_RELEASE(interpreter,outer);
+
+
 %}
 
 %method true
@@ -115,10 +124,9 @@ SMOP__Object* SMOP__S1P__Code_create() {
   set_cc:
    $back = $cc."FETCH"();
   execute:
-  my $frame_proto = ¢SMOP__Mold__Frame;
+  my $frame_proto = ¢SMOP__Mold__Frame_proto;
   my $frame = $frame_proto."new"($mold);
-  $void = $frame."set_reg"(0, $interpreter);
-  $void = $frame."set_reg"(1, $lexical);
+  $void = $frame."set_regs"($interpreter,$lexical);
   $void = $frame."set_lexical"($lexical);
   $void = $frame."set_back"($back);
   $void = $interpreter."goto"($frame);

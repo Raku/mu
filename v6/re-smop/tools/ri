@@ -211,6 +211,9 @@ void $properties{prefix}_init(SMOP__Object* interpreter) {
 for (@idconsts) {
     print "  ",mangle($_)," = ","SMOP__NATIVE__idconst_create(\"$_\");\n";
 }
+
+print $raw{'init'} || '';
+
 while (my ($name,$mold) = each %mold) {
     print "  $name = ",preprocess_m0ld($mold),";\n";
 }
@@ -220,7 +223,6 @@ if ($properties{prototype}) {
   $properties{prototype} = SMOP__Proto__create($RI);
 ];
 }
-print $raw{'init'} || '';
 
 print "}\n";
 
@@ -232,7 +234,7 @@ while (my ($name,$mold) = each %mold) {
 }
 if ($properties{prototype}) {
     print qq[
-     free($properties{prototype});
+     SMOP_RELEASE(interpreter,$properties{prototype});
     ];
 }
 print qq[

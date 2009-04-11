@@ -1,0 +1,36 @@
+%RI.id lowlevel io
+%prefix smop_s1p_io
+
+%{
+SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter) {
+    SMOP_REFERENCE(interpreter,RI);
+    SMOP__Object* ret = smop_nagc_alloc(sizeof(smop_s1p_io_struct));
+    ret->RI = (SMOP__ResponderInterface*)RI;
+    return ret;
+}
+%}
+
+%method unbuffered
+    setvbuf(stdout,NULL,_IONBF,0);
+    
+%method print
+    int pc = SMOP__NATIVE__capture_positional_count(interpreter,capture);
+    int i;
+    for (i=1;i<pc;i++) {
+        SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,i);
+        if (SMOP_RI(obj) == SMOP_RI(SMOP__ID__new)) {
+            int len;
+            char* str = SMOP__NATIVE__idconst_fetch(obj,&len);
+            printf("%.*s",len,str);
+        } else {
+            printf("unsupported object %p (%s) passed to S1P::IO.print\n",obj,SMOP_RI(obj)->id);
+        }
+
+        SMOP_RELEASE(interpreter,obj);
+    }
+%method new
+    ret = SMOP__S1P__IO_create(interpreter);
+%method FETCH
+    ___VALUE_FETCH___
+%method STORE
+    ___VALUE_STORE___

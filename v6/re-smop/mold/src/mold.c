@@ -11,7 +11,7 @@ SMOP__Object* SMOP__Mold;
 SMOP__Object* SMOP__Mold__Frame;
 static SMOP__ResponderInterface* metaRI;
 
-static SMOP__Object* SMOP__ID__set_reg;
+static SMOP__Object* SMOP__ID__set_regs;
 
 static SMOP__Object* SMOP__ID__set_back;
 static SMOP__Object* SMOP__ID__back;
@@ -203,6 +203,13 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
     mold_reg_set(interpreter, invocant, SMOP__NATIVE__int_fetch(reg_pos), value);
     SMOP_RELEASE(interpreter,reg_pos);*/
 
+  } else if (SMOP__ID__set_regs == identifier) {
+    int i;
+    int count = SMOP__NATIVE__capture_positional_count(interpreter, capture);
+    for (i = 1;i < count;i++) {
+      SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, i);
+      mold_reg_set(interpreter, invocant, i-1, value);
+    }
   } else if (SMOP__ID__back == identifier) {
     if (frame->back) {
       ret = SMOP_REFERENCE(interpreter,frame->back);
@@ -396,8 +403,9 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
       case 5: {/*assigment*/
         int lvalue = mold->opcodes[frame->position++];
         int rvalue = mold->opcodes[frame->position++];
-        if (frame->registers[lvalue]) SMOP_RELEASE(interpreter,frame->registers[lvalue]);
+        SMOP__Object* prev = frame->registers[lvalue];
         frame->registers[lvalue] = SMOP_REFERENCE(interpreter,frame->registers[rvalue]);
+        if (prev) SMOP_RELEASE(interpreter,prev);
         break;
       }
       default: fprintf(stderr,"unknown op %d\n",op);
@@ -427,8 +435,11 @@ static void smop_mold_frame_DESTROYALL(SMOP__Object* interpreter,
     smop_mold* mold = (smop_mold*) frame->mold;
     int i;
     for (i=0;i<mold->registers;i++) {
-      if (frame->registers[i]) SMOP_RELEASE(interpreter,frame->registers[i]);
-      frame->registers[i] = NULL;
+      if (frame->registers[i]) {
+        printf("releasing %s\n",frame->registers[i]->RI->id);
+        SMOP_RELEASE(interpreter,frame->registers[i]);
+        frame->registers[i] = NULL;
+      }
     }
     free(frame->registers);
     frame->registers = NULL;
@@ -445,7 +456,7 @@ void smop_mold_init() {
 
   /*XXX create idconsts*/
 
-  SMOP__ID__set_reg = SMOP__NATIVE__idconst_create("set_reg");
+  SMOP__ID__set_regs = SMOP__NATIVE__idconst_create("set_regs");
 
   SMOP__ID__set_back = SMOP__NATIVE__idconst_create("set_back");
   SMOP__ID__back = SMOP__NATIVE__idconst_create("back");
@@ -471,7 +482,7 @@ void smop_mold_init() {
   metaRI->REFERENCE = smop_noop_reference;
   metaRI->RELEASE = smop_noop_release;
   metaRI->WEAKREF = smop_noop_weakref;
-  metaRI->id = "none gc meta-RI";
+  metaRI->id = "non-gc meta-RI";
 
   SMOP__Mold = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
   SMOP__Mold->RI = metaRI;
