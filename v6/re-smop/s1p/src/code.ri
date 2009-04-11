@@ -49,7 +49,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
 
     SMOP__Object* back = SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__continuation,
       SMOP__NATIVE__capture_create(interpreter,
-        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
+        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
         (SMOP__Object*[]) {NULL}
     ));
 

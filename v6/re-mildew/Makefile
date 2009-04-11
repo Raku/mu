@@ -1,5 +1,8 @@
-.PHONY : prove
-all: CORE
+.PHONY : prove STD
+
+STD :
+	cd perl6-snapshot;make
+all: STD CORE
 
 CORE: CORE/CORE.mildew.so CORE/Return.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so
 

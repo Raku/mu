@@ -61,8 +61,11 @@ SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
     smop_nagc_wrlock((SMOP__NAGC__Object*)obj);
     ((SMOP__NAGC__Object*)obj)->ref_cnt--;
     if (((SMOP__NAGC__Object*)obj)->ref_cnt == 0) {
-      /*destroy = 1;*/
-      ((SMOP__NAGC__Object*)obj)->ref_cnt = 999;
+      destroy = 1;
+      /*((SMOP__NAGC__Object*)obj)->ref_cnt = 999;*/
+    }
+    if (((SMOP__NAGC__Object*)obj)->ref_cnt < 0) {
+      printf("Kicking a dead object, dishonorable ain't it?\n");
     }
     smop_nagc_unlock((SMOP__NAGC__Object*)obj);
 
