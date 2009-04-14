@@ -21,7 +21,7 @@ is($val, 'a: 1 b: 2', '... slurpy args flattening and matching parameters');
 # try to flatten the args for the anon sub to match
 
 sub invoke2 ($f, *@args) { $f(|@args) }; 
-is(try { invoke2(sub ($a, $b) { return "a: $a b: $b"}, 1, 2) }, 'a: 1 b: 2', 
+is(invoke2(sub ($a, $b) { return "a: $a b: $b"}, 1, 2), 'a: 1 b: 2', 
     '... slurpy args flattening and matching parameters');
 
 dies_ok {
