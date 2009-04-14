@@ -40,6 +40,32 @@ asterisk C<*> in front of the parameter name.
         return [+] @numbers;
     }
 
+=head1 lvalue
+
+A I<lvalue> or I<left value> is anything that can appear on the left
+hand side of the assignment operator C<=>, ie anything you can assign
+to.
+
+Typical lvalues are variables, private and C<is rw> attributes, lists
+of variables  and lvalue subroutines.
+
+Examples of lvalues:
+
+    Declaration             lvalue          Comments
+
+    my $x;                  $x
+    my ($a, $b);            ($a, $b)
+    has $!attribute;        $!attribute     Only inside classes
+    has $.attrib is rw;     $.attrib
+    sub a is rw { $x };     a()
+
+Examples of things that are not lvalues
+
+   3                        # literal s
+   constant x = 3;          # constants
+   has $.attrib;            # attributes; you can only assign to $!attrib
+   sub f { }; f();          # "normal" subs are not writable
+   sub f($x) { $x = 3 };    # error - parameters are read-only by default
 
 
 =end glossary

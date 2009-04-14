@@ -106,4 +106,4 @@ digit (Fun to talk about unicode digits.)
 
 == Special Perl and Perl 6 terms
 
-lvalue (Right level of complexity to explain.)
+lvalue (Right level of complexity to explain.) (see data/glossary.pod)
