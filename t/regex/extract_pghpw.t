@@ -17,7 +17,7 @@ package main;
 use v6;
 use Test;
 
-plan 11 + (2 * 2);
+plan 15;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
@@ -38,7 +38,7 @@ rule presentation  {
 rule talk  { 
     <title> 
     <presenter> 
-    { return ::Talk(:$$<title>, :$$<presenter>) }
+    { make Talk.new(:title($<title>), :presenter($<presenter>) }
 }
 
 token presenter {
@@ -47,7 +47,7 @@ token presenter {
 
 token title {
     '<span class="talk">' <link> '</span>'
-    { return $<link><label> }
+    { make $<link><label> }
 }
 
 token link {
@@ -127,3 +127,5 @@ for $content ~~ m:g/<presentation>/ -> $match {
     is(~$match<presentation><title>, @expected[$c], "presentation $c title");
     $c++;
 }
+
+# vim: ft=perl6

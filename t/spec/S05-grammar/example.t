@@ -38,7 +38,7 @@ my $content = '
     </tr>
 ';
 
-is($content ~~ m/<speaker>/, 'tr', 'read token from grammar namespace');
+is(~($content ~~ m/<speaker>/), 'tr', 'read token from grammar namespace');
 
 $content = '<title>Exactly</title> aosihdas
 <small>A</small> aosidh
@@ -47,4 +47,11 @@ $content = '<title>Exactly</title> aosihdas
 <small>D</small>';
 
 is($content ~~ m/<title>/, '<title>Exactly</title>', 'match token');
-is($content ~~ m/<schedule>/, $content, 'match rule', :todo<bug>);
+
+# XXX this can't work this way
+# 'schedule' is a rule (non-backtracking) so the implicit <.ws> will always
+# match zero characters. 
+#?rakudo todo 'test error
+is($content ~~ m/<schedule>/, $content, 'match rule');
+
+# vim: ft=perl6
