@@ -2,28 +2,7 @@ use v6;
 
 use Test;
 
-plan 16;
-
-sub foobar ($var) {
-    return $var;
-}
-
-my $foo = "foo";
-my $bar;
-$bar = foobar($foo);
-is($foo, $bar, 'subroutine at beginning');
-$bar = "";
-$bar = check $foo;
-ok($bar, 'subroutine at end');
-
-sub check {
-    return $_;
-}
-
-sub twice { $_ * 2 }
-ok(twice(5) == 10);
-#if (&twice(5 - 3) == 4) { say "ok 4" } else { say "not ok 4" }
-ok(twice(5 - 3) == 4);
+plan 9;
 
 # XXX - This should be the default, but here we are testing CALLER, not $_
 my $_ is context;
@@ -79,7 +58,4 @@ sub argShifter (@a is rw) {
 is argShifter([1]), 1,    "use shift on an array argument";
 is argShifter([3..5]), 3, "use shift on multiple array arguments";
 
-eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
-
-my @array = 3..7;
-is(try { unpack_array(@array) }, 3, 'unpacking an array parameter', :todo<feature>);
+# vim: ft=perl6
