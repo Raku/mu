@@ -11,7 +11,7 @@ Below are listed one thing to document from each "category" of things, along
 with rationale within parentheses. If you think you have a better example,
 feel free to add it.
 
-== A base class
+== A built-in class
 
 Pair (fairly stable, not too large, a few different use cases)
 
@@ -66,9 +66,15 @@ LAST (Probably won't change much in the future.)
 
 $. (Has a stable replacement. Can do external refs.)
 
+== Sigils
+
+@ (not too special; corresponds to the role Positional)
+(See data/syntactic-elements.pod)
+
 == Twigils
 
-^ (Connects to blocks and params and other things.)
+^ (Connects to blocks and params and other things.) 
+(See data/syntactic-elements.pod)
 
 == Base prefixes
 
