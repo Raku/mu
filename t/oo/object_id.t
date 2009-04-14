@@ -3,7 +3,8 @@ use v6;
 use Test;
 
 plan 4;
-# L<A04/"RFC 022: Control flow: Builtin switch statement" /explicit C<\.id> method in any event/>
+
+# L<S12/Introspection/"the object's identity value">
 class Foo {}
 
 my $num_objects = 20;
@@ -11,11 +12,12 @@ my $num_objects = 20;
 my %foos;
 for (1 .. $num_objects) {
     my $f = Foo.new();
-    %foos{$f.WHICH()}++;
+    %foos{$f.WHICH()} = 1
 }
 
 is(+%foos, $num_objects, '... all our .WHICH()s were unique');
 
+# XXX is 'is required' specced? if so, where?
 class Dog {
     has Str $.dogtag is required;
     has Num $.weight;
@@ -34,7 +36,7 @@ class Boosh {
     has $.name;
     has @.cast is rw;
     method BUILD {
-        $.name = "The Mighty";
+        $!name = "The Mighty";
     }
     method WHICH {
         $.name;
@@ -42,7 +44,7 @@ class Boosh {
 }
 
 my $foo = Boosh.new;
-is($foo.WHICH, "The Mighty", "Which Boosh?");
+is($foo."WHICH", "The Mighty", "Which Boosh?");
 $foo.cast.push("Julian Barratt");
 $foo.cast.push("Noel Fielding");
 
