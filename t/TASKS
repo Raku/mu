@@ -72,10 +72,6 @@ S05
 * tests for the "special named assertions"
 * more of everything.
 
-S06
-* Unpacking array/hash parameters, see
-  http://perlcabal.org/syn/S06.html#Unpacking_array_parameters
-
 S09
 * more tests for multidimensional arrays (also .shape, see S29)
 * tests for user-defined array indexing
