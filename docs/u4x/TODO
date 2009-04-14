@@ -39,8 +39,9 @@ the class and through its ancestors should be provided:
 == Predeclared constants
 
     True False Bool::True Bool::False
+    Taint::Tainted Taint::Untainted
 
-== Ambient subs/methods
+== Ambient subs/methods/macros
 
     WHAT WHERE HOW WHICH VAR WHO WHENCE HOW new
     any all none one
@@ -189,3 +190,6 @@ the class and through its ancestors should be provided:
 
 * A fantastically well-thought-out OO guide, the Divina Commedia of Perl 6
   object orientation.
+
+* Feel free to rip off stuff from misc/perlhints/data, it was written in a 
+  similar spirit, but with less plan.
