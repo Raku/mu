@@ -65,7 +65,7 @@ L<S06/"Lvalue subroutines">
 
 sub check ($passwd) { return $passwd eq "fish"; };
 
-eval 'sub checklastval ($passwd) is rw {
+sub checklastval ($passwd) is rw {
     my $proxy is Proxy(
     FETCH => sub ($self) {
             return lastval();
@@ -76,18 +76,16 @@ eval 'sub checklastval ($passwd) is rw {
          }
     );
     return $proxy;
-};';
+};
 
 my $errors;
-eval 'try { checklastval("octopus") = 10 }; $errors=$!;';
-is($errors, "wrong password", 'checklastval STORE can die', :todo<feature>);
+dies_ok {checklastval("octopus") = 10 }, 'checklastval STORE can die';
 
 # Above test may well die for the wrong reason, if the Proxy stuff didn't
 # parse OK, it will complain that it couldn't find the desired subroutine
-is(eval('checklastval("fish") = 12; $val2'), 12, 'proxy lvalue subroutine STORE works', :todo<feature>);
-my $resultval;
-eval '$resultval = checklastval("fish");';
-is($resultval, 12, 'proxy lvalue subroutine FETCH works', :todo<feature>);
+is((try { checklastval("fish") = 12; $val2 }), 12, 'proxy lvalue subroutine STORE works');
+my $resultval = checklastval("fish");
+is($resultval, 12, 'proxy lvalue subroutine FETCH works');
 
 my $realvar = "foo";
 sub proxyvar ($prefix) is rw {
@@ -96,7 +94,7 @@ sub proxyvar ($prefix) is rw {
         STORE => { lc($realvar = $^val) },
     );
 }
-is try { proxyvar("PRE") }, 'PREfoo', 'proxy lvalue subroutine FETCH works', :todo<feature>;
+is proxyvar("PRE"), 'PREfoo', 'proxy lvalue subroutine FETCH works';
 # Return value of assignments of Proxy objects is decided now.
 # See thread "Assigning Proxy objects" on p6l,
 # L<"http://www.nntp.perl.org/group/perl.perl6.language/21838">.
@@ -107,8 +105,8 @@ is try { proxyvar("PRE") }, 'PREfoo', 'proxy lvalue subroutine FETCH works', :to
 #       say $nonproxy = 40;
 #   
 #   should do.
-is try { proxyvar("PRE") = "BAR" }, 'BAR',
-    'proxy lvalue subroutine STORE works and returns the correct value', :todo<feature>;
+is (proxyvar("PRE") = "BAR"), 'BAR',
+    'proxy lvalue subroutine STORE works and returns the correct value';
 is $realvar, 'BAR', 'variable was modified', :todo<feature>;
 
 # vim: ft=perl6
