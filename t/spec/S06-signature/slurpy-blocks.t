@@ -5,6 +5,8 @@ use Test;
 
 plan 6;
 
+# L<S06/Slurpy block/>
+
 sub foo (Code *$block) {
     return $block.();
 }
