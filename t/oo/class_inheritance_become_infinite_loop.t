@@ -12,18 +12,18 @@ class T does B { }
 
 class S does B
 {
-        has $.t;
+        has $.t is rw;
         method x
         {
                 "always repeated".say;
                 $.t.x;
         }
-        method BUILD
+        method BUILD(*@_)
         { $.t = T.new }
 }
 
 # uncomment below after the bug is fixed. As below line will cause infinite loop;
-#S.new.x;
+S.new.x;
 
 is $var, 3, "Test class inhrited from the same role caused infinite loop bug", :todo<bug>;
 

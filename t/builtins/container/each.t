@@ -18,6 +18,7 @@ ok(each() eqv (), 'each null identity');
 
 ok(each(1) eqv (1,), 'each scalar identity');
 
+# XXX a Range is not eqv to a list of the same elements
 ok(each(1..3) eqv 1..3, 'each list identity');
 
 ok(each([1..3]) eqv 1..3, 'each array identity');
