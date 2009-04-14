@@ -4,7 +4,9 @@ use Test;
 
 plan 8;
 
-# This next group added by Darren Duncan following discovery while debugging ext/Locale-KeyedText:
+# a scalar paramater can be bound to any type below Any, and should
+# preserve its type
+
 {
   sub foo( $arg ) { return $arg.WHAT }
   sub make_array() { return ['were','there'] }
