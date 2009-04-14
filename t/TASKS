@@ -111,3 +111,8 @@ Spec clarification
    get clarification - either spec it, or delete the parts of the tests that
    rely on it.
 * oo/value_types.t: 'is value' trait
+* container/each.t: wtf is each? do we still need it? S02 mentions the "each()
+  comprehension", but apart from that it seems not mentioned
+* oo/syntax-but.t contains '$value but { closure }', which is mentioned once
+  in S02 in a different context, but not anywhere else it seems. Is that
+  intentional?
