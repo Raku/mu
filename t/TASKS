@@ -37,7 +37,6 @@ the spec (newest first)
 * (r25830) named parameters to open()
 * (r25821) bare values in signatures
 * (r25774) ~ and + act on the matched string, not the abstract object
-* (r25770) .text is now .Str
 * (r25767) updates to builtin regexes
 * (r25715) lists in item context autopromote to captures
 * (r25626) 'lift' statement
@@ -49,8 +48,9 @@ S02
 * tests for Implementation types (the Perl 6 equiv. of tie()), probably need
   more specs as well
 * some tests in S02 assume that a floating point literal like 1.2 is of typ
-  Rat (rational), but it really is of type Num. Same for things like (1/2) (to
-  produce a Rat you need (1 div 2)). This needs cleanup. Just grep for Rat,
+  Rat (rational), but it really is of type Num. Same for things like (1 / 2) 
+  (to produce a Rat you need (1 div 2) or (1/2) without spaces). 
+  This needs cleanup. Just grep for Rat,
   review the tests and clean them up where appropriate
 
 S03
