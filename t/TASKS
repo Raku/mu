@@ -30,6 +30,7 @@ sometimes the spec changes, and the test suite must be updated accordingly.
 Here's a list of what needs to be done, along with the revisions that changed
 the spec (newest first)
 
+* (r26101) :all flag for Str.split
 * (r25891) Junction -> junction, eigenstates method is now private
 * (r25890) 'int 2' is now forbidden 
 * (r25849) blocks don't autothread
@@ -118,3 +119,8 @@ SINGLE TESTS
 * merge spec/S06-advanced_subroutine_features/{wrap,wrapping}.t into one file
 * merge spec/S06-advanced_subroutine_features/{return,return2}.t
 
+Spec clarification
+   These tests contain things that aren't specced, and for which we should
+   get clarification - either spec it, or delete the parts of the tests that
+   rely on it.
+* oo/value_types.t: 'is value' trait
