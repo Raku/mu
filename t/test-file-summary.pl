@@ -21,7 +21,7 @@ $re = qr{/($re)/};
 find(\&wanted,  (shift @ARGV) || '.');
 my @others;
 sub wanted {
-    if (m/\.svn\b/) {
+    if (m/\.(?:svn|git)\b/) {
         $File::Find::prune = 1;
         return
     }
