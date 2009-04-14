@@ -105,10 +105,6 @@ IO
 SINGLE TESTS
 * spec/S04-closure-traits/pre-post.t has an up-to-date TODO list that needs
   implementing
-* syntax/interpolation/strings.t should be merged into
-  spec/S02-literals/quoting.t (and perhaps other files in that directory)
-* merge spec/S06-advanced_subroutine_features/{wrap,wrapping}.t into one file
-* merge spec/S06-advanced_subroutine_features/{return,return2}.t
 
 Spec clarification
    These tests contain things that aren't specced, and for which we should
