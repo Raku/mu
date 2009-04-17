@@ -65,23 +65,6 @@ plan 22;
   is $::("äöü"), 42, "symbolic dereferentiation of Unicode vars works";
 }
 
-=begin pod
-
-Following re-specced to be invalid:
-
-# Symbolic dereferentiation of lexical vars should *not* work without using
-# $MY::foo:
-{
-  my $a_var = 42;
-
-  dies_ok { $::("a_var") },
-    "symbolic dereferentiation does not work for lexicals", :todo<bug>;
-  is      $::("MY::a_var"), 42,
-    "symbolic dereferentiation does work for lexicals when using MY::", :todo<bug>;
-}
-
-=end pod
-
 # Symbolic dereferentiation of globals
 {
   sub GLOBAL::a_global_sub () { 42 }
@@ -143,3 +126,5 @@ Following re-specced to be invalid:
 
   is $::("symderef_test_var"), 42, "symbolic dereferentiation works with package vars";
 }
+
+# vim: ft=perl6
