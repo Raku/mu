@@ -1,8 +1,7 @@
 use v6;
 use Test;
 
-# L<S03/Changes to Perl 5 operators/scalar assignment operator still parses>
-# a better smart link exists?
+# L<S09/Autovivification/>
 
 plan 7;
 
