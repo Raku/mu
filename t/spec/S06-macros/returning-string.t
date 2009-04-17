@@ -3,12 +3,8 @@ use v6;
 use Test;
 
 =begin pod
-=head1 DESCRIPTION
 
-This test tests for basic macro support. Note that much of macros isn't specced
-yet.
-
-See L<A06/"Macros">.
+See L<S06/"Macros">.
 
 =end pod
 
@@ -16,7 +12,7 @@ plan 8;
 
 {
   my $was_in_macro;
-  macro dollar_foo { $was_in_macro = 1; '$foo' }
+  macro dollar_foo { $was_in_macro = 1; '$COMPILING::foo' }
   is $was_in_macro, 1, "string returning macro was called at compile time";
   my $foo = 42;
   is dollar_foo, $foo, "simple string returning macro (1)";
