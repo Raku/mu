@@ -21,7 +21,10 @@ Smart::Links - connecting test files with pod documentation
 =cut
 
 sub new {
-	return bless {}, shift;
+	
+	my $self = bless {}, shift;
+	$self->{link_count} = 0;
+	return $self;
 }
 
 
@@ -88,6 +91,34 @@ sub get_javascript {
 	warn "could not open '$file'";
 	return '';
 }
+
+=begin private
+
+=head2 add_link
+
+  add_link($linktree, $synopsis, $section, $pattern, $infile, $from, $to);
+
+=end private
+
+=cut
+
+# TODO add tests
+sub add_link  {
+    my ($self, $linktree, $synopsis, $section, $pattern, $t_file, $from, $to) = @_;
+    if ($from == $to) {
+        warn "WARNING: empty snippet detected at $t_file (line $from ~ $to).\n";
+    }
+    $linktree->{$synopsis} ||= {};
+    $linktree->{$synopsis}->{$section} ||= [];
+    if ($pattern and substr($pattern, -1, 1) eq '/') { $pattern = "/$pattern"; }
+    push @{ $linktree->{$synopsis}->{$section} },
+        [$pattern => [$t_file, $from, $to]];
+        
+    return $self->link_count_inc;
+}
+
+sub link_count_inc { $_[0]->{link_count}++ };
+sub link_count     { $_[0]->{link_count} };
 
 =head1 AUTHOR
 
