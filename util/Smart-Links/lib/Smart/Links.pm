@@ -120,9 +120,17 @@ sub add_link  {
 
 sub link_count_inc { $_[0]->{link_count}++ };
 sub link_count     { $_[0]->{link_count} };
+sub check          { $_[0]->{check} = $_[1] if defined $_[1]; return $_[0]->{check} };
 
 sub broken_link_count_inc { $_[0]->{broken_link_count}++ };
 sub broken_link_count     { $_[0]->{broken_link_count} };
+
+sub error {
+	my $self = shift;
+    if ($self->check) { warn "ERROR: @_\n"; }
+}
+
+
 
 =head1 AUTHOR
 
