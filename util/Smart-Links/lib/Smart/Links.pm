@@ -23,7 +23,8 @@ Smart::Links - connecting test files with pod documentation
 sub new {
 	
 	my $self = bless {}, shift;
-	$self->{link_count} = 0;
+	$self->{link_count}        = 0;
+	$self->{broken_link_count} = 0;;
 	return $self;
 }
 
@@ -119,6 +120,9 @@ sub add_link  {
 
 sub link_count_inc { $_[0]->{link_count}++ };
 sub link_count     { $_[0]->{link_count} };
+
+sub broken_link_count_inc { $_[0]->{broken_link_count}++ };
+sub broken_link_count     { $_[0]->{broken_link_count} };
 
 =head1 AUTHOR
 

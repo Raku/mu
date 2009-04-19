@@ -32,7 +32,7 @@ my $print_missing;
 my $test_result;
 my $line_anchor;
 my ($pugs_rev, $smoke_rev);
-my ($link_count, $broken_link_count);
+
 my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
@@ -43,32 +43,6 @@ my %Spec = reverse qw(
     17 Concurrency 19 Commandline   22 CPAN          26 Documentation
     29 Functions
 );
-
-=begin private
-
-=head2 add_link
-
-  add_link($linktree, $synopsis, $section, $pattern, $infile, $from, $to);
-
-Side Effects:
- - modifies global C<$link_count>
-
-=end private
-
-=cut
-
-sub add_link ($$$$$$$)  {
-    my ($linktree, $synopsis, $section, $pattern, $t_file, $from, $to) = @_;
-    if ($from == $to) {
-        warn "WARNING: empty snippet detected at $t_file (line $from ~ $to).\n";
-    }
-    $linktree->{$synopsis} ||= {};
-    $linktree->{$synopsis}->{$section} ||= [];
-    if ($pattern and substr($pattern, -1, 1) eq '/') { $pattern = "/$pattern"; }
-    push @{ $linktree->{$synopsis}->{$section} },
-        [$pattern => [$t_file, $from, $to]];
-    $link_count++;
-}
 
 sub error {
     if ($check) { warn "ERROR: @_\n"; }
@@ -133,7 +107,7 @@ sub process_t_file ($$) {
             my $old_setter = $setter;
             my $old_from = $from;
             $setter = sub {
-                add_link($linktree, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
+                $sl->add_link($linktree, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
                 $old_setter->($old_from, $_[1]);
                 #warn "$infile - $old_from ~ $_[1]";
             };
@@ -141,7 +115,7 @@ sub process_t_file ($$) {
         } else {
             $setter->($from, $to) if $setter and $from;
             $setter = sub {
-                add_link($linktree, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
+                $sl->add_link($linktree, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
             };
         }
         $from = $new_from;
@@ -411,9 +385,6 @@ _EOC_
 
 Process synopses one by one.
 
-Side Effects:
-  modifies global C<$broken_link_count>
-
 =end private
 
 =cut
@@ -485,7 +456,7 @@ sub process_syn ($$$$) {
             $from--;
             error "$t_file: line $from:",
                 "section ``$section_name'' not found in S$syn_id.";
-            $broken_link_count++;
+            $sl->broken_link_count_inc;
             next;
         }
         for my $link (reverse @links) {
@@ -516,7 +487,7 @@ sub process_syn ($$$$) {
                 my ($file, $lineno) = @$location;
                 error("$file: line $lineno: pattern ``$pattern'' failed to match any",
                     "paragraph in L<S${syn_id}/${section_name}>.");
-                $broken_link_count++;
+                $sl->broken_link_count_inc;
             }
         }
     }
@@ -633,9 +604,6 @@ sub main () {
 
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
-    $link_count = 0;
-    $broken_link_count = 0;
-   
     my $test_files_missing_links = 0;
     my $test_file_count = 0;    
 
@@ -730,13 +698,14 @@ sub main () {
                 my ($file, $lineno) = @{ $link->[1] };
                 error("$file: line $lineno: smartlink pointing to " .
                     "an unknown synopsis ($syn)"),
-                $broken_link_count++;
+                $sl->broken_link_count_inc;
             }
         }
     }
 
-    warn "info: $link_count smartlinks found and $broken_link_count broken in $test_file_count test files ($test_files_missing_links test files had no links).\n";
-    if (!$check and $broken_link_count > 0) {
+    warn sprintf("info: %ssmartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
+		$sl->link_count ,$sl->broken_link_count);
+    if (!$check and $sl->broken_link_count > 0) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
     }
     exit;
