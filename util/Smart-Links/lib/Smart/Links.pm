@@ -6,7 +6,7 @@ use 5.006;
 our $VERSION = '0.01';
 
 use base 'Exporter';
-our @EXPORT = qw(parse_pattern process_paragraph get_javascript);
+our @EXPORT = qw(parse_pattern process_paragraph);
 
 use File::ShareDir;
 use FindBin;
@@ -23,6 +23,9 @@ Smart::Links - connecting test files with pod documentation
 
 =cut
 
+sub new {
+	return bless {}, shift;
+}
 
 
 # convert patterns used in 00-smartlinks.to perl 5 regexes

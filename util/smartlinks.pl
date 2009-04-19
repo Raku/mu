@@ -25,6 +25,7 @@ use File::Find qw(find);
 
 use lib "$FindBin::Bin/Smart-Links/lib";
 use Smart::Links;
+my $sl = Smart::Links->new;
 
 my $check;
 my $print_missing;
@@ -42,8 +43,6 @@ my %Spec = reverse qw(
     17 Concurrency 19 Commandline   22 CPAN          26 Documentation
     29 Functions
 );
-
-my $javascript = get_javascript();
 
 =begin private
 
@@ -231,6 +230,7 @@ sub gen_html ($$$) {
     my $pod2html = new Pod::Simple::HTML;
     $pod2html->index(1);
     $pod2html->html_css($cssfile);
+    my $javascript = $sl->get_javascript();
     $pod2html->html_javascript(qq{<script type="text/javascript">$javascript</script>});
     $pod2html->force_title('S'.$syn_id);
 
