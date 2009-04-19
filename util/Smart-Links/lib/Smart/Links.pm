@@ -7,6 +7,8 @@ our $VERSION = '0.01';
 
 use File::ShareDir;
 use FindBin;
+use base 'Class::Accessor';
+__PACKAGE__->mk_accessors(qw(check));
 
 =head1 NAME
 
@@ -21,10 +23,13 @@ Smart::Links - connecting test files with pod documentation
 =cut
 
 sub new {
-	
-	my $self = bless {}, shift;
+	my $class = shift;
+
+	my $self = $class->SUPER::new(@_);
+
 	$self->{link_count}        = 0;
-	$self->{broken_link_count} = 0;;
+	$self->{broken_link_count} = 0;
+
 	return $self;
 }
 
@@ -120,7 +125,6 @@ sub add_link  {
 
 sub link_count_inc { $_[0]->{link_count}++ };
 sub link_count     { $_[0]->{link_count} };
-sub check          { $_[0]->{check} = $_[1] if defined $_[1]; return $_[0]->{check} };
 
 sub broken_link_count_inc { $_[0]->{broken_link_count}++ };
 sub broken_link_count     { $_[0]->{broken_link_count} };

@@ -16,6 +16,7 @@ use File::Find qw(find);
 
 requires       'perl'                     => '5.006';
 requires       'Carp'                     => 0;
+requires       'Class::Accessor'          => 0;
 requires       'Cwd'                      => 0;
 requires       'File::Basename'           => 0;
 requires       'File::Find::Rule'         => '0.30';
