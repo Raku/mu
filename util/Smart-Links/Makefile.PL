@@ -21,6 +21,8 @@ requires       'File::Basename'           => 0;
 requires       'File::Find::Rule'         => '0.30';
 requires       'FindBin'                  => 0;
 requires       'Getopt::Long'             => 0;
+requires       'File::ShareDir'           => '1.00';
+
 test_requires  'Test::More'               => '0.47';
 test_requires  'Test::NoWarnings'         => '0.084';
 

@@ -3,10 +3,11 @@
 
 use strict;
 use warnings;
-use Test::More tests => 17;
+use Test::More tests => 17+1;
+use Test::NoWarnings;
+
 use FindBin;
 
-use lib "$FindBin::Bin/../Smart-Links/lib";
 use Smart::Links;
 
 

@@ -6,7 +6,10 @@ use 5.006;
 our $VERSION = '0.01';
 
 use base 'Exporter';
-our @EXPORT = qw(parse_pattern process_paragraph);
+our @EXPORT = qw(parse_pattern process_paragraph get_javascript);
+
+use File::ShareDir;
+use FindBin;
 
 =head1 NAME
 
@@ -58,7 +61,32 @@ sub process_paragraph ($) {
     $str;
 }
 
+sub get_javascript {
 
+	# for the test scripts in t/ and the smartlinks.pl in script/  directory
+	my $file = File::Spec->catfile($FindBin::Bin, '..', 'share', 'smartlinks.js');
+	
+	if (not -e $file) {
+		# for smarlinks.pl in utils/ directory of Pugs if Smart::Links is not installed
+		$file = File::Spec->catfile($FindBin::Bin, 'Smart-Links', 'share', 'smartlinks.js');
+	}
+
+	# installed version of the file
+	if (not -e $file) {
+		$file = File::Spec->catfile(File::ShareDir::dist_dir('Smart::Links'), 'smartlinks.js');
+	}
+	if (not $file) {
+		warn "Could not find 'smartlinks.js'\n";
+		return '';
+	}
+	#warn $file;
+	if (open my $fh, '<', $file) {
+		local $/ = undef;
+		return <$fh>;
+	}
+	warn "could not open '$file'";
+	return '';
+}
 
 =head1 AUTHOR
 
