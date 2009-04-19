@@ -38,7 +38,7 @@ rule presentation  {
 rule talk  { 
     <title> 
     <presenter> 
-    { make Talk.new(:title($<title>), :presenter($<presenter>) }
+    { make Talk.new(:title($<title>), :presenter($<presenter>)) }
 }
 
 token presenter {
