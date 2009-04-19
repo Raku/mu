@@ -23,6 +23,9 @@ use File::Find qw(find);
 #use File::Slurp;
 #use Pod::Simple::HTML;
 
+use lib "$FindBin::Bin/Smart-Links/lib";
+use Smart::Links;
+
 my $check;
 my $print_missing;
 my $test_result;
@@ -390,41 +393,7 @@ sub emit_pod ($) {
     $str;
 }
 
-# convert patterns used in 00-smartlinks.to perl 5 regexes
-sub parse_pattern ($) {
-    my $pat = shift;
-    my @keys;
-    while (1) {
-        if ($pat =~ /\G\s*"([^"]+)"/gc ||
-            $pat =~ /\G\s*'([^']+)'/gc ||
-            $pat =~ /\G\s*(\S+)/gc) {
-                push @keys, $1;
-        } else { last }
-    }
-    my $str = join('.+?', map {
-        my $key = quotemeta $_;
-        $key =~ s/^\w/\\b$&/;
-        $key =~ s/\w$/$&\\b/;
-        $key;
-    } @keys);
 
-    $str;
-}
-
-# process paragraphs of the synopses: unwrap lines, strip POD tags, and etc.
-sub process_paragraph ($) {
-    my $str = shift;
-
-    # unwrap lines:
-    $str =~ s/\s*\n\s*/ /g;
-
-    # strip POD tags:
-    # FIXME: obviously we need a better way to do this:
-    $str =~ s/[LCFIB]<<<\s+(.*?)\s+>>>/$1/g;
-    $str =~ s/[LCFIB]<<\s+(.*?)\s+>>/$1/g;
-    $str =~ s/[LCFIB]<(.*?)>/$1/g;
-    $str;
-}
 
 sub gen_html ($$$) {
     my ($pod, $syn_id, $cssfile) = @_;

@@ -6,7 +6,9 @@ use warnings;
 use Test::More tests => 17;
 use FindBin;
 
-require "$FindBin::Bin/../smartlinks.pl";
+use lib "$FindBin::Bin/../Smart-Links/lib";
+use Smart::Links;
+
 
 # Test sub parse_pattern
 {
