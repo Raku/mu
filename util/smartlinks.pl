@@ -498,12 +498,12 @@ sub process_syn ($$$$) {
                 }
                 next;
             }
-            my $regex = parse_pattern($pattern);
+            my $regex = $sl->parse_pattern($pattern);
             my $matched;
             while ($i < @$paras) {
                 my $para = $paras->[$i];
                 next if !$para or $para =~ /\?hide_quotes=no/;
-                if (process_paragraph($para) =~ /$regex/) {
+                if ($sl->process_paragraph($para) =~ /$regex/) {
                     if (!$check) {
                         splice @$paras, $i+1, 0, gen_code_snippet($location);
                         $i++;

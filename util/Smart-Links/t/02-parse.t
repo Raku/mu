@@ -10,31 +10,33 @@ use FindBin;
 
 use Smart::Links;
 
+my $sl = Smart::Links->new;
+
 
 # Test sub parse_pattern
 {
-    my $got = parse_pattern('/abc .* C<cd>/');
+    my $got = $sl->parse_pattern('/abc .* C<cd>/');
     isnt $got, 'abc .* C<cd>', 'legacy regex pattern no longer works';
 
-    $got = parse_pattern(q{'abc' '"123"' 567});
+    $got = $sl->parse_pattern(q{'abc' '"123"' 567});
     is $got, '\babc\b.+?\"123\".+?\b567\b', 'keyphrase pattern works';
 
     unlike 'abc d is 5"123"567', qr/$got/, 'the regex works';
     unlike 'abcd is 5"123" 567', qr/$got/, 'the regex works';
     like 'abc d is 5"123" 567', qr/$got/, 'the regex works';
 
-    $got = parse_pattern(q{he likes me. right?});
+    $got = $sl->parse_pattern(q{he likes me. right?});
     is $got, '\bhe\b.+?\blikes\b.+?\bme\..+?\bright\?', 'chars get quoted';
     like 'i do believe he really likes john and me. am i right? hehe.',
         qr/$got/, 'regex matched';
 
-    $got = parse_pattern(q{'he likes me. right?'});
+    $got = $sl->parse_pattern(q{'he likes me. right?'});
     is $got, '\bhe\ likes\ me\.\ right\?',
         'chars get quoted and spaces are reserved';
     ok 'i do believe he really likes john and me. am i right? hehe.' !~
         qr/$got/, 'regex not matched';
 
-    $got = parse_pattern(q{"he likes me. right?"});
+    $got = $sl->parse_pattern(q{"he likes me. right?"});
     is $got, '\bhe\ likes\ me\.\ right\?',
         'chars get quoted and spaces are reserved';
     ok 'i do believe he really likes john and me. am i right? hehe.' !~
@@ -48,16 +50,16 @@ Characters with no corresponding closing character do not qualify
 as opening brackets.  This includes the second section of the Unicode
 BidiMirroring data table, as well as C<U+201A> and C<U+201E>.
 _EOC_
-    my $str = process_paragraph($para);
+    my $str = $sl->process_paragraph($para);
     is $str,
        'Characters with no corresponding closing character do not qualify '.
        'as opening brackets.  This includes the second section of the Unicode '.
        'BidiMirroring data table, as well as U+201A and U+201E. ',
     'paragraph gets processed.';
 
-    is process_paragraph('I I<love> B<perl>!'), 'I love perl!',
+    is $sl->process_paragraph('I I<love> B<perl>!'), 'I love perl!',
         'I<...> and B<...> stripped';
-    is process_paragraph('so C<< a < b >> holds'), 'so a < b holds',
+    is $sl->process_paragraph('so C<< a < b >> holds'), 'so a < b holds',
         'C<<...>> stripped';
 }
 
@@ -70,7 +72,7 @@ comment rather than an embedded comment, even if followed by a bracketing
 character.
 _EOC_
 
-    my $str = process_paragraph($para);
+    my $str = $sl->process_paragraph($para);
     is $str,
         'As a special case to facilitate commenting out sections of code with '.
         's/^/#/, # on the beginning of line is always considered a line-end '.
@@ -78,7 +80,7 @@ _EOC_
         'character. ',
     'paragraph processed as expected';
 
-    my $regex = parse_pattern('"#" on "beginning of line" always "line-end comment"');
+    my $regex = $sl->parse_pattern('"#" on "beginning of line" always "line-end comment"');
     is $regex, '\#.+?\bon\b.+?\bbeginning\ of\ line\b.+?\balways\b.+?\bline\-end\ comment\b',
         'regex generated as expected';
     like $str, qr/$regex/, 'text matched';

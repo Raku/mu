@@ -5,9 +5,6 @@ use 5.006;
 
 our $VERSION = '0.01';
 
-use base 'Exporter';
-our @EXPORT = qw(parse_pattern process_paragraph);
-
 use File::ShareDir;
 use FindBin;
 
@@ -29,8 +26,9 @@ sub new {
 
 
 # convert patterns used in 00-smartlinks.to perl 5 regexes
-sub parse_pattern ($) {
-    my $pat = shift;
+sub parse_pattern {
+	my ($self, $pat) = @_;
+
     my @keys;
     while (1) {
         if ($pat =~ /\G\s*"([^"]+)"/gc ||
@@ -50,8 +48,8 @@ sub parse_pattern ($) {
 }
 
 # process paragraphs of the synopses: unwrap lines, strip POD tags, and etc.
-sub process_paragraph ($) {
-    my $str = shift;
+sub process_paragraph {
+	my ($self, $str) = @_;
 
     # unwrap lines:
     $str =~ s/\s*\n\s*/ /g;
