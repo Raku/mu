@@ -832,7 +832,7 @@ sub create_stats_page {
 	my $test_files_missing_links = scalar $self->test_files_missing_links;
     $html .= sprintf("info: %s smartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
 		$self->link_count ,$self->broken_link_count);
-    #if (!$sl->check and $sl->broken_link_count > 0) {
+    #if (!$self->check and $self->broken_link_count > 0) {
     #    warn "hint: use the --check option for details on broken smartlinks.\n";
     #}
     
@@ -857,6 +857,151 @@ sub create_stats_page {
 
 	return;
 }
+
+=begin private
+
+=head2 process_syn
+
+  process_syn($syn);
+
+Process synopses one by$sl->link_count  one.
+
+=end private
+
+=cut
+
+sub process_syn {
+    my ($self, $infile) = @_;
+
+    my $syn_id;
+    if ($infile =~ /\bS(\d+)(?:-\w+)+.pod$/) {
+        $syn_id = $1;
+    } else {
+        die "Can't match file '$infile'\n";
+    }
+
+    # S26 is in Pod6, we treat it specifically for now.
+    if ($syn_id == 26) {
+      return if $self->check;
+      eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
+      if ($@) {
+          warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to parse S26";
+          return;
+      }
+
+      my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
+      my $pod6 = $toc . read_file($infile);
+
+      my $perldochtml = Perl6::Perldoc::Parser->parse(
+          \$pod6, {all_pod => 1}
+      )->report_errors()->to_xhtml(
+          {full_doc => {title => 'S26'}}
+      );
+      $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">\n$&};
+      my $preamble = $self->gen_preamble();
+      $perldochtml =~ s{<body>}{$&$preamble};
+      $self->add_footer(\$perldochtml);
+
+	  my $out_dir = $self->out_dir;
+      my $htmfile = "$out_dir/S$syn_id.html";
+      warn "info: generating $htmfile...\n";
+      open my $out, "> $htmfile" or
+          die "Can't open $htmfile for writing: $!\n";
+      print $out $perldochtml;
+      close $out;
+      return;
+    }
+    my $podtree = $self->parse_pod($infile);
+    #print Dump $podtree if $syn_id eq '29';
+
+    #use Data::Dumper;
+    #$Data::Dumper::Indent = 1;
+    #print Dumper $linktree if $syn_id eq '02';
+
+    my $linktree_sections = $self->{linktree}->{"S$syn_id"};
+#    if (!$linktree_sections && $syn_id != 7) {
+#        # We won't generate the HTML file if there's no smartlink in it.
+#        return;
+#    }
+    while (my ($section_name, $links) = each %$linktree_sections) {
+        #warn "checking $section...";
+        my @links = @$links;
+        my $paras = $podtree->{$section_name};
+        if (!$paras) {
+            my $link = $links[0];
+            my ($t_file, $from) = @{ $link->[1] };
+            $from--;
+            $self->error("$t_file: line $from: section '$section_name' not found in S$syn_id.");
+            $self->broken_link_count_inc;
+            next;
+        }
+        for my $link (reverse @links) {
+            my ($pattern, $location) = @$link;
+            my $i = 0;
+            if (!$pattern) { # match the whole section
+                if (!$self->check) {
+                    unshift @$paras, $self->gen_code_snippet($location);
+                    $i = 1;
+                }
+                next;
+            }
+            my $regex = $self->parse_pattern($pattern);
+            my $matched;
+            while ($i < @$paras) {
+                my $para = $paras->[$i];
+                next if !$para or $para =~ /\?hide_quotes=no/;
+                if ($self->process_paragraph($para) =~ /$regex/) {
+                    if (!$self->check) {
+                        splice @$paras, $i+1, 0, $self->gen_code_snippet($location);
+                        $i++;
+                    }
+                    $matched = 1;
+                    last;
+                }
+            } continue { $i++ }
+            if (!$matched) {
+                my ($file, $lineno) = @$location;
+                $self->error("$file: line $lineno: pattern '$pattern' failed to match any paragraph in L<S${syn_id}/${section_name}>.");
+                $self->broken_link_count_inc;
+            }
+        }
+    }
+
+    # We need this to check invalid smartlinks pointed to non-existent docs:
+    delete $self->{linktree}->{"S$syn_id"};
+
+    if (!$self->check) {
+        #use Data::Dumper;
+        #$Data::Dumper::Indent = 1;
+        #print Dumper $podtree if $syn_id eq '02';
+
+        my $pod = $self->emit_pod($podtree);
+
+        #print $pod if $syn_id eq '02';
+        #if ($syn_id eq '29') {
+        #    use File::Slurp;
+        #    write_file("db_S$syn_id.pod", $pod);
+        #}
+
+         my $html = $self->gen_html($pod, $syn_id);
+
+        #write_file("db_S$syn_id.html", $html);
+
+        my $preamble = $self->gen_preamble();
+        $html =~ s{<!-- start doc -->}{$&$preamble};
+        my $out_dir = $self->out_dir;
+        my $htmfile = "$out_dir/S$syn_id.html";
+        warn "info: generating $htmfile...\n";
+        open my $out, "> $htmfile" or
+            die "Can't open $htmfile for writing: $!\n";
+        print $out $html;
+        close $out;
+    }
+
+    #warn "$syn_id: $infile\n";
+}
+
+
 
 
 sub snippet_id_inc    { $_[0]->{snippet_id}++ };
