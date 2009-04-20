@@ -38,7 +38,7 @@ for 0 ..^ $chunk_count -> $chunk {
 }
 
 my $data;
-lives_ok { $data = =<t/xx-uncategorized/pathological-8bit.dat> },
+lives_ok { $data = 't/xx-uncategorized/pathological-8bit.dat'.slurp },
         "reading patently broken UTF-8 doesn't crash the parser";
 is $data.chars, 0, "read data does not contain any bogus chars";
 
