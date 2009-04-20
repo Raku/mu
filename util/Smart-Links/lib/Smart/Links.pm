@@ -311,6 +311,7 @@ sub new {
     $self->{snippet_id}        = 0;
 	$self->{test_files_missing_links} = [];
     $self->{out_dir}          ||= '.';
+	$self->{errors}   = [];
 
 	return $self;
 }
@@ -739,6 +740,13 @@ sub create_stats_page {
 		}
 		$html .= "</ul>\n";
 	}
+	if (@{ $self->{errors} }) {
+		$html .= "<h2>Errors</h2>\n<ul>";
+		foreach my $e (@{ $self->{errors} }) {
+			$html .= "<li>@$e</li>\n";
+		}
+		$html .= "</ul>\n";
+	}
 	
 	
 	$html .= "</body></html>";
@@ -759,6 +767,8 @@ sub broken_link_count     { $_[0]->{broken_link_count} };
 
 sub error {
 	my $self = shift;
+
+	push @{ $self->{errors} }, \@_;
     if ($self->check) { warn "ERROR: @_\n"; }
 }
 
