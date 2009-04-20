@@ -29,6 +29,7 @@ sub new {
 
 	$self->{link_count}        = 0;
 	$self->{broken_link_count} = 0;
+    $self->{snippet_id}        = 0;
 
 	return $self;
 }
@@ -297,6 +298,102 @@ sub process_yml_file {
 }
 
 
+sub gen_html {
+    my ($self, $pod, $syn_id, $cssfile) = @_;
+
+    eval { require Pod::Simple::HTML };
+    $Pod::Simple::HTML::Perldoc_URL_Prefix  = 'http://perlcabal.org/syn/';
+    $Pod::Simple::HTML::Perldoc_URL_Postfix = '.html';
+    die "error: Pod::Simple::HTML is not installed on your machine.\n"
+        if $@;
+
+    $Pod::Simple::HTML::Content_decl =
+        q{<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >};
+
+    $Pod::Simple::HTML::Doctype_decl =
+        qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+           "http://www.w3.org/TR/html4/loose.dtd">\n};
+
+    my $pod2html = new Pod::Simple::HTML;
+    $pod2html->index(1);
+    $pod2html->html_css($cssfile);
+    my $javascript = $self->get_javascript();
+    $pod2html->html_javascript(qq{<script type="text/javascript">$javascript</script>});
+    $pod2html->force_title('S'.$syn_id);
+
+    my $html;
+    open my $in, '<', \$pod;
+    open my $out, '>', \$html;
+    $pod2html->parse_from_file($in, $out);
+
+    # substitutes the placeholders introduced by `gen_code_snippet`
+    # with real code snippets:
+    $html =~ s,(?:<p>\s*)?\b_SMART_LINK_(\d+)\b(?:\s*</p>)?,$self->get_snippet($1),sge;
+    $self->fix_line_anchors(\$html) if $self->line_anchor;
+    $self->add_footer(\$html);
+    $self->add_user_css(\$html);
+    
+    return $html
+}
+
+
+sub _gen_line_anchors {
+    my $list = shift;
+    my $curr = shift @$list;
+    my $html = '';
+    for ($curr .. $list->[0] - 1) {
+        $html .= qq{<a id="line_$_"></a>\n};
+    }
+    $html;
+}
+
+sub fix_line_anchors {
+    my ($self, $html) = @_;
+    my @lineno; # line numbers for each paragraph
+    while ($$html =~ /\b_LINE_ANCHOR_(\d+)\b/gsm) {
+        push @lineno, $1;
+    }
+    $$html =~ s{(?:<p>\s*)?\b_LINE_ANCHOR_(\d+)\b(?:\s*</p>)?}{ _gen_line_anchors(\@lineno) }sge;
+}
+
+
+sub add_footer {
+    my ($self, $html) = @_;
+    $$html =~ s{</body>}{
+        [ <a href="#__top">Top</a> ] &nbsp;
+        [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ]
+        </body>};
+}
+
+# isn't there a prettier way to do this?
+sub add_user_css {
+    my ($self, $html) = @_;
+    my $user_css = << '.';
+<style type="text/css">
+.ok {
+    color: green;
+    font-weight: bold;
+}
+.nok {
+    color: red;
+    font-weight: bold;
+}
+.snip { margin-left: 6px; }
+.snipres {
+    margin-left: 6px;
+    border-width: 0;
+}
+.smartlink_snippet {
+    border: 1px solid;
+    padding: 0.2em;
+}
+</style>
+.
+    $$html =~ s{(</head>)}{$user_css\n$1};
+}
+
+sub snippet_id_inc    { $_[0]->{snippet_id}++ };
+sub snippet_id        { $_[0]->{snippet_id} };
 
 sub link_count_inc { $_[0]->{link_count}++ };
 sub link_count     { $_[0]->{link_count} };
@@ -309,7 +406,14 @@ sub error {
     if ($self->check) { warn "ERROR: @_\n"; }
 }
 
-
+sub set_snippet {
+	my ($self, $id, $str) = @_;
+	$self->{snippets}[$id] = $str;
+}
+sub get_snippet {
+	my ($self, $id) = @_;
+	return $self->{snippets}[$id];
+}
 
 =head1 AUTHOR
 

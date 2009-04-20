@@ -34,8 +34,6 @@ my $sl;
 
 my $print_missing;
 
-my (@snippets, $snippet_id);
-
 my %Spec = reverse qw(
     01 Overview    02 Syntax        03 Operator      04 Block
     05 Rule        06 Subroutine    07 Iterator
@@ -45,100 +43,10 @@ my %Spec = reverse qw(
     29 Functions
 );
 
-sub gen_html ($$$) {
-    my ($pod, $syn_id, $cssfile) = @_;
-
-    eval { require Pod::Simple::HTML };
-    $Pod::Simple::HTML::Perldoc_URL_Prefix  = 'http://perlcabal.org/syn/';
-    $Pod::Simple::HTML::Perldoc_URL_Postfix = '.html';
-    die "error: Pod::Simple::HTML is not installed on your machine.\n"
-        if $@;
-
-    $Pod::Simple::HTML::Content_decl =
-        q{<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >};
-
-    $Pod::Simple::HTML::Doctype_decl =
-        qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-           "http://www.w3.org/TR/html4/loose.dtd">\n};
-
-    my $pod2html = new Pod::Simple::HTML;
-    $pod2html->index(1);
-    $pod2html->html_css($cssfile);
-    my $javascript = $sl->get_javascript();
-    $pod2html->html_javascript(qq{<script type="text/javascript">$javascript</script>});
-    $pod2html->force_title('S'.$syn_id);
-
-    my $html;
-    open my $in, '<', \$pod;
-    open my $out, '>', \$html;
-    $pod2html->parse_from_file($in, $out);
-
-    # substitutes the placeholders introduced by `gen_code_snippet`
-    # with real code snippets:
-    $html =~ s,(?:<p>\s*)?\b_SMART_LINK_(\d+)\b(?:\s*</p>)?,$snippets[$1],sg;
-    fix_line_anchors(\$html) if $sl->line_anchor;
-    add_footer(\$html);
-    add_user_css(\$html);
-    $html
-}
-
-sub fix_line_anchors {
-    my ($html) = @_;
-    my @lineno; # line numbers for each paragraph
-    while ($$html =~ /\b_LINE_ANCHOR_(\d+)\b/gsm) {
-        push @lineno, $1;
-    }
-    $$html =~ s{(?:<p>\s*)?\b_LINE_ANCHOR_(\d+)\b(?:\s*</p>)?}{ gen_line_anchors(\@lineno) }sge;
-}
-
-sub gen_line_anchors {
-    my $list = shift;
-    my $curr = shift @$list;
-    my $html = '';
-    for ($curr .. $list->[0] - 1) {
-        $html .= qq{<a id="line_$_"></a>\n};
-    }
-    $html;
-}
-
-sub add_footer {
-    my ($html) = @_;
-    $$html =~ s{</body>}{
-        [ <a href="#__top">Top</a> ] &nbsp;
-        [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ]
-        </body>};
-}
-
-# isn't there a prettier way to do this?
-sub add_user_css {
-    my($html) = @_;
-    my $user_css = << '.';
-<style type="text/css">
-.ok {
-    color: green;
-    font-weight: bold;
-}
-.nok {
-    color: red;
-    font-weight: bold;
-}
-.snip { margin-left: 6px; }
-.snipres {
-    margin-left: 6px;
-    border-width: 0;
-}
-.smartlink_snippet {
-    border: 1px solid;
-    padding: 0.2em;
-}
-</style>
-.
-    $$html =~ s{(</head>)}{$user_css\n$1};
-}
 
 # Note that this function has been optimized for space rather
 # than time.
-sub gen_code_snippet ($) {
+sub gen_code_snippet {
     my $location = shift;
     my ($file, $from, $to) = @$location;
     #warn "gen_code_snippet: @$location\n";
@@ -185,7 +93,7 @@ sub gen_code_snippet ($) {
 
     $src =~ s/\n+$//sg;
 
-    $snippet_id++;
+    my $snippet_id = $sl->snippet_id_inc;
 
     #warn $snippet_id;
     #warn "$file $to $from";
@@ -233,7 +141,7 @@ onclick="return toggle_hilite('$simple_snippet_id','/~azawawi/html/$simple_html'
 </span>
 <iframe id="$simple_snippet_id" style="display:none;" width="100%"></iframe>
 _EOC_
-    $snippets[$snippet_id] = $html;
+    $sl->set_snippet($snippet_id, $html);
     "\n\n_SMART_LINK_$snippet_id\n\n";
 }
 
@@ -283,7 +191,7 @@ sub process_syn ($$$$) {
       $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">\n$&};
       my $preamble = gen_preamble();
       $perldochtml =~ s{<body>}{$&$preamble};
-      add_footer(\$perldochtml);
+      $sl->add_footer(\$perldochtml);
 
       my $htmfile = "$out_dir/S$syn_id.html";
       warn "info: generating $htmfile...\n";
@@ -305,7 +213,6 @@ sub process_syn ($$$$) {
 #        # We won't generate the HTML file if there's no smartlink in it.
 #        return;
 #    }
-    $snippet_id = 0;
     while (my ($section_name, $links) = each %$linktree_sections) {
         #warn "checking $section...";
         my @links = @$links;
@@ -367,7 +274,7 @@ sub process_syn ($$$$) {
         #    write_file("db_S$syn_id.pod", $pod);
         #}
 
-        my $html = gen_html($pod, $syn_id, $cssfile);
+        my $html = $sl->gen_html($pod, $syn_id, $cssfile);
 
         #write_file("db_S$syn_id.html", $html);
 
