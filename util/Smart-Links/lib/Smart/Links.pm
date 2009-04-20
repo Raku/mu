@@ -7,9 +7,12 @@ our $VERSION = '0.01';
 
 use File::ShareDir;
 use FindBin;
+use File::Spec;
+use File::Slurp;
+
 use base 'Class::Accessor';
 __PACKAGE__->mk_accessors(qw(check count cssfile line_anchor 
-	out_dir print_missing smoke_rev wiki));
+	out_dir print_missing smoke_rev test_files version wiki));
 
 =head1 NAME
 
@@ -379,6 +382,9 @@ sub get_javascript {
 
 sub process_test_files {
 	my ($self, @t_files) = @_;
+
+	$self->{test_files} = \@t_files;
+
     for my $t_file (@t_files) {
         my $links = $self->process_t_file($t_file);
         if ($links) {
@@ -632,6 +638,7 @@ sub gen_html {
 }
 
 
+
 sub _gen_line_anchors {
     my $list = shift;
     my $curr = shift @$list;
@@ -687,7 +694,57 @@ sub add_user_css {
     $$html =~ s{(</head>)}{$user_css\n$1};
 }
 
+sub gen_preamble {
+	my ($self) = @_;
+
+    my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;
+    $year += 1900; $mon += 1;
+    my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
+        $year, $mon, $mday, $hour, $min, $sec;
+    my $smoke_rev = $self->smoke_rev;
+    my $smoke_info = $smoke_rev ?
+        ", <a href=\"http://perlcabal.org/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
+        :
+         '';
+    my $pugs_rev = $self->version;
+    $pugs_rev = $pugs_rev ? "r$pugs_rev" : 'unknown';
+    $pugs_rev ||= $smoke_rev;
+
+    return qq{
+            <I>This page was generated at $time.<br/>
+            (<a href="http://svn.pugscode.org/pugs/docs/Perl6/spec/">syn</a> <strong>$pugs_rev</strong>$smoke_info)</I>
+            &nbsp; [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ] <br/>
+            <a id='__top'></a>
+     };
+}
+
 sub create_stats_page {
+	my ($self) = @_;
+	my $file = File::Spec->catfile($self->out_dir, 'stats.html');
+	my $html = "<html><head><title>Stats</title></head><body>";
+	$html .= $self->gen_preamble;
+
+	my $test_file_count = scalar @{ $self->test_files };
+	my $test_files_missing_links = scalar $self->test_files_missing_links;
+    $html .= sprintf("info: %s smartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
+		$self->link_count ,$self->broken_link_count);
+    #if (!$sl->check and $sl->broken_link_count > 0) {
+    #    warn "hint: use the --check option for details on broken smartlinks.\n";
+    #}
+    
+    if ($self->test_files_missing_links) {
+    	$html .= "<h2>Test files without links</h2>\n<ul>";
+		foreach my $file ($self->test_files_missing_links) {
+			$html .= "<li>$file</li>\n";
+		}
+		$html .= "</ul>\n";
+	}
+	
+	
+	$html .= "</body></html>";
+	write_file($file, $html);
+
+	return;
 }
 
 

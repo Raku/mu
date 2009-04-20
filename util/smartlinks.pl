@@ -24,8 +24,8 @@ use Getopt::Long;
 use File::Basename;
 use FindBin;
 use File::Find::Rule;
+use File::Slurp;
 
-#use File::Slurp;
 #use Pod::Simple::HTML;
 
 use lib "$FindBin::Bin/Smart-Links/lib";
@@ -173,11 +173,6 @@ sub process_syn {
           warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to parse S26";
           return;
       }
-      eval "use File::Slurp";
-      if ($@) {
-          warn "Please install File::Slurp from CPAN";
-          return;
-      }
 
       my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
       my $pod6 = $toc . read_file($infile);
@@ -188,7 +183,7 @@ sub process_syn {
           {full_doc => {title => 'S26'}}
       );
       $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">\n$&};
-      my $preamble = gen_preamble();
+      my $preamble = $sl->gen_preamble();
       $perldochtml =~ s{<body>}{$&$preamble};
       $sl->add_footer(\$perldochtml);
 
@@ -278,7 +273,7 @@ sub process_syn {
 
         #write_file("db_S$syn_id.html", $html);
 
-        my $preamble = gen_preamble();
+        my $preamble = $sl->gen_preamble();
         $html =~ s{<!-- start doc -->}{$&$preamble};
         my $out_dir = $sl->out_dir;
         my $htmfile = "$out_dir/S$syn_id.html";
@@ -292,27 +287,6 @@ sub process_syn {
     #warn "$syn_id: $infile\n";
 }
 
-sub gen_preamble {
-    my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;
-    $year += 1900; $mon += 1;
-    my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
-        $year, $mon, $mday, $hour, $min, $sec;
-    my $smoke_rev = $sl->smoke_rev;
-    my $smoke_info = $smoke_rev ?
-        ", <a href=\"http://perlcabal.org/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
-        :
-         '';
-    my $pugs_rev = get_pugs_rev();
-    $pugs_rev = $pugs_rev ? "r$pugs_rev" : 'unknown';
-    $pugs_rev ||= $smoke_rev;
-
-    return qq{
-            <I>This page was generated at $time.<br/>
-            (<a href="http://svn.pugscode.org/pugs/docs/Perl6/spec/">syn</a> <strong>$pugs_rev</strong>$smoke_info)</I>
-            &nbsp; [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ] <br/>
-            <a id='__top'></a>
-     };
-}
 
 sub help () {
     print <<_EOC_;
@@ -385,6 +359,7 @@ sub main () {
 		wiki          => $wiki,  # #TODO: do we need this flag?
 		out_dir       => $out_dir,
 		cssfile       => $cssfile,
+		version       => get_pugs_rev(),
 	});
 
 
@@ -421,7 +396,7 @@ sub main () {
 
 	my $test_file_count = scalar @t_files;
 	my $test_files_missing_links = scalar $sl->test_files_missing_links;
-    warn sprintf("info: %ssmartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
+    warn sprintf("info: %s smartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
 		$sl->link_count ,$sl->broken_link_count);
     if (!$sl->check and $sl->broken_link_count > 0) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
