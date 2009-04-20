@@ -185,7 +185,12 @@ BOILERPLATE_BACK
 if ($output and not $C) {
     $C = 'via-C';
 }
-if ($C eq 'via-C') { die "-o is required when compiling to an executable\n" unless $output; compile_via_c($m0ld,$output); } elsif ($C eq 'so') { die "-o is required when compiling to a shared library \n" unless $output;
+if ($C eq 'via-C') {
+    die "-o is required when compiling to an executable\n" unless $output;
+    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
+    compile_via_c($m0ld,$output);
+} elsif ($C eq 'so') {
+    die "-o is required when compiling to a shared library \n" unless $output;
     compile_to_so($m0ld,$output);
 } elsif ($C eq 'm0ld') {
     output($m0ld,$output);
