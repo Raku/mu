@@ -388,7 +388,7 @@ sub main () {
     create_index($out_dir) if $index;
 
     my @t_files = map glob, @ARGV;
-    push @t_files, list_t_files($dir) if $dir;
+    push @t_files, File::Find::Rule->file()->name('*.t')->in($dir) if $dir;
     $sl->process_test_files(@t_files);
 
 
@@ -441,10 +441,6 @@ sub create_index($) {
     return;
 }
 
-sub list_t_files {
-	my ($dir) = @_;
-    return File::Find::Rule->file()->name('*.t')->in($dir);
-}
 
 sub get_pugs_rev {
     my $stdout = `$^X $FindBin::Bin/version_h.pl`;
