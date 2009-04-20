@@ -147,7 +147,7 @@ _EOC_
 
 =head2 process_syn
 
-  process_syn($syn, $out_dir, $cssfile);
+  process_syn($syn);
 
 Process synopses one by$sl->link_count  one.
 
@@ -156,7 +156,8 @@ Process synopses one by$sl->link_count  one.
 =cut
 
 sub process_syn {
-    my ($infile, $out_dir, $cssfile) = @_;
+    my ($infile) = @_;
+
     my $syn_id;
     if ($infile =~ /\bS(\d+)(?:-\w+)+.pod$/) {
         $syn_id = $1;
@@ -191,6 +192,7 @@ sub process_syn {
       $perldochtml =~ s{<body>}{$&$preamble};
       $sl->add_footer(\$perldochtml);
 
+	  my $out_dir = $sl->out_dir;
       my $htmfile = "$out_dir/S$syn_id.html";
       warn "info: generating $htmfile...\n";
       open my $out, "> $htmfile" or
@@ -272,12 +274,13 @@ sub process_syn {
         #    write_file("db_S$syn_id.pod", $pod);
         #}
 
-        my $html = $sl->gen_html($pod, $syn_id, $cssfile);
+         my $html = $sl->gen_html($pod, $syn_id);
 
         #write_file("db_S$syn_id.html", $html);
 
         my $preamble = gen_preamble();
         $html =~ s{<!-- start doc -->}{$&$preamble};
+        my $out_dir = $sl->out_dir;
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
         open my $out, "> $htmfile" or
@@ -372,6 +375,7 @@ sub main () {
     if ($help || !@ARGV && !$dir) {
         help();
     }
+    $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
 	$sl = Smart::Links->new({
 		count         => $count,
@@ -379,11 +383,12 @@ sub main () {
 		line_anchor   => $line_anchor,
 		print_missing => $print_missing,
 		wiki          => $wiki,  # #TODO: do we need this flag?
+		out_dir       => $out_dir,
+		cssfile       => $cssfile,
 	});
 
-    $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
-    $out_dir ||= '.';
+	$out_dir = $sl->out_dir;
     mkdir $out_dir if !-d $out_dir;
     create_index($out_dir) if $index;
 
@@ -399,7 +404,7 @@ sub main () {
 
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
-        process_syn($syn, $out_dir, $cssfile);
+        process_syn($syn);
     }
 
     # check for pending smartlinks:
@@ -421,10 +426,11 @@ sub main () {
     if (!$sl->check and $sl->broken_link_count > 0) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
     }
+    $sl->create_stats_page();
     exit;
 }
 
-sub create_index($) {
+sub create_index {
     my ($out_dir) = @_;
 
     my $html = "<html><head><title>Synopsis</title></head><body>\n";

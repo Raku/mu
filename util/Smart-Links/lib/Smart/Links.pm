@@ -8,7 +8,8 @@ our $VERSION = '0.01';
 use File::ShareDir;
 use FindBin;
 use base 'Class::Accessor';
-__PACKAGE__->mk_accessors(qw(check count line_anchor print_missing smoke_rev wiki));
+__PACKAGE__->mk_accessors(qw(check count cssfile line_anchor 
+	out_dir print_missing smoke_rev wiki));
 
 =head1 NAME
 
@@ -306,6 +307,7 @@ sub new {
 	$self->{broken_link_count} = 0;
     $self->{snippet_id}        = 0;
 	$self->{test_files_missing_links} = [];
+    $self->{out_dir}          ||= '.';
 
 	return $self;
 }
@@ -592,7 +594,7 @@ sub process_yml_file {
 
 
 sub gen_html {
-    my ($self, $pod, $syn_id, $cssfile) = @_;
+    my ($self, $pod, $syn_id) = @_;
 
     eval { require Pod::Simple::HTML };
     $Pod::Simple::HTML::Perldoc_URL_Prefix  = 'http://perlcabal.org/syn/';
@@ -609,7 +611,7 @@ sub gen_html {
 
     my $pod2html = new Pod::Simple::HTML;
     $pod2html->index(1);
-    $pod2html->html_css($cssfile);
+    $pod2html->html_css($self->cssfile);
     my $javascript = $self->get_javascript();
     $pod2html->html_javascript(qq{<script type="text/javascript">$javascript</script>});
     $pod2html->force_title('S'.$syn_id);
@@ -684,6 +686,10 @@ sub add_user_css {
 .
     $$html =~ s{(</head>)}{$user_css\n$1};
 }
+
+sub create_stats_page {
+}
+
 
 sub snippet_id_inc    { $_[0]->{snippet_id}++ };
 sub snippet_id        { $_[0]->{snippet_id} };
