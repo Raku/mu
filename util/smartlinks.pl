@@ -124,43 +124,6 @@ sub process_t_file ($$) {
     return $found_link;
 }
 
-sub parse_pod ($) {
-    my $infile = shift;
-    open my $in, $infile or
-        die "can't open $infile for reading: $!\n";
-    my $podtree = {};
-    my $section;
-    while (<$in>) {
-        if (/^ =head(\d+) \s* (.*\S) \s* $/x) {
-            #warn "parse_pod: *$1*\n";
-            my $num = $1;
-            $section = $2;
-            $podtree->{_sections} ||= [];
-            push @{ $podtree->{_sections} }, [$num, $section];
-        } elsif (!$section) {
-            $podtree->{_header} .= $_;
-        } elsif (/^\s*$/) {
-            $podtree->{$section} ||= [];
-            #push @{ $podtree->{$section} }, "\n";
-            my @new = ('');;
-            if ($sl->line_anchor and $podtree->{$section}->[-1] !~ /^=over\b|^=item\b/) {
-                unshift @new, "_LINE_ANCHOR_$.\n";
-            }
-            push @{ $podtree->{$section} }, @new;
-        } elsif (/^\s+(.+)/) {
-            $podtree->{$section} ||= [''];
-            $podtree->{$section}->[-1] .= $_;
-            push @{ $podtree->{$section} }, '';
-        } else {
-            $podtree->{$section} ||= [''];
-            $podtree->{$section}->[-1] .= $_;
-        }
-    }
-    close $in;
-    $podtree;
-}
-
-
 
 sub gen_html ($$$) {
     my ($pod, $syn_id, $cssfile) = @_;
@@ -410,7 +373,7 @@ sub process_syn ($$$$) {
       close $out;
       return;
     }
-    my $podtree = parse_pod($infile);
+    my $podtree = $sl->parse_pod($infile);
     #print Dump $podtree if $syn_id eq '29';
 
     #use Data::Dumper;

@@ -146,6 +146,43 @@ sub emit_pod {
     return $str;
 }
 
+sub parse_pod {
+    my ($self, $infile) = @_;
+    open my $in, $infile or
+        die "can't open $infile for reading: $!\n";
+    my $podtree = {};
+    my $section;
+    while (<$in>) {
+        if (/^ =head(\d+) \s* (.*\S) \s* $/x) {
+            #warn "parse_pod: *$1*\n";
+            my $num = $1;
+            $section = $2;
+            $podtree->{_sections} ||= [];
+            push @{ $podtree->{_sections} }, [$num, $section];
+        } elsif (!$section) {
+            $podtree->{_header} .= $_;
+        } elsif (/^\s*$/) {
+            $podtree->{$section} ||= [];
+            #push @{ $podtree->{$section} }, "\n";
+            my @new = ('');;
+            if ($self->line_anchor and $podtree->{$section}->[-1] !~ /^=over\b|^=item\b/) {
+                unshift @new, "_LINE_ANCHOR_$.\n";
+            }
+            push @{ $podtree->{$section} }, @new;
+        } elsif (/^\s+(.+)/) {
+            $podtree->{$section} ||= [''];
+            $podtree->{$section}->[-1] .= $_;
+            push @{ $podtree->{$section} }, '';
+        } else {
+            $podtree->{$section} ||= [''];
+            $podtree->{$section}->[-1] .= $_;
+        }
+    }
+    close $in;
+    $podtree;
+}
+
+
 
 sub link_count_inc { $_[0]->{link_count}++ };
 sub link_count     { $_[0]->{link_count} };
