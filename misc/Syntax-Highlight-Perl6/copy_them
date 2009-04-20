@@ -10,6 +10,13 @@ my $STD = q{../../src/perl6};
 my $P6VIM = q{../../util};
 my $status;
 
+sub safe_copy {
+    my ($file,$to_file) = @_;
+
+    copy($file, $to_file)
+        or croak "Could not copy $file";
+}
+
 say "\n--Running 'svn update'";
 $status = system('cd ../..; svn update'); 
 die "Could not svn update pugs\n" if $status != 0;
@@ -19,13 +26,10 @@ $status = system('cd ../../src/perl6; make clean all');
 die "Could not make STD.pm\n" if $status != 0;
 
 say 'Building and copying STD.pm files';
-copy("$STD/Cursor.pmc",'lib/')
-    or croak "Could not copy $STD/Cursor.pmc";
-copy("$STD/LazyMap.pm", 'lib/LazyMap.pmc')
-    or croak "Could not copy $STD/LazyMap.pm";
-copy("$STD/STD.pmc", 'lib/')
-    or croak "Could not copy $STD/STD.pmc";
+safe_copy("$STD/Cursor.pmc",'lib/');
+safe_copy("$STD/LazyMap.pm", 'lib/LazyMap.pmc');
+safe_copy("$STD/STD.pmc", 'lib/');
+safe_copy("$STD/CORE.pad", 'lib/');
 
 say 'Copying perl6.vim';
-copy("$P6VIM/perl6.vim", 'lib/Syntax/Highlight/Perl6/perl6.vim')
-    or croak "Could not copy $P6VIM/perl6.vim";
+safe_copy("$P6VIM/perl6.vim", 'lib/Syntax/Highlight/Perl6/perl6.vim');

@@ -1,7 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
-0.041 ??????????
-    - Depends on Moose 0.68
+0.041 2009.04.??????
+    - Depends on Moose 0.74
+    - Bundled new STD and perl6.vim
 
 0.040 2009.02.04
     - Depends on Moose 0.67

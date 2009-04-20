@@ -5,12 +5,12 @@ name           'Syntax-Highlight-Perl6';
 all_from       'lib/Syntax/Highlight/Perl6.pm';
 
 # Specific dependencies
-requires  'Moose'               => '0.68';        
+requires  'Moose'               => '0.74';        
 requires  'Readonly'            => '1.03';
-requires  'Term::ANSIColor'     => '1.12';
+requires  'Term::ANSIColor'     => '2.00';
 requires  'YAML::Syck'          => '1.05';
 test_requires  'Test::Exception'     => '0.27';
-test_requires  'Test::More'          => '0.42';
+test_requires  'Test::More'          => '0.86';
 
 install_script 'script/hilitep6';
 

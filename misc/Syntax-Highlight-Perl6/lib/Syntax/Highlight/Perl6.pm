@@ -33,8 +33,6 @@ Readonly my $FILE_JS     => 'p6_style.js';
 Readonly my $FILE_JQUERY => 'jquery-1.3.1.min.js';
 Readonly my $FILE_P6_VIM => 'perl6.vim';
 
-# These are needed for redspans
-$::ACTIONS = __PACKAGE__ . '::Actions';
 
 # my module variables
 my @loc;
@@ -93,7 +91,11 @@ sub _lazy_parse {
         $loc[$len - 1] = [];
 
         #STD parse the text for the rule provided
-        $self->{parser} = STD->parse($src_text, $self->{rule});
+        $self->{parser} = STD->parse(
+            $src_text, 
+            $self->{rule},
+            __PACKAGE__ . '::Actions'
+        );
 
         #we parsed it lazily...
         $self->{src_text} = $src_text;
