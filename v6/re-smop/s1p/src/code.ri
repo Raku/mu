@@ -22,7 +22,6 @@ SMOP__Object* SMOP__S1P__Code_create() {
 %}
 
 %init {
-    printf("%p\n",SMOP__Mold__Frame);
     SMOP__Mold__Frame_proto = SMOP__Proto__create(SMOP__Mold__Frame);
 %}
 
@@ -32,8 +31,10 @@ SMOP__Object* SMOP__S1P__Code_create() {
     code->mold = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__mold);
     code->outer = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__outer);
     code->signature = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__signature);
-    if (!code->signature)
+    if (!code->signature) {
+        printf("no signature!\n");
         code->signature = SMOP__NATIVE__bool_false;
+    }
     /* TODO  code->signature = SMOP__S1P__DefaultBlockSignature;*/
 
 %method postcircumfix:( )
@@ -61,7 +62,6 @@ SMOP__Object* SMOP__S1P__Code_create() {
     mold_reg_set(interpreter,frame,5,SMOP_REFERENCE(interpreter,signature));
     mold_reg_set(interpreter,frame,6,SMOP_REFERENCE(interpreter,mold));
 
-    printf("calling Code!\n");
     SMOP_DISPATCH(interpreter,SMOP_RI(interpreter),SMOP__ID__goto,
       SMOP__NATIVE__capture_create(interpreter,
         (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
@@ -116,7 +116,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
   my $actualcapture_c = $capture."positional"(1);
   
   # TODO
-  #$void = $signature."BIND"($actualcapture_c,$lexical);
+  $void = $signature."BIND"($actualcapture_c,$lexical);
 
   my $cc = $capture."named"("cc");
   my $has_cc = $cc."true"();

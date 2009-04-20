@@ -37,9 +37,12 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
   smop_s1p_lexical_prelude_insert(interpreter,"Code",SMOP_REFERENCE(interpreter,SMOP__S1P__Code));
   smop_s1p_lexical_prelude_insert(interpreter,"capture",SMOP__Proto__create(SMOP__capture__RI));
   smop_s1p_lexical_prelude_insert(interpreter,"$OUT",SMOP__S1P__IO_create(interpreter));
+  smop_s1p_lexical_prelude_insert(interpreter,"MildewSOLoader",SMOP_REFERENCE(interpreter,SMOP__MildewSOLoader));
+  smop_s1p_lexical_prelude_insert(interpreter,"$LexicalPrelude",SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalPrelude));
+  smop_s1p_lexical_prelude_insert(interpreter,"AdhocSignature",SMOP_REFERENCE(interpreter,SMOP__S1P__AdhocSignature));
+  smop_s1p_lexical_prelude_insert(interpreter,"Scalar",SMOP_REFERENCE(interpreter,SMOP__S1P__Scalar));
 }
 
 void smop_s1p_lexical_prelude_destr(SMOP__Object* interpreter) {
-  printf("\t\treleasing lexical prelude\n");
   SMOP_RELEASE(interpreter,SMOP__S1P__LexicalPrelude);
 }

@@ -25,7 +25,7 @@ env.Append(BUILDERS = {'M0ld' : Builder(action = 'cat m0ld/m0ld_boilerplate_fron
 import subprocess # python has `` in a strange module :\
 ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
-flags = '-O0 -g3 -Wall -DSMOP_MOLD_DEBUG'
+flags = '-O0 -g3 -Wall ' #-DSMOP_MOLD_DEBUG'
 
 
 modules = ['s0native','nagc','util','capture','interpreter','mold','native','s1p']

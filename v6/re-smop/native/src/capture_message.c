@@ -29,16 +29,13 @@ static SMOP__Object* message(SMOP__Object* interpreter,
     for (i=1;i<count;i++) pos[i-1] = SMOP_REFERENCE(interpreter,SMOP__NATIVE__capture_positional(interpreter,capture,i));
     pos[count-1] = NULL;
     /*TODO named arguments */
-    fprintf(stderr,"creating capture\n");
     ret = SMOP__NATIVE__capture_create(interpreter,pos,(SMOP__Object*[]) {NULL});
     free(pos);
-    fprintf(stderr,"created capture\n");
   } else {
     ___UNKNOWN_METHOD___;
   }
   SMOP_RELEASE(interpreter, invocant);
   SMOP_RELEASE(interpreter, capture);
-  fprintf(stderr,"returning %s from capture\n",ret->RI->id);
   return ret;
 }
 void smop_capture_message_init(SMOP__Object* interpreter) {

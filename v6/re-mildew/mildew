@@ -73,10 +73,11 @@ sub compile_to_so {
     my ($c_fh,$c_file) = tempfile();
     print {$c_fh} <<'BOILERPLATE_FRONT';
 #include <stdio.h>
-#include <smop.h>
-#include <smop_s1p.h>
-#include <smop_mold.h>
-#include <smop_lowlevel.h>
+#include <smop/base.h>
+#include <smop/mold.h>
+#include <smop/capture.h>
+#include <smop/s0native.h>
+#include <smop/native.h>
 void init(SMOP__Object* interpreter,SMOP__Object* scope,SMOP__Object* continuation) {
     SMOP__Object* mold =
 BOILERPLATE_FRONT
@@ -87,9 +88,13 @@ BOILERPLATE_FRONT
   mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
   mold_reg_set(interpreter,frame,1,scope);
   mold_reg_set(interpreter,frame,2,continuation);
+
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                SMOP__ID__goto,
-                frame);
+    SMOP__NATIVE__idconst_create("goto"),
+    SMOP__NATIVE__capture_create(interpreter,
+        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
+        (SMOP__Object*[]) {NULL})
+  );
 }
 BOILERPLATE_BACK
     close($c_fh);
@@ -149,9 +154,28 @@ if ($C eq 'desugar') {
     $m0ld = $front.<<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK'.$back;
     my $void;
 BOILERPLATE_FRONT
+    my $AdhocSignature_scalar = $scope."lookup"("AdhocSignature");
+    my $AdhocSignature = $AdhocSignature_scalar."FETCH"();
+    
+    my $sig = $AdhocSignature."new"(:"BIND"(mold {
+        my $interpreter;
+        my $scope;
+        my $capture;
+        my $continuation = $interpreter."continuation"();
+        my $back = $continuation."back"();
+        my $void = $interpreter."goto"($back);
+    }),:"ACCEPTS"(mold {
+        my $interpreter;
+        my $scope;
+        my $capture;
+        my $continuation = $interpreter."continuation"();
+        my $back = $continuation."back"();
+        my $void = $interpreter."goto"($back);
+    }));
+
     my $Code_scalar = $scope."lookup"("Code");
     my $Code = $Code_scalar."FETCH"();
-    my $main_code = $Code."new"(:"outer"($scope),:"mold"($main));
+    my $main_code = $Code."new"(:"outer"($scope),:"mold"($main),:"signature"($sig));
     my $Capture_scalar = $scope."lookup"("capture");
     my $Capture = $Capture_scalar."FETCH"();
     my $capture = $Capture."new"();
@@ -161,11 +185,7 @@ BOILERPLATE_BACK
 if ($output and not $C) {
     $C = 'via-C';
 }
-if ($C eq 'via-C') {
-    die "-o is required when compiling to an executable\n" unless $output;
-    compile_via_c($m0ld,$output);
-} elsif ($C eq 'so') {
-    die "-o is required when compiling to a shared library \n" unless $output;
+if ($C eq 'via-C') { die "-o is required when compiling to an executable\n" unless $output; compile_via_c($m0ld,$output); } elsif ($C eq 'so') { die "-o is required when compiling to a shared library \n" unless $output;
     compile_to_so($m0ld,$output);
 } elsif ($C eq 'm0ld') {
     output($m0ld,$output);

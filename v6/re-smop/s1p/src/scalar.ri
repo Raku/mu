@@ -1,6 +1,7 @@
 %prefix smop_s1p_scalar
 %include <assert.h>,<smop/s1p.h>
 %attr  SMOP__Object* cell;
+%prototype SMOP__S1P__Scalar
 %RI.id Scalar
 
 %{
@@ -52,8 +53,14 @@ static SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
     SMOP_REFERENCE(interpreter,ret);
 
 %method new
-    SMOP__Object* cell = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
-    if (!cell) cell = SMOP__NATIVE__bool_false;
+
+    SMOP__Object* cell;
+    if (SMOP__NATIVE__capture_positional_count(interpreter, capture) == 2) {
+      cell = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+    } else {
+      cell = SMOP__NATIVE__bool_false;
+    }
+
     ret = SMOP__S1P__Scalar_create(interpreter,cell);
 
 %DESTROYALL {

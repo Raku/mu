@@ -1,0 +1,88 @@
+%prefix smop_s1p_adhocsignature
+%prototype SMOP__S1P__AdhocSignature
+%attr  SMOP__Object* accepts_mold
+%attr  SMOP__Object* bind_mold
+%RI.id S1P Adhoc Signature
+%idconst goto
+%idconst continuation
+%idconst BIND
+
+%method new
+    ret = smop_nagc_alloc(sizeof(smop_s1p_adhocsignature_struct));
+    smop_s1p_adhocsignature_struct* sig = (smop_s1p_adhocsignature_struct*)ret;
+    sig->RI = (SMOP__ResponderInterface*)RI;
+    SMOP_REFERENCE(interpreter,RI);
+    sig->accepts_mold = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__ACCEPTS);
+    sig->bind_mold = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__BIND);
+
+%method BIND
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object* mold = ((smop_s1p_adhocsignature_struct*)invocant)->bind_mold;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+    
+    if (mold) {
+        SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+          SMOP__ID__continuation,
+          SMOP__NATIVE__capture_create(interpreter,
+            (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+            (SMOP__Object*[]) {NULL}
+       ));
+    
+        SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                       SMOP_REFERENCE(interpreter,mold));
+        mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+        mold_reg_set(interpreter,frame,1,SMOP__NATIVE__capture_positional(interpreter,capture,1));
+        mold_reg_set(interpreter,frame,2,SMOP__NATIVE__capture_positional(interpreter,capture,0));
+        mold_back_set(interpreter,frame,continuation);
+     
+        SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+          SMOP__ID__goto,
+          SMOP__NATIVE__capture_create(interpreter,
+            (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
+            (SMOP__Object*[]) {NULL}
+          )
+        );
+    }
+
+%method ACCEPTS
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object* mold = ((smop_s1p_adhocsignature_struct*)invocant)->accepts_mold;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+    
+
+    if (mold) {
+        SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+          SMOP__ID__continuation,
+          SMOP__NATIVE__capture_create(interpreter,
+            (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+            (SMOP__Object*[]) {NULL}
+          ));
+    
+        SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,
+                                                       SMOP_REFERENCE(interpreter,mold));
+    
+        mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+        mold_reg_set(interpreter,frame,1,SMOP__NATIVE__capture_positional(interpreter,capture,1));
+        mold_reg_set(interpreter,frame,2,SMOP__NATIVE__capture_positional(interpreter,capture,0));
+        mold_back_set(interpreter,frame,continuation);
+    
+        SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+          SMOP__ID__goto,
+          SMOP__NATIVE__capture_create(interpreter,
+            (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
+            (SMOP__Object*[]) {NULL}
+          )
+        );
+    }
+
+%method DESTROYALL
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object* bmold = ((smop_s1p_adhocsignature_struct*)invocant)->bind_mold;
+    ((smop_s1p_adhocsignature_struct*)invocant)->bind_mold = NULL;
+    SMOP__Object* amold = ((smop_s1p_adhocsignature_struct*)invocant)->accepts_mold;
+    ((smop_s1p_adhocsignature_struct*)invocant)->accepts_mold = NULL;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+    if (bmold) SMOP_RELEASE(interpreter,bmold);
+    if (amold) SMOP_RELEASE(interpreter,amold);
+    SMOP_RELEASE(interpreter,RI);
