@@ -145,8 +145,7 @@ sub process_syn {
             } continue { $i++ }
             if (!$matched) {
                 my ($file, $lineno) = @$location;
-                $sl->error("$file: line $lineno: pattern ``$pattern'' failed to match any",
-                    "paragraph in L<S${syn_id}/${section_name}>.");
+                $sl->error("$file: line $lineno: pattern '$pattern' failed to match any paragraph in L<S${syn_id}/${section_name}>.");
                 $sl->broken_link_count_inc;
             }
         }
@@ -286,8 +285,7 @@ sub main () {
         for my $links (values %$linktree_sections) {
             for my $link (@$links) {
                 my ($file, $lineno) = @{ $link->[1] };
-                $sl->error("$file: line $lineno: smartlink pointing to " .
-                    "an unknown synopsis ($syn)"),
+                $sl->error("$file: line $lineno: smartlink pointing to an unknown synopsis ($syn)"),
                 $sl->broken_link_count_inc;
             }
         }

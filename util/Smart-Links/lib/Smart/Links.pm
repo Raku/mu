@@ -9,6 +9,7 @@ use File::ShareDir;
 use FindBin;
 use File::Spec;
 use File::Slurp;
+use CGI;
 
 use base 'Class::Accessor';
 __PACKAGE__->mk_accessors(qw(check count cssfile line_anchor 
@@ -622,8 +623,7 @@ sub process_t_file {
                 $_ = <$in>;
                 s/^\s*\#?\s*|\s+$//g;
                 if (!s/>{$brackets}$//) {
-                    $self->error("$infile: line $.: smart links must terminate",
-                        "in the second line.");
+                    $self->error("$infile: line $.: smart links must terminate in the second line.");
                     next;
                 }
                 $pattern .= " $_";
@@ -638,7 +638,7 @@ sub process_t_file {
             $found_link++;
         }
         elsif (/^ \s* \#? \s* L<? S\d+\b /xoi) {
-            $self->error("$infile: line $.: syntax error in the magic link:\n\t$_");
+            $self->error("$infile: line $.: syntax error in the magic link: $_");
         }
         else { next; }
 
@@ -846,7 +846,7 @@ sub create_stats_page {
 	if (@{ $self->{errors} }) {
 		$html .= "<h2>Errors</h2>\n<ul>";
 		foreach my $e (@{ $self->{errors} }) {
-			$html .= "<li>@$e</li>\n";
+			$html .= "<li>" . CGI::escapeHTML(join "", @$e) . "</li>\n";
 		}
 		$html .= "</ul>\n";
 	}
@@ -871,7 +871,7 @@ sub broken_link_count     { $_[0]->{broken_link_count} };
 sub error {
 	my $self = shift;
 
-	push @{ $self->{errors} }, \@_;
+	push @{ $self->{errors} }, [@_];
     if ($self->check) { warn "ERROR: @_\n"; }
 }
 
