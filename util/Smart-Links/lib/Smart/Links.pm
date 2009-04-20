@@ -182,6 +182,85 @@ sub parse_pod {
     $podtree;
 }
 
+sub process_t_file {
+    my ($self, $infile, $linktree) = @_;
+    open my $in, $infile or
+        die "error: Can't open $infile for reading: $!\n";
+    my ($setter, $from, $to);
+    my $found_link = 0;
+    while (<$in>) {
+        chomp;
+        my $new_from;
+        my ($synopsis, $section, $pattern);
+        if (/^ \s* \#? \s* L< (S\d+) \/ ([^\/]+) >\s*$/xo) {
+            ($synopsis, $section) = ($1, $2);
+            $section =~ s/^\s+|\s+$//g;
+            $section =~ s/^"(.*)"$/$1/;
+            #warn "$synopsis $section" if $synopsis eq 'S06';
+            $new_from = $.;
+            $to = $. - 1;
+            $found_link++;
+        }
+        elsif (/^ \s* \#? \s* L(<<?) (S\d+) \/ ([^\/]+) \/ (.*) /xo) {
+            #warn "$1, $2, $3\n";
+            my $brackets;
+            ($brackets, $synopsis, $section, $pattern) = ($1, $2, $3, $4);
+            $brackets = length($brackets);
+            $section =~ s/^\s+|\s+$//g;
+            $section =~ s/^"(.*)"$/$1/;
+            if (!$section) {
+                $self->error("$infile: line $.: section name can't be empty.");
+            }
+            $pattern =~ s/^\s+|\s+$//g;
+            if (substr($pattern, -1, 1) ne '>') {
+                $_ = <$in>;
+                s/^\s*\#?\s*|\s+$//g;
+                if (!s/>{$brackets}$//) {
+                    $self->error("$infile: line $.: smart links must terminate",
+                        "in the second line.");
+                    next;
+                }
+                $pattern .= " $_";
+                $new_from = $. - 1;
+                $to = $. - 2;
+            } else {
+                $new_from = $.;
+                $to = $. - 1;
+                $pattern =~ s/\s*>{$brackets}$//;
+            }
+            #warn "*$synopsis* *$section* *$pattern*\n";
+            $found_link++;
+        }
+        elsif (/^ \s* \#? \s* L<? S\d+\b /xoi) {
+            $self->error("$infile: line $.: syntax error in the magic link:\n\t$_");
+        }
+        else { next; }
+
+        #warn "*$synopsis* *$section*\n";
+        if ($from and $from == $to) {
+            my $old_setter = $setter;
+            my $old_from = $from;
+            $setter = sub {
+                $self->add_link($linktree, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
+                $old_setter->($old_from, $_[1]);
+                #warn "$infile - $old_from ~ $_[1]";
+            };
+            #warn "$infile - $from ~ $to";
+        } else {
+            $setter->($from, $to) if $setter and $from;
+            $setter = sub {
+                $self->add_link($linktree, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
+            };
+        }
+        $from = $new_from;
+    }
+    $setter->($from, $.) if $setter and $from;
+    close $in;
+#   print "No smartlink found in <$infile>\n" if (defined $print_missing && $found_link == 0);
+    return $found_link;
+}
+
+
 
 
 sub link_count_inc { $_[0]->{link_count}++ };
