@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.040';
+our $VERSION = '0.041';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
@@ -93,8 +93,8 @@ sub _lazy_parse {
         #STD parse the text for the rule provided
         $self->{parser} = STD->parse(
             $src_text, 
-            $self->{rule},
-            __PACKAGE__ . '::Actions'
+            rule => $self->{rule},
+            actions => __PACKAGE__ . '::Actions'
         );
 
         #we parsed it lazily...
