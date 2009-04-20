@@ -42,107 +42,6 @@ my %Spec = reverse qw(
 );
 
 
-# Note that this function has been optimized for space rather
-# than time.
-sub gen_code_snippet {
-    my $location = shift;
-    my ($file, $from, $to) = @$location;
-    #warn "gen_code_snippet: @$location\n";
-    open my $in, $file or
-        die "Can't open $file for reading: $!\n";
-
-    # Strip leading realpath so the names start at t/
-    $file =~ s{.*?/t/}{t/};
-
-    my $i = 1;
-    my $src;
-    my $file_info;
-    $file_info = $sl->{test_result}->{$file} if $sl->{test_result};
-    my ($ok_count, $failed_count) = (0, 0);
-    while (<$in>) {
-        next if $i < $from;
-        last if $i > $to;
-        s/\&/\&amp;/g;
-        s/"/\&quot;/g;
-        s/</\&lt;/g;
-        s/>/\&gt;/g;
-        s{^(  *)}{"&nbsp; " x (length($1) / 2)}gem;
-        s/  / &nbsp;/g;
-        s{L\&lt;(http://.*?)\&gt;}{L\&lt;<a href="$1">$1</a>\&gt;}g;
-        s{L\&lt;\&quot;(http://.*?)\&quot;\&gt;}
-         {L\&lt;<a href="$1">\&quot;$1\&quot;</a>\&gt;}g;
-        my $mark = '';
-        if ($file_info) {
-            chomp;
-            if (!exists $file_info->{$i}) {
-                $mark = '';
-            } elsif ($file_info->{$i}) {
-                $mark = qq{<span class="ok"> √ </span>};
-                $ok_count++;
-            } else {
-                $mark = qq{<span class="nok"> × </span>};
-                $failed_count++;
-            }
-        }
-        $src .= qq{<tr><td><code>$mark</code></td><td><code>$_</code></td></tr>\n};
-    } continue { $i++ }
-
-    close $in;
-
-    $src =~ s/\n+$//sg;
-
-    my $snippet_id = $sl->snippet_id_inc;
-
-    #warn $snippet_id;
-    #warn "$file $to $from";
-    warn "NOT DEFINED!!! @$location $snippet_id" if !defined $src;
-
-    my $snippet;
-    if (!$sl->{test_result}) {
-        #warn "No test results for $file $from to $to";
-        $snippet = qq{<pre class="snip">$src</pre>};
-    } else {
-        $snippet = qq{
-            <table class="snipres">
-                $src
-            </table>
-        };
-    }
-
-    my $stat;
-    if ($sl->{test_result}) {
-        if ($ok_count == 0 && $failed_count == 0) {
-            $stat = " (no results)";
-        } else {
-            $stat = " (<code>$ok_count √, $failed_count ×</code>)";
-        }
-    } else {
-        $stat = '';
-    }
-
-    my $nlines = $to - $from + 1;
-    my $html_file = $file;
-    $html_file =~ s{t/}{};
-    my $simple_html = $html_file . ".simple.html";
-    my $full_html = $html_file . ".html";
-    my $simple_snippet_id = "simple_$snippet_id";
-
-    my $html = <<"_EOC_";
-<p>From $file lines $from&ndash;$to$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span></p>
-<div id="smartlink_${snippet_id}" class="smartlink_snippet">
-$snippet
-</div>
-<span id="smartlink_skipto_${snippet_id}">&nbsp;</span>
-<span style="color:DarkBlue">Highlighted:
-<a href="#" 
-onclick="return toggle_hilite('$simple_snippet_id','/~azawawi/html/$simple_html')">small</a>|<a href="/~azawawi/html/$full_html" target="_blank">full</a>
-</span>
-<iframe id="$simple_snippet_id" style="display:none;" width="100%"></iframe>
-_EOC_
-    $sl->set_snippet($snippet_id, $html);
-    "\n\n_SMART_LINK_$snippet_id\n\n";
-}
-
 =begin private
 
 =head2 process_syn
@@ -225,7 +124,7 @@ sub process_syn {
             my $i = 0;
             if (!$pattern) { # match the whole section
                 if (!$sl->check) {
-                    unshift @$paras, gen_code_snippet($location);
+                    unshift @$paras, $sl->gen_code_snippet($location);
                     $i = 1;
                 }
                 next;
@@ -237,7 +136,7 @@ sub process_syn {
                 next if !$para or $para =~ /\?hide_quotes=no/;
                 if ($sl->process_paragraph($para) =~ /$regex/) {
                     if (!$sl->check) {
-                        splice @$paras, $i+1, 0, gen_code_snippet($location);
+                        splice @$paras, $i+1, 0, $sl->gen_code_snippet($location);
                         $i++;
                     }
                     $matched = 1;
