@@ -147,7 +147,7 @@ _EOC_
 
 =head2 process_syn
 
-  process_syn($syn, $out_dir, $cssfile, $linktree);
+  process_syn($syn, $out_dir, $cssfile);
 
 Process synopses one by$sl->link_count  one.
 
@@ -155,8 +155,8 @@ Process synopses one by$sl->link_count  one.
 
 =cut
 
-sub process_syn ($$$$) {
-    my ($infile, $out_dir, $cssfile, $linktree) = @_;
+sub process_syn {
+    my ($infile, $out_dir, $cssfile) = @_;
     my $syn_id;
     if ($infile =~ /\bS(\d+)(?:-\w+)+.pod$/) {
         $syn_id = $1;
@@ -206,7 +206,7 @@ sub process_syn ($$$$) {
     #$Data::Dumper::Indent = 1;
     #print Dumper $linktree if $syn_id eq '02';
 
-    my $linktree_sections = $linktree->{"S$syn_id"};
+    my $linktree_sections = $sl->{linktree}->{"S$syn_id"};
 #    if (!$linktree_sections && $syn_id != 7) {
 #        # We won't generate the HTML file if there's no smartlink in it.
 #        return;
@@ -257,7 +257,7 @@ sub process_syn ($$$$) {
     }
 
     # We need this to check invalid smartlinks pointed to non-existent docs:
-    delete $linktree->{"S$syn_id"};
+    delete $sl->{linktree}->{"S$syn_id"};
 
     if (!$sl->check) {
         #use Data::Dumper;
@@ -393,9 +393,8 @@ sub main () {
     #use Data::Dumper;
     #print Dumper \@t_files;
 
-    my $linktree = {};
     for my $t_file (@t_files) {
-        my $links = $sl->process_t_file($t_file, $linktree);
+        my $links = $sl->process_t_file($t_file);
         if ($links) {
 			print "Found $links links in <$t_file>\n" if defined $count;
         } else {
@@ -405,7 +404,6 @@ sub main () {
         }
         $test_file_count++;
     }
-    #print Dump($linktree);
 
     my $pugs_syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
     $syn_dir ||= $pugs_syn_dir;
@@ -414,11 +412,11 @@ sub main () {
 
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
-        process_syn($syn, $out_dir, $cssfile, $linktree);
+        process_syn($syn, $out_dir, $cssfile);
     }
 
     # check for pending smartlinks:
-    while (my ($syn, $linktree_sections) = each %$linktree) {
+    while (my ($syn, $linktree_sections) = each %{ $sl->{linktree} }) {
         for my $links (values %$linktree_sections) {
             for my $link (@$links) {
                 my ($file, $lineno) = @{ $link->[1] };

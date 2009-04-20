@@ -22,6 +22,20 @@ Smart::Links - connecting test files with pod documentation
   smartlinks.pl --check t/*/*.t t/*/*/*.t
   smartlinks.pl --check t/some/test.t
   smartlinks.pl --missing t/*/*.t t/*/*/*.t
+  
+=head1 DESCRIPTION
+
+The plan is to change the Smart::Links module and write a new 
+smartlinks.pl script so it will be usable in any Perl 5 or Perl 6 
+project to generate the HTML pages combining the POD content from
+the .pod and .pm files and test scripts.
+
+In addition the script should be able to generate further reports
+in HTML format that help the developers.
+
+The usage should default to parsing the files in lib/ for documentation
+and the .t files in the t/ subdirectory.
+
 
 =head1 Design Decisions
 
@@ -364,7 +378,7 @@ sub get_javascript {
 
 =head2 add_link
 
-  add_link($linktree, $synopsis, $section, $pattern, $infile, $from, $to);
+  add_link($synopsis, $section, $pattern, $infile, $from, $to);
 
 =end private
 
@@ -372,14 +386,14 @@ sub get_javascript {
 
 # TODO add tests
 sub add_link  {
-    my ($self, $linktree, $synopsis, $section, $pattern, $t_file, $from, $to) = @_;
+    my ($self, $synopsis, $section, $pattern, $t_file, $from, $to) = @_;
     if ($from == $to) {
         warn "WARNING: empty snippet detected at $t_file (line $from ~ $to).\n";
     }
-    $linktree->{$synopsis} ||= {};
-    $linktree->{$synopsis}->{$section} ||= [];
+    $self->{linktree}->{$synopsis} ||= {};
+    $self->{linktree}->{$synopsis}->{$section} ||= [];
     if ($pattern and substr($pattern, -1, 1) eq '/') { $pattern = "/$pattern"; }
-    push @{ $linktree->{$synopsis}->{$section} },
+    push @{ $self->{linktree}->{$synopsis}->{$section} },
         [$pattern => [$t_file, $from, $to]];
         
     return $self->link_count_inc;
@@ -445,7 +459,7 @@ sub parse_pod {
 }
 
 sub process_t_file {
-    my ($self, $infile, $linktree) = @_;
+    my ($self, $infile) = @_;
     open my $in, $infile or
         die "error: Can't open $infile for reading: $!\n";
     my ($setter, $from, $to);
@@ -503,7 +517,7 @@ sub process_t_file {
             my $old_setter = $setter;
             my $old_from = $from;
             $setter = sub {
-                $self->add_link($linktree, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
+                $self->add_link($synopsis, $section, $pattern, $infile, $_[0], $_[1]);
                 $old_setter->($old_from, $_[1]);
                 #warn "$infile - $old_from ~ $_[1]";
             };
@@ -511,7 +525,7 @@ sub process_t_file {
         } else {
             $setter->($from, $to) if $setter and $from;
             $setter = sub {
-                $self->add_link($linktree, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
+                $self->add_link($synopsis, $section, $pattern, $infile, $_[0], $_[1]);
             };
         }
         $from = $new_from;
