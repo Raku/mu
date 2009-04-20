@@ -8,7 +8,7 @@ our $VERSION = '0.01';
 use File::ShareDir;
 use FindBin;
 use base 'Class::Accessor';
-__PACKAGE__->mk_accessors(qw(check line_anchor));
+__PACKAGE__->mk_accessors(qw(check line_anchor smoke_rev));
 
 =head1 NAME
 
@@ -260,6 +260,41 @@ sub process_t_file {
     return $found_link;
 }
 
+sub process_yml_file {
+	my ($self, $yml_file) = @_;
+    if ($yml_file) {
+        eval {
+            require Test::TAP::Model;
+            require YAML::Syck;
+        };
+        if ($@) {
+            die "--smoke-res option requires both Test::TAP::Model and YAML::Syck. ".
+                "At least one of them is not installed.\n";
+        }
+        my $data = YAML::Syck::LoadFile($yml_file);
+        #warn $data;
+        my $structure;
+        if ($data->{meat}) {
+            $structure = delete $data->{meat};
+        }
+        my $tap = Test::TAP::Model->new_with_struct($structure);
+        for my $file ($tap->test_files) {
+            #warn "  $file...\n";
+            (my $fname = $file->name) =~ s{.*?/t/}{t/};
+            my %file_info;
+            $self->{test_result}->{$fname} = \%file_info;
+            for my $case ($file->cases) {
+                next if $case->skipped or !$case->test_line;
+                $file_info{$case->test_line} = $case->actual_ok;
+            }
+        }
+        #YAML::Syck::DumpFile('test_result.yml', $self->{test_result});
+        my $smoke_rev = $data->{revision};
+        $self->smoke_rev($smoke_rev);
+        $smoke_rev = $smoke_rev ? "r$smoke_rev" : 'unknown';
+        warn "info: pugs smoke is at $smoke_rev.\n";
+    }
+}
 
 
 

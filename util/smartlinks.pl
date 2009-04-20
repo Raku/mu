@@ -33,8 +33,6 @@ use Smart::Links;
 my $sl;
 
 my $print_missing;
-my $test_result;
-my ($pugs_rev, $smoke_rev);
 
 my (@snippets, $snippet_id);
 
@@ -153,7 +151,7 @@ sub gen_code_snippet ($) {
     my $i = 1;
     my $src;
     my $file_info;
-    $file_info = $test_result->{$file} if $test_result;
+    $file_info = $sl->{test_result}->{$file} if $sl->{test_result};
     my ($ok_count, $failed_count) = (0, 0);
     while (<$in>) {
         next if $i < $from;
@@ -194,7 +192,7 @@ sub gen_code_snippet ($) {
     warn "NOT DEFINED!!! @$location $snippet_id" if !defined $src;
 
     my $snippet;
-    if (!$test_result) {
+    if (!$sl->{test_result}) {
         #warn "No test results for $file $from to $to";
         $snippet = qq{<pre class="snip">$src</pre>};
     } else {
@@ -206,7 +204,7 @@ sub gen_code_snippet ($) {
     }
 
     my $stat;
-    if ($test_result) {
+    if ($sl->{test_result}) {
         if ($ok_count == 0 && $failed_count == 0) {
             $stat = " (no results)";
         } else {
@@ -387,15 +385,19 @@ sub process_syn ($$$$) {
 }
 
 sub gen_preamble {
-     my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;
-     $year += 1900; $mon += 1;
-     my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
-         $year, $mon, $mday, $hour, $min, $sec;
-     my $smoke_info = $smoke_rev ?
-         ", <a href=\"http://perlcabal.org/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
-         :
+    my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;
+    $year += 1900; $mon += 1;
+    my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
+        $year, $mon, $mday, $hour, $min, $sec;
+    my $smoke_rev = $sl->smoke_rev;
+    my $smoke_info = $smoke_rev ?
+        ", <a href=\"http://perlcabal.org/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
+        :
          '';
-     ## $smoke_info
+    my $pugs_rev = get_pugs_rev();
+    $pugs_rev = $pugs_rev ? "r$pugs_rev" : 'unknown';
+    $pugs_rev ||= $smoke_rev;
+
     return qq{
             <I>This page was generated at $time.<br/>
             (<a href="http://svn.pugscode.org/pugs/docs/Perl6/spec/">syn</a> <strong>$pugs_rev</strong>$smoke_info)</I>
@@ -502,44 +504,7 @@ sub main () {
     my $pugs_syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
     $syn_dir ||= $pugs_syn_dir;
 
-	$pugs_rev = get_pugs_rev();
-
-    if ($yml_file) {
-        eval {
-            require Test::TAP::Model;
-            require YAML::Syck;
-        };
-        if ($@) {
-            die "--smoke-res option requires both Test::TAP::Model and YAML::Syck. ".
-                "At least one of them is not installed.\n";
-        }
-        my $data = YAML::Syck::LoadFile($yml_file);
-        #warn $data;
-        my $structure;
-        if ($data->{meat}) {
-            $structure = delete $data->{meat};
-        }
-        my $tap = Test::TAP::Model->new_with_struct($structure);
-        $test_result = {};
-        for my $file ($tap->test_files) {
-            #warn "  $file...\n";
-            (my $fname = $file->name) =~ s{.*?/t/}{t/};
-            my %file_info;
-            $test_result->{$fname} = \%file_info;
-            for my $case ($file->cases) {
-                next if $case->skipped or !$case->test_line;
-                $file_info{$case->test_line} = $case->actual_ok;
-            }
-        }
-        #YAML::Syck::DumpFile('test_result.yml', $test_result);
-        $smoke_rev = $data->{revision};
-        $pugs_rev ||= $smoke_rev;
-        $smoke_rev = $smoke_rev ? "r$smoke_rev" : 'unknown';
-        warn "info: pugs smoke is at $smoke_rev.\n";
-    }
-
-    $pugs_rev = $pugs_rev ? "r$pugs_rev" : 'unknown';
-    warn "info: pugs test suite is at $pugs_rev.\n";
+	$sl->process_yml_file($yml_file);
 
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
