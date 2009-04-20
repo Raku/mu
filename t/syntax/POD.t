@@ -10,13 +10,13 @@ plan 5;
 {
     ok %=POD{'DATA'}, '=begin DATA works and %=POD<DATA> defined';
 
-    my $line = =%=POD<DATA>;
+    my $line = get %=POD<DATA>;
     is($line, "hello, world!", q/%=POD{'DATA'} can be read/);
 }
 
 # L<S02/Literals/"pod stream" "as a scalar" via $=DATA>
 {
-    my $line = =$=DATA;
+    my $line = get $=DATA;
     is($line, "hello, world!", q/$=DATA contains the right string/);
 }
 
