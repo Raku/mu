@@ -23,7 +23,8 @@ no warnings 'once';
 use Getopt::Long;
 use File::Basename;
 use FindBin;
-use File::Find qw(find);
+use File::Find::Rule;
+
 #use File::Slurp;
 #use Pod::Simple::HTML;
 
@@ -559,6 +560,7 @@ sub main () {
 
     my @t_files = map glob, @ARGV;
     push @t_files, list_t_files($dir) if $dir;
+
     #use Data::Dumper;
     #print Dumper \@t_files;
 
@@ -674,19 +676,9 @@ sub create_index($) {
     return;
 }
 
-{
-    my @my_t_files;
-    sub list_t_files($) {
-        my ($dir) = @_;
-        #warn "DIR is ", $dir, "\n";
-        find(\&_list_t_files, $dir);
-        return @my_t_files;
-    }
-    sub _list_t_files {
-        if ('.t' eq substr($_, -2) and -f $_) {
-            push @my_t_files, $File::Find::name;
-        }
-    }
+sub list_t_files {
+	my ($dir) = @_;
+    return File::Find::Rule->file()->name('*.t')->in($dir);
 }
 
 main() if ! caller;
