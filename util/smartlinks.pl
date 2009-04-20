@@ -374,14 +374,14 @@ sub main () {
     }
 
 	$sl = Smart::Links->new({
-		check       => $check,
-		line_anchor => $line_anchor,
+		count         => $count,
+		check         => $check,
+		line_anchor   => $line_anchor,
+		print_missing => $print_missing,
+		wiki          => $wiki,  # #TODO: do we need this flag?
 	});
 
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
-
-    my $test_files_missing_links = 0;
-    my $test_file_count = 0;    
 
     $out_dir ||= '.';
     mkdir $out_dir if !-d $out_dir;
@@ -389,21 +389,8 @@ sub main () {
 
     my @t_files = map glob, @ARGV;
     push @t_files, list_t_files($dir) if $dir;
+    $sl->process_test_files(@t_files);
 
-    #use Data::Dumper;
-    #print Dumper \@t_files;
-
-    for my $t_file (@t_files) {
-        my $links = $sl->process_t_file($t_file);
-        if ($links) {
-			print "Found $links links in <$t_file>\n" if defined $count;
-        } else {
-            print "No smartlink found in <$t_file>\n" if defined $print_missing;
-            print "\"$t_file\"<http://svn.pugscode.org/pugs/t/spec/$t_file>\n" if defined $wiki;
-			$test_files_missing_links++;
-        }
-        $test_file_count++;
-    }
 
     my $pugs_syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
     $syn_dir ||= $pugs_syn_dir;
@@ -427,6 +414,8 @@ sub main () {
         }
     }
 
+	my $test_file_count = scalar @t_files;
+	my $test_files_missing_links = scalar $sl->test_files_missing_links;
     warn sprintf("info: %ssmartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
 		$sl->link_count ,$sl->broken_link_count);
     if (!$sl->check and $sl->broken_link_count > 0) {

@@ -8,7 +8,7 @@ our $VERSION = '0.01';
 use File::ShareDir;
 use FindBin;
 use base 'Class::Accessor';
-__PACKAGE__->mk_accessors(qw(check line_anchor smoke_rev));
+__PACKAGE__->mk_accessors(qw(check count line_anchor print_missing smoke_rev wiki));
 
 =head1 NAME
 
@@ -305,6 +305,7 @@ sub new {
 	$self->{link_count}        = 0;
 	$self->{broken_link_count} = 0;
     $self->{snippet_id}        = 0;
+	$self->{test_files_missing_links} = [];
 
 	return $self;
 }
@@ -372,6 +373,23 @@ sub get_javascript {
 	}
 	warn "could not open '$file'";
 	return '';
+}
+
+sub process_test_files {
+	my ($self, @t_files) = @_;
+    for my $t_file (@t_files) {
+        my $links = $self->process_t_file($t_file);
+        if ($links) {
+			print "Found $links links in <$t_file>\n" if defined $self->count;
+        } else {
+            print "No smartlink found in <$t_file>\n" if defined $self->print_missing;
+            print "\"$t_file\"<http://svn.pugscode.org/pugs/t/spec/$t_file>\n" if defined $self->wiki;
+			push @{ $self->{test_files_missing_links} }, $t_file;
+        }
+    }
+}
+sub test_files_missing_links {
+	return @{ $_[0]->{test_files_missing_links} };
 }
 
 =begin private
