@@ -32,8 +32,6 @@ use lib "$FindBin::Bin/Smart-Links/lib";
 use Smart::Links;
 my $sl;
 
-my $print_missing;
-
 my %Spec = reverse qw(
     01 Overview    02 Syntax        03 Operator      04 Block
     05 Rule        06 Subroutine    07 Iterator
@@ -354,6 +352,7 @@ sub main () {
     my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index, $dir,$count,$wiki);
     my $check;
     my $line_anchor;
+    my $print_missing;
     GetOptions(
         'check'       => \$check,
         'count'       => \$count,
