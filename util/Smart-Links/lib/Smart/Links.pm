@@ -8,7 +8,7 @@ our $VERSION = '0.01';
 use File::ShareDir;
 use FindBin;
 use base 'Class::Accessor';
-__PACKAGE__->mk_accessors(qw(check));
+__PACKAGE__->mk_accessors(qw(check line_anchor));
 
 =head1 NAME
 
@@ -122,6 +122,30 @@ sub add_link  {
         
     return $self->link_count_inc;
 }
+
+sub emit_pod {
+    my ($self, $podtree) = @_;
+
+    my $str;
+    $str .= $podtree->{_header} if $podtree->{_header};
+    for my $elem (@{ $podtree->{_sections} }) {
+        my ($num, $sec) = @$elem;
+        $str .= "=head$num $sec\n\n";
+        for my $para (@{ $podtree->{$sec} }) {
+            if ($para eq '') {
+                $str .= "\n";
+            } elsif ($para =~ /^\s+/) {
+                $str .= $para;
+            } else {
+                $str .= "$para\n";
+            }
+        }
+    }
+    $str = "=pod\n\n_LINE_ANCHOR_1\n\n$str" if $self->line_anchor;
+
+    return $str;
+}
+
 
 sub link_count_inc { $_[0]->{link_count}++ };
 sub link_count     { $_[0]->{link_count} };

@@ -11,8 +11,12 @@
 # immediately. Running *-smartlinks.t under util/t/ before committing is
 # strongly recommended. Thank you for your contribution :)
 
+
+# TODO: currently the S32 documents are unlinkable, and don't produce HTML copies
+
 use strict;
-#use warnings;
+use warnings;
+no warnings 'once';
 
 #use Smart::Comments;
 #use YAML::Syck;
@@ -25,12 +29,10 @@ use File::Find qw(find);
 
 use lib "$FindBin::Bin/Smart-Links/lib";
 use Smart::Links;
-my $sl = Smart::Links->new;
+my $sl;
 
-my $check;
 my $print_missing;
 my $test_result;
-my $line_anchor;
 my ($pugs_rev, $smoke_rev);
 
 my (@snippets, $snippet_id);
@@ -43,10 +45,6 @@ my %Spec = reverse qw(
     17 Concurrency 19 Commandline   22 CPAN          26 Documentation
     29 Functions
 );
-
-sub error {
-    if ($check) { warn "ERROR: @_\n"; }
-}
 
 sub process_t_file ($$) {
     my ($infile, $linktree) = @_;
@@ -75,15 +73,15 @@ sub process_t_file ($$) {
             $section =~ s/^\s+|\s+$//g;
             $section =~ s/^"(.*)"$/$1/;
             if (!$section) {
-                error "$infile: line $.: section name can't be empty.";
+                $sl->error("$infile: line $.: section name can't be empty.");
             }
             $pattern =~ s/^\s+|\s+$//g;
             if (substr($pattern, -1, 1) ne '>') {
                 $_ = <$in>;
                 s/^\s*\#?\s*|\s+$//g;
                 if (!s/>{$brackets}$//) {
-                    error "$infile: line $.: smart links must terminate",
-                        "in the second line.";
+                    $sl->error("$infile: line $.: smart links must terminate",
+                        "in the second line.");
                     next;
                 }
                 $pattern .= " $_";
@@ -98,7 +96,7 @@ sub process_t_file ($$) {
             $found_link++;
         }
         elsif (/^ \s* \#? \s* L<? S\d+\b /xoi) {
-            error "$infile: line $.: syntax error in the magic link:\n\t$_";
+            $sl->error("$infile: line $.: syntax error in the magic link:\n\t$_");
         }
         else { next; }
 
@@ -145,7 +143,7 @@ sub parse_pod ($) {
             $podtree->{$section} ||= [];
             #push @{ $podtree->{$section} }, "\n";
             my @new = ('');;
-            if ($line_anchor and $podtree->{$section}->[-1] !~ /^=over\b|^=item\b/) {
+            if ($sl->line_anchor and $podtree->{$section}->[-1] !~ /^=over\b|^=item\b/) {
                 unshift @new, "_LINE_ANCHOR_$.\n";
             }
             push @{ $podtree->{$section} }, @new;
@@ -160,27 +158,6 @@ sub parse_pod ($) {
     }
     close $in;
     $podtree;
-}
-
-sub emit_pod ($) {
-    my $podtree = shift;
-    my $str;
-    $str .= $podtree->{_header} if $podtree->{_header};
-    for my $elem (@{ $podtree->{_sections} }) {
-        my ($num, $sec) = @$elem;
-        $str .= "=head$num $sec\n\n";
-        for my $para (@{ $podtree->{$sec} }) {
-            if ($para eq '') {
-                $str .= "\n";
-            } elsif ($para =~ /^\s+/) {
-                $str .= $para;
-            } else {
-                $str .= "$para\n";
-            }
-        }
-    }
-    $str = "=pod\n\n_LINE_ANCHOR_1\n\n$str" if $line_anchor;
-    $str;
 }
 
 
@@ -216,7 +193,7 @@ sub gen_html ($$$) {
     # substitutes the placeholders introduced by `gen_code_snippet`
     # with real code snippets:
     $html =~ s,(?:<p>\s*)?\b_SMART_LINK_(\d+)\b(?:\s*</p>)?,$snippets[$1],sg;
-    fix_line_anchors(\$html) if $line_anchor;
+    fix_line_anchors(\$html) if $sl->line_anchor;
     add_footer(\$html);
     add_user_css(\$html);
     $html
@@ -383,7 +360,7 @@ _EOC_
 
   process_syn($syn, $out_dir, $cssfile, $linktree);
 
-Process synopses one by one.
+Process synopses one by$sl->link_count  one.
 
 =end private
 
@@ -400,7 +377,7 @@ sub process_syn ($$$$) {
 
     # S26 is in Pod6, we treat it specifically for now.
     if ($syn_id == 26) {
-      return if $check;
+      return if $sl->check;
       eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
       if ($@) {
           warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to parse S26";
@@ -454,8 +431,7 @@ sub process_syn ($$$$) {
             my $link = $links[0];
             my ($t_file, $from) = @{ $link->[1] };
             $from--;
-            error "$t_file: line $from:",
-                "section ``$section_name'' not found in S$syn_id.";
+            $sl->error("$t_file: line $from:", "section ``$section_name'' not found in S$syn_id.");
             $sl->broken_link_count_inc;
             next;
         }
@@ -463,7 +439,7 @@ sub process_syn ($$$$) {
             my ($pattern, $location) = @$link;
             my $i = 0;
             if (!$pattern) { # match the whole section
-                if (!$check) {
+                if (!$sl->check) {
                     unshift @$paras, gen_code_snippet($location);
                     $i = 1;
                 }
@@ -475,7 +451,7 @@ sub process_syn ($$$$) {
                 my $para = $paras->[$i];
                 next if !$para or $para =~ /\?hide_quotes=no/;
                 if ($sl->process_paragraph($para) =~ /$regex/) {
-                    if (!$check) {
+                    if (!$sl->check) {
                         splice @$paras, $i+1, 0, gen_code_snippet($location);
                         $i++;
                     }
@@ -485,7 +461,7 @@ sub process_syn ($$$$) {
             } continue { $i++ }
             if (!$matched) {
                 my ($file, $lineno) = @$location;
-                error("$file: line $lineno: pattern ``$pattern'' failed to match any",
+                $sl->error("$file: line $lineno: pattern ``$pattern'' failed to match any",
                     "paragraph in L<S${syn_id}/${section_name}>.");
                 $sl->broken_link_count_inc;
             }
@@ -495,12 +471,12 @@ sub process_syn ($$$$) {
     # We need this to check invalid smartlinks pointed to non-existent docs:
     delete $linktree->{"S$syn_id"};
 
-    if (!$check) {
+    if (!$sl->check) {
         #use Data::Dumper;
         #$Data::Dumper::Indent = 1;
         #print Dumper $podtree if $syn_id eq '02';
 
-        my $pod = emit_pod($podtree);
+        my $pod = $sl->emit_pod($podtree);
 
         #print $pod if $syn_id eq '02';
         #if ($syn_id eq '29') {
@@ -582,6 +558,8 @@ _EOC_
 
 sub main () {
     my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index, $dir,$count,$wiki);
+    my $check;
+    my $line_anchor;
     GetOptions(
         'check'       => \$check,
         'count'       => \$count,
@@ -601,6 +579,11 @@ sub main () {
     if ($help || !@ARGV && !$dir) {
         help();
     }
+
+	$sl = Smart::Links->new({
+		check       => $check,
+		line_anchor => $line_anchor,
+	});
 
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
@@ -696,7 +679,7 @@ sub main () {
         for my $links (values %$linktree_sections) {
             for my $link (@$links) {
                 my ($file, $lineno) = @{ $link->[1] };
-                error("$file: line $lineno: smartlink pointing to " .
+                $sl->error("$file: line $lineno: smartlink pointing to " .
                     "an unknown synopsis ($syn)"),
                 $sl->broken_link_count_inc;
             }
@@ -705,7 +688,7 @@ sub main () {
 
     warn sprintf("info: %ssmartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
 		$sl->link_count ,$sl->broken_link_count);
-    if (!$check and $sl->broken_link_count > 0) {
+    if (!$sl->check and $sl->broken_link_count > 0) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
     }
     exit;
