@@ -4,7 +4,7 @@
 #include <smop/base.h>
 #include <smop/nagc.h>
 
-typedef struct SMOP_LOST_Frame {
+typedef struct SMOP__LOST__Frame {
   SMOP__NAGC__Object__BASE;
   SMOP__Object* back;
   SMOP__Object* lastr;
@@ -14,7 +14,7 @@ typedef struct SMOP_LOST_Frame {
               SMOP__Object* frame);
   void (*destr)(SMOP__Object* interpreter,
               SMOP__Object* frame);
-} SMOP_LOST_Frame;
+} SMOP__LOST__Frame;
 
 SMOP__Object* SMOP__LOST__Frame_create(SMOP__Object* interpreter,
                                        SMOP__Object* back,

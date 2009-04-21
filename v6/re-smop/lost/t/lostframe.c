@@ -21,29 +21,34 @@ static int step(SMOP__Object* interpreter,
                 SMOP__Object* obj) {
 
   /* TODO locking */
-  SMOP_LOST_Frame* frame = (SMOP_LOST_Frame*) obj;
+  SMOP__LOST__Frame* frame = (SMOP__LOST__Frame*) obj;
 
   switch (frame->pc) {
   case 0:
     printf("ok 2 - first execution is in 0\n");
+    frame->pc++;
     break;
   case 1:
     printf("ok 3 - got back from first execution\n");
+    frame->pc++;
     break;
   case 2:
     if (strcmp((char*) frame->user,"test")) {
       printf("not ");
     }
     printf("ok 4 - the user data is correct\n");
+    frame->pc++;
     break;
   case 3:
-    frame->pc++;
+    frame->pc = 5;
     break;
   case 4:
     printf("not ");
+    frame->pc++;
     break;
   case 5:
     printf("ok 5 - user can change the pc\n");
+    frame->pc++;
     break;
   case 6:
     printf("ok 6 - let's exit\n");
@@ -57,7 +62,7 @@ static int step(SMOP__Object* interpreter,
 }
 
 
-static int destr(SMOP__Object* interpreter,
+static void destr(SMOP__Object* interpreter,
                  SMOP__Object* frame) {
   printf("ok 7 - destroyed\n");
 }
