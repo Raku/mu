@@ -36,7 +36,7 @@ SMOP__Object* SMOP__LOST__Frame_create(SMOP__Object* interpreter,
 }
 
 void smop_lost_init() {
-  RI = SMOP__NAGC__RI__create(MESSAGE,smop_nagc_reference,smop_nagc_release,DESTROYALL,"lost frame");
+  RI = SMOP__NAGC__RI__create(MESSAGE,smop_nagc_reference,smop_nagc_release,smop_nagc_weakref,DESTROYALL,"lost frame");
 }
 
 void smop_lost_destr() {

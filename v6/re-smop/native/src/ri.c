@@ -54,6 +54,9 @@ SMOP__Object* SMOP__NAGC__RI__create(
   SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,           
                              SMOP__ResponderInterface* self,      
                              SMOP__Object* object),
+  SMOP__Object* (*WEAKREF)  (SMOP__Object* interpreter,           
+                             SMOP__ResponderInterface* self,      
+                             SMOP__Object* object),
   void (*DESTROYALL)  (SMOP__Object* interpreter,SMOP__Object* object),
   char *id
   ) {
@@ -63,6 +66,7 @@ SMOP__Object* SMOP__NAGC__RI__create(
     ri->MESSAGE = MESSAGE;
     ri->REFERENCE = REFERENCE;
     ri->RELEASE = RELEASE;
+    ri->WEAKREF = WEAKREF;
     ri->DESTROYALL = DESTROYALL;
     ri->id = id;
     return (SMOP__Object*)ri;
