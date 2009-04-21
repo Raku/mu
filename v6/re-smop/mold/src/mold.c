@@ -436,7 +436,6 @@ static void smop_mold_frame_DESTROYALL(SMOP__Object* interpreter,
     int i;
     for (i=0;i<mold->registers;i++) {
       if (frame->registers[i]) {
-        printf("releasing %s\n",frame->registers[i]->RI->id);
         SMOP_RELEASE(interpreter,frame->registers[i]);
         frame->registers[i] = NULL;
       }

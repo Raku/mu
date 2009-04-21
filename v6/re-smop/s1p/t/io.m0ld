@@ -1,0 +1,5 @@
+my $scope = ?SMOP__S1P__LexicalPrelude;
+my $io_scalar = $scope."postcircumfix:{ }"("$OUT");
+my $io = $io_scalar."FETCH"();
+my $void = $io."print"("1..1\n");
+my $void = $io."print"("o","k 1\n");

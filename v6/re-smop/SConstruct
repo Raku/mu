@@ -49,6 +49,9 @@ for module in modules:
     BuildDir('build/t/'+module,module+'/t')
     INCLUDE.append(module + '/include')
     LIBS.append('smop-'+module)
+    for test in env.Glob("build/t/" + module + "/*.m0ld"):
+        print "m0ld test",test
+        env.M0ld(test) 
     for test in env.Glob("build/t/" + module + "/*.c"):
         env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = INCLUDE,LIBPATH=LIBPATH+['build/lib'],LIBS=LIBS)
 
@@ -58,8 +61,6 @@ env.SharedLibrary(target = 'build/lib/mildew', source = [], CFLAGS=flags+ccopts,
 #LIBS = re.compile("-l(\S+)").findall(ldopts)
 #LIBPATH = re.compile("-L(\S+)").findall(ldopts)
 
-#for test in env.Glob("build-tests/*.m0ld"):
-#    env.M0ld(test) 
 #for test in env.Glob("build-tests/*.c"):
 #    env.Program(re.sub(r'.c$','.t',str(test)),test,CPPPATH = INCLUDE,LIBPATH=LIBPATH+['build'],LIBS=LIBS+['smop','pcl','pthread'])
 #
