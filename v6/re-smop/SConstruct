@@ -28,7 +28,7 @@ ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=sub
 flags = '-O0 -g3 -Wall ' #-DSMOP_MOLD_DEBUG'
 
 
-modules = ['s0native','nagc','util','capture','interpreter','mold','native','s1p']
+modules = ['s0native','nagc','util','capture','interpreter','mold','native','s1p','lost']
 
 INCLUDE = ['base/include','util/include']
 for module in modules:
@@ -41,7 +41,7 @@ for module in modules:
 
 LIBPATH = []
 
-LIBS = ['pthread','m']
+LIBS = ['pthread','m','dl']
 INCLUDE = ['base/include']
 
 

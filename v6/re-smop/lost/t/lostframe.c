@@ -4,35 +4,51 @@
 #include <smop/base.h>
 #include <smop/nagc.h>
 #include <smop/lost.h>
+#include <smop/interpreter.h>
+#include <smop/s0native.h>
+#include <smop/capture.h>
+#include <smop/native.h>
+#include <string.h>
+
+/*
+#include <smop/nagc.h>
+#include <smop/capture.h>
+#include <smop/native.h>
+#include <smop/mold.h>
+#include <stdio.h>*/
 
 static int step(SMOP__Object* interpreter,
-                SMOP__Object* frame) {
+                SMOP__Object* obj) {
+
+  /* TODO locking */
+  SMOP_LOST_Frame* frame = (SMOP_LOST_Frame*) obj;
+
   switch (frame->pc) {
-  0:
+  case 0:
     printf("ok 2 - first execution is in 0\n");
     break;
-  1:
+  case 1:
     printf("ok 3 - got back from first execution\n");
     break;
-  2:
-    if (strcmp(*(frame->user),"test")) {
+  case 2:
+    if (strcmp((char*) frame->user,"test")) {
       printf("not ");
     }
     printf("ok 4 - the user data is correct\n");
     break;
-  3:
+  case 3:
     frame->pc++;
     break;
-  4:
+  case 4:
     printf("not ");
     break;
-  5:
+  case 5:
     printf("ok 5 - user can change the pc\n");
     break;
-  6:
+  case 6:
     printf("ok 6 - let's exit\n");
     return 0;
-  7:
+  case 7:
     printf("not ok 7 - it shouldn't get here\n");
     return 0;
   };
@@ -54,20 +70,23 @@ int main() {
   smop_nagc_init();
   smop_capture_init();
   smop_interpreter_init();
-  smop_lost_init();
 
   char* foo = "test";
 
   SMOP__Object* interpreter = SMOP_interpreter_create(SMOP__EmptyInterpreter);
-  SMOP__Object* frame = SMOP__LOST__Frame_create(interpreter,SMOP__NATIVE__bool_false,&foo,step,destr);
+
+  smop_native_init(interpreter);
+  smop_lost_init();
+
+  SMOP__Object* frame = SMOP__LOST__Frame_create(interpreter,SMOP__NATIVE__bool_false,foo,step,destr);
   printf("ok 1 # lives after frame creation\n");
 
 
   /*
    * Now we're going to execute this frame...
    */
-  SMOP_DISPATCH(SMOP__EmptyInterpreter, SMOP_RI(interpreter), SMOP__NATIVE__idconst_createn("goto",4),SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
-  SMOP_DISPATCH(SMOP__EmptyInterpreter, SMOP_RI(interpreter), SMOP__NATIVE__idconst_createn("loop",4),SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), NULL}, (SMOP__Object*[]) {NULL}));
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__NATIVE__idconst_create("goto"),SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__NATIVE__idconst_create("loop"),SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), NULL}, (SMOP__Object*[]) {NULL}));
   SMOP_RELEASE(interpreter,interpreter);
 
 

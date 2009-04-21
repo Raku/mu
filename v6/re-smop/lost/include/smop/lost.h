@@ -10,18 +10,18 @@ typedef struct SMOP_LOST_Frame {
   SMOP__Object* lastr;
   void* user;
   int pc;
-  int (step*)(SMOP__Object* interpreter,
+  int (*step)(SMOP__Object* interpreter,
               SMOP__Object* frame);
-  int (destr*)(SMOP__Object* interpreter,
+  void (*destr)(SMOP__Object* interpreter,
               SMOP__Object* frame);
 } SMOP_LOST_Frame;
 
 SMOP__Object* SMOP__LOST__Frame_create(SMOP__Object* interpreter,
                                        SMOP__Object* back,
                                        void* user,
-                                       int (step*)(SMOP__Object* interpreter,
+                                       int (*step)(SMOP__Object* interpreter,
                                                    SMOP__Object* frame),
-                                       int (destr*)(SMOP__Object* interpreter,
+                                       void (*destr)(SMOP__Object* interpreter,
                                                     SMOP__Object* frame));
 
 void smop_lost_init();

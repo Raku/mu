@@ -52,7 +52,9 @@ SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Objec
 }
 
 SMOP__Object* SMOP__NATIVE__capture_named(SMOP__Object* interpreter,SMOP__Object* capture,SMOP__Object* key,int i) {
-  return smop_util_hash_get(interpreter,((capture_struct*)capture)->named,key);
+  SMOP__Object* ret = smop_util_hash_get(interpreter,((capture_struct*)capture)->named,key);
+  if (!ret) ret = SMOP__NATIVE__bool_false;
+  return SMOP_REFERENCE(interpreter,ret);
 }
 
 SMOP__Object* SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,SMOP__Object* capture,int i) {
