@@ -15,7 +15,6 @@ static SMOP__Object* message(SMOP__Object* interpreter,
   if (identifier == SMOP__ID__positional) {
     SMOP__Object* i = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     ret = SMOP__NATIVE__capture_positional(interpreter,invocant,SMOP__NATIVE__int_fetch(i));
-    SMOP_REFERENCE(interpreter,ret);
     SMOP_RELEASE(interpreter,i);
   } else if (identifier == SMOP__ID__named) {
     SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
