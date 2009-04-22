@@ -37,8 +37,6 @@ our $zone;
 our %MYSTERY;
 our @MEMOS;
 our @PKGS;
-our @POST;
-our @PRE;
 
 our $moreinput;
 our $DEBUG;
@@ -82,8 +80,6 @@ local $::IN_META =  0;
 local $::QUASI_QUASH;
 local $::SCOPE =  "";
 local $::SIGIL;
-local @::PRE;
-local @::POST;
 local %::MYSTERY;
 local $::ORIG;
 local @::MEMOS;
@@ -10562,7 +10558,6 @@ else {
 ##          
 ##          <prefix_postfix_meta_operator>*                 {*}         #= prepost
 ##          <.ws>
-##          { push @*PRE, $¢; }
 ##      }
 
 sub PRE__PEEK { $_[0]->_AUTOLEXpeek('PRE',$retree) }
@@ -10680,16 +10675,7 @@ $C->prefix_postfix_meta_operator
 }))) {
 do {
 if (my ($C) = ($C->_REDUCE($S, 'PRE_prepost'))) {
-do {
-if (my ($C) = ($C->ws)) {
-scalar(do {
-push @::PRE, $C; 
-}, $C);
-}
-else {
-();
-}
-};
+$C->ws;
 }
 else {
 ();
@@ -10737,8 +10723,8 @@ $C
 ##          | <?stdstopper>
 ##          | <noun=termish>
 ##              {
-##                  $<PRE>  = $<noun><PRE>;
-##                  $<POST> = $<noun><POST>;
+##                  $<PRE>  = $<noun><PRE>:delete;
+##                  $<POST> = $<noun><POST>:delete;
 ##              }
 ##          | <?>
 ##          ]
@@ -10797,8 +10783,8 @@ $C->termish
 }))) {
 scalar(do {
 my $M = $C; 
-$M->{PRE}  = $M->{noun}{PRE};
-$M->{POST} = $M->{noun}{POST};
+$M->{PRE}  = delete $M->{noun}{PRE};
+$M->{POST} = delete $M->{noun}{POST};
 ;
 }, $C);
 }
@@ -12583,7 +12569,7 @@ else {
 ##          | <privop> { $<O> = $<privop><O>; $<sym> = $<privop><sym>; $<~CAPS> = $<privop><~CAPS>; }
 ##          | <postop> { $<O> = $<postop><O>; $<sym> = $<postop><sym>; $<~CAPS> = $<postop><~CAPS>; }
 ##          ]
-##          { $*SIGIL = '@'; unshift @*POST, $¢; }
+##          { $*SIGIL = '@'; }
 ##      }
 
 sub POST__PEEK { $_[0]->_AUTOLEXpeek('POST',$retree) }
@@ -12801,7 +12787,7 @@ else {
 
 }))) {
 scalar(do {
-$::SIGIL = '@'; unshift @::POST, $C; 
+$::SIGIL = '@'; 
 }, $C);
 }
 else {
@@ -39867,6 +39853,8 @@ $nop->{_arity} = 'CHAIN';
 $nop->{_from} = $startpos;
 $nop->{_pos} = $endpos;
 push @termstack, $nop->_REDUCE($startpos, 'EXPR');
+delete $termstack[-1]->{'PRE'};
+delete $termstack[-1]->{'POST'};
 }
 elsif ($_ eq 'list') {
 $self->deb("reducing list") if $::DEBUG & DEBUG::EXPR;
@@ -39916,6 +39904,8 @@ push @caps, @l;  # nullterm?
 $nop->{'~CAPS'} = \@caps;
 }
 push @termstack, $nop->_REDUCE($startpos, 'EXPR');
+delete $termstack[-1]->{'PRE'};
+delete $termstack[-1]->{'POST'};
 }
 elsif ($_ eq 'unary') {
 $self->deb("reducing") if $::DEBUG & DEBUG::EXPR;
@@ -39932,7 +39922,7 @@ my @acaps = $arg->caps;
 #                    warn "OOPS ", $arg.Str, "\n" if @acaps > 1;
 unshift @$a, @acaps;
 }
-if (($arg->{_pos} > $op->{_pos})) {   # prefix
+elsif (($arg->{_pos} > $op->{_pos})) {   # prefix
 $op->{_pos} = $arg->{_pos};     # extend ->to to include arg
 my @acaps = $arg->caps;
 #                    warn "OOPS ", $arg.Str, "\n" if @acaps > 1;
@@ -39940,6 +39930,8 @@ push @$a, @acaps;
 }
 $op->{_arity} = 'UNARY';
 push @termstack, $op->_REDUCE($op->{_from}, 'EXPR');
+delete $termstack[-1]->{'PRE'};
+delete $termstack[-1]->{'POST'};
 }
 else {
 $self->deb("reducing") if $::DEBUG & DEBUG::EXPR;
@@ -39959,6 +39951,8 @@ push @$a, $right->caps;
 
 $self->deb($op->dump) if $::DEBUG & DEBUG::EXPR;
 push @termstack, $op->_REDUCE($op->{_from}, 'EXPR');
+delete $termstack[-1]->{'PRE'};
+delete $termstack[-1]->{'POST'};
 }
 };
 };
@@ -40007,6 +40001,7 @@ $here->panic('"' . $PRE[0]{'sym'} . '" and "' . $POST[0]{'sym'} . '" are not ass
 push @opstack, @PRE,@POST;
 
 push @termstack, $here->{'noun'};
+delete $termstack[-1]->{'POST'};
 $self->deb("after push: " . (0+@termstack)) if $::DEBUG & DEBUG::EXPR;
 
 for (;;) {     # while we see adverbs
@@ -58268,7 +58263,7 @@ POST: !!perl/hash:RE
         min: 0
         r: 1
         s: 0
-        text: " $*SIGIL = '@'; unshift @*POST, $¢; "
+        text: " $*SIGIL = '@'; "
 POST_01: *17
 POST_04: *55
 PRE: !!perl/hash:RE 
@@ -58394,15 +58389,6 @@ PRE: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-      - !!perl/hash:RE_block 
-        a: 0
-        context: void
-        dba: prefix or meta-prefix
-        i: 0
-        min: 0
-        r: 1
-        s: 0
-        text: " push @*PRE, $¢; "
 PRE_01: *72
 apostrophe: !!perl/hash:RE 
   decl: []
@@ -70863,7 +70849,7 @@ nulltermish: !!perl/hash:RE
               min: 0
               r: 1
               s: 0
-              text: "\n            $<PRE>  = $<noun><PRE>;\n            $<POST> = $<noun><POST>;\n        "
+              text: "\n            $<PRE>  = $<noun><PRE>:delete;\n            $<POST> = $<noun><POST>:delete;\n        "
         - !!perl/hash:RE_assertion 
           alt: nulltermish_01 2
           assert: "?"

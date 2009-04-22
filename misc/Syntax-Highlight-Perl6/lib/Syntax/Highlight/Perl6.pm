@@ -24,13 +24,13 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.041';
+our $VERSION = '0.042';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
 Readonly my $FILE_ANSI   => 'p6_style.ansi';
 Readonly my $FILE_JS     => 'p6_style.js';
-Readonly my $FILE_JQUERY => 'jquery-1.3.1.min.js';
+Readonly my $FILE_JQUERY => 'jquery-1.3.2.min.js';
 Readonly my $FILE_P6_VIM => 'perl6.vim';
 
 
