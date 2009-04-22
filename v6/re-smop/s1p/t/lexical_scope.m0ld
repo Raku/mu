@@ -8,6 +8,8 @@ my $prelude = ?SMOP__S1P__LexicalPrelude;
 my $void;
 my $out_scalar = $prelude."lookup"("$OUT");
 my $out = $out_scalar."FETCH"();
+#my $out_scalar = $prelude."lookup"("$OUT");
+#my $out = $out_scalar."FETCH"();
 
 $void = $out."print"("1..1\n");
 
@@ -19,7 +21,7 @@ my $outer = $scope."outer"();
 my $void = $outer."STORE"($prelude);
 
 
-my $out2_scalar = $scope."lookup"("$OUT");
-my $out2 = $out2_scalar."FETCH"();
+#my $out2_scalar = $prelude."lookup"("$OUT");
+#my $out2 = $out2_scalar."FETCH"();
 
-my $void = $out2."print"("ok 1\n");
+#my $void = $out2."print"("ok 1\n");

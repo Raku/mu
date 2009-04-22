@@ -28,6 +28,7 @@ static SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
 
 %method FETCH
     ret = SMOP__S1P__Scalar_FETCH(invocant);
+    assert(ret);
     if (ret)
       SMOP_REFERENCE(interpreter,ret);
 

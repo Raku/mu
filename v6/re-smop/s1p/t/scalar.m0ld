@@ -11,6 +11,7 @@ my $Scalar_scalar = $scope."postcircumfix:{ }"("Scalar");
 my $Scalar = $Scalar_scalar."FETCH"();
 
 my $s1 = $Scalar."new"();
+my $tmp = $s1."FETCH"();
 my $void = $s1."STORE"("o");
 my $o = $s1."FETCH"();
 my $void = $out."print"($o,"k 1\n");
