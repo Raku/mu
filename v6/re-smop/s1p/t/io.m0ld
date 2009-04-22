@@ -1,3 +1,4 @@
+
 my $scope = ?SMOP__S1P__LexicalPrelude;
 my $io_scalar = $scope."postcircumfix:{ }"("$OUT");
 my $io = $io_scalar."FETCH"();

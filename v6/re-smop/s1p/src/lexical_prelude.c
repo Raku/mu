@@ -40,6 +40,7 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
   smop_s1p_lexical_prelude_insert(interpreter,"MildewSOLoader",SMOP_REFERENCE(interpreter,SMOP__MildewSOLoader));
   smop_s1p_lexical_prelude_insert(interpreter,"$LexicalPrelude",SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalPrelude));
   smop_s1p_lexical_prelude_insert(interpreter,"AdhocSignature",SMOP_REFERENCE(interpreter,SMOP__S1P__AdhocSignature));
+  smop_s1p_lexical_prelude_insert(interpreter,"LexicalScope",SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalScope));
   smop_s1p_lexical_prelude_insert(interpreter,"Scalar",SMOP_REFERENCE(interpreter,SMOP__S1P__Scalar));
 }
 

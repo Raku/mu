@@ -115,7 +115,6 @@ SMOP__Object* SMOP__S1P__Code_create() {
 
   my $actualcapture_c = $capture."positional"(1);
   
-  # TODO
   $void = $signature."BIND"($actualcapture_c,$lexical);
 
   my $cc = $capture."named"("cc");

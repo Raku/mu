@@ -1,0 +1,54 @@
+
+
+
+
+
+my $interpreter;
+my $prelude = ?SMOP__S1P__LexicalPrelude;
+my $void;
+my $out_scalar = $prelude."lookup"("$OUT");
+my $out = $out_scalar."FETCH"();
+
+$void = $out."print"("1..1\n");
+
+my $AdhocSignature_scalar = $prelude."lookup"("AdhocSignature");
+my $AdhocSignature = $AdhocSignature_scalar."FETCH"();
+
+my $LexicalScope_scalar = $prelude."lookup"("LexicalScope");
+my $LexicalScope = $LexicalScope_scalar."FETCH"();
+
+my $scope = $LexicalScope."new"();
+my $outer = $scope."outer"();
+my $void = $outer."STORE"($prelude);
+
+my $void = $out."print"("#1\n");
+
+my $signature = $AdhocSignature."new"(:"ACCEPTS"(mold {
+    my $interpreter;
+    my $scope;
+    my $capture;
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $void;
+
+    my $out_scalar = $scope."lookup"("$OUT");
+    my $out = $out_scalar."FETCH"();
+#    $void = $out."print"("ok 1 - signature.ACCEPTS\n");
+
+#    $void = $back."setr"(¢SMOP__NATIVE__bool_true);
+#    $void = $interpreter."goto"($back);
+    
+}),:"BIND"(mold {
+    my $interpreter;
+    my $scope;
+    my $capture;
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $void;
+
+    $void = $interpreter."goto"($back);
+
+}));
+
+my $void = $out."print"("ok 1 # lives after signature creation\n");
+my $ret = $signature."ACCEPTS"("ok 2 # the correct capture is passed",$scope);
