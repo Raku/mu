@@ -647,7 +647,10 @@ sub process_t_file {
             $self->{invalid_link}++;
             next;
         }
-        elsif (m{^ \s* \# \s* L<}xoi) {
+        # there are some # L<"http://... links that we should skip for now
+        # and not even report them as errors.
+        # any other L< thing should be reported.
+        elsif (m{^ \s* \# \s* L<}xoi and $_ !~ m{L<"?http://}) {
             $self->error("Could not parse smartlink in line $. '$_'  in file '$infile'");
             $self->{invalid_link}++;
             next;
