@@ -29,8 +29,7 @@ static SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
 %method FETCH
     ret = SMOP__S1P__Scalar_FETCH(invocant);
     assert(ret);
-    if (ret)
-      SMOP_REFERENCE(interpreter,ret);
+    SMOP_REFERENCE(interpreter,ret);
 
 %method true
     SMOP__Object* cell = SMOP__S1P__Scalar_FETCH(invocant);
@@ -67,7 +66,8 @@ static SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
 %DESTROYALL {
     smop_s1p_scalar_struct* s = (smop_s1p_scalar_struct*)invocant;
     smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
-    SMOP__Object* cell = s->cell; s->cell = NULL;
+    SMOP__Object* cell = s->cell;
+    s->cell = NULL;
     smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
     if (cell) SMOP_RELEASE(interpreter,cell);
 %}

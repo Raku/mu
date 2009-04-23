@@ -9,7 +9,6 @@
 
 static SMOP__Object* SMOP__ID__new;
 static SMOP__Object* SMOP__ID__goto;
-static SMOP__Object* SMOP__ID__setr;
 static SMOP__Object* SMOP__ID__continuation;
 static SMOP__Object* SMOP__ID__eval;
 static SMOP__Object* SMOP__ID__loop;
@@ -129,7 +128,6 @@ void smop_interpreter_init() {
 
   SMOP__ID__new = SMOP__NATIVE__idconst_createn("new",3);
   SMOP__ID__goto = SMOP__NATIVE__idconst_createn("goto",4);
-  SMOP__ID__setr = SMOP__NATIVE__idconst_createn("setr",4);
   SMOP__ID__continuation = SMOP__NATIVE__idconst_createn("continuation",12);
   SMOP__ID__eval = SMOP__NATIVE__idconst_createn("eval",4);
   SMOP__ID__loop = SMOP__NATIVE__idconst_createn("loop",4);

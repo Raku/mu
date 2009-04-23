@@ -9,6 +9,7 @@
 %{
     SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Object* owner, SMOP__Object* key) {
         smop_s1p_hash_bvalue_struct* bvalue = (smop_s1p_hash_bvalue_struct*) smop_nagc_alloc(sizeof(smop_s1p_hash_bvalue_struct));
+//        printf("key = %d owner = %d\n",((SMOP__NAGC__Object*)key)->ref_cnt,((SMOP__NAGC__Object*)owner)->ref_cnt);
         bvalue->RI = (SMOP__ResponderInterface*)RI;
         bvalue->key = key;
         bvalue->owner = owner;

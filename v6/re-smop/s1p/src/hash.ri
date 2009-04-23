@@ -20,7 +20,7 @@ SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
 
 %method postcircumfix:{ }
     SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
-    ret = SMOP__S1P__Hash_BValue_create(interpreter,SMOP_REFERENCE(interpreter,invocant),SMOP_REFERENCE(interpreter,key));
+    ret = SMOP__S1P__Hash_BValue_create(interpreter,SMOP_REFERENCE(interpreter,invocant),key);
 
 %method exists
     SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
@@ -40,12 +40,10 @@ SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
 
     ret = smop_util_hash_get(interpreter,hash,key);
     if (!ret) {
-      printf("creating key\n");
       ret = SMOP__S1P__Scalar_create(interpreter,SMOP__NATIVE__bool_false);
       smop_util_hash_set(interpreter,hash,key,ret);
-    } else {
-      SMOP_REFERENCE(interpreter,ret);
     }
+    SMOP_REFERENCE(interpreter,ret);
 
 %method bind_key
     SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
