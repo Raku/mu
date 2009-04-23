@@ -80,7 +80,7 @@ _EOC_
 }
 
 sub main () {
-    my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index, $dir,$count,$wiki);
+    my ($syn_dir, $out_dir, $help, $cssfile, $yml_file, $index, $dir,$count,$wiki);
     my $check;
     my $line_anchor;
     my $print_missing;
@@ -93,7 +93,6 @@ sub main () {
         'out-dir=s'   => \$out_dir,
         'css=s'       => \$cssfile,
         'help'        => \$help,
-        'fast'        => \$fast,
         'test-res=s'  => \$yml_file,
         'index'       => \$index,
         'dir=s'       => \$dir,
