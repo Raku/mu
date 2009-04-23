@@ -501,6 +501,7 @@ sub process_test_files {
         }
     }
 }
+
 sub test_files_missing_links {
     return @{ $_[0]->{test_files_missing_links} };
 }
@@ -591,6 +592,7 @@ sub parse_pod {
 
 sub process_t_file {
     my ($self, $infile) = @_;
+
     open my $in, $infile or
         die "error: Can't open $infile for reading: $!\n";
     my ($setter, $from, $to);
