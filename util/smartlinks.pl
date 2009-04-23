@@ -125,11 +125,9 @@ sub main () {
     $sl->process_test_files(@t_files);
 
 
-    my $pugs_syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
-    $syn_dir ||= $pugs_syn_dir;
-
 	$sl->process_yml_file($yml_file);
 
+    $syn_dir ||= "$FindBin::Bin/../docs/Perl6/Spec";
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
         $sl->process_syn($syn);
