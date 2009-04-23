@@ -104,19 +104,19 @@ sub main () {
     }
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
-	$sl = Smart::Links->new({
-		count         => $count,
-		check         => $check,
-		line_anchor   => $line_anchor,
-		print_missing => $print_missing,
-		wiki          => $wiki,  # #TODO: do we need this flag?
-		out_dir       => $out_dir,
-		cssfile       => $cssfile,
-		version       => get_pugs_rev(),
-	});
+    $sl = Smart::Links->new({
+        count         => $count,
+        check         => $check,
+        line_anchor   => $line_anchor,
+        print_missing => $print_missing,
+        wiki          => $wiki,  # #TODO: do we need this flag?
+        out_dir       => $out_dir,
+        cssfile       => $cssfile,
+        version       => get_pugs_rev(),
+    });
 
 
-	$out_dir = $sl->out_dir;
+    $out_dir = $sl->out_dir;
     mkdir $out_dir if !-d $out_dir;
     create_index($out_dir) if $index;
 
@@ -125,10 +125,11 @@ sub main () {
     $sl->process_test_files(@t_files);
 
 
-	$sl->process_yml_file($yml_file);
+    $sl->process_yml_file($yml_file);
 
     $syn_dir ||= "$FindBin::Bin/../docs/Perl6/Spec";
-    my @syns = map glob, "$syn_dir/*.pod";
+    #my @syns = map glob, "$syn_dir/*.pod";
+    my @syns = File::Find::Rule->file()->name('*.pod')->in($syn_dir);
     for my $syn (@syns) {
         $sl->process_syn($syn);
     }
@@ -144,10 +145,10 @@ sub main () {
         }
     }
 
-	my $test_file_count = scalar @t_files;
-	my $test_files_missing_links = scalar $sl->test_files_missing_links;
+    my $test_file_count = scalar @t_files;
+    my $test_files_missing_links = scalar $sl->test_files_missing_links;
     warn sprintf("info: %s smartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
-		$sl->link_count ,$sl->broken_link_count);
+        $sl->link_count ,$sl->broken_link_count);
     if (!$sl->check and $sl->broken_link_count > 0) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
     }
