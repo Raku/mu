@@ -128,8 +128,8 @@ sub main () {
     $sl->process_yml_file($yml_file);
 
     $syn_dir ||= "$FindBin::Bin/../docs/Perl6/Spec";
-    #my @syns = map glob, "$syn_dir/*.pod";
-    my @syns = File::Find::Rule->file()->name('*.pod')->in($syn_dir);
+    my @syns = map glob, "$syn_dir/*.pod";
+    #my @syns = File::Find::Rule->file()->name('*.pod')->in($syn_dir);
     for my $syn (@syns) {
         $sl->process_syn($syn);
     }

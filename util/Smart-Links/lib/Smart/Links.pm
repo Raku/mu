@@ -882,34 +882,8 @@ sub process_syn {
 
     # S26 is in Pod6, we treat it specifically for now.
     if ($syn_id == 26) {
-      return if $self->check;
-      eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
-      if ($@) {
-          warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to parse S26";
-          return;
-      }
-
-      my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
-      my $pod6 = $toc . read_file($infile);
-
-      my $perldochtml = Perl6::Perldoc::Parser->parse(
-          \$pod6, {all_pod => 1}
-      )->report_errors()->to_xhtml(
-          {full_doc => {title => 'S26'}}
-      );
-      $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">\n$&};
-      my $preamble = $self->gen_preamble();
-      $perldochtml =~ s{<body>}{$&$preamble};
-      $self->add_footer(\$perldochtml);
-
-      my $out_dir = $self->out_dir;
-      my $htmfile = "$out_dir/S$syn_id.html";
-      warn "info: generating $htmfile...\n";
-      open my $out, "> $htmfile" or
-          die "Can't open $htmfile for writing: $!\n";
-      print $out $perldochtml;
-      close $out;
-      return;
+        $self->process_perl6_file($infile, $syn_id);
+        return;
     }
     my $podtree = $self->parse_pod($infile);
     #print Dump $podtree if $syn_id eq '29';
@@ -1001,7 +975,38 @@ sub process_syn {
     #warn "$syn_id: $infile\n";
 }
 
+sub process_perl6_file {
+    my ($self, $infile, $syn_id) = @_;
 
+    return if $self->check;
+    eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
+    if ($@) {
+        warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to parse S26";
+        return;
+    }
+
+    my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
+    my $pod6 = $toc . read_file($infile);
+
+    my $perldochtml = Perl6::Perldoc::Parser->parse(
+        \$pod6, {all_pod => 1}
+    )->report_errors()->to_xhtml(
+        {full_doc => {title => 'S26'}}
+    );
+    $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">\n$&};
+    my $preamble = $self->gen_preamble();
+    $perldochtml =~ s{<body>}{$&$preamble};
+    $self->add_footer(\$perldochtml);
+
+    my $out_dir = $self->out_dir;
+    my $htmfile = "$out_dir/S$syn_id.html";
+    warn "info: generating $htmfile...\n";
+    open my $out, "> $htmfile" or
+        die "Can't open $htmfile for writing: $!\n";
+    print $out $perldochtml;
+    close $out;
+    return;
+}
 
 
 sub snippet_id_inc    { $_[0]->{snippet_id}++ };
