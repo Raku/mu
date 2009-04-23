@@ -42,7 +42,7 @@ The usage should default to parsing the files in lib/ for documentation
 and the .t files in the t/ subdirectory.
 
 
-=head1 Design Decisions
+=head1 Old Design Decisions
 
 =over
 
@@ -313,6 +313,8 @@ sub new {
     $self->{test_files_missing_links} = [];
     $self->{out_dir}          ||= '.';
     $self->{errors}   = [];
+    
+    $self->{invalid_link}      = 0;
 
     return $self;
 }
@@ -601,7 +603,8 @@ sub process_t_file {
         chomp;
         my $new_from;
         my ($synopsis, $section, $pattern);
-        if (/^ \s* \#? \s* L< (S\d+) \/ ([^\/]+) >\s*$/xo) {
+        # sample: # L<< S05/"Extensible metasyntax (C<< <...> >>)"/"A leading C<?{> or C<!{> indicates a code assertion:" >>
+        if (m{^ \s* \# \s* L< (S\d+) / ([^/]+) >\s*$}xo) {
             ($synopsis, $section) = ($1, $2);
             $section =~ s/^\s+|\s+$//g;
             $section =~ s/^"(.*)"$/$1/;
@@ -610,7 +613,7 @@ sub process_t_file {
             $to = $. - 1;
             $found_link++;
         }
-        elsif (/^ \s* \#? \s* L(<<?) (S\d+) \/ ([^\/]+) \/ (.*) /xo) {
+        elsif (m{^ \s* \# \s* L(<<?) (S\d+) / ([^/]+) / (.*) }xo) {
             #warn "$1, $2, $3\n";
             my $brackets;
             ($brackets, $synopsis, $section, $pattern) = ($1, $2, $3, $4);
@@ -639,8 +642,15 @@ sub process_t_file {
             #warn "*$synopsis* *$section* *$pattern*\n";
             $found_link++;
         }
-        elsif (/^ \s* \#? \s* L<? S\d+\b /xoi) {
-            $self->error("$infile: line $.: syntax error in the magic link: $_");
+        elsif (m{^ \s* \# \s* L<? S\d+\b }xoi) {
+            $self->error("$infile: line $.: syntax error in smartlink: $_");
+            $self->{invalid_link}++;
+            next;
+        }
+        elsif (m{^ \s* \# \s* L<}xoi) {
+            $self->error("Could not parse smartlink in line $. '$_'  in file '$infile'");
+            $self->{invalid_link}++;
+            next;
         }
         else { next; }
 
