@@ -10,6 +10,7 @@ use FindBin;
 use File::Spec;
 use File::Slurp;
 use CGI;
+use Pod::Simple::HTML;
 
 use base 'Class::Accessor';
 __PACKAGE__->mk_accessors(qw(check count cssfile line_anchor 
@@ -719,13 +720,10 @@ sub process_yml_file {
 
 
 sub gen_html {
-    my ($self, $pod, $syn_id) = @_;
+    my ($self, $pod, $title) = @_;
 
-    eval { require Pod::Simple::HTML };
     $Pod::Simple::HTML::Perldoc_URL_Prefix  = 'http://perlcabal.org/syn/';
     $Pod::Simple::HTML::Perldoc_URL_Postfix = '.html';
-    die "error: Pod::Simple::HTML is not installed on your machine.\n"
-        if $@;
 
     $Pod::Simple::HTML::Content_decl =
         q{<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >};
@@ -739,7 +737,7 @@ sub gen_html {
     $pod2html->html_css($self->cssfile);
     my $javascript = $self->get_javascript();
     $pod2html->html_javascript(qq{<script type="text/javascript">$javascript</script>});
-    $pod2html->force_title('S'.$syn_id);
+    $pod2html->force_title($title);
 
     my $html;
     open my $in, '<', \$pod;
@@ -967,22 +965,8 @@ sub process_perl5_file {
     delete $self->{linktree}->{"S$syn_id"};
 
     if (!$self->check) {
-        #use Data::Dumper;
-        #$Data::Dumper::Indent = 1;
-        #print Dumper $podtree if $syn_id eq '02';
-
-        my $pod = $self->emit_pod($podtree);
-
-        #print $pod if $syn_id eq '02';
-        #if ($syn_id eq '29') {
-        #    use File::Slurp;
-        #    write_file("db_S$syn_id.pod", $pod);
-        #}
-
-         my $html = $self->gen_html($pod, $syn_id);
-
-        #write_file("db_S$syn_id.html", $html);
-
+        my $pod      = $self->emit_pod($podtree);
+        my $html     = $self->gen_html($pod, "S$syn_id");
         my $preamble = $self->gen_preamble();
         $html =~ s{<!-- start doc -->}{$&$preamble};
         my $out_dir = $self->out_dir;
@@ -993,8 +977,6 @@ sub process_perl5_file {
         print $out $html;
         close $out;
     }
-
-    #warn "$syn_id: $infile\n";
 }
 
 sub process_perl6_file {
