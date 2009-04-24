@@ -43,7 +43,7 @@ SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Objec
   }
 
   SMOP__Object** n = named;
-  while (n && *n) {
+  while (*n) {
     smop_util_hash_set(interpreter,ret->named,*n,*(n+1));
     n += 2;
   }
