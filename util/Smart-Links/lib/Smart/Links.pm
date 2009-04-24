@@ -972,10 +972,7 @@ sub process_perl5_file {
         my $out_dir = $self->out_dir;
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
-        open my $out, "> $htmfile" or
-            die "Can't open $htmfile for writing: $!\n";
-        print $out $html;
-        close $out;
+        write_file($htmfile, $html);
     }
 }
 
@@ -1005,10 +1002,7 @@ sub process_perl6_file {
     my $out_dir = $self->out_dir;
     my $htmfile = "$out_dir/S$syn_id.html";
     warn "info: generating $htmfile...\n";
-    open my $out, "> $htmfile" or
-        die "Can't open $htmfile for writing: $!\n";
-    print $out $perldochtml;
-    close $out;
+    write_file($htmfile, $perldochtml);
     return;
 }
 
