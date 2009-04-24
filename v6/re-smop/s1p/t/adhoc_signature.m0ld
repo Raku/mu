@@ -9,7 +9,7 @@ my $void;
 my $out_scalar = $prelude."lookup"("$OUT");
 my $out = $out_scalar."FETCH"();
 
-$void = $out."print"("1..1\n");
+$void = $out."print"("1..2\n");
 
 my $AdhocSignature_scalar = $prelude."lookup"("AdhocSignature");
 my $AdhocSignature = $AdhocSignature_scalar."FETCH"();
@@ -24,24 +24,25 @@ my $void = $outer."STORE"($prelude);
 my $void = $out."print"("#1\n");
 
 my $signature = $AdhocSignature."new"(:"ACCEPTS"(mold {
+    #TODO test
     my $interpreter;
     my $scope;
     my $capture;
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
     my $void;
-
-    my $out_scalar = $scope."lookup"("$OUT");
-    my $out = $out_scalar."FETCH"();
-#    $void = $out."print"("ok 1 - signature.ACCEPTS\n");
-
-#    $void = $back."setr"(¢SMOP__NATIVE__bool_true);
-#    $void = $interpreter."goto"($back);
+    $void = $interpreter."goto"($back);
     
 }),:"BIND"(mold {
     my $interpreter;
     my $scope;
     my $capture;
+
+    my $out_scalar = $scope."lookup"("$OUT");
+    my $out = $out_scalar."FETCH"();
+
+    my $void = $out."print"($capture);
+
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
     my $void;
@@ -51,4 +52,4 @@ my $signature = $AdhocSignature."new"(:"ACCEPTS"(mold {
 }));
 
 my $void = $out."print"("ok 1 # lives after signature creation\n");
-my $ret = $signature."ACCEPTS"("ok 2 # the correct capture is passed",$scope);
+my $ret = $signature."BIND"("ok 2 # the correct capture is passed\n",$scope);
