@@ -899,7 +899,14 @@ sub process_syn {
     if ($syn_id == 26) {
         $self->process_perl6_file($infile, $syn_id);
         return;
+    } else {
+        $self->process_perl5_file($infile, $syn_id);
     }
+}
+
+sub process_perl5_file {
+    my ($self, $infile, $syn_id) = @_;
+
     my $podtree = $self->parse_pod($infile);
     #print Dump $podtree if $syn_id eq '29';
 
