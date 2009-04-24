@@ -44,6 +44,9 @@ void smop_s1p_loader_destr(SMOP__Object* interpreter);
 void smop_s1p_adhocsignature_init(SMOP__Object* interpreter);
 void smop_s1p_adhocsignature_destr(SMOP__Object* interpreter);
 
+void smop_s1p_package_init(SMOP__Object* interpreter);
+void smop_s1p_package_destr(SMOP__Object* interpreter);
+
 SMOP__Object* SMOP__S1P__Scalar_create(SMOP__Object* interpreter,SMOP__Object* initial_value);
 
 SMOP__Object* SMOP__Proto__create(SMOP__Object* delegate_to_RI);

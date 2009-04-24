@@ -33,6 +33,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
     code->signature = SMOP__NATIVE__capture_named(interpreter,capture,SMOP__ID__signature);
     if (!code->signature) {
         printf("no signature!\n");
+        abort();
         code->signature = SMOP__NATIVE__bool_false;
     }
     /* TODO  code->signature = SMOP__S1P__DefaultBlockSignature;*/

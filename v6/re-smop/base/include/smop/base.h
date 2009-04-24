@@ -86,7 +86,7 @@ struct SMOP__ResponderInterface {
       ));\
       if (!ret) {\
         char* id = ((SMOP__ResponderInterface*)object)->id;\
-        if (identifier->RI == SMOP__ID__DESTROYALL->RI) {\
+        if (identifier->RI == SMOP__NATIVE__idconst_create("new")->RI) {\
             int identifier_size;\
             char* s = SMOP__NATIVE__idconst_fetch(identifier,&identifier_size);\
             fprintf(stderr,"a NULL from method \"%.*s\" RI:%s is spotted %s:%d\n",identifier_size,s,id,__FILE__,__LINE__);\

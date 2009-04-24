@@ -1,6 +1,6 @@
 package AST::Helpers;
 use Exporter 'import';
-our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components
+our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig
                  routine code move_CONTROL XXX trailing_return varname EXPR);
 use Carp 'confess';
 use AST;
@@ -58,6 +58,18 @@ sub let {
     AST::Let->new(value=>$value,block=>$block);
 }
 
+sub empty_sig {
+  AST::Call->new
+    ( identifier => string 'new',
+      capture => AST::Capture->new
+      ( invocant => FETCH(lookup('AdhocSignature')),
+        positional => [],
+        named =>
+        [ string 'BIND' => AST::Block->new
+          ( regs => [qw(interpreter scope capture)],
+            stmts => trailing_return([]))]));
+}
+
 sub routine {
   my ($mold, $sig) = @_;
   use YAML::XS;
@@ -68,7 +80,9 @@ sub routine {
     call(set_control => call(continuation => reg '$interpreter'),
 	 [
 	  call new => FETCH(lookup('Code')),[],
-	  [ string 'outer' => reg '$scope',
+	  [ 
+            string 'signature' => empty_sig(),
+            string 'outer' => reg '$scope',
 	    string 'mold' =>
 	    AST::Block->new
 	    ( regs => ['interpreter','scope'],
@@ -85,7 +99,7 @@ sub routine {
   call new => FETCH(lookup('Code')),[],
     [ string 'mold' => $realcode,
       string 'outer' => reg '$scope',
-      ( $sig ? ( string 'signature' => $sig->emit_m0ld_ahsig ) : () )];
+      string 'signature' => ($sig ? $sig->emit_m0ld_ahsig : empty_sig )];
 }
 
 sub code {
@@ -94,10 +108,11 @@ sub code {
   unshift @{$realcode->stmts},
     call(STORE=> call('postcircumfix:{ }' => reg '$scope', [ string '&?BLOCK' ]), [ call(continuation => reg '$interpreter') ]);
 
+    use YAML::XS;
   call new => FETCH(lookup('Code')),[],
     [ string 'mold' => $realcode,
       string 'outer' => reg '$scope',
-      ( $sig ? ( string 'signature' => $sig->emit_m0ld_ahsig ) : () )];
+      string 'signature' => ($sig ? $sig->emit_m0ld_ahsig : empty_sig )];
 }
 
 sub move_CONTROL {
