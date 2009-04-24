@@ -42,6 +42,30 @@ in HTML format that help the developers.
 The usage should default to parsing the files in lib/ for documentation
 and the .t files in the t/ subdirectory.
 
+=head1 Requirements
+
+Process both Perl 5 and Perl 6 test files in an arbitraty directory
+to collect smartlinks.
+Default should be either the local t/ directory or the t/spec directory 
+of Pugs (for historical reasons).
+
+Process .pod and .pm files (but maybe other files as well) with either Perl 5 
+or Perl 6 pod in them and with possibly also code in them.
+
+Smartlinks should be able to say the name of the document where they link to.
+
+    L<Smolder/Text of head1>
+    L<Smolder::Util/Text o head2>
+
+Map to either Smolder.pm or Smolder.pod and Smolder/Util.pm or Smolder/Util.pod
+
+Need special cases for the Perl 6 documentation so the smartlinks can
+have the following links pointing to S06-routines.pod and 
+S32-setting-library/Abstraction.pod
+
+    L<S06/Blocks>
+    L<S32::Abstraction>
+
 
 =head1 Old Design Decisions
 
@@ -906,17 +930,7 @@ sub process_perl5_file {
     my ($self, $infile, $syn_id) = @_;
 
     my $podtree = $self->parse_pod($infile);
-    #print Dump $podtree if $syn_id eq '29';
-
-    #use Data::Dumper;
-    #$Data::Dumper::Indent = 1;
-    #print Dumper $linktree if $syn_id eq '02';
-
     my $linktree_sections = $self->{linktree}->{"S$syn_id"};
-#    if (!$linktree_sections && $syn_id != 7) {
-#        # We won't generate the HTML file if there's no smartlink in it.
-#        return;
-#    }
     while (my ($section_name, $links) = each %$linktree_sections) {
         #warn "checking $section...";
         my @links = @$links;
