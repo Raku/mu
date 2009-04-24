@@ -667,13 +667,13 @@ Returns a Perl highlighted ANSI escape color string.
 Returns an array of hashes containing parsed token records.
 The hash record is structured as:
 
-    +----------------------------------------------+
-    | Matched   | Matched | Matched   | Parse tree |
-    | Last      | string  | rule      | separated  |
-    | Position  | buffer  | name      | by spaces  |
-    |           |         |           |            |
-    | $last_pos | $buffer | $rule     | $tree      |
-    +----------------------------------------------+
+    +-----------+---------+-----------+------------+---------+
+    | Matched   | Matched | Matched   | Parse tree | Matched |
+    | Last      | string  | rule      | separated  | Line    |
+    | Position  | buffer  | name      | by spaces  | Number  |
+    |           |         |           |            |         |
+    | $last_pos | $buffer | $rule     | $tree      | $lineno |
+    +-----------+---------+-----------+------------+---------+
 
 An example of the C<tokens> method in action:
 
