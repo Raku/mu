@@ -11,7 +11,7 @@ my $out = $out_scalar."FETCH"();
 #my $out_scalar = $prelude."lookup"("$OUT");
 #my $out = $out_scalar."FETCH"();
 
-$void = $out."print"("1..1\n");
+$void = $out."print"("1..2\n");
 
 my $LexicalScope_scalar = $prelude."lookup"("LexicalScope");
 my $LexicalScope = $LexicalScope_scalar."FETCH"();
@@ -21,7 +21,13 @@ my $outer = $scope."outer"();
 my $void = $outer."STORE"($prelude);
 
 
-#my $out2_scalar = $prelude."lookup"("$OUT");
-#my $out2 = $out2_scalar."FETCH"();
+my $out2_scalar = $prelude."lookup"("$OUT");
+my $out2 = $out2_scalar."FETCH"();
 
-#my $void = $out2."print"("ok 1\n");
+my $void = $out2."print"("ok 1\n");
+
+my $var = $scope."postcircumfix:{ }"("$foo");
+
+my $void = $var."STORE"("ok 2\n");
+my $ok2 = $var."FETCH"();
+my $void = $out."print"($ok2);

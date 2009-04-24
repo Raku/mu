@@ -7,18 +7,15 @@ use AST::Helpers;
 sub emit_m0ld_ahsig {
     my $m = shift;
 
-    my $pc = 0;
     my $other = 0;
     my @stmts;
-    push @stmts, call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call invocant => reg '$capture'];
+
+    # TODO invocant
+    #push @stmts, call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call invocant => reg '$capture'];
+
     for my $param (@{$m->{parameter}}) {
-        if ($m->{param_sep}[$pc]{TEXT} && $m->{param_sep}[$pc]{TEXT} =~ /\s*:\s*/) {
-            push @stmts, $param->emit_m0ld_ahsig_BIND_invocant();
-        } else {
-            push @stmts, $param->emit_m0ld_ahsig_BIND($other);
-            $other++;
-        }
-        $pc++;
+        push @stmts, $param->emit_m0ld_ahsig_BIND($other);
+        $other++;
     }
 
     AST::Call->new
