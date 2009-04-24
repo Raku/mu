@@ -1,5 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.43  2009.04.24
+    - Made the bold version change; no more confusing 0.0xx
+    - Bundled latest STD which fixes a parse bug
+
 0.043 2009.04.24
     - Depends on Moose 0.75
     - Added lineno (line number) to tokens record
