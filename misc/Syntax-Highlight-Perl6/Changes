@@ -1,7 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
-0.043 2009.???????????
+0.043 2009.04.24
     - Depends on Moose 0.75
+    - Added lineno (line number) to tokens record
 
 0.042 2009.04.22
     - Bundled latest STD and perl6.vim and jQuery 1.3.2

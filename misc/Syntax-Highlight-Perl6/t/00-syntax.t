@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 36;
+use Test::More tests => 37;
 use Test::Exception;
 
 use STD;
@@ -61,6 +61,7 @@ ok(defined $rec{buffer}, '%rec has a buffer');
 ok(defined $rec{last_pos}, '%rec has a last_pos');
 ok(defined $rec{rule}, '%rec has a rule');
 ok(defined $rec{tree}, '%rec has a tree');
+ok(defined $rec{lineno}, '%rec has a lineno');
 
 #tests for static behavior between different instances
 my $q = Syntax::Highlight::Perl6->new(
