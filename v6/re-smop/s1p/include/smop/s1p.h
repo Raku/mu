@@ -4,9 +4,11 @@
 
 #include <smop/base.h>
 extern SMOP__Object* SMOP__S1P__LexicalScope;
+extern SMOP__Object* SMOP__S1P__FlattenedScope;
 extern SMOP__Object* SMOP__S1P__LexicalPrelude;
 extern SMOP__Object* SMOP__S1P__Code;
 extern SMOP__Object* SMOP__S1P__Scalar;
+extern SMOP__Object* SMOP__S1P__Package;
 extern SMOP__Object* SMOP__MildewSOLoader;
 extern SMOP__Object* SMOP__S1P__AdhocSignature;
 
@@ -16,6 +18,8 @@ void smop_s1p_lexicalscope_init(SMOP__Object* interpreter);
 void smop_s1p_lexicalscope_destr(SMOP__Object* interpreter);
 void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter);
 void smop_s1p_lexical_prelude_destr(SMOP__Object* interpreter);
+void smop_s1p_flattenedscope_init(SMOP__Object* interpreter);
+void smop_s1p_flattenedscope_destr(SMOP__Object* interpreter);
 
 void smop_s1p_proto_init(SMOP__Object* interpreter);
 void smop_s1p_proto_destr(SMOP__Object* interpreter);

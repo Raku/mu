@@ -43,7 +43,7 @@ SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Objec
   }
 
   SMOP__Object** n = named;
-  while (*n) {
+  while (n && *n) {
     smop_util_hash_set(interpreter,ret->named,*n,*(n+1));
     n += 2;
   }
@@ -69,6 +69,7 @@ SMOP__Object* SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,SMOP__O
 int SMOP__NATIVE__capture_positional_count(SMOP__Object* interpreter,SMOP__Object* capture) {
   return ((capture_struct*)capture)->positional_count;
 }
+
 
 void smop_capture_init() {
   SMOP__capture__RI = malloc(sizeof(SMOP__NAGC__ResponderInterface));

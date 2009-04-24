@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <smop/s0native.h>
 #include <stdio.h>
+static SMOP__Object* SMOP__ID__new;
 static SMOP__Object* SMOP__ID__bind_key;
 static SMOP__Object* SMOP__ID__entries;
 void smop_s1p_lexical_prelude_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj) {
@@ -32,6 +33,7 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
     SMOP__NATIVE__idconst_create("new"),
     SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalScope),NULL},(SMOP__Object*[]) {NULL})
   );
+  SMOP__ID__new = SMOP__NATIVE__idconst_create("new");
   SMOP__ID__entries = SMOP__NATIVE__idconst_create("entries");
   SMOP__ID__bind_key = SMOP__NATIVE__idconst_create("bind_key");
   smop_s1p_lexical_prelude_insert(interpreter,"Code",SMOP_REFERENCE(interpreter,SMOP__S1P__Code));
@@ -43,6 +45,11 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
   smop_s1p_lexical_prelude_insert(interpreter,"LexicalScope",SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalScope));
   smop_s1p_lexical_prelude_insert(interpreter,"Scalar",SMOP_REFERENCE(interpreter,SMOP__S1P__Scalar));
   smop_s1p_lexical_prelude_insert(interpreter,"Hash",SMOP__S1P__Hash_create(interpreter));
+  smop_s1p_lexical_prelude_insert(interpreter,"$?PACKAGE",
+				  SMOP_DISPATCH(interpreter,SMOP_RI(SMOP__S1P__Package),SMOP__ID__new,
+						SMOP__NATIVE__capture_create(interpreter,
+									     (SMOP__Object*[]){
+                                                                               SMOP_REFERENCE(interpreter,SMOP__S1P__Package),NULL},NULL)));
 }
 
 void smop_s1p_lexical_prelude_destr(SMOP__Object* interpreter) {

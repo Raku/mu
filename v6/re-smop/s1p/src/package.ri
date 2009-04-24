@@ -1,0 +1,94 @@
+%prefix smop_s1p_package
+%include <smop/s1p.h>
+%prototype SMOP__S1P__Package
+%RI.id S1P Package
+%attr SMOP__Object* entries
+%attr SMOP__Object* name
+%getter entries
+%getter name
+
+%{
+  static SMOP__Object* SMOP__ID__postcircumfix_curly;
+  static SMOP__Object* SMOP__ID__bind_key;
+  static SMOP__Object* SMOP__ID__exists;
+%}
+
+%init {
+ SMOP__ID__postcircumfix_curly = SMOP__NATIVE__idconst_create("postcircumfix:{ }");
+ SMOP__ID__bind_key = SMOP__NATIVE__idconst_create("bind_key"),
+ SMOP__ID__exists = SMOP__NATIVE__idconst_create("exists");
+%}
+
+%method new
+  ret = smop_nagc_alloc(sizeof(smop_s1p_package_struct));
+  SMOP_REFERENCE(interpreter,RI);
+  ret->RI = (SMOP__ResponderInterface*)RI;
+  ((smop_s1p_package_struct*)ret)->entries = SMOP__S1P__Hash_create(interpreter);
+  ((smop_s1p_package_struct*)ret)->name = SMOP__S1P__Scalar_create(interpreter,SMOP__NATIVE__idconst_create("ANON"));
+
+%method name
+  smop_nagc_rdlock(invocant);
+  ret = ((smop_s1p_package_struct*)invocant)->name;
+  smop_nagc_unlock(invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method true
+  ret = SMOP__NATIVE__bool_true;
+
+%method entries
+  smop_nagc_rdlock(invocant);
+  ret = ((smop_s1p_package_struct*)invocant)->entries;
+  smop_nagc_unlock(invocant);
+  SMOP_REFERENCE(interpreter, ret);
+
+%method FETCH
+  ___VALUE_FETCH___
+
+%method postcircumfix:{ }
+  smop_nagc_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
+  smop_nagc_unlock(invocant);
+  SMOP__Object* symbol = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__postcircumfix_curly,
+                      SMOP__NATIVE__capture_create(interpreter,
+                                                   (SMOP__Object*[]) {
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     symbol, NULL },
+                                                   NULL));
+
+%method bind_key
+  smop_nagc_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
+  smop_nagc_unlock(invocant);
+  SMOP__Object* symbol = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+  SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter,capture,2);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__bind_key,
+                      SMOP__NATIVE__capture_create(interpreter,
+                                                   (SMOP__Object*[]) {
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     symbol, value, NULL },
+                                                   NULL));
+
+%method exists
+  smop_nagc_rdlock(invocant);
+  SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
+  smop_nagc_unlock(invocant);
+  SMOP__Object* symbol = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+                      SMOP__ID__exists,
+                      SMOP__NATIVE__capture_create(interpreter,
+                                                   (SMOP__Object*[]) {
+                                                     SMOP_REFERENCE(interpreter,entries),
+                                                     symbol, NULL },
+                                                   NULL));
+
+%method DESTROYALL
+    smop_nagc_wrlock(invocant);
+    SMOP__Object* name = ((smop_s1p_package_struct*)invocant)->name;
+    SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
+    smop_nagc_unlock(invocant);
+    SMOP_RELEASE(interpreter,name);
+    SMOP_RELEASE(interpreter,entries);
+    SMOP_RELEASE(interpreter,RI);

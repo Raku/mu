@@ -1,0 +1,38 @@
+%prefix smop_s1p_flattenedscope
+%prototype SMOP__S1P__FlattenedScope
+%RI.id flattened lexical scope
+%attr SMOP__Object* lexical
+%getter lexical
+%{
+  static SMOP__Object* SMOP__ID__lookup;
+%}
+
+%init {
+ SMOP__ID__lookup = SMOP__NATIVE__idconst_create("lookup");
+%}
+
+%method new
+  ret = smop_nagc_alloc(sizeof(smop_s1p_flattenedscope_struct));
+  SMOP_REFERENCE(interpreter,RI);
+  ret->RI = (SMOP__ResponderInterface*)RI;
+  ((smop_s1p_flattenedscope_struct*)ret)->lexical = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+
+%method postcircumfix:{ }
+  smop_nagc_rdlock(invocant);
+  SMOP__Object* lexical = ((smop_s1p_flattenedscope_struct*)invocant)->lexical;
+  smop_nagc_unlock(invocant);
+  SMOP__Object* symbol = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(lexical),
+                      SMOP__ID__lookup,
+                      SMOP__NATIVE__capture_create(interpreter,
+                                                   (SMOP__Object*[]) {
+                                                     SMOP_REFERENCE(interpreter,lexical),
+                                                     symbol, NULL },
+                                                   NULL ));
+
+%method DESTROYALL
+    smop_nagc_wrlock(invocant);
+    SMOP__Object* lexical = ((smop_s1p_flattenedscope_struct*)invocant)->lexical;
+    smop_nagc_unlock(invocant);
+    SMOP_RELEASE(interpreter,lexical);
+    SMOP_RELEASE(interpreter,RI);

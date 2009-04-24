@@ -78,6 +78,7 @@ sub compile_to_so {
 #include <smop/capture.h>
 #include <smop/s0native.h>
 #include <smop/native.h>
+#include <smop/s1p.h>
 void init(SMOP__Object* interpreter,SMOP__Object* scope,SMOP__Object* continuation) {
     SMOP__Object* mold =
 BOILERPLATE_FRONT

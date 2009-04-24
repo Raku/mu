@@ -5,8 +5,8 @@ all: STD CORE
 STD :
 	cd perl6-snapshot;make
 
-CORE: CORE/CORE.mildew.so
-#CORE/Return.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so
+CORE: CORE/CORE.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so CORE/Return.mildew.so
+
 
 
 CORE/CORE.mildew.so : CORE/CORE.pm
@@ -28,7 +28,7 @@ PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove 
 
 test: prove
 
-prove:
+prove: CORE
 	$(PROVE) 'perl mildew ' `cat TESTS` t/
 
 clean:
