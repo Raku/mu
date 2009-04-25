@@ -1,5 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.45  2009.04.25
+    - Fixed a redspans bug when parsing STD.pm; TimToady++
+    - Bundled latest STD.
+
 0.44  2009.04.25
     - Bundled latest STD.
 

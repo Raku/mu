@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.44';
+our $VERSION = '0.45';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
@@ -477,6 +477,8 @@ sub _redspans_traverse {
     sub AUTOLOAD {
         my $self = shift;
         my $C = shift;
+        my $rule = shift;
+        return unless $rule;
         my $F = $C->{_from};
         my $P = $C->{_pos};
         $AUTOLOAD =~ s/^Syntax::Highlight::Perl6::Actions:://x;
