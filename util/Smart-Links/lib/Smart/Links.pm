@@ -677,11 +677,6 @@ sub process_t_file {
             #warn "*$synopsis* *$section* *$pattern*\n";
             $found_link++;
         }
-#        elsif (m{^ \s* \# \s* L<? S\d+\b }xoi) {
-#            $self->error("$infile: line $.: syntax error in smartlink: $_");
-#            $self->{invalid_link}++;
-#            next;
-#        }
         # there are some # L<"http://... links that we should skip for now
         # and not even report them as errors.
         # any other L< thing should be reported.
@@ -923,14 +918,14 @@ sub process_syn {
     my ($self, $infile) = @_;
 
     my $syn_id;
-    if ($infile =~ /\bS(\d+)(?:-\w+)+.pod$/) {
+    if ($infile =~ /\b(S\d+)(?:-\w+)+.pod$/) {
         $syn_id = $1;
     } else {
         die "Can't match file '$infile'\n";
     }
 
     # S26 is in Pod6, we treat it specifically for now.
-    if ($syn_id == 26) {
+    if ($syn_id eq "S26") {
         $self->process_perl6_file($infile, $syn_id);
         return;
     } else {
@@ -942,7 +937,7 @@ sub process_perl5_file {
     my ($self, $infile, $syn_id) = @_;
 
     my $podtree = $self->parse_pod($infile);
-    my $linktree_sections = $self->{linktree}->{"S$syn_id"};
+    my $linktree_sections = $self->{linktree}->{$syn_id};
     while (my ($section_name, $links) = each %$linktree_sections) {
         #warn "checking $section...";
         my @links = @$links;
@@ -951,7 +946,7 @@ sub process_perl5_file {
             my $link = $links[0];
             my ($t_file, $from) = @{ $link->[1] };
             $from--;
-            $self->error("$t_file: line $from: section '$section_name' not found in S$syn_id.");
+            $self->error("$t_file: line $from: section '$section_name' not found in $syn_id.");
             $self->broken_link_count_inc;
             next;
         }
@@ -981,22 +976,22 @@ sub process_perl5_file {
             } continue { $i++ }
             if (!$matched) {
                 my ($file, $lineno) = @$location;
-                $self->error("$file: line $lineno: pattern '$pattern' failed to match any paragraph in L<S${syn_id}/${section_name}>.");
+                $self->error("$file: line $lineno: pattern '$pattern' failed to match any paragraph in L<${syn_id}/${section_name}>.");
                 $self->broken_link_count_inc;
             }
         }
     }
 
     # We need this to check invalid smartlinks pointed to non-existent docs:
-    delete $self->{linktree}->{"S$syn_id"};
+    delete $self->{linktree}->{$syn_id};
 
     if (!$self->check) {
         my $pod      = $self->emit_pod($podtree);
-        my $html     = $self->gen_html($pod, "S$syn_id");
+        my $html     = $self->gen_html($pod, $syn_id);
         my $preamble = $self->gen_preamble();
         $html =~ s{<!-- start doc -->}{$&$preamble};
         my $out_dir = $self->out_dir;
-        my $htmfile = "$out_dir/S$syn_id.html";
+        my $htmfile = "$out_dir/$syn_id.html";
         warn "info: generating $htmfile...\n";
         write_file($htmfile, $html);
     }
@@ -1026,7 +1021,7 @@ sub process_perl6_file {
     $self->add_footer(\$perldochtml);
 
     my $out_dir = $self->out_dir;
-    my $htmfile = "$out_dir/S$syn_id.html";
+    my $htmfile = "$out_dir/$syn_id.html";
     warn "info: generating $htmfile...\n";
     write_file($htmfile, $perldochtml);
     return;
