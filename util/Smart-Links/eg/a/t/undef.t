@@ -70,7 +70,7 @@ ok(!defined(undef), "undef is not defined");
         # L<<S06/Optional parameters/Missing optional arguments>>
         ok(!defined($baz), "unspecified optional param");
 
-        # L<<S06/Named parameters/Named parameters are optional>>
+        # L<S06/Named parameters/Named parameters are optional>
         ok(!defined($quux), "unspecified optional param");
     }
 
@@ -93,5 +93,8 @@ is(1 + (undef), 1, '1 + undef');
 # See log above.  From IRC, TimToady says that both of these
 # should be false.  (At time of writing, @(undef,) is true.)
 is ?(@(undef,)), Bool::False, '?(@(undef,)) is false';
+
+
+# L<S19/Something else>
 is ?(list(undef,)), Bool::False, '?(@(undef,)) is false';
 

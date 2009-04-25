@@ -15,8 +15,9 @@ use Smart::Links;
 
 {
     my $sl = Smart::Links->new;
-    $sl->process_t_file('eg/a/t/01.t');
-    is $sl->link_count, 1, 'link_count';
+	my $file = 'eg/a/t/01.t';
+    $sl->process_t_file($file);
+    is($sl->link_count, 1, 'link_count');
     is $sl->broken_link_count, 0, 'broken_link_count';
     is $sl->{invalid_link}, 0, 'invalid link';
     
@@ -34,7 +35,7 @@ use Smart::Links;
             ]
             ]
         }
-        }, 'linktree';
+        }, "linktree of $file";
     #diag explain $sl;
 	BEGIN { $tests += 5 }
 }
@@ -46,12 +47,13 @@ use Smart::Links;
 # reported as error
 {
     my $sl = Smart::Links->new;
-    $sl->process_t_file('eg/a/t/assertions.t');
-    is $sl->link_count, 1, 'link_count';
+	my $file = 'eg/a/t/assertions.t';
+    $sl->process_t_file($file);
+    is $sl->link_count, 1, "link_count 1 for $file";
     is $sl->{invalid_link}, 1, 'invalid_link';
     is $sl->broken_link_count, 0, 'broken_link_count';
     #is_deeply $sl->{errors}, [], 'errors';
-    like $sl->{errors}[0][0], qr/Could not parse smartlink/, 'errors';
+    like $sl->{errors}[0][0], qr/Legacy smartlink. Use L< instead of L<< in line 12/, 'errors';
     is_deeply $sl->{linktree}, {
      'S07' => {
        'Other Extensible metasyntax (C<< <...> >>)' => [
@@ -65,7 +67,7 @@ use Smart::Links;
          ]
        ]
     }
-    }, 'linktree';
+    }, "linktree of $file";
 
 #    diag explain $sl;
 	BEGIN { $tests += 5 }
@@ -73,10 +75,12 @@ use Smart::Links;
 
 {
     my $sl = Smart::Links->new;
-    $sl->process_t_file('eg/a/t/undef.t');
-    is $sl->link_count, 6, 'link_count';
+	my $file = 'eg/a/t/undef.t';
+    $sl->process_t_file($file);
+    is $sl->link_count, 6, "link_count is 6 for $file";
     is $sl->broken_link_count, 0, 'broken_link_count';
-    is_deeply $sl->{errors}, [];
+    like $sl->{errors}[0][0], qr/Legacy smartlink. Use L< instead of L<< in line 70/, 'errors';
+	#diag explain $sl->{linktree};
     is_deeply $sl->{linktree}, {
          'S05' => {
        'Match objects' => [
@@ -85,7 +89,7 @@ use Smart::Links;
            [
              'eg/a/t/undef.t',
              50,
-             69
+             72
            ]
          ]
        ]
@@ -101,16 +105,6 @@ use Smart::Links;
            ]
          ]
        ],
-       'Optional parameters' => [
-         [
-           'Missing optional arguments',
-           [
-             'eg/a/t/undef.t',
-             '70',
-             72
-           ]
-         ]
-       ]
      },
      'S10' => {
        'Autoloading' => [
@@ -120,6 +114,18 @@ use Smart::Links;
              'eg/a/t/undef.t',
              '82',
              '97'
+           ]
+         ]
+       ]
+     },
+     'S19' => {
+       'Something else' => [
+         [
+           undef,
+           [
+             'eg/a/t/undef.t',
+             '98',
+             '100'
            ]
          ]
        ]
@@ -144,7 +150,7 @@ use Smart::Links;
          ]
        ]
      }
-    }, 'linktree';
+    }, "linktree of $file";
 	BEGIN { $tests += 4 }
 
     #diag explain $sl;

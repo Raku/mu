@@ -133,7 +133,7 @@ they can't be recognized by tools. Here're some *invalid* samples:
 
 There's also a variant for the smartlink syntax:
 
-   # L<<syn/sec/key phrases>>
+   # L<syn/sec/key phrases>>
 
 A smartlink can span at most 2 lines:
 
@@ -176,6 +176,7 @@ There were also some legacy smartlinks using the following syntax:
 
    L<S04/"section name" /regex/>
    L<<S04/"section name" /regex/>>
+   L<<S04/"section name">>
 
 They're no longer supported by util/smartlinks.pl. Use the current syntax.
 
@@ -628,8 +629,16 @@ sub process_t_file {
         chomp;
         my $new_from;
         my ($synopsis, $section, $pattern);
-        # sample: # L<< S05/"Extensible metasyntax (C<< <...> >>)"/"A leading C<?{> or C<!{> indicates a code assertion:" >>
-        if (m{^ \s* \# \s* L< (S\d+) / ([^/]+) >\s*$}xo) {
+		if (m{L<"?http://}) {
+			# TODO shall we also collect the http links for later reuse?
+			next;
+        }
+        elsif (m{^ \s* \# \s* (L<<+)}xoi) {
+            $self->error("Legacy smartlink. Use L< instead of $1 in line $. '$_'  in file '$infile'");
+            $self->{invalid_link}++;
+            next;
+        }
+        elsif (m{^ \s* \# \s* L< (S\d+) / ([^/]+) >\s*$}xo) {
             ($synopsis, $section) = ($1, $2);
             $section =~ s/^\s+|\s+$//g;
             $section =~ s/^"(.*)"$/$1/;
@@ -638,7 +647,7 @@ sub process_t_file {
             $to = $. - 1;
             $found_link++;
         }
-        elsif (m{^ \s* \# \s* L(<<?) (S\d+) / ([^/]+) / (.*) }xo) {
+        elsif (m{^ \s* \# \s* L(<) (S\d+) / ([^/]+) / (.*) }xo) {
             #warn "$1, $2, $3\n";
             my $brackets;
             ($brackets, $synopsis, $section, $pattern) = ($1, $2, $3, $4);
@@ -675,12 +684,14 @@ sub process_t_file {
         # there are some # L<"http://... links that we should skip for now
         # and not even report them as errors.
         # any other L< thing should be reported.
-        elsif (m{^ \s* \# \s* L<}xoi and $_ !~ m{L<"?http://}) {
+        elsif (m{^ \s* \# \s* L<}xoi) {
             $self->error("Could not parse smartlink in line $. '$_'  in file '$infile'");
             $self->{invalid_link}++;
             next;
         }
-        else { next; }
+        else {
+            next;
+        }
 
         #warn "*$synopsis* *$section*\n";
         if ($from and $from == $to) {
