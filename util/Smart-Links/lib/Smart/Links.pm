@@ -638,7 +638,7 @@ sub process_t_file {
             $self->{invalid_link}++;
             next;
         }
-        elsif (m{^ \s* \# \s* L< (S\d+) / ([^/]+) >\s*$}xo) {
+        elsif (m{^ \s* \# \s* L< ([^/]+) / ([^/]+) >\s*$}xo) {
             ($synopsis, $section) = ($1, $2);
             $section =~ s/^\s+|\s+$//g;
             $section =~ s/^"(.*)"$/$1/;
@@ -647,7 +647,8 @@ sub process_t_file {
             $to = $. - 1;
             $found_link++;
         }
-        elsif (m{^ \s* \# \s* L(<) (S\d+) / ([^/]+) / (.*) }xo) {
+        # extended and multiline smartlinks
+        elsif (m{^ \s* \# \s* L(<) ([^/]+) / ([^/]+) / (.*) }xo) {
             #warn "$1, $2, $3\n";
             my $brackets;
             ($brackets, $synopsis, $section, $pattern) = ($1, $2, $3, $4);
@@ -676,11 +677,11 @@ sub process_t_file {
             #warn "*$synopsis* *$section* *$pattern*\n";
             $found_link++;
         }
-        elsif (m{^ \s* \# \s* L<? S\d+\b }xoi) {
-            $self->error("$infile: line $.: syntax error in smartlink: $_");
-            $self->{invalid_link}++;
-            next;
-        }
+#        elsif (m{^ \s* \# \s* L<? S\d+\b }xoi) {
+#            $self->error("$infile: line $.: syntax error in smartlink: $_");
+#            $self->{invalid_link}++;
+#            next;
+#        }
         # there are some # L<"http://... links that we should skip for now
         # and not even report them as errors.
         # any other L< thing should be reported.
