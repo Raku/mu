@@ -8,6 +8,8 @@ our $VERSION = '0.01';
 use File::ShareDir;
 use FindBin;
 use File::Spec;
+use File::Path qw(mkpath);
+use File::Basename qw(dirname);
 use File::Slurp;
 use CGI;
 use Pod::Simple::HTML;
@@ -914,27 +916,36 @@ Process synopses one by$sl->link_count  one.
 
 =cut
 
+# TODO clean up the Perl 6 special case
 sub process_syn {
-    my ($self, $infile) = @_;
+    my ($self, $root, $infile, $pugs) = @_;
 
-    my $syn_id;
-    if ($infile =~ /\b(S\d+)(?:-\w+)+.pod$/) {
-        $syn_id = $1;
-    } else {
-        die "Can't match file '$infile'\n";
-    }
+    (my $syn_id = $infile) =~ s/\.(pod|pm)$//;
+	$syn_id =~ s{[/\\]}{::}g;
 
+	# special case for Perl 6 Synopsis
+	if ($pugs) {
+		$syn_id  =~ s{(S\d+)-[^:]+}{$1};
+	}
+	(my $outfile = $syn_id) =~ s{::}{/}g;
+	$outfile .= ".html";
     # S26 is in Pod6, we treat it specifically for now.
+	#TODO later slurp file in and check if it looks like a perl 6 pod (has =begin pod)
+    my $out_dir = $self->out_dir;
     if ($syn_id eq "S26") {
-        $self->process_perl6_file($infile, $syn_id);
-        return;
+        $self->process_perl6_file(
+               File::Spec->catfile($root, $infile), 
+               File::Spec->catfile($out_dir, $outfile));
     } else {
-        $self->process_perl5_file($infile, $syn_id);
+        $self->process_perl5_file(
+               File::Spec->catfile($root, $infile), 
+               File::Spec->catfile($out_dir, $outfile),
+               $syn_id);
     }
 }
 
 sub process_perl5_file {
-    my ($self, $infile, $syn_id) = @_;
+    my ($self, $infile, $outfile, $syn_id) = @_;
 
     my $podtree = $self->parse_pod($infile);
     my $linktree_sections = $self->{linktree}->{$syn_id};
@@ -990,15 +1001,14 @@ sub process_perl5_file {
         my $html     = $self->gen_html($pod, $syn_id);
         my $preamble = $self->gen_preamble();
         $html =~ s{<!-- start doc -->}{$&$preamble};
-        my $out_dir = $self->out_dir;
-        my $htmfile = "$out_dir/$syn_id.html";
-        warn "info: generating $htmfile...\n";
-        write_file($htmfile, $html);
+        warn "info: generating $outfile...\n";
+		mkpath dirname($outfile);
+        write_file($outfile, $html);
     }
 }
 
 sub process_perl6_file {
-    my ($self, $infile, $syn_id) = @_;
+    my ($self, $infile, $outfile) = @_;
 
     return if $self->check;
     eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
@@ -1020,10 +1030,8 @@ sub process_perl6_file {
     $perldochtml =~ s{<body>}{$&$preamble};
     $self->add_footer(\$perldochtml);
 
-    my $out_dir = $self->out_dir;
-    my $htmfile = "$out_dir/$syn_id.html";
-    warn "info: generating $htmfile...\n";
-    write_file($htmfile, $perldochtml);
+    warn "info: generating $outfile...\n";
+    write_file($outfile, $perldochtml);
     return;
 }
 
