@@ -32,7 +32,6 @@ use Data::Dumper;
 
 use lib "$FindBin::Bin/Smart-Links/lib";
 use Smart::Links;
-my $sl;
 
 sub help () {
     print <<_EOC_;
@@ -96,7 +95,7 @@ sub main {
     }
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
-    $sl = Smart::Links->new({
+    my $sl = Smart::Links->new({
         count         => $count,
         check         => $check,
         line_anchor   => $line_anchor,
