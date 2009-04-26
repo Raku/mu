@@ -56,10 +56,9 @@ Options:
                   Set .yml file generated from Test::TAP::Model's
                   ``structure''. Usually <ymlfile> should be set
                   to ``smoke.yml''.
-  --syn-dir       Specify the directory where the Synopses live,
-                  defaults to pugs' docs/Perl6/Spec. Please don't
-                  set syn-dir to elsewhere unless you have a good
-                  reason.
+  --pod-dir       Specify the directory where the .pod and .pm files 
+                  are located. smarlinks.pl will recurse in the 
+                  subdirectories to locate the files.
   --index         Also generates an index.html page with links to
                   pages.
   --dir <dir>     Name of the directory where to look for .t files
@@ -71,7 +70,7 @@ _EOC_
 }
 
 sub main {
-    my ($syn_dir, $out_dir, $help, $cssfile, $yml_file, $index, $dir,$count,$wiki);
+    my ($pod_dir, $out_dir, $help, $cssfile, $yml_file, $index, $dir,$count,$wiki);
     my $check;
     my $line_anchor;
     my $print_missing;
@@ -81,7 +80,7 @@ sub main {
         'count'       => \$count,
         'missing'     => \$print_missing,
         'wiki'        => \$wiki,
-        'syn-dir=s'   => \$syn_dir,
+        'pod-dir=s'   => \$pod_dir,
         'out-dir=s'   => \$out_dir,
         'css=s'       => \$cssfile,
         'help'        => \$help,
@@ -117,10 +116,10 @@ sub main {
     $sl->process_test_files(@t_files);
     $sl->process_yml_file($yml_file);
 
-    my @syns = File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($syn_dir);
+    my @syns = File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($pod_dir);
     $sl->{docs} = \@syns;
     for my $syn (@syns) {
-        $sl->process_syn($syn_dir, $syn, 1);
+        $sl->process_syn($pod_dir, $syn, 1);
     }
 
     $sl->report_broken_links;
