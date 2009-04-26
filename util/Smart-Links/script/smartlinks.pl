@@ -107,7 +107,6 @@ sub main {
         version       => $version,
     });
 
-
     $out_dir = $sl->out_dir;
     mkdir $out_dir if !-d $out_dir;
 
