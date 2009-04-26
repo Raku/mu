@@ -1038,6 +1038,32 @@ sub process_perl6_file {
     return;
 }
 
+sub report_stats {
+    my ($self) = @_;
+
+    my $test_file_count = scalar @{ $self->{test_files} };
+    my $test_files_missing_links = scalar $self->test_files_missing_links;
+    warn sprintf("info: %s smartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
+        $self->link_count ,$self->broken_link_count);
+    if (!$self->check and $self->broken_link_count > 0) {
+        warn "hint: use the --check option for details on broken smartlinks.\n";
+    }
+}
+
+sub report_broken_links {
+    my ($self) = @_;
+
+    while (my ($syn, $linktree_sections) = each %{ $self->{linktree} }) {
+        for my $section (sort keys %$linktree_sections) {
+            my $links = $linktree_sections->{$section};
+            for my $link (@$links) {
+                my ($file, $lineno) = @{ $link->[1] };
+                $self->error("$file: line $lineno: smartlink pointing to an unknown synopsis ($syn) section $section"),
+                $self->broken_link_count_inc;
+            }
+        }
+    }
+}
 
 sub snippet_id_inc    { $_[0]->{snippet_id}++ };
 sub snippet_id        { $_[0]->{snippet_id} };
