@@ -1,0 +1,16 @@
+my $interpreter;
+my $prelude = ?SMOP__S1P__LexicalPrelude;
+my $void;
+my $out_scalar = $prelude."lookup"("$OUT");
+my $out = $out_scalar."FETCH"();
+my $void = $out."print"("1..1\n");
+
+my $Hash_scalar = $prelude."lookup"("Hash");
+my $Hash = $Hash_scalar."FETCH"();
+
+my $hash = $Hash."new"();
+
+my $cont = $hash."postcircumfix:{ }"("foo");
+my $void = $cont."FETCH"();
+my $void2 = $cont."FETCH"();
+my $void = $out."print"("ok 1 #lives after double FETCH on container\n");

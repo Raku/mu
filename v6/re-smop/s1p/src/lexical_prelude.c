@@ -52,6 +52,13 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
         SMOP_REFERENCE(interpreter,SMOP__S1P__Package),NULL},
       (SMOP__Object*[]) {NULL}
     )));
+
+  SMOP__Object* primitives = SMOP_DISPATCH(interpreter,SMOP_RI(SMOP__S1P__Package),SMOP__ID__new,
+    SMOP__NATIVE__capture_create(interpreter,
+    (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,SMOP__S1P__Package),NULL},(SMOP__Object*[]) {NULL}));
+
+  smop_s1p_insert_primitives(interpreter,primitives);
+  smop_s1p_lexical_prelude_insert(interpreter,"PRIMITIVES::",primitives);
 }
 
 void smop_s1p_lexical_prelude_destr(SMOP__Object* interpreter) {
