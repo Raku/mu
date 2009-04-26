@@ -50,7 +50,7 @@ use Smart::Links;
     my $file = 'eg/a/t/assertions.t';
     $sl->process_t_file($file);
     is $sl->link_count, 1, "link_count 1 for $file";
-    is $sl->{invalid_link}, 1, 'invalid_link';
+    is $sl->{invalid_link}, 2, 'invalid_link';
     is $sl->broken_link_count, 0, 'broken_link_count';
     #is_deeply $sl->{errors}, [], 'errors';
     like $sl->{errors}[0][0], qr/Legacy smartlink. Use L< instead of L<< in line 12/, 'errors';
@@ -62,7 +62,7 @@ use Smart::Links;
            [
              'eg/a/t/assertions.t',
              '19',
-             '22'
+             '27'
            ]
          ]
        ]

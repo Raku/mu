@@ -4,6 +4,8 @@
 
 # Most of the contet of this program is now in the Smart::Links
 # module in the Smart-Links/ subdiectory.
+# This script is here to provide the necessary flags and defaults required
+# in the Pugs SVN.
 
 use strict;
 use warnings;
@@ -11,8 +13,9 @@ use FindBin;
 
 my $version = get_pugs_rev();
 my $syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
-
-system qq($^X -I $FindBin::Bin/Smart-Links/lib $FindBin::Bin/Smart-Links/script/smartlinks.pl @ARGV --version $version --syn-dir $syn_dir);
+# The directory where the Synopses live.
+# Please don't set syn-dir to elsewhere unless you have a good reason.
+system qq($^X -I $FindBin::Bin/Smart-Links/lib $FindBin::Bin/Smart-Links/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir);
 
 sub get_pugs_rev {
     my $stdout = `$^X $FindBin::Bin/version_h.pl`;
