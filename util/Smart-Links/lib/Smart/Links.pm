@@ -13,6 +13,7 @@ use File::Basename qw(dirname);
 use File::Slurp;
 use CGI;
 use Pod::Simple::HTML;
+use Data::Dumper;
 
 use base 'Class::Accessor';
 __PACKAGE__->mk_accessors(qw(check count cssfile line_anchor 
@@ -549,6 +550,7 @@ sub test_files_missing_links {
 # TODO add tests
 sub add_link  {
     my ($self, $synopsis, $section, $pattern, $t_file, $from, $to) = @_;
+    
     if ($from == $to) {
         warn "WARNING: empty snippet detected at $t_file (line $from ~ $to).\n";
     }
@@ -949,16 +951,17 @@ sub process_perl5_file {
 
     my $podtree = $self->parse_pod($infile);
     my $linktree_sections = $self->{linktree}->{$syn_id};
+
     while (my ($section_name, $links) = each %$linktree_sections) {
-        #warn "checking $section...";
         my @links = @$links;
         my $paras = $podtree->{$section_name};
         if (!$paras) {
-            my $link = $links[0];
-            my ($t_file, $from) = @{ $link->[1] };
-            $from--;
-            $self->error("$t_file: line $from: section '$section_name' not found in $syn_id.");
-            $self->broken_link_count_inc;
+            foreach my $link (@$links) {
+                my ($t_file, $from) = @{ $link->[1] };
+                $from--;
+                $self->error("$t_file: line $from: section '$section_name' not found in $syn_id.");
+                $self->broken_link_count_inc;
+            }
             next;
         }
         for my $link (reverse @links) {

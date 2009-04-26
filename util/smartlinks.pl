@@ -25,6 +25,7 @@ use File::Basename;
 use FindBin;
 use File::Find::Rule;
 use File::Slurp;
+use Data::Dumper;
 
 #use Pod::Simple::HTML;
 
@@ -134,11 +135,14 @@ sub main {
     }
 
     # check for pending smartlinks:
+    
+    #print Dumper $sl->{linktree};
     while (my ($syn, $linktree_sections) = each %{ $sl->{linktree} }) {
-        for my $links (values %$linktree_sections) {
+        for my $section (sort keys %$linktree_sections) {
+            my $links = $linktree_sections->{$section};
             for my $link (@$links) {
                 my ($file, $lineno) = @{ $link->[1] };
-                $sl->error("$file: line $lineno: smartlink pointing to an unknown synopsis ($syn)"),
+                $sl->error("$file: line $lineno: smartlink pointing to an unknown synopsis ($syn) section $section"),
                 $sl->broken_link_count_inc;
             }
         }
