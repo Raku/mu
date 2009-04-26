@@ -42,7 +42,7 @@ Smart::Links - connecting test files with pod documentation
   
 If in the root directory of a CPAN package type the following:
 
-  smartlinks.pl -Ilib script/smartlinks.pl --pod-dir lib/ --dir t/ --out-dir html/
+  smartlinks.pl -Ilib script/smartlinks.pl --pod-dir lib/ --dir t/ --out-dir html/ --index
 
 =head1 DESCRIPTION
 
@@ -184,8 +184,7 @@ or without quotes:
 
   L<http://www.nntp.perl.org/group/perl.perl6.language/26071>
 
-Try running 'grep -r "L<" t/' to see some examples, or look at
-F<t/syntax/comments.t>.
+To see some examples, or look at the *.t files in the t/ directory of this project.
 
 There were also some legacy smartlinks using the following syntax:
 
@@ -284,7 +283,7 @@ The structure of C<$podtree> looks like this:
 
 We look up every related smartlink from every C<$podtree>, generate .t code
 snippets along the way, and insert placeholders (like "_SMART_LINK_3" into
-the corresponding C<$podtree>. (See subs C<parse_pattern>, C<process_paragrph>,
+the corresponding C<$podtree>. (See subs C<parse_pattern>, C<process_paragraph>,
 and C<gen_code_snippet>.)
 
 =item *
@@ -509,8 +508,12 @@ sub add_link  {
     return $self->link_count_inc;
 }
 
+=head2 parse_pattern
 
-# convert patterns used in 00-smartlinks.to perl 5 regexes
+Convert patterns used in 00-smartlinks.to perl 5 regexes
+
+=cut
+
 sub parse_pattern {
     my ($self, $pat) = @_;
 
@@ -532,7 +535,12 @@ sub parse_pattern {
     $str;
 }
 
-# process paragraphs of the synopses: unwrap lines, strip POD tags, and etc.
+=head2 process_paragraph
+
+Process paragraphs of the pod file: unwrap lines, strip POD tags, and etc.
+
+=cut
+
 sub process_paragraph {
     my ($self, $str) = @_;
 
@@ -893,7 +901,7 @@ sub gen_preamble {
         $year, $mon, $mday, $hour, $min, $sec;
     my $smoke_rev = $self->smoke_rev;
     my $smoke_info = $smoke_rev ?
-        ", <a href=\"http://perlcabal.org/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
+        qq(, <a href="http://perlcabal.org/smoke.html">pugs-smoke</a> <strong>$smoke_rev</strong>)
         :
          '';
     my $pugs_rev = $self->version;
@@ -1114,12 +1122,13 @@ sub create_index {
     my ($self) = @_;
     my $out_dir = $self->out_dir;
 
-    my $html = "<html><head><title>Documentation</title></head><body>\n";
+    my $html = qq(<html><head><title>Documentation</title></head><body>\n);
     foreach my $file (sort @{ $self->{docs} }) {
         my ($outfile, $syn_id) = $self->outfile_name($file, 1); # TODO remove Pugs hardcoding
         $html .= qq(<a href="$outfile">$file</a><br />\n);
     }
-    $html .= "</body></html>";
+    $html .= qq(<hr><a href="stats.html">stats and errors</a>);
+    $html .= qq(</body></html>);
 
     if (open my $fh, '>', "$out_dir/index.html") {
         print {$fh} $html;

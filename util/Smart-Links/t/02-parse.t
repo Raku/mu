@@ -12,7 +12,7 @@ use Smart::Links;
 
 my $sl = Smart::Links->new;
 
-
+# L<Smart::Links/parse_pattern>
 # Test sub parse_pattern
 {
     my $got = $sl->parse_pattern('/abc .* C<cd>/');
@@ -43,6 +43,7 @@ my $sl = Smart::Links->new;
         qr/$got/, 'regex not matched';
 }
 
+# L<Smart::Links/process_paragraph>
 # Test sub process_paragraph
 {
     my $para = <<_EOC_;

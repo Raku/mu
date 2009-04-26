@@ -13,6 +13,8 @@ use FindBin;
 
 use Smart::Links;
 
+# L<Smart::Links/process_t_file>
+
 {
     my $sl = Smart::Links->new;
     my $file = 'eg/a/t/01.t';
