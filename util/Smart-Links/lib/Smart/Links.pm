@@ -9,7 +9,7 @@ use File::ShareDir;
 use FindBin;
 use File::Spec;
 use File::Path qw(mkpath);
-use File::Basename qw(dirname);
+use File::Basename qw(dirname basename);
 use File::Slurp;
 use CGI;
 use Pod::Simple::HTML;
@@ -595,12 +595,10 @@ sub emit_pod {
 }
 
 sub parse_pod {
-    my ($self, $infile) = @_;
-    open my $in, $infile or
-        die "can't open $infile for reading: $!\n";
+    my ($self, $pod) = @_;
     my $podtree = {};
     my $section;
-    while (<$in>) {
+    foreach (@$pod) {
         if (/^ =head(\d+) \s* (.*\S) \s* $/x) {
             #warn "parse_pod: *$1*\n";
             my $num = $1;
@@ -626,7 +624,6 @@ sub parse_pod {
             $podtree->{$section}->[-1] .= $_;
         }
     }
-    close $in;
     $podtree;
 }
 
@@ -947,26 +944,25 @@ sub process_pod_file {
     my ($self, $root, $infile) = @_;
 
     my ($outfile, $syn_id) = $self->outfile_name($infile);
-    
-    # S26 is in Pod6, we treat it specifically for now.
-    # TODO later slurp file in and check if it looks like a perl 6 pod (has =begin pod)
     my $out_dir = $self->out_dir;
-    if ($syn_id eq "S26") {
+
+    my @pod = read_file(File::Spec->catfile($root, $infile));
+    if (grep /^=begin pod/, @pod) {
         $self->process_perl6_file(
-               File::Spec->catfile($root, $infile), 
-               File::Spec->catfile($out_dir, $outfile));
+                \@pod,
+                File::Spec->catfile($out_dir, $outfile));
     } else {
         $self->process_perl5_file(
-               File::Spec->catfile($root, $infile), 
-               File::Spec->catfile($out_dir, $outfile),
-               $syn_id);
+                \@pod,
+                File::Spec->catfile($out_dir, $outfile),
+                $syn_id);
     }
 }
 
 sub process_perl5_file {
-    my ($self, $infile, $outfile, $syn_id) = @_;
+    my ($self, $pod, $outfile, $syn_id) = @_;
 
-    my $podtree = $self->parse_pod($infile);
+    my $podtree = $self->parse_pod($pod);
     my $linktree_sections = $self->{linktree}->{$syn_id};
 
     while (my ($section_name, $links) = each %$linktree_sections) {
@@ -1028,24 +1024,25 @@ sub process_perl5_file {
 }
 
 sub process_perl6_file {
-    my ($self, $infile, $outfile) = @_;
+    my ($self, $pod, $outfile) = @_;
 
     return if $self->check;
     eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
     if ($@) {
-        warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to parse S26";
+        warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to generate $outfile";
         return;
     }
 
     my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
-    my $pod6 = $toc . read_file($infile);
+    my $pod6 = $toc . join "", @$pod;
 
     my $perldochtml = Perl6::Perldoc::Parser->parse(
         \$pod6, {all_pod => 1}
     )->report_errors()->to_xhtml(
-        {full_doc => {title => 'S26'}}
+        {full_doc => {title => basename($outfile)}}
     );
-    $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">\n$&};
+    my $css = $self->cssfile;
+    $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="$css">\n$&};
     my $preamble = $self->gen_preamble();
     $perldochtml =~ s{<body>}{$&$preamble};
     $self->add_footer(\$perldochtml);

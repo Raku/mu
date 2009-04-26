@@ -116,7 +116,7 @@ sub main {
     $sl->process_test_files(@t_files);
     $sl->process_yml_file($yml_file);
 
-    my @pod_files = File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($pod_dir);
+    my @pod_files = sort File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($pod_dir);
     $sl->{docs} = \@pod_files;
     for my $pod_file (@pod_files) {
         $sl->process_pod_file($pod_dir, $pod_file, 1);
