@@ -15,6 +15,7 @@ my $version = get_pugs_rev();
 my $syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
 # The directory where the Synopses live.
 # Please don't set syn-dir to elsewhere unless you have a good reason.
+$ENV{PUGS_SMARTLINKS} = 1;
 system qq($^X -I $FindBin::Bin/Smart-Links/lib $FindBin::Bin/Smart-Links/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir);
 
 sub get_pugs_rev {

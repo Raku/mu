@@ -19,6 +19,14 @@ use base 'Class::Accessor';
 __PACKAGE__->mk_accessors(qw(check count cssfile line_anchor 
     out_dir print_missing smoke_rev test_files version wiki));
 
+# TODO: treat non-breaking spaces as breaking spces in the smart links
+# in docs/Perl6/Spec/S03-operators.pod the section called
+# "Changes to Perl 5 operators" has a non-breaking space between Perl and 5
+# while the smartlink pointing to it does not have. This should be acceptable.
+# probably by replacing every space by [\s$nbsp]+ in the regex.
+# use charnames ":full";
+# my $nbsp = "\N{NO-BREAK SPACE}";
+
 =head1 NAME
 
 Smart::Links - connecting test files with pod documentation
