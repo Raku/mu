@@ -10,7 +10,7 @@ version 0.3 (12 Apr 2004), file t/context.t.
 
 plan 7;
 
-# L<< S05/The C<:p> (or C<:pos>) modifier >>
+# L<S05/The C<:p> (or C<:pos>) modifier>
 
 #?pugs emit force_todo(1..7);
 
