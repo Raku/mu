@@ -906,6 +906,21 @@ sub create_stats_page {
     return;
 }
 
+sub outfile_name {
+    my ($self, $infile, $pugs) = @_;
+
+    (my $syn_id = $infile) =~ s/\.(pod|pm)$//;
+    $syn_id =~ s{[/\\]}{::}g;
+
+    # special case for Perl 6 Synopsis
+    if ($pugs) {
+        $syn_id  =~ s{(S\d+)-[^:]+}{$1};
+    }
+    (my $outfile = $syn_id) =~ s{::}{/}g;
+    $outfile .= ".html";
+    return ($outfile, $syn_id);
+}
+
 =begin private
 
 =head2 process_syn
@@ -918,21 +933,15 @@ Process synopses one by$sl->link_count  one.
 
 =cut
 
+
 # TODO clean up the Perl 6 special case
 sub process_syn {
     my ($self, $root, $infile, $pugs) = @_;
 
-    (my $syn_id = $infile) =~ s/\.(pod|pm)$//;
-	$syn_id =~ s{[/\\]}{::}g;
-
-	# special case for Perl 6 Synopsis
-	if ($pugs) {
-		$syn_id  =~ s{(S\d+)-[^:]+}{$1};
-	}
-	(my $outfile = $syn_id) =~ s{::}{/}g;
-	$outfile .= ".html";
+    my ($outfile, $syn_id) = $self->outfile_name($infile, $pugs);
+    
     # S26 is in Pod6, we treat it specifically for now.
-	#TODO later slurp file in and check if it looks like a perl 6 pod (has =begin pod)
+    # TODO later slurp file in and check if it looks like a perl 6 pod (has =begin pod)
     my $out_dir = $self->out_dir;
     if ($syn_id eq "S26") {
         $self->process_perl6_file(
@@ -1064,6 +1073,26 @@ sub report_broken_links {
         }
     }
 }
+
+sub create_index {
+    my ($self) = @_;
+    my $out_dir = $self->out_dir;
+
+    my $html = "<html><head><title>Documentation</title></head><body>\n";
+    foreach my $file (sort @{ $self->{docs} }) {
+        my ($outfile, $syn_id) = $self->outfile_name($file, 1); # TODO remove Pugs hardcoding
+        $html .= qq(<a href="$outfile">$file</a><br />\n);
+    }
+    $html .= "</body></html>";
+
+    if (open my $fh, '>', "$out_dir/index.html") {
+        print {$fh} $html;
+    } else {
+        warn "Could not create index.html: $!";
+    }
+    return;
+}
+
 
 sub snippet_id_inc    { $_[0]->{snippet_id}++ };
 sub snippet_id        { $_[0]->{snippet_id} };

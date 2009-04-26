@@ -4,22 +4,23 @@
 
 # This program is still under active development, and
 # you're very welcome to improve it.
+# Most of the code has already moved to the Smart-Links subdirectory
+# with the aim to make it generic enought to be usefule for any
+# perl script, module or application.
+
 # Please read the Pod documentation at the end of file before reading and/or
 # modifying the source.
 # CAUTION: please make sure your changes don't break anything, because
 # breakage of this script will also break http://perlcabal.org/syn/
-# immediately. Running *-smartlinks.t under util/t/ before committing is
+# immediately. Running the tests of Smart::Links and trying the script using 
+# perl smartlinks.pl --dir ../../t/ --out-dir ../../html/
+# and then checking the result before committing is
 # strongly recommended. Thank you for your contribution :)
-
-
-# TODO: currently the S32 documents are unlinkable, and don't produce HTML copies
 
 use strict;
 use warnings;
 no warnings 'once';
 
-#use Smart::Comments;
-#use YAML::Syck;
 use Getopt::Long;
 use File::Basename;
 use FindBin;
@@ -32,16 +33,6 @@ use Data::Dumper;
 use lib "$FindBin::Bin/Smart-Links/lib";
 use Smart::Links;
 my $sl;
-
-my %Spec = reverse qw(
-    01 Overview    02 Syntax        03 Operator      04 Block
-    05 Rule        06 Subroutine    07 Iterator
-    09 Structure   10 Package
-    11 Module      12 Object        13 Overload      16 IO
-    17 Concurrency 19 Commandline   22 CPAN          26 Documentation
-    29 Functions
-);
-
 
 sub help () {
     print <<_EOC_;
@@ -119,61 +110,25 @@ sub main {
 
     $out_dir = $sl->out_dir;
     mkdir $out_dir if !-d $out_dir;
-    create_index($out_dir) if $index;
 
     my @t_files = map glob, @ARGV;
     push @t_files, File::Find::Rule->file()->name('*.t')->in($dir) if $dir;
     $sl->process_test_files(@t_files);
-
-
     $sl->process_yml_file($yml_file);
 
     $syn_dir ||= "$FindBin::Bin/../docs/Perl6/Spec";
     my @syns = File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($syn_dir);
+    $sl->{docs} = \@syns;
     for my $syn (@syns) {
         $sl->process_syn($syn_dir, $syn, 1);
     }
 
-    # check for pending smartlinks:
-    
-    #print Dumper $sl->{linktree};
-    while (my ($syn, $linktree_sections) = each %{ $sl->{linktree} }) {
-        for my $section (sort keys %$linktree_sections) {
-            my $links = $linktree_sections->{$section};
-            for my $link (@$links) {
-                my ($file, $lineno) = @{ $link->[1] };
-                $sl->error("$file: line $lineno: smartlink pointing to an unknown synopsis ($syn) section $section"),
-                $sl->broken_link_count_inc;
-            }
-        }
-    }
-
-    my $test_file_count = scalar @t_files;
-    my $test_files_missing_links = scalar $sl->test_files_missing_links;
-    warn sprintf("info: %s smartlinks found and %s broken in $test_file_count test files ($test_files_missing_links test files had no links).\n",
-        $sl->link_count ,$sl->broken_link_count);
-    if (!$sl->check and $sl->broken_link_count > 0) {
-        warn "hint: use the --check option for details on broken smartlinks.\n";
-    }
+    $sl->report_broken_links;
+    $sl->report_stats;
     $sl->create_stats_page();
+    $sl->create_index() if $index;
+
     exit;
-}
-
-sub create_index {
-    my ($out_dir) = @_;
-
-    my $html = "<html><head><title>Synopsis</title></head><body>\n";
-    foreach my $syn (sort { $Spec{$a} <=> $Spec{$b} }  keys %Spec) {
-        $html .= qq(<a href="S$Spec{$syn}.html">$Spec{$syn} $syn</a><br />\n);
-    }
-    $html .= "</body></html>";
-
-    if (open my $fh, '>', "$out_dir/index.html") {
-        print {$fh} $html;
-    } else {
-        warn "Could not create index.html: $!";
-    }
-    return;
 }
 
 
