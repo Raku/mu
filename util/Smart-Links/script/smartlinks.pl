@@ -116,10 +116,10 @@ sub main {
     $sl->process_test_files(@t_files);
     $sl->process_yml_file($yml_file);
 
-    my @syns = File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($pod_dir);
-    $sl->{docs} = \@syns;
-    for my $syn (@syns) {
-        $sl->process_syn($pod_dir, $syn, 1);
+    my @pod_files = File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($pod_dir);
+    $sl->{docs} = \@pod_files;
+    for my $pod_file (@pod_files) {
+        $sl->process_pod_file($pod_dir, $pod_file, 1);
     }
 
     $sl->report_broken_links;
@@ -149,5 +149,5 @@ implementation, getting help from many others in the Pugs team.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006 - 2008 by the Pugs Team.
+Copyright (c) 2006 - 2009 by the Pugs Team.
 

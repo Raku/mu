@@ -241,7 +241,7 @@ We process the synopsis .pod files one by one and generate
 HTML files integrated with test code snippets using the
 C<$linktree> structure discussed above.
 
-This is mostly done by sub C<process_syn>.
+This is mostly done by sub C<process_pod_file>.
 
 Because it is an enormous step, we can further divide it into several
 sub steps:
@@ -907,13 +907,13 @@ sub create_stats_page {
 }
 
 sub outfile_name {
-    my ($self, $infile, $pugs) = @_;
+    my ($self, $infile) = @_;
 
     (my $syn_id = $infile) =~ s/\.(pod|pm)$//;
     $syn_id =~ s{[/\\]}{::}g;
 
     # special case for Perl 6 Synopsis
-    if ($pugs) {
+    if ($ENV{PUGS_SMARTLINKS}) {
         $syn_id  =~ s{(S\d+)-[^:]+}{$1};
     }
     (my $outfile = $syn_id) =~ s{::}{/}g;
@@ -923,9 +923,9 @@ sub outfile_name {
 
 =begin private
 
-=head2 process_syn
+=head2 process_pod_file
 
-  process_syn($syn);
+  process_pod_file($syn);
 
 Process synopses one by$sl->link_count  one.
 
@@ -935,10 +935,10 @@ Process synopses one by$sl->link_count  one.
 
 
 # TODO clean up the Perl 6 special case
-sub process_syn {
-    my ($self, $root, $infile, $pugs) = @_;
+sub process_pod_file {
+    my ($self, $root, $infile) = @_;
 
-    my ($outfile, $syn_id) = $self->outfile_name($infile, $pugs);
+    my ($outfile, $syn_id) = $self->outfile_name($infile);
     
     # S26 is in Pod6, we treat it specifically for now.
     # TODO later slurp file in and check if it looks like a perl 6 pod (has =begin pod)
