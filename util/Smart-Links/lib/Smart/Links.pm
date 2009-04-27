@@ -1004,7 +1004,8 @@ sub process_perl5_file {
     my $podtree = $self->parse_pod($pod);
     my $linktree_sections = $self->{linktree}->{$syn_id};
 
-    while (my ($section_name, $links) = each %$linktree_sections) {
+    foreach my $section_name (sort keys %$linktree_sections) {
+        my $links = $linktree_sections->{$section_name};
         my @links = @$links;
         my $paras = $podtree->{$section_name};
         if (!$paras) {
@@ -1106,7 +1107,8 @@ sub report_stats {
 sub report_broken_links {
     my ($self) = @_;
 
-    while (my ($syn, $linktree_sections) = each %{ $self->{linktree} }) {
+    foreach my $syn (sort keys %{ $self->{linktree} }) {
+        my $linktree_sections = $self->{linktree}{$syn};
         for my $section (sort keys %$linktree_sections) {
             my $links = $linktree_sections->{$section};
             for my $link (@$links) {
