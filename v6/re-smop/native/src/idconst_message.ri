@@ -1,0 +1,9 @@
+%prefix smop_idconst_message
+%method FETCH
+    ___VALUE_FETCH___;
+%method STORE
+    ___VALUE_STORE___;;
+
+%init {
+  SMOP__ID__FETCH->RI->MESSAGE = ((SMOP__ResponderInterface*)RI)->MESSAGE;
+%}

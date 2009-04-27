@@ -1,0 +1,13 @@
+%prefix smop_bool_message
+%method FETCH
+    ___VALUE_FETCH___;
+
+%method STORE
+    ___VALUE_STORE___;
+
+%method true
+    ret = SMOP_REFERENCE(interpreter,invocant);
+
+%init {
+  SMOP__NATIVE__bool_true->RI->MESSAGE = ((SMOP__ResponderInterface*)RI)->MESSAGE;
+%}
