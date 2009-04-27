@@ -9,11 +9,6 @@ license        'artistic2';
 author         'Gabor Szabo';
 all_from       'lib/Text/SmartLinks.pm';
 
-use Getopt::Long;
-use File::Basename;
-use FindBin;
-use File::Find qw(find);
-
 requires       'perl'                     => '5.006';
 requires       'Carp'                     => 0;
 requires       'Class::Accessor'          => 0;
@@ -34,7 +29,7 @@ test_requires  'Test::NoWarnings'         => '0.084';
 no_index       'directory'                => qw{ t xt eg share inc };
 
 repository     'http://svn.pugscode.org/pugs/util/Text-SmartLinks';
-#install_script 'script/smartlinks.pl';
-#install_share;
+install_script 'script/smartlinks.pl';
+install_share;
 
 WriteAll;

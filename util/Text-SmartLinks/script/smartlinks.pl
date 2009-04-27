@@ -58,7 +58,7 @@ Options:
                   to ``smoke.yml''.
   --pod-dir       Specify the directory where the .pod and .pm files 
                   are located. smarlinks.pl will recurse in the 
-                  subdirectories to locate the files.
+                  subdirectories to locate the files. Defaults to lib/
   --index         Also generates an index.html page with links to
                   pages.
   --dir <dir>     Name of the directory where to look for .t files
@@ -115,6 +115,8 @@ sub main {
     $sl->process_test_files(@t_files);
     $sl->process_yml_file($yml_file);
 
+	die "--pod-dir was not given. It usually should be '.' or lib/\n" if not defined $pod_dir;
+	die "Directory '$pod_dir' does not exist\n" if not -e $pod_dir;
     my @pod_files = sort File::Find::Rule->file()->name('*.pod', '*.pm')->relative->in($pod_dir);
     $sl->{docs} = \@pod_files;
     for my $pod_file (@pod_files) {
