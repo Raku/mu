@@ -685,7 +685,7 @@ sub get_javascript {
     
     if (not -e $file) {
         # for smarlinks.pl in utils/ directory of Pugs if Text::SmartLinks is not installed
-        $file = File::Spec->catfile($FindBin::Bin, 'Smart-Links', 'share', 'smartlinks.js');
+        $file = File::Spec->catfile($FindBin::Bin, 'Text-SmartLinks', 'share', 'smartlinks.js');
     }
 
     # installed version of the file

@@ -4,7 +4,7 @@
 
 # This program is still under active development, and
 # you're very welcome to improve it.
-# Most of the code has already moved to the Smart-Links subdirectory
+# Most of the code has already moved to the Text-SmartLinks subdirectory
 # with the aim to make it generic enought to be usefule for any
 # perl script, module or application.
 

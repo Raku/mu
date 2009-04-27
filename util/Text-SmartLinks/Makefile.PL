@@ -33,7 +33,7 @@ test_requires  'Test::NoWarnings'         => '0.084';
 
 no_index       'directory'                => qw{ t xt eg share inc };
 
-repository     'http://svn.pugscode.org/pugs/util/Smart-Links';
+repository     'http://svn.pugscode.org/pugs/util/Text-SmartLinks';
 #install_script 'script/smartlinks.pl';
 #install_share;
 
