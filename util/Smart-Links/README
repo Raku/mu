@@ -1,0 +1,15 @@
+Smart::Links is a tool to allow comments embedded in .t test files to
+be used as links to sections of POD documents.
+
+smartlinks.pl creates an HTML version of the POD files allowing the
+reader to drill down and see the relevant parts of the test suite.
+
+Installation:
+
+perl Makefile.PL
+make
+make test
+make install
+
+
+then use the smartlinks.pl script that was installed.
