@@ -690,7 +690,7 @@ sub get_javascript {
 
     # installed version of the file
     if (not -e $file) {
-        $file = File::Spec->catfile(File::ShareDir::dist_dir('Text::SmartLinks'), 'smartlinks.js');
+        $file = File::Spec->catfile(File::ShareDir::dist_dir('Text-SmartLinks'), 'smartlinks.js');
     }
     if (not $file) {
         warn "Could not find 'smartlinks.js'\n";
