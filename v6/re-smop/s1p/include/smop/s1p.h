@@ -3,6 +3,8 @@
 #define SMOP_S1P_H
 
 #include <smop/base.h>
+extern SMOP__Object* SMOP__S1P__Capturize;
+extern SMOP__Object* SMOP__S1P__ritest;
 extern SMOP__Object* SMOP__S1P__LexicalScope;
 extern SMOP__Object* SMOP__S1P__FlattenedScope;
 extern SMOP__Object* SMOP__S1P__LexicalPrelude;
@@ -10,6 +12,7 @@ extern SMOP__Object* SMOP__S1P__Code;
 extern SMOP__Object* SMOP__S1P__Scalar;
 extern SMOP__Object* SMOP__S1P__Package;
 extern SMOP__Object* SMOP__MildewSOLoader;
+extern SMOP__Object* SMOP__ControlExceptionReturn;
 extern SMOP__Object* SMOP__S1P__AdhocSignature;
 
 void smop_s1p_init(SMOP__Object* interpreter);
