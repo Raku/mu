@@ -1,0 +1,29 @@
+%prefix smop_capture_message
+%method positional
+    SMOP__Object* i = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    ret = SMOP__NATIVE__capture_positional(interpreter,invocant,SMOP__NATIVE__int_fetch(i));
+    SMOP_RELEASE(interpreter,i);
+
+%method named
+    SMOP__Object* key = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    ret = SMOP__NATIVE__capture_named(interpreter,invocant,key);
+    if (!ret) ret = SMOP__NATIVE__bool_false;
+    SMOP_REFERENCE(interpreter,ret);
+
+%method elems
+    int count = SMOP__NATIVE__capture_positional_count(interpreter,capture);
+    ret = SMOP__NATIVE__int_create(count);
+
+%method new
+    int count = SMOP__NATIVE__capture_positional_count(interpreter,capture);
+    SMOP__Object** pos = malloc(sizeof(SMOP__Object*) * count);
+    int i;
+    for (i=1;i<count;i++) pos[i-1] = SMOP_REFERENCE(interpreter,SMOP__NATIVE__capture_positional(interpreter,capture,i));
+    pos[count-1] = NULL;
+    /*TODO named arguments */
+    ret = SMOP__NATIVE__capture_create(interpreter,pos,(SMOP__Object*[]) {NULL});
+    free(pos);
+
+%init {
+  ((SMOP__ResponderInterface*)SMOP__capture__RI)->MESSAGE = ((SMOP__ResponderInterface*)RI)->MESSAGE;
+%}

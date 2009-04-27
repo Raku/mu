@@ -1,7 +1,8 @@
 sub say(|$capture) {
     my $i = 0;
+    $OUT.print("in say\n");
     loop {
-        if &infix:<==>:(int,int)($i.FETCH,$capture.elems) {
+        if &infix:<==>:(int,int)($i,$capture.elems) {
             $OUT.print("\n");
             return;
         } else {
