@@ -419,7 +419,6 @@ sub _redspans_traverse {
         }
         if($tree ne $last_tree) {
             my $rule_to_color = 0;
-            $buffer = $buffer;
             my @rules = ();
             if($last_tree ne q{}) {
                 @rules = reverse split / /,$last_tree;
