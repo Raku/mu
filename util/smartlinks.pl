@@ -2,7 +2,7 @@
 
 # util/smartlinks.pl - The successor to util/catalog_tests.pl.
 
-# Most of the contet of this program is now in the Smart::Links
+# Most of the contet of this program is now in the Text::SmartLinks
 # module in the Smart-Links/ subdiectory.
 # This script is here to provide the necessary flags and defaults required
 # in the Pugs SVN.

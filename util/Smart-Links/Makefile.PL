@@ -4,10 +4,10 @@ use warnings;
 use inc::Module::Install 0.77;
 
 
-name           'Smart-Links';
+name           'Text-SmartLinks';
 license        'artistic2';
 author         'Gabor Szabo';
-all_from       'lib/Smart/Links.pm';
+all_from       'lib/Text/SmartLinks.pm';
 
 use Getopt::Long;
 use File::Basename;

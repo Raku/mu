@@ -1,4 +1,4 @@
-package Smart::Links;
+package Text::SmartLinks;
 use strict;
 use warnings;
 use 5.006;
@@ -29,7 +29,7 @@ __PACKAGE__->mk_accessors(qw(check count cssfile line_anchor
 
 =head1 NAME
 
-Smart::Links - connecting test files with pod documentation
+Text::SmartLinks - connecting test files with pod documentation
 
 =head1 SYNOPSIS
 
@@ -42,11 +42,15 @@ Smart::Links - connecting test files with pod documentation
   
 If in the root directory of a CPAN package type the following:
 
-  smartlinks.pl -Ilib script/smartlinks.pl --pod-dir lib/ --dir t/ --out-dir html/ --index
+  smartlinks.pl --pod-dir lib/ --dir t/ --out-dir html/ --index
+
+In the root of Text::SmartLinks type in the following:
+
+  perl -Ilib script/smartlinks.pl --pod-dir lib/ --dir t/ --out-dir html/ --index
 
 =head1 DESCRIPTION
 
-The plan is to change the Smart::Links module and write a new 
+The plan is to change the Text::SmartLinks module and write a new 
 smartlinks.pl script so it will be usable in any Perl 5 or Perl 6 
 project to generate the HTML pages combining the POD content from
 the .pod and .pm files and test scripts.
@@ -680,13 +684,13 @@ sub get_javascript {
     my $file = File::Spec->catfile($FindBin::Bin, '..', 'share', 'smartlinks.js');
     
     if (not -e $file) {
-        # for smarlinks.pl in utils/ directory of Pugs if Smart::Links is not installed
+        # for smarlinks.pl in utils/ directory of Pugs if Text::SmartLinks is not installed
         $file = File::Spec->catfile($FindBin::Bin, 'Smart-Links', 'share', 'smartlinks.js');
     }
 
     # installed version of the file
     if (not -e $file) {
-        $file = File::Spec->catfile(File::ShareDir::dist_dir('Smart::Links'), 'smartlinks.js');
+        $file = File::Spec->catfile(File::ShareDir::dist_dir('Text::SmartLinks'), 'smartlinks.js');
     }
     if (not $file) {
         warn "Could not find 'smartlinks.js'\n";
@@ -1187,7 +1191,7 @@ Copyright (c) 2006 - 2009 by the Pugs Team.
 
 =head1 LICENSE
 
-Smart::Links is free software; you can redistribute it and/or modify it under the
+Text::SmartLinks is free software; you can redistribute it and/or modify it under the
 terms of the Artistic License 2.0.  (Note that, unlike the Artistic License
 1.0, version 2.0 is GPL compatible by itself, hence there is no benefit to
 having an Artistic 2.0 / GPL disjunction.)

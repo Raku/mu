@@ -12,7 +12,7 @@
 # modifying the source.
 # CAUTION: please make sure your changes don't break anything, because
 # breakage of this script will also break http://perlcabal.org/syn/
-# immediately. Running the tests of Smart::Links and trying the script using 
+# immediately. Running the tests of Text::SmartLinks and trying the script using 
 # perl smartlinks.pl --dir ../../t/ --out-dir ../../html/
 # and then checking the result before committing is
 # strongly recommended. Thank you for your contribution :)
@@ -30,7 +30,7 @@ use Data::Dumper;
 
 #use Pod::Simple::HTML;
 
-use Smart::Links;
+use Text::SmartLinks;
 
 sub help () {
     print <<_EOC_;
@@ -96,7 +96,7 @@ sub main {
     }
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
-    my $sl = Smart::Links->new({
+    my $sl = Text::SmartLinks->new({
         count         => $count,
         check         => $check,
         line_anchor   => $line_anchor,
@@ -139,7 +139,7 @@ __END__
 
 smartlinks.pl - The successor to catalog_tests.pl.
 
-See L<Smart::Links>
+See L<Text::SmartLinks>
 
 =head1 AUTHOR
 

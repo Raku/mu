@@ -11,12 +11,12 @@ plan tests => $tests;
 
 use FindBin;
 
-use Smart::Links;
+use Text::SmartLinks;
 
-# L<Smart::Links/process_t_file>
+# L<Text::SmartLinks/process_t_file>
 
 {
-    my $sl = Smart::Links->new;
+    my $sl = Text::SmartLinks->new;
     my $file = 'eg/a/t/01.t';
     $sl->process_t_file($file);
     is($sl->link_count, 1, 'link_count');
@@ -48,7 +48,7 @@ use Smart::Links;
 # Now one of them is recognized the other gets 
 # reported as error
 {
-    my $sl = Smart::Links->new;
+    my $sl = Text::SmartLinks->new;
     my $file = 'eg/a/t/assertions.t';
     $sl->process_t_file($file);
     is $sl->link_count, 1, "link_count 1 for $file";
@@ -76,7 +76,7 @@ use Smart::Links;
 }
 
 {
-    my $sl = Smart::Links->new;
+    my $sl = Text::SmartLinks->new;
     my $file = 'eg/a/t/undef.t';
     $sl->process_t_file($file);
     is $sl->link_count, 6, "link_count is 6 for $file";
@@ -160,7 +160,7 @@ use Smart::Links;
 }
 
 {
-    my $sl = Smart::Links->new;
+    my $sl = Text::SmartLinks->new;
     my $file = 'eg/a/t/many.t';
     $sl->process_t_file($file);
     is $sl->link_count, 7, "link_count is 7 for $file";
