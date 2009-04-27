@@ -3,7 +3,7 @@
 # util/smartlinks.pl - The successor to util/catalog_tests.pl.
 
 # Most of the contet of this program is now in the Text::SmartLinks
-# module in the Smart-Links/ subdiectory.
+# module in the Text-SmartLinks/ subdiectory.
 # This script is here to provide the necessary flags and defaults required
 # in the Pugs SVN.
 
@@ -16,7 +16,7 @@ my $syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
 # The directory where the Synopses live.
 # Please don't set syn-dir to elsewhere unless you have a good reason.
 $ENV{PUGS_SMARTLINKS} = 1;
-system qq($^X -I $FindBin::Bin/Smart-Links/lib $FindBin::Bin/Smart-Links/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir);
+system qq($^X -I $FindBin::Bin/Text-SmartLinks/lib $FindBin::Bin/Text-SmartLinks/script/smartlinks.pl @ARGV --version $version --pod-dir $syn_dir);
 
 sub get_pugs_rev {
     my $stdout = `$^X $FindBin::Bin/version_h.pl`;
