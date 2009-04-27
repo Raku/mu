@@ -62,7 +62,7 @@ sub eval_elsewhere($code){ eval($code) }
 }
 
 # L<S02/Context/"can override the class definition:">
-# L<S12/Roles/generalize a particular enumerated value to its role.>
+# L<S14/Roles/generalize a particular enumerated value to its role.>
 {
   my $true_zero is context;
   ok eval_elsewhere('$+true_zero = 0 but True; 1'), "0 but True syntax evaluates", :todo<bug>;
