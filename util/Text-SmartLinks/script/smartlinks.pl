@@ -127,6 +127,7 @@ sub main {
     $sl->report_stats;
     $sl->create_stats_page();
     $sl->create_index() if $index;
+	$sl->create_x_page();
 
     exit;
 }

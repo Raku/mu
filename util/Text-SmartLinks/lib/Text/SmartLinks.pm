@@ -354,6 +354,7 @@ sub new {
     $self->{test_files_missing_links} = [];
     $self->{out_dir}          ||= '.';
     $self->{errors}   = [];
+	$self->{X}        = {};
     
     $self->{invalid_link}      = 0;
 
@@ -734,10 +735,18 @@ sub emit_pod {
 }
 
 sub parse_pod {
-    my ($self, $pod) = @_;
+    my ($self, $pod, $url) = @_;
     my $podtree = {};
     my $section;
     foreach (@$pod) {
+		# collect the X<> tags
+		while (/X<([^>]+)>/g) {
+			if ($section) {
+				push @{ $self->{X}{$1} }, "$url#$section";
+			} else {
+				push @{ $self->{X}{$1} }, $url;
+			}
+		}
         if (/^ =head(\d+) \s* (.*\S) \s* $/x) {
             #warn "parse_pod: *$1*\n";
             my $num = $1;
@@ -997,15 +1006,16 @@ sub process_pod_file {
     } else {
         $self->process_perl5_file(
                 \@pod,
+				$outfile,
                 File::Spec->catfile($out_dir, $outfile),
                 $syn_id);
     }
 }
 
 sub process_perl5_file {
-    my ($self, $pod, $outfile, $syn_id) = @_;
+    my ($self, $pod, $url, $outfile, $syn_id) = @_;
 
-    my $podtree = $self->parse_pod($pod);
+    my $podtree = $self->parse_pod($pod, $url);
     my $linktree_sections = $self->{linktree}->{$syn_id};
 
     foreach my $section_name (sort keys %$linktree_sections) {
@@ -1121,6 +1131,20 @@ sub report_broken_links {
             }
         }
     }
+}
+sub create_x_page {
+	my ($self) = @_;
+    my $out_dir = $self->out_dir;
+    my $html = qq(<html><head><title>Indexing</title></head><body>\n);
+	$html .= "<ul>\n";
+	foreach my $key (sort keys %{ $self->{X} }) {
+		$html .= "<li>$key: ";
+		$html .= join ", ", map {qq(<a href="$_">$_</a>)} @{ $self->{X}{$key} };
+		$html .= "</li>\n";
+	}
+	$html .= "</ul>\n";
+    $html .= qq(</body></html>);
+	write_file(File::Spec->catfile($out_dir, "x.html"), $html);
 }
 
 sub create_index {
