@@ -238,6 +238,8 @@ if ($properties{prototype}) {
      SMOP_RELEASE(interpreter,$properties{prototype});
     ];
 }
+
+print $raw{'destr'} || '';
 print qq[
   free($RI);
 }

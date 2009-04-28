@@ -3,11 +3,7 @@ sub say(|$capture) {
     loop {
         if &infix:<==>:(int,int)($i,$capture.elems) {
             $OUT.print("\n");
-            my $e = ::ControlExceptionReturn.new();
-            $e.capture = $capture;
-            $e.routine = &?ROUTINE;#CALLER::<>;
-            $e.throw;
-#            return;
+            return;
         } else {
            $OUT.print($capture.positional($i.FETCH).FETCH);
            $i = &infix:<+>:(int,int)($i.FETCH,1);

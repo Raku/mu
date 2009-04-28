@@ -11,13 +11,17 @@
 %getter capture
 %getter routine
 
+%idconst continuation
+%idconst goto
+
 %{
-  static SMOP__Object* SMOP__ID__continuation;
-  static SMOP__Object* SMOP__ID__goto;
+  static SMOP__Object* SMOP__capture;
 %}
 %init {
- SMOP__ID__continuation = SMOP__NATIVE__idconst_create("continuation");
- SMOP__ID__goto = SMOP__NATIVE__idconst_create("goto"),
+  SMOP__Object* SMOP__capture = SMOP__Proto__create(SMOP__capture__RI);
+%}
+%destr {
+/*  SMOP_RELEASE(interpreter,SMOP__capture);*/
 %}
 
 %method new
@@ -79,9 +83,9 @@
 %mold handle_return_mold
     my $interpreter;
     my $capture;
-    my $exception = $capture."positional"(0);
-    my $this_routine = $capture."positional"(1);
-    my $ritest_exc = ¢SMOP__S1P__Capturize."capturize"($exception, ¢RI);
+    my $exception = $capture."positional"(1);
+    my $this_routine = $capture."positional"(2);
+    my $ritest_exc = ¢SMOP__capture."new"($exception, ¢RI);
     my $ritest = ¢SMOP__S1P__ritest."postcircumfix:( )"($ritest_exc);
     my $ritest_t = $ritest."true"();
     if $ritest_t { goto catch } else { goto rethrow };
@@ -114,7 +118,7 @@
      my $has_ctrl = $ctrl."true"();
      if $has_ctrl { goto handle } else { goto redo_bt_up };
     handle:
-     my $capture = ¢SMOP__S1P__Capturize."capturize"($invocant);
+     my $capture = ¢SMOP__capture."new"($invocant);
      my $outer = $back."back"();
      my $result = $ctrl."postcircumfix:( )"($capture, :"cc"($outer));
     fail:
