@@ -18,10 +18,10 @@
   static SMOP__Object* SMOP__capture;
 %}
 %init {
-  SMOP__Object* SMOP__capture = SMOP__Proto__create(SMOP__capture__RI);
+  SMOP__capture = SMOP__Proto__create(SMOP__capture__RI);
 %}
 %destr {
-/*  SMOP_RELEASE(interpreter,SMOP__capture);*/
+  SMOP_RELEASE(interpreter,SMOP__capture);
 %}
 
 %method new

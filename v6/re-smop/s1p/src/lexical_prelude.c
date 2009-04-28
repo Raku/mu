@@ -64,5 +64,6 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
 }
 
 void smop_s1p_lexical_prelude_destr(SMOP__Object* interpreter) {
+  smop_s1p_lexical_prelude_insert(interpreter,"$LexicalPrelude",SMOP__NATIVE__bool_false);
   SMOP_RELEASE(interpreter,SMOP__S1P__LexicalPrelude);
 }
