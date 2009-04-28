@@ -17,7 +17,7 @@
     ___VALUE_STORE___;
 %method Str
     int val = SMOP__NATIVE__int_fetch(invocant);
-    int len = log10(val)+1;
+    int len = val ? log10(val)+1 : 1;
     char *tmp = malloc((len+1) * sizeof(char)); 
     snprintf(tmp,len+1,"%d",val);
     ret = SMOP__NATIVE__idconst_createn(tmp,len);
