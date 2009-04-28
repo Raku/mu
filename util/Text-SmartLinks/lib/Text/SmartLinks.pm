@@ -1153,7 +1153,7 @@ sub create_index {
 
     my $html = qq(<html><head><title>Documentation</title></head><body>\n);
     foreach my $file (sort @{ $self->{docs} }) {
-        my ($outfile, $syn_id) = $self->outfile_name($file, 1); # TODO remove Pugs hardcoding
+        my ($outfile, $syn_id) = $self->outfile_name($file);
         $html .= qq(<a href="$outfile">$file</a><br />\n);
     }
     $html .= qq(<hr><a href="stats.html">stats and errors</a>);
