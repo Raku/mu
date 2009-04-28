@@ -24,7 +24,7 @@ use STD;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.46';
+our $VERSION = '0.47';
 
 # filename constants
 Readonly my $FILE_CSS    => 'p6_style.css';
