@@ -42,6 +42,8 @@ my @attrs;
 my @getters;
 my @idconsts;
 
+my @has;
+
 my %raw;
 
 sub debug {
@@ -88,6 +90,14 @@ while (my $line = <>) {
         push(@getters,$1);
     } elsif ($line =~ / ^\s*$ | ^\# | ^\/\/ /x) {
         debug "ws/comment:$line";
+    } elsif ($line =~ /^%has\s*(\$|\@|\%)(\S+)\n$/) {
+        my $sigil = $1;
+        my $name = $2;
+        my $id = $name;
+        $id =~ s/^\^\!/CaretBang/;
+        push @attrs, 'SMOP__Object* '.$id;
+        push @has, [$sigil, $id];
+        push(@idconsts,$name);
     } else {
         for my $property (@properties) {
             if ($line =~ /^% \s* \Q$property\E \s+ (.*)$/x) {
@@ -160,6 +170,35 @@ for my $getter (@getters) {
     SMOP_REFERENCE(interpreter, ret);
 ];
 }
+
+
+for my $has (@has) {
+    my $sigil = $has->[0];
+    my $name = $has->[1];
+    my $initializer;
+    if ($sigil eq '$') {
+      $initializer = 'SMOP__S1P__Scalar_create(interpreter, SMOP__NATIVE__bool_false)';
+    } elsif ($sigil eq '@') {
+      $initializer = 'SMOP__S1P__Array_create(interpreter)';
+    } elsif ($sigil eq '%') {
+      $initializer = 'SMOP__S1P__Hash_create(interpreter)';
+    } else {
+      die 'unknown sigil in %has';
+    }
+    $methods{$name} = qq[
+    smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+    SMOP__Object** pointer = &((($properties{prefix}_struct*)invocant)->$name);
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+    if (!*pointer) {
+       smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
+       *pointer = $initializer;
+       smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
+    }
+    ret = *pointer;
+    SMOP_REFERENCE(interpreter, ret);
+];
+}
+
 print q[
 static SMOP__Object* message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
@@ -194,6 +233,29 @@ static void DESTROYALL(SMOP__Object* interpreter,
                               SMOP__Object* invocant) {
 ];
 print $raw{'DESTROYALL'} || '';
+
+if (@has) {
+  print qq[
+  smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
+  ];
+  for my $has (@has) {
+    my $name = $has->[1];
+    print qq[
+  SMOP__Object* p_$name = ((($properties{prefix}_struct*)invocant)->$name);
+  ((($properties{prefix}_struct*)invocant)->$name) = NULL;
+    ];
+  }
+  print qq[
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+  ];
+  for my $has (@has) {
+    my $name = $has->[1];
+    print qq[
+  if (p_$name) SMOP_RELEASE(interpreter, p_$name);
+    ];
+  }
+}
+
 print qq[
 }
 ];
