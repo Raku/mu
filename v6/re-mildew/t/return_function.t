@@ -18,5 +18,5 @@ say $a;
 my $b = baz();
 print "# baz returned ";
 say $b.elems;
-say $b.shift;
-say $b.shift;
+say $b.positional(0);
+say $b.positional(1);
