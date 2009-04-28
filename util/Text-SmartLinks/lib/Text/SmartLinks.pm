@@ -1015,7 +1015,6 @@ sub process_perl5_file {
         if (!$paras) {
             foreach my $link (@$links) {
                 my ($t_file, $from) = @{ $link->[1] };
-                $from--;
                 $self->error("$t_file: line $from: section '$section_name' not found in $syn_id.");
                 $self->broken_link_count_inc;
             }
