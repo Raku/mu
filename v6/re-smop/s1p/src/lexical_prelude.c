@@ -37,6 +37,10 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
   SMOP__ID__entries = SMOP__NATIVE__idconst_create("entries");
   SMOP__ID__bind_key = SMOP__NATIVE__idconst_create("bind_key");
   smop_s1p_lexical_prelude_insert(interpreter,"Code",SMOP_REFERENCE(interpreter,SMOP__S1P__Code));
+
+  smop_s1p_lexical_prelude_insert(interpreter,"False",SMOP__NATIVE__bool_false);
+  smop_s1p_lexical_prelude_insert(interpreter,"True",SMOP__NATIVE__bool_true);
+
   smop_s1p_lexical_prelude_insert(interpreter,"capture",SMOP__Proto__create(SMOP__capture__RI));
   smop_s1p_lexical_prelude_insert(interpreter,"$OUT",SMOP__S1P__IO_create(interpreter));
   smop_s1p_lexical_prelude_insert(interpreter,"MildewSOLoader",SMOP_REFERENCE(interpreter,SMOP__MildewSOLoader));
