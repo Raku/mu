@@ -11,7 +11,7 @@
     SMOP_REFERENCE(interpreter,ret);
 
 %method elems
-    int count = SMOP__NATIVE__capture_positional_count(interpreter,capture);
+    int count = SMOP__NATIVE__capture_positional_count(interpreter,invocant);
     ret = SMOP__NATIVE__int_create(count);
 
 %method new
@@ -23,6 +23,12 @@
     /*TODO named arguments */
     ret = SMOP__NATIVE__capture_create(interpreter,pos,(SMOP__Object*[]) {NULL});
     free(pos);
+
+%method FETCH
+    ___VALUE_FETCH___;
+
+%method STORE
+    ___VALUE_STORE___;
 
 %init {
   ((SMOP__ResponderInterface*)SMOP__capture__RI)->MESSAGE = ((SMOP__ResponderInterface*)RI)->MESSAGE;

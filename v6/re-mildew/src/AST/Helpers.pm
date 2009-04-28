@@ -34,6 +34,11 @@ sub lookup {
     call lookup => reg '$scope',[string $thing];
 }
 
+sub curlies {
+    my $thing = shift;
+    call 'postcircumfix:{ }' => reg '$scope',[string $thing];
+}
+
 sub fcall {
     my $func = shift;
     unless (ref $func) {
@@ -70,6 +75,20 @@ sub empty_sig {
             stmts => trailing_return([]))]));
 }
 
+sub block_sig {
+  AST::Call->new
+    ( identifier => string 'new',
+      capture => AST::Capture->new
+      ( invocant => FETCH(lookup('AdhocSignature')),
+        positional => [],
+        named =>
+        [ string 'BIND' => AST::Block->new
+          ( regs => [qw(interpreter scope capture)],
+            stmts => trailing_return([
+                call BIND => curlies('$_'),[call positional => reg '$capture',[integer 0]] 
+            ]))]));
+}
+
 sub routine {
   my ($mold, $sig) = @_;
   use YAML::XS;
@@ -81,7 +100,7 @@ sub routine {
 	 [
 	  call new => FETCH(lookup('Code')),[],
 	  [ 
-            string 'signature' => empty_sig(),
+            string 'signature' => block_sig(),
             string 'outer' => reg '$scope',
 	    string 'mold' =>
 	    AST::Block->new
