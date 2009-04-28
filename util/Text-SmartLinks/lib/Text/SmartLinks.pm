@@ -931,7 +931,6 @@ sub gen_preamble {
 
 sub create_stats_page {
     my ($self) = @_;
-    my $file = File::Spec->catfile($self->out_dir, 'stats.html');
     my $html = "<html><head><title>Stats</title></head><body>";
     $html .= $self->gen_preamble;
 
@@ -960,7 +959,7 @@ sub create_stats_page {
     
     
     $html .= "</body></html>";
-    write_file($file, $html);
+    write_file(File::Spec->catfile($self->out_dir, 'stats.html'), $html);
 
     return;
 }
@@ -1136,9 +1135,10 @@ sub create_x_page {
 	my ($self) = @_;
     my $out_dir = $self->out_dir;
     my $html = qq(<html><head><title>Indexing</title></head><body>\n);
+    $html .= $self->gen_preamble;
 	$html .= "<ul>\n";
 	foreach my $key (sort keys %{ $self->{X} }) {
-		$html .= "<li>$key: ";
+		$html .= "<li>$key ";
 		$html .= join ", ", map {qq(<a href="$_">$_</a>)} @{ $self->{X}{$key} };
 		$html .= "</li>\n";
 	}
@@ -1159,11 +1159,7 @@ sub create_index {
     $html .= qq(<hr><a href="stats.html">stats and errors</a>);
     $html .= qq(</body></html>);
 
-    if (open my $fh, '>', "$out_dir/index.html") {
-        print {$fh} $html;
-    } else {
-        warn "Could not create index.html: $!";
-    }
+	write_file(File::Spec->catfile($out_dir, 'index.html'), $html);
     return;
 }
 
