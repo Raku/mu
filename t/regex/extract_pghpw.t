@@ -97,7 +97,7 @@ is(~$presenter, 'brian d foy', 'match presenter');
 my $title = ($content ~~ m/<title>/);
 is(~$title, 'Making Perl Work for You', 'match title');
 
-# L<S05/Match objects/"This returned object is also automatically assigned to the lexical $/ variable">
+# L<S05/Match objects/"This returned object is also automatically bound to the lexical">
 my $embedded = ($content ~~ m/<embedded_title>/);
 ok($embedded);
 # $embedded behaves just like $/, so you have to specify the <embedded_title> layer
@@ -108,7 +108,8 @@ ok($presentation);
 is(~$presentation<presentation><title>, 'Making Perl Work for You', 'match presentation.title');
 is(~$presentation<presentation><presenter>, 'brian d foy', 'match presentation.presenter');
 
-# L<S05/Match objects/"you can override that by calling C<make> inside a regex">
+# should be: L<S05/Match objects/"you can override that by calling C<make> inside a regex">
+# L<S05/Match objects/"you can override that by calling">
 my $talk = ($content ~~ m/<talk>/);
 ok($talk);
 my $title_value; eval('$title_value = $talk.title');

@@ -1,5 +1,6 @@
 use v6;
 
+# L<S32::Str/Str/split>
 
 say "1..4";
 
