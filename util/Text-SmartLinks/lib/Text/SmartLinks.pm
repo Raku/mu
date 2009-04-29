@@ -354,7 +354,7 @@ sub new {
     $self->{test_files_missing_links} = [];
     $self->{out_dir}          ||= '.';
     $self->{errors}   = [];
-	$self->{X}        = {};
+    $self->{X}        = {};
     
     $self->{invalid_link}      = 0;
 
@@ -403,9 +403,9 @@ sub process_t_file {
         chomp;
         my $new_from;
         my ($synopsis, $section, $pattern);
-		if (m{L<"?http://}) {
-			# TODO shall we also collect the http links for later reuse?
-			next;
+        if (m{L<"?http://}) {
+            # TODO shall we also collect the http links for later reuse?
+            next;
         }
         elsif (m{^ \s* \# \s* (L<<+)}xoi) {
             $self->error("Legacy smartlink. Use L< instead of $1 in line $. '$_'  in file '$infile'");
@@ -739,16 +739,16 @@ sub parse_pod {
     my $podtree = {};
     my $section;
     foreach (@$pod) {
-		# collect the X<> tags
-		while (/X<([^>]+)>/g) {
-			my $x = $1;
-			if ($section) {
-				(my $s = $section) =~ s/ +/_/g;
-				push @{ $self->{X}{$x} }, "$url#$s";
-			} else {
-				push @{ $self->{X}{$x} }, $url;
-			}
-		}
+        # collect the X<> and C<> tags
+        while (/([XC])<([^>]+)>/g) {
+            my ($tag, $value) = ($1, $2);
+            if ($section) {
+                (my $s = $section) =~ s/ +/_/g;
+                push @{ $self->{$tag}{$value} }, "$url#$s";
+            } else {
+                push @{ $self->{$tag}{$value} }, $url;
+            }
+        }
         if (/^ =head(\d+) \s* (.*\S) \s* $/x) {
             #warn "parse_pod: *$1*\n";
             my $num = $1;
@@ -1007,7 +1007,7 @@ sub process_pod_file {
     } else {
         $self->process_perl5_file(
                 \@pod,
-				$outfile,
+                $outfile,
                 File::Spec->catfile($out_dir, $outfile),
                 $syn_id);
     }
@@ -1072,7 +1072,7 @@ sub process_perl5_file {
         my $preamble = $self->gen_preamble();
         $html =~ s{<!-- start doc -->}{$&$preamble};
         warn "info: generating $outfile...\n";
-		mkpath dirname($outfile);
+        mkpath dirname($outfile);
         write_file($outfile, $html);
     }
 }
@@ -1134,19 +1134,23 @@ sub report_broken_links {
     }
 }
 sub create_x_page {
-	my ($self) = @_;
+    my ($self, $tag) = @_;
     my $out_dir = $self->out_dir;
     my $html = qq(<html><head><title>Indexing</title></head><body>\n);
     $html .= $self->gen_preamble;
-	$html .= "<ul>\n";
-	foreach my $key (sort keys %{ $self->{X} }) {
-		$html .= "<li>$key ";
-		$html .= join ", ", map {qq(<a href="$_">$_</a>)} @{ $self->{X}{$key} };
-		$html .= "</li>\n";
-	}
-	$html .= "</ul>\n";
+    $html .= "<ul>\n";
+    foreach my $key (sort keys %{ $self->{$tag} }) {
+        $html .= "<li>$key<ul>";
+        #$html .= join ", ", map {qq(<a href="$_">$_</a>)} @{ $self->{$tag}{$key} };
+        $html .= join "", map {qq(<li><a href="$_">$_</a></li>)} @{ $self->{$tag}{$key} };
+        $html .= "</ul></li>\n";
+    }
+    $html .= "</ul>\n";
     $html .= qq(</body></html>);
-	write_file(File::Spec->catfile($out_dir, "x.html"), $html);
+    write_file(File::Spec->catfile($out_dir, "index_$tag.html"), $html);
+
+	# temporary need
+	unlink File::Spec->catfile($out_dir, "x.html");
 }
 
 sub create_index {
@@ -1161,7 +1165,7 @@ sub create_index {
     $html .= qq(<hr><a href="stats.html">stats and errors</a>);
     $html .= qq(</body></html>);
 
-	write_file(File::Spec->catfile($out_dir, 'index.html'), $html);
+    write_file(File::Spec->catfile($out_dir, 'index.html'), $html);
     return;
 }
 
