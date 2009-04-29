@@ -657,7 +657,7 @@ sub gen_code_snippet {
 
     my $html = <<"_EOC_";
 <p>From $file lines $from&ndash;$to$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span></p>
-<div id="smartlink_${snippet_id}" class="smartlink_snippet">
+<div id="smartlink_${snippet_id}" class="smartlink_snippet" style="display:none">
 $snippet
 </div>
 <span id="smartlink_skipto_${snippet_id}">&nbsp;</span>
