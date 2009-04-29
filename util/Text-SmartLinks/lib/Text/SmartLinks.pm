@@ -355,6 +355,7 @@ sub new {
     $self->{out_dir}          ||= '.';
     $self->{errors}   = [];
     $self->{X}        = {};
+    $self->{C}        = {};
     
     $self->{invalid_link}      = 0;
 
@@ -744,9 +745,9 @@ sub parse_pod {
             my ($tag, $value) = ($1, $2);
             if ($section) {
                 (my $s = $section) =~ s/ +/_/g;
-                push @{ $self->{$tag}{$value} }, "$url#$s";
+                $self->{$tag}{$value}{"$url#$s"}++;
             } else {
-                push @{ $self->{$tag}{$value} }, $url;
+                $self->{$tag}{$value}{$url}++;
             }
         }
         if (/^ =head(\d+) \s* (.*\S) \s* $/x) {
@@ -1136,13 +1137,13 @@ sub report_broken_links {
 sub create_x_page {
     my ($self, $tag) = @_;
     my $out_dir = $self->out_dir;
-    my $html = qq(<html><head><title>Indexing</title></head><body>\n);
+    my $html = qq(<html><head><title>Indexing $tag tags</title></head><body>\n);
     $html .= $self->gen_preamble;
     $html .= "<ul>\n";
     foreach my $key (sort keys %{ $self->{$tag} }) {
         $html .= "<li>$key<ul>";
         #$html .= join ", ", map {qq(<a href="$_">$_</a>)} @{ $self->{$tag}{$key} };
-        $html .= join "", map {qq(<li><a href="$_">$_</a></li>)} @{ $self->{$tag}{$key} };
+        $html .= join "", map {qq(<li><a href="$_">$_</a></li>)} sort keys %{ $self->{$tag}{$key} };
         $html .= "</ul></li>\n";
     }
     $html .= "</ul>\n";
