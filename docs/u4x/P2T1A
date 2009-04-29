@@ -73,7 +73,7 @@ $. (Has a stable replacement. Can do external refs.)
 
 == Twigils
 
-^ (Connects to blocks and params and other things.) 
+^ (Connects to blocks and params and other things.)
 (See data/syntactic-elements.pod)
 
 == Base prefixes

@@ -99,7 +99,7 @@ the class and through its ancestors should be provided:
 == Control flow and statement prefixes
 
     if unless when while until for loop given
-    do try gather contend async maybe lazy
+    do try gather contend async maybe lazy lift
 
 == Declaration keywords
 
@@ -191,5 +191,5 @@ the class and through its ancestors should be provided:
 * A fantastically well-thought-out OO guide, the Divina Commedia of Perl 6
   object orientation.
 
-* Feel free to rip off stuff from misc/perlhints/data, it was written in a 
+* Feel free to rip off stuff from misc/perlhints/data, it was written in a
   similar spirit, but with less plan.

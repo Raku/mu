@@ -11,9 +11,9 @@ an object of class C<Array>.
 =for STD twigil:sym<^>
 
 Variables with the C<^> L<twigil> are considered positional parameters of the
-current block. If multiple variables with such a twigil appear within the 
+current block. If multiple variables with such a twigil appear within the
 same block, they are filled with arguments in the lexicographic order of their
-names. So 
+names. So
 
     { say "$^b $^a $^c" }.(1, 2, 3)
 
