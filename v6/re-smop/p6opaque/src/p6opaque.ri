@@ -1,0 +1,140 @@
+%RI SMOP__p6opaque__RI
+%RI.id p6opaque
+%prefix smop_p6opaque
+%include <smop/s1p.h>
+%attr SMOP__Object* proto_storage
+%has $^!whence
+%has $^!instance_of
+%has $^!is_container
+%has %^!instance_storage
+%idconst FETCH
+%idconst continuation
+%idconst goto
+%idconst ^!how
+%idconst ^!who
+%idconst ^!isa
+%idconst ^!does
+%idconst ^!class_storage
+%idconst ^!attributes
+%idconst ^!methods
+%idconst ^!submethods
+
+%method ^!CREATE
+  ret = smop_lowlevel_alloc(sizeof(smop_p6opaque_struct));
+  ret->RI = (SMOP__ResponderInterface*)SMOP__p6opaque__RI;
+
+%{
+
+static int is_p6opaque_container(SMOP__Object* interpreter,
+                                 SMOP__Object* invocant) {
+
+  if (invocant == SMOP__p6opaque__RI) {
+    return 0;
+  }
+  smop_nagc_rdlock(invocant);
+  SMOP__Object* is_container = ((smop_p6opaque_struct*)invocant)->CaretBangis_container;
+  smop_nagc_unlock(invocant);
+  if (!is_container ||
+      SMOP__S1P__Scalar_FETCH(is_container) == SMOP__NATIVE__bool_false) {
+    return 0;
+  } else {
+    return 1;
+  }
+}
+
+static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
+                                               SMOP__ResponderInterface* self,
+                                               SMOP__Object* identifier,
+                                               SMOP__Object* capture) {
+  SMOP__Object* ret = SMOP__NATIVE__bool_true;
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                                             SMOP__ID__continuation, 
+                                             SMOP_REFERENCE(interpreter,interpreter));
+
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,dispatch_mold));
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,self));
+  mold_reg_set(interpreter,frame,3,SMOP_REFERENCE(interpreter,identifier));
+  mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,capture));
+  mold_reg_set(interpreter,frame,5,continuation);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__ID__goto,
+                frame);
+
+  return ret;
+}
+
+%}
+
+%inmessage{
+   if (identifier == SMOP__ID__FETCH && 
+      !is_p6opaque_container(interpreter,invocant)) {
+    ___VALUE_FETCH___;
+  } else if (identifier == SMOP__ID__CaretBanghow ||
+             identifier == SMOP__ID__CaretBangwho ||
+             identifier == SMOP__ID__CaretBangisa ||
+             identifier == SMOP__ID__CaretBangdoes ||
+             identifier == SMOP__ID__CaretBangclass_storage ||
+             identifier == SMOP__ID__CaretBangattributes ||
+             identifier == SMOP__ID__CaretBangmethods ||
+             identifier == SMOP__ID__CaretBangsubmethods) {
+
+    if (! invocant) {
+      fprintf(stderr,"[smop p6opaque] REPR method called without invocant\n");
+    } else if (SMOP_RI(invocant) != (SMOP__ResponderInterface*)SMOP__p6opaque__RI) {
+      fprintf(stderr,"[smop p6opaque] REPR method called with non p6opaque invocant\n");
+    } else if (invocant == SMOP__p6opaque__RI) {
+      fprintf(stderr,"[smop p6opaque] REPR method called with p6opaque RI\n");
+      abort();
+    } else {
+
+      smop_nagc_rdlock(invocant);
+      SMOP__Object* proto_storage = ((smop_p6opaque_struct*)invocant)->proto_storage;
+      smop_nagc_unlock(invocant);
+
+      if (!proto_storage) {
+        smop_nagc_wrlock(invocant);
+        ((smop_p6opaque_struct*)invocant)->proto_storage = p6opaque_proto_create(interpreter);
+        proto_storage = ((smop_p6opaque_struct*)invocant)->proto_storage;
+        smop_nagc_unlock(invocant);
+      }
+
+      ret = SMOP_DISPATCH(interpreter,SMOP_RI(proto_storage),identifier,
+                          SMOP__NATIVE__capture_create(interpreter,
+                                                       (SMOP__Object*[]){SMOP_REFERENCE(interpreter,proto_storage),
+                                                        NULL},(SMOP__Object*[]){NULL}));
+    }
+
+  } else
+%}
+
+%mold dispatch_mold
+  my $interpreter;
+  my $invocant;
+  my $responder;
+  my $identifier;
+  my $capture;
+  my $back;
+  $invocant = $capture."invocant"();
+  my $how_s = $invocant."^!how"();
+  my $how = $how_s."FETCH"();
+  my $result = $how."dispatch"($invocant, $identifier, $capture);
+  my $void = $back."setr"($result);
+  $void = $interpreter."goto"($back);
+
+%mold destroyall_mold
+  my $interpreter;
+  my $invocant;
+  my $responder;
+  my $identifier;
+  my $capture;
+  my $back;
+  $invocant = $capture."invocant"();
+  my $how_s = $invocant."^!how"();
+  my $how = $how_s."FETCH"();
+  my $void = $how."dispatch"($responder, $identifier, $capture);
+  $void = $invocant."^!DESTROY"();
+  $void = $interpreter."goto"($back);
+
+

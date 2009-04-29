@@ -1,0 +1,22 @@
+%RI SMOP__p6opaque_default_how__RI
+%RI.id p6opaque default how
+%prefix smop_p6opaque_default_how
+%idconst FETCH
+%idconst STORE
+%idconst DESTROYALL
+
+%method dispatch
+  SMOP__Object* actualidentifier = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+  SMOP__Object* actualcapture = SMOP__NATIVE__capture_positional(interpreter,capture,2);
+  SMOP__Object* actualinvocant = SMOP__NATIVE__capture_positional(interpreter,actualcapture,0);
+  if (actualidentifier == SMOP__ID__FETCH) {
+    ret = SMOP_REFERENCE(interpreter, actualinvocant);
+  } else if (actualidentifier == SMOP__ID__STORE) {
+    ___VALUE_STORE___;
+  } else if (actualidentifier == SMOP__ID__DESTROYALL) {
+      
+  } else {
+    identifier = actualidentifier;
+    ___UNKNOWN_METHOD___;
+  }
+
