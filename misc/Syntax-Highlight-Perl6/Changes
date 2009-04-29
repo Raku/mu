@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+????  ??????????
+	- Upgraded dependencies of YAML::Syck to 1.07 and Moose to 0.76.
+
 0.47  2009.04.28
     - Bundled latest STD.
 
