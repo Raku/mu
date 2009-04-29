@@ -1,5 +1,8 @@
 use v6;
 
+# L<S04/Conditional statements>
+# should be: L<S02/Lists/The C<< .. >> operator now constructs a>
+# L<S02/Lists/functioning as an operator>
 
 say "1..4";
 

@@ -18,6 +18,8 @@ use v6;
 # plan at runtime.  --iblech, 2005-09-19.
 say '1..1';
 
+# L<S11/Compile-time Importation>
+
 # We try to load an arbitrary module.
 use lib ".";
 
