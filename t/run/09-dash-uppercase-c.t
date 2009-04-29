@@ -8,7 +8,7 @@ Test handling of C<-Cbackend>.
 
 =end pod
 
-sub flatten (Any|Junction $x) {
+sub flatten (Object $x) {
     ($x.isa(Junction)) ?? map &flatten, $x.eigenstates !! $x
 }
 
