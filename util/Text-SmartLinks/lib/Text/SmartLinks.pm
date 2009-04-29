@@ -741,10 +741,12 @@ sub parse_pod {
     foreach (@$pod) {
 		# collect the X<> tags
 		while (/X<([^>]+)>/g) {
+			my $x = $1;
 			if ($section) {
-				push @{ $self->{X}{$1} }, "$url#$section";
+				(my $s = $section) =~ s/ +/_/g;
+				push @{ $self->{X}{$x} }, "$url#$s";
 			} else {
-				push @{ $self->{X}{$1} }, $url;
+				push @{ $self->{X}{$x} }, $url;
 			}
 		}
         if (/^ =head(\d+) \s* (.*\S) \s* $/x) {
