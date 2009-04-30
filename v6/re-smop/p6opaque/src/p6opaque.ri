@@ -20,7 +20,7 @@
 %idconst ^!submethods
 
 %method ^!CREATE
-  ret = smop_lowlevel_alloc(sizeof(smop_p6opaque_struct));
+  ret = smop_nagc_alloc(sizeof(smop_p6opaque_struct));
   ret->RI = (SMOP__ResponderInterface*)SMOP__p6opaque__RI;
 
 %{
@@ -31,9 +31,9 @@ static int is_p6opaque_container(SMOP__Object* interpreter,
   if (invocant == SMOP__p6opaque__RI) {
     return 0;
   }
-  smop_nagc_rdlock(invocant);
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
   SMOP__Object* is_container = ((smop_p6opaque_struct*)invocant)->CaretBangis_container;
-  smop_nagc_unlock(invocant);
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
   if (!is_container ||
       SMOP__S1P__Scalar_FETCH(is_container) == SMOP__NATIVE__bool_false) {
     return 0;
@@ -89,15 +89,15 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
       abort();
     } else {
 
-      smop_nagc_rdlock(invocant);
+      smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
       SMOP__Object* proto_storage = ((smop_p6opaque_struct*)invocant)->proto_storage;
-      smop_nagc_unlock(invocant);
+      smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
 
       if (!proto_storage) {
-        smop_nagc_wrlock(invocant);
+        smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
         ((smop_p6opaque_struct*)invocant)->proto_storage = p6opaque_proto_create(interpreter);
         proto_storage = ((smop_p6opaque_struct*)invocant)->proto_storage;
-        smop_nagc_unlock(invocant);
+        smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
       }
 
       ret = SMOP_DISPATCH(interpreter,SMOP_RI(proto_storage),identifier,
