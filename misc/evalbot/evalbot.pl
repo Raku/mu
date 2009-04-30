@@ -78,7 +78,7 @@ package Evalbot;
     );
 
     my $input = '('
-                . (join '; ', map { "echo $_" } @austrian_national_anthem)
+                . (join '; ', map { qq[echo "$_"] } @austrian_national_anthem)
                 . ')';
 
     our %impls = (
