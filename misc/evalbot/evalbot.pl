@@ -51,6 +51,36 @@ package Evalbot;
     my $prefix  = '';
     my $postfix = ':';
 
+    my @austrian_national_anthem = (
+        q[Land der Berge, Land am Strome,],
+        q[Land der Äcker, Land der Dome,],
+        q[Land der Hämmer, zukunftsreich!],
+        q[Heimat bist du großer Söhne,],
+        q[Volk, begnadet für das Schöne,],
+        q[vielgerühmtes Österreich,],
+        q[vielgerühmtes Österreich!],
+        q[],
+        q[Heiß umfehdet, wild umstritten],
+        q[liegst dem Erdteil du inmitten,],
+        q[einem starken Herzen gleich.],
+        q[Hast seit frühen Ahnentagen],
+        q[hoher Sendung Last getragen,],
+        q[vielgeprüftes Österreich,],
+        q[vielgeprüftes Österreich!],
+        q[],
+        q[Mutig in die neuen Zeiten,],
+        q[frei und gläubig sieh uns schreiten,],
+        q[arbeitsfroh und hoffnungsreich.],
+        q[Einig laß in Brüderchören,],
+        q[Vaterland, dir Treue schwören,],
+        q[vielgeliebtes Österreich,],
+        q[vielgeliebtes Österreich!],
+    );
+
+    my $input = '('
+                . (join '; ', map { "echo $_" } @austrian_national_anthem)
+                . ')';
+
     our %impls = (
             mildew  => {
                 chdir       => 'umask 002; ../../v6/mildew',
@@ -58,12 +88,12 @@ package Evalbot;
             },
             elf => {
                 chdir       => '../elf',
-                cmd_line    => 'echo | ./elf_h %program >> %out 2>&1',
+                cmd_line    => $input . '| ./elf_h %program >> %out 2>&1',
                 revision    => \&get_revision,
             },
             rakudo => {
                 chdir       => '../../../rakudo/',
-                cmd_line    => 'echo | ./perl6 %program >> %out 2>&1',
+                cmd_line    => $input . '| ./perl6 %program >> %out 2>&1',
                 revision    => \&get_rakudo_revision,
                 filter      => \&filter_pct,
             },
