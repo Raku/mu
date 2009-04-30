@@ -20,9 +20,8 @@ cmp_ok(@end[0] - @start[0], &infix:«<=», 10, 'sensible time spent')
   };
 
 my $start = time();
-my $stop = $start+1;
-@start = times();
 my $stop = $start+2;
+@start = times();
 diag "Looping 2 seconds";
 my $curr = time();
 while ($stop > $curr) {
