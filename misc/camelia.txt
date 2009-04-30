@@ -1,0 +1,82 @@
+Some notes about Camelia
+------------------------
+
+Online notes and resources
+==========================
+* http://www.nntp.perl.org/group/perl.perl6.language/2009/03/msg31263.html
+* http://www.nntp.perl.org/group/perl.perl6.language/2009/03/msg31300.html
+
+
+Discussion Highlights
+=====================
+
+From: Larry Wall
+Date: March 24, 2009 10:25
+Subject: Re: Logo considerations
+
+[...] I think there's a tendency to
+go way too abstract in most of these proposals.  I want something
+with gut appeal on the order of Tux.  In particular I want a logo
+for Perl 6 that is:
+
+    Fun
+    Cool
+    Cute
+    Named
+    Lively
+    Punable
+    Personal
+    Concrete
+    Symmetric
+    Asymmetric
+    Attractive
+    Relational
+    Metamorphic
+    Decolorizable
+    Shrinkable to textual icon
+    Shrinkable to graphical icon
+
+In addition, you can extend just about anything by attaching "P6"
+wings to it.  I also take it as a given that we want to discourage
+misogyny in our community.  You of the masculine persuasion should
+consider it an opportunity to show off your sensitive side.  :)
+
+Hence, Camelia.
+
+Larry
+
+----
+
+From: Larry Wall
+Date: March 25, 2009 11:28
+Subject: Re: Logo considerations - 3 logos needed
+
+On Wed, Mar 25, 2009 at 08:54:34AM -0400, Guy Hulbert wrote:
+: I think he was offering it as an example and a suggestion.  The perl6
+: community might favor it out of respect for Larry but I think he went
+: out of his way to make it clear that it's the kind of thing he would
+: like.
+
+Yes, I went out of my way to indicate that my mind was still open
+(a little).  However, if you will allow an old geezer to be a wee bit
+testy, I would also like to make it clear that I'm a just a little
+tired of these "rounds"; more importantly, that I've been mulling
+over this particular issue for many years.  I didn't just come up
+with that list of requirements off the cuff.  I'm old enough to have
+lots of stuff on my cuff as well.
+
+Also, it's probably mere hubris, but I already consider myself to be a
+"professional designer".  I know how to take into account the various
+factors that a professional designer would take into account when
+designing yet another highly original logo that somehow ends up looking
+just like every other logo out there.  You'll notice that "sterility"
+is not on my list of requirements.  It was a deliberate omission.
+
+So let me summarize the requirements into a meta-requirement:
+
+    The new logo must make Larry at least as happy as Camelia does.
+
+That is the extent to which my mind is still open...  :-)
+
+Larry
+
