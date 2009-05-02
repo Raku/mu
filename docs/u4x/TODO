@@ -179,9 +179,10 @@ the class and through its ancestors should be provided:
 == Special Perl and Perl 6 terms
 
     autovivify stringify numify boolify timtowtdi greedy waterbed
-    protoobject metaclass positional named texas french invocant
+    protoobject metaclass texas french invocant
     mmd autothread pun attribute interpolate trait lvalue candidate
     mutator 'result object' topic topicalizer diffy iffy fiddly
+    variadic slurpy capture required optional positional named
 
 == Misc
 
