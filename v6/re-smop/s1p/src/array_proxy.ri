@@ -1,0 +1,52 @@
+%prototype SMOP__S1P__ArrayProxy
+%prefix smop_s1p_array_proxy
+%RI.id Lowlevel array proxy
+%attr SMOP__Object* array
+%attr int index
+%include "array.h"
+
+%{
+  SMOP__Object* SMOP__S1P__ArrayProxy_create(SMOP__Object* array,int i) {
+    smop_s1p_array_proxy_struct* proxy = (smop_s1p_array_proxy_struct*) smop_nagc_alloc(sizeof(smop_s1p_array_proxy_struct));
+
+    proxy->RI = (SMOP__ResponderInterface*) RI;
+    proxy->index = i;
+    proxy->array = array;
+    return (SMOP__Object*) proxy;
+  }
+%}
+
+%method FETCH
+
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  int index = ((smop_s1p_array_proxy_struct*)invocant)->index; SMOP__Object* array = ((smop_s1p_array_proxy_struct*)invocant)->array;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+  int elems = SMOP__S1P__Array_get_elems(interpreter,array);
+  if (index < elems) {
+    SMOP__Object* elem = SMOP__S1P__Array_get_elem(interpreter,array,index);
+    if (elem) ret = SMOP_REFERENCE(interpreter,elem);
+  }
+
+%method defined
+  // the array container is defined, the value inside it that maybe not.
+  ret = SMOP__NATIVE__bool_true;
+
+%method STORE
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  int index = ((smop_s1p_array_proxy_struct*)invocant)->index;
+  SMOP__Object* array = ((smop_s1p_array_proxy_struct*)invocant)->array;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+
+  int elems = SMOP__S1P__Array_get_elems(interpreter,array);
+  if (elems <= index) SMOP__S1P__Array_set_elems(interpreter,array,index+1);
+
+
+  SMOP__S1P__Array_set_elem(interpreter,array,index,SMOP__NATIVE__capture_positional(interpreter, capture,1));
+
+
+%DESTROYALL {
+  SMOP__Object* array = ((smop_s1p_array_proxy_struct*)invocant)->array;
+  SMOP_RELEASE(interpreter,array);
+%}
