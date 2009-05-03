@@ -5,7 +5,7 @@ sub say(|$capture) {
             $OUT.print("\n");
             return;
         } else {
-           $OUT.print($capture.positional($i.FETCH).FETCH);
+           $OUT.print($capture.positional($i.FETCH).Str);
            $i = &infix:<+>:(int,int)($i.FETCH,1);
         }
     }

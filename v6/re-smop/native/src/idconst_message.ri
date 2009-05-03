@@ -1,11 +1,17 @@
 %prefix smop_idconst_message
+%{
+  static SMOP__Object* empty_idconst;
+%}
 %method FETCH
     ___VALUE_FETCH___;
 %method Str
     ___VALUE_FETCH___;
 %method STORE
     ___VALUE_STORE___;
+%method true
+    if (invocant != empty_idconst) ret = SMOP__NATIVE__bool_true;
 
 %init {
   SMOP__ID__FETCH->RI->MESSAGE = ((SMOP__ResponderInterface*)RI)->MESSAGE;
+  empty_idconst = SMOP__NATIVE__idconst_create("");
 %}

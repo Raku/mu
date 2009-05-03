@@ -11,6 +11,7 @@ extern SMOP__Object* SMOP__S1P__LexicalPrelude;
 extern SMOP__Object* SMOP__S1P__Code;
 extern SMOP__Object* SMOP__S1P__Scalar;
 extern SMOP__Object* SMOP__S1P__Package;
+extern SMOP__Object* SMOP__S1P__Array;
 extern SMOP__Object* SMOP__MildewSOLoader;
 extern SMOP__Object* SMOP__ControlExceptionReturn;
 extern SMOP__Object* SMOP__S1P__AdhocSignature;
@@ -50,6 +51,12 @@ void smop_s1p_loader_destr(SMOP__Object* interpreter);
 void smop_s1p_adhocsignature_init(SMOP__Object* interpreter);
 void smop_s1p_adhocsignature_destr(SMOP__Object* interpreter);
 
+void smop_s1p_array_init(SMOP__Object* interpreter);
+void smop_s1p_array_destr(SMOP__Object* interpreter);
+
+void smop_s1p_array_proxy_init(SMOP__Object* interpreter);
+void smop_s1p_array_proxy_destr(SMOP__Object* interpreter);
+
 void smop_s1p_package_init(SMOP__Object* interpreter);
 void smop_s1p_package_destr(SMOP__Object* interpreter);
 void smop_s1p_insert_primitives(SMOP__Object* interpreter,SMOP__Object* primitives);
@@ -58,6 +65,7 @@ SMOP__Object* SMOP__S1P__Scalar_create(SMOP__Object* interpreter,SMOP__Object* i
 
 SMOP__Object* SMOP__Proto__create(SMOP__Object* delegate_to_RI);
 SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter);
+SMOP__Object* SMOP__S1P__Array_create(SMOP__Object* interpreter);
 SMOP__Object* SMOP__S1P__Hash_BValue_create(SMOP__Object* interpreter, SMOP__Object* owner, SMOP__Object* key);
 
 SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter);

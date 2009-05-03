@@ -52,6 +52,7 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
   smop_s1p_lexical_prelude_insert(interpreter,"Scalar",SMOP_REFERENCE(interpreter,SMOP__S1P__Scalar));
   smop_s1p_lexical_prelude_insert(interpreter,"Hash",SMOP__S1P__Hash_create(interpreter));
   smop_s1p_lexical_prelude_insert(interpreter,"Package",SMOP_REFERENCE(interpreter,SMOP__S1P__Package));
+  smop_s1p_lexical_prelude_insert(interpreter,"Array",SMOP_REFERENCE(interpreter,SMOP__S1P__Array));
   smop_s1p_lexical_prelude_insert(interpreter,"$?PACKAGE",
     SMOP_DISPATCH(interpreter,SMOP_RI(SMOP__S1P__Package),SMOP__ID__new,
     SMOP__NATIVE__capture_create(interpreter,

@@ -17,12 +17,16 @@ void smop_s1p_init(SMOP__Object* interpreter) {
   smop_s1p_ccode_init(interpreter);
   smop_s1p_flattenedscope_init(interpreter);
   smop_s1p_ritest_init(interpreter);
+  smop_s1p_array_proxy_init(interpreter);
+  smop_s1p_array_init(interpreter);
   control_exception_return_init(interpreter);
   smop_s1p_lexical_prelude_init(interpreter);
 }
 void smop_s1p_destr(SMOP__Object* interpreter) {
   smop_s1p_lexical_prelude_destr(interpreter);
   control_exception_return_destr(interpreter);
+  smop_s1p_array_destr(interpreter);
+  smop_s1p_array_proxy_destr(interpreter);
   smop_s1p_ritest_destr(interpreter);
   smop_s1p_flattenedscope_destr(interpreter);
   smop_s1p_ccode_destr(interpreter);

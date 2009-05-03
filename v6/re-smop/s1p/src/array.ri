@@ -1,0 +1,124 @@
+%prototype SMOP__S1P__Array
+%prefix smop_s1p_array
+%RI.id Lowlevel array
+
+%attr  unsigned int elems
+%attr  unsigned int size
+%attr  SMOP__Object** content
+
+%include <string.h>,"array.h"
+
+%{
+SMOP__Object* SMOP__S1P__Array_create(SMOP__Object* interpreter) {
+  smop_s1p_array_struct* ret = (smop_s1p_array_struct*) smop_nagc_alloc(sizeof(smop_s1p_array_struct));
+  ret->RI = (SMOP__ResponderInterface*) RI;
+  ret->size = 0;
+  ret->elems = 0;
+  ret->content = NULL;
+  return (SMOP__Object*) ret;
+}
+
+
+void SMOP__S1P__Array_set_elems(SMOP__Object* interpreter,SMOP__Object* array_uncast,int elems) {
+  smop_s1p_array_struct* array = ((smop_s1p_array_struct*)array_uncast);
+  if (elems > array->size) {
+    int new_size = elems;
+    //printf("new_size:%d amortized size:%d\n",new_size,1<<(floor_log2(new_size))+1);
+    array->content = realloc(array->content,(new_size * sizeof(void*)));
+    int i;
+    for ( i = array->size ; i < new_size ; i++) {
+      array->content[i] = NULL;
+    }
+    array->size = new_size;
+  }
+  if (elems < array->elems) {
+    /* TODO */
+    abort();
+  }
+  array->elems = elems;
+}
+
+int SMOP__S1P__Array_get_elems(SMOP__Object* interpreter,SMOP__Object* array) {
+   return ((smop_s1p_array_struct*)array)->elems;
+}
+
+void SMOP__S1P__Array_set_elem(SMOP__Object* interpreter,SMOP__Object* array_uncast,int i,SMOP__Object* value) {
+  smop_s1p_array_struct* array = ((smop_s1p_array_struct*)array_uncast);
+  if (array->elems <= i) SMOP__S1P__Array_set_elems(interpreter,array_uncast,i+1);
+  SMOP__Object* prev = array->content[i];
+  if (prev) SMOP_RELEASE(interpreter,prev);
+  array->content[i] = value;
+}
+
+SMOP__Object* SMOP__S1P__Array_get_elem(SMOP__Object* interpreter,SMOP__Object* array,int i) {
+   return ((smop_s1p_array_struct*)array)->content[i];
+}
+
+static int floor_log2(unsigned int n) {
+  int pos = 0;
+  if (n >= 1<<16) { n >>= 16; pos += 16; }
+  if (n >= 1<< 8) { n >>=  8; pos +=  8; }
+  if (n >= 1<< 4) { n >>=  4; pos +=  4; }
+  if (n >= 1<< 2) { n >>=  2; pos +=  2; }
+  if (n >= 1<< 1) {           pos +=  1; }
+  return ((n == 0) ? (-1) : pos);
+}
+
+/*
+  } else if (identifier == SMOP__ID__Iterator) {
+    ret = SMOP__S1P__Array_Iterator_create(SMOP_REFERENCE(interpreter,(SMOP__Object*)invocant));
+*/
+%}
+
+%method new
+  ret = SMOP__S1P__Array_create(interpreter);
+
+%method postcircumfix:[ ]
+  SMOP__Object* index = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+  int i = SMOP__NATIVE__int_fetch(index);
+
+  SMOP_RELEASE(interpreter,index);
+
+  ret = SMOP__S1P__ArrayProxy_create(SMOP_REFERENCE(interpreter,invocant),i);
+
+
+
+%method unshift
+    smop_s1p_array_struct* array = ((smop_s1p_array_struct*)invocant);
+
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+
+    SMOP__S1P__Array_set_elems(interpreter, invocant, array->elems + 1);
+    memmove(array->content+1, array->content, (array->elems-1) * sizeof(void*));
+    array->content[0] = value;
+
+%method shift
+    smop_s1p_array_struct* array = ((smop_s1p_array_struct*)invocant);
+
+    if (array->elems) {
+      ret = array->content[0];
+      memmove(array->content, array->content+1, array->elems * sizeof(void*));
+      array->elems--;
+      if (!ret) ret = SMOP__NATIVE__bool_false;
+    }
+
+%method elems
+    ret = SMOP__NATIVE__int_create(SMOP__S1P__Array_get_elems(interpreter,invocant));
+
+%method push
+    smop_s1p_array_struct* array = ((smop_s1p_array_struct*)invocant);
+
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+    SMOP__S1P__Array_set_elems(interpreter, invocant, array->elems + 1);
+    array->content[array->elems-1] = value;
+
+%method FETCH
+    ___VALUE_FETCH___
+
+%DESTORYALL {
+    int i;for (i=0;i < invocant->elems;i++) {
+      if (invocant->content[i]) SMOP_RELEASE(interpreter,invocant->content[i]);
+    }
+    free(invocant->content);
+%}
+
