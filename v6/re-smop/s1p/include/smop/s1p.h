@@ -16,6 +16,8 @@ extern SMOP__Object* SMOP__MildewSOLoader;
 extern SMOP__Object* SMOP__ControlExceptionReturn;
 extern SMOP__Object* SMOP__S1P__AdhocSignature;
 
+void smop_s1p_lexical_prelude_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj);
+
 void smop_s1p_init(SMOP__Object* interpreter);
 void smop_s1p_destr(SMOP__Object* interpreter);
 void smop_s1p_lexicalscope_init(SMOP__Object* interpreter);
@@ -73,5 +75,6 @@ SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter);
 SMOP__Object* SMOP__S1P__CCode_create(SMOP__Object* (*ccode) (SMOP__Object* interpreter,
                                                             SMOP__Object* ccode,
                                                             SMOP__Object* capture));
+SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object);
 
 #endif

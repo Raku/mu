@@ -14,7 +14,7 @@ SMOP__Object* SMOP__S1P__Scalar_create(SMOP__Object* interpreter,SMOP__Object* i
   return ret;
 }
 
-static SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
+SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object) {
  smop_nagc_rdlock((SMOP__NAGC__Object*)object);
   SMOP__Object* val = ((smop_s1p_scalar_struct*)object)->cell;
  smop_nagc_unlock((SMOP__NAGC__Object*)object);
