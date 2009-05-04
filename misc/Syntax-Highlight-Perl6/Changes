@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.50  2009.5.4
+    - Bundled latest STD
+
 0.49  2009.5.1
     - Bundled latest STD
 
