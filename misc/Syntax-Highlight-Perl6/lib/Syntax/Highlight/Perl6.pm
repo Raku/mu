@@ -55,6 +55,7 @@ sub new {
     $options{resource_url} = $options{resource_url} // q{};
     $options{page_title} = $options{page_title} // q{};
     $options{utf8_decode} = $options{utf8_decode} // 1;
+    $options{tmp_prefix} = $options{tmp_prefix} // q{};
 
     #is 'text' undefined?
     if(! defined $options{text}) {
@@ -94,7 +95,8 @@ sub _lazy_parse {
         $self->{parser} = STD->parse(
             $src_text, 
             rule => $self->{rule},
-            actions => __PACKAGE__ . '::Actions'
+            actions => __PACKAGE__ . '::Actions',
+            tmp_prefix => $self->{tmp_prefix},
         );
 
         #we parsed it lazily...
@@ -640,6 +642,10 @@ HTML page title for C<simple_html> and C<full_html> (default: q{})
 =item * utf8_decode
 
 Flag to enable/disable utf8 decoding. (default: 1 (Enabled))
+
+=item * tmp_prefix
+
+STD temporary files directory prefix. (default: q{})
 
 =back
 
