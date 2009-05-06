@@ -1,5 +1,10 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.52 20096.5.6
+    - Bundled latest STD
+    - Removed dependency on Readonly
+    - Updated Moose dependency to 0.77
+
 0.51  2009.5.5
     - Bundled latest STD which improves error messages on accidental listops
     - Added tmp_prefix which controls where STD stores its temporary files
