@@ -223,6 +223,43 @@ Does this object matches the given class?
 
 =begin
 
+=item method roles($how: $object, :$local)
+
+Returns the list of roles composed into this type.
+
+Use :local to avoid searching the roles composed into the superclasses
+of this type.
+
+=end
+
+  method roles($how: $object, :$local) {
+     if $local {
+         return $object.^!does;
+     } else {
+         return $object.^!does, $object.^!isa.map: { .^roles };
+     }
+  }
+
+=begin
+
+=item method parents($how: $object, :$local)
+
+Returns the list of roles composed into this type.
+
+Use :local to get only the direct parents.
+
+=end
+
+  method parents($how: $object, :$local) {
+     if $local {
+         return $object.^!isa;
+     } else {
+         return $object.^!isa, $object.^!isa.map: { .^parents };
+     }
+  }
+
+=begin
+
 =item method can($how: $object, $name, $capture? --> List of Method)
 
 Returns a lazy list of methods that match to this name/capture.
@@ -356,5 +393,7 @@ In that order.
           }
       }
   }
+
+
 
 }
