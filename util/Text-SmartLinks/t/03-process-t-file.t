@@ -15,6 +15,12 @@ use Text::SmartLinks;
 
 # L<Text::SmartLinks/process_t_file>
 
+# TODO:
+# double quotes don't work in section headers
+# ie. header `=head2 The C<lift> statement' 
+# and link L <S04/"The lift statement">
+# don't got together. Needs tests and fix.
+
 {
     my $sl = Text::SmartLinks->new;
     my $file = 'eg/a/t/01.t';
