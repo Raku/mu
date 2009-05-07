@@ -31,6 +31,7 @@ our $Trans;
 our $UNIT;
 our $VAR;
 our $VOID;
+our $XBX;
 our $begin_compunit;
 our $endargs;
 our $endsym;
@@ -5130,7 +5131,14 @@ $m;
 ##          :dba('parameterized block')
 ##          [<?before <.lambda> | '{' > ||
 ##              {{
-##                  if %*MYSTERY {
+##                  my $badlistop = try {
+##                      $*XBX.{'term'}<args><arglist>[0]<EXPR><circumfix><sym>[0] eq '{';
+##                  };
+##                  if $badlistop {
+##                      my $id = $*XBX.{'term'}<identifier>;
+##                      $id.panic("Block accidentally eaten by '" ~ $id.Str ~ "' function; please use parens");
+##                  }
+##                  elsif %*MYSTERY {
 ##                      $¢.panic("Missing block (eaten by accidental listop?)");
 ##                  }
 ##                  else {
@@ -5222,7 +5230,14 @@ else {
 or
 eval { push @gather, scalar(do {
 
-if (%::MYSTERY) {
+my $badlistop = eval {
+$XBX->{'term'}{'args'}{'arglist'}[0]{'EXPR'}{'circumfix'}{'sym'}[0] eq '{';
+};
+if ($badlistop) {
+my $id = $XBX->{'term'}{'identifier'};
+$id->panic("Block accidentally eaten by '" . $id->Str . "' function; please use parens");
+}
+elsif (%::MYSTERY) {
 $C->panic("Missing block (eaten by accidental listop?)");
 }
 else {
@@ -5420,7 +5435,9 @@ else {
 ## token xblock
 ##      token xblock {
 ##          :my $GOAL is context = '{';
+##          :my $XBX is context;
 ##          <EXPR>
+##          { $XBX = $<EXPR> }
 ##          <.ws>
 ##          <pblock>
 ##      }
@@ -5430,6 +5447,7 @@ sub xblock {
 my $self = shift;
 local $CTX = $self->callm() if $::DEBUG & DEBUG::trace_call;
 local $::GOAL = '{';
+local $::XBX;
 
 
 my $C = $self;
@@ -5442,11 +5460,20 @@ my $C = shift;
 $C->EXPR
 }))) {
 do {
+if (my ($C) = (scalar(do {
+my $M = $C;  $XBX = $M->{'EXPR'} ;
+}, $C))) {
+do {
 if (my ($C) = ($C->ws)) {
 $C->_SUBSUMEr(['pblock'], sub {
 my $C = shift;
 $C->pblock
 });
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -74639,7 +74666,7 @@ pblock: !!perl/hash:RE
               min: 0
               r: 1
               s: 0
-              text: "\n            if %*MYSTERY {\n                $¢.panic(\"Missing block (eaten by accidental listop?)\");\n            }\n            else {\n                $¢.panic(\"Missing block\");\n            }\n        "
+              text: "\n            my $badlistop = try {\n                $*XBX.{'term'}<args><arglist>[0]<EXPR><circumfix><sym>[0] eq '{';\n            };\n            if $badlistop {\n                my $id = $*XBX.{'term'}<identifier>;\n                $id.panic(\"Block accidentally eaten by '\" ~ $id.Str ~ \"' function; please use parens\");\n            }\n            elsif %*MYSTERY {\n                $¢.panic(\"Missing block (eaten by accidental listop?)\");\n            }\n            else {\n                $¢.panic(\"Missing block\");\n            }\n        "
       - !!perl/hash:RE_bracket 
         decl: []
 
@@ -96846,6 +96873,15 @@ xblock: !!perl/hash:RE
       r: 1
       s: 0
       text: my $GOAL is context = '{'
+    - !!perl/hash:RE_decl 
+      a: 0
+      dba: xblock
+      i: 0
+      max: 0
+      min: 0
+      r: 1
+      s: 0
+      text: my $XBX is context
   kind: token
   min: 37035
   pkg: ~
@@ -96866,6 +96902,15 @@ xblock: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
+      - !!perl/hash:RE_block 
+        a: 0
+        context: void
+        dba: xblock
+        i: 0
+        min: 0
+        r: 1
+        s: 0
+        text: " $XBX = $<EXPR> "
       - !!perl/hash:RE_method 
         a: 0
         dba: xblock

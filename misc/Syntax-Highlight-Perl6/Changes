@@ -1,6 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
-0.52 20096.5.6
+0.53  2009.5.7
+    - Bundled latest STD which has a better error message for 'for lines {...}'
+
+0.52  2009.5.6
     - Bundled latest STD
     - Removed dependency on Readonly
     - Updated Moose dependency to 0.77
