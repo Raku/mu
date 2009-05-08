@@ -1,8 +1,10 @@
 %RI SMOP__p6opaque__RI
+%nagc.nofree 1
 %RI.id p6opaque
 %prefix smop_p6opaque
 %include <smop/s1p.h>
 %attr SMOP__Object* proto_storage
+%attr int destroying
 %has $^!whence
 %has $^!instance_of
 %has $^!is_container
@@ -22,6 +24,25 @@
 %method ^!CREATE
   ret = smop_nagc_alloc(sizeof(smop_p6opaque_struct));
   ret->RI = (SMOP__ResponderInterface*)SMOP__p6opaque__RI;
+
+%DESTROYALL {
+  SMOP__Object* proto_storage;
+  smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
+  int old_destroying = (((smop_p6opaque_struct*)invocant)->destroying);
+  (((smop_p6opaque_struct*)invocant)->destroying) = 1;
+  if (old_destroying) {
+    proto_storage = (((smop_p6opaque_struct*)invocant)->proto_storage);
+    (((smop_p6opaque_struct*)invocant)->proto_storage) = NULL;
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+    SMOP_RELEASE(interpreter,proto_storage);
+  } else {
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+
+    // should dispatch DESTROYALL here...
+
+    return;
+  }
+%}
 
 %{
 
@@ -71,7 +92,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
    if (identifier == SMOP__ID__FETCH && 
       !is_p6opaque_container(interpreter,invocant)) {
     ___VALUE_FETCH___;
-  } else if (identifier == SMOP__ID__CaretBanghow ||
+   } else if (identifier == SMOP__ID__CaretBanghow ||
              identifier == SMOP__ID__CaretBangwho ||
              identifier == SMOP__ID__CaretBangisa ||
              identifier == SMOP__ID__CaretBangdoes ||
@@ -105,7 +126,6 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
                                                        (SMOP__Object*[]){SMOP_REFERENCE(interpreter,proto_storage),
                                                         NULL},(SMOP__Object*[]){NULL}));
     }
-
   } else
 %}
 

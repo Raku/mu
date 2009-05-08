@@ -29,7 +29,7 @@ sub mangle {
     return 'SMOP__ID__'.::mangle($id);
 }
 
-my @properties = qw(RI RI.id prefix include prototype singleton);
+my @properties = qw(RI RI.id prefix include prototype singleton nagc.nofree);
 my %properties;
 
 my %methods;
@@ -266,6 +266,18 @@ print qq[
 }
 ];
 
+if ($properties{'nagc.nofree'}) {
+print qq[
+void $properties{prefix}_init(SMOP__Object* interpreter) {
+  $RI = SMOP__NAGC__RI__create(
+    message,
+    smop_nagc_reference,
+    smop_nagc_release_nofree,
+    smop_nagc_weakref,
+    DESTROYALL,
+    "$id");
+];
+} else {
 print qq[
 void $properties{prefix}_init(SMOP__Object* interpreter) {
   $RI = SMOP__NAGC__RI__create(
@@ -276,6 +288,7 @@ void $properties{prefix}_init(SMOP__Object* interpreter) {
     DESTROYALL,
     "$id");
 ];
+}
 
 for (@idconsts) {
     print "  ",mangle($_)," = ","SMOP__NATIVE__idconst_create(\"$_\");\n";

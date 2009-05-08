@@ -41,6 +41,9 @@ extern SMOP__Object* smop_nagc_reference(SMOP__Object* interpreter,
 extern SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
                                        SMOP__ResponderInterface* responder,
                                        SMOP__Object* obj);
+extern SMOP__Object* smop_nagc_release_nofree(SMOP__Object* interpreter,
+                                       SMOP__ResponderInterface* responder,
+                                       SMOP__Object* obj);
 extern SMOP__Object* smop_nagc_weakref(SMOP__Object* interpreter,
                                        SMOP__ResponderInterface* responder,
                                        SMOP__Object* obj); 

@@ -52,10 +52,10 @@ SMOP__Object* smop_nagc_reference(SMOP__Object* interpreter,
   return obj;
 }
 
-
-SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
-                                SMOP__ResponderInterface* responder,
-                                SMOP__Object* obj) {
+static SMOP__Object* release_code(SMOP__Object* interpreter,
+                                  SMOP__ResponderInterface* responder,
+                                  SMOP__Object* obj,
+                                  int shouldfree) {
   if ((SMOP__Object*)responder != obj) {
     int destroy = 0;
     smop_nagc_wrlock((SMOP__NAGC__Object*)obj);
@@ -73,16 +73,31 @@ SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
       SMOP__NAGC__ResponderInterface* ri = (SMOP__NAGC__ResponderInterface*)SMOP_RI(obj);
       smop_nagc_weakref_cleanup((SMOP__NAGC__Object*)obj);
       ri->DESTROYALL(interpreter, obj);
-      pthread_rwlock_destroy(((SMOP__NAGC__Object*)obj)->rwlock);
-      free(((SMOP__NAGC__Object*)obj)->rwlock);
-      free(obj);
-      return NULL;
+      if (shouldfree) {
+        pthread_rwlock_destroy(((SMOP__NAGC__Object*)obj)->rwlock);
+        free(((SMOP__NAGC__Object*)obj)->rwlock);
+        free(obj);
+        return NULL;
+      } else {
+        return obj;
+      }
     } else {
       return obj;
     }
   } else {
     return obj;
   }
+}
+
+SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
+                                SMOP__ResponderInterface* responder,
+                                SMOP__Object* obj) {
+  release_code(interpreter,responder,obj,1);
+}
+SMOP__Object* smop_nagc_release_nofree(SMOP__Object* interpreter,
+                                       SMOP__ResponderInterface* responder,
+                                       SMOP__Object* obj) {
+  release_code(interpreter,responder,obj,0);
 }
 
 SMOP__Object* smop_nagc_weakref(SMOP__Object* interpreter,
