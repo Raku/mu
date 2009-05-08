@@ -126,6 +126,8 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
                                                        (SMOP__Object*[]){SMOP_REFERENCE(interpreter,proto_storage),
                                                         NULL},(SMOP__Object*[]){NULL}));
     }
+  } else if (identifier) {
+    ret = p6opaque_message_DISPATCH(interpreter, self, identifier, capture);
   } else
 %}
 

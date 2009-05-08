@@ -51,6 +51,7 @@ extern SMOP__Object* smop_nagc_weakref(SMOP__Object* interpreter,
 extern void smop_nagc_rdlock(SMOP__NAGC__Object* obj);
 extern void smop_nagc_wrlock(SMOP__NAGC__Object* obj);
 extern void smop_nagc_unlock(SMOP__NAGC__Object* obj);
+extern void smop_nagc_free(SMOP__NAGC__Object* obj);
 
 extern void smop_nagc_init();
 extern void smop_nagc_destr();
