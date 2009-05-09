@@ -75,7 +75,7 @@
         );
     }
 
-%method DESTROYALL
+%DESTROYALL {
     smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
     SMOP__Object* bmold = ((smop_s1p_adhocsignature_struct*)invocant)->bind_mold;
     ((smop_s1p_adhocsignature_struct*)invocant)->bind_mold = NULL;
@@ -86,3 +86,4 @@
     if (bmold) SMOP_RELEASE(interpreter,bmold);
     if (amold) SMOP_RELEASE(interpreter,amold);
     SMOP_RELEASE(interpreter,RI);
+%}

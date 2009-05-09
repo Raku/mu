@@ -84,7 +84,7 @@
         symbol, NULL },
      (SMOP__Object*[]) {NULL}));
 
-%method DESTROYALL
+%DESTROYALL {
     smop_nagc_wrlock(invocant);
     SMOP__Object* name = ((smop_s1p_package_struct*)invocant)->name;
     SMOP__Object* entries = ((smop_s1p_package_struct*)invocant)->entries;
@@ -92,3 +92,4 @@
     SMOP_RELEASE(interpreter,name);
     SMOP_RELEASE(interpreter,entries);
     SMOP_RELEASE(interpreter,RI);
+%}

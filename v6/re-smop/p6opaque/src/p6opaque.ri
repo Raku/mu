@@ -1,4 +1,5 @@
 %RI SMOP__p6opaque__RI
+%prototype SMOP__p6opaque
 %nagc.nofree 1
 %RI.id p6opaque
 %prefix smop_p6opaque

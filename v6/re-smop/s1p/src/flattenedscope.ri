@@ -31,9 +31,10 @@
       (SMOP__Object*[]) {NULL}
     ));
 
-%method DESTROYALL
+%DESTROYALL {
     smop_nagc_wrlock(invocant);
     SMOP__Object* lexical = ((smop_s1p_flattenedscope_struct*)invocant)->lexical;
     smop_nagc_unlock(invocant);
     SMOP_RELEASE(interpreter,lexical);
     SMOP_RELEASE(interpreter,RI);
+%}

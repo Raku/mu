@@ -131,7 +131,9 @@
   ___VALUE_FETCH___;
 %method STORE
   ___VALUE_STORE___;
-%method DESTROYALL
+
+%DESTROYALL {
   SMOP_RELEASE(interpreter,((control_exception_return_struct*)invocant)->handled);
   SMOP_RELEASE(interpreter,((control_exception_return_struct*)invocant)->context);
   SMOP_RELEASE(interpreter,((control_exception_return_struct*)invocant)->capture);
+%}
