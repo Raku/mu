@@ -1,0 +1,7 @@
+.sconsign.dblite
+build/
+m0ld/Setup
+m0ld/Setup.hi
+m0ld/Setup.o
+m0ld/dist/
+m0ld_exe
