@@ -238,14 +238,13 @@ print q[
 }
 ];
 
-print qq[
+my $destroyall = $raw{'DESTROYALL_ALL'} // '
 static void DESTROYALL(SMOP__Object* interpreter,
                               SMOP__Object* invocant) {
-];
-my $destroyall = $raw{'DESTROYALL_ALL'} // '
     %%INDESTROYALL%%
     %%ATTRS%%
     %%FREE%%
+}
 ';
 
 my $attrs = '';
@@ -281,9 +280,6 @@ if ($properties{'nagc.nofree'}) {
 }
 
 print $destroyall;
-print qq[
-}
-];
 
 
 my $release = $properties{'nagc.nofree'} ? 'smop_nagc_release_nofree' : 'smop_nagc_release';

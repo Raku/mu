@@ -2,7 +2,7 @@
 %nagc.nofree 1
 %RI.id p6opaque
 %prefix smop_p6opaque
-%include <smop/s1p.h>
+%include <smop/s1p.h>,<smop/lost.h>
 %attr SMOP__Object* proto_storage
 %attr int destroying
 %has $^!whence
@@ -12,6 +12,7 @@
 %idconst FETCH
 %idconst continuation
 %idconst goto
+%idconst DESTROYALL
 %idconst ^!how
 %idconst ^!who
 %idconst ^!isa
@@ -21,28 +22,64 @@
 %idconst ^!methods
 %idconst ^!submethods
 
+%DESTROYALL_ALL {
+static int step(SMOP__Object* interpreter,
+                SMOP__Object* obj) {
+
+  SMOP__LOST__Frame* frame = (SMOP__LOST__Frame*) obj;
+
+ SMOP__Object* invocant  = frame->user;
+
+  switch (frame->pc) {
+  case 0:
+    frame->pc++;
+    SMOP_DISPATCH(interpreter,SMOP_RI(frame->user),SMOP__ID__DESTROYALL,
+      SMOP__NATIVE__capture_create(interpreter,
+        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,frame->user),NULL},
+        (SMOP__Object*[]) {NULL}));
+    
+    break;
+  case 1:
+    frame->pc++;
+
+    smop_p6opaque_struct* obj = (smop_p6opaque_struct*)frame->user;
+    SMOP__Object* proto_storage = obj->proto_storage;
+    obj->proto_storage = NULL;
+    SMOP_RELEASE(interpreter,proto_storage);
+
+    %%ATTRS%%
+    break;
+  case 2:
+    frame->pc++;
+    %%FREE%%
+    return 0;
+  };
+  return 1;
+}
+
+static void destr(SMOP__Object* interpreter,
+                 SMOP__Object* frame) {
+}
+static void DESTROYALL(SMOP__Object* interpreter,
+                              SMOP__Object* invocant) {
+
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+    SMOP__ID__continuation,
+    SMOP__NATIVE__capture_create(interpreter,
+      (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+      (SMOP__Object*[]) {NULL}));
+  SMOP__Object* frame = SMOP__LOST__Frame_create(interpreter,continuation,invocant,step,destr);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
+
+}
+
+%}
+
 %method ^!CREATE
   ret = smop_nagc_alloc(sizeof(smop_p6opaque_struct));
   ret->RI = (SMOP__ResponderInterface*)SMOP__p6opaque__RI;
 
-%DESTROYALL {
-  SMOP__Object* proto_storage;
-  smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
-  int old_destroying = (((smop_p6opaque_struct*)invocant)->destroying);
-  (((smop_p6opaque_struct*)invocant)->destroying) = 1;
-  if (old_destroying) {
-    proto_storage = (((smop_p6opaque_struct*)invocant)->proto_storage);
-    (((smop_p6opaque_struct*)invocant)->proto_storage) = NULL;
-    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
-    SMOP_RELEASE(interpreter,proto_storage);
-  } else {
-    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
-
-    // should dispatch DESTROYALL here...
-
-    return;
-  }
-%}
 
 %{
 
