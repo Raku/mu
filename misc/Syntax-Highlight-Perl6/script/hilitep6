@@ -10,19 +10,14 @@ use strict;
 use warnings;
 use utf8;
 use feature qw(say switch);
-use English qw(-no_match_vars); # to avoid regexp performance penalty
-use Getopt::Long;
 use Carp;
 
-# CPAN modules
-use Term::ANSIColor;
-
 # And finally our modules
-use STD;
-use Syntax::Highlight::Perl6;
+#use STD;
+#use Syntax::Highlight::Perl6;
 
 #CPAN version
-our $VERSION = '0.53';
+our $VERSION = '0.54';
 
 # my variables
 my ($clean_html,$help) = (0,0);
@@ -34,7 +29,8 @@ my $file;
 #
 sub main {
     #process the command line
-    GetOptions(
+    require Getopt::Long;
+    Getopt::Long::GetOptions(
         'clean-html'=>\$clean_html,
         'full-html=s'=>\$full_html,
         'simple-html=s'=>\$simple_html,
@@ -46,7 +42,7 @@ sub main {
     if ($help) {
         say <<"HELP";
 USAGE:
-    $PROGRAM_NAME [options] [file] [rule]
+    $0 [options] [file] [rule]
 
     where 'file' is optional; if omitted or is '-' then
     STDIN will be used. And 'options' can be one of the following:
@@ -100,13 +96,14 @@ HELP
 # Writes the output to a file or STDOUT
 #
 sub write_output {
-    my ($file, $output) = @ARG;
+    my ($file, $output) = @_;
     if($file eq q{-}) {
         say $output;
     } else {
         use open OUT => ':utf8';
+        require IO::File;
         my $fh = IO::File->new(">$file") or
-            croak "Cannot open $file for writing: $OS_ERROR\n";
+            croak "Cannot open $file for writing: $!\n";
         say $fh $output;
         close $fh
             or croak "Cannot close $file\n";
@@ -128,7 +125,7 @@ sub _slurp_special {
         $fh = IO::File->new($filename)
             or croak "Could not open $filename for reading";
     }
-    local $INPUT_RECORD_SEPARATOR = undef;   #enable localized slurp mode
+    local $/ = undef;   #enable localized slurp mode
     my $contents = <$fh>;
     if(! ref $filename) {
         close $fh
@@ -144,6 +141,8 @@ sub _slurp_special {
 sub highlight_match {
     my $filename = shift;
 
+    use STD;
+    require Syntax::Highlight::Perl6;
     my $p = new Syntax::Highlight::Perl6(
         text => _slurp_special($filename),
         inline_resources => ! $clean_html,

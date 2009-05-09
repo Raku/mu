@@ -1,5 +1,10 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.54  2009.5.9
+    - Bundled latest STD which has support the slang package declarator
+    - use->require to improve startup cost
+    - removed 'use English' dependency
+
 0.53  2009.5.7
     - Bundled latest STD which has a better error message for 'for lines {...}'
 
