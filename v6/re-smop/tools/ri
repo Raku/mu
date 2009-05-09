@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 package SMOP::RI;
 use warnings;
+use v5.10;
 use strict;
 use IO::Select;
 use IO::Handle;
@@ -241,63 +242,62 @@ print qq[
 static void DESTROYALL(SMOP__Object* interpreter,
                               SMOP__Object* invocant) {
 ];
-print $raw{'DESTROYALL'} || '';
+my $destroyall = $raw{'DESTROYALL_ALL'} // '
+    %%INDESTROYALL%%
+    %%ATTRS%%
+    %%FREE%%
+';
 
+my $attrs = '';
 if (@has) {
-  print qq[
+  $attrs .= qq[
   smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
   ];
   for my $has (@has) {
     my $name = $has->[1];
-    print qq[
+    $attrs .= qq[
   SMOP__Object* p_$name = ((($properties{prefix}_struct*)invocant)->$name);
   ((($properties{prefix}_struct*)invocant)->$name) = NULL;
     ];
   }
-  print qq[
+  $attrs .= qq[
   smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
   ];
   for my $has (@has) {
     my $name = $has->[1];
-    print qq[
+    $attrs .= qq[
   if (p_$name) SMOP_RELEASE(interpreter, p_$name);
     ];
   }
 }
 
-if ($properties{'nagc.nofree'}) {
-print qq[
-  smop_nagc_free(invocant);
-];
-}
-
-print qq[
-}
-];
+$destroyall =~ s/%%INDESTROYALL%%/$raw{'DESTROYALL'} || ''/eg;
+$destroyall =~ s/%%ATTRS%%/$attrs/g;
 
 if ($properties{'nagc.nofree'}) {
-print qq[
-void $properties{prefix}_init(SMOP__Object* interpreter) {
-  $RI = SMOP__NAGC__RI__create(
-    message,
-    smop_nagc_reference,
-    smop_nagc_release_nofree,
-    smop_nagc_weakref,
-    DESTROYALL,
-    "$id");
-];
+    $destroyall =~ s/%%FREE%%/smop_nagc_free(invocant);/g;
 } else {
+    $destroyall =~ s/%%FREE%%//g;
+}
+
+print $destroyall;
+print qq[
+}
+];
+
+
+my $release = $properties{'nagc.nofree'} ? 'smop_nagc_release_nofree' : 'smop_nagc_release';
+
 print qq[
 void $properties{prefix}_init(SMOP__Object* interpreter) {
   $RI = SMOP__NAGC__RI__create(
     message,
     smop_nagc_reference,
-    smop_nagc_release,
+    $release,
     smop_nagc_weakref,
     DESTROYALL,
     "$id");
 ];
-}
 
 for (@idconsts) {
     print "  ",mangle($_)," = ","SMOP__NATIVE__idconst_create(\"$_\");\n";
