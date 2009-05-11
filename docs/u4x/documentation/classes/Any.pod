@@ -1,0 +1,38 @@
+=head1 Any
+
+While C<Object> is the real top class, C<Any> is the class that functions as
+implicit parents for new classes, if no parent is explicitly specified.
+
+=head2 Methods
+
+=head3 subst
+
+ method Str subst(Str $self: Regex $search, Str $replacement);
+
+Returns a C<Str> in which C<$self> has been matched (once) against C<$search>,
+and the (possible) matched substring has been replaced by C<$replacement>.
+
+Note that the above signature is actually too strict; neither C<$self> nor
+C<$replacement> actually have to be of type C<Str>, only a type that can be
+stringified. Thus, the following is perfectly legal:
+
+ say <1 2 3>.subst("2 3", 42);
+
+It's also important to remember that C<.subst> does not modify its invocant.
+So instead of
+
+ $string.subst('foo', 'bar');  # WRONG
+
+you probably mean
+
+ $string = $string.subst(/foo/, 'bar');
+
+or, using the C<.=> meta-operator,
+
+ $string.=subst(/foo/, 'bar');
+
+A final note: if you plan to use submatches in your C<$replacement>, remember
+to surround them with closure braces:
+
+ $string.=subst(/ (\d+) '+' (\d+) /,   $0 + $1   );  # WRONG
+ $string.=subst(/ (\d+) '+' (\d+) /, { $0 + $1 } );  # RIGHT
