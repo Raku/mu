@@ -49,11 +49,12 @@ for module in modules:
     BuildDir('build/t/'+module,module+'/t')
     INCLUDE.append(module + '/include')
     LIBS.append('smop-'+module)
+
+for module in modules:
     for test in env.Glob("build/t/" + module + "/*.m0ld"):
         env.M0ld(test) 
     for test in env.Glob("build/t/" + module + "/*.c"):
         env.Program(re.sub(r'.c$','.t',str(test)),test,CFLAGS=flags+ccopts,CPPPATH = INCLUDE,LIBPATH=LIBPATH+['build/lib'],LIBS=LIBS)
-
 
 env.SharedLibrary(target = 'build/lib/mildew', source = [], CFLAGS=flags+ccopts, LIBPATH=LIBPATH+['build/lib'], LIBS=LIBS)
 

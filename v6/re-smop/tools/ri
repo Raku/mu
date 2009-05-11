@@ -299,17 +299,18 @@ for (@idconsts) {
     print "  ",mangle($_)," = ","SMOP__NATIVE__idconst_create(\"$_\");\n";
 }
 
+if ($properties{prototype}) {
+    print qq[
+  $properties{prototype} = SMOP__Proto__create($RI);
+];
+}
+
 print $raw{'init'} || '';
 
 while (my ($name,$mold) = each %mold) {
     print "  $name = ",preprocess_m0ld($mold),";\n";
 }
 
-if ($properties{prototype}) {
-    print qq[
-  $properties{prototype} = SMOP__Proto__create($RI);
-];
-}
 
 print "}\n";
 

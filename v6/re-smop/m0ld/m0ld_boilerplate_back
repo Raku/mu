@@ -30,10 +30,13 @@
                     (SMOP__Object*[]) {NULL}));
 
 
-  SMOP_RELEASE(SMOP__EmptyInterpreter,interpreter);
 
+  smop_p6opaque_destr(interpreter);
+  smop_lost_destr(interpreter);
   smop_s1p_destr(interpreter);
   smop_native_destr(interpreter);
+
+  SMOP_RELEASE(SMOP__EmptyInterpreter,interpreter);
 
   smop_mold_destr();
   smop_interpreter_destr();

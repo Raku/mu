@@ -13,7 +13,7 @@
 %has %^!submethods
 
 %{
-   SMOP__Object* p6opaque_proto_create(SMOP__Object* interpreter) {
+   SMOP__Object* smop_p6opaque_proto_storage_create(SMOP__Object* interpreter) {
     SMOP__Object* proto = smop_nagc_alloc(sizeof(smop_p6opaque_proto_storage_struct));
     proto->RI = (SMOP__ResponderInterface*)SMOP__p6opaque_proto_storage__RI;
     return proto;

@@ -3,7 +3,7 @@
 %nagc.nofree 1
 %RI.id p6opaque
 %prefix smop_p6opaque
-%include <smop/s1p.h>,<smop/lost.h>
+%include <smop/s1p.h>,<smop/lost.h>,<smop/p6opaque.h>
 %attr SMOP__Object* proto_storage
 %attr int destroying
 %has $^!whence
@@ -154,7 +154,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
 
       if (!proto_storage) {
         smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
-        ((smop_p6opaque_struct*)invocant)->proto_storage = p6opaque_proto_create(interpreter);
+        ((smop_p6opaque_struct*)invocant)->proto_storage = smop_p6opaque_proto_storage_create(interpreter);
         proto_storage = ((smop_p6opaque_struct*)invocant)->proto_storage;
         smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
       }
@@ -198,3 +198,8 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   $void = $interpreter."goto"($back);
 
 
+%init {
+  smop_p6opaque_default_how_init(interpreter);
+  smop_p6opaque_proto_storage_init(interpreter);
+  smop_s1p_lexical_prelude_insert(interpreter,"p6opaque",SMOP_REFERENCE(interpreter,SMOP__p6opaque));
+%}

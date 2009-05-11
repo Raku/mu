@@ -6,6 +6,8 @@
 #include <smop/native.h>
 #include <smop/mold.h>
 #include <smop/s1p.h>
+#include <smop/lost.h>
+#include <smop/p6opaque.h>
 #include <stdio.h>
 
 int main(int argc, char** argv) {
@@ -19,5 +21,8 @@ int main(int argc, char** argv) {
 
   smop_native_init(interpreter);
   smop_s1p_init(interpreter);
+
+  smop_lost_init(interpreter);
+  smop_p6opaque_init(interpreter);
 
   SMOP__Object* mold = 
