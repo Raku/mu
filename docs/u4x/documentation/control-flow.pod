@@ -41,3 +41,16 @@ The C<if> keyword evaluates junctions as if they're booleans.
 
 There's also the statement-modifier C<if>. See its item for more information.
 (XXX: Find a good way to link to statement-modifier C<if>.)
+
+=head3 continue
+
+Used in C<when> blocks to not break out of the surrounding topicalizer block
+(usually a C<given> block).
+
+ given 42 {
+     when Num { say "It's a Num"; continue; }
+     when Int { say "It's an Int";          }
+ } 
+
+Without the C<continue> keyword, the above block would only print "It's a Num".
+With the keyword, it'll print both "It's a Num" and "It's an Int".
