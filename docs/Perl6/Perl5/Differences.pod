@@ -108,7 +108,10 @@ context.
     say +@array;                    # 3
     
     # boolean context
-    my $is_nonempty = ?@array;
+    my $is-nonempty = ?@array;
+
+Hyphens C<'> and dashes C<-> are allowed as part of identifiers, as long as
+they appear between two letters.
 
 =cut 
 
@@ -158,12 +161,13 @@ without parens:
     
     my @list = 1, 2, 3;     # @list really has three elements
 
-The arrow operator C<< -> >> for dereferencing is gone. Since (nearly)
-everything is a reference, you can directly use the appropriate pair of
+The arrow operator C<< -> >> for dereferencing is gone. Since
+everything is an object, and derferencing parenthesis are just method calls
+with syntactic sugar, you can directly use the appropriate pair of
 parentheses for either indexing or method calls:
     
-    my $lol = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
-    say $lol[1][0];         # 4
+    my $aoa = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+    say $aoa[1][0];         # 4
 
     my $s = sub { say "hi" };
     $s();
@@ -457,7 +461,6 @@ Hash elements no longer auto-quote:
 
     Was:    $days{February}
     Now:    %days{'February'}
-    Or:     %days{"February"}
     Or:     %days<February>
     Or:     %days<<February>>
 
