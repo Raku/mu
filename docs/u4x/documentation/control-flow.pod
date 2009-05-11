@@ -1,0 +1,43 @@
+=head1 Control flow
+
+=head2 Iteration
+
+=head2 Looping
+
+=head2 Selection
+
+=head3 if
+
+Tests a condition and runs a block of code if the condition is found to be
+true.
+
+ if $day ~~ Saturday {
+     say "It's Saturyday";
+ }
+
+The block can optionally be followed by any number of C<elsif> keywords
+(each with their own condition and block), and optionally ended by an C<else>
+keyword (also with a block):
+
+ if $day ~~ Monday..Friday {
+     say "It's a weekday";
+ }
+ elsif $day ~~ Saturday {
+     say "It's Saturday";
+ }
+ else {
+     say "It's Sunday";
+ }
+
+If you find yourself comparing the same expression against many different
+things, consider using C<given> and C<when> instead. (XXX: Make the example
+not contain that very mistake.)
+
+The C<if> keyword evaluates junctions as if they're booleans.
+
+ if any(True, False) {
+     say "This gets printed.";
+ }
+
+There's also the statement-modifier C<if>. See its item for more information.
+(XXX: Find a good way to link to statement-modifier C<if>.)
