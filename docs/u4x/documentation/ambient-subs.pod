@@ -12,3 +12,8 @@ a named parameter C<$enc> specifying the encoding, with default "Unicode".
 
 If the file cannot be opened or read for some reason, C<slurp> will throw
 an exception.
+
+=head2 length
+
+This is no longer a sub in Perl 6. Use C<chars> to count the number of
+characters in a C<Str>, or C<elems> for the number of elements in a C<List>.
