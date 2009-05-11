@@ -199,7 +199,7 @@ for my $has (@has) {
     if (!*pointer) {
        smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
        *pointer = $initializer;
-       smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
+       smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
     }
     ret = *pointer;
     SMOP_REFERENCE(interpreter, ret);
