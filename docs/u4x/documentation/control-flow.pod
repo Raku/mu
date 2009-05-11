@@ -4,6 +4,28 @@
 
 =head2 Looping
 
+=head3 while
+
+tbd.
+
+=head3 loop
+
+tbd.
+
+=head3 LAST
+
+Executes at the end of any loop, i.e. when the loop naturally terminates or
+is prematurely ended with a C<last> call.
+
+ for reverse 0..60 {
+     .say;
+     LAST { say 'Liftoff!'; }
+ }
+
+In most cases, putting code in a C<LAST> block has the same effect as putting
+the same code directly after the loop. This is not always an option, though.
+(XXX: Example.)
+
 =head2 Selection
 
 =head3 if
