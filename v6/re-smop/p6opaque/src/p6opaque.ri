@@ -107,8 +107,10 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
                                                SMOP__Object* capture) {
   SMOP__Object* ret = SMOP__NATIVE__bool_true;
   SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                                             SMOP__ID__continuation, 
-                                             SMOP_REFERENCE(interpreter,interpreter));
+    SMOP__ID__continuation,
+    SMOP__NATIVE__capture_create(interpreter,
+      (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+      (SMOP__Object*[]) {NULL}));
 
   SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,dispatch_mold));
   mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
@@ -117,9 +119,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   mold_reg_set(interpreter,frame,4,SMOP_REFERENCE(interpreter,capture));
   mold_reg_set(interpreter,frame,5,continuation);
 
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-                SMOP__ID__goto,
-                frame);
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
 
   return ret;
 }
@@ -176,7 +176,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   my $identifier;
   my $capture;
   my $back;
-  $invocant = $capture."invocant"();
+  $invocant = $capture."positional"(0);
   my $how_s = $invocant."^!how"();
   my $how = $how_s."FETCH"();
   my $result = $how."dispatch"($invocant, $identifier, $capture);
@@ -190,7 +190,7 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   my $identifier;
   my $capture;
   my $back;
-  $invocant = $capture."invocant"();
+  $invocant = $capture."positional"(0);
   my $how_s = $invocant."^!how"();
   my $how = $how_s."FETCH"();
   my $void = $how."dispatch"($responder, $identifier, $capture);
@@ -201,5 +201,6 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
 %init {
   smop_p6opaque_default_how_init(interpreter);
   smop_p6opaque_proto_storage_init(interpreter);
+  smop_pureprototypehow_init(interpreter);
   smop_s1p_lexical_prelude_insert(interpreter,"p6opaque",SMOP_REFERENCE(interpreter,SMOP__p6opaque));
 %}
