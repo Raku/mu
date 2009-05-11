@@ -1,0 +1,24 @@
+=head1 Pair
+
+A simple key/value-container. C<Pair>s can be seen as the atomic units in
+C<Hash>es, and they are also related to named arguments.
+
+=head2 Methods
+
+=head3 key
+
+=head3 value
+
+=head3 cmp
+
+=head3 fmt
+
+=head3 item
+
+=head3 kv
+
+=head3 pairs
+
+=head3 perl
+
+=head3 infix:<< => >>
