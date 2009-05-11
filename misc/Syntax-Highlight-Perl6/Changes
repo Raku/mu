@@ -1,5 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.55  2009.5.11
+    - Bundled latest STD which fixes a warning typo in special_variable \$
+    - Removed unused code
+
 0.54  2009.5.9
     - Bundled latest STD which has support the slang package declarator
     - use->require to improve startup cost

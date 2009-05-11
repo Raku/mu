@@ -19833,7 +19833,7 @@ $C->_EXACT('>')
 ## token special_variable__S_185DollarGt (:$sym is context<rw> = «\$>»)
 ##      token special_variable:sym«\$>» {
 ##          <sym> :: <?before \s | ',' | <terminator> >
-##          <.obs("$() variable", '$*EUID')>
+##          <.obs('$> variable', '$*EUID')>
 ##      }
 
 sub special_variable__S_185DollarGt__PEEK { $_[0]->_AUTOLEXpeek('special_variable__S_185DollarGt',$retree) }
@@ -19852,7 +19852,7 @@ $self->_MATCHIFY($S, "special_variable__S_185DollarGt",
 Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
-$C->obs("$() variable", '$::EUID')
+$C->obs('$> variable', '$::EUID')
 }, $C->before(sub { my $C=shift;
 do {
 my @result = eval {
@@ -85770,7 +85770,7 @@ special_variable__S_185DollarGt: !!perl/hash:RE
         min: 0
         name: obs
         nobind: 1
-        rest: ("$() variable", '$*EUID')
+        rest: ('$> variable', '$*EUID')
 special_variable__S_185DollarGt_01: *21
 special_variable__S_186DollarDot: !!perl/hash:RE 
   decl: []

@@ -12,12 +12,8 @@ use utf8;
 use feature qw(say switch);
 use Carp;
 
-# And finally our modules
-#use STD;
-#use Syntax::Highlight::Perl6;
-
 #CPAN version
-our $VERSION = '0.54';
+our $VERSION = '0.55';
 
 # my variables
 my ($clean_html,$help) = (0,0);
