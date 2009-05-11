@@ -1,4 +1,3 @@
-%RI SMOP__p6opaque_proto_storage__RI
 %RI.id p6opaque proto storage
 %prefix smop_p6opaque_proto_storage
 
@@ -15,7 +14,7 @@
 %{
    SMOP__Object* smop_p6opaque_proto_storage_create(SMOP__Object* interpreter) {
     SMOP__Object* proto = smop_nagc_alloc(sizeof(smop_p6opaque_proto_storage_struct));
-    proto->RI = (SMOP__ResponderInterface*)SMOP__p6opaque_proto_storage__RI;
+    proto->RI = RI;
     return proto;
    }
 %}
