@@ -91,14 +91,14 @@
       } else {
         assert(actualidentifier->RI == SMOP__ID__new->RI);
         int retsize;
-        fprintf(stderr,"Could not find method %s.\n",SMOP__NATIVE__idconst_fetch(actualidentifier, &retsize));
+        fprintf(stderr,"Could not find method %s.\n",SMOP__NATIVE__idconst_fetch_with_null(actualidentifier, &retsize));
         abort();
       }
 
     } else {
       assert(actualidentifier->RI == SMOP__ID__new->RI);
       int retsize;
-      fprintf(stderr,"Could not find method %s.\n",SMOP__NATIVE__idconst_fetch(actualidentifier, &retsize));
+      fprintf(stderr,"Could not find method %s.\n",SMOP__NATIVE__idconst_fetch_with_null(actualidentifier, &retsize));
       abort();
 
     }
