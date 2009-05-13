@@ -4,14 +4,20 @@ use strict;
 use warnings;
 use AST::Helpers;
 
+sub emit_m0ld_ahsig_with_invocant {
+    my $m = shift;
+    my @stmts;
+    push @stmts, call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call positional => reg '$capture',[integer 0]];
+
+    $m->emit_m0ld_ahsig(1,@stmts);
+}
 sub emit_m0ld_ahsig {
     my $m = shift;
 
-    my $other = 0;
-    my @stmts;
+    my $other = shift || 0;
+    my @stmts = @_;
 
     # TODO invocant
-    #push @stmts, call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call invocant => reg '$capture'];
 
     for my $param (@{$m->{parameter}}) {
         push @stmts, $param->emit_m0ld_ahsig_BIND($other);

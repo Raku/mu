@@ -14,8 +14,8 @@ sub emit_m0ld {
     } else {
         $anon = 1;
     }
-
-    my $rout = routine($m->{blockoid},$m->{multisig}[0]{signature}[0]);
+    my $sig = $m->{multisig}[0]{signature}[0];
+    my $rout = routine($m->{blockoid},($sig ? $sig->emit_m0ld_ahsig : empty_sig));
 
     if ($anon) {
         return $rout;
