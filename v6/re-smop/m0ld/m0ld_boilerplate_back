@@ -31,6 +31,7 @@
 
 
 
+  smop_s1p_oo_destr(interpreter);
   smop_p6opaque_destr(interpreter);
   smop_lost_destr(interpreter);
   smop_s1p_destr(interpreter);

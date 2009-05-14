@@ -201,6 +201,5 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
 %init {
   smop_p6opaque_default_how_init(interpreter);
   smop_p6opaque_proto_storage_init(interpreter);
-  smop_pureprototypehow_init(interpreter);
   smop_s1p_lexical_prelude_insert(interpreter,"p6opaque",SMOP_REFERENCE(interpreter,SMOP__p6opaque));
 %}

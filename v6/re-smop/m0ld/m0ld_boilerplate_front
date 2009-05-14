@@ -24,5 +24,6 @@ int main(int argc, char** argv) {
 
   smop_lost_init(interpreter);
   smop_p6opaque_init(interpreter);
+  smop_s1p_oo_init(interpreter);
 
   SMOP__Object* mold = 
