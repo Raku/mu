@@ -47,7 +47,7 @@ sub emit_m0ld {
         # statementlist, so we know that no code was executed
         # before this, so we can peacefully delay the setup of the
         # control block up to this point.
-        call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];
+        call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($m->{block},FETCH(lookup('$DefaultBlockSignature'))) ];
     } elsif ($m->{sym} eq 'CATCH') {
         # the same for CATCH blocks.
         call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];

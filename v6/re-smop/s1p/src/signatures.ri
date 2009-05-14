@@ -1,0 +1,77 @@
+%prefix smop_s1p_signatures
+%include <smop/s1p.h>
+%mold
+%idconst goto
+%idconst continuation
+%idconst loop
+
+%mold signatures_mold
+my $scope = ?SMOP__S1P__LexicalPrelude;
+
+my $AdhocSignature_scalar = $scope."lookup"("AdhocSignature");
+my $AdhocSignature = $AdhocSignature_scalar."FETCH"();
+
+my $block_sig = $AdhocSignature."new"(:"ACCEPTS"(mold {
+    my $interpreter;
+    my $scope;
+    my $capture;
+
+    #TODO
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $void;
+    $void = $interpreter."goto"($back);
+    
+}),:"BIND"(mold {
+    my $interpreter;
+    my $scope;
+    my $capture;
+
+    my $count = $capture."elems"();
+
+    if $count {goto then} else {goto else};
+
+    then:
+        my $cont = $scope."postcircumfix:{ }"("$_");
+        my $arg = $capture."positional"(0);
+        my $void = $cont."BIND"($arg);
+        goto exit;
+    else:
+        # TODO
+        noop;
+    exit:
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $void;
+    $void = $interpreter."goto"($back);
+}));
+my $block_sig_cont = $scope."postcircumfix:{ }"("$DefaultBlockSignature");
+my $void = $block_sig_cont."BIND"($block_sig);
+
+
+%init_post_mold {
+  SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+    SMOP__ID__continuation,
+    SMOP__NATIVE__capture_create(interpreter,
+      (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+      (SMOP__Object*[]) {NULL}));
+
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,signatures_mold));
+
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  mold_reg_set(interpreter,frame,2,continuation);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+              SMOP__ID__goto,
+    SMOP__NATIVE__capture_create(interpreter,
+     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
+     (SMOP__Object*[]) {NULL}));
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+              SMOP__ID__loop,
+    SMOP__NATIVE__capture_create(interpreter,
+     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+     (SMOP__Object*[]) {NULL}));
+%}

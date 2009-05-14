@@ -311,6 +311,7 @@ while (my ($name,$mold) = each %mold) {
     print "  $name = ",preprocess_m0ld($mold),";\n";
 }
 
+print $raw{'init_post_mold'} || '';
 
 print "}\n";
 

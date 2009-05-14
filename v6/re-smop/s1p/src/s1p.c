@@ -21,8 +21,10 @@ void smop_s1p_init(SMOP__Object* interpreter) {
   smop_s1p_array_init(interpreter);
   control_exception_return_init(interpreter);
   smop_s1p_lexical_prelude_init(interpreter);
+  smop_s1p_signatures_init(interpreter);
 }
 void smop_s1p_destr(SMOP__Object* interpreter) {
+  smop_s1p_signatures_destr(interpreter);
   smop_s1p_lexical_prelude_destr(interpreter);
   control_exception_return_destr(interpreter);
   smop_s1p_array_destr(interpreter);

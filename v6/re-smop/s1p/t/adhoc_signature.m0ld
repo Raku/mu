@@ -9,7 +9,7 @@ my $void;
 my $out_scalar = $prelude."lookup"("$OUT");
 my $out = $out_scalar."FETCH"();
 
-$void = $out."print"("1..2\n");
+$void = $out."print"("1..3\n");
 
 my $AdhocSignature_scalar = $prelude."lookup"("AdhocSignature");
 my $AdhocSignature = $AdhocSignature_scalar."FETCH"();
@@ -21,7 +21,6 @@ my $scope = $LexicalScope."new"();
 my $outer = $scope."outer"();
 my $void = $outer."STORE"($prelude);
 
-my $void = $out."print"("#1\n");
 
 my $signature = $AdhocSignature."new"(:"ACCEPTS"(mold {
     #TODO test
@@ -53,3 +52,4 @@ my $signature = $AdhocSignature."new"(:"ACCEPTS"(mold {
 
 my $void = $out."print"("ok 1 # lives after signature creation\n");
 my $ret = $signature."BIND"("ok 2 # the correct capture is passed\n",$scope);
+my $void = $out."print"("ok 3 # continues after BIND\n");

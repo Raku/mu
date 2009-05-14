@@ -75,6 +75,9 @@
         );
     }
 
+%method FETCH
+    ___VALUE_FETCH___
+
 %DESTROYALL {
     smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
     SMOP__Object* bmold = ((smop_s1p_adhocsignature_struct*)invocant)->bind_mold;

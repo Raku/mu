@@ -131,7 +131,7 @@ sub code {
   call new => FETCH(lookup('Code')),[],
     [ string 'mold' => $realcode,
       string 'outer' => reg '$scope',
-      string 'signature' => ($sig ? $sig->emit_m0ld_ahsig : empty_sig )];
+      string 'signature' => ($sig ? $sig : empty_sig )];
 }
 
 sub move_CONTROL {
