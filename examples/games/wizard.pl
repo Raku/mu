@@ -2,20 +2,20 @@ use v6;
 
 my $DEBUG = 0;
 
-multi prompt ($prompt?) {
+multi myprompt ($prompt?) {
     print $prompt if defined $prompt;
-    my $input = =$*IN;
+    my $input = $*IN.get;
     return $input;
 }
 
-multi prompt ($prompt, @options is rw) {
+multi myprompt ($prompt, @options is rw) {
     my $choice;
     until (defined $choice && $choice ~~ any(@options.keys)) {
         say $prompt;
         for @options.kv -> $key, $value {
 		say "\t", $key, "\t", $value.text;
         }
-        $choice = prompt;
+        $choice = myprompt();
     }
 
     my %options_by_key = @options.kv;
@@ -54,19 +54,6 @@ class Weapon is WObject {
     method damage () { random($.power - $.powerRange, $.power + $.powerRange);};
 }
 
-class Room is WObject {
-   has Monster @.monsters is rw;
-   has Str     @.exits is rw;
-   method are_monsters () { @.monsters // 0 }
-   method monster ()      {
-      say '@.monsters : ', @.monsters.perl if $DEBUG;
-      my $x = shift @.monsters;
-      say 'shifted    : ', $x.perl if $DEBUG;
-      say '@.monsters : ', @.monsters.perl if $DEBUG;
-      return $x;
-    }
-};
-
 class Mortal is WObject {
     has Int     $.life      is rw;
     has Int     $.max_life  is rw;
@@ -93,6 +80,23 @@ class Mortal is WObject {
     method dead ()  { $.life <= 0 }
 }
 
+class Monster is Mortal {
+	has $.gold is rw;
+}
+
+class Room is WObject {
+   has Monster @.monsters is rw;
+   has Str     @.exits is rw;
+   method are_monsters () { @.monsters // 0 }
+   method monster ()      {
+      say '@.monsters : ', @.monsters.perl if $DEBUG;
+      my $x = shift @.monsters;
+      say 'shifted    : ', $x.perl if $DEBUG;
+      say '@.monsters : ', @.monsters.perl if $DEBUG;
+      return $x;
+    }
+};
+
 class Person is Mortal {
     has Weapon  @.weapons   is rw;
 
@@ -115,7 +119,7 @@ class Person is Mortal {
             }
             
             @options.push( Option.new( :key<f>, :text("flee for your life")));
-            $choice = prompt("Your choice? ", @options);
+            $choice = myprompt("Your choice? ", @options);
             cls;
             given $choice {
                 when 'f' {
@@ -152,15 +156,11 @@ class Person is Mortal {
 
 }
 
-class Monster is Mortal {
-	has $.gold is rw;
- }
 
 my $person = Person.new( Mortal{ :life(100),:max_life(100) },
     :weapons((Weapon.new(WObject{ :name<sword> }, :power(4), :powerRange(2)),
               Weapon.new(WObject{ :name<spell> }, :power(0), :powerRange(7)))),
 );
-
 
 my $frogs  = sub {
     my $life = (10..20).pick;
@@ -198,7 +198,7 @@ my %world;
 %world<Dungeon> = Room.new( WObject{ :name("Dungeon")}, :exits("Lobby"), :monsters($skeleton()));
 $person.last_location = $person.location = "Lobby";
 
-$person.name = capitalize(prompt("What is your name: "));
+$person.name = capitalize(myprompt("What is your name: "));
 say "Greetings, ", $person.name();
 say $person.where;
 until ($person.dead) {
@@ -212,7 +212,7 @@ until ($person.dead) {
   } else {
      my @choices = %world.{$person.location}.exits.map: { Option.new( :text($_), :param($_)) };
      $person.last_location = $person.location;
-     $person.location = prompt("Go to:" ,@choices);
+     $person.location = myprompt("Go to:" ,@choices);
      cls;
   }
 }
