@@ -1,8 +1,8 @@
 %RI.id p6opaque proto storage
 %prefix smop_p6opaque_proto_storage
 
-%include <smop/s1p.h>
-%has $^!how
+%include <smop/s1p.h>,<smop/p6opaque.h>
+%has $^!how = SMOP__S1P__Scalar_create(interpreter, SMOP_REFERENCE(interpreter,SMOP__p6opaque_default_how))
 %has $^!who
 %has @^!isa
 %has @^!does

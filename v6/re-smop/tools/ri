@@ -91,13 +91,14 @@ while (my $line = <>) {
         push(@getters,$1);
     } elsif ($line =~ / ^\s*$ | ^\# | ^\/\/ /x) {
         debug "ws/comment:$line";
-    } elsif ($line =~ /^%has\s*(\$|\@|\%)(\S+)\n$/) {
+    } elsif ($line =~ /^%has\s*(\$|\@|\%)(\S+)(?:\s*=(.+))?\n$/) {
         my $sigil = $1;
         my $name = $2;
+        my $initial = $3;
         my $id = $name;
         $id =~ s/^\^\!/CaretBang/;
         push @attrs, 'SMOP__Object* '.$id;
-        push @has, [$sigil, $id];
+        push @has, [$sigil, $id,$initial];
         push(@idconsts,$name);
     } else {
         for my $property (@properties) {
@@ -183,7 +184,9 @@ for my $has (@has) {
     my $sigil = $has->[0];
     my $name = $has->[1];
     my $initializer;
-    if ($sigil eq '$') {
+    if ($has->[2]) {
+        $initializer = $has->[2];
+    } elsif ($sigil eq '$') {
       $initializer = 'SMOP__S1P__Scalar_create(interpreter, SMOP__NATIVE__bool_false)';
     } elsif ($sigil eq '@') {
       $initializer = 'SMOP__S1P__Array_create(interpreter)';

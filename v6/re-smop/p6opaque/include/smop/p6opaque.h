@@ -2,6 +2,7 @@
 #define SMOP_P6OPAQUE_H
 
 #include <smop/base.h>
+extern SMOP__Object* SMOP__p6opaque_default_how;
 SMOP__Object* smop_p6opaque_proto_storage_create(SMOP__Object* interpreter);
 
 void smop_p6opaque_proto_init(SMOP__Object* interpreter);
