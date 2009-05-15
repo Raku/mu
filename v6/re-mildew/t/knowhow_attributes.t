@@ -9,7 +9,7 @@ knowhow Foo {
   }
 }
 say "1..2";
-Foo.bar = "ok 1\n";
-Foo.baz = "ok 2\n";
+Foo.bar = "ok 1";
+Foo.baz = "ok 2";
 say Foo.bar;
 say Foo.ble;

@@ -45,7 +45,7 @@ sub accessor {
             named =>
             [ string 'BIND' => AST::Block->new
               ( regs => [qw(interpreter scope capture)],
-                stmts => trailing_return([call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call invocant => reg '$capture']]))]));
+                stmts => trailing_return([call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call positional => reg '$capture',[integer 0]]]))]));
 
     call(new=>FETCH(lookup('Code')),[],
 	 [ string 'outer' => reg '$scope',

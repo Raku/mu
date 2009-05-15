@@ -50,6 +50,35 @@ my $block_sig = $AdhocSignature."new"(:"ACCEPTS"(mold {
 my $block_sig_cont = $scope."postcircumfix:{ }"("$DefaultBlockSignature");
 my $void = $block_sig_cont."BIND"($block_sig);
 
+my $method_sig = $AdhocSignature."new"(:"ACCEPTS"(mold {
+    my $interpreter;
+    my $scope;
+    my $capture;
+
+    #TODO
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $void;
+    $void = $interpreter."goto"($back);
+    
+}),:"BIND"(mold {
+    my $interpreter;
+    my $scope;
+    my $capture;
+
+    # TODO make it %_ and @_
+    my $cont = $scope."postcircumfix:{ }"("$¿self");
+    my $arg = $capture."positional"(0);
+    my $void = $cont."BIND"($arg);
+
+    my $continuation = $interpreter."continuation"();
+    my $back = $continuation."back"();
+    my $void;
+    $void = $interpreter."goto"($back);
+}));
+my $method_sig_cont = $scope."postcircumfix:{ }"("$DefaultMethodSignature");
+my $void = $method_sig_cont."BIND"($method_sig);
 
 %init_post_mold {
   SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
