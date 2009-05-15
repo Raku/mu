@@ -99,7 +99,7 @@ BOILERPLATE_FRONT
 }
 BOILERPLATE_BACK
     close($c_fh);
-    system("gcc","-g","-xc","-L../smop/build",@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
+    system("gcc","-g","-xc","-L../../smop/build/lib",@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
 }
 sub output {
     my ($what,$where) = @_;
@@ -209,7 +209,7 @@ if ($B && $C) {
 
 if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
-    local $ENV{PERL5LIB} = "../smop/SMOP/blib/lib/:../smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+    local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
     my $tmp = tmpnam;
     compile_via_c($m0ld,$tmp);
     if ($valgrind) {

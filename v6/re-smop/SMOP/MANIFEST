@@ -1,0 +1,8 @@
+Changes
+Makefile.PL
+MANIFEST
+ppport.h
+README
+SMOP.xs
+t/SMOP.t
+lib/SMOP.pm
