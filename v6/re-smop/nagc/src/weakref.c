@@ -41,9 +41,11 @@ void smop_nagc_weakref_dereg(SMOP__NAGC__WeakRef* value) {
   while (current) {
     if (current[0] == value) {
       void** next = (void**)current[1];
-      current[0] = next[0];
-      current[1] = next[1];
-      free(next);
+      if (next) {
+        current[0] = next[0];
+        current[1] = next[1];
+        free(next);
+      }
       break;
     }
     current = (void**)current[1];

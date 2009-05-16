@@ -32,3 +32,7 @@
   SMOP__p6opaque_default_how = smop_nagc_alloc(sizeof(smop_p6opaque_default_how_struct));
   SMOP__p6opaque_default_how->RI = (SMOP__ResponderInterface*)RI;
 %}
+
+%destr {
+  SMOP_RELEASE(interpreter,SMOP__p6opaque_default_how);
+%}
