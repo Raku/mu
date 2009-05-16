@@ -1,9 +1,18 @@
 %prefix smop_bool_message
+%idconst False()
+%idconst True()
 %method FETCH
     ___VALUE_FETCH___;
 
 %method STORE
     ___VALUE_STORE___;
+
+%method Str
+    if (invocant == SMOP__NATIVE__bool_false) {
+       return SMOP__ID__FalseParenThesis;
+    } else {
+       return SMOP__ID__TrueParenThesis;
+    }
 
 %method true
     ret = SMOP_REFERENCE(interpreter,invocant);
