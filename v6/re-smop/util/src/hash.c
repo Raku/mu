@@ -2,6 +2,7 @@
 
 smop_util_hash* smop_util_hash_create(SMOP__Object* interpreter,int size) {
   smop_util_hash* ret = malloc(sizeof(smop_util_hash));
+  printf("Created an inner hash <%p>\n",ret);
   ret->size = size;
   ret->content = calloc(ret->size,sizeof(smop_util_hash_bucket*));
   return ret;
@@ -19,6 +20,7 @@ void smop_util_hash_destr(SMOP__Object* interpreter,smop_util_hash* hash) {
     }
   }
   free(hash->content);
+  printf("Destroyed an inner hash <%p>\n",hash);
   free(hash);
 }
 
