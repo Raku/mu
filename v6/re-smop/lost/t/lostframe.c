@@ -96,6 +96,7 @@ int main() {
 
 
   smop_lost_destr();
+  smop_native_destr(interpreter);
   smop_interpreter_destr();
   smop_capture_destr();
   smop_nagc_destr();
