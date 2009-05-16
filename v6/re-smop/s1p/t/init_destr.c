@@ -23,12 +23,10 @@ int main(int argc, char** argv) {
 
   SMOP__Object* interpreter = SMOP_interpreter_create(SMOP__EmptyInterpreter);
 
-  printf("1..1\nok 1 - memory test only... look for valgrind output...\n");
   smop_native_init(interpreter);
   smop_s1p_init(interpreter);
 
-  smop_s1p_destr(interpreter);
-  smop_native_destr(interpreter);
+  printf("1..1\nok 1 - memory test only... look for valgrind output...\n");
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
                 SMOP__NATIVE__idconst_create("loop"),
@@ -50,7 +48,32 @@ int main(int argc, char** argv) {
                     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
                     (SMOP__Object*[]) {NULL}));
 
+  smop_s1p_destr(interpreter);
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__NATIVE__idconst_create("loop"),
+                SMOP__NATIVE__capture_create(
+                    interpreter,
+                    (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL}
+                    ,(SMOP__Object*[]) {NULL}));
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+    SMOP__NATIVE__idconst_create("goto"),
+    SMOP__NATIVE__capture_create(
+        interpreter,
+        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),SMOP__NATIVE__bool_false,NULL}
+        ,(SMOP__Object*[]) {NULL}));
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__NATIVE__idconst_create("loop") , SMOP__NATIVE__capture_create(
+                    interpreter,
+                    (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+                    (SMOP__Object*[]) {NULL}));
+
+  smop_native_destr(interpreter);
+
   SMOP_RELEASE(SMOP__EmptyInterpreter,interpreter);
+
 
   smop_mold_destr();
   smop_interpreter_destr();
