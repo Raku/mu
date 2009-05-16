@@ -22,7 +22,10 @@ SMOP__Object* SMOP__S1P__Code_create() {
 %}
 
 %init {
-    SMOP__Mold__Frame_proto = SMOP__Proto__create(SMOP__Mold__Frame);
+  SMOP__Mold__Frame_proto = SMOP__Proto__create(SMOP__Mold__Frame);
+%}
+%destr {
+  SMOP_RELEASE(interpreter,SMOP__Mold__Frame_proto);
 %}
 
 %method new

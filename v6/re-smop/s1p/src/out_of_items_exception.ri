@@ -13,6 +13,9 @@
 %init {
   SMOP__capture = SMOP__Proto__create(SMOP__capture__RI);
 %}
+%destr {
+  SMOP_RELEASE(interpreter,SMOP__capture);
+%}
 %method new
     SMOP__Object* exc = smop_nagc_alloc(sizeof(smop_s1p_out_of_items_exception_struct));
     exc->RI = (SMOP__ResponderInterface*)RI;
