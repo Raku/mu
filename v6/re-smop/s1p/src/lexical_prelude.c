@@ -49,6 +49,8 @@ void smop_s1p_lexical_prelude_init(SMOP__Object* interpreter) {
   smop_s1p_lexical_prelude_insert(interpreter,"LexicalScope",SMOP_REFERENCE(interpreter,SMOP__S1P__LexicalScope));
   smop_s1p_lexical_prelude_insert(interpreter,"ControlExceptionReturn",
                                   SMOP_REFERENCE(interpreter,SMOP__ControlExceptionReturn));
+  smop_s1p_lexical_prelude_insert(interpreter,"OutOfItemsException",
+                                  SMOP_REFERENCE(interpreter,SMOP__OutOfItemsException));
   smop_s1p_lexical_prelude_insert(interpreter,"Scalar",SMOP_REFERENCE(interpreter,SMOP__S1P__Scalar));
   smop_s1p_lexical_prelude_insert(interpreter,"Hash",SMOP__S1P__Hash_create(interpreter));
   smop_s1p_lexical_prelude_insert(interpreter,"Package",SMOP_REFERENCE(interpreter,SMOP__S1P__Package));

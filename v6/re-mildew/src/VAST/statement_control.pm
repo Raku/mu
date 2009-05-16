@@ -50,7 +50,7 @@ sub emit_m0ld {
         call 'set_control' => (call 'continuation' => reg '$interpreter'), [ code($m->{block},FETCH(lookup('$DefaultBlockSignature'))) ];
     } elsif ($m->{sym} eq 'CATCH') {
         # the same for CATCH blocks.
-        call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($m->{block}) ];
+        call 'set_catch' => (call 'continuation' => reg '$interpreter'), [ code($m->{block},FETCH(lookup('$DefaultBlockSignature'))) ];
 
     } elsif ($m->{sym} eq 'loop') {
         AST::Loop->new(code => call('postcircumfix:( )',code($m->{block}),[capturize([])]));

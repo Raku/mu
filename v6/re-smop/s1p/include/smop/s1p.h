@@ -3,7 +3,6 @@
 #define SMOP_S1P_H
 
 #include <smop/base.h>
-extern SMOP__Object* SMOP__S1P__Capturize;
 extern SMOP__Object* SMOP__S1P__ritest;
 extern SMOP__Object* SMOP__S1P__LexicalScope;
 extern SMOP__Object* SMOP__S1P__FlattenedScope;
@@ -15,6 +14,7 @@ extern SMOP__Object* SMOP__S1P__Array;
 extern SMOP__Object* SMOP__MildewSOLoader;
 extern SMOP__Object* SMOP__ControlExceptionReturn;
 extern SMOP__Object* SMOP__S1P__AdhocSignature;
+extern SMOP__Object* SMOP__OutOfItemsException;
 
 void smop_s1p_lexical_prelude_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj);
 
@@ -58,6 +58,10 @@ void smop_s1p_array_destr(SMOP__Object* interpreter);
 
 void smop_s1p_array_proxy_init(SMOP__Object* interpreter);
 void smop_s1p_array_proxy_destr(SMOP__Object* interpreter);
+
+void smop_s1p_out_of_items_exception_init(SMOP__Object* interpreter);
+
+void smop_s1p_out_of_items_exception_destr(SMOP__Object* interpreter);
 
 void smop_s1p_package_init(SMOP__Object* interpreter);
 void smop_s1p_package_destr(SMOP__Object* interpreter);
