@@ -38,6 +38,26 @@
   smop_s1p_destr(interpreter);
   smop_native_destr(interpreter);
 
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__NATIVE__idconst_create("loop"),
+                SMOP__NATIVE__capture_create(
+                    interpreter,
+                    (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL}
+                    ,(SMOP__Object*[]) {NULL}));
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+    SMOP__NATIVE__idconst_create("goto"),
+    SMOP__NATIVE__capture_create(
+        interpreter,
+        (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),SMOP__NATIVE__bool_false,NULL}
+        ,(SMOP__Object*[]) {NULL}));
+
+  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
+                SMOP__NATIVE__idconst_create("loop") , SMOP__NATIVE__capture_create(
+                    interpreter,
+                    (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
+                    (SMOP__Object*[]) {NULL}));
+
   SMOP_RELEASE(SMOP__EmptyInterpreter,interpreter);
 
   smop_mold_destr();
