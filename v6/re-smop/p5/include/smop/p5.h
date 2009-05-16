@@ -26,4 +26,7 @@ void smop_p5_sv_destr(SMOP__Object* interpreter);
 
 void smop_p5_coro_init(SMOP__Object* interpreter);
 void smop_p5_coro_destr(SMOP__Object* interpreter);
+
+void smop_p5_init(SMOP__Object* interpreter);
+void smop_p5_destr(SMOP__Object* interpreter);
 #endif

@@ -18,9 +18,9 @@
   ((smop_s1p_flattenedscope_struct*)ret)->lexical = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
 
 %method postcircumfix:{ }
-  smop_nagc_rdlock(invocant);
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
   SMOP__Object* lexical = ((smop_s1p_flattenedscope_struct*)invocant)->lexical;
-  smop_nagc_unlock(invocant);
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
   SMOP__Object* symbol = SMOP__NATIVE__capture_positional(interpreter,capture,1);
   ret = SMOP_DISPATCH(interpreter, SMOP_RI(lexical),
     SMOP__ID__lookup,
@@ -32,9 +32,9 @@
     ));
 
 %DESTROYALL {
-    smop_nagc_wrlock(invocant);
+    smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
     SMOP__Object* lexical = ((smop_s1p_flattenedscope_struct*)invocant)->lexical;
-    smop_nagc_unlock(invocant);
+    smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
     SMOP_RELEASE(interpreter,lexical);
     SMOP_RELEASE(interpreter,RI);
 %}

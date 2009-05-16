@@ -8,6 +8,8 @@
 #include <smop/s1p.h>
 #include <smop/lost.h>
 #include <smop/p6opaque.h>
+#include <smop/p5.h>
+#include <smop/s1p-oo.h>
 #include <stdio.h>
 
 int main(int argc, char** argv) {

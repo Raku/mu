@@ -1,4 +1,5 @@
 #include <smop/base.h>
+#include <smop/s1p-oo.h>
 void smop_s1p_oo_init(SMOP__Object* interpreter) {
   smop_pureprototypehow_init(interpreter);
   smop_s1p_oo_attribute_init(interpreter);
