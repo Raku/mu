@@ -74,7 +74,7 @@ static SMOP__Object* release_code(SMOP__Object* interpreter,
       smop_nagc_weakref_cleanup((SMOP__NAGC__Object*)obj);
       ri->DESTROYALL(interpreter, obj);
       if (shouldfree) {
-        smop_nagc_free(obj);
+        smop_nagc_free((SMOP__NAGC__Object*)obj);
         return NULL;
       } else {
         return obj;
@@ -96,12 +96,12 @@ void smop_nagc_free(SMOP__NAGC__Object* obj) {
 SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
                                 SMOP__ResponderInterface* responder,
                                 SMOP__Object* obj) {
-  release_code(interpreter,responder,obj,1);
+  return release_code(interpreter,responder,obj,1);
 }
 SMOP__Object* smop_nagc_release_nofree(SMOP__Object* interpreter,
                                        SMOP__ResponderInterface* responder,
                                        SMOP__Object* obj) {
-  release_code(interpreter,responder,obj,0);
+  return release_code(interpreter,responder,obj,0);
 }
 
 SMOP__Object* smop_nagc_weakref(SMOP__Object* interpreter,

@@ -71,7 +71,7 @@ static SMOP__Object* primitive_idconst_eq(SMOP__Object* interpreter,SMOP__Object
     return ret;
 }
 
-static SMOP__Object* insert_primitive(SMOP__Object* interpreter,SMOP__Object* package,char* name,SMOP__Object* obj) {
+static void insert_primitive(SMOP__Object* interpreter,SMOP__Object* package,char* name,SMOP__Object* obj) {
   SMOP_DISPATCH(interpreter,
                 SMOP_RI(package),
                 SMOP__NATIVE__idconst_create("bind_key"),

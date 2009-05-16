@@ -215,7 +215,7 @@ static SMOP__Object* message(SMOP__Object* interpreter,
                                      SMOP__Object* identifier,
                                      SMOP__Object* capture) {
 ];
-my $in_msg = $raw{inmessage};
+my $in_msg = $raw{inmessage} || '';
 my $message = $raw{message} || q[
   /*___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;*/
