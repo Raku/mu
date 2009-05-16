@@ -213,7 +213,7 @@ if ($B eq 'via-C') {
     my $tmp = tmpnam;
     compile_via_c($m0ld,$tmp);
     if ($valgrind) {
-        exec('valgrind','--leak-check=full',$tmp);
+        exec('valgrind','-q','--leak-check=full',$tmp);
     } else {
         exec($tmp);
     }
