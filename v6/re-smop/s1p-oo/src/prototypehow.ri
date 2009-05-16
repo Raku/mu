@@ -196,3 +196,7 @@
   how->RI = (SMOP__ResponderInterface*)RI;
   smop_s1p_lexical_prelude_insert(interpreter,"PrototypeHOW",how);
 %}
+
+%destr {
+  smop_s1p_lexical_prelude_insert(interpreter,"PrototypeHOW",SMOP__NATIVE__bool_false);
+%}
