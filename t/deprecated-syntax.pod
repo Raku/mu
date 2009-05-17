@@ -54,47 +54,22 @@ general C<undef>. The correct comparison is one of those:
     ok !$something.defined,  'description';
     ok $something ~~ undef,  'description';
 
-=head2 try takes a statement
-
-C<try> is followed by a statement, so
-
-  is try { $operation }, 'foo', '$operation worked'
-
-is parsed as
-  
-  is try( { $operation }, 'foo', '$operation worked')
-
-which means only one argument to C<is()>, but three to C<try>. So don't use
-this if it's not what you want. This is wrongly used in the test suite right
-now in multiple places.
-
-Use C<lives_ok> or C<dies_ok> where appropriate, or explicit parenthesis if
-C<try> if used as an expression.
-
-=head2 Interpolation in test descriptions
-
-    lives_ok({ $a := $b }, "can bind $b to $a";
-
-is certainly not what you want; remeber that variables in double quoted
-strings are interpolated, and use single quotes as string delimiters where
-appropriate.
-
 =head2 Special Pugs variables
 
 Some tests rely on C<$?PUGS_BACKEND> and similar variables. Since they are not
 specced, they cause failures on other implementations. Either remove these
-variables alltogether, or fudge them by prepending C<#?pugs emit> on every
+variables altogether, or fudge them by prepending C<#?pugs emit> on every
 such line.
 
 =head2 eval_dies_ok for tests that can fail at compile time
 
 C<dies_ok> should only be used for tests that have to fail at run time. For
-example non-existant subs are no such case. Always bare in mind that a clever
+example non-existent subs are no such case. Always bare in mind that a clever
 compiler might do some type inference and prove that there always will be an
 error, and throw it at compile time.
 
 If in doubt, use C<eval_dies_ok> instead. If you have a case where C<dies_ok>
-is fine, remeber to pass a code ref to it.
+is fine, remember to pass a code ref to it.
 
 =head2 .perl isn't canonical
 
@@ -102,7 +77,7 @@ The C<perl> method (which does roughly the same as perl 5's Data::Dumper)
 returns a string that, when evaluated, returns the same value as the original
 one.
 
-However it's result isn't guarantued to be of any canonical form, for example
+However it's result isn't guaranteed to be of any canonical form, for example
 C<Str.perl> might return any legal quoting syntax. Testing for the exact value
 of C<$anything.perl> is most likely an error
 
@@ -115,16 +90,10 @@ the time that's not what you want. The same goes for variables with the C<%>
 and C<&> sigil: an additional type constraint acts on the values (or the
 return value in case of C<&>).
 
-=head2 Junction.values is now Junction.eigenstates
+=head2 Junction.values is deprecated
 
-Calling C<.values> on a junction ordinarily autothreads. To get the values,
-use C<Junction.eigenstates>.
-
-=head2 Junctions are unordered
-
-Junctions are unordered assemblies, and C<Junction.eigenstates> returns these
-values in an arbitrary order, just like C<keys %hash> and the like. Don't rely
-on that order.
+Calling C<.values> on a junction ordinarily autothreads, calling C<.values> on
+each eigenstate.
 
 =head2 A note on :todo<bug> and similar
 
