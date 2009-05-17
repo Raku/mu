@@ -13,6 +13,7 @@ void smop_util_hash_destr(SMOP__Object* interpreter,smop_util_hash* hash) {
     smop_util_hash_bucket* bucket = hash->content[i];
     while (bucket) {
       SMOP_RELEASE(interpreter,bucket->value);
+      SMOP_RELEASE(interpreter,bucket->key);
       smop_util_hash_bucket* next = bucket->next;
       free(bucket);
       bucket = next;
@@ -20,6 +21,30 @@ void smop_util_hash_destr(SMOP__Object* interpreter,smop_util_hash* hash) {
   }
   free(hash->content);
   free(hash);
+}
+smop_util_hash* smop_util_hash_copy(SMOP__Object* interpreter,smop_util_hash* hash) {
+  smop_util_hash* ret = malloc(sizeof(smop_util_hash));
+  ret->size = hash->size;
+  ret->content = calloc(ret->size,sizeof(smop_util_hash_bucket*));
+  int i;
+  for (i=0;i < hash->size;i++) {
+    smop_util_hash_bucket* bucket = hash->content[i];
+    smop_util_hash_bucket* new_bucket = bucket ? (smop_util_hash_bucket*) malloc(sizeof(smop_util_hash_bucket)) : NULL;
+    ret->content[i] = new_bucket;
+    while (bucket) {
+      new_bucket->value = SMOP_REFERENCE(interpreter,bucket->value);
+      new_bucket->key = SMOP_REFERENCE(interpreter,bucket->key);
+      smop_util_hash_bucket* next = bucket->next;
+      if (next) {
+       smop_util_hash_bucket* new_next = (smop_util_hash_bucket*) malloc(sizeof(smop_util_hash_bucket));
+       new_bucket->next = new_next;
+       new_bucket = new_next;
+      }
+      bucket = next;
+    }
+    if (new_bucket) new_bucket->next = NULL;
+  }
+  return ret;
 }
 
 void smop_util_hash_set(SMOP__Object* interpreter,smop_util_hash* hash,SMOP__Object* key,SMOP__Object* value) {
