@@ -1,12 +1,6 @@
-use v6;
-
 module ArrayInit;
 
-=begin kwid
-
-This module is a helper to init-in-exported-sub.t -- masak 2007-09-02
-
-=end kwid
+# used by t/spec/S10-packages/basic.t
 
 sub array_init() is export {
     my @array;
