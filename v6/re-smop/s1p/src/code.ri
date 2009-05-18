@@ -86,7 +86,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
     code->outer = NULL;
     smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
 
-    //if (mold) SMOP_RELEASE(interpreter,mold);
+    if (mold) SMOP_RELEASE(interpreter,mold);
     if (signature) SMOP_RELEASE(interpreter,signature);
     if (outer) SMOP_RELEASE(interpreter,outer);
 
