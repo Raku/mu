@@ -86,8 +86,8 @@ sub run {
     my $newline = '␤';
     $response =~ s/\n/$newline/g;
     if (length $response > $max_output_len){
-        $response = substr $response, 0, $max_output_len - 3;
-        $response .= '...';
+        $response = substr $response, 0, $max_output_len - 1;
+        $response .= '…';
     }
     return $response;
 }
