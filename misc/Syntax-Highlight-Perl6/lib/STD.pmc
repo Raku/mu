@@ -485,7 +485,7 @@ my $name = shift;
 my $scope = $::SCOPE // 'our';
 # say "Adding $::SCOPE $name in $::PKGNAME";
 if ($scope eq 'augment' or $scope eq 'supersede') {
-$self->is_name($name) or $self->panic("Can't $scope a non-existent type");
+$self->is_name($name) or $self->worry("Can't $scope a non-existent type");
 }
 elsif ($scope eq 'our') {
 $self->add_our_name($name);
@@ -4642,6 +4642,8 @@ else {
 ##              ]
 ##          | 'begin' » :: \h* [ $$ || '#' || <.panic: "Unrecognized token after =begin"> ]
 ##              [ .*?  "\n=" <.unsp>? 'end' » \N* || <.panic: "=begin without =end"> ]   {*}       #= anon
+##          | 'for' » :: \h* [ <identifier> || $$ || '#' || <.panic: "Unrecognized token after =for"> ]
+##              [.*?  ^^ \h* $$ || .*]
 ##          | :: 
 ##              [ <?before .*? ^^ '=cut' » > <.panic: "Obsolete pod format, please use =begin/=end instead"> ]?
 ##              \N*                                           {*}       #= misc
@@ -4782,6 +4784,46 @@ eval { push @gather, $C->panic("Unrecognized token after =begin")} or do { die $
 }, $C->_COMMITBRANCH())
 }, $C->_PATTERN(qr/\G\b/))
 }, $C->_EXACT('begin'))
+},
+sub { my $C=shift;
+Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+$C->_BRACKET( sub { my $C=shift;
+do { my @gather;
+eval { push @gather, Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
+$C->_PATTERN(qr/\G(?m:$)/)
+}, $C->_PATTERN(qr/\G((?:[\x20\t\r])*+)/))
+}, $C->_PATTERN(qr/\G(?m:^)/))
+}, $C->_SCANf())} // do {die $@ if $@ and $@ !~ /ABORT/;1} 
+or
+eval { push @gather, $C->_SCANg()} or do { die $@ if $@ };
+@gather;
+}
+})
+}, $C->_BRACKET( sub { my $C=shift;
+do { my @gather;
+eval { push @gather, $C->_SUBSUME(['identifier'], sub {
+my $C = shift;
+$C->identifier
+})} // do {die $@ if $@ and $@ !~ /ABORT/;1} 
+or
+eval { push @gather, $C->_PATTERN(qr/\G(?m:$)/)} // do {die $@ if $@ and $@ !~ /ABORT/;1} 
+or
+eval { push @gather, $C->_EXACT('#')} // do {die $@ if $@ and $@ !~ /ABORT/;1} 
+or
+eval { push @gather, $C->panic("Unrecognized token after =for")} or do { die $@ if $@ };
+@gather;
+}
+}))
+}, $C->_PATTERN(qr/\G((?:[\x20\t\r])*+)/))
+}, $C->_COMMITBRANCH())
+}, $C->_PATTERN(qr/\G\b/))
+}, $C->_EXACT('for'))
 },
 sub { my $C=shift;
 Cursor::lazymap(sub { my $C=$_[0];
@@ -5538,10 +5580,10 @@ else {
 ##          [
 ##          | <?before \h* $$>  # (usual case without comments)
 ##              { @*MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple 
-##          | \h* <.unsp>? <?before <[,:]>> {*}                         #= normal 
+##          | \h* <?before <[\\,:]>> {*}                         #= normal 
 ##          | <.unv>? $$
 ##              { @*MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex
-##          | <.unsp>? { @*MEMOS[$¢.pos]<endargs> = 1; } {*}             #= endargs
+##          | {} <.unsp>? { @*MEMOS[$¢.pos]<endargs> = 1; } {*}             #= endargs
 ##          ]
 ##      }
 
@@ -5604,13 +5646,9 @@ $C->_PATTERN(qr/\G(?m:$)/)
 sub { my $C=shift;
 Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
-Cursor::lazymap(sub { my $C=$_[0];
 $C->_REDUCE($S, 'blockoid_normal_')
 }, $C->before(sub { my $C=shift;
-$C->_PATTERN(qr/\G[,:]/)
-}))
-}, $C->_OPTr(sub { my $C=shift;
-$C->unsp
+$C->_PATTERN(qr/\G[\\,:]/)
 }))
 }, $C->_PATTERN(qr/\G((?:[\x20\t\r])*+)/))
 },
@@ -5630,6 +5668,7 @@ $C->unv
 sub { my $C=shift;
 Cursor::lazymap(sub { my $C=$_[0];
 Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
 $C->_REDUCE($S, 'blockoid_endargs')
 }, scalar(do {
 $::MEMOS[$C->{'_pos'}]{'endargs'} = 1; 
@@ -5637,6 +5676,9 @@ $::MEMOS[$C->{'_pos'}]{'endargs'} = 1;
 }, $C->_OPTr(sub { my $C=shift;
 $C->unsp
 }))
+}, scalar(do {
+
+}, $C))
 },
 )[$try])->($C);
 last if @gather;
@@ -5768,10 +5810,10 @@ else {
 ##          [
 ##          | <?before \h* $$>  # (usual case without comments)
 ##              { @*MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple 
-##          | \h* <.unsp>? <?before <[,:]>> {*}                         #= normal 
+##          | \h* <?before <[\\,:]>> {*}                         #= normal 
 ##          | <.unv>? $$
 ##              { @*MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex
-##          | <.unsp>? { @*MEMOS[$¢.pos]<endargs> = 1; }   {*}           #= endargs
+##          | {} <.unsp>? { @*MEMOS[$¢.pos]<endargs> = 1; }   {*}           #= endargs
 ##          ]
 ##      }
 
@@ -5889,19 +5931,10 @@ sub { my $C=shift;
 do {
 if (my ($C) = ($C->_PATTERN(qr/\G((?:[\x20\t\r])*+)/))) {
 do {
-if (my ($C) = ($C->_OPTr(sub { my $C=shift;
-$C->unsp
-}))) {
-do {
 if (my ($C) = ($C->before(sub { my $C=shift;
-$C->_PATTERN(qr/\G[,:]/)
+$C->_PATTERN(qr/\G[\\,:]/)
 }))) {
 $C->_REDUCE($S, 'regex_block_normal_');
-}
-else {
-();
-}
-};
 }
 else {
 ();
@@ -5943,6 +5976,10 @@ else {
 },
 sub { my $C=shift;
 do {
+if (my ($C) = (scalar(do {
+
+}, $C))) {
+do {
 if (my ($C) = ($C->_OPTr(sub { my $C=shift;
 $C->unsp
 }))) {
@@ -5951,6 +5988,11 @@ if (my ($C) = (scalar(do {
 $::MEMOS[$C->{'_pos'}]{'endargs'} = 1; 
 }, $C))) {
 $C->_REDUCE($S, 'regex_block_endargs');
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -13215,7 +13257,11 @@ else {
 }
 
 ## token postfix_prefix_meta_operator__S_102Nch (:$sym is context<rw> = < » >)
-##      token postfix_prefix_meta_operator:sym< » >    { <sym> | '>>' }
+##      token postfix_prefix_meta_operator:sym< » >    {
+##          [ <sym> | '>>' ]
+##          # require >>.( on interpolated hypercall so infix:«$s»($a,$b) {...} dwims
+##          [<!{ $*INTERPOLATION }> || <!before '('> ]
+##      }
 
 sub postfix_prefix_meta_operator__S_102Nch__PEEK { $_[0]->_AUTOLEXpeek('postfix_prefix_meta_operator__S_102Nch',$retree) }
 sub postfix_prefix_meta_operator__S_102Nch {
@@ -13231,6 +13277,8 @@ $C->{'sym'} = $sym;
 
 $self->_MATCHIFYr($S, "postfix_prefix_meta_operator__S_102Nch", 
 do {
+if (my ($C) = ($C->_BRACKETr( sub { my $C=shift;
+do {
 my @result = eval {
 my $trystate;
 my ($tag, $try);
@@ -13238,8 +13286,8 @@ my @try;
 my $relex;
 
 my $fate;
-if ($fate = $C->{'_fate'} and $fate->[1] eq 'postfix_prefix_meta_operator__S_102Nch_00') {
-$C->deb("Fate passed to postfix_prefix_meta_operator__S_102Nch_00: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
+if ($fate = $C->{'_fate'} and $fate->[1] eq 'postfix_prefix_meta_operator__S_102Nch_01') {
+$C->deb("Fate passed to postfix_prefix_meta_operator__S_102Nch_01: ", ::fatestr($fate)) if $::DEBUG & DEBUG::fates;
 ($C->{'_fate'}, $tag, $try) = @$fate;
 @try = ($try);
 }
@@ -13247,7 +13295,7 @@ $C->deb("Fate passed to postfix_prefix_meta_operator__S_102Nch_00: ", ::fatestr(
 my @gather = ();
 for (;;) {
 if (not @try) {
-$relex //= $C->cursor_fate('STD', 'postfix_prefix_meta_operator__S_102Nch_00', $retree);
+$relex //= $C->cursor_fate('STD', 'postfix_prefix_meta_operator__S_102Nch_01', $retree);
 @try = $relex->($C, $trystate);
 }
 last unless @try;
@@ -13257,7 +13305,7 @@ if (ref $try eq 'ARRAY') {
 ($C->{'_fate'}, $tag, $try) = @$try;	# next candidate fate
 }
 
-$C->deb("postfix_prefix_meta_operator__S_102Nch_00 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
+$C->deb("postfix_prefix_meta_operator__S_102Nch_01 trying $tag $try") if $::DEBUG & DEBUG::try_processing;
 push @gather, ((
 sub { my $C=shift;
 $C->_PATTERN(qr/\G»/)
@@ -13284,6 +13332,28 @@ else {
 }
 }
 
+}))) {
+$C->_BRACKETr( sub { my $C=shift;
+do { my @gather;
+eval { push @gather, $C->_NOTBEFORE( sub { my $C=shift;
+(($C) x !!do {
+$::INTERPOLATION 
+})
+})} // do {die $@ if $@ and $@ !~ /ABORT/;1} 
+or
+eval { push @gather, $C->_NOTBEFORE( sub { my $C=shift;
+$C->before(sub { my $C=shift;
+$C->_EXACT('(')
+})
+})} or do { die $@ if $@ };
+@gather;
+}
+});
+}
+else {
+();
+}
+}
 );
 }
 
@@ -31797,7 +31867,7 @@ else {
 
 ## token trait_auxiliary__S_271is (:$endsym is context = 'spacey', :$sym is context<rw> = 'is')
 ##      token trait_auxiliary:is {
-##          <sym> <.ws> <longname><postcircumfix>?  # e.g. context<rw> and Array[Int]
+##          <sym>:s <longname><postcircumfix>?  # e.g. context<rw> and Array[Int]
 ##      }
 
 sub trait_auxiliary__S_271is__PEEK { $_[0]->_AUTOLEXpeek('trait_auxiliary__S_271is',$retree) }
@@ -31826,12 +31896,19 @@ if (my ($C) = ($C->_SUBSUMEr(['longname'], sub {
 my $C = shift;
 $C->longname
 }))) {
-$C->_OPTr(sub { my $C=shift;
+do {
+if (my ($C) = ($C->_OPTr(sub { my $C=shift;
 $C->_SUBSUMEr(['postcircumfix'], sub {
 my $C = shift;
 $C->postcircumfix
 })
-});
+}))) {
+$C->ws;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -31856,7 +31933,7 @@ else {
 }
 ## token trait_auxiliary__S_272hides (:$endsym is context = 'spacey', :$sym is context<rw> = 'hides')
 ##      token trait_auxiliary:hides {
-##          <sym> <.ws> <module_name>
+##          <sym>:s <module_name>
 ##      }
 
 sub trait_auxiliary__S_272hides__PEEK { $_[0]->_AUTOLEXpeek('trait_auxiliary__S_272hides',$retree) }
@@ -31879,10 +31956,17 @@ do {
 if (my ($C) = ($C->spacey)) {
 do {
 if (my ($C) = ($C->ws)) {
-$C->_SUBSUMEr(['module_name'], sub {
+do {
+if (my ($C) = ($C->_SUBSUMEr(['module_name'], sub {
 my $C = shift;
 $C->module_name
-});
+}))) {
+$C->ws;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -31903,7 +31987,7 @@ else {
 ## token trait_auxiliary__S_273does (:$endsym is context = 'spacey', :$sym is context<rw> = 'does')
 ##      token trait_auxiliary:does {
 ##          :my $PKGDECL is context = 'role';
-##          <sym> <.ws> <module_name>
+##          <sym>:s <module_name>
 ##      }
 
 sub trait_auxiliary__S_273does__PEEK { $_[0]->_AUTOLEXpeek('trait_auxiliary__S_273does',$retree) }
@@ -31927,10 +32011,17 @@ do {
 if (my ($C) = ($C->spacey)) {
 do {
 if (my ($C) = ($C->ws)) {
-$C->_SUBSUMEr(['module_name'], sub {
+do {
+if (my ($C) = ($C->_SUBSUMEr(['module_name'], sub {
 my $C = shift;
 $C->module_name
-});
+}))) {
+$C->ws;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -31950,7 +32041,7 @@ else {
 }
 ## token trait_auxiliary__S_274will (:$endsym is context = 'spacey', :$sym is context<rw> = 'will')
 ##      token trait_auxiliary:will {
-##          <sym> <.ws> <identifier> <.ws> <block>
+##          <sym>:s <identifier> <block>
 ##      }
 
 sub trait_auxiliary__S_274will__PEEK { $_[0]->_AUTOLEXpeek('trait_auxiliary__S_274will',$retree) }
@@ -31980,10 +32071,17 @@ $C->identifier
 }))) {
 do {
 if (my ($C) = ($C->ws)) {
-$C->_SUBSUMEr(['block'], sub {
+do {
+if (my ($C) = ($C->_SUBSUMEr(['block'], sub {
 my $C = shift;
 $C->block
-});
+}))) {
+$C->ws;
+}
+else {
+();
+}
+};
 }
 else {
 ();
@@ -32012,8 +32110,8 @@ else {
 );
 }
 
-## rule trait_verb__S_275of (:$endsym is context = 'spacey', :$sym is context<rw> = 'of')
-##      rule trait_verb:of      {<sym> <typename> }
+## token trait_verb__S_275of (:$endsym is context = 'spacey', :$sym is context<rw> = 'of')
+##      token trait_verb:of      { <sym>:s <typename> }
 
 sub trait_verb__S_275of__PEEK { $_[0]->_AUTOLEXpeek('trait_verb__S_275of',$retree) }
 sub trait_verb__S_275of {
@@ -32063,8 +32161,8 @@ else {
 }
 );
 }
-## rule trait_verb__S_276as (:$endsym is context = 'spacey', :$sym is context<rw> = 'as')
-##      rule trait_verb:as      {<sym> <typename> }
+## token trait_verb__S_276as (:$endsym is context = 'spacey', :$sym is context<rw> = 'as')
+##      token trait_verb:as      { <sym>:s <typename> }
 
 sub trait_verb__S_276as__PEEK { $_[0]->_AUTOLEXpeek('trait_verb__S_276as',$retree) }
 sub trait_verb__S_276as {
@@ -32114,8 +32212,8 @@ else {
 }
 );
 }
-## rule trait_verb__S_277returns (:$endsym is context = 'spacey', :$sym is context<rw> = 'returns')
-##      rule trait_verb:returns {<sym> <typename> }
+## token trait_verb__S_277returns (:$endsym is context = 'spacey', :$sym is context<rw> = 'returns')
+##      token trait_verb:returns { <sym>:s <typename> }
 
 sub trait_verb__S_277returns__PEEK { $_[0]->_AUTOLEXpeek('trait_verb__S_277returns',$retree) }
 sub trait_verb__S_277returns {
@@ -32165,8 +32263,8 @@ else {
 }
 );
 }
-## rule trait_verb__S_278handles (:$endsym is context = 'spacey', :$sym is context<rw> = 'handles')
-##      rule trait_verb:handles {<sym> <noun> }
+## token trait_verb__S_278handles (:$endsym is context = 'spacey', :$sym is context<rw> = 'handles')
+##      token trait_verb:handles { <sym>:s <noun> }
 
 sub trait_verb__S_278handles__PEEK { $_[0]->_AUTOLEXpeek('trait_verb__S_278handles',$retree) }
 sub trait_verb__S_278handles {
@@ -58662,7 +58760,7 @@ $line++;
 $::MEMOS[$pos++]{'L'} = $line
 for 1 .. length($_);
 }
-$::MEMOS[$pos++]{'L'} = 'EOF';
+$::MEMOS[$pos++]{'L'} = $line;
 return $::MEMOS[$p]{'L'} // 0;
 }
 
@@ -58755,7 +58853,7 @@ POST: !!perl/hash:RE
           decl: []
 
           min: 1
-          re: &16 !!perl/hash:RE_any 
+          re: &15 !!perl/hash:RE_any 
             a: 0
             altname: POST_01
             dba: POST
@@ -58984,7 +59082,7 @@ POST: !!perl/hash:RE
         r: 1
         s: 0
         text: " $*SIGIL = '@'; "
-POST_01: *16
+POST_01: *15
 POST_04: *58
 PRE: !!perl/hash:RE 
   decl: []
@@ -60074,23 +60172,6 @@ blockoid: !!perl/hash:RE
                     - ":"
                     - ''
                     - 0
-                - !!perl/hash:RE_quantified_atom 
-                  atom: !!perl/hash:RE_method 
-                    a: 0
-                    dba: blockoid
-                    i: 0
-                    min: 12345
-                    name: unsp
-                    nobind: 1
-                    r: 1
-                    rest: ''
-                    s: 0
-                  min: 0
-                  quant: 
-                    - "?"
-                    - ":"
-                    - ''
-                    - 0
                 - !!perl/hash:RE_assertion 
                   assert: "?"
                   min: 0
@@ -60113,7 +60194,7 @@ blockoid: !!perl/hash:RE
                         min: 1
                         r: 1
                         s: 0
-                        text: "[,:]"
+                        text: "[\\\\,:]"
                     s: 0
                 - !!perl/hash:RE_method_internal 
                   args: $S, 'blockoid_normal_'
@@ -60177,6 +60258,15 @@ blockoid: !!perl/hash:RE
               r: 1
               s: 0
               zyg: 
+                - !!perl/hash:RE_block 
+                  a: 0
+                  context: void
+                  dba: blockoid
+                  i: 0
+                  min: 0
+                  r: 1
+                  s: 0
+                  text: ''
                 - !!perl/hash:RE_quantified_atom 
                   atom: !!perl/hash:RE_method 
                     a: 0
@@ -63028,7 +63118,7 @@ declarator: !!perl/hash:RE
     decl: []
 
     min: 12345
-    re: &14 !!perl/hash:RE_any 
+    re: &13 !!perl/hash:RE_any 
       a: 0
       altname: declarator_01
       dba: declarator
@@ -63164,7 +63254,7 @@ declarator: !!perl/hash:RE
           r: 1
           rest: ''
           s: 0
-declarator_01: *14
+declarator_01: *13
 def_module_name: !!perl/hash:RE 
   decl: []
 
@@ -64102,7 +64192,7 @@ foo: !!perl/hash:RE
               decl: []
 
               min: 12345
-              re: &10 !!perl/hash:RE_any 
+              re: &9 !!perl/hash:RE_any 
                 a: 0
                 altname: foo_02
                 dba: foo
@@ -64167,7 +64257,7 @@ foo: !!perl/hash:RE
               r: 1
               rest: ''
               s: 0
-foo_02: *10
+foo_02: *9
 foo_03: *136
 hexint: !!perl/hash:RE 
   decl: []
@@ -69083,7 +69173,7 @@ macro_def: !!perl/hash:RE
                     decl: []
 
                     min: 12345
-                    re: &11 !!perl/hash:RE_any 
+                    re: &10 !!perl/hash:RE_any 
                       a: 0
                       altname: macro_def_03
                       dba: macro_def
@@ -69225,7 +69315,7 @@ macro_def: !!perl/hash:RE
             noquant: 1
             rest: ''
 macro_def_02: *115
-macro_def_03: *11
+macro_def_03: *10
 method_def: !!perl/hash:RE 
   decl: []
 
@@ -74389,7 +74479,7 @@ parameter: !!perl/hash:RE
                   decl: []
 
                   min: 12345
-                  re: &7 !!perl/hash:RE_any 
+                  re: &6 !!perl/hash:RE_any 
                     a: 0
                     altname: parameter_05
                     dba: parameter
@@ -74457,7 +74547,7 @@ parameter: !!perl/hash:RE
                   decl: []
 
                   min: 0
-                  re: &8 !!perl/hash:RE_any 
+                  re: &7 !!perl/hash:RE_any 
                     a: 0
                     altname: parameter_06
                     dba: parameter
@@ -74622,8 +74712,8 @@ parameter_01: *51
 parameter_02: *65
 parameter_03: *99
 parameter_04: *113
-parameter_05: *7
-parameter_06: *8
+parameter_05: *6
+parameter_06: *7
 pblock: !!perl/hash:RE 
   decl: []
 
@@ -75240,6 +75330,163 @@ pod_comment: !!perl/hash:RE
             - !!perl/hash:RE_sequence 
               a: 0
               alt: pod_comment_01 2
+              dba: pod_comment
+              i: 0
+              min: 4
+              r: 1
+              s: 0
+              zyg: 
+                - !!perl/hash:RE_string 
+                  a: 0
+                  dba: pod_comment
+                  i: 0
+                  min: 3
+                  r: 1
+                  s: 0
+                  text: for
+                - !!perl/hash:RE_meta 
+                  a: 0
+                  dba: pod_comment
+                  i: 0
+                  min: 0
+                  r: 1
+                  s: 0
+                  text: »
+                - !!perl/hash:RE_meta 
+                  a: 0
+                  dba: pod_comment
+                  i: 0
+                  min: 0
+                  r: 1
+                  s: 0
+                  text: "::"
+                - !!perl/hash:RE_quantified_atom 
+                  atom: !!perl/hash:RE_meta 
+                    a: 0
+                    dba: pod_comment
+                    i: 0
+                    min: 1
+                    r: 1
+                    s: 0
+                    text: \h
+                  min: 0
+                  quant: 
+                    - "*"
+                    - ":"
+                    - ''
+                    - 0
+                - !!perl/hash:RE_bracket 
+                  decl: []
+
+                  min: 0
+                  re: !!perl/hash:RE_first 
+                    a: 0
+                    dba: pod_comment
+                    i: 0
+                    min: 0
+                    r: 1
+                    s: 0
+                    zyg: 
+                      - !!perl/hash:RE_method 
+                        a: 0
+                        dba: pod_comment
+                        i: 0
+                        min: 12345
+                        name: identifier
+                        r: 1
+                        rest: ''
+                        s: 0
+                      - !!perl/hash:RE_meta 
+                        a: 0
+                        dba: pod_comment
+                        i: 0
+                        min: 0
+                        r: 1
+                        s: 0
+                        text: $$
+                      - !!perl/hash:RE_string 
+                        a: 0
+                        dba: pod_comment
+                        i: 0
+                        min: 1
+                        r: 1
+                        s: 0
+                        text: "#"
+                      - !!perl/hash:RE_method 
+                        min: 0
+                        name: panic
+                        nobind: 1
+                        rest: ("Unrecognized token after =for")
+                - !!perl/hash:RE_bracket 
+                  decl: []
+
+                  min: 1
+                  re: !!perl/hash:RE_first 
+                    a: 0
+                    dba: pod_comment
+                    i: 0
+                    min: 1
+                    r: 1
+                    s: 0
+                    zyg: 
+                      - !!perl/hash:RE_sequence 
+                        a: 0
+                        dba: pod_comment
+                        i: 0
+                        min: 1
+                        r: 1
+                        s: 0
+                        zyg: 
+                          - !!perl/hash:RE_meta 
+                            a: 0
+                            dba: pod_comment
+                            i: 0
+                            min: 1
+                            r: 1
+                            s: 0
+                            text: .*?
+                          - !!perl/hash:RE_meta 
+                            a: 0
+                            dba: pod_comment
+                            i: 0
+                            min: 0
+                            r: 1
+                            s: 0
+                            text: "^^"
+                          - !!perl/hash:RE_quantified_atom 
+                            atom: !!perl/hash:RE_meta 
+                              a: 0
+                              dba: pod_comment
+                              i: 0
+                              min: 1
+                              r: 1
+                              s: 0
+                              text: \h
+                            min: 0
+                            quant: 
+                              - "*"
+                              - ":"
+                              - ''
+                              - 0
+                          - !!perl/hash:RE_meta 
+                            a: 0
+                            dba: pod_comment
+                            i: 0
+                            min: 0
+                            r: 1
+                            s: 0
+                            text: $$
+                      - !!perl/hash:RE_meta 
+                        a: 0
+                        dba: pod_comment
+                        i: 0
+                        min: 1
+                        r: 1
+                        s: 0
+                        text: .*
+            - !!perl/hash:RE_sequence 
+              a: 0
+              alt: pod_comment_01 3
               dba: pod_comment
               i: 0
               min: 0
@@ -76027,44 +76274,105 @@ postfix_prefix_meta_operator__S_102Nch: !!perl/hash:RE
   kind: token
   min: 2
   pkg: ~
-  re: &3 !!perl/hash:RE_any 
+  re: !!perl/hash:RE_sequence 
     a: 0
-    altname: postfix_prefix_meta_operator__S_102Nch_00
     dba: postfix_prefix_meta_operator__S_102Nch
     i: 0
     min: 2
-    name: postfix_prefix_meta_operator__S_102Nch_00
     r: 1
     s: 0
     zyg: 
-      - !!perl/hash:RE_method 
-        a: 0
-        alt: postfix_prefix_meta_operator__S_102Nch_00 0
-        dba: postfix_prefix_meta_operator__S_102Nch
-        i: 0
-        min: 12345
-        name: sym
-        r: 1
-        rest: ''
-        s: 0
-        sym: »
-      - !!perl/hash:RE_string 
-        a: 0
-        alt: postfix_prefix_meta_operator__S_102Nch_00 1
-        dba: postfix_prefix_meta_operator__S_102Nch
-        i: 0
+      - !!perl/hash:RE_bracket 
+        decl: []
+
         min: 2
-        r: 1
-        s: 0
-        text: ">>"
-postfix_prefix_meta_operator__S_102Nch_00: *3
+        re: &17 !!perl/hash:RE_any 
+          a: 0
+          altname: postfix_prefix_meta_operator__S_102Nch_01
+          dba: postfix_prefix_meta_operator__S_102Nch
+          i: 0
+          min: 2
+          name: postfix_prefix_meta_operator__S_102Nch_01
+          r: 1
+          s: 0
+          zyg: 
+            - !!perl/hash:RE_method 
+              a: 0
+              alt: postfix_prefix_meta_operator__S_102Nch_01 0
+              dba: postfix_prefix_meta_operator__S_102Nch
+              i: 0
+              min: 12345
+              name: sym
+              r: 1
+              rest: ''
+              s: 0
+              sym: »
+            - !!perl/hash:RE_string 
+              a: 0
+              alt: postfix_prefix_meta_operator__S_102Nch_01 1
+              dba: postfix_prefix_meta_operator__S_102Nch
+              i: 0
+              min: 2
+              r: 1
+              s: 0
+              text: ">>"
+      - !!perl/hash:RE_bracket 
+        decl: []
+
+        min: 0
+        re: !!perl/hash:RE_first 
+          a: 0
+          dba: postfix_prefix_meta_operator__S_102Nch
+          i: 0
+          min: 0
+          r: 1
+          s: 0
+          zyg: 
+            - !!perl/hash:RE_assertion 
+              assert: "!"
+              min: 0
+              re: !!perl/hash:RE_block 
+                a: 0
+                context: bool
+                dba: postfix_prefix_meta_operator__S_102Nch
+                i: 0
+                min: 0
+                nobind: 1
+                r: 1
+                s: 0
+                text: " $*INTERPOLATION "
+            - !!perl/hash:RE_assertion 
+              assert: "!"
+              min: 0
+              re: !!perl/hash:RE_method_re 
+                a: 0
+                dba: postfix_prefix_meta_operator__S_102Nch
+                i: 0
+                min: 0
+                name: before
+                nobind: 1
+                r: 1
+                re: !!perl/hash:RE 
+                  decl: []
+
+                  min: 1
+                  re: !!perl/hash:RE_string 
+                    a: 0
+                    dba: postfix_prefix_meta_operator__S_102Nch
+                    i: 0
+                    min: 1
+                    r: 1
+                    s: 0
+                    text: (
+                s: 0
+postfix_prefix_meta_operator__S_102Nch_01: *17
 postop: !!perl/hash:RE 
   decl: []
 
   kind: token
   min: 12345
   pkg: ~
-  re: &9 !!perl/hash:RE_any 
+  re: &8 !!perl/hash:RE_any 
     a: 0
     altname: postop_00
     dba: postop
@@ -76128,7 +76436,7 @@ postop: !!perl/hash:RE
             r: 1
             s: 0
             text: " $<O> := $<postcircumfix><O>; $<sym> := $<postcircumfix><sym>; "
-postop_00: *9
+postop_00: *8
 prefix__S_313PlusPlus: !!perl/hash:RE 
   decl: []
 
@@ -77000,7 +77308,7 @@ prefix_postfix_meta_operator__S_101Fre: !!perl/hash:RE
   kind: token
   min: 2
   pkg: ~
-  re: &4 !!perl/hash:RE_any 
+  re: &3 !!perl/hash:RE_any 
     a: 0
     altname: prefix_postfix_meta_operator__S_101Fre_00
     dba: prefix_postfix_meta_operator__S_101Fre
@@ -77030,7 +77338,7 @@ prefix_postfix_meta_operator__S_101Fre: !!perl/hash:RE
         r: 1
         s: 0
         text: <<
-prefix_postfix_meta_operator__S_101Fre_00: *4
+prefix_postfix_meta_operator__S_101Fre_00: *3
 privop: !!perl/hash:RE 
   decl: []
 
@@ -79919,23 +80227,6 @@ regex_block: !!perl/hash:RE
                     - ":"
                     - ''
                     - 0
-                - !!perl/hash:RE_quantified_atom 
-                  atom: !!perl/hash:RE_method 
-                    a: 0
-                    dba: regex_block
-                    i: 0
-                    min: 12345
-                    name: unsp
-                    nobind: 1
-                    r: 1
-                    rest: ''
-                    s: 0
-                  min: 0
-                  quant: 
-                    - "?"
-                    - ":"
-                    - ''
-                    - 0
                 - !!perl/hash:RE_assertion 
                   assert: "?"
                   min: 0
@@ -79958,7 +80249,7 @@ regex_block: !!perl/hash:RE
                         min: 1
                         r: 1
                         s: 0
-                        text: "[,:]"
+                        text: "[\\\\,:]"
                     s: 0
                 - !!perl/hash:RE_method_internal 
                   args: $S, 'regex_block_normal_'
@@ -80022,6 +80313,15 @@ regex_block: !!perl/hash:RE
               r: 1
               s: 0
               zyg: 
+                - !!perl/hash:RE_block 
+                  a: 0
+                  context: void
+                  dba: regex_block
+                  i: 0
+                  min: 0
+                  r: 1
+                  s: 0
+                  text: ''
                 - !!perl/hash:RE_quantified_atom 
                   atom: !!perl/hash:RE_method 
                     a: 0
@@ -80324,7 +80624,7 @@ regex_def: !!perl/hash:RE
                     decl: []
 
                     min: 12345
-                    re: &15 !!perl/hash:RE_any 
+                    re: &14 !!perl/hash:RE_any 
                       a: 0
                       altname: regex_def_03
                       dba: regex_def
@@ -80533,7 +80833,7 @@ regex_def: !!perl/hash:RE
             noquant: 1
             rest: ''
 regex_def_02: *92
-regex_def_03: *15
+regex_def_03: *14
 routine_declarator__S_137sub: !!perl/hash:RE 
   decl: []
 
@@ -82260,7 +82560,7 @@ signature: !!perl/hash:RE
                     decl: []
 
                     min: 1
-                    re: &6 !!perl/hash:RE_any 
+                    re: &5 !!perl/hash:RE_any 
                       a: 0
                       altname: signature_02
                       dba: signature
@@ -82431,7 +82731,7 @@ signature: !!perl/hash:RE
         s: 0
         text: " $*SIGIL = '@'; $*CURPAD.{'$?GOTSIG'} ~= '(' ~ substr($*ORIG, $startpos, $¢.pos - $startpos) ~ ')'; "
 signature_01: *71
-signature_02: *6
+signature_02: *5
 sigterm: !!perl/hash:RE 
   decl: []
 
@@ -84478,7 +84778,7 @@ special_variable__S_171DollarPlus: !!perl/hash:RE
             decl: []
 
             min: 1
-            re: &13 !!perl/hash:RE_any 
+            re: &12 !!perl/hash:RE_any 
               a: 0
               altname: special_variable__S_171DollarPlus_01
               dba: special_variable__S_171DollarPlus
@@ -84522,7 +84822,7 @@ special_variable__S_171DollarPlus: !!perl/hash:RE
         name: obs
         nobind: 1
         rest: ('$+ variable', 'Form module')
-special_variable__S_171DollarPlus_01: *13
+special_variable__S_171DollarPlus_01: *12
 special_variable__S_172DollarCurCaret_Ly: !!perl/hash:RE 
   decl: []
 
@@ -87598,7 +87898,7 @@ statement_control__S_043repeat: !!perl/hash:RE
                     decl: []
 
                     min: 5
-                    re: &5 !!perl/hash:RE_any 
+                    re: &4 !!perl/hash:RE_any 
                       a: 0
                       altname: statement_control__S_043repeat_02
                       dba: statement_control__S_043repeat
@@ -87758,7 +88058,7 @@ statement_control__S_043repeat: !!perl/hash:RE
         noquant: 1
         rest: ''
 statement_control__S_043repeat_01: *120
-statement_control__S_043repeat_02: *5
+statement_control__S_043repeat_02: *4
 statement_control__S_043repeat_03: *132
 statement_control__S_044loop: !!perl/hash:RE 
   decl: []
@@ -93212,15 +93512,15 @@ trait_auxiliary__S_271is: !!perl/hash:RE
   decl: []
 
   kind: token
-  min: 49380
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: trait_auxiliary__S_271is
     i: 0
-    min: 49380
+    min: 37035
     r: 1
-    s: 0
+    s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
@@ -93244,15 +93544,11 @@ trait_auxiliary__S_271is: !!perl/hash:RE
         rest: ''
         s: 0
       - !!perl/hash:RE_method 
-        a: 0
-        dba: trait_auxiliary__S_271is
-        i: 0
-        min: 12345
+        min: 0
         name: ws
         nobind: 1
-        r: 1
+        noquant: 1
         rest: ''
-        s: 0
       - !!perl/hash:RE_method 
         a: 0
         dba: trait_auxiliary__S_271is
@@ -93261,7 +93557,7 @@ trait_auxiliary__S_271is: !!perl/hash:RE
         name: longname
         r: 1
         rest: ''
-        s: 0
+        s: 1
       - !!perl/hash:RE_quantified_atom 
         atom: !!perl/hash:RE_method 
           a: 0
@@ -93271,26 +93567,32 @@ trait_auxiliary__S_271is: !!perl/hash:RE
           name: postcircumfix
           r: 1
           rest: ''
-          s: 0
+          s: 1
         min: 0
         quant: 
           - "?"
           - ":"
           - ''
           - 0
+      - !!perl/hash:RE_method 
+        min: 0
+        name: ws
+        nobind: 1
+        noquant: 1
+        rest: ''
 trait_auxiliary__S_272hides: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 49380
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: trait_auxiliary__S_272hides
     i: 0
-    min: 49380
+    min: 37035
     r: 1
-    s: 0
+    s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
@@ -93314,15 +93616,11 @@ trait_auxiliary__S_272hides: !!perl/hash:RE
         rest: ''
         s: 0
       - !!perl/hash:RE_method 
-        a: 0
-        dba: trait_auxiliary__S_272hides
-        i: 0
-        min: 12345
+        min: 0
         name: ws
         nobind: 1
-        r: 1
+        noquant: 1
         rest: ''
-        s: 0
       - !!perl/hash:RE_method 
         a: 0
         dba: trait_auxiliary__S_272hides
@@ -93331,7 +93629,13 @@ trait_auxiliary__S_272hides: !!perl/hash:RE
         name: module_name
         r: 1
         rest: ''
-        s: 0
+        s: 1
+      - !!perl/hash:RE_method 
+        min: 0
+        name: ws
+        nobind: 1
+        noquant: 1
+        rest: ''
 trait_auxiliary__S_273does: !!perl/hash:RE 
   decl: 
     - !!perl/hash:RE_decl 
@@ -93344,15 +93648,15 @@ trait_auxiliary__S_273does: !!perl/hash:RE
       s: 0
       text: my $PKGDECL is context = 'role'
   kind: token
-  min: 49380
+  min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: trait_auxiliary__S_273does
     i: 0
-    min: 49380
+    min: 37035
     r: 1
-    s: 0
+    s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
@@ -93376,15 +93680,11 @@ trait_auxiliary__S_273does: !!perl/hash:RE
         rest: ''
         s: 0
       - !!perl/hash:RE_method 
-        a: 0
-        dba: trait_auxiliary__S_273does
-        i: 0
-        min: 12345
+        min: 0
         name: ws
         nobind: 1
-        r: 1
+        noquant: 1
         rest: ''
-        s: 0
       - !!perl/hash:RE_method 
         a: 0
         dba: trait_auxiliary__S_273does
@@ -93393,20 +93693,26 @@ trait_auxiliary__S_273does: !!perl/hash:RE
         name: module_name
         r: 1
         rest: ''
-        s: 0
+        s: 1
+      - !!perl/hash:RE_method 
+        min: 0
+        name: ws
+        nobind: 1
+        noquant: 1
+        rest: ''
 trait_auxiliary__S_274will: !!perl/hash:RE 
   decl: []
 
   kind: token
-  min: 74070
+  min: 49380
   pkg: ~
   re: !!perl/hash:RE_sequence 
     a: 0
     dba: trait_auxiliary__S_274will
     i: 0
-    min: 74070
+    min: 49380
     r: 1
-    s: 0
+    s: 1
     zyg: 
       - !!perl/hash:RE_method 
         a: 0
@@ -93430,15 +93736,11 @@ trait_auxiliary__S_274will: !!perl/hash:RE
         rest: ''
         s: 0
       - !!perl/hash:RE_method 
-        a: 0
-        dba: trait_auxiliary__S_274will
-        i: 0
-        min: 12345
+        min: 0
         name: ws
         nobind: 1
-        r: 1
+        noquant: 1
         rest: ''
-        s: 0
       - !!perl/hash:RE_method 
         a: 0
         dba: trait_auxiliary__S_274will
@@ -93447,17 +93749,13 @@ trait_auxiliary__S_274will: !!perl/hash:RE
         name: identifier
         r: 1
         rest: ''
-        s: 0
+        s: 1
       - !!perl/hash:RE_method 
-        a: 0
-        dba: trait_auxiliary__S_274will
-        i: 0
-        min: 12345
+        min: 0
         name: ws
         nobind: 1
-        r: 1
+        noquant: 1
         rest: ''
-        s: 0
       - !!perl/hash:RE_method 
         a: 0
         dba: trait_auxiliary__S_274will
@@ -93466,11 +93764,17 @@ trait_auxiliary__S_274will: !!perl/hash:RE
         name: block
         r: 1
         rest: ''
-        s: 0
+        s: 1
+      - !!perl/hash:RE_method 
+        min: 0
+        name: ws
+        nobind: 1
+        noquant: 1
+        rest: ''
 trait_verb__S_275of: !!perl/hash:RE 
   decl: []
 
-  kind: rule
+  kind: token
   min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
@@ -93490,7 +93794,7 @@ trait_verb__S_275of: !!perl/hash:RE
         name: sym
         r: 1
         rest: ''
-        s: 1
+        s: 0
         sym: of
       - !!perl/hash:RE_method 
         a: 0
@@ -93501,7 +93805,7 @@ trait_verb__S_275of: !!perl/hash:RE
         nobind: 1
         r: 1
         rest: ''
-        s: 1
+        s: 0
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -93526,7 +93830,7 @@ trait_verb__S_275of: !!perl/hash:RE
 trait_verb__S_276as: !!perl/hash:RE 
   decl: []
 
-  kind: rule
+  kind: token
   min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
@@ -93546,7 +93850,7 @@ trait_verb__S_276as: !!perl/hash:RE
         name: sym
         r: 1
         rest: ''
-        s: 1
+        s: 0
         sym: as
       - !!perl/hash:RE_method 
         a: 0
@@ -93557,7 +93861,7 @@ trait_verb__S_276as: !!perl/hash:RE
         nobind: 1
         r: 1
         rest: ''
-        s: 1
+        s: 0
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -93582,7 +93886,7 @@ trait_verb__S_276as: !!perl/hash:RE
 trait_verb__S_277returns: !!perl/hash:RE 
   decl: []
 
-  kind: rule
+  kind: token
   min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
@@ -93602,7 +93906,7 @@ trait_verb__S_277returns: !!perl/hash:RE
         name: sym
         r: 1
         rest: ''
-        s: 1
+        s: 0
         sym: returns
       - !!perl/hash:RE_method 
         a: 0
@@ -93613,7 +93917,7 @@ trait_verb__S_277returns: !!perl/hash:RE
         nobind: 1
         r: 1
         rest: ''
-        s: 1
+        s: 0
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -93638,7 +93942,7 @@ trait_verb__S_277returns: !!perl/hash:RE
 trait_verb__S_278handles: !!perl/hash:RE 
   decl: []
 
-  kind: rule
+  kind: token
   min: 37035
   pkg: ~
   re: !!perl/hash:RE_sequence 
@@ -93658,7 +93962,7 @@ trait_verb__S_278handles: !!perl/hash:RE
         name: sym
         r: 1
         rest: ''
-        s: 1
+        s: 0
         sym: handles
       - !!perl/hash:RE_method 
         a: 0
@@ -93669,7 +93973,7 @@ trait_verb__S_278handles: !!perl/hash:RE
         nobind: 1
         r: 1
         rest: ''
-        s: 1
+        s: 0
       - !!perl/hash:RE_method 
         min: 0
         name: ws
@@ -94054,7 +94358,7 @@ type_constraint: !!perl/hash:RE
         decl: []
 
         min: 12345
-        re: &12 !!perl/hash:RE_any 
+        re: &11 !!perl/hash:RE_any 
           a: 0
           altname: type_constraint_01
           dba: type_constraint
@@ -94125,7 +94429,7 @@ type_constraint: !!perl/hash:RE
         r: 1
         rest: ''
         s: 0
-type_constraint_01: *12
+type_constraint_01: *11
 type_declarator__S_279subset: !!perl/hash:RE 
   decl: []
 
@@ -94805,7 +95109,7 @@ unsp: !!perl/hash:RE
           decl: []
 
           min: 0
-          re: &17 !!perl/hash:RE_any 
+          re: &16 !!perl/hash:RE_any 
             a: 0
             altname: unsp_03
             dba: unspace
@@ -94896,7 +95200,7 @@ unsp: !!perl/hash:RE
           - ''
           - 0
 unsp_02: *43
-unsp_03: *17
+unsp_03: *16
 unspacey: !!perl/hash:RE 
   decl: []
 

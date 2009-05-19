@@ -1,5 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.56  2009.5.19
+    - Bundled latest STD
+    - Depends on Moose 0.79
+
 0.55  2009.5.11
     - Bundled latest STD which fixes a warning typo in special_variable \$
     - Removed unused code
