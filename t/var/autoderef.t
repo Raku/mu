@@ -106,4 +106,6 @@ plan 22;
   ok ?tied($y),              "tied with 'real refs' (6)";
 }
 
+=end more-discussion-needed
+
 # vim: ft=perl6
