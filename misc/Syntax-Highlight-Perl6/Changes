@@ -1,5 +1,10 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.57  2009.5.19
+    - Bundled latest STD which fixes two important bugs
+      * named-parameter-with-default-assumes-positional bug
+      * allow only =begin END to omit its =end
+
 0.56  2009.5.19
     - Bundled latest STD
     - Depends on Moose 0.79

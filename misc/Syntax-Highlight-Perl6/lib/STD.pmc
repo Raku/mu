@@ -4638,10 +4638,12 @@ else {
 ##          | 'begin' \h+ <identifier> ::
 ##              [
 ##              ||  .*? "\n=" <.unsp>? 'end' \h+ $<identifier> » \N*          {*} #= tagged
-##              ||  .*                                                        {*} #= end
+##              ||  <?{ $<identifier>.Str eq 'END'}> .*                           {*} #= end
+##              || { my $id = $<identifier>.Str; self.panic("=begin $id without matching =end $id"); }
 ##              ]
 ##          | 'begin' » :: \h* [ $$ || '#' || <.panic: "Unrecognized token after =begin"> ]
-##              [ .*?  "\n=" <.unsp>? 'end' » \N* || <.panic: "=begin without =end"> ]   {*}       #= anon
+##              [ .*?  "\n=" <.unsp>? 'end' » \N* || { self.panic("=begin without matching =end"); } ]   {*}       #= anon
+##              
 ##          | 'for' » :: \h* [ <identifier> || $$ || '#' || <.panic: "Unrecognized token after =for"> ]
 ##              [.*?  ^^ \h* $$ || .*]
 ##          | :: 
@@ -4725,8 +4727,18 @@ $C->unsp
 }, $C->_SCANf())} // do {die $@ if $@ and $@ !~ /ABORT/;1} 
 or
 eval { push @gather, Cursor::lazymap(sub { my $C=$_[0];
+Cursor::lazymap(sub { my $C=$_[0];
 $C->_REDUCE($S, 'pod_comment_end')
-}, $C->_SCANg())} or do { die $@ if $@ };
+}, $C->_SCANg())
+}, $C->before( sub { my $C=shift;
+(($C) x !!do {
+my $M = $C;  $M->{'identifier'}->Str eq 'END';
+})
+}))} // do {die $@ if $@ and $@ !~ /ABORT/;1} 
+or
+eval { push @gather, scalar(do {
+my $M = $C;  my $id = $M->{'identifier'}->Str; $self->panic("=begin $id without matching =end $id"); ;
+}, $C)} or do { die $@ if $@ };
 @gather;
 }
 })
@@ -4766,7 +4778,9 @@ $C->unsp
 }, $C->_PATTERN(qr/\G\n=/))
 }, $C->_SCANf())} // do {die $@ if $@ and $@ !~ /ABORT/;1} 
 or
-eval { push @gather, $C->panic("=begin without =end")} or do { die $@ if $@ };
+eval { push @gather, scalar(do {
+$self->panic("=begin without matching =end"); 
+}, $C)} or do { die $@ if $@ };
 @gather;
 }
 }))
@@ -33917,7 +33931,7 @@ else {
 ##                    when '|' { $¢.panic("Can't put a default on an slurpy capture parameter") }
 ##                    when '\\' { $¢.panic("Can't put a default on a capture parameter") }
 ##                  }
-##                  $kind = '?';
+##                  $kind = '?' if $kind eq '!';
 ##              }}
 ##          ]?
 ##      
@@ -34613,7 +34627,7 @@ when ('*') { $C->panic("Can't put a default on a slurpy parameter") }
 when ('|') { $C->panic("Can't put a default on an slurpy capture parameter") }
 when ('\\') { $C->panic("Can't put a default on a capture parameter") }
 };
-$kind = '?';
+$kind = '?' if $kind eq '!';
 
 }, $C);
 }
@@ -74683,7 +74697,7 @@ parameter: !!perl/hash:RE
                 min: 0
                 r: 1
                 s: 0
-                text: "\n            given $quant {\n              when '!' { $¢.panic(\"Can't put a default on a required parameter\") }\n              when '*' { $¢.panic(\"Can't put a default on a slurpy parameter\") }\n              when '|' { $¢.panic(\"Can't put a default on an slurpy capture parameter\") }\n              when '\\\\' { $¢.panic(\"Can't put a default on a capture parameter\") }\n            }\n            $kind = '?';\n        "
+                text: "\n            given $quant {\n              when '!' { $¢.panic(\"Can't put a default on a required parameter\") }\n              when '*' { $¢.panic(\"Can't put a default on a slurpy parameter\") }\n              when '|' { $¢.panic(\"Can't put a default on an slurpy capture parameter\") }\n              when '\\\\' { $¢.panic(\"Can't put a default on a capture parameter\") }\n            }\n            $kind = '?' if $kind eq '!';\n        "
         min: 0
         quant: 
           - "?"
@@ -74975,7 +74989,7 @@ pod_comment: !!perl/hash:RE
               alt: pod_comment_01 0
               dba: pod_comment
               i: 0
-              min: 12352
+              min: 12351
               r: 1
               s: 0
               zyg: 
@@ -75022,12 +75036,12 @@ pod_comment: !!perl/hash:RE
                 - !!perl/hash:RE_bracket 
                   decl: []
 
-                  min: 1
+                  min: 0
                   re: !!perl/hash:RE_first 
                     a: 0
                     dba: pod_comment
                     i: 0
-                    min: 1
+                    min: 0
                     r: 1
                     s: 0
                     zyg: 
@@ -75139,6 +75153,19 @@ pod_comment: !!perl/hash:RE
                         r: 1
                         s: 0
                         zyg: 
+                          - !!perl/hash:RE_assertion 
+                            assert: "?"
+                            min: 0
+                            re: !!perl/hash:RE_block 
+                              a: 0
+                              context: bool
+                              dba: pod_comment
+                              i: 0
+                              min: 0
+                              nobind: 1
+                              r: 1
+                              s: 0
+                              text: " $<identifier>.Str eq 'END'"
                           - !!perl/hash:RE_meta 
                             a: 0
                             dba: pod_comment
@@ -75152,6 +75179,15 @@ pod_comment: !!perl/hash:RE
                             max: 0
                             min: 0
                             name: _REDUCE
+                      - !!perl/hash:RE_block 
+                        a: 0
+                        context: void
+                        dba: pod_comment
+                        i: 0
+                        min: 0
+                        r: 1
+                        s: 0
+                        text: " my $id = $<identifier>.Str; self.panic(\"=begin $id without matching =end $id\"); "
             - !!perl/hash:RE_sequence 
               a: 0
               alt: pod_comment_01 1
@@ -75317,11 +75353,15 @@ pod_comment: !!perl/hash:RE
                               - ":"
                               - ''
                               - 0
-                      - !!perl/hash:RE_method 
+                      - !!perl/hash:RE_block 
+                        a: 0
+                        context: void
+                        dba: pod_comment
+                        i: 0
                         min: 0
-                        name: panic
-                        nobind: 1
-                        rest: ("=begin without =end")
+                        r: 1
+                        s: 0
+                        text: " self.panic(\"=begin without matching =end\"); "
                 - !!perl/hash:RE_method_internal 
                   args: $S, 'pod_comment_anon'
                   max: 0
