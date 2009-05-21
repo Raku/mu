@@ -106,7 +106,7 @@ the class and through its ancestors should be provided:
     class role enum package module subset
     is has does will but trusts handles where of as returns
     augment supersede
-    rw readonly
+    rw readonly copy ref
     only multi proto default
     sub method submethod
     regex token rule
