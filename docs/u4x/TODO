@@ -183,8 +183,9 @@ the class and through its ancestors should be provided:
     mmd autothread pun attribute interpolate trait lvalue candidate
     mutator 'abstract object' topic topicalizer diffy iffy fiddly
     variadic slurpy capture required optional positional named
+    unspace
 
-== Misc
+== Tutorials
 
 * A really, really good guide to blocks and closures. Specifically to explain
   the (possibly unintuitive) behavior of 'return' in blocks.
@@ -194,3 +195,6 @@ the class and through its ancestors should be provided:
 
 * Feel free to rip off stuff from misc/perlhints/data, it was written in a
   similar spirit, but with less plan.
+
+* Maybe incorporate <http://www.dlugosz.com/Perl6/web/med-loop.html> into
+  its own tutorial.
