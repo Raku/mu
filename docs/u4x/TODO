@@ -125,6 +125,16 @@ the class and through its ancestors should be provided:
 
     $] $\ $| $: $; $' $" $, $< $> $. $?
 
+== Special variables
+
+    $*IN $*OUT $*ERR $*ARGS %*ENV $?FILE $?LINE &?ROUTINE &?BLOCK %?LANG
+    $?KERNEL $?DISTRO $?VM $?XVM $?PERL $?SCOPE $?PACKAGE $?MODULE
+    $?CLASS $?ROLE $?GRAMMAR $*KERNEL $*DISTRO $*VM $*PERL
+
+    (See also S28, where many names seem to be slightly uncertainly
+    specced. No need to reproduce them here if they're likely to change
+    a lot in the future.)
+
 == Sigils
 
     $ @ @@ % &
