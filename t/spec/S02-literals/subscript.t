@@ -14,3 +14,5 @@ plan 3;
     ok(!(eval '%hash <foo>; 1'), '%hash \s+ <subscript> doesnt parse');
     isnt($!,"",'... and it sets $!');
 };
+
+# vim: ft=perl6
