@@ -104,6 +104,7 @@ IO
   capture stdout, or open a pipe to a second script.
 
 SINGLE TESTS
+* syntax/signature.t is flawed and has a XXX comment of what needs to be done
 * spec/S04-closure-traits/pre-post.t has an up-to-date TODO list that needs
   implementing
 

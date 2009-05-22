@@ -4,6 +4,13 @@ use Test;
 
 plan 29;
 
+# XXX this test is inherently flawed.
+# it relies on some canonical pretty-printing, which is not specced,
+# and implementations other than pugs do it differently.
+
+# So somebody needs to rewrite them differently, for example checking if
+# binding to some of these signatures works.
+
 # Signature values and pretty-printing
 # L<S06/"Parameters and arguments">
 {
