@@ -28,12 +28,34 @@ Usage: mildew [switches] [--] [programfile] [arguments]
   -o              output to file
   -h or --help    give this message
   --valgrind      use valgrind when executing
+  -x              specify the language of the input file
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting);
-Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'empty-setting'=>\$empty_setting,'debug'=>\$debug,'h|help'=>\$help) || help;
+my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting,$x);
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'empty-setting'=>\$empty_setting,'debug'=>\$debug,'h|help'=>\$help,'x=s'=>\$x) || help;
 help if $help;
+
+my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include"),;
+
+$x ||= 'p6';
+if ($x eq 'm0ld') {
+    local $/;
+    my $m0ld = <>;
+    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
+    local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+    my $tmp = tmpnam;
+    compile_via_c($m0ld,$tmp);
+    if ($valgrind) {
+        exec('valgrind','-q','--leak-check=full','--show-reachable=yes',$tmp);
+    } else {
+        exec($tmp);
+    }
+} elsif ($x eq 'p6') {
+
+} elsif ($x) {
+    die "Unsupported language $x.\n"
+}
 VIV::SET_OPT('match'=>!$debug,'pos'=>1);
 
 BEGIN {
@@ -54,7 +76,6 @@ sub m0ld_to_c {
     binmode $m0ld_exe_out, ':utf8';
     return <$m0ld_exe_out>;
 }
-my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include"),;
 sub compile_via_c {
     my ($m0ld,$output) = @_;
     my ($c_fh,$c_file) = tempfile();
@@ -213,7 +234,7 @@ if ($B eq 'via-C') {
     my $tmp = tmpnam;
     compile_via_c($m0ld,$tmp);
     if ($valgrind) {
-        exec('valgrind','-q','--leak-check=full','--show-reachable=yes',$tmp);
+        exec('valgrind','--leak-check=full','--show-reachable=yes',$tmp);
     } else {
         exec($tmp);
     }
