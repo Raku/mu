@@ -1,4 +1,4 @@
-say "1..4";
+say "1..5";
 my $hash;
 $hash = ::Hash.new;
 $hash.{'foo'} = "ok 2";
