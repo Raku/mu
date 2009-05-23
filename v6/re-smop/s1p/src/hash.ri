@@ -1,5 +1,5 @@
 %RI.id s1p Hash
-%include <smop/s1p.h>
+%include <smop/s1p.h>,"array.h"
 %prefix smop_s1p_hash
 %attr smop_util_hash* hash
 %{
@@ -55,6 +55,23 @@ SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
 
     smop_util_hash_set(interpreter,hash,key,value);
     ret = SMOP__NATIVE__bool_false;
+
+%method keys
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  smop_util_hash* hash = ((smop_s1p_hash_struct*)invocant)->hash;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+  int i;
+  int bucket_count = 0;
+  ret = SMOP__S1P__Array_create(interpreter);
+  for (i=0;i < hash->size;i++) {
+    smop_util_hash_bucket* bucket = hash->content[i];
+    while (bucket) {
+      bucket_count++;
+      SMOP__S1P__Array_set_elems(interpreter,ret,bucket_count);
+      SMOP__S1P__Array_set_elem(interpreter,ret,bucket_count-1,SMOP_REFERENCE(interpreter,bucket->key));
+      bucket = bucket->next;
+    }
+  }
 
 %DESTROYALL {
     smop_util_hash* hash = ((smop_s1p_hash_struct*)invocant)->hash;
