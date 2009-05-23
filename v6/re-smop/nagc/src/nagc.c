@@ -6,6 +6,10 @@
 #include <pthread.h>
 #include "weakref.h"
 
+#ifdef SMOP_LEAK_TRACE
+static SMOP__Object* leaks[20000];
+#endif
+
 SMOP__Object* smop_nagc_alloc(size_t size) {
   if (size < sizeof(SMOP__NAGC__Object))
     abort();
@@ -19,6 +23,12 @@ SMOP__Object* smop_nagc_alloc(size_t size) {
     abort();
   if (pthread_rwlock_init(y->rwlock, NULL))
     abort();
+
+#ifdef SMOP_LEAK_TRACE
+  int i = 0;
+  while (leaks[i]) i++;
+  leaks[i] = y;
+#endif
 
   return (SMOP__Object*)y;
 }
@@ -91,6 +101,13 @@ void smop_nagc_free(SMOP__NAGC__Object* obj) {
   pthread_rwlock_destroy(((SMOP__NAGC__Object*)obj)->rwlock);
   free(((SMOP__NAGC__Object*)obj)->rwlock);
   free(obj);
+
+#ifdef SMOP_LEAK_TRACE
+  int i = 0;
+  while (leaks[i] != obj) i++;
+  leaks[i] = NULL;
+#endif
+
 }
 
 SMOP__Object* smop_nagc_release(SMOP__Object* interpreter,
@@ -116,4 +133,12 @@ void smop_nagc_init() {
 
 void smop_nagc_destr() {
   smop_nagc_weakref_destr();
+#ifdef SMOP_LEAK_TRACE
+  int i = 0;
+  while (i < 18000) {
+    if (leaks[i]) fprintf(stderr,"%p = %s#leak\n",leaks[i],leaks[i]->RI->id);
+    i++;
+  }
+  leaks[i] = NULL;
+#endif
 }
