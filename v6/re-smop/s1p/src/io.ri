@@ -28,6 +28,10 @@ SMOP__Object* SMOP__S1P__IO_create(SMOP__Object* interpreter) {
 
         SMOP_RELEASE(interpreter,obj);
     }
+%method describe
+    SMOP__Object* obj = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    printf("RI: %s\n",obj->RI->id);
+    
 %method new
     ret = SMOP__S1P__IO_create(interpreter);
 %method FETCH
