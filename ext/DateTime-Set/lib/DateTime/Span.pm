@@ -1,9 +1,9 @@
-use v6-alpha;
+use v6;
 
 use Span;
 
-class DateTime::Span-0.01
-    does Span;
+class DateTime::Span :ver<0.01>;
+does Span;
 
 =begin TODO
 

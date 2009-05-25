@@ -1,8 +1,9 @@
-use v6-alpha;
+use v6;
 module Config::Tiny-0.01;
 
 # Config::Tiny has already been ported to Perl6 at
 # http://tpe.freepan.org/repos/adamk/Config-Tiny/lib/Config/Tiny.pm
+# 	FIXME: Broken link. Any idea where it might live now?
 #
 # Unfortunately, OO doesn't exist in Pugs yet so
 # I decided to write OO before OO existed

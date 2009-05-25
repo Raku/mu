@@ -1,5 +1,5 @@
-use v6-alpha;
-module HTML::Entities-0.2;
+use v6;
+module HTML::Entities :ver<0.2>;
 
 #@EXPORT = <encode_entities decode_entities _decode_entities>;
 #@EXPORT_OK = <%entity_to_char %char_to_entity encode_entities_numeric>;
@@ -338,7 +338,7 @@ sub encode_entities (Str $string is rw, $unsafe_chars?) is export
     }
     else {
         # Encode control chars, high bit chars and '<', '&', '>', '"'
-        $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{
+        $result ~~ s:Perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{
             %char_to_entity.exists($0)
                 ?? %char_to_entity{$0}
                 !! num_entity($0)
@@ -363,6 +363,8 @@ sub num_entity($char) {
 1;
 
 # $Id: Entities.pm,v 1.29 2004/11/23 15:06:16 gisle Exp $
+
+=begin POD 
 
 =head1 NAME
 
@@ -489,5 +491,5 @@ Copyright 1995-2004 Gisle Aas. All rights reserved.
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
-=cut
+=end POD
 

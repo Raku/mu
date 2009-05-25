@@ -4,11 +4,12 @@ module Getopt::Proccesor {
         has $normalizer_role = ::Getopt::Argument::Normalizer::Null;
         has $coercer_role = ::Getopt::Argument::Coercer::Null;
 
-        method bind ( Code &fun, Array of Str @args ) {
+        method bind ( Code &fun, Str @args ) {
+            # wtf is that supposed to do? this is not valid Perl 6
             $fun.assuming( *self.parse_arguments( @args ) );
         }
 
-        method parse_arguments ( Array of Str @args ) {
+        method parse_arguments ( Str @args ) {
             collect_arguments( self.create_arguments( @args ) );
         }
 

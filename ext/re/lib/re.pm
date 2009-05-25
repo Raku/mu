@@ -1,6 +1,6 @@
 module re;
 
-use v6-alpha;
+use v6;
 
 sub import (Str $pkg: $input_engine) {
   my $engine = uc $input_engine;

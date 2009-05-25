@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 module HTTP::Server::Simple-6.00;
 

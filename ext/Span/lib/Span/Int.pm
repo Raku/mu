@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 class Span::Int-0.01;
 

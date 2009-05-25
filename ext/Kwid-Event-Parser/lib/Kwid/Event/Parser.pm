@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 module Kwid::Event::Parser-0.0.1;
 
 my @EVENTS = (

@@ -1,6 +1,6 @@
 #  -*- perl -*-
 
-use v6-alpha;
+use v6;
 use Test;
 
 plan 15;

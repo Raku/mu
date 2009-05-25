@@ -1,6 +1,6 @@
 
 # this is needed by v6.pm (perl6-in-perl5)
-use v6-alpha;
+use v6;
 
 module Test-0.0.8;
 
@@ -386,7 +386,7 @@ Test - Test support module for perl6
 
 =head1 SYNOPSIS
 
-  use v6-alpha;
+  use v6;
   require Test;
 
   plan 10;

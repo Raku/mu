@@ -28,9 +28,9 @@ multi submethod BUILD () returns Date {
     self.BUILD(epoch => time);
 }
 
-multi submethod BUILD (Int|Num :$epoch) returns Date {
+multi submethod BUILD (Num :$epoch) returns Date {
     # waiting for localtime in Pugs
-    my $time = localtime(int $epoch);
+    my $time = localtime($epoch.int);
 
     $!year  = $time.year;
     $!month = $time.month;
@@ -52,7 +52,7 @@ multi submethod BUILD (Str :$string) returns Date {
 }
 
 # day as Str where { rx:i/^last$/ }
-multi submethod BUILD (Int :$year is mandatory, Int :$month = 1, Int|Str :$day is copy = 1) returns Date {
+multi submethod BUILD (Int :$year!, Int :$month = 1, :$day is copy = 1) returns Date {
     if $day.lc eq 'last' {
         my @lengths := _is_leap_year($year) ?? @LeapYearMonthLengths !! @MonthLengths;
 

@@ -1,6 +1,6 @@
-use v6-alpha;
+use v6;
 
-class DateTime::Recurrence-0.01;
+class DateTime::Recurrence :ver<0.01>;
 
 has Recurrence $.set;
 
@@ -8,7 +8,7 @@ has Recurrence $.set;
 #  add_duration, set_time_zone, ...
 
 
-=kwid
+=begin kwid
 
 = NAME
 
@@ -47,4 +47,4 @@ Copyright (c) 2005, Flavio S. Glock.  All rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-=cut
+=end kwid

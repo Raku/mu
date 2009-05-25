@@ -1,5 +1,5 @@
 
-use v6-alpha;
+use v6;
 
 class Tree-0.0.2;
 

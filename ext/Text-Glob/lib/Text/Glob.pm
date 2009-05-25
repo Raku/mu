@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 module Text::Glob-6.0.0;
 

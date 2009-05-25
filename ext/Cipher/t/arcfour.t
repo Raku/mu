@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 use Cipher::Arcfour;
 
@@ -74,9 +74,9 @@ for @vectors -> $v {
     # XXX - TODO - FIXME
     # Arcfour is fully implemented but method lookup in _cipher for
     # generate_keystream isn't working right.
-    flunk("Arcfour not yet fully implemented", :todo<bug>);
-    skip_rest("Arcfour not yet fully implemented");
-    exit;
+#    flunk("Arcfour not yet fully implemented", :todo<bug>);
+#    skip_rest("Arcfour not yet fully implemented");
+#    exit;
 
     my $ciphertext = $cipher.cipher($v<plaintext>);
     ok($ciphertext, "Enciphering produced ciphertext");

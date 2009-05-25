@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 module WTemplate-0.0.1;
 
 ## set up the globals

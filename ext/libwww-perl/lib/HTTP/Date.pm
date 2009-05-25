@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 module HTTP::Date {
     sub time2str ($time = time)   is export(:MANDATORY) { ... }

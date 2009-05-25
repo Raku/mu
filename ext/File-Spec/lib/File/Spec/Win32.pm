@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 module File::Spec::Win32-0.0.1;
 

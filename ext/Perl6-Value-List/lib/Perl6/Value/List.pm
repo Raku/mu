@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # Perl6::Value::List - implementation of Perl6 'List' class in Perl6
 

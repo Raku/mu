@@ -1,6 +1,6 @@
 # It's the Unicode overload!
 
-use v6-alpha;
+use v6;
 use Test;
 
 plan 34;

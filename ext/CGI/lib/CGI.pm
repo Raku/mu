@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 class CGI-0.2;
     # XXX Should this all be rw? Should any be public?
     has %!PARAMS;
@@ -342,7 +342,7 @@ CGI - A module for programming CGI
 
 =head1 SYNOPSIS
 
-    use v6-alpha;
+    use v6;
     use CGI;
 
     my $q = CGI.new;

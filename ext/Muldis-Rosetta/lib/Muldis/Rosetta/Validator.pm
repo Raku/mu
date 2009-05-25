@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 use Muldis::Rosetta::Interface;
 
@@ -236,7 +236,7 @@ This document describes Muldis::Rosetta::Validator version 0.7.0 for Perl
 This can be the complete content of the main C<t/*.t> file for an example
 Muldis Rosetta Engine distribution:
 
-    use v6-alpha;
+    use v6;
 
     # Load the test suite.
     use Muldis::Rosetta::Validator;

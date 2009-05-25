@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 module CGI::Server-0.0.1;
 
 sub server_name     returns Str is export { %*ENV<SERVER_NAME>     || 'localhost' }
@@ -14,7 +14,7 @@ CGI::Server - A CGI module to getting information about the server
 
 =head1 SYNOPSIS
 
-    use v6-alpha;
+    use v6;
     require CGI-0.0.1;
     require CGI::Server-0.0.1;
     

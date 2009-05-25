@@ -52,7 +52,7 @@ This program is free software; you can redistribute it and/or modify it under th
 =end pod
 
 module Dumper-0001;
-use v6-alpha;
+use v6;
 
 sub dump is export(:ALL) {
     for (@_) {

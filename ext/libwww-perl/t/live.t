@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 
 my $tempfile = 'temp-ex-output';

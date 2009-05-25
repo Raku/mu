@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 ###########################################################################
 ###########################################################################
@@ -52,7 +52,8 @@ class HTTP::Request {
                                 # .headers<Content-Length>
                                 # > $arbitrary_yet_configurable
     has Str            %.cookies;
-    has Str            $.method where { $_ eq any <GET POST> };
+# the following line doesn't compile
+#    has Str            $.method where { $_ eq any <GET POST> };
     has URI            $.uri;
 
     ...
@@ -70,7 +71,7 @@ role HTTP::Argument::Upload {
 
 class HTTP::Response {
     is HTTP::Message;
-    has $.encoding = 'UTF-8' is rw;
+    has $.encoding is rw = 'UTF-8'; 
     ...
 }
 

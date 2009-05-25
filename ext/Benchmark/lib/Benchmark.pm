@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 module Benchmark-0.1;
 
 sub timeit ($count, $code is copy) is export {
@@ -38,7 +38,7 @@ Benchmark - Benchmark running time of Perl 6 code
 
 =head1 SYNOPSIS
 
-    use v6-alpha;
+    use v6;
     use Benchmark;
 
     @t = timeit($count, 'code');

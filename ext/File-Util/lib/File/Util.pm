@@ -1,6 +1,6 @@
 class File::Util-6.0.0;
 
-use v6-alpha;
+use v6;
 
 has Str $.os;
 has Str $.content;

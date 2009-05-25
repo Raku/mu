@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 module URI::Escape-0.6 {
     our %escapes;

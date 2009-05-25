@@ -4,7 +4,7 @@ Perl 6's grammar written as a Perl 6 regexs.  A prerequisite for self hosting.
 
 =cut
 
-use v6-alpha;
+use v6;
 
 grammar Perl6::Grammar-0.0.1;
 

@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 
 use lib <ext/libwww-perl/lib>;

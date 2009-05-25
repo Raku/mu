@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Test;
 
 our $PIL = (($*OS eq 'MSWin32') ?? 'pil.exe' !! './pil');

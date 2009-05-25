@@ -10,7 +10,7 @@ module Net::IRC-0.05;
 # Note that this is *not* a port of Perl 5's Net::IRC.
 # See the POD of this document for more documentation.
 
-use v6-alpha;
+use v6;
 use Algorithm::TokenBucket;
 use Set;
 
@@ -43,6 +43,7 @@ sub new_bot(
   Bool $floodcontrol = 0,      # Check that we don't flood excessively
   Bool $debug_raw = 0,
 ) is export {
+  $*ERR.say: "Username: $username";
   my $connected = 0;
   my $inside    = 0;
   my $chans = set();       # Which chans have we joined?
