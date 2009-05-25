@@ -14,6 +14,7 @@
   smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
 
   ret = func(interpreter,invocant,actualcap);
+  SMOP_RELEASE(interpreter,actualcap);
     
 %method FETCH
   ___VALUE_FETCH___
