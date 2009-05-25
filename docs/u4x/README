@@ -46,3 +46,16 @@ each case, and will answer both:
   the '>>' operator (as applied to method calls), trim
   the '.=' metaoperator, abs
   the '[]' metaoperator, '+'
+
+Some interesting Perl 6 docs which might be drawn upon/adapted to u4x:
+
+ * http://en.wikibooks.org/wiki/Perl_6_Programming
+ * http://www.dlugosz.com/Perl6
+ * http://perlgeek.de/blog-en/perl-5-to-6/
+ * http://szabgab.com/perl6_tricks_and_treats.html
+
+These, while not about Perl 6, might offer inspiration:
+
+ * The Perl 5 documentation
+ * http://www.perl.com/doc/FMTEYEWTK/index.html
+ * http://www.poignantguide.net/ruby/
