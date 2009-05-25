@@ -115,10 +115,11 @@ static int floor_log2(unsigned int n) {
 %method FETCH
     ___VALUE_FETCH___
 
-%DESTORYALL {
-    int i;for (i=0;i < invocant->elems;i++) {
-      if (invocant->content[i]) SMOP_RELEASE(interpreter,invocant->content[i]);
+%DESTROYALL {
+    smop_s1p_array_struct* array = (smop_s1p_array_struct*)invocant;
+    int i;for (i=0;i < array->elems;i++) {
+      if (array->content[i]) SMOP_RELEASE(interpreter,array->content[i]);
     }
-    free(invocant->content);
+    free(array->content);
 %}
 
