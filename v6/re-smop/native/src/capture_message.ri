@@ -24,8 +24,8 @@
 %method FETCH
   int count = SMOP__NATIVE__capture_positional_count(interpreter,invocant);
   if (count == 1) {
-    ret = SMOP__NATIVE__capture_positional(interpreter,invocant,0);
-    SMOP_REFERENCE(interpreter,ret);
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter,invocant,0);
+    ret = SMOP_DISPATCH(interpreter,SMOP_RI(value),SMOP__ID__FETCH,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {value,NULL},(SMOP__Object*[]) {NULL}));
   } else {
     ___VALUE_FETCH___;
   }

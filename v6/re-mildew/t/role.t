@@ -9,5 +9,5 @@ role Foo {
 say "1..2";
 Foo.bar;
 my $foo = Foo.new;
-$foo.FETCH.baz("ok 2");
+$foo.baz("ok 2");
 #$foo.baz("ok 2");
