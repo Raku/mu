@@ -7,7 +7,6 @@
 %attr SMOP__Object* proto_storage
 %attr int destroying
 %has $^!whence
-%has $^!instanceof
 %has $^!is_container
 %has %^!instance_storage
 %idconst FETCH
