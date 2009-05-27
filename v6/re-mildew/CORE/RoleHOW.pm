@@ -8,14 +8,15 @@ knowhow RoleHOW {
             } else {
                 my $key = $keys.[$i.FETCH];
                 $dst.^!methods.{$key.FETCH} = $src.^!methods.{$key.FETCH};
+                $i = &infix:<+>:(int,int)($i.FETCH,1);
             }
         }
     }
     method add_attribute($object, $privname, $attribute) {
-        $object.^!attributes.{$privname} = $attribute;
+        $object.^!attributes.{$privname.FETCH} = $attribute;
     }
     method add_method($object, $name, $code) {
-        $object.^!methods.{$name} = $code
+        $object.^!methods.{$name.FETCH} = $code
     }
     method dispatch($object, $identifier, \$capture) {
         if PRIMITIVES::idconst_eq($identifier.FETCH,'FETCH') {
@@ -30,7 +31,8 @@ knowhow RoleHOW {
 #            $class.^compose_role(::LowObject);
 #            $class.^compose_role($object);
             compose_role($class,$object);
-            return $class.^dispatch($identifier.FETCH, $capture.delegate($class.FETCH));
+            my $delegated = ::Scalar.new($capture.delegate($class.FETCH));
+            return $class.^dispatch($identifier.FETCH, (|$delegated));
         }
     }
 }

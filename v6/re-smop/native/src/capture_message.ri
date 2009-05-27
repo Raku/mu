@@ -18,7 +18,7 @@
   ret = SMOP__NATIVE__capture_create_from_capture(interpreter,capture);
 
 %method delegate
-  SMOP__Object* new_invocant = SMOP__NATIVE__capture_positional(interpreter,invocant,1);
+  SMOP__Object* new_invocant = SMOP__NATIVE__capture_positional(interpreter,capture,1);
   ret = SMOP__NATIVE__capture_delegate(interpreter,invocant,new_invocant);
 
 %method FETCH
