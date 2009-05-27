@@ -132,6 +132,9 @@ sub _auto_execute {
             chdir $executer->{chdir}
                 or confess "Can't chdir to '$executer->{chdir}': $!";
         }
+        if (exists $executer->{program_prefix}) {
+            $program = $executer->{program_prefix} . $program;
+        }
         my $cmd = $executer->{cmd_line} or confess "No command line given\n";
         my ($prog_fh, $program_file_name) = tempfile();
         binmode $prog_fh, ':encoding(UTF-8)';

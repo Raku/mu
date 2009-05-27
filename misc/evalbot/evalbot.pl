@@ -93,9 +93,10 @@ package Evalbot;
             },
             rakudo => {
                 chdir       => '../../../rakudo/',
-                cmd_line    => $input . '| ./perl6 %program >> %out 2>&1',
+                cmd_line    => $input . '| PERL6LIB=lib ./perl6 %program >> %out 2>&1',
                 revision    => \&get_rakudo_revision,
                 filter      => \&filter_pct,
+                program_prefix => "use Safe;\n",
             },
             nqp   => {
                 chdir       => '../../../rakudo/parrot/',
