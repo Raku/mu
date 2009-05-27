@@ -17,6 +17,10 @@
 %method new
   ret = SMOP__NATIVE__capture_create_from_capture(interpreter,capture);
 
+%method delegate
+  SMOP__Object* new_invocant = SMOP__NATIVE__capture_positional(interpreter,invocant,1);
+  ret = SMOP__NATIVE__capture_delegate(interpreter,invocant,new_invocant);
+
 %method FETCH
   int count = SMOP__NATIVE__capture_positional_count(interpreter,invocant);
   if (count == 1) {

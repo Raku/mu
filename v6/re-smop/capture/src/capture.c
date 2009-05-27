@@ -68,6 +68,23 @@ SMOP__Object* SMOP__NATIVE__capture_create_from_capture(SMOP__Object* interprete
   return (SMOP__Object*) ret;
 }
 
+SMOP__Object* SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,SMOP__Object* capture,SMOP__Object* invocant) {
+  capture_struct* ret = (capture_struct*) smop_nagc_alloc(sizeof(capture_struct));
+  capture_struct* from = (capture_struct*) capture;
+  ret->RI = (SMOP__ResponderInterface*)SMOP__capture__RI;
+
+  ret->named = smop_util_hash_copy(interpreter,from->named);
+
+  int count = SMOP__NATIVE__capture_positional_count(interpreter,capture);
+  SMOP__Object** pos = malloc(sizeof(SMOP__Object*) * count);
+  int i;
+  pos[0] = invocant;
+  for (i=1;i<count;i++) pos[i] = SMOP_REFERENCE(interpreter,from->positional[i]);
+  ret->positional_count = count;
+  ret->positional = pos;
+  return (SMOP__Object*) ret;
+}
+
 SMOP__Object* SMOP__NATIVE__capture_named(SMOP__Object* interpreter,SMOP__Object* capture,SMOP__Object* key) {
   SMOP__Object* ret = smop_util_hash_get(interpreter,((capture_struct*)capture)->named,key);
   if (!ret) ret = SMOP__NATIVE__bool_false;
