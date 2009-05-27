@@ -1,17 +1,20 @@
-knowhow RoleHOW {
-    my sub compose_role($dst,$src) {
-        my $keys = $src.^!methods.keys;
-        my $i = 0;
-        loop {
-            if $i == $keys.elems {
-                return;
-            } else {
-                my $key = $keys.[$i.FETCH];
-                $dst.^!methods.{$key.FETCH} = $src.^!methods.{$key.FETCH};
-                $i = &infix:<+>:(int,int)($i.FETCH,1);
-            }
+my sub copy_methods($dst,$src) {
+    my $keys = $src.^!methods.keys;
+    my $i = 0;
+    loop {
+        if $i == $keys.elems {
+            return;
+        } else {
+            my $key = $keys.[$i.FETCH];
+            $dst.^!methods.{$key.FETCH} = $src.^!methods.{$key.FETCH};
+            $i = &infix:<+>:(int,int)($i.FETCH,1);
         }
     }
+}
+my sub compose_role($obj,$role) {
+    copy_methods($obj,$role);
+}
+knowhow RoleHOW {
     method add_attribute($object, $privname, $attribute) {
         $object.^!attributes.{$privname.FETCH} = $attribute;
     }
@@ -30,6 +33,7 @@ knowhow RoleHOW {
             $class.^!how = ::PrototypeHOW;
 #            $class.^compose_role(::LowObject);
 #            $class.^compose_role($object);
+            compose_role($class,::LowObject);
             compose_role($class,$object);
             my $delegated = ::Scalar.new($capture.delegate($class.FETCH));
             return $class.^dispatch($identifier.FETCH, (|$delegated));
@@ -37,11 +41,14 @@ knowhow RoleHOW {
     }
 }
 
-#role LowObject {
-#    method new {
-#        return self.^clone;
-#    }
-#}
+role LowObject {
+    method new() {
+        my $obj = ::p6opaque.^!CREATE;
+        $obj.^!how = self.^!how;
+        copy_methods($obj,self);
+        $obj;
+    }
+}
 
 $LexicalPrelude.{'RoleHOW'} := ::RoleHOW;
 
