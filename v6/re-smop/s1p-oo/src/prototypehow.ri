@@ -127,7 +127,12 @@
       $result = $method."postcircumfix:( )"($capture);
       goto exit;
     fail: noop;
-      $result = $how."lookup_fail"($responder, $identifier, $capture);
+      my $UNKNOWN_METHOD_exists = $methods."exists"("UNKNOWN_METHOD");
+      if $UNKNOWN_METHOD_exists { goto call_UNKNOWN_METHOD } else { goto lookup_fail };
+      call_UNKNOWN_METHOD: $identifier = "UNKNOWN_METHOD";
+        goto find_method;
+      lookup_fail:
+        $result = $how."lookup_fail"($responder, $identifier, $capture);
     exit:
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
