@@ -1,7 +1,8 @@
 say "1..2";
 {
    {
-       ::OutOfItemsException.new().throw();
+       #::OutOfItemsException.new().throw();
+       ::Exception.new().throw();
    }.();
    CATCH {
        say "ok 1 - Caught, but will retrhow.";

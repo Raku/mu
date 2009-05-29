@@ -175,6 +175,9 @@ static SMOP__Object* p6opaque_message_DISPATCH(SMOP__Object* interpreter,
   my $identifier;
   my $capture;
   my $back;
+  my $continuation = $interpreter."continuation"();
+  my $void = $continuation."set_back"($back);
+
   $invocant = $capture."positional"(0);
   my $how_s = $invocant."^!how"();
   my $how = $how_s."FETCH"();

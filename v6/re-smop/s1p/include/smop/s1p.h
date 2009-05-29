@@ -14,7 +14,6 @@ extern SMOP__Object* SMOP__S1P__Array;
 extern SMOP__Object* SMOP__MildewSOLoader;
 extern SMOP__Object* SMOP__ControlExceptionReturn;
 extern SMOP__Object* SMOP__S1P__AdhocSignature;
-extern SMOP__Object* SMOP__OutOfItemsException;
 
 void smop_s1p_lexical_prelude_insert(SMOP__Object* interpreter,char* name,SMOP__Object* obj);
 
