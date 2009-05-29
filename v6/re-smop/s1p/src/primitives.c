@@ -71,6 +71,11 @@ static SMOP__Object* primitive_idconst_eq(SMOP__Object* interpreter,SMOP__Object
     return ret;
 }
 
+
+static SMOP__Object* primitive_interpreter(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
+    return SMOP_REFERENCE(interpreter, interpreter);
+}
+
 static void insert_primitive(SMOP__Object* interpreter,SMOP__Object* package,char* name,SMOP__Object* obj) {
   SMOP_DISPATCH(interpreter,
                 SMOP_RI(package),
@@ -87,4 +92,5 @@ void smop_s1p_insert_primitives(SMOP__Object* interpreter,SMOP__Object* package)
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&int_substract",SMOP__S1P__CCode_create(primitive_int_substract));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&idconst_concat",SMOP__S1P__CCode_create(primitive_idconst_concat));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&idconst_eq",SMOP__S1P__CCode_create(primitive_idconst_eq));
+  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&get_interpreter",SMOP__S1P__CCode_create(primitive_interpreter));
 }
