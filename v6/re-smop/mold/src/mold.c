@@ -31,6 +31,9 @@ static SMOP__Object* SMOP__ID__STORE;
 static SMOP__Object* SMOP__ID__FETCH;
 static SMOP__Object* SMOP__ID__true;
 
+#ifdef SMOP_MOLD_DEBUG
+int SMOP_MOLD_DEBUG_on = 0;
+#endif
 
 
 
@@ -313,6 +316,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         free(call_pos);
 
 #ifdef SMOP_MOLD_DEBUG
+if (SMOP_MOLD_DEBUG_on) {
         if (identifier && SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
           int u;
           char* external = SMOP__NATIVE__idconst_fetch(call_identifier, &u);
@@ -324,6 +328,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         } else {
           fprintf(stderr, "[SMOP_MOLD_DEBUG] eval on \"%s\".\n", SMOP_RI(call_invocant)->id);
         }
+}
 #endif
         
 
@@ -361,6 +366,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         SMOP__Object* call_capture = get_register(interpreter,frame);
 
 #ifdef SMOP_MOLD_DEBUG
+if (SMOP_MOLD_DEBUG_on) {
         if (identifier && SMOP_RI(identifier) == SMOP_RI(SMOP__ID__new)) {
           int u;
           char* external = SMOP__NATIVE__idconst_fetch(call_identifier, &u);
@@ -372,6 +378,7 @@ static SMOP__Object* smop_mold_frame_message(SMOP__Object* interpreter,
         } else {
           fprintf(stderr, "[SMOP_MOLD_DEBUG] eval on \"%s\".\n", ((SMOP__ResponderInterface*)call_responder)->id);
         }
+}
 #endif
 
         SMOP__Object* ret = SMOP_DISPATCH(interpreter,SMOP_RI(call_responder),call_identifier,call_capture);
@@ -453,7 +460,9 @@ static void smop_mold_frame_DESTROYALL(SMOP__Object* interpreter,
 
 void smop_mold_init() {
 
-  /*XXX create idconsts*/
+#ifdef SMOP_MOLD_DEBUG
+  SMOP_MOLD_DEBUG_on = !!(getenv("SMOP_MOLD_DEBUG"));
+#endif
 
   SMOP__ID__set_regs = SMOP__NATIVE__idconst_create("set_regs");
 
