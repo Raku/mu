@@ -94,8 +94,6 @@ sub routine {
   use YAML::XS;
   my $realcode = $mold->emit_m0ld;
   unshift @{$realcode->stmts},
-    call(STORE => call('postcircumfix:{ }' => reg '$scope', [ string '&?ROUTINE' ]), [ call(continuation => reg '$interpreter') ]),
-    call(STORE => call('postcircumfix:{ }' => reg '$scope', [ string '&?BLOCK' ]), [ call(continuation => reg '$interpreter') ]),
     call(set_control => call(continuation => reg '$interpreter'),
 	 [
 	  call new => FETCH(lookup('Code')),[],
@@ -124,9 +122,6 @@ sub routine {
 sub code {
   my ($mold,$sig) = @_;
   my $realcode = $mold->emit_m0ld;
-  unshift @{$realcode->stmts},
-    call(STORE=> call('postcircumfix:{ }' => reg '$scope', [ string '&?BLOCK' ]), [ call(continuation => reg '$interpreter') ]);
-
     use YAML::XS;
   call new => FETCH(lookup('Code')),[],
     [ string 'mold' => $realcode,
