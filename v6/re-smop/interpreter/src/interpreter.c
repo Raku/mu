@@ -12,6 +12,8 @@ static SMOP__Object* SMOP__ID__goto;
 static SMOP__Object* SMOP__ID__continuation;
 static SMOP__Object* SMOP__ID__eval;
 static SMOP__Object* SMOP__ID__loop;
+static SMOP__Object* SMOP__ID__loop;
+static SMOP__Object* SMOP__ID__FETCH;
 
 static SMOP__NAGC__ResponderInterface* RI;
 
@@ -100,6 +102,8 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
       cont = ((interpreter_struct*)invocant)->continuation;
       smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
     }
+  } else if (identifier == SMOP__ID__FETCH) {
+    ___VALUE_FETCH___;
   } else {
     ___UNKNOWN_METHOD___;
   }
@@ -131,6 +135,7 @@ void smop_interpreter_init() {
   SMOP__ID__continuation = SMOP__NATIVE__idconst_createn("continuation",12);
   SMOP__ID__eval = SMOP__NATIVE__idconst_createn("eval",4);
   SMOP__ID__loop = SMOP__NATIVE__idconst_createn("loop",4);
+  SMOP__ID__FETCH = SMOP__NATIVE__idconst_create("FETCH");
 
 }
 
