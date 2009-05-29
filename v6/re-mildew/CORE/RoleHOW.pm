@@ -12,7 +12,18 @@ my sub copy_methods($dst,$src) {
     }
 }
 my sub compose_role($obj,$role) {
-    copy_methods($obj,$role);
+    my $keys = $role.^!methods.keys;
+    my $i = 0;
+    loop {
+        if $i == $keys.elems {
+            return;
+        } else {
+            my $key = $keys.[$i.FETCH];
+            $obj.^add_method($key.FETCH,$role.^!methods.{$key.FETCH}.FETCH);
+
+            $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
 }
 knowhow RoleHOW {
     method add_attribute($object, $privname, $attribute) {
