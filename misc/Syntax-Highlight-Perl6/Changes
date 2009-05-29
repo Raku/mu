@@ -1,5 +1,9 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.58  2009.5.29
+    - Bundled STD.pm which fixes 00o7 bug (leading zeros before radix in integers)
+    - Removed perl6.vim support
+
 0.57  2009.5.19
     - Bundled latest STD which fixes two important bugs
       * named-parameter-with-default-assumes-positional bug

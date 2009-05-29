@@ -13,14 +13,13 @@ require Exporter;
 
 # exports and version
 our @EXPORT_OK = qw();
-our $VERSION = '0.57';
+our $VERSION = '0.58';
 
 # filename constants
 my $FILE_CSS    = 'p6_style.css';
 my $FILE_ANSI   = 'p6_style.ansi';
 my $FILE_JS     = 'p6_style.js';
 my $FILE_JQUERY = 'jquery-1.3.2.min.js';
-my $FILE_P6_VIM = 'perl6.vim';
 
 
 # my module variables
@@ -325,29 +324,6 @@ sub tokens {
     return @tokens;
 }
 
-#---------------------------------------------------------------
-# Returns a Perl 6 VIM syntax highlighted string using
-# Text::VimColor and perl6.vim
-# Note: works only if Text::VimColor is installed
-#---------------------------------------------------------------
-sub vim_html {
-    my $self = shift;
-
-    #This is an optional package so we're going to test for it
-    eval { require Text::VimColor; 1; }
-        or croak "Text::VimColor is not currently installed.\n" .
-            "You may also need to copy perl6.vim manually to ~/.vim/syntax\n" .
-            "perl6.vim is found at:\n" .
-            _shared($FILE_P6_VIM) . "\n";
-
-    my $syntax = Text::VimColor->new(
-        string => $self->{text},
-        filetype => 'perl6',
-        html_full_page => 1
-    );
-
-    return $syntax->html;
-}
 
 #--------------------------------------------------------------------
 # Reads the css file and return a hash of colors
@@ -578,10 +554,6 @@ Syntax::Highlight::Perl6 - Perl 6 Syntax Highlighter
     # Prints an array of token records (useful for other libraries)
     print $p->tokens;
 
-    # Prints VIM-generated syntax highlighted html
-    use Text::VimColor;     # This is only needed if you need
-    print $p->vim_html;     # to call this method
-
 =head1 DESCRIPTION
 
 C<Syntax::Highlight::Perl6> parses Perl 6 source code using an embedded STD.pm. 
@@ -707,14 +679,6 @@ The shortened output looks like:
       'last_pos' => 2
     };
 
-=head2 vim_html
-
-Returns the Perl 6 highlighted HTML string that was generated using
-VIM's excellent syntax coloring engine. Please remember to copy
-perl6.vim to your ~/.vim/syntax.
-
-NOTE: This method needs VIM to work properly along with L<Text::VimColor>.
-
 =head1 INCOMPATIBILITIES
 
 This module is dependent on Perl 5.10 features namely the regex engine 
@@ -728,8 +692,7 @@ L<Text::VimColor>
 Discussion about this module and STD.pm is usually in #perl6
 (irc://irc.freenode.net/perl6). This module lives in 
 http://svn.pugscode.org/pugs/misc/Syntax-Highlight-Perl6 . Larry Wall's 
-C<STD.pm> lives in http://svn.pugscode.org/pugs/src/perl6 . C<perl6.vim> lives in
-http://svn.pugscode.org/pugs/util/perl6.vim .
+C<STD.pm> lives in http://svn.pugscode.org/pugs/src/perl6 . 
 
 =head1 BUGS AND LIMITATIONS
 
@@ -770,8 +733,7 @@ Larry Wall's C<gimme5>-generated Perl5 C<STD.pmc> is included to parse Perl 6 co
 The initial STD tree traversal code was written by Paweł Murias (pmurias).
 It was replaced afterwards for performance reasons with Larry Wall's
 C<redspans> traversal code. C<redspans> stands for C<red> for reductions,
-and C<spans> from the "from/to span calculations". The included perl6.vim
-is written by Luke Palmer, Moritz Lenz, and Hinrik Ãn Sigurðsson. 
+and C<spans> from the "from/to span calculations".
 
 Thanks guys. I could not have done it without you ;-)
 
