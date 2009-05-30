@@ -10559,7 +10559,7 @@ else {
 
 ## token version__S_080v (:$sym is context<rw> = <v>)
 ##      token version:sym<v> {
-##          'v' <?before \d+'.'> :: <vnum> ** '.' '+'?
+##          'v' <?before \d+> :: <vnum> ** '.' '+'?
 ##      }
 
 sub version__S_080v__PEEK { $_[0]->_AUTOLEXpeek('version__S_080v',$retree) }
@@ -10593,14 +10593,7 @@ $C->vnum
 }))
 }, $C->_COMMITBRANCH())
 }, $C->before(sub { my $C=shift;
-do {
-if (my ($C) = ($C->_PATTERN(qr/\G((?:\d)++)/))) {
-$C->_EXACT('.');
-}
-else {
-();
-}
-}
+$C->_PATTERN(qr/\G((?:\d)++)/)
 }))
 }, $C->_EXACT('v'))
 );
@@ -96836,38 +96829,22 @@ version__S_080v: !!perl/hash:RE
           re: !!perl/hash:RE 
             decl: []
 
-            min: 2
-            re: !!perl/hash:RE_sequence 
-              a: 0
-              dba: version__S_080v
-              i: 0
-              min: 2
-              r: 1
-              s: 0
-              zyg: 
-                - !!perl/hash:RE_quantified_atom 
-                  atom: !!perl/hash:RE_meta 
-                    a: 0
-                    dba: version__S_080v
-                    i: 0
-                    min: 1
-                    r: 1
-                    s: 0
-                    text: \d
-                  min: 1
-                  quant: 
-                    - +
-                    - ":"
-                    - ''
-                    - 1
-                - !!perl/hash:RE_string 
-                  a: 0
-                  dba: version__S_080v
-                  i: 0
-                  min: 1
-                  r: 1
-                  s: 0
-                  text: .
+            min: 1
+            re: !!perl/hash:RE_quantified_atom 
+              atom: !!perl/hash:RE_meta 
+                a: 0
+                dba: version__S_080v
+                i: 0
+                min: 1
+                r: 1
+                s: 0
+                text: \d
+              min: 1
+              quant: 
+                - +
+                - ":"
+                - ''
+                - 1
           s: 0
       - !!perl/hash:RE_meta 
         a: 0
