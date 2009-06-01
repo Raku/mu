@@ -4,6 +4,11 @@
 %attr SMOP__Object* mold;
 %attr SMOP__Object* signature;
 %attr SMOP__Object* outer;
+
+%getter mold
+%getter signature
+%getter outer
+
 %prefix smop_s1p_code
 
 %idconst continuation
@@ -11,6 +16,7 @@
 %idconst signature
 %idconst mold
 %idconst outer
+
 
 %{
 static SMOP__Object* SMOP__Mold__Frame_proto;
@@ -71,7 +77,6 @@ SMOP__Object* SMOP__S1P__Code_create() {
         (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
         (SMOP__Object*[]) {NULL}
     ));
-
 
 %DESTROYALL {
 

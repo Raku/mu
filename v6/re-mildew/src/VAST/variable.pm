@@ -10,7 +10,7 @@ sub emit_m0ld {
     if ($twigil eq '!') {
 	call('postcircumfix:{ }'=> FETCH(call('^!instance_storage'=>
 				   FETCH(lookup('$¿self')))),
-             [string varname($m)])
+             [call 'postcircumfix:( )' => FETCH(call('postcircumfix:{ }' => lookupf('PRIMITIVES::'),[string '&storage_name'])) => [capturize([lookupf('$?CLASS'),string varname($m)])]]);
     } elsif ($twigil eq '.') {
 	call($m->{desigilname}{longname}->canonical,FETCH(lookup('$¿self')));
     } else {

@@ -1,33 +1,24 @@
 my sub copy_methods($dst,$src) {
-    my $keys = $src.^!methods.keys;
-    my $i = 0;
-    loop {
-        if $i == $keys.elems {
-            return;
-        } else {
-            my $key = $keys.[$i.FETCH];
-            $dst.^!methods.{$key.FETCH} = $src.^!methods.{$key.FETCH};
-            $i = &infix:<+>:(int,int)($i.FETCH,1);
-        }
+    my sub copy_method($key) {
+        $dst.^!methods.{$key.FETCH} = $src.^!methods.{$key.FETCH};
     }
+    map(&copy_method,$src.^!methods.keys);
 }
 my sub compose_role($obj,$role) {
-    my $keys = $role.^!methods.keys;
-    my $i = 0;
-    loop {
-        if $i == $keys.elems {
-            return;
-        } else {
-            my $key = $keys.[$i.FETCH];
-            $obj.^add_method($key.FETCH,$role.^!methods.{$key.FETCH}.FETCH);
-
-            $i = &infix:<+>:(int,int)($i.FETCH,1);
+    my sub compose_method($key) {
+        if $obj.^!methods.{$key.FETCH} {
+            ::Exception.new.throw;
         }
+        $obj.^add_method($key.FETCH,$role.^!methods.{$key.FETCH}.FETCH);
     }
+    map(&compose_method,$role.^!methods.keys);
 }
 knowhow RoleHOW {
     method add_attribute($object, $privname, $attribute) {
         $object.^!attributes.{$privname.FETCH} = $attribute;
+    }
+    method compose_role($object, $role) {
+        compose_role($object,$role);
     }
     method add_method($object, $name, $code) {
         $object.^!methods.{$name.FETCH} = $code

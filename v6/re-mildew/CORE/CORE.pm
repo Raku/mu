@@ -1,4 +1,4 @@
-sub say(|$capture) {
+my sub say(|$capture) {
     my $i = 0;
     loop {
         if &infix:<==>:(int,int)($i,$capture.elems) {
@@ -10,9 +10,22 @@ sub say(|$capture) {
         }
     }
 }
-sub print($arg) {
+my sub print($arg) {
     $OUT.print($arg.FETCH);
 }
+my sub map($expression,$values) {
+    my $i = 0;
+    loop {
+        if &infix:<==>:(int,int)($i,$values.elems) {
+            return;
+        } else {
+           $expression.($values.[$i.FETCH]);
+           $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
+}
+
+$LexicalPrelude.{'&map'} := &map;
 $LexicalPrelude.{'&say'} := &say;
 $LexicalPrelude.{'&print'} := &print;
 

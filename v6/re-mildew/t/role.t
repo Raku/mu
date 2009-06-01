@@ -1,5 +1,5 @@
 role Foo {
-    method bar {
+    method bar() {
         say "ok 1";
     }
     method baz($ok2) {
@@ -20,3 +20,29 @@ say $foo.attr1;
 $foo.attr2 = "ok 4";
 say $foo.attr2;
 #$foo.baz("ok 2");
+
+role Src {
+    method foo() {
+        say "ok 5";
+    }
+}
+role Dst {
+    method bar() {
+        say "ok 6";
+    }
+    ::Dst.^compose_role(::Src);
+}
+my $dst = Dst.new;
+$dst.foo;
+$dst.bar;
+
+{
+    role Conflicting {
+        method foo() {
+        }
+        ::Conflicting.^compose_role(::Src);
+        CATCH {
+            say "ok 7 # a conflict";
+        }
+    }
+}.();

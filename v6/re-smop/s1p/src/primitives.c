@@ -71,6 +71,22 @@ static SMOP__Object* primitive_idconst_eq(SMOP__Object* interpreter,SMOP__Object
     return ret;
 }
 
+static SMOP__Object* primitive_storage_name(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
+    SMOP__Object* a = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+    SMOP__Object* b = SMOP__NATIVE__capture_positional(interpreter,capture,1);
+    int len;
+    char *attr = SMOP__NATIVE__idconst_fetch(b,&len);
+    char *str = malloc(sizeof(char) * len+17);
+    snprintf(str,len+17,"%.16x%s\n",(unsigned int)a,attr);
+
+    SMOP__Object* ret = SMOP__NATIVE__idconst_createn(str,len+16);
+    free(str);
+    SMOP_RELEASE(interpreter, a);
+    SMOP_RELEASE(interpreter, b);
+
+    return ret;
+}
+
 
 static SMOP__Object* primitive_interpreter(SMOP__Object* interpreter,SMOP__Object* ccode,SMOP__Object* capture) {
     return SMOP_REFERENCE(interpreter, interpreter);
@@ -93,4 +109,5 @@ void smop_s1p_insert_primitives(SMOP__Object* interpreter,SMOP__Object* package)
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&idconst_concat",SMOP__S1P__CCode_create(primitive_idconst_concat));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&idconst_eq",SMOP__S1P__CCode_create(primitive_idconst_eq));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&get_interpreter",SMOP__S1P__CCode_create(primitive_interpreter));
+  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&storage_name",SMOP__S1P__CCode_create(primitive_storage_name));
 }

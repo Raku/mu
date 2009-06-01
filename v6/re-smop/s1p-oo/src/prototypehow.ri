@@ -129,8 +129,9 @@
     fail: noop;
       my $UNKNOWN_METHOD_exists = $methods."exists"("UNKNOWN_METHOD");
       if $UNKNOWN_METHOD_exists { goto call_UNKNOWN_METHOD } else { goto lookup_fail };
-      call_UNKNOWN_METHOD: $identifier = "UNKNOWN_METHOD";
-        goto find_method;
+      call_UNKNOWN_METHOD: 
+        my $void = $invocant."UNKNOWN_METHOD"($identifier);
+        goto exit;
       lookup_fail:
         $result = $how."lookup_fail"($responder, $identifier, $capture);
     exit:

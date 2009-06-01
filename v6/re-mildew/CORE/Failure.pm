@@ -1,27 +1,42 @@
 role Failure {
     has $.handled;
     has $.exception;
-    method true {
-        #$!handled = True;
+    method true() {
+        $.handled = True;
         ::False;
     }
-    method defined {
-        #$!handled = True;
+    method defined() {
+        $.handled = True;
         ::False;
     }
-    method handled {
-        say "handled";
-        ::False;
-        #$!handled;
+    method FETCH() {
+        self;
     }
-    method UNKNOWN_METHOD() {
-        ::Exception.new.throw;
+    method throw() {
+        $.exception.throw;
+    }
+    method UNKNOWN_METHOD($identifier) {
+        say "UNKNOWN METHOD: $identifer";
+        $.exception.throw;
+    }
+}
+role DollarBang {
+    has @.failures;
+    method cleanup() {
+        my sub throw($failure) {
+            if ($failure.handled) {
+            } else {
+                $failure.throw;
+            }
+        }
+        map(&throw,self.failures);
     }
 }
 my sub fail {
     my $failure = Failure.new;
-    return $failure;
-    #$failure.exception = ::Exception.new;
+    $failure.exception = ::Exception.new;
+    $failure;
 }
 $LexicalPrelude.{'Failure'} := ::Failure;
+$LexicalPrelude.{'DollarBang'} := ::DollarBang;
 $LexicalPrelude.{'&fail'} := &fail;

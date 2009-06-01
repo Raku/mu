@@ -1,5 +1,5 @@
 %prefix smop_s1p_hash_bvalue
-%RI.id bvalue
+%RI.id hash bvalue
 %attr SMOP__Object* owner
 %attr SMOP__Object* key
 %getter owner
