@@ -169,27 +169,13 @@
     my $object = $capture."positional"(1);
     my $name = $capture."positional"(2);
     my $attribute = $capture."positional"(3);
+
     my $attrhash = $object."^!attributes"();
     my $attrcont = $attrhash."postcircumfix:{ }"($name);
     my $void = $attrcont."STORE"($attribute);
-    my $inststor = $object."^!instance_storage"();
+
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();
-    my $backlexical = $back."lexical"();
-    my $packagec = $backlexical."lookup"("$?PACKAGE");
-    my $package = $packagec."FETCH"();
-    my $packnamec = $package."name"();
-    my $packname = $packnamec."FETCH"();
-    my $protost = $inststor."postcircumfix:{ }"($packname);
-    my $thispack = $hash."new"();
-    $void = $protost."STORE"($thispack);
-    my $conttypec = $attribute."container_type"();
-    my $conttype = $conttypec."FETCH"();
-    my $attnamec = $attribute."private_name"();
-    my $attname = $attnamec."FETCH"();
-    my $cont = $conttype."new"();
-    my $thiscont = $thispack."postcircumfix:{ }"($attname);
-    $void = $thiscont."BIND"($cont);
     $void = $interpreter."goto"($back);
 
 %init {
