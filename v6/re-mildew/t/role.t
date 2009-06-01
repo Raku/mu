@@ -1,3 +1,4 @@
+say "1..7";
 role Foo {
     method bar() {
         say "ok 1";
@@ -11,7 +12,6 @@ role Foo {
         $!hidden;
     }
 }
-say "1..4";
 Foo.bar;
 my $foo = Foo.new;
 $foo.baz("ok 2");

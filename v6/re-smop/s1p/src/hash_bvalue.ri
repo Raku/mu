@@ -105,6 +105,8 @@
     my $interpreter;
     my $capture;
     my $back;
+    my $continuation = $interpreter."continuation"();
+    my $void = $continuation."set_back"($back);
     my $invocant = $capture."positional"(0);
     my $owner = $invocant."owner"();
     my $key = $invocant."key"();

@@ -81,5 +81,6 @@ $LexicalPrelude.{'&postfix:++'} := sub ($a) {
 ::MildewSOLoader.new.load('RoleHOW.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('Exception.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('Failure.mildew.so',$LexicalPrelude.FETCH);
+::MildewSOLoader.new.load('Signature.mildew.so',$LexicalPrelude.FETCH);
 #::MildewSOLoader.new.load('Multi.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('EXTERNAL.mildew.so',$LexicalPrelude.FETCH);

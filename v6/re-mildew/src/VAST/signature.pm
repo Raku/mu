@@ -7,7 +7,7 @@ use AST::Helpers;
 sub emit_m0ld_ahsig_with_invocant {
     my $m = shift;
     my @stmts;
-    push @stmts, call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call positional => reg '$capture',[integer 0]];
+    push @stmts, call BIND => (call 'postcircumfix:{ }' => reg '$scope',[string '$¿self']),[call new => lookupf('Scalar'),[call positional => reg '$capture',[integer 0]]];
 
     $m->emit_m0ld_ahsig(1,@stmts);
 }
