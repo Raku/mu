@@ -1,7 +1,11 @@
 say "1..1";
 {
+   my sub foo {
+     fail;
+     say "not ok 1 - fail shouldn't return from the subroutine";
+   }
    {
-       my $failure = fail;
+       my $failure = foo;
        $failure.foo;
    }.();
    CATCH {

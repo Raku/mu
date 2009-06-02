@@ -35,6 +35,10 @@ my sub fail {
     my $failure = Failure.new;
     $failure.exception = ::Exception.new;
     $failure;
+    my $e = ::ControlExceptionReturn.new();
+    $e.capture = $failure;
+    $e.routine = CALLER::<&?ROUTINE>;
+    $e.throw;
 }
 $LexicalPrelude.{'Failure'} := ::Failure;
 $LexicalPrelude.{'DollarBang'} := ::DollarBang;
