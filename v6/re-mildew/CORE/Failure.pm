@@ -16,7 +16,6 @@ role Failure {
         $.exception.throw;
     }
     method UNKNOWN_METHOD($identifier) {
-        say "UNKNOWN METHOD: $identifer";
         $.exception.throw;
     }
 }
