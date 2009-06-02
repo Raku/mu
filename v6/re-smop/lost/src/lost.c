@@ -20,15 +20,18 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
   if (SMOP__ID__eval == identifier) {
      smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
 
-     SMOP__Object* back = ((SMOP__LOST__Frame*)invocant)->back;
-     ((SMOP__LOST__Frame*)invocant)->back = NULL;
 
      int (*step)(SMOP__Object* interpreter,
                  SMOP__Object* frame);
      step = ((SMOP__LOST__Frame*)invocant)->step;
      smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
      int flag = step(interpreter,invocant);
-     SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), back, NULL}, (SMOP__Object*[]) {NULL}));
+     if (!flag) {
+
+     SMOP__Object* back = ((SMOP__LOST__Frame*)invocant)->back;
+     ((SMOP__LOST__Frame*)invocant)->back = NULL;
+       SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), back, NULL}, (SMOP__Object*[]) {NULL}));
+     }
      ret = flag ? SMOP__NATIVE__bool_true : SMOP__NATIVE__bool_false;
   } else {
     /*___UNKNOWN_METHOD___;*/
