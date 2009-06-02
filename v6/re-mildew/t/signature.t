@@ -17,16 +17,10 @@ $sig.positionals.push($param2.FETCH);
 my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
 $code2.("ok 1","ok 2");
 
-
-
-
-
-
 {
     my $sig = ::Signature.new();
     $sig.positionals = ::Array.new;
     my $code = sub ($readonly) {
-#        ::Exception.new.throw;
         $readonly = 1;
     }
     CATCH {

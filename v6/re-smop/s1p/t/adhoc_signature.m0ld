@@ -25,7 +25,6 @@ my $void = $outer."STORE"($prelude);
 my $signature = $AdhocSignature."new"(:"ACCEPTS"(mold {
     #TODO test
     my $interpreter;
-    my $scope;
     my $capture;
     my $continuation = $interpreter."continuation"();
     my $back = $continuation."back"();

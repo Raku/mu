@@ -1,7 +1,7 @@
 role Signature {
     has @.positionals;
-    method ACCEPTS(\$capture,$scope) {
-        say "ACCEPTS";
+    method ACCEPTS(\$capture) {
+        @.positionals.elems == $capture.elems;
     }
     method BIND(\$capture,$scope) {
         my $i = 0;

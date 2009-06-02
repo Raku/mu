@@ -24,8 +24,24 @@ my sub map($expression,$values) {
         }
     }
 }
+my sub grep($expression,$values) {
+    my $i = 0;
+    my $ret = ::Array.new;
+    loop {
+        if &infix:<==>:(int,int)($i,$values.elems) {
+            return $ret;
+        } else {
+           if ($expression.($values.[$i.FETCH])) {
+              $ret.push($values.[$i.FETCH].FETCH);
+           } else {
+           }
+           $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
+}
 
 $LexicalPrelude.{'&map'} := &map;
+$LexicalPrelude.{'&grep'} := &grep;
 $LexicalPrelude.{'&say'} := &say;
 $LexicalPrelude.{'&print'} := &print;
 
@@ -82,5 +98,5 @@ $LexicalPrelude.{'&postfix:++'} := sub ($a) {
 ::MildewSOLoader.new.load('Exception.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('Failure.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('Signature.mildew.so',$LexicalPrelude.FETCH);
-#::MildewSOLoader.new.load('Multi.mildew.so',$LexicalPrelude.FETCH);
+::MildewSOLoader.new.load('Multi.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('EXTERNAL.mildew.so',$LexicalPrelude.FETCH);
