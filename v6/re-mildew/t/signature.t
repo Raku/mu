@@ -1,4 +1,4 @@
-say "1..1";
+say "1..3";
 my $code = sub ($ok1,$ok2) {
     say "$ok1\n$ok2";
 }

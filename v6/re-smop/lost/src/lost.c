@@ -27,12 +27,11 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
      smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
      int flag = step(interpreter,invocant);
      if (!flag) {
-
-     SMOP__Object* back = ((SMOP__LOST__Frame*)invocant)->back;
-     ((SMOP__LOST__Frame*)invocant)->back = NULL;
+       SMOP__Object* back = ((SMOP__LOST__Frame*)invocant)->back;
+       ((SMOP__LOST__Frame*)invocant)->back = NULL;
        SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), back, NULL}, (SMOP__Object*[]) {NULL}));
      }
-     ret = flag ? SMOP__NATIVE__bool_true : SMOP__NATIVE__bool_false;
+     ret = SMOP__NATIVE__bool_true;
   } else {
     /*___UNKNOWN_METHOD___;*/
   }
