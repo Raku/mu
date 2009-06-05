@@ -6,7 +6,11 @@ role Signature {
     method BIND(\$capture,$scope) {
         my $i = 0;
         my sub BIND($pos) {
-            $pos.BIND($scope,$capture.positional($i.FETCH));
+            if &infix:<<<>>:(int,int)($i,$capture.elems) {
+                $pos.BIND($scope,$capture.positional($i.FETCH));
+            } else {
+                $pos.BIND_with_default($scope);
+            }
             $i = &infix:<+>:(int,int)($i.FETCH,1);
         }
         map(&BIND,self.positionals);
@@ -17,6 +21,11 @@ role Signature {
 }
 role Param {
     has $.name;
+    has $.default_value;
+    method BIND_with_default($scope) {
+        my $default_value = self.default_value;
+        self.BIND($scope,$default_value.());
+    }
 }
 role RefParam {
     RefParam.^compose_role(::Param);

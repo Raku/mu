@@ -49,6 +49,10 @@ $LexicalPrelude.{'&infix:+:(int,int)'} := sub ($a,$b) {
     PRIMITIVES::int_add($a.FETCH,$b.FETCH);
 }
 
+$LexicalPrelude.{'&infix:<:(int,int)'} := sub ($a,$b) {
+    PRIMITIVES::int_less($a.FETCH,$b.FETCH);
+}
+
 $LexicalPrelude.{'&infix:-:(int,int)'} := sub ($a,$b) {
     PRIMITIVES::int_substract($a.FETCH,$b.FETCH);
 }
