@@ -1,7 +1,7 @@
 role Signature {
-    has @.positionals;
+    has $.positionals;
     method ACCEPTS(\$capture) {
-        @.positionals.elems == $capture.elems;
+        $.positionals.elems == $capture.elems;
     }
     method BIND(\$capture,$scope) {
         my $i = 0;
@@ -10,6 +10,9 @@ role Signature {
             $i = &infix:<+>:(int,int)($i.FETCH,1);
         }
         map(&BIND,self.positionals);
+    }
+    method BUILDALL() {
+        self.positionals = ::Array.new;
     }
 }
 role Param {

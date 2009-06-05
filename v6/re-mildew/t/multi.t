@@ -1,12 +1,10 @@
 say "1..2";
 my $multi = ::Multi.new;
-$multi.variants = ::Array.new;
 {
   my $code = sub ($arg1) {
     say $arg1;
   }
   my $sig = ::Signature.new();
-  $sig.positionals = ::Array.new;
 
   my $param1 = ::RefParam.new;
   $param1.name = '$arg1';
@@ -19,7 +17,6 @@ $multi.variants = ::Array.new;
     say "ok 2";
   }
   my $sig = ::Signature.new();
-  $sig.positionals = ::Array.new;
 
   my $param1 = ::ReadonlyParam.new;
   $param1.name = '$arg1';

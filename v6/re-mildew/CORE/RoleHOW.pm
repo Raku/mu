@@ -48,6 +48,9 @@ role LowObject {
         my $obj = ::p6opaque.^!CREATE;
         $obj.^!how = self.^!how;
         copy_methods($obj,self);
+        if $obj.^!methods.{'BUILDALL'} {
+            $obj.BUILDALL;
+        }
         $obj;
     }
 }
