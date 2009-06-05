@@ -27,7 +27,6 @@ role Multi {
     }
   }
   method BUILDALL() {
-    say "BUILDALL";
     self.variants = ::Array.new;
   }
 }
