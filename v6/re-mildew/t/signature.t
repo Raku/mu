@@ -1,7 +1,7 @@
 say "1..6";
 
 {
-    # :($ok1 is ref,$ok2 is ref)
+    # :($ok1 is ref,$ok2)
     my $code = sub ($ok1,$ok2) {
         say "$ok1\n$ok2";
     }
@@ -42,8 +42,6 @@ say "1..6";
 
 # :($readonly)
 {
-    my $sig = ::Signature.new();
-    $sig.positionals = ::Array.new;
     my $code = sub ($readonly) {
         $readonly = 1;
     }
@@ -51,10 +49,8 @@ say "1..6";
         say "ok 4 # can't assign to a readonly var";
     }
 
-    my $param = ::ReadonlyParam.new;
-    $param.name = '$readonly';
-    $sig.positionals.push($param.FETCH);
-#
+    my $sig = :($readonly);
+ 
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
     $code2.($foo);

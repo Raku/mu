@@ -30,6 +30,17 @@ sub emit_m0ld_ahsig_BIND {
         XXX;
     }
 }
+sub emit_m0ld {
+    my $m = shift;
+    my $param = FETCH(call new => lookupf('ReadonlyParam'));
+    let $param, sub {
+        my $param = shift;
+        AST::Seq->new(stmts => [
+            call(STORE => (call name => $param),[ string $m->{param_var}{sigil}{sym}.$m->{param_var}{name}[0]{TEXT}]),
+            $param]
+        );
+    }
+}
 
 
 1;

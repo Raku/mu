@@ -34,4 +34,17 @@ sub emit_m0ld_ahsig {
               ( regs => [qw(interpreter scope capture)],
                 stmts => trailing_return(\@stmts))]));
 }
+sub emit_m0ld {
+    my $m = shift;
+    use YAML::XS;
+    my $sig = FETCH(call new => lookupf('Signature'));
+    let $sig, sub {
+        my $sig = shift;
+        let FETCH(call positionals=>$sig),sub {
+            my $positionals = shift;
+            my $stmts = [map ({call push=>$positionals,[$_->emit_m0ld]} @{$m->{parameter}}),$sig];
+            AST::Seq->new(stmts => $stmts);
+        }
+    };
+}
 1;

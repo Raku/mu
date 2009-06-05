@@ -27,6 +27,8 @@ sub emit_m0ld {
         #my $p = $m->{package_declarator};
     } elsif ($m->{circumfix}) {
         $m->{circumfix}->emit_m0ld;
+    } elsif ($m->{sigterm}) {
+        $m->{sigterm}->emit_m0ld;
     } elsif ($m->{colonpair}) {
         if ($m->{fatarrow}) {
             $m->{fatarrow}->emit_m0ld;
