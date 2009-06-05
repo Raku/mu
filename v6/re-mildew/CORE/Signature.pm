@@ -36,7 +36,7 @@ role RefParam {
 role ReadonlyWrapper {
     has $.value;
     method FETCH() {
-        $!value;
+        (|$!value);
     }
     method STORE($value) {
         ::Exception.new.throw;
@@ -46,7 +46,7 @@ role ReadonlyParam {
     ReadonlyParam.^compose_role(::Param);
     method BIND($scope,$arg) {
         my $wrapper = ReadonlyWrapper.new;
-        $wrapper.value = (|$arg);
+        $wrapper.value = $arg;
         $wrapper.^!is_container = 1;
         $wrapper.FETCH;
         $scope.{self.name.FETCH} := (|$wrapper);
