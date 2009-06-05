@@ -32,7 +32,16 @@ sub emit_m0ld_ahsig_BIND {
 }
 sub emit_m0ld {
     my $m = shift;
-    my $param = FETCH(call new => lookupf('ReadonlyParam'));
+    my $type;
+    my $trait = $m->{trait}[0]{trait_auxiliary}{longname}{name}{identifier}{TEXT} || 'readonly';
+    if ($trait eq 'ref') {
+        $type = 'RefParam';
+    } elsif ($trait eq 'readonly') {
+        $type = 'ReadonlyParam';
+    } else {
+        die "unknow type of param $trait";
+    }
+    my $param = FETCH(call new => lookupf($type));
     let $param, sub {
         my $param = shift;
         AST::Seq->new(stmts => [

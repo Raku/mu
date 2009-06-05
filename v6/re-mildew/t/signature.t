@@ -6,41 +6,25 @@ say "1..6";
         say "$ok1\n$ok2";
     }
     
-    my $sig = ::Signature.new();
-    $sig.positionals = ::Array.new;
-    
-    my $param1 = ::RefParam.new;
-    $param1.name = '$ok1';
-    
-    my $param2 = ::ReadonlyParam.new;
-    $param2.name = '$ok2';
-    
-    $sig.positionals.push($param1.FETCH);
-    $sig.positionals.push($param2.FETCH);
+    my $sig = :($ok1 is ref,$ok2);
+
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     $code2.("ok 1","ok 2");
 }.();
 
 {
     my $var;
-    # :($ref is ref)
     my $code = sub ($ref) {
         $ref = "ok 3";
     }
     
-    my $sig = ::Signature.new();
-    $sig.positionals = ::Array.new;
-    
-    my $param1 = ::RefParam.new;
-    $param1.name = '$ref';
-    $sig.positionals.push($param1.FETCH);
+    my $sig = :($ref is ref);
 
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     $code2.($var);
     say $var;
 }.();
 
-# :($readonly)
 {
     my $code = sub ($readonly) {
         $readonly = 1;
@@ -56,7 +40,7 @@ say "1..6";
     $code2.($foo);
 }.();
 
-# :($default is ref = "ok 4"))
+# :($default is ref = "ok 5"))
 {
     my $sig = ::Signature.new();
     $sig.positionals = ::Array.new;
@@ -73,7 +57,7 @@ say "1..6";
     my $foo = 1;
     $code2.();
 }.();
-# :($default = "ok 4"))
+# :($default = "ok 6"))
 {
     my $sig = ::Signature.new();
     $sig.positionals = ::Array.new;
