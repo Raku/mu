@@ -39,15 +39,11 @@ sub emit_m0ld {
     if ($Mildew::adhoc_sig) {
         return $m->emit_m0ld_ahsig(@_);
     }
-    use YAML::XS;
     my $sig = FETCH(call new => lookupf('Signature'));
     let $sig, sub {
         my $sig = shift;
-        let FETCH(call positionals=>$sig),sub {
-            my $positionals = shift;
-            my $stmts = [map ({call push=>$positionals,[$_->emit_m0ld]} @{$m->{parameter}}),$sig];
-            AST::Seq->new(stmts => $stmts);
-        }
+        my $stmts = [map ({call register => $_->emit_m0ld,[$sig]} @{$m->{parameter}}),$sig];
+        AST::Seq->new(stmts => $stmts);
     };
 }
 1;

@@ -10,7 +10,7 @@ CORE: CORE/CORE.mildew.so CORE/Exception.mildew.so CORE/Multi.mildew.so CORE/Rol
 
 
 CORE/%.mildew.so : CORE/%.pm
-	perl mildew -Cso  --empty-setting -o $@ $<
+	perl mildew -Cso --target-stage 1 --empty-setting -o $@ $<
 
 PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove -r --perl'; else echo 'prove -r -e'; fi)
 

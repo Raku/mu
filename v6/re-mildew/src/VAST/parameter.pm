@@ -36,7 +36,9 @@ sub emit_m0ld {
     my $trait = $m->{trait}[0]{trait_auxiliary}{longname}{name}{identifier}{TEXT} || 'readonly';
     my $name;
     if ($m->{param_var}) {
-        if ($trait eq 'ref') {
+        if ($m->{quant} eq '|') {
+            $type = 'WholeCaptureParam';
+        } elsif ($trait eq 'ref') {
             $type = 'RefParam';
         } elsif ($trait eq 'readonly') {
             $type = 'ReadonlyParam';

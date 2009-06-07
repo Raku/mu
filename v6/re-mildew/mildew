@@ -38,7 +38,7 @@ help if $help;
 
 my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include"),;
 
-$target_stage //= 1;
+$target_stage //= 2;
 if ($target_stage == 1) {
     $Mildew::adhoc_sig = 1;
 } elsif ($target_stage == 2) {
