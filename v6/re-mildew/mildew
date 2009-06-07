@@ -32,11 +32,20 @@ Usage: mildew [switches] [--] [programfile] [arguments]
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting,$x);
-Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'empty-setting'=>\$empty_setting,'debug'=>\$debug,'h|help'=>\$help,'x=s'=>\$x) || help;
+my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting,$x,$target_stage);
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'empty-setting'=>\$empty_setting,'debug'=>\$debug,'h|help'=>\$help,'x=s'=>\$x,'target-stage=i'=>\$target_stage) || help;
 help if $help;
 
 my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include"),;
+
+$target_stage //= 1;
+if ($target_stage == 1) {
+    $Mildew::adhoc_sig = 1;
+} elsif ($target_stage == 2) {
+    $Mildew::adhoc_sig = 0;
+} else {
+    die 'unrecognised value passed to --target-stage';
+}
 
 $x ||= 'p6';
 if ($x eq 'm0ld') {

@@ -36,6 +36,9 @@ sub emit_m0ld_ahsig {
 }
 sub emit_m0ld {
     my $m = shift;
+    if ($Mildew::adhoc_sig) {
+        return $m->emit_m0ld_ahsig(@_);
+    }
     use YAML::XS;
     my $sig = FETCH(call new => lookupf('Signature'));
     let $sig, sub {
