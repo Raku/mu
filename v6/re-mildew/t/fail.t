@@ -2,7 +2,7 @@ say "1..1";
 {
    my sub foo {
      fail;
-     say "not ok 1 - fail shouldn't return from the subroutine";
+     say "not ok 1 - fail should return from the subroutine";
    }
    {
        my $failure = foo;
