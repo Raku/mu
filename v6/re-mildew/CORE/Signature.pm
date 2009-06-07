@@ -36,7 +36,7 @@ role Signature {
     }
 }
 role Param {
-    has $.name;
+    has $.variable;
     has $.default_value;
     method BIND_with_default($scope) {
         my $default_value = self.default_value;
@@ -52,7 +52,7 @@ role Positional {
 role RefParam {
     RefParam.^compose_role(::Positional);
     method BIND($scope,$arg) {
-        $scope.{self.name.FETCH} := $arg;
+        $scope.{self.variable.FETCH} := $arg;
     }
 }
 role ReadonlyParam {
@@ -62,13 +62,28 @@ role ReadonlyParam {
         $wrapper.value = $arg;
         $wrapper.^!is_container = 1;
         $wrapper.FETCH;
-        $scope.{self.name.FETCH} := (|$wrapper);
+        $scope.{self.variable.FETCH} := (|$wrapper);
+    }
+}
+role NamedReadonlyParam {
+    NamedReadonlyParam.^compose_role(::Param);
+    has $.name;
+    method BIND($scope,$capture) {
+        my $arg = $capture.named(self.name.FETCH);
+        my $wrapper = ReadonlyWrapper.new;
+        $wrapper.value = $arg;
+        $wrapper.^!is_container = 1;
+        $wrapper.FETCH;
+        $scope.{self.variable.FETCH} := (|$wrapper);
+    }
+    method register($sig) {
+        $sig.other.push((|self));
     }
 }
 role WholeCaptureParam {
     WholeCaptureParam.^compose_role(::Param);
     method BIND($scope,$capture) {
-        $scope.{self.name.FETCH} = $capture;
+        $scope.{self.variable.FETCH} = $capture;
     }
     method register($sig) {
         $sig.other.push((|self));
@@ -76,6 +91,7 @@ role WholeCaptureParam {
 }
 
 $LexicalPrelude.{'WholeCaptureParam'} := ::WholeCaptureParam;
+$LexicalPrelude.{'NamedReadonlyParam'} := ::NamedReadonlyParam;
 $LexicalPrelude.{'ReadonlyParam'} := ::ReadonlyParam;
 $LexicalPrelude.{'RefParam'} := ::RefParam;
 $LexicalPrelude.{'Signature'} := ::Signature;

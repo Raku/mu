@@ -15,7 +15,7 @@ sub emit_m0ld {
 
     } elsif ($m->{sym} eq 'if') {
         my $then = call 'postcircumfix:( )' => code($m->{xblock}{pblock}{blockoid}),[capturize];
-        my $else;
+        my $else = lookupf("False");
         if (ref $m->{else} eq 'ARRAY' &&
             blessed $m->{else}[0] &&
             ref $m->{else}[0]{pblock} &&

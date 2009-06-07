@@ -49,7 +49,7 @@ say "1..6";
     }
 
     my $param = ::RefParam.new;
-    $param.name = '$default';
+    $param.variable = '$default';
     $param.default_value = sub {"ok 5"}
     $sig.positionals.push($param.FETCH);
 #
@@ -66,7 +66,7 @@ say "1..6";
     }
 
     my $param = ::ReadonlyParam.new;
-    $param.name = '$default';
+    $param.variable = '$default';
     $param.default_value = sub {"ok 6"}
     $sig.positionals.push($param.FETCH);
 #

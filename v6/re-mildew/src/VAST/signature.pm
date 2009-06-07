@@ -34,15 +34,32 @@ sub emit_m0ld_ahsig {
               ( regs => [qw(interpreter scope capture)],
                 stmts => trailing_return(\@stmts))]));
 }
-sub emit_m0ld {
+sub emit_m0ld_with_invocant {
     my $m = shift;
+
     if ($Mildew::adhoc_sig) {
-        return $m->emit_m0ld_ahsig(@_);
+        return $m->emit_m0ld_ahsig_with_invocant(@_);
+    }
+
+    my $invocant = FETCH(call new => lookupf('ReadonlyParam'));
+    $m->emit_m0ld(
+    let $invocant, sub {
+        my $invocant = shift;
+        AST::Seq->new(stmts => [
+            call(STORE => (call variable => $invocant),[ string '$¿self']),
+            $invocant]
+        );
+    });
+}
+sub emit_m0ld {
+    my ($m,@other) = @_;
+    if ($Mildew::adhoc_sig) {
+        return $m->emit_m0ld_ahsig(@other);
     }
     my $sig = FETCH(call new => lookupf('Signature'));
     let $sig, sub {
         my $sig = shift;
-        my $stmts = [map ({call register => $_->emit_m0ld,[$sig]} @{$m->{parameter}}),$sig];
+        my $stmts = [map ({call register => $_,[$sig]} @other),map ({call register => $_->emit_m0ld,[$sig]} @{$m->{parameter}}),$sig];
         AST::Seq->new(stmts => $stmts);
     };
 }

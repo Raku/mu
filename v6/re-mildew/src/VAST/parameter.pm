@@ -34,7 +34,7 @@ sub emit_m0ld {
     my $m = shift;
     my $type;
     my $trait = $m->{trait}[0]{trait_auxiliary}{longname}{name}{identifier}{TEXT} || 'readonly';
-    my $name;
+    my $var;
     if ($m->{param_var}) {
         if ($m->{quant} eq '|') {
             $type = 'WholeCaptureParam';
@@ -45,16 +45,17 @@ sub emit_m0ld {
         } else {
             die "unknow type of param $trait";
         }
-        $name = $m->{param_var};
+        $var = $m->{param_var};
     } elsif ($m->{named_param}) {
         $type = 'NamedReadonlyParam';
-        $name = $m->{named_param}{param_var};
+        $var = $m->{named_param}{param_var};
     }
     my $param = FETCH(call new => lookupf($type));
     let $param, sub {
         my $param = shift;
         AST::Seq->new(stmts => [
-            call(STORE => (call name => $param),[ string $name->{sigil}{sym}.$name->{name}[0]{TEXT}]),
+            call(STORE => (call variable => $param),[ string $var->{sigil}{sym}.$var->{name}[0]{TEXT}]),
+            $m->{named_param} ?  call(STORE => (call name => $param),[ string $var->{name}[0]{TEXT} ]) : (),
             $param]
         );
     }
