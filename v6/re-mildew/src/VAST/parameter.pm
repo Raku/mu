@@ -50,12 +50,14 @@ sub emit_m0ld {
         $type = 'NamedReadonlyParam';
         $var = $m->{named_param}{param_var};
     }
+    my $type_constraint = $m->{type_constraint}[0]{fulltypename}{typename}[0]{longname}{name}{identifier}{TEXT};
     my $param = FETCH(call new => lookupf($type));
     let $param, sub {
         my $param = shift;
         AST::Seq->new(stmts => [
             call(STORE => (call variable => $param),[ string $var->{sigil}{sym}.$var->{name}[0]{TEXT}]),
             $m->{named_param} ?  call(STORE => (call name => $param),[ string $var->{name}[0]{TEXT} ]) : (),
+            $type_constraint ?  call(STORE => (call type => $param),[ lookupf($type_constraint) ]) : (),
             $param]
         );
     }

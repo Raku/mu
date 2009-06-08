@@ -12,7 +12,23 @@ role Signature {
     has $.positionals;
     has $.other;
     method ACCEPTS(\$capture) {
-        $.positionals.elems == $capture.elems;
+        if $.positionals.elems == $capture.elems {
+        } else {
+            return ::False;
+        }
+        my $i = 0;
+        loop {
+            if &infix:<==>:(int,int)($i,$capture.elems) {
+                return ::True;
+            } else {
+                if $.positionals.[$i.FETCH].ACCEPTS($capture.positional($i.FETCH)) {
+                } else {
+                    return ::False;
+                }
+                $i = &infix:<+>:(int,int)($i.FETCH,1);
+            }
+        }
+
     }
     method BIND(\$capture,$scope) {
         my $i = 0;
@@ -38,9 +54,17 @@ role Signature {
 role Param {
     has $.variable;
     has $.default_value;
+    has $.type;
     method BIND_with_default($scope) {
         my $default_value = self.default_value;
         self.BIND($scope,$default_value.());
+    }
+    method ACCEPTS($arg) {
+        if $.type {
+            $.type.ACCEPTS($arg);
+        } else {
+            ::True;
+        }
     }
 }
 role Positional {
