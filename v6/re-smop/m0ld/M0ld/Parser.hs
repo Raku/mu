@@ -38,8 +38,15 @@ label = do
 
 stmt = do 
     l <- option [] (try label)
-    body <- choice $ [goto,br,noop,declaration]
+    body <- choice $ [goto,br,noop,declaration,action]
     return $ l ++ body
+
+action = do
+   lvalue <- tok $ register
+   symbol "="
+   val <- value
+   option [Assign lvalue val] $ (symbol ".") >> (call val lvalue)
+
 
 declaration = do
    symbol "my" 
@@ -54,11 +61,13 @@ expression_constant_first lvalue = do
     option (c,[]) $ do
         symbol "."
         reg <- declare_implicitly c
-        call reg lvalue
+        action <- call reg lvalue
+        return (None,action)
+
 
 expression_reg_first lvalue = do
     r <- tok $ register
-    option (None,[Assign lvalue r]) $ symbol "." >>(call r lvalue)
+    option (None,[Assign lvalue r]) $ symbol "." >>(call r lvalue >>= \x -> return (None,x))
 
 
 call invocant lvalue = do
@@ -67,7 +76,7 @@ call invocant lvalue = do
     let pos = [ x | Pos x <- arguments]
         named = [x | (Named k v) <- arguments, x <- [k,v]]
         action = [Call (lvalue :: Register) identifier (Capture (invocant :: Register) pos named)]
-    return (None,action)
+    return action
 
     
 
