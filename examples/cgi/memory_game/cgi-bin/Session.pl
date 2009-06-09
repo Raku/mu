@@ -30,16 +30,16 @@ sub SessionClear() {
 }
 
 sub SessionCode(@variables) {
-    my(@coded);
-    for(@variables) {
+    my (@coded);
+    for @variables {
         push(@coded,$_ ~ "=" ~ url_encode(%Session{$_}));
     }
     return @coded.join('&');
 }
  
 sub SessionDecode($data) {
-    for(split('&',$data)) {
-        my($variable,$value) = split('=',$_);
+    for split('&',$data) {
+        my ($variable,$value) = split('=',$_);
         %Session{$variable} = url_decode($value) if ($variable ne '');
     } 
 }

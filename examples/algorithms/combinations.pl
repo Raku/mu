@@ -1,8 +1,8 @@
 sub combinations returns Array  (@list is rw) {
   return () unless @list.elems;
   my @ans;
-  for 1 .. 2**@list.elems-1-> $num {
-      push @ans, [ @list[ (0 .. sqrt($num)).grep:{ $num +& (2**$_) } ] ];
+  for 1 ..^ 2**@list.elems -> $num {
+      push @ans, [ @list[ (0 .. sqrt($num)).grep: { $num +& (2**$_) } ] ];
   }
   return @ans;
 } 

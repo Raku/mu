@@ -147,10 +147,10 @@ sub svn_commits() {
     if $cur_svnrev {
         if '.svn' ~~ :d {
             # must be in repo 
-            system "svn st -N -q -u . > $tempfile";
+            run "svn st -N -q -u . > $tempfile";
         }
         else {
-	        system "svn info $repository -r HEAD > $tempfile";
+	        run "svn info $repository -r HEAD > $tempfile";
         }
         my $latest = 0;
         for $tempfile.lines {
@@ -167,10 +167,10 @@ sub svn_commits() {
         # Hack to prevent "-3:HEAD", resulting in a syntax error, resulting in
         # svn not outputting the log, resulting in svnbot not saying anything.
         $from    = "HEAD" if $from <= 0;
-        system "svn log -vr $from:HEAD $repository > $tempfile";
+        run "svn log -vr $from:HEAD $repository > $tempfile";
     } else {
         # Else query only for the newest commit.
-        system "svn log -vr HEAD $repository > $tempfile";
+        run "svn log -vr HEAD $repository > $tempfile";
     }
 
     my $commits;
@@ -214,7 +214,7 @@ sub svn_commits() {
     }
     if $svndiffurl && $commits {
         $commits ~= "diff: $svndiffurl$cur_svnrev\n";
-        system "wget $svndiffurl$cur_svnrev -O -";
+        run "wget $svndiffurl$cur_svnrev -O -";
     }
 
     return $commits;

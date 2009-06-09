@@ -10,7 +10,7 @@ sub verify($password) {
 sub read_new_password {
 
   print "Enter new password: ";
-  my $password = $IN.get;
+  my $password = $*IN.get;
 }
 
 while (not verify(read_new_password)) {

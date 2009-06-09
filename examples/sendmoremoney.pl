@@ -8,13 +8,13 @@ my $piggy_bank;
 
 sub show_rate($num) {
     my $elapsed = time() - $timer;
-    if ($elapsed) {
+    if $elapsed {
         say "Found all solutions in "~$elapsed~"s ("~($num/$elapsed)~" comb/s)";
     } else {
         say "Damn, that was fast.  Didn't even see the clock tick,";
         say "for searching a solution space of $num!";
     }
-    if (defined($piggy_bank)) {
+    if defined($piggy_bank) {
         say "There are $piggy_bank coins left in the bank.";
     }
 }
@@ -25,9 +25,9 @@ my $b = any(1..9);
 my $c = any(0..9);
 
 sub do_it($a,$b,$c) {
-    if ( any($a, $b, $c) == one($a, $b, $c) ) {
+    if any($a, $b, $c) == one($a, $b, $c) {
         my $ac = $a * 10 + $c;
-        if ( $a + $b == $ac ) {
+        if $a + $b == $ac {
             say "  A =  $a";
             say "+ B =  $b";
             say "--------";
@@ -44,15 +44,15 @@ show_rate(810);
 # a more complicated and "classical" case :)
 sub show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y) {
 
-    if (all($s,$e,$n,$d,$m,$o,$r,$y) == one($s,$e,$n,$d,$m,$o,$r,$y)) {
+    if all($s,$e,$n,$d,$m,$o,$r,$y) == one($s,$e,$n,$d,$m,$o,$r,$y) {
 
-        $piggy_bank --;
+        $piggy_bank--;
 
         my $send = ((($s)*10+$e)*10+$n)*10+$d;
         my $more = ((($m)*10+$o)*10+$r)*10+$e;
         my $money = (((($m)*10+$o)*10+$n)*10+$e)*10+$y;
 
-        if ($send + $more == $money) {
+        if $send + $more == $money {
             say " send =  $send";
             say "+more =  $more";
             say "-------------";
@@ -160,7 +160,7 @@ start_timer();
 show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);
 show_rate(2*2*4*3*2*3*3*3);
 
-=kwid
+=begin kwid
 
 -- Heres the equivalent SQL, as junctions have direct representation
 -- in Set Theory (see http://xrl.us/feh8)), then the below should be a
@@ -215,4 +215,4 @@ WHERE
     MOD( D.X + E.X       , 10) = Y.X
 ;
 
-=cut
+=end kwid

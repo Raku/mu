@@ -46,7 +46,7 @@ sub list_pod_files {
 sub display_pod {
     my ($podfile) = @_;
     my $fh = open $podfile orelse die "Could not open '$podfile'\n";
-    for =$fh -> $line {
+    for $fh.lines -> $line {
         say $line;
     }
 }
@@ -64,9 +64,9 @@ sub index_pods {
         my $fh = open $podfile orelse die "Could not open '$podfile'\n";
         my $row = 0;
         my $section;
-        for =$fh -> $line {
+        for $fh.lines -> $line {
             $row++;
-            if ($line ~~ /^=head\d\ (.*)/) {
+	    if ($line ~~ m:P5/^=head\d\ (.*)/) {
                 $section = $0;
             }
             if ($line ~~ /X\<(.*?)\>/) {
@@ -112,12 +112,12 @@ sub lookup($keyword) {
             say "here: $file  $row";
             my $fh = open $file orelse die "Could not open $file";
             for (0..$row) {
-                =$fh;
+                $fh.get;
             }
             # TODO: I guess the display should show a few lines before and a few lines after
             # max to the next section start, I am not sure.
             for (1..10) {
-                my $line = =$fh;
+                my $line = $fh.get;
                 say $line;
             }
         }
@@ -131,7 +131,7 @@ sub lookup($keyword) {
 # should be improved and moved to File::Basename, or better yet we should have one module with all
 # frequently needed filesystem related functions....
 sub dirname($path is copy) {
-    $path ~~ s{/<-[/]>*$} = '';
+    $path ~~ s:P5{/<-[/]>*$} = '';
     return $path;
 }
 

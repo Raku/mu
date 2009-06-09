@@ -6,7 +6,7 @@
 use v6;
 
 sub longest_line(@lines) {
-    @lines.max:{ $^a.codes <=> $^b.codes }.codes;
+    @lines.max({ $^a.codes <=> $^b.codes }).codes;
 }
 
 sub lfill(Str $s, Num $n) {

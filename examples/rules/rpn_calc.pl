@@ -3,7 +3,7 @@ use v6;
 grammar rpn_data {
    rule key       { <?ident> }
    rule value     { \N* };
-   rule statement { <key>\h*=\h*<value>\n* }
+   rule statement { <key>\h*\=\h*<value>\n* }
    rule config    { [\n*<statement>]* }
 }
 
@@ -45,7 +45,7 @@ sub match_describe (Match $o, Num $indent) {
 sub evaluate (Str $expr) returns Int {
     my @stack;
     for $expr.split() -> $tok {
-        if $tok ~~ /-? \d+/ {
+        if $tok ~~ /\-? \d+/ {
             @stack.push($tok);
             next;
         }

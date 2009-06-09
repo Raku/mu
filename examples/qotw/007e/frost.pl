@@ -12,7 +12,7 @@ my $t = 0;
 frost(create_volume(@*ARGS[0],@*ARGS[1],@*ARGS[2]));
 
 sub cls returns Void {
-    system(($?OS eq any <MSWin32 mingw cygwin>) ?? 'cls' !! 'clear');
+    run(($?OS eq any <MSWin32 mingw cygwin>) ?? 'cls' !! 'clear');
 }
 
 # create a volume of size M x N with vapor density D

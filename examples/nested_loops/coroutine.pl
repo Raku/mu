@@ -27,7 +27,7 @@ sub NL2 (:@loop!) {
     coro {
         given (@loop.elems) {
             when 0  { yield [] }
-            when 1  { for @loop[0] { yield [$^first] } yield undef while 1 }
+            when 1  { for @loop[0] { yield [$^first] }; yield undef while 1 }
             default {
                 for @loop[0] -> $first {
                     my &rest = NL2(loop => @loop[1..Inf]);

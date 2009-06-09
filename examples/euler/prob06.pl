@@ -17,11 +17,11 @@ hundred natural numbers and the square of the sum.
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 sub main {
     say ([+] 1..100) ** 2 - [+] map { $_ **2 }, 1..100;
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";

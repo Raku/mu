@@ -9,12 +9,12 @@ What is the sum of the digits of the number 2^1000?
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 sub main {
     my $n = 2 ** 1000;
-    say sum(split(/./, $n));
+    say [+](split(/./, $n));
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";

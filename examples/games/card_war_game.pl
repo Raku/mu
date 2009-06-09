@@ -134,7 +134,7 @@ exit 0;
 
 # Perl 6 creating new operators
 # define CC (compare cards) operator
-sub infix:<CC> (ArrayRef $card1, ArrayRef $card2) {
+sub infix:<CC> ($card1, $card2) {
     my %values = (
         'Jack'   => 11,
         'Queen'  => 12,
@@ -187,7 +187,7 @@ sub draw_cards (Bool $visible) {
 }
 
 # player that won the round gets both stacks to his hand
-sub collect_cards(HashRef $winner) {
+sub collect_cards($winner) {
     # Perl 6 uniq method is used to get array
     # containing winner and the other player
     for @($winner, $player1, $player2).uniq -> $player {
@@ -206,4 +206,3 @@ sub collect_cards(HashRef $winner) {
     }
 }
 
-__END__

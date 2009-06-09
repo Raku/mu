@@ -11,7 +11,7 @@ numbers from 1 to 20?
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 sub main {
     for 1..* -> $i {
@@ -37,5 +37,5 @@ sub gcd($a, $b) {
     return gcd($b, $a % $b);
 }
 
-my @t = timeit(1, \&alternate); # alternate is MUCH faster :)
+my @t = timeit(1, &alternate); # alternate is MUCH faster :)
 say "execution time: @t[0]";

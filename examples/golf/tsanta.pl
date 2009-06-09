@@ -52,7 +52,7 @@ sub check_one (Str $scr, Str $label, Str $data, Str $exp) {
     my $cmd = "$PUGS $scr $intmp >$outtmp";
     print("$label: running: '$cmd'...");
     # my $out = `$cmd`;
-    system($cmd) orelse die("system '$cmd' failed: $!");
+    run($cmd) orelse die("run '$cmd' failed: $!");
     # XXX: get return code. how? $!? (I think $? is obsolete in p6).
     my $rc = 0;
     my $out = slurp($outtmp) orelse die("slurp '$outtmp' failed: $!");

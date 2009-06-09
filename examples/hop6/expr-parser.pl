@@ -41,7 +41,7 @@ my $lexer = iterator_to_stream(
 
 # say 'lexer looks like: ', show($lexer, 10);
 
-my($result, $remaining_input) = $entire_input.($lexer);
+my ($result, $remaining_input) = $entire_input.($lexer);
 if ?$result {
   say $result.perl;
 } else {

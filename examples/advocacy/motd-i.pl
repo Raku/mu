@@ -67,7 +67,7 @@ unless $orig eq ~@list {
 
         # Write the changes to a new $dict
         my $newfh = open($dict, :w);
-        for @list->$line{say $newfh,$line}
+        for @list -> $line {say $newfh,$line}
         $newfh.close;
 
         # Display the differences

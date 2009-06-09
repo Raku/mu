@@ -1,10 +1,10 @@
 use v6;
 
-=pod
+=begin pod
 
 This examples exploits the fact that $junction.pick is choosen (pseudo)-randomly
 
-=cut
+=end pod
 
 my $lottery_numbers = any(1 .. 99);
 my @your_numbers;

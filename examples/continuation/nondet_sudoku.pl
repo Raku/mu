@@ -40,7 +40,7 @@ sub choose (*@all_choices) {
         give_up;
       }
       else {
-        my($choice, @newchoices) = @choices;
+        my ($choice, @newchoices) = @choices;
         &give_up = sub { $cnt($try(@newchoices)) };
         $choice;
       }

@@ -13,7 +13,7 @@ What is the greatest product of four numbers in any direction (up, down, left, r
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 my @grid;
 for [<08 02 22 97 38 15 00 40 00 75 04 05 07 78 52 12 50 77 91 08>],
@@ -35,7 +35,7 @@ for [<08 02 22 97 38 15 00 40 00 75 04 05 07 78 52 12 50 77 91 08>],
     [<04 42 16 73 38 25 39 11 24 94 72 18 08 46 29 32 40 62 76 36>],
     [<20 69 36 41 72 30 23 88 34 62 99 69 82 67 59 85 74 04 36 16>],
     [<20 73 35 29 78 31 90 01 74 31 49 71 48 86 81 16 23 57 05 54>],
-    [<01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48>],
+    [<01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48>]
         -> $row { push @grid, $row }
 
 sub main {
@@ -74,5 +74,5 @@ sub main {
     say $best;
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]"

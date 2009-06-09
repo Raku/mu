@@ -9,7 +9,7 @@ What is the largest prime factor of the number 317584931803?
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 sub is_prime($n) {
     my @primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43,

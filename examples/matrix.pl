@@ -70,12 +70,12 @@ my %scores = (
 gather {
     for slurp '/usr/share/dict/words' :chomp orelse die {
         next if /<-[a-z]>/;
-        /$re/ and take { word => $_, score => %scores{ .letters }.sum };
+        /$re/ and take { word => $_, score => [+](%scores{ .letters }) };
     }
 }
 ==> sort [ { -.<score> }, { .<word>.length }, { .<word> } ];
 ==> my @words;
 
-sayf 'MATRIX IS WORTH %d POINTS' <== sum @words>>.[0];
-sayf '%3d %s' <== $_[1], $_[0] for @words;
+say sprintf 'MATRIX IS WORTH %d POINTS' <== [+] @words>>.[0];
+say sprintf '%3d %s' <== $_[1], $_[0] for @words;
 

@@ -42,7 +42,7 @@ my %status;
 
 # Additional callback which is called when the status of a computer changes.
 my &on_change = -> Str $host, Int $new_status {
-  system "beep", "-r2", "-l150", "-f", $new_status == $ON ?? "1700" !! "200"
+  run "beep", "-r2", "-l150", "-f", $new_status == $ON ?? "1700" !! "200"
     if $new_status == $ON or $new_status == $OFF;
 };
 
@@ -162,11 +162,11 @@ sub write_status() {
 
 # Ping a host.
 # Returns true/false.
-sub ping(Str $host) returns Bool {
+sub ping(Str $host) {
   # This line might need changing.
-  # "Why don't you use the list form of system()?" -- Because I don't want to
+  # "Why don't you use the list form of run()?" -- Because I don't want to
   # redirect STDOUT and STDERR to /dev/null own my own right now.
-  system "ping -q -w3 -c1 $host &>/dev/null";
+  run "ping -q -w3 -c1 $host &>/dev/null";
   # -w3 -- Wait a maximum of 3s for a ICMP PING_REPLY.
   # -c1 -- Stop after at least one ICMP PING_REPLY is seen.
 }

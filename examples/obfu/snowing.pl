@@ -2,8 +2,8 @@
 # Run this on a screen at least 72 wide by 30 deep.
 # Enjoy! -- asavige aka mad golfer
 
-sub sleepy{for 1..5500 {;}}
-sub C{system($?OS eq 'MSWin32'??'ClS'!!'clear')}
+sub sleepy {for 1..5500 {;}}
+sub C {run($?OS eq 'MSWin32'??'ClS'!!'clear')}
 my$u;my$g='#';my$U;my$s='.';
 for (71,0,71,0,2,13,56,0,2,16,53,0,4,5,3,7,52,0,4,5,5
 ,6,51,0,4,5,6,6,50,0,4,5,6,6,50,0,4,5,6,6,50,0,4,5,6

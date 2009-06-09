@@ -1,8 +1,9 @@
 use v6;
 
-class l33t-0.0.3;
+class l33t:ver<0.0.3>;
+use Socket;
 
-=kwid
+=begin kwid
 
 l33t interpreter
 
@@ -13,7 +14,7 @@ L<http://electrod.ifreepages.com/l33t.htm>
 
 Which I think warrants its inclusion in this directory.
 
-=cut
+=end kwid
 
 #our $MEMSIZE  = 64 * 1024;
 our $MEMSIZE  = 200; # use this till pugs becomes faster. :-(
@@ -116,7 +117,7 @@ method con() {
     $.mp %= $MAXSIZE;
 };
 
-method mem($target is rw, :$wrap!, $down?) {
+method mem($target is rw, :$wrap!, :$down) {
     self.IIP;
     $target += (@!mem[$.ip] + 1) * ($down ?? -1 !! 1);
     $target %= $wrap;

@@ -17,7 +17,7 @@ debug "and supply appropriate arguments:";
 debug "  $*PROGRAM_NAME nick host[:port] max_bad_guesses";
 
 # Copied from examples/games/hangman.pl.
-sub get_committer_list(Str $dict_file) returns List {
+sub get_committer_list(Str $dict_file) {
   my @committers;
   my $dict = open($dict_file) orelse
     die "Couldn't open \"$dict_file\": $!\n";
@@ -150,7 +150,7 @@ sub show_game(Str $to, Hash $game) {
 }
 
 # Returns true if the game is finished.
-sub complete(Hash $game) returns Bool {
+sub complete(Hash $game) {
   my $name    = $game<dev>;
   my $guesses = join "", $game<guesses>;
 

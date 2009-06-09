@@ -4,10 +4,10 @@ use v6;
 # Produces an infinite streams of merged primes that is evaluated lazily
 
 # original code (http://www.perlmonks.org/index.pl?node_id=453215)
-sub lazy_merge1 (@list is copy) returns Ref {
+sub lazy_merge1 (@list is copy) {
     my $last = 0;
 
-    my $by_n = sub { my ($n, $k) = (shift(@_), 0); return sub { @_[0] ?? $k += $n !! $k } };
+    my $by_n = sub { my ($n, $k) = (shift(@_), 0); return sub { @_[0] ?? ($k += $n) !! $k } };
     for @list { $_ = $by_n( $_ ) }
 
     return sub {
@@ -18,14 +18,14 @@ sub lazy_merge1 (@list is copy) returns Ref {
             $low = $val if (! defined $low) || ($val < $low);
         }
         return $last = $low;
-    };
+    }
 }
 
 # further perl6-ification (http://www.perlmonks.org/index.pl?node_id=453402)
-sub lazy_merge2 (@list is copy) returns Sub {
+sub lazy_merge2 (@list is copy) {
     my $last = 0;
 
-    my $by_n = sub ($n) { my $k = 0; return -> $x { $x ?? $k += $n !! $k } };
+    my $by_n = sub ($n) { my $k = 0; return -> $x { $x ?? ($k += $n) !! $k } };
     @list = @list.map: { $by_n( $_ ) };
 
     return sub {
@@ -36,14 +36,14 @@ sub lazy_merge2 (@list is copy) returns Sub {
             $low = $val if !$low.defined || $val < $low;
         }
         return $last = $low;
-    };
+    }
 }
 
 # And again, golfing a bit as well (http://perlmonks.org/?node_id=463610)
-sub lazy_merge3 (@list is copy) returns Sub {
+sub lazy_merge3 (@list is copy) {
     my $last = 0;
 
-    my &by_n = -> $n { my $k = 0; -> $x { $x ?? $k += $n !! $k } };
+    my &by_n = -> $n { my $k = 0; -> $x { $x ?? ($k += $n) !! $k } };
     @list .= map: { by_n $_ };
 
     sub {

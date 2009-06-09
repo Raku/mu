@@ -7,7 +7,7 @@ use v6;
 
 my @loops = ([1..3], ['a'..'e'], ['foo', 'bar']);
 
-sub ret_iter4 (@loops is copy) returns Ref {
+sub ret_iter4 (@loops is copy) {
     my $last = [*] @loops.map: { $_.elems };
     my $iter = -1;
     return sub {

@@ -16,7 +16,7 @@ class Unit {
     method baseFactor() { 1; }       
 }
 
-multi sub *infix:<+>   (Unit $a, Unit $b) {
+multi sub infix:<+>   (Unit $a, Unit $b) {
    die unless $a.type eq $b.type;
    my $new = $a.clone();
    # wierd hack around a wierd error.
@@ -26,7 +26,7 @@ multi sub *infix:<+>   (Unit $a, Unit $b) {
    return $new;
 }
 
-multi sub *infix:<->   (Unit $a, Unit $b) {
+multi sub infix:<->   (Unit $a, Unit $b) {
    my $new = $a.clone();
    # wierd hack around a wierd error.
    my $aVal = $a.toBase();

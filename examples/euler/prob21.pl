@@ -12,7 +12,7 @@ Evaluate the sum of all the amicable numbers under 10000.
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 my $max = 10000;
 my int @divsum = (1) xx $max;
@@ -47,9 +47,9 @@ sub check {
 }
 
 sub main {
-    say sum(grep { is_amicable($_) }, 1..^$max);
+    say [+](grep { is_amicable($_) }, 1..^$max);
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";
 

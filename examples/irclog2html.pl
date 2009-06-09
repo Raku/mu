@@ -182,7 +182,7 @@ print tmpl_end();
 # ($time, $type, $nick, $text).
 sub parse_ilogger2(Str $line is copy) {
   $line ~~ rx:Perl5/^\[(\d\d:\d\d)\] (.*)$/ or
-    die "Couldn't parse line »$line«!";
+    die "Couldn't parse line »{$line}«!";
   my ($time, $rest) = @$/;
   # We want to see if we progress.
   $*ERR.say($rest);

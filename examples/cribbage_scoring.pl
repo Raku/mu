@@ -10,8 +10,9 @@ use v6;
 # Feature 1 - t/operators/hyper.t (hyper dereferencing)
 # Feature 2 - t/statements/last.t (last <label>)
 
+my @combo;
 my $next = combo(5, new_deck());
-while $combo == 1 {
+while @combo == 1 {
     # Skip all hands that do not contain a 5
 #    next if none( @combo.>>.<val> ) == 5;
 
@@ -58,7 +59,7 @@ sub score ( @hand ) returns Int {
     return $score;
 }
 
-sub combo (Int $by is copy, @list is copy) returns Ref {
+sub combo (Int $by is copy, @list is copy) {
     my @position = 0 .. $by - 2, $by - 2;
     my @stop     = @list.elems - $by .. @list.end;
     my $done     = undef;

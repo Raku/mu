@@ -67,7 +67,7 @@ class US::Currency {
 
 # --- main ---
 
-my $my_money     = new US::Currency;
+my $my_money     = new US::Currency:;
 $my_money.amount = 9876.50;
 my $your_money   = US::Currency.new( amount => 1000 );
 say $my_money.to_string; # $9876.50 USD

@@ -18,7 +18,7 @@ NOTE: This is a much more difficult version of Problem 18. It is not possible to
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 sub main {
     my @rows = $=DATA.join("\n").split("\n");
@@ -36,7 +36,7 @@ sub main {
     say @triangle[0][0];
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";
 
 =begin DATA

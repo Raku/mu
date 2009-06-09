@@ -28,7 +28,7 @@ have over five-hundred divisors?
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 sub divisors($n) {
     my %divisors;
@@ -55,5 +55,5 @@ sub main {
     }
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";

@@ -89,7 +89,7 @@ if ( $os eq 'win32' ) {
     $pugs ~= '.exe' unless $pugs ~~ rx:P5/\.exe$/;
 }
 say 'pugs: ' ~ $pugs ~ "\n" if $dg;
-my $stat = system( "$pugs -v" );
+my $stat = run( "$pugs -v" );
 # correct for unix?
 # die "Pugs '$pugs' run test failed (code $stat)!\n" unless $stat;
 
@@ -149,7 +149,7 @@ sub get_output ( Str $tut_fp, :$each_line = 0 ) {
     
     my $cmd = "$pugs %conf<f_temp_fp> > %conf<f_temp_out_fp>";
     say "running: '$cmd'\n";
-    my $status = system $cmd;
+    my $status = run $cmd;
     my $out = slurp %conf<f_temp_out_fp>;
     unlink %conf<f_temp_out_fp>;
     

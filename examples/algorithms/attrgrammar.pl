@@ -22,7 +22,7 @@ class Thunk {
     has $.value;
 }
 
-sub *thunk(&code) {
+sub thunk(&code) {
     return Thunk.new(code => &code);
 }
 

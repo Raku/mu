@@ -10,6 +10,8 @@ my subset HQ9PlusStep
     of HQ9PlusProgram
     where { .chars == 1 };
 
+my subset Error::OutOfBounds of Failure where True;
+
 has HQ9PlusProgram $.program;
 has Int            $.accumulator = 0;
 has Int            $position = 0; # twigilless are private
@@ -36,7 +38,7 @@ method run () {
 
 method step () {
     given $.program.substr($position++, 1) {
-        $actions<$_>();
+        %actions{$_}();
     }
 }
 

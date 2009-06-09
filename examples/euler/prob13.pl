@@ -8,7 +8,7 @@ Work out the first ten digits of the sum of the following one-hundred
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 sub main {
     my @numbers = (
@@ -114,8 +114,8 @@ sub main {
         53503534226472524250874054075591789781264330331690,
     );
 
-    say substr(sum(@numbers), 0, 10);
+    say substr([+](@numbers), 0, 10);
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";

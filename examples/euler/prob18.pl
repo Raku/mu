@@ -37,7 +37,7 @@ We can do this repeatedly until we get to the topmost cell. That cell will end u
 =end Insight
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 my @triangle;
 for [<75>],
@@ -61,7 +61,7 @@ my @check;
 for [<3>],
     [<7 5>],
     [<2 4 6>],
-    [<8 5 9 3>],
+    [<8 5 9 3>]
         -> $row { push @check, $row }
 
 sub optimal_path(@triangle) {
@@ -86,5 +86,5 @@ sub main {
     say optimal_path(@triangle);
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]"

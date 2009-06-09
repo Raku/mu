@@ -11,7 +11,7 @@ my %Cookies;
 sub CookiesInit() {
     %Cookies=();
     if (%*ENV{'HTTP_COOKIE'} ne '') {
-        for (split(rx:P5/\s*;\s*/,%*ENV{'HTTP_COOKIE'})) {
+        for split(rx:P5/\s*;\s*/,%*ENV{'HTTP_COOKIE'}) {
             my ($p,$v)=split('=',$_);
             CookiesAdd($p,$v);
         }
@@ -20,7 +20,7 @@ sub CookiesInit() {
 
 sub CookiesHeader() {
     my $header = '';
-    for(%Cookies.keys) {
+    for %Cookies.keys {
         $header ~= "Set-Cookie: " ~ $_ ~ "=" ~ %Cookies{$_} ~ "; expires=Sat, 01-Jan-3000 12:00:00 GMT\n";
     }
     return($header);

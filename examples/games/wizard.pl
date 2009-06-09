@@ -26,7 +26,7 @@ multi myprompt ($prompt, @options is rw) {
 
 
 sub cls { 
-   #system(($*OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear'); 
+   #run(($*OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear'); 
  }
 
 sub random ($low,$high) {int( ($high - $low).rand + $low ) + 1; };

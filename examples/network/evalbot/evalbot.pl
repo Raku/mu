@@ -132,7 +132,7 @@ sub evalhelper(Str $code) {
   %*ENV<EVALBOT_TMPFILE> = $tmpfile;
   %*ENV<EVALBOT_PUGS>    = $*EXECUTABLE_NAME;
   # Eval!
-  system "perl", $evalhelper;
+  run "perl", $evalhelper;
 
   # Read the result, but convert all linebreaks into ␤, so we don't flood
   # the channel.

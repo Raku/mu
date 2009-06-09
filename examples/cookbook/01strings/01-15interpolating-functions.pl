@@ -40,7 +40,7 @@ die "Couldn't send mail" unless send_mail(qq:to/EOTEXT/, $target);
     To: $naughty
     From: Your Bank
     Cc: &get_manager_list($naughty)
-    Date: { do { my $now = `date`; $now .= chomp; $now } } (today)
+    Date: { do { my $now = qx/date/; $now .= chomp; $now } } (today)
 
     Dear $naughty,
 

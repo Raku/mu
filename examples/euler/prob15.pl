@@ -9,7 +9,7 @@ How many routes are there through a 20x20 grid?
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 proto postfix:<!>($n) {
     return 1 if $n < 2;
@@ -32,5 +32,5 @@ sub main {
     say routes(20);
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";

@@ -7,7 +7,7 @@ use v6;
 
 my @loops = ([1..3], ['a'..'e'], ['foo', 'bar']);
 
-sub NestedLoops (*@loop) returns Ref {
+sub NestedLoops (*@loop) {
     my @pos = 0 xx (@loop.elems - 1), -1;
 
     my sub incr($i) {

@@ -9,7 +9,7 @@ Find the sum of the digits in the number 100!
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 proto postfix:<!>($n) {
     return 1 if $n < 2;
@@ -17,8 +17,8 @@ proto postfix:<!>($n) {
 }
 
 sub main {
-    say sum split '', 100!
+    say [+] split '', 100!
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";

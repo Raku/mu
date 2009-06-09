@@ -9,7 +9,7 @@ Find the sum of all the primes below one million.
 =end Problem
 
 use v6;
-use Benchmark;
+use Benchmark <timeit>;
 
 sub is_prime($n) {
     my @primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43,
@@ -24,8 +24,8 @@ sub is_prime($n) {
 
 sub main {
     my @primes = grep { is_prime($_) }, 2..999_999;
-    say sum(@primes);
+    say [+](@primes);
 }
 
-my @t = timeit(1, \&main);
+my @t = timeit(1, &main);
 say "execution time: @t[0]";

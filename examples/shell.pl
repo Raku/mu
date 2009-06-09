@@ -21,20 +21,20 @@ my @available_commands = <exit print say>;
 my $BSD_STYLE = 1;
 
 if ($BSD_STYLE) {
-    system "stty cbreak </dev/tty >/dev/tty 2>&1";
+    run "stty cbreak </dev/tty >/dev/tty 2>&1";
 }
 else {
-    system "stty", '-icanon', 'eol', "\x01";
+    run "stty", '-icanon', 'eol', "\x01";
 }
 
 my $_loop_ = get_loop();
 eval $_loop_;
 
 if ($BSD_STYLE) {
-    system "stty -cbreak </dev/tty >/dev/tty 2>&1";
+    run "stty -cbreak </dev/tty >/dev/tty 2>&1";
 }
 else {
-    system "stty", 'icanon', 'eol', '^@'; # ASCII null
+    run "stty", 'icanon', 'eol', '^@'; # ASCII null
 }
 exit;
 

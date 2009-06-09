@@ -1,6 +1,6 @@
 use v6;
 
-sub iter_powerset ( *@factor ) returns Ref {
+sub iter_powerset ( *@factor ) {
     my $end = @factor.elems - 1;
     my @subset = (undef) xx $end;
     my ($pos, $mode) = (-1, 1);
