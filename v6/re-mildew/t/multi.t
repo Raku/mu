@@ -1,10 +1,10 @@
 say "1..4";
 {
 my $multi = ::Multi.new;
-$multi.variants.push(sub ($arg1 is ref) {
+$multi.candidates.push(sub ($arg1 is ref) {
     say $arg1;
 });
-$multi.variants.push(sub ($arg1,$arg2) {
+$multi.candidates.push(sub ($arg1,$arg2) {
     say "ok 2";
 });
 $multi.("ok 1");
@@ -22,10 +22,10 @@ role int {
     }
 }
 my $multi = ::Multi.new;
-$multi.variants.push(sub ($arg1,int $arg2) {
+$multi.candidates.push(sub ($arg1,int $arg2) {
     say "ok 3";
 });
-$multi.variants.push(sub (int $arg1,$arg2) {
+$multi.candidates.push(sub (int $arg1,$arg2) {
     say "ok 4";
 });
 $multi.("foo",1);

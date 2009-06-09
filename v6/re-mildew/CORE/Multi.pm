@@ -1,11 +1,11 @@
 role Multi {
-  has $.variants;
+  has $.candidates;
 
   method postcircumfix:<( )>(\$capture, :$cc) {
     my sub ACCEPTS($candidate) {
         $candidate.signature.ACCEPTS((|$capture));
     }
-    my $candidates = grep &ACCEPTS,self.variants;
+    my $candidates = grep &ACCEPTS,self.candidates;
 
     if &infix:<==>:(int,int).($candidates.elems,1) {
         $candidates.[0].postcircumfix:<( )>((|$capture), :cc($cc.FETCH));
@@ -27,7 +27,7 @@ role Multi {
     }
   }
   method BUILDALL() {
-    self.variants = ::Array.new;
+    self.candidates = ::Array.new;
   }
 }
 $LexicalPrelude.{'Multi'} := ::Multi;
