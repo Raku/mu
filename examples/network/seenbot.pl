@@ -1,5 +1,5 @@
 use v6;
-use Net::IRC;
+use Net::IRC <debug new_bot>;
 
 # Parse @*ARGS
 my $nick   = @*ARGS[0] // "blechbot";

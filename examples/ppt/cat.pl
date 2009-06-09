@@ -23,7 +23,7 @@ for lines() {
 
     $_ ~~ s:P5:g[(.)] = backwhack($0) if %opts<v>;
     
-    $_ ~= "$" if %opts<e>;
+    $_ ~= '$' if %opts<e>;
 
     if %opts<n> {
         say sprintf "%6d  %s", $linenum++, $_;

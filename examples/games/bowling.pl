@@ -4,7 +4,7 @@ my @bowlers;
 my $team_handicap;
 
 for (1..2) -> $bowler {
-  say "Please enter Bowler $bowler's scores:";
+  say "Please enter Bowler {$bowler}'s scores:";
   for (0..2) {
       print "Score $_:";
       my $score = $*IN.get;
@@ -16,7 +16,7 @@ for (1..2) -> $bowler {
 }
 say;
 for (1..2) -> $bowler {
-  say "Bowler $bowler's Average Score:", @bowlers[$bowler]<average>,
+  say "Bowler {$bowler}'s Average Score:", @bowlers[$bowler]<average>,
       "\t Handicap: ", @bowlers[$bowler]<handicap>;
 }
       

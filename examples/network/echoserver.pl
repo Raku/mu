@@ -2,7 +2,7 @@
 #You can connect to the server through telnet.
 use v6;
 
-my $port = @ARGS[0] // 1024;
+my $port = @*ARGS[0] // 1024;
 my $sock = listen($port) orelse die "Could not open socket\n";
 say "$?FILE, ready";
 say "port: $port";

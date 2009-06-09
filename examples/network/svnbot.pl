@@ -1,5 +1,5 @@
 use v6;
-use Net::IRC;
+use Net::IRC <debug new_bot>;
 
 # Parse @*ARGS
 my $nick        = @*ARGS.shift // "blechbot";
@@ -14,7 +14,7 @@ $port //= 6667;
 
 debug "svnbot started. Summary of configuration:";
 debug "  Will connect as...                  $nick";
-debug "  to...                               $host:$port";
+debug "  to...                               {$host}:$port";
 debug "  checking for new revisions of...    $repository";
 debug "  every...                            $interval seconds.";
 debug "  Branch information will {$show_branch ?? "" !! "not "}be shown.";
@@ -167,7 +167,7 @@ sub svn_commits() {
         # Hack to prevent "-3:HEAD", resulting in a syntax error, resulting in
         # svn not outputting the log, resulting in svnbot not saying anything.
         $from    = "HEAD" if $from <= 0;
-        run "svn log -vr $from:HEAD $repository > $tempfile";
+        run "svn log -vr {$from}:HEAD $repository > $tempfile";
     } else {
         # Else query only for the newest commit.
         run "svn log -vr HEAD $repository > $tempfile";
