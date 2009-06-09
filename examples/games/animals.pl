@@ -1,6 +1,6 @@
 # Animal guessing game, based on http://www.perlmonks.org/?node_id=10368
 
-use v6-alpha;
+use v6;
 
 sub try(Any $this) {
   if ($this ~~ Hash) {
@@ -16,9 +16,9 @@ sub try(Any $this) {
   }
 
   print "No!?  What was it then? ";
-  my $new = =$*IN;
+  my $new = $*IN.get;
   print "And a question that distinguishes a $this from a $new would be? ";
-  my $q   = =$*IN;
+  my $q   = $*IN.get;
   my $yes = yes "And for a $new, the answer would be...";
 
   my %new = (
@@ -32,7 +32,7 @@ sub try(Any $this) {
 sub yes(Str $q) {
   print "$q (yes/no)? ";
 
-  my $input = lc substr(=$*IN, 0, 1);
+  my $input = lc substr($*IN.get, 0, 1);
   given $input {
         when "y" { 1 }
         when "n" { 0 }

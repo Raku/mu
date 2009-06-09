@@ -1,6 +1,6 @@
 # Modules
 BEGIN { print $*ERR: "evalbot6 started. Loading " }
-use v6-alpha;
+use v6;
 BEGIN { print $*ERR: "Net::IRC... " }
 use Net::IRC;
 BEGIN { print $*ERR: "File::Spec... " }
@@ -21,7 +21,7 @@ my $server = @*ARGS[1] // "localhost";
 my ($host, $port) = split ":", $server;
 $port //= 6667;
 my $reconn_delay = @*ARGS[2] // 60 * 15;
-my @chans = @*ARGS[3...];
+my @chans = @*ARGS[3..*];
 
 my $reconnect = 1;
 

@@ -6,8 +6,7 @@
 # -----------------------------------------------
 
 sub IDGenerate {
-    my($id)='';
-    for (1..32) { $id~=chr(65+int(rand 26)); }
+    my $id = ('A'..'Z').pick(32,:repl).join;
     return($id);
 }
 

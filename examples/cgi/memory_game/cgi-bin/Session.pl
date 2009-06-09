@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use File::Spec;
 
 my $SID;
@@ -8,7 +8,7 @@ mkdir($Path) unless $Path ~~ :e;
 
 sub SessionInit() {
     my %Session=();
-    $SID=GetCookie('sid'); $SID ~~ s:perl5:g/[^A-Z]//;
+    $SID=GetCookie('sid'); $SID ~~ s:P5:g/[^A-Z]//;
     if catfile($Path, $SID) ~~ :!e { $SID=''; }
     $SID=IDGenerate() if $SID eq '';
     SessionDecode(slurp(catfile($Path, $SID)));

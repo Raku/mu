@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 if !@*ARGS {
     die "usage: $*PROGRAM_NAME format [argument ...]\n";

@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Set;
 
 sub epsilon_closure($nfa, $states) {
@@ -40,7 +40,7 @@ sub transitions($nfa, $states) {
     my $ret = set();
     for ($states.members) {
         my $list = $nfa{$_};
-        $ret.insert($list.map:{.key});
+        $ret.insert($list.map: {.key});
     }
 
     return $ret;

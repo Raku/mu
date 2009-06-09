@@ -11,7 +11,7 @@
 #   Herself was set, who thither came...
 #
 
-use v6-alpha;
+use v6;
 
 for $*Larry {
     our Ship $pugs .= new(:of<mithril elven-glass>);

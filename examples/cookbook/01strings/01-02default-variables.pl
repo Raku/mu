@@ -1,7 +1,6 @@
-use v6-alpha;
+use v6;
 
-=pod
-
+=begin pod
 =head1 Default values
 
 You want to provide default values for false or undefined variables.
@@ -54,7 +53,7 @@ You want to provide default values for false or undefined variables.
     $z ||= 4;
     say $z; # 4
     
-=cut
+=end pod
 
 my ($true,$false,$string,$defined,$last);
 

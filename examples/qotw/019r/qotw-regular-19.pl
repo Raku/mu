@@ -10,15 +10,15 @@ $scale //= 100;
 
 my $FH = open $file orelse die "Could't open \"$file\"!\n";
 
-for =$FH -> $line {
-  next() if $line ~~ rx:perl5/^#/;
-  next() if $line ~~ rx:perl5/^\s*$/;
+for $FH.lines -> $line {
+  next() if $line ~~ rx:P5/^#/;
+  next() if $line ~~ rx:P5/^\s*$/;
 
   my ($sail_info, $coord)    = split ":", $line;
   my ($sail_name, $verticie) = split ".", $sail_info;
   my ($x, $y)                = split ",", $coord;
-  $x ~~ s:perl5:g/\s+//;
-  $y ~~ s:perl5:g/\s+//;
+  $x ~~ s:P5:g/\s+//;
+  $y ~~ s:P5:g/\s+//;
   push %sails{$sail_name}<points>, [$x, $y];
 }
 
@@ -39,7 +39,7 @@ sub _calc_area($p) {
 
   # from http://mathworld.wolfram.com/PolygonArea.html
   my $i;
-  loop($i = 0; $i < +$x - 1; $i++) {
+  loop ($i = 0; $i < +$x - 1; $i++) {
     $area += ($x[$i] * $y[$i+1] - $x[$i+1] * $y[$i]);
   }
 

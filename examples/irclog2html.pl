@@ -1,7 +1,7 @@
 # This is a simple IRC log to HTML converter.
 # It accepts only logfiles in ilogger2 format, such as those provided by
 # http://colabti.de/irclogger/irclogger_logs/perl6 (click on "raw text").
-use v6-alpha;
+use v6;
 
 # This is our class which calculates the colors of the nicks.
 class Chat {
@@ -29,7 +29,7 @@ class Chat {
   sub precalc_colors(Int $num) {
     my @colors = 0..$num-1;
 
-    @colors .= map:{ [calc_color($^i, $num)] };
+    @colors .= map: { [calc_color($^i, $num)] };
 
     return @colors;
   }
@@ -55,7 +55,7 @@ class Chat {
     my $m = $rgbmin + ($rgbmax - $rgbmin) * ($ncolors - $i) / $ncolors;
 
     my @c = 0 .. 2;
-    @c   .= map:{ $rgb[$n][$_] * $m };
+    @c   .= map: { $rgb[$n][$_] * $m };
     my $g = @c[0] * 0.3 + @c[1] * 0.59 + @c[2] * 0.11;
     my $f = $g > 127 ?? "#000000" !! "#ffffff";
     my $h = sprintf "#%02x%02x%02x", @c;
@@ -77,7 +77,7 @@ my $total = 0;
 # We read the input file in and populate %nick2num.
 # %nick2num is a Hash with nicknames as keys and IDs, suitable for $chat.tick,
 # as values.
-for =$fh -> {
+for $fh.lines {
   my ($time, $nick, $type, $text) = parse_ilogger2($_) or next;
   $time ~~ rx:Perl5/^(\d\d):(\d\d)$/;
   my $utime = $0 * 60 + $1;
@@ -167,7 +167,7 @@ print tmpl_header("Log of «@*ARGS[0]»");
 print tmpl_logstart();
 
 # Then we iterate over $fh and process each logline.
-for =$fh {
+for $fh.lines {
   my ($time, $nick, $type, $text) = parse_ilogger2($_) or next;
 
   print

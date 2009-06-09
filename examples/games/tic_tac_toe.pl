@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 sub print_board (@b) returns Void {
     say "+---+---+---+";
@@ -20,7 +20,7 @@ print_board @board;
 while (any(@board) eq one(1..9) ) {
     say %player{$player} ~ ": Enter the Position [1-9]:";
 
-    my $idx = =$IN - 1;
+    my $idx = $*IN.get - 1;
 
     if (not ($idx == $choice)) {
         say "*** Please enter a value within 1-9";
@@ -50,8 +50,7 @@ while (any(@board) eq one(1..9) ) {
     }
 }
 
-=pod
-
+=begin pod
 =head1 NAME
 
 tic_tac_toe.pl - Tic-Tac-Toe
@@ -70,5 +69,5 @@ Stevan Little, E<lt>stevan@iinteractive.comE<gt>
 
 Audrey Tang
 
-=cut
+=end pod
 

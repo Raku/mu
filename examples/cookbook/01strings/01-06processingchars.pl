@@ -1,5 +1,6 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 NAME
 
 Perl 6 Cookbook: Processing Strings Character by Character
@@ -74,7 +75,7 @@ A simple checksum script example: checksump.pl
     
     # checksum.pl - compute 16-bit checksum of all input files
     my $checksum = 0;
-    for =<> -> $line { 
+    for lines() -> $line { 
          # XXX unpack not documented yet
         $checksum += unpack("%16C*", $line);
     }
@@ -109,7 +110,7 @@ the original examples for the moment --gcomnz
     # output buffer modification is probably becoming a $* variable 
     # or a trait on $*OUT, but i can't find a doc for it --gcomnz
     $| = 1;  
-    for =<> -> $line {
+    for lines() -> $line {
         for $line[] -> $char {
             print $char;
             # perl 5 version uses a select() hack for sub-second
@@ -124,4 +125,4 @@ the original examples for the moment --gcomnz
         }
     }
 
-=cut
+=end pod

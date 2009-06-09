@@ -1,5 +1,6 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 NAME
 
     card_war_game.pl
@@ -82,7 +83,7 @@ It was written to test, to show and explain some cool Perl 6 features:
 
 bbkr (Pawel Pabian) L<cpan@bbkr.org>
 
-=cut
+=end pod
 
 # construct card deck
 # Perl 6 'X' opeator is used to create cartesian product of values and colors
@@ -152,7 +153,7 @@ sub infix:<CC> (ArrayRef $card1, ArrayRef $card2) {
 # use CC operator to compare top cards on player stacks.
 # return player that won
 sub compare_cards {
-    my $compare = $player1<stack>[-1] CC $player2<stack>[-1];
+    my $compare = $player1<stack>[*-1] CC $player2<stack>[*-1];
 
     # Perl 6 'given/when' operator (works like switch)
     given $compare {

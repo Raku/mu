@@ -1,5 +1,6 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 NAME
 
 Perl 6 Cookbook: Indenting Here Documents
@@ -33,4 +34,4 @@ terminating string is indented, poetry is preserved.
         EVER_ON_AND_ON
     say "Here's your poem:\n\n$poem";
 
-=cut
+=end pod

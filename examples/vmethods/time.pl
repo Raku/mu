@@ -4,7 +4,7 @@
 # based on Ruby's ActiveSupport 1.0.4
 #
 
-use v6-alpha;
+use v6;
 
 multi sub seconds (Int $value) {
     $value;

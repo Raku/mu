@@ -2,7 +2,7 @@
 # file so its output will change.
 #
 
-use v6-alpha;
+use v6;
 
 multi sub zeros ( Int $value ) {
     return '0' x $value;

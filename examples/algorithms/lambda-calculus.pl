@@ -3,7 +3,7 @@
 # Please remember to update t/examples/examples.t and rename
 # examples/output/algorithms/lambda-calculus if you rename/move this file.
 
-use v6-alpha;
+use v6;
 
 =begin reference
 
@@ -13,7 +13,7 @@ Message-Id: <A77477E9-C139-48D2-86C2-CE60842FA659@dan.co.jp>
 Message-Id: <20050905061111.GA25085@aut.dyndns.org>
     http://www.nntp.perl.org/group/perl.perl6.language/22992
 
-=cut
+=end reference
 
 our $VERSION = sprintf "%d.%02d", q$Revision: 0.1 $ ~~ m:P5:g/(\d+)/;
 
@@ -31,7 +31,7 @@ our $ZERO = -> $f { -> $x { $x } };
 our $SUCC = -> $n { -> $f { -> $x { $f.($n.($f)($x)) }}};
 # ...
 
-=cut
+=end alternative
 
 sub num2int($n){ $n.(sub($i){ 1 + $i })(0) }
 sub num2str($n){ [~]
@@ -47,7 +47,7 @@ our $ADD  =  sub($m){ sub($n){ $n.($SUCC)($m) }};
 our $MULT =  sub($m){ sub($n){ $n.($ADD.($m))($ZERO) }};
 our $POW  =  sub($m){ sub($n){ $n.($MULT.($m))($SUCC.($ZERO)) }};
 
-=cut
+=end alternative
 
 my $one     = $SUCC.($ZERO);
 my $two     = $SUCC.($one);

@@ -1,10 +1,11 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Converting between characters and numbers.
 
 You want to convert characters to their numeric value or vice-versa
 
-=cut
+=end pod
 
 # XXX I'm not sure "numeric value" is still correct for utf-8, as the actual
 # value(s) in memory can be very different. Maybe use "codepoint", or "codepoint

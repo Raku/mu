@@ -1,4 +1,6 @@
-use v6-alpha;
+use v6;
+
+=begin pod
 
 =head1 NAME
 
@@ -28,14 +30,14 @@ letters, spaces, numbers, and other characters:
     say   "Hello"   ; # same
     say   'Hello'   ; # same 
 
-=cut
+=end pod
 
 print ""        ; # output is an empty string
 print "Hello\n" ; # output string is Hello followed by a new line  
 say   "Hello"   ; # same
 say   'Hello'   ; # same 
 
-=pod
+=begin pod
 
 Strings can be appended to one another, using the concatenation
 operator, ~
@@ -45,11 +47,11 @@ operator, ~
     # Here, three strings are concatenated into a 
     # single string.  Output is Hello World! followed by a new line  
 
-=cut
+=end pod
 
 say "Hello" ~ " World" ~ "!"; 
 
-=pod
+=begin pod
 
 A number might be interpreted as a string, depending on the context
 
@@ -59,12 +61,12 @@ Note the parentheses around (1+1), which cause 1 + 1 to be evaluated
 as a numeric expression, before the resulting "2" is evaluated as a
 string. 
 
-=cut
+=end pod
 
 say    1  ; # 1 is a number 
 say  (1+1) ~  " is a number interpreted as a string" ; 
 
-=pod
+=begin pod
 
 Conversely, sometimes a string might be interpreted as a number:
 
@@ -75,12 +77,12 @@ The string, "1" is treated as a number in this context, added to the
 number 1 by the + operator, which returns the number, 2, as a 
 string for output.  
 
-=cut
+=end pod
 
 say   +""     ; # a num-ified empty string evaluates as 0 
 say  "1" + 1  ; # 2 
 
-=pod
+=begin pod
 
 Context sensitivity is the essence of Perl.  Keeping this in mind, what
 would you expect to be the output string, for the following?  
@@ -115,7 +117,7 @@ a variable, in this case a scalar.
     my $scalar    = 'String';
     say '$scalar is ' ~ $scalar.WHAT;   # $scalar is Str
 
-=cut
+=end pod
 
 my Str $string =  'This is $string: a scalar holding a String';
 say $string ;
@@ -124,7 +126,7 @@ my  $scalar    =  'This is $scalar holding a String';
 say $scalar ; 
 say '$scalar is ' ~ $scalar.WHAT ;                 # Str 
 
-=pod 
+=begin pod 
 
 Assignments of non-strings  set the variable to the
 appropriate type:
@@ -138,14 +140,14 @@ prior to the variable's sigil
 
     say '~$scalar is ' ~ (~$scalar).WHAT; # ~$scalar is Str 
 
-=cut
+=end pod
 
 $scalar = 1234;
 say $scalar   ;
 say '$scalar is '  ~ $scalar.WHAT; 
 say '~$scalar is ' ~ (~$scalar).WHAT; 
 
-=pod
+=begin pod
 
 TODO: a short paragraph on the difference between the my $scalar 
 and my Str $string examples above.
@@ -213,7 +215,7 @@ other good stuff.  Single-quoted strings do not.
     say '@animal.elems() {@animal.elems} &elems(@animal)';
     say "@animal.elems() {@animal.elems} &elems(@animal)";
     
-=cut
+=end pod
 
 # literal whitespace  
 my $squot = '    The quick brown fox jumps over the lazy dog.
@@ -247,7 +249,7 @@ say "The quick brown %animal{'quick'} jumps over the lazy %animal{'lazy'}.";
 say '@animal.elems() {@animal.elems} &elems(@animal)';
 say "@animal.elems() {@animal.elems} &elems(@animal)";
  
-=pod
+=begin pod
 
 =head2 Perl's Quote-like Operators
 
@@ -421,5 +423,5 @@ These adverbs apply to the body of the heredoc, not to the terminator,
 because the terminator has to be known at compile time. This means
 that q:s:to/EO$thing/ doesn't do what you mean.
 
-=cut
+=end pod
 

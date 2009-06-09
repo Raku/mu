@@ -31,7 +31,7 @@ if (@*ARGS.elems) {
 }
 
 # Iterate over input and color it
-for =$fh {
+for $fh.lines {
     my $first_char = substr $_, 0, 1;
     delete %color_for{'-'} if $first_char eq '<';
     print BOLD, %color_for{$first_char} if %color_for.exists($first_char);

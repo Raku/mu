@@ -1,1 +1,1 @@
-say*(split "",int(7e10+ +*(=<>)))[1..11]
+say Int(7e10+lines.comb)[1..11]

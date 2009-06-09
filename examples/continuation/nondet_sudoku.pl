@@ -1,3 +1,4 @@
+=begin pod
 =head1 NAME
 
 nondet_sudoku.pl - A non deterministic sudoku solver
@@ -22,9 +23,9 @@ the same terms as Perl itself.
 
 See http://www.perl.com/perl/misc/Artistic.html
 
-=cut
+=end pod
 
-use v6-alpha;
+use v6;
 
 sub callcc (Code &block) { &block(&?CALLER_CONTINUATION) }
 

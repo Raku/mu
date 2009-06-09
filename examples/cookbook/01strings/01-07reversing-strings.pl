@@ -1,10 +1,11 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Reversing a String by Word or Character
 
 You want to reverse words or characters in a string
 
-=cut
+=end pod
 
 # reverse the characters in a scalar
 $revbytes = reverse($string);

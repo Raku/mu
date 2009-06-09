@@ -1,10 +1,11 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 In one array and out the other.
 
 You want to find elements in one array but not in another.
 
-=cut
+=end pod
 
 # XXX Q::Sp has eigenstates(any(@a) == none(@b)), but I recall having read that
 # junctions in Perl 6 have nothing to do with set calculations.

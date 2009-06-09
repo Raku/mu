@@ -1,12 +1,12 @@
 # Regular QOTW #8
 # http://perl.plover.com/qotw/r/solution/008
 
-use v6-alpha;
+use v6;
 
 my $SEG_LENGTH = 4;
 
 my %wordmap;
-for =<> -> $word is copy {
+for lines() -> $word is copy {
     next if $word ~~ /\W/;
     my $w = $word.lc;
     my %w = map -> $i { substr($w,$i,$SEG_LENGTH)=>1 },

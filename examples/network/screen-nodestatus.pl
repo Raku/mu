@@ -25,7 +25,7 @@
 # http://m19s28.dyndns.org/iblech/screen-nodestatus.png (look at the bottom
 # right corner).
 
-use v6-alpha;
+use v6;
 
 # Mapping hostname => status letter.
 my %letter;
@@ -76,7 +76,7 @@ for @*ARGS -> $arg {
   %interval\  .{$hostname} = $interval;
   %status\    .{$hostname} = $UNKNOWN;
   # We want a more uniformly distributed distribution.
-  %last_check.{$hostname} = time - rand $interval;
+  %last_check.{$hostname} = time - rand*$interval;
 }
 
 usage() unless %letter;

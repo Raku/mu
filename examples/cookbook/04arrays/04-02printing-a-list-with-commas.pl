@@ -1,12 +1,13 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Printing a list with commas
 
 You'd like to print out a list containing an unknown number of elements,
 placing an "and" before the last element and commas between each element if
 there are more than two.
 
-=cut
+=end pod
 
 my @a = <alpha beta gamma>;
 
@@ -19,6 +20,6 @@ sub commify_series(@list) {
         when 0  { return '' };
         when 1  { return @list[0] };
         when 2  { return join " and ", @list };
-        default { return join(", ", @list[0 .. $_ -2]) ~ " and @list[-1]" };
+        default { return join(", ", @list[0 .. $_ -2]) ~ " and @list[*-1]" };
     };
 }

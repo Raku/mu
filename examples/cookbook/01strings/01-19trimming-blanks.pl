@@ -1,8 +1,9 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Trimming blanks from a string
 
-=cut
+=end pod
 
 # XXX What are "blanks"? How many kinds of unicode whitespace are matched by
 # this thing? What about non-breaking whitespace? And maybe make clear that

@@ -1,5 +1,5 @@
 #!/usr/bin/pugs
-use v6-alpha;
+use v6;
 
 # Solution to exercise 2.2.1-7 in TAOCP 1.
 #
@@ -32,7 +32,7 @@ sub seqOfOperationsForIRDeque( $wagonsOut ) {
             shift @deque;
             push @operations, 'OL';
         }
-        elsif $wagonOut == @deque[-1] {
+        elsif $wagonOut == @deque[*-1] {
             pop @deque;
             push @operations, 'OR';
         }
@@ -56,7 +56,7 @@ sub seqOfOperationsForORDeque( $wagonsOut ) {
             unshift @deque, $nextWagonOnTurn;
             push @operations, 'IL';
         }
-        elsif ( indexOf( $wagonsOut, @deque[-1]       ) <
+        elsif ( indexOf( $wagonsOut, @deque[*-1]       ) <
                 indexOf( $wagonsOut, $nextWagonOnTurn ) ) {
 
             push @deque, $nextWagonOnTurn;

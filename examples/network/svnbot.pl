@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 use Net::IRC;
 
 # Parse @*ARGS
@@ -137,7 +137,7 @@ sub svn_check($event) {
 # This queries "svn".
 sub svn_commits() {
     # Pipes not yet supported in Pugs.
-    my $tempfile = INIT { "temp-svnbot-$*PID-{int rand 1000}" };
+    my $tempfile = INIT { "temp-svnbot-$*PID-{(^1000).pick}" };
     END { unlink $tempfile }
     # We don't want localized svn messages (like "Geänderte Pfade" instead of
     # "Changed paths"), so we can reliably grep for them and process them.
@@ -153,7 +153,7 @@ sub svn_commits() {
 	        system "svn info $repository -r HEAD > $tempfile";
         }
         my $latest = 0;
-        for =$tempfile {
+        for $tempfile.lines {
             when rx:P5/evision:\s+(\d+)/ {
                 $latest = $0;
                 last;
@@ -178,7 +178,7 @@ sub svn_commits() {
     my $branch;
     my $subst = "XXX-HACK-SVNBOT-SUBST-{rand}"; # XXX!
 
-    for =$fh -> $_ {
+    for $fh.lines -> $_ {
         state $cur_entry;
 
         when rx:P5/^-----+/ {
@@ -228,6 +228,7 @@ sub svn_headrev() {
 }
 
 
+=begin END
 =head1 NAME
 
 svnbot
@@ -272,7 +273,7 @@ commits usually take much more time to show up. Why is this so?"
 If you look at svnbot's source, you'll see that it really I<tries> to check the
 SVN repository after I<n> seconds elapsed. The problem is, that svnbot doesn't
 have a chance to check, because C<Net::IRC> is busy reading from the socket to
-the IRC server. Unfortunately, the call to C<.readline> C<Net::IRC> issues is
+the IRC server. Unfortunately, the call to C<.get> C<Net::IRC> issues is
 I<blocking>, meaning that the operating system will suspend C<svnbot.pl> until
 it receives some data from the IRC server.
 

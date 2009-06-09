@@ -1,10 +1,11 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Interpolating Functions or Expressions within Strings
 
 You want to expand a function call or expression within a string.
 
-=cut
+=end pod
 
 sub function { 'jumped' };
 class Dog { method bark { 'woof!' } }
@@ -43,7 +44,7 @@ die "Couldn't send mail" unless send_mail(qq:to/EOTEXT/, $target);
 
     Dear $naughty,
 
-    Today, you bounced check number { 500 + int rand(100) } to us.
+    Today, you bounced check number { 500 + (^100).pick } to us.
     Your account is now closed.
 
     Sincerely,

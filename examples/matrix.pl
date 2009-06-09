@@ -1,7 +1,7 @@
-use v6-alpha;
+use v6;
 
 print "5x5 matrix in one line: " unless @*ARGS;
-my $matrix = @*ARGS[0] || =<>;
+my $matrix = @*ARGS[0] || get();
 $matrix ||= "abcdefghijklmnopqrstuvwxy";
 
 $matrix.chars == 25 or die "Matrix length MUST be 25 characters.\n";
@@ -65,7 +65,7 @@ my %scores = (
   j => 8, k => 5, l => 1, m => 3, n => 1, o => 1, p => 3, q =>10, r => 1, 
   s => 1, t => 1, u => 1, v => 4, w => 4, x => 8, y => 4, z =>10
 );
-%scores.values >>*= 10;
+%scores.values >>*=>> 10;
 
 gather {
     for slurp '/usr/share/dict/words' :chomp orelse die {
@@ -76,6 +76,6 @@ gather {
 ==> sort [ { -.<score> }, { .<word>.length }, { .<word> } ];
 ==> my @words;
 
-sayf 'MATRIX IS WORTH %d POINTS' <== sum @words>>[0];
+sayf 'MATRIX IS WORTH %d POINTS' <== sum @words>>.[0];
 sayf '%3d %s' <== $_[1], $_[0] for @words;
 

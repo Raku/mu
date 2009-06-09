@@ -190,7 +190,7 @@ sub ftp_upload_files (*@files) {
 
                 repeat {
                     print "Do you want to continue? [y] ";
-                    $continue = =$*IN;
+                    $continue = $*IN.get;
                     $continue = 'y' if $continue ~~ m:P5/^$/;
                 } while $continue !~~ m:P5/^[ynYN]/;
                 exit(0) if $continue ~~ m:P5/^[nN]/;

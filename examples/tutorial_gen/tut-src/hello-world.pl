@@ -1,3 +1,3 @@
-use v6-alpha;
+use v6;
 
 say "Hello world!";

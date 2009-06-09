@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
 
@@ -15,7 +15,7 @@ my $dict = canonpath("$progdir/pugspraise");
 
 my $fh = open($dict) orelse die $!;
 
-for =$fh->$line {
+for $fh.lines -> $line {
     push @list, $line || next()
 };
 
@@ -34,8 +34,7 @@ my &tell      = sub {
 say "Press Enter to generate quotes about \"$subject...\""~
       "\nPress Ctrl-D to end";
 
-my $keyed;
-while $keyed = =$*IN {
+for $*IN.lines -> $keyed {
     clear;
     my @keyed_args;
     if $keyed {
@@ -51,7 +50,7 @@ while $keyed = =$*IN {
 unless $orig eq ~@list {
     say "Do you want to save your changes?";
     print "y/N ..."; 
-    my $ans = =$*IN;
+    my $ans = $*IN.get;
 
     # User wants to save changes
     # Save the original $dict to a backup

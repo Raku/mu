@@ -6,7 +6,7 @@
 # ".spel". So, for instance, a filename of "dominus.spel" is considered
 # a ".spel file"
 
-use v6-alpha;
+use v6;
 
 my @speldirs = split /\:+/, %*ENV<SPELWORDS> || "%*ENV<HOME>:.";
 my @spelfiles;
@@ -18,11 +18,9 @@ my %WORDS;
 for ('/usr/dict/words', @spelfiles) -> $f {
    $f ~~ :f or next;
    my $F = open $f or next;
-   for =$F -> $w is copy { %WORDS{lc $w} = 1; }
+   for $F.lines -> $w is copy { %WORDS{lc $w} = 1; }
    $F.close;
 }
 my %bad;
-for =<> {
-   for .comb -> $w { %bad{$w}++ unless %WORDS{lc $w}; }
-}
+for words() -> $w { %bad{$w}++ unless %WORDS{lc $w}; }
 .say for sort keys %bad;

@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 ##########################
 # OO solution by eric256 #
@@ -11,7 +11,7 @@ class MultiCounter {
       has @.lengths   is rw;
       submethod BUILD() { @.positions = (0) xx (@.lengths.end + 1); }
       method inc () returns Bool {
-        @.positions[-1]++;
+        @.positions[*-1]++;
         for reverse (0..@.lengths.end - 1) -> $i {
          if (@.positions[$i + 1] > @.lengths[$i + 1]) {
             @.positions[$i]++;
@@ -29,7 +29,7 @@ class NestedLoops {
           $self.reset;
       }
       method reset () {
-          $.counter = MultiCounter.new( :lengths( @.loops.map:{.end } ) );
+          $.counter = MultiCounter.new( :lengths( @.loops.map: {.end } ) );
       }
       multi method iter () returns Bool { $.counter.inc;  }
       multi method iter ($self: Code $code) {

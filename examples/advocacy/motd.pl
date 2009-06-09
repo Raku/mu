@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 #XXX just so that File:;Spec can be used w/o being installed
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
@@ -12,7 +12,7 @@ require Motd; #must be in PERL6LIB path, to say 'use';
 my $limit     = @*ARGS[0] // '2';
 my $dict      = canonpath("$progdir/pugspraise");
 my $fh        = open $dict orelse die $!;
-my @list      = =$fh;
+my @list      = $fh.lines;
 
 my &tell = -> $max {
         # the hash prevents the pick of identical phrases for a single

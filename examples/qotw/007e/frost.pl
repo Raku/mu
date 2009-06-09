@@ -1,7 +1,7 @@
 # Expert QOTW #7
 # http://perl.plover.com/qotw/e/solution/007
 
-use v6-alpha;
+use v6;
 
 my $EMPTY = ' ';
 my $VAPOR = '.';
@@ -25,7 +25,7 @@ sub create_volume ($m? is copy,$n? is copy,$d? is copy) {
   my @vol;
   for 1..$m -> $x {
     for 1..$n -> $y {
-      @vol[$x][$y] = rand(100) < $d ?? $VAPOR !! $EMPTY;
+      @vol[$x][$y] = 100.rand < $d ?? $VAPOR !! $EMPTY;
     }
   }
   @vol[$m/2][$n/2] = $ICE;
@@ -57,16 +57,16 @@ sub cycle ($t, $m, $n, @data is rw) {
     # boundary conditions -- do these seperately to keep
     # the checks out of the main loop
     # Corner
-    $v = process(@data[-1][-1], @data[-1][0],
-                 @data[ 0][-1], @data[ 0][0]);
+    $v = process(@data[*-1][*-1], @data[*-1][0],
+                 @data[ 0][*-1], @data[ 0][0]);
     # vertical seam
     loop ($y = 1; $y < $n - 2; $y += 2) {
-      $v = process(@data[-1][$y], @data[-1][$y+1],
+      $v = process(@data[*-1][$y], @data[*-1][$y+1],
                    @data[ 0][$y], @data[ 0][$y+1]) || $v;
     }
     # horizontal seam
     loop ($x = 1; $x < $m - 2; $x += 2) {
-      $v = process(@data[$x][-1], @data[$x+1][-1], @data[$x][ 0], @data[$x+1][ 0]) || $v;
+      $v = process(@data[$x][*-1], @data[$x+1][*-1], @data[$x][ 0], @data[$x+1][ 0]) || $v;
     }
     # center
     loop ($x = 1; $x < $m - 2; $x += 2) {
@@ -107,7 +107,7 @@ sub process ($a is rw,$b is rw,$c is rw,$d is rw) {
   }
   else {
     # randomly rotate vapor
-    if (int rand(2)) {
+    if Bool.pick {
       ($a,$b,$c,$d) = ($b,$d,$a,$c);
     }
     else {

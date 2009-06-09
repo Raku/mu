@@ -1,10 +1,11 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Specifying a list in your program
 
 You want to include a list in your program.  This is how to initialize arrays.
 
-=cut
+=end pod
 
 # comma separated list of elements
 my @a = ('alpha', 'beta', 'gamma');

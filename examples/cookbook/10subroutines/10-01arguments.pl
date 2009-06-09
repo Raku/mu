@@ -1,11 +1,12 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Accessing subroutine arguments
 
 You have written a function that takes arguments supplied by its caller and
 you need to access those arguments
 
-=cut
+=end pod
 
 sub perl5 {
     my ($x) = @_;

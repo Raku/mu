@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 my @bowlers;
 my $team_handicap;
@@ -7,7 +7,7 @@ for (1..2) -> $bowler {
   say "Please enter Bowler $bowler's scores:";
   for (0..2) {
       print "Score $_:";
-      my $score = =$*IN;
+      my $score = $*IN.get;
       @bowlers[$bowler]<average> += $score;
   }
   @bowlers[$bowler]<average> = int(@bowlers[$bowler]<average> / 3);

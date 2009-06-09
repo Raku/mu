@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 grammar rpn_data {
    rule key       { <?ident> }

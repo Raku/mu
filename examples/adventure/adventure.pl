@@ -2,7 +2,7 @@
 
 # Adventures in Perl6
 
-use v6-alpha;
+use v6;
 
 ### GRAMMAR ###
 
@@ -223,7 +223,7 @@ sub objects_in ($where) {
 
 while ( 1 ) {
     print "> ";
-    my $input = =<>;
+    my $input = get();
 
     my $response = Adventure.command( $input );
 

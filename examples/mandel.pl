@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # vim:ft=perl:sw=4:syn=perl6
 # Print the Mandlebrot set

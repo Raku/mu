@@ -1,11 +1,11 @@
-use v6-alpha;
+use v6;
 
 my %words;
 
 sub load_db returns Void {
     return() unless "words.db.pl" ~~ :e;
     my $db = open("words.db.pl") orelse die "Cannot open the words.db.pl file: $!";
-    for (=$db) -> $_line {
+    for $db.lines -> $_line {
         my $line = $_line;
         my ($key, $value) = split("\t", $line);
         %words{"$key"} = $value;
@@ -24,9 +24,9 @@ sub save_db returns Void {
 sub parse_file (Str $file) returns Hash {
     my %words_in_file;    
     my $fh = open("$file") orelse die "Cannot open the '$file' file: $!";
-    for (=$fh) -> $_line {
+    for $fh.lines -> $_line {
         my $line = $_line;       
-        while ($line ~~ s:perl5/(\w+)[ \t\n\r]//) {
+        while ($line ~~ s:P5/(\w+)[ \t\n\r]//) {
             %words_in_file{lc($0)}++;
         }
     }
@@ -46,7 +46,7 @@ sub classify (%words_in_file) returns Void {
     my $total = 0;
     
     for (%words.kv) -> $key, $value {
-        $key ~~ rx:perl5/^(.+)-(.+)$/;
+        $key ~~ rx:P5/^(.+)-(.+)$/;
         %count{$0} += $value;
         $total     += $value;
     }

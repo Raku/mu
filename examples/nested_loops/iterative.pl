@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 ############################################################
 # Iterative solution by Limbic~Region (Joshua Gatcomb)     #
@@ -12,14 +12,14 @@ sub NestedLoop (:@loop!, :$OnlyWhen, :$code) returns Ref{
     return sub {
         my @group;
         loop {
-            if ++@pos[-1] > @loop[-1].end {
+            if ++@pos[*-1] > @loop[*-1].end {
                 for reverse 0 .. @pos.end - 1 -> $i {
                     next if @pos[$i] == @loop[$i].end;
                     ++@pos[$i];
                     @pos = (@pos[0..$i], 0 xx (@pos.end - $i)) and last;
                 }
             }
-            return () if @pos[-1] > @loop[-1].end;
+            return () if @pos[*-1] > @loop[*-1].end;
             @group = map -> $i { @loop[$i][@pos[$i]] }, 0 .. @pos.end;
             if $OnlyWhen.does(Code) { $OnlyWhen(@group) or next }
             $code(@group) if $code.does(Code);

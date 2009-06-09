@@ -1,6 +1,6 @@
 #This is simple server which repeats what is said to it.
 #You can connect to the server through telnet.
-use v6-alpha;
+use v6;
 
 my $port = @ARGS[0] // 1024;
 my $sock = listen($port) orelse die "Could not open socket\n";
@@ -15,7 +15,7 @@ loop {
                 loop {
 			$client.print('echo>');
 			$client.flush;
-			my $line = readline($client);
+			my $line = $client.get;
 			$client.flush;
 			next unless($line ~~ m:Perl5/\S/);
 			$client.say("server: $line");

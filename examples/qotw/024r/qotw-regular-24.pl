@@ -17,16 +17,16 @@ my $tape_loc = 0;
 my $trans = open $transition_file orelse
   die "Can't open \"$transition_file\" for reading!\n";
 
-for =$trans {
+for $trans.lines {
   my $line = $_; # avoid "can't modify a constant"
   $line ~~ s:Perl5/#.*//;
 
-  if($line ~~ rx:Perl5/\S/) {
+  if $line ~~ rx:Perl5/\S/ {
     $line ~~ rx:Perl5/^\s*(\w+)\s+(\w)\s+(\w+)\s+(\w)\s+([LR])\s*$/;
     my ($current_state, $current_char, $new_state, $new_char, $direction) =
       ($0, $1, $2, $3, $4);
 
-    if(%instructions{"$current_state $current_char"}) {
+    if %instructions{"$current_state $current_char"} {
       die "$current_state $current_char redefined.\n";
     }
 
@@ -39,19 +39,19 @@ for =$trans {
 
 my $x = "$state %tape{$tape_loc}";
 my $instruction;
-while($instruction = %instructions{"$state %tape{$tape_loc}"}) {
+while $instruction = %instructions{"$state %tape{$tape_loc}"} {
   my ($new_state, $new_char, $direction) = split " ", $instruction;
 
   $state = $new_state;
   %tape{$tape_loc} = $new_char;
 
-  if($direction eq 'L') {
+  if $direction eq 'L' {
     $tape_loc--;
   } else {
     $tape_loc++;
   }
 
-  if(not %tape.exists($tape_loc)) {
+  if not %tape.exists($tape_loc) {
     %tape{$tape_loc} = '_';
   }
 }

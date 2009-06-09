@@ -1,10 +1,11 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Swapping values
 
 You want to swap values without using a temporary variable
 
-=cut
+=end pod
 
 my ($x, $y) = (3,2);
 ($x, $y) = ($y, $x);

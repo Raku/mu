@@ -1,7 +1,6 @@
-use v6-alpha;
+use v6;
 
-=pod
-
+=begin pod
 =head1 Managing instance data
 
 =head2 Problem
@@ -13,7 +12,7 @@ write methods to manage that data?
 
 
 
-=cut
+=end pod
 
 class Foo {
     has int $.length is rw;

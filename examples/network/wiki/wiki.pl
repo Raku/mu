@@ -19,7 +19,7 @@ if ($topic eq "OverView") {
     $entry = %wiki.keys.sort.join("\n");
 }
 my $entry_html = $entry;
-$entry_html ~~ s:g:perl5/\b([A-Z]\w+[A-Z]\w*)/{ '<a href="?topic=' ~ $0 ~ '">' ~ $0 ~ '</a>'}/;
+$entry_html ~~ s:g:P5/\b([A-Z]\w+[A-Z]\w*)/{ '<a href="?topic=' ~ $0 ~ '">' ~ $0 ~ '</a>'}/;
 
 given $action {
     when 'new'   {
@@ -49,6 +49,6 @@ sub show () {
 
 sub template ($filename, *%params) {
     my $template = slurp $filename;
-    $template ~~ s:g:perl5/\[\%(.+)\%\]/{ %params{$0} || '' }/;
+    $template ~~ s:g:P5/\[\%(.+)\%\]/{ %params{$0} || '' }/;
     return $template;
 }

@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # Brute force proof that every cribbage hand with a 5 is >= 2 points
 # See http://perlmonks.org/index.pl?node_id=458728 for details
@@ -35,8 +35,8 @@ sub score ( @hand ) returns Int {
         ?? ([eq] @hand[3,4].>>.<suit>) ?? 5 !! 4
         !! 0;
 
-    # Check for right-jack, @hand[-1] is community card
-    $score++ if grep { $_<num> == 11 && $_<suit> eq @hand[-1]<suit> }, @hand[0..3];
+    # Check for right-jack, @hand[*-1] is community card
+    $score++ if grep { $_<num> == 11 && $_<suit> eq @hand[*-1]<suit> }, @hand[0..3];
 
     # Count 15's
     my @vals = @hand>>.<val>;

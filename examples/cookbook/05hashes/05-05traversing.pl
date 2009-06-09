@@ -1,10 +1,11 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Traversing a hash
 
 You want to perform an action on each entry (i.e., each pair) in a hash.
 
-=cut
+=end pod
 
 my %hash = (
     'one'   => 'un',

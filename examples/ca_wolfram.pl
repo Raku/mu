@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 ##
 #  Script to output Wolfram-esque cellular automata

@@ -33,7 +33,7 @@ do {
   my $line;
   repeat while $line.chars {
    print "{$i++}: ";
-   $line = =$*IN;
+   $line = $*IN.get;
    last if $line eq "exit";
    $basic_program ~= $line ~ "\n";
   }  

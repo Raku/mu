@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 ## declare global variables (globals RULE dude!)
 
@@ -20,14 +20,14 @@ sub get_committer_list (Str $dict_file) returns List {
     my $dict = open($dict_file) orelse die "Couldn't open the AUTHORS file.\nYou must run this script from within the main pugs\ndirectory or within the examples/ sub-directory.";
 
     # Skip the intro text
-    1 while =$dict ~~ rx:perl5/\S/;
+    1 while $dict.lines ~~ rx:P5/\S/;
 
-    for (=$dict) -> $name {
+    for $dict.lines -> $name {
         # Capture the real name part
-        if ($name ~~ rx:perl5/^(.+?)(?:\s\s|$)/) {
+        if ($name ~~ rx:P5/^(.+?)(?:\s\s|$)/) {
             my $realname = $0;
             # Remove nickname
-            $realname ~~ s:perl5/\s*".*"\s*/ /;
+            $realname ~~ s:P5/\s*".*"\s*/ /;
             @committers.push($realname);
         }
     }
@@ -114,8 +114,7 @@ my $current_committer = pick_committer(@committers);
 
 cls;
 print draw_hangman("guess a letter? ");
-my $letter;
-while ($letter = =$*IN) {
+while my $letter = $*IN.get {
     cls;
 
     if (guess($letter)) {
@@ -138,8 +137,7 @@ while ($letter = =$*IN) {
     print draw_hangman("guess a letter? ");
 }
 
-=pod
-
+=begin pod
 =head1 NAME
 
 hangman.pl - Hangman (with the Pugs AUTHORS list)
@@ -170,4 +168,4 @@ it under the same terms as Perl itself.
 
 See http://www.perl.com/perl/misc/Artistic.html
 
-=cut
+=end pod

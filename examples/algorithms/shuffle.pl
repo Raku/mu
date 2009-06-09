@@ -1,8 +1,8 @@
-use v6-alpha;
+use v6;
 
 sub fisher_yates_shuffle (@copy is copy) returns Array {
    for  0..@copy-1  -> $i {
-      my $j = rand($i+1).int;
+      my $j = (1..$i).pick;
       @copy[$i,$j] = @copy[$j,$i];
    }
    return @copy;

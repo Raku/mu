@@ -1,6 +1,6 @@
 # This is a *evil* example of random operator overloading.
 
-use v6-alpha;
+use v6;
 
 my $op;
 BEGIN {

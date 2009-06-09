@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 ################################
 # Recursive solution by iblech #
@@ -11,10 +11,10 @@ sub outer(*@vals) {
         if @rest {
             # We've still got a rest to interate over.
             # We add all items of @rest[0] to the new @prev
-            # in our sub-helper, and use @rest[1...] as new
+            # in our sub-helper, and use @rest[1..*] as new
             # rest, i.e. all elements of @rest except the
             # first one.
-            helper [ @prev, $_ ], @rest[1...] for @rest[0];
+            helper [ @prev, $_ ], @rest[1..*] for @rest[0];
         }
         else {
             # We don't have to recurse further, so we

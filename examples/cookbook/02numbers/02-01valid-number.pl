@@ -1,7 +1,8 @@
-use v6-alpha;
+use v6;
 
 =pod
 
+=begin pod
 =head1 Valid Number
 
 You want to check if a string is a valid number.
@@ -35,5 +36,5 @@ You want to check if a string is a valid number.
     say "Rational"  if /^<Rat>$/;
   }
 
-=cut
+=end pod
 

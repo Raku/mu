@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # See http://perlmonks.org/?node_id=440531 and 441347 for details
 # Produces an infinite streams of merged primes that is evaluated lazily
@@ -26,7 +26,7 @@ sub lazy_merge2 (@list is copy) returns Sub {
     my $last = 0;
 
     my $by_n = sub ($n) { my $k = 0; return -> $x { $x ?? $k += $n !! $k } };
-    @list = @list.map:{ $by_n( $_ ) };
+    @list = @list.map: { $by_n( $_ ) };
 
     return sub {
         my $low;
@@ -44,7 +44,7 @@ sub lazy_merge3 (@list is copy) returns Sub {
     my $last = 0;
 
     my &by_n = -> $n { my $k = 0; -> $x { $x ?? $k += $n !! $k } };
-    @list .= map:{ by_n $_ };
+    @list .= map: { by_n $_ };
 
     sub {
         my $low;

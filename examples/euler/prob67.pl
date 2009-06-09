@@ -27,9 +27,9 @@ sub main {
     while (@triangle.elems > 1) {
         my @last = @(pop @triangle);
         # XXX: Pugs doesn't seem to have implemented @triangle[*-1] in favor
-        #      of @triangle[-1] yet
-        for 0 .. @triangle[-1].elems -> $c {
-            @triangle[-1][$c] += [@last[$c], @last[$c+1]].max;
+        #      of @triangle[*-1] yet
+        for 0 .. @triangle[*-1].elems -> $c {
+            @triangle[*-1][$c] += [@last[$c], @last[$c+1]].max;
         }
     }
 

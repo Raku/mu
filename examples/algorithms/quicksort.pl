@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # Please remember to update t/examples/examples.t and rename
 # examples/output/algorithms/quicksort if you rename/move this file.

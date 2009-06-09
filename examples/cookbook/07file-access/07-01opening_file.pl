@@ -1,10 +1,11 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 opening a file
 
 You want to read or write a file from Perl.
 
-=cut
+=end pod
 
 my $path = "07-01opening_file.pl";
 
@@ -30,17 +31,4 @@ my $output = open($filename, :w)
 # Closing the file
 # $input.close orelse die $!;
 # close($input);
-
-
-# $output.print "some string\n";
-# print $output, "String\n";
-
-
-# readline($input);
-# $input.readline
-# =$input
-
-# sysopen ?
- 
-
 

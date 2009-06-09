@@ -1,5 +1,6 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 NAME
 
 Perl 6 Cookbook: Escaping Characters
@@ -93,4 +94,4 @@ something in DBI (the DBD) that handles placeholders.
         can't think of one that's useful for a cookbook. I'll
         point people to placeholder binding only ~gcomnz
 
-=cut
+=end pod

@@ -1,13 +1,14 @@
-use v6-alpha;
+use v6;
 
+=begin pod
 =head1 Writing a Unix-Style Filter Program
 
-=cut
+=end pod
 
 
 # XXX currently it seems you cannot eliminate the $_ from while expression
 
-while $_ = =<> {
+for lines() {
     print;
 }
 

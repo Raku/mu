@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # This function multiplies the squaring factors of $n and $m to receive
 # the squaring factors of ($n*$m)
@@ -54,7 +54,7 @@ sub Graham($n)
     # a square number.
 
     {
-        my $largest_factor = $n_sq_factors.[-1];
+        my $largest_factor = $n_sq_factors.[*-1];
 
         my ($lower_bound, $lb_sq_factors);
         

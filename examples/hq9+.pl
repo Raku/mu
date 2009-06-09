@@ -57,6 +57,7 @@ my method nine  () {
     }
 }
 
+=begin END
 =head1 NAME
 
 HQ9Plus - A HQ9+ implementation

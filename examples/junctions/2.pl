@@ -6,7 +6,7 @@ my $x = any @color;
 
 
 print "enter a colour: ";
-my $y = =$*IN;
+my $y = $*IN.get;
 
 my $result = ($x eq $y) ?? "acceptable" !! 'unacceptable' ;
 

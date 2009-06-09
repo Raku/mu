@@ -1,1 +1,1 @@
-[=<>].reverse.print
+lines.reverse.print

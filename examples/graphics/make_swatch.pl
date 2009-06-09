@@ -1,4 +1,4 @@
-=pod
+=begin pod
 
 Expects to be passed a comma-separated list of colors and descriptions,
 one color per line.
@@ -9,9 +9,9 @@ Example:
 
   cat colors.txt | pugs make_swatch.pl | display
 
-=cut
+=end pod
 
-use v6-alpha;
+use v6;
 
 my $columns = 3; # how many color squares across
 my $rows = 5;    # how many color squares down
@@ -36,7 +36,7 @@ say $svg_begin;
 my $row = 1;
 my $column = 0;
 
-for =$*IN -> $line {
+for $*IN.lines -> $line {
     $column++;
     if ($column > $columns) {
         $column = 1;

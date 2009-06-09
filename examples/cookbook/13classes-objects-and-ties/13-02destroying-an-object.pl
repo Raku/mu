@@ -1,7 +1,6 @@
-use v6-alpha;
+use v6;
 
-=pod
-
+=begin pod
 =head1 Destroying an object
 
 =head2 Problem
@@ -12,7 +11,7 @@ You want to run special code when an object is no longer used.
 
 Provide a C<DESTROY> method.
 
-=cut
+=end pod
 
 class Foo {
     method DESTROY {

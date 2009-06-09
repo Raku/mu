@@ -1,6 +1,6 @@
 ## Chapter 8 section 4
 
-use v6-alpha;
+use v6;
 
 use FindBin;
 use lib $FindBin::RealDir;
@@ -48,8 +48,7 @@ if ?$result {
   say "Didn't get anything back, must be a parse error.";
 }
 
-=pod
-
+=begin pod
 =head1 NAME
 
 expr-parser.pl - A simple expression parser from Mark Jason Dominus' "Higher
@@ -76,4 +75,4 @@ Originally from Higher-Order Perl by Mark Dominus, published by Morgan Kaufmann 
 
 Dan Brook (Perl 6 translator)
 
-=cut
+=end pod

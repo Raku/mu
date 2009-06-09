@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # naive version of perldoc implemented in and for perl6
 
@@ -37,8 +37,8 @@ sub list_pod_files {
     for 0..@podfiles -> $i {
         say "$i) @podfiles[$i]";
     }
-    print "$ ";
-    my $selection = =$*IN;
+    print '$ ';
+    my $selection = $*IN.get;
     say "selected '$selection'";
     display_pod("$dir/@podfiles[$selection].pod");
 }

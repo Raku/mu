@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # version 0.1, michael scherer, misc@zarb.org
 # some additions by:
@@ -21,30 +21,29 @@ $hdl.say("NICK $nick\nUSER $nick $nick $nick $nick\n");
 $hdl.flush;
 
 # first line is not so important, it can be discarded ( or i hope )
-my $ligne = readline($hdl);
+my $ligne = $hdl.get;
 
 $hdl.say("JOIN $chan\n");
 $hdl.flush;
 
 say "Joined $chan";
 
-while ($ligne = readline($hdl))
-{
+while $ligne = $hdl.get {
     say "Serveur said : $ligne"; # if $debug;
 
     given $ligne {
 
-        when rx:perl5/^PING/ {
+        when rx:P5/^PING/ {
             say "Reply to ping";
             $hdl.say("PONG $nick\n");
             $hdl.flush;
         }
 
-        when rx:perl5/$nick/ 
-          && rx:perl5/^\:(.*?)\!.*?\sPRIVMSG $chan/ {
+        when rx:P5/$nick/ 
+          && rx:P5/^\:(.*?)\!.*?\sPRIVMSG $chan/ {
             my $writer = $0;
             given $ligne {   
-                when rx:perl5/\b(?i:hello|hi)\b/ {
+                when rx:P5/\b(?i:hello|hi)\b/ {
                     $hdl.say("PRIVMSG $chan :Hello $writer from a perl 6 irc bot\n");
                     $hdl.flush;
                 }

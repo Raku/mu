@@ -29,7 +29,7 @@ sub cls {
    #system(($*OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear'); 
  }
 
-sub random ($low,$high) {int( rand($high - $low) + $low ) + 1; };
+sub random ($low,$high) {int( ($high - $low).rand + $low ) + 1; };
 #multi sub infix:<.?.> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
 
 class Option {

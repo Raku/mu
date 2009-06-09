@@ -2,9 +2,9 @@
 # This is a simple translation of p5 tsanta.pl to p6.
 # See comments in tsanta.pl for more information.
 
-use v6-alpha;
+use v6;
 
-sub nonce () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".$*PID." ~ (^1000).pick) }
 my $intmp  = 'insanta'  ~ nonce();
 my $outtmp = 'outsanta' ~ nonce();
 
@@ -26,7 +26,7 @@ sub golf_score (Str $script) returns Int {
     my $fh = open($script) orelse die("open '$script' failed: $!");
     my $golf = 0;
     my $dollar_dot = 0;    # Note: $. aka $fh.linenum() not implemented yet
-    for =$fh  -> $line {
+    for $fh.lines  -> $line {
         ++$dollar_dot;
         $golf += length($line) - 1
             unless $dollar_dot==1 && $line.index("#!") == 0;

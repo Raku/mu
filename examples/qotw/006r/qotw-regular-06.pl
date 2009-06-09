@@ -1,7 +1,7 @@
 # This is a Perl 6 solution to QoTW regular #6, see
 # http://perl.plover.com/qotw/r/solution/006.
 
-use v6-alpha;
+use v6;
 
 sub format_number_list(*@input is copy) {
   my @output;

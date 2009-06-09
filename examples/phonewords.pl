@@ -6,7 +6,7 @@
 #
 # CAUTION: Produces a lot of output and takes a long time to complete.
 
-use v6-alpha;
+use v6;
 
 my %digit_letters = (
     2 => [<a b c>],

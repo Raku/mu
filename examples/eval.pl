@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # Todo list:
 # - There must be a cleaner way of presenting .perl without a leading \.
@@ -17,9 +17,9 @@ say "Type :h for help.";
 
 loop (;;) {
     # XXX use :prompt
-    #my $line = =$*IN :prompt('pugs> ');
+    #my $line = prompt('pugs> ');
     print "pugs> ";
-    my $line = =$*IN;
+    my $line = $*IN.get;
 
     # Quit and EOF.
     quit() unless defined $line;
@@ -73,6 +73,7 @@ loop (;;) {
 
 quit();
 
+=begin END
 =head1 NAME
 
 eval.pl - simple read-eval-print loop implementation

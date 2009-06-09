@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 # life.pl adopted for perl6 after:
 #
@@ -15,7 +15,7 @@ use v6-alpha;
 #
 sub print_world($world) {  
     for ($world) -> $row {
-          say $row.map:{ +$_ ?? '*' !! ' '}.join("");
+          say $row.map: { +$_ ?? '*' !! ' '}.join("");
     }
     say "----------------";
 }

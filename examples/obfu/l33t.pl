@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 class l33t-0.0.3;
 
@@ -166,7 +166,7 @@ method debug_interactive() returns Bool {
     } elsif !$!step {
         return Bool::True;
     }
-    repeat { print "$.ip> " } until (self.debug_action(=<>) || $!runnable);
+    repeat { print "$.ip> " } until (self.debug_action(get()) || $!runnable);
     return $!runnable;
 }
 

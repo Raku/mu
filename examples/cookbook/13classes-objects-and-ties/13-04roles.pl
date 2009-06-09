@@ -1,4 +1,4 @@
-=pod
+=begin pod
 
 This recipe is the recipe6 from the Perl5 Moose OO system, just
 syntactically adapted to Perl6.
@@ -7,7 +7,7 @@ See
 http://search.cpan.org/~stevan/Moose/lib/Moose/Cookbook/Recipe6.pod
 for more description or feel free to cut'n'paste it here.
 
-=cut
+=end pod
 
 
 role Eq {

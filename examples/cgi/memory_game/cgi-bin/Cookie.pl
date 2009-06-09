@@ -11,7 +11,7 @@ my %Cookies;
 sub CookiesInit() {
     %Cookies=();
     if (%*ENV{'HTTP_COOKIE'} ne '') {
-        for (split(rx:perl5/\s*;\s*/,%*ENV{'HTTP_COOKIE'})) {
+        for (split(rx:P5/\s*;\s*/,%*ENV{'HTTP_COOKIE'})) {
             my ($p,$v)=split('=',$_);
             CookiesAdd($p,$v);
         }

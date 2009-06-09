@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 ##################################################
 # Iterative p5 solution by Roy Johnson           #
@@ -8,13 +8,13 @@ use v6-alpha;
 my @loops = ([1..3], ['a'..'e'], ['foo', 'bar']);
 
 sub ret_iter4 (@loops is copy) returns Ref {
-    my $last = [*] @loops.map:{ $_.elems };
+    my $last = [*] @loops.map: { $_.elems };
     my $iter = -1;
     return sub {
         my $i = ++$iter;
         return () if $iter >= $last;
         my $possible = $last;
-        return @loops.map:{
+        return @loops.map: {
             $possible /= $_.elems;
             my $this_iter_i = $i / $possible;
             $i %= $possible;

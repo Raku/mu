@@ -1,4 +1,4 @@
-﻿use v6-alpha;
+﻿use v6;
 use Net::IRC;
 
 # Parse @*ARGS
@@ -23,9 +23,9 @@ sub get_committer_list(Str $dict_file) returns List {
     die "Couldn't open \"$dict_file\": $!\n";
 
   # Skip the intro text
-  1 while =$dict ~~ rx:Perl5/\S/;
+  1 while $dict.get ~~ rx:Perl5/\S/;
 
-  for =$dict -> $name {
+  for $dict.get -> $name {
     # Capture the real name part
     if $name ~~ rx:Perl5/^(.+?)(?:\s\s|$)/ {
       my $realname = $0;

@@ -1,7 +1,6 @@
-use v6-alpha;
+use v6;
 
-=pod
-
+=begin pod
 =head1 Constructing an object
 
 =head2 Problem
@@ -12,7 +11,7 @@ You want to create a way for your users to generate new objects
 
 Merely declare the class.  Constructors are provided for you automatically.
 
-=cut
+=end pod
 
 class Foo {}
 

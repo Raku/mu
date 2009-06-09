@@ -15,7 +15,7 @@ token talk { '<small>' <speaker> '</small>' }
 token speaker { [\w|\s|,]+ }
 
 ### extract.pl
-use v6-alpha;
+use v6;
 
 module Main;
 

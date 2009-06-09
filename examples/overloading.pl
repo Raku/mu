@@ -3,7 +3,7 @@
 # Please remember to update t/examples/examples.t and rename
 # examples/output/overloading if you rename/move this file.
 
-use v6-alpha;
+use v6;
 
 multi postfix:<!> ($x) { [*] 1..$x };
 multi postfix:<!> (@x) { [*] @x };
@@ -38,6 +38,6 @@ multi sub infix:<<base>> ($x,$y) {base($x,$y)};
 say $_ base 2 for (1..5);
 
 # Commented so this file can be used in example.t.
-# multi sub infix:<<.?.>> ($low,$high) { int( rand($high - $low) + $low ) + 1; };
+# multi sub infix:<<.?.>> ($low,$high) { int( ($high - $low).rand + $low ) + 1; };
 # say 1 .?. 5;
 # say 10 .?. 20;

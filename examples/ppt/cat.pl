@@ -1,4 +1,4 @@
-use v6-alpha;
+use v6;
 
 use Getopt::Std;
 my %opts = getopts("benstuv");
@@ -11,7 +11,7 @@ my %opts = getopts("benstuv");
 my $empty = 0; # for -s option
 my $linenum = 1;
 
-while $_ = =<> {
+for lines() {
     # squeeze runs of blank lines to one
     if %opts<s> {
         next if ! rx:P5/./ && $empty++;

@@ -96,7 +96,7 @@ sub ask (
 
     if defined $answer {
         is(
-            =$*IN,
+            $*IN.get,
             $answer,
             "Arguments ($call) to signatures ($m1) and ($m2)"
         );
