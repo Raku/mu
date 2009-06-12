@@ -1,4 +1,4 @@
-say "1..4";
+say "1..6";
 {
 my $multi = ::Multi.new;
 $multi.candidates.push(sub ($arg1 is ref) {
@@ -16,7 +16,7 @@ role int {
     method ACCEPTS($thing) {
         PRIMITIVES::ritest((|$thing),PRIMITIVES::SMOP_RI(2));
     }
-    # so we can do if $.type {...} in the Param.ACCEPTS
+    # HACK so we can do if $.type {...} in the Param.ACCEPTS
     method true {
         ::True;
     }
@@ -30,4 +30,30 @@ $multi.candidates.push(sub (int $arg1,$arg2) {
 });
 $multi.("foo",1);
 $multi.(1,"foo");
+}.();
+
+{
+role Foo {
+    # HACK so we can do if $.type {...} in the Param.ACCEPTS
+    method true {
+        ::True;
+    }
+}
+role Bar {
+    # HACK so we can do if $.type {...} in the Param.ACCEPTS
+    method true {
+        ::True;
+    }
+}
+my $multi = ::Multi.new;
+$multi.candidates.push(sub (Foo $foo) {
+    say "ok 5";
+});
+$multi.candidates.push(sub (Bar $bar) {
+    say "ok 6";
+});
+my $foo = Foo.new;
+my $bar = Bar.new;
+$multi.($foo);
+$multi.($bar);
 }.();

@@ -4,6 +4,17 @@ my sub copy_methods($dst,$src) {
     }
     map(&copy_method,$src.^!methods.keys);
 }
+my sub copy_does($dst,$src) {
+    my $i = 0;
+    loop {
+        if &infix:<==>:(int,int)($i,$src.^!does.elems) {
+            return;
+        } else {
+            $dst.^!does.[$i.FETCH] = $src.^!does.[$i.FETCH];
+            $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
+}
 my sub compose_role($obj,$role) {
     my sub compose_method($key) {
         if $obj.^!methods.{$key.FETCH} {
@@ -33,25 +44,37 @@ knowhow RoleHOW {
             # new class every time, then we'll think in some sort of caching.
             my $class = ::p6opaque.^!CREATE;
             $class.^!how = ::PrototypeHOW;
+            $class.^!does.push((|$object));
 #            $class.^compose_role(::LowObject);
 #            $class.^compose_role($object);
-            compose_role($class,::LowObject);
-            compose_role($class,$object);
+            copy_methods($class,::LowObject);
+            copy_methods($class,$object);
             my $delegated = ::Scalar.new($capture.delegate($class.FETCH));
             return $class.^dispatch($identifier.FETCH, (|$delegated));
         }
     }
 }
-
 role LowObject {
     method new() {
         my $obj = ::p6opaque.^!CREATE;
         $obj.^!how = self.^!how;
         copy_methods($obj,self);
+        copy_does($obj,self);
         if $obj.^!methods.{'BUILDALL'} {
             $obj.BUILDALL;
         }
         $obj;
+    }
+    method ACCEPTS($obj) {
+        my $role = self.^!does.[0];
+        my $does = ::False;
+        my sub does_role($r) {
+            if PRIMITIVES::pointer_equal((|$role),(|$r)) {
+                $does = ::True;
+            }
+        }
+        map(&does_role,$obj.^!does);
+        $does;
     }
 }
 
