@@ -9,11 +9,13 @@ Test -n implementation
 The -n command line switch mimics the Perl5 -n command line
 switch, and wraps the whole script in
 
-  while (=<>) {
+  for (lines) {
     ...
   };
 
 =end pod
+
+# L<S19/Reference/"Act like awk.">
 
 my @examples = (
   '-n -e .say',
@@ -37,7 +39,7 @@ bar
 ";
 
 sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
-my ($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~<< nonce;
+my ($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~>> nonce;
 my $h = open("$in_fn", :w);
 $h.print($str);
 $h.close();

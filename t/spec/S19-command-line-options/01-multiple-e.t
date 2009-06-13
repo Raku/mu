@@ -11,6 +11,8 @@ like C<join "\n"> concatenation .
 
 =end pod
 
+# L<S19/Reference/"Execute a single-line program.">
+
 my @examples = (
  '-e print -e qq.Hello -e Pugs.',
  '-e print -we qq.Hello -e Pugs.',

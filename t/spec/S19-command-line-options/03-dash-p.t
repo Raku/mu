@@ -9,12 +9,14 @@ Test C<-p> implementation
 The C<-p> command line switch mimics the Perl5 C<-p> command line
 switch, and wraps the whole script in
 
-  while ($_ = =<>) {
+  for (lines) {
     ...         # your script
-    say;
+    .say;
   };
 
 =end pod
+
+# L<S19/Reference/"Act like sed.">
 
 my @examples = (
   '-p',
@@ -41,7 +43,7 @@ bar
 ";
 
 sub nonce () { return (".{$*PID}." ~ (1..1000).pick) }
-my ($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~<< nonce;
+my ($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~>> nonce;
 my $h = open("$in_fn", :w);
 $h.print($str);
 $h.close();
