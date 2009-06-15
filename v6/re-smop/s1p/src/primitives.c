@@ -143,7 +143,7 @@ void smop_s1p_insert_primitives(SMOP__Object* interpreter,SMOP__Object* package)
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&idconst_eq",SMOP__S1P__CCode_create(primitive_idconst_eq));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&get_interpreter",SMOP__S1P__CCode_create(primitive_interpreter));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&storage_name",SMOP__S1P__CCode_create(primitive_storage_name));
-  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&ritest",SMOP_REFERENCE(interpreter,SMOP__S1P__ritest));
-  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&pointer_equal",SMOP_REFERENCE(interpreter,SMOP__S1P__CCode_create(primitive_pointer_equal)));
+  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&ritest",SMOP__S1P__CCode_create(SMOP__S1P__ritest));
+  insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&pointer_equal",SMOP__S1P__CCode_create(primitive_pointer_equal));
   insert_primitive(interpreter,SMOP_REFERENCE(interpreter,package),"&SMOP_RI",SMOP__S1P__CCode_create(primitive_SMOP_RI));
 }
