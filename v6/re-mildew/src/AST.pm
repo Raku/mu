@@ -230,8 +230,8 @@ sub m0ld {
     my ($self,$ret) = @_;
     my @stmts = @{$self->stmts};
     my $last = pop @stmts;
-    my $m0ld = join('',map {$_->m0ld(AST::unique_id)} @stmts);
-    $m0ld = $m0ld . $last->m0ld($ret) if $last;
+    my $m0ld = join('',map {$_->emit_(AST::unique_id)} @stmts);
+    $m0ld = $m0ld . $last->emit_($ret) if $last;
     return $m0ld;
 }
 

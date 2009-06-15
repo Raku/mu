@@ -1,7 +1,7 @@
 package AST::Helpers;
 use Exporter 'import';
 our @EXPORT = qw(string reg integer call FETCH lookup capturize let fcall name_components empty_sig
-                 routine code move_CONTROL XXX trailing_return varname EXPR lookupf);
+                 routine code move_CONTROL XXX trailing_return varname EXPR lookupf curlies);
 use Carp 'confess';
 use AST;
 use Term::ANSIColor qw(:constants);

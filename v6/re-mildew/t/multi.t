@@ -1,6 +1,5 @@
 say "1..6";
 {
-my &foo = ::Multi.new;
 my multi foo($arg1 is ref) {
     say $arg1;
 }
@@ -21,7 +20,6 @@ role int {
         ::True;
     }
 }
-my &foo = ::Multi.new;
 my multi foo($arg1,int $arg2) {
     say "ok 3";
 }
@@ -45,7 +43,6 @@ role Bar {
         ::True;
     }
 }
-my &foo = ::Multi.new;
 my multi foo(Foo $foo) {
     say "ok 5";
 }
