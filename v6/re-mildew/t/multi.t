@@ -1,14 +1,14 @@
 say "1..6";
 {
-my $multi = ::Multi.new;
-$multi.candidates.push(sub ($arg1 is ref) {
+my &foo = ::Multi.new;
+my multi foo($arg1 is ref) {
     say $arg1;
-});
-$multi.candidates.push(sub ($arg1,$arg2) {
+}
+my multi foo($arg1,$arg2) {
     say "ok 2";
-});
-$multi.("ok 1");
-$multi.(1,2);
+}
+foo("ok 1");
+foo(1,2);
 }.();
 
 {
@@ -21,15 +21,15 @@ role int {
         ::True;
     }
 }
-my $multi = ::Multi.new;
-$multi.candidates.push(sub ($arg1,int $arg2) {
+my &foo = ::Multi.new;
+my multi foo($arg1,int $arg2) {
     say "ok 3";
-});
-$multi.candidates.push(sub (int $arg1,$arg2) {
+}
+my multi foo(int $arg1,$arg2) {
     say "ok 4";
-});
-$multi.("foo",1);
-$multi.(1,"foo");
+}
+foo("foo",1);
+foo(1,"foo");
 }.();
 
 {
@@ -45,15 +45,15 @@ role Bar {
         ::True;
     }
 }
-my $multi = ::Multi.new;
-$multi.candidates.push(sub (Foo $foo) {
+my &foo = ::Multi.new;
+my multi foo(Foo $foo) {
     say "ok 5";
-});
-$multi.candidates.push(sub (Bar $bar) {
+}
+my multi foo(Bar $bar) {
     say "ok 6";
-});
+}
 my $foo = Foo.new;
 my $bar = Bar.new;
-$multi.($foo);
-$multi.($bar);
+foo($foo);
+foo($bar);
 }.();

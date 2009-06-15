@@ -20,6 +20,8 @@ sub emit_m0ld {
         }
     } elsif ($m->{term}) {
         $m->{term}->emit_m0ld;
+    } elsif ($m->{multi_declarator}) {
+        $m->{multi_declarator}->emit_m0ld;
     } elsif ($m->{scope_declarator}) {
         $m->{scope_declarator}->emit_m0ld;
     } elsif ($m->{package_declarator}) {
