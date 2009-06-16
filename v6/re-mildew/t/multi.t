@@ -11,15 +11,6 @@ foo(1,2);
 }.();
 
 {
-role int {
-    method ACCEPTS($thing) {
-        PRIMITIVES::ritest((|$thing),PRIMITIVES::SMOP_RI(2));
-    }
-    # HACK so we can do if $.type {...} in the Param.ACCEPTS
-    method true {
-        ::True;
-    }
-}
 my multi foo($arg1,int $arg2) {
     say "ok 3";
 }
@@ -32,16 +23,8 @@ foo(1,"foo");
 
 {
 role Foo {
-    # HACK so we can do if $.type {...} in the Param.ACCEPTS
-    method true {
-        ::True;
-    }
 }
 role Bar {
-    # HACK so we can do if $.type {...} in the Param.ACCEPTS
-    method true {
-        ::True;
-    }
 }
 my multi foo(Foo $foo) {
     say "ok 5";

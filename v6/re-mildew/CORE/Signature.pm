@@ -51,6 +51,8 @@ role Signature {
         self.other = ::Array.new;
     }
 }
+
+
 role Param {
     has $.variable;
     has $.default_value;
@@ -60,11 +62,10 @@ role Param {
         self.BIND($scope,$default_value.());
     }
     method ACCEPTS($arg) {
-        if $.type {
-            $.type.ACCEPTS($arg);
-        } else {
-            ::True;
-        }
+        $.type.ACCEPTS($arg);
+    }
+    method BUILDALL() {
+        $.type = ::Any.new;
     }
 }
 role Positional {
