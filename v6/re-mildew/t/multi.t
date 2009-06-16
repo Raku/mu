@@ -1,4 +1,4 @@
-say "1..6";
+say "1..9";
 {
 my multi foo($arg1 is ref) {
     say $arg1;
@@ -53,4 +53,21 @@ my $foo = Foo.new;
 my $bar = Bar.new;
 foo($foo);
 foo($bar);
+}.();
+
+{
+my multi foo($a) {
+    say "ok 7 # calling the inherited candidate";
+}
+{
+    my multi foo($a,$b) {
+        say "ok 8 # one can locally add candidates";
+    }
+    foo(1);
+    foo(1,2);
+}.();
+foo(1,2);
+CATCH {
+    say "ok 9 # the lexically added candidates are not visible in outer scopes";
+}
 }.();

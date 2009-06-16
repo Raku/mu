@@ -16,6 +16,7 @@ sub emit_m0ld {
     my $rout = routine($routine->{blockoid},($sig ? $sig->emit_m0ld : empty_sig));
     my $ret = AST::Seq->new(stmts=>[
         $Mildew::multis->{$name} ? () : call(BIND => curlies($name),[call new => lookupf('Multi')]),
+        call(get_outer_candidates => lookupf($name),[string $name,reg '$scope']),
         call(push => FETCH(call candidates => lookupf($name)),[$rout]),
     ]);
     $Mildew::multis->{$name} = 1;
