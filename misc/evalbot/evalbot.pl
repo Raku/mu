@@ -51,63 +51,30 @@ package Evalbot;
     my $prefix  = '';
     my $postfix = ':';
 
-    my @austrian_national_anthem = (
-        q[Land der Berge, Land am Strome,],
-        q[Land der Äcker, Land der Dome,],
-        q[Land der Hämmer, zukunftsreich!],
-        q[Heimat bist du großer Söhne,],
-        q[Volk, begnadet für das Schöne,],
-        q[vielgerühmtes Österreich,],
-        q[vielgerühmtes Österreich!],
-        q[],
-        q[Heiß umfehdet, wild umstritten],
-        q[liegst dem Erdteil du inmitten,],
-        q[einem starken Herzen gleich.],
-        q[Hast seit frühen Ahnentagen],
-        q[hoher Sendung Last getragen,],
-        q[vielgeprüftes Österreich,],
-        q[vielgeprüftes Österreich!],
-        q[],
-        q[Mutig in die neuen Zeiten,],
-        q[frei und gläubig sieh uns schreiten,],
-        q[arbeitsfroh und hoffnungsreich.],
-        q[Einig laß in Brüderchören,],
-        q[Vaterland, dir Treue schwören,],
-        q[vielgeliebtes Österreich,],
-        q[vielgeliebtes Österreich!],
-    );
-
-    my $input = '('
-                . (join '; ', map { qq[echo "$_"] } @austrian_national_anthem)
-                . ')';
-
     our %impls = (
             mildew  => {
-                chdir       => 'umask 002; ../../v6/mildew',
-                cmd_line    => 'perl mildew %program >> %out 2>&1',
+                chdir       => '../../v6/mildew',
+                cmd_line    => 'cat %i | perl mildew %program >> %out 2>&1',
             },
             elf => {
                 chdir       => '../elf',
-                cmd_line    => $input . '| ./elf_h %program >> %out 2>&1',
+                cmd_line    => 'cat %i| ./elf_h %program >> %out 2>&1',
                 revision    => \&get_revision,
             },
             rakudo => {
                 chdir       => '../../../rakudo/',
-                cmd_line    => $input . '| PERL6LIB=lib ./perl6 %program >> %out 2>&1',
+                cmd_line    => 'cat %i | PERL6LIB=lib ./perl6 %program >> %out 2>&1',
                 revision    => \&get_rakudo_revision,
                 filter      => \&filter_pct,
                 program_prefix => "use Safe;\n",
             },
             nqp   => {
                 chdir       => '../../../rakudo/parrot/',
-                cmd_line    => './parrot compilers/nqp/nqp.pbc %program >> %out 2>&1',
+                cmd_line    => 'cat %i | ./parrot compilers/nqp/nqp.pbc %program >> %out 2>&1',
                 filter      => \&filter_pct,
             },
             pugs => {
-                cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/pugs/pugs %program >> %out 2>&1',
-            },
-            smop => {
-                cmd_line    => 'PUGS_SAFEMODE=true /home/evalenv/pugs/pugs -Bm0ld %program >> %out 2>&1',
+                cmd_line    => 'cat %i | PUGS_SAFEMODE=true /home/evalenv/pugs/pugs %program >> %out 2>&1',
             },
             std  => {
                 chdir       => '../../src/perl6',

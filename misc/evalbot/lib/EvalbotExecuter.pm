@@ -11,11 +11,11 @@ EvalbotExecuter - Execution of external programs for evalbot
     sub my_evalbot_executer {
         my ($program, $fh, $filename) = @_;
 
-        # execute $program, and write the result to 
-        # $fh, which is a filehandle opened for reading. 
+        # execute $program, and write the result to
+        # $fh, which is a filehandle opened for reading.
         # $filename is the name of that file.
-        
-        # we make a very stupid 'eval': remove all 
+
+        # we make a very stupid 'eval': remove all
         # vowels, and write it:
 
         $program =~ s/[aeiou]//g;
@@ -28,7 +28,7 @@ EvalbotExecuter - Execution of external programs for evalbot
 
     # somewhere else in the program, run it:
     EvalbotExecuter::run('say "foo"', \&my_evalbot_executer);
-    
+
 =head1 DESCRIPTION
 
 EvalbotExecuter is basically a wrapper around a function that executes an
@@ -54,9 +54,9 @@ Set resource limits in the child process
 
 call an external function that starts an external process
 
-=item * 
+=item *
 
-collects the contents of the temporary file, postprocess it, and unlink 
+collects the contents of the temporary file, postprocess it, and unlink
 the temp file.
 
 =back
@@ -119,7 +119,7 @@ sub _fork_and_eval {
     unlink $filename or warn "couldn't delete '$filename': $!";
     if (reftype($executer) eq 'HASH' && $executer->{filter}){
         return $executer->{filter}->($result);
-    } 
+    }
     return $result;
 }
 
@@ -141,8 +141,12 @@ sub _auto_execute {
         print $prog_fh $program;
         close $prog_fh;
 
-        $cmd =~ s/\%out/$out_filename/g;
-        $cmd =~ s/\%program/$program_file_name/;
+        # TODO: avoid hardcoded path
+        my $stdin = glob '~/pugs/misc/evalbot/stdin';
+
+        $cmd =~ s/\%out\b/$out_filename/g;
+        $cmd =~ s/\%program\b/$program_file_name/g;
+        $cmd =~ s/\%i\b/$stdin/g;
         system($cmd);
     }
 }
