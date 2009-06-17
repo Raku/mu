@@ -6,7 +6,8 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return($m->{statementlist}->emit_m0ld));
+    # we insert reg '$scope' so that modules can return their outermost scope
+    AST::Block->new(regs=>['interpreter','scope'],stmts=>trailing_return([@{$m->{statementlist}->emit_m0ld},reg '$scope']));
 }
 
 1;

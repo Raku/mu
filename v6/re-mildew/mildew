@@ -177,7 +177,7 @@ if ($C eq 'desugar') {
     my ($front,$back);
     if ($C eq 'so') {
         $front = "my \$interpreter;\nmy \$scope;\nmy \$back;\n";
-        $back = "my \$void = \$interpreter.\"goto\"(\$back);\n";
+        $back = 'my $void = $back."setr"($ret);my $void = $interpreter."goto"($back);';
     } else {
         $front = "my \$scope = ?SMOP__S1P__LexicalPrelude;\n";
         $back = '';
@@ -210,7 +210,7 @@ BOILERPLATE_FRONT
     my $Capture_scalar = $scope."lookup"("capture");
     my $Capture = $Capture_scalar."FETCH"();
     my $capture = $Capture."new"();
-    my $void = $main_code."postcircumfix:( )"($capture);
+    my $ret = $main_code."postcircumfix:( )"($capture);
 BOILERPLATE_BACK
 }
 if ($output and not $C) {
