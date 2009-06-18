@@ -22,5 +22,3 @@ say "_-_" x 30;
 say $h->ansi_text;
 say "_-_" x 30;
 say Dumper($h->tokens);
-say "_-_" x 30;
-say $h->vim_html;
