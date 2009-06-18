@@ -7,7 +7,7 @@ use v6;
 ### GRAMMAR ###
 
 grammar Adventure {
-  token command  { 
+  token TOP  { 
 	| <verb> <ws> <article> <ws> <object> 
 	| <verb> <ws> <object>
 	| <verb>
@@ -225,7 +225,7 @@ while ( 1 ) {
     print "> ";
     my $input = $*IN.get;
 
-    my $response = Adventure.command( $input );
+    my $response = Adventure.parse( $input );
 
     if my $direction = $response{'direction'} {
         walk_to( ~$direction );
