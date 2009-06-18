@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 37;
+use Test::More tests => 39;
 use Test::Exception;
 
 use STD;
@@ -79,3 +79,8 @@ like( $q->simple_html, '/&quot;/',
     'simple_html html escaping works');
 like( $q->full_html, '/&lt;&gt;/',
     'full_html html escaping works');
+
+#check that we have get back a parser when we have an empty string
+my $r = STD->parse('');
+ok(defined $r, 'STD->parse() returned something on a empty string');
+isa_ok( $r, 'STD', 'STD->parse() return type');
