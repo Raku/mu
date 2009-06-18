@@ -1,5 +1,8 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.61  2009.6.18
+    - Fixed a redspans bug that caused output to be invalid
+
 0.60  2009.6.18
     - Bundled STD.pm which fixes undeclared routines like prompt()
 
