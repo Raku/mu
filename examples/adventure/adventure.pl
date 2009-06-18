@@ -223,7 +223,7 @@ sub objects_in ($where) {
 
 while ( 1 ) {
     print "> ";
-    my $input = get();
+    my $input = $*IN.get;
 
     my $response = Adventure.command( $input );
 
