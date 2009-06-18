@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl6
 
 # Adventures in Perl6
 
@@ -7,7 +7,8 @@ use v6;
 ### GRAMMAR ###
 
 grammar Adventure {
-  token TOP  { 
+  token TOP { <command> }
+  token command  { 
 	| <verb> <ws> <article> <ws> <object> 
 	| <verb> <ws> <object>
 	| <verb>
@@ -25,56 +26,55 @@ grammar Adventure {
 
 my %player = (
     place => "chamber",
-    score => 0,
+    score => 0
 );
 
 my %map = (
     chamber => {
         north => 'throne room',
-        east  => 'dungeon',
+        east  => 'dungeon'
     },
     'throne room' => {
-        south => 'chamber',
+        south => 'chamber'
     },
     dungeon => {
         west  => 'chamber',
         north => 'crypt',
-        BLOCKED_south => 'cell', # there is no "south"... yet
+        BLOCKED_south => 'cell' # there is no "south"... yet
     },
     crypt => {
-        south => 'dungeon',
+        south => 'dungeon'
     },
     cell => {
-        north => 'dungeon',
-    },
+        north => 'dungeon'
+    }
 );
 
 my %object = (
     sign => {
         place => "chamber",
-        description => "Sign says: bring treasures here, then say SCORE",
+        description => "Sign says: bring treasures here, then say SCORE"
     },
     coin => {
-        place => "cell",
+        place => "cell"
     },
     key => {
-        place => "crypt",
+        place => "crypt"
     },
     door => {
         place => "dungeon",
-        description => "The door is closed",
+        description => "The door is closed"
     },
     vampire => {
-        place => 'crypt',
+        place => 'crypt'
     },
     cross => {
-        place => 'throne room',
+        place => 'throne room'
     }
 );
 
-
 ### ACTIONS ###
-# module main;
+#module main;
 
 sub do_action( $verb, $object ) {
     say "[$verb] [$object]";
@@ -93,7 +93,6 @@ sub do_action( $verb, $object ) {
     if %action{$verb} {
          %action{$verb}();
     }
-
 }
 
 sub help {
@@ -119,7 +118,7 @@ sub walk_to( $direction ) {
 
 sub look( $object ) {
   if i_see( $object ) {
-      my $description =  %object{$object}{'description'};
+      my $description = %object{$object}{'description'};
       if $description {
           say $description;
       } else {
@@ -163,7 +162,7 @@ sub drop( $object ) {
     say "You dropped the $object on the floor";
     %object{$object}{'place'} = %player{'place'};
   } else {
-    say "You don't have that";
+    say "You don't have that $object";
   }
 }
 
@@ -193,16 +192,22 @@ sub score {
     say "You have scored " ~ %player{'score'} ~ " points";
   }
 }
-
-
 ### AUXILIAR FUNCTIONS ###
 
 sub is_here ($object) {
-  return ( %object{$object}{'place'} eq %player{'place'} );
+  if $object ~~ %object {
+    return ( %object{$object}{'place'} eq %player{'place'} );
+  } else {
+    return False;
+  }
 }
 
 sub i_have ($object) {
-  return ( %object{$object}{'place'} eq 'player' );
+  if $object ~~ %object {
+    return ( %object{$object}{'place'} eq 'player' );
+  } else {
+    return False;
+  }
 }
 
 sub i_see ($object) {
@@ -211,27 +216,26 @@ sub i_see ($object) {
 
 sub objects_in ($where) {
   my @objects;
-  for %object.keys -> $obj {
-    push @objects, $obj if %object{$obj}{'place'} eq $where;
+  for %object.kv -> $name, $obj {
+    if $obj{'place'} eq $where {
+      @objects.push: $name;
+    }
   }
-
   return @objects;
 }
-
 
 ### MAIN LOOP ###
 
 while ( 1 ) {
     print "> ";
-    my $input = $*IN.get;
+    my $input = $*IN.get();
+    my $response = Adventure::command($input);
 
-    my $response = Adventure.parse( $input );
-
-    if my $direction = $response{'direction'} {
+    if my $direction = $response<direction> {
         walk_to( ~$direction );
     }
-    elsif $response{'verb'} {
-        do_action( ~$response{'verb'}, ~$response{'object'} );
+    elsif my $verb = $response<verb> {
+        do_action( ~$verb, ~($response<object> or "") )
     } else {
         say "What?";
     }
