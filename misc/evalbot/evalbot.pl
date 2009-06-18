@@ -77,7 +77,7 @@ package Evalbot;
                 cmd_line    => 'cat %i | PUGS_SAFEMODE=true /home/evalenv/pugs/pugs %program >> %out 2>&1',
             },
             std  => {
-                chdir       => '../../src/perl6',
+                chdir       => '../../src/perl6/snap',
                 cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
                 revision    => \&get_revision,
             },
