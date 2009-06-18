@@ -236,5 +236,5 @@ while ( 1 ) {
         say "What?";
     }
 
-    say;
+    say '';
 }
