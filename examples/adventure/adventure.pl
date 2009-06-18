@@ -74,7 +74,7 @@ my %object = (
 
 
 ### ACTIONS ###
-module main;
+# module main;
 
 sub do_action( $verb, $object ) {
     say "[$verb] [$object]";
