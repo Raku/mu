@@ -29271,7 +29271,7 @@ sub postprocess {
 my $self = shift;
 my $s = shift;
 
-$s->comb }
+$s->words }
 } ## end role
 
 { package STD::Q::w0;
@@ -29293,7 +29293,7 @@ sub postprocess {
 my $self = shift;
 my $s = shift;
 
-$s->comb }
+$s->words }
 } ## end role
 
 { package STD::Q::ww0;
