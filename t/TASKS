@@ -69,10 +69,6 @@ S05
 * tests for the "special named assertions"
 * more of everything.
 
-S06
-* fudge emits an incomplete file for t/spec/S06-signature/slurpy-params-2.t
-  Eithe fix fudge, or harass TimToady to do it.
-
 S09
 * more tests for multidimensional arrays (also .shape, see S29)
 * tests for user-defined array indexing
