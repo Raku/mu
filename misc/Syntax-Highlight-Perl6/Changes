@@ -1,5 +1,10 @@
 Revision history for Syntax::Highlight::Perl6.
 
+0.63  2009.6.21
+    - Bundled STD.pm which fixes the following:
+        - module Foo::Bar { }; module Bar { }; # used to say Bar is redeclared
+        - package A; package B; # it warns about it now
+
 0.62  2009.6.18
     - Bundled STD.pm which fixes the undefined return value on STD->parse('')
 
