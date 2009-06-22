@@ -70,6 +70,9 @@ sub emit_m0ld {
                  [ call('postcircumfix:( )' =>
                     FETCH(call('postcircumfix:{ }' => FETCH(lookup('EXTERNAL::')), [string '&use_from_perl5'])),
                     [capturize([string $name])]) ]);
+        } elsif ($module) {
+            my $name = $module->{name}{identifier}{TEXT};
+            call(load => FETCH(call(new => lookupf('ModuleLoader'))),[string ($name),lookupf('$LexicalPrelude')]);
         } else {
             XXX;
         }

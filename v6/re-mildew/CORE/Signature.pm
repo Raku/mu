@@ -12,7 +12,7 @@ role Signature {
     has $.positionals;
     has $.other;
     method ACCEPTS(\$capture) {
-        if $.positionals.elems == $capture.elems {
+        if &infix:<==>:(int,int)($.positionals.elems,$capture.elems) {
         } else {
             return ::False;
         }

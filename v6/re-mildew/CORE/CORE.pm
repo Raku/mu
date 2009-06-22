@@ -61,26 +61,6 @@ $LexicalPrelude.{'&infix:==:(int,int)'} := sub ($a,$b) {
     PRIMITIVES::int_equal($a.FETCH,$b.FETCH);
 }
 
-$LexicalPrelude.{'&infix:=='} := sub ($a,$b) {
-    &infix:<==>:(int,int)($a,$b);
-}
-$LexicalPrelude.{'&infix:!='} := sub ($a,$b) {
-    if &infix:<==>:(int,int)($a,$b) {
-        ::False;
-    } else {
-        ::True;
-    }
-}
-$LexicalPrelude.{'&infix:eq'} := sub ($a,$b) {
-    PRIMITIVES::idconst_eq($a.Str,$b.Str);
-}
-$LexicalPrelude.{'&infix:ne'} := sub ($a,$b) {
-    if PRIMITIVES::idconst_eq($a.Str,$b.Str) {
-        ::False;
-    } else {
-        ::True;
-    }
-}
 $LexicalPrelude.{'&infix:~'} := sub (|$capture) {
     my $i = 0;
     my $str = '';
@@ -93,6 +73,16 @@ $LexicalPrelude.{'&infix:~'} := sub (|$capture) {
         }
     }
 }
+$LexicalPrelude.{'&infix:eq'} := sub ($a,$b) {
+    PRIMITIVES::idconst_eq($a.Str,$b.Str);
+}
+$LexicalPrelude.{'&infix:ne'} := sub ($a,$b) {
+    if PRIMITIVES::idconst_eq($a.Str,$b.Str) {
+        ::False;
+    } else {
+        ::True;
+    }
+}
 $LexicalPrelude.{'&postfix:++'} := sub ($a) {
     $a = &infix:<+>:(int,int)($a,1);
 }
@@ -103,6 +93,12 @@ $LexicalPrelude.{'&postfix:++'} := sub ($a) {
 ::MildewSOLoader.new.load('Exception.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('Failure.mildew.so',$LexicalPrelude.FETCH);
 ::MildewSOLoader.new.load('Signature.mildew.so',$LexicalPrelude.FETCH);
+
+
+$LexicalPrelude.{'ModuleLoader'} = ::MildewSOLoader.new.load('ModuleLoader.mildew.so',$LexicalPrelude.FETCH).lookup('ModuleLoader');
+
 my $multi_scope = ::MildewSOLoader.new.load('Multi.mildew.so',$LexicalPrelude.FETCH);
 $LexicalPrelude.{'Multi'} = $multi_scope.lookup('Multi');
 ::MildewSOLoader.new.load('EXTERNAL.mildew.so',$LexicalPrelude.FETCH);
+
+::MildewSOLoader.new.load('int.mildew.so',$LexicalPrelude.FETCH);

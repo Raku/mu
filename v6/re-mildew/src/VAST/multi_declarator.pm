@@ -10,6 +10,13 @@ sub emit_m0ld {
     my $name;
     if ($routine->{deflongname}[0]) {
         $name = '&'.$routine->{deflongname}[0]{name}{identifier}{TEXT};
+        if (my $colonpair = $routine->{deflongname}[0]{colonpair}[0]) {
+            if ($colonpair->{v}{sym}[0] eq '<' &&
+                 $colonpair->{v}{sym}[1] eq '>') {
+                $name .= ':'.$colonpair->{v}{nibble}->as_constant_string;
+            } else {
+            }
+        }
     }
 
     my $sig = $routine->{multisig}[0]{signature}[0];
