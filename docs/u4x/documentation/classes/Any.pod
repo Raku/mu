@@ -39,7 +39,5 @@ to surround them with closure braces:
 
 =head3 length
 
-=head2 length
-
 There is no method C<length> Perl 6. Use C<chars> to count the number of 
 characters in a C<Str>, or C<elems> for the number of elements in a C<List>.
