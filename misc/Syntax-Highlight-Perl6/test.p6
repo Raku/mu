@@ -1,2 +1,4 @@
-my $foo;
+my $foo-bar;
+$foo-bar;
+our $foo;
 $foo;

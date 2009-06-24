@@ -1,5 +1,5 @@
 # The start of a gimme5 replacement based on STD parsing.
-#
+# viv stands for roman numbers VIV (i.e. Perl 5 to 6)
 use strict;
 use 5.010;
 use warnings;
@@ -37,10 +37,13 @@ sub MAIN {
 	my $r;
 	if ( @_ and -f $_[0] ) {
 		$r = STD->parsefile( $_[0], actions => 'Actions' )->{'_ast'};
+	} else {
+		die "no filename\n";
 	}
 	delete $r->{CORE};
 	delete $r->{MATCH}{CORE};
 	print fixpod( $r->ret( $r->emit_color(0) ) );
+
 }
 
 sub fixpod {
@@ -362,6 +365,7 @@ sub fixpod {
 		my $c    = "@c " . ref($self);
 		$c =~ s/VAST:://g;
 		print STDERR "$c returns $val\n" if $OPT_log;
+
 		wantarray ? @_ : $val;
 	}
 
@@ -406,8 +410,24 @@ sub fixpod {
 			# print STDERR "OOPS " . ref($self) . " $$self{TEXT}\n";
 			push @text, $self->{TEXT};
 		}
+		
 		splice( @context, $lvl );
 		$self->ret(@text);
+	}
+	
+	sub add_variable {
+		my ( $self, $name, $scope ) = @_;
+		$name =~ s/^\s+|\s+$//g;
+		my $from = $self->{BEG};
+		my $line = STD->lineof($from);
+		print "declare variable: $name at line $line\n";
+		push @{$self->{symbol_table}}, {
+			name  => $name,
+			from  => $from,
+			to    => $self->{END},
+			line  => $line,
+			scope => $scope,
+		}; 
 	}
 
 }
@@ -965,8 +985,18 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$context[$lvl] = $self;
+
+		$self->{symbol_table} = ();
+
 		my $r = $self->ret( $self->{statementlist}->emit_color( $lvl + 1 ) );
 		splice( @context, $lvl );
+
+		foreach my $symbol ( @{$self->{symbol_table}} ) {
+			print $symbol->{name} . ' ' . 
+				$symbol->{line} . ' ' . 
+				$symbol->{scope} . "\n";
+		}
+
 		$r;
 	}
 }
@@ -2713,6 +2743,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		print "variable used: @t\n";
 		$self->ret(@t);
 	}
 }
@@ -3608,6 +3639,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->add_variable( $t[1], 'constant' );
 		$self->ret(@t);
 	}
 }
@@ -3634,11 +3666,8 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		my $t    = join( '', @t );
-		$t =~ s/my(\s+)&(\w+)/my$1\$$2/;
-		$t =~
-		  s/my(\s+)([\$@%])(\w+)\s+is\s+context(?:\{'rw'})?/local$1${2}::$3/;
-		$self->ret($t);
+		$self->add_variable( $t[1], 'my' );
+		$self->ret(@t);
 	}
 }
 
@@ -3651,6 +3680,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->add_variable( $t[1], 'our' );
 		$self->ret(@t);
 	}
 }
