@@ -1,8 +1,7 @@
 my sub copy_methods($dst,$src) {
-    my sub copy_method($key) {
+    map(sub ($key) {
         $dst.^!methods.{$key.FETCH} = $src.^!methods.{$key.FETCH};
-    }
-    map(&copy_method,$src.^!methods.keys);
+    },$src.^!methods.keys);
 }
 my sub copy_does($dst,$src) {
     my $i = 0;
@@ -16,13 +15,12 @@ my sub copy_does($dst,$src) {
     }
 }
 my sub compose_role($obj,$role) {
-    my sub compose_method($key) {
+    map(sub ($key) {
         if $obj.^!methods.{$key.FETCH} {
             ::Exception.new.throw;
         }
         $obj.^add_method($key.FETCH,$role.^!methods.{$key.FETCH}.FETCH);
-    }
-    map(&compose_method,$role.^!methods.keys);
+    },$role.^!methods.keys);
 }
 knowhow RoleHOW {
     method add_attribute($object, $privname, $attribute) {
@@ -68,12 +66,11 @@ role LowObject {
     method ACCEPTS($obj) {
         my $role = self.^!does.[0];
         my $does = ::False;
-        my sub does_role($r) {
+        map(sub ($r) {
             if PRIMITIVES::pointer_equal((|$role),(|$r)) {
                 $does = ::True;
             }
-        }
-        map(&does_role,$obj.^!does);
+        },$obj.^!does);
         $does;
     }
 }

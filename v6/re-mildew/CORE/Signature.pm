@@ -32,19 +32,18 @@ role Signature {
     }
     method BIND(\$capture,$scope) {
         my $i = 0;
-        my sub BIND_positional($pos) {
+        map(sub ($pos) {
             if &infix:<<<>>:(int,int)($i,$capture.elems) {
                 $pos.BIND($scope,$capture.positional($i.FETCH));
             } else {
                 $pos.BIND_with_default($scope);
             }
             $i = &infix:<+>:(int,int)($i.FETCH,1);
-        }
-        map(&BIND_positional,self.positionals);
-        my sub BIND_other($other) {
+        },self.positionals);
+
+        map(sub ($other) {
             $other.BIND($scope,$capture);
-        }
-        map(&BIND_other,self.other);
+        },self.other);
     }
     method BUILDALL() {
         self.positionals = ::Array.new;

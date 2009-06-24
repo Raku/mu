@@ -22,13 +22,12 @@ role Failure {
 role DollarBang {
     has @.failures;
     method cleanup() {
-        my sub throw($failure) {
+        map(sub ($failure) {
             if ($failure.handled) {
             } else {
                 $failure.throw;
             }
-        }
-        map(&throw,self.failures);
+        },self.failures);
     }
 }
 my sub fail {
