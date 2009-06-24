@@ -12,33 +12,19 @@ role Signature {
     has $.positionals;
     has $.other;
     method ACCEPTS(\$capture) {
-        if &infix:<==>:(int,int)($.positionals.elems,$capture.elems) {
-        } else {
+        my $i = 0;
+        map($.positionals,sub ($positional) {
+            $i = $positional.ACCEPTS($capture,$i);
+        });
+        return ::True;
+        CATCH {
             return ::False;
         }
-        my $i = 0;
-        loop {
-            if &infix:<==>:(int,int)($i,$capture.elems) {
-                return ::True;
-            } else {
-                if $.positionals.[$i.FETCH].ACCEPTS($capture.positional($i.FETCH)) {
-                } else {
-                    return ::False;
-                }
-                $i = &infix:<+>:(int,int)($i.FETCH,1);
-            }
-        }
-
     }
     method BIND(\$capture,$scope) {
         my $i = 0;
-        map(sub ($pos) {
-            if &infix:<<<>>:(int,int)($i,$capture.elems) {
-                $pos.BIND($scope,$capture.positional($i.FETCH));
-            } else {
-                $pos.BIND_with_default($scope);
-            }
-            $i = &infix:<+>:(int,int)($i.FETCH,1);
+        map(sub ($positional) {
+            $i = $positional.BIND($scope,$capture,$i);
         },self.positionals);
 
         map(sub ($other) {
@@ -56,13 +42,6 @@ role Param {
     has $.variable;
     has $.default_value;
     has $.type;
-    method BIND_with_default($scope) {
-        my $default_value = self.default_value;
-        self.BIND($scope,$default_value.());
-    }
-    method ACCEPTS($arg) {
-        $.type.ACCEPTS($arg);
-    }
     method BUILDALL() {
         $.type = ::Any.new;
     }
@@ -72,23 +51,44 @@ role Positional {
     method register($sig) {
         $sig.positionals.push((|self));
     }
+    method BIND($scope,$capture,$i) {
+        if &infix:<<<>>:(int,int)($i,$capture.elems) {
+            $scope.{self.variable.FETCH} := self.wrap($capture.positional($i.FETCH));
+            &infix:<+>:(int,int)($i.FETCH,1);
+        } elsif $.default_value {
+            my $default_value = self.default_value;
+            $scope.{self.variable.FETCH} := self.wrap($default_value.());
+            $i;
+        } else {
+            ::Exception.new.throw;
+        }
+    }
+    method ACCEPTS($capture,$i) {
+        if &infix:<<<>>:(int,int)($i,$capture.elems) {
+            $.type.ACCEPTS($capture.positional($i));
+            &infix:<+>:(int,int)($i.FETCH,1);
+        } else {
+            ::Exception.new.throw;
+        }
+    }
 }
 role RefParam {
     RefParam.^compose_role(::Positional);
-    method BIND($scope,$arg) {
-        $scope.{self.variable.FETCH} := $arg;
+    method wrap($arg) {
+        $arg;
     }
 }
 role ReadonlyParam {
     ReadonlyParam.^compose_role(::Positional);
-    method BIND($scope,$arg) {
+    method wrap($arg) {
         my $wrapper = ReadonlyWrapper.new;
         $wrapper.value = $arg;
         $wrapper.^!is_container = 1;
         $wrapper.FETCH;
-        $scope.{self.variable.FETCH} := (|$wrapper);
+        (|$wrapper);
     }
 }
+
 role NamedReadonlyParam {
     NamedReadonlyParam.^compose_role(::Param);
     has $.name;
