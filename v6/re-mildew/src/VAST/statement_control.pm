@@ -72,7 +72,7 @@ sub emit_m0ld {
                     [capturize([string $name])]) ]);
         } elsif ($module) {
             my $name = $module->{name}{identifier}{TEXT};
-            call(load => FETCH(call(new => lookupf('ModuleLoader'))),[string ($name),lookupf('$LexicalPrelude')]);
+            call(EXPORTALL => FETCH(call('BIND'=> curlies($name.'::'),[call lookup=>FETCH(call(load => FETCH(call(new => lookupf('ModuleLoader'))),[string ($name),lookupf('$LexicalPrelude')])),[string($name.'::')]])),[reg '$scope']);
         } else {
             XXX;
         }

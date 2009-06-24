@@ -1,8 +1,18 @@
 my $test_count = 0;
+role HACK {
+    method EXPORTALL($scope) {
+        $scope.{'&ok'} := &ok;
+        $scope.{'&plan'} := &plan;
+    }
+}
+role Test {
+}
+MY::<Test::> := HACK.new;
+
 multi plan($tests) {
     say "1..$tests";
 }
-sub proclaim($cond,$desc) {
+sub proclaim($cond,$desc,$todo) {
     $test_count = $test_count + 1;
     if $cond {
         print "ok $test_count";
@@ -10,14 +20,16 @@ sub proclaim($cond,$desc) {
         print "not ok $test_count";
     }
     if $desc {
-        say " - $desc";
+        print " - $desc";
+    } 
+    if $todo {
+        print " # TODO";
     }
+    say;
 }
-multi ok($cond,$desc) {
-    proclaim($cond,$desc);
+multi ok($cond,$desc,:$todo) {
+    proclaim($cond,$desc,$todo);
 }
-multi ok($cond) {
-    proclaim($cond,"");
+multi ok($cond,:$todo) {
+    proclaim($cond,"",$todo);
 }
-$LexicalPrelude.{'&ok'} := &ok;
-$LexicalPrelude.{'&plan'} := &plan;
