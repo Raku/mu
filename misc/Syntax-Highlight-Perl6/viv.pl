@@ -841,7 +841,9 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
+		print "start block\n";
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		print "end block\n";
 		$self->ret(@t);
 	}
 }

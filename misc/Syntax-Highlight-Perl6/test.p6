@@ -1,4 +1,5 @@
-my $foo-bar;
-$foo-bar;
+{
+	my $foo-bar;
+	$foo-bar;
+}
 our $foo;
-$foo;
