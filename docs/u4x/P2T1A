@@ -98,9 +98,7 @@ calling it insane. We can do better, and then we'll blog about it.)
 X (fun, and krunen++ already contributed a nice example of it)
 
 my %cards = <ace two three four five six seven eight nine ten jack queen king>
-            X~ (" of " X~ <spades hearts diamonds clubs>)
-            Z (1|11,2..13 X* 1,1,1,1);
-%cards.pick(5).perl.say
+            X~ " of " X~ <spades hearts diamonds clubs>;
 
 == Expression terminators
 
