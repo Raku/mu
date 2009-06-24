@@ -265,7 +265,6 @@ sub fixpod {
 	my $class = $match->{O}{kind} // $match->{sym} // 'termish';
 	$class =~ s/^STD:://;
 	$class =~ s/^/VAST::/;
-#	print STDERR ::Dump($r);
 	gen_class($class);
 	$r = bless $r, $class;
 	$match->{'_ast'} = $r;
@@ -282,7 +281,6 @@ sub fixpod {
 	my $class = $match->{O}{kind} // $match->{sym} // 'termish';
 	$class =~ s/^STD:://;
 	$class =~ s/^/VAST::/;
-#	print STDERR ::Dump($r);
 	gen_class($class);
 	$r = bless $r, $class;
 	$match->{'_ast'} = $r;
@@ -350,44 +348,6 @@ sub fixpod {
 	$c =~ s/VAST:://g;
 	print STDERR "$c returns $val\n" if $OPT_log;
 	wantarray ? @_ : $val;
-	}
-
-	sub emit_p6 { my $self = shift;
-	my $text = '';
-	if (exists $self->{'.'}) {
-		my $last = $self->{BEG};
-		my $all = $self->{'.'};
-		my @kids;
-		for my $kid (ref($all) eq 'ARRAY' ? @$all : $all) {
-		next unless $kid;
-		if (not defined $kid->{BEG}) {
-			$kid->{BEG} = $kid->{_from} // next;
-			$kid->{END} = $kid->{_pos};
-		}
-		push @kids, $kid;
-		}
-		for my $kid (sort { $a->{BEG} <=> $b->{BEG} } @kids) {
-		my $kb = $kid->{BEG};
-		if ($kb > $last) {
-			$text .= substr($::ORIG, $last, $kb - $last);
-		}
-		if (ref($kid) =~ /STD/) {
-			print STDERR ::Dump($self);
-		}
-		$text .= $kid->emit_p6();
-		$last = $kid->{END};
-
-		}
-		my $se = $self->{END};
-		if ($se > $last) {
-			$text .= substr($::ORIG, $last, $se - $last);
-		}
-		return $self->ret($text);
-	}
-	else {
-		my $text = $self->{TEXT};
-		return $self->ret($text);
-	}
 	}
 
 	sub emit_color { my $self = shift; my $lvl = shift;
@@ -778,10 +738,6 @@ sub fixpod {
 	splice(@context,$lvl);
 	$r;
 	}
-	sub emit_p6 { my $self = shift;
-	$self->ret($self->{statementlist}->emit_p6);
-	}
-
 }
 
 { package VAST::Concatenation; our @ISA = 'VAST::Base';
@@ -2777,10 +2733,6 @@ sub fixpod {
 
 
 { package VAST::terminator; our @ISA = 'VAST::Base';
-	sub emit_p6 {  my $self = shift;
-		my @t = $self->SUPER::emit_p6();
-		$self->ret('');
-	}
 	sub emit_color {  my $self = shift; my $lvl = shift;
 		my @t = $self->SUPER::emit_color($lvl+1);
 		$self->ret('');
