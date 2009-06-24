@@ -16,6 +16,8 @@ plan 5;
 
 # L<S02/Literals/"pod stream" "as a scalar" via $=DATA>
 {
+    # XXX isn't the iterator exhausted already, since it's been used
+    # previously?
     my $line = get $=DATA;
     is($line, "hello, world!", q/$=DATA contains the right string/);
 }
