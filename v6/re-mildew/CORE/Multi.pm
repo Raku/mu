@@ -10,14 +10,14 @@ role Multi {
     if &infix:<==>:(int,int).($candidates.elems,1) {
         $candidates.[0].postcircumfix:<( )>((|$capture), :cc($cc.FETCH));
     } elsif &infix:<==>:(int,int).($candidates.elems,0) {
-        #say "signature mismatch failure";
+        say "signature mismatch failure";
        ::Exception.new.throw;
        #my $e = ::SignatureMismatchFailure.new();
        #$e.multi = self;
        #$e.capture = $capture;
        #$e.throw;
     } else {
-        #say "ambiguous dispatch";
+        say "ambiguous dispatch";
         ::Exception.new.throw;
         #my $e = ::AmbiguousDispatchFailure.new();
         #$e.multi = self;

@@ -103,6 +103,20 @@ SMOP__Object* SMOP__NATIVE__capture_positional(SMOP__Object* interpreter,SMOP__O
 int SMOP__NATIVE__capture_positional_count(SMOP__Object* interpreter,SMOP__Object* capture) {
   return ((capture_struct*)capture)->positional_count;
 }
+int SMOP__NATIVE__capture_named_count(SMOP__Object* interpreter,SMOP__Object* capture) {
+  smop_util_hash* hash = ((capture_struct*)capture)->named;
+
+  int i;
+  int bucket_count = 0;
+  for (i=0;i < hash->size;i++) {
+    smop_util_hash_bucket* bucket = hash->content[i];
+    while (bucket) {
+      bucket_count++;
+      bucket = bucket->next;
+    }
+  }
+  return bucket_count;
+}
 
 
 void smop_capture_init() {

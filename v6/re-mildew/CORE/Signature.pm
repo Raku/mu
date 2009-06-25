@@ -13,18 +13,33 @@ role Signature {
     has $.other;
     method ACCEPTS(\$capture) {
         my $i = 0;
-        map($.positionals,sub ($positional) {
-            $i = $positional.ACCEPTS($capture,$i);
-        });
-        return ::True;
-        CATCH {
-            return ::False;
+        my $named = 0;
+        my $ok = ::True;
+        {
+            map(sub ($positional) {
+                if $positional.ACCEPTS($capture,$i,$named) {
+                } else {
+                    ::Exception.new.throw;
+                }
+            },self.positionals);
+            CATCH {
+                $ok = ::False;
+            }
+        }.();
+        if &infix:<==>:(int,int)($i,$capture.elems) {
+            if &infix:<==>:(int,int)($named,$capture.named_count) {
+                $ok;
+            } else {
+                ::False;
+            }
+        } else {
+            ::False;
         }
     }
     method BIND(\$capture,$scope) {
         my $i = 0;
         map(sub ($positional) {
-            $i = $positional.BIND($scope,$capture,$i);
+            $positional.BIND($scope,$capture,$i);
         },self.positionals);
 
         map(sub ($other) {
@@ -48,28 +63,37 @@ role Param {
 }
 role Positional {
     Positional.^compose_role(::Param);
+    has $.name;
     method register($sig) {
         $sig.positionals.push((|self));
     }
-    method BIND($scope,$capture,$i) {
-        if &infix:<<<>>:(int,int)($i,$capture.elems) {
+    method BIND($scope,$capture,$i is ref) {
+        if $capture.named($.name.FETCH) {
+            $scope.{self.variable.FETCH} := self.wrap($capture.named($.name.FETCH));
+        } elsif &infix:<<<>>:(int,int)($i,$capture.elems) {
             $scope.{self.variable.FETCH} := self.wrap($capture.positional($i.FETCH));
-            &infix:<+>:(int,int)($i.FETCH,1);
+            $i = &infix:<+>:(int,int)($i.FETCH,1);
         } elsif $.default_value {
             my $default_value = self.default_value;
             $scope.{self.variable.FETCH} := self.wrap($default_value.());
-            $i;
         } else {
-            ::Exception.new.throw;
+            return ::False;
         }
+        ::True;
     }
-    method ACCEPTS($capture,$i) {
-        if &infix:<<<>>:(int,int)($i,$capture.elems) {
-            $.type.ACCEPTS($capture.positional($i));
-            &infix:<+>:(int,int)($i.FETCH,1);
+    method ACCEPTS($capture,$i is ref,$named is ref) {
+        if $capture.named($.name.FETCH) {
+            $named = &infix:<+>:(int,int)($named.FETCH,1);
+        } elsif &infix:<<<>>:(int,int)($i,$capture.elems) {
+            if $.type.ACCEPTS($capture.positional($i.FETCH)) {
+                $i = &infix:<+>:(int,int)($i,1);
+            } else {
+                return ::False;
+            }
         } else {
-            ::Exception.new.throw;
+            return ::False;
         }
+        ::True;
     }
 }
 role RefParam {

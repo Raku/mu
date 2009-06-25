@@ -14,6 +14,10 @@
   int count = SMOP__NATIVE__capture_positional_count(interpreter,invocant);
   ret = SMOP__NATIVE__int_create(count);
 
+%method named_count
+  int count = SMOP__NATIVE__capture_named_count(interpreter,invocant);
+  ret = SMOP__NATIVE__int_create(count);
+
 %method new
   ret = SMOP__NATIVE__capture_create_from_capture(interpreter,capture);
 

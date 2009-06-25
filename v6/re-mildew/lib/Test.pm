@@ -27,9 +27,9 @@ sub proclaim($cond,$desc,$todo) {
     }
     say;
 }
-multi ok($cond,$desc,:$todo) {
-    proclaim($cond,$desc,$todo);
+multi ok($cond,$desc) {
+    proclaim($cond,$desc,'');
 }
-multi ok($cond,:$todo) {
-    proclaim($cond,"",$todo);
+multi ok($cond) {
+    proclaim($cond,"",'');
 }
