@@ -9,6 +9,9 @@ class FooClass {
 	}
 }
 
+while (0) { }
+if (1) { } elsif (1) { } else { }
+unless (1) { };
 FooClass.new.foo-method;
 
 ##grammar FooGrammar { }
