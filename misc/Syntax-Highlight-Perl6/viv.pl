@@ -2170,6 +2170,21 @@ sub MAIN {
 
 {
 
+	package VAST::routine_declarator__S_sub;
+	our @ISA = 'VAST::Base';
+
+	sub emit_token {
+		my $self = shift;
+		my $lvl  = shift;
+		$self->add_token( $self->{SYM}, 'DeclareRoutine');
+		print "subroutine\n";
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->ret(@t);
+	}
+}
+
+{
+
 	package VAST::routine_def;
 	our @ISA = 'VAST::Base';
 
@@ -2873,6 +2888,13 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$PACKAGE_TYPE =~ s/class/ClassName/;
+		$PACKAGE_TYPE =~ s/slang/SlangName/;
+		$PACKAGE_TYPE =~ s/package/PackageName/;
+		$PACKAGE_TYPE =~ s/module/ModuleName/;
+		$PACKAGE_TYPE =~ s/role/RoleName/;
+		$PACKAGE_TYPE =~ s/grammar/GrammarName/;
+
 		$self->add_token( $t[1], $PACKAGE_TYPE );
 		$self->ret(@t);
 	}
@@ -3450,7 +3472,7 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_variable( $self->{SYM}, 'DeclareRoutine');
+		$self->add_token( $self->{SYM}, 'DeclareRoutine');
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3464,7 +3486,7 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_variable( $self->{SYM}, 'DeclareRoutine');
+		$self->add_token( $self->{SYM}, 'DeclareRoutine');
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3478,7 +3500,7 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_variable( $self->{SYM}, 'DeclareRoutine');		
+		$self->add_token( $self->{SYM}, 'DeclareRoutine');		
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
