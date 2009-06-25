@@ -9,23 +9,23 @@ role ReadonlyWrapper {
 }
 
 role Signature {
-    has $.positionals;
-    has $.other;
+    has $.params is rw;
     method ACCEPTS(\$capture) {
         my $i = 0;
         my $named = 0;
         my $ok = ::True;
         {
-            map(sub ($positional) {
-                if $positional.ACCEPTS($capture,$i,$named) {
+            map(sub ($param) {
+                if $param.ACCEPTS($capture,$i,$named) {
                 } else {
                     ::Exception.new.throw;
                 }
-            },self.positionals);
+            },self.params);
             CATCH {
                 $ok = ::False;
             }
         }.();
+
         if &infix:<==>:(int,int)($i,$capture.elems) {
             if &infix:<==>:(int,int)($named,$capture.named_count) {
                 $ok;
@@ -38,17 +38,12 @@ role Signature {
     }
     method BIND(\$capture,$scope) {
         my $i = 0;
-        map(sub ($positional) {
-            $positional.BIND($scope,$capture,$i);
-        },self.positionals);
-
-        map(sub ($other) {
-            $other.BIND($scope,$capture);
-        },self.other);
+        map(sub ($param) {
+            $param.BIND($scope,$capture,$i);
+        },self.params);
     }
     method BUILDALL() {
-        self.positionals = ::Array.new;
-        self.other = ::Array.new;
+        self.params = ::Array.new;
     }
 }
 
@@ -60,13 +55,13 @@ role Param {
     method BUILDALL() {
         $.type = ::Any.new;
     }
+    method register($sig) {
+        $sig.params.push((|self));
+    }
 }
 role Positional {
     Positional.^compose_role(::Param);
     has $.name;
-    method register($sig) {
-        $sig.positionals.push((|self));
-    }
     method BIND($scope,$capture,$i is ref) {
         if $capture.named($.name.FETCH) {
             $scope.{self.variable.FETCH} := self.wrap($capture.named($.name.FETCH));
@@ -116,7 +111,7 @@ role ReadonlyParam {
 role NamedReadonlyParam {
     NamedReadonlyParam.^compose_role(::Param);
     has $.name;
-    method BIND($scope,$capture) {
+    method BIND($scope,$capture,$i) {
         my $arg = $capture.named(self.name.FETCH);
         my $wrapper = ReadonlyWrapper.new;
         $wrapper.value = $arg;
@@ -124,17 +119,22 @@ role NamedReadonlyParam {
         $wrapper.FETCH;
         $scope.{self.variable.FETCH} := (|$wrapper);
     }
-    method register($sig) {
-        $sig.other.push((|self));
+    method ACCEPTS($capture,$i is ref,$named is ref) {
+        if $capture.named($.name.FETCH) {
+            $named = &infix:<+>:(int,int)($named.FETCH,1);
+        }
+        ::True;
     }
 }
 role WholeCaptureParam {
+    has $.name;
     WholeCaptureParam.^compose_role(::Param);
-    method BIND($scope,$capture) {
-        $scope.{self.variable.FETCH} = $capture;
+    method ACCEPTS($capture,$i is ref,$named is ref) {
+        $i = $capture.elems;
+        $named = $capture.named_count;
     }
-    method register($sig) {
-        $sig.other.push((|self));
+    method BIND($scope,$capture,$i) {
+        $scope.{self.variable.FETCH} = $capture;
     }
 }
 

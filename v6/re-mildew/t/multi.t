@@ -1,4 +1,4 @@
-say "1..9";
+say "1..12";
 {
 my multi foo($arg1 is ref) {
     say $arg1;
@@ -53,4 +53,23 @@ foo(1,2);
 CATCH {
     say "ok 9 # the lexically added candidates are not visible in outer scopes";
 }
+}.();
+
+{
+my multi foo($a,:$b) {
+    if $b {
+        say $b;
+    } else {
+        say $a;
+    }
+}
+foo("ok 10 # named params are not required by default");
+foo("not ok 11",:b("ok 11 # named params are passed"));
+{
+    foo("not ok 12",:no_such_param("not ok 12"));
+    CATCH {
+        say "ok 12";
+    }
+}.();
+
 }.();
