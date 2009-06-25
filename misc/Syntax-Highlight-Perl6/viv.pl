@@ -442,9 +442,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		if ( $t[0] eq '*' ) {    # *-1
-			$t[0] = '';
-		}
 		$self->ret(@t);
 	}
 }
@@ -1025,10 +1022,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		for (@t) {
-			s/\?\?/?/;
-			s/!!/:/;
-		}
 		$self->ret(@t);
 	}
 }
@@ -1354,7 +1347,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$t[0] = '=';    # XXX oversimplified
 		$self->ret(@t);
 	}
 }
@@ -1602,7 +1594,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$t[0] = '&';
 		$self->ret(@t);
 	}
 }
@@ -1616,7 +1607,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$t[0] = '|';
 		$self->ret(@t);
 	}
 }
@@ -1708,7 +1698,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$t[0] = '.';
 		$self->ret(@t);
 	}
 }
@@ -1722,7 +1711,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$t[0] = '=~';
 		$self->ret(@t);
 	}
 }
@@ -1736,7 +1724,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$t[0] = '|';
 		$self->ret(@t);
 	}
 }
@@ -1828,7 +1815,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$t[0] = 'sub';
 		$self->ret(@t);
 	}
 }
