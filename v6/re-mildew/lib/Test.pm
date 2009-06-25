@@ -3,6 +3,7 @@ role HACK {
     method EXPORTALL($scope) {
         $scope.{'&ok'} := &ok;
         $scope.{'&plan'} := &plan;
+        $scope.{'&is'} := &is;
     }
 }
 role Test {
@@ -32,4 +33,7 @@ multi ok($cond,$desc,:$todo) {
 }
 multi ok($cond,:$todo) {
     proclaim($cond,"",$todo);
+}
+multi is($got,$expected,$desc,:$todo) {
+    proclaim($got eq $expected,$desc,$todo);
 }
