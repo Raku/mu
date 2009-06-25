@@ -12,7 +12,7 @@ my $OPT_pos = 1;
 my $OPT_log = 0;
 our $PACKAGE_TYPE = '';
 our $SCOPE = 'GLOBAL';
-our @SYMBOL_TABLE = ();
+our @TOKEN_TABLE = ();
 
 my @context;
 
@@ -413,13 +413,13 @@ sub fixpod {
 		$self->ret(@text);
 	}
 	
-	sub add_symbol {
+	sub add_token {
 		my ( $self, $name, $type ) = @_;
 		$name =~ s/^\s+|\s+$//g;
 		my $from = $self->{BEG};
 		my $to = $self->{END};
 		my $line = STD->lineof($from);
-		push @SYMBOL_TABLE, {
+		push @TOKEN_TABLE, {
 			name  => $name,
 			type  => $type,
 			line  => $line,
@@ -984,7 +984,7 @@ sub fixpod {
 		my $format = "| %-15s | %-20s | %-10s | %-4s | %-4s | %-4s |\n";
 		printf $format, 'NAME', 'TYPE', 'SCOPE', 'LINE', 'FROM', 'TO';
 		print $separator . "\n";
-		foreach my $symbol ( @SYMBOL_TABLE ) {
+		foreach my $symbol ( @TOKEN_TABLE ) {
 			printf $format, 
 				$symbol->{name},
 				$symbol->{type},
@@ -2179,7 +2179,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[1], 'method' );
+		$self->add_token( $t[1], 'method' );
 		$self->ret(@t);
 	}
 }
@@ -2193,7 +2193,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[1], 'sub' );
+		$self->add_token( $t[1], 'sub' );
 		$self->ret(@t);
 	}
 }
@@ -2207,7 +2207,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol($t[0], 'method_call_lhs');
+		$self->add_token($t[0], 'method_call_lhs');
 		$self->ret(@t);
 	}
 }
@@ -2221,7 +2221,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol($t[0], 'methodop');
+		$self->add_token($t[0], 'methodop');
 		print "Used method: " . $t[0] . "\n";
 		$self->ret(@t);
 	}
@@ -2800,7 +2800,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		$self->add_symbol( $PACKAGE_TYPE, 'p6Module' );
+		$self->add_token( $PACKAGE_TYPE, 'Module' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -2815,7 +2815,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		$self->add_symbol( $PACKAGE_TYPE, 'p6Module' );
+		$self->add_token( $PACKAGE_TYPE, 'Module' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1, $self->{SYM} );
 		$self->ret(@t);
 	}
@@ -2844,7 +2844,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		$self->add_symbol( $PACKAGE_TYPE, 'p6Module' );
+		$self->add_token( $PACKAGE_TYPE, 'Module' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -2859,7 +2859,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		$self->add_symbol( $PACKAGE_TYPE, 'p6Module' );
+		$self->add_token( $PACKAGE_TYPE, 'Module' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -2874,7 +2874,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		$self->add_symbol( $PACKAGE_TYPE, 'p6Module' );
+		$self->add_token( $PACKAGE_TYPE, 'Module' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -2889,7 +2889,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[1], $PACKAGE_TYPE );
+		$self->add_token( $t[1], $PACKAGE_TYPE );
 		$self->ret(@t);
 	}
 }
@@ -2903,7 +2903,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[0], 'p6Parameter' );
+		$self->add_token( $t[0], 'Parameter' );
 		$self->ret(@t);
 	}
 }
@@ -3466,7 +3466,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_variable( $self->{SYM}, 'p6DeclareRoutine');
+		$self->add_variable( $self->{SYM}, 'DeclareRoutine');
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3480,7 +3480,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_variable( $self->{SYM}, 'p6DeclareRoutine');
+		$self->add_variable( $self->{SYM}, 'DeclareRoutine');
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3494,7 +3494,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_variable( $self->{SYM}, 'p6DeclareRoutine');		
+		$self->add_variable( $self->{SYM}, 'DeclareRoutine');		
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3560,7 +3560,7 @@ sub fixpod {
 	sub emit_color {
 		my $self    = shift;
 		my $lvl     = shift;
-		$self->add_symbol( $self->{SYM}, 'p6DeclareRoutine' );
+		$self->add_token( $self->{SYM}, 'DeclareRoutine' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3653,7 +3653,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[1], 'constant' );
+		$self->add_token( $t[1], 'constant' );
 		$self->ret(@t);
 	}
 }
@@ -3680,9 +3680,9 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
-		$self->add_symbol( $symbol, 'p6VarStorage' );
+		$self->add_token( $symbol, 'VarStorage' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[1], $symbol );
+		$self->add_token( $t[1], $symbol );
 		$self->ret(@t);
 	}
 }
@@ -3696,9 +3696,9 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
-		$self->add_symbol( $symbol, 'p6VarStorage' );
+		$self->add_token( $symbol, 'VarStorage' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[1], $symbol );
+		$self->add_token( $t[1], $symbol );
 		$self->ret(@t);
 	}
 }
@@ -3934,7 +3934,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_symbol( $self->{SYM}, 'p6FlowControl' );
+		$self->add_token( $self->{SYM}, 'FlowControl' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3948,7 +3948,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_symbol( $self->{SYM}, 'p6FlowControl' );
+		$self->add_token( $self->{SYM}, 'FlowControl' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3962,7 +3962,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_symbol( $self->{SYM}, 'p6FlowControl' );
+		$self->add_token( $self->{SYM}, 'FlowControl' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3976,7 +3976,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_symbol( $self->{SYM}, 'p6FlowControl' );
+		$self->add_token( $self->{SYM}, 'FlowControl' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3990,7 +3990,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_symbol( $self->{SYM}, 'p6FlowControl' );
+		$self->add_token( $self->{SYM}, 'FlowControl' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -4004,7 +4004,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		$self->add_symbol( $self->{SYM}, 'p6FlowControl' );
+		$self->add_token( $self->{SYM}, 'FlowControl' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -4058,7 +4058,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol($self->{SYM}, 'p6FlowControl');
+		$self->add_token($self->{SYM}, 'FlowControl');
 		$self->ret(@t);
 	}
 }
@@ -4432,7 +4432,6 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$t[0] = '::';
 		$self->ret(@t);
 	}
 }
@@ -4537,6 +4536,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->add_token($t[0], 'Number');
 		$self->ret(@t);
 	}
 }

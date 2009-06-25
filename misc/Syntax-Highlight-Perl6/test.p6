@@ -19,4 +19,4 @@ FooClass.new.foo-method;
 ##slang FooSlang { }
 ##module FooModule { }
 
-our $foo;
+our $foo = 1.0;
