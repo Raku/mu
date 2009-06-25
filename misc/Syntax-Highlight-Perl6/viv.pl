@@ -45,7 +45,7 @@ sub MAIN {
 	}
 	delete $r->{CORE};
 	delete $r->{MATCH}{CORE};
-	print fixpod( $r->ret( $r->emit_color(0) ) );
+	print fixpod( $r->ret( $r->emit_token(0) ) );
 
 }
 
@@ -369,7 +369,7 @@ sub fixpod {
 		wantarray ? @_ : $val;
 	}
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		my @text;
@@ -395,7 +395,7 @@ sub fixpod {
 				if ( ref($kid) eq 'HASH' ) {
 					print STDERR ::Dump($self);
 				}
-				push @text, scalar $kid->emit_color( $lvl + 1 );
+				push @text, scalar $kid->emit_token( $lvl + 1 );
 				$last = $kid->{END};
 
 			}
@@ -438,10 +438,10 @@ sub fixpod {
 	package VAST::Additive;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -451,10 +451,10 @@ sub fixpod {
 	package VAST::ADVERB;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -464,10 +464,10 @@ sub fixpod {
 	package VAST::apostrophe;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -477,10 +477,10 @@ sub fixpod {
 	package VAST::arglist;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -490,10 +490,10 @@ sub fixpod {
 	package VAST::args;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -503,10 +503,10 @@ sub fixpod {
 	package VAST::assertion;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -516,10 +516,10 @@ sub fixpod {
 	package VAST::assertion__S_Bang;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -529,10 +529,10 @@ sub fixpod {
 	package VAST::assertion__S_Bra;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -542,10 +542,10 @@ sub fixpod {
 	package VAST::assertion__S_Cur_Ly;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -555,10 +555,10 @@ sub fixpod {
 	package VAST::assertion__S_DotDotDot;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -568,10 +568,10 @@ sub fixpod {
 	package VAST::assertion__S_method;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -581,10 +581,10 @@ sub fixpod {
 	package VAST::assertion__S_name;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -594,10 +594,10 @@ sub fixpod {
 	package VAST::assertion__S_Question;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -607,10 +607,10 @@ sub fixpod {
 	package VAST::atom;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -620,10 +620,10 @@ sub fixpod {
 	package VAST::Autoincrement;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -633,10 +633,10 @@ sub fixpod {
 	package VAST::babble;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -646,10 +646,10 @@ sub fixpod {
 	package VAST::backslash;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -659,10 +659,10 @@ sub fixpod {
 	package VAST::backslash__S_Back;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -672,10 +672,10 @@ sub fixpod {
 	package VAST::backslash__S_d;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -685,10 +685,10 @@ sub fixpod {
 	package VAST::backslash__S_h;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -698,10 +698,10 @@ sub fixpod {
 	package VAST::backslash__S_misc;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -711,10 +711,10 @@ sub fixpod {
 	package VAST::backslash__S_n;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -724,10 +724,10 @@ sub fixpod {
 	package VAST::backslash__S_s;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -737,10 +737,10 @@ sub fixpod {
 	package VAST::backslash__S_stopper;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -750,10 +750,10 @@ sub fixpod {
 	package VAST::backslash__S_t;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -763,10 +763,10 @@ sub fixpod {
 	package VAST::backslash__S_v;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -776,10 +776,10 @@ sub fixpod {
 	package VAST::backslash__S_w;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -789,10 +789,10 @@ sub fixpod {
 	package VAST::backslash__S_x;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -802,10 +802,10 @@ sub fixpod {
 	package VAST::before;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -815,10 +815,10 @@ sub fixpod {
 	package VAST::block;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -828,10 +828,10 @@ sub fixpod {
 	package VAST::blockoid;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -841,10 +841,10 @@ sub fixpod {
 	package VAST::capterm;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -854,10 +854,10 @@ sub fixpod {
 	package VAST::cclass_elem;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -867,10 +867,10 @@ sub fixpod {
 	package VAST::circumfix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -880,10 +880,10 @@ sub fixpod {
 	package VAST::circumfix__S_Bra_Ket;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -893,10 +893,10 @@ sub fixpod {
 	package VAST::circumfix__S_Cur_Ly;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -906,10 +906,10 @@ sub fixpod {
 	package VAST::circumfix__S_Paren_Thesis;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -919,10 +919,10 @@ sub fixpod {
 	package VAST::circumfix__S_sigil;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -932,10 +932,10 @@ sub fixpod {
 	package VAST::codeblock;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -945,10 +945,10 @@ sub fixpod {
 	package VAST::colonpair;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -958,10 +958,10 @@ sub fixpod {
 	package VAST::Comma;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -971,12 +971,12 @@ sub fixpod {
 	package VAST::comp_unit;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$context[$lvl] = $self;
 
-		my $r = $self->ret( $self->{statementlist}->emit_color( $lvl + 1 ) );
+		my $r = $self->ret( $self->{statementlist}->emit_token( $lvl + 1 ) );
 		splice( @context, $lvl );
 
 		my $separator = '-' x 76;
@@ -1005,10 +1005,10 @@ sub fixpod {
 	package VAST::Concatenation;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1018,10 +1018,10 @@ sub fixpod {
 	package VAST::Conditional;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1031,10 +1031,10 @@ sub fixpod {
 	package VAST::CORE;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1044,10 +1044,10 @@ sub fixpod {
 	package VAST::declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1057,10 +1057,10 @@ sub fixpod {
 	package VAST::default_value;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1070,10 +1070,10 @@ sub fixpod {
 	package VAST::deflongname;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1083,10 +1083,10 @@ sub fixpod {
 	package VAST::def_module_name;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1096,10 +1096,10 @@ sub fixpod {
 	package VAST::desigilname;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1109,10 +1109,10 @@ sub fixpod {
 	package VAST::dotty;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1122,10 +1122,10 @@ sub fixpod {
 	package VAST::dotty__S_Dot;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1135,10 +1135,10 @@ sub fixpod {
 	package VAST::dottyop;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1148,10 +1148,10 @@ sub fixpod {
 	package VAST::eat_terminator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1161,10 +1161,10 @@ sub fixpod {
 	package VAST::escape;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1174,10 +1174,10 @@ sub fixpod {
 	package VAST::escape__S_At;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1187,10 +1187,10 @@ sub fixpod {
 	package VAST::escape__S_Back;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1200,10 +1200,10 @@ sub fixpod {
 	package VAST::escape__S_Dollar;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1213,10 +1213,10 @@ sub fixpod {
 	package VAST::EXPR;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1226,10 +1226,10 @@ sub fixpod {
 	package VAST::fatarrow;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1239,10 +1239,10 @@ sub fixpod {
 	package VAST::fulltypename;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1252,10 +1252,10 @@ sub fixpod {
 	package VAST::hexint;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1265,10 +1265,10 @@ sub fixpod {
 	package VAST::ident;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1278,10 +1278,10 @@ sub fixpod {
 	package VAST::identifier;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1291,10 +1291,10 @@ sub fixpod {
 	package VAST::index;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1304,10 +1304,10 @@ sub fixpod {
 	package VAST::infix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1317,10 +1317,10 @@ sub fixpod {
 	package VAST::infix__S_and;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1330,10 +1330,10 @@ sub fixpod {
 	package VAST::infix__S_BangEqual;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1343,10 +1343,10 @@ sub fixpod {
 	package VAST::infix__S_ColonEqual;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1356,10 +1356,10 @@ sub fixpod {
 	package VAST::infix__S_Comma;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1369,10 +1369,10 @@ sub fixpod {
 	package VAST::infix__S_DotDot;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1382,10 +1382,10 @@ sub fixpod {
 	package VAST::infix__S_eq;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1395,10 +1395,10 @@ sub fixpod {
 	package VAST::infix__S_Equal;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1408,10 +1408,10 @@ sub fixpod {
 	package VAST::infix__S_EqualEqual;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1421,10 +1421,10 @@ sub fixpod {
 	package VAST::infix__S_EqualGt;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1434,10 +1434,10 @@ sub fixpod {
 	package VAST::infix__S_gt;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1447,10 +1447,10 @@ sub fixpod {
 	package VAST::infix__S_Gt;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1460,10 +1460,10 @@ sub fixpod {
 	package VAST::infixish;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1473,10 +1473,10 @@ sub fixpod {
 	package VAST::infix__S_le;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1486,10 +1486,10 @@ sub fixpod {
 	package VAST::infix__S_lt;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1499,10 +1499,10 @@ sub fixpod {
 	package VAST::infix__S_Lt;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1512,10 +1512,10 @@ sub fixpod {
 	package VAST::infix__S_LtEqual;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1525,10 +1525,10 @@ sub fixpod {
 	package VAST::infix__S_Minus;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1538,10 +1538,10 @@ sub fixpod {
 	package VAST::infix__S_ne;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1551,10 +1551,10 @@ sub fixpod {
 	package VAST::infix__S_or;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1564,10 +1564,10 @@ sub fixpod {
 	package VAST::infix__S_orelse;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1577,10 +1577,10 @@ sub fixpod {
 	package VAST::infix__S_Plus;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1590,10 +1590,10 @@ sub fixpod {
 	package VAST::infix__S_PlusAmp;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1603,10 +1603,10 @@ sub fixpod {
 	package VAST::infix__S_PlusVert;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1616,10 +1616,10 @@ sub fixpod {
 	package VAST::infix_postfix_meta_operator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1629,10 +1629,10 @@ sub fixpod {
 	package VAST::infix_postfix_meta_operator__S_Equal;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1642,10 +1642,10 @@ sub fixpod {
 	package VAST::infix__S_QuestionQuestion_BangBang;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1655,10 +1655,10 @@ sub fixpod {
 	package VAST::infix__S_SlashSlash;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1668,10 +1668,10 @@ sub fixpod {
 	package VAST::infix__S_Star;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1681,10 +1681,10 @@ sub fixpod {
 	package VAST::infixstopper;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1694,10 +1694,10 @@ sub fixpod {
 	package VAST::infix__S_Tilde;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1707,10 +1707,10 @@ sub fixpod {
 	package VAST::infix__S_TildeTilde;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1720,10 +1720,10 @@ sub fixpod {
 	package VAST::infix__S_TildeVert;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1733,10 +1733,10 @@ sub fixpod {
 	package VAST::infix__S_VertVert;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1746,10 +1746,10 @@ sub fixpod {
 	package VAST::infix__S_x;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1759,10 +1759,10 @@ sub fixpod {
 	package VAST::integer;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1772,10 +1772,10 @@ sub fixpod {
 	package VAST::Item_assignment;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1785,10 +1785,10 @@ sub fixpod {
 	package VAST::Junctive_or;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1798,10 +1798,10 @@ sub fixpod {
 	package VAST::label;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1811,10 +1811,10 @@ sub fixpod {
 	package VAST::lambda;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1824,10 +1824,10 @@ sub fixpod {
 	package VAST::left;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1837,10 +1837,10 @@ sub fixpod {
 	package VAST::List_assignment;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1850,10 +1850,10 @@ sub fixpod {
 	package VAST::litchar;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1863,10 +1863,10 @@ sub fixpod {
 	package VAST::longname;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1876,10 +1876,10 @@ sub fixpod {
 	package VAST::Loose_and;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1889,10 +1889,10 @@ sub fixpod {
 	package VAST::Loose_or;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1902,10 +1902,10 @@ sub fixpod {
 	package VAST::Loose_unary;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1915,10 +1915,10 @@ sub fixpod {
 	package VAST::metachar;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1928,10 +1928,10 @@ sub fixpod {
 	package VAST::metachar__S_Back;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1941,10 +1941,10 @@ sub fixpod {
 	package VAST::metachar__S_Bra_Ket;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1954,10 +1954,10 @@ sub fixpod {
 	package VAST::metachar__S_Caret;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1967,10 +1967,10 @@ sub fixpod {
 	package VAST::metachar__S_CaretCaret;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1980,10 +1980,10 @@ sub fixpod {
 	package VAST::metachar__S_ColonColon;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -1993,10 +1993,10 @@ sub fixpod {
 	package VAST::metachar__S_ColonColonColon;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2006,10 +2006,10 @@ sub fixpod {
 	package VAST::metachar__S_Cur_Ly;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2019,10 +2019,10 @@ sub fixpod {
 	package VAST::metachar__S_Dollar;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2032,10 +2032,10 @@ sub fixpod {
 	package VAST::metachar__S_DollarDollar;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2045,10 +2045,10 @@ sub fixpod {
 	package VAST::metachar__S_Dot;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2058,10 +2058,10 @@ sub fixpod {
 	package VAST::metachar__S_Double_Double;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2071,10 +2071,10 @@ sub fixpod {
 	package VAST::metachar__S_Lt_Gt;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2084,10 +2084,10 @@ sub fixpod {
 	package VAST::metachar__S_mod;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2097,10 +2097,10 @@ sub fixpod {
 	package VAST::metachar__S_Nch;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2110,10 +2110,10 @@ sub fixpod {
 	package VAST::metachar__S_Paren_Thesis;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2123,10 +2123,10 @@ sub fixpod {
 	package VAST::metachar__S_qw;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2136,10 +2136,10 @@ sub fixpod {
 	package VAST::metachar__S_sigwhite;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2149,10 +2149,10 @@ sub fixpod {
 	package VAST::metachar__S_Single_Single;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2162,10 +2162,10 @@ sub fixpod {
 	package VAST::metachar__S_var;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2175,11 +2175,11 @@ sub fixpod {
 	package VAST::method_def;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_token( $t[1], 'method' );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token( $t[1], 'MethodName' );
 		$self->ret(@t);
 	}
 }
@@ -2189,11 +2189,11 @@ sub fixpod {
 	package VAST::routine_def;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_token( $t[1], 'sub' );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token( $t[1], 'SubName' );
 		$self->ret(@t);
 	}
 }
@@ -2203,10 +2203,10 @@ sub fixpod {
 	package VAST::Methodcall;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token($t[0], 'method_call_lhs');
 		$self->ret(@t);
 	}
@@ -2217,10 +2217,10 @@ sub fixpod {
 	package VAST::methodop;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token($t[0], 'methodop');
 		print "Used method: " . $t[0] . "\n";
 		$self->ret(@t);
@@ -2232,10 +2232,10 @@ sub fixpod {
 	package VAST::modifier_expr;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2245,10 +2245,10 @@ sub fixpod {
 	package VAST::mod_internal;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2258,10 +2258,10 @@ sub fixpod {
 	package VAST::mod_internal__S_adv;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2271,10 +2271,10 @@ sub fixpod {
 	package VAST::mod_internal__S_ColonBangs;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2284,10 +2284,10 @@ sub fixpod {
 	package VAST::mod_internal__S_Coloni;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2297,10 +2297,10 @@ sub fixpod {
 	package VAST::mod_internal__S_Colonmy;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2310,10 +2310,10 @@ sub fixpod {
 	package VAST::mod_internal__S_Colons;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2323,10 +2323,10 @@ sub fixpod {
 	package VAST::module_name;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2336,10 +2336,10 @@ sub fixpod {
 	package VAST::module_name__S_normal;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2349,10 +2349,10 @@ sub fixpod {
 	package VAST::morename;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2362,10 +2362,10 @@ sub fixpod {
 	package VAST::multi_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2375,10 +2375,10 @@ sub fixpod {
 	package VAST::multi_declarator__S_multi;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2388,10 +2388,10 @@ sub fixpod {
 	package VAST::multi_declarator__S_null;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2401,10 +2401,10 @@ sub fixpod {
 	package VAST::multi_declarator__S_proto;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2414,10 +2414,10 @@ sub fixpod {
 	package VAST::Multiplicative;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2427,10 +2427,10 @@ sub fixpod {
 	package VAST::multisig;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		pop(@t);
 		shift(@t);
 		$self->ret(@t);
@@ -2442,10 +2442,10 @@ sub fixpod {
 	package VAST::name;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2455,10 +2455,10 @@ sub fixpod {
 	package VAST::named_param;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2468,10 +2468,10 @@ sub fixpod {
 	package VAST::Named_unary;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2481,10 +2481,10 @@ sub fixpod {
 	package VAST::nibbler;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2494,10 +2494,10 @@ sub fixpod {
 	package VAST::nofun;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2507,10 +2507,10 @@ sub fixpod {
 	package VAST::Nonchaining;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2520,10 +2520,10 @@ sub fixpod {
 	package VAST::normspace;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2533,11 +2533,11 @@ sub fixpod {
 	package VAST::noun;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 
-		my @t = $self->SUPER::emit_color( $lvl + 1 );
+		my @t = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2547,10 +2547,10 @@ sub fixpod {
 	package VAST::noun__S_capterm;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2560,10 +2560,10 @@ sub fixpod {
 	package VAST::noun__S_circumfix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2573,10 +2573,10 @@ sub fixpod {
 	package VAST::noun__S_colonpair;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2586,10 +2586,10 @@ sub fixpod {
 	package VAST::noun__S_fatarrow;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2599,10 +2599,10 @@ sub fixpod {
 	package VAST::noun__S_multi_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2612,10 +2612,10 @@ sub fixpod {
 	package VAST::noun__S_package_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2625,10 +2625,10 @@ sub fixpod {
 	package VAST::noun__S_regex_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2638,10 +2638,10 @@ sub fixpod {
 	package VAST::noun__S_routine_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2651,10 +2651,10 @@ sub fixpod {
 	package VAST::noun__S_scope_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2664,10 +2664,10 @@ sub fixpod {
 	package VAST::noun__S_statement_prefix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2677,10 +2677,10 @@ sub fixpod {
 	package VAST::noun__S_term;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2690,10 +2690,10 @@ sub fixpod {
 	package VAST::noun__S_value;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2703,10 +2703,10 @@ sub fixpod {
 	package VAST::noun__S_variable;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		print "Used symbol: @t\n";
 		#XXX- show its record...
 		$self->ret(@t);
@@ -2718,10 +2718,10 @@ sub fixpod {
 	package VAST::nulltermish;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2731,10 +2731,10 @@ sub fixpod {
 	package VAST::number;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2744,10 +2744,10 @@ sub fixpod {
 	package VAST::number__S_numish;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2757,10 +2757,10 @@ sub fixpod {
 	package VAST::numish;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2770,10 +2770,10 @@ sub fixpod {
 	package VAST::opener;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2783,10 +2783,10 @@ sub fixpod {
 	package VAST::package_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2796,12 +2796,12 @@ sub fixpod {
 	package VAST::package_declarator__S_class;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
 		$self->add_token( $PACKAGE_TYPE, 'Module' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2811,12 +2811,12 @@ sub fixpod {
 	package VAST::package_declarator__S_grammar;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
 		$self->add_token( $PACKAGE_TYPE, 'Module' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1, $self->{SYM} );
+		my @t    = $self->SUPER::emit_token( $lvl + 1, $self->{SYM} );
 		$self->ret(@t);
 	}
 }
@@ -2826,11 +2826,11 @@ sub fixpod {
 	package VAST::package_declarator__S_role;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2840,12 +2840,12 @@ sub fixpod {
 	package VAST::package_declarator__S_package;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
 		$self->add_token( $PACKAGE_TYPE, 'Module' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2855,12 +2855,12 @@ sub fixpod {
 	package VAST::package_declarator__S_module;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
 		$self->add_token( $PACKAGE_TYPE, 'Module' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2870,12 +2870,12 @@ sub fixpod {
 	package VAST::package_declarator__S_slang;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
 		$self->add_token( $PACKAGE_TYPE, 'Module' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2885,10 +2885,10 @@ sub fixpod {
 	package VAST::package_def;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token( $t[1], $PACKAGE_TYPE );
 		$self->ret(@t);
 	}
@@ -2899,10 +2899,10 @@ sub fixpod {
 	package VAST::parameter;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token( $t[0], 'Parameter' );
 		$self->ret(@t);
 	}
@@ -2913,10 +2913,10 @@ sub fixpod {
 	package VAST::param_sep;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2926,10 +2926,10 @@ sub fixpod {
 	package VAST::param_var;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2939,10 +2939,10 @@ sub fixpod {
 	package VAST::pblock;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2952,10 +2952,10 @@ sub fixpod {
 	package VAST::pod_comment;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2965,10 +2965,10 @@ sub fixpod {
 	package VAST::POST;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2978,10 +2978,10 @@ sub fixpod {
 	package VAST::postcircumfix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -2991,10 +2991,10 @@ sub fixpod {
 	package VAST::postcircumfix__S_Bra_Ket;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3004,10 +3004,10 @@ sub fixpod {
 	package VAST::postcircumfix__S_Cur_Ly;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3017,10 +3017,10 @@ sub fixpod {
 	package VAST::postcircumfix__S_Fre_Nch;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3030,10 +3030,10 @@ sub fixpod {
 	package VAST::postcircumfix__S_Lt_Gt;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$t[0]  = "{'";
 		$t[-1] = "'}";
 		$self->ret(@t);
@@ -3045,10 +3045,10 @@ sub fixpod {
 	package VAST::postcircumfix__S_Paren_Thesis;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3058,10 +3058,10 @@ sub fixpod {
 	package VAST::postfix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3071,10 +3071,10 @@ sub fixpod {
 	package VAST::postfix__S_MinusMinus;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3084,10 +3084,10 @@ sub fixpod {
 	package VAST::postfix__S_PlusPlus;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3097,10 +3097,10 @@ sub fixpod {
 	package VAST::postfix_prefix_meta_operator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3110,10 +3110,10 @@ sub fixpod {
 	package VAST::postfix_prefix_meta_operator__S_Nch;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3123,10 +3123,10 @@ sub fixpod {
 	package VAST::postop;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3136,10 +3136,10 @@ sub fixpod {
 	package VAST::PRE;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3149,10 +3149,10 @@ sub fixpod {
 	package VAST::prefix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3162,10 +3162,10 @@ sub fixpod {
 	package VAST::prefix__S_Bang;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3175,10 +3175,10 @@ sub fixpod {
 	package VAST::prefix__S_Minus;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3188,10 +3188,10 @@ sub fixpod {
 	package VAST::prefix__S_not;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3201,10 +3201,10 @@ sub fixpod {
 	package VAST::prefix__S_Plus;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$t[0] = '0+';
 		$self->ret(@t);
 	}
@@ -3215,10 +3215,10 @@ sub fixpod {
 	package VAST::prefix__S_temp;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$t[0] = 'local';
 		$self->ret(@t);
 	}
@@ -3229,10 +3229,10 @@ sub fixpod {
 	package VAST::quantified_atom;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3242,10 +3242,10 @@ sub fixpod {
 	package VAST::quantifier;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3255,10 +3255,10 @@ sub fixpod {
 	package VAST::quantifier__S_Plus;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3268,10 +3268,10 @@ sub fixpod {
 	package VAST::quantifier__S_Question;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3281,10 +3281,10 @@ sub fixpod {
 	package VAST::quantifier__S_Star;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3294,10 +3294,10 @@ sub fixpod {
 	package VAST::quantifier__S_StarStar;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3307,10 +3307,10 @@ sub fixpod {
 	package VAST::quantmod;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3320,10 +3320,10 @@ sub fixpod {
 	package VAST::quibble;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3333,10 +3333,10 @@ sub fixpod {
 	package VAST::quote;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3346,10 +3346,10 @@ sub fixpod {
 	package VAST::quote__S_Double_Double;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3359,10 +3359,10 @@ sub fixpod {
 	package VAST::quote__S_Fre_Nch;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3372,10 +3372,10 @@ sub fixpod {
 	package VAST::quote__S_Lt_Gt;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3385,10 +3385,10 @@ sub fixpod {
 	package VAST::quotepair;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3398,10 +3398,10 @@ sub fixpod {
 	package VAST::quote__S_s;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3411,10 +3411,10 @@ sub fixpod {
 	package VAST::quote__S_Single_Single;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3424,10 +3424,10 @@ sub fixpod {
 	package VAST::quote__S_Slash_Slash;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3437,10 +3437,10 @@ sub fixpod {
 	package VAST::regex_block;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3450,10 +3450,10 @@ sub fixpod {
 	package VAST::regex_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3463,11 +3463,11 @@ sub fixpod {
 	package VAST::regex_declarator__S_regex;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_variable( $self->{SYM}, 'DeclareRoutine');
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3477,11 +3477,11 @@ sub fixpod {
 	package VAST::regex_declarator__S_rule;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_variable( $self->{SYM}, 'DeclareRoutine');
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3491,11 +3491,11 @@ sub fixpod {
 	package VAST::regex_declarator__S_token;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_variable( $self->{SYM}, 'DeclareRoutine');		
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3505,10 +3505,10 @@ sub fixpod {
 	package VAST::regex_def;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3518,10 +3518,10 @@ sub fixpod {
 	package VAST::Replication;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3531,10 +3531,10 @@ sub fixpod {
 	package VAST::right;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3544,10 +3544,10 @@ sub fixpod {
 	package VAST::routine_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3557,11 +3557,11 @@ sub fixpod {
 	package VAST::routine_declarator__S_method;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self    = shift;
 		my $lvl     = shift;
 		$self->add_token( $self->{SYM}, 'DeclareRoutine' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3571,10 +3571,10 @@ sub fixpod {
 	package VAST::rxinfix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3584,10 +3584,10 @@ sub fixpod {
 	package VAST::rxinfix__S_Tilde;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3597,10 +3597,10 @@ sub fixpod {
 	package VAST::rxinfix__S_Vert;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3610,10 +3610,10 @@ sub fixpod {
 	package VAST::rxinfix__S_VertVert;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3623,10 +3623,10 @@ sub fixpod {
 	package VAST::scoped;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3636,10 +3636,10 @@ sub fixpod {
 	package VAST::scope_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3649,10 +3649,10 @@ sub fixpod {
 	package VAST::scope_declarator__S_constant;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token( $t[1], 'constant' );
 		$self->ret(@t);
 	}
@@ -3663,10 +3663,10 @@ sub fixpod {
 	package VAST::scope_declarator__S_has;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3676,12 +3676,12 @@ sub fixpod {
 	package VAST::scope_declarator__S_my;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
 		$self->add_token( $symbol, 'VarStorage' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token( $t[1], $symbol );
 		$self->ret(@t);
 	}
@@ -3692,12 +3692,12 @@ sub fixpod {
 	package VAST::scope_declarator__S_our;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
 		$self->add_token( $symbol, 'VarStorage' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token( $t[1], $symbol );
 		$self->ret(@t);
 	}
@@ -3708,10 +3708,10 @@ sub fixpod {
 	package VAST::semiarglist;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3721,10 +3721,10 @@ sub fixpod {
 	package VAST::semilist;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3734,10 +3734,10 @@ sub fixpod {
 	package VAST::sibble;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3747,10 +3747,10 @@ sub fixpod {
 	package VAST::sigil;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3760,10 +3760,10 @@ sub fixpod {
 	package VAST::sigil__S_Amp;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3773,10 +3773,10 @@ sub fixpod {
 	package VAST::sigil__S_At;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3786,10 +3786,10 @@ sub fixpod {
 	package VAST::sigil__S_Dollar;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3799,10 +3799,10 @@ sub fixpod {
 	package VAST::sigil__S_Percent;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3812,10 +3812,10 @@ sub fixpod {
 	package VAST::sign;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3825,10 +3825,10 @@ sub fixpod {
 	package VAST::signature;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3838,10 +3838,10 @@ sub fixpod {
 	package VAST::spacey;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3851,10 +3851,10 @@ sub fixpod {
 	package VAST::special_variable;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3864,10 +3864,10 @@ sub fixpod {
 	package VAST::special_variable__S_Dollar_a2_;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$t[0] = '$C';
 		$self->ret(@t);
 	}
@@ -3878,10 +3878,10 @@ sub fixpod {
 	package VAST::special_variable__S_DollarSlash;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$t[0] = '$M';
 		$self->ret(@t);
 	}
@@ -3892,10 +3892,10 @@ sub fixpod {
 	package VAST::statement;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3905,10 +3905,10 @@ sub fixpod {
 	package VAST::statement_control;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3918,10 +3918,10 @@ sub fixpod {
 	package VAST::statement_control__S_default;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3931,11 +3931,11 @@ sub fixpod {
 	package VAST::statement_control__S_for;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_token( $self->{SYM}, 'FlowControl' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3945,11 +3945,11 @@ sub fixpod {
 	package VAST::statement_control__S_given;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_token( $self->{SYM}, 'FlowControl' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3959,11 +3959,11 @@ sub fixpod {
 	package VAST::statement_control__S_if;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_token( $self->{SYM}, 'FlowControl' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3973,11 +3973,11 @@ sub fixpod {
 	package VAST::statement_control__S_loop;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_token( $self->{SYM}, 'FlowControl' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -3987,11 +3987,11 @@ sub fixpod {
 	package VAST::statement_control__S_when;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_token( $self->{SYM}, 'FlowControl' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4001,11 +4001,11 @@ sub fixpod {
 	package VAST::statement_control__S_while;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
 		$self->add_token( $self->{SYM}, 'FlowControl' );
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4015,10 +4015,10 @@ sub fixpod {
 	package VAST::statementlist;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4028,10 +4028,10 @@ sub fixpod {
 	package VAST::statement_mod_cond;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4041,10 +4041,10 @@ sub fixpod {
 	package VAST::statement_mod_cond__S_if;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4054,10 +4054,10 @@ sub fixpod {
 	package VAST::statement_mod_cond__S_unless;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token($self->{SYM}, 'FlowControl');
 		$self->ret(@t);
 	}
@@ -4068,10 +4068,10 @@ sub fixpod {
 	package VAST::statement_mod_loop;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4081,10 +4081,10 @@ sub fixpod {
 	package VAST::statement_mod_loop__S_for;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4094,10 +4094,10 @@ sub fixpod {
 	package VAST::statement_mod_loop__S_while;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4107,10 +4107,10 @@ sub fixpod {
 	package VAST::statement_prefix;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4120,10 +4120,10 @@ sub fixpod {
 	package VAST::statement_prefix__S_do;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4133,10 +4133,10 @@ sub fixpod {
 	package VAST::statement_prefix__S_try;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4146,10 +4146,10 @@ sub fixpod {
 	package VAST::stdstopper;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4159,10 +4159,10 @@ sub fixpod {
 	package VAST::stopper;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4172,10 +4172,10 @@ sub fixpod {
 	package VAST::sublongname;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4185,10 +4185,10 @@ sub fixpod {
 	package VAST::subshortname;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4198,10 +4198,10 @@ sub fixpod {
 	package VAST::Symbolic_unary;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4211,10 +4211,10 @@ sub fixpod {
 	package VAST::term__S_identifier;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4224,10 +4224,10 @@ sub fixpod {
 	package VAST::terminator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret('');
 	}
 }
@@ -4257,10 +4257,10 @@ sub fixpod {
 	package VAST::termish;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4270,10 +4270,10 @@ sub fixpod {
 	package VAST::term;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4283,10 +4283,10 @@ sub fixpod {
 	package VAST::term__S_name;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4296,10 +4296,10 @@ sub fixpod {
 	package VAST::term__S_self;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$t[0] = '$self';
 		$self->ret(@t);
 	}
@@ -4310,10 +4310,10 @@ sub fixpod {
 	package VAST::term__S_Star;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4323,10 +4323,10 @@ sub fixpod {
 	package VAST::term__S_undef;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4336,10 +4336,10 @@ sub fixpod {
 	package VAST::Tight_or;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4349,10 +4349,10 @@ sub fixpod {
 	package VAST::trait;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4362,10 +4362,10 @@ sub fixpod {
 	package VAST::trait_auxiliary;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4375,10 +4375,10 @@ sub fixpod {
 	package VAST::trait_auxiliary__S_does;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4388,10 +4388,10 @@ sub fixpod {
 	package VAST::trait_auxiliary__S_is;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4401,10 +4401,10 @@ sub fixpod {
 	package VAST::twigil;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4414,10 +4414,10 @@ sub fixpod {
 	package VAST::twigil__S_Dot;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$t[0] = 'self->';    # XXX
 		$self->ret(@t);
 	}
@@ -4428,10 +4428,10 @@ sub fixpod {
 	package VAST::twigil__S_Star;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4441,10 +4441,10 @@ sub fixpod {
 	package VAST::type_constraint;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4454,10 +4454,10 @@ sub fixpod {
 	package VAST::typename;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret('');
 	}
 }
@@ -4467,10 +4467,10 @@ sub fixpod {
 	package VAST::unitstopper;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4480,10 +4480,10 @@ sub fixpod {
 	package VAST::unspacey;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4493,10 +4493,10 @@ sub fixpod {
 	package VAST::unv;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4506,10 +4506,10 @@ sub fixpod {
 	package VAST::val;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4519,10 +4519,10 @@ sub fixpod {
 	package VAST::value;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4532,10 +4532,10 @@ sub fixpod {
 	package VAST::value__S_number;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token($t[0], 'Number');
 		$self->ret(@t);
 	}
@@ -4546,10 +4546,10 @@ sub fixpod {
 	package VAST::value__S_quote;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4559,10 +4559,10 @@ sub fixpod {
 	package VAST::variable;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4572,10 +4572,10 @@ sub fixpod {
 	package VAST::variable_declarator;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4585,10 +4585,10 @@ sub fixpod {
 	package VAST::vws;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4598,10 +4598,10 @@ sub fixpod {
 	package VAST::ws;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4611,10 +4611,10 @@ sub fixpod {
 	package VAST::xblock;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
@@ -4624,10 +4624,10 @@ sub fixpod {
 	package VAST::XXX;
 	our @ISA = 'VAST::Base';
 
-	sub emit_color {
+	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
 	}
 }
