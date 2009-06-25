@@ -2849,6 +2849,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
+		$self->add_symbol( $PACKAGE_TYPE, 'keyword' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1, $self->{SYM} );
 		$self->ret(@t);
 	}
@@ -2863,6 +2864,21 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
+		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->ret(@t);
+	}
+}
+
+{
+
+	package VAST::package_declarator__S_package;
+	our @ISA = 'VAST::Base';
+
+	sub emit_color {
+		my $self = shift;
+		my $lvl  = shift;
+		$PACKAGE_TYPE = $self->{SYM};
+		$self->add_symbol( $PACKAGE_TYPE, 'keyword' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
