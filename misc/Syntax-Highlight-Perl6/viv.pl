@@ -3676,8 +3676,10 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
+		my $symbol = $self->{SYM};
+		$self->add_symbol( $symbol, 'keyword' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[1], 'my' );
+		$self->add_symbol( $t[1], $symbol );
 		$self->ret(@t);
 	}
 }
@@ -3690,8 +3692,10 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
+		my $symbol = $self->{SYM};
+		$self->add_symbol( $symbol, 'keyword' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_symbol( $t[1], 'our' );
+		$self->add_symbol( $t[1], $symbol );
 		$self->ret(@t);
 	}
 }
