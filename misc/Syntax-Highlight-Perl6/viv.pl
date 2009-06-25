@@ -2834,7 +2834,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		$self->add_symbol( $PACKAGE_TYPE, 'keyword' );
+		$self->add_symbol( $PACKAGE_TYPE, '_p6Module' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -2849,7 +2849,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		$self->add_symbol( $PACKAGE_TYPE, 'keyword' );
+		$self->add_symbol( $PACKAGE_TYPE, '_p6Module' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1, $self->{SYM} );
 		$self->ret(@t);
 	}
@@ -2878,7 +2878,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		$PACKAGE_TYPE = $self->{SYM};
-		$self->add_symbol( $PACKAGE_TYPE, 'keyword' );
+		$self->add_symbol( $PACKAGE_TYPE, '_p6Module' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3685,7 +3685,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
-		$self->add_symbol( $symbol, 'keyword' );
+		$self->add_symbol( $symbol, '_p6VarStorage' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->add_symbol( $t[1], $symbol );
 		$self->ret(@t);
@@ -3701,7 +3701,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
-		$self->add_symbol( $symbol, 'keyword' );
+		$self->add_symbol( $symbol, '_p6VarStorage' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->add_symbol( $t[1], $symbol );
 		$self->ret(@t);
