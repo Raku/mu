@@ -11,7 +11,6 @@ use YAML::XS;
 my $OPT_pos = 1;
 my $OPT_log = 0;
 our $PACKAGE_TYPE = '';
-our $IDENT = 0;
 our @SYMBOL_TABLE = ();
 
 my @context;
@@ -426,8 +425,6 @@ sub fixpod {
 			type  => $type,
 			scope => '',  #XXX-implement scope
 		}; 
-		print ' ' x ($IDENT * 4) .
-			"Added symbol '$name' of type '$type' at line $line\n";
 	}
 
 }
@@ -841,11 +838,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		print "{\n";
-		$IDENT++;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$IDENT--;
-		print "}\n";
 		$self->ret(@t);
 	}
 }
@@ -990,19 +983,19 @@ sub fixpod {
 		my $lvl  = shift;
 		$context[$lvl] = $self;
 
-		print "\n\n------------ S T A R T ------------\n\n";
-		
 		my $r = $self->ret( $self->{statementlist}->emit_color( $lvl + 1 ) );
 		splice( @context, $lvl );
 
-		print "\n\n-------------- Symbol Table --------------\n\n";
+		print "\n" . '-' x 44 . "\n";		
+		printf "| %-20s | %-4s | %-10s |\n", 'NAME', 'LINE', 'TYPE';
+		print '-' x 44 . "\n";
 		foreach my $symbol ( @SYMBOL_TABLE ) {
-			print $symbol->{name} . ' ' . 
-				$symbol->{line} . ' ' . 
-				$symbol->{scope} . "\n";
+			printf "| %-20s | %4d | %-10s |\n", 
+				$symbol->{name},
+				$symbol->{line},
+				$symbol->{type};
 		}
-		
-		print "\n\n-------------- E N D --------------\n\n";
+		print '-' x 44 . "\n\n";
 
 		$r;
 	}
@@ -2748,8 +2741,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		print ' ' x ($IDENT * 4) . 
-			"Used symbol: @t\n";
+		print "Used symbol: @t\n";
 		#XXX- show its record...
 		$self->ret(@t);
 	}
