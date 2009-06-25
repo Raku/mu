@@ -11,6 +11,7 @@ use YAML::XS;
 my $OPT_pos = 1;
 my $OPT_log = 0;
 our $PACKAGE_TYPE = '';
+our $SCOPE = 'GLOBAL';
 our @SYMBOL_TABLE = ();
 
 my @context;
@@ -416,14 +417,15 @@ sub fixpod {
 		my ( $self, $name, $type ) = @_;
 		$name =~ s/^\s+|\s+$//g;
 		my $from = $self->{BEG};
+		my $to = $self->{END};
 		my $line = STD->lineof($from);
 		push @SYMBOL_TABLE, {
 			name  => $name,
-			from  => $from,
-			to    => $self->{END},
-			line  => $line,
 			type  => $type,
-			scope => '',  #XXX-implement scope
+			line  => $line,
+			from  => $from,
+			to    => $to,
+			scope => $SCOPE,
 		}; 
 	}
 
@@ -986,16 +988,22 @@ sub fixpod {
 		my $r = $self->ret( $self->{statementlist}->emit_color( $lvl + 1 ) );
 		splice( @context, $lvl );
 
-		print "\n" . '-' x 54 . "\n";		
-		printf "| %-20s | %-4s | %-20s |\n", 'NAME', 'LINE', 'TYPE';
-		print '-' x 54 . "\n";
+		my $separator = '-' x 79;
+		print "\n" . $separator . "\n";		
+		my $format = "| %-15s | %-20s | %-10s | %-4s | %-4s | %-4s |\n";
+		printf $format, 'NAME', 'TYPE', 'SCOPE', 'LINE', 'FROM', 'TO';
+		print $separator . "\n";
 		foreach my $symbol ( @SYMBOL_TABLE ) {
-			printf "| %-20s | %4d | %-20s |\n", 
+			printf $format, 
 				$symbol->{name},
+				$symbol->{type},
+				$symbol->{scope},
 				$symbol->{line},
-				$symbol->{type};
+				$symbol->{from},
+				$symbol->{to};
+				
 		}
-		print '-' x 54 . "\n\n";
+		print $separator . "\n\n";
 
 		$r;
 	}
@@ -2219,36 +2227,8 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		if ( @t > 2 ) {
-			my $first = shift @t;
-			my $second = join '', @t;
-			@t = ( $first, $second );
-		}
-		if ( $t[1] eq '.pos' ) { $t[1] = '.<_pos>'; }
-		$t[1] =~ s/^(\.?)<(.*)>$/$1\{'$2'\}/;
-		if ( $t[0] =~ /^[@%]/ ) {
-			if ( $t[1] =~ s/^\.?([[{])/$1/ ) {
-				if ( $t[1] =~ /,/ ) {
-					substr( $t[0], 0, 1 ) = '@';
-				}
-				else {
-					substr( $t[0], 0, 1 ) = '$';
-				}
-
-			}
-		}
-		elsif ( $t[0] =~ /^\$\w+$/ ) {
-			$t[1] =~ s/^([[{])/.$1/;
-		}
-		elsif ( $t[0] =~ s/^&(\w+)/\$$1/ ) {
-			$t[1] =~ s/^\(/->(/;
-		}
-		$t[1] =~ s/^\./->/;
-		my $t = join( '', @t );
-		$t =~ s/^(.*\S)\s*:(delete|exists)/$2 $1/;
-
-
-		$self->ret($t);
+		$self->add_symbol($t[0], 'method_call_lhs');
+		$self->ret(@t);
 	}
 }
 
@@ -2261,6 +2241,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->add_symbol($t[0], 'methodop');
 		$self->ret(@t);
 	}
 }

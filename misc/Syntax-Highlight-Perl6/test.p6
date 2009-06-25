@@ -8,6 +8,9 @@ class FooClass {
 	sub foo-sub($a, $b) {
 	}
 }
+
+FooClass.new.foo-method;
+
 ##grammar FooGrammar { }
 ##package FooPackage { }
 ##slang FooSlang { }
