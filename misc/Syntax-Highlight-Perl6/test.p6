@@ -1,3 +1,5 @@
+=begin Pod
+=end Pod
 class FooClass {
 	my $foo-bar;
 	$foo-bar;

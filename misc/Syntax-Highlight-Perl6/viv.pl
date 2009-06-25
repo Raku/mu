@@ -45,26 +45,10 @@ sub MAIN {
 	}
 	delete $r->{CORE};
 	delete $r->{MATCH}{CORE};
-	print fixpod( $r->ret( $r->emit_token(0) ) );
+	print $r->ret( $r->emit_token(0) );
 
 }
 
-sub fixpod {
-	my $text = shift;
-	return $text unless $text =~ /\n/;
-	my @text     = split( /^/, $text );
-	my $in_begin = 0;
-	my $in_for   = 0;
-	for (@text) {
-		$in_begin = $1 if /^=begin\s+(\w+)/;
-		$in_for   = 1  if /^=for/;
-		$in_for   = 0  if /^\s*$/;
-		my $docomment = $in_begin || $in_for;
-		$in_begin = 0 if /^=end\s+(\w+)/ and $1 eq $in_begin;
-		s/^/# / if $docomment;
-	}
-	join( '', @text );
-}
 
 ###################################################################
 
