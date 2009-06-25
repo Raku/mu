@@ -2190,18 +2190,23 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		my @b    = $self->SUPER::emit_color( $lvl + 1 );
-		my @e    = '';
-		while (@b) {
-			my $t = pop(@b);
-			if ( $t =~ s/^\{// ) {
-				$t = "{\n    my \$self = shift;\n" . pop(@b) . $t;
-				unshift( @e, $t );
-				last;
-			}
-			unshift( @e, $t );
-		}
-		$self->ret( @b, @e );
+		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->add_symbol( $t[1], 'method' );
+		$self->ret(@t);
+	}
+}
+
+{
+
+	package VAST::routine_def;
+	our @ISA = 'VAST::Base';
+
+	sub emit_color {
+		my $self = shift;
+		my $lvl  = shift;
+		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->add_symbol( $t[1], 'sub' );
+		$self->ret(@t);
 	}
 }
 
@@ -2937,8 +2942,8 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		my $t    = '    my ' . join( '', @t ) . " = shift;\n";
-		$self->ret($t);
+		$self->add_symbol( $t[0], '_p6Parameter' );
+		$self->ret(@t);
 	}
 }
 
@@ -3502,6 +3507,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
+		$self->add_variable( $self->{SYM}, '_p6DeclareRoutine');
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3515,6 +3521,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
+		$self->add_variable( $self->{SYM}, '_p6DeclareRoutine');
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3528,6 +3535,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
+		$self->add_variable( $self->{SYM}, '_p6DeclareRoutine');		
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -3593,11 +3601,9 @@ sub fixpod {
 	sub emit_color {
 		my $self    = shift;
 		my $lvl     = shift;
-		my $comment = substr( $::ORIG, $self->{BEG}, 100 );
-		$comment =~ s/\s*\{.*//s;
-		my $t = join '', $self->SUPER::emit_color( $lvl + 1 );
-		$t =~ s/method/sub/;
-		$self->ret("## $comment\n$t");
+		$self->add_symbol( $self->{SYM}, '_p6DeclareRoutine' );
+		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->ret(@t);
 	}
 }
 
@@ -4009,10 +4015,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		my $t    = join( '', @t );
-		$t =~ s/^loop(\s+\()/for$1/;
-		$t =~ s/^loop/for (;;)/;
-		$self->ret($t);
+		$self->ret(@t);
 	}
 }
 
