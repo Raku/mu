@@ -10,6 +10,9 @@ use YAML::XS;
 
 my $OPT_pos = 1;
 my $OPT_log = 0;
+our $PACKAGE_TYPE = '';
+our $IDENT = 0;
+our @SYMBOL_TABLE = ();
 
 my @context;
 
@@ -99,7 +102,6 @@ sub fixpod {
 		my @fake;
 		for my $k ( keys %$node ) {
 
-			#print STDERR $node->{_reduced}, " $k\n";
 			my $v = $node->{$k};
 			if ( $k eq 'O' ) {
 				for my $key ( keys %$v ) {
@@ -137,7 +139,6 @@ sub fixpod {
 			}
 			elsif ( $k eq '~CAPS' ) {
 
-				# print "CAPS ref ". ref($v) . "\n";
 				if ( ref $v ) {
 					for (@$v) {
 						next unless ref $_;    # XXX skip keys?
@@ -249,7 +250,6 @@ sub fixpod {
 		$class =~ s/^STD:://;
 		$class =~ s/^/VAST::/;
 
-		#	print STDERR ::Dump($r);
 		gen_class($class);
 		$r = bless $r, $class;
 		$match->{'_ast'} = $r;
@@ -375,7 +375,6 @@ sub fixpod {
 		my @text;
 		$context[$lvl] = $self;
 
-		# print STDERR "HERE " . ref($self) . "\n";
 		if ( exists $self->{'.'} ) {
 			my $last = $self->{BEG};
 			my $all  = $self->{'.'};
@@ -407,7 +406,6 @@ sub fixpod {
 		}
 		else {
 
-			# print STDERR "OOPS " . ref($self) . " $$self{TEXT}\n";
 			push @text, $self->{TEXT};
 		}
 		
@@ -415,19 +413,21 @@ sub fixpod {
 		$self->ret(@text);
 	}
 	
-	sub add_variable {
-		my ( $self, $name, $scope ) = @_;
+	sub add_symbol {
+		my ( $self, $name, $type ) = @_;
 		$name =~ s/^\s+|\s+$//g;
 		my $from = $self->{BEG};
 		my $line = STD->lineof($from);
-		print "declare variable: $name at line $line\n";
-		push @{$self->{symbol_table}}, {
+		push @SYMBOL_TABLE, {
 			name  => $name,
 			from  => $from,
 			to    => $self->{END},
 			line  => $line,
-			scope => $scope,
+			type  => $type,
+			scope => '',  #XXX-implement scope
 		}; 
+		print ' ' x ($IDENT * 4) .
+			"Added symbol '$name' of type '$type' at line $line\n";
 	}
 
 }
@@ -841,9 +841,11 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		print "start block\n";
+		print "{\n";
+		$IDENT++;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		print "end block\n";
+		$IDENT--;
+		print "}\n";
 		$self->ret(@t);
 	}
 }
@@ -988,16 +990,19 @@ sub fixpod {
 		my $lvl  = shift;
 		$context[$lvl] = $self;
 
-		$self->{symbol_table} = ();
-
+		print "\n\n------------ S T A R T ------------\n\n";
+		
 		my $r = $self->ret( $self->{statementlist}->emit_color( $lvl + 1 ) );
 		splice( @context, $lvl );
 
-		foreach my $symbol ( @{$self->{symbol_table}} ) {
+		print "\n\n-------------- Symbol Table --------------\n\n";
+		foreach my $symbol ( @SYMBOL_TABLE ) {
 			print $symbol->{name} . ' ' . 
 				$symbol->{line} . ' ' . 
 				$symbol->{scope} . "\n";
 		}
+		
+		print "\n\n-------------- E N D --------------\n\n";
 
 		$r;
 	}
@@ -2244,7 +2249,7 @@ sub fixpod {
 		my $t = join( '', @t );
 		$t =~ s/^(.*\S)\s*:(delete|exists)/$2 $1/;
 
-		#	print STDERR ::Dump(\@t);
+
 		$self->ret($t);
 	}
 }
@@ -2572,10 +2577,8 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 
-		# print STDERR "HERE " . ref($self) . "\n";
 		my $t = $self->SUPER::emit_color( $lvl + 1 );
 
-		# print STDERR "$t in " . ref($context[$lvl-1]);
 		$self->ret($t);
 	}
 }
@@ -2745,7 +2748,9 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		print "variable used: @t\n";
+		print ' ' x ($IDENT * 4) . 
+			"Used symbol: @t\n";
+		#XXX- show its record...
 		$self->ret(@t);
 	}
 }
@@ -2836,6 +2841,8 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
+		$PACKAGE_TYPE = $self->{SYM};
+		$self->add_symbol( $PACKAGE_TYPE, 'keyword' );
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -2849,7 +2856,8 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
-		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$PACKAGE_TYPE = $self->{SYM};
+		my @t    = $self->SUPER::emit_color( $lvl + 1, $self->{SYM} );
 		$self->ret(@t);
 	}
 }
@@ -2862,6 +2870,7 @@ sub fixpod {
 	sub emit_color {
 		my $self = shift;
 		my $lvl  = shift;
+		$PACKAGE_TYPE = $self->{SYM};
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$self->ret(@t);
 	}
@@ -2876,6 +2885,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->add_symbol( $t[1], $PACKAGE_TYPE );
 		$self->ret(@t);
 	}
 }
@@ -3325,7 +3335,6 @@ sub fixpod {
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
 		$t[0] =~ s/</qw</;
 
-		#	print STDERR ::Dump(\@t);
 		$self->ret(@t);
 	}
 }
@@ -3641,7 +3650,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_variable( $t[1], 'constant' );
+		$self->add_symbol( $t[1], 'constant' );
 		$self->ret(@t);
 	}
 }
@@ -3668,7 +3677,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_variable( $t[1], 'my' );
+		$self->add_symbol( $t[1], 'my' );
 		$self->ret(@t);
 	}
 }
@@ -3682,7 +3691,7 @@ sub fixpod {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_color( $lvl + 1 );
-		$self->add_variable( $t[1], 'our' );
+		$self->add_symbol( $t[1], 'our' );
 		$self->ret(@t);
 	}
 }
