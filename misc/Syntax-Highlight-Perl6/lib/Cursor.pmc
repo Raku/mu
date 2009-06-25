@@ -354,7 +354,7 @@ sub _AUTOLEXgen { my $self = shift;
         if ($cached_lexer) {
             #Cache hit, Keep them coming ;-)
             $lexer = $cached_lexer;
-            say "GOT HERE $cache_key";
+#            say "GOT HERE $cache_key";
         }
         else {
             # Cache miss
@@ -768,7 +768,7 @@ sub cursor_fate { my $self = shift;
     if (my $state = $lexer->{T}) {
         my @candidates;
         my $p = $P;
-        my $ch = $::ORIG[$p];
+        my $ch = $::ORIG[$p]//32;
         my $next;
         print ::LOG "=" x 10,"\n$p TRIE for ${pkg}::$name in ", ref $self, "\n",
                 $p," ", pack("U",$ch), "\n" if $DEBUG & DEBUG::autolexer;
@@ -1051,12 +1051,16 @@ sub do_imports { my $self = shift;
         }
     }
     else {
-        my $pkg = $self->find_stab($module . '::');
+        my $pkg = $self->find_stab($module);
+        # say join(' ', keys(%$pkg));
         $self->add_my_name($module);
-        @imports = keys %$pkg;
+        eval { @imports = keys %{$pkg->{'EXPORT'}{'stash'}{'DEFAULT'}{'stash'}}; };
+        # say join(' ', @imports);
         local $::SCOPE = 'my';
         for (@imports) {
             if (/^\w/) {
+                next if /^PARENT/;
+                next if /^OUTER/;
                 if (/::/) {
                     $self->add_name($_);
                 }
@@ -1086,7 +1090,6 @@ sub canonicalize_name { my $self = shift;
     shift(@components) while @components and $components[0] eq '';
     if (@components and $components[-1] eq '') {
         pop @components;
-        $components[-1] .= '::';
     }
     push(@components, $vname) if defined $vname;
     @components;
