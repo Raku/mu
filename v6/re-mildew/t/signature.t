@@ -43,7 +43,6 @@ say "1..6";
 # :($default is ref = "ok 5"))
 {
     my $sig = ::Signature.new();
-    $sig.positionals = ::Array.new;
     my $code = sub ($default) {
         say $default;
     }
@@ -51,7 +50,7 @@ say "1..6";
     my $param = ::RefParam.new;
     $param.variable = '$default';
     $param.default_value = sub {"ok 5"}
-    $sig.positionals.push($param.FETCH);
+    $sig.params.push($param.FETCH);
 #
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
@@ -60,7 +59,6 @@ say "1..6";
 # :($default = "ok 6"))
 {
     my $sig = ::Signature.new();
-    $sig.positionals = ::Array.new;
     my $code = sub ($default) {
         say $default;
     }
@@ -68,7 +66,7 @@ say "1..6";
     my $param = ::ReadonlyParam.new;
     $param.variable = '$default';
     $param.default_value = sub {"ok 6"}
-    $sig.positionals.push($param.FETCH);
+    $sig.params.push($param.FETCH);
 #
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
