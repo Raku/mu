@@ -54,9 +54,11 @@ sub emit_m0ld {
     my $param = FETCH(call new => lookupf($type));
     let $param, sub {
         my $param = shift;
+        my $name = $var->{name}[0]{TEXT} || '';
+        my $sigil = $var->{sigil}{sym};
         AST::Seq->new(stmts => [
-            call(STORE => (call variable => $param),[ string $var->{sigil}{sym}.$var->{name}[0]{TEXT}]),
-            call(STORE => (call name => $param),[ string $var->{name}[0]{TEXT} ]),
+            $name ? call(STORE => (call variable => $param),[ string $sigil.$name]) : (),
+            $name ? call(STORE => (call name => $param),[ string $name ]) : (),
             $type_constraint ?  call(STORE => (call type => $param),[ lookupf($type_constraint) ]) : (),
             $param]
         );

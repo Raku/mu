@@ -1,3 +1,4 @@
+../../t/spec/S06-signature/positional.t
 ../../t/01-sanity/01-tap.t
 ../../t/01-sanity/02-counter.t
 ../../t/01-sanity/04-if.t

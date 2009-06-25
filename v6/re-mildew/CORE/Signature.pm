@@ -64,13 +64,19 @@ role Positional {
     has $.name;
     method BIND($scope,$capture,$i is ref) {
         if $capture.named($.name.FETCH) {
-            $scope.{self.variable.FETCH} := self.wrap($capture.named($.name.FETCH));
+            if self.variable {
+                $scope.{self.variable.FETCH} := self.wrap($capture.named($.name.FETCH));
+            }
         } elsif &infix:<<<>>:(int,int)($i,$capture.elems) {
-            $scope.{self.variable.FETCH} := self.wrap($capture.positional($i.FETCH));
+            if self.variable {
+                $scope.{self.variable.FETCH} := self.wrap($capture.positional($i.FETCH));
+            }
             $i = &infix:<+>:(int,int)($i.FETCH,1);
         } elsif $.default_value {
             my $default_value = self.default_value;
-            $scope.{self.variable.FETCH} := self.wrap($default_value.());
+            if self.variable {
+                $scope.{self.variable.FETCH} := self.wrap($default_value.());
+            }
         } else {
             return ::False;
         }
