@@ -986,16 +986,16 @@ sub fixpod {
 		my $r = $self->ret( $self->{statementlist}->emit_color( $lvl + 1 ) );
 		splice( @context, $lvl );
 
-		print "\n" . '-' x 44 . "\n";		
-		printf "| %-20s | %-4s | %-10s |\n", 'NAME', 'LINE', 'TYPE';
-		print '-' x 44 . "\n";
+		print "\n" . '-' x 54 . "\n";		
+		printf "| %-20s | %-4s | %-20s |\n", 'NAME', 'LINE', 'TYPE';
+		print '-' x 54 . "\n";
 		foreach my $symbol ( @SYMBOL_TABLE ) {
-			printf "| %-20s | %4d | %-10s |\n", 
+			printf "| %-20s | %4d | %-20s |\n", 
 				$symbol->{name},
 				$symbol->{line},
 				$symbol->{type};
 		}
-		print '-' x 44 . "\n\n";
+		print '-' x 54 . "\n\n";
 
 		$r;
 	}
@@ -2872,6 +2872,36 @@ sub fixpod {
 {
 
 	package VAST::package_declarator__S_package;
+	our @ISA = 'VAST::Base';
+
+	sub emit_color {
+		my $self = shift;
+		my $lvl  = shift;
+		$PACKAGE_TYPE = $self->{SYM};
+		$self->add_symbol( $PACKAGE_TYPE, '_p6Module' );
+		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->ret(@t);
+	}
+}
+
+{
+
+	package VAST::package_declarator__S_module;
+	our @ISA = 'VAST::Base';
+
+	sub emit_color {
+		my $self = shift;
+		my $lvl  = shift;
+		$PACKAGE_TYPE = $self->{SYM};
+		$self->add_symbol( $PACKAGE_TYPE, '_p6Module' );
+		my @t    = $self->SUPER::emit_color( $lvl + 1 );
+		$self->ret(@t);
+	}
+}
+
+{
+
+	package VAST::package_declarator__S_slang;
 	our @ISA = 'VAST::Base';
 
 	sub emit_color {
