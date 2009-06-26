@@ -14,7 +14,7 @@ class FooClass {
 sub _foo() {
 }
 while (0) { }
-if (1) { } elsif (1) { } else { }
+if (1) { my $foo; } elsif (1) { } else { }
 unless (1) { };
 FooClass.new.foo-method;
 

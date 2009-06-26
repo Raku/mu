@@ -965,7 +965,7 @@ sub MAIN {
 
 		my $separator = '-' x 76;
 		print "\n" . $separator . "\n";		
-		my $format = "| %-15s | %-20s | %-20s | %-4s |\n";
+		my $format = "| %-15s | %-15s | %-20s | %-4s |\n";
 		printf $format, 'NAME', 'TYPE', 'SCOPE', 'LINE';
 		print $separator . "\n";
 		foreach my $symbol ( @TOKEN_TABLE ) {
@@ -2179,7 +2179,6 @@ sub MAIN {
 		my $OLD_SCOPE = $SCOPE;
 		$SCOPE .= "::" . $self->{SYM};
 		$self->add_token( $self->{SYM}, 'DeclareRoutine');
-		print "subroutine\n";
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$SCOPE = $OLD_SCOPE;
 		$self->ret(@t);
@@ -2209,7 +2208,7 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$self->add_token($t[0], 'method_call_lhs');
+		$self->add_token($t[0], 'MethodCall');
 		$self->ret(@t);
 	}
 }
@@ -2223,7 +2222,7 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$self->add_token($t[0], 'methodop');
+		$self->add_token($t[0], 'MethodOp');
 		print "Used method: " . $t[0] . "\n";
 		$self->ret(@t);
 	}
