@@ -45,7 +45,7 @@ sub MAIN {
 	}
 	delete $r->{CORE};
 	delete $r->{MATCH}{CORE};
-	print $r->ret( $r->emit_token(0) );
+	$r->ret( $r->emit_token(0) );
 
 }
 
@@ -3220,7 +3220,6 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$t[0] = '0+';
 		$self->ret(@t);
 	}
 }
@@ -3234,7 +3233,6 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$t[0] = 'local';
 		$self->ret(@t);
 	}
 }
@@ -3684,7 +3682,10 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
+		my $symbol = $self->{SYM};
+		$self->add_token( $self->{SYM}, 'p6VarStorage' );
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token( $t[1], $symbol );
 		$self->ret(@t);
 	}
 }
@@ -3886,7 +3887,6 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$t[0] = '$C';
 		$self->ret(@t);
 	}
 }
@@ -3900,7 +3900,6 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$t[0] = '$M';
 		$self->ret(@t);
 	}
 }
@@ -4317,8 +4316,8 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
+		$self->add_token( $self->{SYM}, 'p6Variable' );
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$t[0] = '$self';
 		$self->ret(@t);
 	}
 }
