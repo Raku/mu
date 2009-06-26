@@ -12,10 +12,13 @@ class FooClass is B {
 	method sum($a, $b) {
 		{ my $foo;}
 		self;
+		$b;
 		return $a + $b;
 	}
 
-	sub foo-sub($a, $b) {
+	sub foo-sub {
+		my $b;
+		print $b;
 		sub inner { }
 	}
 	
