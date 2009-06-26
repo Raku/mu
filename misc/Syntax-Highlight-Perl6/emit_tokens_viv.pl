@@ -76,57 +76,29 @@ sub MAIN {
 	dump_token_table();
 	
 	if($OPT_find_declaration) {
-		
-		my $symbol_position = -1;
-		my $symbol_scope = '';
-		for(my $i = 0; $i < scalar @TOKEN_TABLE; $i++ ) {
-			my $symbol = $TOKEN_TABLE[$i];
-			if( $symbol->{line} == $line_number && $symbol->{name} eq $variable ) {
-				$symbol_position = $i;
-				$symbol_scope = $symbol->{scope};
-				last;
-			}
-		}
-		
-		if($symbol_position == -1) {
-			#Didnt find what you needed
-			print "Did not find any variable named '$variable' at line $line_number\n";
-		} else {
-			# Try to find its declaration
-			my $found_symbol = undef;
-			for(my $i = $symbol_position - 1; $i >= 0; $i--) {
-				my $symbol = $TOKEN_TABLE[$i];
-				my $type = $symbol->{type};
-				if($symbol->{name} eq $variable && 
-						($type eq 'VariableName' || $type eq 'Parameter') && 
-						(length $symbol_scope) >= (length $symbol->{scope})) 
+		my $found_symbol = find_variable_declaration($variable, $line_number);
+
+		if($found_symbol) {
+			printf "Found declaration at line %d.\n", $found_symbol->{line};
+
+			open FH, $filename or die "cannot open $filename\n";
+			my $count = 1;
+			print "...\n";
+			while(my $line = <FH>) {
+				chomp $line;
+				if($count == $found_symbol->{line} || 
+					($count == $line_number) ) 
 				{
-					$found_symbol = $symbol;
-					last;
-				}
+					print "#$count: " . $line . "\n...\n";
+				} 
+				$count++;
 			}
-			
-			if($found_symbol) {
-				printf "Found declaration at line %d.\n", $found_symbol->{line};
+			close FH;
 
-				open FH, $filename or die "cannot open $filename\n";
-				my $count = 1;
-				print "...\n";
-				while(my $line = <FH>) {
-					chomp $line;
-					if($count == $found_symbol->{line} || 
-						($count == $line_number) ) 
-					{
-						print "#$count: " . $line . "\n...\n";
-					} 
-					$count++;
-				}
-				close FH;
-
-			} else {
-				print "No declaration found... is that correct?\n";
-			}
+		} else {
+			print "No declaration found... is that correct?\n";
 		}
+
 	}
 	
 	if($OPT_rename_variable) {
@@ -134,6 +106,46 @@ sub MAIN {
 			#XXX- and then finding all variables for that declaration within the 
 			#XXX- same/upper lexical scope.
 	}
+}
+
+#
+# Finds a variable's declaration by poking around in the VIV token table
+#
+sub find_variable_declaration {
+	my ($variable, $line_number) = @_;
+
+	my $found_symbol = undef;
+	
+	my $symbol_position = -1;
+	my $symbol_scope = '';
+	for(my $i = 0; $i < scalar @TOKEN_TABLE; $i++ ) {
+		my $symbol = $TOKEN_TABLE[$i];
+		if( $symbol->{line} == $line_number && $symbol->{name} eq $variable ) {
+			$symbol_position = $i;
+			$symbol_scope = $symbol->{scope};
+			last;
+		}
+	}
+	
+	if($symbol_position == -1) {
+		#Didnt find what you needed
+		print "Did not find any variable named '$variable' at line $line_number\n";
+	} else {
+		# Try to find its declaration
+		for(my $i = $symbol_position - 1; $i >= 0; $i--) {
+			my $symbol = $TOKEN_TABLE[$i];
+			my $type = $symbol->{type};
+			if($symbol->{name} eq $variable && 
+					($type eq 'VariableName' || $type eq 'Parameter') && 
+					(length $symbol_scope) >= (length $symbol->{scope})) 
+			{
+				$found_symbol = $symbol;
+				last;
+			}
+		}
+	}
+	
+	return $found_symbol;
 }
 
 sub dump_token_table {
