@@ -2709,8 +2709,7 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		print "Used symbol: @t\n";
-		#XXX- show its record...
+		$self->add_token( $t[0], 'Variable' );
 		$self->ret(@t);
 	}
 }
