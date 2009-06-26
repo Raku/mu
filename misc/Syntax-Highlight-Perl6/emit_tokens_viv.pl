@@ -2954,7 +2954,10 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
+		my $OLD_SCOPE = $SCOPE;
+		$SCOPE .= ':' . 'pblock';
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$SCOPE = $OLD_SCOPE;
 		$self->ret(@t);
 	}
 }

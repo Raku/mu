@@ -5,6 +5,7 @@ class FooClass {
 	$foo-bar;
 	
 	method sum($a, $b) {
+		{ my $foo;}
 		return $a + $b;
 	}
 
