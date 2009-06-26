@@ -2160,7 +2160,7 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my $OLD_SCOPE = $SCOPE;
-		$SCOPE .= '::' . $PACKAGE_TYPE;
+		$SCOPE .= ':' . $PACKAGE_TYPE;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$SCOPE = $OLD_SCOPE;
 		$self->add_token( $t[1], 'MethodName' );
@@ -2177,7 +2177,7 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my $OLD_SCOPE = $SCOPE;
-		$SCOPE .= "::" . $self->{SYM};
+		$SCOPE .= ':' . $self->{SYM};
 		$self->add_token( $self->{SYM}, 'DeclareRoutine');
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$SCOPE = $OLD_SCOPE;
@@ -2890,7 +2890,7 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my $OLD_SCOPE = $SCOPE;
-		$SCOPE .= '::' . $PACKAGE_TYPE;
+		$SCOPE .= ':' . $PACKAGE_TYPE;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$SCOPE = $OLD_SCOPE;
 		

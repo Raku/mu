@@ -4,12 +4,12 @@ class FooClass {
 	my $foo-bar;
 	$foo-bar;
 	
-	method foo-method($a, $b, $c) {
-		sub inner {
-		}
+	method sum($a, $b) {
+		return $a + $b;
 	}
 
 	sub foo-sub($a, $b) {
+		sub inner { }
 	}
 	
 	grammar FooInside {
