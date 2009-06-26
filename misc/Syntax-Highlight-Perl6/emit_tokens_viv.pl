@@ -10,6 +10,7 @@ use YAML::XS;
 
 my $OPT_log = 0;
 my $OPT_find_declaration = undef;
+my $OPT_rename_variable  = undef;
 our $PACKAGE_TYPE = '';
 our $SCOPE = '';
 our @TOKEN_TABLE = ();
@@ -20,9 +21,10 @@ sub USAGE {
 	print <<'END';
 viv [switches] filename
 	where switches can be:
-		--log                               emit debugging info to standard error
-		--help                              prints this help
-		--find-declaration=String,Integer   find variable declaration at line number
+		--log                              Emit debugging info to standard error
+		--help                             Prints this help
+		--find-declaration=Name,Line       Find variable declaration at line number
+		--rename-var=OldName,Line,NewNew   Rename all instances of variable at line number
 END
 	exit;
 }
@@ -35,6 +37,7 @@ sub MAIN {
 	Getopt::Long::GetOptions(
 		'log',                 =>\$OPT_log,
 		'find-declaration=s'   => \$OPT_find_declaration,
+		'rename-var=s',        => \$OPT_rename_variable,
 		'help'                 =>\$help,
 	);
 	
@@ -45,11 +48,17 @@ sub MAIN {
 	
 	my $variable = '';
 	my $line_number = '';
+	my $new_variable = '';
 	if(defined $OPT_find_declaration && $OPT_find_declaration =~ /^(.+?)\s*,\s*(\d+)$/) {
 		($variable, $line_number) = ($1, $2);
 	} else {
-		print "'--find-declaration=String,Integer' takes a variable and a line number\n\n";
-		USAGE;
+		$OPT_find_declaration = undef;
+	}
+	
+	if(defined $OPT_rename_variable && $OPT_rename_variable =~ /^(.+?)\s*,\s*(\d+)\s*,\s*(.+?)$/) {
+		($variable, $line_number, $new_variable) = ($1, $2, $3);
+	} else {
+		$OPT_rename_variable = undef;
 	}
 
 	my $filename = shift @ARGV;
