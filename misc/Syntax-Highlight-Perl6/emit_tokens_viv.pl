@@ -77,7 +77,6 @@ sub MAIN {
 	
 	if($OPT_find_declaration) {
 		
-		# try to find its declaration
 		my $symbol_position = -1;
 		my $symbol_scope = '';
 		for(my $i = 0; $i < scalar @TOKEN_TABLE; $i++ ) {
@@ -90,8 +89,10 @@ sub MAIN {
 		}
 		
 		if($symbol_position == -1) {
+			#Didnt find what you needed
 			print "Did not find any variable named '$variable' at line $line_number\n";
 		} else {
+			# Try to find its declaration
 			my $found_symbol = undef;
 			for(my $i = $symbol_position - 1; $i >= 0; $i--) {
 				my $symbol = $TOKEN_TABLE[$i];
@@ -126,6 +127,12 @@ sub MAIN {
 				print "No declaration found... is that correct?\n";
 			}
 		}
+	}
+	
+	if($OPT_rename_variable) {
+			#XXX- Implement rename variable by first finding a variable declaration's
+			#XXX- and then finding all variables for that declaration within the 
+			#XXX- same/upper lexical scope.
 	}
 }
 
