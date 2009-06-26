@@ -11,6 +11,8 @@ class FooClass {
 	}
 }
 
+sub _foo() {
+}
 while (0) { }
 if (1) { } elsif (1) { } else { }
 unless (1) { };

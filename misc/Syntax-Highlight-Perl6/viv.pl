@@ -11,7 +11,7 @@ use YAML::XS;
 my $OPT_pos = 1;
 my $OPT_log = 0;
 our $PACKAGE_TYPE = '';
-our $SCOPE = 'GLOBAL';
+our $SCOPE = '';
 our @TOKEN_TABLE = ();
 
 my @context;
@@ -965,18 +965,15 @@ sub MAIN {
 
 		my $separator = '-' x 76;
 		print "\n" . $separator . "\n";		
-		my $format = "| %-15s | %-20s | %-10s | %-4s | %-4s | %-4s |\n";
-		printf $format, 'NAME', 'TYPE', 'SCOPE', 'LINE', 'FROM', 'TO';
+		my $format = "| %-15s | %-20s | %-20s | %-4s |\n";
+		printf $format, 'NAME', 'TYPE', 'SCOPE', 'LINE';
 		print $separator . "\n";
 		foreach my $symbol ( @TOKEN_TABLE ) {
 			printf $format, 
 				$symbol->{name},
 				$symbol->{type},
 				$symbol->{scope},
-				$symbol->{line},
-				$symbol->{from},
-				$symbol->{to};
-				
+				$symbol->{line};				
 		}
 		print $separator . "\n\n";
 
@@ -2162,7 +2159,10 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
+		my $OLD_SCOPE = $SCOPE;
+		$SCOPE .= '::' . $PACKAGE_TYPE;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$SCOPE = $OLD_SCOPE;
 		$self->add_token( $t[1], 'MethodName' );
 		$self->ret(@t);
 	}
@@ -2176,9 +2176,12 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
+		my $OLD_SCOPE = $SCOPE;
+		$SCOPE .= "::" . $self->{SYM};
 		$self->add_token( $self->{SYM}, 'DeclareRoutine');
 		print "subroutine\n";
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$SCOPE = $OLD_SCOPE;
 		$self->ret(@t);
 	}
 }
@@ -2887,7 +2890,11 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
+		my $OLD_SCOPE = $SCOPE;
+		$SCOPE .= '::' . $PACKAGE_TYPE;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$SCOPE = $OLD_SCOPE;
+		
 		$PACKAGE_TYPE =~ s/class/ClassName/;
 		$PACKAGE_TYPE =~ s/slang/SlangName/;
 		$PACKAGE_TYPE =~ s/package/PackageName/;
@@ -3566,6 +3573,7 @@ sub MAIN {
 	sub emit_token {
 		my $self    = shift;
 		my $lvl     = shift;
+		$PACKAGE_TYPE = $self->{SYM};
 		$self->add_token( $self->{SYM}, 'DeclareRoutine' );
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->ret(@t);
