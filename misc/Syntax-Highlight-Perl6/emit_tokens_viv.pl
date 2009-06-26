@@ -8,8 +8,8 @@ use STD;
 use utf8;
 use YAML::XS;
 
-my $OPT_pos = 1;
 my $OPT_log = 0;
+my $OPT_find_declaration = undef;
 our $PACKAGE_TYPE = '';
 our $SCOPE = '';
 our @TOKEN_TABLE = ();
@@ -20,36 +20,107 @@ sub USAGE {
 	print <<'END';
 viv [switches] filename
 	where switches can be:
-		--log	emit debugging info to standard error
+		--log                               emit debugging info to standard error
+		--help                              prints this help
+		--find-declaration=String,Integer   find variable declaration at line number
 END
 	exit;
 }
 
 sub MAIN {
-	USAGE() unless @_;
-	while (@_) {
-		last unless $_[0] =~ /^-/;
-		my $switch = shift @_;
-		if ( $switch eq '--log' or $switch eq '-l' ) {
-			$OPT_log = 1;
-		}
-		elsif ( $switch eq '--help' ) {
-			USAGE();
-		}
+	USAGE unless @_;
+
+	require Getopt::Long;
+	my $help = 0;
+	Getopt::Long::GetOptions(
+		'log',                 =>\$OPT_log,
+		'find-declaration=s'   => \$OPT_find_declaration,
+		'help'                 =>\$help,
+	);
+	
+	if($help) {
+		USAGE;
 	}
-	my $r;
-	if ( @_ and -f $_[0] ) {
-		$r = STD->parsefile( $_[0], actions => 'Actions' )->{'_ast'};
+
+	
+	my $variable = '';
+	my $line_number = '';
+	if(defined $OPT_find_declaration && $OPT_find_declaration =~ /^(.+?)\s*,\s*(\d+)$/) {
+		($variable, $line_number) = ($1, $2);
 	} else {
-		die "no filename\n";
+		print "'--find-declaration=String,Integer' takes a variable and a line number\n\n";
+		USAGE;
+	}
+
+	my $filename = shift @ARGV;
+	my $r;
+	if ( $filename and -f $filename ) {
+		$r = STD->parsefile( $filename, actions => 'Actions' )->{'_ast'};
+	} else {
+		print "no filename\n\n";
+		USAGE;
 	}
 	delete $r->{CORE};
 	delete $r->{MATCH}{CORE};
 	$r->ret( $r->emit_token(0) );
 
+	dump_token_table();
+	
+	if($OPT_find_declaration) {
+		
+		# try to find its declaration
+		my $symbol_position = -1;
+		my $symbol_scope = '';
+		for(my $i = 0; $i < scalar @TOKEN_TABLE; $i++ ) {
+			my $symbol = $TOKEN_TABLE[$i];
+			if( $symbol->{line} == $line_number && $symbol->{name} eq $variable ) {
+				$symbol_position = $i;
+				$symbol_scope = $symbol->{scope};
+				last;
+			}
+		}
+		
+		if($symbol_position == -1) {
+			print "Did not find any variable named '$variable' at line $line_number\n";
+		} else {
+			my $found_symbol = undef;
+			for(my $i = $symbol_position - 1; $i >= 0; $i--) {
+				my $symbol = $TOKEN_TABLE[$i];
+				print "" . (length $symbol_scope) . " vs " . (length $symbol->{scope}) . "\n";
+				if($symbol->{name} eq $variable && 
+					($symbol->{type} eq 'VariableName' || $symbol->{type} eq 'Parameter') && 
+					(length $symbol_scope) >= (length $symbol->{scope})) {
+					$found_symbol = $symbol;
+					last;
+				}
+			}
+			
+			if($found_symbol) {
+				printf "Found declaration at line %d\n", $found_symbol->{line};
+			} else {
+				print "No declaration found... is that correct?\n";
+			}
+		}
+	}
 }
 
-
+sub dump_token_table {
+	my $separator = '-' x 76;
+	print "\n" . $separator . "\n";		
+	my $format = "| %-15s | %-15s | %-20s | %-4s |\n";
+	printf $format, 'NAME', 'TYPE', 'SCOPE', 'LINE';
+	print $separator . "\n";
+	foreach my $symbol ( @TOKEN_TABLE ) {
+		printf $format, 
+			$symbol->{name},
+			$symbol->{type},
+			$symbol->{scope},
+			$symbol->{line};
+	}
+	print $separator . "\n\n";
+	
+	return;
+}
 ###################################################################
 
 {
@@ -131,10 +202,8 @@ sub MAIN {
 				}
 			}
 			elsif ( $k eq '_from' ) {
-				if ($OPT_pos) {
-					$r{BEG} = $v;
-					$r{END} = $node->{_pos};
-				}
+				$r{BEG} = $v;
+				$r{END} = $node->{_pos};
 				if ( exists $::MEMOS[$v]{'ws'} ) {
 					my $wsstart = $::MEMOS[$v]{'ws'};
 					$r{WS} = $v - $wsstart
@@ -143,10 +212,8 @@ sub MAIN {
 			}
 			elsif ( $k =~ /^[a-zA-Z]/ ) {
 				if ( $k eq 'noun' ) {    # trim off PRE and POST
-					if ($OPT_pos) {
-						$r{BEG} = $v->{_from};
-						$r{END} = $v->{_pos};
-					}
+					$r{BEG} = $v->{_from};
+					$r{END} = $v->{_pos};
 				}
 				if ( ref($v) eq 'ARRAY' ) {
 					my $zyg = [];
@@ -962,20 +1029,6 @@ sub MAIN {
 
 		my $r = $self->ret( $self->{statementlist}->emit_token( $lvl + 1 ) );
 		splice( @context, $lvl );
-
-		my $separator = '-' x 76;
-		print "\n" . $separator . "\n";		
-		my $format = "| %-15s | %-15s | %-20s | %-4s |\n";
-		printf $format, 'NAME', 'TYPE', 'SCOPE', 'LINE';
-		print $separator . "\n";
-		foreach my $symbol ( @TOKEN_TABLE ) {
-			printf $format, 
-				$symbol->{name},
-				$symbol->{type},
-				$symbol->{scope},
-				$symbol->{line};				
-		}
-		print $separator . "\n\n";
 
 		$r;
 	}
@@ -3683,9 +3736,9 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
-		$self->add_token( $self->{SYM}, 'p6VarStorage' );
+		$self->add_token( $self->{SYM}, 'DeclareVar' );
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$self->add_token( $t[1], $symbol );
+		$self->add_token( $t[1], "VariableName" );
 		$self->ret(@t);
 	}
 }
@@ -3699,9 +3752,9 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
-		$self->add_token( $symbol, 'VarStorage' );
+		$self->add_token( $symbol, 'DeclareVar' );
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$self->add_token( $t[1], $symbol );
+		$self->add_token( $t[1], "VariableName" );
 		$self->ret(@t);
 	}
 }
@@ -3715,9 +3768,9 @@ sub MAIN {
 		my $self = shift;
 		my $lvl  = shift;
 		my $symbol = $self->{SYM};
-		$self->add_token( $symbol, 'VarStorage' );
+		$self->add_token( $symbol, 'DeclareVar' );
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		$self->add_token( $t[1], $symbol );
+		$self->add_token( $t[1], "VariableName" );
 		$self->ret(@t);
 	}
 }

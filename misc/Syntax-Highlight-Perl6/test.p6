@@ -2,6 +2,9 @@
 =end Pod
 class FooClass is B {
 	my $foo-bar;
+	{
+		my $foo-bar;
+	}
 	$foo-bar;
 	
 	has $name;
