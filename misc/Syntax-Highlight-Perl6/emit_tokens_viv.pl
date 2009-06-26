@@ -86,17 +86,33 @@ sub MAIN {
 			my $found_symbol = undef;
 			for(my $i = $symbol_position - 1; $i >= 0; $i--) {
 				my $symbol = $TOKEN_TABLE[$i];
-				print "" . (length $symbol_scope) . " vs " . (length $symbol->{scope}) . "\n";
+				my $type = $symbol->{type};
 				if($symbol->{name} eq $variable && 
-					($symbol->{type} eq 'VariableName' || $symbol->{type} eq 'Parameter') && 
-					(length $symbol_scope) >= (length $symbol->{scope})) {
+						($type eq 'VariableName' || $type eq 'Parameter') && 
+						(length $symbol_scope) >= (length $symbol->{scope})) 
+				{
 					$found_symbol = $symbol;
 					last;
 				}
 			}
 			
 			if($found_symbol) {
-				printf "Found declaration at line %d\n", $found_symbol->{line};
+				printf "Found declaration at line %d.\n", $found_symbol->{line};
+
+				open FH, $filename or die "cannot open $filename\n";
+				my $count = 1;
+				print "...\n";
+				while(my $line = <FH>) {
+					chomp $line;
+					if($count == $found_symbol->{line} || 
+						($count == $line_number) ) 
+					{
+						print "#$count: " . $line . "\n...\n";
+					} 
+					$count++;
+				}
+				close FH;
+
 			} else {
 				print "No declaration found... is that correct?\n";
 			}
