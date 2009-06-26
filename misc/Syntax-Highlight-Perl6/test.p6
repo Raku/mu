@@ -5,9 +5,15 @@ class FooClass {
 	$foo-bar;
 	
 	method foo-method($a, $b, $c) {
+		sub inner {
+		}
 	}
 
 	sub foo-sub($a, $b) {
+	}
+	
+	grammar FooInside {
+		token t { \d }
 	}
 }
 

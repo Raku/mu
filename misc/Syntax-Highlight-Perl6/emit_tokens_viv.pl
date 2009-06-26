@@ -2223,7 +2223,6 @@ sub MAIN {
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
 		$self->add_token($t[0], 'MethodOp');
-		print "Used method: " . $t[0] . "\n";
 		$self->ret(@t);
 	}
 }
@@ -2799,9 +2798,11 @@ sub MAIN {
 	sub emit_token {
 		my $self = shift;
 		my $lvl  = shift;
+		my $OLD_PACKAGE_TYPE = $PACKAGE_TYPE;
 		$PACKAGE_TYPE = $self->{SYM};
 		$self->add_token( $PACKAGE_TYPE, 'Module' );
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$PACKAGE_TYPE = $OLD_PACKAGE_TYPE;
 		$self->ret(@t);
 	}
 }
@@ -3571,9 +3572,11 @@ sub MAIN {
 	sub emit_token {
 		my $self    = shift;
 		my $lvl     = shift;
+		my $OLD_PACKAGE_TYPE = $PACKAGE_TYPE;
 		$PACKAGE_TYPE = $self->{SYM};
 		$self->add_token( $self->{SYM}, 'DeclareRoutine' );
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$PACKAGE_TYPE = $OLD_PACKAGE_TYPE;
 		$self->ret(@t);
 	}
 }
