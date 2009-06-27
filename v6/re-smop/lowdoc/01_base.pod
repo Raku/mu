@@ -8,38 +8,60 @@ $Id$
 
 =head1 SMOP__Object
 
-In SMOP, every single value, including the interpreter and the native
-types, for instance, must be binary-compatible with the SMOP__Object
-struct. This idea came directly from how perl5 works, with the SV
-struct.
+In SMOP, every single value must be binary-compatible with the 
+SMOP__Object struct.  This even includes core level constructs such as
+the interpreter and the native types.  This idea comes directly from 
+how perl5 works, with the SV struct.
 
-But unlike p5, the SMOP__Object struct is absolutely minimalist, it
-defines no flags, no introspection information, it defines only that
-every SMOP__Object has a Responder Interface, which in terms of the
-data structure, means:
+Unlike p5, however, the SMOP__Object struct is absolutely minimalist; It
+defines no type, no flags, and no introspection information.  It defines 
+only that every SMOP__Object has a Responder Interface, so the structure 
+is merely:
 
   struct SMOP__Object {
     SMOP__ResponderInterface* RI;
+    /* Maybe there is something here, maybe there is nothing here.
+     * Only the responder interface knows.
+     */
   }
 
-This means that you can't really do anything to the object itself, you
-can only talk to its responder interface.
+The value in the RI member is not unique to the object.  For all but 
+singleton classes, one responder interface will be used by multiple object 
+structs.  As such, the object is identified only by the address at which
+the struct SMOP__Object is stored.
+
+This means that you can't really do anything to the object yourself, you
+can only talk to its responder interface.  The object serves as both
+a way to find the correct responder interface, and a way to tell the 
+responder interface which instance data to operate on -- and that is all.
+
+There may be additional data below the RI member, but if so,
+only the responder interface knows how to use it.  The data for the
+object instance may, in fact, NOT be stored in the structure at all --
+it could be looked up using the object's address in a completely 
+separate data store.
+
+As such it is incorrect to attempt to copy or move a SMOP_Object struct 
+using a simple memory copy like C's memcpy().  Even if you lucked out and
+got all the data in the object, you would have changed its address,
+and it would not be the same object anymore.  This point is especially
+important to note if an object may exist in multiple address spaces -- only 
+one address will be valid without special handling.
 
 =head1 SMOP__ResponderInterface
 
-The Responder Interface, which is also binary-compatible with
-SMOP__Object implements the lowlevel part of the meta object protocol,
-it's through the Responder Interface that you can perform any action
-on the object.
+The Responder Interface (which, of course, is also binary-compatible 
+with SMOP__Object) implements the low-level part of the meta object 
+protocol.  It's through the Responder Interface that you can perform 
+any action on the object.
 
-At that level, there's only one operation that can be performed on an
-object, which is to invoke an arbitrary method. It's important to
-realize, however, that this method invocation happens at the same
-level that any high-level language might call, this means that there's
-no distinction between native operators and high-level operators, nor
-between native values and high-level values.
+Using the responder interface, arbitrary methods may be invoked on
+the object. It's important to realize that this method invocation 
+happens at the same level that any high-level language might call.
+This means that there's no distinction between native operators and 
+high-level operators, nor between native values and high-level values.
 
-That being said, follows the structure of a responder interface:
+The structure of a responder interface is as follows.
 
   struct SMOP__ResponderInterface {
     SMOP__ResponderInterface* RI;
@@ -57,6 +79,9 @@ That being said, follows the structure of a responder interface:
                                SMOP__ResponderInterface* self,
                                SMOP__Object* object);
     char* id;
+    /* Maybe there is something here, maybe there is nothing here.
+     * Only the responder interface in member .RI knows.
+     */
   }
 
 =over
@@ -64,39 +89,58 @@ That being said, follows the structure of a responder interface:
 =item MESSAGE
 
 This is the function that handles the method invocation for the
-objects to which this responder interface is the responsible for. As
-you might have realized, it receives objects as arguments and returns
-an object. We should deal with each of interpreter, identifier and
-capture later.
+objects which this responder interface oversees. As you might have 
+noticed, it receives objects as arguments and returns, of course, 
+an object.  Note that the return value of the message may just be 
+a status, with additional data passed by other means ("setr".)
+
+The specific objects C<interpreter>, C<identifier> and C<capture> will 
+be described later.
 
 =item REFERENCE/RELEASE
 
-At start, the choice for a reference counting garbage collector was
-made just looking for simplicity, since it's considerably simpler to
-implement (even if considerably harder to debug and maintain). But as
-SMOP evolved and the interoperability with perl5 became such an
-important target, the choice for a reference count gc became a
-fundamental aspect on how SMOP and perl5 will work together.
+Initially, the a reference counting garbage collector was selected, since 
+this type of garbage collector is considerably simpler to implement (even 
+if considerably harder to debug and maintain.)  However, when design goals
+expanded to include interoperability with perl5, it became evident that 
+following reference counting conventions would be a necessity in making 
+SMOP and perl5 work together.
 
 One thing that might not be obvious here is that it's up to each
 responder interface to implement its own garbage collector, meaning
-that we can have several garbage collectors coexisting at the same
-process, for instance, the SMOP default lowlevel and the perl5 garbage
+that we can have several garbage collectors coexisting within the same
+process, for instance, the SMOP default low-level and the perl5 garbage
 collectors.
 
 The other consequence of this choice is that you can have objects that
 are not subject to garbage collection, and this can be achieved simply
-by making REFERENCE and RELEASE noops.
+by making REFERENCE and RELEASE no-ops.
 
 The policy on the use of REFERENCE and RELEASE is described below.
 
 =item WEAKREF
 
-This can be used wherever you would normally use a REFERENCE to tell
-that you want a weak reference, this call is allowed to return you a
-different pointer, and you are supposed to use that. The
-implementation of the weak-reference per se is private to the object's
-gc implementation.
+This can be used wherever you would normally use a REFERENCE to obtain
+a weak reference instead.  This call is allowed to return you a
+different object, and you are supposed to use that as a proxy.  Weak
+references do not count as a reference against the original object,
+and the original object may be freed before the weak reference itself
+is destroyed.  If this happens, the weak reference will start to refer
+to some appropriate native constant (like "False") instead of the now-dead 
+object.
+
+The implementation of the weak-reference is private to the object's gc 
+implementation.  Note that if an object does not actually need a gc system,
+a weak reference may end up returning the original object, so you are not
+allowed to assume the two values are different.
+
+Weak references are handy to break circular dependencies between objects
+and code.
+
+Note that a weak reference is itself an object.  So you do need to
+call RELEASE when you are done with it.  However, all REFERENCE and
+RELEASE calls on the weak reference object count against the proxy object, 
+not the original object.
 
 =back
 
@@ -112,97 +156,181 @@ make transitions to newer versions easier.
 =item SMOP__Object__BASE
 
 This macro defines the head of every SMOP Object, basically defining
-the members documented in the section above.
+the members documented in the section above.  Currently that is just
+the RI member, but should members be added in future versions, they 
+will appear in this list.
 
 =item SMOP__ResponderInterface__BASE
 
-As the above macro, this defines the head of every SMOP Responder
-Interface, with the members documented above.
+Like the above macro, except that this defines the members present in
+all responder interface objects, as documented further above.
 
 =item SMOP_RI(value)
 
-Returns the ResponderInterface of a SMOP Object.
+Shorthand to dereference the .RI member of a SMOP__Object structure given 
+the address of the SMOP__Object structure.
 
 =item SMOP_DISPATCH(interpreter, responder, identifier, capture)
 
-Invoke the method "identifier" in an object handled by "responder", in
-the context of the given "interpreter" with the given "capture" (each
-of those concepts should be expanded later).
+Invoke the method C<identifier> on an object handled by C<responder>, in
+the context of the given C<interpreter> with the given C<capture>.  Each
+of these parameters are expanded upon in other documentation, but 
+if you are wondering where the object itself is, it is inside the 
+C<capture>.
 
 =item SMOP_REFERENCE(interpreter, value) / SMOP_RELEASE(interpreter, value)
 
-Increments/decrements the reference count of the given "value" in the
-context of the given "interpreter". This macro returns the value
+Increments/decrements the reference count of the given C<value> in the
+context of the given C<interpreter>. This macro returns the value
 itself, so you can use the macro in the place of the value itself.
 
 =item SMOP_WEAKREF(interpreter, value)
 
-Returns a weak reference to value.
+Returns a proxy for a value... see the description for the responder
+interface structure's WEAKREF member, above.
 
 =back
 
 =head1 REFERENCE/RELEASE Policy
 
 Even if not all object systems use reference counting garbage
-collection, the possible existance of some object system that does,
-requires us to implement the mechanisms that make it possible. That is
-why, besides MESSAGE, three other functions are defined in the
-responder interface lowlevel type. The REFERENCE, RELEASE and WEAKREF
-functions. This functions are supposed to be the hooks for
-implementing a refcount garbage collector.
+collection, all objects at least pretend to implement the mechanisms 
+that make it possible. That is why, besides MESSAGE, three other 
+functions are defined in the responder interface base members. 
+(Relatively few objects should be responder interfaces, so it is
+more efficient for them just to carry the vestigial members.)
+
+The REFERENCE, RELEASE and WEAKREF functions should be sufficient to 
+interact with reference counting garbage collectors.
 
 =head2 Who owns the object?
 
 This is the most important question in the matter of when to call
-REFERENCE and when to call RELEASE. And a simple policy shall describe
-this decision:
+REFERENCE and when to call RELEASE.  The following documents the 
+policy that must be followed to correctly garbage collect objects.
+
+The below will refer to "ownership stakes" which belong to either
+sections of code, or other objects -- an ownership stake is a concept, 
+not a solid object residing in memory somewhere.  One ownership
+stake in an object is merely an obligation by the owner to call 
+RELEASE once on the object, or to transfer the stake, when it no 
+longer needs it.
 
 =over
 
 =item
 
-When an object is created, it's owned by the code who called the
-method that creates it.
+When an object is created, it becomes owned by the code who called the
+method that created it.  The code has one ownership stake in the newly
+created object after the creation is complete.
 
 =item
 
-Passing an object to a capture implies transfering the ownership of
-the object.
+Code that calls REFERENCE assumes an additional ownership stake in the object.  
+Since it is so easy to give away ownership stakes, REFERENCE is an important 
+tool for keeping objects alive.
+
+As such, code may have more than one ownership stake in a single object, 
+even though there is no way to distinguish between the results of object 
+creation or the results of any of the calls to REFERENCE.
+
+Code that has more than one ownership stake in a reference needs to 
+RELEASE (or transfer) the reference as many times as it has ownership
+stakes.
 
 =item
 
-Passing an object as the capture of a MESSAGE transfer the ownership
-to the code implementing that.
+Installing an object in a capture implies transferring one ownership stake
+of the object to the capture object (or more than one, if the object is 
+installed more than once in the capture.)  
+
+As such, the code installing the object in the capture is no longer responsible 
+for calling RELEASE for this one ownership stake.  If it has other ownership 
+stakes, it must still call release for each of those.  
+
+Note that this means to install an object in a capture more than once,
+you should have obtained more than one ownership stake in the object.
+
+Also note that, as long as the capture is around to own the object, the 
+original code may still use references to the object, without acquiring a 
+new one.  However, this may not be advisable for code legibility and
+maintainability.
 
 =item
 
-A call to REFERENCE defines an additional owner to the object.
+References owned by capture objects will be automatically RELEASEd when 
+the capture object itself is destroyed.  Capture objects automatically
+fulfill their obligations to ownership stakes (as long as the ownership
+stakes to the aggregate capture object itself are correctly fulfilled.)
 
 =item
 
-A call to RELEASE implies that this owner no longer wants the object.
+Once an object is installed in a capture, getting a new reference to the
+individual object requires the use of a special API.  This procedure will 
+be documented elsewhere.
 
 =item
 
-Using an object as Intepreter, Responder Interface or Identifier of a
-MESSAGE doesn't transfer the ownership.
+When a capture is passed to a MESSAGE as the capture parameter, the code 
+receiving the capture assumes one ownership stake in the capture
+object from the caller.  That is, the caller has one less ownership
+stake in the capture after passing it to a MESSAGE.  Thus, the 
+receiving code should RELEASE the capture before returning.
+
+In this scenario, the capture is still the owner of the objects inside it.
+
+There may be rare exceptions to this convention, but if so, they should be 
+documented loudly.
 
 =item
 
-WEAKREF is used to return a weak reference to that object, it returns
-a different pointer, owned by the code that called it. Calling WEAKREF
-doesn't change the refcount.
+TODO: ownership behavior of MESSAGE return value and setr payloads
+
+=item
+
+A call to RELEASE implies that this owner no longer wants one ownership
+stake in the object.  It will still retain any other ownership stakes.
+
+=item
+
+Using an object as the C<intepreter>, C<self>, or C<identifier> parameters of a
+MESSAGE does not transfer the ownership stake in that object, unlike the
+C<capture> parameter.
+
+=item
+
+If a RELEASE or REFERENCE happens inside a subroutine, and the subroutine
+returns with a net gain or loss of ownership stakes, then the code that
+called the subroutine will gain or lose that many ownership stakes.  There
+is no requirement to keep all ownership stake manipulation within the 
+same block of C code.  
+
+However, from a good coding practice standpoint, it is avisable to balance 
+ownership stakes where possible, or otherwise, to fully comment and document 
+the behavior.
+
+=item
+
+WEAKREF is used to return a weak reference to an object, it may return
+a different pointer, to an entirely new object, owned by the code that 
+called it.  Calling WEAKREF doesn't change the ownership stake in the 
+original object (at least, never when it matters.) 
+
+However, since it may create a new object, the weakref should still be 
+released.
 
 =back
 
 =head1 IMPORTANT SPEC NOTICE
 
-This document describe everything that you can assume on an arbitrary
-object, which means that you can only introspect in more details by
-either calling a method, or by checking if you know the responder
-interface of the given object.
+This document describes everything that you can assume on an arbitrary
+object, which means that you can only introspect in more detail by
+either calling a method, or via special knowledge of the internals of 
+the responder interface of the given object (for example, inside the
+code of the responder interface itself.)
 
-It is erroneous to assume a given internal structure beyond what is
-described in this document.
+It is erroneous to assume anything about the internal structure of any 
+object, even responder interface objects, beyond what is described in 
+this document.
 
 =cut
