@@ -4,6 +4,7 @@ use strict;
 use 5.010;
 use warnings;
 use lib 'lib';
+use Carp;
 use STD;
 use utf8;
 use YAML::XS;
@@ -90,10 +91,7 @@ sub MAIN {
 		#XXX -  should experiment with color information
 		#       from token table 
 		
-		local $/ = 1;
-		open FH, $filename or die "cannot open $filename\n";
-		my $text = <FH>;
-		close FH;
+		my $text = _slurp($filename);
 		my %colors = (
 			'DeclareVar'     => 'blue',
 			'DeclareRoutine' => 'blue',
@@ -107,14 +105,16 @@ sub MAIN {
 			'GrammarName'    => 'red',
 		);
 		my $buffer = '';
+		my $last_color = '';
 		for(my $i = 0; $i < length $text; $i++) {
 			my $c = substr $text, $i, 1;
 			
 			my $token_to_color = undef;
 			foreach my $token (@TOKEN_TABLE) {
-				if($i >= $token->{from} && ($i <= $token->{from} + length $token->{name})) {
+				my $from = $token->{from};
+				my $token_length = length $token->{name};
+				if($i >= $from && ($i <= $from + $token_length)) {
 					$token_to_color = $token;
-					#print $token_to_color->{type} . "\n";
 					last;
 				}			
 			}
@@ -122,21 +122,39 @@ sub MAIN {
 				my $type = $token_to_color->{type};
 				if($type) {
 					my $color = $colors{$type};
-					if($color) {
-						my $name = $token_to_color->{name};
-						my $replacement = Term::ANSIColor::color($color) . 
-							$name .
-							Term::ANSIColor::color('reset');
-						$buffer .= $replacement;
-						$i += (length $name) - 1;
-						next;
+					if($color && $color ne $last_color) {
+						if(length $last_color) {
+							$buffer .= "</$last_color>";
+						}
+						$buffer .= "<$color>"; 
+						$last_color = $color;
 					} 
-				} 
+				}
 			}
+			
 			$buffer .= $c;
 		}
+		if(length $last_color) {
+			$buffer .= "</$last_color>";
+		}
+		
 		print $buffer;
 	}
+}
+
+#-----------------------------------------------------
+# Load file into a scalar without File::Slurp
+# see perlfaq5
+#-----------------------------------------------------
+sub _slurp {
+    my $filename = shift;
+    my $fh = IO::File->new($filename)
+        or croak "Could not open $filename for reading";
+    local $/ = undef;   #enable localized slurp mode
+    my $contents = <$fh>;
+    close $fh
+        or croak "Could not close $filename";
+    return $contents;
 }
 
 #
