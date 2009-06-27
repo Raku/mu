@@ -11,6 +11,7 @@ use YAML::XS;
 my $OPT_log = 0;
 my $OPT_find_declaration = undef;
 my $OPT_rename_variable  = undef;
+my $OPT_color = 0;
 our $PACKAGE_TYPE = '';
 our $SCOPE = '';
 our @TOKEN_TABLE = ();
@@ -20,11 +21,12 @@ my @context;
 sub USAGE {
 	print <<'END';
 viv [switches] filename
-	where switches can be:
-		--log                              Emit debugging info to standard error
-		--help                             Prints this help
-		--find-declaration=Name,Line       Find variable declaration at line number
-		--rename-var=OldName,Line,NewNew   Rename all instances of variable at line number
+where switches can be:
+	--log                              Emit debugging info to standard error
+	--help                             Prints this help
+	--find-declaration=Name,Line       Find variable declaration's
+	--rename-var=OldName,Line,NewNew   Rename all instances of a variable
+	--color                            Coloring time... :)
 END
 	exit;
 }
@@ -36,6 +38,7 @@ sub MAIN {
 	my $help = 0;
 	Getopt::Long::GetOptions(
 		'log',                 =>\$OPT_log,
+		'color',               =>\$OPT_color,
 		'find-declaration=s'   => \$OPT_find_declaration,
 		'rename-var=s',        => \$OPT_rename_variable,
 		'help'                 =>\$help,
@@ -143,6 +146,11 @@ sub MAIN {
 			print "No declaration found... is that correct?\n";
 		}
 		
+	}
+	
+	if($OPT_color) {
+		#XXX -  should experiment with color information
+		#       from token table 
 	}
 }
 
