@@ -89,6 +89,55 @@ sub MAIN {
 	if($OPT_color) {
 		#XXX -  should experiment with color information
 		#       from token table 
+		
+		local $/ = 1;
+		open FH, $filename or die "cannot open $filename\n";
+		my $text = <FH>;
+		close FH;
+		my %colors = (
+			'DeclareVar'     => 'blue',
+			'DeclareRoutine' => 'blue',
+			'FlowControl'    => 'blue',
+			'Module'         => 'blue',
+			'Variable'       => 'red',
+			'Parameter'      => 'red',
+			'VariableName'	 => 'red',
+			'MethodName'     => 'red',
+			'SubName'        => 'red',
+			'GrammarName'    => 'red',
+		);
+		my $buffer = '';
+		for(my $i = 0; $i < length $text; $i++) {
+			my $c = substr $text, $i, 1;
+			
+			my $token_to_color = undef;
+			foreach my $token (@TOKEN_TABLE) {
+				if($i >= $token->{from} && ($i <= $token->{from} + length $token->{name})) {
+					$token_to_color = $token;
+					#print $token_to_color->{type} . "\n";
+					last;
+				}			
+			}
+			if($token_to_color) {
+				my $type = $token_to_color->{type};
+				if($type) {
+					my $color = $colors{$type};
+					if($color) {
+						my $name = $token_to_color->{name};
+						my $replacement = Term::ANSIColor::color($color) . 
+							$name .
+							Term::ANSIColor::color('reset');
+						$buffer .= $replacement;
+						$i += (length $name) - 1;
+					} else {
+						$buffer .= $c;
+					}
+				} else {
+					$buffer .= $c;
+				}
+			}
+		}
+		print $buffer;
 	}
 }
 
