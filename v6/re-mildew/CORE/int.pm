@@ -22,9 +22,19 @@ multi infix:<+>(int $a,int $b) {
 multi less(int $a,int $b) {
     &infix:<<<>>:(int,int)($a,$b);
 }
+multi more(int $a,int $b) {
+    if &infix:<<<>>:(int,int)($a,$b) {
+        ::False;
+    } elsif &infix:<==>:(int,int)($a,$b) {
+        ::False;
+    } else {
+        ::True;
+    }
+}
 
 $LexicalPrelude.{'int'} := ::int;
 $LexicalPrelude.{'&infix:=='} := &infix:<==>;
 $LexicalPrelude.{'&infix:!='} := &infix:<!=>;
 $LexicalPrelude.{'&infix:+'} := &infix:<+>;
 $LexicalPrelude.{'&infix:<'} := &less;
+$LexicalPrelude.{'&infix:>'} := &more;
