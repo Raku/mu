@@ -26,14 +26,11 @@ sub proclaim($cond,$desc,$todo) {
     if $todo {
         print " # TODO";
     }
-    say;
+    print "\n";
 }
-multi ok($cond,$desc,:$todo) {
+multi ok($cond,$desc?,:$todo) {
     proclaim($cond,$desc,$todo);
 }
-multi ok($cond,:$todo) {
-    proclaim($cond,"",$todo);
-}
-multi is($got,$expected,$desc,:$todo) {
+multi is($got,$expected,$desc?,:$todo) {
     proclaim($got eq $expected,$desc,$todo);
 }

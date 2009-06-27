@@ -56,9 +56,19 @@ sub emit_m0ld {
         my $param = shift;
         my $name = $var->{name}[0]{TEXT} || '';
         my $sigil = $var->{sigil}{sym};
+        my $default;
+        if ($m->{kind} eq '?') {
+            $default = call new => FETCH(lookup('Code')),[],
+                [ string 'mold' => AST::Block->new(regs=>['interpreter','scope'],stmts=>
+                    trailing_return([lookupf("False")])),
+                string 'outer' => reg '$scope',
+                string 'signature' => empty_sig];
+        }
+
         AST::Seq->new(stmts => [
             $name ? call(STORE => (call variable => $param),[ string $sigil.$name]) : (),
             $name ? call(STORE => (call name => $param),[ string $name ]) : (),
+            $default ? call(STORE => (call default_value => $param),[ $default ]) : (),
             $type_constraint ?  call(STORE => (call type => $param),[ lookupf($type_constraint) ]) : (),
             $param]
         );
