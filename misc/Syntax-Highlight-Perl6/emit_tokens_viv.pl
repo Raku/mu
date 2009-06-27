@@ -79,79 +79,94 @@ sub MAIN {
 	dump_token_table();
 	
 	if($OPT_find_declaration) {
-
-		my ($found_symbol_index, @variables) = find_variable_declaration($variable, $line_number);
-		if($found_symbol_index != -1) {
-			my $symbol = $TOKEN_TABLE[$found_symbol_index];
-			printf "Found declaration at line %d.\n", $symbol->{line};
-
-			open FH, $filename or die "cannot open $filename\n";
-			my $count = 1;
-			print "...\n";
-			while(my $line = <FH>) {
-				chomp $line;
-				if($count == $symbol->{line} || 
-					($count == $line_number) ) 
-				{
-					print "#$count: " . $line . "\n...\n";
-				} 
-				$count++;
-			}
-			close FH;
-
-		} else {
-			print "No declaration found... is that correct?\n";
-		}
-
+		show_find_variable_declaration($variable, $line_number, $filename);
 	}
 	
 	if($OPT_rename_variable) {
-		#Implement rename variable by first finding a variable declaration's
-		#and then finding all variables for that declaration within the 
-		#same/upper lexical scope.
-
-		my ($found_symbol_index, @variables) = find_variable_declaration($variable, $line_number);
-		if($found_symbol_index != -1) {
-			my $symbol = $TOKEN_TABLE[$found_symbol_index];
-			printf "Found declaration at line %d.\n", $symbol->{line};
-
-			open FH, $filename or die "cannot open $filename\n";
-			my $count = 1;
-			my $pos = 0;
-			$| = 1;
-			print "\n";
-			while(my $line = <FH>) {
-				my $len = length $line;
-				chomp $line;
-				foreach my $var (@variables) {
-					if($count == $var->{line}) {
-						print "#$count: " . $line . "\n  -->\n";
-						substr $line, $var->{from} - $pos, $var->{to} - $var->{from}, $new_variable;
-						print "#$count: " . $line . "\n...\n\n";
-						last;
-					}
-				}
-				if( $count == $line_number ) 
-				{
-					print "#$count: " . $line . "\n-->\n";
-					substr $line, $symbol->{from} - $pos, $symbol->{to} - $symbol->{from}, $new_variable;
-					print "#$count: " . $line . "\n...\n\n";
-				} 
-				$pos += $len;
-				$count++;
-			}
-			close FH;
-
-		} else {
-			print "No declaration found... is that correct?\n";
-		}
-		
+		show_rename_variable($variable, $line_number, $new_variable, $filename);
 	}
 	
 	if($OPT_color) {
 		#XXX -  should experiment with color information
 		#       from token table 
 	}
+}
+
+#
+# Shows the variable declaration..
+#
+sub show_find_variable_declaration {
+	my ($variable, $line_number, $filename) = @_;
+
+	my ($found_symbol_index, @variables) = find_variable_declaration($variable, $line_number);
+	if($found_symbol_index != -1) {
+		my $symbol = $TOKEN_TABLE[$found_symbol_index];
+		printf "Found declaration at line %d.\n", $symbol->{line};
+
+		open FH, $filename or die "cannot open $filename\n";
+		my $count = 1;
+		print "...\n";
+		while(my $line = <FH>) {
+			chomp $line;
+			if($count == $symbol->{line} || 
+				($count == $line_number) ) 
+			{
+				print "#$count: " . $line . "\n...\n";
+			} 
+			$count++;
+		}
+		close FH;
+
+	} else {
+		print "No declaration found... is that correct?\n";
+	}
+
+}
+
+#
+# rename variable by first finding a variable declaration's
+# and then finding all variables for that declaration within the 
+# same/upper lexical scope.
+#
+sub show_rename_variable {
+	my ($variable, $line_number, $new_variable, $filename) = @_;
+
+	my ($found_symbol_index, @variables) = find_variable_declaration($variable, $line_number);
+	if($found_symbol_index != -1) {
+		my $symbol = $TOKEN_TABLE[$found_symbol_index];
+		printf "Found declaration at line %d.\n", $symbol->{line};
+
+		open FH, $filename or die "cannot open $filename\n";
+		my $count = 1;
+		my $pos = 0;
+		$| = 1;
+		print "\n";
+		while(my $line = <FH>) {
+			my $len = length $line;
+			chomp $line;
+			foreach my $var (@variables) {
+				if($count == $var->{line}) {
+					print "#$count: " . $line . "\n  -->\n";
+					substr $line, $var->{from} - $pos, $var->{to} - $var->{from}, $new_variable;
+					print "#$count: " . $line . "\n...\n\n";
+					last;
+				}
+			}
+			if( $count == $line_number ) 
+			{
+				print "#$count: " . $line . "\n-->\n";
+				substr $line, $symbol->{from} - $pos, $symbol->{to} - $symbol->{from}, $new_variable;
+				print "#$count: " . $line . "\n...\n\n";
+			} 
+			$pos += $len;
+			$count++;
+		}
+		close FH;
+
+	} else {
+		print "No declaration found... is that correct?\n";
+	}
+
 }
 
 sub find_token_at {
