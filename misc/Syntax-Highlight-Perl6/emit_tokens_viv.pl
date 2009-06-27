@@ -129,13 +129,11 @@ sub MAIN {
 							Term::ANSIColor::color('reset');
 						$buffer .= $replacement;
 						$i += (length $name) - 1;
-					} else {
-						$buffer .= $c;
-					}
-				} else {
-					$buffer .= $c;
-				}
+						next;
+					} 
+				} 
 			}
+			$buffer .= $c;
 		}
 		print $buffer;
 	}
