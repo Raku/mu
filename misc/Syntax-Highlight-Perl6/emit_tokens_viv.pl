@@ -3,7 +3,7 @@
 use strict;
 use 5.010;
 use warnings;
-
+use lib 'lib';
 use STD;
 use utf8;
 use YAML::XS;
