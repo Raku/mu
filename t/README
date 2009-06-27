@@ -107,13 +107,9 @@ Make sure the outputs are what you *can* expect even if your tests fail.
 
 - If possible, please smart link your tests to the Synopsis
 
-Smart links are explained on the wiki:
+Smart links are explained in POD:
 
-  http://rakudo.org/perl6/index.cgi?smart_linking
-
-And in the POD of smartlinks.pl:
-
-  perldoc util/smartlinks.pl
+  perldoc util/Text-SmartLinks/lib/Text/SmartLinks.pm
 
 You may also find the following two pugs.blogs.com posts helpful:
 
