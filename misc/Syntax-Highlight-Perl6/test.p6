@@ -3,7 +3,9 @@
 class FooClass is B {
 	my $foo-bar;
 	{
-		my $foo-bar;
+		try {
+			my $foo-bar;
+		};
 	}
 	$foo-bar;
 	

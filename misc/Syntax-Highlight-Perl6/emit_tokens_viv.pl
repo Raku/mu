@@ -4183,6 +4183,7 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token( $self->{SYM}, 'FlowControl' );
 		$self->ret(@t);
 	}
 }
@@ -4306,6 +4307,7 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'FlowControl');
 		$self->ret(@t);
 	}
 }
@@ -4373,6 +4375,7 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'FlowControl');
 		$self->ret(@t);
 	}
 }
@@ -4412,6 +4415,7 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'Exception');
 		$self->ret(@t);
 	}
 }
