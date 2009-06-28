@@ -4349,6 +4349,7 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'FlowControl');
 		$self->ret(@t);
 	}
 }
@@ -4362,6 +4363,7 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'FlowControl');
 		$self->ret(@t);
 	}
 }
@@ -4402,6 +4404,7 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'FlowControl');
 		$self->ret(@t);
 	}
 }
@@ -4658,6 +4661,7 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'Trait');
 		$self->ret(@t);
 	}
 }
@@ -4671,6 +4675,35 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'Trait');
+		$self->ret(@t);
+	}
+}
+
+{
+
+	package VAST::trait_mod__S_does;
+	our @ISA = 'VAST::Base';
+
+	sub emit_token {
+		my $self = shift;
+		my $lvl  = shift;
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'Trait');
+		$self->ret(@t);
+	}
+}
+
+{
+
+	package VAST::trait_mod__S_is;
+	our @ISA = 'VAST::Base';
+
+	sub emit_token {
+		my $self = shift;
+		my $lvl  = shift;
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'Trait');
 		$self->ret(@t);
 	}
 }
