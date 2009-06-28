@@ -4326,6 +4326,20 @@ sub dump_token_table {
 
 {
 
+	package VAST::statement_control__S_unless;
+	our @ISA = 'VAST::Base';
+
+	sub emit_token {
+		my $self = shift;
+		my $lvl  = shift;
+		my @t    = $self->SUPER::emit_token( $lvl + 1 );
+		$self->add_token($self->{SYM}, 'FlowControl');
+		$self->ret(@t);
+	}
+}
+
+{
+
 	package VAST::statement_mod_loop;
 	our @ISA = 'VAST::Base';
 
