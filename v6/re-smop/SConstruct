@@ -40,7 +40,8 @@ for module in modules:
     for file in Glob('build/' + module + '/src/*.ri'):
         env.RI(file)
     files = env.Glob('build/' + module + '/src/*.c')
-    env.SharedLibrary(target = 'build/lib/smop-'+module, source = files, CFLAGS=flags+ccopts, CPPPATH=[module+'/src'] + INCLUDE, LIBS=LIBS LIBPATH=LIBPATH)
+    env.SharedLibrary(target = 'build/lib/smop-'+module, source = files,
+    CFLAGS=flags+ccopts, CPPPATH=[module+'/src'] + INCLUDE, LIBS=LIBS, LIBPATH=LIBPATH)
 
 INCLUDE = ['base/include']
 
