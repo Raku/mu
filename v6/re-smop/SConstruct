@@ -23,8 +23,8 @@ env.Append(BUILDERS = {'M0ld' : Builder(action = 'cat m0ld/m0ld_boilerplate_fron
 
 
 import subprocess # python has `` in a strange module :\
-ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
-ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
+ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","print' ';ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
+ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","print' ';ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 flags = '-O0 -g3 -Wall -DSMOP_HUNT_NULLS -DSMOP_MOLD_DEBUG' #  -DSMOP_LOWLEVEL_MEM_DEBUG 
 
 
