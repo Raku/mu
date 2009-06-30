@@ -85,6 +85,7 @@ sub m0ld_to_c {
     binmode $m0ld_exe_out, ':utf8';
     return <$m0ld_exe_out>;
 }
+
 sub compile_via_c {
     my ($m0ld,$output) = @_;
     my ($c_fh,$c_file) = tempfile();
@@ -98,6 +99,20 @@ sub compile_via_c {
     close($c_fh);
     system("gcc","-g","-xc","-L../re-smop/build/lib",@SMOP_INCLUDE,"-lperl","-lmildew","-lpcl",$c_file,"-o",$output);
 }
+
+sub compile_to_c {
+    my ($m0ld,$output) = @_;
+    open my $c_fh, '>', $output || die "can't open output file\n";
+    binmode($c_fh,":utf8");
+    open(my $boilerplate_front,"../re-smop/m0ld/m0ld_boilerplate_front") || die "can't open internal file\n";
+    open(my $boilerplate_back,"../re-smop/m0ld/m0ld_boilerplate_back") || die "can't open internal file\n";
+    local $/;
+    print {$c_fh} <$boilerplate_front>;
+    print {$c_fh} m0ld_to_c($m0ld);
+    print {$c_fh} <$boilerplate_back>;
+    close($c_fh);
+}
+
 sub compile_to_so {
     my ($m0ld,$output) = @_;
     my ($c_fh,$c_file) = tempfile();
@@ -126,6 +141,7 @@ BOILERPLATE_FRONT
         (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
         (SMOP__Object*[]) {NULL})
   );
+
 }
 BOILERPLATE_BACK
     close($c_fh);
@@ -225,6 +241,10 @@ if ($C eq 'via-C') {
     compile_to_so($m0ld,$output);
 } elsif ($C eq 'm0ld') {
     output($m0ld,$output);
+} elsif ($C eq 'C') {
+    die "-o is required when compiling to C\n" unless $output;
+    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
+    compile_to_c($m0ld,$output);
 } elsif ($C) {
     die "unknown backend passed to -C: $C\n";
 }
