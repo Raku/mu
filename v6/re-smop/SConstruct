@@ -44,7 +44,7 @@ for module in modules:
     CFLAGS=flags+ccopts, CPPPATH=[module+'/src'] + INCLUDE, LIBS=LIBS, LIBPATH=LIBPATH)
 
 INCLUDE = ['base/include']
-
+LIBS = []
 
 for module in modules:
     BuildDir('build/t/'+module,module+'/t')
