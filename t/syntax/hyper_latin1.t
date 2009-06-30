@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 
-plan 2;
+plan 3;
 
 # Unicode-version of >>~<< only works in utf8 encoded files
 #   * Almost all other files in the Pugs Subversion repository are utf-8
@@ -15,9 +15,10 @@ plan 2;
 # According to lwall, failure is the desired behaviour.  To use latin1
 # in source code, explicitly declare it as such with the `encoding` pragma.
 
-my $hyper_utf = eval "(<a b c) \c187~\c171 (1,2,3)";
+my $hyper_utf = eval "(<a b c>) \c187~\c171 (1,2,3)";
 ok($!, 'latin1 should not be parsed');
 
 # >>~<< is working
 my $hyper_latin=('a','b','c') >>~<< (1,2,3);
 is($hyper_latin,'a1 b2 c3','>>~<< is working');
+isnt( $hyper_latin, $hyper_utf, "\c187~\c171 is (correctly) not working" );
