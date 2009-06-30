@@ -179,8 +179,8 @@ sub m0ld {
 package AST::Label;
 use Moose;
 extends 'AST::Base';
-has 'identifier';
-has 'stmt';
+has 'identifier' => (is => 'rw');
+has 'stmt' => (is => 'rw');
 
 package AST::Named;
 use Moose;

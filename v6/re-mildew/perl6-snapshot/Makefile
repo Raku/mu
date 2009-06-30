@@ -12,7 +12,7 @@ STD.pmc: STD.pm gimme5
 	rm -rf lex *.pad.store
 
 check: STD.pmc
-	/usr/local/bin/perl -c $<
+	/usr/bin/env perl -c $<
 
 # pre-generate common sublexers
 lex/STD/termish: STD.pmc
