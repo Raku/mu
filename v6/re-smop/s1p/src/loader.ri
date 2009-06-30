@@ -26,13 +26,14 @@
   filename[len] = '\0';
   
 
-  void* handle = dlopen(filename,RTLD_LOCAL);
-  free(filename);
+  void* handle = dlopen(filename,RTLD_LAZY | RTLD_GLOBAL);
 
   if (!handle) {
-    printf("Loader.load: %s\n",dlerror());
+    printf("Loader.load(%s): %s\n",filename,dlerror());
     abort();
   }
+
+  free(filename);
   void* (*init)(SMOP__Object*,SMOP__Object*,SMOP__Object*) = dlsym(handle,"init");
   if (!init) {
     printf("Loader.load: %s\n",dlerror());

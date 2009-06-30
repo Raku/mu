@@ -36,7 +36,10 @@ my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting,$x,$target_stage);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'empty-setting'=>\$empty_setting,'debug'=>\$debug,'h|help'=>\$help,'x=s'=>\$x,'target-stage=i'=>\$target_stage) || help;
 help if $help;
 
-my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include"),;
+my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
+my @MILDEW_LDOPTS = ( '-L../re-smop/build/lib',
+                      map { s/^.+?\/lib\/lib|.so$//g; "-l".$_ } glob("../re-smop/build/lib/*.so") );
+
 
 $target_stage //= 2;
 if ($target_stage == 1) {
@@ -97,7 +100,7 @@ sub compile_via_c {
     print {$c_fh} m0ld_to_c($m0ld);
     print {$c_fh} <$boilerplate_back>;
     close($c_fh);
-    system("gcc","-g","-xc","-L../re-smop/build/lib",@SMOP_INCLUDE,"-lperl","-lmildew","-lpcl",$c_file,"-o",$output);
+    system("gcc","-g","-xc","-L../re-smop/build/lib",@SMOP_INCLUDE,@MILDEW_LDOPTS,$c_file,"-o",$output);
 }
 
 sub compile_to_c {
@@ -145,7 +148,7 @@ BOILERPLATE_FRONT
 }
 BOILERPLATE_BACK
     close($c_fh);
-    system("gcc","-g","-xc","-L../../smop/build/lib",@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
+    system("gcc","-g","-xc","-L../../smop/build/lib",@MILDEW_LDOPTS,@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
 }
 sub output {
     my ($what,$where) = @_;
