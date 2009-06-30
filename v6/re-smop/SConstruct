@@ -39,8 +39,8 @@ for module in modules:
     files = env.Glob('build/' + module + '/src/*.c')
     env.SharedLibrary(target = 'build/lib/smop-'+module, source = files, CFLAGS=flags+ccopts, CPPPATH=[module+'/src'] + INCLUDE)
 
-LIBS = re.compile("-l(\S+)").findall(ldopts) + ['pthread','m','dl']
-LIBPATH = re.compile("-L(\S+)").findall(ldopts)
+LIBS = re.compile("\s-l(\S+)").findall(ldopts) + ['pthread','m','dl']
+LIBPATH = re.compile("\s-L(\S+)").findall(ldopts)
 
 INCLUDE = ['base/include']
 
