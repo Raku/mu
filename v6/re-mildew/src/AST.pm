@@ -85,8 +85,8 @@ sub m0ld {
             my $id_elsif_cond = AST::unique_id;
             my $label_elsif_then = AST::unique_label;
             my $label_elsif_else = AST::unique_label;
-            my $elsif_cond = $part->cond->m0ld($id_elsif_cond);
-            my $elsif_then = $part->then->m0ld($ret);
+            my $elsif_cond = $part->cond->emit_($id_elsif_cond);
+            my $elsif_then = $part->then->emit_($ret);
             $elsifs .= $elsif_cond."\n".
               'my '.$id_elsif_cond.'_val = '.$id_elsif_cond.'."FETCH"();'."\n".
               'my '.$id_elsif_cond.'_bool = '.$id_elsif_cond.'_val."true"();'."\n".
