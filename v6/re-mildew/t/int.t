@@ -1,4 +1,4 @@
-say "1..7";
+say "1..8";
 if &infix:<==>:(int,int)(1788,1788) {
     say "ok 1 # infix:<==>";
 } else {
