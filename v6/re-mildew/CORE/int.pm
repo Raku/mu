@@ -18,6 +18,12 @@ multi infix:<!=>(int $a,int $b) {
 multi infix:<+>(int $a,int $b) {
     &infix:<+>:(int,int)($a,$b);
 }
+multi infix:<->(int $a,int $b) {
+    &infix:<->:(int,int)($a,$b);
+}
+multi prefix:<->(int $a) {
+    &infix:<->:(int,int)(0,$a);
+}
 #TODO fix multi infix:<\<> {...}
 multi less(int $a,int $b) {
     &infix:<<<>>:(int,int)($a,$b);
@@ -36,5 +42,7 @@ $LexicalPrelude.{'int'} := ::int;
 $LexicalPrelude.{'&infix:=='} := &infix:<==>;
 $LexicalPrelude.{'&infix:!='} := &infix:<!=>;
 $LexicalPrelude.{'&infix:+'} := &infix:<+>;
+$LexicalPrelude.{'&infix:-'} := &infix:<->;
+$LexicalPrelude.{'&prefix:-'} := &prefix:<->;
 $LexicalPrelude.{'&infix:<'} := &less;
 $LexicalPrelude.{'&infix:>'} := &more;

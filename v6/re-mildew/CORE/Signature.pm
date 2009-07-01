@@ -16,7 +16,7 @@ role Signature {
         my $ok = ::True;
         {
             map(sub ($param) {
-                if $param.ACCEPTS($capture,$i,$named) {
+                if $param.ACCEPTS_param($capture,$i,$named) {
                 } else {
                     ::Exception.new.throw;
                 }
@@ -44,6 +44,33 @@ role Signature {
     }
     method BUILDALL() {
         self.params = ::Array.new;
+    }
+    method compare($other) {
+        my $i = 0;
+
+        my $pos_self = grep(sub ($param) {::Positional.ACCEPTS($param.FETCH)},self.params);
+
+        my $pos_other = grep(sub ($param) {::Positional.ACCEPTS($param.FETCH)},$other.params);
+
+        if &infix:<==>:(int,int)($pos_self.elems,$pos_other.elems) {
+        } else {
+            return 0;
+        }
+        loop {
+            if &infix:<==>:(int,int)($i,$pos_self.elems) {
+                return 0;
+            } else {
+                my $cmp = $pos_self.[$i.FETCH].compare($pos_other.[$i.FETCH]);
+                if &infix:<==>:(int,int)($cmp,0) {
+                } else {
+                    return $cmp;
+                }
+                $i = &infix:<+>:(int,int)($i,1);
+            }
+        }
+    }
+    method perl() {
+        ":(" ~ self.params.[0].perl ~ "...)";
     }
 }
 
@@ -82,7 +109,7 @@ role Positional {
         }
         ::True;
     }
-    method ACCEPTS($capture,$i is ref,$named is ref) {
+    method ACCEPTS_param($capture,$i is ref,$named is ref) {
         if $capture.named($.name.FETCH) {
             $named = &infix:<+>:(int,int)($named.FETCH,1);
         } elsif &infix:<<<>>:(int,int)($i,$capture.elems) {
@@ -97,6 +124,21 @@ role Positional {
             return ::False;
         }
         ::True;
+    }
+    method compare($other) {
+        if $other.type.ACCEPTS(self.type) {
+            if self.type.ACCEPTS($other.type) {
+                return 0;
+            } else {
+                return &infix:<->:(int,int)(0,1);
+            }
+        } else {
+            if self.type.ACCEPTS($other.type) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     }
 }
 role RefParam {
@@ -114,6 +156,9 @@ role ReadonlyParam {
         $wrapper.FETCH;
         (|$wrapper);
     }
+    method perl() {
+        self.variable
+    }
 }
 
 role NamedReadonlyParam {
@@ -127,7 +172,7 @@ role NamedReadonlyParam {
         $wrapper.FETCH;
         $scope.{self.variable.FETCH} := (|$wrapper);
     }
-    method ACCEPTS($capture,$i is ref,$named is ref) {
+    method ACCEPTS_param($capture,$i is ref,$named is ref) {
         if $capture.named($.name.FETCH) {
             $named = &infix:<+>:(int,int)($named.FETCH,1);
         }
@@ -137,7 +182,7 @@ role NamedReadonlyParam {
 role WholeCaptureParam {
     has $.name;
     WholeCaptureParam.^compose_role(::Param);
-    method ACCEPTS($capture,$i is ref,$named is ref) {
+    method ACCEPTS_param($capture,$i is ref,$named is ref) {
         $i = $capture.elems;
         $named = $capture.named_count;
     }
@@ -151,4 +196,5 @@ $LexicalPrelude.{'NamedReadonlyParam'} := ::NamedReadonlyParam;
 $LexicalPrelude.{'ReadonlyParam'} := ::ReadonlyParam;
 $LexicalPrelude.{'RefParam'} := ::RefParam;
 $LexicalPrelude.{'Signature'} := ::Signature;
+$LexicalPrelude.{'Positional'} := ::Positional;
 

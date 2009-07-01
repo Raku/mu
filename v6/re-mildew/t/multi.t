@@ -1,4 +1,4 @@
-say "1..12";
+say "1..16";
 {
 my multi foo($arg1 is ref) {
     say $arg1;
@@ -72,4 +72,23 @@ foo("not ok 11",:b("ok 11 # named params are passed"));
     }
 }.();
 
+}.();
+
+{
+    my multi foo(int $a,$b) {
+        say "ok 14";
+    }
+    my multi foo($a,int $b) {
+        say "ok 15";
+    }
+    my multi foo($a,$b) {
+        say "ok 13";
+    }
+    my multi foo(int $a,int $b) {
+        say "ok 16";
+    }
+    foo("...","...");
+    foo(1,"...");
+    foo("...",1);
+    foo(1,1);
 }.();

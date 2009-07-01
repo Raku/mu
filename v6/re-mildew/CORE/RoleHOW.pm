@@ -15,6 +15,7 @@ my sub copy_does($dst,$src) {
     }
 }
 my sub compose_role($obj,$role) {
+    $obj.^!does.push((|$role));
     map(sub ($key) {
         if $obj.^!methods.{$key.FETCH} {
             ::Exception.new.throw;
@@ -35,7 +36,7 @@ knowhow RoleHOW {
     method dispatch($object, $identifier, \$capture) {
         if PRIMITIVES::idconst_eq($identifier.FETCH,'FETCH') {
             # in item context, returns itself.
-            return $object;
+            (|$object);
         } else {
             # Roles are not classes! so we're going to delegate this to a
             # punned class that does this role. For now, we're going to pun a
@@ -68,6 +69,8 @@ role LowObject {
         my $does = ::False;
         map(sub ($r) {
             if PRIMITIVES::pointer_equal((|$role),(|$r)) {
+                $does = ::True;
+            } elsif self.ACCEPTS($r) {
                 $does = ::True;
             }
         },$obj.^!does);

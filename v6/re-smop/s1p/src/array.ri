@@ -115,6 +115,9 @@ static int floor_log2(unsigned int n) {
 %method FETCH
     ___VALUE_FETCH___
 
+%method true
+    ret = SMOP__NATIVE__bool_true;
+
 %DESTROYALL {
     smop_s1p_array_struct* array = (smop_s1p_array_struct*)invocant;
     int i;for (i=0;i < array->elems;i++) {

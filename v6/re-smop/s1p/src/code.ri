@@ -43,9 +43,18 @@ SMOP__Object* SMOP__S1P__Code_create() {
     if (!code->signature) {
         printf("no signature!\n");
         abort();
-        code->signature = SMOP__NATIVE__bool_false;
     }
-    /* TODO  code->signature = SMOP__S1P__DefaultBlockSignature;*/
+
+%method arity
+  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
+  SMOP__Object* signature = ((smop_s1p_code_struct*)invocant)->signature;
+  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(signature),
+    SMOP__ID__arity,
+    SMOP__NATIVE__capture_create(interpreter,
+     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,signature),NULL},
+     (SMOP__Object*[]) {NULL})
+  );
 
 %method postcircumfix:( )
     smop_s1p_code_struct* code = (smop_s1p_code_struct*) invocant;
