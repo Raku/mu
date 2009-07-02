@@ -17,6 +17,8 @@ extern SMOP__Object* SMOP__NATIVE__bool_true;
 extern SMOP__Object* SMOP__NATIVE__bool_false;
 extern SMOP__Object* SMOP__EmptyInterpreter;
 
+extern SMOP__Object* SMOP__metaRI;
+
 SMOP__Object* smop_placeholder_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,

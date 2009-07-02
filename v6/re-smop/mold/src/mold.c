@@ -481,13 +481,6 @@ void smop_mold_init() {
   SMOP__ID__true = SMOP__NATIVE__idconst_create("true");
 
 
-  metaRI = calloc(1,sizeof(SMOP__ResponderInterface));
-  metaRI->MESSAGE = smop_placeholder_message;
-  metaRI->REFERENCE = smop_noop_reference;
-  metaRI->RELEASE = smop_noop_release;
-  metaRI->WEAKREF = smop_noop_weakref;
-  metaRI->id = "non-gc meta-RI";
-
   SMOP__Mold = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
   SMOP__Mold->RI = metaRI;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->MESSAGE = smop_mold_message;
@@ -497,7 +490,7 @@ void smop_mold_init() {
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->id = "mold";
 
   SMOP__Mold__Frame = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
-  SMOP__Mold__Frame->RI = metaRI;
+  SMOP__Mold__Frame->RI = SMOP__metaRI;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold__Frame)->MESSAGE = smop_mold_frame_message;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold__Frame)->DESTROYALL = smop_mold_frame_DESTROYALL;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold__Frame)->REFERENCE = smop_nagc_reference;
@@ -508,6 +501,5 @@ void smop_mold_init() {
 void smop_mold_destr() {
   free(SMOP__Mold);
   free(SMOP__Mold__Frame);
-  free(metaRI);
 }
 

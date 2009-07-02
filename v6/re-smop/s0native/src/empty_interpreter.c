@@ -15,6 +15,7 @@ void smop_empty_interpreter_init() {
   ri->REFERENCE = smop_noop_reference;
   ri->RELEASE = smop_noop_release;
   ri->id = "Empty Interpreter";
+  ri->RI = SMOP__metaRI;
 
   SMOP__EmptyInterpreter = calloc(1,sizeof(SMOP__Object));
   SMOP__EmptyInterpreter->RI = ri;

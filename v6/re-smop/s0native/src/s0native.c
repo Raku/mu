@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 void smop_s0native_init(void) {
+  smop_metaRI_init();
   smop_native_bool_init();
   smop_idconst_init();
   smop_empty_interpreter_init();
@@ -13,6 +14,7 @@ void smop_s0native_destr(void) {
   smop_empty_interpreter_destr();
   smop_idconst_destr();
   smop_native_bool_destr();
+  smop_metaRI_destr();
 }
 
 SMOP__Object* smop_placeholder_message(SMOP__Object* interpreter,
