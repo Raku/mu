@@ -15,11 +15,12 @@ my sub print($arg) {
 }
 my sub map($expression,$values) {
     my $i = 0;
+    my $ret = ::Array.new;
     loop {
         if &infix:<==>:(int,int)($i,$values.elems) {
-            return;
+            return $ret;
         } else {
-           $expression.($values.[$i.FETCH]);
+           $ret.push((|$expression.($values.[$i.FETCH])));
            $i = &infix:<+>:(int,int)($i.FETCH,1);
         }
     }
