@@ -32,4 +32,6 @@ int main(int argc, char** argv) {
 
   smop_p5_init(interpreter);
 
+  smop_mold_message_init(interpreter);
+
   SMOP__Object* mold = 

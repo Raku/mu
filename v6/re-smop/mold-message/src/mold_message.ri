@@ -1,0 +1,26 @@
+%prefix smop_mold_message
+%include <smop/s1p.h>,<smop/mold.h>,<smop/mold-internals.h>
+%{
+/*HACK*/
+void SMOP__S1P__Array_set_elem(SMOP__Object* interpreter,SMOP__Object* array,int i,SMOP__Object* value);
+%}
+%method registers
+   ret = SMOP__NATIVE__int_create(((smop_mold*)invocant)->registers); 
+%method FETCH
+    ___VALUE_FETCH___;
+%method constants
+  ret = SMOP__S1P__Array_create(interpreter);
+  int i;
+  for (i=0;i < ((smop_mold*)invocant)->constants_len;i++) {
+    SMOP__S1P__Array_set_elem(interpreter,ret,i,SMOP_REFERENCE(interpreter,((smop_mold*)invocant)->constants[i]));
+  }
+%method opcodes
+  ret = SMOP__S1P__Array_create(interpreter);
+  int i;
+  for (i=0;i < ((smop_mold*)invocant)->opcodes_len;i++) {
+    SMOP__S1P__Array_set_elem(interpreter,ret,i,SMOP_REFERENCE(interpreter,SMOP__NATIVE__int_create(((smop_mold*)invocant)->opcodes[i])));
+  }
+    
+%init {
+  ((SMOP__ResponderInterface*)SMOP__Mold)->MESSAGE = ((SMOP__ResponderInterface*)RI)->MESSAGE;
+%}

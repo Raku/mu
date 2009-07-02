@@ -6,6 +6,8 @@
 #include <smop/s0native.h>
 #include <smop/capture.h>
 #include <smop/nagc.h>
+#include <smop/mold.h>
+#include <smop/mold-internals.h>
 
 SMOP__Object* SMOP__Mold;
 SMOP__Object* SMOP__Mold__Frame;
@@ -40,13 +42,6 @@ int SMOP_MOLD_DEBUG_on = 0;
 
 
 
-typedef struct smop_mold {
-  SMOP__NAGC__Object__BASE
-  int registers;
-  SMOP__Object** constants;
-  int constants_len;
-  int *opcodes;
-} smop_mold;
 
 typedef struct smop_mold_frame {
   SMOP__NAGC__Object__BASE
@@ -138,6 +133,7 @@ SMOP__Object* SMOP__Mold_create(int registers,SMOP__Object** constants,int opcod
 
     ret->opcodes = malloc(sizeof(int) * opcodes_len);
     memcpy(ret->opcodes,opcodes,sizeof(int) * opcodes_len);
+    ret->opcodes_len = opcodes_len;
 
     return (SMOP__Object*) ret;
 }
