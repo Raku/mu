@@ -18,7 +18,7 @@ They have been superseded by Capture objects.
 A Capture is an object representing arguments in a function call.
 More generally, Capture objects express annotated nodes with children
 such as capture groups returned by rules, XML DOM nodes, argument lists
-and more.
+and more.  Captures are immutable; their underlying data may not be.
 
 For example, the arguments in C<say("Hello", "World")> is a Capture
 object denoted by C<\("Hello", "World")>.
@@ -163,7 +163,7 @@ argument overrides the previous ones.
 =head3 What do |$x, |@x and |%x mean?
 
 The prefix C<|> operator casts objects into Captures, and merges them
-t into the Capture currently being constructed (e.g. an argument list):
+into the Capture currently being constructed (e.g. an argument list):
 
     my $cap = \(1, 2, x=>42);
     f(|$cap);   # f(1, 2, x=>42)
