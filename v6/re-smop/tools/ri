@@ -76,9 +76,18 @@ while (my $line = <>) {
             $mold{$mold} .= $line;
             next;
         }
-    } elsif ($line =~ /^%method\s*(.*)$/) {
+    } elsif ($line =~ /^%method \s* (.*?) (?: \( ([^(]*) \) )?$/x) {
         $method = $1;
+        my $sig = $2;
         $methods{$method} = '';
+        if ($sig) {
+            my (@params) = split(/,/,$sig);
+            my $i = 1;
+            for my $param (@params) {
+                $methods{$method} .= "  SMOP__Object* $param = SMOP__NATIVE__capture_positional(interpreter, capture, $i);\n";
+                $i++;
+            }
+        }
         debug "method start:$method\n";
     } elsif ($line =~ /^%mold\s*(.*)$/) {
         $mold = $1;

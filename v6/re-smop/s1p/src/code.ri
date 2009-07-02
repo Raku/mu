@@ -56,7 +56,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
      (SMOP__Object*[]) {NULL})
   );
 
-%method postcircumfix:( )
+%method postcircumfix:( )()
     smop_s1p_code_struct* code = (smop_s1p_code_struct*) invocant;
 
     smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);

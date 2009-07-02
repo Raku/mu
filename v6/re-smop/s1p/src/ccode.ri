@@ -2,7 +2,7 @@
 %RI.id SMOP S1P CCode
 %attr  SMOP__Object* (*ccode) (SMOP__Object* interpreter, SMOP__Object* ccode, SMOP__Object* capture)
 
-%method postcircumfix:( )
+%method postcircumfix:( )()
   smop_s1p_ccode_struct* c = (smop_s1p_ccode_struct*)invocant;
 
   SMOP__Object* actualcap = SMOP__NATIVE__capture_positional(interpreter,capture,1);

@@ -73,8 +73,7 @@ static int floor_log2(unsigned int n) {
 %method new
   ret = SMOP__S1P__Array_create(interpreter);
 
-%method postcircumfix:[ ]
-  SMOP__Object* index = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+%method postcircumfix:[ ](index)
   int i = SMOP__NATIVE__int_fetch(index);
 
   SMOP_RELEASE(interpreter,index);
@@ -83,10 +82,8 @@ static int floor_log2(unsigned int n) {
 
 
 
-%method unshift
+%method unshift(value)
     smop_s1p_array_struct* array = ((smop_s1p_array_struct*)invocant);
-
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
 
     SMOP__S1P__Array_set_elems(interpreter, invocant, array->elems + 1);
     memmove(array->content+1, array->content, (array->elems-1) * sizeof(void*));
@@ -105,10 +102,9 @@ static int floor_log2(unsigned int n) {
 %method elems
     ret = SMOP__NATIVE__int_create(SMOP__S1P__Array_get_elems(interpreter,invocant));
 
-%method push
+%method push(value)
     smop_s1p_array_struct* array = ((smop_s1p_array_struct*)invocant);
 
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
     SMOP__S1P__Array_set_elems(interpreter, invocant, array->elems + 1);
     array->content[array->elems-1] = value;
 

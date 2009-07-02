@@ -161,7 +161,7 @@
   SvREFCNT_dec(((smop_p5_sv_struct*)invocant)->sv); 
   SMOP_RELEASE(interpreter,((smop_p5_sv_struct*)invocant)->p5interpreter); 
 
-%method postcircumfix:( )
+%method postcircumfix:( )()
 
   assert(SMOP__NATIVE__capture_positional_count(interpreter,capture) == 2);
   SMOP__Object* real_capture = SMOP__NATIVE__capture_positional(interpreter,capture,1);
