@@ -28,6 +28,11 @@
     str[j++] = '\'';
     return SMOP__NATIVE__idconst_createn(str,len+escapes+2);
 
+%method bytes
+    int len;
+    SMOP__NATIVE__idconst_fetch(invocant,&len);
+    ret = SMOP__NATIVE__int_create(len);
+
 %init {
   SMOP__ID__FETCH->RI->MESSAGE = ((SMOP__ResponderInterface*)RI)->MESSAGE;
   empty_idconst = SMOP__NATIVE__idconst_create("");
