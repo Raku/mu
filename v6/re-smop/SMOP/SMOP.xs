@@ -78,7 +78,7 @@ MODULE = SMOP       PACKAGE = SMOP::NATIVE::bool
 SV*
 true(...)
   CODE:
-    SV* pointer = newSViv((IV)SMOP__NATIVE__bool_true);
+    SV* pointer = newSViv(PTR2IV(SMOP__NATIVE__bool_true));
     SV* object = newRV_noinc(pointer);
     HV* class = gv_stashpv("SMOP::Object", 0);
     RETVAL = sv_bless(object, class);
@@ -88,7 +88,7 @@ true(...)
 SV*
 false(...)
   CODE:
-    SV* pointer = newSViv((IV)SMOP__NATIVE__bool_false);
+    SV* pointer = newSViv(PTR2IV(SMOP__NATIVE__bool_false));
     SV* object = newRV_noinc(pointer);
     HV* class = gv_stashpv("SMOP::Object", 0);
     RETVAL = sv_bless(object, class);
@@ -98,7 +98,7 @@ false(...)
 int fetch(SV* self)
   CODE:
     SV* value = SvRV(self);
-    SMOP__Object* object = (SMOP__Object*)SvIV(value);
+    SMOP__Object* object = INT2PTR(SMOP__Object*,SvIV(value));
     RETVAL = (object != SMOP__NATIVE__bool_false);
   OUTPUT:
     RETVAL
@@ -108,7 +108,7 @@ MODULE = SMOP       PACKAGE = SMOP::NATIVE::int
 SV*
 create(SV* p5class, int i)
   CODE:
-    SV* pointer = newSViv((IV)SMOP__NATIVE__int_create(i));
+    SV* pointer = newSViv(PTR2SV(SMOP__NATIVE__int_create(i)));
     SV* object = newRV_noinc(pointer);
     HV* class = gv_stashpv("SMOP::Object", 0);
     RETVAL = sv_bless(object, class);
@@ -130,7 +130,7 @@ MODULE = SMOP       PACKAGE = SMOP::NATIVE::idconst
 SV*
 create(SV* p5class, char* val)
   CODE:
-    SV* pointer = newSViv((IV)SMOP__NATIVE__idconst_create(val));
+    SV* pointer = newSViv(PTR2SV(SMOP__NATIVE__idconst_create(val)));
     SV* object = newRV_noinc(pointer);
     HV* class = gv_stashpv("SMOP::Object", 0);
     RETVAL = sv_bless(object, class);
@@ -141,7 +141,7 @@ char*
 fetch(SV* self)
   CODE:
     SV* value = SvRV(self);
-    SMOP__Object* object = (SMOP__Object*)SvIV(value);
+    SMOP__Object* object = INT2PTR(SMOP__Object*,SvIV(value));
     if (SMOP_RI(object) == SMOP_RI(SMOP__ID__goto)) {
         int retsize;
         RETVAL = SMOP__NATIVE__idconst_fetch_with_null(object, &retsize);
