@@ -11,7 +11,6 @@
 
 SMOP__Object* SMOP__Mold;
 SMOP__Object* SMOP__Mold__Frame;
-static SMOP__ResponderInterface* metaRI;
 
 static SMOP__Object* SMOP__ID__set_regs;
 
@@ -482,7 +481,7 @@ void smop_mold_init() {
 
 
   SMOP__Mold = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
-  SMOP__Mold->RI = metaRI;
+  SMOP__Mold->RI = SMOP__metaRI;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->MESSAGE = smop_mold_message;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->DESTROYALL = smop_mold_DESTROYALL;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->REFERENCE = smop_nagc_reference;
