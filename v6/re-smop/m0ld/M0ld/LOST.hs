@@ -21,7 +21,7 @@ emitStmt regs labels (i,c) stmt =
             "SMOP_DISPATCH(\n" ++ (indent 2 $ "interpreter,\nSMOP_RI(" ++ reg invocant ++ "),\n" ++
              reg identifier ++ 
              ",\nSMOP__NATIVE__capture_create(interpreter," ++
-                list (invocant:positional)
+                list (invocant:positional) ++ ","
                 ++ list named ++
              ")\n" ) ++ ");\n" ++
         "break;\n"
@@ -50,7 +50,7 @@ emitStmt regs labels (i,c) stmt =
 
 emitFunc (prefix,id) regMap labelsMap stmts = let 
     name = prefix++(show id) in
-    ("static void " ++ name ++ "(SMOP__Object* interpreter,SMOP__LOST__Frame* frame) {\n" ++
+    ("static void " ++ name ++ "(SMOP__Object* interpreter,SMOP__Yeast__Frame* frame) {\n" ++
     "  switch (frame->pc) {\n" ++
     (indent 4 $ snd $ foldl (emitStmt regMap labelsMap) (0,"") stmts) ++
     "  }\n" ++ 
@@ -73,8 +73,8 @@ compileToLOST prefix stmts =
         freeRegs  = countRegister stmts
         (functions,constants,prefix') = dumpConstantsToC prefix stmts 
         (funcBody,funcName,prefix'') = emitFunc prefix' regMap labelsMap stmts
-        in (funcBody:functions,"SMOP__LOST_create(" ++ show freeRegs ++ "," ++ constants ++ ","
-        ++ funcName ++ "})",prefix'')
+        in (funcBody:functions,"SMOP__Yeast_create(" ++ show freeRegs ++ "," ++ constants ++ ","
+        ++ funcName ++ ")",prefix'')
 dumpConstantsToC prefix stmts = 
     wrap "(SMOP__Object*[]) {" "NULL}" $ foldl dumpConstantToC ([],"",prefix) stmts
 

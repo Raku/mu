@@ -148,19 +148,6 @@ static void smop_mold_DESTROYALL(SMOP__Object* interpreter,
   free(mold->constants);
   free(mold->opcodes);
 }
-static SMOP__Object* smop_mold_message(SMOP__Object* interpreter,
-                                     SMOP__ResponderInterface* self,
-                                     SMOP__Object* identifier,
-                                     SMOP__Object* capture) {
-  /*___NATIVE_CAPTURE_ONLY___;
-  ___CONST_IDENTIFIER_ONLY___;
-  ___INVOCANT_RI_SHOULD_MATCH___;*/
-
-  ___UNKNOWN_METHOD___;
-
-  SMOP_RELEASE(interpreter,capture);
-  return SMOP__NATIVE__bool_false;
-}
 
 static SMOP__Object* get_register(SMOP__Object* interpreter,smop_mold_frame* frame) {
   smop_mold* mold = (smop_mold*) frame->mold;
@@ -482,7 +469,7 @@ void smop_mold_init() {
 
   SMOP__Mold = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
   SMOP__Mold->RI = (SMOP__ResponderInterface*)SMOP__metaRI;
-  ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->MESSAGE = smop_mold_message;
+  ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->MESSAGE = smop_placeholder_message;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->DESTROYALL = smop_mold_DESTROYALL;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->REFERENCE = smop_nagc_reference;
   ((SMOP__NAGC__ResponderInterface*)SMOP__Mold)->RELEASE = smop_nagc_release;
