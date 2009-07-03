@@ -129,17 +129,66 @@ dumpLOSTConstantToC fcp _ = fcp
 
 
 
+indent depth code = unlines $ map indentLine $ lines code where
+    indentLine "" = ""
+    indentLine line = (take depth $ repeat ' ') ++ line
 
-emitLOSTBody (prefix,id) stmts = let 
+emitLOSTStmt regs labels (i,c) stmt =
+    let emit code = (i+1,c ++ "case "++ (show i) ++ ":\n" ++ indent 2 code) 
+        reg r = "frame->registers[" ++ (show $ resolveReg r regs) ++ "]" in
+    case stmt of
+    Call target identifier (Capture invocant positional named) -> emit "frame->pc++;\ncall;\nbreak \n"
+        --let reg r = resolveReg r regs
+        --    args x = [length x] ++ map reg x
+        --    in [1,reg target,reg invocant,reg identifier] ++ args positional ++ args named
+
+    --Call2 target responder identifier capture ->
+    --    map (\r -> resolveReg r regs) [target,responder,identifier,capture]
+
+    Goto label -> emit $ "frame->pc = "++(show $ resolveLabelDef label labels) ++ "\n"
+
+    Br value iftrue iffalse ->
+        emit $ "frame->pc = " ++
+        reg value
+         ++
+        " == SMOP__NATIVE__bool_false ? " ++
+        (show $ resolveLabelDef iffalse labels) ++
+        " : " ++
+        (show $ resolveLabelDef iftrue labels) ++
+        ";\n" ++
+        "break;\n"
+
+    LabelDef label -> (i,c)
+
+    Decl reg value -> (i,c)
+
+    Assign lvalue rvalue -> emit $ reg lvalue ++ " = " ++ reg rvalue ++ ";\n"
+
+emitLOSTBody (prefix,id) regMap labelsMap stmts = let 
     name = prefix++(show id) in
-    ("static void " ++ name ++ "(...) {...}\n",name,(prefix,id+1))
+    ("static void " ++ name ++ "(SMOP__Object* interpreter,SMOP__LOST__Frame* frame) {\n" ++
+    "  switch (frame->pc) {\n" ++
+    (indent 4 $ snd $ foldl (emitLOSTStmt regMap labelsMap) (0,"") stmts) ++
+    "  }\n" ++ 
+    "}\n",name,(prefix,id+1))
+
+
+stmtSize (Decl _ _) = 0
+stmtSize (LabelDef _) = 0
+stmtSize _ = 1
+
+mapLabelsLOST :: [Stmt] -> LabelsMap
+mapLabelsLOST stmts = fst $ foldl addLabelDefLOST (Map.empty,0) stmts
+
+addLabelDefLOST (labels,offset) (LabelDef label) = (Map.insert label offset labels,offset)
+addLabelDefLOST (labels,offset) stmt = (labels,offset+stmtSize stmt)
+
 compileToLOST prefix stmts =
-    let labelsMap = mapLabels stmts
+    let labelsMap = mapLabelsLOST stmts
         regMap    = mapRegisters stmts
         freeRegs  = countRegister stmts
-        bytecode  = emit stmts regMap labelsMap
         (functions,constants,prefix') = dumpLOSTConstantsToC prefix stmts 
-        (funcBody,funcName,prefix'') = emitLOSTBody prefix' stmts
+        (funcBody,funcName,prefix'') = emitLOSTBody prefix' regMap labelsMap stmts
         in (funcBody:functions,"SMOP__LOST_create(" ++ show freeRegs ++ "," ++ constants ++ ","
         ++ funcName ++ "})",prefix'')
 
