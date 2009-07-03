@@ -21,11 +21,16 @@ eval code = putStrLn "--exec use ./Setup configure --user --flags=SMOP"
 #endif
 main = do
     args <- getArgs
-    let (options,nonoptions,errors) =  getOpt RequireOrder [Option [] ["print-bytecode"] (NoArg "print-bytecode") "print resulting mold bytecode in a human readable form",Option [] ["exec"] (NoArg "exec") "execute the m0ld"] args 
+    let (options,nonoptions,errors) =  getOpt RequireOrder [Option [] ["print-bytecode"] (NoArg "print-bytecode") "print resulting mold bytecode in a human readable form", Option [] ["exec"] (NoArg "exec") "execute the m0ld",Option [] ["lost"] (NoArg "lost") "compile down to a LOST frame" ] args 
     mapM putStr errors
     hFlush stdout
     code <- getContents
-    if elem "print-bytecode" options
-        then putStrLn $ prettyPrintBytecode "" $ parseM0ld code
-        else if elem "exec" options then eval code
-        else putStrLn $ dumpToC $ parseM0ld code
+    if elem "lost" options
+        then let 
+            (funcs,lost,_) = compileToLOST ("foo",0) $ parseM0ld code in
+            putStrLn $ (concat funcs) ++ lost
+
+        else if elem "print-bytecode" options
+            then putStrLn $ prettyPrintBytecode "" $ parseM0ld code
+            else if elem "exec" options then eval code
+            else putStrLn $ dumpToC $ parseM0ld code

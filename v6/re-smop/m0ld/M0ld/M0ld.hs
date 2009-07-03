@@ -114,6 +114,35 @@ dumpToC stmts =
         ++ (joinStr "," $ map show bytecode)
         ++ "})"
 
+wrap a b (f,c,p) = (f,a++c++b,p)
+
+dumpLOSTConstantsToC prefix stmts = 
+    wrap "(SMOP__Object*[]) {" "NULL}" $ foldl dumpLOSTConstantToC ([],"",prefix) stmts
+
+dumpLOSTConstantToC (f,c,p) (Decl reg (SubMold stmts)) = let 
+    (f',c',p') = compileToLOST p stmts in
+    (f++f',c++c'++",",p')
+
+dumpLOSTConstantToC  (f,c,p) (Decl reg constant) = (f,c++dumpConstantToC constant,p)
+
+dumpLOSTConstantToC fcp _ = fcp 
+
+
+
+
+emitLOSTBody (prefix,id) stmts = let 
+    name = prefix++(show id) in
+    ("static void " ++ name ++ "(...) {...}\n",name,(prefix,id+1))
+compileToLOST prefix stmts =
+    let labelsMap = mapLabels stmts
+        regMap    = mapRegisters stmts
+        freeRegs  = countRegister stmts
+        bytecode  = emit stmts regMap labelsMap
+        (functions,constants,prefix') = dumpLOSTConstantsToC prefix stmts 
+        (funcBody,funcName,prefix'') = emitLOSTBody prefix' stmts
+        in (funcBody:functions,"SMOP__LOST_create(" ++ show freeRegs ++ "," ++ constants ++ ","
+        ++ funcName ++ "})",prefix'')
+
 prettyPrintConstant :: [Char] -> Value -> [Char]
 prettyPrintConstant indent value = case value of
     StringConstant str -> (show str) ++ "\n"
