@@ -16,12 +16,21 @@ sub preprocess_m0ld {
     my $code = shift;
     return preprocess($code,"$m0ld");
 }
+sub preprocess_lost_funcs {
+    my $code = shift;
+    return preprocess($code,$m0ld,"--lost-funcs");
+}
+sub preprocess_lost_create {
+    my $code = shift;
+    return preprocess($code,$m0ld,"--lost-create");
+}
 sub preprocess {
     my $code = shift;
     my ($writer, $reader);
     my $pid = open2($reader,$writer,@_) || die "$@";
     print $writer $code;
     close($writer);
+    local $/ = '';
     my $out = <$reader>;
     return $out;
 }
@@ -38,6 +47,9 @@ my $method;
 
 my %mold;
 my $mold;
+
+my %lost_molds;
+my $lost_mold;
 
 my @attrs;
 my @getters;
@@ -76,6 +88,15 @@ while (my $line = <>) {
             $mold{$mold} .= $line;
             next;
         }
+    } elsif ($lost_mold) {
+        if ($line =~ /^%/) {
+            undef $lost_mold;
+            redo;
+        } else {
+            debug "in lost_mold $line";
+            $lost_molds{$lost_mold} .= $line;
+            next;
+        }
     } elsif ($line =~ /^%method \s* (.*?) (?: \( ([^(]*) \) )?$/x) {
         $method = $1;
         my $sig = $2;
@@ -92,6 +113,9 @@ while (my $line = <>) {
     } elsif ($line =~ /^%mold\s*(.*)$/) {
         $mold = $1;
         debug "mold start:$mold\n";
+    } elsif ($line =~ /^%lost_mold\s*(.*)$/) {
+        $lost_mold = $1;
+        debug "mold start:$lost_mold\n";
     } elsif ($line =~ /^%attr\s*(.*)\n$/) {
         push(@attrs,$1);
     } elsif ($line =~ /^%idconst\s*(.*)\n$/) {
@@ -166,6 +190,9 @@ for (@idconsts) {
 }
 
 for (keys %mold) {
+    print 'static SMOP__Object* ',$_,";\n";
+}
+for (keys %lost_molds) {
     print 'static SMOP__Object* ',$_,";\n";
 }
 print qq[
@@ -296,6 +323,10 @@ print $destroyall;
 
 my $release = $properties{'nagc.nofree'} ? 'smop_nagc_release_nofree' : 'smop_nagc_release';
 
+while (my ($name,$mold) = each %lost_molds) {
+    print preprocess_lost_funcs($mold);
+}
+
 print qq[
 void $properties{prefix}_init(SMOP__Object* interpreter) {
   $RI = SMOP__NAGC__RI__create(
@@ -321,6 +352,10 @@ print $raw{'init'} || '';
 
 while (my ($name,$mold) = each %mold) {
     print "  $name = ",preprocess_m0ld($mold),";\n";
+}
+
+while (my ($name,$mold) = each %lost_molds) {
+    print "  $name = ",preprocess_lost_create($mold),";\n";
 }
 
 print $raw{'init_post_mold'} || '';
