@@ -100,6 +100,20 @@ $LexicalPrelude.{'ModuleLoader'} = ::MildewSOLoader.new.load('ModuleLoader.milde
 
 my $multi_scope = ::MildewSOLoader.new.load('Multi.mildew.so',$LexicalPrelude.FETCH);
 $LexicalPrelude.{'Multi'} = $multi_scope.lookup('Multi');
+
+sub not($thing) {
+    if $thing {
+        ::False;
+    } else {
+        ::True;
+    }
+}
+$LexicalPrelude.{'&prefix:not'} = &not;
+$LexicalPrelude.{'&prefix:!'} = &not;
+$LexicalPrelude.{'&not'} = &not;
+$LexicalPrelude.{'&True'} = sub {::True};
+$LexicalPrelude.{'&False'} = sub {::False};
+
 ::MildewSOLoader.new.load('EXTERNAL.mildew.so',$LexicalPrelude.FETCH);
 
 ::MildewSOLoader.new.load('int.mildew.so',$LexicalPrelude.FETCH);
