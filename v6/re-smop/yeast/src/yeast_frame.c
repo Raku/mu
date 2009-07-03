@@ -10,6 +10,7 @@ static SMOP__NAGC__ResponderInterface* RI;
 
 static SMOP__Object* SMOP__ID__eval;
 static SMOP__Object* SMOP__ID__goto;
+static SMOP__Object* SMOP__ID__setr;
 
 static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
                             SMOP__ResponderInterface* self,
@@ -27,6 +28,19 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
      smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
      step(interpreter,invocant);
      ret = SMOP__NATIVE__bool_true;
+
+  } else if (SMOP__ID__setr == identifier) {
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+
+    if (value == invocant) {
+      SMOP_RELEASE(interpreter, value);
+    }
+    SMOP__Object** target = ((SMOP__Yeast__Frame*)invocant)->ret;
+    if (!target) fprintf(stderr,"calling setr on a frame not expecting a return value\n");
+    if (*target) {
+      SMOP_RELEASE(interpreter,ret);
+    }
+    *target = value;
   } else {
     ___UNKNOWN_METHOD___;
   }
@@ -67,7 +81,7 @@ void yeast_reg_set(SMOP__Object* interpreter,SMOP__Object* yeastframe, int regnu
     SMOP__Yeast* yeast = (SMOP__Yeast*) frame->yeast;
     int where = yeast->constants_len+regnum;
     SMOP__Object* old = frame->reg[where];
-    printf("setting %d to %s\n",where,value->RI->id);
+//    printf("setting %d to %s\n",where,value->RI->id);
     frame->reg[where] = value;
     if (old) {
       SMOP_RELEASE(interpreter, old);
@@ -77,6 +91,7 @@ void yeast_reg_set(SMOP__Object* interpreter,SMOP__Object* yeastframe, int regnu
 void smop_yeast_frame_init() {
   SMOP__ID__eval = SMOP__NATIVE__idconst_create("eval");
   SMOP__ID__goto = SMOP__NATIVE__idconst_create("goto");
+  SMOP__ID__setr = SMOP__NATIVE__idconst_create("setr");
   RI = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
   RI->RI = (SMOP__NAGC__ResponderInterface*)SMOP__metaRI;
   ((SMOP__NAGC__ResponderInterface*)RI)->MESSAGE = MESSAGE;
