@@ -62,6 +62,7 @@
   SMOP_RELEASE(SMOP__EmptyInterpreter,interpreter);
 
 
+  smop_yeast_destr();
   smop_mold_destr();
   smop_interpreter_destr();
   smop_capture_destr();

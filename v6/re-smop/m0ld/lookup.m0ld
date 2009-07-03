@@ -1,0 +1,27 @@
+my $capture;
+my $back;
+my $interpreter;
+
+my $name = $capture."positional"(1);
+my $invocant = $capture."positional"(0);
+my $exists = $invocant."exists"($name);
+
+my $void;
+my $ret;
+
+if $exists {goto than} else {goto else};
+than:
+  $ret = $invocant."postcircumfix:{ }"($name);
+  $void = $back."setr"($ret);
+  $void = $interpreter."goto"($back);
+else:
+  my $outer = $invocant."outer"();
+  my $outer_true = $outer."true"();
+  my $outer_cell = $outer."FETCH"();
+  if $outer_true {goto than2} else {goto else2};
+  than2:
+    $ret = $outer_cell."lookup"($name);
+    $void = $back."setr"($ret);
+    $void = $interpreter."goto"($back);
+  else2:
+    $void = $invocant."lookup_fail"($name);

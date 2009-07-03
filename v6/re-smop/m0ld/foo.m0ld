@@ -1,0 +1,7 @@
+my $foo;
+my $bar;
+foo: $foo = $bar;
+foo2: $foo = $bar;
+my $baz;
+baz: $baz = $bar;
+if $baz {goto foo2} else {goto baz}

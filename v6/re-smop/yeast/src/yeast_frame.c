@@ -3,6 +3,7 @@
 #include <smop/nagc.h>
 #include <smop/yeast.h>
 #include <smop/capture.h>
+#include <smop/util.h>
 #include <stdlib.h>
 
 static SMOP__NAGC__ResponderInterface* RI;
@@ -27,7 +28,7 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
      step(interpreter,invocant);
      ret = SMOP__NATIVE__bool_true;
   } else {
-    /*___UNKNOWN_METHOD___;*/
+    ___UNKNOWN_METHOD___;
   }
   SMOP_RELEASE(interpreter,invocant);
   SMOP_RELEASE(interpreter,capture);
@@ -44,6 +45,7 @@ SMOP__Object* SMOP__Yeast__Frame_create(SMOP__Object* interpreter,SMOP__Object* 
     SMOP__Yeast__Frame* ret = (SMOP__Yeast__Frame*) smop_nagc_alloc(sizeof(SMOP__Yeast__Frame));
     ret->RI = (SMOP__ResponderInterface*)RI;
     ret->step = yeast->step;
+    ret->yeast = yeast_object;
 
     ret->pc = 0;
     ret->back = NULL;
@@ -58,6 +60,18 @@ SMOP__Object* SMOP__Yeast__Frame_create(SMOP__Object* interpreter,SMOP__Object* 
     }
 
     return (SMOP__Object*) ret;
+}
+
+void yeast_reg_set(SMOP__Object* interpreter,SMOP__Object* yeastframe, int regnum, SMOP__Object* value) {
+    SMOP__Yeast__Frame* frame = (SMOP__Yeast__Frame*) yeastframe;
+    SMOP__Yeast* yeast = (SMOP__Yeast*) frame->yeast;
+    int where = yeast->constants_len+regnum;
+    SMOP__Object* old = frame->reg[where];
+    printf("setting %d to %s\n",where,value->RI->id);
+    frame->reg[where] = value;
+    if (old) {
+      SMOP_RELEASE(interpreter, old);
+    }
 }
 
 void smop_yeast_frame_init() {

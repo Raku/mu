@@ -28,6 +28,7 @@ SMOP__Object* SMOP__Yeast_create(int registers,SMOP__Object** constants,void (*s
 
 static void DESTROYALL(SMOP__Object* interpreter,
                               SMOP__Object* value) {
+  printf("DESTORYing YEAST\n");
   SMOP__Yeast* yeast = (SMOP__Yeast*)value;
   int i;
   for (i=0;i <= yeast->constants_len;i++) {
@@ -45,8 +46,10 @@ void smop_yeast_init() {
   ((SMOP__NAGC__ResponderInterface*)RI)->REFERENCE = smop_nagc_reference;
   ((SMOP__NAGC__ResponderInterface*)RI)->RELEASE = smop_nagc_release;
   ((SMOP__NAGC__ResponderInterface*)RI)->id = "yeast";
+  smop_yeast_frame_init();
 }
 
 void smop_yeast_destr() {
+  smop_yeast_frame_destr();
   free(RI);
 }

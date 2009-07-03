@@ -9,6 +9,7 @@ typedef struct SMOP__Yeast__Frame {
   SMOP__Object* back;
   SMOP__Object** ret;
   SMOP__Object** reg;
+  SMOP__Object* yeast;
   int pc;
   void (*step)(SMOP__Object* interpreter,
               SMOP__Object* frame);
@@ -30,5 +31,7 @@ void smop_yeast_destr();
 
 void smop_yeast_frame_init();
 void smop_yeast_frame_destr();
+
+void yeast_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum, SMOP__Object* value);
 
 #endif

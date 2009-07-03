@@ -12,7 +12,7 @@ indent depth code = unlines $ map indentLine $ lines code where
 emitStmt regs labels (i,c) stmt =
     let emit code = (i+1,c ++ "case "++ (show i) ++ ":\n" ++ indent 2 code) 
         reg r = "frame->reg[" ++ (show $ resolveReg r regs) ++ "]" 
-        list regs = "(SMOP__Object*[]) {" ++ (concat $ map (\r -> reg r ++ ",") regs) ++ "NULL}" in
+        list regs = "(SMOP__Object*[]) {" ++ (concat $ map (\r -> "SMOP_REFERENCE(interpreter," ++ reg r ++ "),") regs) ++ "NULL}" in
     case stmt of
     Call target identifier (Capture invocant positional named) -> emit $ 
         "frame->pc = " ++ (show $ i+1) ++ ";\n" ++
