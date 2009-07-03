@@ -1,5 +1,6 @@
 #include <smop/base.h>
 #include <smop/s0native.h>
+#include <smop/p5.h>
 #include <stdio.h>
 void smop_p5_init(SMOP__Object* interpreter) {
   smop_p5interpreter_init(interpreter);

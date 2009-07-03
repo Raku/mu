@@ -14,4 +14,7 @@ void smop_p6opaque_destr(SMOP__Object* interpreter);
 void smop_p6opaque_default_how_init(SMOP__Object* interpreter);
 void smop_p6opaque_default_how_destr(SMOP__Object* interpreter);
 
+void smop_p6opaque_proto_storage_init(SMOP__Object* interpreter);
+void smop_p6opaque_proto_storage_destr(SMOP__Object* interpreter);
+
 #endif

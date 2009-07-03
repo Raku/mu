@@ -52,6 +52,9 @@ void smop_s1p_loader_destr(SMOP__Object* interpreter);
 void smop_s1p_adhocsignature_init(SMOP__Object* interpreter);
 void smop_s1p_adhocsignature_destr(SMOP__Object* interpreter);
 
+void smop_s1p_signatures_init(SMOP__Object* interpreter);
+void smop_s1p_signatures_destr(SMOP__Object* interpreter);
+
 void smop_s1p_array_init(SMOP__Object* interpreter);
 void smop_s1p_array_destr(SMOP__Object* interpreter);
 
@@ -59,8 +62,13 @@ void smop_s1p_array_proxy_init(SMOP__Object* interpreter);
 void smop_s1p_array_proxy_destr(SMOP__Object* interpreter);
 
 void smop_s1p_out_of_items_exception_init(SMOP__Object* interpreter);
-
 void smop_s1p_out_of_items_exception_destr(SMOP__Object* interpreter);
+
+void control_exception_return_init(SMOP__Object* interpreter);
+void control_exception_return_destr(SMOP__Object* interpreter);
+
+void smop_s1p_ritest_init(SMOP__Object* interpreter);
+void smop_s1p_ritest_destr(SMOP__Object* interpreter);
 
 void smop_s1p_package_init(SMOP__Object* interpreter);
 void smop_s1p_package_destr(SMOP__Object* interpreter);

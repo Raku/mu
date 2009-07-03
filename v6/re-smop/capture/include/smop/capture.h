@@ -8,6 +8,7 @@ SMOP__Object* SMOP__NATIVE__capture_create_from_capture(SMOP__Object* interprete
 int SMOP__NATIVE__capture_positional_count(SMOP__Object* interpreter,SMOP__Object* capture);
 int SMOP__NATIVE__capture_named_count(SMOP__Object* interpreter,SMOP__Object* capture);
 SMOP__Object* SMOP__NATIVE__capture_named(SMOP__Object* interpreter,SMOP__Object* capture,SMOP__Object* key);
+SMOP__Object* SMOP__NATIVE__capture_delegate(SMOP__Object* interpreter,SMOP__Object* capture,SMOP__Object* invocant);
 void smop_capture_init(void);
 void smop_capture_destr(void);
 #endif

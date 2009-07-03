@@ -126,7 +126,7 @@ void smop_idconst_init() {
   SMOP__NATIVE__idconst_RI->RELEASE = smop_noop_release;
   SMOP__NATIVE__idconst_RI->WEAKREF = smop_noop_weakref;
   SMOP__NATIVE__idconst_RI->id = "Constant Identifier";
-  SMOP__NATIVE__idconst_RI->RI = SMOP__metaRI;
+  SMOP__NATIVE__idconst_RI->RI = (SMOP__ResponderInterface *)SMOP__metaRI;
 
   qsort(constlist, constlist_size, sizeof(SMOP__Object*), cmp_idconst);
 

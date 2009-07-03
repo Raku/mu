@@ -103,7 +103,7 @@
 %method new
 
   ret =  smop_nagc_alloc(sizeof(smop_p5interpreter_struct));
-  ret->RI = RI;
+  ret->RI = (SMOP__ResponderInterface*)RI;
   PERL_SYS_INIT3(0,NULL,NULL);
   PerlInterpreter* my_perl = perl_alloc();
   PERL_SET_CONTEXT(my_perl);

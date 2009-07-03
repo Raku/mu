@@ -51,7 +51,7 @@ static int step(SMOP__Object* interpreter,
     break;
   case 2:
     frame->pc++;
-    %%FREE%%
+    smop_nagc_free((SMOP__NAGC__Object*)invocant);
     return 0;
   };
   return 1;
@@ -61,14 +61,14 @@ static void destr(SMOP__Object* interpreter,
                  SMOP__Object* frame) {
 }
 static void DESTROYALL(SMOP__Object* interpreter,
-                              SMOP__Object* invocant) {
+                              SMOP__Object* object) {
 
   SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
     SMOP__ID__continuation,
     SMOP__NATIVE__capture_create(interpreter,
       (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
       (SMOP__Object*[]) {NULL}));
-  SMOP__Object* frame = SMOP__LOST__Frame_create(interpreter,continuation,invocant,step,destr);
+  SMOP__Object* frame = SMOP__LOST__Frame_create(interpreter,continuation,object,step,destr);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter), SMOP__ID__goto,SMOP__NATIVE__capture_create(interpreter,(SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter), frame, NULL}, (SMOP__Object*[]) {NULL}));
 

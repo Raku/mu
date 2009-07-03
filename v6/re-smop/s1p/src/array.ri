@@ -54,6 +54,8 @@ SMOP__Object* SMOP__S1P__Array_get_elem(SMOP__Object* interpreter,SMOP__Object* 
    return ((smop_s1p_array_struct*)array)->content[i];
 }
 
+#if 0
+
 static int floor_log2(unsigned int n) {
   int pos = 0;
   if (n >= 1<<16) { n >>= 16; pos += 16; }
@@ -63,6 +65,8 @@ static int floor_log2(unsigned int n) {
   if (n >= 1<< 1) {           pos +=  1; }
   return ((n == 0) ? (-1) : pos);
 }
+
+#endif
 
 /*
   } else if (identifier == SMOP__ID__Iterator) {

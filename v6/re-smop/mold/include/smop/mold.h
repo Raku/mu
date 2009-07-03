@@ -15,6 +15,8 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* m
 void mold_reg_set(SMOP__Object* interpreter,SMOP__Object* moldframe, int regnum, SMOP__Object* value);
 void mold_back_set(SMOP__Object* interpreter,SMOP__Object* moldframe, SMOP__Object* value);
 
+void smop_mold_message_init(SMOP__Object* interpreter);
+void smop_mold_message_destr(SMOP__Object* interpreter);
 void smop_mold_init();
 void smop_mold_destr();
 #endif

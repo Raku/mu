@@ -41,4 +41,7 @@ char* SMOP__NATIVE__idconst_fetch_with_null(SMOP__Object* value,int* retsize);
 SMOP__Object* smop_noop_weakref(SMOP__Object* interpreter,
                                   SMOP__ResponderInterface* responder,
                                   SMOP__Object* obj); 
+
+void smop_metaRI_init();
+void smop_metaRI_destr();
 #endif

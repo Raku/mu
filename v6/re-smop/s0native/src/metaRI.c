@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <smop/base.h>
 #include <smop/s0native.h>
 SMOP__Object* SMOP__metaRI;
@@ -8,8 +9,8 @@ void smop_metaRI_init() {
   ri->RELEASE = smop_noop_release;
   ri->WEAKREF = smop_noop_weakref;
   ri->id = "non-gc meta-RI";
-  ri->RI = SMOP__metaRI;
-  SMOP__metaRI = ri;
+  ri->RI = (SMOP__ResponderInterface*)SMOP__metaRI;
+  SMOP__metaRI = (SMOP__Object*)ri;
 }
 
 void smop_metaRI_destr() {

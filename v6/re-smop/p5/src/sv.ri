@@ -60,10 +60,10 @@
       SMOP_RELEASE(interpreter,object);
       return SvREFCNT_inc(ret);
     } else {
-      SV* pointer = newSViv((int)object);
+      SV* pointer = newSViv(PTR2IV(object));
       HV* class = gv_stashpv("SMOP::Object", GV_ADD);
       struct ufuncs uf;
-      uf.uf_index = (int)object;
+      uf.uf_index = PTR2IV(object);
       uf.uf_set = &magic_STORE;
       uf.uf_val = &magic_FETCH;
       SV* sv = sv_bless(newRV_noinc(pointer), class);

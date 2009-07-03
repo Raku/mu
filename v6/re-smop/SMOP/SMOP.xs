@@ -10,6 +10,7 @@
 #include <smop/s0native.h>
 #include <smop/mold.h>
 #include <smop/p5.h>
+#include <smop/capture.h>
 
 SMOP__Object* SMOP__ID__goto;
 SMOP__Object* SMOP__ID__setr;
@@ -108,7 +109,7 @@ MODULE = SMOP       PACKAGE = SMOP::NATIVE::int
 SV*
 create(SV* p5class, int i)
   CODE:
-    SV* pointer = newSViv(PTR2SV(SMOP__NATIVE__int_create(i)));
+    SV* pointer = newSViv(PTR2IV(SMOP__NATIVE__int_create(i)));
     SV* object = newRV_noinc(pointer);
     HV* class = gv_stashpv("SMOP::Object", 0);
     RETVAL = sv_bless(object, class);
@@ -130,7 +131,7 @@ MODULE = SMOP       PACKAGE = SMOP::NATIVE::idconst
 SV*
 create(SV* p5class, char* val)
   CODE:
-    SV* pointer = newSViv(PTR2SV(SMOP__NATIVE__idconst_create(val)));
+    SV* pointer = newSViv(PTR2IV(SMOP__NATIVE__idconst_create(val)));
     SV* object = newRV_noinc(pointer);
     HV* class = gv_stashpv("SMOP::Object", 0);
     RETVAL = sv_bless(object, class);
