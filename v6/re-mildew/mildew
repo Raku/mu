@@ -148,7 +148,7 @@ BOILERPLATE_FRONT
 }
 BOILERPLATE_BACK
     close($c_fh);
-    system("gcc","-g","-xc","-L../../smop/build/lib",@MILDEW_LDOPTS,@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
+    system("gcc","-fPIC","-g","-xc","-L../../smop/build/lib",@MILDEW_LDOPTS,@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
 }
 sub output {
     my ($what,$where) = @_;
