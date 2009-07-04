@@ -75,37 +75,4 @@ plan 22;
   ok ?$y, "'real refs' always booleanify to true (2)";
 }
 
-=begin more-discussion-needed
-
-# Tests for &tied.
-{
-  my @x = (1,2,3);
-  my $y = \@x;
-
-  ok !tied($y).isa("Array"), "tied with 'fake refs' (1)";
-  ok  tied($y).isa("Ref"),   "tied with 'fake refs' (2)";
-  dies_ok { +tied($y) },     "tied with 'fake refs' (3)";
-  dies_ok { ~tied($y) },     "tied with 'fake refs' (4)";
-  ok ?tied($y),              "tied with 'fake refs' (5)";
-
-  @x = ();
-  ok ?tied($y),              "tied with 'fake refs' (6)";
-}
-
-{
-  my $x = 3;
-  my $y = \$x;
-
-  ok !tied($y).isa("Array"), "tied with 'real refs' (1)";
-  ok  tied($y).isa("Ref"),   "tied with 'real refs' (2)";
-  dies_ok { +tied($y) },     "tied with 'real refs' (3)";
-  dies_ok { ~tied($y) },     "tied with 'real refs' (4)";
-  ok ?tied($y),              "tied with 'real refs' (5)";
-
-  $x = 0;
-  ok ?tied($y),              "tied with 'real refs' (6)";
-}
-
-=end more-discussion-needed
-
 # vim: ft=perl6
