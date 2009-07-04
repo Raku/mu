@@ -8,7 +8,7 @@ import Debug.Trace
 import System.Console.GetOpt
 import System.Environment
 import M0ld.M0ld (prettyPrintBytecode)
-import M0ld.LOST (compileToLOST)
+import M0ld.Yeast (compileToYeast)
 import M0ld.C (dumpToC)
 import M0ld.AST
 import M0ld.Parser
@@ -23,19 +23,19 @@ eval code = putStrLn "--exec use ./Setup configure --user --flags=SMOP"
 #endif
 spec = [("print-bytecode","print resulting mold bytecode in a human readable form"),
             ("exec","execute the m0ld"),
-            ("lost-funcs","compile down to a LOST frame (the functions for the frame)"),
-            ("lost-create","compile down to a LOST frame (the expression to create the frame)")]
+            ("yeast-funcs","compile down to a yeast frame (the functions for the frame)"),
+            ("yeast-create","compile down to a yeast frame (the expression to create the frame)")]
 main = do
     args <- getArgs
     let (options,nonoptions,errors) = getOpt RequireOrder (map (\(opt,desc) -> Option [] [opt] (NoArg opt) desc) spec) args
     mapM putStr errors
     hFlush stdout
     code <- getContents
-    if elem "lost-create" options then let 
-            (funcs,lost,_) = compileToLOST ("foo",0) $ parseM0ld code in
+    if elem "yeast-create" options then let 
+            (funcs,lost,_) = compileToYeast ("foo",0) $ parseM0ld code in
             putStrLn lost
-        else if elem "lost-funcs" options then let 
-            (funcs,lost,_) = compileToLOST ("foo",0) $ parseM0ld code in
+        else if elem "yeast-funcs" options then let 
+            (funcs,lost,_) = compileToYeast ("foo",0) $ parseM0ld code in
                 putStrLn $ (concat funcs)
         else if elem "print-bytecode" options
         then putStrLn $ prettyPrintBytecode "" $ parseM0ld code

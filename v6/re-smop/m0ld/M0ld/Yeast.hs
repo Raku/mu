@@ -1,4 +1,4 @@
-module M0ld.LOST where
+module M0ld.Yeast where
 import M0ld.AST
 import M0ld.M0ld
 import qualified M0ld.C
@@ -67,7 +67,7 @@ mapLabelsToStmts stmts = fst $ foldl addLabelDef (Map.empty,0) stmts
         addLabelDef (labels,offset) (LabelDef label) = (Map.insert label offset labels,offset)
         addLabelDef (labels,offset) stmt = (labels,offset+stmtSize stmt)
 
-compileToLOST prefix stmts =
+compileToYeast prefix stmts =
     let labelsMap = mapLabelsToStmts stmts
         regMap    = mapRegisters stmts
         freeRegs  = countRegister stmts
@@ -79,7 +79,7 @@ dumpConstantsToC prefix stmts =
     wrap "(SMOP__Object*[]) {" "NULL}" $ foldl dumpConstantToC ([],"",prefix) stmts
 
 dumpConstantToC (f,c,p) (Decl reg (SubMold stmts)) = let 
-    (f',c',p') = compileToLOST p stmts in
+    (f',c',p') = compileToYeast p stmts in
     (f++f',c++c'++",",p')
 
 dumpConstantToC  (f,c,p) (Decl reg constant) = (f,c++M0ld.C.dumpConstantToC constant,p)
