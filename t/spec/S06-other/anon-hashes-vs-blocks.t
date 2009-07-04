@@ -18,6 +18,8 @@ say '$hash<1><4>.WHAT = ', $hash<1><4>.perl;
 
 Also with array refs nested in hash refs.
 
+L<S06/Anonymous hashes vs blocks>
+
 =end pod
 
 plan 5;
@@ -38,5 +40,6 @@ is( $h2<x>[1], '3', 'Second nested element.');
 
 my %foo = (1 => 2);
 my $bar = { %foo };
-is( $bar{1}, 2, '%foo in a block causes hash composing' );
+#?rakudo todo 'block parsing'
+ok $bar ~~ Hash, '%foo in a block causes hash composing';
 
