@@ -4,6 +4,7 @@ use warnings;
 
 use File::Find;
 use Data::Dumper;
+use List::Util qw(min);
 
 
 my %search = (
@@ -57,7 +58,7 @@ for (sort keys %search) {
 print "\n";
 
 @others = reverse sort { $a->[0] <=> $b->[0] } @others;
-for (1..10) {
+for (0..min(12, $#others)) {
     printf "%4d %s\n", $others[$_]->[0], $others[$_]->[1];
 }
 
