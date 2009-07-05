@@ -15,6 +15,12 @@ plan 5;
 # According to lwall, failure is the desired behaviour.  To use latin1
 # in source code, explicitly declare it as such with the `encoding` pragma.
 
+# 2009-07-04: [pmichaud]  Note that the variables below don't
+#   really produce strings with different encodings.  All Str
+#   objects in Perl 6 are Unicode string objects (see S02).
+#   In particular the C<$latin1_encoded> and C<$utf8_encoded> variables
+#   are the same (modulo spaces).
+
 my $latin1_encoded = "(<a b c>) \c187~\c171 (1,2,3)";
 my $ASCII_encoded  = "(<a b c>)    >>~<<    (1,2,3)";
 my $utf8_encoded   = "(<a b c>)     »~«     (1,2,3)";
