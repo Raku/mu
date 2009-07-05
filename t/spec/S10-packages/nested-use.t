@@ -5,7 +5,7 @@ use Test;
 plan 9;
 
 BEGIN {
-   @*INC.unshift('t/oo/class/TestFiles');
+   @*INC.unshift('t/spec/packages');
 }
 
 lives_ok {
