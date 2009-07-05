@@ -32,12 +32,14 @@ is different from
 
   say( (any <foo bar baz>), "Hello World")
 
+L<S03/Changes to Perl 5 operators/"Note that Perl 6 is making a consistent">
+
 =end kwid
 
 my @matching_strings = <foo bar>;
 my @nonmatching_strings = ('fo','foo ', 'foo bar baz', 'oo', 'bar b', 'bar baz');
 
-plan ((+@matching_strings+@nonmatching_strings)*2);
+plan 17;
 
 for @matching_strings -> $str {
   ok( $str ~~ (any <foo bar baz>), "'$str' matches any <foo bar baz>" );
@@ -48,3 +50,8 @@ for @nonmatching_strings -> $str {
   ok( ($str !~~ any <foo bar baz>), "'$str' does not match any <foo bar baz>" );
   ok( $str !~~ any(<foo bar baz>), "'$str' does not match any(<foo bar baz>)" );
 };
+
+#?rakudo todo 'any<a b c> should be parsed as postcircumfix'
+eval_dies_ok 'any<a b c>', 'any<a b c> is illegal';
+
+# vim: ft=perl6
