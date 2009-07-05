@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+my $file = $ARGV[0];
+open(my $boilerplate,"m0ld/m0ld_boilerplate") || die "can't open boilerplate\n";
+open(my $read,"<",$file) || die "can't open file\n";
+local $/;
+my $plate = <$boilerplate>;
+
+my $body = "SMOP__Object* mold = " . <$read> . ";\n" . 
+"SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);";
+
+$plate =~ s/%%FUNCS%%//;
+$plate =~ s/%%BODY%%/$body/;
+close $read;
+open(my $write,">",$file) || die "can't open file\n";
+print $write $plate;

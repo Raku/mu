@@ -49,10 +49,12 @@ emitStmt regs labels (i,c) stmt =
     Assign lvalue rvalue -> emit $ reg lvalue ++ " = " ++ reg rvalue ++ ";\n"
 
 emitFunc (prefix,id) regMap labelsMap stmts = let 
+    (i,cases) = foldl (emitStmt regMap labelsMap) (0,"") stmts
     name = prefix++(show id) in
     ("static void " ++ name ++ "(SMOP__Object* interpreter,SMOP__Yeast__Frame* frame) {\n" ++
     "  switch (frame->pc) {\n" ++
-    (indent 4 $ snd $ foldl (emitStmt regMap labelsMap) (0,"") stmts) ++
+    indent 4 cases ++
+    "case " ++ show i ++ ":" ++ "frame->pc = -1;\n" ++ 
     "  }\n" ++ 
     "}\n",name,(prefix,id+1))
 

@@ -32,8 +32,19 @@ Usage: mildew [switches] [--] [programfile] [arguments]
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting,$x,$target_stage);
-Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions("C=s"=>\$C,"output|o=s"=>\$output,"B=s"=>\$B,'valgrind'=>\$valgrind,'empty-setting'=>\$empty_setting,'debug'=>\$debug,'h|help'=>\$help,'x=s'=>\$x,'target-stage=i'=>\$target_stage) || help;
+my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting,$x,$target_stage,$yeast);
+Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
+    "C=s" => \$C,
+    "output|o=s" => \$output,
+    "B=s" => \$B,
+    'valgrind' => \$valgrind,
+    'empty-setting' => \$empty_setting,
+    'debug' => \$debug,
+    'h|help' => \$help,
+    'x=s' => \$x,
+    'target-stage=i'=>\$target_stage,
+    'yeast' => \$yeast
+) || help;
 help if $help;
 
 my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
@@ -77,10 +88,10 @@ BEGIN {
 }
 
 sub m0ld_to_c {
-    my ($m0ld,) = @_;
+    my ($m0ld,@options) = @_;
     use IPC::Open2;
     local $ENV{LD_LIBRARY_PATH} = '../re-smop/build/lib';
-    open2(my $m0ld_exe_out,my $m0ld_exe_in,"../re-smop/m0ld_exe");
+    open2(my $m0ld_exe_out,my $m0ld_exe_in,"../re-smop/m0ld_exe",@options);
     binmode $m0ld_exe_in, ':utf8';
     print $m0ld_exe_in $m0ld;
     close($m0ld_exe_in);
@@ -89,32 +100,41 @@ sub m0ld_to_c {
     return <$m0ld_exe_out>;
 }
 
+
 sub compile_via_c {
     my ($m0ld,$output) = @_;
     my ($c_fh,$c_file) = tempfile();
     binmode($c_fh,":utf8");
-    open(my $boilerplate_front,"../re-smop/m0ld/m0ld_boilerplate_front") || die "can't open internal file\n";
-    open(my $boilerplate_back,"../re-smop/m0ld/m0ld_boilerplate_back") || die "can't open internal file\n";
-    local $/;
-    print {$c_fh} <$boilerplate_front>;
-    print {$c_fh} m0ld_to_c($m0ld);
-    print {$c_fh} <$boilerplate_back>;
-    close($c_fh);
+    print $c_fh compile_to_c($m0ld);
     system("gcc","-g","-xc","-L../re-smop/build/lib",@SMOP_INCLUDE,@MILDEW_LDOPTS,$c_file,"-o",$output);
 }
 
+sub get_boilerplate {
+    open(my $boilerplate,"../re-smop/m0ld/m0ld_boilerplate") || die "can't open internal file\n";
+    local $/;
+    return scalar <$boilerplate>;
+}
 sub compile_to_c {
     my ($m0ld,$output) = @_;
-    open my $c_fh, '>', $output || die "can't open output file\n";
-    binmode($c_fh,":utf8");
-    open(my $boilerplate_front,"../re-smop/m0ld/m0ld_boilerplate_front") || die "can't open internal file\n";
-    open(my $boilerplate_back,"../re-smop/m0ld/m0ld_boilerplate_back") || die "can't open internal file\n";
-    local $/;
-    print {$c_fh} <$boilerplate_front>;
-    print {$c_fh} m0ld_to_c($m0ld);
-    print {$c_fh} <$boilerplate_back>;
-    close($c_fh);
+    my $boilerplate = get_boilerplate;
+
+    my $body;
+    my $funcs = '';
+
+    if ($yeast) {
+        $body = "SMOP__Object* yeast = " . m0ld_to_c($m0ld,"--yeast-create") . ";\n" . 
+        "SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,yeast);";
+        $funcs = m0ld_to_c($m0ld,"--yeast-funcs");
+    } else {
+        $body = "SMOP__Object* mold = " . m0ld_to_c($m0ld) . ";\n" . 
+        "SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);";
+    }
+
+    $boilerplate =~ s/%%BODY%%/$body/;
+    $boilerplate =~ s/%%FUNCS%%/$funcs/;
+    $boilerplate;
 }
+
 
 sub compile_to_so {
     my ($m0ld,$output) = @_;
@@ -245,9 +265,7 @@ if ($C eq 'via-C') {
 } elsif ($C eq 'm0ld') {
     output($m0ld,$output);
 } elsif ($C eq 'C') {
-    die "-o is required when compiling to C\n" unless $output;
-    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
-    compile_to_c($m0ld,$output);
+    output(compile_to_c($m0ld),$output);
 } elsif ($C) {
     die "unknown backend passed to -C: $C\n";
 }

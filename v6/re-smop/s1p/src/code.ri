@@ -19,19 +19,11 @@
 
 
 %{
-static SMOP__Object* SMOP__Mold__Frame_proto;
 SMOP__Object* SMOP__S1P__Code_create() {
     SMOP__Object* ret = smop_nagc_alloc(sizeof(smop_s1p_code_struct));
     ret->RI = (SMOP__ResponderInterface*)RI;
     return ret;
 }
-%}
-
-%init {
-  SMOP__Mold__Frame_proto = SMOP__Proto__create(SMOP__Mold__Frame);
-%}
-%destr {
-  SMOP_RELEASE(interpreter,SMOP__Mold__Frame_proto);
 %}
 
 %method new
@@ -141,8 +133,7 @@ SMOP__Object* SMOP__S1P__Code_create() {
   set_cc:
    $back = $cc."FETCH"();
   execute:
-  my $frame_proto = ¢SMOP__Mold__Frame_proto;
-  my $frame = $frame_proto."new"($mold);
+  my $frame = $mold."create"();
   $void = $frame."set_regs"($interpreter,$lexical);
   $void = $frame."set_lexical"($lexical);
   $void = $frame."set_back"($back);

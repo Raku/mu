@@ -16,7 +16,7 @@ env.Append(BUILDERS = {'RI' : Builder(action = 'perl  -I../../src/perl6 tools/ri
 
 env.Append(BUILDERS = {'Sm0p' : Builder(action = 'perl sm0p.pl . %s $SOURCE $TARGET' % m0ld_path,suffix='.c',src_suffix = '.sm0p')})
 
-env.Append(BUILDERS = {'M0ld' : Builder(action = 'cat m0ld/m0ld_boilerplate_front > $TARGET;%s < $SOURCE >> $TARGET;cat m0ld/m0ld_boilerplate_back >> $TARGET' % m0ld_path,suffix='.c',src_suffix = '.m0ld')})
+env.Append(BUILDERS = {'M0ld' : Builder(action = '%s < $SOURCE >> $TARGET;perl tools/add_boilerplate $TARGET' % m0ld_path,suffix='.c',src_suffix = '.m0ld')})
         
 #for file in Glob("build/*.sm0p"):
 #    env.Sm0p(file)

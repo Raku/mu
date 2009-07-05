@@ -20,6 +20,8 @@ void SMOP__S1P__Array_set_elem(SMOP__Object* interpreter,SMOP__Object* array,int
   for (i=0;i < ((smop_mold*)invocant)->opcodes_len;i++) {
     SMOP__S1P__Array_set_elem(interpreter,ret,i,SMOP_REFERENCE(interpreter,SMOP__NATIVE__int_create(((smop_mold*)invocant)->opcodes[i])));
   }
+%method create
+    ret = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,invocant));
     
 %init {
   ((SMOP__ResponderInterface*)SMOP__Mold)->MESSAGE = ((SMOP__ResponderInterface*)RI)->MESSAGE;

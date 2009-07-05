@@ -1,4 +1,4 @@
-%include <assert.h>,<smop/s1p.h>,<smop/yeast.h>
+%include <assert.h>,<smop/s1p.h>
 %prefix smop_s1p_lexicalscope
 %prototype SMOP__S1P__LexicalScope
 %RI.id lexical scope
@@ -77,7 +77,7 @@
   fprintf(stderr,"Could not find variable %s in the lexical scope.\n",SMOP__NATIVE__idconst_fetch_with_null(name, &retsize));
   abort();
 
-%lost_mold mold_code_lookup
+%mold mold_code_lookup
     my $capture;
     my $back;
     my $interpreter;
@@ -107,16 +107,16 @@
         $void = $invocant."lookup_fail"($name);
 
 %method lookup
-  SMOP__Object* frame = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_code_lookup));
+  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,SMOP_REFERENCE(interpreter,mold_code_lookup));
   SMOP__Object* continuation = SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
     SMOP__ID__continuation,
     SMOP__NATIVE__capture_create(interpreter,
      (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),NULL},
      (SMOP__Object*[]) {NULL})
   );
-  yeast_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
-  yeast_reg_set(interpreter,frame,1,continuation);
-  yeast_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
+  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,capture));
+  mold_reg_set(interpreter,frame,1,continuation);
+  mold_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
 
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),

@@ -5,8 +5,10 @@
 #include <stdlib.h>
 
 static SMOP__NAGC__ResponderInterface* RI;
+SMOP__Object* SMOP__Yeast__RI;
+static SMOP__Object* SMOP__ID__create;
 
-SMOP__Object* SMOP__Yeast_create(int registers,SMOP__Object** constants,void (*step)(SMOP__Object* interpreter, SMOP__Object* frame)) {
+SMOP__Object* SMOP__Yeast_create(int registers,SMOP__Object** constants,void (*step)(SMOP__Object* interpreter, SMOP__Yeast__Frame* frame)) {
     SMOP__Yeast* ret = (SMOP__Yeast*) smop_nagc_alloc(sizeof(SMOP__Yeast));
     ret->RI = (SMOP__ResponderInterface*)RI;
 
@@ -37,11 +39,27 @@ static void DESTROYALL(SMOP__Object* interpreter,
   }
   free(yeast->constants);
 }
+static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
+                            SMOP__ResponderInterface* self,
+                            SMOP__Object* identifier,
+                            SMOP__Object* capture) {
+  SMOP__Object* ret = SMOP__NATIVE__bool_false;
+  SMOP__Object* invocant = SMOP__NATIVE__capture_positional(interpreter,capture,0);
+  if (SMOP__ID__create == identifier) {
+    printf("create\n");
+    ret = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,invocant));
+  }
+  SMOP_RELEASE(interpreter,invocant);
+  SMOP_RELEASE(interpreter,capture);
+  return ret;
+}
 
 void smop_yeast_init() {
+  SMOP__ID__create = SMOP__NATIVE__idconst_create("create");
   RI = calloc(1,sizeof(SMOP__NAGC__ResponderInterface));
+  SMOP__Yeast__RI = RI;
   RI->RI = (SMOP__ResponderInterface*) SMOP__metaRI;
-  ((SMOP__NAGC__ResponderInterface*)RI)->MESSAGE = smop_placeholder_message;
+  ((SMOP__NAGC__ResponderInterface*)RI)->MESSAGE = MESSAGE;
   ((SMOP__NAGC__ResponderInterface*)RI)->DESTROYALL = DESTROYALL;
   ((SMOP__NAGC__ResponderInterface*)RI)->REFERENCE = smop_nagc_reference;
   ((SMOP__NAGC__ResponderInterface*)RI)->RELEASE = smop_nagc_release;
