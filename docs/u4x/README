@@ -14,10 +14,8 @@ The documentation writing will be done in a controlled manner, where
 consistent. All the documentation will be written in Pod, the Perl 6 version
 of POD.
 
-The command line tool (named 'grok') should be written in Perl 6, because
-there's no reason not to.
-
-Here are the things that should give appropriate responses by grok:
+Here are the things that should give appropriate responses by the command-
+line front-end (named 'grok'):
 
 * all core Perl 6 classes
 * all of their methods (with or without a class prefix)
