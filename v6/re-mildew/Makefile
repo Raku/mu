@@ -11,22 +11,22 @@ modules: lib/Test.mildew.so
 
 
 CORE/int.mildew.so : CORE/int.pm
-	perl mildew -Cso --empty-setting -o $@ $<
+	perl mildew -Cso --yeast --empty-setting -o $@ $<
 
 CORE/%.mildew.so : CORE/%.pm
-	perl mildew -Cso --target-stage 1 --empty-setting -o $@ $<
+	perl mildew -Cso --yeast --target-stage 1 --empty-setting -o $@ $<
 
 lib/%.mildew.so : lib/%.pm
 	perl mildew -Cso --empty-setting -o $@ $<
 
-PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove -r --perl'; else echo 'prove -r -e'; fi)
+PROVE := $(shell if prove --version | grep v2 > /dev/null 2>&1;then echo 'prove -r --perl'; else echo 'prove --timer -r -e'; fi)
 
 test: prove
 
 prove: CORE
 	$(PROVE) 'perl mildew ' `cat TESTS` t/
-test-no-valgrind: CORE
-	$(PROVE) 'perl mildew' `cat TESTS` t/
+test-yeast: CORE
+	$(PROVE) 'perl mildew --yeast' `cat TESTS` t/
 
 clean:
 	rm -rf lex

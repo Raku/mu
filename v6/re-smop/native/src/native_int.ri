@@ -1,4 +1,4 @@
-%include <math.h>
+%include <math.h>,<assert.h>
 %prefix smop_native_int
 %RI SMOP__NATIVE__int
 %RI.id Native int

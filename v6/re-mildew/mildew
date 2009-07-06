@@ -28,16 +28,18 @@ Usage: mildew [switches] [--] [programfile] [arguments]
   -o              output to file
   -h or --help    give this message
   --valgrind      use valgrind when executing
+  --gdb           run the program under gdb
   -x              specify the language of the input file
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help,$valgrind,$empty_setting,$x,$target_stage,$yeast);
+my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
     "C=s" => \$C,
     "output|o=s" => \$output,
     "B=s" => \$B,
     'valgrind' => \$valgrind,
+    'gdb' => \$gdb,
     'empty-setting' => \$empty_setting,
     'debug' => \$debug,
     'h|help' => \$help,
@@ -65,15 +67,6 @@ $x ||= 'p6';
 if ($x eq 'm0ld') {
     local $/;
     my $m0ld = <>;
-    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
-    local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
-    my $tmp = tmpnam;
-    compile_via_c($m0ld,$tmp);
-    if ($valgrind) {
-        exec('valgrind','-q','--leak-check=full','--show-reachable=yes',$tmp);
-    } else {
-        exec($tmp);
-    }
 } elsif ($x eq 'p6') {
 
 } elsif ($x) {
@@ -100,6 +93,20 @@ sub m0ld_to_c {
     return <$m0ld_exe_out>;
 }
 
+sub run_m0ld {
+    my ($m0ld,) = @_;
+    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
+    local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+    my $tmp = tmpnam;
+    compile_via_c($m0ld,$tmp);
+    if ($valgrind) {
+        exec('valgrind','-q','--leak-check=full','--show-reachable=yes',$tmp);
+    } elsif ($gdb) {
+        exec('gdb',$tmp);
+    } else {
+        exec($tmp);
+    }
+}
 
 sub compile_via_c {
     my ($m0ld,$output) = @_;
@@ -114,10 +121,8 @@ sub get_boilerplate {
     local $/;
     return scalar <$boilerplate>;
 }
-sub compile_to_c {
-    my ($m0ld,$output) = @_;
-    my $boilerplate = get_boilerplate;
-
+sub add_boilerplate {
+    my ($m0ld,$boilerplate) = @_;
     my $body;
     my $funcs = '';
 
@@ -134,12 +139,16 @@ sub compile_to_c {
     $boilerplate =~ s/%%FUNCS%%/$funcs/;
     $boilerplate;
 }
+sub compile_to_c {
+    my ($m0ld,) = @_;
+    add_boilerplate($m0ld,get_boilerplate);
+}
 
 
 sub compile_to_so {
     my ($m0ld,$output) = @_;
     my ($c_fh,$c_file) = tempfile();
-    print {$c_fh} <<'BOILERPLATE_FRONT';
+    print $c_fh add_boilerplate($m0ld,<<'BOILERPLATE');
 #include <stdio.h>
 #include <smop/base.h>
 #include <smop/mold.h>
@@ -147,16 +156,13 @@ sub compile_to_so {
 #include <smop/s0native.h>
 #include <smop/native.h>
 #include <smop/s1p.h>
+#include <smop/yeast.h>
+%%FUNCS%%
 void init(SMOP__Object* interpreter,SMOP__Object* scope,SMOP__Object* continuation) {
-    SMOP__Object* mold =
-BOILERPLATE_FRONT
-    print {$c_fh} m0ld_to_c($m0ld);
-    print {$c_fh} <<'BOILERPLATE_BACK';
-;
-  SMOP__Object* frame = SMOP__Mold__Frame_create(interpreter,mold);
-  mold_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
-  mold_reg_set(interpreter,frame,1,scope);
-  mold_reg_set(interpreter,frame,2,continuation);
+  %%BODY%%
+  smop_reg_set(interpreter,frame,0,SMOP_REFERENCE(interpreter,interpreter));
+  smop_reg_set(interpreter,frame,1,scope);
+  smop_reg_set(interpreter,frame,2,continuation);
 
   SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
     SMOP__NATIVE__idconst_create("goto"),
@@ -166,8 +172,10 @@ BOILERPLATE_FRONT
   );
 
 }
-BOILERPLATE_BACK
+BOILERPLATE
     close($c_fh);
+    warn $c_file;
+    print(join(' ',"gcc","-fPIC","-g","-xc","-L../../smop/build/lib",@MILDEW_LDOPTS,@SMOP_INCLUDE,"-shared",$c_file,"-o",$output),"\n");
     system("gcc","-fPIC","-g","-xc","-L../../smop/build/lib",@MILDEW_LDOPTS,@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
 }
 sub output {
@@ -281,13 +289,7 @@ if ($B && $C) {
 if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
     local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
-    my $tmp = tmpnam;
-    compile_via_c($m0ld,$tmp);
-    if ($valgrind) {
-        exec('valgrind','--leak-check=full','--show-reachable=yes',$tmp);
-    } else {
-        exec($tmp);
-    }
+    run_m0ld($m0ld);
 } elsif ($B) {
     die "unknown backend passed to -B: $C\n";
 }

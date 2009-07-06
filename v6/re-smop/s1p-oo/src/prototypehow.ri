@@ -1,6 +1,6 @@
 %prefix smop_pureprototypehow
 %RI.id PrototypeHOW
-%include <smop/s1p.h>
+%include <smop/s1p.h>,<assert.h>
 %idconst goto
 %idconst continuation
 %idconst new

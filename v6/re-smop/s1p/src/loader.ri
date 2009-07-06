@@ -40,7 +40,7 @@
     abort();
   }
   init(interpreter,scope,continuation);
-  dlclose(handle);
+  /*dlclose(handle);*/
 
 %method new
   ret =  smop_nagc_alloc(sizeof(smop_s1p_loader_struct));

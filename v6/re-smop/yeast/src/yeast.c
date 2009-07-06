@@ -46,7 +46,6 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
   SMOP__Object* invocant = SMOP__NATIVE__capture_positional(interpreter,capture,0);
   if (SMOP__ID__create == identifier) {
-    printf("create\n");
     ret = SMOP__Yeast__Frame_create(interpreter,SMOP_REFERENCE(interpreter,invocant));
   }
   SMOP_RELEASE(interpreter,invocant);

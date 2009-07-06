@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 5;
+plan 3;
 
 sub my_first  ($x, $,  $ ) { $x };
 sub my_second ($,  $x, $ ) { $x };
