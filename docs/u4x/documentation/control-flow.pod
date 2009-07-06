@@ -55,10 +55,18 @@ If you find yourself comparing the same expression against many different
 things, consider using C<given> and C<when> instead. (XXX: Make the example
 not contain that very mistake.)
 
-The C<if> keyword evaluates junctions as if they're booleans.
+The C<if> keyword evaluates junctions as if they are booleans.
 
  if any(True, False) {
      say "This gets printed.";
+ }
+
+As the result of an expression evaluated in an C<if> statement may be
+interesting in its own regard, it is also possible to provide the block
+with a parameter, using the C<< -> >> syntax:
+
+ if $game.is-move-bad($move) -> $reason {
+     say "The move was illegal: $reason";
  }
 
 There's also the statement-modifier C<if>. See its item for more information.

@@ -2,7 +2,8 @@
 
 =head1 Anonymous
 
-A construct is called I<anonymous> if it doesn't have a name.
+A subroutine, method or submethod is called I<anonymous> if it doesn't have a
+name.
 
     # named subroutine
     sub double($x) { 2 * $x };
@@ -24,11 +25,11 @@ same type as the original junction.
     }
 
 Here C<f()> is a sub with one parameter, and since it has no explicit
-type is implicitly typed as C<Any>.  The C<Junction> argument causes
+type, it is implicitly typed as C<Any>.  The C<Junction> argument causes
 the C<f(1|2|3)> call to be internally executed as C<f(1)|f(2)|f(3)>,
 and the resulting junction is C<2|4|6>. This process of separating
-Junction arguments into multiple calls to a function
-is what we call I<autothreading>.
+Junction arguments into multiple calls to a function is called
+I<autothreading>.
 
 =head1 Slurpy
 
@@ -43,7 +44,7 @@ asterisk C<*> in front of the parameter name.
 =head1 lvalue
 
 A I<lvalue> or I<left value> is anything that can appear on the left
-hand side of the assignment operator C<=>, ie anything you can assign
+hand side of the assignment operator C<=>; anything you can assign
 to.
 
 Typical lvalues are variables, private and C<is rw> attributes, lists

@@ -1,7 +1,8 @@
 =head1 Any
 
 While C<Object> is the real top class, C<Any> is the class that functions as
-implicit parents for new classes, if no parent is explicitly specified.
+an implicit base class for a new class, if no base class is explicitly
+specified.
 
 =head2 Methods
 
@@ -31,7 +32,7 @@ or, using the C<.=> meta-operator,
 
  $string.=subst(/foo/, 'bar');
 
-A final note: if you plan to use submatches in your C<$replacement>, remember
+If you plan to use submatches in your C<$replacement>, remember
 to surround them with closure braces:
 
  $string.=subst(/ (\d+) '+' (\d+) /,   $0 + $1   );  # WRONG

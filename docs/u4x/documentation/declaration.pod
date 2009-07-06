@@ -2,7 +2,7 @@
 
 =head2 subset
 
-Declares a subtype of a type, that is a collection of instances of that type
+Declares a subtype of a type, a collection of instances of that type
 which adhere to a given condition.
 
  my subset Positive of Num where { $^n > 0 };
@@ -12,7 +12,14 @@ which adhere to a given condition.
 
 This subtype can then be referred to anywhere an ordinary class or role can.
 
-You cannot instantiate subtypes. That is, this doesn't work:
+The condition block will want to check the instance for some relation being
+upheld. The instance can be referred to in the following three ways:
+
+    { $_ > 0 }          # as the topic variable $_
+    -> $n { $n > 0 }    # as an explicit names parameter
+    { $^n > 0 }         # as a placeholder parameter
+
+You cannot instantiate subtypes. In other words, this doesn't work:
 
  my Positive $p .= new;
 
