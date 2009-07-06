@@ -2677,8 +2677,6 @@ sub dump_token_table {
 		my $self = shift;
 		my $lvl  = shift;
 		my @t    = $self->SUPER::emit_token( $lvl + 1 );
-		pop(@t);
-		shift(@t);
 		$self->ret(@t);
 	}
 }
