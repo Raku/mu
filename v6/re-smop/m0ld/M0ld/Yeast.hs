@@ -29,7 +29,7 @@ emitStmt regs labels (i,c) stmt =
     --Call2 target responder identifier capture ->
     --    map (\r -> resolveReg r regs) [target,responder,identifier,capture]
 
-    Goto label -> emit $ "frame->pc = "++(show $ resolveLabelDef label labels) ++ "\n"
+    Goto label -> emit $ "frame->pc = "++(show $ resolveLabelDef label labels) ++ ";\n" ++ "break;\n";
 
     Br value iftrue iffalse ->
         emit $ "frame->pc = " ++

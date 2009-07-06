@@ -8,6 +8,8 @@ typedef struct SMOP__Yeast__Frame {
   SMOP__NAGC__Object__BASE;
   SMOP__Object* back;
   SMOP__Object* lexical;
+  SMOP__Object* catch;
+  SMOP__Object* control;
   SMOP__Object** ret;
   SMOP__Object** reg;
   SMOP__Object* yeast;

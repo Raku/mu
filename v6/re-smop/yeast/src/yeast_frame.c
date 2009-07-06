@@ -74,13 +74,21 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
       smop_reg_set(interpreter, invocant, i-1, value);
     }
 
-  } else if (SMOP__ID__set_lexical == identifier) {
-    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
-    if (!frame->lexical) {
-      frame->lexical = value;
-    } else {
-      printf("trying to set a new lexical to the frame\n");
-      abort();
+  } else if (SMOP__ID__back == identifier) {
+    if (frame->back) {
+      ret = SMOP_REFERENCE(interpreter,frame->back);
+    }
+  } else if (SMOP__ID__control == identifier) {
+    if (frame->control) {
+      ret = SMOP_REFERENCE(interpreter,frame->control);
+    }
+  } else if (SMOP__ID__catch == identifier) {
+    if (frame->catch) {
+      ret = SMOP_REFERENCE(interpreter,frame->catch);
+    }
+  } else if (SMOP__ID__lexical == identifier) {
+    if (frame->lexical) {
+      ret = SMOP_REFERENCE(interpreter,frame->lexical);
     }
 
   } else if (SMOP__ID__set_back == identifier) {
@@ -92,9 +100,31 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
       abort();
     }
 
-  } else if (SMOP__ID__back == identifier) {
-    if (((SMOP__Yeast__Frame*)invocant)->back) {
-      ret = SMOP_REFERENCE(interpreter,((SMOP__Yeast__Frame*)invocant)->back);
+  } else if (SMOP__ID__set_control == identifier) {
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+    if (!frame->control) {
+      frame->control = value;
+    } else {
+      printf("trying to set a new control to the frame\n");
+      abort();
+    }
+
+  } else if (SMOP__ID__set_catch == identifier) {
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+    if (!frame->catch) {
+      frame->catch = value;
+    } else {
+      printf("trying to set a new lexical to the frame\n");
+      abort();
+    }
+
+  } else if (SMOP__ID__set_lexical == identifier) {
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+    if (!frame->lexical) {
+      frame->lexical = value;
+    } else {
+      printf("trying to set a new lexical to the frame\n");
+      abort();
     }
   } else if (identifier == SMOP__ID__FETCH) {
     ___VALUE_FETCH___;
