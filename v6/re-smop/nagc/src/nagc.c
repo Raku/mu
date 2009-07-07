@@ -3,7 +3,11 @@
 #include <smop/base.h>
 #include <smop/s0native.h>
 #include <smop/nagc.h>
+
+#ifdef SMOP_LOCKING
 #include <pthread.h>
+#endif
+
 #include "weakref.h"
 
 #ifdef SMOP_LEAK_TRACE
@@ -18,11 +22,13 @@ SMOP__Object* smop_nagc_alloc(size_t size) {
     abort();
 
   y->ref_cnt = 1;
+#ifdef SMOP_LOCKING
   y->rwlock = calloc(1,sizeof(pthread_rwlock_t));
   if (!y->rwlock)
     abort();
   if (pthread_rwlock_init(y->rwlock, NULL))
     abort();
+#endif
 
 #ifdef SMOP_LEAK_TRACE
   int i = 0;
@@ -34,21 +40,27 @@ SMOP__Object* smop_nagc_alloc(size_t size) {
 }
 
 void smop_nagc_rdlock(SMOP__NAGC__Object* value) {
+#ifdef SMOP_LOCKING
   if (pthread_rwlock_rdlock(value->rwlock)) {
     abort();
   }
+#endif
 }
 
 void smop_nagc_wrlock(SMOP__NAGC__Object* value) {
+#ifdef SMOP_LOCKING
   if (pthread_rwlock_wrlock(value->rwlock)) {
     abort();
   }
+#endif
 }
 
 void smop_nagc_unlock(SMOP__NAGC__Object* value) {
+#ifdef SMOP_LOCKING
   if (pthread_rwlock_unlock(value->rwlock)) {
     abort();
   }
+#endif
 }
 
 SMOP__Object* smop_nagc_reference(SMOP__Object* interpreter,
@@ -98,8 +110,10 @@ static SMOP__Object* release_code(SMOP__Object* interpreter,
 }
 
 void smop_nagc_free(SMOP__NAGC__Object* obj) {
+#ifdef SMOP_LOCKING
   pthread_rwlock_destroy(((SMOP__NAGC__Object*)obj)->rwlock);
   free(((SMOP__NAGC__Object*)obj)->rwlock);
+#endif
   free(obj);
 
 #ifdef SMOP_LEAK_TRACE
