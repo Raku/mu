@@ -44,4 +44,11 @@ SMOP__Object* smop_noop_weakref(SMOP__Object* interpreter,
 
 void smop_metaRI_init();
 void smop_metaRI_destr();
+
+#ifdef SMOP_PROFILE
+    extern int SMOP_PROFILE_on;
+    void smop_profile_init(void);
 #endif
+
+#endif
+

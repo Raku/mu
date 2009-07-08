@@ -8,6 +8,9 @@ void smop_s0native_init(void) {
   smop_native_bool_init();
   smop_idconst_init();
   smop_empty_interpreter_init();
+#ifdef SMOP_PROFILE
+  smop_profile_init();
+#endif
 }
 
 void smop_s0native_destr(void) {

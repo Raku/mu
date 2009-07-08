@@ -61,8 +61,16 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
      */
     SMOP__Object* continuation = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     if (continuation == SMOP__NATIVE__bool_false) {
+#ifdef SMOP_PROFILE
+      if (SMOP_PROFILE_on) fprintf(stderr,"stoping the interpreter\n");
+#endif
       continuation = NULL;
     }
+#ifdef SMOP_PROFILE
+    else {
+      if (SMOP_PROFILE_on) fprintf(stderr,"switching to %p\n",continuation);
+    }
+#endif
 
     smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);
     SMOP__Object* cont = ((interpreter_struct*)invocant)->continuation;

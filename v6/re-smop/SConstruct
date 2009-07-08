@@ -25,7 +25,8 @@ env.Append(BUILDERS = {'M0ld' : Builder(action = '%s < $SOURCE >> $TARGET;perl t
 import subprocess # python has `` in a strange module :\
 ccopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","print' ';ccopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
 ldopts = subprocess.Popen(["perl","-MExtUtils::Embed","-e","print' ';ldopts"], stdout=subprocess.PIPE).communicate()[0].rstrip()
-flags = '-O0 -g3 -Wall -DSMOP_HUNT_NULLS -DSMOP_MOLD_DEBUG' #  -DSMOP_LOWLEVEL_MEM_DEBUG 
+flags = '-O0 -g3 -Wall -DSMOP_MOLD_DEBUG ' # -DSMOP_PROFILE -DSMOP_LOWLEVEL_MEM_DEBUG 
+
 
 
 modules = ['s0native','nagc','util','capture','interpreter','mold','yeast','native','lost','s1p','p6opaque','s1p-oo','p5','mold-message']

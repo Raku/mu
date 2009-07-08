@@ -76,7 +76,9 @@ struct SMOP__ResponderInterface {
  */
 #define SMOP_RI(object) ((SMOP__ResponderInterface*) ((SMOP__Object*)object)->RI)
 
-#ifdef SMOP_HUNT_NULLS
+#if SMOP_PROFILE
+SMOP__Object* SMOP_DISPATCH(SMOP__Object* interpreter,SMOP__Object* object,SMOP__Object* intifier,SMOP__Object* capture);
+#elif SMOP_HUNT_NULLS
 #include <stdio.h>
 #include <assert.h>
 #define SMOP_DISPATCH(interpreter, object, identifier, capture) ({\
