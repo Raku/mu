@@ -685,8 +685,6 @@ for now.
 
 =head1 SEE ALSO
 
-L<Text::VimColor>
-
 Discussion about this module and STD.pm is usually in #perl6
 (irc://irc.freenode.net/perl6). This module lives in 
 http://svn.pugscode.org/pugs/misc/Syntax-Highlight-Perl6 . Larry Wall's 
