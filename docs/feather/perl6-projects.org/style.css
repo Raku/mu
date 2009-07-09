@@ -13,7 +13,7 @@ h4 {
 #header {
     margin: 1em 2em 0 2em;
     padding: 1em 1em 2em 1em;
-    width: 53em;
+    width: 53.5em;
     border-radius: 1em; 
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
@@ -50,21 +50,21 @@ div.row {
 
 
 div a:link {
-    font: normal bold 8pt sans-serif;
+    font: normal bold 9pt sans-serif;
     text-decoration: none;
     color: #000000;
     border-bottom: 1px dotted #000000;
 }
 
 div a:visited {
-    font: normal bold 8pt sans-serif;
+    font: normal bold 9pt sans-serif;
     text-decoration: none;
     color: #000000;
     border-bottom: 1px dotted #000000;
 }
 
 div a:focus {
-    font: normal bold 8pt sans-serif;
+    font: normal bold 9pt sans-serif;
     text-decoration: none;
     color: #000000;
     border-bottom: 1px dotted #000000;
@@ -78,7 +78,7 @@ div a:hover, #header a:hover {
 }
 
 div a:active {
-    font: normal bold 8pt sans-serif;
+    font: normal bold 9pt sans-serif;
     text-decoration: none;
     color: #000000;
     border-bottom: 1px dotted #000000;
@@ -102,7 +102,8 @@ div a:active {
     margin: -2em 2em 4em 2em;
     padding: 0 1em 1em 1em;
     color: #000000;
-    font: 8pt sans-serif;
+    font: 9pt sans-serif;
+    line-height: 130%;
 }
 
 #specs, #stuff{
