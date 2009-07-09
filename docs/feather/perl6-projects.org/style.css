@@ -70,11 +70,10 @@ div a:focus {
     border-bottom: 1px dotted #000000;
 }
 
-div a:hover {
-    font: normal bold 8pt sans-serif;
-    text-decoration: none;
-    border-bottom: 1px dotted #000000;
-    font-size: 150%;
+div a:hover, #header a:hover {
+    font: normal bold sans-serif;
+    text-decoration: underline;
+    border-bottom: none;
     /*color: #ffffff;*/
 }
 
@@ -83,10 +82,6 @@ div a:active {
     text-decoration: none;
     color: #000000;
     border-bottom: 1px dotted #000000;
-}
-
-#header a:hover {
-    font-size: 150%;
 }
 
 #download a {
