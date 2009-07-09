@@ -111,6 +111,9 @@ SMOP__Object* SMOP__Mold__Frame_create(SMOP__Object* interpreter,SMOP__Object* m
     }
 
 
+#ifdef SMOP_PROFILE
+      if (SMOP_PROFILE_on) fprintf(SMOP_PROFILE_out,"creating frame %p\n",ret);
+#endif
     //printf("Mold Frame! %p\n",ret);
     return (SMOP__Object*) ret;
 }

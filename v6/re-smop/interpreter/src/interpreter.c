@@ -62,13 +62,13 @@ static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
     SMOP__Object* continuation = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     if (continuation == SMOP__NATIVE__bool_false) {
 #ifdef SMOP_PROFILE
-      if (SMOP_PROFILE_on) fprintf(stderr,"stoping the interpreter\n");
+      if (SMOP_PROFILE_on) fprintf(SMOP_PROFILE_out,"stoping the interpreter\n");
 #endif
       continuation = NULL;
     }
 #ifdef SMOP_PROFILE
     else {
-      if (SMOP_PROFILE_on) fprintf(stderr,"switching to %p\n",continuation);
+      if (SMOP_PROFILE_on) fprintf(SMOP_PROFILE_out,"switching to %p\n",continuation);
     }
 #endif
 

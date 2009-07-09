@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+use v5.10;
 use lib 'perl6-snapshot';
 use lib 'src';
 use STD;
@@ -30,10 +31,14 @@ Usage: mildew [switches] [--] [programfile] [arguments]
   --valgrind      use valgrind when executing
   --gdb           run the program under gdb
   -x              specify the language of the input file
+  --profile       print profiling info
+                  (valid values are: call-graph)
+  --format        format for the profiling info
+                  (valid values: dhtml,text)
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast);
+my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast,$profile,$profile_format);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
     "C=s" => \$C,
     "output|o=s" => \$output,
@@ -45,7 +50,9 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     'h|help' => \$help,
     'x=s' => \$x,
     'target-stage=i'=>\$target_stage,
-    'yeast' => \$yeast
+    'yeast' => \$yeast,
+    'profile=s' => \$profile,
+    'format=s' => \$profile_format
 ) || help;
 help if $help;
 
@@ -284,6 +291,65 @@ if ($B && $C) {
     $B = 'via-C';
 } else {
     exit;
+}
+if ($profile eq 'call-graph' || $profile eq 'call-graph-raw') {
+    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
+    local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+    my $tmp = tmpnam;
+    compile_via_c($m0ld,$tmp);
+    my ($profile_fh,$profile_file) = tempfile();
+    local $ENV{SMOP_PROFILE} = $profile_file;
+    system($tmp);
+    warn $profile_file;
+    require Tree::Simple;
+    require Tree::Simple::View::DHTML;
+    require Tree::Simple::View::ASCII;
+
+    my $tree = Tree::Simple->new("root",Tree::Simple->ROOT);
+
+    say "creating Tree::Simple";
+    my $current = $tree;
+    my $count = 0;
+    my %frames;
+    my $eval;
+    my $prev;
+    # TODO - eval
+    while (<$profile_fh>) {
+    #last if $count++ > 800;
+        if (/^> \s \"(.*)\" \. \"(.*)\" /x) {
+            if ($2 eq 'eval' and $profile eq 'call-graph') {
+                $prev = $current;
+                $current = $eval;
+            } else {
+                $current = Tree::Simple->new("$1.$2",$current);
+            }
+        }
+        if (/^switching to (.*)$/) {
+            $eval = $frames{$1};
+        }
+        if (/^creating frame (.*)$/) {
+            $frames{$1} = $current;
+        }
+        if (/^< \s \"(.*)\" \. \"(.*)\" /x) {
+            if ($2 eq 'eval' and $profile eq 'call-graph') {
+                $current = $prev;
+            } else {
+                $current = $current->getParent;
+            }
+        }
+    }
+    if ($profile_format and $profile_format eq 'dhtml') {
+        my $tree_view = Tree::Simple::View::DHTML->new($tree);
+        output($tree_view->javascript().$tree_view->expandAll(),$output);
+    } elsif (not $profile_format or $profile_format eq 'txt' ) {
+        my $tree_view = Tree::Simple::View::ASCII->new($tree);
+        output($tree_view->expandAll(),$output);
+    } else {
+        die 'unknown format';
+    }
+    exit;
+} elsif ($profile) {
+    die 'unrecognised value passed to --profile';
 }
 
 if ($B eq 'via-C') {

@@ -46,8 +46,10 @@ void smop_metaRI_init();
 void smop_metaRI_destr();
 
 #ifdef SMOP_PROFILE
-    extern int SMOP_PROFILE_on;
-    void smop_profile_init(void);
+#include <stdio.h>
+extern int SMOP_PROFILE_on;
+FILE* SMOP_PROFILE_out;
+void smop_profile_init(void);
 #endif
 
 #endif

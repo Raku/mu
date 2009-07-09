@@ -167,6 +167,9 @@ SMOP__Object* SMOP__Yeast__Frame_create(SMOP__Object* interpreter,SMOP__Object* 
       }
     }
 
+#ifdef SMOP_PROFILE
+      if (SMOP_PROFILE_on) fprintf(SMOP_PROFILE_out,"creating frame %p\n",ret);
+#endif
     return (SMOP__Object*) ret;
 }
 SMOP__Object* SMOP__Frame_create(SMOP__Object* interpreter,SMOP__Object* shape) {
