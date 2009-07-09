@@ -1,41 +1,144 @@
 body {
-    margin: 1em;
-    background-color: #FFC;
-    max-width: 80em;
+    margin: auto;
+    padding: 1.5em 3em 0 3em;
+    background: #ffffff;
+    color: #000000;
+    font: 12pt sans-serif;
 }
 
-h1 {
-    border-bottom: 1px solid;
+h4 {
+    text-align: center;
 }
 
-.box {
-    width: 20em;
+#header {
+    margin: 1em 2em 0 2em;
+    padding: 1em 1em 2em 1em;
+    width: 53em;
+    border-radius: 1em; 
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    background: #63a4ff;
+    border: 3px solid #dddddd;
+}
+
+
+#header img {
+    float: right;
+    position: relative;
+    top: -2em;
+    right: -2em;
+    z-index: 1;
+}
+
+#main {
+    width: 100%;
+    position: relative;
+}
+
+div.row {
+    height: 50%;
     float: left;
-    padding: 1ex;
-    margin: 1em;
-    border: 1px solid;
-    background-color: white;
-    float: left;
+    clear: both;
 }
 
-.box h2 {
-    margin-top: 0px;
-    border-bottom: 1px dotted;
-}
-
-#specification  { border-top: solid 3px #861; }
-#compilers      { border-top: solid 3px #380; }
-#documentation  { border-top: solid 3px #048; }
-#blogs          { border-top: solid 3px #844; }
-#misc           { border-top: solid 3px #268; }
-
-a {
-    font-weight: bold;
-    color: black;
+#header a {
+    font: normal bold 12pt sans-serif;
     text-decoration: none;
+    color: #ffffff;
+    border-bottom: 1px dotted #ffffff;
 }
 
-#meta {
-    font-size: 80%;
-    border-top: 1px solid;
+
+div a:link {
+    font: normal bold 8pt sans-serif;
+    text-decoration: none;
+    color: #000000;
+    border-bottom: 1px dotted #000000;
+}
+
+div a:visited {
+    font: normal bold 8pt sans-serif;
+    text-decoration: none;
+    color: #000000;
+    border-bottom: 1px dotted #000000;
+}
+
+div a:focus {
+    font: normal bold 8pt sans-serif;
+    text-decoration: none;
+    color: #000000;
+    border-bottom: 1px dotted #000000;
+}
+
+div a:hover {
+    font: normal bold 8pt sans-serif;
+    text-decoration: none;
+    border-bottom: 1px dotted #000000;
+    font-size: 150%;
+    color: #ffffff;
+}
+
+div a:active {
+    font: normal bold 8pt sans-serif;
+    text-decoration: none;
+    color: #000000;
+    border-bottom: 1px dotted #000000;
+}
+
+#header a:hover {
+    font-size: 150%;
+}
+
+#download a {
+    text-decoration: none;
+    border: 0px;
+    font-size: 100%;
+    color: #ffffff;
+}
+
+#specs, #download, #compiler, #docs, #ressources, #stuff {
+    float: left;
+    width: 20em;
+    border: 3px solid #dddddd;
+    border-radius: 1em; 
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    height: 20em;
+    margin: -2em 2em 4em 2em;
+    padding: 0 1em 1em 1em;
+    color: #000000;
+    font: 8pt sans-serif;
+}
+
+#specs, #stuff{
+    background: #a5e41c;
+}
+
+#ressources {
+    background: #ff4f64;
+}
+
+#compiler, #docs {
+    background: #ffff00;
+}
+
+#download {
+    border: 2px solid white;
+}
+
+
+#download img {
+    position: relative;
+    top: 3em;
+    left: 1.2em
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+li {
+    margin-bottom: 0.5em;
 }
