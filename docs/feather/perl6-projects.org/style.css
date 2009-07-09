@@ -1,7 +1,9 @@
 body {
     margin: auto;
     padding: 1.5em 3em 0 3em;
-    background: #ffffff;
+    background-color: white;
+    background-image: url(background.png);
+    background-repeat: repeat-x;
     color: #000000;
     font: 12pt sans-serif;
 }
