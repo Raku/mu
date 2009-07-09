@@ -75,7 +75,7 @@ div a:hover {
     text-decoration: none;
     border-bottom: 1px dotted #000000;
     font-size: 150%;
-    color: #ffffff;
+    /*color: #ffffff;*/
 }
 
 div a:active {
