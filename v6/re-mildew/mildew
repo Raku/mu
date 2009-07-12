@@ -292,7 +292,7 @@ if ($B && $C) {
 } else {
     exit;
 }
-if ($profile eq 'call-graph' || $profile eq 'call-graph-raw') {
+if (defined $profile && ($profile eq 'call-graph' || $profile eq 'call-graph-raw')) {
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
     local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
     my $tmp = tmpnam;
