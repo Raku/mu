@@ -60,6 +60,7 @@ sub emit_m0ld {
         if ($m->{version}) {
             # use v6
         } elsif ($module
+                 && $module->{colonpair}[0]
                  && $module->{colonpair}[0]{identifier}{TEXT} eq 'from'
                  && $module->{colonpair}[0]{postcircumfix}{nibble}{nibbles}[0] eq 'perl5') {
             my $name = join '::',$module->{name}{identifier}{TEXT},map {
