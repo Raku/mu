@@ -10,4 +10,4 @@ env:
 	env
 
 clean:
-	scons --clean
+	rm -fr .sconsign.dblite build/ m0ld/Setup m0ld/Setup.hi m0ld/Setup.o m0ld/dist/ m0ld_exe SMOP/Makefile SMOP/SMOP.bs SMOP/SMOP.c SMOP/SMOP.o SMOP/blib/ SMOP/pm_to_blib
