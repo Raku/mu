@@ -5,7 +5,7 @@
 %{
 SMOP__Object* SMOP__S1P__Hash_create(SMOP__Object* interpreter) {
     smop_s1p_hash_struct* ret = (smop_s1p_hash_struct*) smop_nagc_alloc(sizeof(smop_s1p_hash_struct));
-    ret->hash = smop_util_hash_create(interpreter,20);
+    ret->hash = smop_util_hash_create(interpreter,1);
     ret->RI = (SMOP__ResponderInterface*)RI;
     return (SMOP__Object*) ret;
 }

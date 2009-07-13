@@ -31,7 +31,7 @@ SMOP__Object* SMOP__NATIVE__capture_create(SMOP__Object* interpreter,SMOP__Objec
   capture_struct* ret = (capture_struct*) smop_nagc_alloc(sizeof(capture_struct));
   ret->RI = (SMOP__ResponderInterface*)SMOP__capture__RI;
 
-  ret->named = smop_util_hash_create(interpreter,20);
+  ret->named = smop_util_hash_create(interpreter,1);
 
   SMOP__Object** p = positional;
   while (*p) p++;
