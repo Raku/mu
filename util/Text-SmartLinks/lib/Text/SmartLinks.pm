@@ -764,7 +764,7 @@ sub parse_pod {
             $podtree->{$section} ||= [];
             #push @{ $podtree->{$section} }, "\n";
             my @new = ('');;
-            if ($self->line_anchor and $podtree->{$section}->[-1] !~ /^=over\b|^=item\b/) {
+            if ($self->line_anchor and @{ $podtree->{$section} } and $podtree->{$section}->[-1] !~ /^=over\b|^=item\b/) {
                 unshift @new, "_LINE_ANCHOR_$line_no\n";
             }
             push @{ $podtree->{$section} }, @new;
@@ -859,6 +859,7 @@ sub _gen_line_anchors {
     my $list = shift;
     my $curr = shift @$list;
     my $html = '';
+    return $html if not defined $list->[0];
     for ($curr .. $list->[0] - 1) {
         $html .= qq{<a id="line_$_"></a>\n};
     }
