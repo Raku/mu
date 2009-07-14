@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+use v5.10;
+use strict;
+use warnings;
+use Time::HiRes qw(time);
+use IPC::Open3;
+sub run {
+    my ($code,) = @_;
+    my ($in,$out,$error);
+    open3($in,$out,\*ERROR,"perl","mildew");
+    print $in $code;
+    close($in);
+    local $/;
+    <$out>;
+    <ERROR>;
+    # TODO validate TAP
+}
+my %benchmarks = (
+    empty => sub {
+        '$OUT.print("1..1","\n","ok 1")';
+    },
+    multidef => sub {
+        my ($size,) = @_;
+        my $code = "say '1..1';\n";
+        $code .= "multi foo0() {0}\n";
+        for (1..$size) {
+            $code .= "multi foo$_() {1+foo".($_-1)."}\n";
+        }
+        $code;
+    }
+);
+my $test = $ARGV[0];
+my $size = $ARGV[1] // 5;
+say "test size $size";
+if (defined $test) {
+    my $before = time;
+    run($benchmarks{$test}->($size));
+    my $after = time;
+    say "$test took ",$after-$before;
+} else {
+    while (my ($name,$body) = each %benchmarks) {
+        my $before = time;
+        run($body->($size));
+        my $after = time;
+        say "$name took ",$after-$before;
+    }
+}
+
