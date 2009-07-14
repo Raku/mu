@@ -4,15 +4,29 @@ use strict;
 use warnings;
 use Time::HiRes qw(time);
 use IPC::Open3;
+use File::Temp qw(tempfile);
+use Symbol;
+
+sub compile {
+  my ($code) = @_;
+  my ($fh, $filename) = tempfile();
+  my ($wtr, $rdr, $err) = map { gensym } 1..3;
+  open3($wtr, $rdr, $err, '/usr/bin/env', 'perl', 'mildew', '-o', $filename) || die $!;
+  print $wtr $code;
+  close $wtr;
+  <$rdr>;
+  <$err>;
+  return $filename;
+}
+
 sub run {
-    my ($code,) = @_;
-    my ($in,$out,$error);
-    open3($in,$out,\*ERROR,"perl","mildew");
-    print $in $code;
-    close($in);
-    local $/;
-    <$out>;
-    <ERROR>;
+    my ($file,) = @_;
+    $::ENV{LD_LIBRARY_PATH} = 'lib:CORE:../re-smop/build/lib';
+    my ($wtr, $rdr, $err) = map { gensym } 1..3;
+    open3($wtr,$rdr,$err,$file);
+    close $wtr;
+    <$rdr>;
+    <$err>;
     # TODO validate TAP
 }
 my %benchmarks = (
@@ -34,14 +48,22 @@ my $size = $ARGV[1] // 5;
 say "test size $size";
 if (defined $test) {
     my $before = time;
-    run($benchmarks{$test}->($size));
+    my $file = compile($benchmarks{$test}->($size));
     my $after = time;
+    say "compiling $test took ",$after-$before;
+    $before = time;
+    run($file);
+    $after = time;
     say "$test took ",$after-$before;
 } else {
     while (my ($name,$body) = each %benchmarks) {
         my $before = time;
-        run($body->($size));
+        my $file = compile($body->($size));
         my $after = time;
+        say "compiling took ",$after-$before;
+        $before = time;
+        run($file);
+        $after = time;
         say "$name took ",$after-$before;
     }
 }
