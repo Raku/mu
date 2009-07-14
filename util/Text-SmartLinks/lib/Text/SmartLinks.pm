@@ -739,7 +739,9 @@ sub parse_pod {
     my ($self, $pod, $url) = @_;
     my $podtree = {};
     my $section;
+    my $line_no = 0;
     foreach (@$pod) {
+        $line_no++;
         # collect the X<> and C<> tags
         while (/([XC])<([^>]+)>/g) {
             my ($tag, $value) = ($1, $2);
@@ -763,7 +765,7 @@ sub parse_pod {
             #push @{ $podtree->{$section} }, "\n";
             my @new = ('');;
             if ($self->line_anchor and $podtree->{$section}->[-1] !~ /^=over\b|^=item\b/) {
-                unshift @new, "_LINE_ANCHOR_$.\n";
+                unshift @new, "_LINE_ANCHOR_$line_no\n";
             }
             push @{ $podtree->{$section} }, @new;
         } elsif (/^\s+(.+)/) {
