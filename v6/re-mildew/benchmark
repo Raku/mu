@@ -43,8 +43,8 @@ my %benchmarks = (
         $code;
     }
 );
-my $test = $ARGV[0];
-my $size = $ARGV[1] // 5;
+my $size = $ARGV[0] // 5;
+my $test = $ARGV[1];
 say "test size $size";
 if (defined $test) {
     my $before = time;
@@ -60,11 +60,11 @@ if (defined $test) {
         my $before = time;
         my $file = compile($body->($size));
         my $after = time;
-        say "compiling took ",$after-$before;
+        my $compile_time = $after-$before;
         $before = time;
         run($file);
         $after = time;
-        say "$name took ",$after-$before;
+        say "$name compilation:",$compile_time, " execution: ",$after-$before;
     }
 }
 
