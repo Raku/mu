@@ -141,3 +141,8 @@ ul {
 li {
     margin-bottom: 0.5em;
 }
+
+#footer {
+    clear: both;
+    padding-top: 4em;
+}
