@@ -36,9 +36,17 @@ label = do
     return [LabelDef id]
 
 
+hint = do
+    symbol "RI" 
+    parenthesized $ do
+        reg <- tok $ register
+        symbol ","
+        ri <- constant_string
+        return $ [Hint RI reg (StringConstant ri)]
+         
 stmt = do 
     l <- option [] (try label)
-    body <- choice $ [goto,br,noop,declaration,action]
+    body <- choice $ [goto,br,hint,noop,declaration,action]
     return $ l ++ body
 
 action = do
@@ -94,6 +102,17 @@ call2 = do
     return [Call2 target responder identifier capture]
 -}
 
+constant_string = between (char '"') (char '"') quotedChars >>= return . concat
+    where
+      quotedChars = many $
+        do
+        c <- noneOf "\"\\"
+        return [c]
+        <|> do 
+            char '\\'
+            c <- anyChar
+            return ['\\',c]
+
 constant = choice 
       [ do
           (char '¢') <|> (char '?')
@@ -103,19 +122,10 @@ constant = choice
         digits <- many1 digit 
         return $ IntegerConstant $ read digits
       , do
-        content <- between (char '"') (char '"') quotedChar
-        return $ StringConstant $ concat content
+        content <- constant_string
+        return $ StringConstant content
       , submold
       ]
-      where
-      quotedChar = many $
-        do
-        c <- noneOf "\"\\"
-        return [c]
-        <|> do 
-            char '\\'
-            c <- anyChar
-            return ['\\',c]
 
 -- implicit_decl :: GenParser Char ImplicitDecls [Char]
 --implicit_decl
@@ -191,7 +201,7 @@ submold = do
     return $ SubMold $ (implicitDecls constants) ++ (concat stmts)
 type ImplicitDecls = Map.Map Value [Char]
 
-implicitDecls = map (\(constant,reg) -> Decl reg constant) . Map.toList
+implicitDecls = concat . map (\(constant,reg) -> [Hint Constant reg constant,Decl reg constant]) . Map.toList
 
 parseM0ld code = 
     case (runParser top (Map.empty :: ImplicitDecls) "" code) of 

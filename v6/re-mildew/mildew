@@ -70,15 +70,6 @@ if ($target_stage == 1) {
     die 'unrecognised value passed to --target-stage';
 }
 
-$x ||= 'p6';
-if ($x eq 'm0ld') {
-    local $/;
-    my $m0ld = <>;
-} elsif ($x eq 'p6') {
-
-} elsif ($x) {
-    die "Unsupported language $x.\n"
-}
 VIV::SET_OPT('match'=>!$debug,'pos'=>1);
 
 BEGIN {
@@ -196,38 +187,42 @@ sub output {
         print $what;
     }
 }
-my $m;
-die "output=$output too many arguments @ARGV" if scalar @ARGV > 1;
-if (@ARGV) {
-    $m = STD->parsefile($ARGV[0],actions=>'Actions');
-} else {
-    $m = STD->parse(join('', <STDIN>), actions=>'Actions');
+sub parse {
+    my $m;
+    die "output=$output too many arguments @ARGV" if scalar @ARGV > 1;
+    if (@ARGV) {
+        $m = STD->parsefile($ARGV[0],actions=>'Actions');
+    } else {
+        $m = STD->parse(join('', <STDIN>), actions=>'Actions');
+    }
+    
+    #print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
+    print "#################\n" if $debug;
+    if ($debug) {
+        print Dump($m->{'?'});
+        exit;
+    }
+    my $mold = $m->{'?'}->emit_m0ld;
+    
+    unless ($empty_setting) {
+        my $load_CORE = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
+        [string 'CORE.mildew.so',FETCH(lookup('$LexicalPrelude'))]);
+        unshift @{$mold->stmts},$load_CORE;
+    }
+    $mold;
 }
+sub m0ld {
+    $x ||= 'p6';
+    if ($x eq 'm0ld') {
+        local $/;
+        my $m0ld = <>;
+        return $m0ld;
+    } elsif ($x eq 'p6') {
 
-#print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
-print "#################\n" if $debug;
-if ($debug) {
-    print Dump($m->{'?'});
-    exit;
-}
-my $mold = $m->{'?'}->emit_m0ld;
+    } elsif ($x) {
+        die "Unsupported language $x.\n"
+    }
 
-unless ($empty_setting) {
-    my $load_CORE = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
-    [string 'CORE.mildew.so',FETCH(lookup('$LexicalPrelude'))]);
-    unshift @{$mold->stmts},$load_CORE;
-}
-
-my $m0ld;
-$C = '' unless $C;
-if ($C eq 'desugar') {
-    output($mold->pretty."\n",$output);
-    exit;
-} elsif ($C eq 'ast-yaml') {
-    use YAML::XS;
-    output(Dump($mold),$output);
-    exit;
-} else {
     my ($front,$back);
     if ($C eq 'so') {
         $front = "my \$interpreter;\nmy \$scope;\nmy \$back;\n";
@@ -236,7 +231,7 @@ if ($C eq 'desugar') {
         $front = "my \$scope = ?SMOP__S1P__LexicalPrelude;\n";
         $back = '';
     }
-    $m0ld = $front.<<'BOILERPLATE_FRONT'.$mold->emit_('$main').<<'BOILERPLATE_BACK'.$back;
+    my $m0ld = $front.<<'BOILERPLATE_FRONT'.parse->emit_('$main').<<'BOILERPLATE_BACK'.$back;
     my $void;
 BOILERPLATE_FRONT
     my $AdhocSignature_scalar = $scope."lookup"("AdhocSignature");
@@ -267,20 +262,31 @@ BOILERPLATE_FRONT
     my $ret = $main_code."postcircumfix:( )"($capture);
 BOILERPLATE_BACK
 }
+
+$C = '' unless $C;
+if ($C eq 'desugar') {
+    output(parse->pretty."\n",$output);
+    exit;
+} elsif ($C eq 'ast-yaml') {
+    use YAML::XS;
+    output(Dump(parse),$output);
+    exit;
+} else {
+}
 if ($output and not $C) {
     $C = 'via-C';
 }
 if ($C eq 'via-C') {
     die "-o is required when compiling to an executable\n" unless $output;
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
-    compile_via_c($m0ld,$output);
+    compile_via_c(m0ld,$output);
 } elsif ($C eq 'so') {
     die "-o is required when compiling to a shared library \n" unless $output;
-    compile_to_so($m0ld,$output);
+    compile_to_so(m0ld,$output);
 } elsif ($C eq 'm0ld') {
-    output($m0ld,$output);
+    output(m0ld,$output);
 } elsif ($C eq 'C') {
-    output(compile_to_c($m0ld),$output);
+    output(compile_to_c(m0ld),$output);
 } elsif ($C) {
     die "unknown backend passed to -C: $C\n";
 }
@@ -296,7 +302,7 @@ if (defined $profile && ($profile eq 'call-graph' || $profile eq 'call-graph-raw
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
     local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
     my $tmp = tmpnam;
-    compile_via_c($m0ld,$tmp);
+    compile_via_c(m0ld,$tmp);
     my ($profile_fh,$profile_file) = tempfile();
     local $ENV{SMOP_PROFILE} = $profile_file;
     system($tmp);
@@ -355,7 +361,7 @@ if (defined $profile && ($profile eq 'call-graph' || $profile eq 'call-graph-raw
 if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
     local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
-    run_m0ld($m0ld);
+    run_m0ld(m0ld);
 } elsif ($B) {
     die "unknown backend passed to -B: $C\n";
 }

@@ -45,6 +45,8 @@ toBytecode stmt regs labels = case stmt of
 
     Decl reg value -> []
 
+    Hint _ _ _ -> []
+
     Assign lvalue rvalue -> [5,resolveReg lvalue regs,resolveReg rvalue regs]
 
 isReg (Decl _ None) = True

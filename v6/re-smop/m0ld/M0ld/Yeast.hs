@@ -9,22 +9,31 @@ indent depth code = unlines $ map indentLine $ lines code where
     indentLine "" = ""
     indentLine line = (take depth $ repeat ' ') ++ line
 
-emitStmt regs labels (i,c) stmt =
+emitStmt regs labels hints (i,c) stmt =
     let emit code = (i+1,c ++ "case "++ (show i) ++ ":\n" ++ indent 2 code) 
         reg r = "frame->reg[" ++ (show $ resolveReg r regs) ++ "]" 
-        list regs = "(SMOP__Object*[]) {" ++ (concat $ map (\r -> "SMOP_REFERENCE(interpreter," ++ reg r ++ "),") regs) ++ "NULL}" in
+        list regs = "(SMOP__Object*[]) {" ++ (concat $ map (\r -> "SMOP_REFERENCE(interpreter," ++ reg r ++ "),") regs) ++ "NULL}"
+        assign target expr = "if (" ++ reg target ++ ") SMOP_RELEASE(interpreter," ++ reg target ++ ");\n" ++ reg target ++ " = " ++ expr ++ ";\n"
+        hint typ reg = Map.lookup (typ,reg) hints
+        in
     case stmt of
-    Call target identifier (Capture invocant positional named) -> emit $ 
-        "frame->pc = " ++ (show $ i+1) ++ ";\n" ++
-        "frame->ret = &" ++ reg target ++ ";\n" ++
-        reg target ++ " = " ++
-            "SMOP_DISPATCH(\n" ++ (indent 2 $ "interpreter,\nSMOP_RI(" ++ reg invocant ++ "),\n" ++
-             reg identifier ++ 
-             ",\nSMOP__NATIVE__capture_create(interpreter," ++
-                list (invocant:positional) ++ ","
-                ++ list named ++
-             ")\n" ) ++ ");\n" ++
-        "break;\n"
+    Call target identifier capture@(Capture invocant positional named) -> case hint RI invocant of
+        Just (StringConstant "capture") -> case hint Constant identifier of
+            Just (StringConstant "positional") -> case capture of
+                (Capture invocant [i] []) -> emit $ assign target $ "SMOP__NATIVE__capture_positional(interpreter," ++ reg invocant ++ ",SMOP__NATIVE__int_fetch(" ++ reg i ++ "))"
+            _ -> emit identifier
+        _ -> dispatch
+        where
+        dispatch = emit $ 
+            "frame->pc = " ++ (show $ i+1) ++ ";\n" ++
+            "frame->ret = &" ++ reg target ++ ";\n" ++
+            (assign target $ "SMOP_DISPATCH(\n" ++ (indent 2 $ "interpreter,\nSMOP_RI(" ++ reg invocant ++ "),\n" ++
+                reg identifier ++ 
+                ",\nSMOP__NATIVE__capture_create(interpreter," ++
+                    list (invocant:positional) ++ ","
+                    ++ list named ++
+                ")\n" ) ++ ")") ++
+            "break;\n"
 
     --Call2 target responder identifier capture ->
     --    map (\r -> resolveReg r regs) [target,responder,identifier,capture]
@@ -45,11 +54,13 @@ emitStmt regs labels (i,c) stmt =
     LabelDef label -> (i,c)
 
     Decl reg value -> (i,c)
+    
+    Hint _ _ _ -> (i,c)
 
     Assign lvalue rvalue -> emit $ reg lvalue ++ " = " ++ reg rvalue ++ ";\n"
 
-emitFunc (prefix,id) regMap labelsMap stmts = let 
-    (i,cases) = foldl (emitStmt regMap labelsMap) (0,"") stmts
+emitFunc (prefix,id) regMap labelsMap hints stmts = let 
+    (i,cases) = foldl (emitStmt regMap labelsMap hints) (0,"") stmts
     name = prefix++(show id) in
     ("static void " ++ name ++ "(SMOP__Object* interpreter,SMOP__Yeast__Frame* frame) {\n" ++
     "  switch (frame->pc) {\n" ++
@@ -69,14 +80,21 @@ mapLabelsToStmts stmts = fst $ foldl addLabelDef (Map.empty,0) stmts
         addLabelDef (labels,offset) (LabelDef label) = (Map.insert label offset labels,offset)
         addLabelDef (labels,offset) stmt = (labels,offset+stmtSize stmt)
 
+extractHints = foldl addHint Map.empty
+    where
+        addHint hints (Hint typ reg ri) = Map.insert (typ,reg) ri hints
+        addHint hints _ = hints
+
 compileToYeast prefix stmts =
     let labelsMap = mapLabelsToStmts stmts
         regMap    = mapRegisters stmts
         freeRegs  = countRegister stmts
+        hints     = extractHints stmts
         (functions,constants,prefix') = dumpConstantsToC prefix stmts 
-        (funcBody,funcName,prefix'') = emitFunc prefix' regMap labelsMap stmts
+        (funcBody,funcName,prefix'') = emitFunc prefix' regMap labelsMap hints stmts
         in (funcBody:functions,"SMOP__Yeast_create(" ++ show freeRegs ++ "," ++ constants ++ ","
         ++ funcName ++ ")",prefix'')
+
 dumpConstantsToC prefix stmts = 
     wrap "(SMOP__Object*[]) {" "NULL}" $ foldl dumpConstantToC ([],"",prefix) stmts
 

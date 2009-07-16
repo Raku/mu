@@ -1,0 +1,78 @@
+my $scope = ?SMOP__S1P__LexicalPrelude;
+    my $void;
+my $main = mold {
+my $interpreter;
+my $scope;
+my $id2 = "lookup";
+my $id3 = "$OUT";
+my $id1 = $scope.$id2($id3);
+my $id4 = "FETCH";
+my $id0 = $id1.$id4();
+my $id5 = "print";
+my $id6 = "1..1";
+my $id7 = "\n";
+my $void = $id0.$id5($id6,$id7);
+my $id10 = "lookup";
+my $id11 = "capture";
+my $id9 = $scope.$id10($id11);
+my $id12 = "FETCH";
+my $id8 = $id9.$id12();
+my $id13 = "new";
+my $id14 = "not ok 1";
+my $id15 = "ok 1";
+my $id16 = "not ok 1";
+
+my $capture = $id8.$id13($id14,$id15,$id16);
+
+my $id19 = "lookup";
+my $id20 = "$OUT";
+my $id18 = $scope.$id19($id20);
+my $id21 = "FETCH";
+my $id17 = $id18.$id21();
+my $id22 = "print";
+
+RI($capture,"capture");
+my $ok = $capture."positional"(1);
+
+my $void = $id17.$id22($ok,"\n");
+
+my $void = 1;
+my $id26 = "continuation";
+my $id25 = $interpreter.$id26();
+my $id27 = "back";
+my $id24 = $id25.$id27();
+my $id28 = "setr";
+my $void = $id24.$id28($scope);
+my $id29 = "goto";
+my $id32 = "continuation";
+my $id31 = $interpreter.$id32();
+my $id33 = "back";
+my $id30 = $id31.$id33();
+my $void = $interpreter.$id29($id30);
+};
+    my $AdhocSignature_scalar = $scope."lookup"("AdhocSignature");
+    my $AdhocSignature = $AdhocSignature_scalar."FETCH"();
+    
+    my $sig = $AdhocSignature."new"(:"BIND"(mold {
+        my $interpreter;
+        my $scope;
+        my $capture;
+        my $continuation = $interpreter."continuation"();
+        my $back = $continuation."back"();
+        my $void = $interpreter."goto"($back);
+    }),:"ACCEPTS"(mold {
+        my $interpreter;
+        my $scope;
+        my $capture;
+        my $continuation = $interpreter."continuation"();
+        my $back = $continuation."back"();
+        my $void = $interpreter."goto"($back);
+    }));
+
+    my $Code_scalar = $scope."lookup"("Code");
+    my $Code = $Code_scalar."FETCH"();
+    my $main_code = $Code."new"(:"outer"($scope),:"mold"($main),:"signature"($sig));
+    my $Capture_scalar = $scope."lookup"("capture");
+    my $Capture = $Capture_scalar."FETCH"();
+    my $capture = $Capture."new"();
+    my $ret = $main_code."postcircumfix:( )"($capture);
