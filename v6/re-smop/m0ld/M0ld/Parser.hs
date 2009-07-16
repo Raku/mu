@@ -132,7 +132,6 @@ declare_implicitly c = do
             do 
                 let new = "___implicit_register___"++(show $ Map.size decls)
                 updateState $ Map.insert c new
-                decls <- getState
                 return $ new
 
 value = tok $ choice [register,implicit_decl]
