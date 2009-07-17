@@ -79,6 +79,7 @@ bytecodeLength stmt = case stmt of
     Decl _ _ -> 0
     LabelDef _ -> 0
     Assign _ _ -> 3
+    Hint _ _ _ -> 0
 
 addLabelDef (labels,offset) (LabelDef label) = (Map.insert label offset labels,offset)
 addLabelDef (labels,offset) stmt = (labels,offset+bytecodeLength stmt)
