@@ -482,12 +482,11 @@ Here are a few of the most common used operators:
 =end DESCRIPTION
 
 =begin AUTHORS
-Kirrily "Skud" Robert L<skud@cpan.org|mailto:skud@cpan.org> (original Author)
-and Moritz Lenz L<moritz@fau2ik3.org|mailto:moritz@faui2k3.org> ("translation"
+L<Kirrily "Skud" Robert|mailto:skud@cpan.org> (original Author)
+and L<Moritz Lenz|mailto:moritz@faui2k3.org> ("translation"
 to Perl 6)
 
-Some fixup by David Koenig
-L<karhu@u.washington.edu|mailto:karhu@u.washington.edu>
+Some fixup by L<David Koenig|mailto:karhu@u.washington.edu>
 =end AUTHORS
 
 =comment TODO: the rest
