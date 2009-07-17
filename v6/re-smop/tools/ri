@@ -16,13 +16,13 @@ sub preprocess_m0ld {
     my $code = shift;
     return preprocess($code,"$m0ld");
 }
-sub preprocess_lost_funcs {
+sub preprocess_yeast_funcs {
     my $code = shift;
-    return preprocess($code,$m0ld,"--lost-funcs");
+    return preprocess($code,$m0ld,"--yeast-funcs");
 }
-sub preprocess_lost_create {
+sub preprocess_yeast_create {
     my $code = shift;
-    return preprocess($code,$m0ld,"--lost-create");
+    return preprocess($code,$m0ld,"--yeast-create");
 }
 sub preprocess {
     my $code = shift;
@@ -49,7 +49,7 @@ my %mold;
 my $mold;
 
 my %yeast;
-my $lost_mold;
+my $yeast;
 
 my @attrs;
 my @getters;
@@ -88,13 +88,13 @@ while (my $line = <>) {
             $mold{$mold} .= $line;
             next;
         }
-    } elsif ($lost_mold) {
+    } elsif ($yeast) {
         if ($line =~ /^%/) {
-            undef $lost_mold;
+            undef $yeast;
             redo;
         } else {
-            debug "in lost_mold $line";
-            $yeast{$lost_mold} .= $line;
+            debug "in yeast $line";
+            $yeast{$yeast} .= $line;
             next;
         }
     } elsif ($line =~ /^%method \s* (.*?) (?: \( ([^(]*) \) )?$/x) {
@@ -113,9 +113,9 @@ while (my $line = <>) {
     } elsif ($line =~ /^%mold\s*(.*)$/) {
         $mold = $1;
         debug "mold start:$mold\n";
-    } elsif ($line =~ /^%lost_mold\s*(.*)$/) {
-        $lost_mold = $1;
-        debug "mold start:$lost_mold\n";
+    } elsif ($line =~ /^%yeast\s*(.*)$/) {
+        $yeast = $1;
+        debug "mold start:$yeast\n";
     } elsif ($line =~ /^%attr\s*(.*)\n$/) {
         push(@attrs,$1);
     } elsif ($line =~ /^%idconst\s*(.*)\n$/) {
@@ -324,7 +324,7 @@ print $destroyall;
 my $release = $properties{'nagc.nofree'} ? 'smop_nagc_release_nofree' : 'smop_nagc_release';
 
 while (my ($name,$mold) = each %yeast) {
-    print preprocess_lost_funcs($mold);
+    print preprocess_yeast_funcs($mold);
 }
 
 print qq[
@@ -355,7 +355,7 @@ while (my ($name,$mold) = each %mold) {
 }
 
 while (my ($name,$mold) = each %yeast) {
-    print "  $name = ",preprocess_lost_create($mold),";\n";
+    print "  $name = ",preprocess_yeast_create($mold),";\n";
 }
 
 print $raw{'init_post_mold'} || '';
