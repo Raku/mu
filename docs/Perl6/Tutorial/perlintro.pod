@@ -1,21 +1,21 @@
 =begin pod
 
 =for comment
-    This is a rather 1:1 "translation" from p5 perlintro to p6 - feel free
-    to adopt any changes. Big chunks have been kept literaly.
+This is a rather 1:1 "translation" from Perl 5's perlintro to Perl 6 - feel free
+to adopt any changes. Big chunks have been kept literaly.
 
 =head1 TITLE
 
-perlintro -- a brief introduction and overview of Perl 6
+perlintro -- A brief introduction and overview of Perl 6
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Kirrily "Skud" Robert <L<C<skud@cpan.org>|mailto:skud@cpan.org>> (original
-Author) and Moritz Lenz
-<L<C<moritz@fau2ik3.org>|mailto:moritz@faui2k3.org>> ("translation" to perl 6)
+Kirrily "Skud" Robert L<skud@cpan.org|mailto:skud@cpan.org> (original Author)
+and Moritz Lenz L<moritz@fau2ik3.org|mailto:moritz@faui2k3.org> ("translation"
+to Perl 6)
 
 Some fixup by David Koenig
-<L<C<karhu@u.washington.edu>|mailto:karhu@u.washington.edu>>
+L<karhu@u.washington.edu|mailto:karhu@u.washington.edu>
 
 =head1 DESCRIPTION
 
@@ -52,18 +52,19 @@ It can also use the large collection of Perl 5 modules.
 
 =head2 Running Perl Programs
 
-Currently, the main interpreter is Pugs, available at L<http://pugscode.org>.
+Currently, the main interpreter is Rakudo, available at L<http://rakudo.org>.
 This is the most complete interpreter so far, but is kind of slow.
 
-Assuming your code is in a file named "foo.p6", you can invoke your program as:
+Assuming your code is in a file named "foo.pl", you can invoke your program as:
 
 =begin code
-	pugs foo.p6
+    rakudo foo.pl
 =end code
 
 You can also write one-liners with the C<-e> option:
+
 =begin code
-	pugs -e '"Hello World".say'
+    rakudo -e '"Hello World".say'
 =end code
 
 =comment TODO: continue writing
@@ -86,7 +87,7 @@ with brackets. You can have no space between the bracket and the hash:
 
 =begin code
     # This is a comment
-	say #(this is a comment too) "Hello World";
+    say #(this is a comment too) "Hello World";
 =end code
 
 Whitespace is irrelevant, for the most part. However, there are some places
@@ -96,8 +97,8 @@ where space is required or not allowed:
     say
         "Hello, world"
        ;    # this works
-	"foo" .say; # this is a syntax error, no space allowed.
-	"foo"\   .say; # this is a "long dot", allowed. backslashed whitespace is ignored.
+    "foo" .say; # this is a syntax error, no space allowed.
+    "foo"\   .say; # this is a "long dot", allowed. backslashed whitespace is ignored.
 =end code
 
 ... except inside quoted strings:
@@ -122,7 +123,8 @@ However, only double quotes "interpolate" variables and special characters such 
     print 'Hello, $name\n';     # prints $name\n literally
 =end code
 
-(Note that C<print> and C<say> do the same thing, only C<say> appends a newline character at the end.)
+(Note that C<print> and C<say> do the same thing, only C<say> appends a newline
+character at the end.)
 
 Numbers don't need quotes around them:
 
@@ -147,7 +149,6 @@ You can call methods in OO-Style notation:
 
 If you provide addtional arguments to method calls, you should always use
 parentheses.
-
 
 =head2 Perl variable types
 
@@ -191,7 +192,6 @@ implicitly by certain looping constructs.
 =begin code
     .print; # prints contents of $_
 =end code
-
 
 =head3 Arrays
 
@@ -257,12 +257,11 @@ There are also some shortcuts that make life easy. For example, these two
 lines are the same:
 
 =begin code
-	my @list = <foo bar baz>;
-	my @list = 'foo', 'bar', 'baz';
+    my @list = <foo bar baz>;
+    my @list = 'foo', 'bar', 'baz';
 =end code
 
 =comment hopefully they are...
-
 
 =head3 Hashes
 
@@ -304,7 +303,6 @@ all about it (and other special variables) in L<doc:perlvar>.
 =head3 Complex data structures
 
 TODO: when do you need captures?
-
 
 =head2 Variable scoping
 
@@ -386,7 +384,7 @@ one-line conditional blocks more English like:
 Sometimes the condition is more important than the action. You can say:
 
 =begin code
-	$zippy and print "Yow!";
+    $zippy and print "Yow!";
 =end code
 
 and get the same effect.
@@ -401,17 +399,22 @@ and get the same effect.
 
 There's also a negated version, for the same reason we have C<unless>:
 
+=begin code
     until condition {
         ...
     }
+=end code
 
 You can also use "while" in a post-condition:
 
+=begin code
     say "LA LA LA" while 1;          # loops forever
+=end code
 
 If you want the condition to be checked after the loop block, you can use
 Pascal-like C<repeat>:
-	
+
+=begin code
     repeat {
         ...
     } while condition
@@ -419,18 +422,22 @@ Pascal-like C<repeat>:
     repeat {
         ...
     } until condition
+=end code
 
 =head3 for and loop
 
 For a C-style for-loop use C<loop>:
     
+=begin code
     loop (my $i = 0; $i < $max; $i++){
         ...
     }
+=end code
 
 This kind of loop is rarely needed in Perl since Perl provides
 the more friendly list scanning C<for> loop.
 
+=begin code
     for @list -> my $i {
         say "This element is $i";
     }
@@ -439,7 +446,7 @@ the more friendly list scanning C<for> loop.
     for @list {
         say "This element is $_";
     }
-
+=end code
 
 =head2 Builtin operators and functions
 
@@ -473,14 +480,14 @@ Here are a few of the most common used operators:
 =end table
 
 =begin table :caption<String comparison operators>
-	eq	Equality
-	ne	Non-equality
-	lt	Less than
-	gt	Greater than
-	ge	Greater then or equal
-	le	Less than or equal
+    eq      Equality
+    ne      Non-equality
+    lt      Less than
+    gt      Greater than
+    ge      Greater then or equal
+    le      Less than or equal
 =end table
 
 =comment TODO: the rest
-
+=comment vim: filetype=perl6
 =end pod
