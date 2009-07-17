@@ -4,20 +4,11 @@
 This is a rather 1:1 "translation" from Perl 5's perlintro to Perl 6 - feel free
 to adopt any changes. Big chunks have been kept literaly.
 
-=head1 TITLE
-
+=begin TITLE
 perlintro -- A brief introduction and overview of Perl 6
+=end TITLE
 
-=head1 AUTHORS
-
-Kirrily "Skud" Robert L<skud@cpan.org|mailto:skud@cpan.org> (original Author)
-and Moritz Lenz L<moritz@fau2ik3.org|mailto:moritz@faui2k3.org> ("translation"
-to Perl 6)
-
-Some fixup by David Koenig
-L<karhu@u.washington.edu|mailto:karhu@u.washington.edu>
-
-=head1 DESCRIPTION
+=begin DESCRIPTION
 
 This document is intended to give you a quick overview of the Perl programming
 language as of Version 6, along with pointers to further documentation.  It is
@@ -34,7 +25,7 @@ the full Perl manual, the table of contents to which can be found in
 perltoc.
 
 Throughout this document you'll see references to other parts of the
-Perl documentation.  You can read that documentation using the C<p6doc>
+Perl documentation.  You can read that documentation using the C<grok>
 command or whatever method you're using to read this document.
 
 =head2 What is Perl?
@@ -480,13 +471,24 @@ Here are a few of the most common used operators:
 =end table
 
 =begin table :caption<String comparison operators>
-    eq      Equality
-    ne      Non-equality
-    lt      Less than
-    gt      Greater than
-    ge      Greater then or equal
-    le      Less than or equal
+    eq  Equality
+    ne  Non-equality
+    lt  Less than
+    gt  Greater than
+    ge  Greater then or equal
+    le  Less than or equal
 =end table
+
+=end DESCRIPTION
+
+=begin AUTHORS
+Kirrily "Skud" Robert L<skud@cpan.org|mailto:skud@cpan.org> (original Author)
+and Moritz Lenz L<moritz@fau2ik3.org|mailto:moritz@faui2k3.org> ("translation"
+to Perl 6)
+
+Some fixup by David Koenig
+L<karhu@u.washington.edu|mailto:karhu@u.washington.edu>
+=end AUTHORS
 
 =comment TODO: the rest
 =comment vim: filetype=perl6
