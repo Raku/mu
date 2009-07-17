@@ -172,8 +172,6 @@ void init(SMOP__Object* interpreter,SMOP__Object* scope,SMOP__Object* continuati
 }
 BOILERPLATE
     close($c_fh);
-    warn $c_file;
-    print(join(' ',"gcc","-fPIC","-g","-xc","-L../../smop/build/lib",@MILDEW_LDOPTS,@SMOP_INCLUDE,"-shared",$c_file,"-o",$output),"\n");
     system("gcc","-fPIC","-g","-xc","-L../../smop/build/lib",@MILDEW_LDOPTS,@SMOP_INCLUDE,"-shared",$c_file,"-o",$output);
 }
 sub output {
