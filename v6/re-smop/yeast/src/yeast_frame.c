@@ -143,7 +143,25 @@ static SMOP__Object* MESSAGE(SMOP__Object* interpreter,
   return ret;
 }
 static void DESTROYALL(SMOP__Object* interpreter,SMOP__Object* value) {
-     smop_nagc_rdlock((SMOP__NAGC__Object*)value);
+    smop_nagc_rdlock((SMOP__NAGC__Object*)value);
+
+    SMOP__Yeast__Frame* frame = (SMOP__Yeast__Frame*) value;
+    SMOP__Yeast* yeast = (SMOP__Yeast*) frame->yeast;
+    int i;
+    for (i=0;i<yeast->registers;i++) {
+      if (frame->reg[i]) {
+        SMOP_RELEASE(interpreter,frame->reg[i]);
+        frame->reg[i] = NULL;
+      }
+    }
+    free(frame->reg);
+    frame->reg = NULL;
+    SMOP_RELEASE(interpreter,frame->yeast);
+    if (frame->back) SMOP_RELEASE(interpreter,frame->back);
+    if (frame->control) SMOP_RELEASE(interpreter,frame->control);
+    if (frame->catch) SMOP_RELEASE(interpreter,frame->catch);
+    if (frame->lexical) SMOP_RELEASE(interpreter,frame->lexical);
+    frame->yeast = NULL;
 
      smop_nagc_unlock((SMOP__NAGC__Object*)value);
 }

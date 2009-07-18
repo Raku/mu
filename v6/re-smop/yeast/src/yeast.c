@@ -30,7 +30,6 @@ SMOP__Object* SMOP__Yeast_create(int registers,SMOP__Object** constants,void (*s
 
 static void DESTROYALL(SMOP__Object* interpreter,
                               SMOP__Object* value) {
-  printf("DESTORYing YEAST\n");
   SMOP__Yeast* yeast = (SMOP__Yeast*)value;
   int i;
   for (i=0;i <= yeast->constants_len;i++) {

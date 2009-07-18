@@ -29,4 +29,5 @@ test-yeast: CORE
 	$(PROVE) 'perl mildew --yeast' `cat TESTS` t/
 
 clean:
-	rm -rf lex
+	rm -fr CORE.pad.store CORE/*.mildew.so lib/*.mildew.so lex/ perl6-snapshot/CORE.pad.store perl6-snapshot/STD.pm5 perl6-snapshot/STD.pmc perl6-snapshot/lex/
+.PHONY : clean

@@ -72,6 +72,7 @@ emitFunc (prefix,id) regMap labelsMap hints stmts = let
 
 stmtSize (Decl _ _) = 0
 stmtSize (LabelDef _) = 0
+stmtSize (Hint _ _ _) = 0
 stmtSize _ = 1
 
 mapLabelsToStmts :: [Stmt] -> LabelsMap
