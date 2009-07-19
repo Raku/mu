@@ -1,7 +1,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 19;
 
 =begin kwid
 
@@ -40,3 +40,21 @@ is(2 + 2, 4, :desc('2 and 2 make 4'));
 is(2 + 2, 5, todo => 1, desc => '2 and 2 doesnt make 5');
 is(2 + 2, 5, :todo<feature>, :desc('2 and 2 doesnt make 5'));
 
+## isnt
+
+isnt(2 + 2, 5, '2 and 2 does not make 5');
+isnt(2 + 2, 5, desc => '2 and 2 does not make 5');
+isnt(2 + 2, 5, :desc('2 and 2 does not make 5'));
+
+isnt(2 + 2, 4, '2 and 2 does make 4', :todo(1));
+isnt(2 + 2, 4, desc => '2 and 2 does make 4', todo => 1);
+isnt(2 + 2, 4, :desc('2 and 2 does make 4'), todo => 1);
+
+## pass
+
+pass('This test passed');
+
+## flunk
+
+flunk('This test failed', todo => 1);
+flunk('This test failed', :todo(1));

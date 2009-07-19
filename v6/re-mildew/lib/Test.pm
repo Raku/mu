@@ -4,6 +4,9 @@ role HACK {
         $scope.{'&ok'} := &ok;
         $scope.{'&plan'} := &plan;
         $scope.{'&is'} := &is;
+        $scope.{'&isnt'} := &isnt;
+        $scope.{'&pass'} := &pass;
+        $scope.{'&flunk'} := &flunk;
     }
 }
 role Test {
@@ -33,4 +36,13 @@ multi ok($cond,$desc?,:$todo) {
 }
 multi is($got,$expected,$desc?,:$todo) {
     proclaim($got eq $expected,$desc,$todo);
+}
+multi isnt($got,$expected,$desc?,:$todo) {
+    proclaim($got ne $expected,$desc,$todo);
+}
+multi pass($desc?,:$todo) {
+    proclaim(1,$desc,$todo);
+}
+multi flunk($desc?,:$todo) {
+    proclaim(0,$desc,$todo);
 }
