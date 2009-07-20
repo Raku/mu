@@ -465,9 +465,9 @@ Smart matching is used in Perl's switch statement. It is called C<given>:
 
 You can open a file for input or output using the C<open> function.
 
-    my $in = open "input.txt" :r;       # open for reading
-    my $out = open "output.txt" :w;     # open for writing
-    my $log = open "my.log" :a;         # open for appending
+    my $in = open "input.txt", :r;       # open for reading
+    my $out = open "output.txt", :w;     # open for writing
+    my $log = open "my.log", :a;         # open for appending
 
 You can read from an open filehandle using the C<.get> or C<.lines> methods:
 
@@ -583,7 +583,7 @@ and L<doc:perlre>.
 Writing subroutines is easy:
 
     sub logger ($message) {
-        my $log = open "my.log" :rw;
+        my $log = open "my.log", :rw;
         $log.say($message);
     }
 
