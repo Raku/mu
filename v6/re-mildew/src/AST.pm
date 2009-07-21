@@ -146,10 +146,12 @@ use Moose;
 extends 'AST::Base';
 has 'stmts' => (is=>'ro');
 has 'regs' => (is=>'ro',default=>sub {[]});
+has 'hints' => (is=>'ro',default=>sub {{}});
 sub m0ld {
     my ($self,$ret) = @_;
     "my $ret = mold {\n"
         . join('',map {'my $'.$_.";\n"} @{$self->regs})
+        . join('',map {'RI($'.$_.",\"".$self->hints->{$_}."\");\n"} keys %{$self->hints})
         . join("",map { $_->emit_('$void') } @{$self->stmts})
     . "};\n";
 }

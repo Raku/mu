@@ -41,12 +41,10 @@
   ret = SMOP__NATIVE__bool_true;
 
 %method entries
-  fprintf(stderr,"entries {\n");
   smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
   ret = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
   smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
   SMOP_REFERENCE(interpreter, ret);
-  fprintf(stderr,"entries }\n");
 
 %method postcircumfix:{ }
   smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);

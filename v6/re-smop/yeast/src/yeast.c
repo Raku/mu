@@ -3,6 +3,7 @@
 #include <smop/nagc.h>
 #include <smop/yeast.h>
 #include <stdlib.h>
+#include <string.h>
 
 static SMOP__NAGC__ResponderInterface* RI;
 SMOP__Object* SMOP__Yeast__RI;

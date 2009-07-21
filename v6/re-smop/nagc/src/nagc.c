@@ -143,9 +143,11 @@ SMOP__Object* smop_nagc_weakref(SMOP__Object* interpreter,
 
 void smop_nagc_init() {
   smop_nagc_weakref_init();
+  smop_nagc_ri_init();
 }
 
 void smop_nagc_destr() {
+  smop_nagc_ri_destr();
   smop_nagc_weakref_destr();
 #ifdef SMOP_LEAK_TRACE
   int i = 0;

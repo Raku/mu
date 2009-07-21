@@ -1,0 +1,138 @@
+%RI.id yeast frame
+%include <smop/yeast.h>
+%prefix smop_yeast_frame
+%struct SMOP__Yeast__Frame
+%lowlevel
+
+%{
+SMOP__Object* SMOP__Yeast__Frame_create(SMOP__Object* interpreter,SMOP__Object* yeast_object) {
+    SMOP__Yeast* yeast = (SMOP__Yeast*) yeast_object;
+    SMOP__Yeast__Frame* ret = (SMOP__Yeast__Frame*) smop_nagc_alloc(sizeof(SMOP__Yeast__Frame));
+    ret->RI = (SMOP__ResponderInterface*)RI;
+    ret->step = yeast->step;
+    ret->yeast = yeast_object;
+
+    ret->pc = 0;
+    ret->back = NULL;
+    ret->reg = (SMOP__Object**) calloc(yeast->registers,sizeof(SMOP__ResponderInterface)); 
+    ret->ret = NULL;
+
+    int i;
+    for (i = 0; i < yeast->constants_len; i++) {
+      if (yeast->constants[i]) {
+        ret->reg[i] = SMOP_REFERENCE(interpreter,yeast->constants[i]);
+      }
+    }
+
+    return (SMOP__Object*) ret;
+}
+
+SMOP__Object* SMOP__Frame_create(SMOP__Object* interpreter,SMOP__Object* shape) {
+  if (shape->RI == (SMOP__ResponderInterface*)SMOP__Yeast__RI) {
+    return SMOP__Yeast__Frame_create(interpreter,shape);
+  } else {
+    return SMOP__Mold__Frame_create(interpreter,shape);
+  }
+}
+
+void smop_reg_set(SMOP__Object* interpreter,SMOP__Object* frame, int regnum, SMOP__Object* value) {
+  if (frame->RI == (SMOP__ResponderInterface*)RI)
+    yeast_reg_set(interpreter,frame,regnum,value);
+  else
+    mold_reg_set(interpreter,frame,regnum,value);
+}
+
+void smop_back_set(SMOP__Object* interpreter,SMOP__Object* obj, SMOP__Object* value) {
+    if (obj->RI == (SMOP__ResponderInterface*)RI) {
+      SMOP__Yeast__Frame* frame = (SMOP__Yeast__Frame*) obj;
+      if (frame->back) {
+        printf("setting back , previous %s new = %s\n",frame->back->RI->id,value->RI->id);
+        printf("Cannot redefine mold back!");
+        abort();
+      }
+      frame->back = value;
+    } else {
+      mold_back_set(interpreter,obj,value);
+    }
+}
+
+void yeast_reg_set(SMOP__Object* interpreter,SMOP__Object* yeastframe, int regnum, SMOP__Object* value) {
+    SMOP__Yeast__Frame* frame = (SMOP__Yeast__Frame*) yeastframe;
+    SMOP__Yeast* yeast = (SMOP__Yeast*) frame->yeast;
+    int where = yeast->constants_len+regnum;
+    SMOP__Object* old = frame->reg[where];
+//    printf("setting %d to %s\n",where,value->RI->id);
+    frame->reg[where] = value;
+    if (old) {
+      SMOP_RELEASE(interpreter, old);
+    }
+}
+%}
+
+%method eval
+
+
+    void (*step)(SMOP__Object* interpreter,
+                SMOP__Object* frame);
+    step = ((SMOP__Yeast__Frame*)invocant)->step;
+    step(interpreter,invocant);
+    if (((SMOP__Yeast__Frame*)invocant)->pc == -1) {
+      ret = SMOP__NATIVE__bool_false;
+    } else {
+      ret = SMOP__NATIVE__bool_true;
+    }
+
+%method setr
+    SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, 1);
+
+    if (value == invocant) {
+      SMOP_RELEASE(interpreter, value);
+    }
+    SMOP__Object** target = ((SMOP__Yeast__Frame*)invocant)->ret;
+    if (!target) fprintf(stderr,"calling setr on a frame not expecting a return value\n");
+    if (*target) {
+      SMOP_RELEASE(interpreter,ret);
+    }
+    *target = value;
+
+%method set_regs
+    int i;
+    int count = SMOP__NATIVE__capture_positional_count(interpreter, capture);
+    for (i = 1;i < count;i++) {
+      SMOP__Object* value = SMOP__NATIVE__capture_positional(interpreter, capture, i);
+      smop_reg_set(interpreter, invocant, i-1, value);
+    }
+
+%getset back
+%getset control
+%getset catch
+%getset lexical
+
+%method FETCH
+    ___VALUE_FETCH___;
+
+%method STORE
+    ___VALUE_STORE___;
+
+%method true
+    ret = SMOP__NATIVE__bool_true;
+
+%DESTROYALL {
+    SMOP__Yeast__Frame* frame = (SMOP__Yeast__Frame*) invocant;
+    SMOP__Yeast* yeast = (SMOP__Yeast*) frame->yeast;
+    int i;
+    for (i=0;i<yeast->registers;i++) {
+      if (frame->reg[i]) {
+        SMOP_RELEASE(interpreter,frame->reg[i]);
+        frame->reg[i] = NULL;
+      }
+    }
+    free(frame->reg);
+    frame->reg = NULL;
+    SMOP_RELEASE(interpreter,frame->yeast);
+    if (frame->back) SMOP_RELEASE(interpreter,frame->back);
+    if (frame->control) SMOP_RELEASE(interpreter,frame->control);
+    if (frame->catch) SMOP_RELEASE(interpreter,frame->catch);
+    if (frame->lexical) SMOP_RELEASE(interpreter,frame->lexical);
+    frame->yeast = NULL;
+%}

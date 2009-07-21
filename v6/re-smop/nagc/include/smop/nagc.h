@@ -13,6 +13,24 @@ typedef struct SMOP__NAGC__ResponderInterface {
   SMOP__NAGC__ResponderInterface__BASE
 } SMOP__NAGC__ResponderInterface;
 
+SMOP__Object* SMOP__NAGC__RI__create(
+  SMOP__Object* (*MESSAGE)  (SMOP__Object* interpreter,
+                             SMOP__ResponderInterface* self,
+                             SMOP__Object* identifier,
+                             SMOP__Object* capture),
+  SMOP__Object* (*REFERENCE)(SMOP__Object* interpreter,
+                             SMOP__ResponderInterface* self,
+                             SMOP__Object* object),
+  SMOP__Object* (*RELEASE)  (SMOP__Object* interpreter,
+                             SMOP__ResponderInterface* self,
+                             SMOP__Object* object),
+  SMOP__Object* (*WEAKREF)  (SMOP__Object* interpreter,
+                             SMOP__ResponderInterface* self,
+                             SMOP__Object* object),
+  void (*DESTROYALL)  (SMOP__Object* interpreter,SMOP__Object* object),
+  char *id
+);
+
 // weakrefs is handled privately...
 #define SMOP__NAGC__Object__BASE      \
   SMOP__Object__BASE                  \
