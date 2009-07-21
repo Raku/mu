@@ -252,11 +252,13 @@ static SMOP__Object* message(SMOP__Object* interpreter,
                                      SMOP__Object* capture) {
 ];
 my $in_msg = $raw{inmessage} || '';
+my $pre_msg = $raw{premessage} || '';
 my $message = $raw{message} || q[
   /*___NATIVE_CAPTURE_ONLY___;
   ___CONST_IDENTIFIER_ONLY___;*/
   SMOP__Object* invocant = (SMOP__Object*) SMOP__NATIVE__capture_positional(interpreter, capture,0);
   SMOP__Object* ret = SMOP__NATIVE__bool_false;
+  %%PREMESSAGE%%
   %%METHODS%%
   %%INMESSAGE%%
   {
@@ -270,6 +272,7 @@ my $methods = '';
 while (my ($method,$body) = each %methods) {
     $methods .= "if (" . mangle($method) . " == identifier) {\n$body  } else ";
 }
+$message =~ s/%%PREMESSAGE%%/$pre_msg/g;
 $message =~ s/%%METHODS%%/$methods/g;
 $message =~ s/%%INMESSAGE%%/$in_msg/g;
 print $message;
