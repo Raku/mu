@@ -6,22 +6,23 @@
 %attr SMOP__Object* outer
 %getter entries
 %getter outer
-%{
-  static SMOP__Object* SMOP__ID__postcircumfix_curly;
-  static SMOP__Object* SMOP__ID__goto;
-  static SMOP__Object* SMOP__ID__bind_key;
-  static SMOP__Object* SMOP__ID__exists;
-  static SMOP__Object* SMOP__ID__new;
-  static SMOP__Object* SMOP__ID__continuation;
-%}
+%idconst postcircumfix:{ }
+%idconst goto
+%idconst bind_key
+%idconst exists
+%idconst new
+%idconst continuation
 
-%init {
- SMOP__ID__postcircumfix_curly = SMOP__NATIVE__idconst_create("postcircumfix:{ }");
- SMOP__ID__goto = SMOP__NATIVE__idconst_create("goto");
- SMOP__ID__bind_key = SMOP__NATIVE__idconst_create("bind_key"),
- SMOP__ID__exists = SMOP__NATIVE__idconst_create("exists");
- SMOP__ID__new = SMOP__NATIVE__idconst_create("new");
- SMOP__ID__continuation = SMOP__NATIVE__idconst_create("continuation");
+%{
+  SMOP__Object* smop_shortcut_lexical_scope_exists(SMOP__Object* interpreter,SMOP__Object* invocant,SMOP__Object* key) {
+    SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+    return SMOP_DISPATCH(interpreter, SMOP_RI(entries),
+      SMOP__ID__exists,
+      SMOP__NATIVE__capture_create(interpreter,
+       (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,entries),key,NULL},
+       (SMOP__Object*[]) {NULL})
+    );
+  }
 %}
 
 %method new
@@ -53,22 +54,14 @@
   smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
 
   ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
-    SMOP__ID__postcircumfix_curly,
+    SMOP__ID__postcircumfixColonCur_20_Ly,
     SMOP__NATIVE__capture_create(interpreter,
      (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,entries),SMOP__NATIVE__capture_positional(interpreter,capture,1),NULL},
      (SMOP__Object*[]) {NULL})
   );
 
 %method exists
-  smop_nagc_rdlock((SMOP__NAGC__Object*)invocant);
-  SMOP__Object* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
-  smop_nagc_unlock((SMOP__NAGC__Object*)invocant);
-  ret = SMOP_DISPATCH(interpreter, SMOP_RI(entries),
-    SMOP__ID__exists,
-    SMOP__NATIVE__capture_create(interpreter,
-     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,entries),SMOP__NATIVE__capture_positional(interpreter,capture,1),NULL},
-     (SMOP__Object*[]) {NULL})
-  );
+  ret = smop_shortcut_lexical_scope_exists(interpreter,invocant,SMOP__NATIVE__capture_positional(interpreter,capture,1));
 
 %method lookup_fail
   SMOP__Object* name = SMOP__NATIVE__capture_positional(interpreter,capture,1);
@@ -86,7 +79,7 @@
 
     my $name = $capture."positional"(1);
     my $invocant = $capture."positional"(0);
-    RI($invocant,"lexical scope");
+RI($invocant,"lexical scope");
     my $exists = $invocant."exists"($name);
     
     my $void;
@@ -122,12 +115,7 @@
   smop_reg_set(interpreter,frame,2,SMOP_REFERENCE(interpreter,interpreter));
 
 
-  SMOP_DISPATCH(interpreter, SMOP_RI(interpreter),
-              SMOP__ID__goto,
-    SMOP__NATIVE__capture_create(interpreter,
-     (SMOP__Object*[]) {SMOP_REFERENCE(interpreter,interpreter),frame,NULL},
-     (SMOP__Object*[]) {NULL})
-  );
+  smop_shortcut_interpreter_goto(interpreter,interpreter,frame);
 
 %DESTROYALL {
     smop_nagc_wrlock((SMOP__NAGC__Object*)invocant);

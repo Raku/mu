@@ -42,6 +42,18 @@ static void DESTROYALL(SMOP__Object* interpreter,
     }
 }
 
+SMOP__Object* smop_shortcut_interpreter_goto(SMOP__Object* interpreter,SMOP__Object* invocant,SMOP__Object* continuation) {
+    SMOP__Object* cont = ((interpreter_struct*)invocant)->continuation;
+    if (continuation == SMOP__NATIVE__bool_false) {
+#ifdef SMOP_PROFILE
+      if (SMOP_PROFILE_on) fprintf(SMOP_PROFILE_out,"stoping the interpreter\n");
+#endif
+      continuation = NULL;
+    }
+    ((interpreter_struct*)invocant)->continuation = continuation;
+    if (cont) SMOP_RELEASE(interpreter,cont);
+    return SMOP__NATIVE__bool_false;
+}
 static SMOP__Object* interpreter_message(SMOP__Object* interpreter,
                                      SMOP__ResponderInterface* self,
                                      SMOP__Object* identifier,

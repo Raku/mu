@@ -21,7 +21,16 @@ emitStmt regs labels hints (i,c) stmt =
         Just (StringConstant "capture") -> case hint Constant identifier of
             Just (StringConstant "positional") -> case capture of
                 (Capture invocant [i] []) -> emit $ assign target $ "SMOP__NATIVE__capture_positional(interpreter," ++ reg invocant ++ ",SMOP__NATIVE__int_fetch(" ++ reg i ++ "))"
-            _ -> emit identifier
+            _ -> dispatch
+        Just (StringConstant "interpreter") -> case hint Constant identifier of
+            Just (StringConstant "goto") -> case capture of
+                (Capture invocant [c] []) -> emit $ "frame->pc = " ++ (show $ i+1) ++ ";\n" ++ (assign target $ "smop_shortcut_interpreter_goto(interpreter," ++ reg invocant ++ ",SMOP_REFERENCE(interpreter," ++ reg c ++ "))") ++ "break;\n"
+            _ -> dispatch
+        Just (StringConstant "lexical scope") -> case hint Constant identifier of
+            Just (StringConstant "exists") -> case capture of
+
+                (Capture invocant [key] []) -> emit $ "frame->pc = " ++ (show $ i+1) ++ ";\n" ++ "frame->ret = &" ++ reg target ++ ";\n" ++ (assign target $ "smop_shortcut_lexical_scope_exists(interpreter," ++ reg invocant ++ ",SMOP_REFERENCE(interpreter," ++ reg key ++ "))") ++ "break;\n"
+            _ -> dispatch
         _ -> dispatch
         where
         dispatch = emit $ 
