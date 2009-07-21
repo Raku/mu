@@ -41,15 +41,22 @@ knowhow RoleHOW {
             # Roles are not classes! so we're going to delegate this to a
             # punned class that does this role. For now, we're going to pun a
             # new class every time, then we'll think in some sort of caching.
-            my $class = ::p6opaque.^!CREATE;
-            $class.^!how = ::PrototypeHOW;
-            $class.^!does.push((|$object));
-#            $class.^compose_role(::LowObject);
-#            $class.^compose_role($object);
-            copy_methods($class,::LowObject);
-            copy_methods($class,$object);
-            my $delegated = ::Scalar.new($capture.delegate($class.FETCH));
-            return $class.^dispatch($identifier.FETCH, (|$delegated));
+            my $punned;
+            if $object.^!instance_storage.exists('CACHED_PUNNED_CLASS') {
+                $punned = $object.^!instance_storage.{'CACHED_PUNNED_CLASS'};
+            } else {
+                my $class = ::p6opaque.^!CREATE;
+                $class.^!how = ::PrototypeHOW;
+                $class.^!does.push((|$object));
+    #            $class.^compose_role(::LowObject);
+    #            $class.^compose_role($object);
+                copy_methods($class,::LowObject);
+                copy_methods($class,$object);
+                $punned = $class;
+                $object.^!instance_storage.{'CACHED_PUNNED_CLASS'} = $class;
+            }
+            my $delegated = ::Scalar.new($capture.delegate($punned.FETCH));
+            return $punned.^dispatch($identifier.FETCH, (|$delegated));
         }
     }
 }
