@@ -20,7 +20,7 @@
 %method BIND(value)
     smop_lexicalscope_entry* entry = ((smop_s1p_lexical_struct*)invocant)->entry;
 
-    if (entry->value) SMOP_RELEASE(interpreter,entry);
+    if (entry->value) SMOP_RELEASE(interpreter,entry->value);
     entry->value = value;
     ret = SMOP_REFERENCE(interpreter,invocant);
 

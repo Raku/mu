@@ -9,8 +9,14 @@
 %{
 
   SMOP__Object* smop_shortcut_lexical_scope_exists(SMOP__Object* interpreter,SMOP__Object* invocant,SMOP__Object* key) {
-    printf("exists");
-    abort(); 
+    smop_lexicalscope_entry* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
+    while (entries) {
+      if (entries->key == key) {
+        return SMOP__NATIVE__bool_true;
+      }
+      entries = entries->next;
+    }
+    return SMOP__NATIVE__bool_false;
   }
   SMOP__Object* smop_shortcut_lexical_scope_lookup(SMOP__Object* interpreter,SMOP__Object* invocant,SMOP__Object* key) {
     smop_lexicalscope_entry* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;
@@ -77,11 +83,12 @@
 %method postcircumfix:{ }(key)
   ret = SMOP__S1P__Lexical__BValue_create(SMOP_REFERENCE(interpreter,invocant),key);
 
-%method exists
-  ret = smop_shortcut_lexical_scope_exists(interpreter,invocant,SMOP__NATIVE__capture_positional(interpreter,capture,1));
+%method exists(key)
+  ret = smop_shortcut_lexical_scope_exists(interpreter,invocant,key);
+  SMOP_RELEASE(interpreter,key);
 
-%method lookup
-  ret = smop_shortcut_lexical_scope_lookup(interpreter,invocant,SMOP__NATIVE__capture_positional(interpreter,capture,1));
+%method lookup(key)
+  ret = smop_shortcut_lexical_scope_lookup(interpreter,invocant,key);
 
 %DESTROYALL {
     smop_lexicalscope_entry* entries = ((smop_s1p_lexicalscope_struct*)invocant)->entries;

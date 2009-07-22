@@ -1,8 +1,3 @@
-
-
-
-
-
 my $interpreter;
 my $prelude = ?SMOP__S1P__LexicalPrelude;
 my $void;
@@ -11,7 +6,7 @@ my $out = $out_scalar."FETCH"();
 #my $out_scalar = $prelude."lookup"("$OUT");
 #my $out = $out_scalar."FETCH"();
 
-$void = $out."print"("1..3\n");
+$void = $out."print"("1..5\n");
 
 my $LexicalScope_scalar = $prelude."lookup"("LexicalScope");
 my $LexicalScope = $LexicalScope_scalar."FETCH"();
@@ -37,4 +32,17 @@ my $void = $var2."STORE"("ok 3\n");
 my $ok3 = $var2."FETCH"();
 my $void = $out."print"($ok3);
 
+my $true = $scope."exists"("$foo");
+if $true {goto ok4} else {goto not_ok4};
+not_ok4: my $void = $out."print"("not ok 4\n");
+goto end_if;
+ok4: my $void = $out."print"("ok 4\n");
+end_if: noop;
+
+my $false = $scope."exists"("$OUT");
+if $false {goto not_ok5} else {goto ok5};
+not_ok5: my $void = $out."print"("not ok 5\n");
+goto end_if;
+ok5: my $void = $out."print"("ok 5\n");
+end_if: noop;
 
