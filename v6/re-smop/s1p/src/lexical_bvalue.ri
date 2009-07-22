@@ -1,0 +1,46 @@
+%prefix smop_s1p_lexical_bvalue
+%RI.id lexical bvalue
+%attr SMOP__Object* owner
+%attr SMOP__Object* key
+%getter owner
+%getter key
+%idconst continuation
+%idconst goto
+%{
+  SMOP__Object* SMOP__S1P__Lexical__BValue_create(SMOP__Object* owner, SMOP__Object* key) {
+      smop_s1p_lexical_bvalue_struct * bvalue = (smop_s1p_lexical_bvalue_struct*) smop_nagc_alloc(sizeof(smop_s1p_lexical_bvalue_struct));
+      bvalue->RI = (SMOP__ResponderInterface*)RI;
+      bvalue->key = key;
+      bvalue->owner = owner;
+      return (SMOP__Object*) bvalue;
+  }
+%}
+
+%DESTROYALL {
+  SMOP__Object* owner = ((smop_s1p_lexical_bvalue_struct*)invocant)->owner;
+  SMOP__Object* key = ((smop_s1p_lexical_bvalue_struct*)invocant)->key;
+
+  if (owner) SMOP_RELEASE(interpreter,owner);
+  if (key) SMOP_RELEASE(interpreter,key);
+%}
+
+%method BIND(value)
+  smop_lexical_scope_bind(interpreter,((smop_s1p_lexical_bvalue_struct*) invocant)->owner,SMOP_REFERENCE(interpreter,((smop_s1p_lexical_bvalue_struct*) invocant)->key),value);
+  ret = SMOP_REFERENCE(interpreter,invocant);
+
+%method FETCH
+  SMOP__Object* cont = smop_lexical_scope_get(interpreter,((smop_s1p_lexical_bvalue_struct*) invocant)->owner,SMOP_REFERENCE(interpreter,((smop_s1p_lexical_bvalue_struct*) invocant)->key));
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont),
+    SMOP__ID__FETCH,
+    SMOP__NATIVE__capture_create(interpreter,
+      (SMOP__Object*[]) {cont,NULL},
+      (SMOP__Object*[]) {NULL}));
+
+%method STORE(value)
+  
+  SMOP__Object* cont = smop_lexical_scope_get(interpreter,((smop_s1p_lexical_bvalue_struct*) invocant)->owner,SMOP_REFERENCE(interpreter,((smop_s1p_lexical_bvalue_struct*) invocant)->key));
+  ret = SMOP_DISPATCH(interpreter, SMOP_RI(cont),
+    SMOP__ID__STORE,
+    SMOP__NATIVE__capture_create(interpreter,
+      (SMOP__Object*[]) {cont,value,NULL},
+      (SMOP__Object*[]) {NULL}));

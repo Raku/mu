@@ -3,6 +3,13 @@
 #define SMOP_S1P_H
 
 #include <smop/base.h>
+
+typedef struct smop_lexicalscope_entry {
+  SMOP__Object* key;
+  SMOP__Object* value;
+  struct smop_lexicalscope_entry *next;
+} smop_lexicalscope_entry;
+
 extern SMOP__Object* SMOP__S1P__ritest;
 extern SMOP__Object* SMOP__S1P__LexicalScope;
 extern SMOP__Object* SMOP__S1P__FlattenedScope;
@@ -87,5 +94,8 @@ SMOP__Object* SMOP__S1P__CCode_create(SMOP__Object* (*ccode) (SMOP__Object* inte
                                                             SMOP__Object* ccode,
                                                             SMOP__Object* capture));
 SMOP__Object* SMOP__S1P__Scalar_FETCH(SMOP__Object* object);
+
+SMOP__Object* SMOP__S1P__Lexical_create(SMOP__Object* owner,smop_lexicalscope_entry* entry);
+SMOP__Object* SMOP__S1P__Lexical__BValue_create(SMOP__Object* owner, SMOP__Object* key);
 
 #endif
