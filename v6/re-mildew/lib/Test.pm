@@ -7,6 +7,7 @@ role HACK {
         $scope.{'&isnt'} := &isnt;
         $scope.{'&pass'} := &pass;
         $scope.{'&flunk'} := &flunk;
+        $scope.{'&cmp_ok'} := &cmp_ok;
     }
 }
 role Test {
@@ -45,4 +46,7 @@ multi pass($desc?,:$todo) {
 }
 multi flunk($desc?,:$todo) {
     proclaim(0,$desc,$todo);
+}
+multi cmp_ok($got,$op,$expected,$desc?,:$todo) {
+    proclaim($op.($got,$expected),$desc,$todo);
 }

@@ -114,6 +114,14 @@ $LexicalPrelude.{'&not'} = &not;
 $LexicalPrelude.{'&True'} = sub {::True};
 $LexicalPrelude.{'&False'} = sub {::False};
 
+$LexicalPrelude.{'&prefix:?'} = sub ($bool) {
+    if $bool {
+        ::True;
+    } else {
+        ::False
+    }
+}
+
 ::MildewSOLoader.new.load('EXTERNAL.mildew.so',$LexicalPrelude.FETCH);
 
 ::MildewSOLoader.new.load('int.mildew.so',$LexicalPrelude.FETCH);
