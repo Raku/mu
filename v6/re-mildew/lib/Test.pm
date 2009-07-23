@@ -8,6 +8,7 @@ role HACK {
         $scope.{'&pass'} := &pass;
         $scope.{'&flunk'} := &flunk;
         $scope.{'&cmp_ok'} := &cmp_ok;
+        $scope.{'&done_testing'} := &done_testing;
     }
 }
 role Test {
@@ -49,4 +50,7 @@ multi flunk($desc?,:$todo) {
 }
 multi cmp_ok($got,$op,$expected,$desc?,:$todo) {
     proclaim($op.($got,$expected),$desc,$todo);
+}
+multi done_testing() {
+    say "1..$test_count";
 }
