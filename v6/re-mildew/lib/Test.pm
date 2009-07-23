@@ -10,6 +10,7 @@ role HACK {
         $scope.{'&cmp_ok'} := &cmp_ok;
         $scope.{'&done_testing'} := &done_testing;
         $scope.{'&lives_ok'} := &lives_ok;    
+        $scope.{'&skip'} := &skip;    
     }
 }
 role Test {
@@ -62,5 +63,22 @@ multi lives_ok($code,$desc?,:$todo) {
         CATCH {
             proclaim(0,$desc,$todo);
         }
-    }.();
+    }
+}
+multi skip($count,$reason?) {
+    my $i = 0;
+    loop {
+        if $i == $count {
+            return;
+        } else {
+            $test_count = $test_count + 1;
+            print "ok $test_count - # SKIP";
+            if $reason {
+                print " $reason";
+            }
+            print "\n";
+            $i = $i + 1;
+        }
+    }
+
 }
