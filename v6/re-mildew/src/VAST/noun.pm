@@ -27,6 +27,8 @@ sub emit_m0ld {
     } elsif ($m->{package_declarator}) {
         $m->{package_declarator}->emit_m0ld;
         #my $p = $m->{package_declarator};
+    } elsif ($m->{statement_prefix}) {
+        $m->{statement_prefix}->emit_m0ld;
     } elsif ($m->{circumfix}) {
         $m->{circumfix}->emit_m0ld;
     } elsif ($m->{sigterm}) {

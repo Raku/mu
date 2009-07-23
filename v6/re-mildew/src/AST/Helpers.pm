@@ -213,6 +213,8 @@ sub name_components {
 sub EXPR {
     my $m = shift;
     if ($m->{noun}) {
+        use YAML::XS;
+        die Dump($m->{noun}) if ref $m->{noun} eq 'HASH';
         my $noun = $m->{noun}->emit_m0ld;
         if ($m->{POST}) {
             for (@{$m->{POST}}) {

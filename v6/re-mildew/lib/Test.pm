@@ -9,6 +9,7 @@ role HACK {
         $scope.{'&flunk'} := &flunk;
         $scope.{'&cmp_ok'} := &cmp_ok;
         $scope.{'&done_testing'} := &done_testing;
+        $scope.{'&lives_ok'} := &lives_ok;    
     }
 }
 role Test {
@@ -53,4 +54,13 @@ multi cmp_ok($got,$op,$expected,$desc?,:$todo) {
 }
 multi done_testing() {
     say "1..$test_count";
+}
+multi lives_ok($code,$desc?,:$todo) {
+    {
+        $code.();
+        proclaim(1,$desc,$todo);
+        CATCH {
+            proclaim(0,$desc,$todo);
+        }
+    }.();
 }
