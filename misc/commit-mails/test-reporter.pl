@@ -66,9 +66,11 @@ while (<$h>) {
     my @files = filelist_for_hash($hash);
     next unless @files;
 
-    my $mail_body = @files == 1
+    my $files = @files == 1
         ? "$files[0]"
         : "at least one of these files: " . join(q{, }, @files);
+
+    my $diff = qx/git show $hash/;
 #    say $msg;
     my $mail = MIME::Lite->new(
             From    => $OPT{from},
@@ -77,7 +79,9 @@ while (<$h>) {
             Type    => 'TEXT',
             Data    => "This is an automatically generated mail to "
                        . "inform you that tests are now available in "
-                       . $mail_body,
+                       . $files
+                       . "\n\n"
+                       . $diff,
     );
     $mail->send('smtp', $OPT{smtp});
     sleep 1;
