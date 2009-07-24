@@ -104,7 +104,7 @@ test-reporter.pl -- report tests of RT tickets via email
 
 =head1 SYNOPSIS
 
-test-reporter.pl -d <dir>
+test-reporter.pl -f '<emailaddr>' -d <dir>
 
  Options:
    -h, --help              brief help message
@@ -121,6 +121,13 @@ with the B<-d> option.  It will go there, update the repo, and look through
 recent commits for commit messages of a form that indicates a test was
 written for a bug report.  If it finds a commit like that, it will generate
 an email to rt.perl.org to note the existence of the test in the ticket.
+
+=head1 USAGE
+
+Use C<crontab -e> to edit your crontab on a Unix-ish system.  A line like
+this will run the command every five minutes:
+
+    */5 * * * * perl /home/example/pugs/misc/commit-mails/test-reporter.pl -f 'postmaster@example.com' -d /home/example/pugs
 
 =head1 OPTIONS
 
