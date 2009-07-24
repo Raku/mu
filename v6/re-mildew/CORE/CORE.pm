@@ -108,13 +108,13 @@ sub not($thing) {
         ::True;
     }
 }
-$LexicalPrelude.{'&prefix:not'} = &not;
-$LexicalPrelude.{'&prefix:!'} = &not;
-$LexicalPrelude.{'&not'} = &not;
-$LexicalPrelude.{'&True'} = sub {::True};
-$LexicalPrelude.{'&False'} = sub {::False};
+$LexicalPrelude.{'&prefix:not'} := &not;
+$LexicalPrelude.{'&prefix:!'} := &not;
+$LexicalPrelude.{'&not'} := &not;
+$LexicalPrelude.{'&True'} := sub {::True};
+$LexicalPrelude.{'&False'} := sub {::False};
 
-$LexicalPrelude.{'&prefix:?'} = sub ($bool) {
+$LexicalPrelude.{'&prefix:?'} := sub ($bool) {
     if $bool {
         ::True;
     } else {
@@ -123,5 +123,7 @@ $LexicalPrelude.{'&prefix:?'} = sub ($bool) {
 }
 
 ::MildewSOLoader.new.load('EXTERNAL.mildew.so',$LexicalPrelude.FETCH);
+
+::MildewSOLoader.new.load('Eval.mildew.so',$LexicalPrelude.FETCH);
 
 ::MildewSOLoader.new.load('int.mildew.so',$LexicalPrelude.FETCH);

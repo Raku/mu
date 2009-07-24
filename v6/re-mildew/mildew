@@ -52,7 +52,8 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     'target-stage=i'=>\$target_stage,
     'yeast' => \$yeast,
     'profile=s' => \$profile,
-    'format=s' => \$profile_format
+    'format=s' => \$profile_format,
+    'return-real-value' => \$Mildew::return_real_value,
 ) || help;
 help if $help;
 
@@ -200,7 +201,7 @@ sub parse {
         print Dump($m->{'?'});
         exit;
     }
-    my $mold = $m->{'?'}->emit_m0ld;
+    my $mold = $m->{'?'}->emit_m0ld($C);
     
     unless ($empty_setting) {
         my $load_CORE = call(load => call(new => FETCH(lookup 'MildewSOLoader')),
