@@ -1,5 +1,4 @@
 my sub eval($code) {
-    say $code;
     my $so = EXTERNAL::eval_perl5('sub {
         use File::Temp qw(tempfile tmpnam);
         my ($fh,$file) = tempfile();
