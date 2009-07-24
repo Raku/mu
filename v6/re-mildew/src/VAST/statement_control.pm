@@ -55,6 +55,9 @@ sub emit_m0ld {
     } elsif ($m->{sym} eq 'loop') {
         AST::Loop->new(code => call('postcircumfix:( )',code($m->{block}),[capturize([])]));
 
+    } elsif ($m->{sym} eq 'while') {
+        AST::While->new(cond => EXPR($m->{xblock}{EXPR}), body => call('postcircumfix:( )',code($m->{xblock}{pblock}{blockoid}),[capturize([])]));
+
     } elsif ($m->{sym} eq 'use') {
         my $module = $m->{module_name}{longname};
         if ($m->{version}) {

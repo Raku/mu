@@ -59,6 +59,37 @@ sub pretty {
         . "}\n";
 }
 
+package AST::While;
+use Moose;
+extends 'AST::Base';
+has 'cond' => (is => 'ro');
+has 'body' => (is => 'ro');
+
+sub m0ld {
+    my ($self,$ret) = @_;
+    my $id_cond = AST::unique_id;
+    my $start = AST::unique_label;
+    my $label_start = AST::unique_label;
+    my $label_end = AST::unique_label;
+    my $label_body = AST::unique_label;
+
+    $label_start . ":" . $self->cond->emit_($id_cond) . "\n" .
+    'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'."\n".
+    'my '.$id_cond.'_bool = '.$id_cond.'_val."true"();'."\n".
+    'if '.$id_cond.'_bool { goto '.$label_body.' } else { goto '.$label_end.' };'."\n".
+    $label_body.": " .$self->body->emit_('$void') ."\n".
+    "goto $label_start;\n".
+    $label_end.": noop;\n";
+
+}
+
+sub pretty {
+    my ($self) = @_;
+    return 'while ' . $self->cond->pretty . " {\n"
+        . AST::indent($self->body->pretty) . "\n"
+        . "}\n";
+}
+
 package AST::If;
 use Moose;
 extends 'AST::Base';
