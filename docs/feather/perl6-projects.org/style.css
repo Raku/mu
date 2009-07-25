@@ -94,7 +94,7 @@ div a:active {
     color: #ffffff;
 }
 
-#specs, #download, #compiler, #docs, #ressources, #stuff {
+#specs, #download, #compiler, #docs, #community, #stuff {
     float: left;
     width: 20em;
     border: 3px solid #dddddd;
@@ -109,11 +109,11 @@ div a:active {
     line-height: 130%;
 }
 
-#specs, #stuff{
+#community, #stuff{
     background: #a5e41c;
 }
 
-#ressources {
+#specs {
     background: #e43b59;
 }
 
