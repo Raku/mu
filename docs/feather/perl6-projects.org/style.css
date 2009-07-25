@@ -14,8 +14,8 @@ h4 {
 }
 
 #header {
-    margin: 1em 1em 0 1em;
-    padding: 1em 1em 2em 1em;
+    margin: 1em 2em 0 2em;
+    padding: 0em 1em 0em 1em;
     width: 53.5em;
     border-radius: 1em; 
     -moz-border-radius: 1em;
@@ -28,7 +28,7 @@ h4 {
 #header img {
     float: right;
     position: relative;
-    top: -2em;
+    top: -1.5em;
     right: -2em;
     z-index: 1;
 }
