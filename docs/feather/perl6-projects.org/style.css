@@ -147,3 +147,6 @@ li {
     clear: both;
     padding-top: 4em;
 }
+
+.bold { font-weight: bold; }
+
