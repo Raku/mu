@@ -9,7 +9,7 @@ my sub copy_does($dst,$src) {
         if &infix:<==>:(int,int)($i,$src.^!does.elems) {
             return;
         } else {
-            $dst.^!does.[$i.FETCH] = $src.^!does.[$i.FETCH];
+            $dst.^!does[$i.FETCH] = $src.^!does[$i.FETCH];
             $i = &infix:<+>:(int,int)($i.FETCH,1);
         }
     }
@@ -72,7 +72,7 @@ role LowObject {
         $obj;
     }
     method ACCEPTS($obj) {
-        my $role = self.^!does.[0];
+        my $role = self.^!does[0];
         my $does = ::False;
         map(sub ($r) {
             if PRIMITIVES::pointer_equal((|$role),(|$r)) {

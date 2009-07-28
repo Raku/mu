@@ -6,7 +6,7 @@ role Multi {
         if &infix:<==>:(int,int)($array.elems,0) {
             ::Array.new;
         } else {
-            my $partition = $array.[0].signature;
+            my $partition = $array[0].signature;
 
             my $left  = qsort(grep sub ($elem) {&infix:<==>:(int,int)($elem.signature.compare($partition),&infix:<->:(int,int)(0,1))},$array);
             my $equal = grep(sub ($elem) {&infix:<==>:(int,int)($elem.signature.compare($partition),0)},$array);
@@ -32,7 +32,7 @@ role Multi {
         my $candidates = grep &ACCEPTS,self.sorted_candidates;
 
         if &infix:<==>:(int,int)($candidates.elems,1) {
-            $candidates.[0].postcircumfix:<( )>((|$capture), :cc($cc.FETCH));
+            $candidates[0].postcircumfix:<( )>((|$capture), :cc($cc.FETCH));
         } elsif &infix:<==>:(int,int)($candidates.elems,0) {
             say "signature mismatch failure";
            ::Exception.new.throw;
@@ -41,11 +41,11 @@ role Multi {
            #$e.capture = $capture;
            #$e.throw;
 #
-        } elsif &infix:<==>:(int,int)($candidates.[0].signature.compare($candidates.[1].signature),&infix:<->:(int,int)(0,1)) {
-            $candidates.[0].postcircumfix:<( )>((|$capture), :cc($cc.FETCH));
+        } elsif &infix:<==>:(int,int)($candidates[0].signature.compare($candidates[1].signature),&infix:<->:(int,int)(0,1)) {
+            $candidates[0].postcircumfix:<( )>((|$capture), :cc($cc.FETCH));
         } else {
             say "ambiguous dispatch";
-            say $candidates.[0].signature.compare($candidates.[1].signature);
+            say $candidates[0].signature.compare($candidates[1].signature);
             ::Exception.new.throw;
             #my $e = ::AmbiguousDispatchFailure.new();
             #$e.multi = self;

@@ -18,6 +18,6 @@ if $keys.elems == 3 {
 my $hash2 = ::Hash.new;
 $hash2.{'foobar'} = 7;
 my $keys2 = $hash2.keys;
-if $keys2.[0] eq 'foobar' {
+if $keys2[0] eq 'foobar' {
     say "ok 5";
 }

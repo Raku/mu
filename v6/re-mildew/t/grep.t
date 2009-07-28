@@ -7,4 +7,4 @@ my sub is_2($ok) {
     $ok eq "ok 1";
 }
 $array = grep &is_2,$array;
-say $array.[0];
+say $array[0];

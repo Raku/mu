@@ -60,7 +60,7 @@ role Signature {
             if &infix:<==>:(int,int)($i,$pos_self.elems) {
                 return 0;
             } else {
-                my $cmp = $pos_self.[$i.FETCH].compare($pos_other.[$i.FETCH]);
+                my $cmp = $pos_self[$i.FETCH].compare($pos_other[$i.FETCH]);
                 if &infix:<==>:(int,int)($cmp,0) {
                 } else {
                     return $cmp;
@@ -70,7 +70,7 @@ role Signature {
         }
     }
     method perl() {
-        ":(" ~ self.params.[0].perl ~ "...)";
+        ":(" ~ self.params[0].perl ~ "...)";
     }
 }
 

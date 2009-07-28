@@ -20,7 +20,7 @@ my sub map($expression,$values) {
         if &infix:<==>:(int,int)($i,$values.elems) {
             return $ret;
         } else {
-           $ret.push((|$expression($values.[$i.FETCH])));
+           $ret.push((|$expression($values[$i.FETCH])));
            $i = &infix:<+>:(int,int)($i.FETCH,1);
         }
     }
@@ -32,8 +32,8 @@ my sub grep($expression,$values) {
         if &infix:<==>:(int,int)($i,$values.elems) {
             return $ret;
         } else {
-           if ($expression($values.[$i.FETCH])) {
-              $ret.push($values.[$i.FETCH].FETCH);
+           if ($expression($values[$i.FETCH])) {
+              $ret.push($values[$i.FETCH].FETCH);
            } else {
            }
            $i = &infix:<+>:(int,int)($i.FETCH,1);
