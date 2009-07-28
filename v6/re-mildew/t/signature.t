@@ -10,7 +10,7 @@ say "1..6";
 
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     $code2.("ok 1","ok 2");
-}.();
+}
 
 {
     my $var;
@@ -23,7 +23,7 @@ say "1..6";
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     $code2.($var);
     say $var;
-}.();
+}
 
 {
     my $code = sub ($readonly) {
@@ -38,7 +38,7 @@ say "1..6";
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
     $code2.($foo);
-}.();
+}
 
 # :($default is ref = "ok 5"))
 {
@@ -55,7 +55,7 @@ say "1..6";
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
     $code2.();
-}.();
+}
 # :($default = "ok 6"))
 {
     my $sig = ::Signature.new();
@@ -71,4 +71,4 @@ say "1..6";
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
     $code2.();
-}.();
+}

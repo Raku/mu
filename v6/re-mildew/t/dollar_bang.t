@@ -12,7 +12,7 @@ my sub foo {
     CATCH {
         say "ok 1 # unhandled failure got thrown";
     }
-}.();
+}
 {
     my $dollar_bang = ::DollarBang.new;
     $dollar_bang.failures = ::Array.new;
@@ -24,4 +24,4 @@ my sub foo {
         say "not ok 2 # handled failure got thrown";
     }
     say "ok 2 # handled failure did not get thrown";
-}.();
+}

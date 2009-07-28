@@ -8,7 +8,7 @@ my multi foo($arg1,$arg2) {
 }
 foo("ok 1");
 foo(1,2);
-}.();
+}
 
 {
 my multi foo($arg1,int $arg2) {
@@ -19,7 +19,7 @@ my multi foo(int $arg1,$arg2) {
 }
 foo("foo",1);
 foo(1,"foo");
-}.();
+}
 
 {
 role Foo {
@@ -36,7 +36,7 @@ my $foo = Foo.new;
 my $bar = Bar.new;
 foo($foo);
 foo($bar);
-}.();
+}
 
 {
 my multi foo($a) {
@@ -48,12 +48,12 @@ my multi foo($a) {
     }
     foo(1);
     foo(1,2);
-}.();
+}
 foo(1,2);
 CATCH {
     say "ok 9 # the lexically added candidates are not visible in outer scopes";
 }
-}.();
+}
 
 {
 my multi foo($a,:$b) {
@@ -70,9 +70,9 @@ foo("not ok 11",:b("ok 11 # named params are passed"));
     CATCH {
         say "ok 12";
     }
-}.();
+}
 
-}.();
+}
 
 {
     my multi foo(int $a,$b) {
@@ -91,4 +91,4 @@ foo("not ok 11",:b("ok 11 # named params are passed"));
     foo(1,"...");
     foo("...",1);
     foo(1,1);
-}.();
+}

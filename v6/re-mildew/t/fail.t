@@ -7,8 +7,8 @@ say "1..1";
    {
        my $failure = foo;
        $failure.foo;
-   }.();
+   }
    CATCH {
        say "ok 1 - calling a method on a failure throws the exception";
    }
-}.();
+}

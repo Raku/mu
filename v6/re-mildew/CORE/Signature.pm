@@ -24,7 +24,7 @@ role Signature {
             CATCH {
                 $ok = ::False;
             }
-        }.();
+        }
 
         if &infix:<==>:(int,int)($i,$capture.elems) {
             if &infix:<==>:(int,int)($named,$capture.named_count) {

@@ -45,4 +45,4 @@ $dst.bar;
             say "ok 7 # a conflict";
         }
     }
-}.();
+}

@@ -13,5 +13,5 @@ knowhow EXTERNAL {
         }
         $p5.eval($code.FETCH);
     }
-};
+}
 $LexicalPrelude.{'EXTERNAL::'} := ::EXTERNAL.^!who.FETCH;
