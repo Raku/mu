@@ -13,10 +13,15 @@ h4 {
     font-size: 130%;
 }
 
+#wrapper-outer {
+    margin: 0px auto;   /* Goodbye, IE5 */
+    max-width: 900px;
+}
+
 #header {
-    margin: 1em 2em 0 2em;
     padding: 0em 1em 0em 1em;
-    width: 53.5em;
+    margin: 0px 0px 3em 0px;
+    
     border-radius: 1em; 
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
@@ -34,16 +39,6 @@ h4 {
     z-index: 1;
 }
 
-#main {
-    width: 100%;
-    position: relative;
-}
-
-div.row {
-    height: 50%;
-    float: left;
-    clear: both;
-}
 
 #header a {
     font: normal bold 12pt sans-serif;
@@ -52,6 +47,10 @@ div.row {
     border-bottom: 1px dotted #ffffff;
 }
 
+#header a.header-black-link {
+    color: #000;
+    border-bottom: 1px dotted #000;    
+}
 
 div a:link {
     font: normal bold 9pt sans-serif;
@@ -88,44 +87,42 @@ div a:active {
     border-bottom: 1px dotted #000000;
 }
 
+.box {
+    width: 20em;
+    height: 24em;
+    margin: 1em;
+    padding: 0 1em 1em 1em;
+    
+    float: left;
+    
+    border: 3px solid #dddddd;
+    border-radius: 1em; 
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    color: #000000;
+    font: 9pt sans-serif;
+    line-height: 130%;
+}
+
+#community, #stuff {
+    background: #a5e41c;
+}
+#specs {
+    background: #e43b59;
+}
+#compiler, #docs {
+    background: #f5ec48;
+}
+#download {
+    border: 2px solid white;
+}
+
 #download a {
     text-decoration: none;
     border: 0px;
     font-size: 100%;
     color: #ffffff;
 }
-
-#specs, #download, #compiler, #docs, #community, #stuff {
-    float: left;
-    width: 20em;
-    border: 3px solid #dddddd;
-    border-radius: 1em; 
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    height: 24em;
-    margin: -1em 2em 3em 2em;
-    padding: 0 1em 1em 1em;
-    color: #000000;
-    font: 9pt sans-serif;
-    line-height: 130%;
-}
-
-#community, #stuff{
-    background: #a5e41c;
-}
-
-#specs {
-    background: #e43b59;
-}
-
-#compiler, #docs {
-    background: #f5ec48;
-}
-
-#download {
-    border: 2px solid white;
-}
-
 
 #download img {
     position: relative;
@@ -145,7 +142,7 @@ li {
 
 #footer {
     clear: both;
-    padding-top: 4em;
+    padding: 2.5em 2em 0px 2em;
 }
 
 .bold { font-weight: bold; }
