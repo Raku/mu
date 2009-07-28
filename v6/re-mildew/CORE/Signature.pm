@@ -102,7 +102,7 @@ role Positional {
         } elsif self.default_value {
             my $default_value = self.default_value;
             if self.variable {
-                $scope.{self.variable.FETCH} := self.wrap($default_value.());
+                $scope.{self.variable.FETCH} := self.wrap($default_value());
             }
         } else {
             return ::False;

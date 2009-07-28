@@ -9,7 +9,7 @@ say "1..6";
     my $sig = :($ok1 is ref,$ok2);
 
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
-    $code2.("ok 1","ok 2");
+    $code2("ok 1","ok 2");
 }
 
 {
@@ -21,7 +21,7 @@ say "1..6";
     my $sig = :($ref is ref);
 
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
-    $code2.($var);
+    $code2($var);
     say $var;
 }
 
@@ -37,7 +37,7 @@ say "1..6";
  
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
-    $code2.($foo);
+    $code2($foo);
 }
 
 # :($default is ref = "ok 5"))
@@ -54,7 +54,7 @@ say "1..6";
 #
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
-    $code2.();
+    $code2();
 }
 # :($default = "ok 6"))
 {
@@ -70,5 +70,5 @@ say "1..6";
 #
     my $code2 = ::Code.new(:outer($code.outer),:mold($code.mold),:signature((|$sig)));
     my $foo = 1;
-    $code2.();
+    $code2();
 }

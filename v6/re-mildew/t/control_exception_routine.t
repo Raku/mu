@@ -1,6 +1,6 @@
 say "1..2";
 my sub foo($code) {
-   $code.();
+   $code();
    say "not ok 2 - inside foo";
 }
 my sub bar() {

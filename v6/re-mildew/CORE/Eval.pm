@@ -6,7 +6,7 @@ my sub eval($code) {
         my $so = tmpnam;
         system("perl mildew --return-real-value --empty-setting -Cso -o $so $file ");
         $so;
-    }').($code);
+    }')($code);
     ::MildewSOLoader.new.load($so.Str,PRIMITIVES::get_interpreter.continuation.back.lexical);
 }
 $LexicalPrelude.{'&eval'} := &eval;
