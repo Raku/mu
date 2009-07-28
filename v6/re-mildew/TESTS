@@ -4,4 +4,5 @@
 ../../t/01-sanity/04-if.t
 ../../t/01-sanity/05-sub.t
 ../../t/01-sanity/07-binding.t
+../../t/spec/S04-statements/until.t
 ../../t/spec/S02-lexical-conventions/unicode.t

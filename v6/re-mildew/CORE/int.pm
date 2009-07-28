@@ -37,6 +37,13 @@ multi more(int $a,int $b) {
         ::True;
     }
 }
+#TODO fix multi infix:<\<> {...}
+multi less_or_equal(int $a,int $b) {
+    &infix:<<<>>:(int,int)($a,$b) || &infix:<==>:(int,int)($a,$b);
+}
+multi more_or_equal(int $a,int $b) {
+    not(&infix:<<<>>:(int,int)($a,$b));
+}
 
 $LexicalPrelude{'int'} := ::int;
 $LexicalPrelude{'&infix:=='} := &infix:<==>;
@@ -44,5 +51,7 @@ $LexicalPrelude{'&infix:!='} := &infix:<!=>;
 $LexicalPrelude{'&infix:+'} := &infix:<+>;
 $LexicalPrelude{'&infix:-'} := &infix:<->;
 $LexicalPrelude{'&prefix:-'} := &prefix:<->;
+$LexicalPrelude{'&infix:<='} := &less_or_equal;
+$LexicalPrelude{'&infix:>='} := &more_or_equal;
 $LexicalPrelude{'&infix:<'} := &less;
 $LexicalPrelude{'&infix:>'} := &more;

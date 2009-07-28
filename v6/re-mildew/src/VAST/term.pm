@@ -8,6 +8,8 @@ sub VAST::term::emit_m0ld {
     my $m = shift;
     if ($m->{sym} eq 'self') {
         lookup('$¿self');
+    } elsif ($m->{sym} eq 'undef') {
+        lookupf("undef");
     } elsif ($m->{identifier} && $m->{args}) {
         my $func = lookup('&'.$m->{identifier}{TEXT});
         my @args = $m->{args}->emit_m0ld;

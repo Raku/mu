@@ -315,25 +315,18 @@ Gets all the possible candidates for this method and invoke one.
 
 =begin
 
-=item method add_method($how: $object, $name, $code)
+=item method add_method($object, $name, $code)
 
 Add this method to this prototype.
 
 =end
 
   method add_method($how: $object, $name, $code) {
-##       if $object.^!methods.exists($name) {
-##           if $object.^!methods.{$name}.multi {
-##               $object.^!methods.{$name}.variants.push($code);
-##           } elsif $object.^!methods.{$name}.yada {
-##               $object.^!methods.{$name} = $code;
-##           } else {
-##               warn 'Method ', $name, ' redefined.';
-##               $object.^!methods.{$name} = $code;
-##           }
-##       } else {
-##           $object.^!methods.{$name} = $code;
-##       }
+      say 'adding method';
+      if $object.^!methods.exists($name.FETCH) {
+          warn 'Method ', $name, ' redefined.';
+      }
+      $object.^!methods.{$name} = $code;
   }
 
 =begin
@@ -397,4 +390,5 @@ In that order.
 
 
 }
+$LexicalPrelude{'ClassHOW'} := ::ClassHOW;
 ## vim: expandtab sw=4 ft=perl6
