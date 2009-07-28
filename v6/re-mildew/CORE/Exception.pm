@@ -16,4 +16,4 @@ role Exception {
         }
     }
 }
-$LexicalPrelude.{'Exception'} := ::Exception;
+$LexicalPrelude{'Exception'} := ::Exception;

@@ -3,10 +3,10 @@ say "1..1";
 my $object;
 $object = ::p6opaque.^!CREATE;
 $object.^!how() = ::PrototypeHOW;
-$object.^!methods.{"foo"} = sub {
+$object.^!methods{"foo"} = sub {
     say "ok 1 #method call";
 };
-#$object.^!methods.{"bar"} = sub {
+#$object.^!methods{"bar"} = sub {
 #    say "ok 2 #method inherited from instanceof called";
 #};
 $object.foo;

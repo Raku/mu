@@ -39,6 +39,6 @@ my sub fail {
     $e.routine = CALLER::<&?ROUTINE>;
     $e.throw;
 }
-$LexicalPrelude.{'Failure'} := ::Failure;
-$LexicalPrelude.{'DollarBang'} := ::DollarBang;
-$LexicalPrelude.{'&fail'} := &fail;
+$LexicalPrelude{'Failure'} := ::Failure;
+$LexicalPrelude{'DollarBang'} := ::DollarBang;
+$LexicalPrelude{'&fail'} := &fail;

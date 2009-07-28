@@ -3,5 +3,5 @@ role Any {
         ::True;
     }
 }
-$LexicalPrelude.{'Any'} := ::Any;
+$LexicalPrelude{'Any'} := ::Any;
 

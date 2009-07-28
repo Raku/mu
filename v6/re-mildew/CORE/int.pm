@@ -38,11 +38,11 @@ multi more(int $a,int $b) {
     }
 }
 
-$LexicalPrelude.{'int'} := ::int;
-$LexicalPrelude.{'&infix:=='} := &infix:<==>;
-$LexicalPrelude.{'&infix:!='} := &infix:<!=>;
-$LexicalPrelude.{'&infix:+'} := &infix:<+>;
-$LexicalPrelude.{'&infix:-'} := &infix:<->;
-$LexicalPrelude.{'&prefix:-'} := &prefix:<->;
-$LexicalPrelude.{'&infix:<'} := &less;
-$LexicalPrelude.{'&infix:>'} := &more;
+$LexicalPrelude{'int'} := ::int;
+$LexicalPrelude{'&infix:=='} := &infix:<==>;
+$LexicalPrelude{'&infix:!='} := &infix:<!=>;
+$LexicalPrelude{'&infix:+'} := &infix:<+>;
+$LexicalPrelude{'&infix:-'} := &infix:<->;
+$LexicalPrelude{'&prefix:-'} := &prefix:<->;
+$LexicalPrelude{'&infix:<'} := &less;
+$LexicalPrelude{'&infix:>'} := &more;

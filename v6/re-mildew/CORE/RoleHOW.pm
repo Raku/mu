@@ -1,6 +1,6 @@
 my sub copy_methods($dst,$src) {
     map(sub ($key) {
-        $dst.^!methods.{$key.FETCH} = $src.^!methods.{$key.FETCH};
+        $dst.^!methods{$key.FETCH} = $src.^!methods{$key.FETCH};
     },$src.^!methods.keys);
 }
 my sub copy_does($dst,$src) {
@@ -17,21 +17,21 @@ my sub copy_does($dst,$src) {
 my sub compose_role($obj,$role) {
     $obj.^!does.push((|$role));
     map(sub ($key) {
-        if $obj.^!methods.{$key.FETCH} {
+        if $obj.^!methods{$key.FETCH} {
             ::Exception.new.throw;
         }
-        $obj.^add_method($key.FETCH,$role.^!methods.{$key.FETCH}.FETCH);
+        $obj.^add_method($key.FETCH,$role.^!methods{$key.FETCH}.FETCH);
     },$role.^!methods.keys);
 }
 knowhow RoleHOW {
     method add_attribute($object, $privname, $attribute) {
-        $object.^!attributes.{$privname.FETCH} = $attribute;
+        $object.^!attributes{$privname.FETCH} = $attribute;
     }
     method compose_role($object, $role) {
         compose_role($object,$role);
     }
     method add_method($object, $name, $code) {
-        $object.^!methods.{$name.FETCH} = $code
+        $object.^!methods{$name.FETCH} = $code
     }
     method dispatch($object, $identifier, \$capture) {
         if PRIMITIVES::idconst_eq($identifier.FETCH,'FETCH') {
@@ -43,7 +43,7 @@ knowhow RoleHOW {
             # new class every time, then we'll think in some sort of caching.
             my $punned;
             if $object.^!instance_storage.exists('CACHED_PUNNED_CLASS') {
-                $punned = $object.^!instance_storage.{'CACHED_PUNNED_CLASS'};
+                $punned = $object.^!instance_storage{'CACHED_PUNNED_CLASS'};
             } else {
                 my $class = ::p6opaque.^!CREATE;
                 $class.^!how = ::PrototypeHOW;
@@ -53,7 +53,7 @@ knowhow RoleHOW {
                 copy_methods($class,::LowObject);
                 copy_methods($class,$object);
                 $punned = $class;
-                $object.^!instance_storage.{'CACHED_PUNNED_CLASS'} = $class;
+                $object.^!instance_storage{'CACHED_PUNNED_CLASS'} = $class;
             }
             my $delegated = ::Scalar.new($capture.delegate($punned.FETCH));
             return $punned.^dispatch($identifier.FETCH, (|$delegated));
@@ -66,7 +66,7 @@ role LowObject {
         $obj.^!how = self.^!how;
         copy_methods($obj,self);
         copy_does($obj,self);
-        if $obj.^!methods.{'BUILDALL'} {
+        if $obj.^!methods{'BUILDALL'} {
             $obj.BUILDALL;
         }
         $obj;
@@ -85,5 +85,5 @@ role LowObject {
     }
 }
 
-$LexicalPrelude.{'RoleHOW'} := ::RoleHOW;
+$LexicalPrelude{'RoleHOW'} := ::RoleHOW;
 

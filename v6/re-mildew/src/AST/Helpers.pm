@@ -234,10 +234,8 @@ sub EXPR {
                             my @positional = grep { ref $_ ne 'AST::Pair' } @args;
                             my @named = map { $_->key, $_->value } grep { ref eq 'AST::Pair' } @args;
                             $noun = call 'postcircumfix:( )' => FETCH($noun),[capturize(\@positional,\@named)];
-			} elsif (ref $pc->{sym} eq 'ARRAY' &&
-			    $pc->{sym}[0] eq '[' &&
-			    $pc->{sym}[1] eq ']')  {
-                            $noun = call 'postcircumfix:[ ]' => FETCH($noun),[$pc->{semilist}{statement}[0]->emit_m0ld];
+			} elsif (ref $pc->{sym} eq 'ARRAY') {
+                            $noun = call 'postcircumfix:'.$pc->{sym}[0].' '.$pc->{sym}[1] => FETCH($noun),[$pc->{semilist}{statement}[0]->emit_m0ld];
 			}
 		    } else {
 			XXX;

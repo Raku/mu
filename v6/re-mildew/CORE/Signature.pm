@@ -92,17 +92,17 @@ role Positional {
     method BIND($scope,$capture,$i is ref) {
         if $capture.named($.name.FETCH) {
             if self.variable {
-                $scope.{self.variable.FETCH} := self.wrap($capture.named($.name.FETCH));
+                $scope{self.variable.FETCH} := self.wrap($capture.named($.name.FETCH));
             }
         } elsif &infix:<<<>>:(int,int)($i,$capture.elems) {
             if self.variable {
-                $scope.{self.variable.FETCH} := self.wrap($capture.positional($i.FETCH));
+                $scope{self.variable.FETCH} := self.wrap($capture.positional($i.FETCH));
             }
             $i = &infix:<+>:(int,int)($i.FETCH,1);
         } elsif self.default_value {
             my $default_value = self.default_value;
             if self.variable {
-                $scope.{self.variable.FETCH} := self.wrap($default_value());
+                $scope{self.variable.FETCH} := self.wrap($default_value());
             }
         } else {
             return ::False;
@@ -170,7 +170,7 @@ role NamedReadonlyParam {
         $wrapper.value = $arg;
         $wrapper.^!is_container = 1;
         $wrapper.FETCH;
-        $scope.{self.variable.FETCH} := (|$wrapper);
+        $scope{self.variable.FETCH} := (|$wrapper);
     }
     method ACCEPTS_param($capture,$i is ref,$named is ref) {
         if $capture.named($.name.FETCH) {
@@ -187,14 +187,14 @@ role WholeCaptureParam {
         $named = $capture.named_count;
     }
     method BIND($scope,$capture,$i) {
-        $scope.{self.variable.FETCH} = $capture;
+        $scope{self.variable.FETCH} = $capture;
     }
 }
 
-$LexicalPrelude.{'WholeCaptureParam'} := ::WholeCaptureParam;
-$LexicalPrelude.{'NamedReadonlyParam'} := ::NamedReadonlyParam;
-$LexicalPrelude.{'ReadonlyParam'} := ::ReadonlyParam;
-$LexicalPrelude.{'RefParam'} := ::RefParam;
-$LexicalPrelude.{'Signature'} := ::Signature;
-$LexicalPrelude.{'Positional'} := ::Positional;
+$LexicalPrelude{'WholeCaptureParam'} := ::WholeCaptureParam;
+$LexicalPrelude{'NamedReadonlyParam'} := ::NamedReadonlyParam;
+$LexicalPrelude{'ReadonlyParam'} := ::ReadonlyParam;
+$LexicalPrelude{'RefParam'} := ::RefParam;
+$LexicalPrelude{'Signature'} := ::Signature;
+$LexicalPrelude{'Positional'} := ::Positional;
 

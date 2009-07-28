@@ -1,10 +1,10 @@
 knowhow ClassHOW {
   method add_method($object, $name, $code) {
-      $object.^!methods.{$name.FETCH} = $code;
+      $object.^!methods{$name.FETCH} = $code;
   }
   method dispatch($object, $identifier, \$capture) {  
       if $object.^!methods.exists($identifier.FETCH) {
-         $object.^!methods.{$identifier.FETCH}.postcircumfix:<( )>( (|$capture) );
+         $object.^!methods{$identifier.FETCH}.postcircumfix:<( )>( (|$capture) );
       } else {
          say 'No method ',$identifier;
       }

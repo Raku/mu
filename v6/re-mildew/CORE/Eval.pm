@@ -9,4 +9,4 @@ my sub eval($code) {
     }')($code);
     ::MildewSOLoader.new.load($so.Str,PRIMITIVES::get_interpreter.continuation.back.lexical);
 }
-$LexicalPrelude.{'&eval'} := &eval;
+$LexicalPrelude{'&eval'} := &eval;
