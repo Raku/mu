@@ -1,0 +1,12 @@
+TODO for perl6-projects.org:
+
+GENERAL
+
+CSS/LAYOUT
+* boxes should flow properly when viewport is small/resized,
+   currently "download" and "Whatever" behave naughtily
+* big blue box text should shrink to show Camelia @ 800x600
+* download button should be moved up top, add new box with something,
+   switch whatever to red, spec to green, new->yellow, doc->red
+
+CONTENT
