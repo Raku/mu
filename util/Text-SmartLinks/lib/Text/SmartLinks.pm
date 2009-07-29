@@ -735,6 +735,17 @@ sub emit_pod {
     return $str;
 }
 
+# split a C<>, C<< >>, C<<< >>>, or C«» code into ($tag, $value)
+sub split_code {
+    local ($_) = @_;
+    my $tag = substr $_, 0, 1;
+    s/^\w<<<\s+(.+?)\s+>>>$/$1/
+    or s/^\w<<\s+(.+?)\s+>>$/$1/
+    or s/^\w<(.+?)>$/$1/
+    or s/^\«(.+?)»$/$1/;
+    return ($tag, $_);
+}
+
 sub parse_pod {
     my ($self, $pod, $url) = @_;
     my $podtree = {};
@@ -743,8 +754,17 @@ sub parse_pod {
     foreach (@$pod) {
         $line_no++;
         # collect the X<> and C<> tags
-        while (/([XC])<([^>]+)>/g) {
-            my ($tag, $value) = ($1, $2);
+        while (/([CX](?:
+            (?:<<<\s+.+?\s+>>>)
+            |
+            (?:<<\s+.+?\s+>>)
+            |
+            (?:<.+?>)
+            |
+            (?:«.+?»)
+        ))/gx) {
+            my ($tag, $value) = split_code($1);
+            
             if ($section) {
                 (my $s = $section) =~ s/ +/_/g;
                 $self->{$tag}{$value}{"$url#$s"}++;
