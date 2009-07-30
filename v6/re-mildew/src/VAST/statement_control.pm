@@ -61,6 +61,9 @@ sub emit_m0ld {
     } elsif ($m->{sym} eq 'until') {
         AST::While->new(cond => fcall('&not' => [EXPR($m->{xblock}{EXPR})]), body => call('postcircumfix:( )',code($m->{xblock}{pblock}{blockoid}),[capturize([])]));
 
+    } elsif ($m->{sym} eq 'for') {
+        fcall '&map' => [code($m->{xblock}{pblock}{blockoid},$m->{xblock}{pblock}{signature}->emit_m0ld),EXPR($m->{xblock}{EXPR})];
+
     } elsif ($m->{sym} eq 'use') {
         my $module = $m->{module_name}{longname};
         if ($m->{version}) {
