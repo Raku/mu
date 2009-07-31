@@ -119,7 +119,7 @@ in Perl 6:
  NOTE: The behaviour of a "my" statement modified with a statement
  modifier conditional or loop construct (e.g. "my $x if ...") is
  undefined.  The value of the "my" variable may be "undef", any
- previously assigned value, or possibly anything else.  Don’t rely on
+ previously assigned value, or possibly anything else.  Don't rely on
  it.  Future versions of perl might do something different from the
  version of perl you try it out on.  Here be dragons.
 
