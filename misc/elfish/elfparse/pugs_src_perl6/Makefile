@@ -12,7 +12,7 @@ STD.pmc: STD.pm gimme5
 	rm -rf lex
 
 check: STD.pmc
-	/usr/local/bin/perl -c $<
+	perl -c $<
 
 # pre-generate common sublexers
 lex/STD/termish: STD.pmc

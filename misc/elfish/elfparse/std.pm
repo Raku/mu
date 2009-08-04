@@ -12,7 +12,11 @@ my $IN_DECL is context<rw>;
 my $SIGIL is context<rw>;
 my %ROUTINES;
 my $ORIG is context;
-my @MEMOS is context;
+#my @MEMOS is context; #ELFBUG
+my @MEMOS_ws is context = []; #ELFFIX
+my @MEMOS_endstmt is context = []; #ELFFIX
+my @MEMOS_endargs is context = []; #ELFFIX
+my @MEMOS_L is context = []; #ELFFIX
 my $VOID is context<rw>;
 my @PADS;
 
@@ -498,15 +502,17 @@ token nofun { <!before '(' | '.(' | '\\' > }
 # Lexical routines
 
 token ws {
-#    :my @stub = return self if @+MEMOS[self.pos]<ws> :exists; #ELFXXX
-#    :my $startpos = self.pos; #ELFXXX
+#   :my @stub = return self if @+MEMOS[self.pos]<ws> :exists; #ELFXXX
+#   :my $startpos = self.pos; #ELFBUG
+    :my $startpos = $¢.pos; #ELFFIX
 
     :dba('whitespace')
     [
-#        | \h+ <![#\s\\]> { @+MEMOS[$¢.pos]<ws> = $startpos; }   # common case #ELFXXX
-        | \h+ <![#\s\\]> #ELFXXX partial fix
+#       | \h+ <![#\s\\]> { @+MEMOS[$¢.pos]<ws> = $startpos; }   # common case #ELFBUG
+        | \h+ <![#\s\\]> { @+MEMOS_ws[$¢.pos] = $startpos; }   # common case #ELFFIX
         | <?before \w> <?after \w> :::
-#            { @+MEMOS[$startpos]<ws> = undef; } #ELFXXX
+#           { @+MEMOS[$startpos]<ws> = undef; } #ELFBUG
+            { @+MEMOS_ws[$startpos] = undef; } #ELFFIX
             <!>        # must \s+ between words
     ]
     ||
@@ -517,17 +523,20 @@ token ws {
 #    | $ { $¢.moreinput } #ELFXXX
     ]*
 
-#ELFXXX
-#    {{
-#        if ($¢.pos == $startpos) {
-#            @+MEMOS[$¢.pos]<ws> = undef;
-#        }
-#        else {
-#            @+MEMOS[$¢.pos]<ws> = $startpos;
-#            @+MEMOS[$¢.pos]<endstmt> = @+MEMOS[$startpos]<endstmt>
-#                if @+MEMOS[$startpos]<endstmt> :exists;
-#        }
-#    }}
+    {{
+        if ($¢.pos == $startpos) {
+#           @+MEMOS[$¢.pos]<ws> = undef; #ELFBUG
+            @+MEMOS_ws[$¢.pos] = undef; #ELFFIX
+        }
+        else {
+#           @+MEMOS[$¢.pos]<ws> = $startpos; #ELFBUG
+            @+MEMOS_ws[$¢.pos] = $startpos; #ELFFIX
+#           @+MEMOS[$¢.pos]<endstmt> = @+MEMOS[$startpos]<endstmt>
+            @+MEMOS_endstmt[$¢.pos] = @+MEMOS_endstmt[$startpos]
+#               if @+MEMOS[$startpos]<endstmt> :exists;
+                if defined @+MEMOS_endstmt[$startpos];
+        }
+    }}
 }
 
 token unsp {
@@ -614,6 +623,10 @@ rule comp_unit {
     :my $GOAL is context = "(eof)";
     :my $PARSER is context<rw>;
     :my $IN_DECL is context<rw>;
+    :my @MEMOS_ws is context = []; #ELFFIX
+    :my @MEMOS_endstmt is context = []; #ELFFIX
+    :my @MEMOS_endargs is context = []; #ELFFIX
+    :my @MEMOS_L is context = []; #ELFFIX
 
     { init_pads(); }
 
@@ -667,11 +680,14 @@ token block {
 
     [
     | <?before \h* $$>  # (usual case without comments)
-#       { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple #ELFXXX
+#      { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple #ELFBUG
+       { @+MEMOS_endstmt[$¢.pos] = 2; } {*}                    #= endstmt simple #ELFFIX
     | \h* <.unsp>? <?before <[,:]>> {*}                         #= normal 
     | <.unv>? $$
-#       { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex #ELFXXX
-#   | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; } {*}             #= endargs #ELFXXX
+#      { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex #ELFBUG
+       { @+MEMOS_endstmt[$¢.pos] = 2; } {*}                    #= endstmt complex #ELFFIX
+#   | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; } {*}            #= endargs #ELFBUG
+    | <.unsp>? { @+MEMOS_endargs[$¢.pos] = 1; } {*}            #= endargs #ELFFIX
     ]
 }
 
@@ -694,11 +710,14 @@ token regex_block {
 
     [
     | <?before \h* $$>  # (usual case without comments)
-        { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple 
+#       { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt simple #ELFBUG
+        { @+MEMOS_endstmt[$¢.pos] = 2; } {*}                    #= endstmt simple #ELFFIX
     | \h* <.unsp>? <?before <[,:]>> {*}                         #= normal 
     | <.unv>? $$
-        { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex
-    | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; }   {*}           #= endargs
+#       { @+MEMOS[$¢.pos]<endstmt> = 2; } {*}                    #= endstmt complex #ELFBUG
+        { @+MEMOS_endstmt[$¢.pos] = 2; } {*}                    #= endstmt complex #ELFFIX
+#   | <.unsp>? { @+MEMOS[$¢.pos]<endargs> = 1; }   {*}           #= endargs #ELFBUG
+    | <.unsp>? { @+MEMOS_endargs[$¢.pos] = 1; }   {*}           #= endargs #ELFFIX
     ]
 }
 =end PENDING #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -753,7 +772,8 @@ token statement {
     | <EXPR> {*}                                                #= expr
         :dba('statement end')
         [
-#        || <?{ (@+MEMOS[$¢.pos]<endstmt> // 0) == 2 }>   # no mod after end-line curly #ELFXXX
+#       || <?{ (@+MEMOS[$¢.pos]<endstmt> // 0) == 2 }>   # no mod after end-line curly #ELFBUG
+        || <?{ (@+MEMOS_endstmt[$¢.pos] // 0) == 2 }>   # no mod after end-line curly #ELFFIX
         ||
             :dba('statement modifier')
             <.ws>
@@ -762,7 +782,8 @@ token statement {
             | <statement_mod_cond> {*}                              #= mod cond
                 :dba('statement modifier loop')
                 [
-#                || <?{ (@+MEMOS[$¢.pos]<endstmt> // 0) == 2 }> #ELFXXX
+#               || <?{ (@+MEMOS[$¢.pos]<endstmt> // 0) == 2 }> #ELFBUG
+                || <?{ (@+MEMOS_endstmt[$¢.pos] // 0) == 2 }> #ELFFIX
                 || <.ws> <statement_mod_loop>? {*}                  #= mod condloop
                 ]
             ]?
@@ -776,10 +797,11 @@ token statement {
 token eat_terminator {
     [
     || ';'
-#    || <?{ @+MEMOS[$¢.pos]<endstmt> }> <.ws> #ELFXXX
+#   || <?{ @+MEMOS[$¢.pos]<endstmt> }> <.ws> #ELFBUG
+    || <?{ @+MEMOS_endstmt[$¢.pos] }> <.ws> #ELFFIX
     || <?terminator>
     || $
-#    || {{ if @+MEMOS[$¢.pos]<ws> { $¢.pos = @+MEMOS[$¢.pos]<ws>; } }}   # undo any line transition #ELFXXX
+#   || {{ if @+MEMOS[$¢.pos]<ws> { $¢.pos = @+MEMOS[$¢.pos]<ws>; } }}   # undo any line transition #ELFXXX
     || #ELFXXX partial fix
         <.panic: "Syntax error">
     ]
@@ -1111,7 +1133,8 @@ token POST {
     <!stdstopper>
 
     # last whitespace didn't end here
-#   <!{ @+MEMOS[$¢.pos]<ws> }> #ELFXXX
+#   <!{ @+MEMOS[$¢.pos]<ws> }> #ELFBUG
+    <!{ @+MEMOS_ws[$¢.pos] }> #ELFFIX
 
     [ <.unsp> | '\\' ]?
 
@@ -3496,8 +3519,10 @@ regex infixstopper {
     [
     | <?before <stopper> >
     | <?before '!!' > <?{ $+GOAL eq '!!' }>
-#   | <?before '{' | <lambda> > <?{ ($+GOAL eq '{' or $+GOAL eq 'endargs') and @+MEMOS[$¢.pos]<ws> }> #ELFXXX
-#   | <?{ $+GOAL eq 'endargs' and @+MEMOS[$¢.pos]<endargs> }> #ELFXXX
+#   | <?before '{' | <lambda> > <?{ ($+GOAL eq '{' or $+GOAL eq 'endargs') and @+MEMOS[$¢.pos]<ws> }> #ELFBUG
+    | <?before '{' | <lambda> > <?{ ($+GOAL eq '{' or $+GOAL eq 'endargs') and @+MEMOS_ws[$¢.pos] }> #ELFFIX
+#   | <?{ $+GOAL eq 'endargs' and @+MEMOS[$¢.pos]<endargs> }> #ELFBUG
+    | <?{ $+GOAL eq 'endargs' and @+MEMOS_endargs[$¢.pos] }> #ELFFIX
     ]
 }
 
@@ -3506,14 +3531,15 @@ token stopper { <!> }
 
 # hopefully we can include these tokens in any outer LTM matcher
 regex stdstopper {
-#    :my @stub = return self if @+MEMOS[self.pos]<endstmt> :exists; #ELFXXX
+#   :my @stub = return self if @+MEMOS[self.pos]<endstmt> :exists; #ELFXXX
     :dba('standard stopper')
     [
     | <?terminator>
     | <?unitstopper>
     | $                                 # unlikely, check last (normal LTM behavior)
     ]
-#    { @+MEMOS[$¢.pos]<endstmt> ||= 1; } #ELFXXX
+#   { @+MEMOS[$¢.pos]<endstmt> ||= 1; } #ELFBUG
+    { @+MEMOS_endstmt[$¢.pos] = @+MEMOS_endstmt[$¢.pos] || 1; } #ELFFIX
 }
 
 # A fairly complete operator precedence parser
@@ -4667,17 +4693,20 @@ method locmess () {
 
 method lineof ($p) {
     return 1 unless defined $p;
-    my $line = @+MEMOS[$p]<L>;
+#   my $line = @+MEMOS[$p]<L>; #ELFBUG
+    my $line = @+MEMOS_L[$p]; #ELFFIX
     return $line if $line;
     $line = 1;
     my $pos = 0;
     my @text = split(/^/,$+ORIG);
     for @text {
-        @+MEMOS[$pos++]<L> = $line
+#       @+MEMOS[$pos++]<L> = $line #ELFBUG
+        @+MEMOS_L[$pos++] = $line #ELFFIX
             for 1 .. chars($_);
         $line++;
     }
-    return @+MEMOS[$p]<L> // 0;
+#   return @+MEMOS[$p]<L> // 0; #ELFBUG
+    return @+MEMOS_L[$p] // 0; #ELFFIX
 }
 
 method SETGOAL { }

@@ -1649,9 +1649,7 @@ package IRx1 {
     method emit_RMARE () {
       my $decl = $.code;
       my $var = $decl.var;
-      my $key = $var.sigil ~ $var.name;
-      #X key should be gensym if it's not a context var.
-      my $emit = '$RXX::nested_data->{"'~quotemeta($key)~'"}';
+      my $emit = $.rx_var_emit($var);
       $decl.notes<EmitSimpleP5_rx_var_emit> = $emit;
       my $value = "undef";
       if $decl.default_expr {
@@ -1660,6 +1658,14 @@ package IRx1 {
       my $src = ('local $RXX::nested_data = {%$RXX::nested_data};'~
                  $emit~' = '~$value~';');
       $.RMARE_code($src,1)
+    }
+    method rx_var_emit ($var) {
+      my $key = $var.sigil ~ $var.name;
+      #X key should be gensym if it's not a context var.
+      my $nested = '$RXX::nested_data->{"'~quotemeta($key)~'"}';
+      temp $whiteboard::dont_override_Var = 1;
+      my $normal = $whiteboard::current_emitter.e($var);
+      '(defined('~$nested~')?('~$nested~'):('~$normal~'))';
     }
   }
 
@@ -1819,9 +1825,14 @@ class EmitSimpleP5 {
 
 class EmitSimpleP5 {
   method cb__Var_selective_override ($n) {
+    if $whiteboard::dont_override_Var { return undef }
     my $decl = $n.notes<decl>;
     if defined($decl) && $decl.notes<EmitSimpleP5_rx_var_emit> {
       return $decl.notes<EmitSimpleP5_rx_var_emit>
+    }
+    elsif not(defined($decl)) && $n.is_context {
+      #XX for std.pm's $+inquote in methodop.  No decl.
+      return IRx1::RxMod_my.rx_var_emit($n);
     }
     undef;
   }
