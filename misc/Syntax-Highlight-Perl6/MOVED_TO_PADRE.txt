@@ -1,0 +1,5 @@
++-=-=--=--=--=--=--=--=--=-+
+| Syntax::Highlight::Perl6 |
++-=-=--=--=--=--=--=--=--=-+
+This project has been moved to "Padre: The Perl IDE" project repository.
+http://svn.perlide.org/padre/trunk/Syntax-Highlight-Perl6
