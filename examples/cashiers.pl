@@ -22,9 +22,9 @@ sub gen_cashier () {
     }; 
 }
 
-my $drawer;
-$drawer[$_] = gen_cashier() for 1..3;
+my @drawer;
+@drawer[$_] = gen_cashier() for 1..3;
 
-$drawer[1]<add>( 59 );
-$drawer[2]<del>( 17 );
-say $drawer[3]<bal>();  # This should say "42"
+@drawer[1]<add>( 59 );
+@drawer[2]<del>( 17 );
+say @drawer[3]<bal>();  # This should say "42"
