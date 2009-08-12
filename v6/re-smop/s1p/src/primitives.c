@@ -107,9 +107,10 @@ static SMOP__Object* primitive_storage_name(SMOP__Object* interpreter,SMOP__Obje
     SMOP__Object* a = SMOP__NATIVE__capture_positional(interpreter,capture,0);
     SMOP__Object* b = SMOP__NATIVE__capture_positional(interpreter,capture,1);
     int len;
-    char *attr = SMOP__NATIVE__idconst_fetch(b,&len);
+    char *attr = SMOP__NATIVE__idconst_fetch_with_null(b,&len);
     char *str = malloc(sizeof(char) * len+17);
     snprintf(str,len+17,"%.16x%s\n",(unsigned int)a,attr);
+    free(attr);
 
     SMOP__Object* ret = SMOP__NATIVE__idconst_createn(str,len+16);
     free(str);
