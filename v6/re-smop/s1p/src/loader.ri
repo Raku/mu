@@ -3,6 +3,28 @@
 %prototype SMOP__MildewSOLoader
 %idconst continuation
 %RI.id MildewSOLoader
+%{
+typedef struct dlhandle {
+  void* handle;
+  struct dlhandle* next;
+} dlhandle;
+static dlhandle* dlhandles;
+
+void smop_s1p_close_dlhandles() {
+  dlhandle* handle = dlhandles;
+  while (handle) {
+    dlhandle* next = handle->next;
+    if (dlclose(handle->handle)) {
+      fprintf("error while unloading: %s\n",dlerror());
+    }
+    free(handle);
+    handle = next;
+  }
+  dlhandles = NULL;
+}
+
+
+%}
 
 %method load
   
@@ -27,6 +49,10 @@
   
 
   void* handle = dlopen(filename,RTLD_LAZY | RTLD_GLOBAL);
+  dlhandle* dlh = malloc(sizeof(dlhandle));
+  dlh->handle = handle;
+  dlh->next = dlhandles;
+  dlhandles = dlh;
 
   if (!handle) {
     printf("Loader.load(%s): %s\n",filename,dlerror());
@@ -40,7 +66,6 @@
     abort();
   }
   init(interpreter,scope,continuation);
-  /*dlclose(handle);*/
 
 %method new
   ret =  smop_nagc_alloc(sizeof(smop_s1p_loader_struct));

@@ -109,6 +109,7 @@ int main(int argc, char** argv) {
   smop_capture_destr();
   smop_nagc_destr();
   smop_s0native_destr();
+  smop_s1p_close_dlhandles();
 
   return 0;
 }
