@@ -142,6 +142,26 @@ package Main;
         }
     }
     
+    # Lisp emitter
+    sub to_lisp_identifier {
+        my $s = $_[0];
+        my ( $sigil, $s ) = $s =~ /^([$@%]?)(.*)$/;
+        $s =~ s/::/-/g;
+        $s = 'sv-' . $s;
+        return $s;
+    }
+    sub to_lisp_namespace {
+        my $s = $_[0];
+        my ( $sigil, $s ) = $s =~ /^([$@%]?)(.*)$/;
+        $s =~ s/::/-/g;
+        return $s;
+    }
+    sub lisp_escape_string{
+        my $s = $_[0];
+        $s =~ s/"/\\"/g;
+        return $s;
+    }
+
 1;
 
 __END__
