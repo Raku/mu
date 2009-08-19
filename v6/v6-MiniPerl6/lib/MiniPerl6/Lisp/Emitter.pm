@@ -6,18 +6,25 @@ class MiniPerl6::Lisp::LexicalBlock {
         my $str := '';
         my $has_my_decl := 0;
         my $my_decl := '';
+        # my $silence_unused_warning := '';
         for @.block -> $decl { 
             if $decl.isa( 'Decl' ) && ( $decl.decl eq 'my' ) {
                 $has_my_decl := 1;
                 $my_decl := $my_decl ~ '(' ~ ($decl.var).emit ~ ' nil)'; 
+                # $silence_unused_warning := $silence_unused_warning ~ ' ' ~ ($decl.var).emit;
             }
             if $decl.isa( 'Bind' ) && ($decl.parameters).isa( 'Decl' ) && ( ($decl.parameters).decl eq 'my' ) {
                 $has_my_decl := 1;
                 $my_decl := $my_decl ~ '(' ~ (($decl.parameters).var).emit ~ ' nil)'; 
+                # $silence_unused_warning := $silence_unused_warning ~ ' ' ~ (($decl.parameters).var).emit;
             }
         }
         if $has_my_decl {
             $str := $str ~ '(let (' ~ $my_decl ~ ') ';
+
+            # silence warning "The variable X is defined but never used." in SBCL
+            # $str := $str ~ '(list ' ~ $silence_unused_warning ~ ') ';
+
         }
         else {
             $str := $str ~ '(progn ';
@@ -43,6 +50,7 @@ class CompUnit {
         my $str := ';; class ' ~ $.name ~ Main.newline;
 
         $str := $str ~ '(defpackage ' ~ $class_name ~ ')' ~ Main.newline;
+        # my $silence_unused_warning := '';
 
         my $has_my_decl := 0;
         my $my_decl := '';
@@ -50,14 +58,20 @@ class CompUnit {
             if $decl.isa( 'Decl' ) && ( $decl.decl eq 'my' ) {
                 $has_my_decl := 1;
                 $my_decl := $my_decl ~ '(' ~ ($decl.var).emit ~ ' nil)'; 
+                # $silence_unused_warning := $silence_unused_warning ~ ' ' ~ ($decl.var).emit;
             }
             if $decl.isa( 'Bind' ) && ($decl.parameters).isa( 'Decl' ) && ( ($decl.parameters).decl eq 'my' ) {
                 $has_my_decl := 1;
                 $my_decl := $my_decl ~ '(' ~ (($decl.parameters).var).emit ~ ' nil)'; 
+                # $silence_unused_warning := $silence_unused_warning ~ ' ' ~ (($decl.parameters).var).emit;
             }
         }
         if $has_my_decl {
             $str := $str ~ '(let (' ~ $my_decl ~ ')' ~ Main.newline;
+
+            # silence warning "The variable X is defined but never used." in SBCL
+            # $str := $str ~ '(list ' ~ $silence_unused_warning ~ ') ';
+
         }
 
         $str := $str ~ 
@@ -208,9 +222,13 @@ class Index {
     has $.index;
     method emit {
         if $.obj.isa( 'Var' ) {
-            return '(aref ' ~ $.obj.name ~ ' ' ~ $.index.emit ~ ')';
+            return '(elt ' ~ $.obj.name ~ ' ' ~ $.index.emit ~ ')';
+            # return '(aref (make-array ' ~ $.obj.name ~ ') ' ~ $.index.emit ~ ')';
+            # return '(aref ' ~ $.obj.name ~ ' ' ~ $.index.emit ~ ')';
         };
-        return '(aref ' ~ $.obj.emit ~ ' ' ~ $.index.emit ~ ')';
+        return '(elt ' ~ $.obj.emit ~ ' ' ~ $.index.emit ~ ')';
+        # return '(aref (make-array ' ~ $.obj.emit ~ ') ' ~ $.index.emit ~ ')';
+        # return '(aref ' ~ $.obj.emit ~ ' ' ~ $.index.emit ~ ')';
     }
 }
 
@@ -219,7 +237,8 @@ class Lookup {
     has $.index;
     method emit {
         if $.obj.isa( 'Var' ) {
-            return '(gethash ' ~ $.index.emit ~ ' ' ~ $.obj.name ~ ')';
+            return '(gethash ' ~ $.index.emit ~ ' ' ~ $.obj.emit ~ ')';
+            # return '(gethash ' ~ $.index.emit ~ ' ' ~ $.obj.name ~ ')';
         };
         return '(gethash ' ~ $.index.emit ~ ' ' ~ $.obj.emit ~ ')';
     }
@@ -238,7 +257,7 @@ class Var {
            ( $.twigil eq '.' )
         ?? ( '(' ~ Main::to_lisp_identifier( $.name ) ~ ' self)' )
         !!  (    ( $.name eq '/' )
-            ??   ( 'MATCH' )
+            ??   ( Main::to_lisp_identifier( 'MATCH' ) )
             !!   ( Main::to_lisp_identifier( $.name ) )
             )
     };
@@ -291,7 +310,6 @@ class Call {
     has $.hyper;
     has $.method;
     has @.arguments;
-    #has $.hyper;
     method emit {
         my $invocant := $.invocant.emit;
         if $invocant eq 'self' {
@@ -335,16 +353,10 @@ class Call {
         
         my $call := '(' ~ $meth ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
         if ($.hyper) {
-            '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
+            '(mapcar #\'' ~ Main::to_lisp_identifier($meth) ~ ' ' ~ $invocant ~ ')';
         }
         else {
-            my $args := (@.arguments.>>emit).join(' ');
-            if $args ne '' {
-                return '(setf (' ~ $meth ~ ' ' ~ $invocant ~ ') ' ~ (@.arguments.>>emit).join(' ') ~ ')';
-            }
-            else {
-                return '(' ~ $meth ~ ' ' ~ $invocant ~ ')'; 
-            };
+            return '(' ~ $meth ~ ' ' ~ $invocant ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
         };
 
     }
@@ -354,17 +366,11 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit {
-        
         my $code := $.code;
-
-        if $code.isa( 'Str' ) { }
-        else {
-            return '(' ~ $.code.emit ~ ')->(' ~ (@.arguments.>>emit).join(', ') ~ ')';
-        };
 
         if $code eq 'self'       { return 'self' };
 
-        if $code eq 'make'       { return 'return('   ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'make'       { return '(return-from mp6-function '   ~ (@.arguments.>>emit).join(' ') ~ ')' };
 
         if $code eq 'substr'     { return '(Main::substr '   ~ (@.arguments.>>emit).join(' ') ~ ')' };
 
@@ -374,20 +380,22 @@ class Apply {
             return '(format t ' ~ '"' ~ '~{~a~}' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') ~ '))' };
         if $code eq 'infix:<~>'  { 
             return '(format nil ' ~ '"' ~ '~{~a~}' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') ~ '))' };
-        if $code eq 'warn'       { return 'warn('        ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'warn'       { return '(Main::warn '        ~ (@.arguments.>>emit).join(' ') ~ ')' };
 
-        if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'array'      { return (@.arguments.>>emit).join(' ') };
 
-        if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'prefix:<~>' { 
+            return '(format nil ' ~ '"' ~ '~{~a~}' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') ~ '))' };
         if $code eq 'prefix:<!>' { return '(not (Main::bool '  ~ (@.arguments.>>emit).join(' ')    ~ ' ))' };
         if $code eq 'prefix:<?>' { return '(Main::bool '  ~ (@.arguments.>>emit).join(' ')    ~ ' )' };
 
-        if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<$>' { return '(scalar ' ~ (@.arguments.>>emit).join(' ')    ~ ')' };
 
         # if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<@>' { return '' ~ (@.arguments.>>emit).join(' ')    ~ '' };
+        if $code eq 'prefix:<@>' { return (@.arguments.>>emit).join(' ') };
 
-        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        # if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<%>' { return (@.arguments.>>emit).join(' ') };
 
         if $code eq 'infix:<+>'  { return '(+ '  ~ (@.arguments.>>emit).join(' ')  ~ ')' };
         if $code eq 'infix:<->'  { return '(-'  ~ (@.arguments.>>emit).join(' ')  ~ ')' };
@@ -396,11 +404,11 @@ class Apply {
         
         if $code eq 'infix:<&&>' { return '(and '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
         if $code eq 'infix:<||>' { return '(or '   ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'infix:<eq>' { return '(eq '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'infix:<ne>' { return '(ne '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'infix:<eq>' { return '(equal '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'infix:<ne>' { return '(not (equal '  ~ (@.arguments.>>emit).join(' ') ~ '))' };
  
-        if $code eq 'infix:<==>' { return '(== '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'infix:<!=>' { return '(!= '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'infix:<==>' { return '(eql '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'infix:<!=>' { return '(not (eql '  ~ (@.arguments.>>emit).join(' ') ~ '))' };
 
         if $code eq 'ternary:<?? !!>' { 
             return '(if (Main::bool ' ~ (@.arguments[0]).emit ~ ') ' ~ (@.arguments[1]).emit ~ ' ' ~ (@.arguments[2]).emit ~ ')' };
@@ -496,9 +504,22 @@ class Sub {
         for @$pos -> $field { 
             $str := $str ~ $field.emit ~ ' ';
         };
-        '(defun ' ~ $.name ~ ' ( ' ~ $str ~ ')' ~ Main.newline 
-          ~ '  (block mp6-function ' ~ $block.emit 
-        ~ '))' ~ Main.newline;
+        if $str {
+            $str := '&optional ' ~ $str;
+        }
+
+        if $.name {
+            '(defun ' ~ $.name ~ ' (' ~ $str ~ ')' ~ Main.newline 
+                ~ '  (block mp6-function ' ~ $block.emit 
+            ~ '))' ~ Main.newline;
+        }
+        else {
+            '(lambda ' ~ $.name ~ ' (' ~ $str ~ ')' ~ Main.newline 
+                ~ '  (block mp6-function ' ~ $block.emit 
+            ~ '))' ~ Main.newline;
+
+        }
+
     }
 }
 
