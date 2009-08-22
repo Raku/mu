@@ -1,3 +1,15 @@
+
+;; MiniPerl6 Lisp runtime
+;;
+;; Author: Flavio Soibelmann Glock <fglock@gmail.com>
+;;
+;; Copyright 2009 by Flavio Soibelmann Glock and others.
+;; 
+;; This program is free software; you can redistribute it and/or modify it
+;; under the same terms as Perl itself.
+;; 
+;; See <http://www.perl.com/perl/misc/Artistic.html>
+
 (defpackage mp-Main
   (:use common-lisp))
 (in-package mp-Main)
@@ -22,6 +34,16 @@
 (defmethod sv-bool ((x number)) (not (eql x 0)))
 (defmethod sv-bool ((x string)) (and (not (equal x "")) (not (equal x "0"))))
 
+(if (not (ignore-errors (find-method 'sv-and () ())))
+  (defgeneric sv-and (x y)
+      (:documentation "and")))
+(defmethod sv-and (x y) (and (sv-bool x) (sv-bool y)))
+
+(if (not (ignore-errors (find-method 'sv-or () ())))
+  (defgeneric sv-or (x y)
+      (:documentation "or")))
+(defmethod sv-or (x y) (or (sv-bool x) (sv-bool y)))
+
 ;; Grammars
 
 (if (not (ignore-errors (find-class 'mp-MiniPerl6-Grammar)))
@@ -29,6 +51,28 @@
 (let (x)
   (setq x (make-instance 'mp-MiniPerl6-Grammar))
   (defun proto-mp-MiniPerl6-Grammar () x))
+
+;; token <space>
+(if (not (ignore-errors (find-method 'sv-space () ())))
+   (defgeneric sv-space (sv-grammar &optional sv-str sv-pos)
+      (:documentation "a method")))
+(defmethod sv-space ((sv-grammar mp-MiniPerl6-Grammar) &optional sv-str sv-pos)
+    (if (or (char= (aref sv-str sv-pos) #\Space) (char= (aref sv-str sv-pos) #\Tab))
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-str m) sv-str)(setf (sv-from m) sv-pos)(setf (sv-to m) (+ sv-pos 1))(setf (sv-bool m) 1) m)
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-bool m) nil) m)))
+
+;; token <digit>
+(if (not (ignore-errors (find-method 'sv-digit () ())))
+  (defgeneric sv-digit (sv-grammar &optional sv-str sv-pos)
+      (:documentation "a method")))
+(defmethod sv-digit ((sv-grammar mp-MiniPerl6-Grammar) &optional sv-str sv-pos)
+    (if (digit-char-p (aref sv-str sv-pos)) 
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-str m) sv-str)(setf (sv-from m) sv-pos)(setf (sv-to m) (+ sv-pos 1))(setf (sv-bool m) 1) m)
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-bool m) nil) m)))
 
 ;; token <word>
 (if (not (ignore-errors (find-method 'sv-word () ())))
@@ -41,11 +85,52 @@
          (let ((m (make-instance 'mp-MiniPerl6-Match))) 
             (setf (sv-bool m) nil) m)))
 
+;; token <backslash>
+(if (not (ignore-errors (find-method 'sv-backslash () ())))
+   (defgeneric sv-backslash (sv-grammar &optional sv-str sv-pos)
+      (:documentation "a method")))
+(defmethod sv-backslash ((sv-grammar mp-MiniPerl6-Grammar) &optional sv-str sv-pos)
+    (if (char= (aref sv-str sv-pos) #\\)
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-str m) sv-str)(setf (sv-from m) sv-pos)(setf (sv-to m) (+ sv-pos 1))(setf (sv-bool m) 1) m)
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-bool m) nil) m)))
+
+;; token <newline>
+(if (not (ignore-errors (find-method 'sv-newline () ())))
+   (defgeneric sv-newline (sv-grammar &optional sv-str sv-pos)
+      (:documentation "a method")))
+(defmethod sv-newline ((sv-grammar mp-MiniPerl6-Grammar) &optional sv-str sv-pos)
+    (if (char= (aref sv-str sv-pos) #\Return)
+         (progn (setf sv-pos (+ sv-pos 1))
+                (if (char= (aref sv-str sv-pos) #\Newline) (setf sv-pos (+ sv-pos 1)))
+                (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+                    (setf (sv-str m) sv-str)(setf (sv-from m) sv-pos)(setf (sv-to m) sv-pos)(setf (sv-bool m) 1) m))
+    (if (char= (aref sv-str sv-pos) #\Newline)
+         (progn (setf sv-pos (+ sv-pos 1))
+                (if (char= (aref sv-str sv-pos) #\Return) (setf sv-pos (+ sv-pos 1)))
+                (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+                    (setf (sv-str m) sv-str)(setf (sv-from m) sv-pos)(setf (sv-to m) sv-pos)(setf (sv-bool m) 1) m))
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-bool m) nil) m))))
+
+;; token <not_newline>
+(if (not (ignore-errors (find-method 'sv-not_newline () ())))
+   (defgeneric sv-not_newline (sv-grammar &optional sv-str sv-pos)
+      (:documentation "a method")))
+(defmethod sv-not_newline ((sv-grammar mp-MiniPerl6-Grammar) &optional sv-str sv-pos)
+    (if (not (or (char= (aref sv-str sv-pos) #\Return) (char= (aref sv-str sv-pos) #\Newline)))
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-str m) sv-str)(setf (sv-from m) sv-pos)(setf (sv-to m) (+ sv-pos 1))(setf (sv-bool m) 1) m)
+         (let ((m (make-instance 'mp-MiniPerl6-Match))) 
+            (setf (sv-bool m) nil) m)))
+
 
 ;; Match objects
 
 (if (not (ignore-errors (find-class 'mp-MiniPerl6-Match)))
-  (defclass mp-MiniPerl6-Match () (hash array)))
+  (defclass mp-MiniPerl6-Match () 
+    (hash array)))
 
 (defvar sv-MATCH (make-instance 'mp-MiniPerl6-Match))
 

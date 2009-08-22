@@ -424,8 +424,8 @@ class Apply {
         if $code eq 'infix:<>>'  { return '(> '  ~ (@.arguments.>>emit).join(' ')  ~ ')' };
         if $code eq 'infix:<x>'  { return '(x '  ~ (@.arguments.>>emit).join(' ')  ~ ')' };
         
-        if $code eq 'infix:<&&>' { return '(and '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'infix:<||>' { return '(or '   ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'infix:<&&>' { return '(sv-and ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'infix:<||>' { return '(sv-or '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
         if $code eq 'infix:<eq>' { return '(sv-eq '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
         if $code eq 'infix:<ne>' { return '(not (sv-eq '  ~ (@.arguments.>>emit).join(' ') ~ '))' };
  

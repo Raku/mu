@@ -63,11 +63,22 @@ class Main {
     $m := Main.num3( '5x2', 0 );
     say '# match scalar: ', $$m;
     say '# match capture: ', $m.capture;
-    if ($m.capture) {
+    my $cap := scalar( ($m.hash){'MiniPerl6::Grammar.word'} );
+    say '# match named capture: ', $cap;
+    say '# bool value (true): ', ?$m;
+    if ($cap eq 'x') {
         say 'ok 6';
     }
     else {
         say 'not ok 6';
+    }
+    $m := Main.num3( '5?2', 0 );
+    say '# bool value (false): ', ?$m;
+    if ($m) {
+        say 'not ok 7';
+    }
+    else {
+        say 'ok 7';
     }
 
 }
