@@ -1,4 +1,4 @@
-package MiniPerl6::Perl5::Match;
+package MiniPerl6::Match;
 # Documentation in the __END__
 
 use 5.006;
@@ -44,10 +44,10 @@ sub data  {    $_data{refaddr $_[0]}           }
 #sub to    {    $_data{refaddr $_[0]}->{to}     }
 #sub bool  {    $_data{refaddr $_[0]}->{bool}   }
 
-sub from { @_ == 1 ? ( $_data{refaddr $_[0]}{from} ) : ( $_data{refaddr $_[0]}{from} = $_[1] ) };
-sub to   { @_ == 1 ? ( $_data{refaddr $_[0]}{to}   ) : ( $_data{refaddr $_[0]}{to}   = $_[1] ) };
-sub bool { @_ == 1 ? ( $_data{refaddr $_[0]}{bool} ) : ( $_data{refaddr $_[0]}{bool} = $_[1] ) };
-sub capture
+sub from :lvalue { @_ == 1 ? ( $_data{refaddr $_[0]}{from} ) : ( $_data{refaddr $_[0]}{from} = $_[1] ) };
+sub to   :lvalue { @_ == 1 ? ( $_data{refaddr $_[0]}{to}   ) : ( $_data{refaddr $_[0]}{to}   = $_[1] ) };
+sub bool :lvalue { @_ == 1 ? ( $_data{refaddr $_[0]}{bool} ) : ( $_data{refaddr $_[0]}{bool} = $_[1] ) };
+sub capture :lvalue
          { @_ == 1 ? ( $_data{refaddr $_[0]}{capture} ) : ( $_data{refaddr $_[0]}{capture} = $_[1] ) };
 
 sub array {    
@@ -192,7 +192,7 @@ __END__
 
 =head1 NAME 
 
-MiniPerl6::Perl5::Match - Match object created by rules
+MiniPerl6::Match - Match object created by rules
 
 =head1 METHODS
 
@@ -283,11 +283,12 @@ C<v6> on CPAN
 
 =head1 AUTHORS
 
+Flavio Soibelmann Glock <fglock@gmail.com>.
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock, Audrey Tang and others.
+Copyright 2006, 2009 by Flavio Soibelmann Glock, Audrey Tang and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

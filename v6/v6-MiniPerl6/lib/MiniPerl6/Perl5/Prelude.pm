@@ -1,23 +1,27 @@
 use v6-alpha;
 
-class MiniPerl6::AST {
+class MiniPerl6::Match {
+    has $.from;
+    has $.to;
+    has $.str;
+    has $.bool;
 
-    sub comp_unit ( $match ) {
-        return ::CompUnit(
-            'name'        => ($$match){'full_ident'},
-            'attributes'  => { },
-            'methods'     => { },
-            'body'        => ($$match){'exp_stmts'},
-        );
-    };
-
+    method scalar {
+        substr( $.str, $.from, ( $.to - $.from ) );
+    }
 }
 
 =begin
 
 =head1 NAME 
 
-MiniPerl6::AST::CompUnit - AST for MiniPerl6 classes
+MiniPerl6::Lisp::Prelude - Runtime for MiniPerl6-in-Lisp
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+This module contains MiniPerl6 code for the MiniPerl6-in-Lisp runtime.
 
 =head1 AUTHORS
 
@@ -32,7 +36,7 @@ The Pugs homepage at L<http://pugscode.org/>.
 
 =head1 COPYRIGHT
 
-Copyright 2006, 2009 by Flavio Soibelmann Glock, Audrey Tang and others.
+Copyright 2009 by Flavio Soibelmann Glock.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

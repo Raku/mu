@@ -8,22 +8,22 @@ package MiniPerl6::Grammar;
     sub space { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
         my $MATCH; 
-        $MATCH = MiniPerl6::Perl5::Match->new( 
+        $MATCH = MiniPerl6::Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
         $MATCH->bool(
             substr($str, $MATCH->to()) =~ m/^([[:space:]])/
-            ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
+            ? ( 1 + ($MATCH->to = ( length( $1 ) + $MATCH->to() )))
             : 0
         );
         $MATCH;
     }
     sub digit { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+        my $MATCH; $MATCH = MiniPerl6::Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
         $MATCH->bool(
             substr($str, $MATCH->to()) =~ m/^([[:digit:]])/
-            ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
+            ? ( 1 + ($MATCH->to = ( length( $1 ) + $MATCH->to() )))
             : 0
         );
         $MATCH;
@@ -34,22 +34,22 @@ BEGIN {
         # MP6-in-P5   
         *word = sub { 
             my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-            my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+            my $MATCH; $MATCH = MiniPerl6::Match->new( 
                 'str' => $str,'from' => $pos,'to' => $pos, ); 
             $MATCH->bool(
                 substr($str, $MATCH->to()) =~ m/^([[:word:]])/
-                ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
+                ? ( 1 + ($MATCH->to = ( length( $1 ) + $MATCH->to() )))
                 : 0
             );
             $MATCH;
         };
         *backslash = sub { 
             my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-            my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+            my $MATCH; $MATCH = MiniPerl6::Match->new( 
                 'str' => $str,'from' => $pos,'to' => $pos, ); 
             $MATCH->bool(
                 substr($str, $MATCH->to(), 1) eq '\\'
-                ? ( 1 + $MATCH->to( 1 + $MATCH->to() ))
+                ? ( 1 + ($MATCH->to = ( 1 + $MATCH->to() )))
                 : 0
             );
             $MATCH;
@@ -64,24 +64,24 @@ BEGIN {
 
     sub newline { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+        my $MATCH; $MATCH = MiniPerl6::Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
         return $MATCH unless ord( substr($str, $MATCH->to()) ) == 10
             || ord( substr($str, $MATCH->to()) ) == 13;
         $MATCH->bool(
             substr($str, $MATCH->to()) =~ m/(?m)^(\n\r?|\r\n?)/
-            ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
+            ? ( 1 + ($MATCH->to = ( length( $1 ) + $MATCH->to() )))
             : 0
         );
         $MATCH;
     }
     sub not_newline { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+        my $MATCH; $MATCH = MiniPerl6::Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, 'bool' => 0 ); 
         return $MATCH if ord( substr($str, $MATCH->to()) ) == 10
             || ord( substr($str, $MATCH->to()) ) == 13;
-        $MATCH->to( 1 + $MATCH->to );
+        $MATCH->to = ( 1 + $MATCH->to );
         $MATCH->bool( 1 );
         $MATCH;
     }
@@ -146,18 +146,23 @@ package Main;
     sub to_lisp_identifier {
         my $s = $_[0];
         my ( $sigil, $s ) = $s =~ /^([$@%]?)(.*)$/;
-        $s =~ s/::/-/g;
-        $s = 'sv-' . $s;
+        my @s = split( /::/, $s );
+        my $name = pop @s;
+        my $namespace = join( '-', @s );
+        $namespace = '' if $namespace eq '-';
+        $s = 'sv-' . $name;
+        $s = 'mp-' . $namespace . '::' . $s  if $namespace;
         return $s;
     }
     sub to_lisp_namespace {
         my $s = $_[0];
         my ( $sigil, $s ) = $s =~ /^([$@%]?)(.*)$/;
         $s =~ s/::/-/g;
-        return $s;
+        return 'mp-' . $s;
     }
     sub lisp_escape_string{
         my $s = $_[0];
+        $s =~ s/\\/\\\\/g;
         $s =~ s/"/\\"/g;
         return $s;
     }

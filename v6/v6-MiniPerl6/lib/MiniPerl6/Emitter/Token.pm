@@ -8,7 +8,7 @@ class Rul {
 #    sub perl5 ( $rx ) {
 #        return
 #            '( perl5rx( substr( $str, $MATCH.to ), \'^(' ~ $rx ~ ')\' ) ' ~ 
-#            ' ?? ( 1 + $MATCH.to( $0.chars + $MATCH.to )) ' ~
+#            ' ?? ( 1 + $MATCH.to := ( $0.chars + $MATCH.to )) ' ~
 #            ' !! (0) ' ~
 #            ')'
 #    };
@@ -26,7 +26,7 @@ class Rul {
             };
             if ( $len ) {
                 '( ( \'' ~ $str ~ '\' eq substr( $str, $MATCH.to, ' ~ $len ~ ')) ' ~
-                '  ?? (1 + $MATCH.to( ' ~ $len ~ ' + $MATCH.to ))' ~
+                '  ?? (1 + ( $MATCH.to := ' ~ $len ~ ' + $MATCH.to ))' ~
                 '  !! (0) ' ~
                 ')';
             }
@@ -53,8 +53,8 @@ class Rul::Or {
     has @.or;
     method emit {
         'do { ' ~
-            'my $pos1 := $MATCH.to(); do{ ' ~ 
-            (@.or.>>emit).join('} || do { $MATCH.to( $pos1 ); ') ~
+            'my $pos1 := $MATCH.to; do{ ' ~ 
+            (@.or.>>emit).join('} || do { $MATCH.to := $pos1; ') ~
         '} }';
     }
 }
@@ -75,7 +75,7 @@ class Rul::Subrule {
         'do { ' ~
           'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
           ## 'my $m2 := ' ~ $meth ~ '($str, { 'pos' => $MATCH.to, 'KEY' => $key }); ' ~
-          'if $m2 { $MATCH.to( $m2.to ); $MATCH{\'' ~ $.metasyntax ~ '\'} := $m2; 1 } else { 0 } ' ~
+          'if $m2 { $MATCH.to := $m2.to; $MATCH{\'' ~ $.metasyntax ~ '\'} := $m2; 1 } else { 0 } ' ~
         '}'
     }
 }
@@ -88,7 +88,7 @@ class Rul::SubruleNoCapture {
             !! ( '$grammar.' ~ $.metasyntax );
         'do { ' ~
           'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
-          'if $m2 { $MATCH.to( $m2.to ); 1 } else { 0 } ' ~
+          'if $m2 { $MATCH.to := $m2.to; 1 } else { 0 } ' ~
         '}'
     }
 }
@@ -124,7 +124,7 @@ class Rul::Constant {
 class Rul::Dot {
     method emit {
         '( (\'\' ne substr( $str, $MATCH.to, 1 )) ' ~
-        '  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' ~
+        '  ?? (1 + ($MATCH.to := 1 + $MATCH.to ))' ~
         '  !! (0) ' ~
         ')';
     }
@@ -187,8 +187,8 @@ class Rul::Block {
                 '}; ' ~
                 '\'974^213\' } ).();' ~
              'if $ret ne \'974^213\' {' ~
-                '$MATCH.capture( $ret ); ' ~
-                '$MATCH.bool( 1 ); ' ~
+                '$MATCH.capture := $ret; ' ~
+                '$MATCH.bool := 1; ' ~
                 'return $MATCH;' ~
              '};' ~
              '1' ~
@@ -248,11 +248,11 @@ class Rul::Before {
     method emit {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
-            '$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
-            '$MATCH.bool( ' ~
+            '$MATCH := ::MiniPerl6::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
+            '$MATCH.bool := ' ~
                 $.rule.emit ~
-            '); ' ~
-            '$tmp.bool( ?$MATCH ); ' ~
+            '; ' ~
+            '$tmp.bool := ?$MATCH; ' ~
             '$MATCH := $tmp; ' ~
             '?$MATCH; ' ~
         '}'
@@ -264,11 +264,11 @@ class Rul::NotBefore {
     method emit {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
-            '$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
-            '$MATCH.bool( ' ~
+            '$MATCH := ::MiniPerl6::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
+            '$MATCH.bool := ' ~
                 $.rule.emit ~
-            '); ' ~
-            '$tmp.bool( !$MATCH ); ' ~
+            '; ' ~
+            '$tmp.bool := !$MATCH; ' ~
             '$MATCH := $tmp; ' ~
             '?$MATCH; ' ~
         '}'
@@ -283,7 +283,7 @@ class Rul::NegateCharClass {
         die();
     #    'do { ' ~
     #      'my $m2 := $grammar.negated_char_class($str, $MATCH.to, \'' ~ $.chars ~ '\'); ' ~
-    #      'if $m2 { 1 + $MATCH.to( $m2.to ) } else { 0 } ' ~
+    #      'if $m2 { 1 + ($MATCH.to := $m2.to ) } else { 0 } ' ~
     #    '}'
     }
 }
@@ -296,7 +296,7 @@ class Rul::CharClass {
         die();
     #    'do { ' ~
     #      'my $m2 := $grammar.char_class($str, $MATCH.to, \'' ~ $.chars ~ '\'); ' ~
-    #      'if $m2 { 1 + $MATCH.to( $m2.to ) } else { 0 } ' ~
+    #      'if $m2 { 1 + $MATCH.to := ( $m2.to ) } else { 0 } ' ~
     #    '}'
     }
 }

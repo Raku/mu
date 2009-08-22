@@ -540,8 +540,8 @@ token token {
     {
         #say 'Token was compiled into: ', ($$<MiniPerl6::Grammar::Regex.rule>).perl;
         my $source := 'method ' ~ $<opt_name> ~ ' ( $grammar: $str, $pos ) { ' ~
-            'my $MATCH; $MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' ~ 
-            '$MATCH.bool( ' ~
+            'my $MATCH; $MATCH := ::MiniPerl6::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' ~ 
+            '$MATCH.bool := ( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
             'make $MATCH }';
@@ -571,6 +571,7 @@ This module generates a syntax tree for the MiniPerl6 compiler.
 
 =head1 AUTHORS
 
+Flavio Soibelmann Glock <fglock@gmail.com>.
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 SEE ALSO
@@ -581,7 +582,7 @@ The Pugs homepage at L<http://pugscode.org/>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock, Audrey Tang and others.
+Copyright 2006, 2009 by Flavio Soibelmann Glock, Audrey Tang and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

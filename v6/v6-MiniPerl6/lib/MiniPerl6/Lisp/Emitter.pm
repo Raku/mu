@@ -49,7 +49,9 @@ class CompUnit {
         my $class_name := Main::to_lisp_namespace($.name);
         my $str := ';; class ' ~ $.name ~ Main.newline;
 
-        $str := $str ~ '(defpackage ' ~ $class_name ~ ')' ~ Main.newline;
+        $str := $str ~ '(defpackage ' ~ $class_name ~ Main.newline
+                ~ '  (:use common-lisp))' ~ Main.newline
+                ~ ';; (in-package ' ~ $class_name ~ ')' ~ Main.newline;
         # my $silence_unused_warning := '';
 
         my $has_my_decl := 0;
@@ -78,6 +80,9 @@ class CompUnit {
 '(if (not (ignore-errors (find-class \'' ~ $class_name ~ ')))
   (defclass ' ~ $class_name ~ ' () ()))
 
+(let (x) 
+  (setq x (make-instance \'' ~ $class_name ~ '))
+  (defun proto-' ~ $class_name ~ ' () x))
 ';
 
         for @.body -> $decl { 
@@ -88,9 +93,9 @@ class CompUnit {
 
                 $str := $str ~ 
 ';; has $.' ~ $accessor_name  ~ '
-(let ((new-slots (list (list :name \'' ~ $accessor_name  ~ '
-  :readers \'(' ~ $accessor_name  ~ ')
-  :writers \'((setf ' ~ $accessor_name  ~ '))
+(let ((new-slots (list (list :name \'' ~ Main::to_lisp_identifier($accessor_name)  ~ '
+  :readers \'(' ~ Main::to_lisp_identifier($accessor_name)  ~ ')
+  :writers \'((setf ' ~ Main::to_lisp_identifier($accessor_name)  ~ '))
   :initform \'nil
   :initfunction (constantly nil)))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class \'' ~ $class_name  ~ ')))
@@ -108,27 +113,40 @@ new-slots))
                 my $sig      := $decl.sig;
                 my $invocant := $sig.invocant; 
                 my $pos      := $sig.positional;
-                my $str2 := '(self ' ~ $class_name ~ ')'
+                my $str_specific := '(' ~ $invocant.emit ~ ' ' ~ $class_name ~ ')';
+                my $str_generic  :=  $invocant.emit;
+                my $str_optionals := '';
                 for @$pos -> $field { 
-                    $str2 := $str2 ~ ' ' ~ $field.emit;
+                    $str_optionals := $str_optionals ~ ' ' ~ $field.emit;
                 };
+                if ( $str_optionals ) {
+                    $str_specific := $str_specific ~ ' &optional' ~ $str_optionals;
+                    $str_generic  := $str_generic  ~ ' &optional' ~ $str_optionals;
+                }
                 my $block    := ::MiniPerl6::Lisp::LexicalBlock( block => $decl.block );
                 $str := $str ~
 ';; method ' ~ $decl.name ~ '
-(if (not (ignore-errors (find-method \'' ~ $decl.name ~ ' () ())))
-  (defgeneric ' ~ $decl.name ~ ' (self)
+(if (not (ignore-errors (find-method \'' ~ Main::to_lisp_identifier($decl.name) ~ ' () ())))
+  (defgeneric ' ~ Main::to_lisp_identifier($decl.name) ~ ' (' ~ $str_generic ~ ')
       (:documentation ' ~ '"' ~ 'a method' ~ '"' ~ ')))
-(defmethod ' ~ $decl.name ~ ' (' ~ $str2 ~ ')
+(defmethod ' ~ Main::to_lisp_identifier($decl.name) ~ ' (' ~ $str_specific ~ ')
   (block mp6-function
     ' ~ $block.emit ~ '))
 
 ';
+            }
+            if $decl.isa( 'Sub' ) {
+                $str := $str 
+                    ~ '(in-package ' ~ $class_name ~ ')' ~ Main.newline
+                    ~ '  ' ~ ($decl).emit ~ Main.newline
+                    ~ '(in-package mp-Main)' ~ Main.newline;
             }
         }; 
 
         for @.body -> $decl { 
             if    (!( $decl.isa( 'Decl' ) && (( $decl.decl eq 'has' ) || ( $decl.decl eq 'my' )) ))
                && (!( $decl.isa( 'Method'))) 
+               && (!( $decl.isa( 'Sub'))) 
             {
                 $str := $str ~ ($decl).emit ~ Main.newline;
             }
@@ -196,7 +214,7 @@ class Lit::Hash {
         for @$fields -> $field { 
             $str := $str ~ '(setf (gethash ' ~ ($field[0]).emit ~ ' h) ' ~ ($field[1]).emit ~ ')';
         }; 
-        '(let ((h (cl:make-hash-table))) ' ~ $str ~ ' h)';
+        '(let ((h (make-hash-table :test \'equal))) ' ~ $str ~ ' h)';
     }
 }
 
@@ -237,7 +255,10 @@ class Lookup {
     has $.index;
     method emit {
         if $.obj.isa( 'Var' ) {
-            return '(gethash ' ~ $.index.emit ~ ' ' ~ $.obj.emit ~ ')';
+            if ($.obj.name eq 'MATCH') || ($.obj.name eq '/') {
+                return '(gethash ' ~ $.index.emit ~ ' (sv-hash ' ~ $.obj.emit ~ '))';
+            }
+            # return '(gethash ' ~ $.index.emit ~ ' ' ~ $.obj.emit ~ ')';
             # return '(gethash ' ~ $.index.emit ~ ' ' ~ $.obj.name ~ ')';
         };
         return '(gethash ' ~ $.index.emit ~ ' ' ~ $.obj.emit ~ ')';
@@ -255,14 +276,11 @@ class Var {
         # %x    => $Hash_x
         # &x    => $Code_x
            ( $.twigil eq '.' )
-        ?? ( '(' ~ Main::to_lisp_identifier( $.name ) ~ ' self)' )
+        ?? ( '(' ~ Main::to_lisp_identifier( $.name ) ~ ' sv-self)' )
         !!  (    ( $.name eq '/' )
             ??   ( Main::to_lisp_identifier( 'MATCH' ) )
             !!   ( Main::to_lisp_identifier( $.name ) )
             )
-    };
-    method name {
-        Main::to_lisp_identifier($.name)
     };
 }
 
@@ -301,7 +319,7 @@ class Bind {
 class Proto {
     has $.name;
     method emit {
-        ~$.name        
+        '(proto-' ~ Main::to_lisp_namespace($.name) ~ ')'
     }
 }
 
@@ -313,7 +331,7 @@ class Call {
     method emit {
         my $invocant := $.invocant.emit;
         if $invocant eq 'self' {
-            $invocant := 'self';
+            $invocant := 'sv-self';
         };
 
         if     ($.method eq 'values')
@@ -332,31 +350,30 @@ class Call {
 
         if     ($.method eq 'yaml')
             || ($.method eq 'say' )
-            || ($.method eq 'join')
+            # || ($.method eq 'join')
             || ($.method eq 'chars')
             || ($.method eq 'isa')
         { 
             if ($.hyper) {
                 return 
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
+                    '[ map { ' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
             }
             else {
                 return
-                    '(Main::' ~ $.method ~ ' ' ~ $invocant ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
+                    '(' ~ $.method ~ ' ' ~ $invocant ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
             }
         };
 
-        my $meth := $.method;
-        if  $meth eq 'postcircumfix:<( )>'  {
+        my $meth := Main::to_lisp_identifier($.method) ~ ' ';
+        if  $.method eq 'postcircumfix:<( )>'  {
              $meth := '';  
         };
         
-        my $call := '(' ~ $meth ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
         if ($.hyper) {
-            '(mapcar #\'' ~ Main::to_lisp_identifier($meth) ~ ' ' ~ $invocant ~ ')';
+            '(mapcar #\'' ~ $meth ~ $invocant ~ ')';
         }
         else {
-            return '(' ~ $meth ~ ' ' ~ $invocant ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
+            return '(' ~ $meth ~ $invocant ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
         };
 
     }
@@ -368,11 +385,11 @@ class Apply {
     method emit {
         my $code := $.code;
 
-        if $code eq 'self'       { return 'self' };
+        if $code eq 'self'       { return 'sv-self' };
 
         if $code eq 'make'       { return '(return-from mp6-function '   ~ (@.arguments.>>emit).join(' ') ~ ')' };
 
-        if $code eq 'substr'     { return '(Main::substr '   ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'substr'     { return '(sv-substr '   ~ (@.arguments.>>emit).join(' ') ~ ')' };
 
         if $code eq 'say'        { 
             return '(format t ' ~ '"' ~ '~{~a~}~%' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') ~ '))' };
@@ -380,16 +397,21 @@ class Apply {
             return '(format t ' ~ '"' ~ '~{~a~}' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') ~ '))' };
         if $code eq 'infix:<~>'  { 
             return '(format nil ' ~ '"' ~ '~{~a~}' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') ~ '))' };
-        if $code eq 'warn'       { return '(Main::warn '        ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'warn'       { 
+            return '(write-line (format nil ' ~ '"' ~ '~{~a~}' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') 
+                    ~ ')) *error-output*)' };
+        if $code eq 'die'        { 
+            return '(progn (write-line (format nil ' ~ '"' ~ '~{~a~}' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') 
+                    ~ ')) *error-output*) (sb-ext:quit))' };
 
         if $code eq 'array'      { return (@.arguments.>>emit).join(' ') };
 
         if $code eq 'prefix:<~>' { 
             return '(format nil ' ~ '"' ~ '~{~a~}' ~ '"' ~ ' (list ' ~ (@.arguments.>>emit).join(' ') ~ '))' };
-        if $code eq 'prefix:<!>' { return '(not (Main::bool '  ~ (@.arguments.>>emit).join(' ')    ~ ' ))' };
-        if $code eq 'prefix:<?>' { return '(Main::bool '  ~ (@.arguments.>>emit).join(' ')    ~ ' )' };
+        if $code eq 'prefix:<!>' { return '(not (sv-bool '  ~ (@.arguments.>>emit).join(' ')    ~ ' ))' };
+        if $code eq 'prefix:<?>' { return '(sv-bool '  ~ (@.arguments.>>emit).join(' ')    ~ ' )' };
 
-        if $code eq 'prefix:<$>' { return '(scalar ' ~ (@.arguments.>>emit).join(' ')    ~ ')' };
+        if $code eq 'prefix:<$>' { return '(sv-scalar ' ~ (@.arguments.>>emit).join(' ')    ~ ')' };
 
         # if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
         if $code eq 'prefix:<@>' { return (@.arguments.>>emit).join(' ') };
@@ -404,16 +426,16 @@ class Apply {
         
         if $code eq 'infix:<&&>' { return '(and '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
         if $code eq 'infix:<||>' { return '(or '   ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'infix:<eq>' { return '(equal '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'infix:<ne>' { return '(not (equal '  ~ (@.arguments.>>emit).join(' ') ~ '))' };
+        if $code eq 'infix:<eq>' { return '(sv-eq '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'infix:<ne>' { return '(not (sv-eq '  ~ (@.arguments.>>emit).join(' ') ~ '))' };
  
         if $code eq 'infix:<==>' { return '(eql '  ~ (@.arguments.>>emit).join(' ') ~ ')' };
         if $code eq 'infix:<!=>' { return '(not (eql '  ~ (@.arguments.>>emit).join(' ') ~ '))' };
 
         if $code eq 'ternary:<?? !!>' { 
-            return '(if (Main::bool ' ~ (@.arguments[0]).emit ~ ') ' ~ (@.arguments[1]).emit ~ ' ' ~ (@.arguments[2]).emit ~ ')' };
+            return '(if (sv-bool ' ~ (@.arguments[0]).emit ~ ') ' ~ (@.arguments[1]).emit ~ ' ' ~ (@.arguments[2]).emit ~ ')' };
         
-        '(' ~ $.code ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
+        '(' ~ Main::to_lisp_identifier($.code) ~ ' ' ~ (@.arguments.>>emit).join(' ') ~ ')';
     }
 }
 
@@ -431,7 +453,7 @@ class If {
     method emit {
         my $block1 := ::MiniPerl6::Lisp::LexicalBlock( block => @.body );
         my $block2 := ::MiniPerl6::Lisp::LexicalBlock( block => @.otherwise );
-        '(if (Main::bool ' ~ $.cond.emit ~ ') ' ~ $block1.emit ~ ' ' ~ $block2.emit ~ ')';
+        '(if (sv-bool ' ~ $.cond.emit ~ ') ' ~ $block1.emit ~ ' ' ~ $block2.emit ~ ')';
     }
 }
 
@@ -509,7 +531,7 @@ class Sub {
         }
 
         if $.name {
-            '(defun ' ~ $.name ~ ' (' ~ $str ~ ')' ~ Main.newline 
+            '(defun ' ~ Main::to_lisp_identifier($.name) ~ ' (' ~ $str ~ ')' ~ Main.newline 
                 ~ '  (block mp6-function ' ~ $block.emit 
             ~ '))' ~ Main.newline;
         }
@@ -534,7 +556,8 @@ class Do {
 class Use {
     has $.mod;
     method emit {
-        'use ' ~ Main::to_lisp_namespace($.mod)
+        Main.newline
+        ~ ';; use ' ~ Main::to_lisp_namespace($.mod) ~ Main.newline
     }
 }
 
@@ -554,6 +577,7 @@ This module generates Lisp code for the MiniPerl6 compiler.
 
 =head1 AUTHORS
 
+Flavio Soibelmann Glock <fglock@gmail.com>.
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 SEE ALSO

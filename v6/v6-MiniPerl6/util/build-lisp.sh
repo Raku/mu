@@ -22,7 +22,7 @@ perl mp6-lisp.pl \
     <      lib/Test.pm    \
     >  liblisp/Test.lisp
 
-#perl mp6-lisp.pl \
-#    <      lib/MiniPerl6/Lisp/Emitter.pm    \
-#    >  liblisp/MiniPerl6/Lisp/Emitter.lisp
+perl mp6-lisp.pl \
+    <      lib/MiniPerl6/Lisp/Emitter.pm    \
+    >  liblisp/MiniPerl6/Lisp/Emitter.lisp
 

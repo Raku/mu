@@ -1,10 +1,15 @@
 use v6-alpha;
 
-class Match {
-    has $.named;
+class MiniPerl6::Match {
     has $.from;
     has $.to;
     has $.str;
+    has $.bool;
+    has $.capture;
+
+    method scalar {
+        substr( $.str, $.from, ( $.to - $.from ) );
+    }
 }
 
 =begin
@@ -21,6 +26,7 @@ This module contains MiniPerl6 code for the MiniPerl6-in-Lisp runtime.
 
 =head1 AUTHORS
 
+Flavio Soibelmann Glock <fglock@gmail.com>.
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 SEE ALSO
