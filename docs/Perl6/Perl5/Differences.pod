@@ -154,6 +154,20 @@ binary OR operators are split into string and numeric operators, that is C<~&>
 is binary string AND, C<+&> is binary numeric AND, C<~|> is binary string OR
 etc.
 
+	Was: $foo & 1;
+	Now: $foo +& 1;
+
+The bitwise operators are now prefixed with a +, ~ or ? depending if the
+data type is a number, string or boolean.
+
+	Was: $foo << 42;
+	Now: $foo +< 42;
+
+The assignment operators have been changed in a similar vein:
+
+	Was: $foo <<= 42;
+	Now: $foo +<= 42;
+
 Parenthesis don't construct lists, they merely group. Lists are
 constructed with the comma operator. It has tighter precedence than the list
 assignment operator, which allows you to write lists on the right hand side
