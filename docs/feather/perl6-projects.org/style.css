@@ -10,7 +10,7 @@ body {
 
 h4 {
     text-align: center;
-    font-size: 130%;
+    margin-bottom: 0.5em;
 }
 
 #wrapper-outer {
@@ -66,9 +66,9 @@ div a:hover, #header a:hover {
 }
 
 .box {
-    width: 14em;
+    width: 15em;
     height: 20em;
-    margin: 0.8em;
+    margin: 0.4em;
     padding: 0 1em 1em 1em;
     float: left;
     border: 3px solid #dddddd;
