@@ -15,21 +15,22 @@ h4 {
 
 #wrapper-outer {
     margin: 0px auto;   /* Goodbye, IE5 */
-    max-width: 900px;
+    padding: 0;
+    width: 55em;
+    max-width: 99%;
 }
 
 #header {
     padding: 0em 1em 0em 1em;
     margin: 0px 0px 3em 0px;
-    
+    position: relative;
     border-radius: 1em; 
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
     background: #63a4ff;
     border: 3px solid #dddddd;
-    font: normal bold 12pt sans-serif;
+    min-height: 200px;
 }
-
 
 #header img {
     float: right;
@@ -41,7 +42,7 @@ h4 {
 
 
 #header a {
-    font: normal bold 12pt sans-serif;
+    font-weight: bold;
     text-decoration: none;
     color: #ffffff;
     border-bottom: 1px dotted #ffffff;
@@ -52,54 +53,32 @@ h4 {
     border-bottom: 1px dotted #000;    
 }
 
-div a:link {
-    font: normal bold 9pt sans-serif;
+div a {
     text-decoration: none;
-    color: #000000;
-    border-bottom: 1px dotted #000000;
-}
-
-div a:visited {
-    font: normal bold 9pt sans-serif;
-    text-decoration: none;
-    color: #000000;
-    border-bottom: 1px dotted #000000;
-}
-
-div a:focus {
-    font: normal bold 9pt sans-serif;
-    text-decoration: none;
+    font-weight: bold;
     color: #000000;
     border-bottom: 1px dotted #000000;
 }
 
 div a:hover, #header a:hover {
-    font: normal bold sans-serif;
     text-decoration: underline;
     border-bottom: none;
-    /*color: #ffffff;*/
-}
-
-div a:active {
-    font: normal bold 9pt sans-serif;
-    text-decoration: none;
-    color: #000000;
-    border-bottom: 1px dotted #000000;
 }
 
 .box {
-    width: 20em;
-    height: 24em;
-    margin: 1em;
+    width: 14em;
+    height: 20em;
+    margin: 0.8em;
     padding: 0 1em 1em 1em;
-    
     float: left;
-    
     border: 3px solid #dddddd;
     border-radius: 1em; 
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
     color: #000000;
+}
+
+.box ul {
     font: 9pt sans-serif;
     line-height: 130%;
 }
@@ -122,12 +101,9 @@ div a:active {
     border: 0px;
     font-size: 100%;
     color: #ffffff;
-}
-
-#download img {
-    position: relative;
-    top: 3em;
-    left: 1.2em
+    margin: 8em auto;
+    display: block;
+    width: 206px;
 }
 
 ul {
