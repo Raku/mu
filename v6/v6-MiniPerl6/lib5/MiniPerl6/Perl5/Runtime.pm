@@ -43,26 +43,10 @@ BEGIN {
             );
             $MATCH;
         };
-        *backslash = sub { 
-            my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-            my $MATCH; $MATCH = MiniPerl6::Match->new( 
-                'str' => $str,'from' => $pos,'to' => $pos, ); 
-            $MATCH->bool(
-                substr($str, $MATCH->to(), 1) eq '\\'
-                ? ( 1 + ($MATCH->to = ( 1 + $MATCH->to() )))
-                : 0
-            );
-            $MATCH;
-        };
-    }
-    else {
-        # MP6-in-v6.pm   
-        require Pugs::Compiler::Rule;
-        Pugs::Compiler::Rule->install('MiniPerl6::Grammar::backslash' => '\\\\');
     }
 }
 
-    sub newline { 
+    sub is_newline { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
         my $MATCH; $MATCH = MiniPerl6::Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
@@ -146,13 +130,7 @@ package Main;
     sub to_lisp_identifier {
         my $s = $_[0];
         my ( $sigil, $s ) = $s =~ /^([$@%]?)(.*)$/;
-        my @s = split( /::/, $s );
-        my $name = pop @s;
-        my $namespace = join( '-', @s );
-        $namespace = '' if $namespace eq '-';
-        $s = 'sv-' . $name;
-        $s = 'mp-' . $namespace . '::' . $s  if $namespace;
-        return $s;
+        return 'sv-' . $s;
     }
     sub to_lisp_namespace {
         my $s = $_[0];
@@ -160,10 +138,16 @@ package Main;
         $s =~ s/::/-/g;
         return 'mp-' . $s;
     }
-    sub lisp_escape_string{
+    sub lisp_escape_string {
         my $s = $_[0];
         $s =~ s/\\/\\\\/g;
         $s =~ s/"/\\"/g;
+        return $s;
+    }
+    sub perl_escape_string {
+        my $s = $_[0];
+        $s =~ s/\\/\\\\/g;
+        $s =~ s/'/\\'/g;
         return $s;
     }
 

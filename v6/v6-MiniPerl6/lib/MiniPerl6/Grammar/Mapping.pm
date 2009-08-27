@@ -3,7 +3,7 @@ use v6-alpha;
 
 grammar MiniPerl6::Grammar {
 
-token key { 
+token pair_key { 
     |  <ident> <before <'=>'> | <.ws> > 
        { make ::Val::Buf( 'buf' => ~$<ident> ) }  # autoquote
     |  <exp>   
@@ -11,15 +11,15 @@ token key {
 };
 
 token pair {
-    |   <key> 
+    |   <pair_key> 
         <.opt_ws> <'=>'> <.opt_ws>
         <exp>
-        { make [ $$<key>, $$<exp> ] }
-    |   \: <sigil> <ident>                  #  :$var
+        { make [ $$<pair_key>, $$<exp> ] }
+    |   \: <var_sigil> <ident>                  #  :$var
         { 
             make [ 
                 ::Val::Buf( 'buf' => ~$<ident> ), 
-                ::Var( 'sigil' => ~$$<sigil>, 'twigil' => '', 'name' => $$<ident> ) ] 
+                ::Var( 'sigil' => ~$$<var_sigil>, 'twigil' => '', 'name' => $$<ident> ) ] 
         } 
 };
 

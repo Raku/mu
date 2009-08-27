@@ -46,8 +46,8 @@ token when {
 };
 
 token for {
-    for <.ws> <exp> <.opt_ws> <'->'> <.opt_ws> <var> <.ws> \{ <.opt_ws> <exp_stmts> <.opt_ws> \}
-    { make ::For( 'cond' => $$<exp>, 'topic' => $$<var>, 'body' => $$<exp_stmts> ) }
+    for <.ws> <exp> <.opt_ws> <'->'> <.opt_ws> <var_ident> <.ws> \{ <.opt_ws> <exp_stmts> <.opt_ws> \}
+    { make ::For( 'cond' => $$<exp>, 'topic' => $$<var_ident>, 'body' => $$<exp_stmts> ) }
 };
 
 token while {

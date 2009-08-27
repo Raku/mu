@@ -43,22 +43,6 @@ BEGIN {
             );
             $MATCH;
         };
-        *backslash = sub { 
-            my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-            my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
-                'str' => $str,'from' => $pos,'to' => $pos, ); 
-            $MATCH->bool(
-                substr($str, $MATCH->to(), 1) eq '\\'
-                ? ( 1 + $MATCH->to( 1 + $MATCH->to() ))
-                : 0
-            );
-            $MATCH;
-        };
-    }
-    else {
-        # MP6-in-v6.pm   
-        require Pugs::Compiler::Rule;
-        Pugs::Compiler::Rule->install('MiniPerl6::Grammar::backslash' => '\\\\');
     }
 }
 

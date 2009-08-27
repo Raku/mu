@@ -31,7 +31,7 @@ class Val::Num {
 
 class Val::Buf {
     has $.buf;
-    method emit { '\'' ~ $.buf ~ '\'' }
+    method emit { '\'' ~ Main::perl_escape_string($.buf) ~ '\'' }
 }
 
 class Val::Undef {
@@ -94,30 +94,24 @@ class Lit::Object {
 
 class Index {
     has $.obj;
-    has $.index;
+    has $.index_exp;
     method emit {
-        $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
-        # TODO
-        # if ($.obj.isa(Lit::Seq)) {
-        #    $.obj.emit ~ '[' ~ $.index.emit ~ ']';
-        # }
-        # else {
-        #    $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
-        # }
+        $.obj.emit ~ '->[' ~ $.index_exp.emit ~ ']';
     }
 }
 
 class Lookup {
     has $.obj;
-    has $.index;
+    has $.index_exp;
     method emit {
-        $.obj.emit ~ '->{' ~ $.index.emit ~ '}';
+        $.obj.emit ~ '->{' ~ $.index_exp.emit ~ '}';
     }
 }
 
 class Var {
     has $.sigil;
     has $.twigil;
+    has $.namespace;
     has $.name;
     method emit {
         # Normalize the sigil here into $
@@ -131,15 +125,22 @@ class Var {
             '%' => '$Hash_',
             '&' => '$Code_',
         };
+        my $ns := '';
+        if $.namespace {
+            $ns := $.namespace ~ '::';
+        }
            ( $.twigil eq '.' )
         ?? ( '$self->{' ~ $.name ~ '}' )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
-            !!   ( $table{$.sigil} ~ $.name )
+            !!   ( $table{$.sigil} ~ $ns ~ $.name )
             )
     };
     method name {
-        $.name
+        if $.namespace {
+            return $.namespace ~ '::' ~ $.name
+        }
+        return $.name
     };
 }
 
@@ -161,7 +162,7 @@ class Bind {
                     # 'arguments' => ($b[$i]) );
                     'arguments'  => ::Index(
                         obj    => $.arguments,
-                        index  => ::Val::Int( int => $i )
+                        index_exp  => ::Val::Int( int => $i )
                     )
                 );
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
@@ -285,9 +286,14 @@ class Call {
 class Apply {
     has $.code;
     has @.arguments;
+    has $.namespace;
     method emit {
         
-        my $code := $.code;
+        my $ns := '';
+        if $.namespace {
+            $ns := $.namespace ~ '::';
+        }
+        my $code := $ns ~ $.code;
 
         if $code.isa( 'Str' ) { }
         else {
@@ -295,6 +301,7 @@ class Apply {
         };
 
         if $code eq 'self'       { return '$self' };
+        if $code eq 'false'      { return '0' };
 
         if $code eq 'make'       { return 'return('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
@@ -332,7 +339,7 @@ class Apply {
                  ' : ' ~ (@.arguments[2]).emit ~
                   ')' };
         
-        $.code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        $code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         # '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
     }
 }
@@ -351,7 +358,13 @@ class If {
     has @.body;
     has @.otherwise;
     method emit {
-        'do { if (' ~ $.cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' } }';
+        my $cond := $.cond;
+        if   $cond.isa( 'Var' ) 
+          && $cond.sigil eq '@' 
+        {
+            $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
+        };
+        'do { if (' ~ $cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' } }';
     }
 }
 
@@ -394,12 +407,12 @@ class Sig {
     method emit {
         ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
-    method invocant {
-        $.invocant
-    };
-    method positional {
-        $.positional
-    }
+    # method invocant {
+    #     $.invocant
+    # };
+    # method positional {
+    #     $.positional
+    # }
 }
 
 class Method {
@@ -414,7 +427,7 @@ class Method {
         # say $invocant.emit;
 
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';   # no strict "vars"; ';
+        my $str := 'my $List__ = \\@_; ';   # no strict "vars"; ';
 
         # TODO - follow recursively
         my $pos := $sig.positional;
@@ -460,7 +473,7 @@ class Sub {
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit;
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ';
+        my $str := 'my $List__ = \\@_; ';  # no strict "vars"; ';
 
         # TODO - follow recursively
         my $pos := $sig.positional;
@@ -486,7 +499,7 @@ class Sub {
 #                'parameters' => $field, 
 #                'arguments'  => ::Index(
 #                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
-#                        index  => ::Val::Int( int => $i )
+#                        index_exp  => ::Val::Int( int => $i )
 #                    ),
 #                );
 #            $str := $str ~ $bind.emit ~ '; ';

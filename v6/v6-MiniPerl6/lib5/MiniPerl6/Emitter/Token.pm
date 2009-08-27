@@ -5,7 +5,7 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 package Rul;
 sub new { shift; bless { @_ }, "Rul" }
-sub constant { my $List__ = \@_; my $str; do {  ($str = $List__->[0]); [$str] }; (my  $len = Main::chars($str, )); do { if (($str eq '\\')) { ($str = '\\\\') } else {  } }; do { if (($str eq '\'')) { ($str = '\\\'') } else {  } }; do { if ($len) { ('( ( \'' . ($str . ('\' eq substr( $str, $MATCH.to, ' . ($len . (')) ' . ('  ?? (1 + ( $MATCH.to := ' . ($len . (' + $MATCH.to ))' . ('  !! (0) ' . ')'))))))))) } else { return('1') } } }
+sub constant { my $List__ = \@_; my $str; do {  ($str = $List__->[0]); [$str] }; (my  $len = Main::chars($str, )); do { if (($str eq '\\')) { ($str = '\\\\') } else {  } }; do { if (($str eq '\'')) { ($str = '\\\'') } else {  } }; do { if ($len) { ('( ( \'' . ($str . ('\' eq substr( $str, $MATCH.to, ' . ($len . (')) ' . ('  ?? (1 + ( $MATCH.to := ' . ($len . (' + $MATCH.to ))' . ('  !! false ' . ')'))))))))) } else { return('1') } } }
 
 
 ;
@@ -23,8 +23,8 @@ sub emit { my $self = shift; my $List__ = \@_; do { [] }; $self->{term}->emit() 
 ;
 package Rul::Or;
 sub new { shift; bless { @_ }, "Rul::Or" }
-sub or { @_ == 1 ? ( $_[0]->{or} ) : ( $_[0]->{or} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $pos1 := $MATCH.to; do{ ' . (Main::join([ map { $_->emit() } @{ $self->{or} } ], '} || do { $MATCH.to := $pos1; ') . '} }'))) }
+sub or_list { @_ == 1 ? ( $_[0]->{or_list} ) : ( $_[0]->{or_list} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $pos1 := $MATCH.to; do{ ' . (Main::join([ map { $_->emit() } @{ $self->{or_list} } ], '} || do { $MATCH.to := $pos1; ') . '} }'))) }
 
 
 ;
@@ -38,14 +38,14 @@ sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ m
 package Rul::Subrule;
 sub new { shift; bless { @_ }, "Rul::Subrule" }
 sub metasyntax { @_ == 1 ? ( $_[0]->{metasyntax} ) : ( $_[0]->{metasyntax} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('$grammar.' . $self->{metasyntax}))); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to := $m2.to; $MATCH{\'' . ($self->{metasyntax} . ('\'} := $m2; 1 } else { 0 } ' . '}'))))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('$grammar.' . $self->{metasyntax}))); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to := $m2.to; $MATCH{\'' . ($self->{metasyntax} . ('\'} := $m2; 1 } else { false } ' . '}'))))))) }
 
 
 ;
 package Rul::SubruleNoCapture;
 sub new { shift; bless { @_ }, "Rul::SubruleNoCapture" }
 sub metasyntax { @_ == 1 ? ( $_[0]->{metasyntax} ) : ( $_[0]->{metasyntax} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('$grammar.' . $self->{metasyntax}))); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to := $m2.to; 1 } else { 0 } ' . '}'))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('$grammar.' . $self->{metasyntax}))); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to := $m2.to; 1 } else { false } ' . '}'))))) }
 
 
 ;
@@ -67,14 +67,14 @@ sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $str = $self->{co
 ;
 package Rul::Dot;
 sub new { shift; bless { @_ }, "Rul::Dot" }
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('( (\'\' ne substr( $str, $MATCH.to, 1 )) ' . ('  ?? (1 + ($MATCH.to := 1 + $MATCH.to ))' . ('  !! (0) ' . ')'))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('( (\'\' ne substr( $str, $MATCH.to, 1 )) ' . ('  ?? (1 + ($MATCH.to := 1 + $MATCH.to ))' . ('  !! false ' . ')'))) }
 
 
 ;
 package Rul::SpecialChar;
 sub new { shift; bless { @_ }, "Rul::SpecialChar" }
 sub char { @_ == 1 ? ( $_[0]->{char} ) : ( $_[0]->{char} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $char = $self->{char}); do { if (($char eq 'n')) { (my  $rul = Rul::SubruleNoCapture->new( 'metasyntax' => 'newline', ));($rul = $rul->emit());return($rul) } else {  } }; do { if (($char eq 'N')) { (my  $rul = Rul::SubruleNoCapture->new( 'metasyntax' => 'not_newline', ));($rul = $rul->emit());return($rul) } else {  } }; do { if (($char eq 'd')) { (my  $rul = Rul::SubruleNoCapture->new( 'metasyntax' => 'digit', ));($rul = $rul->emit());return($rul) } else {  } }; do { if (($char eq 's')) { (my  $rul = Rul::SubruleNoCapture->new( 'metasyntax' => 'space', ));($rul = $rul->emit());return($rul) } else {  } }; return(Rul::constant($char)) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $char = $self->{char}); do { if (($char eq 'n')) { (my  $rul = Rul::SubruleNoCapture->new( 'metasyntax' => 'is_newline', ));($rul = $rul->emit());return($rul) } else {  } }; do { if (($char eq 'N')) { (my  $rul = Rul::SubruleNoCapture->new( 'metasyntax' => 'not_newline', ));($rul = $rul->emit());return($rul) } else {  } }; do { if (($char eq 'd')) { (my  $rul = Rul::SubruleNoCapture->new( 'metasyntax' => 'digit', ));($rul = $rul->emit());return($rul) } else {  } }; do { if (($char eq 's')) { (my  $rul = Rul::SubruleNoCapture->new( 'metasyntax' => 'space', ));($rul = $rul->emit());return($rul) } else {  } }; return(Rul::constant($char)) }
 
 
 ;
@@ -94,23 +94,23 @@ sub emit { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: in
 ;
 package Rul::NamedCapture;
 sub new { shift; bless { @_ }, "Rul::NamedCapture" }
-sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) };
-sub ident { @_ == 1 ? ( $_[0]->{ident} ) : ( $_[0]->{ident} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: named capture ' . ($self->{ident} . (' := ' . ($self->{rule}->emit() . ''))))); die() }
+sub rule_exp { @_ == 1 ? ( $_[0]->{rule_exp} ) : ( $_[0]->{rule_exp} = $_[1] ) };
+sub capture_ident { @_ == 1 ? ( $_[0]->{capture_ident} ) : ( $_[0]->{capture_ident} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: named capture ' . ($self->{capture_ident} . (' := ' . ($self->{rule_exp}->emit() . ''))))); die() }
 
 
 ;
 package Rul::Before;
 sub new { shift; bless { @_ }, "Rul::Before" }
-sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::MiniPerl6::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' . ('$MATCH.bool := ' . ($self->{rule}->emit() . ('; ' . ('$tmp.bool := ?$MATCH; ' . ('$MATCH := $tmp; ' . ('?$MATCH; ' . '}'))))))))) }
+sub rule_exp { @_ == 1 ? ( $_[0]->{rule_exp} ) : ( $_[0]->{rule_exp} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::MiniPerl6::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' . ('$MATCH.bool := ' . ($self->{rule_exp}->emit() . ('; ' . ('$tmp.bool := ?$MATCH; ' . ('$MATCH := $tmp; ' . ('?$MATCH; ' . '}'))))))))) }
 
 
 ;
 package Rul::NotBefore;
 sub new { shift; bless { @_ }, "Rul::NotBefore" }
-sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::MiniPerl6::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' . ('$MATCH.bool := ' . ($self->{rule}->emit() . ('; ' . ('$tmp.bool := !$MATCH; ' . ('$MATCH := $tmp; ' . ('?$MATCH; ' . '}'))))))))) }
+sub rule_exp { @_ == 1 ? ( $_[0]->{rule_exp} ) : ( $_[0]->{rule_exp} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::MiniPerl6::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' . ('$MATCH.bool := ' . ($self->{rule_exp}->emit() . ('; ' . ('$tmp.bool := !$MATCH; ' . ('$MATCH := $tmp; ' . ('?$MATCH; ' . '}'))))))))) }
 
 
 ;
@@ -130,7 +130,7 @@ sub emit { my $self = shift; my $List__ = \@_; do { [] }; Main::say('TODO CharCl
 ;
 package Rul::Capture;
 sub new { shift; bless { @_ }, "Rul::Capture" }
-sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) };
+sub rule_exp { @_ == 1 ? ( $_[0]->{rule_exp} ) : ( $_[0]->{rule_exp} = $_[1] ) };
 sub emit { my $self = shift; my $List__ = \@_; do { [] }; Main::say('TODO RulCapture'); die() }
 
 

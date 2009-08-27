@@ -199,7 +199,7 @@ sub new { shift; bless { @_ }, "Method" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub sig { @_ == 1 ? ( $_[0]->{sig} ) : ( $_[0]->{sig} = $_[1] ) };
 sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $invocant = $sig->invocant()); (my  $pos = $sig->positional()); (my  $str = 'my $List__ = \@_; '); (my  $pos = $sig->positional()); do { for my $field ( @{$pos} ) { ($str = ($str . ('my ' . ($field->emit() . '; ')))) } }; (my  $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ),'arguments' => Var->new( 'sigil' => '@','twigil' => '','name' => '_', ), )); ($str = ($str . ($bind->emit() . '; '))); ('sub ' . ($self->{name} . (' { ' . ('my ' . ($invocant->emit() . (' = shift; ' . ($str . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }')))))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $invocant = $sig->invocant()); (my  $pos = $sig->positional()); (my  $str = 'my $List__ = @_; '); (my  $pos = $sig->positional()); do { for my $field ( @{$pos} ) { ($str = ($str . ('my ' . ($field->emit() . '; ')))) } }; (my  $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ),'arguments' => Var->new( 'sigil' => '@','twigil' => '','name' => '_', ), )); ($str = ($str . ($bind->emit() . '; '))); ('sub ' . ($self->{name} . (' { ' . ('my ' . ($invocant->emit() . (' = shift; ' . ($str . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }')))))))) }
 
 
 ;

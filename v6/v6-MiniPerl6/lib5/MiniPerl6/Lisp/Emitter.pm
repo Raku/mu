@@ -16,13 +16,13 @@ sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) };
 sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) };
 sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $class_name = Main::to_lisp_namespace($self->{name})); (my  $str = (';; class ' . ($self->{name} . Main->newline()))); ($str = ($str . ('(defpackage ' . ($class_name . (Main->newline() . ('  (:use common-lisp))' . (Main->newline() . (';; (in-package ' . ($class_name . (')' . Main->newline())))))))))); (my  $has_my_decl = 0); (my  $my_decl = ''); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'my'))) { ($has_my_decl = 1);($my_decl = ($my_decl . ('(' . ($decl->var()->emit() . ' nil)')))) } else {  } };do { if ((Main::isa($decl, 'Bind') && (Main::isa($decl->parameters(), 'Decl') && ($decl->parameters()->decl() eq 'my')))) { ($has_my_decl = 1);($my_decl = ($my_decl . ('(' . ($decl->parameters()->var()->emit() . ' nil)')))) } else {  } } } }; do { if ($has_my_decl) { ($str = ($str . ('(let (' . ($my_decl . (')' . Main->newline()))))) } else {  } }; ($str = ($str . ('(if (not (ignore-errors (find-class \'' . ($class_name . (')))
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $class_name = Main::to_lisp_namespace($self->{name})); (my  $str = (';; class ' . ($self->{name} . Main->newline()))); ($str = ($str . ('(defpackage ' . ($class_name . (Main->newline() . ('  (:use common-lisp mp-Main))' . (Main->newline() . (';; (in-package ' . ($class_name . (')' . Main->newline())))))))))); (my  $has_my_decl = 0); (my  $my_decl = ''); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'my'))) { ($has_my_decl = 1);($my_decl = ($my_decl . ('(' . ($decl->var()->emit() . ' nil)')))) } else {  } };do { if ((Main::isa($decl, 'Bind') && (Main::isa($decl->parameters(), 'Decl') && ($decl->parameters()->decl() eq 'my')))) { ($has_my_decl = 1);($my_decl = ($my_decl . ('(' . ($decl->parameters()->var()->emit() . ' nil)')))) } else {  } } } }; do { if ($has_my_decl) { ($str = ($str . ('(let (' . ($my_decl . (')' . Main->newline()))))) } else {  } }; ($str = ($str . ('(if (not (ignore-errors (find-class \'' . ($class_name . (')))
   (defclass ' . ($class_name . (' () ()))
 
 (let (x) 
   (setq x (make-instance \'' . ($class_name . ('))
   (defun proto-' . ($class_name . ' () x))
-')))))))))); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'has'))) { (my  $accessor_name = $decl->var()->name());($str = ($str . (';; has $.' . ($accessor_name . ('
+')))))))))); (my  $dumper = ''); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'has'))) { (my  $accessor_name = $decl->var()->name());($dumper = ($dumper . ('(let ((m (make-instance \'mp-Pair))) ' . ('(setf (sv-key m) "' . (Main::lisp_escape_string($accessor_name) . ('") ' . ('(setf (sv-value m) (' . (Main::to_lisp_identifier($accessor_name) . ' self)) m) '))))))));($str = ($str . (';; has $.' . ($accessor_name . ('
 (let ((new-slots (list (list :name \'' . (Main::to_lisp_identifier($accessor_name) . ('
   :readers \'(' . (Main::to_lisp_identifier($accessor_name) . (')
   :writers \'((setf ' . (Main::to_lisp_identifier($accessor_name) . ('))
@@ -45,7 +45,7 @@ new-slots))
   (block mp6-function
     ' . ($block->emit() . '))
 
-')))))))))))))))))))) } else {  } };do { if (Main::isa($decl, 'Sub')) { ($str = ($str . ('(in-package ' . ($class_name . (')' . (Main->newline() . ('  ' . ($decl->emit() . (Main->newline() . ('(in-package mp-Main)' . Main->newline())))))))))) } else {  } } } }; do { for my $decl ( @{$self->{body}} ) { do { if ((((Main::isa($decl, 'Decl') && (($decl->decl() eq 'has') || ($decl->decl() eq 'my'))) ? 0 : 1) && ((Main::isa($decl, 'Method') ? 0 : 1) && (Main::isa($decl, 'Sub') ? 0 : 1)))) { ($str = ($str . ($decl->emit() . Main->newline()))) } else {  } } } }; do { if ($has_my_decl) { ($str = ($str . ')')) } else {  } }; ($str = ($str . (Main->newline() . Main->newline()))) }
+')))))))))))))))))))) } else {  } };do { if (Main::isa($decl, 'Sub')) { ($str = ($str . ('(in-package ' . ($class_name . (')' . (Main->newline() . ('  ' . ($decl->emit() . (Main->newline() . ('(in-package mp-Main)' . Main->newline())))))))))) } else {  } } } }; do { if (($self->{name} ne 'Pair')) { ($str = ($str . ('(defmethod sv-perl ((self ' . ($class_name . ('))' . (Main->newline() . ('  (mp-Main::sv-lisp_dump_object "::' . (Main::lisp_escape_string($self->{name}) . ('"' . (' (list ' . ($dumper . (')))' . (Main->newline() . Main->newline()))))))))))))) } else {  } }; do { for my $decl ( @{$self->{body}} ) { do { if ((((Main::isa($decl, 'Decl') && (($decl->decl() eq 'has') || ($decl->decl() eq 'my'))) ? 0 : 1) && ((Main::isa($decl, 'Method') ? 0 : 1) && (Main::isa($decl, 'Sub') ? 0 : 1)))) { ($str = ($str . ($decl->emit() . Main->newline()))) } else {  } } } }; do { if ($has_my_decl) { ($str = ($str . ')')) } else {  } }; ($str = ($str . (Main->newline() . Main->newline()))) }
 
 
 ;
@@ -101,14 +101,14 @@ sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ m
 package Lit::Array;
 sub new { shift; bless { @_ }, "Lit::Array" }
 sub array { @_ == 1 ? ( $_[0]->{array} ) : ( $_[0]->{array} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('(list ' . (Main::join([ map { $_->emit() } @{ $self->{array} } ], ' ') . ')')) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (@{$self->{array}}) { (my  $str = '');do { for my $elem ( @{$self->{array}} ) { do { if ((Main::isa($elem, 'Apply') && ($elem->code() eq 'prefix:<@>'))) { ($str = ($str . (' ' . $elem->emit()))) } else { ($str = ($str . (' (list ' . ($elem->emit() . ')')))) } } } };return(('(concatenate \'list ' . ($str . ')'))) } else { return('nil') } } }
 
 
 ;
 package Lit::Hash;
 sub new { shift; bless { @_ }, "Lit::Hash" }
 sub hash { @_ == 1 ? ( $_[0]->{hash} ) : ( $_[0]->{hash} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $fields = $self->{hash}); (my  $str = ''); do { for my $field ( @{$fields} ) { ($str = ($str . ('(setf (gethash ' . ($field->[0]->emit() . (' h) ' . ($field->[1]->emit() . ')')))))) } }; ('(let ((h (make-hash-table :test \'equal))) ' . ($str . ' h)')) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (@{$self->{hash}}) { (my  $fields = $self->{hash});(my  $str = '');do { for my $field ( @{$fields} ) { ($str = ($str . ('(setf (gethash ' . ($field->[0]->emit() . (' h) ' . ($field->[1]->emit() . ')')))))) } };return(('(let ((h (make-hash-table :test \'equal))) ' . ($str . ' h)'))) } else { return('(make-hash-table :test \'equal)') } } }
 
 
 ;
@@ -122,23 +122,23 @@ package Lit::Object;
 sub new { shift; bless { @_ }, "Lit::Object" }
 sub class { @_ == 1 ? ( $_[0]->{class} ) : ( $_[0]->{class} = $_[1] ) };
 sub fields { @_ == 1 ? ( $_[0]->{fields} ) : ( $_[0]->{fields} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $fields = $self->{fields}); (my  $str = ''); do { for my $field ( @{$fields} ) { ($str = ($str . ('(setf (' . (Main::to_lisp_identifier($field->[0]->buf()) . (' m) ' . ($field->[1]->emit() . ')')))))) } }; ('(let ((m (make-instance \'' . (Main::to_lisp_namespace($self->{class}) . ('))) ' . ($str . ' m)')))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (@{$self->{fields}}) { (my  $fields = $self->{fields});(my  $str = '');do { for my $field ( @{$fields} ) { ($str = ($str . ('(setf (' . (Main::to_lisp_identifier($field->[0]->buf()) . (' m) ' . ($field->[1]->emit() . ')')))))) } };('(let ((m (make-instance \'' . (Main::to_lisp_namespace($self->{class}) . ('))) ' . ($str . ' m)')))) } else { return(('(make-instance \'' . (Main::to_lisp_namespace($self->{class}) . ')'))) } } }
 
 
 ;
 package Index;
 sub new { shift; bless { @_ }, "Index" }
 sub obj { @_ == 1 ? ( $_[0]->{obj} ) : ( $_[0]->{obj} = $_[1] ) };
-sub index { @_ == 1 ? ( $_[0]->{index} ) : ( $_[0]->{index} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{obj}, 'Var')) { return(('(elt ' . ($self->{obj}->name() . (' ' . ($self->{index}->emit() . ')'))))) } else {  } }; return(('(elt ' . ($self->{obj}->emit() . (' ' . ($self->{index}->emit() . ')'))))) }
+sub index_exp { @_ == 1 ? ( $_[0]->{index_exp} ) : ( $_[0]->{index_exp} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; return(('(elt ' . ($self->{obj}->emit() . (' ' . ($self->{index_exp}->emit() . ')'))))) }
 
 
 ;
 package Lookup;
 sub new { shift; bless { @_ }, "Lookup" }
 sub obj { @_ == 1 ? ( $_[0]->{obj} ) : ( $_[0]->{obj} = $_[1] ) };
-sub index { @_ == 1 ? ( $_[0]->{index} ) : ( $_[0]->{index} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{obj}, 'Var')) { do { if ((($self->{obj}->name() eq 'MATCH') || ($self->{obj}->name() eq '/'))) { return(('(gethash ' . ($self->{index}->emit() . (' (sv-hash ' . ($self->{obj}->emit() . '))'))))) } else {  } } } else {  } }; return(('(gethash ' . ($self->{index}->emit() . (' ' . ($self->{obj}->emit() . ')'))))) }
+sub index_exp { @_ == 1 ? ( $_[0]->{index_exp} ) : ( $_[0]->{index_exp} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{obj}, 'Var')) { do { if ((($self->{obj}->name() eq 'MATCH') || ($self->{obj}->name() eq '/'))) { return(('(gethash ' . ($self->{index_exp}->emit() . (' (sv-hash ' . ($self->{obj}->emit() . '))'))))) } else {  } } } else {  } }; return(('(gethash ' . ($self->{index_exp}->emit() . (' ' . ($self->{obj}->emit() . ')'))))) }
 
 
 ;
@@ -146,8 +146,9 @@ package Var;
 sub new { shift; bless { @_ }, "Var" }
 sub sigil { @_ == 1 ? ( $_[0]->{sigil} ) : ( $_[0]->{sigil} = $_[1] ) };
 sub twigil { @_ == 1 ? ( $_[0]->{twigil} ) : ( $_[0]->{twigil} = $_[1] ) };
+sub namespace { @_ == 1 ? ( $_[0]->{namespace} ) : ( $_[0]->{namespace} = $_[1] ) };
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (($self->{twigil} eq '.') ? ('(' . (Main::to_lisp_identifier($self->{name}) . ' sv-self)')) : (($self->{name} eq '/') ? Main::to_lisp_identifier('MATCH') : Main::to_lisp_identifier($self->{name}))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $ns = ''); do { if ($self->{namespace}) { ($ns = (Main::to_lisp_namespace($self->{namespace}) . '::')) } else {  } }; (($self->{twigil} eq '.') ? ('(' . (Main::to_lisp_identifier($self->{name}) . ' sv-self)')) : (($self->{name} eq '/') ? Main::to_lisp_identifier('MATCH') : ($ns . Main::to_lisp_identifier($self->{name})))) }
 
 
 ;
@@ -172,7 +173,7 @@ sub invocant { @_ == 1 ? ( $_[0]->{invocant} ) : ( $_[0]->{invocant} = $_[1] ) }
 sub hyper { @_ == 1 ? ( $_[0]->{hyper} ) : ( $_[0]->{hyper} = $_[1] ) };
 sub method { @_ == 1 ? ( $_[0]->{method} ) : ( $_[0]->{method} = $_[1] ) };
 sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $invocant = $self->{invocant}->emit()); do { if (($invocant eq 'self')) { ($invocant = 'sv-self') } else {  } }; do { if (($self->{method} eq 'values')) { do { if ($self->{hyper}) { die('not implemented') } else { return(('@{' . ($invocant . '}'))) } } } else {  } }; do { if (($self->{method} eq 'perl')) { return(('(prin1-to-string ' . ($invocant . ')'))) } else {  } }; do { if ((($self->{method} eq 'yaml') || (($self->{method} eq 'say') || (($self->{method} eq 'chars') || ($self->{method} eq 'isa'))))) { do { if ($self->{hyper}) { return(('[ map { ' . ($self->{method} . ('( $_, ' . (', ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . (')' . (' } @{ ' . ($invocant . ' } ]'))))))))) } else { return(('(' . ($self->{method} . (' ' . ($invocant . (' ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))))))) } } } else {  } }; (my  $meth = (Main::to_lisp_identifier($self->{method}) . ' ')); do { if (($self->{method} eq 'postcircumfix:<( )>')) { ($meth = '') } else {  } }; do { if ($self->{hyper}) { ('(mapcar #\'' . ($meth . ($invocant . ')'))) } else { return(('(' . ($meth . ($invocant . (' ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')')))))) } } }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $arguments = ''); do { if (@{$self->{arguments}}) { ($arguments = Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ')) } else {  } }; (my  $invocant = $self->{invocant}->emit()); do { if (($invocant eq 'self')) { ($invocant = 'sv-self') } else {  } }; do { if (($self->{method} eq 'values')) { do { if ($self->{hyper}) { die('not implemented') } else { return(('@{' . ($invocant . '}'))) } } } else {  } }; do { if (($self->{method} eq 'isa')) { return(('(typep ' . ($invocant . (' \'' . (Main::to_lisp_namespace($self->{arguments}->[0]->buf()) . ')'))))) } else {  } }; do { if (($self->{method} eq 'chars')) { do { if ($self->{hyper}) { die('not implemented') } else { return(('(length ' . ($invocant . ')'))) } } } else {  } }; do { if ((($self->{method} eq 'yaml') || ($self->{method} eq 'say'))) { do { if ($self->{hyper}) { return(('[ map { ' . ($self->{method} . ('( $_, ' . (', ' . ($arguments . (')' . (' } @{ ' . ($invocant . ' } ]'))))))))) } else { return(('(' . ($self->{method} . (' ' . ($invocant . (' ' . ($arguments . ')'))))))) } } } else {  } }; (my  $meth = (Main::to_lisp_identifier($self->{method}) . ' ')); do { if (($self->{method} eq 'postcircumfix:<( )>')) { ($meth = '') } else {  } }; do { if ($self->{hyper}) { ('(mapcar #\'' . ($meth . ($invocant . ')'))) } else { return(('(' . ($meth . ($invocant . (' ' . ($arguments . ')')))))) } } }
 
 
 ;
@@ -180,7 +181,8 @@ package Apply;
 sub new { shift; bless { @_ }, "Apply" }
 sub code { @_ == 1 ? ( $_[0]->{code} ) : ( $_[0]->{code} = $_[1] ) };
 sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $code = $self->{code}); do { if (($code eq 'self')) { return('sv-self') } else {  } }; do { if (($code eq 'make')) { return(('(return-from mp6-function ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'substr')) { return(('(sv-substr ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'say')) { return(('(format t ' . ('"' . ('~{~a~}~%' . ('"' . (' (list ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '))'))))))) } else {  } }; do { if (($code eq 'print')) { return(('(format t ' . ('"' . ('~{~a~}' . ('"' . (' (list ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '))'))))))) } else {  } }; do { if (($code eq 'infix:<~>')) { return(('(format nil ' . ('"' . ('~{~a~}' . ('"' . (' (list ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '))'))))))) } else {  } }; do { if (($code eq 'warn')) { return(('(write-line (format nil ' . ('"' . ('~{~a~}' . ('"' . (' (list ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')) *error-output*)'))))))) } else {  } }; do { if (($code eq 'die')) { return(('(progn (write-line (format nil ' . ('"' . ('~{~a~}' . ('"' . (' (list ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')) *error-output*) (sb-ext:quit))'))))))) } else {  } }; do { if (($code eq 'array')) { return(Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ')) } else {  } }; do { if (($code eq 'prefix:<~>')) { return(('(format nil ' . ('"' . ('~{~a~}' . ('"' . (' (list ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '))'))))))) } else {  } }; do { if (($code eq 'prefix:<!>')) { return(('(not (sv-bool ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ' ))'))) } else {  } }; do { if (($code eq 'prefix:<?>')) { return(('(sv-bool ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ' )'))) } else {  } }; do { if (($code eq 'prefix:<$>')) { return(('(sv-scalar ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'prefix:<@>')) { return(Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ')) } else {  } }; do { if (($code eq 'prefix:<%>')) { return(Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ')) } else {  } }; do { if (($code eq 'infix:<+>')) { return(('(+ ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'infix:<->')) { return(('(-' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'infix:<>>')) { return(('(> ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'infix:<x>')) { return(('(x ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'infix:<&&>')) { return(('(sv-and ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'infix:<||>')) { return(('(sv-or ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'infix:<eq>')) { return(('(sv-eq ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'infix:<ne>')) { return(('(not (sv-eq ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '))'))) } else {  } }; do { if (($code eq 'infix:<==>')) { return(('(eql ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'infix:<!=>')) { return(('(not (eql ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '))'))) } else {  } }; do { if (($code eq 'ternary:<?? !!>')) { return(('(if (sv-bool ' . ($self->{arguments}->[0]->emit() . (') ' . ($self->{arguments}->[1]->emit() . (' ' . ($self->{arguments}->[2]->emit() . ')'))))))) } else {  } }; ('(' . (Main::to_lisp_identifier($self->{code}) . (' ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')')))) }
+sub namespace { @_ == 1 ? ( $_[0]->{namespace} ) : ( $_[0]->{namespace} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $ns = ''); do { if ($self->{namespace}) { ($ns = (Main::to_lisp_namespace($self->{namespace}) . '::')) } else {  } }; (my  $code = ($ns . $self->{code})); (my  $args = ''); do { if (@{$self->{arguments}}) { ($args = Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ')) } else {  } }; do { if (($code eq 'self')) { return('sv-self') } else {  } }; do { if (($code eq 'false')) { return('nil') } else {  } }; do { if (($code eq 'make')) { return(('(return-from mp6-function ' . ($args . ')'))) } else {  } }; do { if (($code eq 'substr')) { return(('(sv-substr ' . ($args . ')'))) } else {  } }; do { if (($code eq 'say')) { return(('(mp-Main::sv-say (list ' . ($args . '))'))) } else {  } }; do { if (($code eq 'print')) { return(('(mp-Main::sv-print (list ' . ($args . '))'))) } else {  } }; do { if (($code eq 'infix:<~>')) { return(('(concatenate \'string (sv-string ' . ($self->{arguments}->[0]->emit() . (') (sv-string ' . ($self->{arguments}->[1]->emit() . '))'))))) } else {  } }; do { if (($code eq 'warn')) { return(('(write-line (format nil "~{~a~}" (list ' . ($args . ')) *error-output*)'))) } else {  } }; do { if (($code eq 'die')) { return(('(progn (write-line (format nil "~{~a~}" (list ' . ($args . ')) *error-output*) (sb-ext:quit))'))) } else {  } }; do { if (($code eq 'array')) { return($args) } else {  } }; do { if (($code eq 'prefix:<~>')) { return(('(sv-string ' . ($args . ')'))) } else {  } }; do { if (($code eq 'prefix:<!>')) { return(('(not (sv-bool ' . ($args . '))'))) } else {  } }; do { if (($code eq 'prefix:<?>')) { return(('(sv-bool ' . ($args . ')'))) } else {  } }; do { if (($code eq 'prefix:<$>')) { return(('(sv-scalar ' . ($args . ')'))) } else {  } }; do { if (($code eq 'prefix:<@>')) { return($args) } else {  } }; do { if (($code eq 'prefix:<%>')) { return($args) } else {  } }; do { if (($code eq 'infix:<+>')) { return(('(+ ' . ($args . ')'))) } else {  } }; do { if (($code eq 'infix:<->')) { return(('(-' . ($args . ')'))) } else {  } }; do { if (($code eq 'infix:<>>')) { return(('(> ' . ($args . ')'))) } else {  } }; do { if (($code eq 'infix:<&&>')) { return(('(sv-and ' . ($args . ')'))) } else {  } }; do { if (($code eq 'infix:<||>')) { return(('(sv-or ' . ($args . ')'))) } else {  } }; do { if (($code eq 'infix:<eq>')) { return(('(sv-eq ' . ($args . ')'))) } else {  } }; do { if (($code eq 'infix:<ne>')) { return(('(not (sv-eq ' . ($args . '))'))) } else {  } }; do { if (($code eq 'infix:<==>')) { return(('(eql ' . ($args . ')'))) } else {  } }; do { if (($code eq 'infix:<!=>')) { return(('(not (eql ' . ($args . '))'))) } else {  } }; do { if (($code eq 'ternary:<?? !!>')) { return(('(if (sv-bool ' . ($self->{arguments}->[0]->emit() . (') ' . ($self->{arguments}->[1]->emit() . (' ' . ($self->{arguments}->[2]->emit() . ')'))))))) } else {  } }; ('(' . ($ns . (Main::to_lisp_identifier($self->{code}) . (' ' . ($args . ')'))))) }
 
 
 ;
@@ -223,9 +225,7 @@ sub new { shift; bless { @_ }, "Sig" }
 sub invocant { @_ == 1 ? ( $_[0]->{invocant} ) : ( $_[0]->{invocant} = $_[1] ) };
 sub positional { @_ == 1 ? ( $_[0]->{positional} ) : ( $_[0]->{positional} = $_[1] ) };
 sub named { @_ == 1 ? ( $_[0]->{named} ) : ( $_[0]->{named} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ' print \'Signature - TODO\'; die \'Signature - TODO\'; ' };
-sub invocant { my $self = shift; my $List__ = \@_; do { [] }; $self->{invocant} };
-sub positional { my $self = shift; my $List__ = \@_; do { [] }; $self->{positional} }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ' print \'Signature - TODO\'; die \'Signature - TODO\'; ' }
 
 
 ;
@@ -243,7 +243,7 @@ sub new { shift; bless { @_ }, "Sub" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub sig { @_ == 1 ? ( $_[0]->{sig} ) : ( $_[0]->{sig} = $_[1] ) };
 sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $pos = $sig->positional()); (my  $block = MiniPerl6::Lisp::LexicalBlock->new( 'block' => $self->{block}, )); my  $str; do { for my $field ( @{$pos} ) { ($str = ($str . ($field->emit() . ' '))) } }; do { if ($str) { ($str = ('&optional ' . $str)) } else {  } }; do { if ($self->{name}) { ('(defun ' . (Main::to_lisp_identifier($self->{name}) . (' (' . ($str . (')' . (Main->newline() . ('  (block mp6-function ' . ($block->emit() . ('))' . Main->newline()))))))))) } else { ('(lambda ' . ($self->{name} . (' (' . ($str . (')' . (Main->newline() . ('  (block mp6-function ' . ($block->emit() . ('))' . Main->newline()))))))))) } } }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $pos = $sig->positional()); (my  $block = MiniPerl6::Lisp::LexicalBlock->new( 'block' => $self->{block}, )); my  $str; do { if (@{$pos}) { do { for my $field ( @{$pos} ) { ($str = ($str . ($field->emit() . ' '))) } } } else {  } }; do { if ($str) { ($str = ('&optional ' . $str)) } else {  } }; do { if ($self->{name}) { ('(defun ' . (Main::to_lisp_identifier($self->{name}) . (' (' . ($str . (')' . (Main->newline() . ('  (block mp6-function ' . ($block->emit() . ('))' . Main->newline()))))))))) } else { ('(lambda ' . ($self->{name} . (' (' . ($str . (')' . (Main->newline() . ('  (block mp6-function ' . ($block->emit() . ('))' . Main->newline()))))))))) } } }
 
 
 ;

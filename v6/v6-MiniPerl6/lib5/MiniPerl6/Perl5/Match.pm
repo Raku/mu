@@ -283,11 +283,12 @@ C<v6> on CPAN
 
 =head1 AUTHORS
 
+Flavio Soibelmann Glock <fglock@gmail.com>.
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock, Audrey Tang and others.
+Copyright 2006, 2009 by Flavio Soibelmann Glock, Audrey Tang and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

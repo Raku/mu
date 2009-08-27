@@ -7,7 +7,7 @@ my %rule_terms;
 
 token ws {  <.MiniPerl6::Grammar.ws>  }
 
-token ident {  <.MiniPerl6::Grammar.full_ident> | <digit> }
+token rule_ident {  <.MiniPerl6::Grammar.full_ident> | <digit> }
 
 token any { . }
 
@@ -17,15 +17,15 @@ token literal {
     |  ''
 }
 
-token metasyntax {
+token metasyntax_exp {
     [ 
     |  \\ .
     |  \'  <.literal>     \'
     |  \{  <.string_code> \}
-    |  \<  <.metasyntax>  \>
+    |  \<  <.metasyntax_exp>  \>
     |  <!before \> > . 
     ]
-    [ <metasyntax> | '' ]
+    [ <metasyntax_exp> | '' ]
 }
 
 token char_range {
@@ -37,7 +37,7 @@ token char_range {
 }
 
 token char_class {
-    |  <.ident>
+    |  <.rule_ident>
     |  \[  <.char_range>  \]
 }
 
@@ -63,29 +63,29 @@ token parsed_code {
 token named_capture_body {
     | \(  <rule>        \)  { make { 'capturing_group' => $$<rule> ,} } 
     | \[  <rule>        \]  { make $$<rule> } 
-    | \<  <metasyntax>  \>  
-            { make ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
+    | \<  <metasyntax_exp>  \>  
+            { make ::Rul::Subrule( 'metasyntax' => $$<metasyntax_exp> ) }
     | { die 'invalid alias syntax' }
 }
 
 token variables {
     |
         '$<'
-        <ident> \> 
-        { make '$/{' ~ '\'' ~ $<ident> ~ '\'' ~ '}' }
+        <rule_ident> \> 
+        { make '$/{' ~ '\'' ~ $<rule_ident> ~ '\'' ~ '}' }
     |
         # TODO
-        <MiniPerl6::Grammar.sigil> 
+        <MiniPerl6::Grammar.var_sigil> 
         <MiniPerl6::Grammar.digits>
-        { make $<MiniPerl6::Grammar.sigil> ~ '/[' ~ $<MiniPerl6::Grammar.digits> ~ ']' }
+        { make $<MiniPerl6::Grammar.var_sigil> ~ '/[' ~ $<MiniPerl6::Grammar.digits> ~ ']' }
     |
-        <MiniPerl6::Grammar.sigil> 
-        <MiniPerl6::Grammar.twigil> 
+        <MiniPerl6::Grammar.var_sigil> 
+        <MiniPerl6::Grammar.var_twigil> 
         <MiniPerl6::Grammar.full_ident> 
         {
             make ::Rul::Var( 
-                    'sigil'  => ~$<MiniPerl6::Grammar.sigil>,
-                    'twigil' => ~$<MiniPerl6::Grammar.twigil>,
+                    'sigil'  => ~$<MiniPerl6::Grammar.var_sigil>,
+                    'twigil' => ~$<MiniPerl6::Grammar.var_twigil>,
                     'name'   => ~$<MiniPerl6::Grammar.full_ident>
                    )
         }
@@ -94,23 +94,23 @@ token variables {
 token rule_terms {
     |   '('
         <rule> \)
-        { make ::Rul::Capture( 'rule' => $$<rule> ) }
+        { make ::Rul::Capture( 'rule_exp' => $$<rule> ) }
     |   '<('
         <rule>  ')>'
-        { make ::Rul::CaptureResult( 'rule' => $$<rule> ) }
+        { make ::Rul::CaptureResult( 'rule_exp' => $$<rule> ) }
     |   '<after'
         <.ws> <rule> \> 
-        { make ::Rul::After( 'rule' => $$<rule> ) }
+        { make ::Rul::After( 'rule_exp' => $$<rule> ) }
     |   '<before'
         <.ws> <rule> \> 
-        { make ::Rul::Before( 'rule' => $$<rule> ) }
+        { make ::Rul::Before( 'rule_exp' => $$<rule> ) }
     |   '<!before'
         <.ws> <rule> \> 
-        { make ::Rul::NotBefore( 'rule' => $$<rule> ) }
+        { make ::Rul::NotBefore( 'rule_exp' => $$<rule> ) }
     |   '<!'
         # TODO
-        <metasyntax> \> 
-        { make { negate  => { 'metasyntax' => $$<metasyntax> } } }
+        <metasyntax_exp> \> 
+        { make { negate  => { 'metasyntax' => $$<metasyntax_exp> } } }
     |   '<+'
         # TODO
         <char_class>  \> 
@@ -137,21 +137,21 @@ token rule_terms {
         |
             \?
             # TODO 
-            <metasyntax>  \>
-            { make ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+            <metasyntax_exp>  \>
+            { make ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax_exp> ) }
         |
             \.
-            <metasyntax>  \>
-            { make ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+            <metasyntax_exp>  \>
+            { make ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax_exp> ) }
         |
             # TODO
-            <metasyntax>  \>
-            { make ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
+            <metasyntax_exp>  \>
+            { make ::Rul::Subrule( 'metasyntax' => $$<metasyntax_exp> ) }
         ]
     |   \{ 
         <parsed_code>  \}
         { make ::Rul::Block( 'closure' => $$<parsed_code> ) }
-    |   <MiniPerl6::Grammar.backslash>  
+    |   \\  
         [
 # TODO
 #        | [ x | X ] <[ 0..9 a..f A..F ]]>+
@@ -168,7 +168,7 @@ token rule_terms {
           { make ::Rul::SpecialChar( 'char' => $$<any> ) }
         ]
     |   \. 
-        { make ::Rul::Dot( 'dot' => 1 ) }
+        { make ::Rul::Dot() }
     |   '[' 
         <rule> ']' 
         { make $$<rule> }
@@ -195,46 +195,46 @@ token rule_terms {
     |   '>>'  { make { 'colon' => '>>' ,} }     
     |   ':i' 
         <.ws> <rule> 
-        { make { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'ignorecase', 'rule_exp' => $$<rule>, } }     
     |   ':ignorecase' 
         <.ws> <rule> 
-        { make { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'ignorecase', 'rule_exp' => $$<rule>, } }     
     |   ':s' 
         <.ws> <rule> 
-        { make { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'sigspace',   'rule_exp' => $$<rule>, } }     
     |   ':sigspace' 
         <.ws> <rule> 
-        { make { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'sigspace',   'rule_exp' => $$<rule>, } }     
     |   ':P5' 
         <.ws> <rule> 
-        { make { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'Perl5',  'rule_exp' => $$<rule>, } }     
     |   ':Perl5' 
         <.ws> <rule> 
-        { make { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'Perl5',  'rule_exp' => $$<rule>, } }     
     |   ':bytes' 
         <.ws> <rule> 
-        { make { 'modifier' => 'bytes',  'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'bytes',  'rule_exp' => $$<rule>, } }     
     |   ':codes' 
         <.ws> <rule> 
-        { make { 'modifier' => 'codes',  'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'codes',  'rule_exp' => $$<rule>, } }     
     |   ':graphs' 
         <.ws> <rule> 
-        { make { 'modifier' => 'graphs', 'rule' => $$<rule>, } }     
+        { make { 'modifier' => 'graphs', 'rule_exp' => $$<rule>, } }     
     |   ':langs' 
         <.ws> <rule> 
-        { make { 'modifier' => 'langs',  'rule' => $$<rule>, } } }
+        { make { 'modifier' => 'langs',  'rule_exp' => $$<rule>, } } }
 }
 =cut
 
-token term {
+token rule_term {
     |  
        # { say 'matching variables' } 
        <variables>
        [  <.ws>? <':='> <.ws>? <named_capture_body>
           { 
             make ::Rul::NamedCapture(
-                'rule' =>  $$<named_capture_body>,
-                'ident' => $$<variables>
+                'rule_exp' =>  $$<named_capture_body>,
+                'capture_ident' => $$<variables>
             ); 
           }
        |
@@ -253,13 +253,13 @@ token term {
         { make ::Rul::Constant( 'constant' => $$<any> ) }
 }
 
-token quant {
+token quant_exp {
     |   <'**'> <.MiniPerl6::Grammar.opt_ws> \{  <parsed_code>  \}
         { make { 'closure' => $$<parsed_code> } }
     |   [  \? | \* | \+  ]
 }
 
-token greedy {   \?  |  \+  |  ''  }
+token greedy_exp {   \?  |  \+  |  ''  }
 
 token quantifier {
     #|   <.MiniPerl6::Grammar.opt_ws>
@@ -267,22 +267,22 @@ token quantifier {
     #    XXX   # fail
     #|
         <.MiniPerl6::Grammar.opt_ws>
-        <term> 
+        <rule_term> 
         <.MiniPerl6::Grammar.opt_ws2>
         [
-            <quant> <greedy>
+            <quant_exp> <greedy_exp>
             <.MiniPerl6::Grammar.opt_ws3>
             { make ::Rul::Quantifier(
-                    'term'    => $$<term>,
-                    'quant'   => $$<quant>,
-                    'greedy'  => $$<greedy>,
+                    'term'    => $$<rule_term>,
+                    'quant'   => $$<quant_exp>,
+                    'greedy'  => $$<greedy_exp>,
                     'ws1'     => $$<MiniPerl6::Grammar.opt_ws>,
                     'ws2'     => $$<MiniPerl6::Grammar.opt_ws2>,
                     'ws3'     => $$<MiniPerl6::Grammar.opt_ws3>,
                 )
             }
         |
-            { make $$<term> }
+            { make $$<rule_term> }
         ]
 }
 
@@ -298,19 +298,19 @@ token concat_list {
         { make [] }
 }
 
-token concat {
+token concat_exp {
     <concat_list>
     { make ::Rul::Concat( 'concat' => $$<concat_list> ) }
 }
 
-token or_list {
-    <concat>
+token or_list_exp {
+    <concat_exp>
     [
         <'|'>
-        <or_list> 
-        { make [ $$<concat>, @($$<or_list>) ] }
+        <or_list_exp> 
+        { make [ $$<concat_exp>, @($$<or_list_exp>) ] }
     |
-        { make [ $$<concat> ] }
+        { make [ $$<concat_exp> ] }
     ]
     |
         { make [] }
@@ -319,10 +319,10 @@ token or_list {
 token rule {
     [ <.ws>? '|' | '' ]
     # { say 'trying M::G::Rule on ', $s }
-    <or_list>
+    <or_list_exp>
     { 
         # say 'found Rule';
-        make ::Rul::Or( 'or' => $$<or_list> ) 
+        make ::Rul::Or( 'or_list' => $$<or_list_exp> ) 
     }
 }
 
