@@ -399,8 +399,6 @@ See L<S13> for all the gory details.
 
 #S16
 
-=head1
-
 =head2 Chaining file test operators has changed
 
     Was: if (-r $file && -x _) {...}
