@@ -1,3 +1,8 @@
+1.0  2009-08-28
+- Lisp (SBCL) bootstrap
+- Changed accessors to lvalue
+
+date?  -
 
 - Perl5 emitter: fixed Array inside signature:  method ( $a, [ $b, $c ] ) ...
 - Perl5 emitter: implemented "warn"
