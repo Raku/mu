@@ -13,8 +13,8 @@
 (let ((new-slots (list (list :name 'sv-block
   :readers '(sv-block)
   :writers '((setf sv-block))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-MiniPerl6-Lisp-LexicalBlock)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -30,7 +30,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-MiniPerl6-Lisp-LexicalBlock))
   (block mp6-function
-    (let ((sv-str nil)(sv-has_my_decl nil)(sv-my_decl nil)) (setf sv-str "")(setf sv-has_my_decl 0)(setf sv-my_decl "")(dolist (sv-decl (sv-block sv-self)) (progn (if (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-eq (sv-decl sv-decl ) "my"))) (progn (setf sv-has_my_decl 1)(setf sv-my_decl (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var sv-decl ) )) (sv-string " nil)")))))))) (progn ))(if (sv-bool (sv-and (typep sv-decl 'mp-Bind) (sv-and (typep (sv-parameters sv-decl ) 'mp-Decl) (sv-eq (sv-decl (sv-parameters sv-decl ) ) "my")))) (progn (setf sv-has_my_decl 1)(setf sv-my_decl (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var (sv-parameters sv-decl ) ) )) (sv-string " nil)")))))))) (progn ))))(if (sv-bool sv-has_my_decl) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(let (") (sv-string (concatenate 'string (sv-string sv-my_decl) (sv-string ") ")))))))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string "(progn ")))))(dolist (sv-decl (sv-block sv-self)) (progn (if (sv-bool (not (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-eq (sv-decl sv-decl ) "my"))))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (sv-emit sv-decl ))))) (progn ))))(return-from mp6-function (concatenate 'string (sv-string sv-str) (sv-string ")"))))))
+    (let ((sv-str (sv-undef))(sv-has_my_decl (sv-undef))(sv-my_decl (sv-undef))) (if (sv-bool (not (sv-bool (sv-block sv-self)))) (progn (return-from mp6-function "nil")) nil)(setf sv-str "")(setf sv-has_my_decl 0)(setf sv-my_decl "")(dolist (sv-decl (sv-block sv-self)) (progn (if (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-eq (sv-decl sv-decl ) "my"))) (progn (setf sv-has_my_decl 1)(setf sv-my_decl (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var sv-decl ) )) (sv-string " (sv-undef))")))))))) nil)(if (sv-bool (sv-and (typep sv-decl 'mp-Bind) (sv-and (typep (sv-parameters sv-decl ) 'mp-Decl) (sv-eq (sv-decl (sv-parameters sv-decl ) ) "my")))) (progn (setf sv-has_my_decl 1)(setf sv-my_decl (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var (sv-parameters sv-decl ) ) )) (sv-string " (sv-undef))")))))))) nil)))(if (sv-bool sv-has_my_decl) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(let (") (sv-string (concatenate 'string (sv-string sv-my_decl) (sv-string ") ")))))))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string "(progn ")))))(dolist (sv-decl (sv-block sv-self)) (progn (if (sv-bool (not (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-eq (sv-decl sv-decl ) "my"))))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (sv-emit sv-decl ))))) nil)))(return-from mp6-function (concatenate 'string (sv-string sv-str) (sv-string ")"))))))
 
 (defmethod sv-perl ((self mp-MiniPerl6-Lisp-LexicalBlock))
   (mp-Main::sv-lisp_dump_object "::MiniPerl6::Lisp::LexicalBlock" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "block") (setf (sv-value m) (sv-block self)) m) )))
@@ -52,8 +52,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-name
   :readers '(sv-name)
   :writers '((setf sv-name))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-CompUnit)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -67,8 +67,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-attributes
   :readers '(sv-attributes)
   :writers '((setf sv-attributes))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-CompUnit)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -82,8 +82,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-methods
   :readers '(sv-methods)
   :writers '((setf sv-methods))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-CompUnit)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -97,8 +97,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-body
   :readers '(sv-body)
   :writers '((setf sv-body))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-CompUnit)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -114,18 +114,18 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-CompUnit))
   (block mp6-function
-    (let ((sv-class_name nil)(sv-str nil)(sv-has_my_decl nil)(sv-my_decl nil)(sv-dumper nil)) (setf sv-class_name (mp-Main::sv-to_lisp_namespace (sv-name sv-self)))(setf sv-str (concatenate 'string (sv-string ";; class ") (sv-string (concatenate 'string (sv-string (sv-name sv-self)) (sv-string (sv-newline (proto-mp-Main) ))))))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(defpackage ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  (:use common-lisp mp-Main))") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string ";; (in-package ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string ")") (sv-string (sv-newline (proto-mp-Main) ))))))))))))))))))))(setf sv-has_my_decl 0)(setf sv-my_decl "")(dolist (sv-decl (sv-body sv-self)) (progn (if (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-eq (sv-decl sv-decl ) "my"))) (progn (setf sv-has_my_decl 1)(setf sv-my_decl (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var sv-decl ) )) (sv-string " nil)")))))))) (progn ))(if (sv-bool (sv-and (typep sv-decl 'mp-Bind) (sv-and (typep (sv-parameters sv-decl ) 'mp-Decl) (sv-eq (sv-decl (sv-parameters sv-decl ) ) "my")))) (progn (setf sv-has_my_decl 1)(setf sv-my_decl (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var (sv-parameters sv-decl ) ) )) (sv-string " nil)")))))))) (progn ))))(if (sv-bool sv-has_my_decl) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(let (") (sv-string (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string ")") (sv-string (sv-newline (proto-mp-Main) ))))))))))) (progn ))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(if (not (ignore-errors (find-class '") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string ")))
+    (let ((sv-class_name (sv-undef))(sv-str (sv-undef))(sv-has_my_decl (sv-undef))(sv-my_decl (sv-undef))(sv-dumper (sv-undef))) (setf sv-class_name (mp-Main::sv-to_lisp_namespace (sv-name sv-self)))(setf sv-str (concatenate 'string (sv-string ";; class ") (sv-string (concatenate 'string (sv-string (sv-name sv-self)) (sv-string (sv-newline (proto-mp-Main) ))))))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(defpackage ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  (:use common-lisp mp-Main))") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string ";; (in-package ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string ")") (sv-string (sv-newline (proto-mp-Main) ))))))))))))))))))))(setf sv-has_my_decl 0)(setf sv-my_decl "")(dolist (sv-decl (sv-body sv-self)) (progn (if (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-eq (sv-decl sv-decl ) "my"))) (progn (setf sv-has_my_decl 1)(setf sv-my_decl (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var sv-decl ) )) (sv-string " (sv-undef))")))))))) nil)(if (sv-bool (sv-and (typep sv-decl 'mp-Bind) (sv-and (typep (sv-parameters sv-decl ) 'mp-Decl) (sv-eq (sv-decl (sv-parameters sv-decl ) ) "my")))) (progn (setf sv-has_my_decl 1)(setf sv-my_decl (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var (sv-parameters sv-decl ) ) )) (sv-string " (sv-undef))")))))))) nil)))(if (sv-bool sv-has_my_decl) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(let (") (sv-string (concatenate 'string (sv-string sv-my_decl) (sv-string (concatenate 'string (sv-string ")") (sv-string (sv-newline (proto-mp-Main) ))))))))))) nil)(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(if (not (ignore-errors (find-class '") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string ")))
   (defclass ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string " () ()))
 
 (let (x) 
   (setq x (make-instance '") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string "))
   (defun proto-") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string " () x))
-")))))))))))))))))))(setf sv-dumper "")(dolist (sv-decl (sv-body sv-self)) (progn (if (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-eq (sv-decl sv-decl ) "has"))) (let ((sv-accessor_name nil)) (setf sv-accessor_name (sv-name (sv-var sv-decl ) ))(setf sv-dumper (concatenate 'string (sv-string sv-dumper) (sv-string (concatenate 'string (sv-string "(let ((m (make-instance 'mp-Pair))) ") (sv-string (concatenate 'string (sv-string "(setf (sv-key m) \"") (sv-string (concatenate 'string (sv-string (mp-Main::sv-lisp_escape_string sv-accessor_name)) (sv-string (concatenate 'string (sv-string "\") ") (sv-string (concatenate 'string (sv-string "(setf (sv-value m) (") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier sv-accessor_name)) (sv-string " self)) m) ")))))))))))))))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string ";; has $.") (sv-string (concatenate 'string (sv-string sv-accessor_name) (sv-string (concatenate 'string (sv-string "
+")))))))))))))))))))(setf sv-dumper "")(dolist (sv-decl (sv-body sv-self)) (progn (if (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-eq (sv-decl sv-decl ) "has"))) (let ((sv-accessor_name (sv-undef))) (setf sv-accessor_name (sv-name (sv-var sv-decl ) ))(setf sv-dumper (concatenate 'string (sv-string sv-dumper) (sv-string (concatenate 'string (sv-string "(let ((m (make-instance 'mp-Pair))) ") (sv-string (concatenate 'string (sv-string "(setf (sv-key m) \"") (sv-string (concatenate 'string (sv-string (mp-Main::sv-lisp_escape_string sv-accessor_name)) (sv-string (concatenate 'string (sv-string "\") ") (sv-string (concatenate 'string (sv-string "(setf (sv-value m) (") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier sv-accessor_name)) (sv-string " self)) m) ")))))))))))))))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string ";; has $.") (sv-string (concatenate 'string (sv-string sv-accessor_name) (sv-string (concatenate 'string (sv-string "
 (let ((new-slots (list (list :name '") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier sv-accessor_name)) (sv-string (concatenate 'string (sv-string "
   :readers '(") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier sv-accessor_name)) (sv-string (concatenate 'string (sv-string ")
   :writers '((setf ") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier sv-accessor_name)) (sv-string (concatenate 'string (sv-string "))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class '") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string ")))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -135,7 +135,7 @@ new-slots))
 new-slots))
 (sb-mop:ensure-class '") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string " :direct-slots new-slots))
 
-")))))))))))))))))))))))))))) (progn ))(if (sv-bool (typep sv-decl 'mp-Method)) (let ((sv-sig nil)(sv-invocant nil)(sv-pos nil)(sv-str_specific nil)(sv-str_generic nil)(sv-str_optionals nil)(sv-block nil)) (setf sv-sig (sv-sig sv-decl ))(setf sv-invocant (sv-invocant sv-sig ))(setf sv-pos (sv-positional sv-sig ))(setf sv-str_specific (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit sv-invocant )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string ")")))))))))(setf sv-str_generic (sv-emit sv-invocant ))(setf sv-str_optionals "")(dolist (sv-field sv-pos) (progn (setf sv-str_optionals (concatenate 'string (sv-string sv-str_optionals) (sv-string (concatenate 'string (sv-string " ") (sv-string (sv-emit sv-field ))))))))(if (sv-bool sv-str_optionals) (progn (setf sv-str_specific (concatenate 'string (sv-string sv-str_specific) (sv-string (concatenate 'string (sv-string " &optional") (sv-string sv-str_optionals)))))(setf sv-str_generic (concatenate 'string (sv-string sv-str_generic) (sv-string (concatenate 'string (sv-string " &optional") (sv-string sv-str_optionals)))))) (progn ))(setf sv-block (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-block sv-decl )) m))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string ";; method ") (sv-string (concatenate 'string (sv-string (sv-name sv-decl )) (sv-string (concatenate 'string (sv-string "
+")))))))))))))))))))))))))))) nil)(if (sv-bool (typep sv-decl 'mp-Method)) (let ((sv-sig (sv-undef))(sv-invocant (sv-undef))(sv-pos (sv-undef))(sv-str_specific (sv-undef))(sv-str_generic (sv-undef))(sv-str_optionals (sv-undef))(sv-block (sv-undef))) (setf sv-sig (sv-sig sv-decl ))(setf sv-invocant (sv-invocant sv-sig ))(setf sv-pos (sv-positional sv-sig ))(setf sv-str_specific (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-emit sv-invocant )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string ")")))))))))(setf sv-str_generic (sv-emit sv-invocant ))(setf sv-str_optionals "")(dolist (sv-field sv-pos) (progn (setf sv-str_optionals (concatenate 'string (sv-string sv-str_optionals) (sv-string (concatenate 'string (sv-string " ") (sv-string (sv-emit sv-field ))))))))(if (sv-bool sv-str_optionals) (progn (setf sv-str_specific (concatenate 'string (sv-string sv-str_specific) (sv-string (concatenate 'string (sv-string " &optional") (sv-string sv-str_optionals)))))(setf sv-str_generic (concatenate 'string (sv-string sv-str_generic) (sv-string (concatenate 'string (sv-string " &optional") (sv-string sv-str_optionals)))))) nil)(setf sv-block (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-block sv-decl )) m))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string ";; method ") (sv-string (concatenate 'string (sv-string (sv-name sv-decl )) (sv-string (concatenate 'string (sv-string "
 (if (not (ignore-errors (find-method '") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-name sv-decl ))) (sv-string (concatenate 'string (sv-string " () ())))
   (defgeneric ") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-name sv-decl ))) (sv-string (concatenate 'string (sv-string " (") (sv-string (concatenate 'string (sv-string sv-str_generic) (sv-string (concatenate 'string (sv-string ")
       (:documentation ") (sv-string (concatenate 'string (sv-string "\"") (sv-string (concatenate 'string (sv-string "a method") (sv-string (concatenate 'string (sv-string "\"") (sv-string (concatenate 'string (sv-string ")))
@@ -143,7 +143,7 @@ new-slots))
   (block mp6-function
     ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block )) (sv-string "))
 
-")))))))))))))))))))))))))))))))))))))))) (progn ))(if (sv-bool (typep sv-decl 'mp-Sub)) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(in-package ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string ")") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  ") (sv-string (concatenate 'string (sv-string (sv-emit sv-decl )) (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "(in-package mp-Main)") (sv-string (sv-newline (proto-mp-Main) ))))))))))))))))))))) (progn ))))(if (sv-bool (not (sv-eq (sv-name sv-self) "Pair"))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(defmethod sv-perl ((self ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string "))") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  (mp-Main::sv-lisp_dump_object \"::") (sv-string (concatenate 'string (sv-string (mp-Main::sv-lisp_escape_string (sv-name sv-self))) (sv-string (concatenate 'string (sv-string "\"") (sv-string (concatenate 'string (sv-string " (list ") (sv-string (concatenate 'string (sv-string sv-dumper) (sv-string (concatenate 'string (sv-string ")))") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (sv-newline (proto-mp-Main) ))))))))))))))))))))))))))) (progn ))(dolist (sv-decl (sv-body sv-self)) (progn (if (sv-bool (sv-and (not (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-or (sv-eq (sv-decl sv-decl ) "has") (sv-eq (sv-decl sv-decl ) "my"))))) (sv-and (not (sv-bool (typep sv-decl 'mp-Method))) (not (sv-bool (typep sv-decl 'mp-Sub)))))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string (sv-emit sv-decl )) (sv-string (sv-newline (proto-mp-Main) ))))))) (progn ))))(if (sv-bool sv-has_my_decl) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string ")")))) (progn ))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (sv-newline (proto-mp-Main) )))))))))
+")))))))))))))))))))))))))))))))))))))))) nil)(if (sv-bool (typep sv-decl 'mp-Sub)) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(in-package ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string ")") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  ") (sv-string (concatenate 'string (sv-string (sv-emit sv-decl )) (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "(in-package mp-Main)") (sv-string (sv-newline (proto-mp-Main) ))))))))))))))))))))) nil)))(if (sv-bool (not (sv-eq (sv-name sv-self) "Pair"))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(defmethod sv-perl ((self ") (sv-string (concatenate 'string (sv-string sv-class_name) (sv-string (concatenate 'string (sv-string "))") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  (mp-Main::sv-lisp_dump_object \"::") (sv-string (concatenate 'string (sv-string (mp-Main::sv-lisp_escape_string (sv-name sv-self))) (sv-string (concatenate 'string (sv-string "\"") (sv-string (concatenate 'string (sv-string " (list ") (sv-string (concatenate 'string (sv-string sv-dumper) (sv-string (concatenate 'string (sv-string ")))") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (sv-newline (proto-mp-Main) ))))))))))))))))))))))))))) nil)(dolist (sv-decl (sv-body sv-self)) (progn (if (sv-bool (sv-and (not (sv-bool (sv-and (typep sv-decl 'mp-Decl) (sv-or (sv-eq (sv-decl sv-decl ) "has") (sv-eq (sv-decl sv-decl ) "my"))))) (sv-and (not (sv-bool (typep sv-decl 'mp-Method))) (not (sv-bool (typep sv-decl 'mp-Sub)))))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string (sv-emit sv-decl )) (sv-string (sv-newline (proto-mp-Main) ))))))) nil)))(if (sv-bool sv-has_my_decl) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string ")")))) nil)(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (sv-newline (proto-mp-Main) )))))))))
 
 (defmethod sv-perl ((self mp-CompUnit))
   (mp-Main::sv-lisp_dump_object "::CompUnit" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "name") (setf (sv-value m) (sv-name self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "attributes") (setf (sv-value m) (sv-attributes self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "methods") (setf (sv-value m) (sv-methods self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "body") (setf (sv-value m) (sv-body self)) m) )))
@@ -165,8 +165,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-int
   :readers '(sv-int)
   :writers '((setf sv-int))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Val-Int)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -204,8 +204,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-bit
   :readers '(sv-bit)
   :writers '((setf sv-bit))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Val-Bit)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -243,8 +243,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-num
   :readers '(sv-num)
   :writers '((setf sv-num))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Val-Num)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -282,8 +282,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-buf
   :readers '(sv-buf)
   :writers '((setf sv-buf))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Val-Buf)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -323,7 +323,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Val-Undef))
   (block mp6-function
-    (progn "nil")))
+    (progn "(sv-undef)")))
 
 (defmethod sv-perl ((self mp-Val-Undef))
   (mp-Main::sv-lisp_dump_object "::Val::Undef" (list )))
@@ -345,8 +345,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-class
   :readers '(sv-class)
   :writers '((setf sv-class))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Val-Object)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -360,8 +360,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-fields
   :readers '(sv-fields)
   :writers '((setf sv-fields))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Val-Object)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -399,8 +399,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-seq
   :readers '(sv-seq)
   :writers '((setf sv-seq))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Lit-Seq)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -438,8 +438,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-array
   :readers '(sv-array)
   :writers '((setf sv-array))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Lit-Array)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -455,7 +455,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Lit-Array))
   (block mp6-function
-    (progn (if (sv-bool (sv-array sv-self)) (let ((sv-str nil)) (setf sv-str "")(dolist (sv-elem (sv-array sv-self)) (progn (if (sv-bool (sv-and (typep sv-elem 'mp-Apply) (sv-eq (sv-code sv-elem ) "prefix:<@>"))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string " ") (sv-string (sv-emit sv-elem ))))))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string " (list ") (sv-string (concatenate 'string (sv-string (sv-emit sv-elem )) (sv-string ")")))))))))))(return-from mp6-function (concatenate 'string (sv-string "(concatenate 'list ") (sv-string (concatenate 'string (sv-string sv-str) (sv-string ")")))))) (progn (return-from mp6-function "nil"))))))
+    (progn (if (sv-bool (sv-array sv-self)) (let ((sv-str (sv-undef))) (setf sv-str "")(dolist (sv-elem (sv-array sv-self)) (progn (if (sv-bool (sv-and (typep sv-elem 'mp-Apply) (sv-eq (sv-code sv-elem ) "prefix:<@>"))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string " ") (sv-string (sv-emit sv-elem ))))))) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string " (list ") (sv-string (concatenate 'string (sv-string (sv-emit sv-elem )) (sv-string ")")))))))))))(return-from mp6-function (concatenate 'string (sv-string "(concatenate 'list ") (sv-string (concatenate 'string (sv-string sv-str) (sv-string ")")))))) (progn (return-from mp6-function "nil"))))))
 
 (defmethod sv-perl ((self mp-Lit-Array))
   (mp-Main::sv-lisp_dump_object "::Lit::Array" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "array") (setf (sv-value m) (sv-array self)) m) )))
@@ -477,8 +477,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-hash
   :readers '(sv-hash)
   :writers '((setf sv-hash))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Lit-Hash)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -494,7 +494,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Lit-Hash))
   (block mp6-function
-    (progn (if (sv-bool (sv-hash sv-self)) (let ((sv-fields nil)(sv-str nil)) (setf sv-fields (sv-hash sv-self))(setf sv-str "")(dolist (sv-field sv-fields) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(setf (gethash ") (sv-string (concatenate 'string (sv-string (sv-emit (elt sv-field 0) )) (sv-string (concatenate 'string (sv-string " h) ") (sv-string (concatenate 'string (sv-string (sv-emit (elt sv-field 1) )) (sv-string ")")))))))))))))(return-from mp6-function (concatenate 'string (sv-string "(let ((h (make-hash-table :test 'equal))) ") (sv-string (concatenate 'string (sv-string sv-str) (sv-string " h)")))))) (progn (return-from mp6-function "(make-hash-table :test 'equal)"))))))
+    (progn (if (sv-bool (sv-hash sv-self)) (let ((sv-fields (sv-undef))(sv-str (sv-undef))) (setf sv-fields (sv-hash sv-self))(setf sv-str "")(dolist (sv-field sv-fields) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(setf (gethash ") (sv-string (concatenate 'string (sv-string (sv-emit (elt sv-field 0) )) (sv-string (concatenate 'string (sv-string " h) ") (sv-string (concatenate 'string (sv-string (sv-emit (elt sv-field 1) )) (sv-string ")")))))))))))))(return-from mp6-function (concatenate 'string (sv-string "(let ((h (make-hash-table :test 'equal))) ") (sv-string (concatenate 'string (sv-string sv-str) (sv-string " h)")))))) (progn (return-from mp6-function "(make-hash-table :test 'equal)"))))))
 
 (defmethod sv-perl ((self mp-Lit-Hash))
   (mp-Main::sv-lisp_dump_object "::Lit::Hash" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "hash") (setf (sv-value m) (sv-hash self)) m) )))
@@ -533,8 +533,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-class
   :readers '(sv-class)
   :writers '((setf sv-class))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Lit-Object)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -548,8 +548,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-fields
   :readers '(sv-fields)
   :writers '((setf sv-fields))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Lit-Object)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -565,7 +565,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Lit-Object))
   (block mp6-function
-    (progn (if (sv-bool (sv-fields sv-self)) (let ((sv-fields nil)(sv-str nil)) (setf sv-fields (sv-fields sv-self))(setf sv-str "")(dolist (sv-field sv-fields) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(setf (") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-buf (elt sv-field 0) ))) (sv-string (concatenate 'string (sv-string " m) ") (sv-string (concatenate 'string (sv-string (sv-emit (elt sv-field 1) )) (sv-string ")")))))))))))))(concatenate 'string (sv-string "(let ((m (make-instance '") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-class sv-self))) (sv-string (concatenate 'string (sv-string "))) ") (sv-string (concatenate 'string (sv-string sv-str) (sv-string " m)"))))))))) (progn (return-from mp6-function (concatenate 'string (sv-string "(make-instance '") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-class sv-self))) (sv-string ")"))))))))))
+    (progn (if (sv-bool (sv-fields sv-self)) (let ((sv-fields (sv-undef))(sv-str (sv-undef))) (setf sv-fields (sv-fields sv-self))(setf sv-str "")(dolist (sv-field sv-fields) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string "(setf (") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-buf (elt sv-field 0) ))) (sv-string (concatenate 'string (sv-string " m) ") (sv-string (concatenate 'string (sv-string (sv-emit (elt sv-field 1) )) (sv-string ")")))))))))))))(concatenate 'string (sv-string "(let ((m (make-instance '") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-class sv-self))) (sv-string (concatenate 'string (sv-string "))) ") (sv-string (concatenate 'string (sv-string sv-str) (sv-string " m)"))))))))) (progn (return-from mp6-function (concatenate 'string (sv-string "(make-instance '") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-class sv-self))) (sv-string ")"))))))))))
 
 (defmethod sv-perl ((self mp-Lit-Object))
   (mp-Main::sv-lisp_dump_object "::Lit::Object" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "class") (setf (sv-value m) (sv-class self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "fields") (setf (sv-value m) (sv-fields self)) m) )))
@@ -587,8 +587,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-obj
   :readers '(sv-obj)
   :writers '((setf sv-obj))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Index)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -602,8 +602,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-index_exp
   :readers '(sv-index_exp)
   :writers '((setf sv-index_exp))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Index)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -641,8 +641,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-obj
   :readers '(sv-obj)
   :writers '((setf sv-obj))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Lookup)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -656,8 +656,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-index_exp
   :readers '(sv-index_exp)
   :writers '((setf sv-index_exp))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Lookup)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -673,7 +673,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Lookup))
   (block mp6-function
-    (progn (if (sv-bool (typep (sv-obj sv-self) 'mp-Var)) (progn (if (sv-bool (sv-or (sv-eq (sv-name (sv-obj sv-self) ) "MATCH") (sv-eq (sv-name (sv-obj sv-self) ) "/"))) (progn (return-from mp6-function (concatenate 'string (sv-string "(gethash ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-index_exp sv-self) )) (sv-string (concatenate 'string (sv-string " (sv-hash ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-obj sv-self) )) (sv-string "))")))))))))) (progn ))) (progn ))(return-from mp6-function (concatenate 'string (sv-string "(gethash ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-index_exp sv-self) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-obj sv-self) )) (sv-string ")"))))))))))))
+    (progn (if (sv-bool (typep (sv-obj sv-self) 'mp-Var)) (progn (if (sv-bool (sv-or (sv-eq (sv-name (sv-obj sv-self) ) "MATCH") (sv-eq (sv-name (sv-obj sv-self) ) "/"))) (progn (return-from mp6-function (concatenate 'string (sv-string "(gethash ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-index_exp sv-self) )) (sv-string (concatenate 'string (sv-string " (sv-hash ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-obj sv-self) )) (sv-string "))")))))))))) nil)) nil)(return-from mp6-function (concatenate 'string (sv-string "(gethash ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-index_exp sv-self) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-obj sv-self) )) (sv-string ")"))))))))))))
 
 (defmethod sv-perl ((self mp-Lookup))
   (mp-Main::sv-lisp_dump_object "::Lookup" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "obj") (setf (sv-value m) (sv-obj self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "index_exp") (setf (sv-value m) (sv-index_exp self)) m) )))
@@ -695,8 +695,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-sigil
   :readers '(sv-sigil)
   :writers '((setf sv-sigil))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Var)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -710,8 +710,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-twigil
   :readers '(sv-twigil)
   :writers '((setf sv-twigil))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Var)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -725,8 +725,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-namespace
   :readers '(sv-namespace)
   :writers '((setf sv-namespace))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Var)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -740,8 +740,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-name
   :readers '(sv-name)
   :writers '((setf sv-name))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Var)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -757,7 +757,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Var))
   (block mp6-function
-    (let ((sv-ns nil)) (setf sv-ns "")(if (sv-bool (sv-namespace sv-self)) (progn (setf sv-ns (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-namespace sv-self))) (sv-string "::")))) (progn ))(if (sv-bool (sv-eq (sv-twigil sv-self) ".")) (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-name sv-self))) (sv-string " sv-self)")))) (if (sv-bool (sv-eq (sv-name sv-self) "/")) (mp-Main::sv-to_lisp_identifier "MATCH") (concatenate 'string (sv-string sv-ns) (sv-string (mp-Main::sv-to_lisp_identifier (sv-name sv-self)))))))))
+    (let ((sv-ns (sv-undef))) (setf sv-ns "")(if (sv-bool (sv-namespace sv-self)) (progn (setf sv-ns (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-namespace sv-self))) (sv-string "::")))) nil)(if (sv-bool (sv-eq (sv-twigil sv-self) ".")) (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-name sv-self))) (sv-string " sv-self)")))) (if (sv-bool (sv-eq (sv-name sv-self) "/")) (mp-Main::sv-to_lisp_identifier "MATCH") (concatenate 'string (sv-string sv-ns) (sv-string (mp-Main::sv-to_lisp_identifier (sv-name sv-self)))))))))
 
 (defmethod sv-perl ((self mp-Var))
   (mp-Main::sv-lisp_dump_object "::Var" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "sigil") (setf (sv-value m) (sv-sigil self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "twigil") (setf (sv-value m) (sv-twigil self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "namespace") (setf (sv-value m) (sv-namespace self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "name") (setf (sv-value m) (sv-name self)) m) )))
@@ -779,8 +779,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-parameters
   :readers '(sv-parameters)
   :writers '((setf sv-parameters))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Bind)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -794,8 +794,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-arguments
   :readers '(sv-arguments)
   :writers '((setf sv-arguments))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Bind)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -811,7 +811,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Bind))
   (block mp6-function
-    (progn (if (sv-bool (typep (sv-parameters sv-self) 'mp-Lit-Object)) (let ((sv-class nil)(sv-a nil)(sv-b nil)(sv-str nil)(sv-i nil)(sv-arg nil)) (setf sv-class (sv-class (sv-parameters sv-self) ))(setf sv-a (sv-fields (sv-parameters sv-self) ))(setf sv-b (sv-arguments sv-self))(setf sv-str "do { ")(setf sv-i 0)(dolist (sv-var sv-a) (let ((sv-bind nil)) (setf sv-bind (let ((m (make-instance 'mp-Bind))) (setf (sv-parameters m) (elt sv-var 1))(setf (sv-arguments m) (let ((m (make-instance 'mp-Call))) (setf (sv-invocant m) sv-b)(setf (sv-method m) (sv-buf (elt sv-var 0) ))(setf (sv-arguments m) nil)(setf (sv-hyper m) 0) m)) m))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit sv-bind )) (sv-string " ")))))))(setf sv-i (+ sv-i 1))))(return-from mp6-function (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string (sv-emit (sv-parameters sv-self) )) (sv-string " }")))))) (progn ))(if (sv-bool (sv-and (typep (sv-parameters sv-self) 'mp-Decl) (sv-eq (sv-decl (sv-parameters sv-self) ) "my"))) (progn (return-from mp6-function (concatenate 'string (sv-string "(setf ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var (sv-parameters sv-self) ) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-arguments sv-self) )) (sv-string ")")))))))))) (progn ))(concatenate 'string (sv-string "(setf ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-parameters sv-self) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-arguments sv-self) )) (sv-string ")")))))))))))
+    (progn (if (sv-bool (typep (sv-parameters sv-self) 'mp-Lit-Object)) (let ((sv-class (sv-undef))(sv-a (sv-undef))(sv-b (sv-undef))(sv-str (sv-undef))(sv-i (sv-undef))(sv-arg (sv-undef))) (setf sv-class (sv-class (sv-parameters sv-self) ))(setf sv-a (sv-fields (sv-parameters sv-self) ))(setf sv-b (sv-arguments sv-self))(setf sv-str "do { ")(setf sv-i 0)(dolist (sv-var sv-a) (let ((sv-bind (sv-undef))) (setf sv-bind (let ((m (make-instance 'mp-Bind))) (setf (sv-parameters m) (elt sv-var 1))(setf (sv-arguments m) (let ((m (make-instance 'mp-Call))) (setf (sv-invocant m) sv-b)(setf (sv-method m) (sv-buf (elt sv-var 0) ))(setf (sv-arguments m) nil)(setf (sv-hyper m) 0) m)) m))(setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit sv-bind )) (sv-string " ")))))))(setf sv-i (+ sv-i 1))))(return-from mp6-function (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string (sv-emit (sv-parameters sv-self) )) (sv-string " }")))))) nil)(if (sv-bool (sv-and (typep (sv-parameters sv-self) 'mp-Decl) (sv-eq (sv-decl (sv-parameters sv-self) ) "my"))) (progn (return-from mp6-function (concatenate 'string (sv-string "(setf ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-var (sv-parameters sv-self) ) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-arguments sv-self) )) (sv-string ")")))))))))) nil)(concatenate 'string (sv-string "(setf ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-parameters sv-self) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-arguments sv-self) )) (sv-string ")")))))))))))
 
 (defmethod sv-perl ((self mp-Bind))
   (mp-Main::sv-lisp_dump_object "::Bind" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "parameters") (setf (sv-value m) (sv-parameters self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "arguments") (setf (sv-value m) (sv-arguments self)) m) )))
@@ -833,8 +833,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-name
   :readers '(sv-name)
   :writers '((setf sv-name))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Proto)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -872,8 +872,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-invocant
   :readers '(sv-invocant)
   :writers '((setf sv-invocant))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Call)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -887,8 +887,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-hyper
   :readers '(sv-hyper)
   :writers '((setf sv-hyper))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Call)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -902,8 +902,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-method
   :readers '(sv-method)
   :writers '((setf sv-method))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Call)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -917,8 +917,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-arguments
   :readers '(sv-arguments)
   :writers '((setf sv-arguments))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Call)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -934,7 +934,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Call))
   (block mp6-function
-    (let ((sv-arguments nil)(sv-invocant nil)(sv-meth nil)) (setf sv-arguments "")(if (sv-bool (sv-arguments sv-self)) (progn (setf sv-arguments (sv-join (mapcar #'sv-emit (sv-arguments sv-self)) " "))) (progn ))(setf sv-invocant (sv-emit (sv-invocant sv-self) ))(if (sv-bool (sv-eq sv-invocant "self")) (progn (setf sv-invocant "sv-self")) (progn ))(if (sv-bool (sv-eq (sv-method sv-self) "values")) (progn (if (sv-bool (sv-hyper sv-self)) (progn (progn (write-line (format nil "~{~a~}" (list "not implemented")) *error-output*) (sb-ext:quit))) (progn (return-from mp6-function (concatenate 'string (sv-string "@{") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string "}")))))))) (progn ))(if (sv-bool (sv-eq (sv-method sv-self) "isa")) (progn (return-from mp6-function (concatenate 'string (sv-string "(typep ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string (concatenate 'string (sv-string " '") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-buf (elt (sv-arguments sv-self) 0) ))) (sv-string ")")))))))))) (progn ))(if (sv-bool (sv-eq (sv-method sv-self) "chars")) (progn (if (sv-bool (sv-hyper sv-self)) (progn (progn (write-line (format nil "~{~a~}" (list "not implemented")) *error-output*) (sb-ext:quit))) (progn (return-from mp6-function (concatenate 'string (sv-string "(length ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string ")")))))))) (progn ))(if (sv-bool (sv-or (sv-eq (sv-method sv-self) "yaml") (sv-eq (sv-method sv-self) "say"))) (progn (if (sv-bool (sv-hyper sv-self)) (progn (return-from mp6-function (concatenate 'string (sv-string "[ map { ") (sv-string (concatenate 'string (sv-string (sv-method sv-self)) (sv-string (concatenate 'string (sv-string "( $_, ") (sv-string (concatenate 'string (sv-string ", ") (sv-string (concatenate 'string (sv-string sv-arguments) (sv-string (concatenate 'string (sv-string ")") (sv-string (concatenate 'string (sv-string " } @{ ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string " } ]")))))))))))))))))) (progn (return-from mp6-function (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-method sv-self)) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-arguments) (sv-string ")")))))))))))))))) (progn ))(setf sv-meth (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-method sv-self))) (sv-string " ")))(if (sv-bool (sv-eq (sv-method sv-self) "postcircumfix:<( )>")) (progn (setf sv-meth "")) (progn ))(if (sv-bool (sv-hyper sv-self)) (progn (concatenate 'string (sv-string "(mapcar #'") (sv-string (concatenate 'string (sv-string sv-meth) (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string ")"))))))) (progn (return-from mp6-function (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string sv-meth) (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-arguments) (sv-string ")"))))))))))))))))
+    (let ((sv-arguments (sv-undef))(sv-invocant (sv-undef))(sv-meth (sv-undef))) (setf sv-arguments "")(if (sv-bool (sv-arguments sv-self)) (progn (setf sv-arguments (sv-join (mapcar #'sv-emit (sv-arguments sv-self)) " "))) nil)(setf sv-invocant (sv-emit (sv-invocant sv-self) ))(if (sv-bool (sv-eq sv-invocant "self")) (progn (setf sv-invocant "sv-self")) nil)(if (sv-bool (sv-eq (sv-method sv-self) "values")) (progn (if (sv-bool (sv-hyper sv-self)) (progn (progn (write-line (format nil "~{~a~}" (list "not implemented")) *error-output*) (sb-ext:quit))) (progn (return-from mp6-function (concatenate 'string (sv-string "@{") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string "}")))))))) nil)(if (sv-bool (sv-eq (sv-method sv-self) "isa")) (progn (if (sv-bool (sv-eq (sv-buf (elt (sv-arguments sv-self) 0) ) "Str")) (progn (return-from mp6-function (concatenate 'string (sv-string "(typep ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string " 'string)")))))) nil)(return-from mp6-function (concatenate 'string (sv-string "(typep ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string (concatenate 'string (sv-string " '") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-buf (elt (sv-arguments sv-self) 0) ))) (sv-string ")")))))))))) nil)(if (sv-bool (sv-eq (sv-method sv-self) "chars")) (progn (if (sv-bool (sv-hyper sv-self)) (progn (progn (write-line (format nil "~{~a~}" (list "not implemented")) *error-output*) (sb-ext:quit))) (progn (return-from mp6-function (concatenate 'string (sv-string "(length ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string ")")))))))) nil)(if (sv-bool (sv-or (sv-eq (sv-method sv-self) "yaml") (sv-eq (sv-method sv-self) "say"))) (progn (if (sv-bool (sv-hyper sv-self)) (progn (return-from mp6-function (concatenate 'string (sv-string "[ map { ") (sv-string (concatenate 'string (sv-string (sv-method sv-self)) (sv-string (concatenate 'string (sv-string "( $_, ") (sv-string (concatenate 'string (sv-string ", ") (sv-string (concatenate 'string (sv-string sv-arguments) (sv-string (concatenate 'string (sv-string ")") (sv-string (concatenate 'string (sv-string " } @{ ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string " } ]")))))))))))))))))) (progn (return-from mp6-function (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string (sv-method sv-self)) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-arguments) (sv-string ")")))))))))))))))) nil)(setf sv-meth (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-method sv-self))) (sv-string " ")))(if (sv-bool (sv-eq (sv-method sv-self) "postcircumfix:<( )>")) (progn (setf sv-meth "")) nil)(if (sv-bool (sv-hyper sv-self)) (progn (concatenate 'string (sv-string "(mapcar #'") (sv-string (concatenate 'string (sv-string sv-meth) (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string ")"))))))) (progn (return-from mp6-function (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string sv-meth) (sv-string (concatenate 'string (sv-string sv-invocant) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-arguments) (sv-string ")"))))))))))))))))
 
 (defmethod sv-perl ((self mp-Call))
   (mp-Main::sv-lisp_dump_object "::Call" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "invocant") (setf (sv-value m) (sv-invocant self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "hyper") (setf (sv-value m) (sv-hyper self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "method") (setf (sv-value m) (sv-method self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "arguments") (setf (sv-value m) (sv-arguments self)) m) )))
@@ -956,8 +956,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-code
   :readers '(sv-code)
   :writers '((setf sv-code))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Apply)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -971,8 +971,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-arguments
   :readers '(sv-arguments)
   :writers '((setf sv-arguments))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Apply)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -986,8 +986,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-namespace
   :readers '(sv-namespace)
   :writers '((setf sv-namespace))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Apply)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1003,7 +1003,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Apply))
   (block mp6-function
-    (let ((sv-ns nil)(sv-code nil)(sv-args nil)) (setf sv-ns "")(if (sv-bool (sv-namespace sv-self)) (progn (setf sv-ns (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-namespace sv-self))) (sv-string "::")))) (progn ))(setf sv-code (concatenate 'string (sv-string sv-ns) (sv-string (sv-code sv-self))))(setf sv-args "")(if (sv-bool (sv-arguments sv-self)) (progn (setf sv-args (sv-join (mapcar #'sv-emit (sv-arguments sv-self)) " "))) (progn ))(if (sv-bool (sv-eq sv-code "self")) (progn (return-from mp6-function "sv-self")) (progn ))(if (sv-bool (sv-eq sv-code "false")) (progn (return-from mp6-function "nil")) (progn ))(if (sv-bool (sv-eq sv-code "make")) (progn (return-from mp6-function (concatenate 'string (sv-string "(return-from mp6-function ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "substr")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-substr ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "say")) (progn (return-from mp6-function (concatenate 'string (sv-string "(mp-Main::sv-say (list ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) (progn ))(if (sv-bool (sv-eq sv-code "print")) (progn (return-from mp6-function (concatenate 'string (sv-string "(mp-Main::sv-print (list ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<~>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(concatenate 'string (sv-string ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 0) )) (sv-string (concatenate 'string (sv-string ") (sv-string ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 1) )) (sv-string "))")))))))))) (progn ))(if (sv-bool (sv-eq sv-code "warn")) (progn (return-from mp6-function (concatenate 'string (sv-string "(write-line (format nil \"~{~a~}\" (list ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")) *error-output*)")))))) (progn ))(if (sv-bool (sv-eq sv-code "die")) (progn (return-from mp6-function (concatenate 'string (sv-string "(progn (write-line (format nil \"~{~a~}\" (list ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")) *error-output*) (sb-ext:quit))")))))) (progn ))(if (sv-bool (sv-eq sv-code "array")) (progn (return-from mp6-function sv-args)) (progn ))(if (sv-bool (sv-eq sv-code "prefix:<~>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-string ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "prefix:<!>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(not (sv-bool ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) (progn ))(if (sv-bool (sv-eq sv-code "prefix:<?>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-bool ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "prefix:<$>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-scalar ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "prefix:<@>")) (progn (return-from mp6-function sv-args)) (progn ))(if (sv-bool (sv-eq sv-code "prefix:<%>")) (progn (return-from mp6-function sv-args)) (progn ))(if (sv-bool (sv-eq sv-code "infix:<+>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(+ ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<->")) (progn (return-from mp6-function (concatenate 'string (sv-string "(-") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<>>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(> ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<&&>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-and ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<||>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-or ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<eq>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-eq ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<ne>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(not (sv-eq ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<==>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(eql ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) (progn ))(if (sv-bool (sv-eq sv-code "infix:<!=>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(not (eql ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) (progn ))(if (sv-bool (sv-eq sv-code "ternary:<?? !!>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(if (sv-bool ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 0) )) (sv-string (concatenate 'string (sv-string ") ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 1) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 2) )) (sv-string ")")))))))))))))) (progn ))(concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string sv-ns) (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-code sv-self))) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))))))))))
+    (let ((sv-ns (sv-undef))(sv-code (sv-undef))(sv-args (sv-undef))) (setf sv-ns "")(if (sv-bool (sv-namespace sv-self)) (progn (setf sv-ns (concatenate 'string (sv-string (mp-Main::sv-to_lisp_namespace (sv-namespace sv-self))) (sv-string "::")))) nil)(setf sv-code (concatenate 'string (sv-string sv-ns) (sv-string (sv-code sv-self))))(setf sv-args "")(if (sv-bool (sv-arguments sv-self)) (progn (setf sv-args (sv-join (mapcar #'sv-emit (sv-arguments sv-self)) " "))) nil)(if (sv-bool (sv-eq sv-code "self")) (progn (return-from mp6-function "sv-self")) nil)(if (sv-bool (sv-eq sv-code "false")) (progn (return-from mp6-function "nil")) nil)(if (sv-bool (sv-eq sv-code "make")) (progn (return-from mp6-function (concatenate 'string (sv-string "(return-from mp6-function ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "substr")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-substr ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "say")) (progn (return-from mp6-function (concatenate 'string (sv-string "(mp-Main::sv-say (list ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) nil)(if (sv-bool (sv-eq sv-code "print")) (progn (return-from mp6-function (concatenate 'string (sv-string "(mp-Main::sv-print (list ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<~>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(concatenate 'string (sv-string ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 0) )) (sv-string (concatenate 'string (sv-string ") (sv-string ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 1) )) (sv-string "))")))))))))) nil)(if (sv-bool (sv-eq sv-code "warn")) (progn (return-from mp6-function (concatenate 'string (sv-string "(write-line (format nil \"~{~a~}\" (list ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")) *error-output*)")))))) nil)(if (sv-bool (sv-eq sv-code "die")) (progn (return-from mp6-function (concatenate 'string (sv-string "(progn (write-line (format nil \"~{~a~}\" (list ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")) *error-output*) (sb-ext:quit))")))))) nil)(if (sv-bool (sv-eq sv-code "array")) (progn (return-from mp6-function sv-args)) nil)(if (sv-bool (sv-eq sv-code "prefix:<~>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-string ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "prefix:<!>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(not (sv-bool ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) nil)(if (sv-bool (sv-eq sv-code "prefix:<?>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-bool ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "prefix:<$>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-scalar ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "prefix:<@>")) (progn (return-from mp6-function sv-args)) nil)(if (sv-bool (sv-eq sv-code "prefix:<%>")) (progn (return-from mp6-function sv-args)) nil)(if (sv-bool (sv-eq sv-code "infix:<+>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(+ ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<->")) (progn (return-from mp6-function (concatenate 'string (sv-string "(-") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<>>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(> ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<&&>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-and ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<||>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-or ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<eq>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(sv-eq ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<ne>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(not (sv-eq ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<==>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(eql ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")")))))) nil)(if (sv-bool (sv-eq sv-code "infix:<!=>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(not (eql ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string "))")))))) nil)(if (sv-bool (sv-eq sv-code "ternary:<?? !!>")) (progn (return-from mp6-function (concatenate 'string (sv-string "(if (sv-bool ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 0) )) (sv-string (concatenate 'string (sv-string ") ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 1) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit (elt (sv-arguments sv-self) 2) )) (sv-string ")")))))))))))))) nil)(return-from mp6-function (concatenate 'string (sv-string "(") (sv-string (concatenate 'string (sv-string sv-ns) (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-code sv-self))) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string sv-args) (sv-string ")"))))))))))))))
 
 (defmethod sv-perl ((self mp-Apply))
   (mp-Main::sv-lisp_dump_object "::Apply" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "code") (setf (sv-value m) (sv-code self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "arguments") (setf (sv-value m) (sv-arguments self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "namespace") (setf (sv-value m) (sv-namespace self)) m) )))
@@ -1025,8 +1025,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-result
   :readers '(sv-result)
   :writers '((setf sv-result))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Return)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1064,8 +1064,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-cond
   :readers '(sv-cond)
   :writers '((setf sv-cond))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-If)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1079,8 +1079,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-body
   :readers '(sv-body)
   :writers '((setf sv-body))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-If)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1094,8 +1094,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-otherwise
   :readers '(sv-otherwise)
   :writers '((setf sv-otherwise))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-If)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1111,7 +1111,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-If))
   (block mp6-function
-    (let ((sv-block1 nil)(sv-block2 nil)) (setf sv-block1 (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-body sv-self)) m))(setf sv-block2 (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-otherwise sv-self)) m))(concatenate 'string (sv-string "(if (sv-bool ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-cond sv-self) )) (sv-string (concatenate 'string (sv-string ") ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block1 )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block2 )) (sv-string ")")))))))))))))))
+    (let ((sv-block1 (sv-undef))(sv-block2 (sv-undef))) (setf sv-block1 (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-body sv-self)) m))(setf sv-block2 (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-otherwise sv-self)) m))(concatenate 'string (sv-string "(if (sv-bool ") (sv-string (concatenate 'string (sv-string (sv-emit (sv-cond sv-self) )) (sv-string (concatenate 'string (sv-string ") ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block1 )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block2 )) (sv-string ")")))))))))))))))
 
 (defmethod sv-perl ((self mp-If))
   (mp-Main::sv-lisp_dump_object "::If" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "cond") (setf (sv-value m) (sv-cond self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "body") (setf (sv-value m) (sv-body self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "otherwise") (setf (sv-value m) (sv-otherwise self)) m) )))
@@ -1133,8 +1133,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-cond
   :readers '(sv-cond)
   :writers '((setf sv-cond))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-For)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1148,8 +1148,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-body
   :readers '(sv-body)
   :writers '((setf sv-body))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-For)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1163,8 +1163,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-topic
   :readers '(sv-topic)
   :writers '((setf sv-topic))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-For)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1180,7 +1180,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-For))
   (block mp6-function
-    (let ((sv-cond nil)(sv-block nil)) (setf sv-cond (sv-cond sv-self))(setf sv-block (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-body sv-self)) m))(if (sv-bool (sv-and (typep sv-cond 'mp-Var) (sv-eq (sv-sigil sv-cond ) "@"))) (progn (setf sv-cond (let ((m (make-instance 'mp-Apply))) (setf (sv-code m) "prefix:<@>")(setf (sv-arguments m) (concatenate 'list  (list sv-cond))) m))) (progn ))(concatenate 'string (sv-string "(dolist (") (sv-string (concatenate 'string (sv-string (sv-emit (sv-topic sv-self) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit sv-cond )) (sv-string (concatenate 'string (sv-string ") ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block )) (sv-string ")")))))))))))))))
+    (let ((sv-cond (sv-undef))(sv-block (sv-undef))) (setf sv-cond (sv-cond sv-self))(setf sv-block (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-body sv-self)) m))(if (sv-bool (sv-and (typep sv-cond 'mp-Var) (sv-eq (sv-sigil sv-cond ) "@"))) (progn (setf sv-cond (let ((m (make-instance 'mp-Apply))) (setf (sv-code m) "prefix:<@>")(setf (sv-arguments m) (concatenate 'list  (list sv-cond))) m))) nil)(concatenate 'string (sv-string "(dolist (") (sv-string (concatenate 'string (sv-string (sv-emit (sv-topic sv-self) )) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-emit sv-cond )) (sv-string (concatenate 'string (sv-string ") ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block )) (sv-string ")")))))))))))))))
 
 (defmethod sv-perl ((self mp-For))
   (mp-Main::sv-lisp_dump_object "::For" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "cond") (setf (sv-value m) (sv-cond self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "body") (setf (sv-value m) (sv-body self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "topic") (setf (sv-value m) (sv-topic self)) m) )))
@@ -1202,8 +1202,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-decl
   :readers '(sv-decl)
   :writers '((setf sv-decl))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Decl)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1217,8 +1217,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-type
   :readers '(sv-type)
   :writers '((setf sv-type))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Decl)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1232,8 +1232,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-var
   :readers '(sv-var)
   :writers '((setf sv-var))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Decl)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1249,7 +1249,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Decl))
   (block mp6-function
-    (let ((sv-decl nil)(sv-name nil)) (setf sv-decl (sv-decl sv-self))(setf sv-name (sv-name (sv-var sv-self) ))(if (sv-bool (sv-eq sv-decl "has")) (concatenate 'string (sv-string "sub ") (sv-string (concatenate 'string (sv-string sv-name) (sv-string (concatenate 'string (sv-string " { ") (sv-string (concatenate 'string (sv-string "@_ == 1 ") (sv-string (concatenate 'string (sv-string "? ( $_[0]->{") (sv-string (concatenate 'string (sv-string sv-name) (sv-string (concatenate 'string (sv-string "} ) ") (sv-string (concatenate 'string (sv-string ": ( $_[0]->{") (sv-string (concatenate 'string (sv-string sv-name) (sv-string (concatenate 'string (sv-string "} = $_[1] ) ") (sv-string "}")))))))))))))))))))) (concatenate 'string (sv-string (sv-decl sv-self)) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-type sv-self)) (sv-string (concatenate 'string (sv-string " ") (sv-string (sv-emit (sv-var sv-self) )))))))))))))
+    (let ((sv-decl (sv-undef))(sv-name (sv-undef))) (setf sv-decl (sv-decl sv-self))(setf sv-name (sv-name (sv-var sv-self) ))(if (sv-bool (sv-eq sv-decl "has")) (concatenate 'string (sv-string "sub ") (sv-string (concatenate 'string (sv-string sv-name) (sv-string (concatenate 'string (sv-string " { ") (sv-string (concatenate 'string (sv-string "@_ == 1 ") (sv-string (concatenate 'string (sv-string "? ( $_[0]->{") (sv-string (concatenate 'string (sv-string sv-name) (sv-string (concatenate 'string (sv-string "} ) ") (sv-string (concatenate 'string (sv-string ": ( $_[0]->{") (sv-string (concatenate 'string (sv-string sv-name) (sv-string (concatenate 'string (sv-string "} = $_[1] ) ") (sv-string "}")))))))))))))))))))) (concatenate 'string (sv-string (sv-decl sv-self)) (sv-string (concatenate 'string (sv-string " ") (sv-string (concatenate 'string (sv-string (sv-type sv-self)) (sv-string (concatenate 'string (sv-string " ") (sv-string (sv-emit (sv-var sv-self) )))))))))))))
 
 (defmethod sv-perl ((self mp-Decl))
   (mp-Main::sv-lisp_dump_object "::Decl" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "decl") (setf (sv-value m) (sv-decl self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "type") (setf (sv-value m) (sv-type self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "var") (setf (sv-value m) (sv-var self)) m) )))
@@ -1271,8 +1271,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-invocant
   :readers '(sv-invocant)
   :writers '((setf sv-invocant))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Sig)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1286,8 +1286,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-positional
   :readers '(sv-positional)
   :writers '((setf sv-positional))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Sig)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1301,8 +1301,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-named
   :readers '(sv-named)
   :writers '((setf sv-named))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Sig)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1340,8 +1340,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-name
   :readers '(sv-name)
   :writers '((setf sv-name))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Method)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1355,8 +1355,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-sig
   :readers '(sv-sig)
   :writers '((setf sv-sig))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Method)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1370,8 +1370,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-block
   :readers '(sv-block)
   :writers '((setf sv-block))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Method)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1387,7 +1387,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Method))
   (block mp6-function
-    (progn )))
+    nil))
 
 (defmethod sv-perl ((self mp-Method))
   (mp-Main::sv-lisp_dump_object "::Method" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "name") (setf (sv-value m) (sv-name self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "sig") (setf (sv-value m) (sv-sig self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "block") (setf (sv-value m) (sv-block self)) m) )))
@@ -1409,8 +1409,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-name
   :readers '(sv-name)
   :writers '((setf sv-name))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Sub)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1424,8 +1424,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-sig
   :readers '(sv-sig)
   :writers '((setf sv-sig))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Sub)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1439,8 +1439,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-block
   :readers '(sv-block)
   :writers '((setf sv-block))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Sub)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1456,7 +1456,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Sub))
   (block mp6-function
-    (let ((sv-sig nil)(sv-pos nil)(sv-block nil)(sv-str nil)) (setf sv-sig (sv-sig sv-self))(setf sv-pos (sv-positional sv-sig ))(setf sv-block (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-block sv-self)) m))(if (sv-bool sv-pos) (progn (dolist (sv-field sv-pos) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string (sv-emit sv-field )) (sv-string " ")))))))) (progn ))(if (sv-bool sv-str) (progn (setf sv-str (concatenate 'string (sv-string "&optional ") (sv-string sv-str)))) (progn ))(if (sv-bool (sv-name sv-self)) (progn (concatenate 'string (sv-string "(defun ") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-name sv-self))) (sv-string (concatenate 'string (sv-string " (") (sv-string (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string ")") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  (block mp6-function ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block )) (sv-string (concatenate 'string (sv-string "))") (sv-string (sv-newline (proto-mp-Main) )))))))))))))))))))) (progn (concatenate 'string (sv-string "(lambda ") (sv-string (concatenate 'string (sv-string (sv-name sv-self)) (sv-string (concatenate 'string (sv-string " (") (sv-string (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string ")") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  (block mp6-function ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block )) (sv-string (concatenate 'string (sv-string "))") (sv-string (sv-newline (proto-mp-Main) ))))))))))))))))))))))))
+    (let ((sv-sig (sv-undef))(sv-pos (sv-undef))(sv-block (sv-undef))(sv-str (sv-undef))) (setf sv-sig (sv-sig sv-self))(setf sv-pos (sv-positional sv-sig ))(setf sv-block (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-block sv-self)) m))(if (sv-bool sv-pos) (progn (dolist (sv-field sv-pos) (progn (setf sv-str (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string (sv-emit sv-field )) (sv-string " ")))))))) nil)(if (sv-bool sv-str) (progn (setf sv-str (concatenate 'string (sv-string "&optional ") (sv-string sv-str)))) nil)(if (sv-bool (sv-name sv-self)) (progn (concatenate 'string (sv-string "(defun ") (sv-string (concatenate 'string (sv-string (mp-Main::sv-to_lisp_identifier (sv-name sv-self))) (sv-string (concatenate 'string (sv-string " (") (sv-string (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string ")") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  (block mp6-function ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block )) (sv-string (concatenate 'string (sv-string "))") (sv-string (sv-newline (proto-mp-Main) )))))))))))))))))))) (progn (concatenate 'string (sv-string "(lambda ") (sv-string (concatenate 'string (sv-string (sv-name sv-self)) (sv-string (concatenate 'string (sv-string " (") (sv-string (concatenate 'string (sv-string sv-str) (sv-string (concatenate 'string (sv-string ")") (sv-string (concatenate 'string (sv-string (sv-newline (proto-mp-Main) )) (sv-string (concatenate 'string (sv-string "  (block mp6-function ") (sv-string (concatenate 'string (sv-string (sv-emit sv-block )) (sv-string (concatenate 'string (sv-string "))") (sv-string (sv-newline (proto-mp-Main) ))))))))))))))))))))))))
 
 (defmethod sv-perl ((self mp-Sub))
   (mp-Main::sv-lisp_dump_object "::Sub" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "name") (setf (sv-value m) (sv-name self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "sig") (setf (sv-value m) (sv-sig self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "block") (setf (sv-value m) (sv-block self)) m) )))
@@ -1478,8 +1478,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-block
   :readers '(sv-block)
   :writers '((setf sv-block))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Do)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -1495,7 +1495,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Do))
   (block mp6-function
-    (let ((sv-block nil)) (setf sv-block (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-block sv-self)) m))(return-from mp6-function (sv-emit sv-block )))))
+    (let ((sv-block (sv-undef))) (setf sv-block (let ((m (make-instance 'mp-MiniPerl6-Lisp-LexicalBlock))) (setf (sv-block m) (sv-block sv-self)) m))(return-from mp6-function (sv-emit sv-block )))))
 
 (defmethod sv-perl ((self mp-Do))
   (mp-Main::sv-lisp_dump_object "::Do" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "block") (setf (sv-value m) (sv-block self)) m) )))
@@ -1517,8 +1517,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-mod
   :readers '(sv-mod)
   :writers '((setf sv-mod))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Use)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)

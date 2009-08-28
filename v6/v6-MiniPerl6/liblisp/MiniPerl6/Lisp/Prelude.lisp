@@ -13,8 +13,8 @@
 (let ((new-slots (list (list :name 'sv-from
   :readers '(sv-from)
   :writers '((setf sv-from))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-MiniPerl6-Match)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -28,8 +28,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-to
   :readers '(sv-to)
   :writers '((setf sv-to))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-MiniPerl6-Match)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -43,8 +43,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-str
   :readers '(sv-str)
   :writers '((setf sv-str))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-MiniPerl6-Match)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -58,8 +58,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-bool
   :readers '(sv-bool)
   :writers '((setf sv-bool))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-MiniPerl6-Match)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -73,8 +73,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-capture
   :readers '(sv-capture)
   :writers '((setf sv-capture))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-MiniPerl6-Match)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -90,7 +90,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-scalar ((sv-self mp-MiniPerl6-Match))
   (block mp6-function
-    (progn (if (sv-bool (sv-bool sv-self)) (progn (if (sv-bool (sv-capture sv-self)) (progn (return-from mp6-function (sv-capture sv-self))) (progn ))(return-from mp6-function (sv-substr (sv-str sv-self) (sv-from sv-self) (-(sv-to sv-self) (sv-from sv-self))))) (progn (return-from mp6-function ""))))))
+    (progn (if (sv-bool (sv-bool sv-self)) (progn (if (sv-bool (sv-defined (sv-capture sv-self))) (progn (return-from mp6-function (sv-capture sv-self))) nil)(return-from mp6-function (sv-substr (sv-str sv-self) (sv-from sv-self) (-(sv-to sv-self) (sv-from sv-self))))) (progn (return-from mp6-function ""))))))
 
 ;; method string
 (if (not (ignore-errors (find-method 'sv-string () ())))
@@ -98,7 +98,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-string ((sv-self mp-MiniPerl6-Match))
   (block mp6-function
-    (progn (if (sv-bool (sv-bool sv-self)) (progn (if (sv-bool (sv-capture sv-self)) (progn (return-from mp6-function (sv-capture sv-self))) (progn ))(return-from mp6-function (sv-substr (sv-str sv-self) (sv-from sv-self) (-(sv-to sv-self) (sv-from sv-self))))) (progn (return-from mp6-function ""))))))
+    (progn (if (sv-bool (sv-bool sv-self)) (progn (if (sv-bool (sv-defined (sv-capture sv-self))) (progn (return-from mp6-function (sv-capture sv-self))) nil)(return-from mp6-function (sv-substr (sv-str sv-self) (sv-from sv-self) (-(sv-to sv-self) (sv-from sv-self))))) (progn (return-from mp6-function ""))))))
 
 (defmethod sv-perl ((self mp-MiniPerl6-Match))
   (mp-Main::sv-lisp_dump_object "::MiniPerl6::Match" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "from") (setf (sv-value m) (sv-from self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "to") (setf (sv-value m) (sv-to self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "str") (setf (sv-value m) (sv-str self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "bool") (setf (sv-value m) (sv-bool self)) m) (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "capture") (setf (sv-value m) (sv-capture self)) m) )))
@@ -120,8 +120,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-key
   :readers '(sv-key)
   :writers '((setf sv-key))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Pair)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -135,8 +135,8 @@ new-slots))
 (let ((new-slots (list (list :name 'sv-value
   :readers '(sv-value)
   :writers '((setf sv-value))
-  :initform 'nil
-  :initfunction (constantly nil)))))
+  :initform '(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class 'mp-Pair)))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)

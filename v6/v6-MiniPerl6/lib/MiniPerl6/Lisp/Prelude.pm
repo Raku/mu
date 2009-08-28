@@ -9,7 +9,7 @@ class MiniPerl6::Match {
 
     method scalar {
         if $.bool {
-            if $.capture {
+            if defined($.capture) {
                 return $.capture;
             }
             return substr( $.str, $.from, ( $.to - $.from ) );
@@ -21,7 +21,7 @@ class MiniPerl6::Match {
 
     method string {
         if $.bool {
-            if $.capture {
+            if defined($.capture) {
                 return $.capture;
             }
             return substr( $.str, $.from, ( $.to - $.from ) );

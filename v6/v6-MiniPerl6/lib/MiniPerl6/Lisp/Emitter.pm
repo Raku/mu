@@ -3,6 +3,9 @@ use v6-alpha;
 class MiniPerl6::Lisp::LexicalBlock {
     has @.block;
     method emit {
+        if !(@.block) {
+            return 'nil';
+        }
         my $str := '';
         my $has_my_decl := 0;
         my $my_decl := '';
@@ -10,12 +13,12 @@ class MiniPerl6::Lisp::LexicalBlock {
         for @.block -> $decl { 
             if $decl.isa( 'Decl' ) && ( $decl.decl eq 'my' ) {
                 $has_my_decl := 1;
-                $my_decl := $my_decl ~ '(' ~ ($decl.var).emit ~ ' nil)'; 
+                $my_decl := $my_decl ~ '(' ~ ($decl.var).emit ~ ' (sv-undef))'; 
                 # $silence_unused_warning := $silence_unused_warning ~ ' ' ~ ($decl.var).emit;
             }
             if $decl.isa( 'Bind' ) && ($decl.parameters).isa( 'Decl' ) && ( ($decl.parameters).decl eq 'my' ) {
                 $has_my_decl := 1;
-                $my_decl := $my_decl ~ '(' ~ (($decl.parameters).var).emit ~ ' nil)'; 
+                $my_decl := $my_decl ~ '(' ~ (($decl.parameters).var).emit ~ ' (sv-undef))'; 
                 # $silence_unused_warning := $silence_unused_warning ~ ' ' ~ (($decl.parameters).var).emit;
             }
         }
@@ -59,12 +62,12 @@ class CompUnit {
         for @.body -> $decl { 
             if $decl.isa( 'Decl' ) && ( $decl.decl eq 'my' ) {
                 $has_my_decl := 1;
-                $my_decl := $my_decl ~ '(' ~ ($decl.var).emit ~ ' nil)'; 
+                $my_decl := $my_decl ~ '(' ~ ($decl.var).emit ~ ' (sv-undef))'; 
                 # $silence_unused_warning := $silence_unused_warning ~ ' ' ~ ($decl.var).emit;
             }
             if $decl.isa( 'Bind' ) && ($decl.parameters).isa( 'Decl' ) && ( ($decl.parameters).decl eq 'my' ) {
                 $has_my_decl := 1;
-                $my_decl := $my_decl ~ '(' ~ (($decl.parameters).var).emit ~ ' nil)'; 
+                $my_decl := $my_decl ~ '(' ~ (($decl.parameters).var).emit ~ ' (sv-undef))'; 
                 # $silence_unused_warning := $silence_unused_warning ~ ' ' ~ (($decl.parameters).var).emit;
             }
         }
@@ -101,8 +104,8 @@ class CompUnit {
 (let ((new-slots (list (list :name \'' ~ Main::to_lisp_identifier($accessor_name)  ~ '
   :readers \'(' ~ Main::to_lisp_identifier($accessor_name)  ~ ')
   :writers \'((setf ' ~ Main::to_lisp_identifier($accessor_name)  ~ '))
-  :initform \'nil
-  :initfunction (constantly nil)))))
+  :initform \'(sv-undef)
+  :initfunction (constantly (sv-undef))))))
 (dolist (slot-defn (sb-mop:class-direct-slots (find-class \'' ~ $class_name  ~ ')))
 (push (list :name (sb-mop:slot-definition-name slot-defn)
   :readers (sb-mop:slot-definition-readers slot-defn)
@@ -193,7 +196,7 @@ class Val::Buf {
 }
 
 class Val::Undef {
-    method emit { 'nil' }
+    method emit { '(sv-undef)' }
 }
 
 class Val::Object {
@@ -384,6 +387,9 @@ class Call {
 
         if $.method eq 'isa' {        
             # (typep "abc" 'Xyz)
+            if ((@.arguments[0]).buf) eq 'Str' {
+                return '(typep ' ~ $invocant ~ ' \'string)'; 
+            }
             return '(typep ' ~ $invocant ~ ' \'' ~ Main::to_lisp_namespace((@.arguments[0]).buf) ~ ')'; 
         }
 
@@ -465,7 +471,6 @@ class Apply {
         if $code eq 'infix:<+>'  { return '(+ '  ~ $args  ~ ')' };
         if $code eq 'infix:<->'  { return '(-'   ~ $args  ~ ')' };
         if $code eq 'infix:<>>'  { return '(> '  ~ $args  ~ ')' };
-        # if $code eq 'infix:<x>'  { return '(x '  ~ $args  ~ ')' };
         
         if $code eq 'infix:<&&>' { return '(sv-and ' ~ $args ~ ')' };
         if $code eq 'infix:<||>' { return '(sv-or '  ~ $args ~ ')' };
@@ -476,9 +481,9 @@ class Apply {
         if $code eq 'infix:<!=>' { return '(not (eql '  ~ $args ~ '))' };
 
         if $code eq 'ternary:<?? !!>' { 
-            return '(if (sv-bool ' ~ (@.arguments[0]).emit ~ ') ' ~ (@.arguments[1]).emit ~ ' ' ~ (@.arguments[2]).emit ~ ')' };
-        
-        '(' ~ $ns ~ Main::to_lisp_identifier($.code) ~ ' ' ~ $args ~ ')';
+            return '(if (sv-bool ' ~ (@.arguments[0]).emit ~ ') ' ~ (@.arguments[1]).emit ~ ' ' ~ (@.arguments[2]).emit ~ ')';
+        } 
+        return '(' ~ $ns ~ Main::to_lisp_identifier($.code) ~ ' ' ~ $args ~ ')';
     }
 }
 

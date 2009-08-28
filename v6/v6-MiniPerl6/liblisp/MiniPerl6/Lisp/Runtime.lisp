@@ -14,10 +14,26 @@
   (:use common-lisp)
   (:export 
         #:sv-eq #:sv-bool #:sv-substr #:sv-say #:sv-print #:sv-index 
-        #:sv-and #:sv-or #:sv-perl #:sv-scalar #:sv-string))
+        #:sv-and #:sv-or #:sv-perl #:sv-scalar #:sv-string #:sv-undef
+        #:sv-defined))
 (in-package mp-Main)
 
+;; "undef"
+
+(if (not (ignore-errors (find-class 'mp-Undef)))
+  (defclass mp-Undef () ()))
+(let (x)
+  (setq x (make-instance 'mp-Undef))
+  (defun proto-mp-Undef () x)
+  (defun sv-undef () x))
+
 ;; core functions
+
+(if (not (ignore-errors (find-method 'sv-defined () ())))
+  (defgeneric sv-defined (x)
+      (:documentation "check if a value is defined")))
+(defmethod sv-defined (x) t)
+(defmethod sv-defined ((x mp-Undef)) nil)
 
 (defun sv-say (l)
   (format t "~{~a~}~%" l))
@@ -39,6 +55,7 @@
       (:documentation "stringify values")))
 (defmethod sv-string (x) x)
 (defmethod sv-string ((x number)) (format nil "~a" x))
+(defmethod sv-string ((x mp-Undef)) "")
 
 (if (not (ignore-errors (find-method 'sv-eq () ())))
   (defgeneric sv-eq (x y)
@@ -54,6 +71,7 @@
   (defgeneric sv-bool (self)
       (:documentation "get a bool value")))
 (defmethod sv-bool (x) x)
+(defmethod sv-bool ((x mp-Undef)) nil)
 (defmethod sv-bool ((x number)) (not (eql x 0)))
 (defmethod sv-bool ((x string)) (and (not (equal x "")) (not (equal x "0"))))
 
@@ -79,6 +97,7 @@
 (defmethod sv-perl (x)          (format nil "~A" x))
 (defmethod sv-perl ((x string)) (format nil "~{~a~}" (list "'" (sv-perl_escape_string x) "'")))
 (defmethod sv-perl ((x list))   (format nil "~{~a~}" (list "[ " (sv-join (mapcar #'sv-perl x) ", ") " ]" )))
+(defmethod sv-perl ((x mp-Undef)) "undef")
 (defmethod sv-perl ((x hash-table))
    (format nil "~{~a~}" (list
         "{ " 
@@ -185,7 +204,7 @@
 (defmethod sv-array ((m mp-MiniPerl6-Match)) 
   (or 
     (ignore-errors (slot-value m 'array))
-    (setf (slot-value m 'array) (list nil nil nil))))
+    (setf (slot-value m 'array) (list (sv-undef) (sv-undef) (sv-undef)))))
     ;; (setf (slot-value m 'array) (make-array 10 :adjustable 1))))
 
 ;; compiler utils

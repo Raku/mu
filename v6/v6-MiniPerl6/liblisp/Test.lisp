@@ -3,7 +3,7 @@
 (defpackage mp-Test
   (:use common-lisp mp-Main))
 ;; (in-package mp-Test)
-(let ((sv-num_of_tests_run nil)(sv-num_of_tests_failed nil)(sv-num_of_tests_badpass nil)(sv-num_of_tests_planned nil)(sv-testing_started nil))
+(let ((sv-num_of_tests_run (sv-undef))(sv-num_of_tests_failed (sv-undef))(sv-num_of_tests_badpass (sv-undef))(sv-num_of_tests_planned (sv-undef))(sv-testing_started (sv-undef)))
 (if (not (ignore-errors (find-class 'mp-Test)))
   (defclass mp-Test () ()))
 
@@ -22,17 +22,17 @@
 (in-package mp-Main)
 (in-package mp-Test)
   (defun sv-is (&optional sv-got sv-expected sv-desc sv-todo sv-depends )
-  (block mp6-function (let ((sv-test nil)) (setf sv-test (sv-eq sv-got sv-expected))(mp-Test::sv-proclaim sv-test (concatenate 'string (sv-string "is! ") (sv-string sv-desc)) sv-todo sv-got sv-expected sv-depends))))
+  (block mp6-function (let ((sv-test (sv-undef))) (setf sv-test (sv-eq sv-got sv-expected))(mp-Test::sv-proclaim sv-test (concatenate 'string (sv-string "is! ") (sv-string sv-desc)) sv-todo sv-got sv-expected sv-depends))))
 
 (in-package mp-Main)
 (in-package mp-Test)
   (defun sv-is_deeply (&optional sv-got sv-expected sv-desc sv-todo sv-depends )
-  (block mp6-function (let ((sv-got_perl nil)(sv-expected_perl nil)(sv-test nil)) (setf sv-got_perl (sv-perl sv-got ))(setf sv-expected_perl (sv-perl sv-expected ))(setf sv-test (sv-eq sv-got_perl sv-expected_perl))(mp-Test::sv-proclaim sv-test (concatenate 'string (sv-string "is deeply! ") (sv-string sv-desc)) sv-todo sv-got_perl sv-expected_perl sv-depends))))
+  (block mp6-function (let ((sv-got_perl (sv-undef))(sv-expected_perl (sv-undef))(sv-test (sv-undef))) (setf sv-got_perl (sv-perl sv-got ))(setf sv-expected_perl (sv-perl sv-expected ))(setf sv-test (sv-eq sv-got_perl sv-expected_perl))(mp-Test::sv-proclaim sv-test (concatenate 'string (sv-string "is deeply! ") (sv-string sv-desc)) sv-todo sv-got_perl sv-expected_perl sv-depends))))
 
 (in-package mp-Main)
 (in-package mp-Test)
   (defun sv-isnt (&optional sv-got sv-expected sv-desc sv-todo sv-depends )
-  (block mp6-function (let ((sv-test nil)) (setf sv-test (not (sv-bool (sv-eq sv-got sv-expected))))(mp-Test::sv-proclaim sv-test (concatenate 'string (sv-string "isnt! ") (sv-string sv-desc)) sv-todo sv-got sv-expected sv-depends (let ((h (make-hash-table :test 'equal))) (setf (gethash "negate" h) 1) h)))))
+  (block mp6-function (let ((sv-test (sv-undef))) (setf sv-test (not (sv-bool (sv-eq sv-got sv-expected))))(mp-Test::sv-proclaim sv-test (concatenate 'string (sv-string "isnt! ") (sv-string sv-desc)) sv-todo sv-got sv-expected sv-depends (let ((h (make-hash-table :test 'equal))) (setf (gethash "negate" h) 1) h)))))
 
 (in-package mp-Main)
 (in-package mp-Test)
@@ -107,7 +107,7 @@
 (in-package mp-Main)
 (in-package mp-Test)
   (defun sv-test_ends ()
-  (block mp6-function (progn (if (sv-bool (not (sv-bool sv-testing_started))) (progn (return-from mp6-function nil)) (progn ))(if (sv-bool (not (sv-bool sv-num_of_tests_planned))) (progn (mp-Main::sv-say (list (concatenate 'string (sv-string "1..") (sv-string sv-num_of_tests_run))))) (progn ))(if (sv-bool (not (eql sv-num_of_tests_planned sv-num_of_tests_run))) (progn (mp-Main::sv-say (list (concatenate 'string (sv-string "# Looks like you planned ") (sv-string (concatenate 'string (sv-string sv-num_of_tests_planned) (sv-string (concatenate 'string (sv-string " tests, but ran ") (sv-string sv-num_of_tests_run))))))))) (progn ))(if (sv-bool sv-num_of_tests_failed) (progn (mp-Main::sv-say (list (concatenate 'string (sv-string "# Looks like you failed ") (sv-string (concatenate 'string (sv-string sv-num_of_tests_failed) (sv-string (concatenate 'string (sv-string " tests of ") (sv-string sv-num_of_tests_run))))))))) (progn ))(setf sv-num_of_tests_run 0)(setf sv-num_of_tests_failed 0)(setf sv-num_of_tests_planned 0)(setf sv-testing_started 0))))
+  (block mp6-function (progn (if (sv-bool (not (sv-bool sv-testing_started))) (progn (return-from mp6-function (sv-undef))) nil)(if (sv-bool (not (sv-bool sv-num_of_tests_planned))) (progn (mp-Main::sv-say (list (concatenate 'string (sv-string "1..") (sv-string sv-num_of_tests_run))))) nil)(if (sv-bool (not (eql sv-num_of_tests_planned sv-num_of_tests_run))) (progn (mp-Main::sv-say (list (concatenate 'string (sv-string "# Looks like you planned ") (sv-string (concatenate 'string (sv-string sv-num_of_tests_planned) (sv-string (concatenate 'string (sv-string " tests, but ran ") (sv-string sv-num_of_tests_run))))))))) nil)(if (sv-bool sv-num_of_tests_failed) (progn (mp-Main::sv-say (list (concatenate 'string (sv-string "# Looks like you failed ") (sv-string (concatenate 'string (sv-string sv-num_of_tests_failed) (sv-string (concatenate 'string (sv-string " tests of ") (sv-string sv-num_of_tests_run))))))))) nil)(setf sv-num_of_tests_run 0)(setf sv-num_of_tests_failed 0)(setf sv-num_of_tests_planned 0)(setf sv-testing_started 0))))
 
 (in-package mp-Main)
 (defmethod sv-perl ((self mp-Test))

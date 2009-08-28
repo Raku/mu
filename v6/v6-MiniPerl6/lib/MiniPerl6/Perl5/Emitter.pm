@@ -136,7 +136,7 @@ class Var {
             !!   ( $table{$.sigil} ~ $ns ~ $.name )
             )
     };
-    method name {
+    method plain_name {
         if $.namespace {
             return $.namespace ~ '::' ~ $.name
         }
@@ -359,6 +359,13 @@ class If {
     has @.otherwise;
     method emit {
         my $cond := $.cond;
+
+        if   $cond.isa( 'Apply' ) 
+          && $cond.code eq 'prefix:<!>' 
+        {
+            my $if := ::If( cond => ($cond.arguments)[0], body => @.otherwise, otherwise => @.body );
+            return $if.emit;
+        }
         if   $cond.isa( 'Var' ) 
           && $cond.sigil eq '@' 
         {
@@ -389,7 +396,7 @@ class Decl {
     has $.var;
     method emit {
         my $decl := $.decl;
-        my $name := $.var.name;
+        my $name := $.var.plain_name;
            ( $decl eq 'has' )
         ?? ( 'sub ' ~ $name ~ ' { ' ~
             '@_ == 1 ' ~
@@ -407,12 +414,6 @@ class Sig {
     method emit {
         ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
-    # method invocant {
-    #     $.invocant
-    # };
-    # method positional {
-    #     $.positional
-    # }
 }
 
 class Method {
@@ -420,17 +421,12 @@ class Method {
     has $.sig;
     has @.block;
     method emit {
-        # TODO - signature binding
         my $sig := $.sig;
-        # say "Sig: ", $sig.perl;
         my $invocant := $sig.invocant; 
-        # say $invocant.emit;
-
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \\@_; ';   # no strict "vars"; ';
+        my $str := 'my $List__ = \\@_; ';   
 
         # TODO - follow recursively
-        my $pos := $sig.positional;
         for @$pos -> $field { 
             if ( $field.isa('Lit::Array') ) {
                 $str := $str ~ 'my (' ~ (($field.array).>>emit).join(', ') ~ '); ';
@@ -445,14 +441,6 @@ class Method {
             'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
         );
         $str := $str ~ $bind.emit ~ '; ';
-
-#        my $pos := $sig.positional;
-#        my $str := '';
-#        my $i := 1;
-#        for @$pos -> $field { 
-#            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
-#            $i := $i + 1;
-#        };
 
         'sub ' ~ $.name ~ ' { ' ~ 
           'my ' ~ $invocant.emit ~ ' = shift; ' ~
@@ -467,16 +455,11 @@ class Sub {
     has $.sig;
     has @.block;
     method emit {
-        # TODO - signature binding
         my $sig := $.sig;
-        # say "Sig: ", $sig.perl;
-        ## my $invocant := $sig.invocant; 
-        # say $invocant.emit;
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \\@_; ';  # no strict "vars"; ';
+        my $str := 'my $List__ = \\@_; ';  
 
         # TODO - follow recursively
-        my $pos := $sig.positional;
         for @$pos -> $field { 
             if ( $field.isa('Lit::Array') ) {
                 $str := $str ~ 'my (' ~ (($field.array).>>emit).join(', ') ~ '); ';
@@ -484,7 +467,6 @@ class Sub {
             else {
                 $str := $str ~ 'my ' ~ $field.emit ~ '; ';
             };
-            #$str := $str ~ 'my ' ~ $field.emit ~ '; ';
         };
 
         my $bind := ::Bind( 
@@ -493,20 +475,7 @@ class Sub {
         );
         $str := $str ~ $bind.emit ~ '; ';
 
-#        my $i := 0;
-#        for @$pos -> $field { 
-#            my $bind := ::Bind( 
-#                'parameters' => $field, 
-#                'arguments'  => ::Index(
-#                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
-#                        index_exp  => ::Val::Int( int => $i )
-#                    ),
-#                );
-#            $str := $str ~ $bind.emit ~ '; ';
-#            $i := $i + 1;
-#        };
         'sub ' ~ $.name ~ ' { ' ~ 
-          ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
           (@.block.>>emit).join('; ') ~ 
         ' }'

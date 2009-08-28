@@ -113,7 +113,7 @@ sub twigil { @_ == 1 ? ( $_[0]->{twigil} ) : ( $_[0]->{twigil} = $_[1] ) };
 sub namespace { @_ == 1 ? ( $_[0]->{namespace} ) : ( $_[0]->{namespace} = $_[1] ) };
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }); (my  $ns = ''); do { if ($self->{namespace}) { ($ns = ($self->{namespace} . '::')) } else {  } }; (($self->{twigil} eq '.') ? ('$self->{' . ($self->{name} . '}')) : (($self->{name} eq '/') ? ($table->{$self->{sigil}} . 'MATCH') : ($table->{$self->{sigil}} . ($ns . $self->{name})))) };
-sub name { my $self = shift; my $List__ = \@_; do { [] }; do { if ($self->{namespace}) { return(($self->{namespace} . ('::' . $self->{name}))) } else {  } }; return($self->{name}) }
+sub plain_name { my $self = shift; my $List__ = \@_; do { [] }; do { if ($self->{namespace}) { return(($self->{namespace} . ('::' . $self->{name}))) } else {  } }; return($self->{name}) }
 
 
 ;
@@ -163,7 +163,7 @@ sub new { shift; bless { @_ }, "If" }
 sub cond { @_ == 1 ? ( $_[0]->{cond} ) : ( $_[0]->{cond} = $_[1] ) };
 sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
 sub otherwise { @_ == 1 ? ( $_[0]->{otherwise} ) : ( $_[0]->{otherwise} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $cond = $self->{cond}); do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) { ($cond = Apply->new( 'code' => 'prefix:<@>','arguments' => [$cond], )) } else {  } }; ('do { if (' . ($cond->emit() . (') { ' . (Main::join([ map { $_->emit() } @{ $self->{body} } ], ';') . (' } else { ' . (Main::join([ map { $_->emit() } @{ $self->{otherwise} } ], ';') . ' } }')))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $cond = $self->{cond}); do { if ((Main::isa($cond, 'Apply') && ($cond->code() eq 'prefix:<!>'))) { (my  $if = If->new( 'cond' => $cond->arguments()->[0],'body' => $self->{otherwise},'otherwise' => $self->{body}, ));return($if->emit()) } else {  } }; do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) { ($cond = Apply->new( 'code' => 'prefix:<@>','arguments' => [$cond], )) } else {  } }; ('do { if (' . ($cond->emit() . (') { ' . (Main::join([ map { $_->emit() } @{ $self->{body} } ], ';') . (' } else { ' . (Main::join([ map { $_->emit() } @{ $self->{otherwise} } ], ';') . ' } }')))))) }
 
 
 ;
@@ -181,7 +181,7 @@ sub new { shift; bless { @_ }, "Decl" }
 sub decl { @_ == 1 ? ( $_[0]->{decl} ) : ( $_[0]->{decl} = $_[1] ) };
 sub type { @_ == 1 ? ( $_[0]->{type} ) : ( $_[0]->{type} = $_[1] ) };
 sub var { @_ == 1 ? ( $_[0]->{var} ) : ( $_[0]->{var} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $decl = $self->{decl}); (my  $name = $self->{var}->name()); (($decl eq 'has') ? ('sub ' . ($name . (' { ' . ('@_ == 1 ' . ('? ( $_[0]->{' . ($name . ('} ) ' . (': ( $_[0]->{' . ($name . ('} = $_[1] ) ' . '}')))))))))) : ($self->{decl} . (' ' . ($self->{type} . (' ' . $self->{var}->emit()))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $decl = $self->{decl}); (my  $name = $self->{var}->plain_name()); (($decl eq 'has') ? ('sub ' . ($name . (' { ' . ('@_ == 1 ' . ('? ( $_[0]->{' . ($name . ('} ) ' . (': ( $_[0]->{' . ($name . ('} = $_[1] ) ' . '}')))))))))) : ($self->{decl} . (' ' . ($self->{type} . (' ' . $self->{var}->emit()))))) }
 
 
 ;
@@ -199,7 +199,7 @@ sub new { shift; bless { @_ }, "Method" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub sig { @_ == 1 ? ( $_[0]->{sig} ) : ( $_[0]->{sig} = $_[1] ) };
 sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $invocant = $sig->invocant()); (my  $pos = $sig->positional()); (my  $str = 'my $List__ = \\@_; '); (my  $pos = $sig->positional()); do { for my $field ( @{$pos} ) { do { if (Main::isa($field, 'Lit::Array')) { ($str = ($str . ('my (' . (Main::join([ map { $_->emit() } @{ $field->array() } ], ', ') . '); ')))) } else { ($str = ($str . ('my ' . ($field->emit() . '; ')))) } } } }; (my  $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ),'arguments' => Var->new( 'sigil' => '@','twigil' => '','name' => '_', ), )); ($str = ($str . ($bind->emit() . '; '))); ('sub ' . ($self->{name} . (' { ' . ('my ' . ($invocant->emit() . (' = shift; ' . ($str . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }')))))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $invocant = $sig->invocant()); (my  $pos = $sig->positional()); (my  $str = 'my $List__ = \\@_; '); do { for my $field ( @{$pos} ) { do { if (Main::isa($field, 'Lit::Array')) { ($str = ($str . ('my (' . (Main::join([ map { $_->emit() } @{ $field->array() } ], ', ') . '); ')))) } else { ($str = ($str . ('my ' . ($field->emit() . '; ')))) } } } }; (my  $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ),'arguments' => Var->new( 'sigil' => '@','twigil' => '','name' => '_', ), )); ($str = ($str . ($bind->emit() . '; '))); ('sub ' . ($self->{name} . (' { ' . ('my ' . ($invocant->emit() . (' = shift; ' . ($str . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }')))))))) }
 
 
 ;
@@ -208,7 +208,7 @@ sub new { shift; bless { @_ }, "Sub" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub sig { @_ == 1 ? ( $_[0]->{sig} ) : ( $_[0]->{sig} = $_[1] ) };
 sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $pos = $sig->positional()); (my  $str = 'my $List__ = \\@_; '); (my  $pos = $sig->positional()); do { for my $field ( @{$pos} ) { do { if (Main::isa($field, 'Lit::Array')) { ($str = ($str . ('my (' . (Main::join([ map { $_->emit() } @{ $field->array() } ], ', ') . '); ')))) } else { ($str = ($str . ('my ' . ($field->emit() . '; ')))) } } } }; (my  $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ),'arguments' => Var->new( 'sigil' => '@','twigil' => '','name' => '_', ), )); ($str = ($str . ($bind->emit() . '; '))); ('sub ' . ($self->{name} . (' { ' . ($str . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }'))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $pos = $sig->positional()); (my  $str = 'my $List__ = \\@_; '); do { for my $field ( @{$pos} ) { do { if (Main::isa($field, 'Lit::Array')) { ($str = ($str . ('my (' . (Main::join([ map { $_->emit() } @{ $field->array() } ], ', ') . '); ')))) } else { ($str = ($str . ('my ' . ($field->emit() . '; ')))) } } } }; (my  $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ),'arguments' => Var->new( 'sigil' => '@','twigil' => '','name' => '_', ), )); ($str = ($str . ($bind->emit() . '; '))); ('sub ' . ($self->{name} . (' { ' . ($str . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }'))))) }
 
 
 ;
