@@ -70,7 +70,7 @@ create-mp6-list.pl - create mp6-list executable
 =head1 SYNOPSIS
 
 	perl create-mp6-list.pl 
-	
+
 =head1 DESCRIPTION
 
 A simple Perl script to automate generation of mp6-lisp executable this should 
