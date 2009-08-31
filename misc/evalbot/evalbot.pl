@@ -64,7 +64,7 @@ package Evalbot;
             rakudo => {
                 chdir       => '../../../rakudo/',
                 cmd_line    => 'cat %i | PERL6LIB=lib ../p/bin/perl6 %program >> %out 2>&1',
-                revision    => sub { get_revision_from_file('/home/evalenv/rakudo/rakudo_revision')},
+                revision    => sub { get_revision_from_file('/home/evalenv/p/rakudo_revision')},
                 filter      => \&filter_pct,
                 program_prefix => "use Safe;\n",
             },
