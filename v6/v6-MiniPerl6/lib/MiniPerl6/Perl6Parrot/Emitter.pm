@@ -7,8 +7,7 @@ class CompUnit {
     has @.body;
     method emit {
         '# class ' ~ $.name ~ "; " ~ Main::newline ~
-        '# TODO - sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ Main::newline ~
-        (@.body.>>emit).join( "; " )
+        (@.body.>>emit).join( "; " ) ~ Main::newline;
     }
 }
 
@@ -79,37 +78,30 @@ class Lit::Object {
     has $.class;
     has @.fields;
     method emit {
-        # $.class ~ '->new( ' ~ @.fields.>>emit.join(', ') ~ ' )';
+        # $.class ~ '.new( ' ~ @.fields.>>emit.join(', ') ~ ' )';
         my $fields := @.fields;
         my $str := '';
         # say @fields.map(sub { $_[0].emit ~ ' => ' ~ $_[1].emit}).join(', ') ~ ')';
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
         }; 
-        $.class ~ '->new( ' ~ $str ~ ' )';
+        $.class ~ '.new( ' ~ $str ~ ' )';
     }
 }
 
 class Index {
     has $.obj;
-    has $.index;
+    has $.index_exp;
     method emit {
-        $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
-        # TODO
-        # if ($.obj.isa(Lit::Seq)) {
-        #    $.obj.emit ~ '[' ~ $.index.emit ~ ']';
-        # }
-        # else {
-        #    $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
-        # }
+        $.obj.emit ~ '.[' ~ $.index_exp.emit ~ ']';
     }
 }
 
 class Lookup {
     has $.obj;
-    has $.index;
+    has $.index_exp;
     method emit {
-        $.obj.emit ~ '->{' ~ $.index.emit ~ '}';
+        $.obj.emit ~ '.{' ~ $.index_exp.emit ~ '}';
     }
 }
 
@@ -130,7 +122,7 @@ class Var {
             '&' => '$Code_',
         };
            ( $.twigil eq '.' )
-        ?? ( '$self->{' ~ $.name ~ '}' )
+        ?? ( '$self.{' ~ $.name ~ '}' )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
             !!   ( $table{$.sigil} ~ $.name )
@@ -159,7 +151,7 @@ class Bind {
                     # 'arguments' => ($b[$i]) );
                     'arguments'  => ::Index(
                         obj    => $.arguments,
-                        index  => ::Val::Int( int => $i )
+                        index_exp  => ::Val::Int( int => $i )
                     )
                 );
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
@@ -245,7 +237,7 @@ class Call {
         { 
             if ($.hyper) {
                 return 
-                    '[ map { &Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
+                    '[ map { &Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @( ' ~ $invocant ~ ' ) ]';
             }
             else {
                 return
@@ -258,9 +250,9 @@ class Call {
              $meth := '';  
         };
         
-        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        my $call := '.' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
-            '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
+            '[ map { $_' ~ $call ~ ' } @( ' ~ $invocant ~ ' ) ]';
         }
         else {
             $invocant ~ $call;
@@ -278,25 +270,25 @@ class Apply {
 
         if $code.isa( 'Str' ) { }
         else {
-            return '(' ~ $.code.emit ~ ')->(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+            return '(' ~ $.code.emit ~ ').(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         };
 
         if $code eq 'self'       { return '$self' };
 
-        if $code eq 'say'        { return '&Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
-        if $code eq 'print'      { return '&Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'say'        { return 'say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'print'      { return 'print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
-        if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'array'      { return '@(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };
 
         if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'prefix:<!>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 0 : 1)' };
-        if $code eq 'prefix:<?>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 1 : 0)' };
+        if $code eq 'prefix:<!>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ?? 0 !! 1)' };
+        if $code eq 'prefix:<?>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ?? 1 !! 0)' };
 
-        if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<$>' { return '$(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };
+        if $code eq 'prefix:<@>' { return '@(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };
+        if $code eq 'prefix:<%>' { return '%(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };
 
-        if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit).join(' . ')  ~ ')' };
+        if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit).join(' ~ ')  ~ ')' };
         if $code eq 'infix:<+>'  { return '('  ~ (@.arguments.>>emit).join(' + ')  ~ ')' };
         if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit).join(' - ')  ~ ')' };
         
@@ -310,22 +302,20 @@ class Apply {
 
         if $code eq 'ternary:<?? !!>' { 
             return '(' ~ (@.arguments[0]).emit ~
-                 ' ? ' ~ (@.arguments[1]).emit ~
-                 ' : ' ~ (@.arguments[2]).emit ~
+                 ' ?? ' ~ (@.arguments[1]).emit ~
+                 ' !! ' ~ (@.arguments[2]).emit ~
                   ')' };
         
         # TODO !!!
-        '&' ~ $.code ~ '( 1 ' ~ (@.arguments.>>emit).join(', ') ~ ')';
-        # '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
+        '' ~ $.code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        # '(' ~ $.code.emit ~ ').(' ~ @.arguments.>>emit.join(', ') ~ ')';
     }
 }
 
 class Return {
     has $.result;
     method emit {
-        return
-        #'do { print Main::perl(caller(),' ~ $.result.emit ~ '); return(' ~ $.result.emit ~ ') }';
-        'return(' ~ $.result.emit ~ ')';
+        return 'return(' ~ $.result.emit ~ ')';
     }
 }
 
@@ -358,15 +348,16 @@ class Decl {
     has $.type;
     has $.var;
     method emit {
-        my $decl := $.decl;
-        my $name := $.var.name;
-           ( $decl eq 'has' )
-        ?? ( 'sub ' ~ $name ~ ' { ' ~
-            '@_ == 1 ' ~
-                '? ( $_[0]->{' ~ $name ~ '} ) ' ~
-                ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-            '}' )
-        !! $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
+        return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
+        #my $decl := $.decl;
+        #my $name := $.var.name;
+        #   ( $decl eq 'has' )
+        #?? ( 'sub ' ~ $name ~ ' { ' ~
+        #    '@_ == 1 ' ~
+        #        '?? ( $_[0].{' ~ $name ~ '} ) ' ~
+        #        '!! ( $_[0].{' ~ $name ~ '} = $_[1] ) ' ~
+        #    '}' )
+        #!! $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
     }
 }
 
@@ -377,12 +368,6 @@ class Sig {
     method emit {
         ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
-    method invocant {
-        $.invocant
-    };
-    method positional {
-        $.positional
-    }
 }
 
 class Method {
@@ -397,31 +382,14 @@ class Method {
         # say $invocant.emit;
 
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';   # no strict "vars"; ';
+        my $str := '';
 
-        # TODO - follow recursively
         my $pos := $sig.positional;
         for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit ~ '; ';
+            $str := $str ~ '' ~ $field.emit ~ '?, ';
         };
 
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        );
-        $str := $str ~ $bind.emit ~ '; ';
-
-#        my $pos := $sig.positional;
-#        my $str := '';
-#        my $i := 1;
-#        for @$pos -> $field { 
-#            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
-#            $i := $i + 1;
-#        };
-
-        'sub ' ~ $.name ~ ' { ' ~ 
-          'my ' ~ $invocant.emit ~ ' = shift; ' ~
-          $str ~
+        'method ' ~ $.name ~ '(' ~ $invocant.emit ~ ': ' ~ $str ~ ') { ' ~ 
           (@.block.>>emit).join('; ') ~ 
         ' }'
     }
@@ -435,41 +403,22 @@ class Sub {
         # TODO - signature binding
         my $sig := $.sig;
         # say "Sig: ", $sig.perl;
-        ## my $invocant := $sig.invocant; 
-        # say $invocant.emit;
         my $pos := $sig.positional;
         my $str;
-        # TODO !!!
-        # $str := 'my $List__ = @_; ';  # no strict "vars"; ';
 
-        # TODO - follow recursively
         my $pos := $sig.positional;
         for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit ~ '; ';
+            $str := $str ~ '' ~ $field.emit ~ '?, ';
         };
 
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        );
-        # TODO !!!!
-        # $str := $str ~ $bind.emit ~ '; ';
-
-#        my $i := 0;
-#        for @$pos -> $field { 
-#            my $bind := ::Bind( 
-#                'parameters' => $field, 
-#                'arguments'  => ::Index(
-#                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
-#                        index  => ::Val::Int( int => $i )
-#                    ),
-#                );
-#            $str := $str ~ $bind.emit ~ '; ';
-#            $i := $i + 1;
-#        };
-        'my &' ~ $.name ~ ' = sub ($xxx) ' ~ ' { ' ~ 
-          ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
-          $str ~
+        if $.name eq '' {
+            return 
+                '(sub (' ~ $str ~ ') ' ~ ' { ' ~ 
+                (@.block.>>emit).join('; ') ~ 
+                ' })'
+        }
+    
+        'sub ' ~ $.name ~ '(' ~ $str ~ ') ' ~ ' { ' ~ 
           (@.block.>>emit).join('; ') ~ 
         ' }'
     }
@@ -507,6 +456,7 @@ This module generates Perl5 code for the MiniPerl6 compiler.
 
 =head1 AUTHORS
 
+Flavio Soibelmann Glock <fglock@gmail.com>.
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 SEE ALSO
@@ -517,7 +467,7 @@ The Pugs homepage at L<http://pugscode.org/>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock, Audrey Tang and others.
+Copyright 2006, 2009 by Flavio Soibelmann Glock, Audrey Tang and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
