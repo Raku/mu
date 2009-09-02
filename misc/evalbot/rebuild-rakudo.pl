@@ -36,6 +36,16 @@ system('make')                  and die $?;
 system('make', 'install')       and die $?;
 system("git rev-parse HEAD | cut -b 1,2,3,4,5,6 > $home$other/rakudo-revision") and warn $?;
 
+eval {
+	chdir glob('~/blizkost/');
+	system('git', 'pull')           and warn $?;
+	system($^X, 'Configure.pl', "--parrot-config=$parrot_config")
+		and warn $?;
+	system('make') 			and warn $?;
+	system('make', 'install') 	and warn $?;
+};
+
+
 chdir $home;
 unlink $link;
 symlink $other, $link;
