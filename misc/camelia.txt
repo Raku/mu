@@ -17,6 +17,28 @@ of gray.
 Notes
 -----
 
+Camelia is intended primarily to represent Perl 6, The Language,
+not any other aspect of Perl 6 culture, corporate or otherwise.
+In particular, various implementations and distributions are free to
+use their own logos and/or mascots.
+
+Certain variants are also permissible; since Camelia knows how to
+change her wing colors at will, any color scheme (or lack thereof)
+in the same pattern is fine.  She just happens to like bright colors
+most of the time because they make her happy.  But she's willing to
+blend in where necessary. :)
+
+Going to the other extreme, a textual variant also exists:
+
+    »ö«
+
+Many other variants are possible.  Have fun.  Good taste and positive
+connotations are encouraged, but cannot of course be required.
+
+Those of you who think the current design does not reflect good taste
+are entitled to your opinion.  We will certainly allow you to change
+your mind later as you grow younger.  :)
+
 Online resources
 ================
 * http://www.nntp.perl.org/group/perl.perl6.language/2009/03/msg31263.html
@@ -67,7 +89,7 @@ From: Larry Wall
 Date: March 25, 2009 11:28
 Subject: Re: Logo considerations - 3 logos needed
 
-On Wed, Mar 25, 2009 at 08:54:34AM -0400, Guy Hulbert wrote:
+On Wed, Mar 25, 2009 at 08:54:34AM -0400, ______ wrote:
 : I think he was offering it as an example and a suggestion.  The perl6
 : community might favor it out of respect for Larry but I think he went
 : out of his way to make it clear that it's the kind of thing he would
