@@ -149,19 +149,7 @@ class Rul::SpecialChar {
 class Rul::Block {
     has $.closure;
     method emit {
-        'do { ' ~ 
-             'my $ret := ( sub {' ~
-                'do {' ~ 
-                   $.closure ~
-                '}; ' ~
-                '\'974^213\' } ).();' ~
-             'if $ret ne \'974^213\' {' ~
-                '$MATCH.capture := $ret; ' ~
-                '$MATCH.bool := 1; ' ~
-                'return $MATCH;' ~
-             '};' ~
-             '1' ~
-        '}'
+        '(do { ' ~ $.closure ~ ' } || 1)'
     }
 }
 

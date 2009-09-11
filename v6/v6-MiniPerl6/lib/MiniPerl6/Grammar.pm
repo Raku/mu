@@ -572,7 +572,7 @@ token token {
             '$MATCH.bool := ( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
-            'make $MATCH }';
+            '$MATCH }';
         #say 'Intermediate code: ', $source;
         my $ast := MiniPerl6::Grammar.exp_term( $source, 0 );
         # say 'Intermediate ast: ', $$ast.emit;

@@ -492,7 +492,7 @@ new-slots))
       (:documentation "a method")))
 (defmethod sv-emit ((sv-self mp-Rul-Block))
   (block mp6-function
-    (progn (concatenate 'string (sv-string "do { ") (sv-string (concatenate 'string (sv-string "my $ret := ( sub {") (sv-string (concatenate 'string (sv-string "do {") (sv-string (concatenate 'string (sv-string (sv-closure sv-self)) (sv-string (concatenate 'string (sv-string "}; ") (sv-string (concatenate 'string (sv-string "'974^213' } ).();") (sv-string (concatenate 'string (sv-string "if $ret ne '974^213' {") (sv-string (concatenate 'string (sv-string "$MATCH.capture := $ret; ") (sv-string (concatenate 'string (sv-string "$MATCH.bool := 1; ") (sv-string (concatenate 'string (sv-string "return $MATCH;") (sv-string (concatenate 'string (sv-string "};") (sv-string (concatenate 'string (sv-string "1") (sv-string "}")))))))))))))))))))))))))))
+    (progn (concatenate 'string (sv-string "(do { ") (sv-string (concatenate 'string (sv-string (sv-closure sv-self)) (sv-string " } || 1)")))))))
 
 (defmethod sv-perl ((self mp-Rul-Block))
   (mp-Main::sv-lisp_dump_object "::Rul::Block" (list (let ((m (make-instance 'mp-Pair))) (setf (sv-key m) "closure") (setf (sv-value m) (sv-closure self)) m) )))

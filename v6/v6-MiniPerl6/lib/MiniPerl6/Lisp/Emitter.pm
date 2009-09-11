@@ -365,10 +365,7 @@ class Call {
     has @.arguments;
     method emit {
 
-        my $arguments := '';
-        if @.arguments {
-            $arguments := (@.arguments.>>emit).join(' ');
-        }
+        my $arguments := (@.arguments.>>emit).join(' ');
 
         my $invocant := $.invocant.emit;
         if $invocant eq 'self' {
@@ -447,7 +444,7 @@ class Apply {
 
         if $code eq 'self'       { return 'sv-self' };
         if $code eq 'false'      { return 'nil' };
-        if $code eq 'make'       { return '(return-from mp6-function '  ~ $args ~ ')' };
+        if $code eq 'make'       { return '(setf (sv-capture sv-MATCH) '  ~ $args ~ ')' };
         if $code eq 'substr'     { return '(sv-substr '                 ~ $args ~ ')' };
         if $code eq 'say'        { return '(mp-Main::sv-say (list '     ~ $args ~ '))' };
         if $code eq 'print'      { return '(mp-Main::sv-print (list '   ~ $args ~ '))' };

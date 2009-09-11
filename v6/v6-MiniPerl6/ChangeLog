@@ -1,3 +1,5 @@
+- simplified 'make' inside tokens
+
 1.0  2009-08-28
 - Lisp (SBCL) bootstrap
 - Changed accessors to lvalue
