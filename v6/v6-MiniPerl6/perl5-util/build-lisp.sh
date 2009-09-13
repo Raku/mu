@@ -7,7 +7,7 @@ mkdir liblisp/MiniPerl6/Grammar
 mkdir liblisp/MiniPerl6/Lisp
 mkdir liblisp/MiniPerl6/Emitter
 mkdir liblisp/MiniPerl6/Perl5
-# mkdir liblisp/MiniPerl6/AST
+mkdir liblisp/MiniPerl6/Javascript
 # mkdir liblisp/MiniPerl6/Perl5MO
 # mkdir liblisp/MiniPerl6/Parrot
 # mkdir liblisp/MiniPerl6/PAST
