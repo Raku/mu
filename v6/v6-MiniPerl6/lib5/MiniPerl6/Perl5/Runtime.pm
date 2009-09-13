@@ -144,6 +144,14 @@ package Main;
         $s =~ s/"/\\"/g;
         return $s;
     }
+    # Javascript emitter
+    sub to_javascript_namespace {
+        my $s = $_[0];
+        my ( $sigil, $s ) = $s =~ /^([$@%]?)(.*)$/;
+        $s =~ s/::/\$/g;
+        return $s;
+    }
+    # Perl emitter
     sub perl_escape_string {
         my $s = $_[0];
         $s =~ s/\\/\\\\/g;
@@ -171,7 +179,7 @@ The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock and others.
+Copyright 2006, 2009 by Flavio Soibelmann Glock and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

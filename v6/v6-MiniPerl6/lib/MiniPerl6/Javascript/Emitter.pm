@@ -1,17 +1,101 @@
 use v6-alpha;
 
+class MiniPerl6::Javascript::LexicalBlock {
+    has @.block;
+    method emit {
+        if !(@.block) {
+            return 'null';
+        }
+        my $str := '';
+        for @.block -> $decl { 
+            if $decl.isa( 'Decl' ) && ( $decl.decl eq 'my' ) {
+                $str := $str ~ 'var ' ~ ($decl.var).emit ~ ' = undef;'; 
+            }
+            if $decl.isa( 'Bind' ) && ($decl.parameters).isa( 'Decl' ) && ( ($decl.parameters).decl eq 'my' ) {
+                $str := $str ~ 'var ' ~ (($decl.parameters).var).emit ~ ';'; 
+            }
+        }
+        for @.block -> $decl { 
+            if (!( $decl.isa( 'Decl' ) && ( $decl.decl eq 'my' ))) {
+                $str := $str ~ ($decl).emit ~ ';';
+            }
+        }; 
+        return $str;
+    }
+}
+
 class CompUnit {
     has $.name;
     has %.attributes;
     has %.methods;
     has @.body;
     method emit {
-          '// class ' ~ $.name ~ Main.newline
-        ~ 'function ' ~ $.name ~ '() {}' ~ Main.newline
-        ~ (@.body.>>emit).join( ";" ~ Main.newline )
-        ~ Main.newline
-        ~ Main.newline
+        my $class_name := Main::to_javascript_namespace($.name);
+        my $str :=
+            '// class ' ~ $.name ~ Main.newline
+            ~ '(function () {' ~ Main.newline;
+
+        for @.body -> $decl { 
+            if $decl.isa( 'Decl' ) && ( $decl.decl eq 'my' ) {
+                $str := $str ~ '  var ' ~ ($decl.var).emit ~ ' = null;' ~ Main.newline; 
+            }
+            if $decl.isa( 'Bind' ) && ($decl.parameters).isa( 'Decl' ) && ( ($decl.parameters).decl eq 'my' ) {
+                $str := $str ~ '  var ' ~ (($decl.parameters).var).emit ~ ';' ~ Main.newline; 
+            }
+        }
+
+        $str := $str ~ 'function ' ~ Main::to_javascript_namespace($.name) ~ '() {' ~ Main.newline;
+
+        for @.body -> $decl { 
+            if $decl.isa( 'Decl' ) && ( $decl.decl eq 'has' ) {
+                $str := $str ~ 
+'
+  // accessor ' ~ ($decl.var).name ~ '
+  this.' ~ ($decl.var).name ~ ' = null;
+  this.f_' ~ ($decl.var).name ~ ' = function () { return this.' ~ ($decl.var).name ~ ' }
+';
+            }
+            if $decl.isa( 'Method' ) {
+                my $sig      := $decl.sig;
+                my $pos      := $sig.positional;
+                my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block );
+                $str := $str ~
+'
+  // method ' ~ $decl.name ~ '
+  this.f_' ~ $decl.name ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {
+    ' ~ $block.emit ~ '
+  }
+';
+            }
+            if $decl.isa( 'Sub' ) {
+                my $sig      := $decl.sig;
+                my $pos      := $sig.positional;
+                my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block );
+                $str := $str ~
+'
+  // sub ' ~ $decl.name ~ '
+  this.f_' ~ $decl.name ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {
+    ' ~ $block.emit ~ '
+  }
+';
+            }
+        }; 
+        $str := $str ~ '}' ~ Main.newline;
+        $str := $str ~ Main::to_javascript_namespace($.name) 
+                     ~ ' = new ' ~ Main::to_javascript_namespace($.name) ~ ';' ~ Main.newline;
+        for @.body -> $decl { 
+            if    (!( $decl.isa( 'Decl' ) && (( $decl.decl eq 'has' ) || ( $decl.decl eq 'my' )) ))
+               && (!( $decl.isa( 'Method'))) 
+               && (!( $decl.isa( 'Sub'))) 
+            {
+                $str := $str ~ ($decl).emit ~ ';';
+            }
+        }; 
+
+        $str := $str ~ '}' 
+            ~ ')();' ~ Main.newline;
     }
+
 }
 
 class Val::Int {
@@ -86,7 +170,7 @@ class Lit::Object {
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit ~ ': ' ~ ($field[1]).emit ~ ',';
         }; 
-        '{ __proto__:' ~ $.class ~ '.prototype , ' ~ $str ~ '}';
+        '{ __proto__:' ~ Main::to_javascript_namespace($.class) ~ ', ' ~ $str ~ '}';
     }
 }
 
@@ -125,10 +209,10 @@ class Var {
         };
         my $ns := '';
         if $.namespace {
-            $ns := $.namespace ~ '.';
+            $ns := Main::to_javascript_namespace($.namespace) ~ '.';
         }
            ( $.twigil eq '.' )
-        ?? ( '$self->{' ~ $.name ~ '}' )
+        ?? ( 'this.' ~ $.name ~ '' )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
             !!   ( $table{$.sigil} ~ $ns ~ $.name )
@@ -215,6 +299,11 @@ class Bind {
             return $str ~ $.parameters.emit ~ ' }';
         };
     
+        if $.parameters.isa( 'Call' ) {
+            # $var.attr := 3;
+            return '(' ~ ($.parameters.invocant).emit ~ '.' ~ $.parameters.method ~ ' = ' ~ $.arguments.emit ~ ')';
+        }
+
         '(' ~ $.parameters.emit ~ ' = ' ~ $.arguments.emit ~ ')';
     }
 }
@@ -222,7 +311,7 @@ class Bind {
 class Proto {
     has $.name;
     method emit {
-        $.name ~ '.prototype'        
+        Main::to_javascript_namespace($.name)        
     }
 }
 
@@ -235,7 +324,7 @@ class Call {
     method emit {
         my $invocant := $.invocant.emit;
         if $invocant eq 'self' {
-            $invocant := '$self';
+            $invocant := 'this';
         };
 
         if     ($.method eq 'values')
@@ -270,7 +359,7 @@ class Call {
              $meth := '';  
         };
         
-        my $call := '.' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        my $call := '.f_' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
             '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
         }
@@ -289,7 +378,7 @@ class Apply {
         
         my $ns := '';
         if $.namespace {
-            $ns := $.namespace ~ '::';
+            $ns := Main::to_javascript_namespace($.namespace) ~ '.';
         }
         my $code := $ns ~ $.code;
 
@@ -301,21 +390,21 @@ class Apply {
         if $code eq 'self'       { return 'this' };
         if $code eq 'false'      { return '0' };
 
-        if $code eq 'make'       { return 'return('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'make'       { return 'return(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
-        if $code eq 'say'        { return 'print('   ~ (@.arguments.>>emit).join(' + ') ~ ' + "\n")' };
-        if $code eq 'print'      { return 'print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
-        if $code eq 'warn'       { return 'warn('        ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'say'        { return 'print('  ~ (@.arguments.>>emit).join(', ') ~ ')' };  # ' + "\\n")' };
+        if $code eq 'print'      { return 'print('  ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'warn'       { return 'warn('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
-        if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        # if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
         if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
         if $code eq 'prefix:<!>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 0 : 1)' };
         if $code eq 'prefix:<?>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 1 : 0)' };
 
-        if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<$>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').string' };
+        if $code eq 'prefix:<@>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').array' };
+        if $code eq 'prefix:<%>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').hash' };
 
         if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit).join(' + ')  ~ ')' };
         if $code eq 'infix:<+>'  { return '('  ~ (@.arguments.>>emit).join(' + ')  ~ ')' };
@@ -336,7 +425,7 @@ class Apply {
                  ' : ' ~ (@.arguments[2]).emit ~
                   ')' };
         
-        $code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        'f_' ~ $code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
     }
 }
 
@@ -366,7 +455,7 @@ class If {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'do { if (' ~ $cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' } }';
+        'if (' ~ $cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' }';
     }
 }
 
@@ -375,13 +464,11 @@ class For {
     has @.body;
     has @.topic;
     method emit {
-        my $cond := $.cond;
-        if   $cond.isa( 'Var' ) 
-          && $cond.sigil eq '@' 
-        {
-            $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
-        };
-        'do { for var ' ~ $.topic.emit ~ ' ( ' ~ $cond.emit ~ ' ) { ' ~ (@.body.>>emit).join(';') ~ ' } }';
+        '(function (a_) { for (var i_ = 0; i_ < a_.length ; i_++) { ' 
+            ~ '(function (' ~ $.topic.emit ~ ') { '
+                ~ (@.body.>>emit).join(';') 
+            ~ ' })(a_[i_]) } })' 
+        ~ '(' ~ $.cond.emit ~ ')'
     }
 }
 
@@ -390,18 +477,7 @@ class Decl {
     has $.type;
     has $.var;
     method emit {
-        my $decl := $.decl;
-        if $decl eq 'my' {
-            $decl := 'var'
-        }
-        my $name := $.var.plain_name;
-           ( $decl eq 'has' )
-        ?? ( 'sub ' ~ $name ~ ' { ' ~
-            '@_ == 1 ' ~
-                '? ( $_[0]->{' ~ $name ~ '} ) ' ~
-                ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-            '}' )
-        !! $decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
+        $.var.emit;
     }
 }
 
@@ -424,8 +500,7 @@ class Method {
         my $pos := $sig.positional;
         my $str := ((@$pos).>>emit).join(', ');  
         'function ' ~ $.name ~ '(' ~ $str ~ ') { ' ~ 
-          'var ' ~ $invocant.emit ~ ' = shift; ' ~
-          (@.block.>>emit).join('; ') ~ 
+          ::MiniPerl6::Javascript::LexicalBlock( block => @.block ).emit ~ 
         ' }'
     }
 }
@@ -439,7 +514,7 @@ class Sub {
         my $pos := $sig.positional;
         my $str := ((@$pos).>>emit).join(', ');  
         'function ' ~ $.name ~ '(' ~ $str ~ ') { ' ~ 
-          (@.block.>>emit).join('; ') ~ 
+          ::MiniPerl6::Javascript::LexicalBlock( block => @.block ).emit ~ 
         ' }'
     }
 }
@@ -447,16 +522,16 @@ class Sub {
 class Do {
     has @.block;
     method emit {
-        'do { ' ~ 
-          (@.block.>>emit).join('; ') ~ 
-        ' }'
+        '(function () { ' ~ 
+          ::MiniPerl6::Javascript::LexicalBlock( block => @.block ).emit ~ 
+        ' })()'
     }
 }
 
 class Use {
     has $.mod;
     method emit {
-        '// use ' ~ $.mod
+        '// use ' ~ $.mod ~ Main.newline
     }
 }
 

@@ -3,13 +3,34 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
+package MiniPerl6::Javascript::LexicalBlock;
+sub new { shift; bless { @_ }, "MiniPerl6::Javascript::LexicalBlock" }
+sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (@{$self->{block}}) {  } else { return('null') } }; (my  $str = ''); do { for my $decl ( @{$self->{block}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'my'))) { ($str = ($str . ('var ' . ($decl->var()->emit() . ' = undef;')))) } else {  } };do { if ((Main::isa($decl, 'Bind') && (Main::isa($decl->parameters(), 'Decl') && ($decl->parameters()->decl() eq 'my')))) { ($str = ($str . ('var ' . ($decl->parameters()->var()->emit() . ';')))) } else {  } } } }; do { for my $decl ( @{$self->{block}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'my'))) {  } else { ($str = ($str . ($decl->emit() . ';'))) } } } }; return($str) }
+
+
+;
 package CompUnit;
 sub new { shift; bless { @_ }, "CompUnit" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) };
 sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) };
 sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('// class ' . ($self->{name} . (Main->newline() . ('function ' . ($self->{name} . ('() {}' . (Main->newline() . (Main::join([ map { $_->emit() } @{ $self->{body} } ], (';' . Main->newline())) . (Main->newline() . Main->newline()))))))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $class_name = Main::to_javascript_namespace($self->{name})); (my  $str = ('// class ' . ($self->{name} . (Main->newline() . ('(function () {' . Main->newline()))))); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'my'))) { ($str = ($str . ('  var ' . ($decl->var()->emit() . (' = null;' . Main->newline()))))) } else {  } };do { if ((Main::isa($decl, 'Bind') && (Main::isa($decl->parameters(), 'Decl') && ($decl->parameters()->decl() eq 'my')))) { ($str = ($str . ('  var ' . ($decl->parameters()->var()->emit() . (';' . Main->newline()))))) } else {  } } } }; ($str = ($str . ('function ' . (Main::to_javascript_namespace($self->{name}) . ('() {' . Main->newline()))))); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'has'))) { ($str = ($str . ('
+  // accessor ' . ($decl->var()->name() . ('
+  this.' . ($decl->var()->name() . (' = null;
+  this.f_' . ($decl->var()->name() . (' = function () { return this.' . ($decl->var()->name() . ' }
+')))))))))) } else {  } };do { if (Main::isa($decl, 'Method')) { (my  $sig = $decl->sig());(my  $pos = $sig->positional());(my  $block = MiniPerl6::Javascript::LexicalBlock->new( 'block' => $decl->block(), ));($str = ($str . ('
+  // method ' . ($decl->name() . ('
+  this.f_' . ($decl->name() . (' = function (' . (Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ') . (') {
+    ' . ($block->emit() . '
+  }
+')))))))))) } else {  } };do { if (Main::isa($decl, 'Sub')) { (my  $sig = $decl->sig());(my  $pos = $sig->positional());(my  $block = MiniPerl6::Javascript::LexicalBlock->new( 'block' => $decl->block(), ));($str = ($str . ('
+  // sub ' . ($decl->name() . ('
+  this.f_' . ($decl->name() . (' = function (' . (Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ') . (') {
+    ' . ($block->emit() . '
+  }
+')))))))))) } else {  } } } }; ($str = ($str . ('}' . Main->newline()))); ($str = ($str . (Main::to_javascript_namespace($self->{name}) . (' = new ' . (Main::to_javascript_namespace($self->{name}) . (';' . Main->newline())))))); do { for my $decl ( @{$self->{body}} ) { do { if ((((Main::isa($decl, 'Decl') && (($decl->decl() eq 'has') || ($decl->decl() eq 'my'))) ? 0 : 1) && ((Main::isa($decl, 'Method') ? 0 : 1) && (Main::isa($decl, 'Sub') ? 0 : 1)))) { ($str = ($str . ($decl->emit() . ';'))) } else {  } } } }; ($str = ($str . ('}' . (')();' . Main->newline())))) }
 
 
 ;
@@ -86,7 +107,7 @@ package Lit::Object;
 sub new { shift; bless { @_ }, "Lit::Object" }
 sub class { @_ == 1 ? ( $_[0]->{class} ) : ( $_[0]->{class} = $_[1] ) };
 sub fields { @_ == 1 ? ( $_[0]->{fields} ) : ( $_[0]->{fields} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $fields = $self->{fields}); (my  $str = ''); do { for my $field ( @{$fields} ) { ($str = ($str . ($field->[0]->emit() . (': ' . ($field->[1]->emit() . ','))))) } }; ('{ __proto__:' . ($self->{class} . ('.prototype , ' . ($str . '}')))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $fields = $self->{fields}); (my  $str = ''); do { for my $field ( @{$fields} ) { ($str = ($str . ($field->[0]->emit() . (': ' . ($field->[1]->emit() . ','))))) } }; ('{ __proto__:' . (Main::to_javascript_namespace($self->{class}) . (', ' . ($str . '}')))) }
 
 
 ;
@@ -112,7 +133,7 @@ sub sigil { @_ == 1 ? ( $_[0]->{sigil} ) : ( $_[0]->{sigil} = $_[1] ) };
 sub twigil { @_ == 1 ? ( $_[0]->{twigil} ) : ( $_[0]->{twigil} = $_[1] ) };
 sub namespace { @_ == 1 ? ( $_[0]->{namespace} ) : ( $_[0]->{namespace} = $_[1] ) };
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $table = { '$' => '','@' => 'List_','%' => 'Hash_','&' => 'Code_', }); (my  $ns = ''); do { if ($self->{namespace}) { ($ns = ($self->{namespace} . '.')) } else {  } }; (($self->{twigil} eq '.') ? ('$self->{' . ($self->{name} . '}')) : (($self->{name} eq '/') ? ($table->{$self->{sigil}} . 'MATCH') : ($table->{$self->{sigil}} . ($ns . $self->{name})))) };
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $table = { '$' => '','@' => 'List_','%' => 'Hash_','&' => 'Code_', }); (my  $ns = ''); do { if ($self->{namespace}) { ($ns = (Main::to_javascript_namespace($self->{namespace}) . '.')) } else {  } }; (($self->{twigil} eq '.') ? ('this.' . ($self->{name} . '')) : (($self->{name} eq '/') ? ($table->{$self->{sigil}} . 'MATCH') : ($table->{$self->{sigil}} . ($ns . $self->{name})))) };
 sub plain_name { my $self = shift; my $List__ = \@_; do { [] }; do { if ($self->{namespace}) { return(($self->{namespace} . ('.' . $self->{name}))) } else {  } }; return($self->{name}) }
 
 
@@ -121,14 +142,14 @@ package Bind;
 sub new { shift; bless { @_ }, "Bind" }
 sub parameters { @_ == 1 ? ( $_[0]->{parameters} ) : ( $_[0]->{parameters} = $_[1] ) };
 sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Lit::Array')) { (my  $a = $self->{parameters}->array());(my  $str = 'do { ');(my  $i = 0);do { for my $var ( @{$a} ) { (my  $bind = Bind->new( 'parameters' => $var,'arguments' => Index->new( 'obj' => $self->{arguments},'index_exp' => Val::Int->new( 'int' => $i, ), ), ));($str = ($str . (' ' . ($bind->emit() . '; '))));($i = ($i + 1)) } };return(($str . ($self->{parameters}->emit() . ' }'))) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lit::Hash')) { (my  $a = $self->{parameters}->hash());(my  $b = $self->{arguments}->hash());(my  $str = 'do { ');(my  $i = 0);my  $arg;do { for my $var ( @{$a} ) { ($arg = Val::Undef->new(  ));do { for my $var2 ( @{$b} ) { do { if (($var2->[0]->buf() eq $var->[0]->buf())) { ($arg = $var2->[1]) } else {  } } } };(my  $bind = Bind->new( 'parameters' => $var->[1],'arguments' => $arg, ));($str = ($str . (' ' . ($bind->emit() . '; '))));($i = ($i + 1)) } };return(($str . ($self->{parameters}->emit() . ' }'))) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lit::Object')) { (my  $class = $self->{parameters}->class());(my  $a = $self->{parameters}->fields());(my  $b = $self->{arguments});(my  $str = 'do { ');(my  $i = 0);my  $arg;do { for my $var ( @{$a} ) { (my  $bind = Bind->new( 'parameters' => $var->[1],'arguments' => Call->new( 'invocant' => $b,'method' => $var->[0]->buf(),'arguments' => [],'hyper' => 0, ), ));($str = ($str . (' ' . ($bind->emit() . '; '))));($i = ($i + 1)) } };return(($str . ($self->{parameters}->emit() . ' }'))) } else {  } }; ('(' . ($self->{parameters}->emit() . (' = ' . ($self->{arguments}->emit() . ')')))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Lit::Array')) { (my  $a = $self->{parameters}->array());(my  $str = 'do { ');(my  $i = 0);do { for my $var ( @{$a} ) { (my  $bind = Bind->new( 'parameters' => $var,'arguments' => Index->new( 'obj' => $self->{arguments},'index_exp' => Val::Int->new( 'int' => $i, ), ), ));($str = ($str . (' ' . ($bind->emit() . '; '))));($i = ($i + 1)) } };return(($str . ($self->{parameters}->emit() . ' }'))) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lit::Hash')) { (my  $a = $self->{parameters}->hash());(my  $b = $self->{arguments}->hash());(my  $str = 'do { ');(my  $i = 0);my  $arg;do { for my $var ( @{$a} ) { ($arg = Val::Undef->new(  ));do { for my $var2 ( @{$b} ) { do { if (($var2->[0]->buf() eq $var->[0]->buf())) { ($arg = $var2->[1]) } else {  } } } };(my  $bind = Bind->new( 'parameters' => $var->[1],'arguments' => $arg, ));($str = ($str . (' ' . ($bind->emit() . '; '))));($i = ($i + 1)) } };return(($str . ($self->{parameters}->emit() . ' }'))) } else {  } }; do { if (Main::isa($self->{parameters}, 'Lit::Object')) { (my  $class = $self->{parameters}->class());(my  $a = $self->{parameters}->fields());(my  $b = $self->{arguments});(my  $str = 'do { ');(my  $i = 0);my  $arg;do { for my $var ( @{$a} ) { (my  $bind = Bind->new( 'parameters' => $var->[1],'arguments' => Call->new( 'invocant' => $b,'method' => $var->[0]->buf(),'arguments' => [],'hyper' => 0, ), ));($str = ($str . (' ' . ($bind->emit() . '; '))));($i = ($i + 1)) } };return(($str . ($self->{parameters}->emit() . ' }'))) } else {  } }; do { if (Main::isa($self->{parameters}, 'Call')) { return(('(' . ($self->{parameters}->invocant()->emit() . ('.' . ($self->{parameters}->method() . (' = ' . ($self->{arguments}->emit() . ')'))))))) } else {  } }; ('(' . ($self->{parameters}->emit() . (' = ' . ($self->{arguments}->emit() . ')')))) }
 
 
 ;
 package Proto;
 sub new { shift; bless { @_ }, "Proto" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ($self->{name} . '.prototype') }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; Main::to_javascript_namespace($self->{name}) }
 
 
 ;
@@ -138,7 +159,7 @@ sub invocant { @_ == 1 ? ( $_[0]->{invocant} ) : ( $_[0]->{invocant} = $_[1] ) }
 sub hyper { @_ == 1 ? ( $_[0]->{hyper} ) : ( $_[0]->{hyper} = $_[1] ) };
 sub method { @_ == 1 ? ( $_[0]->{method} ) : ( $_[0]->{method} = $_[1] ) };
 sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $invocant = $self->{invocant}->emit()); do { if (($invocant eq 'self')) { ($invocant = '$self') } else {  } }; do { if (($self->{method} eq 'values')) { do { if ($self->{hyper}) { die('not implemented') } else { return(('@{' . ($invocant . '}'))) } } } else {  } }; do { if ((($self->{method} eq 'perl') || (($self->{method} eq 'yaml') || (($self->{method} eq 'say') || (($self->{method} eq 'join') || (($self->{method} eq 'chars') || ($self->{method} eq 'isa'))))))) { do { if ($self->{hyper}) { return(('[ map { Main.' . ($self->{method} . ('( $_, ' . (', ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . (')' . (' } @{ ' . ($invocant . ' } ]'))))))))) } else { return(('Main.' . ($self->{method} . ('(' . ($invocant . (', ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))))))) } } } else {  } }; (my  $meth = $self->{method}); do { if (($meth eq 'postcircumfix:<( )>')) { ($meth = '') } else {  } }; (my  $call = ('.' . ($meth . ('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))))); do { if ($self->{hyper}) { ('[ map { $_' . ($call . (' } @{ ' . ($invocant . ' } ]')))) } else { ($invocant . $call) } } }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $invocant = $self->{invocant}->emit()); do { if (($invocant eq 'self')) { ($invocant = 'this') } else {  } }; do { if (($self->{method} eq 'values')) { do { if ($self->{hyper}) { die('not implemented') } else { return(('@{' . ($invocant . '}'))) } } } else {  } }; do { if ((($self->{method} eq 'perl') || (($self->{method} eq 'yaml') || (($self->{method} eq 'say') || (($self->{method} eq 'join') || (($self->{method} eq 'chars') || ($self->{method} eq 'isa'))))))) { do { if ($self->{hyper}) { return(('[ map { Main.' . ($self->{method} . ('( $_, ' . (', ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . (')' . (' } @{ ' . ($invocant . ' } ]'))))))))) } else { return(('Main.' . ($self->{method} . ('(' . ($invocant . (', ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))))))) } } } else {  } }; (my  $meth = $self->{method}); do { if (($meth eq 'postcircumfix:<( )>')) { ($meth = '') } else {  } }; (my  $call = ('.f_' . ($meth . ('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))))); do { if ($self->{hyper}) { ('[ map { $_' . ($call . (' } @{ ' . ($invocant . ' } ]')))) } else { ($invocant . $call) } } }
 
 
 ;
@@ -147,7 +168,7 @@ sub new { shift; bless { @_ }, "Apply" }
 sub code { @_ == 1 ? ( $_[0]->{code} ) : ( $_[0]->{code} = $_[1] ) };
 sub arguments { @_ == 1 ? ( $_[0]->{arguments} ) : ( $_[0]->{arguments} = $_[1] ) };
 sub namespace { @_ == 1 ? ( $_[0]->{namespace} ) : ( $_[0]->{namespace} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $ns = ''); do { if ($self->{namespace}) { ($ns = ($self->{namespace} . '::')) } else {  } }; (my  $code = ($ns . $self->{code})); do { if (Main::isa($code, 'Str')) {  } else { return(('(' . ($self->{code}->emit() . (')->(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))))) } }; do { if (($code eq 'self')) { return('this') } else {  } }; do { if (($code eq 'false')) { return('0') } else {  } }; do { if (($code eq 'make')) { return(('return(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))) } else {  } }; do { if (($code eq 'say')) { return(('print(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' + ') . ' + "n")'))) } else {  } }; do { if (($code eq 'print')) { return(('print(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))) } else {  } }; do { if (($code eq 'warn')) { return(('warn(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))) } else {  } }; do { if (($code eq 'array')) { return(('@{' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '}'))) } else {  } }; do { if (($code eq 'prefix:<~>')) { return(('("" . ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'prefix:<!>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ' ? 0 : 1)'))) } else {  } }; do { if (($code eq 'prefix:<?>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ' ? 1 : 0)'))) } else {  } }; do { if (($code eq 'prefix:<$>')) { return(('${' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '}'))) } else {  } }; do { if (($code eq 'prefix:<@>')) { return(('@{' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '}'))) } else {  } }; do { if (($code eq 'prefix:<%>')) { return(('%{' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . '}'))) } else {  } }; do { if (($code eq 'infix:<~>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' + ') . ')'))) } else {  } }; do { if (($code eq 'infix:<+>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' + ') . ')'))) } else {  } }; do { if (($code eq 'infix:<->')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' - ') . ')'))) } else {  } }; do { if (($code eq 'infix:<>>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' > ') . ')'))) } else {  } }; do { if (($code eq 'infix:<&&>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' && ') . ')'))) } else {  } }; do { if (($code eq 'infix:<||>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' || ') . ')'))) } else {  } }; do { if (($code eq 'infix:<eq>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' == ') . ')'))) } else {  } }; do { if (($code eq 'infix:<ne>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' != ') . ')'))) } else {  } }; do { if (($code eq 'infix:<==>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' == ') . ')'))) } else {  } }; do { if (($code eq 'infix:<!=>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' != ') . ')'))) } else {  } }; do { if (($code eq 'ternary:<?? !!>')) { return(('(' . ($self->{arguments}->[0]->emit() . (' ? ' . ($self->{arguments}->[1]->emit() . (' : ' . ($self->{arguments}->[2]->emit() . ')'))))))) } else {  } }; ($code . ('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $ns = ''); do { if ($self->{namespace}) { ($ns = (Main::to_javascript_namespace($self->{namespace}) . '.')) } else {  } }; (my  $code = ($ns . $self->{code})); do { if (Main::isa($code, 'Str')) {  } else { return(('(' . ($self->{code}->emit() . (')->(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))))) } }; do { if (($code eq 'self')) { return('this') } else {  } }; do { if (($code eq 'false')) { return('0') } else {  } }; do { if (($code eq 'make')) { return(('return(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))) } else {  } }; do { if (($code eq 'say')) { return(('print(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))) } else {  } }; do { if (($code eq 'print')) { return(('print(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))) } else {  } }; do { if (($code eq 'warn')) { return(('warn(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')'))) } else {  } }; do { if (($code eq 'prefix:<~>')) { return(('("" . ' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ')'))) } else {  } }; do { if (($code eq 'prefix:<!>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ' ? 0 : 1)'))) } else {  } }; do { if (($code eq 'prefix:<?>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ' ? 1 : 0)'))) } else {  } }; do { if (($code eq 'prefix:<$>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ').string'))) } else {  } }; do { if (($code eq 'prefix:<@>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ').array'))) } else {  } }; do { if (($code eq 'prefix:<%>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' ') . ').hash'))) } else {  } }; do { if (($code eq 'infix:<~>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' + ') . ')'))) } else {  } }; do { if (($code eq 'infix:<+>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' + ') . ')'))) } else {  } }; do { if (($code eq 'infix:<->')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' - ') . ')'))) } else {  } }; do { if (($code eq 'infix:<>>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' > ') . ')'))) } else {  } }; do { if (($code eq 'infix:<&&>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' && ') . ')'))) } else {  } }; do { if (($code eq 'infix:<||>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' || ') . ')'))) } else {  } }; do { if (($code eq 'infix:<eq>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' == ') . ')'))) } else {  } }; do { if (($code eq 'infix:<ne>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' != ') . ')'))) } else {  } }; do { if (($code eq 'infix:<==>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' == ') . ')'))) } else {  } }; do { if (($code eq 'infix:<!=>')) { return(('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ' != ') . ')'))) } else {  } }; do { if (($code eq 'ternary:<?? !!>')) { return(('(' . ($self->{arguments}->[0]->emit() . (' ? ' . ($self->{arguments}->[1]->emit() . (' : ' . ($self->{arguments}->[2]->emit() . ')'))))))) } else {  } }; ('f_' . ($code . ('(' . (Main::join([ map { $_->emit() } @{ $self->{arguments} } ], ', ') . ')')))) }
 
 
 ;
@@ -163,7 +184,7 @@ sub new { shift; bless { @_ }, "If" }
 sub cond { @_ == 1 ? ( $_[0]->{cond} ) : ( $_[0]->{cond} = $_[1] ) };
 sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
 sub otherwise { @_ == 1 ? ( $_[0]->{otherwise} ) : ( $_[0]->{otherwise} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $cond = $self->{cond}); do { if ((Main::isa($cond, 'Apply') && ($cond->code() eq 'prefix:<!>'))) { (my  $if = If->new( 'cond' => $cond->arguments()->[0],'body' => $self->{otherwise},'otherwise' => $self->{body}, ));return($if->emit()) } else {  } }; do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) { ($cond = Apply->new( 'code' => 'prefix:<@>','arguments' => [$cond], )) } else {  } }; ('do { if (' . ($cond->emit() . (') { ' . (Main::join([ map { $_->emit() } @{ $self->{body} } ], ';') . (' } else { ' . (Main::join([ map { $_->emit() } @{ $self->{otherwise} } ], ';') . ' } }')))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $cond = $self->{cond}); do { if ((Main::isa($cond, 'Apply') && ($cond->code() eq 'prefix:<!>'))) { (my  $if = If->new( 'cond' => $cond->arguments()->[0],'body' => $self->{otherwise},'otherwise' => $self->{body}, ));return($if->emit()) } else {  } }; do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) { ($cond = Apply->new( 'code' => 'prefix:<@>','arguments' => [$cond], )) } else {  } }; ('if (' . ($cond->emit() . (') { ' . (Main::join([ map { $_->emit() } @{ $self->{body} } ], ';') . (' } else { ' . (Main::join([ map { $_->emit() } @{ $self->{otherwise} } ], ';') . ' }')))))) }
 
 
 ;
@@ -172,7 +193,7 @@ sub new { shift; bless { @_ }, "For" }
 sub cond { @_ == 1 ? ( $_[0]->{cond} ) : ( $_[0]->{cond} = $_[1] ) };
 sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
 sub topic { @_ == 1 ? ( $_[0]->{topic} ) : ( $_[0]->{topic} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $cond = $self->{cond}); do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) { ($cond = Apply->new( 'code' => 'prefix:<@>','arguments' => [$cond], )) } else {  } }; ('do { for var ' . ($self->{topic}->emit() . (' ( ' . ($cond->emit() . (' ) { ' . (Main::join([ map { $_->emit() } @{ $self->{body} } ], ';') . ' } }')))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('(function (a_) { for (var i_ = 0; i_ < a_.length ; i_++) { ' . ('(function (' . ($self->{topic}->emit() . (') { ' . (Main::join([ map { $_->emit() } @{ $self->{body} } ], ';') . (' })(a_[i_]) } })' . ('(' . ($self->{cond}->emit() . ')')))))))) }
 
 
 ;
@@ -181,7 +202,7 @@ sub new { shift; bless { @_ }, "Decl" }
 sub decl { @_ == 1 ? ( $_[0]->{decl} ) : ( $_[0]->{decl} = $_[1] ) };
 sub type { @_ == 1 ? ( $_[0]->{type} ) : ( $_[0]->{type} = $_[1] ) };
 sub var { @_ == 1 ? ( $_[0]->{var} ) : ( $_[0]->{var} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $decl = $self->{decl}); do { if (($decl eq 'my')) { ($decl = 'var') } else {  } }; (my  $name = $self->{var}->plain_name()); (($decl eq 'has') ? ('sub ' . ($name . (' { ' . ('@_ == 1 ' . ('? ( $_[0]->{' . ($name . ('} ) ' . (': ( $_[0]->{' . ($name . ('} = $_[1] ) ' . '}')))))))))) : ($decl . (' ' . ($self->{type} . (' ' . $self->{var}->emit()))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; $self->{var}->emit() }
 
 
 ;
@@ -199,7 +220,7 @@ sub new { shift; bless { @_ }, "Method" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub sig { @_ == 1 ? ( $_[0]->{sig} ) : ( $_[0]->{sig} = $_[1] ) };
 sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $invocant = $sig->invocant()); (my  $pos = $sig->positional()); (my  $str = Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ')); ('function ' . ($self->{name} . ('(' . ($str . (') { ' . ('var ' . ($invocant->emit() . (' = shift; ' . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }'))))))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $invocant = $sig->invocant()); (my  $pos = $sig->positional()); (my  $str = Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ')); ('function ' . ($self->{name} . ('(' . ($str . (') { ' . (MiniPerl6::Javascript::LexicalBlock->new( 'block' => $self->{block}, )->emit() . ' }')))))) }
 
 
 ;
@@ -208,21 +229,21 @@ sub new { shift; bless { @_ }, "Sub" }
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub sig { @_ == 1 ? ( $_[0]->{sig} ) : ( $_[0]->{sig} = $_[1] ) };
 sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $pos = $sig->positional()); (my  $str = Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ')); ('function ' . ($self->{name} . ('(' . ($str . (') { ' . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }')))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $sig = $self->{sig}); (my  $pos = $sig->positional()); (my  $str = Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ')); ('function ' . ($self->{name} . ('(' . ($str . (') { ' . (MiniPerl6::Javascript::LexicalBlock->new( 'block' => $self->{block}, )->emit() . ' }')))))) }
 
 
 ;
 package Do;
 sub new { shift; bless { @_ }, "Do" }
 sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . (Main::join([ map { $_->emit() } @{ $self->{block} } ], '; ') . ' }')) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('(function () { ' . (MiniPerl6::Javascript::LexicalBlock->new( 'block' => $self->{block}, )->emit() . ' })()')) }
 
 
 ;
 package Use;
 sub new { shift; bless { @_ }, "Use" }
 sub mod { @_ == 1 ? ( $_[0]->{mod} ) : ( $_[0]->{mod} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('// use ' . $self->{mod}) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('// use ' . ($self->{mod} . Main->newline())) }
 
 
 ;
