@@ -15,7 +15,8 @@ rmtree($other);
 mkdir($other);
 chdir('rakudo/parrot');
 system('svn', 'up', '-q', '--force') and die $?;
-system($^X, 'Configure.pl', "--prefix=$home$other", '--nomanicheck')
+system($^X, 'Configure.pl', "--prefix=$home$other", '--nomanicheck',
+        '--optimize', '--cc="ccache gcc"')
     and die $?;
 
 system('make')                  and die $?;
