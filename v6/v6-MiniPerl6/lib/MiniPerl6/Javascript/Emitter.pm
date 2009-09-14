@@ -32,7 +32,11 @@ class CompUnit {
     method emit {
         my $class_name := Main::to_javascript_namespace($.name);
         my $str :=
-            '// class ' ~ $.name ~ Main.newline
+              '// class ' ~ $.name ~ Main.newline
+            ~ 'if (typeof ' ~ $class_name ~ ' != \'function\') {' ~ Main.newline
+            ~ '  ' ~ $class_name ~ ' = function() {};' ~ Main.newline
+            ~ '  ' ~ $class_name ~ ' = new ' ~ $class_name ~ ';' ~ Main.newline
+            ~ '}' ~ Main.newline
             ~ '(function () {' ~ Main.newline;
 
         for @.body -> $decl { 
@@ -44,28 +48,28 @@ class CompUnit {
             }
         }
 
-        $str := $str ~ 'function ' ~ Main::to_javascript_namespace($.name) ~ '() {' ~ Main.newline;
+        # $str := $str ~ 'function ' ~ Main::to_javascript_namespace($.name) ~ '() {' ~ Main.newline;
 
         for @.body -> $decl { 
             if $decl.isa( 'Decl' ) && ( $decl.decl eq 'has' ) {
                 $str := $str ~ 
 '
   // accessor ' ~ ($decl.var).name ~ '
-  this.' ~ ($decl.var).name ~ ' = null;
-  this.f_' ~ ($decl.var).name ~ ' = function () { return this.' ~ ($decl.var).name ~ ' }
+  ' ~ $class_name ~ '.' ~ ($decl.var).name ~ ' = null;
+  ' ~ $class_name ~ '.f_' ~ ($decl.var).name ~ ' = function () { return this.' ~ ($decl.var).name ~ ' }
 ';
             }
             if $decl.isa( 'Method' ) {
                 my $sig      := $decl.sig;
                 my $pos      := $sig.positional;
                 my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block );
-                $str := $str ~
-'
-  // method ' ~ $decl.name ~ '
-  this.f_' ~ $decl.name ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {
-    ' ~ $block.emit ~ '
-  }
-';
+                $str := $str 
+              ~ '  // method ' ~ $decl.name ~ Main.newline
+              ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name 
+                    ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {' ~ Main.newline
+              ~ '    ' ~ $block.emit ~ Main.newline
+              ~ '  }' ~ Main.newline
+              ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name ~ ';  // v8 bug workaround' ~ Main.newline;
             }
             if $decl.isa( 'Sub' ) {
                 my $sig      := $decl.sig;
@@ -74,15 +78,15 @@ class CompUnit {
                 $str := $str ~
 '
   // sub ' ~ $decl.name ~ '
-  this.f_' ~ $decl.name ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {
+  ' ~ $class_name ~ '.f_' ~ $decl.name ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {
     ' ~ $block.emit ~ '
   }
 ';
             }
         }; 
-        $str := $str ~ '}' ~ Main.newline;
-        $str := $str ~ Main::to_javascript_namespace($.name) 
-                     ~ ' = new ' ~ Main::to_javascript_namespace($.name) ~ ';' ~ Main.newline;
+        # $str := $str ~ '}' ~ Main.newline;
+        # $str := $str ~ Main::to_javascript_namespace($.name) 
+        #              ~ ' = new ' ~ Main::to_javascript_namespace($.name) ~ ';' ~ Main.newline;
         for @.body -> $decl { 
             if    (!( $decl.isa( 'Decl' ) && (( $decl.decl eq 'has' ) || ( $decl.decl eq 'my' )) ))
                && (!( $decl.isa( 'Method'))) 

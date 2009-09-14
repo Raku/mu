@@ -16,21 +16,16 @@ sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
 sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) };
 sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) };
 sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $class_name = Main::to_javascript_namespace($self->{name})); (my  $str = ('// class ' . ($self->{name} . (Main->newline() . ('(function () {' . Main->newline()))))); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'my'))) { ($str = ($str . ('  var ' . ($decl->var()->emit() . (' = null;' . Main->newline()))))) } else {  } };do { if ((Main::isa($decl, 'Bind') && (Main::isa($decl->parameters(), 'Decl') && ($decl->parameters()->decl() eq 'my')))) { ($str = ($str . ('  var ' . ($decl->parameters()->var()->emit() . (';' . Main->newline()))))) } else {  } } } }; ($str = ($str . ('function ' . (Main::to_javascript_namespace($self->{name}) . ('() {' . Main->newline()))))); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'has'))) { ($str = ($str . ('
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; (my  $class_name = Main::to_javascript_namespace($self->{name})); (my  $str = ('// class ' . ($self->{name} . (Main->newline() . ('if (typeof ' . ($class_name . (' != \'function\') {' . (Main->newline() . ('  ' . ($class_name . (' = function() {};' . (Main->newline() . ('  ' . ($class_name . (' = new ' . ($class_name . (';' . (Main->newline() . ('}' . (Main->newline() . ('(function () {' . Main->newline()))))))))))))))))))))); do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'my'))) { ($str = ($str . ('  var ' . ($decl->var()->emit() . (' = null;' . Main->newline()))))) } else {  } };do { if ((Main::isa($decl, 'Bind') && (Main::isa($decl->parameters(), 'Decl') && ($decl->parameters()->decl() eq 'my')))) { ($str = ($str . ('  var ' . ($decl->parameters()->var()->emit() . (';' . Main->newline()))))) } else {  } } } }; do { for my $decl ( @{$self->{body}} ) { do { if ((Main::isa($decl, 'Decl') && ($decl->decl() eq 'has'))) { ($str = ($str . ('
   // accessor ' . ($decl->var()->name() . ('
-  this.' . ($decl->var()->name() . (' = null;
-  this.f_' . ($decl->var()->name() . (' = function () { return this.' . ($decl->var()->name() . ' }
-')))))))))) } else {  } };do { if (Main::isa($decl, 'Method')) { (my  $sig = $decl->sig());(my  $pos = $sig->positional());(my  $block = MiniPerl6::Javascript::LexicalBlock->new( 'block' => $decl->block(), ));($str = ($str . ('
-  // method ' . ($decl->name() . ('
-  this.f_' . ($decl->name() . (' = function (' . (Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ') . (') {
-    ' . ($block->emit() . '
-  }
-')))))))))) } else {  } };do { if (Main::isa($decl, 'Sub')) { (my  $sig = $decl->sig());(my  $pos = $sig->positional());(my  $block = MiniPerl6::Javascript::LexicalBlock->new( 'block' => $decl->block(), ));($str = ($str . ('
+  ' . ($class_name . ('.' . ($decl->var()->name() . (' = null;
+  ' . ($class_name . ('.f_' . ($decl->var()->name() . (' = function () { return this.' . ($decl->var()->name() . ' }
+')))))))))))))) } else {  } };do { if (Main::isa($decl, 'Method')) { (my  $sig = $decl->sig());(my  $pos = $sig->positional());(my  $block = MiniPerl6::Javascript::LexicalBlock->new( 'block' => $decl->block(), ));($str = ($str . ('  // method ' . ($decl->name() . (Main->newline() . ('  ' . ($class_name . ('.f_' . ($decl->name() . (' = function (' . (Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ') . (') {' . (Main->newline() . ('    ' . ($block->emit() . (Main->newline() . ('  }' . (Main->newline() . ('  ' . ($class_name . ('.f_' . ($decl->name() . (';  // v8 bug workaround' . Main->newline()))))))))))))))))))))))) } else {  } };do { if (Main::isa($decl, 'Sub')) { (my  $sig = $decl->sig());(my  $pos = $sig->positional());(my  $block = MiniPerl6::Javascript::LexicalBlock->new( 'block' => $decl->block(), ));($str = ($str . ('
   // sub ' . ($decl->name() . ('
-  this.f_' . ($decl->name() . (' = function (' . (Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ') . (') {
+  ' . ($class_name . ('.f_' . ($decl->name() . (' = function (' . (Main::join([ map { $_->emit() } @{ @{$pos} } ], ', ') . (') {
     ' . ($block->emit() . '
   }
-')))))))))) } else {  } } } }; ($str = ($str . ('}' . Main->newline()))); ($str = ($str . (Main::to_javascript_namespace($self->{name}) . (' = new ' . (Main::to_javascript_namespace($self->{name}) . (';' . Main->newline())))))); do { for my $decl ( @{$self->{body}} ) { do { if ((((Main::isa($decl, 'Decl') && (($decl->decl() eq 'has') || ($decl->decl() eq 'my'))) ? 0 : 1) && ((Main::isa($decl, 'Method') ? 0 : 1) && (Main::isa($decl, 'Sub') ? 0 : 1)))) { ($str = ($str . ($decl->emit() . ';'))) } else {  } } } }; ($str = ($str . ('}' . (')();' . Main->newline())))) }
+')))))))))))) } else {  } } } }; do { for my $decl ( @{$self->{body}} ) { do { if ((((Main::isa($decl, 'Decl') && (($decl->decl() eq 'has') || ($decl->decl() eq 'my'))) ? 0 : 1) && ((Main::isa($decl, 'Method') ? 0 : 1) && (Main::isa($decl, 'Sub') ? 0 : 1)))) { ($str = ($str . ($decl->emit() . ';'))) } else {  } } } }; ($str = ($str . ('}' . (')();' . Main->newline())))) }
 
 
 ;
