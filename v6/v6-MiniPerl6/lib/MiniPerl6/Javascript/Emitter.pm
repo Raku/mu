@@ -52,12 +52,11 @@ class CompUnit {
 
         for @.body -> $decl { 
             if $decl.isa( 'Decl' ) && ( $decl.decl eq 'has' ) {
-                $str := $str ~ 
-'
-  // accessor ' ~ ($decl.var).name ~ '
-  ' ~ $class_name ~ '.' ~ ($decl.var).name ~ ' = null;
-  ' ~ $class_name ~ '.f_' ~ ($decl.var).name ~ ' = function () { return this.' ~ ($decl.var).name ~ ' }
-';
+                $str := $str  
+              ~ '  // accessor ' ~ ($decl.var).name ~ Main.newline
+              ~ '  ' ~ $class_name ~ '.v_' ~ ($decl.var).name ~ ' = null;' ~ Main.newline
+              ~ '  ' ~ $class_name ~ '.f_' ~ ($decl.var).name 
+                    ~ ' = function () { return this.v_' ~ ($decl.var).name ~ ' }' ~ Main.newline;
             }
             if $decl.isa( 'Method' ) {
                 my $sig      := $decl.sig;
@@ -75,13 +74,12 @@ class CompUnit {
                 my $sig      := $decl.sig;
                 my $pos      := $sig.positional;
                 my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block );
-                $str := $str ~
-'
-  // sub ' ~ $decl.name ~ '
-  ' ~ $class_name ~ '.f_' ~ $decl.name ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {
-    ' ~ $block.emit ~ '
-  }
-';
+                $str := $str 
+              ~ '  // sub ' ~ $decl.name ~ Main.newline
+              ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name 
+                    ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {' ~ Main.newline
+              ~ '    ' ~ $block.emit ~ Main.newline
+              ~ '  }' ~ Main.newline;
             }
         }; 
         # $str := $str ~ '}' ~ Main.newline;
@@ -206,7 +204,7 @@ class Var {
         # %x    => $Hash_x
         # &x    => $Code_x
         my $table := {
-            '$' => '',
+            '$' => 'v_',
             '@' => 'List_',
             '%' => 'Hash_',
             '&' => 'Code_',
@@ -216,7 +214,7 @@ class Var {
             $ns := Main::to_javascript_namespace($.namespace) ~ '.';
         }
            ( $.twigil eq '.' )
-        ?? ( 'this.' ~ $.name ~ '' )
+        ?? ( 'this.v_' ~ $.name ~ '' )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
             !!   ( $table{$.sigil} ~ $ns ~ $.name )
@@ -305,7 +303,7 @@ class Bind {
     
         if $.parameters.isa( 'Call' ) {
             # $var.attr := 3;
-            return '(' ~ ($.parameters.invocant).emit ~ '.' ~ $.parameters.method ~ ' = ' ~ $.arguments.emit ~ ')';
+            return '(' ~ ($.parameters.invocant).emit ~ '.v_' ~ $.parameters.method ~ ' = ' ~ $.arguments.emit ~ ')';
         }
 
         '(' ~ $.parameters.emit ~ ' = ' ~ $.arguments.emit ~ ')';
@@ -341,10 +339,13 @@ class Call {
             }
         };
 
+        if ($.method eq 'join') {
+            return $invocant ~ '.' ~ $.method ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        }
+
         if     ($.method eq 'perl')
             || ($.method eq 'yaml')
             || ($.method eq 'say' )
-            || ($.method eq 'join')
             || ($.method eq 'chars')
             || ($.method eq 'isa')
         { 
@@ -363,12 +364,13 @@ class Call {
              $meth := '';  
         };
         
-        my $call := '.f_' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
-            '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
+            '(function (a_) {'
+                ~ ' var out = []; for(var i = 0; i < a_.length; i++) { out.push( a_[i].f_' ~ $meth ~ ' ) } return out;'
+            ~ ' })(' ~ $invocant ~ ')'
         }
         else {
-            $invocant ~ $call;
+            $invocant ~ '.f_' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         };
 
     }
