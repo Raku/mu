@@ -81,6 +81,11 @@ package Evalbot;
                 cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
                 revision    => sub { get_revision_from_file('/home/evalenv/pugs/src/perl6/snap/revision')},
             },
+            vijs  => {
+                chdir       => '../../src/perl6/snap',
+                cmd_line    => $^X . 'viv --js %program >>%out 2>&1',
+                revision    => sub { get_revision_from_file('/home/evalenv/pugs/src/perl6/snap/revision')},
+            },
             highlight  => {
                 chdir       => '../../src/perl6',
                 cmd_line    => $^X . ' STD_syntax_highlight %program >>%out 2>&1',
