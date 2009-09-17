@@ -3,8 +3,8 @@ use v6-alpha;
 class Main {
     say '1..4';
     my $m := ::Val::Num( num => 123 );
-    say '# Ast is:        ', $m.perl;
-    say '# Lisp code is:  ', $m.emit;
+    # say '# Ast is:        ', $m.perl;
+    say '# code is:  ', $m.emit;
     if ($m.emit) eq '123' {
         say 'ok 1';
     }
@@ -67,7 +67,7 @@ class Main {
     my $cap := scalar( ($m.hash){'MiniPerl6::Grammar.word'} );
     say '# match named capture: ', $cap;
     say '# bool value (true): ', ?$m;
-    say '# match object:      ', $m.perl;
+    # say '# match object:      ', $m.perl;
     if ($cap eq 'x') {
         say 'ok 6';
     }

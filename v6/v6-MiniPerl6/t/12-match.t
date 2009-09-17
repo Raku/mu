@@ -2,7 +2,7 @@ use v6-alpha;
 
 class Main {
     say '1..3';
-    my $m := ::MiniPerl6::Match( str => 'abcdef', from => 2, to => 4 );
+    my $m := ::MiniPerl6::Match( str => 'abcdef', from => 2, to => 4, bool => 1 );
     # say 'match scalar: ', $$m;
     if ($$m) eq 'cd' {
         say 'ok 1';
