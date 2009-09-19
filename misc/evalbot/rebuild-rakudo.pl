@@ -39,6 +39,7 @@ system("git rev-parse HEAD | cut -b 1,2,3,4,5,6 > $home$other/rakudo-revision") 
 
 eval {
 	chdir glob('~/blizkost/');
+    system('make', 'clean');        # may fail, nor warning here
 	system('git', 'pull')           and warn $?;
 	system($^X, 'Configure.pl', "--parrot-config=$parrot_config")
 		and warn $?;
