@@ -61,7 +61,7 @@ token ctrl_leave {
 };
 
 token ctrl_return {
-    return <.ws> <exp>
+    return [ <before <'('> > | <.ws> ] <exp>
     { make ::Return( 'result' => $$<exp> ) }
     |
     return 

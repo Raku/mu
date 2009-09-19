@@ -10,7 +10,13 @@ if (typeof Main != 'object') {
   Main.f_newline = function () {
     return "\n";
   }
-  Main.f_newline;  // v8 bug workaround
+  Main.f_lisp_escape_string = function (s) {
+    var o = s;
+    o.replace( /\\/g, "\\\\");
+    o.replace( /"/g, "\\\"");
+    return(o);
+  }
+
 })();
 
 if (typeof MiniPerl6$Match != 'object') {
@@ -18,6 +24,10 @@ if (typeof MiniPerl6$Match != 'object') {
   MiniPerl6$Match = new MiniPerl6$Match;
 }
 v_MATCH = { __proto__:MiniPerl6$Match };
+
+MiniPerl6$Match.f_hash = function () { return this }
+f_scalar = function (o) { return o.f_scalar() }
+
 
 // regex primitives
 if (typeof MiniPerl6$Grammar != 'object') {
