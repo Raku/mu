@@ -24,10 +24,18 @@ if (typeof MiniPerl6$Match != 'object') {
   MiniPerl6$Match = new MiniPerl6$Match;
 }
 v_MATCH = { __proto__:MiniPerl6$Match };
-
 MiniPerl6$Match.f_hash = function () { return this }
-f_scalar = function (o) { return o.f_scalar() }
 
+f_scalar = function (o) { 
+  return o.f_scalar() 
+}
+f_bool = function (o) {
+  if ( typeof o == 'boolean' ) { return o }
+  if ( typeof o == 'number' ) { return o }
+  if ( typeof o.f_bool == 'function' ) { return o.v_bool }
+  if ( typeof o.length == 'number' ) { return o.length }
+  return o;
+}
 
 // regex primitives
 if (typeof MiniPerl6$Grammar != 'object') {
@@ -40,7 +48,7 @@ MiniPerl6$Grammar.f_word = function (v_str, v_pos) {
             v_str:  v_str,
             v_from: v_pos, 
             v_to:   v_pos + 1,
-            v_bool: v_str.substr(v_pos, 1).match(/\w/)
+            v_bool: v_str.substr(v_pos, 1).match(/\w/) != null
         };
 } 
 MiniPerl6$Grammar.f_digit = function (v_str, v_pos) { 
@@ -49,7 +57,7 @@ MiniPerl6$Grammar.f_digit = function (v_str, v_pos) {
             v_str:  v_str,
             v_from: v_pos, 
             v_to:   v_pos + 1,
-            v_bool: v_str.substr(v_pos, 1).match(/\d/)
+            v_bool: v_str.substr(v_pos, 1).match(/\d/) != null
         };
 } 
 MiniPerl6$Grammar.f_space = function (v_str, v_pos) { 
@@ -58,7 +66,7 @@ MiniPerl6$Grammar.f_space = function (v_str, v_pos) {
             v_str:  v_str,
             v_from: v_pos, 
             v_to:   v_pos + 1,
-            v_bool: v_str.substr(v_pos, 1).match(/\s/)
+            v_bool: v_str.substr(v_pos, 1).match(/\s/) != null
         };
 } 
 MiniPerl6$Grammar.f_is_newline = function (v_str, v_pos) { 
@@ -77,6 +85,7 @@ MiniPerl6$Grammar.f_not_newline = function (v_str, v_pos) {
             v_str:  v_str,
             v_from: v_pos, 
             v_to:   v_pos + 1,
-            v_bool: v_str.substr(v_pos, 1).match(/[^\r\n]/)
+            v_bool: v_str.substr(v_pos, 1).match(/[^\r\n]/) != null
         };
 } 
+

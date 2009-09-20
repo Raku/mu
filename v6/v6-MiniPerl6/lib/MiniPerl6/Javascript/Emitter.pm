@@ -41,7 +41,9 @@ class MiniPerl6::Javascript::LexicalBlock {
                 $body      := ::MiniPerl6::Javascript::LexicalBlock( block => $body, needs_return => 1 );
                 $otherwise := ::MiniPerl6::Javascript::LexicalBlock( block => $otherwise, needs_return => 1 );
                 $str := $str 
-                    ~ 'if (' ~ $cond.emit ~ ') { ' ~ $body.emit ~ ' } else { ' ~ $otherwise.emit ~ ' }';
+                    ~ 'if ( f_bool(' ~ $cond.emit ~ ') ) { ' 
+                        ~ $body.emit ~ ' } else { ' 
+                        ~ $otherwise.emit ~ ' }';
             }
             else {
             if $last_statement.isa( 'Return' ) || $last_statement.isa( 'For' ) {
@@ -95,11 +97,13 @@ class CompUnit {
             if $decl.isa( 'Method' ) {
                 my $sig      := $decl.sig;
                 my $pos      := $sig.positional;
+                my $invocant := $sig.invocant;
                 my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block, needs_return => 1 );
                 $str := $str 
               ~ '  // method ' ~ $decl.name ~ Main.newline
               ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name 
                     ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {' ~ Main.newline
+              ~ '    ' ~ $invocant.emit ~ ' = this;' ~ Main.newline
               ~ '    ' ~ $block.emit ~ Main.newline
               ~ '  }' ~ Main.newline
               ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name ~ ';  // v8 bug workaround' ~ Main.newline;
@@ -448,9 +452,9 @@ class Apply {
                  ').substr(' ~ (@.arguments[1]).emit ~
                  ', ' ~ (@.arguments[2]).emit ~ ')' };
 
-        if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'prefix:<!>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 0 : 1)' };
-        if $code eq 'prefix:<?>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 1 : 0)' };
+        if $code eq 'prefix:<~>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_string()' };
+        if $code eq 'prefix:<!>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? 0 : 1)' };
+        if $code eq 'prefix:<?>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? 1 : 0)' };
 
         if $code eq 'prefix:<$>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_string()' };
         if $code eq 'prefix:<@>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_array()' };
@@ -470,10 +474,10 @@ class Apply {
         if $code eq 'infix:<!=>' { return '('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
 
         if $code eq 'ternary:<?? !!>' { 
-            return '(' ~ (@.arguments[0]).emit ~
-                 ' ? ' ~ (@.arguments[1]).emit ~
-                 ' : ' ~ (@.arguments[2]).emit ~
-                  ')' };
+            return '( f_bool(' ~ (@.arguments[0]).emit ~ ')' 
+                 ~ ' ? ' ~ (@.arguments[1]).emit 
+                 ~ ' : ' ~ (@.arguments[2]).emit 
+                 ~ ')' };
         
         $code := 'f_' ~ $.code;
         if $.namespace {
@@ -509,7 +513,9 @@ class If {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'if (' ~ $cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' }';
+        'if ( f_bool(' ~ $cond.emit ~ ') ) { ' 
+            ~ (@.body.>>emit).join(';') ~ ' } else { ' 
+            ~ (@.otherwise.>>emit).join(';') ~ ' }';
     }
 }
 
