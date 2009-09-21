@@ -72,6 +72,8 @@ class CompUnit {
             ~ 'if (typeof ' ~ $class_name ~ ' != \'object\') {' ~ Main.newline
             ~ '  ' ~ $class_name ~ ' = function() {};' ~ Main.newline
             ~ '  ' ~ $class_name ~ ' = new ' ~ $class_name ~ ';' ~ Main.newline
+            ~ '  ' ~ $class_name ~ '.f_isa = function (s) { return s == \'' ~ $.name ~ '\' };' ~ Main.newline
+            ~ '  ' ~ $class_name ~ '.f_perl = function () { return \'::' ~ $.name ~ '(\' + Main._dump(this) + \')\' };' ~ Main.newline
             ~ '}' ~ Main.newline
             ~ '(function () {' ~ Main.newline;
 
@@ -103,7 +105,7 @@ class CompUnit {
               ~ '  // method ' ~ $decl.name ~ Main.newline
               ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name 
                     ~ ' = function (' ~ ((@$pos).>>emit).join(', ') ~ ') {' ~ Main.newline
-              ~ '    ' ~ $invocant.emit ~ ' = this;' ~ Main.newline
+              ~ '    var ' ~ $invocant.emit ~ ' = this;' ~ Main.newline
               ~ '    ' ~ $block.emit ~ Main.newline
               ~ '  }' ~ Main.newline
               ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name ~ ';  // v8 bug workaround' ~ Main.newline;
@@ -377,15 +379,28 @@ class Call {
             }
         };
 
+        if     ($.method eq 'perl')
+            || ($.method eq 'isa')
+        { 
+            if ($.hyper) {
+                return 
+                    '(function (a_) {'
+                        ~ ' var out = []; for(var i = 0; i < a_.length; i++) { '
+                            ~ 'out.push( f_' ~ $.method ~ '(a_[i]) ) } return out;'
+                    ~ ' })(' ~ $invocant ~ ')'
+            }
+            return 'f_' ~ $.method ~ '(' 
+                    ~ $invocant 
+                    ~ ( @.arguments ?? ', ' ~ (@.arguments.>>emit).join(', ') !! '' ) 
+                ~ ')';
+        }
         if ($.method eq 'join') {
             return $invocant ~ '.' ~ $.method ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         }
 
-        if     ($.method eq 'perl')
-            || ($.method eq 'yaml')
+        if     ($.method eq 'yaml')
             || ($.method eq 'say' )
             || ($.method eq 'chars')
-            || ($.method eq 'isa')
         { 
             if ($.hyper) {
                 return 
@@ -457,10 +472,11 @@ class Apply {
         if $code eq 'prefix:<?>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? 1 : 0)' };
 
         if $code eq 'prefix:<$>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_string()' };
-        if $code eq 'prefix:<@>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_array()' };
+        if $code eq 'prefix:<@>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };  # .f_array()' };
         if $code eq 'prefix:<%>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_hash()' };
 
-        if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit).join(' + ')  ~ ')' };
+        if $code eq 'infix:<~>'  { return '( f_string(' ~ (@.arguments[0]).emit ~ ')'
+                                       ~ ' + f_string(' ~ (@.arguments[1]).emit ~ ') )' };
         if $code eq 'infix:<+>'  { return '('  ~ (@.arguments.>>emit).join(' + ')  ~ ')' };
         if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit).join(' - ')  ~ ')' };
         if $code eq 'infix:<>>'  { return '('  ~ (@.arguments.>>emit).join(' > ')  ~ ')' };

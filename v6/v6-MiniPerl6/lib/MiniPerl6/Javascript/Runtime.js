@@ -1,4 +1,26 @@
 // lib/MiniPerl6/Javascript/Runtime.js
+//
+// Runtime for "Perlito" MiniPerl6-in-Javascript
+//
+// AUTHORS
+//
+// Flavio Soibelmann Glock  fglock@gmail.com
+// The Pugs Team  perl6-compiler@perl.org
+//
+// SEE ALSO
+//
+// The Perl 6 homepage at http://dev.perl.org/perl6
+// The Pugs homepage at http://pugscode.org/
+//
+// COPYRIGHT
+//
+// Copyright 2009 by Flavio Soibelmann Glock and others.
+// 
+// This program is free software; you can redistribute it and/or modify it
+// under the same terms as Perl itself.
+// 
+// See http://www.perl.com/perl/misc/Artistic.html
+
 
 // class Main
 if (typeof Main != 'object') {
@@ -14,20 +36,65 @@ if (typeof Main != 'object') {
     var o = s;
     o.replace( /\\/g, "\\\\");
     o.replace( /"/g, "\\\"");
-    return(o);
+    return o;
   }
-
+  Main.f_to_javascript_namespace = function (s) {
+    var o = s;
+    o.replace( /::/g, "$");
+    return o;
+  }
+  Main._dump = function (o) {
+    var out = [];
+    for(var i in o) { 
+      if ( i.match( /^v_/ ) ) {
+        out.push( i.substr(2) + " => " + f_perl(o[i]) ) 
+      }
+    }
+    return out.join(", ");
+  }
 })();
 
 if (typeof MiniPerl6$Match != 'object') {
   MiniPerl6$Match = function() {};
   MiniPerl6$Match = new MiniPerl6$Match;
+  MiniPerl6$Match.f_isa = function (s) { return s == 'MiniPerl6::Match' };
+  MiniPerl6$Match.f_perl = function () { return '::MiniPerl6::Match(' + Main._dump(this) + ')' };
 }
 v_MATCH = { __proto__:MiniPerl6$Match };
 MiniPerl6$Match.f_hash = function () { return this }
 
+f_perl = function (o) {
+  if ( o == null ) { return 'undef' };
+  if ( typeof o.f_perl == 'function' ) { return o.f_perl() }
+  if ( typeof o == 'object' && (o instanceof Array) ) {
+    var out = [];
+    for(var i = 0; i < o.length; i++) { out.push( f_perl(o[i]) ) }
+    return "[" + out.join(", ") + "]";
+  }
+  switch (typeof o){
+    case "string":   return '"' + Main.f_lisp_escape_string(o) + '"';
+    case "function": return "function"; 
+    case "number":   return o;
+    case "boolean":  return o;
+    case "undefined": return 'undef';
+  }
+    var out = [];
+    for(var i in o) { 
+      out.push( i + " => " + f_perl(o[i]) ) 
+    }
+    return '{' + out.join(", ") + '}';
+}
+f_isa = function (o, s) {
+  if ( typeof o.f_isa == 'function' ) { return o.f_isa(s) }
+  return false;
+}
 f_scalar = function (o) { 
-  return o.f_scalar() 
+  if ( typeof o.f_scalar == 'function' ) { return o.f_scalar() }
+  return o;
+}
+f_string = function (o) { 
+  if ( typeof o.f_string == 'function' ) { return o.f_string() }
+  return o;
 }
 f_bool = function (o) {
   if ( typeof o == 'boolean' ) { return o }
