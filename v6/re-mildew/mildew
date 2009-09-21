@@ -297,66 +297,6 @@ if ($B && $C) {
 } else {
     exit;
 }
-if (defined $profile && ($profile eq 'call-graph' || $profile eq 'call-graph-raw')) {
-    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
-    local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
-    my $tmp = tmpnam;
-    compile_via_c(m0ld,$tmp);
-    my ($profile_fh,$profile_file) = tempfile();
-    local $ENV{SMOP_PROFILE} = $profile_file;
-    system($tmp);
-    warn $profile_file;
-    require Tree::Simple;
-    require Tree::Simple::View::DHTML;
-    require Tree::Simple::View::ASCII;
-
-    my $tree = Tree::Simple->new("root",Tree::Simple->ROOT);
-
-    say "creating Tree::Simple";
-    my $current = $tree;
-    my $count = 0;
-    my %frames;
-    my $eval;
-    my $prev;
-    # TODO - eval
-    while (<$profile_fh>) {
-    #last if $count++ > 800;
-        if (/^> \s \"(.*)\" \. \"(.*)\" /x) {
-            if ($2 eq 'eval' and $profile eq 'call-graph') {
-                $prev = $current;
-                $current = $eval;
-            } else {
-                $current = Tree::Simple->new("$1.$2",$current);
-            }
-        }
-        if (/^switching to (.*)$/) {
-            $eval = $frames{$1};
-        }
-        if (/^creating frame (.*)$/) {
-            $frames{$1} = $current;
-        }
-        if (/^< \s \"(.*)\" \. \"(.*)\" /x) {
-            if ($2 eq 'eval' and $profile eq 'call-graph') {
-                $current = $prev;
-            } else {
-                $current = $current->getParent;
-            }
-        }
-    }
-    if ($profile_format and $profile_format eq 'dhtml') {
-        my $tree_view = Tree::Simple::View::DHTML->new($tree);
-        output($tree_view->javascript().$tree_view->expandAll(),$output);
-    } elsif (not $profile_format or $profile_format eq 'txt' ) {
-        my $tree_view = Tree::Simple::View::ASCII->new($tree);
-        output($tree_view->expandAll(),$output);
-    } else {
-        die 'unknown format';
-    }
-    exit;
-} elsif ($profile) {
-    die 'unrecognised value passed to --profile';
-}
-
 if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
     local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
