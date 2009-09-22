@@ -74,7 +74,7 @@ package Evalbot;
                 filter      => \&filter_pct,
             },
             pugs => {
-                cmd_line    => 'cat %i | PUGS_SAFEMODE=true ~/pugs/pugs %program >> %out 2>&1',
+                cmd_line    => 'cat %i | PUGS_SAFEMODE=true ~/.cabal/bin/pugs %program >> %out 2>&1',
             },
             std  => {
                 chdir       => '../../src/perl6/snap',
