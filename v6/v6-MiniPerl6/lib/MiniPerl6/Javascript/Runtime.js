@@ -86,6 +86,11 @@ f_perl = function (o) {
 }
 f_isa = function (o, s) {
   if ( typeof o.f_isa == 'function' ) { return o.f_isa(s) }
+  switch (typeof o){
+    case "string":   return(s == 'Str');
+    case "number":   return(s == 'Num');
+  }
+  if ( s == 'Array' && typeof o == 'object' && (o instanceof Array) ) { return(1) }
   return false;
 }
 f_scalar = function (o) { 

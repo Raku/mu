@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>"Perlito" MiniPerl6 Compiler</title>
+	</head>
+	<body>
+    <h1>"Perlito" MiniPerl6 Compiler</h1>
+        <script type="text/javascript" src="perlito.js"></script>
+
+        <p>Source program:</p>
+		<textarea id="source" cols="70" rows="10">
+class Main {
+  say "hello, World!"
+}
+</textarea><br/>
+		<input type="button" value="Execute" onclick="execute()"/>
+
+        <p>Syntax tree (AST):</p>
+		<textarea id="ast-result" readonly="true" cols="70" rows="5">
+</textarea><br/>
+
+        <p>Compiled to Javascript:</p>
+		<textarea id="js-result" readonly="true" cols="70" rows="5">
+</textarea><br/>
+
+        <p>Output:</p>
+		<textarea id="print-result" readonly="true" cols="70" rows="5">
+</textarea><br/>
+
+	<script>
+
+        function print(s) {
+			document.getElementById('print-result').value += s;
+        }
+
+		function execute() {
+			var source = document.getElementById('source').value;
+            var pos = 0;
+            var ast;
+            ast = MiniPerl6$Grammar.f_comp_unit(source, pos).f_scalar();
+			document.getElementById('ast-result').value = ast.f_perl();
+			document.getElementById('js-result').value  = ast.f_emit();
+			eval(document.getElementById('js-result').value);
+            document.getElementById('print-result').value += "\ndone.";
+		}
+	</script>
+	</body>
+</html>

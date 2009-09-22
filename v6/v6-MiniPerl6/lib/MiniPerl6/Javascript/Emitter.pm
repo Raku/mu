@@ -182,7 +182,36 @@ class Lit::Seq {
 class Lit::Array {
     has @.array;
     method emit {
-        '[' ~ (@.array.>>emit).join(', ') ~ ']';
+        my $needs_interpolation := 0;
+        for @.array -> $item {
+            if     ( $item.isa( 'Var' )   && $item.sigil eq '@' )
+                || ( $item.isa( 'Apply' ) && $item.code  eq 'prefix:<@>' ) 
+            {
+                $needs_interpolation := 1;
+            }
+        }
+        if $needs_interpolation {
+            my $s := '';
+            for @.array -> $item {
+                if     ( $item.isa( 'Var' )   && $item.sigil eq '@' )
+                    || ( $item.isa( 'Apply' ) && $item.code  eq 'prefix:<@>' ) 
+                {
+                    $s := $s 
+                        ~ '(function(a_) { ' 
+                            ~ 'for (var i_ = 0; i_ < a_.length ; i_++) { a.push(a_[i_]) }' 
+                        ~ '})(' ~ $item.emit ~ '); '
+                }
+                else {
+                    $s := $s ~ 'a.push(' ~ $item.emit ~ '); '
+                }
+            }
+            '(function () { var a = []; ' 
+                ~ $s 
+            ~ ' return a })()';
+        }
+        else {
+            '[' ~ (@.array.>>emit).join(', ') ~ ']';
+        }
     }
 }
 
@@ -468,10 +497,10 @@ class Apply {
                  ', ' ~ (@.arguments[2]).emit ~ ')' };
 
         if $code eq 'prefix:<~>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_string()' };
-        if $code eq 'prefix:<!>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? 0 : 1)' };
-        if $code eq 'prefix:<?>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? 1 : 0)' };
+        if $code eq 'prefix:<!>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? false : true)' };
+        if $code eq 'prefix:<?>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? true : false)' };
 
-        if $code eq 'prefix:<$>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_string()' };
+        if $code eq 'prefix:<$>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_scalar()' };
         if $code eq 'prefix:<@>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };  # .f_array()' };
         if $code eq 'prefix:<%>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_hash()' };
 
