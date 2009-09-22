@@ -24,7 +24,7 @@ eval {
 	chdir glob('~/blizkost/');
     system('make', 'clean');        # may fail, nor warning here
 	system('git', 'pull')           and warn $?;
-	system($^X, 'Configure.pl', "--parrot-config=$parrot_config")
+	system($^X, 'Configure.pl', "--parrot-config=$home$other/bin/parrot_config")
 		and warn $?;
 	system('make') 			and warn $?;
 	system('make', 'install') 	and warn $?;
