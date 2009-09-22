@@ -14,14 +14,6 @@ my $other = $swap{$now};
 
 chdir "${home}rakudo";
 
-my $parrot_config = "$home$other/bin/parrot_config";
-die "No parrot_config at '$parrot_config'" unless -x $parrot_config;
-
-system('git', 'pull') and die $?;
-print join(' ', ($^X, 'Configure.pl', '--gen-parrot', 
-            "--gen-parrot-prefix=$home$other")), "\n";
-
-system($^X, 'Configure.pl', "--parrot-config=$parrot_config");
 system($^X, 'Configure.pl', '--gen-parrot',
 		"--gen-parrot-prefix=$home$other");
 system('make')                  and die $?;
