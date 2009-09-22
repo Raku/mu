@@ -180,8 +180,10 @@ package Evalbot;
     }
 
     sub get_revision_from_file {
-        my $file = glob shift;
-        open my $f, '<', $file or warn "Can't open file '$file': $!";
+        my $orig = shift;
+        my $file = glob $orig;
+        open my $f, '<', $file
+            or warn "Can't open file '$file' (original loation: '$orig'): $!";
         my $res = <$f>;
         close $f;
         chomp $res;
