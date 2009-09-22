@@ -64,7 +64,7 @@ package Evalbot;
             rakudo => {
                 chdir       => '../../../rakudo/',
                 cmd_line    => 'cat %i | PERL6LIB=lib ../p/bin/perl6 %program >> %out 2>&1',
-                revision    => sub { get_revision_from_file('/home/evalenv/p/rakudo-revision')},
+                revision    => sub { get_revision_from_file('~/p/rakudo-revision')},
                 filter      => \&filter_pct,
                 program_prefix => "use Safe;\n",
             },
@@ -74,17 +74,17 @@ package Evalbot;
                 filter      => \&filter_pct,
             },
             pugs => {
-                cmd_line    => 'cat %i | PUGS_SAFEMODE=true /home/evalenv/pugs/pugs %program >> %out 2>&1',
+                cmd_line    => 'cat %i | PUGS_SAFEMODE=true ~/pugs/pugs %program >> %out 2>&1',
             },
             std  => {
                 chdir       => '../../src/perl6/snap',
                 cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
-                revision    => sub { get_revision_from_file('/home/evalenv/pugs/src/perl6/snap/revision')},
+                revision    => sub { get_revision_from_file('~/pugs/src/perl6/snap/revision')},
             },
             vijs  => {
                 chdir       => '../../src/perl6/snap',
                 cmd_line    => $^X . ' viv --js %program >>%out 2>&1',
-                revision    => sub { get_revision_from_file('/home/evalenv/pugs/src/perl6/snap/revision')},
+                revision    => sub { get_revision_from_file('~/pugs/src/perl6/snap/revision')},
             },
             highlight  => {
                 chdir       => '../../src/perl6',
@@ -180,7 +180,7 @@ package Evalbot;
     }
 
     sub get_revision_from_file {
-        my $file = shift;
+        my $file = glob shift;
         open my $f, '<', $file or warn "Can't open file '$file': $!";
         my $res = <$f>;
         close $f;
