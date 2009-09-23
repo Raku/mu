@@ -82,8 +82,8 @@ package Evalbot;
                 revision    => sub { get_revision_from_file('~/pugs/src/perl6/snap/revision')},
             },
             vijs  => {
-                chdir       => '../../src/perl6/snap',
-                cmd_line    => $^X . ' viv --js %program >>%out 2>&1',
+                chdir       => '../../src/perl6/snap/vivjs',
+                cmd_line    => $^X . ' vivjs %program >>%out 2>&1',
                 revision    => sub { get_revision_from_file('~/pugs/src/perl6/snap/revision')},
             },
             highlight  => {
