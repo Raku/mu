@@ -20,8 +20,8 @@
 =head1 版本
 
     创建日期: 2004 年 8 月 10 号
-
     最后修改: 2009 年 9 月 20号
+
     版本: 180
     SVN : 28360
 
@@ -46,6 +46,10 @@ one-pass, predictive parser.  That is, lookahead of more than one
 "longest token" is discouraged.  The currently known exceptions to
 this are where the parser must:
 
+在子语言语法分析器允许的程度上，Perl 使用一遍解析、预言性的语法分析程序
+进行语法分析。也就是说，不鼓励一个以上“最长记号”超前。目前已知的例外，
+语法分析器必须的地方是：
+
 =over 4
 
 =item *
@@ -53,13 +57,19 @@ this are where the parser must:
 Locate the end of interpolated expressions that begin with a sigil
 and might or might not end with brackets.
 
+寻找以印记开头窜改的措辞末尾，和
+
 =item *
 
 Recognize that a reduce operator is not really beginning a C<[...]> composer.
 
+识别减法元操作符不是真正与 C<[...]> 中括号开头。
+
 =back
 
 =head1 Lexical Conventions
+
+=head1 词法约定
 
 =over 4
 
@@ -70,6 +80,9 @@ semantics regardless of the underlying text representations.  By default
 Perl presents Unicode in "NFG" formation, where each grapheme counts as
 one character.  A grapheme is what the novice user would think of as a
 character in their normal everyday life, including any diacritics.
+
+理论上，Perl 使用 Unicode 编写，并且拥有一致的 Unicode 语义学，不考虑含蓄
+的文本陈述。缺省地，Perl 使用 “NFG” 结构呈现 Unicode，
 
 =item *
 
@@ -124,6 +137,8 @@ that construct.
 =back
 
 =head1 Whitespace and Comments
+
+=head1 空白与注释
 
 =over 4
 
@@ -392,27 +407,39 @@ a postfix method call instead.)
 
 For example,
 
+例如，
+
     foo .method
 
 and
+
+和
 
     foo
     .method
 
 will always be interpreted as
 
+将被解释成
+
     foo $_.method
 
 but never as
+
+但从不作为
 
     foo.method
 
 Use some variant of
 
+使用一些不同的
+
     foo\
     .method
 
 if you mean the postfix method call.
+
+如果你是指后缀函数调用。
 
 One consequence of all this is that you may no longer write a Num as
 C<42.> with just a trailing dot.  You must instead say either C<42>
@@ -426,6 +453,8 @@ to C<0.123> rather than C<$_.123>.)
 =back
 
 =head1 Built-In Data Types
+
+=head1 内置数据类型
 
 =over 4
 
@@ -488,6 +517,10 @@ in OO when that's inconvenient.  However, some built-in concepts such
 as filehandles will be more object-oriented in a user-visible way
 than in Perl 5.
 
+Perl 6 是个 OO（面向对象） 引擎，但你不方便的时候一般不需要用 OO 考虑。
+然而，一些内置思想比如 filehands（文件句柄）在用户可见习惯将会比 Perl 5 
+更加面向对象。
+
 =item *
 
 A variable's type is a constraint indicating what sorts of values the
@@ -548,6 +581,8 @@ You can pass in arguments to the constructor as well:
 =item *
 
 If you say
+
+如果你指定
 
     my int @array is MyArray;
 
@@ -626,6 +661,9 @@ Every object supports a C<HOW> function/method that returns the
 metaclass instance managing it, regardless of whether the object
 is defined:
 
+每个对象支持 <HOW> 函数/方法，它返回管理自己的超类实例，无论该对象
+是否定义：
+
     'x'.HOW.methods('x');   # get available methods for strings
     Str.HOW.methods(Str);   # same thing with the prototype object Str
     HOW(Str).methods(Str);  # same thing as function call
@@ -633,7 +671,8 @@ is defined:
     'x'.methods;        # this is likely an error - not a meta object
     Str.methods;        # same thing
 
-(For a prototype system (a non-class-based object system), all objects are merely managed by the same meta object.)
+(For a prototype system (a non-class-based object system), all objects
+are merely managed by the same meta object.)
 
 =item *
 
@@ -647,7 +686,8 @@ and from C<Int> to do portable bitops on such ancient hardware.)
 
 (C<Num> may support arbitrary-precision floating-point arithmetic, but
 is not required to unless we can do so portably and efficiently.  C<Num>
-must support the largest native floating point format that runs at full speed.)
+must support the largest native floating point format that runs at full
+speed.)
 
 C<Rat> supports arbitrary precision rational arithmetic.
 Dividing two C<Int> objects using C<< infix:</> >> produces a
@@ -723,6 +763,8 @@ Otherwise you'll need to coerce to the proper units:
 
 Of course, such a dimensional number will fail if used on a string
 that doesn't provide the appropriate abstraction level.
+
+当然，
 
 If a C<StrPos> or C<StrLen> is forced into a numeric context, it will
 assume the units of the current Unicode abstraction level.  It is
@@ -804,9 +846,13 @@ for coercions.  That is:
 
 is always parsed as
 
+常常被分析成
+
     (utf8) op $x
 
 and never as
+
+并从不作为
 
     utf8(op $x)
 
@@ -845,6 +891,8 @@ indicating the desire to create a function of a single unknown, so:
     * - 1
 
 produces a closure of a single argument:
+
+产生一个单一参数的闭包：
 
     { $_ - 1 }
 
@@ -936,6 +984,8 @@ maximizing the degrees of freedom in a dwimmy way, not as a nihilistic
 
 =head2 Native types
 
+=head2 本地类型
+
 Values with these types autobox to their uppercase counterparts when
 you treat them as objects:
 
@@ -973,6 +1023,8 @@ type based on 32-bit integers produces valid UTF-32 in the native
 endianness.)
 
 =head2 Undefined types
+
+=head2 未定义类型
 
 These can behave as values or objects of any class, except that
 C<defined> always returns false.  One can create them with the
@@ -1038,6 +1090,8 @@ without parentheses:
 
 =head2 Immutable types
 
+=head2 不可变类型
+
 Objects with these types behave like values, i.e. C<$x === $y> is true
 if and only if their types and contents are identical (that is, if
 C<$x.WHICH> eqv C<$y.WHICH>).
@@ -1088,6 +1142,8 @@ a steady time base, such as POSIX systems, will simply have to make
 their best guess as to the correct atomic time.
 
 =head2 Mutable types
+
+=head2 可变类型
 
 Objects with these types have distinct C<.WHICH> values that do not change
 even if the object's contents change.  (Routines are considered mutable
@@ -1161,6 +1217,8 @@ element may.)
 
 =head2 Value types
 
+=head2 值类型
+
 Explicit types are optional. Perl variables have two associated types:
 their "value type" and their "implementation type".  (More generally, any
 container has an implementation type, including subroutines and modules.)
@@ -1223,6 +1281,8 @@ C<Package> role.
 
 =head2 Hierarchical types
 
+=head2 层次类型
+
 A non-scalar type may be qualified, in order to specify what type of
 value each of its elements stores:
 
@@ -1238,6 +1298,8 @@ type on its left. Parametric types are named using square brackets, so:
     my Hash of Array of Recipe %book;
 
 actually means:
+
+实际上意思是：
 
     my Hash:of(Array:of(Recipe)) %book;
 
@@ -1297,6 +1359,8 @@ formal variable until we understand MMD a bit better.]
 
 =head2 Parameter types
 
+=head2 参数类型
+
 Parameters may be given types, just like any other variable:
 
     sub max (int @array is rw) {...}
@@ -1322,6 +1386,8 @@ the same signature must unify compatibly if they have the same name:
     }
 
 =head2 Return types
+
+=head2 返回类型
 
 On a scoped subroutine, a return type can be specified before or after
 the name.  We call all return types "return types", but distinguish
@@ -1397,6 +1463,8 @@ different inner type is useful if you wish to hold your routine to
 a stricter standard than you let on to the outside world, for instance.
 
 =head1 Names and Variables
+
+=head1 名字和变量
 
 =over 4
 
@@ -1492,6 +1560,8 @@ original object.
 
 Unlike in Perl 5, you may no longer put whitespace between a sigil
 and its following name or construct.
+
+与 Perl 5 不同，
 
 =item *
 
@@ -1610,6 +1680,8 @@ force context, so these also work:
 
 But note that these don't do the same thing:
 
+但注意这些不是做同样的事情：
+
     @x[$g()]           # call function in $g
     %x{$g()}           # call function in $g
 
@@ -1713,6 +1785,8 @@ Unlike in Perl 5, the notation C<&foo> merely stands for the C<foo>
 function as a C<Routine> object without calling it.  You may call any Code
 object by dereferencing it with parens (which may, of course, contain arguments):
 
+与 Perl 5 不同，
+
     &foo($arg1, $arg2);
 
 Whitespace is not allowed before the parens because it is parsed as
@@ -1799,6 +1873,8 @@ of the slice exist:
 
 likewise,
 
+同样地，
+
     my ($a,$b,$c) = %hash<a b c> :delete;
 
 deletes the entries "en passant" while returning them.  (Of course,
@@ -1854,6 +1930,8 @@ The C<$#foo> notation is dead.  Use C<@foo.end> or C<@foo[*-1]> instead.
 
 =head1 Names
 
+=head1 名字
+
 =over 4
 
 =item *
@@ -1906,9 +1984,13 @@ Outside of declarative contexts you may use C<*> for a placeholder:
 
 Attempts to say something like:
 
+尝试描述类似这样的事情：
+
     ($a, $, $c) = 1..3;
 
 will result in the message, "Anonymous variable requires declarator".
+
+将返回一个信息，“匿名变量需要定义符”。
 
 
 =item *
@@ -2044,6 +2126,8 @@ Package names are searched for from inner lexical scopes to outer,
 then from inner packages to outer.  Variable names are searched
 for from inner lexical scopes to outer, but unlike package names
 are looked for in only the current package.
+
+注意与 Perl 5 不同，
 
 Use the C<MY> pseudopackage to limit the lookup to the current lexical
 scope, and C<OUR> to limit the scopes to the current package scope.
@@ -2277,6 +2361,8 @@ See below for more about the C<COMPILING> pseudo package.
 
 Here are some possibilities:
 
+这里有一些可能性：
+
     $?FILE      Which file am I in?
     $?LINE      Which line am I at?
     &?ROUTINE   Which routine am I in?
@@ -2479,6 +2565,8 @@ Adverbial syntax will be described more fully later.
 
 =head1 Literals
 
+=head1 直接量
+
 =over 4
 
 =item *
@@ -2588,9 +2676,13 @@ Note that this essentially overrides precedence to produce a term, so:
 
 means
 
+意思是
+
     (1 / 2) * (3 / 4)
 
 rather than
+
+而不是
 
     ((1 / 2) * 3) / 4
 
@@ -2638,9 +2730,13 @@ precedence grouping, they merely autointerpolate in list context.  Therefore
 
 is equivalent to:
 
+等价于：
+
     @a = 1, ('x', 'y'), 2;
 
 which is the same as:
+
+这与下面的一样：
 
     @a = 1, 'x', 'y', 2;
 
@@ -2649,6 +2745,8 @@ In item context, though, the implied parentheses are not removed, so
     $a = < a b >;
 
 is equivalent to:
+
+等价于：
 
     $a = ('a', 'b');
 
@@ -2993,9 +3091,13 @@ dereferencers: that is, any of:
 
 In other words, this is legal:
 
+换句话说，这是合法的：
+
     "Val = $a.ord.fmt('%x')\n"
 
 and is equivalent to
+
+并等价于：
 
     "Val = { $a.ord.fmt('%x') }\n"
 
@@ -3077,6 +3179,8 @@ context.  You can force list context on the expression using
 the C<list> operator if necessary.
 
 The following means the same as the previous example.
+
+下面与前面的例子意思一样。
 
     print "The attribute is { @baz[3](1,2,3){$xyz}<blurfl>.attr }.\n"
 
