@@ -20,7 +20,7 @@
 =head1 版本
 
     创建日期: 2004 年 8 月 10 号
-    最后修改: 2009 年 9 月 20号
+    最后修改: 2009 年 9 月 20 号
 
     版本: 180
     SVN : 28360
@@ -47,8 +47,8 @@ one-pass, predictive parser.  That is, lookahead of more than one
 this are where the parser must:
 
 在子语言语法分析器允许的程度上，Perl 使用一遍解析、预言性的语法分析程序
-进行语法分析。也就是说，不鼓励一个以上“最长记号”超前。目前已知的例外，
-语法分析器必须的地方是：
+进行语法分析。也就是说，不鼓励一个以上“最长记号”超前。目前语法分析器已
+知必须例外的地方是：
 
 =over 4
 
@@ -57,7 +57,7 @@ this are where the parser must:
 Locate the end of interpolated expressions that begin with a sigil
 and might or might not end with brackets.
 
-寻找以印记开头窜改的措辞末尾，和
+寻找以印记开头窜改的措辞末尾，并可能或不可能以括号结尾。
 
 =item *
 
@@ -81,8 +81,10 @@ Perl presents Unicode in "NFG" formation, where each grapheme counts as
 one character.  A grapheme is what the novice user would think of as a
 character in their normal everyday life, including any diacritics.
 
-理论上，Perl 使用 Unicode 编写，并且拥有一致的 Unicode 语义学，不考虑含蓄
-的文本陈述。缺省地，Perl 使用 “NFG” 结构呈现 Unicode，
+理论上，Perl 使用 Unicode 编写，并且拥有一致的 Unicode 语义学，而不考虑含
+蓄的文本陈述。缺省地，Perl 以 “NFG” 结构呈现 Unicode，它每一个字形视为一
+个字符。一个字形就是初级用户在他们每天正常生活会认为的一个字符，包括任何
+附加符号。
 
 =item *
 
@@ -104,9 +106,13 @@ For some syntactic purposes, Perl distinguishes bracketing characters
 from non-bracketing.  Bracketing characters are defined as any Unicode
 characters with either bidirectional mirrorings or Ps/Pe/Pi/Pf properties.
 
+对于某些语法目的，Perl 区分括号字符和非括号字符。
+
 In practice, though, you're safest using matching characters with
 Ps/Pe/Pi/Pf properties, though ASCII angle brackets are a notable exception,
 since they're bidirectional but not in the Ps/Pe/Pi/Pf sets.
+
+实际上，
 
 Characters with no corresponding closing character do not qualify
 as opening brackets.  This includes the second section of the Unicode
@@ -153,6 +159,10 @@ to make it a comment.  (However, bare C<=begin> and C<=end> probably
 aren't good enough, because all comments in them will show up in the
 formatted output.)
 
+在 Perl 6，POD 部分确实可以作为多行注释。与 Perl 5 不同，现在 POD 语
+法允许你使用 C<=begin comment> 和 C<=end comment> 正确地划分一个 POD 
+块，而不用 C<=cut>。（实际上，C<=cut> 现在没有了。）
+
 We have single paragraph comments with C<=for comment> as well.
 That lets C<=for> keep its meaning as the equivalent of a C<=begin>
 and C<=end> combined.  As with C<=begin> and C<=end>, a comment started
@@ -181,6 +191,9 @@ Embedded comments are supported as a variant on quoting syntax, introduced
 by C<#`> plus any user-selected bracket characters (as defined in
 L</Lexical Conventions> above):
 
+在引用语法中，支持一个嵌入式注释变体，采用 C<#`> 加上任何用户选择的括号字符
+（正如上面 C<词法约定> 的定义）
+
     say #`( embedded comment ) "hello, world!";
 
     $object\#`{ embedded comments }.say;
@@ -206,6 +219,8 @@ miscount single brackets:
 
 However, it's sometimes better to use pod comments because they are
 implicitly line-oriented.
+
+不管怎么样，有时候最好使用POD
 
 =item *
 
