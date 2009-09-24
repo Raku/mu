@@ -34,8 +34,9 @@ if (typeof Main != 'object') {
   }
   Main.f_lisp_escape_string = function (s) {
     var o = s;
-    o.replace( /\\/g, "\\\\");
-    o.replace( /"/g, "\\\"");
+    o = o.replace( /\\/g, "\\\\");
+    o = o.replace( /"/g, "\\\"");
+    o = o.replace( /\n/g, "\\n");
     return o;
   }
   Main.f_to_javascript_namespace = function (s) {
@@ -63,6 +64,11 @@ if (typeof MiniPerl6$Match != 'object') {
 v_MATCH = { __proto__:MiniPerl6$Match };
 MiniPerl6$Match.f_hash = function () { return this }
 
+if (typeof say != 'function') {
+  say = function (s) {
+    print(s + "\n")
+  }
+}
 f_perl = function (o) {
   if ( o == null ) { return 'undef' };
   if ( typeof o.f_perl == 'function' ) { return o.f_perl() }

@@ -358,27 +358,37 @@ token char_any {
 }
 
 token single_quoted_unescape {
-    |  \\ <char_any>  <single_quoted_unescape>  
-        { make $<char_any> ~ $<single_quoted_unescape> }
+    |  \\ \'  <single_quoted_unescape>  
+        { make "\'" ~ $<single_quoted_unescape> }
+    |  \\ \"  <single_quoted_unescape>  
+        { make "\"" ~ $<single_quoted_unescape> }
+    |  \\ \\  <single_quoted_unescape>  
+        { make "\\" ~ $<single_quoted_unescape> }
     |  <!before \' > <char_any> <single_quoted_unescape>
         { make $<char_any> ~ $<single_quoted_unescape> }
     |  ''    
 }
 
 token double_quoted_unescape {
-    |  \\ <char_any>  <double_quoted_unescape>  
-        { make $<char_any> ~ $<double_quoted_unescape> }
+    |  \\ \'  <double_quoted_unescape>  
+        { make '\'' ~ $<double_quoted_unescape> }
+    |  \\ \"  <double_quoted_unescape>  
+        { make '"' ~ $<double_quoted_unescape> }
+    |  \\ \\  <double_quoted_unescape>  
+        { make "\\" ~ $<double_quoted_unescape> }
+    |  \\ n  <double_quoted_unescape>  
+        { make Main.newline ~ $<double_quoted_unescape> }
     |  <!before \" > <char_any> <double_quoted_unescape>
         { make $<char_any> ~ $<double_quoted_unescape> }
     |  ''    
 }
 
-token digits {  \d  [ <digits> | '' ]  }
-
 token val_buf {
     | \" <double_quoted_unescape>  \" { make ::Val::Buf( 'buf' => $$<double_quoted_unescape> ) }
     | \' <single_quoted_unescape>  \' { make ::Val::Buf( 'buf' => $$<single_quoted_unescape> ) }
 }
+
+token digits {  \d  [ <digits> | '' ]  }
 
 token val_int {
     <digits>

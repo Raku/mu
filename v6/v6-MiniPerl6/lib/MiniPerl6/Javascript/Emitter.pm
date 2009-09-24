@@ -481,25 +481,20 @@ class Apply {
 
         if $code eq 'self'       { return 'this' };
         if $code eq 'false'      { return '0' };
-
         if $code eq 'make'       { return '(v_MATCH.v_capture = ' ~ (@.arguments.>>emit).join(', ') ~ ')' };
-
-        if $code eq 'say'        { return 'print('  ~ (@.arguments.>>emit).join(', ') ~ ')' };  # ' + "\\n")' };
-        if $code eq 'print'      { return 'print('  ~ (@.arguments.>>emit).join(', ') ~ ')' };
-        if $code eq 'warn'       { return 'warn('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
-
+        if $code eq 'say'        { return 'say('    ~ (@.arguments.>>emit).join(' + ') ~ ')' };
+        if $code eq 'print'      { return 'print('  ~ (@.arguments.>>emit).join(' + ') ~ ')' };
+        if $code eq 'warn'       { return 'warn('   ~ (@.arguments.>>emit).join(' + ') ~ ')' };
         # if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-
         if $code eq 'defined'    { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' != null)' };
         if $code eq 'substr' { 
             return '(' ~ (@.arguments[0]).emit ~
                  ').substr(' ~ (@.arguments[1]).emit ~
-                 ', ' ~ (@.arguments[2]).emit ~ ')' };
-
+                 ', ' ~ (@.arguments[2]).emit ~ ')' 
+        };
         if $code eq 'prefix:<~>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_string()' };
         if $code eq 'prefix:<!>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? false : true)' };
         if $code eq 'prefix:<?>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? true : false)' };
-
         if $code eq 'prefix:<$>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_scalar()' };
         if $code eq 'prefix:<@>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };  # .f_array()' };
         if $code eq 'prefix:<%>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_hash()' };
