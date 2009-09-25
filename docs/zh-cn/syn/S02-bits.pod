@@ -262,8 +262,8 @@ Perl requires an absence of whitespace between a noun and a postfix
 operator, using unspace lets you line up postfix operators:
 
 有些语言比如 C 运行使用转义换行符来合并行。由于各种原因，其它语言（比如正则表达
-式）允许反斜杠空格字符。Per 6 概括这种观念为任何种类的空格字符。使用前缀 C<\>，
-任何连续的空格（包括注释）都会从语法分析器中隐藏。这称为“无间隙”。
+式）允许反斜杠空格字符。Per 6 概括这种观念为任何种类的空格字符。通过使用前
+缀 C<\>，任何连续的空格（包括注释）都会从语法分析器中隐藏。这称为“反空格”。
 
     %hash\  {$key}
     @array\ [$ix]
@@ -289,7 +289,7 @@ or they would be taken as an unspace.)
 
 Other postfix operators may also make use of unspace:
 
-其它后缀操作符也可以使用非间隙：
+其它后缀操作符也可以使用反空格：
 
     $number\  ++;
     $number\  --;
