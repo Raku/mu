@@ -92,8 +92,8 @@ Perl can count Unicode line and paragraph separators as line markers,
 but that behavior had better be configurable so that Perl's idea of
 line numbers matches what your editor thinks about Unicode lines.
 
-Perl 会把 Unicode 行和段落分隔符视为行标记，但该行为最好可配置，以便 Perl 
-的行匹配思想符合编辑器对 Unicode 行的思想。
+Perl 会把 Unicode 行和段落分隔符视为行标记，但这种行为最好可配置，以
+便 Perl 的行匹配思想符合编辑器对 Unicode 行的思想。
 
 =item *
 
@@ -104,7 +104,7 @@ so you are free to use any amount of whitespace anywhere that whitespace
 makes sense. Comments always count as whitespace.
 
 Unicode 横向空白被视为空白，但最好不要在使毗邻记号看起来像单一记号的时候使
-用瘦空格。另一方面，Perl 不使用缩进作为语法，所以你可以在任何空白有意义的
+用紧间距。另一方面，Perl 不使用缩进作为语法，所以你可以在任何空白有意义的
 地方自由使用任意数量的空白。注释常常被视为空白。
 
 =item *
