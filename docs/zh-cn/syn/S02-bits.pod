@@ -92,7 +92,8 @@ Perl can count Unicode line and paragraph separators as line markers,
 but that behavior had better be configurable so that Perl's idea of
 line numbers matches what your editor thinks about Unicode lines.
 
-Perl 会把 Unicode 行和段落分隔符视为行标记，但
+Perl 会把 Unicode 行和段落分隔符视为行标记，但该行为最好可配置，以便 Perl 
+的行匹配思想符合编辑器对 Unicode 行的思想。
 
 =item *
 
@@ -102,13 +103,18 @@ a single token.  On the other hand, Perl doesn't use indentation as syntax,
 so you are free to use any amount of whitespace anywhere that whitespace
 makes sense. Comments always count as whitespace.
 
+Unicode 横向空白被视为空白，但最好不要在使毗邻记号看起来像单一记号的时候使
+用瘦空格。另一方面，Perl 不使用缩进作为语法，所以你可以在任何空白有意义的
+地方自由使用任意数量的空白。注释常常被视为空白。
+
 =item *
 
 For some syntactic purposes, Perl distinguishes bracketing characters
 from non-bracketing.  Bracketing characters are defined as any Unicode
 characters with either bidirectional mirrorings or Ps/Pe/Pi/Pf properties.
 
-出于某些语法目的，Perl 区分括号字符和非括号字符。
+出于某些语法目的，Perl 区分括号字符和非括号字符。括号字符被定义为任何双向
+镜像（Bidirectional mirrorings）或 Ps/Pe/Pi/Pf 属性的 Unicode 字符。
 
 In practice, though, you're safest using matching characters with
 Ps/Pe/Pi/Pf properties, though ASCII angle brackets are a notable exception,
@@ -120,6 +126,8 @@ Characters with no corresponding closing character do not qualify
 as opening brackets.  This includes the second section of the Unicode
 BidiMirroring data table.
 
+字符没有相应的闭括号就不算开括号。这包含 Unicode 双向镜像数据表的第二部分。
+
 If a character is already used in Ps/Pe/Pi/Pf mappings, then any entry
 in BidiMirroring is ignored (both forward and backward mappings).
 For any given Ps character, the next Pe codepoint (in numerical
@@ -129,7 +137,12 @@ maps to C<U+298E>, not C<U+2990>, and C<U+298F> maps to C<U+2990>,
 not C<U+298E>.  Neither C<U+298E> nor C<U+2990> are valid bracket
 openers, despite having reverse mappings in the BidiMirroring table.
 
-如果字符已经使用 Ps/Pe/Pi/Pf 映射，
+如果字符已经使用 Ps/Pe/Pi/Pf 映射，则双向镜像的任何入口被忽略（向前映射
+和向后映射）。对于任何给定的 Ps 字符，下一个 Pe 字符码（按数字顺序）被假
+定为它匹配的字符，即使这不是你可能已经猜到使用左右对称的字符。因此，C<U+298D>
+映射到 C<U+298E>，不是 C<U+2990>，以及 C<U+298F> 映射到 C<U+2990>，而不
+是 C<U+298E>。C<U+298E> 和 C<U+2990> 都不是有效的开括号，尽管在双向镜像表
+中有反向映射。
 
 The C<U+301D> codepoint has two closing alternatives, C<U+301E> and C<U+301F>;
 Perl 6 only recognizes the one with lower code point number, C<U+301E>,
@@ -3048,6 +3061,8 @@ A consequence of the previous item is that we can now say:
     %hash = qw:c/a b c d {@array} {%hash}/;
 
 or
+
+或
 
     %hash = qq:w/a b c d {@array} {%hash}/;
 
