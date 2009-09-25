@@ -5,7 +5,7 @@
 
 =head1 标题
 
-大纲 二: 集腋成裘 
+大纲 二: 集腋成裘
 
 =head1 AUTHORS
 
@@ -16,6 +16,10 @@
 =head1 译者
 
     卓明亮 <zhuomingliang@yahoo.com.cn>
+
+=head1 感谢
+
+    Carl Mäsak <cmasak@gmail.com>
 
 =head1 版本
 
@@ -106,7 +110,7 @@ For some syntactic purposes, Perl distinguishes bracketing characters
 from non-bracketing.  Bracketing characters are defined as any Unicode
 characters with either bidirectional mirrorings or Ps/Pe/Pi/Pf properties.
 
-对于某些语法目的，Perl 区分括号字符和非括号字符。
+出于某些语法目的，Perl 区分括号字符和非括号字符。
 
 In practice, though, you're safest using matching characters with
 Ps/Pe/Pi/Pf properties, though ASCII angle brackets are a notable exception,
