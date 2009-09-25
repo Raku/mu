@@ -1,13 +1,9 @@
 
 =encoding utf8
 
-=head1 TITLE
-
 =head1 标题
 
 大纲 二: 集腋成裘
-
-=head1 AUTHORS
 
 =head1 作者
 
@@ -38,8 +34,8 @@ Apocalypse, assume the Synopsis is correct.)
 
 本文档概括了启示录二，它涵盖了小规模的词汇条目和类型问题。（这些纲要也
 包含了 Perl 6 随时间推移体现不断演变设计的更新，这与被及时冻结为“历史
-文档”的启示录不同。这些更新没有标记——如果大纲与它的启示录不一致，假设
-大纲是正确的。）
+文档”的启示录不同。这些更新没有标记——如果大纲与它的启示录不一致，并假
+设大纲是正确的。）
 
 =head1 One-pass parsing
 
@@ -88,7 +84,7 @@ character in their normal everyday life, including any diacritics.
 理论上，Perl 使用 Unicode 编写，并且拥有一致的 Unicode 语义学，而不考虑含
 蓄的文本陈述。缺省地，Perl 以 “NFG” 结构呈现 Unicode，它每一个字形视为一
 个字符。一个字形就是初级用户在他们每天正常生活会认为的一个字符，包括任何
-附加符号。
+发音符号。
 
 =item *
 
@@ -96,13 +92,15 @@ Perl can count Unicode line and paragraph separators as line markers,
 but that behavior had better be configurable so that Perl's idea of
 line numbers matches what your editor thinks about Unicode lines.
 
+Perl 会把 Unicode 行和段落分隔符视为行标记，但
+
 =item *
 
 Unicode horizontal whitespace is counted as whitespace, but it's better
 not to use thin spaces where they will make adjoining tokens look like
 a single token.  On the other hand, Perl doesn't use indentation as syntax,
-so you are free to use any amount of whitespace anywhere that whitespace makes sense.
-Comments always count as whitespace.
+so you are free to use any amount of whitespace anywhere that whitespace
+makes sense. Comments always count as whitespace.
 
 =item *
 
@@ -131,10 +129,15 @@ maps to C<U+298E>, not C<U+2990>, and C<U+298F> maps to C<U+2990>,
 not C<U+298E>.  Neither C<U+298E> nor C<U+2990> are valid bracket
 openers, despite having reverse mappings in the BidiMirroring table.
 
+如果字符已经使用 Ps/Pe/Pi/Pf 映射，
+
 The C<U+301D> codepoint has two closing alternatives, C<U+301E> and C<U+301F>;
 Perl 6 only recognizes the one with lower code point number, C<U+301E>,
 as the closing brace.  This policy also applies to new one-to-many
 mappings introduced in the future.
+
+C<U+301D> 字符码有两个闭括号可选，C<U+301E> 和 C<U+301F>; Perl 6 只识别较小的字符
+码号码 C<U+301E> 作为闭括号。这项政策也适用于后面新推出的一对多映射。
 
 However, many-to-one mappings are fine; multiple opening characters
 may map to the same closing character.  For instance, U+2018, U+201A,
@@ -143,6 +146,9 @@ Constructs that count openers and closers assume that only the given
 opener is special.  That is, if you open with one of the alternatives,
 all other alternatives are treated as non-bracketing characters within
 that construct.
+
+然而，多对一映射是可以的：多个开始符号，可以映射到同样的结束符号。举个例子，
+
 
 =back
 
@@ -224,7 +230,7 @@ miscount single brackets:
 However, it's sometimes better to use pod comments because they are
 implicitly line-oriented.
 
-不管怎么样，有时候最好使用POD
+不管怎么样，有时候最好使用 Pod，因为它们含蓄地面向行。
 
 =item *
 
@@ -255,6 +261,10 @@ any of several whitespace dependencies in Perl.  For example, since
 Perl requires an absence of whitespace between a noun and a postfix
 operator, using unspace lets you line up postfix operators:
 
+有些语言比如 C 运行使用转义换行符来合并行。由于各种原因，其它语言（比如正则表达
+式）允许反斜杠空格字符。Per 6 概括这种观念为任何种类的空格字符。使用前缀 C<\>，
+任何连续的空格（包括注释）都会从语法分析器中隐藏。这称为“无间隙”。
+
     %hash\  {$key}
     @array\ [$ix]
     $subref\($arg)
@@ -278,6 +288,8 @@ However, other forms of unspace may usefully be preceded by whitespace.
 or they would be taken as an unspace.)
 
 Other postfix operators may also make use of unspace:
+
+其它后缀操作符也可以使用非间隙：
 
     $number\  ++;
     $number\  --;
