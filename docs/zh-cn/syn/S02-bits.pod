@@ -83,8 +83,8 @@ character in their normal everyday life, including any diacritics.
 
 理论上，Perl 使用 Unicode 编写，并且拥有一致的 Unicode 语义学，而不考虑含
 蓄的文本陈述。缺省地，Perl 以 “NFG” 结构呈现 Unicode，它每一个字形视为一
-个字符。一个字形就是初级用户在他们每天正常生活会认为的一个字符，包括任何
-发音符号。
+个字符。一个字形就是初级用户在他们每天正常生活会认为的一个字符，包括任何发音
+符号。
 
 =item *
 
@@ -92,8 +92,8 @@ Perl can count Unicode line and paragraph separators as line markers,
 but that behavior had better be configurable so that Perl's idea of
 line numbers matches what your editor thinks about Unicode lines.
 
-Perl 会把 Unicode 行和段落分隔符视为行标记，但这种行为最好可配置，以
-便 Perl 的行匹配符合编辑器对 Unicode 行的思想。
+Perl 会把 Unicode 行和段落分隔符视为行标记，但这种行为最好可配置，以便 Perl 的
+行匹配符合编辑器对 Unicode 行的思想。
 
 =item *
 
@@ -103,9 +103,9 @@ a single token.  On the other hand, Perl doesn't use indentation as syntax,
 so you are free to use any amount of whitespace anywhere that whitespace
 makes sense. Comments always count as whitespace.
 
-Unicode 横向空白被视为空白，但最好不要在使毗邻记号看起来像单一记号的时候使
-用紧间距。另一方面，Perl 不使用缩进作为语法，所以你可以在任何空白有意义的
-地方自由使用任意数量的空白。注释常常被视为空白。
+Unicode 横向空白被视为空白，但最好不要在使毗邻记号看起来像单一记号的时候使用紧
+间距。另一方面，Perl 不使用缩进作为语法，所以你可以在任何空白有意义的地方自由使
+用任意数量的空白。注释常常被视为空白。
 
 =item *
 
@@ -113,14 +113,15 @@ For some syntactic purposes, Perl distinguishes bracketing characters
 from non-bracketing.  Bracketing characters are defined as any Unicode
 characters with either bidirectional mirrorings or Ps/Pe/Pi/Pf properties.
 
-出于某些语法目的，Perl 区分括号字符和非括号字符。括号字符被定义为任何双向
-镜像（Bidirectional mirrorings）或 Ps/Pe/Pi/Pf 属性的 Unicode 字符。
+出于某些语法目的，Perl 区分括号字符和非括号字符。括号字符被定义为任何双向镜
+像（Bidirectional mirrorings）或 Ps/Pe/Pi/Pf 属性的 Unicode 字符。
 
 In practice, though, you're safest using matching characters with
 Ps/Pe/Pi/Pf properties, though ASCII angle brackets are a notable exception,
 since they're bidirectional but not in the Ps/Pe/Pi/Pf sets.
 
-实际上，
+但实际上，你使用 Ps/Pe/Pi/Pf 属性是最安全的，尽管 ASCII 尖括号是个显著的例外，因
+为它们是双向的但不在 Ps/Pe/Pi/Pf 集合里面。
 
 Characters with no corresponding closing character do not qualify
 as opening brackets.  This includes the second section of the Unicode
@@ -219,6 +220,8 @@ work just as in Perl 5, starting with a C<#> character and
 ending at the subsequent newline.  They count as whitespace equivalent
 to newline for purposes of separation.  Unlike in Perl 5, C<#>
 may I<not> be used as the delimiter in quoting constructs.
+
+正如 Perl 5，所有其它 C<#> 用法被解释成单行注释。
 
 =item *
 
