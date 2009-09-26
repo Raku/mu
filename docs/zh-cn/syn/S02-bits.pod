@@ -93,7 +93,7 @@ but that behavior had better be configurable so that Perl's idea of
 line numbers matches what your editor thinks about Unicode lines.
 
 Perl 会把 Unicode 行和段落分隔符视为行标记，但这种行为最好可配置，以
-便 Perl 的行匹配思想符合编辑器对 Unicode 行的思想。
+便 Perl 的行匹配符合编辑器对 Unicode 行的思想。
 
 =item *
 
@@ -193,9 +193,16 @@ That lets C<=for> keep its meaning as the equivalent of a C<=begin>
 and C<=end> combined.  As with C<=begin> and C<=end>, a comment started
 in code reverts to code afterwards.
 
+使用 C<=for comment>，我们也可以有单独段落的注释。这让 C<=for> 与 C<=begin> 联
+合 C<=end> 保持相同的含义。与 C<=begin> 及 C<=end> 一样，源于代码中的注释后来会还
+原成代码。
+
 Since there is a newline before the first C<=>, the Pod form of comment
 counts as whitespace equivalent to a newline.  See S26 for more on
 embedded documentation.
+
+既然在第一个 C<=> 之前有一个新行，Pod 注释格式认为空白等价于新行。关于嵌入式文档，
+参考 S26 以获得更多信息。
 
 =item *
 
@@ -203,6 +210,9 @@ Except within a string literal, a C<#> character always introduces a comment in
 Perl 6.  There are two forms of comment based on C<#>.  Embedded
 comments require the C<#> to be followed by a backtick (C<`>) plus one
 or more opening bracketing characters.
+
+除了在逐字字符串中，C<#>操作符常常在 Perl 6 中引入注释。基于 C<#> 有两种格式的
+注释。嵌入式注释需要 C<#> 紧跟着反引号（C<`>）加上一个或多个开括号字符。
 
 All other uses of C<#> are interpreted as single-line comments that
 work just as in Perl 5, starting with a C<#> character and
@@ -229,7 +239,7 @@ L</Lexical Conventions> above):
 
 Brackets may be nested, following the same policy as ordinary quote brackets.
 
-括号可以被嵌套，
+括号可以被嵌套，遵循普通引用括号的策略。
 
 There must be no space between the C<#`> and the opening bracket character.
 (There may be the I<visual appearance> of space for some double-wide
@@ -247,7 +257,7 @@ miscount single brackets:
 However, it's sometimes better to use Pod comments because they are
 implicitly line-oriented.
 
-不管怎么样，有时候最好使用 Pod，因为它们含蓄地面向行。
+不管怎么样，有时候最好使用 Pod，因为它们暗示地面向行。
 
 =item *
 
@@ -380,7 +390,6 @@ it is an end-of-line comment, not an embedded comment.  Write:
 
 这是一行行尾注释，不是嵌入式注释。写：
 
-
     \ #`(
          ...
         )
@@ -398,6 +407,9 @@ I<longest-token> principle, or in the cases of large constructs, a
 I<prefer shifting to reducing> principle.  See L</Grammatical Categories>
 below for more on how a Perl program is analyzed into tokens.)
 
+通常，Perl 6 中的空白是可选的，除非它需要用来分割被误解成一个单记号或者其它语法
+单元的结构。（也就是说，Perl 6 遵循 标准的 I<最长记号> 原则，或
+
 This is an unchanging deep rule, but the surface ramifications of it
 change as various operators and macros are added to or removed from
 the language, which we expect to happen because Perl 6 is designed to
@@ -409,6 +421,8 @@ requires space before it.  Postfix operators may never have intervening
 space, though they may have an intervening dot.  If further separation
 is desired, an unspace or embedded comment may be used as described above, as long
 as no whitespace occurs outside the unspace or embedded comment.
+
+这是一个不变的底层原则，
 
 For instance, if you were to add your own C<< infix:<++> >> operator,
 then it must have space before it. The normal autoincrementing
@@ -522,7 +536,8 @@ In support of OO encapsulation, there is a new fundamental datatype:
 B<P6opaque>.  External access to opaque objects is always through method
 calls, even for attributes.
 
-为了支持 OO 封装，这里有个基本数据类型：B<P6opaque>。
+为了支持 OO 封装，这里有个基本数据类型：B<P6opaque>。外部通常通过方法调用处
+理 opaque 对象，即使是对 attributes 进行处理。
 
 =item *
 
