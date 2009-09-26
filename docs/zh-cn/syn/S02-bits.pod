@@ -82,7 +82,7 @@ one character.  A grapheme is what the novice user would think of as a
 character in their normal everyday life, including any diacritics.
 
 理论上，Perl 使用 Unicode 编写，并且拥有一致的 Unicode 语义学，而不考虑含
-蓄的文本陈述。缺省地，Perl 以 “NFG” 结构呈现 Unicode，它每一个字形视为一
+蓄的文本陈述。默认情况下，Perl 以 “NFG” 结构呈现 Unicode，它每一个字形视为一
 个字符。一个字形就是初级用户在他们每天正常生活会认为的一个字符，包括任何发音
 符号。
 
@@ -150,8 +150,8 @@ Perl 6 only recognizes the one with lower code point number, C<U+301E>,
 as the closing brace.  This policy also applies to new one-to-many
 mappings introduced in the future.
 
-C<U+301D> 字符码有两个闭括号可选，C<U+301E> 和 C<U+301F>; Perl 6 只识别较小的字符
-码号码 C<U+301E> 作为闭括号。这项政策也适用于后面新推出的一对多映射。
+C<U+301D> 字符码有两个闭括号可选，C<U+301E> 和 C<U+301F>; Perl 6 只识别较小的
+字符码号码 C<U+301E> 作为闭括号。这项政策也适用于后面新推出的一对多映射。
 
 However, many-to-one mappings are fine; multiple opening characters
 may map to the same closing character.  For instance, U+2018, U+201A,
@@ -185,9 +185,9 @@ formatted output.)
 
 在 Perl 6，Pod 部分确实可以作为多行注释。与 Perl 5 不同，现在 Pod 语法允许你使
 用 C<=begin comment> 和 C<=end comment> 正确地划分一个 Pod 块，而不用 C<=cut>。
-（实际上，C<=cut> 现在没有了。）格式名字不一定是 C<comment> —— 任何未认可的格式
-名字都使之成为注释。（然而，赤裸的 C<=begin> 和 C<=end> 可能不大好，因为它们之间
-所有的注释将会在格式化输出中显示出来。
+（实际上，C<=cut> 现在没有了。）格式名字不一定是 C<comment> —— 任何未认可的格
+式名字都使之成为注释。（然而，赤裸的 C<=begin> 和 C<=end> 可能不大好，因为它们
+之间所有的注释将会在格式化输出中显示出来。）
 
 We have single paragraph comments with C<=for comment> as well.
 That lets C<=for> keep its meaning as the equivalent of a C<=begin>
@@ -221,7 +221,9 @@ ending at the subsequent newline.  They count as whitespace equivalent
 to newline for purposes of separation.  Unlike in Perl 5, C<#>
 may I<not> be used as the delimiter in quoting constructs.
 
-正如 Perl 5，所有其它 C<#> 用法被解释成单行注释。
+正如 Perl 5，所有其它 C<#> 用法被解释成单行注释，以 C<#> 字符开始并结束于后面
+的新行。为了达到分割目的，它们视为空白等价于新行。与 Perl 5 不同，C<#> I<不> 
+得在引用结构中作为分隔符。
 
 =item *
 
@@ -230,7 +232,7 @@ by C<#`> plus any user-selected bracket characters (as defined in
 L</Lexical Conventions> above):
 
 在引用语法中，支持一个嵌入式注释变体，采用 C<#`> 加上任何用户选择的括号字符
-（正如上面 C<词法约定> 的定义）
+（正如上面 C<词法约定> 的定义）：
 
     say #`( embedded comment ) "hello, world!";
 
@@ -248,10 +250,14 @@ There must be no space between the C<#`> and the opening bracket character.
 (There may be the I<visual appearance> of space for some double-wide
 characters, however, such as the corner quotes above.)
 
+C<#`> 与开括号字符之间必须不能有空格。（
+
 For multiline comments it is recommended (but not required) to use two or
 more brackets both for visual clarity and to avoid relying too much on
 internal bracket counting heuristics when commenting code that may accidentally
 miscount single brackets:
+
+对于多行注释推荐使用（但不要求）使用两个或者更多括号
 
     #`{{
         say "here is an unmatched } character";
@@ -269,6 +275,9 @@ with multiple identical bracket characters, which must be closed by the
 same number of closing brackets.  Counting of nested brackets applies only
 to pairs of brackets of the same length as the opening brackets:
 
+对于所有用户选择的括号引号结构，你可以通过多个同样的括号字符展开，也必须通过
+同样数量的闭括号关闭。
+
     say #`{{
         This comment contains unmatched } and { { { {   (ignored)
         Plus a nested {{ ... }} pair                    (counted)
@@ -278,6 +287,8 @@ Note however that bare circumfix or postcircumfix C<<< <<...>> >>> is
 not a user-selected bracket, but the ASCII variant of the C<< «...» >>
 interpolating word list.  Only C<#`> and the C<q>-style quoters (including
 C<m>, C<s>, C<tr>, and C<rx>) enable subsequent user-selected brackets.
+
+但是请注意，
 
 =item *
 
@@ -294,6 +305,8 @@ operator, using unspace lets you line up postfix operators:
 有些语言比如 C 运行使用转义换行符来合并行。由于各种原因，其它语言（比如正则表达
 式）允许反斜杠空格字符。Per 6 概括这种观念为任何种类的空格字符。通过使用前
 缀 C<\>，任何连续的空格（包括注释）都会从语法分析器中隐藏。这称为“反空格”。
+在 Perl 中，反空格可以阻止任意若干个空白关联。举个例子，既然 Perl 需要在名词
+和后缀操作符之间缺席，使用反空格让你与后缀操作符排成行。
 
     %hash\  {$key}
     @array\ [$ix]
@@ -343,6 +356,8 @@ But unspace is mainly about language extensibility: it lets you continue
 the line in any situation where a newline might confuse the parser,
 regardless of your currently installed parser.  (Unless, of course,
 you override the unspace rule itself...)
+
+但反空格主要是对语言的扩展性：它让你
 
 Although we say that the unspace hides the whitespace from the parser,
 it does not hide whitespace from the lexer.  As a result, unspace is not
