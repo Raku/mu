@@ -87,7 +87,7 @@ package Evalbot;
                 revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
             },
             highlight  => {
-                chdir       => '../../src/perl6',
+                chdir       => '../../src/perl6/std_hilite',
                 cmd_line    => $^X . ' STD_syntax_highlight %program >>%out 2>&1',
                 revision    => \&get_revision,
             },
