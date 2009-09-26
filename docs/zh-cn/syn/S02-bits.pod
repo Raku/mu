@@ -23,7 +23,7 @@
     最后修改: 2009 年 9 月 20 号
 
     版本: 180
-    SVN : 28360
+    SVN : 28409
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -173,17 +173,17 @@ that construct.
 
 =item *
 
-POD sections may be used reliably as multiline comments in Perl 6.
-Unlike in Perl 5, POD syntax now lets you use C<=begin comment>
-and C<=end comment> delimit a POD block correctly without the need
+Pod sections may be used reliably as multiline comments in Perl 6.
+Unlike in Perl 5, Pod syntax now lets you use C<=begin comment>
+and C<=end comment> delimit a Pod block correctly without the need
 for C<=cut>.  (In fact, C<=cut> is now gone.)  The format name does
 not have to be C<comment> -- any unrecognized format name will do
 to make it a comment.  (However, bare C<=begin> and C<=end> probably
 aren't good enough, because all comments in them will show up in the
 formatted output.)
 
-在 Perl 6，POD 部分确实可以作为多行注释。与 Perl 5 不同，现在 POD 语
-法允许你使用 C<=begin comment> 和 C<=end comment> 正确地划分一个 POD 
+在 Perl 6，Pod 部分确实可以作为多行注释。与 Perl 5 不同，现在 Pod 语
+法允许你使用 C<=begin comment> 和 C<=end comment> 正确地划分一个 Pod 
 块，而不用 C<=cut>。（实际上，C<=cut> 现在没有了。）
 
 We have single paragraph comments with C<=for comment> as well.
@@ -191,7 +191,7 @@ That lets C<=for> keep its meaning as the equivalent of a C<=begin>
 and C<=end> combined.  As with C<=begin> and C<=end>, a comment started
 in code reverts to code afterwards.
 
-Since there is a newline before the first C<=>, the POD form of comment
+Since there is a newline before the first C<=>, the Pod form of comment
 counts as whitespace equivalent to a newline.  See S26 for more on
 embedded documentation.
 
@@ -240,7 +240,7 @@ miscount single brackets:
         say "here is an unmatched } character";
     }}
 
-However, it's sometimes better to use pod comments because they are
+However, it's sometimes better to use Pod comments because they are
 implicitly line-oriented.
 
 不管怎么样，有时候最好使用 Pod，因为它们含蓄地面向行。
@@ -377,6 +377,8 @@ it is an end-of-line comment, not an embedded comment.  Write:
 
 to mean the other thing.
 
+表示其它意思。
+
 =item *
 
 In general, whitespace is optional in Perl 6 except where it is needed
@@ -433,9 +435,9 @@ be written in any of these forms:
 
     $x\#`[   comment 1
     comment 2
-    =begin podstuff
-    whatever (pod comments ignore current parser state)
-    =end podstuff
+    =begin Podstuff
+    whatever (Pod comments ignore current parser state)
+    =end Podstuff
     comment 3
     ].++
 
@@ -582,6 +584,8 @@ the container works, without specifying what kinds of things it contains.
     my $x is MyScalar;
 
 Constraints and container types can be used together:
+
+约束类型和容器类型可以一起使用：
 
     # $x can contain only Int objects,
     # and is implemented by the MyScalar class
@@ -1620,7 +1624,7 @@ is subject to:
     $:foo       self-declared formal named parameter
     $*foo       contextualizable global variable
     $?foo       compiler hint variable
-    $=foo       pod variable
+    $=foo       Pod variable
     $<foo>      match variable, short for $/{'foo'}
     $!foo       object attribute private storage
     $~foo       the foo sublanguage seen by the parser at this lexical spot
@@ -2373,7 +2377,7 @@ subroutine" in S06.
 
 Magical file-scoped values live in variables with a C<=> secondary
 sigil.  C<$=DATA> is the name of your C<DATA> filehandle, for instance.
-All pod structures are available through C<%=POD> (or some such).
+All Pod structures are available through C<%=POD> (or some such).
 As with C<*>, the C<=> may also be used as a package name: C<$=::DATA>.
 
 =item *
@@ -3583,14 +3587,14 @@ The double-underscore forms are going away:
     __END__             =begin END
     __DATA__            =begin DATA
 
-The C<=begin END> pod stream is special in that it assumes there's
+The C<=begin END> Pod stream is special in that it assumes there's
 no corresponding C<=end END> before end of file.  The C<DATA>
-stream is no longer special--any POD stream in the current file
+stream is no longer special--any Pod stream in the current file
 can be accessed via a filehandle, named as C<< %=POD{'DATA'} >> and such.
-Alternately, you can treat a pod stream as a scalar via C<$=DATA>
+Alternately, you can treat a Pod stream as a scalar via C<$=DATA>
 or as an array via C<@=DATA>.  Presumably a module could read all
 its COMMENT blocks from C<@=COMMENT>, for instance.  Each chunk of
-pod comes as a separate array element.  You have to split it into lines
+Pod comes as a separate array element.  You have to split it into lines
 yourself.  Each chunk has a C<.range> property that indicates its
 line number range within the source file.
 
