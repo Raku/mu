@@ -182,9 +182,11 @@ to make it a comment.  (However, bare C<=begin> and C<=end> probably
 aren't good enough, because all comments in them will show up in the
 formatted output.)
 
-在 Perl 6，Pod 部分确实可以作为多行注释。与 Perl 5 不同，现在 Pod 语
-法允许你使用 C<=begin comment> 和 C<=end comment> 正确地划分一个 Pod 
-块，而不用 C<=cut>。（实际上，C<=cut> 现在没有了。）
+在 Perl 6，Pod 部分确实可以作为多行注释。与 Perl 5 不同，现在 Pod 语法允许你使
+用 C<=begin comment> 和 C<=end comment> 正确地划分一个 Pod 块，而不用 C<=cut>。
+（实际上，C<=cut> 现在没有了。）格式名字不一定是 C<comment> —— 任何未认可的格式
+名字都使之成为注释。（然而，赤裸的 C<=begin> 和 C<=end> 可能不大好，因为它们之间
+所有的注释将会在格式化输出中显示出来。
 
 We have single paragraph comments with C<=for comment> as well.
 That lets C<=for> keep its meaning as the equivalent of a C<=begin>
@@ -226,6 +228,8 @@ L</Lexical Conventions> above):
     」.say;
 
 Brackets may be nested, following the same policy as ordinary quote brackets.
+
+括号可以被嵌套，
 
 There must be no space between the C<#`> and the opening bracket character.
 (There may be the I<visual appearance> of space for some double-wide
@@ -363,6 +367,9 @@ An unspace may contain a comment, but a comment may not contain an unspace.
 In particular, end-of-line comments do not treat backslash as significant.
 If you say:
 
+反空格可以包含注释，但注释不可以包含反空格，特别地，行尾注释认为反斜杠符号没有意义。
+如果你写：
+
     #`\ (...
 
 or
@@ -371,13 +378,16 @@ or
 
 it is an end-of-line comment, not an embedded comment.  Write:
 
+这是一行行尾注释，不是嵌入式注释。写：
+
+
     \ #`(
          ...
         )
 
 to mean the other thing.
 
-表示其它意思。
+则表示其它意思。
 
 =item *
 
@@ -404,6 +414,8 @@ For instance, if you were to add your own C<< infix:<++> >> operator,
 then it must have space before it. The normal autoincrementing
 C<< postfix:<++> >> operator may never have space before it, but may
 be written in any of these forms:
+
+例如：如果你添加你自己的 C<< infix:<++> >> 操作符，那么它之前必须有个空格。
 
     $x++
 
@@ -510,12 +522,16 @@ In support of OO encapsulation, there is a new fundamental datatype:
 B<P6opaque>.  External access to opaque objects is always through method
 calls, even for attributes.
 
+为了支持 OO 封装，这里有个基本数据类型：B<P6opaque>。
+
 =item *
 
 Perl 6 has an optional type system that helps you write safer
 code that performs better.  The compiler is free to infer what type
 information it can from the types you supply, but will not complain
-about missing type information unless you ask it to.
+about missing type information unless you ask it to. 
+
+Perl 6 有个可选的类型系统来帮助你写效率更高的安全代码。
 
 =item *
 
@@ -544,10 +560,15 @@ Perl 6 supports the notion of B<properties> on various kinds of
 objects.  Properties are like object attributes, except that they're
 managed by the individual object rather than by the object's class.
 
+Perl 6 对各种对象支持 B<properties> 概念。Properties 与对象 attributes
+类似，除了它们被独立的对象管理，而不是被对象的类管理。
+
 According to S12, properties are actually implemented by a
 kind of mixin mechanism, and such mixins are accomplished by the
 generation of an individual anonymous class for the object (unless
 an identical anonymous class already exists and can safely be shared).
+
+根据 S12，properties 实际上是通 1 种混合机制实现，
 
 =item *
 
@@ -575,6 +596,9 @@ or objects contained in the variable are capable of responding to the
 methods of the indicated "role".  See S12 for more about roles.
 
     # $x can contain only Int objects
+    my Int $x;
+
+    # $x 只能包含 Int 对象
     my Int $x;
 
 A variable may itself be bound to a container type that specifies how
@@ -618,10 +642,14 @@ in the parentheses, the type object returns itself:
 
 To get a real C<Dog> object, call a constructor method such as C<new>:
 
+为了获得一个真正的 C<Dog> 对象，需要调用一个构造方法，比如 C<new>：
+
     my Dog $spot .= new;
     my Dog $spot = $spot.new;   # .= is rewritten into this
 
 You can pass in arguments to the constructor as well:
+
+你也可以传递参数到构造方法里面：
 
     my Dog $cerberus .= new(heads => 3);
     my Dog $cerberus = $cerberus.new(heads => 3);   # same thing
@@ -630,7 +658,7 @@ You can pass in arguments to the constructor as well:
 
 If you say
 
-如果你指定
+如果你写
 
     my int @array is MyArray;
 
