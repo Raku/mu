@@ -40,7 +40,7 @@ use lib 'lib';
 use EvalbotExecuter;
 use utf8;
 
-$ENV{LD_LIBRARY_PATH} = '/home/evalenv/pugs/v6/smop/build/';
+# $ENV{LD_LIBRARY_PATH} = '/usr/local/lib/';
 
 package Evalbot;
 {
@@ -79,12 +79,12 @@ package Evalbot;
             std  => {
                 chdir       => '../../src/perl6/snap',
                 cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
-                revision    => sub { get_revision_from_file('~/pugs/src/perl6/snap/revision')},
+                revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
             },
             vijs  => {
-                chdir       => '../../src/perl6/snap/vivjs',
+                chdir       => '../../src/perl6/snap',
                 cmd_line    => $^X . ' vivjs %program >>%out 2>&1',
-                revision    => sub { get_revision_from_file('~/pugs/src/perl6/snap/revision')},
+                revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
             },
             highlight  => {
                 chdir       => '../../src/perl6',
@@ -180,12 +180,8 @@ package Evalbot;
     }
 
     sub get_revision_from_file {
-        my $orig = shift;
-        my $file = glob $orig;
-        open my $f, '<', $file
-            or warn "Can't open file '$file' (original loation: '$orig'): $!";
-        my $res = <$f>;
-        close $f;
+        my $file = shift;
+        my $res = `cat $file`;
         chomp $res;
         return $res;
     }
