@@ -57,7 +57,7 @@ this are where the parser must:
 Locate the end of interpolated expressions that begin with a sigil
 and might or might not end with brackets.
 
-寻找以印记开头窜改的措辞末尾，并可能或不可能以括号结尾。
+寻找以印记开头额外的措辞末尾，并可能或不可能以括号结尾。
 
 =item *
 
@@ -233,7 +233,7 @@ Embedded comments are supported as a variant on quoting syntax, introduced
 by C<#`> plus any user-selected bracket characters (as defined in
 L</Lexical Conventions> above):
 
-在引用语法中，支持一个嵌入式注释变体，采用 C<#`> 加上任何用户选择的括号字符
+在引用语法中，支持一个嵌入式注释变体，采用 C<#`> 加上任何用户可选的括号字符
 （正如上面 C<词法约定> 的定义）：
 
     say #`( embedded comment ) "hello, world!";
@@ -279,7 +279,7 @@ with multiple identical bracket characters, which must be closed by the
 same number of closing brackets.  Counting of nested brackets applies only
 to pairs of brackets of the same length as the opening brackets:
 
-对于所有用户选择的括号引号结构，你可以通过多个同样的括号字符展开，也必须通过
+对于所有用户可选的括号引号结构，你可以通过多个同样的括号字符展开，也必须通过
 同样数量的闭括号关闭。
 
     say #`{{
@@ -292,7 +292,9 @@ not a user-selected bracket, but the ASCII variant of the C<< «...» >>
 interpolating word list.  Only C<#`> and the C<q>-style quoters (including
 C<m>, C<s>, C<tr>, and C<rx>) enable subsequent user-selected brackets.
 
-但是请注意，
+然而请注意，赤裸的环缀或后环缀 C<<< <<...>> >>> 不是用户可选的括号。
+但 ASCII 的 C<< «...» >> 变体加入了词表。只有 C<#`> 和 C<q> 风格引用号（包
+括 C<m>，C<s>，C<tr> 和 C<rx>）使后面用户可选的括号可行。
 
 =item *
 
@@ -320,19 +322,29 @@ As a special case to support the use above, a backslash where
 a postfix is expected is considered a degenerate form of unspace.
 Note that whitespace is not allowed before that, hence
 
+作为支持上面使用方式的特例，后缀操作符要求有反斜杠的地方被认为是反空格的退化。
+注意在反斜杠之前是不允许有空白，因此：
+
     $subref \($arg)
 
 is a syntax error (two terms in a row).  And
 
+是个语法错误（一行两个术语）。与
+
     foo \($arg)
 
 will be parsed as a list operator with a C<Capture> argument:
+
+将被分析成带 C<捕获> 参数的列表操作符：
 
     foo(\($arg))
 
 However, other forms of unspace may usefully be preceded by whitespace.
 (Unary uses of backslash may therefore never be followed by whitespace
 or they would be taken as an unspace.)
+
+然而，空白实际上可以紧跟着其它形式的反空格。（因此反斜杠的单一使用后面绝不可
+能有空白或它们将被视为反空格。）
 
 Other postfix operators may also make use of unspace:
 
