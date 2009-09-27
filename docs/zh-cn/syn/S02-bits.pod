@@ -212,7 +212,7 @@ Perl 6.  There are two forms of comment based on C<#>.  Embedded
 comments require the C<#> to be followed by a backtick (C<`>) plus one
 or more opening bracketing characters.
 
-除了在逐字字符串中，C<#>操作符常常在 Perl 6 中引入注释。基于 C<#> 有两种格式的
+除了在字符串中，C<#>操作符常常在 Perl 6 中引入注释。基于 C<#> 有两种格式的
 注释。嵌入式注释需要 C<#> 紧跟着反引号（C<`>）加上一个或多个开括号字符。
 
 All other uses of C<#> are interpreted as single-line comments that
@@ -250,7 +250,8 @@ There must be no space between the C<#`> and the opening bracket character.
 (There may be the I<visual appearance> of space for some double-wide
 characters, however, such as the corner quotes above.)
 
-C<#`> 与开括号字符之间必须不能有空格。（
+C<#`> 与开括号字符之间必须不能有空格。（不过双宽度字符可能有空格视觉出现，比
+如上面的角引号。）
 
 For multiline comments it is recommended (but not required) to use two or
 more brackets both for visual clarity and to avoid relying too much on
@@ -2480,6 +2481,8 @@ Here are some possibilities:
 
 The following return objects that contain all pertinent info:
 
+下面的返回对象包含了所有的相关信息：
+
     $?KERNEL    Which kernel am I compiled for?
     $?DISTRO    Which OS distribution am I compiling under
     $?VM        Which virtual machine am I compiling under
@@ -2622,6 +2625,8 @@ you just want to disable that sublanguage in the current lexical scope:
 If you supersede C<MAIN> then you're replacing the Perl parser entirely.
 This might be done by, say, the "use COBOL" declaration. C<:-)>
 
+如果你取代 C<MAIN>，那么你就是替换整个 Perl 语法分析器。
+
 =item *
 
 It is often convenient to have names that contain arbitrary characters
@@ -2649,6 +2654,9 @@ This name is to be thought of semantically, not syntactically.  That is,
 the bracketing characters used do not count as part of the name; only
 the quoted data matters.  These are all the same name:
 
+这个名称被认为是语义上的，不是句法上的。也就是说，括号字符不视为名字的一部分；仅
+仅仅是被引用的数据资料。这些是同样的名字：
+
     infix:<+>
     infix:<<+>>
     infix:«+»
@@ -2670,6 +2678,8 @@ These name the same module:
 
 Adverbial syntax will be described more fully later.
 
+稍后将提供更全面的副词语法描述。
+
 =back
 
 =head1 Literals
@@ -2685,6 +2695,8 @@ literal number, where the definition of digit depends on the radix.
 Underscores are not allowed anywhere else in any numeric literal,
 including next to the radix point or exponentiator, or at the beginning
 or end.
+
+在数字串中的两个数字之间，仅允许有一个单一的下划线，
 
 =item *
 
