@@ -23,7 +23,7 @@
     最后修改: 2009 年 9 月 20 号
 
     版本: 180
-    SVN : 28409
+    SVN : 28440
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -154,15 +154,17 @@ C<U+301D> 字符码有两个闭括号可选，C<U+301E> 和 C<U+301F>; Perl 6 �
 字符码号码 C<U+301E> 作为闭括号。这项政策也适用于后面新推出的一对多映射。
 
 However, many-to-one mappings are fine; multiple opening characters
-may map to the same closing character.  For instance, U+2018, U+201A,
-and U+201B may all be used as the opener for the U+2019 closer.
+may map to the same closing character.  For instance, C<U+2018>, C<U+201A>,
+and C<U+201B> may all be used as the opener for the C<U+2019> closer.
 Constructs that count openers and closers assume that only the given
 opener is special.  That is, if you open with one of the alternatives,
 all other alternatives are treated as non-bracketing characters within
 that construct.
 
-然而，多对一映射是可以的：多个开始符号，可以映射到同样的结束符号。举个例子，
-
+然而，多对一映射是可以的：多个开始符号，可以映射到同样的关闭符号。举个例子，
+C<U+2018>，C<U+201A>，和 C<U+201B> 都可能被用作 C<U+2019> 关闭符号的开始符号。
+统计开始与关闭符号的结构假定只有规定的开始符号是特别的。也就是说，如果你使用其
+中一个开始符号，在那个结构中所有其它可选的开始符号被视为非括号字符。
 
 =back
 
@@ -258,7 +260,8 @@ more brackets both for visual clarity and to avoid relying too much on
 internal bracket counting heuristics when commenting code that may accidentally
 miscount single brackets:
 
-对于多行注释推荐使用（但不要求）使用两个或者更多括号
+对于多行注释推荐使用（但不要求）使用两个或者更多括号，不仅让视觉明晰而且在注
+释代码偶而可能错误计算单括号的时候避免在内部括号计数器应用方面太多的依懒：
 
     #`{{
         say "here is an unmatched } character";
