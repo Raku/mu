@@ -83,7 +83,7 @@ package Evalbot;
             },
             vijs  => {
                 chdir       => '../../src/perl6/snap',
-                cmd_line    => $^X . ' vivjs %program >>%out 2>&1',
+                cmd_line    => $^X . ' vijs %program -t >>%out 2>&1',
                 revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
             },
             highlight  => {
