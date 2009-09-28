@@ -359,6 +359,8 @@ Other postfix operators may also make use of unspace:
 Another normal use of a you-don't-see-this-space is typically to put
 a dotted postfix on the next line:
 
+另外一种你看不见该空格的普遍用法通常是放一个点后缀操作符到下一行：
+
     $object\ # comment
     .say
 
@@ -373,7 +375,8 @@ the line in any situation where a newline might confuse the parser,
 regardless of your currently installed parser.  (Unless, of course,
 you override the unspace rule itself...)
 
-但反空格主要是对语言的扩展性：它让你
+但反空格主要是语言的扩展性：它让你在任何可能搞混语法分析器的地方继续该行，不管
+你现在安装的语法分析器。（当然，除非你覆盖了它自己的反空格规则……）
 
 Although we say that the unspace hides the whitespace from the parser,
 it does not hide whitespace from the lexer.  As a result, unspace is not
@@ -382,6 +385,11 @@ counted if the unspace contains one or more newlines.
 Since Pod chunks count as whitespace to the language, they are also
 swallowed up by unspace.  Heredoc boundaries are suppressed, however,
 so you can split excessively long heredoc intro lines like this:
+
+尽管我们说反空格从语法分析器中隐藏了空白，但它没有从词法分析器中隐藏。因此，反
+空格不允许在记号里面。此外，如果反空格包含一个以上的新行，行数仍然会被统计。既
+然对于该语言 Pod 块被视为空白，它们也被反空格吞噬。然而 Heredoc 分界线是抑制的，
+所以你可以像这样极大地分离冗长的 heredoc 引入线：
 
     ok(q:to'CODE', q:to'OUTPUT', \
     "Here is a long description", \ # --more--
@@ -393,6 +401,8 @@ so you can split excessively long heredoc intro lines like this:
 
 To the heredoc parser that just looks like:
 
+对于 heredoc 语法分析器仅仅看起来像：
+
     ok(q:to'CODE', q:to'OUTPUT', "Here is a long description", todo(:parrøt<0.42>, :dötnet<1.2>));
         ...
         CODE
@@ -403,7 +413,11 @@ Note that this is one of those cases in which it is fine to have
 whitespace before the unspace, since we're only trying to suppress
 the newline transition, not all whitespace as in the case of postfix
 parsing.  (Note also that the example above is not meant to spec how
-the test suite works. :)
+the test suite works. )
+
+注意这是可以让空白放在反空格之前的其中一个例子，因为我们只是尝试抑制新行转换，
+不是所有的空白和这个后缀解析情况一样。（还有注意，上面的例子并不意味着说明测试
+套件是如何工作的。）
 
 =item *
 
