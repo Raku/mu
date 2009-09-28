@@ -457,8 +457,8 @@ below for more on how a Perl program is analyzed into tokens.)
 
 通常，Perl 6 中的空白是可选的，除非它需要用来分割被误解成一个单记号或者其它语法
 单元的结构。（也就是说，Perl 6 遵循 标准的 I<最长记号> 原则，或大型结构，一
-个 I<喜欢转移而不是减少）原则。关于 Perl 程序如何分析为记号，参考下面
-的 L<文法分类> 以获得更多信息。
+个 I<喜欢转移而不是减少> 原则。关于 Perl 程序如何分析为记号，参考下面
+的 L<文法分类> 以获得更多信息。）
 
 This is an unchanging deep rule, but the surface ramifications of it
 change as various operators and macros are added to or removed from
