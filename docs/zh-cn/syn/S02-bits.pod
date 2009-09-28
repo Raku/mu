@@ -456,7 +456,9 @@ I<prefer shifting to reducing> principle.  See L</Grammatical Categories>
 below for more on how a Perl program is analyzed into tokens.)
 
 通常，Perl 6 中的空白是可选的，除非它需要用来分割被误解成一个单记号或者其它语法
-单元的结构。（也就是说，Perl 6 遵循 标准的 I<最长记号> 原则，或
+单元的结构。（也就是说，Perl 6 遵循 标准的 I<最长记号> 原则，或大型结构，一
+个 I<喜欢转移而不是减少）原则。关于 Perl 程序如何分析为记号，参考下面
+的 L<文法分类> 以获得更多信息。
 
 This is an unchanging deep rule, but the surface ramifications of it
 change as various operators and macros are added to or removed from
@@ -470,14 +472,23 @@ space, though they may have an intervening dot.  If further separation
 is desired, an unspace or embedded comment may be used as described above, as long
 as no whitespace occurs outside the unspace or embedded comment.
 
-这是一个不变的底层原则，
+这是一个不变的底层原则，但随着大量的操作符或者宏从语言中被添加或者删除，它的表
+面分歧改变了，正如我们期待的发生，因为 Perl 6 被设计为可变语言。特别地，中缀操作
+符与后缀操作符之间有个天然冲突，它们任何一个都会出现在术语后面。如果给定的记号
+被解释成后缀操作符或中缀操作符，那么中缀操作符之前需要一个空格。后缀操作符应该
+决没有介于中间的空格，尽管它们可能有一个介于中间的点。如果进一步要求分离，反
+空格或者嵌入式注释应该正如上描述的那样使用，只要没有空白出现在反空格或者嵌入式
+注释之外。
 
 For instance, if you were to add your own C<< infix:<++> >> operator,
 then it must have space before it. The normal autoincrementing
 C<< postfix:<++> >> operator may never have space before it, but may
 be written in any of these forms:
 
-例如：如果你添加你自己的 C<< infix:<++> >> 操作符，那么它之前必须有个空格。
+例如：如果你添加你自己的 C<< infix:<++> >> 操作符，那么它之前必须有个空格。标准
+自动增加 C<< postfix:<++> >> 操作符之前可能从来没有空格，但是可以以任何这些形
+式编写：
+
 
     $x++
 
@@ -525,6 +536,12 @@ C<< infix:<.EQ.> >> if the fit took you.  But you'll have to be sure to
 always put whitespace in front of it, or it would be interpreted as
 a postfix method call instead.)
 
+一个后缀规则的后果是（除非划分引用界限或者终止反空格），点之前的空格常常被认
+为 C<$_> 的上面的一个方法调用，在这个地方常常需要一个术语。如果这时候没有一个
+术语，那么这是语法错误。（当然，除非点开始之前有这个名称的中缀操作符，举个例子，
+如果合适的话，你可以定义一个公式翻译器 C<< infix:<.EQ.> >>。但你不得不保证常常在
+它之前放一个空白，否则它将被解释成后缀方法调用。）
+
 For example,
 
 例如，
@@ -569,6 +586,11 @@ postfix dot will be taken to be the start of some kind of method call
 syntax.  (The C<.123> form with a leading
 dot is still allowed however when a term is expected, and is equivalent
 to C<0.123> rather than C<$_.123>.)
+
+所有这些结果就是你可能不再使用句点以将 Num 写成 C<42.>。你必须改为写
+成 C<42> 或 C<42.0>。换句话说，如果数字后面的点只能是小数点，如果点后面的字符是
+数字的话。否则这个后缀点将视为某种方法的调用语法开始。（ 然而，当需要术语的时候，
+以点开头的 C<.123> 形式仍然允许，并等价于 C<0.123>，而不是 C<$_.123>。）
 
 =back
 
@@ -753,6 +775,11 @@ C<Seq>), as well as mutable (container) types, such as C<Scalar>,
 C<Array>, C<Hash>, C<Buf>, C<Routine>, C<Module>, and non-instantiable Roles
 such as C<Callable>, C<Failure>, and C<Integral>.
 
+内置对象类型使用大写字母开头。这包含不可变类型（例如：C<Int>，C<Num>，C<Complex>，
+C<Rat>，C<Str>，C<Bit>，C<Regex>，C<Set>，C<Block>，C<List>，C<Seq>），以及可变（容器）
+类型，比如 C<Scalar>，C<Array>，C<Hash>，C<But>，C<Routine>，C<Module>，和非实例化角
+色，比如 C<Callable>，C<Failure> 和 C<Integral>。
+
 Non-object (native) types are lowercase: C<int>, C<num>, C<complex>,
 C<rat>, C<buf>, C<bit>.  Native types are primarily intended for
 declaring compact array storage.  However, Perl will try to make those
@@ -760,6 +787,11 @@ look like their corresponding uppercase types if you treat them that way.
 (In other words, it does autoboxing.  Note, however, that sometimes
 repeated autoboxing can slow your program more than the native type
 can speed it up.)
+
+非对象（本地）类型是小写：C<int>，C<num>，C<complex>，C<rat>，C<buf>，C<bit>。本地类
+型主要用于紧凑型阵列存储声明。然而，如果你尝试以大写类型对待本地类型，Perl 将会
+尝试使它们看起来像它们一致的大写类型。（换句话说，Perl 进行了自动封箱。但是请注
+意，有时候反复自动封箱会减慢你的程序，它慢过了本地类型可以加快的速度。）
 
 The C<junction> type is considered a native type because its internal
 representation is fixed, and you may not usefully derive from it
