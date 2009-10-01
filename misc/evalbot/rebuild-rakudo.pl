@@ -38,7 +38,7 @@ if ($available <= $revision) {
 }
 
 system($^X, 'Configure.pl', "--parrot-config=$parrot_config");
-system('make')                  and die $?;
+system('make', 'Test.pir')      and die $?;
 system('make', 'install')       and die $?;
 system("git rev-parse HEAD | cut -b 1,2,3,4,5,6 > $home$other/rakudo-revision") and warn $?;
 
