@@ -37,14 +37,23 @@ class Main {
 			var source = document.getElementById('source').value;
             var pos = 0;
             var ast;
-			document.getElementById('print-result').value = "compiling";
-            ast = MiniPerl6$Grammar.f_comp_unit(source, pos).f_scalar();
-			document.getElementById('ast-result').value = ast.f_perl();
-			document.getElementById('print-result').value = "emitting javascript";
-			document.getElementById('js-result').value  = ast.f_emit();
-			document.getElementById('print-result').value = "";
-			eval(document.getElementById('js-result').value);
-            document.getElementById('print-result').value += "\ndone.";
+			document.getElementById('ast-result').value   = "";
+			document.getElementById('js-result').value    = "";
+		    document.getElementById('print-result').value = "";
+			print("Compiling.\n");
+            try {
+                ast = MiniPerl6$Grammar.f_comp_unit(source, pos).f_scalar();
+		    	document.getElementById('ast-result').value = ast.f_perl();
+		    	print("Emitting javascript.\n");
+		    	document.getElementById('js-result').value  = ast.f_emit();
+		    	document.getElementById('print-result').value = "";
+		    	eval(document.getElementById('js-result').value);
+                print("Done.\n");
+            }
+            catch(err) {
+                print(err + "\n");
+                print("Compilation aborted.\n");
+            }
 		}
 	</script>
 	</body>

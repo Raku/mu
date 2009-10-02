@@ -505,8 +505,15 @@ class Apply {
         if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit).join(' - ')  ~ ')' };
         if $code eq 'infix:<>>'  { return '('  ~ (@.arguments.>>emit).join(' > ')  ~ ')' };
         
-        if $code eq 'infix:<&&>' { return '('  ~ (@.arguments.>>emit).join(' && ') ~ ')' };
-        if $code eq 'infix:<||>' { return '('  ~ (@.arguments.>>emit).join(' || ') ~ ')' };
+        #if $code eq 'infix:<&&>' { return '('  ~ (@.arguments.>>emit).join(' && ') ~ ')' };
+        #if $code eq 'infix:<||>' { return '('  ~ (@.arguments.>>emit).join(' || ') ~ ')' };
+
+        if $code eq 'infix:<&&>' { return '( f_bool(' ~ (@.arguments[0]).emit ~ ')'
+                                      ~ ' && f_bool(' ~ (@.arguments[1]).emit ~ ') )' };
+        if $code eq 'infix:<||>' { return '( f_bool(' ~ (@.arguments[0]).emit ~ ')'
+                                      ~ ' || f_bool(' ~ (@.arguments[1]).emit ~ ') )' };
+
+
         if $code eq 'infix:<eq>' { return '('  ~ (@.arguments.>>emit).join(' == ') ~ ')' };
         if $code eq 'infix:<ne>' { return '('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
  

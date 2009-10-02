@@ -196,7 +196,23 @@ token term_meth {
             '.' <hyper_op> <ident>
             [ \( <.opt_ws> <exp_seq> <.opt_ws> \)
                 # { say 'found parameter list: ', $<exp_seq>.perl }
+                {
+                    make ::Call(
+                        'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
+                        'method'    => $$<ident>,
+                        'arguments' => $$<exp_seq>,
+                        'hyper'     => $$<hyper_op>,
+                    )
+                }
             | \: <.ws> <exp_seq> <.opt_ws>
+                {
+                    make ::Call(
+                        'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
+                        'method'    => $$<ident>,
+                        'arguments' => $$<exp_seq>,
+                        'hyper'     => $$<hyper_op>,
+                    )
+                }
             |
                 {
                     make ::Call(
@@ -207,14 +223,6 @@ token term_meth {
                     )
                 }
             ]
-            {
-                make ::Call(
-                    'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
-                    'method'    => $$<ident>,
-                    'arguments' => $$<exp_seq>,
-                    'hyper'     => $$<hyper_op>,
-                )
-            }
         ]
     ]
     |

@@ -69,6 +69,16 @@ if (typeof say != 'function') {
     print(s + "\n")
   }
 }
+if (typeof f_die != 'function') {
+  f_die = function (s) {
+    print("Died: " + s + "\n")
+  }
+}
+if (typeof f_warn != 'function') {
+  f_warn = function (s) {
+    print("Warning: " + s + "\n")
+  }
+}
 f_perl = function (o) {
   if ( o == null ) { return 'undef' };
   if ( typeof o.f_perl == 'function' ) { return o.f_perl() }
@@ -108,11 +118,15 @@ f_string = function (o) {
   return o;
 }
 f_bool = function (o) {
+  if ( o == null ) { return o }
   if ( typeof o == 'boolean' ) { return o }
   if ( typeof o == 'number' ) { return o }
   if ( typeof o.f_bool == 'function' ) { return o.v_bool }
   if ( typeof o.length == 'number' ) { return o.length }
   return o;
+}
+f_pop = function (o) {
+  return o.pop();
 }
 
 // regex primitives
