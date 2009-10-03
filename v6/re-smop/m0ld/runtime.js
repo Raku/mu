@@ -118,7 +118,7 @@ function JSFunction(func) {
 init_type(JSFunction);
 
 JSFunction.prototype['postcircumfix:( )'] = function(interpreter,capture) {
-    this.func(capture.positional[1]);
+    this.func(interpreter,capture.positional[1]);
 }
 
 var SMOP__S1P__LexicalPrelude = new P6LexPad();
@@ -128,11 +128,11 @@ SMOP__S1P__LexicalPrelude.entries.capture = new P6capture([],[]);
 function builtin(name,func) {
     SMOP__S1P__LexicalPrelude.entries[name] = new JSFunction(func);
 }
-builtin('&say',function(capture) {
+builtin('&say',function(interpreter,capture) {
     var str = '';
-    for (var i in capture.positional) str += capture.positional[i].value
+    for (var i in capture.positional) str += capture.positional[i].value;
     print(str);
 });
-builtin('&infix:~',function(capture) {
-    new P6Str(capture.positional[0].value + capture.positional[0].value);
+builtin('&infix:~',function(interpreter,capture) {
+    setr(interpreter,new P6Str(capture.positional[0].value + capture.positional[0].value));
 });
