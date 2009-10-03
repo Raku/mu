@@ -82,7 +82,7 @@ compileToJS stmts =
         freeRegs  = countRegister stmts
         hints     = extractHints stmts
         constants = dumpConstantsToJS stmts 
-        in "new P6Frame(" ++ show freeRegs ++ "," ++ constants ++ "," ++ (emitFunc regMap labelsMap hints stmts) ++ ")"
+        in "new P6Mold(" ++ show freeRegs ++ "," ++ constants ++ "," ++ (emitFunc regMap labelsMap hints stmts) ++ ")"
 
 dumpConstantsToJS stmts = "[" ++ (concat $ intersperse "," $ concat [dumpConstantToJS c | Decl reg c <- stmts]) ++ "]"
 
