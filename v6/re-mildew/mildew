@@ -317,6 +317,8 @@ if ($B && $C) {
     die "can't specify both -C and -B\n";
 } elsif (!$B && !$C) {
     $B = 'via-C';
+} elsif ($C) {
+    exit;
 }
 if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';

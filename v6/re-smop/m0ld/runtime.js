@@ -129,7 +129,9 @@ function builtin(name,func) {
     SMOP__S1P__LexicalPrelude.entries[name] = new JSFunction(func);
 }
 builtin('&say',function(capture) {
-    print(capture.positional[0].value);
+    var str = '';
+    for (var i in capture.positional) str += capture.positional[i].value
+    print(str);
 });
 builtin('&infix:~',function(capture) {
     new P6Str(capture.positional[0].value + capture.positional[0].value);
