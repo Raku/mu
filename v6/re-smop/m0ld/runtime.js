@@ -32,16 +32,28 @@ function P6Str(str) {
 }
 P6Str.prototype.DISPATCH = DISPATCH_from_methods;
 
+
 function P6LexPad() {
     this.entries = {};
 }
 P6LexPad.prototype.DISPATCH = DISPATCH_from_methods;
 P6LexPad.prototype.lookup = function(interpreter,capture) {
     var key = capture.positional[1].value;
-    if (this.entries[key]) { 
+    if (this.entries[key]) {
+        interpreter.continuation.DISPATCH(interpreter,new P6Str("setr"),new P6capture([interpreter.continuation,this.entries[key]],[]));
         print("found ",key);
     } else {
         print("not found",key);
     }
 }
+function P6Interpreter () {
+    this.continuation = undefined;
+}
+P6Interpreter.prototype.DISPATCH = DISPATCH_from_methods;
+P6Interpreter.prototype.loop = function(interpreter,capture) {
+    while (this.continuation) this.continuation.DISPATCH(this,new P6Str("eval"),new P6capture([this.continuation],[]));
+}
+P6Interpreter.prototype['goto'] = function(interpreter,capture) {                                            this.continuation = capture.positional[1];
+}
+
 var SMOP__S1P__LexicalPrelude = new P6LexPad();
