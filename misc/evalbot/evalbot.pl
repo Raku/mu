@@ -52,6 +52,10 @@ package Evalbot;
     my $postfix = ':';
 
     our %impls = (
+            'mildew-js'  => {
+                chdir       => '../../v6/re-mildew',
+                cmd_line    => 'cat %i | perl mildew -Bjs %program >> %out 2>&1',
+            },
             mildew  => {
                 chdir       => '../../v6/re-mildew',
                 cmd_line    => 'cat %i | perl mildew %program >> %out 2>&1',
