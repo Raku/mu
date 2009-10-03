@@ -70,7 +70,7 @@ P6LexPad.prototype.lookup = function(interpreter,capture) {
         setr(interpreter,this.entries[key]);
         //print("found ",key);
     } else {
-        print("not found",key);
+        throw "Could not find variable "+key+" in the lexical scope.";
     }
 }
 function set_reg(frame,i,value) {
@@ -112,15 +112,25 @@ P6Code.prototype['postcircumfix:( )'] = function(interpreter,capture) {
     interpreter.DISPATCH(interpreter,new P6Str("goto"),new P6capture([interpreter,frame],[]));
 }
 
-function P6say() {
+function JSFunction(func) {
+    this.func = func;
 }
-init_type(P6say);
-P6say.prototype['postcircumfix:( )'] = function(interpreter,capture) {
-    print(capture.positional[1].positional[0].value);
+init_type(JSFunction);
+
+JSFunction.prototype['postcircumfix:( )'] = function(interpreter,capture) {
+    this.func(capture.positional[1]);
 }
 
 var SMOP__S1P__LexicalPrelude = new P6LexPad();
 SMOP__S1P__LexicalPrelude.entries.AdhocSignature = new P6AdhocSignature;
 SMOP__S1P__LexicalPrelude.entries.Code = new P6Code;
 SMOP__S1P__LexicalPrelude.entries.capture = new P6capture([],[]);
-SMOP__S1P__LexicalPrelude.entries['&say'] = new P6say;
+function builtin(name,func) {
+    SMOP__S1P__LexicalPrelude.entries[name] = new JSFunction(func);
+}
+builtin('&say',function(capture) {
+    print(capture.positional[0].value);
+});
+builtin('&infix:~',function(capture) {
+    new P6Str(capture.positional[0].value + capture.positional[0].value);
+});
