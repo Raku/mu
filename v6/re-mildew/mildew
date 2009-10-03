@@ -35,10 +35,11 @@ Usage: mildew [switches] [--] [programfile] [arguments]
                   (valid values are: call-graph)
   --format        format for the profiling info
                   (valid values: dhtml,text)
+  -e
 HELP
 exit;
 }
-my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast,$profile,$profile_format);
+my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast,$profile,$profile_format,$program);
 Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
     "C=s" => \$C,
     "output|o=s" => \$output,
@@ -54,10 +55,11 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
     'profile=s' => \$profile,
     'format=s' => \$profile_format,
     'return-real-value' => \$Mildew::return_real_value,
+    'e=s' => \$program
 ) || help;
 help if $help;
 
-$empty_setting = 1 if $B eq 'js';
+$empty_setting = 1 if defined $B and $B eq 'js';
 my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
 my @MILDEW_LDOPTS = ( '-L../re-smop/build/lib',
                       map { s/^.+?\/lib\/lib|.so$//g; "-l".$_ } glob("../re-smop/build/lib/*.so") );
@@ -210,7 +212,8 @@ sub parse {
     if (@ARGV) {
         $m = STD->parsefile($ARGV[0],actions=>'Actions');
     } else {
-        $m = STD->parse(join('', <STDIN>), actions=>'Actions');
+        $program = join('', <STDIN>) unless $program;
+        $m = STD->parse($program, actions=>'Actions');
     }
     
     #print dump_match('comp_unit'=>$m,{vertical=>1,mark_arrays=>1,visit_twice=>1}),"\n" if $debug;
