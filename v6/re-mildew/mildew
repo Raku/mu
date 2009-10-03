@@ -25,7 +25,7 @@ print <<'HELP';
 Usage: mildew [switches] [--] [programfile] [arguments]
   -Bbackend       execute using the compiler backend
   -Cbackend       compile using the compiler backend
-                  (valid backends are: m0ld, desugar, yaml, via-C)
+                  (valid backends are: m0ld, desugar, yaml, via-C, js)
   -o              output to file
   -h or --help    give this message
   --valgrind      use valgrind when executing
@@ -57,6 +57,7 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
 ) || help;
 help if $help;
 
+$empty_setting = 1 if $B eq 'js';
 my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
 my @MILDEW_LDOPTS = ( '-L../re-smop/build/lib',
                       map { s/^.+?\/lib\/lib|.so$//g; "-l".$_ } glob("../re-smop/build/lib/*.so") );
@@ -92,6 +93,18 @@ sub m0ld_to_c {
     return <$m0ld_exe_out>;
 }
 
+sub m0ld_to_js {
+    my ($m0ld,@options) = @_;
+    use IPC::Open2;
+    open2(my $m0ld_exe_out,my $m0ld_exe_in,"../re-smop/m0ld_exe",'--js');
+    binmode $m0ld_exe_in, ':utf8';
+    print $m0ld_exe_in $m0ld;
+    close($m0ld_exe_in);
+    local $/;
+    binmode $m0ld_exe_out, ':utf8';
+    return <$m0ld_exe_out>;
+}
+
 sub run_m0ld {
     my ($m0ld,) = @_;
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
@@ -119,6 +132,11 @@ sub get_boilerplate {
     open(my $boilerplate,"../re-smop/m0ld/m0ld_boilerplate") || die "can't open internal file\n";
     local $/;
     return scalar <$boilerplate>;
+}
+sub get_js_runtime {
+    open(my $runtime,"../re-smop/m0ld/runtime.js") || die "can't open internal file\n";
+    local $/;
+    return scalar <$runtime>;
 }
 sub add_boilerplate {
     my ($m0ld,$boilerplate) = @_;
@@ -286,6 +304,8 @@ if ($C eq 'via-C') {
     output(m0ld,$output);
 } elsif ($C eq 'C') {
     output(compile_to_c(m0ld),$output);
+} elsif ($C eq 'js') {
+    output(m0ld_to_js(m0ld),$output);
 } elsif ($C) {
     die "unknown backend passed to -C: $C\n";
 }
@@ -294,13 +314,27 @@ if ($B && $C) {
     die "can't specify both -C and -B\n";
 } elsif (!$B && !$C) {
     $B = 'via-C';
-} else {
-    exit;
 }
 if ($B eq 'via-C') {
     local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
     local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
     run_m0ld(m0ld);
+} elsif ($B eq 'js') {
+    require V8;
+    my $ctx = V8::Context->new();
+    sub print {
+        # TODO: put this in C++ instead as a V8 plugin (or use Print() from d8.cc)
+        say map { Encode::decode_utf8($_) } @_;
+    }
+    $ctx->register_method_by_name("print");
+    $ctx->execute(get_js_runtime."\n1;");
+    $ctx->execute("
+        var interpreter = new P6Interpreter();
+        var frame = new P6Frame(".m0ld_to_js(m0ld).");
+interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
+interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
+1;");
+    warn if $@;
 } elsif ($B) {
     die "unknown backend passed to -B: $C\n";
 }
