@@ -59,7 +59,10 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
 ) || help;
 help if $help;
 
-$empty_setting = 1 if defined $B and $B eq 'js';
+if (defined $B and $B eq 'js') {
+    $empty_setting = 1;
+    $target_stage = 1;
+}
 my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
 my @MILDEW_LDOPTS = ( '-L../re-smop/build/lib',
                       map { s/^.+?\/lib\/lib|.so$//g; "-l".$_ } glob("../re-smop/build/lib/*.so") );

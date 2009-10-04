@@ -3,7 +3,11 @@ function init_type(type) {
     type.prototype.FETCH = FETCH;
 }
 function DISPATCH_from_methods(interpreter,identifier,capture) {
-    this[identifier.value](interpreter,capture);
+    if (this[identifier.value]) {
+        this[identifier.value](interpreter,capture);
+    } else {
+        throw 'no method '+identifier.value; 
+    }
 }
 function FETCH(interpreter,capture) {
     setr(interpreter,this);
@@ -31,6 +35,9 @@ P6Frame.prototype.setr = function(interpreter,capture) {
 P6Frame.prototype.set_back = function(interpreter,capture) {
     this._back = capture.positional[1];
 }
+P6Frame.prototype.set_control = function(interpreter,capture) {
+    this._control = capture.positional[1];
+}
 P6Frame.prototype.back = function(interpreter,capture) {
     setr(interpreter,this._back);
 }
@@ -57,13 +64,17 @@ P6capture.prototype['new'] = function(interpreter,capture) {
 function P6Str(str) {
     this.value = str;
 }
-P6Str.prototype.DISPATCH = DISPATCH_from_methods;
+init_type(P6Str);
 
+function P6Int(i) {
+    this.value = i;
+}
+init_type(P6Int);
 
 function P6LexPad() {
     this.entries = {};
 }
-P6LexPad.prototype.DISPATCH = DISPATCH_from_methods;
+init_type(P6LexPad);
 P6LexPad.prototype.lookup = function(interpreter,capture) {
     var key = capture.positional[1].value;
     if (this.entries[key]) {
@@ -73,6 +84,33 @@ P6LexPad.prototype.lookup = function(interpreter,capture) {
         throw "Could not find variable "+key+" in the lexical scope.";
     }
 }
+P6LexPad.prototype['postcircumfix:{ }'] = function(interpreter,capture) {
+    var key = capture.positional[1].value;
+    setr(interpreter,new P6BValue(this,key));
+
+}
+function P6BValue(lexpad,key) {
+    this.lexpad = lexpad;
+    this.key = key
+}
+init_type(P6BValue);
+P6BValue.prototype.BIND = function(interpreter,capture) {
+    this.lexpad.entries[this.key] = capture.positional[1];
+    setr(interpreter,this);
+}
+P6BValue.prototype.FETCH = function(interpreter,capture) {
+    if (!this.lexpad.entries[this.key]) this.lexpad.entries[this.key] = new P6Scalar;
+    var entry = this.lexpad.entries[this.key];
+    print("FETCH from:",entry.ID);
+    entry.DISPATCH(interpreter,new P6Str("FETCH"),new P6capture([entry],[]));
+}
+P6BValue.prototype.STORE = function(interpreter,capture) {
+    if (!this.lexpad.entries[this.key]) this.lexpad.entries[this.key] = new P6Scalar;
+    var entry = this.lexpad.entries[this.key];
+    entry.DISPATCH(interpreter,new P6Str("STORE"),new P6capture([entry,capture.positional[1]],[]));
+}
+
+
 function set_reg(frame,i,value) {
     frame.reg[frame.mold.constants.length+i] = value;
 }
@@ -90,12 +128,6 @@ P6Interpreter.prototype.continuation = function(interpreter,capture) {
     setr(interpreter,this._continuation);
 }
 
-function P6AdhocSignature() {
-}
-init_type(P6AdhocSignature);
-P6AdhocSignature.prototype['new'] = function(interpreter,capture) {
-    setr(interpreter,new P6AdhocSignature);
-}
 
 function P6Code(mold) {
     this.mold = mold
@@ -112,6 +144,7 @@ P6Code.prototype['postcircumfix:( )'] = function(interpreter,capture) {
     interpreter.DISPATCH(interpreter,new P6Str("goto"),new P6capture([interpreter,frame],[]));
 }
 
+
 function JSFunction(func) {
     this.func = func;
 }
@@ -122,9 +155,10 @@ JSFunction.prototype['postcircumfix:( )'] = function(interpreter,capture) {
 }
 
 var SMOP__S1P__LexicalPrelude = new P6LexPad();
-SMOP__S1P__LexicalPrelude.entries.AdhocSignature = new P6AdhocSignature;
+;
 SMOP__S1P__LexicalPrelude.entries.Code = new P6Code;
 SMOP__S1P__LexicalPrelude.entries.capture = new P6capture([],[]);
+
 function builtin(name,func) {
     SMOP__S1P__LexicalPrelude.entries[name] = new JSFunction(func);
 }
@@ -134,5 +168,41 @@ builtin('&say',function(interpreter,capture) {
     print(str);
 });
 builtin('&infix:~',function(interpreter,capture) {
-    setr(interpreter,new P6Str(capture.positional[0].value + capture.positional[0].value));
+    setr(interpreter,new P6Str(capture.positional[0].value + capture.positional[1].value));
 });
+function define_type(name,methods) {
+    var proto = function() {
+    }
+    proto.prototype.ID = name + ' protobject';
+    init_type(proto);
+    proto.prototype['new'] = methods['new'];
+
+    var constructor = function() {
+    }
+    init_type(constructor);
+    constructor.prototype.ID = name;
+    for (var m in methods) {
+        constructor.prototype[m] = methods[m];
+    }
+    SMOP__S1P__LexicalPrelude.entries[name] = new proto;
+    return constructor;
+}
+
+var P6AdhocSignature = define_type('AdhocSignature',{
+    'new': function(interpreter,capture) {
+        setr(interpreter,new P6AdhocSignature);
+    }
+});
+var P6Scalar = define_type('Scalar',{
+    'new': function(interpreter,capture) {
+        setr(interpreter,new P6Scalar);
+    },
+    FETCH: function(interpreter,capture) {
+        print("FETCH:",this.container.value);
+        setr(interpreter,this.container);
+    },
+    STORE: function(interpreter,capture) {
+        this.container = capture.positional[1];
+    }
+});
+
