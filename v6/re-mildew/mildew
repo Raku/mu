@@ -136,7 +136,7 @@ sub get_boilerplate {
     return scalar <$boilerplate>;
 }
 sub get_js_runtime {
-    open(my $runtime,"../re-smop/m0ld/runtime.js") || die "can't open internal file\n";
+    open(my $runtime,"js/CORE.js") || die "can't open internal file\n";
     local $/;
     return scalar <$runtime>;
 }
