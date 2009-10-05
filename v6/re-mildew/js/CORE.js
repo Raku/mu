@@ -147,44 +147,40 @@ P6BValue.prototype.STORE = function(interpreter,capture) {
 function set_reg(frame,i,value) {
     frame.reg[frame.mold.constants.length+i] = value;
 }
-function P6Interpreter () {
-    this._continuation = undefined;
-}
-P6Interpreter.prototype.DISPATCH = DISPATCH_from_methods;
-P6Interpreter.prototype.loop = function(interpreter,capture) {
-    while (this._continuation) this._continuation.DISPATCH(this,new P6Str("eval"),new P6capture([this._continuation],[]));
-}
-P6Interpreter.prototype['goto'] = function(interpreter,capture) {
-    this._continuation = capture._positional[1];
-}
-P6Interpreter.prototype.continuation = function(interpreter,capture) {
-    setr(interpreter,this._continuation);
-}
+
+var P6Interpreter = define_type('Interpreter',{
+    'loop': function(interpreter,capture) {
+        while (this._continuation) this._continuation.DISPATCH(this,new P6Str("eval"),new P6capture([this._continuation],[]));
+    },
+    'goto': function(interpreter,capture) {
+        this._continuation = capture._positional[1];
+    },
+    'continuation': function(interpreter,capture) {
+        setr(interpreter,this._continuation);
+    }
+});
 
 
-function P6Code(mold) {
-}
-init_type(P6Code);
-P6Code.prototype['new'] = function(interpreter,capture) {
+var P6Code = define_type('Code',{
+    'new': function(interpreter,capture) {
     var code = new P6Code();
     code._mold = capture._named.mold;
     code._outer = capture._named.outer;
     code._signature = capture._named.signature;
     setr(interpreter,code);
-}
-P6Code.prototype['postcircumfix:( )'] = function(interpreter,capture) {
-    var frame = new P6Frame(code_mold);
-
-    set_reg(frame,0,interpreter);
-    set_reg(frame,1,capture);
-    set_reg(frame,2,interpreter._continuation);
-    set_reg(frame,3,capture._positional[0]);
-    set_reg(frame,4,this._outer);
-    set_reg(frame,5,this._signature);
-    set_reg(frame,6,this._mold);
-
-    interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
-}
+    },
+    'postcircumfix:( )': function(interpreter,capture) {
+        var frame = new P6Frame(code_mold);
+        set_reg(frame,0,interpreter);
+        set_reg(frame,1,capture);
+        set_reg(frame,2,interpreter._continuation);
+        set_reg(frame,3,capture._positional[0]);
+        set_reg(frame,4,this._outer);
+        set_reg(frame,5,this._signature);
+        set_reg(frame,6,this._mold);
+        interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
+    }
+});
 
 
 function JSFunction(func) {
