@@ -80,7 +80,7 @@ sub run {
     my $response = _fork_and_eval($program, $executer);
     if (!length $response){
         $response = ' ( no output )';
-    } else {
+    } elsif ($response !~ /^TIMED_OUT$/) {
         $response = "OUTPUT«$response»";
     }
     my $newline = '␤';
@@ -102,6 +102,7 @@ sub _fork_and_eval {
     if (!defined $fork_val){
         confess "Can't fork(): $!";
     } elsif ($fork_val == 0) {
+#        local $SIG{ALRM} = sub { exit 14 };
         _set_resource_limits();
         _auto_execute($executer, $program, $fh, $filename);
         alarm 0;
@@ -117,6 +118,7 @@ sub _fork_and_eval {
     open ($fh, '<:encoding(UTF-8)', $filename) or confess "Can't open temp file <$filename>: $!";
     my $result = do { local $/; <$fh> };
     unlink $filename or warn "couldn't delete '$filename': $!";
+    return 'TIMED_OUT' if $? == 14;
     if (reftype($executer) eq 'HASH' && $executer->{filter}){
         return $executer->{filter}->($result);
     }
@@ -155,7 +157,7 @@ sub _set_resource_limits {
 # stolen from evalhelper-p5.pl
     setrlimit RLIMIT_CPU,  15, 20                    or confess "Couldn't setrlimit: $!\n";
     alarm 15;
-    setrlimit RLIMIT_VMEM,  180 * 2**20, 200 * 2**20 or confess "Couldn't setrlimit: $!\n";
+#    setrlimit RLIMIT_VMEM,  500 * 2**20, 200 * 2**20 or confess "Couldn't setrlimit: $!\n";
 # STD.pm has a lexing subdir, varying in size, so allow 15MB
     my $size_limit = 15 * 1024**2;
     setrlimit RLIMIT_FSIZE, $size_limit, $size_limit or confess "Couldn't setrlimit: $!\n";
