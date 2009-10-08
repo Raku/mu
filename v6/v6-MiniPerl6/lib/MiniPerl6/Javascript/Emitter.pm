@@ -3,6 +3,7 @@ use v6-alpha;
 class MiniPerl6::Javascript::LexicalBlock {
     has @.block;
     has $.needs_return;
+    has $.top_level;
     method emit {
         if !(@.block) {
             return 'null';
@@ -51,10 +52,21 @@ class MiniPerl6::Javascript::LexicalBlock {
                 $str := $str ~ $last_statement.emit
             }
             else {
-                $last_statement := ::Return( result => $last_statement );
-                $str := $str ~ $last_statement.emit
+                # $last_statement := ::Return( result => $last_statement );
+                $str := $str ~ 'return(' ~ $last_statement.emit ~ ')'
             }
             }
+        }
+        if $.top_level {
+            $str :=  
+                  'try { ' ~ $str ~ ' } catch(err) { '
+                  ~ 'if ( err instanceof Error ) { '
+                    ~ 'throw(err) '
+                  ~ '} '
+                  ~ 'else { '
+                    ~ 'return(err) '
+                  ~ '} '
+                ~ '} ';
         }
         return $str;
     }
@@ -100,7 +112,7 @@ class CompUnit {
                 my $sig      := $decl.sig;
                 my $pos      := $sig.positional;
                 my $invocant := $sig.invocant;
-                my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block, needs_return => 1 );
+                my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block, needs_return => 1, top_level => 1 );
                 $str := $str 
               ~ '  // method ' ~ $decl.name ~ Main.newline
               ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name 
@@ -113,7 +125,7 @@ class CompUnit {
             if $decl.isa( 'Sub' ) {
                 my $sig      := $decl.sig;
                 my $pos      := $sig.positional;
-                my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block, needs_return => 1 );
+                my $block    := ::MiniPerl6::Javascript::LexicalBlock( block => $decl.block, needs_return => 1, top_level => 1 );
                 $str := $str 
               ~ '  // sub ' ~ $decl.name ~ Main.newline
               ~ '  ' ~ $class_name ~ '.f_' ~ $decl.name 
@@ -410,11 +422,14 @@ class Call {
 
         if     ($.method eq 'perl')
             || ($.method eq 'isa')
+            || ($.method eq 'scalar')
         { 
             if ($.hyper) {
                 return 
-                    '(function (a_) {'
-                        ~ ' var out = []; for(var i = 0; i < a_.length; i++) { '
+                    '(function (a_) { '
+                        ~ 'var out = []; ' 
+                        ~ 'if ( typeof a_ == \'undefined\' ) { return out }; ' 
+                        ~ 'for(var i = 0; i < a_.length; i++) { '
                             ~ 'out.push( f_' ~ $.method ~ '(a_[i]) ) } return out;'
                     ~ ' })(' ~ $invocant ~ ')'
             }
@@ -433,8 +448,10 @@ class Call {
         { 
             if ($.hyper) {
                 return 
-                    '(function (a_) {'
-                        ~ ' var out = []; for(var i = 0; i < a_.length; i++) { '
+                    '(function (a_) { '
+                        ~ 'var out = []; ' 
+                        ~ 'if ( typeof a_ == \'undefined\' ) { return out }; ' 
+                        ~ 'for(var i = 0; i < a_.length; i++) { '
                             ~ 'out.push( Main.' ~ $.method ~ '(a_[i]) ) } return out;'
                     ~ ' })(' ~ $invocant ~ ')'
             }
@@ -456,9 +473,12 @@ class Call {
         };
         
         if ($.hyper) {
-            '(function (a_) {'
-                ~ ' var out = []; for(var i = 0; i < a_.length; i++) { out.push( a_[i].f_' ~ $meth ~ '() ) } return out;'
-            ~ ' })(' ~ $invocant ~ ')'
+                    '(function (a_) { '
+                        ~ 'var out = []; ' 
+                        ~ 'if ( typeof a_ == \'undefined\' ) { return out }; ' 
+                        ~ 'for(var i = 0; i < a_.length; i++) { '
+                            ~ 'out.push( a_[i].f_' ~ $meth ~ '() ) } return out;'
+                    ~ ' })(' ~ $invocant ~ ')'
         }
         else {
             $invocant ~ '.f_' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
@@ -495,7 +515,7 @@ class Apply {
         if $code eq 'prefix:<~>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_string()' };
         if $code eq 'prefix:<!>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? false : true)' };
         if $code eq 'prefix:<?>' { return '( f_bool('  ~ (@.arguments.>>emit).join(' ')    ~ ') ? true : false)' };
-        if $code eq 'prefix:<$>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_scalar()' };
+        if $code eq 'prefix:<$>' { return 'f_scalar(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };
         if $code eq 'prefix:<@>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ')' };  # .f_array()' };
         if $code eq 'prefix:<%>' { return '(' ~ (@.arguments.>>emit).join(' ')    ~ ').f_hash()' };
 
@@ -538,7 +558,7 @@ class Return {
     has $.result;
     method emit {
         return
-        'return(' ~ $.result.emit ~ ')';
+        'throw(' ~ $.result.emit ~ ')';
     }
 }
 
@@ -607,7 +627,7 @@ class Method {
         my $pos := $sig.positional;
         my $str := ((@$pos).>>emit).join(', ');  
         'function ' ~ $.name ~ '(' ~ $str ~ ') { ' ~ 
-          ::MiniPerl6::Javascript::LexicalBlock( block => @.block, needs_return => 1 ).emit ~ 
+          ::MiniPerl6::Javascript::LexicalBlock( block => @.block, needs_return => 1, top_level => 1 ).emit ~ 
         ' }'
     }
 }
@@ -621,7 +641,7 @@ class Sub {
         my $pos := $sig.positional;
         my $str := ((@$pos).>>emit).join(', ');  
         'function ' ~ $.name ~ '(' ~ $str ~ ') { ' ~ 
-          ::MiniPerl6::Javascript::LexicalBlock( block => @.block, needs_return => 1 ).emit ~ 
+          ::MiniPerl6::Javascript::LexicalBlock( block => @.block, needs_return => 1, top_level => 1 ).emit ~ 
         ' }'
     }
 }

@@ -41,7 +41,7 @@ if (typeof Main != 'object') {
   }
   Main.f_to_javascript_namespace = function (s) {
     var o = s;
-    o.replace( /::/g, "$");
+    o = o.replace( /::/g, "$");
     return o;
   }
   Main._dump = function (o) {
@@ -110,6 +110,7 @@ f_isa = function (o, s) {
   return false;
 }
 f_scalar = function (o) { 
+  if ( typeof o == 'undefined' ) { return o }
   if ( typeof o.f_scalar == 'function' ) { return o.f_scalar() }
   return o;
 }
@@ -127,6 +128,10 @@ f_bool = function (o) {
 }
 f_pop = function (o) {
   return o.pop();
+}
+Main.chars = function (o) { 
+  if ( typeof o.f_string == 'function' ) { return o.f_string().length }
+  return o.length;
 }
 
 // regex primitives
