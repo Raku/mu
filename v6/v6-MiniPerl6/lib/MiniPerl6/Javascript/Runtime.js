@@ -129,6 +129,9 @@ f_bool = function (o) {
 f_pop = function (o) {
   return o.pop();
 }
+f_index = function (o, s) {
+  return o.indexOf(s);
+}
 Main.chars = function (o) { 
   if ( typeof o.f_string == 'function' ) { return o.f_string().length }
   return o.length;

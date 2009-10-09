@@ -7,6 +7,7 @@ mkdir liblisp-new/MiniPerl6/Grammar
 mkdir liblisp-new/MiniPerl6/Lisp
 mkdir liblisp-new/MiniPerl6/Emitter
 mkdir liblisp-new/MiniPerl6/Perl5
+mkdir liblisp-new/MiniPerl6/Javascript
 
 cp lib/MiniPerl6/Lisp/Runtime.lisp liblisp-new/MiniPerl6/Lisp/
 
@@ -45,4 +46,8 @@ sbcl --script mp6-lisp.lisp \
 sbcl --script mp6-lisp.lisp \
                lib/MiniPerl6/Perl5/Emitter.pm    \
     >  liblisp-new/MiniPerl6/Perl5/Emitter.lisp
+
+sbcl --script mp6-lisp.lisp \
+               lib/MiniPerl6/Javascript/Emitter.pm    \
+    >  liblisp-new/MiniPerl6/Javascript/Emitter.lisp
 
