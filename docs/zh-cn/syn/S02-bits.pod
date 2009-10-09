@@ -187,8 +187,8 @@ formatted output.)
 
 在 Perl 6，Pod 部分确实可以作为多行注释。与 Perl 5 不同，现在 Pod 语法允许你使
 用 C<=begin comment> 和 C<=end comment> 正确地划分一个 Pod 块，而不用 C<=cut>。
-（实际上，C<=cut> 现在没有了。）格式名字不一定是 C<comment> —— 任何未认可的格
-式名字都使之成为注释。（然而，赤裸的 C<=begin> 和 C<=end> 可能不大好，因为它们
+（实际上，C<=cut> 现在没有了。）格式名称不一定是 C<comment> —— 任何未认可的格
+式名称都使之成为注释。（然而，赤裸的 C<=begin> 和 C<=end> 可能不大好，因为它们
 之间所有的注释将会在格式化输出中显示出来。）
 
 We have single paragraph comments with C<=for comment> as well.
@@ -616,7 +616,9 @@ code that performs better.  The compiler is free to infer what type
 information it can from the types you supply, but will not complain
 about missing type information unless you ask it to. 
 
-Perl 6 有个可选的类型系统来帮助你写效率更高的安全代码。
+Perl 6 有个可选的类型系统来帮助你写效率更高的安全代码。编译器可以从你提供的类
+型里面自由地推断它能容下什么类型信息，但除非你要求它，否则它不会抱怨缺少的类型
+信息。
 
 =item *
 
@@ -633,11 +635,22 @@ equivalent to the original type.  In particular, the C<Array of Int> syntax
 is just sugar for C<Array:of(Int)>, which is the canonical form of an
 instantiated generic type.
 
+类型正式比较是使用名称对比而不是结构对比。然而，我们对自己认为的名称比较宽松。
+举个例子，名称包含了版本和该模块定义类型相关的权威信息（即使类型本身是“匿名
+的”）。除此之外，当你实例化一个参数类型，参数被认为是由此产生的类型中“长名称”的
+一部分，所以一个 C<Array of Int> 等价于另外一个 C<Array of Int>。（以另外一种方式
+来看待，类型实例“工厂”是被保存的。）类型名称别名被认为等价于原始类型。特别地，
+C<Array of Int> 仅仅是实例化泛型类型标准形式 C<Array:of(Int)> 的语法糖。
+
 This name equivalence of parametric types extends only to parameters
 that can be considered immutable (or that at least can have an
 immutable snapshot taken of them).  Two distinct classes are never
 considered equivalent even if they have the same attributes because
 classes are not considered immutable.
+
+参数类型的名称等价仅适用于被认为不可变的参数（或者它们之间只少有一个不可变快
+照）。即使两个不同的类有同样的 attributes，也从来不认为等价，因为它们不认为是可
+变类型。
 
 =item *
 
@@ -1635,7 +1648,7 @@ a stricter standard than you let on to the outside world, for instance.
 
 =head1 Names and Variables
 
-=head1 名字和变量
+=head1 名称和变量
 
 =over 4
 
@@ -2101,7 +2114,7 @@ The C<$#foo> notation is dead.  Use C<@foo.end> or C<@foo[*-1]> instead.
 
 =head1 Names
 
-=head1 名字
+=head1 名称
 
 =over 4
 
@@ -2715,8 +2728,8 @@ This name is to be thought of semantically, not syntactically.  That is,
 the bracketing characters used do not count as part of the name; only
 the quoted data matters.  These are all the same name:
 
-这个名称被认为是语义上的，不是句法上的。也就是说，括号字符不视为名字的一部分；仅
-仅仅是被引用的数据资料。这些是同样的名字：
+这个名称被认为是语义上的，不是句法上的。也就是说，括号字符不视为名称的一部分；仅
+仅仅是被引用的数据资料。这些是同样的名称：
 
     infix:<+>
     infix:<<+>>
