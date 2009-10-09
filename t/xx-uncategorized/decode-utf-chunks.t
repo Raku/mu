@@ -20,7 +20,7 @@ use Test;
 
 plan 71;
 
-# relegated to a funciton so that the long literal can come near the end
+# relegated to a function so that the long literal can come near the end
 my $long = get_long();
 
 my $small_chunk = 128;       # reasonable chunk length

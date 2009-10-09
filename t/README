@@ -17,7 +17,7 @@ Pugs is currently being developed in a highly test-driven manner. Tests are
 written for both implemented and unimplemented features and are based roughly
 on the Perl6 Language Synopsis documents. All are welcome and encouraged to
 contribute to this test suite. The part under spec/ is considered to be the
-offical Perl 6 test suite, and should only test what is specified in the
+official Perl 6 test suite, and should only test what is specified in the
 Synopsis documents. It is also used by other Perl 6 implementations.
 
 -------------------------------------------------------------------------------

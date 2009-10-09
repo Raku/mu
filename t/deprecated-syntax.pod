@@ -81,7 +81,7 @@ However it's result isn't guaranteed to be of any canonical form, for example
 C<Str.perl> might return any legal quoting syntax. Testing for the exact value
 of C<$anything.perl> is most likely an error
 
-=head2 Type contraints on containers
+=head2 Type constraints on containers
 
 Use type constraints only where they are needed to test what you want to test.
 Especially be aware that C<my Int @a> declares an Array of Int values, and by
