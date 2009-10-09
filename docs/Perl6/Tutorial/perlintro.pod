@@ -133,7 +133,7 @@ A scalar represents a single value:
 Scalar values can be strings, integers or floating point numbers, and Perl
 will automatically convert between them as required.  There is no need to
 pre-declare your variable types. But if you feel like it, you can declare
-their type explictly:
+their type explicitly:
 
     my Str $animal = "camel";
     my Int $answer = 42;
@@ -381,7 +381,7 @@ Here are a few of the most common used operators:
 
 =begin table :caption<Arithmetic operators>
     +       addition
-    -       substraction
+    -       subtraction
     *       multiplication
     /       division
 =end table

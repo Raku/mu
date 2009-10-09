@@ -130,7 +130,7 @@ a C<expression>.
 
 =item prefix_circumfix_meta_operator
 
-All of these macro types take three paramters: a C<Expression> for
+All of these macro types take three parameters: a C<Expression> for
 the LHS, an C<InfixOperator> node for the operator that it is modifying,
 and an C<Expression> for the RHS.
 
