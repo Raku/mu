@@ -90,7 +90,7 @@ discussion of what really needs to be done is too in depth for this document.
 XXX The right thing when it comes to SQL values is to leave things up to
 something in DBI (the DBD) that handles placeholders.
     -- Good point. I tried to think of some reasonably useful
-        circumstant where it would be hande to escaping SQL, but
+        circumstance where it would be handy to escape SQL, but
         can't think of one that's useful for a cookbook. I'll
         point people to placeholder binding only ~gcomnz
 
