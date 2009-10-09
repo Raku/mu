@@ -2,7 +2,7 @@
 
 =for comment
 This is a rather 1:1 "translation" from Perl 5's perlintro to Perl 6 - feel free
-to adopt any changes. Big chunks have been kept literaly.
+to adopt any changes. Big chunks have been kept literally.
 
 =TITLE perlintro -- A brief introduction and overview of Perl 6
 
