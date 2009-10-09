@@ -5,7 +5,7 @@ all: STD CORE modules
 STD :
 	cd perl6-snapshot;make
 
-CORE: CORE/int.mildew.so CORE/CORE.mildew.so CORE/Exception.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so CORE/Return.mildew.so CORE/Failure.mildew.so CORE/Signature.mildew.so CORE/Types.mildew.so CORE/ModuleLoader.mildew.so CORE/Eval.mildew.so CORE/ClassHOW.mildew.so
+CORE: CORE/int.mildew.so CORE/CORE.mildew.so CORE/Exception.mildew.so CORE/Multi.mildew.so CORE/RoleHOW.mildew.so CORE/EXTERNAL.mildew.so CORE/Return.mildew.so CORE/Failure.mildew.so CORE/Signature.mildew.so CORE/Types.mildew.so CORE/ModuleLoader.mildew.so CORE/Eval.mildew.so CORE/ClassHOW.mildew.so js/CORE2.js
 
 modules: lib/Test.mildew.so
 
@@ -18,6 +18,9 @@ CORE/Eval.mildew.so : CORE/Eval.pm
 
 CORE/%.mildew.so : CORE/%.pm
 	perl mildew -Cso --yeast --target-stage 1 --empty-setting -o $@ $<
+
+js/%.js : js/%.pm
+	perl mildew -Cjs -o $@ $<
 
 lib/%.mildew.so : lib/%.pm
 	perl mildew -Cso --empty-setting -o $@ $<

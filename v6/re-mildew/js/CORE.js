@@ -196,13 +196,15 @@ JSFunction.prototype['postcircumfix:( )'] = function(interpreter,capture) {
 function builtin(name,func) {
     lexical_prelude[name] = new JSFunction(func);
 }
+
+
 builtin('&say',function(interpreter,capture) {
     var str = '';
     for (var i in capture._positional) str += capture._positional[i].value;
     print(str);
 });
-builtin('&infix:~',function(interpreter,capture) {
-    setr(interpreter,new P6Str(capture._positional[0].value + capture._positional[1].value));
+builtin('&infix:+:(int,int)',function(interpreter,capture) {
+    setr(interpreter,new P6Int(capture._positional[0].value + capture._positional[1].value));
 });
 function define_type(name,methods) {
     var proto = function() {
@@ -232,7 +234,7 @@ var P6AdhocSignature = define_type('AdhocSignature',{
         var frame = new P6Frame(this._BIND);
         set_reg(frame,0,interpreter);
         set_reg(frame,1,capture._positional[2]);
-        set_reg(frame,1,capture._positional[1]);
+        set_reg(frame,2,capture._positional[1]);
         frame._back = interpreter._continuation;
         interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
     }
@@ -254,13 +256,42 @@ var P6False = define_type('False',{
         setr(interpreter,this);
     },
 });
+var P6True = define_type('True',{
+    'true': function(interpreter,capture) {
+        setr(interpreter,this);
+    },
+});
 SMOP__NATIVE__bool_false = new P6False;
+SMOP__NATIVE__bool_true = new P6True;
+
 
 var SMOP__S1P__LexicalScope = new P6LexPad;
 var SMOP__S1P__LexicalPrelude = new P6LexPad();
 SMOP__S1P__LexicalPrelude.entries = lexical_prelude;
 SMOP__S1P__LexicalPrelude.entries.Code = new P6Code;
 SMOP__S1P__LexicalPrelude.entries.capture = new P6capture([],[]);
+SMOP__S1P__LexicalPrelude.entries.True = SMOP__NATIVE__bool_true;
+SMOP__S1P__LexicalPrelude.entries.False = SMOP__NATIVE__bool_false;
+SMOP__S1P__LexicalPrelude.entries['$LexicalPrelude'] = SMOP__S1P__LexicalPrelude;
+
+
+var PRIMITIVES = new P6LexPad();
+function primitive(name,func) {
+    PRIMITIVES.entries[name] = new JSFunction(func);
+}
+function boolify(x) {
+    return x ? SMOP__NATIVE__bool_true : SMOP__NATIVE__bool_false;
+}
+primitive('&concat',function(interpreter,capture) {
+    setr(interpreter,new P6Str(capture._positional[0].value + capture._positional[1].value));
+});
+primitive('&eq',function(interpreter,capture) {
+    setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));
+});
+
+SMOP__S1P__LexicalPrelude.entries['PRIMITIVES::'] = PRIMITIVES;
+
+
 var code_mold = new P6Mold(14,[new P6Int(1),new P6Str("BIND"),new P6Str("FETCH"),new P6Str("STORE"),new P6Str("cc"),new P6Str("create"),new P6Str("goto"),new P6Str("named"),new P6Str("new"),new P6Str("outer"),new P6Str("positional"),new P6Str("set_back"),new P6Str("set_lexical"),new P6Str("set_regs"),new P6Str("true"),SMOP__S1P__LexicalScope],function(interpreter,frame) {
   switch (frame.pc) {
     case 0:

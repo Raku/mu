@@ -59,7 +59,7 @@ Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through r
 ) || help;
 help if $help;
 
-if (defined $B and $B eq 'js') {
+if (($B // $C // '') eq 'js') {
     $empty_setting = 1;
     $target_stage = 1;
 }
@@ -336,6 +336,18 @@ if ($B eq 'via-C') {
     }
     $ctx->register_method_by_name("print");
     $ctx->execute(get_js_runtime."\n1;");
+
+    {
+        local $/;
+        open(my $runtime,"js/CORE2.js") || die "can't open internal file\n";
+        $ctx->execute("
+            var interpreter = new P6Interpreter();
+            var frame = new P6Frame(".(scalar <$runtime>).");
+            interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
+            interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
+            1;
+        ");
+    }
     $ctx->execute("
         var interpreter = new P6Interpreter();
         var frame = new P6Frame(".m0ld_to_js(m0ld).");
