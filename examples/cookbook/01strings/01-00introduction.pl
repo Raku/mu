@@ -106,7 +106,7 @@ to have it evaluated as a program expression, by using the -e switch:
 
 =head1 Assigning Strings 
 
-A string object can be created explictly, by declaring a variable
+A string object can be created explicitly, by declaring a variable
 using the Str keyword, and assigning a string value to it. 
 
     my Str $string = 'This Str is holding a String';

@@ -27,7 +27,7 @@ You want to check if a string is a valid number.
   # corresponds to a real or an integer.  In this situation compare
   # it against the rule for integers or reals.
 
-# XXX At the moment you have to make use of modules/Grammer/Perl6.pm
+# XXX At the moment you have to make use of modules/Grammar/Perl6.pm
 # to get below working.  When grammar support is more mature this 
 # will be fixed.  
 

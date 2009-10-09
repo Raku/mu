@@ -79,7 +79,7 @@ sub collapse($one, $sub) { $sub.($one) };
 sub collapse($one, $two, $sub) { $sub.($one, $two) };
 sub collapse($one, $two, $three, $sub) { $sub.($one, $two, $three) };
 
-say "Finding solutions for SEND + MORE = MONEY (psuedo-optimised)";
+say "Finding solutions for SEND + MORE = MONEY (pseudo-optimized)";
 $piggy_bank = 1e8;
 start_timer();
 
