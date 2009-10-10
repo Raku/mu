@@ -332,7 +332,7 @@ if ($B eq 'via-C') {
     my $ctx = V8::Context->new();
     sub print {
         # TODO: put this in C++ instead as a V8 plugin (or use Print() from d8.cc)
-        say map { Encode::decode_utf8($_) } @_;
+        print map { Encode::decode_utf8($_) } @_;
     }
     $ctx->register_method_by_name("print");
     $ctx->execute(get_js_runtime."\n1;");
