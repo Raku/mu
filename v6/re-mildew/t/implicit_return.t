@@ -1,11 +1,11 @@
 my sub foo {
-    "ok 1\n";
+    "ok 1";
 }
 my sub cond_value($arg) {
     if $arg {
-        "ok 2\n";
+        "ok 2";
     } else {
-        "ok 3\n";
+        "ok 3";
     }
 }
 say "1..3";

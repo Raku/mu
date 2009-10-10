@@ -92,6 +92,9 @@ function P6Int(i) {
     this.value = i;
 }
 init_type(P6Int);
+P6Int.prototype['true'] = function(interpreter,capture) {
+    setr(interpreter,boolify(this.value));
+}
 
 function P6LexPad() {
     this.entries = {};

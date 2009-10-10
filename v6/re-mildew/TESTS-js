@@ -6,3 +6,9 @@
 t/sub.t
 t/call.t
 t/array.t
+t/unless.t
+t/if_bug.t
+t/if.t
+t/else.t
+t/elsif.t
+t/implicit_return.t
