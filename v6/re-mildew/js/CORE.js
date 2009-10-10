@@ -273,6 +273,7 @@ SMOP__S1P__LexicalPrelude.entries.capture = new P6capture([],[]);
 SMOP__S1P__LexicalPrelude.entries.True = SMOP__NATIVE__bool_true;
 SMOP__S1P__LexicalPrelude.entries.False = SMOP__NATIVE__bool_false;
 SMOP__S1P__LexicalPrelude.entries['$LexicalPrelude'] = SMOP__S1P__LexicalPrelude;
+SMOP__S1P__LexicalPrelude.entries['$?PACKAGE'] = new P6LexPad();
 
 
 var PRIMITIVES = new P6LexPad();
