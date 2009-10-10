@@ -120,8 +120,8 @@ In practice, though, you're safest using matching characters with
 Ps/Pe/Pi/Pf properties, though ASCII angle brackets are a notable exception,
 since they're bidirectional but not in the Ps/Pe/Pi/Pf sets.
 
-但实际上，你使用 Ps/Pe/Pi/Pf 属性是最安全的，尽管 ASCII 尖括号是个显著的例外，因
-为它们是双向的但不在 Ps/Pe/Pi/Pf 集合里面。
+但实际上，你使用 Ps/Pe/Pi/Pf 属性是最安全的，尽管 ASCII 尖括号是个显著的例外，
+因为它们是双向的但不在 Ps/Pe/Pi/Pf 集合里面。
 
 Characters with no corresponding closing character do not qualify
 as opening brackets.  This includes the second section of the Unicode
@@ -139,7 +139,7 @@ not C<U+298E>.  Neither C<U+298E> nor C<U+2990> are valid bracket
 openers, despite having reverse mappings in the BidiMirroring table.
 
 如果字符已经使用 Ps/Pe/Pi/Pf 映射，则双向镜像的任何入口被忽略（向前映射
-和向后映射）。对于任何给定的 Ps 字符，下一个 Pe 字符码（按数字顺序）被假
+和向后映射）。对于任何给定的 Ps 字符，下一个 Pe 字符编码（按数字顺序）被假
 定为它匹配的字符，即使这不是你可能已经猜到使用左右对称的字符。因此，C<U+298D>
 映射到 C<U+298E>，不是 C<U+2990>，以及 C<U+298F> 映射到 C<U+2990>，而不
 是 C<U+298E>。C<U+298E> 和 C<U+2990> 都不是有效的开括号，尽管在双向镜像表
@@ -150,8 +150,8 @@ Perl 6 only recognizes the one with lower code point number, C<U+301E>,
 as the closing brace.  This policy also applies to new one-to-many
 mappings introduced in the future.
 
-C<U+301D> 字符码有两个闭括号可选，C<U+301E> 和 C<U+301F>; Perl 6 只识别较小的
-字符码号码 C<U+301E> 作为闭括号。这项政策也适用于后面新推出的一对多映射。
+C<U+301D> 字符编码有两个闭括号可选，C<U+301E> 和 C<U+301F>; Perl 6 只识别较小的
+编码编码 C<U+301E> 作为闭括号。这项政策也适用于后面新推出的一对多映射。
 
 However, many-to-one mappings are fine; multiple opening characters
 may map to the same closing character.  For instance, C<U+2018>, C<U+201A>,
@@ -776,8 +776,13 @@ is unknown.  Similarly, C<.codes> is not well-defined unless you know which
 canonicalization is in effect.  Hence, both methods allow an optional argument
 to specify the meaning exactly if it cannot be known from context.)
 
+为了获取数字中的元素编号，使用 C<.elems> 方法。 你也可以询问数组元素的总串长
+度，以字节，字符编码，或者
+
 There is no C<.length> method for either arrays or strings, because C<length>
 does not specify a unit.
+
+数组和字符串对象都没有 C<.length> 方法，因为 C<length> 没有具体指定单元。
 
 =item *
 
@@ -857,6 +862,8 @@ is defined:
 
 (For a prototype system (a non-class-based object system), all objects
 are merely managed by the same meta object.)
+
+(对于原型系统（非基于类的对象系统），所有对象仅仅被同样的元对象控制。）
 
 =item *
 
