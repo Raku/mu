@@ -85,11 +85,11 @@ package Evalbot;
                 cmd_line    => $^X . ' tryfile %program >>%out 2>&1',
                 revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
             },
-            sprixel  => {
-                chdir       => '../../src/perl6/snap',
-                cmd_line    => $^X . ' sprixel.pl %program -t >>%out 2>&1',
-                revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
-            },
+            #sprixel  => {
+            #    chdir       => '../../src/perl6/snap',
+            #    cmd_line    => $^X . ' sprixel.pl %program -t >>%out 2>&1',
+            #    revision    => sub { get_revision_from_file('/home/p6eval/pugs/src/perl6/snap/revision')},
+            #},
             highlight  => {
                 chdir       => '../../src/perl6/std_hilite',
                 cmd_line    => $^X . ' STD_syntax_highlight %program >>%out 2>&1',
@@ -133,7 +133,7 @@ package Evalbot;
             return "Program empty" unless length $str;
             warn "Perl6: $str\n";
             my %results;
-            for my $eval_name qw(elf pugs rakudo sprixel){
+            for my $eval_name qw(elf pugs rakudo){
                 my $e = $impls{$eval_name};
                 my $tmp_res = EvalbotExecuter::run($str, $e, $eval_name);
                 my $revision = '';
