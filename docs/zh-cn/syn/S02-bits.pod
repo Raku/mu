@@ -370,12 +370,12 @@ a dotted postfix on the next line:
     $object\
     .say
 
-But unspace is mainly about language extensibility: it lets you continue
+But unspace is mainly about language extensibility, it lets you continue
 the line in any situation where a newline might confuse the parser,
 regardless of your currently installed parser.  (Unless, of course,
 you override the unspace rule itself...)
 
-但反空格主要是语言的扩展性：它让你在任何可能搞混语法分析器的地方继续该行，不管
+但反空格主要是语言的扩展性，它让你在任何可能搞混语法分析器的地方继续该行，不管
 你现在安装的语法分析器。（当然，除非你覆盖了它自己的反空格规则……）
 
 Although we say that the unspace hides the whitespace from the parser,
@@ -587,7 +587,7 @@ syntax.  (The C<.123> form with a leading
 dot is still allowed however when a term is expected, and is equivalent
 to C<0.123> rather than C<$_.123>.)
 
-所有这些结果就是你可能不再使用句点以将 Num 写成 C<42.>。你必须改为写
+所有这些结果就是你可能不再使用句点将 Num 写成 C<42.>。你必须改为写
 成 C<42> 或 C<42.0>。换句话说，如果数字后面的点只能是小数点，如果点后面的字符是
 数字的话。否则这个后缀点将视为某种方法的调用语法开始。（ 然而，当需要术语的时候，
 以点开头的 C<.123> 形式仍然允许，并等价于 C<0.123>，而不是 C<$_.123>。）
@@ -635,11 +635,11 @@ equivalent to the original type.  In particular, the C<Array of Int> syntax
 is just sugar for C<Array:of(Int)>, which is the canonical form of an
 instantiated generic type.
 
-类型正式比较是使用名称对比而不是结构对比。然而，我们对自己认为的名称比较宽松。
+类型正式比较是使用名称对比而不是结构对比。然而，我们对自己考虑的名称比较宽松。
 举个例子，名称包含了版本和该模块定义类型相关的权威信息（即使类型本身是“匿名
 的”）。除此之外，当你实例化一个参数类型，参数被认为是由此产生的类型中“长名称”的
 一部分，所以一个 C<Array of Int> 等价于另外一个 C<Array of Int>。（以另外一种方式
-来看待，类型实例“工厂”是被保存的。）类型名称别名被认为等价于原始类型。特别地，
+来看待，类型实例“工厂”是被保存的。）类型名称别名被认为等价于原生类型。特别地，
 C<Array of Int> 仅仅是实例化泛型类型标准形式 C<Array:of(Int)> 的语法糖。
 
 This name equivalence of parametric types extends only to parameters
@@ -666,7 +666,8 @@ kind of mixin mechanism, and such mixins are accomplished by the
 generation of an individual anonymous class for the object (unless
 an identical anonymous class already exists and can safely be shared).
 
-根据 S12，properties 实际上是通 1 种混合机制实现，
+根据 S12，properties 实际上是通 1 种混合机制实现，这样的混合体是为对象通过一个
+独特匿名类的衍生而实现的（除非一个完全相同的匿名类已经存在并可以被安全共享）。
 
 =item *
 
@@ -674,6 +675,10 @@ Properties applied to objects constructed at compile-time, such as
 variables and classes, are also called B<traits>.  Traits cannot be
 changed at run-time.  Changes to run-time properties are done via
 mixin instead, so that the compiler can optimize based on declared traits.
+
+Properties 适用于对象在编译时构建，比如变量和类，也被称为 B<特性>。特性不能在运
+行时被改变。运行时 properties 的改变是经过混合体代替完成，所以编译器可以基于声
+明特性优化。
 
 =item *
 
@@ -683,8 +688,8 @@ as filehandles will be more object-oriented in a user-visible way
 than in Perl 5.
 
 Perl 6 是个 OO（面向对象） 引擎，但你不方便的时候一般不需要用 OO 考虑。
-然而，一些内置思想比如 filehands（文件句柄）在用户可见习惯将会比 Perl 5 
-更加面向对象。
+然而，一些内置思想比如 filehands（文件句柄）在用户可见的方式中将会比 Perl 5 更加
+面向对象。
 
 =item *
 
@@ -692,6 +697,10 @@ A variable's type is a constraint indicating what sorts of values the
 variable may contain.  More precisely, it's a promise that the object
 or objects contained in the variable are capable of responding to the
 methods of the indicated "role".  See S12 for more about roles.
+
+变量类型是一种约束，它说明了变量可能包含什么类型的值。更准确地说，它承诺变量中
+包含的一个或者多个对象能够响应指定“角色”中的方法。参考 S12 以获得更多关于角色
+的信息。 
 
     # $x can contain only Int objects
     my Int $x;
@@ -702,7 +711,13 @@ methods of the indicated "role".  See S12 for more about roles.
 A variable may itself be bound to a container type that specifies how
 the container works, without specifying what kinds of things it contains.
 
+变量本身可能被绑定到容器类型来说明容器如何工作，而没有说明它包含什么样的东西。
+
+
     # $x is implemented by the MyScalar class
+    my $x is MyScalar;
+
+    # $x 通过 MyScalar 类实现
     my $x is MyScalar;
 
 Constraints and container types can be used together:
@@ -713,12 +728,18 @@ Constraints and container types can be used together:
     # and is implemented by the MyScalar class
     my Int $x is MyScalar;
 
-Note that C<$x> is also initialized to the C<Int> type object.  See below for more on this.
+Note that C<$x> is also initialized to the C<Int> type object.  See below for
+more on this.
+
+注意 C<$x> 也被初始化到 C<Int> 类型对象。关于这个，请参考下面以获得更多信息。
 
 =item *
 
 C<my Dog $spot> by itself does not automatically call a C<Dog> constructor.
 It merely assigns an undefined C<Dog> prototype object to C<$spot>:
+
+C<my Dog $spot> 本身不会自动调用 C<Dog> 构造函数。它仅仅赋值一个未定义
+的 C<Dog> 原型对象给 C<$spot>：
 
     my Dog $spot;           # $spot is initialized with ::Dog
     my Dog $spot = Dog;     # same thing
@@ -726,17 +747,35 @@ It merely assigns an undefined C<Dog> prototype object to C<$spot>:
     $spot.defined;          # False
     say $spot;              # "Dog"
 
-Any type name used as a value is an undefined instance of
-that type's prototype object, or I<type object> for short.  See S12 for more on that.
+    my Dog $spot;           # $spot 使用 ::Dog 初始化
+    my Dog $spot = Dog;     # 同样的事情
+
+    $spot.defined;          # False
+    say $spot;              # "Dog"
+
+Any type name used as a value is an undefined instance ofthat type's 
+prototype object, or I<type object> for short.  See S12 for more on that.
+
+任何作为值使用的类型名称是该类型原型对象的未定义实例化，简称“类型对象”。参
+考 S12 以获得更多那方面的信息。
+
 Any type name in rvalue context is parsed as a single type value and
-expects no arguments following it.  However, a type object responds to the function
-call interface, so you may use the name of a type with parentheses as if it
-were a function, and any argument supplied to the call is coerced
+expects no arguments following it.  However, a type object responds to the 
+function call interface, so you may use the name of a type with parentheses
+as if it were a function, and any argument supplied to the call is coerced
 to the type indicated by the type object.  If there is no argument
 in the parentheses, the type object returns itself:
 
+右值范围内的任何类型名称被解析为单一类型的值并期望它后面没有参数。然而，类型对
+象响应函数调用接口，所以你可以通过圆括号使用类型的名称，好像它是个函数一样，并且
+任何提供给该调用的参数强制为该类型所显示类型对象的类型。如果圆括号里面没有参
+数，该类型对象返回本身：
+
     my $type = Num;             # type object as a value
     $num = $type($string)       # coerce to Num
+
+    my $type = Num;             # 类型对象作为值
+    $num = $type($string)       # 强制为 Num
 
 To get a real C<Dog> object, call a constructor method such as C<new>:
 
@@ -745,12 +784,18 @@ To get a real C<Dog> object, call a constructor method such as C<new>:
     my Dog $spot .= new;
     my Dog $spot = $spot.new;   # .= is rewritten into this
 
+    my Dog $spot .= new;
+    my Dog $spot = $spot.new;   # .= 被重写为这样
+
 You can pass in arguments to the constructor as well:
 
 你也可以传递参数到构造方法里面：
 
     my Dog $cerberus .= new(heads => 3);
     my Dog $cerberus = $cerberus.new(heads => 3);   # same thing
+
+    my Dog $cerberus .= new(heads => 3);
+    my Dog $cerberus = $cerberus.new(heads => 3);   # 同样的事情
 
 =item *
 
@@ -765,6 +810,9 @@ but that the array itself is implemented by the C<MyArray> class.
 Untyped arrays and hashes are still perfectly acceptable, but have
 the same performance issues they have in Perl 5.
 
+那么你在声明 C<@array> 的元素为原生整型，但该数组本身通过 C<MyArray> 类实现。
+无类型的数组和哈希表仍然完全可以接受，但是和 Perl 5 有同样的性能问题。
+
 =item *
 
 To get the number of elements in an array, use the C<.elems> method.  You can
@@ -776,8 +824,11 @@ is unknown.  Similarly, C<.codes> is not well-defined unless you know which
 canonicalization is in effect.  Hence, both methods allow an optional argument
 to specify the meaning exactly if it cannot be known from context.)
 
-为了获取数字中的元素编号，使用 C<.elems> 方法。 你也可以询问数组元素的总串长
-度，以字节，字符编码，或者
+为了获取数字中的元素编号，使用 C<.elems> 方法。 你也可以通过 C<.bytes>，
+C<.codes> 或者 C<.graphs> 以字节，字符编码或者字形来请求数组元素的总字符串长
+度。这些方法也适用于字符串。（注意当编码未知的时候 C<.bytes> 不能保证有明确的
+定义。同样地，除非你知道哪个规范有效，否则 C<.codes> 没有明确的定义。因此，如果
+不能从上下文中知道，两个方法都允许一个可选的参数来正确地指定含义。
 
 There is no C<.length> method for either arrays or strings, because C<length>
 does not specify a unit.
@@ -806,22 +857,30 @@ look like their corresponding uppercase types if you treat them that way.
 repeated autoboxing can slow your program more than the native type
 can speed it up.)
 
-非对象（本地）类型是小写：C<int>，C<num>，C<complex>，C<rat>，C<buf>，C<bit>。本地类
-型主要用于紧凑型阵列存储声明。然而，如果你尝试以大写类型对待本地类型，Perl 将会
+非对象（原生）类型是小写：C<int>，C<num>，C<complex>，C<rat>，C<buf>，C<bit>。原生类
+型主要用于紧凑型阵列存储声明。然而，如果你尝试以大写类型对待原生类型，Perl 将会
 尝试使它们看起来像它们一致的大写类型。（换句话说，Perl 进行了自动封箱。但是请注
-意，有时候反复自动封箱会减慢你的程序，它慢过了本地类型可以加快的速度。）
+意，有时候反复自动封箱会减慢你的程序，它慢过了原生类型可以加快的速度。）
 
 The C<junction> type is considered a native type because its internal
 representation is fixed, and you may not usefully derive from it
 because the intent of junctions is to autothread any method calls
 on them.
 
+C<junction> 类型被认为是原生类型，因为它的内在表现是固定的，你可能不会从中得益，
+因为 junction 的目的是自动穿越它们上面的任何方法调用。
+
 Some object types can behave as value types.  Every object can produce
-a "WHICH" value that uniquely identifies the
-object for hashing and other value-based comparisons.  Normal objects
-just use their address in memory, but if a class wishes to behave as a
-value type, it can define a C<.WHICH> method that makes different objects
-look like the same object if they happen to have the same contents.
+a "WHICH" value that uniquely identifies the object for hashing and other
+value-based comparisons.  Normal objects just use their address in memory,
+but if a class wishes to behave as a value type, it can define 
+a C<.WHICH> method that makes different objects look like the same object if
+they happen to have the same contents.
+
+一些对象类型可以表现为值类型。每个对象可以产生一个“WHICH”值，它给哈希表和其它
+基于值的比较唯一地标示了该对象。普通对象仅仅使用其内存地址，但如果类要表现为值
+类型，它可以定义一个 C<.WHICH> 方法使不同的对象看起来像一样的对象，如果它们刚好
+有相同的内容。
 
 =item *
 
@@ -829,10 +888,16 @@ Variables with non-native types can always contain I<undefined> values,
 such as C<Object>, C<Whatever> and C<Failure> objects.  See S04 for more
 about failures (i.e. unthrown exceptions):
 
+没有非原生类型的变量可以随时包含 I<未定义的> 的值，比如 C<Object>，
+C<Whatever> 和 C<Failure> 对象。关于 failure，参考 S04 以获得更多信息（即，未
+抛出异常）：
+
     my Int $x = undef;    # works
 
-Variables with native types do not support undefinedness: it is an error
+Variables with native types do not support undefinedness, it is an error
 to assign an undefined value to them:
+
+原生类型的变量不支持未定义，赋值给未定义的值给它们是错误的：
 
     my int $y = undef;    # dies
 
@@ -1175,7 +1240,7 @@ maximizing the degrees of freedom in a dwimmy way, not as a nihilistic
 
 =head2 Native types
 
-=head2 本地类型
+=head2 原生类型
 
 Values with these types autobox to their uppercase counterparts when
 you treat them as objects:
