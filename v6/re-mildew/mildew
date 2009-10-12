@@ -36,48 +36,13 @@ Usage: mildew [switches] [--] [programfile] [arguments]
   --format        format for the profiling info
                   (valid values: dhtml,text)
   -e
+  --server        runs as an App::Persistent server
 HELP
 exit;
 }
 my ($debug,$B,$C,$output,$help,$valgrind,$gdb,$empty_setting,$x,$target_stage,$yeast,$profile,$profile_format,$program);
-Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
-    "C=s" => \$C,
-    "output|o=s" => \$output,
-    "B=s" => \$B,
-    'valgrind' => \$valgrind,
-    'gdb' => \$gdb,
-    'empty-setting' => \$empty_setting,
-    'debug' => \$debug,
-    'h|help' => \$help,
-    'x=s' => \$x,
-    'target-stage=i'=>\$target_stage,
-    'yeast' => \$yeast,
-    'profile=s' => \$profile,
-    'format=s' => \$profile_format,
-    'return-real-value' => \$Mildew::return_real_value,
-    'e=s' => \$program
-) || help;
-help if $help;
-
-if (($B // $C // '') eq 'js') {
-    $empty_setting = 1;
-    $target_stage = 1;
-}
-my @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
-my @MILDEW_LDOPTS = ( '-L../re-smop/build/lib',
-                      map { s/^.+?\/lib\/lib|.so$//g; "-l".$_ } glob("../re-smop/build/lib/*.so") );
-
-
-$target_stage //= 2;
-if ($target_stage == 1) {
-    $Mildew::adhoc_sig = 1;
-} elsif ($target_stage == 2) {
-    $Mildew::adhoc_sig = 0;
-} else {
-    die 'unrecognised value passed to --target-stage';
-}
-
-VIV::SET_OPT('match'=>!$debug,'pos'=>1);
+my @SMOP_INCLUDE;
+my @MILDEW_LDOPTS;
 
 BEGIN {
     for (<src/VAST/*.pm>) {
@@ -286,76 +251,136 @@ BOILERPLATE_FRONT
 BOILERPLATE_BACK
 }
 
-$C = '' unless $C;
-if ($C eq 'desugar') {
-    output(parse->pretty."\n",$output);
-    exit;
-} elsif ($C eq 'ast-yaml') {
-    use YAML::XS;
-    output(Dump(parse),$output);
-    exit;
-} else {
-}
-if ($output and not $C) {
-    $C = 'via-C';
-}
-if ($C eq 'via-C') {
-    die "-o is required when compiling to an executable\n" unless $output;
-    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
-    compile_via_c(m0ld,$output);
-} elsif ($C eq 'so') {
-    die "-o is required when compiling to a shared library \n" unless $output;
-    compile_to_so(m0ld,$output);
-} elsif ($C eq 'm0ld') {
-    output(m0ld,$output);
-} elsif ($C eq 'C') {
-    output(compile_to_c(m0ld),$output);
-} elsif ($C eq 'js') {
-    output(m0ld_to_js(m0ld),$output);
-} elsif ($C) {
-    die "unknown backend passed to -C: $C\n";
-}
-
-if ($B && $C) {
-    die "can't specify both -C and -B\n";
-} elsif (!$B && !$C) {
-    $B = 'via-C';
-} elsif ($C) {
-    exit;
-}
-if ($B eq 'via-C') {
-    local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
-    local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
-    run_m0ld(m0ld);
-} elsif ($B eq 'js') {
-    require V8;
-    my $ctx = V8::Context->new();
-    sub print {
-        # TODO: put this in C++ instead as a V8 plugin (or use Print() from d8.cc)
-        print map { Encode::decode_utf8($_) } @_;
+sub main {
+    Getopt::Long::Parser->new( config => [qw( bundling no_ignore_case pass_through require_order)], )->getoptions(
+        "C=s" => \$C,
+        "output|o=s" => \$output,
+        "B=s" => \$B,
+        'valgrind' => \$valgrind,
+        'gdb' => \$gdb,
+        'empty-setting' => \$empty_setting,
+        'debug' => \$debug,
+        'h|help' => \$help,
+        'x=s' => \$x,
+        'target-stage=i'=>\$target_stage,
+        'yeast' => \$yeast,
+        'profile=s' => \$profile,
+        'format=s' => \$profile_format,
+        'return-real-value' => \$Mildew::return_real_value,
+        'e=s' => \$program
+    ) || help;
+    help if $help;
+    
+    if (($B // $C // '') eq 'js') {
+        $empty_setting = 1;
+        $target_stage = 1;
     }
-    $ctx->register_method_by_name("print");
-    $ctx->execute(get_js_runtime."\n1;");
-
-    {
-        local $/;
-        open(my $runtime,"js/CORE2.js") || die "can't open internal file\n";
+    @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
+    @MILDEW_LDOPTS = ( '-L../re-smop/build/lib',
+                          map { s/^.+?\/lib\/lib|.so$//g; "-l".$_ } glob("../re-smop/build/lib/*.so") );
+    
+    
+    $target_stage //= 2;
+    if ($target_stage == 1) {
+        $Mildew::adhoc_sig = 1;
+    } elsif ($target_stage == 2) {
+        $Mildew::adhoc_sig = 0;
+    } else {
+        die 'unrecognised value passed to --target-stage';
+    }
+    
+    VIV::SET_OPT('match'=>!$debug,'pos'=>1);
+    $C = '' unless $C;
+    if ($C eq 'desugar') {
+        output(parse->pretty."\n",$output);
+        exit;
+    } elsif ($C eq 'ast-yaml') {
+        use YAML::XS;
+        output(Dump(parse),$output);
+        exit;
+    } else {
+    }
+    if ($output and not $C) {
+        $C = 'via-C';
+    }
+    if ($C eq 'via-C') {
+        die "-o is required when compiling to an executable\n" unless $output;
+        local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
+        compile_via_c(m0ld,$output);
+    } elsif ($C eq 'so') {
+        die "-o is required when compiling to a shared library \n" unless $output;
+        compile_to_so(m0ld,$output);
+    } elsif ($C eq 'm0ld') {
+        output(m0ld,$output);
+    } elsif ($C eq 'C') {
+        output(compile_to_c(m0ld),$output);
+    } elsif ($C eq 'js') {
+        output(m0ld_to_js(m0ld),$output);
+    } elsif ($C) {
+        die "unknown backend passed to -C: $C\n";
+    }
+    
+    if ($B && $C) {
+        die "can't specify both -C and -B\n";
+    } elsif (!$B && !$C) {
+        $B = 'via-C';
+    } elsif ($C) {
+        exit;
+    }
+    if ($B eq 'via-C') {
+        local $ENV{LD_LIBRARY_PATH} = 'CORE:../re-smop/build/lib';
+        local $ENV{PERL5LIB} = "../re-smop/SMOP/blib/lib/:../re-smop/SMOP/blib/arch:" . ($ENV{PERL5LIB} || '');
+        run_m0ld(m0ld);
+    } elsif ($B eq 'js') {
+        require V8;
+        my $ctx = V8::Context->new();
+        sub print {
+            # TODO: put this in C++ instead as a V8 plugin (or use Print() from d8.cc)
+            print map { Encode::decode_utf8($_) } @_;
+        }
+        $ctx->register_method_by_name("print");
+        $ctx->execute(get_js_runtime."\n1;");
+    
+        {
+            local $/;
+            open(my $runtime,"js/CORE2.js") || die "can't open internal file\n";
+            $ctx->execute("
+                var interpreter = new P6Interpreter();
+                var frame = new P6Frame(".(scalar <$runtime>).");
+                interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
+                interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
+                1;
+            ");
+        }
         $ctx->execute("
             var interpreter = new P6Interpreter();
-            var frame = new P6Frame(".(scalar <$runtime>).");
-            interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
-            interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
-            1;
-        ");
+            var frame = new P6Frame(".m0ld_to_js(m0ld).");
+    interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
+    interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
+    1;");
+        warn if $@;
+    } elsif ($B) {
+        die "unknown backend passed to -B: $C\n";
     }
-    $ctx->execute("
-        var interpreter = new P6Interpreter();
-        var frame = new P6Frame(".m0ld_to_js(m0ld).");
-interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
-interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
-1;");
-    warn if $@;
-} elsif ($B) {
-    die "unknown backend passed to -B: $C\n";
 }
-
+#main();
+if (@ARGV == 1 && $ARGV[0] eq '--server') {
+    require App::Persistent::Server;
+    my $server = App::Persistent::Server->new(
+        code => sub {
+            my $info = shift;
+    
+            # fake environment
+            local %ENV = $info->environment;
+            local $0 = $info->program_name;
+            chdir $info->working_directory;
+            local @ARGV = $info->cmdline_args;
+    
+            main;
+         },
+    );
+    $server->start;
+    exit $server->completion_condvar->recv;
+} else {
+    main;
+}
