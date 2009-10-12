@@ -34,7 +34,7 @@ Tests a condition and runs a block of code if the condition is found to be
 true.
 
  if $day ~~ Saturday {
-     say "It's Saturyday";
+     say "It's Saturday";
  }
 
 The block can optionally be followed by any number of C<elsif> keywords

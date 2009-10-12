@@ -31,7 +31,7 @@ line front-end (named 'grok'):
 
 See TODO for a more comprehensive listing of things that need to be documented.
 
-grok will be accomodating and understand the basics of Perl 6 syntax. When the
+grok will be accommodating and understand the basics of Perl 6 syntax. When the
 following things are requested
 
   @array>>.trim
