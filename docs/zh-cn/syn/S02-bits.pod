@@ -1049,6 +1049,12 @@ within the string that in turn may or may not just lazily point into
 the string.  (The lazy implementation of C<StrLen> is much like a
 C<Range> object in that respect.)
 
+两个 C<StrPos> 对象相减产生一个 C<StrLen> 对象，它也不是一个整数，因为两个位置
+之间的字符串也有多个取决于单元的整数解释。给定的 C<StrLen> 应该知道它表
+示 18 字节，7 个字符编码，3 个字形 和 马拉雅拉姆语的一个字母，但它可能只懒洋洋地
+知道这个，因为它实际上仅仅悬在字符串这两个 C<StrPos> 端点，反过来也可能或不可能
+仅仅懒惰地指向字符串。（C<StrLen> 的懒惰实现在那方面更像 C<Range> 对象。）
+
 If you use integers as arguments where position objects are expected,
 it will be assumed that you mean the units of the current lexically
 scoped Unicode abstraction level.  (Which defaults to graphemes.)
