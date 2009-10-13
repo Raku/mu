@@ -993,6 +993,11 @@ and how floating point is to behave under various circumstances.
 All IEEE modes must be lexically available via pragma except in cases
 where that would entail heroic efforts to bypass a braindead platform.
 
+默认情况下，Perl 6 应使标准的 IEEE 浮点概念可见，比如 C<Inf> （无穷大）和 C<NaN>
+（非数字）。在词法范围内，参数应该指明临时变量的类型，以及在各种情况下浮点是如何
+表现的。所有 IEEE 模式必须通过参数词法上可用，除非需要承受极大努力来忽视愚蠢的
+平台。
+
 The default floating-point modes do not throw exceptions but rather
 propagate Inf and NaN.  The boxed object types may carry more detailed
 information on where overflow or underflow occurred.  Numerics in Perl
@@ -1001,6 +1006,11 @@ designed to give the typical programmer the tools to achieve a good
 enough answer most of the time.  (Really good programmers may occasionally
 do even better.)  Mostly this just involves using enough bits that the
 stupidities of the algorithm don't matter much.
+
+默认的浮点模式不抛出异常，而是传递 Inf 和 NaN。盒对象类型可以记录更多关于上溢
+或者下溢在哪里发生的详细信息。Perl 中的数字不是为了在任何地方给予相同的答案。
+它们大多时候是为了给典型程序员工具来实现足够好的答案。（真正优秀的程序员偶尔会
+做得更好。）这只是大概涉及到使用足够的位，愚蠢算法不太关心这些位。
 
 =item *
 
@@ -1023,6 +1033,12 @@ of matches done by a substitution, the answers are reported in terms of the
 original string (which may now be inaccessible!), not as positions within
 the modified string.
 
+C<Str> 是 Unicode 字符串对象。没有相应的原生 C<str> 类型。然而，既然 C<Str> 对
+象可以装满多种多样的 role，我们就说 C<Str> 保持跟踪它的最小和最大 Unicode 抽象
+层，并巧妙地参与当前理想字符词法范围的构想，不管那是字节，字符编码，字形或者某些
+语言中的字符。对于所有内部操作，所有 C<Str> 位置被描述为定位对象，而不是整数。
+这些 C<StrPos> 对象
+
 The subtraction of two C<StrPos> objects gives a C<StrLen> object,
 which is also not an integer, because the string between two positions
 also has multiple integer interpretations depending on the units.
@@ -1043,12 +1059,15 @@ Otherwise you'll need to coerce to the proper units:
 Of course, such a dimensional number will fail if used on a string
 that doesn't provide the appropriate abstraction level.
 
-当然，
+当然，这样一个维数如果在一个没有提供适当抽象层的字符串上使用将会失败。
 
 If a C<StrPos> or C<StrLen> is forced into a numeric context, it will
 assume the units of the current Unicode abstraction level.  It is
 erroneous to pass such a non-dimensional number to a routine that
 would interpret it with the wrong units.
+
+如果 C<StrPos> 或 C<StrLen> 被强迫为数字环境，它将会承担为当前 Unicode 抽象层
+单元。传递无量纲数到一个将用错误单元解释它的例行程序是不正确的。
 
 Implementation note: since Perl 6 mandates that the default Unicode
 processing level must view graphemes as the fundamental unit rather
@@ -1059,6 +1078,8 @@ some kind of uniform array for fast substr access.  For those graphemes
 that have a precomposed form, use of that codepoint is suggested.
 (Note that this means Latin-1 can still be represented internally
 with 8-bit integers.)
+
+实现说明：既然 Perl 6 要求
 
 For graphemes that have no precomposed form, a temporary private
 id should be assigned that uniquely identifies the grapheme.
