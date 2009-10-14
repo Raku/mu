@@ -1037,7 +1037,12 @@ C<Str> 是 Unicode 字符串对象。没有相应的原生 C<str> 类型。然�
 象可以装满多种多样的 role，我们就说 C<Str> 保持跟踪它的最小和最大 Unicode 抽象
 层，并巧妙地参与当前理想字符词法范围的构想，不管那是字节，字符编码，字形或者某些
 语言中的字符。对于所有内部操作，所有 C<Str> 位置被描述为定位对象，而不是整数。
-这些 C<StrPos> 对象
+这些 C<StrPos> 对象指向于特殊字符串中独立于抽象层的一个特殊位置，或通过直接跟
+踪字符串和位置，或者通过从字符串开始产生一个偏移值的抽象层独立表示，该字符串如
+果适用于同样的字符串，它将在任何上下文中产生同样的结果。这是假设字符串同时没有
+被修改；C<StrPos> 不是一个记号，也不需要遵循可变字符串的变化。举个例子，如果你请
+求通过替代完成的匹配位置，答案是以原始字符串的方式报告（它现在可能难以达成！），
+不是以修改后的字符串的位置。
 
 The subtraction of two C<StrPos> objects gives a C<StrLen> object,
 which is also not an integer, because the string between two positions
@@ -1492,6 +1497,10 @@ of C<Scalar> deletes elements that go to either 0 or the null string.
 A C<KeyHash> also autodeletes keys for normal undef values (that is,
 those undefined values that do not contain an unthrown exception).
 
+C<KeyHash> 在如何操纵默认值方面不同于正常的 C<Hash>。如果 C<KeyHash> 元素的值
+为 C<KeyHash> 设为默认值，这个元素会被删除。如果未声明，C<KeyHash> 的默认值是对
+于整数类型是 0，对于布尔类型是 C<False>，对于 string 和 buffer 类型是空字符串。
+
 A C<KeySet> is a C<KeyHash> of booleans with a default of C<False>.
 If you use the C<Hash> interface and increment an element of a
 C<KeySet> its value becomes true (creating the element if it doesn't
@@ -1944,6 +1953,9 @@ in angles, so C<%bar.{'a'}> may also be written as C<< %bar<a> >>
 or C<< %bar.<a> >>.  Additionally, you may insert extra whitespace
 using the unspace.
 
+现在下标符号始终解引用它们左边的任何容器。空白不允许出现在变量名和它的下标符
+号之间。
+
 =item *
 
 Slicing is specified by the nature of the subscript, not by
@@ -2231,6 +2243,9 @@ are aliases into the C<$/> object.
 
 The C<$#foo> notation is dead.  Use C<@foo.end> or C<@foo[*-1]> instead.
 (Or C<@foo.shape[$dimension]> for multidimensional arrays.)
+
+C<$#foo> 标志废弃了。使用 C<@foo.end> 或者 C<@foo[*-1]> 代替。（或
+者对于多维数组使用 C<@foo.shape[$dimension]> 。）
 
 =back
 
