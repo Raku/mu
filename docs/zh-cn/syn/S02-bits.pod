@@ -370,12 +370,12 @@ a dotted postfix on the next line:
     $object\
     .say
 
-But unspace is mainly about language extensibility, it lets you continue
+But unspace is mainly about language extensibility: it lets you continue
 the line in any situation where a newline might confuse the parser,
 regardless of your currently installed parser.  (Unless, of course,
 you override the unspace rule itself...)
 
-但反空格主要是语言的扩展性，它让你在任何可能搞混语法分析器的地方继续该行，不管
+但反空格主要是语言的扩展性：它让你在任何可能搞混语法分析器的地方继续该行，不管
 你现在安装的语法分析器。（当然，除非你覆盖了它自己的反空格规则……）
 
 Although we say that the unspace hides the whitespace from the parser,
@@ -894,10 +894,10 @@ C<Whatever> 和 C<Failure> 对象。关于 failure，参考 S04 以获得更多�
 
     my Int $x = undef;    # works
 
-Variables with native types do not support undefinedness, it is an error
+Variables with native types do not support undefinedness: it is an error
 to assign an undefined value to them:
 
-原生类型变量不支持未定义，赋值给未定义的值给它们是错误的：
+原生类型变量不支持未定义：赋值给未定义的值给它们是错误的：
 
     my int $y = undef;    # dies
 
@@ -972,7 +972,9 @@ may also be explicitly cast to C<Num>.  (Also, if either side is
 C<Num> already, C<< infix:</> >> gives you a C<Num> instead of a C<Rat>.)
 
 C<Rat>支持任意精度的有理数运算。使用 C<< infix:</> >> 除两个 C<Int> 对象产生
-一个 C<Rat>，
+一个 C<Rat>，它一般用于任何 C<Num> 可用的地方，但也可以精确转换成 C<Num>。
+（同样地，如果任何一方已经是 C<Num>，C<< infix:</> >> 给你一个 C<Num>，而不
+是 C<Rat>。）
 
 Lower-case types like C<int> and C<num> imply the native
 machine representation for integers and floating-point numbers,
@@ -981,8 +983,12 @@ larger representations are always allowed for temporary values.
 Unless qualified with a number of bits, C<int> and C<num> types represent
 the largest native integer and floating-point types that run at full speed.
 
+像 C<int> 和 C<num> 小写类型意味着对整数和浮点数的本地机器表现。
+
 Numeric values in untyped variables use C<Int> and C<Num> semantics
 rather than C<int> and C<num>.
+
+无类型变量的数字值使用 C<Int> 和 C<Num> 语义而不是 C<int> 和 C<num>。
 
 =item *
 
