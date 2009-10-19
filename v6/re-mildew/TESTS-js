@@ -14,3 +14,4 @@ t/elsif.t
 t/implicit_return.t
 t/hash.t
 t/lexical-sub.t
+t/binding.t

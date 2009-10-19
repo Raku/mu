@@ -111,7 +111,7 @@ init_type('LexPad',P6LexPad);
 P6LexPad.prototype.lookup = function(interpreter,capture) {
     var key = capture._positional[1].value;
     if (this.entries[key]) {
-        setr(interpreter,this.entries[key]);
+        setr(interpreter,new P6BValue(this,key));
         //print("found ",key);
     } else if (this._outer.container) {
         /*XXX*/
