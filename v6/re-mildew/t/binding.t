@@ -1,10 +1,10 @@
-say "1..1\n";
+say "1..2";
 my $foo;
 my $bar;
 $bar := $foo;
-$foo = "ok 1\n";
+$foo = "ok 1";
 say $bar;
 
-$foo := 1;
+$foo := "ok 2";
 $bar := $foo;
 say $bar;
