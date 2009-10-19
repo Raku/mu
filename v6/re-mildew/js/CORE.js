@@ -1,8 +1,9 @@
 var P6Scalar;
 var lexical_prelude = {};
-function init_type(type) {
+function init_type(ID,type) {
     type.prototype.DISPATCH = DISPATCH_from_methods;
     type.prototype.FETCH = FETCH;
+    type.prototype.ID = ID;
 }
 function DISPATCH_from_methods(interpreter,identifier,capture) {
 //    print(this.ID+'.'+identifier.value,"\n");
@@ -71,7 +72,7 @@ function P6capture(positional,named) {
         this._named[named[i].value] = named[i+1];
     }
 }
-init_type(P6capture);
+init_type('capture',P6capture);
 P6capture.prototype['new'] = function(interpreter,capture) {
     setr(interpreter,new P6capture(capture._positional.slice(1),capture._named));
 }
@@ -86,12 +87,12 @@ P6capture.prototype['named'] = function(interpreter,capture) {
 function P6Str(str) {
     this.value = str;
 }
-init_type(P6Str);
+init_type('Str',P6Str);
 
 function P6Int(i) {
     this.value = i;
 }
-init_type(P6Int);
+init_type('Int',P6Int);
 P6Int.prototype['true'] = function(interpreter,capture) {
     setr(interpreter,boolify(this.value));
 }
@@ -100,7 +101,7 @@ function P6LexPad() {
     this.entries = {};
     this._outer = new P6Scalar;
 }
-init_type(P6LexPad);
+init_type('LexPad',P6LexPad);
 P6LexPad.prototype.lookup = function(interpreter,capture) {
     var key = capture._positional[1].value;
     if (this.entries[key]) {
@@ -130,7 +131,7 @@ function P6BValue(lexpad,key) {
     this.lexpad = lexpad;
     this.key = key
 }
-init_type(P6BValue);
+init_type('BValue',P6BValue);
 P6BValue.prototype.BIND = function(interpreter,capture) {
     this.lexpad.entries[this.key] = capture._positional[1];
     setr(interpreter,this);
@@ -189,7 +190,7 @@ var P6Code = define_type('Code',{
 function JSFunction(func) {
     this.func = func;
 }
-init_type(JSFunction);
+init_type('JS function',JSFunction);
 
 JSFunction.prototype['postcircumfix:( )'] = function(interpreter,capture) {
     this.func(interpreter,capture._positional[1]);
@@ -217,14 +218,12 @@ builtin('&infix:+:(int,int)',function(interpreter,capture) {
 function define_type(name,methods) {
     var proto = function() {
     }
-    proto.prototype.ID = name + ' protobject';
-    init_type(proto);
+    init_type(name + ' protobject',proto);
     proto.prototype['new'] = methods['new'];
 
     var constructor = function() {
     }
-    init_type(constructor);
-    constructor.prototype.ID = name;
+    init_type(name,constructor);
     for (var m in methods) {
         constructor.prototype[m] = methods[m];
     }
@@ -320,7 +319,7 @@ function P6ContainerProxy(array,index) {
     this._content = array;
     this.index = index
 }
-init_type(P6ContainerProxy);
+init_type('Container Proxy',P6ContainerProxy);
 P6ContainerProxy.prototype.BIND = function(interpreter,capture) {
     this._content._content[this.index] = capture._positional[1];
     setr(interpreter,this);
