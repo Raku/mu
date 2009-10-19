@@ -271,47 +271,68 @@ var P6True = define_type('True',{
 });
 var P6Array = define_type('Array',{
     'new': function(interpreter,capture) {
-        var _array = new P6Array;
-        _array._array = [];
-        setr(interpreter,_array);
+        var _content = new P6Array;
+        _content._content = [];
+        setr(interpreter,_content);
     },
     push: function(interpreter,capture) {
-        this._array.push(capture._positional[1]);
+        this._content.push(capture._positional[1]);
     },
     unshift: function(interpreter,capture) {
-        this._array.unshift(capture._positional[1]);
+        this._content.unshift(capture._positional[1]);
     },
     shift: function(interpreter,capture) {
         /*TODO exception*/
-        var val = this._array.shift()
+        var val = this._content.shift()
         setr(interpreter,val ? val : SMOP__NATIVE__bool_false);
     },
     'postcircumfix:[ ]': function(interpreter,capture) {
         var index = capture._positional[1].value;
-        setr(interpreter,new P6ArrayProxy(this,index));
+        setr(interpreter,new P6ContainerProxy(this,index));
     },
     elems: function(interpreter,capture) {
-        setr(interpreter,new P6Int(this._array.length));
+        setr(interpreter,new P6Int(this._content.length));
     }
 });
 
-function P6ArrayProxy(array,index) {
-    this._array = array;
+var P6Hash = define_type('Hash',{
+    'new': function(interpreter,capture) {
+        var _content = new P6Hash;
+        _content._content = {};
+        setr(interpreter,_content);
+    },
+    'postcircumfix:{ }': function(interpreter,capture) {
+        var index = capture._positional[1].value;
+        setr(interpreter,new P6ContainerProxy(this,index));
+    },
+    keys: function(interpreter,capture) {
+        var keys = [];
+        for (i in this._content) {
+            keys.push(new P6Str(i));
+        }
+        var ret = new P6Array;
+        ret._content = keys;
+        setr(interpreter,ret);
+    }    
+});
+
+function P6ContainerProxy(array,index) {
+    this._content = array;
     this.index = index
 }
-init_type(P6ArrayProxy);
-P6ArrayProxy.prototype.BIND = function(interpreter,capture) {
-    this._array._array[this.index] = capture._positional[1];
+init_type(P6ContainerProxy);
+P6ContainerProxy.prototype.BIND = function(interpreter,capture) {
+    this._content._content[this.index] = capture._positional[1];
     setr(interpreter,this);
 }
-P6ArrayProxy.prototype.FETCH = function(interpreter,capture) {
-    if (!this._array._array[this.index]) this._array._array[this.index] = new P6Scalar;
-    var entry = this._array._array[this.index];
+P6ContainerProxy.prototype.FETCH = function(interpreter,capture) {
+    if (!this._content._content[this.index]) this._content._content[this.index] = new P6Scalar;
+    var entry = this._content._content[this.index];
     entry.DISPATCH(interpreter,new P6Str("FETCH"),new P6capture([entry],[]));
 }
-P6ArrayProxy.prototype.STORE = function(interpreter,capture) {
-    if (!this._array._array[this.index]) this._array._array[this.index] = new P6Scalar;
-    var entry = this._array._array[this.index];
+P6ContainerProxy.prototype.STORE = function(interpreter,capture) {
+    if (!this._content._content[this.index]) this._content._content[this.index] = new P6Scalar;
+    var entry = this._content._content[this.index];
     entry.DISPATCH(interpreter,new P6Str("STORE"),new P6capture([entry,capture._positional[1]],[]));
 }
 
