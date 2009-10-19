@@ -87,7 +87,13 @@ P6capture.prototype['named'] = function(interpreter,capture) {
 function P6Str(str) {
     this.value = str;
 }
+P6Int.prototype['true'] = function(interpreter,capture) {
+    setr(interpreter,boolify(this.value));
+}
 init_type('Str',P6Str);
+P6Str.prototype['true'] = function(interpreter,capture) {
+    setr(interpreter,boolify(this.value && this.value != '0'));
+}
 
 function P6Int(i) {
     this.value = i;
