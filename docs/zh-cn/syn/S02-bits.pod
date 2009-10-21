@@ -139,7 +139,7 @@ not C<U+298E>.  Neither C<U+298E> nor C<U+2990> are valid bracket
 openers, despite having reverse mappings in the BidiMirroring table.
 
 如果字符已经使用 Ps/Pe/Pi/Pf 映射，则双向镜像的任何入口被忽略（向前映射
-和向后映射）。对于任何给定的 Ps 字符，下一个 Pe 字符编码（按数字顺序）被假
+和向后映射）。对于任何给定的 Ps 字符，下一个 Pe 码点（按数字顺序）被假
 定为它匹配的字符，即使这不是你可能已经猜到使用左右对称的字符。因此，C<U+298D>
 映射到 C<U+298E>，不是 C<U+2990>，以及 C<U+298F> 映射到 C<U+2990>，而不
 是 C<U+298E>。C<U+298E> 和 C<U+2990> 都不是有效的开括号，尽管在双向镜像表
@@ -150,8 +150,8 @@ Perl 6 only recognizes the one with lower code point number, C<U+301E>,
 as the closing brace.  This policy also applies to new one-to-many
 mappings introduced in the future.
 
-C<U+301D> 字符编码有两个闭括号可选，C<U+301E> 和 C<U+301F>; Perl 6 只识别较小的
-编码编码 C<U+301E> 作为闭括号。这项政策也适用于后面新推出的一对多映射。
+C<U+301D> 码点有两个闭括号可选，C<U+301E> 和 C<U+301F>; Perl 6 只识别较小的
+码点 C<U+301E> 作为闭括号。这项政策也适用于后面新推出的一对多映射。
 
 However, many-to-one mappings are fine; multiple opening characters
 may map to the same closing character.  For instance, C<U+2018>, C<U+201A>,
@@ -825,7 +825,7 @@ canonicalization is in effect.  Hence, both methods allow an optional argument
 to specify the meaning exactly if it cannot be known from context.)
 
 为了获取数字中的元素编号，使用 C<.elems> 方法。 你也可以通过 C<.bytes>，
-C<.codes> 或者 C<.graphs> 以字节，字符编码或者字形来请求数组元素的总字符串长
+C<.codes> 或者 C<.graphs> 以字节，码点或者字形来请求数组元素的总字符串长
 度。这些方法也适用于字符串。（注意当编码未知的时候 C<.bytes> 不能保证有明确的
 定义。同样地，除非你知道哪个规范有效，否则 C<.codes> 没有明确的定义。因此，如果
 不能从上下文中知道，两个方法都允许一个可选的参数来正确地指定含义。
@@ -983,7 +983,9 @@ larger representations are always allowed for temporary values.
 Unless qualified with a number of bits, C<int> and C<num> types represent
 the largest native integer and floating-point types that run at full speed.
 
-像 C<int> 和 C<num> 小写类型意味着对整数和浮点数的本地机器表现。
+像 C<int> 和 C<num> 小写类型意味着分别对整数和浮点数的本地机器的陈述，但不提倡以
+任意精度，尽管大量的代理对于临时值是始终允许的。除非许多位都合格，
+C<int> 和 C<num> 类型描绘了全速运行的最大原生整型和浮点类型。
 
 Numeric values in untyped variables use C<Int> and C<Num> semantics
 rather than C<int> and C<num>.
@@ -1041,7 +1043,7 @@ the modified string.
 
 C<Str> 是 Unicode 字符串对象。没有相应的原生 C<str> 类型。然而，既然 C<Str> 对
 象可以装满多种多样的 role，我们就说 C<Str> 保持跟踪它的最小和最大 Unicode 抽象
-层，并巧妙地参与当前理想字符词法范围的构想，不管那是字节，字符编码，字形或者某些
+层，并巧妙地参与当前理想字符词法范围的构想，不管那是字节，码点，字形或者某些
 语言中的字符。对于所有内部操作，所有 C<Str> 位置被描述为定位对象，而不是整数。
 这些 C<StrPos> 对象指向于特殊字符串中独立于抽象层的一个特殊位置，或通过直接跟
 踪字符串和位置，或者通过从字符串开始产生一个偏移值的抽象层独立表示，该字符串如
@@ -1062,7 +1064,7 @@ C<Range> object in that respect.)
 
 两个 C<StrPos> 对象相减产生一个 C<StrLen> 对象，它也不是一个整数，因为两个位置
 之间的字符串也有多个取决于单元的整数解释。给定的 C<StrLen> 应该知道它表
-示 18 字节，7 个字符编码，3 个字形 和 马拉雅拉姆语的一个字母，但它可能只懒洋洋地
+示 18 字节，7 个码点，3 个字形 和 马拉雅拉姆语的一个字母，但它可能只懒洋洋地
 知道这个，因为它实际上仅仅悬在字符串这两个 C<StrPos> 端点，反过来也可能或不可能
 仅仅懒惰地指向字符串。（C<StrLen> 的懒惰实现在那方面更像 C<Range> 对象。）
 
@@ -1070,6 +1072,9 @@ If you use integers as arguments where position objects are expected,
 it will be assumed that you mean the units of the current lexically
 scoped Unicode abstraction level.  (Which defaults to graphemes.)
 Otherwise you'll need to coerce to the proper units:
+
+如果你使用整数作为定位对象所期望的参数，这将假设你意指当前词法作用
+域 Unicode 抽象层。（它默认为字形。）否则，你需要强制为适当的单位：
 
     substr($string, Bytes(42), ArabicChars(1))
 
@@ -1096,7 +1101,11 @@ that have a precomposed form, use of that codepoint is suggested.
 (Note that this means Latin-1 can still be represented internally
 with 8-bit integers.)
 
-实现说明：既然 Perl 6 要求
+实现说明：既然 Perl 6 要求缺省 Unicode 处理层必须把字形视为基本单元而不是码
+点，这包含了一些关于高效实现的暗示。为了快速 substr 处理，建议所有字形当它们被
+输入的时候，应该被转换成唯一字形号码，并表示为里面有某种统一的数组的整型。对于
+这些有预先组成形式的字形，推荐使用码的。（注意，这意味着 Latin-1 还可以使用 8 位
+整型进行内部描绘。）
 
 For graphemes that have no precomposed form, a temporary private
 id should be assigned that uniquely identifies the grapheme.
@@ -1104,6 +1113,8 @@ If such ids are assigned consistently thoughout the process,
 comparison of two graphemes is no more difficult than the comparison
 of two integers, and comparison of base characters no more difficult
 than a direct lookup into the id-to-NFD table.
+
+对于没有预先组成形式的字形，应给它赋值一个唯一标识字形的临时私有 id。
 
 Obviously, any temporary grapheme ids must be translated back to
 some universal form (such as NFD) on output, and normal precomposed
