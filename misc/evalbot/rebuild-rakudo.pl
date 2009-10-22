@@ -19,7 +19,7 @@ say "Other: '$other'";
 chdir "${home}rakudo";
 system('git', 'pull');
 my $revision = `cat build/PARROT_REVISION`;
-chomp $revision;
+$revision =~ m/^(\d+)/ && $revision = $1;
 say "Requiring revision $revision";
 
 my $parrot_config = "$home$other/bin/parrot_config";
