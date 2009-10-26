@@ -1,0 +1,14 @@
+This file contains miscellaneous questions about design+spec
+that Pm has come up with that are awaiting answers from TimToady
+and/or others.  We'll likely record the answers here as well.
+
+Pm-1:  In STD.pm, what is the semantic or key difference between <noun>
+    and <term>?
+
+Pm-2:  Are calls to subrules in other grammars still valid as
+    C<<  / abc <OtherGrammar::xyz> def / >> ?  If so, then 
+    for the invocation of the subrule, do we construct a new
+    cursor of type OtherGrammar and invoke the 'xyz' method on it?
+    (Pm's preference is "yes" and "yes", but want confirmation.)
+
+
