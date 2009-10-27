@@ -23,7 +23,7 @@
     最后修改: 2009 年 9 月 20 号
 
     版本: 180
-    基于SVN : 28440
+    基于 SVN : 28440
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1109,12 +1109,13 @@ with 8-bit integers.)
 
 For graphemes that have no precomposed form, a temporary private
 id should be assigned that uniquely identifies the grapheme.
-If such ids are assigned consistently thoughout the process,
+If such ids are assigned consistently throughout the process,
 comparison of two graphemes is no more difficult than the comparison
 of two integers, and comparison of base characters no more difficult
 than a direct lookup into the id-to-NFD table.
 
-对于未预先组成形式的字形，应给它赋值一个唯一标识字形的临时私有 id。
+对于未预先组成形式的字形，应给它赋值一个唯一标识字形的临时私有 id。如果这样
+的 id 在整个过程中始终被分配，两个字形的比较不再比两个整数的困难，
 
 Obviously, any temporary grapheme ids must be translated back to
 some universal form (such as NFD) on output, and normal precomposed
@@ -1141,7 +1142,8 @@ translation as well.)
 
 如果程序有个需要码点视图而不是字形视图的作用域，该词法作用域可见字符串也必须转
 换成通用形式，仅仅与输出转换一样。间隔地，临时字形 id 可能被隐藏在抽象层背后。
-无论如何，码点作用域从不应该看见任何临时字形 id。（
+无论如何，码点作用域从不应该看见任何临时字形 id。（词法码点声明也许应该明确说明
+它在哪种
 
 =item *
 
@@ -1177,15 +1179,29 @@ just an old-school byte string, and the positions are byte positions.
 Note, though, that if you remap a section of C<buf32> memory to be
 C<buf8>, you'll have to multiply all your positions by 4.
 
+与 C<Str> 类型不同，C<Buf> 类型更喜欢处理整数的字符串位置，这些作为索引直接映射
+到基本的紧凑型数组。就是说，这些不一定是字节位置——一个仅仅计数超过基本位置数
+目的整数位置，它的一个位置表示基本整型类型的一个单元。C<Buf> 类型上的内置字符
+串操作返回整数并且当处理位置的时候期待整数。作为一个特例，C<buf8> 仅仅是个老派
+的字节串，位置是字节位置。但是请注意，如果你重新映射 C<buf32> 内存的一个块
+为 C<buf8>，你将不得不将你所有的位置乘以 4。
+
+
 =item *
 
 The C<utf8> type is derived from C<buf8>, with the additional constraint
 that it may only contain validly encoded UTF-8.  Likewise, C<utf16> is
 derived from C<buf16>, and C<utf32> from C<buf32>.
 
+C<utf8> 类型是从 C<buf8> 派生，并带有附加约束，也就是它只能包含有效编码
+的 UTF-8。同样地，C<utf16> 从 C<buf16> 派生，及 C<utf32> 从 C<buf32> 派生。
+
 Note that since these are type names, parentheses must always be
 used to call them as coercers, since the listop form is not allowed
 for coercions.  That is:
+
+注意，由于这些都是类型名称，必须始终使用圆括号作为强制符来调用它们，因为列表操作
+形式用于强制是不允许的。就是说：
 
     utf8 op $x
 
@@ -1208,6 +1224,8 @@ The C<*> character as a standalone term captures the notion of
 argument to.  Generally it can just be thought of as a "glob" that
 gives you everything it can in that argument position.  For instance:
 
+C<*> 字符作为捕获“Whatever”概念的独立术语。
+
     if $x ~~ 1..* {...}                 # if 1 <= $x <= +Inf
     my ($a,$b,$c) = "foo" xx *;         # an arbitrary long list of "foo"
     if /foo/ ff * {...}                 # a latching flipflop
@@ -1222,6 +1240,8 @@ type it is abstract, and may not be instantiated as a defined object.
 If for a particular MMD dispatch, nothing in the MMD system claims it,
 it dispatches to as an C<Any> with an undefined value, and usually
 blows up constructively.  If you say
+
+C<Whatever> 是一个从 C<Any> 派生而来未定义原型对象。作为一个类型，它是抽象的，
 
     say 1 + *;
 
@@ -3714,6 +3734,8 @@ since they would otherwise be counted wrong in the bracket count.)
 
 As a consequence, these all produce the same literal string:
 
+因此，这些都产生相同的文字串。
+
     " \{ this is not a closure } "
     " \{ this is not a closure \} "
     q:c / \{ this is not a closure } /
@@ -3928,6 +3950,8 @@ When you say:
 
 it is really a method on this pseudo-object, and
 
+这的确是该伪对象上的一个方法，以及
+
     LINE.next;
 
 would work just as well.  You can exit any labeled block early by saying
@@ -4097,10 +4121,17 @@ It depends on the state of their C<.Bool> property.  Classes get to decide
 which of their values are true and which are false.  Individual objects
 can override the class definition:
 
+不像在 Perl 5 中，对象不再始终认为 true。这取决于它们的 C<.Bool> 属性状态。类
+能决定它们的值哪个是真，哪个是假。个别对象能覆盖类的定义：
+
+
     return 0 but True;
 
 This overrides the C<.Bool> method of the C<0> without changing its
 official type (by mixing the method into an anonymous derived type).
+
+这个覆盖了 C<0> 的 C<.Bool> 方法，而没有改变它的正式类型（通过将方法混合成匿名
+派生类型）。
 
 =item *
 
