@@ -11,4 +11,6 @@ Pm-2:  Are calls to subrules in other grammars still valid as
     cursor of type OtherGrammar and invoke the 'xyz' method on it?
     (Pm's preference is "yes" and "yes", but want confirmation.)
 
+Pm-3:  When we generate a metaop, where does it live?  Lexical?
+    Package?  If package, then what package?
 
