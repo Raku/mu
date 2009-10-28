@@ -14,3 +14,9 @@ Pm-2:  Are calls to subrules in other grammars still valid as
 Pm-3:  When we generate a metaop, where does it live?  Lexical?
     Package?  If package, then what package?
 
+Pm-4:  The C<.ast> method on a Match object returns the matched
+    text if no abstract object has been set.  Is there (or should
+    there be) a method to determine if an abstract object has been
+    set?  (Currently I'm using C<.peek_ast> in nqp-rx for this.)
+
+
