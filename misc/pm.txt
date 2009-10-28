@@ -5,27 +5,45 @@ and/or others.  We'll likely record the answers here as well.
 Pm-1:  In STD.pm, what is the semantic or key difference between <noun>
     and <term>?
 
+None, they are now unified under <term>
+
 Pm-2:  Are calls to subrules in other grammars still valid as
     C<<  / abc <OtherGrammar::xyz> def / >> ?  If so, then 
     for the invocation of the subrule, do we construct a new
     cursor of type OtherGrammar and invoke the 'xyz' method on it?
     (Pm's preference is "yes" and "yes", but want confirmation.)
 
+Yes, and yes.  That's essentially what STD is already doing for
+Regexen and such.
+
 Pm-3:  When we generate a metaop, where does it live?  Lexical?
     Package?  If package, then what package?
+
+Good question, if CORE is immutable, we can't add to it.  Probably
+UNIT, though that might prevent sharing of common definitions
+among different compilation units.  On the other hand, being sure
+you're based on the same underlying semantics is difficult anyway
+without a lot of lifting, so maybe UNIT is good enough for now.
 
 Pm-4:  The C<.ast> method on a Match object returns the matched
     text if no abstract object has been set.  Is there (or should
     there be) a method to determine if an abstract object has been
     set?  (Currently I'm using C<.peek_ast> in nqp-rx for this.)
 
+Uh, surely .ast is false if there isn't one.
+
 Pm-5:  How "read-only" are subroutine parameters?  For example, given
     a subroutine like  C<<  sub abc($x) { ... }  >>, I know we can't
     assign to C<$x>, but can it be rebound using &infix:<:=> in the 
     body of the sub?
+
+That seems okay to me, since the intent is to not modify the
+passed in object, and the rebinding effectively anonymizes the
+argument that was bound.
 
 Pm-6:  Is there a syntax that allows a (trusted) routine to access
     the private attributes of another object without going through
     an accessor?  For example, if object $b has a private attribute 
     of "$!xyz", is there a syntax for me to get to that attribute?
 
+See r28932.
