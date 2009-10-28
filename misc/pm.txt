@@ -2,6 +2,15 @@ This file contains miscellaneous questions about design+spec
 that Pm has come up with that are awaiting answers from TimToady
 and/or others.  We'll likely record the answers here as well.
 
+Unanswered questions:
+
+[None at present, next will be Pm-7.  --Pm]
+
+==========
+
+Answered questions:
+
+
 Pm-1:  In STD.pm, what is the semantic or key difference between <noun>
     and <term>?
 
@@ -32,6 +41,9 @@ Pm-4:  The C<.ast> method on a Match object returns the matched
 
 Uh, surely .ast is false if there isn't one.
 
+[S05:2434 r28936 currently says that .ast returns the matched text,
+I expect this to change shortly.  --Pm]
+
 Pm-5:  How "read-only" are subroutine parameters?  For example, given
     a subroutine like  C<<  sub abc($x) { ... }  >>, I know we can't
     assign to C<$x>, but can it be rebound using &infix:<:=> in the 
@@ -47,3 +59,5 @@ Pm-6:  Is there a syntax that allows a (trusted) routine to access
     of "$!xyz", is there a syntax for me to get to that attribute?
 
 See r28932.
+
+[Answer:  as of r28932, C<< $b!SomeClass::xyz >>.  --Pm]
