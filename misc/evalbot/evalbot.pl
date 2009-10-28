@@ -75,6 +75,7 @@ package Evalbot;
             nqp   => {
                 chdir       => '../../../nqp-rx',
                 cmd_line    => 'cat %i | ./nqp %program >> %out 2>&1',
+                filter      => \&filter_pct,
             },
             pugs => {
                 cmd_line    => 'cat %i | PUGS_SAFEMODE=true ~/.cabal/bin/pugs %program >> %out 2>&1',
