@@ -19,4 +19,9 @@ Pm-4:  The C<.ast> method on a Match object returns the matched
     there be) a method to determine if an abstract object has been
     set?  (Currently I'm using C<.peek_ast> in nqp-rx for this.)
 
+Pm-5:  How "read-only" are subroutine parameters?  For example, given
+    a subroutine like  C<<  sub abc($x) { ... }  >>, I know we can't
+    assign to C<$x>, but can it be rebound using &infix:<:=> in the 
+    body of the sub?
+
 
