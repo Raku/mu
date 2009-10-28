@@ -73,9 +73,8 @@ package Evalbot;
                 program_prefix => "use Safe;\n",
             },
             nqp   => {
-                chdir       => '../../../rakudo/parrot/',
-                cmd_line    => 'cat %i | ./parrot compilers/nqp/nqp.pbc %program >> %out 2>&1',
-                filter      => \&filter_pct,
+                chdir       => '../../../nqp-rx',
+                cmd_line    => 'cat %i | ./nqp %program >> %out 2>&1',
             },
             pugs => {
                 cmd_line    => 'cat %i | PUGS_SAFEMODE=true ~/.cabal/bin/pugs %program >> %out 2>&1',
