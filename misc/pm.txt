@@ -24,4 +24,8 @@ Pm-5:  How "read-only" are subroutine parameters?  For example, given
     assign to C<$x>, but can it be rebound using &infix:<:=> in the 
     body of the sub?
 
+Pm-6:  Is there a syntax that allows a (trusted) routine to access
+    the private attributes of another object without going through
+    an accessor?  For example, if object $b has a private attribute 
+    of "$!xyz", is there a syntax for me to get to that attribute?
 
