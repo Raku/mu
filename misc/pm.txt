@@ -17,6 +17,9 @@ Pm-8: Are closures embedded in regexes creating a new lexical scope,
     (Currently I'm assuming they create a new scope, to be consistent
     with other uses of curlies. --Pm
 
+Pm-9: Inside of a regex, what happens with C<< <[z..a]> >> ?  Is it
+    a compile-time error, an empty range, or ... ?
+
 ==========
 
 Answered questions:
