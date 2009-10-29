@@ -6,9 +6,11 @@ Unanswered questions:
 
 Pm-7:  S05 says that a match's reduction object is given by the
     C<:action> parameter, STD.pm's initparse has C<:actions> and
-    $*ACTIONS.  Should we pick one and stick with it?  (PGE and 
+    $*ACTIONS.  Should we pick one and stick with it?  PGE and 
     Rakudo have traditionally used C<:action> -- if there's to 
     be a change, now would be a good time for it.  :-)
+    (After looking at the way I typically use it, I'm leaning
+    towards the plural form. --Pm)
 
 ==========
 
