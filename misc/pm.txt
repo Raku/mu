@@ -12,6 +12,11 @@ Pm-7:  S05 says that a match's reduction object is given by the
     (After looking at the way I typically use it, I'm leaning
     towards the plural form. --Pm)
 
+Pm-8: Are closures embedded in regexes creating a new lexical scope,
+    or do they share the same scope as the regex block itself?
+    (Currently I'm assuming they create a new scope, to be consistent
+    with other uses of curlies. --Pm
+
 ==========
 
 Answered questions:
