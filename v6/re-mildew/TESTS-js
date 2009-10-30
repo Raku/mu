@@ -16,3 +16,9 @@ t/hash.t
 t/lexical-sub.t
 t/binding.t
 t/knowhow.t
+t/recursion.t
+t/signature-positional.t
+t/pure-prototype-how.t
+t/classhow_add_method.t
+t/classhow_add_method_real.t
+t/single_variant.t
