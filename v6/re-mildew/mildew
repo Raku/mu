@@ -341,7 +341,7 @@ sub main {
         }
         $ctx->register_method_by_name("print");
         $ctx->execute(get_js_runtime."\n1;");
-        $ctx->execute(slurp("js/molds.js")."\n1;");
+        $ctx->execute(slurp("js/molds.js").";onmoldload()\n1;");
     
         {
             local $/;

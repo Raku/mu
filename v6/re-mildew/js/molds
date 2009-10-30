@@ -30,3 +30,54 @@ $void = $frame."set_lexical"($lexical);
 $void = $frame."set_back"($back);
 $void = $interpreter."goto"($frame);
 
+[pureprototypehow_dispatch_mold]
+my $interpreter;
+my $responder;
+my $identifier;
+my $capture;
+my $invocant;
+
+my $void;
+my $result = ¢SMOP__NATIVE__bool_false;
+
+my $how_c = $invocant."^!how"();
+my $how = $how_c."FETCH"();
+
+find_method:
+  my $methods = $invocant."^!methods"();
+  my $method_exists = $methods."exists"($identifier);
+
+if $method_exists { goto than } else { goto fail };
+than:
+  my $method_container = $methods."postcircumfix:{ }"($identifier);
+  my $method = $method_container."FETCH"();
+  $result = $method."postcircumfix:( )"($capture);
+  goto exit;
+fail: noop;
+  my $UNKNOWN_METHOD_exists = $methods."exists"("UNKNOWN_METHOD");
+  if $UNKNOWN_METHOD_exists { goto call_UNKNOWN_METHOD } else { goto lookup_fail };
+  call_UNKNOWN_METHOD: 
+    my $void = $invocant."UNKNOWN_METHOD"($identifier);
+    goto exit;
+  lookup_fail:
+    $result = $how."lookup_fail"($responder, $identifier, $capture);
+exit:
+my $continuation = $interpreter."continuation"();
+my $back = $continuation."back"();
+$void = $back."setr"($result);
+$void = $interpreter."goto"($back);
+
+[default_method_signature_BIND_mold]
+my $interpreter;
+my $scope;
+my $capture;
+
+# TODO make it %_ and @_
+my $cont = $scope."postcircumfix:{ }"("$¿self");
+my $arg = $capture."positional"(0);
+my $void = $cont."BIND"($arg);
+
+my $continuation = $interpreter."continuation"();
+my $back = $continuation."back"();
+my $void;
+$void = $interpreter."goto"($back);
