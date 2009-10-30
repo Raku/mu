@@ -4,22 +4,6 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
-Pm-7:  S05 says that a match's reduction object is given by the
-    C<:action> parameter, STD.pm's initparse has C<:actions> and
-    $*ACTIONS.  Should we pick one and stick with it?  PGE and 
-    Rakudo have traditionally used C<:action> -- if there's to 
-    be a change, now would be a good time for it.  :-)
-    (After looking at the way I typically use it, I'm leaning
-    towards the plural form. --Pm)
-
-Pm-8: Are closures embedded in regexes creating a new lexical scope,
-    or do they share the same scope as the regex block itself?
-    (Currently I'm assuming they create a new scope, to be consistent
-    with other uses of curlies. --Pm
-
-Pm-9: Inside of a regex, what happens with C<< <[z..a]> >> ?  Is it
-    a compile-time error, an empty range, or ... ?
-
 ==========
 
 Answered questions:
@@ -75,3 +59,27 @@ Pm-6:  Is there a syntax that allows a (trusted) routine to access
 See r28932.
 
 [Answer:  as of r28932, C<< $b!SomeClass::xyz >>.  --Pm]
+
+Pm-7:  S05 says that a match's reduction object is given by the
+    C<:action> parameter, STD.pm's initparse has C<:actions> and
+    $*ACTIONS.  Should we pick one and stick with it?  PGE and 
+    Rakudo have traditionally used C<:action> -- if there's to 
+    be a change, now would be a good time for it.  :-)
+    (After looking at the way I typically use it, I'm leaning
+    towards the plural form. --Pm)
+
+Now pluralized in specland.
+
+Pm-8: Are closures embedded in regexes creating a new lexical scope,
+    or do they share the same scope as the regex block itself?
+    (Currently I'm assuming they create a new scope, to be consistent
+    with other uses of curlies. --Pm
+
+Yes.
+
+Pm-9: Inside of a regex, what happens with C<< <[z..a]> >> ?  Is it
+    a compile-time error, an empty range, or ... ?
+
+Let's make it a compile-time error for direct code, and a failure
+with warning for code compiled indirectly via <$code>.
+
