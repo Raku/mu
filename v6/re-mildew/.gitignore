@@ -6,3 +6,5 @@ perl6-snapshot/CORE.pad.store
 perl6-snapshot/STD.pm5
 perl6-snapshot/STD.pmc
 perl6-snapshot/lex/
+js/CORE2.js
+js/molds.js

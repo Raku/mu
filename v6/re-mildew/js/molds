@@ -1,0 +1,32 @@
+[code_mold]
+my $interpreter;
+my $capture;
+my $back;
+my $code;
+my $outer;
+my $signature;
+my $mold;
+
+my $void;
+
+my $lexical_proto = ¢SMOP__S1P__LexicalScope;
+my $lexical = $lexical_proto."new"();
+my $lexical_outer_container = $lexical."outer"();
+$void = $lexical_outer_container."STORE"($outer);
+
+my $actualcapture_c = $capture."positional"(1);
+
+$void = $signature."BIND"($actualcapture_c,$lexical);
+
+my $cc = $capture."named"("cc");
+my $has_cc = $cc."true"();
+if $has_cc { goto set_cc } else { goto execute };
+set_cc:
+ $back = $cc."FETCH"();
+execute:
+my $frame = $mold."create"();
+$void = $frame."set_regs"($interpreter,$lexical);
+$void = $frame."set_lexical"($lexical);
+$void = $frame."set_back"($back);
+$void = $interpreter."goto"($frame);
+

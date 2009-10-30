@@ -17,6 +17,7 @@ use Getopt::Long;
 use Carp 'confess';
 use Scalar::Util 'blessed';
 use File::Temp qw(tempfile tmpnam);
+use File::Slurp qw(slurp);
 
 #  -e program      one line of program (multiple -e are allowed, omit programfile)
 #  -c              parse the file or -e, but do not run it
@@ -340,6 +341,7 @@ sub main {
         }
         $ctx->register_method_by_name("print");
         $ctx->execute(get_js_runtime."\n1;");
+        $ctx->execute(slurp("js/molds.js")."\n1;");
     
         {
             local $/;
