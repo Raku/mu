@@ -4,6 +4,12 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
+Pm-10:  Subs are canonically considered to be stored in symbol
+    tables (lexpads, namespaces) with the & sigil.  Is the same
+    true for methods?  If we ask a method for its name or otherwise
+    obtain a list of method names from an object, would we expect
+    those names to have a & sigil as well?
+
 ==========
 
 Answered questions:
