@@ -1,4 +1,5 @@
 use Scalar::Util 'blessed';
+use MooseX::Declare;
 use utf8;
 {
 package AST;
@@ -20,15 +21,7 @@ sub indent {
 }
 package AST::Base;
 use Moose;
-sub emit {
-    my $self = shift;
-    my $id = AST::unique_id;
-    $AST::CODE .= do {local $AST::CODE='';$AST::CODE . $self->m0ld($id)};
-    return $id;
-
-}
-sub emit_ {
-    local $AST::CODE = '';
+sub m0ld {
     my ($self,$ret) = @_;
     my $mold = $self->m0ld($ret);
     $AST::CODE . $mold;
@@ -73,11 +66,11 @@ sub m0ld {
     my $label_end = AST::unique_label;
     my $label_body = AST::unique_label;
 
-    $label_start . ":" . $self->cond->emit_($id_cond) . "\n" .
+    $label_start . ":" . $self->cond->m0ld($id_cond) . "\n" .
     'my '.$id_cond.'_val = '.$id_cond.'."FETCH"();'."\n".
     'my '.$id_cond.'_bool = '.$id_cond.'_val."true"();'."\n".
     'if '.$id_cond.'_bool { goto '.$label_body.' } else { goto '.$label_end.' };'."\n".
-    $label_body.": " .$self->body->emit_('$void') ."\n".
+    $label_body.": " .$self->body->m0ld('$void') ."\n".
     "goto $label_start;\n".
     $label_end.": noop;\n";
 
@@ -116,8 +109,8 @@ sub m0ld {
             my $id_elsif_cond = AST::unique_id;
             my $label_elsif_then = AST::unique_label;
             my $label_elsif_else = AST::unique_label;
-            my $elsif_cond = $part->cond->emit_($id_elsif_cond);
-            my $elsif_then = $part->then->emit_($ret);
+            my $elsif_cond = $part->cond->m0ld($id_elsif_cond);
+            my $elsif_then = $part->then->m0ld($ret);
             $elsifs .= $elsif_cond."\n".
               'my '.$id_elsif_cond.'_val = '.$id_elsif_cond.'."FETCH"();'."\n".
               'my '.$id_elsif_cond.'_bool = '.$id_elsif_cond.'_val."true"();'."\n".
@@ -183,7 +176,7 @@ sub m0ld {
     "my $ret = mold {\n"
         . join('',map {'my $'.$_.";\n"} @{$self->regs})
         . join('',map {'RI($'.$_.",\"".$self->hints->{$_}."\");\n"} keys %{$self->hints})
-        . join("",map { $_->emit_('$void') } @{$self->stmts})
+        . join("",map { $_->m0ld('$void') } @{$self->stmts})
     . "};\n";
 }
 sub terminate_stmt {
@@ -215,25 +208,6 @@ extends 'AST::Base';
 has 'identifier' => (is => 'rw');
 has 'stmt' => (is => 'rw');
 
-package AST::Named;
-use Moose;
-extends 'AST::Base';
-has 'key' => (is=>'ro');
-has 'value' => (is=>'ro');
-
-sub emit {
-    my $self = shift;
-    return ":".$self->key->emit."(".$self->value->emit.")";
-}
-sub m0ld {
-    die "method m0ld is not supported on AST::Named\n"
-}
-
-sub pretty {
-    my $self = shift;
-    $self->key->pretty . " => " . $self->value->pretty;
-}
-
 package AST::Let;
 use Moose;
 extends 'AST::Base';
@@ -242,7 +216,7 @@ has 'value' => (is=>'ro');
 sub m0ld {
     my ($self,$ret) = @_;
     my $id = AST::unique_id;
-    $self->value->emit_($id) . $self->block->(AST::Reg->new(name => $id))->emit_($ret);
+    $self->value->m0ld($id) . $self->block->(AST::Reg->new(name => $id))->m0ld($ret);
 }
 sub pretty {
     my ($self,) = @_;
@@ -263,8 +237,8 @@ sub m0ld {
     my ($self,$ret) = @_;
     my @stmts = @{$self->stmts};
     my $last = pop @stmts;
-    my $m0ld = join('',map {$_->emit_(AST::unique_id)} @stmts);
-    $m0ld = $m0ld . $last->emit_($ret) if $last;
+    my $m0ld = join('',map {$_->m0ld(AST::unique_id)} @stmts);
+    $m0ld = $m0ld . $last->m0ld($ret) if $last;
     return $m0ld;
 }
 
@@ -285,10 +259,32 @@ sub arguments {
 sub m0ld {
     my ($self,$ret) = @_;
     if ($self->capture->isa("AST::Capture")) {
-        "my $ret = "
-        . $self->capture->invocant->emit
-        . "." . $self->identifier->emit
-        . "(" . join(',', map {$_->emit} $self->arguments) . ")" . ";\n";
+        my $invocant = AST::unique_id;
+        my $identifier = AST::unique_id;
+
+        my $args = "";
+
+        my @args = map {
+            my $id = AST::unique_id;
+            $args .= $_->m0ld($id);
+            $id
+        } @{$self->capture->positional};
+
+        my @named = @{$self->capture->named};
+        while (@named) {
+            my $key = AST::unique_id;
+            my $value =  AST::unique_id;
+            $args .= (shift @named)->m0ld($key);
+            $args .= (shift @named)->m0ld($value);
+            push(@args,":".$key."(".$value.")");
+        }
+
+        $self->capture->invocant->m0ld($invocant)
+        . $self->identifier->m0ld($identifier)
+        . $args 
+        . "my $ret = "
+        . $invocant . "." . $identifier
+        . "(" . join(',',@args) . ")" . ";\n";
     } else {
         die 'unimplemented';
     }
@@ -303,13 +299,15 @@ sub pretty {
         $identifier = $self->identifier->pretty;
     }
 
-    my $arguments = '';
-    if (my @arguments = $self->arguments) {
-        $arguments = "(" . join(',',map {$_->pretty} $self->arguments) . ")";
+    my $args = '';
+    my @args = map {$_->pretty} $self->capture->positional;
+    my @named = @{$self->capture->named};
+    while (@named) {
+        push(@args,":".(shift @named)->pretty." => ".(shift @named)->pretty);
     }
 
     if ($self->capture->isa("AST::Capture")) {
-        $self->capture->invocant->pretty . "." . $identifier .  $arguments;
+        $self->capture->invocant->pretty . "." . $identifier .  join(',',@args);
     } else {
         $self->SUPER::pretty;
     }
@@ -363,10 +361,6 @@ package AST::Reg;
 use Moose;
 extends 'AST::Base';
 has 'name' => (is=>'ro');
-sub emit {
-    my $self = shift;
-    $self->name;
-}
 sub m0ld {
     my ($self,$ret) = @_;
     "my $ret = ".$self->name.";\n";

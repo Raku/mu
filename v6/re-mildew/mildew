@@ -220,7 +220,7 @@ sub m0ld {
         $front = "my \$scope = ?SMOP__S1P__LexicalPrelude;\n";
         $back = '';
     }
-    my $m0ld = $front.<<'BOILERPLATE_FRONT'.parse->emit_('$main').<<'BOILERPLATE_BACK'.$back;
+    my $m0ld = $front.<<'BOILERPLATE_FRONT'.parse->m0ld('$main').<<'BOILERPLATE_BACK'.$back;
     my $void;
 BOILERPLATE_FRONT
     my $AdhocSignature_scalar = $scope."lookup"("AdhocSignature");
