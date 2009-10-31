@@ -4,14 +4,6 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
-Pm-10:  Subs are canonically considered to be stored in symbol
-    tables (lexpads, namespaces) with the & sigil.  Is the same
-    true for methods?  If we ask a method for its name or otherwise
-    obtain a list of method names from an object, would we expect
-    those names to have a & sigil as well?  (For HLL interop reasons
-    Pm tends to want methods to not include a & sigil, but it's not
-    a strong tendency.)
-
 ==========
 
 Answered questions:
@@ -90,4 +82,24 @@ Pm-9: Inside of a regex, what happens with C<< <[z..a]> >> ?  Is it
 
 Let's make it a compile-time error for direct code, and a failure
 with warning for code compiled indirectly via <$code>.
+
+Pm-10:  Subs are canonically considered to be stored in symbol
+    tables (lexpads, namespaces) with the & sigil.  Is the same
+    true for methods?  If we ask a method for its name or otherwise
+    obtain a list of method names from an object, would we expect
+    those names to have a & sigil as well?  (For HLL interop reasons
+    Pm tends to want methods to not include a & sigil, but it's not
+    a strong tendency.)
+
+Whether there's the & sigil or not depends on where you're storing
+the name.  The MOP doesn't keep the sigil, but if a method is declared
+"my" or "our", the alias in the symbol table does have the &, since as
+far as the symbol table is concerned, the method is just a subroutine.
+(Also note that, while the MOP doesn't track the sigil on methods,
+it probably does track the sigil on attributes, such as $!foo, &!foo.)
+One could view exportation of methods as multi as a two-step process; first,
+declare my or our to make the & alias in the current lexpad, then
+"is export" does no more magic than it ordinarily does.  I suppose
+method aliases are always considered multi when they show up in a
+symbol table.
 
