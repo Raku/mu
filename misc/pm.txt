@@ -8,7 +8,9 @@ Pm-10:  Subs are canonically considered to be stored in symbol
     tables (lexpads, namespaces) with the & sigil.  Is the same
     true for methods?  If we ask a method for its name or otherwise
     obtain a list of method names from an object, would we expect
-    those names to have a & sigil as well?
+    those names to have a & sigil as well?  (For HLL interop reasons
+    Pm tends to want methods to not include a & sigil, but it's not
+    a strong tendency.)
 
 ==========
 
