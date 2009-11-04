@@ -9,7 +9,7 @@ Test handling of C<-Cbackend>.
 =end pod
 
 sub flatten (Object $x) {
-    ($x.isa(Junction)) ?? map &flatten, $x.eigenstates !! $x
+    ($x.isa(Junction)) ?? (map &flatten, $x.eigenstates) !! $x
 }
 
 my @t_good = map &flatten, (
