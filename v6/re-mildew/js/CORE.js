@@ -429,6 +429,8 @@ SMOP__S1P__LexicalPrelude.entries['$?PACKAGE'] = new P6LexPad();
 function onmoldload() {
     SMOP__S1P__LexicalPrelude.entries['$DefaultMethodSignature'] = new P6AdhocSignature();
     SMOP__S1P__LexicalPrelude.entries['$DefaultMethodSignature']._BIND = default_method_signature_BIND_mold;
+    SMOP__S1P__LexicalPrelude.entries['$DefaultBlockSignature'] = new P6AdhocSignature();
+    SMOP__S1P__LexicalPrelude.entries['$DefaultBlockSignature']._BIND = default_block_signature_BIND_mold;
 
 }
 
@@ -476,6 +478,9 @@ primitive('&concat',function(interpreter,capture) {
 });
 primitive('&eq',function(interpreter,capture) {
     setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));
+});
+primitive('&get_interpreter',function(interpreter,capture) {
+    setr(interpreter,interpreter);
 });
 
 SMOP__S1P__LexicalPrelude.entries['PRIMITIVES::'] = PRIMITIVES;

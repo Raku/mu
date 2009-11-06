@@ -81,3 +81,26 @@ my $continuation = $interpreter."continuation"();
 my $back = $continuation."back"();
 my $void;
 $void = $interpreter."goto"($back);
+[default_block_signature_BIND_mold]
+my $interpreter;
+my $scope;
+my $capture;
+
+my $count = $capture."elems"();
+
+if $count {goto then} else {goto else};
+
+then:
+    my $cont = $scope."postcircumfix:{ }"("$_");
+    my $arg = $capture."positional"(0);
+    my $void = $cont."BIND"($arg);
+    goto exit;
+else:
+    # TODO
+    noop;
+exit:
+
+my $continuation = $interpreter."continuation"();
+my $back = $continuation."back"();
+my $void;
+$void = $interpreter."goto"($back);
