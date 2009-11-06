@@ -118,6 +118,12 @@ init_type('Str',P6Str);
 P6Str.prototype['true'] = function(interpreter,capture) {
     setr(interpreter,boolify(this.value && this.value != '0'));
 }
+P6Str.prototype['perl'] = function(interpreter,capture) {
+    setr(interpreter,new P6Str("'" + this.value.replace(/([\\\'])/g,"\\$1") + "'"));
+}
+P6Str.prototype['Str'] = function(interpreter,capture) {
+    setr(interpreter,this);
+}
 
 function P6Int(i) {
     this.value = i;
@@ -125,6 +131,9 @@ function P6Int(i) {
 init_type('Int',P6Int);
 P6Int.prototype['true'] = function(interpreter,capture) {
     setr(interpreter,boolify(this.value));
+}
+P6Int.prototype['Str'] = function(interpreter,capture) {
+    setr(interpreter,new P6Str(this.value));
 }
 
 function P6LexPad() {

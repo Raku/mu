@@ -1,8 +1,17 @@
 $LexicalPrelude{'&postfix:++'} := sub ($a is ref) {
     $a = &infix:<+>:(int,int)($a.FETCH,1);
 }
-$LexicalPrelude{'&infix:~'} := sub ($a,$b) {
-    PRIMITIVES::concat($a.FETCH,$b.FETCH);
+$LexicalPrelude{'&infix:~'} := sub (|$capture) {
+    my $i = 0;
+    my $str = '';
+    loop {
+        if $i.FETCH == $capture.elems {
+            return $str.FETCH;
+        } else {
+           $str = PRIMITIVES::concat($str.FETCH,$capture.positional($i.FETCH).FETCH.Str);
+           $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
 }
 $LexicalPrelude{'&infix:ne'} := sub ($a,$b) {
     if PRIMITIVES::eq($a.FETCH,$b.FETCH) {
