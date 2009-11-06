@@ -101,7 +101,8 @@ P6capture.prototype['elems'] = function(interpreter,capture) {
 }
 P6capture.prototype['FETCH'] = function(interpreter,capture) {
     if (this._positional.length == 1) {
-        setr(interpreter,this._positional[0]);
+        var content = this._positional[0];
+        content.DISPATCH(interpreter,new P6Str('FETCH'),new P6capture([content],[]));
     } else {
         setr(interpreter,this);
     }

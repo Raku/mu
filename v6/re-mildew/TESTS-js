@@ -26,3 +26,4 @@ t/control_exception.t
 t/control_exception_routine.t
 t/loop.t
 t/caller_my_pseudo_package.t
+t/capture.t
