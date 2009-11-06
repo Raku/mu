@@ -104,3 +104,25 @@ my $continuation = $interpreter."continuation"();
 my $back = $continuation."back"();
 my $void;
 $void = $interpreter."goto"($back);
+[throw_mold]
+my $interpreter;
+my $invocant;
+my $capture;
+my $stack = $interpreter."continuation"();
+my $current = $stack."FETCH"();
+bt_up:
+ my $back = $current."back"();
+ my $has_back = $back."true"();
+ if $has_back { goto check_control } else { goto fail };
+check_control:
+ my $ctrl = $back."control"();
+ my $has_ctrl = $ctrl."true"();
+ if $has_ctrl { goto handle } else { goto redo_bt_up };
+handle:
+ my $outer = $back."back"();
+ my $result = $ctrl."postcircumfix:( )"($capture, :"cc"($outer));
+fail:
+ my $void = $invocant."_not_caught"();
+redo_bt_up:
+ $current = $back."FETCH"();
+ goto bt_up;

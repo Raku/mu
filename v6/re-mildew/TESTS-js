@@ -22,3 +22,4 @@ t/pure-prototype-how.t
 t/classhow_add_method.t
 t/classhow_add_method_real.t
 t/single_variant.t
+t/control_exception.t
