@@ -99,6 +99,13 @@ P6capture.prototype['named'] = function(interpreter,capture) {
 P6capture.prototype['elems'] = function(interpreter,capture) {
     setr(interpreter,new P6Int(this._positional.length));
 }
+P6capture.prototype['FETCH'] = function(interpreter,capture) {
+    if (this._positional.length == 1) {
+        setr(interpreter,this._positional[0]);
+    } else {
+        setr(interpreter,this);
+    }
+}
 
 function P6Str(str) {
     this.value = str;
@@ -206,10 +213,6 @@ var P6Code = define_type('Code',{
         set_reg(frame,6,this._mold);
         interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
     },
-    'truex': function(interpreter,capture) {
-        setr(interpreter,SMOP__NATIVE__bool_true);
-    }
-
 });
 
 
@@ -432,7 +435,7 @@ var P6ControlExceptionReturn = define_type('ControlExceptionReturn',{
         setr(interpreter,this._routine);
     },
     'capture': function(interpreter,capture) {
-        setr(interpreter,this._routine);
+        setr(interpreter,this._capture);
     },
     'throw': function(interpreter,capture) {
         var frame = new P6Frame(throw_mold);
@@ -445,7 +448,7 @@ var P6ControlExceptionReturn = define_type('ControlExceptionReturn',{
     'handle_return': function(interpreter,capture) {
         var exception = capture._positional[1];
         if (capture._positional[2] == exception._routine.container) {
-            setr(interpreter,SMOP__NATIVE__bool_false);
+            setr(interpreter,exception._capture.container);
         } else {
             exception.DISPATCH(interpreter,new P6Str('throw'),new P6capture([exception],[]));
         }
