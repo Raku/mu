@@ -300,14 +300,14 @@ sub pretty {
     }
 
     my $args = '';
-    my @args = map {$_->pretty} $self->capture->positional;
+    my @args = map {$_->pretty} @{$self->capture->positional};
     my @named = @{$self->capture->named};
     while (@named) {
         push(@args,":".(shift @named)->pretty." => ".(shift @named)->pretty);
     }
 
     if ($self->capture->isa("AST::Capture")) {
-        $self->capture->invocant->pretty . "." . $identifier .  join(',',@args);
+        $self->capture->invocant->pretty . "." . $identifier . (@args ? '(' . join(',',@args) . ')' : '');
     } else {
         $self->SUPER::pretty;
     }
