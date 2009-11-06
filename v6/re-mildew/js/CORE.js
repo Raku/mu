@@ -408,11 +408,14 @@ var P6ControlExceptionReturn = define_type('ControlExceptionReturn',{
     'new': function(interpreter,capture) {
         var exception = new P6ControlExceptionReturn;
         exception._handled = new P6Scalar;
+        exception._routine = new P6Scalar;
         setr(interpreter,exception);
     },
     'handled': function(interpreter,capture) {
         setr(interpreter,this._handled);
-        
+    },
+    'routine': function(interpreter,capture) {
+        setr(interpreter,this._routine);
     },
     'throw': function(interpreter,capture) {
         var frame = new P6Frame(throw_mold);
@@ -421,6 +424,14 @@ var P6ControlExceptionReturn = define_type('ControlExceptionReturn',{
         set_reg(frame,2,new P6capture([this],[]));
         frame._back = interpreter._continuation;
         interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
+    },
+    'handle_return': function(interpreter,capture) {
+        var exception = capture._positional[1];
+        if (capture._positional[2] == exception._routine.container) {
+            setr(interpreter,SMOP__NATIVE__bool_false);
+        } else {
+            exception.DISPATCH(interpreter,new P6Str('throw'),new P6capture([exception],[]));
+        }
     }
 });
 
