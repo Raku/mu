@@ -63,6 +63,9 @@ P6Frame.prototype.back = function(interpreter,capture) {
 P6Frame.prototype.control = function(interpreter,capture) {
     setr(interpreter,this._control);
 }
+P6Frame.prototype.lexical = function(interpreter,capture) {
+    setr(interpreter,this._lexical);
+}
 
 function P6Mold(regs,constants,code) {
     this.constants = constants;
@@ -404,17 +407,31 @@ var P6PrototypeHOW = define_type('PrototypeHOW',{
     }
     
 });
+var P6FlattenedScope = define_type('FlattenedScope',{
+    'new': function(interpreter,capture) {
+        var scope = new P6FlattenedScope;
+        scope._scope = capture._positional[1];
+        setr(interpreter,scope);
+    },
+    'postcircumfix:{ }': function(interpreter,capture) {
+        this._scope.DISPATCH(interpreter,new P6Str("lookup"),new P6capture([this._scope,capture._positional[1]],[]));
+    }
+});
 var P6ControlExceptionReturn = define_type('ControlExceptionReturn',{
     'new': function(interpreter,capture) {
         var exception = new P6ControlExceptionReturn;
         exception._handled = new P6Scalar;
         exception._routine = new P6Scalar;
+        exception._capture = new P6Scalar;
         setr(interpreter,exception);
     },
     'handled': function(interpreter,capture) {
         setr(interpreter,this._handled);
     },
     'routine': function(interpreter,capture) {
+        setr(interpreter,this._routine);
+    },
+    'capture': function(interpreter,capture) {
         setr(interpreter,this._routine);
     },
     'throw': function(interpreter,capture) {
@@ -472,6 +489,8 @@ SMOP__S1P__LexicalPrelude.entries.PrototypeHOW = new P6PrototypeHOW;
 
 SMOP__S1P__LexicalPrelude.entries['$LexicalPrelude'] = SMOP__S1P__LexicalPrelude;
 SMOP__S1P__LexicalPrelude.entries['$?PACKAGE'] = new P6LexPad();
+
+var SMOP__S1P__FlattenedScope = SMOP__S1P__LexicalPrelude.entries.FlattenedScope;
 
 function onmoldload() {
     SMOP__S1P__LexicalPrelude.entries['$DefaultMethodSignature'] = new P6AdhocSignature();
