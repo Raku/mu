@@ -4,6 +4,10 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
+Pm-11: S11:257 says "Without an import list, C<import> imports
+    the C<:DEFAULT> imports."  How does one import one of the
+    other tagsets?  (I think I'm missing something obvious here.)
+
 ==========
 
 Answered questions:
