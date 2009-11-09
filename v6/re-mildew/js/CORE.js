@@ -1,6 +1,6 @@
 var P6Scalar;
 var lexical_prelude = {};
-var SMOP__NATIVE__bool_falsea;
+var SMOP__NATIVE__bool_false;
 var SMOP__NATIVE__bool_true;
 function always_true(interpreter,capture) {
     setr(interpreter,SMOP__NATIVE__bool_true);
@@ -191,7 +191,7 @@ function set_reg(frame,i,value) {
     frame.reg[frame.mold.constants.length+i] = value;
 }
 
-var P6Interpreter = define_type('Interpreter',{
+var P6Interpreter = define_typex('Interpreter',{
     'loop': function(interpreter,capture) {
         while (this._continuation) this._continuation.DISPATCH(this,new P6Str("eval"),new P6capture([this._continuation],[]));
     },
@@ -204,7 +204,7 @@ var P6Interpreter = define_type('Interpreter',{
 });
 
 
-var P6Code = define_type('Code',{
+var P6Code = define_typex('Code',{
     'new': function(interpreter,capture) {
     var code = new P6Code();
     code._mold = capture._named.mold;
@@ -254,16 +254,50 @@ builtin('&print',function(interpreter,capture) {
 builtin('&infix:+:(int,int)',function(interpreter,capture) {
     setr(interpreter,new P6Int(capture._positional[0].value + capture._positional[1].value));
 });
-function define_type(name,methods) {
+
+function define_typex(name,methods) {
+    return define_type({name:name,methods:methods,nonew:1});
+}
+function define_type(options) {
+    var methods = {};
+    var name = "?";
+    var attrs = [];
+    if (options.name) name = options.name;
+    if (options.methods) methods = options.methods;
+    if (options.attributes) attrs = options.attributes;
+
+
     var proto = function() {
     }
     init_type(name + ' protobject',proto);
-    proto.prototype['new'] = methods['new'];
     proto.prototype['^!CREATE'] = methods['^!CREATE'];
 
     var constructor = function() {
     }
     init_type(name,constructor);
+
+    if (!options.nonew && !methods['new']) { 
+        methods['new'] = function(interpreter,capture) {
+            var obj = new constructor;
+            for (var i in attrs) {
+                var storage = "_"+attrs[i];
+                obj[storage] = new P6Scalar;
+                obj[storage].container = SMOP__NATIVE__bool_false;
+            }
+            setr(interpreter,obj);
+        }
+    }
+    for (var i in attrs) {
+        (function() {
+            var storage = "_"+attrs[i];
+            methods[attrs[i]] = function(interpreter,capture) {
+                setr(interpreter,this[storage]);
+            }
+        })();
+    }
+
+    proto.prototype['new'] = methods['new'];
+
     for (var m in methods) {
         constructor.prototype[m] = methods[m];
     }
@@ -271,7 +305,7 @@ function define_type(name,methods) {
     return constructor;
 }
 
-var P6AdhocSignature = define_type('AdhocSignature',{
+var P6AdhocSignature = define_typex('AdhocSignature',{
     'new': function(interpreter,capture) {
         var sig = new P6AdhocSignature;
         sig._BIND = capture._named.BIND;
@@ -287,7 +321,7 @@ var P6AdhocSignature = define_type('AdhocSignature',{
     }
 
 });
-P6Scalar = define_type('Scalar',{
+P6Scalar = define_typex('Scalar',{
     'new': function(interpreter,capture) {
         var scalar = new P6Scalar;
         scalar.container = capture._positional[1];
@@ -301,17 +335,17 @@ P6Scalar = define_type('Scalar',{
         this.container = capture._positional[1];
     }
 });
-var P6False = define_type('False',{
+var P6False = define_typex('False',{
     'true': function(interpreter,capture) {
         setr(interpreter,this);
     },
 });
-var P6True = define_type('True',{
+var P6True = define_typex('True',{
     'true': function(interpreter,capture) {
         setr(interpreter,this);
     },
 });
-var P6Array = define_type('Array',{
+var P6Array = define_typex('Array',{
     'new': function(interpreter,capture) {
         var _content = new P6Array;
         _content._content = [];
@@ -337,7 +371,7 @@ var P6Array = define_type('Array',{
     }
 });
 
-var P6Hash = define_type('Hash',{
+var P6Hash = define_typex('Hash',{
     'new': function(interpreter,capture) {
         var _content = new P6Hash;
         _content._content = {};
@@ -362,7 +396,7 @@ var P6Hash = define_type('Hash',{
     }
 });
 
-var P6Package = define_type('Package',{
+var P6Package = define_typex('Package',{
     'new': function(interpreter,capture) {
         var pkg = new P6Package;
         pkg._name = new P6Scalar;
@@ -378,13 +412,20 @@ var P6Package = define_type('Package',{
     },
 });
 
-var P6opaque = define_type('p6opaque',{
+var P6opaque = define_typex('p6opaque',{
     '^!CREATE': function(interpreter,capture) {
         var obj = new P6opaque;
         obj._how = new P6Scalar;
         obj._who = new P6Scalar;
         obj._methods = new P6Hash;
         obj._methods._content = {};
+
+        obj._attributes = new P6Hash;
+        obj._attributes._content = {};
+
+        obj._instance_storage = new P6Hash;
+        obj._instance_storage._content = {};
+
         setr(interpreter,obj);
     },
     '^!how': function(interpreter,capture) {
@@ -396,6 +437,12 @@ var P6opaque = define_type('p6opaque',{
     '^!methods': function(interpreter,capture) {
         setr(interpreter,this._methods);
     },
+    '^!attributes': function(interpreter,capture) {
+        setr(interpreter,this._attributes);
+    },
+    '^!instance_storage': function(interpreter,capture) {
+        setr(interpreter,this._instance_storage);
+    }
 });
 P6opaque.prototype.DISPATCH = function (interpreter,identifier,capture) {
     var how = this._how.container;
@@ -403,10 +450,14 @@ P6opaque.prototype.DISPATCH = function (interpreter,identifier,capture) {
     else how.DISPATCH(interpreter,new P6Str("dispatch"),new P6capture([how,capture._positional[0],identifier,capture],[]));
 }
 
-var P6PrototypeHOW = define_type('PrototypeHOW',{
+var P6PrototypeHOW = define_typex('PrototypeHOW',{
     'add_method': function(interpreter,capture) {
         //XXX repr violation
         capture._positional[1]._methods._content[capture._positional[2].value] = capture._positional[3];
+    },
+    'add_attribute': function(interpreter,capture) {
+        //XXX repr violation
+        capture._positional[1]._attributes._content[capture._positional[2].value] = capture._positional[3];
     },
     'dispatch': function(interpreter,capture) {
         var frame = new P6Frame(pureprototypehow_dispatch_mold);
@@ -423,7 +474,7 @@ var P6PrototypeHOW = define_type('PrototypeHOW',{
     }
     
 });
-var P6FlattenedScope = define_type('FlattenedScope',{
+var P6FlattenedScope = define_typex('FlattenedScope',{
     'new': function(interpreter,capture) {
         var scope = new P6FlattenedScope;
         scope._scope = capture._positional[1];
@@ -433,7 +484,7 @@ var P6FlattenedScope = define_type('FlattenedScope',{
         this._scope.DISPATCH(interpreter,new P6Str("lookup"),new P6capture([this._scope,capture._positional[1]],[]));
     }
 });
-var P6ControlExceptionReturn = define_type('ControlExceptionReturn',{
+var P6ControlExceptionReturn = define_typex('ControlExceptionReturn',{
     'new': function(interpreter,capture) {
         var exception = new P6ControlExceptionReturn;
         exception._handled = new P6Scalar;
@@ -466,6 +517,11 @@ var P6ControlExceptionReturn = define_type('ControlExceptionReturn',{
             exception.DISPATCH(interpreter,new P6Str('throw'),new P6capture([exception],[]));
         }
     }
+});
+
+define_type({
+    name: 'Attribute',
+    attributes: ['name','private_name','container_type']
 });
 
 function P6ContainerProxy(array,index) {
@@ -572,6 +628,13 @@ primitive('&int_less',function(interpreter,capture) {
 });
 primitive('&get_interpreter',function(interpreter,capture) {
     setr(interpreter,interpreter);
+});
+var UID = 0;
+primitive('&storage_name',function(interpreter,capture) {
+    if (!capture._positional[0].UID) {
+        capture._positional[0].UID = ++UID;
+    }
+    setr(interpreter,new P6Str(capture._positional[0].UID+capture._positional[1].value));
 });
 
 SMOP__S1P__LexicalPrelude.entries['PRIMITIVES::'] = PRIMITIVES;

@@ -1,3 +1,4 @@
+t/knowhow_attributes.t
 ../../t/01-sanity/01-tap.t
 ../../t/01-sanity/02-counter.t
 ../../t/01-sanity/03-equal.t
@@ -18,14 +19,14 @@ t/binding.t
 t/knowhow.t
 t/recursion.t
 t/signature-positional.t
-t/pure-prototype-how.t
+t/pure_prototype_how.t
 t/classhow_add_method.t
 t/classhow_add_method_real.t
 t/single_variant.t
 t/control_exception.t
 t/control_exception_routine.t
 t/loop.t
-t/caller_my_pseudo_package.t
+t/caller_my_pseudo_packages.t
 t/capture.t
 t/perl.t
 t/self.t
