@@ -30,3 +30,11 @@ t/caller_my_pseudo_packages.t
 t/capture.t
 t/perl.t
 t/self.t
+t/capture_expansion.t
+t/concat.t
+t/int.t
+t/p6opaque.t
+t/return_function.t
+t/grep.t
+t/module_keyword.t
+t/our_sub.t
