@@ -21,10 +21,24 @@ $LexicalPrelude{'&infix:ne'} := sub ($a,$b) {
     }
 }
 $LexicalPrelude{'&infix:eq'} := sub ($a,$b) {
-    PRIMITIVES::eq($a.FETCH,$b.FETCH);
+    PRIMITIVES::eq($a.Str,$b.Str);
 }
 $LexicalPrelude{'&infix:=='} := sub ($a,$b) {
     PRIMITIVES::eq($a.FETCH,$b.FETCH);
+}
+$LexicalPrelude{'&infix:==:(int,int)'} := sub ($a,$b) {
+    PRIMITIVES::eq($a.FETCH,$b.FETCH);
+}
+$LexicalPrelude{'&infix:+:(int,int)'} := sub ($a,$b) {
+    PRIMITIVES::int_add($a.FETCH,$b.FETCH);
+}
+
+$LexicalPrelude{'&infix:<:(int,int)'} := sub ($a,$b) {
+    PRIMITIVES::int_less($a.FETCH,$b.FETCH);
+}
+
+$LexicalPrelude{'&infix:-:(int,int)'} := sub ($a,$b) {
+    PRIMITIVES::int_substract($a.FETCH,$b.FETCH);
 }
 $LexicalPrelude{'&infix:!='} := sub ($a,$b) {
     if PRIMITIVES::eq($a.FETCH,$b.FETCH) {
@@ -41,3 +55,33 @@ my sub return(|$capture) {
     $e.throw;
 }
 $LexicalPrelude{'&return'} := &return;
+
+my sub map($expression,$values) {
+    my $i = 0;
+    my $ret = ::Array.new;
+    loop {
+        if &infix:<==>:(int,int)($i,$values.elems) {
+            return $ret;
+        } else {
+           $ret.push((|$expression($values[$i.FETCH])));
+           $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
+}
+my sub grep($expression,$values) {
+    my $i = 0;
+    my $ret = ::Array.new;
+    loop {
+        if &infix:<==>:(int,int)($i,$values.elems) {
+            return $ret;
+        } else {
+           if ($expression($values[$i.FETCH])) {
+              $ret.push($values[$i.FETCH].FETCH);
+           } else {
+           }
+           $i = &infix:<+>:(int,int)($i.FETCH,1);
+        }
+    }
+}
+$LexicalPrelude{'&map'} := &map;
+$LexicalPrelude{'&grep'} := &grep;

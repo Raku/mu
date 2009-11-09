@@ -561,6 +561,15 @@ primitive('&concat',function(interpreter,capture) {
 primitive('&eq',function(interpreter,capture) {
     setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));
 });
+primitive('&int_add',function(interpreter,capture) {
+    setr(interpreter,new P6Int(capture._positional[0].value + capture._positional[1].value));
+});
+primitive('&int_substract',function(interpreter,capture) {
+    setr(interpreter,new P6Int(capture._positional[0].value - capture._positional[1].value));
+});
+primitive('&int_less',function(interpreter,capture) {
+    setr(interpreter,boolify(capture._positional[0].value < capture._positional[1].value));
+});
 primitive('&get_interpreter',function(interpreter,capture) {
     setr(interpreter,interpreter);
 });
