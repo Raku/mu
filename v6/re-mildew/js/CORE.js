@@ -245,14 +245,13 @@ builtin('&say',FETCH_all(function(interpreter,capture) {
     var str = '';
     for (var i in capture._positional) str += capture._positional[i].value;
     print(str,"\n");
+    setr(interpreter,SMOP__NATIVE__bool_true);
 }));
 builtin('&print',function(interpreter,capture) {
     var str = '';
     for (var i in capture._positional) str += capture._positional[i].value;
     print(str);
-});
-builtin('&infix:+:(int,int)',function(interpreter,capture) {
-    setr(interpreter,new P6Int(capture._positional[0].value + capture._positional[1].value));
+    setr(interpreter,SMOP__NATIVE__bool_true);
 });
 
 function define_typex(name,methods) {
