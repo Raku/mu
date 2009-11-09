@@ -8,6 +8,12 @@ Pm-11: S11:257 says "Without an import list, C<import> imports
     the C<:DEFAULT> imports."  How does one import one of the
     other tagsets?  (I think I'm missing something obvious here.)
 
+Jw-1: What is the difference between :(\$x) and :($x is ref)? Both
+would need to leave the original argument untouched. Since C<is ref>
+is meant to be used for e.g. map, which needs to work on lists like
+(1,2,3), it can't cut constants out, so it seems no more constraining
+than :(\$x) too. Should one of them go away?
+
 ==========
 
 Answered questions:
