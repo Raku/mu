@@ -164,8 +164,6 @@
     my $capture;
 
     my $scope = ?SMOP__S1P__LexicalPrelude;
-    my $hash_scalar = $scope."lookup"("Hash");
-    my $hash = $hash_scalar."FETCH"();
 
     my $object = $capture."positional"(1);
     my $name = $capture."positional"(2);
