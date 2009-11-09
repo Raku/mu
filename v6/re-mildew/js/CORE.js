@@ -289,7 +289,10 @@ var P6AdhocSignature = define_type('AdhocSignature',{
 });
 P6Scalar = define_type('Scalar',{
     'new': function(interpreter,capture) {
-        setr(interpreter,new P6Scalar);
+        var scalar = new P6Scalar;
+        scalar.container = capture._positional[1];
+        if (!scalar.container) scalar.container = SMOP__NATIVE__bool_false;
+        setr(interpreter,scalar);
     },
     FETCH: function(interpreter,capture) {
         setr(interpreter,this.container);
