@@ -146,7 +146,7 @@ P6LexPad.prototype.lookup = function(interpreter,capture) {
     if (this.entries[key]) {
         setr(interpreter,new P6BValue(this,key));
         //print("found ",key);
-    } else if (this._outer.container) {
+    } else if (this._outer.container != SMOP__NATIVE__bool_false) {
         /*XXX*/
         this._outer.container.lookup(interpreter,capture);
     } else {
@@ -261,9 +261,12 @@ function define_type(options) {
     var methods = {};
     var name = "?";
     var attrs = [];
+    var c = function() {
+    }
     if (options.name) name = options.name;
     if (options.methods) methods = options.methods;
     if (options.attributes) attrs = options.attributes;
+    if (options.c) c = options.c;
 
 
     var proto = function() {
@@ -271,17 +274,14 @@ function define_type(options) {
     init_type(name + ' protobject',proto);
     proto.prototype['^!CREATE'] = methods['^!CREATE'];
 
-    var constructor = function() {
-    }
-    init_type(name,constructor);
+    init_type(name,c);
 
     if (!options.nonew && !methods['new']) { 
         methods['new'] = function(interpreter,capture) {
-            var obj = new constructor;
+            var obj = new c;
             for (var i in attrs) {
                 var storage = "_"+attrs[i];
                 obj[storage] = new P6Scalar;
-                obj[storage].container = SMOP__NATIVE__bool_false;
             }
             setr(interpreter,obj);
         }
@@ -298,10 +298,10 @@ function define_type(options) {
     proto.prototype['new'] = methods['new'];
 
     for (var m in methods) {
-        constructor.prototype[m] = methods[m];
+        c.prototype[m] = methods[m];
     }
     lexical_prelude[name] = new proto;
-    return constructor;
+    return c;
 }
 
 var P6AdhocSignature = define_typex('AdhocSignature',{
@@ -320,18 +320,23 @@ var P6AdhocSignature = define_typex('AdhocSignature',{
     }
 
 });
-P6Scalar = define_typex('Scalar',{
-    'new': function(interpreter,capture) {
-        var scalar = new P6Scalar;
-        scalar.container = capture._positional[1];
-        if (!scalar.container) scalar.container = SMOP__NATIVE__bool_false;
-        setr(interpreter,scalar);
+P6Scalar = define_type({
+    name: 'Scalar',
+    c: function(content) {
+        if (content) this.container = content;
+        else this.container = SMOP__NATIVE__bool_false;
     },
-    FETCH: function(interpreter,capture) {
-        setr(interpreter,this.container);
-    },
-    STORE: function(interpreter,capture) {
-        this.container = capture._positional[1];
+    methods: {
+        'new': function(interpreter,capture) {
+            var scalar = new P6Scalar;
+            setr(interpreter,new P6Scalar(capture._positional[1]));
+        },
+        FETCH: function(interpreter,capture) {
+            setr(interpreter,this.container);
+        },
+        STORE: function(interpreter,capture) {
+            this.container = capture._positional[1];
+        }
     }
 });
 var P6False = define_typex('False',{
