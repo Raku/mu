@@ -89,6 +89,12 @@ init_type('capture',P6capture);
 P6capture.prototype['new'] = function(interpreter,capture) {
     setr(interpreter,new P6capture(capture._positional.slice(1),capture._named));
 }
+P6capture.prototype['delegate'] = function(interpreter,capture) {
+    var pos = [];
+    pos[0] = capture._positional[1];
+    for (var i=1;i<this._positional.length;i++) pos[i] = capture._positional[i];
+    setr(interpreter,new P6capture(pos,this._named));
+}
 P6capture.prototype['positional'] = function(interpreter,capture) {
     setr(interpreter,this._positional[capture._positional[1].value]);
 }
@@ -336,6 +342,7 @@ P6Scalar = define_type({
         },
         STORE: function(interpreter,capture) {
             this.container = capture._positional[1];
+            setr(interpreter,this.container);
         }
     }
 });
@@ -430,6 +437,9 @@ var P6opaque = define_typex('p6opaque',{
         obj._instance_storage = new P6Hash;
         obj._instance_storage._content = {};
 
+        obj._does = new P6Array;
+        obj._does._content = [];
+
         setr(interpreter,obj);
     },
     '^!how': function(interpreter,capture) {
@@ -446,6 +456,9 @@ var P6opaque = define_typex('p6opaque',{
     },
     '^!instance_storage': function(interpreter,capture) {
         setr(interpreter,this._instance_storage);
+    },
+    '^!does': function(interpreter,capture) {
+        setr(interpreter,this._does);
     }
 });
 P6opaque.prototype.DISPATCH = function (interpreter,identifier,capture) {
@@ -471,6 +484,7 @@ var P6PrototypeHOW = define_typex('PrototypeHOW',{
         set_reg(frame,3,capture._positional[3]);
         set_reg(frame,4,capture._positional[3]._positional[0]);
         frame._back = interpreter._continuation;
+//        print("gotoing...",capture._positional[3]._positional[0].ID,"\n");
         interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
     },
     'lookup_fail': function(interpreter,capture) {
@@ -577,9 +591,10 @@ function onmoldload() {
 }
 
 
-var PRIMITIVES = new P6LexPad();
+var PRIMITIVES = new P6Package();
+PRIMITIVES._content = {};
 function primitive(name,func) {
-    PRIMITIVES.entries[name] = new JSFunction(func);
+    PRIMITIVES._content[name] = new JSFunction(func);
 }
 function boolify(x) {
     return x ? SMOP__NATIVE__bool_true : SMOP__NATIVE__bool_false;
@@ -619,6 +634,12 @@ primitive('&concat',function(interpreter,capture) {
     setr(interpreter,new P6Str(capture._positional[0].value + capture._positional[1].value));
 });
 primitive('&eq',function(interpreter,capture) {
+    setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));
+});
+primitive('&pointer_eq',function(interpreter,capture) {
+    setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));
+});
+primitive('&idconst_eq',function(interpreter,capture) {
     setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));
 });
 primitive('&int_add',function(interpreter,capture) {

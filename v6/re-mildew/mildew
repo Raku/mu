@@ -343,12 +343,10 @@ sub main {
         $ctx->execute(get_js_runtime."\n1;");
         $ctx->execute(slurp("js/molds.js").";onmoldload()\n1;");
     
-        {
-            local $/;
-            open(my $runtime,"js/CORE2.js") || die "can't open internal file\n";
+        for my $file (qw(js/CORE2.js js/RoleHOW.js)) {
             $ctx->execute("
                 var interpreter = new P6Interpreter();
-                var frame = new P6Frame(".(scalar <$runtime>).");
+                var frame = new P6Frame(".slurp($file).");
                 interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
                 interpreter.DISPATCH(interpreter,new P6Str('loop'),new P6capture([interpreter],[]));
                 1;
