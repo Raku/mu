@@ -39,3 +39,5 @@ t/grep.t
 t/module_keyword.t
 t/our_sub.t
 t/for.p6
+t/throw_inside_catch.t
+t/role.t

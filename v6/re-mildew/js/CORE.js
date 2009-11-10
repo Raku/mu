@@ -28,6 +28,7 @@ function setr(interpreter,val) {
 function P6Frame(mold) {
     this.mold = mold;
     this._control = SMOP__NATIVE__bool_false;
+    this._catch = SMOP__NATIVE__bool_false;
     this._back = SMOP__NATIVE__bool_false;
     this.reg = [];
     for (i in this.mold.constants) {
@@ -52,6 +53,9 @@ P6Frame.prototype.set_lexical = function(interpreter,capture) {
 P6Frame.prototype.set_control = function(interpreter,capture) {
     this._control = capture._positional[1];
 }
+P6Frame.prototype.set_catch = function(interpreter,capture) {
+    this._catch = capture._positional[1];
+}
 P6Frame.prototype.set_regs = function(interpreter,capture) {
     for (var i=1;i < capture._positional.length;i++) {
         set_reg(this,i-1,capture._positional[i]);
@@ -62,6 +66,9 @@ P6Frame.prototype.back = function(interpreter,capture) {
 }
 P6Frame.prototype.control = function(interpreter,capture) {
     setr(interpreter,this._control);
+}
+P6Frame.prototype['catch'] = function(interpreter,capture) {
+    setr(interpreter,this._catch);
 }
 P6Frame.prototype.lexical = function(interpreter,capture) {
     setr(interpreter,this._lexical);
