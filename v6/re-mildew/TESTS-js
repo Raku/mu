@@ -42,3 +42,4 @@ t/for.p6
 t/throw_inside_catch.t
 t/role.t
 t/fail.t
+t/dollar_bang.t
