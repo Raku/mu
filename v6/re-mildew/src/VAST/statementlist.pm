@@ -6,7 +6,11 @@ use AST::Helpers;
 
 sub emit_m0ld {
     my $m = shift;
-    [map {$_->emit_m0ld} move_CONTROL($m->{statement})]
+    if (@{$m->{statement}}) {
+        [map {$_->emit_m0ld} move_CONTROL($m->{statement})]
+    } else {
+        [lookup("False")]
+    }
 }
 
 1;
