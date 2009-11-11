@@ -343,7 +343,7 @@ sub main {
         $ctx->execute(get_js_runtime."\n1;");
         $ctx->execute(slurp("js/molds.js").";onmoldload()\n1;");
     
-        for my $file (qw(js/CORE2.js js/RoleHOW.js js/Exception.js)) {
+        for my $file (qw(js/CORE2.js js/RoleHOW.js js/Exception.js js/Failure.js)) {
             $ctx->execute("
                 var interpreter = new P6Interpreter();
                 var frame = new P6Frame(".slurp($file).");
