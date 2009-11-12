@@ -46,6 +46,8 @@ system('make', 'Test.pir')      and die $?;
 system('make', 'install')       and die $?;
 system("git rev-parse HEAD | cut -b 1,2,3,4,5,6 > $home$other/rakudo-revision") and warn $?;
 
+=for comment
+
 eval {
 	chdir glob('~/blizkost/');
     system('make', 'clean');        # may fail, nor warning here
@@ -56,6 +58,7 @@ eval {
 	system('make', 'install') 	and warn $?;
 };
 
+=cut
 
 chdir $home;
 unlink $link;
