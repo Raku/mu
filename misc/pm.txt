@@ -14,6 +14,10 @@ is meant to be used for e.g. map, which needs to work on lists like
 (1,2,3), it can't cut constants out, so it seems no more constraining
 than :(\$x) too. Should one of them go away?
 
+Kh-1: Is it true that Bool::True.name should work?  Should it return
+    the string 'True'?
+    I as because of http://rt.perl.org/rt3/Public/Bug/Display.html?id=66576
+
 ==========
 
 Answered questions:
