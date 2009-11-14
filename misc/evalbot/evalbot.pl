@@ -72,6 +72,13 @@ package Evalbot;
                 filter      => \&filter_pct,
                 program_prefix => "use Safe;\n",
             },
+            ng => {
+                chdir       => '../../../rakudo-ng/',
+                cmd_line    => 'cat %i | PERL6LIB=lib ./parrot_install/bin/perl6 %program >> %out 2>&1',
+                revision    => sub { get_revision_from_file('~/rakudo-ng/revision')},
+                filter      => \&filter_pct,
+                program_prefix => "use Safe;\n",
+            },
             nqp   => {
                 chdir       => '../../../nqp-rx',
                 cmd_line    => 'cat %i | ./nqp %program >> %out 2>&1',
