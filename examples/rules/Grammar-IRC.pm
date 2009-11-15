@@ -1,7 +1,7 @@
 grammar Grammar::IRC::RFC1459 {
     token message  { [ ':' <prefix> <SPACE> ]? <command> <params> <crlf> }
     token prefix   { <servername> | [ <nick> [ '!' <user> ]? [ '@' <host> ]? ] }
-    token command  { <letter>+ | <number>**{3} }
+    token command  { <letter>+ | <number>**3 }
     token params   { <SPACE> [ [ ':' <trailing> ] | [ <middle> <params> ] ]? }
     token middle   { <-[\x20 \x0 \x0A \x0D \:]> <-[\x20 \x0 \x0A \x0D]>* }
     token trailing { <-[\x0 \x0A \x0D]>* }
@@ -142,7 +142,7 @@ Grammar::IRC - Grammar for parsing IRC protocol
 
 use Grammar::IRC;
 
-for =$sock -> $line {
+for $sock.lines -> $line {
     $line ~~ /^ <message> $/;
     ...
 }
