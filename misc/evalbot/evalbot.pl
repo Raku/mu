@@ -77,7 +77,6 @@ package Evalbot;
                 cmd_line    => 'cat %i | PERL6LIB=lib ./perl6 %program >> %out 2>&1',
                 revision    => sub { get_revision_from_file('~/rakudo-ng/revision')},
                 filter      => \&filter_pct,
-                program_prefix => "use Safe;\n",
             },
             nqp   => {
                 chdir       => '../../../nqp-rx',
