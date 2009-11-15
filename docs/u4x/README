@@ -42,7 +42,7 @@ grok will understand that the user is actually asking two separate questions in
 each case, and will answer both:
 
   the '>>' operator (as applied to method calls), trim
-  the '.=' metaoperator, abs
+  the '.=' metaoperator, abs, calling a method on $_
   the '[]' metaoperator, '+'
 
 Some interesting Perl 6 docs which might be drawn upon/adapted to u4x:
