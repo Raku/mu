@@ -4,6 +4,9 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
+Ml-1: In my $x; say($x~'a'), what's the output? "a\n" or "Object()\n"?
+      If it's "a\n", what kind of undef is stored in $x?
+
 ==========
 
 Answered questions:
