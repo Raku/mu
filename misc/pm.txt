@@ -4,16 +4,6 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
-Pm-11: S11:257 says "Without an import list, C<import> imports
-    the C<:DEFAULT> imports."  How does one import one of the
-    other tagsets?  (I think I'm missing something obvious here.)
-
-Jw-1: What is the difference between :(\$x) and :($x is ref)? Both
-would need to leave the original argument untouched. Since C<is ref>
-is meant to be used for e.g. map, which needs to work on lists like
-(1,2,3), it can't cut constants out, so it seems no more constraining
-than :(\$x) too. Should one of them go away?
-
 ==========
 
 Answered questions:
@@ -112,3 +102,27 @@ declare my or our to make the & alias in the current lexpad, then
 "is export" does no more magic than it ordinarily does.  I suppose
 method aliases are always considered multi when they show up in a
 symbol table.
+
+Kh-1: Is it true that Bool::True.name should work?  Should it return
+    the string 'True'?
+    I ask because of http://rt.perl.org/rt3/Public/Bug/Display.html?id=66576
+
+Yes, because Bool is an object type, so it knows its .name.  (A native
+bool would not know its name, according to S12:1649.)
+
+Jw-1: What is the difference between :(\$x) and :($x is ref)? Both
+would need to leave the original argument untouched. Since C<is ref>
+is meant to be used for e.g. map, which needs to work on lists like
+(1,2,3), it can't cut constants out, so it seems no more constraining
+than :(\$x) too. Should one of them go away?
+
+No difference that I can see offhand.  I'm inclined to make 'is ref' go away
+and keep the backslashed form.
+
+Pm-11: S11:257 says "Without an import list, C<import> imports
+    the C<:DEFAULT> imports."  How does one import one of the
+    other tagsets?  (I think I'm missing something obvious here.)
+
+I believe the idea is simply to use the tagset pair directly as an argument.
+And since lexical importation is assumed, there's an implicit :MY() around it.
+So 'use Foo :tag' is probably short for 'use Foo :MY(:tag)'.
