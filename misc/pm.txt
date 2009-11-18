@@ -4,9 +4,6 @@ and/or others.  We'll likely record the answers here as well.
 
 Unanswered questions:
 
-Ml-1: In my $x; say($x~'a'), what's the output? "a\n" or "Object()\n"?
-      If it's "a\n", what kind of undef is stored in $x?
-
 ==========
 
 Answered questions:
@@ -129,3 +126,31 @@ Pm-11: S11:257 says "Without an import list, C<import> imports
 I believe the idea is simply to use the tagset pair directly as an argument.
 And since lexical importation is assumed, there's an implicit :MY() around it.
 So 'use Foo :tag' is probably short for 'use Foo :MY(:tag)'.
+
+Ml-1: In my $x; say($x~'a'), what's the output? "a\n" or "Object()\n"?
+      If it's "a\n", what kind of undef is stored in $x?
+
+Here is perhaps a decent compromise, based on the recent Num vs
+Numeric distinction.  If we assume a similar Str vs Stringy difference
+and give the ~ operators Stringy semantics, we could distinguish basic
+stringification from the more abstract ~ like so:
+
+    my $a;  		# always stores Object()
+
+    say $a.perl 	# produces 'Object'
+
+    say $a.Str 		# stringifies to 'Object()'
+    say $a 		# uses .Str internaly, so also stringifies to 'Object()'
+
+    say $a.Stringy	# says '' with warning
+    say ~$a		# says '' with warning
+    say $a ~ 'tion'	# says 'tion' with warning
+
+As with type objects, junctions also need different abstraction levels,
+so we could say that
+
+    any(1,2,3).Str	# 'any(1,2,3)'
+    ~any(1,2,3)		# any('1','2','3')
+
+Note that most methods would still autothread on junctions by virtue of
+not being defined in the junction class.
