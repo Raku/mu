@@ -274,7 +274,7 @@ sub main {
     
     if (($B // $C // '') eq 'js') {
         $empty_setting = 1;
-        $target_stage = 1;
+        $target_stage = 1 unless $target_stage;
     }
     @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
     @MILDEW_LDOPTS = ( '-L../re-smop/build/lib',
@@ -343,7 +343,7 @@ sub main {
         $ctx->execute(get_js_runtime."\n1;");
         $ctx->execute(slurp("js/molds.js").";onmoldload()\n1;");
     
-        for my $file (qw(js/CORE2.js js/RoleHOW.js js/Exception.js js/Failure.js)) {
+        for my $file (qw(js/CORE2.js js/RoleHOW.js js/Exception.js js/Failure.js js/Signature.js js/Multi.js js/Types.js)) {
             $ctx->execute("
                 var interpreter = new P6Interpreter();
                 var frame = new P6Frame(".slurp($file).");

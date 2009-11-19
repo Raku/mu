@@ -177,6 +177,10 @@ P6LexPad.prototype['new'] = function(interpreter,capture) {
 P6LexPad.prototype.outer = function(interpreter,capture) {
     setr(interpreter,this._outer);
 }
+P6LexPad.prototype.exists = function(interpreter,capture) {
+    var key = capture._positional[1].value;
+    setr(interpreter,boolify(this.entries.hasOwnProperty(key)));
+}
 
 
 function P6BValue(lexpad,key) {
@@ -217,25 +221,37 @@ var P6Interpreter = define_typex('Interpreter',{
 });
 
 
-var P6Code = define_typex('Code',{
-    'new': function(interpreter,capture) {
-    var code = new P6Code();
-    code._mold = capture._named.mold;
-    code._outer = capture._named.outer;
-    code._signature = capture._named.signature;
-    setr(interpreter,code);
-    },
-    'postcircumfix:( )': function(interpreter,capture) {
-        var frame = new P6Frame(code_mold);
-        set_reg(frame,0,interpreter);
-        set_reg(frame,1,capture);
-        set_reg(frame,2,interpreter._continuation);
-        set_reg(frame,3,capture._positional[0]);
-        set_reg(frame,4,this._outer);
-        set_reg(frame,5,this._signature);
-        set_reg(frame,6,this._mold);
-        interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
-    },
+var P6Code = define_type({
+    name: 'Code',
+    methods: {
+        'new': function(interpreter,capture) {
+            var code = new P6Code();
+            code._mold = capture._named.mold;
+            code._outer = capture._named.outer;
+            code._signature = capture._named.signature;
+            setr(interpreter,code);
+        },
+        'postcircumfix:( )': function(interpreter,capture) {
+            var frame = new P6Frame(code_mold);
+            set_reg(frame,0,interpreter);
+            set_reg(frame,1,capture);
+            set_reg(frame,2,interpreter._continuation);
+            set_reg(frame,3,capture._positional[0]);
+            set_reg(frame,4,this._outer);
+            set_reg(frame,5,this._signature);
+            set_reg(frame,6,this._mold);
+            interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
+        },
+        'signature': function(interpreter,capture) {
+            setr(interpreter,this._signature);
+        },
+        'outer': function(interpreter,capture) {
+            setr(interpreter,this._outer);
+        },
+        'mold': function(interpreter,capture) {
+            setr(interpreter,this._mold);
+        }
+    }
 });
 
 
@@ -433,6 +449,7 @@ var P6Package = define_typex('Package',{
 var P6opaque = define_typex('p6opaque',{
     '^!CREATE': function(interpreter,capture) {
         var obj = new P6opaque;
+        obj._is_container = new P6Scalar;
         obj._how = new P6Scalar;
         obj._who = new P6Scalar;
         obj._methods = new P6Hash;
@@ -466,6 +483,9 @@ var P6opaque = define_typex('p6opaque',{
     },
     '^!does': function(interpreter,capture) {
         setr(interpreter,this._does);
+    },
+    '^!is_container': function(interpreter,capture) {
+        setr(interpreter,this._is_container);
     }
 });
 P6opaque.prototype.DISPATCH = function (interpreter,identifier,capture) {
@@ -495,7 +515,10 @@ var P6PrototypeHOW = define_typex('PrototypeHOW',{
         interpreter.DISPATCH(interpreter,new P6Str('goto'),new P6capture([interpreter,frame],[]));
     },
     'lookup_fail': function(interpreter,capture) {
-        throw "lookup_fail:"+capture._positional[2].value;
+        var methods = [];
+        for (i in capture._positional[1]._methods._content) methods.push(i);
+
+        throw "Could not find method "+capture._positional[2].value+" in "+capture._positional[1]._who.container._name.container.value+". Available methods: "+methods.join(',');
     }
     
 });

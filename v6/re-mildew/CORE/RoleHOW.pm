@@ -47,6 +47,10 @@ knowhow RoleHOW {
             } else {
                 my $class = ::p6opaque.^!CREATE;
                 $class.^!how = ::PrototypeHOW;
+
+                #XXX is it right?
+                $class.^!who = $object.^!who;
+
                 $class.^!does.push((|$object));
     #            $class.^compose_role(::LowObject);
     #            $class.^compose_role($object);
@@ -64,6 +68,7 @@ role LowObject {
     method new() {
         my $obj = ::p6opaque.^!CREATE;
         $obj.^!how = self.^!how;
+        $obj.^!who = self.^!who;
         copy_methods($obj,self);
         copy_does($obj,self);
         if $obj.^!methods{'BUILDALL'} {
