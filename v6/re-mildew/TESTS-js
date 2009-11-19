@@ -43,3 +43,5 @@ t/throw_inside_catch.t
 t/role.t
 t/fail.t
 t/dollar_bang.t
+t/signature.t
+t/signature-named.t

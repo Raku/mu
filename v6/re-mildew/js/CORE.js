@@ -94,13 +94,18 @@ function P6capture(positional,named) {
 }
 init_type('capture',P6capture);
 P6capture.prototype['new'] = function(interpreter,capture) {
-    setr(interpreter,new P6capture(capture._positional.slice(1),capture._named));
+    var c = new P6capture(capture._positional.slice(1),[]);
+    c._named = capture._named;
+    setr(interpreter,c);
 }
 P6capture.prototype['delegate'] = function(interpreter,capture) {
     var pos = [];
     pos[0] = capture._positional[1];
     for (var i=1;i<this._positional.length;i++) pos[i] = capture._positional[i];
-    setr(interpreter,new P6capture(pos,this._named));
+
+    var c = new P6capture(pos,[]);
+    c._named = this._named;
+    setr(interpreter,c);
 }
 P6capture.prototype['positional'] = function(interpreter,capture) {
     setr(interpreter,this._positional[capture._positional[1].value]);
@@ -490,8 +495,8 @@ var P6opaque = define_typex('p6opaque',{
 });
 P6opaque.prototype.DISPATCH = function (interpreter,identifier,capture) {
     var how = this._how.container;
-    if (this[identifier.value]) this[identifier.value](interpreter,capture);
-    else how.DISPATCH(interpreter,new P6Str("dispatch"),new P6capture([how,capture._positional[0],identifier,capture],[]));
+    if (!this[identifier.value] || (identifier.value == 'FETCH' && this._is_container.container != SMOP__NATIVE__bool_false)) how.DISPATCH(interpreter,new P6Str("dispatch"),new P6capture([how,capture._positional[0],identifier,capture],[]));
+    else this[identifier.value](interpreter,capture);
 }
 
 var P6PrototypeHOW = define_typex('PrototypeHOW',{

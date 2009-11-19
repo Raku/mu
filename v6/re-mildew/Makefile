@@ -24,10 +24,10 @@ CORE/%.mildew.so : CORE/%.pm
 js/molds.js : js/molds
 	perl write_molds js/molds > js/molds.js
 js/%.js : js/%.pm
-	perl mildew -Cjs -o $@ $<
+	perl mildew --target-stage 1 -Cjs -o $@ $<
 
 js/%.js : CORE/%.pm
-	perl mildew -Cjs -o $@ $<
+	perl mildew --target-stage 1 -Cjs -o $@ $<
 
 lib/%.mildew.so : lib/%.pm
 	perl mildew -Cso --empty-setting -o $@ $<

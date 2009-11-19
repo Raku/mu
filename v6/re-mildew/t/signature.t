@@ -28,6 +28,7 @@ say "1..6";
 {
     my $code = sub ($readonly) {
         $readonly = 1;
+        say "not ok 4 # can assign to a readonly var";
     }
     CATCH {
         say "ok 4 # can't assign to a readonly var";

@@ -274,7 +274,7 @@ sub main {
     
     if (($B // $C // '') eq 'js') {
         $empty_setting = 1;
-        $target_stage = 1 unless $target_stage;
+        #$target_stage = 1 unless $target_stage;
     }
     @SMOP_INCLUDE = map {"-I".$_} glob("../re-smop/*/include");
     @MILDEW_LDOPTS = ( '-L../re-smop/build/lib',
