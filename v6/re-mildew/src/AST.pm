@@ -1,5 +1,4 @@
 use Scalar::Util 'blessed';
-use MooseX::Declare;
 use utf8;
 {
 package AST;
