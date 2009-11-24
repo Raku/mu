@@ -101,7 +101,7 @@ P6capture.prototype['new'] = function(interpreter,capture) {
 P6capture.prototype['delegate'] = function(interpreter,capture) {
     var pos = [];
     pos[0] = capture._positional[1];
-    for (var i=1;i<this._positional.length;i++) pos[i] = capture._positional[i];
+    for (var i=1;i<this._positional.length;i++) pos[i] = this._positional[i];
 
     var c = new P6capture(pos,[]);
     c._named = this._named;
@@ -116,6 +116,11 @@ P6capture.prototype['named'] = function(interpreter,capture) {
 }
 P6capture.prototype['elems'] = function(interpreter,capture) {
     setr(interpreter,new P6Int(this._positional.length));
+}
+P6capture.prototype['named_count'] = function(interpreter,capture) {
+    var count = 0;
+    for (i in this._named) count++;
+    setr(interpreter,new P6Int(count));
 }
 P6capture.prototype['FETCH'] = function(interpreter,capture) {
     if (this._positional.length == 1) {
@@ -392,6 +397,7 @@ var P6Array = define_typex('Array',{
     },
     push: function(interpreter,capture) {
         this._content.push(capture._positional[1]);
+        setr(interpreter,SMOP__NATIVE__bool_false);
     },
     unshift: function(interpreter,capture) {
         this._content.unshift(capture._positional[1]);
@@ -447,6 +453,7 @@ var P6Package = define_typex('Package',{
     },
     'postcircumfix:{ }': function(interpreter,capture) {
         var key = capture._positional[1].value;
+//        print('looking up '+key+'\n');
         setr(interpreter,new P6ContainerProxy(this,key));
     },
 });
@@ -671,8 +678,14 @@ primitive('&concat',function(interpreter,capture) {
 primitive('&eq',function(interpreter,capture) {
     setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));
 });
-primitive('&pointer_eq',function(interpreter,capture) {
-    setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));
+primitive('&pointer_equal',function(interpreter,capture) {
+    setr(interpreter,boolify(capture._positional[0] == capture._positional[1]));
+});
+primitive('&SMOP_RI',function(interpreter,capture) {
+    setr(interpreter,new P6Str(capture._positional[0].ID));
+});
+primitive('&ritest',function(interpreter,capture) {
+    setr(interpreter,boolify(capture._positional[0].ID == capture._positional[1].value));
 });
 primitive('&idconst_eq',function(interpreter,capture) {
     setr(interpreter,boolify(capture._positional[0].value == capture._positional[1].value));

@@ -23,9 +23,6 @@ $LexicalPrelude{'&infix:ne'} := sub ($a,$b) {
 $LexicalPrelude{'&infix:eq'} := sub ($a,$b) {
     PRIMITIVES::eq($a.Str,$b.Str);
 }
-$LexicalPrelude{'&infix:=='} := sub ($a,$b) {
-    PRIMITIVES::eq($a.FETCH,$b.FETCH);
-}
 $LexicalPrelude{'&infix:==:(int,int)'} := sub ($a,$b) {
     PRIMITIVES::eq($a.FETCH,$b.FETCH);
 }
@@ -39,13 +36,6 @@ $LexicalPrelude{'&infix:<:(int,int)'} := sub ($a,$b) {
 
 $LexicalPrelude{'&infix:-:(int,int)'} := sub ($a,$b) {
     PRIMITIVES::int_substract($a.FETCH,$b.FETCH);
-}
-$LexicalPrelude{'&infix:!='} := sub ($a,$b) {
-    if PRIMITIVES::eq($a.FETCH,$b.FETCH) {
-        ::False;
-    } else {
-        ::True;
-    }
 }
 
 my sub return(|$capture) {

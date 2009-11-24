@@ -99,7 +99,7 @@ $LexicalPrelude{'&postfix:++'} := sub ($a) {
 $LexicalPrelude{'ModuleLoader'} = ::MildewSOLoader.new.load('ModuleLoader.mildew.so',$LexicalPrelude.FETCH).lookup('ModuleLoader');
 
 my $multi_scope = ::MildewSOLoader.new.load('Multi.mildew.so',$LexicalPrelude.FETCH);
-$LexicalPrelude{'Multi'} = $multi_scope.lookup('Multi');
+#$LexicalPrelude{'Multi'} = $multi_scope.lookup('Multi');
 
 sub not($thing) {
     if $thing {

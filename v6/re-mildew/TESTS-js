@@ -1,7 +1,6 @@
 t/knowhow_attributes.t
 ../../t/01-sanity/01-tap.t
 ../../t/01-sanity/02-counter.t
-../../t/01-sanity/03-equal.t
 ../../t/01-sanity/04-if.t
 ../../t/01-sanity/05-sub.t
 t/sub.t
@@ -45,3 +44,4 @@ t/fail.t
 t/dollar_bang.t
 t/signature.t
 t/signature-named.t
+t/multi.t
