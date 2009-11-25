@@ -7,7 +7,7 @@ plan 25;
 BEGIN { @*INC.unshift('t/packages'); }
 
 sub bar {
-  is(Pugs::Internals::current_pragma_value('pragma::Demo'), undef, "Scope is lexical, not dynamic");
+  ok(Pugs::Internals::current_pragma_value('pragma::Demo').notdef, "Scope is lexical, not dynamic");
 }
 
 
@@ -38,7 +38,7 @@ bar();
   bar();
 }
 is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is restored", :todo<feature>);
-is(Pugs::Internals::current_pragma_value('SNONK'), undef, "Absent pragma is undef");
+ok(Pugs::Internals::current_pragma_value('SNONK').notdef, "Absent pragma is not defined");
 bar();
 
 sub foo {

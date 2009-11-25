@@ -11,9 +11,9 @@ if $?PUGS_BACKEND eq "BACKEND_JAVASCRIPT" {
 
 ok(eval(q{#eval("- *a\n a: b\n- *a\n b: c\n",:lang<yaml>)}),'yaml parsing can kill pugs all the way dead');
 
-ok(undef, "Bug workaround for release.", :todo<bug>);
+ok(Mu, "Bug workaround for release.", :todo<bug>);
 # Bug workaround: the order of the next two tests determines
 # whether the second one ('test') fails under smoke.
 is( eval('test', :lang<yaml>), 'test', '"test" roundtrips' );
-ok( !defined(eval(undef, :lang<yaml>)), '"undef" roundtrips' );
+ok( !defined(eval(Mu, :lang<yaml>)), '"Mu" roundtrips' );
 

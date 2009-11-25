@@ -43,6 +43,6 @@ Test::is(eval('$B::GLOBAL'), "A global", "fully qualified name, my own package")
 
 eval '$B::UN_OURED = 1';
 
-Test::is(eval('$B::UN_OURED'), undef, "can't refer to global outside scope when not qualified", :todo<feature>);
+Test::ok(eval('$B::UN_OURED').notdef, "can't refer to global outside scope when not qualified", :todo<feature>);
 
 }
