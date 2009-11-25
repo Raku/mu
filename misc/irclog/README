@@ -1,5 +1,2 @@
-The documentation can be found at
-http://moritz.faui2k3.org/en/ilbot
-
-However it is very incomplete, in case you really want to use it, ask moritz_
-on #perl6
+The sources of the bot and web frontend have been moved to
+http://github.com/moritz/ilbot/
