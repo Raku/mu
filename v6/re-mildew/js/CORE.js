@@ -292,6 +292,9 @@ builtin('&print',FETCH_all(function(interpreter,capture) {
     print(str);
     setr(interpreter,SMOP__NATIVE__bool_true);
 }));
+builtin('&not',FETCH_all(function(interpreter,capture) {
+    setr(interpreter,boolify(capture._positional[0] == SMOP__NATIVE__bool_false));
+}));
 
 function define_typex(name,methods) {
     return define_type({name:name,methods:methods,nonew:1});
